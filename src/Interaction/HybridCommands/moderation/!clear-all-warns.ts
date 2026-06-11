@@ -19,36 +19,46 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	Client,
-	ChatInputCommandInteraction,
-	Message,
-} from 'discord.js';
+import { Client, ChatInputCommandInteraction, Message } from "discord.js";
 
-import { LanguageData } from '../../../../types/languageData.js';
+import { LanguageData } from "../../../../types/languageData.js";
 
-import { DatabaseStructure } from '../../../../types/database_structure.js';
-import { SubCommand } from '../../../../types/command.js';
-import promptYesOrNo from '../../../core/functions/awaitingResponse.js';
+import { DatabaseStructure } from "../../../../types/database_structure.js";
+import { SubCommand } from "../../../../types/command.js";
+import promptYesOrNo from "../../../core/functions/awaitingResponse.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;;
+		if (
+			!client.user ||
+			!interaction.member ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
-		const DbData = await client.db.get(`${interaction.guild?.id}.USER`) as DatabaseStructure.DbGuildUserObject[];
+		const DbData = (await client.db.get(
+			`${interaction.guild?.id}.USER`
+		)) as DatabaseStructure.DbGuildUserObject[];
 
 		const response = await promptYesOrNo(interaction, {
 			content: lang.clear_allwarns_confirmation_message,
 			noButton: lang.resetallinvites_no_button,
 			yesButton: lang.resetallinvites_yes_button,
 			dangerAction: true
-		})
+		});
 
 		if (response) {
 			for (const entries in DbData) {
-				await client.db.delete(`${interaction.guild?.id}.USER.${entries}.WARNS`)
+				await client.db.delete(
+					`${interaction.guild?.id}.USER.${entries}.WARNS`
+				);
 			}
 
 			await client.func.method.interactionSend(interaction, {
@@ -61,5 +71,5 @@ export const subCommand: SubCommand = {
 			});
 		}
 		return;
-	},
+	}
 };

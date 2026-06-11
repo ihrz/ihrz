@@ -23,77 +23,131 @@ import {
 	ChatInputCommandInteraction,
 	Client,
 	Message,
-	PermissionsBitField,
-} from 'discord.js';
+	PermissionsBitField
+} from "discord.js";
 
-import { LanguageData } from '../../../../types/languageData.js';
+import { LanguageData } from "../../../../types/languageData.js";
 
-import promptYesOrNo from '../../../core/functions/awaitingResponse.js';
-import { SubCommand } from '../../../../types/command.js';
-import { metasTable } from '../../../Events/client/ready.js';
+import promptYesOrNo from "../../../core/functions/awaitingResponse.js";
+import { SubCommand } from "../../../../types/command.js";
+import { metasTable } from "../../../Events/client/ready.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
+		if (
+			!interaction.member ||
+			!client.user ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
 		if (interaction instanceof ChatInputCommandInteraction) {
-			var backupID = interaction.options.getString('backup-id')!;
+			var backupID = interaction.options.getString("backup-id")!;
 		} else {
 			var backupID = client.func.method.string(args!, 0)!;
-		};
+		}
 
-		const state = await client.db.get(`${interaction.guildId}.GUILD.BACKUP.onlyOwner`);
-		if ((state && interaction.guild.ownerId !== interaction.member.user.id) || ((state === undefined || state === null)) && interaction.guild.ownerId !== interaction.member.user.id) {
+		const state = await client.db.get(
+			`${interaction.guildId}.GUILD.BACKUP.onlyOwner`
+		);
+		if (
+			(state &&
+				interaction.guild.ownerId !== interaction.member.user.id) ||
+			((state === undefined || state === null) &&
+				interaction.guild.ownerId !== interaction.member.user.id)
+		) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.backup_manage_nique_tes_mort
-			})
+			});
 			return;
 		}
 
-		if (!interaction.guild.members.me?.permissions.has(PermissionsBitField.Flags.Administrator)) {
-			await client.func.method.interactionSend(interaction, { content: lang.backup_i_dont_have_perm_on_load });
-			return;
-		};
-
-		if (!backupID) {
-			await client.func.method.interactionSend(interaction, { content: lang.backup_unvalid_id_on_load });
-			return;
-		};
-
-		if (backupID && !await metasTable.get(`BACKUPS.${interaction.member.user.id}.${backupID}`)) {
+		if (
+			!interaction.guild.members.me?.permissions.has(
+				PermissionsBitField.Flags.Administrator
+			)
+		) {
 			await client.func.method.interactionSend(interaction, {
-				content: lang.backup_this_is_not_your_backup.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No)
+				content: lang.backup_i_dont_have_perm_on_load
 			});
 			return;
-		};
+		}
+
+		if (!backupID) {
+			await client.func.method.interactionSend(interaction, {
+				content: lang.backup_unvalid_id_on_load
+			});
+			return;
+		}
+
+		if (
+			backupID &&
+			!(await metasTable.get(
+				`BACKUPS.${interaction.member.user.id}.${backupID}`
+			))
+		) {
+			await client.func.method.interactionSend(interaction, {
+				content: lang.backup_this_is_not_your_backup.replace(
+					"${client.iHorizon_Emojis.No}",
+					client.iHorizon_Emojis.No
+				)
+			});
+			return;
+		}
 
 		const confirm = await promptYesOrNo(interaction, {
-			content: lang.backup_load_confirm.replace("${interaction.member.user.toString()}", interaction.member.user.toString()),
+			content: lang.backup_load_confirm.replace(
+				"${interaction.member.user.toString()}",
+				interaction.member.user.toString()
+			),
 			yesButton: lang.var_confirm,
 			noButton: lang.embed_btn_cancel,
 			dangerAction: true
-		})
-
-		if (!confirm) return await client.func.method.interactionSend(interaction, {
-			content: lang.backup_not_load,
-			components: []
 		});
+
+		if (!confirm)
+			return await client.func.method.interactionSend(interaction, {
+				content: lang.backup_not_load,
+				components: []
+			});
 
 		await client.func.method.channelSend(interaction, {
-			content: lang.backup_waiting_on_load.replace("${client.iHorizon_Emojis.Yes}", client.iHorizon_Emojis.Yes),
+			content: lang.backup_waiting_on_load.replace(
+				"${client.iHorizon_Emojis.Yes}",
+				client.iHorizon_Emojis.Yes
+			),
 			components: []
 		});
 
-		client.backup.fetchBackup(backupID).then(async () => {
-			client.backup.load(backupID, interaction.guild!).then(() => false).catch((err) => {
-				client.func.method.channelSend(interaction, { content: lang.backup_error_on_load.replace("${backupID}", backupID) });
+		client.backup
+			.fetchBackup(backupID)
+			.then(async () => {
+				client.backup
+					.load(backupID, interaction.guild!)
+					.then(() => false)
+					.catch((err) => {
+						client.func.method.channelSend(interaction, {
+							content: lang.backup_error_on_load.replace(
+								"${backupID}",
+								backupID
+							)
+						});
+						return;
+					});
+			})
+			.catch((err) => {
+				console.error(err);
+				client.func.method.channelSend(interaction, {
+					content: client.iHorizon_Emojis.No
+				});
 				return;
 			});
-		}).catch((err) => {
-			client.func.method.channelSend(interaction, { content: client.iHorizon_Emojis.No });
-			return;
-		});
-	},
+	}
 };

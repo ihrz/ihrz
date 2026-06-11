@@ -19,15 +19,12 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import * as fs from 'node:fs';
-import * as path from 'path';
-import logger from '../src/core/logger.ts';
+import * as fs from "node:fs";
+import * as path from "path";
+import logger from "../src/core/logger.ts";
 
 // Array of paths to search recursively
-const SEARCH_PATHS: string[] = [
-	'./src',
-	'./types',
-];
+const SEARCH_PATHS: string[] = ["./src", "./types"];
 
 interface FileStats {
 	filePath: string;
@@ -55,7 +52,10 @@ function getTypeScriptFiles(dirPath: string): string[] {
 		if (stat.isDirectory()) {
 			// Recursively search subdirectories
 			files.push(...getTypeScriptFiles(fullPath));
-		} else if (stat.isFile() && (item.endsWith('.ts') || item.endsWith('.d.ts'))) {
+		} else if (
+			stat.isFile() &&
+			(item.endsWith(".ts") || item.endsWith(".d.ts"))
+		) {
 			files.push(fullPath);
 		}
 	}
@@ -68,8 +68,8 @@ function getTypeScriptFiles(dirPath: string): string[] {
  */
 function countLines(filePath: string): number {
 	try {
-		const content = fs.readFileSync(filePath, 'utf-8');
-		const lines = content.split('\n');
+		const content = fs.readFileSync(filePath, "utf-8");
+		const lines = content.split("\n");
 		return lines.length;
 	} catch (error) {
 		console.error(`Error reading file ${filePath}: ${error}`);
@@ -82,7 +82,7 @@ function countLines(filePath: string): number {
  */
 function isFileEmpty(filePath: string): boolean {
 	try {
-		const content = fs.readFileSync(filePath, 'utf-8');
+		const content = fs.readFileSync(filePath, "utf-8");
 		return content.trim().length === 0;
 	} catch (error) {
 		console.error(`Error checking file ${filePath}: ${error}`);
@@ -97,14 +97,14 @@ function formatFilePath(filePath: string, maxLength: number = 60): string {
 	if (filePath.length <= maxLength) {
 		return filePath.padEnd(maxLength);
 	}
-	return '...' + filePath.slice(-(maxLength - 3));
+	return "..." + filePath.slice(-(maxLength - 3));
 }
 
 /**
  * Main function
  */
 function main(): void {
-	logger.legacy('📊 Starting line count analysis...\n');
+	logger.legacy("📊 Starting line count analysis...\n");
 
 	const allFiles: string[] = [];
 	const fileStats: FileStats[] = [];
@@ -113,11 +113,13 @@ function main(): void {
 	for (const searchPath of SEARCH_PATHS) {
 		const files = getTypeScriptFiles(searchPath);
 		allFiles.push(...files);
-		logger.legacy(`📁 Found ${files.length} TypeScript files in '${searchPath}'`);
+		logger.legacy(
+			`📁 Found ${files.length} TypeScript files in '${searchPath}'`
+		);
 	}
 
 	if (allFiles.length === 0) {
-		logger.legacy('⚠️  No TypeScript files found in specified paths');
+		logger.legacy("⚠️  No TypeScript files found in specified paths");
 		return;
 	}
 
@@ -138,30 +140,42 @@ function main(): void {
 	// Sort files by line count (descending)
 	fileStats.sort((a, b) => b.lineCount - a.lineCount);
 
-	logger.legacy('📈 Line count results:\n');
-	logger.legacy('File'.padEnd(65) + 'Lines'.padStart(8) + '  Status');
-	logger.legacy('-'.repeat(80));
+	logger.legacy("📈 Line count results:\n");
+	logger.legacy("File".padEnd(65) + "Lines".padStart(8) + "  Status");
+	logger.legacy("-".repeat(80));
 
 	// Display results
 	for (const stats of fileStats) {
 		const formattedPath = formatFilePath(stats.filePath, 62);
 		const lineCountStr = stats.lineCount.toString().padStart(6);
-		const statusIcon = stats.isEmpty ? '📄' : stats.lineCount > 500 ? '📚' : stats.lineCount > 100 ? '📝' : '📋';
-		const statusText = stats.isEmpty ? 'Empty' : '';
+		const statusIcon = stats.isEmpty
+			? "📄"
+			: stats.lineCount > 500
+				? "📚"
+				: stats.lineCount > 100
+					? "📝"
+					: "📋";
+		const statusText = stats.isEmpty ? "Empty" : "";
 
-		logger.legacy(`${formattedPath} ${lineCountStr}  ${statusIcon} ${statusText}`);
+		logger.legacy(
+			`${formattedPath} ${lineCountStr}  ${statusIcon} ${statusText}`
+		);
 	}
 
 	// Calculate statistics
 	const totalLines = fileStats.reduce((sum, stat) => sum + stat.lineCount, 0);
-	const emptyFiles = fileStats.filter(stat => stat.isEmpty).length;
-	const largeFiles = fileStats.filter(stat => stat.lineCount > 500).length;
-	const mediumFiles = fileStats.filter(stat => stat.lineCount > 100 && stat.lineCount <= 500).length;
-	const smallFiles = fileStats.filter(stat => stat.lineCount <= 100 && !stat.isEmpty).length;
+	const emptyFiles = fileStats.filter((stat) => stat.isEmpty).length;
+	const largeFiles = fileStats.filter((stat) => stat.lineCount > 500).length;
+	const mediumFiles = fileStats.filter(
+		(stat) => stat.lineCount > 100 && stat.lineCount <= 500
+	).length;
+	const smallFiles = fileStats.filter(
+		(stat) => stat.lineCount <= 100 && !stat.isEmpty
+	).length;
 	const averageLines = Math.round(totalLines / fileStats.length);
 
-	logger.legacy('\n' + '='.repeat(80));
-	logger.legacy('📊 Summary Statistics:');
+	logger.legacy("\n" + "=".repeat(80));
+	logger.legacy("📊 Summary Statistics:");
 	logger.legacy(`   📁 Total files: ${fileStats.length}`);
 	logger.legacy(`   📏 Total lines: ${totalLines.toLocaleString()}`);
 	logger.legacy(`   📐 Average lines per file: ${averageLines}`);
@@ -172,23 +186,25 @@ function main(): void {
 
 	// Show top 5 largest files
 	if (fileStats.length > 0) {
-		logger.legacy('\n🏆 Top 5 largest files:');
+		logger.legacy("\n🏆 Top 5 largest files:");
 		const top5 = fileStats.slice(0, Math.min(5, fileStats.length));
 		top5.forEach((stat, index) => {
-			logger.legacy(`   ${index + 1}. ${stat.filePath} (${stat.lineCount} lines)`);
+			logger.legacy(
+				`   ${index + 1}. ${stat.filePath} (${stat.lineCount} lines)`
+			);
 		});
 	}
 
 	// Show empty files if any
-	const emptyFilesList = fileStats.filter(stat => stat.isEmpty);
+	const emptyFilesList = fileStats.filter((stat) => stat.isEmpty);
 	if (emptyFilesList.length > 0) {
-		logger.legacy('\n⚠️  Empty files detected:');
+		logger.legacy("\n⚠️  Empty files detected:");
 		emptyFilesList.forEach((stat, index) => {
 			logger.legacy(`   ${index + 1}. ${stat.filePath}`);
 		});
 	}
 
-	logger.legacy('\n✨ Analysis completed!');
+	logger.legacy("\n✨ Analysis completed!");
 }
 
 main();

@@ -23,59 +23,85 @@ import {
 	ChatInputCommandInteraction,
 	Client,
 	Message,
-	PermissionsBitField,
-} from 'discord.js';
+	PermissionsBitField
+} from "discord.js";
 
-import { LanguageData } from '../../../../types/languageData.js';
-import logger from '../../../core/logger.js';
+import { LanguageData } from "../../../../types/languageData.js";
+import logger from "../../../core/logger.js";
 
-
-import { SubCommand } from '../../../../types/command.js';
+import { SubCommand } from "../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
-
-		if (!interaction.guild.members.me?.permissions.has([PermissionsBitField.Flags.BanMembers])) {
-			await client.func.method.interactionSend(interaction, {
-				content: lang.unban_bot_dont_have_permission.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No)
-			})
+		if (
+			!client.user ||
+			!interaction.member ||
+			!interaction.guild ||
+			!interaction.channel
+		)
 			return;
-		};
+
+		if (
+			!interaction.guild.members.me?.permissions.has([
+				PermissionsBitField.Flags.BanMembers
+			])
+		) {
+			await client.func.method.interactionSend(interaction, {
+				content: lang.unban_bot_dont_have_permission.replace(
+					"${client.iHorizon_Emojis.No}",
+					client.iHorizon_Emojis.No
+				)
+			});
+			return;
+		}
 
 		if (interaction instanceof ChatInputCommandInteraction) {
-			var userID = interaction.options.getString('userid');
-			var reason = interaction.options.getString('reason');
+			var userID = interaction.options.getString("userid");
+			var reason = interaction.options.getString("reason");
 		} else {
-
 			var userID = client.func.method.string(args!, 0);
 			var reason = client.func.method.longString(args!, 1);
-		};
+		}
 
 		if (!reason) reason = lang.unban_reason;
 
-		await interaction.guild.bans.fetch()
+		await interaction.guild.bans
+			.fetch()
 			.then(async (bans) => {
 				if (bans.size == 0) {
 					await client.func.method.interactionSend(interaction, {
-						content: lang.unban_there_is_nobody_banned.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No)
+						content: lang.unban_there_is_nobody_banned.replace(
+							"${client.iHorizon_Emojis.No}",
+							client.iHorizon_Emojis.No
+						)
 					});
 					return;
 				}
-				const bannedID = bans.find(ban => ban.user.id == userID);
+				const bannedID = bans.find((ban) => ban.user.id == userID);
 				if (!bannedID) {
 					await client.func.method.interactionSend(interaction, {
-						content: lang.unban_the_member_is_not_banned.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No)
+						content: lang.unban_the_member_is_not_banned.replace(
+							"${client.iHorizon_Emojis.No}",
+							client.iHorizon_Emojis.No
+						)
 					});
 					return;
-				};
+				}
 
-				await interaction.guild?.bans.remove(userID as string, reason as string).catch(() => { });
+				await interaction.guild?.bans
+					.remove(userID as string, reason as string)
+					.catch(() => {});
 				await client.func.method.interactionSend(interaction, {
-					content: lang.unban_is_now_unbanned
-						.replace(/\${userID}/g, userID as string)
+					content: lang.unban_is_now_unbanned.replace(
+						/\${userID}/g,
+						userID as string
+					)
 				});
 			})
 			.catch((err: string) => logger.err(err));
@@ -84,7 +110,10 @@ export const subCommand: SubCommand = {
 			title: lang.unban_logs_embed_title,
 			description: lang.unban_logs_embed_description
 				.replace(/\${userID}/g, userID as string)
-				.replace(/\${interaction\.user\.id}/g, interaction.member.user.id)
+				.replace(
+					/\${interaction\.user\.id}/g,
+					interaction.member.user.id
+				)
 		});
-	},
+	}
 };

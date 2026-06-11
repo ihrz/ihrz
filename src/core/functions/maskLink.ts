@@ -30,6 +30,6 @@ export default function maskLink(input: string): string {
 
 	for (const content of blacklistContent) {
 		if (input.includes(content)) return `Hidden Link`;
-	};
+	}
 	return input;
-};
+}

@@ -25,17 +25,17 @@ import {
 	ChatInputCommandInteraction,
 	Client,
 	Message
-} from 'discord.js';
+} from "discord.js";
 
 import { Option } from "./option.js";
-import type { LanguageData } from './languageData.js';
+import type { LanguageData } from "./languageData.js";
 
 export interface NameLocalizations {
-	"fr": string;
+	fr: string;
 }
 
 export interface DescriptionLocalizations {
-	"fr": string;
+	fr: string;
 }
 
 export interface Command {
@@ -44,24 +44,37 @@ export interface Command {
 	description: string;
 	name_localizations?: NameLocalizations;
 	description_localizations: DescriptionLocalizations;
-	integration_types?: number[],
-	contexts?: number[],
+	integration_types?: number[];
+	contexts?: number[];
 	permission: bigint | 0 | null | bigint[];
 	category: string;
 	options?: Option[];
 	thinking: boolean;
 	ephemeral?: boolean;
 	channel_types?: number[];
-	type: ApplicationCommandType | 'PREFIX_IHORIZON_COMMAND';
+	type: ApplicationCommandType | "PREFIX_IHORIZON_COMMAND";
 	aliases?: string[];
-	autocomplete?(client: Client, interaction: AutocompleteInteraction): Promise<any>;
-	run?(client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]): Promise<any>;
+	autocomplete?(
+		client: Client,
+		interaction: AutocompleteInteraction
+	): Promise<any>;
+	run?(
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	): Promise<any>;
 }
 
 export interface SubCommand {
-	run(client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]): Promise<any>;
+	run(
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	): Promise<any>;
 }
 
 export interface SubCommandModule {
-	subCommand: SubCommand
+	subCommand: SubCommand;
 }

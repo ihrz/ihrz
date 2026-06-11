@@ -19,23 +19,29 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	ChatInputCommandInteraction,
-	Client
-} from 'discord.js';
-import { LanguageData } from '../../../../types/languageData.js';
+import { ChatInputCommandInteraction, Client } from "discord.js";
+import { LanguageData } from "../../../../types/languageData.js";
 
-
-import { SubCommand } from '../../../../types/command.js';
+import { SubCommand } from "../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {
-
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached">,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+		if (
+			!interaction.member ||
+			!client.user ||
+			!interaction.user ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
-		const positionType = interaction.options.getString('position_type');
+		const positionType = interaction.options.getString("position_type");
 
 		await interaction.editReply({
 			content: `${client.iHorizon_Emojis.Yes} | ${positionType === "top" ? "⬆" : "⬇"}`
@@ -43,9 +49,9 @@ export const subCommand: SubCommand = {
 
 		await client.db.set(
 			`${interaction.guildId}.VOICE_INTERFACE.voice_channel_position`,
-			positionType,
+			positionType
 		);
 
 		return;
-	},
+	}
 };

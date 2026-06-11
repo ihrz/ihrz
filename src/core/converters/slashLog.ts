@@ -49,7 +49,8 @@ class DiscordSlashLogParser {
 	 */
 	private parseLine(line: string): ParsedSavedCommand | null {
 		// Regex pattern to match Discord log format with flexibility
-		const logPattern = /^\[([^\]]+)\]\s+"([^"]+)"\s+#([^:]+):\s*([^:]+):\s*(.+)$/;
+		const logPattern =
+			/^\[([^\]]+)\]\s+"([^"]+)"\s+#([^:]+):\s*([^:]+):\s*(.+)$/;
 		const match = line.trim().match(logPattern);
 
 		if (!match) {
@@ -57,7 +58,14 @@ class DiscordSlashLogParser {
 			return null;
 		}
 
-		const [, timestampStr, guildName, channelName, executorUsername, command] = match;
+		const [
+			,
+			timestampStr,
+			guildName,
+			channelName,
+			executorUsername,
+			command
+		] = match;
 
 		// Convert timestamp to Unix timestamp
 		const timestamp = this.parseTimestamp(timestampStr);
@@ -78,14 +86,13 @@ class DiscordSlashLogParser {
 	 * @returns Unix timestamp in milliseconds
 	 */
 	private parseTimestamp(timestampStr: string): number {
-		const [datePart, timePart] = timestampStr.split(' ');
-		const [day, month, year] = datePart.split('/').map(Number);
-		const [hours, minutes, seconds] = timePart.split(':').map(Number);
+		const [datePart, timePart] = timestampStr.split(" ");
+		const [day, month, year] = datePart.split("/").map(Number);
+		const [hours, minutes, seconds] = timePart.split(":").map(Number);
 
 		const date = new Date(year, month - 1, day, hours, minutes, seconds);
 		return date.getTime();
 	}
-
 
 	/**
 	 * Parse complete Discord log text into structured commands
@@ -95,9 +102,10 @@ class DiscordSlashLogParser {
 	 */
 	public parse(logText: string): ParsedSavedCommand[] {
 		// Split into lines and filter empty ones
-		const lines = logText.split('\n')
-			.map(line => line.trim())
-			.filter(line => line.length > 0);
+		const lines = logText
+			.split("\n")
+			.map((line) => line.trim())
+			.filter((line) => line.length > 0);
 
 		logger.log(`Processing ${lines.length} lines`.green); // Debug output
 
@@ -107,7 +115,7 @@ class DiscordSlashLogParser {
 			const line = lines[i];
 
 			// Skip lines that don't start with timestamp bracket
-			if (!line.startsWith('[')) {
+			if (!line.startsWith("[")) {
 				continue;
 			}
 
@@ -116,10 +124,12 @@ class DiscordSlashLogParser {
 			let nextLineIndex = i + 1;
 
 			// If next line doesn't start with [ and isn't empty, it's likely a continuation
-			while (nextLineIndex < lines.length &&
-				!lines[nextLineIndex].startsWith('[') &&
-				lines[nextLineIndex].trim().length > 0) {
-				fullLine += ' ' + lines[nextLineIndex].trim();
+			while (
+				nextLineIndex < lines.length &&
+				!lines[nextLineIndex].startsWith("[") &&
+				lines[nextLineIndex].trim().length > 0
+			) {
+				fullLine += " " + lines[nextLineIndex].trim();
 				nextLineIndex++;
 			}
 
@@ -167,27 +177,32 @@ class DiscordSlashLogParser {
 		const userCounts: { [key: string]: number } = {};
 		const guildCounts: { [key: string]: number } = {};
 
-		commands.forEach(cmd => {
+		commands.forEach((cmd) => {
 			users.add(cmd.executorUsername);
 			guilds.add(cmd.guildName);
 			channels.add(cmd.channelName);
 
 			// Extract command type (first part of command)
-			const commandType = cmd.command.split(' ')[0];
+			const commandType = cmd.command.split(" ")[0];
 			commandTypes[commandType] = (commandTypes[commandType] || 0) + 1;
 
 			// Count user activity
-			userCounts[cmd.executorUsername] = (userCounts[cmd.executorUsername] || 0) + 1;
+			userCounts[cmd.executorUsername] =
+				(userCounts[cmd.executorUsername] || 0) + 1;
 
 			// Count guild activity
 			guildCounts[cmd.guildName] = (guildCounts[cmd.guildName] || 0) + 1;
 		});
 
 		// Find most active user and guild
-		const mostActiveUser = Object.keys(userCounts).reduce((a, b) =>
-			userCounts[a] > userCounts[b] ? a : b, '');
-		const mostActiveGuild = Object.keys(guildCounts).reduce((a, b) =>
-			guildCounts[a] > guildCounts[b] ? a : b, '');
+		const mostActiveUser = Object.keys(userCounts).reduce(
+			(a, b) => (userCounts[a] > userCounts[b] ? a : b),
+			""
+		);
+		const mostActiveGuild = Object.keys(guildCounts).reduce(
+			(a, b) => (guildCounts[a] > guildCounts[b] ? a : b),
+			""
+		);
 
 		return {
 			totalCommands: commands.length,
@@ -201,7 +216,4 @@ class DiscordSlashLogParser {
 	}
 }
 
-export {
-	DiscordSlashLogParser,
-	ParsedSavedCommand
-}
+export { DiscordSlashLogParser, ParsedSavedCommand };

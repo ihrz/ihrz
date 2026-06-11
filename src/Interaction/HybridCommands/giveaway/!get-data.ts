@@ -25,32 +25,44 @@ import {
 	EmbedBuilder,
 	Message,
 	time
-} from 'discord.js';
+} from "discord.js";
 
-import { LanguageData } from '../../../../types/languageData.js';
+import { LanguageData } from "../../../../types/languageData.js";
 
-
-import { SubCommand } from '../../../../types/command.js';
+import { SubCommand } from "../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
+		if (
+			!interaction.member ||
+			!client.user ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
 		if (interaction instanceof ChatInputCommandInteraction) {
 			var giveawayId = interaction.options.getString("giveaway-id")!;
 		} else {
-
 			var giveawayId = client.func.method.string(args!, 0)!;
-		};
+		}
 
-		client.giveawaysManager.getGiveawayData(giveawayId)
-			.then(async giveawayData => {
+		client.giveawaysManager
+			.getGiveawayData(giveawayId)
+			.then(async (giveawayData) => {
 				const embed = new EmbedBuilder()
 					.setAuthor({
 						name: interaction.guild?.name as string,
-						iconURL: interaction.guild?.iconURL({ size: 512, forceStatic: false })!
+						iconURL: interaction.guild?.iconURL({
+							size: 512,
+							forceStatic: false
+						})!
 					})
 					.setColor("#0099ff")
 					.setTitle(lang.gw_getdata_embed_title)
@@ -62,14 +74,18 @@ export const subCommand: SubCommand = {
 						},
 						{
 							name: lang.gw_getdata_embed_fields_amountWinner,
-							value: lang.gw_getdata_embed_fields_value_amountWinner
-								.replace('${giveawayData.winnerCount}', giveawayData.winnerCount),
+							value: lang.gw_getdata_embed_fields_value_amountWinner.replace(
+								"${giveawayData.winnerCount}",
+								giveawayData.winnerCount
+							),
 							inline: true
 						},
 						{
 							name: lang.gw_getdata_embed_fields_prize,
-							value: lang.gw_getdata_embed_fields_value_prize
-								.replace('${giveawayData.prize}', giveawayData.prize),
+							value: lang.gw_getdata_embed_fields_value_prize.replace(
+								"${giveawayData.prize}",
+								giveawayData.prize
+							),
 							inline: true
 						},
 						{
@@ -79,39 +95,51 @@ export const subCommand: SubCommand = {
 						},
 						{
 							name: lang.gw_getdata_embed_fields_isEnded,
-							value: giveawayData.ended ? lang.gw_getdata_yes : lang.gw_getdata_no,
+							value: giveawayData.ended
+								? lang.gw_getdata_yes
+								: lang.gw_getdata_no,
 							inline: true
 						},
 						{
 							name: lang.gw_getdata_embed_fields_isValid,
-							value: giveawayData.isValid ? lang.gw_getdata_yes : lang.gw_getdata_no,
+							value: giveawayData.isValid
+								? lang.gw_getdata_yes
+								: lang.gw_getdata_no,
 							inline: true
 						},
 						{
 							name: lang.gw_getdata_embed_fields_time,
-							value: time(new Date(giveawayData.expireIn), 'd'),
+							value: time(new Date(giveawayData.expireIn), "d"),
 							inline: true
 						},
 						{
 							name: lang.gw_getdata_embed_fields_entriesAmount,
 							value: lang.gw_getdata_embed_fields_value_entriesAmount
-								.replace('${(giveawayData.entries as string[]).length}', (giveawayData.entries as string[]).length.toString())
-								.replace('${giveawayId}', giveawayId)
-						},
-					)
+								.replace(
+									"${(giveawayData.entries as string[]).length}",
+									(
+										giveawayData.entries as string[]
+									).length.toString()
+								)
+								.replace("${giveawayId}", giveawayId)
+						}
+					);
 
 				if (giveawayData.ended) {
-					embed.addFields(
-						{
-							name: lang.gw_getdata_embed_fields_winners,
-							value: `${giveawayData.winners.map((x: string) => `<@${x}>`)}`
-						}
-					)
+					embed.addFields({
+						name: lang.gw_getdata_embed_fields_winners,
+						value: `${giveawayData.winners.map((x: string) => `<@${x}>`)}`
+					});
 				}
-				await client.func.method.interactionSend(interaction, { embeds: [embed] });
-			}).catch(async () => {
-				await client.func.method.interactionSend(interaction, { content: lang.gw_doesnt_exit });
+				await client.func.method.interactionSend(interaction, {
+					embeds: [embed]
+				});
 			})
+			.catch(async () => {
+				await client.func.method.interactionSend(interaction, {
+					content: lang.gw_doesnt_exit
+				});
+			});
 		return;
-	},
+	}
 };

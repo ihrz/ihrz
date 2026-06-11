@@ -26,43 +26,65 @@ import {
 	ComponentType,
 	EmbedBuilder,
 	Message,
-	StringSelectMenuBuilder,
-} from 'discord.js';
-import { LanguageData } from '../../../../types/languageData.js';
-import { DatabaseStructure } from '../../../../types/database_structure.js';
+	StringSelectMenuBuilder
+} from "discord.js";
+import { LanguageData } from "../../../../types/languageData.js";
+import { DatabaseStructure } from "../../../../types/database_structure.js";
 
-import { SubCommand } from '../../../../types/command.js';
+import { SubCommand } from "../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
+		if (
+			!interaction.member ||
+			!client.user ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
-		if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {
+		if (
+			(await client.db.get(`${interaction.guildId}.ECONOMY.disabled`)) ===
+			true
+		) {
 			await client.func.method.interactionSend(interaction, {
-				content: lang.economy_disable_msg
-					.replace('${interaction.user.id}', interaction.member.user.id)
+				content: lang.economy_disable_msg.replace(
+					"${interaction.user.id}",
+					interaction.member.user.id
+				)
 			});
 			return;
-		};
+		}
 
-		const economy = await client.db.get(`${interaction.guildId}.ECONOMY`) as DatabaseStructure.EconomyModel;
-		const buyableRolesArray = Object.entries(economy?.buyableRoles || {}).map(([roleId, details]) => ({
+		const economy = (await client.db.get(
+			`${interaction.guildId}.ECONOMY`
+		)) as DatabaseStructure.EconomyModel;
+		const buyableRolesArray = Object.entries(
+			economy?.buyableRoles || {}
+		).map(([roleId, details]) => ({
 			roleId,
 			...details
 		}));
-		const baseData = (await client.db.get(`${interaction.guildId}.USER.${interaction.member.id}.ECONOMY`) || {
+		const baseData = ((await client.db.get(
+			`${interaction.guildId}.USER.${interaction.member.id}.ECONOMY`
+		)) || {
 			money: 0,
 			bank: 0,
 			ownedRoles: []
 		}) as DatabaseStructure.EconomyUserSchema;
-		const possibleBoost = await client.func.economyHelper.getMemberBoost(interaction.member!);
+		const possibleBoost = await client.func.economyHelper.getMemberBoost(
+			interaction.member!
+		);
 
 		baseData.money = baseData.money || 0;
 		baseData.bank = baseData.bank || 0;
 		baseData.ownedRoles = baseData.ownedRoles || [];
-
 
 		if (buyableRolesArray.length === 0) {
 			await client.func.method.interactionSend(interaction, {
@@ -71,26 +93,47 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
-		const buyableRoles = buyableRolesArray // buyableRolesArray.filter((role) => !baseData.ownedRoles?.includes(role.roleId));
+		const buyableRoles = buyableRolesArray; // buyableRolesArray.filter((role) => !baseData.ownedRoles?.includes(role.roleId));
 
 		const embed = new EmbedBuilder()
-			.setTitle(lang.economy_shop_embed_title
-				.replace("${interaction.guild.name}", interaction.guild.name)
+			.setTitle(
+				lang.economy_shop_embed_title.replace(
+					"${interaction.guild.name}",
+					interaction.guild.name
+				)
 			)
 			.setColor("#45f712")
 			.setDescription(lang.economy_shop_embed_desc)
-			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!))
-			.setFields(
-				{ name: lang.balance_embed_fields1_name, value: `${baseData.bank || 0}${client.iHorizon_Emojis.Coin}`, inline: true },
-				{ name: lang.balance_embed_fields2_name, value: `${baseData.money || 0}${client.iHorizon_Emojis.Coin}`, inline: true },
-				{ name: lang.var_boost, value: `${possibleBoost}x`, inline: true }
+			.setFooter(
+				await client.func.displayBotName.footerBuilder(
+					interaction.guildId!
+				)
 			)
-			;
-
+			.setFields(
+				{
+					name: lang.balance_embed_fields1_name,
+					value: `${baseData.bank || 0}${client.iHorizon_Emojis.Coin}`,
+					inline: true
+				},
+				{
+					name: lang.balance_embed_fields2_name,
+					value: `${baseData.money || 0}${client.iHorizon_Emojis.Coin}`,
+					inline: true
+				},
+				{
+					name: lang.var_boost,
+					value: `${possibleBoost}x`,
+					inline: true
+				}
+			);
 		const selectMenuOptions = buyableRoles.map((role) => ({
-			label: interaction.guild?.roles.cache.get(role.roleId)?.name || lang.economy_shop_unknown_role,
+			label:
+				interaction.guild?.roles.cache.get(role.roleId)?.name ||
+				lang.economy_shop_unknown_role,
 			value: role.roleId,
-			description: (baseData.ownedRoles?.includes(role.roleId) ? lang.economy_shop_already_owned : `${lang.var_price}: ${role.price} 💰`)
+			description: baseData.ownedRoles?.includes(role.roleId)
+				? lang.economy_shop_already_owned
+				: `${lang.var_price}: ${role.price} 💰`
 		}));
 
 		// if there are no roles available for purchase
@@ -99,7 +142,10 @@ export const subCommand: SubCommand = {
 
 			for (const roleId of baseData.ownedRoles || []) {
 				if (!interaction.member.roles.cache.has(roleId)) {
-					await interaction.member.roles.add(roleId, "[Economy Shop] Role was not given to the user.");
+					await interaction.member.roles.add(
+						roleId,
+						"[Economy Shop] Role was not given to the user."
+					);
 				}
 			}
 
@@ -115,14 +161,23 @@ export const subCommand: SubCommand = {
 			.setCustomId("shop")
 			.setPlaceholder(lang.economy_shop_menu_placeholder);
 
-		const actionRow = new ActionRowBuilder<StringSelectMenuBuilder>()
-			.addComponents(selectMenu);
+		const actionRow =
+			new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
+				selectMenu
+			);
 
-		const og_interaction = await client.func.method.interactionSend(interaction, {
-			embeds: [embed],
-			files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)],
-			components: [actionRow]
-		});
+		const og_interaction = await client.func.method.interactionSend(
+			interaction,
+			{
+				embeds: [embed],
+				files: [
+					await client.func.displayBotName.footerAttachmentBuilder(
+						interaction
+					)
+				],
+				components: [actionRow]
+			}
+		);
 
 		// create a collector
 		const collector = og_interaction.createMessageComponentCollector({
@@ -139,7 +194,9 @@ export const subCommand: SubCommand = {
 				return;
 			}
 
-			const role = buyableRoles.find((role) => role.roleId === i.values[0]);
+			const role = buyableRoles.find(
+				(role) => role.roleId === i.values[0]
+			);
 			if (!role) {
 				await i.reply({
 					content: lang.economy_shop_not_available,
@@ -150,6 +207,15 @@ export const subCommand: SubCommand = {
 
 			// check if the user already owns the role
 			if (baseData.ownedRoles?.includes(role.roleId)) {
+				if (!interaction.member.roles.cache.has(role.roleId)) {
+					await interaction.member.roles
+						.add(
+							role.roleId,
+							"[Economy Shop] Restored previously owned role."
+						)
+						.catch(() => {});
+				}
+
 				await i.reply({
 					content: lang.economy_shop_already_own_role,
 					flags: [1 << 6]
@@ -168,11 +234,22 @@ export const subCommand: SubCommand = {
 
 			baseData.ownedRoles?.push(role.roleId);
 
-			await interaction.member?.roles.add(role.roleId, "[Economy Module] Purchased from the shop");
-			await client.db.set(`${interaction.guildId}.USER.${interaction.member.id}.ECONOMY.money`, (baseData.money ?? 0) - role.price);
-			await client.db.set(`${interaction.guildId}.USER.${interaction.member.id}.ECONOMY.ownedRoles`, [...(baseData.ownedRoles || []), role.roleId]);
+			await interaction.member?.roles.add(
+				role.roleId,
+				"[Economy Module] Purchased from the shop"
+			);
+			await client.db.set(
+				`${interaction.guildId}.USER.${interaction.member.id}.ECONOMY.money`,
+				(baseData.money ?? 0) - role.price
+			);
+			await client.db.set(
+				`${interaction.guildId}.USER.${interaction.member.id}.ECONOMY.ownedRoles`,
+				[...(baseData.ownedRoles || []), role.roleId]
+			);
 
-			const string_role_name = interaction.guild?.roles.cache.get(role.roleId)?.name || lang.economy_shop_unknown_role
+			const string_role_name =
+				interaction.guild?.roles.cache.get(role.roleId)?.name ||
+				lang.economy_shop_unknown_role;
 			await i.reply({
 				content: lang.economy_shop_role_purchased
 					.replace("{roleName}", string_role_name)
@@ -181,12 +258,15 @@ export const subCommand: SubCommand = {
 			});
 		});
 
-		collector.on('end', async (_, reason) => {
-			if (reason === 'legit') return;
-			const row = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(selectMenu.setDisabled(true));
+		collector.on("end", async (_, reason) => {
+			if (reason === "legit") return;
+			const row =
+				new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
+					selectMenu.setDisabled(true)
+				);
 			await og_interaction.edit({
 				components: [row]
 			});
 		});
-	},
+	}
 };

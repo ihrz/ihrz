@@ -4,7 +4,7 @@
 		"categoryColor": "#27d9ff",
 		"options": {
 			"description": "help_security_dsc",
-			"emoji": "🔐",
+			"emoji": "${client.iHorizon_Emojis.Captcha}",
 			"placeholder": "help_security_fields"
 		}
 	}

@@ -29,11 +29,13 @@ export async function isImageUrl(url: string): Promise<boolean> {
 	} catch (error) {
 		return false;
 	}
-};
+}
 
 export async function image64(arg: string): Promise<Buffer | undefined> {
 	try {
-		const response: AxiosResponse<ArrayBuffer> = await axios.get(arg, { responseType: 'arrayBuffer' });
+		const response: AxiosResponse<ArrayBuffer> = await axios.get(arg, {
+			responseType: "arrayBuffer"
+		});
 
 		return Buffer.from(response.data);
 	} catch (error) {

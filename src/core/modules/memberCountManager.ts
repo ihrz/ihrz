@@ -19,12 +19,20 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { ChannelType, Client, TextChannel, VoiceBasedChannel } from "discord.js";
+import {
+	ChannelType,
+	Client,
+	TextChannel,
+	VoiceBasedChannel
+} from "discord.js";
 import { DatabaseStructure } from "../../../types/database_structure.js";
 import formatNumber from "../functions/numberBeautifuer.js";
 import logger from "../logger.js";
 
-type memberCountData = { guildId: string, data: DatabaseStructure.MemberCountSchema | undefined }[];
+type memberCountData = {
+	guildId: string;
+	data: DatabaseStructure.MemberCountSchema | undefined;
+}[];
 
 class MemberCountModule {
 	async init() {
@@ -37,39 +45,44 @@ class MemberCountModule {
 	private async GetMemberCountData(): Promise<memberCountData> {
 		const all = await client.db.all();
 		return all
-			.filter(v => Number(v.id) && client.inShard(v.id))
-			.map(v => {
+			.filter((v) => Number(v.id) && client.inShard(v.id))
+			.map((v) => {
 				const guildObject = v.value as DatabaseStructure.DbInId;
 				return { guildId: v.id, data: guildObject.GUILD?.MCOUNT };
 			})
-			.filter(v => v.data);
+			.filter((v) => v.data);
 	}
 
 	private async Refresh(memberCountData: memberCountData) {
 		for (const guildObject of memberCountData) {
 			try {
-				const guild = await client.guilds.fetch(guildObject.guildId).catch(() => null);
+				const guild = await client.guilds
+					.fetch(guildObject.guildId)
+					.catch(() => null);
 				if (!guild) continue;
 
-				const onlineCount = guild.members.cache
-					.filter(member =>
-						member.presence?.status === 'online' ||
-						member.presence?.status === 'idle' ||
-						member.presence?.status === 'dnd'
-					).size;
-				const botMembersCount = guild.members.cache.filter((m) => m.user.bot).size;
+				const onlineCount = guild.members.cache.filter(
+					(member) =>
+						member.presence?.status === "online" ||
+						member.presence?.status === "idle" ||
+						member.presence?.status === "dnd"
+				).size;
+				const botMembersCount = guild.members.cache.filter(
+					(m) => m.user.bot
+				).size;
 				const rolesCount = guild.roles.cache.size;
 				const boostsCount = guild.premiumSubscriptionCount || 0;
 				const voiceChannels = guild.channels.cache
-					.filter((channel): channel is VoiceBasedChannel =>
-						channel.type === ChannelType.GuildVoice ||
-						channel.type === ChannelType.GuildStageVoice
+					.filter(
+						(channel): channel is VoiceBasedChannel =>
+							channel.type === ChannelType.GuildVoice ||
+							channel.type === ChannelType.GuildStageVoice
 					)
 					.toJSON();
 
 				let voiceCount = 0;
 				voiceChannels.forEach((channel) => {
-					if ('members' in channel) {
+					if ("members" in channel) {
 						voiceCount += channel.members?.size ?? 0;
 					}
 				});
@@ -77,12 +90,15 @@ class MemberCountModule {
 				const baseData = guildObject.data;
 				if (!baseData) continue;
 
-				const mappings: { key: keyof DatabaseStructure.MemberCountSchema, count: number | string }[] = [
-					{ key: 'bot', count: botMembersCount },
-					{ key: 'member', count: formatNumber(guild.memberCount) },
-					{ key: 'roles', count: rolesCount },
-					{ key: 'boost', count: boostsCount },
-					{ key: 'channel', count: rolesCount },
+				const mappings: {
+					key: keyof DatabaseStructure.MemberCountSchema;
+					count: number | string;
+				}[] = [
+					{ key: "bot", count: botMembersCount },
+					{ key: "member", count: formatNumber(guild.memberCount) },
+					{ key: "roles", count: rolesCount },
+					{ key: "boost", count: boostsCount },
+					{ key: "channel", count: rolesCount },
 					{ key: "voice", count: voiceCount },
 					{ key: "online", count: onlineCount }
 				];
@@ -90,7 +106,9 @@ class MemberCountModule {
 				for (const { key, count } of mappings) {
 					const data = baseData[key];
 					if (data) {
-						const channel = await guild.channels.fetch(data.channel!).catch(() => null) as TextChannel;
+						const channel = (await guild.channels
+							.fetch(data.channel!)
+							.catch(() => null)) as TextChannel;
 						if (channel && channel.isTextBased()) {
 							const newName = data.name
 								?.replace(/{\w+Count}/, String(count))
@@ -100,13 +118,10 @@ class MemberCountModule {
 					}
 				}
 			} catch (error) {
-				logger.err('Error handling guildMemberAdd event:' + error);
+				logger.err("Error handling guildMemberAdd event:" + error);
 			}
 		}
 	}
-
 }
 
-export {
-	MemberCountModule
-}
+export { MemberCountModule };

@@ -20,14 +20,14 @@
 */
 
 export interface BatchProcessorOptions {
-    batchSize?: number;
-    delay?: number;
-    onProgress?: (completed: number, total: number) => void;
+	batchSize?: number;
+	delay?: number;
+	onProgress?: (completed: number, total: number) => void;
 }
 
 export interface BatchProcessorResult {
-    success: number;
-    failed: number;
+	success: number;
+	failed: number;
 }
 
 /**
@@ -38,43 +38,43 @@ export interface BatchProcessorResult {
  * @returns Promise with success and failure counts
  */
 export async function processBatch<T>(
-    items: T[],
-    processor: (item: T) => Promise<boolean>,
-    options: BatchProcessorOptions = {}
+	items: T[],
+	processor: (item: T) => Promise<boolean>,
+	options: BatchProcessorOptions = {}
 ): Promise<BatchProcessorResult> {
-    const { batchSize = 10, delay = 100, onProgress } = options;
-    let success = 0;
-    let failed = 0;
+	const { batchSize = 10, delay = 100, onProgress } = options;
+	let success = 0;
+	let failed = 0;
 
-    for (let i = 0; i < items.length; i += batchSize) {
-        const batch = items.slice(i, i + batchSize);
-        
-        // Process current batch
-        const results = await Promise.all(
-            batch.map(async (item) => {
-                try {
-                    const result = await processor(item);
-                    return result;
-                } catch {
-                    return false;
-                }
-            })
-        );
+	for (let i = 0; i < items.length; i += batchSize) {
+		const batch = items.slice(i, i + batchSize);
 
-        // Count results
-        success += results.filter(r => r).length;
-        failed += results.filter(r => !r).length;
+		// Process current batch
+		const results = await Promise.all(
+			batch.map(async (item) => {
+				try {
+					const result = await processor(item);
+					return result;
+				} catch {
+					return false;
+				}
+			})
+		);
 
-        // Call progress callback if provided
-        onProgress?.(success + failed, items.length);
+		// Count results
+		success += results.filter((r) => r).length;
+		failed += results.filter((r) => !r).length;
 
-        // Add delay between batches (except for the last batch)
-        if (i + batchSize < items.length) {
-            await new Promise(resolve => setTimeout(resolve, delay));
-        }
-    }
+		// Call progress callback if provided
+		onProgress?.(success + failed, items.length);
 
-    return { success, failed };
+		// Add delay between batches (except for the last batch)
+		if (i + batchSize < items.length) {
+			await new Promise((resolve) => setTimeout(resolve, delay));
+		}
+	}
+
+	return { success, failed };
 }
 
 /**
@@ -86,13 +86,13 @@ export async function processBatch<T>(
  * @param onComplete Callback when processing is complete
  */
 export function processBatchAsync<T>(
-    items: T[],
-    processor: (item: T) => Promise<boolean>,
-    options: BatchProcessorOptions = {},
-    onComplete?: (result: BatchProcessorResult) => void
+	items: T[],
+	processor: (item: T) => Promise<boolean>,
+	options: BatchProcessorOptions = {},
+	onComplete?: (result: BatchProcessorResult) => void
 ): void {
-    setImmediate(async () => {
-        const result = await processBatch(items, processor, options);
-        onComplete?.(result);
-    });
+	setImmediate(async () => {
+		const result = await processBatch(items, processor, options);
+		onComplete?.(result);
+	});
 }

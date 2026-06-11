@@ -29,21 +29,21 @@ export const event: BotEvent = {
 		try {
 			if (
 				!member.guild.members.me?.permissions.has(
-					PermissionsBitField.Flags.ManageRoles,
+					PermissionsBitField.Flags.ManageRoles
 				)
 			)
 				return;
 
-			const roleid = (await Promise.resolve(
-				client.db.get(
-					`${member.guild.id}.GUILD.GUILD_CONFIG.joinroles`,
-				),
+			const roleid = (await client.db.get(
+				`${member.guild.id}.GUILD.GUILD_CONFIG.joinroles`
 			)) as DatabaseStructure.GuildConfigSchema["joinroles"];
 			if (!roleid) return;
 
 			await Promise.resolve().then(async () => {
 				if (Array.isArray(roleid)) {
-					await member.roles.set(roleid, "[AutoRole] Assign role for new member").catch(() => null);
+					await member.roles
+						.set(roleid, "[AutoRole] Assign role for new member")
+						.catch(() => null);
 				} else {
 					const role = member.guild.roles.cache.get(roleid);
 					if (role)
@@ -52,6 +52,6 @@ export const event: BotEvent = {
 							.catch(() => null);
 				}
 			});
-		} catch { }
-	},
+		} catch {}
+	}
 };

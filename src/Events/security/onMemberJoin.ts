@@ -19,12 +19,18 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { SnowflakeUtil, Client, EmbedBuilder, GuildMember, GuildTextBasedChannel } from 'discord.js';
+import {
+	SnowflakeUtil,
+	Client,
+	EmbedBuilder,
+	GuildMember,
+	GuildTextBasedChannel
+} from "discord.js";
 
 import logger from "../../core/logger.js";
 import captcha from "../../core/captcha.js";
 
-import { BotEvent } from '../../../types/event.js';
+import { BotEvent } from "../../../types/event.js";
 
 export const event: BotEvent = {
 	name: "guildMemberAdd",
@@ -35,17 +41,17 @@ export const event: BotEvent = {
 		const data = await client.func.getLanguageData(member.guild.id);
 		const channel = member.guild.channels.cache.get(baseData?.channel);
 		if (!channel) return;
-		const { code, image } = await captcha()
+		const { code, image } = await captcha();
 
 		const memberJoinDate = member.joinedAt;
 
 		const embed = new EmbedBuilder()
-			.setColor('#c4001f')
+			.setColor("#c4001f")
 			.setTimestamp()
 			.setImage("attachment://captcha.png")
-			.setDescription(data.event_security.replace('${member}', member.toString()))
-			;
-
+			.setDescription(
+				data.event_security.replace("${member}", member.toString())
+			);
 		/**
 		 * Why doing this?
 		 * On iHorizon Production, we have some ~problems~ 👎
@@ -53,50 +59,63 @@ export const event: BotEvent = {
 		 */
 		const nonce = SnowflakeUtil.generate().toString();
 
-		(channel as GuildTextBasedChannel).send({
-			content: member.toString(),
-			embeds: [embed],
-			files: [
-				{ name: "captcha.png", attachment: image },
-			], enforceNonce: true, nonce: nonce
-		}).then(async (msg) => {
-			const collector = msg.channel.createMessageCollector({
-				filter: (m) => m.author.id === member.id,
-				time: (60_00 * 2 + 30_000)
+		(channel as GuildTextBasedChannel)
+			.send({
+				content: member.toString(),
+				embeds: [embed],
+				files: [{ name: "captcha.png", attachment: image }],
+				enforceNonce: true,
+				nonce: nonce
+			})
+			.then(async (msg) => {
+				const collector = msg.channel.createMessageCollector({
+					filter: (m) => m.author.id === member.id,
+					time: 60_00 * 2 + 30_000
+				});
+
+				let passedtest = false;
+
+				collector.on("collect", async (m) => {
+					collector.stop();
+					await m.delete();
+
+					if (code === m.content) {
+						await member.roles
+							.add(baseData?.role, "[Security] Module")
+							.catch(() => {});
+						await member.roles
+							.remove(baseData?.role2, "[Security] Module")
+							.catch(() => {});
+						await msg.delete().catch(() => {});
+
+						passedtest = true;
+						return;
+					} else {
+						await msg.delete().catch(() => {});
+						await member
+							.kick("Security Process failed")
+							.catch(() => {});
+						return;
+					}
+				});
+
+				collector.on("end", async () => {
+					if (passedtest) return;
+
+					if (
+						!member.joinedAt &&
+						memberJoinDate === member.joinedAt
+					) {
+						await member
+							.kick("Security Process failed")
+							.catch(() => {});
+					}
+
+					await msg.delete().catch(() => {});
+				});
+			})
+			.catch((error: any) => {
+				logger.err(error);
 			});
-
-			let passedtest = false;
-
-			collector.on('collect', async (m) => {
-				collector.stop();
-				await m.delete();
-
-				if (code === m.content) {
-					await member.roles.add(baseData?.role, "[Security] Module").catch(() => { })
-					await member.roles.remove(baseData?.role2, "[Security] Module").catch(() => { })
-					await msg.delete().catch(() => { })
-
-					passedtest = true;
-					return;
-				} else {
-					await msg.delete().catch(() => { })
-					await member.kick("Security Process failed").catch(() => { })
-					return;
-				}
-			});
-
-			collector.on('end', async () => {
-				if (passedtest) return;
-
-				if (!member.joinedAt && memberJoinDate === member.joinedAt) {
-					await member.kick("Security Process failed").catch(() => { })
-				}
-
-				await msg.delete().catch(() => { })
-			});
-
-		}).catch((error: any) => {
-			logger.err(error);
-		});
-	},
+	}
 };

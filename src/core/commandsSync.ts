@@ -19,17 +19,17 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { REST, Routes, Client, ApplicationCommand } from 'discord.js';
+import { REST, Routes, Client, ApplicationCommand } from "discord.js";
 import logger from "./logger.js";
 
 export function removePermissionProperties(obj: any): any {
 	// If obj is an array, map through its elements
 	if (Array.isArray(obj)) {
-		return obj.map(item => removePermissionProperties(item));
+		return obj.map((item) => removePermissionProperties(item));
 	}
 
 	// If obj is not an object or is null, return it as is
-	if (typeof obj !== 'object' || obj === null) {
+	if (typeof obj !== "object" || obj === null) {
 		return obj;
 	}
 
@@ -39,7 +39,7 @@ export function removePermissionProperties(obj: any): any {
 	// Iterate through object properties
 	for (const [key, value] of Object.entries(obj)) {
 		// Skip permission-related properties
-		if (key === 'perm' || key === 'permission') {
+		if (key === "perm" || key === "permission") {
 			continue;
 		}
 
@@ -53,7 +53,9 @@ export function removePermissionProperties(obj: any): any {
 export async function synchronizeCommands(client: Client): Promise<void> {
 	return new Promise(async (resolve, reject) => {
 		try {
-			const rest = new REST().setToken(process.env.BOT_TOKEN || client.config.discord.token);
+			const rest = new REST().setToken(
+				process.env.BOT_TOKEN || client.config.discord.token
+			);
 			const appCmds = client.applicationsCommands.map((command) => ({
 				name: command.name,
 				type: command.type,
@@ -61,31 +63,43 @@ export async function synchronizeCommands(client: Client): Promise<void> {
 				contexts: command.contexts
 			}));
 
-			const slashCommands = client.commands?.map((command) => {
-				const commandData = {
-					name: command.name,
-					name_localizations: command.name_localizations,
-					type: command.type,
-					description: command.description,
-					description_localizations: command.description_localizations,
-					options: removePermissionProperties(command.options) || [],
-					integration_types: command.integration_types || [0],
-					contexts: command.contexts || [0]
-				};
-				return commandData;
-			}) || [];
+			const slashCommands =
+				client.commands?.map((command) => {
+					const commandData = {
+						name: command.name,
+						name_localizations: command.name_localizations,
+						type: command.type,
+						description: command.description,
+						description_localizations:
+							command.description_localizations,
+						options:
+							removePermissionProperties(command.options) || [],
+						integration_types: command.integration_types || [0],
+						contexts: command.contexts || [0]
+					};
+					return commandData;
+				}) || [];
 
 			const allCommands = [...slashCommands, ...appCmds];
 
-			logger.log(`${client.config.console.emojis.LOAD} >> Currently, ${client.commands?.size || 0} Slash Commands (/) are waiting for refreshing.`.white);
-			logger.log(`${client.config.console.emojis.LOAD} >> Currently, ${client.applicationsCommands?.size || 0} application commands ([]) are waiting for refreshing.`.white);
+			logger.log(
+				`${client.config.console.emojis.LOAD} >> Currently, ${client.commands?.size || 0} Slash Commands (/) are waiting for refreshing.`
+					.white
+			);
+			logger.log(
+				`${client.config.console.emojis.LOAD} >> Currently, ${client.applicationsCommands?.size || 0} application commands ([]) are waiting for refreshing.`
+					.white
+			);
 
 			const data = await rest.put(
 				Routes.applicationCommands(client.user?.id!),
 				{ body: allCommands }
 			);
 
-			logger.log(`${client.config.console.emojis.OK} >> Currently, ${(data as unknown as ApplicationCommand<{}>[]).length} applications are now synchronized.`.white);
+			logger.log(
+				`${client.config.console.emojis.OK} >> Currently, ${(data as unknown as ApplicationCommand<{}>[]).length} applications are now synchronized.`
+					.white
+			);
 
 			resolve();
 		} catch (error: any) {
@@ -93,4 +107,4 @@ export async function synchronizeCommands(client: Client): Promise<void> {
 			reject(error);
 		}
 	});
-};
+}

@@ -19,18 +19,25 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { Client, Interaction } from 'discord.js';
-import { BotEvent } from '../../../types/event.js';
+import { Client, Interaction } from "discord.js";
+import { BotEvent } from "../../../types/event.js";
 
 export const event: BotEvent = {
 	name: "interactionCreate",
 	run: async (client: Client, interaction: Interaction) => {
-		if (!interaction.isButton()
-			|| !interaction.guild?.channels
-			|| interaction.user.bot) return;
+		if (
+			!interaction.isButton() ||
+			!interaction.guild?.channels ||
+			interaction.user.bot
+		)
+			return;
 
 		const filtered_customId = interaction.customId.split("%")[0];
 		const get = client.buttons.get(filtered_customId);
-		if (get) get(interaction, await client.func.getLanguageData(interaction.guildId));
-	},
+		if (get)
+			get(
+				interaction,
+				await client.func.getLanguageData(interaction.guildId)
+			);
+	}
 };

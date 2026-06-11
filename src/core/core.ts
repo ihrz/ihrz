@@ -19,43 +19,49 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { synchronizeCommands } from './commandsSync.js';
+import { synchronizeCommands } from "./commandsSync.js";
 import logger from "./logger.js";
 
-import * as errorManager from './modules/errorManager.js';
+import * as errorManager from "./modules/errorManager.js";
 import playerManager from "./modules/playerManager.js";
 
-import { VanityInviteData } from '../../types/vanityUrlData.js';
+import { VanityInviteData } from "../../types/vanityUrlData.js";
 
-import { Client, Collection, Snowflake, DefaultWebSocketManagerOptions } from 'discord.js';
-import { fileURLToPath } from 'url';
-import path from 'path';
-import fs from 'node:fs';
+import {
+	Client,
+	Collection,
+	Snowflake,
+	DefaultWebSocketManagerOptions
+} from "discord.js";
+import { fileURLToPath } from "url";
+import path from "path";
+import fs from "node:fs";
 
-import { iHorizonTimeCalculator } from './functions/ms.js';
+import { iHorizonTimeCalculator } from "./functions/ms.js";
 import assetsCalc from "./functions/assetsCalc.js";
-import { StreamNotifier } from './StreamNotifier.js';
-import { KdenLive } from './functions/kdenliveManipulator.js';
-import { Command } from '../../types/command.js';
-import { mkdir, readdir } from 'node:fs/promises';
-import { MemberCountModule } from './modules/memberCountManager.js';
-import { AutoRenew } from './modules/autorenewManager.js';
-import { Client_Functions } from '../../types/client_functions.js';
-import { AnotherCommand } from '../../types/anotherCommand.js';
-import { EmojisManager } from './modules/emojisManager.js';
-import { NightModeManager } from './modules/nightModeManager.js';
-import { GithubLinesManager } from './modules/githubLinesManager.js';
-import { DiscordSlashLogParser } from './converters/slashLog.js';
-import { readFileSync, rmSync, writeFileSync } from 'node:fs';
-import { InfrastructureMonitoring } from './modules/infrastructureMonitoringManager.js';
-import { GiveawayManager } from './modules/giveawaysManager.js';
-import { isNumber } from './functions/method.js';
+import { StreamNotifier } from "./StreamNotifier.js";
+import { KdenLive } from "./functions/kdenliveManipulator.js";
+import { Command } from "../../types/command.js";
+import { mkdir, readdir } from "node:fs/promises";
+import { MemberCountModule } from "./modules/memberCountManager.js";
+import { AutoRenew } from "./modules/autorenewManager.js";
+import { Client_Functions } from "../../types/client_functions.js";
+import { AnotherCommand } from "../../types/anotherCommand.js";
+import { EmojisManager } from "./modules/emojisManager.js";
+import { NightModeManager } from "./modules/nightModeManager.js";
+import { GithubLinesManager } from "./modules/githubLinesManager.js";
+import { DiscordSlashLogParser } from "./converters/slashLog.js";
+import { readFileSync, rmSync, writeFileSync } from "node:fs";
+import { InfrastructureMonitoring } from "./modules/infrastructureMonitoringManager.js";
+import { GiveawayManager } from "./modules/giveawaysManager.js";
+import { isNumber } from "./functions/method.js";
 import * as backup from "./backup/src";
 import * as discordTranscripts from "discord-html-transcripts";
-import { BloggerNotifier } from './Blogger.js';
-import { TemproleManager } from './modules/tempRoleManager.js';
-import { TempbanManager } from './modules/tempbanManager.js';
-import { Mailer } from './Mailer.js';
+import { BloggerNotifier } from "./Blogger.js";
+import { TemproleManager } from "./modules/tempRoleManager.js";
+import { TempbanManager } from "./modules/tempbanManager.js";
+import { Mailer } from "./Mailer.js";
+import { LastFMScrobblerManager } from "./modules/lastFMScrobblerManager.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -69,23 +75,24 @@ if (!fs.existsSync(backups_folder)) {
 }
 
 if (fs.existsSync(old_slash_logs_file)) {
-	let _ = new DiscordSlashLogParser().parse(readFileSync(old_slash_logs_file, "utf-8"));
+	let _ = new DiscordSlashLogParser().parse(
+		readFileSync(old_slash_logs_file, "utf-8")
+	);
 	writeFileSync(slash_logs_file, JSON.stringify(_));
 	rmSync(old_slash_logs_file);
 }
 
 export async function main(client: Client) {
 	if (client.config.discord.phonePresence) {
-
 		const { identifyProperties } = DefaultWebSocketManagerOptions;
 
-		Object.defineProperty(identifyProperties, 'browser', {
+		Object.defineProperty(identifyProperties, "browser", {
 			value: "Discord Android",
 			writable: true,
 			enumerable: true,
 			configurable: true
 		});
-	};
+	}
 
 	client.commands = new Collection<string, Command>();
 	client.subCommands = new Collection<string, Command>();
@@ -111,39 +118,44 @@ export async function main(client: Client) {
 		storage: `${process.cwd()}/src/files/giveaways/`,
 		config: {
 			botsCanWin: false,
-			embedColor: '#9a5af2',
-			embedColorEnd: '#2f3136',
-			reaction: '🎉',
+			embedColor: "#9a5af2",
+			embedColorEnd: "#2f3136",
+			reaction: "🎉",
 			forceUpdateEvery: 3600,
-			endedGiveawaysLifetime: 345_600_000,
-		},
+			endedGiveawaysLifetime: 345_600_000
+		}
 	});
 	client.backup = backup;
 	client.discordTranscripts = discordTranscripts;
 	client.temproleManager = new TemproleManager();
 	client.tempbanManager = new TempbanManager();
 	client.email = new Mailer();
+	client.lastFMScrobbler = new LastFMScrobblerManager();
 
-	process.on('SIGINT', async () => {
+	process.on("SIGINT", async () => {
 		await client.destroy();
 		process.exit(0);
 	});
 
-	client.config.owners.users?.forEach(owner => {
+	client.config.owners.users?.forEach((owner) => {
 		if (isNumber(owner)) client.owners.push(owner);
 	});
 
-	const handlerPath = path.join(__dirname, '..', 'core', 'handlers');
-	const handlerFiles = (await readdir(handlerPath)).filter(file => file.endsWith('.ts'));
+	const handlerPath = path.join(__dirname, "..", "core", "handlers");
+	const handlerFiles = (await readdir(handlerPath)).filter((file) =>
+		file.endsWith(".ts")
+	);
 
 	for (const file of handlerFiles) {
-		const { default: handlerFunction } = await import(`${handlerPath}/${file}`);
-		if (handlerFunction && typeof handlerFunction === 'function') {
+		const { default: handlerFunction } = await import(
+			`${handlerPath}/${file}`
+		);
+		if (handlerFunction && typeof handlerFunction === "function") {
 			await handlerFunction(client);
 		}
 	}
 
-	login()
+	login();
 
 	errorManager.uncaughtExceptionHandler(client);
 
@@ -153,28 +165,42 @@ export async function main(client: Client) {
 		process.env.YOUTUBE_API_KEY || ""
 	);
 	client.blogger = new BloggerNotifier();
-	client.githubLinesManager = new GithubLinesManager(process.env.GITHUB_API_KEY)
+	client.githubLinesManager = new GithubLinesManager(
+		process.env.GITHUB_API_KEY
+	);
 
 	assetsCalc(client);
 	playerManager(client);
-};
+}
 
 function login() {
-	client.login(process.env.BOT_TOKEN || client.config.discord.token).then(async () => {
-		const title = "iHorizon - " + client.version.ClientVersion + " platform:" + process.platform;
+	client
+		.login(process.env.BOT_TOKEN || client.config.discord.token)
+		.then(async () => {
+			const title =
+				"iHorizon - " +
+				client.version.ClientVersion +
+				" platform:" +
+				process.platform;
 
-		if (process.platform === 'win32') {
-			process.title = title;
-		} else {
-			process.stdout.write('\x1b]2;' + title + '\x1b\x5c');
-		};
+			if (process.platform === "win32") {
+				process.title = title;
+			} else {
+				process.stdout.write("\x1b]2;" + title + "\x1b\x5c");
+			}
 
-		synchronizeCommands(client).then(() => {
-			logger.log("(_) /\\  /\\___  _ __(_)_______  _ __  ".magenta);
-			logger.log("| |/ /_/ / _ \\| '__| |_  / _ \\| '_ \\ ".magenta);
-			logger.log("| / __  / (_) | |  | |/ / (_) | | | |".magenta);
-			logger.log(`|_\\/ /_/ \\___/|_|  |_/___\\___/|_| |_| (${client.user?.tag}).`.magenta);
-			logger.log(`${client.config.console.emojis.KISA} >> Mainly dev by Kisakay ♀️`.magenta);
+			synchronizeCommands(client).then(() => {
+				logger.log("(_) /\\  /\\___  _ __(_)_______  _ __  ".magenta);
+				logger.log("| |/ /_/ / _ \\| '__| |_  / _ \\| '_ \\ ".magenta);
+				logger.log("| / __  / (_) | |  | |/ / (_) | | | |".magenta);
+				logger.log(
+					`|_\\/ /_/ \\___/|_|  |_/___\\___/|_| |_| (${client.user?.tag}).`
+						.magenta
+				);
+				logger.log(
+					`${client.config.console.emojis.KISA} >> Mainly dev by Kisakay ♀️`
+						.magenta
+				);
+			});
 		});
-	});
 }

@@ -23,30 +23,46 @@ import {
 	ChatInputCommandInteraction,
 	Client,
 	ChannelType,
-	SnowflakeUtil,
-} from 'discord.js';
-import { LanguageData } from '../../../../types/languageData.js';
-import { DatabaseStructure } from '../../../../types/database_structure.js';
+	SnowflakeUtil
+} from "discord.js";
+import { LanguageData } from "../../../../types/languageData.js";
+import { DatabaseStructure } from "../../../../types/database_structure.js";
 
-import { SubCommand } from '../../../../types/command.js';
+import { SubCommand } from "../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached">,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+		if (
+			!interaction.member ||
+			!client.user ||
+			!interaction.user ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
 		const rss = interaction.options.getString("rss") as string;
 		const channel = interaction.options.getChannel("channel");
 
 		if (!channel || channel.type !== ChannelType.GuildText) {
-			return client.func.method.interactionSend(interaction, { content: lang.blogger_blog_add_invalid_channel, ephemeral: true });
+			return client.func.method.interactionSend(interaction, {
+				content: lang.blogger_blog_add_invalid_channel,
+				ephemeral: true
+			});
 		}
 
 		const validation = await client.blogger.validateRssFeed(rss);
 
 		if (validation.valid) {
-			const fetched = await client.db.get(`${interaction.guildId}.BLOGGER`) as DatabaseStructure.BloggerSchema | null;
+			const fetched = (await client.db.get(
+				`${interaction.guildId}.BLOGGER`
+			)) as DatabaseStructure.BloggerSchema | null;
 			const fetchedBlogs = fetched?.blogs || [];
 
 			const blogId = SnowflakeUtil.generate().toString();
@@ -57,17 +73,28 @@ export const subCommand: SubCommand = {
 				channelId: channel.id
 			});
 
-			const uniqueArray = fetchedBlogs.filter((value, index, self) =>
-				index === self.findIndex((t) => (
-					t.rss === value.rss && t.channelId === value.channelId
-				))
-			) || [];
+			const uniqueArray =
+				fetchedBlogs.filter(
+					(value, index, self) =>
+						index ===
+						self.findIndex(
+							(t) =>
+								t.rss === value.rss &&
+								t.channelId === value.channelId
+						)
+				) || [];
 
-			await client.db.set(`${interaction.guildId}.BLOGGER.blogs`, uniqueArray);
+			await client.db.set(
+				`${interaction.guildId}.BLOGGER.blogs`,
+				uniqueArray
+			);
 
 			await client.func.method.interactionSend(interaction, {
 				content: lang.blogger_blog_add_success
-					?.replace("${validation.name}", validation.name || "Unknown")
+					?.replace(
+						"${validation.name}",
+						validation.name || "Unknown"
+					)
 					?.replace("${channel.toString()}", channel.toString())
 					?.replace("${blogId}", blogId),
 				embeds: [
@@ -80,5 +107,5 @@ export const subCommand: SubCommand = {
 				ephemeral: true
 			});
 		}
-	},
+	}
 };

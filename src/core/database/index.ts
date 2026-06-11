@@ -19,37 +19,59 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { ConfigData } from '../../../types/configDatad.js';
-import { DB, MultiDB } from './types.js';
+import { ConfigData } from "../../../types/configDatad.js";
+import { DB, MultiDB } from "./types.js";
 
-import logger from '../logger.js';
-import path from 'path';
-import fs from 'node:fs';
+import logger from "../logger.js";
+import path from "path";
+import fs from "node:fs";
 
-import { Postgres } from './driver/postgres.js';
-import { Horizon } from './driver/horizon.js';
-import { Memory } from './driver/memory.js';
-import { Sqlite } from './driver/sqlite.js';
-import { Json } from './driver/json.js';
+import { Postgres } from "./driver/postgres.js";
+import { Memory } from "./driver/memory.js";
+import { Sqlite } from "./driver/sqlite.js";
+import { Json } from "./driver/json.js";
 
 let dbInstance: MultiDB | null = null;
 
-export const tables = ['json', 'owner', 'blacklist', 'prevnames', 'api', 'temp', 'schedule', 'user_profil', "authrestore", "metas"];
-export const readOnlyTables = ["authrestore", 'api', 'metas'];
+export const tables = [
+	"json",
+	"owner",
+	"blacklist",
+	"prevnames",
+	"api",
+	"temp",
+	"schedule",
+	"user_profil",
+	"authrestore",
+	"metas",
+	"giveaways",
+	"backups"
+];
+export const readOnlyTables = ["authrestore", "api", "metas"];
 export const databasePath = `${process.cwd()}/src/files/`;
 
 export const overwriteLastLine = (message: string) => {
-	process.stdout.write('\u001B[2K');
-	process.stdout.write('\u001B[G');
+	process.stdout.write("\u001B[2K");
+	process.stdout.write("\u001B[G");
 	process.stdout.write(message);
 };
 
 if (!fs.existsSync(databasePath)) {
 	fs.mkdirSync(databasePath, { recursive: true });
 }
+let isClient: boolean | null = null;
 
-export async function initializeDatabase(database: ConfigData["database"]): Promise<MultiDB> {
-	if (!database) throw new Error("invalid database object")
+export async function initializeDatabase(
+	database: ConfigData["database"]
+): Promise<MultiDB> {
+	try {
+		client;
+		isClient = true;
+	} catch {
+		isClient = false;
+	}
+
+	if (!database) throw new Error("invalid database object");
 	if (dbInstance !== null) {
 		return dbInstance;
 	}
@@ -59,7 +81,7 @@ export async function initializeDatabase(database: ConfigData["database"]): Prom
 			x: new Json({
 				filePath: path.join(databasePath, "db.json")
 			})
-		}
+		};
 	} else if (database.method === "memory") {
 		dbInstance = {
 			x: new Memory()
@@ -71,17 +93,11 @@ export async function initializeDatabase(database: ConfigData["database"]): Prom
 				table: tables[0]
 			})
 		};
-	} else if (database.method === "horizon") {
-		dbInstance = {
-			x: new Horizon(`ws://${database?.horizon_db?.host}:${database?.horizon_db?.port}`, {
-				login: database?.horizon_db?.login!,
-				password: database?.horizon_db?.password!,
-				enableVerboses: process.env.DEV === "true" ? true : false,
-				tables
-			})
-		};
 	} else if (database.method === "cached_postgres") {
-		logger.log(`${client.config.console.emojis.HOST} >> Initializing cached Postgres database setup (${database?.method}) !`.green);
+		logger.log(
+			`${isClient && client.config.console.emojis.HOST} >> Initializing cached Postgres database setup (${database?.method}) !`
+				.green
+		);
 
 		dbInstance = {
 			x: new Memory(),
@@ -94,11 +110,12 @@ export async function initializeDatabase(database: ConfigData["database"]): Prom
 		if (database.mySQL?.[1]) {
 			dbInstance.y = new Postgres({
 				connectionString: `postgres://${database.mySQL?.[1].user}:${encodeURIComponent(database.mySQL?.[1].password!)}@${database.mySQL?.[1].host}:${database.mySQL?.[1].port}/${database.mySQL?.[1].database}`,
-				table: tables[9] // Chose metas table at default 
+				table: tables[9] // Chose metas table at default
 			});
-			logger.log(`${client.config.console.emojis.LOAD} >> Initializing bi-separated postgres database.`)
+			logger.log(
+				`${isClient && client.config.console.emojis.LOAD} >> Initializing bi-separated postgres database.`
+			);
 		}
-
 
 		if (dbInstance.y) {
 			// do bi-separated db stuff
@@ -110,7 +127,8 @@ export async function initializeDatabase(database: ConfigData["database"]): Prom
 
 			for (const { id, value } of allData) {
 				/** Only needed to cache the guilds record which is in the shard (avoid to much useless storing) */
-				if (client.inShard(id)) await memoryTable.set(id, value);
+				if (isClient && client?.inShard(id))
+					await memoryTable.set(id, value);
 			}
 		} else /* Else, only one postgres. Load all tables in memory */ {
 			for (const table of tables) {
@@ -133,14 +151,16 @@ export async function initializeDatabase(database: ConfigData["database"]): Prom
 		};
 	}
 
-	logger.log(`${client.config.console.emojis.HOST} >> Connected to the database (${client.config.database?.method}) !`.green);
+	logger.log(
+		`${isClient && client.config.console.emojis.HOST} >> Connected to the database (${isClient && client.config.database?.method}) !`
+			.green
+	);
 	return dbInstance;
 }
 
-
 const syncToPostgres = async () => {
 	if (!dbInstance) process.exit(1);
-	let _tables = dbInstance.y ? ['json'] : tables;
+	let _tables = dbInstance.y ? ["json"] : tables;
 
 	for (const table of _tables) {
 		const postgresTable = await dbInstance.og!.table(table);
@@ -149,12 +169,19 @@ const syncToPostgres = async () => {
 		const postgresData = await postgresTable.all();
 		const memoryData = await memoryTable.all();
 
-		const postgresMap = new Map(postgresData.map(item => [item.id, item.value]));
-		const memoryMap = new Map(memoryData.map(item => [item.id, item.value]));
+		const postgresMap = new Map(
+			postgresData.map((item) => [item.id, item.value])
+		);
+		const memoryMap = new Map(
+			memoryData.map((item) => [item.id, item.value])
+		);
 
 		for (const [id, value] of memoryMap) {
 			const postgresValue = postgresMap.get(id);
-			if (!postgresValue || JSON.stringify(postgresValue) !== JSON.stringify(value)) {
+			if (
+				!postgresValue ||
+				JSON.stringify(postgresValue) !== JSON.stringify(value)
+			) {
 				try {
 					if (readOnlyTables.includes(table)) {
 						for (const { id, value } of postgresData) {
@@ -162,7 +189,8 @@ const syncToPostgres = async () => {
 						}
 					} else {
 						if (table === "json") {
-							if (client.inShard(id)) await postgresTable.set(id, value);
+							if (isClient && client?.inShard(id))
+								await postgresTable.set(id, value);
 						} else {
 							await postgresTable.set(id, value);
 						}
@@ -178,7 +206,8 @@ const syncToPostgres = async () => {
 				if (!memoryMap.has(id)) {
 					try {
 						if (table === "json") {
-							if (client.inShard(id)) await postgresTable.delete(id);
+							if (isClient && client.inShard(id))
+								await postgresTable.delete(id);
 						} else {
 							await postgresTable.delete(id);
 						}
@@ -202,5 +231,9 @@ const syncToPostgres = async () => {
 		}
 	}
 
-	overwriteLastLine(logger.returnLog(`${client.config.console.emojis.HOST} >> Synchronized memory database to Postgres !`));
+	overwriteLastLine(
+		logger.returnLog(
+			`${isClient && client.config.console.emojis.HOST} >> Synchronized memory database to Postgres !`
+		)
+	);
 };

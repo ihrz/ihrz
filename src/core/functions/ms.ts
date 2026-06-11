@@ -22,7 +22,6 @@
 import { LanguageData } from "../../../types/languageData.js";
 
 class iHorizonTimeCalculator {
-
 	to_ms(timeString: string): number {
 		timeString = timeString.replace(" ", "");
 		const regex = /(-?\d*\.?\d+)([a-zA-Z]+)/g;
@@ -36,68 +35,68 @@ class iHorizonTimeCalculator {
 			let multiplier = 1;
 
 			switch (unit) {
-				case 'ms':
-				case 'msec':
-				case 'millisecond':
-				case 'milliseconds':
-				case 'milliseconde':
-				case 'millisecondes':
+				case "ms":
+				case "msec":
+				case "millisecond":
+				case "milliseconds":
+				case "milliseconde":
+				case "millisecondes":
 					multiplier = 1;
 					break;
-				case 's':
-				case 'sec':
-				case 'secs':
-				case 'second':
-				case 'seconds':
-				case 'seconde':
-				case 'secondes':
+				case "s":
+				case "sec":
+				case "secs":
+				case "second":
+				case "seconds":
+				case "seconde":
+				case "secondes":
 					multiplier = 1000;
 					break;
-				case 'm':
-				case 'min':
-				case 'mins':
-				case 'minute':
-				case 'minutes':
+				case "m":
+				case "min":
+				case "mins":
+				case "minute":
+				case "minutes":
 					multiplier = 60000;
 					break;
-				case 'h':
-				case 'hr':
-				case 'hrs':
-				case 'hour':
-				case 'hours':
-				case 'heure':
-				case 'heures':
+				case "h":
+				case "hr":
+				case "hrs":
+				case "hour":
+				case "hours":
+				case "heure":
+				case "heures":
 					multiplier = 3600000;
 					break;
-				case 'd':
-				case 'day':
-				case 'days':
-				case 'j':
-				case 'jour':
-				case 'jours':
+				case "d":
+				case "day":
+				case "days":
+				case "j":
+				case "jour":
+				case "jours":
 					multiplier = 86400000;
 					break;
-				case 'w':
-				case 'sm':
-				case 'week':
-				case 'weeks':
-				case 'semaine':
-				case 'semaines':
+				case "w":
+				case "sm":
+				case "week":
+				case "weeks":
+				case "semaine":
+				case "semaines":
 					multiplier = 604800000;
 					break;
-				case 'mo':
-				case 'mois':
-				case 'month':
-				case 'months':
+				case "mo":
+				case "mois":
+				case "month":
+				case "months":
 					multiplier = 2592000000; // Approximation based on 30 days
 					break;
-				case 'y':
-				case 'yr':
-				case 'yrs':
-				case 'year':
-				case 'years':
-				case 'an':
-				case 'ans':
+				case "y":
+				case "yr":
+				case "yrs":
+				case "year":
+				case "years":
+				case "an":
+				case "ans":
 					multiplier = 31557600000; // Based on 365.25 days per year
 					break;
 				default:
@@ -105,52 +104,90 @@ class iHorizonTimeCalculator {
 			}
 
 			totalMilliseconds += value * multiplier;
-		};
+		}
 
 		return totalMilliseconds;
-	};
+	}
 
-	to_beautiful_string(timeStringOrMs: string | number, lang: LanguageData, options?: { long?: boolean }): string {
+	to_beautiful_string(
+		timeStringOrMs: string | number,
+		lang: LanguageData,
+		options?: { long?: boolean }
+	): string {
 		let milliseconds: number;
 
-		if (typeof timeStringOrMs === 'string') {
+		if (typeof timeStringOrMs === "string") {
 			milliseconds = this.to_ms(timeStringOrMs)!;
-		} else if (typeof timeStringOrMs === 'number') {
+		} else if (typeof timeStringOrMs === "number") {
 			milliseconds = timeStringOrMs;
 		} else {
-			throw new Error('Invalid input');
+			throw new Error("Invalid input");
 		}
 
 		const longFormat = options?.long;
 
 		const timeUnits = [
-			{ unit: 'y', factor: 31557600000, longName: 'year', shortName: lang ? lang.var_year : 'y' },
-			{ unit: 'mo', factor: 2592000000, longName: 'month', shortName: lang ? lang.var_mo : 'mo' },
-			{ unit: 'w', factor: 604800000, longName: 'week', shortName: lang ? lang.var_w : 'w' },
-			{ unit: 'd', factor: 86400000, longName: 'day', shortName: lang ? lang.var_d : 'd' },
-			{ unit: 'h', factor: 3600000, longName: 'hour', shortName: lang ? lang.var_h : 'h' },
-			{ unit: 'm', factor: 60000, longName: 'minute', shortName: lang ? lang.var_m : 'm' },
-			{ unit: 's', factor: 1000, longName: 'second', shortName: lang ? lang.var_s : 's' },
+			{
+				unit: "y",
+				factor: 31557600000,
+				longName: "year",
+				shortName: lang ? lang.var_year : "y"
+			},
+			{
+				unit: "mo",
+				factor: 2592000000,
+				longName: "month",
+				shortName: lang ? lang.var_mo : "mo"
+			},
+			{
+				unit: "w",
+				factor: 604800000,
+				longName: "week",
+				shortName: lang ? lang.var_w : "w"
+			},
+			{
+				unit: "d",
+				factor: 86400000,
+				longName: "day",
+				shortName: lang ? lang.var_d : "d"
+			},
+			{
+				unit: "h",
+				factor: 3600000,
+				longName: "hour",
+				shortName: lang ? lang.var_h : "h"
+			},
+			{
+				unit: "m",
+				factor: 60000,
+				longName: "minute",
+				shortName: lang ? lang.var_m : "m"
+			},
+			{
+				unit: "s",
+				factor: 1000,
+				longName: "second",
+				shortName: lang ? lang.var_s : "s"
+			},
+			{ unit: "ms", factor: 1, longName: "millisecond", shortName: "ms" } // ← ajout
 		];
 
-		let result = '';
+		let result = "";
 		for (const { unit, factor, longName, shortName } of timeUnits) {
-			if (milliseconds >= factor || unit === 'ms') {
+			if (milliseconds >= factor) {
 				const value = Math.floor(milliseconds / factor);
-				result += `${value}${longFormat ? ' ' + longName + (value > 1 ? 's' : '') : shortName}`;
+				result += `${value}${longFormat ? " " + longName + (value > 1 ? "s" : "") : shortName}`;
 				milliseconds %= factor;
 				if (milliseconds > 0) {
-					result += longFormat ? ' ' : '';
+					result += longFormat ? " " : "";
 				} else {
 					break;
 				}
 			}
-		};
+		}
 
-		return result === "" ? "0" + (lang ? lang.var_m : 'm') : result.trim();
+		return result === "" ? "0" + (lang ? lang.var_m : "m") : result.trim();
 	}
-};
+}
 
-export {
-	iHorizonTimeCalculator
-};
+export { iHorizonTimeCalculator };

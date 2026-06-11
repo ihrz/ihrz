@@ -4,7 +4,7 @@
 		"categoryColor": "#397c16",
 		"options": {
 			"description": "help_ticket_dsc",
-			"emoji": "🎫",
+			"emoji": "${client.iHorizon_Emojis.Ticket}",
 			"placeholder": "help_ticket_fields"
 		}
 	}

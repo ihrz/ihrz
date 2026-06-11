@@ -19,16 +19,13 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	ChatInputCommandInteraction,
-	Client,
-	Message
-} from 'discord.js';
+import { ChatInputCommandInteraction, Client, Message } from "discord.js";
 
-import { LanguageData } from '../../../../types/languageData.js';
-import { SubCommand } from '../../../../types/command.js';
+import { LanguageData } from "../../../../types/languageData.js";
+import { SubCommand } from "../../../../types/command.js";
+import JSZip from "jszip";
 
-import { axios } from '../../../core/functions/axios.js';
+import { axios } from "../../../core/functions/axios.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -42,38 +39,44 @@ export const subCommand: SubCommand = {
 		if (!interaction.guild) return;
 
 		const emojis = interaction.guild.emojis.cache;
-		let files: Bun.ArchiveInput = {};
+		const zip = new JSZip();
 
 		try {
 			// Download and add all emojis to the zip
-			const downloadPromises = Array.from(emojis.values()).map(async (emoji) => {
-				try {
-					const emojiName = `${emoji.name}_${emoji.id}${emoji.animated ? '.gif' : '.png'}`;
-					const emojiUrl = emoji.imageURL({ size: 2048, extension: emoji.animated ? "gif" : "png" });
+			const downloadPromises = Array.from(emojis.values()).map(
+				async (emoji) => {
+					try {
+						const emojiName = `${emoji.name}_${emoji.id}${emoji.animated ? ".gif" : ".png"}`;
+						const emojiUrl = emoji.imageURL({
+							size: 2048,
+							extension: emoji.animated ? "gif" : "png"
+						});
 
-					if (!emojiUrl) {
-						return;
+						if (!emojiUrl) {
+							return;
+						}
+
+						const response = await axios.get(emojiUrl, {
+							responseType: "arrayBuffer"
+						});
+
+						zip.file(emojiName, Buffer.from(response.data));
+					} catch {
+						// Silently handle individual emoji errors
 					}
-
-					const response = await axios.get(emojiUrl, {
-						responseType: 'arrayBuffer'
-					});
-
-					files[emojiName] = Buffer.from(response.data)
-				} catch {
-					// Silently handle individual emoji errors
 				}
-			});
+			);
 
 			// Wait for all downloads to complete
 			await Promise.all(downloadPromises);
-			const zip = new Bun.Archive(files, {
-				compress: 'gzip',
-				level: 9
-			})
 
-			let archiveBuffer = Buffer.from(await zip.bytes())
-
+			const archiveBuffer = await zip.generateAsync({
+				type: "nodebuffer",
+				compression: "DEFLATE",
+				compressionOptions: {
+					level: 9
+				}
+			});
 			// Calculate time taken
 			const calcTime = Date.now() - time;
 
@@ -82,13 +85,14 @@ export const subCommand: SubCommand = {
 				content: lang.zip_emojis_command_work
 					.replace("${calcTime}", String(calcTime))
 					.replace("${emojis.size}", String(emojis.size)),
-				files: [{
-					attachment: archiveBuffer,
-					name: 'server_emojis.zip'
-				}],
+				files: [
+					{
+						attachment: archiveBuffer,
+						name: "server_emojis.zip"
+					}
+				],
 				flags: [1 << 6]
 			});
-
 		} catch (error) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.zip_emojis_command_error,

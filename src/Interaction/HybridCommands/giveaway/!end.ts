@@ -19,57 +19,70 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	ChatInputCommandInteraction,
-	Client,
-	Message,
-} from 'discord.js';
+import { ChatInputCommandInteraction, Client, Message } from "discord.js";
 
+import { LanguageData } from "../../../../types/languageData.js";
 
-import { LanguageData } from '../../../../types/languageData.js';
-
-import { SubCommand } from '../../../../types/command.js';
+import { SubCommand } from "../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
+		if (
+			!interaction.member ||
+			!client.user ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
 		if (interaction instanceof ChatInputCommandInteraction) {
 			var inputData = interaction.options.getString("giveaway-id");
 		} else {
-
 			var inputData = client.func.method.string(args!, 0);
-		};
+		}
 
-		if (!await client.giveawaysManager.isValid(inputData as string)) {
+		if (!(await client.giveawaysManager.isValid(inputData as string))) {
 			await client.func.method.interactionSend(interaction, {
-				content: lang.end_not_find_giveaway
-					.replace(/\${gw}/g, inputData as string)
+				content: lang.end_not_find_giveaway.replace(
+					/\${gw}/g,
+					inputData as string
+				)
 			});
 			return;
-		};
+		}
 
 		if (await client.giveawaysManager.isEnded(inputData as string)) {
-			await client.func.method.interactionSend(interaction, { content: lang.end_command_error });
+			await client.func.method.interactionSend(interaction, {
+				content: lang.end_command_error
+			});
 			return;
-		};
+		}
 
-		client.giveawaysManager.end(client, inputData as string)
+		client.giveawaysManager.end(client, inputData as string);
 
 		await client.func.method.interactionSend(interaction, {
-			content: lang.end_confirmation_message
-				.replace(/\${timeEstimate}/g, "0")
+			content: lang.end_confirmation_message.replace(
+				/\${timeEstimate}/g,
+				"0"
+			)
 		});
 
 		await client.func.ihorizon_logs(interaction, {
 			title: lang.end_logs_embed_title,
 			description: lang.end_logs_embed_description
-				.replace(/\${interaction\.user\.id}/g, interaction.member.user.id)
+				.replace(
+					/\${interaction\.user\.id}/g,
+					interaction.member.user.id
+				)
 				.replace(/\${giveaway\.messageID}/g, inputData as string)
 		});
 
 		return;
-	},
+	}
 };

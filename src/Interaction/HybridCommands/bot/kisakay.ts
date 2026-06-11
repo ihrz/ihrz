@@ -20,36 +20,50 @@
 */
 
 import {
-	Client, ChatInputCommandInteraction, ApplicationCommandType,
-	Message,
-} from 'discord.js'
+	Client,
+	ChatInputCommandInteraction,
+	ApplicationCommandType,
+	Message
+} from "discord.js";
 
-import { Command } from '../../../../types/command.js';
-import { LanguageData } from '../../../../types/languageData.js';
+import { Command } from "../../../../types/command.js";
+import { LanguageData } from "../../../../types/languageData.js";
 
 export const command: Command = {
-	name: 'kisakay',
+	name: "kisakay",
 
-	description: 'Get necessary information about my developer, Kisakay',
+	description: "Get necessary information about my developer, Kisakay",
 	description_localizations: {
-		"fr": "Obtenir les informations nécessaires sur ma développeuse, Kisakay"
+		fr: "Obtenir les informations nécessaires sur ma développeuse, Kisakay"
 	},
 
 	aliases: ["anaïs", "anais", "kisa"],
 
-	category: 'bot',
+	category: "bot",
 	thinking: false,
 	type: ApplicationCommandType.ChatInput,
 	permission: null,
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
+		if (
+			!client.user ||
+			!interaction.member ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
 		await client.func.method.interactionSend(interaction, {
-			content: lang.kisakay_message.replace("${client.iHorizon_Emojis.Sparkles}", client.iHorizon_Emojis.Sparkles)
+			content: lang.kisakay_message.replace(
+				"${client.iHorizon_Emojis.Sparkles}",
+				client.iHorizon_Emojis.Sparkles
+			)
 		});
 		return;
-	},
+	}
 };

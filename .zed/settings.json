@@ -1,0 +1,46 @@
+{
+  "format_on_save": "on",
+  "tab_size": 4,
+  "hard_tabs": true,
+  "soft_wrap": "editor_width",
+  "scroll_beyond_last_line": "off",
+  "line_ending": "enforce_lf",
+  "languages": {
+    "JavaScript": {
+      "tab_size": 4,
+      "hard_tabs": true,
+      "formatter": {
+        "external": {
+          "command": "prettier",
+          "arguments": ["--stdin-filepath", "{buffer_path}"]
+        }
+      }
+    },
+    "TypeScript": {
+      "tab_size": 4,
+      "hard_tabs": true,
+      "formatter": {
+        "external": {
+          "command": "prettier",
+          "arguments": ["--stdin-filepath", "{buffer_path}"]
+        }
+      }
+    },
+    "YAML": {
+      "format_on_save": "on"
+    },
+    "JSON": {
+        "format_on_save": "on",
+        "formatter": "language_server"
+    },
+    "Markdown": {
+        "format_on_save": "on",
+        "formatter": {
+            "external": {
+                "command": "prettier",
+                "arguments": ["--stdin-filepath", "{buffer_path}"]
+            }
+        }
+    }
+  }
+}

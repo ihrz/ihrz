@@ -27,33 +27,39 @@ import {
 	Client,
 	ComponentType,
 	EmbedBuilder,
-	Message,
-} from 'discord.js'
-import { LanguageData } from '../../../../types/languageData.js';
-import { SubCommand } from '../../../../types/command.js';
+	Message
+} from "discord.js";
+import { LanguageData } from "../../../../types/languageData.js";
+import { SubCommand } from "../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		const fetchedBan = await interaction.guild?.bans.fetch();
-		const bansArray = fetchedBan?.map(ban => ban);
+		const bansArray = fetchedBan?.map((ban) => ban);
 
 		if (!bansArray || bansArray?.length == 0) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.var_no_one_banned
-			})
+			});
 			return;
 		}
 
 		let currentPage = 0;
 		const usersPerPage = 5;
-		const pages: { title: string; description: string; }[] = [];
+		const pages: { title: string; description: string }[] = [];
 
 		for (let i = 0; i < bansArray.length; i += usersPerPage) {
 			const page = bansArray.slice(i, i + usersPerPage);
-			const description = page.map(ban => {
-				return `[${ban.user.id}](https://discord.com/users/${ban.user.id}) (${ban.user.toString()})`
-			}).join("\n");
+			const description = page
+				.map((ban) => {
+					return `[${ban.user.id}](https://discord.com/users/${ban.user.id}) (${ban.user.toString()})`;
+				})
+				.join("\n");
 
 			pages.push({
 				title: lang.var_banned_user,
@@ -70,8 +76,8 @@ export const subCommand: SubCommand = {
 						.replace("${from}", String(currentPage + 1))
 						.replace("${to}", String(pages.length))
 				})
-				.setColor("#72f3f3")
-		}
+				.setColor("#72f3f3");
+		};
 
 		const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
 			new ButtonBuilder()
@@ -82,8 +88,7 @@ export const subCommand: SubCommand = {
 				.setCustomId("next")
 				.setLabel(">>>")
 				.setStyle(ButtonStyle.Secondary)
-		)
-
+		);
 
 		const message = await client.func.method.interactionSend(interaction, {
 			embeds: [createEmbed()],
@@ -130,5 +135,5 @@ export const subCommand: SubCommand = {
 		});
 
 		return;
-	},
+	}
 };

@@ -37,38 +37,44 @@ import {
 	ButtonStyle,
 	UserSelectMenuBuilder,
 	User,
-	Message,
-} from 'discord.js';
+	Message
+} from "discord.js";
 
-import { Command } from '../../../../types/command.js';
-import { LanguageData } from '../../../../types/languageData.js';
-import { DatabaseStructure } from '../../../../types/database_structure.js';
-import { iHorizonModalResolve } from '../../../core/functions/modalHelper.js';
-import { utcTimezones } from '../../../files/locales.js';
+import { Command } from "../../../../types/command.js";
+import { LanguageData } from "../../../../types/languageData.js";
+import { DatabaseStructure } from "../../../../types/database_structure.js";
+import { iHorizonModalResolve } from "../../../core/functions/modalHelper.js";
+import { utcTimezones } from "../../../files/locales.js";
 
 export const command: Command = {
-	name: 'nightmode',
+	name: "nightmode",
 
 	aliases: ["modenuit", "nuit", "night", "mode-nuit", "night-mode"],
 
-	description: '⭐️ (VERY UHQ) NightMode',
+	description: "⭐️ (VERY UHQ) NightMode",
 	description_localizations: {
-		"fr": "⭐️ (VRAIMENT UHQ) Mode Nuit"
+		fr: "⭐️ (VRAIMENT UHQ) Mode Nuit"
 	},
 
 	thinking: false,
-	category: 'newfeatures',
+	category: "newfeatures",
 	permission: PermissionFlagsBits.Administrator,
 	type: ApplicationCommandType.ChatInput,
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		if (interaction.guild!.ownerId !== interaction.member!.user.id) {
 			return await client.func.method.interactionSend(interaction, {
 				content: lang.blockbot_not_owner
-			})
+			});
 		}
 
-		let baseData = (await client.db.get(`${interaction.guildId}.UTILS.NIGHT_MODE`) || {
+		let baseData = ((await client.db.get(
+			`${interaction.guildId}.UTILS.NIGHT_MODE`
+		)) || {
 			enabled: false,
 			notify: true,
 			time: [21, 0, 9, 0],
@@ -82,15 +88,24 @@ export const command: Command = {
 		warn_msg += "\n";
 
 		if (!check.bot_role) {
-			warn_msg += lang.var_nm_role_app_dont_exist.replace("${client.iHorizon_Emojis.Warning_Icon}", client.iHorizon_Emojis.Warning_Icon);
+			warn_msg += lang.var_nm_role_app_dont_exist.replace(
+				"${client.iHorizon_Emojis.Warning_Icon}",
+				client.iHorizon_Emojis.Warning_Icon
+			);
 		}
 
 		if (!check.im_on_top) {
-			warn_msg += lang.var_nm_role_app_not_high.replace("${client.iHorizon_Emojis.Warning_Icon}", client.iHorizon_Emojis.Warning_Icon);
+			warn_msg += lang.var_nm_role_app_not_high.replace(
+				"${client.iHorizon_Emojis.Warning_Icon}",
+				client.iHorizon_Emojis.Warning_Icon
+			);
 		}
 
 		if (!check.im_self_admin) {
-			warn_msg += lang.var_nm_role_app_not_admin.replace("${client.iHorizon_Emojis.Warning_Icon}", client.iHorizon_Emojis.Warning_Icon);
+			warn_msg += lang.var_nm_role_app_not_admin.replace(
+				"${client.iHorizon_Emojis.Warning_Icon}",
+				client.iHorizon_Emojis.Warning_Icon
+			);
 		}
 
 		let time = client.timeCalculator.to_ms("30m");
@@ -113,21 +128,30 @@ export const command: Command = {
 				}, // 2
 				{
 					name: lang.nightmode_embed_fields_3_name,
-					value: baseData.wlBots?.map(x => `<@${x}>`).join('') || lang.var_none
+					value:
+						baseData.wlBots?.map((x) => `<@${x}>`).join("") ||
+						lang.var_none
 				}, // 3
 				{
 					name: lang.nightmode_embed_fields_4_name,
 					value: `${client.nightmodeManager.time_beautifuer(baseData.time)} (${lang.nightmode_utc_timezone_on} ${utcTimezones[baseData.utc!]})`
-				}, // 4
+				} // 4
 			)
-			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!));
-
+			.setFooter(
+				await client.func.displayBotName.footerBuilder(
+					interaction.guildId!
+				)
+			);
 
 		async function refreshogResponse() {
 			ogResponse.edit({
 				embeds: [embed],
 				components: getComponent(),
-				files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
+				files: [
+					await client.func.displayBotName.footerAttachmentBuilder(
+						interaction
+					)
+				]
 			});
 		}
 
@@ -155,7 +179,7 @@ export const command: Command = {
 					.setLabel(lang.nightmode_select_4_label)
 					.setDescription(lang.nightmode_select_4_desc)
 					.setValue("change_timezone")
-			)
+			);
 
 		const save_button = new ButtonBuilder()
 			.setStyle(ButtonStyle.Success)
@@ -170,18 +194,31 @@ export const command: Command = {
 
 		function getComponent(disabled: boolean = false) {
 			return [
-				new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(string_select.setDisabled(disabled)),
-				new ActionRowBuilder<UserSelectMenuBuilder>().addComponents(wl_bot_select_menu.setDisabled(disabled)),
-				new ActionRowBuilder<ButtonBuilder>().addComponents(save_button.setDisabled(disabled)),
-			]
+				new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
+					string_select.setDisabled(disabled)
+				),
+				new ActionRowBuilder<UserSelectMenuBuilder>().addComponents(
+					wl_bot_select_menu.setDisabled(disabled)
+				),
+				new ActionRowBuilder<ButtonBuilder>().addComponents(
+					save_button.setDisabled(disabled)
+				)
+			];
 		}
 
-		const ogResponse = await client.func.method.interactionSend(interaction, {
-			content: warn_msg,
-			embeds: [embed],
-			components: getComponent(false),
-			files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
-		});
+		const ogResponse = await client.func.method.interactionSend(
+			interaction,
+			{
+				content: warn_msg,
+				embeds: [embed],
+				components: getComponent(false),
+				files: [
+					await client.func.displayBotName.footerAttachmentBuilder(
+						interaction
+					)
+				]
+			}
+		);
 
 		const collector2wish = ogResponse.createMessageComponentCollector({
 			time,
@@ -191,19 +228,19 @@ export const command: Command = {
 		const collector2merde = ogResponse.createMessageComponentCollector({
 			time,
 			componentType: ComponentType.UserSelect
-		})
+		});
 
 		const collector2fdp = ogResponse.createMessageComponentCollector({
 			time,
 			componentType: ComponentType.Button
 		});
 
-		collector2wish.on('collect', async (i) => {
+		collector2wish.on("collect", async (i) => {
 			if (i.user.id !== interaction.member?.user.id) {
 				return await i.reply({
 					content: lang.help_not_for_you,
 					flags: MessageFlags.Ephemeral
-				})
+				});
 			}
 
 			if (i.values[0] === "hours_window") {
@@ -222,79 +259,97 @@ export const command: Command = {
 			}
 		});
 
-
-		collector2wish.on('end', async () => {
+		collector2wish.on("end", async () => {
 			collector2merde.stop();
 			await ogResponse.edit({
 				components: getComponent(true)
 			});
-			await client.db.set(`${interaction.guildId}.UTILS.NIGHT_MODE`, baseData);
+			await client.db.set(
+				`${interaction.guildId}.UTILS.NIGHT_MODE`,
+				baseData
+			);
 		});
 
 		async function editOwnerNotify(fieldsNumber: number) {
 			baseData.notify = !baseData.notify;
 
-			embed.data.fields![fieldsNumber].value = baseData.notify ? "🟢" : "🔴";
-			refreshogResponse()
+			embed.data.fields![fieldsNumber].value = baseData.notify
+				? "🟢"
+				: "🔴";
+			refreshogResponse();
 		}
 		async function derank_bot(fieldsNumber: number) {
 			baseData.derankBot = !baseData.derankBot;
-			embed.data.fields![fieldsNumber].value = baseData.derankBot ? "🟢" : "🔴";
-			refreshogResponse()
+			embed.data.fields![fieldsNumber].value = baseData.derankBot
+				? "🟢"
+				: "🔴";
+			refreshogResponse();
 		}
 
 		async function editEnableMode(fieldsNumber: number) {
 			baseData.enabled = !baseData.enabled;
 
-			embed.data.fields![fieldsNumber].value = baseData.enabled ? "🟢" : "🔴";
+			embed.data.fields![fieldsNumber].value = baseData.enabled
+				? "🟢"
+				: "🔴";
 
-			refreshogResponse()
+			refreshogResponse();
 		}
-		async function change_timezone(i: StringSelectMenuInteraction<CacheType>, fieldsNumber: number) {
-			const options = Object.entries(utcTimezones).map(([offset, name]) => {
-				const offsetNum = Number(offset);
-				const displayOffset = offsetNum >= 0 ? `UTC+${offsetNum}` : `UTC${offsetNum}`;
+		async function change_timezone(
+			i: StringSelectMenuInteraction<CacheType>,
+			fieldsNumber: number
+		) {
+			const options = Object.entries(utcTimezones).map(
+				([offset, name]) => {
+					const offsetNum = Number(offset);
+					const displayOffset =
+						offsetNum >= 0 ? `UTC+${offsetNum}` : `UTC${offsetNum}`;
 
-				return new StringSelectMenuOptionBuilder()
-					.setLabel(name)
-					.setValue(offset)
-					.setDescription(displayOffset);
-			});
+					return new StringSelectMenuOptionBuilder()
+						.setLabel(name)
+						.setValue(offset)
+						.setDescription(displayOffset);
+				}
+			);
 
 			let wait = await i.reply({
 				components: [
-					new ActionRowBuilder<StringSelectMenuBuilder>()
-						.addComponents(
-							new StringSelectMenuBuilder()
-								.setCustomId("utc_choice")
-								.setPlaceholder(lang.nightmode_change_timezone_question)
-								.addOptions(options)
-						)
+					new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
+						new StringSelectMenuBuilder()
+							.setCustomId("utc_choice")
+							.setPlaceholder(
+								lang.nightmode_change_timezone_question
+							)
+							.addOptions(options)
+					)
 				],
 				flags: MessageFlags.Ephemeral
 			});
 
-			let collector2con = interaction.channel!.createMessageComponentCollector({
-				time,
-				componentType: ComponentType.StringSelect
-			});
+			let collector2con =
+				interaction.channel!.createMessageComponentCollector({
+					time,
+					componentType: ComponentType.StringSelect
+				});
 
-			collector2con.on('collect', async (i) => {
+			collector2con.on("collect", async (i) => {
 				let utc = i.values?.[0];
 				if (utc) {
 					baseData.utc = Number(utc);
-					embed.data.fields![fieldsNumber]!.value = `${client.nightmodeManager.time_beautifuer(baseData.time)} (fuseau UTC sur ${utcTimezones[baseData.utc!]})`
-					refreshogResponse()
+					embed.data.fields![fieldsNumber]!.value =
+						`${client.nightmodeManager.time_beautifuer(baseData.time)} (fuseau UTC sur ${utcTimezones[baseData.utc!]})`;
+					refreshogResponse();
 					collector2con.stop();
 				}
-			})
+			});
 
-			collector2con.on('end', async () => {
+			collector2con.on("end", async () => {
 				wait.delete();
-
-			})
+			});
 		}
-		function parseTimeInput(input: string): { hour: number, minute: number } | null {
+		function parseTimeInput(
+			input: string
+		): { hour: number; minute: number } | null {
 			// Supported format: "21", "21:30", "2130"
 			const timeRegex = /^(\d{1,2})(?::(\d{2})|(\d{2}))?$/;
 			const match = input.match(timeRegex);
@@ -302,7 +357,7 @@ export const command: Command = {
 			if (!match) return null;
 
 			const hour = parseInt(match[1]);
-			const minute = parseInt(match[2] || match[3] || '0');
+			const minute = parseInt(match[2] || match[3] || "0");
 
 			if (hour < 0 || hour > 23 || minute < 0 || minute > 59) {
 				return null;
@@ -311,32 +366,38 @@ export const command: Command = {
 			return { hour, minute };
 		}
 
-		async function editHoursWindow(i: StringSelectMenuInteraction<CacheType>, fieldsNumber: number) {
-			const modal = await iHorizonModalResolve({
-				customId: "night-mode",
-				deferUpdate: true,
-				fields: [
-					{
-						customId: "start",
-						label: lang.nightmode_modal_hours_window_fields0_label,
-						required: true,
-						style: TextInputStyle.Short,
-						maxLength: 5,
-						minLength: 1,
-						placeHolder: "21:30 / 2130"
-					},
-					{
-						customId: "end",
-						label: lang.nightmode_modal_hours_window_fields1_label,
-						required: true,
-						style: TextInputStyle.Short,
-						maxLength: 5,
-						minLength: 1,
-						placeHolder: "06:15 / 0615"
-					}
-				],
-				title: lang.nightmode_modal_hours_window_title
-			}, i);
+		async function editHoursWindow(
+			i: StringSelectMenuInteraction<CacheType>,
+			fieldsNumber: number
+		) {
+			const modal = await iHorizonModalResolve(
+				{
+					customId: "night-mode",
+					deferUpdate: true,
+					fields: [
+						{
+							customId: "start",
+							label: lang.nightmode_modal_hours_window_fields0_label,
+							required: true,
+							style: TextInputStyle.Short,
+							maxLength: 5,
+							minLength: 1,
+							placeHolder: "21:30 / 2130"
+						},
+						{
+							customId: "end",
+							label: lang.nightmode_modal_hours_window_fields1_label,
+							required: true,
+							style: TextInputStyle.Short,
+							maxLength: 5,
+							minLength: 1,
+							placeHolder: "06:15 / 0615"
+						}
+					],
+					title: lang.nightmode_modal_hours_window_title
+				},
+				i
+			);
 
 			let start_value = modal?.fields.getTextInputValue("start");
 			let end_value = modal?.fields.getTextInputValue("end");
@@ -345,33 +406,57 @@ export const command: Command = {
 			const endTime = parseTimeInput(end_value!);
 
 			if (!startTime) {
-				refreshogResponse()
-				interaction instanceof ChatInputCommandInteraction ? interaction.followUp({
-					content: lang.nightmode_invalid_hour_morning.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No),
-					flags: MessageFlags.Ephemeral
-				}) : await client.func.method.interactionSend(interaction, {
-					content: lang.nightmode_invalid_hour_morning.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No),
-				})
+				refreshogResponse();
+				interaction instanceof ChatInputCommandInteraction
+					? interaction.followUp({
+							content:
+								lang.nightmode_invalid_hour_morning.replace(
+									"${client.iHorizon_Emojis.No}",
+									client.iHorizon_Emojis.No
+								),
+							flags: MessageFlags.Ephemeral
+						})
+					: await client.func.method.interactionSend(interaction, {
+							content:
+								lang.nightmode_invalid_hour_morning.replace(
+									"${client.iHorizon_Emojis.No}",
+									client.iHorizon_Emojis.No
+								)
+						});
 				return;
 			}
 
 			if (!endTime) {
-				refreshogResponse()
-				interaction instanceof ChatInputCommandInteraction ? interaction.followUp({
-					content: lang.nightmode_invalid_hour_night.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No),
-					flags: MessageFlags.Ephemeral
-				}) : await client.func.method.interactionSend(interaction, {
-					content: lang.nightmode_invalid_hour_night.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No),
-					flags: MessageFlags.Ephemeral
-				})
+				refreshogResponse();
+				interaction instanceof ChatInputCommandInteraction
+					? interaction.followUp({
+							content: lang.nightmode_invalid_hour_night.replace(
+								"${client.iHorizon_Emojis.No}",
+								client.iHorizon_Emojis.No
+							),
+							flags: MessageFlags.Ephemeral
+						})
+					: await client.func.method.interactionSend(interaction, {
+							content: lang.nightmode_invalid_hour_night.replace(
+								"${client.iHorizon_Emojis.No}",
+								client.iHorizon_Emojis.No
+							),
+							flags: MessageFlags.Ephemeral
+						});
 				return;
 			}
 
 			// New format: [startHour, startMinute, endHour, endMinute]
-			baseData.time = [startTime.hour, startTime.minute, endTime.hour, endTime.minute];
-			embed.data.fields![fieldsNumber].value = `${client.nightmodeManager.time_beautifuer(baseData.time)} (fuseau UTC sur ${utcTimezones[baseData.utc!]})`;
+			baseData.time = [
+				startTime.hour,
+				startTime.minute,
+				endTime.hour,
+				endTime.minute
+			];
+			embed.data.fields![fieldsNumber].value =
+				`${client.nightmodeManager.time_beautifuer(baseData.time)} (fuseau UTC sur ${utcTimezones[baseData.utc!]})`;
 
-			refreshogResponse()
+			refreshogResponse();
 		}
 
 		collector2fdp.on("collect", async (i) => {
@@ -379,7 +464,7 @@ export const command: Command = {
 				return await i.reply({
 					content: lang.help_not_for_you,
 					flags: MessageFlags.Ephemeral
-				})
+				});
 			}
 
 			if (i.customId === "nightmode_save_config") {
@@ -389,31 +474,40 @@ export const command: Command = {
 				await ogResponse.edit({
 					components: getComponent(true)
 				});
-				await client.db.set(`${interaction.guildId}.UTILS.NIGHT_MODE`, baseData);
+				await client.db.set(
+					`${interaction.guildId}.UTILS.NIGHT_MODE`,
+					baseData
+				);
 			}
-		})
+		});
 
-		collector2merde.on('collect', async (i) => {
+		collector2merde.on("collect", async (i) => {
 			if (i.user.id !== interaction.member?.user.id) {
 				await i.reply({
 					content: lang.help_not_for_you,
 					flags: MessageFlags.Ephemeral
-				})
+				});
 			}
 
 			i.deferUpdate();
 
 			if (i.values) {
 				const users = await Promise.all(
-					i.values.map(id => client.users.fetch(id).catch(() => null))
+					i.values.map((id) =>
+						client.users.fetch(id).catch(() => null)
+					)
 				);
 
-				const bots = users.filter((u): u is User => u !== null && u.bot);
+				const bots = users.filter(
+					(u): u is User => u !== null && u.bot
+				);
 
-				baseData.wlBots = bots.map(u => u.id);
-				embed.data.fields![3]!.value = baseData.wlBots.map(x => "<@" + x + ">").join(",")
-				refreshogResponse()
+				baseData.wlBots = bots.map((u) => u.id);
+				embed.data.fields![3]!.value = baseData.wlBots
+					.map((x) => "<@" + x + ">")
+					.join(",");
+				refreshogResponse();
 			}
-		})
-	},
+		});
+	}
 };

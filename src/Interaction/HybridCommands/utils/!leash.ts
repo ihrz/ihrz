@@ -19,76 +19,114 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	Client,
-	ChatInputCommandInteraction,
-	Message
-} from 'discord.js'
+import { Client, ChatInputCommandInteraction, Message } from "discord.js";
 
-import { LanguageData } from '../../../../types/languageData.js';
+import { LanguageData } from "../../../../types/languageData.js";
 
-import { isInVoiceChannel } from '../../../core/functions/leashModuleHelper.js';
-import promptYesOrNo from '../../../core/functions/awaitingResponse.js';
-import { DatabaseStructure } from '../../../../types/database_structure.js';
+import { isInVoiceChannel } from "../../../core/functions/leashModuleHelper.js";
+import promptYesOrNo from "../../../core/functions/awaitingResponse.js";
+import { DatabaseStructure } from "../../../../types/database_structure.js";
 
-import { SubCommand } from '../../../../types/command.js';
+import { SubCommand } from "../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
+		if (
+			!client.user ||
+			!interaction.member ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
 		if (interaction instanceof ChatInputCommandInteraction) {
 			var user = interaction.options.getMember("member")!;
 		} else {
 			var user = client.func.method.member(interaction, args!, 0)!;
-		};
+		}
 
-		const baseData = await client.db.get(`${interaction.guildId}.UTILS.LEASH_CONFIG`) || {
-			maxLeashedByUsers: 3,
-			maxLeashTime: client.timeCalculator.to_ms("30min")
-		} as DatabaseStructure.LeashConfig;
-		const fetchedData = (await client.db.get(`${interaction.guildId}.UTILS.LEASH`) || []) as DatabaseStructure.LeashData[];
-		const filteredData = fetchedData.filter(x => x.dom === interaction.member?.user.id) || [];
+		const baseData =
+			(await client.db.get(
+				`${interaction.guildId}.UTILS.LEASH_CONFIG`
+			)) ||
+			({
+				maxLeashedByUsers: 3,
+				maxLeashTime: client.timeCalculator.to_ms("30min")
+			} as DatabaseStructure.LeashConfig);
+		const fetchedData = ((await client.db.get(
+			`${interaction.guildId}.UTILS.LEASH`
+		)) || []) as DatabaseStructure.LeashData[];
+		const filteredData =
+			fetchedData.filter((x) => x.dom === interaction.member?.user.id) ||
+			[];
 
-		if (filteredData.length >= (baseData.maxLeashedByUsers)) {
-			await client.func.method.interactionSend(interaction, { content: lang.util_leash_too_naugthy });
+		if (filteredData.length >= baseData.maxLeashedByUsers) {
+			await client.func.method.interactionSend(interaction, {
+				content: lang.util_leash_too_naugthy
+			});
 			return;
 		}
 
-
-		if (filteredData.find(x => x.sub === user.id)) {
-			await client.func.method.interactionSend(interaction, { content: lang.util_leah_already_owned });
+		if (filteredData.find((x) => x.sub === user.id)) {
+			await client.func.method.interactionSend(interaction, {
+				content: lang.util_leah_already_owned
+			});
 			return;
 		}
-
 
 		if (!isInVoiceChannel(user) || isInVoiceChannel(interaction.member)) {
 			const response = await promptYesOrNo(interaction, {
 				content: lang.util_leash_confirm_message
-					.replace("${client.iHorizon_Emojis.Warning_Icon}", client.iHorizon_Emojis.Warning_Icon)
-					.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No).replace("${client.iHorizon_Emojis.Yes}", client.iHorizon_Emojis.Yes),
+					.replace(
+						"${client.iHorizon_Emojis.Warning_Icon}",
+						client.iHorizon_Emojis.Warning_Icon
+					)
+					.replace(
+						"${client.iHorizon_Emojis.No}",
+						client.iHorizon_Emojis.No
+					)
+					.replace(
+						"${client.iHorizon_Emojis.Yes}",
+						client.iHorizon_Emojis.Yes
+					),
 				yesButton: lang.var_yes,
 				noButton: lang.var_no,
 				dangerAction: false
-			})
+			});
 			if (!response) {
 				await client.func.method.interactionSend(interaction, {
-					content: lang.util_leash_canceled_leash.replace("${client.iHorizon_Emojis.Yes}", client.iHorizon_Emojis.Yes),
+					content: lang.util_leash_canceled_leash.replace(
+						"${client.iHorizon_Emojis.Yes}",
+						client.iHorizon_Emojis.Yes
+					),
 					components: []
-				})
+				});
 				return;
 			}
 		}
 
-		fetchedData!.push({ dom: interaction.member.user.id, sub: user.id, timestamp: Date.now() })
-		await client.db.set(`${interaction.guildId}.UTILS.LEASH`, Array.from(new Set(fetchedData)));
+		fetchedData!.push({
+			dom: interaction.member.user.id,
+			sub: user.id,
+			timestamp: Date.now()
+		});
+		await client.db.set(
+			`${interaction.guildId}.UTILS.LEASH`,
+			Array.from(new Set(fetchedData))
+		);
 
 		await client.func.method.interactionSend(interaction, {
-			content: lang.util_leash_confirmed_leash.replace("${client.iHorizon_Emojis.Yes}", client.iHorizon_Emojis.Yes),
+			content: lang.util_leash_confirmed_leash.replace(
+				"${client.iHorizon_Emojis.Yes}",
+				client.iHorizon_Emojis.Yes
+			),
 			components: []
-		})
-	},
+		});
+	}
 };

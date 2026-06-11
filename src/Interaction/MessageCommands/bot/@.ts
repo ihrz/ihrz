@@ -19,24 +19,28 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	Client,
-	Message,
-} from 'discord.js';
-import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
+import { Client, Message } from "discord.js";
+import { LanguageData } from "../../../../types/languageData.js";
+import { Command } from "../../../../types/command.js";
 
 export const command: Command = {
-	name: 'grosbg',
-	description: '...',
+	name: "grosbg",
+	description: "...",
 	description_localizations: {
-		"fr": "..."
+		fr: "..."
 	},
 	thinking: false,
-	category: '404',
+	category: "404",
 	type: "PREFIX_IHORIZON_COMMAND",
 	permission: null,
-	run: async (client: Client, interaction: Message, lang: LanguageData, args?: string[]) => {
-		await interaction.reply({ content: "kly ( @bonnefoi ) le plus beau" })
+	run: async (
+		client: Client,
+		interaction: Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
+		await interaction.reply({
+			content: "kly ( @hjcbebcbknckehcbckb ) le plus beau"
+		});
 	}
 };

@@ -25,32 +25,39 @@ import {
 	ChatInputCommandInteraction,
 	Client,
 	Message,
-	PermissionsBitField,
-} from 'discord.js';
+	PermissionsBitField
+} from "discord.js";
 
-import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
-import { generateMultiplePasswords, generatePassword } from '../../../core/functions/random.js';
+import { LanguageData } from "../../../../types/languageData.js";
+import { Command } from "../../../../types/command.js";
+import {
+	generateMultiplePasswords,
+	generatePassword
+} from "../../../core/functions/random.js";
 
 function getNitro(x: number = 1): string {
-	return x === 1 ? "https://discord.gift/" + generatePassword({
-		length: 16,
-		symbols: false,
-		numbers: true,
-	}) : generateMultiplePasswords(x, {
-		length: 16,
-		symbols: false,
-		numbers: true,
-	}).map(x => `https://discord.gift/${x}`).join("\n")
+	return x === 1
+		? "https://discord.gift/" +
+				generatePassword({
+					length: 16,
+					symbols: false,
+					numbers: true
+				})
+		: generateMultiplePasswords(x, {
+				length: 16,
+				symbols: false,
+				numbers: true
+			})
+				.map((x) => `https://discord.gift/${x}`)
+				.join("\n");
 }
 
 export const command: Command = {
+	name: "nitrofdp",
 
-	name: 'nitrofdp',
-
-	description: 'without comment',
+	description: "without comment",
 	description_localizations: {
-		"fr": "sans commentaires"
+		fr: "sans commentaires"
 	},
 
 	options: [
@@ -59,7 +66,7 @@ export const command: Command = {
 
 			description: "amount of nitro",
 			description_localizations: {
-				"fr": "nombre de nitro"
+				fr: "nombre de nitro"
 			},
 
 			type: ApplicationCommandOptionType.Number,
@@ -71,10 +78,15 @@ export const command: Command = {
 	],
 
 	thinking: false,
-	category: '404',
+	category: "404",
 	type: "PREFIX_IHORIZON_COMMAND",
 	permission: null,
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message<true>, lang: LanguageData, options?: string[]) => {
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message<true>,
+		lang: LanguageData,
+		options?: string[]
+	) => {
 		let amount = client.func.method.number(options!, 0) || 1;
 
 		if (amount > 275000) {
@@ -82,14 +94,14 @@ export const command: Command = {
 		}
 
 		if (interaction.guild.preferredLocale.includes("fr")) {
-			const buffer = Buffer.from(getNitro(amount), 'utf-8');
-			const attachment = new AttachmentBuilder(buffer, { name: 'fake_nitro.txt' })
+			const buffer = Buffer.from(getNitro(amount), "utf-8");
+			const attachment = new AttachmentBuilder(buffer, {
+				name: "fake_nitro.txt"
+			});
 
 			interaction.reply({
-				files: [
-					attachment
-				]
-			})
+				files: [attachment]
+			});
 		}
-	},
+	}
 };

@@ -27,35 +27,44 @@ import {
 	EmbedBuilder,
 	Message,
 	PermissionsBitField
-} from 'discord.js';
+} from "discord.js";
 
-import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
-import { DatabaseStructure } from '../../../../types/database_structure.js';
+import { LanguageData } from "../../../../types/languageData.js";
+import { Command } from "../../../../types/command.js";
+import { DatabaseStructure } from "../../../../types/database_structure.js";
 export const command: Command = {
+	name: "list-react",
+	aliases: ["react-list", "listreact", "reactlist"],
 
-	name: 'list-react',
-	aliases: ['react-list', 'listreact', 'reactlist'],
-
-	description: 'Show all specific messages saved to be react',
+	description: "Show all specific messages saved to be react",
 	description_localizations: {
-		"fr": "Afficher tous les messages spécifiques enregistrés pour être réagis"
+		fr: "Afficher tous les messages spécifiques enregistrés pour être réagis"
 	},
 
 	thinking: false,
-	category: 'guildconfig',
+	category: "guildconfig",
 	type: "PREFIX_IHORIZON_COMMAND",
 	permission: PermissionsBitField.Flags.AddReactions,
-	run: async (client: Client, interaction: Message<true>, lang: LanguageData, options?: string[]) => {
-
-		const all_specific_message: DatabaseStructure.DbGuildObject["REACT_MSG"] = await client.db.get(`${interaction.guildId}.GUILD.REACT_MSG`) || {};
+	run: async (
+		client: Client,
+		interaction: Message<true>,
+		lang: LanguageData,
+		options?: string[]
+	) => {
+		const all_specific_message: DatabaseStructure.DbGuildObject["REACT_MSG"] =
+			(await client.db.get(`${interaction.guildId}.GUILD.REACT_MSG`)) ||
+			{};
 
 		let currentPage = 0;
 
 		const pages: string[] = [];
 
 		Object.entries(all_specific_message!).forEach(([key, value]) => {
-			pages.push(lang.list_react_embed_msg.replace("${key}", key).replace("${value}", value));
+			pages.push(
+				lang.list_react_embed_msg
+					.replace("${key}", key)
+					.replace("${value}", value)
+			);
 		});
 
 		if (pages.length === 0) {
@@ -70,51 +79,61 @@ export const command: Command = {
 			return new EmbedBuilder()
 				.setColor("#010101")
 				.setDescription(pages[currentPage])
-				.setFooter({ text: `iHorizon | Page ${currentPage + 1}/${pages.length}`, iconURL: "attachment://footer_icon.png" })
-				.setTimestamp()
+				.setFooter({
+					text: `iHorizon | Page ${currentPage + 1}/${pages.length}`,
+					iconURL: "attachment://footer_icon.png"
+				})
+				.setTimestamp();
 		};
 
 		const row = new ActionRowBuilder().addComponents(
 			new ButtonBuilder()
-				.setCustomId('previousPage')
-				.setLabel('<<<')
+				.setCustomId("previousPage")
+				.setLabel("<<<")
 				.setStyle(ButtonStyle.Secondary),
 			new ButtonBuilder()
-				.setCustomId('nextPage')
-				.setLabel('>>>')
-				.setStyle(ButtonStyle.Secondary),
+				.setCustomId("nextPage")
+				.setLabel(">>>")
+				.setStyle(ButtonStyle.Secondary)
 		);
 
 		const messageEmbed = await interaction.reply({
 			embeds: [createEmbed()],
-			components: [(row as ActionRowBuilder<ButtonBuilder>)],
-			files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
+			components: [row as ActionRowBuilder<ButtonBuilder>],
+			files: [
+				await client.func.displayBotName.footerAttachmentBuilder(
+					interaction
+				)
+			]
 		});
 
 		const collector = messageEmbed.createMessageComponentCollector({
 			filter: async (i) => {
 				await i.deferUpdate();
 				return interaction.author.id === i.user.id;
-			}, time: 60_000 * 16 // 16 minutes
+			},
+			time: 60_000 * 16 // 16 minutes
 		});
 
-		collector.on('collect', (interaction: { customId: string; }) => {
-			if (interaction.customId === 'previousPage') {
+		collector.on("collect", (interaction: { customId: string }) => {
+			if (interaction.customId === "previousPage") {
 				currentPage = (currentPage - 1 + pages.length) % pages.length;
-			} else if (interaction.customId === 'nextPage') {
+			} else if (interaction.customId === "nextPage") {
 				currentPage = (currentPage + 1) % pages.length;
 			}
 
 			messageEmbed.edit({ embeds: [createEmbed()] });
 		});
 
-		collector.on('end', () => {
+		collector.on("end", () => {
 			row.components.forEach((component) => {
 				if (component instanceof ButtonBuilder) {
 					component.setDisabled(true);
 				}
 			});
-			messageEmbed.edit({ components: [(row as ActionRowBuilder<ButtonBuilder>)] });
+			messageEmbed.edit({
+				components: [row as ActionRowBuilder<ButtonBuilder>]
+			});
 		});
-	},
+	}
 };

@@ -19,10 +19,10 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { ChannelPermissionsData, TextChannelData, VoiceChannelData } from './';
+import { ChannelPermissionsData, TextChannelData, VoiceChannelData } from "./";
 
 export interface CategoryData {
-    name: string;
-    permissions: ChannelPermissionsData[];
-    children: Array<TextChannelData | VoiceChannelData>;
+	name: string;
+	permissions: ChannelPermissionsData[];
+	children: Array<TextChannelData | VoiceChannelData>;
 }

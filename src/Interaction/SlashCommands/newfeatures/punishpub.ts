@@ -24,83 +24,82 @@ import {
 	ApplicationCommandOptionType,
 	ChatInputCommandInteraction,
 	ApplicationCommandType,
-	PermissionFlagsBits,
-} from 'discord.js';
+	PermissionFlagsBits
+} from "discord.js";
 
-import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
-
+import { LanguageData } from "../../../../types/languageData.js";
+import { Command } from "../../../../types/command.js";
 
 export const command: Command = {
-	name: 'punishpub',
+	name: "punishpub",
 
-	description: 'Punish user when he send too much advertisement!',
+	description: "Punish user when he send too much advertisement!",
 	description_localizations: {
-		"fr": "Punir l'utilisateur lorsqu'il envoie trop de publicité"
+		fr: "Punir l'utilisateur lorsqu'il envoie trop de publicité"
 	},
 
 	options: [
 		{
-			name: 'status',
+			name: "status",
 			type: ApplicationCommandOptionType.String,
 
-			description: 'Choose the status of the module',
+			description: "Choose the status of the module",
 			description_localizations: {
-				"fr": "Choisir l'état du module"
+				fr: "Choisir l'état du module"
 			},
 
 			required: true,
 			choices: [
 				{
 					name: "ON",
-					name_localizations: { fr: 'Activer' },
+					name_localizations: { fr: "Activer" },
 					value: "true"
 				},
 				{
 					name: "OFF",
-					name_localizations: { fr: 'Désactiver' },
+					name_localizations: { fr: "Désactiver" },
 					value: "false"
 				}
 			],
 
-			permission: null,
+			permission: null
 		},
 		{
-			name: 'amount',
+			name: "amount",
 			type: ApplicationCommandOptionType.Number,
 
-			description: 'The max amount of flags before punishement',
+			description: "The max amount of flags before punishement",
 			description_localizations: {
-				"fr": "Le nombre maximum de flags avant la punition"
+				fr: "Le nombre maximum de flags avant la punition"
 			},
 
 			required: false,
-			permission: null,
+			permission: null
 		},
 		{
-			name: 'punishement',
+			name: "punishement",
 			type: ApplicationCommandOptionType.String,
 
-			description: 'Choose the punishement',
+			description: "Choose the punishement",
 			description_localizations: {
-				"fr": "Choisir la punition"
+				fr: "Choisir la punition"
 			},
 
 			required: false,
 			choices: [
 				{
 					name: "BAN",
-					name_localizations: { fr: 'Bannir' },
+					name_localizations: { fr: "Bannir" },
 					value: "ban"
 				},
 				{
 					name: "KICK",
-					name_localizations: { fr: 'Expulser' },
+					name_localizations: { fr: "Expulser" },
 					value: "kick"
 				},
 				{
 					name: "MUTE",
-					name_localizations: { fr: 'Muter' },
+					name_localizations: { fr: "Muter" },
 					value: "mute"
 				}
 			],
@@ -109,14 +108,23 @@ export const command: Command = {
 	],
 	thinking: false,
 	permission: PermissionFlagsBits.Administrator,
-	category: 'newfeatures',
+	category: "newfeatures",
 	type: ApplicationCommandType.ChatInput,
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached">,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
-
-
+		if (
+			!interaction.member ||
+			!client.user ||
+			!interaction.user ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
 		const action = interaction.options.getString("status");
 		const amount = interaction.options.getNumber("amount");
@@ -124,19 +132,26 @@ export const command: Command = {
 
 		if (amount && action == "true") {
 			if (amount > 50) {
-				await client.func.method.interactionSend(interaction, { content: lang.punishpub_too_hight_enable })
+				await client.func.method.interactionSend(interaction, {
+					content: lang.punishpub_too_hight_enable
+				});
 				return;
-			};
+			}
 			if (amount < 0) {
-				await client.func.method.interactionSend(interaction, { content: lang.punishpub_negative_number_enable });
+				await client.func.method.interactionSend(interaction, {
+					content: lang.punishpub_negative_number_enable
+				});
 				return;
-			};
+			}
 			if (amount == 0) {
-				await client.func.method.interactionSend(interaction, { content: lang.punishpub_zero_number_enable });
+				await client.func.method.interactionSend(interaction, {
+					content: lang.punishpub_zero_number_enable
+				});
 				return;
-			};
+			}
 
-			await client.db.set(`${interaction.guildId}.GUILD.PUNISH.PUNISH_PUB`,
+			await client.db.set(
+				`${interaction.guildId}.GUILD.PUNISH.PUNISH_PUB`,
 				{
 					amountMax: amount - 1,
 					punishementType: punishment,
@@ -160,16 +175,23 @@ export const command: Command = {
 			});
 			return;
 		} else {
-			await client.db.delete(`${interaction.guildId}.GUILD.PUNISH.PUNISH_PUB`);
-			await client.func.method.interactionSend(interaction, { content: lang.punishpub_confirmation_disable })
+			await client.db.delete(
+				`${interaction.guildId}.GUILD.PUNISH.PUNISH_PUB`
+			);
+			await client.func.method.interactionSend(interaction, {
+				content: lang.punishpub_confirmation_disable
+			});
 
 			await client.func.ihorizon_logs(interaction, {
 				title: lang.punishpub_logs_embed_title_disable,
-				description: lang.punishpub_logs_embed_description_disable
-					.replace("${interaction.user.id}", interaction.user.id)
+				description:
+					lang.punishpub_logs_embed_description_disable.replace(
+						"${interaction.user.id}",
+						interaction.user.id
+					)
 			});
 
 			return;
-		};
-	},
+		}
+	}
 };

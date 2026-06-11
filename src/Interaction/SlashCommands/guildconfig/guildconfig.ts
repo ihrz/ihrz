@@ -22,26 +22,26 @@
 import {
 	ApplicationCommandOptionType,
 	ApplicationCommandType,
-	PermissionFlagsBits,
-} from 'discord.js';
+	PermissionFlagsBits
+} from "discord.js";
 
-import { Command } from '../../../../types/command.js';
+import { Command } from "../../../../types/command.js";
 
 export const command: Command = {
 	name: "guildconfig",
 
 	description: "Subcommand for guildconfig category!",
 	description_localizations: {
-		"fr": "Commande sous-groupé pour la catégorie de configuration du serveur"
+		fr: "Commande sous-groupé pour la catégorie de configuration du serveur"
 	},
 
 	options: [
 		{
-			name: 'setup',
+			name: "setup",
 
-			description: 'Setup the logs channel about the bot!',
+			description: "Setup the logs channel about the bot!",
 			description_localizations: {
-				"fr": "Configurer le canal de journaux sur le bot"
+				fr: "Configurer le canal de journaux sur le bot"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -49,44 +49,45 @@ export const command: Command = {
 			permission: PermissionFlagsBits.Administrator
 		},
 		{
-			name: 'block',
+			name: "block",
 
-			description: 'Block/Protect someting/behaviours into this guild!',
+			description: "Block/Protect someting/behaviours into this guild!",
 			description_localizations: {
-				"fr": "Bloquer/Protéger certains comportements/comportements dans cette guilde"
+				fr: "Bloquer/Protéger certains comportements/comportements dans cette guilde"
 			},
 
 			type: ApplicationCommandOptionType.SubcommandGroup,
 			options: [
 				{
-					name: 'bot',
+					name: "bot",
 
-					description: 'Block the ability to add new bots into this server',
+					description:
+						"Block the ability to add new bots into this server",
 					description_localizations: {
-						"fr": "Bloquer la possibilité d'ajouter de nouveaux robots sur ce serveur"
+						fr: "Bloquer la possibilité d'ajouter de nouveaux robots sur ce serveur"
 					},
 
 					type: ApplicationCommandOptionType.Subcommand,
 					options: [
 						{
-							name: 'action',
+							name: "action",
 							type: ApplicationCommandOptionType.String,
 
-							description: 'What you want to do?',
+							description: "What you want to do?",
 							description_localizations: {
-								"fr": "Que veux-tu faire?"
+								fr: "Que veux-tu faire?"
 							},
 
 							required: true,
 							choices: [
 								{
-									name: 'Power On',
-									name_localizations: { fr: 'Activer' },
+									name: "Power On",
+									name_localizations: { fr: "Activer" },
 									value: "on"
 								},
 								{
 									name: "Power Off",
-									name_localizations: { fr: 'Désactiver' },
+									name_localizations: { fr: "Désactiver" },
 									value: "off"
 								}
 							],
@@ -98,37 +99,38 @@ export const command: Command = {
 					permission: PermissionFlagsBits.Administrator
 				},
 				{
-					name: 'too-new-account',
+					name: "too-new-account",
 					name_localizations: {
 						fr: "compte-trop-recent"
 					},
 
-					description: 'Block accounts that are too new from joining your server',
+					description:
+						"Block accounts that are too new from joining your server",
 					description_localizations: {
-						"fr": "Bloquer les compte trop récent de rejoindre votre serveur"
+						fr: "Bloquer les compte trop récent de rejoindre votre serveur"
 					},
 
 					type: ApplicationCommandOptionType.Subcommand,
 					options: [
 						{
-							name: 'action',
+							name: "action",
 							type: ApplicationCommandOptionType.String,
 
-							description: 'What you want to do?',
+							description: "What you want to do?",
 							description_localizations: {
-								"fr": "Que veux-tu faire?"
+								fr: "Que veux-tu faire?"
 							},
 
 							required: true,
 							choices: [
 								{
-									name: 'Power On',
-									name_localizations: { fr: 'Activer' },
+									name: "Power On",
+									name_localizations: { fr: "Activer" },
 									value: "on"
 								},
 								{
 									name: "Power Off",
-									name_localizations: { fr: 'Désactiver' },
+									name_localizations: { fr: "Désactiver" },
 									value: "off"
 								}
 							],
@@ -136,12 +138,12 @@ export const command: Command = {
 							permission: null
 						},
 						{
-							name: 'minimum-date',
+							name: "minimum-date",
 							type: ApplicationCommandOptionType.String,
 
-							description: 'Minimum seniority time',
+							description: "Minimum seniority time",
 							description_localizations: {
-								"fr": "Temps minimum d'ancienneté"
+								fr: "Temps minimum d'ancienneté"
 							},
 
 							required: false,
@@ -149,12 +151,12 @@ export const command: Command = {
 							permission: null
 						},
 						{
-							name: 'maximum-join',
+							name: "maximum-join",
 							type: ApplicationCommandOptionType.Number,
 
-							description: 'Maximum join before ban',
+							description: "Maximum join before ban",
 							description_localizations: {
-								"fr": "Montant de join maximum possible de l'utilisateur avant sont bannisement"
+								fr: "Montant de join maximum possible de l'utilisateur avant sont bannisement"
 							},
 
 							required: false,
@@ -164,26 +166,27 @@ export const command: Command = {
 					],
 
 					permission: PermissionFlagsBits.Administrator
-				},
+				}
 			],
 			permission: null
 		},
 		{
-			name: 'set',
+			name: "set",
 
-			description: 'Set someting/behaviours into this guild!',
+			description: "Set someting/behaviours into this guild!",
 			description_localizations: {
-				"fr": "Définir quelque chose/comportements dans ce serveur"
+				fr: "Définir quelque chose/comportements dans ce serveur"
 			},
 
 			type: ApplicationCommandOptionType.SubcommandGroup,
 			options: [
 				{
-					name: 'channel',
+					name: "channel",
 
-					description: 'Set the channel where the bot will send message when user leave/join guild!',
+					description:
+						"Set the channel where the bot will send message when user leave/join guild!",
 					description_localizations: {
-						"fr": "Définir le canal pour les messages de départ/arrivée d'utilisateurs sur le serveur."
+						fr: "Définir le canal pour les messages de départ/arrivée d'utilisateurs sur le serveur."
 					},
 
 					type: ApplicationCommandOptionType.Subcommand,
@@ -191,11 +194,12 @@ export const command: Command = {
 					permission: PermissionFlagsBits.Administrator
 				},
 				{
-					name: 'join-dm',
+					name: "join-dm",
 
-					description: 'Set a join dm message when user join the guild!',
+					description:
+						"Set a join dm message when user join the guild!",
 					description_localizations: {
-						"fr": "Définir un message de participation au DM lorsque l'utilisateur rejoint le serveur"
+						fr: "Définir un message de participation au DM lorsque l'utilisateur rejoint le serveur"
 					},
 
 					type: ApplicationCommandOptionType.Subcommand,
@@ -203,11 +207,11 @@ export const command: Command = {
 					permission: PermissionFlagsBits.Administrator
 				},
 				{
-					name: 'join-message',
+					name: "join-message",
 
-					description: 'Set a join message when user join the guild!',
+					description: "Set a join message when user join the guild!",
 					description_localizations: {
-						"fr": "Définir un message d'adhésion lorsque l'utilisateur rejoint le serveur"
+						fr: "Définir un message d'adhésion lorsque l'utilisateur rejoint le serveur"
 					},
 
 					type: ApplicationCommandOptionType.Subcommand,
@@ -215,11 +219,11 @@ export const command: Command = {
 					permission: PermissionFlagsBits.Administrator
 				},
 				{
-					name: 'join-role',
+					name: "join-role",
 
-					description: 'Set a join roles when user join the guild!',
+					description: "Set a join roles when user join the guild!",
 					description_localizations: {
-						"fr": "Définissez des rôles de participation lorsque l'utilisateur rejoint le serveur!"
+						fr: "Définissez des rôles de participation lorsque l'utilisateur rejoint le serveur!"
 					},
 
 					type: ApplicationCommandOptionType.Subcommand,
@@ -227,37 +231,39 @@ export const command: Command = {
 					permission: PermissionFlagsBits.Administrator
 				},
 				{
-					name: 'leave-message',
+					name: "leave-message",
 
-					description: 'Set a leave message when user leave the guild!',
+					description:
+						"Set a leave message when user leave the guild!",
 					description_localizations: {
-						"fr": "Définir un message de départ lorsque l'utilisateur quitte le serveur"
+						fr: "Définir un message de départ lorsque l'utilisateur quitte le serveur"
 					},
 
 					type: ApplicationCommandOptionType.Subcommand,
 
 					permission: PermissionFlagsBits.Administrator
-				},
+				}
 			],
 
 			permission: null
 		},
 		{
-			name: 'bot',
+			name: "bot",
 
-			description: 'Set someting/behaviours in the bot!',
+			description: "Set someting/behaviours in the bot!",
 			description_localizations: {
-				"fr": "Définir quelque chose/comportements dans le bot!"
+				fr: "Définir quelque chose/comportements dans le bot!"
 			},
 
 			type: ApplicationCommandOptionType.SubcommandGroup,
 			options: [
 				{
-					name: 'prefix',
+					name: "prefix",
 
-					description: 'Change the message commands\'s prefix in this guild!',
+					description:
+						"Change the message commands's prefix in this guild!",
 					description_localizations: {
-						"fr": "Changer le préfixe des commande de message sur ce serveur"
+						fr: "Changer le préfixe des commande de message sur ce serveur"
 					},
 
 					options: [
@@ -266,18 +272,22 @@ export const command: Command = {
 
 							description: "What do you want to do?",
 							description_localizations: {
-								"fr": "Que voulez-vous faire ?"
+								fr: "Que voulez-vous faire ?"
 							},
 
 							choices: [
 								{
 									name: `Default prefix`,
-									name_localizations: { fr: 'Préfixe par défaut' },
+									name_localizations: {
+										fr: "Préfixe par défaut"
+									},
 									value: "mention"
 								},
 								{
 									name: "Change prefix",
-									name_localizations: { fr: 'Changer le préfixe' },
+									name_localizations: {
+										fr: "Changer le préfixe"
+									},
 									value: "change"
 								}
 							],
@@ -292,7 +302,7 @@ export const command: Command = {
 
 							description: "The new prefix",
 							description_localizations: {
-								"fr": "Le nouveau préfixe"
+								fr: "Le nouveau préfixe"
 							},
 
 							type: ApplicationCommandOptionType.String,
@@ -304,7 +314,7 @@ export const command: Command = {
 
 					type: ApplicationCommandOptionType.Subcommand,
 					permission: PermissionFlagsBits.Administrator
-				},
+				}
 			],
 
 			permission: null
@@ -314,18 +324,18 @@ export const command: Command = {
 
 			description: "Subcommand for iHorizon's guild config restore/save",
 			description_localizations: {
-				"fr": "Sous commande pour la réstauration/sauvegarde des configurations d'iHorizon"
+				fr: "Sous commande pour la réstauration/sauvegarde des configurations d'iHorizon"
 			},
 
 			type: ApplicationCommandOptionType.SubcommandGroup,
 
 			options: [
 				{
-					name: 'show',
+					name: "show",
 
-					description: 'Get the guild configuration!',
+					description: "Get the guild configuration!",
 					description_localizations: {
-						"fr": "Obtenez la configuration du serveur"
+						fr: "Obtenez la configuration du serveur"
 					},
 
 					type: ApplicationCommandOptionType.Subcommand,
@@ -337,11 +347,10 @@ export const command: Command = {
 
 					description: "Restore an backup",
 					description_localizations: {
-						"fr": "charger une backup de la configuration"
+						fr: "charger une backup de la configuration"
 					},
 
 					type: ApplicationCommandOptionType.Subcommand,
-
 
 					options: [
 						{
@@ -349,7 +358,7 @@ export const command: Command = {
 
 							description: "The backup to load",
 							description_localizations: {
-								"fr": "La sauvegarde à restaurer"
+								fr: "La sauvegarde à restaurer"
 							},
 
 							type: ApplicationCommandOptionType.Attachment,
@@ -367,7 +376,7 @@ export const command: Command = {
 
 					description: "Save a backup",
 					description_localizations: {
-						"fr": "Sauvegarder une backup de la configuration actuel du serveur"
+						fr: "Sauvegarder une backup de la configuration actuel du serveur"
 					},
 
 					type: ApplicationCommandOptionType.Subcommand,
@@ -380,7 +389,7 @@ export const command: Command = {
 		}
 	],
 	thinking: true,
-	category: 'guildconfig',
+	category: "guildconfig",
 	type: ApplicationCommandType.ChatInput,
 
 	permission: null

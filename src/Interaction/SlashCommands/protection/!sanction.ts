@@ -19,42 +19,56 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	ChatInputCommandInteraction,
-	Client,
-} from 'discord.js';
-import { LanguageData } from '../../../../types/languageData.js';
+import { ChatInputCommandInteraction, Client } from "discord.js";
+import { LanguageData } from "../../../../types/languageData.js";
 
-
-import { SubCommand } from '../../../../types/command.js';
+import { SubCommand } from "../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {
-
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached">,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+		if (
+			!interaction.member ||
+			!client.user ||
+			!interaction.user ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
 		if (interaction.user.id !== interaction.guild.ownerId) {
-			await interaction.editReply({ content: lang.authorization_sanction_not_permited });
+			await interaction.editReply({
+				content: lang.authorization_sanction_not_permited
+			});
 			return;
-		};
+		}
 
-		let choose = interaction.options.getString('choose');
+		let choose = interaction.options.getString("choose");
 
 		if (choose) {
-			await client.db.set(`${interaction.guild.id}.PROTECTION.SANCTION`, choose);
+			await client.db.set(
+				`${interaction.guild.id}.PROTECTION.SANCTION`,
+				choose
+			);
 
-			if (choose === 'simply') choose = lang.authorization_sanction_simply;
-			if (choose === 'simply+derank') choose = lang.authorization_sanction_simply_unrank;
-			if (choose === 'simply+ban') choose = lang.authorization_sanction_simply_ban;
+			if (choose === "simply")
+				choose = lang.authorization_sanction_simply;
+			if (choose === "simply+derank")
+				choose = lang.authorization_sanction_simply_unrank;
+			if (choose === "simply+ban")
+				choose = lang.authorization_sanction_simply_ban;
 
 			await interaction.editReply({
 				content: lang.authorization_sanction_command_work
-					.replace('${interaction.user}', interaction.user.toString())
-					.replace('${choose}', choose)
+					.replace("${interaction.user}", interaction.user.toString())
+					.replace("${choose}", choose)
 			});
 			return;
-		};
-	},
+		}
+	}
 };

@@ -19,22 +19,28 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	ChatInputCommandInteraction,
-	Client,
-	Message,
-} from 'discord.js';
+import { ChatInputCommandInteraction, Client, Message } from "discord.js";
 
-import { LanguageData } from '../../../../types/languageData.js';
-import { DatabaseStructure } from '../../../../types/database_structure.js';
+import { LanguageData } from "../../../../types/languageData.js";
+import { DatabaseStructure } from "../../../../types/database_structure.js";
 
-import { SubCommand } from '../../../../types/command.js';
+import { SubCommand } from "../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
+		if (
+			!client.user ||
+			!interaction.member ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
 		if (interaction instanceof ChatInputCommandInteraction) {
 			var tag_name = interaction.options.getString("tag_name", true);
@@ -44,10 +50,14 @@ export const subCommand: SubCommand = {
 
 		tag_name = tag_name.trim();
 
-		const baseData = await client.db.get(`${interaction.guildId}.GUILD.TAGS`) as DatabaseStructure.GuildTagsStructure | undefined;
+		const baseData = (await client.db.get(
+			`${interaction.guildId}.GUILD.TAGS`
+		)) as DatabaseStructure.GuildTagsStructure | undefined;
 
 		if (!baseData?.storedTags) {
-			await client.func.method.interactionSend(interaction, { content: lang.tag_no_one_found });
+			await client.func.method.interactionSend(interaction, {
+				content: lang.tag_no_one_found
+			});
 			return;
 		}
 
@@ -56,7 +66,10 @@ export const subCommand: SubCommand = {
 		// check if the tag exists
 		if (!tags.includes(tag_name)) {
 			await client.func.method.interactionSend(interaction, {
-				content: lang.tag_delete_dnt_exist.replace("${tag_name}", tag_name)
+				content: lang.tag_delete_dnt_exist.replace(
+					"${tag_name}",
+					tag_name
+				)
 			});
 			return;
 		}
@@ -67,9 +80,8 @@ export const subCommand: SubCommand = {
 		await client.db.set(`${interaction.guildId}.GUILD.TAGS`, baseData);
 
 		await client.func.method.interactionSend(interaction, {
-			content: lang.tag_delete_command_ok
-				.replace("${tag_name}", tag_name)
+			content: lang.tag_delete_command_ok.replace("${tag_name}", tag_name)
 		});
 		return;
-	},
+	}
 };

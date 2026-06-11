@@ -1,0 +1,11 @@
+{
+	"categoryInitializer": {
+		"categoryName": "honeypot",
+		"categoryColor": "#D88A3D",
+		"options": {
+			"description": "help_honeypot_dsc",
+			"emoji": "${client.iHorizon_Emojis.Honey_Pot}",
+			"placeholder": "help_honeypot_fields"
+		}
+	}
+}

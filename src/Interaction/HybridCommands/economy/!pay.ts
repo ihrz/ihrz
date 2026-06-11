@@ -25,57 +25,99 @@ import {
 	User,
 	Message,
 	GuildMember
-} from 'discord.js';
-import { LanguageData } from '../../../../types/languageData.js';
+} from "discord.js";
+import { LanguageData } from "../../../../types/languageData.js";
 
-import { SubCommand } from '../../../../types/command.js';
+import { SubCommand } from "../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
+		if (
+			!interaction.member ||
+			!client.user ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
 		if (interaction instanceof ChatInputCommandInteraction) {
 			var amount = interaction.options.getNumber("amount") as number;
 			var user = interaction.options.getMember("member") as GuildMember;
 		} else {
-
 			var amount = client.func.method.number(args!, 0) as number;
-			var user = client.func.method.member(interaction, args!, 0) as GuildMember;
-		};
+			var user = client.func.method.member(
+				interaction,
+				args!,
+				0
+			) as GuildMember;
+		}
 
-		const member = await client.db.get(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.money`);
+		const member = await client.db.get(
+			`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.money`
+		);
 
-		if (await client.db.get(`${interaction.guildId}.ECONOMY.disabled`) === true) {
+		if (
+			(await client.db.get(`${interaction.guildId}.ECONOMY.disabled`)) ===
+			true
+		) {
 			await client.func.method.interactionSend(interaction, {
-				content: lang.economy_disable_msg
-					.replace('${interaction.user.id}', interaction.member.user.id)
+				content: lang.economy_disable_msg.replace(
+					"${interaction.user.id}",
+					interaction.member.user.id
+				)
 			});
 			return;
-		};
+		}
 
-		if (amount.toString().includes('-')) {
-			await client.func.method.interactionSend(interaction, { content: lang.pay_negative_number_error });
+		if (amount.toString().includes("-")) {
+			await client.func.method.interactionSend(interaction, {
+				content: lang.pay_negative_number_error
+			});
 			return;
-		};
+		}
 
 		if (amount && member < amount) {
-			await client.func.method.interactionSend(interaction, { content: lang.pay_dont_have_enought_to_give });
+			await client.func.method.interactionSend(interaction, {
+				content: lang.pay_dont_have_enought_to_give
+			});
 			return;
 		}
 
 		await client.func.method.interactionSend(interaction, {
 			content: lang.pay_command_work
-				.replace(/\${interaction\.user\.username}/g, (interaction.member.user as User).globalName || interaction.member.user.username)
-				.replace(/\${user\.user\.username}/g, user.user.globalName || user.user.displayName)
+				.replace(
+					/\${interaction\.user\.username}/g,
+					(interaction.member.user as User).globalName ||
+						interaction.member.user.username
+				)
+				.replace(
+					/\${user\.user\.username}/g,
+					user.user.globalName || user.user.displayName
+				)
 				.replace(/\${amount}/g, amount.toString())
 		});
 
-		await client.db.add(`${interaction.guildId}.USER.${user.id}.ECONOMY.money`, amount!);
-		await client.db.sub(`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.money`, amount!);
-		await client.func.economyLogs.pay(interaction.guild, interaction.member.user.id, user.id, amount, lang);
+		await client.db.add(
+			`${interaction.guildId}.USER.${user.id}.ECONOMY.money`,
+			amount!
+		);
+		await client.db.sub(
+			`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.money`,
+			amount!
+		);
+		await client.func.economyLogs.pay(
+			interaction.guild,
+			interaction.member.user.id,
+			user.id,
+			amount,
+			lang
+		);
 		return;
-	},
+	}
 };

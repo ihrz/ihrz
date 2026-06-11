@@ -19,10 +19,10 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import * as fs from 'node:fs';
-import * as path from 'path';
-import * as ts from 'typescript';
-import logger from '../src/core/logger.ts';
+import * as fs from "node:fs";
+import * as path from "path";
+import * as ts from "typescript";
+import logger from "../src/core/logger.ts";
 
 interface VSCodeConfig {
 	"editor.formatOnSave"?: boolean;
@@ -41,7 +41,7 @@ interface FormattingOptions {
  */
 function readVSCodeConfig(configPath: string): FormattingOptions {
 	try {
-		const configContent = fs.readFileSync(configPath, 'utf8');
+		const configContent = fs.readFileSync(configPath, "utf8");
 		const config: VSCodeConfig = JSON.parse(configContent);
 
 		return {
@@ -50,7 +50,7 @@ function readVSCodeConfig(configPath: string): FormattingOptions {
 			tabSize: config["editor.tabSize"] ?? 4
 		};
 	} catch (error) {
-		console.error('Error reading VSCode config:', error);
+		console.error("Error reading VSCode config:", error);
 		// Return default values if config file cannot be read
 		return {
 			formatOnSave: true,
@@ -63,7 +63,10 @@ function readVSCodeConfig(configPath: string): FormattingOptions {
 /**
  * Format TypeScript code using the specified options
  */
-function formatTypeScriptCode(code: string, options: FormattingOptions): string {
+function formatTypeScriptCode(
+	code: string,
+	options: FormattingOptions
+): string {
 	// Create TypeScript formatting options
 	const formatOptions: ts.FormatCodeSettings = {
 		indentSize: options.tabSize,
@@ -80,24 +83,28 @@ function formatTypeScriptCode(code: string, options: FormattingOptions): string 
 		placeOpenBraceOnNewLineForControlBlocks: false,
 		// Use tabs or spaces based on configuration
 		convertTabsToSpaces: options.insertSpaces,
-		indentStyle: options.insertSpaces ? ts.IndentStyle.Smart : ts.IndentStyle.Block
+		indentStyle: options.insertSpaces
+			? ts.IndentStyle.Smart
+			: ts.IndentStyle.Block
 	};
 
 	// Create a language service host
 	const host: ts.LanguageServiceHost = {
 		getCompilationSettings: () => ({}),
-		getScriptFileNames: () => ['temp.ts'],
-		getScriptVersion: () => '1',
+		getScriptFileNames: () => ["temp.ts"],
+		getScriptVersion: () => "1",
 		getScriptSnapshot: (fileName: string) => {
-			if (fileName === 'temp.ts') {
+			if (fileName === "temp.ts") {
 				return ts.ScriptSnapshot.fromString(code);
 			}
 			return undefined;
 		},
 		getCurrentDirectory: () => process.cwd(),
-		getDefaultLibFileName: (options: ts.CompilerOptions) => ts.getDefaultLibFilePath(options),
-		fileExists: (fileName: string) => fileName === 'temp.ts',
-		readFile: (fileName: string) => fileName === 'temp.ts' ? code : undefined,
+		getDefaultLibFileName: (options: ts.CompilerOptions) =>
+			ts.getDefaultLibFilePath(options),
+		fileExists: (fileName: string) => fileName === "temp.ts",
+		readFile: (fileName: string) =>
+			fileName === "temp.ts" ? code : undefined,
 		directoryExists: () => true,
 		getDirectories: () => []
 	};
@@ -106,7 +113,10 @@ function formatTypeScriptCode(code: string, options: FormattingOptions): string 
 	const languageService = ts.createLanguageService(host);
 
 	// Get formatting edits
-	const edits = languageService.getFormattingEditsForDocument('temp.ts', formatOptions);
+	const edits = languageService.getFormattingEditsForDocument(
+		"temp.ts",
+		formatOptions
+	);
 
 	// Apply the formatting changes
 	let formattedCode = code;
@@ -126,32 +136,34 @@ function formatTypeScriptCode(code: string, options: FormattingOptions): string 
 /**
  * Main function to format a TypeScript file
  */
-function formatTypeScriptFile(filePath: string, configPath: string = './vsconfig.json'): void {
+function formatTypeScriptFile(
+	filePath: string,
+	configPath: string = "./vsconfig.json"
+): void {
 	try {
 		// Read VSCode configuration
 		const options = readVSCodeConfig(configPath);
 
-		logger.log('Formatting options:' + options);
+		logger.log("Formatting options:" + options);
 
 		// Only format if formatOnSave is enabled
 		if (!options.formatOnSave) {
-			logger.log('Format on save is disabled. Skipping formatting.');
+			logger.log("Format on save is disabled. Skipping formatting.");
 			return;
 		}
 
 		// Read the TypeScript file
-		const sourceCode = fs.readFileSync(filePath, 'utf8');
+		const sourceCode = fs.readFileSync(filePath, "utf8");
 
 		// Format the code
 		const formattedCode = formatTypeScriptCode(sourceCode, options);
 
 		// Write the formatted code back to the file
-		fs.writeFileSync(filePath, formattedCode, 'utf8');
+		fs.writeFileSync(filePath, formattedCode, "utf8");
 
 		logger.legacy(`Successfully formatted: ${filePath}`);
-
 	} catch (error) {
-		console.error('Error formatting file:', error);
+		console.error("Error formatting file:", error);
 	}
 }
 

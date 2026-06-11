@@ -19,36 +19,32 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import type { BackupData, BackupInfos, CreateOptions, LoadOptions } from './types/';
-import type { Guild } from 'discord.js';
-import { SnowflakeUtil, IntentsBitField } from 'discord.js';
+import type {
+	BackupData,
+	BackupInfos,
+	CreateOptions,
+	LoadOptions
+} from "./types/";
+import type { Guild } from "discord.js";
+import { SnowflakeUtil, IntentsBitField } from "discord.js";
 
-import { sep } from 'path';
-
-import { existsSync, mkdirSync, statSync, unlinkSync } from 'node:fs';
-import { writeFile, readdir } from 'fs/promises';
-
-import * as createMaster from './create';
-import * as loadMaster from './load';
-import * as utilMaster from './util';
-import { backups_folder } from '../../core.ts';
+import * as createMaster from "./create";
+import * as loadMaster from "./load";
+import * as utilMaster from "./util";
+import { backupsTable } from "../../../Events/client/ready.js";
 
 /**
  * Checks if a backup exists and returns its data
  */
 const getBackupData = async (backupID: string) => {
 	return new Promise<BackupData>(async (resolve, reject) => {
-		const files = await readdir(backups_folder); // Read "backups" directory
-		// Try to get the json file
-		const file = files.filter((f) => f.split('.').pop() === 'json').find((f) => f === `${backupID}.json`);
-		if (file) {
-			// If the file exists
-			const backupData: BackupData = require(`${backups_folder}${sep}${file}`);
-			// Returns backup information
-			resolve(backupData);
+		const backupData = await backupsTable.get(backupID);
+
+		if (backupData) {
+			resolve(backupData as BackupData);
 		} else {
 			// If no backup was found, return an error message
-			reject('function:getBackupData : No backup found');
+			reject("function:getBackupData : No backup found");
 		}
 	});
 };
@@ -60,7 +56,10 @@ export const fetchBackup = (backupID: string) => {
 	return new Promise<BackupInfos>(async (resolve, reject) => {
 		getBackupData(backupID)
 			.then((backupData) => {
-				const size = statSync(`${backups_folder}${sep}${backupID}.json`).size; // Gets the size of the file using fs
+				const size = Buffer.byteLength(
+					JSON.stringify(backupData),
+					"utf-8"
+				);
 				const backupInfos: BackupInfos = {
 					data: backupData,
 					id: backupID,
@@ -70,7 +69,7 @@ export const fetchBackup = (backupID: string) => {
 				resolve(backupInfos);
 			})
 			.catch(() => {
-				reject('function: fetch: No backup found');
+				reject("function: fetch: No backup found");
 			});
 	});
 };
@@ -87,13 +86,13 @@ export const create = async (
 		jsonBeautify: true,
 		doNotBackup: [],
 		backupMembers: false,
-		saveImages: true,
+		saveImages: true
 	}
 ) => {
 	return new Promise<BackupData>(async (resolve, reject) => {
 		// Initialize backup data with default values
 		const backupData: BackupData = {
-			name: 'Unknown Server',
+			name: "Unknown Server",
 			verificationLevel: 0,
 			explicitContentFilter: 0,
 			defaultMessageNotifications: 0,
@@ -108,16 +107,17 @@ export const create = async (
 			emojis: [],
 			members: [],
 			createdTimestamp: Date.now(),
-			guildID: '',
+			guildID: "",
 			id: options.backupID ?? SnowflakeUtil.generate().toString()
 		};
 
 		// Retrieve basic server information
 		try {
-			backupData.name = guild.name || 'Unknown Server';
+			backupData.name = guild.name || "Unknown Server";
 			backupData.verificationLevel = guild.verificationLevel;
 			backupData.explicitContentFilter = guild.explicitContentFilter;
-			backupData.defaultMessageNotifications = guild.defaultMessageNotifications;
+			backupData.defaultMessageNotifications =
+				guild.defaultMessageNotifications;
 			backupData.guildID = guild.id;
 
 			// Retrieve AFK information
@@ -132,14 +132,20 @@ export const create = async (
 			try {
 				backupData.widget = {
 					enabled: guild.widgetEnabled || false,
-					channel: guild.widgetChannel ? guild.widgetChannel.name : null
+					channel: guild.widgetChannel
+						? guild.widgetChannel.name
+						: null
 				};
 			} catch (widgetError) {
-				console.error(`Error while retrieving widget information: ${widgetError}`);
+				console.error(
+					`Error while retrieving widget information: ${widgetError}`
+				);
 				// Continue with default values
 			}
 		} catch (basicInfoError) {
-			console.error(`Error while retrieving basic server information: ${basicInfoError}`);
+			console.error(
+				`Error while retrieving basic server information: ${basicInfoError}`
+			);
 			// Continue with default values
 		}
 
@@ -150,18 +156,21 @@ export const create = async (
 
 				if (options && options.saveImages) {
 					try {
-						let icon_url: string | null = guild.icon
-						if ('iconURL' in guild) {
+						let icon_url: string | null = guild.icon;
+						if ("iconURL" in guild) {
 							icon_url = guild.iconURL();
 						}
 
 						if (icon_url) {
 							const iconResponse = await fetch(icon_url);
 							const iconBuffer = await iconResponse.arrayBuffer();
-							backupData.iconBase64 = Buffer.from(iconBuffer).toString('base64')
+							backupData.iconBase64 =
+								Buffer.from(iconBuffer).toString("base64");
 						}
 					} catch (iconError) {
-						console.error(`Error while retrieving server icon: ${iconError}`);
+						console.error(
+							`Error while retrieving server icon: ${iconError}`
+						);
 					}
 				}
 			}
@@ -171,17 +180,24 @@ export const create = async (
 				if (options && options.saveImages) {
 					try {
 						let splash_url: string | null = guild.splash;
-						if ('splashURL' in guild) {
-							splash_url = guild.splashURL({ size: 4096, extension: "webp" })
+						if ("splashURL" in guild) {
+							splash_url = guild.splashURL({
+								size: 4096,
+								extension: "webp"
+							});
 						}
 
 						if (splash_url) {
 							const splashResponse = await fetch(splash_url);
-							const splashBuffer = await splashResponse.arrayBuffer();
-							backupData.splashBase64 = Buffer.from(splashBuffer).toString("base64")
+							const splashBuffer =
+								await splashResponse.arrayBuffer();
+							backupData.splashBase64 =
+								Buffer.from(splashBuffer).toString("base64");
 						}
 					} catch (splashError) {
-						console.error(`Error while retrieving server splash: ${splashError}`);
+						console.error(
+							`Error while retrieving server splash: ${splashError}`
+						);
 					}
 				}
 			}
@@ -191,22 +207,32 @@ export const create = async (
 				if (options && options.saveImages) {
 					try {
 						let banner_url: string | null = guild.banner;
-						if ('bannerURL' in guild) {
-							banner_url = guild.bannerURL({ size: 4096, extension: "webp", forceStatic: false })
+						if ("bannerURL" in guild) {
+							banner_url = guild.bannerURL({
+								size: 4096,
+								extension: "webp",
+								forceStatic: false
+							});
 						}
 
 						if (banner_url) {
 							const bannerResponse = await fetch(banner_url);
-							const bannerBuffer = await bannerResponse.arrayBuffer()
-							backupData.bannerBase64 = Buffer.from(bannerBuffer).toString("base64")
+							const bannerBuffer =
+								await bannerResponse.arrayBuffer();
+							backupData.bannerBase64 =
+								Buffer.from(bannerBuffer).toString("base64");
 						}
 					} catch (bannerError) {
-						console.error(`Error while retrieving server banner: ${bannerError}`);
+						console.error(
+							`Error while retrieving server banner: ${bannerError}`
+						);
 					}
 				}
 			}
 		} catch (imageError) {
-			console.error(`Error while retrieving server images: ${imageError}`);
+			console.error(
+				`Error while retrieving server images: ${imageError}`
+			);
 			// Continue without images
 		}
 
@@ -215,13 +241,15 @@ export const create = async (
 			try {
 				backupData.members = await createMaster.getMembers(guild);
 			} catch (membersError) {
-				console.error(`Error while retrieving members: ${membersError}`);
+				console.error(
+					`Error while retrieving members: ${membersError}`
+				);
 				// Continue with empty array
 			}
 		}
 
 		// Backup bans if not excluded
-		if (!options || !(options.doNotBackup || []).includes('bans')) {
+		if (!options || !(options.doNotBackup || []).includes("bans")) {
 			try {
 				backupData.bans = await createMaster.getBans(guild);
 			} catch (bansError) {
@@ -231,7 +259,7 @@ export const create = async (
 		}
 
 		// Backup roles if not excluded
-		if (!options || !(options.doNotBackup || []).includes('roles')) {
+		if (!options || !(options.doNotBackup || []).includes("roles")) {
 			try {
 				backupData.roles = await createMaster.getRoles(guild);
 			} catch (rolesError) {
@@ -241,9 +269,12 @@ export const create = async (
 		}
 
 		// Backup emojis if not excluded
-		if (!options || !(options.doNotBackup || []).includes('emojis')) {
+		if (!options || !(options.doNotBackup || []).includes("emojis")) {
 			try {
-				backupData.emojis = await createMaster.getEmojis(guild, options);
+				backupData.emojis = await createMaster.getEmojis(
+					guild,
+					options
+				);
 			} catch (emojisError) {
 				console.error(`Error while retrieving emojis: ${emojisError}`);
 				// Continue with empty array
@@ -251,28 +282,24 @@ export const create = async (
 		}
 
 		// Backup channels if not excluded
-		if (!options || !(options.doNotBackup || []).includes('channels')) {
+		if (!options || !(options.doNotBackup || []).includes("channels")) {
 			try {
-				backupData.channels = await createMaster.getChannels(guild, options);
+				backupData.channels = await createMaster.getChannels(
+					guild,
+					options
+				);
 			} catch (channelsError) {
-				console.error(`Error while retrieving channels: ${channelsError}`);
+				console.error(
+					`Error while retrieving channels: ${channelsError}`
+				);
 				// Continue with empty arrays
 			}
 		}
 
-		// Save backup to JSON if requested
-		if (!options || options.jsonSave === undefined || options.jsonSave) {
-			try {
-				// Convert Object to JSON
-				const backupJSON = options.jsonBeautify
-					? JSON.stringify(backupData, null, 4)
-					: JSON.stringify(backupData);
-				// Save the backup
-				await writeFile(`${backups_folder}${sep}${backupData.id}.json`, backupJSON, 'utf-8');
-			} catch (saveError) {
-				console.error(`Error while saving backup: ${saveError}`);
-				// Continue and return data anyway
-			}
+		try {
+			await backupsTable.set(backupData.id, backupData);
+		} catch (saveError) {
+			console.error(`Error while saving backup: ${saveError}`);
 		}
 
 		// Return data even if some parts failed
@@ -288,18 +315,23 @@ export const load = async (
 	guild: Guild,
 	options: LoadOptions = {
 		clearGuildBeforeRestore: true,
-		maxMessagesPerChannel: 100, // Increased default value to 100 messages
+		maxMessagesPerChannel: 100 // Increased default value to 100 messages
 	}
 ) => {
 	return new Promise(async (resolve, reject) => {
-
 		if (!guild) {
-			return reject('Invalid guild');
+			return reject("Invalid guild");
 		}
 		try {
-			const backupData: BackupData = typeof backup === 'string' ? await getBackupData(backup) : backup;
+			const backupData: BackupData =
+				typeof backup === "string"
+					? await getBackupData(backup)
+					: backup;
 			try {
-				if (options.clearGuildBeforeRestore === undefined || options.clearGuildBeforeRestore) {
+				if (
+					options.clearGuildBeforeRestore === undefined ||
+					options.clearGuildBeforeRestore
+				) {
 					// Clear the guild
 					await utilMaster.clearGuild(guild);
 				}
@@ -325,7 +357,7 @@ export const load = async (
 			// Then return the backup data
 			return resolve(backupData);
 		} catch (e) {
-			return reject('function:load:No backup found');
+			return reject("function:load:No backup found");
 		}
 	});
 };
@@ -334,13 +366,17 @@ export const load = async (
  * Removes a backup
  */
 export const remove = async (backupID: string) => {
-	return new Promise<void>((resolve, reject) => {
+	return new Promise<void>(async (resolve, reject) => {
 		try {
-			require(`${backups_folder}${sep}${backupID}.json`);
-			unlinkSync(`${backups_folder}${sep}${backupID}.json`);
+			const exists = await backupsTable.get(backupID);
+			if (!exists) {
+				return reject("Backup not found");
+			}
+
+			await backupsTable.delete(backupID);
 			resolve();
 		} catch (error) {
-			reject('Backup not found');
+			reject("Backup not found");
 		}
 	});
 };
@@ -349,6 +385,6 @@ export const remove = async (backupID: string) => {
  * Returns the list of all backup
  */
 export const list = async () => {
-	const files = await readdir(backups_folder); // Read "backups" directory
-	return files.map((f) => f.split('.')[0]);
+	const entries = await backupsTable.all();
+	return entries.map((entry) => entry.id);
 };

@@ -19,7 +19,11 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { Snowflake, ThreadAutoArchiveDuration, ThreadChannelType } from "discord.js";
+import {
+	Snowflake,
+	ThreadAutoArchiveDuration,
+	ThreadChannelType
+} from "discord.js";
 import { MessageData } from "./MessageData";
 
 export interface ThreadChannelData {

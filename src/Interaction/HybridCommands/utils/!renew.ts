@@ -23,30 +23,42 @@ import {
 	BaseGuildTextChannel,
 	ChatInputCommandInteraction,
 	Client,
-	Message,
-} from 'discord.js'
+	Message
+} from "discord.js";
 
-import { LanguageData } from '../../../../types/languageData.js';
+import { LanguageData } from "../../../../types/languageData.js";
 
-
-import { SubCommand } from '../../../../types/command.js';
+import { SubCommand } from "../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
+		if (
+			!client.user ||
+			!interaction.member ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
 		let channel = interaction.channel as BaseGuildTextChannel;
 
 		try {
 			if (!interaction.guild.channels.cache.get(channel.id)) {
-				channel = (await interaction.guild.channels.fetch(channel.id)) as BaseGuildTextChannel;
+				channel = (await interaction.guild.channels.fetch(
+					channel.id
+				)) as BaseGuildTextChannel;
 			}
 
 			if (!channel.deletable) {
-				await client.func.method.interactionSend(interaction, { content: lang.renew_dont_have_permission });
+				await client.func.method.interactionSend(interaction, {
+					content: lang.renew_dont_have_permission
+				});
 				return;
 			}
 
@@ -61,15 +73,23 @@ export const subCommand: SubCommand = {
 				position: channel.rawPosition
 			});
 
-			if (channel.guild.systemChannel?.id === channel.id) channel.guild.setSystemChannel(here.id);
+			if (channel.guild.systemChannel?.id === channel.id)
+				channel.guild.setSystemChannel(here.id);
 
 			await channel.delete();
 
-			here.send({ content: lang.renew_channel_send_success.replace(/\${interaction\.user}/g, interaction.member.user.toString()) });
+			here.send({
+				content: lang.renew_channel_send_success.replace(
+					/\${interaction\.user}/g,
+					interaction.member.user.toString()
+				)
+			});
 			return;
 		} catch (error) {
-			await client.func.method.interactionSend(interaction, { content: lang.renew_dont_have_permission });
+			await client.func.method.interactionSend(interaction, {
+				content: lang.renew_dont_have_permission
+			});
 			return;
 		}
-	},
+	}
 };

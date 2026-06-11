@@ -28,36 +28,58 @@ import {
 	Client,
 	EmbedBuilder,
 	Message,
-	PermissionFlagsBits,
-} from 'discord.js';
-import { LanguageData } from '../../../../../types/languageData.js';
-import { SubCommand } from '../../../../../types/command.js';
+	PermissionFlagsBits
+} from "discord.js";
+import { LanguageData } from "../../../../../types/languageData.js";
+import { SubCommand } from "../../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
+		if (
+			!client.user ||
+			!interaction.member ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
 		if (interaction instanceof ChatInputCommandInteraction) {
 			var member = interaction.options.getMember("member");
-			var channel = interaction.options.getChannel("channel", true) as BaseGuildVoiceChannel;
+			var channel = interaction.options.getChannel(
+				"channel",
+				true
+			) as BaseGuildVoiceChannel;
 		} else {
 			var member = client.func.method.member(interaction, args!, 0);
-			var channel = (await client.func.method.voiceChannel(interaction, args!, 1))!;
+			var channel = (await client.func.method.voiceChannel(
+				interaction,
+				args!,
+				1
+			))!;
 		}
 
 		// Check if member is in a voice channel
 		if (member?.voice.channelId === null) {
 			await client.func.method.interactionSend(interaction, {
-				content: lang.util_move_not_in_vc,
+				content: lang.util_move_not_in_vc
 			});
 		}
 
 		// Check if the member is an admin
-		if (member?.permissions.has(PermissionFlagsBits.Administrator) && !interaction.member.permissions.has(PermissionFlagsBits.Administrator)) {
+		if (
+			member?.permissions.has(PermissionFlagsBits.Administrator) &&
+			!interaction.member.permissions.has(
+				PermissionFlagsBits.Administrator
+			)
+		) {
 			await client.func.method.interactionSend(interaction, {
-				content: lang.util_move_impossible_to_move_admin,
+				content: lang.util_move_impossible_to_move_admin
 			});
 			return;
 		}
@@ -70,5 +92,5 @@ export const subCommand: SubCommand = {
 				.replace("${channel.toString()}", channel.toString())
 		});
 		return;
-	},
+	}
 };

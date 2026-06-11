@@ -19,16 +19,17 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { Client, User, time } from 'discord.js';
+import { Client, User, time } from "discord.js";
 
-import { BotEvent } from '../../../types/event.js';
-import { prevnamesTable } from '../client/ready.js';
+import { BotEvent } from "../../../types/event.js";
+import { prevnamesTable } from "../client/ready.js";
 
 export const event: BotEvent = {
 	name: "userUpdate",
 	run: async (client: Client, oldUser: User) => {
-
-		const newUser = await client.users.fetch(oldUser.id);
+		const newUser =
+			client.users.cache.get(oldUser.id) ||
+			(await client.users.fetch(oldUser.id));
 
 		const oldUsertag = oldUser.username;
 		const oldUserGlbl = oldUser.globalName || oldUser.displayName;
@@ -36,12 +37,15 @@ export const event: BotEvent = {
 		if (!oldUser) return;
 
 		if (oldUser.globalName !== newUser.globalName) {
-
-			await prevnamesTable.push(`${oldUser.id}`, `${time((new Date()), 'd')} - ${oldUserGlbl}`);
-
+			await prevnamesTable.push(
+				`${oldUser.id}`,
+				`${time(new Date(), "d")} - ${oldUserGlbl}`
+			);
 		} else if (oldUser.username !== newUser.username) {
-
-			await prevnamesTable.push(`${oldUser.id}`, `${time((new Date()), 'd')} - ${oldUsertag}`);
-		};
-	},
+			await prevnamesTable.push(
+				`${oldUser.id}`,
+				`${time(new Date(), "d")} - ${oldUsertag}`
+			);
+		}
+	}
 };

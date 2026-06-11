@@ -26,31 +26,40 @@ import {
 	time,
 	ApplicationCommandType,
 	Message
-} from 'discord.js'
+} from "discord.js";
 
-import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
-import os from 'node:os';
+import { LanguageData } from "../../../../types/languageData.js";
+import { Command } from "../../../../types/command.js";
+import os from "node:os";
 
 export const command: Command = {
-	name: 'status',
+	name: "status",
 
 	aliases: ["server"],
 
-	description: 'Get the bot status!',
+	description: "Get the bot status!",
 	description_localizations: {
-		"fr": "Obtenez le statut du bot !"
+		fr: "Obtenez le statut du bot !"
 	},
 
-	category: 'bot',
+	category: "bot",
 	thinking: false,
 	type: ApplicationCommandType.ChatInput,
 	permission: null,
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
+		if (
+			!client.user ||
+			!interaction.member ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
 		// if (!client.func.ownerHelper.isBotDev(interaction.member.user.id)) {
 		//     await client.func.method.interactionSend(interaction, { content: lang.status_be_bot_dev });
@@ -62,21 +71,59 @@ export const command: Command = {
 		const embed = new EmbedBuilder()
 			.setColor("#82cda8")
 			.setFields(
-				{ name: "Cpu", value: `${os.cpus()[0].model} (${os.machine()})`, inline: false },
-				{ name: "Memory", value: `${client.func.os_utils.niceBytes(memInfo["MemTotal"] - memInfo["MemAvailable"])}/${client.func.os_utils.niceBytes(memInfo["MemTotal"])}`, inline: false },
-				{ name: "Machine Uptime", value: `${time(new Date(Date.now() - os.uptime() * 1000), 'd')}`, inline: false },
-				{ name: "Bot Uptime", value: time(new Date(Date.now() - process.uptime() * 1000), 'd') },
-				{ name: "OS", value: `${os.platform()} ${os.type()} ${os.release()}`, inline: false },
-				{ name: "Bot Version", value: `${client.version.ClientVersion}`, inline: false },
-				{ name: `${client.iHorizon_Emojis.Bun} Bun Version`, value: `${Bun.version}`, inline: false }
+				{
+					name: "Cpu",
+					value: `${os.cpus()[0].model} (${os.machine()})`,
+					inline: false
+				},
+				{
+					name: "Memory",
+					value: `${client.func.os_utils.niceBytes(memInfo["MemTotal"] - memInfo["MemAvailable"])}/${client.func.os_utils.niceBytes(memInfo["MemTotal"])}`,
+					inline: false
+				},
+				{
+					name: "Machine Uptime",
+					value: `${time(new Date(Date.now() - os.uptime() * 1000), "d")}`,
+					inline: false
+				},
+				{
+					name: "Bot Uptime",
+					value: time(
+						new Date(Date.now() - process.uptime() * 1000),
+						"d"
+					)
+				},
+				{
+					name: "OS",
+					value: `${os.platform()} ${os.type()} ${os.release()}`,
+					inline: false
+				},
+				{
+					name: "Bot Version",
+					value: `${client.version.ClientVersion}`,
+					inline: false
+				},
+				{
+					name: `${client.iHorizon_Emojis.Bun} Bun Version`,
+					value: `${Bun.version}`,
+					inline: false
+				}
 			)
 			.setThumbnail(interaction.guild.iconURL() as string)
-			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!));
+			.setFooter(
+				await client.func.displayBotName.footerBuilder(
+					interaction.guildId!
+				)
+			);
 
 		await client.func.method.interactionSend(interaction, {
 			embeds: [embed],
-			files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
+			files: [
+				await client.func.displayBotName.footerAttachmentBuilder(
+					interaction
+				)
+			]
 		});
 		return;
-	},
+	}
 };

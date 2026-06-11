@@ -19,9 +19,9 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import * as crypto from 'crypto';
+import * as crypto from "crypto";
 
-const ALGORITHM = 'aes-256-gcm';
+const ALGORITHM = "aes-256-gcm";
 const IV_LENGTH = 12;
 const SALT_LENGTH = 16;
 const KEY_LENGTH = 32;
@@ -35,18 +35,27 @@ const ITERATIONS = 100_000;
 export function encrypt(password: string, text: string): string {
 	const salt = crypto.randomBytes(SALT_LENGTH);
 	const iv = crypto.randomBytes(IV_LENGTH);
-	const key = crypto.pbkdf2Sync(password, salt, ITERATIONS, KEY_LENGTH, 'sha256');
+	const key = crypto.pbkdf2Sync(
+		password,
+		salt,
+		ITERATIONS,
+		KEY_LENGTH,
+		"sha256"
+	);
 
 	const cipher = crypto.createCipheriv(ALGORITHM, key, iv);
-	const encrypted = Buffer.concat([cipher.update(text, 'utf8'), cipher.final()]);
+	const encrypted = Buffer.concat([
+		cipher.update(text, "utf8"),
+		cipher.final()
+	]);
 	const authTag = cipher.getAuthTag();
 
 	return [
-		salt.toString('hex'),
-		iv.toString('hex'),
-		encrypted.toString('hex'),
-		authTag.toString('hex')
-	].join(':');
+		salt.toString("hex"),
+		iv.toString("hex"),
+		encrypted.toString("hex"),
+		authTag.toString("hex")
+	].join(":");
 }
 
 /**
@@ -56,19 +65,28 @@ export function encrypt(password: string, text: string): string {
  */
 export function decrypt(password: string, data: string): string | undefined {
 	try {
-		const [saltHex, ivHex, encryptedHex, authTagHex] = data.split(':');
-		const salt = Buffer.from(saltHex, 'hex');
-		const iv = Buffer.from(ivHex, 'hex');
-		const encrypted = Buffer.from(encryptedHex, 'hex');
-		const authTag = Buffer.from(authTagHex, 'hex');
+		const [saltHex, ivHex, encryptedHex, authTagHex] = data.split(":");
+		const salt = Buffer.from(saltHex, "hex");
+		const iv = Buffer.from(ivHex, "hex");
+		const encrypted = Buffer.from(encryptedHex, "hex");
+		const authTag = Buffer.from(authTagHex, "hex");
 
-		const key = crypto.pbkdf2Sync(password, salt, ITERATIONS, KEY_LENGTH, 'sha256');
+		const key = crypto.pbkdf2Sync(
+			password,
+			salt,
+			ITERATIONS,
+			KEY_LENGTH,
+			"sha256"
+		);
 
 		const decipher = crypto.createDecipheriv(ALGORITHM, key, iv);
 		decipher.setAuthTag(authTag);
 
-		const decrypted = Buffer.concat([decipher.update(encrypted), decipher.final()]);
-		return decrypted.toString('utf8');
+		const decrypted = Buffer.concat([
+			decipher.update(encrypted),
+			decipher.final()
+		]);
+		return decrypted.toString("utf8");
 	} catch {
 		return undefined;
 	}

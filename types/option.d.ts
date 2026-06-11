@@ -19,30 +19,32 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { ApplicationCommandOptionType } from 'discord.js';
-import type { DescriptionLocalizations, NameLocalizations } from './command.d.ts';
-
+import { ApplicationCommandOptionType } from "discord.js";
+import type {
+	DescriptionLocalizations,
+	NameLocalizations
+} from "./command.d.ts";
 
 export interface Choice {
-	name: string,
-	name_localizations: NameLocalizations,
-	value: string | boolean
+	name: string;
+	name_localizations: NameLocalizations;
+	value: string | boolean;
 }
 
 export interface Option {
-	type: ApplicationCommandOptionType,
-	options?: Option[],
-	name: string,
-	prefixName?: string,
-	name_localizations?: NameLocalizations
-	description_localizations: DescriptionLocalizations,
-	description: string,
-	required?: boolean,
-	autocomplete?: boolean,
-	channel_types?: number[],
-	choices?: Choice[],
-	aliases?: string[],
-	thinking?: boolean,
-	ephemeral?: boolean,
+	type: ApplicationCommandOptionType;
+	options?: Option[];
+	name: string;
+	prefixName?: string;
+	name_localizations?: NameLocalizations;
+	description_localizations: DescriptionLocalizations;
+	description: string;
+	required?: boolean;
+	autocomplete?: boolean;
+	channel_types?: number[];
+	choices?: Choice[];
+	aliases?: string[];
+	thinking?: boolean;
+	ephemeral?: boolean;
 	permission: bigint | bigint[] | null;
 }

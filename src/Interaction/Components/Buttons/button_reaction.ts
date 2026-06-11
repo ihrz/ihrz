@@ -19,46 +19,65 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { DatabaseStructure } from '../../../../types/database_structure.js';
-import { ButtonInteraction } from 'discord.js';
-import { LanguageData } from '../../../../types/languageData.js';
+import { DatabaseStructure } from "../../../../types/database_structure.js";
+import { ButtonInteraction } from "discord.js";
+import { LanguageData } from "../../../../types/languageData.js";
 
-export default async function (interaction: ButtonInteraction<"cached">, lang: LanguageData) {
-
-	const res = await interaction.client.db.get(
+export default async function (
+	interaction: ButtonInteraction<"cached">,
+	lang: LanguageData
+) {
+	const res = (await interaction.client.db.get(
 		`${interaction.guildId}.GUILD.REACTION_ROLES.${interaction.message.id}`
-	) as DatabaseStructure.ReactionRolesData[""]
+	)) as DatabaseStructure.ReactionRolesData[""];
 	if (!res) return;
 
 	const filtered_res = res[interaction.customId];
 
-	const fetched_role = interaction.guild.roles.cache.get(filtered_res.rolesID) || await interaction.guild.roles.fetch(filtered_res.rolesID).catch(() => null);
+	const fetched_role =
+		interaction.guild.roles.cache.get(filtered_res.rolesID) ||
+		(await interaction.guild.roles
+			.fetch(filtered_res.rolesID)
+			.catch(() => null));
 
 	if (!fetched_role) {
 		await interaction.reply({
 			content: lang.buttonreaction_role_doesnt_exit,
 			flags: [1 << 6]
-		})
-	} else if (fetched_role.rawPosition >= Number(interaction.guild.members.me?.roles.highest.rawPosition)) {
+		});
+	} else if (
+		fetched_role.rawPosition >=
+		Number(interaction.guild.members.me?.roles.highest.rawPosition)
+	) {
 		await interaction.reply({
 			content: lang.buttonreaction_role_too_high,
 			flags: [1 << 6]
-		})
+		});
 	} else {
 		if (interaction.member.roles.cache.has(fetched_role.id)) {
-			await interaction.member.roles.remove(fetched_role.id, "[ButtonReaction] Module");
+			await interaction.member.roles.remove(
+				fetched_role.id,
+				"[ButtonReaction] Module"
+			);
 			await interaction.reply({
-				content: lang.buttonreaction_role_add
-					.replace("${fetched_role.toString()}", fetched_role.toString()),
+				content: lang.buttonreaction_role_add.replace(
+					"${fetched_role.toString()}",
+					fetched_role.toString()
+				),
 				flags: [1 << 6]
 			});
 		} else {
-			await interaction.member.roles.add(fetched_role.id, "[ButtonReaction] Module");
+			await interaction.member.roles.add(
+				fetched_role.id,
+				"[ButtonReaction] Module"
+			);
 			await interaction.reply({
-				content: lang.buttonreaction_role_remove
-					.replace("${fetched_role.toString()}", fetched_role.toString()),
+				content: lang.buttonreaction_role_remove.replace(
+					"${fetched_role.toString()}",
+					fetched_role.toString()
+				),
 				flags: [1 << 6]
 			});
 		}
 	}
-};
+}

@@ -24,11 +24,11 @@ import {
 	ChatInputCommandInteraction,
 	Client,
 	Message,
-	PermissionFlagsBits,
-} from 'discord.js'
+	PermissionFlagsBits
+} from "discord.js";
 
-import { LanguageData } from '../../../../../types/languageData.js';
-import { SubCommand } from '../../../../../types/command.js';
+import { LanguageData } from "../../../../../types/languageData.js";
+import { SubCommand } from "../../../../../types/command.js";
 
 const timeConversion: Record<string, string> = {
 	"0": "0",
@@ -48,32 +48,55 @@ const timeConversion: Record<string, string> = {
 };
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
+		if (
+			!client.user ||
+			!interaction.member ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
 		if (interaction instanceof ChatInputCommandInteraction) {
 			var duration = interaction.options.getString("duration", true);
 		} else {
-			var duration = client.func.method.string(args!, 0)!
+			var duration = client.func.method.string(args!, 0)!;
 		}
 
 		let channel = interaction.channel;
-		let duration_in_string = client.timeCalculator.to_beautiful_string(duration, lang);
+		let duration_in_string = client.timeCalculator.to_beautiful_string(
+			duration,
+			lang
+		);
 
-		if (!interaction.guild.members.me?.permissions.has([
-			PermissionFlagsBits.ManageChannels
-		])) {
+		if (
+			!interaction.guild.members.me?.permissions.has([
+				PermissionFlagsBits.ManageChannels
+			])
+		) {
 			return await client.func.method.interactionSend(interaction, {
-				content: lang.unban_bot_dont_have_permission.replace('${client.iHorizon_Emojis.No}', client.iHorizon_Emojis.No)
-			})
+				content: lang.unban_bot_dont_have_permission.replace(
+					"${client.iHorizon_Emojis.No}",
+					client.iHorizon_Emojis.No
+				)
+			});
 		}
-		(channel as BaseGuildTextChannel).setRateLimitPerUser(Number(timeConversion[duration]), "Slow command executed by " + interaction.member.user.id);
+		(channel as BaseGuildTextChannel).setRateLimitPerUser(
+			Number(timeConversion[duration]),
+			"Slow command executed by " + interaction.member.user.id
+		);
 
 		await client.func.method.interactionSend(interaction, {
-			content: lang.util_cooldown_command_ok
-				.replace("${duration_in_string}", duration_in_string)
-		})
-	},
+			content: lang.util_cooldown_command_ok.replace(
+				"${duration_in_string}",
+				duration_in_string
+			)
+		});
+	}
 };

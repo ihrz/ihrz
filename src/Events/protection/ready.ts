@@ -19,7 +19,18 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { Client, GuildBasedChannel, CategoryChannel, ChannelType, PermissionOverwrites, GuildChannel, PermissionsBitField, AuditLogEvent, Guild, GuildAuditLogsEntry } from 'discord.js';
+import {
+	Client,
+	GuildBasedChannel,
+	CategoryChannel,
+	ChannelType,
+	PermissionOverwrites,
+	GuildChannel,
+	PermissionsBitField,
+	AuditLogEvent,
+	Guild,
+	GuildAuditLogsEntry
+} from "discord.js";
 
 export type BackupChannel = {
 	id: string;
@@ -32,8 +43,8 @@ export type BackupChannel = {
 
 export type BackupRole = {
 	id: string;
-	members: string[]
-}
+	members: string[];
+};
 
 export type BackupCategory = {
 	id: string;
@@ -52,7 +63,7 @@ export const protectionCache = {
 	data: new Map<string, GuildBackup>(),
 	isRaiding: new Map<string, boolean>(),
 	timeout: new Map<string, number>()
-}
+};
 
 async function backupGuildStructure(client: Client) {
 	for (const guild of client.guilds.cache.values()) {
@@ -69,23 +80,31 @@ async function backupGuildStructure(client: Client) {
 					id: channel.id,
 					name: channel.name,
 					position: channel.position,
-					channels: channel.children.cache.map(child => ({
+					channels: channel.children.cache.map((child) => ({
 						id: child.id,
 						name: child.name,
 						type: child.type,
 						position: child.rawPosition,
-						permissions: Array.from(child.permissionOverwrites.cache.values()),
+						permissions: Array.from(
+							child.permissionOverwrites.cache.values()
+						),
 						parent: channel.id
 					}))
 				};
 				backup.categories.push(categoryData);
-			} else if (channel instanceof GuildChannel && (channel.type === ChannelType.GuildText || channel.isTextBased())) {
+			} else if (
+				channel instanceof GuildChannel &&
+				(channel.type === ChannelType.GuildText ||
+					channel.isTextBased())
+			) {
 				const channelData: BackupChannel = {
 					id: channel.id,
 					name: channel.name,
 					type: channel.type,
 					position: channel.rawPosition,
-					permissions: Array.from(channel.permissionOverwrites.cache.values()),
+					permissions: Array.from(
+						channel.permissionOverwrites.cache.values()
+					),
 					parent: channel.parentId
 				};
 				backup.channels.push(channelData);
@@ -95,10 +114,10 @@ async function backupGuildStructure(client: Client) {
 		guild.roles.cache.forEach((role) => {
 			const roleData: BackupRole = {
 				id: role.id,
-				members: role.members.toJSON().map(x => x.id)
-			}
-			backup.roles.push(roleData)
-		})
+				members: role.members.toJSON().map((x) => x.id)
+			};
+			backup.roles.push(roleData);
+		});
 
 		protectionCache.data.set(guild.id, backup);
 	}
@@ -111,7 +130,7 @@ export interface GetGuildLogPayload {
 	guild: Guild;
 	target: string;
 	type: "PROTECTION" | "LOGS" | "NONE";
-	actionType: AuditLogEvent
+	actionType: AuditLogEvent;
 }
 
 const LOG_SETS = {
@@ -124,7 +143,7 @@ const AUDIT_LOG_WINDOW_MS = 20_000;
 const AUDIT_LOG_FETCH_LIMIT = 40;
 
 export async function getLogs(
-	payload: GetGuildLogPayload,
+	payload: GetGuildLogPayload
 ): Promise<GuildAuditLogsEntry | undefined> {
 	const { guild, target, type } = payload;
 
@@ -135,11 +154,12 @@ export async function getLogs(
 	});
 
 	// Find relevant log entry
-	const relevantLog = fetchedLogs.entries.find(entry => {
+	const relevantLog = fetchedLogs.entries.find((entry) => {
 		const isTargetMatch = entry.targetId === target;
 		const isNotBot = entry.executorId !== client.user?.id;
 		const hasExecutor = Boolean(entry.executorId);
-		const isRecent = entry.createdTimestamp > Date.now() - AUDIT_LOG_WINDOW_MS;
+		const isRecent =
+			entry.createdTimestamp > Date.now() - AUDIT_LOG_WINDOW_MS;
 
 		return isTargetMatch && isNotBot && hasExecutor && isRecent;
 	});
@@ -162,7 +182,7 @@ export async function getLogs(
 }
 
 export const event = {
-	name: 'clientReady',
+	name: "clientReady",
 	run: async (client: Client) => {
 		await backupGuildStructure(client);
 		setInterval(() => backupGuildStructure(client), 60 * 1000);

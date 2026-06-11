@@ -23,21 +23,26 @@ import { Message } from "discord.js";
 
 // Utility functions
 export function isValidLink(url: string): boolean {
-	return ["https://", "http://"].some(protocol => url.startsWith(protocol));
+	return ["https://", "http://"].some((protocol) => url.startsWith(protocol));
 }
 
 export function isValidColor(color: string): boolean {
 	return /^#([0-9a-f]{3}){1,2}$/i.test(color);
 }
 
-export function getMediaByMessage(message: Message): { name: string; attachment: string; } {
+export function getMediaByMessage(message: Message): {
+	name: string;
+	attachment: string;
+} {
 	if (isValidLink(message.content)) {
 		return { name: "url", attachment: message.content };
 	}
 
 	const attachment = message.attachments.first();
 	if (attachment?.contentType?.startsWith("image/")) {
-		const name = client.func.method.isAnimated(attachment.url) ? "image.gif" : "image.png";
+		const name = client.func.method.isAnimated(attachment.url)
+			? "image.gif"
+			: "image.png";
 		return { attachment: attachment.url, name };
 	}
 

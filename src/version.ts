@@ -19,18 +19,16 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { readFileSync } from 'node:fs';
+import { readFileSync } from "node:fs";
 
-const pkg = JSON.parse(readFileSync(process.cwd() + "/package.json", 'utf-8'));
+const pkg = JSON.parse(readFileSync(process.cwd() + "/package.json", "utf-8"));
 
 type Env = "ownihrz" | "dev" | "production";
 
 const env: Env = "dev";
 const version = pkg.version;
-const djs = pkg.dependencies['discord.js'];
+const djs = pkg.dependencies["discord.js"];
 
 const ClientVersion = `${env}@${version} discord.js@${djs}`;
 
-export {
-	env, version, djs, ClientVersion
-};
+export { env, version, djs, ClientVersion };

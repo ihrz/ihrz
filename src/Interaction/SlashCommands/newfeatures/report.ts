@@ -25,29 +25,28 @@ import {
 	ApplicationCommandOptionType,
 	ChatInputCommandInteraction,
 	BaseGuildTextChannel,
-	ApplicationCommandType,
-} from 'discord.js';
+	ApplicationCommandType
+} from "discord.js";
 
-import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
-
+import { LanguageData } from "../../../../types/languageData.js";
+import { Command } from "../../../../types/command.js";
 
 export const command: Command = {
-	name: 'report',
+	name: "report",
 
-	description: 'Report a bug, error, spell error to the iHorizon\'s dev!',
+	description: "Report a bug, error, spell error to the iHorizon's dev!",
 	description_localizations: {
-		"fr": "Signaler un bug, une erreur, une faute d'orthographe au développeur d'iHorizon"
+		fr: "Signaler un bug, une erreur, une faute d'orthographe au développeur d'iHorizon"
 	},
 
 	options: [
 		{
-			name: 'message-to-dev',
+			name: "message-to-dev",
 			type: ApplicationCommandOptionType.String,
 
-			description: 'What is the problem? Please make a good sentences',
+			description: "What is the problem? Please make a good sentences",
 			description_localizations: {
-				"fr": "Quelle est le problème? S'il vous plaît expliquer le problème."
+				fr: "Quelle est le problème? S'il vous plaît expliquer le problème."
 			},
 
 			required: true,
@@ -56,46 +55,72 @@ export const command: Command = {
 		}
 	],
 	thinking: true,
-	category: 'newfeatures',
+	category: "newfeatures",
 	type: ApplicationCommandType.ChatInput,
 	permission: null,
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached">,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+		if (
+			!interaction.member ||
+			!client.user ||
+			!interaction.user ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
-		const sentences = interaction.options.getString("message-to-dev")
-		const timeout = 18000000
-		const cooldown = await client.db.get(`${interaction.guildId}.USER.${interaction.user.id}.REPORT.cooldown`);
+		const sentences = interaction.options.getString("message-to-dev");
+		const timeout = 18000000;
+		const cooldown = await client.db.get(
+			`${interaction.guildId}.USER.${interaction.user.id}.REPORT.cooldown`
+		);
 
 		if (cooldown !== null && timeout - (Date.now() - cooldown) > 0) {
-			const time = client.timeCalculator.to_beautiful_string(timeout - (Date.now() - cooldown), lang);
+			const time = client.timeCalculator.to_beautiful_string(
+				timeout - (Date.now() - cooldown),
+				lang
+			);
 
 			await interaction.editReply({
-				content: lang.report_cooldown_command
-					.replace("${time}", time)
+				content: lang.report_cooldown_command.replace("${time}", time)
 			});
 			return;
 		} else {
 			if (interaction.guild.ownerId != interaction.user.id) {
-				await interaction.editReply({ content: lang.report_owner_need });
+				await interaction.editReply({
+					content: lang.report_owner_need
+				});
 				return;
-			};
+			}
 
-			if (sentences && sentences.split(' ').length < 8) {
+			if (sentences && sentences.split(" ").length < 8) {
 				await interaction.editReply({ content: lang.report_specify });
 				return;
-			};
+			}
 
 			interaction.editReply({ content: lang.report_command_work });
 			const embed = new EmbedBuilder()
 				.setColor("#ff0000")
-				.setDescription(`**${interaction.user.globalName || interaction.user.username}** (<@${interaction.user.id}>) reported:\n~~--------------------------------~~\n${sentences}\n~~--------------------------------~~\nServer ID: **${interaction.guild.id}**`)
+				.setDescription(
+					`**${interaction.user.globalName || interaction.user.username}** (<@${interaction.user.id}>) reported:\n~~--------------------------------~~\n${sentences}\n~~--------------------------------~~\nServer ID: **${interaction.guild.id}**`
+				);
 
-			await (client.channels.cache.get(client.config.core.reportChannelID) as BaseGuildTextChannel).send({ embeds: [embed] });
+			await (
+				client.channels.cache.get(
+					client.config.core.reportChannelID
+				) as BaseGuildTextChannel
+			).send({ embeds: [embed] });
 
-			await client.db.set(`${interaction.guild.id}.USER.${interaction.user.id}.REPORT.cooldown`, Date.now());
+			await client.db.set(
+				`${interaction.guild.id}.USER.${interaction.user.id}.REPORT.cooldown`,
+				Date.now()
+			);
 			return;
 		}
-	},
+	}
 };

@@ -25,6 +25,6 @@ export default async function databaseLatency(): Promise<number> {
 	let _0 = Date.now();
 	try {
 		await metasTable.get("LAST_WRITE");
-	} catch { }
+	} catch {}
 	return Date.now() - _0;
 }

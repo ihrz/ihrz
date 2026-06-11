@@ -23,18 +23,17 @@ import {
 	ApplicationCommandOptionType,
 	ApplicationCommandType,
 	ChannelType,
-	PermissionFlagsBits,
-} from 'discord.js';
+	PermissionFlagsBits
+} from "discord.js";
 
-import { Command } from '../../../../types/command.js';
-
+import { Command } from "../../../../types/command.js";
 
 export const command: Command = {
 	name: "pfps",
 
 	description: "Sending random user avatar in channel!",
 	description_localizations: {
-		"fr": "Envoi d'un avatar d'utilisateur aléatoire dans un canal pré-définis"
+		fr: "Envoi d'un avatar d'utilisateur aléatoire dans un canal pré-définis"
 	},
 
 	options: [
@@ -44,18 +43,18 @@ export const command: Command = {
 
 			description: "Set the pfps module's channel!",
 			description_localizations: {
-				"fr": "Définir le canal du module pfps"
+				fr: "Définir le canal du module pfps"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
 			options: [
 				{
-					name: 'channel',
+					name: "channel",
 					type: ApplicationCommandOptionType.Channel,
 
-					description: 'The channel!',
+					description: "The channel!",
 					description_localizations: {
-						"fr": "Le channel"
+						fr: "Le channel"
 					},
 
 					channel_types: [ChannelType.GuildText],
@@ -74,32 +73,32 @@ export const command: Command = {
 
 			description: "Enable or Disable the PFPS module!",
 			description_localizations: {
-				"fr": "Activer ou désactiver le module"
+				fr: "Activer ou désactiver le module"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
 			options: [
 				{
-					name: 'action',
+					name: "action",
 					type: ApplicationCommandOptionType.String,
 
-					description: 'What do you want to do ?',
+					description: "What do you want to do ?",
 					description_localizations: {
-						"fr": "Que voulez-vous faire ?"
+						fr: "Que voulez-vous faire ?"
 					},
 
 					required: true,
 					choices: [
 						{
-							name: 'Power On',
-							name_localizations: { fr: 'Activer' },
+							name: "Power On",
+							name_localizations: { fr: "Activer" },
 							value: "on"
 						},
 						{
 							name: "Power Off",
-							name_localizations: { fr: 'Désactiver' },
+							name_localizations: { fr: "Désactiver" },
 							value: "off"
-						},
+						}
 					],
 
 					permission: null
@@ -110,7 +109,7 @@ export const command: Command = {
 		}
 	],
 	thinking: false,
-	category: 'pfps',
+	category: "pfps",
 	type: ApplicationCommandType.ChatInput,
 	permission: null
 };

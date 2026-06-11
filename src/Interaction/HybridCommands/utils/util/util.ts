@@ -23,18 +23,17 @@ import {
 	ApplicationCommandOptionType,
 	ApplicationCommandType,
 	ChannelType,
-	PermissionFlagsBits,
-} from 'discord.js'
+	PermissionFlagsBits
+} from "discord.js";
 
-import { Command } from '../../../../../types/command.js';
-
+import { Command } from "../../../../../types/command.js";
 
 export const command: Command = {
 	name: "util",
 
 	description: "SubCommand category for utils command",
 	description_localizations: {
-		"fr": "Commande sous groupé pour la catégorie utilitaire"
+		fr: "Commande sous groupé pour la catégorie utilitaire"
 	},
 
 	options: [
@@ -43,7 +42,7 @@ export const command: Command = {
 
 			description: "List all registered webhook on the server",
 			description_localizations: {
-				'fr': "Afficher toute les webhooks enregistrer sur le serveur"
+				fr: "Afficher toute les webhooks enregistrer sur le serveur"
 			},
 
 			aliases: ["webhooks", "webhook"],
@@ -54,9 +53,10 @@ export const command: Command = {
 		{
 			name: "nick-kicker",
 
-			description: "Kick a user if their nickname contains a specific word",
+			description:
+				"Kick a user if their nickname contains a specific word",
 			description_localizations: {
-				"fr": "Expulse un utilisateur si son surnom contient un mot spécifique"
+				fr: "Expulse un utilisateur si son surnom contient un mot spécifique"
 			},
 
 			aliases: ["nickkick", "nk"],
@@ -66,11 +66,11 @@ export const command: Command = {
 			permission: PermissionFlagsBits.Administrator
 		},
 		{
-			name: 'zip-stickers',
+			name: "zip-stickers",
 
-			description: 'Create zip files with all guild stickers in!',
+			description: "Create zip files with all guild stickers in!",
 			description_localizations: {
-				"fr": "Créer un fichier zip contenant absolument tout les stickers du serveur"
+				fr: "Créer un fichier zip contenant absolument tout les stickers du serveur"
 			},
 
 			aliases: ["zipstickers", "zip2"],
@@ -86,7 +86,7 @@ export const command: Command = {
 
 			description: "Disconnect a member from a voice channel",
 			description_localizations: {
-				fr: "Déconnecter un membre d'un salon vocal",
+				fr: "Déconnecter un membre d'un salon vocal"
 			},
 
 			options: [
@@ -95,28 +95,29 @@ export const command: Command = {
 
 					description: "The member you want to disconnect",
 					description_localizations: {
-						fr: "Le membre que vous voulez déconnecter",
+						fr: "Le membre que vous voulez déconnecter"
 					},
 
 					type: ApplicationCommandOptionType.User,
 
 					permission: null,
 
-					required: true,
-				},
+					required: true
+				}
 			],
 
 			thinking: false,
 			type: ApplicationCommandOptionType.Subcommand,
 
-			permission: PermissionFlagsBits.ModerateMembers,
+			permission: PermissionFlagsBits.ModerateMembers
 		},
 		{
-			name: 'wakeup',
+			name: "wakeup",
 
-			description: 'Wake up an user with mass mooving randomly in voice channel',
+			description:
+				"Wake up an user with mass mooving randomly in voice channel",
 			description_localizations: {
-				"fr": "Réveiller un utilisateur avec un déplacement massif aléatoire dans les salons vocaux"
+				fr: "Réveiller un utilisateur avec un déplacement massif aléatoire dans les salons vocaux"
 			},
 
 			aliases: ["wake"],
@@ -125,11 +126,11 @@ export const command: Command = {
 
 			options: [
 				{
-					name: 'member',
+					name: "member",
 
-					description: 'The member to wake up',
+					description: "The member to wake up",
 					description_localizations: {
-						"fr": "Le membre à réveiller"
+						fr: "Le membre à réveiller"
 					},
 
 					type: ApplicationCommandOptionType.User,
@@ -140,14 +141,31 @@ export const command: Command = {
 				}
 			],
 
-			permission: [PermissionFlagsBits.ModerateMembers, PermissionFlagsBits.MoveMembers]
+			permission: [
+				PermissionFlagsBits.ModerateMembers,
+				PermissionFlagsBits.MoveMembers
+			]
+		},
+		{
+			name: "derogation",
+
+			description: "Create one fake-admin role managed by iHorizon",
+			description_localizations: {
+				fr: "Créer un rôle de dérogation fake admin géré par iHorizon"
+			},
+
+			aliases: ["dero", "alldero"],
+
+			type: ApplicationCommandOptionType.Subcommand,
+
+			permission: PermissionFlagsBits.Administrator
 		},
 		{
 			name: "autorenew",
 			description: "Renew automaticaly X time a channel",
 
 			description_localizations: {
-				"fr": "Renouveller automatiquement un salon"
+				fr: "Renouveller automatiquement un salon"
 			},
 
 			options: [
@@ -156,7 +174,7 @@ export const command: Command = {
 
 					description: "The channel to renew every x times",
 					description_localizations: {
-						"fr": "Le salon qui ce renouveleras x temps"
+						fr: "Le salon qui ce renouveleras x temps"
 					},
 
 					type: ApplicationCommandOptionType.Channel,
@@ -170,7 +188,7 @@ export const command: Command = {
 
 					description: "The x time",
 					description_localizations: {
-						"fr": "Le temps x"
+						fr: "Le temps x"
 					},
 
 					type: ApplicationCommandOptionType.String,
@@ -184,11 +202,12 @@ export const command: Command = {
 			type: ApplicationCommandOptionType.Subcommand
 		},
 		{
-			name: 'admin-roles',
+			name: "admin-roles",
 
-			description: 'Get the list of all guild roles whose have admin permissions',
+			description:
+				"Get the list of all guild roles whose have admin permissions",
 			description_localizations: {
-				"fr": "Obtenez la liste de tous les roles de la guilde disposant d'autorisations d'administrateur"
+				fr: "Obtenez la liste de tous les roles de la guilde disposant d'autorisations d'administrateur"
 			},
 
 			aliases: ["allrolesadmin", "adminroles", "adminrole"],
@@ -198,11 +217,11 @@ export const command: Command = {
 			permission: PermissionFlagsBits.Administrator
 		},
 		{
-			name: 'cooldown',
+			name: "cooldown",
 
-			description: 'Set a cooldown in the current channel',
+			description: "Set a cooldown in the current channel",
 			description_localizations: {
-				"fr": "Mettre un coodlown dans le salon actuel"
+				fr: "Mettre un coodlown dans le salon actuel"
 			},
 
 			aliases: ["setcooldown", "coldown", "slow", "slowmode"],
@@ -220,20 +239,76 @@ export const command: Command = {
 					},
 
 					choices: [
-						{ name: "None", value: "0", name_localizations: { fr: "Aucun" } },
-						{ name: "5 seconds", value: "5s", name_localizations: { fr: "5 secondes" } },
-						{ name: "10 seconds", value: "10s", name_localizations: { fr: "10 secondes" } },
-						{ name: "15 seconds", value: "15s", name_localizations: { fr: "15 secondes" } },
-						{ name: "30 seconds", value: "30s", name_localizations: { fr: "30 secondes" } },
-						{ name: "1 minute", value: "1m", name_localizations: { fr: "1 minute" } },
-						{ name: "2 minutes", value: "2m", name_localizations: { fr: "2 minutes" } },
-						{ name: "5 minutes", value: "5m", name_localizations: { fr: "5 minutes" } },
-						{ name: "10 minutes", value: "10m", name_localizations: { fr: "10 minutes" } },
-						{ name: "15 minutes", value: "15m", name_localizations: { fr: "15 minutes" } },
-						{ name: "30 minutes", value: "30m", name_localizations: { fr: "30 minutes" } },
-						{ name: "1 hour", value: "1h", name_localizations: { fr: "1 heure" } },
-						{ name: "2 hours", value: "2h", name_localizations: { fr: "2 heures" } },
-						{ name: "6 hours", value: "6h", name_localizations: { fr: "6 heures" } }
+						{
+							name: "None",
+							value: "0",
+							name_localizations: { fr: "Aucun" }
+						},
+						{
+							name: "5 seconds",
+							value: "5s",
+							name_localizations: { fr: "5 secondes" }
+						},
+						{
+							name: "10 seconds",
+							value: "10s",
+							name_localizations: { fr: "10 secondes" }
+						},
+						{
+							name: "15 seconds",
+							value: "15s",
+							name_localizations: { fr: "15 secondes" }
+						},
+						{
+							name: "30 seconds",
+							value: "30s",
+							name_localizations: { fr: "30 secondes" }
+						},
+						{
+							name: "1 minute",
+							value: "1m",
+							name_localizations: { fr: "1 minute" }
+						},
+						{
+							name: "2 minutes",
+							value: "2m",
+							name_localizations: { fr: "2 minutes" }
+						},
+						{
+							name: "5 minutes",
+							value: "5m",
+							name_localizations: { fr: "5 minutes" }
+						},
+						{
+							name: "10 minutes",
+							value: "10m",
+							name_localizations: { fr: "10 minutes" }
+						},
+						{
+							name: "15 minutes",
+							value: "15m",
+							name_localizations: { fr: "15 minutes" }
+						},
+						{
+							name: "30 minutes",
+							value: "30m",
+							name_localizations: { fr: "30 minutes" }
+						},
+						{
+							name: "1 hour",
+							value: "1h",
+							name_localizations: { fr: "1 heure" }
+						},
+						{
+							name: "2 hours",
+							value: "2h",
+							name_localizations: { fr: "2 heures" }
+						},
+						{
+							name: "6 hours",
+							value: "6h",
+							name_localizations: { fr: "6 heures" }
+						}
 					],
 
 					required: true,
@@ -246,11 +321,11 @@ export const command: Command = {
 			permission: PermissionFlagsBits.ManageChannels
 		},
 		{
-			name: 'rolelimit',
+			name: "rolelimit",
 
-			description: 'Limit the number of member(s) in the same role',
+			description: "Limit the number of member(s) in the same role",
 			description_localizations: {
-				"fr": "Limiter le nombre de membres qui peuvent ce partager un rôle."
+				fr: "Limiter le nombre de membres qui peuvent ce partager un rôle."
 			},
 
 			aliases: ["limitrole", "limitoles", "roleslimit"],
@@ -263,7 +338,7 @@ export const command: Command = {
 
 					description: "The role you want to manage",
 					description_localizations: {
-						"fr": "Le rôle que tu shouaite gérer."
+						fr: "Le rôle que tu shouaite gérer."
 					},
 
 					permission: null,
@@ -275,24 +350,23 @@ export const command: Command = {
 
 					description: "The maximum member you want on the sane role",
 					description_localizations: {
-						"fr": "Le nombre maximum de membre qui auront le rôle en même temps."
+						fr: "Le nombre maximum de membre qui auront le rôle en même temps."
 					},
 
 					permission: null,
-					type: ApplicationCommandOptionType.Number,
-
+					type: ApplicationCommandOptionType.Number
 				}
 			],
 
 			permission: PermissionFlagsBits.Administrator
 		},
 		{
-			name: 'where',
-			aliases: ['whereis'],
+			name: "where",
+			aliases: ["whereis"],
 
-			description: 'Sending the channel where the members is',
+			description: "Sending the channel where the members is",
 			description_localizations: {
-				"fr": "Envoie le salon vocal où est le membre."
+				fr: "Envoie le salon vocal où est le membre."
 			},
 
 			thinking: false,
@@ -304,7 +378,7 @@ export const command: Command = {
 
 					description: "The member you want to check",
 					description_localizations: {
-						"fr": "le membre que vous souhaitez vérifier"
+						fr: "le membre que vous souhaitez vérifier"
 					},
 
 					permission: null,
@@ -314,27 +388,27 @@ export const command: Command = {
 				}
 			],
 
-			permission: PermissionFlagsBits.ModerateMembers,
+			permission: PermissionFlagsBits.ModerateMembers
 		},
 		{
-			name: 'serverpic',
+			name: "serverpic",
 
-			description: 'Sending the guild image',
+			description: "Sending the guild image",
 			description_localizations: {
-				"fr": "Envoie le logo du serveur"
+				fr: "Envoie le logo du serveur"
 			},
 
 			thinking: false,
 			type: ApplicationCommandOptionType.Subcommand,
 
-			permission: PermissionFlagsBits.ModerateMembers,
+			permission: PermissionFlagsBits.ModerateMembers
 		},
 		{
-			name: 'unzip-emojis',
+			name: "unzip-emojis",
 
-			description: 'Recreate all emojis from a zip file',
+			description: "Recreate all emojis from a zip file",
 			description_localizations: {
-				"fr": "Recreer tout les emojis depuis un fichier zip"
+				fr: "Recreer tout les emojis depuis un fichier zip"
 			},
 
 			aliases: ["unzipemojis", "unzip1"],
@@ -345,7 +419,7 @@ export const command: Command = {
 
 					description: "The zip file to recreate emojis",
 					description_localizations: {
-						"fr": "Le fichier zip pour recréer les emojis"
+						fr: "Le fichier zip pour recréer les emojis"
 					},
 
 					type: ApplicationCommandOptionType.Attachment,
@@ -366,7 +440,7 @@ export const command: Command = {
 			description: "Sync all channels to the parent category",
 
 			description_localizations: {
-				"fr": "Synchroniser tous les channels avec la catégorie parent"
+				fr: "Synchroniser tous les channels avec la catégorie parent"
 			},
 
 			options: [
@@ -375,7 +449,7 @@ export const command: Command = {
 
 					description: "The category to sync channels to",
 					description_localizations: {
-						"fr": "La catégorie pour synchroniser les channels"
+						fr: "La catégorie pour synchroniser les channels"
 					},
 
 					type: ApplicationCommandOptionType.Channel,
@@ -388,23 +462,25 @@ export const command: Command = {
 
 			type: ApplicationCommandOptionType.Subcommand,
 
-			permission: PermissionFlagsBits.Administrator,
+			permission: PermissionFlagsBits.Administrator
 		},
 		{
 			name: "addrolereact",
 
-			description: "Add a role to all users who reacted to a specific message",
+			description:
+				"Add a role to all users who reacted to a specific message",
 			description_localizations: {
-				"fr": "Ajouter un rôle à tous les utilisateurs qui ont réagi à un message spécifique"
+				fr: "Ajouter un rôle à tous les utilisateurs qui ont réagi à un message spécifique"
 			},
 
 			options: [
 				{
 					name: "message_id",
 
-					description: "The ID of the message to check reactions from",
+					description:
+						"The ID of the message to check reactions from",
 					description_localizations: {
-						"fr": "L'ID du message dont on veut vérifier les réactions"
+						fr: "L'ID du message dont on veut vérifier les réactions"
 					},
 
 					type: ApplicationCommandOptionType.String,
@@ -417,7 +493,7 @@ export const command: Command = {
 
 					description: "The role to add to users",
 					description_localizations: {
-						"fr": "Le rôle à ajouter aux utilisateurs"
+						fr: "Le rôle à ajouter aux utilisateurs"
 					},
 
 					type: ApplicationCommandOptionType.Role,
@@ -429,14 +505,14 @@ export const command: Command = {
 
 			type: ApplicationCommandOptionType.Subcommand,
 
-			permission: PermissionFlagsBits.ManageRoles,
+			permission: PermissionFlagsBits.ManageRoles
 		},
 		{
-			name: 'inviteinfo',
+			name: "inviteinfo",
 
-			description: 'Get informations about the discord invite link',
+			description: "Get informations about the discord invite link",
 			description_localizations: {
-				"fr": "Obtenir des informations vis-à-vis de l'invitations discord"
+				fr: "Obtenir des informations vis-à-vis de l'invitations discord"
 			},
 
 			aliases: [],
@@ -447,7 +523,7 @@ export const command: Command = {
 
 					description: "the discord invite / code",
 					description_localizations: {
-						"fr": "le lien d'invitation discord ou le code"
+						fr: "le lien d'invitation discord ou le code"
 					},
 
 					type: ApplicationCommandOptionType.String,
@@ -467,7 +543,7 @@ export const command: Command = {
 
 			description: "See all server member(s) who have the same roles",
 			description_localizations: {
-				"fr": "Afficher tout les membres d'un serveur qui possèdent le même rôle"
+				fr: "Afficher tout les membres d'un serveur qui possèdent le même rôle"
 			},
 
 			aliases: ["rolemembers", "rolemember"],
@@ -478,7 +554,7 @@ export const command: Command = {
 
 					description: "The role you want to check",
 					description_localizations: {
-						"fr": "Le rôle que vous voulez vérifier"
+						fr: "Le rôle que vous voulez vérifier"
 					},
 
 					type: ApplicationCommandOptionType.Role,
@@ -490,43 +566,52 @@ export const command: Command = {
 
 			type: ApplicationCommandOptionType.Subcommand,
 
-			permission: PermissionFlagsBits.ManageRoles,
+			permission: PermissionFlagsBits.ManageRoles
 		},
 		{
-			name: 'bringall',
+			name: "bringall",
 
-			description: 'Randomly distribute members from a voice channel to all voice channels in a category',
+			description:
+				"Randomly distribute members from a voice channel to all voice channels in a category",
 			description_localizations: {
-				"fr": "Distribue aléatoirement les membres d'un salon vocal dans tous les salons d'une catégorie"
+				fr: "Distribue aléatoirement les membres d'un salon vocal dans tous les salons d'une catégorie"
 			},
 
 			thinking: false,
 			type: ApplicationCommandOptionType.Subcommand,
-			permission: [PermissionFlagsBits.MoveMembers, PermissionFlagsBits.ModerateMembers],
+			permission: [
+				PermissionFlagsBits.MoveMembers,
+				PermissionFlagsBits.ModerateMembers
+			],
 
 			options: [
 				{
-					name: 'from',
+					name: "from",
 
 					type: ApplicationCommandOptionType.Channel,
 
-					description: 'The source voice channel to move members from',
+					description:
+						"The source voice channel to move members from",
 					description_localizations: {
-						"fr": "Le salon vocal source depuis lequel déplacer les membres"
+						fr: "Le salon vocal source depuis lequel déplacer les membres"
 					},
 
 					required: true,
-					channel_types: [ChannelType.GuildVoice, ChannelType.GuildStageVoice],
+					channel_types: [
+						ChannelType.GuildVoice,
+						ChannelType.GuildStageVoice
+					],
 					permission: null
 				},
 				{
-					name: 'category',
+					name: "category",
 
 					type: ApplicationCommandOptionType.Channel,
 
-					description: 'The category containing voice channels to distribute members to',
+					description:
+						"The category containing voice channels to distribute members to",
 					description_localizations: {
-						"fr": "La catégorie contenant les salons vocaux où distribuer les membres"
+						fr: "La catégorie contenant les salons vocaux où distribuer les membres"
 					},
 
 					required: true,
@@ -536,11 +621,122 @@ export const command: Command = {
 			]
 		},
 		{
+			name: "talk",
+			prefixName: "talk",
+
+			description: "Enable talk mode in your current voice channel",
+			description_localizations: {
+				fr: "Activer le mode talk dans votre salon vocal actuel"
+			},
+
+			aliases: ["mutetalk"],
+			type: ApplicationCommandOptionType.Subcommand,
+			permission: [
+				PermissionFlagsBits.MuteMembers,
+				PermissionFlagsBits.MoveMembers
+			]
+		},
+		{
+			name: "untalk",
+			prefixName: "untalk",
+
+			description: "Disable talk mode and unmute everyone",
+			description_localizations: {
+				fr: "Désactiver le mode talk et démute tout le monde"
+			},
+
+			aliases: ["unmutetalk"],
+			type: ApplicationCommandOptionType.Subcommand,
+			permission: [
+				PermissionFlagsBits.MuteMembers,
+				PermissionFlagsBits.MoveMembers
+			]
+		},
+		{
+			name: "freeze",
+			prefixName: "freeze",
+
+			description: "Freeze access to your current voice channel",
+			description_localizations: {
+				fr: "Geler l'accès à votre salon vocal actuel"
+			},
+
+			aliases: ["voicefreeze", "vcfreeze"],
+			type: ApplicationCommandOptionType.Subcommand,
+			permission: PermissionFlagsBits.MoveMembers
+		},
+		{
+			name: "wlvc",
+			prefixName: "wlvc",
+
+			description: "Allow a member to join the frozen voice channel",
+			description_localizations: {
+				fr: "Autoriser un membre à rejoindre le salon vocal gelé"
+			},
+
+			options: [
+				{
+					name: "member",
+					description: "The member you want to allow",
+					description_localizations: {
+						fr: "Le membre que vous voulez autoriser"
+					},
+					type: ApplicationCommandOptionType.User,
+					required: true,
+					permission: null
+				}
+			],
+
+			aliases: ["allowvc"],
+			type: ApplicationCommandOptionType.Subcommand,
+			permission: PermissionFlagsBits.MoveMembers
+		},
+		{
+			name: "unwlvc",
+			prefixName: "unwlvc",
+
+			description:
+				"Remove a member from the frozen voice channel whitelist",
+			description_localizations: {
+				fr: "Retirer un membre de la whitelist du salon vocal gelé"
+			},
+
+			options: [
+				{
+					name: "member",
+					description: "The member you want to remove",
+					description_localizations: {
+						fr: "Le membre que vous voulez retirer"
+					},
+					type: ApplicationCommandOptionType.User,
+					required: true,
+					permission: null
+				}
+			],
+
+			aliases: ["removevcwl"],
+			type: ApplicationCommandOptionType.Subcommand,
+			permission: PermissionFlagsBits.MoveMembers
+		},
+		{
+			name: "unfreeze",
+			prefixName: "unfreeze",
+
+			description: "Remove the active voice freeze",
+			description_localizations: {
+				fr: "Retirer le gel vocal actif"
+			},
+
+			aliases: ["defreeze"],
+			type: ApplicationCommandOptionType.Subcommand,
+			permission: PermissionFlagsBits.MoveMembers
+		},
+		{
 			name: "move",
 
 			description: "Move an user from voice-channel.",
 			description_localizations: {
-				"fr": "Déplacer un membre d'un salon vocal"
+				fr: "Déplacer un membre d'un salon vocal"
 			},
 
 			aliases: ["déplacer", "switch"],
@@ -551,7 +747,7 @@ export const command: Command = {
 
 					description: "The member you want to move",
 					description_localizations: {
-						"fr": "Le membre que vous voulez déplacer"
+						fr: "Le membre que vous voulez déplacer"
 					},
 
 					permission: null,
@@ -563,7 +759,7 @@ export const command: Command = {
 
 					description: "The channel you want",
 					description_localizations: {
-						"fr": "Le salon vocal que tu veux."
+						fr: "Le salon vocal que tu veux."
 					},
 
 					permission: null,
@@ -575,10 +771,10 @@ export const command: Command = {
 			type: ApplicationCommandOptionType.Subcommand,
 
 			permission: [PermissionFlagsBits.MoveMembers]
-		},
+		}
 	],
 
-	category: 'utils',
+	category: "utils",
 	thinking: false,
 	type: ApplicationCommandType.ChatInput,
 	permission: null

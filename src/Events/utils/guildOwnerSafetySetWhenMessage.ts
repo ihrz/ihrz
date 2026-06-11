@@ -19,21 +19,22 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { Client, Message } from 'discord.js';
-import { BotEvent } from '../../../types/event.js';
+import { Client, Message } from "discord.js";
+import { BotEvent } from "../../../types/event.js";
 
 const already_visited = new Set();
 
 export const event: BotEvent = {
 	name: "messageCreate",
 	run: async (client: Client, message: Message) => {
-
 		if (!message.guild || message.author.bot || !message.channel) return;
 
 		if (already_visited.has(message.guildId)) return;
 
-		await client.func.ownerHelper.addGuildOwner(message.guild.ownerId, message.guild.id).then(() => {
-			already_visited.add(message.guildId)
-		})
-	},
+		await client.func.ownerHelper
+			.addGuildOwner(message.guild.ownerId, message.guild.id)
+			.then(() => {
+				already_visited.add(message.guildId);
+			});
+	}
 };

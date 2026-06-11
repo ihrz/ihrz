@@ -19,77 +19,99 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	ChatInputCommandInteraction,
-	Client,
-} from 'discord.js';
-import { LanguageData } from '../../../../types/languageData.js';
-import { rules } from './authorization.js';
+import { ChatInputCommandInteraction, Client } from "discord.js";
+import { LanguageData } from "../../../../types/languageData.js";
+import { rules } from "./authorization.js";
 
-
-
-import { SubCommand } from '../../../../types/command.js';
+import { SubCommand } from "../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {
-
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached">,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+		if (
+			!interaction.member ||
+			!client.user ||
+			!interaction.user ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
 		if (interaction.user.id !== interaction.guild?.ownerId) {
-			await interaction.editReply({ content: lang.authorization_actions_not_permited });
+			await interaction.editReply({
+				content: lang.authorization_actions_not_permited
+			});
 			return;
-		};
+		}
 
-		const rule = interaction.options.getString('rule') as string;
-		let allow = interaction.options.getString('allow') as string;
+		const rule = interaction.options.getString("rule") as string;
+		let allow = interaction.options.getString("allow") as string;
 
 		if (rule === "all" && allow) {
-			const allRules = Object.entries(rules).map(([key, value]) => (value.value));
+			const allRules = Object.entries(rules).map(
+				([key, value]) => value.value
+			);
 			allRules.shift(); // Remove cls
 			allRules.shift(); // Remove all
 
 			for (const rule of allRules) {
-				await client.db.set(`${interaction.guild.id}.PROTECTION.${rule}`, { mode: allow });
+				await client.db.set(
+					`${interaction.guild.id}.PROTECTION.${rule}`,
+					{ mode: allow }
+				);
 			}
 
-			if (allow === 'member') allow = lang.authorization_actions_everyone;
-			if (allow === 'allowlist') allow = lang.authorization_actions_allowlist;
-			if (allow === "nobody") allow = lang.authorization_actions_nobody
+			if (allow === "member") allow = lang.authorization_actions_everyone;
+			if (allow === "allowlist")
+				allow = lang.authorization_actions_allowlist;
+			if (allow === "nobody") allow = lang.authorization_actions_nobody;
 
 			await interaction.editReply({
 				content: lang.authorization_actions_rule_set
-					.replace('${interaction.user}', interaction.user.toString())
-					.replace('${rule.toUpperCase()}', allRules.join(","))
-					.replace('${allow}', allow)
+					.replace("${interaction.user}", interaction.user.toString())
+					.replace("${rule.toUpperCase()}", allRules.join(","))
+					.replace("${allow}", allow)
 			});
 			return;
-		} else if (rule !== 'cls' && allow) {
-			await client.db.set(`${interaction.guild.id}.PROTECTION.${rule}`, { mode: allow });
+		} else if (rule !== "cls" && allow) {
+			await client.db.set(`${interaction.guild.id}.PROTECTION.${rule}`, {
+				mode: allow
+			});
 
-			if (allow === 'member') allow = lang.authorization_actions_everyone;
-			if (allow === 'allowlist') allow = lang.authorization_actions_allowlist;
-			if (allow === "nobody") allow = lang.authorization_actions_nobody
+			if (allow === "member") allow = lang.authorization_actions_everyone;
+			if (allow === "allowlist")
+				allow = lang.authorization_actions_allowlist;
+			if (allow === "nobody") allow = lang.authorization_actions_nobody;
 
 			await interaction.editReply({
 				content: lang.authorization_actions_rule_set
-					.replace('${interaction.user}', interaction.user.toString())
-					.replace('${rule.toUpperCase()}', rule.toUpperCase() as unknown as string)
-					.replace('${allow}', allow)
+					.replace("${interaction.user}", interaction.user.toString())
+					.replace(
+						"${rule.toUpperCase()}",
+						rule.toUpperCase() as unknown as string
+					)
+					.replace("${allow}", allow)
 			});
 			return;
-		} else if (rule === 'cls') {
+		} else if (rule === "cls") {
 			await client.db.delete(`${interaction.guild.id}.PROTECTION`);
 
 			await interaction.editReply({
 				content: lang.authorization_actions_rule_clear
-					.replace('${interaction.user}', interaction.user.toString())
-					.replace('${interaction.guild.name}', interaction.guild.name)
+					.replace("${interaction.user}", interaction.user.toString())
+					.replace(
+						"${interaction.guild.name}",
+						interaction.guild.name
+					)
 			});
 			return;
-		};
+		}
 
 		return interaction.editReply({ content: lang.close_error_command });
-	},
+	}
 };

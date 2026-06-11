@@ -19,15 +19,20 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { escape } from "querystring"
+import { escape } from "querystring";
 
 export function sanitizing(text: string | undefined): string {
-	return text?.split('').filter(char => {
-		try {
-			decodeURIComponent(escape(char));
-			return true;
-		} catch {
-			return false;
-		}
-	}).join('') || '<malformed string>';
+	return (
+		text
+			?.split("")
+			.filter((char) => {
+				try {
+					decodeURIComponent(escape(char));
+					return true;
+				} catch {
+					return false;
+				}
+			})
+			.join("") || "<malformed string>"
+	);
 }

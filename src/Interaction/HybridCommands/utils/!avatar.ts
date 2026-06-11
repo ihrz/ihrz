@@ -23,44 +23,62 @@ import {
 	ChatInputCommandInteraction,
 	Client,
 	EmbedBuilder,
-	GuildMember,
 	Message,
-	User,
-} from 'discord.js';
-import { LanguageData } from '../../../../types/languageData.js';
+	User
+} from "discord.js";
+import { LanguageData } from "../../../../types/languageData.js";
 
-
-import { SubCommand } from '../../../../types/command.js';
+import { SubCommand } from "../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
+		if (
+			!client.user ||
+			!interaction.member ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
-		if (interaction instanceof ChatInputCommandInteraction) {
-			var member = interaction.options.getMember("user") as GuildMember | null;
-		} else {
+		const member = interaction instanceof ChatInputCommandInteraction ? interaction.options.getUser(
+			"user"
+		) : await client.func.method.user(interaction, args!, 0);
 
-			var member = client.func.method.member(interaction, args!, 0) as GuildMember | null;
-		};
-
-		const mentionedUser = member || interaction.member.user as User;
+		const mentionedUser = member || (interaction.member.user as User);
 
 		const embed = new EmbedBuilder()
-			.setImage(mentionedUser.displayAvatarURL({ extension: 'png', size: 512 }))
+			.setImage(
+				mentionedUser.displayAvatarURL({ extension: "png", size: 512 })
+			)
 			.setColor("#add5ff")
-			.setTitle(lang.avatar_embed_title
-				.replace('${mentionedUser.username}', mentionedUser.displayName)
+			.setTitle(
+				lang.avatar_embed_title.replace(
+					"${mentionedUser.username}",
+					mentionedUser.displayName
+				)
 			)
 			.setDescription(lang.avatar_embed_description)
 			.setTimestamp()
-			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!));
+			.setFooter(
+				await client.func.displayBotName.footerBuilder(
+					interaction.guildId!
+				)
+			);
 
 		await client.func.method.interactionSend(interaction, {
 			embeds: [embed],
-			files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
+			files: [
+				await client.func.displayBotName.footerAttachmentBuilder(
+					interaction
+				)
+			]
 		});
 		return;
-	},
+	}
 };

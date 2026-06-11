@@ -4,7 +4,7 @@
 		"categoryColor": "#6666ff",
 		"options": {
 			"description": "help_antispam_dsc",
-			"emoji": "🔐",
+			"emoji": "${client.iHorizon_Emojis.Moderator_Alumni_Badge}",
 			"placeholder": "help_antispam_fields"
 		}
 	}

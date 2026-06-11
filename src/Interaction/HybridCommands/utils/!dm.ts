@@ -25,38 +25,54 @@ import {
 	ButtonStyle,
 	ChatInputCommandInteraction,
 	Client,
-	Message,
-} from 'discord.js'
+	Message
+} from "discord.js";
 
-import { LanguageData } from '../../../../types/languageData.js';
+import { LanguageData } from "../../../../types/languageData.js";
 
-
-import { SubCommand } from '../../../../types/command.js';
+import { SubCommand } from "../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
-
+		if (
+			!client.user ||
+			!interaction.member ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
 		if (interaction instanceof ChatInputCommandInteraction) {
-			var isPrivate = interaction.options.getString("private") === "yes" ? true : false;
+			var isPrivate =
+				interaction.options.getString("private") === "yes"
+					? true
+					: false;
 			var msg = interaction.options.getString("message")!;
 			var targetMember = interaction.options.getMember("member")!;
 		} else {
+			var isPrivate =
+				client.func.method.string(args!, 0) === "yes" ? true : false;
+			var targetMember = client.func.method.member(
+				interaction,
+				args!,
+				1
+			)!;
+			var msg = client.func.method.longString(args!, 2)!;
+		}
 
-			var isPrivate = client.func.method.string(args!, 0) === "yes" ? true : false;
-			var targetMember = client.func.method.member(interaction, args!, 1)!;
-			var msg = client.func.method.longString(args!, 2)!
-		};
-
-		const buttons = [new ButtonBuilder()
-			.setCustomId("forgot-my-name")
-			.setStyle(ButtonStyle.Secondary)
-			.setLabel("Message from: " + interaction.guildId)
-			.setDisabled(true)];
+		const buttons = [
+			new ButtonBuilder()
+				.setCustomId("forgot-my-name")
+				.setStyle(ButtonStyle.Secondary)
+				.setLabel("Message from: " + interaction.guildId)
+				.setDisabled(true)
+		];
 
 		if (isPrivate === false) {
 			buttons.push(
@@ -65,39 +81,63 @@ export const subCommand: SubCommand = {
 					.setStyle(ButtonStyle.Secondary)
 					.setLabel("Message by: " + interaction.member.user.id)
 					.setDisabled(true)
-			)
-		};
+			);
+		}
 
+		await targetMember
+			?.send({
+				content: msg,
+				components: [
+					new ActionRowBuilder<ButtonBuilder>().addComponents(buttons)
+				]
+			})
+			.then(async () => {
+				await client.func.method.interactionSend(interaction, {
+					content: lang.utils_dm
+						.replace(
+							"${client.iHorizon_Emojis.Yes}",
+							client.iHorizon_Emojis.Yes
+						)
+						.replace(
+							"${targetMember.toString()}",
+							targetMember.toString()
+						)
+						.replace(
+							"${client.iHorizon_Emojis.Yes}",
+							client.iHorizon_Emojis.Yes
+						)
+				});
+			})
+			.catch(async () => {
+				await client.func.method.interactionSend(interaction, {
+					content: lang.utils_dm
+						.replace(
+							"${client.iHorizon_Emojis.Yes}",
+							client.iHorizon_Emojis.Yes
+						)
+						.replace(
+							"${targetMember.toString()}",
+							targetMember.toString()
+						)
+						.replace(
+							"${client.iHorizon_Emojis.Yes}",
+							client.iHorizon_Emojis.Yes
+						)
+				});
 
-		await targetMember?.send({
-			content: msg, components: [
-				new ActionRowBuilder<ButtonBuilder>()
-					.addComponents(
-						buttons
-					)
-			]
-		}).then(async () => {
-			await client.func.method.interactionSend(interaction, {
-				content: lang.utils_dm
-					.replace("${client.iHorizon_Emojis.Yes}", client.iHorizon_Emojis.Yes)
-					.replace("${targetMember.toString()}", targetMember.toString())
-					.replace("${client.iHorizon_Emojis.Yes}", client.iHorizon_Emojis.Yes)
-			})
-		}).catch(async () => {
-			await client.func.method.interactionSend(interaction, {
-				content: lang.utils_dm
-					.replace("${client.iHorizon_Emojis.Yes}", client.iHorizon_Emojis.Yes)
-					.replace("${targetMember.toString()}", targetMember.toString())
-					.replace("${client.iHorizon_Emojis.Yes}", client.iHorizon_Emojis.Yes)
-			})
-
-			await client.func.method.interactionSend(interaction, {
-				content: lang.utils_dm_cant
-					.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No)
-					.replace("${targetMember.toString()}", targetMember.toString())
-			})
-		})
+				await client.func.method.interactionSend(interaction, {
+					content: lang.utils_dm_cant
+						.replace(
+							"${client.iHorizon_Emojis.No}",
+							client.iHorizon_Emojis.No
+						)
+						.replace(
+							"${targetMember.toString()}",
+							targetMember.toString()
+						)
+				});
+			});
 
 		return;
-	},
+	}
 };

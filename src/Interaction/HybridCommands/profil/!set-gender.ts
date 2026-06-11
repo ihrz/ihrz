@@ -19,27 +19,27 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	ChatInputCommandInteraction,
-	Client,
-	Message,
-} from 'discord.js';
+import { ChatInputCommandInteraction, Client, Message } from "discord.js";
 
-import { LanguageData } from '../../../../types/languageData.js';
+import { LanguageData } from "../../../../types/languageData.js";
 
-import { SubCommand } from '../../../../types/command.js';
-import { profilTable } from '../../../Events/client/ready.js';
+import { SubCommand } from "../../../../types/command.js";
+import { profilTable } from "../../../Events/client/ready.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		if (interaction instanceof ChatInputCommandInteraction) {
 			var gender = interaction.options.getString("gender")!;
 			var user = interaction.user;
 		} else {
 			var gender = args?.join(" ") || "None";
 			var user = interaction.author;
-		};
+		}
 
 		switch (gender) {
 			case "female":
@@ -53,7 +53,10 @@ export const subCommand: SubCommand = {
 				break;
 		}
 
-		await client.func.method.interactionSend(interaction, { content: lang.setprofildescriptions_command_work, flags: [1 << 6] });
+		await client.func.method.interactionSend(interaction, {
+			content: lang.setprofildescriptions_command_work,
+			flags: [1 << 6]
+		});
 		return;
-	},
+	}
 };

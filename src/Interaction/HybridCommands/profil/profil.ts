@@ -21,30 +21,29 @@
 
 import {
 	ApplicationCommandOptionType,
-	ApplicationCommandType,
-} from 'discord.js';
+	ApplicationCommandType
+} from "discord.js";
 
-import { Command } from '../../../../types/command.js';
-
+import { Command } from "../../../../types/command.js";
 
 export const command: Command = {
 	name: "profil",
 
 	description: "Subcommand for profil category!",
 	description_localizations: {
-		"fr": "Commande sous-groupé pour la catégorie de visualisation profil"
+		fr: "Commande sous-groupé pour la catégorie de visualisation profil"
 	},
 
 	options: [
 		{
 			name: "show",
 			name_localizations: {
-				"fr": "afficher"
+				fr: "afficher"
 			},
 
 			description: "See the iHorizon's profil of the member!",
 			description_localizations: {
-				"fr": "Voir le profil iHorizon du membre"
+				fr: "Voir le profil iHorizon du membre"
 			},
 
 			aliases: ["me", "prof"],
@@ -52,12 +51,12 @@ export const command: Command = {
 			type: ApplicationCommandOptionType.Subcommand,
 			options: [
 				{
-					name: 'user',
+					name: "user",
 					type: ApplicationCommandOptionType.User,
 
-					description: 'The user you want to lookup',
+					description: "The user you want to lookup",
 					description_localizations: {
-						"fr": "L'utilisateur que vous souhaitez rechercher"
+						fr: "L'utilisateur que vous souhaitez rechercher"
 					},
 
 					required: false,
@@ -71,12 +70,12 @@ export const command: Command = {
 		{
 			name: "set-age",
 			name_localizations: {
-				"fr": "définir-âge"
+				fr: "définir-âge"
 			},
 
 			description: "Set your age on the iHorizon's Profil !",
 			description_localizations: {
-				"fr": "Définissez votre âge sur le profil iHorizon"
+				fr: "Définissez votre âge sur le profil iHorizon"
 			},
 
 			aliases: ["age"],
@@ -84,12 +83,12 @@ export const command: Command = {
 			type: ApplicationCommandOptionType.Subcommand,
 			options: [
 				{
-					name: 'age',
+					name: "age",
 					type: ApplicationCommandOptionType.Number,
 
 					description: "Your age on the iHorizon's profil",
 					description_localizations: {
-						"fr": "Votre âge sur votre profil iHorizon"
+						fr: "Votre âge sur votre profil iHorizon"
 					},
 
 					required: true,
@@ -103,12 +102,12 @@ export const command: Command = {
 		{
 			name: "set-description",
 			name_localizations: {
-				"fr": "définir-description"
+				fr: "définir-description"
 			},
 
 			description: "Set your description on the iHorizon's Profil!",
 			description_localizations: {
-				"fr": "Définissez votre description sur le profil iHorizon"
+				fr: "Définissez votre description sur le profil iHorizon"
 			},
 
 			aliases: ["desc", "description"],
@@ -116,12 +115,12 @@ export const command: Command = {
 			type: ApplicationCommandOptionType.Subcommand,
 			options: [
 				{
-					name: 'description',
+					name: "description",
 					type: ApplicationCommandOptionType.String,
 
 					description: "Your descriptions on the iHorizon's profil",
 					description_localizations: {
-						"fr": "La description sur votre profil"
+						fr: "La description sur votre profil"
 					},
 
 					required: true,
@@ -135,12 +134,12 @@ export const command: Command = {
 		{
 			name: "set-gender",
 			name_localizations: {
-				"fr": "définir-genre"
+				fr: "définir-genre"
 			},
 
 			description: "Set your gender on the iHorizon's Profil!",
 			description_localizations: {
-				"fr": "Définissez votre genre sur le profil iHorizon"
+				fr: "Définissez votre genre sur le profil iHorizon"
 			},
 
 			aliases: ["gender"],
@@ -148,29 +147,29 @@ export const command: Command = {
 			type: ApplicationCommandOptionType.Subcommand,
 			options: [
 				{
-					name: 'gender',
+					name: "gender",
 					type: ApplicationCommandOptionType.String,
 
 					description: "Gender that fits you the most",
 					description_localizations: {
-						"fr": "Le genre qui vous correspond le plus"
+						fr: "Le genre qui vous correspond le plus"
 					},
 
 					required: true,
 					choices: [
 						{
 							name: "♀ Female",
-							name_localizations: { fr: '♀ Féminin' },
+							name_localizations: { fr: "♀ Féminin" },
 							value: "female"
 						},
 						{
 							name: "♂ Male",
-							name_localizations: { fr: '♂ Masculin' },
+							name_localizations: { fr: "♂ Masculin" },
 							value: "male"
 						},
 						{
 							name: "⚧ Non-binary",
-							name_localizations: { fr: '⚧ Non-binaire' },
+							name_localizations: { fr: "⚧ Non-binaire" },
 							value: "non-binary"
 						}
 					],
@@ -184,12 +183,12 @@ export const command: Command = {
 		{
 			name: "set-pronoun",
 			name_localizations: {
-				"fr": "définir-pronom"
+				fr: "définir-pronom"
 			},
 
 			description: "Set your pronoun on the iHorizon's Profil!",
 			description_localizations: {
-				"fr": "Définissez votre pronom sur le profil iHorizon"
+				fr: "Définissez votre pronom sur le profil iHorizon"
 			},
 
 			aliases: ["pronoun", "pronom"],
@@ -197,44 +196,44 @@ export const command: Command = {
 			type: ApplicationCommandOptionType.Subcommand,
 			options: [
 				{
-					name: 'pronoun',
+					name: "pronoun",
 					type: ApplicationCommandOptionType.String,
 
 					description: "Pronoun that fits you the most",
 					description_localizations: {
-						"fr": "Le pronom qui vous correspond le plus"
+						fr: "Le pronom qui vous correspond le plus"
 					},
 
 					required: true,
 					choices: [
 						{
 							name: "she/her",
-							name_localizations: { fr: 'elle/elle' },
+							name_localizations: { fr: "elle/elle" },
 							value: "she-her"
 						},
 						{
 							name: "he/him",
-							name_localizations: { fr: 'il/il' },
+							name_localizations: { fr: "il/il" },
 							value: "he-him"
 						},
 						{
 							name: "they/them",
-							name_localizations: { fr: 'ils/ils' },
+							name_localizations: { fr: "ils/ils" },
 							value: "they-them"
 						},
 						{
 							name: "xe/xem",
-							name_localizations: { fr: 'xe/xe' },
+							name_localizations: { fr: "xe/xe" },
 							value: "xe-xem"
 						},
 						{
 							name: "ze/zem",
-							name_localizations: { fr: 'ze/ze' },
+							name_localizations: { fr: "ze/ze" },
 							value: "ze-zem"
 						},
 						{
 							name: "other (say my name)",
-							name_localizations: { fr: 'autre (dire mon nom)' },
+							name_localizations: { fr: "autre (dire mon nom)" },
 							value: "other"
 						}
 					],
@@ -248,12 +247,12 @@ export const command: Command = {
 		{
 			name: "set-birthday",
 			name_localizations: {
-				"fr": "définir-anniversaire"
+				fr: "définir-anniversaire"
 			},
 
 			description: "Set your birthday on the iHorizon's Profil!",
 			description_localizations: {
-				"fr": "Définissez votre anniversaire sur le profil iHorizon"
+				fr: "Définissez votre anniversaire sur le profil iHorizon"
 			},
 
 			aliases: ["birthday", "anniversaire"],
@@ -266,7 +265,7 @@ export const command: Command = {
 	contexts: [0, 1, 2],
 
 	thinking: false,
-	category: 'profil',
+	category: "profil",
 	type: ApplicationCommandType.ChatInput,
 	permission: null
 };

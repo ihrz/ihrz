@@ -23,43 +23,58 @@ import {
 	Client,
 	ChannelType,
 	ChatInputCommandInteraction,
-	Message,
-} from 'discord.js';
+	Message
+} from "discord.js";
 
-import { LanguageData } from '../../../../types/languageData.js';
+import { LanguageData } from "../../../../types/languageData.js";
 
-import { SubCommand } from '../../../../types/command.js';
+import { SubCommand } from "../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
+		if (
+			!client.user ||
+			!interaction.member ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
 		if (interaction instanceof ChatInputCommandInteraction) {
 			var role = interaction.options.getRole("role");
 		} else {
-
 			var role = client.func.method.role(interaction, args!, 0);
-		};
+		}
 
 		interaction.guild.channels.cache.forEach((c) => {
 			if (c.type === ChannelType.GuildText) {
-				c.permissionOverwrites.create(role?.id || interaction.guild?.roles.everyone.id!, { SendMessages: false });
-			};
+				c.permissionOverwrites.create(
+					role?.id || interaction.guild?.roles.everyone.id!,
+					{ SendMessages: false }
+				);
+			}
 		});
-
 
 		await client.func.ihorizon_logs(interaction, {
 			title: lang.lockall_logs_embed_title,
-			description: lang.lockall_logs_embed_description
-				.replace(/\${interaction\.user\.id}/g, interaction.member.user.id)
+			description: lang.lockall_logs_embed_description.replace(
+				/\${interaction\.user\.id}/g,
+				interaction.member.user.id
+			)
 		});
 
 		await client.func.method.interactionSend(interaction, {
-			content: lang.lockall_embed_message_description
-				.replace(/\${interaction\.user\.id}/g, interaction.member.user.id)
+			content: lang.lockall_embed_message_description.replace(
+				/\${interaction\.user\.id}/g,
+				interaction.member.user.id
+			)
 		});
 		return;
-	},
+	}
 };

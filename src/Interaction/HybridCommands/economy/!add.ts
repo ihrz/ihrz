@@ -25,17 +25,28 @@ import {
 	ChatInputCommandInteraction,
 	Message,
 	PermissionsBitField,
-	Role,
-} from 'discord.js';
-import { LanguageData } from '../../../../types/languageData.js';
-import { DatabaseStructure } from '../../../../types/database_structure.js';
-import promptYesOrNo from '../../../core/functions/awaitingResponse.js';
+	Role
+} from "discord.js";
+import { LanguageData } from "../../../../types/languageData.js";
+import { DatabaseStructure } from "../../../../types/database_structure.js";
+import promptYesOrNo from "../../../core/functions/awaitingResponse.js";
 
-import { SubCommand } from '../../../../types/command.js';
+import { SubCommand } from "../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-		if (!interaction.member || !client.user || !interaction.guild || !interaction.channel) return;
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
+		if (
+			!interaction.member ||
+			!client.user ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
 		if (interaction instanceof ChatInputCommandInteraction) {
 			var role = interaction.options.getRole("role") as Role;
@@ -45,7 +56,9 @@ export const subCommand: SubCommand = {
 			var amount = client.func.method.number(args!, 1);
 		}
 
-		let roleData = await client.db.get(`${interaction.guildId}.ECONOMY.buyableRoles`) as DatabaseStructure.EconomyModel["buyableRoles"];
+		let roleData = (await client.db.get(
+			`${interaction.guildId}.ECONOMY.buyableRoles`
+		)) as DatabaseStructure.EconomyModel["buyableRoles"];
 		if (!roleData) {
 			roleData = {};
 		}
@@ -63,21 +76,24 @@ export const subCommand: SubCommand = {
 		// send message if the role has dangerous permissions
 		if (roleDangerousPermissions.length > 0) {
 			const stringDangerousPermissions = roleDangerousPermissions
-				.map(x => "`" + x + "`")
+				.map((x) => "`" + x + "`")
 				.join(", ");
 
 			const response = await promptYesOrNo(interaction, {
-				content: lang.economy_role_add_prompt_dangerous
-					.replace("${stringDangerousPermissions}", stringDangerousPermissions),
+				content: lang.economy_role_add_prompt_dangerous.replace(
+					"${stringDangerousPermissions}",
+					stringDangerousPermissions
+				),
 				noButton: lang.var_no,
 				yesButton: lang.var_yes,
 				dangerAction: true
-			})
+			});
 
-			if (!response) return client.func.method.interactionSend(interaction, {
-				content: lang.economy_role_add_canceled,
-				components: []
-			}); // if the user responds with no
+			if (!response)
+				return client.func.method.interactionSend(interaction, {
+					content: lang.economy_role_add_canceled,
+					components: []
+				}); // if the user responds with no
 		}
 
 		if (Object.keys(roleData).length >= 20) {
@@ -92,23 +108,42 @@ export const subCommand: SubCommand = {
 			price: amount
 		};
 
-		await client.db.set(`${interaction.guildId}.ECONOMY.buyableRoles`, roleData);
+		await client.db.set(
+			`${interaction.guildId}.ECONOMY.buyableRoles`,
+			roleData
+		);
 
 		const embed = new EmbedBuilder()
 			.setTitle(lang.economy_boost_embed_title)
 			.setDescription(lang.economy_boost_embed_desc)
-			.setFields(client.func.economyHelper.generateRoleFields(roleData, lang))
+			.setFields(
+				client.func.economyHelper.generateRoleFields(roleData, lang)
+			)
 			.setColor("#0097ff")
 			.setTimestamp()
-			.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!));
+			.setFooter(
+				await client.func.displayBotName.footerBuilder(
+					interaction.guildId!
+				)
+			);
 
 		await client.func.method.interactionSend(interaction, {
 			content: null,
 			embeds: [embed],
 			components: [],
-			files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
+			files: [
+				await client.func.displayBotName.footerAttachmentBuilder(
+					interaction
+				)
+			]
 		});
 
-		await client.func.economyLogs.roleAdd(interaction.guild, interaction.member.user.id, role.id, amount, lang)
-	},
+		await client.func.economyLogs.roleAdd(
+			interaction.guild,
+			interaction.member.user.id,
+			role.id,
+			amount,
+			lang
+		);
+	}
 };

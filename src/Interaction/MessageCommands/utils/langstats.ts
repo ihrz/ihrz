@@ -19,25 +19,20 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	Client,
-	EmbedBuilder,
-	Message,
-} from 'discord.js';
+import { Client, EmbedBuilder, Message } from "discord.js";
 
-import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
-import { isNumber } from '../../../core/functions/method.js';
-import { DatabaseStructure } from '../../../../types/database_structure.js';
-import { AvailableLanguage } from '../../../core/functions/getLanguageData.js';
-
+import { LanguageData } from "../../../../types/languageData.js";
+import { Command } from "../../../../types/command.js";
+import { isNumber } from "../../../core/functions/method.js";
+import { DatabaseStructure } from "../../../../types/database_structure.js";
+import { AvailableLanguage } from "../../../core/functions/getLanguageData.js";
 
 export const command: Command = {
 	name: "langstats",
 
 	description: "Get statistics about the lang in the iHorizon Discord Bot",
 	description_localizations: {
-		"fr": "Obtenir des informations sur l'utilisation des langues à travers tout les serveur discord du bot iHorizon"
+		fr: "Obtenir des informations sur l'utilisation des langues à travers tout les serveur discord du bot iHorizon"
 	},
 
 	aliases: [],
@@ -48,15 +43,23 @@ export const command: Command = {
 	permission: null,
 
 	category: "owner",
-	run: async (client: Client, message: Message<true>, lang: LanguageData, options?: string[]) => {
-
+	run: async (
+		client: Client,
+		message: Message<true>,
+		lang: LanguageData,
+		options?: string[]
+	) => {
 		if (!client.func.ownerHelper.isBotOwner(message.author.id)) {
-			await client.func.method.interactionSend(message, { content: lang.blacklist_not_owner });
+			await client.func.method.interactionSend(message, {
+				content: lang.blacklist_not_owner
+			});
 			return;
-		};
+		}
 
 		const database_entry = await client.db.all();
-		const all_JSON_guild_data = database_entry.filter(x => isNumber(x.id));
+		const all_JSON_guild_data = database_entry.filter((x) =>
+			isNumber(x.id)
+		);
 
 		const allLangsStats: Record<string, number> = {};
 
@@ -64,7 +67,7 @@ export const command: Command = {
 			const guildData = guild.value as DatabaseStructure.DbInId;
 			const lang = guildData?.GUILD?.LANG?.lang || "en-US";
 			if (allLangsStats[lang]) {
-				allLangsStats[lang] = (allLangsStats[lang] + 1);
+				allLangsStats[lang] = allLangsStats[lang] + 1;
 			} else {
 				allLangsStats[lang] = 1;
 			}
@@ -72,23 +75,25 @@ export const command: Command = {
 
 		const embed = new EmbedBuilder()
 			.setColor(2829617)
-			.setDescription(`# Stats Lang over all iHorizon guilds (${client.guilds.cache.size} guilds)`)
-			.setFooter(await client.func.displayBotName.footerBuilder(message.guildId))
-			;
-
-		Object
-			.entries(allLangsStats)
-			.forEach(([code, count]) => {
-				embed.addFields({
-					name: (AvailableLanguage.find(x => x.code === code)?.flag ?? "❔") + ` (${code})`,
-					value: `${count} guilds`,
-					inline: true
-				})
-			})
+			.setDescription(
+				`# Stats Lang over all iHorizon guilds (${client.guilds.cache.size} guilds)`
+			)
+			.setFooter(
+				await client.func.displayBotName.footerBuilder(message.guildId)
+			);
+		Object.entries(allLangsStats).forEach(([code, count]) => {
+			embed.addFields({
+				name:
+					(AvailableLanguage.find((x) => x.code === code)?.flag ??
+						"❔") + ` (${code})`,
+				value: `${count} guilds`,
+				inline: true
+			});
+		});
 
 		await client.func.method.interactionSend(message, {
 			embeds: [embed]
 		});
 		return;
-	},
+	}
 };

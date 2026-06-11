@@ -28,10 +28,22 @@ import type {
 	RoleData,
 	TextChannelData,
 	VoiceChannelData
-} from './types';
-import { fetchChannelPermissions, fetchTextChannelData, fetchVoiceChannelData, fetchStageChannelData } from './util';
-import { MemberData } from './types/MemberData';
-import { CategoryChannel, type Guild, StageChannel, TextChannel, ChannelType, VoiceChannel } from "discord.js";
+} from "./types";
+import {
+	fetchChannelPermissions,
+	fetchTextChannelData,
+	fetchVoiceChannelData,
+	fetchStageChannelData
+} from "./util";
+import { MemberData } from "./types/MemberData";
+import {
+	CategoryChannel,
+	type Guild,
+	StageChannel,
+	TextChannel,
+	ChannelType,
+	VoiceChannel
+} from "discord.js";
 
 export async function getBans(guild: Guild): Promise<BanData[]> {
 	const bans: BanData[] = [];
@@ -68,7 +80,9 @@ export async function getMembers(guild: Guild): Promise<MemberData[]> {
 				});
 			} catch (error) {
 				// If an error occurs for a specific member, continue with others
-				console.error(`Error while retrieving member ${member?.user?.id || 'unknown'}: ${error}`);
+				console.error(
+					`Error while retrieving member ${member?.user?.id || "unknown"}: ${error}`
+				);
 			}
 		});
 	} catch (error) {
@@ -90,7 +104,8 @@ export async function getRoles(guild: Guild): Promise<RoleData[]> {
 						name: role.name,
 						color: role.hexColor,
 						hoist: role.hoist,
-						permissions: role.permissions?.bitfield?.toString() || '0',
+						permissions:
+							role.permissions?.bitfield?.toString() || "0",
 						mentionable: role.mentionable,
 						position: role.position,
 						isEveryone: guild.id === role.id
@@ -98,7 +113,9 @@ export async function getRoles(guild: Guild): Promise<RoleData[]> {
 					roles.push(roleData);
 				} catch (error) {
 					// If an error occurs for a specific role, continue with others
-					console.error(`Error while retrieving role ${role?.id || 'unknown'}: ${error}`);
+					console.error(
+						`Error while retrieving role ${role?.id || "unknown"}: ${error}`
+					);
 				}
 			});
 	} catch (error) {
@@ -108,7 +125,10 @@ export async function getRoles(guild: Guild): Promise<RoleData[]> {
 	return roles;
 }
 
-export async function getEmojis(guild: Guild, options: CreateOptions): Promise<EmojiData[]> {
+export async function getEmojis(
+	guild: Guild,
+	options: CreateOptions
+): Promise<EmojiData[]> {
 	const emojis: EmojiData[] = [];
 	try {
 		const promises: Promise<void>[] = [];
@@ -122,11 +142,16 @@ export async function getEmojis(guild: Guild, options: CreateOptions): Promise<E
 
 					if (options.saveImages) {
 						try {
-							const response = await (await fetch(emoji.imageURL({ size: 4096 }))).arrayBuffer();
-							eData.base64 = Buffer.from(response).toString('base64');
+							const response = await (
+								await fetch(emoji.imageURL({ size: 4096 }))
+							).arrayBuffer();
+							eData.base64 =
+								Buffer.from(response).toString("base64");
 						} catch (fetchError) {
 							// If the image cannot be retrieved, use the URL instead
-							console.error(`Error while retrieving emoji image ${emoji.name}: ${fetchError}`);
+							console.error(
+								`Error while retrieving emoji image ${emoji.name}: ${fetchError}`
+							);
 							eData.url = emoji.imageURL({ size: 4096 });
 						}
 					} else {
@@ -136,7 +161,9 @@ export async function getEmojis(guild: Guild, options: CreateOptions): Promise<E
 					emojis.push(eData);
 				} catch (emojiError) {
 					// If an error occurs for a specific emoji, continue with others
-					console.error(`Error while retrieving emoji ${emoji?.name || 'unknown'}: ${emojiError}`);
+					console.error(
+						`Error while retrieving emoji ${emoji?.name || "unknown"}: ${emojiError}`
+					);
 				}
 			})();
 
@@ -153,7 +180,10 @@ export async function getEmojis(guild: Guild, options: CreateOptions): Promise<E
 	return emojis;
 }
 
-export async function getChannels(guild: Guild, options: CreateOptions): Promise<ChannelsData> {
+export async function getChannels(
+	guild: Guild,
+	options: CreateOptions
+): Promise<ChannelsData> {
 	return new Promise<ChannelsData>(async (resolve) => {
 		const channels: ChannelsData = {
 			categories: [],
@@ -162,7 +192,9 @@ export async function getChannels(guild: Guild, options: CreateOptions): Promise
 
 		const categories = guild.channels.cache
 			.filter((ch) => ch.type === ChannelType.GuildCategory)
-			.sort((a, b) => ('position' in a && 'position' in b) ? a.position - b.position : 0)
+			.sort((a, b) =>
+				"position" in a && "position" in b ? a.position - b.position : 0
+			)
 			.map((category) => category) as CategoryChannel[];
 
 		for (const category of categories) {
@@ -179,11 +211,19 @@ export async function getChannels(guild: Guild, options: CreateOptions): Promise
 			try {
 				// discord.js v14
 				if (typedCategory.children && typedCategory.children.cache) {
-					children = Array.from(typedCategory.children.cache.values());
+					children = Array.from(
+						typedCategory.children.cache.values()
+					);
 				}
 				// Sort channels by position
 				children = children.sort((a, b) => {
-					if (!a || !b || typeof a.position !== 'number' || typeof b.position !== 'number') return 0;
+					if (
+						!a ||
+						!b ||
+						typeof a.position !== "number" ||
+						typeof b.position !== "number"
+					)
+						return 0;
 					return a.position - b.position;
 				});
 			} catch (error) {
@@ -194,26 +234,36 @@ export async function getChannels(guild: Guild, options: CreateOptions): Promise
 				const typedChild = child;
 
 				if (
-					typedChild.type === ChannelType.GuildText
-					|| typedChild.type === ChannelType.GuildAnnouncement
-					|| typedChild.type === ChannelType.GuildForum
-					|| typedChild.type === ChannelType.GuildMedia
+					typedChild.type === ChannelType.GuildText ||
+					typedChild.type === ChannelType.GuildAnnouncement ||
+					typedChild.type === ChannelType.GuildForum ||
+					typedChild.type === ChannelType.GuildMedia
 				) {
 					if (
-						guild.rulesChannelId === typedChild.id
-						|| guild.safetyAlertsChannelId === typedChild.id
-						|| guild.widgetChannelId === typedChild.id
-						|| guild.publicUpdatesChannelId === typedChild.id
-					) continue;
+						guild.rulesChannelId === typedChild.id ||
+						guild.safetyAlertsChannelId === typedChild.id ||
+						guild.widgetChannelId === typedChild.id ||
+						guild.publicUpdatesChannelId === typedChild.id
+					)
+						continue;
 
-					const channelData: TextChannelData = await fetchTextChannelData(typedChild as TextChannel, options);
+					const channelData: TextChannelData =
+						await fetchTextChannelData(
+							typedChild as TextChannel,
+							options
+						);
 					categoryData.children.push(channelData);
-				} else if (typedChild.type === ChannelType.GuildStageVoice || typedChild.type === 'GUILD_STAGE_VOICE') {
-					const channelData: VoiceChannelData = await fetchStageChannelData(typedChild as StageChannel);
+				} else if (
+					typedChild.type === ChannelType.GuildStageVoice ||
+					typedChild.type === "GUILD_STAGE_VOICE"
+				) {
+					const channelData: VoiceChannelData =
+						await fetchStageChannelData(typedChild as StageChannel);
 					channelData.userLimit = 0;
 					categoryData.children.push(channelData);
 				} else {
-					const channelData: VoiceChannelData = await fetchVoiceChannelData(typedChild as VoiceChannel);
+					const channelData: VoiceChannelData =
+						await fetchVoiceChannelData(typedChild as VoiceChannel);
 					categoryData.children.push(channelData);
 				}
 			}
@@ -222,14 +272,16 @@ export async function getChannels(guild: Guild, options: CreateOptions): Promise
 
 		const others = guild.channels.cache
 			.filter((ch) => {
-				return !ch.parent &&
-					(ch.type !== ChannelType.GuildCategory) &&
-					(ch.type !== ChannelType.AnnouncementThread) &&
-					(ch.type !== ChannelType.PrivateThread) &&
-					(ch.type !== ChannelType.PublicThread)
+				return (
+					!ch.parent &&
+					ch.type !== ChannelType.GuildCategory &&
+					ch.type !== ChannelType.AnnouncementThread &&
+					ch.type !== ChannelType.PrivateThread &&
+					ch.type !== ChannelType.PublicThread
+				);
 			})
 			.sort((a, b) => {
-				if (!('position' in a) || !('position' in b)) return 0;
+				if (!("position" in a) || !("position" in b)) return 0;
 				return a.position - b.position;
 			})
 			.map((channel) => channel);
@@ -238,26 +290,32 @@ export async function getChannels(guild: Guild, options: CreateOptions): Promise
 			// Explicit typing to avoid errors
 			const typedChannel = channel;
 			if (
-				typedChannel.type === ChannelType.GuildText
-				|| typedChannel.type === ChannelType.GuildAnnouncement
-				|| typedChannel.type === ChannelType.GuildForum
-				|| typedChannel.type === ChannelType.GuildMedia
+				typedChannel.type === ChannelType.GuildText ||
+				typedChannel.type === ChannelType.GuildAnnouncement ||
+				typedChannel.type === ChannelType.GuildForum ||
+				typedChannel.type === ChannelType.GuildMedia
 			) {
 				if (
-					guild.rulesChannelId === typedChannel.id
-					|| guild.safetyAlertsChannelId === typedChannel.id
-					|| guild.widgetChannelId === typedChannel.id
-					|| guild.publicUpdatesChannelId === typedChannel.id
-				) continue;
+					guild.rulesChannelId === typedChannel.id ||
+					guild.safetyAlertsChannelId === typedChannel.id ||
+					guild.widgetChannelId === typedChannel.id ||
+					guild.publicUpdatesChannelId === typedChannel.id
+				)
+					continue;
 
-				const channelData: TextChannelData = await fetchTextChannelData(typedChannel as TextChannel, options);
+				const channelData: TextChannelData = await fetchTextChannelData(
+					typedChannel as TextChannel,
+					options
+				);
 				channels.others.push(channelData);
 			} else if (typedChannel.type === ChannelType.GuildStageVoice) {
-				const channelData: VoiceChannelData = await fetchStageChannelData(typedChannel as StageChannel);
+				const channelData: VoiceChannelData =
+					await fetchStageChannelData(typedChannel as StageChannel);
 				channelData.userLimit = 0;
 				channels.others.push(channelData);
 			} else {
-				const channelData: VoiceChannelData = await fetchVoiceChannelData(typedChannel as VoiceChannel);
+				const channelData: VoiceChannelData =
+					await fetchVoiceChannelData(typedChannel as VoiceChannel);
 				channels.others.push(channelData);
 			}
 		}

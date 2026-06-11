@@ -23,42 +23,58 @@ import {
 	Client,
 	ChannelType,
 	PermissionFlagsBits,
-	ChatInputCommandInteraction,
-} from 'discord.js';
-import { LanguageData } from '../../../../types/languageData.js';
+	ChatInputCommandInteraction
+} from "discord.js";
+import { LanguageData } from "../../../../types/languageData.js";
 
-
-import { SubCommand } from '../../../../types/command.js';
+import { SubCommand } from "../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached">, lang: LanguageData, args?: string[]) => {
-
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached">,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!interaction.member || !client.user || !interaction.user || !interaction.guild || !interaction.channel) return;
+		if (
+			!interaction.member ||
+			!client.user ||
+			!interaction.user ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
-
-
-		const logchannel = interaction.guild.channels.cache.find((channel: { name: string; }) => channel.name === 'ihorizon-logs');
+		const logchannel = interaction.guild.channels.cache.find(
+			(channel: { name: string }) => channel.name === "ihorizon-logs"
+		);
 		if (!logchannel) {
 			interaction.guild.channels.create({
-				name: 'ihorizon-logs',
+				name: "ihorizon-logs",
 				type: ChannelType.GuildText,
 				permissionOverwrites: [
 					{
 						id: interaction.guild.roles.everyone,
-						deny: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.SendMessages, PermissionFlagsBits.ReadMessageHistory]
+						deny: [
+							PermissionFlagsBits.ViewChannel,
+							PermissionFlagsBits.SendMessages,
+							PermissionFlagsBits.ReadMessageHistory
+						]
 					}
-				],
+				]
 			});
 
 			await interaction.editReply({
-				content: lang.setup_command_work.replace('${client.iHorizon_Emojis.Yes}', client.iHorizon_Emojis.Yes)
+				content: lang.setup_command_work.replace(
+					"${client.iHorizon_Emojis.Yes}",
+					client.iHorizon_Emojis.Yes
+				)
 			});
 			return;
 		} else {
 			await interaction.editReply({ content: lang.setup_command_error });
 			return;
-		};
-	},
+		}
+	}
 };

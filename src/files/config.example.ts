@@ -23,13 +23,10 @@
 WELCOME TO IHORIZON'S CONFIGURATION FILE. ALL VALUES SHOULD BE BETWEEN QUOTATION MARKS, UNLESS THE VALUE DOESN'T INITIALLY HAVE ANY QUOTATION MARK (e.g. phonePresence doesn't have quotation marks in its value)
 */
 
-
-import { ConfigData } from '../../types/configDatad.js';
+import { ConfigData } from "../../types/configDatad.js";
 
 const config: ConfigData = {
-
 	discord: {
-
 		token: "THE BOT TOKEN",
 		// The Discord Bot Token. This can be found in the Discord Developer Portal of your bot
 
@@ -43,14 +40,11 @@ const config: ConfigData = {
 
 		defaultMessageCommandsPrefix: "?"
 		// The message commands prefix if your choose to use prefix instead of bot mention as prefix
-
 	},
 
 	lavalink: {
-
 		nodes: [
 			{
-
 				id: "example_node",
 				// The ID of the Node
 
@@ -65,42 +59,39 @@ const config: ConfigData = {
 
 				secure: false
 			}
-		],
-
+		]
 	},
 
 	core: {
-
 		devMode: true,
 		// if true => ERRORS will be displayed in the console; if false => these ERRORS will be located in the .err.logs folder.
 
 		blacklistPictureInEmbed: "A .png URL",
 		// Optional: The image of the blacklist embed (when a blacklisted user attempts to interact with the bot)
 
-		guildLogsChannelID: "The Discord Channel ID for logs when guildCreate/guildRemove",
+		guildLogsChannelID:
+			"The Discord Channel ID for logs when guildCreate/guildRemove",
 		// The channel where the bot informs of his arrival on a server or when it leaves a server.
 
-		lavalinkLogsChannelID: "The Discord Channel ID for logs when lavalink throws an error",
+		lavalinkLogsChannelID:
+			"The Discord Channel ID for logs when lavalink throws an error",
 		// The channel where the error will be sent when lavalink throws an error.
 
-		reportChannelID: "The Discord Channel ID for logs when bugs are reported",
+		reportChannelID:
+			"The Discord Channel ID for logs when bugs are reported"
 		// The channel where the bot informs of a bug reported by a user of the bot.
-
 	},
 
 	command: {
-
-		always100: ['USER_ID_ONExUSER_ID_TWO']
+		always100: ["USER_ID_ONExUSER_ID_TWO"]
 		/*
 		On the love command, for a specific couple of users, 
 		this setting will always show 100% for their love.
 		Format: {USER_ID_ONE}x{USER_ID_TWO}
 		*/
-
 	},
 
 	owners: {
-
 		users: ["User ID", "User ID"]
 		/*
 		This owners have different permissions than others in the database,
@@ -109,44 +100,46 @@ const config: ConfigData = {
 		* They can't be blacklisted by an owner who is in the Database.
 		* They can't be banned by an owner who is in the Database.
 		*/
-
 	},
 
 	api: {
-
-		apiToken: "The API token",
+		apiToken: "The API token"
 		// Optional. The API token is for secure requests. Please put a strong token. It needs to be private for security reasons.
+	},
 
-		clientID: "The client ID of your application",
-		// The client ID of the Discord Application. This can be found in the Discord Developer Portal of your bot.
+	lastfm: {
+		apiKey: "Last.fm API key",
+		// Optional but required if you want the Last.fm scrobbler module to work.
+
+		sharedSecret: "Last.fm shared secret"
+		// Optional but required if you want the Last.fm scrobbler module to work.
 	},
 
 	console: {
-
 		emojis: {
-
-			OK: "✅", ERROR: "❌", HOST: "💻", KISA: "👩", LOAD: "🔄"
-
+			OK: "✅",
+			ERROR: "❌",
+			HOST: "💻",
+			KISA: "👩",
+			LOAD: "🔄"
 		}
-
 	},
 
 	database: {
-		method: 'sqlite',
+		method: "sqlite",
 		// The method you want for the database, sqlite is used by default.
 
 		mySQL: [
 			{
-				host: '',
-				password: '',
-				database: '',
-				user: '',
+				host: "",
+				password: "",
+				database: "",
+				user: "",
 				port: 3306
-			},
-		],
+			}
+		]
 		// The MySQL connection configuration if you want to use MySQL. MySQL is not the default, meaning you need to set it up yourself.
-	},
-
+	}
 };
 
 export default config;

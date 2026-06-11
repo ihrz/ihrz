@@ -19,49 +19,71 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import puppeteer, { Browser } from 'puppeteer';
+import { Browser, launch } from "puppeteer";
+import { axios } from "./axios.ts";
+import * as apiUrlParser from "./apiUrlParser.js";
 
-let browser: Browser | null = await puppeteer.launch({
-	args: ['--no-sandbox', '--disable-setuid-sandbox']
-});
+let browser: Browser | null = null;
+
+export interface Html2PngOptions {
+	width?: number;
+	height?: number;
+	scaleSize?: number;
+	elementSelector?: string;
+	omitBackground: boolean;
+	selectElement: boolean;
+}
 
 export default async function html2Png(
 	code: string,
-	options: {
-		width?: number;
-		height?: number;
-		scaleSize?: number;
-		elementSelector?: string;
-		omitBackground: boolean;
-		selectElement: boolean;
-	} = {
-			width: 1280,
-			height: 800,
-			scaleSize: 1,
-			elementSelector: '.container',
-			omitBackground: false,
-			selectElement: false,
-		}
+	options: Html2PngOptions
+): Promise<Buffer> {
+	if (client.config.api.HorizonGateway) {
+		const res = await axios.post(
+			apiUrlParser.HorizonGateway(
+				apiUrlParser.GatewayMethod.ImageGeneration
+			),
+			{
+				code,
+				options,
+				adminKey: client.config.api.apiToken
+			},
+			{
+				headers: {
+					"Content-Type": "application/json"
+				},
+				responseType: "arraybuffer"
+			}
+		);
+
+		return Buffer.from(res.data);
+	} else {
+		if (!browser)
+			browser = await launch({
+				args: ["--no-sandbox", "--disable-setuid-sandbox"]
+			});
+		return await localRender(code, options);
+	}
+}
+
+async function localRender(
+	code: string,
+	options: Html2PngOptions = {
+		width: 1280,
+		height: 800,
+		scaleSize: 1,
+		elementSelector: ".container",
+		omitBackground: false,
+		selectElement: false
+	}
 ): Promise<Buffer> {
 	try {
-		if (browser === null) {
-			browser = await puppeteer.launch({
-				args: ['--no-sandbox', '--disable-setuid-sandbox']
-			});
-		}
-		if (!browser?.connected) {
-			browser = await puppeteer.launch({
-				args: ['--no-sandbox', '--disable-setuid-sandbox']
-			});
-			return await html2Png(code, options);
-		}
-
-		const page = await browser.newPage();
+		const page = await browser!.newPage();
 
 		await page.setViewport({
 			width: options.width ?? 1280,
 			height: options.height ?? 800,
-			deviceScaleFactor: options.scaleSize ?? 1,
+			deviceScaleFactor: options.scaleSize ?? 1
 		});
 
 		await page.setContent(code);
@@ -69,36 +91,37 @@ export default async function html2Png(
 		let imageBuffer;
 		if (options.selectElement && options.elementSelector) {
 			await page.evaluate(() => {
-				document.body.style.background = 'transparent';
+				document.body.style.background = "transparent";
 			});
 			await page.evaluate((selector) => {
 				const element: any = document.querySelector(selector);
 				if (element) {
-					element.style.margin = '0';
-					element.style.padding = '0';
+					element.style.margin = "0";
+					element.style.padding = "0";
 				}
 			}, options.elementSelector);
 			const element = await page.$(options.elementSelector);
-			if (!element) throw new Error('Element not found');
+			if (!element) throw new Error("Element not found");
 			const boundingBox = await element.boundingBox();
-			if (!boundingBox) throw new Error('Unable to get bounding box for the element');
+			if (!boundingBox)
+				throw new Error("Unable to get bounding box for the element");
 
 			imageBuffer = await page.screenshot({
 				clip: {
 					x: boundingBox.x,
 					y: boundingBox.y,
 					width: boundingBox.width,
-					height: boundingBox.height,
+					height: boundingBox.height
 				},
-				type: 'png',
-				omitBackground: options.omitBackground,
+				type: "png",
+				omitBackground: options.omitBackground
 			});
 		} else {
 			imageBuffer = await page.screenshot({
 				fullPage: true,
 				omitBackground: options.omitBackground,
-				type: 'png',
-				fromSurface: true,
+				type: "png",
+				fromSurface: true
 			});
 		}
 

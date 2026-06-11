@@ -23,36 +23,50 @@ import {
 	ChatInputCommandInteraction,
 	Client,
 	EmbedBuilder,
-	Message,
-} from 'discord.js';
+	Message
+} from "discord.js";
 
-import { LanguageData } from '../../../../types/languageData.js';
-import { axios } from '../../../core/functions/axios.js';
-import logger from '../../../core/logger.js';
+import { LanguageData } from "../../../../types/languageData.js";
+import { axios } from "../../../core/functions/axios.js";
+import logger from "../../../core/logger.js";
 
-
-import { SubCommand } from '../../../../types/command.js';
+import { SubCommand } from "../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
-
-		if (await client.db.get(`${interaction.guildId}.GUILD.FUN.states`) === "off") {
-			await client.func.method.interactionSend(interaction, { content: lang.fun_category_disable });
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
+		if (
+			(await client.db.get(`${interaction.guildId}.GUILD.FUN.states`)) ===
+			"off"
+		) {
+			await client.func.method.interactionSend(interaction, {
+				content: lang.fun_category_disable
+			});
 			return;
-		};
-		axios.get('https://dog.ceo/api/breeds/image/random')
-			.then(async res => {
+		}
+		axios
+			.get("https://dog.ceo/api/breeds/image/random")
+			.then(async (res) => {
 				const emb = new EmbedBuilder()
-					.setImage(res.data.message).setTitle(lang.dogs_embed_title).setTimestamp();
+					.setImage(res.data.message)
+					.setTitle(lang.dogs_embed_title)
+					.setTimestamp();
 
-				await client.func.method.interactionSend(interaction, { embeds: [emb] });
+				await client.func.method.interactionSend(interaction, {
+					embeds: [emb]
+				});
 				return;
 			})
-			.catch(async err => {
+			.catch(async (err) => {
 				logger.err(err);
-				await client.func.method.interactionSend(interaction, { content: lang.dogs_embed_command_error });
+				await client.func.method.interactionSend(interaction, {
+					content: lang.dogs_embed_command_error
+				});
 				return;
 			});
-	},
+	}
 };

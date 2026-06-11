@@ -19,34 +19,34 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
+import { ApplicationCommandOptionType, Message, Client } from "discord.js";
+
+import path from "path";
+
+import { LanguageData } from "../../../../types/languageData.js";
+import { Command } from "../../../../types/command.js";
+
+import { axios } from "../../../core/functions/axios.js";
 import {
-	ApplicationCommandOptionType,
-	Message,
-	Client,
-} from 'discord.js';
-
-import path from 'path';
-
-import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
-
-import { axios } from '../../../core/functions/axios.js';
-import { convertToPng, resizeImage, tempDir } from '../../../core/functions/mediaManipulation.js';
-import { unlink } from 'fs/promises';
+	convertToPng,
+	resizeImage,
+	tempDir
+} from "../../../core/functions/mediaManipulation.js";
+import { unlink } from "fs/promises";
 
 export const command: Command = {
-	name: 'two-sides',
-	aliases: ['meme2'],
-	description: 'i have two sides meme generator',
+	name: "two-sides",
+	aliases: ["meme2"],
+	description: "i have two sides meme generator",
 	description_localizations: {
-		"fr": "i have two sides meme generator",
+		fr: "i have two sides meme generator"
 	},
 	options: [
 		{
 			name: "image1",
 			description: "the before sucks",
 			description_localizations: {
-				"fr": "le screen avant qu'il ce fasse défon",
+				fr: "le screen avant qu'il ce fasse défon"
 			},
 			type: ApplicationCommandOptionType.String,
 			required: false,
@@ -56,54 +56,88 @@ export const command: Command = {
 			name: "image2",
 			description: "the after sucks",
 			description_localizations: {
-				"fr": "le screen après qu'il ce soit défoncé",
+				fr: "le screen après qu'il ce soit défoncé"
 			},
 			type: ApplicationCommandOptionType.String,
 			required: false,
 			permission: null
-		},
+		}
 	],
 	thinking: false,
-	category: 'misc',
+	category: "misc",
 	type: "PREFIX_IHORIZON_COMMAND",
 	permission: null,
 	run: async (
 		client: Client,
 		interaction: Message<true>,
 		lang: LanguageData,
-		options?: string[],
+		options?: string[]
 	) => {
-		if (interaction.guild.preferredLocale !== 'fr') return;
+		if (interaction.guild.preferredLocale !== "fr") return;
 
-		const beforeSucksUrl = client.func.method.string(options!, 0) || interaction.attachments.first()?.url;
-		const bigSucksUrl = client.func.method.string(options!, 1) || interaction.attachments.last()?.url;
+		const beforeSucksUrl =
+			client.func.method.string(options!, 0) ||
+			interaction.attachments.first()?.url;
+		const bigSucksUrl =
+			client.func.method.string(options!, 1) ||
+			interaction.attachments.last()?.url;
 
 		if (!beforeSucksUrl || !bigSucksUrl) {
 			return interaction.reply({ content: lang.media_gen_error_args });
 		}
 
-		if (await client.func.helper.cooldown(interaction.author.id, "media_manipulation", client.timeCalculator.to_ms("1m30s")!)) {
-			return interaction.reply({ content: lang.media_gen_cooldown })
-		};
+		if (
+			await client.func.helper.cooldown(
+				interaction.author.id,
+				"media_manipulation",
+				client.timeCalculator.to_ms("1m30s")!
+			)
+		) {
+			return interaction.reply({ content: lang.media_gen_cooldown });
+		}
 
 		try {
-			const beforeSucksResponse = await axios.get(beforeSucksUrl, { responseType: 'arraybuffer' });
-			const bigSucksResponse = await axios.get(bigSucksUrl, { responseType: 'arraybuffer' });
+			const beforeSucksResponse = await axios.get(beforeSucksUrl, {
+				responseType: "arraybuffer"
+			});
+			const bigSucksResponse = await axios.get(bigSucksUrl, {
+				responseType: "arraybuffer"
+			});
 
-			const beforeSucksResizedPath = path.join(tempDir, `beforeSucksResized-${interaction.id}.png`);
-			const bigSucksResizedPath = path.join(tempDir, `bigSucksResized-${interaction.id}.png`);
+			const beforeSucksResizedPath = path.join(
+				tempDir,
+				`beforeSucksResized-${interaction.id}.png`
+			);
+			const bigSucksResizedPath = path.join(
+				tempDir,
+				`bigSucksResized-${interaction.id}.png`
+			);
 
-			const mt1 = await resizeImage(await convertToPng(Buffer.from(beforeSucksResponse.data)), beforeSucksResizedPath);
-			const mt2 = await resizeImage(await convertToPng(Buffer.from(bigSucksResponse.data)), bigSucksResizedPath);
+			const mt1 = await resizeImage(
+				await convertToPng(Buffer.from(beforeSucksResponse.data)),
+				beforeSucksResizedPath
+			);
+			const mt2 = await resizeImage(
+				await convertToPng(Buffer.from(bigSucksResponse.data)),
+				bigSucksResizedPath
+			);
 
-			const twoSidesPath = path.join(process.cwd(), 'src', 'assets', 'two-sides');
+			const twoSidesPath = path.join(
+				process.cwd(),
+				"src",
+				"assets",
+				"two-sides"
+			);
 
-			let data = await client.kdenlive.open(path.join(twoSidesPath, 'meme2.kdenlive'));
+			let data = await client.kdenlive.open(
+				path.join(twoSidesPath, "meme2.kdenlive")
+			);
 
-			data = data.replace("{two-sides_var}", tempDir)
-				.replaceAll("part1.mp4", path.join(twoSidesPath, 'part1.mp4'))
-				.replaceAll("part2.mp4", path.join(twoSidesPath, 'part2.mp4'))
-				.replaceAll("part3.mp4", path.join(twoSidesPath, 'part3.mp4'))
+			data = data
+				.replace("{two-sides_var}", tempDir)
+				.replaceAll("part1.mp4", path.join(twoSidesPath, "part1.mp4"))
+				.replaceAll("part2.mp4", path.join(twoSidesPath, "part2.mp4"))
+				.replaceAll("part3.mp4", path.join(twoSidesPath, "part3.mp4"))
 
 				.replaceAll("screen1.png", beforeSucksResizedPath)
 				.replaceAll("screen1.width", String(mt1.width!.toString()))
@@ -111,23 +145,27 @@ export const command: Command = {
 
 				.replaceAll("screen2.png", bigSucksResizedPath)
 				.replaceAll("screen2.width", String(mt2.width!.toString()))
-				.replaceAll("screen2.height", String(mt2.height!.toString()))
+				.replaceAll("screen2.height", String(mt2.height!.toString()));
 
 			const outPath = await client.kdenlive.tempSave(data);
 			const exported = await client.kdenlive.export(outPath);
 
 			await interaction.reply({
-				files: [{
-					attachment: exported,
-					name: 'merged_video.mp4'
-				}]
+				files: [
+					{
+						attachment: exported,
+						name: "merged_video.mp4"
+					}
+				]
 			});
 
 			await unlink(exported);
 			await unlink(beforeSucksResizedPath);
 			await unlink(bigSucksResizedPath);
 		} catch (error) {
-			interaction.reply({ content: `An error occurred: ${error.message}` });
+			interaction.reply({
+				content: `An error occurred: ${error.message}`
+			});
 		}
 	}
-}
+};

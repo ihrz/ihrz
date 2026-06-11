@@ -21,130 +21,40 @@
 
 import {
 	ApplicationCommandType,
-	BaseGuildTextChannel,
 	Client,
-	EmbedBuilder,
-	GuildMember,
 	Message,
-	MessageContextMenuCommandInteraction,
-	time,
-} from 'discord.js';
+	MessageContextMenuCommandInteraction
+} from "discord.js";
 
-import { SearchResult, UnresolvedSearchResult } from 'lavalink-client';
-import { AnotherCommand } from '../../../types/anotherCommand.js';
-import { LanguageData } from '../../../types/languageData.js';
+import { AnotherCommand } from "../../../types/anotherCommand.js";
+import { LanguageData } from "../../../types/languageData.js";
+import { handleMusicPlay } from "../../core/functions/musicPlay.js";
 
 export const command: AnotherCommand = {
 	name: "Play it in a voice channel",
 	type: ApplicationCommandType.Message,
 	thinking: true,
 	permission: null,
-	run: async (client: Client, interaction: MessageContextMenuCommandInteraction) => {
-
-		const lang = await client.func.getLanguageData(interaction.guildId) as LanguageData;
-		const voiceChannel = (interaction.member as GuildMember)?.voice.channel;
-
+	run: async (
+		client: Client,
+		interaction: MessageContextMenuCommandInteraction
+	) => {
+		const lang = (await client.func.getLanguageData(
+			interaction.guildId
+		)) as LanguageData;
 		const msg = interaction.options.getMessage("message") as Message;
-		const check: string[] = [];
+		const queries =
+			msg.attachments.size >= 1
+				? msg.attachments.map((attachment) => attachment.url)
+				: [msg.content];
 
-		if (msg && msg.attachments.size >= 1) {
-			msg.attachments.forEach(content => check.push(content.url));
-		} else {
-			check.push(msg.content);
-		};
-
-		if (!voiceChannel) {
-			await interaction.editReply({ content: lang.p_not_in_voice_channel });
-			return;
-		};
-
-		if (!client.func.isAllowedLinks(msg?.content)) {
-			return interaction.editReply({ content: lang.p_not_allowed })
-		};
-
-		const player = client.player.createPlayer({
-			guildId: interaction.guildId as string,
-			voiceChannelId: voiceChannel.id,
-			textChannelId: interaction.channelId,
+		await handleMusicPlay({
+			client,
+			deleteAfterMs: 4000,
+			interaction,
+			lang,
+			queries,
+			respond: (payload) => interaction.editReply(payload)
 		});
-
-		const all_res: (SearchResult | UnresolvedSearchResult)[] = [];
-
-		for (const trackUrl of check) {
-			const res = await player.search({ query: trackUrl }, interaction.user);
-			all_res.push(res);
-
-			if (res.tracks.length === 0) {
-				const results = new EmbedBuilder()
-					.setTitle(lang.p_embed_title)
-					.setColor('#ff0000')
-					.setTimestamp();
-
-				await interaction.editReply({ embeds: [results] });
-				return;
-			}
-
-			await player.queue.add(res.tracks[0]);
-
-			const channel = interaction.guild?.channels.cache.get(player.textChannelId!);
-			if (channel?.id !== interaction.channelId) {
-				(channel as BaseGuildTextChannel)?.send({
-					embeds: [
-						new EmbedBuilder()
-							.setColor(2829617)
-							.setDescription(lang.event_mp_audioTrackAdd
-								.replace("${client.iHorizon_Emojis.Music_Icon}", client.iHorizon_Emojis.Music_Icon)
-								.replace("${track.title}", res.tracks[0].info.title as string)
-							)
-					]
-				});
-			}
-		}
-
-		if (!player.connected) {
-			await player.connect();
-		};
-
-		if (!player.playing) {
-			await player.play();
-		};
-
-		const yes = all_res[0];
-
-		function timeCalcultator() {
-			const totalDurationMs = yes.tracks[0].info.duration;
-			const totalDurationSec = Math.floor(totalDurationMs! / 1000);
-			const hours = Math.floor(totalDurationSec / 3600);
-			const minutes = Math.floor((totalDurationSec % 3600) / 60);
-			const seconds = totalDurationSec % 60;
-			const durationStr = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-			return durationStr;
-		};
-
-		const embed = new EmbedBuilder()
-			.setDescription(`**${yes.tracks[0].info.title}**`)
-			.setColor('#00cc1a')
-			.setTimestamp()
-			.setFooter({ text: lang.p_duration + `${timeCalcultator()}` })
-			.setThumbnail(yes.tracks[0].info.artworkUrl as string);
-
-		await interaction.editReply({
-			content: lang.p_loading_message
-				.replace("${client.iHorizon_Emojis.Timer}", client.iHorizon_Emojis.Timer)
-				.replace("{result}", yes.playlist ? 'playlist' : 'track')
-			, embeds: [embed]
-		});
-
-		function deleteContent() {
-			interaction.editReply({ content: null, allowedMentions: { repliedUser: false } });
-		};
-
-		await client.db.push(`${player.guildId}.MUSIC_HISTORY.buffer`,
-			`[${(new Date()).toLocaleString('fr-FR', { timeZone: 'Europe/Paris' })}: PLAYED]: { ${yes.tracks[0]?.requester} - ${yes.tracks[0].info.title as string} | ${yes.tracks[0].info.uri} } by ${yes.tracks[0]?.requester}`);
-		await client.db.push(`${player.guildId}.MUSIC_HISTORY.embed`,
-			`${time(new Date(), 'R')}: ${yes.tracks[0]?.requester} - ${yes.tracks[0].info.title} | ${yes.tracks[0].info.uri} by ${yes.tracks[0]?.requester}`
-		);
-
-		setTimeout(deleteContent, 4000)
-	},
-}; 
+	}
+};

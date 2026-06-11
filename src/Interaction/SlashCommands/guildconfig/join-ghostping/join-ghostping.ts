@@ -23,36 +23,36 @@ import {
 	ApplicationCommandOptionType,
 	ApplicationCommandType,
 	ChannelType,
-	PermissionFlagsBits,
-} from 'discord.js';
+	PermissionFlagsBits
+} from "discord.js";
 
-import { Command } from '../../../../../types/command.js';
+import { Command } from "../../../../../types/command.js";
 export const command: Command = {
 	name: "join-ghostping",
 
 	description: "Subcommand for guildconfig category!",
 	description_localizations: {
-		"fr": "Commande sous-groupé pour la catégorie de configuration du serveur"
+		fr: "Commande sous-groupé pour la catégorie de configuration du serveur"
 	},
 
 	options: [
 		{
-			name: 'channel',
+			name: "channel",
 
-			description: 'Channel manipulation for the Join GhostPing Module',
+			description: "Channel manipulation for the Join GhostPing Module",
 			description_localizations: {
-				"fr": "Manipulation de salons pour le module Join GhostPing"
+				fr: "Manipulation de salons pour le module Join GhostPing"
 			},
 
 			type: ApplicationCommandOptionType.SubcommandGroup,
 
 			options: [
 				{
-					name: 'add',
+					name: "add",
 
-					description: 'Add a channel',
+					description: "Add a channel",
 					description_localizations: {
-						"fr": "Ajouter un salon"
+						fr: "Ajouter un salon"
 					},
 
 					type: ApplicationCommandOptionType.Subcommand,
@@ -65,7 +65,7 @@ export const command: Command = {
 
 							description: "The channel you want",
 							description_localizations: {
-								"fr": "Le salon que tu veux"
+								fr: "Le salon que tu veux"
 							},
 
 							required: true,
@@ -76,11 +76,11 @@ export const command: Command = {
 					permission: PermissionFlagsBits.Administrator
 				},
 				{
-					name: 'remove',
+					name: "remove",
 
-					description: 'Delete a channel',
+					description: "Delete a channel",
 					description_localizations: {
-						"fr": "Enlever un salon de la liste"
+						fr: "Enlever un salon de la liste"
 					},
 
 					type: ApplicationCommandOptionType.Subcommand,
@@ -93,7 +93,7 @@ export const command: Command = {
 
 							description: "The channel you want",
 							description_localizations: {
-								"fr": "Le salon que tu veux"
+								fr: "Le salon que tu veux"
 							},
 
 							required: true,
@@ -102,14 +102,14 @@ export const command: Command = {
 					],
 
 					permission: PermissionFlagsBits.Administrator
-				},
+				}
 			],
 
 			permission: null
-		},
+		}
 	],
 	thinking: false,
-	category: 'guildconfig',
+	category: "guildconfig",
 	type: ApplicationCommandType.ChatInput,
 
 	permission: null

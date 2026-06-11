@@ -19,13 +19,20 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { Client, PermissionsBitField, ChannelType, Message, GuildMember, AutoModerationRuleTriggerType } from 'discord.js';
-import { BotEvent } from '../../../types/event.js';
-import { DatabaseStructure } from '../../../types/database_structure.js';
-import { axios } from '../../core/functions/axios.js';
-import { DB } from '../../core/database/types.js';
-import { tempTable } from '../client/ready.js';
-import { LanguageData } from '../../../types/languageData.js';
+import {
+	Client,
+	PermissionsBitField,
+	ChannelType,
+	Message,
+	GuildMember,
+	AutoModerationRuleTriggerType
+} from "discord.js";
+import { BotEvent } from "../../../types/event.js";
+import { DatabaseStructure } from "../../../types/database_structure.js";
+import { axios } from "../../core/functions/axios.js";
+import { DB } from "../../core/database/types.js";
+import { tempTable } from "../client/ready.js";
+import { LanguageData } from "../../../types/languageData.js";
 
 /**
  * Apply sanctions to a member based on the configured punishment type
@@ -35,17 +42,29 @@ import { LanguageData } from '../../../types/languageData.js';
  * @param LOG Punishment configuration
  * @param table Database table for temporary data
  */
-async function applySanction(client: Client, message: Message, member: GuildMember, LOG: DatabaseStructure.PunishPubSchema, table: DB, lang: LanguageData): Promise<void> {
+async function applySanction(
+	client: Client,
+	message: Message,
+	member: GuildMember,
+	LOG: DatabaseStructure.PunishPubSchema,
+	table: DB,
+	lang: LanguageData
+): Promise<void> {
 	try {
 		switch (LOG.punishementType) {
-			case 'ban':
-				await message.guild!.members.ban(message.author, { reason: "Ban by PUNISHPUB" });
+			case "ban":
+				await message.guild!.members.ban(message.author, {
+					reason: "Ban by PUNISHPUB"
+				});
 				break;
-			case 'kick':
-				await message.guild!.members.kick(message.author, "Kick by PunishPub");
+			case "kick":
+				await message.guild!.members.kick(
+					message.author,
+					"Kick by PunishPub"
+				);
 				break;
-			case 'mute':
-				await member?.timeout(40000, 'Timeout by PunishPUB');
+			case "mute":
+				await member?.timeout(40000, "Timeout by PunishPUB");
 				await client.func.method.warnMember(
 					message.guild?.members.me!,
 					message.member!,
@@ -56,9 +75,15 @@ async function applySanction(client: Client, message: Message, member: GuildMemb
 		}
 
 		// Clear the punishment data after successful sanction application
-		await table.set(`${message.guildId}.PUNISH_DATA.${message.author.id}`, {});
+		await table.set(
+			`${message.guildId}.PUNISH_DATA.${message.author.id}`,
+			{}
+		);
 	} catch (error) {
-		console.error(`Failed to apply sanction to ${message.author.tag}:`, error);
+		console.error(
+			`Failed to apply sanction to ${message.author.tag}:`,
+			error
+		);
 	}
 }
 
@@ -68,7 +93,10 @@ async function applySanction(client: Client, message: Message, member: GuildMemb
  * @param whitelist Array of whitelisted domains
  * @returns true if the message should be sanctioned, false otherwise
  */
-async function shouldSanctionMessage(message: Message, whitelist: string[]): Promise<boolean> {
+async function shouldSanctionMessage(
+	message: Message,
+	whitelist: string[]
+): Promise<boolean> {
 	const contentLower = message.content.toLowerCase();
 	const blacklist = ["https://", "http://", ".gg/"];
 
@@ -78,7 +106,9 @@ async function shouldSanctionMessage(message: Message, whitelist: string[]): Pro
 	if (links.length > 0) {
 		// Check if links are media or whitelisted
 		const mediaChecks = await Promise.all(links.map(isMediaLink));
-		const whitelistChecks = links.map(url => isWhitelisted(url, whitelist));
+		const whitelistChecks = links.map((url) =>
+			isWhitelisted(url, whitelist)
+		);
 
 		const hasOnlyValidMedia = mediaChecks.every(Boolean);
 		const isValidWhitelisted = whitelistChecks.some(Boolean);
@@ -105,17 +135,14 @@ async function shouldSanctionMessage(message: Message, whitelist: string[]): Pro
 async function isMediaLink(url: string): Promise<boolean> {
 	try {
 		const response = await axios.head(url, {
-			timeout: 5000,
+			timeout: 5000
 		});
 
-		const contentType = response.headers.get('content-type')?.toLowerCase() || '';
-		const mediaTypes = [
-			'image/',
-			'video/',
-			'gif',
-		];
+		const contentType =
+			response.headers.get("content-type")?.toLowerCase() || "";
+		const mediaTypes = ["image/", "video/", "gif"];
 
-		return mediaTypes.some(type => contentType.includes(type));
+		return mediaTypes.some((type) => contentType.includes(type));
 	} catch (error) {
 		return false;
 	}
@@ -128,46 +155,82 @@ async function isMediaLink(url: string): Promise<boolean> {
  * @returns true if the URL is whitelisted
  */
 function isWhitelisted(url: string, whitelist: string[]): boolean {
-	return whitelist.some(domain => url.includes(domain));
+	return whitelist.some((domain) => url.includes(domain));
 }
 
 export const event: BotEvent = {
 	name: "messageCreate",
 	run: async (client: Client, message: Message) => {
 		// Basic validation checks
-		if (!message.guild || !message.channel || !message.member
-			|| message.channel.type !== ChannelType.GuildText || message.author.bot
-			|| message.author.id === client.user?.id) {
+		if (
+			!message.guild ||
+			!message.channel ||
+			!message.member ||
+			message.channel.type !== ChannelType.GuildText ||
+			message.author.bot ||
+			message.author.id === client.user?.id
+		) {
 			return;
 		}
 
 		// Check if anti-pub is enabled for this guild
-		const type = await client.db.get(`${message.guild.id}.GUILD.GUILD_CONFIG.antipub`) as DatabaseStructure.GuildConfigSchema['antipub'];
-		if (type === "off" || message.member.permissions.has(
-			[
+		const type = (await client.db.get(
+			`${message.guild.id}.GUILD.GUILD_CONFIG.antipub`
+		)) as DatabaseStructure.GuildConfigSchema["antipub"];
+		if (
+			type === "off" ||
+			message.member.permissions.has([
 				PermissionsBitField.Flags.Administrator |
-				PermissionsBitField.Flags.ManageGuild
-			]
-		)) return;
+					PermissionsBitField.Flags.ManageGuild
+			])
+		)
+			return;
 
 		const lang = await client.func.getLanguageData(message.guildId);
 
-		const automodRules = message.guild.autoModerationRules.cache.find((rule: { triggerType: AutoModerationRuleTriggerType; }) => rule.triggerType === AutoModerationRuleTriggerType.Keyword);
+		let automodRules = message.guild.autoModerationRules.cache.find(
+			(rule) => rule.triggerType === AutoModerationRuleTriggerType.Keyword
+		);
+
+		if (!automodRules) {
+			await message.guild.autoModerationRules.fetch();
+
+			automodRules = message.guild.autoModerationRules.cache.find(
+				(rule) =>
+					rule.triggerType === AutoModerationRuleTriggerType.Keyword
+			);
+		}
 
 		const member = message.guild.members.cache.get(message.author.id);
 
-		if (automodRules?.exemptRoles.values().toArray().some(x => member?.roles.cache.has(x.id))) {
+		if (
+			automodRules?.exemptRoles
+				.values()
+				.toArray()
+				.some((x) => x && member?.roles.cache.has(x.id))
+		) {
 			return;
 		}
 
 		if (type === "on") {
 			// Get punishment configuration and user data
-			const LOG = await client.db.get(`${message.guild.id}.GUILD.PUNISH.PUNISH_PUB`) as DatabaseStructure.PunishPubSchema;
-			const LOGfetched = await tempTable.get(`${message.guild.id}.PUNISH_DATA.${message.author.id}`);
+			const LOG = (await client.db.get(
+				`${message.guild.id}.GUILD.PUNISH.PUNISH_PUB`
+			)) as DatabaseStructure.PunishPubSchema;
+			const LOGfetched = await tempTable.get(
+				`${message.guild.id}.PUNISH_DATA.${message.author.id}`
+			);
 
 			// Check if user has already reached max flags and should be sanctioned
 			if (LOG?.amountMax === LOGfetched?.flags && LOG?.state === "true") {
-				await applySanction(client, message, member!, LOG, tempTable, lang);
+				await applySanction(
+					client,
+					message,
+					member!,
+					LOG,
+					tempTable,
+					lang
+				);
 			}
 
 			try {
@@ -195,12 +258,17 @@ export const event: BotEvent = {
 				];
 
 				// Check if message should be sanctioned
-				const shouldSanction = await shouldSanctionMessage(message, whitelist);
+				const shouldSanction = await shouldSanctionMessage(
+					message,
+					whitelist
+				);
 
 				if (shouldSanction) {
 					try {
 						// Get current flags count
-						let FLAGS_FETCH = await tempTable.get(`${message.guild.id}.PUNISH_DATA.${message.author.id}.flags`);
+						let FLAGS_FETCH = await tempTable.get(
+							`${message.guild.id}.PUNISH_DATA.${message.author.id}.flags`
+						);
 						FLAGS_FETCH = FLAGS_FETCH || 0;
 
 						// Increment flags count
@@ -210,18 +278,30 @@ export const event: BotEvent = {
 						await message.delete();
 
 						// Then update the database with the new flags count
-						await tempTable.set(`${message.guild.id}.PUNISH_DATA.${message.author.id}`, { flags: newFlagsCount });
+						await tempTable.set(
+							`${message.guild.id}.PUNISH_DATA.${message.author.id}`,
+							{ flags: newFlagsCount }
+						);
 
 						// Check if we need to apply sanctions immediately after updating
-						if (LOG?.amountMax === newFlagsCount && LOG?.state === "true") {
-							await applySanction(client, message, member!, LOG, tempTable, lang);
+						if (
+							LOG?.amountMax === newFlagsCount &&
+							LOG?.state === "true"
+						) {
+							await applySanction(
+								client,
+								message,
+								member!,
+								LOG,
+								tempTable,
+								lang
+							);
 						}
-					} catch (error) {
-					}
+					} catch (error) {}
 				}
 			} catch (error) {
 				return;
 			}
 		}
-	},
+	}
 };

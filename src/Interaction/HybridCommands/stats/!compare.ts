@@ -24,34 +24,46 @@ import {
 	ChatInputCommandInteraction,
 	Client,
 	Message,
-	EmbedBuilder,
-} from 'discord.js';
-import { LanguageData } from '../../../../types/languageData.js';
-import { DatabaseStructure } from '../../../../types/database_structure.js';
-import { SubCommand } from '../../../../types/command.js';
+	EmbedBuilder
+} from "discord.js";
+import { LanguageData } from "../../../../types/languageData.js";
+import { DatabaseStructure } from "../../../../types/database_structure.js";
+import { SubCommand } from "../../../../types/command.js";
 import {
 	calculateMessageTime,
-	calculateVoiceActivity,
+	calculateVoiceActivity
 } from "../../../core/functions/userStatsUtils.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		if (!client.user || !interaction.guild || !interaction.channel) return;
 
 		let user1Id: string | null = null;
 		let user2Id: string | null = null;
 
 		if (interaction instanceof ChatInputCommandInteraction) {
-			const user1 = interaction.options.getUser('user1', true);
-			const user2 = interaction.options.getUser('user2', true);
+			const user1 = interaction.options.getUser("user1", true);
+			const user2 = interaction.options.getUser("user2", true);
 			user1Id = user1.id;
 			user2Id = user2.id;
 		} else {
 			// Handle message command args parsing
 			if (args && args.length >= 2) {
-				const user1 = await client.func.method.user(interaction as Message, args, 0);
-				const user2 = await client.func.method.user(interaction as Message, args, 1);
+				const user1 = await client.func.method.user(
+					interaction as Message,
+					args,
+					0
+				);
+				const user2 = await client.func.method.user(
+					interaction as Message,
+					args,
+					1
+				);
 				if (user1) user1Id = user1.id;
 				if (user2) user2Id = user2.id;
 			}
@@ -63,10 +75,17 @@ export const subCommand: SubCommand = {
 			});
 		}
 
-		const msg = await client.func.method.interactionSend(interaction, client.iHorizon_Emojis.Discord_Loading);
+		const msg = await client.func.method.interactionSend(
+			interaction,
+			client.iHorizon_Emojis.Discord_Loading
+		);
 
-		const user1Data = await client.db.get(`${interaction.guildId}.STATS.USER.${user1Id}`) as DatabaseStructure.UserStats | null;
-		const user2Data = await client.db.get(`${interaction.guildId}.STATS.USER.${user2Id}`) as DatabaseStructure.UserStats | null;
+		const user1Data = (await client.db.get(
+			`${interaction.guildId}.STATS.USER.${user1Id}`
+		)) as DatabaseStructure.UserStats | null;
+		const user2Data = (await client.db.get(
+			`${interaction.guildId}.STATS.USER.${user2Id}`
+		)) as DatabaseStructure.UserStats | null;
 
 		if (!user1Data || !user2Data) {
 			return await client.func.method.interactionSend(interaction, {
@@ -90,15 +109,33 @@ export const subCommand: SubCommand = {
 		let user1WeeklyVoice = 0;
 		let user1MonthlyVoice = 0;
 
-		user1Data.messages?.forEach(msg => {
-			const result = calculateMessageTime(msg, nowTimestamp, dailyTimeout, weeklyTimeout, monthlyTimeout, user1DailyMessages, user1WeeklyMessages, user1MonthlyMessages);
+		user1Data.messages?.forEach((msg) => {
+			const result = calculateMessageTime(
+				msg,
+				nowTimestamp,
+				dailyTimeout,
+				weeklyTimeout,
+				monthlyTimeout,
+				user1DailyMessages,
+				user1WeeklyMessages,
+				user1MonthlyMessages
+			);
 			user1DailyMessages = result.dailyMessages;
 			user1WeeklyMessages = result.weeklyMessages;
 			user1MonthlyMessages = result.monthlyMessages;
 		});
 
-		user1Data.voices?.forEach(voice => {
-			const result = calculateVoiceActivity(voice, nowTimestamp, dailyTimeout, weeklyTimeout, monthlyTimeout, user1DailyVoice, user1WeeklyVoice, user1MonthlyVoice);
+		user1Data.voices?.forEach((voice) => {
+			const result = calculateVoiceActivity(
+				voice,
+				nowTimestamp,
+				dailyTimeout,
+				weeklyTimeout,
+				monthlyTimeout,
+				user1DailyVoice,
+				user1WeeklyVoice,
+				user1MonthlyVoice
+			);
 			user1DailyVoice = result.dailyVoiceActivity;
 			user1WeeklyVoice = result.weeklyVoiceActivity;
 			user1MonthlyVoice = result.monthlyVoiceActivity;
@@ -112,15 +149,33 @@ export const subCommand: SubCommand = {
 		let user2WeeklyVoice = 0;
 		let user2MonthlyVoice = 0;
 
-		user2Data.messages?.forEach(msg => {
-			const result = calculateMessageTime(msg, nowTimestamp, dailyTimeout, weeklyTimeout, monthlyTimeout, user2DailyMessages, user2WeeklyMessages, user2MonthlyMessages);
+		user2Data.messages?.forEach((msg) => {
+			const result = calculateMessageTime(
+				msg,
+				nowTimestamp,
+				dailyTimeout,
+				weeklyTimeout,
+				monthlyTimeout,
+				user2DailyMessages,
+				user2WeeklyMessages,
+				user2MonthlyMessages
+			);
 			user2DailyMessages = result.dailyMessages;
 			user2WeeklyMessages = result.weeklyMessages;
 			user2MonthlyMessages = result.monthlyMessages;
 		});
 
-		user2Data.voices?.forEach(voice => {
-			const result = calculateVoiceActivity(voice, nowTimestamp, dailyTimeout, weeklyTimeout, monthlyTimeout, user2DailyVoice, user2WeeklyVoice, user2MonthlyVoice);
+		user2Data.voices?.forEach((voice) => {
+			const result = calculateVoiceActivity(
+				voice,
+				nowTimestamp,
+				dailyTimeout,
+				weeklyTimeout,
+				monthlyTimeout,
+				user2DailyVoice,
+				user2WeeklyVoice,
+				user2MonthlyVoice
+			);
 			user2DailyVoice = result.dailyVoiceActivity;
 			user2WeeklyVoice = result.weeklyVoiceActivity;
 			user2MonthlyVoice = result.monthlyVoiceActivity;
@@ -129,7 +184,9 @@ export const subCommand: SubCommand = {
 		const embed = new EmbedBuilder()
 			.setTitle(lang.stats_compare_title)
 			.setColor("#5865F2")
-			.setDescription(`${user1?.username || lang.var_unknown} vs ${user2?.username || lang.var_unknown}`)
+			.setDescription(
+				`${user1?.username || lang.var_unknown} vs ${user2?.username || lang.var_unknown}`
+			)
 			.addFields(
 				{
 					name: `📨 ${lang.messages_word}`,
@@ -161,5 +218,5 @@ export const subCommand: SubCommand = {
 			.setTimestamp();
 
 		msg.edit({ content: null, embeds: [embed] });
-	},
+	}
 };

@@ -19,29 +19,43 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { ButtonInteraction, EmbedBuilder, MessageFlags } from 'discord.js';
+import { ButtonInteraction, EmbedBuilder, MessageFlags } from "discord.js";
 export default async function (interaction: ButtonInteraction<"cached">) {
-
 	const confessionAuthor = interaction.customId.split("%")[1];
 
 	if (confessionAuthor) {
-		let member = interaction.guild.members.cache.get(confessionAuthor) || await interaction.guild.members.fetch(confessionAuthor).catch(() => null);
+		let member =
+			interaction.guild.members.cache.get(confessionAuthor) ||
+			(await interaction.guild.members
+				.fetch(confessionAuthor)
+				.catch(() => null));
 
 		if (member) {
 			const embed = new EmbedBuilder()
 				.setColor("#010101")
 				.setAuthor({
 					name: member.user.username,
-					iconURL: member.user.displayAvatarURL({ forceStatic: false, size: 4096 }),
+					iconURL: member.user.displayAvatarURL({
+						forceStatic: false,
+						size: 4096
+					}),
 					url: `https://discordapp.com/users/${member.user.id}`
 				})
 				.setDescription(`<@${member.user.id}>`)
-				.setFooter(await interaction.client.func.displayBotName.footerBuilder(interaction.guildId!));
+				.setFooter(
+					await interaction.client.func.displayBotName.footerBuilder(
+						interaction.guildId!
+					)
+				);
 			interaction.reply({
-				files: [await interaction.client.func.displayBotName.footerAttachmentBuilder(interaction)],
+				files: [
+					await interaction.client.func.displayBotName.footerAttachmentBuilder(
+						interaction
+					)
+				],
 				flags: MessageFlags.Ephemeral,
 				embeds: [embed]
-			})
+			});
 		}
 	} else {
 		interaction.reply({
@@ -49,5 +63,4 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 			flags: MessageFlags.Ephemeral
 		});
 	}
-
-};
+}

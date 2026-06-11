@@ -601,6 +601,10 @@ help_starboard_dsc: "> *Посмотреть самые отмеченные з�
 help_starboard_fields: "StarBoard"
 help_blogger_dsc: "Подписывайтесь на любимые RSS-ленты и получайте уведомления, когда через iHorizon публикуются новые статьи"
 help_blogger_fields: "Блогер"
+help_lastfm_dsc: "> *Подключите свой аккаунт Last.fm и автоматически скробблите треки, которые воспроизводит iHorizon, пока вы находитесь в голосовом канале.*"
+help_lastfm_fields: "LastFM Scrobbler"
+help_honeypot_fields: "Honeypot"
+help_honeypot_dsc: "> *Настройте канал-ловушку, чтобы выявлять скомпрометированные аккаунты и автоматически очищать недавний спам на сервере.*"
 
 # /h
 h_suite: "(Продолжение)"
@@ -622,6 +626,9 @@ custom_desc_reset: "Вы решили сбросить описание бота
 custom_desc_set: "${client.iHorizon_Emojis.Yes} **Вы решили изменить описание бота на сервере. Нижние колонтитулы встроенных сообщений теперь изменены, а также описание бота на сервере.**\n${client.iHorizon_Emojis.Crown} Новое значение: `${desc}`"
 custom_banner_reset: "Вы решили сбросить баннер бота на сервере."
 custom_banner_set: "${client.iHorizon_Emojis.Yes} **Вы решили изменить баннер бота на сервере.**\n${client.iHorizon_Emojis.Crown} Новое значение: `${x}`"
+custom_sdk_only: "Эта команда доступна в production только для серверов с подпиской `Custom iHorizon Profile`."
+custom_sdk_only_title: "Поддержите iHorizon через Custom iHorizon Profile"
+custom_sdk_only_description: "Наш бот бесплатный и с открытым исходным кодом с 2022 года. Нам нужен доход, чтобы продолжать поддерживать, разрабатывать и хостить бота. Наши расходы составляют около 500 EUR в год на серверы, boosts, домены и лицензии.\n\nКоманда `/custom` позволяет изменить идентичность iHorizon на вашем сервере, меняя аватар, имя, баннер и био. При её использовании визуальная идентичность iHorizon исчезает с вашего сервера.\n\nПоэтому мы добавили встроенную в Discord подписку стоимостью 2.99 USD в месяц.\n\nОформив эту подписку, вы сможете использовать эту команду. Считайте это custom-ботом в стиле OWN-IHRZ, но стабильным, чистым и полностью рабочим."
 
 # Fun commands
 # /caracteres, /cats, /hack, /hug, /kiss, /morse, /poll, /question, /slap
@@ -1060,25 +1067,28 @@ utils_wlroles_embed_title: "Роли в белом списке"
 utils_wlroles_embed_desc: "Вот все разрешённые роли, которые можно назначить с помощью команд `addrole` и `delrole`!"
 utils_wlRoles_logsEmbed_title: "Модуль белого списка ролей"
 utils_wlRoles_logsEmbed_desc: "${interaction.member?.user.toString()} изменил роли в белом списке (для команд `addrole` и `delrole`)"
+utils_derogation_already_exists: "${client.iHorizon_Emojis.No} Роль исключения ${role} уже настроена корректно"
+utils_derogation_created: "${client.iHorizon_Emojis.Yes} Роль исключения ${role} была создана. Синхронизировано каналов: `${updatedChannels}`. Ошибок: `${failedChannels}`"
+utils_derogation_resynced: "${client.iHorizon_Emojis.Yes} Роль исключения ${role} уже существовала, я повторно синхронизировал `${updatedChannels}` каналов. Ошибок: `${failedChannels}`"
 
 # /utils dm
 utils_dm: "${client.iHorizon_Emojis.Yes} Сообщение было успешно отправлено ${targetMember.toString()}."
 utils_dm_cant: "${client.iHorizon_Emojis.No} Не удалось отправить сообщение пользователю ${targetMember.toString()}. Возможно, он заблокировал личные сообщения или заблокировал меня!"
 
 # /utils pic-only
-utils_pic_only_embed_title: "Каналы Только для Изображений"
-utils_pic_only_emnbed_desc: "Канал, где разрешены только фотографии/изображения. Другой контент блокируется ботом"
-utils_piconly_embed_fields_3_name: "Время таймаута"
-utils_piconly_select1_option1_label: "Изменить время таймаута"
+utils_pic_only_embed_title: "Каналы только для медиа"
+utils_pic_only_emnbed_desc: "Канал, где разрешены только изображения/видео. Другой контент (например, текстовые сообщения) блокируется ботом"
+utils_piconly_embed_fields_3_name: "Время тайм-аута"
+utils_piconly_select1_option1_label: "Изменить время тайм-аута"
 utils_piconly_select1_option2_label: "Изменить порог"
-utils_piconly_modal1_title: "ТолькоКартинки - Настройки времени"
-utils_piconly_modal1_fields1_placeholder: "время мута"
+utils_piconly_modal1_title: "MediaOnly - Настройки времени"
+utils_piconly_modal1_fields1_placeholder: "длительность мута"
 utils_piconly_modal1_fields1_label: "Время мута"
-utils_piconly_modal2_title: "ТолькоКартинки - Настройка порога"
+utils_piconly_modal2_title: "MediaOnly - Настройка порога"
 utils_piconly_modal2_fields1_placeholder: "порог перед мутом"
 utils_piconly_modal2_fields1_label: "Порог"
-utils_piconly_embed_fields2_placeholder: "Создать ветку под изображением"
-utils_piconly_var_thread_name: "Ветка {name}"
+utils_piconly_embed_fields2_placeholder: "Создать тред под изображением/видео"
+utils_piconly_var_thread_name: "Тред от {name}"
 
 # /zip-emojis
 zip_emojis_doesnt_have_perm: "У вас нет разрешения на управление эмодзи."
@@ -1116,6 +1126,46 @@ util_nick_kicker_enable_desc: "Включить кикер никнеймов"
 util_wakeup_yourself: "Братан, ты что, глупый? Неужели ты пишешь эту команду, пока спишь на клавиатуре, лол"
 util_wakeup_not_in_vc: "Братан, бот не создаст маленького китайца по имени ${user.displayName} с той же аватаркой и баннером, чтобы ты поверил, что он проснулся... Он даже не в голосовом канале, лол"
 util_wakeup_command_work: "Давай разбудим ${user.toString()} !"
+
+# /util talk
+util_talk_not_in_vc: "Вы должны находиться в голосовом канале, чтобы использовать эту команду."
+util_talk_audit_reason: "Режим голосового разговора включён"
+util_talk_logs_title: "Голосовой Разговор"
+util_talk_logs_description: "${interaction.member.user.toString()} включил(а) режим разговора в ${voiceChannel.toString()} и заглушил(а) ${mutedCount} участник(ов). ${skippedCount} участник(ов) были пропущены."
+util_talk_command_work: "Режим разговора теперь включён в ${voiceChannel.toString()}. ${mutedCount} участник(ов) были заглушены, ${skippedCount} участник(ов) были пропущены."
+
+# /util untalk
+util_untalk_nothing_active: "На этом сервере нет активного режима разговора."
+util_untalk_audit_reason: "Режим голосового разговора выключен"
+util_untalk_logs_title: "Отключение Голосового Разговора"
+util_untalk_logs_description: "${interaction.member.user.toString()} выключил(а) режим разговора в ${voiceChannel.toString()} и снял(а) заглушение с ${unmutedCount} участник(ов)."
+util_untalk_command_work: "Режим разговора был выключен в ${voiceChannel.toString()}. С ${unmutedCount} участник(ов) было снято заглушение."
+
+# /util freeze
+util_freeze_logs_title: "Заморозка Голоса"
+util_freeze_logs_description: "${interaction.member.user.toString()} заморозил(а) доступ к ${voiceChannel.toString()}."
+util_freeze_command_work: "Голосовой канал ${voiceChannel.toString()} теперь заморожен."
+
+# /util wlvc
+util_wlvc_no_member: "Вы должны указать участника, которому будет разрешён вход в замороженный голосовой канал."
+util_wlvc_no_freeze: "На этом сервере нет активного замороженного голосового канала."
+util_wlvc_logs_title: "Разрешение Заморозки Голоса"
+util_wlvc_logs_description: "${interaction.member.user.toString()} разрешил(а) ${member.toString()} войти в замороженный голосовой канал."
+util_wlvc_command_work: "${member.toString()} теперь может войти в замороженный голосовой канал."
+
+# /util unwlvc
+util_unwlvc_no_member: "Вы должны указать участника, которого нужно удалить из белого списка замороженного голосового канала."
+util_unwlvc_no_freeze: "На этом сервере нет активного замороженного голосового канала."
+util_unwlvc_not_whitelisted: "${member.toString()} не имеет доступа к замороженному голосовому каналу."
+util_unwlvc_logs_title: "Удаление Разрешения Заморозки Голоса"
+util_unwlvc_logs_description: "${interaction.member.user.toString()} удалил(а) ${member.toString()} из белого списка замороженного голосового канала."
+util_unwlvc_command_work: "${member.toString()} больше не может присоединяться к замороженному голосовому каналу."
+
+# /util unfreeze
+util_unfreeze_no_freeze: "На этом сервере нет активного замороженного голосового канала."
+util_unfreeze_logs_title: "Разморозка Голоса"
+util_unfreeze_logs_description: "${interaction.member.user.toString()} снял(а) активную голосовую заморозку."
+util_unfreeze_command_work: "Голосовой канал больше не заморожен."
 
 # /util leash
 util_leash_too_naugthy: "Шалунишка, ты не можешь привязать больше 3 человек :D"
@@ -1455,6 +1505,10 @@ automod_block_massmention_command_error404: Не оставили ли вы вк
 automod_block_link_command_on: "${interaction.user}, вы установили `Pub AutoMod Rule` на **true**.\nТеперь пользователи не могут отправлять ссылки в своих сообщениях.\nAutoMod __отправляет логи__ в ${logs_channel}.\nAutoMod x iHorizon защищает ваш сервер!"
 automod_block_link_command_off: "${interaction.user}, вы установили `Pub AutoMod Rule` на **false**.\nТеперь пользователи могут отправлять ссылки в своих сообщениях.\nAutoMod x iHorizon был отключен на вашем сервере!"
 
+# /automod block telegram links
+automod_block_telegram_command_on: "${interaction.user}, you have set the `Telegram AutoMod Rule` to **true**.\nNow users can't send Telegram-related links in their messages.\nAutoMod is now __sending logs__ in ${logs_channel}.\nAutoMod x iHorizon protect your server!"
+automod_block_telegram_command_off: "${interaction.user}, you have set the `Telegram AutoMod Rule` to **false**.\nNow users can send Telegram-related links in their messages.\nAutoMod x iHorizon have been disabled on your server!"
+
 # /automod block pub
 automod_block_pub_command_on: "${interaction.user}, вы установили `Pub AutoMod Rule` на **true**.\nТеперь пользователи не могут отправлять приглашенияна сервер в своих сообщениях.\nAutoMod отправляет логи в ${logs_channel}.\nAutoMod x iHorizon защищает ваш сервер!"
 automod_block_pub_command_off: "${interaction.user}, вы установили Pub AutoMod Rule на false.\nТеперь пользователи могут отправлять приглашения на сервер в своих сообщениях.\nAutoMod x iHorizon был отключен на вашем сервере!"
@@ -1530,6 +1584,16 @@ perm_command_delete_all_one: "Вам необходимо указать оди�
 perm_command_delete_all_one_option: "Вы можете указать только один параметр для удаления права доступа."
 perm_command_delete_all_zero_change: "Указанный вами тип прав доступа не использовался ни в одной команде."
 perm_command_delete_all_command_ok: "\nУспешно удалено **${changes.length}** вложенных прав доступа типа `${type}` (${value}) из базы данных."
+commandlimit_current_value: "${count} use(s) per ${time}"
+commandlimit_invalid_value: "The values provided for the command rate limit are invalid."
+commandlimit_missing_command: "You need to specify a command."
+commandlimit_set_success: "The rate limit for `${command}` has been set to `${limit}`."
+commandlimit_reset_success: "The rate limit for `${command}` has been reset."
+commandlimit_reset_missing: "No rate limit is configured for `${command}`."
+commandlimit_list_title: "Configured command rate limits"
+commandlimit_list_item: "- `${command}`: ${limit}"
+commandlimit_list_empty: "No command rate limit is configured in this guild."
+commandlimit_rate_limited: "You have reached the limit for this command. Try again in ${time}."
 
 # /perm roles
 perm_roles_created_role: "Созданы следующие роли: ${createdRoles.join(', ')}"
@@ -1659,6 +1723,17 @@ history_delete_embed_desc: "История музыки была успешно 
 lyrics_embed_title_unknown: "Неизвестный заголовок"
 lyrics_embed_author_name_unknown: "Неизвестный автор"
 lyrics_not_found: "Тексты не найдены"
+
+# /music clear-queue
+clear_queue_command_ok: "${client.iHorizon_Emojis.Security} | Музыкальная очередь на этом Discord-сервере была очищена."
+
+# /music trackinfo
+music_requested_by: "Запрошенный"
+music_visit_here: "Посетите здесь"
+music_lyrics: "Тексты"
+music_link_here: "Ссылка здесь: [Клик здесь]({link})"
+
+music_volume_command_ok: "${client.iHorizon_Emojis.Yes} **громкость установлена на** `${Number(query)}`%"
 
 # Команды раздачи призов
 # /end, /start, /reroll
@@ -2357,7 +2432,7 @@ tempvoice_staff_desc_embed: "## Роль персонала TempVoice\nРоли 
 
 # /confession channel
 confession_channel_command_work: "Панель исповедей была отправлена в ${channel?.toString()}"
-confession_channel_panel_embed_desc: "# **Анонимные Исповеди**\n\nНажмите кнопку ниже, чтобы открыть форму исповеди. Вы можете написать то, что хотите исповедовать. Если хотите, вы можете сделать вашу исповедь приватной.\n\n## **Сделать Исповедь**\n\n*Примечание: Чтобы сделать вашу исповедь приватной, укажите соответствующий вариант в форме.*"
+confession_channel_panel_embed_desc: "# **Анонимные Исповеди**\n\nНажмите кнопку ниже, чтобы открыть форму исповеди. Вы можете написать то, что хотите исповедовать. Если хотите, вы можете сделать вашу исповедь приватной.\nУчтите, что исповеди могут не оставаться анонимными — владельцы сервера или любой, у кого есть доступ к журналам исповедей, может идентифицировать пользователей, если ведение журналов включено.\n\n## **Сделать Исповедь**\n\n*Примечание: Чтобы сделать вашу исповедь приватной, укажите соответствующий вариант в форме.*"
 confession_channel_log_embed_title: "Модуль SetChannel Исповедей"
 confession_channel_log_embed_desc: "${interaction.user} установил канал на ${channel}"
 
@@ -2508,6 +2583,20 @@ blogger_blog_add_success: "✅ RSS-лента **${validation.name}** добав�
 blogger_blog_add_invalid_rss: "❌ Указанная RSS-лента недействительна или недоступна. Проверьте URL и попробуйте снова."
 blogger_blog_remove_success: "✅ RSS-лента с ID `${blogId}` была удалена."
 blogger_blog_remove_not_found: "❌ RSS-лента с таким ID не найдена."
+lastfm_module_not_configured: "${client.iHorizon_Emojis.No} | Модуль Last.fm не настроен на боте. Добавьте `lastfm.apiKey` и `lastfm.sharedSecret` в конфиг или задайте `LASTFM_API_KEY` и `LASTFM_SHARED_SECRET`."
+lastfm_config_login_required: "${client.iHorizon_Emojis.No} | Сначала нужно использовать `/lastfm login`, прежде чем включать модуль."
+lastfm_config_enabled: "${client.iHorizon_Emojis.Yes} | Скробблинг Last.fm теперь включён для вашего аккаунта."
+lastfm_config_disabled: "${client.iHorizon_Emojis.Yes} | Скробблинг Last.fm теперь отключён для вашего аккаунта."
+lastfm_login_invalid_session: "${client.iHorizon_Emojis.No} | Last.fm не вернул действительную сессию."
+lastfm_login_success: "${client.iHorizon_Emojis.Yes} | Ваш аккаунт Last.fm `${username}` теперь подключён, и скробблинг включён."
+lastfm_embed_title: "Настройка Last.fm для ${userLabel}"
+lastfm_embed_field_status: "Статус"
+lastfm_embed_field_account: "Подключённый аккаунт"
+lastfm_embed_field_connected_at: "Подключён"
+lastfm_api_error_login: "${client.iHorizon_Emojis.No} | Не удалось подключиться к Last.fm: ${error}"
+lastfm_api_error_nowplaying: "${client.iHorizon_Emojis.No} | Не удалось отправить в Last.fm статус Now Playing: ${error}"
+lastfm_api_error_scrobble: "${client.iHorizon_Emojis.No} | Не удалось заскробблить этот трек: ${error}"
+lastfm_api_error_unknown: "неизвестная ошибка"
 
 # Модуль AuthRestore
 # роль, установить, удалить, получить, принудительное присоединение
@@ -2937,7 +3026,97 @@ global_warn_component_button_label: "Отправлено с ${author.guild.name
 counter_error_too_much_u: "<@${message.author.id}> ОШИБСЯ НА **${number}**!! Следующее число — **1**. **Нельзя считать два раза подряд.**"
 counter_error_syntaxic: "<@${message.author.id}> СОВЕРШИЛ ОШИБКУ!! Следующее число — **1**."
 
-global_blacklist_msg_to_send: "Вы были заблокированы, так как находитесь в чёрном списке iHorizon.\nПричина: `${data.reason}`"
+global_blacklist_msg_to_send: "Вы были автоматически заблокированы на этом сервере, потому что ваш аккаунт находится в глобальном черном списке iHorizon.\n\nПричина: `${data.reason}`\n\nСогласно разделу 3 наших Условий использования, серверы, использующие iHorizon, соглашаются с тем, что бот может автоматически применять санкции, связанные с этим глобальным черным списком.\n\nЕсли вы считаете, что это ошибка или хотите оспорить это решение, вы можете подать апелляцию здесь:\nAppeal: <https://www.ihorizon.org/appeal>\n\nУсловия использования: <https://www.ihorizon.org/tos>"
 global_blacklist_reason: "Наказание проекта iHorizon - Чёрный список | Причина: ${data.reason}"
 server_blacklist_msg_to_send: "Вы были заблокированы, так как находитесь в чёрном списке этого сервера.\nПричина: `${data2.reason}`"
 server_blacklist_reason: "Чёрный список | Причина: ${data2.reason}"
+help_sticky_fields: "Sticky"
+help_sticky_dsc: "> *Держите важное сообщение всегда видимым в ваших каналах с автоматической повторной публикацией.*"
+sticky_channel_command_error: "${client.iHorizon_Emojis.No} | ${interaction.user}, я не смог найти подходящий текстовый канал."
+sticky_text_command_missing_message: "${client.iHorizon_Emojis.No} | ${interaction.user}, вам нужно указать sticky-сообщение."
+sticky_text_command_work: "${client.iHorizon_Emojis.Yes} | ${interaction.user}, текстовое sticky-сообщение теперь активно в ${channel}."
+sticky_embed_command_embed_not_found: "${client.iHorizon_Emojis.No} | ${interaction.user}, я не смог найти embed `${embed_id}`."
+sticky_embed_command_work: "${client.iHorizon_Emojis.Yes} | ${interaction.user}, sticky-embed `${embed_id}` теперь активен в ${channel}."
+sticky_disable_command_not_found: "${client.iHorizon_Emojis.No} | ${interaction.user}, в ${channel} не настроено sticky-сообщение."
+sticky_disable_command_work: "${client.iHorizon_Emojis.Yes} | ${interaction.user}, sticky-сообщение было отключено в ${channel}."
+sticky_refresh_command_not_found: "${client.iHorizon_Emojis.No} | ${interaction.user}, в ${channel} не настроено sticky-сообщение."
+sticky_refresh_command_missing_embed: "${client.iHorizon_Emojis.No} | ${interaction.user}, sticky-сообщение в ${channel} ссылается на embed, которого больше не существует."
+sticky_refresh_command_missing_permissions: "${client.iHorizon_Emojis.No} | ${interaction.user}, я не могу заново опубликовать sticky-сообщение в ${channel}. Проверьте мои права."
+sticky_refresh_command_work: "${client.iHorizon_Emojis.Yes} | ${interaction.user}, sticky-сообщение было заново опубликовано в ${channel}."
+sticky_show_command_not_found: "${client.iHorizon_Emojis.No} | ${interaction.user}, в ${channel} не настроено sticky-сообщение."
+sticky_show_embed_title: "Конфигурация sticky-сообщения"
+sticky_show_embed_fields_channel: "Канал"
+sticky_show_embed_fields_type: "Тип"
+sticky_show_embed_fields_status: "Статус"
+sticky_show_embed_fields_message: "Сообщение"
+sticky_show_embed_fields_embed: "ID embed"
+sticky_show_embed_fields_last_message: "ID последнего sticky-сообщения"
+sticky_list_embed_title: "Sticky-каналы"
+sticky_list_embed_desc_empty: "На этом сервере не настроен ни один sticky-канал."
+sticky_list_embed_desc_line_text: "${channel} - Текстовый sticky"
+sticky_list_embed_desc_line_embed: "${channel} - Sticky с embed (`${embed_id}`)"
+sticky_list_embed_desc_line_text_embed: "${channel} - Текст + embed sticky (`${embed_id}`)"
+sticky_var_text: "Текст"
+sticky_var_embed: "Embed"
+sticky_var_text_embed: "Текст + embed"
+sticky_var_enabled: "Включено"
+sticky_var_disabled: "Отключено"
+sticky_var_none: "Нет"
+
+# /honeypot config
+honeypot_config_not_allowed: "Вы должны быть администратором или находиться в allowlist, чтобы настраивать Honeypot."
+honeypot_config_embed_title: "Настройка Honeypot"
+honeypot_config_embed_desc: "Настройте канал-ловушку, канал логов и автоматическое действие, которое используется, когда кто-то начинает отправлять сообщения в канале *Honeypot*."
+honeypot_config_embed_field_status: "Статус"
+honeypot_config_embed_field_trap_channel: "Канал-ловушка"
+honeypot_config_embed_field_logs_channel: "Канал логов"
+honeypot_config_embed_field_action: "Действие"
+honeypot_config_embed_field_message: "Отправленное сообщение"
+honeypot_config_embed_field_notes: "Примечания"
+honeypot_config_embed_field_credit: "Благодарности"
+honeypot_config_notes_value: "- **Разместите роль iHorizon выше всех ролей участников.**\n- **Автоматически созданные каналы Honeypot перемещаются в самый верх сервера.**\n- **Вы можете переименовать канал Honeypot без поломки системы.**"
+honeypot_config_credit_value: "*Вдохновлено Honeypot от RiskyMH*\n${url}"
+honeypot_config_select_trap_placeholder: "Выберите канал-ловушку"
+honeypot_config_select_logs_placeholder: "Выберите канал логов"
+honeypot_config_select_action_placeholder: "Выберите действие"
+honeypot_config_button_send: "Отправить embed"
+honeypot_config_button_preview: "Предпросмотр"
+honeypot_config_button_enable: "Включить Honeypot"
+honeypot_config_button_disable: "Выключить Honeypot"
+honeypot_config_send_success: "Embed Honeypot был отправлен в ${channel}."
+honeypot_config_enable_success: "Honeypot теперь включен в ${channel}."
+honeypot_config_disable_success: "Honeypot теперь выключен."
+honeypot_config_missing_logs_channel: "Перед включением Honeypot необходимо настроить канал логов."
+honeypot_config_generic_error: "Произошла ошибка при обновлении Honeypot."
+honeypot_config_select_action_kick: "Исключить пользователей"
+honeypot_config_select_action_ban: "Забанить пользователей"
+honeypot_config_select_action_none: "Только удалить сообщения"
+honeypot_config_select_action_del_messages: "Удалить сообщения"
+honeypot_default_channel_name: "🍯・obshiy-chat"
+honeypot_action_none: "Только удалять сообщения"
+honeypot_action_failed: "Действие не выполнено"
+honeypot_dm_action_kicked: "ты был выпроченный!"
+honeypot_dm_action_banned: "ты был забанен!"
+honeypot_dm_action_none: "твои сообщения были удалены"
+honeypot_trap_embed_title: "НЕ ОТПРАВЛЯЙТЕ СООБЩЕНИЯ В ЭТОТ КАНАЛ"
+honeypot_trap_embed_desc: "*Этот канал используется для ловли спам-ботов.*\n*Любое сообщение, отправленное здесь, **ЗАПУСТИТ** автоматическую защиту сервера.*"
+honeypot_trap_embed_footer: "Вдохновлено Honeypot от RiskyMH, посмотрите!\n${url}"
+honeypot_dm_title: "Honeypot сработал!"
+honeypot_dm_desc: "Сообщение, которое вы отправили в канал *Honeypot* на следующем сервере: **`${guild}`** **запустило** настроенную защиту.\n\n__Действие, принятое против вас:__ **`${action}`**\n\n*Сообщения, которые вы отправили за последние 2 часа, удаляются с сервера. Если вы считаете, что вас взломали, измените пароль и включите 2FA в вашем аккаунте Discord. Если это была ошибка с вашей стороны, обратитесь к команде сервера для решения проблемы.*"
+honeypot_log_title: "Срабатывание Honeypot - ${action}"
+honeypot_log_field_author: "Автор"
+honeypot_log_field_channel: "Канал"
+honeypot_log_field_message: "Удалённое сообщение"
+honeypot_log_field_attachments: "Вложения"
+honeypot_log_field_stickers: "Стикеры"
+honeypot_log_field_embeds: "Embeds"
+honeypot_log_field_deleted_messages: "Удалённые сообщения"
+honeypot_log_field_triggered_messages: "Сообщения, вызвавшие срабатывание"
+honeypot_log_field_dm_status: "Статус ЛС"
+honeypot_log_field_result: "Результат"
+honeypot_log_dm_open: "Доставлено"
+honeypot_log_dm_closed: "Закрыто или недоступно"
+honeypot_log_no_content: "Нет текстового содержимого"
+honeypot_log_action_ban: "Пользователь заблокирован"
+honeypot_log_action_kick: "Пользователь исключен"
+honeypot_log_action_none: "Действие не предпринято"

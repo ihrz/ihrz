@@ -19,9 +19,9 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { BaseChannelData } from './';
+import { BaseChannelData } from "./";
 
 export interface VoiceChannelData extends BaseChannelData {
-    bitrate: number;
-    userLimit: number;
+	bitrate: number;
+	userLimit: number;
 }

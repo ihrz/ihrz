@@ -19,8 +19,8 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { BaseGuildTextChannel, Client, DMChannel, Message } from 'discord.js';
-import { BotEvent } from '../../../types/event.js';
+import { BaseGuildTextChannel, Client, DMChannel, Message } from "discord.js";
+import { BotEvent } from "../../../types/event.js";
 
 export const event: BotEvent = {
 	name: "messageCreate",
@@ -29,32 +29,47 @@ export const event: BotEvent = {
 
 		// Handles all messages and checks whether they contain a resolvable link
 		if (
-			message.author.bot
-			|| await client.db.get(`${message.guildId}.UTILS.git_lines`) === false
+			message.author.bot ||
+			(await client.db.get(`${message.guildId}.UTILS.git_lines`)) ===
+				false
 		) {
 			return;
 		}
 
-		let { botMsg, toDelete, lang } = await client.githubLinesManager.handleMessage(message);
+		let { botMsg, toDelete, lang } =
+			await client.githubLinesManager.handleMessage(message);
 
 		if (botMsg !== null) {
-			if (!await client.db.has(`${message.guildId}.UTILS.git_lines`) && (Math.floor(Math.random() * 8) === 0)) {
-				botMsg += lang.git_lines_borred_warning.replace("${client.iHorizon_Emojis.VC_OpenChat}", client.iHorizon_Emojis.VC_OpenChat);
+			if (
+				!(await client.db.has(`${message.guildId}.UTILS.git_lines`)) &&
+				Math.floor(Math.random() * 8) === 0
+			) {
+				botMsg += lang.git_lines_borred_warning.replace(
+					"${client.iHorizon_Emojis.VC_OpenChat}",
+					client.iHorizon_Emojis.VC_OpenChat
+				);
 			}
 
-			const sentmsg = await (message.channel as BaseGuildTextChannel).send(botMsg);
+			const sentmsg = await (
+				message.channel as BaseGuildTextChannel
+			).send(botMsg);
 
 			if (toDelete) {
 				setTimeout(() => sentmsg.delete().catch(() => null), 5000); // errors ignored - someone else deleted
 			} else if (
 				sentmsg.channel.partial ||
 				sentmsg.channel instanceof DMChannel ||
-				(sentmsg.guild?.members.me && sentmsg.channel.permissionsFor(sentmsg.guild.members.me).has("AddReactions"))
+				(sentmsg.guild?.members.me &&
+					sentmsg.channel
+						.permissionsFor(sentmsg.guild.members.me)
+						.has("AddReactions"))
 			) {
 				const botReaction = await sentmsg.react("🗑️");
 
 				const collector = sentmsg.createReactionCollector({
-					filter: (reaction, user): boolean => reaction.emoji.name === "🗑️" && user.id === message.author.id,
+					filter: (reaction, user): boolean =>
+						reaction.emoji.name === "🗑️" &&
+						user.id === message.author.id,
 					time: 15_000
 				});
 				collector.on("collect", () => {
@@ -65,5 +80,5 @@ export const event: BotEvent = {
 				});
 			}
 		}
-	},
+	}
 };

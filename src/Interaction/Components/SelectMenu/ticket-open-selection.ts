@@ -19,12 +19,17 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { CreateTicketChannel } from '../../../core/modules/ticketsManager.js';
-import { StringSelectMenuInteraction } from 'discord.js';
+import { CreateTicketChannel } from "../../../core/modules/ticketsManager.js";
+import { StringSelectMenuInteraction } from "discord.js";
 
-export default async function (interaction: StringSelectMenuInteraction<"cached">) {
-	if (!await interaction.client.db.get(
-		`${interaction.guildId}.GUILD.TICKET.${interaction.message.id}`
-	)) return;
+export default async function (
+	interaction: StringSelectMenuInteraction<"cached">
+) {
+	if (
+		!(await interaction.client.db.get(
+			`${interaction.guildId}.GUILD.TICKET.${interaction.message.id}`
+		))
+	)
+		return;
 	CreateTicketChannel(interaction);
-};
+}

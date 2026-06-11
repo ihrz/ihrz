@@ -21,7 +21,7 @@
 
 import { get_property, set_property, unset_property } from "../lodash.ts";
 import { ErrorKind } from "../types.ts";
-import { Database } from 'bun:sqlite';
+import { Database } from "bun:sqlite";
 
 export class Sqlite<D = any> {
 	private tableName: string;
@@ -29,10 +29,12 @@ export class Sqlite<D = any> {
 	private db: Database;
 	private mirrors: Sqlite[] = [];
 
-	constructor(options: {
-		table?: string;
-		filePath?: string;
-	} = {}) {
+	constructor(
+		options: {
+			table?: string;
+			filePath?: string;
+		} = {}
+	) {
 		options.table ??= "json";
 		options.filePath ??= "db.sqlite";
 		this.tableName = options.table;
@@ -42,27 +44,27 @@ export class Sqlite<D = any> {
 	}
 
 	private initDatabase(): void {
-
-		this.db.exec(`CREATE TABLE IF NOT EXISTS ${this.tableName} (ID TEXT PRIMARY KEY, json TEXT)`);
+		this.db.exec(
+			`CREATE TABLE IF NOT EXISTS ${this.tableName} (ID TEXT PRIMARY KEY, json TEXT)`
+		);
 	}
 
 	private createError(message: string, kind: ErrorKind): Error {
 		const error = new Error(message);
 		error.name = kind;
-		Object.defineProperty(error, 'kind', {
+		Object.defineProperty(error, "kind", {
 			value: kind,
 			writable: false
 		});
 		return error;
 	}
 
-	private async snapshot(): Promise<void> {
-
-
-	}
+	private async snapshot(): Promise<void> {}
 
 	private async prepare(table: string): Promise<void> {
-		this.db.exec(`CREATE TABLE IF NOT EXISTS ${table} (ID TEXT PRIMARY KEY, json TEXT)`);
+		this.db.exec(
+			`CREATE TABLE IF NOT EXISTS ${table} (ID TEXT PRIMARY KEY, json TEXT)`
+		);
 		for (const mirror of this.mirrors) {
 			await mirror.prepare(table);
 		}
@@ -73,7 +75,7 @@ export class Sqlite<D = any> {
 	): Promise<{ id: string; value: any }[]> {
 		const stmt = this.db.prepare(`SELECT ID, json FROM ${table} `);
 		const rows = stmt.all() as { ID: string; json: string }[];
-		return rows.map(row => ({ id: row.ID, value: JSON.parse(row.json) }));
+		return rows.map((row) => ({ id: row.ID, value: JSON.parse(row.json) }));
 	}
 
 	private async getRowByKey<T>(
@@ -93,9 +95,11 @@ export class Sqlite<D = any> {
 		table: string,
 		query: string
 	): Promise<{ id: string; value: any }[]> {
-		const stmt = this.db.prepare(`SELECT ID, json FROM ${table} WHERE ID LIKE ? `);
+		const stmt = this.db.prepare(
+			`SELECT ID, json FROM ${table} WHERE ID LIKE ? `
+		);
 		const rows = stmt.all(`${query}% `) as { ID: string; json: string }[];
-		return rows.map(row => ({ id: row.ID, value: JSON.parse(row.json) }));
+		return rows.map((row) => ({ id: row.ID, value: JSON.parse(row.json) }));
 	}
 
 	private async setRowByKey<T>(
@@ -106,16 +110,21 @@ export class Sqlite<D = any> {
 	): Promise<T> {
 		const jsonValue = JSON.stringify(value);
 		if (update) {
-			const stmt = this.db.prepare(`UPDATE ${table} SET json = ? WHERE ID = ? `);
+			const stmt = this.db.prepare(
+				`UPDATE ${table} SET json = ? WHERE ID = ? `
+			);
 			stmt.run(jsonValue, key);
 		} else {
 			try {
-				const stmt = this.db.prepare(`INSERT INTO ${table} (ID, json) VALUES(?, ?)`);
+				const stmt = this.db.prepare(
+					`INSERT INTO ${table} (ID, json) VALUES(?, ?)`
+				);
 				stmt.run(key, jsonValue);
 			} catch (e: any) {
-
-				if (e?.code === 'SQLITE_CONSTRAINT_PRIMARYKEY') {
-					const stmt = this.db.prepare(`UPDATE ${table} SET json = ? WHERE ID = ? `);
+				if (e?.code === "SQLITE_CONSTRAINT_PRIMARYKEY") {
+					const stmt = this.db.prepare(
+						`UPDATE ${table} SET json = ? WHERE ID = ? `
+					);
 					stmt.run(jsonValue, key);
 				} else {
 					throw e;
@@ -137,8 +146,6 @@ export class Sqlite<D = any> {
 			await mirror.deleteAllRows(table);
 		}
 
-
-
 		return 1;
 	}
 
@@ -150,8 +157,7 @@ export class Sqlite<D = any> {
 			await mirror.deleteRowByKey(table, key);
 		}
 
-
-		return (result.changes > 0) ? 1 : 0;
+		return result.changes > 0 ? 1 : 0;
 	}
 
 	private async addSubtract(
@@ -315,7 +321,7 @@ export class Sqlite<D = any> {
 			const obj = (await this.get<any>(keySplit[0])) ?? {};
 			unset_property(obj, keySplit.slice(1).join("."));
 
-			return await this.set(keySplit[0], obj) as unknown as number;
+			return (await this.set(keySplit[0], obj)) as unknown as number;
 		}
 		return this.deleteRowByKey(this.tableName, key);
 	}
@@ -453,7 +459,6 @@ export class Sqlite<D = any> {
 			table: table,
 			filePath: this.path
 		});
-
 
 		await newDB.prepare(table);
 		return newDB;

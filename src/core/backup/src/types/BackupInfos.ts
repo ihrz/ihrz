@@ -19,10 +19,10 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { BackupData } from './';
+import { BackupData } from "./";
 
 export interface BackupInfos {
-    id: string;
-    size: number;
-    data: BackupData;
+	id: string;
+	size: number;
+	data: BackupData;
 }

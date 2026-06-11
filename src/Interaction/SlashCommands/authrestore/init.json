@@ -1,0 +1,11 @@
+{
+	"categoryInitializer": {
+		"categoryName": "authrestore",
+		"categoryColor": "#a9e1e6",
+		"options": {
+			"description": "help_authrestore_dsc",
+			"emoji": "${client.iHorizon_Emojis.Restore}",
+			"placeholder": "help_authrestore_fields"
+		}
+	}
+}

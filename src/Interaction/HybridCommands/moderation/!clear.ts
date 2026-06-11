@@ -23,89 +23,156 @@ import {
 	BaseGuildTextChannel,
 	ChatInputCommandInteraction,
 	Client,
+	Collection,
 	Message,
-} from 'discord.js';
+	MessageResolvable,
+	Snowflake
+} from "discord.js";
 
-import { LanguageData } from '../../../../types/languageData.js';
+import { LanguageData } from "../../../../types/languageData.js";
 
+import { SubCommand } from "../../../../types/command.js";
 
-import { SubCommand } from '../../../../types/command.js';
+export async function afterSent(
+	sent: Message,
+	interaction: ChatInputCommandInteraction<"cached"> | Message
+): Promise<void> {
+	if (sent.deletable) await sent.delete().catch(() => null);
+	if (interaction instanceof Message && interaction.deletable) {
+		await interaction.delete().catch(() => null);
+	}
+}
+
+export async function clearMessage(
+	body:
+		| Collection<Snowflake, Message>
+		| readonly MessageResolvable[]
+		| number,
+	interaction: ChatInputCommandInteraction<"cached"> | Message,
+	lang: LanguageData
+): Promise<void> {
+	try {
+		let filteredBody = body;
+		if (body instanceof Collection) {
+			const twoWeeksAgo = Date.now() - 14 * 24 * 60 * 60 * 1000;
+			filteredBody = body.filter((m) => m.createdTimestamp > twoWeeksAgo);
+		}
+
+		const messages = await (
+			interaction.channel as BaseGuildTextChannel
+		).bulkDelete(filteredBody, true);
+
+		const sent = await client.func.method.channelSend(interaction, {
+			content: lang.clear_confirmation_message.replace(
+				"${messages.size}",
+				messages.size.toString()
+			)
+		});
+
+		setTimeout(() => afterSent(sent, interaction), 5000);
+
+		await client.func.ihorizon_logs(interaction, {
+			title: lang.clear_logs_embed_title,
+			description: lang.clear_logs_embed_description
+				.replace(
+					"${interaction.user.id}",
+					String(interaction.member?.user.id)
+				)
+				.replace("${messages.size}", messages.size.toString())
+				.replace(
+					"${interaction.channel.id}",
+					String(interaction.channel?.id)
+				)
+		});
+	} catch (error) {
+		console.error("[clear] bulkDelete failed:", error);
+		await client.func.method.interactionSend(interaction, {
+			content: `${error?.message}`
+		});
+	}
+}
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
-
-
-		if (interaction instanceof ChatInputCommandInteraction) {
-			var numberx = interaction.options.getNumber("number")! + 1;
-			var member = interaction.options.getMember("member");
-		} else {
-			var numberx = client.func.method.number(args!, 0) + 1;
-			var member = client.func.method.member(interaction, args!, 1);
-		};
-
-		if (numberx && numberx > 100) {
-			await client.func.method.interactionSend(interaction, {
-				content: lang.clear_max_message_limit.replace("${client.iHorizon_Emojis.No}", client.iHorizon_Emojis.No)
-			});
+		if (
+			!client.user ||
+			!interaction.member ||
+			!interaction.guild ||
+			!interaction.channel
+		)
 			return;
-		};
 
-		// if the member is found, fetch the messages and delete them
+		const amount =
+			interaction instanceof ChatInputCommandInteraction
+				? interaction.options.getNumber("number", true) + 1
+				: client.func.method.number(args!, 0) + 1;
+
+		const member =
+			interaction instanceof ChatInputCommandInteraction
+				? interaction.options.getMember("member")
+				: client.func.method.member(interaction, args!, 1);
+
+		const channel = interaction.channel as BaseGuildTextChannel;
+
 		if (member) {
-			const fetchedMessages = await (interaction.channel as BaseGuildTextChannel).messages.fetch({
-				limit: 100
-			});
+			const targetAmount = Math.max(amount, 1);
+			const maxScannedMessages = 1000;
+			const matchedMessages: Message[] = [];
+			let lastMessageId: string | undefined;
+			let scannedMessages = 0;
 
-			let messages = Array.from(fetchedMessages.values()).filter((message) => message.author.id === member?.id);
+			while (
+				matchedMessages.length < targetAmount &&
+				scannedMessages < maxScannedMessages
+			) {
+				const remainingToScan = maxScannedMessages - scannedMessages;
+				const fetchedMessages = await channel.messages.fetch({
+					limit: Math.min(100, remainingToScan),
+					before: lastMessageId
+				});
 
-			// splice the messages with the numberx
-			if (numberx !== 0) {
-				messages = messages.splice(0, numberx);
+				if (fetchedMessages.size === 0) {
+					break;
+				}
+
+				scannedMessages += fetchedMessages.size;
+				lastMessageId = fetchedMessages.last()?.id;
+
+				for (const fetchedMessage of fetchedMessages.values()) {
+					if (fetchedMessage.author.id !== member.id) {
+						continue;
+					}
+
+					matchedMessages.push(fetchedMessage);
+
+					if (matchedMessages.length >= targetAmount) {
+						break;
+					}
+				}
 			}
 
-			if (messages.length === 0) {
+			if (matchedMessages.length === 0) {
 				await client.func.method.interactionSend(interaction, {
 					content: lang.clear_command_no_message
 				});
 				return;
 			}
 
-			(interaction.channel as BaseGuildTextChannel).bulkDelete(messages, true)
-				.then(async (messages) => {
-					client.func.method.channelSend(interaction, {
-						content: lang.clear_confirmation_message
-							.replace(/\${messages\.size}/g, messages.size.toString())
-					});
-
-					await client.func.ihorizon_logs(interaction, {
-						title: lang.clear_logs_embed_title,
-						description: lang.clear_logs_embed_description
-							.replace(/\${interaction\.user\.id}/g, interaction.member?.user.id!)
-							.replace(/\${messages\.size}/g, messages.size.toString())
-							.replace(/\${interaction\.channel\.id}/g, interaction.channel?.id!)
-					});
-				});
-
+			await clearMessage(
+				matchedMessages.slice(0, targetAmount),
+				interaction,
+				lang
+			);
 			return;
 		} else {
-			(interaction.channel as BaseGuildTextChannel).bulkDelete(numberx, true)
-				.then(async (messages) => {
-					client.func.method.channelSend(interaction, {
-						content: lang.clear_confirmation_message
-							.replace(/\${messages\.size}/g, messages.size.toString())
-					});
-
-					await client.func.ihorizon_logs(interaction, {
-						title: lang.clear_logs_embed_title,
-						description: lang.clear_logs_embed_description
-							.replace(/\${interaction\.user\.id}/g, interaction.member?.user.id!)
-							.replace(/\${messages\.size}/g, messages.size.toString())
-							.replace(/\${interaction\.channel\.id}/g, interaction.channel?.id!)
-					});
-				});
+			await clearMessage(amount, interaction, lang);
+			return;
 		}
-	},
+	}
 };

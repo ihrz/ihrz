@@ -2,7 +2,7 @@
 
 # 🌐 iHorizon
 
-### *The most complete Discord bot on GitLab*
+### *The most complete Discord bot on GitLab & GitHub*
 
 <br>
 <br>
@@ -14,7 +14,7 @@
 <br>
 <br>
 
-[![GitHub Release](https://img.shields.io/gitlab/v/release/ihrz/ihrz?style=for-the-badge&logo=gitlab&color=5865F2)](https://gitlab.com/ihrz/ihrz/-/releases)
+[![GitLab Release](https://img.shields.io/gitlab/v/release/ihrz/ihrz?style=for-the-badge&logo=gitlab&color=5865F2)](https://gitlab.com/ihrz/ihrz/-/releases)
 [![GitHub Stars](https://img.shields.io/github/stars/ihrz/ihrz?style=for-the-badge&logo=github&color=FFD700)](https://github.com/ihrz/ihrz)
 [![Discord](https://img.shields.io/discord/972538524790304788?style=for-the-badge&logo=discord&color=7289DA&label=Support%20Server)](http://discord.ihorizon.org/)
 [![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-orange?style=for-the-badge)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
@@ -24,6 +24,8 @@
 [**📚 Documentation (BETA)**](https://docs.ihorizon.org) • [**🔍 Command Search**](https://search.ihorizon.org) • [**💬 Support Server**](http://discord.gg/ihorizon) • [**➕ Invite the Bot**](https://discord.com/api/oauth2/authorize?client_id=945202900907470899&permissions=8&scope=bot)
 
 ---
+
+<div align="left">
 
 ## ✨ Key Features
 
@@ -188,8 +190,8 @@ iHorizon supports **10 languages** for an optimal international experience:
 
 | Metric                  | Value    |
 | ----------------------- | -------- |
-| 👥 **Users**             | 400,000+ |
-| 🏢 **Servers**           | 2,400+   |
+| 👥 **Users**             | 450,000+ |
+| 🏢 **Servers**           | 2,600+   |
 | ✅ **Discord Certified** | Verified |
 | ⭐ **GitHub Stars**      | 53+      |
 
@@ -233,15 +235,15 @@ bun start
 
 ## 📚 Resources & Links
 
-| Resource                    | Link                                                                                                        |
-| --------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| 📖 **Full Documentation (BETA)**    | [docs.ihorizon.org](https://docs.ihorizon.org)                                                              |
-| 🔍 **Command Search**        | [search.ihorizon.org](https://search.ihorizon.org)                                                          |
-| 💬 **Main Discord Server**   | [discord.ihorizon.org](http://discord.ihorizon.org/)                                                        |
-| 🔗 **Backup Discord Server** | [discord.gg/ZpBPGNsAsu](https://discord.gg/ZpBPGNsAsu)                                                      |
-| 🤖 **Invite iHorizon**       | [Click Here](https://discord.com/api/oauth2/authorize?client_id=945202900907470899&permissions=8&scope=bot) |
-| 🦊 **GitLab (Main)**         | [gitlab.com/ihrz](https://gitlab.com/ihrz)                                                                  |
-| 🐙 **GitHub (Mirror)**       | [github.com/ihrz/ihrz](https://github.com/ihrz/ihrz)                                                        |
+| Resource                        | Link                                                                                                        |
+| ------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| 📖 **Full Documentation (BETA)** | [docs.ihorizon.org](https://docs.ihorizon.org)                                                              |
+| 🔍 **Command Search**            | [search.ihorizon.org](https://search.ihorizon.org)                                                          |
+| 💬 **Main Discord Server**       | [discord.ihorizon.org](http://discord.ihorizon.org/)                                                        |
+| 🔗 **Backup Discord Server**     | [discord.gg/ZpBPGNsAsu](https://discord.gg/ZpBPGNsAsu)                                                      |
+| 🤖 **Invite iHorizon**           | [Click Here](https://discord.com/api/oauth2/authorize?client_id=945202900907470899&permissions=8&scope=bot) |
+| 🦊 **GitLab (Main)**             | [gitlab.com/ihrz](https://gitlab.com/ihrz/ihrz)                                                             |
+| 🐙 **GitHub (Mirror)**           | [github.com/ihrz/ihrz](https://github.com/ihrz/ihrz)                                                        |
 
 ---
 
@@ -257,6 +259,15 @@ bun start
 			<sub>She/Her</sub><br />
 			<a href="https://github.com/name-shitty-github-profile">GitHub</a>
 		</td>
+	<tr>
+		<td align="center" width="33%">
+			<img src="https://github.com/Kisakay.png" width="100px" style="border-radius:50%" /><br />
+			<b>Kisakay</b><br />
+			<i>Creator & Lead Developer</i><br />
+			<sub>She/Her</sub><br />
+			<a href="https://gitlab.com/Kisakay">GitLab</a> / 
+			<a href="https://github.com/Kisakay">GitHub</a>
+		</td>	
 </table>
 
 
@@ -268,36 +279,35 @@ bun start
   <td align="center" width="33%">
     <img src="https://github.com/veryuhq.png" width="100px" style="border-radius:50%"/><br/>
     <b>Ether</b><br/>
-    <i>#1 Contributor</i><br/>
+    <i>Contributor</i><br/>
     <sub>He/Him</sub><br/>
     <a href="https://gitlab.com/etherondiscord">GitLab</a> / <a href="https://github.com/veryuhq">GitHub</a>
   </td>
 
   <td align="center" width="33%">
-  	<img src="https://github.com/oMedusa.png" width="100px" style="border-radius:50%"/><br/>
-    <b>Medusa</b><br/>
-    <i>#2 Contributor</i><br/>
+  	<img src="https://github.com/im-nymii.png" width="100px" style="border-radius:50%"/><br/>
+    <b>Nymii</b><br/>
+    <i>Contributor</i><br/>
     <sub>She/Her</sub><br/>
-	<a href="https://github.com/oMedusa">GitHub</a>
+	<a href="https://github.com/im-nymii">GitHub</a>
   </td>
 
   <td align="center" width="33%">
     <img src="https://github.com/lavecat.png" width="100px" style="border-radius:50%"/><br/>
     <b>lavecat</b><br/>
-    <i>#3 Contributor</i><br/>
+    <i>Contributor</i><br/>
     <sub>He/Him</sub><br/>
     <a href="https://github.com/lavecat">GitHub</a>
   </td>
-</tr>
-
 
   <td align="center" width="33%">
-    <img src="https://github.com/Luxinenglish.png" width="100px" style="border-radius:50%"/><br/>
-    <b>Lux_</b><br/>
-    <i>#4 Contributor</i><br/>
-    <sub>He/Him</sub><br/>
-    <a href="https://github.com/Luxinenglish">GitHub</a>
+    <img src="https://gitlab.com/uploads/-/system/user/avatar/34776844/avatar.png" width="100px" style="border-radius:50%"/><br/>
+    <b>82hw</b><br/>
+    <i>Contributor</i><br/>
+    <sub>any</sub><br/>
+    <a href="https://gitlab.com/82hw">GitLab</a>
   </td>
+
 </tr>
 </table>
 
@@ -307,14 +317,6 @@ Past developers and contributors who have helped make iHorizon what it is today.
 
 <table>
 	<tr>
-		<td align="center" width="33%">
-			<img src="https://github.com/Kisakay.png" width="100px" style="border-radius:50%" /><br />
-			<b>Kisakay</b><br />
-			<i>Creator & Former Lead Developer</i><br />
-			<sub>She/Her</sub><br />
-			<a href="https://gitlab.com/Kisakay">GitLab</a> / 
-			<a href="https://github.com/Kisakay">GitHub</a>
-		</td>
         <td align="center" width="33%">
 			<img src="https://github.com/irisihrz.png" width="100px" style="border-radius:50%" /><br />
 			<b>IrisWeb</b><br />
@@ -329,7 +331,14 @@ Past developers and contributors who have helped make iHorizon what it is today.
     		<sub>She/Her</sub><br/>
     		<a href="https://github.com/Mxi1n">GitHub</a>
 		</td>
-	</tr>		
+		<td align="center" width="33%">
+    		<img src="https://github.com/Luxinenglish.png" width="100px" style="border-radius:50%"/><br/>
+    		<b>Lux_</b><br/>
+    		<i>Old contributor</i><br/>
+    		<sub>He/Him</sub><br/>
+    		<a href="https://github.com/Luxinenglish">GitHub</a>
+  		</td>
+	</tr>
 </table>		
 
 > 💜 **Team Note**: Kisakay has embraced her true identity and now uses she/her pronouns. In the license files, the name Anaïs Saraiva appears as the owner.

@@ -26,41 +26,62 @@ import {
 	GuildMember,
 	Message,
 	GuildMemberRoleManager
-} from 'discord.js'
+} from "discord.js";
 
-import { LanguageData } from '../../../../types/languageData.js';
-import { processBatchAsync } from '../../../core/functions/batchProcessor.js';
+import { LanguageData } from "../../../../types/languageData.js";
+import { processBatchAsync } from "../../../core/functions/batchProcessor.js";
 
-
-
-import { SubCommand } from '../../../../types/command.js';
+import { SubCommand } from "../../../../types/command.js";
 
 export const subCommand: SubCommand = {
-	run: async (client: Client, interaction: ChatInputCommandInteraction<"cached"> | Message, lang: LanguageData, args?: string[]) => {
-
-
+	run: async (
+		client: Client,
+		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		lang: LanguageData,
+		args?: string[]
+	) => {
 		// Guard's Typing
-		if (!client.user || !interaction.member || !interaction.guild || !interaction.channel) return;
+		if (
+			!client.user ||
+			!interaction.member ||
+			!interaction.guild ||
+			!interaction.channel
+		)
+			return;
 
 		if (interaction instanceof ChatInputCommandInteraction) {
 			var member = interaction.options.getMember("member") as GuildMember;
 		} else {
-			var member = client.func.method.member(interaction, args!, 0) || interaction.member;
-		};
+			var member =
+				client.func.method.member(interaction, args!, 0) ||
+				interaction.member;
+		}
 
 		if (!member) {
-			await client.func.method.interactionSend(interaction, { content: lang.perm_list_no_user });
+			await client.func.method.interactionSend(interaction, {
+				content: lang.perm_list_no_user
+			});
 			return;
 		}
 
-		if ((interaction.member.roles as GuildMemberRoleManager).highest.position <= member.roles.highest.position && interaction.guild.ownerId !== interaction.member.user.id && interaction.guild.ownerId !== interaction.member.user.id) {
+		if (
+			(interaction.member.roles as GuildMemberRoleManager).highest
+				.position <= member.roles.highest.position &&
+			interaction.guild.ownerId !== interaction.member.user.id &&
+			interaction.guild.ownerId !== interaction.member.user.id
+		) {
 			await client.func.method.interactionSend(interaction, {
-				content: lang.utils_delrole_highter_or_egal_roles_msg.replace("${client.iHorizon_Emojis.Stop}", client.iHorizon_Emojis.Stop)
+				content: lang.utils_delrole_highter_or_egal_roles_msg.replace(
+					"${client.iHorizon_Emojis.Stop}",
+					client.iHorizon_Emojis.Stop
+				)
 			});
 			return;
-		};
+		}
 
-		const rolesToRemove = Array.from(member.roles.cache.values()).filter(role => role.id !== role.guild.roles.everyone.id);
+		const rolesToRemove = Array.from(member.roles.cache.values()).filter(
+			(role) => role.id !== role.guild.roles.everyone.id
+		);
 
 		let good = 0;
 		let bad = 0;
@@ -73,11 +94,17 @@ export const subCommand: SubCommand = {
 		}
 
 		// Send immediate response
-		const ogInteraction = await client.func.method.interactionSend(interaction, {
-			content: lang.batch_derank_process
-				.replace("${rolesToRemove.length}", rolesToRemove.length.toString())
-				.replace("${member.user.username}", member.user.username)
-		});
+		const ogInteraction = await client.func.method.interactionSend(
+			interaction,
+			{
+				content: lang.batch_derank_process
+					.replace(
+						"${rolesToRemove.length}",
+						rolesToRemove.length.toString()
+					)
+					.replace("${member.user.username}", member.user.username)
+			}
+		);
 
 		// Process role removal in batches asynchronously
 		processBatchAsync(
@@ -98,18 +125,27 @@ export const subCommand: SubCommand = {
 				const embed = new EmbedBuilder()
 					.setColor(2829617)
 					.setTimestamp()
-					.setDescription(lang.derank_msg_desc_embed
-						.replace('${good}', good.toString())
-						.replace('${bad}', bad.toString())
-						.replace('${member.id}', member.id)
+					.setDescription(
+						lang.derank_msg_desc_embed
+							.replace("${good}", good.toString())
+							.replace("${bad}", bad.toString())
+							.replace("${member.id}", member.id)
 					)
-					.setFooter(await client.func.displayBotName.footerBuilder(interaction.guildId!));
+					.setFooter(
+						await client.func.displayBotName.footerBuilder(
+							interaction.guildId!
+						)
+					);
 
 				await client.func.method.interactionSend(interaction, {
 					embeds: [embed],
-					files: [await client.func.displayBotName.footerAttachmentBuilder(interaction)]
+					files: [
+						await client.func.displayBotName.footerAttachmentBuilder(
+							interaction
+						)
+					]
 				});
 			}
 		);
-	},
+	}
 };

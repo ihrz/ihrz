@@ -19,10 +19,10 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { Client, VoiceState } from 'discord.js';
+import { Client, VoiceState } from "discord.js";
 
-import { BotEvent } from '../../../types/event.js';
-import { DatabaseStructure } from '../../../types/database_structure.js';
+import { BotEvent } from "../../../types/event.js";
+import { DatabaseStructure } from "../../../types/database_structure.js";
 
 interface VoiceSession {
 	startTimestamp: number;
@@ -39,14 +39,19 @@ export const event: BotEvent = {
 		const oldChannelId = oldState.channelId;
 		const newChannelId = newState.channelId;
 
-		const saveActiveSession = async (userId: string, session: VoiceSession) => {
+		const saveActiveSession = async (
+			userId: string,
+			session: VoiceSession
+		) => {
 			await client.db.set(
 				`${guildId}.ACTIVE_VOICE_SESSIONS.${userId}`,
 				session
 			);
 		};
 
-		const getActiveSession = async (userId: string): Promise<VoiceSession | null> => {
+		const getActiveSession = async (
+			userId: string
+		): Promise<VoiceSession | null> => {
 			return await client.db.get(
 				`${guildId}.ACTIVE_VOICE_SESSIONS.${userId}`
 			);
@@ -72,13 +77,17 @@ export const event: BotEvent = {
 			);
 
 			const voiceSessionDuration = endTimestamp - session.startTimestamp;
-			const voiceSessionDurationInMinutes = voiceSessionDuration / 1000 / 60;
+			const voiceSessionDurationInMinutes =
+				voiceSessionDuration / 1000 / 60;
 			const coinsEarned = Math.floor(voiceSessionDurationInMinutes / 10);
 
 			if (coinsEarned > 0 && newState.member) {
 				await client.func.method.addCoins(
 					newState.member,
-					coinsEarned * await client.func.economyHelper.getMemberBoost(newState.member)
+					coinsEarned *
+						(await client.func.economyHelper.getMemberBoost(
+							newState.member
+						))
 				);
 			}
 		};
@@ -105,24 +114,29 @@ export const event: BotEvent = {
 				await clearActiveSession(userId);
 			}
 		}
-	},
+	}
 };
 
 export async function recoverActiveSessions(client: Client) {
 	for (const guild of client.guilds.cache.values()) {
-		const activeSessions = await client.db.get(
-			`${guild.id}.ACTIVE_VOICE_SESSIONS`
-		) || {};
+		const activeSessions =
+			(await client.db.get(`${guild.id}.ACTIVE_VOICE_SESSIONS`)) || {};
 
 		for (const [userId, session] of Object.entries(activeSessions)) {
-			const member = await guild.members.fetch(userId).catch(() => null);
+			const member =
+				guild.members.cache.get(userId) ||
+				(await guild.members.fetch(userId).catch(() => null));
 			if (!member?.voice.channelId) {
 				await event.run(
 					client,
-					{ guild, id: userId, channelId: (session as VoiceSession).channelId } as VoiceState,
+					{
+						guild,
+						id: userId,
+						channelId: (session as VoiceSession).channelId
+					} as VoiceState,
 					{ guild, id: userId, channelId: null } as VoiceState
 				);
 			}
 		}
 	}
-};
+}

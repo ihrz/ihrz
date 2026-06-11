@@ -19,22 +19,30 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { Client, GuildMember } from 'discord.js';
+import { Client, GuildMember } from "discord.js";
 
-import { BotEvent } from '../../../types/event.js';
-import { DatabaseStructure } from '../../../types/database_structure.js';
+import { BotEvent } from "../../../types/event.js";
+import { DatabaseStructure } from "../../../types/database_structure.js";
 
 export const event: BotEvent = {
 	name: "guildMemberAdd",
 	run: async (client: Client, member: GuildMember) => {
 		if (!member.guild || member.user.bot) return;
 
-		const baseData = await client.db.get(`${member.guild.id}.GUILD.BLOCK_NEW_ACCOUNT`) as DatabaseStructure.BlockNewAccountSchema;
-		let joinCount = await client.db.get(`${member.guild.id}.USER.${member.id}.BLOCK_NEW_ACCOUNT`) || 0;
+		const baseData = (await client.db.get(
+			`${member.guild.id}.GUILD.BLOCK_NEW_ACCOUNT`
+		)) as DatabaseStructure.BlockNewAccountSchema;
+		let joinCount =
+			(await client.db.get(
+				`${member.guild.id}.USER.${member.id}.BLOCK_NEW_ACCOUNT`
+			)) || 0;
 
 		joinCount++;
 
-		await client.db.set(`${member.guild.id}.USER.${member.id}.BLOCK_NEW_ACCOUNT`, joinCount);
+		await client.db.set(
+			`${member.guild.id}.USER.${member.id}.BLOCK_NEW_ACCOUNT`,
+			joinCount
+		);
 
 		if (!baseData) return;
 
@@ -43,13 +51,15 @@ export const event: BotEvent = {
 		const accountAge = currentTime - accountCreationDate.getTime();
 
 		if (baseData.maxJoin && joinCount >= baseData.maxJoin) {
-			member.ban({ reason: "[TooNewAccount] User join too much." })
-				.catch(() => { })
-				.then(() => { });
+			member
+				.ban({ reason: "[TooNewAccount] User join too much." })
+				.catch(() => {})
+				.then(() => {});
 		} else if (accountAge < baseData.req) {
-			member.kick("[TooNewAccount] Account is too new")
-				.catch(() => { })
-				.then(() => { });
+			member
+				.kick("[TooNewAccount] Account is too new")
+				.catch(() => {})
+				.then(() => {});
 		}
-	},
+	}
 };

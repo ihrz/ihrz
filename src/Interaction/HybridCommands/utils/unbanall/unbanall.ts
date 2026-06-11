@@ -22,23 +22,22 @@
 import {
 	ApplicationCommandOptionType,
 	ApplicationCommandType,
-	PermissionFlagsBits,
-} from 'discord.js'
+	PermissionFlagsBits
+} from "discord.js";
 
-import { Command } from '../../../../../types/command.js';
-
+import { Command } from "../../../../../types/command.js";
 
 export const command: Command = {
 	name: "unban-all",
 	name_localizations: {
-		"fr": 'unbanall'
+		fr: "unbanall"
 	},
 
 	aliases: ["massunban"],
 
 	description: "Mass action about unban",
 	description_localizations: {
-		"fr": "Action de masse pour débannir"
+		fr: "Action de masse pour débannir"
 	},
 
 	options: [
@@ -48,7 +47,7 @@ export const command: Command = {
 
 			description: "Unban all member of the guild",
 			description_localizations: {
-				"fr": "Débannir toute les personnes bannis du serveur"
+				fr: "Débannir toute les personnes bannis du serveur"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -58,12 +57,12 @@ export const command: Command = {
 		{
 			name: "undo",
 			name_localizations: {
-				"fr": 'annuler'
+				fr: "annuler"
 			},
 
 			description: "Undo the unban all of all members",
 			description_localizations: {
-				"fr": "Annuler le dé-bannissement de tout les membres"
+				fr: "Annuler le dé-bannissement de tout les membres"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -72,10 +71,9 @@ export const command: Command = {
 		}
 	],
 
-	category: 'utils',
+	category: "utils",
 	thinking: true,
 	type: ApplicationCommandType.ChatInput,
-
 
 	permission: PermissionFlagsBits.Administrator
 };

@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { DescriptionLocalizations } from "./command.js"
+import { DescriptionLocalizations } from "./command.js";
 
 export interface BotContent {
 	cmd: string;

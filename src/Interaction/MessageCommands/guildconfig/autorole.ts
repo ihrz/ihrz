@@ -19,32 +19,32 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	Client,
-	Message,
-	PermissionFlagsBits,
-} from 'discord.js';
+import { Client, Message, PermissionFlagsBits } from "discord.js";
 
-import { LanguageData } from '../../../../types/languageData.js';
-import { Command } from '../../../../types/command.js';
+import { LanguageData } from "../../../../types/languageData.js";
+import { Command } from "../../../../types/command.js";
 
-import { subCommand } from "../../SlashCommands/guildconfig/!join-role.js"
+import { subCommand } from "../../SlashCommands/guildconfig/!join-role.js";
 
 export const command: Command = {
+	name: "autorole",
+	aliases: ["join-role"],
 
-	name: 'autorole',
-	aliases: ['join-role'],
-
-	description: 'Set the autorole',
+	description: "Set the autorole",
 	description_localizations: {
-		"fr": "Modifier l'autorole"
+		fr: "Modifier l'autorole"
 	},
 
 	thinking: false,
-	category: 'guildconfig',
+	category: "guildconfig",
 	type: "PREFIX_IHORIZON_COMMAND",
 	permission: PermissionFlagsBits.Administrator,
-	run: async (client: Client, interaction: Message<true>, lang: LanguageData, options?: string[]) => {
-		subCommand.run(client, interaction, lang)
-	},
+	run: async (
+		client: Client,
+		interaction: Message<true>,
+		lang: LanguageData,
+		options?: string[]
+	) => {
+		subCommand.run(client, interaction, lang);
+	}
 };

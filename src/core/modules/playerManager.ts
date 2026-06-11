@@ -19,21 +19,30 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { AttachmentBuilder, BaseGuildTextChannel, Client, EmbedBuilder, User } from 'discord.js';
+import {
+	AttachmentBuilder,
+	BaseGuildTextChannel,
+	Client,
+	EmbedBuilder,
+	User
+} from "discord.js";
 import { LavalinkManager } from "lavalink-client";
 
-import logger from '../logger.js';
-import { format } from '../functions/date_and_time.js';
+import logger from "../logger.js";
+import { format } from "../functions/date_and_time.js";
 
-let lavalink_error_channel: 'dont_exist' | null | BaseGuildTextChannel = null;
+let lavalink_error_channel: "dont_exist" | null | BaseGuildTextChannel = null;
+
+export function userIdFromToken(token: string): string | null {
+	return Buffer.from(token.split(".")[0], "base64").toString() || null;
+}
 
 export default async (client: Client) => {
-
 	const nodes = client.config.lavalink.nodes;
 
-	nodes.forEach(i => {
-		i.retryAmount = Infinity
-		i.retryDelay = 50_000
+	nodes.forEach((i) => {
+		i.retryAmount = Infinity;
+		i.retryDelay = 50_000;
 	});
 
 	client.player = new LavalinkManager({
@@ -43,25 +52,30 @@ export default async (client: Client) => {
 		},
 		playerOptions: {
 			onEmptyQueue: {
-				destroyAfterMs: 120_000,
+				destroyAfterMs: 120_000
 			},
-			defaultSearchPlatform: 'youtube',
+			defaultSearchPlatform: "youtube",
 			onDisconnect: {
 				autoReconnect: false,
 				destroyPlayer: true
 			}
 		},
 		client: {
-			id: client.user?.id!,
+			id: userIdFromToken(client.config.discord.token)!,
 			username: "iHorizon"
-		},
+		}
 	});
 
 	client.player.on("trackStart", async (player, track) => {
-		if (lavalink_error_channel === null && client.config.core.lavalinkLogsChannelID) {
-			let channel = await client.channels.fetch(client.config.core.lavalinkLogsChannelID).catch(() => null);
+		if (
+			lavalink_error_channel === null &&
+			client.config.core.lavalinkLogsChannelID
+		) {
+			let channel = await client.channels
+				.fetch(client.config.core.lavalinkLogsChannelID)
+				.catch(() => null);
 			if (channel) {
-				lavalink_error_channel = (channel as BaseGuildTextChannel);
+				lavalink_error_channel = channel as BaseGuildTextChannel;
 			} else {
 				lavalink_error_channel = "dont_exist";
 			}
@@ -69,46 +83,69 @@ export default async (client: Client) => {
 
 		const data = await client.func.getLanguageData(player.guildId);
 
-		const guild = await client.guilds.fetch(player.guildId).catch(() => null);
+		const guild = await client.guilds
+			.fetch(player.guildId)
+			.catch(() => null);
 
-		let channel = await guild?.channels.fetch(player.textChannelId!).catch(() => null);
+		let channel = await guild?.channels
+			.fetch(player.textChannelId!)
+			.catch(() => null);
 
 		let htmlContent = client.htmlfiles["musicBanner"];
 
 		htmlContent = htmlContent
 			.replace("{song_title}", track?.info.title as string)
 			.replace("{song_artist}", track?.info.author as string)
-			.replace("{song_thumbnail}", track?.info.artworkUrl || "https://www.ihorizon.org/assets/img/unknown-user.png")
-			;
+			.replace(
+				"{song_thumbnail}",
+				track?.info.artworkUrl ||
+					"https://www.ihorizon.org/assets/img/unknown-user.png"
+			);
 
 		const image = await client.func.html2png(htmlContent, {
 			omitBackground: true,
 			selectElement: true,
-			elementSelector: ".spotify-banner",
+			elementSelector: ".spotify-banner"
 		});
 
-		const attachment = new AttachmentBuilder(image, { name: 'music_banner.png' });
+		const attachment = new AttachmentBuilder(image, {
+			name: "music_banner.png"
+		});
 
 		(channel as BaseGuildTextChannel).send({
 			embeds: [
 				new EmbedBuilder()
 					.setColor(2829617)
-					.setDescription(data.event_mp_playerStart
-						.replace("${client.iHorizon_Emojis.Music_Icon}", client.iHorizon_Emojis.Music_Icon)
-						.replace("${track.title}", String(track?.info.title))
-						.replace("${queue.channel.name}", `<#${player.voiceChannelId}>`)
-						.replace("${url}", track?.info.uri!)
+					.setDescription(
+						data.event_mp_playerStart
+							.replace(
+								"${client.iHorizon_Emojis.Music_Icon}",
+								client.iHorizon_Emojis.Music_Icon
+							)
+							.replace(
+								"${track.title}",
+								String(track?.info.title)
+							)
+							.replace(
+								"${queue.channel.name}",
+								`<#${player.voiceChannelId}>`
+							)
+							.replace("${url}", track?.info.uri!)
 					)
-					.setImage('attachment://music_banner.png')
+					.setImage("attachment://music_banner.png")
 			],
 			files: [attachment]
 		});
 
-		await client.func.method.changeVoiceChannelStatus(player.voiceChannelId!, `:musical_note: ${track?.info.title} - ${track?.info.author}`)
+		await client.func.method.changeVoiceChannelStatus(
+			player.voiceChannelId!,
+			`:musical_note: ${track?.info.title} - ${track?.info.author}`
+		);
+		await client.lastFMScrobbler.handleTrackStart(player, track);
 	});
 
 	// ts spam the chat lol
-	client.player.on("queueEnd", async player => {
+	client.player.on("queueEnd", async (player) => {
 		// const data = await client.func.getLanguageData(player.guildId);
 
 		// const channel = client.guilds.cache.get(player.guildId)?.channels.cache.get(player.textChannelId!);
@@ -116,26 +153,62 @@ export default async (client: Client) => {
 		// (channel as BaseGuildTextChannel).send({
 		// 	content: data.event_mp_emptyQueue.replace("${client.iHorizon_Emojis.Warning_Icon}", client.iHorizon_Emojis.Warning_Icon)
 		// });
-		await client.func.method.changeVoiceChannelStatus(player.voiceChannelId!, ``)
+		await client.func.method.changeVoiceChannelStatus(
+			player.voiceChannelId!,
+			``
+		);
+		await client.lastFMScrobbler.handleQueueEnd(player);
 
 		return;
 	});
 
-	client.player.nodeManager.on("disconnect", (node, reason) => {
-		// logger.warn(`:: DISCONNECT :: ${node.id} Reason: ${reason.reason} (${reason.code})`);
-	}).on("connect", (node) => {
-		// logger.log(`:: CONNECTED :: ${node.id}`);
-	}).on("reconnecting", (node) => {
-		// logger.warn(`:: RECONNECTING :: ${node.id}`);
-	}).on("create", (node) => {
-		// logger.log(`:: CREATED :: ${node.id}`);
-	}).on("destroy", (node) => {
-		// logger.err(`:: DESTROYED :: ${node.id}`);
-	}).on("error", (node, error, payload) => {
-		logger.err(`:: ERROR :: ${node.id} ${error.message}`);
-	}).on("resumed", (node, payload, players) => {
-		// logger.log(`:: RESUMED :: ${node.id} ${players.length}`);
-	})
+	client.player.on("trackEnd", async (player, track, payload) => {
+		await client.lastFMScrobbler.handleTrackEnd(
+			player,
+			track,
+			payload.reason
+		);
+	});
+
+	client.player.on(
+		"playerMove",
+		async (player, oldVoiceChannelId, newVoiceChannelId) => {
+			await client.lastFMScrobbler.handlePlayerMove(
+				player,
+				newVoiceChannelId
+			);
+		}
+	);
+
+	client.player.on("playerUpdate", async (oldPlayerJson, newPlayer) => {
+		await client.lastFMScrobbler.handlePlayerUpdate(
+			oldPlayerJson,
+			newPlayer
+		);
+	});
+
+	client.player.nodeManager
+		.on("disconnect", (node, reason) => {
+			// logger.warn(`:: DISCONNECT :: ${node.id} Reason: ${reason.reason} (${reason.code})`);
+		})
+		.on("connect", (node) => {
+			// logger.log(`:: CONNECTED :: ${node.id}`);
+		})
+		.on("reconnecting", (node) => {
+			// logger.warn(`:: RECONNECTING :: ${node.id}`);
+		})
+		.on("create", (node) => {
+			// logger.log(`:: CREATED :: ${node.id}`);
+		})
+		.on("destroy", (node) => {
+			// logger.err(`:: DESTROYED :: ${node.id}`);
+		})
+		.on("error", (node, error, payload) => {
+			logger.err(`:: ERROR :: ${node.id} ${error.message}`);
+		})
+		.on("resumed", (node, payload, players) => {
+			// logger.log(`:: RESUMED :: ${node.id} ${players.length}`);
+		});
 
 	client.player.on("trackError", async (player, x, y) => {
 		let t0 = performance.now();
@@ -167,7 +240,7 @@ Track:
   * Uri: \`${y.track.info.uri}\`
   * Encoded: \`${y.track.encoded}\`
 Source: \`${x?.info.sourceName}\`
-Stream?: \`${x?.info.isStream ? 'yes' : 'no'}\`
+Stream?: \`${x?.info.isStream ? "yes" : "no"}\`
 
 ## Error
 <TrackExceptionEvent>.error: \`${y.exception?.message}\`
@@ -175,38 +248,46 @@ Stream?: \`${x?.info.isStream ? 'yes' : 'no'}\`
 
 ## Node about
 Node \`${player.node.id}\`:
-  * Connected?: \`${player.node.connected ? 'yes' : 'no'}\`
-  * isAlive?: \`${player.node.isAlive ? 'yes' : 'no'}\`
+  * Connected?: \`${player.node.connected ? "yes" : "no"}\`
+  * isAlive?: \`${player.node.isAlive ? "yes" : "no"}\`
   * HeartBeatPing: \`${player.node.heartBeatPing}\`ms
   * Host: \`${player.node.options.host}:${player.node.options.port}\`
-  * SSL?: \`${player.node.options.secure ? 'yes' : 'no'}\`
+  * SSL?: \`${player.node.options.secure ? "yes" : "no"}\`
 
-Report generated in \`${format(new Date(), 'ddd MMM DD HH:MM (YYYY')}\` less that ${performance.now() - t0}ms
+Report generated in \`${format(new Date(), "ddd MMM DD HH:MM (YYYY")}\` less that ${performance.now() - t0}ms
 `;
 
 			lavalink_error_channel.send({
-				content: '<@' + client.config.owners.users[0] + ">\nIssue with lavalink founded!",
+				content:
+					"<@" +
+					client.config.owners.users[0] +
+					">\nIssue with lavalink founded!",
 				files: [
 					{
 						name: `logs-${Date.now()}.md`,
-						attachment: Buffer.from(error_log, 'utf8')
+						attachment: Buffer.from(error_log, "utf8")
 					}
 				]
-			})
+			});
 		}
 
-		if (y.exception?.message === "Something broke when playing the track.") {
+		if (
+			y.exception?.message === "Something broke when playing the track."
+		) {
 			// Search with Soundcloud
 
-			const res = await player.node.search({
-				query: `${y.track.info.title} - ${y.track.info.author}`,
-				source: "scsearch"
-			},
+			const res = await player.node.search(
+				{
+					query: `${y.track.info.title} - ${y.track.info.author}`,
+					source: "scsearch"
+				},
 				client.user
 			);
 
 			if (res.tracks.length! > 0) {
-				await player.queue.add(res.loadType === "playlist" ? res.tracks : res.tracks[0]);
+				await player.queue.add(
+					res.loadType === "playlist" ? res.tracks : res.tracks[0]
+				);
 
 				if (!player.connected) {
 					await player.connect();
@@ -216,19 +297,21 @@ Report generated in \`${format(new Date(), 'ddd MMM DD HH:MM (YYYY')}\` less tha
 					await player.play();
 				}
 			}
-
 		} else if (y.exception?.message === "This video requires login.") {
 			// Search with Deezer
 
-			const res = await player.node.search({
-				query: `${y.track.info.title} - ${y.track.info.author}`,
-				source: "deezer"
-			},
+			const res = await player.node.search(
+				{
+					query: `${y.track.info.title} - ${y.track.info.author}`,
+					source: "deezer"
+				},
 				client.user
 			);
 
 			if (res.tracks.length! > 0) {
-				await player.queue.add(res.loadType === "playlist" ? res.tracks : res.tracks[0]);
+				await player.queue.add(
+					res.loadType === "playlist" ? res.tracks : res.tracks[0]
+				);
 
 				if (!player.connected) {
 					await player.connect();
@@ -239,5 +322,5 @@ Report generated in \`${format(new Date(), 'ddd MMM DD HH:MM (YYYY')}\` less tha
 				}
 			}
 		}
-	})
+	});
 };
