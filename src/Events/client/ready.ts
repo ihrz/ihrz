@@ -284,11 +284,9 @@ export const event: BotEvent = {
 		client.memberCountManager.init().then(() => {});
 		client.autoRenewManager.init().then(() => {});
 		client.nightmodeManager.init().then(() => {});
-		client.blogger.start().then(() => {});
 		client.temproleManager.init();
 		client.tempbanManager.init();
 		client.giveawaysManager.init();
-		await client.email.init(true);
 
 		(fetchInvites(),
 			refreshDatabaseModel(),

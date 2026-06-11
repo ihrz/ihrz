@@ -90,8 +90,5 @@ declare module "discord.js" {
 		// END OF SHARD FUNCS
 
 		discordTranscripts: typeof discordTranscripts;
-		blogger: BloggerNotifier;
-		email: Mailer;
-		lastFMScrobbler: LastFMScrobblerManager;
 	}
 }

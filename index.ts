@@ -37,7 +37,7 @@ logger.legacy(
 );
 
 import { setMaxListeners } from "events";
-import { getOS } from "./getOS.js";
+import { getOS } from "./src/core/getOS.js";
 
 setMaxListeners(0);
 

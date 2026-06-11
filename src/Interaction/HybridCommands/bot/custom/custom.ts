@@ -38,8 +38,7 @@ export const command: Command = {
 	options: [
 		{
 			name: "name",
-			prefixName: "botname",
-			aliases: ["setname", "setbotname"],
+			prefixName: "gname",
 
 			description: "Change the iHorizon name into the server",
 			description_localizations: {
@@ -93,8 +92,7 @@ export const command: Command = {
 		},
 		{
 			name: "avatar",
-			prefixName: "botavatar",
-			aliases: ["setpic", "setavatar", "setpp"],
+			prefixName: "gavatar",
 
 			description: "Set the bot avatar into your server",
 			description_localizations: {
@@ -147,9 +145,7 @@ export const command: Command = {
 		},
 		{
 			name: "banner",
-			prefixName: "botbanner",
-
-			aliases: ["setbotbanner", "setbanner"],
+			prefixName: "gbanner",
 
 			description: "Set the bot banner into your server",
 			description_localizations: {

@@ -33,9 +33,7 @@ import { Command } from "../../../../types/command.js";
 import os from "node:os";
 
 export const command: Command = {
-	name: "status",
-
-	aliases: ["server"],
+	name: "server",
 
 	description: "Get the bot status!",
 	description_localizations: {
