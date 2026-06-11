@@ -67,6 +67,7 @@ export const command: Command = {
 		// };
 
 		const memInfo = await client.func.os_utils.getMemoryInfo();
+		const OS_INFO = getOS();
 
 		const embed = new EmbedBuilder()
 			.setColor("#82cda8")
@@ -94,12 +95,12 @@ export const command: Command = {
 					)
 				},
 				{
-					name: "OS",
-					value: `${os.platform()} ${os.type()} ${os.release()}`,
+					name: `${OS_INFO?.emojis} OS`,
+					value: `${OS_INFO?.name} ${os.platform()} ${os.release()}`,
 					inline: false
 				},
 				{
-					name: "Bot Version",
+					name: `${client.iHorizon_Emojis.Logo} Bot Version`,
 					value: `${client.version.ClientVersion}`,
 					inline: false
 				},

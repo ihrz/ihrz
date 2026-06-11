@@ -19,8 +19,7 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { existsSync, readFile } from "node:fs";
-import { exec } from "node:child_process";
+import { existsSync } from "node:fs";
 import os from "node:os";
 
 export function niceBytes(kb: number): string {
@@ -37,102 +36,115 @@ export function niceBytes(kb: number): string {
 	return `${bytes < 10 && unitIndex > 0 ? bytes.toFixed(2) : bytes.toFixed(0)} ${units[unitIndex]}`;
 }
 
-export function getMemoryInfo(): Promise<{
+export async function getMemoryInfo(): Promise<{
 	MemTotal: number;
 	MemFree: number;
 	MemAvailable: number;
 }> {
+	// Linux
 	if (existsSync("/proc/meminfo")) {
-		return new Promise((resolve, reject) => {
-			readFile("/proc/meminfo", "utf8", (err, data) => {
-				if (err) {
-					reject(err);
-					return;
-				}
+		const data = await Bun.file("/proc/meminfo").text();
 
-				const memInfo: Record<string, number> = {};
-				const lines = data.split("\n");
+		const memInfo: Record<string, number> = {};
 
-				lines.forEach((line) => {
-					const parts = line.split(":");
-					if (parts.length === 2) {
-						const key = parts[0].trim();
-						const valueStr = parts[1].trim().split(" ")[0];
-						const value = parseInt(valueStr, 10);
+		for (const line of data.split("\n")) {
+			const [key, value] = line.split(":");
 
-						memInfo[key] = value;
-					}
-				});
+			if (!key || !value) continue;
 
-				resolve({
-					MemTotal: memInfo["MemTotal"],
-					MemFree: memInfo["MemFree"],
-					MemAvailable: memInfo["MemAvailable"]
-				});
-			});
-		});
-		// On macOS
-	} else {
-		return new Promise((resolve, reject) => {
-			// Get total memory with macOS Method
-			try {
-				exec("sysctl -n hw.memsize", (err: any, stdout: string) => {
-					if (err) {
-						reject(err);
-						return;
-					}
+			memInfo[key.trim()] = parseInt(value.trim().split(/\s+/)[0], 10);
+		}
 
-					const totalBytes = parseInt(stdout.trim(), 10);
-					const totalKB = Math.floor(totalBytes / 1024);
+		return {
+			MemTotal: memInfo.MemTotal ?? 0,
+			MemFree: memInfo.MemFree ?? 0,
+			MemAvailable: memInfo.MemAvailable ?? 0
+		};
+	}
 
-					// Get memory pressure info
-					exec("vm_stat", (err2: any, stdout2: string) => {
-						if (err2) {
-							reject(err2);
-							return;
-						}
+	// Windows
+	if (process.platform === "win32") {
+		try {
+			const proc = Bun.spawn([
+				"powershell.exe",
+				"-NoProfile",
+				"-Command",
+				[
+					"$os = Get-CimInstance Win32_OperatingSystem",
+					"Write-Output ($os.TotalVisibleMemorySize.ToString() + ',' + $os.FreePhysicalMemory.ToString())"
+				].join("; ")
+			]);
 
-						const lines = stdout2.split("\n");
-						let freePages = 0;
-						let inactivePages = 0;
+			const stdout = (await new Response(proc.stdout).text()).trim();
+			const stderr = (await new Response(proc.stderr).text()).trim();
 
-						lines.forEach((line) => {
-							if (line.includes("Pages free:")) {
-								freePages = parseInt(
-									line.match(/\d+/)?.[0] || "0",
-									10
-								);
-							} else if (line.includes("Pages inactive:")) {
-								inactivePages = parseInt(
-									line.match(/\d+/)?.[0] || "0",
-									10
-								);
-							}
-						});
+			const exitCode = await proc.exited;
 
-						// Each page is typically 4KB on macOS
-						const pageSize = 4096;
-						const freeKB = Math.floor(
-							(freePages * pageSize) / 1024
-						);
-						const availableKB = Math.floor(
-							((freePages + inactivePages) * pageSize) / 1024
-						);
-
-						resolve({
-							MemTotal: totalKB,
-							MemFree: freeKB,
-							MemAvailable: availableKB
-						});
-					});
-				});
-			} catch {
-				Promise.resolve({
-					MemTotal: os.totalmem(),
-					MemFree: os.freemem(),
-					MemAvailable: os.totalmem() - os.freemem()
-				});
+			if (exitCode !== 0) {
+				throw new Error(
+					`PowerShell exited with code ${exitCode}: ${stderr}`
+				);
 			}
-		});
+
+			const match = stdout.match(/^(\d+),(\d+)$/m);
+
+			if (!match) {
+				throw new Error(`Unexpected PowerShell output: ${stdout}`);
+			}
+
+			const total = Number(match[1]);
+			const free = Number(match[2]);
+
+			return {
+				MemTotal: total,
+				MemFree: free,
+				MemAvailable: free
+			};
+		} catch {
+			return {
+				MemTotal: Math.floor(os.totalmem() / 1024),
+				MemFree: Math.floor(os.freemem() / 1024),
+				MemAvailable: Math.floor(os.freemem() / 1024)
+			};
+		}
+	}
+
+	// macOS
+	try {
+		const sysctl = Bun.spawn(["sysctl", "-n", "hw.memsize", "hw.pagesize"]);
+
+		const sysctlOutput = (await new Response(sysctl.stdout).text()).trim();
+
+		const [totalBytesStr, pageSizeStr] = sysctlOutput.split("\n");
+
+		const totalBytes = Number(totalBytesStr);
+		const pageSize = Number(pageSizeStr || 4096);
+
+		const vmStat = Bun.spawn(["vm_stat"]);
+
+		const vmOutput = await new Response(vmStat.stdout).text();
+
+		let freePages = 0;
+		let inactivePages = 0;
+
+		for (const line of vmOutput.split("\n")) {
+			if (line.includes("Pages free:")) {
+				freePages = Number(line.match(/\d+/)?.[0] ?? 0);
+			} else if (line.includes("Pages inactive:")) {
+				inactivePages = Number(line.match(/\d+/)?.[0] ?? 0);
+			}
+		}
+
+		return {
+			MemTotal: Math.floor(totalBytes / 1024),
+			MemFree: Math.floor((freePages * pageSize) / 1024),
+			MemAvailable: Math.floor(
+				((freePages + inactivePages) * pageSize) / 1024
+			)
+		};
+	} catch (err) {
+		throw new Error(
+			`Unable to retrieve memory information: ${String(err)}`
+		);
 	}
 }

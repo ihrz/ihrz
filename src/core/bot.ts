@@ -19,12 +19,7 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	Client,
-	Partials,
-	GatewayIntentBits,
-	Options
-} from "discord.js";
+import { Client, Partials, GatewayIntentBits, Options } from "discord.js";
 import { initializeDatabase } from "./database";
 
 import * as ClientVersion from "../version.js";
@@ -32,10 +27,13 @@ import * as core from "./core.js";
 
 import config from "../files/config.js";
 import { setMaxListeners } from "events";
+import { getOS } from "./getOS.js";
 setMaxListeners(0);
 
 const DISCORD_MESSAGE_SWEEP_LIFETIME_SECONDS = 60 * 60 * 8;
 const DISCORD_MESSAGE_SWEEP_INTERVAL_SECONDS = 60 * 15;
+
+global.getOS = getOS;
 
 global.client = new Client({
 	makeCache: Options.cacheWithLimits({
