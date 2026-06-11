@@ -80,13 +80,17 @@ export function generatePassword(options: PasswordOptions): string {
 	const passwordArray: string[] = [];
 	const getSecureRandomChar = (): string => {
 		const randomBuffer = new Uint8Array(1);
-		let randomNum;
-		do {
-			crypto.randomFillSync(randomBuffer);
-			randomNum = randomBuffer[0];
-		} while (randomNum >= 256 - (256 % characters.length));
+		const limit = 256 - (256 % characters.length);
 
-		return characters[randomNum % characters.length];
+		for (let attempt = 0; attempt < 100; attempt++) {
+			crypto.randomFillSync(randomBuffer);
+			if (randomBuffer[0] < limit) {
+				return characters[randomBuffer[0] % characters.length];
+			}
+		}
+
+		crypto.randomFillSync(randomBuffer);
+		return characters[randomBuffer[0] % characters.length];
 	};
 
 	for (let i = 0; i < length; i++) {

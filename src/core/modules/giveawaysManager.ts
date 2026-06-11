@@ -486,40 +486,24 @@ class GiveawayManager {
 	}
 
 	private selectWinners(fetch: GiveawayFetch, number: number): string[] {
-		if (fetch.entries.length === 0) {
-			return [];
+		if (fetch.entries.length === 0) return [];
+
+		const availableMembers = [...fetch.entries].filter(
+			(entry) => !fetch.winners.includes(entry)
+		);
+
+		const winners: string[] = [];
+
+		for (let i = 0; i < number; i++) {
+			if (availableMembers.length === 0) break;
+
+			const randomIndex = Math.floor(
+				Math.random() * availableMembers.length
+			);
+			winners.push(availableMembers.splice(randomIndex, 1)[0]);
 		}
 
-		const areWinnersInPreviousWinners = (currentWinners: string[]) => {
-			return currentWinners.some((winner) =>
-				fetch.winners.includes(winner)
-			);
-		};
-
-		let winners: Array<string> = [];
-
-		do {
-			winners = [];
-			const availableMembers = [...fetch.entries];
-
-			if (winners.length === 0 || areWinnersInPreviousWinners(winners)) {
-				winners = [];
-			}
-
-			for (let i = 0; i < number; i++) {
-				if (availableMembers.length === 0) {
-					break;
-				}
-
-				const randomIndex = Math.floor(
-					Math.random() * availableMembers.length
-				);
-				const winnerID = availableMembers.splice(randomIndex, 1)[0];
-				winners.push(winnerID);
-			}
-		} while (winners.length === 0);
-
-		return winners.length > 0 ? winners : [];
+		return winners;
 	}
 
 	public reroll(client: Client, giveawayId: string): Promise<void> {

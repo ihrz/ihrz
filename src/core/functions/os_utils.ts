@@ -23,15 +23,14 @@ import { existsSync } from "node:fs";
 import os from "node:os";
 
 export function niceBytes(kb: number): string {
-	let bytes = kb * 1024;
-
 	const units = ["bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"];
-	let unitIndex = 0;
 
-	while (bytes >= 1024 && unitIndex < units.length - 1) {
-		bytes /= 1024;
-		unitIndex++;
-	}
+	const unitIndex = Math.min(
+		Math.floor(Math.log(kb * 1024) / Math.log(1024)),
+		units.length - 1
+	);
+
+	const bytes = (kb * 1024) / Math.pow(1024, unitIndex);
 
 	return `${bytes < 10 && unitIndex > 0 ? bytes.toFixed(2) : bytes.toFixed(0)} ${units[unitIndex]}`;
 }
