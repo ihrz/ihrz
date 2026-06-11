@@ -135,7 +135,7 @@ export const subCommand: SubCommand = {
 				i++
 			) {
 				const fetchedMessages = await channel.messages.fetch({
-					limit: 100,
+					limit: Math.min(100, targetAmount - matchedMessages.length),
 					before: lastMessageId
 				});
 
@@ -165,7 +165,7 @@ export const subCommand: SubCommand = {
 			);
 			return;
 		} else {
-			await clearMessage(amount, interaction, lang);
+			await clearMessage(Math.min(amount, 100), interaction, lang);
 			return;
 		}
 	}
