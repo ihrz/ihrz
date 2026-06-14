@@ -34,7 +34,7 @@ export const event: BotEvent = {
 		const oldUsertag = oldUser.username;
 		const oldUserGlbl = oldUser.globalName || oldUser.displayName;
 
-		if (!oldUser) return;
+		if (!oldUser && oldUser === null) return;
 
 		if (oldUser.globalName !== newUser.globalName) {
 			await prevnamesTable.push(
