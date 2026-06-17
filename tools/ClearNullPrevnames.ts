@@ -29,13 +29,15 @@ type PrevnameValue = PrevnameEntry[] | null | undefined;
 const isDryRun = !process.argv.includes("--apply");
 
 const normalizePrevnames = (value: PrevnameValue): string[] => {
-	if (!Array.isArray(value)) {
-		return [];
-	}
+	if (!Array.isArray(value)) return [];
 
-	return value.filter(
-		(entry): entry is string => typeof entry === "string" && entry.trim().toLowerCase() !== "null"
-	);
+	return value.filter((entry): entry is string => {
+		if (typeof entry !== "string") return false;
+
+		// Format: "<t:TIMESTAMP:d> - NAME"
+		const name = entry.split(" - ").slice(1).join(" - ").trim();
+		return name.toLowerCase() !== "null" && name.length > 0;
+	});
 };
 
 const run = async () => {
