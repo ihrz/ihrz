@@ -2056,7 +2056,11 @@ export interface LanguageData {
 	event_srvLogs_channelUpdate_embed_desc: string;
 	event_rank_role: string;
 	event_suggestion_embed_author: string;
+	event_security_title: string;
 	event_security: string;
+	event_security_expiry: string;
+	event_security_footer: string;
+	event_security_kick_reason: string;
 	event_ticket_whenCreated_msg: string;
 	event_ticket_logsChannel_onCreation_embed_title: string;
 	event_ticket_logsChannel_onCreation_embed_desc: string;

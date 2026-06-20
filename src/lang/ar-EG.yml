@@ -2756,7 +2756,11 @@ event_rank_role: "<@${message.author.id}>, لديك الآن الدور <@&${fet
 event_suggestion_embed_author: "اقتراح جديد من ${message.author.username}"
 
 # حدث الأمان
-event_security: "${member}, يرجى كتابة كود التحقق المرسل في هذه الرسالة.\nيجب أن تكون إجابتك بالتنسيق الصحيح!\n__لديك 30 ثانية للإجابة.__"
+event_security_title: "مرحبًا بك في ${guild}!"
+event_security: "${member}، يرجى كتابة رمز التحقق الظاهر في هذه الرسالة."
+event_security_expiry: "{emoji} طرد تلقائي ${timestamp} (**${attempts}** محاولة/محاولات متبقية)."
+event_security_footer: "لن يستغرق هذا سوى بضع ثوانٍ ويساعد في الحفاظ على أمان مجتمعنا."
+event_security_kick_reason: "فشل في اجتياز عملية التحقق الأمني"
 
 # حدث التذكرة
 event_ticket_whenCreated_msg: "${interaction.user}, تم إنشاء تذكرتك، قم بزيارة <#${channel.id}>!"

@@ -2756,7 +2756,11 @@ event_rank_role: "<@${message.author.id}>, tu a maintenant le rôle <@&${fetch.i
 event_suggestion_embed_author: "Nouvelle suggestion de ${message.author.username}"
 
 # Événement de sécurité
-event_security: "${member}, veuillez écrire le captcha envoyé dans ce message.\nVotre réponse doit être dans la syntaxe correcte !\n__Vous avez 30 secondes pour répondre.__"
+event_security_title: "Bienvenue sur ${guild} !"
+event_security: "${member}, veuillez saisir le captcha affiché dans ce message."
+event_security_expiry: "{emoji} Expulsion automatique ${timestamp} (**${attempts}** tentative(s) restante(s))."
+event_security_footer: "Cela ne prend que quelques secondes et aide à protéger notre communauté."
+event_security_kick_reason: "Échec du processus de sécurité"
 
 # Événement de ticket
 event_ticket_whenCreated_msg: "${interaction.user}, votre ticket a été créé, visitez <#${channel.id}> !"

@@ -41,8 +41,7 @@ async function captcha(): Promise<{ code: string; image: Buffer }> {
 }
 
 function generateRandomCode(): string {
-	const characters =
-		"ABCDEFGHIKLMNOPQRSTUVWXYZabcdefghiklmnopqrstuvwxyz0123456789";
+	const characters = "ABCDEFGHIKLMNOPQRSTUVWXYZ0123456789";
 	let code = "";
 	for (let i = 0; i < 7; i++) {
 		const randomIndex = randomInt(0, characters.length);

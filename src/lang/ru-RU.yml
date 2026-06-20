@@ -2757,7 +2757,11 @@ event_rank_role: "<@${message.author.id}>, у вас теперь есть ро�
 event_suggestion_embed_author: "Новое предложение от ${message.author.username}"
 
 # Событие безопасности
-event_security: "${member}, пожалуйста, введите капчу, отправленную в этом сообщении.\nВаш ответ должен быть в правильном синтаксисе!\n__У вас есть 30 секунд на ответ.__"
+event_security_title: "Добро пожаловать в ${guild}!"
+event_security: "${member}, пожалуйста, введите капчу, показанную в этом сообщении."
+event_security_expiry: "{emoji} Автоматический кик ${timestamp} (осталось попыток: **${attempts}**)."
+event_security_footer: "Это займёт всего несколько секунд и поможет защитить наше сообщество."
+event_security_kick_reason: "Не пройдена проверка безопасности"
 
 # Событие по билетам
 event_ticket_whenCreated_msg: "${interaction.user}, ваш билет был создан, посетите <#${channel.id}>!"

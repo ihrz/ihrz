@@ -2757,7 +2757,11 @@ event_rank_role: "<@${message.author.id}>さん、あなたは今、役職 <@&${
 event_suggestion_embed_author: "${message.author.username} からの新しい提案"
 
 # セキュリティイベント
-event_security: "${member} さん、このメッセージに送信されたキャプチャを入力してください。\nあなたの回答は正しい構文である必要があります！\n__回答するための時間は30秒です。__"
+event_security_title: "${guild}へようこそ！"
+event_security: "${member}さん、このメッセージに表示されているCAPTCHAを入力してください。"
+event_security_expiry: "{emoji} 自動キック ${timestamp}（残り **${attempts}** 回の試行）。"
+event_security_footer: "数秒しかかからず、コミュニティの安全維持に役立ちます。"
+event_security_kick_reason: "セキュリティ認証に失敗しました"
 
 # チケットイベント
 event_ticket_whenCreated_msg: "${interaction.user}さん、チケットが作成されました。 <#${channel.id}> をご覧ください！"
