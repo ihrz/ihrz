@@ -39,8 +39,8 @@ export default async function send(
 			.setTitle(embed.title)
 			.setDescription(embed.description);
 
-		const logchannel = interaction.guild?.channels.cache.find(
-			(channel) => channel.name === "ihorizon-logs"
+		const logchannel = interaction.guild?.channels.cache.find((channel) =>
+			channel.name.includes("ihorizon-logs")
 		);
 
 		if (!logchannel) return;
