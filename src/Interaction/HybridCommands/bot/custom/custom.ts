@@ -96,7 +96,7 @@ export const command: Command = {
 			prefixName: "botavatar",
 			aliases: ["setpic", "setavatar", "setpp"],
 
-			description: "Set the bot avatar into your server",
+			description: "Change the iHorizon avatar into your server",
 			description_localizations: {
 				fr: "Définir la photo de profil du bot sur votre serveur discord"
 			},
@@ -151,7 +151,7 @@ export const command: Command = {
 
 			aliases: ["setbotbanner", "setbanner"],
 
-			description: "Set the bot banner into your server",
+			description: "Change the iHorizon banner into your server",
 			description_localizations: {
 				fr: "Définir la bannière de profil du bot sur votre serveur discord"
 			},
@@ -207,7 +207,7 @@ export const command: Command = {
 			prefixName: "botbio",
 
 			aliases: ["setbotbio", "setbio"],
-			description: "Set the bot bio into your server",
+			description: "Change the iHorizon bio into your server",
 			description_localizations: {
 				fr: "Définir la bio de profil du bot sur votre serveur discord"
 			},

@@ -24,7 +24,8 @@ import {
 	Client,
 	EmbedBuilder,
 	GuildMember,
-	GuildTextBasedChannel
+	GuildTextBasedChannel,
+	Message
 } from "discord.js";
 
 import logger from "../../core/logger.js";
@@ -32,9 +33,14 @@ import captcha from "../../core/captcha.js";
 
 import { BotEvent } from "../../../types/event.js";
 
+const MAX_ATTEMPTS = 3;
+const COLLECTOR_TIMEOUT_MS = 60_000 * 2 + 30_000; // 2 min 30 s
+
 export const event: BotEvent = {
 	name: "guildMemberAdd",
 	run: async (client: Client, member: GuildMember) => {
+		if (!member.guild) return;
+
 		const baseData = await client.db.get(`${member.guild.id}.SECURITY`);
 		if (!baseData || baseData?.disable === true) return;
 
@@ -42,80 +48,85 @@ export const event: BotEvent = {
 		const channel = member.guild.channels.cache.get(baseData?.channel);
 		if (!channel) return;
 		const { code, image } = await captcha();
-
 		const memberJoinDate = member.joinedAt;
+		const expiresAt = Math.floor(
+			(Date.now() + COLLECTOR_TIMEOUT_MS) / 1000
+		);
 
-		const embed = new EmbedBuilder()
-			.setColor("#c4001f")
-			.setTimestamp()
-			.setImage("attachment://captcha.png")
-			.setDescription(
-				data.event_security.replace("${member}", member.toString())
-			);
-		/**
-		 * Why doing this?
-		 * On iHorizon Production, we have some ~problems~ 👎
-		 * All of the guildMemberAdd, guildMemberRemove sometimes emiting in double, triple, or quadruple.
-		 */
+		const buildContent = (attemptsLeft: number) =>
+			[
+				data.event_security.replace("${member}", member.toString()),
+				"",
+				data.event_security_expiry
+					.replace("${timestamp}", `<t:${expiresAt}:R>`)
+					.replace("${attempts}", attemptsLeft.toString())
+					.replace("{emoji}", client.iHorizon_Emojis.Schedule),
+				`-# ${data.event_security_footer}`
+			].join("\n");
+
 		const nonce = SnowflakeUtil.generate().toString();
+		let msg: Message;
 
-		(channel as GuildTextBasedChannel)
-			.send({
-				content: member.toString(),
-				embeds: [embed],
+		try {
+			msg = await (channel as GuildTextBasedChannel).send({
+				content: buildContent(MAX_ATTEMPTS),
 				files: [{ name: "captcha.png", attachment: image }],
 				enforceNonce: true,
-				nonce: nonce
-			})
-			.then(async (msg) => {
-				const collector = msg.channel.createMessageCollector({
-					filter: (m) => m.author.id === member.id,
-					time: 60_00 * 2 + 30_000
-				});
-
-				let passedtest = false;
-
-				collector.on("collect", async (m) => {
-					collector.stop();
-					await m.delete();
-
-					if (code === m.content) {
-						await member.roles
-							.add(baseData?.role, "[Security] Module")
-							.catch(() => {});
-						await member.roles
-							.remove(baseData?.role2, "[Security] Module")
-							.catch(() => {});
-						await msg.delete().catch(() => {});
-
-						passedtest = true;
-						return;
-					} else {
-						await msg.delete().catch(() => {});
-						await member
-							.kick("Security Process failed")
-							.catch(() => {});
-						return;
-					}
-				});
-
-				collector.on("end", async () => {
-					if (passedtest) return;
-
-					if (
-						!member.joinedAt &&
-						memberJoinDate === member.joinedAt
-					) {
-						await member
-							.kick("Security Process failed")
-							.catch(() => {});
-					}
-
-					await msg.delete().catch(() => {});
-				});
-			})
-			.catch((error: any) => {
-				logger.err(error);
+				nonce
 			});
+		} catch (error: any) {
+			console.log(error);
+			return;
+		}
+
+		let attemptsLeft = MAX_ATTEMPTS;
+		let passed = false;
+
+		const collector = (
+			msg.channel as GuildTextBasedChannel
+		).createMessageCollector({
+			filter: (m: Message) => m.author.id === member.id,
+			time: COLLECTOR_TIMEOUT_MS
+		});
+
+		collector.on("collect", async (m: Message) => {
+			await m.delete().catch(() => {});
+
+			if (m.content === code) {
+				passed = true;
+				collector.stop("passed");
+				await member.roles
+					.add(baseData?.role, "[Security] Module")
+					.catch(() => {});
+				await member.roles
+					.remove(baseData?.role2, "[Security] Module")
+					.catch(() => {});
+				await msg.delete().catch(() => {});
+				return;
+			}
+
+			attemptsLeft--;
+
+			if (attemptsLeft <= 0) {
+				collector.stop("failed");
+				return;
+			}
+
+			await msg
+				.edit({ content: buildContent(attemptsLeft) })
+				.catch(() => {});
+		});
+
+		collector.on("end", async () => {
+			if (passed) return;
+
+			if (!member.joinedAt || memberJoinDate === member.joinedAt) {
+				await member
+					.kick(data.event_security_kick_reason)
+					.catch(() => {});
+			}
+
+			await msg.delete().catch(() => {});
+		});
 	}
 };

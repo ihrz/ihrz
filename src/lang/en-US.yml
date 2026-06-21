@@ -2760,7 +2760,11 @@ event_rank_role: "<@${message.author.id}>, you now have the role <@&${fetch.id}>
 event_suggestion_embed_author: "New suggestion from ${message.author.username}"
 
 # Security Event
-event_security: "${member}, please type the captcha sent in this message.\nYour response needs to be in the correct syntax!\n__You have 30 seconds to answer.__"
+event_security_title: "Welcome to ${guild}!"
+event_security: "${member}, please type the captcha shown in this message."
+event_security_expiry: "{emoji} Automatic kick ${timestamp} (**${attempts}** attempt(s) remaining)."
+event_security_footer: "This only takes a few seconds and helps keep our community safe."
+event_security_kick_reason: "Security process failed"
 
 # Ticket Event
 event_ticket_whenCreated_msg: "${interaction.user}, your ticket has been created, visit <#${channel.id}>!"
