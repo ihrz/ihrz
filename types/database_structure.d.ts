@@ -50,17 +50,16 @@ export namespace DatabaseStructure {
 		};
 	}
 
-	export interface TicketData {
-		[userId: string]: TicketUserData;
+	export type TicketData = Record<string, TicketUserData>;
+
+	export type TicketUserData = Record<string, TicketChannelData>;
+
+	export interface TicketChannelData {
+		channel: string;
+		author: string;
+		alive: boolean;
 	}
 
-	export interface TicketUserData {
-		[channelId: string]: {
-			channel: string;
-			author: string;
-			alive: boolean;
-		};
-	}
 	export interface ProtectionData {
 		[rule: string]:
 			| {
