@@ -180,7 +180,7 @@ export const subCommand: SubCommand = {
 					ws.on("message", async function message(messageData) {
 						const messageParts = messageData.toString().split(":");
 						const value = messageParts[1];
-						const value2 = messageParts[2] || "";
+						const value2 = messageParts.slice(2).join(":") || "";
 
 						switch (value) {
 							case "size":
@@ -200,7 +200,7 @@ export const subCommand: SubCommand = {
 								addedCount++;
 								if (
 									Date.now() - lastUpdateTime >
-										maxUpdateInterval ||
+									maxUpdateInterval ||
 									addedCount % updateInterval === 0
 								) {
 									updateEmbed();
