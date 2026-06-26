@@ -1,85 +1,68 @@
-# Version Minor 2026.6.1 (1st patch of June 2026)
+# Version Minor 2026.7.1 (1st patch of July 2026)
 
-## Changes between [2026.5.1](https://gitlab.com/ihrz/ihrz/-/releases/2026.5.1) and [2026.6.1](https://gitlab.com/ihrz/ihrz/-/releases/2026.6.1)
+## Changes between [2026.6.1](https://gitlab.com/ihrz/ihrz/-/releases/2026.6.1) and [2026.7.1](https://gitlab.com/ihrz/ihrz/-/releases/2026.7.1)
 
 ---
 
-## User-facing changes
+## Current Changes
 
-**_New command: `/music trackinfo`_**
+**__Command: `/custom`__**
 
-- **You can now search for a track and instantly display its artwork, link and lyrics in a dedicated embed.**
+We are evolving the way we approach bot customization features.
 
-**_New command: `/music volume`_**
+Since the project became open source in 2022, we have always aimed to keep iHorizon free and accessible to everyone. However, between hosting, servers, domains, licenses, and the various services required to operate the bot, the costs continue to increase.
 
-- **You can now change the player volume directly from the music command, with predefined volume levels.**
+In practice, this allows iHorizon to fully integrate into your community, as if it were your own bot, while maintaining the stability, features, and ongoing maintenance of the main project.
 
-**_New owner command: `/commandlimit`_**
+Until now, bot customization features were considered simple “fun” commands. Today, we are evolving this vision.
 
-- **You can now configure per-command rate limits for your guild, including setting, listing and resetting limits.**
+Using /custom, iHorizon can adopt an identity specific to your server, like a “custom-made” bot, while remaining stable, maintained, and consistent within the overall ecosystem.
 
-**_New command: `/derogation`_**
+This evolution helps support the project while giving more flexibility to servers that want a truly personalized experience with iHorizon.
 
-- **You can now create derogation entries through a dedicated utility command.**
+Thanks to everyone who has supported iHorizon since the beginning. ❤️
 
-- _The music player now starts at 60% volume by default._
+**__Command `/utils userinfo`__**
 
-- _The `/music clear-queue` command now also supports the `clearqueue` alias._
+- Since right now, not only oauth2 can be used for guessing Nitro subscription of someone. iHorizon use the banner and animated avatar feature to guess if user have nitro boost.
 
-- _The economy shop now restores previously owned roles when needed._
+**__Modules: `Confession`__**
 
-- _The `!balance-add` command now targets the correct argument when selecting a user._
+- Change the forms embed of confession panel to keep aware guild members that confession can be de-anonymised
 
-- _The wake up command has been reduced from 5 minutes to 2 minutes and now handles move failures more safely._
+**__Modules: `Security`__**
 
-- _The Temporary Voice Channel cleanup has been improved to better remove empty owned channels and avoid deleting channels when a member was only moved._
+- The captcha module get rewamped, new look for captcha, handling errors with a thresold of 3 errors.
 
-- _The ticket panel has been heavily reworked, including fixes for forms and overall ticket panel behavior._
+**__Modules: `ihorizon-logs`__**
 
-- _The moderation clear command has been reworked and refined._
-
-- _The top-messages stats command now updates its progress message correctly when there is no data and when the generated image is sent._
-
-- _Regex handling related to the ready status and Discord invite AutoMod detection has been fixed._
-
-**_New owner command: `/freeze`_**
-
-- _This command aim to freeze a voice channel, server members who's try to joining the channel will be disconnected._
-
-**_New owner command: `/unfreeze`_**
-
-- _Permit to remove the current freeze status on a voice channel._
-
-**_New owner command: `/talk`_**
-
-- _Make everyone on a specific voice channel muted._
-
-**_New owner command: `/untalk`_**
-
-- _Remove the talk mode from a voice channel already set up._
+- Changing the way iHorizon-Logs get logged. In the past you have to a channel exatly with the "ihorizon-logs" name, since now, it only need to be included in the string.
 
 ## Internal improvements
 
-- Improved giveaway management for sharded environments.
+- Added Sweepers and makeCache in the `Client`'s discord.js for improving memory usage in production.
 
-- Exported shared music helpers for reuse in the new track information flow.
+- Added a TTL purge for every guild messages in the AntiSpam modules.
 
-- Added translation entries and typings required by the new music, command limit and derogation features.
+- Improving AntiSpam precision by removing some bug that may cause false-flags.
 
-- Fixed the giveaway end command
+- Fixing the Boost logs that may occur a spam since Sweepers purge members in memory.
 
-- Migrating the server backups and giveaways from files to production database
+- Fixing the iHorizon runtime on Windows.
+
+- New esthetics on `/status` command
+
+- Removing every `while` loop since it make the bot lagging on the `node:loop` runtime.
+  
+- Fixing the prevnames logging since Sweepers may occure false-nullable nickname by making a `Set`
+
 
 # Bug fixes
 
-****Avatar command****
-
-- \_Now, users who are not in the guild where the command the executed will properly show their avatar, there will be no more fallbacks to the avatar's of the command author.\_\_
-
 ****Clear command****
 
-- _Clear command got fixed_
+- _since the last old 2026.6.1 version created a regression on `/mod clear` command, we fixed it on this version._
 
-# New features
+****Remind ticket command****
 
-- Anti-Binary, avoid user to sending binaries into your discord server (zip, exe, apk, msi, etc)
+- _Remind ticket command got fixed_
