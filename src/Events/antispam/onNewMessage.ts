@@ -412,7 +412,7 @@ export const event: BotEvent = {
 
 		const elapsedTime = lastMessage
 			? currentMessage.sentTimestamp - lastMessage.sentTimestamp
-			: options.maxInterval - 100;
+			: options.maxInterval + 1;
 
 		// Basic checks
 		if (elapsedTime && elapsedTime < options.maxInterval) {
