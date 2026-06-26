@@ -79,7 +79,10 @@ const totalShards = client.options.shardCount ?? 1;
 const raw = await readFile(inputPath, "utf-8");
 const guilds = (JSON.parse(raw) as CustomEnabledGuild[]).filter((entry) => {
 	try {
-		return Number((BigInt(entry.guildId) >> 22n) % BigInt(totalShards)) === shardId;
+		return (
+			Number((BigInt(entry.guildId) >> 22n) % BigInt(totalShards)) ===
+			shardId
+		);
 	} catch {
 		return false;
 	}
@@ -97,8 +100,8 @@ const defaultAvatarUrl = client.user?.avatarURL({
 logger.debug(`Default avatar URL: ${defaultAvatarUrl || "null"}`);
 const defaultAvatarBase64 = defaultAvatarUrl
 	? Buffer.from(await (await fetch(defaultAvatarUrl)).arrayBuffer()).toString(
-		"base64"
-	)
+			"base64"
+		)
 	: null;
 logger.debug(
 	`Default avatar base64 loaded: ${defaultAvatarBase64 ? "yes" : "no"}`
@@ -110,23 +113,26 @@ let res = await fetch("https://discord.com/api/v10/oauth2/applications/@me", {
 	}
 });
 const data = await res.json();
-const defaultBannerUrl = `https://cdn.discordapp.com/banners/${client.user?.id}/${data?.["bot"]["banner"]}?size=1024` ||
+const defaultBannerUrl =
+	`https://cdn.discordapp.com/banners/${client.user?.id}/${data?.["bot"]["banner"]}?size=1024` ||
 	client.user?.bannerURL({
 		extension: "png",
 		size: 4096
-	}) || null;
+	}) ||
+	null;
 logger.debug(`Default banner URL: ${defaultBannerUrl || "null"}`);
 const defaultBannerBase64 = defaultBannerUrl
 	? Buffer.from(await (await fetch(defaultBannerUrl)).arrayBuffer()).toString(
-		"base64"
-	)
+			"base64"
+		)
 	: null;
 logger.debug(
 	`Default banner base64 loaded: ${defaultBannerBase64 ? "yes" : "no"}`
 );
 
 const defaultBio = data?.["description"] || "iHorizon";
-const defaultName = client.user?.displayName || client.user?.username || "iHorizon";
+const defaultName =
+	client.user?.displayName || client.user?.username || "iHorizon";
 logger.debug(`Default name: ${defaultName}`);
 logger.debug(`Default bio: ${defaultBio}`);
 
@@ -136,11 +142,15 @@ for (const entry of guilds) {
 	);
 
 	const guild = await client.guilds.fetch(entry.guildId).catch((error) => {
-		logger.debug(`Failed to fetch guild ${entry.guildId}: ${String(error)}`);
+		logger.debug(
+			`Failed to fetch guild ${entry.guildId}: ${String(error)}`
+		);
 		return null;
 	});
 	if (!guild) {
-		logger.warn(`Guild ${entry.guildId} not found on this shard, skipping.`);
+		logger.warn(
+			`Guild ${entry.guildId} not found on this shard, skipping.`
+		);
 		continue;
 	}
 	logger.debug(`Fetched guild ${guild.id} (${guild.name})`);
@@ -149,8 +159,12 @@ for (const entry of guilds) {
 		logger.log(
 			`[DRY-RUN] Would clear custom profile for ${entry.guildId} (${entry.guildName})`
 		);
-		logger.debug(`[DRY-RUN] Would delete DB key ${entry.guildId}.BOT.botName`);
-		logger.debug(`[DRY-RUN] Would delete DB key ${entry.guildId}.BOT.botPFP`);
+		logger.debug(
+			`[DRY-RUN] Would delete DB key ${entry.guildId}.BOT.botName`
+		);
+		logger.debug(
+			`[DRY-RUN] Would delete DB key ${entry.guildId}.BOT.botPFP`
+		);
 		logger.debug(`[DRY-RUN] Would reset name to: ${defaultName}`);
 		logger.debug(
 			`[DRY-RUN] Would reset avatar: ${defaultAvatarBase64 ? "yes" : "no"}`
@@ -180,7 +194,9 @@ for (const entry of guilds) {
 			guild,
 			`data:image/png;base64,${defaultAvatarBase64}`
 		);
-		logger.debug(`Guild ${entry.guildId} avatar reset result: ${avatarReset}`);
+		logger.debug(
+			`Guild ${entry.guildId} avatar reset result: ${avatarReset}`
+		);
 	} else {
 		logger.warn(`No default avatar found for guild ${entry.guildId}`);
 	}
@@ -191,7 +207,9 @@ for (const entry of guilds) {
 			guild,
 			`data:image/png;base64,${defaultBannerBase64}`
 		);
-		logger.debug(`Guild ${entry.guildId} banner reset result: ${bannerReset}`);
+		logger.debug(
+			`Guild ${entry.guildId} banner reset result: ${bannerReset}`
+		);
 	} else {
 		logger.warn(`No default banner found for guild ${entry.guildId}`);
 	}
@@ -203,7 +221,9 @@ for (const entry of guilds) {
 	);
 	logger.debug(`Guild ${entry.guildId} bio reset result: ${bioReset}`);
 
-	logger.log(`Custom profile cleared for ${entry.guildId} (${entry.guildName})`);
+	logger.log(
+		`Custom profile cleared for ${entry.guildId} (${entry.guildName})`
+	);
 }
 
 logger.debug("Destroying shard worker client.");

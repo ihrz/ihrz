@@ -200,7 +200,7 @@ export const subCommand: SubCommand = {
 								addedCount++;
 								if (
 									Date.now() - lastUpdateTime >
-									maxUpdateInterval ||
+										maxUpdateInterval ||
 									addedCount % updateInterval === 0
 								) {
 									updateEmbed();

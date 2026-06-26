@@ -37,11 +37,11 @@ export const event: BotEvent = {
 	) => {
 		const MAX_RECENT_BOOST_DELAY_MS = 10 * 60 * 1000;
 		const oldPremiumSince = oldMember.partial
-			? oldMember.premiumSinceTimestamp ?? null
-			: oldMember.premiumSince?.getTime() ?? null;
+			? (oldMember.premiumSinceTimestamp ?? null)
+			: (oldMember.premiumSince?.getTime() ?? null);
 		const newPremiumSince = newMember.partial
-			? newMember.premiumSinceTimestamp ?? null
-			: newMember.premiumSince?.getTime() ?? null;
+			? (newMember.premiumSinceTimestamp ?? null)
+			: (newMember.premiumSince?.getTime() ?? null);
 		const isRecentBoost =
 			newPremiumSince !== null &&
 			Date.now() - newPremiumSince <= MAX_RECENT_BOOST_DELAY_MS;
@@ -83,7 +83,7 @@ export const event: BotEvent = {
 
 			(Msgchannel as BaseGuildTextChannel)
 				.send({ embeds: [embed] })
-				.catch(() => { });
+				.catch(() => {});
 			return;
 		}
 		if (oldPremiumSince && !newPremiumSince) {
@@ -98,7 +98,7 @@ export const event: BotEvent = {
 
 			(Msgchannel as BaseGuildTextChannel)
 				.send({ embeds: [embed] })
-				.catch(() => { });
+				.catch(() => {});
 			return;
 		}
 	}

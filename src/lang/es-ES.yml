@@ -680,16 +680,16 @@ poll_embed_fields_choice: ":white_check_mark: **Sí**\n :x: **No** "
 # /question
 question_not_full: "¡Ingresa una pregunta completa con 3 o más palabras!"
 question_s:
-  [
-    "Sí.",
-    "No.",
-    "No lo sé.",
-    "¡No estoy seguro!",
-    "¡Estás loco!",
-    "No, gracias.",
-    "No.",
-    "Sí.",
-  ]
+    [
+        "Sí.",
+        "No.",
+        "No lo sé.",
+        "¡No estoy seguro!",
+        "¡Estás loco!",
+        "No, gracias.",
+        "No.",
+        "Sí."
+    ]
 question_fields_input_embed: ":question: **Pregunta**"
 question_fields_output_embed: ":grey_exclamation: **Respuesta**:"
 question_embed_title: "__**Pregunta**__: ${interaction.user.username}"
@@ -2969,13 +2969,13 @@ channel_unhideall_error: "Ocurrió un error al mostrar los canales."
 
 # es-ES.yml (Spanish - Spain)
 new_guild_embed_title:
-  - "¡Bienvenidos a vuestro servidor! 🎉"
-  - "¡Saludos, compañeros de Discord! 👋"
-  - "¡iHorizon se ha unido al chat! 💬"
-  - "¡Es un pájaro, es un avión, no, es iHorizon! 🦸‍♂"
-  - "¡Démosle una cálida bienvenida a iHorizon! 🔥"
-  - "¡Una nueva aventura comienza! 🚀"
-  - "¡Un miembro fantástico ha llegado! ✨"
+    - "¡Bienvenidos a vuestro servidor! 🎉"
+    - "¡Saludos, compañeros de Discord! 👋"
+    - "¡iHorizon se ha unido al chat! 💬"
+    - "¡Es un pájaro, es un avión, no, es iHorizon! 🦸‍♂"
+    - "¡Démosle una cálida bienvenida a iHorizon! 🔥"
+    - "¡Una nueva aventura comienza! 🚀"
+    - "¡Un miembro fantástico ha llegado! ✨"
 new_guild_embed_desc: "## ${randomMessage}\n¡Hola, queridos amigos!\n\nSoy iHorizon, un bot avanzado diseñado para hacer que vuestra experiencia en Discord sea extraordinaria y llena de diversión.\n\n✨ **Lo que puedo hacer por vosotros:**\n• Gestión del servidor con inteligencia y profesionalidad\n• Juegos interactivos y entretenimiento ilimitado\n• Herramientas útiles para la organización de la comunidad\n• Soporte técnico disponible 24/7\n\nExplorad mis comandos y sumergíos en un mundo de posibilidades infinitas.\n¡Juntos construiremos una comunidad fantástica llena de hermosos recuerdos!\n\n¡Gracias por elegirme, comencemos esta increíble aventura! 🌟"
 
 # Confession Event

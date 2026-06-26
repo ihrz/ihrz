@@ -317,16 +317,16 @@ poll_embed_fields_choice: ":white_check_mark: **Так**\n :x: **Ні** "
 # /question
 question_not_full: "Введіть повне питання з 3 або більше словами!"
 question_s:
-  [
-    "Так.",
-    "Ні.",
-    "Я не знаю.",
-    "Я не впевнений!",
-    "Ти збожеволів!",
-    "Ні, дякую.",
-    "Ні.",
-    "Так.",
-  ]
+    [
+        "Так.",
+        "Ні.",
+        "Я не знаю.",
+        "Я не впевнений!",
+        "Ти збожеволів!",
+        "Ні, дякую.",
+        "Ні.",
+        "Так."
+    ]
 question_fields_input_embed: ":question:__**Питання**__"
 question_fields_output_embed: ":grey_exclamation:__**Відповідь:**__"
 question_embed_title: "__**Питання**__: `${interaction.user.username}`"

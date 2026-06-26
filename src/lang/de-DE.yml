@@ -680,16 +680,16 @@ poll_embed_fields_choice: ":white_check_mark: **Ja**\n :x: **Nein** "
 # /question
 question_not_full: "Geben Sie eine vollständige Frage mit 3 oder mehr Wörtern ein!"
 question_s:
-  [
-    "Ja.",
-    "Nein.",
-    "Ich weiß es nicht.",
-    "Ich bin mir nicht sicher!",
-    "Du bist verrückt!",
-    "Nein danke.",
-    "Nein.",
-    "Ja.",
-  ]
+    [
+        "Ja.",
+        "Nein.",
+        "Ich weiß es nicht.",
+        "Ich bin mir nicht sicher!",
+        "Du bist verrückt!",
+        "Nein danke.",
+        "Nein.",
+        "Ja."
+    ]
 question_fields_input_embed: ":question:__**Frage**__"
 question_fields_output_embed: ":grey_exclamation:__**Antwort:**__"
 question_embed_title: "__**Frage**__: `${interaction.user.username}`"
@@ -2969,13 +2969,13 @@ channel_unhideall_error: "Ein Fehler ist beim Einblenden der Kanäle aufgetreten
 
 # de-DE.yml (German - Germany)
 new_guild_embed_title:
-  - "Willkommen auf eurem Server! 🎉"
-  - "Grüße, liebe Discord-Community! 👋"
-  - "iHorizon ist dem Chat beigetreten! 💬"
-  - "Es ist ein Vogel, es ist ein Flugzeug, nein, es ist iHorizon! 🦸‍♂"
-  - "Lasst uns iHorizon herzlich willkommen heißen! 🔥"
-  - "Ein neues Abenteuer beginnt! 🚀"
-  - "Ein fantastisches neues Mitglied ist da! ✨"
+    - "Willkommen auf eurem Server! 🎉"
+    - "Grüße, liebe Discord-Community! 👋"
+    - "iHorizon ist dem Chat beigetreten! 💬"
+    - "Es ist ein Vogel, es ist ein Flugzeug, nein, es ist iHorizon! 🦸‍♂"
+    - "Lasst uns iHorizon herzlich willkommen heißen! 🔥"
+    - "Ein neues Abenteuer beginnt! 🚀"
+    - "Ein fantastisches neues Mitglied ist da! ✨"
 new_guild_embed_desc: "## ${randomMessage}\nHallo zusammen, liebe Freunde!\n\nIch bin iHorizon, ein fortschrittlicher Bot, der entwickelt wurde, um euer Discord-Erlebnis außergewöhnlich und voller Spaß zu gestalten.\n\n✨ **Was ich für euch tun kann:**\n• Server-Management mit Intelligenz und Professionalität\n• Interaktive Spiele und grenzenlose Unterhaltung\n• Nützliche Tools zur Community-Organisation\n• 24/7 technischer Support\n\nEntdeckt meine Befehle und taucht ein in eine Welt voller unbegrenzter Möglichkeiten.\nGemeinsam werden wir eine fantastische Community aufbauen, voller wunderschöner Erinnerungen!\n\nDanke, dass ihr mich gewählt habt – lasst uns das Abenteuer beginnen! 🌟"
 
 # Confession Event

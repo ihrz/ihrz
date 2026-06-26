@@ -49,7 +49,9 @@ const run = async () => {
 	logger.log(
 		`Starting prevnames cleanup in ${isDryRun ? "dry-run" : "apply"} mode.`
 	);
-	logger.log(`Loaded ${rows.length} prevnames records from official bot database.`);
+	logger.log(
+		`Loaded ${rows.length} prevnames records from official bot database.`
+	);
 
 	let scanned = 0;
 	let changed = 0;
@@ -93,7 +95,9 @@ const run = async () => {
 		if (cleanedEntries.length === 0) {
 			await prevnamesTable.delete(row.id);
 			deletedRows++;
-			logger.legacy(`  -> deleted row ${row.id} because no valid prevnames remain.`);
+			logger.legacy(
+				`  -> deleted row ${row.id} because no valid prevnames remain.`
+			);
 			continue;
 		}
 
@@ -106,7 +110,9 @@ const run = async () => {
 	);
 
 	if (isDryRun) {
-		logger.warn("No database changes were written. Re-run with --apply to persist changes.");
+		logger.warn(
+			"No database changes were written. Re-run with --apply to persist changes."
+		);
 	}
 };
 

@@ -680,19 +680,19 @@ poll_embed_fields_choice: ":white_check_mark: **Oui**\n :x: **Non** "
 # /question
 question_not_full: "Entrez une question complète avec 3 mots ou plus!"
 question_s:
-  [
-    "Oui.",
-    "Non.",
-    "wAllah j'en sais rien",
-    "Je ne suis pas sûr(e) !",
-    "Tu es fou/folle!",
-    "Non merci jsuis pas gay.",
-    "Non.",
-    "Oui.",
-    "sah je men tape de ta question",
-    "aupire nique ta mère nan?",
-    "Tu veux pas j'tencule aupire?",
-  ]
+    [
+        "Oui.",
+        "Non.",
+        "wAllah j'en sais rien",
+        "Je ne suis pas sûr(e) !",
+        "Tu es fou/folle!",
+        "Non merci jsuis pas gay.",
+        "Non.",
+        "Oui.",
+        "sah je men tape de ta question",
+        "aupire nique ta mère nan?",
+        "Tu veux pas j'tencule aupire?"
+    ]
 question_fields_input_embed: ":question: **Question**"
 question_fields_output_embed: ":grey_exclamation: **Réponse:**"
 question_embed_title: "`Question: ${interaction.user.username}`"
@@ -2972,13 +2972,13 @@ channel_unhideall_error: "Une erreur de merde est survenue pendant le démasquag
 
 # fr-FR.yml (French - France)
 new_guild_embed_title:
-  - "Bienvenue sur votre serveur ! 🎉"
-  - "Salutations, chers amis Discord ! 👋"
-  - "iHorizon a rejoint le chat ! 💬"
-  - "C'est un oiseau, c'est un avion, non, c'est iHorizon ! 🦸‍♂"
-  - "Souhaitons la bienvenue à iHorizon ! 🔥"
-  - "Une nouvelle aventure commence ! 🚀"
-  - "Un membre fantastique nous a rejoint ! ✨"
+    - "Bienvenue sur votre serveur ! 🎉"
+    - "Salutations, chers amis Discord ! 👋"
+    - "iHorizon a rejoint le chat ! 💬"
+    - "C'est un oiseau, c'est un avion, non, c'est iHorizon ! 🦸‍♂"
+    - "Souhaitons la bienvenue à iHorizon ! 🔥"
+    - "Une nouvelle aventure commence ! 🚀"
+    - "Un membre fantastique nous a rejoint ! ✨"
 new_guild_embed_desc: "## ${randomMessage}\nSalut les amis extraordinaires !\n\nJe suis iHorizon, un bot avancé conçu pour rendre votre expérience Discord exceptionnelle et pleine de fun.\n\n✨ **Ce que je peux faire pour vous :**\n• Gestion du serveur avec intelligence et professionnalisme\n• Jeux interactifs et divertissement illimité\n• Outils utiles pour l'organisation de la communauté\n• Support technique disponible 24h/24 et 7j/7\n\nExplorez mes commandes et plongez dans un monde de possibilités infinies.\nEnsemble, nous construirons une communauté fantastique remplie de magnifiques souvenirs !\n\nMerci de m'avoir choisi, commençons cette incroyable aventure ! 🌟"
 
 # Confession Event

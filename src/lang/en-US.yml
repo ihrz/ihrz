@@ -680,16 +680,16 @@ poll_embed_fields_choice: ":white_check_mark: **Yes**\n:x: **No**"
 # /question
 question_not_full: "Enter a full question with 3 or more words!"
 question_s:
-  [
-    "Yes.",
-    "No.",
-    "I don't know.",
-    "I am not sure!",
-    "You're crazy!",
-    "No thanks.",
-    "No.",
-    "Yes.",
-  ]
+    [
+        "Yes.",
+        "No.",
+        "I don't know.",
+        "I am not sure!",
+        "You're crazy!",
+        "No thanks.",
+        "No.",
+        "Yes."
+    ]
 question_fields_input_embed: ":question:__**Question**__"
 question_fields_output_embed: ":grey_exclamation:__**Answer:**__"
 question_embed_title: "__**Question**__: `${interaction.user.username}`"
@@ -2972,11 +2972,11 @@ channel_unhideall_error: "An error occurred while unhiding channels."
 
 # New guild event
 new_guild_embed_title:
-  - "Welcome to our server! 🎉"
-  - "Greetings, fellow Discordians! 👋"
-  - "iHorizon has joined the chat! 💬"
-  - "It's a bird, it's a plane, no, it's iHorizon! 🦸‍♂"
-  - "Let's give a warm welcome to iHorizon! 🔥"
+    - "Welcome to our server! 🎉"
+    - "Greetings, fellow Discordians! 👋"
+    - "iHorizon has joined the chat! 💬"
+    - "It's a bird, it's a plane, no, it's iHorizon! 🦸‍♂"
+    - "Let's give a warm welcome to iHorizon! 🔥"
 new_guild_embed_desc: "## ${randomMessage}\nHi there! I'm excited to join your server and be a part of your community.\nMy name is iHorizon and I'm here to help you with all your needs. Feel free to use my commands and explore all the features I have to offer.\nIf you have any questions or run into any issues, don't hesitate to reach out to me.\nI'm here to make your experience on this server the best it can be.\nThanks for choosing me and let's have some fun together!\n"
 
 # Confession Event
