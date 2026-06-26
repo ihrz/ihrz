@@ -158,6 +158,7 @@ close_not_in_ticket: "Non puoi utilizzare questo comando al di fuori di un canal
 # /delete
 delete_disabled_command: "Non puoi utilizzare questo comando perché un amministratore ha disabilitato i comandi per i ticket!"
 delete_not_in_ticket: "Non puoi utilizzare questo comando al di fuori di un canale ticket!"
+ticket_deleted: "Il ticket ${ticketOwnerMention} è stato eliminato da <@${deletedByUserId}>. Ecco la trascrizione:"
 
 # /sethereticket
 sethereticket_disabled_command: "Non puoi utilizzare questo comando perché un altro amministratore ha disabilitato i comandi per i ticket!"

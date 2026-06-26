@@ -158,6 +158,7 @@ close_not_in_ticket: "لا يمكنك استخدام هذا الأمر خارج 
 # /delete
 delete_disabled_command: "لا يمكنك استخدام هذا الأمر لأن المسؤول قام بتعطيل أمر التذاكر!"
 delete_not_in_ticket: "لا يمكنك استخدام هذا الأمر خارج قناة التذاكر!"
+ticket_deleted: "تم حذف التذكرة ${ticketOwnerMention} بواسطة <@${deletedByUserId}>. إليك النص:"
 
 # /sethereticket
 sethereticket_disabled_command: "لا يمكنك استخدام هذا الأمر لأن المسؤول قام بتعطيل أمر التذاكر!"

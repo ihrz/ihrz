@@ -158,6 +158,7 @@ close_not_in_ticket: "チケットチャンネルの外でこのコマンドを�
 # /delete
 delete_disabled_command: "このコマンドは管理者によって無効化されています！"
 delete_not_in_ticket: "チケットチャンネルの外でこのコマンドを使用することはできません！"
+ticket_deleted: "チケット ${ticketOwnerMention} は <@${deletedByUserId}> によって削除されました。トランスクリプトはこちらです："
 
 # /sethereticket
 sethereticket_disabled_command: "このコマンドは管理者によって無効化されています！"

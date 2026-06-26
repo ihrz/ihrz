@@ -232,7 +232,7 @@ async function CreateSelectPanel(
 		},
 		time: 2_240_000
 	});
-	collector2wish?.on("end", () => { });
+	collector2wish?.on("end", () => {});
 
 	collector?.on("collect", async (i) => {
 		if (i.customId === "remove_selection") {
@@ -245,11 +245,11 @@ async function CreateSelectPanel(
 						case_list.length === 0
 							? [og_interaction.components[0]]
 							: [
-								og_interaction.components[0],
-								new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
-									comp
-								)
-							]
+									og_interaction.components[0],
+									new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
+										comp
+									)
+								]
 				});
 			}
 		} else if (i.customId === "add_selection") {
@@ -575,9 +575,9 @@ async function CreateTicketChannel(
 		const channelId = userTickets && Object.values(userTickets)[0]?.channel;
 		const channel = channelId
 			? interaction.guild?.channels.cache.get(channelId) ||
-			(await interaction.guild.channels
-				.fetch(channelId)
-				.catch(() => null))
+				(await interaction.guild.channels
+					.fetch(channelId)
+					.catch(() => null))
 			: null;
 
 		if (userTickets && !channel) {
@@ -620,9 +620,9 @@ async function CreateTicketChannel(
 		const channelId = userTickets && Object.values(userTickets)[0]?.channel;
 		const channel = channelId
 			? interaction.guild?.channels.cache.get(channelId) ||
-			(await interaction.guild.channels
-				.fetch(channelId)
-				.catch(() => null))
+				(await interaction.guild.channels
+					.fetch(channelId)
+					.catch(() => null))
 			: null;
 
 		if (userTickets && !channel) {
@@ -671,9 +671,9 @@ async function CreateTicketChannelV2(
 	const channelId = userTickets && Object.values(userTickets)[0]?.channel;
 	const channel = channelId
 		? interaction.guild?.channels.cache.get(channelId) ||
-		(await interaction.guild.channels
-			.fetch(channelId)
-			.catch(() => null))
+			(await interaction.guild.channels
+				.fetch(channelId)
+				.catch(() => null))
 		: null;
 
 	if (userTickets && !channel) {
@@ -765,9 +765,9 @@ async function CreateChannel(
 				interaction.guild.channels.cache.get(
 					interaction instanceof StringSelectMenuInteraction
 						? (result.selection?.find(
-							(item) =>
-								item.id === parseInt(interaction.values[0])
-						)?.categoryId ?? category)
+								(item) =>
+									item.id === parseInt(interaction.values[0])
+							)?.categoryId ?? category)
 						: category
 				)?.id || null
 		})
@@ -945,7 +945,7 @@ async function CreateChannel(
 					]
 				})
 				.then(async (msg) => {
-					await msg.pin("Ticket Panel").catch(() => { });
+					await msg.pin("Ticket Panel").catch(() => {});
 				})
 				.catch((err: any) => {
 					logger.err(err);
@@ -992,7 +992,7 @@ async function CreateChannel(
 				return;
 			}
 		})
-		.catch(() => { });
+		.catch(() => {});
 }
 
 async function CreateChannelV2(
@@ -1328,7 +1328,7 @@ async function CreateChannelV2(
 					files: files
 				})
 				.then(async (msg) => {
-					await msg.pin("Ticket Panel").catch(() => { });
+					await msg.pin("Ticket Panel").catch(() => {});
 				})
 				.catch((err: any) => {
 					logger.err(err);
@@ -1807,20 +1807,24 @@ async function TicketDelete(interaction: Interaction<"cached"> | Message) {
 	const fetch = await interaction.client.db.get(
 		`${interaction.guildId}.TICKET_ALL`
 	);
+	const lang = await client.func.getLanguageData(interaction.guildId);
 
 	for (const user in fetch) {
 		for (const channel in fetch[user]) {
 			if (channel === interaction.channel?.id) {
 				const ticketOwnerId = fetch[user][channel]?.author;
 				const ticketOwner = ticketOwnerId
-					? await interaction.client.users.fetch(ticketOwnerId).catch(
-						() => null
-					)
+					? await interaction.client.users
+							.fetch(ticketOwnerId)
+							.catch(() => null)
 					: null;
-				const ticketOwnerMention = ticketOwner?.toString() || `<@${ticketOwnerId}>`;
+				const ticketOwnerMention =
+					ticketOwner?.toString() || `<@${ticketOwnerId}>`;
 				const deletedByUserId = interaction.member?.user.id;
 				const shouldSendOwnerDm =
-					!!ticketOwner && !!deletedByUserId && ticketOwnerId !== deletedByUserId;
+					!!ticketOwner &&
+					!!deletedByUserId &&
+					ticketOwnerId !== deletedByUserId;
 
 				await interaction.client.db.delete(
 					`${interaction.guildId}.TICKET_ALL.${user}`
@@ -1849,10 +1853,20 @@ async function TicketDelete(interaction: Interaction<"cached"> | Message) {
 							);
 
 						if (shouldSendOwnerDm) {
-							await ticketOwner.send({
-								content: `Le ticket ${ticketOwnerMention} a été supprimé par <@${deletedByUserId}>. Voici le transcript :`,
-								files: [attachment]
-							}).catch(() => null);
+							await ticketOwner
+								.send({
+									content: lang.ticket_deleted
+										.replace(
+											"${ticketOwnerMention}",
+											ticketOwnerMention
+										)
+										.replace(
+											"${deletedByUserId}",
+											deletedByUserId
+										),
+									files: [attachment]
+								})
+								.catch(() => null);
 						}
 
 						const embed = new EmbedBuilder()
@@ -2101,9 +2115,9 @@ async function TicketRemind(
 	let timestamp = lastOwnerMessage?.createdTimestamp;
 	let time = timestamp
 		? interaction.client.timeCalculator.to_beautiful_string(
-			Date.now() - timestamp,
-			lang
-		)
+				Date.now() - timestamp,
+				lang
+			)
 		: lang.var_never;
 
 	let Success = await ticketOwner

@@ -165,6 +165,7 @@ export interface LanguageData {
 	close_not_in_ticket: string;
 	delete_disabled_command: string;
 	delete_not_in_ticket: string;
+	ticket_deleted: string;
 	sethereticket_disabled_command: string;
 	sethereticket_not_admin: string;
 	sethereticket_description_embed: string;

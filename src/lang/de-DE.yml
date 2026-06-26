@@ -158,6 +158,7 @@ close_not_in_ticket: "Sie können diesen Befehl außerhalb eines Ticket-Kanals n
 # /delete
 delete_disabled_command: "Sie können diesen Befehl nicht verwenden, da ein Administrator die Ticket-Befehle deaktiviert hat!"
 delete_not_in_ticket: "Sie können diesen Befehl außerhalb eines Ticket-Kanals nicht verwenden!"
+ticket_deleted: "Das Ticket ${ticketOwnerMention} wurde von <@${deletedByUserId}> gelöscht. Hier ist das Transkript:"
 
 # /sethereticket
 sethereticket_disabled_command: "Sie können diesen Befehl nicht verwenden, da ein anderer Administrator die Ticket-Befehle deaktiviert hat!"
