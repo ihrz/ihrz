@@ -38,6 +38,10 @@ Thanks to everyone who has supported iHorizon since the beginning. ❤️
 
 - Changing the way iHorizon-Logs get logged. In the past you have to a channel exatly with the "ihorizon-logs" name, since now, it only need to be included in the string.
 
+**__Modules: `Music`__**
+
+- In the `Music` **module**, added a small tip message that randomly appears when the player starts, to let users know that /lastfm exists on iHorizon.
+
 ## Internal improvements
 
 - Added Sweepers and makeCache in the `Client`'s discord.js for improving memory usage in production.
