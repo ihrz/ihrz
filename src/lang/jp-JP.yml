@@ -2673,7 +2673,7 @@ confession_module_modal_components1_placeholder: "うーん"
 confession_module_modal_components2_label: "これはプライベートですか？"
 
 # Music Player Events
-
+even_mp_playerStart_tip: "> ${client.iHorizon_Emojis.LastFM_Logo} iHorizon で `/lastfm` を使って音楽をスクロブルできること、知っていましたか？ ${client.iHorizon_Emojis.Sunglass}"
 event_mp_playerStart: "${client.iHorizon_Emojis.Music_Icon} - 現在 **${queue.channel.name}** で [`${track.title}`](${url}) を再生中..."
 event_mp_audioTrackAdd: "${client.iHorizon_Emojis.Music_Icon} - ${track.title} をキューに追加しました！"
 event_mp_playerError: "接続に問題があります => ${error.message}"

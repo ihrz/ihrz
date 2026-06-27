@@ -2672,7 +2672,7 @@ confession_module_modal_components1_placeholder: "Mmhh"
 confession_module_modal_components2_label: "Est-ce privé?"
 
 # Music Player Events
-
+even_mp_playerStart_tip: "> ${client.iHorizon_Emojis.LastFM_Logo} Savais-tu que tu peux scrobbler ta musique avec `/lastfm` sur iHorizon ? ${client.iHorizon_Emojis.Sunglass}"
 event_mp_playerStart: "${client.iHorizon_Emojis.Music_Icon} - Lecture de [`${track.title}`](${url}) en cours dans **${queue.channel.name}** ..."
 event_mp_audioTrackAdd: "${client.iHorizon_Emojis.Music_Icon} - ${track.title} a été ajouté à la file d'attente !"
 event_mp_playerError: "Je rencontre des problèmes de connexion => ${error.message}"

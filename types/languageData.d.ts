@@ -1997,6 +1997,7 @@ export interface LanguageData {
 	confession_module_modal_components1_label: string;
 	confession_module_modal_components1_placeholder: string;
 	confession_module_modal_components2_label: string;
+	even_mp_playerStart_tip: string;
 	event_mp_playerStart: string;
 	event_mp_audioTrackAdd: string;
 	event_mp_playerError: string;

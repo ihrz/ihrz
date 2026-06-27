@@ -2673,6 +2673,7 @@ confession_module_modal_components1_placeholder: "ممم"
 confession_module_modal_components2_label: "هل هذا خاص؟"
 
 # أحداث مشغل الموسيقى
+even_mp_playerStart_tip: "> ${client.iHorizon_Emojis.LastFM_Logo} هل تعلم أنك تستطيع تتبع موسيقاك باستخدام `/lastfm` على iHorizon ؟ ${client.iHorizon_Emojis.Sunglass}"
 event_mp_playerStart: "🎵 - الآن يتم تشغيل [`${track.title}`](${url}) في **${queue.channel.name}** ..."
 event_mp_audioTrackAdd: "🎵 - تم إضافة ${track.title} إلى قائمة الانتظار!"
 event_mp_playerError: "توجد مشكلة في الاتصال => ${error.message}"

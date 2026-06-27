@@ -2677,6 +2677,7 @@ confession_module_modal_components2_label: "Is this private?"
 
 # Music Player Events
 
+even_mp_playerStart_tip: "> ${client.iHorizon_Emojis.LastFM_Logo} Did you know that you can scrobble your music with `/lastfm` on iHorizon ? ${client.iHorizon_Emojis.Sunglass}"
 event_mp_playerStart: "${client.iHorizon_Emojis.Music_Icon} - Now playing [`${track.title}`](${url}) into **${queue.channel.name}**..."
 event_mp_audioTrackAdd: "${client.iHorizon_Emojis.Music_Icon} - ${track.title} has been added to the queue!"
 event_mp_playerError: "I'm having trouble connecting => ${error.message}"
