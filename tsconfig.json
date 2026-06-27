@@ -7,14 +7,9 @@
 		"importHelpers": true,
 		"strictPropertyInitialization": false,
 		"esModuleInterop": true,
-		"typeRoots": [
-			"node_modules/@types"
-		],
+		"typeRoots": ["node_modules/@types"],
 		// Environment setup & latest features
-		"lib": [
-			"ESNext",
-			"DOM"
-		],
+		"lib": ["ESNext", "DOM"],
 		"target": "ESNext",
 		"module": "ESNext",
 		"moduleDetection": "force",
@@ -39,6 +34,6 @@
 		"/.github",
 		"./node_modules",
 		"./src/files/config.example.ts",
-		"./draft",
+		"./draft"
 	]
 }

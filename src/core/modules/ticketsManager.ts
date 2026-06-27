@@ -1807,12 +1807,27 @@ async function TicketDelete(interaction: Interaction<"cached"> | Message) {
 	const fetch = await interaction.client.db.get(
 		`${interaction.guildId}.TICKET_ALL`
 	);
+	const lang = await client.func.getLanguageData(interaction.guildId);
 
 	for (const user in fetch) {
 		for (const channel in fetch[user]) {
 			if (channel === interaction.channel?.id) {
+				const ticketOwnerId = fetch[user][channel]?.author;
+				const ticketOwner = ticketOwnerId
+					? await interaction.client.users
+							.fetch(ticketOwnerId)
+							.catch(() => null)
+					: null;
+				const ticketOwnerMention =
+					ticketOwner?.toString() || `<@${ticketOwnerId}>`;
+				const deletedByUserId = interaction.member?.user.id;
+				const shouldSendOwnerDm =
+					!!ticketOwner &&
+					!!deletedByUserId &&
+					ticketOwnerId !== deletedByUserId;
+
 				await interaction.client.db.delete(
-					`${interaction.guildId}.TICKET_ALL.${interaction.member?.user.id}`
+					`${interaction.guildId}.TICKET_ALL.${user}`
 				);
 
 				try {
@@ -1836,6 +1851,23 @@ async function TicketDelete(interaction: Interaction<"cached"> | Message) {
 									hydrate: true
 								}
 							);
+
+						if (shouldSendOwnerDm) {
+							await ticketOwner
+								.send({
+									content: lang.ticket_deleted
+										.replace(
+											"${ticketOwnerMention}",
+											ticketOwnerMention
+										)
+										.replace(
+											"${deletedByUserId}",
+											deletedByUserId
+										),
+									files: [attachment]
+								})
+								.catch(() => null);
+						}
 
 						const embed = new EmbedBuilder()
 							.setColor("#008000")

@@ -34,7 +34,12 @@ interface SlashLogEntry {
 }
 
 async function main() {
-	const slashLogsPath = path.join(process.cwd(), "src", "files", "slash.log.json");
+	const slashLogsPath = path.join(
+		process.cwd(),
+		"src",
+		"files",
+		"slash.log.json"
+	);
 	const outputPath = path.join(
 		process.cwd(),
 		"src",
@@ -61,7 +66,8 @@ async function main() {
 						guildName: entry.guildName,
 						lastUsedAt: entry.timestamp,
 						uses: customEntries.filter(
-							(customEntry) => customEntry.guildId === entry.guildId
+							(customEntry) =>
+								customEntry.guildId === entry.guildId
 						).length
 					}
 				])

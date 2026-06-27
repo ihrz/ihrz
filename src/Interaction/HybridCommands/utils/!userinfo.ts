@@ -356,11 +356,11 @@ export const subCommand: SubCommand = {
 								"http"
 							)
 								? `[${lang.userinfo_var_notfound}](${createOauth2LinkWithoutGuild(
-									{
-										clientId: client.user?.id,
-										scope: "identify"
-									}
-								)})`
+										{
+											clientId: client.user?.id,
+											scope: "identify"
+										}
+									)})`
 								: lang.userinfo_var_notfound),
 						inline: true
 					},

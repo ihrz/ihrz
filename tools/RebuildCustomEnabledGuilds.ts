@@ -67,7 +67,12 @@ function isCustomCommand(command: string): boolean {
 }
 
 async function main() {
-	const slashLogsPath = path.join(process.cwd(), "src", "files", "slash.log.json");
+	const slashLogsPath = path.join(
+		process.cwd(),
+		"src",
+		"files",
+		"slash.log.json"
+	);
 	const outputPath = path.join(
 		process.cwd(),
 		"src",

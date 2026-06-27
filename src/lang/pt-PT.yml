@@ -158,6 +158,7 @@ close_not_in_ticket: "Você não pode usar este comando fora de um canal de tick
 # /delete
 delete_disabled_command: "Você não pode usar este comando porque um Administrador desativou os comandos de ticket!"
 delete_not_in_ticket: "Você não pode usar este comando fora de um canal de ticket!"
+ticket_deleted: "O ticket ${ticketOwnerMention} foi eliminado por <@${deletedByUserId}>. Aqui está a transcrição:"
 
 # /sethereticket
 sethereticket_disabled_command: "Você não pode usar este comando porque um Administrador desativou os comandos de ticket!"
@@ -679,16 +680,16 @@ poll_embed_fields_choice: ":white_check_mark: **Sim**\n :x: **Não** "
 # /question
 question_not_full: "Digite uma pergunta completa com 3 ou mais palavras!"
 question_s:
-  [
-    "Sim.",
-    "Não.",
-    "Eu não sei.",
-    "Não tenho certeza!",
-    "Você está louco!",
-    "Não, obrigado.",
-    "Não.",
-    "Sim.",
-  ]
+    [
+        "Sim.",
+        "Não.",
+        "Eu não sei.",
+        "Não tenho certeza!",
+        "Você está louco!",
+        "Não, obrigado.",
+        "Não.",
+        "Sim."
+    ]
 question_fields_input_embed: ":question:__**Pergunta**__"
 question_fields_output_embed: ":grey_exclamation:__**Resposta:**__"
 question_embed_title: "__**Pergunta**__: `${interaction.user.username}`"
@@ -2672,7 +2673,7 @@ confession_module_modal_components1_placeholder: "Mmhh"
 confession_module_modal_components2_label: "É privado?"
 
 # Eventos do Player de Música
-
+even_mp_playerStart_tip: "> ${client.iHorizon_Emojis.LastFM_Logo} Sabia que pode fazer scrobble da sua música com `/lastfm` no iHorizon ? ${client.iHorizon_Emojis.Sunglass}"
 event_mp_playerStart: "${client.iHorizon_Emojis.Music_Icon} - Tocando agora [`${track.title}`](${url}) em **${queue.channel.name}** ..."
 event_mp_audioTrackAdd: "${client.iHorizon_Emojis.Music_Icon} - ${track.title} foi adicionada à fila!"
 event_mp_playerError: "Estou tendo problemas para conectar => ${error.message}"
@@ -2789,6 +2790,7 @@ event_gw_reroll_cannot_win_msg: "Nenhum participante válido, então um vencedor
 event_gw_finnish_msg: "Parabéns ${winners}! Você ganhou o **${fetch.prize}**!"
 event_gw_finnish_cannot_msg: "Nenhum participante válido, então um vencedor não pôde ser determinado!"
 event_gw_finnish_button_title: "Sorteio Finalizado"
+event_gw_entries_button_title: "Lista de participantes"
 event_gw_removeentries_msg: "${interaction.user}, você saiu deste sorteio!"
 event_gw_leave_button_placeholder: "Sair do Sorteio"
 event_gw_confirm_leave_msg: "${interaction.user}, tem certeza de que deseja sair deste sorteio?"
@@ -2968,13 +2970,13 @@ channel_unhideall_error: "Ocorreu um erro ao mostrar os canais."
 
 # pt-PT.yml (Portuguese - Portugal)
 new_guild_embed_title:
-  - "Bem-vindos ao vosso servidor! 🎉"
-  - "Saudações, queridos amigos do Discord! 👋"
-  - "iHorizon juntou-se ao chat! 💬"
-  - "É um pássaro, é um avião, não, é o iHorizon! 🦸‍♂"
-  - "Vamos dar as boas-vindas ao iHorizon! 🔥"
-  - "Uma nova aventura começa! 🚀"
-  - "Um membro fantástico chegou! ✨"
+    - "Bem-vindos ao vosso servidor! 🎉"
+    - "Saudações, queridos amigos do Discord! 👋"
+    - "iHorizon juntou-se ao chat! 💬"
+    - "É um pássaro, é um avião, não, é o iHorizon! 🦸‍♂"
+    - "Vamos dar as boas-vindas ao iHorizon! 🔥"
+    - "Uma nova aventura começa! 🚀"
+    - "Um membro fantástico chegou! ✨"
 new_guild_embed_desc: "## ${randomMessage}\nOlá, amigos extraordinários!\n\nSou o iHorizon, um bot avançado concebido para tornar a vossa experiência no Discord excecional e cheia de diversão.\n\n✨ **O que posso fazer por vós:**\n• Gestão do servidor com inteligência e profissionalismo\n• Jogos interativos e entretenimento ilimitado\n• Ferramentas úteis para organização da comunidade\n• Suporte técnico disponível 24/7\n\nExplorai os meus comandos e mergulhai num mundo de possibilidades infinitas.\nJuntos construiremos uma comunidade fantástica cheia de belas memórias!\n\nObrigado por me escolherem, vamos começar esta incrível aventura! 🌟"
 
 # Confession Event

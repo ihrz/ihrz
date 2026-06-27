@@ -165,6 +165,7 @@ export interface LanguageData {
 	close_not_in_ticket: string;
 	delete_disabled_command: string;
 	delete_not_in_ticket: string;
+	ticket_deleted: string;
 	sethereticket_disabled_command: string;
 	sethereticket_not_admin: string;
 	sethereticket_description_embed: string;
@@ -1996,6 +1997,7 @@ export interface LanguageData {
 	confession_module_modal_components1_label: string;
 	confession_module_modal_components1_placeholder: string;
 	confession_module_modal_components2_label: string;
+	even_mp_playerStart_tip: string;
 	event_mp_playerStart: string;
 	event_mp_audioTrackAdd: string;
 	event_mp_playerError: string;
@@ -2090,6 +2092,7 @@ export interface LanguageData {
 	event_gw_embed_desc: string;
 	event_gw_ended_embed_desc: string;
 	event_gw_entries_words: string;
+	event_gw_entries_button_title: string;
 	event_gw_ended_word: string;
 	event_gw_break_req: string;
 	event_boostlog_add: string;

@@ -30,6 +30,7 @@ import { LavalinkManager } from "lavalink-client";
 
 import logger from "../logger.js";
 import { format } from "../functions/date_and_time.js";
+import { profilTable } from "../../Events/client/ready.js";
 
 let lavalink_error_channel: "dont_exist" | null | BaseGuildTextChannel = null;
 
@@ -112,28 +113,51 @@ export default async (client: Client) => {
 			name: "music_banner.png"
 		});
 
-		(channel as BaseGuildTextChannel).send({
-			embeds: [
+		const embeds = [];
+		const isLastFmConfig = await profilTable.get(
+			`${(track?.requester as User)!.id}`
+		);
+
+		// Added a last.fm explore category
+		if (Math.random() < 1 / 3 && !isLastFmConfig) {
+			embeds.push(
 				new EmbedBuilder()
-					.setColor(2829617)
+					.setColor("#ba0000")
 					.setDescription(
-						data.event_mp_playerStart
+						data.even_mp_playerStart_tip
 							.replace(
-								"${client.iHorizon_Emojis.Music_Icon}",
-								client.iHorizon_Emojis.Music_Icon
+								"${client.iHorizon_Emojis.LastFM_Logo}",
+								client.iHorizon_Emojis.LastFM_Logo
 							)
 							.replace(
-								"${track.title}",
-								String(track?.info.title)
+								"${client.iHorizon_Emojis.Sunglass}",
+								client.iHorizon_Emojis.Sunglass
 							)
-							.replace(
-								"${queue.channel.name}",
-								`<#${player.voiceChannelId}>`
-							)
-							.replace("${url}", track?.info.uri!)
 					)
-					.setImage("attachment://music_banner.png")
-			],
+			);
+		}
+
+		embeds.push(
+			new EmbedBuilder()
+				.setColor(2829617)
+				.setDescription(
+					data.event_mp_playerStart
+						.replace(
+							"${client.iHorizon_Emojis.Music_Icon}",
+							client.iHorizon_Emojis.Music_Icon
+						)
+						.replace("${track.title}", String(track?.info.title))
+						.replace(
+							"${queue.channel.name}",
+							`<#${player.voiceChannelId}>`
+						)
+						.replace("${url}", track?.info.uri!)
+				)
+				.setImage("attachment://music_banner.png")
+		);
+
+		(channel as BaseGuildTextChannel).send({
+			embeds,
 			files: [attachment]
 		});
 

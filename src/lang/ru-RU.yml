@@ -158,6 +158,7 @@ close_not_in_ticket: "Вы не можете использовать эту к�
 # /delete
 delete_disabled_command: "Вы не можете использовать эту команду, потому что администратор отключил команды для тикетов!"
 delete_not_in_ticket: "Вы не можете использовать эту команду вне канала для тикета!"
+ticket_deleted: "Тикет ${ticketOwnerMention} был удалён пользователем <@${deletedByUserId}>. Вот транскрипт:"
 
 # /sethereticket
 sethereticket_disabled_command: "Вы не можете использовать эту команду, потому что другой администратор отключил команды для тикетов!"
@@ -679,16 +680,16 @@ poll_embed_fields_choice: ":white_check_mark: **Да**\n :x: **Нет** "
 # /question
 question_not_full: "Введите полный вопрос с 3 или более словами!"
 question_s:
-  [
-    "Да.",
-    "Нет.",
-    "Я не знаю.",
-    "Я не уверен!",
-    "Ты сумасшедший!",
-    "Нет, спасибо.",
-    "Нет.",
-    "Да.",
-  ]
+    [
+        "Да.",
+        "Нет.",
+        "Я не знаю.",
+        "Я не уверен!",
+        "Ты сумасшедший!",
+        "Нет, спасибо.",
+        "Нет.",
+        "Да."
+    ]
 question_fields_input_embed: ":question:__**Вопрос**__"
 question_fields_output_embed: ":grey_exclamation:__**Ответ:**__"
 question_embed_title: "__**Вопрос**__: `${interaction.user.username}`"
@@ -2672,7 +2673,7 @@ confession_module_modal_components1_placeholder: "Ммхх"
 confession_module_modal_components2_label: "Это приватно?"
 
 # События проигрывателя музыки
-
+even_mp_playerStart_tip: "> ${client.iHorizon_Emojis.LastFM_Logo} Знаешь ли ты, что можешь скробблить свою музыку с помощью `/lastfm` на iHorizon ? ${client.iHorizon_Emojis.Sunglass}"
 event_mp_playerStart: "${client.iHorizon_Emojis.Music_Icon} - Сейчас играет [`${track.title}`](${url}) в **${queue.channel.name}** ..."
 event_mp_audioTrackAdd: "${client.iHorizon_Emojis.Music_Icon} - ${track.title} добавлена в очередь!"
 event_mp_playerError: "У меня возникли проблемы с подключением => ${error.message}"
@@ -2789,6 +2790,7 @@ event_gw_reroll_cannot_win_msg: "Нет действительных участ�
 event_gw_finnish_msg: "Поздравляем ${winners}! Вы выиграли **${fetch.prize}**!"
 event_gw_finnish_cannot_msg: "Нет действительных участников, поэтому победитель не может быть определен!"
 event_gw_finnish_button_title: "Розыгрыш завершен"
+event_gw_entries_button_title: "Список участников"
 event_gw_removeentries_msg: "${interaction.user}, вы покинули этот конкурс!"
 event_gw_leave_button_placeholder: "Покинуть розыгрыш"
 event_gw_confirm_leave_msg: "${interaction.user}, вы уверены, что хотите покинуть этот розыгрыш?"
@@ -2968,13 +2970,13 @@ channel_unhideall_error: "Произошла ошибка при показе к
 
 # ru-RU.yml (Russian - Russia)
 new_guild_embed_title:
-  - "Добро пожаловать на ваш сервер! 🎉"
-  - "Приветствую, дорогие друзья Discord! 👋"
-  - "iHorizon присоединился к чату! 💬"
-  - "Это птица, это самолёт, нет, это iHorizon! 🦸‍♂"
-  - "Давайте тепло поприветствуем iHorizon! 🔥"
-  - "Новое приключение начинается! 🚀"
-  - "Фантастический участник прибыл! ✨"
+    - "Добро пожаловать на ваш сервер! 🎉"
+    - "Приветствую, дорогие друзья Discord! 👋"
+    - "iHorizon присоединился к чату! 💬"
+    - "Это птица, это самолёт, нет, это iHorizon! 🦸‍♂"
+    - "Давайте тепло поприветствуем iHorizon! 🔥"
+    - "Новое приключение начинается! 🚀"
+    - "Фантастический участник прибыл! ✨"
 new_guild_embed_desc: "## ${randomMessage}\nПривет, удивительные друзья!\n\nЯ iHorizon, продвинутый бот, созданный для того, чтобы сделать ваш Discord опыт исключительным и полным веселья.\n\n✨ **Что я могу сделать для вас:**\n• Управление сервером с интеллектом и профессионализмом\n• Интерактивные игры и безграничные развлечения\n• Полезные инструменты для организации сообщества\n• Техническая поддержка 24/7\n\nИсследуйте мои команды и погрузитесь в мир бесконечных возможностей.\nВместе мы построим фантастическое сообщество, полное прекрасных воспоминаний!\n\nСпасибо за то, что выбрали меня, давайте начнём это невероятное приключение! 🌟"
 
 # Confession Event

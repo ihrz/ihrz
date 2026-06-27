@@ -158,6 +158,7 @@ close_not_in_ticket: "Vous ne pouvez pas utiliser cette commande en dehors d'un 
 # /delete
 delete_disabled_command: "Vous ne pouvez pas utiliser cette commande, car un administrateur l'a désactivée !"
 delete_not_in_ticket: "Vous ne pouvez pas utiliser cette commande en dehors d'un ticket !"
+ticket_deleted: "Le ticket ${ticketOwnerMention} a été supprimé par <@${deletedByUserId}>. Voici le transcript :"
 
 # /sethereticket
 sethereticket_disabled_command: "Vous ne pouvez pas utiliser cette commande car un autre administrateur l'a désactivée !"
@@ -679,16 +680,16 @@ poll_embed_fields_choice: ":white_check_mark: **Oui**\n :x: **Non** "
 # /question
 question_not_full: "Entrez une question complète avec 3 mots ou plus!"
 question_s:
-  [
-    "Oui.",
-    "Non.",
-    "Je ne sais pas.",
-    "Je ne suis pas sûr(e) !",
-    "Tu es fou/folle!",
-    "Non merci.",
-    "Non.",
-    "Oui.",
-  ]
+    [
+        "Oui.",
+        "Non.",
+        "Je ne sais pas.",
+        "Je ne suis pas sûr(e) !",
+        "Tu es fou/folle!",
+        "Non merci.",
+        "Non.",
+        "Oui."
+    ]
 question_fields_input_embed: ":question: **Question**"
 question_fields_output_embed: ":grey_exclamation: **Réponse:**"
 question_embed_title: "`Question: ${interaction.user.username}`"
@@ -2671,7 +2672,7 @@ confession_module_modal_components1_placeholder: "Mmhh"
 confession_module_modal_components2_label: "Est-ce privé?"
 
 # Music Player Events
-
+even_mp_playerStart_tip: "> ${client.iHorizon_Emojis.LastFM_Logo} Savais-tu que tu peux scrobbler ta musique avec `/lastfm` sur iHorizon ? ${client.iHorizon_Emojis.Sunglass}"
 event_mp_playerStart: "${client.iHorizon_Emojis.Music_Icon} - Lecture de [`${track.title}`](${url}) en cours dans **${queue.channel.name}** ..."
 event_mp_audioTrackAdd: "${client.iHorizon_Emojis.Music_Icon} - ${track.title} a été ajouté à la file d'attente !"
 event_mp_playerError: "Je rencontre des problèmes de connexion => ${error.message}"
@@ -2788,6 +2789,7 @@ event_gw_reroll_cannot_win_msg: "Aucun participant valide, donc un gagnant n'a p
 event_gw_finnish_msg: "Félicitations ${winners} ! Vous avez remporté **${fetch.prize}** !"
 event_gw_finnish_cannot_msg: "Aucun participant valide, donc un gagnant n'a pas pu être déterminé !"
 event_gw_finnish_button_title: "Giveaway Terminé"
+event_gw_entries_button_title: "Liste des participants"
 event_gw_removeentries_msg: "${interaction.user}, vous avez quitté ce giveaway !"
 event_gw_leave_button_placeholder: "Quitter le concours"
 event_gw_confirm_leave_msg: "${interaction.user}, es-tu sûr de vouloir quitter ce concours ?"
@@ -2967,13 +2969,13 @@ channel_unhideall_error: "Une erreur est survenue lors du démasquage des salons
 
 # fr-FR.yml (French - France)
 new_guild_embed_title:
-  - "Bienvenue sur votre serveur ! 🎉"
-  - "Salutations, chers amis Discord ! 👋"
-  - "iHorizon a rejoint le chat ! 💬"
-  - "C'est un oiseau, c'est un avion, non, c'est iHorizon ! 🦸‍♂"
-  - "Souhaitons la bienvenue à iHorizon ! 🔥"
-  - "Une nouvelle aventure commence ! 🚀"
-  - "Un membre fantastique nous a rejoint ! ✨"
+    - "Bienvenue sur votre serveur ! 🎉"
+    - "Salutations, chers amis Discord ! 👋"
+    - "iHorizon a rejoint le chat ! 💬"
+    - "C'est un oiseau, c'est un avion, non, c'est iHorizon ! 🦸‍♂"
+    - "Souhaitons la bienvenue à iHorizon ! 🔥"
+    - "Une nouvelle aventure commence ! 🚀"
+    - "Un membre fantastique nous a rejoint ! ✨"
 new_guild_embed_desc: "## ${randomMessage}\nSalut les amis extraordinaires !\n\nJe suis iHorizon, un bot avancé conçu pour rendre votre expérience Discord exceptionnelle et pleine de fun.\n\n✨ **Ce que je peux faire pour vous :**\n• Gestion du serveur avec intelligence et professionnalisme\n• Jeux interactifs et divertissement illimité\n• Outils utiles pour l'organisation de la communauté\n• Support technique disponible 24h/24 et 7j/7\n\nExplorez mes commandes et plongez dans un monde de possibilités infinies.\nEnsemble, nous construirons une communauté fantastique remplie de magnifiques souvenirs !\n\nMerci de m'avoir choisi, commençons cette incroyable aventure ! 🌟"
 
 # Confession Event

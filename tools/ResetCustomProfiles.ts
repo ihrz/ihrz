@@ -56,10 +56,15 @@ async function getOptimalShardCount(): Promise<number> {
 
 	const discordRecommended = gateway.shards;
 	const shardMultiplier = Math.ceil(1000 / GUILDS_PER_SHARD);
-	const final = Math.max(discordRecommended, discordRecommended * shardMultiplier);
+	const final = Math.max(
+		discordRecommended,
+		discordRecommended * shardMultiplier
+	);
 
 	logger.debug(`Gateway recommended shards: ${discordRecommended}`);
-	logger.debug(`Gateway max concurrency: ${gateway.session_start_limit.max_concurrency}`);
+	logger.debug(
+		`Gateway max concurrency: ${gateway.session_start_limit.max_concurrency}`
+	);
 	logger.debug(`Computed total shards for reset script: ${final}`);
 
 	return final;
@@ -103,22 +108,33 @@ async function main() {
 	const workerShards = [...perShard.keys()].sort((a, b) => a - b);
 	logger.debug(`Worker shards to spawn: ${workerShards.join(", ")}`);
 
-	const manager = new ShardingManager("./tools/ResetCustomProfilesShardWorker.ts", {
-		totalShards,
-		token,
-		respawn: false,
-		shardList: workerShards,
-		shardArgs: [shouldApply ? "--apply" : "--dry-run"]
-	});
+	const manager = new ShardingManager(
+		"./tools/ResetCustomProfilesShardWorker.ts",
+		{
+			totalShards,
+			token,
+			respawn: false,
+			shardList: workerShards,
+			shardArgs: [shouldApply ? "--apply" : "--dry-run"]
+		}
+	);
 
 	manager.on("shardCreate", (shard) => {
 		logger.log(`Reset worker shard #${shard.id} spawning...`);
-		shard.on("ready", () => logger.log(`Reset worker shard #${shard.id} ready`));
-		shard.on("disconnect", () => logger.warn(`Reset worker shard #${shard.id} disconnected`));
+		shard.on("ready", () =>
+			logger.log(`Reset worker shard #${shard.id} ready`)
+		);
+		shard.on("disconnect", () =>
+			logger.warn(`Reset worker shard #${shard.id} disconnected`)
+		);
 		shard.on("death", () => {
 			logger.log(`Reset worker shard #${shard.id} exited`);
 		});
-		shard.on("error", (error) => logger.err(`Reset worker shard #${shard.id} error: ${error.message}`));
+		shard.on("error", (error) =>
+			logger.err(
+				`Reset worker shard #${shard.id} error: ${error.message}`
+			)
+		);
 	});
 
 	const workersWithGuilds = workerShards.map((shardId) => ({

@@ -59,13 +59,17 @@ class GiveawayManager {
 		this.options = options;
 
 		client.on("interactionCreate", async (interaction) => {
-			if (
-				interaction.isButton() &&
-				interaction.customId === "confirm-entry-giveaway"
-			) {
-				await this.addEntries(
-					interaction as ButtonInteraction<"cached">
-				);
+			if (interaction.isButton()) {
+				if (interaction.customId === "confirm-entry-giveaway") {
+					await this.addEntries(
+						interaction as ButtonInteraction<"cached">
+					);
+				} else if (interaction.customId === "giveaway-list-entries") {
+					await this.listEntries(
+						interaction as ButtonInteraction<"cached">,
+						interaction.message.id
+					);
+				}
 			}
 		});
 	}
@@ -89,6 +93,10 @@ class GiveawayManager {
 					.setCustomId("confirm-entry-giveaway")
 					.setEmoji(this.options.config.reaction)
 					.setStyle(ButtonStyle.Primary);
+				const entriesList = new ButtonBuilder()
+					.setCustomId("giveaway-list-entries")
+					.setLabel(lang.event_gw_entries_button_title)
+					.setStyle(ButtonStyle.Secondary);
 
 				const end_string = time(
 					new Date(Date.now() + data.duration),
@@ -129,7 +137,8 @@ class GiveawayManager {
 						embeds: [gw],
 						components: [
 							new ActionRowBuilder<ButtonBuilder>().addComponents(
-								confirm
+								confirm,
+								entriesList
 							)
 						],
 						files: [
@@ -593,7 +602,10 @@ class GiveawayManager {
 	}
 
 	public async listEntries(
-		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		interaction:
+			| ChatInputCommandInteraction<"cached">
+			| ButtonInteraction<"cached">
+			| Message,
 		giveawayId: string
 	) {
 		const fetch = (await db.GetGiveawayData(giveawayId))!;
@@ -606,6 +618,11 @@ class GiveawayManager {
 				if (interaction instanceof ChatInputCommandInteraction) {
 					await interaction.editReply({
 						content: lang.history_no_entries
+					});
+				} else if (interaction instanceof ButtonInteraction) {
+					await interaction.reply({
+						content: lang.history_no_entries,
+						flags: [1 << 6]
 					});
 				} else {
 					await interaction.edit({
@@ -622,10 +639,10 @@ class GiveawayManager {
 			for (let i = 0; i < char.length; i += usersPerPage) {
 				const pageUsers = char.slice(i, i + usersPerPage);
 				const pageContent = pageUsers
-					.map((userId) => `<@${userId}>`)
+					.map((userId, index) => `${i + index + 1}. <@${userId}>`)
 					.join("\n");
 				pages.push({
-					title: `Giveaway's Entries List | Page ${i / usersPerPage + 1}`,
+					title: lang.event_gw_entries_button_title,
 					description: pageContent
 				});
 			}
@@ -636,8 +653,7 @@ class GiveawayManager {
 					.setTitle(pages[currentPage].title)
 					.setDescription(pages[currentPage].description)
 					.setFooter({
-						text: `${client.user?.username} | Page ${currentPage + 1}/${pages.length}`,
-						iconURL: interaction.client.user?.displayAvatarURL()
+						text: `${lang.var_page} ${currentPage + 1}/${pages.length}`
 					})
 					.setTimestamp();
 			};
@@ -652,17 +668,32 @@ class GiveawayManager {
 					.setLabel(">>>")
 					.setStyle(ButtonStyle.Secondary)
 			);
+			const components =
+				pages.length > 1
+					? [row as ActionRowBuilder<ButtonBuilder>]
+					: [];
 
 			if (interaction instanceof ChatInputCommandInteraction) {
 				var messageEmbed = await interaction.editReply({
 					embeds: [createEmbed()],
-					components: [row as ActionRowBuilder<ButtonBuilder>]
+					components
 				});
+			} else if (interaction instanceof ButtonInteraction) {
+				await interaction.reply({
+					embeds: [createEmbed()],
+					components,
+					flags: [1 << 6]
+				});
+				var messageEmbed = await interaction.fetchReply();
 			} else {
 				var messageEmbed = (await interaction.reply({
 					embeds: [createEmbed()],
-					components: [row as ActionRowBuilder<ButtonBuilder>]
+					components
 				})) as Message<true>;
+			}
+
+			if (pages.length <= 1) {
+				return;
 			}
 
 			const collector = messageEmbed.createMessageComponentCollector({

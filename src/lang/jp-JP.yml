@@ -158,6 +158,7 @@ close_not_in_ticket: "チケットチャンネルの外でこのコマンドを�
 # /delete
 delete_disabled_command: "このコマンドは管理者によって無効化されています！"
 delete_not_in_ticket: "チケットチャンネルの外でこのコマンドを使用することはできません！"
+ticket_deleted: "チケット ${ticketOwnerMention} は <@${deletedByUserId}> によって削除されました。トランスクリプトはこちらです："
 
 # /sethereticket
 sethereticket_disabled_command: "このコマンドは管理者によって無効化されています！"
@@ -679,16 +680,16 @@ poll_embed_fields_choice: ":white_check_mark: **はい**\n :x: **いいえ **"
 # /question
 question_not_full: "3つ以上の単語で質問を入力してください！"
 question_s:
-  [
-    "はい。",
-    "いいえ。",
-    "わかりません。",
-    "自信がありません。",
-    "バカじゃない？",
-    "いいえ、結構です。",
-    "いいえ。",
-    "はい。",
-  ]
+    [
+        "はい。",
+        "いいえ。",
+        "わかりません。",
+        "自信がありません。",
+        "バカじゃない？",
+        "いいえ、結構です。",
+        "いいえ。",
+        "はい。"
+    ]
 question_fields_input_embed: ":question:質問"
 question_fields_output_embed: ":grey_exclamation:**回答**:"
 question_embed_title: "**質問**: `${interaction.user.username}`"
@@ -2672,7 +2673,7 @@ confession_module_modal_components1_placeholder: "うーん"
 confession_module_modal_components2_label: "これはプライベートですか？"
 
 # Music Player Events
-
+even_mp_playerStart_tip: "> ${client.iHorizon_Emojis.LastFM_Logo} iHorizon で `/lastfm` を使って音楽をスクロブルできること、知っていましたか？ ${client.iHorizon_Emojis.Sunglass}"
 event_mp_playerStart: "${client.iHorizon_Emojis.Music_Icon} - 現在 **${queue.channel.name}** で [`${track.title}`](${url}) を再生中..."
 event_mp_audioTrackAdd: "${client.iHorizon_Emojis.Music_Icon} - ${track.title} をキューに追加しました！"
 event_mp_playerError: "接続に問題があります => ${error.message}"
@@ -2789,6 +2790,7 @@ event_gw_reroll_cannot_win_msg: "有効な応募者がいないため、受賞�
 event_gw_finnish_msg: "おめでとうございます、${winners}さん！ **${fetch.prize}** を獲得しました！"
 event_gw_finnish_cannot_msg: "有効な応募者がいないため、受賞者を決定できませんでした！"
 event_gw_finnish_button_title: "ギブアウェイ終了"
+event_gw_entries_button_title: "参加者一覧"
 event_gw_removeentries_msg: "${interaction.user}さん、このギブアウェイから退出しました！"
 event_gw_leave_button_placeholder: "ギブアウェイを退出"
 event_gw_confirm_leave_msg: "${interaction.user}、このギブアウェイを退出してもよろしいですか？"
@@ -2968,13 +2970,13 @@ channel_unhideall_error: "チャンネルの表示中にエラーが発生しま
 
 # jp-JP.yml (Japanese - Japan)
 new_guild_embed_title:
-  - "あなたのサーバーへようこそ！🎉"
-  - "こんにちは、Discord仲間たち！👋"
-  - "iHorizonがチャットに参加しました！💬"
-  - "鳥だ、飛行機だ、いや、iHorizonだ！🦸‍♂"
-  - "iHorizonを温かく迎えましょう！🔥"
-  - "新しい冒険が始まります！🚀"
-  - "素晴らしいメンバーが到着しました！✨"
+    - "あなたのサーバーへようこそ！🎉"
+    - "こんにちは、Discord仲間たち！👋"
+    - "iHorizonがチャットに参加しました！💬"
+    - "鳥だ、飛行機だ、いや、iHorizonだ！🦸‍♂"
+    - "iHorizonを温かく迎えましょう！🔥"
+    - "新しい冒険が始まります！🚀"
+    - "素晴らしいメンバーが到着しました！✨"
 new_guild_embed_desc: "## ${randomMessage}\nこんにちは、素晴らしい友達たち！\n\n私はiHorizon、あなたのDiscord体験を特別で楽しいものにするために設計された高度なボットです。\n\n✨ **私ができること：**\n• インテリジェントでプロフェッショナルなサーバー管理\n• インタラクティブなゲームと無限のエンターテイメント\n• コミュニティ組織のための便利なツール\n• 24時間365日のテクニカルサポート\n\n私のコマンドを探索し、無限の可能性の世界に飛び込んでください。\n一緒に美しい思い出でいっぱいの素晴らしいコミュニティを構築しましょう！\n\n私を選んでくれてありがとう、この素晴らしい冒険を始めましょう！🌟"
 
 # Confession Event

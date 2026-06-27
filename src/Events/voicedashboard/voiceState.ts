@@ -24,12 +24,34 @@ import {
 	CategoryChannel,
 	ChannelType,
 	Client,
+	VoiceBasedChannel,
 	VoiceState
 } from "discord.js";
 
 import { BotEvent } from "../../../types/event.js";
 import { DatabaseStructure } from "../../../types/database_structure.js";
 import { tempTable } from "../client/ready.js";
+
+/**
+ * Returns the real member count of a voice channel by fetching it from Discord.
+ * With makeCache/sweeper, channel.members may be empty even when people are inside.
+ * We re-fetch the channel so Discord.js repopulates the members collection.
+ */
+async function isMemberlessChannel(
+	channel: VoiceBasedChannel | null | undefined
+): Promise<boolean> {
+	if (!channel || channel.type !== ChannelType.GuildVoice) return false;
+	try {
+		// Re-fetch forces Discord.js to pull fresh member data from the gateway cache
+		// (not an API call — it hits the in-memory guild member store that makeCache
+		// may have swept from the channel's own .members collection).
+		const fresh = (await channel.fetch()) as BaseGuildVoiceChannel;
+		return fresh.members.size === 0;
+	} catch {
+		// If the channel is already gone, treat it as empty
+		return true;
+	}
+}
 
 export const event: BotEvent = {
 	name: "voiceStateUpdate",
@@ -85,9 +107,9 @@ export const event: BotEvent = {
 
 		if (
 			oldState.channelId === channelDb &&
-			oldState.channel?.members.size === 0
+			(await isMemberlessChannel(oldState.channel))
 		) {
-			await oldState.channel.delete().catch(() => {});
+			await oldState.channel?.delete().catch(() => {});
 			await tempTable.delete(
 				`CUSTOM_VOICE.${newState.guild.id}.${newState.member?.id}`
 			);
@@ -102,21 +124,26 @@ export const event: BotEvent = {
 			return;
 		}
 
-		// If the user leave annother empty channel
-		if (oldState.channel?.members.size === 0 && allChannel) {
+		if (oldState.channel && allChannel) {
 			const allChannelEntries = Object.entries(allChannel);
 
-			for (const [userId, channelId] of allChannelEntries) {
-				if (channelId !== oldState.channelId) continue;
+			for (const [userId, channelChannelId] of allChannelEntries) {
+				if (channelChannelId !== oldState.channelId) continue;
 				if (userId === newState.member?.id) continue;
 
-				const userChannel =
-					newState.guild.channels.cache.get(channelId as string) ||
+				const userChannel = (newState.guild.channels.cache.get(
+					channelChannelId as string
+				) ||
 					(await newState.guild.channels
-						.fetch(channelId as string)
-						.catch(() => null));
+						.fetch(channelChannelId as string)
+						.catch(() => null))) as BaseGuildVoiceChannel | null;
 
-				if (oldState.channelId === channelId) {
+				if (
+					oldState.channelId === channelChannelId &&
+					(await isMemberlessChannel(
+						userChannel as VoiceBasedChannel
+					))
+				) {
 					await userChannel?.delete().catch(() => {});
 					await tempTable.delete(
 						`CUSTOM_VOICE.${newState.guild.id}.${userId}`
@@ -182,81 +209,83 @@ export const event: BotEvent = {
 						.setChannel(chann.id)
 						.then(async () => {
 							const movedMember = await newState.guild.members
-								.fetch(newState.member?.id as string)
+								.fetch({
+									user: newState.member?.id as string,
+									force: true
+								})
 								.catch(() => null);
 
-							if (movedMember?.voice.channelId !== chann.id) {
+							if (
+								!movedMember ||
+								movedMember.voice.channelId !== chann.id
+							) {
 								await chann.delete().catch(() => {});
 								await tempTable.delete(
 									`CUSTOM_VOICE.${newState.guild.id}.${newState.member?.id}`
 								);
 								return;
-							} else {
-								chann.permissionOverwrites.edit(
-									newState.member?.user.id as string,
-									{
-										ViewChannel: true,
-										Connect: true,
-										Stream: true,
-										Speak: true,
+							}
 
-										SendMessages: true,
-										UseApplicationCommands: true,
-										AttachFiles: true,
-										AddReactions: true
-									}
-								);
+							// Permissions propriétaire
+							chann.permissionOverwrites.edit(
+								newState.member?.user.id as string,
+								{
+									ViewChannel: true,
+									Connect: true,
+									Stream: true,
+									Speak: true,
+									SendMessages: true,
+									UseApplicationCommands: true,
+									AttachFiles: true,
+									AddReactions: true
+								}
+							);
 
-								if (baseData.staff_role) {
-									if (
-										typeof baseData.staff_role === "string"
-									) {
-										// backward compatibility
-										chann.permissionOverwrites.edit(
-											baseData.staff_role,
-											{
-												ViewChannel: true,
-												Connect: true,
-												Stream: true,
-												Speak: true,
-
-												SendMessages: true,
-												UseApplicationCommands: true,
-												AttachFiles: true,
-												AddReactions: true,
-
-												MuteMembers: true,
-												DeafenMembers: true,
-												PrioritySpeaker: true,
-												KickMembers: true
-											}
-										);
-									} else {
-										for (let roleId of baseData.staff_role) {
-											if (
-												newState.guild.roles.cache.get(
-													roleId
-												)
+							// Permissions staff
+							if (baseData.staff_role) {
+								if (typeof baseData.staff_role === "string") {
+									// backward compatibility
+									chann.permissionOverwrites.edit(
+										baseData.staff_role,
+										{
+											ViewChannel: true,
+											Connect: true,
+											Stream: true,
+											Speak: true,
+											SendMessages: true,
+											UseApplicationCommands: true,
+											AttachFiles: true,
+											AddReactions: true,
+											MuteMembers: true,
+											DeafenMembers: true,
+											PrioritySpeaker: true,
+											KickMembers: true
+										}
+									);
+								} else {
+									for (let roleId of baseData.staff_role) {
+										if (
+											newState.guild.roles.cache.get(
+												roleId
 											)
-												chann.permissionOverwrites.edit(
-													roleId,
-													{
-														ViewChannel: true,
-														Connect: true,
-														Stream: true,
-														Speak: true,
-
-														SendMessages: true,
-														UseApplicationCommands: true,
-														AttachFiles: true,
-														AddReactions: true,
-
-														MuteMembers: true,
-														DeafenMembers: true,
-														PrioritySpeaker: true,
-														KickMembers: true
-													}
-												);
+										) {
+											chann.permissionOverwrites.edit(
+												roleId,
+												{
+													ViewChannel: true,
+													Connect: true,
+													Stream: true,
+													Speak: true,
+													SendMessages: true,
+													UseApplicationCommands: true,
+													AttachFiles: true,
+													AddReactions: true,
+													MuteMembers: true,
+													DeafenMembers: true,
+													PrioritySpeaker: true,
+													KickMembers: true
+												}
+											);
 										}
 									}
 								}
@@ -285,13 +314,13 @@ export async function recoverCustomVoiceChannels(client: Client) {
 		for (const [userId, channelId] of allChannelEntries) {
 			try {
 				// Fetch the channel from Discord
-				const channel =
-					guild.channels.cache.get(channelId as string) ||
+				const channel = (guild.channels.cache.get(
+					channelId as string
+				) ||
 					(await guild.channels
 						.fetch(channelId as string)
-						.catch(() => null));
+						.catch(() => null))) as BaseGuildVoiceChannel | null;
 
-				// If channel doesn't exist anymore, clean up database
 				if (!channel) {
 					await tempTable.delete(
 						`CUSTOM_VOICE.${guild.id}.${userId}`
@@ -299,20 +328,15 @@ export async function recoverCustomVoiceChannels(client: Client) {
 					continue;
 				}
 
-				// Check if channel is a voice channel and is empty
-				if (
-					channel.type === ChannelType.GuildVoice &&
-					channel.members.size === 0
-				) {
-					// Delete the empty custom voice channel
+				if (await isMemberlessChannel(channel as VoiceBasedChannel)) {
 					await channel.delete().catch(() => {});
 					// Clean up database entry
 					await tempTable.delete(
 						`CUSTOM_VOICE.${guild.id}.${userId}`
 					);
 				}
-			} catch (error) {
 				// If any error occurs, clean up the database entry
+			} catch {
 				await tempTable.delete(`CUSTOM_VOICE.${guild.id}.${userId}`);
 			}
 		}

@@ -158,6 +158,7 @@ close_not_in_ticket: "Sie können diesen Befehl außerhalb eines Ticket-Kanals n
 # /delete
 delete_disabled_command: "Sie können diesen Befehl nicht verwenden, da ein Administrator die Ticket-Befehle deaktiviert hat!"
 delete_not_in_ticket: "Sie können diesen Befehl außerhalb eines Ticket-Kanals nicht verwenden!"
+ticket_deleted: "Das Ticket ${ticketOwnerMention} wurde von <@${deletedByUserId}> gelöscht. Hier ist das Transkript:"
 
 # /sethereticket
 sethereticket_disabled_command: "Sie können diesen Befehl nicht verwenden, da ein anderer Administrator die Ticket-Befehle deaktiviert hat!"
@@ -679,16 +680,16 @@ poll_embed_fields_choice: ":white_check_mark: **Ja**\n :x: **Nein** "
 # /question
 question_not_full: "Geben Sie eine vollständige Frage mit 3 oder mehr Wörtern ein!"
 question_s:
-  [
-    "Ja.",
-    "Nein.",
-    "Ich weiß es nicht.",
-    "Ich bin mir nicht sicher!",
-    "Du bist verrückt!",
-    "Nein danke.",
-    "Nein.",
-    "Ja.",
-  ]
+    [
+        "Ja.",
+        "Nein.",
+        "Ich weiß es nicht.",
+        "Ich bin mir nicht sicher!",
+        "Du bist verrückt!",
+        "Nein danke.",
+        "Nein.",
+        "Ja."
+    ]
 question_fields_input_embed: ":question:__**Frage**__"
 question_fields_output_embed: ":grey_exclamation:__**Antwort:**__"
 question_embed_title: "__**Frage**__: `${interaction.user.username}`"
@@ -2673,6 +2674,7 @@ confession_module_modal_components2_label: "Ist das privat?"
 
 # Music Player Events
 
+even_mp_playerStart_tip: "> ${client.iHorizon_Emojis.LastFM_Logo} Wusstest du, dass du deine Musik mit `/lastfm` auf iHorizon scrobbeln kannst ? ${client.iHorizon_Emojis.Sunglass}"
 event_mp_playerStart: "${client.iHorizon_Emojis.Music_Icon} - Wiedergabe von [`${track.title}`](${url}) in **${queue.channel.name}** gestartet ..."
 event_mp_audioTrackAdd: "${client.iHorizon_Emojis.Music_Icon} - ${track.title} wurde zur Warteschlange hinzugefügt !"
 event_mp_playerError: "Ich habe Probleme beim Verbinden => ${error.message}"
@@ -2789,6 +2791,7 @@ event_gw_reroll_cannot_win_msg: "Keine gültigen Teilnehmer, daher konnte kein G
 event_gw_finnish_msg: "Herzlichen Glückwunsch ${winners}! Sie haben **${fetch.prize}** gewonnen!"
 event_gw_finnish_cannot_msg: "Keine gültigen Teilnehmer, daher konnte kein Gewinner ermittelt werden!"
 event_gw_finnish_button_title: "Gewinnspiel beendet"
+event_gw_entries_button_title: "Teilnehmerliste"
 event_gw_removeentries_msg: "${interaction.user}, du hast an diesem Gewinnspiel teilgenommen!"
 event_gw_leave_button_placeholder: "Gewinnspiel verlassen"
 event_gw_confirm_leave_msg: "${interaction.user}, bist du sicher, dass du dieses Gewinnspiel verlassen möchtest?"
@@ -2968,13 +2971,13 @@ channel_unhideall_error: "Ein Fehler ist beim Einblenden der Kanäle aufgetreten
 
 # de-DE.yml (German - Germany)
 new_guild_embed_title:
-  - "Willkommen auf eurem Server! 🎉"
-  - "Grüße, liebe Discord-Community! 👋"
-  - "iHorizon ist dem Chat beigetreten! 💬"
-  - "Es ist ein Vogel, es ist ein Flugzeug, nein, es ist iHorizon! 🦸‍♂"
-  - "Lasst uns iHorizon herzlich willkommen heißen! 🔥"
-  - "Ein neues Abenteuer beginnt! 🚀"
-  - "Ein fantastisches neues Mitglied ist da! ✨"
+    - "Willkommen auf eurem Server! 🎉"
+    - "Grüße, liebe Discord-Community! 👋"
+    - "iHorizon ist dem Chat beigetreten! 💬"
+    - "Es ist ein Vogel, es ist ein Flugzeug, nein, es ist iHorizon! 🦸‍♂"
+    - "Lasst uns iHorizon herzlich willkommen heißen! 🔥"
+    - "Ein neues Abenteuer beginnt! 🚀"
+    - "Ein fantastisches neues Mitglied ist da! ✨"
 new_guild_embed_desc: "## ${randomMessage}\nHallo zusammen, liebe Freunde!\n\nIch bin iHorizon, ein fortschrittlicher Bot, der entwickelt wurde, um euer Discord-Erlebnis außergewöhnlich und voller Spaß zu gestalten.\n\n✨ **Was ich für euch tun kann:**\n• Server-Management mit Intelligenz und Professionalität\n• Interaktive Spiele und grenzenlose Unterhaltung\n• Nützliche Tools zur Community-Organisation\n• 24/7 technischer Support\n\nEntdeckt meine Befehle und taucht ein in eine Welt voller unbegrenzter Möglichkeiten.\nGemeinsam werden wir eine fantastische Community aufbauen, voller wunderschöner Erinnerungen!\n\nDanke, dass ihr mich gewählt habt – lasst uns das Abenteuer beginnen! 🌟"
 
 # Confession Event

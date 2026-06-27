@@ -158,6 +158,7 @@ close_not_in_ticket: "You cannot use this command outside of a ticket channel!"
 # /delete
 delete_disabled_command: "You cannot use this command because an administrator disabled it"
 delete_not_in_ticket: "You cannot use this command outside of a ticket channel!"
+ticket_deleted: "The ticket ${ticketOwnerMention} has been deleted by <@${deletedByUserId}>. Here is the transcript:"
 
 # /sethereticket
 sethereticket_disabled_command: "You cannot use this command because an administrator has disabled it"
@@ -679,16 +680,16 @@ poll_embed_fields_choice: ":white_check_mark: **Yes**\n:x: **No**"
 # /question
 question_not_full: "Enter a full question with 3 or more words!"
 question_s:
-  [
-    "Yes.",
-    "No.",
-    "I don't know.",
-    "I am not sure!",
-    "You're crazy!",
-    "No thanks.",
-    "No.",
-    "Yes.",
-  ]
+    [
+        "Yes.",
+        "No.",
+        "I don't know.",
+        "I am not sure!",
+        "You're crazy!",
+        "No thanks.",
+        "No.",
+        "Yes."
+    ]
 question_fields_input_embed: ":question:__**Question**__"
 question_fields_output_embed: ":grey_exclamation:__**Answer:**__"
 question_embed_title: "__**Question**__: `${interaction.user.username}`"
@@ -2676,6 +2677,7 @@ confession_module_modal_components2_label: "Is this private?"
 
 # Music Player Events
 
+even_mp_playerStart_tip: "> ${client.iHorizon_Emojis.LastFM_Logo} Did you know that you can scrobble your music with `/lastfm` on iHorizon ? ${client.iHorizon_Emojis.Sunglass}"
 event_mp_playerStart: "${client.iHorizon_Emojis.Music_Icon} - Now playing [`${track.title}`](${url}) into **${queue.channel.name}**..."
 event_mp_audioTrackAdd: "${client.iHorizon_Emojis.Music_Icon} - ${track.title} has been added to the queue!"
 event_mp_playerError: "I'm having trouble connecting => ${error.message}"
@@ -2792,6 +2794,7 @@ event_gw_reroll_cannot_win_msg: "No valid entrants, so a winner could not be det
 event_gw_finnish_msg: "Congratulations ${winners}! You won the **${fetch.prize}**!"
 event_gw_finnish_cannot_msg: "No valid entrants, so a winner could not be determined!"
 event_gw_finnish_button_title: "Giveaway Finished"
+event_gw_entries_button_title: "Participants List"
 event_gw_removeentries_msg: "${interaction.user}, you have to leave this giveaway!"
 event_gw_leave_button_placeholder: "Leave Giveaway"
 event_gw_confirm_leave_msg: "${interaction.user} are you sure you want to leave this giveaway?"
@@ -2971,11 +2974,11 @@ channel_unhideall_error: "An error occurred while unhiding channels."
 
 # New guild event
 new_guild_embed_title:
-  - "Welcome to our server! 🎉"
-  - "Greetings, fellow Discordians! 👋"
-  - "iHorizon has joined the chat! 💬"
-  - "It's a bird, it's a plane, no, it's iHorizon! 🦸‍♂"
-  - "Let's give a warm welcome to iHorizon! 🔥"
+    - "Welcome to our server! 🎉"
+    - "Greetings, fellow Discordians! 👋"
+    - "iHorizon has joined the chat! 💬"
+    - "It's a bird, it's a plane, no, it's iHorizon! 🦸‍♂"
+    - "Let's give a warm welcome to iHorizon! 🔥"
 new_guild_embed_desc: "## ${randomMessage}\nHi there! I'm excited to join your server and be a part of your community.\nMy name is iHorizon and I'm here to help you with all your needs. Feel free to use my commands and explore all the features I have to offer.\nIf you have any questions or run into any issues, don't hesitate to reach out to me.\nI'm here to make your experience on this server the best it can be.\nThanks for choosing me and let's have some fun together!\n"
 
 # Confession Event
