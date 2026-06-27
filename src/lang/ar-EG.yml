@@ -2790,6 +2790,7 @@ event_gw_reroll_cannot_win_msg: "لا توجد مشاركات صالحة، لذ�
 event_gw_finnish_msg: "تهانينا ${winners}! فزت بـ **${fetch.prize}**!"
 event_gw_finnish_cannot_msg: "لا توجد مشاركات صالحة، لذا لم يتم تحديد فائز!"
 event_gw_finnish_button_title: "السحب انتهى"
+event_gw_entries_button_title: "قائمة المشاركين"
 event_gw_removeentries_msg: "${interaction.user} لقد انسحبت من هذه السحوبات!"
 event_gw_leave_button_placeholder: "انسحب من السحب"
 event_gw_confirm_leave_msg: "${interaction.user} هل أنت متأكد من أنك تريد الانسحاب من هذه السحوبات؟"

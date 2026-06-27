@@ -2790,6 +2790,7 @@ event_gw_reroll_cannot_win_msg: "Нет действительных участ�
 event_gw_finnish_msg: "Поздравляем ${winners}! Вы выиграли **${fetch.prize}**!"
 event_gw_finnish_cannot_msg: "Нет действительных участников, поэтому победитель не может быть определен!"
 event_gw_finnish_button_title: "Розыгрыш завершен"
+event_gw_entries_button_title: "Список участников"
 event_gw_removeentries_msg: "${interaction.user}, вы покинули этот конкурс!"
 event_gw_leave_button_placeholder: "Покинуть розыгрыш"
 event_gw_confirm_leave_msg: "${interaction.user}, вы уверены, что хотите покинуть этот розыгрыш?"

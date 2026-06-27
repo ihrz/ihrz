@@ -2790,6 +2790,7 @@ event_gw_reroll_cannot_win_msg: "有効な応募者がいないため、受賞�
 event_gw_finnish_msg: "おめでとうございます、${winners}さん！ **${fetch.prize}** を獲得しました！"
 event_gw_finnish_cannot_msg: "有効な応募者がいないため、受賞者を決定できませんでした！"
 event_gw_finnish_button_title: "ギブアウェイ終了"
+event_gw_entries_button_title: "参加者一覧"
 event_gw_removeentries_msg: "${interaction.user}さん、このギブアウェイから退出しました！"
 event_gw_leave_button_placeholder: "ギブアウェイを退出"
 event_gw_confirm_leave_msg: "${interaction.user}、このギブアウェイを退出してもよろしいですか？"

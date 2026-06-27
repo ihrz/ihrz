@@ -2793,6 +2793,7 @@ event_gw_reroll_cannot_win_msg: "Wesh personne n'a voulue le cadeau? Nique sa m�
 event_gw_finnish_msg: "Félicitations ${winners} ! Vous avez remporté **${fetch.prize}** !"
 event_gw_finnish_cannot_msg: "Aucun participant valide, donc un gagnant n'a pas pu être déterminé ! Eh merde ptn"
 event_gw_finnish_button_title: "Giveaway Terminé Wallah"
+event_gw_entries_button_title: "Liste des participants"
 event_gw_removeentries_msg: "${interaction.user}, vous avez quitté ce giveaway ! Salle clochard wtf"
 event_gw_leave_button_placeholder: "Quitter le concours"
 event_gw_confirm_leave_msg: "${interaction.user}, es-tu sûr de vouloir quitter ce concours ?"

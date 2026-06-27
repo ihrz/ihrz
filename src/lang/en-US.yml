@@ -2794,6 +2794,7 @@ event_gw_reroll_cannot_win_msg: "No valid entrants, so a winner could not be det
 event_gw_finnish_msg: "Congratulations ${winners}! You won the **${fetch.prize}**!"
 event_gw_finnish_cannot_msg: "No valid entrants, so a winner could not be determined!"
 event_gw_finnish_button_title: "Giveaway Finished"
+event_gw_entries_button_title: "Participants List"
 event_gw_removeentries_msg: "${interaction.user}, you have to leave this giveaway!"
 event_gw_leave_button_placeholder: "Leave Giveaway"
 event_gw_confirm_leave_msg: "${interaction.user} are you sure you want to leave this giveaway?"
