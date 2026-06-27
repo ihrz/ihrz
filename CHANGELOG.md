@@ -46,6 +46,10 @@ Thanks to everyone who has supported iHorizon since the beginning. ❤️
 
 - In the `Music` **module**, added a small tip message that randomly appears when the player starts, to let users know that `/lastfm` exists on iHorizon.
 
+**__Module: `Giveaways`__**
+
+- Added "Participants List" button to giveaway embeds that let users check all participants to the current givewaways,
+
 ## Internal improvements
 
 - Added Sweepers and makeCache to the `Client`'s discord.js configuration to improve memory usage in production.
