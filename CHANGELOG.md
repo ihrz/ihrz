@@ -14,9 +14,9 @@ Since the project became open source in 2022, we have always aimed to keep iHori
 
 In practice, this allows iHorizon to fully integrate into your community, as if it were your own bot, while maintaining the stability, features, and ongoing maintenance of the main project.
 
-Until now, bot customization features were considered simple “fun” commands. Today, we are evolving this vision.
+Until now, bot customization features were considered simple "fun" commands. Today, we are evolving this vision.
 
-Using /custom, iHorizon can adopt an identity specific to your server, like a “custom-made” bot, while remaining stable, maintained, and consistent within the overall ecosystem.
+Using `/custom`, iHorizon can adopt an identity specific to your server, like a "custom-made" bot, while remaining stable, maintained, and consistent within the overall ecosystem.
 
 This evolution helps support the project while giving more flexibility to servers that want a truly personalized experience with iHorizon.
 
@@ -24,49 +24,48 @@ Thanks to everyone who has supported iHorizon since the beginning. ❤️
 
 **__Command `/utils userinfo`__**
 
-- Since right now, not only oauth2 can be used for guessing Nitro subscription of someone. iHorizon use the banner and animated avatar feature to guess if user have nitro boost.
+- From now on, OAuth2 is no longer the only method used to detect a user's Nitro subscription. iHorizon now uses the banner and animated avatar features to determine whether a user has Nitro.
 
-**__Modules: `Confession`__**
+**__Module: `Confession`__**
 
-- Change the forms embed of confession panel to keep aware guild members that confession can be de-anonymised
+- Changed the form embed of the confession panel to inform guild members that confessions can be de-anonymized.
 
-**__Modules: `Security`__**
+**__Module: `Security`__**
 
-- The captcha module get rewamped, new look for captcha, handling errors with a thresold of 3 errors.
+- The captcha module has been revamped with a new look, and now handles errors with a threshold of 3 attempts.
 
-**__Modules: `ihorizon-logs`__**
+**__Module: `ihorizon-logs`__**
 
-- Changing the way iHorizon-Logs get logged. In the past you have to a channel exatly with the "ihorizon-logs" name, since now, it only need to be included in the string.
+- Changed the way iHorizon-Logs are recorded. Previously, a channel had to be named exactly "ihorizon-logs"; it now only needs to contain that string.
 
-**__Modules: `Music`__**
+**__Module: `Music`__**
 
-- In the `Music` **module**, added a small tip message that randomly appears when the player starts, to let users know that /lastfm exists on iHorizon.
+- In the `Music` **module**, added a small tip message that randomly appears when the player starts, to let users know that `/lastfm` exists on iHorizon.
 
 ## Internal improvements
 
-- Added Sweepers and makeCache in the `Client`'s discord.js for improving memory usage in production.
+- Added Sweepers and makeCache to the `Client`'s discord.js configuration to improve memory usage in production.
 
-- Added a TTL purge for every guild messages in the AntiSpam modules.
+- Added a TTL purge for all guild messages in the AntiSpam module.
 
-- Improving AntiSpam precision by removing some bug that may cause false-flags.
+- Improved AntiSpam precision by fixing bugs that could cause false positives.
 
-- Fixing the Boost logs that may occur a spam since Sweepers purge members in memory.
+- Fixed the Boost logs that could cause spam since Sweepers purge members from memory.
 
-- Fixing the iHorizon runtime on Windows.
+- Fixed the iHorizon runtime on Windows.
 
-- New esthetics on `/status` command
+- New aesthetics on the `/status` command.
 
-- Removing every `while` loop since it make the bot lagging on the `node:loop` runtime.
-  
-- Fixing the prevnames logging since Sweepers may occure false-nullable nickname by making a `Set`
+- Removed all `while` loops as they caused lag on the `node:loop` runtime.
 
+- Fixed the previous names logging since Sweepers could produce false-null nicknames by using a `Set`.
 
 # Bug fixes
 
-****Clear command****
+**Clear command**
 
-- _since the last old 2026.6.1 version created a regression on `/mod clear` command, we fixed it on this version._
+- *A regression introduced in version 2026.6.1 affected the `/mod clear` command; this has been fixed in this version.*
 
-****Remind ticket command****
+**Remind ticket command**
 
-- _Remind ticket command got fixed_
+- *The remind ticket command has been fixed.*
