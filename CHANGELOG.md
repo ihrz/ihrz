@@ -26,6 +26,10 @@ Thanks to everyone who has supported iHorizon since the beginning. ❤️
 
 - From now on, OAuth2 is no longer the only method used to detect a user's Nitro subscription. iHorizon now uses the banner and animated avatar features to determine whether a user has Nitro.
 
+**__Command `/mod unban`__**
+
+- Added `pardon` aliases in MessageContext command.
+ 
 **__Module: `Confession`__**
 
 - Changed the form embed of the confession panel to inform guild members that confessions can be de-anonymized.
