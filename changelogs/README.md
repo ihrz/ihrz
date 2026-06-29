@@ -14,7 +14,6 @@ Changelogs are organized by language (`en` for English, `fr` for French) and the
 
 Each version directory contains one or more of the following files:
 
-* `CHANGELOG_<LANG>_<VERSION>.md` — Markdown version
 * `CHANGELOG_<LANG>_<VERSION>.pdf` — PDF version
 
 ## Example
@@ -26,7 +25,6 @@ en/
 
 fr/
 └── 2026.6.1/
-    ├── CHANGELOG_FR_2026.6.1.md
     └── CHANGELOG_FR_2026.6.1.pdf
 ```
 
