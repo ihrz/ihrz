@@ -50,7 +50,7 @@ global.client = new Client({
 			filter: () => (user) => !user.bot
 		},
 		guildMembers: {
-			interval: 60 * 30,
+			interval: 60_000 * 60,
 			filter: () => (member) => !member.user.bot
 		},
 		presences: {

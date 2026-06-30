@@ -26,6 +26,7 @@ import * as errorManager from "./modules/errorManager.js";
 import playerManager from "./modules/playerManager.js";
 
 import { VanityInviteData } from "../../types/vanityUrlData.js";
+import { InviteCacheData } from "../../types/client.js";
 
 import {
 	Client,
@@ -102,7 +103,7 @@ export async function main(client: Client) {
 	client.owners = [];
 	client.content = [];
 	client.category = [];
-	client.invites = new Collection();
+	client.invites = new Collection<Snowflake, Collection<string, InviteCacheData>>();
 	client.timeCalculator = new iHorizonTimeCalculator();
 	client.vanityInvites = new Collection<Snowflake, VanityInviteData>();
 	client.kdenlive = new KdenLive();
