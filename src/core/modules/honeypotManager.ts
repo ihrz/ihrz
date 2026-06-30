@@ -153,24 +153,31 @@ async function deleteRecentMessages(message: Message): Promise<number> {
 
 			if (!fetchedMessages || fetchedMessages.size === 0) break;
 
-			const oldestMessage: Message | undefined = fetchedMessages.last();
-			if (!oldestMessage || oldestMessage.createdTimestamp < cutoff)
-				break;
-
 			const targetMessages = fetchedMessages.filter(
 				(entry: Message) =>
 					entry.author.id === message.author.id &&
 					entry.createdTimestamp >= cutoff
 			);
 
-			if (targetMessages.size > 0) {
+			if (targetMessages.size === 1) {
+				const onlyMessage = targetMessages.first()!;
+				const deleted = await onlyMessage.delete().catch(() => null);
+				if (deleted) deletedCount += 1;
+			} else if (targetMessages.size > 1) {
 				const deleted = await channel
 					.bulkDelete([...targetMessages.keys()], true)
 					.catch(() => null);
 				deletedCount += deleted?.size ?? 0;
 			}
 
-			before = oldestMessage.id;
+			const oldestMessage: Message | undefined = fetchedMessages.last();
+			const reachedCutoff =
+				!oldestMessage || oldestMessage.createdTimestamp < cutoff;
+			const reachedChannelStart = fetchedMessages.size < 100;
+
+			if (reachedCutoff || reachedChannelStart) break;
+
+			before = oldestMessage!.id;
 		}
 	}
 
