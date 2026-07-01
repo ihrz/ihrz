@@ -88,7 +88,7 @@ function getAllCommandChoices(client: Client): string[] {
 			command.options.forEach((option) => {
 				if (
 					option.type ===
-						ApplicationCommandOptionType.SubcommandGroup ||
+					ApplicationCommandOptionType.SubcommandGroup ||
 					option.type === ApplicationCommandOptionType.Subcommand
 				) {
 					getCommandChoices(option, commandName);
@@ -236,12 +236,15 @@ async function executeCommand(
 	commandPath?: string
 ) {
 	const channel = message.channel as GuildChannel;
-	const permissions = channel.permissionsFor(message.member!);
-	const canUseCommands = permissions.has(
+	const member =
+		message.member ??
+		(await message.guild?.members.fetch(message.author.id).catch(() => null));
+	const permissions = member ? channel.permissionsFor(member) : null;
+	const canUseCommands = permissions?.has(
 		PermissionsBitField.Flags.UseApplicationCommands
 	);
 
-	if (!canUseCommands) return;
+	if (!canUseCommands || !member) return;
 
 	if (
 		client.version.env === "production" &&
@@ -315,7 +318,7 @@ async function executeCommand(
 
 	if (
 		command.permission &&
-		!message.member!.permissions.has(command.permission) &&
+		!member.permissions.has(command.permission) &&
 		!permCheck.allowed
 	) {
 		const perm = getPermissionByValue(command.permission);
