@@ -1846,6 +1846,11 @@ lockall_embed_message_description: "Все каналы заблокирован
 lockall_logs_embed_title: "Логи блокировки всех каналов"
 lockall_logs_embed_description: "<@${interaction.user.id}> заблокировал все каналы!"
 
+# /unlockall
+unlockall_embed_message_description: "Все каналы были разблокированы пользователем <@${interaction.user.id}>."
+unlockall_logs_embed_title: "Логи разблокировки всех каналов"
+unlockall_logs_embed_description: "<@${interaction.user.id}> разблокировал все каналы!"
+
 # /unban
 unban_dont_have_permission: "${client.iHorizon_Emojis.No} | У вас нет разрешения на разбан участников."
 unban_bot_dont_have_permission: "${client.iHorizon_Emojis.No} | У меня нет разрешения."

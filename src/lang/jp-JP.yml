@@ -1846,6 +1846,11 @@ lockall_embed_message_description: "全てのチャンネルが <@${interaction.
 lockall_logs_embed_title: "ロックオールログ"
 lockall_logs_embed_description: "<@${interaction.user.id}> が全てのチャンネルをロックしました！"
 
+# /unlockall
+unlockall_embed_message_description: "全てのチャンネルが <@${interaction.user.id}> によってアンロックされました。"
+unlockall_logs_embed_title: "アンロックオールログ"
+unlockall_logs_embed_description: "<@${interaction.user.id}> が全てのチャンネルをアンロックしました！"
+
 # /unban
 unban_dont_have_permission: "${client.iHorizon_Emojis.No} | メンバーをアンバンする権限がありません。"
 unban_bot_dont_have_permission: "${client.iHorizon_Emojis.No} | 私には権限がありません。"
