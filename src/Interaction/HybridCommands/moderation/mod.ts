@@ -273,6 +273,36 @@ export const command: Command = {
 			permission: PermissionFlagsBits.Administrator
 		},
 		{
+			name: "unlock-all",
+
+			description:
+				"Give ability to speak of all users in all channels!",
+			description_localizations: {
+				fr: "Donner la possibilité de parler de tous les utilisateurs sur tous les channels"
+			},
+
+			options: [
+				{
+					name: "role",
+
+					description: "The role",
+					description_localizations: {
+						fr: "le rôle"
+					},
+
+					required: false,
+					type: ApplicationCommandOptionType.Role,
+
+					permission: null
+				}
+			],
+
+			aliases: ["unlockall"],
+
+			type: ApplicationCommandOptionType.Subcommand,
+			permission: PermissionFlagsBits.Administrator
+		},
+		{
 			name: "tempmute",
 
 			description: "Temporarily mute a user!",
