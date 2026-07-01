@@ -68,6 +68,8 @@ Thanks to everyone who has supported iHorizon since the beginning. ❤️
 
 - Fixed the previous names logging since Sweepers could produce false-null nicknames by using a `Set`.
 
+- Optimizing `InviteManager` internal module and invites fetching. Now, less API calls, and less Rate-Limiting.
+
 # Bug fixes
 
 **Clear command**
