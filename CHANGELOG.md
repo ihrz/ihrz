@@ -68,6 +68,8 @@ Thanks to everyone who has supported iHorizon since the beginning. ❤️
 
 - Fixed the previous names logging since Sweepers could produce false-null nicknames by using a `Set`.
 
+- Optimizing `InviteManager` internal module and invites fetching. Now, less API calls, and less Rate-Limiting.
+
 # Bug fixes
 
 **Clear command**
@@ -77,3 +79,11 @@ Thanks to everyone who has supported iHorizon since the beginning. ❤️
 **Remind ticket command**
 
 - *The remind ticket command has been fixed.*
+
+**HoneyPot**
+
+- *fixing a bug where messages in HoneyPot channel wasn't deleted*
+
+**Ranks Show Command**
+
+- *fixing a bug where command resulted in crash when dominant color wasn't calculated correctly*

@@ -30,6 +30,12 @@ import { BotContent } from "./botContent.js";
 import { Category } from "./category.js";
 
 import type { VanityInviteData } from "./vanityUrlData.d.ts";
+
+export interface InviteCacheData {
+	uses: number | null;
+	inviterId: string | null;
+	inviterUsername: string | null;
+}
 import { Command } from "./command.js";
 import emojis from "../src/files/emojis.json";
 
@@ -63,7 +69,7 @@ declare module "discord.js" {
 		category: Category[];
 		message_commands: Collection<string, Command>;
 		player: LavalinkManager;
-		invites: Collection<string, Collection<string, number | null>>;
+		invites: Collection<string, Collection<string, InviteCacheData>>;
 		vanityInvites: Collection<Snowflake, VanityInviteData | null>;
 		buttons: Collection<string, Function>;
 		selectmenu: Collection<string, Function>;
