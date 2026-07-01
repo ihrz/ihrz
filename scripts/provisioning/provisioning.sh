@@ -391,8 +391,23 @@ fi
 	pm2 start ~/.bun/bin/bun --name "iHorizon" -- run src/index.ts
 	# Save pm2 config
 	pm2 save --force
-	# Launch iHorizon at startup
-	eval $(pm2 startup -u $USER --hp $HOME | tail -1)
+
+	while true; do
+    	read -p "Do you want to have iHorizon running every time your machine starts up? (y/n, default is no): " startup_user_choice
+
+    	startup_user_choice=$(echo "$startup_user_choice" | tr '[:upper:]' '[:lower:]')
+
+    	if [[ "$startup_user_choice" == "y" || "$startup_user_choice" == "yes" ]]; then
+        	echo -e "${GREEN}Okay. iHorizon will now launch every time your machine starts up.${DEFAULT}"
+        	eval "$(pm2 startup -u "$USER" --hp "$HOME" | tail -1)"
+        	break
+        elif [[ "$startup_user_choice" == "n" || "$startup_user_choice" == "no" ]]; then
+        	echo -e "${GREEN}Okay. iHorizon won't launch every time your machine starts up.${DEFAULT}"
+        	break
+        else
+        	echo -e "${RED}Invalid input. Please enter y/yes or n/no.${DEFAULT}"
+    	fi
+	done
 
 	# All done!
 	echo -e "${GREEN}🎉 Congratulations! The iHorizon bot provisioning is done. Enjoy using iHorizon! 🎉${RESET}"
