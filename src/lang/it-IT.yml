@@ -1845,6 +1845,11 @@ lockall_embed_message_description: "Tutti i canali sono stati bloccati da <@${in
 lockall_logs_embed_title: "Log Blocco Canali"
 lockall_logs_embed_description: "<@${interaction.user.id}> ha bloccato tutti i canali!"
 
+# /unlockall
+unlockall_embed_message_description: "Tutti i canali sono stati sbloccati da <@${interaction.user.id}>."
+unlockall_logs_embed_title: "Log Sblocco Canali"
+unlockall_logs_embed_description: "<@${interaction.user.id}> ha sbloccato tutti i canali!"
+
 # /unban
 unban_dont_have_permission: "${client.iHorizon_Emojis.No} | Non hai il permesso di sbannare i membri."
 unban_bot_dont_have_permission: "${client.iHorizon_Emojis.No} | Non ho il permesso di sbannare i membri."

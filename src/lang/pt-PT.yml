@@ -1846,6 +1846,11 @@ lockall_embed_message_description: "Todos os canais foram bloqueados por <@${int
 lockall_logs_embed_title: "Logs de Bloqueio Geral"
 lockall_logs_embed_description: "<@${interaction.user.id}> bloqueou todos os canais!"
 
+# /unlockall
+unlockall_embed_message_description: "Todos os canais foram desbloqueados por <@${interaction.user.id}>."
+unlockall_logs_embed_title: "Logs de Desbloqueio Geral"
+unlockall_logs_embed_description: "<@${interaction.user.id}> desbloqueou todos os canais!"
+
 # /unban
 unban_dont_have_permission: "${client.iHorizon_Emojis.No} | Você não tem permissão para desbanir membros."
 unban_bot_dont_have_permission: "${client.iHorizon_Emojis.No} | Eu não tenho permissão."

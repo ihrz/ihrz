@@ -1395,6 +1395,9 @@ export interface LanguageData {
 	lockall_embed_message_description: string;
 	lockall_logs_embed_title: string;
 	lockall_logs_embed_description: string;
+	unlockall_embed_message_description: string;
+	unlockall_logs_embed_title: string;
+	unlockall_logs_embed_description: string;
 	unban_dont_have_permission: string;
 	unban_bot_dont_have_permission: string;
 	unban_there_is_nobody_banned: string;
