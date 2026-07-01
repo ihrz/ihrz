@@ -402,7 +402,7 @@ fi
         	eval "$(pm2 startup -u "$USER" --hp "$HOME" | tail -1)"
         	break
         elif [[ "$startup_user_choice" == "n" || "$startup_user_choice" == "no" ]]; then
-        	echo -e "${GREEN}Okay. iHorizon won't launch every time your machine starts up.${DEFAULT}"
+        	echo -e "${YELLOW}Okay. iHorizon won't launch every time your machine starts up.${DEFAULT}"
         	break
         else
         	echo -e "${RED}Invalid input. Please enter y/yes or n/no.${DEFAULT}"
