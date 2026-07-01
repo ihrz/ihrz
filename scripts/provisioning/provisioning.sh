@@ -410,6 +410,6 @@ fi
 	done
 
 	# All done!
-	echo -e "${GREEN}🎉 Congratulations! The iHorizon bot provisioning is done. Enjoy using iHorizon! 🎉${RESET}"
-	echo -e "${YELLOW}⚠️  But just one more thing! Execute the following command on your terminal to finish the installation : source ~/.bashrc ⚠️${RESET}"
-	echo -e "${CYAN}And after that you will be all set! Thank you for using the iHorizon Provisioning Script!${RESET}"
+	echo -e "${GREEN}🎉 Congratulations! The iHorizon bot provisioning is done. Enjoy using iHorizon! 🎉${DEFAULT}"
+	echo -e "${YELLOW}⚠️  But just one more thing! Execute the following command on your terminal to finish the installation : source ~/.bashrc ⚠️${DEFAULT}"
+	echo -e "${CYAN}And after that you will be all set! Thank you for using the iHorizon Provisioning Script!${DEFAULT}"
