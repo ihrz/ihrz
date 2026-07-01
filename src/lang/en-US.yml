@@ -1848,6 +1848,11 @@ lockall_embed_message_description: "All channels have been locked by <@${interac
 lockall_logs_embed_title: "Lockall Logs"
 lockall_logs_embed_description: "<@${interaction.user.id}> locked all channels!"
 
+# /unlockall
+unlockall_embed_message_description: "All channels have been unlocked by <@${interaction.user.id}>."
+unlockall_logs_embed_title: "Unlockall Logs"
+unlockall_logs_embed_description: "<@${interaction.user.id}> unlocked all channels!"
+
 # /unban
 unban_dont_have_permission: "${client.iHorizon_Emojis.No} | You don't have permission to unban members."
 unban_bot_dont_have_permission: "${client.iHorizon_Emojis.No} | I don't have permission."

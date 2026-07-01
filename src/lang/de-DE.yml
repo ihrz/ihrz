@@ -1846,6 +1846,11 @@ lockall_embed_message_description: "Alle Kanäle wurden von <@${interaction.user
 lockall_logs_embed_title: "Sperrprotokoll für alle Kanäle"
 lockall_logs_embed_description: "<@${interaction.user.id}> hat alle Kanäle gesperrt!"
 
+# /unlockall
+unlockall_embed_message_description: "Alle Kanäle wurden von <@${interaction.user.id}> entsperrt."
+unlockall_logs_embed_title: "Entsperrprotokoll für alle Kanäle"
+unlockall_logs_embed_description: "<@${interaction.user.id}> hat alle Kanäle entsperrt!"
+
 # /unban
 unban_dont_have_permission: "${client.iHorizon_Emojis.No} | Du hast keine Berechtigung, Mitglieder zu entbannen."
 unban_bot_dont_have_permission: "${client.iHorizon_Emojis.No} | Ich habe keine Berechtigung dazu."

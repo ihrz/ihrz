@@ -1846,6 +1846,11 @@ lockall_embed_message_description: "تم قفل جميع القنوات بواس
 lockall_logs_embed_title: "سجلات قفل جميع القنوات"
 lockall_logs_embed_description: "<@${interaction.user.id}> قفل جميع القنوات!"
 
+# /unlockall
+unlockall_embed_message_description: "تم فك قفل جميع القنوات بواسطة <@${interaction.user.id}>."
+unlockall_logs_embed_title: "سجلات فك قفل جميع القنوات"
+unlockall_logs_embed_description: "<@${interaction.user.id}> فكّ قفل جميع القنوات!"
+
 # /unban
 unban_dont_have_permission: "${client.iHorizon_Emojis.No} | ليس لديك إذن لفك حظر الأعضاء."
 unban_bot_dont_have_permission: "${client.iHorizon_Emojis.No} | ليس لدي إذن."

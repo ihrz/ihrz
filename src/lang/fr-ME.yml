@@ -1849,6 +1849,11 @@ lockall_embed_message_description: "Tous les canaux ont été verrouillés par <
 lockall_logs_embed_title: "Logs de Verrouillage"
 lockall_logs_embed_description: "<@${interaction.user.id}> a verrouillé tous les canaux !"
 
+# /unlockall
+unlockall_embed_message_description: "Tous les canaux ont été déverrouillés par <@${interaction.user.id}>."
+unlockall_logs_embed_title: "Logs de Déverrouillage"
+unlockall_logs_embed_description: "<@${interaction.user.id}> a déverrouillé tous les canaux !"
+
 # /unban
 unban_dont_have_permission: "${client.iHorizon_Emojis.No} | Tu n'avez pas la permission de débannir des membres."
 unban_bot_dont_have_permission: "${client.iHorizon_Emojis.No} | Je n'ai pas la permission."
