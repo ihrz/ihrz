@@ -359,7 +359,7 @@ fi
 	sed -i "s|authorization: \"password\"|authorization: \"$lavalink_node_password\"|g" src/files/config.ts
 	sed -i "s|secure: false|secure: $lavalink_secure|g" src/files/config.ts
 	sed -i "s|guildLogsChannelID: \"The Discord Channel ID for logs when guildCreate/guildRemove\"|guildLogsChannelID: \"$guild_logs_channel_id\"|g" src/files/config.ts
-	sed -i "s|lavalinkLogsChannelID: \"\"|lavalinkLogsChannelID: \"$lavalink_logs_channel_id\"|g" src/files/config.ts
+	sed -i "s|lavalinkLogsChannelID: \"The Discord Channel ID for logs when lavalink throws an error\"|lavalinkLogsChannelID: \"$lavalink_logs_channel_id\"|g" src/files/config.ts
 	sed -i "s|reportChannelID: \"The Discord Channel ID for logs when bugs are reported\"|reportChannelID: \"$report_channel_id\"|g" src/files/config.ts
 	sed -i "s|apiToken: \"The API token\"|apiToken: \"$api_token\"|g" src/files/config.ts
 	sed -i "s|users: \\[\"User ID\", \"User ID\"\\]|users: [$owner_user_ids_string]|g" src/files/config.ts
@@ -376,7 +376,7 @@ fi
 
 	always100_ids_string=$(printf "'%s'," "${always100_ids[@]}")
 	always100_ids_string="${always100_ids_string%,}"
-	sed -i "s|always100: \\['USER_ID_ONExUSER_ID_TWO'\\]|always100: [$always100_ids_string]|g" src/files/config.ts	
+	sed -i "s|always100: \\[\"USER_ID_ONExUSER_ID_TWO\"\\]|always100: [$always100_ids_string]|g" src/files/config.ts	
 
 	# Setting up Puppeteer/Chromium environment variable
 	touch .env
