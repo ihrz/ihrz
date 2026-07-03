@@ -103,6 +103,13 @@ fi
 		echo -e "${GREEN}curl is already installed!${DEFAULT}"
 	fi
 
+	if ! command -v unzip &>/dev/null; then 
+		echo -e "${BOLD}unzip is not installed, installing...${DEFAULT}"
+		sudo apt install -y unzip 
+	else
+		echo -e "${GREEN}unzip is already installed!${DEFAULT}"
+	fi	
+
 	if ! command -v bun &>/dev/null; then
 		echo -e "${BOLD}bun is not installed, installing...${DEFAULT}"
 		curl -fsSL https://bun.sh/install | bash
@@ -364,7 +371,7 @@ fi
 	sed -i "s|apiToken: \"The API token\"|apiToken: \"$api_token\"|g" src/files/config.ts
 	sed -i "s|users: \\[\"User ID\", \"User ID\"\\]|users: [$owner_user_ids_string]|g" src/files/config.ts
     sed -i "s|devMode: true|devMode: $dev_mode|g" src/files/config.ts
-    sed -i "s|blacklistPictureInEmbed: \"A .png URL\"|blacklistPictureInEmbed: \"$blacklist_picture_url\"|g" src/files/config.ts
+    sed -i "s|blacklistPictureInEmbed: \"A .png URL\"|blacklistPictureInEmbed: \"$(printf '%s' "$blacklist_picture_url" | sed 's/[&/\]/\\&/g')\"|g" src/files/config.ts
 	sed -i "s|method: 'sqlite'|method: '$db_method_choice'|g" src/files/config.ts
     if [[ "$db_method_choice" == "mysql" ]]; then
     	sed -i "s|host: ''|host: '$mysql_host'|g" src/files/config.ts
