@@ -69,16 +69,13 @@ const config: ConfigData = {
 		blacklistPictureInEmbed: "A .png URL",
 		// Optional: The image of the blacklist embed (when a blacklisted user attempts to interact with the bot)
 
-		guildLogsChannelID:
-			"The Discord Channel ID for logs when guildCreate/guildRemove",
+		guildLogsChannelID: "The Discord Channel ID for logs when guildCreate/guildRemove",
 		// The channel where the bot informs of his arrival on a server or when it leaves a server.
 
-		lavalinkLogsChannelID:
-			"The Discord Channel ID for logs when lavalink throws an error",
+		lavalinkLogsChannelID: "The Discord Channel ID for logs when lavalink throws an error",
 		// The channel where the error will be sent when lavalink throws an error.
 
-		reportChannelID:
-			"The Discord Channel ID for logs when bugs are reported"
+		reportChannelID: "The Discord Channel ID for logs when bugs are reported"
 		// The channel where the bot informs of a bug reported by a user of the bot.
 	},
 
