@@ -697,33 +697,33 @@ class GiveawayManager {
 			}
 
 			const collector = messageEmbed.createMessageComponentCollector({
-				filter: (i) => {
-					i.deferUpdate();
-					return interaction.member?.user.id === i.user.id;
-				},
+				filter: (i) => interaction.member?.user.id === i.user.id,
 				time: 60_000 * 15
 			});
 
-			collector.on("collect", (interaction: { customId: string }) => {
-				if (interaction.customId === "previousPage") {
+			collector.on("collect", async (i: ButtonInteraction) => {
+				if (i.customId === "previousPage") {
 					currentPage =
 						(currentPage - 1 + pages.length) % pages.length;
-				} else if (interaction.customId === "nextPage") {
+				} else if (i.customId === "nextPage") {
 					currentPage = (currentPage + 1) % pages.length;
 				}
 
-				messageEmbed.edit({ embeds: [createEmbed()] });
+				await i.update({ embeds: [createEmbed()] });
 			});
 
-			collector.on("end", () => {
+			collector.on("end", async () => {
 				row.components.forEach((component) => {
 					if (component instanceof ButtonBuilder) {
 						component.setDisabled(true);
 					}
 				});
-				messageEmbed.edit({
-					components: [row as ActionRowBuilder<ButtonBuilder>]
-				});
+
+				try {
+					await messageEmbed.edit({
+						components: [row as ActionRowBuilder<ButtonBuilder>]
+					});
+				} catch {}
 			});
 		}
 	}
