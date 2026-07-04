@@ -88,7 +88,7 @@ function getAllCommandChoices(client: Client): string[] {
 			command.options.forEach((option) => {
 				if (
 					option.type ===
-					ApplicationCommandOptionType.SubcommandGroup ||
+						ApplicationCommandOptionType.SubcommandGroup ||
 					option.type === ApplicationCommandOptionType.Subcommand
 				) {
 					getCommandChoices(option, commandName);
@@ -238,7 +238,9 @@ async function executeCommand(
 	const channel = message.channel as GuildChannel;
 	const member =
 		message.member ??
-		(await message.guild?.members.fetch(message.author.id).catch(() => null));
+		(await message.guild?.members
+			.fetch(message.author.id)
+			.catch(() => null));
 	const permissions = member ? channel.permissionsFor(member) : null;
 	const canUseCommands = permissions?.has(
 		PermissionsBitField.Flags.UseApplicationCommands
@@ -248,6 +250,7 @@ async function executeCommand(
 
 	if (
 		client.version.env === "production" &&
+		!(await client.func.ownerHelper.isBotOwner(message.author.id)) &&
 		command.description.startsWith("Change the iHorizon") &&
 		!(await hasGuildSku(client, message.guild!.id, "1512856902919258384"))
 	) {
