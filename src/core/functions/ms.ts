@@ -25,88 +25,63 @@ class iHorizonTimeCalculator {
 	to_ms(timeString: string): number {
 		timeString = timeString.replace(" ", "");
 		const regex = /(-?\d*\.?\d+)([a-zA-Z]+)/g;
-		let totalMilliseconds = 0;
-		let matches;
 
-		while ((matches = regex.exec(timeString)) !== null) {
-			const value = parseFloat(matches[1]);
-			const unit = matches[2].toLowerCase();
+		const multipliers: Record<string, number> = {
+			ms: 1,
+			msec: 1,
+			millisecond: 1,
+			milliseconds: 1,
+			milliseconde: 1,
+			millisecondes: 1,
+			s: 1000,
+			sec: 1000,
+			secs: 1000,
+			second: 1000,
+			seconds: 1000,
+			seconde: 1000,
+			secondes: 1000,
+			m: 60000,
+			min: 60000,
+			mins: 60000,
+			minute: 60000,
+			minutes: 60000,
+			h: 3600000,
+			hr: 3600000,
+			hrs: 3600000,
+			hour: 3600000,
+			hours: 3600000,
+			heure: 3600000,
+			heures: 3600000,
+			d: 86400000,
+			day: 86400000,
+			days: 86400000,
+			j: 86400000,
+			jour: 86400000,
+			jours: 86400000,
+			w: 604800000,
+			sm: 604800000,
+			week: 604800000,
+			weeks: 604800000,
+			semaine: 604800000,
+			semaines: 604800000,
+			mo: 2592000000,
+			mois: 2592000000,
+			month: 2592000000,
+			months: 2592000000,
+			y: 31557600000,
+			yr: 31557600000,
+			yrs: 31557600000,
+			year: 31557600000,
+			years: 31557600000,
+			an: 31557600000,
+			ans: 31557600000
+		};
 
-			let multiplier = 1;
-
-			switch (unit) {
-				case "ms":
-				case "msec":
-				case "millisecond":
-				case "milliseconds":
-				case "milliseconde":
-				case "millisecondes":
-					multiplier = 1;
-					break;
-				case "s":
-				case "sec":
-				case "secs":
-				case "second":
-				case "seconds":
-				case "seconde":
-				case "secondes":
-					multiplier = 1000;
-					break;
-				case "m":
-				case "min":
-				case "mins":
-				case "minute":
-				case "minutes":
-					multiplier = 60000;
-					break;
-				case "h":
-				case "hr":
-				case "hrs":
-				case "hour":
-				case "hours":
-				case "heure":
-				case "heures":
-					multiplier = 3600000;
-					break;
-				case "d":
-				case "day":
-				case "days":
-				case "j":
-				case "jour":
-				case "jours":
-					multiplier = 86400000;
-					break;
-				case "w":
-				case "sm":
-				case "week":
-				case "weeks":
-				case "semaine":
-				case "semaines":
-					multiplier = 604800000;
-					break;
-				case "mo":
-				case "mois":
-				case "month":
-				case "months":
-					multiplier = 2592000000; // Approximation based on 30 days
-					break;
-				case "y":
-				case "yr":
-				case "yrs":
-				case "year":
-				case "years":
-				case "an":
-				case "ans":
-					multiplier = 31557600000; // Based on 365.25 days per year
-					break;
-				default:
-					multiplier = 0;
-			}
-
-			totalMilliseconds += value * multiplier;
-		}
-
-		return totalMilliseconds;
+		return [...timeString.matchAll(regex)].reduce((total, match) => {
+			const value = parseFloat(match[1]);
+			const unit = match[2].toLowerCase();
+			return total + value * (multipliers[unit] ?? 0);
+		}, 0);
 	}
 
 	to_beautiful_string(

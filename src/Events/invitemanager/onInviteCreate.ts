@@ -33,7 +33,11 @@ export const event: BotEvent = {
 			)
 		)
 			return;
-		client.invites.get(invite.guild?.id)?.set(invite.code, invite.uses);
+		client.invites.get(invite.guild?.id)?.set(invite.code, {
+			uses: invite.uses,
+			inviterId: invite.inviterId,
+			inviterUsername: invite.inviter?.username || null
+		});
 
 		const check = await client.db.get(
 			`${invite.guild.id}.USER.${invite.inviter?.id}.INVITES`

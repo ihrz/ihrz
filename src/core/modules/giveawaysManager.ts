@@ -59,13 +59,17 @@ class GiveawayManager {
 		this.options = options;
 
 		client.on("interactionCreate", async (interaction) => {
-			if (
-				interaction.isButton() &&
-				interaction.customId === "confirm-entry-giveaway"
-			) {
-				await this.addEntries(
-					interaction as ButtonInteraction<"cached">
-				);
+			if (interaction.isButton()) {
+				if (interaction.customId === "confirm-entry-giveaway") {
+					await this.addEntries(
+						interaction as ButtonInteraction<"cached">
+					);
+				} else if (interaction.customId === "giveaway-list-entries") {
+					await this.listEntries(
+						interaction as ButtonInteraction<"cached">,
+						interaction.message.id
+					);
+				}
 			}
 		});
 	}
@@ -89,6 +93,10 @@ class GiveawayManager {
 					.setCustomId("confirm-entry-giveaway")
 					.setEmoji(this.options.config.reaction)
 					.setStyle(ButtonStyle.Primary);
+				const entriesList = new ButtonBuilder()
+					.setCustomId("giveaway-list-entries")
+					.setLabel(lang.event_gw_entries_button_title)
+					.setStyle(ButtonStyle.Secondary);
 
 				const end_string = time(
 					new Date(Date.now() + data.duration),
@@ -129,7 +137,8 @@ class GiveawayManager {
 						embeds: [gw],
 						components: [
 							new ActionRowBuilder<ButtonBuilder>().addComponents(
-								confirm
+								confirm,
+								entriesList
 							)
 						],
 						files: [
@@ -486,40 +495,24 @@ class GiveawayManager {
 	}
 
 	private selectWinners(fetch: GiveawayFetch, number: number): string[] {
-		if (fetch.entries.length === 0) {
-			return [];
+		if (fetch.entries.length === 0) return [];
+
+		const availableMembers = [...fetch.entries].filter(
+			(entry) => !fetch.winners.includes(entry)
+		);
+
+		const winners: string[] = [];
+
+		for (let i = 0; i < number; i++) {
+			if (availableMembers.length === 0) break;
+
+			const randomIndex = Math.floor(
+				Math.random() * availableMembers.length
+			);
+			winners.push(availableMembers.splice(randomIndex, 1)[0]);
 		}
 
-		const areWinnersInPreviousWinners = (currentWinners: string[]) => {
-			return currentWinners.some((winner) =>
-				fetch.winners.includes(winner)
-			);
-		};
-
-		let winners: Array<string> = [];
-
-		do {
-			winners = [];
-			const availableMembers = [...fetch.entries];
-
-			if (winners.length === 0 || areWinnersInPreviousWinners(winners)) {
-				winners = [];
-			}
-
-			for (let i = 0; i < number; i++) {
-				if (availableMembers.length === 0) {
-					break;
-				}
-
-				const randomIndex = Math.floor(
-					Math.random() * availableMembers.length
-				);
-				const winnerID = availableMembers.splice(randomIndex, 1)[0];
-				winners.push(winnerID);
-			}
-		} while (winners.length === 0);
-
-		return winners.length > 0 ? winners : [];
+		return winners;
 	}
 
 	public reroll(client: Client, giveawayId: string): Promise<void> {
@@ -609,7 +602,10 @@ class GiveawayManager {
 	}
 
 	public async listEntries(
-		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		interaction:
+			| ChatInputCommandInteraction<"cached">
+			| ButtonInteraction<"cached">
+			| Message,
 		giveawayId: string
 	) {
 		const fetch = (await db.GetGiveawayData(giveawayId))!;
@@ -622,6 +618,11 @@ class GiveawayManager {
 				if (interaction instanceof ChatInputCommandInteraction) {
 					await interaction.editReply({
 						content: lang.history_no_entries
+					});
+				} else if (interaction instanceof ButtonInteraction) {
+					await interaction.reply({
+						content: lang.history_no_entries,
+						flags: [1 << 6]
 					});
 				} else {
 					await interaction.edit({
@@ -638,10 +639,10 @@ class GiveawayManager {
 			for (let i = 0; i < char.length; i += usersPerPage) {
 				const pageUsers = char.slice(i, i + usersPerPage);
 				const pageContent = pageUsers
-					.map((userId) => `<@${userId}>`)
+					.map((userId, index) => `${i + index + 1}. <@${userId}>`)
 					.join("\n");
 				pages.push({
-					title: `Giveaway's Entries List | Page ${i / usersPerPage + 1}`,
+					title: lang.event_gw_entries_button_title,
 					description: pageContent
 				});
 			}
@@ -652,8 +653,7 @@ class GiveawayManager {
 					.setTitle(pages[currentPage].title)
 					.setDescription(pages[currentPage].description)
 					.setFooter({
-						text: `${client.user?.username} | Page ${currentPage + 1}/${pages.length}`,
-						iconURL: interaction.client.user?.displayAvatarURL()
+						text: `${lang.var_page} ${currentPage + 1}/${pages.length}`
 					})
 					.setTimestamp();
 			};
@@ -668,47 +668,62 @@ class GiveawayManager {
 					.setLabel(">>>")
 					.setStyle(ButtonStyle.Secondary)
 			);
+			const components =
+				pages.length > 1
+					? [row as ActionRowBuilder<ButtonBuilder>]
+					: [];
 
 			if (interaction instanceof ChatInputCommandInteraction) {
 				var messageEmbed = await interaction.editReply({
 					embeds: [createEmbed()],
-					components: [row as ActionRowBuilder<ButtonBuilder>]
+					components
 				});
+			} else if (interaction instanceof ButtonInteraction) {
+				await interaction.reply({
+					embeds: [createEmbed()],
+					components,
+					flags: [1 << 6]
+				});
+				var messageEmbed = await interaction.fetchReply();
 			} else {
 				var messageEmbed = (await interaction.reply({
 					embeds: [createEmbed()],
-					components: [row as ActionRowBuilder<ButtonBuilder>]
+					components
 				})) as Message<true>;
 			}
 
+			if (pages.length <= 1) {
+				return;
+			}
+
 			const collector = messageEmbed.createMessageComponentCollector({
-				filter: (i) => {
-					i.deferUpdate();
-					return interaction.member?.user.id === i.user.id;
-				},
+				filter: (i) => interaction.member?.user.id === i.user.id,
 				time: 60_000 * 15
 			});
 
-			collector.on("collect", (interaction: { customId: string }) => {
-				if (interaction.customId === "previousPage") {
+			collector.on("collect", async (i: ButtonInteraction) => {
+				if (i.customId === "previousPage") {
 					currentPage =
 						(currentPage - 1 + pages.length) % pages.length;
-				} else if (interaction.customId === "nextPage") {
+				} else if (i.customId === "nextPage") {
 					currentPage = (currentPage + 1) % pages.length;
 				}
 
-				messageEmbed.edit({ embeds: [createEmbed()] });
+				await i.update({ embeds: [createEmbed()] });
 			});
 
-			collector.on("end", () => {
+			collector.on("end", async () => {
 				row.components.forEach((component) => {
 					if (component instanceof ButtonBuilder) {
 						component.setDisabled(true);
 					}
 				});
-				messageEmbed.edit({
-					components: [row as ActionRowBuilder<ButtonBuilder>]
-				});
+
+				try {
+					await messageEmbed.edit({
+						components: [row as ActionRowBuilder<ButtonBuilder>]
+					});
+				} catch {}
 			});
 		}
 	}

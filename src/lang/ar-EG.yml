@@ -158,6 +158,7 @@ close_not_in_ticket: "لا يمكنك استخدام هذا الأمر خارج 
 # /delete
 delete_disabled_command: "لا يمكنك استخدام هذا الأمر لأن المسؤول قام بتعطيل أمر التذاكر!"
 delete_not_in_ticket: "لا يمكنك استخدام هذا الأمر خارج قناة التذاكر!"
+ticket_deleted: "تم حذف التذكرة ${ticketOwnerMention} بواسطة <@${deletedByUserId}>. إليك النص:"
 
 # /sethereticket
 sethereticket_disabled_command: "لا يمكنك استخدام هذا الأمر لأن المسؤول قام بتعطيل أمر التذاكر!"
@@ -679,16 +680,16 @@ poll_embed_fields_choice: ":white_check_mark: **نعم**\n :x: **لا** "
 # /question
 question_not_full: "يرجى إدخال سؤال كامل يتكون من 3 كلمات أو أكثر!"
 question_s:
-  [
-    "نعم.",
-    "لا.",
-    "لا أعلم.",
-    "لست متأكدًا!",
-    "أنت مجنون!",
-    "لا شكرًا.",
-    "لا.",
-    "نعم.",
-  ]
+    [
+        "نعم.",
+        "لا.",
+        "لا أعلم.",
+        "لست متأكدًا!",
+        "أنت مجنون!",
+        "لا شكرًا.",
+        "لا.",
+        "نعم."
+    ]
 question_fields_input_embed: ":question:__**السؤال**__"
 question_fields_output_embed: ":grey_exclamation:__**الإجابة:**__"
 question_embed_title: "__**السؤال**__: `${interaction.user.username}`"
@@ -1845,6 +1846,11 @@ lockall_embed_message_description: "تم قفل جميع القنوات بواس
 lockall_logs_embed_title: "سجلات قفل جميع القنوات"
 lockall_logs_embed_description: "<@${interaction.user.id}> قفل جميع القنوات!"
 
+# /unlockall
+unlockall_embed_message_description: "تم فك قفل جميع القنوات بواسطة <@${interaction.user.id}>."
+unlockall_logs_embed_title: "سجلات فك قفل جميع القنوات"
+unlockall_logs_embed_description: "<@${interaction.user.id}> فكّ قفل جميع القنوات!"
+
 # /unban
 unban_dont_have_permission: "${client.iHorizon_Emojis.No} | ليس لديك إذن لفك حظر الأعضاء."
 unban_bot_dont_have_permission: "${client.iHorizon_Emojis.No} | ليس لدي إذن."
@@ -2672,6 +2678,7 @@ confession_module_modal_components1_placeholder: "ممم"
 confession_module_modal_components2_label: "هل هذا خاص؟"
 
 # أحداث مشغل الموسيقى
+even_mp_playerStart_tip: "> ${client.iHorizon_Emojis.LastFM_Logo} هل تعلم أنك تستطيع تتبع موسيقاك باستخدام `/lastfm` على iHorizon ؟ ${client.iHorizon_Emojis.Sunglass}"
 event_mp_playerStart: "🎵 - الآن يتم تشغيل [`${track.title}`](${url}) في **${queue.channel.name}** ..."
 event_mp_audioTrackAdd: "🎵 - تم إضافة ${track.title} إلى قائمة الانتظار!"
 event_mp_playerError: "توجد مشكلة في الاتصال => ${error.message}"
@@ -2756,7 +2763,11 @@ event_rank_role: "<@${message.author.id}>, لديك الآن الدور <@&${fet
 event_suggestion_embed_author: "اقتراح جديد من ${message.author.username}"
 
 # حدث الأمان
-event_security: "${member}, يرجى كتابة كود التحقق المرسل في هذه الرسالة.\nيجب أن تكون إجابتك بالتنسيق الصحيح!\n__لديك 30 ثانية للإجابة.__"
+event_security_title: "مرحبًا بك في ${guild}!"
+event_security: "${member}، يرجى كتابة رمز التحقق الظاهر في هذه الرسالة."
+event_security_expiry: "{emoji} طرد تلقائي ${timestamp} (**${attempts}** محاولة/محاولات متبقية)."
+event_security_footer: "لن يستغرق هذا سوى بضع ثوانٍ ويساعد في الحفاظ على أمان مجتمعنا."
+event_security_kick_reason: "فشل في اجتياز عملية التحقق الأمني"
 
 # حدث التذكرة
 event_ticket_whenCreated_msg: "${interaction.user}, تم إنشاء تذكرتك، قم بزيارة <#${channel.id}>!"
@@ -2784,6 +2795,7 @@ event_gw_reroll_cannot_win_msg: "لا توجد مشاركات صالحة، لذ�
 event_gw_finnish_msg: "تهانينا ${winners}! فزت بـ **${fetch.prize}**!"
 event_gw_finnish_cannot_msg: "لا توجد مشاركات صالحة، لذا لم يتم تحديد فائز!"
 event_gw_finnish_button_title: "السحب انتهى"
+event_gw_entries_button_title: "قائمة المشاركين"
 event_gw_removeentries_msg: "${interaction.user} لقد انسحبت من هذه السحوبات!"
 event_gw_leave_button_placeholder: "انسحب من السحب"
 event_gw_confirm_leave_msg: "${interaction.user} هل أنت متأكد من أنك تريد الانسحاب من هذه السحوبات؟"
@@ -2957,13 +2969,13 @@ channel_unhideall_error: ".حدث خطأ أثناء إظهار القنوات"
 
 # ar-EG.yml (Arabic - Egypt)
 new_guild_embed_title:
-  - "!أهلاً وسهلاً بكم في خادمكم 🎉"
-  - "!تحياتي، يا رفاق ديسكورد 👋"
-  - "!iHorizon انضم إلى المحادثة 💬"
-  - "!إنه طائر، إنه طائرة، لا، إنه iHorizon 🦸‍♂"
-  - "!دعونا نرحب ترحيباً حاراً بـ iHorizon 🔥"
-  - "!مرحباً بالمغامرة الجديدة 🚀"
-  - "!عضو جديد رائع انضم إلينا ✨"
+    - "!أهلاً وسهلاً بكم في خادمكم 🎉"
+    - "!تحياتي، يا رفاق ديسكورد 👋"
+    - "!iHorizon انضم إلى المحادثة 💬"
+    - "!إنه طائر، إنه طائرة، لا، إنه iHorizon 🦸‍♂"
+    - "!دعونا نرحب ترحيباً حاراً بـ iHorizon 🔥"
+    - "!مرحباً بالمغامرة الجديدة 🚀"
+    - "!عضو جديد رائع انضم إلينا ✨"
 new_guild_embed_desc: "## ${randomMessage}\n!مرحباً بكم، أصدقائي الأعزاء\n\n.أنا iHorizon، بوت متطور مصمم لجعل تجربتكم على ديسكورد استثنائية ومليئة بالمرح\n\n:✨ ما يمكنني فعله لكم\n• إدارة الخادم بذكاء واحترافية\n• ألعاب تفاعلية وترفيه لا محدود\n• أدوات مفيدة لتنظيم المجتمع\n• دعم فني متاح على مدار الساعة\n\n.استكشفوا أوامري واكتشفوا عالماً من الإمكانيات اللامحدودة\n!معاً سنبني مجتمعاً رائعاً ومليئاً بالذكريات الجميلة\n\n!شكراً لاختياركم لي، فلنبدأ المغامرة 🌟"
 
 # Confession Event

@@ -317,16 +317,16 @@ poll_embed_fields_choice: ":white_check_mark: **Так**\n :x: **Ні** "
 # /question
 question_not_full: "Введіть повне питання з 3 або більше словами!"
 question_s:
-  [
-    "Так.",
-    "Ні.",
-    "Я не знаю.",
-    "Я не впевнений!",
-    "Ти збожеволів!",
-    "Ні, дякую.",
-    "Ні.",
-    "Так.",
-  ]
+    [
+        "Так.",
+        "Ні.",
+        "Я не знаю.",
+        "Я не впевнений!",
+        "Ти збожеволів!",
+        "Ні, дякую.",
+        "Ні.",
+        "Так."
+    ]
 question_fields_input_embed: ":question:__**Питання**__"
 question_fields_output_embed: ":grey_exclamation:__**Відповідь:**__"
 question_embed_title: "__**Питання**__: `${interaction.user.username}`"
@@ -1496,6 +1496,7 @@ event_gw_reroll_cannot_win_msg: "Немає дійсних учасників, �
 event_gw_finnish_msg: "Вітаємо ${winners}! Ваш приз **${fetch.prize}**!"
 event_gw_finnish_cannot_msg: "Немає дійсних учасників, тому переможець не може бути визначений!"
 event_gw_finnish_button_title: "Розіграш завершено"
+event_gw_entries_button_title: "Список учасників"
 event_gw_removeentries_msg: "${interaction.user}, ви покинули цей конкурс!"
 
 # Событие логов улучшения

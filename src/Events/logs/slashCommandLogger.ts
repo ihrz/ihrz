@@ -167,19 +167,21 @@ class SafeJSONLogger {
 		await fs.rename(tempPath, this.logPath);
 	}
 
-	/**
-	 * Force flush all pending commands (useful for graceful shutdown)
-	 */
 	public async forceFlush(): Promise<void> {
 		if (this.writeTimer) {
 			clearTimeout(this.writeTimer);
 			this.writeTimer = null;
 		}
 
-		while (this.writeQueue.length > 0 || this.isWriting) {
+		for (
+			let attempts = 0;
+			attempts < 100 && (this.writeQueue.length > 0 || this.isWriting);
+			attempts++
+		) {
 			await this.flushQueue();
-			// Small delay to prevent busy waiting
-			await new Promise((resolve) => setTimeout(resolve, 10));
+			if (this.writeQueue.length > 0 || this.isWriting) {
+				await new Promise((resolve) => setTimeout(resolve, 10));
+			}
 		}
 	}
 }

@@ -165,6 +165,7 @@ export interface LanguageData {
 	close_not_in_ticket: string;
 	delete_disabled_command: string;
 	delete_not_in_ticket: string;
+	ticket_deleted: string;
 	sethereticket_disabled_command: string;
 	sethereticket_not_admin: string;
 	sethereticket_description_embed: string;
@@ -1394,6 +1395,9 @@ export interface LanguageData {
 	lockall_embed_message_description: string;
 	lockall_logs_embed_title: string;
 	lockall_logs_embed_description: string;
+	unlockall_embed_message_description: string;
+	unlockall_logs_embed_title: string;
+	unlockall_logs_embed_description: string;
 	unban_dont_have_permission: string;
 	unban_bot_dont_have_permission: string;
 	unban_there_is_nobody_banned: string;
@@ -1996,6 +2000,7 @@ export interface LanguageData {
 	confession_module_modal_components1_label: string;
 	confession_module_modal_components1_placeholder: string;
 	confession_module_modal_components2_label: string;
+	even_mp_playerStart_tip: string;
 	event_mp_playerStart: string;
 	event_mp_audioTrackAdd: string;
 	event_mp_playerError: string;
@@ -2056,7 +2061,11 @@ export interface LanguageData {
 	event_srvLogs_channelUpdate_embed_desc: string;
 	event_rank_role: string;
 	event_suggestion_embed_author: string;
+	event_security_title: string;
 	event_security: string;
+	event_security_expiry: string;
+	event_security_footer: string;
+	event_security_kick_reason: string;
 	event_ticket_whenCreated_msg: string;
 	event_ticket_logsChannel_onCreation_embed_title: string;
 	event_ticket_logsChannel_onCreation_embed_desc: string;
@@ -2086,6 +2095,7 @@ export interface LanguageData {
 	event_gw_embed_desc: string;
 	event_gw_ended_embed_desc: string;
 	event_gw_entries_words: string;
+	event_gw_entries_button_title: string;
 	event_gw_ended_word: string;
 	event_gw_break_req: string;
 	event_boostlog_add: string;

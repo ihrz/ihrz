@@ -95,9 +95,9 @@ export const subCommand: SubCommand = {
 
 		const embeds: EmbedBuilder[] = [];
 		const chunkSize = 10;
-		let index = 0;
-		while (tracks.length > 0) {
-			const chunk = tracks.slice(0, chunkSize);
+
+		for (let i = 0; i < tracks.length; i += chunkSize) {
+			const chunk = tracks.slice(i, i + chunkSize);
 			const embed = new EmbedBuilder()
 				.setColor("#ff0000")
 				.setTitle(lang.queue_embed_title)
@@ -106,7 +106,7 @@ export const subCommand: SubCommand = {
 				)
 				.setFooter({
 					text: lang.queue_embed_footer_text
-						.replace("{index}", (index + 1).toString())
+						.replace("{index}", (i / chunkSize + 1).toString())
 						.replace(
 							"{track}",
 							player.queue.tracks.length.toString()
@@ -114,8 +114,6 @@ export const subCommand: SubCommand = {
 				});
 
 			embeds.push(embed);
-			tracks.splice(0, chunkSize);
-			index++;
 		}
 
 		let currentIndex = 0;

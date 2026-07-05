@@ -46,6 +46,7 @@ import { isNumber } from "../../core/functions/method.js";
 import { DB } from "../../core/database/types.js";
 import { AvailableLanguage } from "../../core/functions/getLanguageData.js";
 import { Expressions } from "../../core/functions/randomExpression.js";
+import { usersNamesMap } from "../utils/prevnamesModule.js";
 
 // @ts-ignore
 export let tempTable: DB = null;
@@ -116,7 +117,11 @@ export const event: BotEvent = {
 								new Collection(
 									invites.map((invite) => [
 										invite.code,
-										invite.uses
+										{
+											uses: invite.uses,
+											inviterId: invite.inviterId,
+											inviterUsername: invite.inviter?.username || null
+										}
 									])
 								)
 							);
@@ -340,6 +345,15 @@ export const event: BotEvent = {
 		logger.log(
 			`${client.config.console.emojis.HOST} >> Bot is ready`.white
 		);
+
+		client.guilds.cache.forEach((guild) => {
+			for (const member of guild.members.cache.values()) {
+				usersNamesMap.set(member.user.id, {
+					username: member.user.username,
+					globalName: member.user.globalName
+				});
+			}
+		});
 
 		if (client.version.env === "dev") {
 			writeFileSync(

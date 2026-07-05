@@ -158,6 +158,7 @@ close_not_in_ticket: "Tu peux pas utilisé cte commande si t pas dans un salon d
 # /delete
 delete_disabled_command: "Tu peux pas utilisé cette commande désolé mec ya un bouffon d'administrateur qui l'a désactivé !"
 delete_not_in_ticket: "Wsh t con tu peux pas utiliser la commande dans un autre salon qu'un salon de ticket !"
+ticket_deleted: "Le ticket ${ticketOwnerMention} a été supprimé par <@${deletedByUserId}>. Voici le transcript :"
 
 # /sethereticket
 sethereticket_disabled_command: "Tu peux pas utilisé cette commande désolé mec ya un bouffon d'administrateur qui l'a désactivé !"
@@ -679,19 +680,19 @@ poll_embed_fields_choice: ":white_check_mark: **Oui**\n :x: **Non** "
 # /question
 question_not_full: "Entrez une question complète avec 3 mots ou plus!"
 question_s:
-  [
-    "Oui.",
-    "Non.",
-    "wAllah j'en sais rien",
-    "Je ne suis pas sûr(e) !",
-    "Tu es fou/folle!",
-    "Non merci jsuis pas gay.",
-    "Non.",
-    "Oui.",
-    "sah je men tape de ta question",
-    "aupire nique ta mère nan?",
-    "Tu veux pas j'tencule aupire?",
-  ]
+    [
+        "Oui.",
+        "Non.",
+        "wAllah j'en sais rien",
+        "Je ne suis pas sûr(e) !",
+        "Tu es fou/folle!",
+        "Non merci jsuis pas gay.",
+        "Non.",
+        "Oui.",
+        "sah je men tape de ta question",
+        "aupire nique ta mère nan?",
+        "Tu veux pas j'tencule aupire?"
+    ]
 question_fields_input_embed: ":question: **Question**"
 question_fields_output_embed: ":grey_exclamation: **Réponse:**"
 question_embed_title: "`Question: ${interaction.user.username}`"
@@ -1848,6 +1849,11 @@ lockall_embed_message_description: "Tous les canaux ont été verrouillés par <
 lockall_logs_embed_title: "Logs de Verrouillage"
 lockall_logs_embed_description: "<@${interaction.user.id}> a verrouillé tous les canaux !"
 
+# /unlockall
+unlockall_embed_message_description: "Tous les canaux ont été déverrouillés par <@${interaction.user.id}>."
+unlockall_logs_embed_title: "Logs de Déverrouillage"
+unlockall_logs_embed_description: "<@${interaction.user.id}> a déverrouillé tous les canaux !"
+
 # /unban
 unban_dont_have_permission: "${client.iHorizon_Emojis.No} | Tu n'avez pas la permission de débannir des membres."
 unban_bot_dont_have_permission: "${client.iHorizon_Emojis.No} | Je n'ai pas la permission."
@@ -2675,7 +2681,7 @@ confession_module_modal_components1_placeholder: "Mmhh"
 confession_module_modal_components2_label: "Est-ce privé?"
 
 # Music Player Events
-
+even_mp_playerStart_tip: "> ${client.iHorizon_Emojis.LastFM_Logo} Savais-tu que tu peux scrobbler ta musique avec `/lastfm` sur iHorizon ? ${client.iHorizon_Emojis.Sunglass}"
 event_mp_playerStart: "${client.iHorizon_Emojis.Music_Icon} - Lecture de [`${track.title}`](${url}) en cours dans **${queue.channel.name}** ambiencez tu !!! ..."
 event_mp_audioTrackAdd: "${client.iHorizon_Emojis.Music_Icon} - ${track.title} a été ajouté à la file d'attente :)"
 event_mp_playerError: "Je rencontre des problèmes de connexion => ${error.message}"
@@ -2760,7 +2766,11 @@ event_rank_role: "<@${message.author.id}>, tu as maintenant le rôle <@&${fetch.
 event_suggestion_embed_author: "Nouvelle suggestion de ${message.author.username} Merci mgl mais c la rue ici"
 
 # Événement de sécurité
-event_security: "${member}, écrit le captcha que jtai envoyé par lmessage.\nTa réponse elle doit etre dans la  syntaxe correcte fdp!\n__Ta  30 secondes pour répondre sinon prison.__"
+event_security_title: "Bienvenue sur ${guild} !"
+event_security: "${member}, veuillez saisir le captcha affiché dans ce message."
+event_security_expiry: "{emoji} Expulsion automatique ${timestamp} (**${attempts}** tentative(s) restante(s))."
+event_security_footer: "Cela ne prend que quelques secondes et aide à protéger notre communauté."
+event_security_kick_reason: "Échec du processus de sécurité"
 
 # Événement de ticket
 event_ticket_whenCreated_msg: "${interaction.user}, votre ticket (a la con) a été créé, visitez <#${channel.id}> et ferme ta gueule sale pute !"
@@ -2788,6 +2798,7 @@ event_gw_reroll_cannot_win_msg: "Wesh personne n'a voulue le cadeau? Nique sa m�
 event_gw_finnish_msg: "Félicitations ${winners} ! Vous avez remporté **${fetch.prize}** !"
 event_gw_finnish_cannot_msg: "Aucun participant valide, donc un gagnant n'a pas pu être déterminé ! Eh merde ptn"
 event_gw_finnish_button_title: "Giveaway Terminé Wallah"
+event_gw_entries_button_title: "Liste des participants"
 event_gw_removeentries_msg: "${interaction.user}, vous avez quitté ce giveaway ! Salle clochard wtf"
 event_gw_leave_button_placeholder: "Quitter le concours"
 event_gw_confirm_leave_msg: "${interaction.user}, es-tu sûr de vouloir quitter ce concours ?"
@@ -2967,13 +2978,13 @@ channel_unhideall_error: "Une erreur de merde est survenue pendant le démasquag
 
 # fr-FR.yml (French - France)
 new_guild_embed_title:
-  - "Bienvenue sur votre serveur ! 🎉"
-  - "Salutations, chers amis Discord ! 👋"
-  - "iHorizon a rejoint le chat ! 💬"
-  - "C'est un oiseau, c'est un avion, non, c'est iHorizon ! 🦸‍♂"
-  - "Souhaitons la bienvenue à iHorizon ! 🔥"
-  - "Une nouvelle aventure commence ! 🚀"
-  - "Un membre fantastique nous a rejoint ! ✨"
+    - "Bienvenue sur votre serveur ! 🎉"
+    - "Salutations, chers amis Discord ! 👋"
+    - "iHorizon a rejoint le chat ! 💬"
+    - "C'est un oiseau, c'est un avion, non, c'est iHorizon ! 🦸‍♂"
+    - "Souhaitons la bienvenue à iHorizon ! 🔥"
+    - "Une nouvelle aventure commence ! 🚀"
+    - "Un membre fantastique nous a rejoint ! ✨"
 new_guild_embed_desc: "## ${randomMessage}\nSalut les amis extraordinaires !\n\nJe suis iHorizon, un bot avancé conçu pour rendre votre expérience Discord exceptionnelle et pleine de fun.\n\n✨ **Ce que je peux faire pour vous :**\n• Gestion du serveur avec intelligence et professionnalisme\n• Jeux interactifs et divertissement illimité\n• Outils utiles pour l'organisation de la communauté\n• Support technique disponible 24h/24 et 7j/7\n\nExplorez mes commandes et plongez dans un monde de possibilités infinies.\nEnsemble, nous construirons une communauté fantastique remplie de magnifiques souvenirs !\n\nMerci de m'avoir choisi, commençons cette incroyable aventure ! 🌟"
 
 # Confession Event

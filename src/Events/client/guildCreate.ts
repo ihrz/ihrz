@@ -214,7 +214,11 @@ export const event: BotEvent = {
 						new Collection(
 							guildInvites.map((invite) => [
 								invite.code,
-								invite.uses
+								{
+									uses: invite.uses,
+									inviterId: invite.inviterId,
+									inviterUsername: invite.inviter?.username || null
+								}
 							])
 						)
 					);

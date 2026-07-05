@@ -42,6 +42,7 @@ import { blacklistTable, tempTable } from "../client/ready.js";
 import { sanitizeInteractionOptionValue } from "../../core/functions/sanitizeInteractionOptionValue.js";
 import logger from "../../core/logger.js";
 import { Expressions } from "../../core/functions/randomExpression.js";
+import { hasGuildSku } from "./messageCommandHandler.js";
 
 const timeout: number = 1000;
 
@@ -128,9 +129,7 @@ async function handleCommandExecution(
 	if (
 		client.version.env === "production" &&
 		interaction.commandName === "custom" &&
-		![...interaction.entitlements.values()].some(
-			(entitlement) => entitlement.skuId === "1512856902919258384"
-		)
+		!(await hasGuildSku(client, interaction.guildId, "1512856902919258384"))
 	) {
 		return await client.func.method.interactionSend(interaction, {
 			content: `${client.iHorizon_Emojis.Boost_Gem} https://discord.com/discovery/applications/945202900907470899/store`,

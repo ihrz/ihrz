@@ -78,26 +78,26 @@ interface BatchProcessorOptions {
 
 ## 📋 Batch Configuration Summary
 
-| Command | Batch Size | Delay | Operation Type |
-|---------|------------|-------|----------------|
-| `!massiverole.ts` | 10 | 150ms | Role assignments |
-| `!all.ts` | 5 | 200ms | Mass unban operations |
-| `!derank.ts` | 5 | 100ms | Role removal |
-| `unblacklist.ts` | 10 | 100ms | Cross-server unbans |
-| `!undo.ts` | 5 | 200ms | Re-banning operations |
-| `!nickrole.ts` | 10 | 150ms | Role/nickname modifications |
-| `onNewMessage.ts` | 3/5 | 100/200ms | Antispam actions |
+| Command           | Batch Size | Delay     | Operation Type              |
+| ----------------- | ---------- | --------- | --------------------------- |
+| `!massiverole.ts` | 10         | 150ms     | Role assignments            |
+| `!all.ts`         | 5          | 200ms     | Mass unban operations       |
+| `!derank.ts`      | 5          | 100ms     | Role removal                |
+| `unblacklist.ts`  | 10         | 100ms     | Cross-server unbans         |
+| `!undo.ts`        | 5          | 200ms     | Re-banning operations       |
+| `!nickrole.ts`    | 10         | 150ms     | Role/nickname modifications |
+| `onNewMessage.ts` | 3/5        | 100/200ms | Antispam actions            |
 
 ## 📊 Performance Improvements
 
-| Metric | Before | After |
-|--------|--------|-------|
-| **Bot Responsiveness** | ❌ Completely frozen | ✅ Always responsive |
-| **User Feedback** | ❌ No immediate response | ✅ Immediate progress updates |
-| **Event Loop** | ❌ Blocked for minutes | ✅ Never blocked |
-| **Error Handling** | ❌ All-or-nothing | ✅ Granular error tracking |
-| **API Rate Limits** | ❌ Often exceeded | ✅ Respected with delays |
-| **Memory Usage** | ❌ High spikes | ✅ Controlled consumption |
+| Metric                 | Before                  | After                        |
+| ---------------------- | ----------------------- | ---------------------------- |
+| **Bot Responsiveness** | ❌ Completely frozen     | ✅ Always responsive          |
+| **User Feedback**      | ❌ No immediate response | ✅ Immediate progress updates |
+| **Event Loop**         | ❌ Blocked for minutes   | ✅ Never blocked              |
+| **Error Handling**     | ❌ All-or-nothing        | ✅ Granular error tracking    |
+| **API Rate Limits**    | ❌ Often exceeded        | ✅ Respected with delays      |
+| **Memory Usage**       | ❌ High spikes           | ✅ Controlled consumption     |
 
 ## 🎯 Key Benefits
 

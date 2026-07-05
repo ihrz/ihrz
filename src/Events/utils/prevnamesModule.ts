@@ -24,28 +24,57 @@ import { Client, User, time } from "discord.js";
 import { BotEvent } from "../../../types/event.js";
 import { prevnamesTable } from "../client/ready.js";
 
+type PvNames = {
+	timestamp: Date;
+	nick: string;
+};
+
+export const prevnamesMap = new Map<string, PvNames[]>();
+
+export const usersNamesMap = new Map<
+	string,
+	{
+		username: string;
+		globalName: string | null;
+	}
+>();
+
 export const event: BotEvent = {
 	name: "userUpdate",
-	run: async (client: Client, oldUser: User) => {
-		const newUser =
-			client.users.cache.get(oldUser.id) ||
-			(await client.users.fetch(oldUser.id));
+	run: async (_client: Client, user: User) => {
+		const oldData = usersNamesMap.get(user.id);
 
-		const oldUsertag = oldUser.username;
-		const oldUserGlbl = oldUser.globalName || oldUser.displayName;
-
-		if (!oldUser) return;
-
-		if (oldUser.globalName !== newUser.globalName) {
-			await prevnamesTable.push(
-				`${oldUser.id}`,
-				`${time(new Date(), "d")} - ${oldUserGlbl}`
-			);
-		} else if (oldUser.username !== newUser.username) {
-			await prevnamesTable.push(
-				`${oldUser.id}`,
-				`${time(new Date(), "d")} - ${oldUsertag}`
-			);
+		if (!oldData) {
+			usersNamesMap.set(user.id, {
+				username: user.username,
+				globalName: user.globalName
+			});
+			return;
 		}
+
+		const oldName = oldData.globalName ?? oldData.username;
+
+		const newName = user.globalName ?? user.username;
+
+		if (oldName === newName) return;
+
+		await prevnamesTable.push(
+			user.id,
+			`${time(new Date(), "d")} - ${oldName}`
+		);
+
+		const history = prevnamesMap.get(user.id) ?? [];
+
+		history.push({
+			timestamp: new Date(),
+			nick: oldName
+		});
+
+		prevnamesMap.set(user.id, history);
+
+		usersNamesMap.set(user.id, {
+			username: user.username,
+			globalName: user.globalName
+		});
 	}
 };

@@ -33,6 +33,7 @@ import {
 } from "discord.js";
 import { BotEvent } from "../../../types/event.js";
 import { DatabaseStructure } from "../../../types/database_structure.js";
+import { InviteCacheData } from "../../../types/client.js";
 import { apiTable } from "../client/ready.js";
 
 export async function generateJoinImage(
@@ -118,21 +119,35 @@ export async function generateJoinImage(
 
 export async function resolveInvite(
 	guild: Guild,
-	oldInvites: Collection<string, number | null> | undefined
+	oldInvites: Collection<string, InviteCacheData> | undefined
 ) {
-	for (let i = 0; i < 3; i++) {
-		const invites = await guild.invites.fetch();
+	const invites = await guild.invites.fetch();
 
-		const invite = invites.find(
-			(i: Invite) => i.uses && i.uses > (oldInvites?.get(i.code) || 0)
-		);
+	const invite = invites.find((i: Invite) => {
+		const oldInvite = oldInvites?.get(i.code);
+		return i.uses && i.uses > (oldInvite?.uses || 0);
+	});
 
-		if (invite) return invite;
+	if (!invite) return null;
 
-		await new Promise((r) => setTimeout(r, 1000));
-	}
+	clientInviteCache(guild, invites);
+	return invite;
+}
 
-	return null;
+function clientInviteCache(guild: Guild, invites: Collection<string, Invite>) {
+	guild.client.invites.set(
+		guild.id,
+		new Collection(
+			invites.map((invite) => [
+				invite.code,
+				{
+					uses: invite.uses,
+					inviterId: invite.inviterId,
+					inviterUsername: invite.inviter?.username || null
+				}
+			])
+		)
+	);
 }
 
 export const event: BotEvent = {
@@ -184,30 +199,33 @@ export const event: BotEvent = {
 				}
 			}
 
-			if (invite) {
-				const inviter =
-					client.users.cache.get(invite.inviterId!) ||
-					(await client.users.fetch(invite?.inviterId!));
-				client.invites
+			if (invite?.inviterId) {
+				const cachedInvite = client.invites
 					.get(member.guild.id)
-					?.set(invite?.code, invite?.uses);
+					?.get(invite.code);
+				const inviterId = invite.inviterId;
+				const inviterUsername =
+					invite.inviter?.username ||
+					cachedInvite?.inviterUsername ||
+					`@${inviterId}`;
+				const inviterMention = `<@${inviterId}>`;
 
 				const check = await client.db.get(
-					`${invite?.guild?.id}.USER.${inviter.id}.INVITES`
+					`${invite?.guild?.id}.USER.${inviterId}.INVITES`
 				);
 
 				if (check) {
 					await client.db.add(
-						`${invite?.guild?.id}.USER.${inviter.id}.INVITES.regular`,
+						`${invite?.guild?.id}.USER.${inviterId}.INVITES.regular`,
 						1
 					);
 					await client.db.add(
-						`${invite?.guild?.id}.USER.${inviter.id}.INVITES.invites`,
+						`${invite?.guild?.id}.USER.${inviterId}.INVITES.invites`,
 						1
 					);
 				} else {
 					await client.db.set(
-						`${invite?.guild?.id}.USER.${inviter.id}.INVITES`,
+						`${invite?.guild?.id}.USER.${inviterId}.INVITES`,
 						{
 							regular: 0,
 							bonus: 0,
@@ -217,11 +235,11 @@ export const event: BotEvent = {
 					);
 
 					await client.db.add(
-						`${invite?.guild?.id}.USER.${inviter.id}.INVITES.regular`,
+						`${invite?.guild?.id}.USER.${inviterId}.INVITES.regular`,
 						1
 					);
 					await client.db.add(
-						`${invite?.guild?.id}.USER.${inviter.id}.INVITES.invites`,
+						`${invite?.guild?.id}.USER.${inviterId}.INVITES.invites`,
 						1
 					);
 				}
@@ -229,13 +247,13 @@ export const event: BotEvent = {
 				await client.db.set(
 					`${invite?.guild?.id}.USER.${member.user.id}.INVITES.BY`,
 					{
-						inviter: inviter.id,
+						inviter: inviterId,
 						invite: invite?.code
 					}
 				);
 
 				const invitesAmount = await client.db.get(
-					`${member.guild.id}.USER.${inviter.id}.INVITES.invites`
+					`${member.guild.id}.USER.${inviterId}.INVITES.invites`
 				);
 				let isCustomVanity = false; // Is discord.wf link
 				let msg = "";
@@ -256,7 +274,7 @@ export const event: BotEvent = {
 					`VANITY.${member.guild.id}`
 				);
 				if (
-					inviter.id === client.user?.id &&
+					inviterId === client.user?.id &&
 					CustomVanityInvite.invite === invite.code
 				) {
 					isCustomVanity = true;
@@ -272,10 +290,10 @@ export const event: BotEvent = {
 							user: {
 								username: isCustomVanity
 									? ".wf/" + CustomVanityInvite.vanity
-									: inviter.username,
+									: inviterUsername,
 								mention: isCustomVanity
 									? "discord.wf/" + CustomVanityInvite.vanity
-									: inviter.toString()
+									: inviterMention
 							},
 							invitesAmount: invitesAmount
 						}

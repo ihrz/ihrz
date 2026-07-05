@@ -24,7 +24,7 @@ var_chance: "Luck"
 var_other: "Other"
 var_unknown: "Unknown"
 var_secure: "Secure"
-var_unsecure: "Unsecure"
+var_unsecure: "Insecure"
 var_prefix: "Prefix"
 var_slash: "Slash"
 var_discord: "Discord"
@@ -158,6 +158,7 @@ close_not_in_ticket: "You cannot use this command outside of a ticket channel!"
 # /delete
 delete_disabled_command: "You cannot use this command because an administrator disabled it"
 delete_not_in_ticket: "You cannot use this command outside of a ticket channel!"
+ticket_deleted: "The ticket ${ticketOwnerMention} has been deleted by <@${deletedByUserId}>. Here is the transcript:"
 
 # /sethereticket
 sethereticket_disabled_command: "You cannot use this command because an administrator has disabled it"
@@ -169,24 +170,24 @@ sethereticket_command_type_menu_choice_1_label: "Create a panel with buttons"
 sethereticket_command_type_menu_choice_2_label: "Create a panel with selections"
 sethereticket_command_type_menu_question: "<@${interaction.user.id}>, what type of panel do you want?"
 sethereticket_panelforcreate_embed_desc: "## Creating a panel with the selection\n"
-sethereticket_panelforcreate_button_add_label: "Add a new case"
-sethereticket_panelforcreate_button_sub_label: "Remove the last case"
-sethereticket_panelforcreate_button_save_label: "Send the Embed"
-sethereticket_modal_1_title: "Add a new case to the panel"
-sethereticket_modal_1_fields_1_placeholder: "The case's name for the selection"
+sethereticket_panelforcreate_button_add_label: "Add a new option"
+sethereticket_panelforcreate_button_sub_label: "Remove the last option"
+sethereticket_panelforcreate_button_save_label: "Send the embed"
+sethereticket_modal_1_title: "Add a new option to the panel"
+sethereticket_modal_1_fields_1_placeholder: "Option name for the selection"
 sethereticket_modal_1_fields_1_label: "Name"
-sethereticket_modal_1_fields_2_placeholder: "The case's emojis for the selection"
+sethereticket_modal_1_fields_2_placeholder: "Emoji for the option"
 sethereticket_modal_1_fields_2_label: "Emoji"
-sethereticket_modal_2_title: "Configurations of the panel"
-sethereticket_modal_2_fields_1_placeholder: "The title of the embed"
-sethereticket_modal_2_fields_1_title: "Embed's Title"
-sethereticket_modal_2_fields_2_placeholder: "The description of the embed"
-sethereticket_modal_2_fields_2_title: "Embed's Description"
+sethereticket_modal_2_title: "Panel settings"
+sethereticket_modal_2_fields_1_placeholder: "Embed title"
+sethereticket_modal_2_fields_1_title: "Embed Title"
+sethereticket_modal_2_fields_2_placeholder: "Embed description"
+sethereticket_modal_2_fields_2_title: "Embed Description"
 sethereticket_panel_select_embed_desc: "# Panel Name\n```${result.panelName}```\n{msg}\n\n## Category\n```{category}```\n"
 
 # /open
 open_disabled_command: "You cannot use this command because an administrator has disabled it"
-open_command_work: "Successfully re-opened ${interaction.channel}"
+open_command_work: "Successfully reopened ${interaction.channel}."
 open_command_error: "An error occurred, please try again!"
 open_not_in_ticket: "You cannot use this command outside of a ticket channel!"
 
@@ -206,10 +207,10 @@ transript_not_in_ticket: "You cannot use this command outside of a ticket channe
 
 # /disableticket
 disableticket_not_admin: ":x: | You must be an administrator of this server to use this command!"
-disableticket_logs_embed_title_disable: "DisableTicket Logs"
+disableticket_logs_embed_title_disable: "Disable Ticket Logs"
 disableticket_logs_embed_description_disable: "<@${interaction.user.id}> disabled ticket commands!"
 disableticket_command_work_disable: "You have successfully disabled the ticket commands!"
-disableticket_logs_embed_title_enable: "EnableTicket Logs"
+disableticket_logs_embed_title_enable: "Enable Ticket Logs"
 disableticket_logs_embed_description_enable: "<@${interaction.user.id}> enabled ticket commands!"
 disableticket_command_work_enable: "You have successfully enabled the ticket commands!"
 
@@ -221,7 +222,7 @@ setticketcategory_command_work: "<@${interaction.user.id}>, you have set the cat
 
 # /ticket log-channel
 ticket_logchannel_embed_title: "Ticket Logs Channel"
-ticket_logchannel_embed_desc: "${interaction.user}, you have set the Ticket Module's Channel logs to ${channel}!"
+ticket_logchannel_embed_desc: "${interaction.user}, you have set the Ticket module's log channel to ${channel}!"
 
 # /ticket panel
 ticket_panel_default_placeholder: "Select a category to open a ticket"
@@ -237,33 +238,33 @@ ticket_panel_option_fields: "📔 Option Fields"
 ticket_panel_form: "📝 Form"
 ticket_panel_panel_placeholder: "Choose options"
 ticket_panel_panel_1_label: "Save current configuration"
-ticket_panel_panel_2_label: "Shows the preview"
-ticket_panel_panel_3_label: "Change current related embed"
-ticket_panel_panel_4_label: "Add/remove role to ping"
+ticket_panel_panel_2_label: "Show preview"
+ticket_panel_panel_3_label: "Change related embed"
+ticket_panel_panel_4_label: "Add/remove a role to ping"
 ticket_panel_panel_5_label: "Change placeholder"
 ticket_panel_panel_6_label: "Change category"
-ticket_panel_panel_7_label: "Change ping user"
-ticket_panel_panel_8_label: "Add/Remove Option Fields"
+ticket_panel_panel_7_label: "Change pinged user"
+ticket_panel_panel_8_label: "Add/remove option fields"
 ticket_panel_panel_9_label: "Change form"
 ticket_panel_button_send: "Send embed"
 ticket_panel_change_category_channelSelect_placeholder: "Select a category"
-ticket_panel_select_channel_to_send: "Select a channel to send the embed"
+ticket_panel_select_channel_to_send: "Select a channel to send the embed to"
 ticket_panel_change_placeholder_modal_title: "Change Placeholder"
 ticket_panel_change_placeholder_modal_placeholder: "New Placeholder"
 ticket_panel_need_save_config: "You need to save the current configuration before sending the embed."
 ticket_panel_need_1_option: "You need at least one option to send the embed."
 ticket_panel_related_embed_dont_exist: "The related embed does not exist"
-ticket_panel_channel_error: "The channel does not exist or I do not have permission to send messages in it"
-ticket_panel_embed_been_send: "The embed has been sent to the channel"
+ticket_panel_channel_error: "The channel does not exist or I do not have permission to send messages in it."
+ticket_panel_embed_been_send: "The embed has been sent to the channel."
 ticket_panel_successfully_saved: "The configuration has been successfully saved"
 ticket_panel_change_role_roleSelect_placeholder: "Select a role"
-ticket_panel_change_role_interaction_content: "Select a role to change the role that will be pinged when a ticket is opened."
+ticket_panel_change_role_interaction_content: "Select the role that will be pinged when a ticket is opened."
 ticket_panel_change_embed_modal_title: "Change Related Embed"
 ticket_panel_change_embed_modal_placeholder: "Embed ID"
 ticket_panel_change_embed_dont_exist: "The embed does not exist"
 ticket_panel_change_option_select_placeholder: "Select an option"
 ticket_panel_change_option_select_1_label: "Add a new option field"
-ticket_panel_change_option_select_2_label: "Remove option field"
+ticket_panel_change_option_select_2_label: "Remove an option field"
 ticket_panel_change_option_interaction_content: "Select an option to add or remove option fields"
 ticket_panel_add_option_max_10: "You can't add more than 10 option fields"
 ticket_panel_add_option_modal_title: "Add option field"
@@ -273,25 +274,25 @@ ticket_panel_add_option_modal_field3_label: "Emoji"
 ticket_panel_remove_option_empty: "There are no option fields to remove"
 ticket_panel_remove_option_select_placeholder: "Choose an option to remove"
 ticket_panel_rempve_option_interaction_content: "Select an option to remove"
-ticket_panel_change_form_select_placeholder_1: "Add form field"
-ticket_panel_change_form_select_placeholder_2: "Remove form field"
+ticket_panel_change_form_select_placeholder_1: "Add a form field"
+ticket_panel_change_form_select_placeholder_2: "Remove a form field"
 ticket_panel_change_form_interaction_content: "Select an option to add or remove form fields"
 ticket_panel_add_form_max_3: "You can't add more than 3 form fields"
-ticket_panel_add_form_modal_title: "Add form field"
+ticket_panel_add_form_modal_title: "Add a form field"
 ticket_panel_add_form_modal_field1_label: "Question Title"
 ticket_panel_add_form_modal_field2_label: "Question Placeholder"
 ticket_panel_preview_message: "Preview of the ticket panel"
 ticket_panel_option_change_category: "Select an option to change category"
 ticket_panel_panel_10_label: "Change category for one specific option"
 ticket_panel_channel_panel_embed_id: "Ticket Channel Embed ID"
-ticket_panel_panel_11_label: "Change ticket channel embed panel"
+ticket_panel_panel_11_label: "Change ticket channel embed"
 ticket_panel_select_user: "Menu to add members to the ticket"
 ticket_panel_button_delete: "Button to delete the ticket"
 ticket_panel_button_transcript: "Button to create a transcript"
 ticket_panel_panel_12_label: "Show menu to add/remove members from a ticket"
 ticket_panel_panel_13_label: "Show button to delete a ticket"
 ticket_panel_panel_14_label: "Show transcript button"
-ticket_panel_tip_about_variable1: "${client.iHorizon_Emojis.VC_OpenChat} **Did you know?** When you use `/utils embed` to generate an embed, you can introduce the **`{category}`** variable, which will be replaced by the category chosen by the user."
+ticket_panel_tip_about_variable1: "${client.iHorizon_Emojis.VC_OpenChat} **Did you know?** When you use `/utils embed` to generate an embed, you can include the **`{category}`** variable, which will be replaced by the category chosen by the user."
 ticket_panel_no_question_to_delete: "No questions to delete."
 ticket_panel_chose_a_question: "Choose a question"
 ticket_panel_select_question_to_delete: "Select a question to delete."
@@ -307,7 +308,7 @@ ticket_panel_remove_a_question: "Remove a question"
 ticket_panel_option_invalid: "❌ Invalid option."
 ticket_panel_chose_option_to_form: "Select an option to configure its form."
 var_chose_option: "Choose an option"
-ticket_panel_saved_and_sended_panel: "The ticket panel #${panelCode} has been successfully sent in ${channel.toString()}. Please keep the code somewhere in case you need to modify the panel."
+ticket_panel_saved_and_sended_panel: "The ticket panel #${panelCode} has been successfully sent to ${channel.toString()}. Please keep the code somewhere in case you need to modify the panel."
 var_title: "Title"
 var_action: "Action"
 
@@ -333,16 +334,16 @@ var_never: "Never"
 disablexp_not_admin: ":x: | You must be an administrator of this server to use this command!"
 disablexp_logs_embed_title_disable: "Disable XP Logs"
 disablexp_logs_embed_description_disable: "<@${interaction.user.id}> disabled XP!"
-disablexp_command_work_disable: "You have successfully disabled the leveling message (XP)"
-disablexp_logs_embed_title_enable: "Disable XP Logs"
+disablexp_command_work_disable: "You have successfully disabled XP."
+disablexp_logs_embed_title_enable: "Enable XP Logs"
 disablexp_logs_embed_description_enable: "<@${interaction.user.id}> enabled XP!"
-disablexp_command_work_enable: "You have successfully enabled the leveling message (XP)"
+disablexp_command_work_enable: "You have successfully enabled XP."
 disablexp_command_work_disable_entierly: "You have successfully disabled the ranks module! (No more messages, and users will not earn levels)"
 
 # /setxpchannels
 setxpchannels_not_admin: ":x: | You must be an administrator of this server to use this command!"
 setxpchannels_logs_embed_title_disable: "SetXpChannels Logs"
-setxpchannels_logs_embed_description_disable: "<@${interaction.user.id}> disabled the custom XP channels. I put the default settings..."
+setxpchannels_logs_embed_description_disable: "<@${interaction.user.id}> disabled the custom XP channels and reset settings to default."
 setxpchannels_already_disabled_disable: "The custom XP channels are already disabled!"
 setxpchannels_command_work_disable: "You have successfully disabled the custom XP channel!"
 setxpchannels_command_error_disable: "Error: missing permissions or channel doesn't exist"
@@ -376,7 +377,7 @@ ranks_ignorechannels_embed_title: "Ranks Module Configurations"
 ranks_ignorechannels_embed_desc: "When new messages are sent in one of these channels, the Ranks Module ignores it."
 
 # /ranks set-message
-ranksSetMessage_not_admin: ":x: | You must be an administrator of this server to use these commands!"
+ranksSetMessage_not_admin: ":x: | You must be an administrator of this server to use this command!"
 ranksSetMessage_help_embed_title: "/ranks set-message Help!"
 ranksSetMessage_help_embed_description: "/ranks set-message"
 ranksSetMessage_help_embed_fields_name: "How to use?"
@@ -388,7 +389,7 @@ ranksSetMessage_logs_embed_description_on_disable: "<@${interaction.user.id}> de
 ranksSetMessage_command_work_on_disable: "${client.iHorizon_Emojis.Yes} | Successfully deleted custom ranks message."
 ranksSetMessage_command_work_ls: "The ranks message is:"
 ranksSetMessage_help_embed_fields_custom_name: "Custom Message"
-ranksSetMessage_help_embed_fields_custom_name_empy: "No Set!"
+ranksSetMessage_help_embed_fields_custom_name_empy: "Not Set!"
 ranksSetMessage_help_embed_fields_default_name_empy: "Default Message"
 ranksSetMessage_help_embed_desc: "{memberUsername} => The member's username\n{memberMention} => Mention the member\n{memberCount} => Number of guild members\n{guildName} => The name of the guild\n{createdAt} => Account creation date in dd/mm/yyyy\n{xpLevel} => The user's XP level\n{accountCreationTimestamp} => Account creation timestamp"
 ranksSetMessage_button_set_name: "Set message"
@@ -446,7 +447,7 @@ blacklist_bot_lol: "Can't blacklist myself x)"
 blacklist_command_work: "${member.user.username} is now blacklisted"
 blacklist_blacklisted_but_can_ban_him: "${client.iHorizon_Emojis.No} is now blacklisted. I can't ban this member here, missing permission?"
 blacklist_already_blacklisted: "${member.user.username} is already blacklisted!"
-blacklist_no_one_blacklist: "${client.iHorizon_Emojis.No} no one blacklisted found!"
+blacklist_no_one_blacklist: "${client.iHorizon_Emojis.No} No blacklisted users found!"
 blacklist_var_no_reason: "No reason found"
 blacklist_embed_title: "Blacklist - Page ${i / usersPerPage + 1}"
 blacklist_command_work_shard: "✅ ${username} banned on **${totalSuccess}** server(s) across all shards (`{score}`)"
@@ -455,8 +456,8 @@ blacklist_command_work_shard: "✅ ${username} banned on **${totalSuccess}** ser
 unblacklist_not_owner: "You are not an owner of the iHorizon Project. You can't use this command."
 unblacklist_command_work: "<@${member.id}> is no longer blacklisted"
 unblacklist_not_blacklisted: "<@${member.id}> was not blacklisted"
-unblacklist_unblacklisted_but_can_unban_him: "${client.iHorizon_Emojis.No} is now unblacklisted. I can't unban this member here, missing permission or already unbanned?"
-unblacklist_user_is_not_exist: "I couldn't find the user"
+unblacklist_unblacklisted_but_can_unban_him: "${client.iHorizon_Emojis.No} has been removed from the blacklist, but I can't unban this member here; missing permission or already unbanned?"
+unblacklist_user_is_not_exist: "I couldn't find the user."
 unblacklist_command_work_across_all_shard: "✅ ${bannedMember.username} is now unbanned on **${totalSuccess}** server(s) across all shards (`${score}`)"
 
 # Invite Manager commands
@@ -497,7 +498,7 @@ resetallinvites_logs_embed_desc: "${interaction.member.user.toString()} has dele
 # /botinfo, /invite, /kisakay, /ping, /status
 
 # /links
-links_message: "Click the links below about me!"
+links_message: "Click the links below to learn more about me!"
 links_website: "My Website"
 links_gitlab: "My GitLab"
 
@@ -512,7 +513,7 @@ botinfo_embed_fields_created_by: "Created by:"
 
 # /invite
 invite_embed_title: "Thank you for adding iHorizon!"
-invite_embed_description: "I love you, show me your love for me back! Invite me!"
+invite_embed_description: "I love you; show your love back by inviting me!"
 
 # /kisakay
 kisakay_message: "${client.iHorizon_Emojis.Sparkles} Kisakay is both my creator and my developer. It is because of her and her keyboard that I came into existence. I am deeply grateful to her!✨ ❤️❤️"
@@ -679,16 +680,16 @@ poll_embed_fields_choice: ":white_check_mark: **Yes**\n:x: **No**"
 # /question
 question_not_full: "Enter a full question with 3 or more words!"
 question_s:
-  [
-    "Yes.",
-    "No.",
-    "I don't know.",
-    "I am not sure!",
-    "You're crazy!",
-    "No thanks.",
-    "No.",
-    "Yes.",
-  ]
+    [
+        "Yes.",
+        "No.",
+        "I don't know.",
+        "I am not sure!",
+        "You're crazy!",
+        "No thanks.",
+        "No.",
+        "Yes."
+    ]
 question_fields_input_embed: ":question:__**Question**__"
 question_fields_output_embed: ":grey_exclamation:__**Answer:**__"
 question_embed_title: "__**Question**__: `${interaction.user.username}`"
@@ -1276,25 +1277,25 @@ blockpub_now_disable: "📌 | The antipub is now deactivated!"
 
 # /guildprofil
 guildprofil_not_admin: ":x: | You must be an administrator of this server!"
-guildprofil_not_set_reactionrole: "No set!"
+guildprofil_not_set_reactionrole: "Not set!"
 guildprofil_set_reactionrole: "**MessageID**: `${i}` -> ${emoji || key} gives <@&${rolesID}> role\n"
-guildprofil_not_set_ticketFetched: "No set!"
+guildprofil_not_set_ticketFetched: "Not set!"
 guildprofil_set_ticketFetched: ""
-guildprofil_not_set_punishPub: "No set!"
+guildprofil_not_set_punishPub: "Not set!"
 guildprofil_set_punishPub: "`${punishPub.punishementType}`: max: `${punishPub.amountMax}` flags."
-guildprofil_not_set_supportConfig: "No set!"
+guildprofil_not_set_supportConfig: "Not set!"
 guildprofil_set_supportConfig: "`${supportConfig.input}` in bio gives <@&${supportConfig.rolesId}> role."
-guildprofil_not_set_setchannelsjoin: "No set!"
+guildprofil_not_set_setchannelsjoin: "Not set!"
 guildprofil_set_setchannelsjoin: ""
-guildprofil_not_set_setchannelsleave: "No set!"
+guildprofil_not_set_setchannelsleave: "Not set!"
 guildprofil_set_setchannelsleave: ""
-guildprofil_not_set_joinmessage: "No set!"
+guildprofil_not_set_joinmessage: "Not set!"
 guildprofil_set_joinmessage: ""
-guildprofil_not_set_leavemessage: "No set!"
+guildprofil_not_set_leavemessage: "Not set!"
 guildprofil_set_leavemessage: ""
-guildprofil_not_set_joinroles: "No set!"
+guildprofil_not_set_joinroles: "Not set!"
 guildprofil_set_joinroles: ""
-guildprofil_not_set_joinDmMessage: "No set!"
+guildprofil_not_set_joinDmMessage: "Not set!"
 guildprofil_set_joinDmMessage: ""
 guildprofil_not_set_blockpub: "Power off"
 guildprofil_set_blockpub: "Power on"
@@ -1382,7 +1383,7 @@ setjoinmessage_logs_embed_description_on_disable: "<@${interaction.user.id}> del
 setjoinmessage_command_work_on_disable: "${client.iHorizon_Emojis.Yes} | Successfully deleted custom join message."
 setjoinmessage_command_work_ls: "The join message is:"
 setjoinmessage_help_embed_fields_custom_name: "Custom Message"
-setjoinmessage_help_embed_fields_custom_name_empy: "No Set!"
+setjoinmessage_help_embed_fields_custom_name_empy: "Not set!"
 setjoinmessage_help_embed_fields_default_name_empy: "Default Message"
 setjoinmessage_help_embed_desc: "{memberUsername} => The member's username\n{memberMention} => Mention the member\n{inviterUsername} => The inviter's username\n{inviterMention} => Mention the inviter\n{memberCount} => Number of members in the guild\n{invitesCount} => Number of invites by the inviter\n{guildName} => The name of the guild\n{createdAt} => Account creation date in dd/mm/yyyy\n{accountCreationTimestamp} => Timestamp of the account creation date"
 setjoinmessage_button_set_name: "Set message"
@@ -1780,7 +1781,7 @@ gw_getdata_embed_fields_value_amountWinner: "`${giveawayData.winnerCount}` winne
 gw_getdata_embed_fields_prize: "Prize"
 gw_getdata_embed_fields_value_prize: "`${giveawayData.prize}`"
 gw_getdata_embed_fields_hostedBy: "Hosted by"
-gw_getdata_embed_fields_isEnded: "Is Ended?"
+gw_getdata_embed_fields_isEnded: "Ended?"
 gw_getdata_embed_fields_isValid: "Is Valid?"
 gw_getdata_embed_fields_time: "End at"
 gw_getdata_embed_fields_entriesAmount: "Entries Amount"
@@ -1846,6 +1847,11 @@ lockall_dont_have_permission: "${client.iHorizon_Emojis.No} | You don't have per
 lockall_embed_message_description: "All channels have been locked by <@${interaction.user.id}>."
 lockall_logs_embed_title: "Lockall Logs"
 lockall_logs_embed_description: "<@${interaction.user.id}> locked all channels!"
+
+# /unlockall
+unlockall_embed_message_description: "All channels have been unlocked by <@${interaction.user.id}>."
+unlockall_logs_embed_title: "Unlockall Logs"
+unlockall_logs_embed_description: "<@${interaction.user.id}> unlocked all channels!"
 
 # /unban
 unban_dont_have_permission: "${client.iHorizon_Emojis.No} | You don't have permission to unban members."
@@ -2676,6 +2682,7 @@ confession_module_modal_components2_label: "Is this private?"
 
 # Music Player Events
 
+even_mp_playerStart_tip: "> ${client.iHorizon_Emojis.LastFM_Logo} Did you know that you can scrobble your music with `/lastfm` on iHorizon ? ${client.iHorizon_Emojis.Sunglass}"
 event_mp_playerStart: "${client.iHorizon_Emojis.Music_Icon} - Now playing [`${track.title}`](${url}) into **${queue.channel.name}**..."
 event_mp_audioTrackAdd: "${client.iHorizon_Emojis.Music_Icon} - ${track.title} has been added to the queue!"
 event_mp_playerError: "I'm having trouble connecting => ${error.message}"
@@ -2760,7 +2767,11 @@ event_rank_role: "<@${message.author.id}>, you now have the role <@&${fetch.id}>
 event_suggestion_embed_author: "New suggestion from ${message.author.username}"
 
 # Security Event
-event_security: "${member}, please type the captcha sent in this message.\nYour response needs to be in the correct syntax!\n__You have 30 seconds to answer.__"
+event_security_title: "Welcome to ${guild}!"
+event_security: "${member}, please type the captcha shown in this message."
+event_security_expiry: "{emoji} Automatic kick ${timestamp} (**${attempts}** attempt(s) remaining)."
+event_security_footer: "This only takes a few seconds and helps keep our community safe."
+event_security_kick_reason: "Security process failed"
 
 # Ticket Event
 event_ticket_whenCreated_msg: "${interaction.user}, your ticket has been created, visit <#${channel.id}>!"
@@ -2788,6 +2799,7 @@ event_gw_reroll_cannot_win_msg: "No valid entrants, so a winner could not be det
 event_gw_finnish_msg: "Congratulations ${winners}! You won the **${fetch.prize}**!"
 event_gw_finnish_cannot_msg: "No valid entrants, so a winner could not be determined!"
 event_gw_finnish_button_title: "Giveaway Finished"
+event_gw_entries_button_title: "Participants List"
 event_gw_removeentries_msg: "${interaction.user}, you have to leave this giveaway!"
 event_gw_leave_button_placeholder: "Leave Giveaway"
 event_gw_confirm_leave_msg: "${interaction.user} are you sure you want to leave this giveaway?"
@@ -2967,11 +2979,11 @@ channel_unhideall_error: "An error occurred while unhiding channels."
 
 # New guild event
 new_guild_embed_title:
-  - "Welcome to our server! 🎉"
-  - "Greetings, fellow Discordians! 👋"
-  - "iHorizon has joined the chat! 💬"
-  - "It's a bird, it's a plane, no, it's iHorizon! 🦸‍♂"
-  - "Let's give a warm welcome to iHorizon! 🔥"
+    - "Welcome to our server! 🎉"
+    - "Greetings, fellow Discordians! 👋"
+    - "iHorizon has joined the chat! 💬"
+    - "It's a bird, it's a plane, no, it's iHorizon! 🦸‍♂"
+    - "Let's give a warm welcome to iHorizon! 🔥"
 new_guild_embed_desc: "## ${randomMessage}\nHi there! I'm excited to join your server and be a part of your community.\nMy name is iHorizon and I'm here to help you with all your needs. Feel free to use my commands and explore all the features I have to offer.\nIf you have any questions or run into any issues, don't hesitate to reach out to me.\nI'm here to make your experience on this server the best it can be.\nThanks for choosing me and let's have some fun together!\n"
 
 # Confession Event

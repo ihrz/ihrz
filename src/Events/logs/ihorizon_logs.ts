@@ -31,7 +31,7 @@ import { BotEvent } from "../../../types/event.js";
 export const event: BotEvent = {
 	name: "channelCreate",
 	run: async (client: Client, channel: GuildChannel) => {
-		if (channel.name !== "ihorizon-logs") return;
+		if (!channel.name.includes("ihorizon-logs")) return;
 
 		const data = await client.func.getLanguageData(channel.guild.id);
 

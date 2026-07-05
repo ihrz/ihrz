@@ -421,13 +421,7 @@ export const subCommand: SubCommand = {
 		}
 
 		function generateUniqueOptionFieldValue(usedValues: Set<string>) {
-			let value = "";
-
-			do {
-				value = `ticket_option_${generatePassword({ length: 12, uppercase: true, numbers: true })}`;
-			} while (usedValues.has(value));
-
-			return value;
+			return `ticket_option_${generatePassword({ length: 12, uppercase: true, numbers: true })}`;
 		}
 
 		function ensureUniqueOptionFieldValues() {

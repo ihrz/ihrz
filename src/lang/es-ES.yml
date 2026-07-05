@@ -158,6 +158,7 @@ close_not_in_ticket: "¡No puedes usar este comando fuera de un canal de ticket!
 # /delete
 delete_disabled_command: "¡No puedes usar este comando porque un administrador ha deshabilitado los comandos de tickets!"
 delete_not_in_ticket: "¡No puedes usar este comando fuera de un canal de ticket!"
+ticket_deleted: "El ticket ${ticketOwnerMention} ha sido eliminado por <@${deletedByUserId}>. Aquí está la transcripción:"
 
 # /sethereticket
 sethereticket_disabled_command: "¡No puedes usar este comando porque otro administrador ha deshabilitado los comandos de tickets!"
@@ -679,16 +680,16 @@ poll_embed_fields_choice: ":white_check_mark: **Sí**\n :x: **No** "
 # /question
 question_not_full: "¡Ingresa una pregunta completa con 3 o más palabras!"
 question_s:
-  [
-    "Sí.",
-    "No.",
-    "No lo sé.",
-    "¡No estoy seguro!",
-    "¡Estás loco!",
-    "No, gracias.",
-    "No.",
-    "Sí.",
-  ]
+    [
+        "Sí.",
+        "No.",
+        "No lo sé.",
+        "¡No estoy seguro!",
+        "¡Estás loco!",
+        "No, gracias.",
+        "No.",
+        "Sí."
+    ]
 question_fields_input_embed: ":question: **Pregunta**"
 question_fields_output_embed: ":grey_exclamation: **Respuesta**:"
 question_embed_title: "__**Pregunta**__: ${interaction.user.username}"
@@ -1845,6 +1846,11 @@ lockall_embed_message_description: "Todos los canales han sido bloqueados por <@
 lockall_logs_embed_title: "Registro de Bloqueo de Todos los Canales"
 lockall_logs_embed_description: "<@${interaction.user.id}> bloqueó todos los canales!"
 
+# /unlockall
+unlockall_embed_message_description: "Todos los canales han sido desbloqueados por <@${interaction.user.id}>."
+unlockall_logs_embed_title: "Registro de Desbloqueo de Todos los Canales"
+unlockall_logs_embed_description: "<@${interaction.user.id}> desbloqueó todos los canales!"
+
 # /unban
 unban_dont_have_permission: "${client.iHorizon_Emojis.No} | No tienes permiso para desbanear miembros."
 unban_bot_dont_have_permission: "${client.iHorizon_Emojis.No} | No tengo permiso."
@@ -2672,7 +2678,7 @@ confession_module_modal_components1_placeholder: "Mmhh"
 confession_module_modal_components2_label: "¿Es privado?"
 
 # Music Player Events
-
+even_mp_playerStart_tip: "> ${client.iHorizon_Emojis.LastFM_Logo} ¿Sabías que puedes registrar tu música con `/lastfm` en iHorizon ? ${client.iHorizon_Emojis.Sunglass}"
 event_mp_playerStart: "${client.iHorizon_Emojis.Music_Icon} - Reproduciendo [`${track.title}`](${url}) en **${queue.channel.name}** ..."
 event_mp_audioTrackAdd: "${client.iHorizon_Emojis.Music_Icon} - ¡${track.title} ha sido agregado a la cola!"
 event_mp_playerError: "Tengo problemas para conectarme => ${error.message}"
@@ -2757,7 +2763,11 @@ event_rank_role: "<@${message.author.id}>, ahora tienes el rol <@&${fetch.id}>"
 event_suggestion_embed_author: "Nueva sugerencia de ${message.author.username}"
 
 # Evento de seguridad
-event_security: "${member}, por favor escribe el captcha enviado en este mensaje.\nTu respuesta debe tener la sintaxis correcta.\n__Tienes 30 segundos para responder.__"
+event_security_title: "¡Bienvenido a ${guild}!"
+event_security: "${member}, por favor escribe el captcha mostrado en este mensaje."
+event_security_expiry: "{emoji} Expulsión automática ${timestamp} (**${attempts}** intento(s) restante(s))."
+event_security_footer: "Esto solo toma unos segundos y ayuda a mantener segura nuestra comunidad."
+event_security_kick_reason: "Proceso de seguridad fallido"
 
 # Evento de Ticket
 event_ticket_whenCreated_msg: "${interaction.user}, tu ticket ha sido creado, visita <#${channel.id}> !"
@@ -2785,6 +2795,7 @@ event_gw_reroll_cannot_win_msg: "No hay participantes válidos, por lo que no se
 event_gw_finnish_msg: "¡Felicidades ${winners}! ¡Ganaste **${fetch.prize}**!"
 event_gw_finnish_cannot_msg: "No hay participantes válidos, por lo que no se pudo determinar un ganador."
 event_gw_finnish_button_title: "Sorteo Finalizado"
+event_gw_entries_button_title: "Lista de participantes"
 event_gw_removeentries_msg: "${interaction.user}, ¡has abandonado este sorteo!"
 event_gw_leave_button_placeholder: "Salir del sorteo"
 event_gw_confirm_leave_msg: "${interaction.user}, ¿estás seguro de que quieres salir de este sorteo?"
@@ -2964,13 +2975,13 @@ channel_unhideall_error: "Ocurrió un error al mostrar los canales."
 
 # es-ES.yml (Spanish - Spain)
 new_guild_embed_title:
-  - "¡Bienvenidos a vuestro servidor! 🎉"
-  - "¡Saludos, compañeros de Discord! 👋"
-  - "¡iHorizon se ha unido al chat! 💬"
-  - "¡Es un pájaro, es un avión, no, es iHorizon! 🦸‍♂"
-  - "¡Démosle una cálida bienvenida a iHorizon! 🔥"
-  - "¡Una nueva aventura comienza! 🚀"
-  - "¡Un miembro fantástico ha llegado! ✨"
+    - "¡Bienvenidos a vuestro servidor! 🎉"
+    - "¡Saludos, compañeros de Discord! 👋"
+    - "¡iHorizon se ha unido al chat! 💬"
+    - "¡Es un pájaro, es un avión, no, es iHorizon! 🦸‍♂"
+    - "¡Démosle una cálida bienvenida a iHorizon! 🔥"
+    - "¡Una nueva aventura comienza! 🚀"
+    - "¡Un miembro fantástico ha llegado! ✨"
 new_guild_embed_desc: "## ${randomMessage}\n¡Hola, queridos amigos!\n\nSoy iHorizon, un bot avanzado diseñado para hacer que vuestra experiencia en Discord sea extraordinaria y llena de diversión.\n\n✨ **Lo que puedo hacer por vosotros:**\n• Gestión del servidor con inteligencia y profesionalidad\n• Juegos interactivos y entretenimiento ilimitado\n• Herramientas útiles para la organización de la comunidad\n• Soporte técnico disponible 24/7\n\nExplorad mis comandos y sumergíos en un mundo de posibilidades infinitas.\n¡Juntos construiremos una comunidad fantástica llena de hermosos recuerdos!\n\n¡Gracias por elegirme, comencemos esta increíble aventura! 🌟"
 
 # Confession Event

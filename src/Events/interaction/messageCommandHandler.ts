@@ -39,6 +39,8 @@ import { getPermissionByValue } from "../../core/functions/permissonsCalculator.
 import { blacklistTable } from "../client/ready.js";
 import { loggerX } from "../logs/slashCommandLogger.js";
 import { checkCommandRateLimit } from "./slashCommandHandler.js";
+import { Expressions } from "../../core/functions/randomExpression.js";
+import { Routes } from "discord-api-types/v10";
 
 type MessageCommandResponse = {
 	success: boolean;
@@ -47,6 +49,31 @@ type MessageCommandResponse = {
 	subCommand?: Option | Command;
 	commandPath?: string;
 };
+
+type DiscordEntitlement = {
+	id: string;
+	sku_id: string;
+	guild_id?: string;
+	user_id?: string;
+	deleted?: boolean;
+};
+
+export async function hasGuildSku(
+	client: Client,
+	guildId: string,
+	skuId: string
+): Promise<boolean> {
+	const entitlements = (await client.rest.get(
+		Routes.entitlements(client.user!.id)
+	)) as DiscordEntitlement[];
+
+	return entitlements.some(
+		(entitlement) =>
+			entitlement.guild_id === guildId &&
+			entitlement.sku_id === skuId &&
+			!entitlement.deleted
+	);
+}
 
 function getAllCommandChoices(client: Client): string[] {
 	const choices: string[] = [];
@@ -209,12 +236,35 @@ async function executeCommand(
 	commandPath?: string
 ) {
 	const channel = message.channel as GuildChannel;
-	const permissions = channel.permissionsFor(message.member!);
-	const canUseCommands = permissions.has(
+	const member =
+		message.member ??
+		(await message.guild?.members
+			.fetch(message.author.id)
+			.catch(() => null));
+	const permissions = member ? channel.permissionsFor(member) : null;
+	const canUseCommands = permissions?.has(
 		PermissionsBitField.Flags.UseApplicationCommands
 	);
 
-	if (!canUseCommands) return;
+	if (!canUseCommands || !member) return;
+
+	if (
+		client.version.env === "production" &&
+		!(await client.func.ownerHelper.isBotOwner(message.author.id)) &&
+		command.description.startsWith("Change the iHorizon") &&
+		!(await hasGuildSku(client, message.guild!.id, "1512856902919258384"))
+	) {
+		return await client.func.method.interactionSend(message, {
+			content: `${client.iHorizon_Emojis.Boost_Gem} https://discord.com/discovery/applications/945202900907470899/store`,
+			embeds: [
+				new EmbedBuilder()
+					.setThumbnail(Expressions.Pleading)
+					.setColor("Red")
+					.setTitle(lang.custom_sdk_only_title)
+					.setDescription(lang.custom_sdk_only_description)
+			]
+		});
+	}
 
 	const fetchFullCommandName = message.client.content.find(
 		(c) => c.desc === command.description
@@ -271,7 +321,7 @@ async function executeCommand(
 
 	if (
 		command.permission &&
-		!message.member!.permissions.has(command.permission) &&
+		!member.permissions.has(command.permission) &&
 		!permCheck.allowed
 	) {
 		const perm = getPermissionByValue(command.permission);

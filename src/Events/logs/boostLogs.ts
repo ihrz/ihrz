@@ -35,6 +35,19 @@ export const event: BotEvent = {
 		oldMember: GuildMember,
 		newMember: GuildMember
 	) => {
+		const MAX_RECENT_BOOST_DELAY_MS = 10 * 60 * 1000;
+		const oldPremiumSince = oldMember.partial
+			? (oldMember.premiumSinceTimestamp ?? null)
+			: (oldMember.premiumSince?.getTime() ?? null);
+		const newPremiumSince = newMember.partial
+			? (newMember.premiumSinceTimestamp ?? null)
+			: (newMember.premiumSince?.getTime() ?? null);
+		const isRecentBoost =
+			newPremiumSince !== null &&
+			Date.now() - newPremiumSince <= MAX_RECENT_BOOST_DELAY_MS;
+
+		if (oldPremiumSince === newPremiumSince) return;
+
 		const data = await client.func.getLanguageData(newMember.guild.id);
 
 		if (!newMember.guild.roles.premiumSubscriberRole) return;
@@ -58,7 +71,7 @@ export const event: BotEvent = {
 			})
 			.setTimestamp();
 
-		if (!oldMember.premiumSince && newMember.premiumSince) {
+		if (!oldPremiumSince && newPremiumSince && isRecentBoost) {
 			embed.setDescription(
 				data.event_boostlog_add
 					.replace("${newMember.user.id}", newMember.user.id)
@@ -73,7 +86,7 @@ export const event: BotEvent = {
 				.catch(() => {});
 			return;
 		}
-		if (oldMember.premiumSince && !newMember.premiumSince) {
+		if (oldPremiumSince && !newPremiumSince) {
 			embed.setDescription(
 				data.event_boostlog_sub
 					.replace("${newMember.user.id}", newMember.user.id)

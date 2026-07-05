@@ -40,11 +40,11 @@ export const event: BotEvent = {
 
 		// Check if the user have the Administrator permission
 		if (
-			message.member?.permissions.has([
-				PermissionFlagsBits.Administrator |
-					PermissionFlagsBits.ManageGuild |
-					PermissionFlagsBits.BanMembers |
-					PermissionFlagsBits.KickMembers
+			message.member?.permissions.any([
+				PermissionFlagsBits.Administrator,
+				PermissionFlagsBits.ManageGuild,
+				PermissionFlagsBits.BanMembers,
+				PermissionFlagsBits.KickMembers
 			])
 		) {
 			return;
