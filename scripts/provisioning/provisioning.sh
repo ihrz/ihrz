@@ -57,7 +57,6 @@ echo -e "
 ██║██╔══██║██║   ██║██╔══██╗██║ ███╔╝  ██║   ██║██║╚██╗██║
 ██║██║  ██║╚██████╔╝██║  ██║██║███████╗╚██████╔╝██║ ╚████║
 ╚═╝╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═╝╚═╝╚══════╝ ╚═════╝ ╚═╝  ╚═══╝                                                                                                 "
-echo -e -e "${YELLOW}⚠️  THIS SCRIPT IS IN BETA. EXPECT BUGS, BREAKING CHANGES, AND ISSUES. USE IT AT YOUR OWN RISK! WE WILL NOT BE RESPONSIBLE FOR ANY DAMAGE DONE TO YOUR SYSTEM! ⚠️${DEFAULT}"
 echo -e "${BOLD}Welcome to the iHorizon Bot provisioning script.${DEFAULT}"
 echo -e "${BOLD}This will automate the installation of iHorizon's much-needed dependencies, make the bot running and working properly.${DEFAULT}"
 echo -e "${BOLD}If you don't trust this script, you can still open it with any text editor of your choice and check it yourself :)${DEFAULT}"
