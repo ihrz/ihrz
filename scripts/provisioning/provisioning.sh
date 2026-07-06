@@ -207,10 +207,14 @@ fi
 
 	# Cloning the GitLab repo with the chosen branch
 	echo -e "${BOLD}Cloning the iHorizon GitLab repository...${DEFAULT}"
+	CONFIG_ALREADY_EXISTS=false
 	if [ -d "ihrz" ]; then
     	echo -e "${YELLOW}iHorizon Bot git directory already exists, pulling latest changes instead...${DEFAULT}"
     	cd ihrz
     	git pull origin "$git_branch"
+		if [ -f "src/files/config.ts" ]; then
+		    CONFIG_ALREADY_EXISTS=true
+		fi	
 	else
 		git clone -b "$git_branch" https://gitlab.com/ihrz/ihrz.git
 		cd ihrz
@@ -219,7 +223,19 @@ fi
 	# Step 3 : installing the dependencies
 	bun i 
 
-	# Step 4 : creating config.ts from config.example.ts (leaving it untouched)
+	# Step 4 : creating config.ts from config.example.ts
+	# If a config.ts already exists from a previous run, back it up instead of
+	# silently overwriting it, and let the user decide whether to re-run the
+	# interactive setup at all.
+	RUN_INTERACTIVE_SETUP=true
+	if [[ "$CONFIG_ALREADY_EXISTS" == "true" ]]; then
+		backup_path="src/files/config.ts.bak.$(date +%Y%m%d%H%M%S)"
+		cp "src/files/config.ts" "$backup_path"
+		echo -e "${YELLOW}An existing configuration file was found and backed up to ${backup_path}.${DEFAULT}"
+		ask_yes_no "Do you want to re-run the interactive setup and overwrite your existing configuration file? (y/n): " RUN_INTERACTIVE_SETUP
+	fi	
+
+	if [[ RUN_INTERACTIVE_SETUP == "true" ]]; then
 	cp src/files/config.example.ts src/files/config.ts
 
 	# Step 5 : Interactive setup
