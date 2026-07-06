@@ -236,7 +236,8 @@ fi
 	fi	
 
 	if [[ RUN_INTERACTIVE_SETUP == "true" ]]; then
-	cp src/files/config.example.ts src/files/config.ts
+		cp src/files/config.example.ts src/files/config.ts
+	fi
 
 	# Step 5 : Interactive setup
 
