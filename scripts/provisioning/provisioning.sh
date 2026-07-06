@@ -248,9 +248,13 @@ done
 
 	if [[ "$RUN_INTERACTIVE_SETUP" == "true" ]]; then
 		cp src/files/config.example.ts src/files/config.ts
+	else
+		echo -e "${YELLOW}Skipping the interactive setup. Your existing configuration file will be kept as-is.${DEFAULT}"
 	fi
 
-	# Step 5 : Interactive setup
+    # Step 5 : Interactive setup
+
+	if [[ "$RUN_INTERACTIVE_SETUP" == "true" ]]; then
 
 	# Introduction
 	echo -e "${BOLD}Welcome to the iHorizon Interactive Setup!${DEFAULT}"
@@ -458,12 +462,14 @@ done
 	always100_ids_string="${always100_ids_string%,}"
 	sed -i "s|always100: \\[\"USER_ID_ONExUSER_ID_TWO\"\\]|always100: [$always100_ids_string]|g" src/files/config.ts	
 
+	# All done!
+	echo -e "${GREEN}The configuration file has been successfully edited to suit your needs. The interactive setup is now finished!${GREEN}"
+
+	fi
+
 	# Setting up Puppeteer/Chromium environment variable
 	touch .env
 	echo -e "PUPPETEER_EXECUTABLE_PATH=$HOME/.local/share/flatpak/app/org.chromium.Chromium/current/active/export/bin/org.chromium.Chromium" >> .env
-
-    # All done!
-	echo -e "${GREEN}The configuration file has been successfully edited to suit your needs. The interactive setup is now finished!${GREEN}"
 
 	# Step 6 : Starting the bot and making it daemonized
 	# Starting the bot (here the name of the daemon will be iHorizon and the interpreter will be bun)
