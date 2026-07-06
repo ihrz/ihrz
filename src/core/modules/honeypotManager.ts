@@ -28,7 +28,8 @@ import {
 	EmbedBuilder,
 	Message,
 	Snowflake,
-	TextChannel
+	TextChannel,
+	VoiceChannel
 } from "discord.js";
 
 import { DatabaseStructure } from "../../../types/database_structure.js";
@@ -40,7 +41,7 @@ const HONEYPOT_WINDOW_MS = 1000 * 60 * 60 * 2;
 const HONEYPOT_EMBED_COLOR = "#D88A3D";
 const HONEYPOT_TRIGGER_DELAY = 1500;
 
-type HoneypotMessageChannel = BaseGuildTextChannel | AnyThreadChannel;
+type HoneypotMessageChannel = BaseGuildTextChannel | AnyThreadChannel | VoiceChannel;
 export type HoneypotActionResult = "kick" | "ban" | "none" | "failed";
 
 interface ScheduledHoneypotTrigger {
@@ -114,7 +115,9 @@ function isHoneypotChannel(
 	if (
 		"type" in channel &&
 		(channel.type === ChannelType.GuildText ||
-			channel.type === ChannelType.GuildAnnouncement)
+			channel.type === ChannelType.GuildAnnouncement ||
+			channel.type === ChannelType.GuildVoice ||
+			channel.type === ChannelType.GuildStageVoice)
 	)
 		return true;
 	return false;
