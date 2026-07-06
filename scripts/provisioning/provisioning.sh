@@ -252,219 +252,215 @@ done
 		echo -e "${YELLOW}Skipping the interactive setup. Your existing configuration file will be kept as-is.${DEFAULT}"
 	fi
 
-    # Step 5 : Interactive setup
-
+	# Step 5 : Interactive setup
 	if [[ "$RUN_INTERACTIVE_SETUP" == "true" ]]; then
+		echo -e "${BOLD}Welcome to the iHorizon Interactive Setup!${DEFAULT}"
+		echo -e "${BOLD}We will now ask you questions to help you configure and run your bot in an easy and convenient way.${DEFAULT}"
 
-	# Introduction
-	echo -e "${BOLD}Welcome to the iHorizon Interactive Setup!${DEFAULT}"
-	echo -e "${BOLD}We will now ask you questions to help you configure and run your bot in an easy and convenient way.${DEFAULT}"
-	
-	# Ask for Discord Bot Token
-	read -p "$(echo -e "${CYAN}Enter your Discord Bot Token: ${DEFAULT}")" bot_token < /dev/tty
+		# Ask for Discord Bot Token
+		read -p "$(echo -e "${CYAN}Enter your Discord Bot Token: ${DEFAULT}")" bot_token < /dev/tty
 
-	# Ask for how many owners the user wants
-	read -p "$(echo -e "${CYAN}How many owners do you want to configure? ${DEFAULT}")" number_owners < /dev/tty
+		# Ask for how many owners the user wants
+		read -p "$(echo -e "${CYAN}How many owners do you want to configure? ${DEFAULT}")" number_owners < /dev/tty
 
-	# Initialize an empty array to hold the owner user IDs
-	owner_user_ids=()
+		# Initialize an empty array to hold the owner user IDs
+		owner_user_ids=()
 
-	# Loop through and ask for each owner's user ID
-	for ((i=1; i<=number_owners; i++)); do
-    read -p "$(echo -e "${CYAN}Enter the user ID of owner #$i: ${DEFAULT}")" owner_id < /dev/tty
-    owner_user_ids+=("$owner_id")
-	done
+		# Loop through and ask for each owner's user ID
+		for ((i=1; i<=number_owners; i++)); do
+			read -p "$(echo -e "${CYAN}Enter the user ID of owner #$i: ${DEFAULT}")" owner_id < /dev/tty
+			owner_user_ids+=("$owner_id")
+		done
 
-    owner_user_ids_string=$(printf '"%s",' "${owner_user_ids[@]}")
-	owner_user_ids_string="${owner_user_ids_string%,}"
+		owner_user_ids_string=$(printf '"%s",' "${owner_user_ids[@]}")
+		owner_user_ids_string="${owner_user_ids_string%,}"
 
-	# Ask if phone presence should be enabled
-	while true; do
-		read -p "$(echo -e "${CYAN}Do you want to enable phone presence? (y/n): ${DEFAULT}")" phone_presence_choice < /dev/tty
-		phone_presence_choice=$(echo "$phone_presence_choice" | tr '[:upper:]' '[:lower:]')
-
-		if [[ "$phone_presence_choice" == "y" || "$phone_presence_choice" == "yes" ]]; then
-			phone_presence=true
-			break
-		elif [[ "$phone_presence_choice" == "n" || "$phone_presence_choice" == "no" ]]; then
-			phone_presence=false
-			break
-		else
-			echo -e "${RED}Invalid input. Please enter y/yes or n/no.${DEFAULT}"
-		fi
-	done
-
-	# Ask if they want to enable messageCommandsMention
-	while true; do
-		read -p "$(echo -e "${CYAN}Do you want to enable messageCommandsMention. If enabled, all bot commands will have to be triggered by mentioning the bot, then specifying the command. Thus, no prefix will be set! [DEFAULT IS NO] (y/n) ${DEFAULT}")" message_commands_mention < /dev/tty
-		message_commands_mention=$(echo "$message_commands_mention" | tr '[:upper:]' '[:lower:]')
-
-		if [[ "$message_commands_mention" == "y" || "$message_commands_mention" == "yes" ]]; then
-			message_commands_mention=true
-			break
-		elif [[ "$message_commands_mention" == "n" || "$message_commands_mention" == "no" || -z "$message_commands_mention" ]]; then
-			message_commands_mention=false
-			break
-		else
-			echo -e "${RED}Invalid input. Please enter y/yes or n/no.${DEFAULT}"
-		fi
-	done
-
-	# Ask for the default message command prefix
-	read -p "$(echo -e "${CYAN}Enter the default message command prefix (default is '?'): ${DEFAULT}")" message_commands_prefix < /dev/tty
-	message_commands_prefix="${message_commands_prefix:-?}"  # Default to '?' if no input is provided
-
-	# Ask if the user wants to set up Lavalink for the music module
-	while true; do
-		read -p "$(echo -e "${CYAN}Do you want to set up Lavalink to make the music module work? (y/n): ${DEFAULT}")" setup_lavalink_choice < /dev/tty
-		setup_lavalink_choice=$(echo -e "$setup_lavalink_choice" | tr '[:upper:]' '[:lower:]')
-
-		if [[ "$setup_lavalink_choice" == "y" || "$setup_lavalink_choice" == "yes" ]]; then
-			break
-		elif [[ "$setup_lavalink_choice" == "n" || "$setup_lavalink_choice" == "no" ]]; then
-			break
-		else
-			echo -e "${RED}Invalid input. Please enter y/yes or n/no.${DEFAULT}"
-		fi
-	done
-
-	lavalink_logs_channel_id=""
-
-	if [[ "$setup_lavalink_choice" == "y" || "$setup_lavalink_choice" == "yes" ]]; then
-    	# Ask for Lavalink node details
-    	read -p "$(echo -e "${CYAN}Enter the Lavalink Node ID (e.g., 'example_node'): ${DEFAULT}")" lavalink_node_id < /dev/tty
-    	read -p "$(echo -e "${CYAN}Enter the Lavalink Node host (e.g., 'lavalink.example.com'): ${DEFAULT}")" lavalink_node_host < /dev/tty
-    	read -p "$(echo -e "${CYAN}Enter the Lavalink Node port (default is 2333): ${DEFAULT}")" lavalink_node_port < /dev/tty
-    	lavalink_node_port="${lavalink_node_port:-2333}"  # Default to 2333 if no input is provided
-    	read -p "$(echo -e "${CYAN}Enter the Lavalink Node password (e.g., 'password'): ${DEFAULT}")" lavalink_node_password < /dev/tty
-
+		# Ask if phone presence should be enabled
 		while true; do
-			read -p "$(echo -e "${CYAN}Is the Lavalink Node secure (y/n)? (default is no): ${DEFAULT}")" lavalink_secure_choice < /dev/tty
-			lavalink_secure_choice=$(echo "$lavalink_secure_choice" | tr '[:upper:]' '[:lower:]')
+			read -p "$(echo -e "${CYAN}Do you want to enable phone presence? (y/n): ${DEFAULT}")" phone_presence_choice < /dev/tty
+			phone_presence_choice=$(echo "$phone_presence_choice" | tr '[:upper:]' '[:lower:]')
 
-			if [[ "$lavalink_secure_choice" == "y" || "$lavalink_secure_choice" == "yes" ]]; then
-				lavalink_secure=true
+			if [[ "$phone_presence_choice" == "y" || "$phone_presence_choice" == "yes" ]]; then
+				phone_presence=true
 				break
-			elif [[ "$lavalink_secure_choice" == "n" || "$lavalink_secure_choice" == "no" || -z "$lavalink_secure_choice" ]]; then
-				lavalink_secure=false
+			elif [[ "$phone_presence_choice" == "n" || "$phone_presence_choice" == "no" ]]; then
+				phone_presence=false
 				break
 			else
 				echo -e "${RED}Invalid input. Please enter y/yes or n/no.${DEFAULT}"
 			fi
 		done
 
-		read -p "$(echo -e "${CYAN}Enter the Discord channel ID for Lavalink logs (leave blank for none): ${DEFAULT}")" lavalink_logs_channel_id < /dev/tty
-		lavalink_logs_channel_id="${lavalink_logs_channel_id:-""}"
-	else
-    	echo -e "${YELLOW}Skipping Lavalink setup.${DEFAULT}"
-    	lavalink_node_id="example_node"
-    	lavalink_node_host="lavalink.example.com"
-    	lavalink_node_port="2333"
-    	lavalink_node_password="password"
-    	lavalink_secure=false
-	fi
+		# Ask if they want to enable messageCommandsMention
+		while true; do
+			read -p "$(echo -e "${CYAN}Do you want to enable messageCommandsMention. If enabled, all bot commands will have to be triggered by mentioning the bot, then specifying the command. Thus, no prefix will be set! [DEFAULT IS NO] (y/n) ${DEFAULT}")" message_commands_mention < /dev/tty
+			message_commands_mention=$(echo "$message_commands_mention" | tr '[:upper:]' '[:lower:]')
 
-	# Ask for devMode (Development Mode)
-	while true; do
-		read -p "$(echo -e "${CYAN}Do you want to enable development mode (devMode)? (y/n, default is no): ${DEFAULT}")" dev_mode_choice < /dev/tty
-		dev_mode_choice=$(echo -e "$dev_mode_choice" | tr '[:upper:]' '[:lower:]')
+			if [[ "$message_commands_mention" == "y" || "$message_commands_mention" == "yes" ]]; then
+				message_commands_mention=true
+				break
+			elif [[ "$message_commands_mention" == "n" || "$message_commands_mention" == "no" || -z "$message_commands_mention" ]]; then
+				message_commands_mention=false
+				break
+			else
+				echo -e "${RED}Invalid input. Please enter y/yes or n/no.${DEFAULT}"
+			fi
+		done
 
-		if [[ "$dev_mode_choice" == "y" || "$dev_mode_choice" == "yes" ]]; then
-			dev_mode=true
-			break
-		elif [[ "$dev_mode_choice" == "n" || "$dev_mode_choice" == "no" || -z "$dev_mode_choice" ]]; then
-			dev_mode=false
-			break
+		# Ask for the default message command prefix
+		read -p "$(echo -e "${CYAN}Enter the default message command prefix (default is '?'): ${DEFAULT}")" message_commands_prefix < /dev/tty
+		message_commands_prefix="${message_commands_prefix:-?}"  # Default to '?' if no input is provided
+
+		# Ask if the user wants to set up Lavalink for the music module
+		while true; do
+			read -p "$(echo -e "${CYAN}Do you want to set up Lavalink to make the music module work? (y/n): ${DEFAULT}")" setup_lavalink_choice < /dev/tty
+			setup_lavalink_choice=$(echo -e "$setup_lavalink_choice" | tr '[:upper:]' '[:lower:]')
+
+			if [[ "$setup_lavalink_choice" == "y" || "$setup_lavalink_choice" == "yes" ]]; then
+				break
+			elif [[ "$setup_lavalink_choice" == "n" || "$setup_lavalink_choice" == "no" ]]; then
+				break
+			else
+				echo -e "${RED}Invalid input. Please enter y/yes or n/no.${DEFAULT}"
+			fi
+		done
+
+		lavalink_logs_channel_id=""
+
+		if [[ "$setup_lavalink_choice" == "y" || "$setup_lavalink_choice" == "yes" ]]; then
+			# Ask for Lavalink node details
+			read -p "$(echo -e "${CYAN}Enter the Lavalink Node ID (e.g., 'example_node'): ${DEFAULT}")" lavalink_node_id < /dev/tty
+			read -p "$(echo -e "${CYAN}Enter the Lavalink Node host (e.g., 'lavalink.example.com'): ${DEFAULT}")" lavalink_node_host < /dev/tty
+			read -p "$(echo -e "${CYAN}Enter the Lavalink Node port (default is 2333): ${DEFAULT}")" lavalink_node_port < /dev/tty
+			lavalink_node_port="${lavalink_node_port:-2333}"  # Default to 2333 if no input is provided
+			read -p "$(echo -e "${CYAN}Enter the Lavalink Node password (e.g., 'password'): ${DEFAULT}")" lavalink_node_password < /dev/tty
+
+			while true; do
+				read -p "$(echo -e "${CYAN}Is the Lavalink Node secure (y/n)? (default is no): ${DEFAULT}")" lavalink_secure_choice < /dev/tty
+				lavalink_secure_choice=$(echo "$lavalink_secure_choice" | tr '[:upper:]' '[:lower:]')
+
+				if [[ "$lavalink_secure_choice" == "y" || "$lavalink_secure_choice" == "yes" ]]; then
+					lavalink_secure=true
+					break
+				elif [[ "$lavalink_secure_choice" == "n" || "$lavalink_secure_choice" == "no" || -z "$lavalink_secure_choice" ]]; then
+					lavalink_secure=false
+					break
+				else
+					echo -e "${RED}Invalid input. Please enter y/yes or n/no.${DEFAULT}"
+				fi
+			done
+
+			read -p "$(echo -e "${CYAN}Enter the Discord channel ID for Lavalink logs (leave blank for none): ${DEFAULT}")" lavalink_logs_channel_id < /dev/tty
+			lavalink_logs_channel_id="${lavalink_logs_channel_id:-""}"
 		else
-			echo -e "${RED}Invalid input. Please enter y/yes or n/no.${DEFAULT}"
+			echo -e "${YELLOW}Skipping Lavalink setup.${DEFAULT}"
+			lavalink_node_id="example_node"
+			lavalink_node_host="lavalink.example.com"
+			lavalink_node_port="2333"
+			lavalink_node_password="password"
+			lavalink_secure=false
 		fi
-	done
 
-	# Ask for the image URL for blacklist embeds
-	read -p "$(echo -e "${CYAN}Enter the image URL for the blacklist embed (e.g., 'https://website.com/image.png'): ${DEFAULT}")" blacklist_picture_url < /dev/tty
+		# Ask for devMode (Development Mode)
+		while true; do
+			read -p "$(echo -e "${CYAN}Do you want to enable development mode (devMode)? (y/n, default is no): ${DEFAULT}")" dev_mode_choice < /dev/tty
+			dev_mode_choice=$(echo -e "$dev_mode_choice" | tr '[:upper:]' '[:lower:]')
 
-	# Ask for always100 setting
-	echo -e "${CYAN}Enter pairs of user IDs that will always have 100% love. (Enter each pair and press Enter, type 'done' when finished):${DEFAULT}"
-	always100_ids=()
-	while true; do
-    	read -p "$(echo -e "${CYAN}User ID #1 (or 'done' to stop): ${DEFAULT}")" user_id_one < /dev/tty
-    	if [[ "$user_id_one" == "done" ]]; then
-        	break
-    	fi
-    	read -p "$(echo -e "${CYAN}User ID #2: ${DEFAULT}")" user_id_two < /dev/tty
-    	always100_ids+=("${user_id_one}x${user_id_two}")
-	done
+			if [[ "$dev_mode_choice" == "y" || "$dev_mode_choice" == "yes" ]]; then
+				dev_mode=true
+				break
+			elif [[ "$dev_mode_choice" == "n" || "$dev_mode_choice" == "no" || -z "$dev_mode_choice" ]]; then
+				dev_mode=false
+				break
+			else
+				echo -e "${RED}Invalid input. Please enter y/yes or n/no.${DEFAULT}"
+			fi
+		done
 
-	# Ask for the Guild Logs Channel ID
-	read -p "$(echo -e "${CYAN}Enter the Discord channel ID for guild logs: ${DEFAULT}")" guild_logs_channel_id < /dev/tty
+		# Ask for the image URL for blacklist embeds
+		read -p "$(echo -e "${CYAN}Enter the image URL for the blacklist embed (e.g., 'https://website.com/image.png'): ${DEFAULT}")" blacklist_picture_url < /dev/tty
 
-	# Ask for the Report Channel ID
-	read -p "$(echo -e "${CYAN}Enter the Discord channel ID for bug reports: ${DEFAULT}")" report_channel_id < /dev/tty
+		# Ask for always100 setting
+		echo -e "${CYAN}Enter pairs of user IDs that will always have 100% love. (Enter each pair and press Enter, type 'done' when finished):${DEFAULT}"
+		always100_ids=()
+		while true; do
+			read -p "$(echo -e "${CYAN}User ID #1 (or 'done' to stop): ${DEFAULT}")" user_id_one < /dev/tty
+			if [[ "$user_id_one" == "done" ]]; then
+				break
+			fi
+			read -p "$(echo -e "${CYAN}User ID #2: ${DEFAULT}")" user_id_two < /dev/tty
+			always100_ids+=("${user_id_one}x${user_id_two}")
+		done
 
-	# Ask for the API Token
-	read -p "$(echo -e "${CYAN}Enter your API token (for secure requests): ${DEFAULT}")" api_token < /dev/tty
+		# Ask for the Guild Logs Channel ID
+		read -p "$(echo -e "${CYAN}Enter the Discord channel ID for guild logs: ${DEFAULT}")" guild_logs_channel_id < /dev/tty
 
-	# Ask for database method
-	while true; do
-		read -p "$(echo -e "${CYAN}Do you want to use SQLite or MySQL for the database? (sqlite/mysql, default is sqlite): ${DEFAULT}")" db_method_choice < /dev/tty
-		db_method_choice=$(echo -e "${db_method_choice:-sqlite}" | tr '[:upper:]' '[:lower:]')
+		# Ask for the Report Channel ID
+		read -p "$(echo -e "${CYAN}Enter the Discord channel ID for bug reports: ${DEFAULT}")" report_channel_id < /dev/tty
 
-		if [[ "$db_method_choice" == "sqlite" || "$db_method_choice" == "mysql" ]]; then
-			break
+		# Ask for the API Token
+		read -p "$(echo -e "${CYAN}Enter your API token (for secure requests): ${DEFAULT}")" api_token < /dev/tty
+
+		# Ask for database method
+		while true; do
+			read -p "$(echo -e "${CYAN}Do you want to use SQLite or MySQL for the database? (sqlite/mysql, default is sqlite): ${DEFAULT}")" db_method_choice < /dev/tty
+			db_method_choice=$(echo -e "${db_method_choice:-sqlite}" | tr '[:upper:]' '[:lower:]')
+
+			if [[ "$db_method_choice" == "sqlite" || "$db_method_choice" == "mysql" ]]; then
+				break
+			else
+				echo -e "${RED}Invalid input. Please enter sqlite or mysql.${DEFAULT}"
+			fi
+		done
+
+		if [[ "$db_method_choice" == "mysql" ]]; then
+			read -p "$(echo -e "${CYAN}Enter the MySQL host: ${DEFAULT}")" mysql_host < /dev/tty
+			read -p "$(echo -e "${CYAN}Enter the MySQL password: ${DEFAULT}")" mysql_password < /dev/tty
+			read -p "$(echo -e "${CYAN}Enter the MySQL database name: ${DEFAULT}")" mysql_database < /dev/tty
+			read -p "$(echo -e "${CYAN}Enter the MySQL user: ${DEFAULT}")" mysql_user < /dev/tty
+			read -p "$(echo -e "${CYAN}Enter the MySQL port (default is 3306): ${DEFAULT}")" mysql_port < /dev/tty
+			mysql_port="${mysql_port:-3306}"
 		else
-			echo -e "${RED}Invalid input. Please enter sqlite or mysql.${DEFAULT}"
+			echo -e "${YELLOW}Using SQLite (default).${DEFAULT}"
+			db_method_choice="sqlite"
 		fi
-	done
 
-	if [[ "$db_method_choice" == "mysql" ]]; then
-    	read -p "$(echo -e "${CYAN}Enter the MySQL host: ${DEFAULT}")" mysql_host < /dev/tty
-    	read -p "$(echo -e "${CYAN}Enter the MySQL password: ${DEFAULT}")" mysql_password < /dev/tty
-    	read -p "$(echo -e "${CYAN}Enter the MySQL database name: ${DEFAULT}")" mysql_database < /dev/tty
-    	read -p "$(echo -e "${CYAN}Enter the MySQL user: ${DEFAULT}")" mysql_user < /dev/tty
-    	read -p "$(echo -e "${CYAN}Enter the MySQL port (default is 3306): ${DEFAULT}")" mysql_port < /dev/tty
-    	mysql_port="${mysql_port:-3306}"
-	else
-    	echo -e "${YELLOW}Using SQLite (default).${DEFAULT}"
-    	db_method_choice="sqlite"
-	fi
+		# Modifying the config.ts file now
 
-	# Modifying the config.ts file now
+		echo -e "${BOLD}Modifying the configuration file...${DEFAULT}"
 
-	echo -e "${BOLD}Modifying the configuration file...${DEFAULT}"
+		# Replace the placeholders in config.ts with the provided user input
+		sed -i "s|THE BOT TOKEN|$bot_token|g" src/files/config.ts
+		sed -i "s|phonePresence: false|phonePresence: $phone_presence|g" src/files/config.ts
+		sed -i "s|messageCommandsMention: true|messageCommandsMention: $message_commands_mention|g" src/files/config.ts
+		sed -i "s|defaultMessageCommandsPrefix: \"?\"|defaultMessageCommandsPrefix: \"$message_commands_prefix\"|g" src/files/config.ts
+		sed -i "s|id: \"example_node\"|id: \"$lavalink_node_id\"|g" src/files/config.ts
+		sed -i "s|host: \"lavalink.example.com\"|host: \"$lavalink_node_host\"|g" src/files/config.ts
+		sed -i "s|port: 2333|port: $lavalink_node_port|g" src/files/config.ts
+		sed -i "s|authorization: \"password\"|authorization: \"$lavalink_node_password\"|g" src/files/config.ts
+		sed -i "s|secure: false|secure: $lavalink_secure|g" src/files/config.ts
+		sed -i "s|guildLogsChannelID: \"The Discord Channel ID for logs when guildCreate/guildRemove\"|guildLogsChannelID: \"$guild_logs_channel_id\"|g" src/files/config.ts
+		sed -i "s|lavalinkLogsChannelID: \"The Discord Channel ID for logs when lavalink throws an error\"|lavalinkLogsChannelID: \"$lavalink_logs_channel_id\"|g" src/files/config.ts
+		sed -i "s|reportChannelID: \"The Discord Channel ID for logs when bugs are reported\"|reportChannelID: \"$report_channel_id\"|g" src/files/config.ts
+		sed -i "s|apiToken: \"The API token\"|apiToken: \"$api_token\"|g" src/files/config.ts
+		sed -i "s|users: \\[\"User ID\", \"User ID\"\\]|users: [$owner_user_ids_string]|g" src/files/config.ts
+		sed -i "s|devMode: true|devMode: $dev_mode|g" src/files/config.ts
+		sed -i "s|blacklistPictureInEmbed: \"A .png URL\"|blacklistPictureInEmbed: \"$(printf '%s' "$blacklist_picture_url" | sed 's/[&/\]/\\&/g')\"|g" src/files/config.ts
+		sed -i "s|method: 'sqlite'|method: '$db_method_choice'|g" src/files/config.ts
+		if [[ "$db_method_choice" == "mysql" ]]; then
+			sed -i "s|host: ''|host: '$mysql_host'|g" src/files/config.ts
+			sed -i "s|password: ''|password: '$mysql_password'|g" src/files/config.ts
+			sed -i "s|database: ''|database: '$mysql_database'|g" src/files/config.ts
+			sed -i "s|user: ''|user: '$mysql_user'|g" src/files/config.ts
+			sed -i "s|port: 3306|port: $mysql_port|g" src/files/config.ts
+		fi
 
-	# Replace the placeholders in config.ts with the provided user input
-	sed -i "s|THE BOT TOKEN|$bot_token|g" src/files/config.ts
-	sed -i "s|phonePresence: false|phonePresence: $phone_presence|g" src/files/config.ts
-	sed -i "s|messageCommandsMention: true|messageCommandsMention: $message_commands_mention|g" src/files/config.ts
-	sed -i "s|defaultMessageCommandsPrefix: \"?\"|defaultMessageCommandsPrefix: \"$message_commands_prefix\"|g" src/files/config.ts
-	sed -i "s|id: \"example_node\"|id: \"$lavalink_node_id\"|g" src/files/config.ts
-	sed -i "s|host: \"lavalink.example.com\"|host: \"$lavalink_node_host\"|g" src/files/config.ts
-	sed -i "s|port: 2333|port: $lavalink_node_port|g" src/files/config.ts
-	sed -i "s|authorization: \"password\"|authorization: \"$lavalink_node_password\"|g" src/files/config.ts
-	sed -i "s|secure: false|secure: $lavalink_secure|g" src/files/config.ts
-	sed -i "s|guildLogsChannelID: \"The Discord Channel ID for logs when guildCreate/guildRemove\"|guildLogsChannelID: \"$guild_logs_channel_id\"|g" src/files/config.ts
-	sed -i "s|lavalinkLogsChannelID: \"The Discord Channel ID for logs when lavalink throws an error\"|lavalinkLogsChannelID: \"$lavalink_logs_channel_id\"|g" src/files/config.ts
-	sed -i "s|reportChannelID: \"The Discord Channel ID for logs when bugs are reported\"|reportChannelID: \"$report_channel_id\"|g" src/files/config.ts
-	sed -i "s|apiToken: \"The API token\"|apiToken: \"$api_token\"|g" src/files/config.ts
-	sed -i "s|users: \\[\"User ID\", \"User ID\"\\]|users: [$owner_user_ids_string]|g" src/files/config.ts
-    sed -i "s|devMode: true|devMode: $dev_mode|g" src/files/config.ts
-    sed -i "s|blacklistPictureInEmbed: \"A .png URL\"|blacklistPictureInEmbed: \"$(printf '%s' "$blacklist_picture_url" | sed 's/[&/\]/\\&/g')\"|g" src/files/config.ts
-	sed -i "s|method: 'sqlite'|method: '$db_method_choice'|g" src/files/config.ts
-    if [[ "$db_method_choice" == "mysql" ]]; then
-    	sed -i "s|host: ''|host: '$mysql_host'|g" src/files/config.ts
-    	sed -i "s|password: ''|password: '$mysql_password'|g" src/files/config.ts
-    	sed -i "s|database: ''|database: '$mysql_database'|g" src/files/config.ts
-    	sed -i "s|user: ''|user: '$mysql_user'|g" src/files/config.ts
-    	sed -i "s|port: 3306|port: $mysql_port|g" src/files/config.ts
-	fi
+		always100_ids_string=$(printf "'%s'," "${always100_ids[@]}")
+		always100_ids_string="${always100_ids_string%,}"
+		sed -i "s|always100: \\[\"USER_ID_ONExUSER_ID_TWO\"\\]|always100: [$always100_ids_string]|g" src/files/config.ts
 
-	always100_ids_string=$(printf "'%s'," "${always100_ids[@]}")
-	always100_ids_string="${always100_ids_string%,}"
-	sed -i "s|always100: \\[\"USER_ID_ONExUSER_ID_TWO\"\\]|always100: [$always100_ids_string]|g" src/files/config.ts	
-
-	# All done!
-	echo -e "${GREEN}The configuration file has been successfully edited to suit your needs. The interactive setup is now finished!${GREEN}"
-
+		# All done!
+		echo -e "${GREEN}The configuration file has been successfully edited to suit your needs. The interactive setup is now finished!${GREEN}"
 	fi
 
 	# Setting up Puppeteer/Chromium environment variable
