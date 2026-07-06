@@ -464,8 +464,10 @@ done
 	fi
 
 	# Setting up Puppeteer/Chromium environment variable
-	touch .env
-	echo -e "PUPPETEER_EXECUTABLE_PATH=$HOME/.local/share/flatpak/app/org.chromium.Chromium/current/active/export/bin/org.chromium.Chromium" >> .env
+	if ! grep -q 'PUPPETEER_EXECUTABLE_PATH' ".env" && -f .env; then
+		touch .env
+		echo -e "PUPPETEER_EXECUTABLE_PATH=$HOME/.local/share/flatpak/app/org.chromium.Chromium/current/active/export/bin/org.chromium.Chromium" >> .env
+	fi
 
 	# Step 6 : Starting the bot and making it daemonized
 	# Starting the bot (here the name of the daemon will be iHorizon and the interpreter will be bun)
