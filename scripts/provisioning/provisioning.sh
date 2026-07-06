@@ -148,19 +148,6 @@ done
 		echo -e "${GREEN}pm2 is already installed!${DEFAULT}"
 	fi
 
-    # We use flatpak to install Chromium easily
-	if ! command -v flatpak &>/dev/null; then 
-		echo -e "${BOLD}flatpak is not installed, installing...${DEFAULT}"
-		sudo apt install -y flatpak
-		# Setting up the Flathub repo with the --user parameter
-		flatpak remote-add --if-not-exists --user flathub https://dl.flathub.org/repo/flathub.flatpakrepo
-	else 
-		echo -e "${GREEN}flatpak is already installed!${DEFAULT}"
-	fi
-
-	# Install Chromium
-	flatpak install -y flathub org.chromium.Chromium
-
 	if apt list --installed | grep -q fonts-noto-color-emoji; then
 		echo -e "${GREEN}fonts-noto-color-emoji is already installed!${DEFAULT}"
 	else
@@ -219,6 +206,9 @@ done
 
 	# Step 3 : installing the dependencies
 	bun i 
+
+	# Installing Chrome via puppeteer.
+	./node_modules/.bin/puppeteer browsers install chrome
 
 	# Step 4 : creating config.ts from config.example.ts
 	# If a config.ts already exists from a previous run, back it up instead of
@@ -461,11 +451,6 @@ done
 
 		# All done!
 		echo -e "${GREEN}The configuration file has been successfully edited to suit your needs. The interactive setup is now finished!${GREEN}"
-	fi
-
-	# Setting up Puppeteer/Chromium environment variable
-	if [ -f .env ] && ! grep -q '^PUPPETEER_EXECUTABLE_PATH=' .env; then
-		echo -e "PUPPETEER_EXECUTABLE_PATH=$HOME/.local/share/flatpak/app/org.chromium.Chromium/current/active/export/bin/org.chromium.Chromium" >> .env
 	fi
 
 	# Step 6 : Starting the bot and making it daemonized
