@@ -231,7 +231,7 @@ done
 		echo -e "${YELLOW}An existing configuration file was found and backed up to ${backup_path}.${DEFAULT}"
 
 		while true; do
-			read -p "Do you want to re-run the interactive setup and overwrite your existing configuration file? (y/n): " answer_interactive_setup
+			read -p "Do you want to re-run the interactive setup and overwrite your existing configuration file? (y/n): " answer_interactive_setup < /dev/tty
 			answer_interactive_setup=$(echo "$answer_interactive_setup" | tr '[:upper:]' '[:lower:]')
 
 			if [[ "$answer_interactive_setup" == "y" || "$answer_interactive_setup" == "yes" ]]; then
@@ -473,7 +473,7 @@ done
 	pm2 save --force
 
 	while true; do
-    	read -p "Do you want to have iHorizon running every time your machine starts up? (y/n, default is no): " startup_user_choice
+    	read -p "Do you want to have iHorizon running every time your machine starts up? (y/n, default is no): " startup_user_choice < /dev/tty
 
     	startup_user_choice=$(echo "$startup_user_choice" | tr '[:upper:]' '[:lower:]')
 
