@@ -63,23 +63,20 @@ echo -e "${BOLD}If you don't trust this script, you can still open it with any t
 echo -e "${BOLD}After all, no personal information is sent outside of this computer by this script.${DEFAULT}"
 
 # Ask the user if they want to continue
-read -p "$(echo -e "${BOLD}DO YOU WANT TO CONTINUE? (y/n): ${DEFAULT}")" user_choice < /dev/tty
+while true; do
+	read -p "$(echo -e "${BOLD}DO YOU WANT TO CONTINUE? (y/n): ${DEFAULT}")" user_choice < /dev/tty
+	user_choice=$(echo -e "$user_choice" | tr '[:upper:]' '[:lower:]')
 
-# Convert to lowercase for consistency
-user_choice=$(echo -e "$user_choice" | tr '[:upper:]' '[:lower:]')
-
-# Managing user choice / Exit mechanism
-if [[ "$user_choice" == "y" || "$user_choice" == "yes" ]]; then
-    echo -e "${GREEN}Okay. Proceeding with the provisioning...${DEFAULT}"
-
-elif [[ "$user_choice" == "n" || "$user_choice" == "no" ]]; then
-    echo -e "${RED}Provisioning cancelled by the user. Exiting...${DEFAULT}"
-    exit 0
-
-else
-    echo -e "${RED}Invalid input. Please enter y/yes or n/no.${DEFAULT}"
-    exit 1
-fi	
+	if [[ "$user_choice" == "y" || "$user_choice" == "yes" ]]; then
+		echo -e "${GREEN}Okay. Proceeding with the provisioning...${DEFAULT}"
+		break
+	elif [[ "$user_choice" == "n" || "$user_choice" == "no" ]]; then
+		echo -e "${RED}Provisioning cancelled by the user. Exiting...${DEFAULT}"
+		exit 0
+	else
+		echo -e "${RED}Invalid input. Please enter y/yes or n/no.${DEFAULT}"
+	fi
+done
 
 	# Updating local repos to be up-to-date with remote repos
 	sudo apt update && sudo apt upgrade -y
@@ -232,14 +229,21 @@ fi
 		backup_path="src/files/config.ts.bak.$(date +%Y%m%d%H%M%S)"
 		cp "src/files/config.ts" "$backup_path"
 		echo -e "${YELLOW}An existing configuration file was found and backed up to ${backup_path}.${DEFAULT}"
-		read -p "Do you want to re-run the interactive setup and overwrite your existing configuration file? (y/n): " answer_interactive_setup
-        answer_interactive_setup=$(echo "$answer_interactive_setup" | tr '[:upper:]' '[:lower:]')
 
-		if [[ "$answer_interactive_setup" == "y" || "$answer_interactive_setup" == "yes" ]]; then
-			RUN_INTERACTIVE_SETUP=true
-		else
-			RUN_INTERACTIVE_SETUP=false
-		fi
+		while true; do
+			read -p "Do you want to re-run the interactive setup and overwrite your existing configuration file? (y/n): " answer_interactive_setup
+			answer_interactive_setup=$(echo "$answer_interactive_setup" | tr '[:upper:]' '[:lower:]')
+
+			if [[ "$answer_interactive_setup" == "y" || "$answer_interactive_setup" == "yes" ]]; then
+				RUN_INTERACTIVE_SETUP=true
+				break
+			elif [[ "$answer_interactive_setup" == "n" || "$answer_interactive_setup" == "no" ]]; then
+				RUN_INTERACTIVE_SETUP=false
+				break
+			else
+				echo -e "${RED}Invalid input. Please enter y/yes or n/no.${DEFAULT}"
+			fi
+		done
 	fi
 
 	if [[ "$RUN_INTERACTIVE_SETUP" == "true" ]]; then
@@ -271,30 +275,54 @@ fi
 	owner_user_ids_string="${owner_user_ids_string%,}"
 
 	# Ask if phone presence should be enabled
-	read -p "$(echo -e "${CYAN}Do you want to enable phone presence? (y/n): ${DEFAULT}")" phone_presence_choice < /dev/tty
-	phone_presence_choice=$(echo "$phone_presence_choice" | tr '[:upper:]' '[:lower:]')
-	if [[ "$phone_presence_choice" == "y" || "$phone_presence_choice" == "yes" ]]; then
-    	phone_presence=true
-	else
-    	phone_presence=false
-	fi
+	while true; do
+		read -p "$(echo -e "${CYAN}Do you want to enable phone presence? (y/n): ${DEFAULT}")" phone_presence_choice < /dev/tty
+		phone_presence_choice=$(echo "$phone_presence_choice" | tr '[:upper:]' '[:lower:]')
+
+		if [[ "$phone_presence_choice" == "y" || "$phone_presence_choice" == "yes" ]]; then
+			phone_presence=true
+			break
+		elif [[ "$phone_presence_choice" == "n" || "$phone_presence_choice" == "no" ]]; then
+			phone_presence=false
+			break
+		else
+			echo -e "${RED}Invalid input. Please enter y/yes or n/no.${DEFAULT}"
+		fi
+	done
 
 	# Ask if they want to enable messageCommandsMention
-	read -p "$(echo -e "${CYAN}Do you want to enable messageCommandsMention. If enabled, all bot commands will have to be triggered by mentioning the bot, then specifying the command. Thus, no prefix will be set! [DEFAULT IS NO] (y/n) ${DEFAULT}")" message_commands_mention < /dev/tty
-	message_commands_mention=$(echo "$message_commands_mention" | tr '[:upper:]' '[:lower:]')
-	if [[ "$message_commands_mention" == "y" || "$message_commands_mention" == "yes" ]]; then 
-		message_commands_mention=true
-	else
-		message_commands_mention=false
-	fi
+	while true; do
+		read -p "$(echo -e "${CYAN}Do you want to enable messageCommandsMention. If enabled, all bot commands will have to be triggered by mentioning the bot, then specifying the command. Thus, no prefix will be set! [DEFAULT IS NO] (y/n) ${DEFAULT}")" message_commands_mention < /dev/tty
+		message_commands_mention=$(echo "$message_commands_mention" | tr '[:upper:]' '[:lower:]')
+
+		if [[ "$message_commands_mention" == "y" || "$message_commands_mention" == "yes" ]]; then
+			message_commands_mention=true
+			break
+		elif [[ "$message_commands_mention" == "n" || "$message_commands_mention" == "no" || -z "$message_commands_mention" ]]; then
+			message_commands_mention=false
+			break
+		else
+			echo -e "${RED}Invalid input. Please enter y/yes or n/no.${DEFAULT}"
+		fi
+	done
 
 	# Ask for the default message command prefix
 	read -p "$(echo -e "${CYAN}Enter the default message command prefix (default is '?'): ${DEFAULT}")" message_commands_prefix < /dev/tty
 	message_commands_prefix="${message_commands_prefix:-?}"  # Default to '?' if no input is provided
 
 	# Ask if the user wants to set up Lavalink for the music module
-	read -p "$(echo -e "${CYAN}Do you want to set up Lavalink to make the music module work? (y/n): ${DEFAULT}")" setup_lavalink_choice < /dev/tty
-	setup_lavalink_choice=$(echo -e "$setup_lavalink_choice" | tr '[:upper:]' '[:lower:]')
+	while true; do
+		read -p "$(echo -e "${CYAN}Do you want to set up Lavalink to make the music module work? (y/n): ${DEFAULT}")" setup_lavalink_choice < /dev/tty
+		setup_lavalink_choice=$(echo -e "$setup_lavalink_choice" | tr '[:upper:]' '[:lower:]')
+
+		if [[ "$setup_lavalink_choice" == "y" || "$setup_lavalink_choice" == "yes" ]]; then
+			break
+		elif [[ "$setup_lavalink_choice" == "n" || "$setup_lavalink_choice" == "no" ]]; then
+			break
+		else
+			echo -e "${RED}Invalid input. Please enter y/yes or n/no.${DEFAULT}"
+		fi
+	done
 
 	lavalink_logs_channel_id=""
 
@@ -305,12 +333,22 @@ fi
     	read -p "$(echo -e "${CYAN}Enter the Lavalink Node port (default is 2333): ${DEFAULT}")" lavalink_node_port < /dev/tty
     	lavalink_node_port="${lavalink_node_port:-2333}"  # Default to 2333 if no input is provided
     	read -p "$(echo -e "${CYAN}Enter the Lavalink Node password (e.g., 'password'): ${DEFAULT}")" lavalink_node_password < /dev/tty
-    	read -p "$(echo -e "${CYAN}Is the Lavalink Node secure (y/n)? (default is no): ${DEFAULT}")" lavalink_secure_choice < /dev/tty
-    	if [[ "$lavalink_secure_choice" == "y" || "$lavalink_secure_choice" == "yes" ]]; then
-        	lavalink_secure=true
-    	else
-        	lavalink_secure=false
-    	fi
+
+		while true; do
+			read -p "$(echo -e "${CYAN}Is the Lavalink Node secure (y/n)? (default is no): ${DEFAULT}")" lavalink_secure_choice < /dev/tty
+			lavalink_secure_choice=$(echo "$lavalink_secure_choice" | tr '[:upper:]' '[:lower:]')
+
+			if [[ "$lavalink_secure_choice" == "y" || "$lavalink_secure_choice" == "yes" ]]; then
+				lavalink_secure=true
+				break
+			elif [[ "$lavalink_secure_choice" == "n" || "$lavalink_secure_choice" == "no" || -z "$lavalink_secure_choice" ]]; then
+				lavalink_secure=false
+				break
+			else
+				echo -e "${RED}Invalid input. Please enter y/yes or n/no.${DEFAULT}"
+			fi
+		done
+
 		read -p "$(echo -e "${CYAN}Enter the Discord channel ID for Lavalink logs (leave blank for none): ${DEFAULT}")" lavalink_logs_channel_id < /dev/tty
 		lavalink_logs_channel_id="${lavalink_logs_channel_id:-""}"
 	else
@@ -323,13 +361,20 @@ fi
 	fi
 
 	# Ask for devMode (Development Mode)
-	read -p "$(echo -e "${CYAN}Do you want to enable development mode (devMode)? (y/n, default is no): ${DEFAULT}")" dev_mode_choice < /dev/tty
-	dev_mode_choice=$(echo -e "$dev_mode_choice" | tr '[:upper:]' '[:lower:]')
-	if [[ "$dev_mode_choice" == "y" || "$dev_mode_choice" == "yes" ]]; then
-    	dev_mode=true
-	else
-    	dev_mode=false
-	fi
+	while true; do
+		read -p "$(echo -e "${CYAN}Do you want to enable development mode (devMode)? (y/n, default is no): ${DEFAULT}")" dev_mode_choice < /dev/tty
+		dev_mode_choice=$(echo -e "$dev_mode_choice" | tr '[:upper:]' '[:lower:]')
+
+		if [[ "$dev_mode_choice" == "y" || "$dev_mode_choice" == "yes" ]]; then
+			dev_mode=true
+			break
+		elif [[ "$dev_mode_choice" == "n" || "$dev_mode_choice" == "no" || -z "$dev_mode_choice" ]]; then
+			dev_mode=false
+			break
+		else
+			echo -e "${RED}Invalid input. Please enter y/yes or n/no.${DEFAULT}"
+		fi
+	done
 
 	# Ask for the image URL for blacklist embeds
 	read -p "$(echo -e "${CYAN}Enter the image URL for the blacklist embed (e.g., 'https://website.com/image.png'): ${DEFAULT}")" blacklist_picture_url < /dev/tty
@@ -356,8 +401,16 @@ fi
 	read -p "$(echo -e "${CYAN}Enter your API token (for secure requests): ${DEFAULT}")" api_token < /dev/tty
 
 	# Ask for database method
-	read -p "$(echo -e "${CYAN}Do you want to use SQLite or MySQL for the database? (sqlite/mysql, default is sqlite): ${DEFAULT}")" db_method_choice < /dev/tty
-	db_method_choice=$(echo -e "${db_method_choice:-sqlite}" | tr '[:upper:]' '[:lower:]')
+	while true; do
+		read -p "$(echo -e "${CYAN}Do you want to use SQLite or MySQL for the database? (sqlite/mysql, default is sqlite): ${DEFAULT}")" db_method_choice < /dev/tty
+		db_method_choice=$(echo -e "${db_method_choice:-sqlite}" | tr '[:upper:]' '[:lower:]')
+
+		if [[ "$db_method_choice" == "sqlite" || "$db_method_choice" == "mysql" ]]; then
+			break
+		else
+			echo -e "${RED}Invalid input. Please enter sqlite or mysql.${DEFAULT}"
+		fi
+	done
 
 	if [[ "$db_method_choice" == "mysql" ]]; then
     	read -p "$(echo -e "${CYAN}Enter the MySQL host: ${DEFAULT}")" mysql_host < /dev/tty
@@ -428,7 +481,7 @@ fi
         	echo -e "${GREEN}Okay. iHorizon will now launch every time your machine starts up.${DEFAULT}"
         	eval "$(pm2 startup -u "$USER" --hp "$HOME" | tail -1)"
         	break
-        elif [[ "$startup_user_choice" == "n" || "$startup_user_choice" == "no" ]]; then
+        elif [[ "$startup_user_choice" == "n" || "$startup_user_choice" == "no" || -z "$startup_user_choice" ]]; then
         	echo -e "${YELLOW}Okay. iHorizon won't launch every time your machine starts up.${DEFAULT}"
         	break
         else
