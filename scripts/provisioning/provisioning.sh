@@ -232,10 +232,17 @@ fi
 		backup_path="src/files/config.ts.bak.$(date +%Y%m%d%H%M%S)"
 		cp "src/files/config.ts" "$backup_path"
 		echo -e "${YELLOW}An existing configuration file was found and backed up to ${backup_path}.${DEFAULT}"
-		echo -e "Do you want to re-run the interactive setup and overwrite your existing configuration file? (y/n): " RUN_INTERACTIVE_SETUP
-	fi	
+		read -p "Do you want to re-run the interactive setup and overwrite your existing configuration file? (y/n): " answer_interactive_setup
+        answer_interactive_setup=$(echo "$answer_interactive_setup" | tr '[:upper:]' '[:lower:]')
 
-	if [[ RUN_INTERACTIVE_SETUP == "true" ]]; then
+		if [[ "$answer_interactive_setup" == "y" || "$answer_interactive_setup" == "yes" ]]; then
+			RUN_INTERACTIVE_SETUP=true
+		else
+			RUN_INTERACTIVE_SETUP=false
+		fi
+	fi
+
+	if [[ "$RUN_INTERACTIVE_SETUP" == "true" ]]; then
 		cp src/files/config.example.ts src/files/config.ts
 	fi
 
