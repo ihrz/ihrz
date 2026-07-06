@@ -187,7 +187,7 @@ fi
 
 	# Asking the user which Git branch should be cloned
 	echo -e "${BOLD}What branch do you want to clone? :${DEFAULT}"
-	select git_branch in "production" "dev" "ownihrz"; do
+	select git_branch in "production" "dev"; do
 		case $git_branch in
 			"production")
 				echo -e "${CYAN}You selected the production branch${DEFAULT}"
@@ -197,11 +197,6 @@ fi
 			"dev")
 				echo -e "${CYAN}You selected the dev branch${DEFAULT}"
 				git_branch="dev"
-				break
-				;;
-			"ownihrz")
-				echo -e "${CYAN}You selected the ownihrz branch${DEFAULT}"
-				git_branch="ownihrz"
 				break
 				;;
 			*)
