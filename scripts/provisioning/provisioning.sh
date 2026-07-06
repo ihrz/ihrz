@@ -119,7 +119,7 @@ done
 	export PATH="$BUN_INSTALL/bin:$PATH"
 
 	# Only write the bun export to .bashrc if it isn't already there, preventing the file from being flooded on repeated script runs.
-	if ! grep -q 'BUN_INSTALL' "$HOME/.bashrc"; then
+	if ! grep -q '^BUN_INSTALL=' "$HOME/.bashrc"; then
 		echo 'export BUN_INSTALL="$HOME/.bun"' >> "$HOME/.bashrc"
 		echo 'export PATH="$BUN_INSTALL/bin:$PATH"' >> "$HOME/.bashrc"
 	fi
@@ -464,8 +464,7 @@ done
 	fi
 
 	# Setting up Puppeteer/Chromium environment variable
-	if ! grep -q 'PUPPETEER_EXECUTABLE_PATH' ".env" && -f .env; then
-		touch .env
+	if [ -f .env ] && ! grep -q '^PUPPETEER_EXECUTABLE_PATH=' .env; then
 		echo -e "PUPPETEER_EXECUTABLE_PATH=$HOME/.local/share/flatpak/app/org.chromium.Chromium/current/active/export/bin/org.chromium.Chromium" >> .env
 	fi
 
