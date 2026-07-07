@@ -129,6 +129,7 @@ async function handleCommandExecution(
 	if (
 		client.version.env === "production" &&
 		interaction.commandName === "custom" &&
+		!(await client.func.ownerHelper.isBotOwner(interaction.user.id)) &&
 		!(await hasGuildSku(client, interaction.guildId, "1512856902919258384"))
 	) {
 		return await client.func.method.interactionSend(interaction, {
