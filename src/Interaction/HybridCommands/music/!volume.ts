@@ -68,7 +68,10 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
-		player.setVolume(parseInt(String(query)));
+		let sanitizedVolume = parseInt(String(query));
+		player.setVolume(sanitizedVolume);
+		player.customVolume = sanitizedVolume;
+
 		await client.func.method.interactionSend(interaction, {
 			content: lang.music_volume_command_ok
 				.replace(
