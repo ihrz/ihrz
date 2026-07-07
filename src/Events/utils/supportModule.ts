@@ -37,19 +37,19 @@ export const event: BotEvent = {
 			])
 		)
 			return;
-		if (!oldPresence || !oldPresence.guild) return;
+		if (!newPresence || !newPresence.guild) return;
 
 		const someinfo: DatabaseStructure.SupportSchema | null =
-			await client.db.get(`${oldPresence.guild.id}.GUILD.SUPPORT`);
+			await client.db.get(`${newPresence.guild.id}.GUILD.SUPPORT`);
 
 		if (!someinfo || !someinfo.rolesId) {
 			return;
 		}
 
 		const bio = newPresence.activities[0] || "null";
-		const vanity = oldPresence.guild.vanityURLCode || "null";
+		const vanity = newPresence.guild.vanityURLCode || "null";
 
-		const fetchedUser = oldPresence.guild.members.cache.get(
+		const fetchedUser = newPresence.guild.members.cache.get(
 			oldPresence.userId
 		);
 		const fetchedRoles = newPresence.guild.roles.cache.get(

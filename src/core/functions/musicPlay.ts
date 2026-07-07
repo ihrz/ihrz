@@ -407,10 +407,12 @@ export async function handleMusicPlay({
 				selfDeaf: true,
 				selfMute: false,
 				textChannelId: interaction.channelId,
-				voiceChannelId: voiceChannel.id,
-				volume: 60
+				voiceChannelId: voiceChannel.id
 			});
-			player.setVolume(DEFAULT_VOLUME);
+
+			if (player.customVolume) {
+				player.setVolume(player.customVolume || DEFAULT_VOLUME);
+			}
 		}
 
 		if (!player.connected) {
