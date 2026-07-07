@@ -210,7 +210,7 @@ export const command: Command = {
 				fr: "Obtenez la liste de tous les roles de la guilde disposant d'autorisations d'administrateur"
 			},
 
-			aliases: ["allrolesadmin", "adminroles", "adminrole"],
+			aliases: ["allrolesadmin", "adminroles", "adminrole", "allpa"],
 
 			type: ApplicationCommandOptionType.Subcommand,
 
