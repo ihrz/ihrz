@@ -52,6 +52,10 @@ export const command: Command = {
 			options: [
 				{
 					name: "winner",
+					name_localizations: {
+						fr: "gagnants"
+					},
+
 					type: ApplicationCommandOptionType.Number,
 
 					description: "Number of winner for the giveaways",
@@ -65,6 +69,10 @@ export const command: Command = {
 				},
 				{
 					name: "time",
+					name_localizations: {
+						fr: "temps"
+					},
+
 					type: ApplicationCommandOptionType.String,
 
 					description: "The time duration of the giveaways",
@@ -120,6 +128,10 @@ export const command: Command = {
 				},
 				{
 					name: "prize",
+					name_localizations: {
+						fr: "prix"
+					},
+
 					type: ApplicationCommandOptionType.String,
 
 					description: "The giveaway's prize",
