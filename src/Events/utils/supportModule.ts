@@ -50,7 +50,7 @@ export const event: BotEvent = {
 		const vanity = newPresence.guild.vanityURLCode || "null";
 
 		const fetchedUser = newPresence.guild.members.cache.get(
-			oldPresence.userId
+			newPresence.userId
 		);
 		const fetchedRoles = newPresence.guild.roles.cache.get(
 			someinfo.rolesId
