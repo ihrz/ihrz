@@ -1,4 +1,4 @@
-# 
+#
 # iHorizon Discord Bot (https://gitlab.com/ihrz/ihrz)
 #
 # Licensed under the Attribution-NonCommercial-ShareAlike 4.0 International (CC-BY-NC-SA-4.0)
@@ -57,7 +57,7 @@ echo -e "
 ██║██╔══██║██║   ██║██╔══██╗██║ ███╔╝  ██║   ██║██║╚██╗██║
 ██║██║  ██║╚██████╔╝██║  ██║██║███████╗╚██████╔╝██║ ╚████║
 ╚═╝╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═╝╚═╝╚══════╝ ╚═════╝ ╚═╝  ╚═══╝                                                                                                 "
-echo -e "${BOLD}Welcome to the iHorizon Bot provisioning script.${DEFAULT}"
+echo -e "${BOLD}Welcome to the iHorizon Bot Installation script.${DEFAULT}"
 echo -e "${BOLD}This will automate the installation of iHorizon's much-needed dependencies, make the bot running and working properly.${DEFAULT}"
 echo -e "${BOLD}If you don't trust this script, you can still open it with any text editor of your choice and check it yourself :)${DEFAULT}"
 echo -e "${BOLD}After all, no personal information is sent outside of this computer by this script.${DEFAULT}"
@@ -68,10 +68,10 @@ while true; do
 	user_choice=$(echo -e "$user_choice" | tr '[:upper:]' '[:lower:]')
 
 	if [[ "$user_choice" == "y" || "$user_choice" == "yes" ]]; then
-		echo -e "${GREEN}Okay. Proceeding with the provisioning...${DEFAULT}"
+		echo -e "${GREEN}Okay. Proceeding with the installation...${DEFAULT}"
 		break
 	elif [[ "$user_choice" == "n" || "$user_choice" == "no" ]]; then
-		echo -e "${RED}Provisioning cancelled by the user. Exiting...${DEFAULT}"
+		echo -e "${RED}Installation cancelled by the user. Exiting...${DEFAULT}"
 		exit 0
 	else
 		echo -e "${RED}Invalid input. Please enter y/yes or n/no.${DEFAULT}"
@@ -391,6 +391,30 @@ done
 		# Ask for the API Token
 		read -p "$(echo -e "${CYAN}Enter your API token (for secure requests): ${DEFAULT}")" api_token < /dev/tty
 
+		# Ask if the user wants to set up Last.fm scrobbler support
+		while true; do
+			read -p "$(echo -e "${CYAN}Do you want to set up Last.fm to make the scrobbler module work? (y/n): ${DEFAULT}")" setup_lastfm_choice < /dev/tty
+			setup_lastfm_choice=$(echo -e "$setup_lastfm_choice" | tr '[:upper:]' '[:lower:]')
+
+			if [[ "$setup_lastfm_choice" == "y" || "$setup_lastfm_choice" == "yes" ]]; then
+				break
+			elif [[ "$setup_lastfm_choice" == "n" || "$setup_lastfm_choice" == "no" ]]; then
+				break
+			else
+				echo -e "${RED}Invalid input. Please enter y/yes or n/no.${DEFAULT}"
+			fi
+		done
+
+		if [[ "$setup_lastfm_choice" == "y" || "$setup_lastfm_choice" == "yes" ]]; then
+			# Ask for Last.fm API details
+			read -p "$(echo -e "${CYAN}Enter your Last.fm API key: ${DEFAULT}")" lastfm_api_key < /dev/tty
+			read -p "$(echo -e "${CYAN}Enter your Last.fm shared secret: ${DEFAULT}")" lastfm_shared_secret < /dev/tty
+		else
+			echo -e "${YELLOW}Skipping Last.fm setup.${DEFAULT}"
+			lastfm_api_key="Last.fm API key"
+			lastfm_shared_secret="Last.fm shared secret"
+		fi
+
 		# Ask for database method
 		while true; do
 			read -p "$(echo -e "${CYAN}Do you want to use SQLite or MySQL for the database? (sqlite/mysql, default is sqlite): ${DEFAULT}")" db_method_choice < /dev/tty
@@ -433,6 +457,8 @@ done
 		sed -i "s|lavalinkLogsChannelID: \"The Discord Channel ID for logs when lavalink throws an error\"|lavalinkLogsChannelID: \"$lavalink_logs_channel_id\"|g" src/files/config.ts
 		sed -i "s|reportChannelID: \"The Discord Channel ID for logs when bugs are reported\"|reportChannelID: \"$report_channel_id\"|g" src/files/config.ts
 		sed -i "s|apiToken: \"The API token\"|apiToken: \"$api_token\"|g" src/files/config.ts
+		sed -i "s|apiKey: \"Last.fm API key\"|apiKey: \"$lastfm_api_key\"|g" src/files/config.ts
+		sed -i "s|sharedSecret: \"Last.fm shared secret\"|sharedSecret: \"$lastfm_shared_secret\"|g" src/files/config.ts
 		sed -i "s|users: \\[\"User ID\", \"User ID\"\\]|users: [$owner_user_ids_string]|g" src/files/config.ts
 		sed -i "s|devMode: true|devMode: $dev_mode|g" src/files/config.ts
 		sed -i "s|blacklistPictureInEmbed: \"A .png URL\"|blacklistPictureInEmbed: \"$(printf '%s' "$blacklist_picture_url" | sed 's/[&/\]/\\&/g')\"|g" src/files/config.ts
@@ -478,6 +504,6 @@ done
 	done
 
 	# All done!
-	echo -e "${GREEN}🎉 Congratulations! The iHorizon bot provisioning is done. Enjoy using iHorizon! 🎉${DEFAULT}"
+	echo -e "${GREEN}🎉 Congratulations! The iHorizon bot installation is done. Enjoy using iHorizon! 🎉${DEFAULT}"
 	echo -e "${YELLOW}⚠️  But just one more thing! Execute the following command on your terminal to finish the installation : source ~/.bashrc ⚠️${DEFAULT}"
-	echo -e "${CYAN}And after that you will be all set! Thank you for using the iHorizon Provisioning Script!${DEFAULT}"
+	echo -e "${CYAN}And after that you will be all set! Thank you for using the iHorizon Installation Script!${DEFAULT}"
