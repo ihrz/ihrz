@@ -46,7 +46,7 @@ export const event: BotEvent = {
 	name: "guildCreate",
 	run: async (client: Client, guild: Guild) => {
 		if (!guild) return;
-		await cancelPendingGuildDataDeletion(client, guild.id);
+		await cancelPendingGuildDataDeletion(client, guild);
 		await setLangByRegion();
 
 		let highestPositionChannel: TextChannel | null = null;

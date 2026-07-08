@@ -2212,6 +2212,9 @@ export interface LanguageData {
 	guild_leave_data_clear_notice_title: string;
 	guild_leave_data_clear_notice_description: string;
 	guild_leave_data_clear_notice_message: string;
+	guild_leave_data_clear_cancelled_title: string;
+	guild_leave_data_clear_cancelled_description: string;
+	guild_leave_data_clear_cancelled_message: string;
 	confession_embed_logs_title: string;
 	confession_channel_button_name: string;
 	confession_1_embed_log_title: string;

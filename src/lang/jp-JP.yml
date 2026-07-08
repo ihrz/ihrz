@@ -2986,6 +2986,9 @@ new_guild_embed_desc: "## ${randomMessage}\nこんにちは、素晴らしい友
 guild_leave_data_clear_notice_title: "iHorizonが${guild.name}を退出しました"
 guild_leave_data_clear_notice_description: "えーん、悲しいです。`${guild.name}`からボットをキックしました。iHorizonがそれまでに戻らない場合、サーバーデータは${deleteAt}に削除されます。"
 guild_leave_data_clear_notice_message: "えーん、悲しいです。`${guild.name}`からiHorizonをキックしました。データは${deleteAt}に削除されます。"
+guild_leave_data_clear_cancelled_title: "iHorizonが${guild.name}に戻りました"
+guild_leave_data_clear_cancelled_description: "やったー、`${guild.name}`にiHorizonを戻してくれてありがとうございます。予定されていたデータ削除はキャンセルされました。"
+guild_leave_data_clear_cancelled_message: "やったー、`${guild.name}`にiHorizonを戻してくれてありがとうございます。サーバーデータは安全です。"
 
 # Confession Event
 confession_embed_logs_title: "新しい告白"

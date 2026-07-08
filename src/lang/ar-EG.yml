@@ -2980,6 +2980,9 @@ new_guild_embed_desc: "## ${randomMessage}\n!مرحباً بكم، أصدقائ�
 guild_leave_data_clear_notice_title: "غادر iHorizon ${guild.name}"
 guild_leave_data_clear_notice_description: "واااه، هذا محزن. لقد طردت البوت من `${guild.name}`. سيتم حذف بيانات الخادم ${deleteAt} إذا لم يعد iHorizon قبل ذلك."
 guild_leave_data_clear_notice_message: "واااه، هذا محزن. لقد طردت iHorizon من `${guild.name}`. سيتم حذف البيانات ${deleteAt}."
+guild_leave_data_clear_cancelled_title: "عاد iHorizon إلى ${guild.name}"
+guild_leave_data_clear_cancelled_description: "ياااي، شكرًا لإعادة إضافة iHorizon إلى `${guild.name}`. تم إلغاء حذف البيانات المجدول."
+guild_leave_data_clear_cancelled_message: "ياااي، شكرًا لإعادة إضافة iHorizon إلى `${guild.name}`. بيانات خادمك آمنة."
 
 # Confession Event
 confession_embed_logs_title: "اعتراف جديد"

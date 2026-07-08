@@ -112,12 +112,51 @@ async function notifyOwnerFromAnotherGuild(
 
 export async function cancelPendingGuildDataDeletion(
 	client: Client,
-	guildId: string
+	guild: Guild
 ) {
-	const timeout = pendingGuildDeletionTimeouts.get(guildId);
+	const pending = await client.db.get<PendingGuildDeletion>(
+		`${guild.id}.${GUILD_DELETE_QUEUE_KEY}`
+	);
+	if (!pending) return false;
+
+	const timeout = pendingGuildDeletionTimeouts.get(guild.id);
 	if (timeout) clearTimeout(timeout);
-	pendingGuildDeletionTimeouts.delete(guildId);
-	await client.db.delete(`${guildId}.${GUILD_DELETE_QUEUE_KEY}`);
+	pendingGuildDeletionTimeouts.delete(guild.id);
+	await client.db.delete(`${guild.id}.${GUILD_DELETE_QUEUE_KEY}`);
+
+	const lang = await client.func.getLanguageData(guild.id);
+	const owner = await client.users.fetch(guild.ownerId).catch(() => null);
+	if (!owner) return true;
+
+	const embed = new EmbedBuilder()
+		.setColor("#57f287")
+		.setTitle(
+			lang.guild_leave_data_clear_cancelled_title.replace(
+				"${guild.name}",
+				guild.name
+			)
+		)
+		.setDescription(
+			lang.guild_leave_data_clear_cancelled_description.replace(
+				"${guild.name}",
+				guild.name
+			)
+		)
+		.setTimestamp()
+		.setThumbnail(Expressions.Wink)
+		.setFooter(await client.func.displayBotName.footerBuilder(guild.id));
+
+	await owner
+		.send({
+			content: lang.guild_leave_data_clear_cancelled_message.replace(
+				"${guild.name}",
+				guild.name
+			),
+			embeds: [embed]
+		})
+		.catch(() => { });
+
+	return true;
 }
 
 export async function recoverPendingGuildDataDeletions(client: Client) {

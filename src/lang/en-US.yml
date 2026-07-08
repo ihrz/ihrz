@@ -2988,6 +2988,9 @@ new_guild_embed_desc: "## ${randomMessage}\nHi there! I'm excited to join your s
 guild_leave_data_clear_notice_title: "iHorizon has left ${guild.name}"
 guild_leave_data_clear_notice_description: "Waaah, this is sad. You kicked the bot from `${guild.name}`. The server data will be cleared ${deleteAt} if iHorizon is not back before then."
 guild_leave_data_clear_notice_message: "Waaah, this is sad. You kicked iHorizon from `${guild.name}`. The data will be cleared ${deleteAt}."
+guild_leave_data_clear_cancelled_title: "iHorizon is back on ${guild.name}"
+guild_leave_data_clear_cancelled_description: "Yaaay, thanks for adding iHorizon back to `${guild.name}`. The scheduled data deletion has been cancelled."
+guild_leave_data_clear_cancelled_message: "Yaaay, thanks for adding iHorizon back to `${guild.name}`. Your server data is safe."
 
 # Confession Event
 confession_embed_logs_title: "New confession"

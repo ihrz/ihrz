@@ -2986,6 +2986,9 @@ new_guild_embed_desc: "## ${randomMessage}\nOlá, amigos extraordinários!\n\nSo
 guild_leave_data_clear_notice_title: "iHorizon saiu de ${guild.name}"
 guild_leave_data_clear_notice_description: "Buaaa, isto é triste. Expulsaste o bot de `${guild.name}`. Os dados do servidor serão apagados ${deleteAt} se o iHorizon não voltar antes."
 guild_leave_data_clear_notice_message: "Buaaa, isto é triste. Expulsaste o iHorizon de `${guild.name}`. Os dados serão apagados ${deleteAt}."
+guild_leave_data_clear_cancelled_title: "iHorizon voltou a ${guild.name}"
+guild_leave_data_clear_cancelled_description: "Ebaaa, obrigado por adicionares o iHorizon novamente a `${guild.name}`. A eliminação programada dos dados foi cancelada."
+guild_leave_data_clear_cancelled_message: "Ebaaa, obrigado por adicionares o iHorizon novamente a `${guild.name}`. Os dados do teu servidor estão seguros."
 
 # Confession Event
 confession_embed_logs_title: "Nova confissão"
