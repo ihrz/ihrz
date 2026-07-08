@@ -40,11 +40,13 @@ import { BotEvent } from "../../../types/event.js";
 import { getShardStats } from "../../Interaction/HybridCommands/bot/botinfo.js";
 import { blacklistTable } from "./ready.js";
 import { Expressions } from "../../core/functions/randomExpression.js";
+import { cancelPendingGuildDataDeletion } from "./deleteDatabaseDataOnGuildLeave.js";
 
 export const event: BotEvent = {
 	name: "guildCreate",
 	run: async (client: Client, guild: Guild) => {
 		if (!guild) return;
+		await cancelPendingGuildDataDeletion(client, guild.id);
 		await setLangByRegion();
 
 		let highestPositionChannel: TextChannel | null = null;
@@ -118,7 +120,7 @@ export const event: BotEvent = {
 							)
 						]
 					})
-					.catch(() => {});
+					.catch(() => { });
 				await guild.leave();
 				return false;
 			} else {
@@ -141,7 +143,7 @@ export const event: BotEvent = {
 					lang.new_guild_embed_desc.replace(
 						"${randomMessage}",
 						welcomeMessage[
-							Math.floor(Math.random() * welcomeMessage.length)
+						Math.floor(Math.random() * welcomeMessage.length)
 						]
 					)
 				)
@@ -197,7 +199,7 @@ export const event: BotEvent = {
 					],
 					components: [buttons1, buttons2]
 				})
-				.catch(() => {});
+				.catch(() => { });
 		}
 
 		async function getInvites() {

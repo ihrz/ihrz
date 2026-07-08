@@ -2977,6 +2977,9 @@ new_guild_embed_title:
     - "!مرحباً بالمغامرة الجديدة 🚀"
     - "!عضو جديد رائع انضم إلينا ✨"
 new_guild_embed_desc: "## ${randomMessage}\n!مرحباً بكم، أصدقائي الأعزاء\n\n.أنا iHorizon، بوت متطور مصمم لجعل تجربتكم على ديسكورد استثنائية ومليئة بالمرح\n\n:✨ ما يمكنني فعله لكم\n• إدارة الخادم بذكاء واحترافية\n• ألعاب تفاعلية وترفيه لا محدود\n• أدوات مفيدة لتنظيم المجتمع\n• دعم فني متاح على مدار الساعة\n\n.استكشفوا أوامري واكتشفوا عالماً من الإمكانيات اللامحدودة\n!معاً سنبني مجتمعاً رائعاً ومليئاً بالذكريات الجميلة\n\n!شكراً لاختياركم لي، فلنبدأ المغامرة 🌟"
+guild_leave_data_clear_notice_title: "غادر iHorizon ${guild.name}"
+guild_leave_data_clear_notice_description: "واااه، هذا محزن. لقد طردت البوت من `${guild.name}`. سيتم حذف بيانات الخادم ${deleteAt} إذا لم يعد iHorizon قبل ذلك."
+guild_leave_data_clear_notice_message: "واااه، هذا محزن. لقد طردت iHorizon من `${guild.name}`. سيتم حذف البيانات ${deleteAt}."
 
 # Confession Event
 confession_embed_logs_title: "اعتراف جديد"

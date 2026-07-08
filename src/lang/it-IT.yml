@@ -2982,6 +2982,9 @@ new_guild_embed_title:
     - "Una nuova avventura inizia! 🚀"
     - "Un membro fantastico è arrivato! ✨"
 new_guild_embed_desc: "## ${randomMessage}\nCiao, amici straordinari!\n\nSono iHorizon, un bot avanzato progettato per rendere la vostra esperienza Discord eccezionale e piena di divertimento.\n\n✨ **Cosa posso fare per voi:**\n• Gestione del server con intelligenza e professionalità\n• Giochi interattivi e intrattenimento illimitato\n• Strumenti utili per l'organizzazione della comunità\n• Supporto tecnico disponibile 24/7\n\nEsplorate i miei comandi e immergetevi in un mondo di possibilità infinite.\nInsieme costruiremo una comunità fantastica piena di bellissimi ricordi!\n\nGrazie per avermi scelto, iniziamo questa incredibile avventura! 🌟"
+guild_leave_data_clear_notice_title: "iHorizon ha lasciato ${guild.name}"
+guild_leave_data_clear_notice_description: "Buaa, è triste. Hai espulso il bot da `${guild.name}`. I dati del server saranno cancellati ${deleteAt} se iHorizon non torna prima."
+guild_leave_data_clear_notice_message: "Buaa, è triste. Hai espulso iHorizon da `${guild.name}`. I dati saranno cancellati ${deleteAt}."
 
 # Confession Event
 confession_embed_logs_title: "Nuova confessione"
