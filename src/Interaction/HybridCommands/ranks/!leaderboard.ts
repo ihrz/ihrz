@@ -156,7 +156,7 @@ export const subCommand: SubCommand = {
 			.replaceAll("{2_xp}", formatNumber(array[1]?.xptotal).toString())
 			.replaceAll("{3_xp}", formatNumber(array[2]?.xptotal).toString());
 
-		const createEmbed = (page: number) => {
+		const createEmbed = async (page: number) => {
 			const startIndex = page * itemsPerPage;
 			const endIndex = startIndex + itemsPerPage;
 			const pageUsers = array.slice(startIndex, endIndex);
@@ -184,12 +184,14 @@ export const subCommand: SubCommand = {
 						})
 						.join("\n")
 				)
-				.setFooter({
-					text: lang.ranks_leaderboard_embed_footer
-						.replace("${cPage}", String(page + 1))
-						.replace("${totalPages}", String(totalPages)),
-					iconURL: "attachment://footer_icon.png"
-				})
+				.setFooter(
+					await client.func.displayBotName.footerPaginationBuilder(
+						interaction.guildId!,
+						lang,
+						page + 1,
+						totalPages
+					)
+				)
 				.setTimestamp();
 
 			return embed;
@@ -242,7 +244,7 @@ export const subCommand: SubCommand = {
 		let currentPage = 0;
 
 		const message = await client.func.method.interactionSend(interaction, {
-			embeds: [createEmbed(currentPage)],
+			embeds: [await createEmbed(currentPage)],
 			components: [createButtons(currentPage)],
 			files: [
 				await client.func.displayBotName.footerAttachmentBuilder(
@@ -287,7 +289,7 @@ export const subCommand: SubCommand = {
 			}
 
 			await buttonInteraction.update({
-				embeds: [createEmbed(currentPage)],
+				embeds: [await createEmbed(currentPage)],
 				components: [createButtons(currentPage)]
 			});
 		});

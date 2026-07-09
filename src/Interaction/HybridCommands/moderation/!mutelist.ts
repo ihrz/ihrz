@@ -104,19 +104,18 @@ export const subCommand: SubCommand = {
 
 		let pages = generatePages();
 
-		const createEmbed = () => {
+		const createEmbed = async () => {
 			return new EmbedBuilder()
 				.setColor("#010101")
 				.setDescription(pages[currentPage].description)
-				.setFooter({
-					text: lang.prevnames_embed_footer_text
-						.replace(
-							"${currentPage + 1}",
-							(currentPage + 1).toString()
-						)
-						.replace("${pages.length}", pages.length.toString()),
-					iconURL: "attachment://footer_icon.png"
-				})
+				.setFooter(
+					await client.func.displayBotName.footerPaginationBuilder(
+						interaction.guildId!,
+						lang,
+						currentPage + 1,
+						pages.length
+					)
+				)
 				.setTimestamp();
 		};
 
@@ -138,7 +137,7 @@ export const subCommand: SubCommand = {
 		const messageEmbed = await client.func.method.interactionSend(
 			interaction,
 			{
-				embeds: [createEmbed()],
+				embeds: [await createEmbed()],
 				components: [row],
 				files: [
 					await client.func.displayBotName.footerAttachmentBuilder(
@@ -171,7 +170,7 @@ export const subCommand: SubCommand = {
 			}
 
 			await messageEmbed.edit({
-				embeds: [createEmbed()],
+				embeds: [await createEmbed()],
 				components: [row]
 			});
 		});

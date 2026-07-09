@@ -647,14 +647,19 @@ class GiveawayManager {
 				});
 			}
 
-			const createEmbed = () => {
+			const createEmbed = async () => {
 				return new EmbedBuilder()
 					.setColor(this.options.config.embedColor as ColorResolvable)
 					.setTitle(pages[currentPage].title)
 					.setDescription(pages[currentPage].description)
-					.setFooter({
-						text: `${lang.var_page} ${currentPage + 1}/${pages.length}`
-					})
+					.setFooter(
+						await client.func.displayBotName.footerPaginationBuilder(
+							interaction.guildId!,
+							lang,
+							currentPage + 1,
+							pages.length
+						)
+					)
 					.setTimestamp();
 			};
 
@@ -675,19 +680,19 @@ class GiveawayManager {
 
 			if (interaction instanceof ChatInputCommandInteraction) {
 				var messageEmbed = await interaction.editReply({
-					embeds: [createEmbed()],
+					embeds: [await createEmbed()],
 					components
 				});
 			} else if (interaction instanceof ButtonInteraction) {
 				await interaction.reply({
-					embeds: [createEmbed()],
+					embeds: [await createEmbed()],
 					components,
 					flags: [1 << 6]
 				});
 				var messageEmbed = await interaction.fetchReply();
 			} else {
 				var messageEmbed = (await interaction.reply({
-					embeds: [createEmbed()],
+					embeds: [await createEmbed()],
 					components
 				})) as Message<true>;
 			}
@@ -709,7 +714,7 @@ class GiveawayManager {
 					currentPage = (currentPage + 1) % pages.length;
 				}
 
-				await i.update({ embeds: [createEmbed()] });
+				await i.update({ embeds: [await createEmbed()] });
 			});
 
 			collector.on("end", async () => {

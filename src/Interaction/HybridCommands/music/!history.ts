@@ -134,21 +134,20 @@ export const subCommand: SubCommand = {
 			});
 		}
 
-		const createEmbed = () => {
+		const createEmbed = async () => {
 			return new EmbedBuilder()
 				.setColor("#00cc1a")
 				.setTimestamp()
 				.setTitle(pages[currentPage].title)
 				.setDescription(pages[currentPage].description)
-				.setFooter({
-					text: lang.history_embed_footer_text
-						.replace(
-							"${currentPage + 1}",
-							(currentPage + 1).toString()
-						)
-						.replace("${pages.length}", pages.length.toString()),
-					iconURL: "attachment://footer_icon.png"
-				})
+				.setFooter(
+					await client.func.displayBotName.footerPaginationBuilder(
+						interaction.guildId!,
+						lang,
+						currentPage + 1,
+						pages.length
+					)
+				)
 				.setTimestamp();
 		};
 
@@ -170,7 +169,7 @@ export const subCommand: SubCommand = {
 		const messageEmbed = await client.func.method.interactionSend(
 			interaction,
 			{
-				embeds: [createEmbed()],
+				embeds: [await createEmbed()],
 				components: [row as ActionRowBuilder<ButtonBuilder>],
 				files: [
 					attachment,
@@ -195,10 +194,10 @@ export const subCommand: SubCommand = {
 				if (buttonInteraction.customId === "previousPage") {
 					currentPage =
 						(currentPage - 1 + pages.length) % pages.length;
-					await messageEmbed.edit({ embeds: [createEmbed()] });
+					await messageEmbed.edit({ embeds: [await createEmbed()] });
 				} else if (buttonInteraction.customId === "nextPage") {
 					currentPage = (currentPage + 1) % pages.length;
-					await messageEmbed.edit({ embeds: [createEmbed()] });
+					await messageEmbed.edit({ embeds: [await createEmbed()] });
 				} else if (buttonInteraction.customId === "deleteHistory") {
 					// Delete history from database
 					await client.db.delete(

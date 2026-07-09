@@ -140,7 +140,7 @@ export const subCommand: SubCommand = {
 			)
 			.replaceAll("{coin_emoji}", client.iHorizon_Emojis.Coin);
 
-		const createEmbed = (page: number) => {
+		const createEmbed = async (page: number) => {
 			const startIndex = page * itemsPerPage;
 			const endIndex = startIndex + itemsPerPage;
 			const pageUsers = array.slice(startIndex, endIndex);
@@ -171,12 +171,14 @@ export const subCommand: SubCommand = {
 						})
 						.join("\n")
 				)
-				.setFooter({
-					text: lang.prevnames_embed_footer_text
-						.replace("${currentPage + 1}", String(page + 1))
-						.replace("${pages.length}", String(totalPages)),
-					iconURL: "attachment://footer_icon.png"
-				})
+				.setFooter(
+					await client.func.displayBotName.footerPaginationBuilder(
+						interaction.guildId!,
+						lang,
+						page + 1,
+						totalPages
+					)
+				)
 				.setTimestamp();
 
 			return embed;
@@ -229,7 +231,7 @@ export const subCommand: SubCommand = {
 		let currentPage = 0;
 
 		const message = await client.func.method.interactionSend(interaction, {
-			embeds: [createEmbed(currentPage)],
+			embeds: [await createEmbed(currentPage)],
 			components: [createButtons(currentPage)],
 			files: [
 				await client.func.displayBotName.footerAttachmentBuilder(
@@ -263,7 +265,7 @@ export const subCommand: SubCommand = {
 			}
 
 			await buttonInteraction.update({
-				embeds: [createEmbed(currentPage)],
+				embeds: [await createEmbed(currentPage)],
 				components: [createButtons(currentPage)]
 			});
 		});

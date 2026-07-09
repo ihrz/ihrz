@@ -95,6 +95,7 @@ export const subCommand: SubCommand = {
 
 		const embeds: EmbedBuilder[] = [];
 		const chunkSize = 10;
+		const totalPages = Math.ceil(tracks.length / chunkSize);
 
 		for (let i = 0; i < tracks.length; i += chunkSize) {
 			const chunk = tracks.slice(i, i + chunkSize);
@@ -104,14 +105,14 @@ export const subCommand: SubCommand = {
 				.setDescription(
 					chunk.join("\n") || lang.queue_embed_description_empty
 				)
-				.setFooter({
-					text: lang.queue_embed_footer_text
-						.replace("{index}", (i / chunkSize + 1).toString())
-						.replace(
-							"{track}",
-							player.queue.tracks.length.toString()
-						)
-				});
+				.setFooter(
+					await client.func.displayBotName.footerPaginationBuilder(
+						interaction.guildId!,
+						lang,
+						i / chunkSize + 1,
+						totalPages
+					)
+				);
 
 			embeds.push(embed);
 		}

@@ -379,6 +379,94 @@ declare namespace Client_Functions {
 		): void;
 	}
 
+	// From mediaManipulation.ts
+	export namespace mediaManipulation {
+		export function convertToPng(
+			buffer: Buffer<ArrayBufferLike>
+		): Promise<Buffer<ArrayBufferLike>>;
+		export function adjustImageQuality(imagePath: string): Promise<void>;
+		export function resizeImage(
+			inputImage: Buffer<ArrayBufferLike>,
+			outputPath: string,
+			width?: number,
+			height?: number
+		): Promise<{ width: number; height: number }>;
+		export function isImageUrl(url: string): Promise<boolean>;
+	}
+
+	// From numberBeautifuer.ts
+	export function numberBeautifuer(num: number): string;
+
+	// From apiUrlParser.ts
+	export namespace apiUrlParser {
+		export function assetsFinder(body: Assets, type: string): string;
+		export function HorizonGateway(gateway_method: GatewayMethod): string;
+	}
+
+	// From awaitingResponse.ts
+	export function awaitingResponse(
+		interaction: ChatInputCommandInteraction<"cached"> | Message<boolean>,
+		opt: LangForPrompt
+	): Promise<boolean>;
+
+	// From authRestoreHelper.ts
+	export namespace authRestoreHelper {
+		export function createOauth2LinkWithGuild(
+			data: AuthRestore_EntryType
+		): string;
+		export function createOauth2LinkWithoutGuild(
+			data: Oauth2_Link_Entry
+		): string;
+		export function createAuthRestore(
+			data: AuthRestore_EntryType
+		): Promise<AuthRestore_ResponseType>;
+		export function getGuildDataPerSecretCode(
+			secretCode: string
+		): Promise<{ id: string; data: GuildAuthRestore } | null>;
+		export function forceJoinAuthRestore(
+			data: AuthRestore_ForceJoin_EntryType
+		): Promise<AuthRestore_ForceJoin_ResponseType>;
+		export function securityCodeUpdate(
+			data: AuthRestore_KeyUpdate_EntryType
+		): Promise<AuthRestore_ForceJoin_ResponseType>;
+		export function changeRoleAuthRestore(
+			data: AuthRestore_RoleUpdate_EntryType
+		): Promise<AuthRestore_ForceJoin_ResponseType>;
+	}
+
+	// From shard_helper.ts
+	export namespace shard_helper {
+		export function getGuildData(
+			client: Client<boolean>,
+			guildId: string
+		): Promise<GuildData | null>;
+		export function getDetailedGuildData(
+			client: Client<boolean>,
+			guildId: string
+		): Promise<DetailedGuildData | null>;
+	}
+
+	// From music_proximity.ts
+	export namespace music_proximity {
+		export function levenshtein(a: string, b: string): number;
+		export function similarity(a: string, b: string): number;
+		export function isSimilar(
+			query: string,
+			track: TrackEmbbeded,
+			threshold: number,
+			wordThreshold: number
+		): boolean;
+	}
+
+	// From encryptDecryptMethod.ts
+	export namespace encryptDecryptMethod {
+		export function encrypt(password: string, text: string): string;
+		export function decrypt(
+			password: string,
+			data: string
+		): string | undefined;
+	}
+
 	// From sanitizeInteractionOptionValue.ts
 	export function sanitizeInteractionOptionValue(
 		optionName: string,
@@ -387,12 +475,6 @@ declare namespace Client_Functions {
 
 	// From wait.ts
 	export function wait(milliseconds: number): Promise<void>;
-
-	// From apiUrlParser.ts
-	export namespace apiUrlParser {
-		export function assetsFinder(body: Assets, type: string): string;
-		export function HorizonGateway(gateway_method: GatewayMethod): string;
-	}
 
 	// From html2png.ts
 	export function html2png(
@@ -414,15 +496,6 @@ declare namespace Client_Functions {
 
 	// From maskLink.ts
 	export function maskLink(input: string): string;
-
-	// From awaitingResponse.ts
-	export function awaitingResponse(
-		interaction: ChatInputCommandInteraction<"cached"> | Message<boolean>,
-		opt: LangForPrompt
-	): Promise<boolean>;
-
-	// From numberBeautifuer.ts
-	export function numberBeautifuer(num: number): string;
 
 	// From sanitizer.ts
 	export function sanitizer(text: string | undefined): string;
@@ -533,31 +606,6 @@ declare namespace Client_Functions {
 		): VoiceBasedChannel | null;
 	}
 
-	// From authRestoreHelper.ts
-	export namespace authRestoreHelper {
-		export function createOauth2LinkWithGuild(
-			data: AuthRestore_EntryType
-		): string;
-		export function createOauth2LinkWithoutGuild(
-			data: Oauth2_Link_Entry
-		): string;
-		export function createAuthRestore(
-			data: AuthRestore_EntryType
-		): Promise<AuthRestore_ResponseType>;
-		export function getGuildDataPerSecretCode(
-			secretCode: string
-		): Promise<{ id: string; data: GuildAuthRestore } | null>;
-		export function forceJoinAuthRestore(
-			data: AuthRestore_ForceJoin_EntryType
-		): Promise<AuthRestore_ForceJoin_ResponseType>;
-		export function securityCodeUpdate(
-			data: AuthRestore_KeyUpdate_EntryType
-		): Promise<AuthRestore_ForceJoin_ResponseType>;
-		export function changeRoleAuthRestore(
-			data: AuthRestore_RoleUpdate_EntryType
-		): Promise<AuthRestore_ForceJoin_ResponseType>;
-	}
-
 	// From musicPlay.ts
 	export namespace musicPlay {
 		export function buildNoResultEmbed(lang: LanguageData): EmbedBuilder;
@@ -595,56 +643,8 @@ declare namespace Client_Functions {
 		}: HandleMusicPlayOptions): Promise<void>;
 	}
 
-	// From mediaManipulation.ts
-	export namespace mediaManipulation {
-		export function convertToPng(
-			buffer: Buffer<ArrayBufferLike>
-		): Promise<Buffer<ArrayBufferLike>>;
-		export function adjustImageQuality(imagePath: string): Promise<void>;
-		export function resizeImage(
-			inputImage: Buffer<ArrayBufferLike>,
-			outputPath: string,
-			width?: number,
-			height?: number
-		): Promise<{ width: number; height: number }>;
-		export function isImageUrl(url: string): Promise<boolean>;
-	}
-
-	// From encryptDecryptMethod.ts
-	export namespace encryptDecryptMethod {
-		export function encrypt(password: string, text: string): string;
-		export function decrypt(
-			password: string,
-			data: string
-		): string | undefined;
-	}
-
 	// From assetsCalc.ts
 	export function assetsCalc(client: Client<boolean>): Promise<void>;
-
-	// From shard_helper.ts
-	export namespace shard_helper {
-		export function getGuildData(
-			client: Client<boolean>,
-			guildId: string
-		): Promise<GuildData | null>;
-		export function getDetailedGuildData(
-			client: Client<boolean>,
-			guildId: string
-		): Promise<DetailedGuildData | null>;
-	}
-
-	// From music_proximity.ts
-	export namespace music_proximity {
-		export function levenshtein(a: string, b: string): number;
-		export function similarity(a: string, b: string): number;
-		export function isSimilar(
-			query: string,
-			track: TrackEmbbeded,
-			threshold: number,
-			wordThreshold: number
-		): boolean;
-	}
 
 	// From bannerGenerator.ts
 	export function bannerGenerator(guildId: string | null): Promise<string>;
@@ -677,6 +677,12 @@ declare namespace Client_Functions {
 		export function footerBuilder(
 			guildId: string
 		): Promise<{ text: string; iconURL: string }>;
+		export function footerPaginationBuilder(
+			guildId: string,
+			lang: LanguageData,
+			page: number,
+			maxPage: number
+		): Promise<{ text: string }>;
 		export function footerAttachmentBuilder(
 			entry?:
 				| Interaction
