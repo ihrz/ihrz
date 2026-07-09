@@ -20,62 +20,51 @@
 */
 
 import { Client, User, time } from "discord.js";
-
 import { BotEvent } from "../../../types/event.js";
 import { prevnamesTable } from "../client/ready.js";
-
-type PvNames = {
-	timestamp: Date;
-	nick: string;
-};
-
-export const prevnamesMap = new Map<string, PvNames[]>();
-
-export const usersNamesMap = new Map<
-	string,
-	{
-		username: string;
-		globalName: string | null;
-	}
->();
+import { prevnamesMap, usersNamesMap } from "../../core/prevnamesModule.ts";
 
 export const event: BotEvent = {
 	name: "userUpdate",
-	run: async (_client: Client, user: User) => {
-		const oldData = usersNamesMap.get(user.id);
+	run: async (_client: Client, oldUser: User, newUser: User) => {
+		const cached = usersNamesMap.get(newUser.id);
 
-		if (!oldData) {
-			usersNamesMap.set(user.id, {
-				username: user.username,
-				globalName: user.globalName
-			});
-			return;
+		const previousUsername = cached?.username ?? oldUser.username;
+		const previousGlobalName = cached?.globalName ?? oldUser.globalName;
+
+		const changes: { type: "username" | "globalName"; oldValue: string }[] =
+			[];
+
+		if (previousUsername !== newUser.username) {
+			changes.push({ type: "username", oldValue: previousUsername });
 		}
 
-		const oldName = oldData.globalName ?? oldData.username;
+		if (
+			previousGlobalName !== newUser.globalName &&
+			previousGlobalName !== null &&
+			previousGlobalName !== undefined
+		) {
+			changes.push({ type: "globalName", oldValue: previousGlobalName });
+		}
 
-		const newName = user.globalName ?? user.username;
+		for (const change of changes) {
+			await prevnamesTable.push(
+				newUser.id,
+				`${time(new Date(), "d")} - [${change.type}] ${change.oldValue}`
+			);
 
-		if (oldName === newName) return;
-		if (oldName === null || oldName === undefined) return;
+			const history = prevnamesMap.get(newUser.id) ?? [];
+			history.push({
+				timestamp: new Date(),
+				type: change.type,
+				value: change.oldValue
+			});
+			prevnamesMap.set(newUser.id, history);
+		}
 
-		await prevnamesTable.push(
-			user.id,
-			`${time(new Date(), "d")} - ${oldName}`
-		);
-
-		const history = prevnamesMap.get(user.id) ?? [];
-
-		history.push({
-			timestamp: new Date(),
-			nick: oldName
-		});
-
-		prevnamesMap.set(user.id, history);
-
-		usersNamesMap.set(user.id, {
-			username: user.username,
-			globalName: user.globalName
+		usersNamesMap.set(newUser.id, {
+			username: newUser.username,
+			globalName: newUser.globalName
 		});
 	}
 };
