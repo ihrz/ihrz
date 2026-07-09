@@ -46,8 +46,8 @@ import { isNumber } from "../../core/functions/method.js";
 import { DB } from "../../core/database/types.js";
 import { AvailableLanguage } from "../../core/functions/getLanguageData.js";
 import { Expressions } from "../../core/functions/randomExpression.js";
-import { usersNamesMap } from "../utils/prevnamesModule.js";
 import { recoverPendingGuildDataDeletions } from "./deleteDatabaseDataOnGuildLeave.js";
+import { usersNamesMap } from "../../core/prevnamesModule.js";
 
 // @ts-ignore
 export let tempTable: DB = null;
@@ -122,7 +122,8 @@ export const event: BotEvent = {
 										{
 											uses: invite.uses,
 											inviterId: invite.inviterId,
-											inviterUsername: invite.inviter?.username || null
+											inviterUsername:
+												invite.inviter?.username || null
 										}
 									])
 								)
@@ -228,7 +229,7 @@ export const event: BotEvent = {
 									await client.func.displayBotName.footerAttachmentBuilder()
 								]
 							})
-							.catch(() => { });
+							.catch(() => {});
 
 						await scheduleTable.delete(`${array.id}.${ScheduleId}`);
 					}
@@ -290,7 +291,7 @@ export const event: BotEvent = {
 									) => {
 										return (
 											currentTime -
-											message.sentTimestamp <=
+												message.sentTimestamp <=
 											fourteenDaysInMillis
 										);
 									}
@@ -317,14 +318,14 @@ export const event: BotEvent = {
 				id: client.user?.id as string,
 				username: "bot_" + client.user?.id
 			})
-			.then(() => { });
-		recoverActiveSessions(client).then(() => { });
-		client.memberCountManager.init().then(() => { });
-		client.autoRenewManager.init().then(() => { });
-		client.nightmodeManager.init().then(() => { });
-		client.notifier.start().then(() => { });
-		client.blogger.start().then(() => { });
-		client.infrastructureMonitoring.startMonitoring().then(() => { });
+			.then(() => {});
+		recoverActiveSessions(client).then(() => {});
+		client.memberCountManager.init().then(() => {});
+		client.autoRenewManager.init().then(() => {});
+		client.nightmodeManager.init().then(() => {});
+		client.notifier.start().then(() => {});
+		client.blogger.start().then(() => {});
+		client.infrastructureMonitoring.startMonitoring().then(() => {});
 		client.temproleManager.init();
 		client.tempbanManager.init();
 		client.giveawaysManager.init();
