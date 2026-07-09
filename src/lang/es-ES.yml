@@ -2983,6 +2983,12 @@ new_guild_embed_title:
     - "¡Una nueva aventura comienza! 🚀"
     - "¡Un miembro fantástico ha llegado! ✨"
 new_guild_embed_desc: "## ${randomMessage}\n¡Hola, queridos amigos!\n\nSoy iHorizon, un bot avanzado diseñado para hacer que vuestra experiencia en Discord sea extraordinaria y llena de diversión.\n\n✨ **Lo que puedo hacer por vosotros:**\n• Gestión del servidor con inteligencia y profesionalidad\n• Juegos interactivos y entretenimiento ilimitado\n• Herramientas útiles para la organización de la comunidad\n• Soporte técnico disponible 24/7\n\nExplorad mis comandos y sumergíos en un mundo de posibilidades infinitas.\n¡Juntos construiremos una comunidad fantástica llena de hermosos recuerdos!\n\n¡Gracias por elegirme, comencemos esta increíble aventura! 🌟"
+guild_leave_data_clear_notice_title: "iHorizon ha salido de ${guild.name}"
+guild_leave_data_clear_notice_description: "Buaaa, esto es triste. Has expulsado al bot de `${guild.name}`. Los datos del servidor se borrarán ${deleteAt} si iHorizon no vuelve antes."
+guild_leave_data_clear_notice_message: "Buaaa, esto es triste. Has expulsado a iHorizon de `${guild.name}`. Los datos se borrarán ${deleteAt}."
+guild_leave_data_clear_cancelled_title: "iHorizon ha vuelto a ${guild.name}"
+guild_leave_data_clear_cancelled_description: "Siiiii, gracias por volver a añadir iHorizon a `${guild.name}`. La eliminación programada de datos se ha cancelado."
+guild_leave_data_clear_cancelled_message: "Siiiii, gracias por volver a añadir iHorizon a `${guild.name}`. Los datos de tu servidor están a salvo."
 
 # Confession Event
 confession_embed_logs_title: "Nueva confesión"

@@ -2983,6 +2983,12 @@ new_guild_embed_title:
     - "Новое приключение начинается! 🚀"
     - "Фантастический участник прибыл! ✨"
 new_guild_embed_desc: "## ${randomMessage}\nПривет, удивительные друзья!\n\nЯ iHorizon, продвинутый бот, созданный для того, чтобы сделать ваш Discord опыт исключительным и полным веселья.\n\n✨ **Что я могу сделать для вас:**\n• Управление сервером с интеллектом и профессионализмом\n• Интерактивные игры и безграничные развлечения\n• Полезные инструменты для организации сообщества\n• Техническая поддержка 24/7\n\nИсследуйте мои команды и погрузитесь в мир бесконечных возможностей.\nВместе мы построим фантастическое сообщество, полное прекрасных воспоминаний!\n\nСпасибо за то, что выбрали меня, давайте начнём это невероятное приключение! 🌟"
+guild_leave_data_clear_notice_title: "iHorizon покинул ${guild.name}"
+guild_leave_data_clear_notice_description: "Уааа, это грустно. Вы выгнали бота с `${guild.name}`. Данные сервера будут удалены ${deleteAt}, если iHorizon не вернётся до этого времени."
+guild_leave_data_clear_notice_message: "Уааа, это грустно. Вы выгнали iHorizon с `${guild.name}`. Данные будут удалены ${deleteAt}."
+guild_leave_data_clear_cancelled_title: "iHorizon вернулся на ${guild.name}"
+guild_leave_data_clear_cancelled_description: "Урааа, спасибо, что добавили iHorizon обратно на `${guild.name}`. Запланированное удаление данных отменено."
+guild_leave_data_clear_cancelled_message: "Урааа, спасибо, что добавили iHorizon обратно на `${guild.name}`. Данные вашего сервера в безопасности."
 
 # Confession Event
 confession_embed_logs_title: "Новое признание"
