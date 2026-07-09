@@ -279,14 +279,16 @@ export const subCommand: SubCommand = {
 			await interaction.editReply({
 				content: null,
 				embeds: [
-					pages[currentPage].setColor("#016c9a").setFooter({
-						text: lang.prevnames_embed_footer_text
-							.replace(
-								"${currentPage + 1}",
-								(currentPage + 1).toString()
+					pages[currentPage]
+						.setColor("#016c9a")
+						.setFooter(
+							await client.func.displayBotName.footerPaginationBuilder(
+								interaction.guildId!,
+								lang,
+								currentPage + 1,
+								pages.length
 							)
-							.replace("${pages.length}", pages.length.toString())
-					})
+						)
 				],
 				components: [generateActionRow()]
 			});

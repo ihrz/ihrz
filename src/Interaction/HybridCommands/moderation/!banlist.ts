@@ -67,15 +67,18 @@ export const subCommand: SubCommand = {
 			});
 		}
 
-		const createEmbed = () => {
+		const createEmbed = async () => {
 			return new EmbedBuilder()
 				.setTitle(pages[currentPage].title)
 				.setDescription(pages[currentPage].description)
-				.setFooter({
-					text: lang.rc_get_secondEmbed_footer
-						.replace("${from}", String(currentPage + 1))
-						.replace("${to}", String(pages.length))
-				})
+				.setFooter(
+					await client.func.displayBotName.footerPaginationBuilder(
+						interaction.guildId!,
+						lang,
+						currentPage + 1,
+						pages.length
+					)
+				)
 				.setColor("#72f3f3");
 		};
 
@@ -91,7 +94,7 @@ export const subCommand: SubCommand = {
 		);
 
 		const message = await client.func.method.interactionSend(interaction, {
-			embeds: [createEmbed()],
+			embeds: [await createEmbed()],
 			components: [row]
 		});
 
@@ -114,7 +117,7 @@ export const subCommand: SubCommand = {
 				if (currentPage == 0) return;
 				currentPage--;
 				await message.edit({
-					embeds: [createEmbed()],
+					embeds: [await createEmbed()],
 					components: [row]
 				});
 			} else if (i.customId === "next") {
@@ -122,7 +125,7 @@ export const subCommand: SubCommand = {
 				if (currentPage == pages.length - 1) return;
 				currentPage++;
 				await message.edit({
-					embeds: [createEmbed()],
+					embeds: [await createEmbed()],
 					components: [row]
 				});
 			}

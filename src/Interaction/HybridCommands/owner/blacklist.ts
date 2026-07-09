@@ -186,20 +186,19 @@ export async function run_for_bot_owner(
 			});
 		}
 
-		const createEmbed = () => {
+		const createEmbed = async () => {
 			return new EmbedBuilder()
 				.setColor("#2E2EFE")
 				.setTitle(pages[currentPage]?.title)
 				.setDescription(pages[currentPage]?.description)
-				.setFooter({
-					text: lang.history_embed_footer_text
-						.replace(
-							"${currentPage + 1}",
-							(currentPage + 1).toString()
-						)
-						.replace("${pages.length}", pages.length.toString()),
-					iconURL: "attachment://footer_icon.png"
-				})
+				.setFooter(
+					await client.func.displayBotName.footerPaginationBuilder(
+						interaction.guildId!,
+						lang,
+						currentPage + 1,
+						pages.length
+					)
+				)
 				.setTimestamp();
 		};
 
@@ -217,7 +216,7 @@ export async function run_for_bot_owner(
 		const messageEmbed = await client.func.method.interactionSend(
 			interaction,
 			{
-				embeds: [createEmbed()],
+				embeds: [await createEmbed()],
 				components: [row],
 				files: [
 					await client.func.displayBotName.footerAttachmentBuilder(
@@ -235,14 +234,14 @@ export async function run_for_bot_owner(
 			time: 60_000 * 16 // 16 minutes
 		});
 
-		collector.on("collect", (interaction: { customId: string }) => {
+		collector.on("collect", async (interaction: { customId: string }) => {
 			if (interaction.customId === "previousPage") {
 				currentPage = (currentPage - 1 + pages.length) % pages.length;
 			} else if (interaction.customId === "nextPage") {
 				currentPage = (currentPage + 1) % pages.length;
 			}
 
-			messageEmbed.edit({ embeds: [createEmbed()] });
+			messageEmbed.edit({ embeds: [await createEmbed()] });
 		});
 
 		collector.on("end", () => {
@@ -533,20 +532,19 @@ export async function run_for_guild_owner(
 			});
 		}
 
-		const createEmbed = () => {
+		const createEmbed = async () => {
 			return new EmbedBuilder()
 				.setColor("#2E2EFE")
 				.setTitle(pages[currentPage]?.title)
 				.setDescription(pages[currentPage]?.description)
-				.setFooter({
-					text: lang.history_embed_footer_text
-						.replace(
-							"${currentPage + 1}",
-							(currentPage + 1).toString()
-						)
-						.replace("${pages.length}", pages.length.toString()),
-					iconURL: "attachment://footer_icon.png"
-				})
+				.setFooter(
+					await client.func.displayBotName.footerPaginationBuilder(
+						interaction.guildId!,
+						lang,
+						currentPage + 1,
+						pages.length
+					)
+				)
 				.setTimestamp();
 		};
 
@@ -564,7 +562,7 @@ export async function run_for_guild_owner(
 		const messageEmbed = await client.func.method.interactionSend(
 			interaction,
 			{
-				embeds: [createEmbed()],
+				embeds: [await createEmbed()],
 				components: [row],
 				files: [
 					await client.func.displayBotName.footerAttachmentBuilder(
@@ -582,14 +580,14 @@ export async function run_for_guild_owner(
 			time: 60_000 * 16 // 16 minutes
 		});
 
-		collector.on("collect", (interaction: { customId: string }) => {
+		collector.on("collect", async (interaction: { customId: string }) => {
 			if (interaction.customId === "previousPage") {
 				currentPage = (currentPage - 1 + pages.length) % pages.length;
 			} else if (interaction.customId === "nextPage") {
 				currentPage = (currentPage + 1) % pages.length;
 			}
 
-			messageEmbed.edit({ embeds: [createEmbed()] });
+			messageEmbed.edit({ embeds: [await createEmbed()] });
 		});
 
 		collector.on("end", () => {

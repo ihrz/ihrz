@@ -69,7 +69,7 @@ export const subCommand: SubCommand = {
 			Math.ceil(allUsers.length / itemsPerPage)
 		);
 
-		const generateEmbed = (page: number) => {
+		const generateEmbed = async (page: number) => {
 			const embed = new EmbedBuilder()
 				.setTitle(lang.perm_list_embed_title)
 				.setColor("#475387");
@@ -103,11 +103,14 @@ export const subCommand: SubCommand = {
 				});
 			});
 
-			embed.setFooter({
-				text: lang.prevnames_embed_footer_text
-					.replace("${currentPage + 1}", String(page + 1))
-					.replace("${pages.length}", String(totalPages))
-			});
+			embed.setFooter(
+				await client.func.displayBotName.footerPaginationBuilder(
+					interaction.guildId!,
+					lang,
+					page + 1,
+					totalPages
+				)
+			);
 			return embed;
 		};
 
@@ -127,7 +130,7 @@ export const subCommand: SubCommand = {
 		};
 
 		const message = await client.func.method.interactionSend(interaction, {
-			embeds: [generateEmbed(currentPage)],
+			embeds: [await generateEmbed(currentPage)],
 			components: [generateButtons(currentPage)],
 			withResponse: true
 		});
@@ -144,7 +147,7 @@ export const subCommand: SubCommand = {
 			}
 
 			await i.update({
-				embeds: [generateEmbed(currentPage)],
+				embeds: [await generateEmbed(currentPage)],
 				components: [generateButtons(currentPage)]
 			});
 		});

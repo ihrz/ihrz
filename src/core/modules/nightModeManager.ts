@@ -28,7 +28,7 @@ import {
 	Role
 } from "discord.js";
 import { DatabaseStructure } from "../../../types/database_structure";
-import { utcTimezones } from "../../files/locales.ts";
+import { utcTimezones } from "../locales.ts";
 import { LanguageData } from "../../../types/languageData";
 
 type nightModeData = {

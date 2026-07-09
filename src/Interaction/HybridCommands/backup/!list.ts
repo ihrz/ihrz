@@ -107,7 +107,7 @@ export const subCommand: SubCommand = {
 		const totalPages = Math.ceil(backups.length / itemsPerPage);
 		let currentPage = 0;
 
-		const generateEmbed = (page: number) => {
+		const generateEmbed = async (page: number) => {
 			const embed = new EmbedBuilder()
 				.setDescription(
 					backups.length > 0
@@ -131,17 +131,14 @@ export const subCommand: SubCommand = {
 				currentBackups.forEach((backup) => embed.addFields(backup));
 			}
 
-			embed.setFooter({
-				text:
-					backups.length > 0
-						? lang.prevnames_embed_footer_text
-								.replace("${currentPage + 1}", String(page + 1))
-								.replace("${pages.length}", String(totalPages))
-						: lang.prevnames_embed_footer_text
-								.replace("${currentPage + 1}", "1")
-								.replace("${pages.length}", "1"),
-				iconURL: "attachment://footer_icon.png"
-			});
+			embed.setFooter(
+				await client.func.displayBotName.footerPaginationBuilder(
+					interaction.guildId!,
+					lang,
+					backups.length > 0 ? page + 1 : 1,
+					backups.length > 0 ? totalPages : 1
+				)
+			);
 			return embed;
 		};
 
@@ -165,7 +162,7 @@ export const subCommand: SubCommand = {
 		const originalResponse = await client.func.method.interactionSend(
 			interaction,
 			{
-				embeds: [generateEmbed(currentPage)],
+				embeds: [await generateEmbed(currentPage)],
 				components: [generateButtons(currentPage)],
 				files: [
 					await interaction.client.func.displayBotName.footerAttachmentBuilder(
@@ -200,7 +197,7 @@ export const subCommand: SubCommand = {
 				}
 
 				await i.update({
-					embeds: [generateEmbed(currentPage)],
+					embeds: [await generateEmbed(currentPage)],
 					components: [generateButtons(currentPage)]
 				});
 			});

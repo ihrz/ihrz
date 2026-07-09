@@ -89,7 +89,7 @@ export const command: Command = {
 		const itemsPerPage = 5;
 		let currentPage = 0;
 
-		const createRankRolesEmbed = (page: number) => {
+		const createRankRolesEmbed = async (page: number) => {
 			const channelEntries = Object.entries(autoreactConfig || {}).sort(
 				([levelA], [levelB]) => parseInt(levelB) - parseInt(levelA)
 			);
@@ -131,13 +131,14 @@ export const command: Command = {
 								}
 							]
 				)
-				.setFooter({
-					text: lang.autoreact_embed_footer
-						.replace("${currentPage}", String(currentPage))
-						.replace("${totalPage}", String(totalPage))
-						.replace("${totalReact}", String(totalReact)),
-					iconURL: interaction.guild?.iconURL() || undefined
-				})
+				.setFooter(
+					await client.func.displayBotName.footerPaginationBuilder(
+						interaction.guildId!,
+						lang,
+						currentPage,
+						totalPage
+					)
+				)
 				.setTimestamp();
 
 			return embed;
@@ -184,7 +185,7 @@ export const command: Command = {
 		};
 
 		const message = await client.func.method.interactionSend(interaction, {
-			embeds: [createRankRolesEmbed(currentPage)],
+			embeds: [await createRankRolesEmbed(currentPage)],
 			components: [createActionRow()]
 		});
 
@@ -205,7 +206,7 @@ export const command: Command = {
 			if (interaction2.customId === "prev_page") {
 				currentPage = Math.max(0, currentPage - 1);
 				await interaction2.update({
-					embeds: [createRankRolesEmbed(currentPage)],
+					embeds: [await createRankRolesEmbed(currentPage)],
 					components: [createActionRow()]
 				});
 				return;
@@ -218,7 +219,7 @@ export const command: Command = {
 					currentPage + 1
 				);
 				await interaction2.update({
-					embeds: [createRankRolesEmbed(currentPage)],
+					embeds: [await createRankRolesEmbed(currentPage)],
 					components: [createActionRow()]
 				});
 				return;
@@ -227,7 +228,7 @@ export const command: Command = {
 			if (interaction2.customId === "return_to_main") {
 				await interaction2.update({
 					content: null,
-					embeds: [createRankRolesEmbed(currentPage)],
+					embeds: [await createRankRolesEmbed(currentPage)],
 					components: [createActionRow()]
 				});
 				return;
@@ -265,7 +266,7 @@ export const command: Command = {
 				} catch {
 					await message.edit({
 						content: null,
-						embeds: [createRankRolesEmbed(currentPage)],
+						embeds: [await createRankRolesEmbed(currentPage)],
 						components: [createActionRow()]
 					});
 					return;
@@ -308,7 +309,7 @@ export const command: Command = {
 
 						await message.edit({
 							content: null,
-							embeds: [createRankRolesEmbed(currentPage)],
+							embeds: [await createRankRolesEmbed(currentPage)],
 							components: [createActionRow()]
 						});
 						return;
@@ -333,7 +334,7 @@ export const command: Command = {
 
 					await message.edit({
 						content: null,
-						embeds: [createRankRolesEmbed(currentPage)],
+						embeds: [await createRankRolesEmbed(currentPage)],
 						components: [createActionRow()]
 					});
 
@@ -357,7 +358,7 @@ export const command: Command = {
 
 					await message.edit({
 						content: null,
-						embeds: [createRankRolesEmbed(currentPage)],
+						embeds: [await createRankRolesEmbed(currentPage)],
 						components: [createActionRow()]
 					});
 					return;
@@ -398,7 +399,7 @@ export const command: Command = {
 				} catch {
 					await message.edit({
 						content: null,
-						embeds: [createRankRolesEmbed(currentPage)],
+						embeds: [await createRankRolesEmbed(currentPage)],
 						components: [createActionRow()]
 					});
 					return;
@@ -414,7 +415,7 @@ export const command: Command = {
 
 				await message.edit({
 					content: null,
-					embeds: [createRankRolesEmbed(currentPage)],
+					embeds: [await createRankRolesEmbed(currentPage)],
 					components: [createActionRow()]
 				});
 

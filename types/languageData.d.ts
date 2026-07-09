@@ -2089,13 +2089,13 @@ export interface LanguageData {
 	event_gw_finnish_msg: string;
 	event_gw_finnish_cannot_msg: string;
 	event_gw_finnish_button_title: string;
+	event_gw_entries_button_title: string;
 	event_gw_removeentries_msg: string;
 	event_gw_leave_button_placeholder: string;
 	event_gw_confirm_leave_msg: string;
 	event_gw_embed_desc: string;
 	event_gw_ended_embed_desc: string;
 	event_gw_entries_words: string;
-	event_gw_entries_button_title: string;
 	event_gw_ended_word: string;
 	event_gw_break_req: string;
 	event_boostlog_add: string;

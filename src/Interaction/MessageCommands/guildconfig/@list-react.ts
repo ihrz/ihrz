@@ -75,14 +75,18 @@ export const command: Command = {
 			return;
 		}
 
-		const createEmbed = () => {
+		const createEmbed = async () => {
 			return new EmbedBuilder()
 				.setColor("#010101")
 				.setDescription(pages[currentPage])
-				.setFooter({
-					text: `iHorizon | Page ${currentPage + 1}/${pages.length}`,
-					iconURL: "attachment://footer_icon.png"
-				})
+				.setFooter(
+					await client.func.displayBotName.footerPaginationBuilder(
+						interaction.guildId!,
+						lang,
+						currentPage + 1,
+						pages.length
+					)
+				)
 				.setTimestamp();
 		};
 
@@ -98,7 +102,7 @@ export const command: Command = {
 		);
 
 		const messageEmbed = await interaction.reply({
-			embeds: [createEmbed()],
+			embeds: [await createEmbed()],
 			components: [row as ActionRowBuilder<ButtonBuilder>],
 			files: [
 				await client.func.displayBotName.footerAttachmentBuilder(
@@ -115,14 +119,14 @@ export const command: Command = {
 			time: 60_000 * 16 // 16 minutes
 		});
 
-		collector.on("collect", (interaction: { customId: string }) => {
+		collector.on("collect", async (interaction: { customId: string }) => {
 			if (interaction.customId === "previousPage") {
 				currentPage = (currentPage - 1 + pages.length) % pages.length;
 			} else if (interaction.customId === "nextPage") {
 				currentPage = (currentPage + 1) % pages.length;
 			}
 
-			messageEmbed.edit({ embeds: [createEmbed()] });
+			messageEmbed.edit({ embeds: [await createEmbed()] });
 		});
 
 		collector.on("end", () => {

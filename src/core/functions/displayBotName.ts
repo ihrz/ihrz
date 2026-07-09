@@ -30,6 +30,7 @@ import {
 	UserContextMenuCommandInteraction
 } from "discord.js";
 import { DatabaseStructure } from "../../../types/database_structure.js";
+import { LanguageData } from "../../../types/languageData.js";
 
 export async function footerBuilder(guildId: string = ""): Promise<{
 	text: string;
@@ -45,6 +46,23 @@ export async function footerBuilder(guildId: string = ""): Promise<{
 
 	return {
 		text: botName,
+		iconURL: "attachment://footer_icon.png"
+	};
+}
+
+export async function footerPaginationBuilder(
+	guildId: string,
+	lang: LanguageData,
+	page: number,
+	maxPage: number
+): Promise<{
+	text: string;
+	iconURL: string;
+}> {
+	const footer = await footerBuilder(guildId);
+
+	return {
+		text: `${footer.text} - ${lang.var_page} ${page}/${maxPage}`,
 		iconURL: "attachment://footer_icon.png"
 	};
 }
