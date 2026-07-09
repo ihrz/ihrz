@@ -35,7 +35,7 @@ import {
 	SavedMembersAuthRestore,
 	securityCodeUpdate
 } from "../../../core/functions/authRestoreHelper.js";
-import { discordLocales } from "../../../files/locales.js";
+import { discordLocales } from "../../../core/locales.js";
 import { format } from "../../../core/functions/date_and_time.js";
 
 import { SubCommand } from "../../../../types/command.js";

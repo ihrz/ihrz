@@ -44,7 +44,7 @@ import { Command } from "../../../../types/command.js";
 import { LanguageData } from "../../../../types/languageData.js";
 import { DatabaseStructure } from "../../../../types/database_structure.js";
 import { iHorizonModalResolve } from "../../../core/functions/modalHelper.js";
-import { utcTimezones } from "../../../files/locales.js";
+import { utcTimezones } from "../../../core/locales.js";
 
 export const command: Command = {
 	name: "nightmode",
