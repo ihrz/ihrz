@@ -64,7 +64,7 @@ export const command: Command = {
 				await message.guild.stickers
 					.create({
 						file: sticker.url,
-						name: cool_name,
+						name: cool_name.substring(0, 30),
 						description: sticker.description || lang.var_no_set,
 						tags: sticker?.tags || "copied",
 						reason:
