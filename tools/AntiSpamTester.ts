@@ -86,7 +86,7 @@ for (const token of allTokens) {
 		]
 	});
 
-	client.on("ready", async () => {
+	client.on("clientReady", async () => {
 		client.user?.setActivity({
 			type: ActivityType.Listening,
 			name: "orders"

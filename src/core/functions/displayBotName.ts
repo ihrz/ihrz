@@ -62,7 +62,7 @@ export async function footerPaginationBuilder(
 	const footer = await footerBuilder(guildId);
 
 	return {
-		text: `${footer.text} - ${lang.var_page} ${page}/${maxPage}`,
+		text: `${footer.text} • ${lang.var_page} ${page}/${maxPage}`,
 		iconURL: "attachment://footer_icon.png"
 	};
 }

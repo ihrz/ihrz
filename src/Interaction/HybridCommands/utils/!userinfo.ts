@@ -440,12 +440,12 @@ export const subCommand: SubCommand = {
 				}
 
 				if (!input) {
-					if (member.avatar?.includes("a_")) {
+					if (member.avatar?.startsWith("a_")) {
 						input = 1;
 					} else if (banner) {
 						input = 2;
 					} else {
-						input = 3;
+						input = 0;
 					}
 				}
 
