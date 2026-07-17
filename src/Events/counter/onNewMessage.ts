@@ -43,7 +43,13 @@ export const event: BotEvent = {
 		if (typeof lastNumber === "number")
 			lastNumber = { amount: lastNumber, userId: client.user?.id! };
 
-		if (!baseData || baseData.channelId !== message.channelId) return;
+		if (
+			!baseData ||
+			baseData.channelId !== message.channelId ||
+			baseData.config === "off"
+		) {
+			return;
+		}
 
 		const lang = await client.func.getLanguageData(message.guildId);
 
