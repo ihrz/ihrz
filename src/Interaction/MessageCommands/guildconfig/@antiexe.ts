@@ -19,7 +19,12 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { Client, Message, PermissionsBitField } from "discord.js";
+import {
+	Client,
+	Message,
+	PermissionFlagsBits,
+	PermissionsBitField
+} from "discord.js";
 
 import {
 	isDiscordEmoji,
@@ -39,7 +44,7 @@ export const command: Command = {
 	thinking: false,
 	category: "guildconfig",
 	type: "PREFIX_IHORIZON_COMMAND",
-	permission: null,
+	permission: PermissionFlagsBits.Administrator,
 	run: async (
 		client: Client,
 		interaction: Message<true>,
