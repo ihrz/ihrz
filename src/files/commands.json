@@ -18,7 +18,8 @@
                     "rroles"
                 ],
                 "type": 1,
-                "thinking": true
+                "thinking": true,
+                "commandFullName": "ranks roles"
             },
             {
                 "name": "config",
@@ -59,9 +60,11 @@
                                 },
                                 "value": "disable"
                             }
-                        ]
+                        ],
+                        "commandFullName": "ranks config action"
                     }
-                ]
+                ],
+                "commandFullName": "ranks config"
             },
             {
                 "name": "show",
@@ -87,10 +90,12 @@
                         "description_localizations": {
                             "fr": "L'utilisateur que vous souhaitez rechercher."
                         },
-                        "required": false
+                        "required": false,
+                        "commandFullName": "ranks show user"
                     }
                 ],
-                "thinking": true
+                "thinking": true,
+                "commandFullName": "ranks show"
             },
             {
                 "name": "ureset",
@@ -108,9 +113,11 @@
                         "description_localizations": {
                             "fr": "L'utilisateur que vous voulez supprimer du module de rangs."
                         },
-                        "required": true
+                        "required": true,
+                        "commandFullName": "ranks ureset user"
                     }
-                ]
+                ],
+                "commandFullName": "ranks ureset"
             },
             {
                 "name": "greset",
@@ -119,7 +126,8 @@
                 "description_localizations": {
                     "fr": "Supprimer les données de rang de tout les utilisateur"
                 },
-                "type": 1
+                "type": 1,
+                "commandFullName": "ranks greset"
             },
             {
                 "name": "channel",
@@ -159,7 +167,8 @@
                                 },
                                 "value": "on"
                             }
-                        ]
+                        ],
+                        "commandFullName": "ranks channel action"
                     },
                     {
                         "name": "channel",
@@ -171,9 +180,11 @@
                         "channel_types": [
                             0
                         ],
-                        "required": false
+                        "required": false,
+                        "commandFullName": "ranks channel channel"
                     }
-                ]
+                ],
+                "commandFullName": "ranks channel"
             },
             {
                 "name": "leaderboard",
@@ -188,7 +199,8 @@
                 "aliases": [
                     "rankslb"
                 ],
-                "type": 1
+                "type": 1,
+                "commandFullName": "ranks leaderboard"
             },
             {
                 "name": "ignore-channels",
@@ -200,7 +212,8 @@
                 "aliases": [
                     "ignore"
                 ],
-                "type": 1
+                "type": 1,
+                "commandFullName": "ranks ignore-channels"
             },
             {
                 "name": "message",
@@ -212,7 +225,8 @@
                 "aliases": [
                     "msg"
                 ],
-                "type": 1
+                "type": 1,
+                "commandFullName": "ranks message"
             }
         ],
         "thinking": false
@@ -245,9 +259,11 @@
                         "description_localizations": {
                             "fr": "L'utilisateur"
                         },
-                        "required": false
+                        "required": false,
+                        "commandFullName": "utils avatar user"
                     }
-                ]
+                ],
+                "commandFullName": "utils avatar"
             },
             {
                 "name": "vc",
@@ -279,10 +295,12 @@
                             }
                         ],
                         "type": 3,
-                        "required": false
+                        "required": false,
+                        "commandFullName": "utils vc show-mode"
                     }
                 ],
-                "type": 1
+                "type": 1,
+                "commandFullName": "utils vc"
             },
             {
                 "name": "vanity-generator",
@@ -303,10 +321,12 @@
                             "fr": "Le code du Vanity"
                         },
                         "type": 3,
-                        "required": true
+                        "required": true,
+                        "commandFullName": "utils vanity-generator code"
                     }
                 ],
-                "type": 1
+                "type": 1,
+                "commandFullName": "utils vanity-generator"
             },
             {
                 "name": "userinfo",
@@ -325,10 +345,12 @@
                         "description_localizations": {
                             "fr": "utilisateur que vous souhaitez rechercher"
                         },
-                        "required": false
+                        "required": false,
+                        "commandFullName": "utils userinfo user"
                     }
                 ],
-                "type": 1
+                "type": 1,
+                "commandFullName": "utils userinfo"
             },
             {
                 "name": "snipe",
@@ -340,7 +362,8 @@
                     "s",
                     "snp"
                 ],
-                "type": 1
+                "type": 1,
+                "commandFullName": "utils snipe"
             },
             {
                 "name": "leash",
@@ -356,10 +379,12 @@
                         "description_localizations": {
                             "fr": "utilisateur que vous souhaitez mettre en laisse"
                         },
-                        "required": true
+                        "required": true,
+                        "commandFullName": "utils leash member"
                     }
                 ],
-                "type": 1
+                "type": 1,
+                "commandFullName": "utils leash"
             },
             {
                 "name": "unleash",
@@ -375,10 +400,12 @@
                         "description_localizations": {
                             "fr": "utilisateur que vous souhaitez supprimer sa laisse"
                         },
-                        "required": true
+                        "required": true,
+                        "commandFullName": "utils unleash member"
                     }
                 ],
-                "type": 1
+                "type": 1,
+                "commandFullName": "utils unleash"
             },
             {
                 "name": "dm",
@@ -413,7 +440,8 @@
                             }
                         ],
                         "type": 3,
-                        "required": true
+                        "required": true,
+                        "commandFullName": "utils dm private"
                     },
                     {
                         "name": "member",
@@ -422,7 +450,8 @@
                             "fr": "l'autheur que vous voulez"
                         },
                         "type": 6,
-                        "required": true
+                        "required": true,
+                        "commandFullName": "utils dm member"
                     },
                     {
                         "name": "message",
@@ -431,10 +460,12 @@
                             "fr": "le message"
                         },
                         "type": 3,
-                        "required": true
+                        "required": true,
+                        "commandFullName": "utils dm message"
                     }
                 ],
-                "type": 1
+                "type": 1,
+                "commandFullName": "utils dm"
             },
             {
                 "name": "wlroles",
@@ -445,7 +476,8 @@
                 "aliases": [
                     "wlrole"
                 ],
-                "type": 1
+                "type": 1,
+                "commandFullName": "utils wlroles"
             },
             {
                 "name": "media-only",
@@ -457,7 +489,8 @@
                     "piconly",
                     "mediaonly"
                 ],
-                "type": 1
+                "type": 1,
+                "commandFullName": "utils media-only"
             },
             {
                 "name": "setmentionrole",
@@ -494,7 +527,8 @@
                                 },
                                 "value": "on"
                             }
-                        ]
+                        ],
+                        "commandFullName": "utils setmentionrole action"
                     },
                     {
                         "name": "roles",
@@ -503,7 +537,8 @@
                         "description_localizations": {
                             "fr": "Les rôles spécifiques à donner"
                         },
-                        "required": false
+                        "required": false,
+                        "commandFullName": "utils setmentionrole roles"
                     },
                     {
                         "name": "part-of-nickname",
@@ -512,10 +547,12 @@
                         "description_localizations": {
                             "fr": "The part of the nickname you want the person to have in their nickname"
                         },
-                        "required": false
+                        "required": false,
+                        "commandFullName": "utils setmentionrole part-of-nickname"
                     }
                 ],
-                "type": 1
+                "type": 1,
+                "commandFullName": "utils setmentionrole"
             },
             {
                 "name": "renew",
@@ -527,7 +564,8 @@
                     "r",
                     "rnw"
                 ],
-                "type": 1
+                "type": 1,
+                "commandFullName": "utils renew"
             },
             {
                 "name": "prevnames",
@@ -548,10 +586,12 @@
                         "description_localizations": {
                             "fr": "user you want to see this previous username"
                         },
-                        "required": false
+                        "required": false,
+                        "commandFullName": "utils prevnames user"
                     }
                 ],
-                "type": 1
+                "type": 1,
+                "commandFullName": "utils prevnames"
             },
             {
                 "name": "nickrole",
@@ -583,7 +623,8 @@
                                 },
                                 "value": "sub"
                             }
-                        ]
+                        ],
+                        "commandFullName": "utils nickrole action"
                     },
                     {
                         "name": "nickname",
@@ -592,7 +633,8 @@
                         "description_localizations": {
                             "fr": "La partie incluant dans le pseudo"
                         },
-                        "required": true
+                        "required": true,
+                        "commandFullName": "utils nickrole nickname"
                     },
                     {
                         "name": "role",
@@ -601,10 +643,12 @@
                         "description_localizations": {
                             "fr": "Le rôle que vous souhaitez donner"
                         },
-                        "required": true
+                        "required": true,
+                        "commandFullName": "utils nickrole role"
                     }
                 ],
-                "type": 1
+                "type": 1,
+                "commandFullName": "utils nickrole"
             },
             {
                 "name": "massmove",
@@ -623,7 +667,8 @@
                         "description_localizations": {
                             "fr": "Le canal vocal où déplacer les membres"
                         },
-                        "required": true
+                        "required": true,
+                        "commandFullName": "utils massmove channel"
                     },
                     {
                         "name": "from",
@@ -635,11 +680,13 @@
                         "description_localizations": {
                             "fr": "Le canal vocal d'où déplacer les membres"
                         },
-                        "required": false
+                        "required": false,
+                        "commandFullName": "utils massmove from"
                     }
                 ],
                 "thinking": true,
-                "type": 1
+                "type": 1,
+                "commandFullName": "utils massmove"
             },
             {
                 "name": "massiverole",
@@ -675,7 +722,8 @@
                                 },
                                 "value": "sub"
                             }
-                        ]
+                        ],
+                        "commandFullName": "utils massiverole action"
                     },
                     {
                         "name": "role",
@@ -684,11 +732,13 @@
                         "description_localizations": {
                             "fr": "Le rôle spécifié que vous souhaitez ajouter"
                         },
-                        "required": true
+                        "required": true,
+                        "commandFullName": "utils massiverole role"
                     }
                 ],
                 "thinking": true,
-                "type": 1
+                "type": 1,
+                "commandFullName": "utils massiverole"
             },
             {
                 "name": "serverinfo",
@@ -700,7 +750,8 @@
                     "si",
                     "gi"
                 ],
-                "type": 1
+                "type": 1,
+                "commandFullName": "utils serverinfo"
             },
             {
                 "name": "emojis",
@@ -723,10 +774,12 @@
                         "description_localizations": {
                             "fr": "C'est quoi cette emoji alors ?"
                         },
-                        "required": true
+                        "required": true,
+                        "commandFullName": "utils emojis emojis"
                     }
                 ],
-                "type": 1
+                "type": 1,
+                "commandFullName": "utils emojis"
             },
             {
                 "name": "embed",
@@ -742,10 +795,12 @@
                         "description_localizations": {
                             "fr": "Si vous disposez d'un identifiant d'un embed précèdement enregistrer"
                         },
-                        "required": false
+                        "required": false,
+                        "commandFullName": "utils embed id"
                     }
                 ],
-                "type": 1
+                "type": 1,
+                "commandFullName": "utils embed"
             },
             {
                 "name": "derank",
@@ -761,10 +816,12 @@
                         "description_localizations": {
                             "fr": "l'utilisateur"
                         },
-                        "required": true
+                        "required": true,
+                        "commandFullName": "utils derank member"
                     }
                 ],
-                "type": 1
+                "type": 1,
+                "commandFullName": "utils derank"
             },
             {
                 "name": "admin-users",
@@ -778,7 +835,8 @@
                     "alladmins",
                     "adminusers"
                 ],
-                "type": 1
+                "type": 1,
+                "commandFullName": "utils admin-users"
             },
             {
                 "name": "allbots",
@@ -790,7 +848,8 @@
                     "allb",
                     "bots"
                 ],
-                "type": 1
+                "type": 1,
+                "commandFullName": "utils allbots"
             },
             {
                 "name": "addrole",
@@ -807,7 +866,8 @@
                             "fr": "L'utilisateur que vous voulez ajouter le rôle"
                         },
                         "type": 6,
-                        "required": true
+                        "required": true,
+                        "commandFullName": "utils addrole user"
                     },
                     {
                         "name": "role",
@@ -816,10 +876,12 @@
                             "fr": "Le role que vous voulez ajouter a l'utilisateur"
                         },
                         "type": 8,
-                        "required": true
+                        "required": true,
+                        "commandFullName": "utils addrole role"
                     }
                 ],
-                "type": 1
+                "type": 1,
+                "commandFullName": "utils addrole"
             },
             {
                 "name": "delrole",
@@ -835,7 +897,8 @@
                             "fr": "L'utilisateur que vous voulez enlever le rôle"
                         },
                         "type": 6,
-                        "required": true
+                        "required": true,
+                        "commandFullName": "utils delrole user"
                     },
                     {
                         "name": "role",
@@ -844,10 +907,12 @@
                             "fr": "Le role que vous voulez enlever a l'utilisateur"
                         },
                         "type": 8,
-                        "required": true
+                        "required": true,
+                        "commandFullName": "utils delrole role"
                     }
                 ],
-                "type": 1
+                "type": 1,
+                "commandFullName": "utils delrole"
             },
             {
                 "name": "zip-emojis",
@@ -860,7 +925,8 @@
                     "zip1"
                 ],
                 "type": 1,
-                "thinking": true
+                "thinking": true,
+                "commandFullName": "utils zip-emojis"
             }
         ],
         "thinking": false
@@ -893,9 +959,11 @@
                         "description_localizations": {
                             "fr": "Qu'est-ce que l'utilisateur alors ?"
                         },
-                        "required": false
+                        "required": false,
+                        "commandFullName": "banner user user"
                     }
-                ]
+                ],
+                "commandFullName": "banner user"
             },
             {
                 "name": "server",
@@ -907,7 +975,8 @@
                 "type": 1,
                 "aliases": [
                     "serverbanner"
-                ]
+                ],
+                "commandFullName": "banner server"
             }
         ],
         "thinking": false
@@ -930,7 +999,8 @@
                     "webhooks",
                     "webhook"
                 ],
-                "type": 1
+                "type": 1,
+                "commandFullName": "util allwebhooks"
             },
             {
                 "name": "nick-kicker",
@@ -942,7 +1012,8 @@
                     "nickkick",
                     "nk"
                 ],
-                "type": 1
+                "type": 1,
+                "commandFullName": "util nick-kicker"
             },
             {
                 "name": "zip-stickers",
@@ -955,7 +1026,8 @@
                     "zip2"
                 ],
                 "type": 1,
-                "thinking": true
+                "thinking": true,
+                "commandFullName": "util zip-stickers"
             },
             {
                 "name": "vkick",
@@ -971,11 +1043,13 @@
                             "fr": "Le membre que vous voulez déconnecter"
                         },
                         "type": 6,
-                        "required": true
+                        "required": true,
+                        "commandFullName": "util vkick member"
                     }
                 ],
                 "thinking": false,
-                "type": 1
+                "type": 1,
+                "commandFullName": "util vkick"
             },
             {
                 "name": "wakeup",
@@ -995,9 +1069,11 @@
                             "fr": "Le membre à réveiller"
                         },
                         "type": 6,
-                        "required": true
+                        "required": true,
+                        "commandFullName": "util wakeup member"
                     }
-                ]
+                ],
+                "commandFullName": "util wakeup"
             },
             {
                 "name": "derogation",
@@ -1009,7 +1085,8 @@
                     "dero",
                     "alldero"
                 ],
-                "type": 1
+                "type": 1,
+                "commandFullName": "util derogation"
             },
             {
                 "name": "autorenew",
@@ -1028,7 +1105,8 @@
                         "channel_types": [
                             0
                         ],
-                        "required": true
+                        "required": true,
+                        "commandFullName": "util autorenew channel"
                     },
                     {
                         "name": "time",
@@ -1037,10 +1115,12 @@
                             "fr": "Le temps x"
                         },
                         "type": 3,
-                        "required": true
+                        "required": true,
+                        "commandFullName": "util autorenew time"
                     }
                 ],
-                "type": 1
+                "type": 1,
+                "commandFullName": "util autorenew"
             },
             {
                 "name": "admin-roles",
@@ -1054,7 +1134,8 @@
                     "adminrole",
                     "allpa"
                 ],
-                "type": 1
+                "type": 1,
+                "commandFullName": "util admin-roles"
             },
             {
                 "name": "cooldown",
@@ -1179,10 +1260,12 @@
                             }
                         ],
                         "required": true,
-                        "type": 3
+                        "type": 3,
+                        "commandFullName": "util cooldown duration"
                     }
                 ],
-                "type": 1
+                "type": 1,
+                "commandFullName": "util cooldown"
             },
             {
                 "name": "rolelimit",
@@ -1204,7 +1287,8 @@
                             "fr": "Le rôle que tu shouaite gérer."
                         },
                         "type": 8,
-                        "required": true
+                        "required": true,
+                        "commandFullName": "util rolelimit role"
                     },
                     {
                         "name": "members-limit",
@@ -1212,9 +1296,11 @@
                         "description_localizations": {
                             "fr": "Le nombre maximum de membre qui auront le rôle en même temps."
                         },
-                        "type": 10
+                        "type": 10,
+                        "commandFullName": "util rolelimit members-limit"
                     }
-                ]
+                ],
+                "commandFullName": "util rolelimit"
             },
             {
                 "name": "where",
@@ -1235,9 +1321,11 @@
                             "fr": "le membre que vous souhaitez vérifier"
                         },
                         "type": 6,
-                        "required": true
+                        "required": true,
+                        "commandFullName": "util where member"
                     }
-                ]
+                ],
+                "commandFullName": "util where"
             },
             {
                 "name": "serverpic",
@@ -1246,7 +1334,8 @@
                     "fr": "Envoie le logo du serveur"
                 },
                 "thinking": false,
-                "type": 1
+                "type": 1,
+                "commandFullName": "util serverpic"
             },
             {
                 "name": "unzip-emojis",
@@ -1266,11 +1355,13 @@
                             "fr": "Le fichier zip pour recréer les emojis"
                         },
                         "type": 11,
-                        "required": true
+                        "required": true,
+                        "commandFullName": "util unzip-emojis zip_file"
                     }
                 ],
                 "type": 1,
-                "thinking": true
+                "thinking": true,
+                "commandFullName": "util unzip-emojis"
             },
             {
                 "name": "sync",
@@ -1289,10 +1380,12 @@
                         "channel_types": [
                             4
                         ],
-                        "required": true
+                        "required": true,
+                        "commandFullName": "util sync category"
                     }
                 ],
-                "type": 1
+                "type": 1,
+                "commandFullName": "util sync"
             },
             {
                 "name": "addrolereact",
@@ -1308,7 +1401,8 @@
                             "fr": "L'ID du message dont on veut vérifier les réactions"
                         },
                         "type": 3,
-                        "required": true
+                        "required": true,
+                        "commandFullName": "util addrolereact message_id"
                     },
                     {
                         "name": "role",
@@ -1317,10 +1411,12 @@
                             "fr": "Le rôle à ajouter aux utilisateurs"
                         },
                         "type": 8,
-                        "required": true
+                        "required": true,
+                        "commandFullName": "util addrolereact role"
                     }
                 ],
-                "type": 1
+                "type": 1,
+                "commandFullName": "util addrolereact"
             },
             {
                 "name": "inviteinfo",
@@ -1337,11 +1433,13 @@
                             "fr": "le lien d'invitation discord ou le code"
                         },
                         "type": 3,
-                        "required": true
+                        "required": true,
+                        "commandFullName": "util inviteinfo discord_invite"
                     }
                 ],
                 "type": 1,
-                "thinking": true
+                "thinking": true,
+                "commandFullName": "util inviteinfo"
             },
             {
                 "name": "role-members",
@@ -1361,10 +1459,12 @@
                             "fr": "Le rôle que vous voulez vérifier"
                         },
                         "type": 8,
-                        "required": true
+                        "required": true,
+                        "commandFullName": "util role-members role"
                     }
                 ],
-                "type": 1
+                "type": 1,
+                "commandFullName": "util role-members"
             },
             {
                 "name": "bringall",
@@ -1386,7 +1486,8 @@
                         "channel_types": [
                             2,
                             13
-                        ]
+                        ],
+                        "commandFullName": "util bringall from"
                     },
                     {
                         "name": "category",
@@ -1398,9 +1499,11 @@
                         "required": true,
                         "channel_types": [
                             4
-                        ]
+                        ],
+                        "commandFullName": "util bringall category"
                     }
-                ]
+                ],
+                "commandFullName": "util bringall"
             },
             {
                 "name": "talk",
@@ -1412,7 +1515,8 @@
                 "aliases": [
                     "mutetalk"
                 ],
-                "type": 1
+                "type": 1,
+                "commandFullName": "util talk"
             },
             {
                 "name": "untalk",
@@ -1424,7 +1528,8 @@
                 "aliases": [
                     "unmutetalk"
                 ],
-                "type": 1
+                "type": 1,
+                "commandFullName": "util untalk"
             },
             {
                 "name": "freeze",
@@ -1437,7 +1542,8 @@
                     "voicefreeze",
                     "vcfreeze"
                 ],
-                "type": 1
+                "type": 1,
+                "commandFullName": "util freeze"
             },
             {
                 "name": "wlvc",
@@ -1454,13 +1560,15 @@
                             "fr": "Le membre que vous voulez autoriser"
                         },
                         "type": 6,
-                        "required": true
+                        "required": true,
+                        "commandFullName": "util wlvc member"
                     }
                 ],
                 "aliases": [
                     "allowvc"
                 ],
-                "type": 1
+                "type": 1,
+                "commandFullName": "util wlvc"
             },
             {
                 "name": "unwlvc",
@@ -1477,13 +1585,15 @@
                             "fr": "Le membre que vous voulez retirer"
                         },
                         "type": 6,
-                        "required": true
+                        "required": true,
+                        "commandFullName": "util unwlvc member"
                     }
                 ],
                 "aliases": [
                     "removevcwl"
                 ],
-                "type": 1
+                "type": 1,
+                "commandFullName": "util unwlvc"
             },
             {
                 "name": "unfreeze",
@@ -1495,7 +1605,8 @@
                 "aliases": [
                     "defreeze"
                 ],
-                "type": 1
+                "type": 1,
+                "commandFullName": "util unfreeze"
             },
             {
                 "name": "move",
@@ -1515,7 +1626,8 @@
                             "fr": "Le membre que vous voulez déplacer"
                         },
                         "type": 6,
-                        "required": true
+                        "required": true,
+                        "commandFullName": "util move member"
                     },
                     {
                         "name": "channel",
@@ -1524,10 +1636,12 @@
                             "fr": "Le salon vocal que tu veux."
                         },
                         "type": 7,
-                        "required": true
+                        "required": true,
+                        "commandFullName": "util move channel"
                     }
                 ],
-                "type": 1
+                "type": 1,
+                "commandFullName": "util move"
             }
         ],
         "thinking": false
@@ -1550,7 +1664,8 @@
                 "description_localizations": {
                     "fr": "Débannir toute les personnes bannis du serveur"
                 },
-                "type": 1
+                "type": 1,
+                "commandFullName": "unban-all all"
             },
             {
                 "name": "undo",
@@ -1561,7 +1676,8 @@
                 "description_localizations": {
                     "fr": "Annuler le dé-bannissement de tout les membres"
                 },
-                "type": 1
+                "type": 1,
+                "commandFullName": "unban-all undo"
             }
         ],
         "aliases": [
@@ -1594,13 +1710,15 @@
                             "fr": "Le rôle que tu veux masquer dans le salon"
                         },
                         "type": 8,
-                        "required": false
+                        "required": false,
+                        "commandFullName": "channel hide role"
                     }
                 ],
                 "aliases": [
                     "masquer"
                 ],
-                "type": 1
+                "type": 1,
+                "commandFullName": "channel hide"
             },
             {
                 "name": "unhide",
@@ -1616,13 +1734,15 @@
                             "fr": "Le rôle que tu veux démasquer dans le salon"
                         },
                         "type": 8,
-                        "required": false
+                        "required": false,
+                        "commandFullName": "channel unhide role"
                     }
                 ],
                 "aliases": [
                     "démasquer"
                 ],
-                "type": 1
+                "type": 1,
+                "commandFullName": "channel unhide"
             },
             {
                 "name": "unhideall",
@@ -1638,13 +1758,15 @@
                             "fr": "Le rôle que tu veux démasquer dans tout les salons du serveur"
                         },
                         "type": 8,
-                        "required": false
+                        "required": false,
+                        "commandFullName": "channel unhideall role"
                     }
                 ],
                 "aliases": [
                     "démasquer-tout"
                 ],
-                "type": 1
+                "type": 1,
+                "commandFullName": "channel unhideall"
             },
             {
                 "name": "hideall",
@@ -1660,13 +1782,15 @@
                             "fr": "Le rôle que tu veux masquer dans tout les salons du serveur"
                         },
                         "type": 8,
-                        "required": false
+                        "required": false,
+                        "commandFullName": "channel hideall role"
                     }
                 ],
                 "aliases": [
                     "masquer-tout"
                 ],
-                "type": 1
+                "type": 1,
+                "commandFullName": "channel hideall"
             }
         ],
         "thinking": true
@@ -1698,7 +1822,8 @@
                         "channel_types": [
                             0
                         ],
-                        "required": true
+                        "required": true,
+                        "commandFullName": "sticky text channel"
                     },
                     {
                         "name": "message",
@@ -1707,9 +1832,11 @@
                             "fr": "Le contenu du message sticky"
                         },
                         "type": 3,
-                        "required": true
+                        "required": true,
+                        "commandFullName": "sticky text message"
                     }
-                ]
+                ],
+                "commandFullName": "sticky text"
             },
             {
                 "name": "embed",
@@ -1730,7 +1857,8 @@
                         "channel_types": [
                             0
                         ],
-                        "required": true
+                        "required": true,
+                        "commandFullName": "sticky embed channel"
                     },
                     {
                         "name": "embed_id",
@@ -1739,7 +1867,8 @@
                             "fr": "L'identifiant de l'embed"
                         },
                         "type": 3,
-                        "required": true
+                        "required": true,
+                        "commandFullName": "sticky embed embed_id"
                     },
                     {
                         "name": "message_content",
@@ -1748,9 +1877,11 @@
                             "fr": "Le texte optionnel envoyé avec l'embed"
                         },
                         "type": 3,
-                        "required": false
+                        "required": false,
+                        "commandFullName": "sticky embed message_content"
                     }
-                ]
+                ],
+                "commandFullName": "sticky embed"
             },
             {
                 "name": "disable",
@@ -1771,9 +1902,11 @@
                         "channel_types": [
                             0
                         ],
-                        "required": true
+                        "required": true,
+                        "commandFullName": "sticky disable channel"
                     }
-                ]
+                ],
+                "commandFullName": "sticky disable"
             },
             {
                 "name": "show",
@@ -1794,9 +1927,11 @@
                         "channel_types": [
                             0
                         ],
-                        "required": true
+                        "required": true,
+                        "commandFullName": "sticky show channel"
                     }
-                ]
+                ],
+                "commandFullName": "sticky show"
             },
             {
                 "name": "list",
@@ -1805,7 +1940,8 @@
                 "description_localizations": {
                     "fr": "Lister tous les salons sticky"
                 },
-                "type": 1
+                "type": 1,
+                "commandFullName": "sticky list"
             },
             {
                 "name": "refresh",
@@ -1826,9 +1962,11 @@
                         "channel_types": [
                             0
                         ],
-                        "required": true
+                        "required": true,
+                        "commandFullName": "sticky refresh channel"
                     }
-                ]
+                ],
+                "commandFullName": "sticky refresh"
             }
         ],
         "thinking": false
@@ -1866,9 +2004,11 @@
                         "description_localizations": {
                             "fr": "Quelle est le channel ?"
                         },
-                        "required": true
+                        "required": true,
+                        "commandFullName": "security channel id"
                     }
-                ]
+                ],
+                "commandFullName": "security channel"
             },
             {
                 "name": "config",
@@ -1905,9 +2045,11 @@
                                 },
                                 "value": "off"
                             }
-                        ]
+                        ],
+                        "commandFullName": "security config action"
                     }
-                ]
+                ],
+                "commandFullName": "security config"
             },
             {
                 "name": "role-to-give",
@@ -1927,9 +2069,11 @@
                         "description_localizations": {
                             "fr": "Quel est le rôle ?"
                         },
-                        "required": true
+                        "required": true,
+                        "commandFullName": "security role-to-give role"
                     }
-                ]
+                ],
+                "commandFullName": "security role-to-give"
             },
             {
                 "name": "role-to-remove",
@@ -1949,9 +2093,11 @@
                         "description_localizations": {
                             "fr": "Quel est le rôle ?"
                         },
-                        "required": true
+                        "required": true,
+                        "commandFullName": "security role-to-remove role"
                     }
-                ]
+                ],
+                "commandFullName": "security role-to-remove"
             }
         ],
         "thinking": false
@@ -1983,9 +2129,11 @@
                         "channel_types": [
                             0
                         ],
-                        "required": true
+                        "required": true,
+                        "commandFullName": "pfps channel channel"
                     }
-                ]
+                ],
+                "commandFullName": "pfps channel"
             },
             {
                 "name": "config",
@@ -2019,9 +2167,11 @@
                                 },
                                 "value": "off"
                             }
-                        ]
+                        ],
+                        "commandFullName": "pfps config action"
                     }
-                ]
+                ],
+                "commandFullName": "pfps config"
             }
         ],
         "thinking": false
@@ -2049,7 +2199,8 @@
                         "description_localizations": {
                             "fr": "le membre que vous souhaitez bannir"
                         },
-                        "required": true
+                        "required": true,
+                        "commandFullName": "mod ban member"
                     },
                     {
                         "name": "reason",
@@ -2058,13 +2209,15 @@
                         "description_localizations": {
                             "fr": "la raison du ban"
                         },
-                        "required": false
+                        "required": false,
+                        "commandFullName": "mod ban reason"
                     }
                 ],
                 "aliases": [
                     "addban",
                     "createban"
-                ]
+                ],
+                "commandFullName": "mod ban"
             },
             {
                 "name": "baninfo",
@@ -2081,9 +2234,11 @@
                         "description_localizations": {
                             "fr": "le membre que vous souhaitez vérifier"
                         },
-                        "required": true
+                        "required": true,
+                        "commandFullName": "mod baninfo user"
                     }
-                ]
+                ],
+                "commandFullName": "mod baninfo"
             },
             {
                 "name": "banlist",
@@ -2097,7 +2252,8 @@
                     "listbans",
                     "banlists"
                 ],
-                "type": 1
+                "type": 1,
+                "commandFullName": "mod banlist"
             },
             {
                 "name": "clear",
@@ -2114,7 +2270,8 @@
                         "description_localizations": {
                             "fr": "Le nombre de messages que vous souhaitez supprimer"
                         },
-                        "required": true
+                        "required": true,
+                        "commandFullName": "mod clear number"
                     },
                     {
                         "name": "member",
@@ -2123,12 +2280,14 @@
                         "description_localizations": {
                             "fr": "Le membre dont vous souhaitez supprimer les messages"
                         },
-                        "required": false
+                        "required": false,
+                        "commandFullName": "mod clear member"
                     }
                 ],
                 "aliases": [
                     "cls"
-                ]
+                ],
+                "commandFullName": "mod clear"
             },
             {
                 "name": "mutelist",
@@ -2142,7 +2301,8 @@
                 "description_localizations": {
                     "fr": "Affiche une liste des gens mise en sourdine"
                 },
-                "type": 1
+                "type": 1,
+                "commandFullName": "mod mutelist"
             },
             {
                 "name": "kick",
@@ -2159,7 +2319,8 @@
                         "description_localizations": {
                             "fr": "le membre que vous voulez expulser"
                         },
-                        "required": true
+                        "required": true,
+                        "commandFullName": "mod kick member"
                     },
                     {
                         "name": "reason",
@@ -2168,9 +2329,11 @@
                         "description_localizations": {
                             "fr": "la raison du kick"
                         },
-                        "required": false
+                        "required": false,
+                        "commandFullName": "mod kick reason"
                     }
-                ]
+                ],
+                "commandFullName": "mod kick"
             },
             {
                 "name": "lock",
@@ -2186,10 +2349,12 @@
                             "fr": "le rôle"
                         },
                         "required": false,
-                        "type": 8
+                        "type": 8,
+                        "commandFullName": "mod lock role"
                     }
                 ],
-                "type": 1
+                "type": 1,
+                "commandFullName": "mod lock"
             },
             {
                 "name": "lock-all",
@@ -2205,13 +2370,15 @@
                             "fr": "le rôle"
                         },
                         "required": false,
-                        "type": 8
+                        "type": 8,
+                        "commandFullName": "mod lock-all role"
                     }
                 ],
                 "aliases": [
                     "lockall"
                 ],
-                "type": 1
+                "type": 1,
+                "commandFullName": "mod lock-all"
             },
             {
                 "name": "unlock-all",
@@ -2227,13 +2394,15 @@
                             "fr": "le rôle"
                         },
                         "required": false,
-                        "type": 8
+                        "type": 8,
+                        "commandFullName": "mod unlock-all role"
                     }
                 ],
                 "aliases": [
                     "unlockall"
                 ],
-                "type": 1
+                "type": 1,
+                "commandFullName": "mod unlock-all"
             },
             {
                 "name": "tempmute",
@@ -2253,7 +2422,8 @@
                         "description_localizations": {
                             "fr": "L'utilisateur que vous souhaitez dé-mute textuellement"
                         },
-                        "required": true
+                        "required": true,
+                        "commandFullName": "mod tempmute user"
                     },
                     {
                         "name": "time",
@@ -2262,7 +2432,8 @@
                         "description_localizations": {
                             "fr": "la durée du tempmute de l'utilisateur"
                         },
-                        "required": true
+                        "required": true,
+                        "commandFullName": "mod tempmute time"
                     },
                     {
                         "name": "reason",
@@ -2271,9 +2442,11 @@
                         "description_localizations": {
                             "fr": "la raison du tempmute"
                         },
-                        "required": false
+                        "required": false,
+                        "commandFullName": "mod tempmute reason"
                     }
-                ]
+                ],
+                "commandFullName": "mod tempmute"
             },
             {
                 "name": "unban",
@@ -2290,7 +2463,8 @@
                         "description_localizations": {
                             "fr": "L'identifiant de l'utilisateur que vous souhaitez débannir"
                         },
-                        "required": true
+                        "required": true,
+                        "commandFullName": "mod unban userid"
                     },
                     {
                         "name": "reason",
@@ -2299,7 +2473,8 @@
                         "description_localizations": {
                             "fr": "La raison du bannissement de cet utilisateur"
                         },
-                        "required": false
+                        "required": false,
+                        "commandFullName": "mod unban reason"
                     }
                 ],
                 "aliases": [
@@ -2307,7 +2482,8 @@
                     "removeban",
                     "deban",
                     "pardon"
-                ]
+                ],
+                "commandFullName": "mod unban"
             },
             {
                 "name": "unlock",
@@ -2323,10 +2499,12 @@
                             "fr": "le rôle"
                         },
                         "required": false,
-                        "type": 8
+                        "type": 8,
+                        "commandFullName": "mod unlock role"
                     }
                 ],
-                "type": 1
+                "type": 1,
+                "commandFullName": "mod unlock"
             },
             {
                 "name": "unmute",
@@ -2348,9 +2526,11 @@
                         "description_localizations": {
                             "fr": "L'utilisateur que vous souhaitez unmuted"
                         },
-                        "required": true
+                        "required": true,
+                        "commandFullName": "mod unmute user"
                     }
-                ]
+                ],
+                "commandFullName": "mod unmute"
             },
             {
                 "name": "warn",
@@ -2366,7 +2546,8 @@
                             "fr": "le membre que vous voulez signaler"
                         },
                         "type": 6,
-                        "required": true
+                        "required": true,
+                        "commandFullName": "mod warn member"
                     },
                     {
                         "name": "reason",
@@ -2375,10 +2556,12 @@
                             "fr": "La raison du warn"
                         },
                         "type": 3,
-                        "required": true
+                        "required": true,
+                        "commandFullName": "mod warn reason"
                     }
                 ],
-                "type": 1
+                "type": 1,
+                "commandFullName": "mod warn"
             },
             {
                 "name": "unwarn",
@@ -2394,7 +2577,8 @@
                             "fr": "le membre que vous voulez enlever sont signalement"
                         },
                         "type": 6,
-                        "required": true
+                        "required": true,
+                        "commandFullName": "mod unwarn member"
                     },
                     {
                         "name": "warn-id",
@@ -2403,10 +2587,12 @@
                             "fr": "l'identifiant du warn"
                         },
                         "type": 3,
-                        "required": true
+                        "required": true,
+                        "commandFullName": "mod unwarn warn-id"
                     }
                 ],
-                "type": 1
+                "type": 1,
+                "commandFullName": "mod unwarn"
             },
             {
                 "name": "warnlist",
@@ -2422,7 +2608,8 @@
                             "fr": "le membre que vous shouaiter vérifier"
                         },
                         "type": 6,
-                        "required": true
+                        "required": true,
+                        "commandFullName": "mod warnlist member"
                     }
                 ],
                 "aliases": [
@@ -2432,7 +2619,8 @@
                     "warnslist",
                     "sanctions"
                 ],
-                "type": 1
+                "type": 1,
+                "commandFullName": "mod warnlist"
             },
             {
                 "name": "clearwarn",
@@ -2448,7 +2636,8 @@
                             "fr": "le membre que vous voulez effacer les avertissements"
                         },
                         "type": 6,
-                        "required": true
+                        "required": true,
+                        "commandFullName": "mod clearwarn member"
                     }
                 ],
                 "aliases": [
@@ -2457,7 +2646,8 @@
                     "clearsanctions",
                     "clearsanction"
                 ],
-                "type": 1
+                "type": 1,
+                "commandFullName": "mod clearwarn"
             },
             {
                 "name": "clear-all-warns",
@@ -2471,7 +2661,8 @@
                     "clearallwarn",
                     "clearsanctionsall",
                     "clearsanctionall"
-                ]
+                ],
+                "commandFullName": "mod clear-all-warns"
             },
             {
                 "name": "temprole",
@@ -2487,7 +2678,8 @@
                             "fr": "Le membre qui recevras le rôle"
                         },
                         "type": 6,
-                        "required": true
+                        "required": true,
+                        "commandFullName": "mod temprole member"
                     },
                     {
                         "name": "role",
@@ -2496,7 +2688,8 @@
                             "fr": "Le rôle que recevras le membre"
                         },
                         "type": 8,
-                        "required": true
+                        "required": true,
+                        "commandFullName": "mod temprole role"
                     },
                     {
                         "name": "time",
@@ -2505,7 +2698,8 @@
                             "fr": "Le temps que le membre auras ce rôle"
                         },
                         "type": 3,
-                        "required": true
+                        "required": true,
+                        "commandFullName": "mod temprole time"
                     },
                     {
                         "name": "reason",
@@ -2514,7 +2708,8 @@
                             "fr": "La raison de l'ajout du rôle"
                         },
                         "type": 3,
-                        "required": false
+                        "required": false,
+                        "commandFullName": "mod temprole reason"
                     }
                 ],
                 "type": 1,
@@ -2522,7 +2717,8 @@
                     "addtemprole",
                     "temporaryrole",
                     "temproles"
-                ]
+                ],
+                "commandFullName": "mod temprole"
             },
             {
                 "name": "rolepanel",
@@ -2538,10 +2734,12 @@
                             "fr": "Le membre qui recevra les rôles"
                         },
                         "type": 6,
-                        "required": false
+                        "required": false,
+                        "commandFullName": "mod rolepanel member"
                     }
                 ],
-                "type": 1
+                "type": 1,
+                "commandFullName": "mod rolepanel"
             },
             {
                 "name": "tempban",
@@ -2557,7 +2755,8 @@
                             "fr": "L'utilisateur que vous voulez bannir temporairement"
                         },
                         "type": 6,
-                        "required": true
+                        "required": true,
+                        "commandFullName": "mod tempban user"
                     },
                     {
                         "name": "duration",
@@ -2566,7 +2765,8 @@
                             "fr": "La durée du bannissement (ex: 1h, 3j, 1s)"
                         },
                         "type": 3,
-                        "required": true
+                        "required": true,
+                        "commandFullName": "mod tempban duration"
                     },
                     {
                         "name": "reason",
@@ -2575,14 +2775,16 @@
                             "fr": "La raison du bannissement"
                         },
                         "type": 3,
-                        "required": false
+                        "required": false,
+                        "commandFullName": "mod tempban reason"
                     }
                 ],
                 "type": 1,
                 "aliases": [
                     "tban",
                     "temporaryban"
-                ]
+                ],
+                "commandFullName": "mod tempban"
             }
         ],
         "thinking": true
@@ -2614,7 +2816,8 @@
                         "description_localizations": {
                             "fr": "Le montant d'argent que vous souhaitez ajouter"
                         },
-                        "required": true
+                        "required": true,
+                        "commandFullName": "economy balance-add amount"
                     },
                     {
                         "name": "member",
@@ -2623,9 +2826,11 @@
                         "description_localizations": {
                             "fr": "Le membre à qui vous souhaitez ajouter de l'argent"
                         },
-                        "required": true
+                        "required": true,
+                        "commandFullName": "economy balance-add member"
                     }
-                ]
+                ],
+                "commandFullName": "economy balance-add"
             },
             {
                 "name": "balance-remove",
@@ -2643,7 +2848,8 @@
                         "description_localizations": {
                             "fr": "montant de $ que vous souhaitez ajouter"
                         },
-                        "required": true
+                        "required": true,
+                        "commandFullName": "economy balance-remove amount"
                     },
                     {
                         "name": "member",
@@ -2652,9 +2858,11 @@
                         "description_localizations": {
                             "fr": "le membre auquel vous souhaitez ajouter de l'argent"
                         },
-                        "required": true
+                        "required": true,
+                        "commandFullName": "economy balance-remove member"
                     }
-                ]
+                ],
+                "commandFullName": "economy balance-remove"
             },
             {
                 "name": "balance",
@@ -2676,9 +2884,11 @@
                         "description_localizations": {
                             "fr": "Ciblez un utilisateur pour voir son solde actuel"
                         },
-                        "required": false
+                        "required": false,
+                        "commandFullName": "economy balance user"
                     }
-                ]
+                ],
+                "commandFullName": "economy balance"
             },
             {
                 "name": "config",
@@ -2712,9 +2922,11 @@
                                 "value": "off"
                             }
                         ],
-                        "required": true
+                        "required": true,
+                        "commandFullName": "economy config action"
                     }
-                ]
+                ],
+                "commandFullName": "economy config"
             },
             {
                 "name": "leaderboard",
@@ -2728,7 +2940,8 @@
                     "eco-lb",
                     "economy-lb"
                 ],
-                "type": 1
+                "type": 1,
+                "commandFullName": "economy leaderboard"
             },
             {
                 "name": "deposit",
@@ -2748,9 +2961,11 @@
                         "description_localizations": {
                             "fr": "Combien de pièces vous souhaitez déposer dans votre banque"
                         },
-                        "required": true
+                        "required": true,
+                        "commandFullName": "economy deposit how-much"
                     }
-                ]
+                ],
+                "commandFullName": "economy deposit"
             },
             {
                 "name": "daily",
@@ -2758,7 +2973,8 @@
                 "description_localizations": {
                     "fr": "Réclamez une récompense quotidienne"
                 },
-                "type": 1
+                "type": 1,
+                "commandFullName": "economy daily"
             },
             {
                 "name": "monthly",
@@ -2766,7 +2982,8 @@
                 "description_localizations": {
                     "fr": "Réclamez une récompense mensuelle"
                 },
-                "type": 1
+                "type": 1,
+                "commandFullName": "economy monthly"
             },
             {
                 "name": "weekly",
@@ -2774,7 +2991,8 @@
                 "description_localizations": {
                     "fr": "Réclamez une récompense hebdomadaire"
                 },
-                "type": 1
+                "type": 1,
+                "commandFullName": "economy weekly"
             },
             {
                 "name": "pay",
@@ -2791,7 +3009,8 @@
                         "description_localizations": {
                             "fr": "Le montant d’argent que vous souhaitez lui donner"
                         },
-                        "required": true
+                        "required": true,
+                        "commandFullName": "economy pay amount"
                     },
                     {
                         "name": "member",
@@ -2800,9 +3019,11 @@
                         "description_localizations": {
                             "fr": "Le membre à qui vous souhaitez donner de l'argent"
                         },
-                        "required": true
+                        "required": true,
+                        "commandFullName": "economy pay member"
                     }
-                ]
+                ],
+                "commandFullName": "economy pay"
             },
             {
                 "name": "rob",
@@ -2819,9 +3040,11 @@
                         "description_localizations": {
                             "fr": "le membre à qui tu veux voler de l'argent"
                         },
-                        "required": true
+                        "required": true,
+                        "commandFullName": "economy rob member"
                     }
-                ]
+                ],
+                "commandFullName": "economy rob"
             },
             {
                 "name": "withdraw",
@@ -2838,9 +3061,11 @@
                         "description_localizations": {
                             "fr": "Combien de pièces vous souhaitez retirer de votre banque"
                         },
-                        "required": true
+                        "required": true,
+                        "commandFullName": "economy withdraw how-much"
                     }
-                ]
+                ],
+                "commandFullName": "economy withdraw"
             },
             {
                 "name": "work",
@@ -2848,7 +3073,8 @@
                 "description_localizations": {
                     "fr": "Réclamez une récompense de travail"
                 },
-                "type": 1
+                "type": 1,
+                "commandFullName": "economy work"
             },
             {
                 "name": "role",
@@ -2886,7 +3112,8 @@
                                 },
                                 "required": true
                             }
-                        ]
+                        ],
+                        "commandFullName": "economy role add"
                     },
                     {
                         "name": "delete",
@@ -2906,7 +3133,8 @@
                                 },
                                 "required": true
                             }
-                        ]
+                        ],
+                        "commandFullName": "economy role delete"
                     },
                     {
                         "name": "list",
@@ -2915,9 +3143,11 @@
                         "description_localizations": {
                             "fr": "Liste de tous les rôles que vous pouvez acheter"
                         },
-                        "type": 1
+                        "type": 1,
+                        "commandFullName": "economy role list"
                     }
-                ]
+                ],
+                "commandFullName": "economy role"
             },
             {
                 "name": "boost-set",
@@ -2935,7 +3165,8 @@
                         "description_localizations": {
                             "fr": "Le rôle que vous souhaitez modifier le boost"
                         },
-                        "required": true
+                        "required": true,
+                        "commandFullName": "economy boost-set role"
                     },
                     {
                         "name": "boost",
@@ -2981,9 +3212,11 @@
                                 "value": "5"
                             }
                         ],
-                        "required": true
+                        "required": true,
+                        "commandFullName": "economy boost-set boost"
                     }
-                ]
+                ],
+                "commandFullName": "economy boost-set"
             },
             {
                 "name": "manage-rewards",
@@ -3042,7 +3275,8 @@
                                 },
                                 "required": true
                             }
-                        ]
+                        ],
+                        "commandFullName": "economy manage-rewards set-money"
                     },
                     {
                         "name": "set-cooldown",
@@ -3086,9 +3320,11 @@
                                 },
                                 "required": true
                             }
-                        ]
+                        ],
+                        "commandFullName": "economy manage-rewards set-cooldown"
                     }
-                ]
+                ],
+                "commandFullName": "economy manage-rewards"
             },
             {
                 "name": "shop",
@@ -3097,7 +3333,8 @@
                 "description_localizations": {
                     "fr": "Obtenez le magasin du serveur"
                 },
-                "type": 1
+                "type": 1,
+                "commandFullName": "economy shop"
             },
             {
                 "name": "ureset",
@@ -3115,9 +3352,11 @@
                         "description_localizations": {
                             "fr": "L'utilisateur que vous voulez supprimer du module d'économie."
                         },
-                        "required": true
+                        "required": true,
+                        "commandFullName": "economy ureset user"
                     }
-                ]
+                ],
+                "commandFullName": "economy ureset"
             },
             {
                 "name": "greset",
@@ -3126,7 +3365,8 @@
                 "description_localizations": {
                     "fr": "Supprimer les données économique de tout les utilisateur"
                 },
-                "type": 1
+                "type": 1,
+                "commandFullName": "economy greset"
             }
         ],
         "thinking": false
@@ -3165,7 +3405,8 @@
                         "description_localizations": {
                             "fr": "Nombre de gagnants pour les cadeaux"
                         },
-                        "required": true
+                        "required": true,
+                        "commandFullName": "gw create winner"
                     },
                     {
                         "name": "time",
@@ -3177,7 +3418,8 @@
                         "description_localizations": {
                             "fr": "La durée des cadeaux"
                         },
-                        "required": true
+                        "required": true,
+                        "commandFullName": "gw create time"
                     },
                     {
                         "name": "requirement",
@@ -3216,7 +3458,8 @@
                             }
                         ],
                         "type": 3,
-                        "required": true
+                        "required": true,
+                        "commandFullName": "gw create requirement"
                     },
                     {
                         "name": "prize",
@@ -3228,7 +3471,8 @@
                         "description_localizations": {
                             "fr": "Le prix du giveaway"
                         },
-                        "required": true
+                        "required": true,
+                        "commandFullName": "gw create prize"
                     },
                     {
                         "name": "requirement-value",
@@ -3237,7 +3481,8 @@
                         "description_localizations": {
                             "fr": "La valeur du prérequis pour entrer dans le giveaway"
                         },
-                        "required": false
+                        "required": false,
+                        "commandFullName": "gw create requirement-value"
                     },
                     {
                         "name": "image",
@@ -3246,9 +3491,11 @@
                         "description_localizations": {
                             "fr": "le lien d'une image qui seras inclu dans l'embed du giveaway"
                         },
-                        "required": false
+                        "required": false,
+                        "commandFullName": "gw create image"
                     }
-                ]
+                ],
+                "commandFullName": "gw create"
             },
             {
                 "name": "end",
@@ -3273,9 +3520,11 @@
                         "description_localizations": {
                             "fr": "L'identifiant du cadeau (est l'identifiant du message du giveaway)"
                         },
-                        "required": true
+                        "required": true,
+                        "commandFullName": "gw end giveaway-id"
                     }
-                ]
+                ],
+                "commandFullName": "gw end"
             },
             {
                 "name": "reroll",
@@ -3298,9 +3547,11 @@
                         "description_localizations": {
                             "fr": "L'identifiant du cadeau (est l'identifiant du message du giveaway)"
                         },
-                        "required": true
+                        "required": true,
+                        "commandFullName": "gw reroll giveaway-id"
                     }
-                ]
+                ],
+                "commandFullName": "gw reroll"
             },
             {
                 "name": "list-entries",
@@ -3323,9 +3574,11 @@
                         "description_localizations": {
                             "fr": "L'identifiant du cadeau (est l'identifiant du message du giveaway)"
                         },
-                        "required": true
+                        "required": true,
+                        "commandFullName": "gw list-entries giveaway-id"
                     }
-                ]
+                ],
+                "commandFullName": "gw list-entries"
             },
             {
                 "name": "get-data",
@@ -3348,9 +3601,11 @@
                             "fr": "L'identifiant du giveaways"
                         },
                         "type": 3,
-                        "required": true
+                        "required": true,
+                        "commandFullName": "gw get-data giveaway-id"
                     }
-                ]
+                ],
+                "commandFullName": "gw get-data"
             },
             {
                 "name": "get-all",
@@ -3364,7 +3619,8 @@
                 "aliases": [
                     "gall"
                 ],
-                "type": 1
+                "type": 1,
+                "commandFullName": "gw get-all"
             }
         ],
         "thinking": true
@@ -3415,9 +3671,11 @@
                                 "value": "no"
                             }
                         ],
-                        "required": true
+                        "required": true,
+                        "commandFullName": "backup create save-message"
                     }
-                ]
+                ],
+                "commandFullName": "backup create"
             },
             {
                 "name": "list",
@@ -3429,7 +3687,8 @@
                 "description_localizations": {
                     "fr": "Listé toute vos backup(s)"
                 },
-                "type": 1
+                "type": 1,
+                "commandFullName": "backup list"
             },
             {
                 "name": "load",
@@ -3450,9 +3709,11 @@
                         "description_localizations": {
                             "fr": "Quelle est l'identifiant de la backup ?"
                         },
-                        "required": true
+                        "required": true,
+                        "commandFullName": "backup load backup-id"
                     }
-                ]
+                ],
+                "commandFullName": "backup load"
             },
             {
                 "name": "delete",
@@ -3469,10 +3730,12 @@
                             "fr": "L'identifiant de la backup que vous voulez supprimer de la liste"
                         },
                         "type": 3,
-                        "required": true
+                        "required": true,
+                        "commandFullName": "backup delete backup-id"
                     }
                 ],
-                "type": 1
+                "type": 1,
+                "commandFullName": "backup delete"
             },
             {
                 "name": "manage",
@@ -3506,9 +3769,11 @@
                                 "value": "admin"
                             }
                         ],
-                        "required": true
+                        "required": true,
+                        "commandFullName": "backup manage only_guild_owner"
                     }
-                ]
+                ],
+                "commandFullName": "backup manage"
             }
         ],
         "thinking": true
@@ -3645,7 +3910,8 @@
                             }
                         ],
                         "type": 3,
-                        "required": true
+                        "required": true,
+                        "commandFullName": "custom name action"
                     },
                     {
                         "name": "name",
@@ -3654,10 +3920,12 @@
                             "fr": "Le noms du bot"
                         },
                         "type": 3,
-                        "required": false
+                        "required": false,
+                        "commandFullName": "custom name name"
                     }
                 ],
-                "type": 1
+                "type": 1,
+                "commandFullName": "custom name"
             },
             {
                 "name": "avatar",
@@ -3695,7 +3963,8 @@
                             }
                         ],
                         "type": 3,
-                        "required": true
+                        "required": true,
+                        "commandFullName": "custom avatar action"
                     },
                     {
                         "name": "avatar",
@@ -3704,10 +3973,12 @@
                             "fr": "L'avatar du bot"
                         },
                         "type": 11,
-                        "required": false
+                        "required": false,
+                        "commandFullName": "custom avatar avatar"
                     }
                 ],
-                "type": 1
+                "type": 1,
+                "commandFullName": "custom avatar"
             },
             {
                 "name": "banner",
@@ -3744,7 +4015,8 @@
                             }
                         ],
                         "type": 3,
-                        "required": true
+                        "required": true,
+                        "commandFullName": "custom banner action"
                     },
                     {
                         "name": "banner",
@@ -3753,10 +4025,12 @@
                             "fr": "La bannière du bot"
                         },
                         "type": 11,
-                        "required": false
+                        "required": false,
+                        "commandFullName": "custom banner banner"
                     }
                 ],
-                "type": 1
+                "type": 1,
+                "commandFullName": "custom banner"
             },
             {
                 "name": "bio",
@@ -3793,7 +4067,8 @@
                             }
                         ],
                         "type": 3,
-                        "required": true
+                        "required": true,
+                        "commandFullName": "custom bio action"
                     },
                     {
                         "name": "bio",
@@ -3802,10 +4077,12 @@
                             "fr": "La bio du bot"
                         },
                         "type": 3,
-                        "required": false
+                        "required": false,
+                        "commandFullName": "custom bio bio"
                     }
                 ],
-                "type": 1
+                "type": 1,
+                "commandFullName": "custom bio"
             }
         ],
         "thinking": true
@@ -4201,10 +4478,12 @@
                             }
                         ],
                         "required": true,
-                        "type": 3
+                        "type": 3,
+                        "commandFullName": "starboard config action"
                     }
                 ],
-                "type": 1
+                "type": 1,
+                "commandFullName": "starboard config"
             },
             {
                 "name": "channel",
@@ -4225,10 +4504,12 @@
                             0,
                             5
                         ],
-                        "type": 7
+                        "type": 7,
+                        "commandFullName": "starboard channel to"
                     }
                 ],
-                "type": 1
+                "type": 1,
+                "commandFullName": "starboard channel"
             },
             {
                 "name": "threshold",
@@ -4248,10 +4529,12 @@
                             "fr": "Le seuil/pallier"
                         },
                         "type": 10,
-                        "required": true
+                        "required": true,
+                        "commandFullName": "starboard threshold amount"
                     }
                 ],
-                "type": 1
+                "type": 1,
+                "commandFullName": "starboard threshold"
             },
             {
                 "name": "create-thread",
@@ -4284,10 +4567,12 @@
                             }
                         ],
                         "type": 3,
-                        "required": true
+                        "required": true,
+                        "commandFullName": "starboard create-thread action"
                     }
                 ],
-                "type": 1
+                "type": 1,
+                "commandFullName": "starboard create-thread"
             }
         ],
         "aliases": [],
@@ -4332,10 +4617,12 @@
                             }
                         ],
                         "required": true,
-                        "type": 3
+                        "type": 3,
+                        "commandFullName": "skullboard config action"
                     }
                 ],
-                "type": 1
+                "type": 1,
+                "commandFullName": "skullboard config"
             },
             {
                 "name": "channel",
@@ -4356,10 +4643,12 @@
                             0,
                             5
                         ],
-                        "type": 7
+                        "type": 7,
+                        "commandFullName": "skullboard channel to"
                     }
                 ],
-                "type": 1
+                "type": 1,
+                "commandFullName": "skullboard channel"
             },
             {
                 "name": "threshold",
@@ -4379,10 +4668,12 @@
                             "fr": "Le seuil/pallier"
                         },
                         "type": 10,
-                        "required": true
+                        "required": true,
+                        "commandFullName": "skullboard threshold amount"
                     }
                 ],
-                "type": 1
+                "type": 1,
+                "commandFullName": "skullboard threshold"
             },
             {
                 "name": "create-thread",
@@ -4415,10 +4706,12 @@
                             }
                         ],
                         "type": 3,
-                        "required": true
+                        "required": true,
+                        "commandFullName": "skullboard create-thread action"
                     }
                 ],
-                "type": 1
+                "type": 1,
+                "commandFullName": "skullboard create-thread"
             }
         ],
         "aliases": [],
@@ -4791,9 +5084,11 @@
                         "description_localizations": {
                             "fr": "L'utilisateur que vous souhaitez ajouter à votre ticket"
                         },
-                        "required": true
+                        "required": true,
+                        "commandFullName": "ticket add-member user"
                     }
-                ]
+                ],
+                "commandFullName": "ticket add-member"
             },
             {
                 "name": "close",
@@ -4801,7 +5096,8 @@
                 "description_localizations": {
                     "fr": "Fermer un ticket"
                 },
-                "type": 1
+                "type": 1,
+                "commandFullName": "ticket close"
             },
             {
                 "name": "rename",
@@ -4817,10 +5113,12 @@
                             "fr": "Le nouveau nom du canal de ticket"
                         },
                         "type": 3,
-                        "required": true
+                        "required": true,
+                        "commandFullName": "ticket rename name"
                     }
                 ],
-                "type": 1
+                "type": 1,
+                "commandFullName": "ticket rename"
             },
             {
                 "name": "remind",
@@ -4828,7 +5126,8 @@
                 "description_localizations": {
                     "fr": "Rappelez au propriétaire du ticket qu'il n'a pas répondu depuis un certain temps !"
                 },
-                "type": 1
+                "type": 1,
+                "commandFullName": "ticket remind"
             },
             {
                 "name": "delete",
@@ -4840,7 +5139,8 @@
                 "type": 1,
                 "aliases": [
                     "tdelete"
-                ]
+                ],
+                "commandFullName": "ticket delete"
             },
             {
                 "name": "config",
@@ -4874,9 +5174,11 @@
                                 },
                                 "value": "on"
                             }
-                        ]
+                        ],
+                        "commandFullName": "ticket config action"
                     }
-                ]
+                ],
+                "commandFullName": "ticket config"
             },
             {
                 "name": "log-channel",
@@ -4896,9 +5198,11 @@
                         "description_localizations": {
                             "fr": "Où voulez-vous les journaux ?"
                         },
-                        "required": true
+                        "required": true,
+                        "commandFullName": "ticket log-channel channel"
                     }
-                ]
+                ],
+                "commandFullName": "ticket log-channel"
             },
             {
                 "name": "open",
@@ -4906,7 +5210,8 @@
                 "description_localizations": {
                     "fr": "Re-ouvrir un ticket fermet"
                 },
-                "type": 1
+                "type": 1,
+                "commandFullName": "ticket open"
             },
             {
                 "name": "remove-member",
@@ -4923,9 +5228,11 @@
                         "description_localizations": {
                             "fr": "L'utilisateur que vous souhaitez supprimer de votre ticket"
                         },
-                        "required": true
+                        "required": true,
+                        "commandFullName": "ticket remove-member user"
                     }
-                ]
+                ],
+                "commandFullName": "ticket remove-member"
             },
             {
                 "name": "set-here",
@@ -4942,7 +5249,8 @@
                             "fr": "Le nom du panneau de votre ticket"
                         },
                         "type": 3,
-                        "required": true
+                        "required": true,
+                        "commandFullName": "ticket set-here name"
                     },
                     {
                         "name": "description",
@@ -4951,7 +5259,8 @@
                             "fr": "La description du panneau de votre ticket"
                         },
                         "type": 3,
-                        "required": false
+                        "required": false,
+                        "commandFullName": "ticket set-here description"
                     },
                     {
                         "name": "category",
@@ -4963,9 +5272,11 @@
                             4
                         ],
                         "type": 7,
-                        "required": false
+                        "required": false,
+                        "commandFullName": "ticket set-here category"
                     }
-                ]
+                ],
+                "commandFullName": "ticket set-here"
             },
             {
                 "name": "panel",
@@ -4981,10 +5292,12 @@
                             "fr": "L'identifiant du panel"
                         },
                         "required": false,
-                        "type": 3
+                        "type": 3,
+                        "commandFullName": "ticket panel panel_id"
                     }
                 ],
-                "type": 1
+                "type": 1,
+                "commandFullName": "ticket panel"
             },
             {
                 "name": "set-category",
@@ -5004,9 +5317,11 @@
                             4
                         ],
                         "type": 7,
-                        "required": true
+                        "required": true,
+                        "commandFullName": "ticket set-category category-name"
                     }
-                ]
+                ],
+                "commandFullName": "ticket set-category"
             },
             {
                 "name": "transcript",
@@ -5014,7 +5329,8 @@
                 "description_localizations": {
                     "fr": "Obtenir la transcription d'un message de ticket"
                 },
-                "type": 1
+                "type": 1,
+                "commandFullName": "ticket transcript"
             },
             {
                 "name": "unlink",
@@ -5022,7 +5338,8 @@
                 "description_localizations": {
                     "fr": "Transforme le salon de ticket en salon classique auprès du bot."
                 },
-                "type": 1
+                "type": 1,
+                "commandFullName": "ticket unlink"
             }
         ],
         "thinking": true
@@ -5046,7 +5363,8 @@
                     "mng",
                     "antimng"
                 ],
-                "type": 1
+                "type": 1,
+                "commandFullName": "antispam manage"
             },
             {
                 "name": "bypass-roles",
@@ -5058,7 +5376,8 @@
                 "aliases": [
                     "bproles"
                 ],
-                "type": 1
+                "type": 1,
+                "commandFullName": "antispam bypass-roles"
             },
             {
                 "name": "ignore-channels",
@@ -5070,7 +5389,8 @@
                 "aliases": [
                     "channels"
                 ],
-                "type": 1
+                "type": 1,
+                "commandFullName": "antispam ignore-channels"
             }
         ],
         "thinking": true
@@ -5102,9 +5422,11 @@
                         "channel_types": [
                             0
                         ],
-                        "required": true
+                        "required": true,
+                        "commandFullName": "counter channel channel"
                     }
-                ]
+                ],
+                "commandFullName": "counter channel"
             },
             {
                 "name": "config",
@@ -5138,9 +5460,11 @@
                                 },
                                 "value": "off"
                             }
-                        ]
+                        ],
+                        "commandFullName": "counter config action"
                     }
-                ]
+                ],
+                "commandFullName": "counter config"
             }
         ],
         "thinking": false
@@ -5159,7 +5483,8 @@
                 "description_localizations": {
                     "fr": "Configurer les modules Git Lines"
                 },
-                "type": 1
+                "type": 1,
+                "commandFullName": "git lines"
             }
         ],
         "thinking": false
@@ -5225,9 +5550,11 @@
                                 },
                                 "value": "track"
                             }
-                        ]
+                        ],
+                        "commandFullName": "music loop mode"
                     }
-                ]
+                ],
+                "commandFullName": "music loop"
             },
             {
                 "name": "lyrics",
@@ -5244,9 +5571,11 @@
                         "description_localizations": {
                             "fr": "Titre de la musique que vous souhaitez"
                         },
-                        "required": true
+                        "required": true,
+                        "commandFullName": "music lyrics query"
                     }
-                ]
+                ],
+                "commandFullName": "music lyrics"
             },
             {
                 "name": "history",
@@ -5257,7 +5586,8 @@
                 "description_localizations": {
                     "fr": "Voir toute les musique joué dans un ordre chronologique sur le serveur"
                 },
-                "type": 1
+                "type": 1,
+                "commandFullName": "music history"
             },
             {
                 "name": "clear-queue",
@@ -5268,7 +5598,8 @@
                 "description_localizations": {
                     "fr": "Vider la file d'attente musicale de ce serveur"
                 },
-                "type": 1
+                "type": 1,
+                "commandFullName": "music clear-queue"
             },
             {
                 "name": "nowplaying",
@@ -5279,7 +5610,8 @@
                 "description_localizations": {
                     "fr": "Obtenir la chanson en cours de lecture"
                 },
-                "type": 1
+                "type": 1,
+                "commandFullName": "music nowplaying"
             },
             {
                 "name": "pause",
@@ -5287,7 +5619,8 @@
                 "description_localizations": {
                     "fr": "Mettre en pause la musique actuelle"
                 },
-                "type": 1
+                "type": 1,
+                "commandFullName": "music pause"
             },
             {
                 "name": "play",
@@ -5307,9 +5640,11 @@
                         "description_localizations": {
                             "fr": "Titre de la musique que vous souhaitez (vous pouvez mettre une URL si vous le voulez)"
                         },
-                        "required": true
+                        "required": true,
+                        "commandFullName": "music play title"
                     }
-                ]
+                ],
+                "commandFullName": "music play"
             },
             {
                 "name": "volume",
@@ -5411,10 +5746,12 @@
                             }
                         ],
                         "required": true,
-                        "type": 3
+                        "type": 3,
+                        "commandFullName": "music volume level"
                     }
                 ],
-                "type": 1
+                "type": 1,
+                "commandFullName": "music volume"
             },
             {
                 "name": "trackinfo",
@@ -5422,7 +5759,8 @@
                 "description_localizations": {
                     "fr": "Chercher une musique sur Internet"
                 },
-                "type": 1
+                "type": 1,
+                "commandFullName": "music trackinfo"
             },
             {
                 "name": "queue",
@@ -5430,7 +5768,8 @@
                 "description_localizations": {
                     "fr": "Obtenir la file d'attente des musique sur le serveur!"
                 },
-                "type": 1
+                "type": 1,
+                "commandFullName": "music queue"
             },
             {
                 "name": "resume",
@@ -5441,7 +5780,8 @@
                 "description_localizations": {
                     "fr": "Reprendre la chanson en cours de lecture"
                 },
-                "type": 1
+                "type": 1,
+                "commandFullName": "music resume"
             },
             {
                 "name": "shuffle",
@@ -5452,7 +5792,8 @@
                 "description_localizations": {
                     "fr": "Mélangez la file d'attente"
                 },
-                "type": 1
+                "type": 1,
+                "commandFullName": "music shuffle"
             },
             {
                 "name": "skip",
@@ -5460,7 +5801,8 @@
                 "description_localizations": {
                     "fr": "Passer la chanson en cours de lecture"
                 },
-                "type": 1
+                "type": 1,
+                "commandFullName": "music skip"
             },
             {
                 "name": "stop",
@@ -5468,7 +5810,8 @@
                 "description_localizations": {
                     "fr": "Couper la musique"
                 },
-                "type": 1
+                "type": 1,
+                "commandFullName": "music stop"
             }
         ],
         "aliases": [
@@ -5491,7 +5834,8 @@
                 "description_localizations": {
                     "fr": "Rôles whitelist pour utiliser les tags"
                 },
-                "type": 1
+                "type": 1,
+                "commandFullName": "tag wlroles-use"
             },
             {
                 "name": "wlroles-create",
@@ -5500,7 +5844,8 @@
                 "description_localizations": {
                     "fr": "Rôles whitelist pour créer des tags"
                 },
-                "type": 1
+                "type": 1,
+                "commandFullName": "tag wlroles-create"
             },
             {
                 "name": "use",
@@ -5517,7 +5862,8 @@
                             "fr": "Nom du tag"
                         },
                         "type": 3,
-                        "required": true
+                        "required": true,
+                        "commandFullName": "tag use tag_name"
                     },
                     {
                         "name": "mention",
@@ -5526,7 +5872,8 @@
                             "fr": "Mentionner l'utilisateur"
                         },
                         "type": 6,
-                        "required": false
+                        "required": false,
+                        "commandFullName": "tag use mention"
                     },
                     {
                         "name": "message_id",
@@ -5535,11 +5882,13 @@
                             "fr": "ID du message pour répondre"
                         },
                         "type": 3,
-                        "required": false
+                        "required": false,
+                        "commandFullName": "tag use message_id"
                     }
                 ],
                 "type": 1,
-                "ephemeral": true
+                "ephemeral": true,
+                "commandFullName": "tag use"
             },
             {
                 "name": "create",
@@ -5556,7 +5905,8 @@
                             "fr": "Nom du tag"
                         },
                         "type": 3,
-                        "required": true
+                        "required": true,
+                        "commandFullName": "tag create tag_name"
                     },
                     {
                         "name": "embed_id",
@@ -5565,7 +5915,8 @@
                             "fr": "ID de l'embed"
                         },
                         "type": 3,
-                        "required": true
+                        "required": true,
+                        "commandFullName": "tag create embed_id"
                     },
                     {
                         "name": "message_content",
@@ -5574,10 +5925,12 @@
                             "fr": "le message qui acompagneras l'embed"
                         },
                         "type": 3,
-                        "required": false
+                        "required": false,
+                        "commandFullName": "tag create message_content"
                     }
                 ],
-                "type": 1
+                "type": 1,
+                "commandFullName": "tag create"
             },
             {
                 "name": "edit",
@@ -5593,7 +5946,8 @@
                             "fr": "Le nom actuel du tag"
                         },
                         "type": 3,
-                        "required": true
+                        "required": true,
+                        "commandFullName": "tag edit current_tag_name"
                     },
                     {
                         "name": "new_tag_name",
@@ -5602,10 +5956,12 @@
                             "fr": "Le nouveau nom du tag"
                         },
                         "type": 3,
-                        "required": true
+                        "required": true,
+                        "commandFullName": "tag edit new_tag_name"
                     }
                 ],
-                "type": 1
+                "type": 1,
+                "commandFullName": "tag edit"
             },
             {
                 "name": "delete",
@@ -5622,10 +5978,12 @@
                             "fr": "Nom du tag"
                         },
                         "type": 3,
-                        "required": true
+                        "required": true,
+                        "commandFullName": "tag delete tag_name"
                     }
                 ],
-                "type": 1
+                "type": 1,
+                "commandFullName": "tag delete"
             },
             {
                 "name": "list",
@@ -5634,7 +5992,8 @@
                 "description_localizations": {
                     "fr": "Lister tous les tags"
                 },
-                "type": 1
+                "type": 1,
+                "commandFullName": "tag list"
             },
             {
                 "name": "info",
@@ -5651,11 +6010,13 @@
                             "fr": "Nom du tag"
                         },
                         "type": 3,
-                        "required": true
+                        "required": true,
+                        "commandFullName": "tag info tag_name"
                     }
                 ],
                 "type": 1,
-                "ephemeral": true
+                "ephemeral": true,
+                "commandFullName": "tag info"
             }
         ],
         "thinking": false
@@ -5878,7 +6239,8 @@
                         "channel_types": [
                             0
                         ],
-                        "required": true
+                        "required": true,
+                        "commandFullName": "confession channel channel"
                     },
                     {
                         "name": "button-title",
@@ -5887,9 +6249,11 @@
                         "description_localizations": {
                             "fr": "Le titre du bouton"
                         },
-                        "required": true
+                        "required": true,
+                        "commandFullName": "confession channel button-title"
                     }
-                ]
+                ],
+                "commandFullName": "confession channel"
             },
             {
                 "name": "config",
@@ -5923,9 +6287,11 @@
                                 },
                                 "value": "off"
                             }
-                        ]
+                        ],
+                        "commandFullName": "confession config action"
                     }
-                ]
+                ],
+                "commandFullName": "confession config"
             },
             {
                 "name": "thread",
@@ -5959,9 +6325,11 @@
                                 },
                                 "value": "no"
                             }
-                        ]
+                        ],
+                        "commandFullName": "confession thread action"
                     }
-                ]
+                ],
+                "commandFullName": "confession thread"
             },
             {
                 "name": "cooldown",
@@ -5979,9 +6347,11 @@
                         "description_localizations": {
                             "fr": "Le temps comme 3h/30m/10s..."
                         },
-                        "required": true
+                        "required": true,
+                        "commandFullName": "confession cooldown time"
                     }
-                ]
+                ],
+                "commandFullName": "confession cooldown"
             }
         ],
         "thinking": false
@@ -6011,10 +6381,12 @@
                             "fr": "L'utilisateur que vous souhaiter"
                         },
                         "type": 6,
-                        "required": false
+                        "required": false,
+                        "commandFullName": "stats ustats member"
                     }
                 ],
-                "type": 1
+                "type": 1,
+                "commandFullName": "stats ustats"
             },
             {
                 "name": "gstats",
@@ -6025,7 +6397,8 @@
                 "aliases": [
                     "g"
                 ],
-                "type": 1
+                "type": 1,
+                "commandFullName": "stats gstats"
             },
             {
                 "name": "top-messages",
@@ -6068,7 +6441,8 @@
                                 },
                                 "value": "monthly"
                             }
-                        ]
+                        ],
+                        "commandFullName": "stats top-messages period"
                     },
                     {
                         "name": "limit",
@@ -6077,10 +6451,12 @@
                             "fr": "Nombre d'utilisateurs à afficher (par défaut: 10, max: 25)"
                         },
                         "type": 4,
-                        "required": false
+                        "required": false,
+                        "commandFullName": "stats top-messages limit"
                     }
                 ],
-                "type": 1
+                "type": 1,
+                "commandFullName": "stats top-messages"
             },
             {
                 "name": "top-voice",
@@ -6123,7 +6499,8 @@
                                 },
                                 "value": "monthly"
                             }
-                        ]
+                        ],
+                        "commandFullName": "stats top-voice period"
                     },
                     {
                         "name": "limit",
@@ -6132,10 +6509,12 @@
                             "fr": "Nombre d'utilisateurs à afficher (par défaut: 10, max: 25)"
                         },
                         "type": 4,
-                        "required": false
+                        "required": false,
+                        "commandFullName": "stats top-voice limit"
                     }
                 ],
-                "type": 1
+                "type": 1,
+                "commandFullName": "stats top-voice"
             },
             {
                 "name": "compare",
@@ -6154,7 +6533,8 @@
                             "fr": "Premier utilisateur à comparer"
                         },
                         "type": 6,
-                        "required": true
+                        "required": true,
+                        "commandFullName": "stats compare user1"
                     },
                     {
                         "name": "user2",
@@ -6163,10 +6543,12 @@
                             "fr": "Deuxième utilisateur à comparer"
                         },
                         "type": 6,
-                        "required": true
+                        "required": true,
+                        "commandFullName": "stats compare user2"
                     }
                 ],
-                "type": 1
+                "type": 1,
+                "commandFullName": "stats compare"
             },
             {
                 "name": "channel-stats",
@@ -6186,10 +6568,12 @@
                             "fr": "Le canal à analyser"
                         },
                         "type": 7,
-                        "required": false
+                        "required": false,
+                        "commandFullName": "stats channel-stats channel"
                     }
                 ],
-                "type": 1
+                "type": 1,
+                "commandFullName": "stats channel-stats"
             }
         ],
         "thinking": true
@@ -6217,7 +6601,8 @@
                         "description_localizations": {
                             "fr": "le membre auquel vous souhaitez ajouter des invitations"
                         },
-                        "required": true
+                        "required": true,
+                        "commandFullName": "inv addinvites member"
                     },
                     {
                         "name": "amount",
@@ -6226,9 +6611,11 @@
                         "description_localizations": {
                             "fr": "Nombre d'invitations que vous souhaitez ajouter"
                         },
-                        "required": true
+                        "required": true,
+                        "commandFullName": "inv addinvites amount"
                     }
-                ]
+                ],
+                "commandFullName": "inv addinvites"
             },
             {
                 "name": "leaderboard",
@@ -6242,7 +6629,8 @@
                 "description_localizations": {
                     "fr": "Afficher le classement des invitations du serveur"
                 },
-                "type": 1
+                "type": 1,
+                "commandFullName": "inv leaderboard"
             },
             {
                 "name": "invites",
@@ -6263,9 +6651,11 @@
                         "description_localizations": {
                             "fr": "le membre où souhaitez voir ces invitations"
                         },
-                        "required": false
+                        "required": false,
+                        "commandFullName": "inv invites member"
                     }
-                ]
+                ],
+                "commandFullName": "inv invites"
             },
             {
                 "name": "reset",
@@ -6278,7 +6668,8 @@
                     "inv-delete-all",
                     "invreset"
                 ],
-                "type": 1
+                "type": 1,
+                "commandFullName": "inv reset"
             },
             {
                 "name": "removeinvites",
@@ -6299,7 +6690,8 @@
                         "description_localizations": {
                             "fr": "le membre où vous souhaitez supprimer ces invites"
                         },
-                        "required": true
+                        "required": true,
+                        "commandFullName": "inv removeinvites member"
                     },
                     {
                         "name": "amount",
@@ -6308,9 +6700,11 @@
                         "description_localizations": {
                             "fr": "Nombre d'invitations que vous souhaitez soustraire"
                         },
-                        "required": true
+                        "required": true,
+                        "commandFullName": "inv removeinvites amount"
                     }
-                ]
+                ],
+                "commandFullName": "inv removeinvites"
             }
         ],
         "thinking": true
@@ -6345,9 +6739,11 @@
                         "description_localizations": {
                             "fr": "L'utilisateur que vous souhaitez rechercher"
                         },
-                        "required": false
+                        "required": false,
+                        "commandFullName": "profil show user"
                     }
-                ]
+                ],
+                "commandFullName": "profil show"
             },
             {
                 "name": "set-age",
@@ -6370,9 +6766,11 @@
                         "description_localizations": {
                             "fr": "Votre âge sur votre profil iHorizon"
                         },
-                        "required": true
+                        "required": true,
+                        "commandFullName": "profil set-age age"
                     }
-                ]
+                ],
+                "commandFullName": "profil set-age"
             },
             {
                 "name": "set-description",
@@ -6396,9 +6794,11 @@
                         "description_localizations": {
                             "fr": "La description sur votre profil"
                         },
-                        "required": true
+                        "required": true,
+                        "commandFullName": "profil set-description description"
                     }
-                ]
+                ],
+                "commandFullName": "profil set-description"
             },
             {
                 "name": "set-gender",
@@ -6444,9 +6844,11 @@
                                 },
                                 "value": "non-binary"
                             }
-                        ]
+                        ],
+                        "commandFullName": "profil set-gender gender"
                     }
-                ]
+                ],
+                "commandFullName": "profil set-gender"
             },
             {
                 "name": "set-pronoun",
@@ -6514,9 +6916,11 @@
                                 },
                                 "value": "other"
                             }
-                        ]
+                        ],
+                        "commandFullName": "profil set-pronoun pronoun"
                     }
-                ]
+                ],
+                "commandFullName": "profil set-pronoun"
             },
             {
                 "name": "set-birthday",
@@ -6531,7 +6935,8 @@
                     "birthday",
                     "anniversaire"
                 ],
-                "type": 1
+                "type": 1,
+                "commandFullName": "profil set-birthday"
             }
         ],
         "thinking": false
@@ -6566,7 +6971,8 @@
                         "description_localizations": {
                             "fr": "Obtenez une photo du chat"
                         },
-                        "type": 1
+                        "type": 1,
+                        "commandFullName": "fun animals cat"
                     },
                     {
                         "name": "dog",
@@ -6577,7 +6983,8 @@
                         "description_localizations": {
                             "fr": "Obtenez une photo du chien"
                         },
-                        "type": 1
+                        "type": 1,
+                        "commandFullName": "fun animals dog"
                     },
                     {
                         "name": "duck",
@@ -6588,7 +6995,8 @@
                         "description_localizations": {
                             "fr": "Obtenez une photo de cannard"
                         },
-                        "type": 1
+                        "type": 1,
+                        "commandFullName": "fun animals duck"
                     },
                     {
                         "name": "panda",
@@ -6596,7 +7004,8 @@
                         "description_localizations": {
                             "fr": "Obtenez une photo de panda"
                         },
-                        "type": 1
+                        "type": 1,
+                        "commandFullName": "fun animals panda"
                     },
                     {
                         "name": "fox",
@@ -6604,7 +7013,8 @@
                         "description_localizations": {
                             "fr": "Obtenez une photo de renard"
                         },
-                        "type": 1
+                        "type": 1,
+                        "commandFullName": "fun animals fox"
                     },
                     {
                         "name": "dolphin",
@@ -6612,7 +7022,8 @@
                         "description_localizations": {
                             "fr": "Obtenez une photo de dauphin"
                         },
-                        "type": 1
+                        "type": 1,
+                        "commandFullName": "fun animals dolphin"
                     },
                     {
                         "name": "frog",
@@ -6620,7 +7031,8 @@
                         "description_localizations": {
                             "fr": "Obtenez une photo de grenouille"
                         },
-                        "type": 1
+                        "type": 1,
+                        "commandFullName": "fun animals frog"
                     },
                     {
                         "name": "squirrel",
@@ -6628,10 +7040,12 @@
                         "description_localizations": {
                             "fr": "Obtenez une photo d'Écureuil"
                         },
-                        "type": 1
+                        "type": 1,
+                        "commandFullName": "fun animals squirrel"
                     }
                 ],
-                "type": 2
+                "type": 2,
+                "commandFullName": "fun animals"
             },
             {
                 "name": "image",
@@ -6660,7 +7074,8 @@
                                 "required": true,
                                 "type": 3
                             }
-                        ]
+                        ],
+                        "commandFullName": "fun image catsay"
                     },
                     {
                         "name": "togif",
@@ -6679,7 +7094,8 @@
                                 "required": true
                             }
                         ],
-                        "type": 1
+                        "type": 1,
+                        "commandFullName": "fun image togif"
                     },
                     {
                         "name": "captions",
@@ -6707,7 +7123,8 @@
                                 "required": true
                             }
                         ],
-                        "type": 1
+                        "type": 1,
+                        "commandFullName": "fun image captions"
                     },
                     {
                         "name": "bubbles",
@@ -6726,7 +7143,8 @@
                                 "required": true
                             }
                         ],
-                        "type": 1
+                        "type": 1,
+                        "commandFullName": "fun image bubbles"
                     },
                     {
                         "name": "youtube",
@@ -6754,7 +7172,8 @@
                                 "required": true,
                                 "type": 3
                             }
-                        ]
+                        ],
+                        "commandFullName": "fun image youtube"
                     },
                     {
                         "name": "tweet",
@@ -6782,7 +7201,8 @@
                                 "required": true,
                                 "type": 3
                             }
-                        ]
+                        ],
+                        "commandFullName": "fun image tweet"
                     },
                     {
                         "name": "transgender",
@@ -6804,10 +7224,12 @@
                                 "required": false,
                                 "type": 6
                             }
-                        ]
+                        ],
+                        "commandFullName": "fun image transgender"
                     }
                 ],
-                "type": 2
+                "type": 2,
+                "commandFullName": "fun image"
             },
             {
                 "name": "interaction",
@@ -6825,7 +7247,8 @@
                         "description_localizations": {
                             "fr": "envoi un meme 67"
                         },
-                        "type": 1
+                        "type": 1,
+                        "commandFullName": "fun interaction 67"
                     },
                     {
                         "name": "hack",
@@ -6847,7 +7270,8 @@
                                 },
                                 "required": true
                             }
-                        ]
+                        ],
+                        "commandFullName": "fun interaction hack"
                     },
                     {
                         "name": "kiss",
@@ -6869,7 +7293,8 @@
                                 },
                                 "required": true
                             }
-                        ]
+                        ],
+                        "commandFullName": "fun interaction kiss"
                     },
                     {
                         "name": "love",
@@ -6900,7 +7325,8 @@
                                 },
                                 "required": false
                             }
-                        ]
+                        ],
+                        "commandFullName": "fun interaction love"
                     },
                     {
                         "name": "poll",
@@ -6922,7 +7348,8 @@
                                 },
                                 "required": true
                             }
-                        ]
+                        ],
+                        "commandFullName": "fun interaction poll"
                     },
                     {
                         "name": "question",
@@ -6944,7 +7371,8 @@
                                 },
                                 "required": true
                             }
-                        ]
+                        ],
+                        "commandFullName": "fun interaction question"
                     },
                     {
                         "name": "slap",
@@ -6966,7 +7394,8 @@
                                 },
                                 "required": true
                             }
-                        ]
+                        ],
+                        "commandFullName": "fun interaction slap"
                     },
                     {
                         "name": "hug",
@@ -6988,10 +7417,12 @@
                                 },
                                 "required": true
                             }
-                        ]
+                        ],
+                        "commandFullName": "fun interaction hug"
                     }
                 ],
-                "type": 2
+                "type": 2,
+                "commandFullName": "fun interaction"
             },
             {
                 "name": "style",
@@ -7020,7 +7451,8 @@
                                 },
                                 "required": true
                             }
-                        ]
+                        ],
+                        "commandFullName": "fun style caracteres"
                     },
                     {
                         "name": "morse",
@@ -7039,10 +7471,12 @@
                                 },
                                 "required": true
                             }
-                        ]
+                        ],
+                        "commandFullName": "fun style morse"
                     }
                 ],
-                "type": 2
+                "type": 2,
+                "commandFullName": "fun style"
             },
             {
                 "name": "random",
@@ -7227,7 +7661,8 @@
                                 "type": 10
                             }
                         ],
-                        "type": 1
+                        "type": 1,
+                        "commandFullName": "fun random dice"
                     },
                     {
                         "name": "heads-tails",
@@ -7242,7 +7677,8 @@
                             "pileouface",
                             "pile-ou-face"
                         ],
-                        "type": 1
+                        "type": 1,
+                        "commandFullName": "fun random heads-tails"
                     },
                     {
                         "name": "number",
@@ -7279,7 +7715,8 @@
                                 "required": false
                             }
                         ],
-                        "type": 1
+                        "type": 1,
+                        "commandFullName": "fun random number"
                     },
                     {
                         "name": "gay",
@@ -7299,7 +7736,8 @@
                             }
                         ],
                         "thinking": false,
-                        "type": 1
+                        "type": 1,
+                        "commandFullName": "fun random gay"
                     },
                     {
                         "name": "rate",
@@ -7322,7 +7760,8 @@
                             }
                         ],
                         "thinking": false,
-                        "type": 1
+                        "type": 1,
+                        "commandFullName": "fun random rate"
                     },
                     {
                         "name": "trans",
@@ -7342,7 +7781,8 @@
                             }
                         ],
                         "thinking": false,
-                        "type": 1
+                        "type": 1,
+                        "commandFullName": "fun random trans"
                     },
                     {
                         "name": "stench",
@@ -7370,10 +7810,12 @@
                             }
                         ],
                         "thinking": false,
-                        "type": 1
+                        "type": 1,
+                        "commandFullName": "fun random stench"
                     }
                 ],
-                "type": 2
+                "type": 2,
+                "commandFullName": "fun random"
             },
             {
                 "name": "config",
@@ -7406,10 +7848,12 @@
                             }
                         ],
                         "required": true,
-                        "type": 3
+                        "type": 3,
+                        "commandFullName": "fun config action"
                     }
                 ],
-                "type": 1
+                "type": 1,
+                "commandFullName": "fun config"
             }
         ],
         "thinking": true

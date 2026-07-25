@@ -36,6 +36,7 @@ export interface Option {
 	options?: Option[];
 	name: string;
 	prefixName?: string;
+	commandFullName?: string;
 	name_localizations?: NameLocalizations;
 	description_localizations: DescriptionLocalizations;
 	description: string;
