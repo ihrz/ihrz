@@ -64,7 +64,9 @@ export const auto_respond: Record<string, string> = {
 		"Vien par la petit coquinou je vais te defourailler sauvagement",
 	"Toute façon je prefere mee6": ":monkey:",
 	"un humain c'est plus utile": "Montre moi tes couilles alors",
-	aya: "ya quoi ?"
+	aya: "ya quoi ?",
+	"67": "Six Seven dans la ch*tt€ à ta mère Mastu (faut avoir la référence...)"
+	// it comes from 1509492999220891648
 };
 
 export const event: BotEvent = {
