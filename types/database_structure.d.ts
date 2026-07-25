@@ -62,11 +62,11 @@ export namespace DatabaseStructure {
 
 	export interface ProtectionData {
 		[rule: string]:
-			| {
-					mode: string;
-			  }
-			| string
-			| undefined;
+		| {
+			mode: string;
+		}
+		| string
+		| undefined;
 		SANCTION?: string;
 	}
 
@@ -643,10 +643,10 @@ export namespace DatabaseStructure {
 		LANG?: LangSchema;
 		TICKET?: {
 			[key: string]:
-				| DbTicketConfigurationObject
-				| string
-				| boolean
-				| undefined;
+			| DbTicketConfigurationObject
+			| string
+			| boolean
+			| undefined;
 			logs?: string;
 			disable?: boolean;
 			category?: string;
