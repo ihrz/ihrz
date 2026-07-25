@@ -457,6 +457,19 @@ export const command: Command = {
 			permission: PermissionFlagsBits.ModerateMembers
 		},
 		{
+			name: "unmuteall",
+
+			description: "Unmute all muted members!",
+			description_localizations: {
+				fr: "Demute tous les membres mute textuellement"
+			},
+
+			aliases: ["unmute-all", "untimeoutall", "untimeout-all", "demuteall"],
+
+			type: ApplicationCommandOptionType.Subcommand,
+			permission: PermissionFlagsBits.ModerateMembers
+		},
+		{
 			name: "warn",
 
 			description: "warn a user",

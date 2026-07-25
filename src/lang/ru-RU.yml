@@ -1897,6 +1897,11 @@ unmute_muted_role_doesnt_exist: "Роль `muted` не существует. П�
 unmute_command_work: "<@${tomute.id}> был разблокирован!"
 unmute_logs_embed_title: "Логи разблокировки"
 unmute_logs_embed_description: "<@${interaction.user.id}> разблокировал <@${tomute.id}>"
+unmuteall_no_muted_members: "Заглушенные участники не найдены."
+unmuteall_audit_reason: "Снять заглушение со всех"
+unmuteall_command_work: "Снято заглушение с ${unmuted}/${total} участников."
+unmuteall_logs_embed_title: "Логи массового снятия заглушения"
+unmuteall_logs_embed_description: "<@${interaction.user.id}> снял заглушение с ${unmuted}/${total} участников."
 
 # /warn
 warn_command_work: "${client.iHorizon_Emojis.Yes} ${member?.toString()} получил предупреждение! **Причина**: `${reason}`\n__ID предупреждения__: `${warnId}`"

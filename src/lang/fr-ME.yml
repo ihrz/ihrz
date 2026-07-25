@@ -1900,6 +1900,11 @@ unmute_muted_role_doesnt_exist: "Le rôle sourdine n'existe pas. Veuille d'abord
 unmute_command_work: "<@${tomute.id}> a été enlever de sa sourdine !"
 unmute_logs_embed_title: "Logs de sourdine"
 unmute_logs_embed_description: "<@${interaction.user.id}> a enlever de sa sourdine <@${tomute.id}>"
+unmuteall_no_muted_members: "Aucun membre en sourdine n'a été trouvé."
+unmuteall_audit_reason: "Retrait de sourdine global"
+unmuteall_command_work: "${unmuted}/${total} membres ont été retirés de leur sourdine."
+unmuteall_logs_embed_title: "Logs de retrait de sourdine global"
+unmuteall_logs_embed_description: "<@${interaction.user.id}> a retiré la sourdine de ${unmuted}/${total} membres."
 
 # /warn
 warn_command_work: "${client.iHorizon_Emojis.Yes} ${member?.toString()} a été averti ! **Raison** : `${reason}`\n__ID de l'avertissement__: `${warnId}`"

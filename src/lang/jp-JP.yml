@@ -1897,6 +1897,11 @@ unmute_muted_role_doesnt_exist: "`muted` 役職が存在しません。ミュー
 unmute_command_work: "<@${tomute.id}>さんがミュート解除されました！"
 unmute_logs_embed_title: "Unmute Logs"
 unmute_logs_embed_description: "<@${interaction.user.id}>さんが<@${tomute.id}>さんのミュートを解除しました。"
+unmuteall_no_muted_members: "ミュートされているメンバーは見つかりませんでした。"
+unmuteall_audit_reason: "全員のミュート解除"
+unmuteall_command_work: "${unmuted}/${total} 人のメンバーのミュートを解除しました。"
+unmuteall_logs_embed_title: "全員ミュート解除ログ"
+unmuteall_logs_embed_description: "<@${interaction.user.id}>さんが ${unmuted}/${total} 人のメンバーのミュートを解除しました。"
 
 # /warn
 warn_command_work: "${client.iHorizon_Emojis.Yes} ${member?.toString()} が警告されました！**理由**：`${reason}`\n__警告ID__：`${warnId}`"

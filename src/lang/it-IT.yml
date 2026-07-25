@@ -1896,6 +1896,11 @@ unmute_muted_role_doesnt_exist: "Il ruolo mutato non esiste. Per favore muta l'u
 unmute_command_work: "<@${tomute.id}> è stato smutato!"
 unmute_logs_embed_title: "Unmute Logs"
 unmute_logs_embed_description: "<@${interaction.user.id}> smuta <@${tomute.id}>."
+unmuteall_no_muted_members: "Non sono stati trovati membri mutati."
+unmuteall_audit_reason: "Smuta tutti"
+unmuteall_command_work: "${unmuted}/${total} membri sono stati smutati."
+unmuteall_logs_embed_title: "Log smuta tutti"
+unmuteall_logs_embed_description: "<@${interaction.user.id}> ha smutato ${unmuted}/${total} membri."
 
 # /warn
 warn_command_work: "${client.iHorizon_Emojis.Yes} ${member?.toString()} è stato avvertito! **Motivo**: `${reason}`\n__ID Avvertimento__: `${warnId}`"

@@ -1897,6 +1897,11 @@ unmute_muted_role_doesnt_exist: "El rol 'muted' no existe. Por favor, silencia a
 unmute_command_work: "<@${tomute.id}> ha sido desilenciado!"
 unmute_logs_embed_title: "Registros de desilencio"
 unmute_logs_embed_description: "<@${interaction.user.id}> desilenció a <@${tomute.id}>"
+unmuteall_no_muted_members: "No se encontraron miembros silenciados."
+unmuteall_audit_reason: "Desilenciar a todos"
+unmuteall_command_work: "${unmuted}/${total} miembros han sido desilenciados."
+unmuteall_logs_embed_title: "Registros de desilenciar a todos"
+unmuteall_logs_embed_description: "<@${interaction.user.id}> desilenció a ${unmuted}/${total} miembros."
 
 # /warn
 warn_command_work: "${client.iHorizon_Emojis.Yes} ¡${member?.toString()} ha sido advertido! **Razón**: `${reason}`\n__ID de advertencia__: `${warnId}`"

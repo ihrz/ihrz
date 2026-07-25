@@ -1897,6 +1897,11 @@ unmute_muted_role_doesnt_exist: "O cargo `silenciado` não existe. Por favor, si
 unmute_command_work: "<@${tomute.id}> foi desilenciado!"
 unmute_logs_embed_title: "Logs de Desilenciamento"
 unmute_logs_embed_description: "<@${interaction.user.id}> desilenciou <@${tomute.id}>"
+unmuteall_no_muted_members: "Nenhum membro silenciado foi encontrado."
+unmuteall_audit_reason: "Desilenciar todos"
+unmuteall_command_work: "${unmuted}/${total} membros foram desilenciados."
+unmuteall_logs_embed_title: "Logs de desilenciar todos"
+unmuteall_logs_embed_description: "<@${interaction.user.id}> desilenciou ${unmuted}/${total} membros."
 
 # /warn
 warn_command_work: "${client.iHorizon_Emojis.Yes} ${member?.toString()} foi advertido! **Motivo**: `${reason}`\n__ID da Advertência__: `${warnId}`"

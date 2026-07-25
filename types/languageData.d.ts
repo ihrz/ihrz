@@ -1437,6 +1437,11 @@ export interface LanguageData {
 	unmute_command_work: string;
 	unmute_logs_embed_title: string;
 	unmute_logs_embed_description: string;
+	unmuteall_no_muted_members: string;
+	unmuteall_audit_reason: string;
+	unmuteall_command_work: string;
+	unmuteall_logs_embed_title: string;
+	unmuteall_logs_embed_description: string;
 	warn_command_work: string;
 	warn_logEmbed_title: string;
 	warn_logEmbed_desc: string;

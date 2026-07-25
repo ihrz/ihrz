@@ -1899,6 +1899,11 @@ unmute_muted_role_doesnt_exist: "The `muted` role does not exist. Please mute th
 unmute_command_work: "<@${tomute.id}> has been unmuted!"
 unmute_logs_embed_title: "Unmute Logs"
 unmute_logs_embed_description: "<@${interaction.user.id}> unmuted <@${tomute.id}>"
+unmuteall_no_muted_members: "No muted members were found."
+unmuteall_audit_reason: "Unmute all"
+unmuteall_command_work: "${unmuted}/${total} members have been unmuted."
+unmuteall_logs_embed_title: "Unmute All Logs"
+unmuteall_logs_embed_description: "<@${interaction.user.id}> unmuted ${unmuted}/${total} members."
 
 # /warn
 warn_command_work: "${client.iHorizon_Emojis.Yes} ${member?.toString()} has been warned! **Reason**: `${reason}`\n__Warn ID__: `${warnId}`"

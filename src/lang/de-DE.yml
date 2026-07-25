@@ -1897,6 +1897,11 @@ unmute_muted_role_doesnt_exist: "Die Rolle `stummgeschaltet` existiert nicht. Bi
 unmute_command_work: "<@${tomute.id}> wurde entstummschaltet!"
 unmute_logs_embed_title: "Entstummschaltungs-Protokolle"
 unmute_logs_embed_description: "<@${interaction.user.id}> entstummschaltet <@${tomute.id}>"
+unmuteall_no_muted_members: "Es wurden keine stummgeschalteten Mitglieder gefunden."
+unmuteall_audit_reason: "Alle entstummen"
+unmuteall_command_work: "${unmuted}/${total} Mitglieder wurden entstummt."
+unmuteall_logs_embed_title: "Protokolle für globale Entstummung"
+unmuteall_logs_embed_description: "<@${interaction.user.id}> hat ${unmuted}/${total} Mitglieder entstummt."
 
 # /warn
 warn_command_work: "${client.iHorizon_Emojis.Yes} ${member?.toString()} wurde verwarnt! **Grund**: `${reason}`\n__Verwarnungs-ID__: `${warnId}`"

@@ -1897,6 +1897,11 @@ unmute_muted_role_doesnt_exist: "دور `المسكت` غير موجود. يرج
 unmute_command_work: "<@${tomute.id}> تم رفع ميوته!"
 unmute_logs_embed_title: "سجلات رفع الميوت"
 unmute_logs_embed_description: "<@${interaction.user.id}> رفع ميوت <@${tomute.id}>"
+unmuteall_no_muted_members: "لم يتم العثور على أعضاء مكتومين."
+unmuteall_audit_reason: "رفع الميوت عن الجميع"
+unmuteall_command_work: "تم رفع الميوت عن ${unmuted}/${total} عضو."
+unmuteall_logs_embed_title: "سجلات رفع الميوت عن الجميع"
+unmuteall_logs_embed_description: "<@${interaction.user.id}> رفع الميوت عن ${unmuted}/${total} عضو."
 
 # /warn
 warn_command_work: "${client.iHorizon_Emojis.Yes} ${member?.toString()} اتحذر! **السبب**: `${reason}`\n__رقم التحذير__: `${warnId}`"

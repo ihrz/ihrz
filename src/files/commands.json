@@ -2533,6 +2533,21 @@
                 "commandFullName": "mod unmute"
             },
             {
+                "name": "unmuteall",
+                "description": "Unmute all muted members!",
+                "description_localizations": {
+                    "fr": "Demute tous les membres mute textuellement"
+                },
+                "aliases": [
+                    "unmute-all",
+                    "untimeoutall",
+                    "untimeout-all",
+                    "demuteall"
+                ],
+                "type": 1,
+                "commandFullName": "mod unmuteall"
+            },
+            {
                 "name": "warn",
                 "description": "warn a user",
                 "description_localizations": {
@@ -5776,6 +5791,9 @@
                 "name_localizations": {
                     "fr": "reprendre"
                 },
+                "aliases": [
+                    "unpause"
+                ],
                 "description": "Resume the current playing song!",
                 "description_localizations": {
                     "fr": "Reprendre la chanson en cours de lecture"
@@ -5801,6 +5819,9 @@
                 "description_localizations": {
                     "fr": "Passer la chanson en cours de lecture"
                 },
+                "aliases": [
+                    "next"
+                ],
                 "type": 1,
                 "commandFullName": "music skip"
             },

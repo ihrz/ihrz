@@ -1003,6 +1003,11 @@ unmute_muted_role_doesnt_exist: "Роль `muted` не існує. Будь ла
 unmute_command_work: "<@${tomute.id}> був розблокований!"
 unmute_logs_embed_title: "Логи розблокування"
 unmute_logs_embed_description: "<@${interaction.user.id}> розблокував <@${tomute.id}>"
+unmuteall_no_muted_members: "Заглушених учасників не знайдено."
+unmuteall_audit_reason: "Зняти заглушення з усіх"
+unmuteall_command_work: "Знято заглушення з ${unmuted}/${total} учасників."
+unmuteall_logs_embed_title: "Логи масового зняття заглушення"
+unmuteall_logs_embed_description: "<@${interaction.user.id}> зняв заглушення з ${unmuted}/${total} учасників."
 
 # Команды резервного копирования
 # /backup
