@@ -70,7 +70,7 @@ export const subCommand: SubCommand = {
 		const embed = new EmbedBuilder()
 			.setTitle(lang.rolepanel_setup_embed_title)
 			.setDescription(
-				lang.rolepanel_setup_embed_desc.replace(
+				lang.rolepanel_setup_embed_desc.replaceAll(
 					"${member}",
 					targetMember.toString()
 				)
@@ -177,7 +177,7 @@ export const subCommand: SubCommand = {
 				}
 
 				const addedRoles: string[] = [];
-				const alreadyRoles: string[] = [];
+				const removedRoles: string[] = [];
 				const refusedOnApply: string[] = [];
 
 				for (const role of selectedRoles) {
@@ -189,7 +189,11 @@ export const subCommand: SubCommand = {
 					}
 
 					if (targetMember.roles.cache.has(role.id)) {
-						alreadyRoles.push(role.toString());
+						await targetMember.roles.remove(
+							role.id,
+							`[RolePanel] Author: ${author.id}`
+						);
+						removedRoles.push(role.toString());
 						continue;
 					}
 
@@ -200,23 +204,31 @@ export const subCommand: SubCommand = {
 					addedRoles.push(role.toString());
 				}
 
-				await client.func.method.interactionSend(interaction, {
-					content: buildApplyMessage(
+				embed.setDescription(
+					buildApplyMessage(
 						addedRoles,
-						alreadyRoles,
+						removedRoles,
 						refusedOnApply,
 						lang
-					),
-					flags: [1 << 6]
-				});
+					)
+				);
+				embed.setFields([]);
+				await originalResponse.edit({ embeds: [embed] });
 
-				if (addedRoles.length > 0) {
+				if (addedRoles.length > 0 || removedRoles.length > 0) {
 					await client.func.ihorizon_logs(interaction, {
 						title: lang.rolepanel_logs_embed_title_apply,
 						description: lang.rolepanel_logs_embed_desc_apply
 							.replace("${interaction.user.id}", author.id)
 							.replace("${member.id}", targetMember.id)
-							.replace("${roles}", addedRoles.join(", "))
+							.replace(
+								"${addedRoles}",
+								addedRoles.join(", ") || lang.var_none
+							)
+							.replace(
+								"${removedRoles}",
+								removedRoles.join(", ") || lang.var_none
+							)
 					});
 				}
 
@@ -263,7 +275,7 @@ function updateEmbed(
 	lang: LanguageData
 ) {
 	embed.setDescription(
-		lang.rolepanel_setup_embed_desc.replace("${member}", member.toString())
+		lang.rolepanel_setup_embed_desc.replaceAll("${member}", member.toString())
 	);
 	embed.setFields({
 		name: lang.rolepanel_setup_embed_roles_field,
@@ -283,18 +295,20 @@ function updateEmbed(
 
 function buildApplyMessage(
 	addedRoles: string[],
-	alreadyRoles: string[],
+	removedRoles: string[],
 	refusedRoles: string[],
 	lang: LanguageData
 ): string {
 	const lines: string[] = [];
 
 	if (addedRoles.length > 0) {
-		lines.push(lang.rolepanel_apply_added.replace("${roles}", addedRoles.join(", ")));
-	}
-	if (alreadyRoles.length > 0) {
 		lines.push(
-			lang.rolepanel_apply_already.replace("${roles}", alreadyRoles.join(", "))
+			lang.rolepanel_apply_added.replace("${roles}", addedRoles.join(", "))
+		);
+	}
+	if (removedRoles.length > 0) {
+		lines.push(
+			lang.rolepanel_apply_removed.replace("${roles}", removedRoles.join(", "))
 		);
 	}
 	if (refusedRoles.length > 0) {

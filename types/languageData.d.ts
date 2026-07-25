@@ -2185,7 +2185,6 @@ export interface LanguageData {
 	rolepanel_role_missing_permissions: string;
 	rolepanel_apply_added: string;
 	rolepanel_apply_removed: string;
-	rolepanel_apply_already: string;
 	rolepanel_apply_refused: string;
 	rolepanel_logs_embed_title_create: string;
 	rolepanel_logs_embed_desc_create: string;
