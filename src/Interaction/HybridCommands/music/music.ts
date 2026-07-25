@@ -278,6 +278,8 @@ export const command: Command = {
 				fr: "reprendre"
 			},
 
+			aliases: ["unpause"],
+
 			description: "Resume the current playing song!",
 			description_localizations: {
 				fr: "Reprendre la chanson en cours de lecture"
