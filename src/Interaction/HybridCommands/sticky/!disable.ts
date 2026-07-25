@@ -105,6 +105,10 @@ export const subCommand: SubCommand = {
 					interaction.member.user.toString()
 				)
 				.replace("${channel}", channel.toString())
+				.replace(
+					"${client.iHorizon_Emojis.Yes}",
+					client.iHorizon_Emojis.Yes
+				)
 		});
 	}
 };
