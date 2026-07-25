@@ -174,3 +174,5 @@ src/files/custom-enabled-guilds.json
 
 # OpenCommit commitlint configuration file
 .opencommit-commitlint
+
+!src/files/commands.json

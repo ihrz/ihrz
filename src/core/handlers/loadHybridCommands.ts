@@ -114,6 +114,7 @@ export default async function loadCommands(
 				});
 			}
 
+			command.commandFullName = command.name;
 			client.commands.set(command.name, command);
 			client.message_commands.set(command.name, command);
 
@@ -172,6 +173,7 @@ async function processCommandOptions(
 		const fullName = parentName
 			? `${parentName} ${option.name}`
 			: option.name;
+		option.commandFullName = fullName;
 
 		if (
 			option.type === ApplicationCommandOptionType.SubcommandGroup &&

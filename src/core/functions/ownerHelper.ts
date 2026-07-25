@@ -44,15 +44,15 @@ export function isBotDev(userId: string): boolean {
 export async function getGuildOwner(guild: Guild | null): Promise<string[]> {
 	return guild
 		? [
-				...new Set([
-					guild?.ownerId,
-					...Object.keys(
-						(await client.db.get<DatabaseStructure.OwnerSchema>(
-							`${guild?.id}.OWNER`
-						)) || {}
-					)
-				])
-			]
+			...new Set([
+				guild?.ownerId,
+				...Object.keys(
+					(await client.db.get<DatabaseStructure.OwnerSchema>(
+						`${guild?.id}.OWNER`
+					)) || {}
+				)
+			])
+		]
 		: [];
 }
 

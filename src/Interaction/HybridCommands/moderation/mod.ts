@@ -457,6 +457,19 @@ export const command: Command = {
 			permission: PermissionFlagsBits.ModerateMembers
 		},
 		{
+			name: "unmuteall",
+
+			description: "Unmute all muted members!",
+			description_localizations: {
+				fr: "Demute tous les membres mute textuellement"
+			},
+
+			aliases: ["unmute-all", "untimeoutall", "untimeout-all", "demuteall"],
+
+			type: ApplicationCommandOptionType.Subcommand,
+			permission: PermissionFlagsBits.ModerateMembers
+		},
+		{
 			name: "warn",
 
 			description: "warn a user",
@@ -688,6 +701,27 @@ export const command: Command = {
 
 			aliases: ["addtemprole", "temporaryrole", "temproles"],
 			permission: PermissionFlagsBits.Administrator
+		},
+		{
+			name: "rolepanel",
+			description: "Give selected roles to a member through a panel",
+			description_localizations: {
+				fr: "Donner des rôles sélectionnés à un membre via un panel"
+			},
+			options: [
+				{
+					name: "member",
+					description: "The member who will receive the roles",
+					description_localizations: {
+						fr: "Le membre qui recevra les rôles"
+					},
+					permission: null,
+					type: ApplicationCommandOptionType.User,
+					required: false
+				}
+			],
+			type: ApplicationCommandOptionType.Subcommand,
+			permission: PermissionFlagsBits.ManageRoles
 		},
 		{
 			name: "tempban",

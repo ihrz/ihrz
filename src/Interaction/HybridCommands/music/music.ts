@@ -278,6 +278,8 @@ export const command: Command = {
 				fr: "reprendre"
 			},
 
+			aliases: ["unpause"],
+
 			description: "Resume the current playing song!",
 			description_localizations: {
 				fr: "Reprendre la chanson en cours de lecture"
@@ -309,6 +311,8 @@ export const command: Command = {
 			description_localizations: {
 				fr: "Passer la chanson en cours de lecture"
 			},
+
+			aliases: ["next"],
 
 			type: ApplicationCommandOptionType.Subcommand,
 
