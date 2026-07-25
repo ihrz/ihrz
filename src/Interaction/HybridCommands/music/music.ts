@@ -312,6 +312,8 @@ export const command: Command = {
 				fr: "Passer la chanson en cours de lecture"
 			},
 
+			aliases: ["next"],
+
 			type: ApplicationCommandOptionType.Subcommand,
 
 			permission: null
