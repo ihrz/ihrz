@@ -24,7 +24,6 @@ import {
 	EmbedBuilder,
 	ApplicationCommandOptionType,
 	ChatInputCommandInteraction,
-	BaseGuildTextChannel,
 	ApplicationCommandType
 } from "discord.js";
 
@@ -110,11 +109,9 @@ export const command: Command = {
 					`**${interaction.user.globalName || interaction.user.username}** (<@${interaction.user.id}>) reported:\n~~--------------------------------~~\n${sentences}\n~~--------------------------------~~\nServer ID: **${interaction.guild.id}**`
 				);
 
-			await (
-				client.channels.cache.get(
-					client.config.core.reportChannelID
-				) as BaseGuildTextChannel
-			).send({ embeds: [embed] });
+			await client.func.method.channelSend(client.config.core.reportChannelID, {
+				embeds: [embed]
+			});
 
 			await client.db.set(
 				`${interaction.guild.id}.USER.${interaction.user.id}.REPORT.cooldown`,
