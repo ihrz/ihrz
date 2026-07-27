@@ -20,7 +20,6 @@
 */
 
 import {
-	BaseGuildTextChannel,
 	ChatInputCommandInteraction,
 	Client,
 	EmbedBuilder,
@@ -91,11 +90,19 @@ async function replyDenied(ctx: ExecutionContext, content: string) {
 
 async function deferIfNeeded(ctx: ExecutionContext) {
 	if (!isInteractionSource(ctx.source)) return;
+	if (ctx.source.deferred || ctx.source.replied) return;
 
+	const command = ctx.command as any;
 	const target = ctx.target as any;
-	if (target.thinking || target.ephemeral) {
+	const isSubCommand = ctx.target !== ctx.command;
+	const shouldDefer = isSubCommand
+		? target.thinking || command.thinking || target.ephemeral
+		: command.thinking || command.ephemeral;
+	const ephemeral = isSubCommand ? target.ephemeral : command.ephemeral;
+
+	if (shouldDefer) {
 		await ctx.source.deferReply({
-			flags: target.ephemeral ? [1 << 6] : [0]
+			flags: ephemeral ? [1 << 6] : [0]
 		});
 	}
 }
@@ -306,43 +313,37 @@ async function handleExecutionError(ctx: ExecutionContext, error: any) {
 		? { name: "** **", value: `/${ctx.commandPath}\n\n` }
 		: { name: "** **", value: (ctx.source as Message).content };
 
-	const channel = ctx.client.channels.cache.get(
-		ctx.client.config.core.reportChannelID
-	) as BaseGuildTextChannel;
-
-	if (channel) {
-		await channel.send({
-			embeds: [
-				new EmbedBuilder()
-					.setTitle(
-						interaction
-							? "SLASH_CMD_CRASH_NOT_HANDLE"
-							: "MSG_CMD_CRASH_NOT_HANDLE"
-					)
-					.setDescription(errorBlock)
-					.setTimestamp()
-					.setFields(
-						{
-							name: "🛡️ Bot Admin",
-							value: ctx.source.guild?.members.me?.permissions.has(
-								PermissionFlagsBits.Administrator
-							)
-								? "yes"
-								: "no"
-						},
-						{
-							name: "📝 User Admin",
-							value: member?.permissions.has(
-								PermissionFlagsBits.Administrator
-							)
-								? "yes"
-								: "no"
-						},
-						lastField
-					)
-			]
-		});
-	}
+	await ctx.client.func.method.channelSend(ctx.client.config.core.reportChannelID, {
+		embeds: [
+			new EmbedBuilder()
+				.setTitle(
+					interaction
+						? "SLASH_CMD_CRASH_NOT_HANDLE"
+						: "MSG_CMD_CRASH_NOT_HANDLE"
+				)
+				.setDescription(errorBlock)
+				.setTimestamp()
+				.setFields(
+					{
+						name: "🛡️ Bot Admin",
+						value: ctx.source.guild?.members.me?.permissions.has(
+							PermissionFlagsBits.Administrator
+						)
+							? "yes"
+							: "no"
+					},
+					{
+						name: "📝 User Admin",
+						value: member?.permissions.has(
+							PermissionFlagsBits.Administrator
+						)
+							? "yes"
+							: "no"
+					},
+					lastField
+				)
+		]
+	});
 }
 
 export async function runCommand(ctx: ExecutionContext): Promise<void> {
