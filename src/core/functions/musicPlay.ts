@@ -106,7 +106,12 @@ export function isUrlQuery(query: string): boolean {
 }
 
 export function isSpotifyURL(url: string): boolean {
-	return new URL(url).host.includes("spotify");
+	try {
+		new URL(url).host.includes("spotify");
+		return true;
+	} catch {
+		return false;
+	}
 }
 
 export async function searchQueryOnNode(
