@@ -90,11 +90,19 @@ async function replyDenied(ctx: ExecutionContext, content: string) {
 
 async function deferIfNeeded(ctx: ExecutionContext) {
 	if (!isInteractionSource(ctx.source)) return;
+	if (ctx.source.deferred || ctx.source.replied) return;
 
+	const command = ctx.command as any;
 	const target = ctx.target as any;
-	if (target.thinking || target.ephemeral) {
+	const isSubCommand = ctx.target !== ctx.command;
+	const shouldDefer = isSubCommand
+		? target.thinking || command.thinking || target.ephemeral
+		: command.thinking || command.ephemeral;
+	const ephemeral = isSubCommand ? target.ephemeral : command.ephemeral;
+
+	if (shouldDefer) {
 		await ctx.source.deferReply({
-			flags: target.ephemeral ? [1 << 6] : [0]
+			flags: ephemeral ? [1 << 6] : [0]
 		});
 	}
 }
