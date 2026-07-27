@@ -160,9 +160,9 @@ export const command: Command = {
 			var roles = client.func.method.role(
 				interaction,
 				args!,
-				1
+				2
 			) as Role | null;
-			var input = client.func.method.longString(args!, 2);
+			var input = client.func.method.longString(args!, 3);
 		}
 
 		if (action == "on") {

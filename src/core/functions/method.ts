@@ -181,6 +181,14 @@ export async function voiceChannel(
 				x.type === ChannelType.GuildStageVoice
 		)[argsNumber] as BaseGuildVoiceChannel;
 
+	const channelFromName = interaction.guild?.channels.cache.find(
+		(x) =>
+			x.name === args[argsNumber] &&
+			(x.type === ChannelType.GuildVoice ||
+				x.type === ChannelType.GuildStageVoice)
+	);
+
+	if (channelFromName) return channelFromName as BaseGuildVoiceChannel;
 	if (mentionedChannel) return Promise.resolve(mentionedChannel);
 
 	// Then try to fetch by ID if it's a valid ID format
@@ -612,7 +620,7 @@ function isValidArgument(arg: string, type: string, guild: Guild): boolean {
 				/^<@!?(\d+)>$/.test(arg) ||
 				!isNaN(Number(arg)) ||
 				guild.members.cache.find((x) => x.user.username === arg) !==
-					undefined
+				undefined
 			);
 		case "roles":
 			return (
@@ -732,8 +740,8 @@ export type components = readonly (
 	| JSONEncodable<APIMessageTopLevelComponent>
 	| TopLevelComponentData
 	| ActionRowData<
-			MessageActionRowComponentData | MessageActionRowComponentBuilder
-	  >
+		MessageActionRowComponentData | MessageActionRowComponentBuilder
+	>
 	| APIMessageTopLevelComponent
 )[];
 
@@ -833,11 +841,11 @@ export async function channelSend(
 		typeof options === "string"
 			? { content: options, allowedMentions: { repliedUser: false } }
 			: ({
-					...options,
-					content: options.content ?? undefined,
-					nonce: SnowflakeUtil.generate().toString(),
-					enforceNonce: true
-				} as MessageReplyOptions);
+				...options,
+				content: options.content ?? undefined,
+				nonce: SnowflakeUtil.generate().toString(),
+				enforceNonce: true
+			} as MessageReplyOptions);
 
 	const channelId =
 		typeof interaction === "string"
@@ -1024,7 +1032,7 @@ export async function derank(
 		.forEach(async (role) => {
 			await user?.roles
 				.remove(role.id, reason || "Protection")
-				.catch(() => {});
+				.catch(() => { });
 		});
 }
 
@@ -1171,7 +1179,7 @@ export async function buttonReact(
 	for (const lines of comp) {
 		if (
 			(lines as ActionRow<MessageActionRowComponent>).components.length <
-				5 &&
+			5 &&
 			!isAdd
 		) {
 			if (

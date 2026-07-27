@@ -38,6 +38,18 @@ import { LavalinkNode, Player, SearchResult, Track } from "lavalink-client";
 import { LanguageData } from "../../../types/languageData.js";
 import maskLink from "./maskLink.js";
 
+import { createRequire } from "node:module";
+
+const require = createRequire(import.meta.url);
+
+const spotifyUrlInfo = require("spotify-url-info") as (
+	fetch: typeof globalThis.fetch
+) => {
+	getDetails: (...args: any[]) => Promise<any>;
+};
+
+const { getDetails } = spotifyUrlInfo(fetch);
+
 export type PlayInteraction =
 	| ChatInputCommandInteraction<"cached">
 	| Message
@@ -93,34 +105,48 @@ export function isUrlQuery(query: string): boolean {
 	}
 }
 
+export function isSpotifyURL(url: string): boolean {
+	return new URL(url).host.includes("spotify");
+}
+
 export async function searchQueryOnNode(
 	client: Client,
 	node: LavalinkNode,
 	query: string,
 	requester: User
 ): Promise<SearchResult | undefined> {
-	if (query.startsWith("https://") && query.includes("spotify.com/track")) {
-		let res: SearchResult | undefined = await node.search(
-			{ query, source: "spotify" },
-			requester
-		);
+	// SPOTIFY PART
+	if (isSpotifyURL(query)) {
+		let spotifyRes = await getDetails(query);
 
-		if (res) {
-			const trackInfo = res.tracks[0]?.info;
+		let res: SearchResult | undefined = undefined;
 
-			if (trackInfo) {
-				res = await node.search(
-					{
-						query: `${trackInfo.title} ${trackInfo.author}`,
-						source: "deezer"
-					},
-					requester
-				);
+		if (spotifyRes) {
+			res = await node.search(
+				{
+					query: `${spotifyRes?.tracks?.[0]?.artist} ${spotifyRes?.tracks?.[0]?.name}`,
+					source: "deezer"
+				},
+				requester
+			);
+
+			if (res) {
+				const trackInfo = res.tracks[0]?.info;
+
+				if (trackInfo) {
+					res = await node.search(
+						{
+							query: `${trackInfo.title} ${trackInfo.author}`,
+							source: "deezer"
+						},
+						requester
+					);
+				} else {
+					res = undefined;
+				}
 			} else {
 				res = undefined;
 			}
-		} else {
-			res = undefined;
 		}
 
 		return res;
