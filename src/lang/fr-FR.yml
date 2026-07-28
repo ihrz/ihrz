@@ -1873,7 +1873,7 @@ tempmute_logs_embed_description: "<@${interaction.user.id}> a rendu muet <@${tom
 tempmute_reason_create_roles: "Créer le rôle de mute temporaire !"
 tempmute_tomute_is_admin: "${client.iHorizon_Emojis.No} | L'utilisateur as les permissions administrateur, je ne peux pas le mute."
 tempmute_tomute_highest_role_or_same: "${client.iHorizon_Emojis.No} | **Mon rôle sur ce serveur est plus bas ou égal à ${tomute.toString()}. Je ne peux pas modérer ce membre.**"
-tempmute_tomute_max_time_passed: "\n-#  ${client.iHorizon_Emojis.VC_OpenChat} Discord as une limite de 14 jours pour un mute. J'ai appliquer 14 jours."
+tempmute_tomute_max_time_passed: "\n-#  ${client.iHorizon_Emojis.VC_OpenChat} Discord as une limite de 28 jours pour un mute. J'ai appliquer 28 jours."
 
 # /temprole
 temprole_dont_have_permission: "${client.iHorizon_Emojis.No} | Vous n'avez pas la permission d'ajouter des rôles temporaires aux membres."

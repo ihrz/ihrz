@@ -1873,7 +1873,7 @@ tempmute_logs_embed_description: "<@${interaction.user.id}> が <@${tomute.id}> 
 tempmute_reason_create_roles: "一時ミュートのミュート役職を作成してください！"
 tempmute_tomute_is_admin: "${client.iHorizon_Emojis.No} | ユーザーは管理者権限を持っているため、ミュートできません。"
 tempmute_tomute_highest_role_or_same: "${client.iHorizon_Emojis.No} | **このサーバーでの私の役職は ${tomute.toString()} と同じかそれ以下です。このメンバーをモデレートできません。**"
-tempmute_tomute_max_time_passed: "\n-# ${client.iHorizon_Emojis.VC_OpenChat} Discordではミュートの制限は14日です。14日を適用しました。"
+tempmute_tomute_max_time_passed: "\n-# ${client.iHorizon_Emojis.VC_OpenChat} Discordではミュートの制限は28日です。28日を適用しました。"
 
 # /temprole
 temprole_dont_have_permission: "${client.iHorizon_Emojis.No} | メンバーに一時ロールを追加する権限がありません。"

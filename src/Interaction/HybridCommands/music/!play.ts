@@ -43,7 +43,7 @@ export const subCommand: SubCommand = {
 		const query =
 			interaction instanceof ChatInputCommandInteraction
 				? interaction.options.getString("title")!
-				: client.func.method.longString(args!, 0)!;
+				: client.func.method.longString(args!, 0)! || "";
 
 		await client.func.musicPlay.handleMusicPlay({
 			client,

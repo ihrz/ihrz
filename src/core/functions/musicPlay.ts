@@ -39,6 +39,7 @@ import { LanguageData } from "../../../types/languageData.js";
 import maskLink from "./maskLink.js";
 
 import { getDetails } from "spotify-url-info";
+import { Innertube, YT, YTNodes } from "youtubei.js";
 
 export type PlayInteraction =
 	| ChatInputCommandInteraction<"cached">
@@ -49,6 +50,8 @@ export type PlayResponsePayload = Pick<
 	MessageReplyOptions,
 	"allowedMentions" | "content" | "embeds"
 >;
+
+const youtube = await Innertube.create();
 
 export interface HandleMusicPlayOptions {
 	client: Client;
@@ -103,6 +106,168 @@ export function isSpotifyURL(url: string): boolean {
 	}
 }
 
+export function isYoutubeURL(url: string): boolean {
+	try {
+		return new URL(url).host.includes("youtu");
+	} catch {
+		return false;
+	}
+}
+
+export async function handleSpotify(
+	requester: User,
+	node: LavalinkNode,
+	query: string
+): Promise<SearchResult | undefined> {
+	const spotifyRes = await getDetails(query);
+
+	if (!spotifyRes?.tracks?.length) {
+		return undefined;
+	}
+
+	if (spotifyRes.tracks.length === 1) {
+		const track = spotifyRes.tracks[0];
+
+		return await node.search(
+			{
+				query: `${track.artist} ${track.name}`,
+				source: "deezer"
+			},
+			requester
+		);
+	}
+
+	// Spotify album / playlist
+	const tracks = spotifyRes.tracks.slice(0, 100);
+
+	const results = await Promise.all(
+		tracks.map(async (track) => {
+			try {
+				const res = await node.search(
+					{
+						query: `${track.artist} ${track.name}`,
+						source: "deezer"
+					},
+					requester
+				);
+
+				return res?.tracks?.[0] ?? undefined;
+			} catch {
+				return undefined;
+			}
+		})
+	);
+
+	const foundTracks = results.filter(
+		(track): track is Track => track !== undefined
+	);
+
+	if (!foundTracks.length) {
+		return undefined;
+	}
+
+	return {
+		loadType: "playlist",
+		tracks: foundTracks,
+		playlistInfo: {
+			name: "Spotify Playlist",
+			title: "Spotify Playlist",
+			duration: foundTracks.reduce(
+				(total, track) => total + track.info.duration,
+				0
+			),
+			selectedTrack: null
+		},
+		exception: null,
+		pluginInfo: {}
+	} as unknown as SearchResult;
+}
+
+// I saw that youtube love add extra content in title like (Prod . Ft x x) and deezer/spotify/soundcloud aren't doing it. so i have to sanitized
+export function removeParenthesesContent(text: string): string {
+	return text.replace(/\s*\([^)]*\)/g, "").trim();
+}
+
+export function sanitizeYoutubeUrl(input: string): string {
+	try {
+		const url = new URL(input);
+
+		const youtubeHosts = [
+			"youtube.com",
+			"www.youtube.com",
+			"youtu.be",
+			"music.youtube.com"
+		];
+
+		if (!youtubeHosts.includes(url.hostname)) {
+			return input;
+		}
+
+		const removeParams = [
+			"si",
+			"t",
+			"list",
+			"index",
+			"start_radio",
+			"pp",
+			"feature",
+			"embeds_referring_euri",
+			"source_ve_path",
+			"app"
+		];
+
+		for (const param of removeParams) {
+			url.searchParams.delete(param);
+		}
+
+		if ([...url.searchParams].length === 0) {
+			url.search = "";
+		}
+
+		return url.toString();
+	} catch {
+		return input;
+	}
+}
+
+export async function handleYoutube(
+	requester: User,
+	node: LavalinkNode,
+	query: string
+): Promise<SearchResult | undefined> {
+	try {
+		const url = sanitizeYoutubeUrl(query);
+
+		const search = await youtube.search(url, {
+			type: "video"
+		});
+
+		const video = search.videos[0];
+
+		if (!video) {
+			return undefined;
+		}
+
+		const itemName = removeParenthesesContent(
+			(video as YTNodes.Video).title.text || ""
+		);
+		if (itemName !== "" || itemName !== null) {
+			return await node.search(
+				{
+					query: itemName,
+					source: "deezer"
+				},
+				requester
+			);
+		} else {
+			return undefined;
+		}
+	} catch (err) {
+		logger.err("YouTube handler failed:", err);
+		return undefined;
+	}
+}
+
 export async function searchQueryOnNode(
 	client: Client,
 	node: LavalinkNode,
@@ -111,71 +276,10 @@ export async function searchQueryOnNode(
 ): Promise<SearchResult | undefined> {
 	// SPOTIFY PART
 	if (isSpotifyURL(query)) {
-		const spotifyRes = await getDetails(query);
-
-		if (!spotifyRes?.tracks?.length) {
-			return undefined;
-		}
-
-		if (spotifyRes.tracks.length === 1) {
-			const track = spotifyRes.tracks[0];
-
-			return await node.search(
-				{
-					query: `${track.artist} ${track.name}`,
-					source: "deezer"
-				},
-				requester
-			);
-		}
-
-		// Spotify album / playlist
-		const tracks = spotifyRes.tracks.slice(0, 100);
-
-		const results = await Promise.all(
-			tracks.map(async (track) => {
-				try {
-					const res = await node.search(
-						{
-							query: `${track.artist} ${track.name}`,
-							source: "deezer"
-						},
-						requester
-					);
-
-					return res?.tracks?.[0] ?? undefined;
-				} catch {
-					return undefined;
-				}
-			})
-		);
-
-		const foundTracks = results.filter(
-			(track): track is Track => track !== undefined
-		);
-
-		if (!foundTracks.length) {
-			return undefined;
-		}
-
-		return {
-			loadType: "playlist",
-			tracks: foundTracks,
-			playlistInfo: {
-				name: "Spotify Playlist",
-				title: "Spotify Playlist",
-				duration: foundTracks.reduce(
-					(total, track) => total + track.info.duration,
-					0
-				),
-				selectedTrack: null
-			},
-			exception: null,
-			pluginInfo: {}
-		} as unknown as SearchResult;
-	}
-
-	if (isUrlQuery(query)) {
+		return await handleSpotify(requester, node, query);
+	} else if (isYoutubeURL(query)) {
+		return await handleYoutube(requester, node, query);
+	} else if (isUrlQuery(query)) {
 		let res: SearchResult | undefined;
 
 		try {
