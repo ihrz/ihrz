@@ -68,7 +68,7 @@ export const subCommand: SubCommand = {
 		}
 
 		let mutetimeMS = client.timeCalculator.to_ms(mutetime);
-		const max_time = client.timeCalculator.to_ms("2weeks");
+		const max_time = client.timeCalculator.to_ms("4weeks");
 		let overflow = false;
 
 		if (mutetimeMS > max_time) {
