@@ -166,25 +166,6 @@ export async function searchQueryOnNode(
 		if (!res?.tracks[0]) {
 			try {
 				res = await node.search(
-					{ query, source: "spotify" },
-					requester
-				);
-				logger.debug(
-					"Searching URL",
-					query,
-					"with",
-					"spotify",
-					"| Result: ",
-					res.tracks[0]?.info
-				);
-			} catch {
-				res = undefined;
-			}
-		}
-
-		if (!res?.tracks[0]) {
-			try {
-				res = await node.search(
 					{ query, source: "soundcloud" },
 					requester
 				);
@@ -227,34 +208,6 @@ export async function searchQueryOnNode(
 		);
 	} catch {
 		res = undefined;
-	}
-
-	if (
-		res?.tracks[0] &&
-		!client.func.music_proximity.isSimilar(query, res.tracks[0], 0.5, 0.6)
-	) {
-		try {
-			res = await node.search({ query, source: "spotify" }, requester);
-			logger.debug(
-				"Searching",
-				query,
-				"with",
-				"spotify",
-				"| Result: ",
-				res.tracks[0]?.info
-			);
-			logger.debug(
-				"Spotify is 50% similar of the query",
-				client.func.music_proximity.isSimilar(
-					query,
-					res.tracks[0],
-					0.5,
-					0.6
-				)
-			);
-		} catch {
-			res = undefined;
-		}
 	}
 
 	if (
