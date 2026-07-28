@@ -44,7 +44,10 @@ const allowedDomains: string[] = [
 	"deezer.page.link",
 	"cdn.discordapp.com",
 	"dzr.page.link",
-	"link.deezer.com"
+	"link.deezer.com",
+	"youtu.be",
+	"youtube.com",
+	"www.youtube.com"
 ];
 
 export default function isAllowedLinks(link: string): boolean {

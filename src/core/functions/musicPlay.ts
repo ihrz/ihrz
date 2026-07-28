@@ -39,6 +39,7 @@ import { LanguageData } from "../../../types/languageData.js";
 import maskLink from "./maskLink.js";
 
 import { getDetails } from "spotify-url-info";
+import { Innertube, YT, YTNodes } from "youtubei.js";
 
 export type PlayInteraction =
 	| ChatInputCommandInteraction<"cached">
@@ -49,6 +50,8 @@ export type PlayResponsePayload = Pick<
 	MessageReplyOptions,
 	"allowedMentions" | "content" | "embeds"
 >;
+
+const youtube = await Innertube.create();
 
 export interface HandleMusicPlayOptions {
 	client: Client;
@@ -180,6 +183,91 @@ export async function handleSpotify(
 	} as unknown as SearchResult;
 }
 
+// I saw that youtube love add extra content in title like (Prod . Ft x x) and deezer/spotify/soundcloud aren't doing it. so i have to sanitized
+export function removeParenthesesContent(text: string): string {
+	return text.replace(/\s*\([^)]*\)/g, "").trim();
+}
+
+export function sanitizeYoutubeUrl(input: string): string {
+	try {
+		const url = new URL(input);
+
+		const youtubeHosts = [
+			"youtube.com",
+			"www.youtube.com",
+			"youtu.be",
+			"music.youtube.com"
+		];
+
+		if (!youtubeHosts.includes(url.hostname)) {
+			return input;
+		}
+
+		const removeParams = [
+			"si",
+			"t",
+			"list",
+			"index",
+			"start_radio",
+			"pp",
+			"feature",
+			"embeds_referring_euri",
+			"source_ve_path",
+			"app"
+		];
+
+		for (const param of removeParams) {
+			url.searchParams.delete(param);
+		}
+
+		if ([...url.searchParams].length === 0) {
+			url.search = "";
+		}
+
+		return url.toString();
+	} catch {
+		return input;
+	}
+}
+
+export async function handleYoutube(
+	requester: User,
+	node: LavalinkNode,
+	query: string
+): Promise<SearchResult | undefined> {
+	try {
+		const url = sanitizeYoutubeUrl(query);
+
+		const search = await youtube.search(url, {
+			type: "video"
+		});
+
+		const video = search.videos[0];
+
+		if (!video) {
+			return undefined;
+		}
+
+		const itemName = removeParenthesesContent(
+			(video as YTNodes.Video).title.text || ""
+		);
+		if (itemName !== "" || itemName !== null) {
+			return await node.search(
+				{
+					query: itemName,
+					source: "deezer"
+				},
+				requester
+			);
+		} else {
+			return undefined;
+		}
+	} catch (err) {
+		logger.err("YouTube handler failed:", err);
+		return undefined;
+	}
+}
+
 export async function searchQueryOnNode(
 	client: Client,
 	node: LavalinkNode,
@@ -190,6 +278,7 @@ export async function searchQueryOnNode(
 	if (isSpotifyURL(query)) {
 		return await handleSpotify(requester, node, query);
 	} else if (isYoutubeURL(query)) {
+		return await handleYoutube(requester, node, query);
 	} else if (isUrlQuery(query)) {
 		let res: SearchResult | undefined;
 
