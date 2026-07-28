@@ -111,27 +111,68 @@ export async function searchQueryOnNode(
 ): Promise<SearchResult | undefined> {
 	// SPOTIFY PART
 	if (isSpotifyURL(query)) {
-		let spotifyRes = await getDetails(query);
+		const spotifyRes = await getDetails(query);
 
-		let res: SearchResult | undefined = undefined;
+		if (!spotifyRes?.tracks?.length) {
+			return undefined;
+		}
 
-		if (spotifyRes) {
-			res = await node.search(
+		if (spotifyRes.tracks.length === 1) {
+			const track = spotifyRes.tracks[0];
+
+			return await node.search(
 				{
-					query: `${spotifyRes?.tracks?.[0]?.artist} ${spotifyRes?.tracks?.[0]?.name}`,
+					query: `${track.artist} ${track.name}`,
 					source: "deezer"
 				},
 				requester
 			);
-
-			if (res) {
-				return res;
-			} else {
-				res = undefined;
-			}
 		}
 
-		return res;
+		// Spotify album / playlist
+		const tracks = spotifyRes.tracks.slice(0, 100);
+
+		const results = await Promise.all(
+			tracks.map(async (track) => {
+				try {
+					const res = await node.search(
+						{
+							query: `${track.artist} ${track.name}`,
+							source: "deezer"
+						},
+						requester
+					);
+
+					return res?.tracks?.[0] ?? undefined;
+				} catch {
+					return undefined;
+				}
+			})
+		);
+
+		const foundTracks = results.filter(
+			(track): track is Track => track !== undefined
+		);
+
+		if (!foundTracks.length) {
+			return undefined;
+		}
+
+		return {
+			loadType: "playlist",
+			tracks: foundTracks,
+			playlistInfo: {
+				name: "Spotify Playlist",
+				title: "Spotify Playlist",
+				duration: foundTracks.reduce(
+					(total, track) => total + track.info.duration,
+					0
+				),
+				selectedTrack: null
+			},
+			exception: null,
+			pluginInfo: {}
+		} as unknown as SearchResult;
 	}
 
 	if (isUrlQuery(query)) {
