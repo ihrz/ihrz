@@ -38,17 +38,7 @@ import { LavalinkNode, Player, SearchResult, Track } from "lavalink-client";
 import { LanguageData } from "../../../types/languageData.js";
 import maskLink from "./maskLink.js";
 
-import { createRequire } from "node:module";
-
-const require = createRequire(import.meta.url);
-
-const spotifyUrlInfo = require("spotify-url-info") as (
-	fetch: typeof globalThis.fetch
-) => {
-	getDetails: (...args: any[]) => Promise<any>;
-};
-
-const { getDetails } = spotifyUrlInfo(fetch);
+import { getDetails } from "spotify-url-info";
 
 export type PlayInteraction =
 	| ChatInputCommandInteraction<"cached">
