@@ -38,17 +38,7 @@ import { LavalinkNode, Player, SearchResult, Track } from "lavalink-client";
 import { LanguageData } from "../../../types/languageData.js";
 import maskLink from "./maskLink.js";
 
-import { createRequire } from "node:module";
-
-const require = createRequire(import.meta.url);
-
-const spotifyUrlInfo = require("spotify-url-info") as (
-	fetch: typeof globalThis.fetch
-) => {
-	getDetails: (...args: any[]) => Promise<any>;
-};
-
-const { getDetails } = spotifyUrlInfo(fetch);
+import { getDetails } from "spotify-url-info";
 
 export type PlayInteraction =
 	| ChatInputCommandInteraction<"cached">
@@ -121,39 +111,68 @@ export async function searchQueryOnNode(
 ): Promise<SearchResult | undefined> {
 	// SPOTIFY PART
 	if (isSpotifyURL(query)) {
-		let spotifyRes = await getDetails(query);
+		const spotifyRes = await getDetails(query);
 
-		let res: SearchResult | undefined = undefined;
+		if (!spotifyRes?.tracks?.length) {
+			return undefined;
+		}
 
-		if (spotifyRes) {
-			res = await node.search(
+		if (spotifyRes.tracks.length === 1) {
+			const track = spotifyRes.tracks[0];
+
+			return await node.search(
 				{
-					query: `${spotifyRes?.tracks?.[0]?.artist} ${spotifyRes?.tracks?.[0]?.name}`,
+					query: `${track.artist} ${track.name}`,
 					source: "deezer"
 				},
 				requester
 			);
+		}
 
-			if (res) {
-				const trackInfo = res.tracks[0]?.info;
+		// Spotify album / playlist
+		const tracks = spotifyRes.tracks.slice(0, 100);
 
-				if (trackInfo) {
-					res = await node.search(
+		const results = await Promise.all(
+			tracks.map(async (track) => {
+				try {
+					const res = await node.search(
 						{
-							query: `${trackInfo.title} ${trackInfo.author}`,
+							query: `${track.artist} ${track.name}`,
 							source: "deezer"
 						},
 						requester
 					);
-				} else {
-					res = undefined;
+
+					return res?.tracks?.[0] ?? undefined;
+				} catch {
+					return undefined;
 				}
-			} else {
-				res = undefined;
-			}
+			})
+		);
+
+		const foundTracks = results.filter(
+			(track): track is Track => track !== undefined
+		);
+
+		if (!foundTracks.length) {
+			return undefined;
 		}
 
-		return res;
+		return {
+			loadType: "playlist",
+			tracks: foundTracks,
+			playlistInfo: {
+				name: "Spotify Playlist",
+				title: "Spotify Playlist",
+				duration: foundTracks.reduce(
+					(total, track) => total + track.info.duration,
+					0
+				),
+				selectedTrack: null
+			},
+			exception: null,
+			pluginInfo: {}
+		} as unknown as SearchResult;
 	}
 
 	if (isUrlQuery(query)) {
@@ -171,25 +190,6 @@ export async function searchQueryOnNode(
 			);
 		} catch {
 			res = undefined;
-		}
-
-		if (!res?.tracks[0]) {
-			try {
-				res = await node.search(
-					{ query, source: "spotify" },
-					requester
-				);
-				logger.debug(
-					"Searching URL",
-					query,
-					"with",
-					"spotify",
-					"| Result: ",
-					res.tracks[0]?.info
-				);
-			} catch {
-				res = undefined;
-			}
 		}
 
 		if (!res?.tracks[0]) {
@@ -237,34 +237,6 @@ export async function searchQueryOnNode(
 		);
 	} catch {
 		res = undefined;
-	}
-
-	if (
-		res?.tracks[0] &&
-		!client.func.music_proximity.isSimilar(query, res.tracks[0], 0.5, 0.6)
-	) {
-		try {
-			res = await node.search({ query, source: "spotify" }, requester);
-			logger.debug(
-				"Searching",
-				query,
-				"with",
-				"spotify",
-				"| Result: ",
-				res.tracks[0]?.info
-			);
-			logger.debug(
-				"Spotify is 50% similar of the query",
-				client.func.music_proximity.isSimilar(
-					query,
-					res.tracks[0],
-					0.5,
-					0.6
-				)
-			);
-		} catch {
-			res = undefined;
-		}
 	}
 
 	if (

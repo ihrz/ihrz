@@ -48,7 +48,7 @@
 		"nodemailer": "^7.0.13",
 		"puppeteer": "^24.43.1",
 		"rss-parser": "^3.13.0",
-		"spotify-url-info": "^3.3.1",
+		"spotify-url-info": "github:Kisakay/spotify-url-info",
 		"typescript-eslint": "^8.61.0",
 		"xml2js": "^0.6.2"
 	},
