@@ -125,19 +125,7 @@ export async function searchQueryOnNode(
 			);
 
 			if (res) {
-				const trackInfo = res.tracks[0]?.info;
-
-				if (trackInfo) {
-					res = await node.search(
-						{
-							query: `${trackInfo.title} ${trackInfo.author}`,
-							source: "deezer"
-						},
-						requester
-					);
-				} else {
-					res = undefined;
-				}
+				return res;
 			} else {
 				res = undefined;
 			}
