@@ -68,7 +68,7 @@ export const subCommand: SubCommand = {
 		}
 
 		let mutetimeMS = client.timeCalculator.to_ms(mutetime);
-		const max_time = client.timeCalculator.to_ms("2weeks");
+		const max_time = client.timeCalculator.to_ms("4weeks");
 		let overflow = false;
 
 		if (mutetimeMS > max_time) {
@@ -165,16 +165,20 @@ export const subCommand: SubCommand = {
 		}
 		await client.func.method.interactionSend(interaction, content);
 
-		setTimeout(async () => {
-			if (tomute?.isCommunicationDisabled() === true) {
-				await client.func.method.channelSend(interaction, {
-					content: lang.tempmute_unmuted_by_time.replace(
-						"${tomute.id}",
-						tomute?.id!
-					)
-				});
-			}
-		}, mutetimeMS);
+		// setTimeout overflows past 2^31-1 ms (~24.85 days) and would fire
+		// instantly, so the expiration notice is skipped for longer mutes.
+		if (mutetimeMS <= 2147483647) {
+			setTimeout(async () => {
+				if (tomute?.isCommunicationDisabled() === true) {
+					await client.func.method.channelSend(interaction, {
+						content: lang.tempmute_unmuted_by_time.replace(
+							"${tomute.id}",
+							tomute?.id!
+						)
+					});
+				}
+			}, mutetimeMS);
+		}
 
 		await client.func.ihorizon_logs(interaction, {
 			title: lang.tempmute_logs_embed_title,

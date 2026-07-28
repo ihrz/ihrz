@@ -1873,7 +1873,7 @@ tempmute_logs_embed_description: "<@${interaction.user.id}> قام بكتم <@${
 tempmute_reason_create_roles: "إنشاء دور مؤقت للميوت!"
 tempmute_tomute_is_admin: "${client.iHorizon_Emojis.No} | المستخدم لديه صلاحيات المسؤول، لا أستطيع كتمه."
 tempmute_tomute_highest_role_or_same: "${client.iHorizon_Emojis.No} | **دوري في هذا الخادم أقل أو مساوٍ لـ ${tomute.toString()}. لا أستطيع معاقبة هذا العضو.**"
-tempmute_tomute_max_time_passed: "\n-# ${client.iHorizon_Emojis.VC_OpenChat} لدى ديسكورد حد أقصى قدره 14 يومًا للكتم. لقد قمت بتطبيق 14 يومًا."
+tempmute_tomute_max_time_passed: "\n-# ${client.iHorizon_Emojis.VC_OpenChat} لدى ديسكورد حد أقصى قدره 28 يومًا للكتم. لقد قمت بتطبيق 28 يومًا."
 
 # /temprole
 temprole_dont_have_permission: "${client.iHorizon_Emojis.No} | ليس لديك الإذن لإضافة أدوار مؤقتة للأعضاء."
