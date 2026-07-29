@@ -83,6 +83,7 @@ var_form: "نموذج"
 var_original_message: "الرسالة الأصلية"
 var_click_here: "انقر هنا"
 var_s_message: "رسالة {nickname}"
+var_source: "الموسيقى من: "
 
 # Discord Permission Name
 perm_createinstantinvite_name: "إنشاء دعوة فورية"

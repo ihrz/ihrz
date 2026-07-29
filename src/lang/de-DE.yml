@@ -83,6 +83,7 @@ var_form: "Formular"
 var_original_message: "Ursprüngliche Nachricht"
 var_click_here: "Hier klicken"
 var_s_message: "Nachricht von {nickname}"
+var_source: "Musik von: "
 
 # Discord-Berechtigungsnamen
 perm_createinstantinvite_name: "Soforteinladung erstellen"

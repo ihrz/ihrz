@@ -154,8 +154,7 @@ declare namespace Client_Functions {
 		): boolean;
 		export function checkCommandPermission(
 			interaction:
-				| ChatInputCommandInteraction<"cached">
-				| Message<boolean>,
+				ChatInputCommandInteraction<"cached"> | Message<boolean>,
 			command: string
 		): Promise<{ allowed: boolean; permissionData: command }>;
 		export function checkUserPermissions(
@@ -163,8 +162,7 @@ declare namespace Client_Functions {
 		): Promise<0 | DatabaseStructure.PermLevel>;
 		export function sendErrorMessage(
 			interaction:
-				| ChatInputCommandInteraction<"cached">
-				| Message<boolean>,
+				ChatInputCommandInteraction<"cached"> | Message<boolean>,
 			lang: LanguageData,
 			permissionData: {
 				users: string[];
@@ -222,8 +220,7 @@ declare namespace Client_Functions {
 			command: Command,
 			client: Client<boolean>,
 			interaction:
-				| ChatInputCommandInteraction<"cached">
-				| Message<boolean>
+				ChatInputCommandInteraction<"cached"> | Message<boolean>
 		): Promise<EmbedBuilder>;
 		export function checkCommandArgs(
 			message: Message<boolean>,
@@ -611,6 +608,20 @@ declare namespace Client_Functions {
 		export function buildNoResultEmbed(lang: LanguageData): EmbedBuilder;
 		export function buildTrackDuration(track: Track): string;
 		export function isUrlQuery(query: string): boolean;
+		export function isSpotifyURL(url: string): boolean;
+		export function isYoutubeURL(url: string): boolean;
+		export function handleSpotify(
+			requester: User,
+			node: LavalinkNode,
+			query: string
+		): Promise<SearchResult | undefined>;
+		export function removeParenthesesContent(text: string): string;
+		export function sanitizeYoutubeUrl(input: string): string;
+		export function handleYoutube(
+			requester: User,
+			node: LavalinkNode,
+			query: string
+		): Promise<SearchResult | undefined>;
 		export function searchQueryOnNode(
 			client: Client<boolean>,
 			node: LavalinkNode,
@@ -623,6 +634,7 @@ declare namespace Client_Functions {
 			requester: User,
 			preferredNode?: LavalinkNode
 		): Promise<SearchMusicQueryResult>;
+		export function platformLabel(url: string, lang: LanguageData): string;
 		export function sendQueueAddMessage(
 			interaction:
 				| ChatInputCommandInteraction<"cached">
@@ -682,7 +694,7 @@ declare namespace Client_Functions {
 			lang: LanguageData,
 			page: number,
 			maxPage: number
-		): Promise<{ text: string }>;
+		): Promise<{ text: string; iconURL: string }>;
 		export function footerAttachmentBuilder(
 			entry?:
 				| Interaction

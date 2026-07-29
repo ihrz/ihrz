@@ -83,6 +83,7 @@ var_form: "フォーム"
 var_original_message: "元のメッセージ"
 var_click_here: "ここをクリック"
 var_s_message: "{nickname}のメッセージ"
+var_source: "音楽提供: "
 
 # Discord Permission Name
 perm_createinstantinvite_name: "インスタント招待を作成"
