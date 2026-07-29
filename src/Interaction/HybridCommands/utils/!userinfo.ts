@@ -425,6 +425,8 @@ export const subCommand: SubCommand = {
 			let badge = "";
 			let type = "";
 
+			if (member.bot) return { badge, type };
+
 			try {
 				if (client.config.api.HorizonGateway?.startsWith("http")) {
 					const result = await axios.post(
