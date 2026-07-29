@@ -1,6 +1,6 @@
-# Version Minor 2026.7.1 (1st patch of July 2026)
+# Version Minor 2026.8.1 (1st patch of July 2026)
 
-## Changes between [2026.6.1](https://gitlab.com/ihrz/ihrz/-/releases/2026.6.1) and [2026.7.1](https://gitlab.com/ihrz/ihrz/-/releases/2026.7.1)
+## Changes between [2026.7.1](https://gitlab.com/ihrz/ihrz/-/releases/2026.7.1) and [2026.8.1](https://gitlab.com/ihrz/ihrz/-/releases/2026.8.1)
 
 ---
 
@@ -25,11 +25,48 @@ Thanks to everyone who has supported iHorizon since the beginning. ❤️
 **__Command `/utils userinfo`__**
 
 - From now on, OAuth2 is no longer the only method used to detect a user's Nitro subscription. iHorizon now uses the banner and animated avatar features to determine whether a user has Nitro.
+- Fixed the Nitro detection logic when relying on the banner.
 
 **__Command `/mod unban`__**
 
 - Added `pardon` aliases in MessageContext command.
- 
+
+**__Command `/mod rolepanel` (+rolepanel)__**
+
+- New command: lets you give selected roles to a member through an interactive panel.
+
+**__Command `/mod unmuteall` (+unmuteall)__**
+
+- New command to unmute all currently muted members at once.
+
+**__Command `/mod unlockall`__**
+
+- New command to unlock all channels at once.
+
+**__Command `/mod tempmute` (+tempmute)__**
+
+- Increased the maximum timeout duration to 28 days.
+
+**__Command `/utils admin-roles`__**
+
+- Added an alias: `allpa`.
+
+**__Command `+move`__**
+
+- You can now specify a voice channel by name directly in the command (e.g. `+move 2h0 Voice 1`).
+
+**__Command `+soutien`__**
+
+- Fixed argument handling.
+
+**__Command `+sticker`__**
+
+- Fixed an issue affecting the command.
+
+**__Command `+antiexe`__**
+
+- Fixed a permission issue.
+
 **__Module: `Confession`__**
 
 - Changed the form embed of the confession panel to inform guild members that confessions can be de-anonymized.
@@ -44,31 +81,44 @@ Thanks to everyone who has supported iHorizon since the beginning. ❤️
 
 **__Module: `Music`__**
 
-- In the `Music` **module**, added a small tip message that randomly appears when the player starts, to let users know that `/lastfm` exists on iHorizon.
+- Added a small tip message that randomly appears when the player starts, to let users know that `/lastfm` exists on iHorizon.
+- `/music skip` (+skip) — added alias: `+next`.
+- Fixed volume resetting incorrectly when a new track starts.
+- Added support for Spotify links (Album/Track/Playlist) and YouTube Music track links.
 
 **__Module: `Giveaways`__**
 
-- Added "Participants List" button to giveaway embeds that let users check all participants to the current givewaways,
+- Added "Participants List" button to giveaway embeds, letting users check all participants of the current giveaway.
+- The `gw` command is now available in French.
+- Fixed a typing bug on the backend.
+
+**__Module: `Server Leave / Data Management`__**
+
+- Major change in philosophy regarding server departures: iHorizon now waits 10 hours before permanently deleting a server's data after the bot leaves. This allows you to re-invite the bot and cancel the deletion process if it was kicked by mistake, keeping your full configuration intact.
+
+**__Module: `Logging`__**
+
+- Improved previous names logging; guild nicknames are now also logged, using a `Set` to avoid false-null entries caused by Sweepers.
+- Fixed footer text across logs for a better user experience.
+
+**__Fun__**
+
+- Added a new "autofeur" sentence.
 
 ## Internal improvements
 
 - Added Sweepers and makeCache to the `Client`'s discord.js configuration to improve memory usage in production.
-
 - Added a TTL purge for all guild messages in the AntiSpam module.
-
 - Improved AntiSpam precision by fixing bugs that could cause false positives.
-
 - Fixed the Boost logs that could cause spam since Sweepers purge members from memory.
-
 - Fixed the iHorizon runtime on Windows.
-
 - New aesthetics on the `/status` command.
-
 - Removed all `while` loops as they caused lag on the `node:loop` runtime.
-
-- Fixed the previous names logging since Sweepers could produce false-null nicknames by using a `Set`.
-
-- Optimizing `InviteManager` internal module and invites fetching. Now, less API calls, and less Rate-Limiting.
+- Removed Sweepers for guild Member.
+- Optimizing `InviteManager` internal module and invites fetching. Now, less API calls, and less rate-limiting.
+- Major backend code improvement: unified the context handler between Slash and Hybrid commands for better code support and maintainability.
+- Updated all libraries to their latest versions.
+- Fixed the pm2 file for production.
 
 # Bug fixes
 
@@ -82,8 +132,16 @@ Thanks to everyone who has supported iHorizon since the beginning. ❤️
 
 **HoneyPot**
 
-- *fixing a bug where messages in HoneyPot channel wasn't deleted*
+- *Fixed a bug where messages in the HoneyPot channel weren't deleted.*
 
 **Ranks Show Command**
 
-- *fixing a bug where command resulted in crash when dominant color wasn't calculated correctly*
+- *Fixed a bug where the command resulted in a crash when the dominant color wasn't calculated correctly.*
+
+**Command handler in PM channels**
+
+- *Fixed the handler for commands used in private messages.*
+
+**`tooNewAccount` check**
+
+- *Fixed a bug that added 1 flag before correctly calculating the Discord account creation time window.*
