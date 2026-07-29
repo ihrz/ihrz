@@ -185,7 +185,20 @@ export async function handleSpotify(
 
 // I saw that youtube love add extra content in title like (Prod . Ft x x) and deezer/spotify/soundcloud aren't doing it. so i have to sanitized
 export function removeParenthesesContent(text: string): string {
-	return text.replace(/\s*\([^)]*\)/g, "").trim();
+	let result = "";
+	let depth = 0;
+
+	for (const char of text) {
+		if (char === "(" || char === "[") {
+			depth++;
+		} else if (char === ")" || char === "]") {
+			if (depth > 0) depth--;
+		} else if (depth === 0) {
+			result += char;
+		}
+	}
+
+	return result.replace(/\s+/g, " ").trim();
 }
 
 export function sanitizeYoutubeUrl(input: string): string {
