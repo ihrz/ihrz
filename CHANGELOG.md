@@ -1,4 +1,4 @@
-# Version Minor 2026.8.1 (1st patch of July 2026)
+# Version Minor 2026.8.1 (1st patch of August 2026)
 
 ## Changes between [2026.7.1](https://gitlab.com/ihrz/ihrz/-/releases/2026.7.1) and [2026.8.1](https://gitlab.com/ihrz/ihrz/-/releases/2026.8.1)
 
