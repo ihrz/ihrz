@@ -883,10 +883,10 @@ reset_geconomy_logs_embed_desc: "${interaction.member.user.toString()} ha elimin
 # /setprofilage, /setprofildescriptions, /profil
 
 # /setprofilage
-setprofilage_command_work: "**Your profil age has been updated successfully.**"
+setprofilage_command_work: "**L'età del tuo profilo è stata aggiornata con successo.**"
 
 # /setprofildescriptions
-setprofildescriptions_command_work: "**Your description has been updated successfully.**"
+setprofildescriptions_command_work: "**La tua descrizione è stata aggiornata con successo.**"
 
 # /profil
 profil_not_description_set: "Descrizione non impostata!"
@@ -1008,8 +1008,8 @@ massiverole_sub_command_work: "${interaction.user}, iHorizon ha eseguito il coma
 massiverole_too_much_member: "Troppi membri, non posso farlo a causa di possibili limiti di velocità!"
 
 # /nickrole
-nickrole_add_command_work: "${interaction.user}, iHorizon ha eseguito il comando massiverole.\n\n**${a}** utente/i ha/hanno ricevuto il ruolo ${role}\n**${s}** utente/i aveva/no già il ruolo ${role}\niHorizon non è riuscito ad aggiungere il ruolo a **${e}** utente/i."
-nickrole_sub_command_work: "${interaction.user}, iHorizon ha eseguito il comando massiverole.\n\n**${a}** utente/i ha/hanno perso il ruolo ${role}\n**${s}** utente/i non aveva/no più il ruolo ${role}\niHorizon non è riuscito a rimuovere il ruolo da **${e}** utente/i."
+nickrole_add_command_work: "${interaction.user}, iHorizon ha eseguito il comando nickrole.\n\n**${a}** utente/i ha/hanno ricevuto il ruolo ${role}\n**${s}** utente/i non aveva/no `${part_of_nickname}` nel nickname\niHorizon non è riuscito ad aggiungere il ruolo a **${e}** utente/i."
+nickrole_sub_command_work: "${interaction.user}, iHorizon ha eseguito il comando nickrole.\n\n**${a}** utente/i ha/hanno perso il ruolo ${role}\n**${s}** utente/i non aveva/no più `${part_of_nickname}` nel nickname\niHorizon non è riuscito a rimuovere il ruolo da **${e}** utente/i."
 nickrole_too_much_member: "Troppi membri, non posso procedere a causa di un possibile limite di rate!"
 
 # /emoji
@@ -1126,7 +1126,7 @@ util_nick_kicker_enable_desc: "Attiva l'espulsore di nickname"
 
 # /util wakeup
 util_wakeup_yourself: "Fratello, sei scemo o cosa? Non dirmi che stai dormendo sulla tastiera mentre scrivi questo comando ahaha"
-util_wakeup_not_in_vc: "Fratello, il bot non creerà un piccolo cinese chiamato ${user.displayName} con la stessa foto e banner per farti credere che si sia svegliato... Non è nemmeno nel canale vocale ahaha"
+util_wakeup_not_in_vc: "Fratello, il bot non clonerà ${user.displayName} con la stessa foto e lo stesso banner per farti credere che si sia svegliato... Non è nemmeno in vocale lol"
 util_wakeup_command_work: "Cominciamo a svegliare ${user.toString()} !"
 
 # /util talk
@@ -1272,9 +1272,9 @@ util_move_command_ok: "${member?.toString()} è ora in ${channel.toString()}"
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
 
 # /blockpub
-blockpub_not_admin: ":x: | You must be an administrator of this server! "
-blockpub_now_enable: "📌 | The antipub is now functional (It works for everyone except admin)"
-blockpub_now_disable: "📌 | The antipub is now deactivated!"
+blockpub_not_admin: ":x: | Devi essere un amministratore di questo server!"
+blockpub_now_enable: "📌 | L'antipub è ora attivo (funziona per tutti tranne gli amministratori)"
+blockpub_now_disable: "📌 | L'antipub è ora disattivato!"
 
 # /guildprofil
 guildprofil_not_admin: ":x: | Devi essere un amministratore di questo server!"
@@ -1508,8 +1508,8 @@ automod_block_link_command_on: "${interaction.user}, hai impostato la `Regola Au
 automod_block_link_command_off: "${interaction.user}, hai impostato la `Regola AutoMod Pub` su **false**.\nOra gli utenti possono inviare link nei loro messaggi.\nAutoMod x iHorizon è stato disabilitato sul tuo server!"
 
 # /automod block telegram links
-automod_block_telegram_command_on: "${interaction.user}, you have set the `Telegram AutoMod Rule` to **true**.\nNow users can't send Telegram-related links in their messages.\nAutoMod is now __sending logs__ in ${logs_channel}.\nAutoMod x iHorizon protect your server!"
-automod_block_telegram_command_off: "${interaction.user}, you have set the `Telegram AutoMod Rule` to **false**.\nNow users can send Telegram-related links in their messages.\nAutoMod x iHorizon have been disabled on your server!"
+automod_block_telegram_command_on: "${interaction.user}, hai impostato la `Regola AutoMod Telegram` su **true**.\nOra gli utenti non possono inviare link relativi a Telegram nei loro messaggi.\nAutoMod __invia log__ in ${logs_channel}.\nAutoMod x iHorizon protegge il tuo server!"
+automod_block_telegram_command_off: "${interaction.user}, hai impostato la `Regola AutoMod Telegram` su **false**.\nOra gli utenti possono inviare link relativi a Telegram nei loro messaggi.\nAutoMod x iHorizon è stato disabilitato sul tuo server!"
 
 # /automod block pub
 automod_block_pub_command_on: "${interaction.user}, hai impostato la `Regola AutoMod Pub` su **true**.\nOra gli utenti non possono inviare inviti di server nei loro messaggi.\nAutoMod __invia log__ in ${logs_channel}.\nAutoMod x iHorizon protegge il tuo server!"
@@ -1587,15 +1587,15 @@ perm_command_delete_all_one_option: "È possibile specificare solo un'opzione pe
 perm_command_delete_all_zero_change: "Il tipo di permesso specificato non è stato utilizzato in alcun comando."
 perm_command_delete_all_command_ok: "\nEliminate con successo **${changes.length}** autorizzazioni annidate di tipo `${type}` (${value}) dal database."
 commandlimit_current_value: "${count} use(s) per ${time}"
-commandlimit_invalid_value: "The values provided for the command rate limit are invalid."
-commandlimit_missing_command: "You need to specify a command."
-commandlimit_set_success: "The rate limit for `${command}` has been set to `${limit}`."
-commandlimit_reset_success: "The rate limit for `${command}` has been reset."
-commandlimit_reset_missing: "No rate limit is configured for `${command}`."
-commandlimit_list_title: "Configured command rate limits"
+commandlimit_invalid_value: "I valori forniti per il limite del comando non sono validi."
+commandlimit_missing_command: "Devi specificare un comando."
+commandlimit_set_success: "Il limite di `${command}` è stato impostato su `${limit}`."
+commandlimit_reset_success: "Il limite di `${command}` è stato reimpostato."
+commandlimit_reset_missing: "Nessun limite è configurato per `${command}`."
+commandlimit_list_title: "Limiti dei comandi configurati"
 commandlimit_list_item: "- `${command}`: ${limit}"
-commandlimit_list_empty: "No command rate limit is configured in this guild."
-commandlimit_rate_limited: "You have reached the limit for this command. Try again in ${time}."
+commandlimit_list_empty: "Nessun limite di comando è configurato in questo server."
+commandlimit_rate_limited: "Hai raggiunto il limite per questo comando. Riprova tra ${time}."
 
 # /perm roles
 perm_roles_created_role: "I seguenti ruoli sono stati creati: ${createdRoles.join(', ')}"
@@ -1710,9 +1710,9 @@ queue_embed_description_empty: "Nessuna canzone in coda"
 queue_embed_footer_text: "Pagina {index} | Totale {track} brani"
 
 # /shuffle
-shuffle_no_queue: "I am not in a voice channel"
-shuffle_no_enought: "There aren't **enough tracks** in queue to **shuffle**"
-shuffle_command_work: "I have **shuffled** the queue"
+shuffle_no_queue: "Non sono in un canale vocale"
+shuffle_no_enought: "Non ci sono **abbastanza tracce** nella coda per **mescolare**"
+shuffle_command_work: "Ho **mescolato** la coda"
 
 # /music history
 history_no_entries: "Non ci sono voci in questa competizione."
@@ -1835,7 +1835,7 @@ lock_logs_embed_title: "Log di Blocco"
 lock_logs_embed_description: "<@${interaction.user.id}> ha bloccato il canale <#${interaction.channel.id}>"
 
 # /unlock
-unlock_embed_message_description: "Il canale è stato sbloccato da <@${interaction.user.id}>."
+unlock_embed_message_description: "Il canale è stato sbloccato con successo!"
 unlock_dont_have_permission: "${client.iHorizon_Emojis.No} | Non hai il permesso di sbloccare il canale."
 unlock_logs_embed_title: "Log di sblocco"
 unlock_logs_embed_description: "<@${interaction.user.id}> ha sbloccato <#${interaction.channel.id}>"
@@ -1858,7 +1858,7 @@ unban_there_is_nobody_banned: "${client.iHorizon_Emojis.No} | **Non c'è nessuno
 unban_the_member_is_not_banned: "${client.iHorizon_Emojis.No} | **L'ID indicato non è stato sbannato da questo server!**"
 unban_is_now_unbanned: "<@${userID}> è stato sbannato da questo server!"
 unban_logs_embed_title: "Unban Logs"
-unban_logs_embed_description: "<@${userID}> è stato sbannato dal server da ${interaction.user.id}!"
+unban_logs_embed_description: "<@${userID}> è stato sbannato dal server da <@${interaction.user.id}>!"
 unban_reason: "Nessuna ragione è stata fornita."
 
 # /tempmute
@@ -2566,7 +2566,7 @@ notifier_author_add_author_doesnt_exist: "L'autore non esiste. Verifica l'ID."
 
 # /notifier config channel
 notifier_config_channel_logsEmbed_title: "Modulo del Canale di Notifica"
-notifier_config_channel_logsEmbed_desc: "${interaction.user.id} ha impostato il modulo del Canale di Notifica su ${channel}"
+notifier_config_channel_logsEmbed_desc: "<@${interaction.user.id}> ha impostato il modulo del Canale di Notifica su ${channel}"
 notifier_config_message_command_ok: "Ora, quando uno Streamer/YouTuber/Twitcher pubblica un video, invierò un messaggio in ${channel.toString()}"
 
 # /notifier config message
@@ -2574,7 +2574,7 @@ notifier_config_message_helpEmbed_title: "Messaggio di Notifica Personalizzato"
 notifier_config_message_helpEmbed_desc: "{artistAuthor} => Il nome utente dello Streamer/YouTuber\n{artistLink} => Il link al canale dello Streamer/YouTuber\n{mediaURL} => L'URL del video dello Streamer/YouTuber"
 notifier_config_message_embed_fields_notifyMessage: "Messaggio di Notifica"
 notifier_config_message_awaiting_response: "Scrivi il messaggio di notifica."
-notifier_config_message_command_work_on_enable: "Abilitazione del lavoro sul messaggio di notifica."
+notifier_config_message_command_work_on_enable: "${client.iHorizon_Emojis.GreenTick} | Messaggio di notifica impostato con successo."
 
 # Modulo Blogger
 
@@ -2923,8 +2923,8 @@ notifier_generateConfigurationEmbed_embed_fields_2_name: "Messaggio di Notifica"
 # ButtonReaction
 buttonreaction_role_doesnt_exit: "Il ruolo nel mio database non esiste più nel server!"
 buttonreaction_role_too_high: "Il ruolo è troppo alto, non posso dare/rimuovere il ruolo. Devo cambiare i miei permessi!"
-buttonreaction_role_add: "Non hai più il ruolo ${fetched_role.toString()} ✅"
-buttonreaction_role_remove: "Hai ora il ruolo ${fetched_role.toString()} :tada:"
+buttonreaction_role_add: "Hai ora il ruolo ${fetched_role.toString()} :tada:"
+buttonreaction_role_remove: "Non hai più il ruolo ${fetched_role.toString()} ✅"
 rolepanel_setup_embed_title: "Configurazione pannello ruoli"
 rolepanel_setup_embed_desc: "Seleziona i ruoli da aggiungere o rimuovere da ${member}. Se ${member} ha già un ruolo selezionato, verrà rimosso. I ruoli non autorizzati saranno ignorati."
 rolepanel_setup_embed_roles_field: "Ruoli consentiti"

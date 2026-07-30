@@ -1008,8 +1008,8 @@ massiverole_sub_command_work: "${interaction.user}, iHorizon executou o comando 
 massiverole_too_much_member: "Muitos membros, não é possível executar devido a possível limitação de taxa!"
 
 # /nickrole
-nickrole_add_command_work: "${interaction.user}, iHorizon executou o comando massiverole.\n\n**${a}** usuário(s) receberam a função ${role}\n**${s}** usuário(s) já tinham a função ${role}\niHorizon falhou ao adicionar a função para **${e}** usuário(s)."
-nickrole_sub_command_work: "${interaction.user}, iHorizon executou o comando massiverole.\n\n**${a}** usuário(s) perderam a função ${role}\n**${s}** usuário(s) já não tinham a função ${role}\niHorizon falhou ao remover a função de **${e}** usuário(s)."
+nickrole_add_command_work: "${interaction.user}, iHorizon executou o comando nickrole.\n\n**${a}** usuário(s) receberam a função ${role}\n**${s}** usuário(s) não tinham `${part_of_nickname}` no apelido\niHorizon falhou ao adicionar a função para **${e}** usuário(s)."
+nickrole_sub_command_work: "${interaction.user}, iHorizon executou o comando nickrole.\n\n**${a}** usuário(s) perderam a função ${role}\n**${s}** usuário(s) já não tinham `${part_of_nickname}` no apelido\niHorizon falhou ao remover a função de **${e}** usuário(s)."
 nickrole_too_much_member: "Muitos membros, não é possível prosseguir devido à possível limitação de taxa!"
 
 # /emoji
@@ -1126,7 +1126,7 @@ util_nick_kicker_enable_desc: "Ativar o expulsor de apelidos"
 
 # /util wakeup
 util_wakeup_yourself: "Mano, estás a brincar ou quê? Não me digas que estás a dormir no teclado enquanto escreves este comando lol"
-util_wakeup_not_in_vc: "Mano, o bot não vai criar um chinês pequeno chamado ${user.displayName} com a mesma foto de perfil e banner para te fazer acreditar que ele acordou... Ele nem está no canal de voz lol"
+util_wakeup_not_in_vc: "Mano, o bot não vai clonar ${user.displayName} com a mesma foto de perfil e banner para te fazer acreditar que acordou... Nem sequer está na call lol"
 util_wakeup_command_work: "Bora acordar o ${user.toString()} !"
 
 # /util talk
@@ -1444,10 +1444,10 @@ setleavemessage_help_embed_title: "Ajuda do /setleavemessage!"
 setleavemessage_help_embed_description: "/setleavemessage <Ligar / Desligar / Mostrar mensagem definida> <mensagem de saída>"
 setleavemessage_help_embed_fields_name: "como usar?"
 setleavemessage_help_embed_fields_value: "Use ```/setleavemessage <Ligar / Desligar / Mostrar mensagem definida> <mensagem>```\n{user} = Nome de usuário do Membro\n{membercount} = contagem de membros da guilda\n{guild} = Nome da Guilda"
-setleavemessage_logs_embed_title_on_enable: "Logs de SetJoinMessage"
+setleavemessage_logs_embed_title_on_enable: "Logs de SetLeaveMessage"
 setleavemessage_logs_embed_description_on_enable: "<@${interaction.user.id}> definiu a mensagem de saída!"
 setleavemessage_command_work_on_enable: "${client.iHorizon_Emojis.Yes} | Mensagem de saída personalizada definida com sucesso."
-setleavemessage_logs_embed_title_on_disable: "Logs de SetJoinMessage"
+setleavemessage_logs_embed_title_on_disable: "Logs de SetLeaveMessage"
 setleavemessage_logs_embed_description_on_disable: "<@${interaction.user.id}> excluiu a mensagem de saída!"
 setleavemessage_command_work_on_disable: "${client.iHorizon_Emojis.Yes} | Mensagem de saída personalizada excluída com sucesso."
 setleavemessage_command_work_ls: "A mensagem de saída é:"
@@ -1508,8 +1508,8 @@ automod_block_link_command_on: "${interaction.user}, você configurou a `Regra A
 automod_block_link_command_off: "${interaction.user}, você configurou a `Regra AutoMod Pub` para **false**.\nAgora, os usuários podem enviar links em suas mensagens.\nAutoMod x iHorizon foi desativado no seu servidor!"
 
 # /automod block telegram links
-automod_block_telegram_command_on: "${interaction.user}, you have set the `Telegram AutoMod Rule` to **true**.\nNow users can't send Telegram-related links in their messages.\nAutoMod is now __sending logs__ in ${logs_channel}.\nAutoMod x iHorizon protect your server!"
-automod_block_telegram_command_off: "${interaction.user}, you have set the `Telegram AutoMod Rule` to **false**.\nNow users can send Telegram-related links in their messages.\nAutoMod x iHorizon have been disabled on your server!"
+automod_block_telegram_command_on: "${interaction.user}, você configurou a `Regra AutoMod Telegram` para **true**.\nAgora, os usuários não podem enviar links relacionados ao Telegram em suas mensagens.\nAutoMod __enviando logs__ em ${logs_channel}.\nAutoMod x iHorizon protege seu servidor!"
+automod_block_telegram_command_off: "${interaction.user}, você configurou a `Regra AutoMod Telegram` para **false**.\nAgora, os usuários podem enviar links relacionados ao Telegram em suas mensagens.\nAutoMod x iHorizon foi desativado no seu servidor!"
 
 # /automod block pub
 automod_block_pub_command_on: "${interaction.user}, você configurou a `Regra AutoMod Pub` para **true**.\nAgora, os usuários não podem enviar convites de servidor em suas mensagens.\nAutoMod __enviando logs__ em ${logs_channel}.\nAutoMod x iHorizon protege seu servidor!"
@@ -1587,15 +1587,15 @@ perm_command_delete_all_one_option: "Só pode especificar uma opção para elimi
 perm_command_delete_all_zero_change: "O tipo de permissão que especificou não foi utilizado em nenhum comando."
 perm_command_delete_all_command_ok: "\nForam eliminadas com sucesso **${changes.length}** permissões aninhadas do tipo `${type}` (${value}) da base de dados."
 commandlimit_current_value: "${count} use(s) per ${time}"
-commandlimit_invalid_value: "The values provided for the command rate limit are invalid."
-commandlimit_missing_command: "You need to specify a command."
-commandlimit_set_success: "The rate limit for `${command}` has been set to `${limit}`."
-commandlimit_reset_success: "The rate limit for `${command}` has been reset."
-commandlimit_reset_missing: "No rate limit is configured for `${command}`."
-commandlimit_list_title: "Configured command rate limits"
+commandlimit_invalid_value: "Os valores fornecidos para o limite do comando são inválidos."
+commandlimit_missing_command: "Você precisa especificar um comando."
+commandlimit_set_success: "O limite de `${command}` foi definido para `${limit}`."
+commandlimit_reset_success: "O limite de `${command}` foi redefinido."
+commandlimit_reset_missing: "Nenhum limite está configurado para `${command}`."
+commandlimit_list_title: "Limites de comandos configurados"
 commandlimit_list_item: "- `${command}`: ${limit}"
-commandlimit_list_empty: "No command rate limit is configured in this guild."
-commandlimit_rate_limited: "You have reached the limit for this command. Try again in ${time}."
+commandlimit_list_empty: "Nenhum limite de comando está configurado neste servidor."
+commandlimit_rate_limited: "Você atingiu o limite deste comando. Tente novamente em ${time}."
 
 # /perm roles
 perm_roles_created_role: "Созданы следующие роли: ${createdRoles.join(', ')}"
@@ -1646,7 +1646,7 @@ autoreact_remove_command_ok: "A configuração de reação automática para este
 # /setmembercount
 
 # /setmembercount
-setmembercount_not_admin: ":x: | You must be an administrator of this server to request this command commands!"
+setmembercount_not_admin: ":x: | Você precisa ser um administrador deste servidor para usar este comando!"
 setmembercount_helpembed_title: "Set MemberCount Help !"
 setmembercount_helpembed_description: "/membercount <Ativar / Desativar> <Nome do canal>"
 setmembercount_helpembed_fields_name: "Como usá-lo?"
@@ -1656,7 +1656,7 @@ setmembercount_logs_embed_description_on_enable: "<@${interaction.user.id}> set 
 setmembercount_command_work_on_enable: "${client.iHorizon_Emojis.Yes} | Successfully set MemberCount."
 setmembercount_command_work_on_disable: "${client.iHorizon_Emojis.Yes} | Successfully removed MemberCount."
 setmembercount_logs_embed_title_on_disable: "Set MemberCount Logs"
-setmembercount_logs_embed_description_on_disable: "<@${interaction.user.id}> remove the MemberCount of this guild !"
+setmembercount_logs_embed_description_on_disable: "<@${interaction.user.id}> removeu o MemberCount deste servidor!"
 
 # Music commands
 # /p, /loop, /nowplaying, /pause, /resume, /skip, /stop, /queue, /shuffle
@@ -1664,22 +1664,22 @@ setmembercount_logs_embed_description_on_disable: "<@${interaction.user.id}> rem
 music_cannot: "${client.iHorizon_Emojis.No} Você precisa estar no mesmo canal de voz que eu para usar este comando!"
 
 # /p
-p_not_in_voice_channel: "You must be connected to a voice channel to use this command!"
-p_embed_title: "No results"
+p_not_in_voice_channel: "Você precisa estar conectado a um canal de voz para usar este comando!"
+p_embed_title: "Nenhum resultado"
 p_loading_message: "${client.iHorizon_Emojis.Timer} Loading a : **{result}** !"
 p_duration: "Duration: "
-p_not_allowed: "The link you sent is not supported by this bot. Please use authorized music streaming services such as Deezer, Spotify, Soundcloud, etc."
+p_not_allowed: "O link que você enviou não é suportado por este bot. Use serviços de streaming de música autorizados, como Deezer, Spotify, Soundcloud, etc."
 
 # /loop
-loop_no_queue: "There is no queue!"
+loop_no_queue: "Não há fila!"
 loop_command_work: "{mode} | Updated loop mode"
 
 # /nowplaying
-nowplaying_no_queue: "There is not playing anything"
+nowplaying_no_queue: "Nada está sendo reproduzido no momento"
 nowplaying_message_embed_title: "Now playing"
 nowplaying_resume_button: "${interaction.user} **resume** the music!"
 nowplaying_pause_button: "${interaction.user} **pause** the music!"
-nowplaying_lyrics_button: "The lyrics for this song were not found"
+nowplaying_lyrics_button: "A letra desta música não foi encontrada"
 nowplaying_stop_buttom: "${interaction.user} **stop** the music!"
 
 # /pause
@@ -1703,19 +1703,19 @@ stop_command_work: "Queue stopped"
 
 # /queue
 queue_iam_not_voicec: "I am not in a voice channel"
-queue_no_queue: "There is no queue"
-queue_empty_queue: "There are no more tracks in the queue"
+queue_no_queue: "Não há fila"
+queue_empty_queue: "Não há mais faixas na fila"
 queue_embed_title: "Tracks Queue"
 queue_embed_description_empty: "**No more queued songs**"
 queue_embed_footer_text: "Page {index} | Total {track} tracks"
 
 # /shuffle
-shuffle_no_queue: "I am not in a voice channel"
-shuffle_no_enought: "There aren't **enough tracks** in queue to **shuffle**"
-shuffle_command_work: "I have **shuffled** the queue"
+shuffle_no_queue: "Não estou em um canal de voz"
+shuffle_no_enought: "Não há **faixas suficientes** na fila para **embaralhar**"
+shuffle_command_work: "Eu **embaralhei** a fila"
 
 # /music history
-history_no_entries: "There is no entry into this competition."
+history_no_entries: "Não há nenhuma entrada no histórico de músicas."
 history_embed_title: "${interaction.guild?.name} Music's History | Page ${i / usersPerPage + 1}"
 history_embed_footer_text: "iHorizon | Page ${currentPage + 1}/${pages.length}"
 history_delete_embed_title: "✅ Histórico apagado"
@@ -1741,35 +1741,35 @@ music_volume_command_ok: "${client.iHorizon_Emojis.Yes} **volume definido para**
 # /end, /start, /reroll
 
 # /end
-end_not_admin: "You must have permissions to manage messages to end this giveaway."
-end_not_find_giveaway: "Could not find a giveaway for `${gw}`."
-end_confirmation_message: "The giveaway will end in less than (${timeEstimate}) secondes..."
+end_not_admin: "Você precisa da permissão de gerir mensagens para encerrar este giveaway."
+end_not_find_giveaway: "Não foi possível encontrar um giveaway para `${gw}`."
+end_confirmation_message: "O giveaway será encerrado em menos de (${timeEstimate}) segundos..."
 end_logs_embed_title: "Giveaway Logs"
 end_logs_embed_description: "<@${interaction.user.id}> ended giveaways with this id: ${giveaway.messageID}"
-end_command_error: "This giveaway is already finished!"
+end_command_error: "Este giveaway já foi encerrado!"
 
 # /start
-start_not_perm: "You must have permissions to manage messages to start the giveaways."
-start_is_not_valid: "You must specify a valid number of winners!"
-start_confirmation_command: "Giveaway started in ${giveawayChannel}!"
+start_not_perm: "Você precisa da permissão de gerir mensagens para iniciar um giveaway."
+start_is_not_valid: "Você precisa especificar um número válido de vencedores!"
+start_confirmation_command: "Giveaway iniciado em ${giveawayChannel}!"
 start_logs_embed_title: "Giveaway Logs"
 start_logs_embed_description: "<@${interaction.user.id}> started a giveways in: ${giveawayChannel}"
-start_time_not_valid: "${interaction.user}, the giveaway Duration you specified are invalid, please try again!"
+start_time_not_valid: "${interaction.user}, a duração do giveaway que você especificou é inválida, tente novamente!"
 start_invalid_invites_req_value: "${client.iHorizon_Emojis.No} | O valor para 'convites' é inválido! É necessário especificar um número de convites para entrar no sorteio!"
 start_invalid_messages_req_value: "${client.iHorizon_Emojis.No} | O valor para 'mensagens' é inválido! É necessário especificar um número de mensagens para entrar no sorteio!"
 start_invalid_roles_req_value: "${client.iHorizon_Emojis.No} | A função para o valor 'roles' não foi encontrada! É necessário fornecer um ID de função para entrar no sorteio!"
 
 # /reroll
-reroll_not_perm: "You must have permissions to manage messages to end this giveaway."
+reroll_not_perm: "Você precisa da permissão de gerir mensagens para relançar este giveaway."
 reroll_dont_find_giveaway: "Could not find a giveaway for `{args}` ."
-reroll_command_work: "Giveaway relaunched!"
+reroll_command_work: "Giveaway relançado!"
 reroll_logs_embed_title: "Giveaways Logs"
 reroll_logs_embed_description: "<@${interaction.user.id}> reroll giveaways with this id: ${giveaway.messageID}"
 reroll_command_error: "Error !"
-reroll_giveaway_not_over: "This giveaway is not over!"
+reroll_giveaway_not_over: "Este giveaway ainda não terminou!"
 
 # /get-all
-gw_getall_embed_title: "Giveaway(s) List for ${interaction.guild?.name}"
+gw_getall_embed_title: "Lista de Giveaway(s) de ${interaction.guild?.name}"
 gw_getall_embed_fields: "${Channel} [See Here](${MessageURL}) \n**Expire In** ${ExpireIn}"
 
 # /get-data
@@ -1785,7 +1785,7 @@ gw_getdata_embed_fields_isValid: "Is Valid ?"
 gw_getdata_embed_fields_time: "End at"
 gw_getdata_embed_fields_entriesAmount: "Entries Amount"
 gw_getdata_embed_fields_winners: "Winner(s)"
-gw_getdata_embed_fields_value_entriesAmount: "**${(giveawayData.entries as string[]).length}** (use `/gw list-entries giveaway-id:${giveawayId}` for more info)"
+gw_getdata_embed_fields_value_entriesAmount: "**${(giveawayData.entries as string[]).length}** (use `/gw list-entries giveaway-id:${giveawayId}` para mais informações)"
 gw_getdata_yes: "`Yes`"
 gw_getdata_no: "`No`"
 gw_doesnt_exit: "Os brindes estão inacessíveis ou não existem."
@@ -1859,7 +1859,7 @@ unban_there_is_nobody_banned: "${client.iHorizon_Emojis.No} | **Não há ningué
 unban_the_member_is_not_banned: "${client.iHorizon_Emojis.No} | **O ID informado não está banido deste servidor**!"
 unban_is_now_unbanned: "<@${userID}> foi desbanido deste servidor!"
 unban_logs_embed_title: "Logs de Desbanimento"
-unban_logs_embed_description: "<@${userID}> foi desbanido do servidor por ${interaction.user.id}!"
+unban_logs_embed_description: "<@${userID}> foi desbanido do servidor por <@${interaction.user.id}>!"
 unban_reason: "Nenhuma razão foi fornecida."
 
 # /tempmute
@@ -2428,7 +2428,7 @@ tempvoice_if_text_fields_value_untrust: "${client.iHorizon_Emojis.VC_Untrust} **
 tempvoice_if_text_fields_value_block: "${client.iHorizon_Emojis.VC_Block} **Bloquear**"
 tempvoice_if_text_fields_value_unblock: "${client.iHorizon_Emojis.VC_Unblock} **Desbloquear**"
 tempvoice_if_text_fields_value_claim: "${client.iHorizon_Emojis.VC_Claim} **Reivindicar**"
-tempvoice_if_text_fields_value_privacy: "client.iHorizon_Emojis.vc.Privacy} **Privacidade**"
+tempvoice_if_text_fields_value_privacy: "${client.iHorizon_Emojis.VC_Privacy} **Privacidade**"
 tempvoice_if_text_fields_value_transfer: "${client.iHorizon_Emojis.VC_Transfer} **Transferir**"
 tempvoice_if_text_fields_value_delete: "${client.iHorizon_Emojis.VC_Delete} **Excluir**"
 
@@ -2567,7 +2567,7 @@ notifier_author_add_author_doesnt_exist: "O autor não existe. Por favor, verifi
 
 # /notifier config channel
 notifier_config_channel_logsEmbed_title: "Módulo de Canal de Notificação"
-notifier_config_channel_logsEmbed_desc: "${interaction.user.id} configurou o módulo de Canal de Notificação para ${channel}"
+notifier_config_channel_logsEmbed_desc: "<@${interaction.user.id}> configurou o módulo de Canal de Notificação para ${channel}"
 notifier_config_message_command_ok: "Agora, quando um Streamer/Youtuber/Twitcher publicar um vídeo, enviarei uma mensagem em ${channel.toString()}"
 
 # /notifier config message
@@ -2575,7 +2575,7 @@ notifier_config_message_helpEmbed_title: "Mensagem de Notificação Personalizad
 notifier_config_message_helpEmbed_desc: "{artistAuthor} => O nome de usuário do Streamer/Youtuber\n{artistLink} => O link do canal do Streamer/Youtuber\n{mediaURL} => A URL do vídeo do Streamer/Youtuber"
 notifier_config_message_embed_fields_notifyMessage: "Mensagem de Notificação"
 notifier_config_message_awaiting_response: "Escreva a mensagem de notificação."
-notifier_config_message_command_work_on_enable: "Trabalhando na ativação da mensagem de notificação."
+notifier_config_message_command_work_on_enable: "${client.iHorizon_Emojis.GreenTick} | Mensagem de notificação definida com sucesso."
 
 # Módulo de Blogger
 
@@ -2924,8 +2924,8 @@ notifier_generateConfigurationEmbed_embed_fields_2_name: "Mensagem de Notificaç
 # ButtonReaction
 buttonreaction_role_doesnt_exit: "O papel na minha base de dados não existe mais no servidor!"
 buttonreaction_role_too_high: "O papel é muito alto, não posso dar/remover o papel. Preciso mudar minhas permissões!"
-buttonreaction_role_add: "Você não tem mais o papel ${fetched_role.toString()} ✅"
-buttonreaction_role_remove: "Agora você tem o papel ${fetched_role.toString()} :tada:"
+buttonreaction_role_add: "Agora você tem o papel ${fetched_role.toString()} :tada:"
+buttonreaction_role_remove: "Você não tem mais o papel ${fetched_role.toString()} ✅"
 rolepanel_setup_embed_title: "Configuração do painel de cargos"
 rolepanel_setup_embed_desc: "Selecione os cargos para adicionar ou remover de ${member}. Se ${member} já tiver um cargo selecionado, ele será removido. Cargos não autorizados serão ignorados."
 rolepanel_setup_embed_roles_field: "Cargos permitidos"
