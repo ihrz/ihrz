@@ -124,7 +124,11 @@ function formatPermissionName(
 }
 
 async function checkCustomSdkGate(ctx: ExecutionContext): Promise<boolean> {
-	if (ctx.client.version.env !== "production" || (ctx.command.name !== "custom" || ctx.command.description.startsWith("Change the iHorizon"))) {
+	if (
+		ctx.client.version.env !== "production" ||
+		ctx.command.name !== "custom" ||
+		ctx.command.description.startsWith("Change the iHorizon")
+	) {
 		return true;
 	}
 
@@ -157,7 +161,12 @@ export async function hasGuildSku(
 	const { Routes } = await import("discord-api-types/v10");
 	const entitlements = (await client.rest.get(
 		Routes.entitlements(client.user!.id)
-	)) as { id: string; sku_id: string; guild_id?: string; deleted?: boolean }[];
+	)) as {
+		id: string;
+		sku_id: string;
+		guild_id?: string;
+		deleted?: boolean;
+	}[];
 
 	return entitlements.some(
 		(entitlement) =>
@@ -313,37 +322,40 @@ async function handleExecutionError(ctx: ExecutionContext, error: any) {
 		? { name: "** **", value: `/${ctx.commandPath}\n\n` }
 		: { name: "** **", value: (ctx.source as Message).content };
 
-	await ctx.client.func.method.channelSend(ctx.client.config.core.reportChannelID, {
-		embeds: [
-			new EmbedBuilder()
-				.setTitle(
-					interaction
-						? "SLASH_CMD_CRASH_NOT_HANDLE"
-						: "MSG_CMD_CRASH_NOT_HANDLE"
-				)
-				.setDescription(errorBlock)
-				.setTimestamp()
-				.setFields(
-					{
-						name: "🛡️ Bot Admin",
-						value: ctx.source.guild?.members.me?.permissions.has(
-							PermissionFlagsBits.Administrator
-						)
-							? "yes"
-							: "no"
-					},
-					{
-						name: "📝 User Admin",
-						value: member?.permissions.has(
-							PermissionFlagsBits.Administrator
-						)
-							? "yes"
-							: "no"
-					},
-					lastField
-				)
-		]
-	});
+	await ctx.client.func.method.channelSend(
+		ctx.client.config.core.reportChannelID,
+		{
+			embeds: [
+				new EmbedBuilder()
+					.setTitle(
+						interaction
+							? "SLASH_CMD_CRASH_NOT_HANDLE"
+							: "MSG_CMD_CRASH_NOT_HANDLE"
+					)
+					.setDescription(errorBlock)
+					.setTimestamp()
+					.setFields(
+						{
+							name: "🛡️ Bot Admin",
+							value: ctx.source.guild?.members.me?.permissions.has(
+								PermissionFlagsBits.Administrator
+							)
+								? "yes"
+								: "no"
+						},
+						{
+							name: "📝 User Admin",
+							value: member?.permissions.has(
+								PermissionFlagsBits.Administrator
+							)
+								? "yes"
+								: "no"
+						},
+						lastField
+					)
+			]
+		}
+	);
 }
 
 export async function runCommand(ctx: ExecutionContext): Promise<void> {
@@ -387,7 +399,7 @@ export async function runCommand(ctx: ExecutionContext): Promise<void> {
 		if (!isInteractionSource(ctx.source)) {
 			const argsOk = await ctx.client.func.method.checkCommandArgs(
 				ctx.source,
-				ctx.command,
+				ctx.target,
 				Array.from(ctx.args),
 				ctx.lang
 			);

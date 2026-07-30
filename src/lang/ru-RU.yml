@@ -83,6 +83,7 @@ var_form: "Форма"
 var_original_message: "Оригинальное сообщение"
 var_click_here: "Нажмите здесь"
 var_s_message: "сообщение от {nickname}"
+var_source: "Музыка: "
 
 # Discord Permission Name
 perm_createinstantinvite_name: "Создать мгновенное приглашение"

@@ -83,6 +83,7 @@ var_form: "Formulario"
 var_original_message: "Mensaje original"
 var_click_here: "Haz clic aquí"
 var_s_message: "mensaje de {nickname}"
+var_source: "Música de: "
 
 # Nombres de Permisos de Discord
 perm_createinstantinvite_name: "Crear invitación instantánea"

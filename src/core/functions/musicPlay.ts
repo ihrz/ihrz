@@ -410,6 +410,15 @@ export async function searchMusicQuery(
 	return {};
 }
 
+export function platformLabel(url: string, lang: LanguageData): string {
+	if (url.includes("deezer")) {
+		return `\n-# ${client.iHorizon_Emojis.Deezer} [${lang.var_source} Deezer](${url})`;
+	} else if (url.includes("soundcloud")) {
+		return `\n-# ${client.iHorizon_Emojis.SoundCloud} [${lang.var_source} SoundCloud](${url})`;
+	}
+	return "";
+}
+
 export async function sendQueueAddMessage(
 	interaction: PlayInteraction,
 	lang: LanguageData,
@@ -563,7 +572,9 @@ export async function handleMusicPlay({
 
 	const firstTrack = firstResult.tracks[0];
 	const embed = new EmbedBuilder()
-		.setDescription(`**${firstTrack.info.title}**`)
+		.setDescription(
+			`**${firstTrack.info.title}**${platformLabel(firstTrack.info.uri, lang)}`
+		)
 		.setColor(SUCCESS_EMBED_COLOR)
 		.setTimestamp()
 		.setFooter({ text: lang.p_duration + buildTrackDuration(firstTrack) })

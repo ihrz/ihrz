@@ -83,6 +83,7 @@ var_form: "Form"
 var_original_message: "Original Message"
 var_click_here: "Click here"
 var_s_message: "{nickname}'s message"
+var_source: "Music from: "
 
 # Discord Permission Name
 perm_createinstantinvite_name: "Create Instant Invite"
