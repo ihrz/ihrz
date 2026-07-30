@@ -32,6 +32,8 @@ interface FileStats {
 	isEmpty: boolean;
 }
 
+const ALLOWED_EXTENSIONS: string[] = ["ts", "d.ts", "html", "yml", "json"];
+
 /**
  * Recursively get all TypeScript files from a directory
  */
@@ -54,7 +56,7 @@ function getTypeScriptFiles(dirPath: string): string[] {
 			files.push(...getTypeScriptFiles(fullPath));
 		} else if (
 			stat.isFile() &&
-			(item.endsWith(".ts") || item.endsWith(".d.ts"))
+			ALLOWED_EXTENSIONS.some((ext) => item.endsWith(`.${ext}`))
 		) {
 			files.push(fullPath);
 		}
