@@ -4,9 +4,8 @@
 
 This directory contains the changelogs for current and previous releases of iHorizon, archived for reference and historical tracking.
 
-Releases are managed by two iHorizon team members: 
+Releases are managed by one iHorizon team member: 
 * Kisakay (@Kisakay)
-* Ether (@veryuhq)
 
 ## Structure
 
