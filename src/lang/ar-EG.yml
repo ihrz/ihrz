@@ -523,7 +523,7 @@ kisakay_message: "${client.iHorizon_Emojis.Sparkles} Kisakay هي المبدعة
 andru_message: 'أندرو هو متعاون ومطور. "الرجل المتعدد المهام"، يدير التسويق والمجتمع...'
 
 # /ether
-ether_message: "${client.iHorizon_Emojis.Sparkles} Ether هو أحد المساهمين في iHorizon. وهو مفتون بنظام لينكس والأمن السيبراني، وهو يرتجل نفسه كمساعد دعم لروبوت iHorizon."
+ether_message: "${client.iHorizon_Emojis.Sparkles} Ether كان مساهمًا وعضوًا في فريق مشروع iHorizon. أنشأ وثائق iHorizon وسكربت تثبيت iHorizon، وأدار ترجمات البوت لجعلها (شبه) مثالية! غادر في <t:1785567600:f>."
 
 # /Irisweb
 irisweb_message: "😼 IrisWeb هو مطور/مساهم الثاني لي، IrisWeb x Kisakay ❤️"
@@ -1008,8 +1008,8 @@ massiverole_sub_command_work: "${interaction.user}, لقد نفذت iHorizon أ�
 massiverole_too_much_member: "عدد كبير جدًا من الأعضاء، لا يمكن تنفيذ ذلك بسبب احتمالية وجود حد معدل!"
 
 # /nickrole
-nickrole_add_command_work: "${interaction.user}, لقد نفذت iHorizon أمر massiverole.\n\n**${a}** مستخدم(s) حصلوا على دور ${role}\n**${s}** مستخدم(s) كان لديهم بالفعل دور ${role}\nفشلت iHorizon في إضافة الدور إلى **${e}** مستخدم(s)."
-nickrole_sub_command_work: "${interaction.user}, لقد نفذت iHorizon أمر massiverole.\n\n**${a}** مستخدم(s) فقدوا دور ${role}\n**${s}** مستخدم(s) لم يكن لديهم بعد دور ${role}\nفشلت iHorizon في إزالة الدور من **${e}** مستخدم(s)."
+nickrole_add_command_work: "${interaction.user}, لقد نفذت iHorizon أمر nickrole.\n\n**${a}** مستخدم(s) حصلوا على دور ${role}\n**${s}** مستخدم(s) لم يكن لديهم `${part_of_nickname}` في اللقب\nفشلت iHorizon في إضافة الدور إلى **${e}** مستخدم(s)."
+nickrole_sub_command_work: "${interaction.user}, لقد نفذت iHorizon أمر nickrole.\n\n**${a}** مستخدم(s) فقدوا دور ${role}\n**${s}** مستخدم(s) لم يعد لديهم `${part_of_nickname}` في اللقب\nفشلت iHorizon في إزالة الدور من **${e}** مستخدم(s)."
 nickrole_too_much_member: "عدد كبير جدًا من الأعضاء، لا يمكن متابعة التنفيذ بسبب احتمالية وجود حد معدل!"
 
 # /emoji
@@ -1127,7 +1127,7 @@ util_nick_kicker_enable_desc: "تفعيل طارد الألقاب"
 
 # /util wakeup
 util_wakeup_yourself: "يا أخي؟ أنت مجنون أم ماذا؟ لا تقلي أنك نائم على الكيبورد وتكتب هذا الأمر في نفس الوقت ههه"
-util_wakeup_not_in_vc: "يا أخي، البوت لن يخلق صيني صغير يُسمى ${user.displayName} بنفس الصورة والبنر ليجعلك تصدق أن الشخص استيقظ... الشخص مش في الصوتي أصلاً ههه"
+util_wakeup_not_in_vc: "يا أخي، البوت مش هيستنسخ ${user.displayName} بنفس الصورة والبانر عشان يخليك تفتكر إنه صحي... هو أصلاً مش في الروم الصوتي 😂"
 util_wakeup_command_work: "يبدأ الآن الإيقاظ لـ ${user.toString()} !"
 
 # /util talk
@@ -1509,8 +1509,8 @@ automod_block_link_command_on: "${interaction.user}, لقد قمت بتفعيل 
 automod_block_link_command_off: "${interaction.user}, لقد قمت بإيقاف قاعدة AutoMod لـ **حظر الروابط**. الآن، يمكن للمستخدمين إرسال روابط في رسائلهم. AutoMod x iHorizon تم تعطيله على خادمك!"
 
 # /automod block telegram links
-automod_block_telegram_command_on: "${interaction.user}, you have set the `Telegram AutoMod Rule` to **true**.\nNow users can't send Telegram-related links in their messages.\nAutoMod is now __sending logs__ in ${logs_channel}.\nAutoMod x iHorizon protect your server!"
-automod_block_telegram_command_off: "${interaction.user}, you have set the `Telegram AutoMod Rule` to **false**.\nNow users can send Telegram-related links in their messages.\nAutoMod x iHorizon have been disabled on your server!"
+automod_block_telegram_command_on: "${interaction.user}, لقد قمت بتفعيل قاعدة AutoMod لـ **حظر روابط Telegram**. الآن، لا يمكن للمستخدمين إرسال روابط متعلقة بـ Telegram في رسائلهم. AutoMod __يتم إرسال السجلات__ إلى ${logs_channel}. AutoMod x iHorizon لحماية خادمك!"
+automod_block_telegram_command_off: "${interaction.user}, لقد قمت بإيقاف قاعدة AutoMod لـ **حظر روابط Telegram**. الآن، يمكن للمستخدمين إرسال روابط متعلقة بـ Telegram في رسائلهم. AutoMod x iHorizon تم تعطيله على خادمك!"
 
 # /automod block pub
 automod_block_pub_command_on: "${interaction.user}, لقد قمت بتفعيل قاعدة AutoMod لـ **حظر الدعوات**. الآن، لا يمكن للمستخدمين إرسال دعوات الخادم في رسائلهم. AutoMod __يتم إرسال السجلات__ إلى ${logs_channel}. AutoMod x iHorizon لحماية خادمك!"
@@ -1588,15 +1588,15 @@ perm_command_delete_all_one_option: "يمكنك تحديد خيار واحد ف�
 perm_command_delete_all_zero_change: "نوع الصلاحية الذي حددته لم يتم استخدامه في أي أمر."
 perm_command_delete_all_command_ok: "\nتم حذف **${changes.length}** صلاحية متداخلة من نوع `${type}` (${value}) من قاعدة البيانات بنجاح."
 commandlimit_current_value: "${count} use(s) per ${time}"
-commandlimit_invalid_value: "The values provided for the command rate limit are invalid."
-commandlimit_missing_command: "You need to specify a command."
-commandlimit_set_success: "The rate limit for `${command}` has been set to `${limit}`."
-commandlimit_reset_success: "The rate limit for `${command}` has been reset."
-commandlimit_reset_missing: "No rate limit is configured for `${command}`."
-commandlimit_list_title: "Configured command rate limits"
+commandlimit_invalid_value: "القيم المقدمة لحد استخدام الأمر غير صالحة."
+commandlimit_missing_command: "يجب تحديد أمر."
+commandlimit_set_success: "تم تعيين حد استخدام `${command}` إلى `${limit}`."
+commandlimit_reset_success: "تم إعادة تعيين حد استخدام `${command}`."
+commandlimit_reset_missing: "لا يوجد حد استخدام معد للأمر `${command}`."
+commandlimit_list_title: "حدود استخدام الأوامر المعدة"
 commandlimit_list_item: "- `${command}`: ${limit}"
-commandlimit_list_empty: "No command rate limit is configured in this guild."
-commandlimit_rate_limited: "You have reached the limit for this command. Try again in ${time}."
+commandlimit_list_empty: "لا يوجد أي حد لاستخدام الأوامر في هذا الخادم."
+commandlimit_rate_limited: "لقد وصلت إلى الحد الأقصى لهذا الأمر. حاول مرة أخرى بعد ${time}."
 
 # /perm roles
 perm_roles_created_role: "الأدوار اللي اتعملت: ${createdRoles.join(', ')}"
@@ -1859,7 +1859,7 @@ unban_there_is_nobody_banned: "${client.iHorizon_Emojis.No} | **لا يوجد أ
 unban_the_member_is_not_banned: "${client.iHorizon_Emojis.No} | **الرقم المحدد ليس محظورًا من هذا الخادم**!"
 unban_is_now_unbanned: "<@${userID}> تم رفع حظره من هذا الخادم الآن!"
 unban_logs_embed_title: "سجلات فك الحظر"
-unban_logs_embed_description: "<@${userID}> تم رفع حظره من الخادم بواسطة ${interaction.user.id}!"
+unban_logs_embed_description: "<@${userID}> تم رفع حظره من الخادم بواسطة <@${interaction.user.id}>!"
 unban_reason: "لم يتم تقديم سبب."
 
 # /tempmute
@@ -2567,7 +2567,7 @@ notifier_author_add_author_doesnt_exist: "المؤلف غير موجود. من �
 
 # /notifier config channel
 notifier_config_channel_logsEmbed_title: "وحدة قناة التنبيه"
-notifier_config_channel_logsEmbed_desc: "${interaction.user.id} قام بتعيين وحدة قناة التنبيه إلى ${channel}"
+notifier_config_channel_logsEmbed_desc: "<@${interaction.user.id}> قام بتعيين وحدة قناة التنبيه إلى ${channel}"
 notifier_config_message_command_ok: "دلوقتي، لما ستريمر أو يوتيوبر ينشر فيديو، هبعت رسالة في ${channel.toString()}"
 
 # /notifier config message
@@ -2575,7 +2575,7 @@ notifier_config_message_helpEmbed_title: "رسالة التنبيه المخصص
 notifier_config_message_helpEmbed_desc: "{artistAuthor} => اسم المستخدم للستريمر أو اليوتيوبر\n{artistLink} => رابط قناة الستريمر أو اليوتيوبر\n{mediaURL} => رابط الفيديو للستريمر أو اليوتيوبر"
 notifier_config_message_embed_fields_notifyMessage: "رسالة التنبيه"
 notifier_config_message_awaiting_response: "اكتب رسالة التنبيه."
-notifier_config_message_command_work_on_enable: "تمكين العمل على رسالة التنبيه."
+notifier_config_message_command_work_on_enable: "${client.iHorizon_Emojis.GreenTick} | تم تعيين رسالة التنبيه بنجاح."
 
 # وحدة المدونة
 
@@ -2685,13 +2685,13 @@ confession_module_modal_components2_label: "هل هذا خاص؟"
 
 # أحداث مشغل الموسيقى
 even_mp_playerStart_tip: "> ${client.iHorizon_Emojis.LastFM_Logo} هل تعلم أنك تستطيع تتبع موسيقاك باستخدام `/lastfm` على iHorizon ؟ ${client.iHorizon_Emojis.Sunglass}"
-event_mp_playerStart: "🎵 - الآن يتم تشغيل [`${track.title}`](${url}) في **${queue.channel.name}** ..."
-event_mp_audioTrackAdd: "🎵 - تم إضافة ${track.title} إلى قائمة الانتظار!"
+event_mp_playerStart: "${client.iHorizon_Emojis.Music_Icon} - الآن يتم تشغيل [`${track.title}`](${url}) في **${queue.channel.name}** ..."
+event_mp_audioTrackAdd: "${client.iHorizon_Emojis.Music_Icon} - تم إضافة ${track.title} إلى قائمة الانتظار!"
 event_mp_playerError: "توجد مشكلة في الاتصال => ${error.message}"
 event_mp_error: "حدثت مشكلة في قائمة الأغاني => ${error.message}"
-event_mp_emptyChannel: "🚫 | لا يوجد أحد في القناة الصوتية، سيتم مغادرة القناة..."
-event_mp_playerSkip: "🎵 - تم تخطي **${track.title}**!"
-event_mp_emptyQueue: "⚠️ - توقفت الموسيقى لأنه لا يوجد المزيد من الأغاني في قائمة الانتظار!"
+event_mp_emptyChannel: "${client.iHorizon_Emojis.No} | لا يوجد أحد في القناة الصوتية، سيتم مغادرة القناة..."
+event_mp_playerSkip: "${client.iHorizon_Emojis.Music_Icon} - تم تخطي **${track.title}**!"
+event_mp_emptyQueue: "${client.iHorizon_Emojis.Warning_Icon} - توقفت الموسيقى لأنه لا يوجد المزيد من الأغاني في قائمة الانتظار!"
 
 # أحداث إنشاء القنوات
 event_channel_create_message_embed_title: "تم الإعداد بنجاح!"
@@ -2841,7 +2841,7 @@ temporary_voice_block_button_menu_placeholder: "سيتم رفض هؤلاء ال�
 temporary_voice_delete_button_desc_embed: "## حذف القناة\nتم حذف القناة بنجاح!"
 
 temporary_voice_limit_button_menu_label: "ما هو حد المستخدمين للقناة؟"
-temporary_voice_limit_button_not_integer: "🚫 | الإدخال ليس عددًا"
+temporary_voice_limit_button_not_integer: "${interaction.client.iHorizon_Emojis.No} | الإدخال ليس عددًا"
 
 temporary_voice_name_button_menu_label: "ما هو اسم القناة؟"
 
@@ -2918,8 +2918,8 @@ notifier_generateConfigurationEmbed_embed_fields_2_name: "رسالة التنب�
 # ButtonReaction
 buttonreaction_role_doesnt_exit: "الدور في قاعدة بياناتي لم يعد موجودًا في الخادم!"
 buttonreaction_role_too_high: "الدور مرتفع جدًا، لا أستطيع إعطاء/إزالة الدور. تحتاج إلى تغيير أذوناتي!"
-buttonreaction_role_add: "لم تعد لديك دور ${fetched_role.toString()} ✅"
-buttonreaction_role_remove: "لديك الآن دور ${fetched_role.toString()} :tada:"
+buttonreaction_role_add: "لديك الآن دور ${fetched_role.toString()} :tada:"
+buttonreaction_role_remove: "لم تعد لديك دور ${fetched_role.toString()} ✅"
 rolepanel_setup_embed_title: "إعداد لوحة الأدوار"
 rolepanel_setup_embed_desc: "حدد الأدوار لإضافتها أو إزالتها من ${member}. إذا كان ${member} يملك دورًا محددًا بالفعل، فسيتم إزالته. سيتم تجاهل الأدوار غير المسموح بها."
 rolepanel_setup_embed_roles_field: "الأدوار المسموح بها"

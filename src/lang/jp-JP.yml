@@ -523,7 +523,7 @@ kisakay_message: "${client.iHorizon_Emojis.Sparkles} Kisakayは私の創造者�
 andru_message: 'Andruはコラボレーターであり開発者です。"何でも屋"として、マーケティング、コミュニティを管理しています...'
 
 # /ether
-ether_message: "${client.iHorizon_Emojis.Sparkles} EtherはiHorizonのコントリビューターです。Linuxとサイバーセキュリティに魅了され、iHorizonボットのサポートヘルパーとして即興で活動している。"
+ether_message: "${client.iHorizon_Emojis.Sparkles} EtherはiHorizonプロジェクトのコントリビューターであり、チームメンバーでした。iHorizonのドキュメントとiHorizonインストールスクリプトを制作し、ボットの翻訳を（ほぼ）完璧にするために管理していました！<t:1785567600:f> に去りました。"
 
 # /Irisweb
 irisweb_message: "😼ナヤウェブは私の2番目の開発者/貢献者 , ナヤウェブ x キサケイ ❤️"
@@ -754,7 +754,7 @@ fun_trans_command_ok: "ユーザー ${user} は **${random}%** トランスジ�
 economy_cooldown_error: "このコマンドを再度実行するには **${time}** 待つ必要があります！"
 
 # /addmoney
-addmoney_not_admin: "You cannot run this command because you do not have the necessary permissions `ADMINISTRATOR`"
+addmoney_not_admin: "`ADMINISTRATOR` 権限がないため、このコマンドを実行できません。"
 addmoney_logs_embed_title: "Economy Logs"
 addmoney_logs_embed_description: "<@${interaction.user.id}> Added ${amount.value} coin to <@${user.user.id}> !"
 addmoney_command_work: "<@${user.user.id}> に `${amount.value}`$ 追加に成功しました"
@@ -1008,8 +1008,8 @@ massiverole_sub_command_work: "${interaction.user}、iHorizonはmassiveroleコ�
 massiverole_too_much_member: "メンバーが多すぎて、実行できません。レート制限の可能性があります！"
 
 # /nickrole
-nickrole_add_command_work: "${interaction.user}さん、iHorizonがmassiveroleコマンドを実行しました。\n\n**${a}**人のユーザーが${role}ロールを受け取りました\n**${s}**人のユーザーはすでに${role}ロールを持っています\niHorizonは**${e}**人のユーザーにロールを追加できませんでした。"
-nickrole_sub_command_work: "${interaction.user}さん、iHorizonがmassiveroleコマンドを実行しました。\n\n**${a}**人のユーザーが${role}ロールを失いました\n**${s}**人のユーザーはすでに${role}ロールを持っていません\niHorizonは**${e}**人のユーザーからロールを削除できませんでした。"
+nickrole_add_command_work: "${interaction.user}さん、iHorizonがnickroleコマンドを実行しました。\n\n**${a}**人のユーザーが${role}ロールを受け取りました\n**${s}**人のユーザーはニックネームに`${part_of_nickname}`を含んでいませんでした\niHorizonは**${e}**人のユーザーにロールを追加できませんでした。"
+nickrole_sub_command_work: "${interaction.user}さん、iHorizonがnickroleコマンドを実行しました。\n\n**${a}**人のユーザーが${role}ロールを失いました\n**${s}**人のユーザーはニックネームに`${part_of_nickname}`を含まなくなりました\niHorizonは**${e}**人のユーザーからロールを削除できませんでした。"
 nickrole_too_much_member: "メンバーが多すぎるため、実行できません。レート制限の可能性があります！"
 
 # /emoji
@@ -1126,7 +1126,7 @@ util_nick_kicker_enable_desc: "ニックネームキッカーを有効化"
 
 # /util wakeup
 util_wakeup_yourself: "おい、お前バカか？このコマンドを打ちながら寝てるって言わないよな？笑"
-util_wakeup_not_in_vc: "おいおい、ボットが${user.displayName}っていう同じアイコンとバナーの小さい中国人を作るわけじゃないんだぞ…その人はVCにいないよ笑"
+util_wakeup_not_in_vc: "おいおい、ボットが同じアイコンとバナーで ${user.displayName} を複製して、起きたと思わせるわけじゃないんだぞ…その人はVCにすらいないよ笑"
 util_wakeup_command_work: "${user.toString()}を起こしに行くぞ！"
 
 # /util talk
@@ -1365,7 +1365,7 @@ setjoindm_already_disable: "JoinDmは既に無効です！"
 setjoindm_not_setup_ls: "JoinDmは設定されていません！"
 setjoindm_command_work_ls: "JoinDmメッセージは：\n```${already_off}```"
 setjoindm_help_embed_title: "JoinDMメッセージの設定ヘルプ！"
-setjoindm_help_embed_desc: "{memberUsername} => メンバーのユーザー名\n{memberMention} => メンバーをメンション\n{memberCount} => サーバーのメンバー数\n{guildName} => サーバー名\n{createdAt} => アカウント作成日（dd/mm/yyyy）"
+setjoindm_help_embed_desc: "{memberUsername} => メンバーのユーザー名\n{memberMention} => メンバーをメンション\n{memberCount} => サーバーのメンバー数\n{guildName} => サーバー名\n{createdAt} => アカウント作成日（dd/mm/yyyy）\n{accountCreationTimestamp} => アカウント作成日のタイムスタンプ"
 setjoindm_buttom_set_name: "メッセージを設定"
 setjoindm_buttom_delete_name: "DMメッセージを削除"
 setjoindm_awaiting_response: "チャンネルに新しいカスタムJoinDMメッセージを入力してください。"
@@ -1444,10 +1444,10 @@ setleavemessage_help_embed_title: "/setleavemessage ヘルプ！"
 setleavemessage_help_embed_description: "/setleavemessage <オン/オフ/設定されたメッセージを表示する> <退出メッセージ>"
 setleavemessage_help_embed_fields_name: "使い方？"
 setleavemessage_help_embed_fields_value: "`/setleavemessage <オン/オフ/設定されたメッセージを表示する> <メッセージ>を使用してください。`\n{user} = メンバーのユーザー名\n{membercount} = ギルドのメンバー数\n{guild} = ギルドの名前"
-setleavemessage_logs_embed_title_on_enable: "SetJoinMessage ログ"
+setleavemessage_logs_embed_title_on_enable: "SetLeaveMessage ログ"
 setleavemessage_logs_embed_description_on_enable: "<@${interaction.user.id}>が退出メッセージを設定しました！"
 setleavemessage_command_work_on_enable: "${client.iHorizon_Emojis.Yes} | カスタム退出メッセージを正常に設定しました。"
-setleavemessage_logs_embed_title_on_disable: "SetJoinMessage ログ"
+setleavemessage_logs_embed_title_on_disable: "SetLeaveMessage ログ"
 setleavemessage_logs_embed_description_on_disable: "<@${interaction.user.id}>が退出メッセージを削除しました！"
 setleavemessage_command_work_on_disable: "${client.iHorizon_Emojis.Yes} | カスタム退出メッセージを正常に削除しました。"
 setleavemessage_command_work_ls: "退出メッセージは次のとおりです。"
@@ -1508,8 +1508,8 @@ automod_block_link_command_on: "${interaction.user}、`Pub AutoModルール`を*
 automod_block_link_command_off: "${interaction.user}、`Pub AutoModルール`を**false**に設定しました。\nこれでユーザーはメッセージにリンクを送信できます。\nAutoMod x iHorizonはあなたのサーバーで無効になりました！"
 
 # /automod block telegram links
-automod_block_telegram_command_on: "${interaction.user}, you have set the `Telegram AutoMod Rule` to **true**.\nNow users can't send Telegram-related links in their messages.\nAutoMod is now __sending logs__ in ${logs_channel}.\nAutoMod x iHorizon protect your server!"
-automod_block_telegram_command_off: "${interaction.user}, you have set the `Telegram AutoMod Rule` to **false**.\nNow users can send Telegram-related links in their messages.\nAutoMod x iHorizon have been disabled on your server!"
+automod_block_telegram_command_on: "${interaction.user}、`Telegram AutoModルール`を**true**に設定しました。\nこれでユーザーはメッセージにTelegram関連のリンクを送信できません。\nAutoModは${logs_channel}に__ログを送信__します。\nAutoMod x iHorizonはあなたのサーバーを保護します！"
+automod_block_telegram_command_off: "${interaction.user}、`Telegram AutoModルール`を**false**に設定しました。\nこれでユーザーはメッセージにTelegram関連のリンクを送信できます。\nAutoMod x iHorizonはあなたのサーバーで無効になりました！"
 
 # /automod block pub
 automod_block_pub_command_on: "${interaction.user}、`Pub AutoModルール`を**true**に設定しました。\nこれでユーザーはメッセージにサーバー招待を送信できません。\nAutoModは${logs_channel}に__ログを送信__します。\nAutoMod x iHorizonはあなたのサーバーを保護します！"
@@ -1587,15 +1587,15 @@ perm_command_delete_all_one_option: "権限を削除するには1つのオプシ
 perm_command_delete_all_zero_change: "指定した権限タイプはどのコマンドでも使用されていませんでした。"
 perm_command_delete_all_command_ok: "\nデータベースから**${changes.length}**個のネストされた`${type}`タイプ（${value}）の権限を正常に削除しました。"
 commandlimit_current_value: "${count} use(s) per ${time}"
-commandlimit_invalid_value: "The values provided for the command rate limit are invalid."
-commandlimit_missing_command: "You need to specify a command."
-commandlimit_set_success: "The rate limit for `${command}` has been set to `${limit}`."
-commandlimit_reset_success: "The rate limit for `${command}` has been reset."
-commandlimit_reset_missing: "No rate limit is configured for `${command}`."
-commandlimit_list_title: "Configured command rate limits"
+commandlimit_invalid_value: "コマンドのレート制限に指定された値が無効です。"
+commandlimit_missing_command: "コマンドを指定してください。"
+commandlimit_set_success: "`${command}` のレート制限を `${limit}` に設定しました。"
+commandlimit_reset_success: "`${command}` のレート制限をリセットしました。"
+commandlimit_reset_missing: "`${command}` にレート制限は設定されていません。"
+commandlimit_list_title: "設定済みのコマンドレート制限"
 commandlimit_list_item: "- `${command}`: ${limit}"
-commandlimit_list_empty: "No command rate limit is configured in this guild."
-commandlimit_rate_limited: "You have reached the limit for this command. Try again in ${time}."
+commandlimit_list_empty: "このサーバーにはコマンドのレート制限が設定されていません。"
+commandlimit_rate_limited: "このコマンドの制限に達しました。${time} 後に再試行してください。"
 
 # /perm roles
 perm_roles_created_role: "以下の役割が作成されました：${createdRoles.join('、')}"
@@ -1859,7 +1859,7 @@ unban_there_is_nobody_banned: "${client.iHorizon_Emojis.No} | **このサーバ�
 unban_the_member_is_not_banned: "${client.iHorizon_Emojis.No} | **指定されたIDは、このサーバーからBANされていません！**"
 unban_is_now_unbanned: "<@${userID}> はこのサーバーからアンバンされました！"
 unban_logs_embed_title: "アンバンログ"
-unban_logs_embed_description: "${interaction.user.id}によって<@${userID}>がサーバーからアンバンされました！"
+unban_logs_embed_description: "<@${interaction.user.id}>によって<@${userID}>がサーバーからアンバンされました！"
 unban_reason: "理由が提供されませんでした。"
 
 # /tempmute
@@ -2567,7 +2567,7 @@ notifier_author_add_author_doesnt_exist: "作成者が存在しません。IDを
 
 # /notifier config channel
 notifier_config_channel_logsEmbed_title: "通知チャンネルモジュール"
-notifier_config_channel_logsEmbed_desc: "${interaction.user.id} が通知チャンネルモジュールを ${channel} に設定しました"
+notifier_config_channel_logsEmbed_desc: "<@${interaction.user.id}> が通知チャンネルモジュールを ${channel} に設定しました"
 notifier_config_message_command_ok: "これで、ストリーマー/ユーチューバー/ツイッチャーが動画を公開すると、${channel.toString()} にメッセージを送信します"
 
 # /notifier config message
@@ -2575,7 +2575,7 @@ notifier_config_message_helpEmbed_title: "カスタム通知メッセージ"
 notifier_config_message_helpEmbed_desc: "{artistAuthor} => ストリーマー/ユーチューバーのユーザー名\n{artistLink} => ストリーマー/ユーチューバーのチャンネルリンク\n{mediaURL} => ストリーマー/ユーチューバーの動画URL"
 notifier_config_message_embed_fields_notifyMessage: "通知メッセージ"
 notifier_config_message_awaiting_response: "通知メッセージを書いてください。"
-notifier_config_message_command_work_on_enable: "通知メッセージの有効化作業中。"
+notifier_config_message_command_work_on_enable: "${client.iHorizon_Emojis.GreenTick} | 通知メッセージを設定しました。"
 
 # ブロガーモジュール
 
@@ -2924,8 +2924,8 @@ notifier_generateConfigurationEmbed_embed_fields_2_name: "通知メッセージ"
 # ButtonReaction
 buttonreaction_role_doesnt_exit: "私のデータベースにある役割は、サーバーにはもう存在しません！"
 buttonreaction_role_too_high: "役割が高すぎるため、役割を与えたり削除したりできません。権限を変更する必要があります！"
-buttonreaction_role_add: "${fetched_role.toString()} の役割はもうありません ✅"
-buttonreaction_role_remove: "あなたは今、${fetched_role.toString()} の役割を持っています :tada:"
+buttonreaction_role_add: "あなたは今、${fetched_role.toString()} の役割を持っています :tada:"
+buttonreaction_role_remove: "${fetched_role.toString()} の役割はもうありません ✅"
 rolepanel_setup_embed_title: "ロールパネル設定"
 rolepanel_setup_embed_desc: "${member} に追加または削除するロールを選択してください。${member} が選択したロールを既に持っている場合、そのロールは削除されます。許可されていないロールは無視されます。"
 rolepanel_setup_embed_roles_field: "許可されたロール"
@@ -2983,8 +2983,8 @@ addrolereact_must_be_text_channel: "このコマンドはテキストチャン�
 addrolereact_message_not_found: "メッセージが見つかりません。"
 addrolereact_no_reactions: "このメッセージにはリアクションがありません。"
 addrolereact_adding_role: "役割 {role} を追加中..."
-addrolereact_adding_role_progress: "役割 {role} を追加中..."
-addrolereact_role_added: "役割 {role} を追加しました。"
+addrolereact_adding_role_progress: "役割 {role} を {count} 人のユーザーに追加中..."
+addrolereact_role_added: "役割 {role} を追加しました。{count} 人のユーザーが役割を受け取りました。"
 addrolereact_error: "コマンドの実行中にエラーが発生しました。"
 
 # チャンネル非表示/表示コマンド

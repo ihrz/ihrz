@@ -209,9 +209,9 @@ transript_not_in_ticket: "Вы не можете использовать эту
 # /disableticket
 disableticket_not_admin: ":x: | Вы должны быть администратором этого сервера, чтобы использовать эту команду!"
 disableticket_logs_embed_title_disable: "Логи отключения тикетов"
-disableticket_logs_embed_description_disable: "Команды для тикетов были отключены!"
+disableticket_logs_embed_description_disable: "Команды для тикетов отключены пользователем <@${interaction.user.id}>!"
 disableticket_logs_embed_title_enable: "Логи включения тикетов"
-disableticket_logs_embed_description_enable: "Команды для тикетов были включены!"
+disableticket_logs_embed_description_enable: "Команды для тикетов включены пользователем <@${interaction.user.id}>!"
 disableticket_command_work_disable: "Вы успешно отключили команды для тикетов!"
 disableticket_command_work_enable: "Вы успешно включили команды для тикетов!"
 
@@ -523,7 +523,7 @@ kisakay_message: "${client.iHorizon_Emojis.Sparkles} Kisakay - и мой соз�
 andru_message: 'Andru - сотрудник и разработчик. "Мастер на все руки", он управляет маркетингом, сообществом...'
 
 # /ether
-ether_message: "${client.iHorizon_Emojis.Sparkles} Ether - автор проекта iHorizon. Он увлекается Linux и кибербезопасностью, а также импровизирует в качестве помощника для бота iHorizon."
+ether_message: "${client.iHorizon_Emojis.Sparkles} Ether был контрибьютором и участником команды проекта iHorizon. Он создал документацию iHorizon и скрипт установки iHorizon, а также занимался переводами бота, чтобы сделать их (почти) идеальными! Он ушёл <t:1785567600:f>."
 
 # /Irisweb
 irisweb_message: "😼IrisWeb - мой второй разработчик/соавтор , IrisWeb и Kisakay ❤️"
@@ -1008,8 +1008,8 @@ massiverole_sub_command_work: "${interaction.user}, iHorizon выполнил к
 massiverole_too_much_member: "Слишком много участников, операция не может быть выполнена из-за возможных ограничений скорости!"
 
 # /nickrole
-nickrole_add_command_work: "${interaction.user}, iHorizon выполнил команду массовой выдачи роли.\n\n**${a}** пользователю(ям) выдана роль ${role}\n**${s}** пользователю(ям) уже имеют роль ${role}\niHorizon не смог выдать роль **${e}** пользователю(ям)."
-nickrole_sub_command_work: "${interaction.user}, iHorizon выполнил команду массовой снятия роли.\n\n**${a}** пользователю(ям) снята роль ${role}\n**${s}** пользователю(ям) больше не имеют роль ${role}\niHorizon не смог снять роль у **${e}** пользователю(ям)."
+nickrole_add_command_work: "${interaction.user}, iHorizon выполнил команду nickrole.\n\n**${a}** пользователю(ям) выдана роль ${role}\n**${s}** пользователь(и) не имели `${part_of_nickname}` в нике\niHorizon не смог выдать роль **${e}** пользователю(ям)."
+nickrole_sub_command_work: "${interaction.user}, iHorizon выполнил команду nickrole.\n\n**${a}** пользователю(ям) снята роль ${role}\n**${s}** пользователь(и) больше не имеют `${part_of_nickname}` в нике\niHorizon не смог снять роль у **${e}** пользователю(ям)."
 nickrole_too_much_member: "Слишком много участников, операция не может быть выполнена из-за возможных ограничений скорости!"
 
 # /emoji
@@ -1126,7 +1126,7 @@ util_nick_kicker_enable_desc: "Включить кикер никнеймов"
 
 # /util wakeup
 util_wakeup_yourself: "Братан, ты что, глупый? Неужели ты пишешь эту команду, пока спишь на клавиатуре, лол"
-util_wakeup_not_in_vc: "Братан, бот не создаст маленького китайца по имени ${user.displayName} с той же аватаркой и баннером, чтобы ты поверил, что он проснулся... Он даже не в голосовом канале, лол"
+util_wakeup_not_in_vc: "Братан, бот не станет клонировать ${user.displayName} с той же аватаркой и баннером, чтобы ты поверил, что человек проснулся... Его даже нет в голосовом канале лол"
 util_wakeup_command_work: "Давай разбудим ${user.toString()} !"
 
 # /util talk
@@ -1508,11 +1508,11 @@ automod_block_link_command_on: "${interaction.user}, вы установили `
 automod_block_link_command_off: "${interaction.user}, вы установили `Pub AutoMod Rule` на **false**.\nТеперь пользователи могут отправлять ссылки в своих сообщениях.\nAutoMod x iHorizon был отключен на вашем сервере!"
 
 # /automod block telegram links
-automod_block_telegram_command_on: "${interaction.user}, you have set the `Telegram AutoMod Rule` to **true**.\nNow users can't send Telegram-related links in their messages.\nAutoMod is now __sending logs__ in ${logs_channel}.\nAutoMod x iHorizon protect your server!"
-automod_block_telegram_command_off: "${interaction.user}, you have set the `Telegram AutoMod Rule` to **false**.\nNow users can send Telegram-related links in their messages.\nAutoMod x iHorizon have been disabled on your server!"
+automod_block_telegram_command_on: "${interaction.user}, вы установили `Telegram AutoMod Rule` на **true**.\nТеперь пользователи не могут отправлять ссылки, связанные с Telegram, в своих сообщениях.\nAutoMod __отправляет логи__ в ${logs_channel}.\nAutoMod x iHorizon защищает ваш сервер!"
+automod_block_telegram_command_off: "${interaction.user}, вы установили `Telegram AutoMod Rule` на **false**.\nТеперь пользователи могут отправлять ссылки, связанные с Telegram, в своих сообщениях.\nAutoMod x iHorizon был отключён на вашем сервере!"
 
 # /automod block pub
-automod_block_pub_command_on: "${interaction.user}, вы установили `Pub AutoMod Rule` на **true**.\nТеперь пользователи не могут отправлять приглашенияна сервер в своих сообщениях.\nAutoMod отправляет логи в ${logs_channel}.\nAutoMod x iHorizon защищает ваш сервер!"
+automod_block_pub_command_on: "${interaction.user}, вы установили `Pub AutoMod Rule` на **true**.\nТеперь пользователи не могут отправлять приглашения на сервер в своих сообщениях.\nAutoMod отправляет логи в ${logs_channel}.\nAutoMod x iHorizon защищает ваш сервер!"
 automod_block_pub_command_off: "${interaction.user}, вы установили Pub AutoMod Rule на false.\nТеперь пользователи могут отправлять приглашения на сервер в своих сообщениях.\nAutoMod x iHorizon был отключен на вашем сервере!"
 
 # /automod block spam
@@ -1587,15 +1587,15 @@ perm_command_delete_all_one_option: "Вы можете указать тольк
 perm_command_delete_all_zero_change: "Указанный вами тип прав доступа не использовался ни в одной команде."
 perm_command_delete_all_command_ok: "\nУспешно удалено **${changes.length}** вложенных прав доступа типа `${type}` (${value}) из базы данных."
 commandlimit_current_value: "${count} use(s) per ${time}"
-commandlimit_invalid_value: "The values provided for the command rate limit are invalid."
-commandlimit_missing_command: "You need to specify a command."
-commandlimit_set_success: "The rate limit for `${command}` has been set to `${limit}`."
-commandlimit_reset_success: "The rate limit for `${command}` has been reset."
-commandlimit_reset_missing: "No rate limit is configured for `${command}`."
-commandlimit_list_title: "Configured command rate limits"
+commandlimit_invalid_value: "Указанные значения лимита команды недопустимы."
+commandlimit_missing_command: "Необходимо указать команду."
+commandlimit_set_success: "Лимит для `${command}` установлен на `${limit}`."
+commandlimit_reset_success: "Лимит для `${command}` сброшен."
+commandlimit_reset_missing: "Для `${command}` лимит не настроен."
+commandlimit_list_title: "Настроенные лимиты команд"
 commandlimit_list_item: "- `${command}`: ${limit}"
-commandlimit_list_empty: "No command rate limit is configured in this guild."
-commandlimit_rate_limited: "You have reached the limit for this command. Try again in ${time}."
+commandlimit_list_empty: "На этом сервере не настроен ни один лимит команд."
+commandlimit_rate_limited: "Вы достигли лимита для этой команды. Повторите попытку через ${time}."
 
 # /perm roles
 perm_roles_created_role: "Созданы следующие роли: ${createdRoles.join(', ')}"
@@ -1859,7 +1859,7 @@ unban_there_is_nobody_banned: "${client.iHorizon_Emojis.No} | **На этом с
 unban_the_member_is_not_banned: "${client.iHorizon_Emojis.No} | **Указанный ID не забанен на этом сервере**!"
 unban_is_now_unbanned: "<@${userID}> теперь разбанен на этом сервере!"
 unban_logs_embed_title: "Логи разбанов"
-unban_logs_embed_description: "<@${userID}> теперь разбанен на сервере пользователем ${interaction.user.id}!"
+unban_logs_embed_description: "<@${userID}> теперь разбанен на сервере пользователем <@${interaction.user.id}>!"
 unban_reason: "Причина не указана."
 
 # /tempmute
@@ -2567,7 +2567,7 @@ notifier_author_add_author_doesnt_exist: "Автор не существует. 
 
 # /notifier config channel
 notifier_config_channel_logsEmbed_title: "Модуль Канала Уведомлений"
-notifier_config_channel_logsEmbed_desc: "${interaction.user.id} установил модуль Канала Уведомлений на ${channel}"
+notifier_config_channel_logsEmbed_desc: "<@${interaction.user.id}> установил модуль Канала Уведомлений на ${channel}"
 notifier_config_message_command_ok: "Теперь, когда Стример/Ютубер/Twitcher публикует видео, я отправлю сообщение в ${channel.toString()}"
 
 # /notifier config message
@@ -2575,7 +2575,7 @@ notifier_config_message_helpEmbed_title: "Пользовательское Со�
 notifier_config_message_helpEmbed_desc: "{artistAuthor} => Имя пользователя Стримера/Ютубера\n{artistLink} => Ссылка на канал Стримера/Ютубера\n{mediaURL} => URL видео Стримера/Ютубера"
 notifier_config_message_embed_fields_notifyMessage: "Сообщение Уведомления"
 notifier_config_message_awaiting_response: "Напишите сообщение уведомления."
-notifier_config_message_command_work_on_enable: "Работа над включением сообщения уведомления."
+notifier_config_message_command_work_on_enable: "${client.iHorizon_Emojis.GreenTick} | Сообщение уведомления успешно установлено."
 
 # Модуль Blogger
 
@@ -2924,8 +2924,8 @@ notifier_generateConfigurationEmbed_embed_fields_2_name: "Сообщение у�
 # ButtonReaction
 buttonreaction_role_doesnt_exit: "Роль в моей базе данных больше не существует на сервере!"
 buttonreaction_role_too_high: "Роль слишком высокая, я не могу дать/удалить эту роль. Мне нужно изменить свои права!"
-buttonreaction_role_add: "У вас больше нет роли ${fetched_role.toString()} ✅"
-buttonreaction_role_remove: "Теперь у вас есть роль ${fetched_role.toString()} :tada:"
+buttonreaction_role_add: "Теперь у вас есть роль ${fetched_role.toString()} :tada:"
+buttonreaction_role_remove: "У вас больше нет роли ${fetched_role.toString()} ✅"
 rolepanel_setup_embed_title: "Настройка панели ролей"
 rolepanel_setup_embed_desc: "Выберите роли, чтобы добавить или удалить их у ${member}. Если у ${member} уже есть выбранная роль, она будет удалена. Недоступные роли будут проигнорированы."
 rolepanel_setup_embed_roles_field: "Разрешённые роли"

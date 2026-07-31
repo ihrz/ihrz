@@ -523,7 +523,7 @@ kisakay_message: "${client.iHorizon_Emojis.Sparkles} Kisakay es tanto mi creador
 andru_message: 'Andru es un colaborador y desarrollador. "El todoterreno", gestiona el marketing, la comunidad...'
 
 # /ether
-ether_message: "${client.iHorizon_Emojis.Sparkles} Ether es colaborador de iHorizon. Le fascinan Linux y la ciberseguridad, y se improvisa a sí mismo como ayudante de soporte para el bot iHorizon."
+ether_message: "${client.iHorizon_Emojis.Sparkles} Ether fue colaborador y miembro del equipo del proyecto iHorizon. Creó la documentación de iHorizon y el script de instalación de iHorizon, y gestionaba las traducciones del bot para hacerlas (casi) perfectas. Se fue el <t:1785567600:f>."
 
 # /Irisweb
 irisweb_message: "😼IrisWeb es mi segundo desarrollador/contribuyente , IrisWeb x Kisakay ❤️"
@@ -1008,8 +1008,8 @@ massiverole_sub_command_work: "${interaction.user}, iHorizon ha ejecutado el com
 massiverole_too_much_member: "Demasiados miembros, no puedo hacerlo debido a posibles limitaciones de velocidad."
 
 # /nickrole
-nickrole_add_command_work: "${interaction.user}, iHorizon ha ejecutado el comando massiverole.\n\n**${a}** usuario(s) recibieron el rol ${role}\n**${s}** usuario(s) ya tenían el rol ${role}\niHorizon no pudo agregar el rol a **${e}** usuario(s)."
-nickrole_sub_command_work: "${interaction.user}, iHorizon ha ejecutado el comando massiverole.\n\n**${a}** usuario(s) perdieron el rol ${role}\n**${s}** usuario(s) ya no tenían el rol ${role}\niHorizon no pudo quitar el rol de **${e}** usuario(s)."
+nickrole_add_command_work: "${interaction.user}, iHorizon ha ejecutado el comando nickrole.\n\n**${a}** usuario(s) recibieron el rol ${role}\n**${s}** usuario(s) no tenían `${part_of_nickname}` en su apodo\niHorizon no pudo agregar el rol a **${e}** usuario(s)."
+nickrole_sub_command_work: "${interaction.user}, iHorizon ha ejecutado el comando nickrole.\n\n**${a}** usuario(s) perdieron el rol ${role}\n**${s}** usuario(s) ya no tenían `${part_of_nickname}` en su apodo\niHorizon no pudo quitar el rol de **${e}** usuario(s)."
 nickrole_too_much_member: "Demasiados miembros, no se puede continuar debido a un posible límite de velocidad."
 
 # /emoji
@@ -1126,7 +1126,7 @@ util_nick_kicker_enable_desc: "Activar el expulsor de apodos"
 
 # /util wakeup
 util_wakeup_yourself: "¿Hermano, eres tonto o qué? No me digas que estás dormido en el teclado mientras escribes este comando jajaja"
-util_wakeup_not_in_vc: "Hermano, el bot no va a crear un pequeño chino llamado ${user.displayName} con la misma foto de perfil y banner para hacerte creer que la persona despertó... Ni siquiera está en el canal de voz jajaja"
+util_wakeup_not_in_vc: "Hermano, el bot no va a clonar a ${user.displayName} con la misma foto de perfil y banner para hacerte creer que se ha despertado... Si ni siquiera está en el canal de voz jaja"
 util_wakeup_command_work: "¡Vamos a despertar a ${user.toString()} !"
 
 # /util talk
@@ -1214,8 +1214,8 @@ vkick_logEmbed_desc: "${interaction.member.user.toString()} ha desconectado a ${
 vkick_command_work: "${interaction.member.user.toString()}, has desconectado exitosamente a ${member.toString()} de ${voiceChannel?.toString()}."
 
 # /util sync
-util_sync_embed_description_1: "The following channels are now synchronized to the `#${category?.name}` category:\n\n${changes}"
-util_sync_embed_description_0: "All channels in the category already have synchronized permissions."
+util_sync_embed_description_1: "Los siguientes canales ahora están sincronizados con la categoría `#${category?.name}`:\n\n${changes}"
+util_sync_embed_description_0: "Todos los canales de la categoría ya tienen los permisos sincronizados."
 
 # /util securewebhook
 util_securewebhook_action_create: "URL de Webhook de Discord no válida"
@@ -1441,7 +1441,7 @@ setjoinroles_already_on_enable: "¡Los roles de entrada ya están configurados c
 # /setleavemessage
 setleavemessage_not_admin: ":x: | ¡Debes ser administrador de este servidor para solicitar este comando!"
 setleavemessage_help_embed_title: "¡Ayuda de /setleavemessage!"
-setleavemessage_help_embed_description: "/setleavemessage <Power on /Power off/Show the message set> <leave message>"
+setleavemessage_help_embed_description: "/setleavemessage <Activar/Desactivar/Mostrar el mensaje> <mensaje de salida>"
 setleavemessage_help_embed_fields_name: "¿Cómo se usa?"
 setleavemessage_help_embed_fields_value: "`Usa /setleavemessage <Power on /Power off/Show the message set> <message>`\n{user} = Nombre de usuario del miembro\n{membercount} = cantidad de miembros en el servidor\n{guild} = El nombre del servidor"
 setleavemessage_logs_embed_title_on_enable: "Registros de SetLeaveMessage"
@@ -1508,8 +1508,8 @@ automod_block_link_command_on: "${interaction.user}, has establecido la `Regla d
 automod_block_link_command_off: "${interaction.user}, has establecido la `Regla de AutoMod Pub` en **false**.\nAhora los usuarios pueden enviar enlaces en sus mensajes.\n¡AutoMod x iHorizon ha sido deshabilitado en tu servidor!"
 
 # /automod block telegram links
-automod_block_telegram_command_on: "${interaction.user}, you have set the `Telegram AutoMod Rule` to **true**.\nNow users can't send Telegram-related links in their messages.\nAutoMod is now __sending logs__ in ${logs_channel}.\nAutoMod x iHorizon protect your server!"
-automod_block_telegram_command_off: "${interaction.user}, you have set the `Telegram AutoMod Rule` to **false**.\nNow users can send Telegram-related links in their messages.\nAutoMod x iHorizon have been disabled on your server!"
+automod_block_telegram_command_on: "${interaction.user}, has establecido la `Regla de AutoMod Telegram` en **true**.\nAhora los usuarios no pueden enviar enlaces relacionados con Telegram en sus mensajes.\nAutoMod __envía registros__ en ${logs_channel}.\n¡AutoMod x iHorizon protege tu servidor!"
+automod_block_telegram_command_off: "${interaction.user}, has establecido la `Regla de AutoMod Telegram` en **false**.\nAhora los usuarios pueden enviar enlaces relacionados con Telegram en sus mensajes.\n¡AutoMod x iHorizon ha sido deshabilitado en tu servidor!"
 
 # /automod block pub
 automod_block_pub_command_on: "${interaction.user}, has establecido la `Regla de AutoMod Pub` en **true**.\nAhora los usuarios no pueden enviar invitaciones de servidor en sus mensajes.\nAutoMod __envía registros__ en ${logs_channel}.\n¡AutoMod x iHorizon protege tu servidor!"
@@ -1749,8 +1749,8 @@ end_logs_embed_description: "<@${interaction.user.id}> finalizó sorteos con est
 end_command_error: "¡Este sorteo ya ha finalizado!"
 
 # /start
-start_not_perm: "You must have permissions to manage messages to start the giveaways."
-start_is_not_valid: "You must specify a valid number of winners!"
+start_not_perm: "Debes tener permisos para gestionar mensajes para iniciar un sorteo."
+start_is_not_valid: "¡Debes especificar un número válido de ganadores!"
 start_confirmation_command: "Giveaway started in ${giveawayChannel}!"
 start_logs_embed_title: "Giveaway Logs"
 start_logs_embed_description: "<@${interaction.user.id}> started a giveways in: ${giveawayChannel}"
@@ -1760,7 +1760,7 @@ start_invalid_messages_req_value: "${client.iHorizon_Emojis.No} | ¡El valor par
 start_invalid_roles_req_value: "${client.iHorizon_Emojis.No} | ¡El rol para 'roles' no se encuentra! Debes proporcionar una ID de rol para entrar al sorteo!"
 
 # /reroll
-reroll_not_perm: "You must have permissions to manage messages to end this giveaway."
+reroll_not_perm: "Debes tener permisos para gestionar mensajes para relanzar este sorteo."
 reroll_dont_find_giveaway: "Could not find a giveaway for `{args}` ."
 reroll_command_work: "Giveaway relaunched!"
 reroll_logs_embed_title: "Giveaways Logs"
@@ -1859,7 +1859,7 @@ unban_there_is_nobody_banned: "${client.iHorizon_Emojis.No} | **¡No hay nadie b
 unban_the_member_is_not_banned: "${client.iHorizon_Emojis.No} | **¡El ID indicado no está baneado de este servidor!**"
 unban_is_now_unbanned: "¡<@${userID}> ahora ha sido desbaneado de este servidor!"
 unban_logs_embed_title: "Registro de Desbaneos"
-unban_logs_embed_description: "<@${userID}> ¡Ha sido desbaneado del servidor por ${interaction.user.id}!"
+unban_logs_embed_description: "<@${userID}> ¡Ha sido desbaneado del servidor por <@${interaction.user.id}>!"
 unban_reason: "No se proporcionó ninguna razón."
 
 # /tempmute
@@ -2567,7 +2567,7 @@ notifier_author_add_author_doesnt_exist: "El autor no existe. Por favor, verific
 
 # /notifier config channel
 notifier_config_channel_logsEmbed_title: "Módulo del Canal de Notificación"
-notifier_config_channel_logsEmbed_desc: "${interaction.user.id} ha configurado el módulo del Canal de Notificación en ${channel}"
+notifier_config_channel_logsEmbed_desc: "<@${interaction.user.id}> ha configurado el módulo del Canal de Notificación en ${channel}"
 notifier_config_message_command_ok: "Ahora, cuando un Streamer/YouTuber/Twitcher publique un video, enviaré un mensaje en ${channel.toString()}"
 
 # /notifier config message
@@ -2575,7 +2575,7 @@ notifier_config_message_helpEmbed_title: "Mensaje de Notificación Personalizado
 notifier_config_message_helpEmbed_desc: "{artistAuthor} => El nombre de usuario del Streamer/YouTuber\n{artistLink} => El enlace al canal del Streamer/YouTuber\n{mediaURL} => La URL del video del Streamer/YouTuber"
 notifier_config_message_embed_fields_notifyMessage: "Mensaje de Notificación"
 notifier_config_message_awaiting_response: "Escribe el mensaje de notificación."
-notifier_config_message_command_work_on_enable: "Habilitando el trabajo en el mensaje de notificación."
+notifier_config_message_command_work_on_enable: "${client.iHorizon_Emojis.GreenTick} | Mensaje de notificación establecido con éxito."
 
 # Módulo de Blogger
 
@@ -2924,8 +2924,8 @@ notifier_generateConfigurationEmbed_embed_fields_2_name: "Mensaje de Notificaci�
 # ButtonReaction
 buttonreaction_role_doesnt_exit: "¡El rol en mi base de datos ya no existe en el servidor!"
 buttonreaction_role_too_high: "¡El rol es demasiado alto, no puedo dar/quitar el rol. Necesito cambiar mis permisos!"
-buttonreaction_role_add: "Ya no tienes el rol ${fetched_role.toString()} ✅"
-buttonreaction_role_remove: "Ahora tienes el rol ${fetched_role.toString()} :tada:"
+buttonreaction_role_add: "Ahora tienes el rol ${fetched_role.toString()} :tada:"
+buttonreaction_role_remove: "Ya no tienes el rol ${fetched_role.toString()} ✅"
 rolepanel_setup_embed_title: "Configuración del panel de roles"
 rolepanel_setup_embed_desc: "Selecciona roles para añadir o quitar a ${member}. Si ${member} ya tiene un rol seleccionado, será retirado. Los roles no autorizados serán ignorados."
 rolepanel_setup_embed_roles_field: "Roles permitidos"
