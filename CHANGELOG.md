@@ -6,6 +6,10 @@
 
 ## Current Changes
 
+**__Languages (`All`)__**
+
+-  All internal translations got revisited, rewamped.
+
 **__Command `/mod rolepanel` (+rolepanel)__**
 
 - New command: give selected roles to a member through a panel.
