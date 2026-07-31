@@ -523,7 +523,7 @@ kisakay_message: "${client.iHorizon_Emojis.Sparkles} Kisakay é minha criadora e
 andru_message: 'Andru é um colaborador e desenvolvedor. "O faz-tudo", ele gerencia o marketing, a comunidade...'
 
 # /ether
-ether_message: "${client.iHorizon_Emojis.Sparkles} Ether é um colaborador do iHorizon. É fascinado por Linux e cibersegurança, e improvisa ele próprio como ajudante de suporte para o bot iHorizon."
+ether_message: "${client.iHorizon_Emojis.Sparkles} Ether foi um colaborador e membro da equipa do projeto iHorizon. Criou a documentação do iHorizon e o script de instalação do iHorizon, e geria as traduções do bot para as tornar (quase) perfeitas! Saiu a <t:1785567600:f>."
 
 # /Irisweb
 irisweb_message: "😼IrisWeb é minha segunda desenvolvedora/contribuidora, IrisWeb x Kisakay ❤️"

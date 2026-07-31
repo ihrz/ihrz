@@ -523,7 +523,7 @@ kisakay_message: "${client.iHorizon_Emojis.Sparkles} Kisakay هي المبدعة
 andru_message: 'أندرو هو متعاون ومطور. "الرجل المتعدد المهام"، يدير التسويق والمجتمع...'
 
 # /ether
-ether_message: "${client.iHorizon_Emojis.Sparkles} Ether هو أحد المساهمين في iHorizon. وهو مفتون بنظام لينكس والأمن السيبراني، وهو يرتجل نفسه كمساعد دعم لروبوت iHorizon."
+ether_message: "${client.iHorizon_Emojis.Sparkles} Ether كان مساهمًا وعضوًا في فريق مشروع iHorizon. أنشأ وثائق iHorizon وسكربت تثبيت iHorizon، وأدار ترجمات البوت لجعلها (شبه) مثالية! غادر في <t:1785567600:f>."
 
 # /Irisweb
 irisweb_message: "😼 IrisWeb هو مطور/مساهم الثاني لي، IrisWeb x Kisakay ❤️"
