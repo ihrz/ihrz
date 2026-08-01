@@ -26,28 +26,47 @@ const allowedDomains: string[] = [
 	"play.spotify.com",
 	"spotify.com",
 	"www.spotify.com",
+
 	"www.deezer.com",
 	"deezer.com",
+	"deezer.page.link",
+	"dzr.page.link",
+	"link.deezer.com",
+
 	"soundcloud.com",
 	"www.soundcloud.com",
 	"on.soundcloud.com",
 	"m.soundcloud.com",
+
 	"music.apple.com",
 	"www.music.apple.com",
+
 	"www.napster.com",
 	"napster.com",
 	"us.napster.com",
-	"music.apple.com",
-	"www.music.apple.com",
-	"www.deezer.com",
-	"deezer.com",
-	"deezer.page.link",
+
+	// Amazon Music
+	"music.amazon.com",
+	"amazon.com",
+	"www.amazon.com",
+	"music.amazon.co.uk",
+	"music.amazon.de",
+	"music.amazon.fr",
+	"music.amazon.it",
+	"music.amazon.es",
+	"music.amazon.ca",
+	"music.amazon.co.jp",
+	"music.amazon.com.au",
+	"music.amazon.com.br",
+	"music.amazon.in",
+	"music.amazon.com.mx",
+
 	"cdn.discordapp.com",
-	"dzr.page.link",
-	"link.deezer.com",
+
 	"youtu.be",
 	"youtube.com",
-	"www.youtube.com"
+	"www.youtube.com",
+	"music.youtube.com"
 ];
 
 export default function isAllowedLinks(link: string): boolean {
