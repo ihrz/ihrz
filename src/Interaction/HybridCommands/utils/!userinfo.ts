@@ -417,10 +417,6 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
-		const savedUsers: oauth2Member[] =
-			(await authRestoreTable.get("saved_users")) || [];
-		const fetchedUser = savedUsers.find((x) => x.id === member.id);
-
 		async function GetNitro(): Promise<{ badge: string; type: string }> {
 			let badge = "";
 			let type = "";
@@ -434,7 +430,7 @@ export const subCommand: SubCommand = {
 							apiUrlParser.GatewayMethod.UserInfo
 						),
 						{
-							accessToken: fetchedUser?.token,
+							userId: member.id,
 							adminKey: client.config.api.apiToken
 						}
 					);
