@@ -49,6 +49,7 @@
 		"puppeteer": "^24.43.1",
 		"rss-parser": "^3.13.0",
 		"spotify-url-info": "github:Kisakay/spotify-url-info",
+		"apple-music-metadata": "github:Kisakay/apple-music-metadata",
 		"typescript-eslint": "^8.65.0",
 		"xml2js": "^0.6.2",
 		"youtubei.js": "^17.2.0"
