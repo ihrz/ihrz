@@ -113,13 +113,10 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 					minLength: 2
 				},
 				{
+					type: "checkbox",
 					customId: "case_private",
 					label: lang.confession_module_modal_components2_label,
-					placeHolder: `${lang.var_yes} / ${lang.var_no}`,
-					style: TextInputStyle.Short,
-					required: true,
-					minLength: 2,
-					maxLength: 8
+					default: true
 				}
 			]
 		},
@@ -131,8 +128,7 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 	const name = maskLink(
 		submitInteraction.fields.getTextInputValue("case_name")
 	);
-	let view: string | boolean =
-		submitInteraction.fields.getTextInputValue("case_private");
+	let view: boolean = submitInteraction.fields.getCheckbox("case_private");
 	const code = generatePassword({
 		length: 6,
 		numbers: true,
@@ -167,10 +163,7 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 			`### ${lang.help_confession_fields} #${code}\n\n` + "`" + name + "`"
 		)
 		.setTimestamp();
-	if (
-		view.toLowerCase().includes("no") ||
-		view.toLowerCase().includes(lang.var_no)
-	) {
+	if (!view) {
 		view = false;
 
 		body.files.push({
@@ -182,7 +175,7 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 			text: interaction.user.globalName || interaction.user.username,
 			iconURL: "attachment://user_icon.png"
 		});
-	} else if (view.toLowerCase().includes(lang.var_yes)) {
+	} else if (view) {
 		view = true;
 	} else {
 		view = false;

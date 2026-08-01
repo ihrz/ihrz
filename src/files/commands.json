@@ -3832,9 +3832,9 @@
     },
     {
         "name": "ether",
-        "description": "Get unnecessary information about my contributor Ether",
+        "description": "Get unnecessary information about my former contributor Ether",
         "description_translated": {
-            "fr": "Obtenir des informations non nécessaires sur mon contributeur Ether!"
+            "fr": "Obtenir des informations non nécessaires sur mon ancien contributeur Ether!"
         },
         "category": "bot",
         "thinking": false
