@@ -670,7 +670,7 @@ export const subCommand: SubCommand = {
 					.addOptions(
 						baseData.config.optionFields.map((opt) => {
 							const builder = new StringSelectMenuOptionBuilder()
-								.setLabel(opt.name)
+								.setLabel(opt.name.substring(0, 100))
 								.setValue(opt.value);
 							if (opt.desc)
 								builder.setDescription(
@@ -726,7 +726,7 @@ export const subCommand: SubCommand = {
 				.addOptions(
 					baseData.config.optionFields.map((opt, idx) =>
 						new StringSelectMenuOptionBuilder()
-							.setLabel(opt.name)
+							.setLabel(opt.name.substring(0, 100))
 							.setValue(idx.toString())
 					)
 				);
@@ -900,7 +900,7 @@ export const subCommand: SubCommand = {
 						.addOptions(
 							option.form.map((f, i) =>
 								new StringSelectMenuOptionBuilder()
-									.setLabel(f.questionTitle)
+									.setLabel(f.questionTitle.substring(0, 100))
 									.setValue(i.toString())
 							)
 						);
@@ -1567,7 +1567,7 @@ export const subCommand: SubCommand = {
 				.addOptions(
 					...baseData.config.form.map((x, i) => {
 						return new StringSelectMenuOptionBuilder()
-							.setLabel(x.questionTitle)
+							.setLabel(x.questionTitle.substring(0, 100))
 							.setValue(i.toString());
 					})
 				);
@@ -1647,7 +1647,7 @@ export const subCommand: SubCommand = {
 					baseData.config.optionFields.map((x) => {
 						const optionBuilder =
 							new StringSelectMenuOptionBuilder()
-								.setLabel(x.name)
+								.setLabel(x.name.substring(0, 100))
 								.setValue(x.value);
 
 						if (x.desc) {
