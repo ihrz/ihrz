@@ -101,7 +101,7 @@ export const command: Command = {
 				},
 				{
 					name: `${client.iHorizon_Emojis.Logo} Bot Version`,
-					value: `${client.version.ClientVersion}`,
+					value: `[${client.version.ClientVersion}](${client.version.git_commit_url})`,
 					inline: false
 				},
 				{

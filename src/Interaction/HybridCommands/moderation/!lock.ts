@@ -52,7 +52,7 @@ export const subCommand: SubCommand = {
 		}
 
 		(interaction.channel as BaseGuildTextChannel).permissionOverwrites
-			.create(role?.id || interaction.guild.roles.everyone.id, {
+			.edit(role?.id || interaction.guild.roles.everyone.id, {
 				SendMessages: false,
 				Connect: false
 			})
