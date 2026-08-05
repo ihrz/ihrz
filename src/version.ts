@@ -19,22 +19,30 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { readFileSync } from "node:fs";
+const pkg = await Bun.file(process.cwd() + "/package.json").json();
 
-const pkg = JSON.parse(readFileSync(process.cwd() + "/package.json", "utf-8"));
+export function shell(str: string): string {
+	return Bun.spawnSync({
+		cmd: str.split(" ") || []
+	})
+		.stdout.toString()
+		.trim();
+}
 
-export const env: string = Bun.spawnSync({
-	cmd: ["git", "branch", "--show-current"]
-})
-	.stdout.toString()
-	.trim();
+export function parseGitRemote(remote: string): string {
+	return remote
+		.trim()
+		.replace(/^git@([^:]+):/, "https://$1/")
+		.replace(/\.git$/, "");
+}
+
+export const env: string = shell("git branch --show-current");
 
 export const version = pkg.version;
 export const djs = pkg.dependencies["discord.js"];
-export const git = Bun.spawnSync({
-	cmd: ["git", "rev-parse", "--short", "HEAD"]
-})
-	.stdout.toString()
-	.trim();
+export const git_remote = parseGitRemote(shell("git remote get-url origin"));
+export const short_commit_hex = shell("git rev-parse --short HEAD");
+export const long_commit_hex = shell("git rev-parse HEAD");
+export const git_commit_url = `${git_remote}/commit/${long_commit_hex}`;
 
-export const ClientVersion = `${version} (${env}:${git}) discord.js@${djs}`;
+export const ClientVersion = `${version} (${env}:${short_commit_hex}) discord.js@${djs}`;
