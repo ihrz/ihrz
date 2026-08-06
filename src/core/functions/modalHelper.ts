@@ -19,6 +19,8 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
+//  Thanls @sqlu (github user) for the ideas about new components.
+
 import {
 	APIModalInteractionResponseCallbackData,
 	Interaction,
@@ -35,7 +37,11 @@ import {
 } from "discord.js";
 
 export type ModalFieldType =
-	"text" | "checkbox" | "checkbox_group" | "radio_group" | "text_display";
+	| "text"
+	| "checkbox"
+	| "checkbox_group"
+	| "radio_group"
+	| "text_display";
 
 export interface ModalFieldTextOptions {
 	type?: "text";
