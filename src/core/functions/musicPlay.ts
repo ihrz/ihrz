@@ -38,7 +38,7 @@ import { LavalinkNode, Player, SearchResult, Track } from "lavalink-client";
 import { LanguageData } from "../../../types/languageData.js";
 import maskLink from "./maskLink.js";
 
-import { Innertube, YT, YTNodes } from "youtubei.js";
+import { Innertube, YTNodes } from "youtubei.js";
 import * as spotify from "spotify-metadata";
 import appleMusic from "apple-music-metadata";
 import amazonMusic from "amazon-music-metadata";
@@ -457,6 +457,10 @@ export async function handleAmazonMusic(
 	}
 }
 
+export function responseExist(res: SearchResult | undefined): boolean {
+	return (res?.tracks.length ?? 0) > 0 && !!res?.tracks?.[0]?.info?.title;
+}
+
 export async function searchQueryOnNode(
 	client: Client,
 	node: LavalinkNode,
@@ -515,23 +519,11 @@ export async function searchQueryOnNode(
 
 	try {
 		res = await node.search({ query, source: "deezer" }, requester);
-		logger.debug(
-			"Searching",
-			query,
-			"with ",
-			"deezer",
-			"| Result: ",
-			res.tracks[0]?.info
-		);
-		logger.debug(
-			"Deezer is 50% similar of the query",
-			client.func.music_proximity.isSimilar(
-				query,
-				res.tracks[0],
-				0.5,
-				0.6
-			)
-		);
+
+		if (!responseExist(res)) {
+			res = await node.search({ query, source: "soundcloud" }, requester);
+			if (!responseExist(res)) res = undefined;
+		}
 	} catch {
 		res = undefined;
 	}
