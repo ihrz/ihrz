@@ -54,11 +54,11 @@ export const subCommand: SubCommand = {
 
 		await (
 			interaction.channel as BaseGuildTextChannel
-		).permissionOverwrites.create(
+		).permissionOverwrites.edit(
 			role?.id || interaction.guild.roles.everyone.id,
 			{
-				SendMessages: true,
-				Connect: true
+				SendMessages: null,
+				Connect: null
 			}
 		);
 		await client.func.ihorizon_logs(interaction, {
