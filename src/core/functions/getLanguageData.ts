@@ -91,13 +91,17 @@ export default async function getLanguageData(
 		lang = "en-US";
 	}
 
-	let dat = LangsData[lang];
+	return getLanguageByCode(lang);
+}
+
+export async function getLanguageByCode(locale: string): Promise<LanguageData> {
+	let dat = LangsData[locale];
 
 	if (!dat) {
 		dat = (await import(
-			process.cwd() + "/src/lang/" + lang + ".yml"
+			process.cwd() + "/src/lang/" + locale + ".yml"
 		)) as LanguageData;
-		LangsData[lang] = dat;
+		LangsData[locale] = dat;
 	}
 
 	return dat;

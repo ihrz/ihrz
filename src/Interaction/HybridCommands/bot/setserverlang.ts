@@ -37,7 +37,10 @@ import {
 
 import { Command } from "../../../../types/command.js";
 import { LanguageData } from "../../../../types/languageData.js";
-import { AvailableLanguage } from "../../../core/functions/getLanguageData.js";
+import {
+	AvailableLanguage,
+	getLanguageByCode
+} from "../../../core/functions/getLanguageData.js";
 
 export const command: Command = {
 	name: "setlang",
@@ -157,20 +160,24 @@ export const command: Command = {
 				await selectInteraction.deferUpdate();
 				selectedLang = selectInteraction.values[0];
 
+				const newLang = await getLanguageByCode(selectedLang);
 				const chosen = AvailableLanguage.find(
 					(l) => l.code === selectedLang
 				);
-				embed.setFields({
-					name: lang.setserverlang_panel_current,
-					value: chosen
-						? `${chosen.flag} ${chosen.name}`
-						: lang.setserverlang_panel_select
-				});
 
-				// Rebuild select menu with user's choice as default
+				embed
+					.setTitle(newLang.setserverlang_panel_title)
+					.setDescription(newLang.setserverlang_panel_description)
+					.setFields({
+						name: newLang.setserverlang_panel_current,
+						value: chosen
+							? `${chosen.flag} ${chosen.name}`
+							: newLang.setserverlang_panel_select
+					});
+
 				const updatedSelect = new StringSelectMenuBuilder()
 					.setCustomId("setlang-language-selecter")
-					.setPlaceholder(lang.setserverlang_panel_select)
+					.setPlaceholder(newLang.setserverlang_panel_select)
 					.addOptions(
 						AvailableLanguage.map((l) => ({
 							label: l.name,
