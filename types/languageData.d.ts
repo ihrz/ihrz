@@ -1578,6 +1578,13 @@ export interface LanguageData {
 	support_command_not_type: string;
 	support_command_guild_not_have_tag: string;
 	support_command_work_2: string;
+	updates_embed_title: string;
+	updates_embed_description: string;
+	updates_field_version: string;
+	updates_field_commit: string;
+	updates_field_branch: string;
+	updates_field_links: string;
+	updates_changelog_attached: string;
 	setserverlang_not_admin: string;
 	setserverlang_logs_embed_title_on_enable: string;
 	setserverlang_logs_embed_description_on_enable: string;

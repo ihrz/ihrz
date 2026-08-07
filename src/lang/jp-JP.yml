@@ -2081,6 +2081,14 @@ support_command_guild_not_have_tag: ":x: | このサーバーには現在タグ�
 support_command_work_2: "${interaction.guild.name} のサポートモジュールが設定されました。\nユーザーがサーバータグを設定すると、\n<@&${roles.id}> のロールを付与します！"
 
 # /setserverlang
+
+updates_embed_title: "iHorizon アップデート"
+updates_embed_description: "iHorizonの最新の変更とアップデートです。"
+updates_field_version: "バージョン"
+updates_field_commit: "最新コミット"
+updates_field_branch: "ブランチ"
+updates_field_links: "リンク"
+updates_changelog_attached: "完全なチェンジログはPDFで添付されています。"
 setserverlang_not_admin: ":x: | このコマンドを使用するには、サーバーの管理者である必要があります！"
 setserverlang_logs_embed_title_on_enable: "SetServerLangログ"
 setserverlang_logs_embed_description_on_enable: "<@${interaction.user.id}>はiHorizonの言語を**${type}**に設定しました！"

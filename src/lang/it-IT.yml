@@ -2080,6 +2080,14 @@ support_command_guild_not_have_tag: ":x: | Il server attualmente non ha tag."
 support_command_work_2: "Hai configurato il modulo di supporto per ${interaction.guild.name}.\nQuando un utente imposta il tag del server,\ngli assegnerò il ruolo <@&${roles.id}>!"
 
 # /setserverlang
+
+updates_embed_title: "Aggiornamenti iHorizon"
+updates_embed_description: "Ecco gli ultimi cambiamenti e aggiornamenti per iHorizon."
+updates_field_version: "Versione"
+updates_field_commit: "Ultimo commit"
+updates_field_branch: "Branch"
+updates_field_links: "Link"
+updates_changelog_attached: "Il changelog completo è allegato come PDF."
 setserverlang_not_admin: ":x: | Devi essere un amministratore del server per richiedere questo comando!"
 setserverlang_logs_embed_title_on_enable: "SetServerLang Log"
 setserverlang_logs_embed_description_on_enable: "<@${interaction.user.id}> ha impostato la lingua di iHorizon su ${type}!"

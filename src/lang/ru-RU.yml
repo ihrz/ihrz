@@ -2081,6 +2081,14 @@ support_command_guild_not_have_tag: ":x: | На сервере сейчас не
 support_command_work_2: "Вы настроили модуль поддержки для ${interaction.guild.name}.\nКогда пользователь укажет тег сервера,\nя выдам ему роль <@&${roles.id}>!"
 
 # /setserverlang
+
+updates_embed_title: "Обновления iHorizon"
+updates_embed_description: "Вот последние изменения и обновления iHorizon."
+updates_field_version: "Версия"
+updates_field_commit: "Последний коммит"
+updates_field_branch: "Ветка"
+updates_field_links: "Ссылки"
+updates_changelog_attached: "Полный список изменений прилагается в PDF."
 setserverlang_not_admin: ":x: | Вы должны быть администратором сервера, чтобы использовать эту команду!"
 setserverlang_logs_embed_title_on_enable: "Логи SetServerLang"
 setserverlang_logs_embed_description_on_enable: "<@${interaction.user.id}> установил язык iHorizon на **${type}** !"

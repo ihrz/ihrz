@@ -2081,6 +2081,14 @@ support_command_guild_not_have_tag: ":x: | السيرفر مافيهوش أي ت
 support_command_work_2: "إنت ضبطت موديول الدعم لـ ${interaction.guild.name}.\nولما أي مستخدم يحط تاج السيرفر،\nهأدي له رول <@&${roles.id}>!"
 
 # /setserverlang
+
+updates_embed_title: "تحديثات iHorizon"
+updates_embed_description: "هذه هي أحدث التغييرات والتحديثات لـ iHorizon."
+updates_field_version: "الإصدار"
+updates_field_commit: "آخر Commit"
+updates_field_branch: "الفرع"
+updates_field_links: "روابط"
+updates_changelog_attached: "سجل التغييرات الكامل مرفق بصيغة PDF."
 setserverlang_not_admin: ":x: | يجب أن تكون مشرفاً في هذا الخادم لطلب هذه الأوامر!"
 setserverlang_logs_embed_title_on_enable: "سجلات تغيير اللغة"
 setserverlang_logs_embed_description_on_enable: "<@${interaction.user.id}> قام بتغيير لغة iHorizon إلى **${type}**!"
