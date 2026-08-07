@@ -28,6 +28,7 @@ import {
 } from "discord.js";
 import path from "node:path";
 import logger from "../logger.js";
+import { metasTable } from "../../Events/client/ready.js";
 import { LanguageData } from "../../../types/languageData.js";
 
 const V_FILE = path.join(process.cwd(), "v.txt");
@@ -226,11 +227,10 @@ export async function checkAndNotifyRelease(client: Client): Promise<void> {
 				for (const [, g] of client.guilds.cache) {
 					if (g.ownerId === ownerId) {
 						guildId = g.id;
-						const newsletterDisabled = await client.db.get(
-							`newsletter_disabled_${ownerId}`
-						);
-
-						if (newsletterDisabled) {
+						const bl = (await metasTable.get(
+							"newsletter_bl"
+						)) as Record<string, boolean> | null;
+						if (bl?.[ownerId] === true) {
 							return "skipped";
 						}
 						break;

@@ -31,6 +31,7 @@ import {
 
 import { LanguageData } from "../../../../types/languageData.js";
 import { Command } from "../../../../types/command.js";
+import { metasTable } from "../../../Events/client/ready.js";
 import path from "node:path";
 
 export const command: Command = {
@@ -110,28 +111,26 @@ export const command: Command = {
 
 		const components: any[] = [buttons];
 
-		// Add newsletter toggle button if the user is the guild owner
-		if (interaction.author.id === interaction.guild.ownerId) {
-			const newsletterDisabled = await client.db.get(
-				`newsletter_disabled_${interaction.author.id}`
-			);
-			const isEnabled = !newsletterDisabled;
+		// Add newsletter button for everyone
+		const bl = (await metasTable.get("newsletter_bl")) as Record<
+			string,
+			boolean
+		> | null;
+		const isDisabled = bl?.[interaction.author.id] === true;
+		const isEnabled = !isDisabled;
 
-			const newsletterBtn = new ButtonBuilder()
-				.setCustomId("newsletter-toggle")
-				.setLabel(
-					isEnabled
-						? lang.newsletter_btn_unsubscribe
-						: lang.newsletter_btn_subscribe
-				)
-				.setStyle(isEnabled ? ButtonStyle.Danger : ButtonStyle.Primary);
+		const newsletterBtn = new ButtonBuilder()
+			.setCustomId("newsletter-toggle")
+			.setLabel(
+				isEnabled
+					? lang.newsletter_btn_unsubscribe
+					: lang.newsletter_btn_subscribe
+			)
+			.setStyle(isEnabled ? ButtonStyle.Danger : ButtonStyle.Primary);
 
-			components.push(
-				new ActionRowBuilder<ButtonBuilder>().addComponents(
-					newsletterBtn
-				)
-			);
-		}
+		components.push(
+			new ActionRowBuilder<ButtonBuilder>().addComponents(newsletterBtn)
+		);
 
 		// Attach latest changelog PDF, localized by guild language
 		const guildLang = (await client.db.get(

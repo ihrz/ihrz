@@ -1587,9 +1587,9 @@ export interface LanguageData {
 	updates_changelog_attached: string;
 	newsletter_dm_title: string;
 	newsletter_dm_body: string;
-	newsletter_dm_footer: string;
 	newsletter_btn_unsubscribe: string;
 	newsletter_btn_subscribe: string;
+	newsletter_not_owner: string;
 	newsletter_toggle_enabled: string;
 	newsletter_toggle_disabled: string;
 	setserverlang_not_admin: string;

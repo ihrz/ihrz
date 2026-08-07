@@ -21,6 +21,7 @@
 
 import { ButtonInteraction } from "discord.js";
 import { LanguageData } from "../../../../types/languageData.js";
+import { metasTable } from "../../../Events/client/ready.js";
 
 export default async function (
 	interaction: ButtonInteraction,
@@ -28,18 +29,19 @@ export default async function (
 ) {
 	const ownerId = interaction.user.id;
 
-	const rawParts = interaction.customId.split("%");
-	const dataPart = rawParts[1]?.split("?")[0] ?? null;
+	const bl = (await metasTable.get("newsletter_bl")) as Record<
+		string,
+		boolean
+	> | null;
+	const isDisabled = bl?.[ownerId] === true;
 
-	const isDisabled = !!(await interaction.client.db.get(
-		`newsletter_disabled_${ownerId}`
-	));
-
+	const updated: Record<string, boolean> = { ...bl };
 	if (isDisabled) {
-		await interaction.client.db.delete(`newsletter_disabled_${ownerId}`);
+		delete updated[ownerId];
 	} else {
-		await interaction.client.db.set(`newsletter_disabled_${ownerId}`, true);
+		updated[ownerId] = true;
 	}
+	await metasTable.set("newsletter_bl", updated);
 
 	await interaction.reply({
 		content: isDisabled
