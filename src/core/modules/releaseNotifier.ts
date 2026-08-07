@@ -125,8 +125,6 @@ async function sendDm(
 			.replace("{version}", version)
 			.replace("{releaseUrl}", `<${releaseUrl}>`);
 
-		const footer = lang.newsletter_dm_footer;
-
 		const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
 			new ButtonBuilder()
 				.setCustomId(`newsletter-toggle%${guildId}?dm`)
@@ -135,7 +133,7 @@ async function sendDm(
 		);
 
 		await user.send({
-			content: body + footer,
+			content: body,
 			components: [row],
 			files
 		});
