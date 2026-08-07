@@ -133,6 +133,22 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
+		if (
+			interaction.guild.ownerId !== interaction.member.user.id &&
+			tomute.roles.highest.position >=
+				(interaction.member as GuildMember).roles.highest.position
+		) {
+			await client.func.method.interactionSend(interaction, {
+				content: lang.tempmute_tomute_highest_role_or_same
+					.replace(
+						"${client.iHorizon_Emojis.No}",
+						client.iHorizon_Emojis.No
+					)
+					.replace("${tomute.toString()}", tomute.toString())
+			});
+			return;
+		}
+
 		if (tomute.id === interaction.member.user.id) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.tempmute_cannot_mute_yourself.replace(
