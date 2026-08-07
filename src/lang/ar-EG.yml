@@ -3160,3 +3160,41 @@ honeypot_log_no_content: "لا يوجد محتوى نصي"
 honeypot_log_action_ban: "تم حظر المستخدم"
 honeypot_log_action_kick: "تم طرد المستخدم"
 honeypot_log_action_none: "لم يتم اتخاذ أي إجراء"
+
+# وحدة TTS
+# /tts join, /tts leave, /tts info, /tts lang
+
+help_tts_fields: "TTS"
+help_tts_dsc: "> *حول النص إلى كلام في القنوات الصوتية مع iHorizon!*"
+
+# /tts join
+tts_join_not_in_voice: "${client.iHorizon_Emojis.No} يجب أن تكون متصلاً بقناة صوتية لاستخدام هذا الأمر!"
+tts_join_already_enabled: "${client.iHorizon_Emojis.No} وحدة TTS مفعلة بالفعل على هذا الخادم!"
+tts_join_music_playing: "${client.iHorizon_Emojis.No} يتم تشغيل الموسيقى حالياً على هذا الخادم. يرجى إيقاف الموسيقى قبل تفعيل TTS."
+tts_join_enabled: "${client.iHorizon_Emojis.Yes} تم تفعيل وضع TTS في ${voiceChannel}!"
+tts_join_error: "${client.iHorizon_Emojis.No} حدث خطأ أثناء تفعيل وضع TTS."
+tts_join_lang_fallback: "ar-EG"
+
+# /tts leave
+tts_leave_not_active: "${client.iHorizon_Emojis.No} وحدة TTS غير نشطة حالياً على هذا الخادم!"
+tts_leave_not_in_voice: "${client.iHorizon_Emojis.No} يجب أن تكون في القناة الصوتية TTS لتعطيلها!"
+tts_leave_disabled: "${client.iHorizon_Emojis.Yes} تم تعطيل وضع TTS على هذا الخادم!"
+
+# /tts info
+tts_info_embed_title: "معلومات وحدة TTS"
+tts_info_embed_description: "تتيح وحدة TTS (تحويل النص إلى كلام) لـ iHorizon قراءة الرسائل بصوت عالٍ في قناة صوتية. عند التفعيل، سيتم نطق كل رسالة مرسلة في القناة النصية المكونة من قبل الأعضاء الموجودين في القناة الصوتية بواسطة iHorizon."
+tts_info_field_status: "الحالة"
+tts_info_field_lang: "لغة TTS"
+tts_info_field_howto: "كيفية الاستخدام"
+tts_info_howto_value: "استخدم `/tts join` لبدء TTS في قناتك الصوتية.\nاستخدم `/tts leave` لإيقاف TTS.\nاستخدم `/tts lang` لتغيير لغة الصوت."
+
+# /tts lang
+tts_lang_not_active: "${client.iHorizon_Emojis.No} وحدة TTS غير نشطة حالياً على هذا الخادم!"
+tts_lang_set: "${client.iHorizon_Emojis.Yes} تم تعيين لغة TTS إلى `${language}`."
+
+# TTS Embed
+tts_embed_title: "تم تفعيل وضع TTS"
+tts_embed_description: "وحدة TTS نشطة الآن في ${voiceChannel}.\nسيتم قراءة جميع الرسائل المرسلة هنا من قبل الأعضاء في القناة الصوتية بصوت عالٍ.\n\n**الأعضاء في الصوت:** ${members}"
+tts_embed_footer: "استخدم /tts leave لإيقاف TTS"
+tts_join_not_text_based: "${client.iHorizon_Emojis.No} هذه القناة الصوتية لا تدعم الرسائل النصية. يرجى تفعيل النص في الصوت أو استخدام قناة صوتية أخرى."
+tts_music_blocked: "${client.iHorizon_Emojis.No} وحدة TTS نشطة حالياً. يرجى تعطيل TTS قبل تشغيل الموسيقى."

@@ -48,6 +48,10 @@ import { AvailableLanguage } from "../../core/functions/getLanguageData.js";
 import { Expressions } from "../../core/functions/randomExpression.js";
 import { recoverPendingGuildDataDeletions } from "./deleteDatabaseDataOnGuildLeave.js";
 import { usersNamesMap } from "../../core/prevnamesModule.js";
+import {
+	prefetchFloweryVoices,
+	cleanupOrphanedTTS
+} from "../../core/modules/ttsManager.js";
 import path from "node:path";
 
 // @ts-ignore
@@ -91,6 +95,9 @@ export const event: BotEvent = {
 		backupsTable = await db.table("backups");
 
 		await client.emojisManager.startSync();
+
+		prefetchFloweryVoices();
+		cleanupOrphanedTTS(client);
 
 		async function fetchInvites() {
 			const guilds = [...client.guilds.cache.values()];
@@ -230,7 +237,7 @@ export const event: BotEvent = {
 									await client.func.displayBotName.footerAttachmentBuilder()
 								]
 							})
-							.catch(() => { });
+							.catch(() => {});
 
 						await scheduleTable.delete(`${array.id}.${ScheduleId}`);
 					}
@@ -292,7 +299,7 @@ export const event: BotEvent = {
 									) => {
 										return (
 											currentTime -
-											message.sentTimestamp <=
+												message.sentTimestamp <=
 											fourteenDaysInMillis
 										);
 									}
@@ -319,14 +326,14 @@ export const event: BotEvent = {
 				id: client.user?.id as string,
 				username: "bot_" + client.user?.id
 			})
-			.then(() => { });
-		recoverActiveSessions(client).then(() => { });
-		client.memberCountManager.init().then(() => { });
-		client.autoRenewManager.init().then(() => { });
-		client.nightmodeManager.init().then(() => { });
-		client.notifier.start().then(() => { });
-		client.blogger.start().then(() => { });
-		client.infrastructureMonitoring.startMonitoring().then(() => { });
+			.then(() => {});
+		recoverActiveSessions(client).then(() => {});
+		client.memberCountManager.init().then(() => {});
+		client.autoRenewManager.init().then(() => {});
+		client.nightmodeManager.init().then(() => {});
+		client.notifier.start().then(() => {});
+		client.blogger.start().then(() => {});
+		client.infrastructureMonitoring.startMonitoring().then(() => {});
 		client.temproleManager.init();
 		client.tempbanManager.init();
 		client.giveawaysManager.init();
@@ -392,7 +399,7 @@ export const event: BotEvent = {
 				`
 === AUTO-GENERATED MESSAGE ===
 
-iHorizon (${client.user?.tag}) is online 
+iHorizon (${client.user?.tag}) is online
 
 since ${new Date()}
 

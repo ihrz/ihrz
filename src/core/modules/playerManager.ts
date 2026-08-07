@@ -31,6 +31,7 @@ import { LavalinkManager } from "lavalink-client";
 import logger from "../logger.js";
 import { format } from "../functions/date_and_time.js";
 import { profilTable } from "../../Events/client/ready.js";
+import { getTTSData } from "./ttsManager.js";
 
 let lavalink_error_channel: "dont_exist" | null | BaseGuildTextChannel = null;
 
@@ -68,6 +69,8 @@ export default async (client: Client) => {
 	});
 
 	client.player.on("trackStart", async (player, track) => {
+		const ttsData = await getTTSData(client, player.guildId);
+		if (ttsData && ttsData.enabled) return;
 		if (
 			lavalink_error_channel === null &&
 			client.config.core.lavalinkLogsChannelID

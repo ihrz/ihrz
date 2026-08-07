@@ -26,11 +26,9 @@ import {
 	Message
 } from "discord.js";
 
-import logger from "../../../core/logger.js";
 import { LanguageData } from "../../../../types/languageData.js";
-import { getTTSData, cleanupTTS } from "../../../core/modules/ttsManager.js";
-
 import { SubCommand } from "../../../../types/command.js";
+import { getTTSData, cleanupTTS } from "../../../core/modules/ttsManager.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -39,7 +37,6 @@ export const subCommand: SubCommand = {
 		lang: LanguageData,
 		args?: string[]
 	) => {
-		// Guard's Typing
 		if (
 			!client.user ||
 			!interaction.member ||
@@ -48,13 +45,11 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		// Check if the member is in the same voice channel as the bot
-		if (
-			(interaction.member as GuildMember).voice.channelId !==
-			interaction.guild.members.me?.voice.channelId
-		) {
+		const ttsData = await getTTSData(client, interaction.guild.id);
+
+		if (!ttsData || !ttsData.enabled) {
 			await client.func.method.interactionSend(interaction, {
-				content: lang.music_cannot.replace(
+				content: lang.tts_leave_not_active.replace(
 					"${client.iHorizon_Emojis.No}",
 					client.iHorizon_Emojis.No
 				)
@@ -62,35 +57,26 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
-		try {
-			const voiceChannel = (interaction.member as GuildMember).voice
-				.channel;
-			const player = client.player.getPlayer(interaction.guild.id);
+		const member = interaction.member as GuildMember;
+		const voiceChannel = member.voice.channel;
 
-			const ttsData = await getTTSData(client, interaction.guild.id);
-			if (ttsData && ttsData.enabled) {
-				await cleanupTTS(client, interaction.guild.id);
-				await client.func.method.interactionSend(interaction, {
-					content: lang.stop_command_work
-				});
-				return;
-			}
-
-			if (!player || !player.playing || !voiceChannel) {
-				await client.func.method.interactionSend(interaction, {
-					content: lang.stop_nothing_playing
-				});
-				return;
-			}
-
-			player.stopPlaying();
-
+		if (!voiceChannel || voiceChannel.id !== ttsData.voiceChannelId) {
 			await client.func.method.interactionSend(interaction, {
-				content: lang.stop_command_work
+				content: lang.tts_leave_not_in_voice.replace(
+					"${client.iHorizon_Emojis.No}",
+					client.iHorizon_Emojis.No
+				)
 			});
 			return;
-		} catch (error) {
-			logger.err(error);
 		}
+
+		await cleanupTTS(client, interaction.guild.id);
+
+		await client.func.method.interactionSend(interaction, {
+			content: lang.tts_leave_disabled.replace(
+				"${client.iHorizon_Emojis.Yes}",
+				client.iHorizon_Emojis.Yes
+			)
+		});
 	}
 };

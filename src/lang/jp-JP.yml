@@ -3166,3 +3166,41 @@ honeypot_log_no_content: "テキスト内容なし"
 honeypot_log_action_ban: "ユーザーをバン"
 honeypot_log_action_kick: "ユーザーをキック"
 honeypot_log_action_none: "アクションなし"
+
+# TTSモジュール
+# /tts join, /tts leave, /tts info, /tts lang
+
+help_tts_fields: "TTS"
+help_tts_dsc: "> *iHorizonでボイスチャンネルのテキストを音声に変換！*"
+
+# /tts join
+tts_join_not_in_voice: "${client.iHorizon_Emojis.No} このコマンドを使用するにはボイスチャンネルに接続する必要があります！"
+tts_join_already_enabled: "${client.iHorizon_Emojis.No} TTSモジュールはこのサーバーで既に有効です！"
+tts_join_music_playing: "${client.iHorizon_Emojis.No} このサーバーでは現在音楽が再生中です。TTSを有効にする前に音楽を停止してください。"
+tts_join_enabled: "${client.iHorizon_Emojis.Yes} TTSモードが${voiceChannel}で有効になりました！"
+tts_join_error: "${client.iHorizon_Emojis.No} TTSモードの有効化中にエラーが発生しました。"
+tts_join_lang_fallback: "jp-JP"
+
+# /tts leave
+tts_leave_not_active: "${client.iHorizon_Emojis.No} TTSモジュールは現在このサーバーで有効ではありません！"
+tts_leave_not_in_voice: "${client.iHorizon_Emojis.No} TTSを無効にするにはTTSボイスチャンネルにいる必要があります！"
+tts_leave_disabled: "${client.iHorizon_Emojis.Yes} TTSモードがこのサーバーで無効になりました！"
+
+# /tts info
+tts_info_embed_title: "TTSモジュール情報"
+tts_info_embed_description: "TTS（Text-to-Speech）モジュールは、iHorizonがボイスチャンネルでメッセージを読み上げることを可能にします。有効にすると、ボイスチャンネルにいるメンバーが設定されたテキストチャンネルに送信した各メッセージがiHorizonによって読み上げられます。"
+tts_info_field_status: "ステータス"
+tts_info_field_lang: "TTS言語"
+tts_info_field_howto: "使い方"
+tts_info_howto_value: "`/tts join` でボイスチャンネルでTTSを開始します。\n`/tts leave` でTTSを停止します。\n`/tts lang` で音声言語を変更します。"
+
+# /tts lang
+tts_lang_not_active: "${client.iHorizon_Emojis.No} TTSモジュールは現在このサーバーで有効ではありません！"
+tts_lang_set: "${client.iHorizon_Emojis.Yes} TTS言語が `${language}` に設定されました。"
+
+# TTS Embed
+tts_embed_title: "TTSモード有効"
+tts_embed_description: "TTSモジュールが${voiceChannel}で有効になりました。\nボイスチャンネルにいるメンバーがここに送信したすべてのメッセージが読み上げられます。\n\n**ボイスチャンネルのメンバー:** ${members}"
+tts_embed_footer: "/tts leave でTTSを停止"
+tts_join_not_text_based: "${client.iHorizon_Emojis.No} このボイスチャンネルはテキストメッセージをサポートしていません。テキストインボイスを有効にするか、別のボイスチャンネルを使用してください。"
+tts_music_blocked: "${client.iHorizon_Emojis.No} TTSモジュールが現在有効です。音楽を再生する前にTTSを無効にしてください。"

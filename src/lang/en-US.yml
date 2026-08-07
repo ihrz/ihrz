@@ -3168,3 +3168,41 @@ honeypot_log_no_content: "No text content"
 honeypot_log_action_ban: "Banned user"
 honeypot_log_action_kick: "Kicked user"
 honeypot_log_action_none: "No action taken"
+
+# TTS module
+# /tts join, /tts leave, /tts info, /tts lang
+
+help_tts_fields: "TTS"
+help_tts_dsc: "> *Transform text into speech in voice channels with iHorizon!*"
+
+# /tts join
+tts_join_not_in_voice: "${client.iHorizon_Emojis.No} You must be connected to a voice channel to use this command!"
+tts_join_already_enabled: "${client.iHorizon_Emojis.No} The TTS module is already enabled on this server!"
+tts_join_music_playing: "${client.iHorizon_Emojis.No} Music is currently playing on this server. Please stop the music before enabling TTS."
+tts_join_enabled: "${client.iHorizon_Emojis.Yes} TTS mode has been enabled in ${voiceChannel}!"
+tts_join_error: "${client.iHorizon_Emojis.No} An error occurred while enabling TTS mode."
+tts_join_lang_fallback: "en-US"
+
+# /tts leave
+tts_leave_not_active: "${client.iHorizon_Emojis.No} The TTS module is not currently active on this server!"
+tts_leave_not_in_voice: "${client.iHorizon_Emojis.No} You must be in the TTS voice channel to disable it!"
+tts_leave_disabled: "${client.iHorizon_Emojis.Yes} TTS mode has been disabled on this server!"
+
+# /tts info
+tts_info_embed_title: "TTS Module Information"
+tts_info_embed_description: "The TTS (Text-to-Speech) module allows iHorizon to read messages aloud in a voice channel. When enabled, every message sent in the configured text channel by members who are in the voice channel will be spoken by iHorizon."
+tts_info_field_status: "Status"
+tts_info_field_lang: "TTS Language"
+tts_info_field_howto: "How to use"
+tts_info_howto_value: "Use `/tts join` to start TTS in your voice channel.\nUse `/tts leave` to stop TTS.\nUse `/tts lang` to change the voice language."
+
+# /tts lang
+tts_lang_not_active: "${client.iHorizon_Emojis.No} The TTS module is not currently active on this server!"
+tts_lang_set: "${client.iHorizon_Emojis.Yes} The TTS language has been set to `${language}`."
+
+# TTS Embed
+tts_embed_title: "TTS Mode Activated"
+tts_embed_description: "The TTS module is now active in ${voiceChannel}.\nAll messages sent here by members in the voice channel will be read aloud.\n\n**Members in voice:** ${members}"
+tts_embed_footer: "Use /tts leave to stop TTS"
+tts_join_not_text_based: "${client.iHorizon_Emojis.No} This voice channel does not support text messages. Please enable text-in-voice or use another voice channel."
+tts_music_blocked: "${client.iHorizon_Emojis.No} The TTS module is currently active. Please disable TTS before playing music."

@@ -37,6 +37,7 @@ import { LavalinkNode, Player, SearchResult, Track } from "lavalink-client";
 
 import { LanguageData } from "../../../types/languageData.js";
 import maskLink from "./maskLink.js";
+import { getTTSData, cleanupTTS } from "../modules/ttsManager.js";
 
 import { Innertube, YTNodes } from "youtubei.js";
 import * as spotify from "spotify-metadata";
@@ -646,6 +647,11 @@ export async function handleMusicPlay({
 	if (!voiceChannel) {
 		await respond({ content: lang.p_not_in_voice_channel });
 		return;
+	}
+
+	const ttsData = await getTTSData(client, interaction.guild.id);
+	if (ttsData && ttsData.enabled) {
+		await cleanupTTS(client, interaction.guild.id);
 	}
 
 	if (

@@ -22,15 +22,13 @@
 import {
 	ChatInputCommandInteraction,
 	Client,
-	GuildMember,
+	EmbedBuilder,
 	Message
 } from "discord.js";
 
-import logger from "../../../core/logger.js";
 import { LanguageData } from "../../../../types/languageData.js";
-import { getTTSData, cleanupTTS } from "../../../core/modules/ttsManager.js";
-
 import { SubCommand } from "../../../../types/command.js";
+import { getTTSData } from "../../../core/modules/ttsManager.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -39,7 +37,6 @@ export const subCommand: SubCommand = {
 		lang: LanguageData,
 		args?: string[]
 	) => {
-		// Guard's Typing
 		if (
 			!client.user ||
 			!interaction.member ||
@@ -48,49 +45,46 @@ export const subCommand: SubCommand = {
 		)
 			return;
 
-		// Check if the member is in the same voice channel as the bot
-		if (
-			(interaction.member as GuildMember).voice.channelId !==
-			interaction.guild.members.me?.voice.channelId
-		) {
-			await client.func.method.interactionSend(interaction, {
-				content: lang.music_cannot.replace(
-					"${client.iHorizon_Emojis.No}",
-					client.iHorizon_Emojis.No
-				)
+		const ttsData = await getTTSData(client, interaction.guild.id);
+		const isActive = ttsData && ttsData.enabled;
+
+		const embed = new EmbedBuilder()
+			.setColor(isActive ? "#57F287" : "#ED4245")
+			.setTitle(lang.tts_info_embed_title)
+			.setDescription(lang.tts_info_embed_description)
+			.addFields({
+				name: lang.tts_info_field_status,
+				value: isActive ? lang.var_enabled : lang.var_disabled,
+				inline: true
 			});
-			return;
+
+		if (isActive) {
+			embed.addFields(
+				{
+					name: lang.var_voice_channel,
+					value: `<#${ttsData.voiceChannelId}>`,
+					inline: true
+				},
+				{
+					name: lang.var_text_channel,
+					value: `<#${ttsData.textChannelId}>`,
+					inline: true
+				},
+				{
+					name: lang.tts_info_field_lang,
+					value: `\`${ttsData.lang}\``,
+					inline: true
+				}
+			);
 		}
 
-		try {
-			const voiceChannel = (interaction.member as GuildMember).voice
-				.channel;
-			const player = client.player.getPlayer(interaction.guild.id);
+		embed.addFields({
+			name: lang.tts_info_field_howto,
+			value: lang.tts_info_howto_value
+		});
 
-			const ttsData = await getTTSData(client, interaction.guild.id);
-			if (ttsData && ttsData.enabled) {
-				await cleanupTTS(client, interaction.guild.id);
-				await client.func.method.interactionSend(interaction, {
-					content: lang.stop_command_work
-				});
-				return;
-			}
-
-			if (!player || !player.playing || !voiceChannel) {
-				await client.func.method.interactionSend(interaction, {
-					content: lang.stop_nothing_playing
-				});
-				return;
-			}
-
-			player.stopPlaying();
-
-			await client.func.method.interactionSend(interaction, {
-				content: lang.stop_command_work
-			});
-			return;
-		} catch (error) {
-			logger.err(error);
-		}
+		await client.func.method.interactionSend(interaction, {
+			embeds: [embed]
+		});
 	}
 };

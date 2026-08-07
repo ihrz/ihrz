@@ -232,6 +232,141 @@
         "thinking": false
     },
     {
+        "name": "tts",
+        "name_translated": {
+            "fr": "tts"
+        },
+        "description": "Subcommand for TTS (Text-to-Speech) category!",
+        "description_translated": {
+            "fr": "Commande sous-groupé pour la catégorie TTS (Text-to-Speech)"
+        },
+        "category": "tts",
+        "options": [
+            {
+                "name": "join",
+                "description": "Join the voice channel and enable TTS mode!",
+                "description_localizations": {
+                    "fr": "Rejoindre le salon vocal et activer le mode TTS"
+                },
+                "type": 1,
+                "commandFullName": "tts join"
+            },
+            {
+                "name": "leave",
+                "description": "Leave the voice channel and disable TTS mode!",
+                "description_localizations": {
+                    "fr": "Quitter le salon vocal et désactiver le mode TTS"
+                },
+                "type": 1,
+                "commandFullName": "tts leave"
+            },
+            {
+                "name": "info",
+                "description": "Get information about the TTS module!",
+                "description_localizations": {
+                    "fr": "Obtenir des informations sur le module TTS"
+                },
+                "type": 1,
+                "commandFullName": "tts info"
+            },
+            {
+                "name": "lang",
+                "name_localizations": {
+                    "fr": "langue"
+                },
+                "prefixName": "ttslang",
+                "description": "Set the default TTS language for the guild!",
+                "description_localizations": {
+                    "fr": "Définir la langue TTS par défaut du serveur"
+                },
+                "type": 1,
+                "options": [
+                    {
+                        "name": "language",
+                        "name_localizations": {
+                            "fr": "langue"
+                        },
+                        "description": "The TTS language to use!",
+                        "description_localizations": {
+                            "fr": "La langue TTS à utiliser"
+                        },
+                        "type": 3,
+                        "required": true,
+                        "choices": [
+                            {
+                                "name": "English",
+                                "name_localizations": {
+                                    "fr": "Anglais"
+                                },
+                                "value": "en-US"
+                            },
+                            {
+                                "name": "French",
+                                "name_localizations": {
+                                    "fr": "Francais"
+                                },
+                                "value": "fr-FR"
+                            },
+                            {
+                                "name": "German",
+                                "name_localizations": {
+                                    "fr": "Allemand"
+                                },
+                                "value": "de-DE"
+                            },
+                            {
+                                "name": "Spanish",
+                                "name_localizations": {
+                                    "fr": "Espagnol"
+                                },
+                                "value": "es-ES"
+                            },
+                            {
+                                "name": "Italian",
+                                "name_localizations": {
+                                    "fr": "Italien"
+                                },
+                                "value": "it-IT"
+                            },
+                            {
+                                "name": "Japanese",
+                                "name_localizations": {
+                                    "fr": "Japonais"
+                                },
+                                "value": "jp-JP"
+                            },
+                            {
+                                "name": "Portuguese",
+                                "name_localizations": {
+                                    "fr": "Portugais"
+                                },
+                                "value": "pt-PT"
+                            },
+                            {
+                                "name": "Russian",
+                                "name_localizations": {
+                                    "fr": "Russe"
+                                },
+                                "value": "ru-RU"
+                            },
+                            {
+                                "name": "Arabic",
+                                "name_localizations": {
+                                    "fr": "Arabe"
+                                },
+                                "value": "ar-EG"
+                            }
+                        ],
+                        "commandFullName": "tts lang language"
+                    }
+                ],
+                "commandFullName": "tts lang"
+            }
+        ],
+        "aliases": [],
+        "thinking": false
+    },
+    {
         "name": "utils",
         "description": "SubCommand category for utils command",
         "description_translated": {
