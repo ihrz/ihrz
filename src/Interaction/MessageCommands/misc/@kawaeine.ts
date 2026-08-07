@@ -39,14 +39,20 @@ export const command: Command = {
 	aliases: ["meme3"],
 	description: "kawaeine meme generator",
 	description_localizations: {
-		fr: "kawaeine meme generator"
+		fr: "kawaeine meme generator",
+		ja: "kawaeine ミームジェネレーター",
+		ru: "генератор мема kawaeine",
+		"es-ES": "generador de meme kawaeine"
 	},
 	options: [
 		{
 			name: "image1",
 			description: "the before sucks",
 			description_localizations: {
-				fr: "le screen qui te fait dire que ça va mal"
+				fr: "le screen qui te fait dire que ça va mal",
+				ja: "before 側が最低",
+				ru: "before отстой",
+				"es-ES": "el before apesta"
 			},
 			type: ApplicationCommandOptionType.String,
 			required: false,

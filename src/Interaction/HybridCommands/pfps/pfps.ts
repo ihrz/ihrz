@@ -33,7 +33,10 @@ export const command: Command = {
 
 	description: "Sending random user avatar in channel!",
 	description_localizations: {
-		fr: "Envoi d'un avatar d'utilisateur aléatoire dans un canal pré-définis"
+		fr: "Envoi d'un avatar d'utilisateur aléatoire dans un canal pré-définis",
+		ja: "ランダムなユーザーアバターをチャンネルに送信！",
+		ru: "Отправить случайный аватар в канал!",
+		"es-ES": "Enviar avatar de usuario aleatorio en el canal!"
 	},
 
 	options: [
@@ -43,7 +46,10 @@ export const command: Command = {
 
 			description: "Set the pfps module's channel!",
 			description_localizations: {
-				fr: "Définir le canal du module pfps"
+				fr: "Définir le canal du module pfps",
+				ja: "PFPSモジュールのチャンネルを設定！",
+				ru: "Установить канал модуля PFPS!",
+				"es-ES": "Establecer el canal del módulo PFPS!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -54,7 +60,10 @@ export const command: Command = {
 
 					description: "The channel!",
 					description_localizations: {
-						fr: "Le channel"
+						fr: "Le channel",
+						ja: "チャンネル！",
+						ru: "Канал!",
+						"es-ES": "El canal!"
 					},
 
 					channel_types: [ChannelType.GuildText],
@@ -73,7 +82,10 @@ export const command: Command = {
 
 			description: "Enable or Disable the PFPS module!",
 			description_localizations: {
-				fr: "Activer ou désactiver le module"
+				fr: "Activer ou désactiver le module",
+				ja: "PFPSモジュールを有効化または無効化！",
+				ru: "Включить или отключить модуль PFPS!",
+				"es-ES": "Habilitar o Deshabilitar el módulo PFPS!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -84,19 +96,32 @@ export const command: Command = {
 
 					description: "What do you want to do ?",
 					description_localizations: {
-						fr: "Que voulez-vous faire ?"
+						fr: "Que voulez-vous faire ?",
+						ja: "何をしたいですか？",
+						ru: "Что вы хотите сделать?",
+						"es-ES": "Que quieres hacer?"
 					},
 
 					required: true,
 					choices: [
 						{
 							name: "Power On",
-							name_localizations: { fr: "Activer" },
+							name_localizations: {
+								fr: "Activer",
+								ja: "power_on",
+								ru: "power_on",
+								"es-ES": "power_on"
+							},
 							value: "on"
 						},
 						{
 							name: "Power Off",
-							name_localizations: { fr: "Désactiver" },
+							name_localizations: {
+								fr: "Désactiver",
+								ja: "power_off",
+								ru: "power_off",
+								"es-ES": "power_off"
+							},
 							value: "off"
 						}
 					],

@@ -39,7 +39,10 @@ export const command: Command = {
 	category: "starboard",
 	description: "SubCommand group for Starboard category",
 	description_localizations: {
-		fr: "sous-commande groupé pour la catégorie Starboard"
+		fr: "sous-commande groupé pour la catégorie Starboard",
+		ja: "スターボードカテゴリのサブコマンドグループ",
+		ru: "Группа подкоманд для категории Starboard",
+		"es-ES": "Grupo de subcomando para la categoría Starboard"
 	},
 
 	permission: [PermissionFlagsBits.Administrator],
@@ -52,7 +55,10 @@ export const command: Command = {
 
 			description: "Enable or disable the module",
 			description_localizations: {
-				fr: "désactiver ou activer le module"
+				fr: "désactiver ou activer le module",
+				ja: "モジュールを有効化または無効化",
+				ru: "Включить или отключить модуль",
+				"es-ES": "Habilitar o deshabilitar el módulo"
 			},
 
 			options: [
@@ -61,18 +67,31 @@ export const command: Command = {
 
 					description: "What you want to do ?",
 					description_localizations: {
-						fr: "que voulez-vous faire?"
+						fr: "que voulez-vous faire?",
+						ja: "何をしたいですか？",
+						ru: "Что вы хотите сделать?",
+						"es-ES": "Que quieres hacer?"
 					},
 
 					choices: [
 						{
 							name: "Power On",
-							name_localizations: { fr: "Activer" },
+							name_localizations: {
+								fr: "Activer",
+								ja: "power_on",
+								ru: "power_on",
+								"es-ES": "power_on"
+							},
 							value: "on"
 						},
 						{
 							name: "Power Off",
-							name_localizations: { fr: "Désactiver" },
+							name_localizations: {
+								fr: "Désactiver",
+								ja: "power_off",
+								ru: "power_off",
+								"es-ES": "power_off"
+							},
 							value: "off"
 						}
 					],
@@ -95,7 +114,10 @@ export const command: Command = {
 			description:
 				"Change the channel which are send the most starred messages",
 			description_localizations: {
-				fr: "Changer le salon où sont envoyer les messages avec le plus d'étoile."
+				fr: "Changer le salon où sont envoyer les messages avec le plus d'étoile.",
+				ja: "最も多くのスター付きメッセージが送信されるチャンネルを変更",
+				ru: "Изменить канал для сообщений со звездами",
+				"es-ES": "Cambiar el canal donde se envían los mensajes más destacados"
 			},
 
 			options: [
@@ -104,7 +126,10 @@ export const command: Command = {
 
 					description: "the channel you want",
 					description_localizations: {
-						fr: "Le salon que vous souhaitez"
+						fr: "Le salon que vous souhaitez",
+						ja: "希望するチャンネル",
+						ru: "желаемый канал",
+						"es-ES": "el canal que deseas"
 					},
 
 					permission: null,
@@ -124,14 +149,20 @@ export const command: Command = {
 		{
 			name: "threshold",
 			name_localizations: {
-				fr: "seuil"
+				fr: "seuil",
+				ja: "threshold",
+				ru: "threshold",
+				"es-ES": "threshold"
 			},
 			prefixName: "starboardthreshold",
 
 			description:
 				"Set the star threshold needed for being referenced into the channel",
 			description_localizations: {
-				fr: "Définissez le seuil d'étoiles nécessaire pour être référencé dans le canal."
+				fr: "Définissez le seuil d'étoiles nécessaire pour être référencé dans le canal.",
+				ja: "チャンネルで参照されるために必要なスターのしきい値を設定",
+				ru: "Установить порог звезд для попадания в канал",
+				"es-ES": "Establecer el umbral de estrellas necesario para ser referenciado en el canal"
 			},
 
 			options: [
@@ -140,7 +171,10 @@ export const command: Command = {
 
 					description: "the threshold",
 					description_localizations: {
-						fr: "Le seuil/pallier"
+						fr: "Le seuil/pallier",
+						ja: "しきい値",
+						ru: "порог",
+						"es-ES": "el umbral"
 					},
 
 					type: ApplicationCommandOptionType.Number,
@@ -159,7 +193,10 @@ export const command: Command = {
 			description:
 				"Create a thread bellow the message into the star channel ?",
 			description_localizations: {
-				fr: "Créer un fil de discussion en dessous du message dans le canal ?"
+				fr: "Créer un fil de discussion en dessous du message dans le canal ?",
+				ja: "スターチャンネルのメッセージの下にスレッドを作成しますか？",
+				ru: "Создать ветку под сообщением в звездном канале?",
+				"es-ES": "Crear un hilo debajo del mensaje en el canal de estrellas?"
 			},
 
 			options: [
@@ -168,18 +205,31 @@ export const command: Command = {
 
 					description: "What you want to do?",
 					description_localizations: {
-						fr: "que voulez-vous faire?"
+						fr: "que voulez-vous faire?",
+						ja: "何をしたいですか？",
+						ru: "Что вы хотите сделать?",
+						"es-ES": "Que quieres hacer?"
 					},
 
 					choices: [
 						{
 							name: "Create thread",
-							name_localizations: { fr: "Créer un fil" },
+							name_localizations: {
+								fr: "Créer un fil",
+								ja: "create_thread",
+								ru: "create_thread",
+								"es-ES": "create_thread"
+							},
 							value: "yes"
 						},
 						{
 							name: "Don't create thread",
-							name_localizations: { fr: "Ne pas créer un fil" },
+							name_localizations: {
+								fr: "Ne pas créer un fil",
+								ja: "don_t_create_thread",
+								ru: "don_t_create_thread",
+								"es-ES": "don_t_create_thread"
+							},
 							value: "no"
 						}
 					],

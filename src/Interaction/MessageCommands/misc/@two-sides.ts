@@ -39,14 +39,20 @@ export const command: Command = {
 	aliases: ["meme2"],
 	description: "i have two sides meme generator",
 	description_localizations: {
-		fr: "i have two sides meme generator"
+		fr: "i have two sides meme generator",
+		ja: "i have two sides ミームジェネレーター",
+		ru: "генератор мема i have two sides",
+		"es-ES": "generador de meme i have two sides"
 	},
 	options: [
 		{
 			name: "image1",
 			description: "the before sucks",
 			description_localizations: {
-				fr: "le screen avant qu'il ce fasse défon"
+				fr: "le screen avant qu'il ce fasse défon",
+				ja: "before 側が最低",
+				ru: "before отстой",
+				"es-ES": "el before apesta"
 			},
 			type: ApplicationCommandOptionType.String,
 			required: false,
@@ -56,7 +62,10 @@ export const command: Command = {
 			name: "image2",
 			description: "the after sucks",
 			description_localizations: {
-				fr: "le screen après qu'il ce soit défoncé"
+				fr: "le screen après qu'il ce soit défoncé",
+				ja: "after 側が最低",
+				ru: "after отстой",
+				"es-ES": "el after apesta"
 			},
 			type: ApplicationCommandOptionType.String,
 			required: false,

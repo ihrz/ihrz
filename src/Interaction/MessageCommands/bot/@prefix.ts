@@ -37,7 +37,10 @@ export const command: Command = {
 
 	description: "Change the bot prefix on the guild",
 	description_localizations: {
-		fr: "Changer le préfixe du bot sur le serveur"
+		fr: "Changer le préfixe du bot sur le serveur",
+		ja: "サーバーのボットプレフィックスを変更",
+		ru: "Изменить префикс бота на сервере",
+		"es-ES": "Cambiar el prefijo del bot en el servidor"
 	},
 
 	aliases: ["setprefix", "changeprefix"],

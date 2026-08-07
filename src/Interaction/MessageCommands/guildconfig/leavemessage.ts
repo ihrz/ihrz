@@ -35,7 +35,10 @@ export const command: Command = {
 
 	description: "Set the leave message !",
 	description_localizations: {
-		fr: "Définir le message de départ"
+		fr: "Définir le message de départ",
+		ja: "退出メッセージを設定！",
+		ru: "Установить прощальное сообщение!",
+		"es-ES": "Establecer el mensaje de despedida!"
 	},
 
 	aliases: ["leavemsg", "lmessage", "leaver"],

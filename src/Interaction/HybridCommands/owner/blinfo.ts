@@ -43,7 +43,10 @@ export const command: Command = {
 
 	description: "Show informations about blacklisted user!",
 	description_localizations: {
-		fr: "Afficher des informations sur un utilisateur blacklisté"
+		fr: "Afficher des informations sur un utilisateur blacklisté",
+		ja: "ブラックリストユーザーの情報を表示！",
+		ru: "Показать информацию о пользователе в черном списке!",
+		"es-ES": "Mostrar información sobre el usuario en la lista negra!"
 	},
 
 	options: [
@@ -53,7 +56,10 @@ export const command: Command = {
 
 			description: "The user you want to look at...",
 			description_localizations: {
-				fr: "L'utilisateur que vous voulez obtenir ces informations de bl"
+				fr: "L'utilisateur que vous voulez obtenir ces informations de bl",
+				ja: "確認したいユーザー...",
+				ru: "Пользователь, которого вы хотите посмотреть...",
+				"es-ES": "El usuario que quieres mirar..."
 			},
 
 			required: true,

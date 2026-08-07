@@ -38,7 +38,10 @@ export const command: Command = {
 
 	description: "Get the bot invite link!",
 	description_localizations: {
-		fr: "Obtenir le lien d'invitations du bot iHorizon"
+		fr: "Obtenir le lien d'invitations du bot iHorizon",
+		ja: "ボットの招待リンクを取得！",
+		ru: "Получить ссылку приглашения бота!",
+		"es-ES": "Obtener el enlace de invitación del bot!"
 	},
 
 	aliases: ["inviteme", "oauth"],

@@ -49,7 +49,10 @@ export const command: Command = {
 	name: "schedule",
 	description: "Manager for schedule category!",
 	description_localizations: {
-		fr: "Commande sous-groupé pour la catégorie de message pré-programmer"
+		fr: "Commande sous-groupé pour la catégorie de message pré-programmer",
+		ja: "スケジュールカテゴリの管理！",
+		ru: "Управление категорией расписания!",
+		"es-ES": "Gestor para la categoría de horarios!"
 	},
 	category: "schedule",
 	thinking: false,

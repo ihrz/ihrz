@@ -38,7 +38,10 @@ export const command: Command = {
 
 	description: "Run Javascript program (only for developers)!",
 	description_localizations: {
-		fr: "Executer du code JavaScript (Seulement pour les dev du bot)."
+		fr: "Executer du code JavaScript (Seulement pour les dev du bot).",
+		ja: "JavaScriptプログラムを実行（開発者のみ）！",
+		ru: "Запустить программу JavaScript (только для разработчиков)!",
+		"es-ES": "Ejecutar programa Javascript (solo para desarrolladores)!"
 	},
 
 	options: [
@@ -48,7 +51,10 @@ export const command: Command = {
 
 			description: "javascript code",
 			description_localizations: {
-				fr: "JS Code"
+				fr: "JS Code",
+				ja: "JavaScriptコード",
+				ru: "код JavaScript",
+				"es-ES": "código JavaScript"
 			},
 
 			required: true,

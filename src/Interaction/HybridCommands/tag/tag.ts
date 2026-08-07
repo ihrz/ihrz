@@ -35,7 +35,10 @@ export const command: Command = {
 	name: "tag",
 	description: "Subcommand for the category of tags message",
 	description_localizations: {
-		fr: "Sous-commande pour la catégorie de message de tags"
+		fr: "Sous-commande pour la catégorie de message de tags",
+		ja: "タグメッセージカテゴリのサブコマンド",
+		ru: "Подкоманда для категории тегов сообщений",
+		"es-ES": "Subcomando para la categoría de mensajes de etiquetas"
 	},
 
 	options: [
@@ -45,7 +48,10 @@ export const command: Command = {
 
 			description: "Roles whitelist for using tags",
 			description_localizations: {
-				fr: "Rôles whitelist pour utiliser les tags"
+				fr: "Rôles whitelist pour utiliser les tags",
+				ja: "タグ使用用のホワイトリストロール",
+				ru: "Белый список ролей для использования тегов",
+				"es-ES": "Roles de lista blanca para usar etiquetas"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -57,7 +63,10 @@ export const command: Command = {
 
 			description: "Roles whitelist for creating tags",
 			description_localizations: {
-				fr: "Rôles whitelist pour créer des tags"
+				fr: "Rôles whitelist pour créer des tags",
+				ja: "タグ作成用のホワイトリストロール",
+				ru: "Белый список ролей для создания тегов",
+				"es-ES": "Roles de lista blanca para crear etiquetas"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -69,7 +78,10 @@ export const command: Command = {
 
 			description: "Use a tag",
 			description_localizations: {
-				fr: "Utiliser un tag"
+				fr: "Utiliser un tag",
+				ja: "タグを使用",
+				ru: "Использовать тег",
+				"es-ES": "Usar una etiqueta"
 			},
 
 			options: [
@@ -78,7 +90,10 @@ export const command: Command = {
 
 					description: "Name of the tag",
 					description_localizations: {
-						fr: "Nom du tag"
+						fr: "Nom du tag",
+						ja: "タグの名前",
+						ru: "Название тега",
+						"es-ES": "Nombre de la etiqueta"
 					},
 
 					type: ApplicationCommandOptionType.String,
@@ -90,7 +105,10 @@ export const command: Command = {
 
 					description: "Mention the user",
 					description_localizations: {
-						fr: "Mentionner l'utilisateur"
+						fr: "Mentionner l'utilisateur",
+						ja: "ユーザーにメンション",
+						ru: "Упомянуть пользователя",
+						"es-ES": "Mencionar al usuario"
 					},
 
 					type: ApplicationCommandOptionType.User,
@@ -102,7 +120,10 @@ export const command: Command = {
 
 					description: "Message's ID to reply",
 					description_localizations: {
-						fr: "ID du message pour répondre"
+						fr: "ID du message pour répondre",
+						ja: "返信するメッセージのID",
+						ru: "ID сообщения для ответа",
+						"es-ES": "ID del mensaje para responder"
 					},
 
 					type: ApplicationCommandOptionType.String,
@@ -121,7 +142,10 @@ export const command: Command = {
 
 			description: "Create a tag",
 			description_localizations: {
-				fr: "Créer un tag"
+				fr: "Créer un tag",
+				ja: "タグを作成",
+				ru: "Создать тег",
+				"es-ES": "Crear una etiqueta"
 			},
 
 			options: [
@@ -130,7 +154,10 @@ export const command: Command = {
 
 					description: "Name of the tag",
 					description_localizations: {
-						fr: "Nom du tag"
+						fr: "Nom du tag",
+						ja: "タグの名前",
+						ru: "Название тега",
+						"es-ES": "Nombre de la etiqueta"
 					},
 
 					type: ApplicationCommandOptionType.String,
@@ -142,7 +169,10 @@ export const command: Command = {
 
 					description: "Embed's ID",
 					description_localizations: {
-						fr: "ID de l'embed"
+						fr: "ID de l'embed",
+						ja: "埋め込みのID",
+						ru: "ID эмбеда",
+						"es-ES": "ID del embed"
 					},
 
 					type: ApplicationCommandOptionType.String,
@@ -154,7 +184,10 @@ export const command: Command = {
 
 					description: "Message with the embed",
 					description_localizations: {
-						fr: "le message qui acompagneras l'embed"
+						fr: "le message qui acompagneras l'embed",
+						ja: "埋め込み付きメッセージ",
+						ru: "Сообщение с эмбедом",
+						"es-ES": "Mensaje con el embed"
 					},
 
 					type: ApplicationCommandOptionType.String,
@@ -171,7 +204,10 @@ export const command: Command = {
 
 			description: "Edit a tag",
 			description_localizations: {
-				fr: "Modifier un tag"
+				fr: "Modifier un tag",
+				ja: "タグを編集",
+				ru: "Редактировать тег",
+				"es-ES": "Editar una etiqueta"
 			},
 
 			options: [
@@ -180,7 +216,10 @@ export const command: Command = {
 
 					description: "The current tag name",
 					description_localizations: {
-						fr: "Le nom actuel du tag"
+						fr: "Le nom actuel du tag",
+						ja: "現在のタグ名",
+						ru: "Текущее название тега",
+						"es-ES": "El nombre actual de la etiqueta"
 					},
 
 					type: ApplicationCommandOptionType.String,
@@ -192,7 +231,10 @@ export const command: Command = {
 
 					description: "The new tag name",
 					description_localizations: {
-						fr: "Le nouveau nom du tag"
+						fr: "Le nouveau nom du tag",
+						ja: "新しいタグ名",
+						ru: "Новое название тега",
+						"es-ES": "El nuevo nombre de la etiqueta"
 					},
 
 					type: ApplicationCommandOptionType.String,
@@ -210,7 +252,10 @@ export const command: Command = {
 
 			description: "Delete a tag",
 			description_localizations: {
-				fr: "Supprimer un tag"
+				fr: "Supprimer un tag",
+				ja: "タグを削除",
+				ru: "Удалить тег",
+				"es-ES": "Eliminar una etiqueta"
 			},
 
 			options: [
@@ -219,7 +264,10 @@ export const command: Command = {
 
 					description: "Name of the tag",
 					description_localizations: {
-						fr: "Nom du tag"
+						fr: "Nom du tag",
+						ja: "タグの名前",
+						ru: "Название тега",
+						"es-ES": "Nombre de la etiqueta"
 					},
 
 					type: ApplicationCommandOptionType.String,
@@ -237,7 +285,10 @@ export const command: Command = {
 
 			description: "List all tags",
 			description_localizations: {
-				fr: "Lister tous les tags"
+				fr: "Lister tous les tags",
+				ja: "全タグを一覧表示",
+				ru: "Показать все теги",
+				"es-ES": "Listar todas las etiquetas"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -249,7 +300,10 @@ export const command: Command = {
 
 			description: "Info of a tag",
 			description_localizations: {
-				fr: "Info d'un tag"
+				fr: "Info d'un tag",
+				ja: "タグの情報",
+				ru: "Информация о теге",
+				"es-ES": "Información de una etiqueta"
 			},
 
 			options: [
@@ -258,7 +312,10 @@ export const command: Command = {
 
 					description: "Name of the tag",
 					description_localizations: {
-						fr: "Nom du tag"
+						fr: "Nom du tag",
+						ja: "タグの名前",
+						ru: "Название тега",
+						"es-ES": "Nombre de la etiqueta"
 					},
 
 					type: ApplicationCommandOptionType.String,

@@ -2377,16 +2377,13 @@ export interface LanguageData {
 	honeypot_log_action_ban: string;
 	honeypot_log_action_kick: string;
 	honeypot_log_action_none: string;
-
 	help_tts_fields: string;
 	help_tts_dsc: string;
 	tts_join_not_in_voice: string;
-	tts_join_not_text_based: string;
 	tts_join_already_enabled: string;
 	tts_join_music_playing: string;
 	tts_join_enabled: string;
 	tts_join_error: string;
-	tts_music_blocked: string;
 	tts_join_lang_fallback: string;
 	tts_leave_not_active: string;
 	tts_leave_not_in_voice: string;
@@ -2402,5 +2399,7 @@ export interface LanguageData {
 	tts_embed_title: string;
 	tts_embed_description: string;
 	tts_embed_footer: string;
+	tts_join_not_text_based: string;
+	tts_music_blocked: string;
 	tts_voice_status: string;
 }

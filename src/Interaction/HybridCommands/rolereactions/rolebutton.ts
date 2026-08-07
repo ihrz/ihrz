@@ -42,7 +42,10 @@ export const command: Command = {
 
 	description: "Set a roles when user react to a button with specific emoji",
 	description_localizations: {
-		fr: "Définir des rôles lorsque l'utilisateur réagit à un message avec un boutton spécifique"
+		fr: "Définir des rôles lorsque l'utilisateur réagit à un message avec un boutton spécifique",
+		ja: "特定の絵文字でボタンにリアクションした時にロールを設定",
+		ru: "Установить роли при реакции на кнопку с эмодзи",
+		"es-ES": "Establecer roles cuando el usuario reacciona a un botón con emoji específico"
 	},
 
 	aliases: ["btnreact"],
@@ -52,7 +55,10 @@ export const command: Command = {
 
 			description: "Please make your choice.",
 			description_localizations: {
-				fr: "Merci de faire votre choix"
+				fr: "Merci de faire votre choix",
+				ja: "選択してください。",
+				ru: "Пожалуйста, сделайте выбор.",
+				"es-ES": "Por favor, haz tu elección."
 			},
 
 			type: ApplicationCommandOptionType.String,
@@ -60,12 +66,22 @@ export const command: Command = {
 			choices: [
 				{
 					name: "Add another",
-					name_localizations: { fr: "Ajouter un autre" },
+					name_localizations: {
+						fr: "Ajouter un autre",
+						ja: "add_another",
+						ru: "add_another",
+						"es-ES": "add_another"
+					},
 					value: "add"
 				},
 				{
 					name: "Remove one",
-					name_localizations: { fr: "Supprimer un" },
+					name_localizations: {
+						fr: "Supprimer un",
+						ja: "remove_one",
+						ru: "remove_one",
+						"es-ES": "remove_one"
+					},
 					value: "remove"
 				}
 			],
@@ -78,7 +94,10 @@ export const command: Command = {
 
 			description: "The channel where is the message",
 			description_localizations: {
-				fr: "Le salon textuelle où se trouve le message"
+				fr: "Le salon textuelle où se trouve le message",
+				ja: "メッセージがあるチャンネル",
+				ru: "Канал, где находится сообщение",
+				"es-ES": "El canal donde está el mensaje"
 			},
 
 			channel_types: [ChannelType.GuildText],
@@ -94,7 +113,10 @@ export const command: Command = {
 			description:
 				"Please copy the identifiant of the message you want to configure",
 			description_localizations: {
-				fr: "Veuillez copier l'identifiant du message que vous souhaitez configurer"
+				fr: "Veuillez copier l'identifiant du message que vous souhaitez configurer",
+				ja: "設定したいメッセージの識別子をコピーしてください",
+				ru: "Пожалуйста, скопируйте идентификатор сообщения, которое вы хотите настроить",
+				"es-ES": "Por favor, copia el identificador del mensaje que quieres configurar"
 			},
 
 			required: true,
@@ -107,7 +129,10 @@ export const command: Command = {
 
 			description: `The emojis you want`,
 			description_localizations: {
-				fr: "Les emojis que tu veux"
+				fr: "Les emojis que tu veux",
+				ja: "使用したい絵文字",
+				ru: "Эмодзи, которые вы хотите",
+				"es-ES": "Los emojis que deseas"
 			},
 
 			required: false,
@@ -120,7 +145,10 @@ export const command: Command = {
 
 			description: "The role you want to configure",
 			description_localizations: {
-				fr: "Le rôle que vous souhaitez configurer"
+				fr: "Le rôle que vous souhaitez configurer",
+				ja: "設定したいロール",
+				ru: "Роль, которую вы хотите настроить",
+				"es-ES": "El rol que quieres configurar"
 			},
 
 			required: false,

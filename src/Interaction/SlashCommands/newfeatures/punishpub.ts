@@ -35,7 +35,10 @@ export const command: Command = {
 
 	description: "Punish user when he send too much advertisement!",
 	description_localizations: {
-		fr: "Punir l'utilisateur lorsqu'il envoie trop de publicité"
+		fr: "Punir l'utilisateur lorsqu'il envoie trop de publicité",
+		ja: "広告を送りすぎたユーザーを罰する！",
+		ru: "Наказать пользователя за чрезмерную рекламу!",
+		"es-ES": "Castigar al usuario cuando envía demasiada publicidad!"
 	},
 
 	options: [
@@ -45,19 +48,32 @@ export const command: Command = {
 
 			description: "Choose the status of the module",
 			description_localizations: {
-				fr: "Choisir l'état du module"
+				fr: "Choisir l'état du module",
+				ja: "モジュールのステータスを選択",
+				ru: "Выберите статус модуля",
+				"es-ES": "Elegir el estado del módulo"
 			},
 
 			required: true,
 			choices: [
 				{
 					name: "ON",
-					name_localizations: { fr: "Activer" },
+					name_localizations: {
+						fr: "Activer",
+						ja: "on",
+						ru: "on",
+						"es-ES": "on"
+					},
 					value: "true"
 				},
 				{
 					name: "OFF",
-					name_localizations: { fr: "Désactiver" },
+					name_localizations: {
+						fr: "Désactiver",
+						ja: "off",
+						ru: "off",
+						"es-ES": "off"
+					},
 					value: "false"
 				}
 			],
@@ -70,7 +86,10 @@ export const command: Command = {
 
 			description: "The max amount of flags before punishement",
 			description_localizations: {
-				fr: "Le nombre maximum de flags avant la punition"
+				fr: "Le nombre maximum de flags avant la punition",
+				ja: "罰前の最大フラグ数",
+				ru: "Максимальное количество флагов до наказания",
+				"es-ES": "La cantidad máxima de marcas antes del castigo"
 			},
 
 			required: false,
@@ -82,24 +101,42 @@ export const command: Command = {
 
 			description: "Choose the punishement",
 			description_localizations: {
-				fr: "Choisir la punition"
+				fr: "Choisir la punition",
+				ja: "罰を選択",
+				ru: "Выберите наказание",
+				"es-ES": "Elegir el castigo"
 			},
 
 			required: false,
 			choices: [
 				{
 					name: "BAN",
-					name_localizations: { fr: "Bannir" },
+					name_localizations: {
+						fr: "Bannir",
+						ja: "ban",
+						ru: "ban",
+						"es-ES": "ban"
+					},
 					value: "ban"
 				},
 				{
 					name: "KICK",
-					name_localizations: { fr: "Expulser" },
+					name_localizations: {
+						fr: "Expulser",
+						ja: "kick",
+						ru: "kick",
+						"es-ES": "kick"
+					},
 					value: "kick"
 				},
 				{
 					name: "MUTE",
-					name_localizations: { fr: "Muter" },
+					name_localizations: {
+						fr: "Muter",
+						ja: "mute",
+						ru: "mute",
+						"es-ES": "mute"
+					},
 					value: "mute"
 				}
 			],

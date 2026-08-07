@@ -36,7 +36,10 @@ export const command: Command = {
 
 	description: "Get the bot latency!",
 	description_localizations: {
-		fr: "Obtenir la latence du bot"
+		fr: "Obtenir la latence du bot",
+		ja: "ボットのレイテンシを取得！",
+		ru: "Получить задержку бота!",
+		"es-ES": "Obtener la latencia del bot!"
 	},
 
 	aliases: ["speed", "pong", "vitesse"],

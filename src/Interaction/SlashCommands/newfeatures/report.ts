@@ -35,7 +35,10 @@ export const command: Command = {
 
 	description: "Report a bug, error, spell error to the iHorizon's dev!",
 	description_localizations: {
-		fr: "Signaler un bug, une erreur, une faute d'orthographe au développeur d'iHorizon"
+		fr: "Signaler un bug, une erreur, une faute d'orthographe au développeur d'iHorizon",
+		ja: "バグ、エラー、スペルミスをiHorizonの開発者に報告！",
+		ru: "Сообщить об ошибке разработчикам iHorizon!",
+		"es-ES": "Reportar un bug, error o falta de ortografía a los desarrolladores de iHorizon!"
 	},
 
 	options: [
@@ -45,7 +48,10 @@ export const command: Command = {
 
 			description: "What is the problem? Please make a good sentences",
 			description_localizations: {
-				fr: "Quelle est le problème? S'il vous plaît expliquer le problème."
+				fr: "Quelle est le problème? S'il vous plaît expliquer le problème.",
+				ja: "問題は何ですか？良い文章で説明してください",
+				ru: "В чем проблема? Пожалуйста, составьте хорошее предложение",
+				"es-ES": "Cual es el problema? Por favor, haz una buena oración"
 			},
 
 			required: true,

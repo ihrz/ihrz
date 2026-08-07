@@ -29,7 +29,10 @@ export const command: Command = {
 
 	description: "Get the link of the first message in the channel",
 	description_localizations: {
-		fr: "Récuperer le lien du premier message dans le salon"
+		fr: "Récuperer le lien du premier message dans le salon",
+		ja: "チャンネル内の最初のメッセージのリンクを取得",
+		ru: "Получить ссылку первого сообщения в канале",
+		"es-ES": "Obtener el enlace del primer mensaje en el canal"
 	},
 
 	aliases: [],

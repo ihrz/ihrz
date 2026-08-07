@@ -34,7 +34,10 @@ export const command: Command = {
 
 	description: "Get unnecessary information about my contributor andru",
 	description_localizations: {
-		fr: "Obtenir des informations non nécessaires sur mon contributeur Andru!"
+		fr: "Obtenir des informations non nécessaires sur mon contributeur Andru!",
+		ja: "貢献者andruの不要な情報を取得",
+		ru: "Получить ненужную информацию об участнике andru",
+		"es-ES": "Obtener información innecesaria sobre mi contribuidor andru"
 	},
 
 	category: "bot",

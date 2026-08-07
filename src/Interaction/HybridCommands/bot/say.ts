@@ -36,7 +36,10 @@ export const command: Command = {
 
 	description: "Sent a message throught the bot!",
 	description_localizations: {
-		fr: "Envoyer un message via le bot!"
+		fr: "Envoyer un message via le bot!",
+		ja: "ボットを通じてメッセージを送信！",
+		ru: "Отправить сообщение через бота!",
+		"es-ES": "Enviar un mensaje a través del bot!"
 	},
 
 	category: "bot",
@@ -44,14 +47,20 @@ export const command: Command = {
 		{
 			name: "content",
 			name_localizations: {
-				fr: "contenu"
+				fr: "contenu",
+				ja: "content",
+				ru: "content",
+				"es-ES": "content"
 			},
 
 			type: ApplicationCommandOptionType.String,
 
 			description: "What you want the bot to say!",
 			description_localizations: {
-				fr: "Le message que le bot vas dire"
+				fr: "Le message que le bot vas dire",
+				ja: "ボットに何を言わせたいですか！",
+				ru: "Что вы хотите, чтобы бот сказал!",
+				"es-ES": "Que quieres que el bot diga!"
 			},
 
 			required: true,

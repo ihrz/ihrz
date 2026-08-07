@@ -95,7 +95,10 @@ export const command: Command = {
 
 	description: "Subcommand for protection category!",
 	description_localizations: {
-		fr: "Commande sous-groupé pour la catégorie de protection"
+		fr: "Commande sous-groupé pour la catégorie de protection",
+		ja: "保護カテゴリのサブコマンド！",
+		ru: "Подкоманда для категории защиты!",
+		"es-ES": "Subcomando para la categoría de protección!"
 	},
 
 	options: [
@@ -104,7 +107,10 @@ export const command: Command = {
 
 			description: "Choose an actions to Deny/Allow for the user!",
 			description_localizations: {
-				fr: "Choisissez une action à refuser/autoriser pour l'utilisateur"
+				fr: "Choisissez une action à refuser/autoriser pour l'utilisateur",
+				ja: "ユーザーに対して拒否/許可するアクションを選択！",
+				ru: "Выберите действия для запрета/разрешения пользователю!",
+				"es-ES": "Elegir acciones para Denegar/Permitir al usuario!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -115,13 +121,16 @@ export const command: Command = {
 
 					description: "Whats is the rule to configure?",
 					description_localizations: {
-						fr: "Quelle est la règle à configurer ?"
+						fr: "Quelle est la règle à configurer ?",
+						ja: "設定するルールは？",
+						ru: "Какое правило настроить?",
+						"es-ES": "Cual es la regla a configurar?"
 					},
 
 					required: true,
 					choices: Object.entries(rules).map(([key, value]) => ({
 						name: value.placeholder,
-						name_localizations: { fr: value.placeholder },
+						name_localizations: { fr: value.placeholder, ja: value.placeholder, ru: value.placeholder, "es-ES": value.placeholder },
 						value: value.value
 					})),
 
@@ -133,7 +142,10 @@ export const command: Command = {
 
 					description: "The rule are bypassable for who?",
 					description_localizations: {
-						fr: "Les règles sont contournables pour qui ?"
+						fr: "Les règles sont contournables pour qui ?",
+						ja: "ルールをバイパスできるのは誰？",
+						ru: "Для кого правила обходятся?",
+						"es-ES": "Las reglas son evitables para quién?"
 					},
 
 					required: false,
@@ -141,19 +153,30 @@ export const command: Command = {
 						{
 							name: "Only the allowlist",
 							name_localizations: {
-								fr: "Seulement la liste d'autorisation"
+								fr: "Seulement la liste d'autorisation",
+								ja: "only_the_allowlist",
+								ru: "only_the_allowlist",
+								"es-ES": "only_the_allowlist"
 							},
 							value: "allowlist"
 						},
 						{
 							name: "All of member",
-							name_localizations: { fr: "Tous les membres" },
+							name_localizations: {
+								fr: "Tous les membres",
+								ja: "all_of_member",
+								ru: "all_of_member",
+								"es-ES": "all_of_member"
+							},
 							value: "member"
 						},
 						{
 							name: "Nobody (except guild owner)",
 							name_localizations: {
-								fr: "Personne (sauf le propriétaire du serveur)"
+								fr: "Personne (sauf le propriétaire du serveur)",
+								ja: "nobody_except_guild_owner",
+								ru: "nobody_except_guild_owner",
+								"es-ES": "nobody_except_guild_owner"
 							},
 							value: "nobody"
 						}
@@ -170,7 +193,10 @@ export const command: Command = {
 
 			description: "Choose the sanction to applied for the flagged user!",
 			description_localizations: {
-				fr: "Choisissez la sanction à appliquer pour l'utilisateur signalé?"
+				fr: "Choisissez la sanction à appliquer pour l'utilisateur signalé?",
+				ja: "フラグされたユーザーに適用する制裁を選択！",
+				ru: "Выберите санкцию для отмеченного пользователя!",
+				"es-ES": "Elegir la sanción a aplicar para el usuario marcado!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -181,7 +207,10 @@ export const command: Command = {
 
 					description: "Whats is the sanction then?",
 					description_localizations: {
-						fr: "Quelle est donc la sanction ?"
+						fr: "Quelle est donc la sanction ?",
+						ja: "どの制裁ですか？",
+						ru: "Какая санкция?",
+						"es-ES": "Cual es la sanción entonces?"
 					},
 
 					required: true,
@@ -189,21 +218,30 @@ export const command: Command = {
 						{
 							name: "Simply Cancel Actions",
 							name_localizations: {
-								fr: "Simplemente annuler les actions"
+								fr: "Simplemente annuler les actions",
+								ja: "simply_cancel_actions",
+								ru: "simply_cancel_actions",
+								"es-ES": "simply_cancel_actions"
 							},
 							value: "simply"
 						},
 						{
 							name: "Simply Cancel Actions + Derank",
 							name_localizations: {
-								fr: "Simplemente annuler les actions + déséléver"
+								fr: "Simplemente annuler les actions + déséléver",
+								ja: "simply_cancel_actions_derank",
+								ru: "simply_cancel_actions_derank",
+								"es-ES": "simply_cancel_actions_derank"
 							},
 							value: "simply+derank"
 						},
 						{
 							name: "Simply Cancel Actions + Ban",
 							name_localizations: {
-								fr: "Simplemente annuler les actions + bannir"
+								fr: "Simplemente annuler les actions + bannir",
+								ja: "simply_cancel_actions_ban",
+								ru: "simply_cancel_actions_ban",
+								"es-ES": "simply_cancel_actions_ban"
 							},
 							value: "simply+ban"
 						}
@@ -221,7 +259,10 @@ export const command: Command = {
 			description:
 				"Show the current configuration about protection authorization/rule & allow list!",
 			description_localizations: {
-				fr: "Afficher la configuration des autorisations/règles de protection pour la liste d'autorisation"
+				fr: "Afficher la configuration des autorisations/règles de protection pour la liste d'autorisation",
+				ja: "保護認証/ルールと許可リストの現在の設定を表示！",
+				ru: "Показать текущую конфигурацию авторизации/правил и белого списка!",
+				"es-ES": "Mostrar la configuración actual sobre autorización/reglas de protección y lista de permitidos!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,

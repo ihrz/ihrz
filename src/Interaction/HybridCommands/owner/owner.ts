@@ -36,7 +36,10 @@ export const command: Command = {
 
 	description: "add user to owner list (can't be used by normal member)!",
 	description_localizations: {
-		fr: "Ajoutez un membre dans la liste des propriétaire de iHorizon. (Seulement pour les dev)"
+		fr: "Ajoutez un membre dans la liste des propriétaire de iHorizon. (Seulement pour les dev)",
+		ja: "ユーザーをオーナーリストに追加（一般メンバーは使用不可）！",
+		ru: "Добавить пользователя в список владельцев (не для обычных участников)!",
+		"es-ES": "Añadir usuario a la lista de propietarios (no puede ser usado por miembros normales)!"
 	},
 
 	aliases: ["addowner", "owneradd", "owners", "ownerlist"],
@@ -49,7 +52,10 @@ export const command: Command = {
 			description:
 				"The member you want to made owner of the iHorizon Projects",
 			description_localizations: {
-				fr: "Le membre que vous souhaitez rendre propriétaire des projets iHorizon"
+				fr: "Le membre que vous souhaitez rendre propriétaire des projets iHorizon",
+				ja: "iHorizonプロジェクトのオーナーにしたいメンバー",
+				ru: "Участник, которого вы хотите сделать владельцем проектов iHorizon",
+				"es-ES": "El miembro que quieres hacer propietario de los proyectos iHorizon"
 			},
 
 			required: false,

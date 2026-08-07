@@ -39,7 +39,10 @@ export const command: Command = {
 
 	description: "Get the bot status!",
 	description_localizations: {
-		fr: "Obtenez le statut du bot !"
+		fr: "Obtenez le statut du bot !",
+		ja: "ボットのステータスを取得！",
+		ru: "Получить статус бота!",
+		"es-ES": "Obtener el estado del bot!"
 	},
 
 	category: "bot",

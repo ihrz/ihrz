@@ -53,7 +53,10 @@ export const command: Command = {
 
 	description: "⭐️ (VERY UHQ) NightMode",
 	description_localizations: {
-		fr: "⭐️ (VRAIMENT UHQ) Mode Nuit"
+		fr: "⭐️ (VRAIMENT UHQ) Mode Nuit",
+		ja: "⭐️ (VERY UHQ) NightMode",
+		ru: "⭐️ (VERY UHQ) NightMode",
+		"es-ES": "⭐️ (VERY UHQ) NightMode"
 	},
 
 	thinking: false,

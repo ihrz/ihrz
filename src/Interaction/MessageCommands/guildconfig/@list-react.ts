@@ -38,7 +38,10 @@ export const command: Command = {
 
 	description: "Show all specific messages saved to be react",
 	description_localizations: {
-		fr: "Afficher tous les messages spécifiques enregistrés pour être réagis"
+		fr: "Afficher tous les messages spécifiques enregistrés pour être réagis",
+		ja: "リアクション用に保存された全特定メッセージを表示",
+		ru: "Показать сохраненные сообщения для реакций",
+		"es-ES": "Mostrar todos los mensajes específicos guardados para reaccionar"
 	},
 
 	thinking: false,

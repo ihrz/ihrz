@@ -108,7 +108,10 @@ export const command: Command = {
 
 	description: "Get information about the bot!",
 	description_localizations: {
-		fr: "Obtenir les informations supplémentaire par rapport au bot."
+		fr: "Obtenir les informations supplémentaire par rapport au bot.",
+		ja: "ボットの情報を取得！",
+		ru: "Получить информацию о боте!",
+		"es-ES": "Obtener información sobre el bot!"
 	},
 
 	aliases: ["bi"],

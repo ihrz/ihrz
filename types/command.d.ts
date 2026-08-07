@@ -32,10 +32,16 @@ import type { LanguageData } from "./languageData.js";
 
 export interface NameLocalizations {
 	fr: string;
+	ja: string;
+	ru: string;
+	"es-ES": string;
 }
 
 export interface DescriptionLocalizations {
 	fr: string;
+	ja: string;
+	ru: string;
+	"es-ES": string;
 }
 
 export interface Command {

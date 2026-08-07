@@ -36,7 +36,10 @@ export const command: Command = {
 	description:
 		"Enable / Disable the auto response when user says something (only in fr-ME lang)",
 	description_localizations: {
-		fr: "Activer/Désactiver la réponse automatique lorsque l'utilisateur dit quelque chose (uniquement en fr-ME)"
+		fr: "Activer/Désactiver la réponse automatique lorsque l'utilisateur dit quelque chose (uniquement en fr-ME)",
+		ja: "ユーザーが発言した時の自動応答を有効/無効（fr-ME言語のみ）",
+		ru: "Включить/выключить автоответ при сообщении пользователя (только для fr-ME)",
+		"es-ES": "Habilitar / Deshabilitar la respuesta automática cuando el usuario dice algo (solo en idioma fr-ME)"
 	},
 
 	thinking: false,

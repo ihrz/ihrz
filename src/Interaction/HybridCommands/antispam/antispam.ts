@@ -32,7 +32,10 @@ export const command: Command = {
 
 	description: "Subcommand for antispam category!",
 	description_localizations: {
-		fr: "Commande sous-groupé pour la catégorie d'antispam"
+		fr: "Commande sous-groupé pour la catégorie d'antispam",
+		ja: "アンチスパムカテゴリのサブコマンド！",
+		ru: "Подкоманда для категории антиспама!",
+		"es-ES": "Subcomando para la categoría antispam!"
 	},
 
 	options: [
@@ -42,7 +45,10 @@ export const command: Command = {
 
 			description: "Manage the antispam module",
 			description_localizations: {
-				fr: "Gérer le module antispam"
+				fr: "Gérer le module antispam",
+				ja: "アンチスパムモジュールを管理",
+				ru: "Управление модулем антиспама",
+				"es-ES": "Gestionar el módulo antispam"
 			},
 
 			aliases: ["mng", "antimng"],
@@ -57,7 +63,10 @@ export const command: Command = {
 
 			description: "All of the roles wich bypass the antispam",
 			description_localizations: {
-				fr: "Tous les rôles qui contournent l'anti spam"
+				fr: "Tous les rôles qui contournent l'anti spam",
+				ja: "アンチスパムをバイパスする全てのロール",
+				ru: "Все роли, обходящие антиспам",
+				"es-ES": "Todos los roles que evitan el antispam"
 			},
 
 			aliases: ["bproles"],
@@ -72,7 +81,10 @@ export const command: Command = {
 
 			description: "Ignore this channels in the AntiSpam Module",
 			description_localizations: {
-				fr: "Ignorer des salons afin que l'AntiSpam ne l'ai prennent pas en compte"
+				fr: "Ignorer des salons afin que l'AntiSpam ne l'ai prennent pas en compte",
+				ja: "アンチスパムモジュールでこのチャンネルを無視",
+				ru: "Игнорировать эти каналы в модуле антиспама",
+				"es-ES": "Ignorar estos canales en el módulo AntiSpam"
 			},
 
 			aliases: ["channels"],

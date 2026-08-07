@@ -33,7 +33,10 @@ export const command: Command = {
 
 	description: "Removed the cooldown on the current channel",
 	description_localizations: {
-		fr: "Supprimer le mode lent du cannal actuel"
+		fr: "Supprimer le mode lent du cannal actuel",
+		ja: "現在のチャンネルのクールダウンを解除",
+		ru: "Снять задержку с текущего канала",
+		"es-ES": "Eliminar el enfriamiento en el canal actual"
 	},
 
 	thinking: false,

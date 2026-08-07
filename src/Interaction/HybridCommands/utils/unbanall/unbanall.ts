@@ -30,14 +30,20 @@ import { Command } from "../../../../../types/command.js";
 export const command: Command = {
 	name: "unban-all",
 	name_localizations: {
-		fr: "unbanall"
+		fr: "unbanall",
+		ja: "unban-all",
+		ru: "unban-all",
+		"es-ES": "unban-all"
 	},
 
 	aliases: ["massunban"],
 
 	description: "Mass action about unban",
 	description_localizations: {
-		fr: "Action de masse pour débannir"
+		fr: "Action de masse pour débannir",
+		ja: "一斉バン解除アクション",
+		ru: "Массовое действие по разбану",
+		"es-ES": "Acción masiva sobre desbaneo"
 	},
 
 	options: [
@@ -47,7 +53,10 @@ export const command: Command = {
 
 			description: "Unban all member of the guild",
 			description_localizations: {
-				fr: "Débannir toute les personnes bannis du serveur"
+				fr: "Débannir toute les personnes bannis du serveur",
+				ja: "サーバーの全メンバーのバンを解除",
+				ru: "Разбанить всех участников сервера",
+				"es-ES": "Desbanear a todos los miembros del servidor"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -57,12 +66,18 @@ export const command: Command = {
 		{
 			name: "undo",
 			name_localizations: {
-				fr: "annuler"
+				fr: "annuler",
+				ja: "undo",
+				ru: "undo",
+				"es-ES": "undo"
 			},
 
 			description: "Undo the unban all of all members",
 			description_localizations: {
-				fr: "Annuler le dé-bannissement de tout les membres"
+				fr: "Annuler le dé-bannissement de tout les membres",
+				ja: "全メンバーの一斉バン解除を取り消し",
+				ru: "Отменить разбан всех участников",
+				"es-ES": "Deshacer el desbaneo masivo de todos los miembros"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,

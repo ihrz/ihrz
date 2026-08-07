@@ -39,14 +39,20 @@ export const command: Command = {
 	aliases: ["meme1"],
 	description: "rap vs reality meme generator",
 	description_localizations: {
-		fr: "rap vs reality meme generator"
+		fr: "rap vs reality meme generator",
+		ja: "rap vs reality ミームジェネレーター",
+		ru: "генератор мема rap vs reality",
+		"es-ES": "generador de meme rap vs reality"
 	},
 	options: [
 		{
 			name: "image1",
 			description: "the before sucks",
 			description_localizations: {
-				fr: "le screen avant qu'il ce fasse défon"
+				fr: "le screen avant qu'il ce fasse défon",
+				ja: "before 側が最低",
+				ru: "before отстой",
+				"es-ES": "el before apesta"
 			},
 			type: ApplicationCommandOptionType.String,
 			required: false,
@@ -57,7 +63,10 @@ export const command: Command = {
 			name: "image2",
 			description: "the after sucks",
 			description_localizations: {
-				fr: "le screen après qu'il ce soit défoncé"
+				fr: "le screen après qu'il ce soit défoncé",
+				ja: "after 側が最低",
+				ru: "after отстой",
+				"es-ES": "el after apesta"
 			},
 			type: ApplicationCommandOptionType.String,
 			required: false,

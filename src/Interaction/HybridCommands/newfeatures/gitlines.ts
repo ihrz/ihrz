@@ -32,7 +32,10 @@ export const command: Command = {
 
 	description: "⭐️ (VERY UHQ) Git Lines",
 	description_localizations: {
-		fr: "⭐️ (VRAIMENT UHQ) Git Lines"
+		fr: "⭐️ (VRAIMENT UHQ) Git Lines",
+		ja: "⭐️ (VERY UHQ) Git Lines",
+		ru: "⭐️ (VERY UHQ) Git Lines",
+		"es-ES": "⭐️ (VERY UHQ) Git Lines"
 	},
 
 	options: [
@@ -41,7 +44,10 @@ export const command: Command = {
 
 			description: "Config the Git Lines modules",
 			description_localizations: {
-				fr: "Configurer les modules Git Lines"
+				fr: "Configurer les modules Git Lines",
+				ja: "Git Linesモジュールを設定",
+				ru: "Настроить модули Git Lines",
+				"es-ES": "Configurar los módulos de Git Lines"
 			},
 
 			permission: PermissionFlagsBits.Administrator,

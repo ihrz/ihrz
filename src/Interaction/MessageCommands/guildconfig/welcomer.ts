@@ -35,7 +35,10 @@ export const command: Command = {
 
 	description: "Set the welcomer module !",
 	description_localizations: {
-		fr: "Définir le module welcomer"
+		fr: "Définir le module welcomer",
+		ja: "ウェルカマーモジュールを設定！",
+		ru: "Настроить модуль приветствия!",
+		"es-ES": "Establecer el módulo de bienvenida!"
 	},
 
 	aliases: ["leaver"],

@@ -38,7 +38,10 @@ export const command: Command = {
 
 	description: "Delete every message containing binary files",
 	description_localizations: {
-		fr: "Supprimer systématiquement tout les messages contenant des binaires éxécutable"
+		fr: "Supprimer systématiquement tout les messages contenant des binaires éxécutable",
+		ja: "バイナリファイルを含む全てのメッセージを削除",
+		ru: "Удалить все сообщения с бинарными файлами",
+		"es-ES": "Eliminar cada mensaje que contenga archivos binarios"
 	},
 
 	thinking: false,

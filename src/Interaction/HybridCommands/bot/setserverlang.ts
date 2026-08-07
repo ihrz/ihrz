@@ -35,35 +35,47 @@ import { AvailableLanguage } from "../../../core/functions/getLanguageData.js";
 export const command: Command = {
 	name: "setlang",
 	name_localizations: {
-		fr: "setlangue"
+		fr: "setlangue",
+		ja: "setlang",
+		ru: "setlang",
+		"es-ES": "setlang"
 	},
 
 	aliases: ["setsrvlang", "lang"],
 
 	description: "Set the server language!",
 	description_localizations: {
-		fr: "Choisir la langue du bot discord !"
+		fr: "Choisir la langue du bot discord !",
+		ja: "サーバーの言語を設定！",
+		ru: "Установить язык сервера!",
+		"es-ES": "Establecer el idioma del servidor!"
 	},
 
 	options: [
 		{
 			name: "language",
 			name_localizations: {
-				fr: "langue"
+				fr: "langue",
+				ja: "language",
+				ru: "language",
+				"es-ES": "language"
 			},
 
 			type: ApplicationCommandOptionType.String,
 
 			description: "What language you want ?",
 			description_localizations: {
-				fr: "Quelle language voulez-vous mettre ?"
+				fr: "Quelle language voulez-vous mettre ?",
+				ja: "どの言語がいいですか？",
+				ru: "Какой язык вы хотите?",
+				"es-ES": "Que idioma quieres?"
 			},
 
 			required: true,
 			choices: Object.values(AvailableLanguage).map((x) => {
 				return {
 					name: x.name,
-					name_localizations: { fr: x.name },
+					name_localizations: { fr: x.name, ja: x.name, ru: x.name, "es-ES": x.name },
 					value: x.code
 				};
 			}),

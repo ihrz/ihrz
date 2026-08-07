@@ -32,7 +32,10 @@ export const command: Command = {
 
 	description: "Custom the bot profile in your discord server",
 	description_localizations: {
-		fr: "Customiser le profil du bot sur le serveur discord"
+		fr: "Customiser le profil du bot sur le serveur discord",
+		ja: "Discordサーバーでボットのプロフィールをカスタマイズ",
+		ru: "Настроить профиль бота на вашем сервере",
+		"es-ES": "Personalizar el perfil del bot en tu servidor de Discord"
 	},
 
 	options: [
@@ -43,7 +46,10 @@ export const command: Command = {
 
 			description: "Change the iHorizon name into the server",
 			description_localizations: {
-				fr: "Définir le nom du bot sur le serveur"
+				fr: "Définir le nom du bot sur le serveur",
+				ja: "サーバーのiHorizonの名前を変更",
+				ru: "Изменить имя iHorizon на сервере",
+				"es-ES": "Cambiar el nombre de iHorizon en el servidor"
 			},
 
 			options: [
@@ -52,18 +58,31 @@ export const command: Command = {
 
 					description: "What do you want to do ?",
 					description_localizations: {
-						fr: "Que voulez-vous faire ?"
+						fr: "Que voulez-vous faire ?",
+						ja: "何をしたいですか？",
+						ru: "Что вы хотите сделать?",
+						"es-ES": "Que quieres hacer?"
 					},
 
 					choices: [
 						{
 							name: "Bot Name",
-							name_localizations: { fr: "Nom du bot" },
+							name_localizations: {
+								fr: "Nom du bot",
+								ja: "bot_name",
+								ru: "bot_name",
+								"es-ES": "bot_name"
+							},
 							value: "reset"
 						},
 						{
 							name: "Set one",
-							name_localizations: { fr: "Définir un nom" },
+							name_localizations: {
+								fr: "Définir un nom",
+								ja: "set_one",
+								ru: "set_one",
+								"es-ES": "set_one"
+							},
 							value: "set"
 						}
 					],
@@ -78,7 +97,10 @@ export const command: Command = {
 
 					description: "The name",
 					description_localizations: {
-						fr: "Le noms du bot"
+						fr: "Le noms du bot",
+						ja: "名前",
+						ru: "Имя",
+						"es-ES": "El nombre"
 					},
 
 					type: ApplicationCommandOptionType.String,
@@ -98,7 +120,10 @@ export const command: Command = {
 
 			description: "Change the iHorizon avatar into your server",
 			description_localizations: {
-				fr: "Définir la photo de profil du bot sur votre serveur discord"
+				fr: "Définir la photo de profil du bot sur votre serveur discord",
+				ja: "サーバーのiHorizonアバターを変更",
+				ru: "Изменить аватар iHorizon на сервере",
+				"es-ES": "Cambiar el avatar de iHorizon en tu servidor"
 			},
 
 			options: [
@@ -107,18 +132,31 @@ export const command: Command = {
 
 					description: "What do you want to do ?",
 					description_localizations: {
-						fr: "Que voulez-vous faire ?"
+						fr: "Que voulez-vous faire ?",
+						ja: "何をしたいですか？",
+						ru: "Что вы хотите сделать?",
+						"es-ES": "Que quieres hacer?"
 					},
 
 					choices: [
 						{
 							name: "Bot Avatar",
-							name_localizations: { fr: "Avatar du bot" },
+							name_localizations: {
+								fr: "Avatar du bot",
+								ja: "bot_avatar",
+								ru: "bot_avatar",
+								"es-ES": "bot_avatar"
+							},
 							value: "reset"
 						},
 						{
 							name: "Set one",
-							name_localizations: { fr: "Définir un avatar" },
+							name_localizations: {
+								fr: "Définir un avatar",
+								ja: "set_one",
+								ru: "set_one",
+								"es-ES": "set_one"
+							},
 							value: "set"
 						}
 					],
@@ -132,7 +170,10 @@ export const command: Command = {
 
 					description: "The avatar",
 					description_localizations: {
-						fr: "L'avatar du bot"
+						fr: "L'avatar du bot",
+						ja: "アバター",
+						ru: "Аватар",
+						"es-ES": "El avatar"
 					},
 
 					type: ApplicationCommandOptionType.Attachment,
@@ -153,7 +194,10 @@ export const command: Command = {
 
 			description: "Change the iHorizon banner into your server",
 			description_localizations: {
-				fr: "Définir la bannière de profil du bot sur votre serveur discord"
+				fr: "Définir la bannière de profil du bot sur votre serveur discord",
+				ja: "サーバーのiHorizonバナーを変更",
+				ru: "Изменить баннер iHorizon на сервере",
+				"es-ES": "Cambiar el banner de iHorizon en tu servidor"
 			},
 
 			options: [
@@ -162,20 +206,31 @@ export const command: Command = {
 
 					description: "What do you want to do ?",
 					description_localizations: {
-						fr: "Que voulez-vous faire ?"
+						fr: "Que voulez-vous faire ?",
+						ja: "何をしたいですか？",
+						ru: "Что вы хотите сделать?",
+						"es-ES": "Que quieres hacer?"
 					},
 
 					choices: [
 						{
 							name: "Default Bot Banner",
 							name_localizations: {
-								fr: "Bannière du bot par défaut"
+								fr: "Bannière du bot par défaut",
+								ja: "default_bot_banner",
+								ru: "default_bot_banner",
+								"es-ES": "default_bot_banner"
 							},
 							value: "reset"
 						},
 						{
 							name: "Set one",
-							name_localizations: { fr: "Définir une bannière" },
+							name_localizations: {
+								fr: "Définir une bannière",
+								ja: "set_one",
+								ru: "set_one",
+								"es-ES": "set_one"
+							},
 							value: "set"
 						}
 					],
@@ -189,7 +244,10 @@ export const command: Command = {
 
 					description: "The banner",
 					description_localizations: {
-						fr: "La bannière du bot"
+						fr: "La bannière du bot",
+						ja: "バナー",
+						ru: "Баннер",
+						"es-ES": "El banner"
 					},
 
 					type: ApplicationCommandOptionType.Attachment,
@@ -209,7 +267,10 @@ export const command: Command = {
 			aliases: ["setbotbio", "setbio"],
 			description: "Change the iHorizon bio into your server",
 			description_localizations: {
-				fr: "Définir la bio de profil du bot sur votre serveur discord"
+				fr: "Définir la bio de profil du bot sur votre serveur discord",
+				ja: "サーバーのiHorizonの自己紹介を変更",
+				ru: "Изменить описание iHorizon на сервере",
+				"es-ES": "Cambiar la biografía de iHorizon en tu servidor"
 			},
 
 			options: [
@@ -218,21 +279,30 @@ export const command: Command = {
 
 					description: "What do you want to do ?",
 					description_localizations: {
-						fr: "Que voulez-vous faire ?"
+						fr: "Que voulez-vous faire ?",
+						ja: "何をしたいですか？",
+						ru: "Что вы хотите сделать?",
+						"es-ES": "Que quieres hacer?"
 					},
 
 					choices: [
 						{
 							name: "Default Bot Description",
 							name_localizations: {
-								fr: "Description du bot par défaut"
+								fr: "Description du bot par défaut",
+								ja: "default_bot_description",
+								ru: "default_bot_description",
+								"es-ES": "default_bot_description"
 							},
 							value: "reset"
 						},
 						{
 							name: "Set one",
 							name_localizations: {
-								fr: "Définir une description"
+								fr: "Définir une description",
+								ja: "set_one",
+								ru: "set_one",
+								"es-ES": "set_one"
 							},
 							value: "set"
 						}
@@ -247,7 +317,10 @@ export const command: Command = {
 
 					description: "The description",
 					description_localizations: {
-						fr: "La bio du bot"
+						fr: "La bio du bot",
+						ja: "説明",
+						ru: "Описание",
+						"es-ES": "La descripción"
 					},
 
 					type: ApplicationCommandOptionType.String,

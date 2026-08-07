@@ -36,7 +36,10 @@ export const command: Command = {
 
 	description: "Re-Gave old roles when User re-join the guild!",
 	description_localizations: {
-		fr: "Ré-attribuer les anciens rôles lorsque l'utilisateur rejoint le serveur"
+		fr: "Ré-attribuer les anciens rôles lorsque l'utilisateur rejoint le serveur",
+		ja: "ユーザーが再参加した時に以前のロールを再付与！",
+		ru: "Вернуть старые роли при повторном входе!",
+		"es-ES": "Volver a dar roles antiguos cuando el usuario se reúne al servidor!"
 	},
 
 	options: [
@@ -46,19 +49,32 @@ export const command: Command = {
 
 			description: "Do you want to power On/Off the module ?",
 			description_localizations: {
-				fr: "Voulez-vous activer/désactiver le module ?"
+				fr: "Voulez-vous activer/désactiver le module ?",
+				ja: "モジュールをオン/オフしますか？",
+				ru: "Включить или выключить модуль?",
+				"es-ES": "Quieres encender/apagar el módulo?"
 			},
 
 			required: true,
 			choices: [
 				{
 					name: "Power On",
-					name_localizations: { fr: "Activer" },
+					name_localizations: {
+						fr: "Activer",
+						ja: "power_on",
+						ru: "power_on",
+						"es-ES": "power_on"
+					},
 					value: "on"
 				},
 				{
 					name: "Power Off",
-					name_localizations: { fr: "Désactiver" },
+					name_localizations: {
+						fr: "Désactiver",
+						ja: "power_off",
+						ru: "power_off",
+						"es-ES": "power_off"
+					},
 					value: "off"
 				}
 			],
@@ -71,19 +87,32 @@ export const command: Command = {
 
 			description: "Re-gave Administrator role ?",
 			description_localizations: {
-				fr: "Redonner des rôles admin ?"
+				fr: "Redonner des rôles admin ?",
+				ja: "管理者ロールを再付与しますか？",
+				ru: "Заново выдать роль администратора?",
+				"es-ES": "Volver a dar el rol de administrador?"
 			},
 
 			required: false,
 			choices: [
 				{
 					name: "Yes",
-					name_localizations: { fr: "Oui" },
+					name_localizations: {
+						fr: "Oui",
+						ja: "yes",
+						ru: "yes",
+						"es-ES": "yes"
+					},
 					value: "yes"
 				},
 				{
 					name: "No",
-					name_localizations: { fr: "Non" },
+					name_localizations: {
+						fr: "Non",
+						ja: "no",
+						ru: "no",
+						"es-ES": "no"
+					},
 					value: "no"
 				}
 			],

@@ -42,7 +42,10 @@ export const command: Command = {
 
 	description: "Set a member count channels!",
 	description_localizations: {
-		fr: "Parametrer un canal vocal pour afficher des statistique"
+		fr: "Parametrer un canal vocal pour afficher des statistique",
+		ja: "メンバーカウントチャンネルを設定！",
+		ru: "Установить каналы счетчика участников!",
+		"es-ES": "Establecer canales de conteo de miembros!"
 	},
 
 	options: [
@@ -51,7 +54,10 @@ export const command: Command = {
 
 			description: "<Power on /Power off>",
 			description_localizations: {
-				fr: "<Power on /Power off>"
+				fr: "<Power on /Power off>",
+				ja: "<オン / オフ>",
+				ru: "<Вкл / Выкл>",
+				"es-ES": "<Encender / Apagar>"
 			},
 
 			type: ApplicationCommandOptionType.String,
@@ -59,12 +65,22 @@ export const command: Command = {
 			choices: [
 				{
 					name: "Power on",
-					name_localizations: { fr: "Activer" },
+					name_localizations: {
+						fr: "Activer",
+						ja: "power_on",
+						ru: "power_on",
+						"es-ES": "power_on"
+					},
 					value: "on"
 				},
 				{
 					name: "Power off",
-					name_localizations: { fr: "Désactiver" },
+					name_localizations: {
+						fr: "Désactiver",
+						ja: "power_off",
+						ru: "power_off",
+						"es-ES": "power_off"
+					},
 					value: "off"
 				}
 			],
@@ -76,7 +92,10 @@ export const command: Command = {
 
 			description: `The channel to set the member count`,
 			description_localizations: {
-				fr: "Le cannal pour définir le module membercount"
+				fr: "Le cannal pour définir le module membercount",
+				ja: "メンバーカウントを設定するチャンネル",
+				ru: "Канал для установки счетчика участников",
+				"es-ES": "El canal para establecer el conteo de miembros"
 			},
 
 			channel_types: [ChannelType.GuildVoice],
@@ -93,7 +112,10 @@ export const command: Command = {
 
 			description: `{BotCount}, {RolesCount}, {MemberCount}, {ChannelCount}, {BoostCount} {VoiceCount}, {OnlineCount}`,
 			description_localizations: {
-				fr: "{BotCount}, {RolesCount}, {MemberCount}, {ChannelCount}, {BoostCount} {VoiceCount}, {OnlineCount}"
+				fr: "{BotCount}, {RolesCount}, {MemberCount}, {ChannelCount}, {BoostCount} {VoiceCount}, {OnlineCount}",
+				ja: "{BotCount}, {RolesCount}, {MemberCount}, {ChannelCount}, {BoostCount} {VoiceCount}, {OnlineCount}",
+				ru: "{BotCount}, {RolesCount}, {MemberCount}, {ChannelCount}, {BoostCount} {VoiceCount}, {OnlineCount}",
+				"es-ES": "{BotCount}, {RolesCount}, {MemberCount}, {ChannelCount}, {BoostCount} {VoiceCount}, {OnlineCount}"
 			},
 
 			permission: null

@@ -33,7 +33,10 @@ export const command: Command = {
 
 	description: "Subcommand category for blogger RSS feeds!",
 	description_localizations: {
-		fr: "Commande sous-groupé pour la catégorie des flux RSS de blogs"
+		fr: "Commande sous-groupé pour la catégorie des flux RSS de blogs",
+		ja: "ブロガーRSSフィードのサブコマンドカテゴリ！",
+		ru: "Категория подкоманд для RSS-лент блога!",
+		"es-ES": "Categoría de subcomando para feeds RSS de blogger!"
 	},
 
 	options: [
@@ -42,7 +45,10 @@ export const command: Command = {
 
 			description: "Blog RSS feed manipulation",
 			description_localizations: {
-				fr: "Manipulation des flux RSS de blogs"
+				fr: "Manipulation des flux RSS de blogs",
+				ja: "ブログRSSフィードの操作",
+				ru: "Управление RSS-лентами блога",
+				"es-ES": "Manipulación de feeds RSS de blog"
 			},
 
 			type: ApplicationCommandOptionType.SubcommandGroup,
@@ -54,7 +60,10 @@ export const command: Command = {
 
 					description: "Add a blog RSS feed",
 					description_localizations: {
-						fr: "Ajouter un flux RSS de blog"
+						fr: "Ajouter un flux RSS de blog",
+						ja: "ブログのRSSフィードを追加",
+						ru: "Добавить RSS-ленту блога",
+						"es-ES": "Añadir un feed RSS de blog"
 					},
 
 					type: ApplicationCommandOptionType.Subcommand,
@@ -65,7 +74,10 @@ export const command: Command = {
 
 							description: "The RSS feed URL",
 							description_localizations: {
-								fr: "L'URL du flux RSS"
+								fr: "L'URL du flux RSS",
+								ja: "RSSフィードのURL",
+								ru: "URL RSS-ленты",
+								"es-ES": "La URL del feed RSS"
 							},
 
 							type: ApplicationCommandOptionType.String,
@@ -80,7 +92,10 @@ export const command: Command = {
 							description:
 								"The channel where notifications will be sent",
 							description_localizations: {
-								fr: "Le salon où les notifications seront envoyées"
+								fr: "Le salon où les notifications seront envoyées",
+								ja: "通知が送信されるチャンネル",
+								ru: "Канал, куда будут отправляться уведомления",
+								"es-ES": "El canal donde se enviarán las notificaciones"
 							},
 
 							channel_types: [ChannelType.GuildText],
@@ -100,7 +115,10 @@ export const command: Command = {
 
 					description: "Remove a blog RSS feed",
 					description_localizations: {
-						fr: "Supprimer un flux RSS de blog"
+						fr: "Supprimer un flux RSS de blog",
+						ja: "ブログのRSSフィードを削除",
+						ru: "Удалить RSS-ленту блога",
+						"es-ES": "Eliminar un feed RSS de blog"
 					},
 
 					type: ApplicationCommandOptionType.Subcommand,
@@ -111,7 +129,10 @@ export const command: Command = {
 
 							description: "The blog RSS feed ID",
 							description_localizations: {
-								fr: "L'identifiant du flux RSS"
+								fr: "L'identifiant du flux RSS",
+								ja: "ブログRSSフィードのID",
+								ru: "ID RSS-ленты блога",
+								"es-ES": "El ID del feed RSS del blog"
 							},
 
 							type: ApplicationCommandOptionType.String,
@@ -130,7 +151,10 @@ export const command: Command = {
 
 					description: "Show all configured blog RSS feeds",
 					description_localizations: {
-						fr: "Afficher tous les flux RSS de blogs configurés"
+						fr: "Afficher tous les flux RSS de blogs configurés",
+						ja: "設定された全ブログRSSフィードを表示",
+						ru: "Показать все настроенные RSS-ленты блогов",
+						"es-ES": "Mostrar todos los feeds RSS de blog configurados"
 					},
 
 					type: ApplicationCommandOptionType.Subcommand,
@@ -146,7 +170,10 @@ export const command: Command = {
 
 			description: "Configuration for the Blogger Module",
 			description_localizations: {
-				fr: "La configuration pour le module Blogger"
+				fr: "La configuration pour le module Blogger",
+				ja: "Bloggerモジュールの設定",
+				ru: "Настройка модуля Blogger",
+				"es-ES": "Configuración para el módulo Blogger"
 			},
 
 			options: [
@@ -155,7 +182,10 @@ export const command: Command = {
 
 					description: "Enable or disable the Blogger module",
 					description_localizations: {
-						fr: "Activer ou désactiver le module Blogger"
+						fr: "Activer ou désactiver le module Blogger",
+						ja: "Bloggerモジュールを有効化または無効化",
+						ru: "Включить или отключить модуль Blogger",
+						"es-ES": "Habilitar o deshabilitar el módulo Blogger"
 					},
 
 					options: [
@@ -164,7 +194,10 @@ export const command: Command = {
 
 							description: "Power On or Power Off",
 							description_localizations: {
-								fr: "Activer ou Désactiver"
+								fr: "Activer ou Désactiver",
+								ja: "オンまたはオフ",
+								ru: "Включить или Выключить",
+								"es-ES": "Encender o Apagar"
 							},
 
 							type: ApplicationCommandOptionType.String,
@@ -172,12 +205,22 @@ export const command: Command = {
 							choices: [
 								{
 									name: "Power On",
-									name_localizations: { fr: "Activer" },
+									name_localizations: {
+										fr: "Activer",
+										ja: "power_on",
+										ru: "power_on",
+										"es-ES": "power_on"
+									},
 									value: "on"
 								},
 								{
 									name: "Power Off",
-									name_localizations: { fr: "Désactiver" },
+									name_localizations: {
+										fr: "Désactiver",
+										ja: "power_off",
+										ru: "power_off",
+										"es-ES": "power_off"
+									},
 									value: "off"
 								}
 							],
