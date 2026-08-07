@@ -122,7 +122,7 @@ export const subCommand: SubCommand = {
 
 			await client.func.method.changeVoiceChannelStatus(
 				voiceChannel.id,
-				"TTS Mode - Text-to-Speech"
+				lang.tts_voice_status
 			);
 
 			const embedMessageId = await sendTTSWelcomeEmbed(

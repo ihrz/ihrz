@@ -2402,4 +2402,5 @@ export interface LanguageData {
 	tts_embed_title: string;
 	tts_embed_description: string;
 	tts_embed_footer: string;
+	tts_voice_status: string;
 }

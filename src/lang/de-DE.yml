@@ -3205,3 +3205,4 @@ tts_embed_description: "Das TTS-Modul ist jetzt in ${voiceChannel} aktiv.\nAlle 
 tts_embed_footer: "Verwende /tts leave um TTS zu beenden"
 tts_join_not_text_based: "${client.iHorizon_Emojis.No} Dieser Sprachkanal unterstutzt keine Textnachrichten. Bitte aktiviere Text-im-Sprachkanal oder verwende einen anderen Sprachkanal."
 tts_music_blocked: "${client.iHorizon_Emojis.No} Das TTS-Modul ist derzeit aktiv. Bitte deaktiviere TTS, bevor du Musik abspielst."
+tts_voice_status: "TTS-Modus - Sprachsynthese"

@@ -3203,3 +3203,4 @@ tts_embed_description: "Le module TTS est maintenant actif dans ${voiceChannel}.
 tts_embed_footer: "Utilisez /tts leave pour arreter le TTS"
 tts_join_not_text_based: "${client.iHorizon_Emojis.No} Ce salon vocal ne supporte pas les messages texte. Veuillez activer le chat textuel dans le salon ou utiliser un autre salon vocal."
 tts_music_blocked: "${client.iHorizon_Emojis.No} Le module TTS est actuellement actif. Veuillez desactiver le TTS avant de lancer de la musique."
+tts_voice_status: "Mode TTS - Synthèse Vocale"

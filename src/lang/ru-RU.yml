@@ -3204,3 +3204,4 @@ tts_embed_description: "Модуль TTS теперь активен в ${voiceC
 tts_embed_footer: "Используйте /tts leave, чтобы остановить TTS"
 tts_join_not_text_based: "${client.iHorizon_Emojis.No} Этот голосовой канал не поддерживает текстовые сообщения. Пожалуйста, включите текст в голосовом канале или используйте другой голосовой канал."
 tts_music_blocked: "${client.iHorizon_Emojis.No} Модуль TTS в настоящее время активен. Пожалуйста, отключите TTS перед воспроизведением музыки."
+tts_voice_status: "Режим TTS - Синтез Речи"

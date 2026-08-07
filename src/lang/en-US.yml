@@ -3206,3 +3206,4 @@ tts_embed_description: "The TTS module is now active in ${voiceChannel}.\nAll me
 tts_embed_footer: "Use /tts leave to stop TTS"
 tts_join_not_text_based: "${client.iHorizon_Emojis.No} This voice channel does not support text messages. Please enable text-in-voice or use another voice channel."
 tts_music_blocked: "${client.iHorizon_Emojis.No} The TTS module is currently active. Please disable TTS before playing music."
+tts_voice_status: "TTS Mode - Text-to-Speech"

@@ -88,10 +88,6 @@ export const event: BotEvent = {
 		const locale =
 			detectedLocale || ttsData.lang || serverLocale || "en-US";
 
-		logger.log(
-			`TTS msg: "${text.slice(0, 30)}" detected=${detectedLocale} server=${serverLocale} tts=${ttsData.lang} => ${locale}`
-		);
-
 		await speakTTS(client, message.guild.id, text, locale);
 	}
 };

@@ -3198,3 +3198,4 @@ tts_embed_description: "وحدة TTS نشطة الآن في ${voiceChannel}.\nس
 tts_embed_footer: "استخدم /tts leave لإيقاف TTS"
 tts_join_not_text_based: "${client.iHorizon_Emojis.No} هذه القناة الصوتية لا تدعم الرسائل النصية. يرجى تفعيل النص في الصوت أو استخدام قناة صوتية أخرى."
 tts_music_blocked: "${client.iHorizon_Emojis.No} وحدة TTS نشطة حالياً. يرجى تعطيل TTS قبل تشغيل الموسيقى."
+tts_voice_status: "وضع TTS - تحويل النص إلى كلام"

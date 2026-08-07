@@ -3204,3 +3204,4 @@ tts_embed_description: "TTSモジュールが${voiceChannel}で有効になり�
 tts_embed_footer: "/tts leave でTTSを停止"
 tts_join_not_text_based: "${client.iHorizon_Emojis.No} このボイスチャンネルはテキストメッセージをサポートしていません。テキストインボイスを有効にするか、別のボイスチャンネルを使用してください。"
 tts_music_blocked: "${client.iHorizon_Emojis.No} TTSモジュールが現在有効です。音楽を再生する前にTTSを無効にしてください。"
+tts_voice_status: "TTSモード - 音声合成"

@@ -3207,3 +3207,4 @@ tts_embed_description: "Le module TTS est actif dans ${voiceChannel}.\nTout c'qu
 tts_embed_footer: "Utilise /tts leave pour couper le TTS"
 tts_join_not_text_based: "${client.iHorizon_Emojis.No} Ce salon vocal supporte pas les messages texte frero. Active le chat texte dans le vocal ou va dans un autre vocal."
 tts_music_blocked: "${client.iHorizon_Emojis.No} Le TTS est active la. Coupe le TTS avant de mettre de la zik frero."
+tts_voice_status: "Mode TTS - Synthèse Vocale"
