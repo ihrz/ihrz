@@ -2086,6 +2086,11 @@ setserverlang_logs_embed_title_on_enable: "Логи SetServerLang"
 setserverlang_logs_embed_description_on_enable: "<@${interaction.user.id}> установил язык iHorizon на **${type}** !"
 setserverlang_already: "Я уже на этом языке!"
 setserverlang_command_work_enable: "Теперь мой язык **${type}**"
+setserverlang_panel_title: "Выбор языка"
+setserverlang_panel_description: "Выберите язык, который iHorizon будет использовать на этом сервере."
+setserverlang_panel_current: "Текущий язык"
+setserverlang_panel_select: "Выберите язык..."
+setserverlang_panel_saved: "Язык успешно изменён!"
 setserverlang_command_error_enable: "Ошибка!"
 
 # /embed

@@ -1583,6 +1583,11 @@ export interface LanguageData {
 	setserverlang_logs_embed_description_on_enable: string;
 	setserverlang_already: string;
 	setserverlang_command_work_enable: string;
+	setserverlang_panel_title: string;
+	setserverlang_panel_description: string;
+	setserverlang_panel_current: string;
+	setserverlang_panel_select: string;
+	setserverlang_panel_saved: string;
 	setserverlang_command_error_enable: string;
 	embed_placeholder_string_select_menu_builder: string;
 	embed_placeholder_option_copy_embed: string;

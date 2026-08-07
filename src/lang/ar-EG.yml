@@ -2086,6 +2086,11 @@ setserverlang_logs_embed_title_on_enable: "سجلات تغيير اللغة"
 setserverlang_logs_embed_description_on_enable: "<@${interaction.user.id}> قام بتغيير لغة iHorizon إلى **${type}**!"
 setserverlang_already: "أنا بالفعل على هذه اللغة!"
 setserverlang_command_work_enable: "لغتي الآن هي **${type}**"
+setserverlang_panel_title: "اختيار اللغة"
+setserverlang_panel_description: "اختر اللغة التي تريد أن يستخدمها iHorizon على هذا الخادم."
+setserverlang_panel_current: "اللغة الحالية"
+setserverlang_panel_select: "اختر لغة..."
+setserverlang_panel_saved: "تم تغيير اللغة بنجاح!"
 setserverlang_command_error_enable: "خطأ!"
 
 # /الإيمبد

@@ -42,7 +42,7 @@ export const AvailableLanguage: { code: string; name: string; flag: string }[] =
 		{
 			name: "English",
 			code: "en-US",
-			flag: "🇺🇸🇬🇧"
+			flag: "🇺🇸"
 		},
 
 		{
@@ -68,7 +68,7 @@ export const AvailableLanguage: { code: string; name: string; flag: string }[] =
 		{
 			name: "Rude French",
 			code: "fr-ME",
-			flag: "💥🇫🇷"
+			flag: "🇫🇷"
 		},
 		{
 			name: "Russian",

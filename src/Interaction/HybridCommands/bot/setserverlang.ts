@@ -20,12 +20,19 @@
 */
 
 import {
-	Client,
-	ApplicationCommandOptionType,
+	ActionRowBuilder,
+	ButtonBuilder,
+	ButtonInteraction,
+	ButtonStyle,
 	ChatInputCommandInteraction,
-	ApplicationCommandType,
+	Client,
+	EmbedBuilder,
+	StringSelectMenuBuilder,
+	StringSelectMenuInteraction,
+	ComponentType,
+	PermissionFlagsBits,
 	Message,
-	PermissionFlagsBits
+	ApplicationCommandType
 } from "discord.js";
 
 import { Command } from "../../../../types/command.js";
@@ -51,38 +58,6 @@ export const command: Command = {
 		"es-ES": "Establecer el idioma del servidor!"
 	},
 
-	options: [
-		{
-			name: "language",
-			name_localizations: {
-				fr: "langue",
-				ja: "language",
-				ru: "language",
-				"es-ES": "language"
-			},
-
-			type: ApplicationCommandOptionType.String,
-
-			description: "What language you want ?",
-			description_localizations: {
-				fr: "Quelle language voulez-vous mettre ?",
-				ja: "どの言語がいいですか？",
-				ru: "Какой язык вы хотите?",
-				"es-ES": "Que idioma quieres?"
-			},
-
-			required: true,
-			choices: Object.values(AvailableLanguage).map((x) => {
-				return {
-					name: x.name,
-					name_localizations: { fr: x.name, ja: x.name, ru: x.name, "es-ES": x.name },
-					value: x.code
-				};
-			}),
-
-			permission: null
-		}
-	],
 	thinking: false,
 	category: "bot",
 	type: ApplicationCommandType.ChatInput,
@@ -93,7 +68,6 @@ export const command: Command = {
 		lang: LanguageData,
 		args?: string[]
 	) => {
-		// Guard's Typing
 		if (
 			!client.user ||
 			!interaction.member ||
@@ -102,44 +76,197 @@ export const command: Command = {
 		)
 			return;
 
-		if (interaction instanceof ChatInputCommandInteraction) {
-			var type = interaction.options.getString("language");
-		} else {
-			var type = args?.[0] as string | null;
-		}
+		const currentLang = (await client.db.get(
+			`${interaction.guildId}.GUILD.LANG.lang`
+		)) as string;
+		const current = AvailableLanguage.find((l) => l.code === currentLang);
 
-		const already = await client.db.get(
-			`${interaction.guildId}.GUILD.LANG`
+		const embed = new EmbedBuilder()
+			.setTitle(lang.setserverlang_panel_title)
+			.setColor("#475387")
+			.setDescription(lang.setserverlang_panel_description)
+			.addFields({
+				name: lang.setserverlang_panel_current,
+				value: current
+					? `${current.flag} ${current.name}`
+					: lang.setserverlang_panel_select
+			})
+			.setFooter(
+				await client.func.displayBotName.footerBuilder(
+					interaction.guildId!
+				)
+			)
+			.setThumbnail("attachment://footer_icon.png")
+			.setTimestamp();
+
+		const selectMenu = new StringSelectMenuBuilder()
+			.setCustomId("setlang-language-selecter")
+			.setPlaceholder(lang.setserverlang_panel_select)
+			.addOptions(
+				AvailableLanguage.map((l) => ({
+					label: l.name,
+					value: l.code,
+					emoji: l.flag,
+					default: l.code === currentLang
+				}))
+			);
+
+		const saveButton = new ButtonBuilder()
+			.setCustomId("setlang-save-button")
+			.setStyle(ButtonStyle.Primary)
+			.setEmoji("💾");
+
+		const selectRow =
+			new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
+				selectMenu
+			);
+		const buttonRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
+			saveButton
 		);
 
-		if (already?.lang === type) {
-			await client.func.method.interactionSend(interaction, {
-				content: lang.setserverlang_already
-			});
-			return;
-		}
+		const og_response = await client.func.method.interactionSend(
+			interaction,
+			{
+				embeds: [embed],
+				components: [selectRow, buttonRow],
+				files: [
+					await client.func.displayBotName.footerAttachmentBuilder(
+						interaction
+					)
+				]
+			}
+		);
 
-		await client.db.set(`${interaction.guildId}.GUILD.LANG`, {
-			lang: type
-		});
-		lang = await client.func.getLanguageData(interaction.guildId);
+		let selectedLang: string | null = null;
 
-		await client.func.ihorizon_logs(interaction, {
-			title: lang.setserverlang_logs_embed_title_on_enable,
-			description: lang.setserverlang_logs_embed_description_on_enable
-				.replace(/\${type}/g, type!)
-				.replace(
-					/\${interaction\.user.id}/g,
-					interaction.member.user.id
-				)
+		const selectCollector = og_response.createMessageComponentCollector({
+			componentType: ComponentType.StringSelect,
+			time: 240_000,
+			filter: (i) => i.user.id === interaction.member?.user.id
 		});
 
-		await client.func.method.interactionSend(interaction, {
-			content: lang.setserverlang_command_work_enable.replace(
-				/\${type}/g,
-				type!
-			)
+		const buttonCollector = og_response.createMessageComponentCollector({
+			componentType: ComponentType.Button,
+			time: 240_000,
+			filter: (i) => i.user.id === interaction.member?.user.id
 		});
-		return;
+
+		selectCollector.on(
+			"collect",
+			async (selectInteraction: StringSelectMenuInteraction) => {
+				await selectInteraction.deferUpdate();
+				selectedLang = selectInteraction.values[0];
+
+				const chosen = AvailableLanguage.find(
+					(l) => l.code === selectedLang
+				);
+				embed.setFields({
+					name: lang.setserverlang_panel_current,
+					value: chosen
+						? `${chosen.flag} ${chosen.name}`
+						: lang.setserverlang_panel_select
+				});
+
+				// Rebuild select menu with user's choice as default
+				const updatedSelect = new StringSelectMenuBuilder()
+					.setCustomId("setlang-language-selecter")
+					.setPlaceholder(lang.setserverlang_panel_select)
+					.addOptions(
+						AvailableLanguage.map((l) => ({
+							label: l.name,
+							value: l.code,
+							emoji: l.flag,
+							default: l.code === selectedLang
+						}))
+					);
+
+				const updatedSelectRow =
+					new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
+						updatedSelect
+					);
+
+				await og_response.edit({
+					embeds: [embed],
+					components: [updatedSelectRow, buttonRow]
+				});
+			}
+		);
+
+		buttonCollector.on(
+			"collect",
+			async (buttonInteraction: ButtonInteraction) => {
+				await buttonInteraction.deferUpdate();
+
+				if (buttonInteraction.customId === "setlang-save-button") {
+					if (!selectedLang) {
+						await buttonInteraction.followUp({
+							content: lang.setserverlang_panel_select,
+							flags: [1 << 6]
+						});
+						return;
+					}
+
+					const newButtonRow =
+						new ActionRowBuilder<ButtonBuilder>().addComponents(
+							saveButton
+								.setStyle(ButtonStyle.Success)
+								.setEmoji(client.iHorizon_Emojis.Yes)
+								.setDisabled(true)
+						);
+
+					selectMenu.setDisabled(true);
+					const disabledSelectRow =
+						new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
+							selectMenu
+						);
+
+					await og_response.edit({
+						components: [disabledSelectRow, newButtonRow]
+					});
+
+					await client.func.ihorizon_logs(interaction, {
+						title: lang.setserverlang_logs_embed_title_on_enable,
+						description:
+							lang.setserverlang_logs_embed_description_on_enable
+								.replace(
+									"${interaction.user.id}",
+									interaction.member?.user.id!
+								)
+								.replace("${type}", selectedLang)
+					});
+
+					await client.db.set(`${interaction.guildId}.GUILD.LANG`, {
+						lang: selectedLang
+					});
+
+					await buttonInteraction.followUp({
+						content: lang.setserverlang_panel_saved.replace(
+							"${type}",
+							selectedLang
+						),
+						flags: [1 << 6]
+					});
+
+					selectCollector.stop();
+					buttonCollector.stop();
+				}
+			}
+		);
+
+		selectCollector.on("end", async () => {
+			selectMenu.setDisabled(true);
+			const disabledSelectRow =
+				new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
+					selectMenu
+				);
+
+			saveButton.setDisabled(true);
+			const disabledButtonRow =
+				new ActionRowBuilder<ButtonBuilder>().addComponents(saveButton);
+
+			await og_response
+				.edit({ components: [disabledSelectRow, disabledButtonRow] })
+				.catch(() => {});
+		});
 	}
 };

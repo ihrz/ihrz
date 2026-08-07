@@ -2086,6 +2086,11 @@ setserverlang_logs_embed_title_on_enable: "Logs de Definição de Idioma do Serv
 setserverlang_logs_embed_description_on_enable: "<@${interaction.user.id}> definiu o idioma do iHorizon para **${type}**!"
 setserverlang_already: "Eu já estou neste idioma!"
 setserverlang_command_work_enable: "Meu idioma agora é **${type}**"
+setserverlang_panel_title: "Seleção de idioma"
+setserverlang_panel_description: "Seleciona o idioma que queres que o iHorizon use neste servidor."
+setserverlang_panel_current: "Idioma atual"
+setserverlang_panel_select: "Escolhe um idioma..."
+setserverlang_panel_saved: "O idioma foi alterado com sucesso!"
 setserverlang_command_error_enable: "Erro!"
 
 # /embed
