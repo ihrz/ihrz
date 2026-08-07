@@ -1418,6 +1418,7 @@ export interface LanguageData {
 	tempmute_reason_create_roles: string;
 	tempmute_tomute_is_admin: string;
 	tempmute_tomute_highest_role_or_same: string;
+	tempmute_cannot_mute_higher_role: string;
 	tempmute_tomute_max_time_passed: string;
 	temprole_dont_have_permission: string;
 	temprole_i_dont_have_permission: string;

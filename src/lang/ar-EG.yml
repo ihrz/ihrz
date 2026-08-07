@@ -1874,6 +1874,7 @@ tempmute_logs_embed_description: "<@${interaction.user.id}> قام بكتم <@${
 tempmute_reason_create_roles: "إنشاء دور مؤقت للميوت!"
 tempmute_tomute_is_admin: "${client.iHorizon_Emojis.No} | المستخدم لديه صلاحيات المسؤول، لا أستطيع كتمه."
 tempmute_tomute_highest_role_or_same: "${client.iHorizon_Emojis.No} | **دوري في هذا الخادم أقل أو مساوٍ لـ ${tomute.toString()}. لا أستطيع معاقبة هذا العضو.**"
+tempmute_cannot_mute_higher_role: "${client.iHorizon_Emojis.No} | **${tomute.toString()}'s role is higher than or equal to yours. You cannot timeout this member.**"
 tempmute_tomute_max_time_passed: "\n-# ${client.iHorizon_Emojis.VC_OpenChat} لدى ديسكورد حد أقصى قدره 28 يومًا للكتم. لقد قمت بتطبيق 28 يومًا."
 
 # /temprole

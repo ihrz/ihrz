@@ -139,7 +139,7 @@ export const subCommand: SubCommand = {
 				(interaction.member as GuildMember).roles.highest.position
 		) {
 			await client.func.method.interactionSend(interaction, {
-				content: lang.tempmute_tomute_highest_role_or_same
+				content: lang.tempmute_cannot_mute_higher_role
 					.replace(
 						"${client.iHorizon_Emojis.No}",
 						client.iHorizon_Emojis.No
