@@ -51,6 +51,7 @@
 		"spotify-metadata": "github:kisastractors/spotify-metadata",
 		"apple-music-metadata": "github:kisastractors/apple-music-metadata",
 		"amazon-music-metadata": "github:kisastractors/amazon-music-metadata",
+		"tidal-metadata": "github:kisastractors/tidal-metadata",
 		"typescript-eslint": "^8.66.0",
 		"xml2js": "^0.6.2",
 		"youtubei.js": "^17.2.0"

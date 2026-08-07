@@ -66,7 +66,22 @@ const allowedDomains: string[] = [
 	"youtu.be",
 	"youtube.com",
 	"www.youtube.com",
-	"music.youtube.com"
+	"music.youtube.com",
+
+	"cdn.discordapp.com",
+
+	"youtu.be",
+	"youtube.com",
+	"www.youtube.com",
+	"music.youtube.com",
+
+	// Tidal
+	"tidal.com",
+	"www.tidal.com",
+	"listen.tidal.com",
+	"store.tidal.com",
+	"tidal.lnk.to",
+	"tdl.lnk.to"
 ];
 
 export default function isAllowedLinks(link: string): boolean {
