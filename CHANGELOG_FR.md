@@ -2,7 +2,7 @@
 
 ---
 
-## 🌍 iHorizon parle maintenant 4 langues
+## 🌍 iHorizon parle maintenant 5 langues (dans les description de commande)
 
 Toutes les commandes du bot sont désormais disponibles en **Français**, **Anglais**, **Japonais**, **Russe** et **Espagnol**. Les commandes `/help` et `+h` s'adaptent automatiquement à la langue de votre serveur.
 

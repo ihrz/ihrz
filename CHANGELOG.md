@@ -2,7 +2,7 @@
 
 ---
 
-## 🌍 iHorizon now speaks 4 languages
+## 🌍 iHorizon now speaks 5 languages (command description)
 
 All commands are now available in **French**, **English**, **Japanese**, **Russian** and **Spanish**. `/help` and `+h` automatically adapt to your server's language.
 
