@@ -2240,6 +2240,12 @@ export interface LanguageData {
 	new_guild_embed_desc: string;
 	new_guild_owner_dm_title: string;
 	new_guild_owner_dm_description: string;
+	guild_create_btn_invite: string;
+	guild_create_btn_website: string;
+	guild_create_btn_search: string;
+	guild_create_btn_repos: string;
+	guild_create_btn_support: string;
+	guild_create_btn_docs: string;
 	guild_leave_data_clear_notice_title: string;
 	guild_leave_data_clear_notice_description: string;
 	guild_leave_data_clear_notice_message: string;

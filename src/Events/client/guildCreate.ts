@@ -153,19 +153,19 @@ export const event: BotEvent = {
 				new ActionRowBuilder<ButtonBuilder>().addComponents(
 					new ButtonBuilder()
 						.setEmoji(client.iHorizon_Emojis.Crown)
-						.setLabel("Invite iHorizon")
+						.setLabel(lang.guild_create_btn_invite)
 						.setStyle(ButtonStyle.Link)
 						.setURL(
 							`https://discord.com/api/oauth2/authorize?client_id=${client.user?.id}&permissions=8&scope=bot`
 						),
 					new ButtonBuilder()
 						.setEmoji(client.iHorizon_Emojis.Sparkles)
-						.setLabel("iHorizon Website")
+						.setLabel(lang.guild_create_btn_website)
 						.setStyle(ButtonStyle.Link)
 						.setURL("https://www.ihorizon.org"),
 					new ButtonBuilder()
 						.setEmoji(client.iHorizon_Emojis.Search)
-						.setLabel("iHorizon Search")
+						.setLabel(lang.guild_create_btn_search)
 						.setStyle(ButtonStyle.Link)
 						.setURL("https://search.ihorizon.org")
 				);
@@ -173,17 +173,17 @@ export const event: BotEvent = {
 				new ActionRowBuilder<ButtonBuilder>().addComponents(
 					new ButtonBuilder()
 						.setEmoji(client.iHorizon_Emojis.GitLab_Logo)
-						.setLabel("iHorizon Repositories")
+						.setLabel(lang.guild_create_btn_repos)
 						.setStyle(ButtonStyle.Link)
 						.setURL(`https://gitlab.com/ihrz/ihrz`),
 					new ButtonBuilder()
 						.setEmoji(client.iHorizon_Emojis.Logo)
-						.setLabel("Support Server")
+						.setLabel(lang.guild_create_btn_support)
 						.setStyle(ButtonStyle.Link)
 						.setURL("https://discord.gg/ihorizon"),
 					new ButtonBuilder()
 						.setEmoji(client.iHorizon_Emojis.Documentation)
-						.setLabel("iHorizon Documentation")
+						.setLabel(lang.guild_create_btn_docs)
 						.setStyle(ButtonStyle.Link)
 						.setURL("https://docs.ihorizon.org")
 				);
@@ -254,22 +254,29 @@ export const event: BotEvent = {
 				const buttons =
 					new ActionRowBuilder<ButtonBuilder>().addComponents(
 						new ButtonBuilder()
-							.setLabel("Website")
+							.setLabel(lang.guild_create_btn_invite)
+							.setEmoji(client.iHorizon_Emojis.Crown)
+							.setStyle(ButtonStyle.Link)
+							.setURL(
+								`https://discord.com/api/oauth2/authorize?client_id=${client.user?.id}&permissions=8&scope=bot`
+							),
+						new ButtonBuilder()
+							.setLabel(lang.guild_create_btn_website)
 							.setEmoji(client.iHorizon_Emojis.Sparkles)
 							.setStyle(ButtonStyle.Link)
 							.setURL("https://www.ihorizon.org"),
 						new ButtonBuilder()
-							.setLabel("Support Server")
+							.setLabel(lang.guild_create_btn_support)
 							.setEmoji(client.iHorizon_Emojis.Logo)
 							.setStyle(ButtonStyle.Link)
 							.setURL("https://discord.gg/ihorizon"),
 						new ButtonBuilder()
-							.setLabel("Documentation")
+							.setLabel(lang.guild_create_btn_docs)
 							.setEmoji(client.iHorizon_Emojis.Documentation)
 							.setStyle(ButtonStyle.Link)
 							.setURL("https://docs.ihorizon.org"),
 						new ButtonBuilder()
-							.setLabel("GitLab")
+							.setLabel(lang.guild_create_btn_repos)
 							.setEmoji(client.iHorizon_Emojis.GitLab_Logo)
 							.setStyle(ButtonStyle.Link)
 							.setURL("https://gitlab.com/ihrz/ihrz")
