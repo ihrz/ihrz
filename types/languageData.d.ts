@@ -2238,6 +2238,8 @@ export interface LanguageData {
 	channel_unhideall_error: string;
 	new_guild_embed_title: string[];
 	new_guild_embed_desc: string;
+	new_guild_owner_dm_title: string;
+	new_guild_owner_dm_description: string;
 	guild_leave_data_clear_notice_title: string;
 	guild_leave_data_clear_notice_description: string;
 	guild_leave_data_clear_notice_message: string;

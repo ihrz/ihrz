@@ -3014,6 +3014,8 @@ new_guild_embed_title:
     - "It's a bird, it's a plane, no, it's iHorizon! 🦸‍♂"
     - "Let's give a warm welcome to iHorizon! 🔥"
 new_guild_embed_desc: "## ${randomMessage}\nHi there! I'm excited to join your server and be a part of your community.\nMy name is iHorizon and I'm here to help you with all your needs. Feel free to use my commands and explore all the features I have to offer.\nIf you have any questions or run into any issues, don't hesitate to reach out to me.\nI'm here to make your experience on this server the best it can be.\nThanks for choosing me and let's have some fun together!\n"
+new_guild_owner_dm_title: "Welcome to the iHorizon family!"
+new_guild_owner_dm_description: "# Thank you for adding iHorizon to your server!\n\n> *Wait... Is that all? No, absolutely not.*\n\niHorizon is a Discord bot, okay? But not just that. It's also a community, a lore, a project built over 6+ years (2020).\nUsing iHorizon isn't just about having a complete Discord bot, forever **free** and **open source**. It's also about embracing a **concept**.\n\n> **A free Discord bot can do a better job than paid bots.**\n*Yes, that's iHorizon: a complete bot, maintained for 6 years by passionate people.*\n\nSo yes... after this message, thank you.\nWe are legion. #ihorizon"
 guild_leave_data_clear_notice_title: "iHorizon has left ${guild.name}"
 guild_leave_data_clear_notice_description: "Waaah, this is sad. You kicked the bot from `${guild.name}`. The server data will be cleared ${deleteAt} if iHorizon is not back before then."
 guild_leave_data_clear_notice_message: "Waaah, this is sad. You kicked iHorizon from `${guild.name}`. The data will be cleared ${deleteAt}."

@@ -120,7 +120,7 @@ export const event: BotEvent = {
 							)
 						]
 					})
-					.catch(() => { });
+					.catch(() => {});
 				await guild.leave();
 				return false;
 			} else {
@@ -143,7 +143,7 @@ export const event: BotEvent = {
 					lang.new_guild_embed_desc.replace(
 						"${randomMessage}",
 						welcomeMessage[
-						Math.floor(Math.random() * welcomeMessage.length)
+							Math.floor(Math.random() * welcomeMessage.length)
 						]
 					)
 				)
@@ -199,7 +199,7 @@ export const event: BotEvent = {
 					],
 					components: [buttons1, buttons2]
 				})
-				.catch(() => { });
+				.catch(() => {});
 		}
 
 		async function getInvites() {
@@ -219,7 +219,8 @@ export const event: BotEvent = {
 								{
 									uses: invite.uses,
 									inviterId: invite.inviterId,
-									inviterUsername: invite.inviter?.username || null
+									inviterUsername:
+										invite.inviter?.username || null
 								}
 							])
 						)
@@ -227,6 +228,64 @@ export const event: BotEvent = {
 				});
 			} catch (error: any) {
 				logger.err(error);
+			}
+		}
+
+		async function ownerWelcomeDM() {
+			const lang = await client.func.getLanguageData(guild.id);
+
+			try {
+				const owner = await guild.fetchOwner().catch(() => null);
+				if (!owner) return;
+
+				const embed = new EmbedBuilder()
+					.setColor("#2b2d31")
+					.setDescription(
+						lang.new_guild_owner_dm_description
+							.replace("${owner}", owner.user.username)
+							.replace("${guild.name}", guild.name)
+					)
+					.setFooter({
+						text: "iHorizon",
+						iconURL: "attachment://footer_icon.png"
+					})
+					.setTimestamp();
+
+				const buttons =
+					new ActionRowBuilder<ButtonBuilder>().addComponents(
+						new ButtonBuilder()
+							.setLabel("Website")
+							.setEmoji(client.iHorizon_Emojis.Sparkles)
+							.setStyle(ButtonStyle.Link)
+							.setURL("https://www.ihorizon.org"),
+						new ButtonBuilder()
+							.setLabel("Support Server")
+							.setEmoji(client.iHorizon_Emojis.Logo)
+							.setStyle(ButtonStyle.Link)
+							.setURL("https://discord.gg/ihorizon"),
+						new ButtonBuilder()
+							.setLabel("Documentation")
+							.setEmoji(client.iHorizon_Emojis.Documentation)
+							.setStyle(ButtonStyle.Link)
+							.setURL("https://docs.ihorizon.org"),
+						new ButtonBuilder()
+							.setLabel("GitLab")
+							.setEmoji(client.iHorizon_Emojis.GitLab_Logo)
+							.setStyle(ButtonStyle.Link)
+							.setURL("https://gitlab.com/ihrz/ihrz")
+					);
+
+				await owner.send({
+					embeds: [embed],
+					components: [buttons],
+					files: [
+						await client.func.displayBotName.footerAttachmentBuilder(
+							guild
+						)
+					]
+				});
+			} catch {
+				// DM may be closed, silently ignore
 			}
 		}
 
@@ -401,6 +460,11 @@ Guild Info:
 		// let c = await antiPoubelle();
 		const d = await blacklistLeave();
 		if (d)
-			await Promise.all([ownerLogs(), messageToServer(), getInvites()]);
+			await Promise.all([
+				ownerLogs(),
+				messageToServer(),
+				getInvites(),
+				ownerWelcomeDM()
+			]);
 	}
 };
