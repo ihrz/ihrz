@@ -108,6 +108,31 @@ export const command: Command = {
 				.setURL(version.git_commit_url)
 		);
 
+		const components: any[] = [buttons];
+
+		// Add newsletter toggle button if the user is the guild owner
+		if (interaction.author.id === interaction.guild.ownerId) {
+			const newsletterDisabled = await client.db.get(
+				`newsletter_disabled_${interaction.author.id}`
+			);
+			const isEnabled = !newsletterDisabled;
+
+			const newsletterBtn = new ButtonBuilder()
+				.setCustomId("newsletter-toggle")
+				.setLabel(
+					isEnabled
+						? lang.newsletter_btn_unsubscribe
+						: lang.newsletter_btn_subscribe
+				)
+				.setStyle(isEnabled ? ButtonStyle.Danger : ButtonStyle.Primary);
+
+			components.push(
+				new ActionRowBuilder<ButtonBuilder>().addComponents(
+					newsletterBtn
+				)
+			);
+		}
+
 		// Attach latest changelog PDF, localized by guild language
 		const guildLang = (await client.db.get(
 			`${interaction.guildId}.GUILD.LANG.lang`
@@ -155,7 +180,7 @@ export const command: Command = {
 
 		await interaction.reply({
 			embeds: [embed],
-			components: [buttons],
+			components,
 			files
 		});
 	}

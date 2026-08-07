@@ -19,28 +19,32 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { Client, Interaction } from "discord.js";
-import { BotEvent } from "../../../types/event.js";
+import { ButtonInteraction } from "discord.js";
+import { LanguageData } from "../../../../types/languageData.js";
 
-export const event: BotEvent = {
-	name: "interactionCreate",
-	run: async (client: Client, interaction: Interaction) => {
-		if (!interaction.isButton() || interaction.user.bot) return;
+export default async function (
+	interaction: ButtonInteraction,
+	lang: LanguageData
+) {
+	const ownerId = interaction.user.id;
 
-		const isDmButton = interaction.customId.endsWith("?dm");
-		const isGuildButton = !!interaction.guild?.channels;
+	const rawParts = interaction.customId.split("%");
+	const dataPart = rawParts[1]?.split("?")[0] ?? null;
 
-		if (!isGuildButton && !isDmButton) return;
+	const isDisabled = !!(await interaction.client.db.get(
+		`newsletter_disabled_${ownerId}`
+	));
 
-		const cleanId = isDmButton
-			? interaction.customId.slice(0, -3)
-			: interaction.customId;
-		const filtered_customId = cleanId.split("%")[0];
-		const get = client.buttons.get(filtered_customId);
-		if (get)
-			get(
-				interaction,
-				await client.func.getLanguageData(interaction.guildId ?? null)
-			);
+	if (isDisabled) {
+		await interaction.client.db.delete(`newsletter_disabled_${ownerId}`);
+	} else {
+		await interaction.client.db.set(`newsletter_disabled_${ownerId}`, true);
 	}
-};
+
+	await interaction.reply({
+		content: isDisabled
+			? lang.newsletter_toggle_enabled
+			: lang.newsletter_toggle_disabled,
+		flags: [1 << 6]
+	});
+}

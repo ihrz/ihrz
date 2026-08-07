@@ -52,6 +52,7 @@ import {
 	prefetchFloweryVoices,
 	cleanupOrphanedTTS
 } from "../../core/modules/ttsManager.js";
+import { checkAndNotifyRelease } from "../../core/modules/releaseNotifier.js";
 import path from "node:path";
 
 // @ts-ignore
@@ -98,6 +99,8 @@ export const event: BotEvent = {
 
 		prefetchFloweryVoices();
 		cleanupOrphanedTTS(client);
+
+		checkAndNotifyRelease(client).catch(() => {});
 
 		async function fetchInvites() {
 			const guilds = [...client.guilds.cache.values()];

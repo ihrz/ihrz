@@ -25,6 +25,8 @@ import config from "./files/config.js";
 import logger from "./core/logger.js";
 
 import { ShardingManager, REST, Routes } from "discord.js";
+import { writeVersionFile } from "./core/modules/releaseNotifier.js";
+import pkg from "../package.json";
 
 const token = process.env.BOT_TOKEN || config.discord.token;
 const GUILDS_PER_SHARD = 700;
@@ -100,6 +102,8 @@ const manager = new ShardingManager("./src/core/bot.ts", {
 	token,
 	respawn: true
 });
+
+await writeVersionFile(pkg.version);
 
 manager.on("shardCreate", (shard) => {
 	const tag = `[Shard #${shard.id}]`.cyan;

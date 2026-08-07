@@ -1585,6 +1585,13 @@ export interface LanguageData {
 	updates_field_branch: string;
 	updates_field_links: string;
 	updates_changelog_attached: string;
+	newsletter_dm_title: string;
+	newsletter_dm_body: string;
+	newsletter_dm_footer: string;
+	newsletter_btn_unsubscribe: string;
+	newsletter_btn_subscribe: string;
+	newsletter_toggle_enabled: string;
+	newsletter_toggle_disabled: string;
 	setserverlang_not_admin: string;
 	setserverlang_logs_embed_title_on_enable: string;
 	setserverlang_logs_embed_description_on_enable: string;
