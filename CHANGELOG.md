@@ -1,95 +1,46 @@
-# Version Minor 2026.8.1 (1st patch of August 2026)
-
-## Changes between [2026.7.1](https://gitlab.com/ihrz/ihrz/-/releases/2026.7.1) and [2026.8.1](https://gitlab.com/ihrz/ihrz/-/releases/2026.8.1)
+# Version Patch 2026.8.2 (2nd patch of August 2026)
 
 ---
 
-## Current Changes
+## 🌍 iHorizon now speaks 4 languages
 
-**__Languages (`All`)__**
+All commands are now available in **French**, **English**, **Japanese**, **Russian** and **Spanish**. `/help` and `+h` automatically adapt to your server's language.
 
--  All internal translations got revisited, rewamped.
+---
 
-**__Command `/mod rolepanel` (+rolepanel)__**
+## 🎤 TTS: iHorizon reads messages out loud
 
-- New command: give selected roles to a member through a panel.
+A brand new Text-to-Speech module arrives with 4 commands:
 
-**__Command `/mod unmuteall` (+unmuteall)__**
+- `/tts join` — iHorizon joins your voice channel and reads messages
+- `/tts leave` — iHorizon leaves the channel
+- `/tts lang` — choose the voice language
+- `/tts info` — check the module status
 
-- New command to unmute all currently muted members at once.
+---
 
-**__Command `/mod unlockall`__**
+## 🎵 Apple Music & Amazon Music
 
-- New command to unlock all channels at once.
+The music player now supports **Apple Music** and **Amazon Music** links alongside Spotify and YouTube.
 
-**__Command `/mod tempmute` (+tempmute)__**
+---
 
-- Increased the maximum timeout duration to 28 days.
+## 👋 A warmer welcome
 
-**__Command `/utils admin-roles`__**
+When iHorizon joins a server, it now sends a **welcome DM** to the owner — and also to the person who added the bot. A nice embed with buttons to discover the project.
 
-- Added an alias: `allpa`.
+---
 
-**__Command `+move`__**
+## ⚙️ `/setlang` gets a makeover
 
-- You can now precise a voice channel by name directly in the command (ie: `+move 2h0 Voice 1`).
+No more language codes to type. `/setlang` opens an **interactive menu** with the full language list and their flags. Pick one, hit Save, done.
 
-**__Module: `Music`__**
+---
 
-- `/music skip` (+skip) — added alias: `+next`.
-- Fixed volume when a new track starts.
-- Added support for Spotify links (Album/Track/Playlist) and Youtube Music track links.
+## 🛠️ Fixes & improvements
 
-**__Module: `Giveaways`__**
-
-- Translated the `gw` command in French.
-- Fixed giveaways typing (backend).
-
-**__Module: `Server data on leave`__**
-
-- New way to clear guild data when leaving (major change in philosophy). iHorizon now waits 10 hours before permanently deleting the server's data, allowing you to re-invite the bot and cancel the process if it was kicked by mistake, keeping the full config.
-
-**__Module: `PrevNames Logging`__**
-
-- Improving prevnames logging: also now logging guild nicknames.
-
-**__Fun__**
-
-- Added Autofeur sentence.
-
-## Internal improvements
-
-- Removed Sweepers for guild Member.
-- Major code improving in backend — unifying the context handler in Slash/Hybrid for better code support.
-- Updates all libraries to the latest version.
-- Fixing pm2 file for production.
-
-# Bug fixes
-
-**Command handler in PM channels**
-
-- *Fixing handler for command in PM channel.*
-
-**`/utils userinfo`**
-
-- *Fixing userinfo calculating Nitro with the banner or no.*
-
-**`+sticker` command**
-
-- *Fixing an issue with +sticker command.*
-
-**`+antiexe` command**
-
-- *Fixing +antiexe command permission.*
-
-**`+soutien` command**
-
-- *Fixing +soutien command args handling.*
-
-**Footer text**
-
-- *Fixing footer text for better user experience.*
-
-**`tooNewAccount` check**
-
-- *Fixing tooNewAccount bug that added 1 flag before calculating the Discord account creation time window.*
+- **Lock / Unlock**: no longer wipes custom channel permissions
+- **Tempmute**: can no longer mute someone with an equal or higher role
+- **Automod**: now blocks URL-encoded invite links that previously bypassed the filter
+- **Ticket**: the ticket panel no longer crashes with overly long option names
+- **Confession**: module rewritten for better reliability

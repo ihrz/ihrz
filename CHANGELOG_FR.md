@@ -1,95 +1,46 @@
-# Version Mineure 2026.8.1 (1er patch d'août 2026)
-
-## Changements entre [2026.7.1](https://gitlab.com/ihrz/ihrz/-/releases/2026.7.1) et [2026.8.1](https://gitlab.com/ihrz/ihrz/-/releases/2026.8.1)
+# Version Patch 2026.8.2 (2ème patch d'août 2026)
 
 ---
 
-## Changements actuels
+## 🌍 iHorizon parle maintenant 4 langues
 
-**__Langues (`Toutes`)__**
+Toutes les commandes du bot sont désormais disponibles en **Français**, **Anglais**, **Japonais**, **Russe** et **Espagnol**. Les commandes `/help` et `+h` s'adaptent automatiquement à la langue de votre serveur.
 
-- Toutes les traductions internes ont été révisées et améliorées.
+---
 
-**__Commande `/mod rolepanel` (+rolepanel)__**
+## 🎤 TTS : iHorizon lit vos messages à voix haute
 
-- Nouvelle commande : attribuer les rôles sélectionnés à un membre via un panneau.
+Un tout nouveau module Text-to-Speech débarque avec 4 commandes :
 
-**__Commande `/mod unmuteall` (+unmuteall)__**
+- `/tts join` — iHorizon rejoint votre salon vocal et lit les messages
+- `/tts leave` — iHorizon quitte le salon
+- `/tts lang` — choisissez la langue de la voix
+- `/tts info` — voir l'état du module
 
-- Nouvelle commande permettant de retirer le mute de tous les membres actuellement muets en une seule fois.
+---
 
-**__Commande `/mod unlockall`__**
+## 🎵 Apple Music & Amazon Music
 
-- Nouvelle commande permettant de déverrouiller tous les salons en une seule fois.
+Le lecteur de musique prend désormais en charge les liens **Apple Music** et **Amazon Music** en plus de Spotify et YouTube.
 
-**__Commande `/mod tempmute` (+tempmute)__**
+---
 
-- La durée maximale du timeout a été augmentée à 28 jours.
+## 👋 Un accueil plus chaleureux
 
-**__Commande `/utils admin-roles`__**
+Quand iHorizon rejoint un serveur, il envoie maintenant un **message de bienvenue en DM** au propriétaire — et aussi à la personne qui a ajouté le bot. Un joli embed avec des boutons pour découvrir le projet.
 
-- Ajout d'un alias : `allpa`.
+---
 
-**__Commande `+move`__**
+## ⚙️ `/setlang` fait peau neuve
 
-- Vous pouvez désormais préciser directement le nom d'un salon vocal dans la commande (ex. : `+move 2h0 Voice 1`).
+Plus besoin de taper un code langue. `/setlang` ouvre un **menu interactif** avec la liste des langues et leurs drapeaux. Choisissez, cliquez sur Sauvegarder, c'est tout.
 
-**__Module : `Music`__**
+---
 
-- `/music skip` (+skip) — ajout de l'alias : `+next`.
-- Correction du volume lorsqu'une nouvelle piste démarre.
-- Ajout de la prise en charge des liens Spotify (Album/Piste/Playlist) et des liens de pistes YouTube Music.
+## 🛠️ Corrections & améliorations
 
-**__Module : `Giveaways`__**
-
-- Traduction de la commande `gw` en français.
-- Correction du typage des giveaways (backend).
-
-**__Module : `Server data on leave`__**
-
-- Nouvelle méthode pour supprimer les données d'un serveur lors du départ (changement majeur de philosophie). iHorizon attend désormais 10 heures avant de supprimer définitivement les données du serveur, ce qui permet de réinviter le bot et d'annuler le processus s'il a été expulsé par erreur, tout en conservant la configuration complète.
-
-**__Module : `PrevNames Logging`__**
-
-- Amélioration des journaux des anciens noms : les pseudonymes de serveur sont désormais également enregistrés.
-
-**__Fun__**
-
-- Ajout de la phrase Autofeur.
-
-## Améliorations internes
-
-- Suppression des Sweepers pour les membres de serveur.
-- Amélioration majeure du code backend — unification du gestionnaire de contexte pour les commandes Slash/Hybrides afin d'améliorer la maintenabilité du code.
-- Mise à jour de toutes les bibliothèques vers leur dernière version.
-- Correction du fichier pm2 pour la production.
-
-# Corrections de bugs
-
-**Gestionnaire de commandes dans les MP**
-
-- *Correction du gestionnaire de commandes dans les messages privés.*
-
-**`/utils userinfo`**
-
-- *Correction du calcul de Nitro selon la présence ou non d'une bannière.*
-
-**Commande `+sticker`**
-
-- *Correction d'un problème avec la commande +sticker.*
-
-**Commande `+antiexe`**
-
-- *Correction des permissions de la commande +antiexe.*
-
-**Commande `+soutien`**
-
-- *Correction de la gestion des arguments de la commande +soutien.*
-
-**Texte du pied de page**
-
-- *Correction du texte du pied de page pour une meilleure expérience utilisateur.*
-
-**Vérification `tooNewAccount`**
-
-- *Correction d'un bug de `tooNewAccount` qui ajoutait un indicateur avant de calculer la fenêtre de temps de création du compte Discord.*
+- **Lock / Unlock** : ne supprime plus les permissions personnalisées des salons
+- **Tempmute** : impossible de mute quelqu'un avec un rôle supérieur ou égal au vôtre
+- **Automod** : bloque maintenant les liens d'invitation cachés derrière un encodage URL
+- **Ticket** : le panneau de ticket ne crash plus avec des noms d'options trop longs
+- **Confession** : module réécrit pour plus de fiabilité
