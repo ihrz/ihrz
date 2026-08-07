@@ -92,6 +92,42 @@ export default async (client: Client) => {
 			.fetch(player.textChannelId!)
 			.catch(() => null);
 
+		// Fallback: if the stored text channel was deleted, find a new one
+		if (!channel) {
+			const voiceChannel = guild?.channels.cache.get(
+				player.voiceChannelId!
+			);
+			const fallback =
+				// Try the voice channel itself (text-in-voice)
+				(voiceChannel?.isTextBased() ? voiceChannel : null) ??
+				// Try parent category's first text channel
+				(voiceChannel?.parentId
+					? guild?.channels.cache.find(
+							(c) =>
+								c.parentId === voiceChannel.parentId &&
+								c.isTextBased() &&
+								c
+									.permissionsFor(client.user!)
+									?.has("SendMessages")
+						)
+					: null) ??
+				// Last resort: any text channel in the guild
+				guild?.channels.cache.find(
+					(c) =>
+						c.isTextBased() &&
+						c.permissionsFor(client.user!)?.has("SendMessages")
+				);
+
+			if (fallback) {
+				player.textChannelId = fallback.id;
+				channel = fallback;
+			} else {
+				// Nowhere to send — destroy player silently
+				player.destroy();
+				return;
+			}
+		}
+
 		let htmlContent = client.htmlfiles["musicBanner"];
 
 		htmlContent = htmlContent
@@ -259,7 +295,7 @@ Guild:
   * requester global username: \`${(x?.requester as User).username}\`
 
 ## Track about
-Track: 
+Track:
   * Track Info (title, author): \`${y.track.info.title} - ${y.track.info.author}\`
   * Uri: \`${y.track.info.uri}\`
   * Encoded: \`${y.track.encoded}\`
