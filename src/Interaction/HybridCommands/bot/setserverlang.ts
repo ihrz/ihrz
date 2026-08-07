@@ -222,6 +222,14 @@ export const command: Command = {
 						);
 
 					selectMenu.setDisabled(true);
+					selectMenu.setOptions(
+						AvailableLanguage.map((l) => ({
+							label: l.name,
+							value: l.code,
+							emoji: l.flag,
+							default: l.code === selectedLang
+						}))
+					);
 					const disabledSelectRow =
 						new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
 							selectMenu
