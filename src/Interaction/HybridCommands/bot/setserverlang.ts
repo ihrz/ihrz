@@ -231,10 +231,16 @@ export const command: Command = {
 						components: [disabledSelectRow, newButtonRow]
 					});
 
+					await client.db.set(`${interaction.guildId}.GUILD.LANG`, {
+						lang: selectedLang
+					});
+
+					const newLang = await getLanguageByCode(selectedLang);
+
 					await client.func.ihorizon_logs(interaction, {
-						title: lang.setserverlang_logs_embed_title_on_enable,
+						title: newLang.setserverlang_logs_embed_title_on_enable,
 						description:
-							lang.setserverlang_logs_embed_description_on_enable
+							newLang.setserverlang_logs_embed_description_on_enable
 								.replace(
 									"${interaction.user.id}",
 									interaction.member?.user.id!
@@ -242,12 +248,8 @@ export const command: Command = {
 								.replace("${type}", selectedLang)
 					});
 
-					await client.db.set(`${interaction.guildId}.GUILD.LANG`, {
-						lang: selectedLang
-					});
-
 					await buttonInteraction.followUp({
-						content: lang.setserverlang_panel_saved.replace(
+						content: newLang.setserverlang_panel_saved.replace(
 							"${type}",
 							selectedLang
 						),
