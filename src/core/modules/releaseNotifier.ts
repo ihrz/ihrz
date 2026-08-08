@@ -194,7 +194,7 @@ export async function checkAndNotifyRelease(client: Client): Promise<void> {
 		ownerIds.add(guild.ownerId);
 	}
 
-	const alreadySentKey = `newsletter_sent_${currentVersion}`;
+	const alreadySentKey = `newsletter_sent_${currentVersion.replace(/\./g, "-")}`;
 	const alreadySent = (await metasTable.get(alreadySentKey)) as Record<
 		string,
 		boolean
