@@ -338,7 +338,9 @@ export const event: BotEvent = {
 		client.temproleManager.init();
 		client.tempbanManager.init();
 		client.giveawaysManager.init();
-		checkAndNotifyRelease(client).catch(() => {});
+		checkAndNotifyRelease(client).catch((err) => {
+			logger.err("Release notifier failed:", err);
+		});
 
 		await client.email.init(true);
 
