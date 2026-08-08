@@ -29,6 +29,23 @@ export default async function (
 ) {
 	const ownerId = interaction.user.id;
 
+	const rawParts = interaction.customId.split("%");
+	const guildId = rawParts[1]?.split("?")[0] ?? null;
+
+	if (guildId) {
+		const guild = interaction.client.guilds.cache.get(guildId);
+		if (guild && guild.ownerId !== ownerId) {
+			await interaction.reply({
+				content: lang.newsletter_not_owner.replace(
+					"${clientId}",
+					interaction.client.user?.id ?? ""
+				),
+				flags: [1 << 6]
+			});
+			return;
+		}
+	}
+
 	const bl = (await metasTable.get("newsletter_bl")) as Record<
 		string,
 		boolean
