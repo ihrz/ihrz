@@ -153,9 +153,6 @@ async function getOwnerLang(
 }
 
 export async function checkAndNotifyRelease(client: Client): Promise<void> {
-	if (typeof client.isMainShard === "function" && !client.isMainShard())
-		return;
-
 	const currentVersion = await readVersionFile(V_FILE);
 	if (!currentVersion) {
 		logger.log("Release notifier: no v.txt found, skipping");
