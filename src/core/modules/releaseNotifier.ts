@@ -194,10 +194,29 @@ export async function checkAndNotifyRelease(client: Client): Promise<void> {
 		ownerIds.add(guild.ownerId);
 	}
 
+	const alreadySentKey = `newsletter_sent_${currentVersion}`;
+	const alreadySent = (await metasTable.get(alreadySentKey)) as Record<
+		string,
+		boolean
+	> | null;
+	const sentSet = new Set<string>(
+		alreadySent ? Object.keys(alreadySent) : []
+	);
+
 	let sent = 0;
 	let failed = 0;
 	let skipped = 0;
-	const ownerArray = [...ownerIds];
+	const ownerArray = [...ownerIds].filter((id) => !sentSet.has(id));
+
+	if (ownerArray.length === 0) {
+		logger.log(
+			"Release notifier: all " +
+				ownerIds.size +
+				" owners already notified for " +
+				currentVersion
+		);
+		return;
+	}
 
 	for (let i = 0; i < ownerArray.length; i += DM_BATCH_SIZE) {
 		const batch = ownerArray.slice(i, i + DM_BATCH_SIZE);
@@ -231,6 +250,15 @@ export async function checkAndNotifyRelease(client: Client): Promise<void> {
 					releaseUrl,
 					lang
 				);
+
+				if (result) {
+					sentSet.add(ownerId);
+					await metasTable.set(alreadySentKey, {
+						...alreadySent,
+						[ownerId]: true
+					});
+				}
+
 				return result ? "sent" : "failed";
 			})
 		);
