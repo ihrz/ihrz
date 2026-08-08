@@ -34,9 +34,9 @@ import { LanguageData } from "../../../types/languageData.js";
 const V_FILE = path.join(process.cwd(), "v.txt");
 const V_OLD_FILE = path.join(process.cwd(), "v.old.txt");
 
-const DM_RATE_LIMIT_MS = 5000;
-const DM_BATCH_SIZE = 4;
-const DM_BATCH_DELAY_MS = 60000;
+const DM_STAGGER_MS = 600;
+const DM_BATCH_SIZE = 8;
+const DM_BATCH_DELAY_MS = 5000;
 
 function isValidVersion(version: string): boolean {
 	const parts = version.split(".");
@@ -195,18 +195,15 @@ export async function checkAndNotifyRelease(client: Client): Promise<void> {
 	}
 
 	const alreadySentKey = `newsletter_sent_${currentVersion.replace(/\./g, "-")}`;
-	const alreadySent = (await metasTable.get(alreadySentKey)) as Record<
+	const initialSent = (await metasTable.get(alreadySentKey)) as Record<
 		string,
 		boolean
 	> | null;
-	const sentSet = new Set<string>(
-		alreadySent ? Object.keys(alreadySent) : []
-	);
 
 	let sent = 0;
 	let failed = 0;
 	let skipped = 0;
-	const ownerArray = [...ownerIds].filter((id) => !sentSet.has(id));
+	const ownerArray = [...ownerIds].filter((id) => !initialSent?.[id]);
 
 	if (ownerArray.length === 0) {
 		logger.log(
@@ -221,52 +218,61 @@ export async function checkAndNotifyRelease(client: Client): Promise<void> {
 	for (let i = 0; i < ownerArray.length; i += DM_BATCH_SIZE) {
 		const batch = ownerArray.slice(i, i + DM_BATCH_SIZE);
 
-		const results = await Promise.all(
-			batch.map(async (ownerId) => {
-				await new Promise((r) => setTimeout(r, DM_RATE_LIMIT_MS));
+		for (const ownerId of batch) {
+			// Re-read to catch owners already processed by another shard
+			const freshSent = (await metasTable.get(alreadySentKey)) as Record<
+				string,
+				boolean
+			> | null;
+			if (freshSent?.[ownerId]) {
+				skipped++;
+				continue;
+			}
 
-				const lang = await getOwnerLang(client, ownerId);
+			// Check newsletter blacklist
+			const bl = (await metasTable.get("newsletter_bl")) as Record<
+				string,
+				boolean
+			> | null;
+			if (bl?.[ownerId] === true) {
+				skipped++;
+				continue;
+			}
 
-				let guildId = "";
+			const lang = await getOwnerLang(client, ownerId);
 
-				for (const [, g] of client.guilds.cache) {
-					if (g.ownerId === ownerId) {
-						guildId = g.id;
-						const bl = (await metasTable.get(
-							"newsletter_bl"
-						)) as Record<string, boolean> | null;
-						if (bl?.[ownerId] === true) {
-							return "skipped";
-						}
-						break;
-					}
+			let guildId = "";
+			for (const [, g] of client.guilds.cache) {
+				if (g.ownerId === ownerId) {
+					guildId = g.id;
+					break;
 				}
+			}
 
-				const result = await sendDm(
-					client,
-					ownerId,
-					guildId,
-					currentVersion,
-					releaseUrl,
-					lang
-				);
+			const result = await sendDm(
+				client,
+				ownerId,
+				guildId,
+				currentVersion,
+				releaseUrl,
+				lang
+			);
 
-				if (result) {
-					sentSet.add(ownerId);
-					await metasTable.set(alreadySentKey, {
-						...alreadySent,
-						[ownerId]: true
-					});
-				}
+			if (result) {
+				sent++;
+				// Re-read fresh to avoid overwriting other shards' writes
+				const current = (await metasTable.get(
+					alreadySentKey
+				)) as Record<string, boolean> | null;
+				await metasTable.set(alreadySentKey, {
+					...current,
+					[ownerId]: true
+				});
+			} else {
+				failed++;
+			}
 
-				return result ? "sent" : "failed";
-			})
-		);
-
-		for (const result of results) {
-			if (result === "sent") sent++;
-			else if (result === "skipped") skipped++;
-			else failed++;
+			await new Promise((r) => setTimeout(r, DM_STAGGER_MS));
 		}
 
 		if (i + DM_BATCH_SIZE < ownerArray.length) {
