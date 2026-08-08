@@ -100,8 +100,6 @@ export const event: BotEvent = {
 		prefetchFloweryVoices();
 		cleanupOrphanedTTS(client);
 
-		checkAndNotifyRelease(client).catch(() => {});
-
 		async function fetchInvites() {
 			const guilds = [...client.guilds.cache.values()];
 			const batchSize = 5;
@@ -340,6 +338,8 @@ export const event: BotEvent = {
 		client.temproleManager.init();
 		client.tempbanManager.init();
 		client.giveawaysManager.init();
+		checkAndNotifyRelease(client).catch(() => {});
+
 		await client.email.init(true);
 
 		(setInterval(quotesPresence, 120_000),
