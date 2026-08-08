@@ -34,9 +34,9 @@ import { LanguageData } from "../../../types/languageData.js";
 const V_FILE = path.join(process.cwd(), "v.txt");
 const V_OLD_FILE = path.join(process.cwd(), "v.old.txt");
 
-const DM_STAGGER_MS = 600;
-const DM_BATCH_SIZE = 8;
-const DM_BATCH_DELAY_MS = 5000;
+const DM_STAGGER_MS = 10000;
+const DM_BATCH_SIZE = 1;
+const DM_BATCH_DELAY_MS = 15000;
 
 function isValidVersion(version: string): boolean {
 	const parts = version.split(".");
