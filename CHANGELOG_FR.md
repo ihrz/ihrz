@@ -45,7 +45,7 @@ Une nouvelle commande `+updates` (alias : `+changelog`, `+update`) permet de con
 
 ## 📰 Newsletter — restez informé automatiquement
 
-Les propriétaires de serveur reçoivent désormais une **notification automatique en DM** à chaque nouvelle version mineure d'iHorizon. Le message inclut le numéro de version, le lien de release et le changelog complet en PDF. Les propriétaires peuvent se désabonner à tout moment en un clic.
+Les propriétaires de serveur reçoivent désormais une **notification automatique en DM** à chaque nouvelle version d'iHorizon (majeure, mineure et patch). Le message inclut le numéro de version, le lien de release et le changelog complet en PDF. Les propriétaires peuvent se désabonner à tout moment en un clic.
 
 ---
 

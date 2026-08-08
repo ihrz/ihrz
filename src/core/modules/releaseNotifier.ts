@@ -38,14 +38,9 @@ const DM_RATE_LIMIT_MS = 5000;
 const DM_BATCH_SIZE = 4;
 const DM_BATCH_DELAY_MS = 60000;
 
-function isMinorRelease(version: string): boolean {
+function isValidVersion(version: string): boolean {
 	const parts = version.split(".");
-	return parts.length >= 2;
-}
-
-function getMinorKey(version: string): string {
-	const parts = version.split(".");
-	return parts[0] + "." + parts[1];
+	return parts.length >= 2 && parts.every((p) => /^\d+$/.test(p));
 }
 
 export async function writeVersionFile(version: string): Promise<void> {
@@ -167,33 +162,27 @@ export async function checkAndNotifyRelease(client: Client): Promise<void> {
 		return;
 	}
 
-	if (!isMinorRelease(currentVersion)) {
+	if (!isValidVersion(currentVersion)) {
 		logger.log(
 			"Release notifier: skipping, version " +
 				currentVersion +
-				" is a patch, not a minor release"
+				" is not a valid version format"
 		);
 		return;
 	}
 
 	const previousVersion = await readVersionFile(V_OLD_FILE);
-	if (previousVersion) {
-		const currentMinor = getMinorKey(currentVersion);
-		const previousMinor = getMinorKey(previousVersion);
-		if (currentMinor === previousMinor) {
-			logger.log(
-				"Release notifier: same minor version " +
-					currentMinor +
-					", skipping"
-			);
-			return;
-		}
+	if (previousVersion && currentVersion === previousVersion) {
+		logger.log(
+			"Release notifier: same version " + currentVersion + ", skipping"
+		);
+		return;
 	}
 
 	const releaseUrl = `${client.version.git_remote}/-/releases/${currentVersion}`;
 
 	logger.log(
-		"Release notifier: processing minor release " +
+		"Release notifier: processing release " +
 			currentVersion +
 			" (was " +
 			(previousVersion || "none") +

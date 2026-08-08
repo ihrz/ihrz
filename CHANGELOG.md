@@ -45,7 +45,7 @@ A new `+updates` command (aliases: `+changelog`, `+update`) lets you view the la
 
 ## 📰 Newsletter — stay up to date automatically
 
-Server owners now receive an automatic **DM notification** whenever a new minor version of iHorizon is released. The message includes the version number, release link, and the full changelog as a PDF. Owners can unsubscribe anytime with a single button.
+Server owners now receive an automatic **DM notification** whenever a new version of iHorizon is released (major, minor and patch). The message includes the version number, release link, and the full changelog as a PDF. Owners can unsubscribe anytime with a single button.
 
 ---
 
