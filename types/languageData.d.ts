@@ -2265,6 +2265,7 @@ export interface LanguageData {
 	guild_create_btn_repos: string;
 	guild_create_btn_support: string;
 	guild_create_btn_docs: string;
+	bot_server_bio: string;
 	guild_leave_data_clear_notice_title: string;
 	guild_leave_data_clear_notice_description: string;
 	guild_leave_data_clear_notice_message: string;
