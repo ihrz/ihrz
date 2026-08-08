@@ -38,7 +38,10 @@ export const command: Command = {
 	category: "",
 	description: "",
 	description_localizations: {
-		fr: ""
+		fr: "",
+		ja: "",
+		ru: "",
+		"es-ES": ""
 	},
 
 	permission: PermissionFlagsBits.AddReactions,

@@ -31,7 +31,10 @@ export const command: Command = {
 
 	description: "Pick the banner of specified things (Server/User)",
 	description_localizations: {
-		fr: "Récuperer la bannière des éléments spécifiés (serveur/utilisateur)"
+		fr: "Récuperer la bannière des éléments spécifiés (serveur/utilisateur)",
+		ja: "指定されたもののバナーを取得（サーバー/ユーザー）",
+		ru: "Взять баннер указанного объекта (Сервер/Пользователь)",
+		"es-ES": "Tomar el banner de cosas especificadas (Servidor/Usuario)"
 	},
 
 	category: "utils",
@@ -42,7 +45,10 @@ export const command: Command = {
 
 			description: "Get the banner of a specified user!",
 			description_localizations: {
-				fr: "Récuperer la bannière des éléments spécifiés (serveur/utilisateur)"
+				fr: "Récuperer la bannière des éléments spécifiés (serveur/utilisateur)",
+				ja: "指定ユーザーのバナーを取得！",
+				ru: "Получить баннер указанного пользователя!",
+				"es-ES": "Obtener el banner de un usuario especificado!"
 			},
 
 			aliases: ["userbanner", "ubanner"],
@@ -55,7 +61,10 @@ export const command: Command = {
 
 					description: "What the user then?",
 					description_localizations: {
-						fr: "Qu'est-ce que l'utilisateur alors ?"
+						fr: "Qu'est-ce que l'utilisateur alors ?",
+						ja: "どのユーザーですか？",
+						ru: "Какой пользователь?",
+						"es-ES": "Cual es el usuario entonces?"
 					},
 
 					required: false,
@@ -72,7 +81,10 @@ export const command: Command = {
 
 			description: "Get the banner of the server!",
 			description_localizations: {
-				fr: "Récupérer la bannière du serveur"
+				fr: "Récupérer la bannière du serveur",
+				ja: "サーバーのバナーを取得！",
+				ru: "Получить баннер сервера!",
+				"es-ES": "Obtener el banner del servidor!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,

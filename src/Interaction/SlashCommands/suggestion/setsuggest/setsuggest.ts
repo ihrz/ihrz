@@ -33,7 +33,10 @@ export const command: Command = {
 
 	description: "Subcommand for suggestion category!",
 	description_localizations: {
-		fr: "Commande sous-groupé pour la catégorie de suggestion"
+		fr: "Commande sous-groupé pour la catégorie de suggestion",
+		ja: "提案カテゴリのサブコマンド！",
+		ru: "Подкоманда для категории предложений!",
+		"es-ES": "Subcomando para la categoría de sugerencias!"
 	},
 
 	options: [
@@ -44,7 +47,10 @@ export const command: Command = {
 			description:
 				"Disable the suggestion module (need admin permission)!",
 			description_localizations: {
-				fr: "Désactivez le module de suggestion (besoin de l'autorisation de l'administrateur)"
+				fr: "Désactivez le module de suggestion (besoin de l'autorisation de l'administrateur)",
+				ja: "提案モジュールを無効化（管理者権限が必要）！",
+				ru: "Отключить модуль предложений (требуются права администратора)!",
+				"es-ES": "Deshabilitar el módulo de sugerencias (requiere permiso de administrador)!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -55,7 +61,10 @@ export const command: Command = {
 
 					description: "What you want to do ?",
 					description_localizations: {
-						fr: "Que veux-tu faire ?"
+						fr: "Que veux-tu faire ?",
+						ja: "何をしたいですか？",
+						ru: "Что вы хотите сделать?",
+						"es-ES": "Que quieres hacer?"
 					},
 
 					required: true,
@@ -63,14 +72,20 @@ export const command: Command = {
 						{
 							name: "Power On the Suggestion Module",
 							name_localizations: {
-								fr: "Activer le module de suggestion"
+								fr: "Activer le module de suggestion",
+								ja: "power_on_the_suggestion_module",
+								ru: "power_on_the_suggestion_module",
+								"es-ES": "power_on_the_suggestion_module"
 							},
 							value: "on"
 						},
 						{
 							name: "Power Off the Suggestion Module",
 							name_localizations: {
-								fr: "Désactiver le module de suggestion"
+								fr: "Désactiver le module de suggestion",
+								ja: "power_off_the_suggestion_module",
+								ru: "power_off_the_suggestion_module",
+								"es-ES": "power_off_the_suggestion_module"
 							},
 							value: "off"
 						}
@@ -89,7 +104,10 @@ export const command: Command = {
 			description:
 				"Set a channel for the Suggestion Module (need admin permission)!",
 			description_localizations: {
-				fr: "Définir un canal pour le module de suggestion (nécessite une autorisation d'administrateur)"
+				fr: "Définir un canal pour le module de suggestion (nécessite une autorisation d'administrateur)",
+				ja: "提案モジュール用のチャンネルを設定（管理者権限が必要）！",
+				ru: "Установить канал для модуля предложений (требуются права администратора)!",
+				"es-ES": "Establecer un canal para el módulo de sugerencias (requiere permiso de administrador)!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -101,7 +119,10 @@ export const command: Command = {
 
 					description: "What the channel for the suggestion place?",
 					description_localizations: {
-						fr: "Quel est le channel pour le lieu de suggestion ?"
+						fr: "Quel est le channel pour le lieu de suggestion ?",
+						ja: "提案を設置するチャンネルは？",
+						ru: "Какой канал для размещения предложений?",
+						"es-ES": "Cual es el canal para colocar las sugerencias?"
 					},
 
 					required: true,

@@ -34,7 +34,10 @@ export const command: Command = {
 
 	description: "Get unnecessary information about my developper Iris",
 	description_localizations: {
-		fr: "Obtenir des informations non nécessaires sur ma développeuse Iris!"
+		fr: "Obtenir des informations non nécessaires sur ma développeuse Iris!",
+		ja: "開発者Irisの不要な情報を取得",
+		ru: "Получить ненужную информацию о разработчице Iris",
+		"es-ES": "Obtener información innecesaria sobre mi desarrolladora Iris"
 	},
 
 	category: "bot",

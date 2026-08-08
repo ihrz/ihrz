@@ -33,7 +33,10 @@ export const command: Command = {
 
 	description: "Subcommand category for notifier!",
 	description_localizations: {
-		fr: "Commande sous-groupé pour la catégorie des notifications de vidéo/short/stream"
+		fr: "Commande sous-groupé pour la catégorie des notifications de vidéo/short/stream",
+		ja: "通知のサブコマンドカテゴリ！",
+		ru: "Категория подкоманд для уведомлений!",
+		"es-ES": "Categoría de subcomando para notificador!"
 	},
 
 	options: [
@@ -42,7 +45,10 @@ export const command: Command = {
 
 			description: "Streamer/Youtuber/Twitcher manipulation",
 			description_localizations: {
-				fr: "Manipulation pour les streamer, youtubeur, twticherm vidéaste"
+				fr: "Manipulation pour les streamer, youtubeur, twticherm vidéaste",
+				ja: "ストリーマー/YouTuber/Twitcherの操作",
+				ru: "Управление стримерами/YouTube/Twitch",
+				"es-ES": "Manipulación de Streamer/Youtuber/Twitcher"
 			},
 
 			type: ApplicationCommandOptionType.SubcommandGroup,
@@ -54,7 +60,10 @@ export const command: Command = {
 
 					description: "Add Streamer/Youtuber/Twitcher",
 					description_localizations: {
-						fr: "Ajouter Streamer/Youtuber/Twitcher"
+						fr: "Ajouter Streamer/Youtuber/Twitcher",
+						ja: "ストリーマー/YouTuber/Twitcherを追加",
+						ru: "Добавить стримера/YouTube/Twitch",
+						"es-ES": "Añadir Streamer/Youtuber/Twitcher"
 					},
 
 					type: ApplicationCommandOptionType.Subcommand,
@@ -66,7 +75,10 @@ export const command: Command = {
 							description:
 								"The Streamer/Youtuber/Twitcher platform",
 							description_localizations: {
-								fr: "La plateforme du Streamer/Youtuber/Twitcher"
+								fr: "La plateforme du Streamer/Youtuber/Twitcher",
+								ja: "ストリーマー/YouTuber/Twitcherのプラットフォーム",
+								ru: "Платформа стримера/YouTube/Twitch",
+								"es-ES": "La plataforma del Streamer/Youtuber/Twitcher"
 							},
 
 							type: ApplicationCommandOptionType.String,
@@ -74,12 +86,22 @@ export const command: Command = {
 							choices: [
 								{
 									name: "Youtube",
-									name_localizations: { fr: "Youtube" },
+									name_localizations: {
+										fr: "Youtube",
+										ja: "youtube",
+										ru: "youtube",
+										"es-ES": "youtube"
+									},
 									value: "youtube"
 								},
 								{
 									name: "Twitch",
-									name_localizations: { fr: "Twitch" },
+									name_localizations: {
+										fr: "Twitch",
+										ja: "twitch",
+										ru: "twitch",
+										"es-ES": "twitch"
+									},
 									value: "twitch"
 								}
 							],
@@ -93,7 +115,10 @@ export const command: Command = {
 
 							description: "The Streamer/Youtuber/Twitcher ID",
 							description_localizations: {
-								fr: "L'identifiant du Streamer/Youtuber/Twitcher"
+								fr: "L'identifiant du Streamer/Youtuber/Twitcher",
+								ja: "ストリーマー/YouTuber/TwitcherのID",
+								ru: "ID стримера/YouTube/Twitch",
+								"es-ES": "El ID del Streamer/Youtuber/Twitcher"
 							},
 
 							type: ApplicationCommandOptionType.String,
@@ -112,7 +137,10 @@ export const command: Command = {
 
 					description: "Remove Streamer/Youtuber/Twitcher",
 					description_localizations: {
-						fr: "Supprimer Streamer/Youtuber/Twitcher"
+						fr: "Supprimer Streamer/Youtuber/Twitcher",
+						ja: "ストリーマー/YouTuber/Twitcherを削除",
+						ru: "Удалить стримера/YouTube/Twitch",
+						"es-ES": "Eliminar Streamer/Youtuber/Twitcher"
 					},
 
 					type: ApplicationCommandOptionType.Subcommand,
@@ -124,7 +152,10 @@ export const command: Command = {
 							description:
 								"The Streamer/Youtuber/Twitcher platform",
 							description_localizations: {
-								fr: "La plateforme du Streamer/Youtuber/Twitcher"
+								fr: "La plateforme du Streamer/Youtuber/Twitcher",
+								ja: "ストリーマー/YouTuber/Twitcherのプラットフォーム",
+								ru: "Платформа стримера/YouTube/Twitch",
+								"es-ES": "La plataforma del Streamer/Youtuber/Twitcher"
 							},
 
 							type: ApplicationCommandOptionType.String,
@@ -132,12 +163,22 @@ export const command: Command = {
 							choices: [
 								{
 									name: "Youtube",
-									name_localizations: { fr: "Youtube" },
+									name_localizations: {
+										fr: "Youtube",
+										ja: "youtube",
+										ru: "youtube",
+										"es-ES": "youtube"
+									},
 									value: "youtube"
 								},
 								{
 									name: "Twitch",
-									name_localizations: { fr: "Twitch" },
+									name_localizations: {
+										fr: "Twitch",
+										ja: "twitch",
+										ru: "twitch",
+										"es-ES": "twitch"
+									},
 									value: "twitch"
 								}
 							],
@@ -151,7 +192,10 @@ export const command: Command = {
 
 							description: "The Streamer/Youtuber/Twitcher ID",
 							description_localizations: {
-								fr: "L'identifiant du Streamer/Youtuber/Twitcher"
+								fr: "L'identifiant du Streamer/Youtuber/Twitcher",
+								ja: "ストリーマー/YouTuber/TwitcherのID",
+								ru: "ID стримера/YouTube/Twitch",
+								"es-ES": "El ID del Streamer/Youtuber/Twitcher"
 							},
 
 							type: ApplicationCommandOptionType.String,
@@ -170,7 +214,10 @@ export const command: Command = {
 
 					description: "Show Streamer/Youtuber/Twitcher",
 					description_localizations: {
-						fr: "Afficher tout les Streamer/Youtuber/Twitcher configurer"
+						fr: "Afficher tout les Streamer/Youtuber/Twitcher configurer",
+						ja: "ストリーマー/YouTuber/Twitcherを表示",
+						ru: "Показать стримера/YouTube/Twitch",
+						"es-ES": "Mostrar Streamer/Youtuber/Twitcher"
 					},
 
 					type: ApplicationCommandOptionType.Subcommand,
@@ -186,7 +233,10 @@ export const command: Command = {
 
 			description: "Configuration for the Notifier Module",
 			description_localizations: {
-				fr: "La configuration pour le module de Notifier"
+				fr: "La configuration pour le module de Notifier",
+				ja: "Notifierモジュールの設定",
+				ru: "Настройка модуля Notifier",
+				"es-ES": "Configuración para el módulo Notifier"
 			},
 
 			options: [
@@ -196,7 +246,10 @@ export const command: Command = {
 					description:
 						"When a Streamer/Youtuber/Twitcher publish a video, iHorizon send a message in channel",
 					description_localizations: {
-						fr: "Lorsqu'un Streamer/Youtuber/Twitcher publie une vidéo, iHorizon envoie un message dans le canal"
+						fr: "Lorsqu'un Streamer/Youtuber/Twitcher publie une vidéo, iHorizon envoie un message dans le canal",
+						ja: "ストリーマー/YouTuber/Twitcherが動画を公開したら、iHorizonがチャンネルにメッセージを送信",
+						ru: "Когда стример/YouTube/Twitch публикует видео, iHorizon отправляет сообщение в канал",
+						"es-ES": "Cuando un Streamer/Youtuber/Twitcher publica un video, iHorizon envía un mensaje en el canal"
 					},
 
 					options: [
@@ -205,7 +258,10 @@ export const command: Command = {
 
 							description: "The channel",
 							description_localizations: {
-								fr: "Le salon textuelle"
+								fr: "Le salon textuelle",
+								ja: "チャンネル",
+								ru: "Канал",
+								"es-ES": "El canal"
 							},
 
 							channel_types: [
@@ -229,7 +285,10 @@ export const command: Command = {
 					description:
 						"When a Streamer/Youtuber/Twitcher publish a video, iHorizon send a message",
 					description_localizations: {
-						fr: "Lorsqu'un Streamer/Youtuber/Twitcher publie une vidéo, iHorizon envoie un message"
+						fr: "Lorsqu'un Streamer/Youtuber/Twitcher publie une vidéo, iHorizon envoie un message",
+						ja: "ストリーマー/YouTuber/Twitcherが動画を公開したら、iHorizonがメッセージを送信",
+						ru: "Когда стример/YouTube/Twitch публикует видео, iHorizon отправляет сообщение",
+						"es-ES": "Cuando un Streamer/Youtuber/Twitcher publica un video, iHorizon envía un mensaje"
 					},
 
 					type: ApplicationCommandOptionType.Subcommand,

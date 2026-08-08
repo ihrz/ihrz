@@ -41,7 +41,10 @@ export const command: Command = {
 
 	description: "Set a logs channel for Audits Logs!",
 	description_localizations: {
-		fr: "Définir des canaux de journaux pour les journaux d'audit"
+		fr: "Définir des canaux de journaux pour les journaux d'audit",
+		ja: "監査ログ用のログチャンネルを設定！",
+		ru: "Установить канал для аудита!",
+		"es-ES": "Establecer un canal de registros para los registros de auditoría!"
 	},
 
 	aliases: ["logs", "setlog"],
@@ -52,70 +55,131 @@ export const command: Command = {
 			type: ApplicationCommandOptionType.String,
 			description: "Specified logs category",
 			description_localizations: {
-				fr: "Spécifier le canal de journaux"
+				fr: "Spécifier le canal de journaux",
+				ja: "指定されたログカテゴリ",
+				ru: "Указанная категория логов",
+				"es-ES": "Categoría de registros especificada"
 			},
 			required: true,
 			choices: [
 				{
 					name: "Setup all channels",
-					name_localizations: { fr: "Configurer tous les canaux" },
+					name_localizations: {
+						fr: "Configurer tous les canaux",
+						ja: "setup_all_channels",
+						ru: "setup_all_channels",
+						"es-ES": "setup_all_channels"
+					},
 					value: "auto"
 				},
 				{
 					name: "Delete all settings",
 					name_localizations: {
-						fr: "Supprimer toutes les configurations"
+						fr: "Supprimer toutes les configurations",
+						ja: "delete_all_settings",
+						ru: "delete_all_settings",
+						"es-ES": "delete_all_settings"
 					},
 					value: "off"
 				},
 				{
 					name: "AntiSpam Logs",
-					name_localizations: { fr: "Logs AntiSpam" },
+					name_localizations: {
+						fr: "Logs AntiSpam",
+						ja: "antispam_logs",
+						ru: "antispam_logs",
+						"es-ES": "antispam_logs"
+					},
 					value: "antispam"
 				},
 				{
 					name: "Boost Logs",
-					name_localizations: { fr: "Logs Boost" },
+					name_localizations: {
+						fr: "Logs Boost",
+						ja: "boost_logs",
+						ru: "boost_logs",
+						"es-ES": "boost_logs"
+					},
 					value: "boost"
 				},
 				{
 					name: "Channel Logs",
-					name_localizations: { fr: "Logs Canal" },
+					name_localizations: {
+						fr: "Logs Canal",
+						ja: "channel_logs",
+						ru: "channel_logs",
+						"es-ES": "channel_logs"
+					},
 					value: "channel"
 				},
 				{
 					name: "Messages Logs",
-					name_localizations: { fr: "Logs Messages" },
+					name_localizations: {
+						fr: "Logs Messages",
+						ja: "messages_logs",
+						ru: "messages_logs",
+						"es-ES": "messages_logs"
+					},
 					value: "message"
 				},
 				{
 					name: "Moderation Logs",
-					name_localizations: { fr: "Logs Modération" },
+					name_localizations: {
+						fr: "Logs Modération",
+						ja: "moderation_logs",
+						ru: "moderation_logs",
+						"es-ES": "moderation_logs"
+					},
 					value: "moderation"
 				},
 				{
 					name: "Roles Logs",
-					name_localizations: { fr: "Logs Rôles" },
+					name_localizations: {
+						fr: "Logs Rôles",
+						ja: "roles_logs",
+						ru: "roles_logs",
+						"es-ES": "roles_logs"
+					},
 					value: "roles"
 				},
 				{
 					name: "Ticket Logs",
-					name_localizations: { fr: "Logs Ticket" },
+					name_localizations: {
+						fr: "Logs Ticket",
+						ja: "ticket_logs",
+						ru: "ticket_logs",
+						"es-ES": "ticket_logs"
+					},
 					value: "ticket"
 				},
 				{
 					name: "Voice Logs",
-					name_localizations: { fr: "Logs Voice" },
+					name_localizations: {
+						fr: "Logs Voice",
+						ja: "voice_logs",
+						ru: "voice_logs",
+						"es-ES": "voice_logs"
+					},
 					value: "voice"
 				},
 				{
 					name: "Confession Logs",
-					name_localizations: { fr: "Logs Confession" },
+					name_localizations: {
+						fr: "Logs Confession",
+						ja: "confession_logs",
+						ru: "confession_logs",
+						"es-ES": "confession_logs"
+					},
 					value: "confession"
 				},
 				{
 					name: "Economy Logs",
-					name_localizations: { fr: "Logs d'économie" },
+					name_localizations: {
+						fr: "Logs d'économie",
+						ja: "economy_logs",
+						ru: "economy_logs",
+						"es-ES": "economy_logs"
+					},
 					value: "economy"
 				}
 			],
@@ -128,7 +192,10 @@ export const command: Command = {
 			channel_types: [ChannelType.GuildText],
 			description: "The channel you want your logs message!",
 			description_localizations: {
-				fr: "Le canal sur lequel vous souhaitez recevoir votre message de journaux"
+				fr: "Le canal sur lequel vous souhaitez recevoir votre message de journaux",
+				ja: "ログメッセージを送信したいチャンネル！",
+				ru: "Канал для сообщений логов!",
+				"es-ES": "El canal donde quieres tus mensajes de registro!"
 			},
 			required: false,
 			permission: null

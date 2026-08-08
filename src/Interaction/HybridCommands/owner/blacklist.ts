@@ -45,7 +45,10 @@ export const command: Command = {
 
 	description: "Add a user to the blacklist!",
 	description_localizations: {
-		fr: "Ajoutez un utilisateur à la liste noir"
+		fr: "Ajoutez un utilisateur à la liste noir",
+		ja: "ユーザーをブラックリストに追加！",
+		ru: "Добавить пользователя в черный список!",
+		"es-ES": "Añadir un usuario a la lista negra!"
 	},
 
 	options: [
@@ -55,7 +58,10 @@ export const command: Command = {
 
 			description: "The user you want to blacklist...",
 			description_localizations: {
-				fr: "L'utilisateur que vous voulez blacklist"
+				fr: "L'utilisateur que vous voulez blacklist",
+				ja: "ブラックリストに入れたいユーザー...",
+				ru: "Пользователь, которого вы хотите добавить в черный список...",
+				"es-ES": "El usuario que quieres poner en lista negra..."
 			},
 
 			required: false,
@@ -68,7 +74,10 @@ export const command: Command = {
 
 			description: "The reason why you want to blacklist this member",
 			description_localizations: {
-				fr: "La raison de pourquoi vous voulez le mettre dans la liste-noire"
+				fr: "La raison de pourquoi vous voulez le mettre dans la liste-noire",
+				ja: "このメンバーをブラックリストに入れる理由",
+				ru: "Причина добавления в черный список",
+				"es-ES": "La razón por la que quieres poner en lista negra a este miembro"
 			},
 
 			required: false,

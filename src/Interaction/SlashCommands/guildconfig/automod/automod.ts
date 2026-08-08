@@ -33,7 +33,10 @@ export const command: Command = {
 
 	description: "Subcommand for automod category!",
 	description_localizations: {
-		fr: "Commande sous-groupé pour la catégorie de protection via l'automod"
+		fr: "Commande sous-groupé pour la catégorie de protection via l'automod",
+		ja: "オートモデレーションカテゴリのサブコマンド！",
+		ru: "Подкоманда для категории автомода!",
+		"es-ES": "Subcomando para la categoría automod!"
 	},
 
 	options: [
@@ -42,7 +45,10 @@ export const command: Command = {
 
 			description: "Block/Protect someting/behaviours into this guild!",
 			description_localizations: {
-				fr: "Bloquer/Protéger certains comportements/comportements dans ce serveur"
+				fr: "Bloquer/Protéger certains comportements/comportements dans ce serveur",
+				ja: "このサーバー内の何か/行動をブロック/保護！",
+				ru: "Заблокировать/защитить что-либо на этом сервере!",
+				"es-ES": "Bloquear/Proteger algo/comportamientos en este servidor!"
 			},
 
 			type: ApplicationCommandOptionType.SubcommandGroup,
@@ -53,7 +59,10 @@ export const command: Command = {
 					description:
 						"Allow/Unallow the user to send a server invites into them messages!",
 					description_localizations: {
-						fr: "Autoriser/Interdire à l'utilisateur d'envoyer une invitations de serveur dans ses messages"
+						fr: "Autoriser/Interdire à l'utilisateur d'envoyer une invitations de serveur dans ses messages",
+						ja: "ユーザーがサーバー招待を送信するのを許可/禁止！",
+						ru: "Разрешить/запретить отправку приглашений сервера!",
+						"es-ES": "Permitir/Denegar al usuario enviar invitaciones de servidor en sus mensajes!"
 					},
 
 					type: ApplicationCommandOptionType.Subcommand,
@@ -64,19 +73,32 @@ export const command: Command = {
 
 							description: "What you want to do?",
 							description_localizations: {
-								fr: "Que veux-tu faire?"
+								fr: "Que veux-tu faire?",
+								ja: "何をしたいですか？",
+								ru: "Что вы хотите сделать?",
+								"es-ES": "Que quieres hacer?"
 							},
 
 							required: true,
 							choices: [
 								{
 									name: "Power On",
-									name_localizations: { fr: "Activer" },
+									name_localizations: {
+										fr: "Activer",
+										ja: "power_on",
+										ru: "power_on",
+										"es-ES": "power_on"
+									},
 									value: "on"
 								},
 								{
 									name: "Power Off",
-									name_localizations: { fr: "Désactiver" },
+									name_localizations: {
+										fr: "Désactiver",
+										ja: "power_off",
+										ru: "power_off",
+										"es-ES": "power_off"
+									},
 									value: "off"
 								}
 							],
@@ -88,7 +110,10 @@ export const command: Command = {
 							description:
 								"The channel you want logs when user break the rules!",
 							description_localizations: {
-								fr: "Le canal où vous souhaitez mettre les logs lorsque l'utilisateur enfreint les règles"
+								fr: "Le canal où vous souhaitez mettre les logs lorsque l'utilisateur enfreint les règles",
+								ja: "ユーザーがルールを破った時のログを送信するチャンネル！",
+								ru: "Канал для логов при нарушении правил!",
+								"es-ES": "El canal donde quieres los registros cuando el usuario rompe las reglas!"
 							},
 
 							type: ApplicationCommandOptionType.Channel,
@@ -107,7 +132,10 @@ export const command: Command = {
 					description:
 						"Allow/Unallow the user to send Telegram links into them messages!",
 					description_localizations: {
-						fr: "Autoriser/Interdire à l'utilisateur d'envoyer des liens Telegram dans ses messages"
+						fr: "Autoriser/Interdire à l'utilisateur d'envoyer des liens Telegram dans ses messages",
+						ja: "ユーザーがTelegramリンクを送信するのを許可/禁止！",
+						ru: "Разрешить/запретить отправку ссылок Telegram!",
+						"es-ES": "Permitir/Denegar al usuario enviar enlaces de Telegram en sus mensajes!"
 					},
 
 					type: ApplicationCommandOptionType.Subcommand,
@@ -118,19 +146,32 @@ export const command: Command = {
 
 							description: "What you want to do?",
 							description_localizations: {
-								fr: "Que veux-tu faire?"
+								fr: "Que veux-tu faire?",
+								ja: "何をしたいですか？",
+								ru: "Что вы хотите сделать?",
+								"es-ES": "Que quieres hacer?"
 							},
 
 							required: true,
 							choices: [
 								{
 									name: "Power On",
-									name_localizations: { fr: "Activer" },
+									name_localizations: {
+										fr: "Activer",
+										ja: "power_on",
+										ru: "power_on",
+										"es-ES": "power_on"
+									},
 									value: "on"
 								},
 								{
 									name: "Power Off",
-									name_localizations: { fr: "Désactiver" },
+									name_localizations: {
+										fr: "Désactiver",
+										ja: "power_off",
+										ru: "power_off",
+										"es-ES": "power_off"
+									},
 									value: "off"
 								}
 							],
@@ -142,7 +183,10 @@ export const command: Command = {
 							description:
 								"The channel you want logs when user break the rules!",
 							description_localizations: {
-								fr: "Le canal où vous souhaitez mettre les logs lorsque l'utilisateur enfreint les règles"
+								fr: "Le canal où vous souhaitez mettre les logs lorsque l'utilisateur enfreint les règles",
+								ja: "ユーザーがルールを破った時のログを送信するチャンネル！",
+								ru: "Канал для логов при нарушении правил!",
+								"es-ES": "El canal donde quieres los registros cuando el usuario rompe las reglas!"
 							},
 
 							type: ApplicationCommandOptionType.Channel,
@@ -161,7 +205,10 @@ export const command: Command = {
 					description:
 						"Allow/Unallow the user to send links into them messages!",
 					description_localizations: {
-						fr: "Autoriser/Interdire à l'utilisateur d'envoyer des liens dans ses messages"
+						fr: "Autoriser/Interdire à l'utilisateur d'envoyer des liens dans ses messages",
+						ja: "ユーザーがリンクを送信するのを許可/禁止！",
+						ru: "Разрешить/запретить отправку ссылок!",
+						"es-ES": "Permitir/Denegar al usuario enviar enlaces en sus mensajes!"
 					},
 
 					type: ApplicationCommandOptionType.Subcommand,
@@ -172,19 +219,32 @@ export const command: Command = {
 
 							description: "What you want to do?",
 							description_localizations: {
-								fr: "Que veux-tu faire?"
+								fr: "Que veux-tu faire?",
+								ja: "何をしたいですか？",
+								ru: "Что вы хотите сделать?",
+								"es-ES": "Que quieres hacer?"
 							},
 
 							required: true,
 							choices: [
 								{
 									name: "Power On",
-									name_localizations: { fr: "Activer" },
+									name_localizations: {
+										fr: "Activer",
+										ja: "power_on",
+										ru: "power_on",
+										"es-ES": "power_on"
+									},
 									value: "on"
 								},
 								{
 									name: "Power Off",
-									name_localizations: { fr: "Désactiver" },
+									name_localizations: {
+										fr: "Désactiver",
+										ja: "power_off",
+										ru: "power_off",
+										"es-ES": "power_off"
+									},
 									value: "off"
 								}
 							],
@@ -196,7 +256,10 @@ export const command: Command = {
 							description:
 								"The channel you want logs when user break the rules!",
 							description_localizations: {
-								fr: "Le canal où vous souhaitez mettre les logs lorsque l'utilisateur enfreint les règles"
+								fr: "Le canal où vous souhaitez mettre les logs lorsque l'utilisateur enfreint les règles",
+								ja: "ユーザーがルールを破った時のログを送信するチャンネル！",
+								ru: "Канал для логов при нарушении правил!",
+								"es-ES": "El canal donde quieres los registros cuando el usuario rompe las reglas!"
 							},
 
 							type: ApplicationCommandOptionType.Channel,
@@ -214,7 +277,10 @@ export const command: Command = {
 
 					description: "Block the spam message in this server!",
 					description_localizations: {
-						fr: "Bloquer le message spam sur ce serveur"
+						fr: "Bloquer le message spam sur ce serveur",
+						ja: "このサーバーでのスパムメッセージをブロック！",
+						ru: "Блокировать спам-сообщения на этом сервере!",
+						"es-ES": "Bloquear los mensajes de spam en este servidor!"
 					},
 
 					type: ApplicationCommandOptionType.Subcommand,
@@ -225,19 +291,32 @@ export const command: Command = {
 
 							description: "What you want to do?",
 							description_localizations: {
-								fr: "Que veux-tu faire?"
+								fr: "Que veux-tu faire?",
+								ja: "何をしたいですか？",
+								ru: "Что вы хотите сделать?",
+								"es-ES": "Que quieres hacer?"
 							},
 
 							required: true,
 							choices: [
 								{
 									name: "Power On",
-									name_localizations: { fr: "Activer" },
+									name_localizations: {
+										fr: "Activer",
+										ja: "power_on",
+										ru: "power_on",
+										"es-ES": "power_on"
+									},
 									value: "on"
 								},
 								{
 									name: "Power Off",
-									name_localizations: { fr: "Désactiver" },
+									name_localizations: {
+										fr: "Désactiver",
+										ja: "power_off",
+										ru: "power_off",
+										"es-ES": "power_off"
+									},
 									value: "off"
 								}
 							],
@@ -249,7 +328,10 @@ export const command: Command = {
 							description:
 								"The channel you want logs when user break the rules",
 							description_localizations: {
-								fr: "Le canal où vous souhaitez mettre les logs lorsque l'utilisateur enfreint les règles"
+								fr: "Le canal où vous souhaitez mettre les logs lorsque l'utilisateur enfreint les règles",
+								ja: "ユーザーがルールを破った時のログを送信するチャンネル",
+								ru: "Канал для логов при нарушении правил",
+								"es-ES": "El canal donde quieres los registros cuando el usuario rompe las reglas"
 							},
 
 							type: ApplicationCommandOptionType.Channel,
@@ -268,7 +350,10 @@ export const command: Command = {
 					description:
 						"Block the spam which have mass-mention in this message!",
 					description_localizations: {
-						fr: "Bloquez les spams mentionnés en masse dans ce message"
+						fr: "Bloquez les spams mentionnés en masse dans ce message",
+						ja: "大量メンションを含むスパムをブロック！",
+						ru: "Блокировать спам с массовыми упоминаниями!",
+						"es-ES": "Bloquear el spam que tiene menciones masivas en este mensaje!"
 					},
 
 					type: ApplicationCommandOptionType.Subcommand,
@@ -279,19 +364,32 @@ export const command: Command = {
 
 							description: "What you want to do?",
 							description_localizations: {
-								fr: "Que voulez-vous faire?"
+								fr: "Que voulez-vous faire?",
+								ja: "何をしたいですか？",
+								ru: "Что вы хотите сделать?",
+								"es-ES": "Que quieres hacer?"
 							},
 
 							required: true,
 							choices: [
 								{
 									name: "Power On",
-									name_localizations: { fr: "Activer" },
+									name_localizations: {
+										fr: "Activer",
+										ja: "power_on",
+										ru: "power_on",
+										"es-ES": "power_on"
+									},
 									value: "on"
 								},
 								{
 									name: "Power Off",
-									name_localizations: { fr: "Désactiver" },
+									name_localizations: {
+										fr: "Désactiver",
+										ja: "power_off",
+										ru: "power_off",
+										"es-ES": "power_off"
+									},
 									value: "off"
 								}
 							],
@@ -304,7 +402,10 @@ export const command: Command = {
 							description:
 								"Max amount of mention allowed in only one message !",
 							description_localizations: {
-								fr: "Nombre maximum de mentions autorisées dans un seul message"
+								fr: "Nombre maximum de mentions autorisées dans un seul message",
+								ja: "1つのメッセージで許可される最大メンション数！",
+								ru: "Максимальное количество упоминаний в одном сообщении!",
+								"es-ES": "Cantidad máxima de menciones permitidas en un solo mensaje!"
 							},
 
 							required: false,
@@ -316,7 +417,10 @@ export const command: Command = {
 							description:
 								"The channel you want logs when user break the rules",
 							description_localizations: {
-								fr: "Le canal où vous souhaitez mettre les logs lorsque l'utilisateur enfreint les règles"
+								fr: "Le canal où vous souhaitez mettre les logs lorsque l'utilisateur enfreint les règles",
+								ja: "ユーザーがルールを破った時のログを送信するチャンネル",
+								ru: "Канал для логов при нарушении правил",
+								"es-ES": "El canal donde quieres los registros cuando el usuario rompe las reglas"
 							},
 
 							type: ApplicationCommandOptionType.Channel,

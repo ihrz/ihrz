@@ -32,7 +32,10 @@ export const command: Command = {
 
 	description: "Get statistics about the lang in the iHorizon Discord Bot",
 	description_localizations: {
-		fr: "Obtenir des informations sur l'utilisation des langues à travers tout les serveur discord du bot iHorizon"
+		fr: "Obtenir des informations sur l'utilisation des langues à travers tout les serveur discord du bot iHorizon",
+		ja: "iHorizon Discord Botの言語統計を取得",
+		ru: "Получить статистику языков в iHorizon",
+		"es-ES": "Obtener estadísticas sobre el idioma en el Bot de Discord iHorizon"
 	},
 
 	aliases: [],

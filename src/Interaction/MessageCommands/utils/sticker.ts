@@ -30,7 +30,10 @@ export const command: Command = {
 
 	description: "Add a sticker from the replied message",
 	description_localizations: {
-		fr: "Créer un sticker depuis un message répondu"
+		fr: "Créer un sticker depuis un message répondu",
+		ja: "返信メッセージからスタンプを追加",
+		ru: "Добавить стикер из ответного сообщения",
+		"es-ES": "Añadir un sticker del mensaje respondido"
 	},
 
 	thinking: false,

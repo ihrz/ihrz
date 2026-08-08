@@ -33,7 +33,10 @@ export const command: Command = {
 
 	description: "Count number into a channel",
 	description_localizations: {
-		fr: "Compter les nombres dans un salon"
+		fr: "Compter les nombres dans un salon",
+		ja: "チャンネル内でカウント",
+		ru: "Считать число в канале",
+		"es-ES": "Contar número en un canal"
 	},
 
 	options: [
@@ -43,7 +46,10 @@ export const command: Command = {
 
 			description: "Set the counter module's channel!",
 			description_localizations: {
-				fr: "Définir le canal du module counter"
+				fr: "Définir le canal du module counter",
+				ja: "カウンターモジュールのチャンネルを設定！",
+				ru: "Установить канал модуля счетчика!",
+				"es-ES": "Establecer el canal del módulo contador!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -54,7 +60,10 @@ export const command: Command = {
 
 					description: "The channel!",
 					description_localizations: {
-						fr: "Le channel"
+						fr: "Le channel",
+						ja: "チャンネル！",
+						ru: "Канал!",
+						"es-ES": "El canal!"
 					},
 
 					channel_types: [ChannelType.GuildText],
@@ -73,7 +82,10 @@ export const command: Command = {
 
 			description: "Enable or Disable the counter module!",
 			description_localizations: {
-				fr: "Activer ou désactiver le module compteur"
+				fr: "Activer ou désactiver le module compteur",
+				ja: "カウンターモジュールを有効化または無効化！",
+				ru: "Включить или отключить модуль счетчика!",
+				"es-ES": "Habilitar o Deshabilitar el módulo contador!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -84,19 +96,32 @@ export const command: Command = {
 
 					description: "What do you want to do ?",
 					description_localizations: {
-						fr: "Que voulez-vous faire ?"
+						fr: "Que voulez-vous faire ?",
+						ja: "何をしたいですか？",
+						ru: "Что вы хотите сделать?",
+						"es-ES": "Que quieres hacer?"
 					},
 
 					required: true,
 					choices: [
 						{
 							name: "Power On",
-							name_localizations: { fr: "Activer" },
+							name_localizations: {
+								fr: "Activer",
+								ja: "power_on",
+								ru: "power_on",
+								"es-ES": "power_on"
+							},
 							value: "on"
 						},
 						{
 							name: "Power Off",
-							name_localizations: { fr: "Désactiver" },
+							name_localizations: {
+								fr: "Désactiver",
+								ja: "power_off",
+								ru: "power_off",
+								"es-ES": "power_off"
+							},
 							value: "off"
 						}
 					],

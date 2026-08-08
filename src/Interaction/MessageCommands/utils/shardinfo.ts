@@ -36,7 +36,10 @@ export const command: Command = {
 
 	description: "...",
 	description_localizations: {
-		fr: "..."
+		fr: "...",
+		ja: "...",
+		ru: "...",
+		"es-ES": "..."
 	},
 
 	thinking: false,

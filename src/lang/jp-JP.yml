@@ -2081,11 +2081,31 @@ support_command_guild_not_have_tag: ":x: | このサーバーには現在タグ�
 support_command_work_2: "${interaction.guild.name} のサポートモジュールが設定されました。\nユーザーがサーバータグを設定すると、\n<@&${roles.id}> のロールを付与します！"
 
 # /setserverlang
+
+updates_embed_title: "iHorizon アップデート"
+updates_embed_description: "iHorizonの最新の変更とアップデートです。"
+updates_field_version: "バージョン"
+updates_field_commit: "最新コミット"
+updates_field_branch: "ブランチ"
+updates_field_links: "リンク"
+updates_changelog_attached: "完全なチェンジログはPDFで添付されています。"
+newsletter_dm_title: "iHorizon {version} - Release Notes"
+newsletter_dm_body: "{owner}さん、こんにちは。\n\niHorizonの新しいメジャーバージョンがデプロイされました。\n\n**バージョン**: {version}\n**リリース**: {releaseUrl}\n\n完全なチェンジログはPDFで添付されています。\n\nヘルプが必要ですか？サポートサーバーに参加してください: https://discord.gg/ihorizon\n-# +updates を使用するか、下のボタンで購読を管理してください。"
+newsletter_btn_unsubscribe: "Unsubscribe from newsletter"
+newsletter_btn_subscribe: "Subscribe to newsletter"
+newsletter_not_owner: "あはは、私のコードの変更をリアルタイムで見たいと思ってくれるなんて嬉しいよ :3\n\n**でもね、まずは私をDiscordサーバーに追加してね：**\n\n<https://discord.com/oauth2/authorize?client_id=${clientId}>\n**そうすれば最新情報をお届けするよ。**\n\n> 別の方法：discord.gg/ihorizon に参加することもできるよ。創設者たちがアップデートのたびにチェンジログをピンしてくれるんだ。お好きな方を選んでね :3"
+newsletter_toggle_enabled: "Newsletter notifications enabled."
+newsletter_toggle_disabled: "Newsletter notifications disabled."
 setserverlang_not_admin: ":x: | このコマンドを使用するには、サーバーの管理者である必要があります！"
 setserverlang_logs_embed_title_on_enable: "SetServerLangログ"
 setserverlang_logs_embed_description_on_enable: "<@${interaction.user.id}>はiHorizonの言語を**${type}**に設定しました！"
 setserverlang_already: "既にこの言語で動作しています！"
 setserverlang_command_work_enable: "私の言語は今**${type}**になりました"
+setserverlang_panel_title: "言語選択"
+setserverlang_panel_description: "このサーバーでiHorizonが使用する言語を選択してください。"
+setserverlang_panel_current: "現在の言語"
+setserverlang_panel_select: "言語を選択..."
+setserverlang_panel_saved: "言語が正常に変更されました！"
 setserverlang_command_error_enable: "エラー！"
 
 # /embed
@@ -3012,6 +3032,14 @@ new_guild_embed_title:
     - "新しい冒険が始まります！🚀"
     - "素晴らしいメンバーが到着しました！✨"
 new_guild_embed_desc: "## ${randomMessage}\nこんにちは、素晴らしい友達たち！\n\n私はiHorizon、あなたのDiscord体験を特別で楽しいものにするために設計された高度なボットです。\n\n✨ **私ができること：**\n• インテリジェントでプロフェッショナルなサーバー管理\n• インタラクティブなゲームと無限のエンターテイメント\n• コミュニティ組織のための便利なツール\n• 24時間365日のテクニカルサポート\n\n私のコマンドを探索し、無限の可能性の世界に飛び込んでください。\n一緒に美しい思い出でいっぱいの素晴らしいコミュニティを構築しましょう！\n\n私を選んでくれてありがとう、この素晴らしい冒険を始めましょう！🌟"
+new_guild_owner_dm_title: "iHorizonファミリーへようこそ！"
+new_guild_owner_dm_description: "# iHorizonをサーバーに追加してくれてありがとう！\n\n> *待って...それだけ？いいえ、絶対に違います。*\n\niHorizonはDiscordボットです。でもそれだけじゃない。コミュニティであり、伝説であり、6年以上（2020年）かけて構築されたプロジェクトです。\niHorizonを使うことは、完全なDiscordボットを持つことだけではなく、永遠に**無料**で**オープンソース**。それは**コンセプト**を受け入れることでもあります。\n\n> **無料のDiscordボットは有料ボットよりも良い仕事ができる。**\n*そう、それがiHorizon：情熱的な人々によって6年間維持されてきた完全なボットです。*\n\nそう...このメッセージの後、ありがとう。\n私たちはレギオンです。#ihorizon"
+guild_create_btn_invite: "iHorizonを招待"
+guild_create_btn_website: "iHorizonウェブサイト"
+guild_create_btn_search: "iHorizon検索"
+guild_create_btn_repos: "iHorizonリポジトリ"
+guild_create_btn_support: "サポートサーバー"
+guild_create_btn_docs: "iHorizonドキュメント"
 guild_leave_data_clear_notice_title: "iHorizonが${guild.name}を退出しました"
 guild_leave_data_clear_notice_description: "えーん、悲しいです。`${guild.name}`からボットをキックしました。iHorizonがそれまでに戻らない場合、サーバーデータは${deleteAt}に削除されます。"
 guild_leave_data_clear_notice_message: "えーん、悲しいです。`${guild.name}`からiHorizonをキックしました。データは${deleteAt}に削除されます。"
@@ -3166,3 +3194,42 @@ honeypot_log_no_content: "テキスト内容なし"
 honeypot_log_action_ban: "ユーザーをバン"
 honeypot_log_action_kick: "ユーザーをキック"
 honeypot_log_action_none: "アクションなし"
+
+# TTSモジュール
+# /tts join, /tts leave, /tts info, /tts lang
+
+help_tts_fields: "TTS"
+help_tts_dsc: "> *iHorizonでボイスチャンネルのテキストを音声に変換！*"
+
+# /tts join
+tts_join_not_in_voice: "${client.iHorizon_Emojis.No} このコマンドを使用するにはボイスチャンネルに接続する必要があります！"
+tts_join_already_enabled: "${client.iHorizon_Emojis.No} TTSモジュールはこのサーバーで既に有効です！"
+tts_join_music_playing: "${client.iHorizon_Emojis.No} このサーバーでは現在音楽が再生中です。TTSを有効にする前に音楽を停止してください。"
+tts_join_enabled: "${client.iHorizon_Emojis.Yes} TTSモードが${voiceChannel}で有効になりました！"
+tts_join_error: "${client.iHorizon_Emojis.No} TTSモードの有効化中にエラーが発生しました。"
+tts_join_lang_fallback: "jp-JP"
+
+# /tts leave
+tts_leave_not_active: "${client.iHorizon_Emojis.No} TTSモジュールは現在このサーバーで有効ではありません！"
+tts_leave_not_in_voice: "${client.iHorizon_Emojis.No} TTSを無効にするにはTTSボイスチャンネルにいる必要があります！"
+tts_leave_disabled: "${client.iHorizon_Emojis.Yes} TTSモードがこのサーバーで無効になりました！"
+
+# /tts info
+tts_info_embed_title: "TTSモジュール情報"
+tts_info_embed_description: "TTS（Text-to-Speech）モジュールは、iHorizonがボイスチャンネルでメッセージを読み上げることを可能にします。有効にすると、ボイスチャンネルにいるメンバーが設定されたテキストチャンネルに送信した各メッセージがiHorizonによって読み上げられます。"
+tts_info_field_status: "ステータス"
+tts_info_field_lang: "TTS言語"
+tts_info_field_howto: "使い方"
+tts_info_howto_value: "`/tts join` でボイスチャンネルでTTSを開始します。\n`/tts leave` でTTSを停止します。\n`/tts lang` で音声言語を変更します。"
+
+# /tts lang
+tts_lang_not_active: "${client.iHorizon_Emojis.No} TTSモジュールは現在このサーバーで有効ではありません！"
+tts_lang_set: "${client.iHorizon_Emojis.Yes} TTS言語が `${language}` に設定されました。"
+
+# TTS Embed
+tts_embed_title: "TTSモード有効"
+tts_embed_description: "TTSモジュールが${voiceChannel}で有効になりました。\nボイスチャンネルにいるメンバーがここに送信したすべてのメッセージが読み上げられます。\n\n**ボイスチャンネルのメンバー:** ${members}"
+tts_embed_footer: "/tts leave でTTSを停止"
+tts_join_not_text_based: "${client.iHorizon_Emojis.No} このボイスチャンネルはテキストメッセージをサポートしていません。テキストインボイスを有効にするか、別のボイスチャンネルを使用してください。"
+tts_music_blocked: "${client.iHorizon_Emojis.No} TTSモジュールが現在有効です。音楽を再生する前にTTSを無効にしてください。"
+tts_voice_status: "TTSモード - 音声合成"

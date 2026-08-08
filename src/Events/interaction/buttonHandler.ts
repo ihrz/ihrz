@@ -25,19 +25,22 @@ import { BotEvent } from "../../../types/event.js";
 export const event: BotEvent = {
 	name: "interactionCreate",
 	run: async (client: Client, interaction: Interaction) => {
-		if (
-			!interaction.isButton() ||
-			!interaction.guild?.channels ||
-			interaction.user.bot
-		)
-			return;
+		if (!interaction.isButton() || interaction.user.bot) return;
 
-		const filtered_customId = interaction.customId.split("%")[0];
+		const isDmButton = interaction.customId.endsWith("?dm");
+		const isGuildButton = !!interaction.guild?.channels;
+
+		if (!isGuildButton && !isDmButton) return;
+
+		const cleanId = isDmButton
+			? interaction.customId.slice(0, -3)
+			: interaction.customId;
+		const filtered_customId = cleanId.split("%")[0];
 		const get = client.buttons.get(filtered_customId);
 		if (get)
 			get(
 				interaction,
-				await client.func.getLanguageData(interaction.guildId)
+				await client.func.getLanguageData(interaction.guildId ?? null)
 			);
 	}
 };

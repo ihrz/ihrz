@@ -31,7 +31,10 @@ export const command: Command = {
 	name: "inv",
 	description: "Subcommand for invites manager category!",
 	description_localizations: {
-		fr: "Commande sous-groupé pour la catégorie d'InviteManager"
+		fr: "Commande sous-groupé pour la catégorie d'InviteManager",
+		ja: "招待管理カテゴリのサブコマンド！",
+		ru: "Подкоманда для категории управления приглашениями!",
+		"es-ES": "Subcomando para la categoría de gestor de invitaciones!"
 	},
 	options: [
 		{
@@ -39,7 +42,10 @@ export const command: Command = {
 
 			description: "Add invites to a user!",
 			description_localizations: {
-				fr: "Ajouter des invitations à un utilisateur"
+				fr: "Ajouter des invitations à un utilisateur",
+				ja: "ユーザーに招待を追加！",
+				ru: "Добавить приглашения пользователю!",
+				"es-ES": "Añadir invitaciones a un usuario!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -50,7 +56,10 @@ export const command: Command = {
 
 					description: "the member you want to add invites",
 					description_localizations: {
-						fr: "le membre auquel vous souhaitez ajouter des invitations"
+						fr: "le membre auquel vous souhaitez ajouter des invitations",
+						ja: "招待を追加したいメンバー",
+						ru: "участник, которому добавить приглашения",
+						"es-ES": "el miembro al que quieres añadir invitaciones"
 					},
 
 					required: true,
@@ -63,7 +72,10 @@ export const command: Command = {
 
 					description: "Number of invites you want to add",
 					description_localizations: {
-						fr: "Nombre d'invitations que vous souhaitez ajouter"
+						fr: "Nombre d'invitations que vous souhaitez ajouter",
+						ja: "追加したい招待数",
+						ru: "Количество приглашений для добавления",
+						"es-ES": "Número de invitaciones que quieres añadir"
 					},
 
 					required: true,
@@ -82,7 +94,10 @@ export const command: Command = {
 
 			description: "Show the guild invites's leaderboard!",
 			description_localizations: {
-				fr: "Afficher le classement des invitations du serveur"
+				fr: "Afficher le classement des invitations du serveur",
+				ja: "サーバー招待ランキングを表示！",
+				ru: "Показать таблицу лидеров по приглашениям!",
+				"es-ES": "Mostrar la tabla de clasificación de invitaciones del servidor!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -94,7 +109,10 @@ export const command: Command = {
 
 			description: "Get the invites amount of a user!",
 			description_localizations: {
-				fr: "Obtenez le montant des invitations d'un utilisateur"
+				fr: "Obtenez le montant des invitations d'un utilisateur",
+				ja: "ユーザーの招待数を取得！",
+				ru: "Получить количество приглашений пользователя!",
+				"es-ES": "Obtener la cantidad de invitaciones de un usuario!"
 			},
 
 			aliases: ["i", "invsee"],
@@ -107,7 +125,10 @@ export const command: Command = {
 
 					description: "the member you want to show them invites",
 					description_localizations: {
-						fr: "le membre où souhaitez voir ces invitations"
+						fr: "le membre où souhaitez voir ces invitations",
+						ja: "招待数を表示したいメンバー",
+						ru: "участник, чьи приглашения показать",
+						"es-ES": "el miembro al que quieres mostrar sus invitaciones"
 					},
 
 					required: false,
@@ -124,7 +145,10 @@ export const command: Command = {
 
 			description: "Delete all data of InviteManager in the guild",
 			description_localizations: {
-				fr: "Supprimer toute les données du module d'InviteManager"
+				fr: "Supprimer toute les données du module d'InviteManager",
+				ja: "サーバー内のInviteManagerの全データを削除",
+				ru: "Удалить все данные InviteManager на сервере",
+				"es-ES": "Eliminar todos los datos de InviteManager en el servidor"
 			},
 
 			aliases: ["inv-delete-all", "invreset"],
@@ -139,7 +163,10 @@ export const command: Command = {
 
 			description: "Remove invites from a user!",
 			description_localizations: {
-				fr: "Supprimer les invitations d'un utilisateur"
+				fr: "Supprimer les invitations d'un utilisateur",
+				ja: "ユーザーから招待を削除！",
+				ru: "Удалить приглашения у пользователя!",
+				"es-ES": "Eliminar invitaciones de un usuario!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -150,7 +177,10 @@ export const command: Command = {
 
 					description: "the member you want to remove invites",
 					description_localizations: {
-						fr: "le membre où vous souhaitez supprimer ces invites"
+						fr: "le membre où vous souhaitez supprimer ces invites",
+						ja: "招待を削除したいメンバー",
+						ru: "участник, у которого убрать приглашения",
+						"es-ES": "el miembro del que quieres quitar invitaciones"
 					},
 
 					required: true,
@@ -163,7 +193,10 @@ export const command: Command = {
 
 					description: "Number of invites you want to substract",
 					description_localizations: {
-						fr: "Nombre d'invitations que vous souhaitez soustraire"
+						fr: "Nombre d'invitations que vous souhaitez soustraire",
+						ja: "減らしたい招待数",
+						ru: "Количество приглашений для вычитания",
+						"es-ES": "Número de invitaciones que quieres restar"
 					},
 
 					required: true,

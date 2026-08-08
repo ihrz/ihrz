@@ -37,7 +37,10 @@ export const command: Command = {
 
 	description: "The user you want to unblacklist (Only Owner of ihorizon)!",
 	description_localizations: {
-		fr: "Enlever un utilisateur de la liste noir.(Seulement pour les dev)"
+		fr: "Enlever un utilisateur de la liste noir.(Seulement pour les dev)",
+		ja: "ブラックリストから解除したいユーザー（iHorizonオーナーのみ）！",
+		ru: "Пользователь для удаления из черного списка (Только владелец iHorizon)!",
+		"es-ES": "El usuario que quieres quitar de la lista negra (Solo propietario de iHorizon)!"
 	},
 
 	options: [
@@ -48,7 +51,10 @@ export const command: Command = {
 			description:
 				"The user you want to unblacklist (Only Owner of ihorizon)",
 			description_localizations: {
-				fr: "L'utilisateur que vous souhaitez supprimer de la liste noire (uniquement propriétaire d'ihorizon)"
+				fr: "L'utilisateur que vous souhaitez supprimer de la liste noire (uniquement propriétaire d'ihorizon)",
+				ja: "ブラックリストから解除したいユーザー（iHorizonオーナーのみ）",
+				ru: "Пользователь для удаления из черного списка (Только владелец iHorizon)",
+				"es-ES": "El usuario que quieres quitar de la lista negra (Solo propietario de iHorizon)"
 			},
 
 			required: true,

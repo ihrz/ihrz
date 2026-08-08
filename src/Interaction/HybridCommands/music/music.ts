@@ -45,12 +45,18 @@ const VOLUMES = [
 export const command: Command = {
 	name: "music",
 	name_localizations: {
-		fr: "musique"
+		fr: "musique",
+		ja: "music",
+		ru: "music",
+		"es-ES": "music"
 	},
 
 	description: "Subcommand for music category!",
 	description_localizations: {
-		fr: "Commande sous-groupé pour la catégorie de musique"
+		fr: "Commande sous-groupé pour la catégorie de musique",
+		ja: "音楽カテゴリのサブコマンド！",
+		ru: "Подкоманда для категории музыки!",
+		"es-ES": "Subcomando para la categoría de música!"
 	},
 
 	aliases: ["m"],
@@ -59,12 +65,18 @@ export const command: Command = {
 		{
 			name: "loop",
 			name_localizations: {
-				fr: "boucle"
+				fr: "boucle",
+				ja: "loop",
+				ru: "loop",
+				"es-ES": "loop"
 			},
 
 			description: "Set loop mode of the guild!",
 			description_localizations: {
-				fr: "Changer l'état de la boucle sur le serveur"
+				fr: "Changer l'état de la boucle sur le serveur",
+				ja: "サーバーのループモードを設定！",
+				ru: "Установить режим повтора на сервере!",
+				"es-ES": "Establecer el modo de bucle del servidor!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -75,19 +87,32 @@ export const command: Command = {
 
 					description: "Loop Type",
 					description_localizations: {
-						fr: "Status de la boucle"
+						fr: "Status de la boucle",
+						ja: "ループタイプ",
+						ru: "Тип повтора",
+						"es-ES": "Tipo de bucle"
 					},
 
 					required: true,
 					choices: [
 						{
 							name: "Off",
-							name_localizations: { fr: "Désactiver" },
+							name_localizations: {
+								fr: "Désactiver",
+								ja: "off",
+								ru: "off",
+								"es-ES": "off"
+							},
 							value: "off"
 						},
 						{
 							name: "On",
-							name_localizations: { fr: "Activer" },
+							name_localizations: {
+								fr: "Activer",
+								ja: "on",
+								ru: "on",
+								"es-ES": "on"
+							},
 							value: "track"
 						}
 					],
@@ -103,7 +128,10 @@ export const command: Command = {
 
 			description: "Find the lyrics of a title!",
 			description_localizations: {
-				fr: "Trouver les lyrics d'un titre"
+				fr: "Trouver les lyrics d'un titre",
+				ja: "曲の歌詞を検索！",
+				ru: "Найти текст песни!",
+				"es-ES": "Encontrar la letra de una canción!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -114,7 +142,10 @@ export const command: Command = {
 
 					description: "The track title you want",
 					description_localizations: {
-						fr: "Titre de la musique que vous souhaitez"
+						fr: "Titre de la musique que vous souhaitez",
+						ja: "希望するトラックのタイトル",
+						ru: "Название желаемого трека",
+						"es-ES": "El título de la pista que deseas"
 					},
 
 					required: true,
@@ -128,13 +159,19 @@ export const command: Command = {
 		{
 			name: "history",
 			name_localizations: {
-				fr: "historique"
+				fr: "historique",
+				ja: "history",
+				ru: "history",
+				"es-ES": "history"
 			},
 
 			description:
 				"See the history of all the music played in this guild!",
 			description_localizations: {
-				fr: "Voir toute les musique joué dans un ordre chronologique sur le serveur"
+				fr: "Voir toute les musique joué dans un ordre chronologique sur le serveur",
+				ja: "このサーバーで再生された全音楽の履歴を表示！",
+				ru: "Посмотреть историю всей музыки, воспроизведенной на сервере!",
+				"es-ES": "Ver el historial de toda la música reproducida en este servidor!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -147,7 +184,10 @@ export const command: Command = {
 
 			description: "Clear the music queue in this guild!",
 			description_localizations: {
-				fr: "Vider la file d'attente musicale de ce serveur"
+				fr: "Vider la file d'attente musicale de ce serveur",
+				ja: "このサーバーの音楽キューをクリア！",
+				ru: "Очистить музыкальную очередь на сервере!",
+				"es-ES": "Limpiar la cola de música en este servidor!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -157,12 +197,18 @@ export const command: Command = {
 		{
 			name: "nowplaying",
 			name_localizations: {
-				fr: "en-lecture"
+				fr: "en-lecture",
+				ja: "nowplaying",
+				ru: "nowplaying",
+				"es-ES": "nowplaying"
 			},
 
 			description: "Get the current playing song!",
 			description_localizations: {
-				fr: "Obtenir la chanson en cours de lecture"
+				fr: "Obtenir la chanson en cours de lecture",
+				ja: "現在再生中の曲を取得！",
+				ru: "Получить текущую песню!",
+				"es-ES": "Obtener la canción actual!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -174,7 +220,10 @@ export const command: Command = {
 
 			description: "Pause the current playing song!",
 			description_localizations: {
-				fr: "Mettre en pause la musique actuelle"
+				fr: "Mettre en pause la musique actuelle",
+				ja: "現在再生中の曲を一時停止！",
+				ru: "Поставить текущую песню на паузу!",
+				"es-ES": "Pausar la canción actual!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -186,7 +235,10 @@ export const command: Command = {
 
 			description: "Play a song!",
 			description_localizations: {
-				fr: "Jouer une musique!"
+				fr: "Jouer une musique!",
+				ja: "曲を再生！",
+				ru: "Воспроизвести песню!",
+				"es-ES": "Reproducir una canción!"
 			},
 
 			aliases: ["p"],
@@ -200,7 +252,10 @@ export const command: Command = {
 					description:
 						"The track title you want (you can put URL as you want)",
 					description_localizations: {
-						fr: "Titre de la musique que vous souhaitez (vous pouvez mettre une URL si vous le voulez)"
+						fr: "Titre de la musique que vous souhaitez (vous pouvez mettre une URL si vous le voulez)",
+						ja: "希望するトラックタイトル（URLでも可）",
+						ru: "Название трека (можно указать URL)",
+						"es-ES": "El título de la pista que deseas (puedes poner URL como quieras)"
 					},
 
 					required: true,
@@ -216,7 +271,10 @@ export const command: Command = {
 
 			description: "change the volume of the player in the guild",
 			description_localizations: {
-				fr: "changer le son du player sur le serveur"
+				fr: "changer le son du player sur le serveur",
+				ja: "サーバーのプレイヤーの音量を変更",
+				ru: "изменить громкость плеера на сервере",
+				"es-ES": "cambiar el volumen del reproductor en el servidor"
 			},
 
 			permission: null,
@@ -227,15 +285,16 @@ export const command: Command = {
 
 					description: "the music level",
 					description_localizations: {
-						fr: "le niveau du son"
+						fr: "le niveau du son",
+						ja: "音楽レベル",
+						ru: "уровень музыки",
+						"es-ES": "el nivel de música"
 					},
 
 					choices: VOLUMES.map((x) => {
 						return {
 							name: x + "%",
-							name_localizations: {
-								fr: x + "%"
-							},
+							name_localizations: { fr: x + "%", ja: x + "%", ru: x + "%", "es-ES": x + "%" },
 							value: x
 						};
 					}),
@@ -253,7 +312,10 @@ export const command: Command = {
 
 			description: "Search a music into the Internet",
 			description_localizations: {
-				fr: "Chercher une musique sur Internet"
+				fr: "Chercher une musique sur Internet",
+				ja: "インターネットで音楽を検索",
+				ru: "Искать музыку в интернете",
+				"es-ES": "Buscar música en Internet"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -265,7 +327,10 @@ export const command: Command = {
 
 			description: "Get the queue!",
 			description_localizations: {
-				fr: "Obtenir la file d'attente des musique sur le serveur!"
+				fr: "Obtenir la file d'attente des musique sur le serveur!",
+				ja: "キューを取得！",
+				ru: "Получить очередь!",
+				"es-ES": "Obtener la cola!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -275,14 +340,20 @@ export const command: Command = {
 		{
 			name: "resume",
 			name_localizations: {
-				fr: "reprendre"
+				fr: "reprendre",
+				ja: "resume",
+				ru: "resume",
+				"es-ES": "resume"
 			},
 
 			aliases: ["unpause"],
 
 			description: "Resume the current playing song!",
 			description_localizations: {
-				fr: "Reprendre la chanson en cours de lecture"
+				fr: "Reprendre la chanson en cours de lecture",
+				ja: "現在再生中の曲を再開！",
+				ru: "Возобновить текущую песню!",
+				"es-ES": "Reanudar la canción actual!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -292,12 +363,18 @@ export const command: Command = {
 		{
 			name: "shuffle",
 			name_localizations: {
-				fr: "mélanger"
+				fr: "mélanger",
+				ja: "shuffle",
+				ru: "shuffle",
+				"es-ES": "shuffle"
 			},
 
 			description: "Shuffle the queue!",
 			description_localizations: {
-				fr: "Mélangez la file d'attente"
+				fr: "Mélangez la file d'attente",
+				ja: "キューをシャッフル！",
+				ru: "Перемешать очередь!",
+				"es-ES": "Mezclar la cola!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,
@@ -309,7 +386,10 @@ export const command: Command = {
 
 			description: "Skip the current playing song!",
 			description_localizations: {
-				fr: "Passer la chanson en cours de lecture"
+				fr: "Passer la chanson en cours de lecture",
+				ja: "現在再生中の曲をスキップ！",
+				ru: "Пропустить текущую песню!",
+				"es-ES": "Saltar la canción actual!"
 			},
 
 			aliases: ["next"],
@@ -323,7 +403,10 @@ export const command: Command = {
 
 			description: "Stop the current playing song!",
 			description_localizations: {
-				fr: "Couper la musique"
+				fr: "Couper la musique",
+				ja: "現在再生中の曲を停止！",
+				ru: "Остановить текущую песню!",
+				"es-ES": "Detener la canción actual!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,

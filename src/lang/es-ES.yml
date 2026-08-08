@@ -2081,11 +2081,31 @@ support_command_guild_not_have_tag: ":x: | El servidor no tiene etiquetas actual
 support_command_work_2: "Has configurado el módulo de soporte para ${interaction.guild.name}.\nCuando un usuario establezca la etiqueta del servidor,\n¡le daré el rol <@&${roles.id}>!"
 
 # /setserverlang
+
+updates_embed_title: "Actualizaciones de iHorizon"
+updates_embed_description: "Aquí están los últimos cambios y actualizaciones de iHorizon."
+updates_field_version: "Versión"
+updates_field_commit: "Último commit"
+updates_field_branch: "Rama"
+updates_field_links: "Enlaces"
+updates_changelog_attached: "El changelog completo se adjunta como PDF."
+newsletter_dm_title: "iHorizon {version} - Release Notes"
+newsletter_dm_body: "Hola {owner},\n\nUna nueva versión mayor de iHorizon ha sido desplegada.\n\n**Versión**: {version}\n**Release**: {releaseUrl}\n\nEl changelog completo se adjunta como PDF.\n\n¿Necesitas ayuda? Únete a nuestro servidor de soporte: https://discord.gg/ihorizon\n-# Usa +updates para gestionar tu suscripción o el botón de abajo para cancelar."
+newsletter_btn_unsubscribe: "Unsubscribe from newsletter"
+newsletter_btn_subscribe: "Subscribe to newsletter"
+newsletter_not_owner: "Ahah, me alegra saber que te intereso lo suficiente como para querer ver los cambios de mi código en tiempo real :3\n\n**Pero oye, primero tienes que añadirme a un servidor de Discord:**\n\n<https://discord.com/oauth2/authorize?client_id=${clientId}>\n**Así te mantendré al día.**\n\n> Otra alternativa: puedes unirte a discord.gg/ihorizon. Mis fundadoras hacen ping con el changelog en cada actualización. Tú decides :3"
+newsletter_toggle_enabled: "Newsletter notifications enabled."
+newsletter_toggle_disabled: "Newsletter notifications disabled."
 setserverlang_not_admin: ":x: | ¡Debe ser un administrador de este servidor para solicitar este comando!"
 setserverlang_logs_embed_title_on_enable: "Registros de SetServerLang"
 setserverlang_logs_embed_description_on_enable: "<@${interaction.user.id}> ha establecido el idioma de iHorizon en **${type}**!"
 setserverlang_already: "¡Ya estoy en este idioma!"
 setserverlang_command_work_enable: "Mi idioma ahora es **${type}**"
+setserverlang_panel_title: "Selección de idioma"
+setserverlang_panel_description: "Selecciona el idioma que quieres que iHorizon use en este servidor."
+setserverlang_panel_current: "Idioma actual"
+setserverlang_panel_select: "Elige un idioma..."
+setserverlang_panel_saved: "El idioma ha sido cambiado con éxito!"
 setserverlang_command_error_enable: "¡error!"
 
 # /embed
@@ -3012,6 +3032,14 @@ new_guild_embed_title:
     - "¡Una nueva aventura comienza! 🚀"
     - "¡Un miembro fantástico ha llegado! ✨"
 new_guild_embed_desc: "## ${randomMessage}\n¡Hola, queridos amigos!\n\nSoy iHorizon, un bot avanzado diseñado para hacer que vuestra experiencia en Discord sea extraordinaria y llena de diversión.\n\n✨ **Lo que puedo hacer por vosotros:**\n• Gestión del servidor con inteligencia y profesionalidad\n• Juegos interactivos y entretenimiento ilimitado\n• Herramientas útiles para la organización de la comunidad\n• Soporte técnico disponible 24/7\n\nExplorad mis comandos y sumergíos en un mundo de posibilidades infinitas.\n¡Juntos construiremos una comunidad fantástica llena de hermosos recuerdos!\n\n¡Gracias por elegirme, comencemos esta increíble aventura! 🌟"
+new_guild_owner_dm_title: "Bienvenido a la familia iHorizon!"
+new_guild_owner_dm_description: "# Gracias por añadir iHorizon a tu servidor!\n\n> *Espera... Eso es todo? No, en absoluto.*\n\niHorizon es un bot de Discord, vale? Pero no solo eso. También es una comunidad, una historia, un proyecto construido durante más de 6 años (2020).\nUsar iHorizon no es solo tener un bot de Discord completo, eternamente **gratuito** y **open source**. También es adoptar un **concepto**.\n\n> **Un bot de Discord gratuito puede hacer mejor trabajo que los bots de pago.**\n*Sí, eso es iHorizon: un bot completo, mantenido durante 6 años por gente apasionada.*\n\nAsí que sí... después de este mensaje, gracias.\nSomos legión. #ihorizon"
+guild_create_btn_invite: "Invitar iHorizon"
+guild_create_btn_website: "Sitio Web iHorizon"
+guild_create_btn_search: "Búsqueda iHorizon"
+guild_create_btn_repos: "Repositorios iHorizon"
+guild_create_btn_support: "Servidor de Soporte"
+guild_create_btn_docs: "Documentación iHorizon"
 guild_leave_data_clear_notice_title: "iHorizon ha salido de ${guild.name}"
 guild_leave_data_clear_notice_description: "Buaaa, esto es triste. Has expulsado al bot de `${guild.name}`. Los datos del servidor se borrarán ${deleteAt} si iHorizon no vuelve antes."
 guild_leave_data_clear_notice_message: "Buaaa, esto es triste. Has expulsado a iHorizon de `${guild.name}`. Los datos se borrarán ${deleteAt}."
@@ -3166,3 +3194,42 @@ honeypot_log_no_content: "Sin contenido de texto"
 honeypot_log_action_ban: "Usuario baneado"
 honeypot_log_action_kick: "Usuario expulsado"
 honeypot_log_action_none: "Sin acción tomada"
+
+# Modulo TTS
+# /tts join, /tts leave, /tts info, /tts lang
+
+help_tts_fields: "TTS"
+help_tts_dsc: "> *Convierte texto en voz en canales de voz con iHorizon!*"
+
+# /tts join
+tts_join_not_in_voice: "${client.iHorizon_Emojis.No} Debes estar conectado a un canal de voz para usar este comando!"
+tts_join_already_enabled: "${client.iHorizon_Emojis.No} El modulo TTS ya esta activado en este servidor!"
+tts_join_music_playing: "${client.iHorizon_Emojis.No} Hay musica reproduciendose en este servidor. Por favor, deten la musica antes de activar TTS."
+tts_join_enabled: "${client.iHorizon_Emojis.Yes} El modo TTS ha sido activado en ${voiceChannel}!"
+tts_join_error: "${client.iHorizon_Emojis.No} Ocurrio un error al activar el modo TTS."
+tts_join_lang_fallback: "es-ES"
+
+# /tts leave
+tts_leave_not_active: "${client.iHorizon_Emojis.No} El modulo TTS no esta activo actualmente en este servidor!"
+tts_leave_not_in_voice: "${client.iHorizon_Emojis.No} Debes estar en el canal de voz TTS para desactivarlo!"
+tts_leave_disabled: "${client.iHorizon_Emojis.Yes} El modo TTS ha sido desactivado en este servidor!"
+
+# /tts info
+tts_info_embed_title: "Informacion del Modulo TTS"
+tts_info_embed_description: "El modulo TTS (Text-to-Speech) permite a iHorizon leer mensajes en voz alta en un canal de voz. Cuando esta activado, cada mensaje enviado en el canal de texto configurado por miembros que estan en el canal de voz sera pronunciado por iHorizon."
+tts_info_field_status: "Estado"
+tts_info_field_lang: "Idioma TTS"
+tts_info_field_howto: "Como usar"
+tts_info_howto_value: "Usa `/tts join` para iniciar TTS en tu canal de voz.\nUsa `/tts leave` para detener TTS.\nUsa `/tts lang` para cambiar el idioma de la voz."
+
+# /tts lang
+tts_lang_not_active: "${client.iHorizon_Emojis.No} El modulo TTS no esta activo actualmente en este servidor!"
+tts_lang_set: "${client.iHorizon_Emojis.Yes} El idioma TTS ha sido configurado a `${language}`."
+
+# TTS Embed
+tts_embed_title: "Modo TTS Activado"
+tts_embed_description: "El modulo TTS ahora esta activo en ${voiceChannel}.\nTodos los mensajes enviados aqui por miembros en el canal de voz seran leidos en voz alta.\n\n**Miembros en voz:** ${members}"
+tts_embed_footer: "Usa /tts leave para detener TTS"
+tts_join_not_text_based: "${client.iHorizon_Emojis.No} Este canal de voz no admite mensajes de texto. Por favor, activa texto-en-voz o usa otro canal de voz."
+tts_music_blocked: "${client.iHorizon_Emojis.No} El modulo TTS esta actualmente activo. Por favor, desactiva TTS antes de reproducir musica."
+tts_voice_status: "Modo TTS - Síntesis de Voz"

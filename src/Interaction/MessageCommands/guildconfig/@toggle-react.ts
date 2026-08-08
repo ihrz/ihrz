@@ -35,7 +35,10 @@ export const command: Command = {
 
 	description: "Enable / Disable the reaction when user greets someone",
 	description_localizations: {
-		fr: "Activer/Désactiver la réaction lorsque l'utilisateur salue quelqu'un"
+		fr: "Activer/Désactiver la réaction lorsque l'utilisateur salue quelqu'un",
+		ja: "ユーザーが挨拶した時のリアクションを有効/無効",
+		ru: "Включить/выключить реакцию при приветствии",
+		"es-ES": "Habilitar / Deshabilitar la reacción cuando un usuario saluda a alguien"
 	},
 
 	thinking: false,

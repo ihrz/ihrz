@@ -51,7 +51,10 @@ export const command: Command = {
 
 	description: "Sent specified emoji when new message in specified channel",
 	description_localizations: {
-		fr: "Envoyer un emoji spécifié lorsqu'un nouveau message est envoyé dans un canal spécifié"
+		fr: "Envoyer un emoji spécifié lorsqu'un nouveau message est envoyé dans un canal spécifié",
+		ja: "指定チャンネルの新規メッセージに指定絵文字を送信",
+		ru: "Отправить эмодзи при новом сообщении в канале",
+		"es-ES": "Enviar emoji especificado cuando haya nuevo mensaje en el canal especificado"
 	},
 
 	thinking: true,

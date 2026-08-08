@@ -57,7 +57,10 @@ export const command: Command = {
 
 	description: "without comment",
 	description_localizations: {
-		fr: "sans commentaires"
+		fr: "sans commentaires",
+		ja: "コメントなし",
+		ru: "без комментария",
+		"es-ES": "sin comentario"
 	},
 
 	options: [
@@ -66,7 +69,10 @@ export const command: Command = {
 
 			description: "amount of nitro",
 			description_localizations: {
-				fr: "nombre de nitro"
+				fr: "nombre de nitro",
+				ja: "Nitroの数",
+				ru: "количество nitro",
+				"es-ES": "cantidad de nitro"
 			},
 
 			type: ApplicationCommandOptionType.Number,

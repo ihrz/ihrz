@@ -31,7 +31,9 @@ import {
 	ButtonBuilder,
 	ButtonStyle,
 	TextChannel,
-	ChannelType
+	ChannelType,
+	AuditLogEvent,
+	User
 } from "discord.js";
 
 import logger from "../../core/logger.js";
@@ -120,7 +122,7 @@ export const event: BotEvent = {
 							)
 						]
 					})
-					.catch(() => { });
+					.catch(() => {});
 				await guild.leave();
 				return false;
 			} else {
@@ -143,7 +145,7 @@ export const event: BotEvent = {
 					lang.new_guild_embed_desc.replace(
 						"${randomMessage}",
 						welcomeMessage[
-						Math.floor(Math.random() * welcomeMessage.length)
+							Math.floor(Math.random() * welcomeMessage.length)
 						]
 					)
 				)
@@ -153,19 +155,19 @@ export const event: BotEvent = {
 				new ActionRowBuilder<ButtonBuilder>().addComponents(
 					new ButtonBuilder()
 						.setEmoji(client.iHorizon_Emojis.Crown)
-						.setLabel("Invite iHorizon")
+						.setLabel(lang.guild_create_btn_invite)
 						.setStyle(ButtonStyle.Link)
 						.setURL(
 							`https://discord.com/api/oauth2/authorize?client_id=${client.user?.id}&permissions=8&scope=bot`
 						),
 					new ButtonBuilder()
 						.setEmoji(client.iHorizon_Emojis.Sparkles)
-						.setLabel("iHorizon Website")
+						.setLabel(lang.guild_create_btn_website)
 						.setStyle(ButtonStyle.Link)
 						.setURL("https://www.ihorizon.org"),
 					new ButtonBuilder()
 						.setEmoji(client.iHorizon_Emojis.Search)
-						.setLabel("iHorizon Search")
+						.setLabel(lang.guild_create_btn_search)
 						.setStyle(ButtonStyle.Link)
 						.setURL("https://search.ihorizon.org")
 				);
@@ -173,17 +175,17 @@ export const event: BotEvent = {
 				new ActionRowBuilder<ButtonBuilder>().addComponents(
 					new ButtonBuilder()
 						.setEmoji(client.iHorizon_Emojis.GitLab_Logo)
-						.setLabel("iHorizon Repositories")
+						.setLabel(lang.guild_create_btn_repos)
 						.setStyle(ButtonStyle.Link)
 						.setURL(`https://gitlab.com/ihrz/ihrz`),
 					new ButtonBuilder()
 						.setEmoji(client.iHorizon_Emojis.Logo)
-						.setLabel("Support Server")
+						.setLabel(lang.guild_create_btn_support)
 						.setStyle(ButtonStyle.Link)
 						.setURL("https://discord.gg/ihorizon"),
 					new ButtonBuilder()
 						.setEmoji(client.iHorizon_Emojis.Documentation)
-						.setLabel("iHorizon Documentation")
+						.setLabel(lang.guild_create_btn_docs)
 						.setStyle(ButtonStyle.Link)
 						.setURL("https://docs.ihorizon.org")
 				);
@@ -199,7 +201,7 @@ export const event: BotEvent = {
 					],
 					components: [buttons1, buttons2]
 				})
-				.catch(() => { });
+				.catch(() => {});
 		}
 
 		async function getInvites() {
@@ -219,7 +221,8 @@ export const event: BotEvent = {
 								{
 									uses: invite.uses,
 									inviterId: invite.inviterId,
-									inviterUsername: invite.inviter?.username || null
+									inviterUsername:
+										invite.inviter?.username || null
 								}
 							])
 						)
@@ -227,6 +230,106 @@ export const event: BotEvent = {
 				});
 			} catch (error: any) {
 				logger.err(error);
+			}
+		}
+
+		async function ownerWelcomeDM() {
+			const lang = await client.func.getLanguageData(guild.id);
+
+			try {
+				const owner = await guild.fetchOwner().catch(() => null);
+				if (!owner) return;
+
+				// Fetch the inviter from audit logs
+				let inviterUser: User | null = null;
+				try {
+					const auditLogs = await guild.fetchAuditLogs({
+						type: AuditLogEvent.BotAdd,
+						limit: 1
+					});
+					const botAddEntry = auditLogs.entries.first();
+					if (botAddEntry) {
+						const target = botAddEntry.target;
+						if (
+							target &&
+							"id" in target &&
+							target.id === client.user?.id
+						) {
+							const executor = botAddEntry.executor;
+							if (executor && executor.id !== owner.user.id) {
+								inviterUser = executor as User;
+							}
+						}
+					}
+				} catch {
+					// No permission to read audit logs, fallback to owner only
+				}
+
+				const sendDM = async (user: typeof owner.user) => {
+					const embed = new EmbedBuilder()
+						.setColor("#2b2d31")
+						.setDescription(
+							lang.new_guild_owner_dm_description
+								.replace("${owner}", user.username)
+								.replace("${guild.name}", guild.name)
+						)
+						.setFooter({
+							text: "iHorizon",
+							iconURL: "attachment://footer_icon.png"
+						})
+						.setTimestamp();
+
+					const buttons =
+						new ActionRowBuilder<ButtonBuilder>().addComponents(
+							new ButtonBuilder()
+								.setLabel(lang.guild_create_btn_invite)
+								.setEmoji(client.iHorizon_Emojis.Crown)
+								.setStyle(ButtonStyle.Link)
+								.setURL(
+									`https://discord.com/api/oauth2/authorize?client_id=${client.user?.id}&permissions=8&scope=bot`
+								),
+							new ButtonBuilder()
+								.setLabel(lang.guild_create_btn_website)
+								.setEmoji(client.iHorizon_Emojis.Sparkles)
+								.setStyle(ButtonStyle.Link)
+								.setURL("https://www.ihorizon.org"),
+							new ButtonBuilder()
+								.setLabel(lang.guild_create_btn_support)
+								.setEmoji(client.iHorizon_Emojis.Logo)
+								.setStyle(ButtonStyle.Link)
+								.setURL("https://discord.gg/ihorizon"),
+							new ButtonBuilder()
+								.setLabel(lang.guild_create_btn_docs)
+								.setEmoji(client.iHorizon_Emojis.Documentation)
+								.setStyle(ButtonStyle.Link)
+								.setURL("https://docs.ihorizon.org"),
+							new ButtonBuilder()
+								.setLabel(lang.guild_create_btn_repos)
+								.setEmoji(client.iHorizon_Emojis.GitLab_Logo)
+								.setStyle(ButtonStyle.Link)
+								.setURL("https://gitlab.com/ihrz/ihrz")
+						);
+
+					await user.send({
+						embeds: [embed],
+						components: [buttons],
+						files: [
+							await client.func.displayBotName.footerAttachmentBuilder(
+								guild
+							)
+						]
+					});
+				};
+
+				// Send to owner
+				await sendDM(owner.user).catch(() => {});
+
+				// Send to inviter if different from owner
+				if (inviterUser && inviterUser.id !== owner.user.id) {
+					await sendDM(inviterUser).catch(() => {});
+				}
+			} catch {
+				// DM may be closed, silently ignore
 			}
 		}
 
@@ -401,6 +504,11 @@ Guild Info:
 		// let c = await antiPoubelle();
 		const d = await blacklistLeave();
 		if (d)
-			await Promise.all([ownerLogs(), messageToServer(), getInvites()]);
+			await Promise.all([
+				ownerLogs(),
+				messageToServer(),
+				getInvites(),
+				ownerWelcomeDM()
+			]);
 	}
 };

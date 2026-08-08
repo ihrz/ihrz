@@ -35,7 +35,10 @@ export const command: Command = {
 
 	description: "Set the join message !",
 	description_localizations: {
-		fr: "Définir le message d'arrivé"
+		fr: "Définir le message d'arrivé",
+		ja: "参加メッセージを設定！",
+		ru: "Установить приветственное сообщение!",
+		"es-ES": "Establecer el mensaje de bienvenida!"
 	},
 
 	aliases: ["joinmsg", "jmessage", "joiner"],

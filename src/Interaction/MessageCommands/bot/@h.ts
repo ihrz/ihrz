@@ -311,7 +311,10 @@ export const command: Command = {
 	name: "h",
 	description: "help menu for og user lmao",
 	description_localizations: {
-		fr: "Un menu de help tah les matrixé"
+		fr: "Un menu de help tah les matrixé",
+		ja: "OGユーザー向けヘルプメニュー（笑）",
+		ru: "меню помощи для OG пользователей",
+		"es-ES": "menú de ayuda para usuario OG lol"
 	},
 	thinking: false,
 	category: "bot",
@@ -395,9 +398,11 @@ export const command: Command = {
 
 					currentEmbed.addFields({
 						name: fields_name,
-						value: skidBot.lang.startsWith("fr")
-							? cmd.desc_localized["fr"]
-							: cmd.desc
+						value: (() => {
+							const langMap: Record<string, string> = {"fr-FR": "fr", "fr-ME": "fr", "jp-JP": "ja", "ru-RU": "ru", "es-ES": "es-ES"};
+							const key = langMap[skidBot.lang] as string | undefined;
+							return key && (cmd.desc_localized as any)[key] ? (cmd.desc_localized as any)[key] : cmd.desc;
+						  })()
 					});
 					fieldCount++;
 

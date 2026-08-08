@@ -32,7 +32,10 @@ export const command: Command = {
 
 	description: "Set the autorole",
 	description_localizations: {
-		fr: "Modifier l'autorole"
+		fr: "Modifier l'autorole",
+		ja: "自動ロールを設定",
+		ru: "Установить автороль",
+		"es-ES": "Establecer el autorol"
 	},
 
 	thinking: false,

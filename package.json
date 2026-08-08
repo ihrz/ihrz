@@ -1,7 +1,7 @@
 {
 	"name": "ihrz",
 	"displayName": "iHorizon Discord Bot",
-	"version": "2026.8.1",
+	"version": "2026.8.2",
 	"description": "Official codebase of iHorizon Discord Bot.",
 	"main": "./src/index.ts",
 	"scripts": {
@@ -51,7 +51,8 @@
 		"spotify-metadata": "github:kisastractors/spotify-metadata",
 		"apple-music-metadata": "github:kisastractors/apple-music-metadata",
 		"amazon-music-metadata": "github:kisastractors/amazon-music-metadata",
-		"typescript-eslint": "^8.65.0",
+		"tidal-metadata": "github:kisastractors/tidal-metadata",
+		"typescript-eslint": "^8.66.0",
 		"xml2js": "^0.6.2",
 		"youtubei.js": "^17.2.0"
 	},
@@ -61,8 +62,8 @@
 		"@types/node": "^24.13.3",
 		"@types/nodemailer": "^7.0.12",
 		"@types/xml2js": "^0.4.14",
-		"@typescript-eslint/eslint-plugin": "^8.65.0",
-		"@typescript-eslint/parser": "^8.65.0",
+		"@typescript-eslint/eslint-plugin": "^8.66.0",
+		"@typescript-eslint/parser": "^8.66.0",
 		"eslint": "^9.39.5",
 		"eslint-plugin-unused-imports": "^4.4.1",
 		"prettier": "^3.9.6",

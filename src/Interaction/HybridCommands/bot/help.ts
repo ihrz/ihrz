@@ -244,8 +244,17 @@ async function handleCategorySelect(
 		}
 
 		const descValue =
-			guildData === "fr-ME" || guildData === "fr-FR"
-				? element.desc_localized["fr"]
+			guildData && element.desc_localized
+				? (() => {
+					const langMap: Record<string, string> = {
+						"fr-FR": "fr", "fr-ME": "fr",
+						"jp-JP": "ja", "ru-RU": "ru", "es-ES": "es-ES",
+					};
+					const key = langMap[guildData] as keyof typeof element.desc_localized | undefined;
+					return key && element.desc_localized[key]
+						? element.desc_localized[key]
+						: element.desc;
+				  })()
 				: element.desc;
 
 		const newFieldLength = cmdPrefix.length + descValue.length;
@@ -356,7 +365,10 @@ export const command: Command = {
 
 	description: "Get a list of all the commands!",
 	description_localizations: {
-		fr: "Obtenir la liste de toute les commandes"
+		fr: "Obtenir la liste de toute les commandes",
+		ja: "全コマンドのリストを取得！",
+		ru: "Получить список всех команд!",
+		"es-ES": "Obtener una lista de todos los comandos!"
 	},
 
 	options: [
@@ -365,7 +377,10 @@ export const command: Command = {
 
 			description: "The command name you want information",
 			description_localizations: {
-				fr: "La commandes sur laquelle vous voulez des info"
+				fr: "La commandes sur laquelle vous voulez des info",
+				ja: "情報が欲しいコマンド名",
+				ru: "Имя команды, о которой нужна информация",
+				"es-ES": "El nombre del comando del que quieres información"
 			},
 
 			type: ApplicationCommandOptionType.String,

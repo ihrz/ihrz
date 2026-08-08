@@ -1,0 +1,11 @@
+{
+	"categoryInitializer": {
+		"categoryName": "tts",
+		"categoryColor": "#5865F2",
+		"options": {
+			"description": "help_tts_dsc",
+			"emoji": "${client.iHorizon_Emojis.VC_OpenChat}",
+			"placeholder": "help_tts_fields"
+		}
+	}
+}

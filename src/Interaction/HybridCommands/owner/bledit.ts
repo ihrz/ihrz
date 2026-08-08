@@ -43,7 +43,10 @@ export const command: Command = {
 
 	description: "edit blacklist reason",
 	description_localizations: {
-		fr: "modifier la raison d'un blacklist"
+		fr: "modifier la raison d'un blacklist",
+		ja: "ブラックリスト理由を編集",
+		ru: "изменить причину черного списка",
+		"es-ES": "editar razón de lista negra"
 	},
 
 	options: [
@@ -53,7 +56,10 @@ export const command: Command = {
 
 			description: "The user you want to edit the reason",
 			description_localizations: {
-				fr: "L'utilisateur que vous souhaitez modifier la raison de sont blacklist"
+				fr: "L'utilisateur que vous souhaitez modifier la raison de sont blacklist",
+				ja: "理由を編集したいユーザー",
+				ru: "Пользователь, для которого нужно изменить причину",
+				"es-ES": "El usuario del que quieres editar la razón"
 			},
 
 			required: true,
@@ -66,7 +72,10 @@ export const command: Command = {
 
 			description: "the new reason",
 			description_localizations: {
-				fr: "la nouvelle raison"
+				fr: "la nouvelle raison",
+				ja: "新しい理由",
+				ru: "новая причина",
+				"es-ES": "la nueva razón"
 			},
 
 			permission: null,

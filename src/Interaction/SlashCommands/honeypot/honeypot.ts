@@ -31,7 +31,10 @@ export const command: Command = {
 
 	description: "Subcommand for honeypot configuration!",
 	description_localizations: {
-		fr: "Commande sous-groupée pour la configuration de Honeypot"
+		fr: "Commande sous-groupée pour la configuration de Honeypot",
+		ja: "ハニーポット設定のサブコマンド！",
+		ru: "Подкоманда для настройки Honeypot!",
+		"es-ES": "Subcomando para la configuración de honeypot!"
 	},
 
 	options: [
@@ -40,7 +43,10 @@ export const command: Command = {
 
 			description: "Configure the Honeypot protection panel.",
 			description_localizations: {
-				fr: "Configurer le panneau de protection Honeypot"
+				fr: "Configurer le panneau de protection Honeypot",
+				ja: "ハニーポット保護パネルを設定。",
+				ru: "Настроить панель защиты Honeypot.",
+				"es-ES": "Configurar el panel de protección Honeypot."
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,

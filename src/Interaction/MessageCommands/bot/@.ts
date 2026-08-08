@@ -27,7 +27,10 @@ export const command: Command = {
 	name: "grosbg",
 	description: "...",
 	description_localizations: {
-		fr: "..."
+		fr: "...",
+		ja: "...",
+		ru: "...",
+		"es-ES": "..."
 	},
 	thinking: false,
 	category: "404",

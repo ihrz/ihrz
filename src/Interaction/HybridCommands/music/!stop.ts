@@ -28,6 +28,7 @@ import {
 
 import logger from "../../../core/logger.js";
 import { LanguageData } from "../../../../types/languageData.js";
+import { getTTSData, cleanupTTS } from "../../../core/modules/ttsManager.js";
 
 import { SubCommand } from "../../../../types/command.js";
 
@@ -64,9 +65,16 @@ export const subCommand: SubCommand = {
 		try {
 			const voiceChannel = (interaction.member as GuildMember).voice
 				.channel;
-			const player = client.player.getPlayer(
-				interaction.guildId as string
-			);
+			const player = client.player.getPlayer(interaction.guild.id);
+
+			const ttsData = await getTTSData(client, interaction.guild.id);
+			if (ttsData && ttsData.enabled) {
+				await cleanupTTS(client, interaction.guild.id);
+				await client.func.method.interactionSend(interaction, {
+					content: lang.stop_command_work
+				});
+				return;
+			}
 
 			if (!player || !player.playing || !voiceChannel) {
 				await client.func.method.interactionSend(interaction, {

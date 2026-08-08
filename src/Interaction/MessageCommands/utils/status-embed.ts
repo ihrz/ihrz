@@ -37,7 +37,10 @@ export const command: Command = {
 
 	description: "Make a status embed about iHorizon",
 	description_localizations: {
-		fr: "Créer un embed par rapport à iHorizon"
+		fr: "Créer un embed par rapport à iHorizon",
+		ja: "iHorizonのステータス埋め込みを作成",
+		ru: "Создать эмбед статуса iHorizon",
+		"es-ES": "Hacer un embed de estado sobre iHorizon"
 	},
 
 	thinking: false,

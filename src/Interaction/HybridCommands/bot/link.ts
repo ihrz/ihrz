@@ -37,7 +37,10 @@ export const command: Command = {
 
 	description: "Show all links about iHorizon",
 	description_localizations: {
-		fr: "Afficher tous les liens en rapport avec iHorizon"
+		fr: "Afficher tous les liens en rapport avec iHorizon",
+		ja: "iHorizonに関する全リンクを表示",
+		ru: "Показать все ссылки iHorizon",
+		"es-ES": "Mostrar todos los enlaces sobre iHorizon"
 	},
 
 	aliases: ["link"],

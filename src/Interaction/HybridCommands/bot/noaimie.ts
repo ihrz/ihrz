@@ -34,7 +34,10 @@ export const command: Command = {
 
 	description: "Get unnecessary information about my contributor noaimie",
 	description_localizations: {
-		fr: "Obtenir des informations non nécessaires sur ma contributrice"
+		fr: "Obtenir des informations non nécessaires sur ma contributrice",
+		ja: "貢献者noaimieの不要な情報を取得",
+		ru: "Получить ненужную информацию об участнице noaimie",
+		"es-ES": "Obtener información innecesaria sobre mi contribuidora noaimie"
 	},
 
 	aliases: ["noemie", "noémie"],

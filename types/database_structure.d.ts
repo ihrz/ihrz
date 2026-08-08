@@ -62,11 +62,11 @@ export namespace DatabaseStructure {
 
 	export interface ProtectionData {
 		[rule: string]:
-		| {
-			mode: string;
-		}
-		| string
-		| undefined;
+			| {
+					mode: string;
+			  }
+			| string
+			| undefined;
 		SANCTION?: string;
 	}
 
@@ -643,10 +643,10 @@ export namespace DatabaseStructure {
 		LANG?: LangSchema;
 		TICKET?: {
 			[key: string]:
-			| DbTicketConfigurationObject
-			| string
-			| boolean
-			| undefined;
+				| DbTicketConfigurationObject
+				| string
+				| boolean
+				| undefined;
 			logs?: string;
 			disable?: boolean;
 			category?: string;
@@ -675,6 +675,7 @@ export namespace DatabaseStructure {
 		SKULLBOARD_DATA: StarboardDataSchema;
 		TEMPROLE: TempRoleSchema;
 		TEMPBAN: TempbanSchema;
+		TTS?: TTSData;
 	}
 
 	export type TempRoleSchema = Record<
@@ -685,6 +686,14 @@ export namespace DatabaseStructure {
 		string,
 		{ reason: string; time: number }
 	>;
+
+	export interface TTSData {
+		enabled: boolean;
+		voiceChannelId: string;
+		textChannelId: string;
+		embedMessageId: string;
+		lang: string;
+	}
 
 	export interface DbTicketConfigurationObject {
 		author: string;

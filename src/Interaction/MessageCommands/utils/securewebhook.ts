@@ -32,7 +32,10 @@ export const command: Command = {
 
 	description: "Secure webhook",
 	description_localizations: {
-		fr: "Sécuriser une webhook à travers un PROXY iHorizon"
+		fr: "Sécuriser une webhook à travers un PROXY iHorizon",
+		ja: "Webhookを保護",
+		ru: "Защитить вебхук",
+		"es-ES": "Asegurar webhook"
 	},
 
 	thinking: false,
@@ -45,7 +48,10 @@ export const command: Command = {
 
 			description: "Action to do",
 			description_localizations: {
-				fr: "Action à faire"
+				fr: "Action à faire",
+				ja: "実行するアクション",
+				ru: "Выполняемое действие",
+				"es-ES": "Acción a realizar"
 			},
 
 			type: ApplicationCommandOptionType.String,
@@ -54,17 +60,32 @@ export const command: Command = {
 			choices: [
 				{
 					name: "create",
-					name_localizations: { fr: "Créer" },
+					name_localizations: {
+						fr: "Créer",
+						ja: "create",
+						ru: "create",
+						"es-ES": "create"
+					},
 					value: "create"
 				},
 				{
 					name: "delete",
-					name_localizations: { fr: "Supprimer" },
+					name_localizations: {
+						fr: "Supprimer",
+						ja: "delete",
+						ru: "delete",
+						"es-ES": "delete"
+					},
 					value: "delete"
 				},
 				{
 					name: "list",
-					name_localizations: { fr: "Liste" },
+					name_localizations: {
+						fr: "Liste",
+						ja: "list",
+						ru: "list",
+						"es-ES": "list"
+					},
 					value: "list"
 				}
 			],
@@ -75,7 +96,10 @@ export const command: Command = {
 			name: "input",
 			description: "Webhook URL or webhook code",
 			description_localizations: {
-				fr: "URL de la Webhook ou code de la Webhook"
+				fr: "URL de la Webhook ou code de la Webhook",
+				ja: "WebhookのURLまたはWebhookコード",
+				ru: "URL вебхука или код вебхука",
+				"es-ES": "URL del webhook o código del webhook"
 			},
 
 			type: ApplicationCommandOptionType.String,

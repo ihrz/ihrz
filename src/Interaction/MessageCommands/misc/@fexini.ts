@@ -39,7 +39,10 @@ export const command: Command = {
 
 	description: "Show our best partner",
 	description_localizations: {
-		fr: "voir la pub de notre meilleur partenaire <3"
+		fr: "voir la pub de notre meilleur partenaire <3",
+		ja: "最高のパートナーを表示",
+		ru: "Показать нашего лучшего партнера",
+		"es-ES": "Mostrar nuestro mejor socio"
 	},
 
 	thinking: false,

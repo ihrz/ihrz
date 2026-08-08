@@ -32,7 +32,10 @@ export const command: Command = {
 
 	description: "Set all the logs channel automaticaly",
 	description_localizations: {
-		fr: "Configurer automatiquement tous les canaux de journaux"
+		fr: "Configurer automatiquement tous les canaux de journaux",
+		ja: "全ログチャンネルを自動設定",
+		ru: "Автоматически настроить все каналы логов",
+		"es-ES": "Establecer todos los canales de registro automáticamente"
 	},
 
 	thinking: false,

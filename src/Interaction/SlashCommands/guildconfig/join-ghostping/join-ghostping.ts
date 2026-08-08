@@ -32,7 +32,10 @@ export const command: Command = {
 
 	description: "Subcommand for guildconfig category!",
 	description_localizations: {
-		fr: "Commande sous-groupé pour la catégorie de configuration du serveur"
+		fr: "Commande sous-groupé pour la catégorie de configuration du serveur",
+		ja: "サーバー設定カテゴリのサブコマンド！",
+		ru: "Подкоманда для категории настройки сервера!",
+		"es-ES": "Subcomando para la categoría de configuración del servidor!"
 	},
 
 	options: [
@@ -41,7 +44,10 @@ export const command: Command = {
 
 			description: "Channel manipulation for the Join GhostPing Module",
 			description_localizations: {
-				fr: "Manipulation de salons pour le module Join GhostPing"
+				fr: "Manipulation de salons pour le module Join GhostPing",
+				ja: "Join GhostPingモジュールのチャンネル操作",
+				ru: "Управление каналами для модуля Join GhostPing",
+				"es-ES": "Manipulación de canales para el módulo Join GhostPing"
 			},
 
 			type: ApplicationCommandOptionType.SubcommandGroup,
@@ -52,7 +58,10 @@ export const command: Command = {
 
 					description: "Add a channel",
 					description_localizations: {
-						fr: "Ajouter un salon"
+						fr: "Ajouter un salon",
+						ja: "チャンネルを追加",
+						ru: "Добавить канал",
+						"es-ES": "Añadir un canal"
 					},
 
 					type: ApplicationCommandOptionType.Subcommand,
@@ -65,7 +74,10 @@ export const command: Command = {
 
 							description: "The channel you want",
 							description_localizations: {
-								fr: "Le salon que tu veux"
+								fr: "Le salon que tu veux",
+								ja: "希望するチャンネル",
+								ru: "Желаемый канал",
+								"es-ES": "El canal que deseas"
 							},
 
 							required: true,
@@ -80,7 +92,10 @@ export const command: Command = {
 
 					description: "Delete a channel",
 					description_localizations: {
-						fr: "Enlever un salon de la liste"
+						fr: "Enlever un salon de la liste",
+						ja: "チャンネルを削除",
+						ru: "Удалить канал",
+						"es-ES": "Eliminar un canal"
 					},
 
 					type: ApplicationCommandOptionType.Subcommand,
@@ -93,7 +108,10 @@ export const command: Command = {
 
 							description: "The channel you want",
 							description_localizations: {
-								fr: "Le salon que tu veux"
+								fr: "Le salon que tu veux",
+								ja: "希望するチャンネル",
+								ru: "Желаемый канал",
+								"es-ES": "El canal que deseas"
 							},
 
 							required: true,

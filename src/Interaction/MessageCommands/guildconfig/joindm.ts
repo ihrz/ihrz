@@ -35,7 +35,10 @@ export const command: Command = {
 
 	description: "Set the join dm message !",
 	description_localizations: {
-		fr: "Définir le message d'arrivé envoyer aux membre en MP"
+		fr: "Définir le message d'arrivé envoyer aux membre en MP",
+		ja: "参加DMメッセージを設定！",
+		ru: "Установить приветственное сообщение в ЛС!",
+		"es-ES": "Establecer el mensaje de DM de bienvenida!"
 	},
 
 	aliases: ["joinmp"],

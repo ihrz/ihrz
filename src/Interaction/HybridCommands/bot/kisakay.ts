@@ -34,7 +34,10 @@ export const command: Command = {
 
 	description: "Get necessary information about my developer, Kisakay",
 	description_localizations: {
-		fr: "Obtenir les informations nécessaires sur ma développeuse, Kisakay"
+		fr: "Obtenir les informations nécessaires sur ma développeuse, Kisakay",
+		ja: "開発者Kisakayの基本情報を取得",
+		ru: "Получить информацию о разработчике Kisakay",
+		"es-ES": "Obtener información necesaria sobre mi desarrollador, Kisakay"
 	},
 
 	aliases: ["anaïs", "anais", "kisa"],

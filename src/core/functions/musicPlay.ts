@@ -37,11 +37,13 @@ import { LavalinkNode, Player, SearchResult, Track } from "lavalink-client";
 
 import { LanguageData } from "../../../types/languageData.js";
 import maskLink from "./maskLink.js";
+import { getTTSData, cleanupTTS } from "../modules/ttsManager.js";
 
 import { Innertube, YTNodes } from "youtubei.js";
 import * as spotify from "spotify-metadata";
 import appleMusic from "apple-music-metadata";
 import amazonMusic from "amazon-music-metadata";
+import tidalMusic from "tidal-metadata";
 
 export type PlayInteraction =
 	| ChatInputCommandInteraction<"cached">
@@ -127,6 +129,14 @@ export function isAppleMusicURL(url: string): boolean {
 export function isAmazonMusicURL(url: string): boolean {
 	try {
 		return new URL(url).host.includes("amazon");
+	} catch {
+		return false;
+	}
+}
+
+export function isTidalURL(url: string): boolean {
+	try {
+		return new URL(url).host.includes("tidal");
 	} catch {
 		return false;
 	}
@@ -378,6 +388,85 @@ export async function handleAppleMusic(
 	}
 }
 
+export async function handleTidalMusic(
+	requester: User,
+	node: LavalinkNode,
+	query: string
+): Promise<SearchResult | undefined> {
+	try {
+		const res = await tidalMusic(query);
+		if (!res) {
+			return undefined;
+		}
+
+		// Single song
+		if (res.type === "song") {
+			return await node.search(
+				{
+					query: `${res.title} - ${res.artist.name}`,
+					source: "deezer"
+				},
+				requester
+			);
+		}
+
+		// Album / Playlist
+		if (
+			(res.type === "album" || res.type === "playlist") &&
+			res.tracks?.length
+		) {
+			const tracks = res.tracks.slice(0, 100);
+
+			const results = await Promise.all(
+				tracks.map(async (track) => {
+					try {
+						const search = await node.search(
+							{
+								query: `${track.title} ${track.artist.name}`,
+								source: "deezer"
+							},
+							requester
+						);
+
+						return search?.tracks?.[0] ?? undefined;
+					} catch {
+						return undefined;
+					}
+				})
+			);
+
+			const foundTracks = results.filter(
+				(track): track is Track => track !== undefined
+			);
+
+			if (!foundTracks.length) {
+				return undefined;
+			}
+
+			return {
+				loadType: "playlist",
+				tracks: foundTracks,
+				playlistInfo: {
+					name: res.title ?? "Apple Music Playlist",
+					title: res.title ?? "Apple Music Playlist",
+					duration: foundTracks.reduce(
+						(total, track) => total + track.info.duration,
+						0
+					),
+					selectedTrack: null
+				},
+				exception: null,
+				pluginInfo: {}
+			} as unknown as SearchResult;
+		}
+
+		return undefined;
+	} catch (err) {
+		logger.err("Apple Music handler failed:", err);
+		return undefined;
+	}
+}
+
 export async function handleAmazonMusic(
 	requester: User,
 	node: LavalinkNode,
@@ -476,6 +565,8 @@ export async function searchQueryOnNode(
 		return await handleAppleMusic(requester, node, query);
 	} else if (isAmazonMusicURL(query)) {
 		return await handleAmazonMusic(requester, node, query);
+	} else if (isTidalURL(query)) {
+		return await handleTidalMusic(requester, node, query);
 	} else if (isUrlQuery(query)) {
 		let res: SearchResult | undefined;
 
@@ -646,6 +737,11 @@ export async function handleMusicPlay({
 	if (!voiceChannel) {
 		await respond({ content: lang.p_not_in_voice_channel });
 		return;
+	}
+
+	const ttsData = await getTTSData(client, interaction.guild.id);
+	if (ttsData && ttsData.enabled) {
+		await cleanupTTS(client, interaction.guild.id);
 	}
 
 	if (
