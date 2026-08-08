@@ -19,9 +19,9 @@ A brand new Text-to-Speech module arrives with 4 commands:
 
 ---
 
-## 🎵 Apple Music & Amazon Music
+## 🎵 Apple Music, Amazon Music & Tidal
 
-The music player now supports **Apple Music** and **Amazon Music** links alongside Spotify and YouTube.
+The music player now supports **Apple Music**, **Amazon Music** and **Tidal** links alongside Spotify, YouTube, SoundCloud, Deezer and Discord CDN.
 
 ---
 
@@ -33,7 +33,19 @@ When iHorizon joins a server, it now sends a **welcome DM** to the owner — and
 
 ## ⚙️ `/setlang` gets a makeover
 
-No more language codes to type. `/setlang` opens an **interactive menu** with the full language list and their flags. Pick one, hit Save, done.
+No more language codes to type. `/setlang` opens an **interactive menu** with the full language list and their flags. Pick one, hit Save, done. The panel now dynamically updates its labels in the selected language as you browse.
+
+---
+
+## 📋 `+updates` — Changelog at your fingertips
+
+A new `+updates` command (aliases: `+changelog`, `+update`) lets you view the latest iHorizon version, commit details and branch — with the full changelog attached as a downloadable PDF. The PDF is automatically served in your server's language (French or English), with a fallback if one isn't available.
+
+---
+
+## 📰 Newsletter — stay up to date automatically
+
+Server owners now receive an automatic **DM notification** whenever a new minor version of iHorizon is released. The message includes the version number, release link, and the full changelog as a PDF. Owners can unsubscribe anytime with a single button.
 
 ---
 
