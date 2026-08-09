@@ -82,6 +82,16 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
+		if (Number(toDeposit) <= 0) {
+			await client.func.method.interactionSend(interaction, {
+				content: lang.temporary_voice_limit_button_not_integer.replace(
+					"${interaction.client.iHorizon_Emojis.No}",
+					client.iHorizon_Emojis.No
+				)
+			});
+			return;
+		}
+
 		if (toDeposit && toDeposit > balance) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.deposit_cannot_abuse.replace(

@@ -33,7 +33,9 @@ export default async function (
 	const guildId = rawParts[1]?.split("?")[0] ?? null;
 
 	if (guildId) {
-		const guild = interaction.client.guilds.cache.get(guildId);
+		const guild = await interaction.client.guilds
+			.fetch(guildId)
+			.catch(() => null);
 		if (guild && guild.ownerId !== ownerId) {
 			await interaction.reply({
 				content: lang.newsletter_not_owner.replace(

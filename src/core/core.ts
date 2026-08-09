@@ -103,7 +103,10 @@ export async function main(client: Client) {
 	client.owners = [];
 	client.content = [];
 	client.category = [];
-	client.invites = new Collection<Snowflake, Collection<string, InviteCacheData>>();
+	client.invites = new Collection<
+		Snowflake,
+		Collection<string, InviteCacheData>
+	>();
 	client.timeCalculator = new iHorizonTimeCalculator();
 	client.vanityInvites = new Collection<Snowflake, VanityInviteData>();
 	client.kdenlive = new KdenLive();
@@ -177,6 +180,25 @@ export async function main(client: Client) {
 function login() {
 	client
 		.login(process.env.BOT_TOKEN || client.config.discord.token)
+		.catch(async (err) => {
+			if (err.message?.includes("disallowed intents")) {
+				const { enableRequiredIntents } =
+					await import("./functions/intentEnabler.js");
+				const token =
+					process.env.BOT_TOKEN || client.config.discord.token;
+				const ok = await enableRequiredIntents(token);
+				if (ok) {
+					logger.log("Intents updated. Restarting...");
+					await new Promise((r) => setTimeout(r, 2000));
+					process.exit(0);
+				} else {
+					logger.err(
+						"Failed to enable intents. Manual action required."
+					);
+					process.exit(1);
+				}
+			}
+		})
 		.then(async () => {
 			const title =
 				"iHorizon - " +

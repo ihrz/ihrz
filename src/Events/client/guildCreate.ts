@@ -501,6 +501,22 @@ Guild Info:
 			}
 		}
 
+		async function setBotBioByLang() {
+			const lang = await client.func.getLanguageData(guild.id);
+			if (!lang.bot_server_bio) return;
+
+			const commandCount = client.content.length.toString();
+
+			const bio = lang.bot_server_bio
+				.replace("{count}", commandCount)
+				.replace("{wink_emoji}", client.iHorizon_Emojis.Wink)
+				.replace("{home_emoji}", client.iHorizon_Emojis.Home);
+
+			client.func.customProfileHelper
+				.changeGuildBotBio(guild, bio)
+				.catch(() => {});
+		}
+
 		// let c = await antiPoubelle();
 		const d = await blacklistLeave();
 		if (d)
@@ -508,7 +524,8 @@ Guild Info:
 				ownerLogs(),
 				messageToServer(),
 				getInvites(),
-				ownerWelcomeDM()
+				ownerWelcomeDM(),
+				setBotBioByLang()
 			]);
 	}
 };
