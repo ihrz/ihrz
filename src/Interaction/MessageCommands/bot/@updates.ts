@@ -121,9 +121,7 @@ export const command: Command = {
 		const isEnabled = !isDisabled;
 
 		const newsletterBtn = new ButtonBuilder()
-			.setCustomId(
-				.setCustomId(`newsletter-toggle%${interaction.guildId}`)
-			)
+			.setCustomId(`newsletter-toggle%${interaction.guildId}`)
 			.setLabel(
 				isEnabled
 					? lang.newsletter_btn_unsubscribe
