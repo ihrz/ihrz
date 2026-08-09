@@ -26,7 +26,8 @@ import {
 	Message,
 	ActionRowBuilder,
 	ButtonBuilder,
-	ButtonStyle
+	ButtonStyle,
+	ComponentType
 } from "discord.js";
 
 import { LanguageData } from "../../../../types/languageData.js";
@@ -120,7 +121,9 @@ export const command: Command = {
 		const isEnabled = !isDisabled;
 
 		const newsletterBtn = new ButtonBuilder()
-			.setCustomId("newsletter-toggle")
+			.setCustomId(
+				.setCustomId(`newsletter-toggle%${interaction.guildId}`)
+			)
 			.setLabel(
 				isEnabled
 					? lang.newsletter_btn_unsubscribe
@@ -177,10 +180,20 @@ export const command: Command = {
 			);
 		}
 
-		await interaction.reply({
+		const response = await interaction.reply({
 			embeds: [embed],
 			components,
 			files
+		});
+
+		const collector = response.createMessageComponentCollector({
+			componentType: ComponentType.Button,
+			time: 600_000
+		});
+
+		collector.on("end", async () => {
+			newsletterBtn.setDisabled(true);
+			await response.edit({ components }).catch(() => {});
 		});
 	}
 };
