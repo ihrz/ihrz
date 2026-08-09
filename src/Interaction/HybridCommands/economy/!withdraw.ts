@@ -87,6 +87,16 @@ export const subCommand: SubCommand = {
 
 		const clean_to_withdraw = parseInt(toWithdraw);
 
+		if (clean_to_withdraw <= 0) {
+			await client.func.method.interactionSend(interaction, {
+				content: lang.temporary_voice_limit_button_not_integer.replace(
+					"${interaction.client.iHorizon_Emojis.No}",
+					client.iHorizon_Emojis.No
+				)
+			});
+			return;
+		}
+
 		if (toWithdraw && clean_to_withdraw > dataAccount?.bank!) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.withdraw_cannot_abuse.replace(
