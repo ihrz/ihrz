@@ -27,6 +27,7 @@ import {
 } from "discord.js";
 import { iHorizonModalResolve } from "../../../core/functions/modalHelper.js";
 import { tempTable } from "../../../Events/client/ready.js";
+import maskLink from "../../../core/functions/maskLink.js";
 
 export default async function (interaction: ButtonInteraction<"cached">) {
 	const result = await interaction.client.db.get(
@@ -75,7 +76,8 @@ export default async function (interaction: ButtonInteraction<"cached">) {
 		if (!response) return;
 
 		const channel = (interaction.member as GuildMember).voice.channel;
-		channel?.setName(response.fields.getTextInputValue("name"));
+		const name = response.fields.getTextInputValue("name");
+		channel?.setName(maskLink(name));
 
 		await response.reply({
 			embeds: [
