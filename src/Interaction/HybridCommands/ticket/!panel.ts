@@ -117,28 +117,34 @@ export const subCommand: SubCommand = {
 				? interaction.options.getString("panel_id")
 				: client.func.method.string(args!, 0);
 
-		// Chargement ou création du panel
-		const baseData = ((await client.db.get(
+		// Chargement ou creation du panel
+		const rawData = await client.db.get(
 			`${interaction.guildId}.GUILD.TICKET_PANEL.${panel_id}`
-		)) || {
-			panelCode: generatePassword({
-				length: 10,
-				uppercase: true,
-				numbers: true
-			}),
-			relatedEmbedId: null,
-			category: null,
-			placeholder: lang.ticket_panel_default_placeholder,
+		);
+
+		const baseData = {
+			panelCode:
+				rawData?.panelCode ||
+				generatePassword({
+					length: 10,
+					uppercase: true,
+					numbers: true
+				}),
+			relatedEmbedId: rawData?.relatedEmbedId ?? null,
+			category: rawData?.category ?? null,
+			placeholder:
+				rawData?.placeholder || lang.ticket_panel_default_placeholder,
 			config: {
-				rolesToPing: [],
-				optionFields: [],
-				pingUser: true,
-				form: [],
-				userSelectPanel: true,
-				deleteButton: true,
-				transcriptButton: true
-			}
-		}) as TicketPanel;
+				rolesToPing: rawData?.config?.rolesToPing || [],
+				optionFields: rawData?.config?.optionFields || [],
+				pingUser: rawData?.config?.pingUser ?? true,
+				form: rawData?.config?.form || [],
+				userSelectPanel: rawData?.config?.userSelectPanel ?? true,
+				deleteButton: rawData?.config?.deleteButton ?? true,
+				transcriptButton: rawData?.config?.transcriptButton ?? true
+			},
+			ticketChannelPanel: rawData?.ticketChannelPanel ?? undefined
+		} as TicketPanel;
 
 		const panelCode = baseData.panelCode;
 		let isSaved = false;

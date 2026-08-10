@@ -31,6 +31,7 @@ import {
 import { BotEvent } from "../../../types/event.js";
 import { DatabaseStructure } from "../../../types/database_structure.js";
 import { tempTable } from "../client/ready.js";
+import maskLink from "../../core/functions/maskLink.js";
 
 /**
  * Returns the real member count of a voice channel by fetching it from Discord.
@@ -172,7 +173,7 @@ export const event: BotEvent = {
 				.create({
 					name: lang.temporary_voice_channel_name.replace(
 						"{nickname}",
-						username!
+						maskLink(username!)
 					),
 					parent: result_channel?.parentId,
 					permissionOverwrites:
