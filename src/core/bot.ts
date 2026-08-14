@@ -51,7 +51,9 @@ global.client = new Client({
 		},
 		presences: {
 			interval: 60 * 15,
-			filter: () => () => true
+			filter: () => (presence) => {
+				return presence.status === "offline";
+			}
 		},
 		threads: {
 			interval: 60 * 30,
