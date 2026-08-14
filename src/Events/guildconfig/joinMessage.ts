@@ -36,6 +36,34 @@ import { DatabaseStructure } from "../../../types/database_structure.js";
 import { InviteCacheData } from "../../../types/client.js";
 import { apiTable } from "../client/ready.js";
 
+const INVITE_RESOLVE_TIMEOUT_MS = 1200;
+
+const pendingInviteFetch = new Map<
+	string,
+	Promise<Collection<string, Invite>>
+>();
+
+function fetchInvitesOnce(guild: Guild): Promise<Collection<string, Invite>> {
+	const cached = pendingInviteFetch.get(guild.id);
+	if (cached) return cached;
+
+	const promise = guild.invites.fetch().finally(() => {
+		setTimeout(() => pendingInviteFetch.delete(guild.id), 1500);
+	});
+
+	pendingInviteFetch.set(guild.id, promise);
+	return promise;
+}
+
+function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T | null> {
+	return Promise.race([
+		promise,
+		new Promise<null>((resolve) => {
+			setTimeout(() => resolve(null), ms);
+		})
+	]);
+}
+
 export async function generateJoinImage(
 	member: GuildMember,
 	ImageBannerOptions?: DatabaseStructure.JoinBannerOptions
@@ -120,8 +148,8 @@ export async function generateJoinImage(
 export async function resolveInvite(
 	guild: Guild,
 	oldInvites: Collection<string, InviteCacheData> | undefined
-) {
-	const invites = await guild.invites.fetch();
+): Promise<Invite | null> {
+	const invites = await fetchInvitesOnce(guild);
 
 	const invite = invites.find((i: Invite) => {
 		const oldInvite = oldInvites?.get(i.code);
@@ -150,12 +178,38 @@ function clientInviteCache(guild: Guild, invites: Collection<string, Invite>) {
 	);
 }
 
+async function recordInviterStats(
+	client: Client,
+	guild: Guild,
+	member: GuildMember,
+	invite: Invite
+): Promise<void> {
+	const inviterId = invite.inviterId!;
+
+	const check = await client.db.get(`${guild.id}.USER.${inviterId}.INVITES`);
+
+	if (!check) {
+		await client.db.set(`${guild.id}.USER.${inviterId}.INVITES`, {
+			regular: 0,
+			bonus: 0,
+			leaves: 0,
+			invites: 0
+		});
+	}
+
+	await client.db.add(`${guild.id}.USER.${inviterId}.INVITES.regular`, 1);
+	await client.db.add(`${guild.id}.USER.${inviterId}.INVITES.invites`, 1);
+
+	await client.db.set(`${guild.id}.USER.${member.user.id}.INVITES.BY`, {
+		inviter: inviterId,
+		invite: invite.code
+	});
+}
+
 export const event: BotEvent = {
 	name: "guildMemberAdd",
 	run: async (client: Client, member: GuildMember) => {
 		try {
-			const data = await client.func.getLanguageData(member.guild.id);
-
 			if (
 				!member.guild.members.me?.permissions.has(
 					PermissionsBitField.Flags.ManageGuild
@@ -163,20 +217,56 @@ export const event: BotEvent = {
 			)
 				return;
 
-			const guildLocal =
-				(await client.db.get(`${member.guild.id}.GUILD.LANG.lang`)) ||
-				"en-US";
-			const oldInvites = client.invites.get(member.guild.id);
-			const invite = await resolveInvite(member.guild, oldInvites);
+			const [data, guildLocalRaw, config] = await Promise.all([
+				client.func.getLanguageData(member.guild.id),
+				client.db.get(`${member.guild.id}.GUILD.LANG.lang`),
+				client.db.get(`${member.guild.id}.GUILD.GUILD_CONFIG`)
+			]);
 
+			const guildLocal = guildLocalRaw || "en-US";
 			const {
 				joinmessage: joinMessage,
 				joinbannerStates: ImageBannerStates,
 				join: wChan,
 				joinbanner: JoinBannerOptions
-			} = (await client.db.get(
-				`${member.guild.id}.GUILD.GUILD_CONFIG`
-			)) as DatabaseStructure.GuildConfigSchema;
+			} = config as DatabaseStructure.GuildConfigSchema;
+
+			const oldInvites = client.invites.get(member.guild.id);
+
+			let statsRecorded = false;
+			const recordStatsOnce = async (resolved: Invite | null) => {
+				if (statsRecorded || !resolved?.inviterId) return;
+				statsRecorded = true;
+				try {
+					await recordInviterStats(
+						client,
+						member.guild,
+						member,
+						resolved
+					);
+				} catch (e) {
+					logger.err(member.guild.name, "Invite stats error: " + e);
+				}
+			};
+
+			const inviteResultPromise = resolveInvite(
+				member.guild,
+				oldInvites
+			).catch((e) => {
+				logger.err(member.guild.name, "Invite resolve error: " + e);
+				return null;
+			});
+
+			const invite = await withTimeout(
+				inviteResultPromise,
+				INVITE_RESOLVE_TIMEOUT_MS
+			);
+
+			inviteResultPromise.then(recordStatsOnce);
+
+			if (invite?.inviterId) {
+				await recordStatsOnce(invite);
+			}
 
 			logger.debug(
 				member.guild.name,
@@ -187,8 +277,15 @@ export const event: BotEvent = {
 				invite?.toJSON()
 			);
 
-			const files = [];
+			if (!wChan) return;
 
+			const channel =
+				member.guild.channels.cache.get(wChan) ||
+				(await member.guild.channels.fetch(wChan).catch(() => null));
+
+			if (!channel) return;
+
+			const files: AttachmentBuilder[] = [];
 			if (ImageBannerStates === "on") {
 				try {
 					files.push(
@@ -210,77 +307,22 @@ export const event: BotEvent = {
 					`@${inviterId}`;
 				const inviterMention = `<@${inviterId}>`;
 
-				const check = await client.db.get(
-					`${invite?.guild?.id}.USER.${inviterId}.INVITES`
-				);
-
-				if (check) {
-					await client.db.add(
-						`${invite?.guild?.id}.USER.${inviterId}.INVITES.regular`,
-						1
-					);
-					await client.db.add(
-						`${invite?.guild?.id}.USER.${inviterId}.INVITES.invites`,
-						1
-					);
-				} else {
-					await client.db.set(
-						`${invite?.guild?.id}.USER.${inviterId}.INVITES`,
-						{
-							regular: 0,
-							bonus: 0,
-							leaves: 0,
-							invites: 0
-						}
-					);
-
-					await client.db.add(
-						`${invite?.guild?.id}.USER.${inviterId}.INVITES.regular`,
-						1
-					);
-					await client.db.add(
-						`${invite?.guild?.id}.USER.${inviterId}.INVITES.invites`,
-						1
-					);
-				}
-
-				await client.db.set(
-					`${invite?.guild?.id}.USER.${member.user.id}.INVITES.BY`,
-					{
-						inviter: inviterId,
-						invite: invite?.code
-					}
-				);
-
 				const invitesAmount = await client.db.get(
 					`${member.guild.id}.USER.${inviterId}.INVITES.invites`
 				);
+
 				let isCustomVanity = false; // Is discord.wf link
-				let msg = "";
-
-				logger.debug(member.guild.name, "wChan", wChan);
-				if (!wChan) return;
-
-				const channel =
-					member.guild.channels.cache.get(wChan) ||
-					(await member.guild.channels
-						.fetch(wChan)
-						.catch(() => null));
-
-				logger.debug(member.guild.name, "channel", channel?.name);
-				if (!channel) return;
-
 				const CustomVanityInvite = await apiTable.get(
 					`VANITY.${member.guild.id}`
 				);
 				if (
 					inviterId === client.user?.id &&
-					CustomVanityInvite.invite === invite.code
+					CustomVanityInvite?.invite === invite.code
 				) {
 					isCustomVanity = true;
 				}
 
-				msg = client.func.method.generateCustomMessagePreview(
+				const msg = client.func.method.generateCustomMessagePreview(
 					joinMessage || data.event_welcomer_inviter,
 					{
 						user: member.user,
@@ -302,49 +344,19 @@ export const event: BotEvent = {
 
 				await client.func.method.channelSend(
 					channel as BaseGuildTextChannel,
-					{ content: msg, files: files }
+					{ content: msg, files }
 				);
 				return;
-			} else if (member.guild.features.includes(GuildFeature.VanityURL)) {
-				let msg = "";
-				let VanityURL: Vanity = await member.guild.fetchVanityData();
+			}
 
-				logger.debug(
-					member.guild.name,
-					"before if vanity",
-					member.guild.vanityURLUses,
-					member.guild.vanityURLUses
-				);
-				logger.debug(member.guild.name, "after if vanity", VanityURL);
-
+			if (member.guild.features.includes(GuildFeature.VanityURL)) {
+				const VanityURL: Vanity = await member.guild.fetchVanityData();
 				const vanityInviteCache = client.vanityInvites.get(
 					member.guild.id
 				);
-
 				client.vanityInvites.set(member.guild.id, VanityURL);
 
-				logger.debug(member.guild.name, "wchan2", wChan);
-				if (!wChan) return;
-
-				const channel =
-					member.guild.channels.cache.get(wChan) ||
-					(await member.guild.channels
-						.fetch(wChan)
-						.catch(() => null));
-				logger.debug(
-					member.guild.name,
-					"channel2",
-					channel?.name,
-					channel?.id
-				);
-				if (!channel) return;
-
-				logger.debug(
-					member.guild.name,
-					vanityInviteCache,
-					VanityURL,
-					vanityInviteCache?.uses! < VanityURL.uses
-				);
+				let msg: string;
 				if (
 					vanityInviteCache &&
 					vanityInviteCache.uses! < VanityURL.uses!
@@ -364,12 +376,6 @@ export const event: BotEvent = {
 							}
 						}
 					);
-
-					await client.func.method.channelSend(
-						channel as BaseGuildTextChannel,
-						{ content: msg, files }
-					);
-					return;
 				} else {
 					msg = client.func.method.generateCustomMessagePreview(
 						joinMessage || data.event_welcomer_default,
@@ -379,39 +385,7 @@ export const event: BotEvent = {
 							guildLocal: guildLocal
 						}
 					);
-
-					await client.func.method.channelSend(
-						channel as BaseGuildTextChannel,
-						{ content: msg, files }
-					);
 				}
-			} else {
-				let msg = "";
-
-				logger.debug(member.guild.name, "wchan", wChan);
-				if (!wChan) return;
-
-				const channel =
-					member.guild.channels.cache.get(wChan) ||
-					(await member.guild.channels
-						.fetch(wChan)
-						.catch(() => null));
-				logger.debug(
-					member.guild.name,
-					"channel3",
-					channel?.name,
-					channel?.id
-				);
-				if (!channel) return;
-
-				msg = client.func.method.generateCustomMessagePreview(
-					joinMessage || data.event_welcomer_default,
-					{
-						user: member.user,
-						guild: member.guild,
-						guildLocal: guildLocal
-					}
-				);
 
 				await client.func.method.channelSend(
 					channel as BaseGuildTextChannel,
@@ -419,6 +393,20 @@ export const event: BotEvent = {
 				);
 				return;
 			}
+
+			const msg = client.func.method.generateCustomMessagePreview(
+				joinMessage || data.event_welcomer_default,
+				{
+					user: member.user,
+					guild: member.guild,
+					guildLocal: guildLocal
+				}
+			);
+
+			await client.func.method.channelSend(
+				channel as BaseGuildTextChannel,
+				{ content: msg, files }
+			);
 		} catch (error) {
 			logger.err(error);
 		}
