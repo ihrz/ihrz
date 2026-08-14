@@ -1275,6 +1275,7 @@ export interface LanguageData {
 	p_loading_message: string;
 	p_duration: string;
 	p_not_allowed: string;
+	p_attachment_too_large: string;
 	loop_no_queue: string;
 	loop_command_work: string;
 	nowplaying_no_queue: string;
