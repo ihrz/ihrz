@@ -168,7 +168,8 @@ export const event: BotEvent = {
 			!message.member ||
 			message.channel.type !== ChannelType.GuildText ||
 			message.author.bot ||
-			message.author.id === client.user?.id
+			message.author.id === client.user?.id ||
+			message.webhookId
 		) {
 			return;
 		}
@@ -201,7 +202,11 @@ export const event: BotEvent = {
 			);
 		}
 
-		const member = message.guild.members.cache.get(message.author.id);
+		const member =
+			message.guild.members.cache.get(message.author.id) ||
+			(await message.guild.members
+				.fetch(message.author.id)
+				.catch(() => null));
 
 		if (
 			automodRules?.exemptRoles

@@ -360,7 +360,8 @@ async function handleExecutionError(ctx: ExecutionContext, error: any) {
 
 export async function runCommand(ctx: ExecutionContext): Promise<void> {
 	try {
-		if (!(await checkCustomSdkGate(ctx))) return;
+		// 14 August 2026: Anais disabled that paywall since discord doesnt want to pay me ! ><
+		// if (!(await checkCustomSdkGate(ctx))) return;
 
 		const { passed, allowed } = await checkGuildPermissionRequirements(ctx);
 		if (!passed) return;
