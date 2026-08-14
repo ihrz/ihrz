@@ -30,6 +30,8 @@ import { AnotherCommand } from "../../../types/anotherCommand.js";
 import { LanguageData } from "../../../types/languageData.js";
 import { handleMusicPlay } from "../../core/functions/musicPlay.js";
 
+const MAX_ATTACHMENT_SIZE_BYTES = 10 * 1024 * 1024; // 10MB
+
 export const command: AnotherCommand = {
 	name: "Play it in a voice channel",
 	type: ApplicationCommandType.Message,
@@ -43,6 +45,23 @@ export const command: AnotherCommand = {
 			interaction.guildId
 		)) as LanguageData;
 		const msg = interaction.options.getMessage("message") as Message;
+
+		if (msg.attachments.size >= 1) {
+			const oversizedAttachment = msg.attachments.find(
+				(attachment) => attachment.size > MAX_ATTACHMENT_SIZE_BYTES
+			);
+
+			if (oversizedAttachment) {
+				await interaction.editReply({
+					content: lang.p_attachment_too_large.replace(
+						"${client.iHorizon_Emojis.No}",
+						client.iHorizon_Emojis.No
+					)
+				});
+				return;
+			}
+		}
+
 		const queries =
 			msg.attachments.size >= 1
 				? msg.attachments.map((attachment) => attachment.url)

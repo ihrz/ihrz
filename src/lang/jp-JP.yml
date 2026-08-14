@@ -1669,6 +1669,7 @@ p_embed_title: "検索結果がありません"
 p_loading_message: "${client.iHorizon_Emojis.Timer}  {result}をロード中！"
 p_duration: "再生時間："
 p_not_allowed: "このボットではサポートされていないリンクを送信しようとしました。Deezer、Spotify、Soundcloudなど、許可された音楽ストリーミングサービスを使用してください。"
+p_attachment_too_large: "${client.iHorizon_Emojis.No} 添付ファイルが10MBの上限を超えているため、読み込めません。"
 
 # /loop
 loop_no_queue: "キューがありません！"

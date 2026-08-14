@@ -1669,6 +1669,7 @@ p_embed_title: "Keine Ergebnisse"
 p_loading_message: "${client.iHorizon_Emojis.Timer} Lade ein: **{result}** !"
 p_duration: "Dauer: "
 p_not_allowed: "Der von Ihnen gesendete Link wird von diesem Bot nicht unterstützt. Bitte verwenden Sie autorisierte Musik-Streaming-Dienste wie Deezer, Spotify, Soundcloud usw."
+p_attachment_too_large: "${client.iHorizon_Emojis.No} Die angehängte Datei überschreitet das 10MB-Limit und kann nicht gelesen werden."
 
 # /loop
 loop_no_queue: "Es gibt keine Warteschlange!"

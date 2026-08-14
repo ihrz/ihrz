@@ -550,6 +550,12 @@ export function responseExist(res: SearchResult | undefined): boolean {
 	return (res?.tracks.length ?? 0) > 0 && !!res?.tracks?.[0]?.info?.title;
 }
 
+export function buildTrackLabel(track: Track): string {
+	const title = track.info.title ?? "";
+	const author = track.info.author ?? "";
+	return `${title} ${author}`.trim();
+}
+
 export async function searchQueryOnNode(
 	client: Client,
 	node: LavalinkNode,
@@ -568,42 +574,85 @@ export async function searchQueryOnNode(
 	} else if (isTidalURL(query)) {
 		return await handleTidalMusic(requester, node, query);
 	} else if (isUrlQuery(query)) {
-		let res: SearchResult | undefined;
-
+		let deezerRes: SearchResult | undefined;
 		try {
-			res = await node.search({ query, source: "deezer" }, requester);
-			logger.debug(
-				"Searching URL",
-				query,
-				"with",
-				"deezer",
-				"| Result: ",
-				res.tracks[0]?.info
+			deezerRes = await node.search(
+				{ query, source: "deezer" },
+				requester
 			);
 		} catch {
-			res = undefined;
+			deezerRes = undefined;
 		}
 
-		if (!res?.tracks[0]) {
+		// Deezer n'a strictement rien -> fallback SoundCloud, comportement inchangé
+		if (!responseExist(deezerRes)) {
+			let soundcloudRes: SearchResult | undefined;
 			try {
-				res = await node.search(
+				soundcloudRes = await node.search(
 					{ query, source: "soundcloud" },
 					requester
 				);
 				logger.debug(
-					"Searching URL",
+					"Searching",
 					query,
 					"with",
 					"soundcloud",
 					"| Result: ",
-					res.tracks[0]?.info
+					soundcloudRes.tracks[0]?.info
 				);
 			} catch {
-				res = undefined;
+				soundcloudRes = undefined;
 			}
+
+			return responseExist(soundcloudRes) ? soundcloudRes : undefined;
 		}
 
-		return res;
+		if (
+			client.func.music_proximity.isSimilar(
+				query,
+				deezerRes!.tracks[0],
+				0.5,
+				0.6
+			)
+		) {
+			return deezerRes;
+		}
+
+		let soundcloudRes: SearchResult | undefined;
+		try {
+			soundcloudRes = await node.search(
+				{ query, source: "soundcloud" },
+				requester
+			);
+		} catch {
+			soundcloudRes = undefined;
+		}
+
+		if (!responseExist(soundcloudRes)) {
+			return deezerRes;
+		}
+
+		const deezerScore = client.func.music_proximity.similarity(
+			query,
+			buildTrackLabel(deezerRes!.tracks[0])
+		);
+		const soundcloudScore = client.func.music_proximity.similarity(
+			query,
+			buildTrackLabel(soundcloudRes!.tracks[0])
+		);
+
+		logger.debug(
+			"Comparing Deezer vs SoundCloud proximity for",
+			query,
+			"| Deezer:",
+			deezerScore,
+			deezerRes!.tracks[0]?.info?.title,
+			"| SoundCloud:",
+			soundcloudScore,
+			soundcloudRes!.tracks[0]?.info?.title
+		);
+
+		return soundcloudScore > deezerScore ? soundcloudRes : deezerRes;
 	}
 
 	let res: SearchResult | undefined;
