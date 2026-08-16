@@ -38,6 +38,11 @@ const DM_STAGGER_MS = 10000;
 const DM_BATCH_SIZE = 1;
 const DM_BATCH_DELAY_MS = 15000;
 
+interface GuildOwnerEntry {
+	guildId: string;
+	ownerId: string;
+}
+
 function isValidVersion(version: string): boolean {
 	const parts = version.split(".");
 	return parts.length >= 2 && parts.every((p) => /^\d+$/.test(p));
@@ -142,17 +147,37 @@ async function sendDm(
 
 async function getOwnerLang(
 	client: Client,
-	ownerId: string
+	guildId: string
 ): Promise<LanguageData> {
-	for (const [, guild] of client.guilds.cache) {
-		if (guild.ownerId === ownerId) {
-			return client.func.getLanguageData(guild.id);
-		}
+	if (!guildId) {
+		return client.func.getLanguageData(null);
 	}
-	return client.func.getLanguageData(null);
+	return client.func.getLanguageData(guildId);
+}
+
+async function getAllGuildOwnerData(
+	client: Client
+): Promise<GuildOwnerEntry[]> {
+	if (!client.shard) {
+		return [...client.guilds.cache.values()]
+			.filter((g) => g.ownerId)
+			.map((g) => ({ guildId: g.id, ownerId: g.ownerId! }));
+	}
+
+	const results = await client.shard.broadcastEval((c) =>
+		[...c.guilds.cache.values()]
+			.filter((g) => g.ownerId)
+			.map((g) => ({ guildId: g.id, ownerId: g.ownerId! }))
+	);
+
+	return results.flat();
 }
 
 export async function checkAndNotifyRelease(client: Client): Promise<void> {
+	if (!client.isMainShard()) {
+		return;
+	}
+
 	const currentVersion = await readVersionFile(V_FILE);
 	if (!currentVersion) {
 		logger.log("Release notifier: no v.txt found, skipping");
@@ -186,12 +211,16 @@ export async function checkAndNotifyRelease(client: Client): Promise<void> {
 			")"
 	);
 
-	const guilds = [...client.guilds.cache.values()];
-	const ownerIds = new Set<string>();
+	const allGuildData = await getAllGuildOwnerData(client);
 
-	for (const guild of guilds) {
-		if (!guild.ownerId) continue;
-		ownerIds.add(guild.ownerId);
+	const ownerIds = new Set<string>();
+	const guildIdByOwner = new Map<string, string>();
+
+	for (const { guildId, ownerId } of allGuildData) {
+		ownerIds.add(ownerId);
+		if (!guildIdByOwner.has(ownerId)) {
+			guildIdByOwner.set(ownerId, guildId);
+		}
 	}
 
 	const alreadySentKey = `newsletter_sent_${currentVersion.replace(/\./g, "-")}`;
@@ -239,15 +268,8 @@ export async function checkAndNotifyRelease(client: Client): Promise<void> {
 				continue;
 			}
 
-			const lang = await getOwnerLang(client, ownerId);
-
-			let guildId = "";
-			for (const [, g] of client.guilds.cache) {
-				if (g.ownerId === ownerId) {
-					guildId = g.id;
-					break;
-				}
-			}
+			const guildId = guildIdByOwner.get(ownerId) ?? "";
+			const lang = await getOwnerLang(client, guildId);
 
 			const result = await sendDm(
 				client,
@@ -291,6 +313,4 @@ export async function checkAndNotifyRelease(client: Client): Promise<void> {
 			ownerArray.length +
 			")"
 	);
-
-	writeVersionFile(currentVersion);
 }
