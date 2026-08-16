@@ -27,6 +27,7 @@ import {
 } from "discord.js";
 
 import { Command } from "../../../../types/command.js";
+import { cooldown } from "../../../core/functions/helper.js";
 
 export const command: Command = {
 	name: "utils",
@@ -163,7 +164,9 @@ export const command: Command = {
 			],
 
 			type: ApplicationCommandOptionType.Subcommand,
-			permission: PermissionFlagsBits.ManageGuild
+			permission: PermissionFlagsBits.ManageGuild,
+
+			cooldown: client.timeCalculator.to_ms("24hours")
 		},
 		{
 			name: "userinfo",
@@ -710,7 +713,8 @@ export const command: Command = {
 			permission: [
 				PermissionFlagsBits.MoveMembers,
 				PermissionFlagsBits.ModerateMembers
-			]
+			],
+			cooldown: client.timeCalculator.to_ms("5m")
 		},
 		{
 			name: "massiverole",
@@ -785,7 +789,9 @@ export const command: Command = {
 			thinking: true,
 			type: ApplicationCommandOptionType.Subcommand,
 
-			permission: PermissionFlagsBits.Administrator
+			permission: PermissionFlagsBits.Administrator,
+
+			cooldown: client.timeCalculator.to_ms("5m")
 		},
 		{
 			name: "serverinfo",
