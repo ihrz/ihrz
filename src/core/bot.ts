@@ -28,6 +28,7 @@ import * as core from "./core.js";
 import config from "../files/config.js";
 import { setMaxListeners } from "events";
 import { getOS } from "./getOS.js";
+import { iHorizonTimeCalculator } from "./functions/ms.js";
 setMaxListeners(0);
 
 const DISCORD_MESSAGE_SWEEP_LIFETIME_SECONDS = 60 * 60 * 8;
@@ -97,6 +98,8 @@ global.client = new Client({
 	],
 	enforceNonce: true
 });
+
+client.timeCalculator = new iHorizonTimeCalculator();
 
 client.inShard = function (guildId: string): boolean {
 	const shardId = client.shard?.ids?.[0] ?? 0;
