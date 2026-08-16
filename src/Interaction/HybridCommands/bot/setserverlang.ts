@@ -37,10 +37,7 @@ import {
 
 import { Command } from "../../../../types/command.js";
 import { LanguageData } from "../../../../types/languageData.js";
-import {
-	AvailableLanguage,
-	getLanguageByCode
-} from "../../../core/functions/getLanguageData.js";
+import { AvailableLanguage } from "../../../core/functions/getLanguageData.js";
 
 export const command: Command = {
 	name: "setlang",
@@ -160,7 +157,8 @@ export const command: Command = {
 				await selectInteraction.deferUpdate();
 				selectedLang = selectInteraction.values[0];
 
-				const newLang = await getLanguageByCode(selectedLang);
+				const newLang =
+					await client.func.getLanguageDataByCode(selectedLang);
 				const chosen = AvailableLanguage.find(
 					(l) => l.code === selectedLang
 				);
@@ -244,7 +242,8 @@ export const command: Command = {
 					});
 
 					// Update bot server bio in new language
-					const newLang = await getLanguageByCode(selectedLang);
+					const newLang =
+						await client.func.getLanguageDataByCode(selectedLang);
 					const commandCount = client.content.length.toString();
 					if (newLang.bot_server_bio) {
 						client.func.customProfileHelper

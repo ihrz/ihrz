@@ -358,6 +358,45 @@ async function handleExecutionError(ctx: ExecutionContext, error: any) {
 	);
 }
 
+export async function checkGlobalCooldown(
+	ctx: ExecutionContext
+): Promise<{ unallowed: boolean }> {
+	const member = await getMember(ctx.source);
+
+	if (!member || !ctx.target.cooldown) {
+		return {
+			unallowed: false
+		};
+	}
+
+	if (
+		await client.func.helper.cooldown(
+			member?.id,
+			ctx.commandPath,
+			ctx.target.cooldown
+		)
+	) {
+		const time = client.timeCalculator.to_beautiful_string(
+			ctx.target.cooldown -
+				(Date.now() -
+					((await client.func.helper.getCooldownTimestamp(
+						member.id,
+						ctx.commandPath
+					)) || 0)),
+			ctx.lang
+		);
+
+		await replyDenied(
+			ctx,
+			`You need to wait **${time}** between each \`${ctx.commandPath}\``
+		);
+		return { unallowed: true };
+	}
+	return {
+		unallowed: false
+	};
+}
+
 export async function runCommand(ctx: ExecutionContext): Promise<void> {
 	try {
 		// 14 August 2026: Anais disabled that paywall since discord doesnt want to pay me ! ><
@@ -367,6 +406,9 @@ export async function runCommand(ctx: ExecutionContext): Promise<void> {
 		if (!passed) return;
 
 		if (await checkCommandRateLimit(ctx)) return;
+
+		const { unallowed } = await checkGlobalCooldown(ctx);
+		if (unallowed) return;
 
 		await deferIfNeeded(ctx);
 

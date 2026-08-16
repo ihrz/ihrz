@@ -139,7 +139,8 @@ export const command: Command = {
 				fr: "Créer votre propre URL vanity sous le format discord.wf",
 				ja: "discord.wf形式で自分のバニティURLを取得！",
 				ru: "Получить вашу персональную ссылку в формате discord.wf!",
-				"es-ES": "Obtener tu propia URL de vanidad en formato discord.wf!"
+				"es-ES":
+					"Obtener tu propia URL de vanidad en formato discord.wf!"
 			},
 
 			options: [
@@ -375,7 +376,8 @@ export const command: Command = {
 
 			permission: PermissionFlagsBits.Administrator,
 
-			type: ApplicationCommandOptionType.Subcommand
+			type: ApplicationCommandOptionType.Subcommand,
+			cooldown: client.timeCalculator.to_ms("2m")
 		},
 		{
 			name: "wlroles",
@@ -385,7 +387,8 @@ export const command: Command = {
 				fr: "Définir les rôles autorisés pour les commandes addrole et delrole",
 				ja: "addrole と delrole コマンドの許可ロールを定義",
 				ru: "Определить разрешенные роли для команд addrole и delrole",
-				"es-ES": "Definir roles permitidos para los comandos addrole y delrole"
+				"es-ES":
+					"Definir roles permitidos para los comandos addrole y delrole"
 			},
 
 			aliases: ["wlrole"],
@@ -403,7 +406,8 @@ export const command: Command = {
 				fr: "Définir des canaux pour l'envoi d'images/videos uniquement (bloquer d'autres contenus)",
 				ja: "画像/動画のみ送信可能なチャンネルを定義（他のコンテンツをブロック）",
 				ru: "Определить каналы только для картинок/видео (блокировать другое содержимое)",
-				"es-ES": "Definir canales solo para enviar imágenes/videos (bloquear otro contenido)"
+				"es-ES":
+					"Definir canales solo para enviar imágenes/videos (bloquear otro contenido)"
 			},
 
 			aliases: ["piconly", "mediaonly"],
@@ -488,7 +492,8 @@ export const command: Command = {
 						fr: "The part of the nickname you want the person to have in their nickname",
 						ja: "相手のニックネームに含めたい部分",
 						ru: "Часть ника, которую вы хотите видеть в нике человека",
-						"es-ES": "La parte del apodo que deseas que la persona tenga en su apodo"
+						"es-ES":
+							"La parte del apodo que deseas que la persona tenga en su apodo"
 					},
 
 					required: false,
@@ -510,7 +515,8 @@ export const command: Command = {
 				fr: "Recréation d'un canal (autorisation de clonage et toutes les configurations)",
 				ja: "チャンネルを再作成（権限と全設定をクローン）。nuke相当",
 				ru: "Пересоздать канал (клонирование прав и всех настроек). Аналог nuke",
-				"es-ES": "Recrear un canal (clonando permisos y todas las configuraciones). Equivalente a nuke"
+				"es-ES":
+					"Recrear un canal (clonando permisos y todas las configuraciones). Equivalente a nuke"
 			},
 
 			aliases: ["r", "rnw"],
@@ -528,7 +534,8 @@ export const command: Command = {
 				fr: "Recherchez un utilisateur Discord et voyez ces noms d'utilisateur précédent",
 				ja: "Discordユーザーを検索し、以前のユーザー名を確認！",
 				ru: "Найти пользователя Discord и посмотреть его предыдущие имена!",
-				"es-ES": "Buscar un usuario de Discord y ver su nombre de usuario anterior!"
+				"es-ES":
+					"Buscar un usuario de Discord y ver su nombre de usuario anterior!"
 			},
 
 			aliases: ["pvnames", "pvname", "prevname"],
@@ -565,7 +572,8 @@ export const command: Command = {
 				fr: "Donnez un rôle à tous les utilisateurs qui ont un caractère spécifique dans leur nom d'utilisateur",
 				ja: "ユーザー名に特定の文字を含む全ユーザーにロールを付与！",
 				ru: "Выдать роли всем пользователям с указанными символами в имени!",
-				"es-ES": "Dar roles a todos los usuarios que tengan un carácter específico en su nombre de usuario!"
+				"es-ES":
+					"Dar roles a todos los usuarios que tengan un carácter específico en su nombre de usuario!"
 			},
 
 			options: [
@@ -654,7 +662,8 @@ export const command: Command = {
 				fr: "Déplacer tous les membres connectés dans un canal vocal vers un autre",
 				ja: "ボイスチャンネルに接続中の全メンバーを別のチャンネルに移動",
 				ru: "Переместить всех участников из одного голосового канала в другой",
-				"es-ES": "Mover todos los miembros conectados en un canal de voz a otro"
+				"es-ES":
+					"Mover todos los miembros conectados en un canal de voz a otro"
 			},
 
 			options: [
@@ -904,7 +913,8 @@ export const command: Command = {
 				fr: "Obtenez la liste de tous les membres de la guilde disposant d'autorisations d'administrateur",
 				ja: "管理者権限を持つ全サーバーメンバーのリストを取得",
 				ru: "Получить список всех участников с правами администратора",
-				"es-ES": "Obtener la lista de todos los miembros del servidor que tienen permisos de administrador"
+				"es-ES":
+					"Obtener la lista de todos los miembros del servidor que tienen permisos de administrador"
 			},
 
 			aliases: ["alladmin", "allperms", "alladmins", "adminusers"],

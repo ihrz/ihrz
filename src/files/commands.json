@@ -792,6 +792,7 @@
                     }
                 ],
                 "type": 1,
+                "cooldown": 120000,
                 "commandFullName": "utils dm"
             },
             {
