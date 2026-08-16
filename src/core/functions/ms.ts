@@ -21,7 +21,7 @@
 
 import { LanguageData } from "../../../types/languageData.js";
 
-class iHorizonTimeCalculator {
+export class iHorizonTimeCalculator {
 	to_ms(timeString: string): number {
 		timeString = timeString.replace(" ", "");
 		const regex = /(-?\d*\.?\d+)([a-zA-Z]+)/g;
@@ -164,5 +164,3 @@ class iHorizonTimeCalculator {
 		return result === "" ? "0" + (lang ? lang.var_m : "m") : result.trim();
 	}
 }
-
-export { iHorizonTimeCalculator };
