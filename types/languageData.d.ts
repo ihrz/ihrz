@@ -2315,6 +2315,7 @@ export interface LanguageData {
 	economy_logs_deposit_desc: string;
 	var_on: string;
 	var_off: string;
+	global_command_cooldown_msg: string;
 	global_warn_embed_title: string;
 	global_warn_embed_desc: string;
 	global_warn_component_button_label: string;

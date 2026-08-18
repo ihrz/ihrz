@@ -388,7 +388,10 @@ export async function checkGlobalCooldown(
 
 		await replyDenied(
 			ctx,
-			`You need to wait **${time}** between each \`${ctx.commandPath}\``
+			ctx.lang.global_command_cooldown_msg
+				.replace("${emoji}", ctx.client.iHorizon_Emojis.Warn)
+				.replace("${time}", time)
+				.replace("${ctx.commandPath}", ctx.commandPath)
 		);
 		return { unallowed: true };
 	}

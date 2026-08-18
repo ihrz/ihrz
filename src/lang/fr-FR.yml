@@ -3099,6 +3099,7 @@ economy_logs_deposit_desc: "{author} a déposé **${money}** à la banque"
 # Generic vars
 var_on: "activé"
 var_off: "désactivé"
+global_command_cooldown_msg: "${emoji} Vous devez attendre **${time}** entre chaque utilisation de **`${ctx.commandPath}`**"
 
 global_warn_embed_title: "Vous avez reçu un avertissement – Cas **`${warnObject.id}`**"
 global_warn_embed_desc: "> **Raison :** ${warnObject.reason}\n> **Responsable :** @${author.user.username} (*${author.roles.highest.name}*)\nAvertissement généré ${time}"
