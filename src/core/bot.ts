@@ -38,8 +38,7 @@ global.getOS = getOS;
 
 global.client = new Client({
 	makeCache: Options.cacheWithLimits({
-		MessageManager: 100,
-		PresenceManager: 50
+		MessageManager: 100
 	}),
 	sweepers: {
 		messages: {
@@ -48,7 +47,7 @@ global.client = new Client({
 		},
 		users: {
 			interval: 60 * 30,
-			filter: () => (user) => !user.bot
+			filter: () => (user) => user.bot
 		},
 		presences: {
 			interval: 60 * 15,
