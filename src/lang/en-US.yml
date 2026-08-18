@@ -55,7 +55,7 @@ var_dont_have_perm: "You aren't allowed to do this, you are missing the {perm} p
 var_price: "Price"
 var_boost: "Boost"
 var_uses: "Uses"
-var_vc_stats: "Voice statistics"
+var_vc_stats: "Statistics"
 var_1d: "1 day"
 var_7d: "7 days"
 var_14d: "14 days"
