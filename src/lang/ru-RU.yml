@@ -84,6 +84,12 @@ var_original_message: "Оригинальное сообщение"
 var_click_here: "Нажмите здесь"
 var_s_message: "сообщение от {nickname}"
 var_source: "Музыка: "
+var_online_call: "В голосовом канале"
+var_online: "В сети"
+var_stream: "Стримит"
+var_boosts: "Бусты"
+var_muted: "Без звука"
+var_camera: "Камера включена"
 
 # Discord Permission Name
 perm_createinstantinvite_name: "Создать мгновенное приглашение"

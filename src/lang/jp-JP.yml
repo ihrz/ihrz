@@ -84,6 +84,12 @@ var_original_message: "元のメッセージ"
 var_click_here: "ここをクリック"
 var_s_message: "{nickname}のメッセージ"
 var_source: "音楽提供: "
+var_online_call: "ボイスチャンネルに参加中"
+var_online: "オンライン"
+var_stream: "配信中"
+var_boosts: "ブースト"
+var_muted: "ミュート中"
+var_camera: "カメラオン"
 
 # Discord Permission Name
 perm_createinstantinvite_name: "インスタント招待を作成"

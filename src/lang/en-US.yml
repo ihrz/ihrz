@@ -84,6 +84,12 @@ var_original_message: "Original Message"
 var_click_here: "Click here"
 var_s_message: "{nickname}'s message"
 var_source: "Music from: "
+var_online_call: "In Voice"
+var_online: "Online"
+var_stream: "Streaming"
+var_boosts: "Boosts"
+var_muted: "Muted"
+var_camera: "Camera On"
 
 # Discord Permission Name
 perm_createinstantinvite_name: "Create Instant Invite"

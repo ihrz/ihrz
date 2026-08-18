@@ -84,6 +84,12 @@ var_original_message: "Ursprüngliche Nachricht"
 var_click_here: "Hier klicken"
 var_s_message: "Nachricht von {nickname}"
 var_source: "Musik von: "
+var_online_call: "Im Sprachkanal"
+var_online: "Online"
+var_stream: "Streamt"
+var_boosts: "Boosts"
+var_muted: "Stummgeschaltet"
+var_camera: "Kamera aktiviert"
 
 # Discord-Berechtigungsnamen
 perm_createinstantinvite_name: "Soforteinladung erstellen"

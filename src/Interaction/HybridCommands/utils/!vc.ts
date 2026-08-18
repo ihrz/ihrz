@@ -27,7 +27,8 @@ import {
 	ChannelType,
 	GuildMember,
 	Collection,
-	VoiceState
+	VoiceState,
+	ColorResolvable
 } from "discord.js";
 
 import { LanguageData } from "../../../../types/languageData.js";
@@ -186,35 +187,30 @@ export const subCommand = {
 					}
 				);
 		} else {
+			let dominant_color = "#010101";
+			try {
+				dominant_color = (
+					await client.func.image_dominant_color(
+						guild.iconURL({ size: 4096, extension: "png" }) || ""
+					)
+				).color1;
+			} catch {}
+
+			const totalOnline =
+				memberStats.dnd + memberStats.online + memberStats.idle;
+
 			embed
-				.setTitle(lang.var_vc_stats)
-				.setColor(2829617)
-				.setFields(
-					{
-						name: client.iHorizon_Emojis.VC_Limit,
-						value: voiceStats.total.toString(),
-						inline: true
-					},
-					{
-						name: client.iHorizon_Emojis.Streaming,
-						value: voiceStats.streaming.toString(),
-						inline: true
-					},
-					{
-						name: client.iHorizon_Emojis.Camera,
-						value: voiceStats.selfVideo.toString(),
-						inline: true
-					},
-					{
-						name: client.iHorizon_Emojis.Mute,
-						value: voiceStats.selfMute.toString(),
-						inline: true
-					},
-					{
-						name: client.iHorizon_Emojis.Deaf,
-						value: voiceStats.selfDeaf.toString(),
-						inline: true
-					}
+				.setTitle(`${guild.name} ${lang.var_vc_stats}`)
+				.setColor(dominant_color as ColorResolvable)
+				.setDescription(
+					`${client.iHorizon_Emojis.Server_Stats}  ${lang.var_member} : **${guild.memberCount.toString()}**
+${client.iHorizon_Emojis.VC_Limit}  ${lang.var_online} : **${totalOnline}**
+${client.iHorizon_Emojis.Desktop_Online}  ${lang.var_online_call} : **${memberStats.total.toString()}**
+${client.iHorizon_Emojis.Streaming}  ${lang.var_stream} : **${voiceStats.streaming.toString()}**
+${client.iHorizon_Emojis.Server_Booster}  ${lang.var_boosts} : **${guild.premiumSubscriptionCount?.toString() || "0"}**
+${client.iHorizon_Emojis.Camera}  ${lang.var_camera} : **${voiceStats.selfVideo.toString()}**
+${client.iHorizon_Emojis.Mute}  ${lang.var_muted} : **${voiceStats.selfDeaf.toString()}**
+`
 				)
 				.setThumbnail(guild.iconURL({ size: 4096 }));
 		}

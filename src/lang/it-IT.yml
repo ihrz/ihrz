@@ -84,6 +84,12 @@ var_original_message: "Messaggio originale"
 var_click_here: "Clicca qui"
 var_s_message: "messaggio di {nickname}"
 var_source: "Musica di: "
+var_online_call: "In vocale"
+var_online: "Online"
+var_stream: "In streaming"
+var_boosts: "Boost"
+var_muted: "Disattivato"
+var_camera: "Fotocamera attiva"
 
 # Nomi dei Permessi Discord
 perm_createinstantinvite_name: "Crea invito istantaneo"

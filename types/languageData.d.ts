@@ -102,6 +102,12 @@ export interface LanguageData {
 	var_click_here: string;
 	var_s_message: string;
 	var_source: string;
+	var_online_call: string;
+	var_online: string;
+	var_stream: string;
+	var_boosts: string;
+	var_muted: string;
+	var_camera: string;
 	perm_createinstantinvite_name: string;
 	perm_kickmembers_name: string;
 	perm_banmembers_name: string;
