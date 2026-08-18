@@ -611,6 +611,7 @@
                     }
                 ],
                 "type": 1,
+                "cooldown": 86400000,
                 "commandFullName": "utils vanity-generator"
             },
             {
@@ -1074,6 +1075,7 @@
                 ],
                 "thinking": true,
                 "type": 1,
+                "cooldown": 300000,
                 "commandFullName": "utils massmove"
             },
             {
@@ -1141,6 +1143,7 @@
                 ],
                 "thinking": true,
                 "type": 1,
+                "cooldown": 300000,
                 "commandFullName": "utils massiverole"
             },
             {

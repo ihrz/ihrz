@@ -60,6 +60,7 @@ import { TicketPanel } from "../../Interaction/HybridCommands/ticket/!panel.js";
 import { DatabaseStructure } from "../../../types/database_structure.js";
 import getLanguageData from "../functions/getLanguageData.js";
 import { metasTable } from "../../Events/client/ready.js";
+import { LanguageData } from "../../../types/languageData.js";
 
 interface CreatePanelData {
 	name: string | null;
@@ -554,8 +555,7 @@ async function CreateSelectPanel(
 
 async function CreateTicketChannel(
 	interaction:
-		| ButtonInteraction<"cached">
-		| StringSelectMenuInteraction<"cached">
+		ButtonInteraction<"cached"> | StringSelectMenuInteraction<"cached">
 ) {
 	if (interaction instanceof ButtonInteraction) {
 		const result = await interaction.client.db.get(
@@ -710,8 +710,7 @@ interface ResultButton {
 
 async function CreateChannel(
 	interaction:
-		| ButtonInteraction<"cached">
-		| StringSelectMenuInteraction<"cached">,
+		ButtonInteraction<"cached"> | StringSelectMenuInteraction<"cached">,
 	result: ResultButton
 ) {
 	const lang = await interaction.client.func.getLanguageData(
@@ -1708,11 +1707,9 @@ async function TicketAddMember(
 }
 
 async function TicketReOpen(
-	interaction: ChatInputCommandInteraction<"cached"> | Message
+	interaction: ChatInputCommandInteraction<"cached"> | Message,
+	lang: LanguageData
 ) {
-	const data = await interaction.client.func.getLanguageData(
-		interaction.guildId
-	);
 	const fetch = await interaction.client.db.get(
 		`${interaction.guildId}.TICKET_ALL`
 	);
@@ -1736,7 +1733,7 @@ async function TicketReOpen(
 						})
 						.then(() => {
 							client.func.method.interactionSend(interaction, {
-								content: data.open_command_work.replace(
+								content: lang.open_command_work.replace(
 									/\${interaction\.channel}/g,
 									interaction.channel?.toString()!
 								)
@@ -1757,10 +1754,10 @@ async function TicketReOpen(
 						const embed = new EmbedBuilder()
 							.setColor("#008000")
 							.setTitle(
-								data.event_ticket_logsChannel_onReopen_embed_title
+								lang.event_ticket_logsChannel_onReopen_embed_title
 							)
 							.setDescription(
-								data.event_ticket_logsChannel_onReopen_embed_desc
+								lang.event_ticket_logsChannel_onReopen_embed_desc
 									.replace(
 										"${interaction.user}",
 										interaction.member?.user.toString()!
@@ -1791,7 +1788,7 @@ async function TicketReOpen(
 					}
 				} catch (e) {
 					await client.func.method.interactionSend(interaction, {
-						content: data.open_command_error
+						content: lang.open_command_error
 					});
 					return;
 				}

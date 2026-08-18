@@ -55,16 +55,18 @@ export const subCommand: SubCommand = {
 			});
 			return;
 		}
+
 		if (
-			!(await client.func.method.isTicketChannel(
+			await client.func.method.isTicketChannel(
 				interaction.channel as BaseGuildTextChannel
-			))
+			)
 		) {
+			await CloseTicket(interaction);
+		} else {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.close_not_in_ticket
 			});
 			return;
 		}
-		await CloseTicket(interaction);
 	}
 };

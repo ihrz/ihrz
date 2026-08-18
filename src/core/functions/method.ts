@@ -620,7 +620,7 @@ function isValidArgument(arg: string, type: string, guild: Guild): boolean {
 				/^<@!?(\d+)>$/.test(arg) ||
 				!isNaN(Number(arg)) ||
 				guild.members.cache.find((x) => x.user.username === arg) !==
-				undefined
+					undefined
 			);
 		case "roles":
 			return (
@@ -740,8 +740,8 @@ export type components = readonly (
 	| JSONEncodable<APIMessageTopLevelComponent>
 	| TopLevelComponentData
 	| ActionRowData<
-		MessageActionRowComponentData | MessageActionRowComponentBuilder
-	>
+			MessageActionRowComponentData | MessageActionRowComponentBuilder
+	  >
 	| APIMessageTopLevelComponent
 )[];
 
@@ -841,11 +841,11 @@ export async function channelSend(
 		typeof options === "string"
 			? { content: options, allowedMentions: { repliedUser: false } }
 			: ({
-				...options,
-				content: options.content ?? undefined,
-				nonce: SnowflakeUtil.generate().toString(),
-				enforceNonce: true
-			} as MessageReplyOptions);
+					...options,
+					content: options.content ?? undefined,
+					nonce: SnowflakeUtil.generate().toString(),
+					enforceNonce: true
+				} as MessageReplyOptions);
 
 	const channelId =
 		typeof interaction === "string"
@@ -924,8 +924,7 @@ async function sendToChannel(
 	const results = await client.shard.broadcastEval(
 		async (c, { channelId, options }) => {
 			const channel = c.channels.cache.get(channelId) as
-				| BaseGuildTextChannel
-				| undefined;
+				BaseGuildTextChannel | undefined;
 			logger.debug(
 				`[broadcastEval shard ${c.shard?.ids}] channel found:`,
 				!!channel
@@ -1032,7 +1031,7 @@ export async function derank(
 		.forEach(async (role) => {
 			await user?.roles
 				.remove(role.id, reason || "Protection")
-				.catch(() => { });
+				.catch(() => {});
 		});
 }
 
@@ -1179,7 +1178,7 @@ export async function buttonReact(
 	for (const lines of comp) {
 		if (
 			(lines as ActionRow<MessageActionRowComponent>).components.length <
-			5 &&
+				5 &&
 			!isAdd
 		) {
 			if (
@@ -1396,9 +1395,9 @@ export async function subCoins(
 export async function isTicketChannel(
 	channel: BaseGuildTextChannel
 ): Promise<boolean> {
-	const allTickets = await channel.client.db.get(
+	const allTickets = (await channel.client.db.get(
 		`${channel.guild.id}.TICKET_ALL`
-	);
+	)) as DatabaseStructure.TicketData;
 
 	if (!allTickets || typeof allTickets !== "object") {
 		return false;
