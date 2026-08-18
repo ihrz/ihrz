@@ -2285,6 +2285,10 @@
                             "es-ES": "El canal que deseas"
                         },
                         "type": 7,
+                        "channel_types": [
+                            2,
+                            13
+                        ],
                         "required": true,
                         "commandFullName": "util move channel"
                     }

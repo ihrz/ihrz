@@ -169,56 +169,37 @@ export async function voiceChannel(
 	args: string[],
 	argsNumber: number
 ): Promise<BaseGuildVoiceChannel | null> {
-	// Get potential channel ID from argument, strip any channel mention formatting
-	const channelId = args[argsNumber]?.replace(/[<#>]/g, "");
+	const arg = args[argsNumber];
+	if (!arg || !interaction.guild) return null;
 
-	// First try from mentions
-	const mentionedChannel = interaction.mentions.channels
-		.map((x) => x)
-		.filter(
-			(x) =>
-				x.type === ChannelType.GuildVoice ||
-				x.type === ChannelType.GuildStageVoice
-		)[argsNumber] as BaseGuildVoiceChannel;
+	const voiceTypes: ChannelType[] = [
+		ChannelType.GuildVoice,
+		ChannelType.GuildStageVoice
+	];
 
-	const channelFromName = interaction.guild?.channels.cache.find(
-		(x) =>
-			x.name === args[argsNumber] &&
-			(x.type === ChannelType.GuildVoice ||
-				x.type === ChannelType.GuildStageVoice)
-	);
+	// Mention / ID
+	const channelId = arg.replace(/[<#>]/g, "");
 
-	if (channelFromName) return channelFromName as BaseGuildVoiceChannel;
-	if (mentionedChannel) return Promise.resolve(mentionedChannel);
+	if (/^\d+$/.test(channelId)) {
+		const channel =
+			interaction.guild.channels.cache.get(channelId) ??
+			(await interaction.guild.channels
+				.fetch(channelId)
+				.catch(() => null));
 
-	// Then try to fetch by ID if it's a valid ID format
-	if (channelId && /^\d+$/.test(channelId)) {
-		// Try from cache first
-		const channelFromCache =
-			interaction.guild?.channels.cache.get(channelId);
-		if (
-			channelFromCache &&
-			(channelFromCache.type === ChannelType.GuildVoice ||
-				channelFromCache.type === ChannelType.GuildStageVoice)
-		) {
-			return Promise.resolve(channelFromCache as BaseGuildVoiceChannel);
+		if (channel && voiceTypes.includes(channel.type)) {
+			return channel as BaseGuildVoiceChannel;
 		}
-
-		// If not in cache, try to fetch it
-		const fetchedChannel = await interaction.guild?.channels
-			.fetch(channelId)
-			.catch(() => null);
-		if (
-			fetchedChannel &&
-			(fetchedChannel.type === ChannelType.GuildVoice ||
-				fetchedChannel.type === ChannelType.GuildStageVoice)
-		) {
-			return fetchedChannel as BaseGuildVoiceChannel;
-		}
-		return null;
 	}
 
-	return null;
+	// Name / fuzzy name
+	const channel = interaction.guild.channels.cache.find((channel) => {
+		if (!voiceTypes.includes(channel.type)) return false;
+
+		return client.func.music_proximity.similarity(arg, channel.name) >= 0.6;
+	});
+
+	return (channel as BaseGuildVoiceChannel | undefined) ?? null;
 }
 
 export async function channel(
@@ -481,6 +462,7 @@ interface ArgumentBrief {
 	type: string;
 	required: boolean;
 	longString?: boolean;
+	channelType?: ChannelType[];
 }
 
 export async function checkCommandArgs(
@@ -506,11 +488,12 @@ export async function checkCommandArgs(
 
 	command.options?.forEach((option) => {
 		const argType = getArgumentOptionTypeWithOptions(option);
-		const argBrief = {
+		const argBrief: ArgumentBrief = {
 			name: option.name,
 			type: argType,
 			required: option.required || false,
-			longString: option.type === 3 && !option.choices
+			longString: option.type === 3 && !option.choices,
+			channelType: option.channel_types
 		};
 
 		if (argType === "attachment") {
@@ -567,7 +550,12 @@ export async function checkCommandArgs(
 			return false;
 		} else if (
 			i < args.length &&
-			!isValidArgument(args[i], expectedArgs[i].type, message.guild!)
+			!(await isValidArgument(
+				args[i],
+				expectedArgs[i].type,
+				message.guild!,
+				expectedArgs[i].channelType
+			))
 		) {
 			await sendErrorMessage(
 				lang,
@@ -607,7 +595,12 @@ export async function checkCommandArgs(
 	return true;
 }
 
-function isValidArgument(arg: string, type: string, guild: Guild): boolean {
+async function isValidArgument(
+	arg: string,
+	type: string,
+	guild: Guild,
+	optArgs?: ChannelType[]
+): Promise<boolean> {
 	if (type.includes("/")) {
 		return type.split("/").includes(arg);
 	}
@@ -630,12 +623,33 @@ function isValidArgument(arg: string, type: string, guild: Guild): boolean {
 			);
 		case "number":
 			return !isNaN(Number(arg));
-		case "channel":
-			return (
-				/^<#(\d+)>$/.test(arg) ||
-				!isNaN(Number(arg)) ||
-				guild.channels.cache.find((x) => x.name === arg) !== undefined
+		case "channel": {
+			const mention = /^<#(\d+)>$/.exec(arg);
+			const channelId = mention?.[1] ?? (/^\d+$/.test(arg) ? arg : null);
+
+			if (channelId) {
+				const channel =
+					guild.channels.cache.get(channelId) ??
+					(await guild.channels.fetch(channelId).catch(() => null));
+
+				if (channel && (!optArgs || optArgs.includes(channel.type))) {
+					return true;
+				}
+			}
+
+			const query = arg.toLowerCase();
+
+			return guild.channels.cache.some(
+				(channel) =>
+					(!optArgs || optArgs.includes(channel.type)) &&
+					(channel.name.toLowerCase() === query ||
+						(query.length >= 3 &&
+							client.func.music_proximity.similarity(
+								query,
+								channel.name
+							) >= 0.6))
 			);
+		}
 		case "unknown":
 			return true;
 		default:

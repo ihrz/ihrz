@@ -65,7 +65,8 @@ export const command: Command = {
 				fr: "Expulse un utilisateur si son surnom contient un mot spécifique",
 				ja: "ニックネームに特定の単語が含まれているユーザーをキック",
 				ru: "Кикнуть пользователя, если его ник содержит определенное слово",
-				"es-ES": "Expulsar a un usuario si su apodo contiene una palabra específica"
+				"es-ES":
+					"Expulsar a un usuario si su apodo contiene una palabra específica"
 			},
 
 			aliases: ["nickkick", "nk"],
@@ -82,7 +83,8 @@ export const command: Command = {
 				fr: "Créer un fichier zip contenant absolument tout les stickers du serveur",
 				ja: "サーバーの全スタンプを含むZIPファイルを作成！",
 				ru: "Создать ZIP-файлы со всеми стикерами сервера!",
-				"es-ES": "Crear archivos zip con todos los stickers del servidor!"
+				"es-ES":
+					"Crear archivos zip con todos los stickers del servidor!"
 			},
 
 			aliases: ["zipstickers", "zip2"],
@@ -138,7 +140,8 @@ export const command: Command = {
 				fr: "Réveiller un utilisateur avec un déplacement massif aléatoire dans les salons vocaux",
 				ja: "ボイスチャンネルでランダムに大量移動してユーザーを起こす",
 				ru: "Разбудить пользователя массовым случайным перемещением по голосовому каналу",
-				"es-ES": "Despertar a un usuario moviéndolo masivamente de forma aleatoria en el canal de voz"
+				"es-ES":
+					"Despertar a un usuario moviéndolo masivamente de forma aleatoria en el canal de voz"
 			},
 
 			aliases: ["wake"],
@@ -178,7 +181,8 @@ export const command: Command = {
 				fr: "Créer un rôle de dérogation fake admin géré par iHorizon",
 				ja: "iHorizonが管理する偽管理者ロールを作成",
 				ru: "Создать роль фейк-админа, управляемую iHorizon",
-				"es-ES": "Crear un rol de falso administrador gestionado por iHorizon"
+				"es-ES":
+					"Crear un rol de falso administrador gestionado por iHorizon"
 			},
 
 			aliases: ["dero", "alldero"],
@@ -246,7 +250,8 @@ export const command: Command = {
 				fr: "Obtenez la liste de tous les roles de la guilde disposant d'autorisations d'administrateur",
 				ja: "管理者権限を持つ全サーバーロールのリストを取得",
 				ru: "Получить список всех ролей с правами администратора",
-				"es-ES": "Obtener la lista de todos los roles del servidor que tienen permisos de administrador"
+				"es-ES":
+					"Obtener la lista de todos los roles del servidor que tienen permisos de administrador"
 			},
 
 			aliases: ["allrolesadmin", "adminroles", "adminrole", "allpa"],
@@ -477,7 +482,8 @@ export const command: Command = {
 						fr: "Le nombre maximum de membre qui auront le rôle en même temps.",
 						ja: "同じロールに許可する最大メンバー数",
 						ru: "Максимум участников с одинаковой ролью",
-						"es-ES": "El máximo de miembros que deseas en el mismo rol"
+						"es-ES":
+							"El máximo de miembros que deseas en el mismo rol"
 					},
 
 					permission: null,
@@ -585,7 +591,8 @@ export const command: Command = {
 				fr: "Synchroniser tous les channels avec la catégorie parent",
 				ja: "全てのチャンネルを親カテゴリに同期",
 				ru: "Синхронизировать все каналы с родительской категорией",
-				"es-ES": "Sincronizar todos los canales con la categoría principal"
+				"es-ES":
+					"Sincronizar todos los canales con la categoría principal"
 			},
 
 			options: [
@@ -621,7 +628,8 @@ export const command: Command = {
 				fr: "Ajouter un rôle à tous les utilisateurs qui ont réagi à un message spécifique",
 				ja: "特定のメッセージにリアクションした全ユーザーにロールを追加",
 				ru: "Добавить роль всем, кто отреагировал на сообщение",
-				"es-ES": "Añadir un rol a todos los usuarios que reaccionaron a un mensaje específico"
+				"es-ES":
+					"Añadir un rol a todos los usuarios que reaccionaron a un mensaje específico"
 			},
 
 			options: [
@@ -634,7 +642,8 @@ export const command: Command = {
 						fr: "L'ID du message dont on veut vérifier les réactions",
 						ja: "リアクションを確認するメッセージのID",
 						ru: "ID сообщения для проверки реакций",
-						"es-ES": "El ID del mensaje para comprobar las reacciones"
+						"es-ES":
+							"El ID del mensaje para comprobar las reacciones"
 					},
 
 					type: ApplicationCommandOptionType.String,
@@ -672,7 +681,8 @@ export const command: Command = {
 				fr: "Obtenir des informations vis-à-vis de l'invitations discord",
 				ja: "Discord招待リンクの情報を取得",
 				ru: "Получить информацию о пригласительной ссылке Discord",
-				"es-ES": "Obtener información sobre el enlace de invitación de Discord"
+				"es-ES":
+					"Obtener información sobre el enlace de invitación de Discord"
 			},
 
 			aliases: [],
@@ -709,7 +719,8 @@ export const command: Command = {
 				fr: "Afficher tout les membres d'un serveur qui possèdent le même rôle",
 				ja: "同じロールを持つ全サーバーメンバーを表示",
 				ru: "Показать участников с одинаковыми ролями",
-				"es-ES": "Ver todos los miembros del servidor que tienen los mismos roles"
+				"es-ES":
+					"Ver todos los miembros del servidor que tienen los mismos roles"
 			},
 
 			aliases: ["rolemembers", "rolemember"],
@@ -746,7 +757,8 @@ export const command: Command = {
 				fr: "Distribue aléatoirement les membres d'un salon vocal dans tous les salons d'une catégorie",
 				ja: "ボイスチャンネルのメンバーをカテゴリ内の全ボイスチャンネルにランダムに分散",
 				ru: "Случайно распределить участников из голосового канала по всем каналам в категории",
-				"es-ES": "Distribuir aleatoriamente miembros de un canal de voz a todos los canales de voz en una categoría"
+				"es-ES":
+					"Distribuir aleatoriamente miembros de un canal de voz a todos los canales de voz en una categoría"
 			},
 
 			thinking: false,
@@ -789,7 +801,8 @@ export const command: Command = {
 						fr: "La catégorie contenant les salons vocaux où distribuer les membres",
 						ja: "メンバーを分散するボイスチャンネルを含むカテゴリ",
 						ru: "Категория с голосовыми каналами для распределения участников",
-						"es-ES": "La categoría que contiene los canales de voz a los que distribuir miembros"
+						"es-ES":
+							"La categoría que contiene los canales de voz a los que distribuir miembros"
 					},
 
 					required: true,
@@ -807,7 +820,8 @@ export const command: Command = {
 				fr: "Activer le mode talk dans votre salon vocal actuel",
 				ja: "現在のボイスチャンネルでトークモードを有効化",
 				ru: "Включить режим разговора в текущем голосовом канале",
-				"es-ES": "Habilitar el modo de conversación en tu canal de voz actual"
+				"es-ES":
+					"Habilitar el modo de conversación en tu canal de voz actual"
 			},
 
 			aliases: ["mutetalk"],
@@ -826,7 +840,8 @@ export const command: Command = {
 				fr: "Désactiver le mode talk et démute tout le monde",
 				ja: "トークモードを無効化して全員のミュートを解除",
 				ru: "Отключить режим разговора и размутить всех",
-				"es-ES": "Deshabilitar el modo de conversación y desilenciar a todos"
+				"es-ES":
+					"Deshabilitar el modo de conversación y desilenciar a todos"
 			},
 
 			aliases: ["unmutetalk"],
@@ -861,7 +876,8 @@ export const command: Command = {
 				fr: "Autoriser un membre à rejoindre le salon vocal gelé",
 				ja: "凍結されたボイスチャンネルへの参加を許可",
 				ru: "Разрешить участнику войти в замороженный голосовой канал",
-				"es-ES": "Permitir a un miembro unirse al canal de voz congelado"
+				"es-ES":
+					"Permitir a un miembro unirse al canal de voz congelado"
 			},
 
 			options: [
@@ -894,7 +910,8 @@ export const command: Command = {
 				fr: "Retirer un membre de la whitelist du salon vocal gelé",
 				ja: "凍結ボイスチャンネルのホワイトリストからメンバーを削除",
 				ru: "Удалить участника из белого списка замороженного голосового канала",
-				"es-ES": "Eliminar a un miembro de la lista blanca del canal de voz congelado"
+				"es-ES":
+					"Eliminar a un miembro de la lista blanca del canal de voz congelado"
 			},
 
 			options: [
@@ -975,6 +992,10 @@ export const command: Command = {
 
 					permission: null,
 					type: ApplicationCommandOptionType.Channel,
+					channel_types: [
+						ChannelType.GuildVoice,
+						ChannelType.GuildStageVoice
+					],
 					required: true
 				}
 			],
