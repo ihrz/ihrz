@@ -98,6 +98,9 @@ export async function changeGuildBotBio(
 	guild: Guild,
 	bio: string
 ): Promise<boolean> {
+	let sanitizeBio =
+		bio.length <= 190 ? bio : bio.split("\n").slice(0, 2).join("\n");
+
 	const res = await fetch(
 		GUILD_ME_WITH_GUILD_ID_ENDPOINT_URL.replace("{guild.id}", guild.id),
 		{
@@ -108,7 +111,7 @@ export async function changeGuildBotBio(
 				"Content-Type": "application/json"
 			},
 			body: JSON.stringify({
-				bio
+				bio: bio.substring(0, 190)
 			})
 		}
 	);

@@ -273,6 +273,7 @@ export const event: BotEvent = {
 								.replace("${owner}", user.username)
 								.replace("${guild.name}", guild.name)
 						)
+						.setThumbnail(Expressions.Wink)
 						.setFooter({
 							text: "iHorizon",
 							iconURL: "attachment://footer_icon.png"
