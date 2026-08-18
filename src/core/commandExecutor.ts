@@ -437,7 +437,12 @@ export async function runCommand(ctx: ExecutionContext): Promise<void> {
 						]
 					}
 				);
-				setTimeout(() => msg.delete(), 60_000);
+				setTimeout(() => {
+					msg.delete();
+					if ((ctx.source as Message).deletable) {
+						(ctx.source as Message).delete();
+					}
+				}, 60_000);
 			}
 			return;
 		}
