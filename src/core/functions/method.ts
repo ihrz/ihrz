@@ -124,21 +124,8 @@ export function member(
 
 	let user: GuildMember | null = null;
 
-	if ((message.mentions.members?.size || 0) >= 1) {
-		// if the prefix is the bot mention we have to do a specific traitment
-		let prefix_mention = message.content.startsWith(`<@${client.user?.id}`);
-		if (prefix_mention) {
-			user =
-				message.mentions.members
-					?.map((x) => x)
-					.filter((x) => x.id !== client.user?.id!)[argsNumber] ||
-				null;
-		} else {
-			user =
-				message.mentions.members?.map((x) => x)?.[argsNumber] || null;
-		}
-		// if the command argument is a <@ID>
-	} else if (userId) {
+	// if the command argument is a <@ID>
+	if (userId) {
 		user =
 			message.guild?.members.cache.get(
 				args[argsNumber].replace(/[<@!>]/g, "")

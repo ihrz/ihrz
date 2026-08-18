@@ -410,9 +410,6 @@ export async function runCommand(ctx: ExecutionContext): Promise<void> {
 
 		if (await checkCommandRateLimit(ctx)) return;
 
-		const { unallowed } = await checkGlobalCooldown(ctx);
-		if (unallowed) return;
-
 		await deferIfNeeded(ctx);
 
 		if (!(await checkNativePermission(ctx, allowed))) return;
@@ -456,6 +453,9 @@ export async function runCommand(ctx: ExecutionContext): Promise<void> {
 			);
 			if (!argsOk) return;
 		}
+
+		const { unallowed } = await checkGlobalCooldown(ctx);
+		if (unallowed) return;
 
 		const run = ctx.target.run!;
 		void Promise.resolve(
