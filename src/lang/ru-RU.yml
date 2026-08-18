@@ -84,6 +84,12 @@ var_original_message: "Оригинальное сообщение"
 var_click_here: "Нажмите здесь"
 var_s_message: "сообщение от {nickname}"
 var_source: "Музыка: "
+var_online_call: "В голосовом канале"
+var_online: "В сети"
+var_stream: "Стримит"
+var_boosts: "Бусты"
+var_muted: "Без звука"
+var_camera: "Камера включена"
 
 # Discord Permission Name
 perm_createinstantinvite_name: "Создать мгновенное приглашение"
@@ -3094,6 +3100,7 @@ economy_logs_deposit_desc: "{author} пополнил банк на **${money}**
 # Generic vars
 var_on: "включено"
 var_off: "выключено"
+global_command_cooldown_msg: "${emoji} Вам нужно подождать **${time}** между каждым использованием **`${ctx.commandPath}`**"
 
 global_warn_embed_title: "Вы получили предупреждение – Дело **`${warnObject.id}`**"
 global_warn_embed_desc: "> **Причина:** ${warnObject.reason}\n> **Ответственный:** @${author.user.username} (*${author.roles.highest.name}*)\nПредупреждение создано ${time}"

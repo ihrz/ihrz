@@ -33,6 +33,15 @@ import { LanguageData } from "../../../../types/languageData.js";
 
 import { SubCommand } from "../../../../types/command.js";
 
+const TWO_WEEKS_MS = 14 * 24 * 60 * 60 * 1000;
+const MAX_SCANNED_MESSAGES = 1000;
+const FETCH_DELAY_MS = 350; // small buffer to stay clear of the messages.fetch rate limit
+
+function keepBulkDeletable(messages: readonly Message[]): Message[] {
+	const twoWeeksAgo = Date.now() - TWO_WEEKS_MS;
+	return messages.filter((m) => m.createdTimestamp > twoWeeksAgo);
+}
+
 export async function afterSent(
 	sent: Message,
 	interaction: ChatInputCommandInteraction<"cached"> | Message
@@ -45,17 +54,16 @@ export async function afterSent(
 
 export async function clearMessage(
 	body:
-		| Collection<Snowflake, Message>
-		| readonly MessageResolvable[]
-		| number,
+		Collection<Snowflake, Message> | readonly MessageResolvable[] | number,
 	interaction: ChatInputCommandInteraction<"cached"> | Message,
 	lang: LanguageData
 ): Promise<void> {
 	try {
 		let filteredBody = body;
 		if (body instanceof Collection) {
-			const twoWeeksAgo = Date.now() - 14 * 24 * 60 * 60 * 1000;
-			filteredBody = body.filter((m) => m.createdTimestamp > twoWeeksAgo);
+			filteredBody = body.filter(
+				(m) => keepBulkDeletable([m]).length > 0
+			);
 		}
 
 		const messages = await (
@@ -92,6 +100,42 @@ export async function clearMessage(
 	}
 }
 
+async function findMessagesByAuthor(
+	channel: BaseGuildTextChannel,
+	authorId: Snowflake,
+	targetAmount: number
+): Promise<{ matched: Message[]; scanned: number }> {
+	const matched: Message[] = [];
+	let scanned = 0;
+	let lastMessageId: string | undefined;
+
+	const chunks = Math.ceil(MAX_SCANNED_MESSAGES / 100);
+
+	for (let i = 0; i < chunks && matched.length < targetAmount; i++) {
+		const fetchedMessages = await channel.messages.fetch({
+			limit: 100,
+			before: lastMessageId
+		});
+
+		if (fetchedMessages.size === 0) break;
+
+		scanned += fetchedMessages.size;
+		lastMessageId = fetchedMessages.last()?.id;
+
+		for (const msg of fetchedMessages.values()) {
+			if (msg.author.id !== authorId) continue;
+			matched.push(msg);
+			if (matched.length >= targetAmount) break;
+		}
+
+		const isLastIteration =
+			i === chunks - 1 || matched.length >= targetAmount;
+		if (!isLastIteration) await Bun.sleep(FETCH_DELAY_MS);
+	}
+
+	return { matched, scanned };
+}
+
 export const subCommand: SubCommand = {
 	run: async (
 		client: Client,
@@ -122,47 +166,34 @@ export const subCommand: SubCommand = {
 
 		if (member) {
 			const targetAmount = Math.max(amount, 1);
-			const maxScannedMessages = 1000;
-			const matchedMessages: Message[] = [];
-			let lastMessageId: string | undefined;
-			let scannedMessages = 0;
 
-			const chunks = Math.ceil(maxScannedMessages / 100);
+			const { matched, scanned } = await findMessagesByAuthor(
+				channel,
+				member.id,
+				targetAmount
+			);
 
-			for (
-				let i = 0;
-				i < chunks && matchedMessages.length < targetAmount;
-				i++
-			) {
-				const fetchedMessages = await channel.messages.fetch({
-					limit: Math.min(100, targetAmount - matchedMessages.length),
-					before: lastMessageId
-				});
+			console.debug(
+				`[clear] scanned ${scanned} message(s) to find ${matched.length}/${targetAmount} from ${member.id}`
+			);
 
-				if (fetchedMessages.size === 0) break;
-
-				scannedMessages += fetchedMessages.size;
-				lastMessageId = fetchedMessages.last()?.id;
-
-				for (const msg of fetchedMessages.values()) {
-					if (msg.author.id !== member.id) continue;
-					matchedMessages.push(msg);
-					if (matchedMessages.length >= targetAmount) break;
-				}
-			}
-
-			if (matchedMessages.length === 0) {
+			if (matched.length === 0) {
 				await client.func.method.interactionSend(interaction, {
 					content: lang.clear_command_no_message
 				});
 				return;
 			}
 
-			await clearMessage(
-				matchedMessages.slice(0, targetAmount),
-				interaction,
-				lang
-			);
+			const deletable = keepBulkDeletable(matched.slice(0, targetAmount));
+
+			if (deletable.length === 0) {
+				await client.func.method.interactionSend(interaction, {
+					content: lang.clear_command_no_message
+				});
+				return;
+			}
+
+			await clearMessage(deletable, interaction, lang);
 			return;
 		} else {
 			await clearMessage(Math.min(amount, 100), interaction, lang);

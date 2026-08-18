@@ -141,11 +141,24 @@ declare namespace Client_Functions {
 		): Array<string>;
 	}
 
+	// From getLanguageDataByCode.ts
+	export function getLanguageDataByCode(
+		locale: string
+	): Promise<LanguageData>;
+
+	// From getLanguageData.ts
+	export function getLanguageData(
+		arg: string | null | undefined
+	): Promise<LanguageData>;
+
 	// From date_and_time.ts
 	export function date_and_time(
 		date: number | Date,
 		formatString: string
 	): string;
+
+	// From maskLink.ts
+	export function maskLink(input: string): string;
 
 	// From permissonsCalculator.ts
 	export namespace permissonsCalculator {
@@ -353,11 +366,6 @@ declare namespace Client_Functions {
 		): Promise<boolean>;
 	}
 
-	// From getLanguageData.ts
-	export function getLanguageData(
-		arg: string | null | undefined
-	): Promise<LanguageData>;
-
 	// From randomExpression.ts
 	export function randomExpression(): string;
 
@@ -491,9 +499,6 @@ declare namespace Client_Functions {
 		};
 	}
 
-	// From maskLink.ts
-	export function maskLink(input: string): string;
-
 	// From sanitizer.ts
 	export function sanitizer(text: string | undefined): string;
 
@@ -610,6 +615,9 @@ declare namespace Client_Functions {
 		export function isUrlQuery(query: string): boolean;
 		export function isSpotifyURL(url: string): boolean;
 		export function isYoutubeURL(url: string): boolean;
+		export function isAppleMusicURL(url: string): boolean;
+		export function isAmazonMusicURL(url: string): boolean;
+		export function isTidalURL(url: string): boolean;
 		export function handleSpotify(
 			requester: User,
 			node: LavalinkNode,
@@ -622,6 +630,23 @@ declare namespace Client_Functions {
 			node: LavalinkNode,
 			query: string
 		): Promise<SearchResult | undefined>;
+		export function handleAppleMusic(
+			requester: User,
+			node: LavalinkNode,
+			query: string
+		): Promise<SearchResult | undefined>;
+		export function handleTidalMusic(
+			requester: User,
+			node: LavalinkNode,
+			query: string
+		): Promise<SearchResult | undefined>;
+		export function handleAmazonMusic(
+			requester: User,
+			node: LavalinkNode,
+			query: string
+		): Promise<SearchResult | undefined>;
+		export function responseExist(res: SearchResult | undefined): boolean;
+		export function buildTrackLabel(track: Track): string;
 		export function searchQueryOnNode(
 			client: Client<boolean>,
 			node: LavalinkNode,
@@ -657,6 +682,9 @@ declare namespace Client_Functions {
 
 	// From assetsCalc.ts
 	export function assetsCalc(client: Client<boolean>): Promise<void>;
+
+	// From intentEnabler.ts
+	export function intentEnabler(token: string): Promise<boolean>;
 
 	// From bannerGenerator.ts
 	export function bannerGenerator(guildId: string | null): Promise<string>;
@@ -840,6 +868,10 @@ declare namespace Client_Functions {
 			method: string,
 			ms: number
 		): Promise<boolean>;
+		export function getCooldownTimestamp(
+			authorId: string,
+			method: string
+		): Promise<number | null>;
 		export function capitalizeFirstLetter(string: string): string;
 	}
 

@@ -32,7 +32,6 @@ import {
 import { LanguageData } from "../../../../types/languageData.js";
 import { DatabaseStructure } from "../../../../types/database_structure.js";
 
-import { iHorizonTimeCalculator } from "../../../core/functions/ms.js";
 import { AntiSpam } from "../../../../types/antispam.js";
 
 import { SubCommand } from "../../../../types/command.js";
@@ -471,7 +470,7 @@ function picOnlyConfigToString(
 ): string {
 	return picOnlyConfig === undefined
 		? lang.var_none
-		: `\- ${lang.utils_piconly_embed_fields_3_name}: ${new iHorizonTimeCalculator().to_beautiful_string(picOnlyConfig.muteTime || 0, lang)}\n\- ${lang.utils_piconly_modal2_fields1_label}: ${picOnlyConfig.threshold}`;
+		: `\- ${lang.utils_piconly_embed_fields_3_name}: ${client.timeCalculator.to_beautiful_string(picOnlyConfig.muteTime || 0, lang)}\n\- ${lang.utils_piconly_modal2_fields1_label}: ${picOnlyConfig.threshold}`;
 }
 
 function wlRolesToString(
@@ -506,8 +505,8 @@ function antispamToString(
 \- ${lang.antispam_manage_choices_1_label}: \`${antispamConfig.Enabled ? "🟢" : "🔴"}\`
 \- ${lang.antispam_manage_choices_6_desc}: \`${antispamConfig.removeMessages ? lang.var_yes : lang.var_no}\`
 \- ${lang.antispam_manage_choices_3_label}: \`${antispamConfig.punishment_type}\`
-\- ${lang.antispam_manage_choices_4_label}: \`${new iHorizonTimeCalculator().to_beautiful_string(antispamConfig.punishTime || 0, lang)}\`
-\- ${lang.antispam_manage_choices_7_label}: \`${new iHorizonTimeCalculator().to_beautiful_string(antispamConfig.maxInterval || 0, lang)}\`
+\- ${lang.antispam_manage_choices_4_label}: \`${client.timeCalculator.to_beautiful_string(antispamConfig.punishTime || 0, lang)}\`
+\- ${lang.antispam_manage_choices_7_label}: \`${client.timeCalculator.to_beautiful_string(antispamConfig.maxInterval || 0, lang)}\`
 `;
 }
 
@@ -522,7 +521,7 @@ function tooNewAccountToString(
 				.replace("${maxJoin}", String(tooNewConfig.maxJoin || 0))
 				.replace(
 					"${beautifulTime}",
-					new iHorizonTimeCalculator().to_beautiful_string(
+					client.timeCalculator.to_beautiful_string(
 						tooNewConfig?.req || 0,
 						lang
 					)
@@ -539,7 +538,7 @@ function roleSaverToString(
 		: `
 \- ${lang.rolesaver_embed_fields_1_name}: \`${rs.enable ? "🟢" : "🔴"}\`
 \- ${lang.rolesaver_embed_fields_2_name}: \`${rs.admin ? lang.var_yes : lang.var_no}\`
-\- ${lang.rolesaver_embed_fields_3_name}: \`${new iHorizonTimeCalculator().to_beautiful_string(rs.timeout || 0, lang)}\`
+\- ${lang.rolesaver_embed_fields_3_name}: \`${client.timeCalculator.to_beautiful_string(rs.timeout || 0, lang)}\`
 `;
 }
 

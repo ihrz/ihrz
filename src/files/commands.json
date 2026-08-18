@@ -611,6 +611,7 @@
                     }
                 ],
                 "type": 1,
+                "cooldown": 86400000,
                 "commandFullName": "utils vanity-generator"
             },
             {
@@ -792,6 +793,7 @@
                     }
                 ],
                 "type": 1,
+                "cooldown": 120000,
                 "commandFullName": "utils dm"
             },
             {
@@ -1073,6 +1075,7 @@
                 ],
                 "thinking": true,
                 "type": 1,
+                "cooldown": 300000,
                 "commandFullName": "utils massmove"
             },
             {
@@ -1140,6 +1143,7 @@
                 ],
                 "thinking": true,
                 "type": 1,
+                "cooldown": 300000,
                 "commandFullName": "utils massiverole"
             },
             {
@@ -2281,6 +2285,10 @@
                             "es-ES": "El canal que deseas"
                         },
                         "type": 7,
+                        "channel_types": [
+                            2,
+                            13
+                        ],
                         "required": true,
                         "commandFullName": "util move channel"
                     }

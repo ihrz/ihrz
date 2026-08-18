@@ -84,6 +84,12 @@ var_original_message: "Message original"
 var_click_here: "Cliquez ici"
 var_s_message: "message de {nickname}"
 var_source: "Musique de : "
+var_online_call: "En Vocal"
+var_online: "En ligne"
+var_stream: "En stream"
+var_boosts: "Boosts"
+var_muted: "Muet"
+var_camera: "En caméra"
 
 # Nom des Permissions Discord
 perm_createinstantinvite_name: "Faire une inv"
@@ -3097,6 +3103,7 @@ economy_logs_deposit_desc: "{author} a déposé **${money}** à la banque"
 # Generic vars
 var_on: "activé"
 var_off: "désactivé"
+global_command_cooldown_msg: "${emoji} Vous devez attendre **${time}** entre chaque utilisation de **`${ctx.commandPath}`**"
 
 global_warn_embed_title: "Tu as reçu un avertissement – Cas **`${warnObject.id}`**"
 global_warn_embed_desc: "> **Raison :** ${warnObject.reason}\n> **Responsable :** @${author.user.username} (*${author.roles.highest.name}*)\nAvertissement généré ${time}"

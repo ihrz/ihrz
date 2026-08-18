@@ -84,6 +84,12 @@ var_original_message: "元のメッセージ"
 var_click_here: "ここをクリック"
 var_s_message: "{nickname}のメッセージ"
 var_source: "音楽提供: "
+var_online_call: "ボイスチャンネルに参加中"
+var_online: "オンライン"
+var_stream: "配信中"
+var_boosts: "ブースト"
+var_muted: "ミュート中"
+var_camera: "カメラオン"
 
 # Discord Permission Name
 perm_createinstantinvite_name: "インスタント招待を作成"
@@ -3094,6 +3100,7 @@ economy_logs_deposit_desc: "{author} が銀行に **${money}** を預けまし�
 # Generic vars
 var_on: "有効"
 var_off: "無効"
+global_command_cooldown_msg: "${emoji} **`${ctx.commandPath}`** の使用間隔を **${time}** 待つ必要があります"
 
 global_warn_embed_title: "警告を受けました – ケース **`${warnObject.id}`**"
 global_warn_embed_desc: "> **理由:** ${warnObject.reason}\n> **担当者:** @${author.user.username} (*${author.roles.highest.name}*)\n警告が生成されました ${time}"

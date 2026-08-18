@@ -71,6 +71,7 @@ export interface Command {
 		lang: LanguageData,
 		args?: string[]
 	): Promise<any>;
+	cooldown?: number;
 }
 
 export interface SubCommand {

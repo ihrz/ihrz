@@ -358,6 +358,48 @@ async function handleExecutionError(ctx: ExecutionContext, error: any) {
 	);
 }
 
+export async function checkGlobalCooldown(
+	ctx: ExecutionContext
+): Promise<{ unallowed: boolean }> {
+	const member = await getMember(ctx.source);
+
+	if (!member || !ctx.target.cooldown) {
+		return {
+			unallowed: false
+		};
+	}
+
+	if (
+		await client.func.helper.cooldown(
+			member?.id,
+			ctx.commandPath,
+			ctx.target.cooldown
+		)
+	) {
+		const time = client.timeCalculator.to_beautiful_string(
+			ctx.target.cooldown -
+				(Date.now() -
+					((await client.func.helper.getCooldownTimestamp(
+						member.id,
+						ctx.commandPath
+					)) || 0)),
+			ctx.lang
+		);
+
+		await replyDenied(
+			ctx,
+			ctx.lang.global_command_cooldown_msg
+				.replace("${emoji}", ctx.client.iHorizon_Emojis.Warn)
+				.replace("${time}", time)
+				.replace("${ctx.commandPath}", ctx.commandPath)
+		);
+		return { unallowed: true };
+	}
+	return {
+		unallowed: false
+	};
+}
+
 export async function runCommand(ctx: ExecutionContext): Promise<void> {
 	try {
 		// 14 August 2026: Anais disabled that paywall since discord doesnt want to pay me ! ><
@@ -392,7 +434,12 @@ export async function runCommand(ctx: ExecutionContext): Promise<void> {
 						]
 					}
 				);
-				setTimeout(() => msg.delete(), 60_000);
+				setTimeout(() => {
+					msg.delete();
+					if ((ctx.source as Message).deletable) {
+						(ctx.source as Message).delete();
+					}
+				}, 60_000);
 			}
 			return;
 		}
@@ -406,6 +453,9 @@ export async function runCommand(ctx: ExecutionContext): Promise<void> {
 			);
 			if (!argsOk) return;
 		}
+
+		const { unallowed } = await checkGlobalCooldown(ctx);
+		if (unallowed) return;
 
 		const run = ctx.target.run!;
 		void Promise.resolve(

@@ -20,12 +20,13 @@
 */
 
 import { LanguageData } from "../../../types/languageData.js";
+import getLanguageDataByCode from "./getLanguageDataByCode.js";
 
-interface LangsData {
+export interface LangsData {
 	[lang: string]: LanguageData;
 }
 
-const LangsData: LangsData = {};
+export const LangsData: LangsData = {};
 
 export const AvailableLanguage: { code: string; name: string; flag: string }[] =
 	[
@@ -91,18 +92,5 @@ export default async function getLanguageData(
 		lang = "en-US";
 	}
 
-	return getLanguageByCode(lang);
-}
-
-export async function getLanguageByCode(locale: string): Promise<LanguageData> {
-	let dat = LangsData[locale];
-
-	if (!dat) {
-		dat = (await import(
-			process.cwd() + "/src/lang/" + locale + ".yml"
-		)) as LanguageData;
-		LangsData[locale] = dat;
-	}
-
-	return dat;
+	return getLanguageDataByCode(lang);
 }

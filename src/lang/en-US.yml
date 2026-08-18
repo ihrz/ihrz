@@ -84,6 +84,12 @@ var_original_message: "Original Message"
 var_click_here: "Click here"
 var_s_message: "{nickname}'s message"
 var_source: "Music from: "
+var_online_call: "In Voice"
+var_online: "Online"
+var_stream: "Streaming"
+var_boosts: "Boosts"
+var_muted: "Muted"
+var_camera: "Camera On"
 
 # Discord Permission Name
 perm_createinstantinvite_name: "Create Instant Invite"
@@ -3096,6 +3102,7 @@ economy_logs_deposit_desc: "{author} deposited **${money}** in the bank"
 # Generic vars
 var_on: "enabled"
 var_off: "disabled"
+global_command_cooldown_msg: "${emoji} You need to wait **${time}** between each **`${ctx.commandPath}`**"
 
 global_warn_embed_title: "You got warned - Case **`${warnObject.id}`**"
 global_warn_embed_desc: "> **Reason:** ${warnObject.reason}\n> **Responsible:** @${author.user.username} (*${author.roles.highest.name}*)\nWarn generated ${time}"

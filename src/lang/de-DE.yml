@@ -84,6 +84,12 @@ var_original_message: "Ursprüngliche Nachricht"
 var_click_here: "Hier klicken"
 var_s_message: "Nachricht von {nickname}"
 var_source: "Musik von: "
+var_online_call: "Im Sprachkanal"
+var_online: "Online"
+var_stream: "Streamt"
+var_boosts: "Boosts"
+var_muted: "Stummgeschaltet"
+var_camera: "Kamera aktiviert"
 
 # Discord-Berechtigungsnamen
 perm_createinstantinvite_name: "Soforteinladung erstellen"
@@ -3095,6 +3101,7 @@ economy_logs_deposit_desc: "{author} hat **${money}** auf die Bank eingezahlt"
 # Generic vars
 var_on: "aktiviert"
 var_off: "deaktiviert"
+global_command_cooldown_msg: "${emoji} Du musst **${time}** zwischen jeder Verwendung von **`${ctx.commandPath}`** warten"
 
 global_warn_embed_title: "Du wurdest verwarnt – Fall **`${warnObject.id}`**"
 global_warn_embed_desc: "> **Grund:** ${warnObject.reason}\n> **Verantwortlich:** @${author.user.username} (*${author.roles.highest.name}*)\nVerwarnung erstellt ${time}"

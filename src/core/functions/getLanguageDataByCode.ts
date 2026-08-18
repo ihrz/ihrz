@@ -19,29 +19,20 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { tempTable } from "../../Events/client/ready.ts";
+import { LanguageData } from "../../../types/languageData";
+import { LangsData } from "./getLanguageData.ts";
 
-export async function cooldown(
-	authorId: string,
-	method: string,
-	ms: number
-): Promise<boolean> {
-	const tn = Date.now();
-	const fetch = await getCooldownTimestamp(authorId, method);
-	if (fetch !== null && ms - (tn - fetch) > 0) return true;
+export default async function getLanguageDataByCode(
+	locale: string
+): Promise<LanguageData> {
+	let dat = LangsData[locale];
 
-	await tempTable.set(`COOLDOWN.${method}.${authorId}`, tn);
-	return false;
-}
+	if (!dat) {
+		dat = (await import(
+			process.cwd() + "/src/lang/" + locale + ".yml"
+		)) as LanguageData;
+		LangsData[locale] = dat;
+	}
 
-export async function getCooldownTimestamp(
-	authorId: string,
-	method: string
-): Promise<number | null> {
-	const fetch = await tempTable.get(`COOLDOWN.${method}.${authorId}`);
-	return fetch || null;
-}
-
-export function capitalizeFirstLetter(string: string): string {
-	return string.charAt(0).toUpperCase() + string.slice(1);
+	return dat;
 }

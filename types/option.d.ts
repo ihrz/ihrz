@@ -48,4 +48,5 @@ export interface Option {
 	thinking?: boolean;
 	ephemeral?: boolean;
 	permission: bigint | bigint[] | null;
+	cooldown?: number;
 }

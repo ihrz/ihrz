@@ -102,6 +102,12 @@ export interface LanguageData {
 	var_click_here: string;
 	var_s_message: string;
 	var_source: string;
+	var_online_call: string;
+	var_online: string;
+	var_stream: string;
+	var_boosts: string;
+	var_muted: string;
+	var_camera: string;
 	perm_createinstantinvite_name: string;
 	perm_kickmembers_name: string;
 	perm_banmembers_name: string;
@@ -2309,6 +2315,7 @@ export interface LanguageData {
 	economy_logs_deposit_desc: string;
 	var_on: string;
 	var_off: string;
+	global_command_cooldown_msg: string;
 	global_warn_embed_title: string;
 	global_warn_embed_desc: string;
 	global_warn_component_button_label: string;

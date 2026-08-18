@@ -38,7 +38,6 @@ import { fileURLToPath } from "url";
 import path from "path";
 import fs from "node:fs";
 
-import { iHorizonTimeCalculator } from "./functions/ms.js";
 import assetsCalc from "./functions/assetsCalc.js";
 import { StreamNotifier } from "./StreamNotifier.js";
 import { KdenLive } from "./functions/kdenliveManipulator.js";
@@ -107,7 +106,6 @@ export async function main(client: Client) {
 		Snowflake,
 		Collection<string, InviteCacheData>
 	>();
-	client.timeCalculator = new iHorizonTimeCalculator();
 	client.vanityInvites = new Collection<Snowflake, VanityInviteData>();
 	client.kdenlive = new KdenLive();
 	client.selectmenu = new Collection<string, Function>();

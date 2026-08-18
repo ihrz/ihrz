@@ -57,11 +57,11 @@ export const subCommand: SubCommand = {
 		}
 
 		if (
-			!(await client.func.method.isTicketChannel(
+			await client.func.method.isTicketChannel(
 				interaction.channel as BaseGuildTextChannel
-			))
+			)
 		) {
-			await TicketReOpen(interaction);
+			await TicketReOpen(interaction, lang);
 		} else {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.open_not_in_ticket
