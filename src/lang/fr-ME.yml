@@ -55,7 +55,7 @@ var_dont_have_perm: "Aya mec, ta pa la perm dsl. Vas becter ailleurs, te faut la
 var_price: "Prix"
 var_boost: "Boost"
 var_uses: "Utilisations"
-var_vc_stats: "Statistiques vocales"
+var_vc_stats: "Statistiques"
 var_1d: "1 jour"
 var_7d: "7 jours"
 var_14d: "14 jours"

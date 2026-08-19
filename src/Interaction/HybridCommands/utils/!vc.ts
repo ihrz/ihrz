@@ -24,14 +24,21 @@ import {
 	EmbedBuilder,
 	ChatInputCommandInteraction,
 	Message,
-	ChannelType,
 	GuildMember,
 	Collection,
 	VoiceState,
-	ColorResolvable
+	ColorResolvable,
+	BaseGuildTextChannel
 } from "discord.js";
 
 import { LanguageData } from "../../../../types/languageData.js";
+
+interface StatEntry {
+	emoji: string;
+	label: string;
+	value: string | number;
+	largeOnly?: boolean;
+}
 
 export const subCommand = {
 	run: async (
@@ -53,171 +60,95 @@ export const subCommand = {
 
 		const voiceStates = guild.voiceStates.cache;
 
-		const textChannelSize = guild.channels.cache.filter(
-			(c) => c.type === ChannelType.GuildText
-		).size;
-		const voiceChannelSize = guild.channels.cache.filter(
-			(c) => c.type === ChannelType.GuildVoice
-		).size;
-
 		const mode =
 			interaction instanceof ChatInputCommandInteraction
 				? interaction.options.getString("show-mode") || "short"
 				: client.func.method.string(args!, 0) || "short";
+
+		const isLarge = mode === "large";
 
 		const memberStats = calculateMemberStats(guild.members.cache);
 		const voiceStats = calculateVoiceStats(
 			voiceStates.filter((x) => x.channelId !== null)
 		);
 
-		const embed = new EmbedBuilder();
+		const totalOnline =
+			memberStats.dnd + memberStats.online + memberStats.idle;
 
-		if (mode === "large") {
-			const boosters =
-				guild.roles.premiumSubscriberRole?.members.map(
-					(usr) => `<@${usr.id}>`
-				) || [];
-
-			embed
-				.setColor(2829617)
-				.setDescription(
-					lang.vc_embed_desc
-						.replaceAll(
-							"${voiceStates?.size}",
-							voiceStats.total.toString()
-						)
-						.replaceAll(
-							"${client.iHorizon_Emojis.iHorizon_Streaming}",
-							client.iHorizon_Emojis.Streaming
-						)
-						.replaceAll(
-							"${voiceStates?.filter(vc => vc.streaming).size}",
-							voiceStats.streaming.toString()
-						)
-						.replaceAll(
-							"${client.iHorizon_Emojis.iHorizon_Deaf}",
-							client.iHorizon_Emojis.Deaf
-						)
-						.replaceAll(
-							"${voiceStates?.filter(vc => vc.selfDeaf).size}",
-							voiceStats.selfDeaf.toString()
-						)
-						.replaceAll(
-							"${client.iHorizon_Emojis.iHorizon_Mute}",
-							client.iHorizon_Emojis.Mute
-						)
-						.replaceAll(
-							"${voiceStates?.filter(vc => vc.selfMute).size}",
-							voiceStats.selfMute.toString()
-						)
-						.replaceAll(
-							"${client.iHorizon_Emojis.iHorizon_Camera}",
-							client.iHorizon_Emojis.Camera
-						)
-						.replaceAll(
-							"${voiceStates?.filter(vc => vc.selfVideo).size}",
-							voiceStats.selfVideo.toString()
-						)
-						.replaceAll(
-							"${membersStates?.size}",
-							memberStats.total.toString()
-						)
-						.replaceAll(
-							"${client.iHorizon_Emojis.DND}",
-							client.iHorizon_Emojis.DND
-						)
-						.replaceAll(
-							'${membersStates?.filter(mbr => mbr.presence?.status === "dnd").size}',
-							memberStats.dnd.toString()
-						)
-						.replaceAll(
-							"${client.iHorizon_Emojis.Online}",
-							client.iHorizon_Emojis.Online
-						)
-						.replaceAll(
-							'${membersStates?.filter(mbr => mbr.presence?.status === "online").size}',
-							memberStats.online.toString()
-						)
-						.replaceAll(
-							"${client.iHorizon_Emojis.Idle}",
-							client.iHorizon_Emojis.Idle
-						)
-						.replaceAll(
-							'${membersStates?.filter(mbr => mbr.presence?.status === "idle").size}',
-							memberStats.idle.toString()
-						)
-						.replaceAll(
-							"${client.iHorizon_Emojis.Invisible}",
-							client.iHorizon_Emojis.Invisible
-						)
-						.replaceAll(
-							'${membersStates?.filter(mbr => mbr.presence?.status === "invisible").size}',
-							memberStats.invisible.toString()
-						)
-						.replaceAll(
-							"${interaction.guild?.premiumSubscriptionCount}",
-							guild.premiumSubscriptionCount?.toString() || "0"
-						)
-						.replaceAll(
-							"${interaction.guild?.roles.premiumSubscriberRole?.members.map(usr => `<@${usr.id}>`)}",
-							boosters.join(", ")
-						)
+		let dominant_color = "#010101";
+		try {
+			dominant_color = (
+				await client.func.image_dominant_color(
+					guild.iconURL({ size: 4096, extension: "png" }) || ""
 				)
-				.addFields(
-					{
-						name: lang.vc_embed_fields_1_name,
-						value: lang.vc_embed_fields_1_value.replace(
-							"${interaction.guild?.memberCount}",
-							guild.memberCount.toString()
-						),
-						inline: true
-					},
-					{
-						name: lang.vc_embed_fields_2_name,
-						value: lang.vc_embed_fields_2_value
-							.replace(
-								"${textChannelSize}",
-								textChannelSize.toString()
-							)
-							.replace(
-								"${voiceChannelSize}",
-								voiceChannelSize.toString()
-							),
-						inline: true
-					}
-				);
-		} else {
-			let dominant_color = "#010101";
-			try {
-				dominant_color = (
-					await client.func.image_dominant_color(
-						guild.iconURL({ size: 4096, extension: "png" }) || ""
-					)
-				).color1;
-			} catch {}
+			).color1;
+		} catch {}
 
-			const totalOnline =
-				memberStats.dnd + memberStats.online + memberStats.idle;
+		const stats: StatEntry[] = [
+			{
+				emoji: client.iHorizon_Emojis.Server_Stats,
+				label: lang.var_member,
+				value: guild.memberCount.toString()
+			},
+			{
+				emoji: client.iHorizon_Emojis.VC_Limit,
+				label: lang.var_online,
+				value: totalOnline
+			},
+			{
+				emoji: client.iHorizon_Emojis.Desktop_Online,
+				label: lang.var_online_call,
+				value: voiceStats.total
+			},
+			{
+				emoji: client.iHorizon_Emojis.Streaming,
+				label: lang.var_stream,
+				value: voiceStats.streaming
+			},
+			{
+				emoji: client.iHorizon_Emojis.Server_Booster,
+				label: lang.var_boosts,
+				value: guild.premiumSubscriptionCount?.toString() || "0"
+			},
+			{
+				emoji: client.iHorizon_Emojis.Camera,
+				label: lang.var_camera,
+				value: voiceStats.selfVideo,
+				largeOnly: true
+			},
+			{
+				emoji: client.iHorizon_Emojis.Mute,
+				label: lang.var_muted,
+				value: voiceStats.selfDeaf,
+				largeOnly: true
+			}
+		];
 
-			embed
-				.setTitle(`${guild.name} ${lang.var_vc_stats}`)
-				.setColor(dominant_color as ColorResolvable)
-				.setDescription(
-					`${client.iHorizon_Emojis.Server_Stats}  ${lang.var_member} : **${guild.memberCount.toString()}**
-${client.iHorizon_Emojis.VC_Limit}  ${lang.var_online} : **${totalOnline}**
-${client.iHorizon_Emojis.Desktop_Online}  ${lang.var_online_call} : **${memberStats.total.toString()}**
-${client.iHorizon_Emojis.Streaming}  ${lang.var_stream} : **${voiceStats.streaming.toString()}**
-${client.iHorizon_Emojis.Server_Booster}  ${lang.var_boosts} : **${guild.premiumSubscriptionCount?.toString() || "0"}**
-${client.iHorizon_Emojis.Camera}  ${lang.var_camera} : **${voiceStats.selfVideo.toString()}**
-${client.iHorizon_Emojis.Mute}  ${lang.var_muted} : **${voiceStats.selfDeaf.toString()}**
-`
-				)
-				.setThumbnail(guild.iconURL({ size: 4096 }));
-		}
+		let description = "";
+		stats.forEach((stat) => {
+			if (stat.largeOnly && !isLarge) return;
 
-		await client.func.method.interactionSend(interaction, {
+			description += isLarge
+				? `${stat.emoji}  ${stat.label} : **${stat.value}**\n`
+				: `${stat.label} : **${stat.value}**\n`;
+		});
+
+		const embed = new EmbedBuilder()
+			.setTitle(`${guild.name} ${lang.var_vc_stats} !`)
+			.setColor(dominant_color as ColorResolvable)
+			.setDescription(description.trim())
+			.setThumbnail(guild.iconURL({ size: 4096 }));
+
+		await (interaction.channel as BaseGuildTextChannel).send({
 			embeds: [embed]
 		});
+
+		if (interaction instanceof ChatInputCommandInteraction) {
+			await interaction.reply({
+				content: `${client.iHorizon_Emojis.GreenTick}`,
+				ephemeral: true
+			});
+		}
 	}
 };
 

@@ -53,7 +53,7 @@ export const subCommand: SubCommand = {
 			return;
 
 		if (interaction instanceof ChatInputCommandInteraction) {
-			var query = interaction.options.getString("title");
+			var query = interaction.options.getString("level");
 		} else {
 			var query = client.func.method.string(args!, 0);
 		}
