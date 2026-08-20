@@ -751,6 +751,7 @@ export const subCommand: SubCommand = {
 			return await new Promise<{
 				option: TicketOption;
 				index: number;
+				interaction: StringSelectMenuInteraction<CacheType>;
 			} | null>((resolve) => {
 				const collector = msg.createMessageComponentCollector({
 					componentType: ComponentType.StringSelect,
@@ -777,8 +778,7 @@ export const subCommand: SubCommand = {
 						return;
 					}
 
-					await subI.deferUpdate();
-					resolve({ option, index: idx });
+					resolve({ option, index: idx, interaction: subI });
 					collector.stop("legitEnd");
 				});
 
@@ -798,6 +798,7 @@ export const subCommand: SubCommand = {
 			if (!selected) return;
 
 			const { option } = selected;
+			await selected.interaction.deferUpdate();
 			const actionSelect = new StringSelectMenuBuilder()
 				.setCustomId("form_action")
 				.setPlaceholder(lang.var_action)
@@ -965,6 +966,7 @@ export const subCommand: SubCommand = {
 			if (!selected) return;
 
 			const { option } = selected;
+			await selected.interaction.deferUpdate();
 			const channelSelect = new ChannelSelectMenuBuilder()
 				.setCustomId("change_category_for_option_channel")
 				.setChannelTypes(ChannelType.GuildCategory)
@@ -1418,6 +1420,7 @@ export const subCommand: SubCommand = {
 			);
 			if (!selected) return;
 
+			await selected.interaction.deferUpdate();
 			baseData.config.optionFields.splice(selected.index, 1);
 			isSaved = false;
 			panelEmbed.data.fields![0].value = "🔴";
@@ -1720,7 +1723,7 @@ export const subCommand: SubCommand = {
 			);
 			if (!selected) return;
 
-			const { option } = selected;
+			const { option, interaction: optionInteraction } = selected;
 			const modal = await iHorizonModalResolve(
 				{
 					customId: "change_panel_channel_id",
@@ -1739,7 +1742,7 @@ export const subCommand: SubCommand = {
 					],
 					title: lang.ticket_panel_change_embed_modal_placeholder
 				},
-				originalResponse as unknown as StringSelectMenuInteraction<CacheType>
+				optionInteraction
 			);
 
 			if (!modal) {
@@ -1776,6 +1779,7 @@ export const subCommand: SubCommand = {
 			if (!selected) return;
 
 			const { option } = selected;
+			await selected.interaction.deferUpdate();
 			if (!option.rolesToPing) {
 				option.rolesToPing = [];
 			}
