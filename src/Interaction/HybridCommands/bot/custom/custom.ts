@@ -66,12 +66,13 @@ export const command: Command = {
 
 					choices: [
 						{
-							name: "Bot Name",
+							name: "Default Bot Name",
 							name_localizations: {
-								fr: "Nom du bot",
-								ja: "デフォルトのボット名",
-								ru: "Имя бота по умолчанию",
-								"es-ES": "Nombre predeterminado del bot"
+								fr: "Reprendre le nom par défaut du bot",
+								ja: "ボットのデフォルトの名前に戻す",
+								ru: "Восстановить имя бота по умолчанию",
+								"es-ES":
+									"Restablecer el nombre predeterminado del bot"
 							},
 							value: "reset"
 						},
@@ -217,10 +218,11 @@ export const command: Command = {
 						{
 							name: "Default Bot Banner",
 							name_localizations: {
-								fr: "Bannière du bot par défaut",
-								ja: "デフォルトのボットバナー",
-								ru: "Баннер бота по умолчанию",
-								"es-ES": "Banner predeterminado del bot"
+								fr: "Reprendre la bannière par défaut du bot",
+								ja: "ボットのデフォルトバナーに戻す",
+								ru: "Восстановить баннер бота по умолчанию",
+								"es-ES":
+									"Restablecer el banner predeterminado del bot"
 							},
 							value: "reset"
 						},
@@ -290,10 +292,11 @@ export const command: Command = {
 						{
 							name: "Default Bot Description",
 							name_localizations: {
-								fr: "Description du bot par défaut",
-								ja: "デフォルトのボット説明",
-								ru: "Описание бота по умолчанию",
-								"es-ES": "Descripción predeterminada del bot"
+								fr: "Reprendre la description par défaut du bot",
+								ja: "ボットのデフォルトの説明に戻す",
+								ru: "Восстановить описание бота по умолчанию",
+								"es-ES":
+									"Restablecer la descripción predeterminada del bot"
 							},
 							value: "reset"
 						},
