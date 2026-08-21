@@ -986,6 +986,11 @@ renew_channel_send_success: "${interaction.user} канал был восста�
 renew_dont_have_permission: ":x: **Нельзя** `Нет разрешения!`"
 renew_not_administrator: ":x: **Вы не являетесь администратором для использования этой команды!**"
 
+# /renewvc
+renewvc_not_in_voice: "${client.iHorizon_Emojis.No} Вы должны быть подключены к голосовому каналу, чтобы использовать эту команду!"
+renewvc_region_success: "${client.iHorizon_Emojis.Yes} Голосовой регион канала ${targetVc} установлен на автоматический!"
+renewvc_dont_have_permission: ":x: **Нельзя** `Нет разрешения!`"
+
 # /prevnames
 prevnames_embed_title: "Список всех никнеймов ${user.username}"
 prevnames_undetected: "Данных не найдено!"

@@ -989,6 +989,11 @@ renew_channel_send_success: "${interaction.user} jai recrée le salon , tu voula
 renew_dont_have_permission: ":x: **Impossible** Ta pas la perm gros shlag !"
 renew_not_administrator: ":x: **Faut etre le boss pour faire ca , revient quand taura perm admin !**"
 
+# /renewvc
+renewvc_not_in_voice: "${client.iHorizon_Emojis.No} T'es meme pas en vocal gros shlag , reviens quand t seras co !"
+renewvc_region_success: "${client.iHorizon_Emojis.Yes} Voila , la region de ${targetVc} est passee en auto !"
+renewvc_dont_have_permission: ":x: **Impossible** Ta pas la perm gros shlag !"
+
 # /prevnames
 prevnames_embed_title: "Liste de tous les pseudos de ${user.username} (c'un rdm alors?)"
 prevnames_undetected: "Aucune donnée trouvée !"

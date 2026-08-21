@@ -986,6 +986,11 @@ renew_channel_send_success: "${interaction.user} チャンネルが再作成さ�
 renew_dont_have_permission: ":x: **権限がありません！**"
 renew_not_administrator: ":x: **このコマンドを使用するための管理者ではありません！**"
 
+# /renewvc
+renewvc_not_in_voice: "${client.iHorizon_Emojis.No} このコマンドを使用するにはボイスチャンネルに接続している必要があります！"
+renewvc_region_success: "${client.iHorizon_Emojis.Yes} ${targetVc} のボイスリージョンが自動に設定されました！"
+renewvc_dont_have_permission: ":x: **権限がありません！**"
+
 # /prevnames
 prevnames_embed_title: "${user.username} のニックネームのリスト"
 prevnames_undetected: "データが見つかりませんでした！"

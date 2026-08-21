@@ -763,6 +763,9 @@ export interface LanguageData {
 	renew_channel_send_success: string;
 	renew_dont_have_permission: string;
 	renew_not_administrator: string;
+	renewvc_not_in_voice: string;
+	renewvc_region_success: string;
+	renewvc_dont_have_permission: string;
 	prevnames_embed_title: string;
 	prevnames_undetected: string;
 	prevnames_not_admin: string;

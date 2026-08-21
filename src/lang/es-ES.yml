@@ -986,6 +986,11 @@ renew_channel_send_success: "¡${interaction.user} canal recreado!"
 renew_dont_have_permission: ":x: No se puede `¡No tienes permiso!`"
 renew_not_administrator: ":x: **¡No eres un administrador para usar este comando!**"
 
+# /renewvc
+renewvc_not_in_voice: "${client.iHorizon_Emojis.No} ¡Debes estar conectado a un canal de voz para usar este comando!"
+renewvc_region_success: "${client.iHorizon_Emojis.Yes} ¡La región de voz de ${targetVc} se ha establecido en automático!"
+renewvc_dont_have_permission: ":x: No se puede `¡No tienes permiso!`"
+
 # /prevnames
 prevnames_embed_title: "Lista de todos los apodos de ${user.username}"
 prevnames_undetected: "¡No se encontraron datos!"

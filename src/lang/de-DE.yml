@@ -986,6 +986,11 @@ renew_channel_send_success: "${interaction.user} Kanal wurde erfolgreich neu ers
 renew_dont_have_permission: ":x: **Kann nicht** `Keine Berechtigung!`"
 renew_not_administrator: ":x: **Du bist kein Administrator, um diesen Befehl zu verwenden!**"
 
+# /renewvc
+renewvc_not_in_voice: "${client.iHorizon_Emojis.No} Du musst mit einem Sprachkanal verbunden sein, um diesen Befehl zu verwenden!"
+renewvc_region_success: "${client.iHorizon_Emojis.Yes} Die Sprachregion von ${targetVc} wurde auf automatisch gesetzt!"
+renewvc_dont_have_permission: ":x: **Kann nicht** `Keine Berechtigung!`"
+
 # /prevnames
 prevnames_embed_title: "Liste aller Spitznamen von ${user.username}"
 prevnames_undetected: "Keine Daten gefunden!"

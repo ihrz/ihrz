@@ -986,6 +986,11 @@ renew_channel_send_success: "${interaction.user} تم إعادة إنشاء ال
 renew_dont_have_permission: ":x: **لا يمكن** `لا تملك الإذن!`"
 renew_not_administrator: ":x: **أنت لست مشرفًا لاستخدام هذا الأمر!**"
 
+# /renewvc
+renewvc_not_in_voice: "${client.iHorizon_Emojis.No} يجب أن تكون متصلاً بقناة صوتية لاستخدام هذا الأمر!"
+renewvc_region_success: "${client.iHorizon_Emojis.Yes} تم تعيين المنطقة الصوتية لـ ${targetVc} إلى تلقائي!"
+renewvc_dont_have_permission: ":x: **لا يمكن** `لا تملك الإذن!`"
+
 # /prevnames
 prevnames_embed_title: "قائمة جميع الألقاب السابقة لـ ${user.username}"
 prevnames_undetected: "لم يتم العثور على بيانات!"

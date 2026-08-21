@@ -986,6 +986,11 @@ renew_channel_send_success: "${interaction.user} le canal a été recréé !"
 renew_dont_have_permission: ":x: **Impossible** Vous n'avez pas la permission !"
 renew_not_administrator: ":x: **Vous devez être administrateur pour utiliser cette commande !**"
 
+# /renewvc
+renewvc_not_in_voice: "${client.iHorizon_Emojis.No} Tu dois être connecté à un salon vocal pour utiliser cette commande !"
+renewvc_region_success: "${client.iHorizon_Emojis.Yes} La région vocale de ${targetVc} a été mise en automatique !"
+renewvc_dont_have_permission: ":x: **Impossible** Vous n'avez pas la permission !"
+
 # /prevnames
 prevnames_embed_title: "Liste de tous les pseudonymes de ${user.username}"
 prevnames_undetected: "Aucune donnée trouvée !"
