@@ -3268,6 +3268,13 @@ h247_leave_not_active: "${client.iHorizon_Emojis.No} Das H24/7-Modul ist auf die
 h247_left: "${client.iHorizon_Emojis.Yes} Das H24/7-Modul wurde auf diesem Server deaktiviert!"
 h247_leave_error: "${client.iHorizon_Emojis.No} Beim Deaktivieren des H24/7-Moduls ist ein Fehler aufgetreten."
 
+# /h247 info
+h247_info_embed_title: "H24/7-Modul Informationen"
+h247_info_embed_description: "Das H24/7-Modul hält iHorizon rund um die Uhr mit einem Sprachkanal verbunden, auch ohne laufende Musik. So bleibst du die Sprach-Aktivität deines Servers erhalten.\nSolange dieses Modul aktiv ist, können Musik und TTS nur im H24/7-Sprachkanal verwendet werden.\nDie Verbindung wird nach Neustarts oder Player-Herunterfahrten automatisch wiederhergestellt."
+h247_info_field_status: "Status"
+h247_info_field_howto: "So wird es verwendet"
+h247_info_howto_value: "Verwende `/h247 join`, um iHorizon in einem Sprachkanal zu parken.\nVerwende `/h247 leave`, um das Modul zu deaktivieren.\nVerwende `/h247 info`, um dieses Panel anzuzeigen."
+
 # /music play
 h247_play_refused: "${client.iHorizon_Emojis.No} Das H24/7-Modul ist auf diesem Server aktiv. Verbinde dich mit dem H24/7-Sprachkanal, um Musik abzuspielen!"
 

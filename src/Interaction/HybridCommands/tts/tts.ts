@@ -48,6 +48,7 @@ export const command: Command = {
 	options: [
 		{
 			name: "join",
+			prefixName: "ttsjoin",
 
 			description: "Join the voice channel and enable TTS mode!",
 			description_localizations: {
@@ -63,6 +64,7 @@ export const command: Command = {
 		},
 		{
 			name: "leave",
+			prefixName: "ttsleave",
 
 			description: "Leave the voice channel and disable TTS mode!",
 			description_localizations: {
@@ -78,6 +80,7 @@ export const command: Command = {
 		},
 		{
 			name: "info",
+			prefixName: "ttsinfo",
 
 			description: "Get information about the TTS module!",
 			description_localizations: {
@@ -107,7 +110,8 @@ export const command: Command = {
 				fr: "Définir la langue TTS par défaut du serveur",
 				ja: "サーバーのデフォルトTTS言語を設定！",
 				ru: "Установить язык TTS по умолчанию!",
-				"es-ES": "Establecer el idioma TTS predeterminado para el servidor!"
+				"es-ES":
+					"Establecer el idioma TTS predeterminado para el servidor!"
 			},
 
 			type: ApplicationCommandOptionType.Subcommand,

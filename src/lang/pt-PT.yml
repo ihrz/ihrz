@@ -3267,6 +3267,13 @@ h247_leave_not_active: "${client.iHorizon_Emojis.No} O módulo H24/7 não está 
 h247_left: "${client.iHorizon_Emojis.Yes} O módulo H24/7 foi desativado neste servidor!"
 h247_leave_error: "${client.iHorizon_Emojis.No} Ocorreu um erro ao desativar o módulo H24/7."
 
+# /h247 info
+h247_info_embed_title: "Informação do módulo H24/7"
+h247_info_embed_description: "O módulo H24/7 mantém o iHorizon conectado a um canal de voz 24 horas por dia, mesmo sem nada a reproduzir. É útil para manter a sequência de atividade de voz do servidor.\nEnquanto este módulo estiver ativo, a música e o TTS só funcionam no canal de voz H24/7.\nA ligação recupera automaticamente após reinícios ou paragens do player."
+h247_info_field_status: "Estado"
+h247_info_field_howto: "Como utilizar"
+h247_info_howto_value: "Usa `/h247 join` para estacionar o iHorizon num canal de voz.\nUsa `/h247 leave` para desativar o módulo.\nUsa `/h247 info` para mostrar este painel."
+
 # /music play
 h247_play_refused: "${client.iHorizon_Emojis.No} O módulo H24/7 está ativo neste servidor. Entra no canal de voz H24/7 para tocar música!"
 

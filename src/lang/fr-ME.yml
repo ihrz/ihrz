@@ -3270,6 +3270,13 @@ h247_leave_not_active: "${client.iHorizon_Emojis.No} Le H24/7 est meme pas activ
 h247_left: "${client.iHorizon_Emojis.Yes} Voila, le H24/7 est desactive sur ce serveur !"
 h247_leave_error: "${client.iHorizon_Emojis.No} Y'a eu une erreur en desactivant le H24/7 frero."
 
+# /h247 info
+h247_info_embed_title: "Infos du module H24/7"
+h247_info_embed_description: "Le H24/7 garde iHorizon co dans un vocal jour et nuit, meme sans rien jouer. C'est ce qui faut pour garder la streak vocal du serveur !\nTant que le module est actif, la zik et le TTS ne marchent que dans le vocal H24/7.\nLa connexion revient toute seule apres un restart ou un kill du player."
+h247_info_field_status: "Statut"
+h247_info_field_howto: "Comment l'utiliser"
+h247_info_howto_value: "Utilise `/h247 join` pour garer iHorizon dans un vocal.\nUtilise `/h247 leave` pour couper le module.\nUtilise `/h247 info` pour revoir ce panneau."
+
 # /music play
 h247_play_refused: "${client.iHorizon_Emojis.No} Le H24/7 est actif ici. Rejoins le vocal H24/7 pour mettre de la zik !"
 
