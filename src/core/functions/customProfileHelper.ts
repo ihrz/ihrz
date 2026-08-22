@@ -44,8 +44,7 @@ export async function changeGuildBotName(
 		}
 	);
 
-	if (res.status === 200) return true;
-	return false;
+	return res.status === 200;
 }
 
 export async function changeGuildBotBanner(
@@ -67,8 +66,7 @@ export async function changeGuildBotBanner(
 		}
 	);
 
-	if (res.status === 200) return true;
-	return false;
+	return res.status === 200;
 }
 
 export async function changeGuildBotAvatar(
@@ -90,8 +88,7 @@ export async function changeGuildBotAvatar(
 		}
 	);
 
-	if (res.status === 200) return true;
-	return false;
+	return res.status === 200;
 }
 
 export async function changeGuildBotBio(
