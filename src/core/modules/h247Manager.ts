@@ -28,6 +28,8 @@ import {
 	PermissionFlagsBits
 } from "discord.js";
 
+import type { Player } from "lavalink-client";
+
 import { DatabaseStructure } from "../../../types/database_structure.js";
 
 import logger from "../logger.js";
@@ -41,6 +43,10 @@ const H247_JOIN_CONFIRM_INTERVAL_MS = 300;
 const H247_JOIN_CONFIRM_ATTEMPTS = 8;
 const H247_DISCONNECT_OBSERVE_INTERVAL_MS = 500;
 const H247_DISCONNECT_OBSERVE_ATTEMPTS = 10;
+
+// In-memory mirror of the enabled H24/7 sessions, required to keep the
+// "playerQueueEmptyEnd" handling synchronous against the internal destroy.
+const h247Sessions = new Map<string, string>();
 
 export async function getH247Data(
 	client: Client,
@@ -58,6 +64,9 @@ export async function setH247Data(
 	data: DatabaseStructure.H247Schema
 ): Promise<void> {
 	await client.db.set(`${guildId}.GUILD.H247`, data);
+
+	if (data.enabled) h247Sessions.set(guildId, data.voiceChannelId);
+	else h247Sessions.delete(guildId);
 }
 
 export async function deleteH247Data(
@@ -65,6 +74,8 @@ export async function deleteH247Data(
 	guildId: string
 ): Promise<void> {
 	await client.db.delete(`${guildId}.GUILD.H247`);
+
+	h247Sessions.delete(guildId);
 }
 
 async function fetchH247VoiceChannel(
@@ -190,8 +201,28 @@ export async function recoverH247Sessions(client: Client): Promise<void> {
 
 		if (!guild) continue;
 
+		h247Sessions.set(entry.id, data.voiceChannelId);
+
 		await joinH247VoiceChannel(guild, data.voiceChannelId, false);
 	}
+}
+
+// Emitted by the internal empty queue timer right before it destroys the
+// player. Destroying first with "disconnect = false" wins the synchronous
+// internal_destroystatus guard, so lavalink never sends the voice leave and
+// iHorizon stays in its H24/7 channel without any visible reconnection.
+export function handleH247PlayerIdleDestroy(player: Player): void {
+	const voiceChannelId = h247Sessions.get(player.guildId);
+
+	if (!voiceChannelId) return;
+	if (player.voiceChannelId !== voiceChannelId) return;
+
+	void player.destroy("QueueEmpty", false).catch((error) => {
+		logger.err(
+			`Failed to gracefully destroy the H24/7 player of guild ${player.guildId}:`,
+			error
+		);
+	});
 }
 
 export async function handleH247PlayerDestroyed(
