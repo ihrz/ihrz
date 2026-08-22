@@ -34,6 +34,7 @@ import { profilTable } from "../../Events/client/ready.js";
 import { getTTSData } from "./ttsManager.js";
 import {
 	handleH247PlayerDestroyed,
+	handleH247PlayerCreated,
 	handleH247PlayerIdleDestroy
 } from "./h247Manager.js";
 
@@ -58,7 +59,7 @@ export default async (client: Client) => {
 		},
 		playerOptions: {
 			onEmptyQueue: {
-				destroyAfterMs: 2000
+				destroyAfterMs: 120_000
 			},
 			defaultSearchPlatform: "youtube",
 			onDisconnect: {
@@ -240,6 +241,11 @@ export default async (client: Client) => {
 	client.player.on("playerDestroy", async (player) => {
 		await handleH247PlayerDestroyed(client, player.guildId);
 	});
+
+	client.player.on(
+		"playerCreate",
+		async (player) => await handleH247PlayerCreated(client, player.guildId)
+	);
 
 	client.player.on("playerQueueEmptyEnd", (player) => {
 		handleH247PlayerIdleDestroy(player);

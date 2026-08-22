@@ -3258,6 +3258,7 @@ help_h247_dsc: "> *Mantém o iHorizon conectado 24/7 num canal de voz!*"
 h247_join_invalid_channel: "${client.iHorizon_Emojis.No} Por favor, indica um canal de voz válido!"
 h247_join_already_active: "${client.iHorizon_Emojis.No} O módulo H24/7 já está ativo em ${voiceChannel}!"
 h247_join_music_playing: "${client.iHorizon_Emojis.No} Está a ser reproduzida música neste servidor. Desliga a música antes de ativar o módulo H24/7."
+h247_join_tts_active: "${client.iHorizon_Emojis.No} O módulo TTS está atualmente ativo noutro canal de voz. Desativa o TTS antes de ativar o módulo H24/7."
 h247_joined: "${client.iHorizon_Emojis.Yes} O iHorizon ficará conectado 24/7 em ${voiceChannel}!"
 h247_join_error: "${client.iHorizon_Emojis.No} Ocorreu um erro ao ativar o módulo H24/7."
 
@@ -3268,3 +3269,6 @@ h247_leave_error: "${client.iHorizon_Emojis.No} Ocorreu um erro ao desativar o m
 
 # /music play
 h247_play_refused: "${client.iHorizon_Emojis.No} O módulo H24/7 está ativo neste servidor. Entra no canal de voz H24/7 para tocar música!"
+
+# /tts join
+h247_tts_refused: "${client.iHorizon_Emojis.No} O módulo H24/7 está ativo neste servidor. Entra no canal de voz H24/7 para ativar o TTS!"

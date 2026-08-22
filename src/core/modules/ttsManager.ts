@@ -24,6 +24,7 @@ import { Client, EmbedBuilder, Guild, VoiceChannel } from "discord.js";
 import { DatabaseStructure } from "../../../types/database_structure.js";
 import { LanguageData } from "../../../types/languageData.js";
 import logger from "../logger.js";
+import { getH247Data } from "./h247Manager.js";
 
 type FloweryVoice = {
 	id: string;
@@ -172,7 +173,14 @@ export async function cleanupTTS(
 
 	const player = client.player.getPlayer(guildId);
 	if (player) {
-		player.destroy().catch(() => {});
+		// When the H24/7 module parks iHorizon in the TTS voice channel,
+		// destroy the player without sending the voice leave so the bot
+		// never visibly disconnects from the channel.
+		const h247Data = await getH247Data(client, guildId);
+		const keepVoiceConnection =
+			!!h247Data?.enabled && h247Data.voiceChannelId === data.voiceChannelId;
+
+		player.destroy(undefined, !keepVoiceConnection).catch(() => {});
 	}
 
 	try {
@@ -246,8 +254,25 @@ export async function speakTTS(
 	text: string,
 	locale: string
 ): Promise<void> {
-	const player = client.player.getPlayer(guildId);
-	if (!player || !player.connected) return;
+	let player = client.player.getPlayer(guildId);
+
+	if (!player || !player.connected) {
+		// Self-heal: the guild player may have been destroyed by the empty
+		// queue timer or a restart. Recreate it from the persisted TTS state.
+		const ttsData = await getTTSData(client, guildId);
+
+		if (!ttsData) return;
+
+		player = client.player.createPlayer({
+			guildId,
+			voiceChannelId: ttsData.voiceChannelId,
+			textChannelId: ttsData.textChannelId,
+			selfDeaf: true,
+			selfMute: false
+		});
+
+		await player.connect();
+	}
 
 	const sanitized = text.replace(/\s+/g, " ").trim();
 
