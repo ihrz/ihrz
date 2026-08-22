@@ -3250,3 +3250,24 @@ tts_embed_footer: "Utilise /tts leave pour couper le TTS"
 tts_join_not_text_based: "${client.iHorizon_Emojis.No} Ce salon vocal supporte pas les messages texte frero. Active le chat texte dans le vocal ou va dans un autre vocal."
 tts_music_blocked: "${client.iHorizon_Emojis.No} Le TTS est active la. Coupe le TTS avant de mettre de la zik frero."
 tts_voice_status: "Mode TTS - Synthèse Vocale"
+
+# H24/7 module
+# /h247 join, /h247 leave
+
+help_h247_fields: "H24/7"
+help_h247_dsc: "> *Garde iHorizon co 24/7 dans un vocal, la streak faut pas la perdre frero !*"
+
+# /h247 join
+h247_join_invalid_channel: "${client.iHorizon_Emojis.No} Donnes un vrai salon vocal frero !"
+h247_join_already_active: "${client.iHorizon_Emojis.No} Le H24/7 est deja actif dans ${voiceChannel} !"
+h247_join_music_playing: "${client.iHorizon_Emojis.No} Y'a de la zik qui tourne la. Coupe la musique avant d'activer le H24/7."
+h247_joined: "${client.iHorizon_Emojis.Yes} iHorizon reste co 24/7 dans ${voiceChannel}, la streak est sauvee !"
+h247_join_error: "${client.iHorizon_Emojis.No} Y'a eu une erreur en activant le H24/7 frero."
+
+# /h247 leave
+h247_leave_not_active: "${client.iHorizon_Emojis.No} Le H24/7 est meme pas active la frero !"
+h247_left: "${client.iHorizon_Emojis.Yes} Voila, le H24/7 est desactive sur ce serveur !"
+h247_leave_error: "${client.iHorizon_Emojis.No} Y'a eu une erreur en desactivant le H24/7 frero."
+
+# /music play
+h247_play_refused: "${client.iHorizon_Emojis.No} Le H24/7 est actif ici. Rejoins le vocal H24/7 pour mettre de la zik !"

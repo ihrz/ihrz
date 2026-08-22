@@ -38,6 +38,7 @@ import { LavalinkNode, Player, SearchResult, Track } from "lavalink-client";
 import { LanguageData } from "../../../types/languageData.js";
 import maskLink from "./maskLink.js";
 import { getTTSData, cleanupTTS } from "../modules/ttsManager.js";
+import { getH247Data } from "../modules/h247Manager.js";
 
 import { Innertube, YTNodes } from "youtubei.js";
 import * as spotify from "spotify-metadata";
@@ -785,6 +786,21 @@ export async function handleMusicPlay({
 
 	if (!voiceChannel) {
 		await respond({ content: lang.p_not_in_voice_channel });
+		return;
+	}
+
+	const h247Data = await getH247Data(client, interaction.guild.id);
+
+	if (
+		h247Data?.enabled &&
+		member.voice.channelId !== h247Data.voiceChannelId
+	) {
+		await respond({
+			content: lang.h247_play_refused.replace(
+				"${client.iHorizon_Emojis.No}",
+				client.iHorizon_Emojis.No
+			)
+		});
 		return;
 	}
 

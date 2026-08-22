@@ -3241,3 +3241,24 @@ tts_embed_footer: "استخدم /tts leave لإيقاف TTS"
 tts_join_not_text_based: "${client.iHorizon_Emojis.No} هذه القناة الصوتية لا تدعم الرسائل النصية. يرجى تفعيل النص في الصوت أو استخدام قناة صوتية أخرى."
 tts_music_blocked: "${client.iHorizon_Emojis.No} وحدة TTS نشطة حالياً. يرجى تعطيل TTS قبل تشغيل الموسيقى."
 tts_voice_status: "وضع TTS - تحويل النص إلى كلام"
+
+# H24/7 module
+# /h247 join, /h247 leave
+
+help_h247_fields: "H24/7"
+help_h247_dsc: "> *اجعل iHorizon متصلاً في غرفة صوتية على مدار الساعة!*"
+
+# /h247 join
+h247_join_invalid_channel: "${client.iHorizon_Emojis.No} يرجى تحديد غرفة صوتية صحيحة!"
+h247_join_already_active: "${client.iHorizon_Emojis.No} وحدة H24/7 مفعلة بالفعل في ${voiceChannel}!"
+h247_join_music_playing: "${client.iHorizon_Emojis.No} يتم تشغيل الموسيقى حالياً على هذا السيرفر. يرجى إيقاف الموسيقى قبل تفعيل وحدة H24/7."
+h247_joined: "${client.iHorizon_Emojis.Yes} سيبقى iHorizon متصلاً في ${voiceChannel} على مدار الساعة!"
+h247_join_error: "${client.iHorizon_Emojis.No} حدث خطأ أثناء تفعيل وحدة H24/7."
+
+# /h247 leave
+h247_leave_not_active: "${client.iHorizon_Emojis.No} وحدة H24/7 غير مفعلة حالياً على هذا السيرفر!"
+h247_left: "${client.iHorizon_Emojis.Yes} تم تعطيل وحدة H24/7 على هذا السيرفر!"
+h247_leave_error: "${client.iHorizon_Emojis.No} حدث خطأ أثناء تعطيل وحدة H24/7."
+
+# /music play
+h247_play_refused: "${client.iHorizon_Emojis.No} وحدة H24/7 مفعلة على هذا السيرفر. انضم إلى الغرفة الصوتية H24/7 لتشغيل الموسيقى!"

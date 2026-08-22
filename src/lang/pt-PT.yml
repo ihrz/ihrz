@@ -3247,3 +3247,24 @@ tts_embed_footer: "Use /tts leave para parar o TTS"
 tts_join_not_text_based: "${client.iHorizon_Emojis.No} Este canal de voz nao suporta mensagens de texto. Por favor, ative texto-no-voz ou use outro canal de voz."
 tts_music_blocked: "${client.iHorizon_Emojis.No} O modulo TTS esta atualmente ativo. Por favor, desative o TTS antes de tocar musica."
 tts_voice_status: "Modo TTS - Síntese de Voz"
+
+# H24/7 module
+# /h247 join, /h247 leave
+
+help_h247_fields: "H24/7"
+help_h247_dsc: "> *Mantém o iHorizon conectado 24/7 num canal de voz!*"
+
+# /h247 join
+h247_join_invalid_channel: "${client.iHorizon_Emojis.No} Por favor, indica um canal de voz válido!"
+h247_join_already_active: "${client.iHorizon_Emojis.No} O módulo H24/7 já está ativo em ${voiceChannel}!"
+h247_join_music_playing: "${client.iHorizon_Emojis.No} Está a ser reproduzida música neste servidor. Desliga a música antes de ativar o módulo H24/7."
+h247_joined: "${client.iHorizon_Emojis.Yes} O iHorizon ficará conectado 24/7 em ${voiceChannel}!"
+h247_join_error: "${client.iHorizon_Emojis.No} Ocorreu um erro ao ativar o módulo H24/7."
+
+# /h247 leave
+h247_leave_not_active: "${client.iHorizon_Emojis.No} O módulo H24/7 não está atualmente ativo neste servidor!"
+h247_left: "${client.iHorizon_Emojis.Yes} O módulo H24/7 foi desativado neste servidor!"
+h247_leave_error: "${client.iHorizon_Emojis.No} Ocorreu um erro ao desativar o módulo H24/7."
+
+# /music play
+h247_play_refused: "${client.iHorizon_Emojis.No} O módulo H24/7 está ativo neste servidor. Entra no canal de voz H24/7 para tocar música!"

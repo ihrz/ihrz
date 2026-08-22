@@ -2441,4 +2441,15 @@ export interface LanguageData {
 	tts_join_not_text_based: string;
 	tts_music_blocked: string;
 	tts_voice_status: string;
+	help_h247_fields: string;
+	help_h247_dsc: string;
+	h247_join_invalid_channel: string;
+	h247_join_already_active: string;
+	h247_join_music_playing: string;
+	h247_joined: string;
+	h247_join_error: string;
+	h247_leave_not_active: string;
+	h247_left: string;
+	h247_leave_error: string;
+	h247_play_refused: string;
 }

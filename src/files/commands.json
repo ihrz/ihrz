@@ -5115,6 +5115,86 @@
         "thinking": true
     },
     {
+        "name": "h247",
+        "name_translated": {
+            "fr": "h247",
+            "ja": "h247",
+            "ru": "h247",
+            "es-ES": "h247"
+        },
+        "description": "Keep iHorizon connected 24/7 in a voice channel!",
+        "description_translated": {
+            "fr": "Garder iHorizon connecté 24/7 dans un salon vocal!",
+            "ja": "iHorizonをボイスチャンネルに24時間365日接続させ続けます！",
+            "ru": "Держите iHorizon на связи 24/7 в голосовом канале!",
+            "es-ES": "¡Mantén a iHorizon conectado 24/7 en un canal de voz!"
+        },
+        "category": "h247",
+        "options": [
+            {
+                "name": "join",
+                "name_localizations": {
+                    "fr": "rejoindre",
+                    "ja": "join",
+                    "ru": "join",
+                    "es-ES": "join"
+                },
+                "description": "Park iHorizon 24/7 in a voice channel!",
+                "description_localizations": {
+                    "fr": "Garer iHorizon 24/7 dans un salon vocal!",
+                    "ja": "iHorizonをボイスチャンネルに常駐させます！",
+                    "ru": "Оставить iHorizon 24/7 в голосовом канале!",
+                    "es-ES": "¡Estacionar a iHorizon 24/7 en un canal de voz!"
+                },
+                "type": 1,
+                "options": [
+                    {
+                        "name": "channel",
+                        "name_localizations": {
+                            "fr": "salon",
+                            "ja": "channel",
+                            "ru": "channel",
+                            "es-ES": "canal"
+                        },
+                        "description": "The voice channel where iHorizon will stay!",
+                        "description_localizations": {
+                            "fr": "Le salon vocal où iHorizon restera!",
+                            "ja": "iHorizonが常駐するボイスチャンネル！",
+                            "ru": "Голосовой канал, где останется iHorizon!",
+                            "es-ES": "¡El canal de voz donde se quedará iHorizon!"
+                        },
+                        "type": 7,
+                        "channel_types": [
+                            2
+                        ],
+                        "required": true,
+                        "commandFullName": "h247 join channel"
+                    }
+                ],
+                "commandFullName": "h247 join"
+            },
+            {
+                "name": "leave",
+                "name_localizations": {
+                    "fr": "quitter",
+                    "ja": "leave",
+                    "ru": "leave",
+                    "es-ES": "leave"
+                },
+                "description": "Disable the 24/7 connection on this server!",
+                "description_localizations": {
+                    "fr": "Désactiver la connexion 24/7 sur ce serveur!",
+                    "ja": "このサーバーの24時間接続を無効化します！",
+                    "ru": "Отключить подключение 24/7 на этом сервере!",
+                    "es-ES": "¡Desactivar la conexión 24/7 en este servidor!"
+                },
+                "type": 1,
+                "commandFullName": "h247 leave"
+            }
+        ],
+        "thinking": true
+    },
+    {
         "name": "status",
         "description": "Get the bot status!",
         "description_translated": {
