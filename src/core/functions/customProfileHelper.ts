@@ -44,8 +44,7 @@ export async function changeGuildBotName(
 		}
 	);
 
-	if (res.status === 200) return true;
-	return false;
+	return res.status === 200;
 }
 
 export async function changeGuildBotBanner(
@@ -67,8 +66,7 @@ export async function changeGuildBotBanner(
 		}
 	);
 
-	if (res.status === 200) return true;
-	return false;
+	return res.status === 200;
 }
 
 export async function changeGuildBotAvatar(
@@ -90,16 +88,17 @@ export async function changeGuildBotAvatar(
 		}
 	);
 
-	if (res.status === 200) return true;
-	return false;
+	return res.status === 200;
 }
 
 export async function changeGuildBotBio(
 	guild: Guild,
 	bio: string
 ): Promise<boolean> {
-	let sanitizeBio =
+	const sanitizeBio =
 		bio.length <= 190 ? bio : bio.split("\n").slice(0, 2).join("\n");
+
+	const finalBio = [...sanitizeBio].slice(0, 190).join("");
 
 	const res = await fetch(
 		GUILD_ME_WITH_GUILD_ID_ENDPOINT_URL.replace("{guild.id}", guild.id),
@@ -110,12 +109,9 @@ export async function changeGuildBotBio(
 				"X-Audit-Log-Reason": "OWNIHRZ INSIDE IHORIZON",
 				"Content-Type": "application/json"
 			},
-			body: JSON.stringify({
-				bio: bio.substring(0, 190)
-			})
+			body: JSON.stringify({ bio: finalBio })
 		}
 	);
 
-	if (res.status === 200) return true;
-	return false;
+	return res.status === 200;
 }

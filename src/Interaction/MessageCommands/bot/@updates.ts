@@ -38,7 +38,7 @@ import path from "node:path";
 export const command: Command = {
 	name: "updates",
 
-	aliases: ["changelog", "update"],
+	aliases: ["changelog", "update", "changes"],
 
 	description: "Get the latest iHorizon updates and changelog!",
 	description_localizations: {
