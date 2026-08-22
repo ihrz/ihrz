@@ -2446,10 +2446,12 @@ export interface LanguageData {
 	h247_join_invalid_channel: string;
 	h247_join_already_active: string;
 	h247_join_music_playing: string;
+	h247_join_tts_active: string;
 	h247_joined: string;
 	h247_join_error: string;
 	h247_leave_not_active: string;
 	h247_left: string;
 	h247_leave_error: string;
 	h247_play_refused: string;
+	h247_tts_refused: string;
 }

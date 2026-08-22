@@ -35,6 +35,7 @@ import {
 	setH247Data,
 	joinH247VoiceChannel
 } from "../../../core/modules/h247Manager.js";
+import { getTTSData } from "../../../core/modules/ttsManager.js";
 
 export const subCommand: SubCommand = {
 	run: async (
@@ -92,8 +93,24 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
+		const ttsData = await getTTSData(client, interaction.guild.id);
+
+		if (ttsData?.enabled && ttsData.voiceChannelId !== channel.id) {
+			await client.func.method.interactionSend(interaction, {
+				content: lang.h247_join_tts_active.replace(
+					"${client.iHorizon_Emojis.No}",
+					client.iHorizon_Emojis.No
+				)
+			});
+			return;
+		}
+
 		try {
-			if (player) {
+			// When TTS runs on the same channel, its player owns the voice
+			// connection: adopt it instead of destroying it.
+			const keepTTSConnection = !!ttsData?.enabled;
+
+			if (player && !keepTTSConnection) {
 				await player.destroy().catch(() => {});
 			}
 

@@ -3252,6 +3252,7 @@ help_h247_dsc: "> *اجعل iHorizon متصلاً في غرفة صوتية عل�
 h247_join_invalid_channel: "${client.iHorizon_Emojis.No} يرجى تحديد غرفة صوتية صحيحة!"
 h247_join_already_active: "${client.iHorizon_Emojis.No} وحدة H24/7 مفعلة بالفعل في ${voiceChannel}!"
 h247_join_music_playing: "${client.iHorizon_Emojis.No} يتم تشغيل الموسيقى حالياً على هذا السيرفر. يرجى إيقاف الموسيقى قبل تفعيل وحدة H24/7."
+h247_join_tts_active: "${client.iHorizon_Emojis.No} وحدة TTS مفعلة حالياً في غرفة صوتية أخرى. يرجى تعطيل TTS قبل تفعيل وحدة H24/7."
 h247_joined: "${client.iHorizon_Emojis.Yes} سيبقى iHorizon متصلاً في ${voiceChannel} على مدار الساعة!"
 h247_join_error: "${client.iHorizon_Emojis.No} حدث خطأ أثناء تفعيل وحدة H24/7."
 
@@ -3262,3 +3263,6 @@ h247_leave_error: "${client.iHorizon_Emojis.No} حدث خطأ أثناء تعط�
 
 # /music play
 h247_play_refused: "${client.iHorizon_Emojis.No} وحدة H24/7 مفعلة على هذا السيرفر. انضم إلى الغرفة الصوتية H24/7 لتشغيل الموسيقى!"
+
+# /tts join
+h247_tts_refused: "${client.iHorizon_Emojis.No} وحدة H24/7 مفعلة على هذا السيرفر. انضم إلى الغرفة الصوتية H24/7 لتفعيل TTS!"

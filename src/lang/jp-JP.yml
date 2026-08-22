@@ -3258,6 +3258,7 @@ help_h247_dsc: "> *iHorizonをボイスチャンネルに24時間365日接続し
 h247_join_invalid_channel: "${client.iHorizon_Emojis.No} 有効なボイスチャンネルを指定してください！"
 h247_join_already_active: "${client.iHorizon_Emojis.No} H24/7モジュールはすでに${voiceChannel}で有効です！"
 h247_join_music_playing: "${client.iHorizon_Emojis.No} このサーバーでは現在音楽が再生されています。H24/7モジュールを有効にする前に音楽を停止してください。"
+h247_join_tts_active: "${client.iHorizon_Emojis.No} TTSモジュールが現在別のボイスチャンネルで有効です。H24/7モジュールを有効にする前にTTSを無効にしてください。"
 h247_joined: "${client.iHorizon_Emojis.Yes} iHorizonは${voiceChannel}に24時間365日接続し続けます！"
 h247_join_error: "${client.iHorizon_Emojis.No} H24/7モジュールの有効化中にエラーが発生しました。"
 
@@ -3268,3 +3269,6 @@ h247_leave_error: "${client.iHorizon_Emojis.No} H24/7モジュールの無効化
 
 # /music play
 h247_play_refused: "${client.iHorizon_Emojis.No} このサーバーではH24/7モジュールが有効です。音楽を再生するにはH24/7のボイスチャンネルに参加してください！"
+
+# /tts join
+h247_tts_refused: "${client.iHorizon_Emojis.No} このサーバーではH24/7モジュールが有効です。TTSを有効にするにはH24/7のボイスチャンネルに参加してください！"

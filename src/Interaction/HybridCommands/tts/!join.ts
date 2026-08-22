@@ -35,6 +35,7 @@ import {
 	sendTTSWelcomeEmbed,
 	cleanupTTS
 } from "../../../core/modules/ttsManager.js";
+import { getH247Data } from "../../../core/modules/h247Manager.js";
 
 import logger from "../../../core/logger.js";
 
@@ -98,6 +99,21 @@ export const subCommand: SubCommand = {
 		if (musicPlayer && musicPlayer.playing) {
 			await client.func.method.interactionSend(interaction, {
 				content: lang.tts_join_music_playing.replace(
+					"${client.iHorizon_Emojis.No}",
+					client.iHorizon_Emojis.No
+				)
+			});
+			return;
+		}
+
+		const h247Data = await getH247Data(client, interaction.guild.id);
+
+		if (
+			h247Data?.enabled &&
+			voiceChannel.id !== h247Data.voiceChannelId
+		) {
+			await client.func.method.interactionSend(interaction, {
+				content: lang.h247_tts_refused.replace(
 					"${client.iHorizon_Emojis.No}",
 					client.iHorizon_Emojis.No
 				)
