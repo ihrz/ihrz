@@ -2452,6 +2452,11 @@ export interface LanguageData {
 	h247_leave_not_active: string;
 	h247_left: string;
 	h247_leave_error: string;
+	h247_info_embed_title: string;
+	h247_info_embed_description: string;
+	h247_info_field_status: string;
+	h247_info_field_howto: string;
+	h247_info_howto_value: string;
 	h247_play_refused: string;
 	h247_tts_refused: string;
 }

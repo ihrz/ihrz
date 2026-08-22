@@ -3267,6 +3267,13 @@ h247_leave_not_active: "${client.iHorizon_Emojis.No} H24/7モジュールはこ�
 h247_left: "${client.iHorizon_Emojis.Yes} このサーバーのH24/7モジュールは無効になりました！"
 h247_leave_error: "${client.iHorizon_Emojis.No} H24/7モジュールの無効化中にエラーが発生しました。"
 
+# /h247 info
+h247_info_embed_title: "H24/7モジュール情報"
+h247_info_embed_description: "H24/7モジュールは、何も再生していなくてもiHorizonを24時間365日ボイスチャンネルに接続し続けます。サーバーのボイスアクティビティ streak を維持するのに役立ちます。\nこのモジュールが有効な間、音楽とTTSはH24/7のボイスチャンネル内でのみ動作します。\n接続は再起動やプレイヤー停止後も自動的に復旧します。"
+h247_info_field_status: "ステータス"
+h247_info_field_howto: "使い方"
+h247_info_howto_value: "`/h247 join` でiHorizonをボイスチャンネルに常駐させます。\n`/h247 leave` でモジュールを無効化します。\n`/h247 info` でこのパネルを表示します。"
+
 # /music play
 h247_play_refused: "${client.iHorizon_Emojis.No} このサーバーではH24/7モジュールが有効です。音楽を再生するにはH24/7のボイスチャンネルに参加してください！"
 

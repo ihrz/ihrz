@@ -116,6 +116,22 @@ export const command: Command = {
 			type: ApplicationCommandOptionType.Subcommand,
 
 			permission: PermissionFlagsBits.Administrator
+		},
+		{
+			name: "info",
+			prefixName: "h247info",
+
+			description: "Get information about the H24/7 module!",
+			description_localizations: {
+				fr: "Obtenir des informations sur le module H24/7",
+				ja: "H24/7モジュールの情報を取得！",
+				ru: "Получить информацию о модуле H24/7!",
+				"es-ES": "Obtener información sobre el módulo H24/7!"
+			},
+
+			type: ApplicationCommandOptionType.Subcommand,
+
+			permission: null
 		}
 	],
 	thinking: true,

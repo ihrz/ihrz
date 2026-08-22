@@ -3261,6 +3261,13 @@ h247_leave_not_active: "${client.iHorizon_Emojis.No} وحدة H24/7 غير مف�
 h247_left: "${client.iHorizon_Emojis.Yes} تم تعطيل وحدة H24/7 على هذا السيرفر!"
 h247_leave_error: "${client.iHorizon_Emojis.No} حدث خطأ أثناء تعطيل وحدة H24/7."
 
+# /h247 info
+h247_info_embed_title: "معلومات وحدة H24/7"
+h247_info_embed_description: "تحافظ وحدة H24/7 على بقاء iHorizon متصلاً بغرفة صوتية على مدار الساعة، حتى بدون تشغيل أي شيء. وهي مفيدة للحفاظ على سلسلة النشاط الصوتي للسيرفر.\nطالما أن هذه الوحدة مفعلة، لا يمكن تشغيل الموسيقى أو TTS إلا داخل الغرفة الصوتية H24/7.\nيعود الاتصال تلقائياً بعد إعادة التشغيل أو توقف المشغل."
+h247_info_field_status: "الحالة"
+h247_info_field_howto: "كيفية الاستخدام"
+h247_info_howto_value: "استخدم `/h247 join` لإبقاء iHorizon في غرفة صوتية.\nاستخدم `/h247 leave` لتعطيل الوحدة.\nاستخدم `/h247 info` لعرض هذه اللوحة."
+
 # /music play
 h247_play_refused: "${client.iHorizon_Emojis.No} وحدة H24/7 مفعلة على هذا السيرفر. انضم إلى الغرفة الصوتية H24/7 لتشغيل الموسيقى!"
 
