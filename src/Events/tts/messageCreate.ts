@@ -51,8 +51,7 @@ async function getServerLocale(
 	guildId: string
 ): Promise<string | null> {
 	const serverLang = (await client.db.get(`${guildId}.GUILD.LANG.lang`)) as
-		| string
-		| null;
+		string | null;
 	return serverLang || null;
 }
 
@@ -80,7 +79,7 @@ export const event: BotEvent = {
 		const text = message.cleanContent;
 		if (!text || text.length === 0) return;
 
-		if (text.length > 500) return;
+		if (text.length > 300) return;
 
 		const detectedLocale = detectMessageLocale(text);
 		const serverLocale = await getServerLocale(client, message.guild.id);
@@ -88,6 +87,8 @@ export const event: BotEvent = {
 		const locale =
 			detectedLocale || ttsData.lang || serverLocale || "en-US";
 
-		await speakTTS(client, message.guild.id, text, locale);
+		if (!message.content.includes("http")) {
+			await speakTTS(client, message.guild.id, text, locale);
+		}
 	}
 };
