@@ -36,9 +36,11 @@ import wait from "../functions/wait.js";
 
 const H247_REJOIN_DELAY_MS = 1_000;
 const H247_REJOIN_RETRY_MS = 2_000;
-const H247_REJOIN_MAX_ATTEMPTS = 2;
+const H247_REJOIN_MAX_ATTEMPTS = 3;
 const H247_JOIN_CONFIRM_INTERVAL_MS = 300;
 const H247_JOIN_CONFIRM_ATTEMPTS = 8;
+const H247_DISCONNECT_OBSERVE_INTERVAL_MS = 500;
+const H247_DISCONNECT_OBSERVE_ATTEMPTS = 10;
 
 export async function getH247Data(
 	client: Client,
@@ -107,6 +109,23 @@ async function waitForH247VoiceConnection(
 		await wait(H247_JOIN_CONFIRM_INTERVAL_MS);
 
 		if (guild.members.me?.voice.channelId === voiceChannelId) return true;
+	}
+
+	return false;
+}
+
+async function waitForH247VoiceDisconnection(
+	guild: Guild,
+	voiceChannelId: string
+): Promise<boolean> {
+	for (
+		let attempt = 0;
+		attempt < H247_DISCONNECT_OBSERVE_ATTEMPTS;
+		attempt++
+	) {
+		if (guild.members.me?.voice.channelId !== voiceChannelId) return true;
+
+		await wait(H247_DISCONNECT_OBSERVE_INTERVAL_MS);
 	}
 
 	return false;
@@ -192,7 +211,17 @@ export async function handleH247PlayerDestroyed(
 
 		if (client.player.getPlayer(guildId)) return;
 
-		if (guild.members.me?.voice.channelId === data.voiceChannelId) return;
+		// The player always disconnects before "playerDestroy" is emitted,
+		// but Discord may still report a stale voice state. Wait until the
+		// leave is actually observed before restoring the connection.
+		if (
+			!(await waitForH247VoiceDisconnection(
+				guild,
+				data.voiceChannelId
+			))
+		) {
+			return;
+		}
 
 		const joined = await joinH247VoiceChannel(guild, data.voiceChannelId);
 
