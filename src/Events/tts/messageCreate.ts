@@ -55,6 +55,15 @@ async function getServerLocale(
 	return serverLang || null;
 }
 
+export function isUrl(str: string): boolean {
+	try {
+		let url = new URL(str);
+		return url.protocol ? true : false;
+	} catch {
+		return false;
+	}
+}
+
 export const event: BotEvent = {
 	name: "messageCreate",
 	run: async (client: Client, message: Message) => {
@@ -87,7 +96,7 @@ export const event: BotEvent = {
 		const locale =
 			detectedLocale || ttsData.lang || serverLocale || "en-US";
 
-		if (!message.content.includes("http")) {
+		if (!isUrl(message.content)) {
 			await speakTTS(client, message.guild.id, text, locale);
 		}
 	}
