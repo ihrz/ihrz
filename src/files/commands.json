@@ -319,6 +319,7 @@
         "options": [
             {
                 "name": "join",
+                "prefixName": "ttsjoin",
                 "description": "Join the voice channel and enable TTS mode!",
                 "description_localizations": {
                     "fr": "Rejoindre le salon vocal et activer le mode TTS",
@@ -331,6 +332,7 @@
             },
             {
                 "name": "leave",
+                "prefixName": "ttsleave",
                 "description": "Leave the voice channel and disable TTS mode!",
                 "description_localizations": {
                     "fr": "Quitter le salon vocal et désactiver le mode TTS",
@@ -343,6 +345,7 @@
             },
             {
                 "name": "info",
+                "prefixName": "ttsinfo",
                 "description": "Get information about the TTS module!",
                 "description_localizations": {
                     "fr": "Obtenir des informations sur le module TTS",

@@ -93,7 +93,7 @@ export const command: Command = {
 				}
 			],
 
-			permission: null
+			permission: PermissionFlagsBits.Administrator
 		},
 		{
 			name: "leave",
@@ -115,7 +115,7 @@ export const command: Command = {
 
 			type: ApplicationCommandOptionType.Subcommand,
 
-			permission: null
+			permission: PermissionFlagsBits.Administrator
 		}
 	],
 	thinking: true,
