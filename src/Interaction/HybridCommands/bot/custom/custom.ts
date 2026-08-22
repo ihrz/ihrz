@@ -32,7 +32,7 @@ export const command: Command = {
 
 	description: "Custom the bot profile in your discord server",
 	description_localizations: {
-		fr: "Customiser le profil du bot sur le serveur discord",
+		fr: "Customiser le profil du bot sur le serveur Discord",
 		ja: "Discordサーバーでボットのプロフィールをカスタマイズ",
 		ru: "Настроить профиль бота на вашем сервере",
 		"es-ES": "Personalizar el perfil del bot en tu servidor de Discord"
@@ -61,17 +61,18 @@ export const command: Command = {
 						fr: "Que voulez-vous faire ?",
 						ja: "何をしたいですか？",
 						ru: "Что вы хотите сделать?",
-						"es-ES": "Que quieres hacer?"
+						"es-ES": "¿Qué quieres hacer?"
 					},
 
 					choices: [
 						{
-							name: "Bot Name",
+							name: "Default Bot Name",
 							name_localizations: {
-								fr: "Nom du bot",
-								ja: "bot_name",
-								ru: "bot_name",
-								"es-ES": "bot_name"
+								fr: "Reprendre le nom par défaut du bot",
+								ja: "ボットのデフォルトの名前に戻す",
+								ru: "Восстановить имя бота по умолчанию",
+								"es-ES":
+									"Restablecer el nombre predeterminado del bot"
 							},
 							value: "reset"
 						},
@@ -79,9 +80,9 @@ export const command: Command = {
 							name: "Set one",
 							name_localizations: {
 								fr: "Définir un nom",
-								ja: "set_one",
-								ru: "set_one",
-								"es-ES": "set_one"
+								ja: "名前を設定",
+								ru: "Задать имя",
+								"es-ES": "Establecer un nombre"
 							},
 							value: "set"
 						}
@@ -97,7 +98,7 @@ export const command: Command = {
 
 					description: "The name",
 					description_localizations: {
-						fr: "Le noms du bot",
+						fr: "Le nom du bot",
 						ja: "名前",
 						ru: "Имя",
 						"es-ES": "El nombre"
@@ -135,17 +136,18 @@ export const command: Command = {
 						fr: "Que voulez-vous faire ?",
 						ja: "何をしたいですか？",
 						ru: "Что вы хотите сделать?",
-						"es-ES": "Que quieres hacer?"
+						"es-ES": "¿Qué quieres hacer?"
 					},
 
 					choices: [
 						{
-							name: "Bot Avatar",
+							name: "Default Bot Avatar",
 							name_localizations: {
-								fr: "Avatar du bot",
-								ja: "bot_avatar",
-								ru: "bot_avatar",
-								"es-ES": "bot_avatar"
+								fr: "Reprendre l'avatar par défaut du bot",
+								ja: "ボットのデフォルトアバターに戻す",
+								ru: "Восстановить аватар бота по умолчанию",
+								"es-ES":
+									"Restablecer el avatar predeterminado del bot"
 							},
 							value: "reset"
 						},
@@ -153,9 +155,9 @@ export const command: Command = {
 							name: "Set one",
 							name_localizations: {
 								fr: "Définir un avatar",
-								ja: "set_one",
-								ru: "set_one",
-								"es-ES": "set_one"
+								ja: "アバターを設定",
+								ru: "Задать аватар",
+								"es-ES": "Establecer un avatar"
 							},
 							value: "set"
 						}
@@ -209,17 +211,18 @@ export const command: Command = {
 						fr: "Que voulez-vous faire ?",
 						ja: "何をしたいですか？",
 						ru: "Что вы хотите сделать?",
-						"es-ES": "Que quieres hacer?"
+						"es-ES": "¿Qué quieres hacer?"
 					},
 
 					choices: [
 						{
 							name: "Default Bot Banner",
 							name_localizations: {
-								fr: "Bannière du bot par défaut",
-								ja: "default_bot_banner",
-								ru: "default_bot_banner",
-								"es-ES": "default_bot_banner"
+								fr: "Reprendre la bannière par défaut du bot",
+								ja: "ボットのデフォルトバナーに戻す",
+								ru: "Восстановить баннер бота по умолчанию",
+								"es-ES":
+									"Restablecer el banner predeterminado del bot"
 							},
 							value: "reset"
 						},
@@ -227,9 +230,9 @@ export const command: Command = {
 							name: "Set one",
 							name_localizations: {
 								fr: "Définir une bannière",
-								ja: "set_one",
-								ru: "set_one",
-								"es-ES": "set_one"
+								ja: "バナーを設定",
+								ru: "Задать баннер",
+								"es-ES": "Establecer un banner"
 							},
 							value: "set"
 						}
@@ -282,17 +285,18 @@ export const command: Command = {
 						fr: "Que voulez-vous faire ?",
 						ja: "何をしたいですか？",
 						ru: "Что вы хотите сделать?",
-						"es-ES": "Que quieres hacer?"
+						"es-ES": "¿Qué quieres hacer?"
 					},
 
 					choices: [
 						{
 							name: "Default Bot Description",
 							name_localizations: {
-								fr: "Description du bot par défaut",
-								ja: "default_bot_description",
-								ru: "default_bot_description",
-								"es-ES": "default_bot_description"
+								fr: "Reprendre la description par défaut du bot",
+								ja: "ボットのデフォルトの説明に戻す",
+								ru: "Восстановить описание бота по умолчанию",
+								"es-ES":
+									"Restablecer la descripción predeterminada del bot"
 							},
 							value: "reset"
 						},
@@ -300,9 +304,9 @@ export const command: Command = {
 							name: "Set one",
 							name_localizations: {
 								fr: "Définir une description",
-								ja: "set_one",
-								ru: "set_one",
-								"es-ES": "set_one"
+								ja: "説明を設定",
+								ru: "Задать описание",
+								"es-ES": "Establecer una descripción"
 							},
 							value: "set"
 						}

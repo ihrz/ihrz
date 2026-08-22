@@ -986,6 +986,11 @@ renew_channel_send_success: "${interaction.user} Kanal wurde erfolgreich neu ers
 renew_dont_have_permission: ":x: **Kann nicht** `Keine Berechtigung!`"
 renew_not_administrator: ":x: **Du bist kein Administrator, um diesen Befehl zu verwenden!**"
 
+# /renewvc
+renewvc_not_in_voice: "${client.iHorizon_Emojis.No} Du musst mit einem Sprachkanal verbunden sein, um diesen Befehl zu verwenden!"
+renewvc_region_success: "${client.iHorizon_Emojis.Yes} Die Sprachregion von ${targetVc} wurde auf automatisch gesetzt!"
+renewvc_dont_have_permission: ":x: **Kann nicht** `Keine Berechtigung!`"
+
 # /prevnames
 prevnames_embed_title: "Liste aller Spitznamen von ${user.username}"
 prevnames_undetected: "Keine Daten gefunden!"
@@ -3243,3 +3248,24 @@ tts_embed_footer: "Verwende /tts leave um TTS zu beenden"
 tts_join_not_text_based: "${client.iHorizon_Emojis.No} Dieser Sprachkanal unterstutzt keine Textnachrichten. Bitte aktiviere Text-im-Sprachkanal oder verwende einen anderen Sprachkanal."
 tts_music_blocked: "${client.iHorizon_Emojis.No} Das TTS-Modul ist derzeit aktiv. Bitte deaktiviere TTS, bevor du Musik abspielst."
 tts_voice_status: "TTS-Modus - Sprachsynthese"
+
+# H24/7 module
+# /h247 join, /h247 leave
+
+help_h247_fields: "H24/7"
+help_h247_dsc: "> *Halte iHorizon rund um die Uhr mit einem Sprachkanal verbunden!*"
+
+# /h247 join
+h247_join_invalid_channel: "${client.iHorizon_Emojis.No} Bitte gib einen gültigen Sprachkanal an!"
+h247_join_already_active: "${client.iHorizon_Emojis.No} Das H24/7-Modul ist in ${voiceChannel} bereits aktiv!"
+h247_join_music_playing: "${client.iHorizon_Emojis.No} Auf diesem Server wird gerade Musik abgespielt. Bitte stoppe die Musik, bevor du das H24/7-Modul aktivierst."
+h247_joined: "${client.iHorizon_Emojis.Yes} iHorizon bleibt ab jetzt rund um die Uhr in ${voiceChannel} verbunden!"
+h247_join_error: "${client.iHorizon_Emojis.No} Beim Aktivieren des H24/7-Moduls ist ein Fehler aufgetreten."
+
+# /h247 leave
+h247_leave_not_active: "${client.iHorizon_Emojis.No} Das H24/7-Modul ist auf diesem Server derzeit nicht aktiv!"
+h247_left: "${client.iHorizon_Emojis.Yes} Das H24/7-Modul wurde auf diesem Server deaktiviert!"
+h247_leave_error: "${client.iHorizon_Emojis.No} Beim Deaktivieren des H24/7-Moduls ist ein Fehler aufgetreten."
+
+# /music play
+h247_play_refused: "${client.iHorizon_Emojis.No} Das H24/7-Modul ist auf diesem Server aktiv. Verbinde dich mit dem H24/7-Sprachkanal, um Musik abzuspielen!"

@@ -135,7 +135,7 @@ export async function main(client: Client) {
 	client.lastFMScrobbler = new LastFMScrobblerManager();
 
 	process.on("SIGINT", async () => {
-		await client.destroy();
+		// await client.destroy();
 		process.exit(0);
 	});
 

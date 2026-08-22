@@ -32,6 +32,10 @@ import logger from "../logger.js";
 import { format } from "../functions/date_and_time.js";
 import { profilTable } from "../../Events/client/ready.js";
 import { getTTSData } from "./ttsManager.js";
+import {
+	handleH247PlayerDestroyed,
+	handleH247PlayerIdleDestroy
+} from "./h247Manager.js";
 
 let lavalink_error_channel: "dont_exist" | null | BaseGuildTextChannel = null;
 
@@ -54,7 +58,7 @@ export default async (client: Client) => {
 		},
 		playerOptions: {
 			onEmptyQueue: {
-				destroyAfterMs: 120_000
+				destroyAfterMs: 2000
 			},
 			defaultSearchPlatform: "youtube",
 			onDisconnect: {
@@ -231,6 +235,14 @@ export default async (client: Client) => {
 			track,
 			payload.reason
 		);
+	});
+
+	client.player.on("playerDestroy", async (player) => {
+		await handleH247PlayerDestroyed(client, player.guildId);
+	});
+
+	client.player.on("playerQueueEmptyEnd", (player) => {
+		handleH247PlayerIdleDestroy(player);
 	});
 
 	client.player.on(

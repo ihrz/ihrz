@@ -986,6 +986,11 @@ renew_channel_send_success: "${interaction.user} チャンネルが再作成さ�
 renew_dont_have_permission: ":x: **権限がありません！**"
 renew_not_administrator: ":x: **このコマンドを使用するための管理者ではありません！**"
 
+# /renewvc
+renewvc_not_in_voice: "${client.iHorizon_Emojis.No} このコマンドを使用するにはボイスチャンネルに接続している必要があります！"
+renewvc_region_success: "${client.iHorizon_Emojis.Yes} ${targetVc} のボイスリージョンが自動に設定されました！"
+renewvc_dont_have_permission: ":x: **権限がありません！**"
+
 # /prevnames
 prevnames_embed_title: "${user.username} のニックネームのリスト"
 prevnames_undetected: "データが見つかりませんでした！"
@@ -3242,3 +3247,24 @@ tts_embed_footer: "/tts leave でTTSを停止"
 tts_join_not_text_based: "${client.iHorizon_Emojis.No} このボイスチャンネルはテキストメッセージをサポートしていません。テキストインボイスを有効にするか、別のボイスチャンネルを使用してください。"
 tts_music_blocked: "${client.iHorizon_Emojis.No} TTSモジュールが現在有効です。音楽を再生する前にTTSを無効にしてください。"
 tts_voice_status: "TTSモード - 音声合成"
+
+# H24/7 module
+# /h247 join, /h247 leave
+
+help_h247_fields: "H24/7"
+help_h247_dsc: "> *iHorizonをボイスチャンネルに24時間365日接続し続けます！*"
+
+# /h247 join
+h247_join_invalid_channel: "${client.iHorizon_Emojis.No} 有効なボイスチャンネルを指定してください！"
+h247_join_already_active: "${client.iHorizon_Emojis.No} H24/7モジュールはすでに${voiceChannel}で有効です！"
+h247_join_music_playing: "${client.iHorizon_Emojis.No} このサーバーでは現在音楽が再生されています。H24/7モジュールを有効にする前に音楽を停止してください。"
+h247_joined: "${client.iHorizon_Emojis.Yes} iHorizonは${voiceChannel}に24時間365日接続し続けます！"
+h247_join_error: "${client.iHorizon_Emojis.No} H24/7モジュールの有効化中にエラーが発生しました。"
+
+# /h247 leave
+h247_leave_not_active: "${client.iHorizon_Emojis.No} H24/7モジュールはこのサーバーでは現在有効ではありません！"
+h247_left: "${client.iHorizon_Emojis.Yes} このサーバーのH24/7モジュールは無効になりました！"
+h247_leave_error: "${client.iHorizon_Emojis.No} H24/7モジュールの無効化中にエラーが発生しました。"
+
+# /music play
+h247_play_refused: "${client.iHorizon_Emojis.No} このサーバーではH24/7モジュールが有効です。音楽を再生するにはH24/7のボイスチャンネルに参加してください！"

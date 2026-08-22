@@ -637,6 +637,11 @@ export namespace DatabaseStructure {
 		lang: string;
 	}
 
+	export interface H247Schema {
+		enabled: boolean;
+		voiceChannelId: string;
+	}
+
 	export interface DbGuildObject {
 		TAGS: GuildTagsStructure;
 		BOT?: DbGuildBotObject;
@@ -676,6 +681,7 @@ export namespace DatabaseStructure {
 		TEMPROLE: TempRoleSchema;
 		TEMPBAN: TempbanSchema;
 		TTS?: TTSData;
+		H247?: H247Schema;
 	}
 
 	export type TempRoleSchema = Record<

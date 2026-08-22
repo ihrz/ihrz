@@ -53,6 +53,7 @@ import {
 	cleanupOrphanedTTS
 } from "../../core/modules/ttsManager.js";
 import { checkAndNotifyRelease } from "../../core/modules/releaseNotifier.js";
+import { recoverH247Sessions } from "../../core/modules/h247Manager.js";
 import path from "node:path";
 
 // @ts-ignore
@@ -329,6 +330,9 @@ export const event: BotEvent = {
 			})
 			.then(() => {});
 		recoverActiveSessions(client).then(() => {});
+		recoverH247Sessions(client).catch((err) => {
+			logger.err("H24/7 session recovery failed:", err);
+		});
 		client.memberCountManager.init().then(() => {});
 		client.autoRenewManager.init().then(() => {});
 		client.nightmodeManager.init().then(() => {});

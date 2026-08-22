@@ -986,6 +986,11 @@ renew_channel_send_success: "${interaction.user} канал был восста�
 renew_dont_have_permission: ":x: **Нельзя** `Нет разрешения!`"
 renew_not_administrator: ":x: **Вы не являетесь администратором для использования этой команды!**"
 
+# /renewvc
+renewvc_not_in_voice: "${client.iHorizon_Emojis.No} Вы должны быть подключены к голосовому каналу, чтобы использовать эту команду!"
+renewvc_region_success: "${client.iHorizon_Emojis.Yes} Голосовой регион канала ${targetVc} установлен на автоматический!"
+renewvc_dont_have_permission: ":x: **Нельзя** `Нет разрешения!`"
+
 # /prevnames
 prevnames_embed_title: "Список всех никнеймов ${user.username}"
 prevnames_undetected: "Данных не найдено!"
@@ -3242,3 +3247,24 @@ tts_embed_footer: "Используйте /tts leave, чтобы останов�
 tts_join_not_text_based: "${client.iHorizon_Emojis.No} Этот голосовой канал не поддерживает текстовые сообщения. Пожалуйста, включите текст в голосовом канале или используйте другой голосовой канал."
 tts_music_blocked: "${client.iHorizon_Emojis.No} Модуль TTS в настоящее время активен. Пожалуйста, отключите TTS перед воспроизведением музыки."
 tts_voice_status: "Режим TTS - Синтез Речи"
+
+# H24/7 module
+# /h247 join, /h247 leave
+
+help_h247_fields: "H24/7"
+help_h247_dsc: "> *Держите iHorizon на связи 24/7 в голосовом канале!*"
+
+# /h247 join
+h247_join_invalid_channel: "${client.iHorizon_Emojis.No} Пожалуйста, укажите действительный голосовой канал!"
+h247_join_already_active: "${client.iHorizon_Emojis.No} Модуль H24/7 уже активен в ${voiceChannel}!"
+h247_join_music_playing: "${client.iHorizon_Emojis.No} На этом сервере сейчас играет музыка. Остановите музыку перед включением модуля H24/7."
+h247_joined: "${client.iHorizon_Emojis.Yes} Теперь iHorizon будет на связи 24/7 в ${voiceChannel}!"
+h247_join_error: "${client.iHorizon_Emojis.No} Произошла ошибка при включении модуля H24/7."
+
+# /h247 leave
+h247_leave_not_active: "${client.iHorizon_Emojis.No} Модуль H24/7 сейчас не активен на этом сервере!"
+h247_left: "${client.iHorizon_Emojis.Yes} Модуль H24/7 был отключен на этом сервере!"
+h247_leave_error: "${client.iHorizon_Emojis.No} Произошла ошибка при отключении модуля H24/7."
+
+# /music play
+h247_play_refused: "${client.iHorizon_Emojis.No} На этом сервере активен модуль H24/7. Зайдите в голосовой канал H24/7, чтобы включить музыку!"

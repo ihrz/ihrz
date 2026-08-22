@@ -1,0 +1,11 @@
+{
+	"categoryInitializer": {
+		"categoryName": "h247",
+		"categoryColor": "#11304c",
+		"options": {
+			"description": "help_h247_dsc",
+			"emoji": "${client.iHorizon_Emojis.Timer}",
+			"placeholder": "help_h247_fields"
+		}
+	}
+}
