@@ -21,11 +21,13 @@
 
 import { BotEvent } from "../../../types/event.js";
 import { Client } from "discord.js";
+import { handleH247RawVoicePacket } from "../../core/modules/h247Manager.js";
 
 export const event: BotEvent = {
 	// @ts-ignore
 	name: "raw",
 	run: async (client: Client, data: any) => {
+		handleH247RawVoicePacket(client, data);
 		client.player.sendRawData(data);
 	}
 };

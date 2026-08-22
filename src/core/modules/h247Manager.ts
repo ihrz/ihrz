@@ -28,7 +28,7 @@ import {
 	PermissionFlagsBits
 } from "discord.js";
 
-import type { Player } from "lavalink-client";
+import type { Player, VoicePacket, VoiceState } from "lavalink-client";
 
 import { DatabaseStructure } from "../../../types/database_structure.js";
 
@@ -47,6 +47,123 @@ const H247_DISCONNECT_OBSERVE_ATTEMPTS = 10;
 // In-memory mirror of the enabled H24/7 sessions, required to keep the
 // "playerQueueEmptyEnd" handling synchronous against the internal destroy.
 const h247Sessions = new Map<string, string>();
+
+interface H247VoiceSession {
+	channelId: string;
+	sessionId: string | null;
+	token: string | null;
+	endpoint: string | null;
+}
+
+// Voice handshake data of parked guilds. Discord only dispatches the voice
+// server payload on a fresh session, and lavalink-client drops raw packets
+// while no player exists (the steady state of a parked guild). Caching the
+// credentials lets any future player complete its node-side handshake.
+const h247VoiceSessions = new Map<string, H247VoiceSession>();
+
+function ensureH247VoiceSession(guildId: string, channelId: string): void {
+	const session = h247VoiceSessions.get(guildId);
+
+	if (session) {
+		session.channelId = channelId;
+		return;
+	}
+
+	h247VoiceSessions.set(guildId, {
+		channelId,
+		sessionId: null,
+		token: null,
+		endpoint: null
+	});
+}
+
+export function handleH247RawVoicePacket(client: Client, data: unknown): void {
+	if (!data || typeof data !== "object" || !("t" in data) || !("d" in data)) {
+		return;
+	}
+
+	const packet = data as { t: string; d: Record<string, unknown> };
+	const payload = packet.d;
+
+	if (!payload || typeof payload.guild_id !== "string") return;
+
+	const guildId = payload.guild_id;
+
+	if (packet.t === "VOICE_SERVER_UPDATE") {
+		const session = h247VoiceSessions.get(guildId);
+
+		if (!session) return;
+
+		session.token =
+			typeof payload.token === "string" ? payload.token : null;
+		session.endpoint =
+			typeof payload.endpoint === "string" ? payload.endpoint : null;
+		return;
+	}
+
+	if (packet.t === "VOICE_STATE_UPDATE") {
+		if (payload.user_id !== client.user?.id) return;
+
+		const session = h247VoiceSessions.get(guildId);
+
+		if (!session) return;
+
+		if (typeof payload.session_id === "string") {
+			session.sessionId = payload.session_id;
+		}
+
+		if (typeof payload.channel_id === "string") {
+			session.channelId = payload.channel_id;
+		}
+	}
+}
+
+export async function handleH247PlayerCreated(
+	client: Client,
+	guildId: string
+): Promise<void> {
+	const session = h247VoiceSessions.get(guildId);
+
+	if (!session?.token || !session.endpoint || !session.sessionId) return;
+
+	const statePacket: VoicePacket = {
+		t: "VOICE_STATE_UPDATE",
+		d: {
+			op: "voiceUpdate",
+			guildId,
+			guild_id: guildId,
+			user_id: client.user!.id,
+			session_id: session.sessionId,
+			channel_id: session.channelId,
+			event: {
+				token: session.token,
+				guild_id: guildId,
+				endpoint: session.endpoint
+			},
+			deaf: true,
+			mute: false,
+			self_deaf: true,
+			self_mute: false,
+			self_video: false,
+			self_stream: false,
+			suppress: false,
+			request_to_speak_timestamp: false
+		} as VoiceState
+	};
+
+	client.player.sendRawData(statePacket);
+
+	const serverPacket: VoicePacket = {
+		t: "VOICE_SERVER_UPDATE",
+		d: {
+			token: session.token,
+			guild_id: guildId,
+			endpoint: session.endpoint
+		}
+	};
+
+	client.player.sendRawData(serverPacket);
+}
 
 export async function getH247Data(
 	client: Client,
@@ -76,6 +193,7 @@ export async function deleteH247Data(
 	await client.db.delete(`${guildId}.GUILD.H247`);
 
 	h247Sessions.delete(guildId);
+	h247VoiceSessions.delete(guildId);
 }
 
 async function fetchH247VoiceChannel(
@@ -165,6 +283,8 @@ export async function joinH247VoiceChannel(
 
 	if (me.voice.channelId === channel.id) return true;
 
+	ensureH247VoiceSession(guild.id, channel.id);
+
 	const sent = sendH247VoiceStateUpdate(guild, channel.id);
 
 	if (!sent) return false;
@@ -183,6 +303,8 @@ export async function joinH247VoiceChannel(
 }
 
 export async function leaveCurrentVoiceConnection(guild: Guild): Promise<void> {
+	h247VoiceSessions.delete(guild.id);
+
 	sendH247VoiceStateUpdate(guild, null);
 }
 
@@ -202,6 +324,8 @@ export async function recoverH247Sessions(client: Client): Promise<void> {
 		if (!guild) continue;
 
 		h247Sessions.set(entry.id, data.voiceChannelId);
+
+		ensureH247VoiceSession(entry.id, data.voiceChannelId);
 
 		await joinH247VoiceChannel(guild, data.voiceChannelId, false);
 	}
