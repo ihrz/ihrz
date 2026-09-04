@@ -30,6 +30,7 @@ import { Postgres } from "./driver/postgres.js";
 import { Memory } from "./driver/memory.js";
 import { Sqlite } from "./driver/sqlite.js";
 import { Json } from "./driver/json.js";
+import { HorizonDB } from "./driver/horizondb.js";
 
 let dbInstance: MultiDB | null = null;
 
@@ -144,6 +145,26 @@ export async function initializeDatabase(
 		}
 
 		setInterval(syncToPostgres, 60000 * 5);
+	} else if (database.method === "horizondb") {
+		if (!database.horizon_db) {
+			throw new Error(
+				"horizon_db configuration is required when using the 'horizondb' database method"
+			);
+		}
+
+		logger.log(
+			`${isClient && client.config.console.emojis.HOST} >> Initializing HorizonDB database setup (${database?.method}) !`
+				.green
+		);
+
+		dbInstance = {
+			x: new HorizonDB({
+				url: `ws://${database.horizon_db.host}:${database.horizon_db.port}`,
+				login: database.horizon_db.login,
+				password: database.horizon_db.password,
+				table: tables[0]
+			})
+		};
 	} else {
 		dbInstance = {
 			x: new Sqlite({
