@@ -42,7 +42,6 @@ import { writeFileSync } from "node:fs";
 import { removePermissionProperties } from "../../core/commandsSync.js";
 import { recoverCustomVoiceChannels } from "../voicedashboard/voiceState.js";
 import { getShardStats } from "../../Interaction/HybridCommands/bot/botinfo.js";
-import { isNumber } from "../../core/functions/method.js";
 import { DB } from "../../core/database/types.js";
 import { AvailableLanguage } from "../../core/functions/getLanguageData.js";
 import { Expressions } from "../../core/functions/randomExpression.js";
@@ -283,44 +282,40 @@ export const event: BotEvent = {
 			const currentTime = Date.now();
 			const fourteenDaysInMillis = 30 * 24 * 60 * 60 * 1000;
 
-			(await client.db.all())
-				.filter((x) => isNumber(x.id))
-				.filter((x) => client.inShard(x.id))
-				.forEach(async (index, value) => {
-					const guild = index.value as DatabaseStructure.DbInId;
-					const stats = guild.STATS?.USER;
+			for (const guild of client.guilds.cache.values()) {
+				const guildData = await client.db.get<DatabaseStructure.DbInId>(
+					guild.id
+				);
+				const stats = guildData?.STATS?.USER;
 
-					if (stats && client.inShard(index.id)) {
-						Object.keys(stats).forEach((userId) => {
-							const userStats = stats[userId];
+				if (!stats) continue;
 
-							if (userStats.messages) {
-								userStats.messages = userStats.messages.filter(
-									(
-										message: DatabaseStructure.StatsMessage
-									) => {
-										return (
-											currentTime -
-												message.sentTimestamp <=
-											fourteenDaysInMillis
-										);
-									}
+				Object.keys(stats).forEach((userId) => {
+					const userStats = stats[userId];
+
+					if (userStats.messages) {
+						userStats.messages = userStats.messages.filter(
+							(message: DatabaseStructure.StatsMessage) => {
+								return (
+									currentTime - message.sentTimestamp <=
+									fourteenDaysInMillis
 								);
 							}
-							if (userStats.voices) {
-								userStats.voices = userStats.voices.filter(
-									(voice: DatabaseStructure.StatsVoice) => {
-										return (
-											currentTime - voice.endTimestamp <=
-											fourteenDaysInMillis
-										);
-									}
+						);
+					}
+					if (userStats.voices) {
+						userStats.voices = userStats.voices.filter(
+							(voice: DatabaseStructure.StatsVoice) => {
+								return (
+									currentTime - voice.endTimestamp <=
+									fourteenDaysInMillis
 								);
 							}
-						});
-						await client.db.set(index.id, guild);
+						);
 					}
 				});
+				await client.db.set(guild.id, guildData);
+			}
 		}
 
 		client.player

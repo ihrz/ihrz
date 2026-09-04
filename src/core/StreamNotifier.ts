@@ -93,19 +93,21 @@ export class StreamNotifier {
 	private async getGuildsData(): Promise<
 		{ value: DatabaseStructure.NotifierSchema; guildId: string }[]
 	> {
-		const all = await client.db.all();
-		return all
-			.filter((v) => Number(v.id) && client.inShard(v.id))
-			.map((v) => {
-				const guildObject = v.value as DatabaseStructure.DbInId;
-				return guildObject.NOTIFIER
-					? { value: guildObject.NOTIFIER, guildId: v.id }
-					: null;
-			})
-			.filter(Boolean) as {
+		const result: {
 			value: DatabaseStructure.NotifierSchema;
 			guildId: string;
-		}[];
+		}[] = [];
+
+		for (const guild of client.guilds.cache.values()) {
+			const guildObject = await client.db.get<DatabaseStructure.DbInId>(
+				guild.id
+			);
+			if (guildObject?.NOTIFIER) {
+				result.push({ value: guildObject.NOTIFIER, guildId: guild.id });
+			}
+		}
+
+		return result;
 	}
 
 	private getLatestMedia(

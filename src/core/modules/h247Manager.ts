@@ -33,7 +33,6 @@ import type { Player, VoicePacket, VoiceState } from "lavalink-client";
 import { DatabaseStructure } from "../../../types/database_structure.js";
 
 import logger from "../logger.js";
-import { isNumber } from "../functions/method.js";
 import wait from "../functions/wait.js";
 
 const H247_REJOIN_DELAY_MS = 1_000;
@@ -309,23 +308,18 @@ export async function leaveCurrentVoiceConnection(guild: Guild): Promise<void> {
 }
 
 export async function recoverH247Sessions(client: Client): Promise<void> {
-	const allGuilds = await client.db.all();
+	for (const guild of client.guilds.cache.values()) {
+		const guildData = await client.db.get<DatabaseStructure.DbInId>(
+			guild.id
+		);
 
-	for (const entry of allGuilds) {
-		if (!isNumber(entry.id)) continue;
-		if (!client.inShard(entry.id)) continue;
-
-		const data = (entry.value as DatabaseStructure.DbInId)?.GUILD?.H247;
+		const data = guildData?.GUILD?.H247;
 
 		if (!data?.enabled || !data.voiceChannelId) continue;
 
-		const guild = client.guilds.cache.get(entry.id);
+		h247Sessions.set(guild.id, data.voiceChannelId);
 
-		if (!guild) continue;
-
-		h247Sessions.set(entry.id, data.voiceChannelId);
-
-		ensureH247VoiceSession(entry.id, data.voiceChannelId);
+		ensureH247VoiceSession(guild.id, data.voiceChannelId);
 
 		await joinH247VoiceChannel(guild, data.voiceChannelId, false);
 	}
@@ -370,10 +364,7 @@ export async function handleH247PlayerDestroyed(
 		// but Discord may still report a stale voice state. Wait until the
 		// leave is actually observed before restoring the connection.
 		if (
-			!(await waitForH247VoiceDisconnection(
-				guild,
-				data.voiceChannelId
-			))
+			!(await waitForH247VoiceDisconnection(guild, data.voiceChannelId))
 		) {
 			return;
 		}

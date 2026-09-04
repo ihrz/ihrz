@@ -46,19 +46,19 @@ class NightModeManager {
 	}
 
 	private async GetNightModeData(): Promise<nightModeData> {
-		const all = await client.db.all();
-		return all
-			.filter((v) => Number(v.id) && client.inShard(v.id))
-			.map((v) => {
-				const guildObject = v.value as DatabaseStructure.DbInId;
-				return {
-					guildId: v.id,
-					data: guildObject.UTILS?.NIGHT_MODE?.enabled
-						? guildObject.UTILS?.NIGHT_MODE
-						: undefined
-				};
-			})
-			.filter((v) => v.data);
+		const result: nightModeData = [];
+
+		for (const guild of client.guilds.cache.values()) {
+			const guildObject = await client.db.get<DatabaseStructure.DbInId>(
+				guild.id
+			);
+			const data = guildObject?.UTILS?.NIGHT_MODE?.enabled
+				? guildObject.UTILS.NIGHT_MODE
+				: undefined;
+			if (data) result.push({ guildId: guild.id, data });
+		}
+
+		return result;
 	}
 
 	private async Refresh(nightModeData: nightModeData) {

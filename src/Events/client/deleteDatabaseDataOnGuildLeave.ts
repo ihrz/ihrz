@@ -36,10 +36,53 @@ type PendingGuildDeletion = {
 	deleteAt: number;
 };
 
+type PendingGuildDeletionQueue = Record<string, PendingGuildDeletion>;
+
+let pendingGuildDeletionQueueLock: Promise<void> = Promise.resolve();
+
+async function getPendingGuildDeletionQueue(
+	client: Client
+): Promise<PendingGuildDeletionQueue> {
+	return (
+		(await client.db.get<PendingGuildDeletionQueue>(
+			GUILD_DELETE_QUEUE_KEY
+		)) ?? {}
+	);
+}
+
+async function updatePendingGuildDeletionQueue<T>(
+	client: Client,
+	update: (queue: PendingGuildDeletionQueue) => {
+		changed: boolean;
+		result: T;
+	}
+): Promise<T> {
+	const operation = pendingGuildDeletionQueueLock.then(async () => {
+		const queue = await getPendingGuildDeletionQueue(client);
+		const { changed, result } = update(queue);
+		if (changed) {
+			await client.db.set(GUILD_DELETE_QUEUE_KEY, queue);
+		}
+		return result;
+	});
+
+	pendingGuildDeletionQueueLock = operation.then(
+		() => {},
+		() => {}
+	);
+
+	return operation;
+}
+
 async function clearGuildData(client: Client, guildId: string) {
 	if (client.guilds.cache.has(guildId)) return;
 
 	await client.db.delete(`${guildId}`);
+	await updatePendingGuildDeletionQueue(client, (queue) => {
+		if (!(guildId in queue)) return { changed: false, result: undefined };
+		delete queue[guildId];
+		return { changed: true, result: undefined };
+	});
 
 	const timeout = pendingGuildDeletionTimeouts.get(guildId);
 	if (timeout) clearTimeout(timeout);
@@ -90,7 +133,12 @@ async function notifyOwnerFromAnotherGuild(
 
 	const embed = new EmbedBuilder()
 		.setColor("#11304c")
-		.setTitle(lang.guild_leave_data_clear_notice_title.replace("${guild.name}", guild.name))
+		.setTitle(
+			lang.guild_leave_data_clear_notice_title.replace(
+				"${guild.name}",
+				guild.name
+			)
+		)
 		.setDescription(
 			lang.guild_leave_data_clear_notice_description
 				.replace("${guild.name}", guild.name)
@@ -107,22 +155,26 @@ async function notifyOwnerFromAnotherGuild(
 				.replace("${deleteAt}", `<t:${Math.floor(deleteAt / 1000)}:R>`),
 			embeds: [embed]
 		})
-		.catch(() => { });
+		.catch(() => {});
 }
 
 export async function cancelPendingGuildDataDeletion(
 	client: Client,
 	guild: Guild
 ) {
-	const pending = await client.db.get<PendingGuildDeletion>(
-		`${guild.id}.${GUILD_DELETE_QUEUE_KEY}`
-	);
+	const pending = await updatePendingGuildDeletionQueue<
+		PendingGuildDeletion | undefined
+	>(client, (queue) => {
+		const pending = queue[guild.id];
+		if (!pending) return { changed: false, result: undefined };
+		delete queue[guild.id];
+		return { changed: true, result: pending };
+	});
 	if (!pending) return false;
 
 	const timeout = pendingGuildDeletionTimeouts.get(guild.id);
 	if (timeout) clearTimeout(timeout);
 	pendingGuildDeletionTimeouts.delete(guild.id);
-	await client.db.delete(`${guild.id}.${GUILD_DELETE_QUEUE_KEY}`);
 
 	const lang = await client.func.getLanguageData(guild.id);
 	const owner = await client.users.fetch(guild.ownerId).catch(() => null);
@@ -154,19 +206,16 @@ export async function cancelPendingGuildDataDeletion(
 			),
 			embeds: [embed]
 		})
-		.catch(() => { });
+		.catch(() => {});
 
 	return true;
 }
 
 export async function recoverPendingGuildDataDeletions(client: Client) {
-	const databaseEntries = await client.db.all();
+	const queue = await getPendingGuildDeletionQueue(client);
 
-	for (const entry of databaseEntries) {
-		const pending = entry.value?.[
-			GUILD_DELETE_QUEUE_KEY
-		] as PendingGuildDeletion | undefined;
-		if (!pending) continue;
+	for (const pending of Object.values(queue)) {
+		if (!pending?.guildId || !client.inShard(pending.guildId)) continue;
 
 		scheduleGuildDataDeletion(client, pending);
 	}
@@ -183,7 +232,10 @@ export const event: BotEvent = {
 			deleteAt
 		};
 
-		await client.db.set(`${guild.id}.${GUILD_DELETE_QUEUE_KEY}`, pending);
+		await updatePendingGuildDeletionQueue(client, (queue) => {
+			queue[guild.id] = pending;
+			return { changed: true, result: undefined };
+		});
 		scheduleGuildDataDeletion(client, pending);
 		await notifyOwnerFromAnotherGuild(client, guild, deleteAt);
 	}
