@@ -45,16 +45,18 @@ class AutoRenew {
 
 	private async GetAutoRenewData(): Promise<AutorenewData> {
 		try {
-			const all = await client.db.all();
-			return all
-				.filter((v) => Number(v.id) && client.inShard(v.id))
-				.map((v) => {
-					const guildObject = v.value as DatabaseStructure.DbInId;
-					return {
-						guildId: v.id,
-						data: guildObject.UTILS?.renew_channel
-					};
+			const result: AutorenewData = [];
+
+			for (const guild of client.guilds.cache.values()) {
+				const guildObject =
+					await client.db.get<DatabaseStructure.DbInId>(guild.id);
+				result.push({
+					guildId: guild.id,
+					data: guildObject?.UTILS?.renew_channel
 				});
+			}
+
+			return result;
 		} catch (error) {
 			return [];
 		}

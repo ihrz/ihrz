@@ -23,7 +23,6 @@ import { Client, EmbedBuilder, Message } from "discord.js";
 
 import { LanguageData } from "../../../../types/languageData.js";
 import { Command } from "../../../../types/command.js";
-import { isNumber } from "../../../core/functions/method.js";
 import { DatabaseStructure } from "../../../../types/database_structure.js";
 import { AvailableLanguage } from "../../../core/functions/getLanguageData.js";
 
@@ -35,7 +34,8 @@ export const command: Command = {
 		fr: "Obtenir des informations sur l'utilisation des langues à travers tout les serveur discord du bot iHorizon",
 		ja: "iHorizon Discord Botの言語統計を取得",
 		ru: "Получить статистику языков в iHorizon",
-		"es-ES": "Obtener estadísticas sobre el idioma en el Bot de Discord iHorizon"
+		"es-ES":
+			"Obtener estadísticas sobre el idioma en el Bot de Discord iHorizon"
 	},
 
 	aliases: [],
@@ -59,15 +59,12 @@ export const command: Command = {
 			return;
 		}
 
-		const database_entry = await client.db.all();
-		const all_JSON_guild_data = database_entry.filter((x) =>
-			isNumber(x.id)
-		);
-
 		const allLangsStats: Record<string, number> = {};
 
-		for (const guild of all_JSON_guild_data) {
-			const guildData = guild.value as DatabaseStructure.DbInId;
+		for (const guild of client.guilds.cache.values()) {
+			const guildData = await client.db.get<DatabaseStructure.DbInId>(
+				guild.id
+			);
 			const lang = guildData?.GUILD?.LANG?.lang || "en-US";
 			if (allLangsStats[lang]) {
 				allLangsStats[lang] = allLangsStats[lang] + 1;
