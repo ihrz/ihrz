@@ -275,14 +275,6 @@ bun start
 <table>
 <tr>
   <td align="center" width="33%">
-  	<img src="https://github.com/im-nymii.png" width="100px" style="border-radius:50%"/><br/>
-    <b>Nymii</b><br/>
-    <i>Contributor</i><br/>
-    <sub>She/Her</sub><br/>
-	<a href="https://github.com/im-nymii">GitHub</a>
-  </td>
-
-  <td align="center" width="33%">
     <img src="https://github.com/lavecat.png" width="100px" style="border-radius:50%"/><br/>
     <b>lavecat</b><br/>
     <i>Contributor</i><br/>
@@ -320,7 +312,14 @@ Past developers and contributors who have helped make iHorizon what it is today.
     		<i>Former contributor</i><br/>
     		<sub>He/Him</sub><br/>
     		<a href="https://gitlab.com/veryuhq">GitLab</a> / <a href="https://github.com/veryuhq">GitHub</a>
-  		</td>		
+  		</td>
+    	<td align="center" width="33%">
+    		<img src="https://github.com/NymiiTechTips.png" width="100px" style="border-radius:50%"/><br/>
+      		<b>NymiiTechTips</b><br/>
+        	<i>Contributor</i><br/>
+         	<sub>She/Her</sub><br/>
+        	<a href="https://github.com/NymiiTechTips">GitHub</a>
+     	</td>	
         <td align="center" width="33%">
     		<img src="https://github.com/Mxi1n.png" width="100px" style="border-radius:50%"/><br/>
     		<b>Maxine</b><br/>
