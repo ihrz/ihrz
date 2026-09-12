@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { HorizonDB as HorizonDBClient, type Json } from "ihrzdb";
+import { HorizonDB as HorizonDBClient, type Json } from "horizondb";
 import { ErrorKind } from "../types.ts";
 
 export interface HorizonDBDriverOptions {
