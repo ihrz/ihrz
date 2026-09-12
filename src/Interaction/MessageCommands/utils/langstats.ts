@@ -23,7 +23,6 @@ import { Client, EmbedBuilder, Message } from "discord.js";
 
 import { LanguageData } from "../../../../types/languageData.js";
 import { Command } from "../../../../types/command.js";
-import { DatabaseStructure } from "../../../../types/database_structure.js";
 import { AvailableLanguage } from "../../../core/functions/getLanguageData.js";
 
 export const command: Command = {
@@ -62,10 +61,10 @@ export const command: Command = {
 		const allLangsStats: Record<string, number> = {};
 
 		for (const guild of client.guilds.cache.values()) {
-			const guildData = await client.db.get<DatabaseStructure.DbInId>(
-				guild.id
-			);
-			const lang = guildData?.GUILD?.LANG?.lang || "en-US";
+			// Only the sub-key is needed: never pull the whole guild document.
+			const lang =
+				(await client.db.get<string>(`${guild.id}.GUILD.LANG.lang`)) ||
+				"en-US";
 			if (allLangsStats[lang]) {
 				allLangsStats[lang] = allLangsStats[lang] + 1;
 			} else {

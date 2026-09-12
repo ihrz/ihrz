@@ -280,41 +280,56 @@ export const event: BotEvent = {
 
 		async function statsRefresher() {
 			const currentTime = Date.now();
-			const fourteenDaysInMillis = 30 * 24 * 60 * 60 * 1000;
+			const retentionInMillis = 30 * 24 * 60 * 60 * 1000;
 
 			for (const guild of client.guilds.cache.values()) {
-				const guildData = await client.db.get<DatabaseStructure.DbInId>(
-					guild.id
-				);
-				const stats = guildData?.STATS?.USER;
+				try {
+					await trimGuildStats(guild.id);
+				} catch (error) {
+					// One failing guild must not abort the trim for the others.
+					logger.err(`Stats trim failed for guild ${guild.id}: ${error}`);
+				}
+			}
 
-				if (!stats) continue;
+			async function trimGuildStats(guildId: string) {
+				// Read only the stats sub-tree and write back only the users
+				// that actually lost entries: a full-document read-modify-write
+				// moved megabytes both ways and raced with concurrent writes
+				// (every message pushes into STATS.USER.<id>.messages).
+				const stats = await client.db.get<
+					Record<string, DatabaseStructure.UserStats>
+				>(`${guildId}.STATS.USER`);
 
-				Object.keys(stats).forEach((userId) => {
-					const userStats = stats[userId];
+				if (!stats) return;
 
+				for (const [userId, userStats] of Object.entries(stats)) {
 					if (userStats.messages) {
-						userStats.messages = userStats.messages.filter(
-							(message: DatabaseStructure.StatsMessage) => {
-								return (
-									currentTime - message.sentTimestamp <=
-									fourteenDaysInMillis
-								);
-							}
+						const kept = userStats.messages.filter(
+							(message: DatabaseStructure.StatsMessage) =>
+								currentTime - message.sentTimestamp <=
+								retentionInMillis
 						);
+						if (kept.length !== userStats.messages.length) {
+							await client.db.set(
+								`${guildId}.STATS.USER.${userId}.messages`,
+								kept
+							);
+						}
 					}
 					if (userStats.voices) {
-						userStats.voices = userStats.voices.filter(
-							(voice: DatabaseStructure.StatsVoice) => {
-								return (
-									currentTime - voice.endTimestamp <=
-									fourteenDaysInMillis
-								);
-							}
+						const kept = userStats.voices.filter(
+							(voice: DatabaseStructure.StatsVoice) =>
+								currentTime - voice.endTimestamp <=
+								retentionInMillis
 						);
+						if (kept.length !== userStats.voices.length) {
+							await client.db.set(
+								`${guildId}.STATS.USER.${userId}.voices`,
+								kept
+							);
+						}
 					}
-				});
-				await client.db.set(guild.id, guildData);
+				}
 			}
 		}
 

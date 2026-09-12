@@ -309,11 +309,10 @@ export async function leaveCurrentVoiceConnection(guild: Guild): Promise<void> {
 
 export async function recoverH247Sessions(client: Client): Promise<void> {
 	for (const guild of client.guilds.cache.values()) {
-		const guildData = await client.db.get<DatabaseStructure.DbInId>(
-			guild.id
-		);
-
-		const data = guildData?.GUILD?.H247;
+		// Only the sub-key is needed: never pull the whole guild document.
+		const data = await client.db.get<
+			DatabaseStructure.DbGuildObject["H247"]
+		>(`${guild.id}.GUILD.H247`);
 
 		if (!data?.enabled || !data.voiceChannelId) continue;
 

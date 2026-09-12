@@ -99,11 +99,10 @@ export class StreamNotifier {
 		}[] = [];
 
 		for (const guild of client.guilds.cache.values()) {
-			const guildObject = await client.db.get<DatabaseStructure.DbInId>(
-				guild.id
-			);
-			if (guildObject?.NOTIFIER) {
-				result.push({ value: guildObject.NOTIFIER, guildId: guild.id });
+			// Only the sub-key is needed: never pull the whole guild document.
+			const notifier = await this.getGuildData(guild.id);
+			if (notifier) {
+				result.push({ value: notifier, guildId: guild.id });
 			}
 		}
 

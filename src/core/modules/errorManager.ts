@@ -25,6 +25,27 @@ import logger from "../logger.js";
 import fs from "node:fs";
 import { Client } from "discord.js";
 
+const errorLogPath = (): string => `${process.cwd()}/src/files/error.log`;
+
+/**
+ * Appends one entry to error.log without keeping a file descriptor open.
+ * The previous implementation created a new write stream per error and never
+ * closed it: under an error storm (e.g. thousands of database timeouts) that
+ * leaked one descriptor per error until the process hit EMFILE, at which
+ * point even the reconnect of the database client could no longer open a
+ * socket, so the shard never recovered.
+ */
+const appendErrorLog = (error: unknown): void => {
+	const detail =
+		error instanceof Error
+			? error.stack || error.message
+			: typeof error === "string"
+				? error
+				: JSON.stringify(error);
+	const entry = `[${format(new Date(), "DD/MM/YYYY HH:mm:ss")}]\n${detail}\r\n`;
+	fs.appendFile(errorLogPath(), entry, () => {});
+};
+
 export const uncaughtExceptionHandler = (client: Client) => {
 	process.on("uncaughtException", function (err) {
 		if (!client.config.core.devMode) {
@@ -35,11 +56,7 @@ export const uncaughtExceptionHandler = (client: Client) => {
 				`${client.config.console.emojis.OK} >> Save in the logs`.gray
 			);
 
-			const filesPath: string = `${process.cwd()}/src/files/error.log`;
-			const CreateFile = fs.createWriteStream(filesPath, { flags: "a" });
-			const i = `[${format(new Date(), "DD/MM/YYYY HH:mm:ss")}]\n${err.stack || err.message}\r\n`;
-
-			return CreateFile.write(i);
+			return appendErrorLog(err);
 		}
 
 		logger.err(err.stack || err.message);
@@ -55,11 +72,7 @@ export const uncaughtExceptionHandler = (client: Client) => {
 				`${client.config.console.emojis.OK} >> Save in the logs`.gray
 			);
 
-			const filesPath: string = `${process.cwd()}/src/files/error.log`;
-			const CreateFile = fs.createWriteStream(filesPath, { flags: "a" });
-			const i = `[${format(new Date(), "DD/MM/YYYY HH:mm:ss")}]\n${JSON.stringify(err)}\r\n`;
-
-			return CreateFile.write(i);
+			return appendErrorLog(err);
 		}
 	});
 };

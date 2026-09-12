@@ -49,12 +49,11 @@ class NightModeManager {
 		const result: nightModeData = [];
 
 		for (const guild of client.guilds.cache.values()) {
-			const guildObject = await client.db.get<DatabaseStructure.DbInId>(
-				guild.id
+			// Only the sub-key is needed: never pull the whole guild document.
+			const nightMode = await client.db.get<DatabaseStructure.NightMode>(
+				`${guild.id}.UTILS.NIGHT_MODE`
 			);
-			const data = guildObject?.UTILS?.NIGHT_MODE?.enabled
-				? guildObject.UTILS.NIGHT_MODE
-				: undefined;
+			const data = nightMode?.enabled ? nightMode : undefined;
 			if (data) result.push({ guildId: guild.id, data });
 		}
 

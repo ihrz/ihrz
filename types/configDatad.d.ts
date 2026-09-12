@@ -171,7 +171,13 @@ export interface ConfigData {
 		/**
 		 * @description use the good driver for your environnement
 		 */
-		method: "json" | "sqlite" | "memory" | "postgresql" | "cached_postgres";
+		method:
+			| "json"
+			| "sqlite"
+			| "memory"
+			| "postgresql"
+			| "cached_postgres"
+			| "horizondb";
 
 		mySQL?: MySQL[];
 
@@ -183,6 +189,8 @@ export interface ConfigData {
 			port: number;
 			login: string;
 			password: string;
+			/** Per-request timeout in milliseconds (default: 10000). */
+			requestTimeoutMs?: number;
 		};
 	};
 }

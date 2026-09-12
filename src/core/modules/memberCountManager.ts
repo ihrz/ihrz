@@ -46,10 +46,10 @@ class MemberCountModule {
 		const result: memberCountData = [];
 
 		for (const guild of client.guilds.cache.values()) {
-			const guildObject = await client.db.get<DatabaseStructure.DbInId>(
-				guild.id
-			);
-			const data = guildObject?.GUILD?.MCOUNT;
+			// Only the sub-key is needed: never pull the whole guild document.
+			const data = await client.db.get<
+				DatabaseStructure.DbGuildObject["MCOUNT"]
+			>(`${guild.id}.GUILD.MCOUNT`);
 			if (data) result.push({ guildId: guild.id, data });
 		}
 
