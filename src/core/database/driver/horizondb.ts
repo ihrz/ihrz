@@ -19,7 +19,7 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { HorizonDB as HorizonDBClient, type Json } from "ihrzdb";
+import { HorizonDB as HorizonDBClient, type Json } from "horizondb";
 import { ErrorKind } from "../types.ts";
 
 export interface HorizonDBDriverOptions {
@@ -38,13 +38,27 @@ export interface HorizonDBDriverOptions {
  *
  * Table views returned by `table()` share the underlying WebSocket connection
  * (the server resolves dot-nested keys, so no client-side merge is needed).
+ *
+ * Every operation is a single round trip whenever the server reports the
+ * result of a mutation (`add`/`sub` → new number, `push`/`pull` → array,
+ * `delete` → existed). Older servers that do not report it fall back to an
+ * extra `get`/`has`, exactly like before.
  */
 export class HorizonDB<D = any> {
 	private readonly sdk: HorizonDBClient;
 	private readonly tableName: string;
+	/**
+	 * Whether the server reports `existed` on delete. Unknown until the first
+	 * delete answered; until then `has` is asked first so the return value is
+	 * always exact. Shared by every table view of the same connection.
+	 */
+	private readonly capabilities: { deleteReportsExisted: boolean | null };
 
 	constructor(
-		options: HorizonDBDriverOptions & { sdk?: HorizonDBClient } = {}
+		options: HorizonDBDriverOptions & {
+			sdk?: HorizonDBClient;
+			capabilities?: { deleteReportsExisted: boolean | null };
+		} = {}
 	) {
 		if (options.sdk) {
 			this.sdk = options.sdk;
@@ -57,6 +71,9 @@ export class HorizonDB<D = any> {
 			});
 		}
 		this.tableName = options.table ?? "json";
+		this.capabilities = options.capabilities ?? {
+			deleteReportsExisted: null
+		};
 	}
 
 	private createError(message: string, kind: ErrorKind): Error {
@@ -175,9 +192,18 @@ export class HorizonDB<D = any> {
 			);
 		}
 
-		const existed = (await this.sdk.has(key)) ? 1 : 0;
-		await this.sdk.delete(key);
-		return existed;
+		// Until the server proved it reports `existed`, ask first (old servers).
+		const probed =
+			this.capabilities.deleteReportsExisted === true
+				? null
+				: await this.sdk.has(key);
+		const existed = await this.sdk.delete(key);
+		if (typeof existed === "boolean") {
+			this.capabilities.deleteReportsExisted = true;
+			return existed ? 1 : 0;
+		}
+		this.capabilities.deleteReportsExisted = false;
+		return probed ? 1 : 0;
 	}
 
 	async deleteAll(): Promise<number> {
@@ -227,9 +253,11 @@ export class HorizonDB<D = any> {
 			);
 		}
 
+		let result: number | undefined;
 		try {
-			if (sub) await this.sdk.sub(key, amount);
-			else await this.sdk.add(key, amount);
+			result = sub
+				? await this.sdk.sub(key, amount)
+				: await this.sdk.add(key, amount);
 		} catch (error) {
 			if (error instanceof Error && /non-numeric/i.test(error.message)) {
 				throw this.createError(
@@ -240,6 +268,7 @@ export class HorizonDB<D = any> {
 			throw error;
 		}
 
+		if (typeof result === "number") return result;
 		return (await this.get<number>(key)) ?? 0;
 	}
 
@@ -268,9 +297,13 @@ export class HorizonDB<D = any> {
 
 		await this.ensureReady();
 
+		let result: Json[] | undefined;
 		try {
-			for (const element of values) {
-				await this.sdk.push(key, element as Json);
+			for (let index = 0; index < values.length; index++) {
+				const last = index === values.length - 1;
+				result = await this.sdk.push(key, values[index] as Json, {
+					returnValue: last
+				});
 			}
 		} catch (error) {
 			if (error instanceof Error && /not an array/i.test(error.message)) {
@@ -282,6 +315,7 @@ export class HorizonDB<D = any> {
 			throw error;
 		}
 
+		if (Array.isArray(result)) return result as unknown as T[];
 		return (await this.get<T[]>(key)) ?? [];
 	}
 
@@ -379,10 +413,14 @@ export class HorizonDB<D = any> {
 			return await this.set(key, data);
 		}
 
+		let result: Json[] | undefined;
 		try {
 			const elements = Array.isArray(value) ? value : [value];
-			for (const element of elements) {
-				await this.sdk.pull(key, element as Json);
+			for (let index = 0; index < elements.length; index++) {
+				const last = index === elements.length - 1;
+				result = await this.sdk.pull(key, elements[index] as Json, {
+					returnValue: last
+				});
 			}
 		} catch (error) {
 			if (error instanceof Error && /not an array/i.test(error.message)) {
@@ -394,6 +432,7 @@ export class HorizonDB<D = any> {
 			throw error;
 		}
 
+		if (Array.isArray(result)) return result as unknown as T[];
 		return (await this.get<T[]>(key)) ?? [];
 	}
 
@@ -421,7 +460,11 @@ export class HorizonDB<D = any> {
 		}
 
 		// The SDK view shares the same WebSocket connection.
-		return new HorizonDB<T>({ sdk: this.sdk.table(table) });
+		return new HorizonDB<T>({
+			sdk: this.sdk.table(table),
+			table,
+			capabilities: this.capabilities
+		});
 	}
 
 	public async export(): Promise<{ id: string; value: any }[]> {

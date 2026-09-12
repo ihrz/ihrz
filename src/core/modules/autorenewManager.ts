@@ -48,11 +48,13 @@ class AutoRenew {
 			const result: AutorenewData = [];
 
 			for (const guild of client.guilds.cache.values()) {
-				const guildObject =
-					await client.db.get<DatabaseStructure.DbInId>(guild.id);
+				// Only the sub-key is needed: never pull the whole guild document.
+				const renewChannel = await client.db.get<
+					DatabaseStructure.UtilsData["renew_channel"]
+				>(`${guild.id}.UTILS.renew_channel`);
 				result.push({
 					guildId: guild.id,
-					data: guildObject?.UTILS?.renew_channel
+					data: renewChannel ?? undefined
 				});
 			}
 

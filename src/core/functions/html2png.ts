@@ -56,7 +56,38 @@ export default async function html2Png(
 			}
 		);
 
-		return Buffer.from(res.data);
+		if (res.status !== 200) {
+			const message =
+				typeof res.data === "string"
+					? res.data
+					: JSON.stringify(res.data);
+			throw new Error(
+				`HorizonGateway image generation failed (HTTP ${res.status}): ${message}`
+			);
+		}
+
+		const contentType: string =
+			res.headers?.get?.("content-type") ??
+			res.headers?.["content-type"] ??
+			"";
+
+		if (contentType && !contentType.includes("image/png")) {
+			throw new Error(
+				`HorizonGateway image generation returned an unexpected content type: ${contentType}`
+			);
+		}
+
+		const buffer = Buffer.isBuffer(res.data)
+			? res.data
+			: Buffer.from(res.data);
+
+		if (buffer.length === 0) {
+			throw new Error(
+				"HorizonGateway image generation returned an empty image."
+			);
+		}
+
+		return buffer;
 	} else {
 		if (!browser)
 			browser = await launch({

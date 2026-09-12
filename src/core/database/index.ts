@@ -162,6 +162,7 @@ export async function initializeDatabase(
 				url: `ws://${database.horizon_db.host}:${database.horizon_db.port}`,
 				login: database.horizon_db.login,
 				password: database.horizon_db.password,
+				requestTimeoutMs: database.horizon_db.requestTimeoutMs,
 				table: tables[0]
 			})
 		};

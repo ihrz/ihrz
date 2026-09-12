@@ -39,16 +39,17 @@ async function PfpsManager_Init(client: Client) {
 
 async function Refresh(client: Client) {
 	for (const guild of client.guilds.cache.values()) {
-		const guildData = await client.db.get<DatabaseStructure.DbInId>(
-			guild.id
+		// Only the sub-key is needed: never pull the whole guild document.
+		const pfps = await client.db.get<DatabaseStructure.DbInId["PFPS"]>(
+			`${guild.id}.PFPS`
 		);
-		if (!guildData?.PFPS) continue;
-		if (guildData.PFPS.disable) continue;
-		if (!guildData.PFPS.channel) continue;
+		if (!pfps) continue;
+		if (pfps.disable) continue;
+		if (!pfps.channel) continue;
 
 		SendMessage(client, {
 			guildId: guild.id,
-			channelId: guildData.PFPS.channel
+			channelId: pfps.channel
 		});
 	}
 }

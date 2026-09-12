@@ -189,6 +189,8 @@ export interface ConfigData {
 			port: number;
 			login: string;
 			password: string;
+			/** Per-request timeout in milliseconds (default: 10000). */
+			requestTimeoutMs?: number;
 		};
 	};
 }

@@ -84,11 +84,10 @@ export class BloggerNotifier {
 		}[] = [];
 
 		for (const guild of client.guilds.cache.values()) {
-			const guildObject = await client.db.get<DatabaseStructure.DbInId>(
-				guild.id
-			);
-			if (guildObject?.BLOGGER) {
-				result.push({ value: guildObject.BLOGGER, guildId: guild.id });
+			// Only the sub-key is needed: never pull the whole guild document.
+			const blogger = await this.getGuildData(guild.id);
+			if (blogger) {
+				result.push({ value: blogger, guildId: guild.id });
 			}
 		}
 
