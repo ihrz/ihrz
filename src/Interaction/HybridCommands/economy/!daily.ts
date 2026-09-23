@@ -50,11 +50,11 @@ export const subCommand: SubCommand = {
 		const timeout =
 			(await client.db.get(
 				`${interaction.guildId}.ECONOMY.settings.daily.cooldown`
-			)) || 86400000;
+			)) ?? 86400000;
 		const amount =
 			((await client.db.get(
 				`${interaction.guildId}.ECONOMY.settings.daily.amount`
-			)) || 500) *
+			)) ?? 500) *
 			(await client.func.economyHelper.getMemberBoost(
 				interaction.member
 			));
