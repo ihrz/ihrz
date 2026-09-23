@@ -62,7 +62,7 @@ export const subCommand: SubCommand = {
 		const timeout =
 			(await client.db.get(
 				`${interaction.guildId}.ECONOMY.settings.rob.cooldown`
-			)) || 3000000;
+			)) ?? 3000000;
 		const rob = await client.db.get(
 			`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.rob`
 		);

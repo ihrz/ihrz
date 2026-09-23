@@ -247,35 +247,42 @@ export const event: BotEvent = {
 		}
 
 		async function refreshBotData() {
-			const result = await getShardStats(client);
+			try {
+				const result = await getShardStats(client);
 
-			await metasTable.set("BOT", {
-				info: {
-					members: result.users,
-					servers: result.guilds,
-					shards: client.shard?.count,
-					ping: client.infrastructureMonitoring.getAverageWebsocketPing()
-				},
-				content: {
-					commands:
-						client.commands.size +
-						client.message_commands.size +
-						client.applicationsCommands.size,
-					category: client.category.length,
-					langs: AvailableLanguage.map((x) => x.name)
-				},
-				user: {
-					username: client.user?.username,
-					tag: client.user?.tag,
-					id: client.user?.id,
-					discriminator: client.user?.discriminator,
-					avatar: client.user?.displayAvatarURL({
-						extension: "png",
-						size: 4096
-					}),
-					bio: client.func.retrieveMyself.retrieveBio()
-				}
-			});
+				await metasTable.set("BOT", {
+					info: {
+						members: result.users,
+						servers: result.guilds,
+						shards: client.shard?.count,
+						ping: client.infrastructureMonitoring.getAverageWebsocketPing()
+					},
+					content: {
+						commands:
+							client.commands.size +
+							client.message_commands.size +
+							client.applicationsCommands.size,
+						category: client.category.length,
+						langs: AvailableLanguage.map((x) => x.name)
+					},
+					user: {
+						username: client.user?.username,
+						tag: client.user?.tag,
+						id: client.user?.id,
+						discriminator: client.user?.discriminator,
+						avatar: client.user?.displayAvatarURL({
+							extension: "png",
+							size: 4096
+						}),
+						bio: client.func.retrieveMyself.retrieveBio()
+					},
+					updatedAt: Date.now(),
+					updatedAtISO: new Date().toISOString(),
+					writerShard: client.shard?.ids[0] ?? 0
+				});
+			} catch (error) {
+				logger.err(`refreshBotData failed (shard #${client.shard?.ids[0] ?? 0}): ${error}`);
+			}
 		}
 
 		async function statsRefresher() {
@@ -361,7 +368,11 @@ export const event: BotEvent = {
 		(setInterval(quotesPresence, 120_000),
 			setInterval(refreshSchedule, 50_000),
 			setInterval(() => recoverCustomVoiceChannels(client), 120_000));
-		if (client.isMainShard()) setInterval(refreshBotData, 45_000);
+		if (client.isMainShard()) {
+			setInterval(() => {
+				void refreshBotData();
+			}, 45_000);
+		}
 
 		(fetchInvites(),
 			refreshDatabaseModel(),

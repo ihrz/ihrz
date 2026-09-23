@@ -49,7 +49,7 @@ export const subCommand: SubCommand = {
 		const timeout =
 			(await client.db.get(
 				`${interaction.guildId}.ECONOMY.settings.work.cooldown`
-			)) || 3_600_000;
+			)) ?? 3_600_000;
 		const work = await client.db.get(
 			`${interaction.guildId}.USER.${interaction.member.user.id}.ECONOMY.work`
 		);
