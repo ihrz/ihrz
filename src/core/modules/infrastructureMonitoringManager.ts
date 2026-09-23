@@ -427,9 +427,9 @@ class InfrastructureMonitoring {
 							| BaseGuildTextChannel
 							| undefined;
 						try {
-							const msg = await textChannel?.messages.fetch(
-								channelData.message_id
-							);
+							const msg = await textChannel?.messages
+								.fetch(channelData.message_id)
+								.catch(() => null);
 
 							if (msg) {
 								const editOptions: MessageEditOptions = {
@@ -442,13 +442,18 @@ class InfrastructureMonitoring {
 
 								await msg.edit(editOptions);
 							} else {
-								await metasTable.delete(
-									`MISC.statusEmbed.${guild_id}`
+								// The entry is kept at all costs: no delete,
+								// no new message. Retry on the next minute.
+								console.warn(
+									`[InfrastructureMonitoring] Message ${channelData.message_id} not found in channel ${channelData.channel_id} (guild ${guild_id}, shard #${client.shard?.ids[0] ?? 0}, guildCached: ${client.guilds.cache.has(guild_id)}), entry kept, retrying in 1 min.`
 								);
 							}
 						} catch (msgError) {
+							const errorCode = (
+								msgError as { code?: unknown }
+							)?.code;
 							console.error(
-								`Failed to update status message in guild ${guild_id}: ${msgError}`
+								`[InfrastructureMonitoring] Failed to update message ${channelData.message_id} channel ${channelData.channel_id} (guild ${guild_id}, shard #${client.shard?.ids[0] ?? 0}, guildCached: ${client.guilds.cache.has(guild_id)}, code: ${errorCode}): ${msgError} — entry kept, retrying in 1 min.`
 							);
 						}
 					}
