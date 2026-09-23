@@ -409,7 +409,7 @@ class InfrastructureMonitoring {
 
 			// Update all status messages in configured channels
 			for (const [guild_id, data] of Object.entries(all_guilds)) {
-				if (!client.inShard(guild_id)) break;
+				if (!client.inShard(guild_id)) continue;
 
 				try {
 					const channelData = data as any;
