@@ -249,6 +249,7 @@ export const event: BotEvent = {
 		async function refreshBotData() {
 			try {
 				const result = await getShardStats(client);
+				const pushedAt = Date.now();
 
 				await metasTable.set("BOT", {
 					info: {
@@ -276,8 +277,8 @@ export const event: BotEvent = {
 						}),
 						bio: client.func.retrieveMyself.retrieveBio()
 					},
-					updatedAt: Date.now(),
-					updatedAtISO: new Date().toISOString(),
+					lastPushAt: pushedAt,
+					lastPushAtISO: new Date(pushedAt).toISOString(),
 					writerShard: client.shard?.ids[0] ?? 0
 				});
 			} catch (error) {
@@ -369,6 +370,7 @@ export const event: BotEvent = {
 			setInterval(refreshSchedule, 50_000),
 			setInterval(() => recoverCustomVoiceChannels(client), 120_000));
 		if (client.isMainShard()) {
+			logger.log(`refreshBotData interval scheduled (shard #${client.shard?.ids[0] ?? 0})`);
 			setInterval(() => {
 				void refreshBotData();
 			}, 45_000);
