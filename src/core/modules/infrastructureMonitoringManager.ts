@@ -387,6 +387,11 @@ class InfrastructureMonitoring {
 
 		try {
 			const all_guilds = (await metasTable.get("MISC.statusEmbed")) || {};
+			const guildIds = Object.keys(all_guilds);
+
+			if (guildIds.length === 0) {
+				console.warn("[InfrastructureMonitoring] No statusEmbed entries found in metas/MISC.statusEmbed, nothing to update.");
+			}
 
 			// Check all services and update the embed
 			this.lastResult = await this.checkAllServices();
