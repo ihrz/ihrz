@@ -282,7 +282,9 @@ export const event: BotEvent = {
 					writerShard: client.shard?.ids[0] ?? 0
 				});
 			} catch (error) {
-				logger.err(`refreshBotData failed (shard #${client.shard?.ids[0] ?? 0}): ${error}`);
+				logger.err(
+					`refreshBotData failed (shard #${client.shard?.ids[0] ?? 0}): ${error}`
+				);
 			}
 		}
 
@@ -295,7 +297,9 @@ export const event: BotEvent = {
 					await trimGuildStats(guild.id);
 				} catch (error) {
 					// One failing guild must not abort the trim for the others.
-					logger.err(`Stats trim failed for guild ${guild.id}: ${error}`);
+					logger.err(
+						`Stats trim failed for guild ${guild.id}: ${error}`
+					);
 				}
 			}
 
@@ -369,8 +373,11 @@ export const event: BotEvent = {
 		(setInterval(quotesPresence, 120_000),
 			setInterval(refreshSchedule, 50_000),
 			setInterval(() => recoverCustomVoiceChannels(client), 120_000));
+
 		if (client.isMainShard()) {
-			logger.log(`refreshBotData interval scheduled (shard #${client.shard?.ids[0] ?? 0})`);
+			logger.log(
+				`refreshBotData interval scheduled (shard #${client.shard?.ids[0] ?? 0})`
+			);
 			setInterval(() => {
 				void refreshBotData();
 			}, 45_000);
