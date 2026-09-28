@@ -52,7 +52,10 @@ import {
 	cleanupOrphanedTTS
 } from "../../core/modules/ttsManager.js";
 import { checkAndNotifyRelease } from "../../core/modules/releaseNotifier.js";
-import { recoverH247Sessions } from "../../core/modules/h247Manager.js";
+import {
+	recoverH247Sessions,
+	watchdogH247Sessions
+} from "../../core/modules/h247Manager.js";
 import path from "node:path";
 
 // @ts-ignore
@@ -282,7 +285,9 @@ export const event: BotEvent = {
 					writerShard: client.shard?.ids[0] ?? 0
 				});
 			} catch (error) {
-				logger.err(`refreshBotData failed (shard #${client.shard?.ids[0] ?? 0}): ${error}`);
+				logger.err(
+					`refreshBotData failed (shard #${client.shard?.ids[0] ?? 0}): ${error}`
+				);
 			}
 		}
 
@@ -295,7 +300,9 @@ export const event: BotEvent = {
 					await trimGuildStats(guild.id);
 				} catch (error) {
 					// One failing guild must not abort the trim for the others.
-					logger.err(`Stats trim failed for guild ${guild.id}: ${error}`);
+					logger.err(
+						`Stats trim failed for guild ${guild.id}: ${error}`
+					);
 				}
 			}
 
@@ -368,9 +375,19 @@ export const event: BotEvent = {
 
 		(setInterval(quotesPresence, 120_000),
 			setInterval(refreshSchedule, 50_000),
-			setInterval(() => recoverCustomVoiceChannels(client), 120_000));
+			setInterval(() => recoverCustomVoiceChannels(client), 120_000),
+			setInterval(
+				() =>
+					watchdogH247Sessions(client).catch((err) => {
+						logger.err("H24/7 watchdog failed:", err);
+					}),
+				60_000
+			));
+
 		if (client.isMainShard()) {
-			logger.log(`refreshBotData interval scheduled (shard #${client.shard?.ids[0] ?? 0})`);
+			logger.log(
+				`refreshBotData interval scheduled (shard #${client.shard?.ids[0] ?? 0})`
+			);
 			setInterval(() => {
 				void refreshBotData();
 			}, 45_000);
