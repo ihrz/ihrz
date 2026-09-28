@@ -1449,6 +1449,11 @@ setjoinroles_logs_embed_title_on_enable: "Registri dei ruoli di ingresso"
 setjoinroles_logs_embed_description_on_enable: "<@${interaction.user.id}> ha impostato i ruoli di ingresso!"
 setjoinroles_already_on_enable: "I ruoli di ingresso sono già configurati con questo ruolo!"
 
+# /welcomer
+welcomer_panel_title: "Benvenuto"
+welcomer_section_placeholder: "Scegli cosa configurare"
+welcomer_section_channels: "Canali"
+
 # /setleavemessage
 setleavemessage_not_admin: ":x: | Devi essere un amministratore di questo server per richiedere i comandi dei canali di benvenuto!"
 setleavemessage_help_embed_title: "/setleavemessage Aiuto!"
