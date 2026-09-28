@@ -1449,6 +1449,11 @@ setjoinroles_logs_embed_title_on_enable: "Логи ролей присоедин
 setjoinroles_logs_embed_description_on_enable: "<@${interaction.user.id}> настроил роли присоединения!"
 setjoinroles_already_on_enable: "Роли присоединения уже настроены с этой ролью!"
 
+# /welcomer
+welcomer_panel_title: "Приветствие"
+welcomer_section_placeholder: "Выберите, что настроить"
+welcomer_section_channels: "Каналы"
+
 # /setleavemessage
 setleavemessage_not_admin: ":x: | Для выполнения этой команды вы должны быть администратором этого сервера!"
 setleavemessage_help_embed_title: "/setleavemessage Справка!"

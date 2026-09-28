@@ -1449,6 +1449,11 @@ setjoinroles_logs_embed_title_on_enable: "Logs de SetJoinRoles"
 setjoinroles_logs_embed_description_on_enable: "<@${interaction.user.id}> configurou os cargos de entrada!"
 setjoinroles_already_on_enable: "Os cargos de entrada já estão configurados com este cargo!"
 
+# /welcomer
+welcomer_panel_title: "Boas-vindas"
+welcomer_section_placeholder: "Escolhe o que configurar"
+welcomer_section_channels: "Canais"
+
 # /setleavemessage
 setleavemessage_not_admin: ":x: | Você deve ser um administrador deste servidor para solicitar estes comandos!"
 setleavemessage_help_embed_title: "Ajuda do /setleavemessage!"

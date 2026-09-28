@@ -1452,6 +1452,11 @@ setjoinroles_logs_embed_title_on_enable: "Journaux des rôles d'entrée"
 setjoinroles_logs_embed_description_on_enable: "<@${interaction.user.id}> a défini les rôles d'entrée !"
 setjoinroles_already_on_enable: "Les rôles d'entrée sont déjà configurés avec ce rôle !"
 
+# /welcomer
+welcomer_panel_title: "Bienvenue"
+welcomer_section_placeholder: "Choisissez quoi configurer"
+welcomer_section_channels: "Salons"
+
 # /setleavemessage
 setleavemessage_not_admin: ":x: | Tu dois etre un admin du serv bg revient après pour utiliser cette commande de message de départ !"
 setleavemessage_help_embed_title: "Aide pour /setleavemessage !"

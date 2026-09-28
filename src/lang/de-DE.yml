@@ -1449,6 +1449,11 @@ setjoinroles_logs_embed_title_on_enable: "Liittymisroolien lokit"
 setjoinroles_logs_embed_description_on_enable: "<@${interaction.user.id}> määritteli liittymisroolit!"
 setjoinroles_already_on_enable: "Liittymisroolit on jo määritetty tällä roolilla!"
 
+# /welcomer
+welcomer_panel_title: "Willkommen"
+welcomer_section_placeholder: "Wähle aus, was du konfigurieren möchtest"
+welcomer_section_channels: "Kanäle"
+
 # /setleavemessage
 setleavemessage_not_admin: ":x: | Sie müssen ein Administrator dieses Servers sein, um diesen Befehl auszuführen!"
 setleavemessage_help_embed_title: "/setleavemessage Hilfe!"

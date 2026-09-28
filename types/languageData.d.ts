@@ -1115,6 +1115,9 @@ export interface LanguageData {
 	setjoinroles_logs_embed_title_on_enable: string;
 	setjoinroles_logs_embed_description_on_enable: string;
 	setjoinroles_already_on_enable: string;
+	welcomer_panel_title: string;
+	welcomer_section_placeholder: string;
+	welcomer_section_channels: string;
 	setleavemessage_not_admin: string;
 	setleavemessage_help_embed_title: string;
 	setleavemessage_help_embed_description: string;
