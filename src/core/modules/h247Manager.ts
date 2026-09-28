@@ -42,10 +42,25 @@ const H247_JOIN_CONFIRM_INTERVAL_MS = 300;
 const H247_JOIN_CONFIRM_ATTEMPTS = 8;
 const H247_DISCONNECT_OBSERVE_INTERVAL_MS = 500;
 const H247_DISCONNECT_OBSERVE_ATTEMPTS = 10;
+const H247_EVENT_REJOIN_COOLDOWN_MS = 5_000;
+const H247_WATCHDOG_WARN_INTERVAL_MS = 30 * 60_000;
+const H247_NEGATIVE_CACHE_TTL_MS = 30 * 60_000;
 
 // In-memory mirror of the enabled H24/7 sessions, required to keep the
 // "playerQueueEmptyEnd" handling synchronous against the internal destroy.
 const h247Sessions = new Map<string, string>();
+
+// Guilds resolved as "H24/7 not enabled" with the resolution timestamp.
+// Avoids a database read for every guild on each watchdog tick.
+const h247NegativeCache = new Map<string, number>();
+
+// Last rejoin attempt per guild from the voice state handler.
+// Prevents tight rejoin loops when Discord fights back.
+const h247EventRejoinCooldowns = new Map<string, number>();
+
+// Last watchdog warning per guild. Failures (missing perms, deleted
+// channel) are retried silently until this interval elapses.
+const h247WatchdogWarns = new Map<string, number>();
 
 interface H247VoiceSession {
 	channelId: string;
@@ -181,8 +196,12 @@ export async function setH247Data(
 ): Promise<void> {
 	await client.db.set(`${guildId}.GUILD.H247`, data);
 
-	if (data.enabled) h247Sessions.set(guildId, data.voiceChannelId);
-	else h247Sessions.delete(guildId);
+	if (data.enabled) {
+		h247Sessions.set(guildId, data.voiceChannelId);
+		h247NegativeCache.delete(guildId);
+	} else {
+		h247Sessions.delete(guildId);
+	}
 }
 
 export async function deleteH247Data(
@@ -193,6 +212,9 @@ export async function deleteH247Data(
 
 	h247Sessions.delete(guildId);
 	h247VoiceSessions.delete(guildId);
+	h247NegativeCache.delete(guildId);
+	h247EventRejoinCooldowns.delete(guildId);
+	h247WatchdogWarns.delete(guildId);
 }
 
 async function fetchH247VoiceChannel(
@@ -262,7 +284,8 @@ async function waitForH247VoiceDisconnection(
 export async function joinH247VoiceChannel(
 	guild: Guild,
 	voiceChannelId: string,
-	confirmConnection: boolean = true
+	confirmConnection: boolean = true,
+	force: boolean = false
 ): Promise<boolean> {
 	const me = guild.members.me;
 
@@ -280,7 +303,10 @@ export async function joinH247VoiceChannel(
 		return false;
 	}
 
-	if (me.voice.channelId === channel.id) return true;
+	// The voice cache can wrongly report a dead session as alive. Callers
+	// repairing a known-broken connection pass force to re-emit the voice
+	// state update, which is idempotent on Discord's side.
+	if (me.voice.channelId === channel.id && !force) return true;
 
 	ensureH247VoiceSession(guild.id, channel.id);
 
@@ -354,21 +380,29 @@ export async function handleH247PlayerDestroyed(
 
 	if (!guild) return;
 
+	// Re-prime the in-memory mirror from the database: it can be empty when
+	// the guild was unavailable at boot or the shard resumed since.
+	h247Sessions.set(guildId, data.voiceChannelId);
+	ensureH247VoiceSession(guildId, data.voiceChannelId);
+
 	for (let attempt = 0; attempt < H247_REJOIN_MAX_ATTEMPTS; attempt++) {
 		await wait(attempt === 0 ? H247_REJOIN_DELAY_MS : H247_REJOIN_RETRY_MS);
 
 		if (client.player.getPlayer(guildId)) return;
 
 		// The player always disconnects before "playerDestroy" is emitted,
-		// but Discord may still report a stale voice state. Wait until the
-		// leave is actually observed before restoring the connection.
-		if (
-			!(await waitForH247VoiceDisconnection(guild, data.voiceChannelId))
-		) {
-			return;
-		}
+		// but Discord may still report a stale voice state. Wait for the
+		// leave to be observed, then force a fresh voice state update: it
+		// is idempotent and repairs a dead session that the cache wrongly
+		// reports as alive instead of trusting it and giving up.
+		await waitForH247VoiceDisconnection(guild, data.voiceChannelId);
 
-		const joined = await joinH247VoiceChannel(guild, data.voiceChannelId);
+		const joined = await joinH247VoiceChannel(
+			guild,
+			data.voiceChannelId,
+			true,
+			true
+		);
 
 		if (joined) return;
 	}
@@ -376,4 +410,111 @@ export async function handleH247PlayerDestroyed(
 	logger.warn(
 		`Unable to restore the H24/7 voice connection for guild ${guildId} after the player was destroyed`
 	);
+}
+
+// Reads the persisted H24/7 state and restores the voice presence when the
+// bot is not (or no longer) in the expected channel. Quiet on success path
+// checks so the periodic watchdog stays cheap and log-free.
+export async function ensureH247VoicePresence(
+	client: Client,
+	guildId: string
+): Promise<boolean> {
+	const data = await getH247Data(client, guildId);
+
+	if (!data?.enabled || !data.voiceChannelId) {
+		h247Sessions.delete(guildId);
+		return false;
+	}
+
+	const guild = client.guilds.cache.get(guildId);
+
+	if (!guild) return false;
+
+	h247Sessions.set(guildId, data.voiceChannelId);
+	ensureH247VoiceSession(guildId, data.voiceChannelId);
+
+	if (guild.members.me?.voice.channelId === data.voiceChannelId) return true;
+
+	const joined = await joinH247VoiceChannel(guild, data.voiceChannelId);
+
+	if (!joined) {
+		const now = Date.now();
+		const lastWarn = h247WatchdogWarns.get(guildId) ?? 0;
+
+		if (now - lastWarn >= H247_WATCHDOG_WARN_INTERVAL_MS) {
+			h247WatchdogWarns.set(guildId, now);
+			logger.warn(
+				`Unable to restore the H24/7 voice connection for guild ${guildId} (channel ${data.voiceChannelId})`
+			);
+		}
+
+		return false;
+	}
+
+	h247WatchdogWarns.delete(guildId);
+	logger.log(
+		`Restored the H24/7 voice connection for guild ${guildId} (channel ${data.voiceChannelId})`
+	);
+
+	return true;
+}
+
+// Periodic safety net for everything the event-driven paths can miss:
+// guilds unavailable at boot, dropped gateway events, expired voice
+// sessions after long uptimes. Steady-state cost is a map lookup per
+// guild; the database is only read on mismatch or unknown guilds.
+export async function watchdogH247Sessions(client: Client): Promise<void> {
+	for (const guild of client.guilds.cache.values()) {
+		try {
+			const expected = h247Sessions.get(guild.id);
+
+			if (expected && guild.members.me?.voice.channelId === expected) {
+				continue;
+			}
+
+			if (!expected) {
+				const lastNegative = h247NegativeCache.get(guild.id) ?? 0;
+
+				if (Date.now() - lastNegative < H247_NEGATIVE_CACHE_TTL_MS) {
+					continue;
+				}
+
+				const data = await getH247Data(client, guild.id);
+
+				if (!data?.enabled || !data.voiceChannelId) {
+					h247NegativeCache.set(guild.id, Date.now());
+					continue;
+				}
+
+				h247NegativeCache.delete(guild.id);
+			}
+
+			await ensureH247VoicePresence(client, guild.id);
+		} catch (error) {
+			logger.err(`H24/7 watchdog failed for guild ${guild.id}:`, error);
+		}
+	}
+}
+
+// Rejoin entry point for the voice state handler. Cooldown-guarded so a
+// move-fight with an admin (or a burst of gateway updates) cannot loop.
+export async function handleH247VoiceStateChange(
+	client: Client,
+	guildId: string
+): Promise<void> {
+	const now = Date.now();
+	const lastAttempt = h247EventRejoinCooldowns.get(guildId) ?? 0;
+
+	if (now - lastAttempt < H247_EVENT_REJOIN_COOLDOWN_MS) return;
+
+	h247EventRejoinCooldowns.set(guildId, now);
+
+	try {
+		await ensureH247VoicePresence(client, guildId);
+	} catch (error) {
+		logger.err(
+			`Failed to restore the H24/7 voice connection for guild ${guildId} after a voice state change:`,
+			error
+		);
+	}
 }
