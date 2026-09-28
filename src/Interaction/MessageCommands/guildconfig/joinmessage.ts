@@ -19,28 +19,40 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import { ChatInputCommandInteraction, Client, Message } from "discord.js";
+import {
+	Client,
+	ApplicationCommandType,
+	Message,
+	PermissionFlagsBits
+} from "discord.js";
 
+import { Command } from "../../../../types/command.js";
 import { LanguageData } from "../../../../types/languageData.js";
-import { SubCommand } from "../../../../types/command.js";
-import { openWelcomerPanel } from "./welcomerPanel.js";
+import { subCommand } from "../../SlashCommands/guildconfig/!join-message.js";
 
-export const subCommand: SubCommand = {
+export const command: Command = {
+	name: "joinmessage",
+
+	description: "Set the join message !",
+	description_localizations: {
+		fr: "Définir le message d'arrivé",
+		ja: "参加メッセージを設定！",
+		ru: "Установить приветственное сообщение!",
+		"es-ES": "Establecer el mensaje de bienvenida!"
+	},
+
+	aliases: ["joinmsg", "jmessage", "joiner"],
+
+	thinking: false,
+	category: "guildconfig",
+	type: ApplicationCommandType.ChatInput,
+	permission: PermissionFlagsBits.Administrator,
 	run: async (
 		client: Client,
-		interaction: ChatInputCommandInteraction<"cached"> | Message,
+		interaction: Message,
 		lang: LanguageData,
 		args?: string[]
 	) => {
-		// Guard's Typing
-		if (
-			!interaction.member ||
-			!client.user ||
-			!interaction.guild ||
-			!interaction.channel
-		)
-			return;
-
-		await openWelcomerPanel(client, interaction, lang);
+		subCommand.run(client, interaction, lang);
 	}
 };

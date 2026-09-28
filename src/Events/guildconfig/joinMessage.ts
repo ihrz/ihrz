@@ -24,18 +24,11 @@ import {
 	BaseGuildTextChannel,
 	Client,
 	Collection,
-	ContainerBuilder,
 	Guild,
 	GuildFeature,
 	GuildMember,
 	Invite,
-	MediaGalleryBuilder,
-	MediaGalleryItemBuilder,
-	MessageFlags,
 	PermissionsBitField,
-	SectionBuilder,
-	TextDisplayBuilder,
-	ThumbnailBuilder,
 	Vanity
 } from "discord.js";
 import { BotEvent } from "../../../types/event.js";
@@ -213,44 +206,6 @@ async function recordInviterStats(
 	});
 }
 
-const WELCOME_ACCENT_COLOR = 0x57f287;
-const BANNER_ATTACHMENT_URL = "attachment://image.png";
-
-async function sendWelcomeMessage(
-	channel: BaseGuildTextChannel,
-	member: GuildMember,
-	msg: string,
-	files: AttachmentBuilder[]
-): Promise<void> {
-	const container = new ContainerBuilder()
-		.setAccentColor(WELCOME_ACCENT_COLOR)
-		.addSectionComponents(
-			new SectionBuilder()
-				.addTextDisplayComponents(
-					new TextDisplayBuilder().setContent(msg)
-				)
-				.setThumbnailAccessory(
-					new ThumbnailBuilder().setURL(
-						member.displayAvatarURL({ size: 256 })
-					)
-				)
-		);
-
-	if (files.length > 0) {
-		container.addMediaGalleryComponents(
-			new MediaGalleryBuilder().addItems(
-				new MediaGalleryItemBuilder().setURL(BANNER_ATTACHMENT_URL)
-			)
-		);
-	}
-
-	await member.client.func.method.channelSend(channel, {
-		components: [container],
-		files,
-		flags: [MessageFlags.IsComponentsV2]
-	});
-}
-
 export const event: BotEvent = {
 	name: "guildMemberAdd",
 	run: async (client: Client, member: GuildMember) => {
@@ -387,11 +342,9 @@ export const event: BotEvent = {
 					}
 				);
 
-				await sendWelcomeMessage(
+				await client.func.method.channelSend(
 					channel as BaseGuildTextChannel,
-					member,
-					msg,
-					files
+					{ content: msg, files }
 				);
 				return;
 			}
@@ -434,11 +387,9 @@ export const event: BotEvent = {
 					);
 				}
 
-				await sendWelcomeMessage(
+				await client.func.method.channelSend(
 					channel as BaseGuildTextChannel,
-					member,
-					msg,
-					files
+					{ content: msg, files }
 				);
 				return;
 			}
@@ -452,11 +403,9 @@ export const event: BotEvent = {
 				}
 			);
 
-			await sendWelcomeMessage(
+			await client.func.method.channelSend(
 				channel as BaseGuildTextChannel,
-				member,
-				msg,
-				files
+				{ content: msg, files }
 			);
 		} catch (error) {
 			logger.err(error);

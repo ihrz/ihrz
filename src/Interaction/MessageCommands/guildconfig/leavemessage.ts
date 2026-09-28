@@ -28,22 +28,22 @@ import {
 
 import { Command } from "../../../../types/command.js";
 import { LanguageData } from "../../../../types/languageData.js";
-import { subCommand } from "../../SlashCommands/guildconfig/!channel.js";
+import { subCommand } from "../../SlashCommands/guildconfig/!leave-message.js";
 
 export const command: Command = {
-	name: "welcomer",
+	name: "leavemessage",
 
-	description: "Set the welcomer module !",
+	description: "Set the leave message !",
 	description_localizations: {
-		fr: "Définir le module welcomer",
-		ja: "ウェルカマーモジュールを設定！",
-		ru: "Настроить модуль приветствия!",
-		"es-ES": "Establecer el módulo de bienvenida!"
+		fr: "Définir le message de départ",
+		ja: "退出メッセージを設定！",
+		ru: "Установить прощальное сообщение!",
+		"es-ES": "Establecer el mensaje de despedida!"
 	},
 
-	aliases: ["leaver"],
+	aliases: ["leavemsg", "lmessage", "leaver"],
 
-	thinking: true,
+	thinking: false,
 	category: "guildconfig",
 	type: ApplicationCommandType.ChatInput,
 	permission: PermissionFlagsBits.Administrator,

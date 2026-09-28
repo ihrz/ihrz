@@ -1450,11 +1450,6 @@ setjoinroles_logs_embed_title_on_enable: "سجلات SetJoinRoles"
 setjoinroles_logs_embed_description_on_enable: "<@${interaction.user.id}> قام بتعيين الأدوار عند الانضمام!"
 setjoinroles_already_on_enable: "الأدوار عند الانضمام مكونة بالفعل بهذا الدور!"
 
-# /welcomer
-welcomer_panel_title: "الترحيب"
-welcomer_section_placeholder: "اختر ما تريد ضبطه"
-welcomer_section_channels: "القنوات"
-
 # /setleavemessage
 setleavemessage_not_admin: ":x: | يجب أن تكون مشرفًا في هذا الخادم لطلب هذه الأوامر!"
 setleavemessage_help_embed_title: "مساعدة /setleavemessage!"

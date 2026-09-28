@@ -1449,11 +1449,6 @@ setjoinroles_logs_embed_title_on_enable: "SetJoinRoles Logs"
 setjoinroles_logs_embed_description_on_enable: "<@${interaction.user.id}> set the join roles!"
 setjoinroles_already_on_enable: "The join role is already configured with this role!"
 
-# /welcomer
-welcomer_panel_title: "Welcomer"
-welcomer_section_placeholder: "Choose what to configure"
-welcomer_section_channels: "Channels"
-
 # /setleavemessage
 setleavemessage_not_admin: ":x: | You must be an administrator of this server to use these commands!"
 setleavemessage_help_embed_title: "/setleavemessage Help!"

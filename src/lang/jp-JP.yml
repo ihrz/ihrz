@@ -1449,11 +1449,6 @@ setjoinroles_logs_embed_title_on_enable: "JoinRolesログ"
 setjoinroles_logs_embed_description_on_enable: "<@${interaction.user.id}>が参加ロールを設定しました！"
 setjoinroles_already_on_enable: "参加ロールはすでにこのロールで構成されています！"
 
-# /welcomer
-welcomer_panel_title: "ウェルカム"
-welcomer_section_placeholder: "設定する項目を選択"
-welcomer_section_channels: "チャンネル"
-
 # /setleavemessage
 setleavemessage_not_admin: ":x: | このコマンドを要求するには、このサーバーの管理者である必要があります！"
 setleavemessage_help_embed_title: "/setleavemessage ヘルプ！"
