@@ -20,19 +20,49 @@
 */
 
 import {
-	Client,
-	GuildMember,
 	BaseGuildTextChannel,
-	SnowflakeUtil
+	Client,
+	ContainerBuilder,
+	GuildMember,
+	MessageFlags,
+	SectionBuilder,
+	TextDisplayBuilder,
+	ThumbnailBuilder
 } from "discord.js";
 
 import { BotEvent } from "../../../types/event.js";
 import { DatabaseStructure } from "../../../types/database_structure.js";
 
+const GOODBYE_ACCENT_COLOR = 0xed4245;
+
+async function sendGoodbyeMessage(
+	channel: BaseGuildTextChannel,
+	member: GuildMember,
+	msg: string
+): Promise<void> {
+	const container = new ContainerBuilder()
+		.setAccentColor(GOODBYE_ACCENT_COLOR)
+		.addSectionComponents(
+			new SectionBuilder()
+				.addTextDisplayComponents(
+					new TextDisplayBuilder().setContent(msg)
+				)
+				.setThumbnailAccessory(
+					new ThumbnailBuilder().setURL(
+						member.displayAvatarURL({ size: 256 })
+					)
+				)
+		);
+
+	await member.client.func.method.channelSend(channel, {
+		components: [container],
+		flags: [MessageFlags.IsComponentsV2]
+	});
+}
+
 export const event: BotEvent = {
 	name: "guildMemberRemove",
 	run: async (client: Client, member: GuildMember) => {
-		const nonce = SnowflakeUtil.generate().toString();
 		const data = await client.func.getLanguageData(member.guild.id);
 		const guildLocal =
 			(await client.db.get(`${member.guild.id}.GUILD.LANG.lang`)) ||
@@ -104,33 +134,28 @@ export const event: BotEvent = {
 			const lChanManager = member.guild.channels.cache.get(
 				lChan
 			) as BaseGuildTextChannel;
-			await lChanManager
-				.send({
-					content: messageContent,
-					enforceNonce: true,
-					nonce: nonce
-				})
-				.catch(() => false);
+			await sendGoodbyeMessage(
+				lChanManager,
+				member,
+				messageContent
+			).catch(() => false);
 		} catch (e) {
 			try {
 				const lChanManager = member.guild.channels.cache.get(
 					lChan
 				) as BaseGuildTextChannel;
-				await lChanManager
-					.send({
-						content:
-							client.func.method.generateCustomMessagePreview(
-								data.event_goodbye_default,
-								{
-									user: member.user,
-									guild: member.guild,
-									guildLocal: guildLocal
-								}
-							),
-						enforceNonce: true,
-						nonce: nonce
-					})
-					.catch(() => {});
+				await sendGoodbyeMessage(
+					lChanManager,
+					member,
+					client.func.method.generateCustomMessagePreview(
+						data.event_goodbye_default,
+						{
+							user: member.user,
+							guild: member.guild,
+							guildLocal: guildLocal
+						}
+					)
+				).catch(() => {});
 			} catch {}
 		}
 	}

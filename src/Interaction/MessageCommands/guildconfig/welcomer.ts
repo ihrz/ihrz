@@ -28,7 +28,7 @@ import {
 
 import { Command } from "../../../../types/command.js";
 import { LanguageData } from "../../../../types/languageData.js";
-import { subCommand } from "../../SlashCommands/guildconfig/!channel.js";
+import { subCommand } from "../../SlashCommands/guildconfig/!welcomer.js";
 
 export const command: Command = {
 	name: "welcomer",

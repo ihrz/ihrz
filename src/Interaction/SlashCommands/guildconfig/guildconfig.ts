@@ -62,7 +62,8 @@ export const command: Command = {
 				fr: "Bloquer/Protéger certains comportements/comportements dans cette guilde",
 				ja: "このサーバー内の何か/行動をブロック/保護！",
 				ru: "Заблокировать/защитить что-либо на этом сервере!",
-				"es-ES": "Bloquear/Proteger algo/comportamientos en este servidor!"
+				"es-ES":
+					"Bloquear/Proteger algo/comportamientos en este servidor!"
 			},
 
 			type: ApplicationCommandOptionType.SubcommandGroup,
@@ -76,7 +77,8 @@ export const command: Command = {
 						fr: "Bloquer la possibilité d'ajouter de nouveaux robots sur ce serveur",
 						ja: "このサーバーに新しいボットを追加する機能をブロック",
 						ru: "Заблокировать возможность добавления новых ботов на сервер",
-						"es-ES": "Bloquear la capacidad de añadir nuevos bots a este servidor"
+						"es-ES":
+							"Bloquear la capacidad de añadir nuevos bots a este servidor"
 					},
 
 					type: ApplicationCommandOptionType.Subcommand,
@@ -138,7 +140,8 @@ export const command: Command = {
 						fr: "Bloquer les compte trop récent de rejoindre votre serveur",
 						ja: "新しすぎるアカウントのサーバー参加をブロック",
 						ru: "Блокировать слишком новые аккаунты от входа на сервер",
-						"es-ES": "Bloquear cuentas demasiado nuevas para unirse a tu servidor"
+						"es-ES":
+							"Bloquear cuentas demasiado nuevas para unirse a tu servidor"
 					},
 
 					type: ApplicationCommandOptionType.Subcommand,
@@ -234,15 +237,16 @@ export const command: Command = {
 			type: ApplicationCommandOptionType.SubcommandGroup,
 			options: [
 				{
-					name: "channel",
+					name: "welcomer",
 
 					description:
-						"Set the channel where the bot will send message when user leave/join guild!",
+						"Configure the welcomer module (messages, channels, image)!",
 					description_localizations: {
-						fr: "Définir le canal pour les messages de départ/arrivée d'utilisateurs sur le serveur.",
-						ja: "ユーザーの参加/退出時にボットがメッセージを送信するチャンネルを設定！",
-						ru: "Установить канал для сообщений о входе/выходе!",
-						"es-ES": "Establecer el canal donde el bot enviará mensajes cuando un usuario salga/se una al servidor!"
+						fr: "Configurer le module de bienvenue (messages, salons, image)",
+						ja: "ウェルカムモジュール（メッセージ・チャンネル・画像）を設定！",
+						ru: "Настроить модуль приветствия (сообщения, каналы, изображение)!",
+						"es-ES":
+							"Configurar el módulo de bienvenida (mensajes, canales, imagen)!"
 					},
 
 					type: ApplicationCommandOptionType.Subcommand,
@@ -258,22 +262,8 @@ export const command: Command = {
 						fr: "Définir un message de participation au DM lorsque l'utilisateur rejoint le serveur",
 						ja: "ユーザーがサーバーに参加した時のDMメッセージを設定！",
 						ru: "Установить приветственное сообщение в ЛС при входе на сервер!",
-						"es-ES": "Establecer un mensaje de DM de bienvenida cuando el usuario se une al servidor!"
-					},
-
-					type: ApplicationCommandOptionType.Subcommand,
-
-					permission: PermissionFlagsBits.Administrator
-				},
-				{
-					name: "join-message",
-
-					description: "Set a join message when user join the guild!",
-					description_localizations: {
-						fr: "Définir un message d'adhésion lorsque l'utilisateur rejoint le serveur",
-						ja: "ユーザーがサーバーに参加した時の参加メッセージを設定！",
-						ru: "Установить приветственное сообщение!",
-						"es-ES": "Establecer un mensaje de bienvenida cuando el usuario se une al servidor!"
+						"es-ES":
+							"Establecer un mensaje de DM de bienvenida cuando el usuario se une al servidor!"
 					},
 
 					type: ApplicationCommandOptionType.Subcommand,
@@ -288,23 +278,8 @@ export const command: Command = {
 						fr: "Définissez des rôles de participation lorsque l'utilisateur rejoint le serveur!",
 						ja: "ユーザーがサーバーに参加した時の参加ロールを設定！",
 						ru: "Установить роли при входе на сервер!",
-						"es-ES": "Establecer roles de bienvenida cuando el usuario se une al servidor!"
-					},
-
-					type: ApplicationCommandOptionType.Subcommand,
-
-					permission: PermissionFlagsBits.Administrator
-				},
-				{
-					name: "leave-message",
-
-					description:
-						"Set a leave message when user leave the guild!",
-					description_localizations: {
-						fr: "Définir un message de départ lorsque l'utilisateur quitte le serveur",
-						ja: "ユーザーがサーバーを退出した時の退出メッセージを設定！",
-						ru: "Установить прощальное сообщение!",
-						"es-ES": "Establecer un mensaje de despedida cuando el usuario sale del servidor!"
+						"es-ES":
+							"Establecer roles de bienvenida cuando el usuario se une al servidor!"
 					},
 
 					type: ApplicationCommandOptionType.Subcommand,
@@ -337,7 +312,8 @@ export const command: Command = {
 						fr: "Changer le préfixe des commande de message sur ce serveur",
 						ja: "このサーバーのメッセージコマンドのプレフィックスを変更！",
 						ru: "Изменить префикс текстовых команд на сервере!",
-						"es-ES": "Cambiar el prefijo de los comandos de mensaje en este servidor!"
+						"es-ES":
+							"Cambiar el prefijo de los comandos de mensaje en este servidor!"
 					},
 
 					options: [
@@ -413,7 +389,8 @@ export const command: Command = {
 				fr: "Sous commande pour la réstauration/sauvegarde des configurations d'iHorizon",
 				ja: "iHorizonのサーバー設定の復元/保存用サブコマンド",
 				ru: "Подкоманда для сохранения/восстановления конфигурации iHorizon",
-				"es-ES": "Subcomando para restaurar/guardar la configuración del servidor de iHorizon"
+				"es-ES":
+					"Subcomando para restaurar/guardar la configuración del servidor de iHorizon"
 			},
 
 			type: ApplicationCommandOptionType.SubcommandGroup,
