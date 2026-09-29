@@ -43,6 +43,11 @@ import { LanguageData } from "../../../../../types/languageData.js";
 
 import { SubCommand } from "../../../../../types/command.js";
 
+// GitHub webhooks must never be flagged by this rule:
+// Discord AutoMod also scans webhook messages, and GitHub posts
+// links on every push.
+const automodAllowList: string[] = ["*github.com*", "*gitlab.com*"];
+
 export const subCommand: SubCommand = {
 	run: async (
 		client: Client,
@@ -96,7 +101,8 @@ export const subCommand: SubCommand = {
 					eventType: 1,
 					triggerType: 1,
 					triggerMetadata: {
-						regexPatterns: regexPatterns.map((r) => r.source)
+						regexPatterns: regexPatterns.map((r) => r.source),
+						allowList: automodAllowList
 					},
 					actions: arrayActionsForRule
 				});
@@ -104,7 +110,8 @@ export const subCommand: SubCommand = {
 				KeywordPresetRule.edit({
 					enabled: true,
 					triggerMetadata: {
-						regexPatterns: regexPatterns.map((r) => r.source)
+						regexPatterns: regexPatterns.map((r) => r.source),
+						allowList: automodAllowList
 					},
 					actions: [
 						{

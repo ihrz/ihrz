@@ -44,7 +44,7 @@ const cleanOldWarnings = (userId: string) => {
 export const event: BotEvent = {
 	name: "messageCreate",
 	run: async (client: Client, message: Message) => {
-		if (message.author.bot) return;
+		if (message.author.bot || message.webhookId) return;
 
 		const picOnlyChannels = (await client.db.get(
 			`${message.guildId}.UTILS.picOnly`

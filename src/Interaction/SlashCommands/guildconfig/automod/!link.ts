@@ -46,6 +46,34 @@ import { LanguageData } from "../../../../../types/languageData.js";
 
 import { SubCommand } from "../../../../../types/command.js";
 
+// Domains exempted from the link-blocking AutoMod rule.
+// GitHub (and other code/media hosts) must never trigger it:
+// GitHub webhooks post commit/PR links on every push, and Discord
+// AutoMod also scans webhook messages, so without this allowList
+// enabling "block links" deletes all GitHub webhook messages.
+const automodAllowList: string[] = [
+	"*github.com*",
+	"*gitlab.com*",
+	"*giphy.com*",
+	"*tenor.com*",
+	"*imgur.com*",
+	"*gyazo.com*",
+	"*ezgif.com*",
+	"*reddit.com*",
+	"*tumblr.com*",
+	"*twitter.com*",
+	"*x.com*",
+	"*youtube.com*",
+	"*youtu.be*",
+	"*cdn.discordapp.com*",
+	"*streamable.com*",
+	"*files.catbox.moe*",
+	"*0x0.st*",
+	"*flickr.com*",
+	"*postimages.org*",
+	"*imagebam.com*"
+];
+
 export const subCommand: SubCommand = {
 	run: async (
 		client: Client,
@@ -100,7 +128,8 @@ export const subCommand: SubCommand = {
 					eventType: 1,
 					triggerType: 1,
 					triggerMetadata: {
-						regexPatterns: regexPatterns.map((r) => r.source)
+						regexPatterns: regexPatterns.map((r) => r.source),
+						allowList: automodAllowList
 					},
 					actions: arrayActionsForRule
 				});
@@ -108,7 +137,8 @@ export const subCommand: SubCommand = {
 				KeywordPresetRule.edit({
 					enabled: true,
 					triggerMetadata: {
-						regexPatterns: regexPatterns.map((r) => r.source)
+						regexPatterns: regexPatterns.map((r) => r.source),
+						allowList: automodAllowList
 					},
 					actions: [
 						{

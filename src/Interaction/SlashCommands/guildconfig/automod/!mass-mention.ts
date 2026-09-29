@@ -89,8 +89,7 @@ export const subCommand: SubCommand = {
 						enabled: true,
 						eventType: 1,
 						triggerMetadata: {
-							mentionTotalLimit: max_mention,
-							presets: [1, 2, 3]
+							mentionTotalLimit: max_mention
 						},
 						actions: arrayActionsForRule
 					});
@@ -101,8 +100,7 @@ export const subCommand: SubCommand = {
 						eventType: 1,
 						triggerType: 5,
 						triggerMetadata: {
-							mentionTotalLimit: max_mention,
-							presets: [1, 2, 3]
+							mentionTotalLimit: max_mention
 						},
 						actions: arrayActionsForRule
 					});

@@ -27,7 +27,12 @@ import { DatabaseStructure } from "../../../types/database_structure.js";
 export const event: BotEvent = {
 	name: "messageCreate",
 	run: async (client: Client, message: Message) => {
-		if (!message.guild || message.author.bot || message.content === "")
+		if (
+			!message.guild ||
+			message.author.bot ||
+			message.webhookId ||
+			message.content === ""
+		)
 			return;
 
 		let baseData = (await client.db.get(`${message.guild?.id}.COUNTER`)) as

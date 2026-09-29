@@ -86,18 +86,14 @@ export const subCommand: SubCommand = {
 					enabled: true,
 					eventType: 1,
 					triggerType: 3,
-					triggerMetadata: {
-						presets: [1, 2, 3]
-					},
+					triggerMetadata: {},
 					actions: arrayActionsForRule
 				});
 			} else if (spamRule) {
 				await spamRule.edit({
 					name: "Block spam by iHorizon",
 					enabled: true,
-					triggerMetadata: {
-						presets: [1, 2, 3]
-					},
+					triggerMetadata: {},
 					actions: arrayActionsForRule
 				});
 			}
