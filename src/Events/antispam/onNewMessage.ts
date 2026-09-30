@@ -350,8 +350,11 @@ export const event: BotEvent = {
 		}
 
 		// Basic checks (if is in guild, if the antispam are configured etc)
+		// Webhook messages (GitHub integrations, feeds, ...) must never be
+		// treated as spam: bursty pushes would otherwise be bulk-deleted.
 		if (
 			!message.guild ||
+			message.webhookId ||
 			message.author.id === message.client.user.id ||
 			!options.Enabled ||
 			message.guild.ownerId === message.author.id ||

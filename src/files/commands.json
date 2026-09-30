@@ -12036,57 +12036,13 @@
                 "type": 2,
                 "options": [
                     {
-                        "name": "channel",
-                        "description": "Set the channel where the bot will send message when user leave/join guild!",
+                        "name": "welcomer",
+                        "description": "Configure the welcomer module (messages, channels, image)!",
                         "description_localizations": {
-                            "fr": "Définir le canal pour les messages de départ/arrivée d'utilisateurs sur le serveur.",
-                            "ja": "ユーザーの参加/退出時にボットがメッセージを送信するチャンネルを設定！",
-                            "ru": "Установить канал для сообщений о входе/выходе!",
-                            "es-ES": "Establecer el canal donde el bot enviará mensajes cuando un usuario salga/se una al servidor!"
-                        },
-                        "type": 1
-                    },
-                    {
-                        "name": "join-dm",
-                        "description": "Set a join dm message when user join the guild!",
-                        "description_localizations": {
-                            "fr": "Définir un message de participation au DM lorsque l'utilisateur rejoint le serveur",
-                            "ja": "ユーザーがサーバーに参加した時のDMメッセージを設定！",
-                            "ru": "Установить приветственное сообщение в ЛС при входе на сервер!",
-                            "es-ES": "Establecer un mensaje de DM de bienvenida cuando el usuario se une al servidor!"
-                        },
-                        "type": 1
-                    },
-                    {
-                        "name": "join-message",
-                        "description": "Set a join message when user join the guild!",
-                        "description_localizations": {
-                            "fr": "Définir un message d'adhésion lorsque l'utilisateur rejoint le serveur",
-                            "ja": "ユーザーがサーバーに参加した時の参加メッセージを設定！",
-                            "ru": "Установить приветственное сообщение!",
-                            "es-ES": "Establecer un mensaje de bienvenida cuando el usuario se une al servidor!"
-                        },
-                        "type": 1
-                    },
-                    {
-                        "name": "join-role",
-                        "description": "Set a join roles when user join the guild!",
-                        "description_localizations": {
-                            "fr": "Définissez des rôles de participation lorsque l'utilisateur rejoint le serveur!",
-                            "ja": "ユーザーがサーバーに参加した時の参加ロールを設定！",
-                            "ru": "Установить роли при входе на сервер!",
-                            "es-ES": "Establecer roles de bienvenida cuando el usuario se une al servidor!"
-                        },
-                        "type": 1
-                    },
-                    {
-                        "name": "leave-message",
-                        "description": "Set a leave message when user leave the guild!",
-                        "description_localizations": {
-                            "fr": "Définir un message de départ lorsque l'utilisateur quitte le serveur",
-                            "ja": "ユーザーがサーバーを退出した時の退出メッセージを設定！",
-                            "ru": "Установить прощальное сообщение!",
-                            "es-ES": "Establecer un mensaje de despedida cuando el usuario sale del servidor!"
+                            "fr": "Configurer le module de bienvenue (messages, salons, image)",
+                            "ja": "ウェルカムモジュール（メッセージ・チャンネル・画像）を設定！",
+                            "ru": "Настроить модуль приветствия (сообщения, каналы, изображение)!",
+                            "es-ES": "Configurar el módulo de bienvenida (mensajes, canales, imagen)!"
                         },
                         "type": 1
                     }

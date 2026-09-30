@@ -19,46 +19,16 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	BaseGuildTextChannel,
-	Client,
-	ContainerBuilder,
-	GuildMember,
-	MessageFlags,
-	SectionBuilder,
-	TextDisplayBuilder,
-	ThumbnailBuilder
-} from "discord.js";
+import { BaseGuildTextChannel, Client, GuildMember } from "discord.js";
 
 import { BotEvent } from "../../../types/event.js";
 import { DatabaseStructure } from "../../../types/database_structure.js";
+import resolveWelcomerEmbed, {
+	WelcomerEmbedVariables
+} from "../../core/functions/welcomerEmbed.js";
 
 const GOODBYE_ACCENT_COLOR = 0xed4245;
-
-async function sendGoodbyeMessage(
-	channel: BaseGuildTextChannel,
-	member: GuildMember,
-	msg: string
-): Promise<void> {
-	const container = new ContainerBuilder()
-		.setAccentColor(GOODBYE_ACCENT_COLOR)
-		.addSectionComponents(
-			new SectionBuilder()
-				.addTextDisplayComponents(
-					new TextDisplayBuilder().setContent(msg)
-				)
-				.setThumbnailAccessory(
-					new ThumbnailBuilder().setURL(
-						member.displayAvatarURL({ size: 256 })
-					)
-				)
-		);
-
-	await member.client.func.method.channelSend(channel, {
-		components: [container],
-		flags: [MessageFlags.IsComponentsV2]
-	});
-}
+const GOODBYE_AVATAR_ATTACHMENT_NAME = "goodbye-avatar.png";
 
 export const event: BotEvent = {
 	name: "guildMemberRemove",
@@ -76,8 +46,44 @@ export const event: BotEvent = {
 		const leaveMessage = await client.db.get(
 			`${member.guild.id}.GUILD.GUILD_CONFIG.leavemessage`
 		);
+		const leaveEmbedId = (await client.db.get(
+			`${member.guild.id}.GUILD.GUILD_CONFIG.leaveEmbedId`
+		)) as string | null | undefined;
+		const leaveTextEnabled = (await client.db.get(
+			`${member.guild.id}.GUILD.GUILD_CONFIG.leaveTextEnabled`
+		)) as boolean | undefined;
+		const leaveComponentsEnabled = (await client.db.get(
+			`${member.guild.id}.GUILD.GUILD_CONFIG.leaveComponentsEnabled`
+		)) as boolean | undefined;
+
+		const textEnabled = leaveTextEnabled !== false;
+		const componentsEnabled = leaveComponentsEnabled !== false;
+
+		if (!lChan || !member.guild.channels.cache.get(lChan)) return;
+
+		async function sendGoodbye(
+			channel: BaseGuildTextChannel,
+			msg: string,
+			variables: WelcomerEmbedVariables
+		): Promise<void> {
+			const embed = await resolveWelcomerEmbed(leaveEmbedId, variables);
+			await member.client.func
+				.welcomerMessage(channel, member, {
+					message: textEnabled ? msg : null,
+					embed,
+					useComponents: embed ? false : componentsEnabled,
+					accentColor: GOODBYE_ACCENT_COLOR,
+					avatarAttachmentName: GOODBYE_AVATAR_ATTACHMENT_NAME
+				})
+				.catch(() => null);
+		}
 
 		let messageContent = "";
+		let variables: WelcomerEmbedVariables = {
+			user: member.user,
+			guild: member.guild,
+			guildLocal: guildLocal
+		};
 		if (base?.inviter) {
 			const inviter =
 				client.users.cache.get(base.inviter) ||
@@ -102,60 +108,52 @@ export const event: BotEvent = {
 			const invitesAmount = await client.db.get(
 				`${member.guild.id}.USER.${inviter.id}.INVITES.invites`
 			);
+			variables = {
+				user: member.user,
+				guild: member.guild,
+				guildLocal: guildLocal,
+				inviter: {
+					user: {
+						username: inviter.username,
+						mention: inviter.toString()
+					},
+					invitesAmount
+				}
+			};
 			messageContent = client.func.method.generateCustomMessagePreview(
 				leaveMessage || data.event_goodbye_inviter,
-				{
-					user: member.user,
-					guild: member.guild,
-					guildLocal: guildLocal,
-					inviter: {
-						user: {
-							username: inviter.username,
-							mention: inviter.toString()
-						},
-						invitesAmount
-					}
-				}
+				variables
 			);
 		} else {
 			messageContent = client.func.method.generateCustomMessagePreview(
 				leaveMessage || data.event_goodbye_default,
-				{
-					user: member.user,
-					guild: member.guild,
-					guildLocal: guildLocal
-				}
+				variables
 			);
 		}
-
-		if (!lChan || !member.guild.channels.cache.get(lChan)) return;
 
 		try {
 			const lChanManager = member.guild.channels.cache.get(
 				lChan
 			) as BaseGuildTextChannel;
-			await sendGoodbyeMessage(
-				lChanManager,
-				member,
-				messageContent
-			).catch(() => false);
+			await sendGoodbye(lChanManager, messageContent, variables);
 		} catch (e) {
 			try {
 				const lChanManager = member.guild.channels.cache.get(
 					lChan
 				) as BaseGuildTextChannel;
-				await sendGoodbyeMessage(
+				const fallbackVariables: WelcomerEmbedVariables = {
+					user: member.user,
+					guild: member.guild,
+					guildLocal: guildLocal
+				};
+				await sendGoodbye(
 					lChanManager,
-					member,
 					client.func.method.generateCustomMessagePreview(
 						data.event_goodbye_default,
-						{
-							user: member.user,
-							guild: member.guild,
-							guildLocal: guildLocal
-						}
-					)
-				).catch(() => {});
+						fallbackVariables
+					),
+					fallbackVariables
+				);
 			} catch {}
 		}
 	}

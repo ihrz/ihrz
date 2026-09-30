@@ -20,28 +20,25 @@
 */
 
 import {
-	AttachmentBuilder,
 	BaseGuildTextChannel,
 	Client,
 	Collection,
-	ContainerBuilder,
 	Guild,
 	GuildFeature,
 	GuildMember,
 	Invite,
-	MediaGalleryBuilder,
-	MediaGalleryItemBuilder,
-	MessageFlags,
 	PermissionsBitField,
-	SectionBuilder,
-	TextDisplayBuilder,
-	ThumbnailBuilder,
 	Vanity
 } from "discord.js";
+import Jimp from "jimp";
 import { BotEvent } from "../../../types/event.js";
 import { DatabaseStructure } from "../../../types/database_structure.js";
 import { InviteCacheData } from "../../../types/client.js";
 import { apiTable } from "../client/ready.js";
+import resolveWelcomerEmbed, {
+	WelcomerEmbedVariables
+} from "../../core/functions/welcomerEmbed.js";
+import type { Html2PngAsset } from "../../core/functions/html2png.js";
 
 const INVITE_RESOLVE_TIMEOUT_MS = 1200;
 
@@ -71,10 +68,49 @@ function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T | null> {
 	]);
 }
 
+async function downscaleAvatar(
+	buffer: Buffer,
+	avatarSize: string
+): Promise<Buffer> {
+	try {
+		const target = Math.min(
+			512,
+			Math.max(64, parseInt(avatarSize, 10) || 256)
+		);
+		const image = await Jimp.read(buffer);
+		if (image.getWidth() > target) image.resize(target, Jimp.AUTO);
+		return await image.getBufferAsync(Jimp.MIME_PNG);
+	} catch {
+		return buffer;
+	}
+}
+
+export const JOIN_IMAGE_AVATAR_TOKEN = "%%AVATAR%%";
+
 export async function generateJoinImage(
 	member: GuildMember,
 	ImageBannerOptions?: DatabaseStructure.JoinBannerOptions
-): Promise<AttachmentBuilder> {
+): Promise<Buffer> {
+	const { code, assets } = await buildJoinImagePayload(
+		member,
+		ImageBannerOptions
+	);
+
+	const image = await member.client.func.html2png(
+		code,
+		{
+			omitBackground: false,
+			selectElement: false
+		},
+		assets
+	);
+	return image;
+}
+
+export async function buildJoinImagePayload(
+	member: GuildMember,
+	ImageBannerOptions?: DatabaseStructure.JoinBannerOptions
+): Promise<{ code: string; assets: Html2PngAsset[] }> {
 	let htmlContent = member.client.htmlfiles["guildconfigWelcomeCart"];
 
 	let backgroundURL =
@@ -120,8 +156,30 @@ export async function generateJoinImage(
 		}
 	}
 
+	let avatarURL = member.displayAvatarURL({
+		size: 512,
+		extension: "png",
+		forceStatic: true
+	});
+	const assets: Html2PngAsset[] = [];
+	try {
+		const avatarBuffer =
+			await member.client.func.image64.image64(avatarURL);
+		if (avatarBuffer) {
+			const resized = await downscaleAvatar(avatarBuffer, avatarSize);
+			avatarURL = JOIN_IMAGE_AVATAR_TOKEN;
+			assets.push({
+				token: JOIN_IMAGE_AVATAR_TOKEN,
+				mime: "image/png",
+				buffer: resized
+			});
+		}
+	} catch {
+		// Fallback to CDN URL
+	}
+
 	htmlContent = htmlContent
-		.replaceAll("USERLOGO", member.displayAvatarURL({ size: 512 }))
+		.replaceAll("USERLOGO", avatarURL)
 		.replaceAll(
 			"USERNAME",
 			member.user.globalName || member.user.displayName
@@ -145,11 +203,7 @@ export async function generateJoinImage(
 		.replaceAll("40px", textSize)
 		.replaceAll("140px", avatarSize);
 
-	const image = await member.client.func.html2png(htmlContent, {
-		omitBackground: false,
-		selectElement: false
-	});
-	return new AttachmentBuilder(image, { name: "image.png" });
+	return { code: htmlContent, assets };
 }
 
 export async function resolveInvite(
@@ -214,42 +268,8 @@ async function recordInviterStats(
 }
 
 const WELCOME_ACCENT_COLOR = 0x57f287;
-const BANNER_ATTACHMENT_URL = "attachment://image.png";
-
-async function sendWelcomeMessage(
-	channel: BaseGuildTextChannel,
-	member: GuildMember,
-	msg: string,
-	files: AttachmentBuilder[]
-): Promise<void> {
-	const container = new ContainerBuilder()
-		.setAccentColor(WELCOME_ACCENT_COLOR)
-		.addSectionComponents(
-			new SectionBuilder()
-				.addTextDisplayComponents(
-					new TextDisplayBuilder().setContent(msg)
-				)
-				.setThumbnailAccessory(
-					new ThumbnailBuilder().setURL(
-						member.displayAvatarURL({ size: 256 })
-					)
-				)
-		);
-
-	if (files.length > 0) {
-		container.addMediaGalleryComponents(
-			new MediaGalleryBuilder().addItems(
-				new MediaGalleryItemBuilder().setURL(BANNER_ATTACHMENT_URL)
-			)
-		);
-	}
-
-	await member.client.func.method.channelSend(channel, {
-		components: [container],
-		files,
-		flags: [MessageFlags.IsComponentsV2]
-	});
-}
+const WELCOME_AVATAR_ATTACHMENT_NAME = "welcomer-avatar.png";
+const WELCOME_BANNER_ATTACHMENT_NAME = "image.png";
 
 export const event: BotEvent = {
 	name: "guildMemberAdd",
@@ -273,8 +293,37 @@ export const event: BotEvent = {
 				joinmessage: joinMessage,
 				joinbannerStates: ImageBannerStates,
 				join: wChan,
-				joinbanner: JoinBannerOptions
+				joinbanner: JoinBannerOptions,
+				joinEmbedId,
+				joinTextEnabled,
+				joinComponentsEnabled
 			} = config as DatabaseStructure.GuildConfigSchema;
+
+			const textEnabled = joinTextEnabled !== false;
+			const componentsEnabled = joinComponentsEnabled !== false;
+
+			async function sendWelcome(
+				msg: string,
+				variables: WelcomerEmbedVariables
+			): Promise<void> {
+				const embed = await resolveWelcomerEmbed(
+					joinEmbedId,
+					variables
+				);
+				await member.client.func.welcomerMessage(
+					channel as BaseGuildTextChannel,
+					member,
+					{
+						message: textEnabled ? msg : null,
+						embed,
+						useComponents: embed ? false : componentsEnabled,
+						accentColor: WELCOME_ACCENT_COLOR,
+						avatarAttachmentName: WELCOME_AVATAR_ATTACHMENT_NAME,
+						bannerImage,
+						bannerAttachmentName: WELCOME_BANNER_ATTACHMENT_NAME
+					}
+				);
+			}
 
 			const oldInvites = client.invites.get(member.guild.id);
 
@@ -330,11 +379,12 @@ export const event: BotEvent = {
 
 			if (!channel) return;
 
-			const files: AttachmentBuilder[] = [];
+			let bannerImage: Buffer | undefined;
 			if (ImageBannerStates === "on") {
 				try {
-					files.push(
-						await generateJoinImage(member, JoinBannerOptions)
+					bannerImage = await generateJoinImage(
+						member,
+						JoinBannerOptions
 					);
 				} catch (e) {
 					logger.err(member.guild.name, "Join image error: " + e);
@@ -387,12 +437,24 @@ export const event: BotEvent = {
 					}
 				);
 
-				await sendWelcomeMessage(
-					channel as BaseGuildTextChannel,
-					member,
-					msg,
-					files
-				);
+				const inviterVariables: WelcomerEmbedVariables = {
+					user: member.user,
+					guild: member.guild,
+					guildLocal: guildLocal,
+					inviter: {
+						user: {
+							username: isCustomVanity
+								? ".wf/" + CustomVanityInvite.vanity
+								: inviterUsername,
+							mention: isCustomVanity
+								? "discord.wf/" + CustomVanityInvite.vanity
+								: inviterMention
+						},
+						invitesAmount: invitesAmount
+					}
+				};
+
+				await sendWelcome(msg, inviterVariables);
 				return;
 			}
 
@@ -403,61 +465,50 @@ export const event: BotEvent = {
 				);
 				client.vanityInvites.set(member.guild.id, VanityURL);
 
+				const vanityVariables: WelcomerEmbedVariables = {
+					user: member.user,
+					guild: member.guild,
+					guildLocal: guildLocal
+				};
 				let msg: string;
 				if (
 					vanityInviteCache &&
 					vanityInviteCache.uses! < VanityURL.uses!
 				) {
+					vanityVariables.inviter = {
+						user: {
+							username: ".gg/" + VanityURL.code,
+							mention: VanityURL.code!
+						},
+						invitesAmount: VanityURL.uses
+					};
 					msg = client.func.method.generateCustomMessagePreview(
 						joinMessage || data.event_welcomer_default,
-						{
-							user: member.user,
-							guild: member.guild,
-							guildLocal: guildLocal,
-							inviter: {
-								user: {
-									username: ".gg/" + VanityURL.code,
-									mention: VanityURL.code!
-								},
-								invitesAmount: VanityURL.uses
-							}
-						}
+						vanityVariables
 					);
 				} else {
 					msg = client.func.method.generateCustomMessagePreview(
 						joinMessage || data.event_welcomer_default,
-						{
-							user: member.user,
-							guild: member.guild,
-							guildLocal: guildLocal
-						}
+						vanityVariables
 					);
 				}
 
-				await sendWelcomeMessage(
-					channel as BaseGuildTextChannel,
-					member,
-					msg,
-					files
-				);
+				await sendWelcome(msg, vanityVariables);
 				return;
 			}
 
+			const defaultVariables: WelcomerEmbedVariables = {
+				user: member.user,
+				guild: member.guild,
+				guildLocal: guildLocal
+			};
+
 			const msg = client.func.method.generateCustomMessagePreview(
 				joinMessage || data.event_welcomer_default,
-				{
-					user: member.user,
-					guild: member.guild,
-					guildLocal: guildLocal
-				}
+				defaultVariables
 			);
 
-			await sendWelcomeMessage(
-				channel as BaseGuildTextChannel,
-				member,
-				msg,
-				files
-			);
+			await sendWelcome(msg, defaultVariables);
 		} catch (error) {
 			logger.err(error);
 		}

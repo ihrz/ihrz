@@ -20,7 +20,6 @@
 */
 
 import { Browser, launch } from "puppeteer";
-import { axios } from "./axios.ts";
 import * as apiUrlParser from "./apiUrlParser.js";
 
 let browser: Browser | null = null;
@@ -34,42 +33,52 @@ export interface Html2PngOptions {
 	selectElement: boolean;
 }
 
+export interface Html2PngAsset {
+	token: string;
+	mime: string;
+	buffer: Buffer;
+}
+
 export default async function html2Png(
 	code: string,
-	options: Html2PngOptions
+	options: Html2PngOptions,
+	assets: Html2PngAsset[] = []
 ): Promise<Buffer> {
 	if (client.config.api.HorizonGateway) {
-		const res = await axios.post(
-			apiUrlParser.HorizonGateway(
-				apiUrlParser.GatewayMethod.ImageGeneration
-			),
-			{
-				code,
-				options,
-				adminKey: client.config.api.apiToken
-			},
-			{
-				headers: {
-					"Content-Type": "application/json"
-				},
-				responseType: "arraybuffer"
-			}
+		const endpoint = apiUrlParser.HorizonGatewayInternal(
+			apiUrlParser.GatewayMethod.ImageGeneration
 		);
 
-		if (res.status !== 200) {
-			const message =
-				typeof res.data === "string"
-					? res.data
-					: JSON.stringify(res.data);
+		const form = new FormData();
+		form.append("adminKey", client.config.api.apiToken);
+		form.append("options", JSON.stringify(options));
+		form.append("code", code);
+
+		const meta: Record<string, { token: string; mime: string }> = {};
+		assets.forEach((asset, index) => {
+			const field = `asset${index}`;
+			meta[field] = { token: asset.token, mime: asset.mime };
+			form.append(
+				field,
+				new Blob([new Uint8Array(asset.buffer)], { type: asset.mime }),
+				`${field}.png`
+			);
+		});
+		form.append("assets", JSON.stringify(meta));
+
+		const response = await fetch(endpoint, {
+			method: "POST",
+			body: form
+		});
+
+		if (response.status !== 200) {
+			const message = await response.text().catch(() => "");
 			throw new Error(
-				`HorizonGateway image generation failed (HTTP ${res.status}): ${message}`
+				`HorizonGateway image generation failed (HTTP ${response.status} on ${endpoint}): ${message}`
 			);
 		}
 
-		const contentType: string =
-			res.headers?.get?.("content-type") ??
-			res.headers?.["content-type"] ??
-			"";
+		const contentType = response.headers.get("content-type") ?? "";
 
 		if (contentType && !contentType.includes("image/png")) {
 			throw new Error(
@@ -77,9 +86,7 @@ export default async function html2Png(
 			);
 		}
 
-		const buffer = Buffer.isBuffer(res.data)
-			? res.data
-			: Buffer.from(res.data);
+		const buffer = Buffer.from(await response.arrayBuffer());
 
 		if (buffer.length === 0) {
 			throw new Error(
@@ -89,11 +96,19 @@ export default async function html2Png(
 
 		return buffer;
 	} else {
+		let html = code;
+		for (const asset of assets) {
+			html = html.replaceAll(
+				asset.token,
+				`data:${asset.mime};base64,${asset.buffer.toString("base64")}`
+			);
+		}
+
 		if (!browser)
 			browser = await launch({
 				args: ["--no-sandbox", "--disable-setuid-sandbox"]
 			});
-		return await localRender(code, options);
+		return await localRender(html, options);
 	}
 }
 

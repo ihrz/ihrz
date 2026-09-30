@@ -80,9 +80,8 @@ async function applySanction(
 			{}
 		);
 	} catch (error) {
-		console.error(
-			`Failed to apply sanction to ${message.author.tag}:`,
-			error
+		logger.err(
+			`Failed to apply sanction to ${message.author.tag}: ${error}`
 		);
 	}
 }
@@ -255,7 +254,7 @@ export const event: BotEvent = {
 					"x.com",
 					"youtube.com",
 					"github.com",
-					"gilab.com",
+					"gitlab.com",
 					"cdn.discordapp.com",
 					"streamable.com",
 					"files.catbox.moe",

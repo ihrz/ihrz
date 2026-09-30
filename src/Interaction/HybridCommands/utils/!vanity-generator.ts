@@ -94,7 +94,7 @@ export const subCommand: SubCommand = {
 		);
 
 		const req = await fetch(
-			apiUrlParser.HorizonGateway(
+			apiUrlParser.HorizonGatewayInternal(
 				apiUrlParser.GatewayMethod.CreateCustomVanity
 			),
 			{

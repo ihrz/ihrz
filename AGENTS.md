@@ -145,6 +145,12 @@ const img = await client.func.html2png(code, {
 let attachment = new AttachmentBuilder(img, { name: 'twitter.png' });
 ```
 
+## Components V2 (STRICT)
+
+- Welcomer (join/leave) messages MUST be sent via `client.func.welcomerMessage` (see `src/core/functions/welcomerMessage.ts`). Never rebuild the Container + Thumbnail manually in events.
+- Thumbnails: NEVER use a raw `displayAvatarURL()` CDN URL. Always snapshot the avatar via `client.func.image64.image64` and send it as an `attachment://` file, otherwise the thumbnail shows "media lost" when the user changes their avatar.
+- Same rule for HTML -> PNG templates: embed avatars as `data:image/png;base64,...` (via `image64`), never as a remote URL.
+
 ## Database
 
 - Access via `client.db.get()` / `client.db.set()`.

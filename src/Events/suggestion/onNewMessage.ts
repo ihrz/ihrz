@@ -27,7 +27,13 @@ import { BotEvent } from "../../../types/event.js";
 export const event: BotEvent = {
 	name: "messageCreate",
 	run: async (client: Client, message: Message) => {
-		if (!message.guild || message.author.bot || !message.channel) return;
+		if (
+			!message.guild ||
+			message.author.bot ||
+			message.webhookId ||
+			!message.channel
+		)
+			return;
 
 		const data = await client.func.getLanguageData(message.guild.id);
 

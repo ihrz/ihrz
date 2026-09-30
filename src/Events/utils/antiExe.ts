@@ -57,6 +57,7 @@ export const event: BotEvent = {
 		if (
 			!message.guild ||
 			message.author.bot ||
+			message.webhookId ||
 			message.channel.type === ChannelType.DM ||
 			message.author.id === client.user?.id ||
 			message.member?.permissions.has(

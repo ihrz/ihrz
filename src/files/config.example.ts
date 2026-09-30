@@ -103,6 +103,13 @@ const config: ConfigData = {
 	},
 
 	api: {
+		HorizonGateway: "https://gateway.ihorizon.org",
+		// Public gateway URL. Used for user-facing links (oauth2, backups, ...).
+
+		HorizonGatewayLocal: "http://127.0.0.1:31981",
+		// Optional. Local gateway URL on the same machine, used for bot-to-gateway calls (image generation, ...).
+		// Bypasses reverse proxies (Cloudflare, ...) and their body limits. Comment it out to use HorizonGateway for everything.
+
 		apiToken: "The API token"
 		// Optional. The API token is for secure requests. Please put a strong token. It needs to be private for security reasons.
 	},

@@ -132,7 +132,7 @@ export const command: Command = {
 			}
 
 			const req = await fetch(
-				apiUrlParser.HorizonGateway(
+				apiUrlParser.HorizonGatewayInternal(
 					apiUrlParser.GatewayMethod.SecureWebhook
 				),
 				{
@@ -192,7 +192,7 @@ export const command: Command = {
 			}
 
 			const req = await fetch(
-				apiUrlParser.HorizonGateway(
+				apiUrlParser.HorizonGatewayInternal(
 					apiUrlParser.GatewayMethod.SecureWebhook
 				),
 				{

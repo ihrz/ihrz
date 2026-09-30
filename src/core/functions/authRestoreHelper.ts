@@ -135,7 +135,7 @@ export async function createAuthRestore(
 	return (
 		(
 			await axios.post(
-				apiUrlParser.HorizonGateway(
+				apiUrlParser.HorizonGatewayInternal(
 					apiUrlParser.GatewayMethod.CreateAuthRestoreGuild
 				),
 				data,
@@ -170,7 +170,7 @@ export async function forceJoinAuthRestore(
 	return (
 		(
 			await axios.post(
-				apiUrlParser.HorizonGateway(
+				apiUrlParser.HorizonGatewayInternal(
 					apiUrlParser.GatewayMethod.ForceJoinAuthRestore
 				),
 				data,
@@ -186,7 +186,7 @@ export async function securityCodeUpdate(
 	return (
 		(
 			await axios.post(
-				apiUrlParser.HorizonGateway(
+				apiUrlParser.HorizonGatewayInternal(
 					apiUrlParser.GatewayMethod.AddSecurityCodeAmount
 				),
 				data,
@@ -202,7 +202,7 @@ export async function changeRoleAuthRestore(
 	return (
 		(
 			await axios.post(
-				apiUrlParser.HorizonGateway(
+				apiUrlParser.HorizonGatewayInternal(
 					apiUrlParser.GatewayMethod.ChangeRole
 				),
 				data,

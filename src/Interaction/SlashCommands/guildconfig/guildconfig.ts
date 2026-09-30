@@ -252,39 +252,6 @@ export const command: Command = {
 					type: ApplicationCommandOptionType.Subcommand,
 
 					permission: PermissionFlagsBits.Administrator
-				},
-				{
-					name: "join-dm",
-
-					description:
-						"Set a join dm message when user join the guild!",
-					description_localizations: {
-						fr: "Définir un message de participation au DM lorsque l'utilisateur rejoint le serveur",
-						ja: "ユーザーがサーバーに参加した時のDMメッセージを設定！",
-						ru: "Установить приветственное сообщение в ЛС при входе на сервер!",
-						"es-ES":
-							"Establecer un mensaje de DM de bienvenida cuando el usuario se une al servidor!"
-					},
-
-					type: ApplicationCommandOptionType.Subcommand,
-
-					permission: PermissionFlagsBits.Administrator
-				},
-				{
-					name: "join-role",
-
-					description: "Set a join roles when user join the guild!",
-					description_localizations: {
-						fr: "Définissez des rôles de participation lorsque l'utilisateur rejoint le serveur!",
-						ja: "ユーザーがサーバーに参加した時の参加ロールを設定！",
-						ru: "Установить роли при входе на сервер!",
-						"es-ES":
-							"Establecer roles de bienvenida cuando el usuario se une al servidor!"
-					},
-
-					type: ApplicationCommandOptionType.Subcommand,
-
-					permission: PermissionFlagsBits.Administrator
 				}
 			],
 
