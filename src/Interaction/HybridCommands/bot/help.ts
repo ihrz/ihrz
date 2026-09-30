@@ -246,15 +246,19 @@ async function handleCategorySelect(
 		const descValue =
 			guildData && element.desc_localized
 				? (() => {
-					const langMap: Record<string, string> = {
-						"fr-FR": "fr", "fr-ME": "fr",
-						"jp-JP": "ja", "ru-RU": "ru", "es-ES": "es-ES",
-					};
-					const key = langMap[guildData] as keyof typeof element.desc_localized | undefined;
-					return key && element.desc_localized[key]
-						? element.desc_localized[key]
-						: element.desc;
-				  })()
+						const langMap: Record<string, string> = {
+							"fr-FR": "fr",
+							"fr-ME": "fr",
+							"jp-JP": "ja",
+							"ru-RU": "ru",
+							"es-ES": "es-ES"
+						};
+						const key = langMap[guildData] as
+							keyof typeof element.desc_localized | undefined;
+						return key && element.desc_localized[key]
+							? element.desc_localized[key]
+							: element.desc;
+					})()
 				: element.desc;
 
 		const newFieldLength = cmdPrefix.length + descValue.length;
@@ -559,7 +563,7 @@ export const command: Command = {
 					content:
 						"> " +
 						client.iHorizon_Emojis.Search +
-						"  **https://search.ihorizon.org/**"
+						"  **https://www.ihorizon.org/search/**"
 				}
 			);
 

@@ -169,7 +169,7 @@ export const event: BotEvent = {
 						.setEmoji(client.iHorizon_Emojis.Search)
 						.setLabel(lang.guild_create_btn_search)
 						.setStyle(ButtonStyle.Link)
-						.setURL("https://search.ihorizon.org")
+						.setURL("https://www.ihorizon.org/search")
 				);
 			const buttons2 =
 				new ActionRowBuilder<ButtonBuilder>().addComponents(
