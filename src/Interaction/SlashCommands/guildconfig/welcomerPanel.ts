@@ -51,6 +51,7 @@ import { iHorizonModalResolve } from "../../../core/functions/modalHelper.js";
 import { LanguageData } from "../../../../types/languageData.js";
 import { DatabaseStructure } from "../../../../types/database_structure.js";
 import { generateJoinImage } from "../../../Events/guildconfig/joinMessage.js";
+import { metasTable } from "../../../Events/client/ready.js";
 import logger from "../../../core/logger.js";
 
 const COLLECTOR_TIMEOUT = 800_000;
@@ -88,6 +89,12 @@ interface WelcomerPanelState {
 	banner: DatabaseStructure.JoinBannerOptions;
 	bannerState: string;
 	picker: ContextualPicker;
+	joinEmbedId: string | null;
+	leaveEmbedId: string | null;
+	joinTextEnabled: boolean;
+	leaveTextEnabled: boolean;
+	joinUseComponents: boolean;
+	leaveUseComponents: boolean;
 }
 
 const isValidColor = (color: string): boolean =>
@@ -177,6 +184,32 @@ function buildBannerStatusLine(
 
 	return new TextDisplayBuilder().setContent(
 		`### ${lang.setjoinmessage_var_image_card}\n${status}`
+	);
+}
+
+function buildModeBlock(
+	embedId: string | null,
+	textEnabled: boolean,
+	useComponents: boolean,
+	lang: LanguageData
+): TextDisplayBuilder {
+	const embedValue = embedId ? `\`${embedId}\`` : lang.sticky_var_none;
+	const textValue = textEnabled ? lang.var_enabled : lang.var_disabled;
+	const modeValue = embedId
+		? lang.welcomer_render_mode_simple
+		: useComponents
+			? lang.welcomer_render_mode_components
+			: lang.welcomer_render_mode_simple;
+
+	return new TextDisplayBuilder().setContent(
+		[
+			`### ${lang.welcomer_embed_label}`,
+			embedValue,
+			`**${lang.welcomer_text_label}**`,
+			textValue,
+			`**${lang.welcomer_render_mode_label}**`,
+			modeValue
+		].join("\n")
 	);
 }
 
@@ -344,6 +377,26 @@ function buildChannelSelectRow(
 	);
 }
 
+async function safeFollowUp(
+	source:
+		ChannelSelectMenuInteraction<"cached"> | ButtonInteraction<"cached">,
+	options: { content: string }
+): Promise<void> {
+	try {
+		await source.followUp({ ...options, flags: [1 << 6] });
+	} catch (error) {
+		const code = (error as { code?: number })?.code;
+		if (code === 10062 || code === 40060) {
+			logger.debug(
+				"Welcomer panel feedback skipped, interaction expired:",
+				code
+			);
+		} else {
+			logger.err(error);
+		}
+	}
+}
+
 export async function openWelcomerPanel(
 	client: Client,
 	interaction: ChatInputCommandInteraction<"cached"> | Message,
@@ -358,14 +411,26 @@ export async function openWelcomerPanel(
 		storedJoinChannel,
 		storedLeaveChannel,
 		storedBanner,
-		storedBannerState
+		storedBannerState,
+		storedJoinEmbedId,
+		storedLeaveEmbedId,
+		storedJoinTextEnabled,
+		storedLeaveTextEnabled,
+		storedJoinComponentsEnabled,
+		storedLeaveComponentsEnabled
 	] = await Promise.all([
 		client.db.get(`${guildId}.GUILD.GUILD_CONFIG.joinmessage`),
 		client.db.get(`${guildId}.GUILD.GUILD_CONFIG.leavemessage`),
 		client.db.get(`${guildId}.GUILD.GUILD_CONFIG.join`),
 		client.db.get(`${guildId}.GUILD.GUILD_CONFIG.leave`),
 		client.db.get(`${guildId}.GUILD.GUILD_CONFIG.joinbanner`),
-		client.db.get(`${guildId}.GUILD.GUILD_CONFIG.joinbannerStates`)
+		client.db.get(`${guildId}.GUILD.GUILD_CONFIG.joinbannerStates`),
+		client.db.get(`${guildId}.GUILD.GUILD_CONFIG.joinEmbedId`),
+		client.db.get(`${guildId}.GUILD.GUILD_CONFIG.leaveEmbedId`),
+		client.db.get(`${guildId}.GUILD.GUILD_CONFIG.joinTextEnabled`),
+		client.db.get(`${guildId}.GUILD.GUILD_CONFIG.leaveTextEnabled`),
+		client.db.get(`${guildId}.GUILD.GUILD_CONFIG.joinComponentsEnabled`),
+		client.db.get(`${guildId}.GUILD.GUILD_CONFIG.leaveComponentsEnabled`)
 	]);
 
 	const bannerConfig: DatabaseStructure.JoinBannerOptions = {
@@ -400,7 +465,17 @@ export async function openWelcomerPanel(
 		leaveChannel: (storedLeaveChannel as string | undefined) ?? null,
 		banner: bannerConfig,
 		bannerState: (storedBannerState as string | undefined) || "on",
-		picker: null
+		picker: null,
+		joinEmbedId: (storedJoinEmbedId as string | undefined) ?? null,
+		leaveEmbedId: (storedLeaveEmbedId as string | undefined) ?? null,
+		joinTextEnabled:
+			(storedJoinTextEnabled as boolean | undefined) !== false,
+		leaveTextEnabled:
+			(storedLeaveTextEnabled as boolean | undefined) !== false,
+		joinUseComponents:
+			(storedJoinComponentsEnabled as boolean | undefined) !== false,
+		leaveUseComponents:
+			(storedLeaveComponentsEnabled as boolean | undefined) !== false
 	};
 
 	await client.db.set(
@@ -424,6 +499,56 @@ export async function openWelcomerPanel(
 				.setStyle(ButtonStyle.Danger)
 				.setDisabled(disabled)
 		);
+
+	const embedButtons = (
+		kind: "join" | "leave",
+		disabled: boolean
+	): ActionRowBuilder<ButtonBuilder> =>
+		new ActionRowBuilder<ButtonBuilder>().addComponents(
+			new ButtonBuilder()
+				.setCustomId(`welcomer-${kind}-embed-set`)
+				.setLabel(lang.welcomer_embed_set_button)
+				.setStyle(ButtonStyle.Secondary)
+				.setDisabled(disabled),
+			new ButtonBuilder()
+				.setCustomId(`welcomer-${kind}-embed-reset`)
+				.setLabel(lang.welcomer_embed_remove_button)
+				.setStyle(ButtonStyle.Danger)
+				.setDisabled(disabled)
+		);
+
+	const modeToggleButtons = (
+		kind: "join" | "leave",
+		disabled: boolean
+	): ActionRowBuilder<ButtonBuilder> => {
+		const textEnabled =
+			kind === "join" ? state.joinTextEnabled : state.leaveTextEnabled;
+		const useComponents =
+			kind === "join"
+				? state.joinUseComponents
+				: state.leaveUseComponents;
+
+		return new ActionRowBuilder<ButtonBuilder>().addComponents(
+			new ButtonBuilder()
+				.setCustomId(`welcomer-${kind}-text-toggle`)
+				.setLabel(
+					textEnabled
+						? lang.welcomer_text_disable_button
+						: lang.welcomer_text_enable_button
+				)
+				.setStyle(ButtonStyle.Secondary)
+				.setDisabled(disabled),
+			new ButtonBuilder()
+				.setCustomId(`welcomer-${kind}-components-toggle`)
+				.setLabel(
+					useComponents
+						? lang.welcomer_components_disable_button
+						: lang.welcomer_components_enable_button
+				)
+				.setStyle(ButtonStyle.Secondary)
+				.setDisabled(disabled)
+		);
+	};
 
 	async function render(
 		message: Message<true>,
@@ -462,11 +587,19 @@ export async function openWelcomerPanel(
 				),
 				new TextDisplayBuilder().setContent(
 					lang.setjoinmessage_help_embed_desc
+				),
+				buildModeBlock(
+					isJoin ? state.joinEmbedId : state.leaveEmbedId,
+					isJoin ? state.joinTextEnabled : state.leaveTextEnabled,
+					isJoin ? state.joinUseComponents : state.leaveUseComponents,
+					lang
 				)
 			);
 
 			container.addActionRowComponents(
-				messageButtons(state.section, disabled)
+				messageButtons(state.section, disabled),
+				embedButtons(state.section, disabled),
+				modeToggleButtons(state.section, disabled)
 			);
 		}
 
@@ -689,6 +822,97 @@ export async function openWelcomerPanel(
 		await render(message);
 	}
 
+	async function askForEmbed(
+		source: ButtonInteraction<"cached">,
+		kind: "join" | "leave",
+		message: Message<true>
+	): Promise<void> {
+		const isJoin = kind === "join";
+		const modal = await iHorizonModalResolve(
+			{
+				customId: `welcomer-${kind}-embed-modal`,
+				title: lang.welcomer_embed_modal_title,
+				deferUpdate: false,
+				fields: [
+					{
+						customId: `welcomer-${kind}-embed-input`,
+						label: lang.welcomer_embed_modal_label,
+						style: TextInputStyle.Short,
+						required: true,
+						maxLength: 64,
+						minLength: 1
+					}
+				]
+			},
+			source as Interaction
+		);
+
+		if (!modal) return;
+
+		try {
+			const embedId = modal.fields
+				.getTextInputValue(`welcomer-${kind}-embed-input`)
+				.trim();
+
+			const record = (await metasTable.get(`EMBED.${embedId}`)) as {
+				embedSource?: unknown;
+			} | null;
+
+			if (!record?.embedSource) {
+				await modal.reply({
+					content: lang.welcomer_embed_not_found.replace(
+						"${embed_id}",
+						embedId
+					),
+					flags: [1 << 6]
+				});
+				return;
+			}
+
+			await client.db.set(
+				`${guildId}.GUILD.GUILD_CONFIG.${isJoin ? "joinEmbedId" : "leaveEmbedId"}`,
+				embedId
+			);
+
+			if (isJoin) state.joinEmbedId = embedId;
+			else state.leaveEmbedId = embedId;
+
+			await modal.reply({
+				content: lang.welcomer_embed_set_ok.replace(
+					"${embed_id}",
+					embedId
+				),
+				flags: [1 << 6]
+			});
+
+			await render(message);
+		} catch (error) {
+			logger.err(error);
+		}
+	}
+
+	async function resetEmbed(
+		source: ButtonInteraction<"cached">,
+		kind: "join" | "leave",
+		message: Message<true>
+	): Promise<void> {
+		const isJoin = kind === "join";
+
+		await client.db.delete(
+			`${guildId}.GUILD.GUILD_CONFIG.${isJoin ? "joinEmbedId" : "leaveEmbedId"}`
+		);
+
+		if (isJoin) state.joinEmbedId = null;
+		else state.leaveEmbedId = null;
+
+		await source.reply({
+			content: lang.welcomer_embed_removed_ok,
+			flags: [1 << 6]
+		});
+
+		await render(message);
+	}
+
 	async function saveBanner(): Promise<void> {
 		await client.db.set(
 			`${guildId}.GUILD.GUILD_CONFIG.joinbanner`,
@@ -831,6 +1055,7 @@ export async function openWelcomerPanel(
 		message: Message<true>
 	): Promise<void> {
 		const isJoin = kind === "join";
+		await source.deferUpdate().catch(() => null);
 		const channelId = source.channels.first()?.id;
 
 		const channel =
@@ -840,12 +1065,11 @@ export async function openWelcomerPanel(
 				.catch(() => null));
 
 		if (!(channel instanceof TextChannel)) {
-			await source.reply({
+			await safeFollowUp(source, {
 				content: lang.setchannels_not_a_text_channel.replace(
 					"${client.iHorizon_Emojis.Warning_Icon}",
 					client.iHorizon_Emojis.Warning_Icon
-				),
-				flags: [1 << 6]
+				)
 			});
 			return;
 		}
@@ -853,11 +1077,10 @@ export async function openWelcomerPanel(
 		const current = isJoin ? state.joinChannel : state.leaveChannel;
 
 		if (current === channelId) {
-			await source.reply({
+			await safeFollowUp(source, {
 				content: isJoin
 					? lang.setchannels_already_this_channel_on_join
-					: lang.setchannels_already_this_channel_on_leave,
-				flags: [1 << 6]
+					: lang.setchannels_already_this_channel_on_leave
 			});
 			return;
 		}
@@ -899,21 +1122,19 @@ export async function openWelcomerPanel(
 					.replace(/\${interaction\.user\.id}/g, authorId)
 			});
 
-			await source.reply({
+			await safeFollowUp(source, {
 				content: (isJoin
 					? lang.setchannels_command_work_on_join
 					: lang.setchannels_command_work_on_leave
-				).replace(/\${argsid\.id}/g, channelId as string),
-				flags: [1 << 6]
+				).replace(/\${argsid\.id}/g, channelId as string)
 			});
 
 			await render(message);
 		} catch {
-			await source.reply({
+			await safeFollowUp(source, {
 				content: isJoin
 					? lang.setchannels_command_error_on_join
-					: lang.setchannels_command_error_on_leave,
-				flags: [1 << 6]
+					: lang.setchannels_command_error_on_leave
 			});
 		}
 	}
@@ -922,6 +1143,7 @@ export async function openWelcomerPanel(
 		source: ButtonInteraction<"cached">,
 		message: Message<true>
 	): Promise<void> {
+		await source.deferUpdate().catch(() => null);
 		await client.func.ihorizon_logs(interaction, {
 			title: lang.setchannels_logs_embed_title_on_off,
 			description: lang.setchannels_logs_embed_description_on_off.replace(
@@ -931,9 +1153,8 @@ export async function openWelcomerPanel(
 		});
 
 		if (!state.joinChannel && !state.leaveChannel) {
-			await source.reply({
-				content: lang.setchannels_already_on_off,
-				flags: [1 << 6]
+			await safeFollowUp(source, {
+				content: lang.setchannels_already_on_off
 			});
 			return;
 		}
@@ -944,9 +1165,8 @@ export async function openWelcomerPanel(
 		state.joinChannel = null;
 		state.leaveChannel = null;
 
-		await source.reply({
-			content: lang.setchannels_command_work_on_off,
-			flags: [1 << 6]
+		await safeFollowUp(source, {
+			content: lang.setchannels_command_work_on_off
 		});
 
 		await render(message);
@@ -1077,6 +1297,62 @@ export async function openWelcomerPanel(
 					}
 					case "welcomer-leave-reset": {
 						await resetMessage(source, "leave", placeholder);
+						break;
+					}
+					case "welcomer-join-embed-set": {
+						await askForEmbed(source, "join", placeholder);
+						break;
+					}
+					case "welcomer-join-embed-reset": {
+						await resetEmbed(source, "join", placeholder);
+						break;
+					}
+					case "welcomer-leave-embed-set": {
+						await askForEmbed(source, "leave", placeholder);
+						break;
+					}
+					case "welcomer-leave-embed-reset": {
+						await resetEmbed(source, "leave", placeholder);
+						break;
+					}
+					case "welcomer-join-text-toggle": {
+						await source.deferUpdate();
+						state.joinTextEnabled = !state.joinTextEnabled;
+						await client.db.set(
+							`${guildId}.GUILD.GUILD_CONFIG.joinTextEnabled`,
+							state.joinTextEnabled
+						);
+						await render(placeholder);
+						break;
+					}
+					case "welcomer-leave-text-toggle": {
+						await source.deferUpdate();
+						state.leaveTextEnabled = !state.leaveTextEnabled;
+						await client.db.set(
+							`${guildId}.GUILD.GUILD_CONFIG.leaveTextEnabled`,
+							state.leaveTextEnabled
+						);
+						await render(placeholder);
+						break;
+					}
+					case "welcomer-join-components-toggle": {
+						await source.deferUpdate();
+						state.joinUseComponents = !state.joinUseComponents;
+						await client.db.set(
+							`${guildId}.GUILD.GUILD_CONFIG.joinComponentsEnabled`,
+							state.joinUseComponents
+						);
+						await render(placeholder);
+						break;
+					}
+					case "welcomer-leave-components-toggle": {
+						await source.deferUpdate();
+						state.leaveUseComponents = !state.leaveUseComponents;
+						await client.db.set(
+							`${guildId}.GUILD.GUILD_CONFIG.leaveComponentsEnabled`,
+							state.leaveUseComponents
+						);
+						await render(placeholder);
 						break;
 					}
 					case "welcomer-channels-reset": {

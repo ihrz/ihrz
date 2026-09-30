@@ -39,9 +39,23 @@ export function assetsFinder(body: Assets, type: string): string {
 }
 
 export function HorizonGateway(gateway_method: GatewayMethod): string {
-	let data = client.config.api.HorizonGateway;
+	return buildGatewayUrl(client.config.api.HorizonGateway, gateway_method);
+}
 
-	if (!data) throw "Error: HorizonGateway empty in the configurations files";
+export function HorizonGatewayInternal(gateway_method: GatewayMethod): string {
+	const local = client.config.api.HorizonGatewayLocal;
+
+	if (local) return buildGatewayUrl(local, gateway_method);
+	return HorizonGateway(gateway_method);
+}
+
+function buildGatewayUrl(
+	base: string | undefined,
+	gateway_method: GatewayMethod
+): string {
+	if (!base) throw "Error: HorizonGateway empty in the configurations files";
+
+	let data = base.replace(/\/+$/, "");
 
 	switch (gateway_method) {
 		case 0:

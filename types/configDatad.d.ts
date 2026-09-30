@@ -119,6 +119,11 @@ export interface ConfigData {
 		 */
 		HorizonGateway?: string;
 		/**
+		 * @default "http://127.0.0.1:31981"
+		 * @description Optional local Horizon Gateway URL, used for bot-to-gateway calls on the same machine. Bypasses reverse proxies (Cloudflare, ...) and their body limits. User-facing links always keep using HorizonGateway.
+		 */
+		HorizonGatewayLocal?: string;
+		/**
 		 * @deprecated not used anymore in the codebase
 		 */
 		useHttps?: boolean;

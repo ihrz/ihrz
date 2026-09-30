@@ -426,7 +426,7 @@ export const subCommand: SubCommand = {
 			try {
 				if (client.config.api.HorizonGateway?.startsWith("http")) {
 					const result = await axios.post(
-						apiUrlParser.HorizonGateway(
+						apiUrlParser.HorizonGatewayInternal(
 							apiUrlParser.GatewayMethod.UserInfo
 						),
 						{

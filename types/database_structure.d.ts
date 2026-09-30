@@ -536,6 +536,12 @@ export namespace DatabaseStructure {
 		joindm?: string;
 		joinroles?: string | string[];
 		leavemessage?: string;
+		joinEmbedId?: string | null;
+		leaveEmbedId?: string | null;
+		joinTextEnabled?: boolean;
+		leaveTextEnabled?: boolean;
+		joinComponentsEnabled?: boolean;
+		leaveComponentsEnabled?: boolean;
 		mass_mention?: string;
 		antipub?: string;
 		spam?: string;

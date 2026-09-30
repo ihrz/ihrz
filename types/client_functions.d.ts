@@ -203,6 +203,9 @@ declare namespace Client_Functions {
 	export namespace apiUrlParser {
 		export function assetsFinder(body: Assets, type: string): string;
 		export function HorizonGateway(gateway_method: GatewayMethod): string;
+		export function HorizonGatewayInternal(
+			gateway_method: GatewayMethod
+		): string;
 	}
 
 	// From awaitingResponse.ts
@@ -475,17 +478,24 @@ declare namespace Client_Functions {
 		): string | undefined;
 	}
 
+	// From welcomerEmbed.ts
+	export function welcomerEmbed(
+		embedId: string | null | undefined,
+		variables: WelcomerEmbedVariables
+	): Promise<APIEmbed | null>;
+
+	// From html2png.ts
+	export function html2png(
+		code: string,
+		options: Html2PngOptions,
+		assets: Array<Html2PngAsset>
+	): Promise<Buffer<ArrayBufferLike>>;
+
 	// From sanitizeInteractionOptionValue.ts
 	export function sanitizeInteractionOptionValue(
 		optionName: string,
 		optionValue: unknown
 	): string;
-
-	// From html2png.ts
-	export function html2png(
-		code: string,
-		options: Html2PngOptions
-	): Promise<Buffer<ArrayBufferLike>>;
 
 	// From prefix.ts
 	export namespace prefix {
@@ -960,13 +970,15 @@ declare namespace Client_Functions {
 		channel: BaseGuildTextChannel,
 		member: GuildMember,
 		options: {
-			message: string;
+			message?: string | null;
+			embed?: APIEmbed | null;
+			useComponents?: boolean;
 			accentColor: number;
 			avatarAttachmentName: string;
 			bannerImage?: Buffer;
 			bannerAttachmentName?: string;
 		}
-	): Promise<Message<boolean>>;
+	): Promise<Message<boolean> | null>;
 }
 
 export { Client_Functions };

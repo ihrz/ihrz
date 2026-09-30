@@ -20,6 +20,7 @@
 */
 
 import {
+	APIEmbed,
 	AttachmentBuilder,
 	BaseGuildTextChannel,
 	ContainerBuilder,
@@ -37,21 +38,48 @@ export default async function welcomerMessage(
 	channel: BaseGuildTextChannel,
 	member: GuildMember,
 	options: {
-		message: string;
+		message?: string | null;
+		embed?: APIEmbed | null;
+		useComponents?: boolean;
 		accentColor: number;
 		avatarAttachmentName: string;
 		bannerImage?: Buffer;
 		bannerAttachmentName?: string;
 	}
-): Promise<Message> {
-	let thumbnailURL = member.displayAvatarURL({ size: 256 });
-	const files: AttachmentBuilder[] = [];
+): Promise<Message | null> {
+	const embed = options.embed ?? null;
+	// Legacy embeds cannot be mixed with Components V2 in the same payload.
+	const useComponents = embed ? false : (options.useComponents ?? true);
 	const bannerName = options.bannerAttachmentName ?? "image.png";
 	const hasBanner = !!options.bannerImage;
 
-	if (options.bannerImage) {
+	if (!useComponents) {
+		const files: AttachmentBuilder[] = [];
+
+		if (hasBanner) {
+			files.push(
+				new AttachmentBuilder(options.bannerImage!, {
+					name: bannerName
+				})
+			);
+		}
+
+		if (!options.message && !embed && !hasBanner) return null;
+
+		return await member.client.func.method.channelSend(channel, {
+			content: options.message || undefined,
+			embeds: embed ? [embed] : undefined,
+			files: files.length > 0 ? files : undefined,
+			allowedMentions: { parse: [], repliedUser: false }
+		});
+	}
+
+	let thumbnailURL = member.displayAvatarURL({ size: 256 });
+	const files: AttachmentBuilder[] = [];
+
+	if (hasBanner) {
 		files.push(
-			new AttachmentBuilder(options.bannerImage, { name: bannerName })
+			new AttachmentBuilder(options.bannerImage!, { name: bannerName })
 		);
 	}
 
@@ -75,12 +103,14 @@ export default async function welcomerMessage(
 		// Fallback to CDN URL below
 	}
 
+	if (!options.message && !hasBanner) return null;
+
 	const container = new ContainerBuilder()
 		.setAccentColor(options.accentColor)
 		.addSectionComponents(
 			new SectionBuilder()
 				.addTextDisplayComponents(
-					new TextDisplayBuilder().setContent(options.message)
+					new TextDisplayBuilder().setContent(options.message || "")
 				)
 				.setThumbnailAccessory(
 					new ThumbnailBuilder().setURL(thumbnailURL)
