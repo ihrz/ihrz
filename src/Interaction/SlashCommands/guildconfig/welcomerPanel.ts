@@ -872,10 +872,11 @@ export async function openWelcomerPanel(
 
 			if (!targetChannel) throw new Error("Channel not found");
 
-			await targetChannel.send({
+			await client.func.method.channelSend(targetChannel, {
 				content: isJoin
 					? lang.setchannels_confirmation_message_on_join
-					: lang.setchannels_confirmation_message_on_leave
+					: lang.setchannels_confirmation_message_on_leave,
+				allowedMentions: { parse: [], repliedUser: false }
 			});
 
 			await client.db.set(
