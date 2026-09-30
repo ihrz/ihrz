@@ -83,39 +83,43 @@ export default async function welcomerMessage(
 		);
 	}
 
-	try {
-		const avatarBuffer = await member.client.func.image64.image64(
-			member.displayAvatarURL({
-				size: 256,
-				extension: "png",
-				forceStatic: true
-			})
-		);
-		if (avatarBuffer) {
-			files.push(
-				new AttachmentBuilder(avatarBuffer, {
-					name: options.avatarAttachmentName
-				})
-			);
-			thumbnailURL = `attachment://${options.avatarAttachmentName}`;
-		}
-	} catch {
-		// Fallback to CDN URL below
-	}
-
 	if (!options.message && !hasBanner) return null;
 
-	const container = new ContainerBuilder()
-		.setAccentColor(options.accentColor)
-		.addSectionComponents(
+	const container = new ContainerBuilder().setAccentColor(
+		options.accentColor
+	);
+
+	if (options.message) {
+		try {
+			const avatarBuffer = await member.client.func.image64.image64(
+				member.displayAvatarURL({
+					size: 256,
+					extension: "png",
+					forceStatic: true
+				})
+			);
+			if (avatarBuffer) {
+				files.push(
+					new AttachmentBuilder(avatarBuffer, {
+						name: options.avatarAttachmentName
+					})
+				);
+				thumbnailURL = `attachment://${options.avatarAttachmentName}`;
+			}
+		} catch {
+			// Fallback to CDN URL below
+		}
+
+		container.addSectionComponents(
 			new SectionBuilder()
 				.addTextDisplayComponents(
-					new TextDisplayBuilder().setContent(options.message || "")
+					new TextDisplayBuilder().setContent(options.message)
 				)
 				.setThumbnailAccessory(
 					new ThumbnailBuilder().setURL(thumbnailURL)
 				)
 		);
+	}
 
 	if (hasBanner) {
 		container.addMediaGalleryComponents(

@@ -31,13 +31,20 @@ import {
 	ChannelType,
 	ChatInputCommandInteraction,
 	Client,
+	ComponentType,
 	ContainerBuilder,
+	EmbedBuilder,
 	GuildMember,
 	Interaction,
 	MediaGalleryBuilder,
 	MediaGalleryItemBuilder,
 	Message,
 	MessageFlags,
+	PermissionFlagsBits,
+	PermissionsBitField,
+	Role,
+	RoleSelectMenuBuilder,
+	RoleSelectMenuInteraction,
 	SeparatorBuilder,
 	SeparatorSpacingSize,
 	StringSelectMenuBuilder,
@@ -67,7 +74,8 @@ const DEFAULT_IMAGE_CONFIG = {
 	avatarSize: "140px"
 };
 
-type WelcomerSection = "join" | "leave" | "channels" | "banner";
+type WelcomerSection =
+	"join" | "leave" | "dm" | "roles" | "channels" | "banner";
 
 type BannerPropAction =
 	| "change_background"
@@ -84,6 +92,9 @@ interface WelcomerPanelState {
 	section: WelcomerSection;
 	joinMessage: string | null;
 	leaveMessage: string | null;
+	joinDm: string | null;
+	joinRoles: string[];
+	confirmedDangerousRoles: Set<string>;
 	joinChannel: string | null;
 	leaveChannel: string | null;
 	banner: DatabaseStructure.JoinBannerOptions;
@@ -117,6 +128,8 @@ function buildSectionSelectRow(lang: LanguageData, current: WelcomerSection) {
 		.addOptions(
 			option(lang.guildprofil_embed_fields_joinmessage, "join"),
 			option(lang.guildprofil_embed_fields_leavemessage, "leave"),
+			option(lang.guildprofil_embed_fields_joinDmMessage, "dm"),
+			option(lang.guildprofil_embed_fields_joinroles, "roles"),
 			option(lang.welcomer_section_channels, "channels"),
 			option(lang.setjoinmessage_var_image_card, "banner")
 		);
@@ -351,6 +364,10 @@ function sectionTitle(lang: LanguageData, section: WelcomerSection): string {
 	switch (section) {
 		case "leave":
 			return lang.guildprofil_embed_fields_leavemessage;
+		case "dm":
+			return lang.guildprofil_embed_fields_joinDmMessage;
+		case "roles":
+			return lang.guildprofil_embed_fields_joinroles;
 		case "channels":
 			return lang.welcomer_section_channels;
 		case "banner":
@@ -379,8 +396,14 @@ function buildChannelSelectRow(
 
 async function safeFollowUp(
 	source:
-		ChannelSelectMenuInteraction<"cached"> | ButtonInteraction<"cached">,
-	options: { content: string }
+		| ChannelSelectMenuInteraction<"cached">
+		| ButtonInteraction<"cached">
+		| RoleSelectMenuInteraction<"cached">,
+	options: {
+		content?: string;
+		embeds?: EmbedBuilder[];
+		components?: ActionRowBuilder<ButtonBuilder>[];
+	}
 ): Promise<void> {
 	try {
 		await source.followUp({ ...options, flags: [1 << 6] });
@@ -408,6 +431,8 @@ export async function openWelcomerPanel(
 	const [
 		storedJoin,
 		storedLeave,
+		storedJoinDm,
+		storedJoinRoles,
 		storedJoinChannel,
 		storedLeaveChannel,
 		storedBanner,
@@ -421,6 +446,8 @@ export async function openWelcomerPanel(
 	] = await Promise.all([
 		client.db.get(`${guildId}.GUILD.GUILD_CONFIG.joinmessage`),
 		client.db.get(`${guildId}.GUILD.GUILD_CONFIG.leavemessage`),
+		client.db.get(`${guildId}.GUILD.GUILD_CONFIG.joindm`),
+		client.db.get(`${guildId}.GUILD.GUILD_CONFIG.joinroles`),
 		client.db.get(`${guildId}.GUILD.GUILD_CONFIG.join`),
 		client.db.get(`${guildId}.GUILD.GUILD_CONFIG.leave`),
 		client.db.get(`${guildId}.GUILD.GUILD_CONFIG.joinbanner`),
@@ -461,6 +488,14 @@ export async function openWelcomerPanel(
 			(storedJoin as string | undefined)?.substring(0, 1010) ?? null,
 		leaveMessage:
 			(storedLeave as string | undefined)?.substring(0, 1010) ?? null,
+		joinDm:
+			(storedJoinDm as string | undefined)?.substring(0, 1010) ?? null,
+		joinRoles: Array.isArray(storedJoinRoles)
+			? (storedJoinRoles as string[])
+			: typeof storedJoinRoles === "string"
+				? [storedJoinRoles as string]
+				: [],
+		confirmedDangerousRoles: new Set<string>(),
 		joinChannel: (storedJoinChannel as string | undefined) ?? null,
 		leaveChannel: (storedLeaveChannel as string | undefined) ?? null,
 		banner: bannerConfig,
@@ -601,6 +636,71 @@ export async function openWelcomerPanel(
 				embedButtons(state.section, disabled),
 				modeToggleButtons(state.section, disabled)
 			);
+		}
+
+		if (state.section === "dm") {
+			container.addTextDisplayComponents(
+				buildMessageBlock(
+					lang.guildprofil_embed_fields_joinDmMessage,
+					state.joinDm,
+					lang.setjoinmessage_help_embed_fields_custom_name_empy,
+					lang
+				),
+				new TextDisplayBuilder().setContent(
+					lang.setjoindm_help_embed_desc
+				)
+			);
+
+			container.addActionRowComponents(
+				new ActionRowBuilder<ButtonBuilder>().addComponents(
+					new ButtonBuilder()
+						.setCustomId("welcomer-dm-set")
+						.setLabel(lang.setjoindm_buttom_set_name)
+						.setStyle(ButtonStyle.Primary)
+						.setDisabled(disabled),
+					new ButtonBuilder()
+						.setCustomId("welcomer-dm-reset")
+						.setLabel(lang.setjoindm_buttom_delete_name)
+						.setStyle(ButtonStyle.Danger)
+						.setDisabled(disabled)
+				)
+			);
+		}
+
+		if (state.section === "roles") {
+			const rolesValue =
+				state.joinRoles.length > 0
+					? state.joinRoles.map((id) => `<@&${id}>`).join(", ")
+					: lang.setjoinroles_var_none;
+
+			container.addTextDisplayComponents(
+				new TextDisplayBuilder().setContent(
+					[
+						`### ${lang.guildprofil_embed_fields_joinroles}`,
+						rolesValue
+					].join("\n")
+				),
+				new TextDisplayBuilder().setContent(
+					lang.setjoinroles_help_embed_description
+				)
+			);
+
+			if (!disabled) {
+				const roleSelect = new RoleSelectMenuBuilder()
+					.setCustomId("welcomer-roles-pick")
+					.setMaxValues(8)
+					.setMinValues(0);
+
+				if (state.joinRoles.length > 0) {
+					roleSelect.setDefaultRoles(state.joinRoles);
+				}
+
+				container.addActionRowComponents(
+					new ActionRowBuilder<RoleSelectMenuBuilder>().addComponents(
+						roleSelect
+					)
+				);
+			}
 		}
 
 		if (state.section === "channels") {
@@ -911,6 +1011,291 @@ export async function openWelcomerPanel(
 		});
 
 		await render(message);
+	}
+
+	async function askForDm(
+		source: ButtonInteraction<"cached">,
+		message: Message<true>
+	): Promise<string | null> {
+		const modal = await iHorizonModalResolve(
+			{
+				customId: "welcomer-dm-modal",
+				title: lang.setjoindm_awaiting_response,
+				deferUpdate: false,
+				fields: [
+					{
+						customId: "welcomer-dm-input",
+						label: lang.guildprofil_embed_fields_joinDmMessage,
+						style: TextInputStyle.Paragraph,
+						required: true,
+						maxLength: 1010,
+						minLength: 2
+					}
+				]
+			},
+			source as Interaction
+		);
+
+		if (!modal) return null;
+
+		try {
+			const response =
+				modal.fields.getTextInputValue("welcomer-dm-input");
+
+			await client.db.set(
+				`${guildId}.GUILD.GUILD_CONFIG.joindm`,
+				response
+			);
+
+			await modal.reply({
+				content: lang.setjoindm_confirmation_message_on_enable.replace(
+					/\${dm_msg}/g,
+					response
+				),
+				flags: [1 << 6]
+			});
+
+			await client.func.ihorizon_logs(interaction, {
+				title: lang.setjoindm_logs_embed_title_on_enable,
+				description:
+					lang.setjoindm_logs_embed_description_on_enable.replace(
+						"${interaction.user.id}",
+						authorId
+					)
+			});
+
+			return response;
+		} catch (error) {
+			logger.err(error);
+			return null;
+		}
+	}
+
+	async function resetDm(
+		source: ButtonInteraction<"cached">,
+		message: Message<true>
+	): Promise<void> {
+		if (!state.joinDm) {
+			await source.reply({
+				content: lang.setjoindm_already_disable,
+				flags: [1 << 6]
+			});
+			return;
+		}
+
+		await client.db.delete(`${guildId}.GUILD.GUILD_CONFIG.joindm`);
+
+		state.joinDm = null;
+
+		await source.reply({
+			content: lang.setjoindm_confirmation_message_on_disable,
+			flags: [1 << 6]
+		});
+
+		await client.func.ihorizon_logs(interaction, {
+			title: lang.setjoindm_logs_embed_title_on_disable,
+			description:
+				lang.setjoindm_logs_embed_description_on_disable.replace(
+					"${interaction.user.id}",
+					authorId
+				)
+		});
+
+		await render(message);
+	}
+
+	async function saveRoles(
+		source:
+			RoleSelectMenuInteraction<"cached"> | ButtonInteraction<"cached">,
+		roleIds: string[],
+		warnHighRoles: Role[],
+		message: Message<true>
+	): Promise<void> {
+		await client.db.set(`${guildId}.GUILD.GUILD_CONFIG.joinroles`, roleIds);
+
+		state.joinRoles = roleIds;
+
+		await client.func.ihorizon_logs(interaction, {
+			title: lang.setjoinroles_logs_embed_title_on_enable,
+			description:
+				lang.setjoinroles_logs_embed_description_on_enable.replace(
+					"${interaction.user.id}",
+					authorId
+				)
+		});
+
+		if (warnHighRoles.length > 0) {
+			await safeFollowUp(source, {
+				embeds: [
+					new EmbedBuilder()
+						.setTitle(lang.setjoinroles_warn_title)
+						.setDescription(lang.setjoinroles_too_highter_roles)
+						.addFields(
+							warnHighRoles.map((role) => ({
+								name: `@${role.name} (${role.id})`,
+								value: `<@&${role.id}>: \`${role.position}\` vs ${client.user?.toString()}: \`${interaction.guild?.members.me?.roles.highest.position}\``
+							}))
+						)
+				]
+			});
+		}
+
+		await render(message);
+	}
+
+	async function askDangerousConfirm(
+		source: RoleSelectMenuInteraction<"cached">,
+		dangerous: { id: string; name: string; permissions: string[] }[],
+		picked: string[],
+		tooHigh: Role[],
+		message: Message<true>
+	): Promise<void> {
+		const confirmRow = new ActionRowBuilder<ButtonBuilder>().addComponents(
+			new ButtonBuilder()
+				.setCustomId("welcomer-dangerous-yes")
+				.setStyle(ButtonStyle.Danger)
+				.setLabel(lang.var_yes),
+			new ButtonBuilder()
+				.setCustomId("welcomer-dangerous-no")
+				.setStyle(ButtonStyle.Secondary)
+				.setLabel(lang.var_no)
+		);
+
+		const doneRow = (label: string) =>
+			new ActionRowBuilder<ButtonBuilder>().addComponents(
+				new ButtonBuilder()
+					.setCustomId("welcomer-dangerous-done")
+					.setStyle(ButtonStyle.Secondary)
+					.setLabel(label)
+					.setDisabled(true)
+			);
+
+		const warnMsg = await source.reply({
+			embeds: [
+				new EmbedBuilder()
+					.setTitle(lang.setjoinroles_warn_title)
+					.setDescription(lang.setjoinroles_warn_dangerous_perm)
+					.addFields(
+						dangerous.map((role) => ({
+							name: `@${role.name} (${role.id})`,
+							value: role.permissions
+								.map((perm) => `\`${perm}\``)
+								.join(", ")
+						}))
+					)
+			],
+			components: [confirmRow],
+			flags: [1 << 6]
+		});
+
+		try {
+			const confirm = await (
+				interaction.channel as BaseGuildTextChannel
+			)?.awaitMessageComponent({
+				componentType: ComponentType.Button,
+				time: 20_000,
+				filter: (i) =>
+					i.user.id === authorId &&
+					(i.customId === "welcomer-dangerous-yes" ||
+						i.customId === "welcomer-dangerous-no")
+			});
+
+			if (!confirm) throw new Error("No confirmation");
+
+			await confirm.deferUpdate();
+
+			if (confirm.customId === "welcomer-dangerous-yes") {
+				for (const role of dangerous)
+					state.confirmedDangerousRoles.add(role.id);
+				confirmRow.components.forEach((x) => x.setDisabled(true));
+				await warnMsg
+					.edit({ components: [confirmRow] })
+					.catch(() => null);
+				await saveRoles(source, picked, tooHigh, message);
+			} else {
+				await warnMsg
+					.edit({
+						components: [doneRow(lang.setjoinroles_action_canceled)]
+					})
+					.catch(() => null);
+				await render(message);
+			}
+		} catch {
+			await warnMsg
+				.edit({
+					components: [doneRow(lang.setjoinroles_timesup_button)]
+				})
+				.catch(() => null);
+			await render(message);
+		}
+	}
+
+	async function handleRolesPick(
+		source: RoleSelectMenuInteraction<"cached">,
+		message: Message<true>
+	): Promise<void> {
+		if (
+			!source.guild?.members.me?.permissions.has(
+				PermissionFlagsBits.ManageRoles
+			)
+		) {
+			await source.reply({
+				content: lang.setjoinroles_var_perm_issue,
+				flags: [1 << 6]
+			});
+			return;
+		}
+
+		const picked: string[] = [];
+		const dangerous: { id: string; name: string; permissions: string[] }[] =
+			[];
+		const tooHigh: Role[] = [];
+
+		for (const role of source.roles.values()) {
+			const full = role as Role;
+			picked.push(full.id);
+
+			const rolePermissions = new PermissionsBitField(full.permissions);
+			const dangerousNames: string[] = [];
+			for (const perm of client.func.method.getDangerousPermissions(
+				lang
+			)) {
+				if (rolePermissions.has(perm.flag))
+					dangerousNames.push(perm.name);
+			}
+
+			if (
+				dangerousNames.length > 0 &&
+				!state.confirmedDangerousRoles.has(full.id)
+			) {
+				dangerous.push({
+					id: full.id,
+					name: full.name,
+					permissions: dangerousNames
+				});
+			}
+
+			if (
+				(interaction.guild?.members.me?.roles.highest.position ?? 0) <=
+				full.position
+			) {
+				tooHigh.push(full);
+			}
+		}
+
+		if (dangerous.length > 0) {
+			await askDangerousConfirm(
+				source,
+				dangerous,
+				picked,
+				tooHigh,
+				message
+			);
+			return;
+		}
+
+		await source.deferUpdate().catch(() => null);
+		await saveRoles(source, picked, tooHigh, message);
 	}
 
 	async function saveBanner(): Promise<void> {
@@ -1269,6 +1654,15 @@ export async function openWelcomerPanel(
 				}
 			}
 
+			if (collected.isRoleSelectMenu()) {
+				const source = collected as RoleSelectMenuInteraction<"cached">;
+
+				if (source.customId === "welcomer-roles-pick") {
+					await handleRolesPick(source, placeholder);
+					return;
+				}
+			}
+
 			if (collected.isButton()) {
 				const source = collected as ButtonInteraction<"cached">;
 
@@ -1297,6 +1691,19 @@ export async function openWelcomerPanel(
 					}
 					case "welcomer-leave-reset": {
 						await resetMessage(source, "leave", placeholder);
+						break;
+					}
+					case "welcomer-dm-set": {
+						const response = await askForDm(source, placeholder);
+
+						if (response) {
+							state.joinDm = response;
+							await render(placeholder);
+						}
+						break;
+					}
+					case "welcomer-dm-reset": {
+						await resetDm(source, placeholder);
 						break;
 					}
 					case "welcomer-join-embed-set": {
