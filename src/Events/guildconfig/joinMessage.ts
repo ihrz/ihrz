@@ -20,22 +20,14 @@
 */
 
 import {
-	AttachmentBuilder,
 	BaseGuildTextChannel,
 	Client,
 	Collection,
-	ContainerBuilder,
 	Guild,
 	GuildFeature,
 	GuildMember,
 	Invite,
-	MediaGalleryBuilder,
-	MediaGalleryItemBuilder,
-	MessageFlags,
 	PermissionsBitField,
-	SectionBuilder,
-	TextDisplayBuilder,
-	ThumbnailBuilder,
 	Vanity
 } from "discord.js";
 import { BotEvent } from "../../../types/event.js";
@@ -74,7 +66,7 @@ function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T | null> {
 export async function generateJoinImage(
 	member: GuildMember,
 	ImageBannerOptions?: DatabaseStructure.JoinBannerOptions
-): Promise<AttachmentBuilder> {
+): Promise<Buffer> {
 	let htmlContent = member.client.htmlfiles["guildconfigWelcomeCart"];
 
 	let backgroundURL =
@@ -120,8 +112,23 @@ export async function generateJoinImage(
 		}
 	}
 
+	let avatarURL = member.displayAvatarURL({
+		size: 512,
+		extension: "png",
+		forceStatic: true
+	});
+	try {
+		const avatarBuffer =
+			await member.client.func.image64.image64(avatarURL);
+		if (avatarBuffer) {
+			avatarURL = `data:image/png;base64,${avatarBuffer.toString("base64")}`;
+		}
+	} catch {
+		// Fallback to CDN URL
+	}
+
 	htmlContent = htmlContent
-		.replaceAll("USERLOGO", member.displayAvatarURL({ size: 512 }))
+		.replaceAll("USERLOGO", avatarURL)
 		.replaceAll(
 			"USERNAME",
 			member.user.globalName || member.user.displayName
@@ -149,7 +156,7 @@ export async function generateJoinImage(
 		omitBackground: false,
 		selectElement: false
 	});
-	return new AttachmentBuilder(image, { name: "image.png" });
+	return image;
 }
 
 export async function resolveInvite(
@@ -214,42 +221,8 @@ async function recordInviterStats(
 }
 
 const WELCOME_ACCENT_COLOR = 0x57f287;
-const BANNER_ATTACHMENT_URL = "attachment://image.png";
-
-async function sendWelcomeMessage(
-	channel: BaseGuildTextChannel,
-	member: GuildMember,
-	msg: string,
-	files: AttachmentBuilder[]
-): Promise<void> {
-	const container = new ContainerBuilder()
-		.setAccentColor(WELCOME_ACCENT_COLOR)
-		.addSectionComponents(
-			new SectionBuilder()
-				.addTextDisplayComponents(
-					new TextDisplayBuilder().setContent(msg)
-				)
-				.setThumbnailAccessory(
-					new ThumbnailBuilder().setURL(
-						member.displayAvatarURL({ size: 256 })
-					)
-				)
-		);
-
-	if (files.length > 0) {
-		container.addMediaGalleryComponents(
-			new MediaGalleryBuilder().addItems(
-				new MediaGalleryItemBuilder().setURL(BANNER_ATTACHMENT_URL)
-			)
-		);
-	}
-
-	await member.client.func.method.channelSend(channel, {
-		components: [container],
-		files,
-		flags: [MessageFlags.IsComponentsV2]
-	});
-}
+const WELCOME_AVATAR_ATTACHMENT_NAME = "welcomer-avatar.png";
+const WELCOME_BANNER_ATTACHMENT_NAME = "image.png";
 
 export const event: BotEvent = {
 	name: "guildMemberAdd",
@@ -330,11 +303,12 @@ export const event: BotEvent = {
 
 			if (!channel) return;
 
-			const files: AttachmentBuilder[] = [];
+			let bannerImage: Buffer | undefined;
 			if (ImageBannerStates === "on") {
 				try {
-					files.push(
-						await generateJoinImage(member, JoinBannerOptions)
+					bannerImage = await generateJoinImage(
+						member,
+						JoinBannerOptions
 					);
 				} catch (e) {
 					logger.err(member.guild.name, "Join image error: " + e);
@@ -387,11 +361,16 @@ export const event: BotEvent = {
 					}
 				);
 
-				await sendWelcomeMessage(
+				await member.client.func.welcomerMessage(
 					channel as BaseGuildTextChannel,
 					member,
-					msg,
-					files
+					{
+						message: msg,
+						accentColor: WELCOME_ACCENT_COLOR,
+						avatarAttachmentName: WELCOME_AVATAR_ATTACHMENT_NAME,
+						bannerImage,
+						bannerAttachmentName: WELCOME_BANNER_ATTACHMENT_NAME
+					}
 				);
 				return;
 			}
@@ -434,11 +413,16 @@ export const event: BotEvent = {
 					);
 				}
 
-				await sendWelcomeMessage(
+				await member.client.func.welcomerMessage(
 					channel as BaseGuildTextChannel,
 					member,
-					msg,
-					files
+					{
+						message: msg,
+						accentColor: WELCOME_ACCENT_COLOR,
+						avatarAttachmentName: WELCOME_AVATAR_ATTACHMENT_NAME,
+						bannerImage,
+						bannerAttachmentName: WELCOME_BANNER_ATTACHMENT_NAME
+					}
 				);
 				return;
 			}
@@ -452,11 +436,16 @@ export const event: BotEvent = {
 				}
 			);
 
-			await sendWelcomeMessage(
+			await member.client.func.welcomerMessage(
 				channel as BaseGuildTextChannel,
 				member,
-				msg,
-				files
+				{
+					message: msg,
+					accentColor: WELCOME_ACCENT_COLOR,
+					avatarAttachmentName: WELCOME_AVATAR_ATTACHMENT_NAME,
+					bannerImage,
+					bannerAttachmentName: WELCOME_BANNER_ATTACHMENT_NAME
+				}
 			);
 		} catch (error) {
 			logger.err(error);

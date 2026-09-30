@@ -518,7 +518,11 @@ export async function openWelcomerPanel(
 					);
 
 					if (preview) {
-						files.push(preview);
+						files.push(
+							new AttachmentBuilder(preview, {
+								name: BANNER_ATTACHMENT_NAME
+							})
+						);
 						container.addMediaGalleryComponents(
 							new MediaGalleryBuilder().addItems(
 								new MediaGalleryItemBuilder().setURL(

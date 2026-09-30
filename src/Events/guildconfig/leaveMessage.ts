@@ -19,46 +19,13 @@
 ・ Copyright © 2020-2026 iHorizon
 */
 
-import {
-	BaseGuildTextChannel,
-	Client,
-	ContainerBuilder,
-	GuildMember,
-	MessageFlags,
-	SectionBuilder,
-	TextDisplayBuilder,
-	ThumbnailBuilder
-} from "discord.js";
+import { BaseGuildTextChannel, Client, GuildMember } from "discord.js";
 
 import { BotEvent } from "../../../types/event.js";
 import { DatabaseStructure } from "../../../types/database_structure.js";
 
 const GOODBYE_ACCENT_COLOR = 0xed4245;
-
-async function sendGoodbyeMessage(
-	channel: BaseGuildTextChannel,
-	member: GuildMember,
-	msg: string
-): Promise<void> {
-	const container = new ContainerBuilder()
-		.setAccentColor(GOODBYE_ACCENT_COLOR)
-		.addSectionComponents(
-			new SectionBuilder()
-				.addTextDisplayComponents(
-					new TextDisplayBuilder().setContent(msg)
-				)
-				.setThumbnailAccessory(
-					new ThumbnailBuilder().setURL(
-						member.displayAvatarURL({ size: 256 })
-					)
-				)
-		);
-
-	await member.client.func.method.channelSend(channel, {
-		components: [container],
-		flags: [MessageFlags.IsComponentsV2]
-	});
-}
+const GOODBYE_AVATAR_ATTACHMENT_NAME = "goodbye-avatar.png";
 
 export const event: BotEvent = {
 	name: "guildMemberRemove",
@@ -134,28 +101,33 @@ export const event: BotEvent = {
 			const lChanManager = member.guild.channels.cache.get(
 				lChan
 			) as BaseGuildTextChannel;
-			await sendGoodbyeMessage(
-				lChanManager,
-				member,
-				messageContent
-			).catch(() => false);
+			await member.client.func
+				.welcomerMessage(lChanManager, member, {
+					message: messageContent,
+					accentColor: GOODBYE_ACCENT_COLOR,
+					avatarAttachmentName: GOODBYE_AVATAR_ATTACHMENT_NAME
+				})
+				.catch(() => false);
 		} catch (e) {
 			try {
 				const lChanManager = member.guild.channels.cache.get(
 					lChan
 				) as BaseGuildTextChannel;
-				await sendGoodbyeMessage(
-					lChanManager,
-					member,
-					client.func.method.generateCustomMessagePreview(
-						data.event_goodbye_default,
-						{
-							user: member.user,
-							guild: member.guild,
-							guildLocal: guildLocal
-						}
-					)
-				).catch(() => {});
+				await member.client.func
+					.welcomerMessage(lChanManager, member, {
+						message:
+							client.func.method.generateCustomMessagePreview(
+								data.event_goodbye_default,
+								{
+									user: member.user,
+									guild: member.guild,
+									guildLocal: guildLocal
+								}
+							),
+						accentColor: GOODBYE_ACCENT_COLOR,
+						avatarAttachmentName: GOODBYE_AVATAR_ATTACHMENT_NAME
+					})
+					.catch(() => {});
 			} catch {}
 		}
 	}

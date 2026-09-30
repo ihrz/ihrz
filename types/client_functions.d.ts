@@ -160,6 +160,82 @@ declare namespace Client_Functions {
 	// From maskLink.ts
 	export function maskLink(input: string): string;
 
+	// From randomExpression.ts
+	export function randomExpression(): string;
+
+	// From wait.ts
+	export function wait(milliseconds: number): Promise<void>;
+
+	// From batchProcessor.ts
+	export namespace batchProcessor {
+		export function processBatch<T>(
+			items: Array<T>,
+			processor: (item: T) => Promise<boolean>,
+			options: BatchProcessorOptions
+		): Promise<BatchProcessorResult>;
+		export function processBatchAsync<T>(
+			items: Array<T>,
+			processor: (item: T) => Promise<boolean>,
+			options: BatchProcessorOptions,
+			onComplete?: (result: BatchProcessorResult) => void
+		): void;
+	}
+
+	// From mediaManipulation.ts
+	export namespace mediaManipulation {
+		export function convertToPng(
+			buffer: Buffer<ArrayBufferLike>
+		): Promise<Buffer<ArrayBufferLike>>;
+		export function adjustImageQuality(imagePath: string): Promise<void>;
+		export function resizeImage(
+			inputImage: Buffer<ArrayBufferLike>,
+			outputPath: string,
+			width?: number,
+			height?: number
+		): Promise<{ width: number; height: number }>;
+		export function isImageUrl(url: string): Promise<boolean>;
+	}
+
+	// From numberBeautifuer.ts
+	export function numberBeautifuer(num: number): string;
+
+	// From apiUrlParser.ts
+	export namespace apiUrlParser {
+		export function assetsFinder(body: Assets, type: string): string;
+		export function HorizonGateway(gateway_method: GatewayMethod): string;
+	}
+
+	// From awaitingResponse.ts
+	export function awaitingResponse(
+		interaction: ChatInputCommandInteraction<"cached"> | Message<boolean>,
+		opt: LangForPrompt
+	): Promise<boolean>;
+
+	// From authRestoreHelper.ts
+	export namespace authRestoreHelper {
+		export function createOauth2LinkWithGuild(
+			data: AuthRestore_EntryType
+		): string;
+		export function createOauth2LinkWithoutGuild(
+			data: Oauth2_Link_Entry
+		): string;
+		export function createAuthRestore(
+			data: AuthRestore_EntryType
+		): Promise<AuthRestore_ResponseType>;
+		export function getGuildDataPerSecretCode(
+			secretCode: string
+		): Promise<{ id: string; data: GuildAuthRestore } | null>;
+		export function forceJoinAuthRestore(
+			data: AuthRestore_ForceJoin_EntryType
+		): Promise<AuthRestore_ForceJoin_ResponseType>;
+		export function securityCodeUpdate(
+			data: AuthRestore_KeyUpdate_EntryType
+		): Promise<AuthRestore_ForceJoin_ResponseType>;
+		export function changeRoleAuthRestore(
+			data: AuthRestore_RoleUpdate_EntryType
+		): Promise<AuthRestore_ForceJoin_ResponseType>;
+	}
+
 	// From permissonsCalculator.ts
 	export namespace permissonsCalculator {
 		export function hasCommandPermissionRequirements(
@@ -186,6 +262,30 @@ declare namespace Client_Functions {
 		export function getPermissionByValue(
 			value: bigint | Array<bigint>
 		): PermissionValue | Array<PermissionValue> | null;
+	}
+
+	// From shard_helper.ts
+	export namespace shard_helper {
+		export function getGuildData(
+			client: Client<boolean>,
+			guildId: string
+		): Promise<GuildData | null>;
+		export function getDetailedGuildData(
+			client: Client<boolean>,
+			guildId: string
+		): Promise<DetailedGuildData | null>;
+	}
+
+	// From music_proximity.ts
+	export namespace music_proximity {
+		export function levenshtein(a: string, b: string): number;
+		export function similarity(a: string, b: string): number;
+		export function isSimilar(
+			query: string,
+			track: TrackEmbbeded,
+			threshold: number,
+			wordThreshold: number
+		): boolean;
 	}
 
 	// From method.ts
@@ -366,103 +466,6 @@ declare namespace Client_Functions {
 		): Promise<boolean>;
 	}
 
-	// From randomExpression.ts
-	export function randomExpression(): string;
-
-	// From batchProcessor.ts
-	export namespace batchProcessor {
-		export function processBatch<T>(
-			items: Array<T>,
-			processor: (item: T) => Promise<boolean>,
-			options: BatchProcessorOptions
-		): Promise<BatchProcessorResult>;
-		export function processBatchAsync<T>(
-			items: Array<T>,
-			processor: (item: T) => Promise<boolean>,
-			options: BatchProcessorOptions,
-			onComplete?: (result: BatchProcessorResult) => void
-		): void;
-	}
-
-	// From mediaManipulation.ts
-	export namespace mediaManipulation {
-		export function convertToPng(
-			buffer: Buffer<ArrayBufferLike>
-		): Promise<Buffer<ArrayBufferLike>>;
-		export function adjustImageQuality(imagePath: string): Promise<void>;
-		export function resizeImage(
-			inputImage: Buffer<ArrayBufferLike>,
-			outputPath: string,
-			width?: number,
-			height?: number
-		): Promise<{ width: number; height: number }>;
-		export function isImageUrl(url: string): Promise<boolean>;
-	}
-
-	// From numberBeautifuer.ts
-	export function numberBeautifuer(num: number): string;
-
-	// From apiUrlParser.ts
-	export namespace apiUrlParser {
-		export function assetsFinder(body: Assets, type: string): string;
-		export function HorizonGateway(gateway_method: GatewayMethod): string;
-	}
-
-	// From awaitingResponse.ts
-	export function awaitingResponse(
-		interaction: ChatInputCommandInteraction<"cached"> | Message<boolean>,
-		opt: LangForPrompt
-	): Promise<boolean>;
-
-	// From authRestoreHelper.ts
-	export namespace authRestoreHelper {
-		export function createOauth2LinkWithGuild(
-			data: AuthRestore_EntryType
-		): string;
-		export function createOauth2LinkWithoutGuild(
-			data: Oauth2_Link_Entry
-		): string;
-		export function createAuthRestore(
-			data: AuthRestore_EntryType
-		): Promise<AuthRestore_ResponseType>;
-		export function getGuildDataPerSecretCode(
-			secretCode: string
-		): Promise<{ id: string; data: GuildAuthRestore } | null>;
-		export function forceJoinAuthRestore(
-			data: AuthRestore_ForceJoin_EntryType
-		): Promise<AuthRestore_ForceJoin_ResponseType>;
-		export function securityCodeUpdate(
-			data: AuthRestore_KeyUpdate_EntryType
-		): Promise<AuthRestore_ForceJoin_ResponseType>;
-		export function changeRoleAuthRestore(
-			data: AuthRestore_RoleUpdate_EntryType
-		): Promise<AuthRestore_ForceJoin_ResponseType>;
-	}
-
-	// From shard_helper.ts
-	export namespace shard_helper {
-		export function getGuildData(
-			client: Client<boolean>,
-			guildId: string
-		): Promise<GuildData | null>;
-		export function getDetailedGuildData(
-			client: Client<boolean>,
-			guildId: string
-		): Promise<DetailedGuildData | null>;
-	}
-
-	// From music_proximity.ts
-	export namespace music_proximity {
-		export function levenshtein(a: string, b: string): number;
-		export function similarity(a: string, b: string): number;
-		export function isSimilar(
-			query: string,
-			track: TrackEmbbeded,
-			threshold: number,
-			wordThreshold: number
-		): boolean;
-	}
-
 	// From encryptDecryptMethod.ts
 	export namespace encryptDecryptMethod {
 		export function encrypt(password: string, text: string): string;
@@ -477,9 +480,6 @@ declare namespace Client_Functions {
 		optionName: string,
 		optionValue: unknown
 	): string;
-
-	// From wait.ts
-	export function wait(milliseconds: number): Promise<void>;
 
 	// From html2png.ts
 	export function html2png(
@@ -606,6 +606,20 @@ declare namespace Client_Functions {
 		export function getDomSubVoiceChannel(
 			member: GuildMember
 		): VoiceBasedChannel | null;
+	}
+
+	// From helper.ts
+	export namespace helper {
+		export function cooldown(
+			authorId: string,
+			method: string,
+			ms: number
+		): Promise<boolean>;
+		export function getCooldownTimestamp(
+			authorId: string,
+			method: string
+		): Promise<number | null>;
+		export function capitalizeFirstLetter(string: string): string;
 	}
 
 	// From musicPlay.ts
@@ -861,20 +875,6 @@ declare namespace Client_Functions {
 		messageId: string
 	): string;
 
-	// From helper.ts
-	export namespace helper {
-		export function cooldown(
-			authorId: string,
-			method: string,
-			ms: number
-		): Promise<boolean>;
-		export function getCooldownTimestamp(
-			authorId: string,
-			method: string
-		): Promise<number | null>;
-		export function capitalizeFirstLetter(string: string): string;
-	}
-
 	// From ihorizon_logs.ts
 	export function ihorizon_logs(
 		interaction: ChatInputCommandInteraction<"cached"> | Message<boolean>,
@@ -954,6 +954,19 @@ declare namespace Client_Functions {
 
 	// From validImageType.ts
 	export function validImageType(contentType: string | null): boolean;
+
+	// From welcomerMessage.ts
+	export function welcomerMessage(
+		channel: BaseGuildTextChannel,
+		member: GuildMember,
+		options: {
+			message: string;
+			accentColor: number;
+			avatarAttachmentName: string;
+			bannerImage?: Buffer;
+			bannerAttachmentName?: string;
+		}
+	): Promise<Message<boolean>>;
 }
 
 export { Client_Functions };
