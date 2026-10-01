@@ -387,11 +387,6 @@ class InfrastructureMonitoring {
 
 		try {
 			const all_guilds = (await metasTable.get("MISC.statusEmbed")) || {};
-			const guildIds = Object.keys(all_guilds);
-
-			if (guildIds.length === 0) {
-				console.warn("[InfrastructureMonitoring] No statusEmbed entries found in metas/MISC.statusEmbed, nothing to update.");
-			}
 
 			// Check all services and update the embed
 			this.lastResult = await this.checkAllServices();
@@ -424,8 +419,7 @@ class InfrastructureMonitoring {
 
 					if (channel && channel.isTextBased()) {
 						const textChannel = channel as
-							| BaseGuildTextChannel
-							| undefined;
+							BaseGuildTextChannel | undefined;
 						try {
 							const msg = await textChannel?.messages
 								.fetch(channelData.message_id)
@@ -449,9 +443,8 @@ class InfrastructureMonitoring {
 								);
 							}
 						} catch (msgError) {
-							const errorCode = (
-								msgError as { code?: unknown }
-							)?.code;
+							const errorCode = (msgError as { code?: unknown })
+								?.code;
 							console.error(
 								`[InfrastructureMonitoring] Failed to update message ${channelData.message_id} channel ${channelData.channel_id} (guild ${guild_id}, shard #${client.shard?.ids[0] ?? 0}, guildCached: ${client.guilds.cache.has(guild_id)}, code: ${errorCode}): ${msgError} — entry kept, retrying in 1 min.`
 							);
