@@ -1,58 +1,49 @@
-# Version Patch 2026.8.2 (2ème patch d'août 2026)
+# Version Patch 2026.10.1 (1er patch d'octobre 2026)
 
 ---
 
-## 🌍 iHorizon parle maintenant 5 langues (dans les description de commande)
+## 🎙️ H24/7 — iHorizon ne quitte plus votre salon vocal
 
-Toutes les commandes du bot sont désormais disponibles en **Français**, **Anglais**, **Japonais**, **Russe** et **Espagnol**. Les commandes `/help` et `+h` s'adaptent automatiquement à la langue de votre serveur.
+Un tout nouveau module garde iHorizon dans votre salon vocal **24h/24 et 7j/7**, même quand rien ne joue — parfait pour garder le streak vocal de votre serveur :
 
----
+- `/h247 join` — installe le bot dans un salon vocal (admin uniquement)
+- `/h247 leave` — désactive la présence 24/7 sans couper la musique en cours
+- `/h247 info` — voir le statut, le salon et le fonctionnement
 
-## 🎤 TTS : iHorizon lit vos messages à voix haute
-
-Un tout nouveau module Text-to-Speech débarque avec 4 commandes :
-
-- `/tts join` — iHorizon rejoint votre salon vocal et lit les messages
-- `/tts leave` — iHorizon quitte le salon
-- `/tts lang` — choisissez la langue de la voix
-- `/tts info` — voir l'état du module
+Le bot rejoint automatiquement après un redémarrage, un kick ou une déconnexion, avec un watchdog qui maintient la connexion. Nouveau `/utilss renewvc` (alias `rvc`) pour réinitialiser la région de votre salon vocal en cas d'audio saccadé.
 
 ---
 
-## 🎵 Apple Music, Amazon Music & Tidal
+## 👋 Welcomer — un seul panneau pour tout
 
-Le lecteur de musique prend désormais en charge les liens **Apple Music**, **Amazon Music** et **Tidal** en plus de Spotify, YouTube, SoundCloud, Deezer et CDN Discord.
-
----
-
-## 👋 Un accueil plus chaleureux
-
-Quand iHorizon rejoint un serveur, il envoie maintenant un **message de bienvenue en DM** au propriétaire — et aussi à la personne qui a ajouté le bot. Un joli embed avec des boutons pour découvrir le projet.
+`/guildconfig set welcomer` ouvre désormais un **panneau unifié** pour configurer tout votre accueil : messages d'arrivée et de départ, DM de bienvenue, rôles automatiques, salons et aperçu de bannière — tout est modifiable directement avec des interrupteurs en temps réel. Les anciennes commandes séparées `join-dm`, `join-message`, `leave-message` et `join-role` sont fusionnées dans ce panneau.
 
 ---
 
-## ⚙️ `/setlang` fait peau neuve
+## 📰 Newsletter — fiabilisée et plus sûre
 
-Plus besoin de taper un code langue. `/setlang` ouvre un **menu interactif** avec la liste des langues et leurs drapeaux. Choisissez, cliquez sur Sauvegarder, c'est tout. Le panneau met désormais à jour ses labels dans la langue sélectionnée au fur et à mesure.
-
----
-
-## 📋 `+updates` — Le changelog à portée de main
-
-Une nouvelle commande `+updates` (alias : `+changelog`, `+update`) permet de consulter les dernières informations de version, le commit et la branche d'iHorizon — avec le changelog complet joint en PDF téléchargeable. Le PDF est automatiquement fourni dans la langue de votre serveur (Français ou Anglais), avec un fallback si l'une n'est pas disponible.
+La newsletter de release (DM automatique aux propriétaires à chaque mise à jour) a été retravaillée pour la fiabilité : strictement **un seul DM par propriétaire**, envoyé depuis la shard principale uniquement, avec un envoi cadencé et une pause automatique si Discord rate-limite. Les propriétaires aux DM fermés sont ignorés proprement au lieu d'être retentés indéfiniment. Désabonnement en un clic, comme avant.
 
 ---
 
-## 📰 Newsletter — restez informé automatiquement
+## 🆓 `/custom` est maintenant gratuit pour tout le monde
 
-Les propriétaires de serveur reçoivent désormais une **notification automatique en DM** à chaque nouvelle version d'iHorizon (majeure, mineure et patch). Le message inclut le numéro de version, le lien de release et le changelog complet en PDF. Les propriétaires peuvent se désabonner à tout moment en un clic.
+Le paywall sur la personnalisation du bot a été retiré — les profils personnalisés sont disponibles pour tous les serveurs.
+
+---
+
+## ⏳ Cooldowns plus intelligents
+
+Les commandes spammées ont désormais des cooldowns par commande avec un message d'attente au lieu d'être silencieusement ignorées.
 
 ---
 
 ## 🛠️ Corrections & améliorations
 
-- **Lock / Unlock** : ne supprime plus les permissions personnalisées des salons
-- **Tempmute** : impossible de mute quelqu'un avec un rôle supérieur ou égal au vôtre
-- **Automod** : bloque maintenant les liens d'invitation cachés derrière un encodage URL
-- **Ticket** : le panneau de ticket ne crash plus avec des noms d'options trop longs
-- **Confession** : module réécrit pour plus de fiabilité
+- **Automod** : activer le blocage de liens ne supprime plus les webhooks GitHub/GitLab ni les liens médias (hébergeurs de code, GIFs, images et vidéos en liste blanche)
+- **Anti-spam** : les webhooks ne sont plus signalés comme spammeurs
+- **Ticket** : les panneaux avec de très longues listes d'options basculent sur un fichier au lieu de casser
+- **Play en vocal** : les pièces jointes de plus de 10 Mo sont refusées avec une erreur claire au lieu d'échouer silencieusement
+- **Bio du bot** : iHorizon définit désormais une bio traduite (avec votre nombre de commandes) dans la langue de votre serveur à son arrivée
+- **TTS** : améliorations et cohabitation fluide avec le nouveau mode H24/7
+- **Sous le capot** : nouveau backend de base de données HorizonDB, réparation automatique des intents privilégiés manquants, et correction d'une fuite de descripteurs de fichiers dans les logs d'erreur

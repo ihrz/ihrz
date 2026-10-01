@@ -238,7 +238,7 @@ bun start
 | Resource                          | Link                                                                            |
 | --------------------------------- | ------------------------------------------------------------------------------- |
 | 📖 **Full Documentation**         | [docs.ihorizon.org](https://docs.ihorizon.org)                                  |
-| 🔍 **Command Search**             | [search.ihorizon.org](https://search.ihorizon.org)                              |
+| 🔍 **Command Search**             | [ihorizon.org/search](https://www.ihorizon.org/search)                          |
 | 💬 **Main Discord Server**        | [discord.ihorizon.org](http://discord.ihorizon.org/)                            |
 | 🔗 **Backup Discord Server Link** | [discord.gg/ZpBPGNsAsu](https://discord.gg/ZpBPGNsAsu)                          |
 | 🤖 **Invite iHorizon**            | [Click Here](https://discord.com/oauth2/authorize?client_id=945202900907470899) |

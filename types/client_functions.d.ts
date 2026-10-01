@@ -171,12 +171,12 @@ declare namespace Client_Functions {
 		export function processBatch<T>(
 			items: Array<T>,
 			processor: (item: T) => Promise<boolean>,
-			options: BatchProcessorOptions
+			options?: BatchProcessorOptions
 		): Promise<BatchProcessorResult>;
 		export function processBatchAsync<T>(
 			items: Array<T>,
 			processor: (item: T) => Promise<boolean>,
-			options: BatchProcessorOptions,
+			options?: BatchProcessorOptions,
 			onComplete?: (result: BatchProcessorResult) => void
 		): void;
 	}
@@ -286,8 +286,8 @@ declare namespace Client_Functions {
 		export function isSimilar(
 			query: string,
 			track: TrackEmbbeded,
-			threshold: number,
-			wordThreshold: number
+			threshold?: number,
+			wordThreshold?: number
 		): boolean;
 	}
 
@@ -488,7 +488,7 @@ declare namespace Client_Functions {
 	export function html2png(
 		code: string,
 		options: Html2PngOptions,
-		assets: Array<Html2PngAsset>
+		assets?: Array<Html2PngAsset>
 	): Promise<Buffer<ArrayBufferLike>>;
 
 	// From sanitizeInteractionOptionValue.ts
@@ -590,7 +590,7 @@ declare namespace Client_Functions {
 				member: User | undefined;
 				messages: number;
 			}>,
-			limit: number
+			limit?: number
 		): Array<{
 			memberId: string;
 			member: User | undefined;
@@ -602,7 +602,7 @@ declare namespace Client_Functions {
 				member: User | undefined;
 				voiceDuration: number;
 			}>,
-			limit: number
+			limit?: number
 		): Array<{
 			memberId: string;
 			member: User | undefined;
@@ -739,7 +739,7 @@ declare namespace Client_Functions {
 	// From displayBotName.ts
 	export namespace displayBotName {
 		export function footerBuilder(
-			guildId: string
+			guildId?: string
 		): Promise<{ text: string; iconURL: string }>;
 		export function footerPaginationBuilder(
 			guildId: string,

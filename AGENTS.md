@@ -161,6 +161,24 @@ let attachment = new AttachmentBuilder(img, { name: 'twitter.png' });
 - No new npm dependency unless strictly necessary (image buffering with png handling: OK; API wrapper: NOT OK — write it with fetch).
 - Prefer Bun natives over Node APIs: `Bun.file` over `node:fs`, native `fetch` (see `src/core/functions/axios.ts` wrapper) over extra HTTP libs.
 
+## Release (version + changelog + newsletter)
+
+- The current version lives in `package.json` (`"version": "YYYY.M.P"`). Bumping it IS the release: on boot `src/index.ts` calls `writeVersionFile()` (`v.txt` vs `v.old.txt`), and shard 0 then runs `checkAndNotifyRelease()` (`src/core/modules/releaseNotifier.ts`), which DMs every server owner once. See its header comments for the anti-spam guards (main-shard only, claim-before-send, distributed lock, circuit-breaker) — do not weaken them.
+- Find the range to document: the last commit that bumped `package.json` version up to `HEAD` (e.g. `git log --oneline <last-bump>..HEAD`). Only list what is genuinely new since that commit: verify each candidate against the tree AT the bump commit (`git show <bump>:<file>`, `git log <bump>..HEAD -- <file>`) — files touched again after a release must not be re-announced.
+- Rewrite `CHANGELOG.md` (EN) and `CHANGELOG_FR.md` (FR): they contain the LATEST release only, never appended history. Keep the established style (emoji `##` sections, `---` separators, `🛠️ Fixes & improvements` list at the end).
+- PDFs are mandatory for the newsletter attachment. Exact paths (built by `getPdfPath()`, no fallback on names):
+    - `changelogs/en/<version>/CHANGELOG_EN_<version>.pdf`
+    - `changelogs/fr/<version>/CHANGELOG_FR_<version>.pdf`
+    Missing PDF = DM sent without attachment (graceful, but avoid it).
+- Generate them with the committed tool (no new dependency, uses the installed `puppeteer`):
+    ```sh
+    bun run tools/ChangelogPdf.ts [version]  # defaults to package.json version
+    ```
+    It renders both CHANGELOG markdowns to styled HTML and prints them via `page.pdf()` (A4, 15–18mm margins). Gotchas already handled inside (plus manual checks):
+    - The repo puppeteer config points to a dead `/nix/store/.../bin/chromium`: the tool auto-resolves the newest cached `chrome-headless-shell` (`~/.cache/puppeteer/...`) and launches with `--no-sandbox --disable-setuid-sandbox`, like `html2png.ts`.
+    - Emoji fonts exist on the system (Noto Color Emoji) — emojis render fine.
+    - Verify output with `file *.pdf` (PDF 1.4, 2 pages typical) and a screenshot of the HTML before shipping.
+
 ## Commands to run
 
 ```sh
