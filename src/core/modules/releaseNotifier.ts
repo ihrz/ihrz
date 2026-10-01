@@ -156,7 +156,21 @@ async function sendDm(
 	pdf: { name: string; data: Buffer } | null
 ): Promise<DmResult> {
 	try {
-		const user = await client.users.fetch(ownerId).catch(() => null);
+		let user;
+		try {
+			user = await client.users.fetch(ownerId);
+		} catch (err) {
+			const classified = classifyDmError(err);
+			if (classified.outcome === "blocked") {
+				return {
+					outcome: "blocked",
+					code: classified.code ?? "unknown-user"
+				};
+			}
+			// Transient fetch failure (network, 5xx): let the caller
+			// release the claim so this owner is retried later.
+			return classified;
+		}
 		if (!user) return { outcome: "blocked", code: "unknown-user" };
 
 		const files: any[] = [];
@@ -252,7 +266,8 @@ export async function checkAndNotifyRelease(client: Client): Promise<void> {
 		const versionKey = currentVersion.replace(/\./g, "-");
 		const lockKey = `newsletter_lock_${versionKey}`;
 		const legacySentKey = `newsletter_sent_${versionKey}`;
-		const claimKeyOf = (id: string) => `newsletter_claim_${versionKey}.${id}`;
+		const claimKeyOf = (id: string) =>
+			`newsletter_claim_${versionKey}.${id}`;
 		const failKeyOf = (id: string) => `newsletter_fail_${versionKey}.${id}`;
 
 		const previousVersion = await readVersionFile(V_OLD_FILE);
@@ -298,9 +313,10 @@ export async function checkAndNotifyRelease(client: Client): Promise<void> {
 		}
 
 		// Legacy compat: runs started before per-owner claim keys used one map.
-		const legacySent = (await metasTable.get(
-			legacySentKey
-		)) as Record<string, boolean> | null;
+		const legacySent = (await metasTable.get(legacySentKey)) as Record<
+			string,
+			boolean
+		> | null;
 
 		const ownerArray: string[] = [];
 		for (const ownerId of ownerIds) {
@@ -331,15 +347,27 @@ export async function checkAndNotifyRelease(client: Client): Promise<void> {
 			const existing = (await metasTable.get(
 				lockKey
 			)) as NewsletterLock | null;
-			await metasTable.set(lockKey, {
-				owner: processId,
-				version: currentVersion,
-				startedAt: existing?.startedAt ?? runStartedAt,
-				updatedAt: Date.now(),
-				finished: true,
-				remainingAtEnd: 0,
-				totalOwners: ownerIds.size
-			});
+			if (
+				!existing ||
+				existing.finished ||
+				Date.now() - (existing.updatedAt ?? 0) >= LOCK_TTL_MS
+			) {
+				await metasTable.set(lockKey, {
+					owner: processId,
+					version: currentVersion,
+					startedAt: existing?.startedAt ?? runStartedAt,
+					updatedAt: Date.now(),
+					finished: true,
+					remainingAtEnd: 0,
+					totalOwners: ownerIds.size
+				});
+			} else {
+				logger.log(
+					"Release notifier: another runner is active for " +
+						currentVersion +
+						", keeping its lock"
+				);
+			}
 			return;
 		}
 
@@ -464,7 +492,9 @@ export async function checkAndNotifyRelease(client: Client): Promise<void> {
 					// later boot retries, back off, abort if Discord struggles.
 					progress.transient++;
 					consecutiveTransient++;
-					await metasTable.delete(claimKeyOf(ownerId)).catch(() => {});
+					await metasTable
+						.delete(claimKeyOf(ownerId))
+						.catch(() => {});
 					logger.warn(
 						"Release notifier: transient error for " +
 							ownerId +
@@ -474,8 +504,7 @@ export async function checkAndNotifyRelease(client: Client): Promise<void> {
 					);
 					await sleep(result.retryAfterMs ?? TRANSIENT_BACKOFF_MS);
 					if (
-						consecutiveTransient >=
-						MAX_CONSECUTIVE_TRANSIENT_ERRORS
+						consecutiveTransient >= MAX_CONSECUTIVE_TRANSIENT_ERRORS
 					) {
 						logger.err(
 							"Release notifier: too many consecutive transient errors, aborting run"
