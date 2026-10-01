@@ -242,7 +242,7 @@ export class FunctionAnalyzer {
 			return {
 				name: param.name.getText(),
 				type: paramType,
-				optional: !!param.questionToken
+				optional: !!param.questionToken || !!param.initializer
 			};
 		});
 

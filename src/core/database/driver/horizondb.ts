@@ -255,9 +255,11 @@ export class HorizonDB<D = any> {
 
 		let result: number | undefined;
 		try {
-			result = sub
-				? await this.sdk.sub(key, amount)
-				: await this.sdk.add(key, amount);
+			result = (
+				sub
+					? await this.sdk.sub(key, amount)
+					: await this.sdk.add(key, amount)
+			) as unknown as number | undefined;
 		} catch (error) {
 			if (error instanceof Error && /non-numeric/i.test(error.message)) {
 				throw this.createError(
@@ -300,10 +302,10 @@ export class HorizonDB<D = any> {
 		let result: Json[] | undefined;
 		try {
 			for (let index = 0; index < values.length; index++) {
-				const last = index === values.length - 1;
-				result = await this.sdk.push(key, values[index] as Json, {
-					returnValue: last
-				});
+				result = (await this.sdk.push(
+					key,
+					values[index] as Json
+				)) as unknown as Json[] | undefined;
 			}
 		} catch (error) {
 			if (error instanceof Error && /not an array/i.test(error.message)) {
@@ -417,10 +419,10 @@ export class HorizonDB<D = any> {
 		try {
 			const elements = Array.isArray(value) ? value : [value];
 			for (let index = 0; index < elements.length; index++) {
-				const last = index === elements.length - 1;
-				result = await this.sdk.pull(key, elements[index] as Json, {
-					returnValue: last
-				});
+				result = (await this.sdk.pull(
+					key,
+					elements[index] as Json
+				)) as unknown as Json[] | undefined;
 			}
 		} catch (error) {
 			if (error instanceof Error && /not an array/i.test(error.message)) {
