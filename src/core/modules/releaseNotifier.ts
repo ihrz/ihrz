@@ -45,6 +45,12 @@ const LOCK_HEARTBEAT_MS = 60 * 1000;
 const MAX_CONSECUTIVE_TRANSIENT_ERRORS = 5;
 const TRANSIENT_BACKOFF_MS = 60_000;
 
+// broadcastEval throws ShardingInProcess when shard 0 is ready but the
+// other shards are still spawning (spawn delay is 5.5s per shard).
+// Retry instead of failing the whole newsletter run.
+const SHARD_READY_MAX_RETRIES = 40;
+const SHARD_READY_RETRY_MS = 15_000;
+
 // In-process re-entrance guard (double ready event must not start two loops).
 let isRunning = false;
 
@@ -241,13 +247,36 @@ async function getAllGuildOwnerData(
 			.map((g) => ({ guildId: g.id, ownerId: g.ownerId! }));
 	}
 
-	const results = await client.shard.broadcastEval((c) =>
-		[...c.guilds.cache.values()]
-			.filter((g) => g.ownerId)
-			.map((g) => ({ guildId: g.id, ownerId: g.ownerId! }))
-	);
+	for (let attempt = 1; ; attempt++) {
+		try {
+			const results = await client.shard.broadcastEval((c) =>
+				[...c.guilds.cache.values()]
+					.filter((g) => g.ownerId)
+					.map((g) => ({ guildId: g.id, ownerId: g.ownerId! }))
+			);
 
-	return results.flat();
+			return results.flat();
+		} catch (err: any) {
+			const isShardingInProcess =
+				err?.name?.includes("ShardingInProcess") ||
+				String(err?.message ?? err).includes(
+					"still being spawned"
+				);
+			if (!isShardingInProcess || attempt > SHARD_READY_MAX_RETRIES) {
+				throw err;
+			}
+			logger.log(
+				"Release notifier [waiting-shards]: attempt " +
+					attempt +
+					"/" +
+					SHARD_READY_MAX_RETRIES +
+					", shards still spawning, retrying in " +
+					Math.round(SHARD_READY_RETRY_MS / 1000) +
+					"s"
+			);
+			await sleep(SHARD_READY_RETRY_MS);
+		}
+	}
 }
 
 export async function checkAndNotifyRelease(client: Client): Promise<void> {
