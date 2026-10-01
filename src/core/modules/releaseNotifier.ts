@@ -66,6 +66,26 @@ function sleep(ms: number): Promise<void> {
 	return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+function formatEta(ms: number): string {
+	if (ms <= 0) return "0s";
+	const totalSec = Math.ceil(ms / 1000);
+	const h = Math.floor(totalSec / 3600);
+	const m = Math.floor((totalSec % 3600) / 60);
+	const s = totalSec % 60;
+	if (h > 0) return `${h}h${String(m).padStart(2, "0")}m${String(s).padStart(2, "0")}s`;
+	if (m > 0) return `${m}m${String(s).padStart(2, "0")}s`;
+	return `${s}s`;
+}
+
+function estimateRemainingMs(remainingOwners: number): number {
+	if (remainingOwners <= 0) return 0;
+	const remainingBatches = Math.ceil(remainingOwners / DM_BATCH_SIZE);
+	return (
+		remainingOwners * DM_STAGGER_MS +
+		Math.max(0, remainingBatches - 1) * DM_BATCH_DELAY_MS
+	);
+}
+
 interface GuildOwnerEntry {
 	guildId: string;
 	ownerId: string;
@@ -335,6 +355,22 @@ export async function checkAndNotifyRelease(client: Client): Promise<void> {
 			ownerArray.push(ownerId);
 		}
 
+		// Deterministic order: stable resume across reboots, easier log reading.
+		ownerArray.sort();
+
+		logger.debug(
+			"Release notifier [sorted]: " +
+				ownerArray.length +
+				" DMs sorted (" +
+				allGuildData.length +
+				" guilds, " +
+				ownerIds.size +
+				" unique owners, " +
+				progress.skipped +
+				" skipped), ETA: " +
+				formatEta(estimateRemainingMs(ownerArray.length))
+		);
+
 		const runStartedAt = Date.now();
 
 		if (ownerArray.length === 0) {
@@ -430,8 +466,46 @@ export async function checkAndNotifyRelease(client: Client): Promise<void> {
 		for (let i = 0; i < ownerArray.length; i += DM_BATCH_SIZE) {
 			const batch = ownerArray.slice(i, i + DM_BATCH_SIZE);
 
+			logger.debug(
+				"Release notifier [entered]: batch " +
+					(Math.floor(i / DM_BATCH_SIZE) + 1) +
+					"/" +
+					Math.ceil(ownerArray.length / DM_BATCH_SIZE) +
+					" (" +
+					batch.length +
+					" DMs), processed " +
+					processed +
+					"/" +
+					ownerArray.length +
+					", ETA: " +
+					formatEta(
+						estimateRemainingMs(ownerArray.length - processed)
+					)
+			);
+
 			for (const ownerId of batch) {
 				processed++;
+
+				logger.debug(
+					"Release notifier [entered]: DM " +
+						ownerId +
+						" (" +
+						processed +
+						"/" +
+						ownerArray.length +
+						"), sent " +
+						progress.sent +
+						", failed " +
+						progress.failed +
+						", skipped " +
+						progress.skipped +
+						", ETA: " +
+						formatEta(
+							estimateRemainingMs(
+								ownerArray.length - processed + 1
+							)
+						)
+				);
 
 				if (await metasTable.has(claimKeyOf(ownerId))) {
 					progress.skipped++;
@@ -479,10 +553,40 @@ export async function checkAndNotifyRelease(client: Client): Promise<void> {
 				if (result.outcome === "sent") {
 					progress.sent++;
 					consecutiveTransient = 0;
+					logger.debug(
+						"Release notifier: DM " +
+							ownerId +
+							" sent (" +
+							processed +
+							"/" +
+							ownerArray.length +
+							"), ETA: " +
+							formatEta(
+								estimateRemainingMs(
+									ownerArray.length - processed
+								)
+							)
+					);
 				} else if (result.outcome === "blocked") {
 					// Permanent (DMs closed, bot blocked, unknown user): never retry this version.
 					progress.failed++;
 					consecutiveTransient = 0;
+					logger.debug(
+						"Release notifier: DM " +
+							ownerId +
+							" blocked (" +
+							String(result.code) +
+							") (" +
+							processed +
+							"/" +
+							ownerArray.length +
+							"), ETA: " +
+							formatEta(
+								estimateRemainingMs(
+									ownerArray.length - processed
+								)
+							)
+					);
 					await metasTable.set(failKeyOf(ownerId), {
 						code: result.code ?? "blocked",
 						at: Date.now()
@@ -553,6 +657,25 @@ export async function checkAndNotifyRelease(client: Client): Promise<void> {
 				" skipped (total owners: " +
 				ownerIds.size +
 				")" +
+				(aborted ? " [ABORTED]" : "")
+		);
+		logger.debug(
+			"Release notifier [finished]: " +
+				progress.sent +
+				" sent, " +
+				progress.failed +
+				" blocked, " +
+				progress.transient +
+				" transient, " +
+				progress.skipped +
+				" skipped, processed " +
+				processed +
+				"/" +
+				ownerArray.length +
+				" in " +
+				formatEta(Date.now() - runStartedAt) +
+				", ETA: " +
+				formatEta(estimateRemainingMs(remainingAtEnd)) +
 				(aborted ? " [ABORTED]" : "")
 		);
 	} finally {
