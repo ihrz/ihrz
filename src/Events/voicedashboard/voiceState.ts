@@ -34,6 +34,16 @@ import { tempTable } from "../client/ready.js";
 import maskLink from "../../core/functions/maskLink.js";
 
 /**
+ * In-flight custom voice creations, keyed by `${guildId}.${userId}`.
+ * Discord may emit several voiceStateUpdate events for a single hub join
+ * while channel creation is still async. Without this lock, two concurrent
+ * creations both observe `ownedChannel == null` and each creates a channel;
+ * the second DB write then orphans the first one (phantom empty channel with
+ * the same name, never cleaned because untracked in CUSTOM_VOICE).
+ */
+const pendingCustomVoiceCreations = new Set<string>();
+
+/**
  * Returns the real member count of a voice channel by fetching it from Discord.
  * With makeCache/sweeper, channel.members may be empty even when people are inside.
  * We re-fetch the channel so Discord.js repopulates the members collection.
@@ -158,6 +168,9 @@ export const event: BotEvent = {
 
 		// If the user join the Create's Channel
 		if (newState.channelId === baseData.voice_channel && result_channel) {
+			const creationKey = `${newState.guild.id}.${newState.member?.id}`;
+			if (pendingCustomVoiceCreations.has(creationKey)) return;
+			pendingCustomVoiceCreations.add(creationKey);
 			const PotentialCategory = baseData.voice_channel_category
 				? oldState.guild.channels.cache.get(
 						baseData.voice_channel_category
@@ -181,120 +194,149 @@ export const event: BotEvent = {
 					type: ChannelType.GuildVoice
 				})
 				.then(async (chann) => {
-					await tempTable.set(
-						`CUSTOM_VOICE.${newState.guild.id}.${newState.member?.id}`,
-						chann.id
-					);
-					if (PotentialCategory?.id) {
-						chann.setParent(PotentialCategory.id);
-					}
-
-					if (baseData?.voice_channel_position === "top") {
-						chann.setPosition(0, {
-							relative: true
-						});
-					}
-
-					if (baseData?.voice_channel_name) {
-						chann.setName(
-							baseData.voice_channel_name.includes("{Username}")
-								? baseData.voice_channel_name.replace(
-										"{Username}",
-										username!
-									)
-								: baseData.voice_channel_name + " " + username
+					try {
+						await tempTable.set(
+							`CUSTOM_VOICE.${newState.guild.id}.${newState.member?.id}`,
+							chann.id
 						);
-					}
+						if (PotentialCategory?.id) {
+							await chann
+								.setParent(PotentialCategory.id)
+								.catch(() => null);
+						}
 
-					newState.member?.voice
-						.setChannel(chann.id)
-						.then(async () => {
-							const movedMember = await newState.guild.members
-								.fetch({
-									user: newState.member?.id as string,
-									force: true
+						if (baseData?.voice_channel_position === "top") {
+							await chann
+								.setPosition(0, {
+									relative: true
 								})
 								.catch(() => null);
+						}
 
-							if (
-								!movedMember ||
-								movedMember.voice.channelId !== chann.id
-							) {
-								await chann.delete().catch(() => {});
-								await tempTable.delete(
-									`CUSTOM_VOICE.${newState.guild.id}.${newState.member?.id}`
-								);
-								return;
-							}
-
-							// Permissions propriétaire
-							chann.permissionOverwrites.edit(
-								newState.member?.user.id as string,
-								{
-									ViewChannel: true,
-									Connect: true,
-									Stream: true,
-									Speak: true,
-									SendMessages: true,
-									UseApplicationCommands: true,
-									AttachFiles: true,
-									AddReactions: true
-								}
-							);
-
-							// Permissions staff
-							if (baseData.staff_role) {
-								if (typeof baseData.staff_role === "string") {
-									// backward compatibility
-									chann.permissionOverwrites.edit(
-										baseData.staff_role,
-										{
-											ViewChannel: true,
-											Connect: true,
-											Stream: true,
-											Speak: true,
-											SendMessages: true,
-											UseApplicationCommands: true,
-											AttachFiles: true,
-											AddReactions: true,
-											MuteMembers: true,
-											DeafenMembers: true,
-											PrioritySpeaker: true,
-											KickMembers: true
-										}
-									);
-								} else {
-									for (let roleId of baseData.staff_role) {
-										if (
-											newState.guild.roles.cache.get(
-												roleId
+						if (baseData?.voice_channel_name) {
+							await chann
+								.setName(
+									baseData.voice_channel_name.includes(
+										"{Username}"
+									)
+										? baseData.voice_channel_name.replace(
+												"{Username}",
+												username!
 											)
-										) {
-											chann.permissionOverwrites.edit(
-												roleId,
-												{
-													ViewChannel: true,
-													Connect: true,
-													Stream: true,
-													Speak: true,
-													SendMessages: true,
-													UseApplicationCommands: true,
-													AttachFiles: true,
-													AddReactions: true,
-													MuteMembers: true,
-													DeafenMembers: true,
-													PrioritySpeaker: true,
-													KickMembers: true
-												}
-											);
+										: baseData.voice_channel_name +
+												" " +
+												username
+								)
+								.catch(() => null);
+						}
+
+						newState.member?.voice
+							.setChannel(chann.id)
+							.then(async () => {
+								const movedMember = await newState.guild.members
+									.fetch({
+										user: newState.member?.id as string,
+										force: true
+									})
+									.catch(() => null);
+
+								if (
+									!movedMember ||
+									movedMember.voice.channelId !== chann.id
+								) {
+									await chann.delete().catch(() => {});
+									const current = (await tempTable.get(
+										`CUSTOM_VOICE.${newState.guild.id}.${newState.member?.id}`
+									)) as string | null | undefined;
+									if (current === chann.id) {
+										await tempTable.delete(
+											`CUSTOM_VOICE.${newState.guild.id}.${newState.member?.id}`
+										);
+									}
+									return;
+								}
+
+								// Permissions propriétaire
+								await chann.permissionOverwrites
+									.edit(newState.member?.user.id as string, {
+										ViewChannel: true,
+										Connect: true,
+										Stream: true,
+										Speak: true,
+										SendMessages: true,
+										UseApplicationCommands: true,
+										AttachFiles: true,
+										AddReactions: true
+									})
+									.catch(() => null);
+
+								// Permissions staff
+								if (baseData.staff_role) {
+									if (
+										typeof baseData.staff_role === "string"
+									) {
+										// backward compatibility
+										await chann.permissionOverwrites
+											.edit(baseData.staff_role, {
+												ViewChannel: true,
+												Connect: true,
+												Stream: true,
+												Speak: true,
+												SendMessages: true,
+												UseApplicationCommands: true,
+												AttachFiles: true,
+												AddReactions: true,
+												MuteMembers: true,
+												DeafenMembers: true,
+												PrioritySpeaker: true,
+												KickMembers: true
+											})
+											.catch(() => null);
+									} else {
+										for (let roleId of baseData.staff_role) {
+											if (
+												newState.guild.roles.cache.get(
+													roleId
+												)
+											) {
+												await chann.permissionOverwrites
+													.edit(roleId, {
+														ViewChannel: true,
+														Connect: true,
+														Stream: true,
+														Speak: true,
+														SendMessages: true,
+														UseApplicationCommands: true,
+														AttachFiles: true,
+														AddReactions: true,
+														MuteMembers: true,
+														DeafenMembers: true,
+														PrioritySpeaker: true,
+														KickMembers: true
+													})
+													.catch(() => null);
+											}
 										}
 									}
 								}
-							}
-						})
-						.catch(async () => {
-							await chann.delete().catch(() => {});
-						});
+							})
+							.catch(async () => {
+								await chann.delete().catch(() => {});
+								const current = (await tempTable.get(
+									`CUSTOM_VOICE.${newState.guild.id}.${newState.member?.id}`
+								)) as string | null | undefined;
+								if (current === chann.id) {
+									await tempTable.delete(
+										`CUSTOM_VOICE.${newState.guild.id}.${newState.member?.id}`
+									);
+								}
+							});
+					} finally {
+						pendingCustomVoiceCreations.delete(creationKey);
+					}
+				})
+				.catch(() => {
+					pendingCustomVoiceCreations.delete(creationKey);
 				});
 			return;
 		}
@@ -314,12 +356,16 @@ export async function recoverCustomVoiceChannels(client: Client) {
 
 		for (const [userId, channelId] of allChannelEntries) {
 			try {
+				if (typeof channelId !== "string" || !channelId) {
+					await tempTable.delete(
+						`CUSTOM_VOICE.${guild.id}.${userId}`
+					);
+					continue;
+				}
 				// Fetch the channel from Discord
-				const channel = (guild.channels.cache.get(
-					channelId as string
-				) ||
+				const channel = (guild.channels.cache.get(channelId) ||
 					(await guild.channels
-						.fetch(channelId as string)
+						.fetch(channelId)
 						.catch(() => null))) as BaseGuildVoiceChannel | null;
 
 				if (!channel) {
