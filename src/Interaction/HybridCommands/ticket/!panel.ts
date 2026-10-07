@@ -30,14 +30,17 @@ import {
 	ChatInputCommandInteraction,
 	Client,
 	ComponentType,
+	ContainerBuilder,
 	EmbedBuilder,
 	Guild,
 	Message,
 	MessageFlags,
 	RoleSelectMenuBuilder,
+	SeparatorBuilder,
 	StringSelectMenuBuilder,
 	StringSelectMenuInteraction,
 	StringSelectMenuOptionBuilder,
+	TextDisplayBuilder,
 	TextInputStyle
 } from "discord.js";
 
@@ -149,75 +152,92 @@ export const subCommand: SubCommand = {
 		const panelCode = baseData.panelCode;
 		let isSaved = false;
 
-		// Embed principal
-		const panelEmbed = new EmbedBuilder()
-			.setTitle(lang.ticket_panel_embed_title + panelCode)
-			.setDescription(lang.ticket_panel_embed_desc)
-			.setFields(
-				{
-					name: lang.ticket_panel_saved_conf,
-					value: isSaved ? "🟢" : "🔴",
-					inline: true
-				},
-				{
-					name: lang.ticket_panel_related_embed,
-					value: baseData.relatedEmbedId || lang.var_no_set,
-					inline: true
-				},
-				{
-					name: lang.ticket_panel_channel_panel_embed_id,
-					value: baseData.ticketChannelPanel || lang.var_no_set,
-					inline: true
-				},
-				{
-					name: lang.ticket_panel_role_to_ping,
-					value: formatRoles(baseData.config.rolesToPing, lang),
-					inline: true
-				},
-				{
-					name: lang.ticket_panel_ping_user,
-					value: baseData.config.pingUser ? "🟢" : "🔴",
-					inline: true
-				},
-				{
-					name: lang.ticket_panel_placeholder,
-					value: baseData.placeholder || lang.var_no_set,
-					inline: true
-				},
-				{
-					name: lang.ticket_panel_category,
-					value: formatCategory(baseData.category, interaction.guild),
-					inline: true
-				},
-				{
-					name: lang.ticket_panel_option_fields,
-					value:
-						stringifyOptions(baseData.config.optionFields) ||
-						lang.var_no_set,
-					inline: false
-				},
-				{
-					name: lang.ticket_panel_form,
-					value:
-						stringifyForm(baseData.config.form) || lang.var_no_set,
-					inline: false
-				},
-				{
-					name: lang.ticket_panel_select_user,
-					value: baseData.config.userSelectPanel ? "🟢" : "🔴",
-					inline: true
-				},
-				{
-					name: lang.ticket_panel_button_delete,
-					value: baseData.config.deleteButton ? "🟢" : "🔴",
-					inline: true
-				},
-				{
-					name: lang.ticket_panel_button_transcript,
-					value: baseData.config.transcriptButton ? "🟢" : "🔴",
-					inline: true
-				}
+		// Components V2 builders for the panel message
+		const PANEL_ACCENT = 0x397c16;
+		const V2_FLAGS: [MessageFlags.IsComponentsV2] = [
+			MessageFlags.IsComponentsV2
+		];
+
+		function ticketEmoji(name: string): string | undefined {
+			return (
+				(
+					client.iHorizon_Emojis as unknown as Record<
+						string,
+						string | undefined
+					>
+				)[name] || undefined
 			);
+		}
+
+		function panelOption(
+			label: string,
+			value: string,
+			emojiName?: string
+		): StringSelectMenuOptionBuilder {
+			const builder = new StringSelectMenuOptionBuilder()
+				.setLabel(label)
+				.setValue(value);
+			const emoji = emojiName ? ticketEmoji(emojiName) : undefined;
+			if (emoji) builder.setEmoji(emoji);
+			return builder;
+		}
+
+		function buildContainer(): ContainerBuilder {
+			const container = new ContainerBuilder().setAccentColor(
+				PANEL_ACCENT
+			);
+			const headerEmoji = ticketEmoji("Ticket_Main");
+
+			container.addTextDisplayComponents(
+				new TextDisplayBuilder().setContent(
+					`## ${headerEmoji ? `${headerEmoji} ` : ""}${lang.ticket_panel_embed_title}${panelCode}\n${lang.ticket_panel_embed_desc}`
+				)
+			);
+
+			container.addTextDisplayComponents(
+				new TextDisplayBuilder().setContent(
+					`-# ${lang.ticket_panel_saved_conf}: ${isSaved ? "🟢" : "🔴"}\n` +
+						`**${lang.ticket_panel_related_embed}**\n${baseData.relatedEmbedId || lang.var_no_set}\n` +
+						`**${lang.ticket_panel_channel_panel_embed_id}**\n${baseData.ticketChannelPanel || lang.var_no_set}`
+				)
+			);
+
+			container.addSeparatorComponents(new SeparatorBuilder());
+
+			container.addTextDisplayComponents(
+				new TextDisplayBuilder().setContent(
+					`**${lang.ticket_panel_role_to_ping}**\n${formatRoles(baseData.config.rolesToPing, lang)}\n` +
+						`**${lang.ticket_panel_ping_user}** ${baseData.config.pingUser ? "🟢" : "🔴"}\n` +
+						`**${lang.ticket_panel_placeholder}**\n${baseData.placeholder || lang.var_no_set}\n` +
+						`**${lang.ticket_panel_category}**\n${formatCategory(baseData.category, interaction.guild!)}\n` +
+						`**${lang.ticket_panel_select_user}** ${baseData.config.userSelectPanel ? "🟢" : "🔴"}\n` +
+						`**${lang.ticket_panel_button_delete}** ${baseData.config.deleteButton ? "🟢" : "🔴"}\n` +
+						`**${lang.ticket_panel_button_transcript}** ${baseData.config.transcriptButton ? "🟢" : "🔴"}`
+				)
+			);
+
+			container.addTextDisplayComponents(
+				new TextDisplayBuilder().setContent(
+					`### ${lang.ticket_panel_option_fields}\n${stringifyOptions(baseData.config.optionFields) || lang.var_no_set}`
+				)
+			);
+
+			container.addTextDisplayComponents(
+				new TextDisplayBuilder().setContent(
+					`### ${lang.ticket_panel_form}\n${stringifyForm(baseData.config.form) || lang.var_no_set}`
+				)
+			);
+
+			return container;
+		}
+
+		function buildPromptContainer(text: string): ContainerBuilder {
+			return new ContainerBuilder()
+				.setAccentColor(PANEL_ACCENT)
+				.addTextDisplayComponents(
+					new TextDisplayBuilder().setContent(text)
+				);
+		}
 
 		ensureUniqueOptionFieldValues();
 
@@ -226,64 +246,100 @@ export const subCommand: SubCommand = {
 			.setCustomId("panelSelect")
 			.setPlaceholder(lang.ticket_panel_panel_placeholder)
 			.addOptions([
-				new StringSelectMenuOptionBuilder()
-					.setLabel(lang.ticket_panel_panel_1_label)
-					.setValue("save"),
-				new StringSelectMenuOptionBuilder()
-					.setLabel(lang.ticket_panel_panel_2_label)
-					.setValue("preview"),
-				new StringSelectMenuOptionBuilder()
-					.setLabel(lang.ticket_panel_panel_3_label)
-					.setValue("change_embed"),
-				new StringSelectMenuOptionBuilder()
-					.setLabel(lang.ticket_panel_panel_4_label)
-					.setValue("change_role"),
-				new StringSelectMenuOptionBuilder()
-					.setLabel(lang.ticket_panel_panel_5_label)
-					.setValue("change_placeholder"),
-				new StringSelectMenuOptionBuilder()
-					.setLabel(lang.ticket_panel_panel_6_label)
-					.setValue("change_category"),
-				new StringSelectMenuOptionBuilder()
-					.setLabel(lang.ticket_panel_panel_10_label)
-					.setValue("change_category_2"),
-				new StringSelectMenuOptionBuilder()
-					.setLabel(lang.ticket_panel_panel_7_label)
-					.setValue("change_ping"),
-				new StringSelectMenuOptionBuilder()
-					.setLabel(lang.ticket_panel_panel_8_label)
-					.setValue("change_option"),
-				new StringSelectMenuOptionBuilder()
-					.setLabel(lang.ticket_panel_panel_9_label)
-					.setValue("change_form"),
-				new StringSelectMenuOptionBuilder()
-					.setLabel(lang.ticket_panel_panel_11_label)
-					.setValue("change_ticket_channel_panel"),
-				new StringSelectMenuOptionBuilder()
-					.setLabel(lang.ticket_panel_panel_12_label)
-					.setValue("change_ticket_user_select_panel"),
-				new StringSelectMenuOptionBuilder()
-					.setLabel(lang.ticket_panel_panel_13_label)
-					.setValue("change_ticket_button_delete_panel"),
-				new StringSelectMenuOptionBuilder()
-					.setLabel(lang.ticket_panel_panel_14_label)
-					.setValue("change_ticket_button_transcript_panel"),
-				new StringSelectMenuOptionBuilder()
-					.setLabel(lang.ticket_panel_panel_15_label)
-					.setValue("change_ticket_channel_panel_options"),
-				new StringSelectMenuOptionBuilder()
-					.setLabel(lang.ticket_panel_panel_16_label)
-					.setValue("change_ticket_forms_options"),
-				new StringSelectMenuOptionBuilder()
-					.setLabel(lang.ticket_panel_panel_17_label)
-					.setValue("change_role_to_ping_options")
+				panelOption(
+					lang.ticket_panel_panel_1_label,
+					"save",
+					"Ticket_Save"
+				),
+				panelOption(
+					lang.ticket_panel_panel_2_label,
+					"preview",
+					"Ticket_Preview"
+				),
+				panelOption(
+					lang.ticket_panel_panel_3_label,
+					"change_embed",
+					"Ticket_Nitro"
+				),
+				panelOption(
+					lang.ticket_panel_panel_4_label,
+					"change_role",
+					"Ticket_Role"
+				),
+				panelOption(
+					lang.ticket_panel_panel_5_label,
+					"change_placeholder",
+					"Ticket_Paint"
+				),
+				panelOption(
+					lang.ticket_panel_panel_6_label,
+					"change_category",
+					"Ticket_Category"
+				),
+				panelOption(
+					lang.ticket_panel_panel_10_label,
+					"change_category_2",
+					"Ticket_Category"
+				),
+				panelOption(
+					lang.ticket_panel_panel_7_label,
+					"change_ping",
+					"Ticket_Bell"
+				),
+				panelOption(
+					lang.ticket_panel_panel_8_label,
+					"change_option",
+					"Ticket_List"
+				),
+				panelOption(
+					lang.ticket_panel_panel_9_label,
+					"change_form",
+					"Ticket_Form"
+				),
+				panelOption(
+					lang.ticket_panel_panel_11_label,
+					"change_ticket_channel_panel",
+					"Ticket_Hash"
+				),
+				panelOption(
+					lang.ticket_panel_panel_12_label,
+					"change_ticket_user_select_panel",
+					"Ticket_User"
+				),
+				panelOption(
+					lang.ticket_panel_panel_13_label,
+					"change_ticket_button_delete_panel",
+					"Ticket_Trash"
+				),
+				panelOption(
+					lang.ticket_panel_panel_14_label,
+					"change_ticket_button_transcript_panel",
+					"Ticket_Transcript"
+				),
+				panelOption(
+					lang.ticket_panel_panel_15_label,
+					"change_ticket_channel_panel_options",
+					"Ticket_Settings"
+				),
+				panelOption(
+					lang.ticket_panel_panel_16_label,
+					"change_ticket_forms_options",
+					"Ticket_Form"
+				),
+				panelOption(
+					lang.ticket_panel_panel_17_label,
+					"change_role_to_ping_options",
+					"Ticket_Megaphone"
+				)
 			]);
 
 		const sendButton = new ButtonBuilder()
 			.setCustomId("send_embed")
 			.setLabel(lang.ticket_panel_button_send)
 			.setStyle(ButtonStyle.Primary)
-			.setEmoji(client.iHorizon_Emojis.GreenTick);
+			.setEmoji(
+				ticketEmoji("Ticket_Send") ?? client.iHorizon_Emojis.GreenTick
+			);
 
 		const components = [
 			new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
@@ -410,7 +466,10 @@ export const subCommand: SubCommand = {
 
 		selectCollector.on("end", (_, reason) => {
 			if (reason !== "legitEnd") {
-				originalResponse.edit({ components: [], embeds: [panelEmbed] });
+				originalResponse.edit({
+					components: [buildContainer()],
+					flags: [MessageFlags.IsComponentsV2]
+				});
 			}
 		});
 
@@ -472,21 +531,19 @@ export const subCommand: SubCommand = {
 		function buildPanelMessage() {
 			const file = buildOptionsAttachment();
 			return {
-				content: file ? lang.ticket_panel_option_fields : null,
-				embeds: [panelEmbed],
-				components,
-				files: file ? [file] : []
+				components: [buildContainer(), ...components],
+				files: file ? [file] : [],
+				flags: V2_FLAGS
 			};
 		}
 
 		async function refreshPanelMessage() {
 			const panelMessage = buildPanelMessage();
 			await originalResponse.edit({
-				content: panelMessage.content,
-				embeds: panelMessage.embeds,
 				components: panelMessage.components,
 				attachments: [],
-				files: panelMessage.files
+				files: panelMessage.files,
+				flags: [MessageFlags.IsComponentsV2]
 			});
 		}
 
@@ -496,15 +553,11 @@ export const subCommand: SubCommand = {
 				`${interaction.guildId}.GUILD.TICKET_PANEL.${panelCode}`,
 				baseData
 			);
-			panelEmbed.data.fields![0].value = "🟢";
 			isSaved = true;
 			const file = buildOptionsAttachment();
 			await originalResponse.edit({
-				embeds: [panelEmbed],
-				content: file ? lang.ticket_panel_option_fields : null,
-				attachments: [],
-				files: file ? [file] : [],
 				components: [
+					buildContainer(),
 					new ActionRowBuilder<ButtonBuilder>().addComponents(
 						new ButtonBuilder()
 							.setCustomId("saved")
@@ -513,7 +566,10 @@ export const subCommand: SubCommand = {
 							.setEmoji(client.iHorizon_Emojis.Yes)
 							.setDisabled(true)
 					)
-				]
+				],
+				attachments: [],
+				files: file ? [file] : [],
+				flags: [MessageFlags.IsComponentsV2]
 			});
 		}
 
@@ -573,7 +629,7 @@ export const subCommand: SubCommand = {
 
 			// Check if the string exceeds Discord's field limit
 			if (str.length > 1024) {
-				return "Forms list too long";
+				return lang.ticket_panel_option_fields;
 			}
 
 			return str;
@@ -615,9 +671,11 @@ export const subCommand: SubCommand = {
 		async function sendEmbed() {
 			if (baseData.config.optionFields.length === 0)
 				return originalResponse.edit({
-					content: lang.ticket_panel_need_1_option,
-					embeds: [panelEmbed],
-					components
+					components: [
+						buildPromptContainer(lang.ticket_panel_need_1_option),
+						...components
+					],
+					flags: [MessageFlags.IsComponentsV2]
 				});
 
 			ensureUniqueOptionFieldValues();
@@ -634,13 +692,15 @@ export const subCommand: SubCommand = {
 
 			const msg = await originalResponse.edit({
 				components: [
+					buildPromptContainer(
+						lang.ticket_panel_select_channel_to_send
+					),
 					new ActionRowBuilder<ChannelSelectMenuBuilder>().addComponents(
 						channelSelect
 					)
 				],
-				embeds: [],
-				content: lang.ticket_panel_select_channel_to_send,
-				files: []
+				files: [],
+				flags: [MessageFlags.IsComponentsV2]
 			});
 
 			const collector = msg.createMessageComponentCollector({
@@ -703,12 +763,18 @@ export const subCommand: SubCommand = {
 				collector.stop("legitEnd");
 				selectCollector.stop("legitEnd");
 				await originalResponse.edit({
-					content: lang.ticket_panel_saved_and_sended_panel
-						.replace("${panelCode}", panelCode)
-						.replace("${channel.toString()}", channel.toString()),
-					embeds: [],
+					components: [
+						buildPromptContainer(
+							lang.ticket_panel_saved_and_sended_panel
+								.replace("${panelCode}", panelCode)
+								.replace(
+									"${channel.toString()}",
+									channel.toString()
+								)
+						)
+					],
 					files: [],
-					components: []
+					flags: [MessageFlags.IsComponentsV2]
 				});
 			});
 		}
@@ -717,11 +783,15 @@ export const subCommand: SubCommand = {
 			if (baseData.config.optionFields.length === 0) {
 				const file = buildOptionsAttachment();
 				await originalResponse.edit({
-					content: lang.ticket_panel_remove_option_empty,
-					embeds: [panelEmbed],
-					components,
+					components: [
+						buildPromptContainer(
+							lang.ticket_panel_remove_option_empty
+						),
+						...components
+					],
 					attachments: [],
-					files: file ? [file] : []
+					files: file ? [file] : [],
+					flags: [MessageFlags.IsComponentsV2]
 				});
 				return null;
 			}
@@ -739,13 +809,13 @@ export const subCommand: SubCommand = {
 
 			const msg = await originalResponse.edit({
 				components: [
+					buildPromptContainer(content),
 					new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
 						select
 					)
 				],
-				embeds: [],
-				content,
-				files: []
+				files: [],
+				flags: [MessageFlags.IsComponentsV2]
 			});
 
 			return await new Promise<{
@@ -813,16 +883,18 @@ export const subCommand: SubCommand = {
 
 			await originalResponse.edit({
 				components: [
+					buildPromptContainer(
+						lang.ticket_panel_manage_form_title.replace(
+							"${option.name}",
+							option.name
+						)
+					),
 					new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
 						actionSelect
 					)
 				],
-				embeds: [],
-				content: lang.ticket_panel_manage_form_title.replace(
-					"${option.name}",
-					option.name
-				),
-				files: []
+				files: [],
+				flags: [MessageFlags.IsComponentsV2]
 			});
 
 			const actionCollector =
@@ -887,10 +959,6 @@ export const subCommand: SubCommand = {
 					});
 
 					isSaved = false;
-					panelEmbed.data.fields![0].value = "🔴";
-					panelEmbed.data.fields![7].value =
-						stringifyOptions(baseData.config.optionFields) ||
-						lang.var_no_set;
 					await refreshPanelMessage();
 				} else if (actionI.values[0] === "remove") {
 					if (!option.form || option.form.length === 0) {
@@ -916,13 +984,15 @@ export const subCommand: SubCommand = {
 
 					await originalResponse.edit({
 						components: [
+							buildPromptContainer(
+								lang.ticket_panel_select_question_to_delete
+							),
 							new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
 								formSelect
 							)
 						],
-						content: lang.ticket_panel_select_question_to_delete,
-						embeds: [],
-						files: []
+						files: [],
+						flags: [MessageFlags.IsComponentsV2]
 					});
 
 					const removeCollector =
@@ -941,10 +1011,6 @@ export const subCommand: SubCommand = {
 						const fid = parseInt(rmI.values[0]);
 						option.form!.splice(fid, 1);
 						isSaved = false;
-						panelEmbed.data.fields![0].value = "🔴";
-						panelEmbed.data.fields![7].value =
-							stringifyOptions(baseData.config.optionFields) ||
-							lang.var_no_set;
 						await refreshPanelMessage();
 						removeCollector.stop("legitEnd");
 					});
@@ -976,14 +1042,15 @@ export const subCommand: SubCommand = {
 
 			const sendEmbedInteraction = await originalResponse.edit({
 				components: [
+					buildPromptContainer(
+						lang.ticket_panel_change_category_channelSelect_placeholder
+					),
 					new ActionRowBuilder<ChannelSelectMenuBuilder>().addComponents(
 						channelSelect
 					)
 				],
-				embeds: [],
-				content:
-					lang.ticket_panel_change_category_channelSelect_placeholder,
-				files: []
+				files: [],
+				flags: [MessageFlags.IsComponentsV2]
 			});
 
 			const channelCollector =
@@ -1006,10 +1073,6 @@ export const subCommand: SubCommand = {
 
 				option.categoryId = category;
 				isSaved = false;
-				panelEmbed.data.fields![0].value = "🔴";
-				panelEmbed.data.fields![7].value =
-					stringifyOptions(baseData.config.optionFields) ||
-					lang.var_no_set;
 
 				await refreshPanelMessage();
 				channelCollector.stop("legitEnd");
@@ -1031,13 +1094,15 @@ export const subCommand: SubCommand = {
 
 			const sendEmbedInteraction = await originalResponse.edit({
 				components: [
+					buildPromptContainer(
+						lang.ticket_panel_select_channel_to_send
+					),
 					new ActionRowBuilder<ChannelSelectMenuBuilder>().addComponents(
 						channelSelect
 					)
 				],
-				embeds: [],
-				content: lang.ticket_panel_select_channel_to_send,
-				files: []
+				files: [],
+				flags: [MessageFlags.IsComponentsV2]
 			});
 
 			const channelCollector =
@@ -1061,8 +1126,6 @@ export const subCommand: SubCommand = {
 
 				baseData.category = category;
 				isSaved = false;
-				panelEmbed.data.fields![0].value = "🔴";
-				panelEmbed.data.fields![6].value = fetchChannel!.toString();
 
 				await refreshPanelMessage();
 				channelCollector.stop("legitEnd");
@@ -1102,8 +1165,6 @@ export const subCommand: SubCommand = {
 
 			baseData.placeholder = placeholder;
 			isSaved = false;
-			panelEmbed.data.fields![0].value = "🔴";
-			panelEmbed.data.fields![5].value = baseData.placeholder;
 
 			await modal.deferUpdate();
 			await refreshPanelMessage();
@@ -1121,13 +1182,15 @@ export const subCommand: SubCommand = {
 
 			const changeRoleInteraction = await originalResponse.edit({
 				components: [
+					buildPromptContainer(
+						lang.ticket_panel_change_role_interaction_content
+					),
 					new ActionRowBuilder<RoleSelectMenuBuilder>().addComponents(
 						roleSelect
 					)
 				],
-				embeds: [],
-				content: lang.ticket_panel_change_role_interaction_content,
-				files: []
+				files: [],
+				flags: [MessageFlags.IsComponentsV2]
 			});
 
 			const roleCollector =
@@ -1146,13 +1209,6 @@ export const subCommand: SubCommand = {
 
 				baseData.config.rolesToPing = i.values;
 				isSaved = false;
-				panelEmbed.data.fields![0].value = "🔴";
-				panelEmbed.data.fields![3].value =
-					baseData.config.rolesToPing.length >= 1
-						? baseData.config.rolesToPing
-								.map((x) => `<@&${x}>`)
-								.join("")
-						: lang.var_no_set;
 
 				await i.deferUpdate();
 				await refreshPanelMessage();
@@ -1168,10 +1224,6 @@ export const subCommand: SubCommand = {
 		async function changePing() {
 			baseData.config.pingUser = !baseData.config.pingUser;
 			isSaved = false;
-			panelEmbed.data.fields![0].value = "🔴";
-			panelEmbed.data.fields![4].value = baseData.config.pingUser
-				? "🟢"
-				: "🔴";
 			await refreshPanelMessage();
 		}
 
@@ -1209,8 +1261,6 @@ export const subCommand: SubCommand = {
 
 			baseData.relatedEmbedId = embedId;
 			isSaved = false;
-			panelEmbed.data.fields![0].value = "🔴";
-			panelEmbed.data.fields![1].value = baseData.relatedEmbedId;
 			await modal.deferUpdate();
 			await refreshPanelMessage();
 		}
@@ -1261,9 +1311,6 @@ export const subCommand: SubCommand = {
 
 			baseData.ticketChannelPanel = embedId;
 			isSaved = false;
-			panelEmbed.data.fields![0].value = "🔴";
-			panelEmbed.data.fields![2].value =
-				baseData.ticketChannelPanel || lang.var_no_set;
 			await modal.deferUpdate();
 			await refreshPanelMessage();
 		}
@@ -1289,13 +1336,15 @@ export const subCommand: SubCommand = {
 
 			const selectInteraction = await originalResponse.edit({
 				components: [
+					buildPromptContainer(
+						lang.ticket_panel_change_option_interaction_content
+					),
 					new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
 						select
 					)
 				],
-				embeds: [],
-				content: lang.ticket_panel_change_option_interaction_content,
-				files: []
+				files: [],
+				flags: [MessageFlags.IsComponentsV2]
 			});
 
 			const selectCollector =
@@ -1404,10 +1453,6 @@ export const subCommand: SubCommand = {
 			});
 
 			isSaved = false;
-			panelEmbed.data.fields![0].value = "🔴";
-			panelEmbed.data.fields![7].value =
-				stringifyOptions(baseData.config.optionFields) ||
-				lang.var_no_set;
 
 			await modal.deferUpdate();
 			await refreshPanelMessage();
@@ -1423,10 +1468,6 @@ export const subCommand: SubCommand = {
 			await selected.interaction.deferUpdate();
 			baseData.config.optionFields.splice(selected.index, 1);
 			isSaved = false;
-			panelEmbed.data.fields![0].value = "🔴";
-			panelEmbed.data.fields![7].value =
-				stringifyOptions(baseData.config.optionFields) ||
-				lang.var_no_set;
 			await refreshPanelMessage();
 		}
 
@@ -1451,13 +1492,15 @@ export const subCommand: SubCommand = {
 
 			const selectInteraction = await originalResponse.edit({
 				components: [
+					buildPromptContainer(
+						lang.ticket_panel_change_form_interaction_content
+					),
 					new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
 						select
 					)
 				],
-				embeds: [],
-				content: lang.ticket_panel_change_form_interaction_content,
-				files: []
+				files: [],
+				flags: [MessageFlags.IsComponentsV2]
 			});
 
 			const selectCollector =
@@ -1547,9 +1590,6 @@ export const subCommand: SubCommand = {
 			});
 
 			isSaved = false;
-			panelEmbed.data.fields![0].value = "🔴";
-			panelEmbed.data.fields![8].value =
-				stringifyForm(baseData.config.form) || lang.var_no_set;
 
 			await modal.deferUpdate();
 			await refreshPanelMessage();
@@ -1560,11 +1600,15 @@ export const subCommand: SubCommand = {
 				const file = buildOptionsAttachment();
 				await refreshPanelMessage();
 				return originalResponse.edit({
-					content: lang.ticket_panel_remove_option_empty,
-					components,
-					embeds: [panelEmbed],
+					components: [
+						buildPromptContainer(
+							lang.ticket_panel_remove_option_empty
+						),
+						...components
+					],
 					attachments: [],
-					files: file ? [file] : []
+					files: file ? [file] : [],
+					flags: [MessageFlags.IsComponentsV2]
 				});
 			}
 
@@ -1583,13 +1627,15 @@ export const subCommand: SubCommand = {
 
 			const selectInteraction = await originalResponse.edit({
 				components: [
+					buildPromptContainer(
+						lang.ticket_panel_rempve_option_interaction_content
+					),
 					new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
 						select
 					)
 				],
-				embeds: [],
-				content: lang.ticket_panel_rempve_option_interaction_content,
-				files: []
+				files: [],
+				flags: [MessageFlags.IsComponentsV2]
 			});
 
 			const selectCollector =
@@ -1611,9 +1657,6 @@ export const subCommand: SubCommand = {
 				baseData.config.form.splice(parseInt(choice), 1);
 
 				isSaved = false;
-				panelEmbed.data.fields![0].value = "🔴";
-				panelEmbed.data.fields![8].value =
-					stringifyForm(baseData.config.form) || lang.var_no_set;
 
 				await i.deferUpdate();
 				await refreshPanelMessage();
@@ -1688,20 +1731,12 @@ export const subCommand: SubCommand = {
 		async function changeTicketUserSelectPanel() {
 			baseData.config.userSelectPanel = !baseData.config.userSelectPanel;
 			isSaved = false;
-			panelEmbed.data.fields![0].value = "🔴";
-			panelEmbed.data.fields![9].value = baseData.config.userSelectPanel
-				? "🟢"
-				: "🔴";
 			await refreshPanelMessage();
 		}
 
 		async function changeTicketButtonDeletePanel() {
 			baseData.config.deleteButton = !baseData.config.deleteButton;
 			isSaved = false;
-			panelEmbed.data.fields![0].value = "🔴";
-			panelEmbed.data.fields![10].value = baseData.config.deleteButton
-				? "🟢"
-				: "🔴";
 			await refreshPanelMessage();
 		}
 
@@ -1709,10 +1744,6 @@ export const subCommand: SubCommand = {
 			baseData.config.transcriptButton =
 				!baseData.config.transcriptButton;
 			isSaved = false;
-			panelEmbed.data.fields![0].value = "🔴";
-			panelEmbed.data.fields![11].value = baseData.config.transcriptButton
-				? "🟢"
-				: "🔴";
 			await refreshPanelMessage();
 		}
 
@@ -1763,10 +1794,6 @@ export const subCommand: SubCommand = {
 
 			option.panelId = embedId;
 			isSaved = false;
-			panelEmbed.data.fields![0].value = "🔴";
-			panelEmbed.data.fields![7].value =
-				stringifyOptions(baseData.config.optionFields) ||
-				lang.var_no_set;
 			await modal.deferUpdate();
 			await refreshPanelMessage();
 		}
@@ -1798,18 +1825,18 @@ export const subCommand: SubCommand = {
 
 			const roleMsg = await originalResponse.edit({
 				components: [
+					buildPromptContainer(
+						lang.ticket_panel_change_role_interaction_content.replace(
+							"${option.name}",
+							option.name
+						)
+					),
 					new ActionRowBuilder<RoleSelectMenuBuilder>().addComponents(
 						roleSelect
 					)
 				],
-				embeds: [],
-				content:
-					lang.ticket_panel_change_role_interaction_content.replace(
-						"${option.name}",
-						option.name
-					) ||
-					`Sélectionnez les rôles à ping pour l'option: ${option.name}`,
-				files: []
+				files: [],
+				flags: [MessageFlags.IsComponentsV2]
 			});
 
 			const roleCollector = roleMsg.createMessageComponentCollector({
@@ -1828,10 +1855,6 @@ export const subCommand: SubCommand = {
 
 				option.rolesToPing = roleI.values;
 				isSaved = false;
-				panelEmbed.data.fields![0].value = "🔴";
-				panelEmbed.data.fields![7].value =
-					stringifyOptions(baseData.config.optionFields) ||
-					lang.var_no_set;
 
 				await roleI.deferUpdate();
 				await refreshPanelMessage();
