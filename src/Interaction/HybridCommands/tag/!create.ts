@@ -99,7 +99,9 @@ export const subCommand: SubCommand = {
 		}
 
 		// Check if the embed exists
-		const embed = await metasTable.get(`EMBED.${embed_id}`);
+		const embed = client.func.embedHelper.isValidEmbedId(embed_id)
+			? await metasTable.get(`EMBED.${embed_id}`)
+			: null;
 
 		if (!embed) {
 			await client.func.method.interactionSend(interaction, {

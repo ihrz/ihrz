@@ -67,6 +67,14 @@ export const command: Command = {
 
 		const message = options![1];
 
+		if (!message?.trim()) {
+			await interaction.reply({
+				content: lang.add_react_command_err_message,
+				allowedMentions: { repliedUser: false }
+			});
+			return;
+		}
+
 		await interaction.reply({
 			content: lang.add_react_command_work
 				.replace("${interaction.member?.id}", interaction.member?.id!)

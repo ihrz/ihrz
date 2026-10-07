@@ -209,6 +209,7 @@ export const command: Command = {
 				await client.func.method.interactionSend(interaction, {
 					embeds: [help_embed]
 				});
+				return;
 			}
 			if (!reaction) {
 				return await client.func.method.interactionSend(interaction, {
@@ -216,9 +217,28 @@ export const command: Command = {
 				});
 			}
 
-			const msg = await (channel as BaseGuildTextChannel)?.messages.fetch(
-				messagei!
-			);
+			if (!channel || !messagei || !/^\d+$/.test(messagei)) {
+				return await client.func.method.interactionSend(interaction, {
+					content: lang.reactionroles_dont_message_found
+				});
+			}
+
+			let msg;
+			try {
+				msg = await (channel as BaseGuildTextChannel)?.messages.fetch(
+					messagei!
+				);
+			} catch {
+				return await client.func.method.interactionSend(interaction, {
+					content: lang.reactionroles_dont_message_found
+				});
+			}
+
+			if (!msg) {
+				return await client.func.method.interactionSend(interaction, {
+					content: lang.reactionroles_dont_message_found
+				});
+			}
 
 			msg.react(reaction)
 				.then(async () => {
@@ -280,6 +300,13 @@ export const command: Command = {
 			if (!reaction) {
 				await client.func.method.interactionSend(interaction, {
 					content: lang.reactionroles_missing_remove
+				});
+				return;
+			}
+
+			if (!channel || !messagei || !/^\d+$/.test(messagei)) {
+				await client.func.method.interactionSend(interaction, {
+					content: lang.reactionroles_cant_fetched_reaction_remove
 				});
 				return;
 			}

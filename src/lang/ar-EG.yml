@@ -1649,6 +1649,7 @@ remove_react_command_work: "<@${interaction.member?.id}>, الآن عندما ي
 
 # /add-react
 add_react_command_err_emojis: "الرمز التعبيري `{emoji}` للتفاعل غير صحيح!"
+add_react_command_err_message: "يجب عليك تحديد الرسالة التي ستؤدي إلى التفاعل!"
 add_react_command_work: "<@${interaction.member?.id}>, الآن عندما يرسل أحد الأعضاء `${message.toLowerCase()}`، البوت **سيتفاعل** بـ {emoji}"
 
 # /list-react

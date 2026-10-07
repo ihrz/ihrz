@@ -52,6 +52,17 @@ export const subCommand: SubCommand = {
 			var role = client.func.method.role(interaction, args!, 0);
 		}
 
+		const channel = interaction.channel as BaseGuildTextChannel;
+		if (!channel?.permissionOverwrites?.edit) {
+			await client.func.method.interactionSend(interaction, {
+				content: lang.setrankroles_command_error.replace(
+					"${client.iHorizon_Emojis.No}",
+					client.iHorizon_Emojis.No
+				)
+			});
+			return;
+		}
+
 		await (
 			interaction.channel as BaseGuildTextChannel
 		).permissionOverwrites.edit(

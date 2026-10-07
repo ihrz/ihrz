@@ -415,27 +415,31 @@ class EmbedManager {
 
 	// Optimized embed operations
 	private async saveEmbed(arg?: string): Promise<string> {
-		const potentialEmbed = (await metasTable.get(
-			`EMBED.${arg}`
-		)) as DatabaseStructure.DbEmbedObject["EMBED"];
-
 		if (
-			potentialEmbed?.embedOwner !== this.interaction.member?.user.id! ||
-			!arg
+			typeof arg === "string" &&
+			client.func.embedHelper.isValidEmbedId(arg)
 		) {
-			const password = generatePassword({ length: 16 });
-			await metasTable.set(`EMBED.${password}`, {
-				embedOwner: this.interaction.member?.user.id!,
-				embedSource: this.embed.toJSON()
-			});
-			return password;
+			const potentialEmbed = (await metasTable.get(
+				`EMBED.${arg}`
+			)) as DatabaseStructure.DbEmbedObject["EMBED"];
+
+			if (
+				potentialEmbed?.embedOwner === this.interaction.member?.user.id!
+			) {
+				await metasTable.set(`EMBED.${arg}`, {
+					embedOwner: this.interaction.member?.user.id!,
+					embedSource: this.embed.toJSON()
+				});
+				return arg;
+			}
 		}
 
-		await metasTable.set(`EMBED.${arg}`, {
+		const password = generatePassword({ length: 16 });
+		await metasTable.set(`EMBED.${password}`, {
 			embedOwner: this.interaction.member?.user.id!,
 			embedSource: this.embed.toJSON()
 		});
-		return arg;
+		return password;
 	}
 
 	private async sendEmbed(
@@ -721,11 +725,13 @@ class EmbedManager {
 	// Main run method
 	async run(arg?: string): Promise<void> {
 		// Load existing embed if available
-		const potentialEmbed = (await metasTable.get(
-			`EMBED.${arg}`
-		)) as DatabaseStructure.DbEmbedObject["EMBED"];
-		if (potentialEmbed) {
-			this.embed = new EmbedBuilder(potentialEmbed.embedSource);
+		if (client.func.embedHelper.isValidEmbedId(arg)) {
+			const potentialEmbed = (await metasTable.get(
+				`EMBED.${arg}`
+			)) as DatabaseStructure.DbEmbedObject["EMBED"];
+			if (potentialEmbed) {
+				this.embed = new EmbedBuilder(potentialEmbed.embedSource);
+			}
 		}
 
 		const { select, buttons } = this.createComponents();

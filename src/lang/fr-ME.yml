@@ -1651,6 +1651,7 @@ remove_react_command_work: "<@${interaction.member?.id}>, maintenant quand un me
 
 # /add-react
 add_react_command_err_emojis: "L'émoji `{emoji}`de la réaction ne correspond pas à un émojis !"
+add_react_command_err_message: "Tu dois préciser le message qui déclenchera la réaction !"
 add_react_command_work: "<@${interaction.member?.id}>, maintenant quand un membre envoie `${message.toLowerCase()}`, le bot **réagis** avec {emoji}"
 
 # /list-react

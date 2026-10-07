@@ -1648,6 +1648,7 @@ remove_react_command_work: "<@${interaction.member?.id}>, теперь, когд
 
 # /add-react
 add_react_command_err_emojis: "Эмодзи `{emoji}` для реакции недействителен!"
+add_react_command_err_message: "Необходимо указать сообщение, которое будет вызывать реакцию!"
 add_react_command_work: "<@${interaction.member?.id}>, теперь, когда участник отправляет `${message.toLowerCase()}`, бот **будет реагировать** с {emoji}"
 
 # /list-react

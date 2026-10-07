@@ -1648,6 +1648,7 @@ remove_react_command_work: "<@${interaction.member?.id}>, jetzt wenn ein Mitglie
 
 # /add-react
 add_react_command_err_emojis: "Das Emoji `{emoji}` für die Reaktion ist kein gültiges Emoji!"
+add_react_command_err_message: "Du musst die Nachricht angeben, die die Reaktion auslösen soll!"
 add_react_command_work: "<@${interaction.member?.id}>, jetzt wenn ein Mitglied `${message.toLowerCase()}` sendet, wird der Bot **mit {emoji} reagieren**."
 
 # /list-react

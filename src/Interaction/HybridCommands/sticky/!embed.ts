@@ -83,9 +83,10 @@ export const subCommand: SubCommand = {
 			return;
 		}
 
-		const embedData = (await metasTable.get(`EMBED.${embedId}`)) as
-			| DatabaseStructure.DbEmbedObject[string]
-			| null;
+		const embedData = client.func.embedHelper.isValidEmbedId(embedId)
+			? ((await metasTable.get(`EMBED.${embedId}`)) as
+					DatabaseStructure.DbEmbedObject[string] | null)
+			: null;
 
 		if (!embedData?.embedSource) {
 			await client.func.method.interactionSend(interaction, {

@@ -1265,6 +1265,7 @@ export interface LanguageData {
 	toggle_react_react: string;
 	remove_react_command_work: string;
 	add_react_command_err_emojis: string;
+	add_react_command_err_message: string;
 	add_react_command_work: string;
 	list_react_nothing_found: string;
 	list_react_embed_msg: string;

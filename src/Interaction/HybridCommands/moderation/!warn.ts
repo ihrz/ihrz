@@ -60,6 +60,13 @@ export const subCommand: SubCommand = {
 			var reason = client.func.method.longString(args!, 1)!;
 		}
 
+		if (!member) {
+			await client.func.method.interactionSend(interaction, {
+				content: lang.ban_dont_found_member
+			});
+			return;
+		}
+
 		const warnId = await client.func.method.warnMember(
 			interaction.member!,
 			member!,

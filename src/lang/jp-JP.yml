@@ -1648,6 +1648,7 @@ remove_react_command_work: "<@${interaction.member?.id}>, メンバーが `${mes
 
 # /add-react
 add_react_command_err_emojis: "リアクションの絵文字 `{emoji}` は有効な絵文字ではありません！"
+add_react_command_err_message: "リアクションを発動させるメッセージを指定してください！"
 add_react_command_work: "<@${interaction.member?.id}>, メンバーが `${message.toLowerCase()}` を送信すると、ボットは **{emoji} で反応します**."
 
 # /list-react
