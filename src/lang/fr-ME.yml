@@ -617,6 +617,8 @@ help_honeypot_dsc: "> *Configure un salon piège pour choper les comptes comprom
 # /h
 h_suite: "(Suite)"
 h_suite_desc: "*Suite des commandes de la catégorie*"
+helpall_no_perms_defined: "Y'a aucune perm custom de définie sur ce serveur, `helpall` sert à rien ici — utilise `${botPrefix}h` à la place."
+helpall_no_access: "T'as accès à aucune commande à perm sur ce serveur."
 
 # /say
 say_footer_msg: "\n\nEnvoyé depuis `/say` par ${interaction.user}"

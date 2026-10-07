@@ -103,7 +103,7 @@ export async function checkCommandPermission(
 	};
 }
 
-async function isOnTheOwnerList(
+export async function isOnTheOwnerList(
 	guildId: string,
 	memberId: string
 ): Promise<boolean> {
@@ -111,7 +111,7 @@ async function isOnTheOwnerList(
 }
 
 // Helper function to get command permission data
-function getCmdPermData(
+export function getCmdPermData(
 	command: string,
 	guildPerm: DatabaseStructure.UtilsData
 ): command {
@@ -141,7 +141,7 @@ function getCmdPermData(
 }
 
 // Check if user is explicitly allowed
-function checkExplicitUserPermission(
+export function checkExplicitUserPermission(
 	userId: string,
 	cmdPermData: command
 ): boolean {
@@ -161,7 +161,7 @@ function checkExplicitUserPermission(
 }
 
 // Check role hierarchy system
-function checkRoleHierarchy(
+export function checkRoleHierarchy(
 	member: GuildMember | null | undefined,
 	guildPerm: DatabaseStructure.UtilsData,
 	cmdPermData: command
@@ -185,7 +185,7 @@ function checkRoleHierarchy(
 }
 
 // Check explicit role permissions
-function checkExplicitRolePermission(
+export function checkExplicitRolePermission(
 	member: GuildMember | null | undefined,
 	cmdPermData: command
 ): boolean {
@@ -210,7 +210,7 @@ function checkExplicitRolePermission(
 }
 
 // Check user permission level in database
-function checkUserPermLevel(
+export function checkUserPermLevel(
 	userId: string,
 	guildPerm: DatabaseStructure.UtilsData,
 	cmdPermData: command

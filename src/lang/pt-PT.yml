@@ -617,6 +617,8 @@ help_honeypot_dsc: "> *Configura um canal armadilha para detetar contas comprome
 # /h
 h_suite: "(Continuação)"
 h_suite_desc: "*Continuação dos comandos da categoria*"
+helpall_no_perms_defined: "Não há permissões personalizadas definidas neste servidor, por isso o `helpall` é inútil aqui — usa `${botPrefix}h` em vez disso."
+helpall_no_access: "Não tens acesso a nenhum comando com permissões neste servidor."
 
 # /say
 say_footer_msg: "\n\nEnviado de `/say` por ${interaction.user}"

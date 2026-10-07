@@ -617,6 +617,8 @@ help_honeypot_dsc: "> *قم بإعداد قناة فخ لاكتشاف الحسا
 # /h
 h_suite: "(تتمة)"
 h_suite_desc: "*استمرار أوامر الفئة*"
+helpall_no_perms_defined: "لا توجد أذونات مخصصة محددة على هذا السيرفر، لذا فإن `helpall` غير مفيد هنا — استخدم `${botPrefix}h` بدلاً من ذلك."
+helpall_no_access: "ليس لديك حق الوصول إلى أي أمر يتطلب أذونات على هذا السيرفر."
 
 # /say
 say_footer_msg: "\n\nأُرسل من `/say` بواسطة ${interaction.user}"

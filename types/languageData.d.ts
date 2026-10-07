@@ -534,6 +534,8 @@ export interface LanguageData {
 	help_honeypot_dsc: string;
 	h_suite: string;
 	h_suite_desc: string;
+	helpall_no_perms_defined: string;
+	helpall_no_access: string;
 	say_footer_msg: string;
 	ping_down_msg: string;
 	ping_embed_desc: string;

@@ -617,6 +617,8 @@ help_honeypot_dsc: "> *Set up a trap channel to catch compromised accounts and a
 # /h
 h_suite: "(Continued)"
 h_suite_desc: "*Continued commands of the category*"
+helpall_no_perms_defined: "No custom permissions are defined on this server, so `helpall` is useless here — use `${botPrefix}h` instead."
+helpall_no_access: "You don't have access to any permission-gated command on this server."
 
 # /say
 say_footer_msg: "\n\nSent from `/say` by ${interaction.user}"

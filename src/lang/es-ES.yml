@@ -617,6 +617,8 @@ help_honeypot_dsc: "> *Configura un canal trampa para detectar cuentas compromet
 # /h
 h_suite: "(Continuación)"
 h_suite_desc: "*Comandos continuados de la categoría*"
+helpall_no_perms_defined: "No hay permisos personalizados definidos en este servidor, por lo que `helpall` no sirve aquí — usa `${botPrefix}h` en su lugar."
+helpall_no_access: "No tienes acceso a ningún comando con permisos en este servidor."
 
 # /say
 say_footer_msg: "\n\nEnviado desde `/say` por ${interaction.user}"
