@@ -36,12 +36,15 @@ import { DatabaseStructure } from "../../../types/database_structure.js";
 import { LanguageData } from "../../../types/languageData.js";
 
 import logger from "../logger.js";
+import wait from "../functions/wait.js";
 
 const HONEYPOT_WINDOW_MS = 1000 * 60 * 60 * 2;
 const HONEYPOT_EMBED_COLOR = "#D88A3D";
 const HONEYPOT_TRIGGER_DELAY = 1500;
+const HONEYPOT_SECOND_PASS_DELAY_MS = 8000;
 
-type HoneypotMessageChannel = BaseGuildTextChannel | AnyThreadChannel | VoiceChannel;
+type HoneypotMessageChannel =
+	BaseGuildTextChannel | AnyThreadChannel | VoiceChannel;
 export type HoneypotActionResult = "kick" | "ban" | "none" | "failed";
 
 interface ScheduledHoneypotTrigger {
@@ -117,6 +120,8 @@ function isHoneypotChannel(
 		(channel.type === ChannelType.GuildText ||
 			channel.type === ChannelType.GuildAnnouncement ||
 			channel.type === ChannelType.GuildVoice ||
+			channel.type === ChannelType.GuildForum ||
+			channel.type === ChannelType.GuildMedia ||
 			channel.type === ChannelType.GuildStageVoice)
 	)
 		return true;
@@ -127,64 +132,119 @@ async function collectChannels(
 	message: Message
 ): Promise<HoneypotMessageChannel[]> {
 	const channels = new Map<string, HoneypotMessageChannel>();
+	const guild = message.guild!;
 
-	for (const channel of message.guild!.channels.cache.values()) {
-		if (isHoneypotChannel(channel)) {
+	// Never rely on the cache alone: swept/uncached channels would keep
+	// their spam forever.
+	const fetched = await guild.channels.fetch().catch(() => null);
+	const source = fetched
+		? [...fetched.values()]
+		: [...guild.channels.cache.values()];
+
+	for (const channel of source) {
+		if (channel && isHoneypotChannel(channel)) {
 			channels.set(channel.id, channel);
 		}
 	}
 
-	const activeThreads = await message
-		.guild!.channels.fetchActiveThreads()
+	const activeThreads = await guild.channels
+		.fetchActiveThreads()
 		.catch(() => null);
-	activeThreads?.threads.forEach((thread) => channels.set(thread.id, thread));
+	activeThreads?.threads.forEach((thread) =>
+		channels.set(thread.id, thread as HoneypotMessageChannel)
+	);
+
+	// Best effort: spam may also sit in archived threads/posts.
+	for (const parent of [...channels.values()]) {
+		if (
+			!("threads" in parent) ||
+			typeof (parent as BaseGuildTextChannel).threads?.fetchArchived !==
+				"function"
+		) {
+			continue;
+		}
+		if (
+			parent.type !== ChannelType.GuildText &&
+			parent.type !== ChannelType.GuildAnnouncement &&
+			parent.type !== ChannelType.GuildForum
+		) {
+			continue;
+		}
+		const archived = await (parent as BaseGuildTextChannel).threads
+			.fetchArchived({ type: "public", fetchAll: true })
+			.catch(() => null);
+		archived?.threads.forEach((thread) => {
+			if (!channels.has(thread.id)) {
+				channels.set(thread.id, thread as HoneypotMessageChannel);
+			}
+		});
+	}
 
 	return [...channels.values()];
 }
 
-async function deleteRecentMessages(message: Message): Promise<number> {
+interface HoneypotCleanupResult {
+	deletedCount: number;
+	failedChannelIds: string[];
+	scannedChannels: number;
+}
+
+async function deleteRecentMessages(
+	message: Message
+): Promise<HoneypotCleanupResult> {
 	const cutoff = Date.now() - HONEYPOT_WINDOW_MS;
 	const channels = await collectChannels(message);
 	let deletedCount = 0;
+	const failedChannelIds: string[] = [];
 
 	for (const channel of channels) {
-		for (let before: string | undefined = undefined; ; ) {
-			const fetchedMessages: Collection<Snowflake, Message> | null =
-				await channel.messages
-					.fetch({ limit: 100, before })
-					.catch(() => null);
+		try {
+			for (let before: string | undefined = undefined; ;) {
+				const fetchedMessages: Collection<Snowflake, Message> | null =
+					await channel.messages
+						.fetch({ limit: 100, before })
+						.catch(() => null);
 
-			if (!fetchedMessages || fetchedMessages.size === 0) break;
+				if (!fetchedMessages || fetchedMessages.size === 0) break;
 
-			const targetMessages = fetchedMessages.filter(
-				(entry: Message) =>
-					entry.author.id === message.author.id &&
-					entry.createdTimestamp >= cutoff
-			);
+				const targetMessages = fetchedMessages.filter(
+					(entry: Message) =>
+						entry.author.id === message.author.id &&
+						entry.createdTimestamp >= cutoff
+				);
 
-			if (targetMessages.size === 1) {
-				const onlyMessage = targetMessages.first()!;
-				const deleted = await onlyMessage.delete().catch(() => null);
-				if (deleted) deletedCount += 1;
-			} else if (targetMessages.size > 1) {
-				const deleted = await channel
-					.bulkDelete([...targetMessages.keys()], true)
-					.catch(() => null);
-				deletedCount += deleted?.size ?? 0;
+				if (targetMessages.size === 1) {
+					const onlyMessage = targetMessages.first()!;
+					const deleted = await onlyMessage
+						.delete()
+						.catch(() => null);
+					if (deleted) deletedCount += 1;
+				} else if (targetMessages.size > 1) {
+					const deleted = await channel
+						.bulkDelete([...targetMessages.keys()], true)
+						.catch(() => null);
+					deletedCount += deleted?.size ?? 0;
+				}
+
+				const oldestMessage: Message | undefined =
+					fetchedMessages.last();
+				const reachedCutoff =
+					!oldestMessage || oldestMessage.createdTimestamp < cutoff;
+				const reachedChannelStart = fetchedMessages.size < 100;
+
+				if (reachedCutoff || reachedChannelStart) break;
+
+				before = oldestMessage!.id;
 			}
-
-			const oldestMessage: Message | undefined = fetchedMessages.last();
-			const reachedCutoff =
-				!oldestMessage || oldestMessage.createdTimestamp < cutoff;
-			const reachedChannelStart = fetchedMessages.size < 100;
-
-			if (reachedCutoff || reachedChannelStart) break;
-
-			before = oldestMessage!.id;
+		} catch (error: unknown) {
+			failedChannelIds.push(channel.id);
+			logger.warn(
+				`Honeypot cleanup skipped channel ${channel.id} in guild ${message.guildId}: ${String(error)}`
+			);
 		}
 	}
 
-	return deletedCount;
+	return { deletedCount, failedChannelIds, scannedChannels: channels.length };
 }
 
 async function notifyUser(
@@ -234,7 +294,7 @@ async function applyConfiguredAction(
 			const banResult = await message.guild?.members
 				.ban(message.author.id, {
 					reason: "Honeypot triggered",
-					deleteMessageSeconds: 60 * 60 // 3600 secondes
+					deleteMessageSeconds: (HONEYPOT_WINDOW_MS / 1000) | 0
 				})
 				.catch(() => null);
 			return banResult ? "ban" : "failed";
@@ -401,15 +461,9 @@ export async function processHoneypotTrigger(
 		}
 	);
 
-	const deletedCount = await deleteRecentMessages(message).catch(
-		(error: unknown) => {
-			logger.warn(
-				`Honeypot cleanup failed for guild ${message.guildId}, user ${message.author.id}: ${String(error)}`
-			);
-			return 0;
-		}
-	);
-
+	// Sanction first: it stops the bleeding (no new spam lands while the
+	// slow channel-by-channel scan runs) and the native ban deletion wipes
+	// the bulk server-side, including channels the bot cannot read itself.
 	const actionResult = await applyConfiguredAction(
 		message,
 		config.action
@@ -419,6 +473,49 @@ export async function processHoneypotTrigger(
 		);
 		return "failed" as HoneypotActionResult;
 	});
+
+	const deletedFirstPass = await deleteRecentMessages(message).catch(
+		(error: unknown) => {
+			logger.warn(
+				`Honeypot cleanup failed for guild ${message.guildId}, user ${message.author.id}: ${String(error)}`
+			);
+			return {
+				deletedCount: 0,
+				failedChannelIds: [],
+				scannedChannels: 0
+			} as HoneypotCleanupResult;
+		}
+	);
+
+	// Safety net: anything posted while the first pass was scanning, or
+	// missed by Discord's native ban deletion, is caught by a second sweep.
+	await wait(HONEYPOT_SECOND_PASS_DELAY_MS);
+	const deletedSecondPass = await deleteRecentMessages(message).catch(
+		(error: unknown) => {
+			logger.warn(
+				`Honeypot second cleanup pass failed for guild ${message.guildId}, user ${message.author.id}: ${String(error)}`
+			);
+			return {
+				deletedCount: 0,
+				failedChannelIds: [],
+				scannedChannels: 0
+			} as HoneypotCleanupResult;
+		}
+	);
+
+	const deletedCount =
+		deletedFirstPass.deletedCount + deletedSecondPass.deletedCount;
+	const failedChannelIds = [
+		...new Set([
+			...deletedFirstPass.failedChannelIds,
+			...deletedSecondPass.failedChannelIds
+		])
+	];
+	if (failedChannelIds.length > 0) {
+		logger.warn(
+			`Honeypot cleanup incomplete for guild ${message.guildId}, user ${message.author.id}: ${deletedCount} deleted, ${failedChannelIds.length} channel(s) skipped (${failedChannelIds.join(", ")})`
+		);
+	}
 
 	if (actionResult === "failed" && config.action !== "none") {
 		logger.warn(

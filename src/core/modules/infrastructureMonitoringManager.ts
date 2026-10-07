@@ -253,11 +253,92 @@ class InfrastructureMonitoring {
 		return avg;
 	}
 
+	private buildPingChartSvg(
+		pingData: (number | null)[],
+		timeLabels: string[]
+	): string {
+		const W = 904;
+		const H = 190;
+		const PAD_L = 8;
+		const PAD_R = 8;
+		const PAD_T = 12;
+		const PAD_B = 24;
+		const innerW = W - PAD_L - PAD_R;
+		const innerH = H - PAD_T - PAD_B;
+
+		const valid = pingData.filter(
+			(v): v is number => typeof v === "number" && v > 0
+		);
+		const maxPing = valid.length > 0 ? Math.max(...valid) : 1;
+		const ceiling = Math.max(maxPing * 1.2, 10);
+
+		const n = pingData.length;
+		const xAt = (i: number) => PAD_L + (innerW * i) / Math.max(n - 1, 1);
+		const yAt = (ping: number) =>
+			PAD_T + innerH - (Math.min(ping, ceiling) / ceiling) * innerH;
+
+		let linePath = "";
+		let areaPath = "";
+		let segment: string[] = [];
+
+		const flushSegment = () => {
+			if (segment.length === 1) {
+				const [solo] = segment;
+				linePath += `${solo} `;
+			} else if (segment.length > 1) {
+				const d = "M" + segment.join(" L");
+				linePath += `${d} `;
+				const firstX = segment[0].split(",")[0];
+				const lastX = segment[segment.length - 1].split(",")[0];
+				areaPath += `M${firstX},${PAD_T + innerH} L${segment.join(" L")} L${lastX},${PAD_T + innerH} Z `;
+			}
+			segment = [];
+		};
+
+		for (let i = 0; i < n; i++) {
+			const v = pingData[i];
+			if (typeof v !== "number" || v <= 0) {
+				flushSegment();
+				continue;
+			}
+			segment.push(`${xAt(i).toFixed(1)},${yAt(v).toFixed(1)}`);
+		}
+		flushSegment();
+
+		if (!linePath.trim()) {
+			linePath = `M${PAD_L},${PAD_T + innerH} L${W - PAD_R},${PAD_T + innerH}`;
+		}
+
+		let grid = "";
+		for (let g = 0; g <= 3; g++) {
+			const gy = PAD_T + (innerH * g) / 3;
+			grid += `<line x1="${PAD_L}" y1="${gy.toFixed(1)}" x2="${W - PAD_R}" y2="${gy.toFixed(1)}" stroke="rgba(255,255,255,0.06)" stroke-width="1"/>`;
+		}
+
+		let labels = "";
+		const tickEvery = 6;
+		for (let i = 0; i < n; i += tickEvery) {
+			if (i !== 0 && i + tickEvery >= n && i !== n - 1) continue;
+			const label = (timeLabels[i] ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;");
+			labels += `<text x="${xAt(i).toFixed(1)}" y="${(H - 8).toFixed(1)}" fill="#8B8E98" font-size="9" font-weight="600" text-anchor="middle" font-family="Inter, system-ui, sans-serif">${label}</text>`;
+		}
+
+		return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" role="img"><defs><linearGradient id="pingFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5865F2" stop-opacity="0.4"/><stop offset="0.5" stop-color="#5865F2" stop-opacity="0.2"/><stop offset="1" stop-color="#5865F2" stop-opacity="0"/></linearGradient></defs>${grid}<path d="${areaPath.trim()}" fill="url(#pingFill)"/>${linePath
+			.trim()
+			.split(" M")
+			.map(
+				(d, idx) =>
+					`<path d="${idx === 0 ? d : "M" + d}" fill="none" stroke="#5865F2" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>`
+			)
+			.join("")}${labels}</svg>`;
+	}
+
 	private async generatePingChart(): Promise<Buffer> {
 		let htmlContent = client.htmlfiles["botLatencyMonitoring"];
 
 		const { pingData, timeLabels } = this.generatePingChartData();
 		const stats = this.calculatePingStats();
+		const chartSvg = this.buildPingChartSvg(pingData, timeLabels);
 
 		htmlContent = htmlContent
 			.replace("{bot_name}", client.user?.username || "iHorizon")
@@ -265,8 +346,7 @@ class InfrastructureMonitoring {
 			.replace("{avg_ping}", stats.avg.toString())
 			.replace("{max_ping}", stats.max.toString())
 			.replace("{min_ping}", stats.min.toString())
-			.replace("{ ping_data }", JSON.stringify(pingData))
-			.replace("{ time_labels }", JSON.stringify(timeLabels));
+			.replace("{chart_svg}", chartSvg);
 
 		const image = await client.func.html2png(htmlContent, {
 			elementSelector: "body",
@@ -404,7 +484,7 @@ class InfrastructureMonitoring {
 				});
 				this.statusEmbed.setImage("attachment://ping-chart.png");
 			} catch (error) {
-				console.error("Failed to generate ping chart:", error);
+				logger.err(`Failed to generate ping chart: ${error}`);
 			}
 
 			// Update all status messages in configured channels

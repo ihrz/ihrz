@@ -60,7 +60,7 @@ export default async function (
 				"[ButtonReaction] Module"
 			);
 			await interaction.reply({
-				content: lang.buttonreaction_role_add.replace(
+				content: lang.buttonreaction_role_remove.replace(
 					"${fetched_role.toString()}",
 					fetched_role.toString()
 				),
@@ -72,7 +72,7 @@ export default async function (
 				"[ButtonReaction] Module"
 			);
 			await interaction.reply({
-				content: lang.buttonreaction_role_remove.replace(
+				content: lang.buttonreaction_role_add.replace(
 					"${fetched_role.toString()}",
 					fetched_role.toString()
 				),

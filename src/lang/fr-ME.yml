@@ -617,6 +617,8 @@ help_honeypot_dsc: "> *Configure un salon piège pour choper les comptes comprom
 # /h
 h_suite: "(Suite)"
 h_suite_desc: "*Suite des commandes de la catégorie*"
+helpall_no_perms_defined: "Y'a aucune perm custom de définie sur ce serveur, `helpall` sert à rien ici — utilise `${botPrefix}h` à la place."
+helpall_no_access: "T'as accès à aucune commande à perm sur ce serveur."
 
 # /say
 say_footer_msg: "\n\nEnvoyé depuis `/say` par ${interaction.user}"
@@ -1651,6 +1653,7 @@ remove_react_command_work: "<@${interaction.member?.id}>, maintenant quand un me
 
 # /add-react
 add_react_command_err_emojis: "L'émoji `{emoji}`de la réaction ne correspond pas à un émojis !"
+add_react_command_err_message: "Tu dois préciser le message qui déclenchera la réaction !"
 add_react_command_work: "<@${interaction.member?.id}>, maintenant quand un membre envoie `${message.toLowerCase()}`, le bot **réagis** avec {emoji}"
 
 # /list-react
@@ -2981,8 +2984,8 @@ notifier_generateConfigurationEmbed_embed_fields_2_name: "Message de Notificatio
 # ButtonReaction
 buttonreaction_role_doesnt_exit: "Le rôle dans ma base de données n'existe plus dans le serveur !"
 buttonreaction_role_too_high: "Le rôle est trop élevé, je ne peux pas donner/enlever le rôle. J'ai besoin de changer mes permissions !"
-buttonreaction_role_add: "Vous n'avez plus le rôle ${fetched_role.toString()} ✅"
-buttonreaction_role_remove: "Ta maintenant le rôle ${fetched_role.toString()} :tada:"
+buttonreaction_role_add: "Ta maintenant le rôle ${fetched_role.toString()} :tada:"
+buttonreaction_role_remove: "Vous n'avez plus le rôle ${fetched_role.toString()} ✅"
 rolepanel_setup_embed_title: "Configuration du panel de rôles"
 rolepanel_setup_embed_desc: "Sélectionne les rôles à ajouter ou retirer à ${member}. Si ${member} possède déjà un rôle sélectionné, il sera retiré. Les rôles non autorisés seront ignorés."
 rolepanel_setup_embed_roles_field: "Rôles autorisés"

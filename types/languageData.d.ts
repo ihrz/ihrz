@@ -534,6 +534,8 @@ export interface LanguageData {
 	help_honeypot_dsc: string;
 	h_suite: string;
 	h_suite_desc: string;
+	helpall_no_perms_defined: string;
+	helpall_no_access: string;
 	say_footer_msg: string;
 	ping_down_msg: string;
 	ping_embed_desc: string;
@@ -1265,6 +1267,7 @@ export interface LanguageData {
 	toggle_react_react: string;
 	remove_react_command_work: string;
 	add_react_command_err_emojis: string;
+	add_react_command_err_message: string;
 	add_react_command_work: string;
 	list_react_nothing_found: string;
 	list_react_embed_msg: string;

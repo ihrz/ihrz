@@ -617,6 +617,8 @@ help_honeypot_dsc: "> *Richte einen Fallenkanal ein, um kompromittierte Konten z
 # /h
 h_suite: "(Fortsetzung)"
 h_suite_desc: "*Fortsetzung der Kategoriekommandos*"
+helpall_no_perms_defined: "Auf diesem Server sind keine benutzerdefinierten Berechtigungen definiert, daher ist `helpall` hier nutzlos — verwende stattdessen `${botPrefix}h`."
+helpall_no_access: "Du hast auf diesem Server keinen Zugriff auf Befehle mit Berechtigungen."
 
 # /say
 say_footer_msg: "\n\nGesendet von `/sagen` von ${interaction.user}"
@@ -1648,6 +1650,7 @@ remove_react_command_work: "<@${interaction.member?.id}>, jetzt wenn ein Mitglie
 
 # /add-react
 add_react_command_err_emojis: "Das Emoji `{emoji}` für die Reaktion ist kein gültiges Emoji!"
+add_react_command_err_message: "Du musst die Nachricht angeben, die die Reaktion auslösen soll!"
 add_react_command_work: "<@${interaction.member?.id}>, jetzt wenn ein Mitglied `${message.toLowerCase()}` sendet, wird der Bot **mit {emoji} reagieren**."
 
 # /list-react

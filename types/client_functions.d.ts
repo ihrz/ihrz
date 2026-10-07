@@ -862,6 +862,7 @@ declare namespace Client_Functions {
 	export namespace embedHelper {
 		export function isValidLink(url: string): boolean;
 		export function isValidColor(color: string): boolean;
+		export function isValidEmbedId(id: unknown): boolean;
 		export function getMediaByMessage(message: Message<boolean>): {
 			name: string;
 			attachment: string;

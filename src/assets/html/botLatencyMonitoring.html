@@ -4,10 +4,6 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<link rel="preconnect" href="https://fonts.googleapis.com">
-	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-	<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 	<style>
 		:root {
 			--primary: #5865F2;
@@ -30,7 +26,7 @@
 		}
 
 		body {
-			font-family: 'Inter', sans-serif;
+			font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
 			background: linear-gradient(135deg, var(--bg-dark) 0%, #151820 100%);
 			color: var(--text-bright);
 			width: 1024px;
@@ -89,10 +85,7 @@
 		.title {
 			font-size: 22px;
 			font-weight: 800;
-			background: linear-gradient(135deg, var(--text-bright) 0%, var(--text-muted) 100%);
-			-webkit-background-clip: text;
-			background-clip: text;
-			-webkit-text-fill-color: transparent;
+			color: var(--text-bright);
 			margin-bottom: 4px;
 			letter-spacing: -0.5px;
 		}
@@ -201,7 +194,7 @@
 			pointer-events: none;
 		}
 
-		canvas {
+		svg {
 			position: relative;
 			z-index: 1;
 		}
@@ -211,7 +204,7 @@
 <body>
 	<div class="container">
 		<div class="header">
-			<div class="title">⚡ WebSocket Ping - {bot_name}</div>
+			<div class="title">WebSocket Ping - {bot_name}</div>
 			<div class="subtitle">History of the last hour</div>
 		</div>
 
@@ -248,110 +241,10 @@
 
 		<div class="chart-wrapper">
 			<div class="chart-container">
-				<canvas id="pingChart"></canvas>
+				{chart_svg}
 			</div>
 		</div>
 	</div>
-
-	<script>
-		const pingData = { ping_data };
-		const timeLabels = { time_labels };
-
-		const ctx = document.getElementById('pingChart').getContext('2d');
-
-		const gradient = ctx.createLinearGradient(0, 0, 0, 200);
-		gradient.addColorStop(0, 'rgba(88, 101, 242, 0.4)');
-		gradient.addColorStop(0.5, 'rgba(88, 101, 242, 0.2)');
-		gradient.addColorStop(1, 'rgba(88, 101, 242, 0)');
-
-		new Chart(ctx, {
-			type: 'line',
-			data: {
-				labels: timeLabels,
-				datasets: [{
-					label: 'Ping (ms)',
-					data: pingData,
-					borderColor: '#5865F2',
-					backgroundColor: gradient,
-					fill: true,
-					tension: 0.4,
-					borderWidth: 2.5,
-					pointRadius: 0,
-					pointHoverRadius: 5,
-					pointHoverBackgroundColor: '#5865F2',
-					pointHoverBorderColor: '#fff',
-					pointHoverBorderWidth: 2
-				}]
-			},
-			options: {
-				responsive: true,
-				maintainAspectRatio: false,
-				interaction: {
-					mode: 'index',
-					intersect: false,
-				},
-				plugins: {
-					legend: {
-						display: false
-					},
-					tooltip: {
-						enabled: true,
-						backgroundColor: 'rgba(26, 28, 35, 0.95)',
-						titleColor: '#fff',
-						bodyColor: '#8B8E98',
-						titleFont: {
-							family: 'Inter',
-							size: 12,
-							weight: '700'
-						},
-						bodyFont: {
-							family: 'Inter',
-							size: 11,
-							weight: '500'
-						},
-						padding: 10,
-						borderColor: 'rgba(255, 255, 255, 0.1)',
-						borderWidth: 1,
-						displayColors: false,
-						callbacks: {
-							title: function (context) {
-								return context[0].label;
-							},
-							label: function (context) {
-								return `Ping: ${context.parsed.y} ms`;
-							}
-						}
-					}
-				},
-				scales: {
-					x: {
-						grid: {
-							color: 'rgba(255, 255, 255, 0.03)',
-							drawBorder: false
-						},
-						ticks: {
-							color: '#8B8E98',
-							font: {
-								family: 'Inter',
-								size: 9,
-								weight: '600'
-							},
-							maxRotation: 0,
-							autoSkip: true,
-							maxTicksLimit: 10
-						}
-					},
-					y: {
-						display: false,
-						beginAtZero: true,
-						grid: {
-							display: false
-						}
-					}
-				}
-			}
-		});
-	</script>
 </body>
 
 </html>

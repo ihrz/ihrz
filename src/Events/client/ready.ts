@@ -250,44 +250,62 @@ export const event: BotEvent = {
 		}
 
 		async function refreshBotData() {
-			try {
-				const result = await getShardStats(client);
-				const pushedAt = Date.now();
+			// broadcastEval throws ShardingInProcess while shards are still
+			// spawning: short retry instead of failing the boot push.
+			const MAX_RETRIES = 12;
+			const RETRY_MS = 5_000;
+			for (let attempt = 1; ; attempt++) {
+				try {
+					const result = await getShardStats(client);
+					const pushedAt = Date.now();
 
-				await metasTable.set("BOT", {
-					info: {
-						members: result.users,
-						servers: result.guilds,
-						shards: client.shard?.count,
-						ping: client.infrastructureMonitoring.getAverageWebsocketPing()
-					},
-					content: {
-						commands:
-							client.commands.size +
-							client.message_commands.size +
-							client.applicationsCommands.size,
-						category: client.category.length,
-						langs: AvailableLanguage.map((x) => x.name)
-					},
-					user: {
-						username: client.user?.username,
-						tag: client.user?.tag,
-						id: client.user?.id,
-						discriminator: client.user?.discriminator,
-						avatar: client.user?.displayAvatarURL({
-							extension: "png",
-							size: 4096
-						}),
-						bio: client.func.retrieveMyself.retrieveBio()
-					},
-					lastPushAt: pushedAt,
-					lastPushAtISO: new Date(pushedAt).toISOString(),
-					writerShard: client.shard?.ids[0] ?? 0
-				});
-			} catch (error) {
-				logger.err(
-					`refreshBotData failed (shard #${client.shard?.ids[0] ?? 0}): ${error}`
-				);
+					await metasTable.set("BOT", {
+						info: {
+							members: result.users,
+							servers: result.guilds,
+							shards: client.shard?.count,
+							ping: client.infrastructureMonitoring.getAverageWebsocketPing()
+						},
+						content: {
+							commands:
+								client.commands.size +
+								client.message_commands.size +
+								client.applicationsCommands.size,
+							category: client.category.length,
+							langs: AvailableLanguage.map((x) => x.name)
+						},
+						user: {
+							username: client.user?.username,
+							tag: client.user?.tag,
+							id: client.user?.id,
+							discriminator: client.user?.discriminator,
+							avatar: client.user?.displayAvatarURL({
+								extension: "png",
+								size: 4096
+							}),
+							bio: client.func.retrieveMyself.retrieveBio()
+						},
+						lastPushAt: pushedAt,
+						lastPushAtISO: new Date(pushedAt).toISOString(),
+						writerShard: client.shard?.ids[0] ?? 0
+					});
+					return;
+				} catch (error: any) {
+					const isShardingInProcess =
+						error?.name?.includes("ShardingInProcess") ||
+						String(error?.message ?? error).includes(
+							"still being spawned"
+						);
+					if (!isShardingInProcess || attempt > MAX_RETRIES) {
+						logger.err(
+							`refreshBotData failed (shard #${client.shard?.ids[0] ?? 0}): ${error}`
+						);
+						return;
+					}
+					await new Promise((resolve) =>
+						setTimeout(resolve, RETRY_MS)
+					);
+				}
 			}
 		}
 
@@ -397,8 +415,13 @@ export const event: BotEvent = {
 			refreshDatabaseModel(),
 			quotesPresence(),
 			refreshSchedule(),
-			refreshBotData(),
 			statsRefresher());
+
+		// BOT push is main-shard only: every shard overwriting the key at
+		// boot raced, and non-main shards have no use for broadcastEval here.
+		if (client.isMainShard()) {
+			refreshBotData();
+		}
 
 		PfpsManager_Init(client);
 

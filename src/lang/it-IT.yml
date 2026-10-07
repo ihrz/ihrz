@@ -617,6 +617,8 @@ help_honeypot_dsc: "> *Configura un canale trappola per individuare gli account 
 # /h
 h_suite: "(Continua)"
 h_suite_desc: "*Continua i comandi della categoria*"
+helpall_no_perms_defined: "Nessun permesso personalizzato è definito su questo server, quindi `helpall` è inutile qui — usa invece `${botPrefix}h`."
+helpall_no_access: "Non hai accesso a nessun comando con permessi su questo server."
 
 # /say
 say_footer_msg: "\n\nInviato da `/say` da ${interaction.user}"
@@ -1648,6 +1650,7 @@ remove_react_command_work: "<@${interaction.member?.id}>, ora quando un membro i
 
 # /add-react
 add_react_command_err_emojis: "L'emoji `{emoji}` della reazione non è valido!"
+add_react_command_err_message: "Devi specificare il messaggio che attiverà la reazione!"
 add_react_command_work: "<@${interaction.member?.id}>, ora quando un membro invia `${message.toLowerCase()}`, il bot **reagirà** con {emoji}"
 
 # /list-react

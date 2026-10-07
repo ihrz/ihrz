@@ -617,6 +617,8 @@ help_honeypot_dsc: "> *トラップチャンネルを設定して乗っ取られ
 # /h
 h_suite: "(続き)"
 h_suite_desc: "*カテゴリのコマンドの続き*"
+helpall_no_perms_defined: "このサーバーにはカスタム権限が設定されていないため、`helpall`は無意味です — 代わりに`${botPrefix}h`を使ってください。"
+helpall_no_access: "このサーバーでは権限が必要なコマンドにアクセスできません。"
 
 # /say
 say_footer_msg: "\n\n`${interaction.user}` から `/say` から送信"
@@ -1648,6 +1650,7 @@ remove_react_command_work: "<@${interaction.member?.id}>, メンバーが `${mes
 
 # /add-react
 add_react_command_err_emojis: "リアクションの絵文字 `{emoji}` は有効な絵文字ではありません！"
+add_react_command_err_message: "リアクションを発動させるメッセージを指定してください！"
 add_react_command_work: "<@${interaction.member?.id}>, メンバーが `${message.toLowerCase()}` を送信すると、ボットは **{emoji} で反応します**."
 
 # /list-react

@@ -30,6 +30,16 @@ export function isValidColor(color: string): boolean {
 	return /^#([0-9a-f]{3}){1,2}$/i.test(color);
 }
 
+export function isValidEmbedId(id: unknown): id is string {
+	if (typeof id !== "string" || id.length === 0) return false;
+	const key = `EMBED.${id}`;
+	if (new TextEncoder().encode(key).length > 255) return false;
+	const segments = key.split(".");
+	if (segments.length > 32) return false;
+	if (segments.some((segment) => segment.length === 0)) return false;
+	return true;
+}
+
 export function getMediaByMessage(message: Message): {
 	name: string;
 	attachment: string;

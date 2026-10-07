@@ -617,6 +617,8 @@ help_honeypot_dsc: "> *Set up a trap channel to catch compromised accounts and a
 # /h
 h_suite: "(Continued)"
 h_suite_desc: "*Continued commands of the category*"
+helpall_no_perms_defined: "No custom permissions are defined on this server, so `helpall` is useless here — use `${botPrefix}h` instead."
+helpall_no_access: "You don't have access to any permission-gated command on this server."
 
 # /say
 say_footer_msg: "\n\nSent from `/say` by ${interaction.user}"
@@ -1649,6 +1651,7 @@ remove_react_command_work: "<@${interaction.member?.id}>, now when a member send
 
 # /add-react
 add_react_command_err_emojis: "The emoji `{emoji}` for the reaction is not a valid emoji!"
+add_react_command_err_message: "You must specify the message that will trigger the reaction!"
 add_react_command_work: "<@${interaction.member?.id}>, now when a member sends `${message.toLowerCase()}`, the bot will **react** with {emoji}"
 
 # /list-react

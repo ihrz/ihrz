@@ -617,6 +617,8 @@ help_honeypot_dsc: "> *Configurez un salon piège pour attraper les comptes comp
 # /h
 h_suite: "(Suite)"
 h_suite_desc: "*Suite des commandes de la catégorie*"
+helpall_no_perms_defined: "Aucune permission personnalisée n'est définie sur ce serveur, `helpall` ne sert donc à rien ici — utilise `${botPrefix}h` à la place."
+helpall_no_access: "Tu n'as accès à aucune commande à permission sur ce serveur."
 
 # /say
 say_footer_msg: "\n\nEnvoyé depuis `/say` par ${interaction.user}"
@@ -1648,6 +1650,7 @@ remove_react_command_work: "<@${interaction.member?.id}>, maintenant quand un me
 
 # /add-react
 add_react_command_err_emojis: "L'émoji `{emoji}` de la réaction ne correspond pas à un émoji valide !"
+add_react_command_err_message: "Vous devez préciser le message qui déclenchera la réaction !"
 add_react_command_work: "<@${interaction.member?.id}>, maintenant quand un membre envoie `${message.toLowerCase()}`, le bot **réagira** avec {emoji}"
 
 # /list-react
