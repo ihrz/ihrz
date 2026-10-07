@@ -309,19 +309,6 @@ class InfrastructureMonitoring {
 			linePath = `M${PAD_L},${PAD_T + innerH} L${W - PAD_R},${PAD_T + innerH}`;
 		}
 
-		let lastX = "";
-		let lastY = "";
-		if (segment.length === 0) {
-			for (let i = n - 1; i >= 0; i--) {
-				const v = pingData[i];
-				if (typeof v === "number" && v > 0) {
-					lastX = xAt(i).toFixed(1);
-					lastY = yAt(v).toFixed(1);
-					break;
-				}
-			}
-		}
-
 		let grid = "";
 		for (let g = 0; g <= 3; g++) {
 			const gy = PAD_T + (innerH * g) / 3;
@@ -336,12 +323,14 @@ class InfrastructureMonitoring {
 			labels += `<text x="${xAt(i).toFixed(1)}" y="${(H - 8).toFixed(1)}" fill="#8B8E98" font-size="9" font-weight="600" text-anchor="middle" font-family="Inter, system-ui, sans-serif">${label}</text>`;
 		}
 
-		const dot =
-			lastX && lastY
-				? `<circle cx="${lastX}" cy="${lastY}" r="4" fill="#5865F2" stroke="#fff" stroke-width="2"/>`
-				: "";
-
-		return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" role="img"><defs><linearGradient id="pingFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5865F2" stop-opacity="0.4"/><stop offset="0.5" stop-color="#5865F2" stop-opacity="0.2"/><stop offset="1" stop-color="#5865F2" stop-opacity="0"/></linearGradient></defs>${grid}<path d="${areaPath.trim()}" fill="url(#pingFill)"/>${linePath.trim().split(" M").map((d, idx) => `<path d="${idx === 0 ? d : "M" + d}" fill="none" stroke="#5865F2" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>`).join("")}${labels}${dot}</svg>`;
+		return `<svg width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg" role="img"><defs><linearGradient id="pingFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5865F2" stop-opacity="0.4"/><stop offset="0.5" stop-color="#5865F2" stop-opacity="0.2"/><stop offset="1" stop-color="#5865F2" stop-opacity="0"/></linearGradient></defs>${grid}<path d="${areaPath.trim()}" fill="url(#pingFill)"/>${linePath
+			.trim()
+			.split(" M")
+			.map(
+				(d, idx) =>
+					`<path d="${idx === 0 ? d : "M" + d}" fill="none" stroke="#5865F2" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>`
+			)
+			.join("")}${labels}</svg>`;
 	}
 
 	private async generatePingChart(): Promise<Buffer> {
