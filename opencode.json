@@ -1,0 +1,89 @@
+{
+	"$schema": "https://opencode.ai/config.json",
+	"default_agent": "rust-migrator",
+	"subagent_depth": 2,
+	"permission": {
+		"read": "allow",
+		"edit": "allow",
+		"glob": "allow",
+		"grep": "allow",
+		"list": "allow",
+		"bash": "allow",
+		"task": "allow",
+		"todowrite": "allow",
+		"lsp": "allow",
+		"skill": "allow",
+		"webfetch": "allow",
+		"websearch": "allow",
+		"question": "deny",
+		"doom_loop": "allow",
+		"external_directory": "allow"
+	},
+	"agent": {
+		"rust-migrator": {
+			"description": "Fully autonomous TypeScript/JavaScript to Rust migration agent",
+			"mode": "primary",
+			"steps": 1000,
+			"permission": {
+				"read": "allow",
+				"edit": "allow",
+				"glob": "allow",
+				"grep": "allow",
+				"list": "allow",
+				"bash": "allow",
+				"task": "allow",
+				"todowrite": "allow",
+				"lsp": "allow",
+				"skill": "allow",
+				"webfetch": "allow",
+				"websearch": "allow",
+				"question": "deny",
+				"doom_loop": "allow",
+				"external_directory": "allow"
+			},
+			"prompt": "{file:.opencode/rust-migrator.md}"
+		},
+		"rust-reviewer": {
+			"description": "Reviews Rust migration changes for correctness and behavioral equivalence",
+			"mode": "subagent",
+			"steps": 100,
+			"permission": {
+				"read": "allow",
+				"edit": "deny",
+				"glob": "allow",
+				"grep": "allow",
+				"list": "allow",
+				"bash": "allow",
+				"task": "deny",
+				"todowrite": "allow",
+				"lsp": "allow",
+				"skill": "allow",
+				"webfetch": "allow",
+				"websearch": "allow",
+				"question": "deny"
+			},
+			"prompt": "{file:.opencode/rust-reviewer.md}"
+		},
+		"rust-tester": {
+			"description": "Autonomous Rust compilation and test agent",
+			"mode": "subagent",
+			"steps": 100,
+			"permission": {
+				"read": "allow",
+				"edit": "allow",
+				"glob": "allow",
+				"grep": "allow",
+				"list": "allow",
+				"bash": "allow",
+				"task": "deny",
+				"todowrite": "allow",
+				"lsp": "allow",
+				"skill": "allow",
+				"webfetch": "allow",
+				"websearch": "allow",
+				"question": "deny"
+			},
+			"prompt": "{file:.opencode/rust-tester.md}"
+		}
+	}
+}

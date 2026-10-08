@@ -176,3 +176,8 @@ src/files/custom-enabled-guilds.json
 .opencommit-commitlint
 
 !src/files/commands.json
+
+# Rust (ihrz monorepo rust/)
+rust/target/
+**/*.rs.bk
+.cargo-ok
