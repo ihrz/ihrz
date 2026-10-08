@@ -1611,6 +1611,65 @@ pub async fn unwlvc(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())
 }
 
+/// Hide/unhide every text channel. Mirrors chanel hideall/unhideall.
+#[poise::command(slash_command, prefix_command, category = "utils", rename = "hideall")]
+pub async fn chan_hideall(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
+    hide_all_inner(&ctx, false).await
+}
+
+#[poise::command(
+    slash_command,
+    prefix_command,
+    category = "utils",
+    rename = "unhideall"
+)]
+pub async fn chan_unhideall(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
+    hide_all_inner(&ctx, true).await
+}
+
+async fn hide_all_inner(ctx: &Ctx<'_>, unhide: bool) -> Result<(), anyhow::Error> {
+    let Some(guild_id) = ctx.guild_id() else {
+        return Ok(());
+    };
+    let channels: Vec<poise::serenity_prelude::ChannelId> = ctx
+        .serenity_context()
+        .cache
+        .guild(guild_id)
+        .map(|g| {
+            g.channels
+                .values()
+                .filter(|c| c.kind == poise::serenity_prelude::ChannelType::Text)
+                .map(|c| c.id)
+                .collect()
+        })
+        .unwrap_or_default();
+    let everyone = poise::serenity_prelude::RoleId::new(guild_id.get());
+    for ch in channels {
+        if unhide {
+            let _ = ch
+                .delete_permission(
+                    ctx.http(),
+                    poise::serenity_prelude::PermissionOverwriteType::Role(everyone),
+                )
+                .await;
+        } else {
+            let _ = ch
+                .create_permission(
+                    ctx.http(),
+                    poise::serenity_prelude::PermissionOverwrite {
+                        allow: poise::serenity_prelude::Permissions::empty(),
+                        deny: poise::serenity_prelude::Permissions::VIEW_CHANNEL,
+                        kind: poise::serenity_prelude::PermissionOverwriteType::Role(everyone),
+                    },
+                )
+                .await;
+        }
+    }
+    ctx.say(if unhide { "Unhid all." } else { "Hid all." })
+        .await?;
+    Ok(())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -1741,13 +1800,26 @@ pub async fn userinfo(
 ) -> Result<(), anyhow::Error> {
     let u = user.as_ref().unwrap_or_else(|| ctx.author());
     let created = u.created_at().unix_timestamp();
+    let face_url = u.face();
+    let face_bytes = crate::commands::botcat::download_bytes(&face_url).await;
     let embed = poise::serenity_prelude::CreateEmbed::default()
         .title(u.tag())
         .field("ID", u.id.get().to_string(), true)
         .field("Bot", u.bot.to_string(), true)
-        .field("Created", format!("<t:{created}:F>"), false)
-        .thumbnail(u.face());
-    ctx.send(poise::CreateReply::default().embed(embed)).await?;
+        .field("Created", format!("<t:{created}:F>"), false);
+    let embed = if face_bytes.is_some() {
+        embed.thumbnail("attachment://avatar.png")
+    } else {
+        embed.thumbnail(face_url)
+    };
+    let mut reply = poise::CreateReply::default().embed(embed);
+    if let Some(bytes) = face_bytes {
+        reply = reply.attachment(poise::serenity_prelude::CreateAttachment::bytes(
+            bytes,
+            "avatar.png",
+        ));
+    }
+    ctx.send(reply).await?;
     Ok(())
 }
 
@@ -2031,6 +2103,33 @@ pub async fn leash(
     #[description = "Target to follow"] target: poise::serenity_prelude::User,
     #[description = "Follower"] follower: poise::serenity_prelude::User,
 ) -> Result<(), anyhow::Error> {
+    // Confirm when the target is not in voice or the invoker is.
+    // Mirrors the isInVoiceChannel-gated promptYesOrNo in !leash.ts
+    // (danger=false, abort -> util_leash_canceled_leash).
+    let in_voice = |user_id: poise::serenity_prelude::UserId| {
+        ctx.guild_id()
+            .and_then(|g| ctx.cache().guild(g))
+            .and_then(|g| g.voice_states.get(&user_id).and_then(|v| v.channel_id))
+            .is_some()
+    };
+    if !in_voice(target.id) || in_voice(ctx.author().id) {
+        let content =
+            crate::commands::lang_for(&ctx, "util_leash_confirm_message", "Leash anyway?").await;
+        let yes = crate::commands::lang_for(&ctx, "var_yes", "Yes").await;
+        let no = crate::commands::lang_for(&ctx, "var_no", "No").await;
+        if !crate::commands::prompt_yes_or_no(&ctx, content, yes, no, false).await? {
+            ctx.say(
+                crate::commands::lang_for(
+                    &ctx,
+                    "util_leash_canceled_leash",
+                    "Leash configurations canceled.",
+                )
+                .await,
+            )
+            .await?;
+            return Ok(());
+        }
+    }
     let gid = ctx
         .guild_id()
         .map(|g| g.get().to_string())

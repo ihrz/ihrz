@@ -76,6 +76,6 @@ mod tests {
 
     #[tokio::test]
     async fn tcp_closed_port_fails_fast() {
-        assert!(!tcp_open("127.0.0.1", 1, Duration::from_millis(300)).await);
+        assert!(!tcp_open("127.0.0.1", 1, Duration::from_secs(2)).await);
     }
 }

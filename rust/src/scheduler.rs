@@ -436,6 +436,88 @@ pub async fn sweep_blogger(
     posted
 }
 
+/// Nightmode tick. Mirrors nightModeManager 60s refresh: enumerate
+/// guilds via REST, toggle @everyone SEND_MESSAGES on text channels at
+/// window edges, tracked by NIGHTMODE.state to run transitions once.
+pub async fn sweep_nightmode(
+    pool: &Pool,
+    http: &std::sync::Arc<poise::serenity_prelude::Http>,
+) -> u64 {
+    use poise::serenity_prelude::{
+        ChannelType, GuildId, GuildPagination, PermissionOverwrite,
+        PermissionOverwriteType, Permissions, RoleId,
+    };
+    let now_hour = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|d| (d.as_secs() / 3600 % 24) as u8)
+        .unwrap_or(0);
+    let mut done = 0u64;
+    let mut after: Option<GuildId> = None;
+    for _ in 0..10 {
+        let page = match http
+            .get_guilds(after.map(GuildPagination::After), Some(200))
+            .await
+        {
+            Ok(p) if !p.is_empty() => p,
+            _ => break,
+        };
+        after = page.last().map(|g| g.id);
+        for partial in &page {
+            let gid = partial.id.get().to_string();
+            let raw = match crate::db::kv_get(pool, &gid, "UTILS.NIGHT_MODE").await {
+                Some(raw) => raw,
+                None => continue,
+            };
+            let cfg: crate::commands::newfeatures::NightmodeConfig =
+                match serde_json::from_str(&raw) {
+                    Ok(cfg) => cfg,
+                    Err(_) => continue,
+                };
+            if !cfg.enabled {
+                continue;
+            }
+            let night = crate::commands::newfeatures::night_active(
+                cfg.start_hour,
+                cfg.end_hour,
+                now_hour,
+            );
+            let want = if night { "started" } else { "ended" };
+            let current = crate::db::kv_get(pool, &gid, "NIGHTMODE.state").await;
+            if current.as_deref() == Some(want) {
+                continue;
+            }
+            let channels = http.get_channels(partial.id).await.unwrap_or_default();
+            let everyone = RoleId::new(partial.id.get());
+            for ch in channels.iter().filter(|c| c.kind == ChannelType::Text) {
+                if night {
+                    let _ = ch
+                        .id
+                        .create_permission(
+                            http,
+                            PermissionOverwrite {
+                                allow: Permissions::empty(),
+                                deny: Permissions::SEND_MESSAGES,
+                                kind: PermissionOverwriteType::Role(everyone),
+                            },
+                        )
+                        .await;
+                } else {
+                    let _ = ch
+                        .id
+                        .delete_permission(http, PermissionOverwriteType::Role(everyone))
+                        .await;
+                }
+            }
+            let _ = crate::db::kv_set(pool, &gid, "NIGHTMODE.state", want).await;
+            done += 1;
+        }
+        if after.is_none() {
+            break;
+        }
+    }
+    done
+}
+
 pub fn spawn(pool: Pool, http: std::sync::Arc<poise::serenity_prelude::Http>) {
     // Schedule expiry (real).
     {
@@ -548,8 +630,21 @@ pub fn spawn(pool: Pool, http: std::sync::Arc<poise::serenity_prelude::Http>) {
         });
     }
 
+    // Nightmode tick (real, mirrors 60s manager refresh).
+    {
+        let pool = pool.clone();
+        let http = http.clone();
+        tokio::spawn(async move {
+            let mut t = tokio::time::interval(Duration::from_secs(NIGHTMODE_SECS));
+            loop {
+                t.tick().await;
+                sweep_nightmode(&pool, &http).await;
+            }
+        });
+    }
+
     // Skeleton ticks for unported modules (timing mirrors TS).
-    for (name, secs) in [("nightmode", NIGHTMODE_SECS), ("notifier", NOTIFIER_SECS)] {
+    for (name, secs) in [("notifier", NOTIFIER_SECS)] {
         tokio::spawn(async move {
             let mut t = tokio::time::interval(Duration::from_secs(secs));
             loop {

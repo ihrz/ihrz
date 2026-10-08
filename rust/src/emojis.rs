@@ -31,6 +31,59 @@ pub fn base64_encode(bytes: &[u8]) -> String {
     out
 }
 
+/// Standard-base64 decode. Mirrors Buffer.from(s, "base64").
+/// Accepts a raw base64 string or a data: URI (prefix is stripped).
+pub fn base64_decode(s: &str) -> Option<Vec<u8>> {
+    let s = s.trim();
+    let b64 = match s.split_once(',') {
+        Some((prefix, rest)) if prefix.trim_end().ends_with("base64") => rest.trim(),
+        _ => s,
+    };
+    let chars: Vec<u8> = b64.bytes().filter(|b| !b.is_ascii_whitespace()).collect();
+    if chars.is_empty() || !chars.len().is_multiple_of(4) {
+        return None;
+    }
+    fn val(c: u8) -> Option<u32> {
+        match c {
+            b'A'..=b'Z' => Some((c - b'A') as u32),
+            b'a'..=b'z' => Some((c - b'a') as u32 + 26),
+            b'0'..=b'9' => Some((c - b'0') as u32 + 52),
+            b'+' => Some(62),
+            b'/' => Some(63),
+            _ => None,
+        }
+    }
+    let mut out = Vec::with_capacity(chars.len() / 4 * 3);
+    let last = chars.len() - 4;
+    for (i, chunk) in chars.chunks(4).enumerate() {
+        let pad = chunk.iter().rev().take_while(|&&c| c == b'=').count();
+        if pad > 2 || (pad > 0 && i != last / 4) {
+            return None;
+        }
+        let mut n: u32 = 0;
+        for (j, &c) in chunk.iter().enumerate() {
+            if c == b'=' {
+                if j < 4 - pad {
+                    return None;
+                }
+            } else {
+                if j >= 4 - pad {
+                    return None;
+                }
+                n |= val(c)? << (18 - j * 6);
+            }
+        }
+        out.push((n >> 16) as u8);
+        if pad < 2 {
+            out.push((n >> 8) as u8);
+        }
+        if pad == 0 {
+            out.push(n as u8);
+        }
+    }
+    Some(out)
+}
+
 /// iHorizon_Yes.png -> "Yes". Mirrors the Pascal_Snake namespace mapping.
 pub fn emoji_name(file_name: &str) -> Option<String> {
     let stem = file_name.rsplit_once('.')?.0;
@@ -116,6 +169,27 @@ mod tests {
         assert_eq!(base64_encode(b"Ma"), "TWE=");
         assert_eq!(base64_encode(b"M"), "TQ==");
         assert_eq!(base64_encode(b""), "");
+    }
+
+    #[test]
+    fn base64_decode_roundtrips_encode() {
+        for raw in [
+            b"Man".as_slice(),
+            b"Ma",
+            b"M",
+            b"hello world",
+            b"\x00\xff\x10",
+        ] {
+            let enc = base64_encode(raw);
+            assert_eq!(base64_decode(&enc).as_deref(), Some(raw));
+        }
+        assert_eq!(base64_decode("TWFu").unwrap(), b"Man");
+        assert_eq!(base64_decode("TWE=").unwrap(), b"Ma");
+        assert_eq!(base64_decode("data:image/png;base64,TWFu").unwrap(), b"Man");
+        assert_eq!(base64_decode(""), None);
+        assert_eq!(base64_decode("!!!"), None);
+        assert_eq!(base64_decode("TWF"), None);
+        assert_eq!(base64_decode("TW=u"), None);
     }
 
     #[test]

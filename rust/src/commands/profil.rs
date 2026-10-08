@@ -169,11 +169,23 @@ pub async fn profil_show(
         )
         .field("Birthdate", birthday, false)
         .field("Money", money.money.to_string(), true)
-        .field("Level", rank.level.to_string(), true)
-        .thumbnail(target.face())
-        .colour(0xFFA550);
+        .field("Level", rank.level.to_string(), true);
+    // Snapshot the avatar like image64.ts so the thumbnail survives
+    // avatar changes; fall back to the CDN URL when offline.
+    let face_url = target.face();
+    let face_bytes = crate::commands::botcat::download_bytes(&face_url).await;
+    let embed = if face_bytes.is_some() {
+        embed.thumbnail("attachment://avatar.png")
+    } else {
+        embed.thumbnail(face_url)
+    }
+    .colour(0xFFA550);
 
-    ctx.send(poise::CreateReply::default().embed(embed)).await?;
+    let mut reply = poise::CreateReply::default().embed(embed);
+    if let Some(bytes) = face_bytes {
+        reply = reply.attachment(serenity::CreateAttachment::bytes(bytes, "avatar.png"));
+    }
+    ctx.send(reply).await?;
     Ok(())
 }
 

@@ -25,6 +25,20 @@ fn global_check(
             return Ok(false);
         }
         let name = ctx.command().name.clone();
+        // Slash-command usage log (mirrors slashCommandLogger.ts).
+        if let Some(gid) = ctx.guild_id() {
+            let gid = gid.get().to_string();
+            if let Some(ch) = crate::db::kv_get(pool, &gid, "GUILD.SERVER_LOGS.command").await {
+                if let Ok(ch_id) = ch.parse::<u64>() {
+                    let _ = poise::serenity_prelude::ChannelId::new(ch_id)
+                        .say(
+                            &ctx.serenity_context().http,
+                            format!("/{} by {}.", name, ctx.author().tag()),
+                        )
+                        .await;
+                }
+            }
+        }
         // Fun kill-switch (mirrors GUILD.FUN.states check in commandExecutor).
         // The config command itself stays available.
         if ctx.command().category.as_deref() == Some("fun")

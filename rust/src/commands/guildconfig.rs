@@ -1614,7 +1614,10 @@ pub async fn gc_wc_text(
     #[description = "join or leave"] kind: String,
     #[description = "on or off"] action: String,
 ) -> Result<(), anyhow::Error> {
-    let (Some(join), Some(enabled)) = (welcomer_kind(&kind), crate::commands::security::parse_on_off(&action)) else {
+    let (Some(join), Some(enabled)) = (
+        welcomer_kind(&kind),
+        crate::commands::security::parse_on_off(&action),
+    ) else {
         ctx.say("Use join/leave and on/off.").await?;
         return Ok(());
     };

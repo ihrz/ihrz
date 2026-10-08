@@ -9,6 +9,7 @@
 // submodule here (see fun::, utils::).
 
 pub mod antispam;
+pub mod authrestore;
 pub mod backup;
 pub mod blogger;
 pub mod botcat;
@@ -133,6 +134,8 @@ pub fn all() -> Vec<poise::Command<Data, Error>> {
         utils::sticker(),
         utils::nickkicker(),
         utils::chan_hide(),
+        utils::chan_hideall(),
+        utils::chan_unhideall(),
         utils::chan_unhide(),
         utils::unban_all(),
         utils::unban_undo(),
@@ -145,6 +148,7 @@ pub fn all() -> Vec<poise::Command<Data, Error>> {
         protection::protect(),
         security::security(),
         antispam::antispam(),
+        authrestore::authrestore(),
         guildconfig::guildconfig(),
         guildconfig::gc_automod(),
         economy::economy(),
@@ -178,6 +182,8 @@ pub fn all() -> Vec<poise::Command<Data, Error>> {
         suggestion::setsuggest(),
         suggestion::suggest(),
         newfeatures::counter(),
+        newfeatures::rolesaver(),
+        newfeatures::report(),
         newfeatures::punishpub(),
         newfeatures::nightmode(),
         newfeatures::gitlines(),
@@ -207,6 +213,9 @@ pub fn all() -> Vec<poise::Command<Data, Error>> {
         botcat::setlang(),
         botcat::invite(),
         botcat::links(),
+        botcat::bot_custom_name(),
+        botcat::bot_custom_avatar(),
+        botcat::bot_custom_banner(),
         stats::stats(),
     ]
 }
@@ -220,16 +229,133 @@ pub async fn lang_for(ctx: &Ctx<'_>, key: &str, fallback: &str) -> String {
     crate::lang::get(&code, key).unwrap_or_else(|| fallback.to_string())
 }
 
+/// Confirm-prompt button ids. Mirrors the customIds in
+/// `core/functions/awaitingResponse.ts` (promptYesOrNo).
+pub const CONFIRM_YES_ID: &str = "yes";
+pub const CONFIRM_NO_ID: &str = "no";
+
+/// Confirm-prompt button row. Pure: yes (Danger when the action is
+/// destructive), disabled "<   >" spacer, no (inverted style).
+/// Mirrors the ActionRowBuilder in promptYesOrNo.
+pub fn confirm_row(
+    yes_label: &str,
+    no_label: &str,
+    danger: bool,
+) -> poise::serenity_prelude::CreateActionRow {
+    use poise::serenity_prelude as serenity;
+    let (yes_style, no_style) = if danger {
+        (
+            serenity::ButtonStyle::Danger,
+            serenity::ButtonStyle::Success,
+        )
+    } else {
+        (
+            serenity::ButtonStyle::Success,
+            serenity::ButtonStyle::Danger,
+        )
+    };
+    serenity::CreateActionRow::Buttons(vec![
+        serenity::CreateButton::new(CONFIRM_YES_ID)
+            .style(yes_style)
+            .label(yes_label),
+        serenity::CreateButton::new("blank1")
+            .style(serenity::ButtonStyle::Secondary)
+            .label("<   >")
+            .disabled(true),
+        serenity::CreateButton::new(CONFIRM_NO_ID)
+            .style(no_style)
+            .label(no_label),
+    ])
+}
+
+/// Send a yes/no confirm prompt and await the invoker's answer.
+/// Mirrors promptYesOrNo: author-only filter, 60s wait, buttons
+/// cleared afterwards, true only on "yes" (timeout/no clears the
+/// buttons and yields false instead of throwing like discord.js).
+pub async fn prompt_yes_or_no(
+    ctx: &Ctx<'_>,
+    content: String,
+    yes_label: String,
+    no_label: String,
+    danger: bool,
+) -> Result<bool, anyhow::Error> {
+    use poise::serenity_prelude as serenity;
+    let author = ctx.author().id;
+    let handle = ctx
+        .send(
+            poise::CreateReply::default()
+                .content(content)
+                .components(vec![confirm_row(&yes_label, &no_label, danger)]),
+        )
+        .await?;
+    let mut msg = handle.into_message().await?;
+    let pressed = msg
+        .await_component_interaction(ctx.serenity_context().shard.clone())
+        .timeout(std::time::Duration::from_secs(60))
+        .filter(move |i| {
+            i.user.id == author
+                && (i.data.custom_id == CONFIRM_YES_ID || i.data.custom_id == CONFIRM_NO_ID)
+        })
+        .await;
+    // Acknowledge like TS `deferUpdate()` so Discord does not flag
+    // the interaction as failed, then clear the buttons.
+    if let Some(pressed) = pressed.as_ref() {
+        let _ = pressed
+            .create_response(ctx.http(), serenity::CreateInteractionResponse::Acknowledge)
+            .await;
+    }
+    let _ = msg
+        .edit(ctx.http(), serenity::EditMessage::new().components(vec![]))
+        .await;
+    Ok(pressed
+        .map(|i| i.data.custom_id == CONFIRM_YES_ID)
+        .unwrap_or(false))
+}
+
+/// Standard destructive-reset confirm. Mirrors the repeated
+/// resetallinvites yes/no promptYesOrNo gate (content key, danger
+/// style; abort replies setjoinroles_action_canceled and yields
+/// false so callers just `return Ok(())`).
+pub async fn prompt_reset_confirm(
+    ctx: &Ctx<'_>,
+    content_key: &str,
+    content_fallback: &str,
+) -> Result<bool, anyhow::Error> {
+    let content = lang_for(ctx, content_key, content_fallback).await;
+    let yes = lang_for(ctx, "resetallinvites_yes_button", "Delete all").await;
+    let no = lang_for(ctx, "resetallinvites_no_button", "Undo action").await;
+    if prompt_yes_or_no(ctx, content, yes, no, true).await? {
+        Ok(true)
+    } else {
+        ctx.say(lang_for(ctx, "setjoinroles_action_canceled", "Action canceled").await)
+            .await?;
+        Ok(false)
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn confirm_row_has_yes_spacer_no_buttons() {
+        for danger in [true, false] {
+            let row = confirm_row("Yes", "No", danger);
+            match row {
+                poise::serenity_prelude::CreateActionRow::Buttons(btns) => {
+                    assert_eq!(btns.len(), 3);
+                }
+                _ => panic!("confirm prompt must be a button row"),
+            }
+        }
+    }
 
     #[test]
     fn registry_has_expected_commands() {
         let cmds = all();
         let names: Vec<String> = cmds.iter().map(|c| c.name.clone()).collect();
         // 4 base + full parents + remaining stubs.
-        assert_eq!(cmds.len(), 156);
+        assert_eq!(cmds.len(), 164);
         for expected in [
             "botinfo",
             "dice",
@@ -312,6 +438,8 @@ mod tests {
             "freeze",
             "unfreeze",
             "hide",
+            "hideall",
+            "unhideall",
             "unhide",
             "unban-all",
             "unban-undo",
@@ -321,6 +449,7 @@ mod tests {
             "help",
             "ping",
             "mod",
+            "authrestore",
             "protect",
             "security",
             "antispam",
@@ -364,7 +493,9 @@ mod tests {
             "msg_question",
             "msg_play",
             "honeypot",
-            "voicedashboard",
+            "voice",
+            "rolesaver",
+            "report",
             "setsuggest",
             "suggest",
             "stats",

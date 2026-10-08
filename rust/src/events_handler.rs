@@ -624,19 +624,21 @@ impl serenity::EventHandler for Handler {
                 }
             }
         }
-        // Mirrors rolesaver/onMemberLeave.ts: snapshot roles for restore.
-        if let Some(m) = member {
-            let roles = crate::events::snapshot_roles(
-                &m.roles.iter().map(|r| r.get()).collect::<Vec<_>>(),
-                guild_id.get(),
-            );
-            let _ = crate::db::kv_set(
-                &self.pool,
-                &gid,
-                &format!("ROLESAVER.{}", user.id.get()),
-                &serde_json::to_string(&roles).unwrap_or_default(),
-            )
-            .await;
+        // Mirrors rolesaver/onMemberLeave.ts: snapshot roles (gated).
+        if !crate::commands::newfeatures::rolesaver_enabled(&self.pool, &gid).await {
+            if let Some(m) = member {
+                let roles = crate::events::snapshot_roles(
+                    &m.roles.iter().map(|r| r.get()).collect::<Vec<_>>(),
+                    guild_id.get(),
+                );
+                let _ = crate::db::kv_set(
+                    &self.pool,
+                    &gid,
+                    &format!("ROLESAVER.{}", user.id.get()),
+                    &serde_json::to_string(&roles).unwrap_or_default(),
+                )
+                .await;
+            }
         }
         tracing::debug!("memberLeave {} user {}", gid, user.id.get());
     }
@@ -735,10 +737,97 @@ impl serenity::EventHandler for Handler {
                 }
             }
         }
-        // Mirrors Events/counter/onNewMessage.ts (strict increment).
-        if let Some(counter_ch) = crate::db::kv_get(&self.pool, &gid, "COUNTER.channel").await {
-            if counter_ch == msg.channel_id.get().to_string() {
-                let _ = msg.delete(&_ctx.http).await;
+        // Counting game. Mirrors Events/counter/onNewMessage.ts
+        // (bots/webhooks/empty messages skip; wrong entries reset
+        // COUNTER_DATA to zero with ✅/❌ reactions, replies and
+        // topic updates).
+        if msg.webhook_id.is_none() && !msg.content.trim().is_empty() {
+            if let Some(counter_ch) = crate::db::kv_get(&self.pool, &gid, "COUNTER.channel").await {
+                if counter_ch == msg.channel_id.get().to_string() {
+                    let enabled = crate::db::kv_get(&self.pool, &gid, "COUNTER.config")
+                        .await
+                        .map(|v| v != "off")
+                        .unwrap_or(true);
+                    if enabled {
+                        use crate::commands::newfeatures as nf;
+                        let author_id = msg.author.id.get().to_string();
+                        let raw = crate::db::kv_get(&self.pool, &gid, "COUNTER_DATA").await;
+                        let last = nf::parse_counter_data(raw.as_deref());
+                        let code = crate::db::guild_lang(&self.pool, Some(guild_id.get())).await;
+                        let text = |key: &str, fallback: &str| {
+                            crate::lang::get(&code, key).unwrap_or_else(|| fallback.to_string())
+                        };
+                        let reset = || {
+                            nf::counter_data_json(&nf::CounterData {
+                                amount: 0,
+                                user_id: None,
+                            })
+                        };
+                        match nf::counter_step(&last, &author_id, &msg.content) {
+                            nf::CounterOutcome::Accept { number } => {
+                                let data = nf::CounterData {
+                                    amount: number,
+                                    user_id: Some(author_id),
+                                };
+                                let _ = crate::db::kv_set(
+                                    &self.pool,
+                                    &gid,
+                                    "COUNTER_DATA",
+                                    &nf::counter_data_json(&data),
+                                )
+                                .await;
+                                let _ = msg.react(&_ctx.http, '✅').await;
+                                let topic =
+                                    text("counter_actual_number", "Current Number: {number}")
+                                        .replace("{number}", &number.to_string());
+                                let _ = msg
+                                    .channel_id
+                                    .edit(&_ctx.http, serenity::EditChannel::new().topic(topic))
+                                    .await;
+                            }
+                            nf::CounterOutcome::WrongNumber { same_user, number } => {
+                                let _ = msg.react(&_ctx.http, '❌').await;
+                                let _ =
+                                    crate::db::kv_set(&self.pool, &gid, "COUNTER_DATA", &reset())
+                                        .await;
+                                if same_user {
+                                    let reply = text(
+                                        "counter_error_too_much_u",
+                                        "You cannot count twice in a row. Next number is 1.",
+                                    )
+                                    .replace(
+                                        "${message.author.id}",
+                                        &msg.author.id.get().to_string(),
+                                    )
+                                    .replace("${number}", &number.to_string());
+                                    let _ = msg.reply(&_ctx.http, reply).await;
+                                } else {
+                                    let reply = text(
+                                        "counter_error_syntaxic",
+                                        "Wrong number. Next number is 1.",
+                                    )
+                                    .replace(
+                                        "${message.author.id}",
+                                        &msg.author.id.get().to_string(),
+                                    );
+                                    let _ = msg.reply(&_ctx.http, reply).await;
+                                }
+                            }
+                            nf::CounterOutcome::NotNumber => {
+                                let _ = msg.react(&_ctx.http, '❌').await;
+                                let _ =
+                                    crate::db::kv_set(&self.pool, &gid, "COUNTER_DATA", &reset())
+                                        .await;
+                                let reply = text(
+                                    "counter_error_syntaxic",
+                                    "Wrong number. Next number is 1.",
+                                )
+                                .replace("${message.author.id}", &msg.author.id.get().to_string());
+                                let _ = msg.reply(&_ctx.http, reply).await;
+                            }
+                        }
+                    }
+                }
             }
         }
         // Mirrors Events/utils/picOnlyModule.ts: media-only channels.

@@ -490,6 +490,78 @@ pub async fn eco_role_add(
         .unwrap_or_default();
     let mut roles = load_shop(&ctx.data().pool, &gid).await;
     let id = role.id.get().to_string();
+    // Warn before selling a role with dangerous permissions. Mirrors
+    // the roleDangerousPermissions promptYesOrNo gate in economy/!add.ts
+    // (abort -> economy_role_add_canceled).
+    let perm_keys: [(&str, &str); 10] = [
+        ("setjoinroles_var_perm_admin", "Administrator"),
+        ("setjoinroles_var_perm_manage_guild", "Manage Server"),
+        ("setjoinroles_var_perm_manage_role", "Manage Roles"),
+        ("setjoinroles_var_perm_use_mention", "Mention Everyone"),
+        ("setjoinroles_var_perm_ban_members", "Ban Members"),
+        ("setjoinroles_var_perm_kick_members", "Kick Members"),
+        ("setjoinroles_var_perm_manage_webhooks", "Manage Webhooks"),
+        ("setjoinroles_var_perm_manage_channels", "Manage Channels"),
+        (
+            "setjoinroles_var_perm_manage_expression",
+            "Manage Expressions",
+        ),
+        (
+            "setjoinroles_var_perm_view_monetization_analytics",
+            "View Monetization Analytics",
+        ),
+    ];
+    let mut owned = Vec::with_capacity(10);
+    for (key, fallback) in perm_keys {
+        owned.push(crate::commands::lang_for(&ctx, key, fallback).await);
+    }
+    let names: [&str; 10] = owned
+        .iter()
+        .map(|s| s.as_str())
+        .collect::<Vec<_>>()
+        .try_into()
+        .unwrap_or(["?"; 10]);
+    let dangerous = crate::funcs::dangerous_role_perms(role.permissions.bits(), names);
+    if !dangerous.is_empty() {
+        let listed = dangerous
+            .iter()
+            .map(|n| format!("`{n}`"))
+            .collect::<Vec<_>>()
+            .join(", ");
+        let content = crate::commands::lang_for(
+            &ctx,
+            "economy_role_add_prompt_dangerous",
+            "Are you sure? Dangerous permissions: ${stringDangerousPermissions}",
+        )
+        .await
+        .replace("${stringDangerousPermissions}", &listed);
+        let yes = crate::commands::lang_for(&ctx, "var_yes", "Yes").await;
+        let no = crate::commands::lang_for(&ctx, "var_no", "No").await;
+        if !crate::commands::prompt_yes_or_no(&ctx, content, yes, no, true).await? {
+            ctx.say(
+                crate::commands::lang_for(
+                    &ctx,
+                    "economy_role_add_canceled",
+                    "Role not added to the shop.",
+                )
+                .await,
+            )
+            .await?;
+            return Ok(());
+        }
+    }
+    if roles.len() >= 20 && !roles.iter().any(|r| r.role_id == id) {
+        ctx.say(
+            crate::commands::lang_for(
+                &ctx,
+                "economy_role_add_max_20_roles",
+                "You can only have up to 20 buyable roles.",
+            )
+            .await,
+        )
+        .await?;
+        return Ok(());
+    }
     if let Some(existing) = roles.iter_mut().find(|r| r.role_id == id) {
         existing.price = price.max(0);
     } else {
@@ -697,6 +769,15 @@ pub async fn eco_ureset(
     ctx: Ctx<'_>,
     #[description = "Member"] user: poise::serenity_prelude::User,
 ) -> Result<(), anyhow::Error> {
+    if !crate::commands::prompt_reset_confirm(
+        &ctx,
+        "reset_ueconomy_are_you_sure",
+        "Delete all economy data for this user? This is irreversible.",
+    )
+    .await?
+    {
+        return Ok(());
+    }
     let gid = ctx
         .guild_id()
         .map(|g| g.get().to_string())
@@ -712,6 +793,15 @@ pub async fn eco_ureset(
 
 #[poise::command(slash_command, prefix_command, rename = "greset")]
 pub async fn eco_greset(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
+    if !crate::commands::prompt_reset_confirm(
+        &ctx,
+        "reset_geconomy_are_you_sure",
+        "Delete all economy data for ALL members? This is irreversible.",
+    )
+    .await?
+    {
+        return Ok(());
+    }
     let gid = ctx
         .guild_id()
         .map(|g| g.get().to_string())

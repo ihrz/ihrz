@@ -112,6 +112,25 @@ pub async fn backup_load(
         return Ok(());
     };
     let snap: serde_json::Value = serde_json::from_str(&raw).unwrap_or(serde_json::Value::Null);
+    // Destructive restore needs an explicit yes. Mirrors the
+    // promptYesOrNo gate in backup/!load.ts (abort -> backup_not_load).
+    let content = crate::commands::lang_for(
+        &ctx,
+        "backup_load_confirm",
+        "EXTREMELY DANGEROUS ACTION. Load this backup?",
+    )
+    .await
+    .replace(
+        "${interaction.member.user.toString()}",
+        &ctx.author().to_string(),
+    );
+    let yes = crate::commands::lang_for(&ctx, "var_confirm", "Confirm").await;
+    let no = crate::commands::lang_for(&ctx, "embed_btn_cancel", "Cancel").await;
+    if !crate::commands::prompt_yes_or_no(&ctx, content, yes, no, true).await? {
+        ctx.say(crate::commands::lang_for(&ctx, "backup_not_load", "Backup not loaded.").await)
+            .await?;
+        return Ok(());
+    }
     let entries = snap
         .get("entries")
         .and_then(|e| e.as_array())

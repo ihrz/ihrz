@@ -288,37 +288,22 @@ pub async fn ticket_close(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
-    if let Ok(msgs) = ctx
-        .channel_id()
-        .messages(&ctx.http(), serenity::GetMessages::new().limit(100))
-        .await
-    {
-        let snap: Vec<crate::transcript::TranscriptMessage> = msgs
-            .iter()
-            .map(|m| crate::transcript::TranscriptMessage {
-                author_tag: m.author.tag(),
-                author_id: m.author.id.get(),
-                content: m.content.clone(),
-                timestamp_ms: m.timestamp.unix_timestamp() * 1000,
-                attachments: m.attachments.iter().map(|a| a.url.clone()).collect(),
-            })
-            .collect();
-        let html = crate::transcript::build_html("ticket", &snap);
-        if let Some(logs) = crate::db::kv_get(&ctx.data().pool, &gid, "GUILD.TICKET.logs").await {
-            if let Ok(ch_id) = logs.parse::<u64>() {
-                let ch = serenity::ChannelId::new(ch_id);
-                let _ = ch
-                    .send_message(
-                        &ctx.http(),
-                        serenity::CreateMessage::new()
-                            .content(format!("Transcript ({} messages).", snap.len()))
-                            .add_file(serenity::CreateAttachment::bytes(
-                                html.into_bytes(),
-                                "transcript.html",
-                            )),
-                    )
-                    .await;
-            }
+    let (html, count) =
+        channel_transcript_html(&ctx.serenity_context().http.clone(), ctx.channel_id()).await;
+    if let Some(logs) = crate::db::kv_get(&ctx.data().pool, &gid, "GUILD.TICKET.logs").await {
+        if let Ok(ch_id) = logs.parse::<u64>() {
+            let ch = serenity::ChannelId::new(ch_id);
+            let _ = ch
+                .send_message(
+                    &ctx.http(),
+                    serenity::CreateMessage::new()
+                        .content(format!("Transcript ({count} messages)."))
+                        .add_file(serenity::CreateAttachment::bytes(
+                            html.into_bytes(),
+                            "transcript.html",
+                        )),
+                )
+                .await;
         }
     }
     ctx.channel_id().delete(&ctx.http()).await?;
@@ -546,27 +531,13 @@ pub async fn ticket_rename(
 /// Post an HTML transcript here. Mirrors !transcript.ts.
 #[poise::command(slash_command, prefix_command, rename = "transcript")]
 pub async fn ticket_transcript(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
-    let msgs = ctx
-        .channel_id()
-        .messages(&ctx.http(), serenity::GetMessages::new().limit(100))
-        .await
-        .unwrap_or_default();
-    let snap: Vec<crate::transcript::TranscriptMessage> = msgs
-        .iter()
-        .map(|m| crate::transcript::TranscriptMessage {
-            author_tag: m.author.tag(),
-            author_id: m.author.id.get(),
-            content: m.content.clone(),
-            timestamp_ms: m.timestamp.unix_timestamp() * 1000,
-            attachments: m.attachments.iter().map(|a| a.url.clone()).collect(),
-        })
-        .collect();
-    let html = crate::transcript::build_html("ticket", &snap);
+    let (html, count) =
+        channel_transcript_html(&ctx.serenity_context().http.clone(), ctx.channel_id()).await;
     ctx.channel_id()
         .send_message(
             &ctx.http(),
             serenity::CreateMessage::new()
-                .content(format!("Transcript ({} messages).", snap.len()))
+                .content(format!("Transcript ({count} messages)."))
                 .add_file(serenity::CreateAttachment::bytes(
                     html.into_bytes(),
                     "transcript.html",

@@ -681,6 +681,15 @@ pub async fn mod_clearwarn(
 /// Clear all warns. Mirrors !clear-all-warns.ts.
 #[poise::command(slash_command, prefix_command, rename = "clear-all-warns")]
 pub async fn mod_clear_all_warns(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
+    if !crate::commands::prompt_reset_confirm(
+        &ctx,
+        "clear_allwarns_confirmation_message",
+        "Delete ALL warns? This is irreversible.",
+    )
+    .await?
+    {
+        return Ok(());
+    }
     let gid = ctx
         .guild_id()
         .map(|g| g.get().to_string())

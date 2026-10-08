@@ -68,6 +68,15 @@ pub async fn kv_set(pool: &Pool, guild_id: &str, key: &str, value: &str) -> anyh
     Ok(())
 }
 
+pub async fn kv_del(pool: &Pool, guild_id: &str, key: &str) -> anyhow::Result<()> {
+    sqlx::query("DELETE FROM kv WHERE guild_id = ? AND key_name = ?")
+        .bind(guild_id)
+        .bind(key)
+        .execute(pool)
+        .await?;
+    Ok(())
+}
+
 pub async fn guild_prefix(pool: &Pool, guild_id: Option<u64>, default: &str) -> String {
     let Some(gid) = guild_id else {
         return default.to_string();

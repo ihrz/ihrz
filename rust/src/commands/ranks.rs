@@ -238,6 +238,15 @@ pub async fn ranks_ureset(
     ctx: Ctx<'_>,
     #[description = "Member"] user: serenity::User,
 ) -> Result<(), anyhow::Error> {
+    if !crate::commands::prompt_reset_confirm(
+        &ctx,
+        "reset_uranks_are_you_sure",
+        "Delete all rank data for this user? This is irreversible.",
+    )
+    .await?
+    {
+        return Ok(());
+    }
     let gid = ctx
         .guild_id()
         .map(|g| g.get().to_string())
@@ -259,6 +268,15 @@ pub async fn ranks_ureset(
     default_member_permissions = "ADMINISTRATOR"
 )]
 pub async fn ranks_greset(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
+    if !crate::commands::prompt_reset_confirm(
+        &ctx,
+        "reset_uranks_are_you_sure",
+        "Delete all rank data for ALL members? This is irreversible.",
+    )
+    .await?
+    {
+        return Ok(());
+    }
     let gid = ctx
         .guild_id()
         .map(|g| g.get().to_string())

@@ -1153,6 +1153,37 @@ pub async fn is_media_link(url: &str) -> bool {
     ["image/", "video/", "gif"].iter().any(|t| ct.contains(t))
 }
 
+/// Dangerous permission flags in TS order. Mirrors
+/// `getDangerousPermissions` in method.ts (Administrator,
+/// ManageGuild, ManageRoles, MentionEveryone, BanMembers,
+/// KickMembers, ManageWebhooks, ManageChannels,
+/// ManageGuildExpressions, ViewCreatorMonetizationAnalytics).
+/// Bit values verified against serenity 0.12 permissions.rs.
+pub const DANGEROUS_PERMISSION_BITS: [u64; 10] = [
+    1 << 3,  // ADMINISTRATOR
+    1 << 5,  // MANAGE_GUILD
+    1 << 28, // MANAGE_ROLES
+    1 << 17, // MENTION_EVERYONE
+    1 << 2,  // BAN_MEMBERS
+    1 << 1,  // KICK_MEMBERS
+    1 << 29, // MANAGE_WEBHOOKS
+    1 << 4,  // MANAGE_CHANNELS
+    1 << 30, // MANAGE_GUILD_EXPRESSIONS
+    1 << 41, // VIEW_CREATOR_MONETIZATION_ANALYTICS
+];
+
+/// Names held by a role's permission bits, in TS order. Mirrors the
+/// `roleDangerousPermissions` loop in economy/!add.ts (`names[i]`
+/// parallels `DANGEROUS_PERMISSION_BITS[i]`).
+pub fn dangerous_role_perms(bits: u64, names: [&str; 10]) -> Vec<String> {
+    DANGEROUS_PERMISSION_BITS
+        .iter()
+        .zip(names.iter())
+        .filter(|(flag, _)| bits & *flag != 0)
+        .map(|(_, name)| name.to_string())
+        .collect()
+}
+
 #[cfg(test)]
 mod funcs_punish_tests {
     use super::*;
@@ -1176,5 +1207,28 @@ mod funcs_punish_tests {
         ));
         assert!(has_blacklisted_term("join .gg/abc"));
         assert!(!has_blacklisted_term("hello"));
+    }
+
+    #[test]
+    fn dangerous_perms_follow_ts_order() {
+        let names = [
+            "admin",
+            "guild",
+            "roles",
+            "mention",
+            "ban",
+            "kick",
+            "webhooks",
+            "channels",
+            "expressions",
+            "monetization",
+        ];
+        assert!(dangerous_role_perms(0, names).is_empty());
+        // Administrator + BanMembers only.
+        assert_eq!(
+            dangerous_role_perms((1 << 3) | (1 << 2), names),
+            vec!["admin".to_string(), "ban".to_string()]
+        );
+        assert_eq!(DANGEROUS_PERMISSION_BITS.len(), 10);
     }
 }

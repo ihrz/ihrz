@@ -185,6 +185,15 @@ pub async fn inv_lb(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
 
 #[poise::command(slash_command, prefix_command, rename = "reset")]
 pub async fn inv_reset(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
+    if !crate::commands::prompt_reset_confirm(
+        &ctx,
+        "resetallinvites_warning_msg",
+        "Delete all invite data? This is irreversible.",
+    )
+    .await?
+    {
+        return Ok(());
+    }
     let gid = ctx
         .guild_id()
         .map(|g| g.get().to_string())

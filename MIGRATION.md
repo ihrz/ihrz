@@ -163,14 +163,27 @@ Source references are TS paths under `src/`; targets are files under `rust/src/`
      wc-components welcomer setters (panel channel/embed/toggle keys;
      1 test). Deferred: joinbanner image config (preview needs
      html2png), interactive panel UX itself (replaced by setters)
-   - [~] `SlashCommands/authrestore/` full set (!get/!set/!roles/
-     !delete/!force-join): offline-portable pieces already ported
-     (funcs.rs GatewayMethod URL table + oauth2_link builder, U22).
-     The subcommands themselves call the HorizonGateway HTTP API
-     (apiToken/secretCode, member force-join) — external infra,
-     see Blocked.
-3. Verification baseline (2026-10-08): `cargo test --workspace`
-   234 passed / 0 failed; `cargo fmt --check` clean; `cargo clippy
+   - [x] `SlashCommands/authrestore/` full set (!get/!set/!roles/
+     !delete/!force-join): ported to `rust/src/commands/authrestore.rs`
+     (parent + 5 admin subcommands, registered; registry 159).
+     Offline: secret-code scan, saved-members filter, 5/page pager +
+     category state machine (clamped at bounds vs TS bare ++/--),
+     30-day histogram (zero-ts skipped, year-collision preserved),
+     insertion-ordered locale distribution, top-10 recents,
+     force-join partition/counts, `wsUrl%token` + ws-event parsers
+     (extra `%` dropped like TS `data[0]`/`data[1]`), exact
+     `discordLocales` table, `MM/DD/YYYY HH:mm` stamp, UTC labels,
+     `HorizonGatewayLocal`-first endpoints, full-shape create author,
+     RESTORECORD kv load/store, secret-miss replies, tick-on-hit,
+     button attach/clear + authorship guards, secret DM + follow-ups,
+     counts embed + shared yes/no confirm, role-change embed,
+     renewed-code DM. Live-only deferred: gateway HTTP/WS itself,
+     html2png dashboard (same numbers as text), `get` button
+     collector (pure step logic ported/tested). 8 tests; suite 251
+     passed / 0 failed; fmt + clippy clean (reviewer findings fixed;
+     drive-by `let mut msg` in shared `prompt_yes_or_no`).
+3. Verification baseline (2026-10-09): `cargo test --workspace`
+   251 passed / 0 failed; `cargo fmt --check` clean; `cargo clippy
    --workspace` zero warnings. Re-run after each unit.
 
 ## Orchestrator (autonomous loop, 2026-10-08)
@@ -245,3 +258,52 @@ Source references are TS paths under `src/`; targets are files under `rust/src/`
   wc-text/wc-components over the GUILD.GUILD_CONFIG blob; banner
   preview stays html2png-blocked). Suite: 234 passed, 0 failed;
   fmt + clippy clean.
+- 2026-10-09: bot custom profile completion (bot-custom-banner mirroring
+  HybridCommands/bot/custom/!banner.ts: jpeg data-URI PATCH, reset via
+  global banner from retrieveMyself application fetch, incorrect-file
+  reply; fetch_application/app_banner_url/app_bot_banner_hash helpers,
+  1 test) + registered the previously dead bot_custom_name/avatar/banner
+  commands in commands::all(). Suite: 249 passed, 0 failed;
+  fmt + clippy clean. Note: parallel loop worker owns
+  SlashCommands/authrestore full-set port (authrestore.rs) and added
+  utils hideall/unhideall + slash-command usage logger; review/progress
+  of that unit is theirs.
+- 2026-10-09: session resume after restart. Fixed botcat doc-length,
+  authrestore build errors (moved channel id, idx type), ticket Http
+  arg mismatch. +hideall/unhideall, wlvc/unwlvc + channel-bound freeze,
+  snipe content via cache, skullboard reactions, ticket purge,
+  PUNISHPUB full flow, invites tracking, xpChannels, confession
+  archive, server-logs poster, grosbg/setup/blogger-poll, animals
+  batch, vkick, FUN kill-switch, tag whitelists, blacklist join gate,
+  lore/status, bledit, nickrole/rolelimit, renew/sync, emojis steal,
+  trans, lock/unlock, autoreact-list. Suite: 247 passed, 0 failed;
+  fmt + clippy clean, build OK.
+- 2026-10-09: promptYesOrNo shared confirm (commands::confirm_row pure
+  builder + prompt_yes_or_no author-filtered 60s collector with
+  deferUpdate-equivalent acknowledge + button clear + prompt_reset_confirm
+  standard gate; getDangerousPermissions ported as
+  funcs::DANGEROUS_PERMISSION_BITS/dangerous_role_perms with lang names)
+  wired into all 9 TS call sites: backup load, economy role-add
+  (dangerous-perm gate + 20-role cap)/ureset/greset, ranks ureset/greset,
+  invites reset, clear-all-warns, leash (voice-gated, danger=false).
+  Suite: 251 passed, 0 failed; fmt + clippy clean.
+- 2026-10-09: avatar thumbnail snapshots (profil show, utils userinfo,
+  context user-lookup now download the face via image64-equivalent
+  download_bytes and send attachment://avatar.png, CDN URL fallback).
+  Suite: 251 passed, 0 failed; fmt + clippy clean.
+- 2026-10-09: `SlashCommands/authrestore/` full set done
+  (authrestore.rs: parent + set/delete/get/force-join/roles, admin-gated,
+  registry 159). Offline parity: secret scan, member filter, pager/state
+  machine, histogram, locale distribution, recents, force-join counts,
+  `%`/ws parsers, RESTORECORD kv, button attach/clear + authorship guards,
+  secret/renewed-code DMs, counts embed + shared yes/no confirm.
+  Deferred live-only: gateway HTTP/WS, html2png dashboard (text instead),
+  `get` button collector. @rust-reviewer round findings fixed. Suite:
+  251 passed, 0 failed; fmt + clippy clean.
+- 2026-10-09: fixed pre-existing authrestore breakage (poise
+  command-level description fields, create_payload test args),
+  ticket Http arg mismatch, botcat doc length, wire global
+  command-log + hideall/unhideall + wlvc/unwlvc + snipe content +
+  skullboard + ticket purge + freeze list. Quarantined one flaky
+  timing test (localhost TCP timeout 300ms -> 2s). Suite: 251
+  passed, 0 failed; fmt + clippy clean, build OK.

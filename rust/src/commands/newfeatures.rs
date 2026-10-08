@@ -50,6 +50,86 @@ pub async fn counter(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())
 }
 
+/// Last counter record. Mirrors COUNTER_DATA {amount, userId}
+/// (plus the legacy bare-number shape, attributed to nobody).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct CounterData {
+    pub amount: i64,
+    pub user_id: Option<String>,
+}
+
+pub fn parse_counter_data(raw: Option<&str>) -> CounterData {
+    let fallback = CounterData {
+        amount: 0,
+        user_id: None,
+    };
+    let Some(raw) = raw else {
+        return fallback;
+    };
+    let Ok(value) = serde_json::from_str::<serde_json::Value>(raw) else {
+        return fallback;
+    };
+    if let Some(n) = value.as_i64() {
+        return CounterData {
+            amount: n,
+            user_id: None,
+        };
+    }
+    CounterData {
+        amount: value.get("amount").and_then(|a| a.as_i64()).unwrap_or(0),
+        user_id: value
+            .get("userId")
+            .and_then(|u| u.as_str())
+            .map(|s| s.to_string()),
+    }
+}
+
+pub fn counter_data_json(data: &CounterData) -> String {
+    serde_json::json!({"amount": data.amount, "userId": data.user_id}).to_string()
+}
+
+/// TS Number() semantics for the counter: blank never counts;
+/// non-finite Rust-only parses ("inf") do not count either.
+pub fn counter_number(content: &str) -> Option<f64> {
+    let trimmed = content.trim();
+    if trimmed.is_empty() {
+        return None;
+    }
+    let n: f64 = trimmed.parse().ok()?;
+    if n.is_finite() {
+        Some(n)
+    } else {
+        None
+    }
+}
+
+/// One counting-game step. Mirrors Events/counter/onNewMessage.ts:
+/// exact next integer by a different user accepts; anything else
+/// resets to zero (wrong number or repeat by the same user replies
+/// with its own text, non-numbers get the syntax error).
+#[derive(Debug, Clone, PartialEq)]
+pub enum CounterOutcome {
+    Accept { number: i64 },
+    WrongNumber { same_user: bool, number: f64 },
+    NotNumber,
+}
+
+pub fn counter_step(last: &CounterData, author_id: &str, content: &str) -> CounterOutcome {
+    let Some(n) = counter_number(content) else {
+        return CounterOutcome::NotNumber;
+    };
+    let is_next = n.fract() == 0.0 && n as i64 == last.amount + 1;
+    let same_user = last.user_id.as_deref() == Some(author_id);
+    if is_next && !same_user {
+        CounterOutcome::Accept { number: n as i64 }
+    } else {
+        CounterOutcome::WrongNumber {
+            same_user,
+            number: n,
+        }
+    }
+}
+
 #[poise::command(
     slash_command,
     prefix_command,
@@ -242,6 +322,99 @@ pub async fn punishpub(
     Ok(())
 }
 
+/// Rolesaver on/off switch.
+#[poise::command(
+    slash_command,
+    prefix_command,
+    category = "newfeatures",
+    rename = "rolesaver"
+)]
+pub async fn rolesaver(
+    ctx: Ctx<'_>,
+    #[description = "on or off"] action: String,
+) -> Result<(), anyhow::Error> {
+    let gid = ctx
+        .guild_id()
+        .map(|g| g.get().to_string())
+        .unwrap_or_default();
+    let enabled = matches!(action.to_ascii_lowercase().as_str(), "on" | "power on");
+    crate::db::kv_set(
+        &ctx.data().pool,
+        &gid,
+        "GUILD.GUILD_CONFIG.rolesaver.enable",
+        if enabled { "1" } else { "0" },
+    )
+    .await?;
+    ctx.say(if enabled {
+        "Rolesaver on."
+    } else {
+        "Rolesaver off."
+    })
+    .await?;
+    Ok(())
+}
+
+pub async fn rolesaver_enabled(pool: &crate::db::Pool, guild_id: &str) -> bool {
+    crate::db::kv_get(pool, guild_id, "GUILD.GUILD_CONFIG.rolesaver.enable")
+        .await
+        .map(|v| v == "1")
+        .unwrap_or(false)
+}
+
+/// Bug report (5h cooldown, stored).
+#[poise::command(
+    slash_command,
+    prefix_command,
+    category = "newfeatures",
+    rename = "report"
+)]
+pub async fn report(
+    ctx: Ctx<'_>,
+    #[description = "Message to devs (8+ words)"] message: String,
+) -> Result<(), anyhow::Error> {
+    let Some(guild_id) = ctx.guild_id() else {
+        return Ok(());
+    };
+    let gid = guild_id.get().to_string();
+    let uid = ctx.author().id.get();
+    let now = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|d| d.as_millis() as i64)
+        .unwrap_or(0);
+    let last: i64 = crate::db::kv_get(
+        &ctx.data().pool,
+        &gid,
+        &format!("USER.{uid}.REPORT.cooldown"),
+    )
+    .await
+    .and_then(|s| s.parse().ok())
+    .unwrap_or(0);
+    if now - last < 18_000_000 {
+        ctx.say("Report cooldown active.").await?;
+        return Ok(());
+    }
+    if message.split_whitespace().count() < 8 {
+        ctx.say("Please specify (8+ words).").await?;
+        return Ok(());
+    }
+    crate::db::kv_set(
+        &ctx.data().pool,
+        &gid,
+        &format!("REPORTS.{now}.{uid}"),
+        &message,
+    )
+    .await?;
+    crate::db::kv_set(
+        &ctx.data().pool,
+        &gid,
+        &format!("USER.{uid}.REPORT.cooldown"),
+        &now.to_string(),
+    )
+    .await?;
+    ctx.say("Report recorded.").await?;
+    Ok(())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -260,5 +433,80 @@ mod tests {
         assert!(night_active(9, 17, 12));
         assert!(!night_active(9, 17, 20));
         assert!(!night_active(8, 8, 8));
+    }
+
+    #[test]
+    fn counter_game_steps_mirror_ts() {
+        let fresh = CounterData {
+            amount: 0,
+            user_id: None,
+        };
+        // First count by anyone accepts.
+        assert_eq!(
+            counter_step(&fresh, "u1", "1"),
+            CounterOutcome::Accept { number: 1 }
+        );
+        let one = CounterData {
+            amount: 1,
+            user_id: Some("u1".to_string()),
+        };
+        // Same user twice: wrong, flagged same_user.
+        assert_eq!(
+            counter_step(&one, "u1", "2"),
+            CounterOutcome::WrongNumber {
+                same_user: true,
+                number: 2.0
+            }
+        );
+        // Wrong number by another user.
+        assert_eq!(
+            counter_step(&one, "u2", "3"),
+            CounterOutcome::WrongNumber {
+                same_user: false,
+                number: 3.0
+            }
+        );
+        // Correct continuation.
+        assert_eq!(
+            counter_step(&one, "u2", "2"),
+            CounterOutcome::Accept { number: 2 }
+        );
+        // Non-numbers and blanks never count.
+        assert_eq!(counter_step(&one, "u2", "hi"), CounterOutcome::NotNumber);
+        assert_eq!(counter_step(&one, "u2", "   "), CounterOutcome::NotNumber);
+        // Fractions never accept.
+        assert!(matches!(
+            counter_step(&fresh, "u1", "1.5"),
+            CounterOutcome::WrongNumber { .. }
+        ));
+    }
+
+    #[test]
+    fn counter_data_parses_shapes() {
+        assert_eq!(
+            parse_counter_data(None),
+            CounterData {
+                amount: 0,
+                user_id: None
+            }
+        );
+        // Legacy bare-number row.
+        assert_eq!(
+            parse_counter_data(Some("4")),
+            CounterData {
+                amount: 4,
+                user_id: None
+            }
+        );
+        let row = parse_counter_data(Some(r#"{"amount":7,"userId":"u9"}"#));
+        assert_eq!(row.amount, 7);
+        assert_eq!(row.user_id.as_deref(), Some("u9"));
+        let reset = CounterData {
+            amount: 0,
+            user_id: None,
+        };
+        let json: serde_json::Value = serde_json::from_str(&counter_data_json(&reset)).unwrap();
+        assert_eq!(json["amount"], 0);
+        assert!(json["userId"].is_null());
     }
 }

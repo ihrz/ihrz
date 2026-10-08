@@ -17,7 +17,7 @@ pub fn vd_key(field: &str) -> String {
     slash_command,
     prefix_command,
     category = "voicedashboard",
-    rename = "voicedashboard",
+    rename = "voice",
     subcommands("vd_lobby", "vd_panel", "vd_category", "vd_name", "vd_staff"),
     default_member_permissions = "ADMINISTRATOR"
 )]
