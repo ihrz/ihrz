@@ -181,3 +181,10 @@ src/files/custom-enabled-guilds.json
 rust/target/
 **/*.rs.bk
 .cargo-ok
+
+# Migration orchestrator runtime state (resume lives in MIGRATION.md + git)
+ops/rust-migration/state.json
+ops/rust-migration/loop.log
+ops/rust-migration/gap-candidates.txt
+ops/rust-migration/.loop.lockfile
+ops/rust-migration/PAUSED

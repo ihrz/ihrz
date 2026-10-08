@@ -85,8 +85,9 @@ for line in scope.splitlines():
     s = line.strip()
     if s.startswith('- [ ]') or s.startswith('- [~]'):
         print(s[:300])
-        return
-print('')
+        break
+else:
+    print('')
 EOF
 }
 
@@ -137,12 +138,14 @@ run_worker() {
 
 is_rate_limit() { grep -qiE 'rate.?limit|429|quota|overloaded|temporarily unavailable' "$LOG_FILE" | tail -1 >/dev/null 2>&1; tail -30 "$LOG_FILE" | grep -qiE 'rate.?limit|429|quota exceeded|overloaded|temporarily unavailable'; }
 
-# Gap audit: list TS files under src/ with no plausible Rust counterpart and
-# append them as new Remaining units. Keeps the loop infinite even when a
-# worker wrongly believes everything is ported.
+# Gap audit: list TS files under src/ with no plausible Rust counterpart.
+# NEVER edits MIGRATION.md by itself (filename matching has false
+# positives: e.g. ready.ts is covered by events.rs). Writes candidates to
+# gap-candidates.txt and notifies; the next worker triages them into real
+# Remaining units or documents why they are covered.
 audit_new_gaps() {
   python3 - "$REPO" <<'EOF'
-import os, re, io
+import os, re
 repo = os.path.normpath(os.path.expandvars(os.path.expanduser(__import__('sys').argv[1])))
 src = os.path.join(repo, 'src')
 rust = os.path.join(repo, 'rust', 'src')
@@ -161,16 +164,11 @@ for dp, _, fns in os.walk(src):
         norm = re.sub(r'[^a-z0-9]', '', base)
         if not any(norm in re.sub(r'[^a-z0-9]', '', h) or re.sub(r'[^a-z0-9]', '', h) in norm for h in have):
             missing.append(os.path.relpath(os.path.join(dp, f), repo))
-text = io.open(mig, encoding='utf-8').read()
+text = open(mig, encoding='utf-8').read()
 known = set(re.findall(r'src/\S+\.ts', text))
-fresh = [m for m in sorted(set(missing)) if m not in known]
-if fresh:
-    block = '\n'.join('    - [ ] `%s` (gap-audit: no Rust counterpart found)' % m for m in fresh[:50])
-    text = text.replace('## Log', '    - Gap audit found %d file(s):\n%s\n\n## Log' % (len(fresh), block), 1)
-    io.open(mig, 'w', encoding='utf-8').write(text)
-    print('audit: %d new gap units' % len(fresh[:50]))
-else:
-    print('audit: no new gaps')
+fresh = sorted(set(missing) - known)
+open(os.path.join(repo, 'ops', 'rust-migration', 'gap-candidates.txt'), 'w').write('\n'.join(fresh))
+print('audit: %d candidates written to gap-candidates.txt' % len(fresh))
 EOF
 }
 
