@@ -51,6 +51,11 @@ Discord helper: `notify.sh` (wraps `hermes send`, never touches tokens).
 - API outage/quota: loop backs off exponentially, notifies Discord, retries.
 - Wrong branch: loop parks + notifies instead of migrating the wrong tree.
 - API keys: only `hermes send --list` targets; secrets stay in `~/.hermes/`.
+- Live co-workers: if another agent session edits the same tree, do NOT
+  fight it — the loop never resets user work, validates (`fmt` + `check` +
+  `test`) before every checkpoint, and commits serialize concurrent edits.
+  The 20-minute Hermes takeover job (`ihrz-migration-takeover`,
+  `--continuity`) only takes over a unit when `loop.log` is stale >30min.
 
 ## Hermes cron watchdog
 
