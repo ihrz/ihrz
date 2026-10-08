@@ -196,6 +196,7 @@ Source references are TS paths under `src/`; targets are files under `rust/src/`
 - Validation commands: `cargo fmt --all -- --check`,
   `cargo check --workspace`, `cargo test --workspace` (from `rust/`).
 - Baseline re-verified 2026-10-08: 233 passed / 0 failed.
+- Night run 2026-10-08/09: infinite loop LIVE (systemd active+enabled, worker on authrestore with meta/muse-spark-1.3-contributor, 20min takeover + 6h watch crons). Picker return-bug + systemd PATH + Anthropic-key fixes committed.
 
 
 ## Log
