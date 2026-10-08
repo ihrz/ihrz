@@ -14,6 +14,10 @@
 # prevents two loops on the same tree. Never touches uncommitted user work
 # except the migration's own files (it commits only after validation).
 set -u
+# systemd user units get a minimal PATH (no ~/.bun/bin, no ~/.local/bin):
+# pin the tools this loop depends on.
+export PATH="$HOME/.bun/bin:$HOME/.local/bin:$HOME/.cargo/bin:/run/current-system/sw/bin:/usr/bin:/bin"
+OPENCODE_BIN="$(command -v opencode || echo "$HOME/.bun/bin/opencode")"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck disable=SC1091
 [ -f "$SCRIPT_DIR/migrate.conf" ] && . "$SCRIPT_DIR/migrate.conf"
@@ -133,7 +137,7 @@ run_worker() {
   local args=(run --agent "$AGENT" --auto)
   [ -n "$MODEL" ] && args+=(--model "$MODEL")
   # shellcheck disable=SC2086
-  timeout "$WORKER_TIMEOUT" opencode "${args[@]}" "$prompt" >>"$LOG_FILE" 2>&1
+  timeout "$WORKER_TIMEOUT" "$OPENCODE_BIN" "${args[@]}" "$prompt" >>"$LOG_FILE" 2>&1
 }
 
 is_rate_limit() { grep -qiE 'rate.?limit|429|quota|overloaded|temporarily unavailable' "$LOG_FILE" | tail -1 >/dev/null 2>&1; tail -30 "$LOG_FILE" | grep -qiE 'rate.?limit|429|quota exceeded|overloaded|temporarily unavailable'; }
