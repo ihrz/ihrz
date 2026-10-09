@@ -4,14 +4,14 @@ use super::*;
 #[poise::command(slash_command, prefix_command, rename = "nowplaying")]
 pub async fn m_nowplaying(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let Some(gid) = guild_id_of(&ctx) else {
-        ctx.say("This command can only be used in a server.")
-            .await?;
         return Ok(());
     };
+    let code = lang_code(&ctx).await;
     let m = synced_mgr(&ctx).await;
     let snap = m.snapshot(gid).await;
+    let voice = voice_channel_of(&ctx);
     match snap.and_then(|s| s.current.map(|t| (t, s.paused))) {
-        Some((t, paused)) => {
+        Some((t, paused)) if voice.is_some() => {
             let state = if paused { "paused" } else { "playing" };
             let preview = preview_for_track(&t).await;
             let embed = preview_embed(&preview, Some(t.length_ms));
@@ -27,8 +27,14 @@ pub async fn m_nowplaying(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
             }
             ctx.send(reply).await?;
         }
-        None => {
-            ctx.say("Nothing playing.").await?;
+        _ => {
+            say_key(
+                &ctx,
+                &code,
+                "nowplaying_no_queue",
+                "There is nothing playing",
+            )
+            .await?;
         }
     }
     Ok(())

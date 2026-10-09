@@ -124,6 +124,91 @@ async fn lang_code(ctx: &Ctx<'_>) -> String {
     crate::db::guild_lang(&ctx.data().pool, guild_id_of(ctx)).await
 }
 
+/// App-emoji markup with a plain fallback. Mirrors the
+/// `${client.iHorizon_Emojis.X}` interpolations in the music TS files.
+async fn emoji_markup(ctx: &Ctx<'_>, name: &str, fallback: &str) -> String {
+    crate::emojis::app_emoji_markup(&ctx.serenity_context().http, name)
+        .await
+        .unwrap_or_else(|| fallback.to_string())
+}
+
+/// Plain content reply for a language key with a byte-identical
+/// fallback (mirrors `interactionSend` with `{ content }`).
+async fn say_key(
+    ctx: &Ctx<'_>,
+    code: &str,
+    key: &str,
+    fallback: &str,
+) -> Result<(), anyhow::Error> {
+    ctx.say(crate::lang::get(code, key).unwrap_or_else(|| fallback.to_string()))
+        .await?;
+    Ok(())
+}
+
+/// Bot's current voice channel: Discord state first (TS
+/// `guild.members.me.voice.channelId`), falling back to the player
+/// snapshot the play command maintains.
+fn bot_voice_channel(ctx: &Ctx<'_>, gid: u64, snapshot_voice: Option<u64>) -> Option<u64> {
+    let me = ctx.serenity_context().cache.current_user().id;
+    if let Some(g) = ctx
+        .serenity_context()
+        .cache
+        .guild(serenity::GuildId::new(gid))
+    {
+        if let Some(c) = g.voice_states.get(&me).and_then(|v| v.channel_id) {
+            return Some(c.get());
+        }
+    }
+    snapshot_voice
+}
+
+/// Same-voice-as-bot gate. Mirrors the `music_cannot` checks
+/// (`member.voice.channelId !== members.me.voice.channelId`).
+/// Returns true when the caller must stop.
+async fn guard_same_voice(
+    ctx: &Ctx<'_>,
+    code: &str,
+    user_voice: Option<u64>,
+    bot_voice: Option<u64>,
+) -> bool {
+    if user_voice != bot_voice {
+        let no = emoji_markup(ctx, "No", "❌").await;
+        let msg = crate::lang::get(code, "music_cannot")
+            .map(|s| s.replace("${client.iHorizon_Emojis.No}", &no))
+            .unwrap_or_else(|| {
+                "You need to be in the same voice channel as me to use this command!".to_string()
+            });
+        let _ = ctx.say(msg).await;
+        return true;
+    }
+    false
+}
+
+/// Not-in-voice gate with the per-command TS key (each carries the
+/// `${client.iHorizon_Emojis.Warning_Icon}` placeholder).
+/// Returns true when the caller must stop.
+async fn guard_user_voice(ctx: &Ctx<'_>, code: &str, key: &str, user_voice: Option<u64>) -> bool {
+    if user_voice.is_none() {
+        let icon = emoji_markup(ctx, "Warning_Icon", "⚠️").await;
+        let msg = crate::lang::get(code, key)
+            .map(|s| s.replace("${client.iHorizon_Emojis.Warning_Icon}", &icon))
+            .unwrap_or_else(|| "You're not in a voice channel!".to_string());
+        let _ = ctx.say(msg).await;
+        return true;
+    }
+    false
+}
+
+/// No-result embed. Mirrors `buildNoResultEmbed` in musicPlay.ts
+/// (`p_embed_title`, #ff0000).
+fn no_result_embed(code: &str) -> serenity::CreateEmbed {
+    let title = crate::lang::get(code, "p_embed_title").unwrap_or_else(|| "No results".to_string());
+    serenity::CreateEmbed::default()
+        .title(title)
+        .colour(0xFF0000)
+        .timestamp(serenity::Timestamp::now())
+}
+
 // ---- Metadata enrichment (source-detected normalized previews) ----
 // nowplaying / trackinfo / queue consume the rust/src/metadata ports.
 // Detection is per track URL; any fetch failure (or unmatched URL) falls

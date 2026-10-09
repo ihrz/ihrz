@@ -1,16 +1,13 @@
 use super::*;
 
 /// Mirrors `!trackinfo.ts`.
-// Track info lookup: live Lavalink search when a query is given,
-// otherwise the current track. Mirrors !trackinfo.ts.
 #[poise::command(slash_command, prefix_command, rename = "trackinfo")]
 pub async fn m_trackinfo(
     ctx: Ctx<'_>,
     #[description = "Title or URL"] title: Option<String>,
 ) -> Result<(), anyhow::Error> {
+    let code = lang_code(&ctx).await;
     let Some(gid) = guild_id_of(&ctx) else {
-        ctx.say("This command can only be used in a server.")
-            .await?;
         return Ok(());
     };
     let m = synced_mgr(&ctx).await;
@@ -23,6 +20,16 @@ pub async fn m_trackinfo(
             }),
             None => fallback_preview(&t.info.title, &t.info.author, None),
         }
+    }
+    // Empty search never matches (TS `searchMusicQuery` with "").
+    async fn no_result(ctx: &Ctx<'_>, code: &str) -> Result<(), anyhow::Error> {
+        ctx.send(
+            poise::CreateReply::default()
+                .embed(no_result_embed(code))
+                .ephemeral(true),
+        )
+        .await?;
+        Ok(())
     }
     if let Some(q) = title {
         if let Ok((node, _)) = m.live_node_and_session(gid).await {
@@ -60,8 +67,7 @@ pub async fn m_trackinfo(
                     return Ok(());
                 }
                 _ => {
-                    ctx.say("No matches found.").await?;
-                    return Ok(());
+                    return no_result(&ctx, &code).await;
                 }
             }
         }
@@ -72,8 +78,7 @@ pub async fn m_trackinfo(
                     .await?;
             }
             None => {
-                ctx.say(format!("Track info for {q} (node offline)."))
-                    .await?;
+                return no_result(&ctx, &code).await;
             }
         }
         return Ok(());
@@ -85,7 +90,7 @@ pub async fn m_trackinfo(
                 .await?;
         }
         None => {
-            ctx.say("Nothing playing.").await?;
+            return no_result(&ctx, &code).await;
         }
     }
     Ok(())

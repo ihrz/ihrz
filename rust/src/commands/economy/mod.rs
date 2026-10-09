@@ -656,9 +656,12 @@ pub async fn post_economy_log(
         .title(crate::commands::lang_for(ctx, title_key, title_key).await)
         .description(desc)
         .timestamp(Timestamp::now());
-    ChannelId::new(channel_id)
+    // Fire-and-forget like the TS `sendEmbed` (returns void, the
+    // `channel.send` is never awaited): log delivery must not fail
+    // the command that already replied.
+    let _ = ChannelId::new(channel_id)
         .send_message(ctx.http(), CreateMessage::new().embed(embed))
-        .await?;
+        .await;
     Ok(())
 }
 

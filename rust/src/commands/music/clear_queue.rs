@@ -9,12 +9,37 @@ use super::*;
 )]
 pub async fn m_clear(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let Some(gid) = guild_id_of(&ctx) else {
-        ctx.say("This command can only be used in a server.")
-            .await?;
         return Ok(());
     };
+    let code = lang_code(&ctx).await;
     let m = synced_mgr(&ctx).await;
-    let n = m.with_player(gid, |p| p.clear_queue()).await;
-    ctx.say(format!("Cleared {n} queued track(s).")).await?;
+    let snap = m.snapshot(gid).await;
+    let voice = voice_channel_of(&ctx);
+    if snap.is_none() || voice.is_none() {
+        say_key(
+            &ctx,
+            &code,
+            "resume_nothing_playing",
+            "There is nothing playing",
+        )
+        .await?;
+        return Ok(());
+    }
+    if guard_same_voice(
+        &ctx,
+        &code,
+        voice,
+        bot_voice_channel(&ctx, gid, snap.as_ref().and_then(|s| s.voice_channel)),
+    )
+    .await
+    {
+        return Ok(());
+    }
+    m.with_player(gid, |p| p.clear_queue()).await;
+    let security = emoji_markup(&ctx, "Security", "🛡️").await;
+    let msg = crate::lang::get(&code, "clear_queue_command_ok")
+        .map(|s| s.replace("${client.iHorizon_Emojis.Security}", &security))
+        .unwrap_or_else(|| "The music queue in this discord has been cleared.".to_string());
+    ctx.say(msg).await?;
     Ok(())
 }

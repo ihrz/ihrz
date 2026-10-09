@@ -64,7 +64,7 @@ pub async fn m_lyrics(
         None => {
             ctx.say(
                 crate::lang::get(&code, "lyrics_not_found")
-                    .unwrap_or_else(|| "Lyrics not found.".to_string()),
+                    .unwrap_or_else(|| "No lyrics found".to_string()),
             )
             .await?;
         }
