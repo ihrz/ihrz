@@ -643,6 +643,16 @@ pub async fn run(cfg: Config, pool: Pool) -> anyhow::Result<()> {
                     if let Some(total) = ready.shard.as_ref().map(|s| s.total) {
                         mgr.ensure_total_shards(total).await;
                     }
+                    // Track-exception diagnostics feed (ERRCHAN-FEED):
+                    // snapshot the live Http + lavalink_logs_channel_id +
+                    // owners once at ready; the feed TrackException arm
+                    // reads this ctx (never a dispatcher subscriber).
+                    mgr.register_exception_report(
+                        ctx.http.clone(),
+                        cfg_fw.lavalink_logs_channel_id.clone(),
+                        cfg_fw.owners.clone(),
+                    )
+                    .await;
                     crate::lavalink::spawn_all_node_ws(cfgs, user_id);
                 }
                 // Release newsletter fan-out (main shard only). Mirrors
@@ -980,5 +990,21 @@ mod tests {
         assert_eq!(rows[&1], ("alice2".to_string(), None));
         assert_eq!(rows[&2], ("bot".to_string(), None));
         assert!(collect_users_names(vec![]).is_empty());
+    }
+
+    #[tokio::test]
+    async fn ready_registers_exception_report_from_config() {
+        // Mirrors the setup-block wiring (ERRCHAN-FEED): live Http +
+        // lavalink_logs_channel_id + owners snapshot from Config.
+        // Hermetic fresh manager; the stored-ctx roundtrip itself is
+        // covered in lavalink.rs.
+        let cfg = crate::config::Config::default();
+        crate::lavalink::LavalinkManager::new()
+            .register_exception_report(
+                std::sync::Arc::new(serenity::Http::new("dummy")),
+                cfg.lavalink_logs_channel_id.clone(),
+                cfg.owners.clone(),
+            )
+            .await;
     }
 }

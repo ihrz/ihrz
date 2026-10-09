@@ -4,6 +4,76 @@ use std::collections::HashMap;
 /// Select-menu custom id. Mirrors `setCustomId("shop")` (!shop.ts:161).
 pub const SHOP_SELECT_ID: &str = "shop";
 
+/// Table-first shop load with legacy kv fallback (keys unchanged). Accepts
+/// the TS map shape plus the legacy Rust Vec shape (`[{role_id, price,
+/// boost}]`) for old rows; a legacy hit promotes into the table.
+/// Pair with `save_shop_routed` (dual-write) so kv-only readers stay fresh.
+pub async fn load_shop_routed(pool: &crate::db::Pool, guild_id: &str) -> ShopMap {
+    let Some(raw) =
+        crate::commands::owner::main::routed_get(pool, guild_id, guild_id, shop_key()).await
+    else {
+        return ShopMap::new();
+    };
+    if let Ok(map) = serde_json::from_str::<ShopMap>(&raw) {
+        return map;
+    }
+    // Legacy Vec shape fallback (mirrors the mod.rs owner).
+    let mut out = ShopMap::new();
+    if let Ok(vec) = serde_json::from_str::<Vec<serde_json::Value>>(&raw) {
+        for entry in vec {
+            let Some(role_id) = entry
+                .get("role_id")
+                .and_then(|r| {
+                    r.as_str().map(|s| s.to_string()).or_else(|| {
+                        r.as_u64()
+                            .map(|n| n.to_string())
+                            .or_else(|| r.as_i64().map(|n| n.to_string()))
+                    })
+                })
+                .filter(|s| !s.is_empty())
+            else {
+                continue;
+            };
+            let price = entry
+                .get("price")
+                .and_then(|p| p.as_f64().or_else(|| p.as_i64().map(|i| i as f64)))
+                .unwrap_or(0.0);
+            let boost = entry.get("boost").and_then(|b| {
+                b.as_f64().or_else(|| {
+                    b.as_i64().map(|i| i as f64).or_else(|| {
+                        b.as_str().and_then(|s| {
+                            let t = s.trim().trim_start_matches('x').trim();
+                            if t.is_empty() {
+                                None
+                            } else {
+                                t.parse::<f64>().ok()
+                            }
+                        })
+                    })
+                })
+            });
+            out.insert(role_id, ShopEntry { price, boost });
+        }
+    }
+    out
+}
+
+/// Table-first shop store with legacy kv dual-write (keys unchanged).
+pub async fn save_shop_routed(
+    pool: &crate::db::Pool,
+    guild_id: &str,
+    roles: &ShopMap,
+) -> anyhow::Result<()> {
+    crate::commands::owner::main::routed_set(
+        pool,
+        guild_id,
+        guild_id,
+        shop_key(),
+        &serde_json::to_string(roles)?,
+    )
+    .await
+}
+
 /// Collector lifetime. Mirrors `time: 600_000` (!shop.ts:184).
 pub const SHOP_COLLECTOR_SECS: u64 = 600;
 
@@ -49,7 +119,7 @@ pub async fn eco_shop(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         .map(|g| g.get().to_string())
         .unwrap_or_default();
     let pool = &ctx.data().pool;
-    let shop = load_shop(pool, &gid).await;
+    let shop = load_shop_routed(pool, &gid).await;
     let code = crate::db::guild_lang(pool, ctx.guild_id().map(|g| g.get())).await;
     let text = |k: &str, fb: &str| crate::lang::get(&code, k).unwrap_or_else(|| fb.to_string());
     let uid = ctx.author().id.get();
@@ -280,7 +350,7 @@ async fn do_buy(
     let pool = &ctx.data().pool;
     let code = crate::db::guild_lang(pool, ctx.guild_id().map(|g| g.get())).await;
     let text = |k: &str, fb: &str| crate::lang::get(&code, k).unwrap_or_else(|| fb.to_string());
-    let shop = load_shop(pool, &gid).await;
+    let shop = load_shop_routed(pool, &gid).await;
     let Some(item) = shop.get(&role_id.to_string()) else {
         return Ok(Some(text(
             "economy_shop_not_available",
@@ -420,5 +490,66 @@ mod tests {
             "Unknown Role",
         );
         assert!(rows.is_empty());
+    }
+
+    async fn mem_pool() -> crate::db::Pool {
+        use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};
+        use std::str::FromStr;
+        let opts = SqliteConnectOptions::from_str("sqlite::memory:")
+            .unwrap()
+            .create_if_missing(true);
+        let pool = SqlitePoolOptions::new()
+            .max_connections(1)
+            .connect_with(opts)
+            .await
+            .unwrap();
+        sqlx::query(
+            "CREATE TABLE kv (guild_id TEXT NOT NULL, key_name TEXT NOT NULL, value TEXT NOT NULL, PRIMARY KEY (guild_id, key_name))",
+        )
+        .execute(&pool)
+        .await
+        .unwrap();
+        pool
+    }
+
+    #[tokio::test]
+    async fn legacy_map_row_reads_and_promotes_to_table() {
+        use crate::commands::owner::main::tbl_get_value;
+        let pool = mem_pool().await;
+        crate::db::kv_set(&pool, "g", shop_key(), r#"{"7":{"price":500}}"#)
+            .await
+            .unwrap();
+        let shop = load_shop_routed(&pool, "g").await;
+        assert_eq!(shop.get("7").map(|e| e.price), Some(500.0));
+        assert!(tbl_get_value(&pool, "g", shop_key()).await.is_some());
+        assert!(load_shop_routed(&pool, "g9").await.is_empty());
+    }
+
+    #[tokio::test]
+    async fn legacy_vec_shape_still_parses() {
+        let pool = mem_pool().await;
+        crate::db::kv_set(
+            &pool,
+            "g",
+            shop_key(),
+            r#"[{"role_id":"7","price":500,"boost":"x2"}]"#,
+        )
+        .await
+        .unwrap();
+        let shop = load_shop_routed(&pool, "g").await;
+        assert_eq!(shop.get("7").map(|e| e.price), Some(500.0));
+        assert_eq!(shop.get("7").and_then(|e| e.boost), Some(2.0));
+    }
+
+    #[tokio::test]
+    async fn save_dual_writes_table_and_legacy() {
+        use crate::commands::owner::main::tbl_get_value;
+        let pool = mem_pool().await;
+        save_shop_routed(&pool, "g", &sample_shop()).await.unwrap();
+        assert_eq!(
+            crate::db::kv_get(&pool, "g", shop_key()).await.as_deref(),
+            Some(r#"{"111":{"price":500}}"#)
+        );
+        assert!(tbl_get_value(&pool, "g", shop_key()).await.is_some());
     }
 }

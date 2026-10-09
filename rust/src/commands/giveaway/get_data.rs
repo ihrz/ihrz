@@ -1,3 +1,6 @@
+/// Detail embed color. Mirrors !get-data.ts:67 (`#0099ff`).
+pub const GW_GETDATA_COLOR: u32 = 0x0099ff;
+
 use super::*;
 
 /// Show one giveaway's data. Mirrors !get-data.ts.
@@ -9,7 +12,9 @@ use super::*;
 )]
 pub async fn gw_get_data(
     ctx: Ctx<'_>,
-    #[description = "Giveaway message id"] message_id: String,
+    #[description = "Giveaway message id"]
+    #[rename = "giveaway-id"]
+    message_id: String,
 ) -> Result<(), anyhow::Error> {
     let gid = ctx
         .guild_id()
@@ -38,6 +43,7 @@ pub async fn gw_get_data(
             )
             .replace("${giveawayId}", &mid.to_string());
             let mut embed = poise::serenity_prelude::CreateEmbed::default()
+                .colour(poise::serenity_prelude::Colour::new(GW_GETDATA_COLOR))
                 .title(t("gw_getdata_embed_title", "Giveaway Info!"))
                 .field(
                     t("gw_getdata_embed_fields_channel", "Channel"),
@@ -87,6 +93,22 @@ pub async fn gw_get_data(
                     entries_value,
                     false,
                 );
+            // Author mirrors !get-data.ts:60-66 (guild name + icon URL).
+            let guild_name = ctx
+                .guild()
+                .map(|g| g.name.clone())
+                .unwrap_or_else(|| gid.clone());
+            match ctx.guild().and_then(|g| g.icon_url()) {
+                Some(url) => {
+                    embed = embed.author(
+                        poise::serenity_prelude::CreateEmbedAuthor::new(guild_name).icon_url(url),
+                    );
+                }
+                None => {
+                    embed =
+                        embed.author(poise::serenity_prelude::CreateEmbedAuthor::new(guild_name));
+                }
+            }
             if gw.ended {
                 let winners = gw
                     .winners
@@ -111,4 +133,14 @@ pub async fn gw_get_data(
         }
     };
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn detail_color_matches_ts() {
+        assert_eq!(GW_GETDATA_COLOR, 0x0099ff);
+    }
 }

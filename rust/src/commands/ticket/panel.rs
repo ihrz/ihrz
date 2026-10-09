@@ -30,6 +30,37 @@ const MODAL_OPT_PANEL: &str = "ticket-panel-change-opt-panel";
 
 const STEP_TIMEOUT_SECS: u64 = 300;
 
+/// Table-first panel load with legacy kv fallback (keys unchanged). A
+/// legacy hit promotes into the table so rows migrate lazily; pair with
+/// `save_panel_routed` (dual-write) so kv-only readers stay fresh.
+pub async fn load_panel_routed(
+    pool: &crate::db::Pool,
+    guild_id: &str,
+    panel_id: &str,
+) -> TicketPanel {
+    crate::commands::owner::main::routed_get(pool, guild_id, guild_id, &panel_key(panel_id))
+        .await
+        .and_then(|s| serde_json::from_str(&s).ok())
+        .unwrap_or_default()
+}
+
+/// Table-first panel store with legacy kv dual-write (keys unchanged).
+pub async fn save_panel_routed(
+    pool: &crate::db::Pool,
+    guild_id: &str,
+    panel_id: &str,
+    panel: &TicketPanel,
+) -> anyhow::Result<()> {
+    crate::commands::owner::main::routed_set(
+        pool,
+        guild_id,
+        guild_id,
+        &panel_key(panel_id),
+        &serde_json::to_string(panel)?,
+    )
+    .await
+}
+
 // ---- Pure panel-code / marker / menu assembly ----
 // TS evidence: !panel.ts:128-135 (`rawData?.panelCode ||
 // generatePassword({length:10, uppercase:true, numbers:true})`),
@@ -368,7 +399,7 @@ pub async fn ticket_panel(
     let mut panel = if key.is_empty() {
         TicketPanel::default()
     } else {
-        load_panel(pool, &gid, key).await
+        load_panel_routed(pool, &gid, key).await
     };
     if panel.placeholder.trim().is_empty() {
         panel.placeholder = t("ticket_panel_default_placeholder");
@@ -430,7 +461,7 @@ pub async fn ticket_panel(
                     .create_response(&sctx.http, serenity::CreateInteractionResponse::Acknowledge)
                     .await;
                 ensure_unique_option_values(&mut panel.config.option_fields);
-                save_panel(pool, &gid, &panel_code, &panel).await?;
+                save_panel_routed(pool, &gid, &panel_code, &panel).await?;
                 saved = true;
                 break;
             }
@@ -1658,7 +1689,7 @@ async fn run_send_flow(
         return Ok(false);
     }
     ensure_unique_option_values(&mut panel.config.option_fields);
-    save_panel(pool, gid, panel_code, panel).await?;
+    save_panel_routed(pool, gid, panel_code, panel).await?;
     let _ = pick
         .create_response(&sctx.http, serenity::CreateInteractionResponse::Acknowledge)
         .await;
@@ -1868,7 +1899,7 @@ pub async fn ticket_panel_v2(
     if pid.is_empty() {
         return Ok(());
     }
-    let mut panel = load_panel(&ctx.data().pool, &gid, &pid).await;
+    let mut panel = load_panel_routed(&ctx.data().pool, &gid, &pid).await;
     if let Some(csv) = roles_to_ping {
         panel.config.roles_to_ping = parse_roles_csv(&csv);
     }
@@ -1884,7 +1915,7 @@ pub async fn ticket_panel_v2(
     if let Some(v) = user_select_panel {
         panel.config.user_select_panel = v;
     }
-    save_panel(&ctx.data().pool, &gid, &pid, &panel).await?;
+    save_panel_routed(&ctx.data().pool, &gid, &pid, &panel).await?;
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     ctx.say(
         crate::lang::get(&code, "msg_ticket_panel_updated")
@@ -2171,5 +2202,64 @@ mod tests {
         assert!(text.len() > 1024);
         assert!(text.contains("- nnn"));
         assert!(!text.contains("```"));
+    }
+
+    async fn mem_pool() -> crate::db::Pool {
+        use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};
+        use std::str::FromStr;
+        let opts = SqliteConnectOptions::from_str("sqlite::memory:")
+            .unwrap()
+            .create_if_missing(true);
+        let pool = SqlitePoolOptions::new()
+            .max_connections(1)
+            .connect_with(opts)
+            .await
+            .unwrap();
+        sqlx::query(
+            "CREATE TABLE kv (guild_id TEXT NOT NULL, key_name TEXT NOT NULL, value TEXT NOT NULL, PRIMARY KEY (guild_id, key_name))",
+        )
+        .execute(&pool)
+        .await
+        .unwrap();
+        pool
+    }
+
+    #[tokio::test]
+    async fn legacy_panel_row_reads_and_promotes_to_table() {
+        use crate::commands::owner::main::tbl_get_value;
+        let pool = mem_pool().await;
+        crate::db::kv_set(
+            &pool,
+            "g",
+            &panel_key("p1"),
+            r#"{"name":"Support","description":"d"}"#,
+        )
+        .await
+        .unwrap();
+        let panel = load_panel_routed(&pool, "g", "p1").await;
+        assert_eq!(panel.name, "Support");
+        assert!(tbl_get_value(&pool, "g", &panel_key("p1")).await.is_some());
+        assert_eq!(load_panel_routed(&pool, "g", "missing").await.name, "");
+    }
+
+    #[tokio::test]
+    async fn save_panel_dual_writes_table_and_legacy() {
+        use crate::commands::owner::main::tbl_get_value;
+        let pool = mem_pool().await;
+        let panel = TicketPanel {
+            name: "Support".to_string(),
+            ..Default::default()
+        };
+        save_panel_routed(&pool, "g", "p1", &panel).await.unwrap();
+        let raw = crate::db::kv_get(&pool, "g", &panel_key("p1"))
+            .await
+            .expect("legacy row");
+        assert_eq!(
+            serde_json::from_str::<TicketPanel>(&raw).unwrap().name,
+            "Support"
+        );
+        assert!(tbl_get_value(&pool, "g", &panel_key("p1")).await.is_some());
+        // Round-trip through the routed load.
+        assert_eq!(load_panel_routed(&pool, "g", "p1").await.name, "Support");
     }
 }

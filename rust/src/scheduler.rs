@@ -165,13 +165,6 @@ pub async fn sweep_expired_giveaways(
             Ok(gw) => gw,
             Err(_) => continue,
         };
-        // Ended-giveaway retention (mirrors the cooldownTime branch of
-        // giveawaysManager refresh()): rows past the lifetime are
-        // deleted even when already ended.
-        if giveaway_lifetime_due(gw.expire_in_ms, now_ms) {
-            let _ = crate::db::kv_del(pool, &gid, &key).await;
-            continue;
-        }
         // Entry dedup on every pass (mirrors AvoidDoubleEntries,
         // called at the top of refresh()); persisted when changed.
         let mut clean = gw.entries.clone();
@@ -186,46 +179,52 @@ pub async fn sweep_expired_giveaways(
             )
             .await;
         }
-        if gw.ended || now_ms < gw.expire_in_ms {
-            continue;
-        }
-        let code = crate::db::guild_lang(pool, gid.parse::<u64>().ok()).await;
-        if let Some(http) = &http {
-            // Shared end flow (board edit + winners reply). A gone
-            // board drops the row like the TS fetch catch.
-            let lived = crate::commands::giveaway::main::finish_giveaway(
-                pool,
-                http,
-                &gid,
-                mid,
-                &mut gw,
-                now_ms as u64,
-                &code,
-                now_ms / 1000,
-            )
-            .await;
-            if !lived {
-                let _ = crate::db::kv_del(pool, &gid, &key).await;
-                continue;
+        if !gw.ended && now_ms >= gw.expire_in_ms {
+            let code = crate::db::guild_lang(pool, gid.parse::<u64>().ok()).await;
+            if let Some(http) = &http {
+                // Shared end flow (board edit + winners reply). A gone
+                // board drops the row like the TS fetch catch.
+                let lived = crate::commands::giveaway::main::finish_giveaway(
+                    pool,
+                    http,
+                    &gid,
+                    mid,
+                    &mut gw,
+                    now_ms as u64,
+                    &code,
+                    now_ms / 1000,
+                )
+                .await;
+                if !lived {
+                    let _ = crate::db::kv_del(pool, &gid, &key).await;
+                    continue;
+                }
+            } else {
+                let winners = crate::commands::giveaway::main::pick_winners(
+                    &gw.entries,
+                    &gw.winners,
+                    gw.winner_count as usize,
+                    now_ms as u64,
+                );
+                gw.winners = winners;
+                gw.ended = true;
+                let _ = crate::db::kv_set(
+                    pool,
+                    &gid,
+                    &key,
+                    &serde_json::to_string(&gw).unwrap_or_default(),
+                )
+                .await;
             }
-        } else {
-            let winners = crate::commands::giveaway::main::pick_winners(
-                &gw.entries,
-                &gw.winners,
-                gw.winner_count as usize,
-                now_ms as u64,
-            );
-            gw.winners = winners;
-            gw.ended = true;
-            let _ = crate::db::kv_set(
-                pool,
-                &gid,
-                &key,
-                &serde_json::to_string(&gw).unwrap_or_default(),
-            )
-            .await;
+            ended += 1;
         }
-        ended += 1;
+        // Ended-giveaway retention, after the finish pass like the TS
+        // refresh() (finish, then the cooldownTime branch): an overdue
+        // board still gets its winners notice before the row is
+        // deleted, even when already ended.
+        if giveaway_lifetime_due(gw.expire_in_ms, now_ms) {
+            let _ = crate::db::kv_del(pool, &gid, &key).await;
+        }
     }
     ended
 }
@@ -1530,6 +1529,19 @@ mod tests {
             .map(|a| a.iter().filter_map(|s| s.as_str()).collect())
             .unwrap();
         assert_eq!(entries, vec!["a", "b"]);
+    }
+
+    #[tokio::test]
+    async fn giveaway_sweep_finishes_overdue_before_lifetime_delete() {
+        let p = pool().await;
+        // Unended row past the 345.6M ms lifetime: TS refresh() runs
+        // finish() first (winners notice), then the cooldownTime
+        // branch deletes the row. The sweep must count it as ended
+        // instead of silently dropping it.
+        crate::db::kv_set(&p, "g", "GIVEAWAY.7", r#"{"guild_id":"g","channel_id":"c","winner_count":1,"prize":"p","hosted_by":"h","expire_in_ms":0,"ended":false,"entries":["a","b"],"winners":[]}"#).await.unwrap();
+        let n = sweep_expired_giveaways(&p, None, ENDED_GIVEAWAY_LIFETIME_MS + 1000).await;
+        assert_eq!(n, 1);
+        assert!(crate::db::kv_get(&p, "g", "GIVEAWAY.7").await.is_none());
     }
 
     #[tokio::test]

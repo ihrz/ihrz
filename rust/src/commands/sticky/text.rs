@@ -12,7 +12,7 @@ pub async fn sticky_text(
     ctx: Ctx<'_>,
     #[description = "Channel"]
     #[channel_types("Text")]
-    channel: serenity::GuildChannel,
+    channel: Option<serenity::GuildChannel>,
     #[description = "Message"] message: String,
 ) -> Result<(), anyhow::Error> {
     let gid = ctx
@@ -21,7 +21,19 @@ pub async fn sticky_text(
         .unwrap_or_default();
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let t = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
-    let user = format!("<@{}", ctx.author().id.get());
+    let user = format!("<@{}>", ctx.author().id.get());
+    let Some(channel) = channel else {
+        ctx.say(
+            super::sticky::invalid_channel_text(
+                &ctx.serenity_context().http,
+                &t("sticky_channel_command_error"),
+                &user,
+            )
+            .await,
+        )
+        .await?;
+        return Ok(());
+    };
     if message.trim().is_empty() {
         ctx.say(fill(
             &t("sticky_text_command_missing_message"),

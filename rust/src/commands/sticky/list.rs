@@ -29,7 +29,8 @@ pub async fn sticky_list(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
                         &cfg.channel_id
                     },
                     cfg.content.as_deref(),
-                    cfg.embed_id.as_deref(),
+                    // TS truthiness: a blank embed id renders the text line.
+                    super::sticky::present_embed_id(cfg.embed_id.as_deref()),
                     &t("sticky_list_embed_desc_line_text"),
                     &t("sticky_list_embed_desc_line_embed"),
                     &t("sticky_list_embed_desc_line_text_embed"),

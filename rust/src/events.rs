@@ -354,9 +354,11 @@ async fn close_voice_session(
     } else {
         0
     };
-    let mut econ = crate::commands::economy::main::load_econ(pool, guild_id, user_id).await;
+    let mut econ =
+        crate::commands::economy::balance::load_econ_routed(pool, guild_id, user_id).await;
     econ.money += coins;
-    let _ = crate::commands::economy::main::save_econ(pool, guild_id, user_id, &econ).await;
+    let _ =
+        crate::commands::economy::balance::save_econ_routed(pool, guild_id, user_id, &econ).await;
     let mut stats = crate::commands::stats::main::load_stats(pool, guild_id, user_id).await;
     // Exact elapsed ms (TS stores exact start/end timestamps; the old
     // whole-minutes truncation lost up to ~59.9s per session).
@@ -1289,5 +1291,33 @@ mod tests {
             .unwrap();
         tbl_del(&pool, "g1", "GUILD.JOIN_DM").await.unwrap();
         assert!(join_dm_template(&pool, "g1").await.is_none());
+    }
+
+    #[tokio::test]
+    async fn voice_leave_econ_dual_write_visible_to_both_readers() {
+        use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};
+        use std::str::FromStr;
+        let opts = SqliteConnectOptions::from_str("sqlite::memory:").unwrap();
+        let pool = SqlitePoolOptions::new()
+            .max_connections(1)
+            .connect_with(opts)
+            .await
+            .unwrap();
+        sqlx::query("CREATE TABLE kv (guild_id TEXT NOT NULL, key_name TEXT NOT NULL, value TEXT NOT NULL, PRIMARY KEY (guild_id, key_name))")
+            .execute(&pool).await.unwrap();
+        sqlx::query("CREATE TABLE guild_lang (guild_id TEXT PRIMARY KEY, lang TEXT NOT NULL DEFAULT 'en-US')")
+            .execute(&pool).await.unwrap();
+        voice_join(&pool, "g", 1, 9, 0).await;
+        let (_, coins) = voice_leave(&pool, "g", 1, 6_000_000, 2, true).await;
+        assert_eq!(coins, 20);
+        // Table-first reader sees the voice earnings.
+        let routed = crate::commands::economy::balance::load_econ_routed(&pool, "g", 1).await;
+        assert_eq!(routed.money, 20);
+        // Legacy kv reader sees them too (dual-write, keys unchanged).
+        let legacy = crate::db::kv_get(&pool, "g", &crate::commands::economy::econ_key(1))
+            .await
+            .expect("kv econ row");
+        let parsed: serde_json::Value = serde_json::from_str(&legacy).unwrap();
+        assert_eq!(parsed.get("money").and_then(|m| m.as_i64()), Some(20));
     }
 }

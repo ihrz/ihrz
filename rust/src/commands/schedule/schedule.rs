@@ -109,11 +109,34 @@ pub async fn schedule_delete(
 }
 
 #[poise::command(slash_command, prefix_command, rename = "delete-all")]
-pub async fn schedule_delete_all(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
+pub async fn schedule_delete_all(
+    ctx: Ctx<'_>,
+    #[description = "Type y/yes to confirm"] confirm: Option<String>,
+) -> Result<(), anyhow::Error> {
+    let lang_code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    // TS parity: delete-all asks `schedule_deleteall_question` (Y/n) and
+    // only deletes on `y`/`yes` (case-insensitive); anything else sends
+    // `schedule_deleteall_cancel` instead of deleting.
+    let Some(given) = confirm.as_deref() else {
+        ctx.say(
+            crate::lang::get(&lang_code, "schedule_deleteall_question").unwrap_or_else(|| {
+                "Are you sure to delete all of your schedules? (Y/n)".to_string()
+            }),
+        )
+        .await?;
+        return Ok(());
+    };
+    if !is_delete_all_confirmed(given) {
+        ctx.say(
+            crate::lang::get(&lang_code, "schedule_deleteall_cancel")
+                .unwrap_or_else(|| "The `DELETE_ALL` action has been cancelled!".to_string()),
+        )
+        .await?;
+        return Ok(());
+    }
     let gid = scope_guild(&ctx);
     let user_id = ctx.author().id.get();
     let n = delete_all_entries_routed(&ctx.data().pool, &gid, user_id).await?;
-    let lang_code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     ctx.say(
         crate::lang::get(&lang_code, "schedule_deleteall_confirm")
             .unwrap_or_else(|| format!("Deleted {n} schedule(s).")),
@@ -138,23 +161,89 @@ pub async fn schedule_list(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     }
     let list_title = crate::lang::get(&lang_code, "schedule_list_title_embed")
         .unwrap_or_else(|| "Listing all Schedules".to_string());
+    // TS parity: field bodies render through `schedule_list_fields_embed`
+    // (`${date...}` / `${fetched[i]?.title}` / `${fetched[i]?.description}`).
+    let field_template = crate::lang::get(&lang_code, "schedule_list_fields_embed")
+        .unwrap_or_else(|| "**Ends at**: ${date}```${title}``````${description}```\n".to_string());
+    // SCOPE + CAP DECISION (recorded): TS reads the global `schedule`
+    // table keyed `${userId}.${code}` (see ready.ts `scheduleTable`), so a
+    // schedule created in one guild is visible/deletable from any other.
+    // The Rust port deliberately scopes rows per guild table
+    // (`scope_guild`, DMs fall back to "global") so guild data stays
+    // isolated like every other routed category. Sort-by-expiry is also
+    // deliberate (TS iterates insertion order). The 25-field cap is a
+    // Discord limit (embeds hold at most 25 fields); TS has no cap and
+    // would fail to send once a user owns 26+ schedules.
     let mut embed = poise::serenity_prelude::CreateEmbed::default()
         .title(list_title)
         .color(0x60BEE0);
-    for e in entries.iter().take(25) {
+    for e in entries.iter().take(SCHEDULE_LIST_CAP) {
         embed = embed.field(
             format!("#{}", e.code),
-            format!(
-                "{}\n{}\n<t:{}:F>",
-                e.title,
-                e.description,
-                e.expires_at_ms / 1000
+            render_schedule_field(
+                &field_template,
+                &e.title,
+                &e.description,
+                &format_expiry_local(e.expires_at_ms),
             ),
             false,
         );
     }
-    ctx.send(poise::CreateReply::default().embed(embed)).await?;
+    let (footer_name, footer_bytes) = crate::commands::utils::footer_parts(&ctx, &gid).await;
+    let embed =
+        crate::commands::utils::embed_with_footer(embed, &footer_name, footer_bytes.is_some());
+    let content = crate::lang::get(&lang_code, "schedule_list_content_message")
+        .unwrap_or_else(|| "Here's your schedule list!".to_string());
+    let mut reply = poise::CreateReply::default().content(content).embed(embed);
+    if let Some(bytes) = footer_bytes {
+        reply = reply.attachment(poise::serenity_prelude::CreateAttachment::bytes(
+            bytes,
+            "footer_icon.png",
+        ));
+    }
+    ctx.send(reply).await?;
     Ok(())
+}
+
+/// Delete-all confirmation gate. Mirrors the TS `(Y/n)` collector which
+/// deletes only when the reply lowercases to `y` or `yes`.
+pub fn is_delete_all_confirmed(s: &str) -> bool {
+    matches!(s.trim().to_lowercase().as_str(), "y" | "yes")
+}
+
+/// Discord embeds hold at most 25 fields; the list is truncated there.
+pub const SCHEDULE_LIST_CAP: usize = 25;
+
+/// Format an expiry timestamp like TS `format(date, "YYYY/MM/DD HH:mm:ss")`
+/// (server-local time). Out-of-range values degrade to the raw millis.
+pub fn format_expiry_local(expires_at_ms: i64) -> String {
+    let secs = expires_at_ms.div_euclid(1000);
+    let nanos = (expires_at_ms.rem_euclid(1000) as u32) * 1_000_000;
+    chrono::DateTime::from_timestamp(secs, nanos)
+        .map(|dt| {
+            let local: chrono::DateTime<chrono::Local> = chrono::DateTime::from(dt);
+            local.format("%Y/%m/%d %H:%M:%S").to_string()
+        })
+        .unwrap_or_else(|| expires_at_ms.to_string())
+}
+
+/// Render one list field through the `schedule_list_fields_embed`
+/// template. The canonical en-US template interpolates a pre-formatted
+/// date (`${date.format(new Date(fetched[i]?.expired), ...)}`), so the
+/// caller passes the already formatted expiry; the raw-placeholder shape
+/// is accepted too for forward compatibility.
+pub fn render_schedule_field(
+    template: &str,
+    title: &str,
+    description: &str,
+    expires_display: &str,
+) -> String {
+    const DATE_PH: &str = "${date.format(new Date(fetched[i]?.expired), 'YYYY/MM/DD HH:mm:ss')}";
+    let out = template.replace(DATE_PH, expires_display);
+    // Accept a hypothetical `${date}`-style template as well.
+    let out = out.replace("${date}", expires_display);
+    let out = out.replace("${fetched[i]?.title}", title);
+    out.replace("${fetched[i]?.description}", description)
 }
 
 // ---- U-D3-NAMEDTABLES: schedule table handle ----
@@ -372,5 +461,48 @@ mod tests {
         );
         assert_eq!(list_entries_routed(&pool, "g", 2).await.len(), 1);
         assert_eq!(delete_all_entries_routed(&pool, "g", 2).await.unwrap(), 1);
+    }
+
+    #[test]
+    fn delete_all_gate_matches_ts_collector() {
+        assert!(is_delete_all_confirmed("y"));
+        assert!(is_delete_all_confirmed("Y"));
+        assert!(is_delete_all_confirmed("yes"));
+        assert!(is_delete_all_confirmed("YES"));
+        assert!(is_delete_all_confirmed("  Yes  "));
+        assert!(!is_delete_all_confirmed("n"));
+        assert!(!is_delete_all_confirmed("no"));
+        assert!(!is_delete_all_confirmed(""));
+        assert!(!is_delete_all_confirmed("yep"));
+        assert!(!is_delete_all_confirmed("cancel"));
+    }
+
+    #[test]
+    fn list_field_renders_through_template() {
+        let template = "**Ends at**: ${date.format(new Date(fetched[i]?.expired), 'YYYY/MM/DD HH:mm:ss')}```${fetched[i]?.title}``````${fetched[i]?.description}```\n";
+        assert_eq!(
+            render_schedule_field(template, "Party", "at home", "2026/01/02 03:04:05"),
+            "**Ends at**: 2026/01/02 03:04:05```Party``````at home```\n"
+        );
+    }
+
+    #[test]
+    fn expiry_format_shape_matches_ts_pattern() {
+        // Server-local time, so only the shape is asserted (TZ-dependent).
+        let s = format_expiry_local(1_700_000_000_000);
+        assert_eq!(s.len(), 19);
+        let b = s.as_bytes();
+        assert_eq!(
+            (b[4], b[7], b[10], b[13], b[16]),
+            (b'/', b'/', b' ', b':', b':')
+        );
+        assert!(s
+            .chars()
+            .all(|c| c.is_ascii_digit() || matches!(c, '/' | ' ' | ':')));
+    }
+
+    #[test]
+    fn list_cap_is_discord_field_limit() {
+        assert_eq!(SCHEDULE_LIST_CAP, 25);
     }
 }

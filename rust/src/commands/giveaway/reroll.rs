@@ -10,7 +10,9 @@ use poise::serenity_prelude as serenity;
 )]
 pub async fn gw_reroll(
     ctx: Ctx<'_>,
-    #[description = "Giveaway message id"] message_id: String,
+    #[description = "Giveaway message id"]
+    #[rename = "giveaway-id"]
+    message_id: String,
 ) -> Result<(), anyhow::Error> {
     let gid = ctx
         .guild_id()
@@ -112,5 +114,50 @@ pub async fn gw_reroll(
             .replace("${fetch[channelId][messageId].prize}", &gw.prize);
         let _ = message.reply(http, content).await;
     }
+    // Success confirmation, then the audit log. Mirrors !reroll.ts.
+    ctx.say(
+        crate::lang::get(&code, "reroll_command_work")
+            .unwrap_or_else(|| "Giveaway relaunched!".to_string()),
+    )
+    .await?;
+    super::create::post_gw_log(
+        &ctx,
+        &crate::lang::get(&code, "reroll_logs_embed_title")
+            .unwrap_or_else(|| "Giveaways Logs".to_string()),
+        &render_reroll_log(
+            &crate::lang::get(&code, "reroll_logs_embed_description").unwrap_or_else(|| {
+                "<@${interaction.user.id}> rerolled giveaways with this ID: ${giveaway.messageID}"
+                    .to_string()
+            }),
+            ctx.author().id.get(),
+            message_id.trim(),
+        ),
+    )
+    .await;
     Ok(())
+}
+
+/// Render the reroll audit-log description
+/// (`reroll_logs_embed_description`).
+pub fn render_reroll_log(template: &str, user_id: u64, message_id: &str) -> String {
+    template
+        .replace("${interaction.user.id}", &user_id.to_string())
+        .replace("${giveaway.messageID}", message_id)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn reroll_log_render() {
+        assert_eq!(
+            render_reroll_log(
+                "<@${interaction.user.id}> rerolled giveaways with this ID: ${giveaway.messageID}",
+                42,
+                "123"
+            ),
+            "<@42> rerolled giveaways with this ID: 123"
+        );
+    }
 }

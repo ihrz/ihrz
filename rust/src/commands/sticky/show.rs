@@ -12,7 +12,7 @@ pub async fn sticky_show(
     ctx: Ctx<'_>,
     #[description = "Channel"]
     #[channel_types("Text")]
-    channel: serenity::GuildChannel,
+    channel: Option<serenity::GuildChannel>,
 ) -> Result<(), anyhow::Error> {
     let gid = ctx
         .guild_id()
@@ -20,9 +20,24 @@ pub async fn sticky_show(
         .unwrap_or_default();
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let t = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
-    let user = format!("<@{}", ctx.author().id.get());
+    let user = format!("<@{}>", ctx.author().id.get());
+    let Some(channel) = channel else {
+        ctx.say(
+            super::sticky::invalid_channel_text(
+                &ctx.serenity_context().http,
+                &t("sticky_channel_command_error"),
+                &user,
+            )
+            .await,
+        )
+        .await?;
+        return Ok(());
+    };
     let chan = format!("<#{}>", channel.id.get());
-    let Some(cfg) = load_sticky(&ctx.data().pool, &gid, channel.id.get()).await else {
+    // Disabled configs stay visible here (status field) instead of
+    // "not found"; refresh/disable keep the enabled-only loader.
+    let Some(cfg) = super::sticky::load_sticky_any(&ctx.data().pool, &gid, channel.id.get()).await
+    else {
         ctx.say(fill(
             &t("sticky_show_command_not_found"),
             &[
@@ -38,17 +53,17 @@ pub async fn sticky_show(
         return Ok(());
     };
     let none = t("sticky_var_none");
-    let (footer_name, _) = crate::commands::utils::footer_parts(&ctx, &gid).await;
+    let embed_id = super::sticky::present_embed_id(cfg.embed_id.as_deref());
+    let (footer_name, footer_bytes) = crate::commands::utils::footer_parts(&ctx, &gid).await;
     let embed = serenity::CreateEmbed::default()
         .colour(serenity::Colour::new(0x11304c))
         .title(t("sticky_show_embed_title"))
-        .footer(serenity::CreateEmbedFooter::new(footer_name))
         .field(t("sticky_show_embed_fields_channel"), chan, true)
         .field(
             t("sticky_show_embed_fields_type"),
             sticky_type_label(
                 cfg.content.as_deref(),
-                cfg.embed_id.as_deref(),
+                embed_id,
                 &t("sticky_var_text"),
                 &t("sticky_var_embed"),
                 &t("sticky_var_text_embed"),
@@ -57,7 +72,11 @@ pub async fn sticky_show(
         )
         .field(
             t("sticky_show_embed_fields_status"),
-            t("sticky_var_enabled"),
+            if cfg.enabled {
+                t("sticky_var_enabled")
+            } else {
+                t("sticky_var_disabled")
+            },
             true,
         )
         .field(
@@ -70,8 +89,7 @@ pub async fn sticky_show(
         )
         .field(
             t("sticky_show_embed_fields_embed"),
-            cfg.embed_id
-                .as_deref()
+            embed_id
                 .map(|id| format!("`{id}`"))
                 .unwrap_or_else(|| none.clone()),
             true,
@@ -84,6 +102,12 @@ pub async fn sticky_show(
                 .unwrap_or_else(|| none.clone()),
             true,
         );
-    ctx.send(poise::CreateReply::default().embed(embed)).await?;
+    let embed =
+        crate::commands::utils::embed_with_footer(embed, &footer_name, footer_bytes.is_some());
+    let mut reply = poise::CreateReply::default().embed(embed);
+    if let Some(bytes) = footer_bytes {
+        reply = reply.attachment(serenity::CreateAttachment::bytes(bytes, "footer_icon.png"));
+    }
+    ctx.send(reply).await?;
     Ok(())
 }

@@ -1,5 +1,25 @@
 use super::*;
 
+/// Table-first economy-disabled read with legacy kv fallback (keys
+/// unchanged). Mirrors the `ECONOMY.disabled === true` guard (a real
+/// boolean; the legacy Rust "1" shape is still accepted). A legacy hit
+/// promotes into the table; pair with `routed_set` writes (dual-write)
+/// so kv-only readers stay fresh.
+pub async fn economy_disabled_routed(pool: &crate::db::Pool, guild_id: &str) -> bool {
+    match crate::commands::owner::main::routed_get(pool, guild_id, guild_id, "ECONOMY.disabled")
+        .await
+    {
+        Some(v) => {
+            let t = v.trim();
+            if let Ok(b) = serde_json::from_str::<bool>(t) {
+                return b;
+            }
+            t == "1" || t.eq_ignore_ascii_case("true")
+        }
+        None => false,
+    }
+}
+
 /// Mirrors `!config.ts`.
 #[poise::command(
     slash_command,
@@ -21,7 +41,7 @@ pub async fn eco_config(
         .unwrap_or_default();
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let author_id = ctx.author().id.get().to_string();
-    let disabled = economy_disabled(&ctx.data().pool, &gid).await;
+    let disabled = economy_disabled_routed(&ctx.data().pool, &gid).await;
     let enabled = state == "on";
     if enabled {
         if !disabled {
@@ -163,5 +183,29 @@ mod tests {
                 .as_deref(),
             Some("false")
         );
+    }
+
+    #[tokio::test]
+    async fn routed_owner_parses_bool_and_legacy_shapes() {
+        use super::economy_disabled_routed;
+        use crate::commands::owner::main::tbl_get_value;
+        let pool = mem_pool().await;
+        assert!(!economy_disabled_routed(&pool, "g").await);
+        crate::db::kv_set(&pool, "g", "ECONOMY.disabled", "true")
+            .await
+            .unwrap();
+        assert!(economy_disabled_routed(&pool, "g").await);
+        // Legacy hit promotes into the table handle.
+        assert!(tbl_get_value(&pool, "g", "ECONOMY.disabled")
+            .await
+            .is_some());
+        crate::db::kv_set(&pool, "h", "ECONOMY.disabled", "1")
+            .await
+            .unwrap();
+        assert!(economy_disabled_routed(&pool, "h").await);
+        crate::db::kv_set(&pool, "i", "ECONOMY.disabled", "false")
+            .await
+            .unwrap();
+        assert!(!economy_disabled_routed(&pool, "i").await);
     }
 }

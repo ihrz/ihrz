@@ -9,7 +9,9 @@ use super::*;
 )]
 pub async fn gw_end(
     ctx: Ctx<'_>,
-    #[description = "Giveaway message id"] message_id: String,
+    #[description = "Giveaway message id"]
+    #[rename = "giveaway-id"]
+    message_id: String,
 ) -> Result<(), anyhow::Error> {
     let gid = ctx
         .guild_id()
@@ -69,6 +71,65 @@ pub async fn gw_end(
         let _ = super::gw::store_del(pool, &gid, mid).await;
         ctx.say(crate::lang::get(&code, "event_gw_finnish_cannot_msg").unwrap_or_default())
             .await?;
+        return Ok(());
     }
+    // Success confirmation first, then the audit log. Mirrors !end.ts
+    // (`end_confirmation_message` with ${timeEstimate} -> "0").
+    ctx.say(render_end_confirmation(
+        &crate::lang::get(&code, "end_confirmation_message").unwrap_or_else(|| {
+            "The giveaway will end in less than (${timeEstimate}) seconds...".to_string()
+        }),
+    ))
+    .await?;
+    super::create::post_gw_log(
+        &ctx,
+        &crate::lang::get(&code, "end_logs_embed_title")
+            .unwrap_or_else(|| "Giveaway Logs".to_string()),
+        &render_end_log(
+            &crate::lang::get(&code, "end_logs_embed_description").unwrap_or_else(|| {
+                "<@${interaction.user.id}> ended giveaways with this ID: ${giveaway.messageID}"
+                    .to_string()
+            }),
+            ctx.author().id.get(),
+            message_id.trim(),
+        ),
+    )
+    .await;
     Ok(())
+}
+
+/// Render the end confirmation (`end_confirmation_message`, TS sends
+/// it with `${timeEstimate}` replaced by `"0"`).
+pub fn render_end_confirmation(template: &str) -> String {
+    template.replace("${timeEstimate}", "0")
+}
+
+/// Render the end audit-log description (`end_logs_embed_description`).
+pub fn render_end_log(template: &str, user_id: u64, message_id: &str) -> String {
+    template
+        .replace("${interaction.user.id}", &user_id.to_string())
+        .replace("${giveaway.messageID}", message_id)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn end_confirmation_and_log_renders() {
+        assert_eq!(
+            render_end_confirmation(
+                "The giveaway will end in less than (${timeEstimate}) seconds..."
+            ),
+            "The giveaway will end in less than (0) seconds..."
+        );
+        assert_eq!(
+            render_end_log(
+                "<@${interaction.user.id}> ended giveaways with this ID: ${giveaway.messageID}",
+                42,
+                "123"
+            ),
+            "<@42> ended giveaways with this ID: 123"
+        );
+    }
 }
