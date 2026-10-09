@@ -827,13 +827,7 @@ pub async fn record_message_activity(
     let entry = crate::commands::ranks::main::load_rank(pool, guild_id, user_id).await;
     let (next, leveled) = crate::commands::ranks::main::apply_xp(entry, 10);
     let level = next.level;
-    let _ = tbl_set_json_dual(
-        pool,
-        guild_id,
-        &crate::commands::ranks::main::ranks_key(user_id),
-        &next,
-    )
-    .await;
+    let _ = crate::commands::ranks::main::save_rank(pool, guild_id, user_id, &next).await;
     (level, leveled)
 }
 

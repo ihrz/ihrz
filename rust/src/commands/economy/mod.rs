@@ -878,7 +878,7 @@ pub async fn disabled_reply(ctx: &Ctx<'_>) -> Result<bool, anyhow::Error> {
         return Ok(false);
     };
     let gid = guild_id.get().to_string();
-    if !economy_disabled(&ctx.data().pool, &gid).await {
+    if !config::economy_disabled_routed(&ctx.data().pool, &gid).await {
         return Ok(false);
     }
     ctx.say(
@@ -976,7 +976,7 @@ pub async fn claim_inner(
     };
     let gid = guild_id.get().to_string();
     let pool = &ctx.data().pool;
-    if economy_disabled(pool, &gid).await {
+    if config::economy_disabled_routed(pool, &gid).await {
         ctx.say(
             crate::commands::lang_for(ctx, "economy_disable_msg", "Economy is disabled.")
                 .await
@@ -985,9 +985,9 @@ pub async fn claim_inner(
         .await?;
         return Ok(());
     }
-    let tune = load_tuning(pool, &gid, kind).await;
+    let tune = set_cooldown::load_tuning_routed(pool, &gid, kind).await;
     let uid = ctx.author().id.get();
-    let mut account = load_econ(pool, &gid, uid).await;
+    let mut account = balance::load_econ_routed(pool, &gid, uid).await;
     let last = match kind {
         "daily" => account.daily,
         "weekly" => account.weekly,
@@ -1009,9 +1009,8 @@ pub async fn claim_inner(
         }
         return Ok(());
     }
-    let shop_json = crate::db::kv_get(pool, &gid, shop_key())
-        .await
-        .unwrap_or_else(|| "{}".to_string());
+    let shop = shop::load_shop_routed(pool, &gid).await;
+    let shop_json = serde_json::to_string(&shop).unwrap_or_else(|_| "{}".to_string());
     let boost = member_boost(&shop_json, &invoker_roles(ctx).await);
     let amount = tune.amount * boost as f64;
     // TS replies with the embed BEFORE adding the money.
@@ -1038,7 +1037,7 @@ pub async fn claim_inner(
         "monthly" => account.monthly = now,
         _ => account.work = now,
     }
-    save_econ(pool, &gid, uid, &account).await?;
+    balance::save_econ_routed(pool, &gid, uid, &account).await?;
     Ok(())
 }
 

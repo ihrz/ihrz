@@ -47,6 +47,16 @@ pub async fn load_rank(pool: &crate::db::Pool, guild_id: &str, user_id: u64) -> 
     show::load_rank_routed(pool, guild_id, user_id).await
 }
 
+/// Routed owner: dual-write (table + legacy kv) so kv-only readers stay fresh.
+pub async fn save_rank(
+    pool: &crate::db::Pool,
+    guild_id: &str,
+    user_id: u64,
+    entry: &RankEntry,
+) -> anyhow::Result<()> {
+    show::save_rank_routed(pool, guild_id, user_id, entry).await
+}
+
 /// Ignore-list helpers. Mirrors !ignore-channels.ts
 /// (GUILD.RANKS.ignoreChannels[]).
 pub fn toggle_ignore(mut list: Vec<String>, channel_id: &str) -> (Vec<String>, bool) {

@@ -104,10 +104,7 @@ pub struct TicketPanel {
 }
 
 pub async fn load_panel(pool: &crate::db::Pool, guild_id: &str, panel_id: &str) -> TicketPanel {
-    crate::db::kv_get(pool, guild_id, &panel_key(panel_id))
-        .await
-        .and_then(|s| serde_json::from_str(&s).ok())
-        .unwrap_or_default()
+    panel::load_panel_routed(pool, guild_id, panel_id).await
 }
 
 pub async fn save_panel(
@@ -1476,9 +1473,10 @@ pub async fn handle_legacy_ticket_open(
     let t = |k: &str| crate::lang::get(&lang_code, k).unwrap_or_default();
     let mid = comp.message.id.get();
     // Marker row must exist and match this channel + message.
-    let row: Option<LegacyPanelV1> = crate::db::kv_get(pool, &gid, &legacy_panel_key(mid))
-        .await
-        .and_then(|s| serde_json::from_str(&s).ok());
+    let row: Option<LegacyPanelV1> =
+        crate::commands::owner::main::routed_get(pool, &gid, &gid, &legacy_panel_key(mid))
+            .await
+            .and_then(|s| serde_json::from_str(&s).ok());
     let Some(row) = row else { return Ok(()) };
     if row.channel != comp.channel_id.get().to_string() || row.message_id != mid.to_string() {
         return Ok(());
@@ -1536,9 +1534,10 @@ pub async fn handle_legacy_ticket_open(
         .await?;
     }
     // Parent category: select match ?? panel ?? global.
-    let global_cat = crate::db::kv_get(pool, &gid, "GUILD.TICKET.category")
-        .await
-        .unwrap_or_default();
+    let global_cat =
+        crate::commands::owner::main::routed_get(pool, &gid, &gid, "GUILD.TICKET.category")
+            .await
+            .unwrap_or_default();
     let selection = selected
         .as_deref()
         .and_then(|v| match_legacy_selection(&row.selection, v));
@@ -1862,12 +1861,13 @@ pub async fn handle_v2_ticket_open(
     let t = |k: &str| crate::lang::get(&lang_code, k).unwrap_or_default();
     // Marker: GUILD.TICKET_PANEL.<msg> -> code -> panel row.
     let mid = comp.message.id.get();
-    let code_raw = crate::db::kv_get(pool, &gid, &panel_key(&mid.to_string())).await;
+    let code_raw =
+        crate::commands::owner::main::routed_get(pool, &gid, &gid, &panel_key(&mid.to_string()))
+            .await;
     let Some(code_raw) = code_raw else {
         return Ok(());
     };
-    let code: String = serde_json::from_str::<String>(&code_raw)
-        .unwrap_or_else(|_| code_raw.trim().trim_matches('"').to_string());
+    let code = crate::commands::owner::main::decode_stored_string(code_raw.trim());
     if code.is_empty() {
         return Ok(());
     }
@@ -2580,5 +2580,56 @@ mod tests {
         assert!(offline.contains("src=\"data:image/png;base64,TWFu\""));
         assert!(offline.contains("href=\"https://cdn/x/pic.png\""));
         assert!(offline.contains("<link rel=\"icon\""));
+    }
+
+    #[tokio::test]
+    async fn routed_panel_marker_category_reads() {
+        use crate::commands::owner::main::{decode_stored_string, routed_get, tbl_get_value};
+        let pool = mem_pool().await;
+        // Panel: legacy kv row surfaces through the routed load and promotes.
+        let panel = TicketPanel {
+            name: "Support".into(),
+            category_id: "77".into(),
+            panel_code: "CODE1".into(),
+            ..Default::default()
+        };
+        crate::db::kv_set(
+            &pool,
+            "g",
+            &panel_key("p1"),
+            &serde_json::to_string(&panel).unwrap(),
+        )
+        .await
+        .unwrap();
+        assert_eq!(load_panel(&pool, "g", "p1").await.name, "Support");
+        assert!(tbl_get_value(&pool, "g", &panel_key("p1")).await.is_some());
+        // V2 marker: quoted legacy bytes and decoded table text agree.
+        crate::db::kv_set(&pool, "g", &panel_key("99"), "\"CODE1\"")
+            .await
+            .unwrap();
+        let raw = routed_get(&pool, "g", "g", &panel_key("99")).await.unwrap();
+        assert_eq!(decode_stored_string(raw.trim()), "CODE1");
+        assert_eq!(decode_stored_string("CODE1"), "CODE1");
+        // Legacy marker + global category surface through routed reads.
+        let legacy = serde_json::json!({"channel": "10", "messageID": "20"});
+        crate::db::kv_set(&pool, "g", &legacy_panel_key(20), &legacy.to_string())
+            .await
+            .unwrap();
+        let row: LegacyPanelV1 = serde_json::from_str(
+            &routed_get(&pool, "g", "g", &legacy_panel_key(20))
+                .await
+                .unwrap(),
+        )
+        .unwrap();
+        assert_eq!(row.message_id, "20");
+        crate::db::kv_set(&pool, "g", "GUILD.TICKET.category", "55")
+            .await
+            .unwrap();
+        assert_eq!(
+            routed_get(&pool, "g", "g", "GUILD.TICKET.category")
+                .await
+                .unwrap(),
+            "55"
+        );
     }
 }

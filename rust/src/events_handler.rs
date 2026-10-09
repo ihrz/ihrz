@@ -688,7 +688,12 @@ impl Handler {
         target_name: Option<&str>,
     ) {
         let gid = guild_id.get().to_string();
-        let logs_ch: Option<u64> = tbl_get(&self.pool, &gid, "GUILD.SERVER_LOGS.moderation")
+        let logs_ch: Option<u64> =
+            crate::commands::guildconfig::setlogschannel::load_log_channel_routed(
+                &self.pool,
+                &gid,
+                "moderation",
+            )
             .await
             .and_then(|s| s.parse().ok());
         let Some(logs_ch) = logs_ch else {
@@ -738,10 +743,10 @@ impl Handler {
         gid: &str,
         msg: &serenity::Message,
     ) {
-        let Some(raw) = tbl_get(pool, gid, "GUILD.AUTOREACT").await else {
+        let list = crate::commands::guildconfig::autoreact::load_autoreact_routed(pool, gid).await;
+        if list.is_empty() {
             return;
-        };
-        let list: Vec<serde_json::Value> = serde_json::from_str(&raw).unwrap_or_default();
+        }
         for emoji in crate::commands::guildconfig::autoreact_for_channel(
             &list,
             &msg.channel_id.get().to_string(),
@@ -1070,7 +1075,10 @@ impl Handler {
         old: Option<&serenity::VoiceState>,
         new: &serenity::VoiceState,
     ) {
-        let logs_ch: Option<u64> = tbl_get(&self.pool, gid, "GUILD.SERVER_LOGS.voice")
+        let logs_ch: Option<u64> =
+            crate::commands::guildconfig::setlogschannel::load_log_channel_routed(
+                &self.pool, gid, "voice",
+            )
             .await
             .and_then(|s| s.parse().ok());
         let Some(logs_ch) = logs_ch else {
@@ -2707,10 +2715,9 @@ impl serenity::EventHandler for Handler {
             }
         }
         // Mirrors Events/guildconfig/autoreact.ts (master switch first).
-        let autoreact_on = tbl_get(&self.pool, &gid, "GUILD.AUTOREACT.enabled")
-            .await
-            .map(|v| v != "0")
-            .unwrap_or(true);
+        let autoreact_on =
+            crate::commands::guildconfig::autoreact::autoreact_enabled_routed(&self.pool, &gid)
+                .await;
         if autoreact_on {
             Self::autoreact_emit(&self.pool, &_ctx.http, &gid, &msg).await;
         }
@@ -3127,9 +3134,11 @@ impl serenity::EventHandler for Handler {
             if let Some((author_id, author_name, avatar, content, attachments)) = snap {
                 if author_id != ctx.cache.current_user().id.get() {
                     let logs_ch: Option<u64> =
-                        tbl_get(&self.pool, &gid, "GUILD.SERVER_LOGS.message")
-                            .await
-                            .and_then(|s| s.parse().ok());
+                        crate::commands::guildconfig::setlogschannel::load_log_channel_routed(
+                            &self.pool, &gid, "message",
+                        )
+                        .await
+                        .and_then(|s| s.parse().ok());
                     if let Some(logs_ch) = logs_ch {
                         let lang_code =
                             crate::db::guild_lang(&self.pool, Some(gid.parse().unwrap_or(0))).await;
@@ -3201,7 +3210,10 @@ impl serenity::EventHandler for Handler {
                 return;
             };
             let gid = gid.get().to_string();
-            let logs_ch: Option<u64> = tbl_get(&self.pool, &gid, "GUILD.SERVER_LOGS.message")
+            let logs_ch: Option<u64> =
+                crate::commands::guildconfig::setlogschannel::load_log_channel_routed(
+                    &self.pool, &gid, "message",
+                )
                 .await
                 .and_then(|s| s.parse().ok());
             let Some(logs_ch) = logs_ch else {
@@ -4070,7 +4082,10 @@ impl serenity::EventHandler for Handler {
             return;
         };
         let gid = new.guild_id.get().to_string();
-        let logs_ch: Option<u64> = tbl_get(&self.pool, &gid, "GUILD.SERVER_LOGS.channel")
+        let logs_ch: Option<u64> =
+            crate::commands::guildconfig::setlogschannel::load_log_channel_routed(
+                &self.pool, &gid, "channel",
+            )
             .await
             .and_then(|s| s.parse().ok());
         let Some(logs_ch) = logs_ch else {
@@ -4326,7 +4341,10 @@ impl serenity::EventHandler for Handler {
         // executor is the bot, or the entry targets someone else.
         if old.roles != new.roles {
             let gid = new.guild_id.get().to_string();
-            let logs_ch: Option<u64> = tbl_get(&self.pool, &gid, "GUILD.SERVER_LOGS.roles")
+            let logs_ch: Option<u64> =
+                crate::commands::guildconfig::setlogschannel::load_log_channel_routed(
+                    &self.pool, &gid, "roles",
+                )
                 .await
                 .and_then(|s| s.parse().ok());
             if let Some(logs_ch) = logs_ch {
@@ -4439,7 +4457,10 @@ impl serenity::EventHandler for Handler {
         let (old_premium, new_premium) = (old.premium_since, new.premium_since);
         if old_premium != new_premium {
             let gid = new.guild_id.get().to_string();
-            let logs_ch: Option<u64> = tbl_get(&self.pool, &gid, "GUILD.SERVER_LOGS.boosts")
+            let logs_ch: Option<u64> =
+                crate::commands::guildconfig::setlogschannel::load_log_channel_routed(
+                    &self.pool, &gid, "boosts",
+                )
                 .await
                 .and_then(|s| s.parse().ok());
             if let Some(logs_ch) = logs_ch {
