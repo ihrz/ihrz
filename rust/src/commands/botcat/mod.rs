@@ -158,11 +158,20 @@ pub async fn custom_sdk_gate(ctx: &Ctx<'_>) -> bool {
     false
 }
 
+/// Global application object URL. Mirrors the module-level
+/// fetch in retrieveMyself.ts (`GET /oauth2/applications/@me`).
+pub const APPLICATION_URL: &str = "https://discord.com/api/v10/oauth2/applications/@me";
+
+/// The fetch URL for the global application object (pure, offline).
+pub fn application_url() -> String {
+    APPLICATION_URL.to_string()
+}
+
 /// Fetch the global application object. Mirrors the module-level
 /// fetch in retrieveMyself.ts (`GET /oauth2/applications/@me`).
 pub async fn fetch_application(token: &str) -> Option<serde_json::Value> {
     reqwest::Client::new()
-        .get("https://discord.com/api/v10/oauth2/applications/@me")
+        .get(application_url())
         .header("Authorization", format!("Bot {token}"))
         .send()
         .await
@@ -185,6 +194,19 @@ pub fn app_bot_banner_hash(app: &serde_json::Value) -> Option<String> {
         .get("banner")?
         .as_str()
         .map(|s| s.to_string())
+}
+
+/// Bot description from the application object. Mirrors
+/// retrieveBio() (`app?.["description"]`, null when missing).
+pub fn app_bio(app: &serde_json::Value) -> Option<String> {
+    app.get("description")?.as_str().map(|s| s.to_string())
+}
+
+/// Full banner CDN URL for the application object, or `None` when the
+/// app has no bot banner. Pure combination of the two retrieveMyself
+/// builders (`retrieveBanner()` needs the running bot id + the hash).
+pub fn app_banner_for(app: &serde_json::Value, bot_id: u64) -> Option<String> {
+    app_bot_banner_hash(app).map(|hash| app_banner_url(bot_id, &hash))
 }
 
 /// CPU model from /proc/cpuinfo. Mirrors status.ts os.cpus()[0].model.
@@ -356,6 +378,27 @@ mod tests {
         assert_eq!(app_bot_banner_hash(&app).as_deref(), Some("abc"));
         let missing = serde_json::json!({"bot": {}});
         assert_eq!(app_bot_banner_hash(&missing), None);
+    }
+
+    #[test]
+    fn retrieve_myself_builders_match_ts() {
+        assert_eq!(
+            application_url(),
+            "https://discord.com/api/v10/oauth2/applications/@me"
+        );
+        let app = serde_json::json!({
+            "description": "hello",
+            "bot": {"banner": "abc"},
+        });
+        assert_eq!(app_bio(&app).as_deref(), Some("hello"));
+        assert_eq!(
+            app_banner_for(&app, 9).as_deref(),
+            Some("https://cdn.discordapp.com/banners/9/abc?size=1024")
+        );
+        let no_desc = serde_json::json!({"bot": {"banner": "abc"}});
+        assert_eq!(app_bio(&no_desc), None);
+        let no_banner = serde_json::json!({"description": "hello", "bot": {}});
+        assert_eq!(app_banner_for(&no_banner, 9), None);
     }
 }
 

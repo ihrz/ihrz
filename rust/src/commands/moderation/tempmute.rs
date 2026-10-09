@@ -164,5 +164,32 @@ pub async fn mod_timeout(
         })
         .await;
     }
+    // Unmute notice. Mirrors the setTimeout in !tempmute.ts:186-197
+    // (only for mutes within the no-warn window of 1 week; fires when
+    // the timeout is still active at expiry).
+    const NO_WARN_WINDOW_MS: i64 = 604_800_000;
+    if ms <= NO_WARN_WINDOW_MS && ms > 0 {
+        let http = ctx.serenity_context().http.clone();
+        let channel_id = ctx.channel_id();
+        let lang_code_task = code.clone();
+        let user_id = user.id;
+        let wait = ms as u64;
+        tokio::spawn(async move {
+            tokio::time::sleep(std::time::Duration::from_millis(wait)).await;
+            let still_muted = guild_id
+                .member(&*http, user_id)
+                .await
+                .ok()
+                .and_then(|m| m.communication_disabled_until)
+                .map(|t| t.unix_timestamp() * 1000 > crate::bot::now_ms())
+                .unwrap_or(false);
+            if still_muted {
+                let text = crate::lang::get(&lang_code_task, "tempmute_unmuted_by_time")
+                    .map(|s| s.replace("${tomute.id}", &user_id.get().to_string()))
+                    .unwrap_or_else(|| format!("<@{}> has been unmuted!", user_id.get()));
+                let _ = channel_id.say(&*http, text).await;
+            }
+        });
+    }
     Ok(())
 }

@@ -27,11 +27,13 @@ pub async fn owner(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
 
 #[poise::command(slash_command, prefix_command, rename = "list")]
 pub async fn owner_list(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
-    let cfg_owners = ctx.data().config.owners.clone();
-    ctx.say(if cfg_owners.is_empty() {
+    // Merged view: config owners + persisted owner table.
+    // Mirrors getBotOwner() in ownerHelper.ts.
+    let owners = crate::db::bot_owner_ids(&ctx.data().pool, &ctx.data().config.owners).await;
+    ctx.say(if owners.is_empty() {
         "No bot owners.".to_string()
     } else {
-        cfg_owners.join(", ")
+        owners.join(", ")
     })
     .await?;
     Ok(())
@@ -46,8 +48,8 @@ pub async fn owner_add(
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
-    let key = format!("GUILD.OWNER.{}", user.id.get());
-    crate::db::kv_set(&ctx.data().pool, &gid, &key, "1").await?;
+    // Mirrors addGuildOwner (`set(`${guildId}.OWNER.${userId}`)`).
+    crate::db::add_guild_owner(&ctx.data().pool, &gid, user.id.get()).await?;
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     ctx.say(
         crate::lang::get(&code, "owner_is_now_owner")
@@ -67,11 +69,8 @@ pub async fn owner_remove(
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
-    sqlx::query("DELETE FROM kv WHERE guild_id = ? AND key_name = ?")
-        .bind(&gid)
-        .bind(format!("GUILD.OWNER.{}", user.id.get()))
-        .execute(&ctx.data().pool)
-        .await?;
+    // Mirrors removeGuildOwner (`delete(`${guildId}.OWNER.${userId}`)`).
+    crate::db::remove_guild_owner(&ctx.data().pool, &gid, user.id.get()).await?;
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     ctx.say(
         crate::lang::get(&code, "unowner_command_work")
@@ -82,9 +81,14 @@ pub async fn owner_remove(
     Ok(())
 }
 
-/// Bot-owner gate. Mirrors ownerHelper.isBotOwner for bot-level ops.
+/// Bot-owner gate. Mirrors ownerHelper.isBotOwner for bot-level ops
+/// (merged config + persisted table, i.e. getBotOwner()).
 async fn require_bot_owner<'a>(ctx: &Ctx<'a>) -> bool {
-    if crate::funcs::is_bot_owner(ctx.author().id.get(), &ctx.data().config.owners) {
+    let owners = crate::db::bot_owner_ids(&ctx.data().pool, &ctx.data().config.owners).await;
+    if owners
+        .iter()
+        .any(|o| o == &ctx.author().id.get().to_string())
+    {
         return true;
     }
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;

@@ -14,19 +14,144 @@ use crate::bot::Ctx;
 use poise::serenity_prelude as serenity;
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct HistoryEntry {
     pub title: String,
+    #[serde(default)]
+    pub uri: Option<String>,
+    #[serde(default)]
+    pub requester: Option<String>,
     pub at_ms: i64,
+}
+
+impl HistoryEntry {
+    pub fn new(title: &str, uri: Option<&str>, requester: Option<&str>, at_ms: i64) -> Self {
+        let clean = |s: &str| {
+            let s = s.trim();
+            if s.is_empty() {
+                None
+            } else {
+                Some(s.to_string())
+            }
+        };
+        Self {
+            title: title.to_string(),
+            uri: uri.and_then(clean),
+            requester: requester.and_then(clean),
+            at_ms,
+        }
+    }
 }
 
 pub const HISTORY_KEY: &str = "MUSIC_HISTORY";
 pub const HISTORY_TTL_MS: i64 = 30 * 86_400_000;
+/// Count cap (TS grew the arrays unbounded). Oldest entries drop first.
+pub const HISTORY_MAX_ENTRIES: usize = 200;
+/// TS `usersPerPage`.
+pub const HISTORY_PAGE_SIZE: usize = 10;
+/// TS attachment name for the `.txt` export.
+pub const HISTORY_EXPORT_NAME: &str = "music_history_by_ihorizon.txt";
 
 pub fn push_history(mut h: Vec<HistoryEntry>, e: HistoryEntry, now_ms: i64) -> Vec<HistoryEntry> {
     h.push(e);
+    prune_history(h, now_ms)
+}
+
+/// 30d TTL purge (on read, like TS) + count cap. Chronological
+/// oldest-first in, oldest-first out.
+pub fn prune_history(mut h: Vec<HistoryEntry>, now_ms: i64) -> Vec<HistoryEntry> {
     h.retain(|x| now_ms - x.at_ms <= HISTORY_TTL_MS);
+    if h.len() > HISTORY_MAX_ENTRIES {
+        h.drain(0..h.len() - HISTORY_MAX_ENTRIES);
+    }
     h
+}
+
+/// TS `<t:(\d+):` timestamp embedded in the legacy embed lines.
+pub fn history_timestamp_secs(s: &str) -> Option<i64> {
+    let i = s.find("<t:")?;
+    let rest = &s[i + 3..];
+    let end = rest.find(':')?;
+    rest[..end].parse::<i64>().ok()
+}
+
+/// One legacy TS embed line:
+/// `<t:unix:R>: requester - title | uri by requester`.
+/// Best-effort: timestamp falls back to `now_ms` (TS kept
+/// timestamp-less entries "for safety").
+pub fn parse_legacy_entry(s: &str, now_ms: i64) -> HistoryEntry {
+    let at_ms = history_timestamp_secs(s)
+        .map(|secs| secs * 1000)
+        .unwrap_or(now_ms);
+    let body = match s.find(": ") {
+        Some(i) => s[i + 2..].trim(),
+        None => s.trim(),
+    };
+    let (requester, rest) = match body.find(" - ") {
+        Some(i) => (Some(body[..i].trim()), body[i + 3..].trim()),
+        None => (None, body),
+    };
+    let (title, tail) = match rest.find(" | ") {
+        Some(i) => (rest[..i].trim(), rest[i + 3..].trim()),
+        None => (rest, ""),
+    };
+    // TS tail is `<uri> by <requester>`; the uri is its head.
+    let uri = tail
+        .rsplit_once(" by ")
+        .map(|(u, _)| u.trim())
+        .unwrap_or(tail.trim());
+    let uri = uri.strip_prefix('{').unwrap_or(uri).trim();
+    let uri = uri.strip_suffix('}').unwrap_or(uri).trim();
+    HistoryEntry::new(
+        if title.is_empty() { s.trim() } else { title },
+        if uri.starts_with("http") {
+            Some(uri)
+        } else {
+            None
+        },
+        requester.filter(|r| !r.is_empty()),
+        at_ms,
+    )
+}
+
+#[derive(Debug, Deserialize)]
+struct LegacyHistoryShape {
+    #[serde(default)]
+    embed: Vec<String>,
+    #[serde(default)]
+    buffer: Vec<String>,
+}
+
+/// Decode the store: new `Vec<HistoryEntry>` shape first (minimal
+/// `{title, at_ms}` rows still parse via serde defaults), then the
+/// legacy TS `{embed, buffer}` shape. Returns the entries and whether
+/// a one-time migration rewrite is due.
+pub fn decode_history(raw: &str, now_ms: i64) -> (Vec<HistoryEntry>, bool) {
+    if let Ok(list) = serde_json::from_str::<Vec<HistoryEntry>>(raw) {
+        return (list, false);
+    }
+    let Ok(legacy) = serde_json::from_str::<LegacyHistoryShape>(raw) else {
+        return (Vec::new(), false);
+    };
+    if legacy.embed.is_empty() && legacy.buffer.is_empty() {
+        return (Vec::new(), false);
+    }
+    let n = legacy.embed.len().max(legacy.buffer.len());
+    let mut out = Vec::with_capacity(n);
+    for i in 0..n {
+        let line = legacy
+            .embed
+            .get(i)
+            .filter(|s| !s.trim().is_empty())
+            .or_else(|| legacy.buffer.get(i))
+            .map(|s| s.as_str())
+            .unwrap_or_default();
+        if line.trim().is_empty() {
+            continue;
+        }
+        out.push(parse_legacy_entry(line, now_ms));
+    }
+    (out, true)
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -101,23 +226,107 @@ async fn synced_mgr(ctx: &Ctx<'_>) -> &'static crate::lavalink::LavalinkManager 
 }
 
 async fn record_history(pool: &crate::db::Pool, gid: u64, title: &str) {
+    record_history_full(pool, gid, title, None, None).await;
+}
+
+/// Rich write path (requester + URI). The play command still calls
+/// `record_history` (title-only); wiring `QueuedTrack` fields through
+/// is a follow-up in `play.rs` (out of this unit's scope).
+async fn record_history_full(
+    pool: &crate::db::Pool,
+    gid: u64,
+    title: &str,
+    uri: Option<&str>,
+    requester: Option<&str>,
+) {
     let key = gid.to_string();
+    let now = now_ms();
     let raw = crate::db::kv_get(pool, &key, HISTORY_KEY).await;
     let mut hist: Vec<HistoryEntry> = raw
-        .and_then(|s| serde_json::from_str(&s).ok())
+        .as_deref()
+        .map(|s| decode_history(s, now).0)
         .unwrap_or_default();
-    let now = now_ms();
-    hist = push_history(
-        hist,
-        HistoryEntry {
-            title: title.to_string(),
-            at_ms: now,
-        },
-        now,
-    );
+    hist = push_history(hist, HistoryEntry::new(title, uri, requester, now), now);
     if let Ok(json) = serde_json::to_string(&hist) {
         let _ = crate::db::kv_set(pool, &key, HISTORY_KEY, &json).await;
     }
+}
+
+/// Newest-first page (`page` is 0-based, `HISTORY_PAGE_SIZE` entries).
+pub fn history_page(entries: &[HistoryEntry], page: usize) -> Vec<&HistoryEntry> {
+    entries
+        .iter()
+        .rev()
+        .skip(page.saturating_mul(HISTORY_PAGE_SIZE))
+        .take(HISTORY_PAGE_SIZE)
+        .collect()
+}
+
+pub fn history_page_count(len: usize) -> usize {
+    len.div_ceil(HISTORY_PAGE_SIZE)
+}
+
+/// Embed line, mirroring the TS shape (`<t:unix:R>: requester -
+/// title | uri by requester`) so re-parsing stays stable.
+pub fn format_history_line(e: &HistoryEntry) -> String {
+    let ts = if e.at_ms > 0 {
+        format!("<t:{}:R>: ", e.at_ms / 1000)
+    } else {
+        String::new()
+    };
+    let req = e.requester.as_deref().unwrap_or("Unknown");
+    match e.uri.as_deref().filter(|u| !u.is_empty()) {
+        Some(u) => format!("{ts}{req} - {} | {u} by {req}", e.title),
+        None => format!("{ts}{req} - {}", e.title),
+    }
+}
+
+/// UTC `YYYY-MM-DD HH:MM:SS` without pulling a date dependency.
+fn fmt_utc_date(ms: i64) -> String {
+    let time = ms.div_euclid(1000).rem_euclid(86_400);
+    let mut days = ms.div_euclid(1000).div_euclid(86_400);
+    // Howard Hinnant's civil-from-days.
+    days += 719_468;
+    let era = days.div_euclid(146_097);
+    let doe = days.rem_euclid(146_097);
+    let yoe = (doe - doe / 1460 + doe / 36_524 - doe / 146_096) / 365;
+    let mut y = yoe + era * 400;
+    let doy = doe - (365 * yoe + yoe / 4 - yoe / 100);
+    let mp = (5 * doy + 2) / 153;
+    let d = doy - (153 * mp + 2) / 5 + 1;
+    let m = if mp < 10 { mp + 3 } else { mp - 9 };
+    y += i64::from(m <= 2);
+    format!(
+        "{:04}-{:02}-{:02} {:02}:{:02}:{:02}",
+        y,
+        m,
+        d,
+        time / 3600,
+        (time % 3600) / 60,
+        time % 60
+    )
+}
+
+/// `.txt` export line, mirroring the TS buffer rows
+/// (`[date: PLAYED]: { requester - title | uri } by requester`).
+pub fn history_txt_line(e: &HistoryEntry) -> String {
+    let req = e.requester.as_deref().unwrap_or("Unknown");
+    let uri = e.uri.as_deref().unwrap_or("");
+    format!(
+        "[{}: PLAYED]: {{ {req} - {} | {uri} }} by {req}",
+        fmt_utc_date(e.at_ms),
+        e.title
+    )
+}
+
+/// Full `.txt` export (newest first, like the TS `buffer` join).
+pub fn history_export_txt(entries: &[HistoryEntry]) -> String {
+    entries
+        .iter()
+        .rev()
+        .map(history_txt_line)
+        .collect::<Vec<_>>()
+        .join("\n")
 }
 
 async fn lang_code(ctx: &Ctx<'_>) -> String {
@@ -605,22 +814,126 @@ mod tests {
     fn history_purges_older_than_30d() {
         let h = push_history(
             vec![],
-            HistoryEntry {
-                title: "old".into(),
-                at_ms: 0,
-            },
+            HistoryEntry::new("old", None, None, 0),
             HISTORY_TTL_MS + 1,
         );
         assert!(h.is_empty());
-        let h = push_history(
-            vec![],
-            HistoryEntry {
-                title: "new".into(),
-                at_ms: 1000,
-            },
-            2000,
-        );
+        let h = push_history(vec![], HistoryEntry::new("new", None, None, 1000), 2000);
         assert_eq!(h.len(), 1);
+    }
+
+    #[test]
+    fn history_caps_entry_count() {
+        let mut h = Vec::new();
+        for i in 0..HISTORY_MAX_ENTRIES + 50 {
+            h = push_history(
+                h,
+                HistoryEntry::new(&format!("t{i}"), None, None, 1000 + i as i64),
+                2000,
+            );
+        }
+        assert_eq!(h.len(), HISTORY_MAX_ENTRIES);
+        assert_eq!(h.first().unwrap().title, "t50");
+        assert_eq!(h.last().unwrap().title, "t249");
+    }
+
+    #[test]
+    fn history_decodes_minimal_rows() {
+        // Pre-enrichment `{title, at_ms}` rows still parse via defaults.
+        let (list, migrated) = decode_history(r#"[{"title":"A","at_ms":1000}]"#, 2000);
+        assert!(!migrated);
+        assert_eq!(list.len(), 1);
+        assert_eq!(list[0].title, "A");
+        assert!(list[0].uri.is_none());
+        assert!(list[0].requester.is_none());
+    }
+
+    fn legacy_ts_fixture() -> String {
+        serde_json::json!({
+            "embed": [
+                "<t:1700000000:R>: <@111> - First Song | https://example.com/a by <@111>",
+                "<t:1700000060:R>: <@222> - Second Song | https://example.com/b by <@222>",
+                "plain entry without timestamp"
+            ],
+            "buffer": [
+                "[01/01/2024: PLAYED]: { <@111> - First Song | https://example.com/a } by <@111>",
+                "[01/01/2024: PLAYED]: { <@222> - Second Song | https://example.com/b } by <@222>",
+                "[01/01/2024: PLAYED]: { <@333> - Third Song | https://example.com/c } by <@333>"
+            ]
+        })
+        .to_string()
+    }
+
+    #[test]
+    fn history_migrates_legacy_ts_shape() {
+        let now = 1_700_000_060_000 + 1_000;
+        let (list, migrated) = decode_history(&legacy_ts_fixture(), now);
+        assert!(migrated);
+        assert_eq!(list.len(), 3);
+        assert_eq!(list[0].title, "First Song");
+        assert_eq!(list[0].uri.as_deref(), Some("https://example.com/a"));
+        assert_eq!(list[0].at_ms, 1_700_000_000_000);
+        assert_eq!(list[1].title, "Second Song");
+        // Timestamp-less entries survive (TS kept them "for safety").
+        assert_eq!(list[2].at_ms, now);
+        assert_eq!(list[2].title, "plain entry without timestamp");
+    }
+
+    #[test]
+    fn history_migration_round_trips() {
+        let now = 1_700_000_060_000 + 1_000;
+        let (list, migrated) = decode_history(&legacy_ts_fixture(), now);
+        assert!(migrated);
+        let json = serde_json::to_string(&list).unwrap();
+        let (again, migrated_again) = decode_history(&json, now);
+        assert!(!migrated_again);
+        assert_eq!(again, list);
+    }
+
+    #[test]
+    fn history_pages_newest_first() {
+        let entries: Vec<HistoryEntry> = (0..25)
+            .map(|i| HistoryEntry::new(&format!("t{i:02}"), None, None, 1000 + i))
+            .collect();
+        assert_eq!(history_page_count(entries.len()), 3);
+        let p0: Vec<String> = history_page(&entries, 0)
+            .iter()
+            .map(|e| e.title.clone())
+            .collect();
+        assert_eq!(p0.len(), 10);
+        assert_eq!(p0[0], "t24");
+        assert_eq!(p0[9], "t15");
+        let p2: Vec<String> = history_page(&entries, 2)
+            .iter()
+            .map(|e| e.title.clone())
+            .collect();
+        assert_eq!(p2.len(), 5);
+        assert_eq!(p2[4], "t00");
+        assert!(history_page(&entries, 3).is_empty());
+    }
+
+    #[test]
+    fn history_lines_carry_requester_uri_timestamp() {
+        let e = HistoryEntry::new(
+            "Song",
+            Some("https://example.com/x"),
+            Some("<@42>"),
+            1_700_000_000_000,
+        );
+        let line = format_history_line(&e);
+        assert!(line.contains("<t:1700000000:R>"), "{line}");
+        assert!(line.contains("Song"), "{line}");
+        assert!(line.contains("https://example.com/x"), "{line}");
+        assert!(line.contains("<@42>"), "{line}");
+        let txt = history_txt_line(&e);
+        assert!(txt.contains("PLAYED"), "{txt}");
+        assert!(txt.contains("2023-11-14"), "{txt}");
+        assert!(txt.contains("https://example.com/x"), "{txt}");
+        // Re-parse stability: the embed line decodes back.
+        let back = parse_legacy_entry(&line, 0);
+        assert_eq!(back.title, "Song");
+        assert_eq!(back.uri.as_deref(), Some("https://example.com/x"));
+        assert_eq!(back.at_ms, 1_700_000_000_000);
     }
 
     #[test]

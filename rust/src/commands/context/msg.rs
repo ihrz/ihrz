@@ -1,47 +1,155 @@
 use super::*;
 
-/// 8-ball on a message. Mirrors question message-command bridge.
-#[poise::command(context_menu_command = "Question")]
+/// Full-question guard. Mirrors `question?.split(" ")` + `if (!text?.[2])`
+/// in question.ts: at least 3 space-separated parts with a non-empty third.
+pub fn question_words_ok(content: &str) -> bool {
+    let parts: Vec<&str> = content.split(' ').collect();
+    parts.len() > 2 && !parts[2].is_empty()
+}
+
+/// Fill the question embed title. Mirrors the TS global replace of
+/// `${interaction.user.username}` with the target author's display name.
+pub fn question_title(template: &str, author_display: &str) -> String {
+    template.replace("${interaction.user.username}", author_display)
+}
+
+/// Pick the 8-ball answer. Mirrors `reponses[Math.floor(Math.random() *
+/// reponses.length)]` over the guild language `question_s` pool.
+pub fn pick_answer(pool: &[String], now_ms: u64) -> &str {
+    if pool.is_empty() {
+        return crate::commands::fun::eightball(now_ms);
+    }
+    &pool[(now_ms as usize) % pool.len()]
+}
+
+/// 8-ball on a message. Mirrors the "Pose a question!" message command in
+/// MessageApplicationCommands/question.ts: short content gets
+/// `question_not_full`, otherwise an embed with the question + random answer.
+#[poise::command(context_menu_command = "Pose a question!")]
 pub async fn msg_question(
     ctx: Ctx<'_>,
     #[description = "Message"] msg: poise::serenity_prelude::Message,
 ) -> Result<(), anyhow::Error> {
-    let now = std::time::SystemTime::now()
-        .duration_since(std::time::UNIX_EPOCH)
-        .map(|d| d.as_millis() as u64)
-        .unwrap_or(1);
-    ctx.say(crate::commands::fun::eightball(
-        now.wrapping_add(msg.id.get()),
-    ))
-    .await?;
-    Ok(())
-}
-
-/// Queue a message's content. Mirrors play message-command bridge
-/// (lavalink wiring pending, history recorded like /music play).
-#[poise::command(context_menu_command = "Play")]
-pub async fn msg_play(
-    ctx: Ctx<'_>,
-    #[description = "Message"] msg: poise::serenity_prelude::Message,
-) -> Result<(), anyhow::Error> {
-    let title = msg.content.trim().to_string();
-    if title.is_empty() {
-        let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    use poise::serenity_prelude::CreateEmbed;
+    use poise::CreateReply;
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    let question = if msg.content.is_empty() {
+        ".".to_string()
+    } else {
+        msg.content.clone()
+    };
+    if !question_words_ok(&question) {
         ctx.say(
-            crate::lang::get(&code, "msg_empty_message")
-                .unwrap_or_else(|| "Empty message.".to_string()),
+            crate::lang::get(&code, "question_not_full")
+                .unwrap_or_else(|| "Enter a full question with 3 or more words!".to_string()),
         )
         .await?;
         return Ok(());
     }
-    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-    ctx.say(
-        crate::lang::get(&code, "msg_queued_title_lavalink_wiring_pending")
-            .map(|s| s.replace("{title}", &title))
-            .unwrap_or_else(|| format!("Queued: {title} [lavalink wiring pending]")),
-    )
-    .await?;
+    let author_display = msg
+        .author
+        .global_name
+        .clone()
+        .unwrap_or_else(|| msg.author.tag());
+    let pool = crate::lang::get_list(&code, "question_s");
+    let answer = pick_answer(&pool, now_ms() as u64).to_string();
+    let embed = CreateEmbed::default()
+        .title(question_title(
+            &crate::lang::get(&code, "question_embed_title")
+                .unwrap_or_else(|| "__**Question**__: `${interaction.user.username}`".to_string()),
+            &author_display,
+        ))
+        .colour(0xDDD98B)
+        .field(
+            crate::lang::get(&code, "question_fields_input_embed")
+                .unwrap_or_else(|| ":question:__**Question**__".to_string()),
+            question,
+            true,
+        )
+        .field(
+            crate::lang::get(&code, "question_fields_output_embed")
+                .unwrap_or_else(|| ":grey_exclamation:__**Answer:**__".to_string()),
+            answer,
+            false,
+        )
+        .timestamp(poise::serenity_prelude::Timestamp::now());
+    ctx.send(CreateReply::default().embed(embed)).await?;
     Ok(())
+}
+
+/// 10 MB per-attachment cap. Mirrors MAX_ATTACHMENT_SIZE_BYTES in play.ts.
+pub const PLAY_MAX_ATTACHMENT_BYTES: u64 = 10 * 1024 * 1024;
+
+/// Resolve the play queries for a message. Mirrors play.ts: attachment URLs
+/// win when the message has attachments, otherwise the message content.
+/// Oversized attachments abort with `"too_large"`, empty content with `"empty"`.
+pub fn play_queries(
+    attachments: &[(String, u64)],
+    content: &str,
+) -> Result<Vec<String>, &'static str> {
+    if attachments
+        .iter()
+        .any(|(_, size)| *size > PLAY_MAX_ATTACHMENT_BYTES)
+    {
+        return Err("too_large");
+    }
+    if !attachments.is_empty() {
+        return Ok(attachments.iter().map(|(url, _)| url.clone()).collect());
+    }
+    let title = content.trim();
+    if title.is_empty() {
+        return Err("empty");
+    }
+    Ok(vec![title.to_string()])
+}
+
+/// Queue a message's content. Mirrors the "Play it in a voice channel"
+/// message command in MessageApplicationCommands/play.ts (attachment URLs
+/// preferred, 10 MB guard via `p_attachment_too_large`; lavalink wiring
+/// pending, history recorded like /music play).
+#[poise::command(context_menu_command = "Play it in a voice channel")]
+pub async fn msg_play(
+    ctx: Ctx<'_>,
+    #[description = "Message"] msg: poise::serenity_prelude::Message,
+) -> Result<(), anyhow::Error> {
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    let attachments: Vec<(String, u64)> = msg
+        .attachments
+        .iter()
+        .map(|a| (a.url.clone(), a.size as u64))
+        .collect();
+    match play_queries(&attachments, &msg.content) {
+        Err("too_large") => {
+            let no = crate::emojis::app_emoji_markup(&ctx.serenity_context().http, "No")
+                .await
+                .unwrap_or_else(|| "❌".to_string());
+            ctx.say(
+                crate::lang::get(&code, "p_attachment_too_large")
+                    .map(|s| s.replace("${client.iHorizon_Emojis.No}", &no))
+                    .unwrap_or_else(|| "The attached file exceeds the 10MB limit.".to_string()),
+            )
+            .await?;
+            Ok(())
+        }
+        Err(_) => {
+            ctx.say(
+                crate::lang::get(&code, "msg_empty_message")
+                    .unwrap_or_else(|| "Empty message.".to_string()),
+            )
+            .await?;
+            Ok(())
+        }
+        Ok(queries) => {
+            let title = queries.join(", ");
+            ctx.say(
+                crate::lang::get(&code, "msg_queued_title_lavalink_wiring_pending")
+                    .map(|s| s.replace("{title}", &title))
+                    .unwrap_or_else(|| format!("Queued: {title} [lavalink wiring pending]")),
+            )
+            .await?;
+            Ok(())
+        }
+    }
 }
 
 /// Whether an attachment looks like audio. Mirrors the contentType +
@@ -279,7 +387,10 @@ pub async fn convert_attachment(url: &str, filename: &str) -> Result<(String, Ve
 
 #[cfg(test)]
 mod context_tests {
-    use super::{escape_drawtext, is_audio_attachment};
+    use super::{
+        escape_drawtext, is_audio_attachment, msg_convert_mp4, msg_play, msg_question, pick_answer,
+        play_queries, question_title, question_words_ok,
+    };
 
     #[test]
     fn audio_check_matches_ts() {
@@ -288,6 +399,76 @@ mod context_tests {
         assert!(is_audio_attachment(Some("video/mp4"), "clip.webm"));
         assert!(!is_audio_attachment(Some("image/png"), "pic.png"));
         assert!(!is_audio_attachment(None, "note.txt"));
+    }
+
+    /// Name locks: must stay identical to MessageApplicationCommands/*.ts.
+    /// (poise keeps the context-menu display string in `context_menu_name`;
+    /// `name` is the function identifier.)
+    #[test]
+    fn context_menu_names_match_ts() {
+        assert_eq!(
+            msg_question().context_menu_name.as_deref(),
+            Some("Pose a question!")
+        );
+        assert_eq!(
+            msg_play().context_menu_name.as_deref(),
+            Some("Play it in a voice channel")
+        );
+        assert_eq!(
+            msg_convert_mp4().context_menu_name.as_deref(),
+            Some("Convert to MP4")
+        );
+    }
+
+    #[test]
+    fn question_guard_matches_ts_split_check() {
+        assert!(!question_words_ok("."));
+        assert!(!question_words_ok("is this"));
+        assert!(!question_words_ok("a b "));
+        assert!(question_words_ok("is this real"));
+        assert!(question_words_ok("a b c d"));
+    }
+
+    #[test]
+    fn question_title_replaces_author() {
+        assert_eq!(
+            question_title("Q `${interaction.user.username}`!", "Bob"),
+            "Q `Bob`!"
+        );
+    }
+
+    #[test]
+    fn pick_answer_cycles_pool_and_falls_back() {
+        let pool = vec!["Yes.".to_string(), "No.".to_string()];
+        assert_eq!(pick_answer(&pool, 0), "Yes.");
+        assert_eq!(pick_answer(&pool, 1), "No.");
+        assert_eq!(pick_answer(&pool, 2), "Yes.");
+        let empty: Vec<String> = vec![];
+        assert!(!pick_answer(&empty, 3).is_empty());
+    }
+
+    #[test]
+    fn play_queries_mirror_ts_priority_and_caps() {
+        // Attachments win over content.
+        assert_eq!(
+            play_queries(&[("https://cdn/x.mp3".to_string(), 100)], "some text").unwrap(),
+            vec!["https://cdn/x.mp3".to_string()]
+        );
+        // Content fallback, trimmed.
+        assert_eq!(
+            play_queries(&[], "  hello  ").unwrap(),
+            vec!["hello".to_string()]
+        );
+        // Oversized attachment aborts (10 MB cap like TS).
+        assert_eq!(
+            play_queries(
+                &[("https://cdn/big.mp3".to_string(), 10 * 1024 * 1024 + 1)],
+                "text"
+            ),
+            Err("too_large")
+        );
+        // Empty message with no attachments aborts.
+        assert_eq!(play_queries(&[], "   "), Err("empty"));
     }
 
     #[test]

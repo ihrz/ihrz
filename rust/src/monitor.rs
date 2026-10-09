@@ -298,6 +298,83 @@ pub async fn ping_execute(target: &str, cfg: &PingConfig) -> Result<PingResponse
     })
 }
 
+// ---- getIP (cached public IP) ----
+// Mirrors src/core/functions/getIp.ts: ipify endpoints for v4/v6 with a
+// module-level cache (ipv4/ipv6 strings, empty = unfilled). The cache is
+// checked before any network call and filled after a successful fetch.
+
+/// Plain-text public-IP endpoint for IPv4. Mirrors endpoint_v4.
+pub const IPV4_ENDPOINT: &str = "https://api.ipify.org";
+/// Plain-text public-IP endpoint for IPv6. Mirrors endpoint_v6.
+pub const IPV6_ENDPOINT: &str = "https://api6.ipify.org";
+
+/// Endpoint selected by getIP(useIPv6). Pure and offline-testable.
+pub fn ip_endpoint(use_ipv6: bool) -> &'static str {
+    if use_ipv6 {
+        IPV6_ENDPOINT
+    } else {
+        IPV4_ENDPOINT
+    }
+}
+
+fn ip_cache() -> &'static std::sync::Mutex<(Option<String>, Option<String>)> {
+    static CACHE: std::sync::OnceLock<std::sync::Mutex<(Option<String>, Option<String>)>> =
+        std::sync::OnceLock::new();
+    CACHE.get_or_init(|| std::sync::Mutex::new((None, None)))
+}
+
+/// Cached IP for the family (`None` while unfilled, mirrors `""`).
+pub fn cached_ip(use_ipv6: bool) -> Option<String> {
+    let guard = ip_cache().lock().ok()?;
+    if use_ipv6 {
+        guard.1.clone()
+    } else {
+        guard.0.clone()
+    }
+}
+
+/// Store a fetched IP. Mirrors the CacheValue write after fetch.
+pub fn set_cached_ip(use_ipv6: bool, ip: &str) {
+    if let Ok(mut guard) = ip_cache().lock() {
+        if use_ipv6 {
+            guard.1 = Some(ip.to_string());
+        } else {
+            guard.0 = Some(ip.to_string());
+        }
+    }
+}
+
+/// Clear the cache (tests + reconnect flows).
+pub fn clear_ip_cache() {
+    if let Ok(mut guard) = ip_cache().lock() {
+        guard.0 = None;
+        guard.1 = None;
+    }
+}
+
+/// Fetch the public IP, serving the cache first like getIP does.
+/// Network only on a cache miss; failures reject like the TS throw.
+pub async fn fetch_ip(use_ipv6: bool) -> Result<String, String> {
+    if let Some(hit) = cached_ip(use_ipv6) {
+        return Ok(hit);
+    }
+    let text = reqwest::Client::new()
+        .get(ip_endpoint(use_ipv6))
+        .send()
+        .await
+        .map_err(|e| format!("Failed to fetch IP address: {e}"))?;
+    if !text.status().is_success() {
+        return Err("Failed to fetch IP address".to_string());
+    }
+    let ip = text
+        .text()
+        .await
+        .map_err(|e| format!("Failed to fetch IP address: {e}"))?;
+    let ip = ip.trim().to_string();
+    set_cached_ip(use_ipv6, &ip);
+    Ok(ip)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -413,5 +490,27 @@ mod tests {
         assert!(p.alive);
         // Population stddev of [10,14] against the stats avg 12 = 2.
         assert_eq!(p.stddev_ms, Some(2.0));
+    }
+
+    #[test]
+    fn ip_endpoints_match_getip_ts() {
+        assert_eq!(ip_endpoint(false), "https://api.ipify.org");
+        assert_eq!(ip_endpoint(true), "https://api6.ipify.org");
+    }
+
+    #[test]
+    fn ip_cache_roundtrip_per_family() {
+        clear_ip_cache();
+        assert_eq!(cached_ip(false), None);
+        assert_eq!(cached_ip(true), None);
+        set_cached_ip(false, "1.2.3.4");
+        assert_eq!(cached_ip(false).as_deref(), Some("1.2.3.4"));
+        assert_eq!(cached_ip(true), None);
+        set_cached_ip(true, "2001:db8::1");
+        assert_eq!(cached_ip(true).as_deref(), Some("2001:db8::1"));
+        set_cached_ip(false, "5.6.7.8");
+        assert_eq!(cached_ip(false).as_deref(), Some("5.6.7.8"));
+        clear_ip_cache();
+        assert_eq!(cached_ip(false), None);
     }
 }

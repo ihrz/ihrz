@@ -28,6 +28,7 @@
 use std::collections::{HashMap, VecDeque};
 use std::fmt;
 use std::sync::{Arc, OnceLock};
+use std::time::{Duration, Instant};
 
 use lava_rs::events::{
     EventDispatcher, LavalinkEvent, TrackEndEvent, TrackEndReason, TrackEvent, TrackStartEvent,
@@ -41,6 +42,10 @@ use tokio::sync::{Mutex, RwLock};
 
 /// Mirrors onEmptyQueue.destroyAfterMs in playerManager.ts.
 pub const EMPTY_QUEUE_DESTROY_AFTER_MS: i64 = 120_000;
+
+/// Client-Name header sent on the node WS handshake (mirrors the
+/// lavalink-client default; lava-rs connect_to_node sends its own).
+pub const LAVALINK_CLIENT_NAME: &str = "ihrz-lava-rs/0.1.0";
 
 /// Minimal node view shared by config sync (mirrors config.lavalink.nodes).
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -129,7 +134,7 @@ impl NodeEntry {
             .port(cfg.port)
             .password(cfg.password.clone())
             .user_id(user_id)
-            .client_name("ihrz-lava-rs/0.1.0")
+            .client_name(LAVALINK_CLIENT_NAME)
             .build();
         Self {
             id: cfg.id.clone(),
@@ -309,6 +314,15 @@ pub enum FedWs {
     Ignored,
 }
 
+/// Guild whose player aged out of its empty queue (mirrors the
+/// onEmptyQueue destroyAfterMs path). Carries the voice channel so the
+/// sweeper can OP4-leave and clear its status after the destroy.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct IdleDestroyTarget {
+    pub guild_id: u64,
+    pub voice_channel: Option<u64>,
+}
+
 /// Discord gateway OP 4 (Voice State Update) payload builder. Sent on the
 /// guild shard to join/move/leave a voice channel; the resulting
 /// voice-state + voice-server events feed `note_voice_state` /
@@ -324,6 +338,39 @@ pub fn voice_state_update_op(guild_id: u64, channel_id: Option<u64>) -> serde_js
             "self_deaf": true,
         }
     })
+}
+
+/// Node WS endpoint (mirrors audio.rs `ws_url` + the path lava-rs
+/// `connect_to_node` dials, but honors `secure`: lava-rs hardcodes
+/// `ws://`, so wss nodes would fail the upgrade there).
+pub fn node_ws_url(cfg: &NodeCfg) -> String {
+    let scheme = if cfg.secure { "wss" } else { "ws" };
+    format!("{}://{}:{}/v4/websocket", scheme, cfg.host, cfg.port)
+}
+
+/// Node WS handshake request. Headers mirror lava-rs
+/// `connect_to_node` (Authorization + User-Id + Client-Name, Session-Id
+/// for resume); the URL is [`node_ws_url`] so secure nodes dial wss.
+pub fn node_ws_request(
+    cfg: &NodeCfg,
+    user_id: u64,
+    session: Option<&str>,
+) -> Result<tungstenite::handshake::client::Request, MusicError> {
+    use tungstenite::http::header::HeaderValue;
+    let hv = |v: &str| HeaderValue::from_str(v).map_err(|e| MusicError::Transport(e.to_string()));
+    let mut builder = tungstenite::http::Request::builder()
+        .method("GET")
+        .uri(node_ws_url(cfg))
+        .version(tungstenite::http::Version::HTTP_11)
+        .header("Authorization", hv(&cfg.password)?)
+        .header("User-Id", hv(&user_id.to_string())?)
+        .header("Client-Name", hv(LAVALINK_CLIENT_NAME)?);
+    if let Some(sid) = session {
+        builder = builder.header("Session-Id", hv(sid)?);
+    }
+    builder
+        .body(())
+        .map_err(|e| MusicError::Transport(e.to_string()))
 }
 
 /// Half of the Lavalink voice handshake (mirrors raw.ts): Discord
@@ -355,6 +402,12 @@ pub struct LavalinkManager {
     pending_voice: Mutex<HashMap<u64, PendingVoice>>,
     dispatcher: Mutex<EventDispatcher>,
     http: reqwest::Client,
+    /// Discord shard messengers by shard id (registered at ready; OP4
+    /// leave must go out on the shard serving the guild).
+    shards: Mutex<HashMap<u64, serenity::ShardMessenger>>,
+    /// Total shard count for guild->shard routing (bot.rs shard-count
+    /// site; None until known, e.g. autoshard pre-ready).
+    total_shards: Mutex<Option<u64>>,
 }
 
 impl LavalinkManager {
@@ -365,6 +418,8 @@ impl LavalinkManager {
             pending_voice: Mutex::new(HashMap::new()),
             dispatcher: Mutex::new(EventDispatcher::new()),
             http: reqwest::Client::new(),
+            shards: Mutex::new(HashMap::new()),
+            total_shards: Mutex::new(None),
         }
     }
 
@@ -412,6 +467,12 @@ impl LavalinkManager {
         if let Some(n) = nodes.iter().find(|n| n.id == node_id) {
             n.set_session(session).await;
         }
+    }
+
+    pub async fn node_session(&self, node_id: &str) -> Option<String> {
+        let nodes = self.nodes.read().await;
+        let node = nodes.iter().find(|n| n.id == node_id)?;
+        node.session().await
     }
 
     // ---- event callbacks (lava-rs EventDispatcher) ----
@@ -565,6 +626,34 @@ impl LavalinkManager {
         }
     }
 
+    // ---- node websocket dial (ready / reconnect) ----
+
+    /// Blocking dial + read for one node (runs in spawn_blocking):
+    /// forwards text frames to the async pump, answers Ping, returns on
+    /// close/error so the supervisor redials.
+    fn read_node_ws(
+        req: tungstenite::handshake::client::Request,
+        tx: tokio::sync::mpsc::UnboundedSender<String>,
+    ) -> Result<(), String> {
+        let (mut sock, _) = tungstenite::connect(req).map_err(|e| e.to_string())?;
+        loop {
+            match sock.read() {
+                Ok(tungstenite::Message::Text(t)) => {
+                    if tx.send(t).is_err() {
+                        break;
+                    }
+                }
+                Ok(tungstenite::Message::Ping(d)) => {
+                    let _ = sock.send(tungstenite::Message::Pong(d));
+                }
+                Ok(tungstenite::Message::Close(_)) => break,
+                Ok(_) => {}
+                Err(e) => return Err(e.to_string()),
+            }
+        }
+        Ok(())
+    }
+
     // ---- Discord gateway OP 4 (join/move/leave) ----
 
     /// Send a voice-state payload on the guild shard (mirrors
@@ -579,6 +668,72 @@ impl LavalinkManager {
     ) {
         let payload = voice_state_update_op(guild_id, channel_id).to_string();
         shard.websocket_message(tungstenite::Message::Text(payload));
+    }
+
+    // ---- shard registry + OP4 leave (idle sweep leg) ----
+
+    /// Remember one Discord shard messenger (call at ready per shard;
+    /// OP4 leave must go out on the shard serving the guild).
+    pub async fn register_shard(&self, shard_id: u64, shard: serenity::ShardMessenger) {
+        self.shards.lock().await.insert(shard_id, shard);
+    }
+
+    /// Authoritative total shard count (bot.rs shard-count site).
+    pub async fn set_total_shards(&self, total: u64) {
+        *self.total_shards.lock().await = Some(total);
+    }
+
+    /// Fallback total (ready.shard.total) when the tuned count is still
+    /// unknown, e.g. autoshard pre-boot. Never overwrites an explicit set.
+    pub async fn ensure_total_shards(&self, total: u32) {
+        if total == 0 {
+            return;
+        }
+        let mut slot = self.total_shards.lock().await;
+        if slot.is_none() {
+            *slot = Some(total as u64);
+        }
+    }
+
+    /// OP4 leave on the shard serving `guild_id` (mirrors the
+    /// sendToShard leave in the TS destroy path). False when no
+    /// messenger is registered (yet) — the REST destroy + status clear
+    /// still run; multi-shard fan-out per shard messenger is next.
+    pub async fn leave_voice(&self, guild_id: u64) -> bool {
+        let messenger = {
+            let shards = self.shards.lock().await;
+            let total = *self.total_shards.lock().await;
+            match total {
+                Some(t) if t > 0 => {
+                    let sid = crate::funcs::guild_shard(guild_id, t);
+                    shards.get(&sid).cloned()
+                }
+                _ => shards
+                    .get(&0)
+                    .cloned()
+                    .or_else(|| shards.values().next().cloned()),
+            }
+        };
+        match messenger {
+            Some(m) => {
+                Self::send_voice_state(&m, guild_id, None);
+                true
+            }
+            None => false,
+        }
+    }
+
+    /// Clear a voice channel's status (mirrors
+    /// changeVoiceChannelStatus(voiceChannelId, "") on queueEnd in
+    /// playerManager.ts). Best-effort; false on any HTTP failure.
+    pub async fn clear_voice_status(http: &serenity::Http, voice_channel_id: u64) -> bool {
+        http.edit_voice_status(
+            serenity::ChannelId::new(voice_channel_id),
+            &serde_json::json!({ "status": "" }),
+            None,
+        )
+        .await
+        .is_ok()
     }
 
     // ---- track-start announcements + empty-channel guard ----
@@ -801,6 +956,47 @@ impl LavalinkManager {
         players.get(&guild_id).map(PlayerSnapshot::from)
     }
 
+    // ---- idle destroy (TS onEmptyQueue.destroyAfterMs consumer) ----
+
+    /// Guilds whose empty queue aged past [`EMPTY_QUEUE_DESTROY_AFTER_MS`].
+    pub async fn destroy_due_guilds(&self, now_ms: i64) -> Vec<IdleDestroyTarget> {
+        let players = self.players.lock().await;
+        players
+            .iter()
+            .filter(|(_, p)| p.destroy_due(now_ms))
+            .map(|(gid, p)| IdleDestroyTarget {
+                guild_id: *gid,
+                voice_channel: p.voice_channel,
+            })
+            .collect()
+    }
+
+    /// Drop one player state, returning its destroy target (if any).
+    pub async fn remove_player(&self, guild_id: u64) -> Option<IdleDestroyTarget> {
+        let mut players = self.players.lock().await;
+        players.remove(&guild_id).map(|p| IdleDestroyTarget {
+            guild_id,
+            voice_channel: p.voice_channel,
+        })
+    }
+
+    /// One idle-destroy step: for each due guild, REST DELETE the node
+    /// player (best-effort; skipped with no live node/session so the
+    /// offline path still drops state) and drop the player. Returns the
+    /// destroyed targets so the caller can OP4-leave + clear status.
+    pub async fn sweep_idle_destroy(&self, now_ms: i64) -> Vec<IdleDestroyTarget> {
+        let due = self.destroy_due_guilds(now_ms).await;
+        let mut done = Vec::with_capacity(due.len());
+        for t in due {
+            if let Ok((node, session)) = self.live_node_and_session(t.guild_id).await {
+                let _ = self.rest_destroy(&node, &session, t.guild_id).await;
+            }
+            self.players.lock().await.remove(&t.guild_id);
+            done.push(t);
+        }
+        done
+    }
+
     // ---- high-level flows used by music/ commands ----
 
     pub async fn live_node_and_session(
@@ -872,6 +1068,77 @@ impl Default for LavalinkManager {
     fn default() -> Self {
         Self::new()
     }
+}
+
+// ---- node WS supervisors (ready dial + reconnect) ----
+
+/// Retry schedule: 5s doubling to 50s (mirrors TS retryDelay 50_000),
+/// infinite retries (mirrors retryAmount Infinity).
+const NODE_WS_FIRST_BACKOFF: Duration = Duration::from_secs(5);
+const NODE_WS_MAX_BACKOFF: Duration = Duration::from_secs(50);
+/// A connection living longer than this resets the backoff.
+const NODE_WS_STABLE_FOR: Duration = Duration::from_secs(60);
+
+fn now_ms_wall() -> i64 {
+    std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|d| d.as_millis() as i64)
+        .unwrap_or(0)
+}
+
+/// Spawn one supervised WS task per node (call once at ready with the
+/// synced config + bot user id). Each task dials with
+/// [`node_ws_request`] (resume via the stored session), pumps text
+/// frames into [`LavalinkManager::feed_node_ws`] — so track-end advance
+/// + the nowplaying announce run live — and redials forever on drop.
+pub fn spawn_all_node_ws(cfgs: Vec<NodeCfg>, user_id: u64) {
+    for cfg in cfgs {
+        spawn_node_ws(cfg, user_id);
+    }
+}
+
+/// Spawn the supervised WS task for one node. No-op for empty hosts.
+pub fn spawn_node_ws(cfg: NodeCfg, user_id: u64) {
+    if cfg.host.trim().is_empty() {
+        return;
+    }
+    let node_id = cfg.id.clone();
+    tokio::spawn(async move {
+        let mut backoff = NODE_WS_FIRST_BACKOFF;
+        loop {
+            let session = manager().node_session(&node_id).await;
+            let req = match node_ws_request(&cfg, user_id, session.as_deref()) {
+                Ok(r) => r,
+                Err(e) => {
+                    tracing::warn!("lavalink ws {node_id}: request build failed ({e}), retry");
+                    tokio::time::sleep(backoff).await;
+                    backoff = (backoff * 2).min(NODE_WS_MAX_BACKOFF);
+                    continue;
+                }
+            };
+            let connected_at = Instant::now();
+            let (tx, mut rx) = tokio::sync::mpsc::unbounded_channel::<String>();
+            let pump_id = node_id.clone();
+            let pump = tokio::spawn(async move {
+                while let Some(text) = rx.recv().await {
+                    manager().feed_node_ws(&pump_id, &text, now_ms_wall()).await;
+                }
+            });
+            let dial = tokio::task::spawn_blocking(move || LavalinkManager::read_node_ws(req, tx));
+            match dial.await {
+                Ok(Ok(())) => tracing::info!("lavalink ws {node_id}: closed, redialing"),
+                Ok(Err(e)) => tracing::warn!("lavalink ws {node_id}: dropped ({e}), redialing"),
+                Err(e) => tracing::warn!("lavalink ws {node_id}: reader panicked ({e}), redialing"),
+            }
+            let _ = pump.await;
+            if connected_at.elapsed() >= NODE_WS_STABLE_FOR {
+                backoff = NODE_WS_FIRST_BACKOFF;
+            } else {
+                backoff = (backoff * 2).min(NODE_WS_MAX_BACKOFF);
+            }
+            tokio::time::sleep(backoff).await;
+        }
+    });
 }
 
 fn urlencoding(s: &str) -> String {
@@ -1210,5 +1477,87 @@ mod tests {
         let a = m.node_for(7).await.unwrap();
         let b = m.node_for(7).await.unwrap();
         assert_eq!(a.id, b.id);
+    }
+
+    #[test]
+    fn node_ws_url_honors_secure() {
+        let plain = NodeCfg {
+            id: "n".into(),
+            host: "lava.example.com".into(),
+            port: 2333,
+            password: "pw".into(),
+            secure: false,
+        };
+        assert_eq!(
+            node_ws_url(&plain),
+            "ws://lava.example.com:2333/v4/websocket"
+        );
+        let tls = NodeCfg {
+            secure: true,
+            ..plain
+        };
+        assert_eq!(
+            node_ws_url(&tls),
+            "wss://lava.example.com:2333/v4/websocket"
+        );
+    }
+
+    #[test]
+    fn node_ws_request_carries_auth_headers() {
+        let cfg = test_node_cfg();
+        let req = node_ws_request(&cfg, 42, None).unwrap();
+        let h = req.headers();
+        assert_eq!(h.get("authorization").unwrap(), "x");
+        assert_eq!(h.get("user-id").unwrap(), "42");
+        assert_eq!(h.get("client-name").unwrap(), LAVALINK_CLIENT_NAME);
+        assert!(h.get("session-id").is_none());
+        let resumed = node_ws_request(&cfg, 42, Some("sess-9")).unwrap();
+        assert_eq!(resumed.headers().get("session-id").unwrap(), "sess-9");
+    }
+
+    #[tokio::test]
+    async fn sweep_idle_destroy_drops_state_offline() {
+        let m = LavalinkManager::new();
+        // Idle past the 120s window with a voice channel attached.
+        m.with_player(11, |p| {
+            p.voice_channel = Some(77);
+            p.stop(1000);
+        })
+        .await;
+        // Fresh idle: not due yet.
+        m.with_player(12, |p| {
+            p.stop(1000 + EMPTY_QUEUE_DESTROY_AFTER_MS - 60_000);
+        })
+        .await;
+        let due = m
+            .destroy_due_guilds(1000 + EMPTY_QUEUE_DESTROY_AFTER_MS)
+            .await;
+        assert_eq!(
+            due,
+            vec![IdleDestroyTarget {
+                guild_id: 11,
+                voice_channel: Some(77),
+            }]
+        );
+        // No nodes: REST leg skipped, state still dropped.
+        let done = m
+            .sweep_idle_destroy(1000 + EMPTY_QUEUE_DESTROY_AFTER_MS)
+            .await;
+        assert_eq!(done.len(), 1);
+        assert_eq!(done[0].guild_id, 11);
+        assert!(m.snapshot(11).await.is_none());
+        assert!(m.snapshot(12).await.is_some());
+        // Second sweep finds nothing.
+        assert!(m
+            .sweep_idle_destroy(1000 + EMPTY_QUEUE_DESTROY_AFTER_MS)
+            .await
+            .is_empty());
+    }
+
+    #[tokio::test]
+    async fn leave_voice_false_without_shard() {
+        let m = LavalinkManager::new();
+        assert!(!m.leave_voice(123).await);
+        assert!(m.remove_player(123).await.is_none());
     }
 }

@@ -143,6 +143,7 @@ committed — see `.gitignore`. No push without a green
 - [x] U-PROTECTION-BACKUP 60s structure snapshots (2026-10-09: TS key shapes, mapping helpers, 60s sweep; 11 tests. Next: live restore executors, raid-flag gate).
 - [x] U-TTS-CLEANUP offline leg (2026-10-09: memberless TTS teardown + voice arm; speak leg blocked. Next: embed-id persistence, orphan sweep).
 - [x] U-PANEL-OVERFLOW options txt (2026-10-09: overflow gate + file on preview/send; 5 tests. Suite 512/0, fmt + clippy clean).
+- [x] U-ETERNAL-1 (2026-10-09: E2 live protection restore executors + guild_create seeding; M1 idle sweep + M2 node WS dial w/ backoff; C1 resolvers + C2 perm gate + C4 stats_calc pure modules (24 tests); I1 Tier-1 reply keys wired, zero new YAML keys needed; D1 shared.rs table routing + lead legacy-fallback cutover guard; S2 context-menu TS names + flows; M4 history V2 (cap, TS migration, pagination + txt + delete); C8 smalls (getIP, retrieveMyself, economyLogs, ownerHelper) + prefix key unify + cap fix. Suite 575/0, fmt + clippy clean).
 
 ## Eternal backlog (seeded 2026-10-09 by 7 read-only audits + lavalink edge audit; full reports in `~/.hermes/cache/delegation/live/deleg_55b606d3/task-{0,1,2,3,4,5,9}.log` — each item is a future unit for other models, files disjoint unless noted)
 

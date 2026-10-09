@@ -620,6 +620,29 @@ pub async fn time_units(ctx: &Ctx<'_>) -> [String; 8] {
 /// (`GUILD.SERVER_LOGS.economy`, silent when unset).
 pub const ECONOMY_LOG_KEY: &str = "GUILD.SERVER_LOGS.economy";
 
+/// Embed colour for every economy log. Mirrors sendEmbed's `#f1c232`.
+pub const ECONOMY_LOG_COLOUR: u32 = 0xF1C232;
+
+/// Apply `{placeholder}` pairs to a log description template. Pure part
+/// of sendEmbed in economyLogs.ts: each TS call chains
+/// `.replace("{x}", v)` for its own placeholders, then resolves
+/// `{coin}` to the Coin app emoji. `coin_markup` is injected so the
+/// replacement stays offline-testable; pass `None` to leave `{coin}`.
+pub fn apply_log_pairs(
+    template: &str,
+    pairs: &[(&str, &str)],
+    coin_markup: Option<&str>,
+) -> String {
+    let mut desc = template.to_string();
+    for (k, v) in pairs {
+        desc = desc.replace(&format!("{{{k}}}"), v);
+    }
+    if let Some(coin) = coin_markup {
+        desc = desc.replace("{coin}", coin);
+    }
+    desc
+}
+
 /// Post one #f1c232 economy log embed. Mirrors sendEmbed in
 /// economyLogs.ts (title/desc keys + {placeholder} replacements;
 /// {coin} always resolves to the Coin app emoji).
@@ -641,18 +664,19 @@ pub async fn post_economy_log(
     let Some(channel_id) = channel_id else {
         return Ok(());
     };
-    let mut desc = crate::commands::lang_for(ctx, desc_key, desc_key).await;
-    for (k, v) in pairs {
-        desc = desc.replace(&format!("{{{k}}}"), v);
-    }
-    if desc.contains("{coin}") {
-        let coin = crate::emojis::app_emoji_markup(&ctx.serenity_context().http, "Coin")
-            .await
-            .unwrap_or_else(|| "🪙".to_string());
-        desc = desc.replace("{coin}", &coin);
-    }
+    let template = crate::commands::lang_for(ctx, desc_key, desc_key).await;
+    let coin = if template.contains("{coin}") {
+        Some(
+            crate::emojis::app_emoji_markup(&ctx.serenity_context().http, "Coin")
+                .await
+                .unwrap_or_else(|| "🪙".to_string()),
+        )
+    } else {
+        None
+    };
+    let desc = apply_log_pairs(&template, pairs, coin.as_deref());
     let embed = CreateEmbed::default()
-        .colour(0xF1C232)
+        .colour(ECONOMY_LOG_COLOUR)
         .title(crate::commands::lang_for(ctx, title_key, title_key).await)
         .description(desc)
         .timestamp(Timestamp::now());
@@ -1220,5 +1244,31 @@ mod tests {
         add_money(&mut a, -30.0);
         add_money(&mut b, 30.0);
         assert_eq!((a.money, b.money), (70, 30));
+    }
+
+    #[test]
+    fn economy_log_colour_matches_sendembed() {
+        assert_eq!(ECONOMY_LOG_COLOUR, 0xF1C232);
+        assert_eq!(ECONOMY_LOG_KEY, "GUILD.SERVER_LOGS.economy");
+    }
+
+    #[test]
+    fn log_pairs_replace_like_economy_logs_ts() {
+        let out = apply_log_pairs(
+            "{author} gave {target} {amount} {coin}",
+            &[("author", "<@1>"), ("target", "<@2>"), ("amount", "10")],
+            Some("<:Coin:3>"),
+        );
+        assert_eq!(out, "<@1> gave <@2> 10 <:Coin:3>");
+        let out = apply_log_pairs(
+            "{author} set {role} x{amount}",
+            &[("author", "<@1>"), ("role", "<@&7>"), ("amount", "3")],
+            None,
+        );
+        assert_eq!(out, "<@1> set <@&7> x3");
+        // No coin markup injected: placeholder survives like the TS
+        // path that never replaces it (callers always pass pairs).
+        let out = apply_log_pairs("{amount} {coin}", &[("amount", "5")], None);
+        assert_eq!(out, "5 {coin}");
     }
 }

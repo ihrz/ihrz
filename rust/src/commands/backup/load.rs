@@ -15,6 +15,42 @@ pub async fn backup_load(
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
+    // Owner gate. Mirrors !load.ts (GUILD.BACKUP.onlyOwner; unset also
+    // means owner-only, like the TS `state === undefined` branch).
+    let only_owner = crate::db::kv_get(&ctx.data().pool, &gid, "GUILD.BACKUP.onlyOwner")
+        .await
+        .as_deref()
+        != Some("0");
+    if only_owner {
+        let is_owner = ctx
+            .guild()
+            .map(|g| g.owner_id.get() == ctx.author().id.get())
+            .unwrap_or(true);
+        if !is_owner {
+            ctx.say(
+                crate::commands::lang_for(
+                    &ctx,
+                    "backup_manage_nique_tes_mort",
+                    "Access denied. This command is reserved for the server owner.\n# You cannot disable backup protection to compromise the server's security.\n# Any abuse attempt will be reported and blocked.",
+                )
+                .await,
+            )
+            .await?;
+            return Ok(());
+        }
+    }
+    if backup_id.trim().is_empty() {
+        ctx.say(
+            crate::commands::lang_for(
+                &ctx,
+                "backup_unvalid_id_on_load",
+                ":x: | You must specify a valid backup ID!",
+            )
+            .await,
+        )
+        .await?;
+        return Ok(());
+    }
     let raw = crate::db::kv_get(
         &ctx.data().pool,
         &format!("{gid}-backups"),
@@ -25,7 +61,7 @@ pub async fn backup_load(
         let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
         ctx.say(
             crate::lang::get(&code, "backup_backup_doesnt_exist")
-                .unwrap_or_else(|| "Backup not found.".to_string()),
+                .unwrap_or_else(|| "Error: this backup doesn't exist.".to_string()),
         )
         .await?;
         return Ok(());
@@ -36,7 +72,7 @@ pub async fn backup_load(
     let content = crate::commands::lang_for(
         &ctx,
         "backup_load_confirm",
-        "EXTREMELY DANGEROUS ACTION. Load this backup?",
+        "${interaction.member.user.toString()},\n# EXTREMELY DANGEROUS ACTION\n# Are you sure you want to load this backup?\nThis will replace all current channels, roles, emojis, bans, configuration... of your server.\nTHIS ACTION IS IRREVERSIBLE!",
     )
     .await
     .replace(
@@ -46,8 +82,15 @@ pub async fn backup_load(
     let yes = crate::commands::lang_for(&ctx, "var_confirm", "Confirm").await;
     let no = crate::commands::lang_for(&ctx, "embed_btn_cancel", "Cancel").await;
     if !crate::commands::prompt_yes_or_no(&ctx, content, yes, no, true).await? {
-        ctx.say(crate::commands::lang_for(&ctx, "backup_not_load", "Backup not loaded.").await)
-            .await?;
+        ctx.say(
+            crate::commands::lang_for(
+                &ctx,
+                "backup_not_load",
+                "The backup was not loaded, the action was canceled at your request.",
+            )
+            .await,
+        )
+        .await?;
         return Ok(());
     }
     let entries = snap
@@ -89,6 +132,19 @@ pub async fn backup_load(
             .await?;
             return Ok(());
         }
+        // Corrupt snapshot: neither kv entries nor a guild backup.
+        // Mirrors the backup_error_on_load catch in !load.ts:137.
+        ctx.say(
+            crate::commands::lang_for(
+                &ctx,
+                "backup_error_on_load",
+                ":x: | Sorry, an error occurred... Please check that I have administrator permissions!",
+            )
+            .await
+            .replace("${backupID}", backup_id.trim()),
+        )
+        .await?;
+        return Ok(());
     }
     let mut restored = 0;
     for e in entries {

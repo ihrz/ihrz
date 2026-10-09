@@ -10,7 +10,7 @@
 use crate::db::Pool;
 use poise::serenity_prelude as serenity;
 use poise::serenity_prelude::Mentionable;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 use std::sync::Arc;
 
 /// Invite uses cache: guild -> code -> (uses, inviter).
@@ -34,6 +34,9 @@ pub struct Handler {
     /// Slash-command file log. Mirrors Events/logs/slashCommandLogger.ts
     /// (SafeJSONLogger at src/files/slash.log.json).
     pub slashlog: Arc<crate::slashlog::SlashLog>,
+    /// Guilds with a protection restore currently running.
+    /// Mirrors restorationInProgress in avoidChannelDelete.ts.
+    pub restoring: Arc<tokio::sync::Mutex<HashSet<String>>>,
 }
 
 /// Pending captcha challenge for a newcomer.
@@ -81,6 +84,48 @@ pub fn welcome_channel(guild: &serenity::Guild) -> Option<serenity::ChannelId> {
         .map(|c| c.id)
 }
 
+/// Snapshot entry for a deleted channel id: top-level first, then
+/// nested inside categories. None when the channel was never
+/// snapshotted (created after the last backup). Pure, unit-tested.
+pub fn backup_channel_for<'a>(
+    backup: &'a crate::commands::protection::backup::GuildBackup,
+    channel_id: &str,
+) -> Option<&'a crate::commands::protection::backup::BackupChannel> {
+    backup
+        .channels
+        .iter()
+        .find(|c| c.id == channel_id)
+        .or_else(|| {
+            backup
+                .categories
+                .iter()
+                .flat_map(|cat| cat.channels.iter())
+                .find(|c| c.id == channel_id)
+        })
+}
+
+/// Snapshot entry for a deleted category id. None when the category
+/// was never snapshotted. Pure, unit-tested.
+pub fn backup_category_for<'a>(
+    backup: &'a crate::commands::protection::backup::GuildBackup,
+    category_id: &str,
+) -> Option<&'a crate::commands::protection::backup::BackupCategory> {
+    backup.categories.iter().find(|c| c.id == category_id)
+}
+
+/// Try to claim the per-guild restore slot. True on first claim,
+/// false while a restore is already running. Pure predicate backing
+/// Handler::restore_claim, unit-tested below (no Discord needed).
+pub fn restore_slot_claim(running: &mut HashSet<String>, guild_id: &str) -> bool {
+    running.insert(guild_id.to_string())
+}
+
+/// Release the per-guild restore slot (no-op when absent). Pure
+/// predicate backing Handler::restore_release, unit-tested below.
+pub fn restore_slot_release(running: &mut HashSet<String>, guild_id: &str) {
+    running.remove(guild_id);
+}
+
 impl Handler {
     pub fn new(pool: Pool, slashlog: Arc<crate::slashlog::SlashLog>) -> Self {
         Self {
@@ -90,6 +135,7 @@ impl Handler {
             sealed: Arc::new(tokio::sync::Mutex::new(std::collections::HashSet::new())),
             security: Arc::new(tokio::sync::Mutex::new(HashMap::new())),
             slashlog,
+            restoring: Arc::new(tokio::sync::Mutex::new(HashSet::new())),
         }
     }
 
@@ -534,6 +580,183 @@ impl Handler {
                         ),
                     )
                     .await;
+            }
+        }
+    }
+
+    /// Claim the per-guild restore slot. Returns false when a restore
+    /// is already running (caller must skip). Mirrors the
+    /// restorationInProgress.get check in avoidChannelDelete.ts.
+    async fn restore_claim(&self, guild_id: &str) -> bool {
+        restore_slot_claim(&mut *self.restoring.lock().await, guild_id)
+    }
+
+    /// Release the per-guild restore slot. Mirrors the `finally`
+    /// restorationInProgress.delete in avoidChannelDelete.ts.
+    async fn restore_release(&self, guild_id: &str) {
+        restore_slot_release(&mut *self.restoring.lock().await, guild_id);
+    }
+
+    /// Bot administrator gate. Mirrors the members.me Administrator
+    /// check at the top of avoidChannelDelete.ts / avoidRoleDelete.ts.
+    async fn bot_is_admin(&self, ctx: &serenity::Context, guild_id: serenity::GuildId) -> bool {
+        let bot = ctx.cache.current_user().id;
+        // Snapshot out of the cache without holding the !Send guard
+        // across an await.
+        let cached: Option<(serenity::Guild, serenity::Member)> = ctx
+            .cache
+            .guild(guild_id)
+            .and_then(|g| g.members.get(&bot).cloned().map(|m| (g.clone(), m)));
+        if let Some((guild, member)) = cached {
+            return guild.member_permissions(&member).administrator();
+        }
+        // Cache miss: fetch our member row, then compute against the
+        // cached roles.
+        if let Ok(member) = guild_id.member(&ctx.http, bot).await {
+            if let Some(guild) = ctx.cache.guild(guild_id).map(|g| g.clone()) {
+                return guild.member_permissions(&member).administrator();
+            }
+        }
+        false
+    }
+
+    /// Resolve a snapshot parent category to a live channel id.
+    /// Returns None when the snapshot has no parent or the parent no
+    /// longer exists (then the channel is recreated top-level).
+    async fn live_parent(
+        ctx: &serenity::Context,
+        parent: Option<&str>,
+    ) -> Option<serenity::ChannelId> {
+        let pid = parent?.parse::<u64>().ok()?;
+        let id = serenity::ChannelId::new(pid);
+        ctx.http.get_channel(id).await.ok().map(|_| id)
+    }
+
+    /// Clone-restore one snapshot channel: name, type, position,
+    /// permission overwrites and parent. Mirrors the create-channel
+    /// branch of avoidChannelDelete.ts.
+    async fn create_snapshot_channel(
+        ctx: &serenity::Context,
+        guild_id: serenity::GuildId,
+        entry: &crate::commands::protection::backup::BackupChannel,
+        parent: Option<serenity::ChannelId>,
+    ) -> Option<serenity::GuildChannel> {
+        let mut builder = serenity::CreateChannel::new(entry.name.clone())
+            .kind(entry.kind)
+            .position(entry.position)
+            .permissions(entry.permissions.clone());
+        if let Some(parent) = parent {
+            builder = builder.category(parent);
+        }
+        guild_id.create_channel(&ctx.http, builder).await.ok()
+    }
+
+    /// Clone-restore a deleted channel or category from the structure
+    /// snapshot. Mirrors avoidChannelDelete.ts: category recreates
+    /// with its missing children (300ms pacing), a plain channel
+    /// recreates with perms/parent/position. Best-effort, never panics.
+    async fn restore_deleted_channel(
+        &self,
+        ctx: &serenity::Context,
+        channel: &serenity::GuildChannel,
+    ) {
+        let gid = channel.guild_id.get().to_string();
+        if !self.bot_is_admin(ctx, channel.guild_id).await {
+            return;
+        }
+        if !self.restore_claim(&gid).await {
+            return;
+        }
+        self.restore_deleted_channel_inner(ctx, channel).await;
+        self.restore_release(&gid).await;
+    }
+
+    async fn restore_deleted_channel_inner(
+        &self,
+        ctx: &serenity::Context,
+        channel: &serenity::GuildChannel,
+    ) {
+        let gid = channel.guild_id.get().to_string();
+        let Some(backup) = crate::commands::protection::backup::load_backup(&self.pool, &gid).await
+        else {
+            return;
+        };
+        let deleted_id = channel.id.get().to_string();
+        if channel.kind == serenity::ChannelType::Category {
+            let Some(cat) = backup_category_for(&backup, &deleted_id) else {
+                return;
+            };
+            let builder = serenity::CreateChannel::new(cat.name.clone())
+                .kind(serenity::ChannelType::Category)
+                .position(cat.position);
+            let Ok(new_cat) = channel.guild_id.create_channel(&ctx.http, builder).await else {
+                return;
+            };
+            let live: HashSet<String> = channel
+                .guild_id
+                .channels(&ctx.http)
+                .await
+                .map(|map| map.keys().map(|id| id.get().to_string()).collect())
+                .unwrap_or_default();
+            for child in cat
+                .channels
+                .iter()
+                .filter(|c| !live.contains(&c.id) && c.id != deleted_id)
+            {
+                let _ =
+                    Self::create_snapshot_channel(ctx, channel.guild_id, child, Some(new_cat.id))
+                        .await;
+                tokio::time::sleep(std::time::Duration::from_millis(300)).await;
+            }
+            return;
+        }
+        let Some(entry) = backup_channel_for(&backup, &deleted_id) else {
+            return;
+        };
+        let parent = Self::live_parent(ctx, entry.parent.as_deref()).await;
+        let _ = Self::create_snapshot_channel(ctx, channel.guild_id, entry, parent).await;
+    }
+
+    /// Rebuild a deleted role from the event payload (name, permissions,
+    /// colour, hoist, mentionable, position via EditRole::from_role,
+    /// mirroring the TS `...role` spread) and re-add the snapshot
+    /// members. Mirrors avoidRoleDelete.ts. Best-effort, never panics.
+    async fn restore_deleted_role(
+        &self,
+        ctx: &serenity::Context,
+        guild_id: serenity::GuildId,
+        removed_role_id: serenity::RoleId,
+        removed: &Option<serenity::Role>,
+    ) {
+        if !self.bot_is_admin(ctx, guild_id).await {
+            return;
+        }
+        let Some(deleted) = removed else {
+            return;
+        };
+        let gid = guild_id.get().to_string();
+        let backup = crate::commands::protection::backup::load_backup(&self.pool, &gid).await;
+        let members: Vec<u64> = backup
+            .as_ref()
+            .map(|b| {
+                crate::commands::protection::backup::role_members(
+                    b,
+                    &removed_role_id.get().to_string(),
+                )
+                .iter()
+                .filter_map(|s| s.parse::<u64>().ok())
+                .collect()
+            })
+            .unwrap_or_default();
+        let builder = serenity::EditRole::from_role(deleted)
+            .position(deleted.position)
+            .audit_log_reason("Role re-created by Protect");
+        let Ok(new_role) = guild_id.create_role(&ctx.http, builder).await else {
+            return;
+        };
+        for uid in members {
+            if let Ok(member) = guild_id.member(&ctx.http, serenity::UserId::new(uid)).await {
+                let _ = member.add_role(&ctx.http, new_role.id).await;
             }
         }
     }
@@ -1035,6 +1258,32 @@ impl serenity::EventHandler for Handler {
                 guild.voice_states.keys().map(|u| u.get()).collect();
             let now = crate::commands::context::now_ms();
             crate::events::recover_voice_sessions(&self.pool, &gid, &in_voice, now).await;
+        }
+        // Seed the protection structure snapshot so delete-restore
+        // works before the first 60s sweep (mirrors
+        // backupGuildStructure in protection/ready.ts).
+        {
+            use crate::commands::protection::backup::{BackupRole, RawChannel};
+            let raws: Vec<RawChannel> = guild.channels.values().map(RawChannel::from).collect();
+            let roles: Vec<BackupRole> = guild
+                .roles
+                .keys()
+                .map(|id| {
+                    let members: Vec<String> = guild
+                        .members
+                        .values()
+                        .filter(|m| m.roles.contains(id))
+                        .map(|m| m.user.id.get().to_string())
+                        .collect();
+                    BackupRole {
+                        id: id.get().to_string(),
+                        members,
+                    }
+                })
+                .collect();
+            let backup = crate::commands::protection::backup::build_backup(&raws, roles);
+            let _ =
+                crate::commands::protection::backup::save_backup(&self.pool, &gid, &backup).await;
         }
         // Owner log embed to the guild-logs channel (email leg is SMTP-blocked).
         if let Ok(logs_ch) = crate::config::load()
@@ -3240,8 +3489,8 @@ impl serenity::EventHandler for Handler {
         &self,
         ctx: serenity::Context,
         guild_id: serenity::GuildId,
-        _removed_role_id: serenity::RoleId,
-        _removed_role_data_if_available: Option<serenity::Role>,
+        removed_role_id: serenity::RoleId,
+        removed_role_data_if_available: Option<serenity::Role>,
     ) {
         use serenity::model::guild::audit_log::{Action, RoleAction};
         self.protection_guard(
@@ -3249,6 +3498,15 @@ impl serenity::EventHandler for Handler {
             guild_id,
             Action::Role(RoleAction::Delete),
             "deleterole",
+        )
+        .await;
+        // Live restore (mirrors avoidRoleDelete.ts): rebuild the role
+        // from the event payload and re-add the snapshot members.
+        self.restore_deleted_role(
+            &ctx,
+            guild_id,
+            removed_role_id,
+            &removed_role_data_if_available,
         )
         .await;
     }
@@ -3321,6 +3579,9 @@ impl serenity::EventHandler for Handler {
                 .bind(channel.id.get().to_string())
                 .execute(&self.pool)
                 .await;
+        // Live restore (mirrors avoidChannelDelete.ts): clone-restore
+        // the deleted channel/category from the structure snapshot.
+        self.restore_deleted_channel(&ctx, &channel).await;
     }
 
     async fn channel_update(
@@ -4139,5 +4400,99 @@ impl serenity::EventHandler for Handler {
             // file now has a dedicated arm above, including the
             // verbatim button_reaction% role buttons).
         }
+    }
+}
+
+#[cfg(test)]
+mod restore_tests {
+    use super::*;
+    use crate::commands::protection::backup::{build_backup, BackupRole, RawChannel};
+    use poise::serenity_prelude::ChannelType;
+
+    fn raw(
+        id: &str,
+        name: &str,
+        kind: ChannelType,
+        position: u16,
+        parent: Option<&str>,
+    ) -> RawChannel {
+        RawChannel {
+            id: id.to_string(),
+            name: name.to_string(),
+            kind,
+            position,
+            permissions: Vec::new(),
+            parent: parent.map(str::to_string),
+        }
+    }
+
+    fn sample() -> crate::commands::protection::backup::GuildBackup {
+        build_backup(
+            &[
+                raw("cat1", "lobby", ChannelType::Category, 0, None),
+                raw("ch1", "general", ChannelType::Text, 1, Some("cat1")),
+                raw("ch2", "top", ChannelType::Text, 0, None),
+            ],
+            vec![BackupRole {
+                id: "r1".to_string(),
+                members: vec!["u1".to_string(), "u2".to_string()],
+            }],
+        )
+    }
+
+    #[test]
+    fn restore_slot_dedups_concurrent_claims() {
+        let mut running = HashSet::new();
+        assert!(restore_slot_claim(&mut running, "g1"));
+        // Second claim while running is rejected.
+        assert!(!restore_slot_claim(&mut running, "g1"));
+        // Other guilds are unaffected.
+        assert!(restore_slot_claim(&mut running, "g2"));
+        restore_slot_release(&mut running, "g1");
+        assert!(restore_slot_claim(&mut running, "g1"));
+        // Releasing an absent guild is a no-op.
+        restore_slot_release(&mut running, "missing");
+        assert!(!restore_slot_claim(&mut running, "g1"));
+    }
+
+    #[test]
+    fn channel_lookup_finds_top_level_and_nested() {
+        let b = sample();
+        let top = backup_channel_for(&b, "ch2").expect("top-level channel");
+        assert_eq!(top.name, "top");
+        assert_eq!(top.parent, None);
+        let nested = backup_channel_for(&b, "ch1").expect("nested channel");
+        assert_eq!(nested.name, "general");
+        assert_eq!(nested.parent.as_deref(), Some("cat1"));
+        assert_eq!(nested.position, 1);
+    }
+
+    #[test]
+    fn category_lookup_finds_snapshot_entry() {
+        let b = sample();
+        let cat = backup_category_for(&b, "cat1").expect("category");
+        assert_eq!(cat.name, "lobby");
+        assert_eq!(cat.channels.len(), 1);
+        assert_eq!(cat.channels[0].id, "ch1");
+    }
+
+    #[test]
+    fn unknown_ids_yield_no_restore() {
+        let b = sample();
+        assert!(backup_channel_for(&b, "nope").is_none());
+        assert!(backup_category_for(&b, "nope").is_none());
+        // A category id is not a channel entry and vice versa.
+        assert!(backup_channel_for(&b, "cat1").is_none());
+        assert!(backup_category_for(&b, "ch1").is_none());
+    }
+
+    #[test]
+    fn role_member_source_pins_readd_list() {
+        let b = sample();
+        assert_eq!(
+            crate::commands::protection::backup::role_members(&b, "r1"),
+            &["u1".to_string(), "u2".to_string()]
+        );
+        assert!(crate::commands::protection::backup::role_members(&b, "unknown").is_empty());
     }
 }

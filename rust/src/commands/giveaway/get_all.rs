@@ -47,23 +47,46 @@ pub async fn gw_get_all(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     .fetch_all(&ctx.data().pool)
     .await
     .unwrap_or_default();
-    let mut lines = vec![];
+    // Mirrors the embed in !get-all.ts:57-88 (title + one field per
+    // live giveaway; empty store sends the bare titled embed).
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    let t = |k: &str, fb: &str| crate::lang::get(&code, k).unwrap_or_else(|| fb.to_string());
+    let guild_name = ctx
+        .guild()
+        .map(|g| g.name.clone())
+        .unwrap_or_else(|| gid.clone());
+    let mut embed = poise::serenity_prelude::CreateEmbed::default().title(
+        t(
+            "gw_getall_embed_title",
+            "Giveaway(s) List for ${interaction.guild?.name}",
+        )
+        .replace("${interaction.guild?.name}", &guild_name),
+    );
     for (k, v) in &rows {
         if let Ok(gw) = serde_json::from_str::<Giveaway>(v) {
-            lines.push(format!(
-                "{}: {} ({} entries, {})",
-                k,
-                gw.prize,
-                gw.entries.len(),
-                if gw.ended { "ended" } else { "live" }
-            ));
+            if gw.ended {
+                continue;
+            }
+            let giveaway_id = k.strip_prefix("GIVEAWAY.").unwrap_or(k);
+            let channel = format!("<#{}>", gw.channel_id);
+            let message_url = format!(
+                "https://discord.com/channels/{gid}/{}/{giveaway_id}",
+                gw.channel_id
+            );
+            let expire_in = format!("<t:{}:d>", gw.expire_in_ms.div_euclid(1000));
+            embed = embed.field(
+                format!("`{giveaway_id}`"),
+                t(
+                    "gw_getall_embed_fields",
+                    "${Channel} [See Here](${MessageURL}) \n**Expires In** ${ExpireIn}",
+                )
+                .replace("${Channel}", &channel)
+                .replace("${MessageURL}", &message_url)
+                .replace("${ExpireIn}", &expire_in),
+                false,
+            );
         }
     }
-    ctx.say(if lines.is_empty() {
-        "No giveaways.".to_string()
-    } else {
-        lines.join("\n")
-    })
-    .await?;
+    ctx.send(poise::CreateReply::default().embed(embed)).await?;
     Ok(())
 }

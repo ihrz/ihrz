@@ -24,6 +24,8 @@ mod events;
 mod events_handler;
 mod executor;
 mod funcs;
+mod funcs_perms;
+mod funcs_resolve;
 mod lang;
 mod lavalink;
 mod logger;
@@ -32,6 +34,7 @@ mod monitor;
 mod notifier;
 mod scheduler;
 mod slashlog;
+mod stats_calc;
 mod transcript;
 mod voice;
 

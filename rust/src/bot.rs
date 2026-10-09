@@ -443,6 +443,27 @@ pub async fn run(cfg: Config, pool: Pool) -> anyhow::Result<()> {
             Box::pin(async move {
                 poise::builtins::register_globally(ctx, &framework.options().commands).await?;
                 tracing::info!("slash commands synced");
+                // Lavalink nodes: sync from config, register this
+                // shard's messenger for OP4 leave, and dial each node
+                // WS (mirrors playerManager.ts init + nodeManager
+                // connect; frames feed feed_node_ws so track-end
+                // advance + the nowplaying announce run live).
+                {
+                    let cfgs: Vec<crate::lavalink::NodeCfg> = cfg_fw
+                        .lavalink_nodes
+                        .iter()
+                        .map(crate::lavalink::NodeCfg::from)
+                        .collect();
+                    let user_id = ready.user.id.get();
+                    let mgr = crate::lavalink::manager();
+                    mgr.sync_nodes(&cfgs, user_id).await;
+                    let shard_id = ready.shard.as_ref().map(|s| u64::from(s.id.0)).unwrap_or(0);
+                    mgr.register_shard(shard_id, ctx.shard.clone()).await;
+                    if let Some(total) = ready.shard.as_ref().map(|s| s.total) {
+                        mgr.ensure_total_shards(total).await;
+                    }
+                    crate::lavalink::spawn_all_node_ws(cfgs, user_id);
+                }
                 // Release newsletter fan-out (main shard only). Mirrors
                 // checkAndNotifyRelease(client) in ready.ts: owner rows
                 // enumerated from the guild cache, git remote for the
@@ -575,6 +596,7 @@ pub async fn run(cfg: Config, pool: Pool) -> anyhow::Result<()> {
     };
     let total_shards = crate::funcs::resolve_shard_count(gateway_recommended, cfg.total_shards);
     if let Some(n) = total_shards {
+        crate::lavalink::manager().set_total_shards(n as u64).await;
         if cfg.total_shards.filter(|m| *m > 0).is_some() {
             tracing::info!("using TOTAL_SHARDS override: {n}");
         } else if let Some(rec) = gateway_recommended {

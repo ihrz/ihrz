@@ -6,7 +6,7 @@
 // Implemented for real: expired SCHEDULE entries, expired giveaways,
 // temp roles/bans, membercount refresh (5min), pfps poster (45s),
 // auto-renew, Blogger poll (60s), nightmode (60s), protection
-// structure backup (60s). The only remaining
+// structure backup (60s), idle player destroy (60s). The only remaining
 // skeleton is the 120s StreamNotifier tick, blocked on the
 // Twitch/YouTube/Kick live APIs (see Blocked in MIGRATION.md).
 
@@ -20,6 +20,7 @@ pub const NIGHTMODE_SECS: u64 = 60;
 pub const GIVEAWAY_SECS: u64 = 60;
 pub const NOTIFIER_SECS: u64 = 120;
 pub const PROTECTION_BACKUP_SECS: u64 = 60;
+pub const IDLE_SWEEP_SECS: u64 = 60;
 
 /// Delete expired SCHEDULE.* entries across all guilds.
 /// Returns number of rows removed.
@@ -638,6 +639,32 @@ pub async fn sweep_protection_backup(
     done
 }
 
+/// Idle player sweep. Mirrors onEmptyQueue.destroyAfterMs (120s) +
+/// queueEnd in playerManager.ts: players idle past the window get
+/// their node player REST-destroyed, an OP4 leave on the serving
+/// shard, and their voice-channel status cleared. `http: None`
+/// (tests) skips the status clear; the OP4 leg no-ops until a shard
+/// messenger registers at ready. Returns players destroyed.
+pub async fn sweep_idle_players(
+    http: Option<&std::sync::Arc<poise::serenity_prelude::Http>>,
+    now_ms: i64,
+) -> u64 {
+    let targets = crate::lavalink::manager().sweep_idle_destroy(now_ms).await;
+    let n = targets.len() as u64;
+    for t in targets {
+        if let Some(http) = http {
+            if let Some(vc) = t.voice_channel {
+                crate::lavalink::LavalinkManager::clear_voice_status(http, vc).await;
+            }
+        }
+        crate::lavalink::manager().leave_voice(t.guild_id).await;
+    }
+    if n > 0 {
+        tracing::info!("scheduler: destroyed {n} idle players");
+    }
+    n
+}
+
 pub fn spawn(pool: Pool, http: std::sync::Arc<poise::serenity_prelude::Http>) {
     // Schedule expiry (real).
     {
@@ -795,6 +822,23 @@ pub fn spawn(pool: Pool, http: std::sync::Arc<poise::serenity_prelude::Http>) {
         });
     }
 
+    // Idle player sweep (real, mirrors onEmptyQueue.destroyAfterMs 120s
+    // + queueEnd: rest_destroy + OP4 leave + status clear).
+    {
+        let http = http.clone();
+        tokio::spawn(async move {
+            let mut t = tokio::time::interval(Duration::from_secs(IDLE_SWEEP_SECS));
+            loop {
+                t.tick().await;
+                let now = std::time::SystemTime::now()
+                    .duration_since(std::time::UNIX_EPOCH)
+                    .map(|d| d.as_millis() as i64)
+                    .unwrap_or(0);
+                sweep_idle_players(Some(&http), now).await;
+            }
+        });
+    }
+
     // Skeleton tick for the StreamNotifier module (timing mirrors the
     // 120s refresh in core/StreamNotifier.ts). Blocked on the
     // Twitch/YouTube/Kick live APIs — see Blocked in MIGRATION.md.
@@ -907,5 +951,31 @@ mod tests {
         assert!(crate::db::kv_get(&p, "1", "GUILD.TEMPROLE.5.6")
             .await
             .is_some());
+    }
+
+    #[tokio::test]
+    async fn idle_sweep_destroys_only_aged_players_offline() {
+        // Unique guild so this never races other manager() users.
+        const GID: u64 = 918_273_645;
+        const OLD: u64 = 918_273_646;
+        let m = crate::lavalink::manager();
+        // GID idle a full 120s -> destroyed; OLD only 60s -> kept.
+        let now = 1000 + crate::lavalink::EMPTY_QUEUE_DESTROY_AFTER_MS;
+        m.with_player(GID, |p| {
+            p.voice_channel = Some(7);
+            p.stop(1000);
+        })
+        .await;
+        m.with_player(OLD, |p| {
+            p.stop(now - 60_000);
+        })
+        .await;
+        assert_eq!(sweep_idle_players(None, now - 60_000).await, 0);
+        assert_eq!(sweep_idle_players(None, now).await, 1);
+        assert!(m.snapshot(GID).await.is_none());
+        assert!(m.snapshot(OLD).await.is_some());
+        // Cleanup so later suites see a clean manager.
+        m.remove_player(OLD).await;
+        assert_eq!(sweep_idle_players(None, now).await, 0);
     }
 }

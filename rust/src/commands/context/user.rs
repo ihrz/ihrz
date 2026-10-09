@@ -33,13 +33,19 @@ pub async fn user_lookup(
     Ok(())
 }
 
-/// User love. Mirrors love context bridge (deterministic score).
-#[poise::command(context_menu_command = "Love")]
+/// User love. Mirrors the "Estimate the love" user command in
+/// UserApplicationCommands/love.ts (invoker + target pair, always100
+/// couples from config always score 100 like the TS `found` check).
+#[poise::command(context_menu_command = "Estimate the love")]
 pub async fn user_love(
     ctx: Ctx<'_>,
     #[description = "Member"] user: poise::serenity_prelude::User,
 ) -> Result<(), anyhow::Error> {
-    let score = crate::commands::fun::love_score(ctx.author().id.get(), user.id.get(), &[]);
+    let score = crate::commands::fun::love_score(
+        ctx.author().id.get(),
+        user.id.get(),
+        &ctx.data().config.always100,
+    );
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     ctx.say(
         crate::lang::get(&code, "msg_love_score")
@@ -48,4 +54,23 @@ pub async fn user_love(
     )
     .await?;
     Ok(())
+}
+
+#[cfg(test)]
+mod context_user_tests {
+    use super::{user_lookup, user_love};
+
+    /// Name locks: must stay identical to UserApplicationCommands/*.ts.
+    /// (poise keeps the context-menu display string in `context_menu_name`.)
+    #[test]
+    fn context_menu_names_match_ts() {
+        assert_eq!(
+            user_lookup().context_menu_name.as_deref(),
+            Some("User Lookup")
+        );
+        assert_eq!(
+            user_love().context_menu_name.as_deref(),
+            Some("Estimate the love")
+        );
+    }
 }

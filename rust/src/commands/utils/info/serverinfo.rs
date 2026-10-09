@@ -12,7 +12,7 @@ pub async fn serverinfo(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {
         return Ok(());
     };
-    let (name, id, members, channels, roles, boosts) = {
+    let cached = {
         let Some(guild) = ctx.serenity_context().cache.guild(guild_id) else {
             let code =
                 crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
@@ -23,32 +23,106 @@ pub async fn serverinfo(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
             .await?;
             return Ok(());
         };
-        (
-            guild.name.clone(),
-            guild.id.get().to_string(),
-            guild.member_count.to_string(),
-            guild.channels.len().to_string(),
-            guild.roles.len().to_string(),
-            guild.premium_subscription_count.unwrap_or(0).to_string(),
-        )
+        guild.clone()
     };
     let code = crate::db::guild_lang(&ctx.data().pool, Some(guild_id.get())).await;
     let f = |k: &str, fb: &str| crate::lang::get(&code, k).unwrap_or_else(|| fb.to_string());
+    // Verification level label. Mirrors the verlvl map in !serverinfo.ts:50
+    // (note the historical HIGHT / VERY_HIGHT key spellings).
+    let verlvl = match cached.verification_level {
+        poise::serenity_prelude::VerificationLevel::None => f("serverinfo_verlvl_NONE", "NONE"),
+        poise::serenity_prelude::VerificationLevel::Low => f("serverinfo_verlvl_LOW", "LOW"),
+        poise::serenity_prelude::VerificationLevel::Medium => {
+            f("serverinfo_verlvl_MEDIUM", "MEDIUM")
+        }
+        poise::serenity_prelude::VerificationLevel::High => {
+            f("serverinfo_verlvl_HIGHT", "(╯°□°）╯︵ ┻━┻")
+        }
+        poise::serenity_prelude::VerificationLevel::Higher => {
+            f("serverinfo_verlvl_VERY_HIGHT", "(ノಠ益ಠ)ノ彡┻━┻ ")
+        }
+        _ => f("serverinfo_verlvl_NONE", "NONE"),
+    };
+    let author = f("serverinfo_embed_author", "🚩 -> ${interaction.guild.name}")
+        .replace("${interaction.guild.name}", &cached.name);
+    let description = f(
+        "serverinfo_embed_description",
+        "**Description**: ${interaction.guild.description}",
+    )
+    .replace(
+        "${interaction.guild.description}",
+        cached.description.as_deref().unwrap_or("None"),
+    );
+    let joined_at = ctx
+        .author_member()
+        .await
+        .and_then(|m| m.joined_at)
+        .map(|t| t.to_string())
+        .unwrap_or_else(|| "None".to_string());
     let embed = poise::serenity_prelude::CreateEmbed::default()
-        .title(name)
-        .field(f("serverinfo_embed_fields_id", "ID"), id, true)
+        .author(poise::serenity_prelude::CreateEmbedAuthor::new(author))
+        .description(description)
         .field(
-            f("serverinfo_embed_fields_members", "Members"),
-            members,
+            f("serverinfo_embed_fields_name", "🏷・**Name:**"),
+            cached.name,
             true,
         )
         .field(
-            f("serverinfo_embed_fields_channels", "Channels"),
-            channels,
+            f("serverinfo_embed_fields_members", "🧔・**Members:**"),
+            cached.member_count.to_string(),
             true,
         )
-        .field(f("serverinfo_embed_fields_roles", "Roles"), roles, true)
-        .field(f("var_boosts", "Boosts"), boosts, true);
+        .field(
+            f("serverinfo_embed_fields_id", "🆔・**ID:**"),
+            guild_id.get().to_string(),
+            true,
+        )
+        .field(
+            f("serverinfo_embed_fields_owner", "👑・**Owner:**"),
+            format!("<@{}>", cached.owner_id.get()),
+            true,
+        )
+        .field(
+            f(
+                "serverinfo_embed_fields_verlvl",
+                "🎚 ・**Verification Level:**",
+            ),
+            verlvl,
+            true,
+        )
+        .field(
+            f("serverinfo_embed_fields_region", "🌍・**Region:**"),
+            cached.preferred_locale.clone(),
+            true,
+        )
+        .field(
+            f("serverinfo_embed_fields_roles", "📇・**Role(s) number:**"),
+            cached.roles.len().to_string(),
+            true,
+        )
+        .field(
+            f(
+                "serverinfo_embed_fields_channels",
+                "✍・**Channel(s) number:**",
+            ),
+            cached.channels.len().to_string(),
+            true,
+        )
+        .field(
+            f("serverinfo_embed_fields_joinat", "🚲・**Joined at:**"),
+            joined_at,
+            true,
+        )
+        .field(
+            f("serverinfo_embed_fields_createat", "⚓・**Created at:**"),
+            guild_id.created_at().to_string(),
+            true,
+        )
+        .field(
+            f("var_boosts", "Boosts"),
+            cached.premium_subscription_count.unwrap_or(0).to_string(),
+            true,
+        );
     ctx.send(poise::CreateReply::default().embed(embed)).await?;
     Ok(())
 }
