@@ -10,6 +10,18 @@ fn medal_for(rank: usize) -> &'static str {
     }
 }
 
+/// Keep only rows whose user is in the gateway cache. Pure predicate so
+/// the filter is unit-testable without live Discord; the command passes
+/// the serenity user cache (`users.cache.get` in TS).
+fn filter_cached_users(
+    rows: Vec<(u64, i64, i64)>,
+    is_cached: &dyn Fn(u64) -> bool,
+) -> Vec<(u64, i64, i64)> {
+    rows.into_iter()
+        .filter(|(uid, _, _)| is_cached(*uid))
+        .collect()
+}
+
 #[poise::command(
     slash_command,
     prefix_command,
@@ -48,6 +60,9 @@ pub async fn eco_leaderboard(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         })
         .collect();
     parsed.sort_by_key(|a| std::cmp::Reverse(a.1));
+    // Skip rows whose user is not in the gateway cache, mirroring
+    // `users.cache.get(i)` + `if (!user ...) continue` in TS.
+    parsed = filter_cached_users(parsed, &|uid| ctx.cache().user(uid).is_some());
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     if parsed.is_empty() {
         ctx.say(
@@ -221,4 +236,20 @@ pub async fn eco_leaderboard(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         )
         .await;
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::filter_cached_users;
+
+    #[test]
+    fn uncached_rows_are_skipped_like_ts() {
+        // Mirrors `!leaderboard.ts` (`users.cache.get(i)` +
+        // `if (!user ...) continue`): rows without a cached user never
+        // reach the board; survivor order is preserved.
+        let rows = vec![(1u64, 300i64, 100i64), (2, 200, 50), (3, 100, 0)];
+        let out = filter_cached_users(rows, &|uid| uid != 2);
+        assert_eq!(out, vec![(1u64, 300i64, 100i64), (3, 100, 0)]);
+        assert!(filter_cached_users(vec![], &|_| true).is_empty());
+    }
 }

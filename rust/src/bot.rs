@@ -384,10 +384,12 @@ pub fn resolve_git_remote() -> String {
     }
 }
 
-/// Resolve the newsletter DM template. Reuses the existing
-/// `newsletter_dm_body` YAML key (never hardcoded); empty when missing.
-pub fn resolve_dm_body_template() -> String {
-    crate::lang::get("en-US", "newsletter_dm_body").unwrap_or_default()
+/// Resolve the newsletter DM template for one owner locale. Reuses the
+/// existing `newsletter_dm_body` YAML key (never hardcoded); the lang
+/// table falls back to en-US for the lookup only. Mirrors sendDm()
+/// reading `lang.newsletter_dm_body` via getOwnerLang(client, guildId).
+pub fn resolve_dm_body_template_for(lang_code: &str) -> String {
+    crate::lang::get(lang_code, "newsletter_dm_body").unwrap_or_default()
 }
 
 /// Collect guild->owner rows from the gateway cache for the release
@@ -466,7 +468,7 @@ pub async fn run(cfg: Config, pool: Pool) -> anyhow::Result<()> {
                             &root,
                             &entries,
                             &resolve_git_remote(),
-                            &resolve_dm_body_template(),
+                            &|code: &str| resolve_dm_body_template_for(code),
                         )
                         .await;
                         if summary.ran {
@@ -553,18 +555,34 @@ pub async fn run(cfg: Config, pool: Pool) -> anyhow::Result<()> {
 
     // Sharding mirrors ShardingManager in src/index.ts. TOTAL_SHARDS env
     // override (cfg.total_shards, parsed in config::load) takes priority,
-    // same as TS. Explicit count maps to start_shards; otherwise
-    // start_autosharded queries /gateway/bot for Discord's recommended
-    // count, mirroring the gateway half of getOptimalShardCount().
-    // Documented gaps (no serenity 0.12 equivalent): the GUILDS_PER_SHARD
-    // tuning multiplier (TS scales Discord's recommendation by
-    // ceil(1000/700)=2 for lower latency), the spawn pacing (delay 5500,
-    // timeout 30000) and the respawn flag — serenity spawns shards
-    // sequentially and auto-reconnects/resumes dropped shards via the
-    // ShardManager, so respawn:true behaviour is the default, not a flag.
-    let total_shards = cfg.total_shards.filter(|n| *n > 0);
+    // same as TS; otherwise Discord's /gateway/bot recommendation scaled
+    // by the tuning multiplier (crate::funcs, mirrors
+    // getOptimalShardCount()). Offline (query fails) falls back to
+    // start_autosharded, the previous behavior. Documented gaps (no
+    // serenity 0.12 equivalent): the spawn pacing (delay 5500, timeout
+    // 30000) and the respawn flag — serenity spawns shards sequentially
+    // and auto-reconnects/resumes dropped shards via the ShardManager,
+    // so respawn:true behaviour is the default, not a flag.
+    let gateway_recommended: Option<u32> = match client.http.get_bot_gateway().await {
+        Ok(g) => {
+            tracing::info!("[Gateway] Discord recommends: {} shards", g.shards);
+            Some(g.shards)
+        }
+        Err(e) => {
+            tracing::warn!("gateway/bot query failed ({e}), falling back to autoshard");
+            None
+        }
+    };
+    let total_shards = crate::funcs::resolve_shard_count(gateway_recommended, cfg.total_shards);
     if let Some(n) = total_shards {
-        tracing::info!("using TOTAL_SHARDS override: {n}");
+        if cfg.total_shards.filter(|m| *m > 0).is_some() {
+            tracing::info!("using TOTAL_SHARDS override: {n}");
+        } else if let Some(rec) = gateway_recommended {
+            tracing::info!(
+                "[Gateway] Tuned shard count: {n} (Discord: {rec} × multiplier: {})",
+                crate::funcs::shard_multiplier()
+            );
+        }
     }
     // Main-shard release gate. Mirrors checkAndNotifyRelease() running on
     // shard 0 only (client.isMainShard): in this single-process autoshard
@@ -641,21 +659,26 @@ mod tests {
     }
 
     #[test]
-    fn dm_body_template_comes_from_yaml_not_hardcode() {
-        // Reuses the existing newsletter_dm_body key with its placeholders.
-        let template = resolve_dm_body_template();
-        assert!(
-            template.contains("{owner}"),
-            "missing {{owner}} placeholder"
-        );
-        assert!(
-            template.contains("{version}"),
-            "missing {{version}} placeholder"
-        );
-        assert!(
-            template.contains("{releaseUrl}"),
-            "missing {{releaseUrl}} placeholder"
-        );
+    fn dm_body_templates_come_from_yaml_per_locale() {
+        // Reuses the existing newsletter_dm_body key with its
+        // placeholders, resolved per owner locale (mirrors sendDm via
+        // getOwnerLang); no live Discord needed (YAML tables only).
+        for code in ["en-US", "fr-FR"] {
+            let template = resolve_dm_body_template_for(code);
+            assert!(!template.is_empty(), "empty template for {code}");
+            assert!(
+                template.contains("{owner}"),
+                "missing {{owner}} placeholder for {code}"
+            );
+            assert!(
+                template.contains("{version}"),
+                "missing {{version}} placeholder for {code}"
+            );
+            assert!(
+                template.contains("{releaseUrl}"),
+                "missing {{releaseUrl}} placeholder for {code}"
+            );
+        }
     }
 
     #[test]

@@ -376,6 +376,41 @@ pub fn is_main_shard(shard_id: u64) -> bool {
     shard_id == 0
 }
 
+/// Guilds per shard used for gateway tuning. Mirrors
+/// `GUILDS_PER_SHARD = 700` in src/index.ts.
+pub const GUILDS_PER_SHARD: u64 = 700;
+
+/// Discord's baseline guilds per shard. Mirrors the `1000` in
+/// `Math.ceil(1000 / GUILDS_PER_SHARD)` in src/index.ts.
+pub const DISCORD_BASELINE_PER_SHARD: u64 = 1000;
+
+/// Tuning multiplier. Mirrors
+/// `Math.ceil(1000 / GUILDS_PER_SHARD)` (= 2) in src/index.ts.
+pub fn shard_multiplier() -> u64 {
+    DISCORD_BASELINE_PER_SHARD.div_ceil(GUILDS_PER_SHARD)
+}
+
+/// Gateway-tuned shard count. Mirrors
+/// `Math.max(discordRecommended, discordRecommended * shardMultiplier)`
+/// in src/index.ts.
+pub fn tuned_shard_count(recommended: u32) -> u32 {
+    let tuned = recommended.saturating_mul(shard_multiplier() as u32);
+    recommended.max(tuned)
+}
+
+/// Resolve the shard count to start. TOTAL_SHARDS override wins (same
+/// priority as TS); otherwise the gateway-tuned recommendation; None
+/// keeps the current autoshard behavior (offline fallback).
+pub fn resolve_shard_count(
+    recommended: Option<u32>,
+    total_shards_override: Option<u32>,
+) -> Option<u32> {
+    if let Some(n) = total_shards_override.filter(|n| *n > 0) {
+        return Some(n);
+    }
+    recommended.map(tuned_shard_count)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -399,6 +434,23 @@ mod tests {
         assert_eq!(beautiful_ms(90_000.0), "1m 30s");
         assert_eq!(beautiful_ms(500.0), "500ms");
         assert_eq!(beautiful_ms(0.0), "0s");
+    }
+
+    #[test]
+    fn gateway_tuned_shard_count() {
+        // Mirrors getOptimalShardCount in src/index.ts: multiplier
+        // Math.ceil(1000/700) = 2, tuned = max(rec, rec * 2).
+        assert_eq!(shard_multiplier(), 2);
+        assert_eq!(tuned_shard_count(1), 2);
+        assert_eq!(tuned_shard_count(4), 8);
+        assert_eq!(tuned_shard_count(0), 0);
+        // TOTAL_SHARDS override wins; a 0 override is ignored; offline
+        // (no recommendation, no override) keeps autoshard (None).
+        assert_eq!(resolve_shard_count(Some(4), Some(2)), Some(2));
+        assert_eq!(resolve_shard_count(Some(4), Some(0)), Some(8));
+        assert_eq!(resolve_shard_count(Some(4), None), Some(8));
+        assert_eq!(resolve_shard_count(None, None), None);
+        assert_eq!(resolve_shard_count(None, Some(3)), Some(3));
     }
 
     #[test]

@@ -191,6 +191,20 @@ pub mod release {
             .replace("{releaseUrl}", &format!("<{url}>"))
     }
 
+    /// Per-owner locale DM body. Mirrors sendDm() resolving
+    /// `lang.newsletter_dm_body` via getOwnerLang(client, guildId): the
+    /// template comes from the owner's guild locale (existing YAML key,
+    /// never hardcoded), then placeholders are replaced.
+    pub fn dm_body_for_owner(
+        template_for: &(dyn Fn(&str) -> String + Send + Sync),
+        lang_code: &str,
+        owner: &str,
+        version: &str,
+        url: &str,
+    ) -> String {
+        build_dm_body(&template_for(lang_code), owner, version, url)
+    }
+
     /// Clamp a Discord retry_after (seconds) to [30s, 10min].
     /// Mirrors classifyDmError().
     pub fn transient_backoff_ms(retry_after_secs: Option<f64>) -> u64 {
@@ -594,9 +608,10 @@ pub mod release {
     /// Owner-DM release fan-out. Main-shard only: any other shard id
     /// returns immediately. Caller supplies the guild->owner rows (all
     /// shards in TS via broadcastEval; single-process autoshard here),
-    /// the git remote for the release URL, and the resolved
-    /// newsletter_dm_body template (existing YAML key, never
-    /// hardcoded). Preserves every TS anti-spam guard: main-shard
+    /// the git remote for the release URL, and a per-locale
+    /// newsletter_dm_body template resolver (existing YAML key, never
+    /// hardcoded; mirrors sendDm reading lang.newsletter_dm_body via
+    /// getOwnerLang per owner). Preserves every TS anti-spam guard: main-shard
     /// gate, in-process re-entrance guard, claim-before-send,
     /// distributed lock + heartbeat, blacklist, circuit-breaker,
     /// stagger + batch pacing.
@@ -607,7 +622,7 @@ pub mod release {
         root: &std::path::Path,
         entries: &[GuildOwner],
         git_remote: &str,
-        dm_body_template: &str,
+        dm_body_template_for: &(dyn Fn(&str) -> String + Send + Sync),
     ) -> FanoutSummary {
         // Guard 1: main shard only. Mirrors client.isMainShard().
         if !crate::funcs::is_main_shard(shard_id) {
@@ -771,7 +786,8 @@ pub mod release {
                 let guild_id = guild_by_owner.get(owner).cloned().unwrap_or_default();
                 let lang_code = crate::db::guild_lang(pool, guild_id.parse().ok()).await;
                 let pdf = pick_pdf(&pdfs, &lang_code);
-                let body = build_dm_body(dm_body_template, owner, &current, &url);
+                let body =
+                    dm_body_for_owner(dm_body_template_for, &lang_code, owner, &current, &url);
                 let result = send_owner_dm(http, owner_id, &body, pdf).await;
                 match result.outcome {
                     DmOutcome::Sent => {
@@ -1113,6 +1129,25 @@ pub mod release {
             assert_eq!(
                 release_url("https://gitlab.com/ihrz/ihrz/", "2.0"),
                 "https://gitlab.com/ihrz/ihrz/-/releases/2.0"
+            );
+        }
+
+        #[test]
+        fn dm_body_uses_per_owner_locale_template() {
+            // Mirrors sendDm() via getOwnerLang: each owner gets the
+            // newsletter_dm_body template of their own guild locale.
+            let template_for = |code: &str| match code {
+                c if c.starts_with("fr") => "Bonjour {owner}, v{version} {releaseUrl}".to_string(),
+                _ => "Hello {owner}, v{version} {releaseUrl}".to_string(),
+            };
+            let url = "https://x/-/releases/2.0";
+            assert_eq!(
+                dm_body_for_owner(&template_for, "fr-FR", "Ann", "2.0", url),
+                "Bonjour Ann, v2.0 <https://x/-/releases/2.0>"
+            );
+            assert_eq!(
+                dm_body_for_owner(&template_for, "en-US", "Ann", "2.0", url),
+                "Hello Ann, v2.0 <https://x/-/releases/2.0>"
             );
         }
 
