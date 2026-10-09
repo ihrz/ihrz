@@ -3414,3 +3414,4 @@ msg_profil_invalid_pronoun: "Ungültiges Pronomen: erwartet wird she/her, he/him
 msg_profil_birthday_invalid: "Ungültiger Geburtstag: Tag/Monat/Jahr prüfen (Jahr 1900-2100)."
 msg_profil_birthday_saved: "Geburtstag gespeichert."
 msg_profil_use_subcommand: "Verwende einen Unterbefehl: show, set-age, set-description, set-gender, set-pronoun, set-birthday."
+msg_automod_toggled: "Automod ${kind} ${state}."

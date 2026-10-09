@@ -178,6 +178,7 @@ pub fn all() -> Vec<poise::Command<Data, Error>> {
         legacy::info::updates(),
         legacy::help::helpall(),
         legacy::help::help_browser(),
+        legacy::help_main::help_main(),
         legacy::info::shardinfo(),
         legacy::info::status_embed(),
         legacy::info::langstats(),
@@ -409,7 +410,7 @@ mod tests {
         let cmds = all();
         let names: Vec<String> = cmds.iter().map(|c| c.name.clone()).collect();
         // 4 base + full parents + remaining stubs.
-        assert_eq!(cmds.len(), 177);
+        assert_eq!(cmds.len(), 178);
         for expected in [
             "botinfo",
             "dice",

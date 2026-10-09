@@ -3416,3 +3416,4 @@ msg_profil_invalid_pronoun: "Pronom invalide : attendu she/her, he/him, they/the
 msg_profil_birthday_invalid: "Anniversaire invalide : vérifiez le jour, le mois et l’année (année 1900-2100)."
 msg_profil_birthday_saved: "Anniversaire enregistré."
 msg_profil_use_subcommand: "Utilisez une sous-commande : show, set-age, set-description, set-gender, set-pronoun, set-birthday."
+msg_automod_toggled: "Automod ${kind} ${state}."

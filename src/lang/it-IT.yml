@@ -3412,3 +3412,4 @@ msg_profil_invalid_pronoun: "Pronome non valido: previsto she/her, he/him, they/
 msg_profil_birthday_invalid: "Compleanno non valido: controlla giorno/mese/anno (anno 1900-2100)."
 msg_profil_birthday_saved: "Compleanno salvato."
 msg_profil_use_subcommand: "Usa un sottocomando: show, set-age, set-description, set-gender, set-pronoun, set-birthday."
+msg_automod_toggled: "Automod ${kind} ${state}."

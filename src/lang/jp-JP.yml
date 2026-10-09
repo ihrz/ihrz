@@ -3413,3 +3413,4 @@ msg_profil_invalid_pronoun: "無効な代名詞です：she/her、he/him、they/
 msg_profil_birthday_invalid: "無効な誕生日です：日/月/年を確認してください（年は1900-2100）。"
 msg_profil_birthday_saved: "誕生日を保存しました。"
 msg_profil_use_subcommand: "サブコマンドを使ってください：show、set-age、set-description、set-gender、set-pronoun、set-birthday。"
+msg_automod_toggled: "Automod ${kind} ${state}。"

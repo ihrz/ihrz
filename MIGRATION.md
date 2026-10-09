@@ -146,6 +146,7 @@ committed — see `.gitignore`. No push without a green
 - [x] U-ETERNAL-1 (2026-10-09: E2 restore, M1/M2, C1/C2/C4, I1, D1 + fallback, S2, M4, C8/P1. Suite 575/0).
 - [x] U-ETERNAL-2 (2026-10-09: E3 wipe queue; C3 delta; I2 help kit; D2/D3 tables; P4 args; M3 recovery; C7/C9/S3 banked. Suite 641/0).
 - [x] U-ETERNAL-4 (2026-10-09: vague-4 8/8 — D5 7 dirs tables, D6 events+handler tables, I5 Tier-2 16 fichiers + 14 clés YAML x10, P5/P6 prefix dispatch, M errchan report, C8 authrestore/flow+batch/assetsCalc, C7 guild-lookup types, I2 help follow-ups + help_main. Lead: I5 YAML insert + type:lang; hold-push wave-3 (tbl set/get + 3 lints). Suite 741/0, fmt + clippy clean).
+- [x] U-ETERNAL-5 (2026-10-09: follow-ups — help_main enregistré (registre 178), automod_toggle! câblé msg_automod_toggled x10 + type:lang. Lead fix chemin crate::commands::lang_for dans macro. Suite 741/0, fmt + clippy clean).
 
 ## Eternal backlog (seeded 2026-10-09 by 7 read-only audits + lavalink edge audit; full reports in `~/.hermes/cache/delegation/live/deleg_55b606d3/task-{0,1,2,3,4,5,9}.log` — each item is a future unit for other models, files disjoint unless noted)
 

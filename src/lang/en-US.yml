@@ -3415,3 +3415,4 @@ msg_profil_invalid_pronoun: "Invalid pronoun: expected she/her, he/him, they/the
 msg_profil_birthday_invalid: "Invalid birthday: check day/month/year (year 1900-2100)."
 msg_profil_birthday_saved: "Birthday saved."
 msg_profil_use_subcommand: "Use a subcommand: show, set-age, set-description, set-gender, set-pronoun, set-birthday."
+msg_automod_toggled: "Automod ${kind} ${state}."

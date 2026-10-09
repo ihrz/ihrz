@@ -2587,4 +2587,5 @@ export interface LanguageData {
 	msg_profil_birthday_invalid: string;
 	msg_profil_birthday_saved: string;
 	msg_profil_use_subcommand: string;
+	msg_automod_toggled: string;
 }

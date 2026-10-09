@@ -130,11 +130,17 @@ macro_rules! automod_toggle {
                 if enabled { "1" } else { "0" },
             )
             .await?;
-            ctx.say(format!(
-                "Automod {} {}.",
-                $kind,
-                if enabled { "on" } else { "off" }
-            ))
+            let state = if enabled { "on" } else { "off" };
+            ctx.say(
+                crate::commands::lang_for(
+                    &ctx,
+                    "msg_automod_toggled",
+                    &format!("Automod {kind} {state}.", kind = $kind),
+                )
+                .await
+                .replace("{kind}", $kind)
+                .replace("{state}", state),
+            )
             .await?;
             Ok(())
         }
