@@ -182,6 +182,7 @@ pub async fn vanity_generator(
     }
 }
 
+/// Nickname kicker config. Mirrors util !nick-kicker.ts.
 #[poise::command(
     slash_command,
     prefix_command,
@@ -192,47 +193,119 @@ pub async fn vanity_generator(
 )]
 pub async fn nickkicker(
     ctx: Ctx<'_>,
-    #[description = "Word to ban (omit to list)"] word: Option<String>,
+    #[description = "Word to ban, or enable/disable (omit to list)"] word: Option<String>,
+    #[description = "Word to remove"] remove: Option<String>,
 ) -> Result<(), anyhow::Error> {
     let gid = ctx
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    let t = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
     let raw = crate::db::kv_get(&ctx.data().pool, &gid, "UTILS.NICK_KICKER").await;
     let mut cfg: serde_json::Value = raw
         .and_then(|s| serde_json::from_str(&s).ok())
         .unwrap_or(serde_json::json!({"enabled": true, "words": []}));
-    match word.map(|w| w.trim().to_string()).filter(|w| !w.is_empty()) {
-        Some(w) => {
-            if let Some(words) = cfg.get_mut("words").and_then(|x| x.as_array_mut()) {
-                words.push(serde_json::Value::String(w));
-            }
-            crate::db::kv_set(
-                &ctx.data().pool,
-                &gid,
-                "UTILS.NICK_KICKER",
-                &cfg.to_string(),
+    let words_of = |cfg: &serde_json::Value| -> Vec<String> {
+        cfg.get("words")
+            .and_then(|x| serde_json::from_value(x.clone()).ok())
+            .unwrap_or_default()
+    };
+    // Status embed mirroring the TS panel (title, desc, enabled, words).
+    let status_embed = |cfg: &serde_json::Value| {
+        let words = words_of(cfg);
+        let enabled = cfg.get("enabled").and_then(|v| v.as_bool()).unwrap_or(true);
+        poise::serenity_prelude::CreateEmbed::default()
+            .title(t("util_nick_kicker_embed_title"))
+            .description(t("util_nick_kicker_embed_desc"))
+            .field(t("var_enabled"), if enabled { "✅" } else { "❌" }, true)
+            .field(
+                t("util_nick_kicker_words"),
+                format!(
+                    "```{}```",
+                    if words.is_empty() {
+                        t("var_none")
+                    } else {
+                        words.join(", ")
+                    }
+                ),
+                true,
             )
-            .await?;
-            let code =
-                crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-            ctx.say(
-                crate::lang::get(&code, "msg_word_added")
-                    .unwrap_or_else(|| "Word added.".to_string()),
-            )
-            .await?;
+    };
+    if let Some(r) = remove
+        .map(|w| w.trim().to_string())
+        .filter(|w| !w.is_empty())
+    {
+        let mut words = words_of(&cfg);
+        if !words.iter().any(|w| w == &r) {
+            ctx.say(t("util_nick_kicker_no_word_to_remove")).await?;
+            return Ok(());
         }
-        None => {
-            let words: Vec<String> = cfg
-                .get("words")
-                .and_then(|x| serde_json::from_value(x.clone()).ok())
-                .unwrap_or_default();
-            ctx.say(if words.is_empty() {
-                "No banned words.".to_string()
-            } else {
-                words.join(", ")
-            })
+        words.retain(|w| w != &r);
+        cfg["words"] = serde_json::Value::from(words);
+        crate::db::kv_set(
+            &ctx.data().pool,
+            &gid,
+            "UTILS.NICK_KICKER",
+            &cfg.to_string(),
+        )
+        .await?;
+        ctx.send(poise::CreateReply::default().embed(status_embed(&cfg)))
             .await?;
+        return Ok(());
+    }
+    match word.map(|w| w.trim().to_string()).filter(|w| !w.is_empty()) {
+        Some(w) => match w.to_ascii_lowercase().as_str() {
+            "enable" | "on" => {
+                cfg["enabled"] = serde_json::Value::Bool(true);
+                crate::db::kv_set(
+                    &ctx.data().pool,
+                    &gid,
+                    "UTILS.NICK_KICKER",
+                    &cfg.to_string(),
+                )
+                .await?;
+                ctx.send(poise::CreateReply::default().embed(status_embed(&cfg)))
+                    .await?;
+            }
+            "disable" | "off" => {
+                cfg["enabled"] = serde_json::Value::Bool(false);
+                crate::db::kv_set(
+                    &ctx.data().pool,
+                    &gid,
+                    "UTILS.NICK_KICKER",
+                    &cfg.to_string(),
+                )
+                .await?;
+                ctx.send(poise::CreateReply::default().embed(status_embed(&cfg)))
+                    .await?;
+            }
+            _ => {
+                let words = words_of(&cfg);
+                if words.len() >= 15 {
+                    ctx.say(t("util_nick_kicker_words_max_15")).await?;
+                    return Ok(());
+                }
+                let mut words = words;
+                words.push(w.to_lowercase().chars().take(20).collect::<String>());
+                cfg["words"] = serde_json::Value::from(words);
+                crate::db::kv_set(
+                    &ctx.data().pool,
+                    &gid,
+                    "UTILS.NICK_KICKER",
+                    &cfg.to_string(),
+                )
+                .await?;
+                ctx.say(
+                    crate::lang::get(&code, "msg_word_added")
+                        .unwrap_or_else(|| "Word added.".to_string()),
+                )
+                .await?;
+            }
+        },
+        None => {
+            ctx.send(poise::CreateReply::default().embed(status_embed(&cfg)))
+                .await?;
         }
     }
     Ok(())
@@ -307,6 +380,7 @@ pub async fn autorenew(
 }
 
 /// Move a member to your voice channel. Mirrors !wakeup.ts.
+// Reply-before-move like TS; the 2-minute random-channel loop is skipped.
 #[poise::command(
     slash_command,
     prefix_command,
@@ -322,41 +396,68 @@ pub async fn wakeup(
     let Some(guild_id) = ctx.guild_id() else {
         return Ok(());
     };
+    let code = crate::db::guild_lang(&ctx.data().pool, Some(guild_id.get())).await;
+    if user.id == ctx.author().id {
+        ctx.say(
+            crate::lang::get(&code, "util_wakeup_yourself")
+                .unwrap_or_else(|| "Not yourself.".to_string()),
+        )
+        .await?;
+        return Ok(());
+    }
+    let display = ctx
+        .serenity_context()
+        .cache
+        .guild(guild_id)
+        .and_then(|g| {
+            g.members
+                .get(&user.id)
+                .map(|m| m.display_name().to_string())
+        })
+        .or_else(|| user.global_name.clone())
+        .unwrap_or_else(|| user.name.clone());
+    let victim_in_vc = ctx
+        .serenity_context()
+        .cache
+        .guild(guild_id)
+        .and_then(|g| g.voice_states.get(&user.id).and_then(|v| v.channel_id))
+        .is_some();
+    if !victim_in_vc {
+        ctx.say(
+            crate::lang::get(&code, "util_wakeup_not_in_vc")
+                .map(|s| s.replace("${user.displayName}", &display))
+                .unwrap_or_else(|| "Join a voice channel first.".to_string()),
+        )
+        .await?;
+        return Ok(());
+    }
     let target = ctx.serenity_context().cache.guild(guild_id).and_then(|g| {
         g.voice_states
             .get(&ctx.author().id)
             .and_then(|v| v.channel_id)
     });
-    let code = crate::db::guild_lang(&ctx.data().pool, Some(guild_id.get())).await;
     let Some(target) = target else {
         ctx.say(
             crate::lang::get(&code, "util_wakeup_not_in_vc")
-                .map(|s| s.replace("${user.displayName}", &user.name))
+                .map(|s| s.replace("${user.displayName}", &display))
                 .unwrap_or_else(|| "Join a voice channel first.".to_string()),
         )
         .await?;
         return Ok(());
     };
-    match guild_id.move_member(ctx.http(), user.id, target).await {
-        Ok(_) => {
-            ctx.say(
-                crate::lang::get(&code, "util_wakeup_command_work")
-                    .map(|s| s.replace("${user.toString()}", &format!("<@{}>", user.id.get())))
-                    .unwrap_or_else(|| "Moved.".to_string()),
-            )
-            .await?
-        }
-        Err(_) => {
-            ctx.say(
-                crate::lang::get(&code, "util_move_not_in_vc")
-                    .unwrap_or_else(|| "Move failed.".to_string()),
-            )
-            .await?
-        }
-    };
+    // Reply BEFORE moving, like TS (which announces then moves).
+    ctx.say(
+        crate::lang::get(&code, "util_wakeup_command_work")
+            .map(|s| s.replace("${user.toString()}", &format!("<@{}>", user.id.get())))
+            .unwrap_or_else(|| "Moved.".to_string()),
+    )
+    .await?;
+    let _ = guild_id.move_member(ctx.http(), user.id, target).await;
     Ok(())
 }
 
+/// Derogation fake-admin role. Mirrors util !derogation.ts.
+// No member param; role id stored at GUILD.UTILS.DEROGATION.
 #[poise::command(
     slash_command,
     prefix_command,
@@ -365,48 +466,195 @@ pub async fn wakeup(
     aliases("dero", "alldero"),
     default_member_permissions = "ADMINISTRATOR"
 )]
-pub async fn derogation(
-    ctx: Ctx<'_>,
-    #[description = "Member"] user: Option<poise::serenity_prelude::User>,
-) -> Result<(), anyhow::Error> {
-    let gid = ctx
-        .guild_id()
-        .map(|g| g.get().to_string())
+pub async fn derogation(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
+    let Some(guild_id) = ctx.guild_id() else {
+        return Ok(());
+    };
+    let gid = guild_id.get().to_string();
+    let pool = &ctx.data().pool;
+    let code = crate::db::guild_lang(pool, Some(guild_id.get())).await;
+    // Bot must hold ManageRoles + ManageChannels, like the TS gate.
+    let bot_id = ctx.serenity_context().cache.current_user().id;
+    let bot_perms = ctx
+        .serenity_context()
+        .cache
+        .guild(guild_id)
+        .and_then(|g| g.members.get(&bot_id).cloned())
+        .map(|m| {
+            let roles = ctx
+                .serenity_context()
+                .cache
+                .guild(guild_id)
+                .map(|g| g.roles.clone())
+                .unwrap_or_default();
+            let mut perms = poise::serenity_prelude::Permissions::empty();
+            for r in &m.roles {
+                if let Some(role) = roles.get(r) {
+                    perms |= role.permissions;
+                }
+            }
+            perms
+        })
         .unwrap_or_default();
-    let raw = crate::db::kv_get(&ctx.data().pool, &gid, derogation_key()).await;
-    let mut list: Vec<String> = raw
-        .and_then(|s| serde_json::from_str(&s).ok())
-        .unwrap_or_default();
-    match user {
-        Some(u) => {
-            let id = u.id.get().to_string();
-            if !list.contains(&id) {
-                list.push(id);
-                crate::db::kv_set(
-                    &ctx.data().pool,
-                    &gid,
-                    derogation_key(),
-                    &serde_json::to_string(&list)?,
+    if !(bot_perms.manage_roles() && bot_perms.manage_channels()) {
+        ctx.send(
+            poise::CreateReply::default()
+                .content(
+                    crate::lang::get(&code, "setjoinroles_var_perm_issue")
+                        .unwrap_or_else(|| "I do not have permission to manage roles.".to_string()),
+                )
+                .ephemeral(true),
+        )
+        .await?;
+        return Ok(());
+    }
+    let wanted = poise::serenity_prelude::Permissions::all()
+        .difference(poise::serenity_prelude::Permissions::ADMINISTRATOR);
+    // Stored role id (plain string, like the TS db.set(role.id)).
+    let stored: Option<String> = crate::db::kv_get(pool, &gid, derogation_key())
+        .await
+        .and_then(|s| {
+            if let Ok(v) = serde_json::from_str::<serde_json::Value>(&s) {
+                v.as_str().map(str::to_string)
+            } else if s.chars().all(|c| c.is_ascii_digit()) && !s.is_empty() {
+                Some(s)
+            } else {
+                None
+            }
+        });
+    let mut role_id: Option<u64> =
+        stored
+            .as_deref()
+            .and_then(|s| s.parse().ok())
+            .and_then(|id: u64| {
+                ctx.serenity_context().cache.guild(guild_id).and_then(|g| {
+                    g.roles
+                        .get(&poise::serenity_prelude::RoleId::new(id))
+                        .map(|_| id)
+                })
+            });
+    let mut created = false;
+    if role_id.is_none() {
+        match guild_id
+            .create_role(
+                ctx.http(),
+                poise::serenity_prelude::EditRole::new()
+                    .name("managed by iHorizon")
+                    .permissions(wanted),
+            )
+            .await
+        {
+            Ok(role) => {
+                role_id = Some(role.id.get());
+                created = true;
+                crate::db::kv_set(pool, &gid, derogation_key(), &role.id.get().to_string()).await?;
+            }
+            Err(_) => {
+                ctx.send(
+                    poise::CreateReply::default()
+                        .content(
+                            crate::lang::get(&code, "setjoinroles_var_perm_issue").unwrap_or_else(
+                                || "I do not have permission to manage roles.".to_string(),
+                            ),
+                        )
+                        .ephemeral(true),
                 )
                 .await?;
+                return Ok(());
             }
-            let code =
-                crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-            ctx.say(
-                crate::lang::get(&code, "msg_derogation_added")
-                    .unwrap_or_else(|| "Derogation added.".to_string()),
-            )
-            .await?;
-        }
-        None => {
-            ctx.say(if list.is_empty() {
-                "No derogations.".to_string()
-            } else {
-                list.join(", ")
-            })
-            .await?;
         }
     }
+    let role_id = role_id.unwrap_or_default();
+    let ser_role_id = poise::serenity_prelude::RoleId::new(role_id);
+    // Re-sync base permissions when they drifted.
+    let current_perms = ctx
+        .serenity_context()
+        .cache
+        .guild(guild_id)
+        .and_then(|g| g.roles.get(&ser_role_id).map(|r| r.permissions));
+    if current_perms.map(|p| p != wanted).unwrap_or(false) {
+        let _ = guild_id
+            .edit_role(
+                ctx.http(),
+                ser_role_id,
+                poise::serenity_prelude::EditRole::new().permissions(wanted),
+            )
+            .await;
+    }
+    // Channel sync with counters, mirroring the TS overwrite walk.
+    let channels: Vec<poise::serenity_prelude::GuildChannel> = ctx
+        .serenity_context()
+        .cache
+        .guild(guild_id)
+        .map(|g| g.channels.values().cloned().collect())
+        .unwrap_or_default();
+    let mut updated = 0;
+    let mut failed = 0;
+    let mut missing = 0;
+    for ch in &channels {
+        let ow = ch.permission_overwrites.iter().find(|o| {
+            matches!(
+                o.kind,
+                poise::serenity_prelude::PermissionOverwriteType::Role(id) if id == ser_role_id
+            )
+        });
+        let (allow, deny) = ow.map(|o| (o.allow, o.deny)).unwrap_or((
+            poise::serenity_prelude::Permissions::empty(),
+            poise::serenity_prelude::Permissions::empty(),
+        ));
+        let missing_some = wanted.iter().any(|p| !allow.contains(p));
+        let unexpected_deny = deny.iter().any(|p| wanted.contains(p));
+        let needs_sync = ow.is_none() || !allow.view_channel() || missing_some || unexpected_deny;
+        if !needs_sync {
+            continue;
+        }
+        missing += 1;
+        let mut allow = wanted;
+        allow.insert(poise::serenity_prelude::Permissions::VIEW_CHANNEL);
+        if ch
+            .id
+            .create_permission(
+                ctx.http(),
+                poise::serenity_prelude::PermissionOverwrite {
+                    allow,
+                    deny: poise::serenity_prelude::Permissions::empty(),
+                    kind: poise::serenity_prelude::PermissionOverwriteType::Role(ser_role_id),
+                },
+            )
+            .await
+            .is_ok()
+        {
+            updated += 1;
+        } else {
+            failed += 1;
+        }
+    }
+    let yes = crate::emojis::app_emoji_markup(&ctx.serenity_context().http, "Yes")
+        .await
+        .unwrap_or_else(|| "✅".to_string());
+    let no = crate::emojis::app_emoji_markup(&ctx.serenity_context().http, "No")
+        .await
+        .unwrap_or_else(|| "❌".to_string());
+    let key = if created {
+        "utils_derogation_created"
+    } else if missing > 0 {
+        "utils_derogation_resynced"
+    } else {
+        "utils_derogation_already_exists"
+    };
+    ctx.say(
+        crate::lang::get(&code, key)
+            .map(|s| {
+                s.replace("${role}", &format!("<@&{role_id}>"))
+                    .replace("${updatedChannels}", &updated.to_string())
+                    .replace("${failedChannels}", &failed.to_string())
+                    .replace("${missingChannels}", &missing.to_string())
+                    .replace("${client.iHorizon_Emojis.Yes}", &yes)
+                    .replace("${client.iHorizon_Emojis.No}", &no)
+            })
+            .unwrap_or_else(|| "Derogation added.".to_string()),
+    )
+    .await?;
     Ok(())
 }
 
@@ -794,6 +1042,7 @@ pub async fn zip_stickers(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
 }
 
 /// DM a member. Mirrors utils !dm.ts.
+// On DM failure only the failure reply is sent (TS sends both).
 #[poise::command(
     slash_command,
     prefix_command,
@@ -805,7 +1054,9 @@ pub async fn dm(
     ctx: Ctx<'_>,
     #[description = "Member"] user: poise::serenity_prelude::User,
     #[description = "Message"] message: String,
+    #[description = "Private (yes to hide the author button)"] private: Option<String>,
 ) -> Result<(), anyhow::Error> {
+    use poise::serenity_prelude as serenity;
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let yes = crate::emojis::app_emoji_markup(&ctx.serenity_context().http, "Yes")
         .await
@@ -813,13 +1064,30 @@ pub async fn dm(
     let no = crate::emojis::app_emoji_markup(&ctx.serenity_context().http, "No")
         .await
         .unwrap_or_else(|| "❌".to_string());
-    match user
-        .direct_message(
-            ctx.http(),
-            poise::serenity_prelude::CreateMessage::new().content(&message),
-        )
-        .await
-    {
+    let is_private = private
+        .as_deref()
+        .map(|s| s.trim().eq_ignore_ascii_case("yes"))
+        .unwrap_or(false);
+    let guild_label = ctx
+        .guild_id()
+        .map(|g| g.get().to_string())
+        .unwrap_or_else(|| "0".to_string());
+    let mut buttons = vec![serenity::CreateButton::new("forgot-my-name")
+        .style(serenity::ButtonStyle::Secondary)
+        .label(format!("Message from: {guild_label}"))
+        .disabled(true)];
+    if !is_private {
+        buttons.push(
+            serenity::CreateButton::new("forgot-my-name2")
+                .style(serenity::ButtonStyle::Secondary)
+                .label(format!("Message by: {}", ctx.author().id.get()))
+                .disabled(true),
+        );
+    }
+    let dm = poise::serenity_prelude::CreateMessage::new()
+        .content(&message)
+        .components(vec![serenity::CreateActionRow::Buttons(buttons)]);
+    match user.direct_message(ctx.http(), dm).await {
         Ok(_) => {
             ctx.say(
                 crate::lang::get(&code, "utils_dm")
@@ -850,7 +1118,7 @@ pub async fn dm(
     Ok(())
 }
 
-/// Leash a follower to a target. Mirrors utils !leash.ts.
+/// Leash a member onto the invoker. Mirrors utils !leash.ts.
 #[poise::command(
     slash_command,
     prefix_command,
@@ -860,9 +1128,53 @@ pub async fn dm(
 )]
 pub async fn leash(
     ctx: Ctx<'_>,
-    #[description = "Target to follow"] target: poise::serenity_prelude::User,
-    #[description = "Follower"] follower: poise::serenity_prelude::User,
+    #[description = "Member to leash"] member: poise::serenity_prelude::User,
 ) -> Result<(), anyhow::Error> {
+    let gid = ctx
+        .guild_id()
+        .map(|g| g.get().to_string())
+        .unwrap_or_default();
+    let pool = &ctx.data().pool;
+    let code = crate::db::guild_lang(pool, ctx.guild_id().map(|g| g.get())).await;
+    // Config cap, mirroring the TS default {maxLeashedByUsers: 3}.
+    let max_leashed: usize = crate::db::kv_get(pool, &gid, "UTILS.LEASH_CONFIG")
+        .await
+        .and_then(|s| serde_json::from_str::<serde_json::Value>(&s).ok())
+        .and_then(|v| {
+            v.get("maxLeashedByUsers")
+                .and_then(|m| m.as_u64())
+                .map(|m| m as usize)
+        })
+        .unwrap_or(3);
+    let mut pairs: Vec<serde_json::Value> = crate::db::kv_get(pool, &gid, "UTILS.LEASH")
+        .await
+        .and_then(|s| serde_json::from_str(&s).ok())
+        .unwrap_or_default();
+    let dom = ctx.author().id.get().to_string();
+    let sub = member.id.get().to_string();
+    let owned: Vec<&serde_json::Value> = pairs
+        .iter()
+        .filter(|p| p.get("dom").and_then(|d| d.as_str()) == Some(dom.as_str()))
+        .collect();
+    if owned.len() >= max_leashed {
+        ctx.say(
+            crate::lang::get(&code, "util_leash_too_naugthy")
+                .unwrap_or_else(|| "Too many leashed.".to_string()),
+        )
+        .await?;
+        return Ok(());
+    }
+    if owned
+        .iter()
+        .any(|p| p.get("sub").and_then(|s| s.as_str()) == Some(sub.as_str()))
+    {
+        ctx.say(
+            crate::lang::get(&code, "util_leah_already_owned")
+                .unwrap_or_else(|| "Already leashed.".to_string()),
+        )
+        .await?;
+        return Ok(());
+    }
     // Confirm when the target is not in voice or the invoker is.
     // Mirrors the isInVoiceChannel-gated promptYesOrNo in !leash.ts
     // (danger=false, abort -> util_leash_canceled_leash).
@@ -872,7 +1184,7 @@ pub async fn leash(
             .and_then(|g| g.voice_states.get(&user_id).and_then(|v| v.channel_id))
             .is_some()
     };
-    if !in_voice(target.id) || in_voice(ctx.author().id) {
+    if !in_voice(member.id) || in_voice(ctx.author().id) {
         let no = crate::emojis::app_emoji_markup(&ctx.serenity_context().http, "No")
             .await
             .unwrap_or_else(|| "❌".to_string());
@@ -903,17 +1215,12 @@ pub async fn leash(
             return Ok(());
         }
     }
-    let gid = ctx
-        .guild_id()
-        .map(|g| g.get().to_string())
-        .unwrap_or_default();
-    crate::db::kv_set(
-        &ctx.data().pool,
-        &gid,
-        &leash_key(follower.id.get()),
-        &target.id.get().to_string(),
-    )
-    .await?;
+    pairs.push(serde_json::json!({
+        "dom": dom,
+        "sub": sub,
+        "timestamp": crate::commands::shared::now_ms(),
+    }));
+    crate::db::kv_set(pool, &gid, "UTILS.LEASH", &serde_json::to_string(&pairs)?).await?;
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let yes_mark = crate::emojis::app_emoji_markup(&ctx.serenity_context().http, "Yes")
         .await
@@ -921,7 +1228,7 @@ pub async fn leash(
     ctx.say(
         crate::lang::get(&code, "util_leash_confirmed_leash")
             .map(|s| s.replace("${client.iHorizon_Emojis.Yes}", &yes_mark))
-            .unwrap_or_else(|| format!("{} now follows {}.", follower.tag(), target.tag())),
+            .unwrap_or_else(|| "Leash set.".to_string()),
     )
     .await?;
     Ok(())
@@ -937,18 +1244,43 @@ pub async fn leash(
 )]
 pub async fn unleash(
     ctx: Ctx<'_>,
-    #[description = "Follower"] follower: poise::serenity_prelude::User,
+    #[description = "Member to unleash"] member: poise::serenity_prelude::User,
 ) -> Result<(), anyhow::Error> {
     let gid = ctx
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
-    sqlx::query("DELETE FROM kv WHERE guild_id = ? AND key_name = ?")
-        .bind(&gid)
-        .bind(leash_key(follower.id.get()))
-        .execute(&ctx.data().pool)
+    let pool = &ctx.data().pool;
+    let code = crate::db::guild_lang(pool, ctx.guild_id().map(|g| g.get())).await;
+    let pairs: Vec<serde_json::Value> = crate::db::kv_get(pool, &gid, "UTILS.LEASH")
+        .await
+        .and_then(|s| serde_json::from_str(&s).ok())
+        .unwrap_or_default();
+    let dom = ctx.author().id.get().to_string();
+    let sub = member.id.get().to_string();
+    if !pairs.iter().any(|p| {
+        p.get("dom").and_then(|d| d.as_str()) == Some(dom.as_str())
+            && p.get("sub").and_then(|s| s.as_str()) == Some(sub.as_str())
+    }) {
+        let no = crate::emojis::app_emoji_markup(&ctx.serenity_context().http, "No")
+            .await
+            .unwrap_or_else(|| "❌".to_string());
+        ctx.say(
+            crate::lang::get(&code, "util_unleash_not_in_leash")
+                .map(|s| s.replace("${client.iHorizon_Emojis.No}", &no))
+                .unwrap_or_else(|| "Not in leash.".to_string()),
+        )
         .await?;
-    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+        return Ok(());
+    }
+    let kept: Vec<serde_json::Value> = pairs
+        .into_iter()
+        .filter(|p| {
+            !(p.get("dom").and_then(|d| d.as_str()) == Some(dom.as_str())
+                && p.get("sub").and_then(|s| s.as_str()) == Some(sub.as_str()))
+        })
+        .collect();
+    crate::db::kv_set(pool, &gid, "UTILS.LEASH", &serde_json::to_string(&kept)?).await?;
     let yes_mark = crate::emojis::app_emoji_markup(&ctx.serenity_context().http, "Yes")
         .await
         .unwrap_or_else(|| "✅".to_string());

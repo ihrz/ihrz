@@ -1,5 +1,24 @@
 use super::*;
 
+fn is_guild_admin(
+    ctx: &Ctx<'_>,
+    guild_id: poise::serenity_prelude::GuildId,
+    member: &poise::serenity_prelude::Member,
+) -> bool {
+    let roles = ctx
+        .serenity_context()
+        .cache
+        .guild(guild_id)
+        .map(|g| g.roles.clone())
+        .unwrap_or_default();
+    member.roles.iter().any(|r| {
+        roles
+            .get(r)
+            .map(|role| role.permissions.administrator())
+            .unwrap_or(false)
+    })
+}
+
 /// Move one member between voice channels. Mirrors utils move.
 #[poise::command(
     slash_command,
@@ -20,6 +39,31 @@ pub async fn voicemove(
         return Ok(());
     };
     let code = crate::db::guild_lang(&ctx.data().pool, Some(guild_id.get())).await;
+    // Admin-victim guard. Mirrors !move.ts: a non-admin invoker cannot
+    // move a member holding Administrator.
+    let victim_admin = guild_id
+        .member(ctx.http(), user.id)
+        .await
+        .ok()
+        .map(|m| is_guild_admin(&ctx, guild_id, &m))
+        .unwrap_or(false);
+    if victim_admin {
+        let invoker_admin = guild_id
+            .member(ctx.http(), ctx.author().id)
+            .await
+            .ok()
+            .map(|m| is_guild_admin(&ctx, guild_id, &m))
+            .unwrap_or(false);
+        if !invoker_admin {
+            ctx.say(
+                crate::lang::get(&code, "util_move_impossible_to_move_admin").unwrap_or_else(|| {
+                    "The member you want to move is an administrator, and you are not an administrator either.".to_string()
+                }),
+            )
+            .await?;
+            return Ok(());
+        }
+    }
     match guild_id.move_member(ctx.http(), user.id, to.id).await {
         Ok(_) => {
             ctx.say(
@@ -43,7 +87,7 @@ pub async fn voicemove(
     Ok(())
 }
 
-/// Server-mute a member + freeze list.
+/// Freeze your current voice channel. Mirrors util !freeze.ts.
 #[poise::command(
     slash_command,
     prefix_command,
@@ -52,43 +96,53 @@ pub async fn voicemove(
     aliases("voicefreeze", "vcfreeze"),
     default_member_permissions = "MOVE_MEMBERS"
 )]
-pub async fn voicefreeze(
-    ctx: Ctx<'_>,
-    #[description = "Member"] user: poise::serenity_prelude::User,
-) -> Result<(), anyhow::Error> {
+pub async fn voicefreeze(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {
         return Ok(());
     };
+    let channel_id = ctx.serenity_context().cache.guild(guild_id).and_then(|g| {
+        g.voice_states
+            .get(&ctx.author().id)
+            .and_then(|v| v.channel_id)
+    });
+    let code = crate::db::guild_lang(&ctx.data().pool, Some(guild_id.get())).await;
+    let Some(channel_id) = channel_id else {
+        ctx.say(
+            crate::lang::get(&code, "util_not_in_vc")
+                .unwrap_or_else(|| "The members are not in a voice channel".to_string()),
+        )
+        .await?;
+        return Ok(());
+    };
     let gid = guild_id.get().to_string();
-    let raw = crate::db::kv_get(&ctx.data().pool, &gid, "UTILS.VOICE_FREEZE").await;
-    let mut list: Vec<String> = raw
-        .and_then(|s| serde_json::from_str(&s).ok())
-        .unwrap_or_default();
-    let id = user.id.get().to_string();
-    if !list.contains(&id) {
-        list.push(id);
-        crate::db::kv_set(
-            &ctx.data().pool,
-            &gid,
-            "UTILS.VOICE_FREEZE",
-            &serde_json::to_string(&list)?,
-        )
-        .await?;
-    }
-    let mut member = guild_id.member(ctx.http(), user.id).await?;
-    member
-        .edit(
-            ctx.http(),
-            poise::serenity_prelude::EditMember::new().mute(true),
-        )
-        .await?;
-    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-    ctx.say(crate::lang::get(&code, "msg_frozen").unwrap_or_else(|| "Frozen.".to_string()))
-        .await?;
+    crate::db::kv_set(
+        &ctx.data().pool,
+        &gid,
+        "UTILS.VOICE_FREEZE",
+        &serde_json::json!({
+            "channelId": channel_id.get().to_string(),
+            "enabledBy": ctx.author().id.get().to_string(),
+            "createdAt": crate::commands::shared::now_ms(),
+            "allowedUsers": [],
+        })
+        .to_string(),
+    )
+    .await?;
+    ctx.say(
+        crate::lang::get(&code, "util_freeze_command_work")
+            .map(|s| {
+                s.replace(
+                    "${voiceChannel.toString()}",
+                    &format!("<#{}>", channel_id.get()),
+                )
+            })
+            .unwrap_or_else(|| "Frozen.".to_string()),
+    )
+    .await?;
     Ok(())
 }
 
-/// Server-unmute a member + unfreeze. Mirrors utils unfreeze.
+/// Clear the active voice freeze. Mirrors util !unfreeze.ts.
 #[poise::command(
     slash_command,
     prefix_command,
@@ -97,34 +151,35 @@ pub async fn voicefreeze(
     aliases("defreeze"),
     default_member_permissions = "MOVE_MEMBERS"
 )]
-pub async fn voiceunfreeze(
-    ctx: Ctx<'_>,
-    #[description = "Member"] user: poise::serenity_prelude::User,
-) -> Result<(), anyhow::Error> {
-    let Some(guild_id) = ctx.guild_id() else {
-        return Ok(());
-    };
-    let gid = guild_id.get().to_string();
-    let raw = crate::db::kv_get(&ctx.data().pool, &gid, "UTILS.VOICE_FREEZE").await;
-    let mut list: Vec<String> = raw
-        .and_then(|s| serde_json::from_str(&s).ok())
+pub async fn voiceunfreeze(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
+    let gid = ctx
+        .guild_id()
+        .map(|g| g.get().to_string())
         .unwrap_or_default();
-    list.retain(|x| x != &user.id.get().to_string());
-    crate::db::kv_set(
-        &ctx.data().pool,
-        &gid,
-        "UTILS.VOICE_FREEZE",
-        &serde_json::to_string(&list)?,
-    )
-    .await?;
-    let mut member = guild_id.member(ctx.http(), user.id).await?;
-    member
-        .edit(
-            ctx.http(),
-            poise::serenity_prelude::EditMember::new().mute(false),
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    let raw = crate::db::kv_get(&ctx.data().pool, &gid, "UTILS.VOICE_FREEZE").await;
+    let has_freeze: bool = raw
+        .and_then(|s| serde_json::from_str::<serde_json::Value>(&s).ok())
+        .and_then(|v| {
+            v.get("channelId")
+                .and_then(|c| c.as_str())
+                .map(|s| !s.is_empty())
+        })
+        .unwrap_or(false);
+    if !has_freeze {
+        ctx.say(
+            crate::lang::get(&code, "util_unfreeze_no_freeze").unwrap_or_else(|| {
+                "There is no active frozen voice channel in this guild.".to_string()
+            }),
         )
         .await?;
-    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+        return Ok(());
+    }
+    let _ = sqlx::query("DELETE FROM kv WHERE guild_id = ? AND key_name = ?")
+        .bind(&gid)
+        .bind("UTILS.VOICE_FREEZE")
+        .execute(&ctx.data().pool)
+        .await;
     ctx.say(
         crate::lang::get(&code, "util_unfreeze_command_work")
             .unwrap_or_else(|| "Unfrozen.".to_string()),
@@ -462,7 +517,7 @@ pub async fn renewvc(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())
 }
 
-/// Voice freeze channel + allowed users.
+/// Allow a member in the frozen channel. Mirrors util !wlvc.ts.
 #[poise::command(
     slash_command,
     prefix_command,
@@ -473,31 +528,49 @@ pub async fn renewvc(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
 )]
 pub async fn wlvc(
     ctx: Ctx<'_>,
-    #[description = "Voice channel"]
-    #[channel_types("Voice")]
-    channel: poise::serenity_prelude::GuildChannel,
-    #[description = "Allowed member"] user: Option<poise::serenity_prelude::User>,
+    #[description = "Allowed member"] member: Option<poise::serenity_prelude::User>,
 ) -> Result<(), anyhow::Error> {
     let gid = ctx
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    let Some(target) = member else {
+        ctx.say(
+            crate::lang::get(&code, "util_wlvc_no_member").unwrap_or_else(|| {
+                "You must specify a member to allow in the frozen voice channel.".to_string()
+            }),
+        )
+        .await?;
+        return Ok(());
+    };
     let raw = crate::db::kv_get(&ctx.data().pool, &gid, "UTILS.VOICE_FREEZE").await;
     let mut cfg: serde_json::Value = raw
         .and_then(|s| serde_json::from_str(&s).ok())
         .unwrap_or(serde_json::json!({}));
-    cfg["channelId"] = serde_json::Value::String(channel.id.get().to_string());
-    if let Some(u) = user {
-        let mut allowed: Vec<String> = cfg
-            .get("allowedUsers")
-            .and_then(|v| serde_json::from_value(v.clone()).ok())
-            .unwrap_or_default();
-        let id = u.id.get().to_string();
-        if !allowed.contains(&id) {
-            allowed.push(id);
-        }
-        cfg["allowedUsers"] = serde_json::Value::from(allowed);
+    let has_freeze = cfg
+        .get("channelId")
+        .and_then(|c| c.as_str())
+        .map(|s| !s.is_empty())
+        .unwrap_or(false);
+    if !has_freeze {
+        ctx.say(
+            crate::lang::get(&code, "util_wlvc_no_freeze").unwrap_or_else(|| {
+                "There is no active frozen voice channel in this guild.".to_string()
+            }),
+        )
+        .await?;
+        return Ok(());
     }
+    let mut allowed: Vec<String> = cfg
+        .get("allowedUsers")
+        .and_then(|v| serde_json::from_value(v.clone()).ok())
+        .unwrap_or_default();
+    let id = target.id.get().to_string();
+    if !allowed.contains(&id) {
+        allowed.push(id);
+    }
+    cfg["allowedUsers"] = serde_json::Value::from(allowed);
     crate::db::kv_set(
         &ctx.data().pool,
         &gid,
@@ -505,9 +578,9 @@ pub async fn wlvc(
         &cfg.to_string(),
     )
     .await?;
-    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     ctx.say(
-        crate::lang::get(&code, "msg_voice_freeze_channel_set")
+        crate::lang::get(&code, "util_wlvc_command_work")
+            .map(|s| s.replace("${member.toString()}", &format!("<@{}>", target.id.get())))
             .unwrap_or_else(|| "Voice freeze channel set.".to_string()),
     )
     .await?;
@@ -522,22 +595,85 @@ pub async fn wlvc(
     aliases("removevcwl"),
     default_member_permissions = "MOVE_MEMBERS"
 )]
-pub async fn unwlvc(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
-    let gid = ctx
-        .guild_id()
-        .map(|g| g.get().to_string())
+pub async fn unwlvc(
+    ctx: Ctx<'_>,
+    #[description = "Member to remove"] member: Option<poise::serenity_prelude::User>,
+) -> Result<(), anyhow::Error> {
+    let Some(guild_id) = ctx.guild_id() else {
+        return Ok(());
+    };
+    let gid = guild_id.get().to_string();
+    let code = crate::db::guild_lang(&ctx.data().pool, Some(guild_id.get())).await;
+    let Some(target) = member else {
+        ctx.say(
+            crate::lang::get(&code, "util_unwlvc_no_member").unwrap_or_else(|| {
+                "You must specify a member to remove from the frozen voice channel whitelist."
+                    .to_string()
+            }),
+        )
+        .await?;
+        return Ok(());
+    };
+    let raw = crate::db::kv_get(&ctx.data().pool, &gid, "UTILS.VOICE_FREEZE").await;
+    let mut cfg: serde_json::Value = raw
+        .and_then(|s| serde_json::from_str(&s).ok())
+        .unwrap_or(serde_json::json!({}));
+    let channel_id = cfg
+        .get("channelId")
+        .and_then(|c| c.as_str())
+        .map(str::to_string);
+    let Some(channel_id) = channel_id.filter(|s| !s.is_empty()) else {
+        ctx.say(
+            crate::lang::get(&code, "util_unwlvc_no_freeze").unwrap_or_else(|| {
+                "There is no active frozen voice channel in this guild.".to_string()
+            }),
+        )
+        .await?;
+        return Ok(());
+    };
+    let allowed: Vec<String> = cfg
+        .get("allowedUsers")
+        .and_then(|v| serde_json::from_value(v.clone()).ok())
         .unwrap_or_default();
-    let _ = sqlx::query("DELETE FROM kv WHERE guild_id = ? AND key_name = ?")
-        .bind(&gid)
-        .bind("UTILS.VOICE_FREEZE")
-        .execute(&ctx.data().pool)
-        .await;
-    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    if !allowed.contains(&target.id.get().to_string()) {
+        ctx.say(
+            crate::lang::get(&code, "util_unwlvc_not_whitelisted")
+                .map(|s| s.replace("${member.toString()}", &format!("<@{}>", target.id.get())))
+                .unwrap_or_else(|| "Not whitelisted.".to_string()),
+        )
+        .await?;
+        return Ok(());
+    }
+    let kept: Vec<String> = allowed
+        .into_iter()
+        .filter(|id| id != &target.id.get().to_string())
+        .collect();
+    cfg["allowedUsers"] = serde_json::Value::from(kept);
+    crate::db::kv_set(
+        &ctx.data().pool,
+        &gid,
+        "UTILS.VOICE_FREEZE",
+        &cfg.to_string(),
+    )
+    .await?;
     ctx.say(
-        crate::lang::get(&code, "msg_voice_freeze_cleared")
+        crate::lang::get(&code, "util_unwlvc_command_work")
+            .map(|s| s.replace("${member.toString()}", &format!("<@{}>", target.id.get())))
             .unwrap_or_else(|| "Voice freeze cleared.".to_string()),
     )
     .await?;
+    // Mirror !unwlvc.ts: disconnect the member when they sit in the
+    // frozen channel.
+    let in_frozen = ctx
+        .serenity_context()
+        .cache
+        .guild(guild_id)
+        .and_then(|g| g.voice_states.get(&target.id).and_then(|v| v.channel_id))
+        .map(|c| c.get().to_string() == channel_id)
+        .unwrap_or(false);
+    if in_frozen {
+        let _ = guild_id.disconnect_member(ctx.http(), target.id).await;
+    }
     Ok(())
 }
 
@@ -551,9 +687,9 @@ pub async fn unwlvc(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
 )]
 pub async fn massmove(
     ctx: Ctx<'_>,
-    #[description = "From channel"]
+    #[description = "From channel (omit for all voice)"]
     #[channel_types("Voice")]
-    from: poise::serenity_prelude::GuildChannel,
+    from: Option<poise::serenity_prelude::GuildChannel>,
     #[description = "To channel"]
     #[channel_types("Voice")]
     to: poise::serenity_prelude::GuildChannel,
@@ -568,17 +704,74 @@ pub async fn massmove(
         .map(|g| {
             g.voice_states
                 .iter()
-                .filter(|(_, v)| v.channel_id == Some(from.id))
+                .filter(|(_, v)| match &from {
+                    Some(f) => v.channel_id == Some(f.id),
+                    None => v.channel_id.is_some(),
+                })
                 .map(|(uid, _)| *uid)
                 .collect()
         })
         .unwrap_or_default();
     let mut moved = 0;
+    let mut errors = 0;
     for uid in members {
         if guild_id.move_member(ctx.http(), uid, to.id).await.is_ok() {
             moved += 1;
+        } else {
+            errors += 1;
         }
     }
-    ctx.say(format!("Moved {moved} members.")).await?;
+    let gid = guild_id.get().to_string();
+    let (footer_name, footer_bytes) = footer_parts(&ctx, &gid).await;
+    let code = crate::db::guild_lang(&ctx.data().pool, Some(guild_id.get())).await;
+    let from_label = match &from {
+        Some(f) => format!("<#{}>", f.id.get()),
+        None => ctx
+            .serenity_context()
+            .cache
+            .guild(guild_id)
+            .map(|g| {
+                g.channels
+                    .values()
+                    .filter(|c| c.kind == poise::serenity_prelude::ChannelType::Voice)
+                    .map(|c| format!("<#{}>", c.id.get()))
+                    .collect::<Vec<_>>()
+                    .join(",")
+            })
+            .unwrap_or_default(),
+    };
+    let desc = crate::lang::get(&code, "massmove_results")
+        .map(|s| {
+            s.replace(
+                "${interaction.user}",
+                &format!("<@{}>", ctx.author().id.get()),
+            )
+            .replace("${movedCount}", &moved.to_string())
+            .replace("${errorCount}", &errors.to_string())
+            .replace("${fromChannel}", &from_label)
+            .replace("${toChannel}", &format!("<#{}>", to.id.get()))
+        })
+        .unwrap_or_else(|| format!("Moved {moved} members."));
+    let mut embed = serenity::CreateEmbed::default()
+        .colour(serenity::Colour::from_rgb(0, 127, 255))
+        .timestamp(serenity::Timestamp::now())
+        .description(desc);
+    embed = embed_with_footer(embed, &footer_name, footer_bytes.is_some());
+    if let Some(thumb) = ctx
+        .serenity_context()
+        .cache
+        .guild(guild_id)
+        .and_then(|g| g.icon_url())
+    {
+        embed = embed.thumbnail(thumb);
+    }
+    let mut reply = poise::CreateReply::default().embed(embed);
+    if let Some(bytes) = footer_bytes {
+        reply = reply.attachment(poise::serenity_prelude::CreateAttachment::bytes(
+            bytes,
+            "footer_icon.png",
+        ));
+    }
+    ctx.send(reply).await?;
     Ok(())
 }

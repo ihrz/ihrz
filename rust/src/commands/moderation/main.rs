@@ -66,6 +66,150 @@ pub async fn save_warns(
     .await
 }
 
+/// Discord timeout cap: 28 days in ms. Mirrors !tempmute.ts `4weeks`.
+pub const TIMEOUT_MAX_MS: i64 = 28 * 24 * 60 * 60 * 1000;
+/// Temp sanction cap: 1 year in ms. Mirrors `to_ms("1year")`.
+pub const YEAR_MAX_MS: i64 = 31_557_600_000;
+/// Bulk delete age limit: 14 days in ms. Mirrors !clear.ts.
+pub const BULK_DELETE_MAX_AGE_MS: i64 = 14 * 24 * 60 * 60 * 1000;
+/// Plain-text list page size. Mirrors the TS `usersPerPage = 5`.
+pub const LIST_PAGE_SIZE: usize = 5;
+
+/// Clamp a (start, end, total_pages) window for plain-text pagination.
+pub fn paginate(total: usize, per_page: usize, page: i64) -> (usize, usize, usize) {
+    let pages = (total + per_page.saturating_sub(1)) / per_page.max(1);
+    let pages = pages.max(1);
+    let p = page.clamp(1, pages as i64) as usize;
+    let start = (p - 1) * per_page;
+    (start, start.saturating_add(per_page).min(total), pages)
+}
+
+/// App-emoji lookup with a plain fallback. Mirrors the TS
+/// `${client.iHorizon_Emojis.X}` interpolations.
+async fn emoji(ctx: &Ctx<'_>, name: &str, fallback: &str) -> String {
+    crate::emojis::app_emoji_markup(&ctx.serenity_context().http, name)
+        .await
+        .unwrap_or_else(|| fallback.to_string())
+}
+
+/// Post a moderation audit embed to the `ihorizon-logs` channel.
+/// Mirrors `client.func.ihorizon_logs` via `crate::funcs::logs_channel_id`
+/// (same helper the ticket module uses); silent when absent.
+async fn post_mod_log(
+    http: &serenity::Http,
+    guild_id: serenity::GuildId,
+    title: String,
+    description: String,
+) {
+    let Ok(channels) = guild_id.channels(http).await else {
+        return;
+    };
+    let list: Vec<(u64, String)> = channels
+        .iter()
+        .map(|(id, c)| (id.get(), c.name.clone()))
+        .collect();
+    let Some(log_id) = crate::funcs::logs_channel_id(&list) else {
+        return;
+    };
+    let embed = serenity::CreateEmbed::default()
+        .title(title)
+        .description(description);
+    let _ = serenity::ChannelId::new(log_id)
+        .send_message(http, serenity::CreateMessage::new().embed(embed))
+        .await;
+}
+
+/// Cached bot/author hierarchy snapshot for guard checks.
+/// `None` when the guild is not cached (guards are skipped, never blocking).
+struct Guard {
+    bot_perms: serenity::Permissions,
+    bot_top: u16,
+    author_top: u16,
+    owner_id: u64,
+}
+
+fn top_of(
+    roles: &std::collections::HashMap<serenity::RoleId, serenity::Role>,
+    ids: &[serenity::RoleId],
+) -> u16 {
+    ids.iter()
+        .filter_map(|r| roles.get(r))
+        .map(|r| r.position)
+        .max()
+        .unwrap_or(0)
+}
+
+async fn guard_data(ctx: &Ctx<'_>, guild_id: serenity::GuildId) -> Option<Guard> {
+    // Clone out of the cache guard first: holding it across an await
+    // would make the future !Send.
+    let (bot_roles, roles, owner_id) = {
+        let cache = &ctx.serenity_context().cache;
+        let guild = cache.guild(guild_id)?;
+        let bot = guild.members.get(&cache.current_user().id)?.clone();
+        (bot.roles, guild.roles.clone(), guild.owner_id)
+    };
+    let author_roles = ctx
+        .author_member()
+        .await
+        .map(|m| m.roles.clone())
+        .unwrap_or_default();
+    let everyone = serenity::RoleId::new(guild_id.get());
+    let mut perms = serenity::Permissions::empty();
+    for r in &bot_roles {
+        if let Some(role) = roles.get(r) {
+            perms |= role.permissions;
+        }
+    }
+    if let Some(everyone_role) = roles.get(&everyone) {
+        perms |= everyone_role.permissions;
+    }
+    if perms.administrator() {
+        perms = serenity::Permissions::all();
+    }
+    Some(Guard {
+        bot_perms: perms,
+        bot_top: top_of(&roles, &bot_roles),
+        author_top: top_of(&roles, &author_roles),
+        owner_id: owner_id.get(),
+    })
+}
+
+/// Target member's top role position, or `None` when not in the guild
+/// (TS skips hierarchy checks for non-members too).
+async fn target_top(
+    ctx: &Ctx<'_>,
+    guild_id: serenity::GuildId,
+    user_id: serenity::UserId,
+) -> Option<u16> {
+    let roles = guild_id.member(ctx.http(), user_id).await.ok()?.roles;
+    let guild = ctx.serenity_context().cache.guild(guild_id)?;
+    Some(top_of(&guild.roles, &roles))
+}
+
+/// Administrator check from cached role flags (avoids the deprecated
+/// `Member::permissions`, which ignores overwrites).
+fn member_is_admin(ctx: &Ctx<'_>, guild_id: serenity::GuildId, member: &serenity::Member) -> bool {
+    ctx.serenity_context()
+        .cache
+        .guild(guild_id)
+        .map(|g| {
+            member.roles.iter().any(|r| {
+                g.roles
+                    .get(r)
+                    .map(|role| role.permissions.administrator())
+                    .unwrap_or(false)
+            })
+        })
+        .unwrap_or(false)
+}
+
+/// Best-effort DM. Mirrors the TS `.catch(() => ...)` sends.
+async fn dm_best_effort(http: &serenity::Http, user: &serenity::User, content: String) {
+    let _ = user
+        .direct_message(http, serenity::CreateMessage::new().content(content))
+        .await;
+}
+
 #[poise::command(
     slash_command,
     prefix_command,
@@ -116,11 +260,75 @@ pub async fn mod_ban(
         return Ok(());
     };
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-    let reason = reason.unwrap_or_else(|| {
-        crate::lang::get(&code, "guildprofil_not_set_punishPub")
-            .unwrap_or_else(|| "No reason".to_string())
-    });
-    guild_id.ban(&ctx.http(), user.id, 0).await?;
+    let t = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
+    // TS defaults to the guild punishPub text, never empty.
+    let reason = reason.unwrap_or_else(|| t("guildprofil_not_set_punishPub"));
+    let no = emoji(&ctx, "No", "❌").await;
+    let stop = emoji(&ctx, "Stop", "⛔").await;
+    let guards = guard_data(&ctx, guild_id).await;
+    // Bot needs BanMembers. Mirrors ban_dont_have_perm_myself.
+    if let Some(g) = &guards {
+        if !g.bot_perms.ban_members() {
+            ctx.say(t("ban_dont_have_perm_myself").replace("${client.iHorizon_Emojis.No}", &no))
+                .await?;
+            return Ok(());
+        }
+    }
+    if user.id == ctx.author().id {
+        ctx.say(t("ban_try_to_ban_yourself").replace("${client.iHorizon_Emojis.No}", &no))
+            .await?;
+        return Ok(());
+    }
+    if let Some(target_pos) = target_top(&ctx, guild_id, user.id).await {
+        let guards = guards.as_ref();
+        let author_top = guards.map(|g| g.author_top).unwrap_or(u16::MAX);
+        let author_id = ctx.author().id.get();
+        let owner = guards.map(|g| g.owner_id).unwrap_or(author_id);
+        // TS ban uses `<=` (stricter than kick).
+        if author_top <= target_pos && owner != author_id {
+            ctx.say(
+                t("ban_attempt_ban_higter_member").replace("${client.iHorizon_Emojis.Stop}", &stop),
+            )
+            .await?;
+            return Ok(());
+        }
+        // `bannable`: the bot's top role must outrank the target.
+        if guards.map(|g| g.bot_top <= target_pos).unwrap_or(false) {
+            ctx.say(t("ban_cant_ban_member").replace("${client.iHorizon_Emojis.No}", &no))
+                .await?;
+            return Ok(());
+        }
+    }
+    let guild_name = ctx
+        .serenity_context()
+        .cache
+        .guild(guild_id)
+        .map(|g| g.name.clone())
+        .unwrap_or_default();
+    dm_best_effort(
+        ctx.http(),
+        &user,
+        t("ban_message_to_the_banned_member")
+            .replace("${interaction.guild.name}", &guild_name)
+            .replace("${reason}", &reason),
+    )
+    .await;
+    // Audit reason. Mirrors `Banned by: ... | Reason: ...`.
+    let by = ctx
+        .author()
+        .global_name
+        .clone()
+        .unwrap_or_else(|| ctx.author().name.clone());
+    let audit = format!("Banned by: {by} | Reason: {reason}");
+    if guild_id
+        .ban_with_reason(ctx.http(), user.id, 0, &audit)
+        .await
+        .is_err()
+    {
+        ctx.say(t("setrankroles_command_error").replace("${client.iHorizon_Emojis.No}", &no))
+            .await?;
+        return Ok(());
+    }
     let author_id = ctx.author().id.get().to_string();
     ctx.say(
         crate::lang::get(&code, "ban_command_work")
@@ -131,6 +339,15 @@ pub async fn mod_ban(
             .unwrap_or_else(|| format!("Banned {} ({reason})", user.tag())),
     )
     .await?;
+    post_mod_log(
+        ctx.http(),
+        guild_id,
+        t("ban_logs_embed_title"),
+        t("ban_logs_embed_description")
+            .replace("${member.user.id}", &user.id.get().to_string())
+            .replace("${interaction.member.id}", &author_id),
+    )
+    .await;
     Ok(())
 }
 
@@ -148,11 +365,72 @@ pub async fn mod_kick(
     let Some(guild_id) = ctx.guild_id() else {
         return Ok(());
     };
-    let reason = reason.unwrap_or_default();
-    guild_id
-        .kick_with_reason(&ctx.http(), user.id, &reason)
-        .await?;
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    let t = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
+    // TS defaults to the guild punishPub text, never empty.
+    let reason = reason.unwrap_or_else(|| t("guildprofil_not_set_punishPub"));
+    let no = emoji(&ctx, "No", "❌").await;
+    let stop = emoji(&ctx, "Stop", "⛔").await;
+    let guards = guard_data(&ctx, guild_id).await;
+    if let Some(g) = &guards {
+        if !g.bot_perms.kick_members() {
+            ctx.say(t("kick_dont_have_permission").replace("${client.iHorizon_Emojis.No}", &no))
+                .await?;
+            return Ok(());
+        }
+    }
+    if user.id == ctx.author().id {
+        ctx.say(t("kick_attempt_kick_your_self").replace("${client.iHorizon_Emojis.No}", &no))
+            .await?;
+        return Ok(());
+    }
+    let member = guild_id.member(ctx.http(), user.id).await.ok();
+    let Some(member) = member else {
+        ctx.say(t("ban_dont_found_member")).await?;
+        return Ok(());
+    };
+    if let Some(target_pos) = target_top(&ctx, guild_id, user.id).await {
+        let author_top = guards.as_ref().map(|g| g.author_top).unwrap_or(u16::MAX);
+        let author_id = ctx.author().id.get();
+        let owner = guards.as_ref().map(|g| g.owner_id).unwrap_or(author_id);
+        // TS kick uses strict `<`.
+        if author_top < target_pos && owner != author_id {
+            ctx.say(
+                t("kick_attempt_kick_higter_member")
+                    .replace("${client.iHorizon_Emojis.Stop}", &stop),
+            )
+            .await?;
+            return Ok(());
+        }
+    }
+    let guild_name = ctx
+        .serenity_context()
+        .cache
+        .guild(guild_id)
+        .map(|g| g.name.clone())
+        .unwrap_or_default();
+    let _ = member
+        .user
+        .clone()
+        .direct_message(
+            ctx.http(),
+            serenity::CreateMessage::new().content(
+                t("kick_message_to_the_banned_member")
+                    .replace("${interaction.guild.name}", &guild_name)
+                    .replace("${interaction.member.user.username}", &ctx.author().name),
+            ),
+        )
+        .await;
+    let audit = format!("Kicked by: {} | Reason: {reason}", ctx.author().name);
+    if guild_id
+        .kick_with_reason(ctx.http(), user.id, &audit)
+        .await
+        .is_err()
+    {
+        ctx.say(t("setrankroles_command_error").replace("${client.iHorizon_Emojis.No}", &no))
+            .await?;
+        return Ok(());
+    }
     ctx.say(
         crate::lang::get(&code, "kick_command_work")
             .map(|s| {
@@ -162,6 +440,15 @@ pub async fn mod_kick(
             .unwrap_or_else(|| format!("Kicked {}", user.tag())),
     )
     .await?;
+    post_mod_log(
+        ctx.http(),
+        guild_id,
+        t("kick_logs_embed_title"),
+        t("kick_logs_embed_description")
+            .replace("${member.user}", &user.to_string())
+            .replace("${interaction.user.id}", &ctx.author().id.get().to_string()),
+    )
+    .await;
     Ok(())
 }
 
@@ -175,41 +462,127 @@ pub async fn mod_kick(
 pub async fn mod_timeout(
     ctx: Ctx<'_>,
     #[description = "Member"] user: serenity::User,
-    #[description = "Seconds"] seconds: i64,
+    #[description = "Duration (e.g. 10m, 1h, 7d)"] duration: String,
     #[description = "Reason"] reason: Option<String>,
 ) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {
         return Ok(());
     };
-    let secs = seconds.clamp(1, 2419200);
-    let until = serenity::Timestamp::from_unix_timestamp(
-        std::time::SystemTime::now()
-            .duration_since(std::time::UNIX_EPOCH)
-            .map(|d| d.as_secs() as i64)
-            .unwrap_or(0)
-            + secs,
-    )?;
-    let mut member = guild_id.member(&ctx.http(), user.id).await?;
-    member
-        .disable_communication_until_datetime(&ctx.http(), until)
-        .await?;
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    let t = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
+    // Human durations like TS timeCalculator; invalid -> invalid-time text.
+    let mut ms = crate::funcs::time_ms(&duration) as i64;
+    if ms <= 0 {
+        ctx.say(t("too_new_account_invalid_time_on_enable")).await?;
+        return Ok(());
+    }
+    // 28-day clamp with the TS overflow note.
+    let mut overflow = false;
+    if ms > TIMEOUT_MAX_MS {
+        ms = TIMEOUT_MAX_MS;
+        overflow = true;
+    }
+    let pretty = crate::funcs::beautiful_ms(ms as f64);
+    let reason_s = reason.clone().unwrap_or_else(|| t("var_no_set"));
+    let no = emoji(&ctx, "No", "❌").await;
+    let vc = emoji(&ctx, "VC_OpenChat", "💬").await;
+    let guards = guard_data(&ctx, guild_id).await;
+    if let Some(g) = &guards {
+        if !g.bot_perms.moderate_members() {
+            ctx.say(
+                t("tempmute_i_dont_have_permission").replace("${client.iHorizon_Emojis.No}", &no),
+            )
+            .await?;
+            return Ok(());
+        }
+    }
+    let member = guild_id.member(ctx.http(), user.id).await.ok();
+    let Some(mut member) = member else {
+        ctx.say(t("ban_dont_found_member")).await?;
+        return Ok(());
+    };
+    if member_is_admin(&ctx, guild_id, &member) {
+        ctx.say(t("tempmute_tomute_is_admin").replace("${client.iHorizon_Emojis.No}", &no))
+            .await?;
+        return Ok(());
+    }
+    if let Some(target_pos) = target_top(&ctx, guild_id, user.id).await {
+        let author_id = ctx.author().id.get();
+        let (bot_top, author_top, owner) = guards
+            .as_ref()
+            .map(|g| (g.bot_top, g.author_top, g.owner_id))
+            .unwrap_or((u16::MAX, u16::MAX, author_id));
+        if target_pos >= bot_top && owner != author_id {
+            ctx.say(
+                t("tempmute_tomute_highest_role_or_same")
+                    .replace("${client.iHorizon_Emojis.No}", &no)
+                    .replace("${tomute.toString()}", &user.to_string()),
+            )
+            .await?;
+            return Ok(());
+        }
+        if owner != author_id && target_pos >= author_top {
+            ctx.say(
+                t("tempmute_cannot_mute_higher_role")
+                    .replace("${client.iHorizon_Emojis.No}", &no)
+                    .replace("${tomute.toString()}", &user.to_string()),
+            )
+            .await?;
+            return Ok(());
+        }
+    }
+    if user.id == ctx.author().id {
+        ctx.say(t("tempmute_cannot_mute_yourself").replace("${client.iHorizon_Emojis.No}", &no))
+            .await?;
+        return Ok(());
+    }
+    if member.communication_disabled_until.is_some() {
+        ctx.say(t("tempmute_already_muted")).await?;
+        return Ok(());
+    }
+    let until = serenity::Timestamp::from_unix_timestamp(crate::bot::now_ms() / 1000 + ms / 1000)?;
+    // Audit reason carried on the edit; silent catch like TS.
+    let _ = guild_id
+        .edit_member(
+            ctx.http(),
+            user.id,
+            serenity::builder::EditMember::new()
+                .disable_communication_until_datetime(until)
+                .audit_log_reason(&t("tempmute_logs_embed_title")),
+        )
+        .await;
+    member.communication_disabled_until = Some(until);
+    let mut content = t("tempmute_command_work")
+        .replace("${tomute.id}", &user.id.get().to_string())
+        .replace("${ms(ms(mutetime))}", &pretty)
+        .replace("${reason}", &reason_s);
+    if overflow {
+        content += &t("tempmute_tomute_max_time_passed")
+            .replace("${client.iHorizon_Emojis.VC_OpenChat}", &vc);
+    }
+    ctx.say(content).await?;
+    post_mod_log(
+        ctx.http(),
+        guild_id,
+        t("tempmute_logs_embed_title"),
+        t("tempmute_logs_embed_description")
+            .replace("${interaction.user.id}", &ctx.author().id.get().to_string())
+            .replace("${tomute.id}", &user.id.get().to_string())
+            .replace("${ms(ms(mutetime))}", &pretty)
+            .replace("${reason}", &reason_s),
+    )
+    .await;
     // Mute warn (mirrors !tempmute.ts warnMember call with the mute
     // description as reason).
     if let Some(gid) = ctx.guild_id().map(|g| g.get().to_string()) {
         let pool = &ctx.data().pool;
-        let lang_code = crate::db::guild_lang(pool, Some(guild_id.get())).await;
+        let lang_code = code.clone();
         let text = |k: &str| crate::lang::get(&lang_code, k).unwrap_or_default();
         let reason_text = text("tempmute_logs_embed_description")
             .replace("${interaction.user.id}", &ctx.author().id.get().to_string())
             .replace("${tomute.id}", &user.id.get().to_string())
-            .replace(
-                "${ms(ms(mutetime))}",
-                &crate::funcs::beautiful_ms(secs as f64 * 1000.0),
-            )
-            .replace(
-                "${reason}",
-                &reason.clone().unwrap_or_else(|| text("var_no_set")),
-            );
+            .replace("${ms(ms(mutetime))}", &pretty)
+            .replace("${reason}", &reason_s);
         let author_top = ctx.author_member().await.map(|m| m.roles.clone());
         let (guild_name, guild_roles) = ctx
             .serenity_context()
@@ -242,24 +615,6 @@ pub async fn mod_timeout(
         })
         .await;
     }
-    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-    let ms = crate::funcs::beautiful_ms(secs as f64 * 1000.0);
-    ctx.say(
-        crate::lang::get(&code, "tempmute_command_work")
-            .map(|s| {
-                s.replace("${tomute.id}", &user.id.get().to_string())
-                    .replace("${ms(ms(mutetime))}", &ms)
-                    .replace("${reason}", &reason.clone().unwrap_or_default())
-            })
-            .unwrap_or_else(|| {
-                format!(
-                    "Timed out {} for {secs}s {}",
-                    user.tag(),
-                    reason.clone().unwrap_or_default()
-                )
-            }),
-    )
-    .await?;
     Ok(())
 }
 
@@ -381,6 +736,7 @@ pub async fn mod_warn(
         .unwrap_or_default();
     let uid = user.id.get();
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    let t = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
     let (id, total) = if let Some(guild_id) = ctx.guild_id() {
         let pool = &ctx.data().pool;
         let lang_code = code.clone();
@@ -446,6 +802,21 @@ pub async fn mod_warn(
             .unwrap_or_else(|| format!("Warned {} (id {id}, total {total})", user.tag())),
     )
     .await?;
+    if let Some(guild_id) = ctx.guild_id() {
+        post_mod_log(
+            ctx.http(),
+            guild_id,
+            t("warn_logEmbed_title"),
+            t("warn_logEmbed_desc")
+                .replace(
+                    "${interaction.member.toString()}",
+                    &ctx.author().to_string(),
+                )
+                .replace("${member?.toString()}", &user.to_string())
+                .replace("${reason}", &reason),
+        )
+        .await;
+    }
     Ok(())
 }
 
@@ -465,8 +836,21 @@ pub async fn mod_unwarn(
         .map(|g| g.get().to_string())
         .unwrap_or_default();
     let uid = user.id.get();
-    let (next, removed) = remove_warn(load_warns(&ctx.data().pool, &gid, uid).await, &warn_id);
+    let warns = load_warns(&ctx.data().pool, &gid, uid).await;
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    let t = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
+    let no = emoji(&ctx, "No", "❌").await;
+    // TS splits empty-list vs bad-id into two messages; mirror exactly.
+    if warns.is_empty() {
+        ctx.say(
+            t("unwarn_cannot_found")
+                .replace("${client.iHorizon_Emojis.No}", &no)
+                .replace("${member?.toString()}", &user.to_string()),
+        )
+        .await?;
+        return Ok(());
+    }
+    let (next, removed) = remove_warn(warns, &warn_id);
     if removed {
         save_warns(&ctx.data().pool, &gid, uid, &next).await?;
         let yes = crate::emojis::app_emoji_markup(&ctx.serenity_context().http, "Yes")
@@ -481,15 +865,27 @@ pub async fn mod_unwarn(
                 .unwrap_or_else(|| "Warn removed.".to_string()),
         )
         .await?;
+        if let Some(guild_id) = ctx.guild_id() {
+            post_mod_log(
+                ctx.http(),
+                guild_id,
+                t("unwarn_logEmbed_title"),
+                t("unwarn_logEmbed_desc")
+                    .replace(
+                        "${interaction.member.toString()}",
+                        &ctx.author().to_string(),
+                    )
+                    .replace("${member?.toString()}", &user.to_string()),
+            )
+            .await;
+        }
     } else {
-        let no = crate::emojis::app_emoji_markup(&ctx.serenity_context().http, "No")
-            .await
-            .unwrap_or_else(|| "❌".to_string());
         ctx.say(
             crate::lang::get(&code, "unwarn_cannot_found_id")
                 .map(|s| {
                     s.replace("${client.iHorizon_Emojis.No}", &no)
-                        .replace("${member?.toString()}", &user.to_string())
+                        // TS interpolates the invoker here, not the target.
+                        .replace("${member?.toString()}", &ctx.author().to_string())
                 })
                 .unwrap_or_else(|| "Warn not found.".to_string()),
         )
@@ -508,6 +904,7 @@ pub async fn mod_unwarn(
 pub async fn mod_warnlist(
     ctx: Ctx<'_>,
     #[description = "Member"] user: serenity::User,
+    #[description = "Page"] page: Option<i64>,
 ) -> Result<(), anyhow::Error> {
     let gid = ctx
         .guild_id()
@@ -515,31 +912,49 @@ pub async fn mod_warnlist(
         .unwrap_or_default();
     let warns = load_warns(&ctx.data().pool, &gid, user.id.get()).await;
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-    ctx.say(if warns.is_empty() {
-        let no = crate::emojis::app_emoji_markup(&ctx.serenity_context().http, "No")
-            .await
-            .unwrap_or_else(|| "❌".to_string());
-        crate::lang::get(&code, "warnlist_no_data")
-            .map(|s| {
-                s.replace("${client.iHorizon_Emojis.No}", &no)
-                    .replace("${member?.toString()}", &user.to_string())
-            })
-            .unwrap_or_else(|| "No warns.".to_string())
-    } else {
-        warns
-            .iter()
-            .map(|w| {
-                format!(
-                    "{}: {} ({})",
-                    w.id,
-                    w.reason,
-                    crate::funcs::format_date(w.at / 1000, "YYYY-MM-DD")
+    let t = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
+    if warns.is_empty() {
+        let no = emoji(&ctx, "No", "❌").await;
+        ctx.say(
+            crate::lang::get(&code, "warnlist_no_data")
+                .map(|s| {
+                    s.replace("${client.iHorizon_Emojis.No}", &no)
+                        .replace("${member?.toString()}", &user.to_string())
+                })
+                .unwrap_or_else(|| "No warns.".to_string()),
+        )
+        .await?;
+        return Ok(());
+    }
+    // Plain-text pages (5 per page like TS); page state only, no collectors.
+    let (start, end, pages) = paginate(warns.len(), LIST_PAGE_SIZE, page.unwrap_or(1));
+    let cur = start / LIST_PAGE_SIZE + 1;
+    let name = user
+        .global_name
+        .clone()
+        .unwrap_or_else(|| user.name.clone());
+    let title = t("warnlist_embed_title")
+        .replace("${member?.user.globalName}", &name)
+        .replace(
+            "${i / usersPerPage + 1}",
+            &((start / LIST_PAGE_SIZE) + 1).to_string(),
+        );
+    let unknown = t("var_unknown");
+    let body = warns[start..end]
+        .iter()
+        .map(|w| {
+            t("warnlist_embed_desc")
+                .replace("${x.id}", &w.id)
+                .replace(
+                    "${format(x.timestamp, 'DD/MM/YYYY')}",
+                    &crate::funcs::format_date(w.at / 1000, "DD/MM/YYYY"),
                 )
-            })
-            .collect::<Vec<_>>()
-            .join("\n")
-    })
-    .await?;
+                .replace("${x.authorID}", &unknown)
+                .replace("${x.reason}", &w.reason)
+        })
+        .collect::<Vec<_>>()
+        .join("\n");
+    ctx.say(format!("{title} ({cur}/{pages})\n{body}")).await?;
     Ok(())
 }
 
@@ -553,21 +968,97 @@ pub async fn mod_warnlist(
 pub async fn mod_clear(
     ctx: Ctx<'_>,
     #[description = "Amount (1-100)"] amount: u64,
+    #[description = "Only this member's messages"] member: Option<serenity::User>,
 ) -> Result<(), anyhow::Error> {
-    let n = amount.clamp(1, 100) as u8;
-    let channel_id = ctx.channel_id();
-    let msgs = channel_id
-        .messages(&ctx.http(), serenity::GetMessages::new().limit(n))
-        .await?;
-    let ids: Vec<serenity::MessageId> = msgs.iter().map(|m| m.id).collect();
-    channel_id.delete_messages(&ctx.http(), &ids).await?;
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-    ctx.say(
-        crate::lang::get(&code, "clear_confirmation_message")
-            .map(|s| s.replace("${messages.size}", &ids.len().to_string()))
-            .unwrap_or_else(|| format!("Cleared {}.", ids.len())),
-    )
-    .await?;
+    let t = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
+    let channel_id = ctx.channel_id();
+    // TS adds +1 to cover the invoking message, capped at 100.
+    let want = amount.saturating_add(1).clamp(1, 100) as usize;
+    let cutoff = crate::bot::now_ms() - BULK_DELETE_MAX_AGE_MS;
+    let mut collected: Vec<serenity::Message> = vec![];
+    // Member filter scans back through history like findMessagesByAuthor.
+    let mut before: Option<serenity::MessageId> = None;
+    for _ in 0..10 {
+        let mut q = serenity::GetMessages::new().limit(100);
+        if let Some(b) = before {
+            q = q.before(b);
+        }
+        let batch = channel_id.messages(ctx.http(), q).await?;
+        if batch.is_empty() {
+            break;
+        }
+        before = batch.last().map(|m| m.id);
+        for m in batch {
+            if let Some(u) = &member {
+                if m.author.id != u.id {
+                    continue;
+                }
+            }
+            // 14-day bulk-delete filter.
+            if m.timestamp.unix_timestamp() * 1000 <= cutoff {
+                continue;
+            }
+            collected.push(m);
+            if collected.len() >= want {
+                break;
+            }
+        }
+        if collected.len() >= want {
+            break;
+        }
+        if member.is_none() {
+            break;
+        }
+    }
+    if collected.is_empty() {
+        ctx.say(t("clear_command_no_message")).await?;
+        return Ok(());
+    }
+    let ids: Vec<serenity::MessageId> = collected.iter().map(|m| m.id).collect();
+    // TS surfaces the raw error text on failure.
+    if let Err(e) = if ids.len() == 1 {
+        channel_id
+            .delete_message(ctx.http(), ids[0])
+            .await
+            .map(|_| ())
+    } else {
+        channel_id.delete_messages(ctx.http(), &ids).await
+    } {
+        ctx.say(e.to_string()).await?;
+        return Ok(());
+    }
+    let n = ids.len();
+    let handle = ctx
+        .say(t("clear_confirmation_message").replace("${messages.size}", &n.to_string()))
+        .await?;
+    // Auto-delete the confirmation after 5s like afterSent.
+    if let Ok(sent) = handle.into_message().await {
+        let http = ctx.serenity_context().http.clone();
+        let invoker = match ctx {
+            poise::Context::Prefix(p) => Some(p.msg.id),
+            _ => None,
+        };
+        tokio::spawn(async move {
+            tokio::time::sleep(std::time::Duration::from_secs(5)).await;
+            let _ = channel_id.delete_message(&*http, sent.id).await;
+            if let Some(inv) = invoker {
+                let _ = channel_id.delete_message(&*http, inv).await;
+            }
+        });
+    }
+    if let Some(guild_id) = ctx.guild_id() {
+        post_mod_log(
+            ctx.http(),
+            guild_id,
+            t("clear_logs_embed_title"),
+            t("clear_logs_embed_description")
+                .replace("${interaction.user.id}", &ctx.author().id.get().to_string())
+                .replace("${messages.size}", &n.to_string())
+                .replace("${interaction.channel.id}", &channel_id.get().to_string()),
+        )
+        .await;
+    }
     Ok(())
 }
 
@@ -583,23 +1074,80 @@ pub async fn mod_temprole(
     #[description = "Member"] user: serenity::User,
     #[description = "Role"] role: serenity::Role,
     #[description = "Duration (e.g. 10m, 1h, 7d)"] duration: String,
+    #[description = "Reason"] reason: Option<String>,
 ) -> Result<(), anyhow::Error> {
-    let Some(delta) = crate::commands::schedule::main::parse_duration_ms(&duration) else {
-        let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-        ctx.say(
-            crate::lang::get(&code, "too_new_account_invalid_time_on_enable")
-                .unwrap_or_else(|| "Bad duration.".to_string()),
-        )
-        .await?;
-        return Ok(());
-    };
     let Some(guild_id) = ctx.guild_id() else {
         return Ok(());
     };
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    let t = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
+    let mut ms = crate::funcs::time_ms(&duration) as i64;
+    if ms <= 0 {
+        ctx.say(t("too_new_account_invalid_time_on_enable")).await?;
+        return Ok(());
+    }
+    // 1-year clamp with the TS overflow note.
+    let mut overflow = false;
+    if ms > YEAR_MAX_MS {
+        ms = YEAR_MAX_MS;
+        overflow = true;
+    }
+    let pretty = crate::funcs::beautiful_ms(ms as f64);
+    let reason_s = reason.clone().unwrap_or_else(|| t("var_no_set"));
+    let no = emoji(&ctx, "No", "❌").await;
+    let vc = emoji(&ctx, "VC_OpenChat", "💬").await;
+    let guards = guard_data(&ctx, guild_id).await;
+    if let Some(g) = &guards {
+        if !g.bot_perms.manage_roles() {
+            ctx.say(
+                t("temprole_i_dont_have_permission").replace("${client.iHorizon_Emojis.No}", &no),
+            )
+            .await?;
+            return Ok(());
+        }
+    }
+    let member = guild_id.member(ctx.http(), user.id).await.ok();
+    let Some(member) = member else {
+        ctx.say(t("ban_dont_found_member")).await?;
+        return Ok(());
+    };
+    let author_id = ctx.author().id.get();
+    let (bot_top, owner) = guards
+        .as_ref()
+        .map(|g| (g.bot_top, g.owner_id))
+        .unwrap_or((u16::MAX, author_id));
+    if let Some(target_pos) = target_top(&ctx, guild_id, user.id).await {
+        if target_pos >= bot_top && owner != author_id {
+            ctx.say(
+                t("temprole_tomute_highest_role_or_same")
+                    .replace("${client.iHorizon_Emojis.No}", &no)
+                    .replace("${tomute.toString()}", &user.to_string()),
+            )
+            .await?;
+            return Ok(());
+        }
+    }
+    // The role itself must sit below the bot's top role.
+    if role.position >= bot_top && owner != author_id {
+        ctx.say(t("temprole_i_dont_have_permission").replace("${client.iHorizon_Emojis.No}", &no))
+            .await?;
+        return Ok(());
+    }
     let gid = guild_id.get().to_string();
-    let member = guild_id.member(&ctx.http(), user.id).await?;
-    member.add_role(&ctx.http(), role.id).await?;
-    let exp = crate::commands::schedule::main::now_ms() + delta;
+    let already = member.roles.contains(&role.id)
+        || crate::db::kv_get(
+            &ctx.data().pool,
+            &gid,
+            &temprole_key(user.id.get(), role.id.get()),
+        )
+        .await
+        .is_some();
+    if already {
+        ctx.say(t("temprole_already_has_role")).await?;
+        return Ok(());
+    }
+    member.add_role(ctx.http(), role.id).await?;
+    let exp = crate::commands::shared::now_ms() + ms;
     crate::db::kv_set(
         &ctx.data().pool,
         &gid,
@@ -607,26 +1155,26 @@ pub async fn mod_temprole(
         &serde_json::json!({"expires_at_ms": exp}).to_string(),
     )
     .await?;
-    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-    let ms = crate::funcs::beautiful_ms(delta as f64);
-    let no_reason = crate::lang::get(&code, "var_no_set").unwrap_or_default();
-    ctx.say(
-        crate::lang::get(&code, "temprole_command_work")
-            .map(|s| {
-                s.replace("${tomute.id}", &user.id.get().to_string())
-                    .replace("${ms(ms(mutetime))}", &ms)
-                    .replace("${reason}", &no_reason)
-            })
-            .unwrap_or_else(|| {
-                format!(
-                    "{} got {} until <t:{}:F>.",
-                    user.tag(),
-                    role.name,
-                    exp / 1000
-                )
-            }),
+    let mut content = t("temprole_command_work")
+        .replace("${tomute.id}", &user.id.get().to_string())
+        .replace("${ms(ms(mutetime))}", &pretty)
+        .replace("${reason}", &reason_s);
+    if overflow {
+        content += &t("temprole_tomute_max_time_passed")
+            .replace("${client.iHorizon_Emojis.VC_OpenChat}", &vc);
+    }
+    ctx.say(content).await?;
+    post_mod_log(
+        ctx.http(),
+        guild_id,
+        t("temprole_logs_embed_title"),
+        t("temprole_logs_embed_description")
+            .replace("${interaction.user.id}", &ctx.author().id.get().to_string())
+            .replace("${tomute.id}", &user.id.get().to_string())
+            .replace("${ms(ms(mutetime))}", &pretty)
+            .replace("${reason}", &reason_s),
     )
-    .await?;
+    .await;
     Ok(())
 }
 
@@ -643,22 +1191,89 @@ pub async fn mod_tempban(
     #[description = "Duration (e.g. 10m, 1h, 7d)"] duration: String,
     #[description = "Reason"] reason: Option<String>,
 ) -> Result<(), anyhow::Error> {
-    let Some(delta) = crate::commands::schedule::main::parse_duration_ms(&duration) else {
-        let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-        ctx.say(
-            crate::lang::get(&code, "too_new_account_invalid_time_on_enable")
-                .unwrap_or_else(|| "Bad duration.".to_string()),
-        )
-        .await?;
-        return Ok(());
-    };
     let Some(guild_id) = ctx.guild_id() else {
         return Ok(());
     };
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    let t = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
+    let mut ms = crate::funcs::time_ms(&duration) as i64;
+    if ms <= 0 {
+        ctx.say(t("too_new_account_invalid_time_on_enable")).await?;
+        return Ok(());
+    }
+    // 1-year clamp with the TS overflow note.
+    let mut overflow = false;
+    if ms > YEAR_MAX_MS {
+        ms = YEAR_MAX_MS;
+        overflow = true;
+    }
+    let pretty = crate::funcs::beautiful_ms(ms as f64);
+    let reason_s = reason.clone().unwrap_or_else(|| t("var_no_set"));
+    let no = emoji(&ctx, "No", "❌").await;
+    let vc = emoji(&ctx, "VC_OpenChat", "💬").await;
+    let guards = guard_data(&ctx, guild_id).await;
+    if let Some(g) = &guards {
+        if !g.bot_perms.ban_members() {
+            ctx.say(
+                t("tempban_i_dont_have_permission").replace("${client.iHorizon_Emojis.No}", &no),
+            )
+            .await?;
+            return Ok(());
+        }
+    }
+    // In-guild hierarchy + admin guards (skipped for non-members like TS).
+    if let Ok(in_guild) = guild_id.member(ctx.http(), user.id).await {
+        let author_id = ctx.author().id.get();
+        let (bot_top, owner) = guards
+            .as_ref()
+            .map(|g| (g.bot_top, g.owner_id))
+            .unwrap_or((u16::MAX, author_id));
+        if let Some(target_pos) = target_top(&ctx, guild_id, user.id).await {
+            if target_pos >= bot_top && owner != author_id {
+                ctx.say(
+                    t("tempban_user_highest_role_or_same")
+                        .replace("${client.iHorizon_Emojis.No}", &no)
+                        .replace("${user.toString()}", &user.to_string()),
+                )
+                .await?;
+                return Ok(());
+            }
+        }
+        if member_is_admin(&ctx, guild_id, &in_guild) {
+            ctx.say(t("tempban_user_is_admin").replace("${client.iHorizon_Emojis.No}", &no))
+                .await?;
+            return Ok(());
+        }
+    }
     let gid = guild_id.get().to_string();
-    guild_id.ban(&ctx.http(), user.id, 0).await?;
-    let exp = crate::commands::schedule::main::now_ms() + delta;
-    let reason_s = reason.clone().unwrap_or_default();
+    // Mirrors tempbanManager.isAlreadyBanned.
+    if crate::db::kv_get(&ctx.data().pool, &gid, &tempban_key(user.id.get()))
+        .await
+        .is_some()
+    {
+        ctx.say(t("tempban_already_banned")).await?;
+        return Ok(());
+    }
+    let by = ctx
+        .author()
+        .global_name
+        .clone()
+        .unwrap_or_else(|| ctx.author().name.clone());
+    if guild_id
+        .ban_with_reason(
+            ctx.http(),
+            user.id,
+            0,
+            &format!("Tempbanned by: {by} | Reason: {reason_s}"),
+        )
+        .await
+        .is_err()
+    {
+        ctx.say(t("tempban_i_dont_have_permission").replace("${client.iHorizon_Emojis.No}", &no))
+            .await?;
+        return Ok(());
+    }
+    let exp = crate::commands::shared::now_ms() + ms;
     crate::db::kv_set(
         &ctx.data().pool,
         &gid,
@@ -666,17 +1281,27 @@ pub async fn mod_tempban(
         &serde_json::json!({"expires_at_ms": exp, "reason": reason_s}).to_string(),
     )
     .await?;
-    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-    ctx.say(
-        crate::lang::get(&code, "tempban_command_work")
-            .map(|s| {
-                s.replace("${user.id}", &user.id.get().to_string())
-                    .replace("${duration}", duration.trim())
-                    .replace("${reason}", &reason_s)
-            })
-            .unwrap_or_else(|| format!("{} tempbanned until <t:{}:F>.", user.tag(), exp / 1000)),
+    // Beautified duration in the reply, like TS to_beautiful_string.
+    let mut content = t("tempban_command_work")
+        .replace("${user.id}", &user.id.get().to_string())
+        .replace("${duration}", &pretty)
+        .replace("${reason}", &reason_s);
+    if overflow {
+        content +=
+            &t("tempban_max_time_passed").replace("${client.iHorizon_Emojis.VC_OpenChat}", &vc);
+    }
+    ctx.say(content).await?;
+    post_mod_log(
+        ctx.http(),
+        guild_id,
+        t("tempban_logs_embed_title"),
+        t("tempban_logs_embed_description")
+            .replace("${executor.id}", &ctx.author().id.get().to_string())
+            .replace("${user.id}", &user.id.get().to_string())
+            .replace("${duration}", &pretty)
+            .replace("${reason}", &reason_s),
     )
-    .await?;
+    .await;
     Ok(())
 }
 
@@ -695,8 +1320,29 @@ pub fn rolepanel_custom_id(role_id: serenity::RoleId) -> String {
     format!("rolepanel:{}", role_id.get())
 }
 
-/// Lock a text channel (deny SendMessages for @everyone).
-/// Mirrors moderation !lock.ts.
+/// Refused-role reason. Mirrors getRefusedRoleReason in !rolepanel.ts.
+fn rolepanel_refused_reason(
+    role: &serenity::Role,
+    guild_id: serenity::GuildId,
+    bot_top: u16,
+    author_top: u16,
+    author_id: u64,
+    owner_id: u64,
+    t: &impl Fn(&str) -> String,
+) -> Option<String> {
+    if role.id.get() == guild_id.get() || role.managed {
+        return Some(t("rolepanel_role_managed_or_everyone"));
+    }
+    if bot_top <= role.position {
+        return Some(t("rolepanel_role_too_high_bot"));
+    }
+    if owner_id != author_id && author_top <= role.position {
+        return Some(t("rolepanel_role_too_high_user"));
+    }
+    None
+}
+
+/// Lock a channel (deny SendMessages + Connect). Mirrors !lock.ts.
 #[poise::command(
     slash_command,
     prefix_command,
@@ -705,30 +1351,31 @@ pub fn rolepanel_custom_id(role_id: serenity::RoleId) -> String {
 )]
 pub async fn mod_lock(
     ctx: Ctx<'_>,
-    #[description = "Channel"]
-    #[channel_types("Text")]
-    channel: Option<serenity::GuildChannel>,
+    #[description = "Role to lock (default @everyone)"] role: Option<serenity::Role>,
 ) -> Result<(), anyhow::Error> {
-    let ch_id = match channel {
-        Some(c) => c.id,
-        None => match ctx.guild_channel().await {
-            Some(c) => c.id,
-            None => return Ok(()),
-        },
+    let Some(guild_id) = ctx.guild_id() else {
+        return Ok(());
     };
-    ch_id
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    let t = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
+    let Some(current) = ctx.guild_channel().await else {
+        return Ok(());
+    };
+    let target = role
+        .map(|r| r.id)
+        .unwrap_or_else(|| serenity::RoleId::new(guild_id.get()));
+    // TS denies both SendMessages and Connect.
+    let _ = current
+        .id
         .create_permission(
-            &ctx.http(),
+            ctx.http(),
             serenity::PermissionOverwrite {
                 allow: serenity::Permissions::empty(),
-                deny: serenity::Permissions::SEND_MESSAGES,
-                kind: serenity::PermissionOverwriteType::Role(serenity::RoleId::new(
-                    ctx.guild_id().map(|g| g.get()).unwrap_or(0),
-                )),
+                deny: serenity::Permissions::SEND_MESSAGES | serenity::Permissions::CONNECT,
+                kind: serenity::PermissionOverwriteType::Role(target),
             },
         )
-        .await?;
-    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+        .await;
     let author_id = ctx.author().id.get().to_string();
     ctx.say(
         crate::lang::get(&code, "lock_embed_message_description")
@@ -736,10 +1383,19 @@ pub async fn mod_lock(
             .unwrap_or_else(|| "Channel locked.".to_string()),
     )
     .await?;
+    post_mod_log(
+        ctx.http(),
+        guild_id,
+        t("lock_logs_embed_title"),
+        t("lock_logs_embed_description")
+            .replace("${interaction.user.id}", &author_id)
+            .replace("${interaction.channel.id}", &current.id.get().to_string()),
+    )
+    .await;
     Ok(())
 }
 
-/// Unlock a text channel. Mirrors moderation !unlock.ts.
+/// Unlock a channel. Mirrors !unlock.ts: neutral overwrite, not delete.
 #[poise::command(
     slash_command,
     prefix_command,
@@ -748,33 +1404,46 @@ pub async fn mod_lock(
 )]
 pub async fn mod_unlock(
     ctx: Ctx<'_>,
-    #[description = "Channel"]
-    #[channel_types("Text")]
-    channel: Option<serenity::GuildChannel>,
+    #[description = "Role to unlock (default @everyone)"] role: Option<serenity::Role>,
 ) -> Result<(), anyhow::Error> {
-    let ch_id = match channel {
-        Some(c) => c.id,
-        None => match ctx.guild_channel().await {
-            Some(c) => c.id,
-            None => return Ok(()),
-        },
+    let Some(guild_id) = ctx.guild_id() else {
+        return Ok(());
     };
-    ch_id
-        .delete_permission(
-            &ctx.http(),
-            serenity::PermissionOverwriteType::Role(serenity::RoleId::new(
-                ctx.guild_id().map(|g| g.get()).unwrap_or(0),
-            )),
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    let t = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
+    let Some(current) = ctx.guild_channel().await else {
+        return Ok(());
+    };
+    let target = role
+        .map(|r| r.id)
+        .unwrap_or_else(|| serenity::RoleId::new(guild_id.get()));
+    // TS writes {SendMessages: null, Connect: null}; an empty PUT
+    // overwrite is the equivalent neutral state.
+    let _ = current
+        .id
+        .create_permission(
+            ctx.http(),
+            serenity::PermissionOverwrite {
+                allow: serenity::Permissions::empty(),
+                deny: serenity::Permissions::empty(),
+                kind: serenity::PermissionOverwriteType::Role(target),
+            },
         )
-        .await?;
+        .await;
     ctx.say(
-        crate::lang::get(
-            &crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await,
-            "unlock_embed_message_description",
-        )
-        .unwrap_or_else(|| "Channel unlocked.".to_string()),
+        crate::lang::get(&code, "unlock_embed_message_description")
+            .unwrap_or_else(|| "Channel unlocked.".to_string()),
     )
     .await?;
+    post_mod_log(
+        ctx.http(),
+        guild_id,
+        t("unlock_logs_embed_title"),
+        t("unlock_logs_embed_description")
+            .replace("${interaction.user.id}", &ctx.author().id.get().to_string())
+            .replace("${interaction.channel.id}", &current.id.get().to_string()),
+    )
+    .await;
     Ok(())
 }
 
@@ -788,25 +1457,43 @@ pub async fn mod_unlock(
 pub async fn mod_rolepanel(
     ctx: Ctx<'_>,
     #[description = "Channel to post in"] channel: serenity::Channel,
+    #[description = "Member the panel is for (default yourself)"] member: Option<serenity::User>,
     #[description = "Role 1"] role1: serenity::Role,
     #[description = "Role 2"] role2: Option<serenity::Role>,
     #[description = "Role 3"] role3: Option<serenity::Role>,
     #[description = "Role 4"] role4: Option<serenity::Role>,
 ) -> Result<(), anyhow::Error> {
-    let roles: Vec<serenity::Role> = [Some(role1), role2, role3, role4]
+    let Some(guild_id) = ctx.guild_id() else {
+        return Ok(());
+    };
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    let t = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
+    // Member targeting: TS defaults the panel target to the author.
+    let target = member.unwrap_or_else(|| ctx.author().clone());
+    let all: Vec<serenity::Role> = [Some(role1), role2, role3, role4]
         .into_iter()
         .flatten()
         .collect();
-    if roles.is_empty() {
-        let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-        ctx.say(
-            crate::lang::get(&code, "rolepanel_setup_no_roles")
-                .unwrap_or_else(|| "Give at least one role.".to_string()),
-        )
-        .await?;
+    // Role validation with a refused list. Mirrors getRefusedRoleReason.
+    let guards = guard_data(&ctx, guild_id).await;
+    let author_id = ctx.author().id.get();
+    let (bot_top, author_top, owner) = guards
+        .as_ref()
+        .map(|g| (g.bot_top, g.author_top, g.owner_id))
+        .unwrap_or((u16::MAX, u16::MAX, author_id));
+    let mut valid: Vec<serenity::Role> = vec![];
+    let mut refused: Vec<String> = vec![];
+    for r in all {
+        match rolepanel_refused_reason(&r, guild_id, bot_top, author_top, author_id, owner, &t) {
+            Some(why) => refused.push(format!("<@&{}>: {why}", r.id.get())),
+            None => valid.push(r),
+        }
+    }
+    if valid.is_empty() {
+        ctx.say(t("rolepanel_setup_no_roles")).await?;
         return Ok(());
     }
-    let buttons: Vec<serenity::CreateButton> = roles
+    let buttons: Vec<serenity::CreateButton> = valid
         .iter()
         .map(|r| {
             serenity::CreateButton::new(rolepanel_custom_id(r.id))
@@ -820,22 +1507,41 @@ pub async fn mod_rolepanel(
         .map(|c| serenity::CreateActionRow::Buttons(c.to_vec()))
         .collect();
 
-    let guild_channel = channel.id().to_channel(&ctx.http()).await?;
-    let target = guild_channel.guild().expect("guild channel only");
-    target
+    let guild_channel = channel.id().to_channel(ctx.http()).await?;
+    let target_ch = guild_channel.guild().expect("guild channel only");
+    let posted = target_ch
         .send_message(
-            &ctx.http(),
+            ctx.http(),
             serenity::CreateMessage::new()
-                .content("Click to toggle your role.")
+                .content(format!("{}\n{}", t("rolepanel_panel_embed_desc"), target))
                 .components(rows),
         )
         .await?;
-    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-    ctx.say(
-        crate::lang::get(&code, "rolepanel_setup_saved")
-            .unwrap_or_else(|| "Role panel posted.".to_string()),
+    let mut confirm = t("rolepanel_setup_saved");
+    if !refused.is_empty() {
+        confirm += &format!(
+            "\n{}",
+            t("rolepanel_apply_refused").replace("${roles}", &refused.join(", "))
+        );
+    }
+    ctx.say(confirm).await?;
+    post_mod_log(
+        ctx.http(),
+        guild_id,
+        t("rolepanel_logs_embed_title_create"),
+        t("rolepanel_logs_embed_desc_create")
+            .replace("${interaction.user.id}", &ctx.author().id.get().to_string())
+            .replace("${message.id}", &posted.id.get().to_string())
+            .replace(
+                "${roles}",
+                &valid
+                    .iter()
+                    .map(|r| format!("<@&{}>", r.id.get()))
+                    .collect::<Vec<_>>()
+                    .join(", "),
+            ),
     )
-    .await?;
+    .await;
     Ok(())
 }
 
@@ -852,6 +1558,39 @@ pub async fn handle_rolepanel_button(
     let Some(role_id) = parse_rolepanel_custom_id(&comp.data.custom_id) else {
         return Ok(());
     };
+    // Validate the role before toggling (managed/everyone + bot hierarchy).
+    let roles = guild_id.roles(&ctx.http).await.unwrap_or_default();
+    let Some(role) = roles.get(&role_id) else {
+        comp.create_response(
+            &ctx.http,
+            serenity::CreateInteractionResponse::Message(
+                serenity::CreateInteractionResponseMessage::new()
+                    .content("Role not found.")
+                    .ephemeral(true),
+            ),
+        )
+        .await?;
+        return Ok(());
+    };
+    let bot_id = ctx.cache.current_user().id;
+    let bot_top = guild_id
+        .member(&ctx.http, bot_id)
+        .await
+        .ok()
+        .map(|m| top_of(&roles, &m.roles))
+        .unwrap_or(u16::MAX);
+    if role.id.get() == guild_id.get() || role.managed || bot_top <= role.position {
+        comp.create_response(
+            &ctx.http,
+            serenity::CreateInteractionResponse::Message(
+                serenity::CreateInteractionResponseMessage::new()
+                    .content(format!("<@&{}>: refused.", role.id.get()))
+                    .ephemeral(true),
+            ),
+        )
+        .await?;
+        return Ok(());
+    }
     let member = guild_id.member(&ctx.http, comp.user.id).await?;
     let has = member.roles.contains(&role_id);
     if has {
@@ -863,7 +1602,11 @@ pub async fn handle_rolepanel_button(
         &ctx.http,
         serenity::CreateInteractionResponse::Message(
             serenity::CreateInteractionResponseMessage::new()
-                .content(if has { "Role removed." } else { "Role added." })
+                .content(if has {
+                    format!("Roles removed: <@&{}>", role_id.get())
+                } else {
+                    format!("Roles added: <@&{}>", role_id.get())
+                })
                 .ephemeral(true),
         ),
     )
@@ -871,7 +1614,7 @@ pub async fn handle_rolepanel_button(
     Ok(())
 }
 
-/// Unban by user id. Mirrors !unban.ts.
+/// Unban a user by id.
 #[poise::command(
     slash_command,
     prefix_command,
@@ -882,47 +1625,66 @@ pub async fn handle_rolepanel_button(
 pub async fn mod_unban(
     ctx: Ctx<'_>,
     #[description = "User id"] user_id: String,
+    #[description = "Reason"] reason: Option<String>,
 ) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {
         return Ok(());
     };
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    let t = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
+    let no = emoji(&ctx, "No", "❌").await;
+    if let Some(g) = guard_data(&ctx, guild_id).await {
+        if !g.bot_perms.ban_members() {
+            ctx.say(
+                t("unban_bot_dont_have_permission").replace("${client.iHorizon_Emojis.No}", &no),
+            )
+            .await?;
+            return Ok(());
+        }
+    }
+    let reason_s = reason.unwrap_or_else(|| t("unban_reason"));
     let Ok(uid) = user_id.trim().parse::<u64>() else {
-        ctx.say(
-            crate::lang::get(&code, "msg_bad_user_id")
-                .unwrap_or_else(|| "Bad user id.".to_string()),
-        )
-        .await?;
+        ctx.say(t("msg_bad_user_id")).await?;
         return Ok(());
     };
-    match guild_id
-        .unban(&ctx.http(), poise::serenity_prelude::UserId::new(uid))
+    // Fetch-first flow: nobody-banned branch, then not-banned branch.
+    let bans = guild_id
+        .bans(ctx.http(), None, None)
         .await
-    {
-        Ok(_) => {
-            ctx.say(
-                crate::lang::get(&code, "unban_is_now_unbanned")
-                    .map(|s| s.replace("${userID}", &uid.to_string()))
-                    .unwrap_or_else(|| "Unbanned.".to_string()),
-            )
-            .await?
-        }
-        Err(_) => {
-            let no = crate::emojis::app_emoji_markup(&ctx.serenity_context().http, "No")
-                .await
-                .unwrap_or_else(|| "❌".to_string());
-            ctx.say(
-                crate::lang::get(&code, "unban_the_member_is_not_banned")
-                    .map(|s| s.replace("${client.iHorizon_Emojis.No}", &no))
-                    .unwrap_or_else(|| "Unban failed.".to_string()),
-            )
-            .await?
-        }
-    };
+        .unwrap_or_default();
+    if bans.is_empty() {
+        ctx.say(t("unban_there_is_nobody_banned").replace("${client.iHorizon_Emojis.No}", &no))
+            .await?;
+        return Ok(());
+    }
+    if !bans.iter().any(|b| b.user.id.get() == uid) {
+        ctx.say(t("unban_the_member_is_not_banned").replace("${client.iHorizon_Emojis.No}", &no))
+            .await?;
+        return Ok(());
+    }
+    // Audit reason carried on the unban, best-effort like TS.
+    let _ = ctx
+        .http()
+        .remove_ban(guild_id, serenity::UserId::new(uid), Some(&reason_s))
+        .await;
+    // Clear any tempban row for the user.
+    let gid = guild_id.get().to_string();
+    let _ = crate::db::kv_del(&ctx.data().pool, &gid, &tempban_key(uid)).await;
+    ctx.say(t("unban_is_now_unbanned").replace("${userID}", &uid.to_string()))
+        .await?;
+    post_mod_log(
+        ctx.http(),
+        guild_id,
+        t("unban_logs_embed_title"),
+        t("unban_logs_embed_description")
+            .replace("${userID}", &uid.to_string())
+            .replace("${interaction.user.id}", &ctx.author().id.get().to_string()),
+    )
+    .await;
     Ok(())
 }
 
-/// Ban info. Mirrors !baninfo.ts.
+/// Show ban info for a user.
 #[poise::command(
     slash_command,
     prefix_command,
@@ -937,39 +1699,71 @@ pub async fn mod_baninfo(
         return Ok(());
     };
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    let t = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
     let Ok(uid) = user_id.trim().parse::<u64>() else {
-        ctx.say(
-            crate::lang::get(&code, "baninfo_user_not_found")
-                .unwrap_or_else(|| "Bad user id.".to_string()),
-        )
-        .await?;
+        ctx.say(t("baninfo_user_not_found")).await?;
         return Ok(());
     };
-    let bans = guild_id
-        .bans(&ctx.http(), None, None)
+    let ban = guild_id
+        .get_ban(ctx.http(), serenity::UserId::new(uid))
         .await
-        .unwrap_or_default();
-    match bans.iter().find(|b| b.user.id.get() == uid) {
-        Some(b) => {
-            ctx.say(format!(
-                "Banned: {} (reason: {}).",
-                b.user.tag(),
-                b.reason.clone().unwrap_or_default()
-            ))
-            .await?;
-        }
-        None => {
-            ctx.say(
-                crate::lang::get(&code, "baninfo_not_banned")
-                    .unwrap_or_else(|| "Not banned.".to_string()),
-            )
-            .await?;
+        .unwrap_or(None);
+    let Some(ban) = ban else {
+        ctx.say(t("baninfo_not_banned")).await?;
+        return Ok(());
+    };
+    // Executor + date from the MemberBanAdd audit log entry.
+    let mut executor = t("var_unknown");
+    let mut when = crate::bot::now_ms() / 1000;
+    if let Ok(logs) = guild_id
+        .audit_logs(
+            ctx.http(),
+            Some(serenity::model::guild::audit_log::Action::Member(
+                serenity::model::guild::audit_log::MemberAction::BanAdd,
+            )),
+            None,
+            None,
+            Some(100),
+        )
+        .await
+    {
+        if let Some(entry) = logs
+            .entries
+            .iter()
+            .find(|e| e.target_id.map(|g| g.get()) == Some(uid))
+        {
+            when = entry.id.created_at().unix_timestamp();
+            executor = logs
+                .users
+                .get(&entry.user_id)
+                .map(|u| u.tag())
+                .unwrap_or_else(|| t("var_unknown"));
         }
     }
+    let name = ban
+        .user
+        .global_name
+        .clone()
+        .unwrap_or_else(|| ban.user.name.clone());
+    let avatar = ban.user.avatar_url().unwrap_or_default();
+    let mut embed = serenity::CreateEmbed::default()
+        .title(format!("{}: {name}", t("baninfo_ban_info")))
+        .colour(serenity::Colour::from_rgb(79, 219, 18))
+        .description(format!(
+            "> **{}:** <t:{when}:F>\n> **{}:** {executor}\n> **{}:** {}",
+            t("var_ban_date"),
+            t("var_banned_by"),
+            t("var_reason"),
+            ban.reason.unwrap_or_else(|| t("blacklist_var_no_reason")),
+        ));
+    if !avatar.is_empty() {
+        embed = embed.thumbnail(avatar);
+    }
+    ctx.send(poise::CreateReply::default().embed(embed)).await?;
     Ok(())
 }
 
-/// Ban list. Mirrors !banlist.ts.
+/// List banned members.
 #[poise::command(
     slash_command,
     prefix_command,
@@ -977,29 +1771,46 @@ pub async fn mod_baninfo(
     aliases("bans", "listban", "listbans", "banlists"),
     default_member_permissions = "MANAGE_GUILD"
 )]
-pub async fn mod_banlist(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
+pub async fn mod_banlist(
+    ctx: Ctx<'_>,
+    #[description = "Page"] page: Option<i64>,
+) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {
         return Ok(());
     };
     let bans = guild_id
-        .bans(&ctx.http(), None, None)
+        .bans(ctx.http(), None, None)
         .await
         .unwrap_or_default();
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-    ctx.say(if bans.is_empty() {
-        crate::lang::get(&code, "var_no_one_banned").unwrap_or_else(|| "No bans.".to_string())
-    } else {
-        bans.iter()
-            .take(25)
-            .map(|b| b.user.tag())
-            .collect::<Vec<_>>()
-            .join("\n")
-    })
+    let t = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
+    if bans.is_empty() {
+        ctx.say(t("var_no_one_banned")).await?;
+        return Ok(());
+    }
+    let (start, end, pages) = paginate(bans.len(), LIST_PAGE_SIZE, page.unwrap_or(1));
+    let cur = start / LIST_PAGE_SIZE + 1;
+    let body = bans[start..end]
+        .iter()
+        .map(|b| {
+            format!(
+                "[{}](https://discord.com/users/{}) ({})",
+                b.user.id.get(),
+                b.user.id.get(),
+                b.user
+            )
+        })
+        .collect::<Vec<_>>()
+        .join("\n");
+    ctx.say(format!(
+        "{title} ({cur}/{pages})\n{body}",
+        title = t("var_banned_user")
+    ))
     .await?;
     Ok(())
 }
 
-/// Mute list (timed-out members from cache). Mirrors !mutelist.ts.
+/// List muted members.
 #[poise::command(
     slash_command,
     prefix_command,
@@ -1007,11 +1818,16 @@ pub async fn mod_banlist(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     aliases("allmute", "allmutes", "alltimeout", "alltimeouts"),
     default_member_permissions = "MODERATE_MEMBERS"
 )]
-pub async fn mod_mutelist(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
+pub async fn mod_mutelist(
+    ctx: Ctx<'_>,
+    #[description = "Page"] page: Option<i64>,
+) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {
         return Ok(());
     };
-    let muted: Vec<String> = ctx
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    let t = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
+    let muted: Vec<(String, i64)> = ctx
         .serenity_context()
         .cache
         .guild(guild_id)
@@ -1019,22 +1835,37 @@ pub async fn mod_mutelist(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
             g.members
                 .values()
                 .filter(|m| m.communication_disabled_until.is_some())
-                .map(|m| m.user.tag())
+                .map(|m| {
+                    let remaining = m
+                        .communication_disabled_until
+                        .map(|until| (until.unix_timestamp() * 1000 - crate::bot::now_ms()).max(0))
+                        .unwrap_or(0);
+                    (m.user.to_string(), remaining)
+                })
                 .collect()
         })
         .unwrap_or_default();
-    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-    ctx.say(if muted.is_empty() {
-        crate::lang::get(&code, "prevnames_undetected")
-            .unwrap_or_else(|| "Nobody muted.".to_string())
-    } else {
-        muted.join(", ")
-    })
-    .await?;
+    if muted.is_empty() {
+        ctx.say(t("prevnames_undetected")).await?;
+        return Ok(());
+    }
+    let (start, end, pages) = paginate(muted.len(), LIST_PAGE_SIZE, page.unwrap_or(1));
+    let cur = start / LIST_PAGE_SIZE + 1;
+    let body = muted[start..end]
+        .iter()
+        .map(|(mention, remaining)| {
+            format!(
+                "{mention} - `{}`",
+                crate::funcs::beautiful_ms(*remaining as f64)
+            )
+        })
+        .collect::<Vec<_>>()
+        .join("\n");
+    ctx.say(format!("({cur}/{pages})\n{body}")).await?;
     Ok(())
 }
 
-/// Unmute one member. Mirrors !unmute.ts.
+/// Unmute a member.
 #[poise::command(
     slash_command,
     prefix_command,
@@ -1049,19 +1880,50 @@ pub async fn mod_unmute(
     let Some(guild_id) = ctx.guild_id() else {
         return Ok(());
     };
-    let mut member = guild_id.member(&ctx.http(), user.id).await?;
-    member.enable_communication(&ctx.http()).await?;
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-    ctx.say(
-        crate::lang::get(&code, "unmute_command_work")
-            .map(|s| s.replace("${tomute.id}", &user.id.get().to_string()))
-            .unwrap_or_else(|| "Unmuted.".to_string()),
+    let t = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
+    let no = emoji(&ctx, "No", "❌").await;
+    // TS checks ManageRoles on the bot here.
+    if let Some(g) = guard_data(&ctx, guild_id).await {
+        if !g.bot_perms.manage_roles() {
+            ctx.say(
+                t("unmute_i_dont_have_permission").replace("${client.iHorizon_Emojis.No}", &no),
+            )
+            .await?;
+            return Ok(());
+        }
+    }
+    if user.id == ctx.author().id {
+        ctx.say(t("unmute_attempt_mute_your_self").replace("${client.iHorizon_Emojis.No}", &no))
+            .await?;
+        return Ok(());
+    }
+    let member = guild_id.member(ctx.http(), user.id).await.ok();
+    let Some(mut member) = member else {
+        ctx.say(t("ban_dont_found_member")).await?;
+        return Ok(());
+    };
+    if member.communication_disabled_until.is_none() {
+        ctx.say(t("unmute_not_muted")).await?;
+        return Ok(());
+    }
+    // Fire-and-forget like the TS un-awaited disableCommunicationUntil.
+    let _ = member.enable_communication(ctx.http()).await;
+    ctx.say(t("unmute_command_work").replace("${tomute.id}", &user.id.get().to_string()))
+        .await?;
+    post_mod_log(
+        ctx.http(),
+        guild_id,
+        t("unmute_logs_embed_title"),
+        t("unmute_logs_embed_description")
+            .replace("${interaction.user.id}", &ctx.author().id.get().to_string())
+            .replace("${tomute.id}", &user.id.get().to_string()),
     )
-    .await?;
+    .await;
     Ok(())
 }
 
-/// Unmute everyone timed out. Mirrors !unmuteall.ts.
+/// Unmute all timed-out members.
 #[poise::command(
     slash_command,
     prefix_command,
@@ -1073,6 +1935,18 @@ pub async fn mod_unmuteall(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {
         return Ok(());
     };
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    let t = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
+    let no = emoji(&ctx, "No", "❌").await;
+    if let Some(g) = guard_data(&ctx, guild_id).await {
+        if !g.bot_perms.manage_roles() {
+            ctx.say(
+                t("unmute_i_dont_have_permission").replace("${client.iHorizon_Emojis.No}", &no),
+            )
+            .await?;
+            return Ok(());
+        }
+    }
     let ids: Vec<poise::serenity_prelude::UserId> = ctx
         .serenity_context()
         .cache
@@ -1085,25 +1959,44 @@ pub async fn mod_unmuteall(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
                 .collect()
         })
         .unwrap_or_default();
-    let mut n = 0;
+    if ids.is_empty() {
+        ctx.say(t("unmuteall_no_muted_members")).await?;
+        return Ok(());
+    }
+    let total = ids.len();
+    let audit = t("unmuteall_audit_reason");
+    let mut unmuted = 0;
     for uid in ids {
-        if let Ok(member) = guild_id.member(&ctx.http(), uid).await {
-            let mut member = member;
-            if member.enable_communication(&ctx.http()).await.is_ok() {
-                n += 1;
-            }
+        if guild_id
+            .edit_member(
+                ctx.http(),
+                uid,
+                serenity::builder::EditMember::new()
+                    .enable_communication()
+                    .audit_log_reason(&audit),
+            )
+            .await
+            .is_ok()
+        {
+            unmuted += 1;
         }
     }
-    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     ctx.say(
-        crate::lang::get(&code, "unmuteall_command_work")
-            .map(|s| {
-                s.replace("${unmuted}", &n.to_string())
-                    .replace("${total}", &n.to_string())
-            })
-            .unwrap_or_else(|| format!("Unmuted {n}.")),
+        t("unmuteall_command_work")
+            .replace("${unmuted}", &unmuted.to_string())
+            .replace("${total}", &total.to_string()),
     )
     .await?;
+    post_mod_log(
+        ctx.http(),
+        guild_id,
+        t("unmuteall_logs_embed_title"),
+        t("unmuteall_logs_embed_description")
+            .replace("${interaction.user.id}", &ctx.author().id.get().to_string())
+            .replace("${unmuted}", &unmuted.to_string())
+            .replace("${total}", &total.to_string()),
+    )
+    .await;
     Ok(())
 }
 
@@ -1192,7 +2085,7 @@ pub async fn mod_clear_all_warns(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())
 }
 
-/// Lock/unlock every text channel. Mirrors !lock-all.ts / !unlock-all.ts.
+/// Lock or unlock all text channels.
 #[poise::command(
     slash_command,
     prefix_command,
@@ -1200,8 +2093,11 @@ pub async fn mod_clear_all_warns(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     aliases("lockall"),
     default_member_permissions = "ADMINISTRATOR"
 )]
-pub async fn mod_lock_all(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
-    lock_all_inner(&ctx, false).await
+pub async fn mod_lock_all(
+    ctx: Ctx<'_>,
+    #[description = "Role to lock (default @everyone)"] role: Option<serenity::Role>,
+) -> Result<(), anyhow::Error> {
+    lock_all_inner(&ctx, false, role).await
 }
 
 #[poise::command(
@@ -1211,14 +2107,24 @@ pub async fn mod_lock_all(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     aliases("unlockall"),
     default_member_permissions = "ADMINISTRATOR"
 )]
-pub async fn mod_unlock_all(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
-    lock_all_inner(&ctx, true).await
+pub async fn mod_unlock_all(
+    ctx: Ctx<'_>,
+    #[description = "Role to unlock (default @everyone)"] role: Option<serenity::Role>,
+) -> Result<(), anyhow::Error> {
+    lock_all_inner(&ctx, true, role).await
 }
 
-async fn lock_all_inner(ctx: &Ctx<'_>, unlock: bool) -> Result<(), anyhow::Error> {
+async fn lock_all_inner(
+    ctx: &Ctx<'_>,
+    unlock: bool,
+    role: Option<serenity::Role>,
+) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {
         return Ok(());
     };
+    let target = role
+        .map(|r| r.id)
+        .unwrap_or_else(|| serenity::RoleId::new(guild_id.get()));
     let channels: Vec<poise::serenity_prelude::ChannelId> = ctx
         .serenity_context()
         .cache
@@ -1231,40 +2137,50 @@ async fn lock_all_inner(ctx: &Ctx<'_>, unlock: bool) -> Result<(), anyhow::Error
                 .collect()
         })
         .unwrap_or_default();
-    let everyone = poise::serenity_prelude::RoleId::new(guild_id.get());
+    // TS fires one overwrite per text channel without awaiting each.
     for ch in channels {
-        if unlock {
-            let _ = ch
-                .delete_permission(
-                    ctx.http(),
-                    poise::serenity_prelude::PermissionOverwriteType::Role(everyone),
-                )
-                .await;
+        let overwrite = if unlock {
+            // TS unlock-all writes {SendMessages: true}.
+            serenity::PermissionOverwrite {
+                allow: serenity::Permissions::SEND_MESSAGES,
+                deny: serenity::Permissions::empty(),
+                kind: serenity::PermissionOverwriteType::Role(target),
+            }
         } else {
-            let _ = ch
-                .create_permission(
-                    ctx.http(),
-                    poise::serenity_prelude::PermissionOverwrite {
-                        allow: poise::serenity_prelude::Permissions::empty(),
-                        deny: poise::serenity_prelude::Permissions::SEND_MESSAGES,
-                        kind: poise::serenity_prelude::PermissionOverwriteType::Role(everyone),
-                    },
-                )
-                .await;
-        }
+            // TS lock-all writes {SendMessages: false}.
+            serenity::PermissionOverwrite {
+                allow: serenity::Permissions::empty(),
+                deny: serenity::Permissions::SEND_MESSAGES,
+                kind: serenity::PermissionOverwriteType::Role(target),
+            }
+        };
+        let _ = ch.create_permission(ctx.http(), overwrite).await;
     }
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    let t = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
     let author_id = ctx.author().id.get().to_string();
     ctx.say(if unlock {
-        crate::lang::get(&code, "unlockall_embed_message_description")
-            .map(|s| s.replace("${interaction.user.id}", &author_id))
-            .unwrap_or_else(|| "Unlocked all.".to_string())
+        t("unlockall_embed_message_description").replace("${interaction.user.id}", &author_id)
     } else {
-        crate::lang::get(&code, "lockall_embed_message_description")
-            .map(|s| s.replace("${interaction.user.id}", &author_id))
-            .unwrap_or_else(|| "Locked all.".to_string())
+        t("lockall_embed_message_description").replace("${interaction.user.id}", &author_id)
     })
     .await?;
+    post_mod_log(
+        ctx.http(),
+        guild_id,
+        t(if unlock {
+            "unlockall_logs_embed_title"
+        } else {
+            "lockall_logs_embed_title"
+        }),
+        t(if unlock {
+            "unlockall_logs_embed_description"
+        } else {
+            "lockall_logs_embed_description"
+        })
+        .replace("${interaction.user.id}", &author_id),
+    )
+    .await;
     Ok(())
 }
 
@@ -1308,5 +2224,13 @@ mod tests {
         let e = TempEntry { expires_at_ms: 100 };
         assert!(temp_expired(&e, 100));
         assert!(!temp_expired(&e, 99));
+    }
+
+    #[test]
+    fn paginate_windows() {
+        assert_eq!(paginate(12, 5, 1), (0, 5, 3));
+        assert_eq!(paginate(12, 5, 3), (10, 12, 3));
+        assert_eq!(paginate(12, 5, 99), (10, 12, 3));
+        assert_eq!(paginate(0, 5, 1), (0, 0, 1));
     }
 }
