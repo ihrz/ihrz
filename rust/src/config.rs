@@ -118,15 +118,17 @@ impl Default for Config {
 /// set; otherwise both the repo-root layout (`rust/config.toml`) and the
 /// crate-dir layout (`config.toml`) are tried.
 fn candidate_files() -> Vec<std::path::PathBuf> {
-    let mut out = vec![];
     if let Ok(v) = std::env::var("CONFIG_FILE") {
         if !v.is_empty() {
-            out.push(std::path::PathBuf::from(v));
+            // Explicit override: only this path is tried (no repo fallback),
+            // so tests and deployments with CONFIG_FILE stay hermetic.
+            return vec![std::path::PathBuf::from(v)];
         }
     }
-    out.push(std::path::PathBuf::from("rust/config.toml"));
-    out.push(std::path::PathBuf::from("config.toml"));
-    out
+    vec![
+        std::path::PathBuf::from("rust/config.toml"),
+        std::path::PathBuf::from("config.toml"),
+    ]
 }
 
 fn get_str(table: &toml::map::Map<String, toml::Value>, key: &str) -> Option<String> {
