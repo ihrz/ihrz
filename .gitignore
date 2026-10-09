@@ -179,6 +179,7 @@ src/files/custom-enabled-guilds.json
 
 # Rust (ihrz monorepo rust/)
 rust/target/
+rust/config.toml
 **/*.rs.bk
 .cargo-ok
 

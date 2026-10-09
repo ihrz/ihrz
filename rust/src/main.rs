@@ -10,6 +10,7 @@
 #![allow(dead_code)]
 
 mod audio;
+mod backends;
 mod backup_types;
 mod bot;
 mod cards;

@@ -2569,4 +2569,6 @@ export interface LanguageData {
 	msg_whitelist_role_added: string;
 	msg_whitelist_updated: string;
 	msg_word_added: string;
+	msg_rank_roles_empty: string;
+	msg_rank_role_row: string;
 }

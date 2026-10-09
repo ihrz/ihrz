@@ -513,7 +513,7 @@ mod tests {
         assert_eq!((back.width(), back.height()), (1920, 960));
 
         // resizeImage with dims: letterboxed canvas file, original metadata.
-        let dir = std::env::temp_dir().join("ihrz-media-test");
+        let dir = std::env::temp_dir().join(format!("ihrz-media-test-{}", std::process::id()));
         std::fs::create_dir_all(&dir).expect("tmpdir");
         let out = dir.join("letter.png");
         let meta = resize_image_file(&png, &out, Some((1920, 1080))).expect("resize");

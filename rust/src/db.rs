@@ -14,7 +14,25 @@ use crate::config::Config;
 
 pub type Pool = SqlitePool;
 
+/// Create the sqlite parent directory when missing so boot never
+/// fails with "unable to open database file" just because the
+/// working directory differs (e.g. `cargo run` from `rust/`).
+/// Run from the repo root to share `src/files/db.sqlite` with TS.
+fn ensure_parent_dir(database_url: &str) {
+    let path = database_url.strip_prefix("sqlite:").unwrap_or(database_url);
+    let path = path.split('?').next().unwrap_or(path);
+    if path == ":memory:" || path.is_empty() {
+        return;
+    }
+    if let Some(parent) = std::path::Path::new(path).parent() {
+        if !parent.as_os_str().is_empty() {
+            let _ = std::fs::create_dir_all(parent);
+        }
+    }
+}
+
 pub async fn init(cfg: &Config) -> anyhow::Result<Pool> {
+    ensure_parent_dir(&cfg.database_url);
     let opts = SqliteConnectOptions::from_str(&cfg.database_url)?.create_if_missing(true);
     let pool = SqlitePoolOptions::new()
         .max_connections(5)
@@ -89,9 +107,13 @@ pub async fn guild_prefix(pool: &Pool, guild_id: Option<u64>, default: &str) -> 
 
 /// Bot-level blacklist lookup. Mirrors blacklistTable.get (scope "0").
 pub async fn is_blacklisted(pool: &Pool, user_id: u64) -> bool {
-    crate::db::kv_get(pool, "0", &crate::commands::owner::blacklist_key(user_id))
-        .await
-        .is_some()
+    crate::db::kv_get(
+        pool,
+        "0",
+        &crate::commands::owner::main::blacklist_key(user_id),
+    )
+    .await
+    .is_some()
 }
 
 /// Mirrors getLanguageData(guildId): per-guild lang, en-US fallback.
@@ -202,5 +224,21 @@ mod tests {
         let pool = init(&cfg).await.unwrap();
         kv_set(&pool, "g", "k", "v").await.unwrap();
         assert_eq!(kv_get(&pool, "g", "k").await.as_deref(), Some("v"));
+    }
+
+    #[tokio::test]
+    async fn init_creates_missing_parent_dir() {
+        let dir = std::env::temp_dir().join(format!("ihrz-db-test-{}", std::process::id()));
+        let db = dir.join("sub").join("test.sqlite");
+        let _ = std::fs::remove_dir_all(&dir);
+        let cfg = Config {
+            database_url: format!("sqlite:{}?mode=rwc", db.display()),
+            ..Config::default()
+        };
+        let pool = init(&cfg).await.unwrap();
+        kv_set(&pool, "g", "k", "v").await.unwrap();
+        assert_eq!(kv_get(&pool, "g", "k").await.as_deref(), Some("v"));
+        assert!(db.exists());
+        let _ = std::fs::remove_dir_all(&dir);
     }
 }

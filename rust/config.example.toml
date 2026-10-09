@@ -1,0 +1,64 @@
+# iHorizon Rust bot configuration — example file.
+# Mirrors src/files/config.example.ts (section layout + comments).
+# Copy to `config.toml` (next to this file, or repo-root `rust/config.toml`):
+#   cp config.example.toml config.toml
+# Load order: built-in defaults < config.toml < environment variables.
+# SECURITY: the Discord bot token is ENV-ONLY (`BOT_TOKEN`). There is no
+# `token` key on purpose — never put a real token in this file.
+# Same for `HORIZON_API_TOKEN` (api.api_token) and Last.fm secrets below.
+
+[discord]
+# token: intentionally absent — export BOT_TOKEN in the environment.
+phone_presence = false
+message_commands_mention = true
+default_prefix = "?"
+
+[core]
+dev_mode = true
+blacklist_picture = "https://ihorizon.org/assets/img/bot/bsod.png"
+guild_logs_channel_id = ""
+report_channel_id = "1509600857828626482"
+lavalink_logs_channel_id = ""
+
+[command]
+# Love command: couples that always show 100%. Format "USER_ID_ONExUSER_ID_TWO".
+always100 = []
+
+[owners]
+# Extra owners (same powers as config.owners.users in TS):
+# /eval everywhere, cannot be unownered/blacklisted/banned from the DB.
+users = []
+
+[lavalink]
+# Mirrors config.lavalink.nodes. Empty = audio stays on the offline mock.
+[[lavalink.nodes]]
+id = "example_node"
+host = "lavalink.example.com"
+port = 2333
+authorization = "password"
+secure = false
+
+[api]
+horizon_gateway_local = "http://127.0.0.1:31981"
+client_id = ""
+# api_token: intentionally absent — export HORIZON_API_TOKEN in the environment.
+
+[console]
+# Mirrors config.console.emojis (cosmetic startup glyphs, TS console only).
+ok = "✅"
+error = "❌"
+host = "💻"
+kisa = "👩"
+load = "🔄"
+
+[database]
+# sqlite is the only offline-capable backend (others need servers;
+# see U-DB-DRIVERS). `url` shares src/files/db.sqlite with the TS bot.
+method = "sqlite"
+url = "sqlite:./src/files/db.sqlite?mode=rwc"
+
+[lastfm]
+# Optional; required only for the Last.fm scrobbler module.
+# Prefer LASTFM_API_KEY / LASTFM_SHARED_SECRET env vars for real secrets.
+api_key = ""
+shared_secret = ""

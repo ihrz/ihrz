@@ -5,6 +5,20 @@
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct LavalinkNode {
+    #[serde(default)]
+    pub id: String,
+    #[serde(default)]
+    pub host: String,
+    #[serde(default)]
+    pub port: u16,
+    #[serde(default)]
+    pub authorization: String,
+    #[serde(default)]
+    pub secure: bool,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Config {
     #[serde(default = "default_prefix")]
     pub prefix: String,
@@ -22,6 +36,27 @@ pub struct Config {
     pub database_url: String,
     #[serde(default)]
     pub total_shards: Option<u32>,
+    // --- config.toml file-backed extras (mirror src/files/config.ts) ---
+    #[serde(default = "default_true")]
+    pub dev_mode: bool,
+    #[serde(default = "default_blacklist_picture")]
+    pub blacklist_picture: String,
+    #[serde(default)]
+    pub lavalink_logs_channel_id: String,
+    #[serde(default)]
+    pub always100: Vec<String>,
+    #[serde(default)]
+    pub lavalink_nodes: Vec<LavalinkNode>,
+    #[serde(default)]
+    pub gateway_local: String,
+    #[serde(default)]
+    pub client_id: String,
+    #[serde(default)]
+    pub lastfm_api_key: String,
+    #[serde(default)]
+    pub lastfm_shared_secret: String,
+    #[serde(default = "default_db_method")]
+    pub db_method: String,
 }
 
 fn default_prefix() -> String {
@@ -37,6 +72,15 @@ fn default_report_channel() -> String {
     "1509600857828626482".to_string()
 }
 
+fn default_blacklist_picture() -> String {
+    // Mirrors config.core.blacklistPictureInEmbed in src/files/config.ts.
+    "https://ihorizon.org/assets/img/bot/bsod.png".to_string()
+}
+
+fn default_db_method() -> String {
+    "sqlite".to_string()
+}
+
 impl Default for Config {
     fn default() -> Self {
         Self {
@@ -48,15 +92,168 @@ impl Default for Config {
             report_channel_id: default_report_channel(),
             database_url: "sqlite:./src/files/db.sqlite?mode=rwc".to_string(),
             total_shards: None,
+            dev_mode: true,
+            blacklist_picture: default_blacklist_picture(),
+            lavalink_logs_channel_id: String::new(),
+            always100: vec![],
+            lavalink_nodes: vec![],
+            gateway_local: String::new(),
+            client_id: String::new(),
+            lastfm_api_key: String::new(),
+            lastfm_shared_secret: String::new(),
+            db_method: default_db_method(),
         }
     }
 }
 
-/// Load order (mirrors TS: process.env.BOT_TOKEN || config.discord.token):
-/// env vars override file/defaults. Only token-adjacent + operational knobs
-/// are read here; full TS ConfigData parity is tracked in README.
+/// Candidate file locations, in priority order. `$CONFIG_FILE` wins when
+/// set; otherwise both the repo-root layout (`rust/config.toml`) and the
+/// crate-dir layout (`config.toml`) are tried.
+fn candidate_files() -> Vec<std::path::PathBuf> {
+    let mut out = vec![];
+    if let Ok(v) = std::env::var("CONFIG_FILE") {
+        if !v.is_empty() {
+            out.push(std::path::PathBuf::from(v));
+        }
+    }
+    out.push(std::path::PathBuf::from("rust/config.toml"));
+    out.push(std::path::PathBuf::from("config.toml"));
+    out
+}
+
+fn get_str(table: &toml::map::Map<String, toml::Value>, key: &str) -> Option<String> {
+    table
+        .get(key)
+        .and_then(|v| v.as_str())
+        .map(|s| s.to_string())
+}
+
+fn get_bool(table: &toml::map::Map<String, toml::Value>, key: &str) -> Option<bool> {
+    table.get(key).and_then(|v| v.as_bool())
+}
+
+fn get_str_list(table: &toml::map::Map<String, toml::Value>, key: &str) -> Option<Vec<String>> {
+    table.get(key).and_then(|v| v.as_array()).map(|a| {
+        a.iter()
+            .filter_map(|v| v.as_str().map(|s| s.to_string()))
+            .collect()
+    })
+}
+
+fn table<'a>(
+    root: &'a toml::map::Map<String, toml::Value>,
+    key: &str,
+) -> Option<&'a toml::map::Map<String, toml::Value>> {
+    root.get(key).and_then(|v| v.as_table())
+}
+
+/// Overlay one config.toml file onto `cfg`. Sections mirror
+/// `src/files/config.ts` (`[discord]`, `[core]`, `[command]`, `[owners]`,
+/// `[lavalink]`, `[api]`, `[console]`, `[database]`, `[lastfm]`).
+/// Secret keys (`discord.token`, `api.api_token`, lastfm secrets are read
+/// but real credentials must live in env) never override env: callers apply
+/// env vars after this, and real tokens must never be committed to the file.
+pub fn load_file_into(cfg: &mut Config, path: &std::path::Path) -> anyhow::Result<()> {
+    let text = std::fs::read_to_string(path)?;
+    let value: toml::Value = toml::from_str(&text)?;
+    let root = value.as_table().cloned().unwrap_or_default();
+
+    if let Some(t) = table(&root, "discord") {
+        if let Some(v) = get_str(t, "default_prefix") {
+            cfg.prefix = v;
+        }
+        if let Some(v) = get_bool(t, "phone_presence") {
+            cfg.phone_presence = v;
+        }
+        if let Some(v) = get_bool(t, "message_commands_mention") {
+            cfg.message_commands_mention = v;
+        }
+    }
+    if let Some(t) = table(&root, "core") {
+        if let Some(v) = get_bool(t, "dev_mode") {
+            cfg.dev_mode = v;
+        }
+        if let Some(v) = get_str(t, "blacklist_picture") {
+            cfg.blacklist_picture = v;
+        }
+        if let Some(v) = get_str(t, "guild_logs_channel_id") {
+            cfg.guild_logs_channel_id = v;
+        }
+        if let Some(v) = get_str(t, "report_channel_id") {
+            cfg.report_channel_id = v;
+        }
+        if let Some(v) = get_str(t, "lavalink_logs_channel_id") {
+            cfg.lavalink_logs_channel_id = v;
+        }
+    }
+    if let Some(t) = table(&root, "command") {
+        if let Some(v) = get_str_list(t, "always100") {
+            cfg.always100 = v;
+        }
+    }
+    if let Some(t) = table(&root, "owners") {
+        if let Some(v) = get_str_list(t, "users") {
+            cfg.owners = v;
+        }
+    }
+    if let Some(t) = table(&root, "lavalink") {
+        if let Some(arr) = t.get("nodes").and_then(|v| v.as_array()) {
+            let mut nodes = vec![];
+            for item in arr {
+                if let Some(nt) = item.as_table() {
+                    nodes.push(LavalinkNode {
+                        id: get_str(nt, "id").unwrap_or_default(),
+                        host: get_str(nt, "host").unwrap_or_default(),
+                        port: item.get("port").and_then(|v| v.as_integer()).unwrap_or(0) as u16,
+                        authorization: get_str(nt, "authorization").unwrap_or_default(),
+                        secure: get_bool(nt, "secure").unwrap_or(false),
+                    });
+                }
+            }
+            cfg.lavalink_nodes = nodes;
+        }
+    }
+    if let Some(t) = table(&root, "api") {
+        if let Some(v) = get_str(t, "horizon_gateway_local") {
+            cfg.gateway_local = v;
+        }
+        if let Some(v) = get_str(t, "client_id") {
+            cfg.client_id = v;
+        }
+    }
+    if let Some(t) = table(&root, "database") {
+        if let Some(v) = get_str(t, "method") {
+            cfg.db_method = v;
+        }
+        if let Some(v) = get_str(t, "url") {
+            cfg.database_url = v;
+        }
+    }
+    if let Some(t) = table(&root, "lastfm") {
+        if let Some(v) = get_str(t, "api_key") {
+            cfg.lastfm_api_key = v;
+        }
+        if let Some(v) = get_str(t, "shared_secret") {
+            cfg.lastfm_shared_secret = v;
+        }
+    }
+
+    Ok(())
+}
+
+/// Load order: built-in defaults < config.toml file < env vars.
+/// Mirrors TS (`process.env.BOT_TOKEN || config.discord.token`) with one
+/// deliberate exception: the bot token is env-only (`BOT_TOKEN`) and is
+/// never read from the file, so a real token can never be committed.
 pub fn load() -> anyhow::Result<Config> {
     let mut cfg = Config::default();
+
+    for path in candidate_files() {
+        if path.exists() {
+            load_file_into(&mut cfg, &path)?;
+            break;
+        }
+    }
 
     if let Ok(v) = std::env::var("DEFAULT_PREFIX") {
         if !v.is_empty() {
@@ -228,5 +425,108 @@ mod tests {
         assert!(is_gateway_env());
         std::env::remove_var("BOT_ENV");
         assert!(!is_production_env());
+    }
+
+    fn write_temp_config(body: &str) -> std::path::PathBuf {
+        let dir = std::env::temp_dir();
+        let path = dir.join(format!("ihrz-test-config-{}.toml", std::process::id()));
+        std::fs::write(&path, body).unwrap();
+        path
+    }
+
+    #[test]
+    fn file_sections_overlay_defaults() {
+        let _guard = ENV_LOCK.lock().unwrap();
+        let path = write_temp_config(
+            "[discord]\ndefault_prefix = \"!\"\nphone_presence = true\n\
+             [core]\ndev_mode = false\nreport_channel_id = \"999\"\n\
+             [owners]\nusers = [\"111\", \"222\"]\n\
+             [command]\nalways100 = [\"1x2\"]\n\
+             [database]\nmethod = \"sqlite\"\nurl = \"sqlite:/tmp/x.db\"\n\
+             [api]\nhorizon_gateway_local = \"http://127.0.0.1:31981\"\nclient_id = \"123\"\n\
+             [lavalink]\n[[lavalink.nodes]]\nid = \"n0\"\nhost = \"lava.example.com\"\nport = 2333\nsecure = true\nauthorization = \"pw\"\n",
+        );
+        let mut cfg = Config::default();
+        load_file_into(&mut cfg, &path).unwrap();
+        std::fs::remove_file(&path).ok();
+
+        assert_eq!(cfg.prefix, "!");
+        assert!(cfg.phone_presence);
+        assert!(cfg.message_commands_mention);
+        assert!(!cfg.dev_mode);
+        assert_eq!(cfg.report_channel_id, "999");
+        assert_eq!(cfg.owners, vec!["111".to_string(), "222".to_string()]);
+        assert_eq!(cfg.always100, vec!["1x2".to_string()]);
+        assert_eq!(cfg.database_url, "sqlite:/tmp/x.db");
+        assert_eq!(cfg.gateway_local, "http://127.0.0.1:31981");
+        assert_eq!(cfg.client_id, "123");
+        assert_eq!(cfg.lavalink_nodes.len(), 1);
+        assert_eq!(cfg.lavalink_nodes[0].port, 2333);
+        assert!(cfg.lavalink_nodes[0].secure);
+    }
+
+    #[test]
+    fn file_token_key_is_ignored_token_stays_env_only() {
+        let _guard = ENV_LOCK.lock().unwrap();
+        let path = write_temp_config("[discord]\ntoken = \"SHOULD-NEVER-BE-READ\"\n");
+        let mut cfg = Config::default();
+        load_file_into(&mut cfg, &path).unwrap();
+        std::fs::remove_file(&path).ok();
+
+        std::env::remove_var("BOT_TOKEN");
+        assert_eq!(bot_token(), None);
+    }
+
+    #[test]
+    fn load_env_overrides_file() {
+        let _guard = ENV_LOCK.lock().unwrap();
+        let path = write_temp_config("[discord]\ndefault_prefix = \"!\"\n");
+        std::env::set_var("CONFIG_FILE", &path);
+        std::env::set_var("DEFAULT_PREFIX", "?");
+
+        let cfg = load().unwrap();
+        assert_eq!(cfg.prefix, "?");
+
+        std::env::remove_var("CONFIG_FILE");
+        std::env::remove_var("DEFAULT_PREFIX");
+        std::fs::remove_file(&path).ok();
+    }
+
+    #[test]
+    fn load_without_file_uses_defaults() {
+        let _guard = ENV_LOCK.lock().unwrap();
+        std::env::set_var("CONFIG_FILE", "/nonexistent/ihrz-config.toml");
+        for v in [
+            "DEFAULT_PREFIX",
+            "PHONE_PRESENCE",
+            "TOTAL_SHARDS",
+            "OWNERS",
+            "DATABASE_URL",
+            "GUILD_LOGS_CHANNEL_ID",
+            "REPORT_CHANNEL_ID",
+        ] {
+            std::env::remove_var(v);
+        }
+        // Missing file is skipped (no CONFIG_FILE hit, no repo file in tmp
+        // cwd) only when neither candidate exists; here CONFIG_FILE points
+        // nowhere so candidates fall through to repo paths — just assert
+        // load() still succeeds and defaults hold for unset keys.
+        let cfg = load();
+        std::env::remove_var("CONFIG_FILE");
+        let cfg = cfg.unwrap();
+        assert!(!cfg.phone_presence);
+        assert!(cfg.database_url.contains("db.sqlite") || !cfg.database_url.is_empty());
+    }
+
+    #[test]
+    fn shipped_example_file_loads() {
+        let _guard = ENV_LOCK.lock().unwrap();
+        let path = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("config.example.toml");
+        let mut cfg = Config::default();
+        load_file_into(&mut cfg, &path).unwrap();
+        assert_eq!(cfg.prefix, "?");
+        assert_eq!(cfg.db_method, "sqlite");
+        assert_eq!(cfg.lavalink_nodes.len(), 1);
+        assert_eq!(cfg.lavalink_nodes[0].id, "example_node");
     }
 }

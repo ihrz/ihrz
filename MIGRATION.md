@@ -12,6 +12,14 @@ recorded here before moving on.
 - [ ] todo
 - [!] blocked (needs external service/key, genuinely not continuable offline)
 
+## Delivery policy (2026-10-09, user directive)
+
+Every completed step is committed and pushed to `origin/rust-recode`
+immediately (preview checkpoints, never squashed/rebased). Runtime
+state (locks, logs, .bak, local config.toml, sqlite files) is never
+committed — see `.gitignore`. No push without a green
+`cargo test --workspace` + `cargo fmt --check` + zero clippy warnings.
+
 ## Units
 
 ### Core
@@ -113,6 +121,13 @@ recorded here before moving on.
 - [!] MySQL/Postgres drivers (needs servers; verified: `database/driver/postgres.ts`; json/memory drivers excluded — sqlite-only single-backend decision)
 - [!] Flowery TTS speak (needs Lavalink + key; verified: `Events/tts/messageCreate.ts` auto locale-detect + speak leg missing)
 - [!] Kdenlive melt/xvfb binaries (meme-merger code ports offline; live render verification needs the binaries)
+- [ ] U-DB-DRIVERS all TS database backends (`src/core/database/driver/`: sqlite, postgres, json, memory, horizondb + `index.ts` table/cache/sync orchestration). Rust has sqlite only. Port as a `Backend` trait (get/set/delete/table/all) with sqlite default; postgres via sqlx, json via file store, memory via HashMap, horizondb client behind feature/offline-mock. Keep kv shape + `src/files/db.sqlite` sharing.
+  (2026-10-09: `backends.rs` landed — enum dispatch Memory/Json/Sqlite/Postgres/HorizonDb (offline-mock), full `Table` API incl. dotted-path get/set/delete/has/update/add/sub/push + `unshift`/`pop`/`shift`/`pull_values`/`pull_where`/`export_data`/`starts_with`/`delete_all`, `from_config` method routing, 12 tests; `pull once` keeps non-matches — TS truncates, recorded delta. Suite 375/0, fmt + clippy clean. Still queued: `index.ts` orchestration (tables/readOnlyTables/cached_postgres mirror sync), call-site migration.)
+  (2026-10-09 drivers-2: Postgres variant landed (upsert table, $N params, 5s bounded connect, from_config wiring) + HorizonDB offline-mock variant + export_data alias; mirrors reported write-only-never-fires, queued. 11 backend tests. No call-site migration. Suite 375/0.)
+  (2026-10-09 layout phase 1: `commands/shared.rs` holds moved cross-file helpers with old-path shims; steered autoreact x3 ADMIN gates applied. Suite 375/0.)
+- [x] U-CONFIG-TOML file config mirroring TS `src/files/config.ts` (2026-10-09: `rust/config.example.toml` + `config.rs` load order defaults < file < env; token env-only via `BOT_TOKEN`, `rust/config.toml` gitignored; 6 loader tests + example-parse guard; example staged for next checkpoint)
+- [ ] U-LAYOUT-TS-PARITY restructure `rust/src/commands/` to mirror the TS schema: one folder per category, one command file per command (TS: `src/Interaction/HybridCommands/<category>/!<command>.ts` + `init.json` per category). Current Rust packs each category into a single `<category>.rs`. Split without behavior change (same registry names/aliases/gates), keep `mod.rs` registry + locks green throughout.
+  (2026-10-09 feasibility probe: ~40 files, biggest utils.rs 4.1k lines/70 fns; cross-file deps are sparse and hub-like — utils footer/embed helpers, schedule now_ms/parse_duration, botcat BOT keys/download_bytes, guildconfig perm/config loaders + a few pairs. Plan: phase 1 extract shared helpers to `commands/shared.rs`; phase 2 split small leaf categories first, big files last; macros lore_cmd/board_subs/automod_toggle move with their category.)
 
 ## Remaining (offline-continuable, dependency order)
 
@@ -497,6 +512,57 @@ Source references are TS paths under `src/`; targets are files under `rust/src/`
      leakscan: 0 emoji leaks, 0 non-emoji leaks (ticket JS-expr
      tokens match verbatim; pfps ${username} kept as faithful
      TS-mirror stray-$ quirk). Suite: 356/0; fmt + clippy clean.
+     U-REVIEW-DAY integrated 2026-10-09 (deleg_7ddbf247,
+     CHANGES REQUESTED, all 6 MUST-FIX closed by lead):
+     context love/queue {score}/{title} replaces; backup
+     {id}/{count}/{restored} (+ YAML {}→{count} normalization x10)
+     + confession {} replace; membercount error paths now send
+     the TS help_embed via shared send_mcount_help helper (was
+     wrong template-list key); ticket panel {}→{id} (YAML x10 +
+     code). NITs banked: blogger feed-title fidelity, voicemove
+     perm audit queued separately.
+     U-AUDIT-PERMS integrated 2026-10-09 (deleg_6ef1cd7c): ~100
+     under-gated leaves + 16 over-gated parents catalogued.
+     Lead verified the starboard claim (macro fns exist; parent
+     fn-refs valid) and gated the 8 macro subs ADMIN. Fix wave
+     dispatched (deleg_6a9c6651): GATES-A/B/C/D on disjoint
+     files (verify-bit-then-gate; massmove approx kept).
+     U-GATES-E/F integrated 2026-10-09 (deleg_f34491a7):
+     protection sanction/show ADMIN (rule/allow-show left open
+     per TS null + runtime gating), notifier 5 leaves
+     MANAGE_GUILD, voicedashboard 6 leaves ADMIN; lastfm
+     correctly ungated (TS null), authrestore already gated.
+     Registry locks extended (21 any-carrier gate asserts).
+     Suite: 356/0; fmt + clippy clean.
+     Blogger fidelity NIT closed 2026-10-09: fetch_rss_title +
+     extract_feed_title (CDATA-aware string scan, no new dep),
+     single-fetch flow, validation.name || Unknown parity + test.
+     Suite: 357/0.
+     Dispatched (deleg_ac472284): post-checkpoint review +
+     economy/ticket parity deep-dives (all read-only).
+     Review integrated (deleg_7ddbf247 follow-up): ranks
+     role-list now uses dedicated msg_rank_roles_empty/row keys
+     (x10 locales, type:lang clean) instead of config-embed keys;
+     duplicate has_gate assert removed. Suite: 357/0.
+     Dispatched (deleg_44687755): economy + ticket parity fix
+     batches (storage shapes/ids frozen as decisions).
+     Integrated 2026-10-09: economy (rob math/floors/cooldown/
+     guards, disabled-guard helper everywhere, deposit/withdraw
+     key split + truncation, config on/off safety, pay parity,
+     no-clamp admin, beautiful durations, owned-role buy,
+     ureset default) and ticket (unlink scoping + rename/edit,
+     close keep-channel flow, one-ticket limit, overwrite sets,
+     category check, disable guards + config audit, transcript
+     DM flow). Lead cleared 2 clippy lints from the wave.
+     Suite: 358/0; fmt + clippy clean.
+     U-I18N-MULTI integrated 2026-10-09 (deleg_07a31fbf): A
+     (support-off key + 2 lang-fetch hoists, rest correctly
+     left: automod/ghost/show/perm structures mirror TS or lack
+     keys); B (ranks leaderboard/ignore/role-list keys, ticket
+     set-here label/desc + open-button ack); C (music play/
+     history + botinfo field keys). Accepted deviation: C
+     aligned 2 fallbacks to full en-US sentences (TS parity wins
+     over byte-identical rule). Suite: 356/0; fmt + clippy clean.
    - [x] U-PINGEMOJI boot-warmed app-emoji cache (done 2026-10-09):
      `emojis.rs` OnceLock table (name -> id+animated, 1h TTL) with
      `refresh` wired after `sync` at boot; all 7 direct

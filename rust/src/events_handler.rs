@@ -444,7 +444,9 @@ impl Handler {
         let gid = guild_id.get().to_string();
         let allowed: bool = crate::db::kv_get(&self.pool, &gid, &format!("PROTECTION.{rule}"))
             .await
-            .and_then(|s| serde_json::from_str::<crate::commands::protection::RuleState>(&s).ok())
+            .and_then(|s| {
+                serde_json::from_str::<crate::commands::protection::protect::RuleState>(&s).ok()
+            })
             .map(|r| r.allow)
             .unwrap_or(true);
         if allowed {
@@ -814,7 +816,9 @@ pub async fn board_reaction_add(
                 let edit = serenity::EditMessage::new()
                     .content(render.content)
                     .embed(render.embed)
-                    .attachments(crate::commands::embed::edit_attachments(render.files));
+                    .attachments(crate::commands::embed::embed_builder::edit_attachments(
+                        render.files,
+                    ));
                 let _ = board_channel
                     .edit_message(&ctx.http, board_msg.id, edit)
                     .await;
@@ -920,7 +924,9 @@ pub async fn board_reaction_remove(
             let edit = serenity::EditMessage::new()
                 .content(render.content)
                 .embed(render.embed)
-                .attachments(crate::commands::embed::edit_attachments(render.files));
+                .attachments(crate::commands::embed::embed_builder::edit_attachments(
+                    render.files,
+                ));
             let _ = board_channel
                 .edit_message(&ctx.http, board_msg.id, edit)
                 .await;
@@ -977,7 +983,7 @@ impl serenity::EventHandler for Handler {
         if crate::db::kv_get(
             &self.pool,
             "0",
-            &crate::commands::owner::blacklist_key(guild.owner_id.get()),
+            &crate::commands::owner::main::blacklist_key(guild.owner_id.get()),
         )
         .await
         .is_some()
@@ -1257,17 +1263,17 @@ impl serenity::EventHandler for Handler {
                         attributed = Some((inviter_id, inv.code.clone(), inviter.name.clone()));
                         entry.insert(inv.code.clone(), (inv.uses, inviter_id));
                         // Credit: invites+1, regular+1, record BY.
-                        let stats = crate::commands::invitesmanager::load_invites(
+                        let stats = crate::commands::invitesmanager::inv::load_invites(
                             &self.pool, &gid, inviter_id,
                         )
                         .await;
-                        let next = crate::commands::invitesmanager::InviteStats {
+                        let next = crate::commands::invitesmanager::inv::InviteStats {
                             invites: stats.invites + 1,
                             regular: stats.regular + 1,
                             bonus: stats.bonus,
                             leaves: stats.leaves,
                         };
-                        let _ = crate::commands::invitesmanager::save_invites(
+                        let _ = crate::commands::invitesmanager::inv::save_invites(
                             &self.pool, &gid, inviter_id, &next,
                         )
                         .await;
@@ -1298,7 +1304,7 @@ impl serenity::EventHandler for Handler {
         if let Some(reason) = crate::db::kv_get(
             &self.pool,
             "0",
-            &crate::commands::owner::blacklist_key(new_member.user.id.get()),
+            &crate::commands::owner::main::blacklist_key(new_member.user.id.get()),
         )
         .await
         {
@@ -1649,15 +1655,16 @@ impl serenity::EventHandler for Handler {
         .await
         .and_then(|s| s.parse::<u64>().ok())
         {
-            let stats = crate::commands::invitesmanager::load_invites(&self.pool, &gid, by).await;
-            let next = crate::commands::invitesmanager::InviteStats {
+            let stats =
+                crate::commands::invitesmanager::inv::load_invites(&self.pool, &gid, by).await;
+            let next = crate::commands::invitesmanager::inv::InviteStats {
                 invites: (stats.invites - 1).max(0),
                 regular: stats.regular,
                 bonus: stats.bonus,
                 leaves: stats.leaves + 1,
             };
-            let _ =
-                crate::commands::invitesmanager::save_invites(&self.pool, &gid, by, &next).await;
+            let _ = crate::commands::invitesmanager::inv::save_invites(&self.pool, &gid, by, &next)
+                .await;
         }
         // Leave message (mirrors leaveMessage.ts text path).
         let gid = guild_id.get().to_string();
@@ -1730,10 +1737,10 @@ impl serenity::EventHandler for Handler {
                             .ok()
                             .and_then(|c| c.guild().map(|g| g.name.clone()))
                             .unwrap_or_default();
-                        let _ = crate::commands::ticket::close_ticket_channel(
+                        let _ = crate::commands::ticket::main::close_ticket_channel(
                             &ctx.http,
                             &self.pool,
-                            crate::commands::ticket::TicketCloseSpec {
+                            crate::commands::ticket::main::TicketCloseSpec {
                                 gid: &gid,
                                 lang_code: &lang_code,
                                 channel_id,
@@ -1798,7 +1805,7 @@ impl serenity::EventHandler for Handler {
         if crate::db::kv_get(
             &self.pool,
             &gid,
-            &crate::commands::embed::await_key(msg.author.id.get()),
+            &crate::commands::embed::embed_builder::await_key(msg.author.id.get()),
         )
         .await
         .is_some()
@@ -1808,7 +1815,7 @@ impl serenity::EventHandler for Handler {
                 .await
                 .map(|g| g.name)
                 .unwrap_or_else(|_| "this server".to_string());
-            crate::commands::embed::handle_builder_input(
+            crate::commands::embed::embed_builder::handle_builder_input(
                 &_ctx.http,
                 &self.pool,
                 &gid,
@@ -1874,9 +1881,10 @@ impl serenity::EventHandler for Handler {
         if crate::events::should_gain_xp(&ignore, &ch_id)
             && (xp_only.is_empty() || xp_only.contains(&ch_id))
         {
-            let before = crate::commands::ranks::load_rank(&self.pool, &gid, msg.author.id.get())
-                .await
-                .level;
+            let before =
+                crate::commands::ranks::main::load_rank(&self.pool, &gid, msg.author.id.get())
+                    .await
+                    .level;
             let (level, leveled) = crate::events::record_message_activity(
                 &self.pool,
                 &gid,
@@ -1910,7 +1918,7 @@ impl serenity::EventHandler for Handler {
                 let _ = msg.channel_id.say(&_ctx.http, text).await;
                 // Rank-role rewards.
                 let roles_raw = crate::db::kv_get(&self.pool, &gid, "GUILD.RANKS.roles").await;
-                let roles: Vec<crate::commands::ranks::RankRole> = roles_raw
+                let roles: Vec<crate::commands::ranks::main::RankRole> = roles_raw
                     .and_then(|s| serde_json::from_str(&s).ok())
                     .unwrap_or_default();
                 for role_id in crate::events::roles_earned(&roles, before, level) {
@@ -2044,11 +2052,15 @@ impl serenity::EventHandler for Handler {
         // repost of the enabled sticky (bot/webhook messages skip).
         if !msg.author.bot && msg.webhook_id.is_none() {
             if let Some(guild_id) = msg.guild_id {
-                if crate::commands::sticky::load_sticky(&self.pool, &gid, msg.channel_id.get())
-                    .await
-                    .is_some()
+                if crate::commands::sticky::main::load_sticky(
+                    &self.pool,
+                    &gid,
+                    msg.channel_id.get(),
+                )
+                .await
+                .is_some()
                 {
-                    crate::commands::sticky::schedule_refresh(
+                    crate::commands::sticky::main::schedule_refresh(
                         _ctx.http.clone(),
                         _ctx.cache.clone(),
                         self.pool.clone(),
@@ -2315,11 +2327,15 @@ impl serenity::EventHandler for Handler {
                 || member_roles.iter().any(|r| bypass_roles.contains(r))
         };
         if !bypassed {
-            if let Some(raw) =
-                crate::db::kv_get(&self.pool, &gid, crate::commands::antispam::ANTISPAM_KEY).await
+            if let Some(raw) = crate::db::kv_get(
+                &self.pool,
+                &gid,
+                crate::commands::antispam::main::ANTISPAM_KEY,
+            )
+            .await
             {
                 if let Ok(cfg) =
-                    serde_json::from_str::<crate::commands::antispam::AntispamConfig>(&raw)
+                    serde_json::from_str::<crate::commands::antispam::main::AntispamConfig>(&raw)
                 {
                     if cfg.enabled {
                         let now = std::time::SystemTime::now()
@@ -2331,7 +2347,7 @@ impl serenity::EventHandler for Handler {
                         let entry = spam.entry(slot).or_default();
                         entry.push(now);
                         entry.retain(|t| now - t <= cfg.max_interval_ms);
-                        if crate::commands::antispam::window_tripped(
+                        if crate::commands::antispam::main::window_tripped(
                             entry.len() as u32,
                             cfg.threshold,
                             cfg.max_interval_ms,
@@ -2366,7 +2382,7 @@ impl serenity::EventHandler for Handler {
         self.check_punishpub(&_ctx, &gid, &msg).await;
         // Honeypot trap trigger (debounced two-pass pipeline).
         // Mirrors honeypotManager scheduleHoneypotTrigger.
-        crate::commands::honeypot::schedule_trap(&_ctx, &self.pool, &msg);
+        crate::commands::honeypot::main::schedule_trap(&_ctx, &self.pool, &msg);
     }
 
     async fn message_delete(
@@ -2599,7 +2615,8 @@ impl serenity::EventHandler for Handler {
                 let shop_raw = crate::db::kv_get(&self.pool, &gid, "ECONOMY.buyableRoles")
                     .await
                     .unwrap_or_default();
-                let boost = crate::commands::economy::member_boost(&shop_raw, &roles).max(1) as u64;
+                let boost =
+                    crate::commands::economy::main::member_boost(&shop_raw, &roles).max(1) as u64;
                 crate::events::voice_switch(
                     &self.pool,
                     &gid,
@@ -2683,7 +2700,7 @@ impl serenity::EventHandler for Handler {
                                     serenity::CreateMessage::new()
                                         .content("Manage your channel:")
                                         .components(
-                                            crate::commands::voicedashboard::tempvoice_buttons(),
+                                            crate::commands::voicedashboard::main::tempvoice_buttons(),
                                         ),
                                 )
                                 .await;
@@ -2706,7 +2723,8 @@ impl serenity::EventHandler for Handler {
                 let shop_raw = crate::db::kv_get(&self.pool, &gid, "ECONOMY.buyableRoles")
                     .await
                     .unwrap_or_default();
-                let boost = crate::commands::economy::member_boost(&shop_raw, &roles).max(1) as u64;
+                let boost =
+                    crate::commands::economy::main::member_boost(&shop_raw, &roles).max(1) as u64;
                 crate::events::voice_leave(
                     &self.pool,
                     &gid,
@@ -2791,13 +2809,14 @@ impl serenity::EventHandler for Handler {
         let Some(user_id) = add.user_id else { return };
         // The bot's own seeded reactions never trigger toggles.
         if user_id != ctx.cache.current_user().id {
-            if let Some(role_id) = crate::commands::rolereactions::lookup_reaction_role(
-                &self.pool,
-                &guild_id.get().to_string(),
-                add.message_id.get(),
-                &add.emoji,
-            )
-            .await
+            if let Some(role_id) =
+                crate::commands::rolereactions::rolereaction::lookup_reaction_role(
+                    &self.pool,
+                    &guild_id.get().to_string(),
+                    add.message_id.get(),
+                    &add.emoji,
+                )
+                .await
             {
                 // Missing roles are skipped (cache first, fetch fallback).
                 let mut roles = ctx.cache.guild(guild_id).map(|g| g.roles.clone());
@@ -2867,7 +2886,7 @@ impl serenity::EventHandler for Handler {
                     if let Some(role_id) = crate::db::kv_get(&self.pool, &gid, &key)
                         .await
                         .as_deref()
-                        .and_then(crate::commands::rolereactions::parse_reaction_role)
+                        .and_then(crate::commands::rolereactions::rolereaction::parse_reaction_role)
                     {
                         if let Ok(member) = guild_id.member(&ctx.http, user_id).await {
                             let _ = member
@@ -3681,89 +3700,106 @@ impl serenity::EventHandler for Handler {
             // Mirrors confession panel submit entry: modal -> cooldown gate
             // -> anonymous post (see handle_confess_button).
             let _ =
-                crate::commands::confession::handle_confess_button(&ctx, &comp, &self.pool).await;
-        } else if id.starts_with(crate::commands::confession::CONFESSIONRES_PREFIX) {
-            let _ =
-                crate::commands::confession::handle_confession_response(&ctx, &comp, &self.pool)
+                crate::commands::confession::main::handle_confess_button(&ctx, &comp, &self.pool)
                     .await;
+        } else if id.starts_with(crate::commands::confession::main::CONFESSIONRES_PREFIX) {
+            let _ = crate::commands::confession::main::handle_confession_response(
+                &ctx, &comp, &self.pool,
+            )
+            .await;
         } else if id.starts_with("confession-author%") {
-            let _ = crate::commands::confession::handle_confession_author(&ctx, &comp).await;
+            let _ = crate::commands::confession::main::handle_confession_author(&ctx, &comp).await;
         } else if id.starts_with(crate::commands::legacy::NEWSLETTER_TOGGLE_PREFIX) {
             let _ =
                 crate::commands::legacy::handle_newsletter_toggle(&ctx, &comp, &self.pool).await;
-        } else if id == crate::commands::giveaway::GW_ENTRY_ID {
-            crate::commands::giveaway::handle_giveaway_entry(&ctx.http, &self.pool, &comp).await;
-        } else if id == crate::commands::giveaway::GW_LIST_ID {
-            crate::commands::giveaway::handle_giveaway_list(&ctx.http, &self.pool, &comp).await;
-        } else if let Some(rest) = id.strip_prefix(crate::commands::giveaway::GW_LEAVE_ID) {
+        } else if id == crate::commands::giveaway::main::GW_ENTRY_ID {
+            crate::commands::giveaway::main::handle_giveaway_entry(&ctx.http, &self.pool, &comp)
+                .await;
+        } else if id == crate::commands::giveaway::main::GW_LIST_ID {
+            crate::commands::giveaway::main::handle_giveaway_list(&ctx.http, &self.pool, &comp)
+                .await;
+        } else if let Some(rest) = id.strip_prefix(crate::commands::giveaway::main::GW_LEAVE_ID) {
             // `giveaway-leave:<mid>` (stateless 60s-collector equivalent).
             if let Some(mid) = rest.strip_prefix(':').and_then(|s| s.parse::<u64>().ok()) {
-                crate::commands::giveaway::handle_giveaway_leave(&ctx.http, &self.pool, &comp, mid)
-                    .await;
+                crate::commands::giveaway::main::handle_giveaway_leave(
+                    &ctx.http, &self.pool, &comp, mid,
+                )
+                .await;
             }
         } else if let Some(rest) =
-            id.strip_prefix(crate::commands::giveaway::GW_ENTRIES_PAGE_PREFIX)
+            id.strip_prefix(crate::commands::giveaway::main::GW_ENTRIES_PAGE_PREFIX)
         {
             // `gw-entries:<mid>:<page>`.
             let mut parts = rest.split(':');
             if let (Some(mid), Some(page)) = (parts.next(), parts.next()) {
                 if let (Ok(mid), Ok(page)) = (mid.parse::<u64>(), page.parse::<usize>()) {
-                    crate::commands::giveaway::handle_giveaway_entries_page(
+                    crate::commands::giveaway::main::handle_giveaway_entries_page(
                         &ctx.http, &self.pool, &comp, mid, page,
                     )
                     .await;
                 }
             }
-        } else if id == crate::commands::rolereactions::ROLESELECT_MAIN_ID {
-            let _ = crate::commands::rolereactions::handle_roleselect_main(&ctx, &comp, &self.pool)
-                .await;
-        } else if let Some(rest) =
-            id.strip_prefix(crate::commands::rolereactions::ROLESELECT_ROLE_PICK_PREFIX)
+        } else if id == crate::commands::rolereactions::rolereaction::ROLESELECT_MAIN_ID {
+            let _ = crate::commands::rolereactions::rolereaction::handle_roleselect_main(
+                &ctx, &comp, &self.pool,
+            )
+            .await;
+        } else if let Some(rest) = id
+            .strip_prefix(crate::commands::rolereactions::rolereaction::ROLESELECT_ROLE_PICK_PREFIX)
         {
             let config_msg = rest.parse::<u64>().unwrap_or(0);
-            let _ = crate::commands::rolereactions::handle_roleselect_role_pick(
+            let _ = crate::commands::rolereactions::rolereaction::handle_roleselect_role_pick(
                 &ctx, &comp, &self.pool, config_msg,
             )
             .await;
-        } else if id.starts_with(crate::commands::rolereactions::ROLESELECT_ROLES_PREFIX) {
+        } else if id
+            .starts_with(crate::commands::rolereactions::rolereaction::ROLESELECT_ROLES_PREFIX)
+        {
             // Saved-select presses, like
             // SelectMenu/roleselect_roles.ts.
-            let _ =
-                crate::commands::rolereactions::handle_roleselect_grant(&ctx, &comp, &self.pool)
-                    .await;
+            let _ = crate::commands::rolereactions::rolereaction::handle_roleselect_grant(
+                &ctx, &comp, &self.pool,
+            )
+            .await;
         } else if id.starts_with("rolepanel:") {
-            let _ = crate::commands::moderation::handle_rolepanel_button(&ctx, &comp).await;
+            let _ = crate::commands::moderation::main::handle_rolepanel_button(&ctx, &comp).await;
         } else if let Some(role) =
-            id.strip_prefix(crate::commands::rolereactions::BUTTON_REACTION_PREFIX)
+            id.strip_prefix(crate::commands::rolereactions::rolereaction::BUTTON_REACTION_PREFIX)
         {
             // TS-verbatim role button presses (button_reaction%<role>).
             if let Ok(role_id) = role.parse::<u64>() {
-                let _ = crate::commands::rolereactions::handle_button_reaction(
+                let _ = crate::commands::rolereactions::rolereaction::handle_button_reaction(
                     &ctx, &comp, &self.pool, role_id,
                 )
                 .await;
             }
-        } else if id == crate::commands::honeypot::HONEYPOT_CUSTOM_ID {
-            let _ = crate::commands::honeypot::handle_honeypot_claim(&ctx, &comp, &self.pool).await;
-        } else if id == crate::commands::ticket::TICKET_EMBED_DELETE {
+        } else if id == crate::commands::honeypot::main::HONEYPOT_CUSTOM_ID {
+            let _ = crate::commands::honeypot::main::handle_honeypot_claim(&ctx, &comp, &self.pool)
+                .await;
+        } else if id == crate::commands::ticket::main::TICKET_EMBED_DELETE {
             let _ =
-                crate::commands::ticket::handle_ticket_embed_delete(&ctx, &comp, &self.pool).await;
-        } else if id == crate::commands::ticket::TICKET_EMBED_TRANSCRIPT {
-            let _ =
-                crate::commands::ticket::handle_ticket_embed_transcript(&ctx, &comp, &self.pool)
+                crate::commands::ticket::main::handle_ticket_embed_delete(&ctx, &comp, &self.pool)
                     .await;
-        } else if id == crate::commands::ticket::TICKET_EMBED_SELECT_USER {
+        } else if id == crate::commands::ticket::main::TICKET_EMBED_TRANSCRIPT {
+            let _ = crate::commands::ticket::main::handle_ticket_embed_transcript(
+                &ctx, &comp, &self.pool,
+            )
+            .await;
+        } else if id == crate::commands::ticket::main::TICKET_EMBED_SELECT_USER {
             let _ =
-                crate::commands::ticket::handle_ticket_select_user(&ctx, &comp, &self.pool).await;
-        } else if id.starts_with(crate::commands::ticket::TICKET_OPEN_CUSTOM_ID_PREFIX) {
+                crate::commands::ticket::main::handle_ticket_select_user(&ctx, &comp, &self.pool)
+                    .await;
+        } else if id.starts_with(crate::commands::ticket::main::TICKET_OPEN_CUSTOM_ID_PREFIX) {
             let _ =
-                crate::commands::ticket::handle_ticket_open_button(&ctx, &comp, &self.pool).await;
-        } else if id == crate::commands::ticket::LEGACY_OPEN_BUTTON_ID {
+                crate::commands::ticket::main::handle_ticket_open_button(&ctx, &comp, &self.pool)
+                    .await;
+        } else if id == crate::commands::ticket::main::LEGACY_OPEN_BUTTON_ID {
             // TS-verbatim panel button (CreateTicketChannel v1).
-            let _ =
-                crate::commands::ticket::handle_legacy_ticket_open(&ctx, &comp, &self.pool, None)
-                    .await;
-        } else if id == crate::commands::ticket::LEGACY_SELECT_ID {
+            let _ = crate::commands::ticket::main::handle_legacy_ticket_open(
+                &ctx, &comp, &self.pool, None,
+            )
+            .await;
+        } else if id == crate::commands::ticket::main::LEGACY_SELECT_ID {
             // TS-verbatim panel select (CreateTicketChannel v1).
             let selected = match &comp.data.kind {
                 serenity::ComponentInteractionDataKind::StringSelect { values } => {
@@ -3771,36 +3807,41 @@ impl serenity::EventHandler for Handler {
                 }
                 _ => None,
             };
-            let _ = crate::commands::ticket::handle_legacy_ticket_open(
+            let _ = crate::commands::ticket::main::handle_legacy_ticket_open(
                 &ctx, &comp, &self.pool, selected,
             )
             .await;
-        } else if id == crate::commands::ticket::V2_SELECT_ID {
+        } else if id == crate::commands::ticket::main::V2_SELECT_ID {
             // TS-verbatim V2 panel select (CreateTicketChannelV2).
             if let serenity::ComponentInteractionDataKind::StringSelect { values } = &comp.data.kind
             {
                 if let Some(selected) = values.first() {
-                    let _ = crate::commands::ticket::handle_v2_ticket_open(
+                    let _ = crate::commands::ticket::main::handle_v2_ticket_open(
                         &ctx, &comp, &self.pool, selected,
                     )
                     .await;
                 }
             }
-        } else if id.starts_with(crate::commands::voicedashboard::TEMPVOICE_PREFIX) {
-            let _ =
-                crate::commands::voicedashboard::handle_tempvoice_button(&ctx, &comp, &self.pool)
-                    .await;
-        } else if id == crate::commands::welcomer_panel::WELCOMER_SECTION_ID
-            || id.starts_with(crate::commands::welcomer_panel::WELCOMER_PREFIX)
+        } else if id.starts_with(crate::commands::voicedashboard::main::TEMPVOICE_PREFIX) {
+            let _ = crate::commands::voicedashboard::main::handle_tempvoice_button(
+                &ctx, &comp, &self.pool,
+            )
+            .await;
+        } else if id == crate::commands::welcomer_panel::main::WELCOMER_SECTION_ID
+            || id.starts_with(crate::commands::welcomer_panel::main::WELCOMER_PREFIX)
         {
-            let _ =
-                crate::commands::welcomer_panel::handle_welcomer_component(&ctx, &comp, &self.pool)
-                    .await;
-        } else if id == crate::commands::embed::EMBED_SELECT_ID
-            || id == crate::commands::embed::EMBED_SAVE_CHANNEL_ID
-            || id.starts_with(crate::commands::embed::EMBED_BTN_PREFIX)
+            let _ = crate::commands::welcomer_panel::main::handle_welcomer_component(
+                &ctx, &comp, &self.pool,
+            )
+            .await;
+        } else if id == crate::commands::embed::embed_builder::EMBED_SELECT_ID
+            || id == crate::commands::embed::embed_builder::EMBED_SAVE_CHANNEL_ID
+            || id.starts_with(crate::commands::embed::embed_builder::EMBED_BTN_PREFIX)
         {
-            crate::commands::embed::handle_embed_component(&ctx.http, &self.pool, &comp).await;
+            crate::commands::embed::embed_builder::handle_embed_component(
+                &ctx.http, &self.pool, &comp,
+            )
+            .await;
         } else if id.starts_with(crate::commands::utils::ADMIN_ROLES_PREFIX) {
             crate::commands::utils::handle_admin_roles_component(&ctx.http, &self.pool, &comp)
                 .await;

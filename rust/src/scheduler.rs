@@ -85,7 +85,7 @@ pub async fn sweep_expired_giveaways(
         }
         let raw = crate::db::kv_get(pool, &gid, &key).await;
         let Some(raw) = raw else { continue };
-        let mut gw: crate::commands::giveaway::Giveaway = match serde_json::from_str(&raw) {
+        let mut gw: crate::commands::giveaway::main::Giveaway = match serde_json::from_str(&raw) {
             Ok(gw) => gw,
             Err(_) => continue,
         };
@@ -96,7 +96,7 @@ pub async fn sweep_expired_giveaways(
         if let Some(http) = &http {
             // Shared end flow (board edit + winners reply). A gone
             // board drops the row like the TS fetch catch.
-            let lived = crate::commands::giveaway::finish_giveaway(
+            let lived = crate::commands::giveaway::main::finish_giveaway(
                 pool,
                 http,
                 &gid,
@@ -112,7 +112,7 @@ pub async fn sweep_expired_giveaways(
                 continue;
             }
         } else {
-            let winners = crate::commands::giveaway::pick_winners(
+            let winners = crate::commands::giveaway::main::pick_winners(
                 &gw.entries,
                 &gw.winners,
                 gw.winner_count as usize,
@@ -431,21 +431,21 @@ pub async fn sweep_blogger(
     .unwrap_or_default();
     let mut posted = 0u64;
     for (gid, raw) in rows {
-        let blogs: Vec<crate::commands::blogger::BlogEntry> =
+        let blogs: Vec<crate::commands::blogger::main::BlogEntry> =
             serde_json::from_str(&raw).unwrap_or_default();
         for blog in blogs {
             let body = match reqwest::Client::new().get(&blog.rss).send().await {
                 Ok(r) => r.text().await.unwrap_or_default(),
                 Err(_) => continue,
             };
-            let Some(item) = crate::commands::blogger::latest_rss_item(&body) else {
+            let Some(item) = crate::commands::blogger::main::latest_rss_item(&body) else {
                 continue;
             };
             let notified_raw = crate::db::kv_get(pool, &gid, "BLOGGER.lastArticleNotified").await;
             let mut notified: Vec<(String, String)> = notified_raw
                 .and_then(|s| serde_json::from_str(&s).ok())
                 .unwrap_or_default();
-            if crate::commands::blogger::already_notified(&notified, &blog.id, &item.id) {
+            if crate::commands::blogger::main::already_notified(&notified, &blog.id, &item.id) {
                 continue;
             }
             if let Ok(ch_num) = blog.channel_id.parse::<u64>() {

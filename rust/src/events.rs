@@ -70,7 +70,7 @@ pub fn should_gain_xp(ignore: &[String], channel_id: &str) -> bool {
 /// Level-role rewards earned crossing old_level -> new_level.
 /// Mirrors rankRoleModule.ts attribution.
 pub fn roles_earned(
-    roles: &[crate::commands::ranks::RankRole],
+    roles: &[crate::commands::ranks::main::RankRole],
     old_level: u64,
     new_level: u64,
 ) -> Vec<String> {
@@ -175,16 +175,16 @@ async fn close_voice_session(
     } else {
         0
     };
-    let mut econ = crate::commands::economy::load_econ(pool, guild_id, user_id).await;
+    let mut econ = crate::commands::economy::main::load_econ(pool, guild_id, user_id).await;
     econ.money += coins;
-    let _ = crate::commands::economy::save_econ(pool, guild_id, user_id, &econ).await;
-    let mut stats = crate::commands::stats::load_stats(pool, guild_id, user_id).await;
+    let _ = crate::commands::economy::main::save_econ(pool, guild_id, user_id, &econ).await;
+    let mut stats = crate::commands::stats::main::load_stats(pool, guild_id, user_id).await;
     // Exact elapsed ms (TS stores exact start/end timestamps; the old
     // whole-minutes truncation lost up to ~59.9s per session).
     stats.voice_ms += elapsed_ms;
-    stats.voice_log = crate::commands::stats::push_voice_log(
+    stats.voice_log = crate::commands::stats::main::push_voice_log(
         stats.voice_log,
-        crate::commands::stats::StatsVoice {
+        crate::commands::stats::main::StatsVoice {
             start_ts: close.start,
             end_ts: close.now_ms,
             channel_id: close.channel_id,
@@ -193,7 +193,7 @@ async fn close_voice_session(
     let _ = crate::db::kv_set(
         pool,
         guild_id,
-        &crate::commands::stats::stats_key(user_id),
+        &crate::commands::stats::main::stats_key(user_id),
         &serde_json::to_string(&stats).unwrap_or_default(),
     )
     .await;
@@ -643,11 +643,11 @@ pub async fn record_message_activity(
         .and_then(|v| v.parse().ok())
         .unwrap_or(0);
     let _ = crate::db::kv_set(pool, guild_id, &chan_key, &(chan_count + 1).to_string()).await;
-    let mut stats = crate::commands::stats::load_stats(pool, guild_id, user_id).await;
+    let mut stats = crate::commands::stats::main::load_stats(pool, guild_id, user_id).await;
     stats.messages += 1;
-    stats.msg_log = crate::commands::stats::push_msg_log(
+    stats.msg_log = crate::commands::stats::main::push_msg_log(
         stats.msg_log,
-        crate::commands::stats::StatsMessage {
+        crate::commands::stats::main::StatsMessage {
             sent_ts: now_ms,
             content_len,
             channel_id,
@@ -656,18 +656,18 @@ pub async fn record_message_activity(
     let _ = crate::db::kv_set(
         pool,
         guild_id,
-        &crate::commands::stats::stats_key(user_id),
+        &crate::commands::stats::main::stats_key(user_id),
         &serde_json::to_string(&stats).unwrap_or_default(),
     )
     .await;
 
-    let entry = crate::commands::ranks::load_rank(pool, guild_id, user_id).await;
-    let (next, leveled) = crate::commands::ranks::apply_xp(entry, 10);
+    let entry = crate::commands::ranks::main::load_rank(pool, guild_id, user_id).await;
+    let (next, leveled) = crate::commands::ranks::main::apply_xp(entry, 10);
     let level = next.level;
     let _ = crate::db::kv_set(
         pool,
         guild_id,
-        &crate::commands::ranks::ranks_key(user_id),
+        &crate::commands::ranks::main::ranks_key(user_id),
         &serde_json::to_string(&next).unwrap_or_default(),
     )
     .await;
@@ -727,11 +727,11 @@ mod tests {
         assert!(should_gain_xp(&[], "1"));
         assert!(!should_gain_xp(&["1".to_string()], "1"));
         let roles = vec![
-            crate::commands::ranks::RankRole {
+            crate::commands::ranks::main::RankRole {
                 role_id: "a".into(),
                 level: 2,
             },
-            crate::commands::ranks::RankRole {
+            crate::commands::ranks::main::RankRole {
                 role_id: "b".into(),
                 level: 5,
             },
@@ -802,9 +802,9 @@ mod tests {
         voice_join(&pool, "g", 1, 9, 0).await;
         let (minutes, coins) = voice_leave(&pool, "g", 1, 6_000_000, 2, true).await;
         assert_eq!((minutes, coins), (100, 20));
-        let econ = crate::commands::economy::load_econ(&pool, "g", 1).await;
+        let econ = crate::commands::economy::main::load_econ(&pool, "g", 1).await;
         assert_eq!(econ.money, 20);
-        let stats = crate::commands::stats::load_stats(&pool, "g", 1).await;
+        let stats = crate::commands::stats::main::load_stats(&pool, "g", 1).await;
         assert_eq!(stats.voice_ms, 6_000_000);
         assert_eq!(stats.voice_log.len(), 1);
         assert_eq!(stats.voice_log[0].channel_id, 9);
@@ -832,10 +832,10 @@ mod tests {
         voice_join(&pool, "g", 1, 9, 0).await;
         let (minutes, coins) = voice_leave(&pool, "g", 1, 6_100_000, 2, false).await;
         assert_eq!((minutes, coins), (101, 0));
-        let econ = crate::commands::economy::load_econ(&pool, "g", 1).await;
+        let econ = crate::commands::economy::main::load_econ(&pool, "g", 1).await;
         assert_eq!(econ.money, 0);
         // Exact ms accumulate (no whole-minute truncation).
-        let stats = crate::commands::stats::load_stats(&pool, "g", 1).await;
+        let stats = crate::commands::stats::main::load_stats(&pool, "g", 1).await;
         assert_eq!(stats.voice_ms, 6_100_000);
         assert_eq!(stats.voice_log.len(), 1);
         // Session row is gone in both cases.
@@ -872,9 +872,9 @@ mod tests {
         assert!(crate::db::kv_get(&pool, "g", &voice_session_key(2))
             .await
             .is_none());
-        let econ = crate::commands::economy::load_econ(&pool, "g", 2).await;
+        let econ = crate::commands::economy::main::load_econ(&pool, "g", 2).await;
         assert_eq!(econ.money, 0);
-        let stats = crate::commands::stats::load_stats(&pool, "g", 2).await;
+        let stats = crate::commands::stats::main::load_stats(&pool, "g", 2).await;
         assert_eq!(stats.voice_ms, 6_000_000);
         assert_eq!(stats.voice_log.len(), 1);
         // Idempotent: second run closes nothing.
@@ -1048,7 +1048,7 @@ mod tests {
             .execute(&pool).await.unwrap();
         let (level, leveled) = record_message_activity(&pool, "g", 1, 7, 5, 1_000).await;
         assert_eq!((level, leveled), (0, false));
-        let s = crate::commands::stats::load_stats(&pool, "g", 1).await;
+        let s = crate::commands::stats::main::load_stats(&pool, "g", 1).await;
         assert_eq!(s.messages, 1);
         assert_eq!(s.msg_log.len(), 1);
         assert_eq!(s.msg_log[0].channel_id, 7);
