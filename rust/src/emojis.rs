@@ -112,6 +112,86 @@ fn assets_dir() -> std::path::PathBuf {
     p.join("src").join("assets").join("emojis")
 }
 
+/// Render `<:Name:id>` (or `<a:Name:id>` when animated) markup for a
+/// synced app emoji. Mirrors the client.iHorizon_Emojis.<Name> namespace
+/// (used for the autoFeur promo suffix with VC_OpenChat).
+///
+/// Reads the boot-warmed cache: one REST fetch per hour globally instead
+/// of one per call. `refresh` (after `sync`) warms it at boot.
+pub async fn app_emoji_markup(http: &poise::serenity_prelude::Http, name: &str) -> Option<String> {
+    cached_emoji_entry(http, name)
+        .await
+        .map(|(id, name, animated)| format_markup(&name, id, animated))
+}
+
+/// Cached app-emoji entry: raw id, name and animated flag (for the
+/// ReactionType::Custom spots that need the id, e.g. help menus).
+pub async fn cached_emoji_entry(
+    http: &poise::serenity_prelude::Http,
+    name: &str,
+) -> Option<(u64, String, bool)> {
+    cached_emoji_table(http)
+        .await
+        .get(name)
+        .map(|(id, animated)| (*id, name.to_string(), *animated))
+}
+
+/// Name -> `<a?:name:id>` markup. Mirrors the FormatedName template in
+/// emojisManager.ts (`<${animated ? "a" : ""}:${name}:${id}>`).
+pub fn emoji_map(
+    emojis: &[poise::serenity_prelude::Emoji],
+) -> std::collections::HashMap<String, String> {
+    emojis
+        .iter()
+        .map(|e| {
+            (
+                e.name.clone(),
+                format_markup(&e.name, e.id.get(), e.animated),
+            )
+        })
+        .collect()
+}
+
+fn format_markup(name: &str, id: u64, animated: bool) -> String {
+    if animated {
+        format!("<a:{name}:{id}>")
+    } else {
+        format!("<:{name}:{id}>")
+    }
+}
+
+type EmojiTable = std::collections::HashMap<String, (u64, bool)>;
+
+static EMOJI_CACHE: std::sync::OnceLock<
+    std::sync::Mutex<(EmojiTable, Option<std::time::Instant>)>,
+> = std::sync::OnceLock::new();
+
+/// Refresh the cache now (best-effort; keeps the old table on failure).
+pub async fn refresh(http: &poise::serenity_prelude::Http) {
+    let fetched = http.get_application_emojis().await.unwrap_or_default();
+    let table: EmojiTable = fetched
+        .iter()
+        .map(|e| (e.name.clone(), (e.id.get(), e.animated)))
+        .collect();
+    let cache = EMOJI_CACHE.get_or_init(|| std::sync::Mutex::new((EmojiTable::new(), None)));
+    let mut guard = cache.lock().unwrap_or_else(|e| e.into_inner());
+    if !table.is_empty() || guard.0.is_empty() {
+        *guard = (table, Some(std::time::Instant::now()));
+    }
+}
+
+async fn cached_emoji_table(http: &poise::serenity_prelude::Http) -> EmojiTable {
+    let cache = EMOJI_CACHE.get_or_init(|| std::sync::Mutex::new((EmojiTable::new(), None)));
+    let fresh = cache.lock().unwrap_or_else(|e| e.into_inner()).clone();
+    if let (table, Some(at)) = &fresh {
+        if at.elapsed() < std::time::Duration::from_secs(3600) && !table.is_empty() {
+            return table.clone();
+        }
+    }
+    refresh(http).await;
+    cache.lock().unwrap_or_else(|e| e.into_inner()).0.clone()
+}
+
 /// Upload missing app emojis. Best-effort, traced, never fails boot.
 pub async fn sync(http: &Arc<poise::serenity_prelude::Http>) {
     let existing: Vec<String> = http
@@ -169,6 +249,21 @@ mod tests {
         assert_eq!(base64_encode(b"Ma"), "TWE=");
         assert_eq!(base64_encode(b"M"), "TQ==");
         assert_eq!(base64_encode(b""), "");
+    }
+
+    #[test]
+    fn emoji_map_matches_ts_formated_name() {
+        // Emoji is non_exhaustive: build via JSON like the API would.
+        let raw = serde_json::json!([
+            {"id": "1", "name": "Crown", "animated": false},
+            {"id": "2", "name": "Wave", "animated": true}
+        ]);
+        let emojis: Vec<poise::serenity_prelude::Emoji> = serde_json::from_value(raw).unwrap();
+        let map = emoji_map(&emojis);
+        assert_eq!(map.get("Crown").map(String::as_str), Some("<:Crown:1>"));
+        assert_eq!(map.get("Wave").map(String::as_str), Some("<a:Wave:2>"));
+        assert_eq!(format_markup("X", 9, false), "<:X:9>");
+        assert_eq!(format_markup("X", 9, true), "<a:X:9>");
     }
 
     #[test]

@@ -16,6 +16,8 @@ pub struct Config {
     pub owners: Vec<String>,
     #[serde(default)]
     pub guild_logs_channel_id: String,
+    #[serde(default = "default_report_channel")]
+    pub report_channel_id: String,
     #[serde(default)]
     pub database_url: String,
     #[serde(default)]
@@ -30,6 +32,11 @@ fn default_true() -> bool {
     true
 }
 
+fn default_report_channel() -> String {
+    // Mirrors config.core.reportChannelID default in src/files/config.ts.
+    "1509600857828626482".to_string()
+}
+
 impl Default for Config {
     fn default() -> Self {
         Self {
@@ -38,6 +45,7 @@ impl Default for Config {
             message_commands_mention: true,
             owners: vec![],
             guild_logs_channel_id: String::new(),
+            report_channel_id: default_report_channel(),
             database_url: "sqlite:./src/files/db.sqlite?mode=rwc".to_string(),
             total_shards: None,
         }
@@ -70,6 +78,16 @@ pub fn load() -> anyhow::Result<Config> {
     }
     if let Ok(v) = std::env::var("OWNERS") {
         cfg.owners = parse_owners(&v);
+    }
+    if let Ok(v) = std::env::var("GUILD_LOGS_CHANNEL_ID") {
+        if !v.is_empty() {
+            cfg.guild_logs_channel_id = v;
+        }
+    }
+    if let Ok(v) = std::env::var("REPORT_CHANNEL_ID") {
+        if !v.is_empty() {
+            cfg.report_channel_id = v;
+        }
     }
 
     Ok(cfg)
@@ -114,6 +132,16 @@ pub fn is_gateway_env() -> bool {
         return v == "production" || v == "dev";
     }
     false
+}
+
+/// True only on production. Mirrors the
+/// `client.version.env !== "production"` early-out in
+/// commandExecutor.checkCustomSdkGate (the Custom-profile paywall
+/// only applies in production).
+pub fn is_production_env() -> bool {
+    std::env::var("BOT_ENV")
+        .map(|v| v == "production")
+        .unwrap_or(false)
 }
 
 #[cfg(test)]
@@ -187,5 +215,18 @@ mod tests {
         let cfg = load().unwrap();
         assert_eq!(cfg.total_shards, None);
         std::env::remove_var("TOTAL_SHARDS");
+    }
+
+    #[test]
+    fn production_env_gate() {
+        let _guard = ENV_LOCK.lock().unwrap();
+        std::env::set_var("BOT_ENV", "production");
+        assert!(is_production_env());
+        assert!(is_gateway_env());
+        std::env::set_var("BOT_ENV", "dev");
+        assert!(!is_production_env());
+        assert!(is_gateway_env());
+        std::env::remove_var("BOT_ENV");
+        assert!(!is_production_env());
     }
 }

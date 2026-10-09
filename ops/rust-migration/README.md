@@ -44,6 +44,12 @@ ops/rust-migration/migrate.sh progress  # units left + last test results
 Config: `migrate.conf` (branch, Discord target, agent, retries, timeouts).
 Discord helper: `notify.sh` (wraps `hermes send`, never touches tokens).
 
+## Parallel coordinator (authoritative, 2026-10-09)
+
+See `README-PARALLEL.md`. `coord.sh {install|start|status|logs|pause|resume|progress|gc|recover|inventory}`
+owns scheduling, worktree integration, and the queue while active — keep
+the serial loop above paused (`PAUSED`) and never enable both services.
+
 ## Recovery
 
 - Reboot/crash: `systemd --user` starts the unit on login (enabled +

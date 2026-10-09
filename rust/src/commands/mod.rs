@@ -11,11 +11,13 @@
 pub mod antispam;
 pub mod authrestore;
 pub mod backup;
+pub mod backup_restore;
 pub mod blogger;
 pub mod botcat;
 pub mod confession;
 pub mod context;
 pub mod economy;
+pub mod embed;
 pub mod fun;
 pub mod giveaway;
 pub mod guildconfig;
@@ -46,6 +48,7 @@ pub mod ticket;
 pub mod tts;
 pub mod utils;
 pub mod voicedashboard;
+pub mod welcomer_panel;
 
 use crate::bot::{Ctx, Data};
 
@@ -79,6 +82,7 @@ pub fn all() -> Vec<poise::Command<Data, Error>> {
         fun::frog(),
         fun::panda(),
         fun::squirrel(),
+        fun::sixseven(),
         fun::grosbg(),
         fun::trans(),
         fun::hug(),
@@ -89,6 +93,7 @@ pub fn all() -> Vec<poise::Command<Data, Error>> {
         utils::help_here(),
         utils::avatar(),
         utils::userinfo(),
+        utils::top(),
         utils::serverinfo(),
         utils::snipe(),
         utils::prevnames(),
@@ -97,10 +102,12 @@ pub fn all() -> Vec<poise::Command<Data, Error>> {
         utils::addrole(),
         utils::delrole(),
         utils::embed_post(),
+        embed::embed_builder(),
         utils::massmove(),
         utils::dm(),
         utils::leash(),
         utils::unleash(),
+        utils::admin_roles(),
         utils::voicemove(),
         utils::wlvc(),
         utils::unwlvc(),
@@ -127,7 +134,6 @@ pub fn all() -> Vec<poise::Command<Data, Error>> {
         utils::inviteinfo(),
         utils::allwebhooks(),
         utils::admin_users(),
-        utils::sixtyseven(),
         utils::setmentionrole(),
         utils::autorenew(),
         utils::slowmode(),
@@ -141,9 +147,11 @@ pub fn all() -> Vec<poise::Command<Data, Error>> {
         utils::unban_undo(),
         utils::wlroles_add(),
         utils::wlroles_list(),
+        utils::wlroles(),
         utils::media_only(),
         utils::voicefreeze(),
         utils::voiceunfreeze(),
+        utils::banner(),
         moderation::moderation(),
         protection::protect(),
         security::security(),
@@ -151,6 +159,7 @@ pub fn all() -> Vec<poise::Command<Data, Error>> {
         authrestore::authrestore(),
         guildconfig::guildconfig(),
         guildconfig::gc_automod(),
+        welcomer_panel::welcomer_panel(),
         economy::economy(),
         ranks::ranks(),
         profil::profil(),
@@ -166,17 +175,25 @@ pub fn all() -> Vec<poise::Command<Data, Error>> {
         legacy::remove_react(),
         legacy::welcomer(),
         legacy::updates(),
+        legacy::helpall(),
+        legacy::help_browser(),
         legacy::shardinfo(),
         legacy::status_embed(),
         legacy::langstats(),
         legacy::nitrofdp(),
         legacy::securewebhook(),
+        legacy::fexini(),
+        legacy::kawaeine(),
+        legacy::rap_vs_reality(),
+        legacy::two_sides(),
+        utils::vanity_generator(),
         tts::tts(),
         h247::h247(),
         context::user_lookup(),
         context::user_love(),
         context::msg_question(),
         context::msg_play(),
+        context::msg_convert_mp4(),
         honeypot::honeypot(),
         voicedashboard::voicedashboard(),
         suggestion::setsuggest(),
@@ -186,7 +203,7 @@ pub fn all() -> Vec<poise::Command<Data, Error>> {
         newfeatures::report(),
         newfeatures::punishpub(),
         newfeatures::nightmode(),
-        newfeatures::gitlines(),
+        newfeatures::git_parent(),
         giveaway::giveaway(),
         ticket::ticket(),
         backup::backup(),
@@ -195,6 +212,7 @@ pub fn all() -> Vec<poise::Command<Data, Error>> {
         invitesmanager::inv(),
         membercount::membercount(),
         rolereactions::rolereaction(),
+        rolereactions::addrolereact(),
         rolereactions::rolebutton(),
         rolereactions::roleselect(),
         starboard::starboard(),
@@ -213,9 +231,7 @@ pub fn all() -> Vec<poise::Command<Data, Error>> {
         botcat::setlang(),
         botcat::invite(),
         botcat::links(),
-        botcat::bot_custom_name(),
-        botcat::bot_custom_avatar(),
-        botcat::bot_custom_banner(),
+        botcat::custom(),
         stats::stats(),
     ]
 }
@@ -227,6 +243,43 @@ pub async fn lang_for(ctx: &Ctx<'_>, key: &str, fallback: &str) -> String {
     let pool = &ctx.data().pool;
     let code = crate::db::guild_lang(pool, guild_id).await;
     crate::lang::get(&code, key).unwrap_or_else(|| fallback.to_string())
+}
+
+/// Modal-submit wait. Mirrors the `time` in
+/// `core/functions/modalHelper.ts` (iHorizonModalResolve, 1_240_000 ms).
+pub const MODAL_SUBMIT_TIMEOUT_SECS: u64 = 1240;
+
+/// Seen modal-submit interaction ids. Mirrors the `cache` array in
+/// `core/functions/modalHelper.ts` (duplicate submits resolve to
+/// undefined so double-submits are ignored).
+static SEEN_MODAL_SUBMITS: std::sync::OnceLock<std::sync::Mutex<std::collections::HashSet<u64>>> =
+    std::sync::OnceLock::new();
+
+/// Await the modal submit for `custom_id` from the interaction author.
+/// Mirrors iHorizonModalResolve (customId + author filter, TS timeout,
+/// response-id dedupe). Returns None on timeout or duplicate submit.
+/// Callers show the modal themselves first, then keep their own
+/// acknowledge/defer (TS deferUpdate default), like the existing sites.
+pub async fn await_modal_submit(
+    ctx: &poise::serenity_prelude::Context,
+    comp: &poise::serenity_prelude::ComponentInteraction,
+    custom_id: &str,
+) -> Option<poise::serenity_prelude::ModalInteraction> {
+    use poise::serenity_prelude as serenity;
+    let submit = serenity::collector::ModalInteractionCollector::new(&ctx.shard)
+        .author_id(comp.user.id)
+        .custom_ids(vec![custom_id.to_string()])
+        .timeout(std::time::Duration::from_secs(MODAL_SUBMIT_TIMEOUT_SECS))
+        .await?;
+    let fresh = SEEN_MODAL_SUBMITS
+        .get_or_init(|| std::sync::Mutex::new(std::collections::HashSet::new()))
+        .lock()
+        .map(|mut seen| seen.insert(submit.id.get()))
+        .unwrap_or(true);
+    if !fresh {
+        return None;
+    }
+    Some(submit)
 }
 
 /// Confirm-prompt button ids. Mirrors the customIds in
@@ -355,11 +408,11 @@ mod tests {
         let cmds = all();
         let names: Vec<String> = cmds.iter().map(|c| c.name.clone()).collect();
         // 4 base + full parents + remaining stubs.
-        assert_eq!(cmds.len(), 164);
+        assert_eq!(cmds.len(), 177);
         for expected in [
             "botinfo",
             "dice",
-            "coinflip",
+            "heads-tails",
             "number",
             "question",
             "morse",
@@ -445,6 +498,7 @@ mod tests {
             "unban-undo",
             "wlroles-add",
             "wlroles-list",
+            "wlroles",
             "media-only",
             "help",
             "ping",
@@ -460,7 +514,7 @@ mod tests {
             "economy",
             "counter",
             "nightmode",
-            "gitlines",
+            "git",
             "owner",
             "rolereaction",
             "rolebutton",
@@ -505,7 +559,7 @@ mod tests {
             "notifier",
             "blogger",
             "lastfm",
-            "autofeur",
+            "autorespond",
             "antiexe",
             "add-react",
             "list-react",
@@ -517,9 +571,136 @@ mod tests {
             "langstats",
             "nitrofdp",
             "securewebhook",
+            "fexini",
+            "kawaeine",
+            "rap-vs-reality",
+            "two-sides",
+            "vanity-generator",
+            "embed",
         ] {
             assert!(names.contains(&expected.to_string()), "missing {expected}");
         }
+    }
+
+    #[test]
+    fn privileged_commands_keep_ts_permission_gates() {
+        use poise::serenity_prelude::Permissions;
+        fn flatten<'a>(
+            cmds: &'a [poise::Command<super::Data, super::Error>],
+            out: &mut Vec<&'a poise::Command<super::Data, super::Error>>,
+        ) {
+            for c in cmds {
+                out.push(c);
+                flatten(&c.subcommands, out);
+            }
+        }
+        let cmds = all();
+        let mut flat = vec![];
+        flatten(&cmds, &mut flat);
+        let find = |name: &str| {
+            flat.iter()
+                .find(|c| c.name == name)
+                .unwrap_or_else(|| panic!("command {name} missing from registry"))
+        };
+        // autofeur.ts: permission ManageGuildExpressions.
+        assert!(find("autorespond")
+            .default_member_permissions
+            .contains(Permissions::MANAGE_GUILD_EXPRESSIONS));
+        // @antiexe.ts: permission Administrator.
+        assert!(find("antiexe")
+            .default_member_permissions
+            .contains(Permissions::ADMINISTRATOR));
+        // @toggle-react.ts: permission ManageGuildExpressions.
+        assert!(find("autoreact-toggle")
+            .default_member_permissions
+            .contains(Permissions::MANAGE_GUILD_EXPRESSIONS));
+        // mod.ts per-subcommand gates (were all ADMINISTRATOR via parent).
+        assert!(find("ban")
+            .default_member_permissions
+            .contains(Permissions::BAN_MEMBERS));
+        assert!(find("tempmute")
+            .default_member_permissions
+            .contains(Permissions::MODERATE_MEMBERS));
+        assert!(find("kick")
+            .default_member_permissions
+            .contains(Permissions::KICK_MEMBERS));
+        assert!(find("clear")
+            .default_member_permissions
+            .contains(Permissions::MANAGE_MESSAGES));
+        assert!(find("banlist")
+            .default_member_permissions
+            .contains(Permissions::MANAGE_GUILD));
+        assert!(find("rolepanel")
+            .default_member_permissions
+            .contains(Permissions::MANAGE_ROLES));
+        // backup.ts create aliases include TS bcreate (multiple parents
+        // have a "create" subcommand; check any of them).
+        assert!(flat
+            .iter()
+            .filter(|c| c.name == "create")
+            .any(|c| c.aliases.contains(&"bcreate".to_string())));
+        // mod.ts canonical names + alias parity (review round 2).
+        let aliases_of = |name: &str| {
+            flat.iter()
+                .find(|c| c.name == name)
+                .unwrap_or_else(|| panic!("command {name} missing from registry"))
+                .aliases
+                .clone()
+        };
+        assert!(aliases_of("tempmute").contains(&"timeout".to_string()));
+        assert!(aliases_of("tempmute").contains(&"mute".to_string()));
+        assert!(aliases_of("ban").contains(&"addban".to_string()));
+        assert!(aliases_of("unban").contains(&"pardon".to_string()));
+        assert!(aliases_of("banlist").contains(&"bans".to_string()));
+        assert!(aliases_of("clear").contains(&"cls".to_string()));
+        assert!(aliases_of("warnlist").contains(&"sanctions".to_string()));
+        assert!(aliases_of("tempban").contains(&"tban".to_string()));
+        // U-ALIASES3 utils batch (representative carriers).
+        assert!(aliases_of("avatar").contains(&"pfp".to_string()));
+        assert!(aliases_of("snipe").contains(&"s".to_string()));
+        assert!(aliases_of("serverinfo").contains(&"si".to_string()));
+        assert!(aliases_of("role-members").contains(&"rolemembers".to_string()));
+        // U-ECONOMY aliases.
+        assert!(aliases_of("balance").contains(&"wallet".to_string()));
+        assert!(aliases_of("deposit").contains(&"dep".to_string()));
+        // U-GATES2 economy/ticket/giveaway gates.
+        assert!(find("balance-add")
+            .default_member_permissions
+            .contains(Permissions::ADMINISTRATOR));
+        // role-add exists under ranks (ADMINISTRATOR) and economy
+        // (MANAGE_GUILD per TS); assert the loosened one exists.
+        assert!(flat.iter().filter(|c| c.name == "role-add").any(|c| c
+            .default_member_permissions
+            .contains(Permissions::MANAGE_GUILD)));
+        assert!(find("open").default_member_permissions.is_empty());
+        assert!(find("add-member")
+            .default_member_permissions
+            .contains(Permissions::MANAGE_CHANNELS));
+        // U-ALIASES4 batch (profil/ranks/stats/giveaway/music/bot/
+        // antispam/invites/owner/guildconfig/rolereactions/ticket).
+        // Several names repeat across parents; match any carrier.
+        let has_alias = |name: &str, alias: &str| {
+            flat.iter()
+                .filter(|c| c.name == name)
+                .any(|c| c.aliases.contains(&alias.to_string()))
+        };
+        assert!(has_alias("show", "me"));
+        assert!(has_alias("set-birthday", "anniversaire"));
+        assert!(has_alias("ustats", "u"));
+        assert!(has_alias("channel-stats", "chstats"));
+        assert!(has_alias("play", "p"));
+        assert!(has_alias("blacklist", "bl"));
+        assert!(has_alias("kisakay", "anaïs"));
+        // U-GATES2-UTILS representative gates.
+        assert!(find("derank")
+            .default_member_permissions
+            .contains(Permissions::ADMINISTRATOR));
+        assert!(find("addrole")
+            .default_member_permissions
+            .contains(Permissions::MANAGE_ROLES));
+        assert!(find("vanity-generator")
+            .default_member_permissions
+            .contains(Permissions::MANAGE_GUILD));
     }
 
     #[test]

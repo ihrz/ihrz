@@ -80,7 +80,9 @@ pub async fn protect_rule(
 ) -> Result<(), anyhow::Error> {
     let rule = rule.trim().to_ascii_lowercase();
     if !valid_rule(&rule) {
-        ctx.say("Bad rule.").await?;
+        let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+        ctx.say(crate::lang::get(&code, "msg_bad_rule").unwrap_or_else(|| "Bad rule.".to_string()))
+            .await?;
         return Ok(());
     }
     let gid = ctx
@@ -93,7 +95,20 @@ pub async fn protect_rule(
             .bind(&gid)
             .execute(&ctx.data().pool)
             .await?;
-        ctx.say("Protection cleared.").await?;
+        let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+        let guild_name = ctx.guild().map(|g| g.name.clone()).unwrap_or_default();
+        ctx.say(
+            crate::lang::get(&code, "authorization_actions_rule_clear")
+                .map(|s| {
+                    s.replace(
+                        "${interaction.user}",
+                        &format!("<@{}>", ctx.author().id.get()),
+                    )
+                    .replace("${interaction.guild.name}", &guild_name)
+                })
+                .unwrap_or_else(|| "Protection cleared.".to_string()),
+        )
+        .await?;
         return Ok(());
     }
     let targets: Vec<String> = if rule == "all" {
@@ -110,7 +125,20 @@ pub async fn protect_rule(
         )
         .await?;
     }
-    ctx.say(format!("Rule {rule} set.")).await?;
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    ctx.say(
+        crate::lang::get(&code, "authorization_actions_rule_set")
+            .map(|s| {
+                s.replace(
+                    "${interaction.user}",
+                    &format!("<@{}>", ctx.author().id.get()),
+                )
+                .replace("${rule.toUpperCase()}", &rule.to_uppercase())
+                .replace("${allow}", if allow { "on" } else { "off" })
+            })
+            .unwrap_or_else(|| format!("Rule {rule} set.")),
+    )
+    .await?;
     Ok(())
 }
 
@@ -130,7 +158,19 @@ pub async fn protect_sanction(
         sanction.trim(),
     )
     .await?;
-    ctx.say("Sanction set.").await?;
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    ctx.say(
+        crate::lang::get(&code, "authorization_sanction_command_work")
+            .map(|s| {
+                s.replace(
+                    "${interaction.user}",
+                    &format!("<@{}>", ctx.author().id.get()),
+                )
+                .replace("${choose}", sanction.trim())
+            })
+            .unwrap_or_else(|| "Sanction set.".to_string()),
+    )
+    .await?;
     Ok(())
 }
 
@@ -175,7 +215,13 @@ pub async fn protect_allow_add(
         r#"{"allowed":true}"#,
     )
     .await?;
-    ctx.say("Allowlisted.").await?;
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    ctx.say(
+        crate::lang::get(&code, "allowlist_add_command_work")
+            .map(|s| s.replace("${member.user}", &format!("<@{}>", user.id.get())))
+            .unwrap_or_else(|| "Allowlisted.".to_string()),
+    )
+    .await?;
     Ok(())
 }
 
@@ -193,7 +239,13 @@ pub async fn protect_allow_remove(
         .bind(format!("ALLOWLIST.list.{}", user.id.get()))
         .execute(&ctx.data().pool)
         .await?;
-    ctx.say("Allowlist removed.").await?;
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    ctx.say(
+        crate::lang::get(&code, "allowlist_delete_command_work")
+            .map(|s| s.replace("${member.user}", &format!("<@{}>", user.id.get())))
+            .unwrap_or_else(|| "Allowlist removed.".to_string()),
+    )
+    .await?;
     Ok(())
 }
 

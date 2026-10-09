@@ -4,37 +4,187 @@
 
 use crate::bot::Ctx;
 
-/// Basic latency check. Mirrors the TS ping-style fun commands.
-#[poise::command(slash_command, prefix_command, category = "fun")]
+// ---- ping network section (bot/ping.ts) ----
+// The TS ping embeds gateway latency plus four ICMP probes
+// (google/cloudflare/discord/ihorizon) rendered through the
+// ping_embed_desc template. Probes run sequentially like the TS awaits;
+// a failed probe shows ping_down_msg.
+
+/// Probe targets in template order (_net01.._net04).
+pub const PING_PROBE_HOSTS: [&str; 4] = [
+    "google.com",
+    "cloudflare.com",
+    "discord.com",
+    "ihorizon.org",
+];
+
+/// Label for one probe: first-sample ms or the down message. Mirrors
+/// `Number(result.time)` vs the catch-path down message.
+pub fn ping_net_label(time_ms: Option<f64>, down_msg: &str) -> String {
+    match time_ms {
+        Some(t) => {
+            if t.fract() == 0.0 {
+                format!("{}", t as i64)
+            } else {
+                format!("{t}")
+            }
+        }
+        None => down_msg.to_string(),
+    }
+}
+
+/// Mean over successful probes. Delta vs TS (documented): the TS
+/// average divides parseInt sums by 4, so one down host renders NaN;
+/// here only successful probes count (identical when all are up).
+pub fn ping_average_ms(times_ms: &[Option<f64>]) -> Option<f64> {
+    let ups: Vec<f64> = times_ms.iter().filter_map(|t| *t).collect();
+    if ups.is_empty() {
+        return None;
+    }
+    Some(ups.iter().sum::<f64>() / ups.len() as f64)
+}
+
+/// Fill the ping_embed_desc template. Mirrors the exact TS replace
+/// mix: username/Crown/_net01-03 are replace-ALL, _net04/ws/Pointer/
+/// average replace FIRST occurrence only.
+#[allow(clippy::too_many_arguments)]
+pub fn render_ping_desc(
+    template: &str,
+    username: &str,
+    crown: &str,
+    pointer: &str,
+    nets: &[String; 4],
+    ws_ms: u128,
+    average_ms: Option<f64>,
+) -> String {
+    let avg = average_ms.map(|a| {
+        if a.fract() == 0.0 {
+            format!("{}", a as i64)
+        } else {
+            format!("{a}")
+        }
+    });
+    let out = template
+        .replace("${interaction.client.user.username}", username)
+        .replace("${_net03}", &nets[2])
+        .replace("${_net02}", &nets[1])
+        .replace("${_net01}", &nets[0])
+        .replace("${client.iHorizon_Emojis.Crown}", crown);
+    let out = out.replacen("${_net04}", &nets[3], 1);
+    let out = out.replacen("${client.ws.ping}", &ws_ms.to_string(), 1);
+    let out = out.replacen("${client.iHorizon_Emojis.Pointer}", pointer, 1);
+    match avg {
+        Some(a) => out.replacen("${averagePing}", &a, 1),
+        None => out.replacen("${averagePing}", "NaN", 1),
+    }
+}
+
+/// Network stats embed. Mirrors bot/ping.ts.
+#[poise::command(
+    slash_command,
+    prefix_command,
+    category = "fun",
+    aliases("speed", "pong", "vitesse")
+)]
 pub async fn ping(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
-    let latency = ctx.ping().await.as_millis();
-    let msg = crate::commands::lang_for(&ctx, "var_latency", "Latency").await;
-    ctx.say(format!("{msg}: {latency}ms")).await?;
+    let down_msg = crate::commands::lang_for(&ctx, "ping_down_msg", "**DOWN**").await;
+    let template = crate::commands::lang_for(&ctx, "ping_embed_desc", "Pong!").await;
+    let loading = ctx.say("...").await?;
+    let ws_ms = ctx.ping().await.as_millis();
+    let cfg = crate::monitor::PingConfig::default();
+    let mut times: [Option<f64>; 4] = [None, None, None, None];
+    for (i, host) in PING_PROBE_HOSTS.iter().enumerate() {
+        if let Ok(resp) = crate::monitor::ping_execute(host, &cfg).await {
+            times[i] = resp.parsed.time_ms;
+        }
+    }
+    let nets = [
+        ping_net_label(times[0], &down_msg),
+        ping_net_label(times[1], &down_msg),
+        ping_net_label(times[2], &down_msg),
+        ping_net_label(times[3], &down_msg),
+    ];
+    let username = ctx.serenity_context().cache.current_user().name.clone();
+    // Boot-warmed app-emoji cache (was a REST fetch per /ping call).
+    let crown = crate::emojis::app_emoji_markup(ctx.http(), "Crown")
+        .await
+        .unwrap_or_default();
+    let pointer = crate::emojis::app_emoji_markup(ctx.http(), "Pointer")
+        .await
+        .unwrap_or_default();
+    let desc = render_ping_desc(
+        &template,
+        &username,
+        &crown,
+        &pointer,
+        &nets,
+        ws_ms,
+        ping_average_ms(&times),
+    );
+    let gid = ctx
+        .guild_id()
+        .map(|g| g.get().to_string())
+        .unwrap_or_default();
+    let (footer_name, footer_bytes) = crate::commands::utils::footer_parts(&ctx, &gid).await;
+    let embed = poise::serenity_prelude::CreateEmbed::default()
+        .colour(2829617_u32)
+        .description(desc);
+    let embed =
+        crate::commands::utils::embed_with_footer(embed, &footer_name, footer_bytes.is_some());
+    let mut reply = poise::CreateReply::default().embed(embed);
+    if let Some(bytes) = footer_bytes {
+        reply = reply.attachment(poise::serenity_prelude::CreateAttachment::bytes(
+            bytes,
+            "footer_icon.png",
+        ));
+    }
+    loading.edit(ctx, reply).await?;
     Ok(())
 }
 
-/// Dice roll. Mirrors src/Interaction/HybridCommands/fun/!dice.ts.
-#[poise::command(slash_command, prefix_command, category = "fun")]
+/// Dice roll. Mirrors !dice.ts (number x Dfaces results + total embed).
+#[poise::command(
+    slash_command,
+    prefix_command,
+    category = "fun",
+    rename = "dice",
+    aliases("dé")
+)]
 pub async fn dice(
     ctx: Ctx<'_>,
-    #[description = "Faces (default 6)"] faces: Option<u32>,
+    #[description = "Number of dice"] number: Option<f64>,
+    #[description = "Faces per die"] faces: Option<f64>,
 ) -> Result<(), anyhow::Error> {
-    let faces = normalize_faces(faces);
-    let now = std::time::SystemTime::now()
-        .duration_since(std::time::UNIX_EPOCH)
-        .map(|d| d.as_millis() as u64)
-        .unwrap_or(1);
-    let roll = roll_dice(now, faces);
-    ctx.say(format!("🎲 {roll} / {faces}")).await?;
+    let number = number.unwrap_or(1.0).max(1.0) as usize;
+    let faces = (faces.unwrap_or(6.0).max(2.0)) as u32;
+    let results = roll_dice_set(number, faces);
+    let total: u32 = results.iter().sum();
+    let embed = poise::serenity_prelude::CreateEmbed::default()
+        .title(crate::commands::lang_for(&ctx, "fun_dice_embed_title", "Dice Roll Result").await)
+        .description(format!(
+            "{} {number} x D{faces}\n{} {}\n{} {total}",
+            crate::commands::lang_for(&ctx, "fun_dice_var_rolled_dices", "Rolled Dice:").await,
+            crate::commands::lang_for(&ctx, "fun_dice_var_results", "Results:").await,
+            results
+                .iter()
+                .map(|r| r.to_string())
+                .collect::<Vec<_>>()
+                .join(", "),
+            crate::commands::lang_for(&ctx, "fun_dice_var_total", "Total:").await,
+        ))
+        .colour(random_colour());
+    ctx.send(poise::CreateReply::default().embed(embed)).await?;
     Ok(())
 }
 
-pub fn normalize_faces(faces: Option<u32>) -> u32 {
-    faces.unwrap_or(6).clamp(2, 100)
-}
-
-pub fn roll_dice(now_ms: u64, faces: u32) -> u64 {
-    (now_ms % faces as u64) + 1
+/// Roll `count` dice with `faces` faces (1-based each).
+/// Pure helper behind the dice command.
+pub fn roll_dice_set(count: usize, faces: u32) -> Vec<u32> {
+    use rand::Rng;
+    let mut rng = rand::thread_rng();
+    (0..count)
+        .map(|_| rng.gen_range(1..=faces.max(2)))
+        .collect()
 }
 
 /// Coin flip. Mirrors !heads-tails.ts.
@@ -185,8 +335,13 @@ pub async fn poll(
         .map(|s| s.trim().to_string())
         .filter(|s| !s.is_empty())
         .collect();
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     if opts.len() < 2 {
-        ctx.say("Give at least 2 options.").await?;
+        ctx.say(
+            crate::lang::get(&code, "msg_give_at_least_2_options")
+                .unwrap_or_else(|| "Give at least 2 options.".to_string()),
+        )
+        .await?;
         return Ok(());
     }
     ctx.say(
@@ -216,13 +371,18 @@ pub async fn cat(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         Ok(r) => r.text().await.unwrap_or_default(),
         Err(_) => String::new(),
     };
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     match parse_cat_json(&text) {
         Some(u) => {
             let embed = poise::serenity_prelude::CreateEmbed::default().image(u);
             ctx.send(poise::CreateReply::default().embed(embed)).await?;
         }
         None => {
-            ctx.say("Cat API down.").await?;
+            ctx.say(
+                crate::lang::get(&code, "msg_cat_api_down")
+                    .unwrap_or_else(|| "Cat API down.".to_string()),
+            )
+            .await?;
         }
     }
     Ok(())
@@ -245,7 +405,13 @@ pub async fn dog(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
             ctx.send(poise::CreateReply::default().embed(embed)).await?;
         }
         None => {
-            ctx.say("Dog API down.").await?;
+            let code =
+                crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+            ctx.say(
+                crate::lang::get(&code, "dogs_embed_command_error")
+                    .unwrap_or_else(|| "Dog API down.".to_string()),
+            )
+            .await?;
         }
     }
     Ok(())
@@ -257,9 +423,16 @@ pub async fn hug(
     ctx: Ctx<'_>,
     #[description = "Member"] user: poise::serenity_prelude::User,
 ) -> Result<(), anyhow::Error> {
-    ctx.say(interaction_line(&ctx.author().tag(), &user.tag(), "hugs"))
-        .await?;
-    Ok(())
+    social_gif(
+        &ctx,
+        &user,
+        "hug",
+        "hug_embed_title",
+        "<@${interaction.user.id}> gives a hug to <@${hug.id}>",
+        0xFFB6C1,
+        "${hug.id}",
+    )
+    .await
 }
 
 /// Kiss command.
@@ -268,9 +441,16 @@ pub async fn kiss(
     ctx: Ctx<'_>,
     #[description = "Member"] user: poise::serenity_prelude::User,
 ) -> Result<(), anyhow::Error> {
-    ctx.say(interaction_line(&ctx.author().tag(), &user.tag(), "kisses"))
-        .await?;
-    Ok(())
+    social_gif(
+        &ctx,
+        &user,
+        "kiss",
+        "kiss_embed_description",
+        "<@${interaction.user.id}> gives a kiss to <@${kiss.id}>",
+        0xFF0884,
+        "${kiss.id}",
+    )
+    .await
 }
 
 /// Slap command.
@@ -279,8 +459,133 @@ pub async fn slap(
     ctx: Ctx<'_>,
     #[description = "Member"] user: poise::serenity_prelude::User,
 ) -> Result<(), anyhow::Error> {
-    ctx.say(interaction_line(&ctx.author().tag(), &user.tag(), "slaps"))
+    social_gif(
+        &ctx,
+        &user,
+        "slap",
+        "slap_embed_description",
+        "<@${interaction.user.id}> slaps <@${slap.id}>",
+        0x42FF08,
+        "${slap.id}",
+    )
+    .await
+}
+
+// ---- hug/kiss/slap asset GIFs ----
+// Mirrors !hug.ts/!kiss.ts/!slap.ts: fun kill-switch, random asset GIF
+// picked via the length.json counts (assetsCalc boot fetch), reachability
+// check (axios.get().then), coloured embed with filled title + image +
+// timestamp, fun_var_down_api when the fetch fails.
+
+/// length.json location. Mirrors the assetsCalc fetch URL.
+pub const ASSET_LENGTHS_URL: &str =
+    "https://gitlab.com/ihrz/assets/-/raw/main/length.json?ref_type=heads";
+
+/// Parse length.json into counts. Mirrors assetsCalc
+/// (JSON.parse into the Assets map; unparsable entries are skipped).
+pub fn parse_asset_counts(raw: &str) -> std::collections::HashMap<String, u64> {
+    serde_json::from_str::<serde_json::Value>(raw)
+        .ok()
+        .and_then(|v| {
+            v.as_object().map(|m| {
+                m.iter()
+                    .filter_map(|(k, v)| v.as_u64().map(|n| (k.clone(), n)))
+                    .collect()
+            })
+        })
+        .unwrap_or_default()
+}
+
+/// Boot-time counts, fetched once and cached. Mirrors client.assets.
+async fn asset_counts() -> std::collections::HashMap<String, u64> {
+    use std::collections::HashMap;
+    use std::sync::{Mutex, OnceLock};
+    static CACHE: OnceLock<Mutex<HashMap<String, u64>>> = OnceLock::new();
+    let cache = CACHE.get_or_init(|| Mutex::new(HashMap::new()));
+    let hit = cache.lock().unwrap_or_else(|e| e.into_inner()).clone();
+    if !hit.is_empty() {
+        return hit;
+    }
+    let fetched: HashMap<String, u64> =
+        match reqwest::Client::new().get(ASSET_LENGTHS_URL).send().await {
+            Ok(resp) => match resp.text().await {
+                Ok(text) => parse_asset_counts(&text),
+                Err(_) => HashMap::new(),
+            },
+            Err(_) => HashMap::new(),
+        };
+    if !fetched.is_empty() {
+        *cache.lock().unwrap_or_else(|e| e.into_inner()) = fetched.clone();
+    }
+    fetched
+}
+
+/// Description fill for the social embeds. Mirrors the /g replaces of
+/// `${interaction.user.id}` and the per-command `${<target>.id}` token.
+pub fn social_embed_desc(
+    template: &str,
+    author_id: u64,
+    target_token: &str,
+    target_id: u64,
+) -> String {
+    template
+        .replace("${interaction.user.id}", &author_id.to_string())
+        .replace(target_token, &target_id.to_string())
+}
+
+async fn social_gif(
+    ctx: &Ctx<'_>,
+    target: &poise::serenity_prelude::User,
+    kind: &str,
+    title_key: &str,
+    title_fallback: &str,
+    colour: u32,
+    target_token: &str,
+) -> Result<(), anyhow::Error> {
+    if fun_guard(ctx).await {
+        return Ok(());
+    }
+    let counts = asset_counts().await;
+    let url =
+        crate::funcs::assets_url(kind, counts.get(kind).copied().unwrap_or(0), rand::random());
+    let reachable = if url.is_empty() {
+        false
+    } else {
+        reqwest::Client::new()
+            .get(&url)
+            .send()
+            .await
+            .map(|r| r.status().is_success())
+            .unwrap_or(false)
+    };
+    if !reachable {
+        ctx.say(
+            crate::commands::lang_for(
+                ctx,
+                "fun_var_down_api",
+                "Error: Seems like the API is down!",
+            )
+            .await,
+        )
         .await?;
+        return Ok(());
+    }
+    let desc = social_embed_desc(
+        &crate::commands::lang_for(ctx, title_key, title_fallback).await,
+        ctx.author().id.get(),
+        target_token,
+        target.id.get(),
+    );
+    ctx.send(
+        poise::CreateReply::default().embed(
+            poise::serenity_prelude::CreateEmbed::default()
+                .colour(colour)
+                .description(desc)
+                .image(url)
+                .timestamp(poise::serenity_prelude::Timestamp::now()),
+        ),
+    )
+    .await?;
     Ok(())
 }
 /// Love compatibility 0..=100. Mirrors !love.ts: deterministic from the
@@ -311,15 +616,43 @@ pub async fn love(
         .map(|u| u.id.get())
         .unwrap_or_else(|| ctx.author().id.get());
     let score = love_score(user1.id.get(), b, &[]);
-    ctx.say(format!("Love between {} and <@{b}>: {score}%", user1.tag()))
-        .await?;
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    ctx.say(
+        crate::lang::get(&code, "love_embed_description")
+            .map(|s| {
+                s.replace("${user1.username}", &user1.tag())
+                    .replace("${user2.username}", &format!("<@{b}>"))
+                    .replace("${randomNumber}", &score.to_string())
+            })
+            .unwrap_or_else(|| format!("Love between {} and <@{b}>: {score}%", user1.tag())),
+    )
+    .await?;
     Ok(())
 }
 
-/// Coin flip command.
-#[poise::command(slash_command, prefix_command, category = "fun", rename = "coinflip")]
+/// Coin flip. Mirrors !heads-tails.ts (pileouface/pile-ou-face aliases).
+#[poise::command(
+    slash_command,
+    prefix_command,
+    category = "fun",
+    rename = "heads-tails",
+    aliases("pileouface", "pile-ou-face", "coinflip")
+)]
 pub async fn coinflip(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
-    ctx.say(coin_flip(now_ms_sys())).await?;
+    let heads = coin_flip(now_ms_sys()) == "heads";
+    let result = if heads {
+        crate::commands::lang_for(&ctx, "fun_coinflip_result_heads", "Heads").await
+    } else {
+        crate::commands::lang_for(&ctx, "fun_coinflip_result_tails", "Tails").await
+    };
+    let embed = poise::serenity_prelude::CreateEmbed::default()
+        .title(crate::commands::lang_for(&ctx, "fun_coinflip_embed_title", "Heads or Tails").await)
+        .description(format!(
+            "{} {result}",
+            crate::commands::lang_for(&ctx, "fun_coinflip_result_text", "The result is:").await
+        ))
+        .colour(random_colour());
+    ctx.send(poise::CreateReply::default().embed(embed)).await?;
     Ok(())
 }
 
@@ -336,7 +669,13 @@ pub async fn number(
 }
 
 /// 8-ball command.
-#[poise::command(slash_command, prefix_command, category = "fun", rename = "question")]
+#[poise::command(
+    slash_command,
+    prefix_command,
+    category = "fun",
+    rename = "question",
+    aliases("8ball")
+)]
 pub async fn question(
     ctx: Ctx<'_>,
     #[description = "Your question"] _q: String,
@@ -360,29 +699,80 @@ mod tests {
     use super::*;
 
     #[test]
-    fn normalize_faces_defaults_and_clamps() {
-        assert_eq!(normalize_faces(None), 6);
-        assert_eq!(normalize_faces(Some(6)), 6);
-        assert_eq!(normalize_faces(Some(0)), 2);
-        assert_eq!(normalize_faces(Some(1)), 2);
-        assert_eq!(normalize_faces(Some(500)), 100);
+    fn ping_labels_average_and_template_match_ts() {
+        // Probe labels: first-sample ms or the down message.
+        assert_eq!(ping_net_label(Some(12.0), "**DOWN**"), "12");
+        assert_eq!(ping_net_label(Some(12.3), "**DOWN**"), "12.3");
+        assert_eq!(ping_net_label(None, "**DOWN**"), "**DOWN**");
+        // Average over successful probes (documented NaN delta).
+        assert_eq!(
+            ping_average_ms(&[Some(10.0), Some(20.0), None, Some(30.0)]),
+            Some(20.0)
+        );
+        assert_eq!(ping_average_ms(&[None, None]), None);
+        // Template fill mirrors the TS replace/replaceAll mix.
+        let nets = [
+            "1".to_string(),
+            "2".to_string(),
+            "3".to_string(),
+            "4".to_string(),
+        ];
+        let out = render_ping_desc(
+            "U=${interaction.client.user.username} ${_net03}/${_net03} ${_net02} ${_net01} C=${client.iHorizon_Emojis.Crown} N4=${_net04}/${_net04} W=${client.ws.ping} P=${client.iHorizon_Emojis.Pointer}/${client.iHorizon_Emojis.Pointer} A=${averagePing}/${averagePing}",
+            "Bot",
+            "<:Crown:1>",
+            "<:Pointer:2>",
+            &nets,
+            50,
+            Some(2.5),
+        );
+        assert_eq!(
+            out,
+            "U=Bot 3/3 2 1 C=<:Crown:1> N4=4/${_net04} W=50 P=<:Pointer:2>/${client.iHorizon_Emojis.Pointer} A=2.5/${averagePing}"
+        );
+        // All probes down renders the NaN average like the TS math.
+        let downs = render_ping_desc("A=${averagePing}", "B", "", "", &nets, 0, None);
+        assert_eq!(downs, "A=NaN");
     }
 
     #[test]
-    fn roll_dice_stays_in_range() {
-        for faces in [2, 6, 20, 100] {
-            for now in [0, 1, 5, 6, 123456789] {
-                let r = roll_dice(now, faces);
-                assert!((1..=faces as u64).contains(&r));
-            }
+    fn social_gif_parts_match_ts() {
+        // length.json parse skips non-number entries.
+        let counts = parse_asset_counts(r#"{"hug": 12, "kiss": "x", "slap": 3}"#);
+        assert_eq!(counts.get("hug"), Some(&12));
+        assert_eq!(counts.get("slap"), Some(&3));
+        assert!(!counts.contains_key("kiss"));
+        assert!(parse_asset_counts("not json").is_empty());
+        // Description fills mirror the /g token replaces.
+        assert_eq!(
+            social_embed_desc(
+                "<@${interaction.user.id}> gives a hug to <@${hug.id}>",
+                1,
+                "${hug.id}",
+                2
+            ),
+            "<@1> gives a hug to <@2>"
+        );
+        assert_eq!(
+            social_embed_desc(
+                "<@${interaction.user.id}> slaps <@${slap.id}> x${slap.id}",
+                7,
+                "${slap.id}",
+                9
+            ),
+            "<@7> slaps <@9> x9"
+        );
+    }
+
+    #[test]
+    fn roll_dice_set_respects_count_and_range() {
+        let rolls = super::roll_dice_set(5, 6);
+        assert_eq!(rolls.len(), 5);
+        for r in rolls {
+            assert!((1..=6).contains(&r));
         }
-    }
-
-    #[test]
-    fn roll_dice_is_deterministic_for_same_input() {
-        assert_eq!(roll_dice(10, 6), roll_dice(10, 6));
-        assert_eq!(roll_dice(10, 6), 5);
-        assert_eq!(roll_dice(12, 6), 1);
+        let one = super::roll_dice_set(1, 2);
+        assert_eq!(one.len(), 1);
     }
 
     #[test]
@@ -495,10 +885,16 @@ pub async fn caracteres(
     #[description = "Text to transform"] text: String,
     #[description = "Style: Bold, Full, Circled"] style: Option<String>,
 ) -> Result<(), anyhow::Error> {
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let style = style.unwrap_or_else(|| "Bold".to_string());
     match caracteres_convert(&text, &style) {
         Some(out) => {
-            ctx.say(format!("**{style}**: {out}")).await?;
+            ctx.say(
+                crate::lang::get(&code, "msg_style_out")
+                    .map(|s| s.replace("{style}", &style).replace("{out}", &out))
+                    .unwrap_or_else(|| format!("**{style}**: {out}")),
+            )
+            .await?;
         }
         None => {
             ctx.say(format!(
@@ -628,7 +1024,12 @@ pub async fn youtube(
     #[description = "Comment"] comment: String,
 ) -> Result<(), anyhow::Error> {
     if !has_comment(&comment) {
-        ctx.say("Please, send a good sentence.").await?;
+        let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+        ctx.say(
+            crate::lang::get(&code, "fun_var_good_sentence")
+                .unwrap_or_else(|| "Please, send a good sentence.".to_string()),
+        )
+        .await?;
         return Ok(());
     }
     let name = user
@@ -679,7 +1080,12 @@ pub async fn tweet(
     #[description = "Comment"] comment: String,
 ) -> Result<(), anyhow::Error> {
     if !has_comment(&comment) {
-        ctx.say("Please, send a good sentence.").await?;
+        let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+        ctx.say(
+            crate::lang::get(&code, "fun_var_good_sentence")
+                .unwrap_or_else(|| "Please, send a good sentence.".to_string()),
+        )
+        .await?;
         return Ok(());
     }
     let name = user
@@ -718,8 +1124,13 @@ pub async fn bubbles(
     ctx: Ctx<'_>,
     #[description = "Image"] image: poise::serenity_prelude::Attachment,
 ) -> Result<(), anyhow::Error> {
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     if !bubbles_valid_content_type(image.content_type.as_deref()) {
-        ctx.say("Invalid image type.").await?;
+        ctx.say(
+            crate::lang::get(&code, "msg_invalid_image_type")
+                .unwrap_or_else(|| "Invalid image type.".to_string()),
+        )
+        .await?;
         return Ok(());
     }
     // GIF render (html2png bubbles template) pending; validation shape ported.
@@ -818,52 +1229,6 @@ mod fun_extra_tests {
     }
 }
 
-// ---- affinity percents (!rate.ts, !gay.ts, !stench.ts) ----
-
-/// Deterministic percentage. Mirrors the TS percent commands.
-pub fn affinity_score(seed: u64, salt: u64) -> u64 {
-    let mut h = seed.wrapping_mul(0x9E3779B97F4A7C15).wrapping_add(salt);
-    h ^= h >> 30;
-    h = h.wrapping_mul(0xBF58476D1CE4E5B9);
-    h ^= h >> 27;
-    h % 101
-}
-
-macro_rules! affinity_cmd {
-    ($fn_name:ident, $sub:literal, $salt:expr, $label:literal) => {
-        #[poise::command(slash_command, prefix_command, category = "fun", rename = $sub)]
-        pub async fn $fn_name(
-            ctx: Ctx<'_>,
-            #[description = "Member"] user: Option<poise::serenity_prelude::User>,
-        ) -> Result<(), anyhow::Error> {
-            let uid = user
-                .as_ref()
-                .map(|u| u.id.get())
-                .unwrap_or_else(|| ctx.author().id.get());
-            ctx.say(format!("{}: {}%", $label, affinity_score(uid, $salt)))
-                .await?;
-            Ok(())
-        }
-    };
-}
-
-affinity_cmd!(rate, "rate", 7, "Rate");
-affinity_cmd!(gay, "gay", 13, "Gay");
-affinity_cmd!(stench, "stench", 29, "Stench");
-
-#[cfg(test)]
-mod affinity_tests {
-    use super::*;
-
-    #[test]
-    fn affinity_bounded_deterministic() {
-        let a = affinity_score(123, 7);
-        assert!(a <= 100);
-        assert_eq!(a, affinity_score(123, 7));
-        assert!(affinity_score(1, 13) <= 100);
-    }
-}
-
 // ---- trans (!trans.ts text path via MyMemory) ----
 
 /// Parse MyMemory translation JSON ({"responseData": {"translatedText"}}).
@@ -894,12 +1259,17 @@ pub async fn trans(
         Ok(r) => r.text().await.unwrap_or_default(),
         Err(_) => String::new(),
     };
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     match parse_translation(&body) {
         Some(t) => {
             ctx.say(t).await?;
         }
         None => {
-            ctx.say("Translation failed.").await?;
+            ctx.say(
+                crate::lang::get(&code, "msg_translation_failed")
+                    .unwrap_or_else(|| "Translation failed.".to_string()),
+            )
+            .await?;
         }
     }
     Ok(())
@@ -923,50 +1293,6 @@ pub async fn grosbg(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     ctx.say("kly ( @hjcbebcbknckehcbckb ) le plus beau").await?;
     Ok(())
 }
-
-/// Animal image commands. Mirrors dolphin/duck/fox/frog/panda/squirrel
-/// (animality API fetch, same shape as cat/dog).
-macro_rules! animal_cmd {
-    ($fn_name:ident, $sub:literal, $kind:literal) => {
-        #[poise::command(slash_command, prefix_command, category = "fun", rename = $sub)]
-        pub async fn $fn_name(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
-            let url = format!("https://api.animality.xyz/all/{}", $kind);
-            let text = match http_client().get(&url).send().await {
-                Ok(r) => r.text().await.unwrap_or_default(),
-                Err(_) => String::new(),
-            };
-            // animality returns a direct image URL (plain text or JSON with url).
-            let img = serde_json::from_str::<serde_json::Value>(&text)
-                .ok()
-                .and_then(|v| v.get("url").and_then(|u| u.as_str()).map(|x| x.to_string()))
-                .or_else(|| {
-                    let t = text.trim().to_string();
-                    if t.starts_with("http") {
-                        Some(t)
-                    } else {
-                        None
-                    }
-                });
-            match img {
-                Some(u) => {
-                    let embed = poise::serenity_prelude::CreateEmbed::default().image(u);
-                    ctx.send(poise::CreateReply::default().embed(embed)).await?;
-                }
-                None => {
-                    ctx.say("Animal API down.").await?;
-                }
-            }
-            Ok(())
-        }
-    };
-}
-
-animal_cmd!(dolphin, "dolphin", "dolphin");
-animal_cmd!(duck, "duck", "duck");
-animal_cmd!(fox, "fox", "fox");
-animal_cmd!(frog, "frog", "frog");
-animal_cmd!(panda, "panda", "panda");
-animal_cmd!(squirrel, "squirrel", "squirrel");
 
 /// Enable/disable fun commands. Mirrors fun !config.ts (GUILD.FUN.states).
 #[poise::command(
@@ -992,18 +1318,301 @@ pub async fn fun_config(
         if enabled { "1" } else { "0" },
     )
     .await?;
-    ctx.say(if enabled { "Fun on." } else { "Fun off." })
-        .await?;
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    let action_type = crate::lang::get(
+        &code,
+        if enabled {
+            "var_enabled"
+        } else {
+            "var_disabled"
+        },
+    )
+    .unwrap_or_else(|| {
+        if enabled {
+            "Enabled".to_string()
+        } else {
+            "Disabled".to_string()
+        }
+    });
+    ctx.say(
+        crate::lang::get(&code, "fun_disable_command_msg")
+            .map(|s| {
+                s.replace("${action_type}", &action_type).replace(
+                    "${interaction.member?.user.toString()}",
+                    &format!("<@{}>", ctx.author().id.get()),
+                )
+            })
+            .unwrap_or_else(|| {
+                if enabled {
+                    "Fun on.".to_string()
+                } else {
+                    "Fun off.".to_string()
+                }
+            }),
+    )
+    .await?;
     Ok(())
 }
 
 /// Fun kill-switch check for the global gate.
+/// Mirrors the `GUILD.FUN.states === "off"` guards (!config.ts stores
+/// "on"/"off"; legacy "0" still counts as off).
 pub async fn fun_enabled(pool: &crate::db::Pool, guild_id: Option<u64>) -> bool {
     let Some(gid) = guild_id else {
         return true;
     };
     crate::db::kv_get(pool, &gid.to_string(), "GUILD.FUN.states")
         .await
-        .map(|v| v != "0")
+        .map(|v| v != "off" && v != "0")
         .unwrap_or(true)
+}
+
+/// Random embed colour. Mirrors `.setColor("Random")`.
+pub fn random_colour() -> poise::serenity_prelude::Colour {
+    use rand::Rng;
+    poise::serenity_prelude::Colour::from(rand::thread_rng().gen_range(0..=0xFFFFFF_u32) as u32)
+}
+
+/// Deny reply when the fun category is off.
+/// Mirrors the `fun_category_disable` guards.
+pub async fn fun_guard(ctx: &Ctx<'_>) -> bool {
+    if fun_enabled(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await {
+        return false;
+    }
+    ctx.say(
+        crate::commands::lang_for(
+            ctx,
+            "fun_category_disable",
+            "Fun commands are disabled in this server.",
+        )
+        .await,
+    )
+    .await
+    .ok();
+    true
+}
+
+/// Fetch one image URL field from a JSON HTTP API.
+/// Shared by the animal picture commands.
+pub async fn fetch_json_image(url: &str, field: &str) -> Option<String> {
+    let text = http_client()
+        .get(url)
+        .send()
+        .await
+        .ok()?
+        .text()
+        .await
+        .ok()?;
+    serde_json::from_str::<serde_json::Value>(&text)
+        .ok()?
+        .get(field)?
+        .as_str()
+        .map(|s| s.to_string())
+}
+
+/// Send an animal picture embed. Mirrors the animality/random-d.uk
+/// commands (!duck/!dolphin/!fox/!frog/!panda/!squirrel.ts).
+pub async fn animal_pic(
+    ctx: &Ctx<'_>,
+    api_url: &str,
+    field: &str,
+    title_key: &str,
+    fallback_title: &str,
+) -> Result<(), anyhow::Error> {
+    if fun_guard(ctx).await {
+        return Ok(());
+    }
+    match fetch_json_image(api_url, field).await {
+        Some(u) => {
+            let embed = poise::serenity_prelude::CreateEmbed::default()
+                .image(u)
+                .title(crate::commands::lang_for(ctx, title_key, fallback_title).await)
+                .timestamp(poise::serenity_prelude::Timestamp::now());
+            ctx.send(poise::CreateReply::default().embed(embed)).await?;
+        }
+        None => {
+            let code =
+                crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+            ctx.say(
+                crate::lang::get(&code, "fun_var_down_api")
+                    .unwrap_or_else(|| "Image API down.".to_string()),
+            )
+            .await?;
+        }
+    }
+    Ok(())
+}
+
+/// Duck picture. Mirrors fun !duck.ts (random-d.uk).
+#[poise::command(slash_command, prefix_command, category = "fun", rename = "duck")]
+pub async fn duck(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
+    animal_pic(
+        &ctx,
+        "https://random-d.uk/api/v2/random",
+        "url",
+        "duck_embed_title",
+        "Quack :duck:",
+    )
+    .await
+}
+
+/// Dolphin picture. Mirrors fun !dolphin.ts (animality).
+#[poise::command(slash_command, prefix_command, category = "fun", rename = "dolphin")]
+pub async fn dolphin(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
+    animal_pic(
+        &ctx,
+        "https://api.animality.xyz/all/dolphin",
+        "image",
+        "dolphin_embed_title",
+        "dolphin",
+    )
+    .await
+}
+
+/// Fox picture. Mirrors fun !fox.ts (animality).
+#[poise::command(slash_command, prefix_command, category = "fun", rename = "fox")]
+pub async fn fox(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
+    animal_pic(
+        &ctx,
+        "https://api.animality.xyz/all/fox",
+        "image",
+        "fox_embed_title",
+        "fox",
+    )
+    .await
+}
+
+/// Frog picture. Mirrors fun !frog.ts (animality).
+#[poise::command(slash_command, prefix_command, category = "fun", rename = "frog")]
+pub async fn frog(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
+    animal_pic(
+        &ctx,
+        "https://api.animality.xyz/all/frog",
+        "image",
+        "frog_embed_title",
+        "frog",
+    )
+    .await
+}
+
+/// Panda picture. Mirrors fun !panda.ts (animality).
+#[poise::command(slash_command, prefix_command, category = "fun", rename = "panda")]
+pub async fn panda(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
+    animal_pic(
+        &ctx,
+        "https://api.animality.xyz/all/panda",
+        "image",
+        "panda_embed_title",
+        "panda",
+    )
+    .await
+}
+
+/// Squirrel picture. Mirrors fun !squirrel.ts (animality).
+#[poise::command(slash_command, prefix_command, category = "fun", rename = "squirrel")]
+pub async fn squirrel(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
+    animal_pic(
+        &ctx,
+        "https://api.animality.xyz/all/squirrel",
+        "image",
+        "squirrel_embed_title",
+        "squirrel",
+    )
+    .await
+}
+
+/// 67 meme. Mirrors fun !67.ts (fixed GIF URL).
+#[poise::command(slash_command, prefix_command, category = "fun", rename = "67")]
+pub async fn sixseven(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
+    if fun_guard(&ctx).await {
+        return Ok(());
+    }
+    ctx.say("https://www.ihorizon.org/assets/img/fun/67_command.gif")
+        .await?;
+    Ok(())
+}
+
+/// Shared percent-of-a-user reply. Mirrors !gay.ts / !stench.ts
+/// (random 0..100, `${user}` + `${random}` replacements).
+pub async fn percent_user(
+    ctx: &Ctx<'_>,
+    user: Option<poise::serenity_prelude::User>,
+    lang_key: &str,
+    fallback: &str,
+) -> Result<(), anyhow::Error> {
+    use rand::Rng;
+    let u = user.as_ref().unwrap_or_else(|| ctx.author());
+    let random: u32 = rand::thread_rng().gen_range(0..100);
+    ctx.say(
+        crate::commands::lang_for(ctx, lang_key, fallback)
+            .await
+            .replace("${user}", &format!("<@{}>", u.id.get()))
+            .replace("${random}", &random.to_string()),
+    )
+    .await?;
+    Ok(())
+}
+
+/// Gay rate. Mirrors fun !gay.ts.
+#[poise::command(slash_command, prefix_command, category = "fun", rename = "gay")]
+pub async fn gay(
+    ctx: Ctx<'_>,
+    #[description = "Member"] user: Option<poise::serenity_prelude::User>,
+) -> Result<(), anyhow::Error> {
+    percent_user(
+        &ctx,
+        user,
+        "fun_gay_command_ok",
+        "The user ${user} is **${random}%** gay",
+    )
+    .await
+}
+
+/// Stench rate. Mirrors fun !stench.ts.
+#[poise::command(
+    slash_command,
+    prefix_command,
+    category = "fun",
+    rename = "stench",
+    aliases("odeur", "odeurs", "puanteurs", "puanteur", "arf", "pue")
+)]
+pub async fn stench(
+    ctx: Ctx<'_>,
+    #[description = "Member"] user: Option<poise::serenity_prelude::User>,
+) -> Result<(), anyhow::Error> {
+    percent_user(
+        &ctx,
+        user,
+        "fun_stench_command_ok",
+        "The user ${user} is **${random}%** stinky",
+    )
+    .await
+}
+
+/// Rate something X/10. Mirrors fun !rate.ts (alias note).
+#[poise::command(
+    slash_command,
+    prefix_command,
+    category = "fun",
+    rename = "rate",
+    aliases("note")
+)]
+pub async fn rate(
+    ctx: Ctx<'_>,
+    #[description = "Thing to rate"] the_things: String,
+) -> Result<(), anyhow::Error> {
+    use rand::Rng;
+    let random: u32 = rand::thread_rng().gen_range(0..10);
+    ctx.say(
+        crate::commands::lang_for(
+            &ctx,
+            "fun_rate_command_ok",
+            "I rate ${the_things} ${random}/10.",
+        )
+        .await
+        .replace("${the_things}", &the_things)
+        .replace("${random}", &random.to_string()),
+    )
+    .await?;
+    Ok(())
 }

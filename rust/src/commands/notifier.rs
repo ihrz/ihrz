@@ -70,7 +70,12 @@ pub async fn notifier_add(
     #[description = "Author id or username"] author: String,
 ) -> Result<(), anyhow::Error> {
     if !valid_platform(&platform) {
-        ctx.say("Bad platform (twitch, youtube, kick).").await?;
+        let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+        ctx.say(
+            crate::lang::get(&code, "msg_bad_platform_twitch_youtube_kick")
+                .unwrap_or_else(|| "Bad platform (twitch, youtube, kick).".to_string()),
+        )
+        .await?;
         return Ok(());
     }
     let gid = ctx
@@ -86,7 +91,12 @@ pub async fn notifier_add(
         entries.push(entry);
         save_entries(&ctx.data().pool, &gid, &entries).await?;
     }
-    ctx.say("Notifier entry added.").await?;
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    ctx.say(
+        crate::lang::get(&code, "msg_notifier_entry_added")
+            .unwrap_or_else(|| "Notifier entry added.".to_string()),
+    )
+    .await?;
     Ok(())
 }
 
@@ -103,11 +113,20 @@ pub async fn notifier_remove(
     let before = entries.len();
     entries.retain(|e| e.id_or_username != author.trim());
     if entries.len() == before {
-        ctx.say("Not found.").await?;
+        let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+        ctx.say(
+            crate::lang::get(&code, "msg_not_found").unwrap_or_else(|| "Not found.".to_string()),
+        )
+        .await?;
         return Ok(());
     }
     save_entries(&ctx.data().pool, &gid, &entries).await?;
-    ctx.say("Notifier entry removed.").await?;
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    ctx.say(
+        crate::lang::get(&code, "msg_notifier_entry_removed")
+            .unwrap_or_else(|| "Notifier entry removed.".to_string()),
+    )
+    .await?;
     Ok(())
 }
 
@@ -149,7 +168,13 @@ pub async fn notifier_channel(
         &channel.id.get().to_string(),
     )
     .await?;
-    ctx.say("Notifier channel set.").await?;
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    ctx.say(
+        crate::lang::get(&code, "notifier_config_message_command_ok")
+            .map(|s| s.replace("${channel.toString()}", &format!("<#{}>", channel.id.get())))
+            .unwrap_or_else(|| "Notifier channel set.".to_string()),
+    )
+    .await?;
     Ok(())
 }
 
@@ -163,7 +188,16 @@ pub async fn notifier_message(
         .map(|g| g.get().to_string())
         .unwrap_or_default();
     crate::db::kv_set(&ctx.data().pool, &gid, "NOTIFIER.message", template.trim()).await?;
-    ctx.say("Notifier message set.").await?;
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    let tick = crate::emojis::app_emoji_markup(ctx.http(), "GreenTick")
+        .await
+        .unwrap_or_default();
+    ctx.say(
+        crate::lang::get(&code, "notifier_config_message_command_work_on_enable")
+            .map(|s| s.replace("${client.iHorizon_Emojis.GreenTick}", &tick))
+            .unwrap_or_else(|| "Notifier message set.".to_string()),
+    )
+    .await?;
     Ok(())
 }
 

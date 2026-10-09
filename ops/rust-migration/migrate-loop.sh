@@ -106,6 +106,27 @@ print(n)
 EOF
 }
 
+# A unit counts as complete only if its roadmap line is now marked
+# `- [x]` — not deleted, not left open. Stops a worker from
+# "finishing" by dropping the entry.
+task_marked_done() {
+  python3 - "$REPO/MIGRATION.md" "$1" <<'EOF'
+import re, sys
+text = open(sys.argv[1], encoding='utf-8').read()
+task = sys.argv[2]
+tail = re.sub(r'^-\s*\[[ ~]\]\s*', '', task).strip()[:60]
+m = re.search(r'## Remaining.*', text, re.S)
+scope = m.group(0) if m else text
+for line in scope.splitlines():
+    s = line.strip()
+    if tail and tail in s:
+        print('done' if s.startswith('- [x]') else 'open')
+        break
+else:
+    print('gone')
+EOF
+}
+
 validate() {
   cd "$REPO/rust" || return 1
   log "validate: cargo fmt --check"
@@ -120,7 +141,18 @@ validate() {
 checkpoint() {
   local task="$1"
   cd "$REPO" || return 1
-  git add -A -- rust MIGRATION.md ops/rust-migration >/dev/null 2>&1
+  # Explicit paths only: never sweep runtime state into a checkpoint.
+  # lockfiles, loop.log, gap-candidates.txt and state.json are
+  # gitignored/untracked by design; a stray file (e.g. .lock) must
+  # not be committed by accident.
+  git add -- rust MIGRATION.md \
+    ops/rust-migration/migrate-loop.sh \
+    ops/rust-migration/migrate.sh \
+    ops/rust-migration/migrate.conf \
+    ops/rust-migration/README.md \
+    ops/rust-migration/notify.sh \
+    ops/rust-migration/ihrz-migration.service \
+    ops/rust-migration/inventory.md >/dev/null 2>&1
   if git diff --cached --quiet; then
     log "checkpoint: nothing new to commit"
     return 0
@@ -176,6 +208,101 @@ print('audit: %d candidates written to gap-candidates.txt' % len(fresh))
 EOF
 }
 
+# Inventory-aware reconcile: filename matching alone cannot prove a
+# module is unmigrated (Rust consolidates many TS files per module).
+# For command/component candidates, a `rename = "<name>"` hit in
+# rust/src is positive evidence of coverage and is recorded in
+# inventory.md. Candidates with no rename hit and no mention in
+# MIGRATION.md are grouped by directory and appended as `- [ ]`
+# units under ## Remaining (dependency-safe: one area per unit).
+# Events/core candidates need behavioral judgment and are recorded
+# as pending-triage in inventory.md, never auto-appended.
+reconcile_gaps() {
+  python3 - "$REPO" <<'EOF'
+import os, re, collections, datetime
+repo = os.path.normpath(os.path.expandvars(os.path.expanduser(__import__('sys').argv[1])))
+mig_path = os.path.join(repo, 'MIGRATION.md')
+inv_path = os.path.join(repo, 'ops', 'rust-migration', 'inventory.md')
+gap_path = os.path.join(repo, 'ops', 'rust-migration', 'gap-candidates.txt')
+rust = os.path.join(repo, 'rust', 'src')
+try:
+    cands = [l.strip() for l in open(gap_path, encoding='utf-8') if l.strip()]
+except FileNotFoundError:
+    print('reconcile: no gap-candidates.txt, nothing to do')
+    raise SystemExit
+renames = set()
+for dp, _, fns in os.walk(rust):
+    for f in fns:
+        if f.endswith('.rs'):
+            t = open(os.path.join(dp, f), encoding='utf-8', errors='ignore').read()
+            renames.update(re.findall(r'rename\s*=\s*"([^"]+)"', t))
+mig = open(mig_path, encoding='utf-8').read()
+# Machine-triaged paths (manual triage A/B/C evidence in inventory.md):
+# never auto-appended; missing ones are covered by hand-written units
+# (protected by the done-guard) or done already.
+triaged = set()
+try:
+    inv_text = open(inv_path, encoding='utf-8').read()
+    m = re.search(r'<!-- MANUAL:TRIAGED-PATHS -->(.*?)<!-- MANUAL:TRIAGED-PATHS-END -->',
+                  inv_text, re.S)
+    if m:
+        triaged = set(l.strip() for l in m.group(1).splitlines() if l.strip().startswith('src/'))
+except FileNotFoundError:
+    pass
+def is_cmd(p):
+    return any(k in p for k in ('/HybridCommands/', '/MessageCommands/',
+                                '/SlashCommands/', '/Components/', 'ApplicationCommands'))
+def cmd_name(p):
+    b = os.path.basename(p)[:-3]
+    return b[1:] if b[:1] in ('!', '@') else b
+covered, missing_groups, pending = [], collections.defaultdict(list), []
+for p in cands:
+    if p in triaged:
+        covered.append(p + '  # manually triaged, see inventory.md')
+        continue
+    if is_cmd(p):
+        if cmd_name(p) in renames:
+            covered.append(p)
+        elif p not in mig and cmd_name(p) not in mig:
+            missing_groups[os.path.dirname(p)].append(p)
+        else:
+            pending.append(p + '  # mentioned in MIGRATION.md, needs worker check')
+    else:
+        pending.append(p)
+ts = datetime.datetime.now(datetime.timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
+inv = ''
+if os.path.exists(inv_path):
+    inv = open(inv_path, encoding='utf-8').read()
+def set_block(text, marker, body):
+    start, end = '<!-- AUTO:' + marker + ' -->', '<!-- AUTO:' + marker + '-END -->'
+    chunk = '%s\n%s\n%s' % (start, body, end)
+    if start in text:
+        return re.sub(re.escape(start) + r'.*?' + re.escape(end), lambda _: chunk, text, flags=re.S)
+    return (text + '\n' + chunk + '\n' if text else '# Rust migration inventory (auto-reconciled)\n\n' + chunk + '\n')
+inv = set_block(inv, 'COVERED', '%s — %d command candidates with rename evidence:\n%s' % (
+    ts, len(covered), '\n'.join(sorted(covered)) or '(none)'))
+inv = set_block(inv, 'PENDING', '%s — %d candidates needing behavioral triage:\n%s' % (
+    ts, len(pending), '\n'.join(sorted(pending)) or '(none)'))
+open(inv_path, 'w').write(inv)
+added = 0
+if missing_groups:
+    lines = mig.splitlines()
+    units = []
+    for d in sorted(missing_groups):
+        files = sorted(missing_groups[d])
+        if d in mig:
+            continue
+        names = ', '.join(cmd_name(p) for p in files)[:220]
+        units.append('- [ ] `%s/` parity (auto-audit %s, %d files: %s)' % (d, ts[:10], len(files), names))
+    if units:
+        anchor = next((i for i, l in enumerate(lines) if l.startswith('## Orchestrator')), len(lines))
+        lines[anchor:anchor] = units + ['']
+        open(mig_path, 'w').write('\n'.join(lines) + '\n')
+        added = len(units)
+print('reconcile: %d covered recorded, %d pending, %d roadmap units added' % (len(covered), len(pending), added))
+EOF
+}
+
 main() {
   init_state
   acquire_lock
@@ -206,12 +333,20 @@ main() {
       state_set status "verify-watch"
       if validate; then
         notify milestone "All known units done + validation green. Entering verify-forever watch (re-auditing TS vs Rust)."
+        # Reconcile the inventory while green: verified-missing work
+        # becomes roadmap units so the queue refills itself.
+        audit_new_gaps
+        reconcile_gaps >>"$LOG_FILE" 2>&1
       else
-        notify fail "Validation FAILED with zero remaining units — see loop.log."
+        # Validation red with an empty queue is a real blocker, not a
+        # watch condition: park for triage instead of failing hourly.
+        log "verify-forever: validation FAILED with zero remaining units — parking"
+        state_set status "blocked: validation failed in verify-watch"
+        state_set last_result "blocked: validation failed in verify-watch"
+        notify blocker "Validation FAILED with zero remaining units — parked for triage, see loop.log."
+        touch "$PAUSE_FILE"
+        sleep 300; continue
       fi
-      # Fresh gap audit: any TS source without a Rust counterpart becomes a
-      # new Remaining entry so work resumes automatically.
-      audit_new_gaps
       log "verify-forever: sleeping 3600s, then re-audit"
       sleep 3600
       continue
@@ -228,7 +363,10 @@ main() {
     state_set last_run_utc "$(date -u '+%Y-%m-%dT%H:%M:%SZ')"
 
     if run_worker "$task" "$attempt"; then
-      if validate; then
+      marked="$(task_marked_done "$task")"
+      if [ "$marked" != "done" ]; then
+        log "worker left roadmap entry as '$marked', not done: $task"
+      elif validate; then
         if checkpoint "$task"; then
           done_n="$(($(state_get completed_units) + 1))"
           state_set completed_units "$done_n"

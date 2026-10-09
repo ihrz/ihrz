@@ -74,7 +74,12 @@ pub async fn ranks(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())
 }
 
-#[poise::command(slash_command, prefix_command, rename = "show")]
+#[poise::command(
+    slash_command,
+    prefix_command,
+    rename = "show",
+    aliases("rsee", "look", "level")
+)]
 pub async fn ranks_show(
     ctx: Ctx<'_>,
     #[description = "Member"] user: Option<serenity::User>,
@@ -111,7 +116,12 @@ pub async fn ranks_show(
     Ok(())
 }
 
-#[poise::command(slash_command, prefix_command, rename = "leaderboard")]
+#[poise::command(
+    slash_command,
+    prefix_command,
+    rename = "leaderboard",
+    aliases("rankslb")
+)]
 pub async fn ranks_leaderboard(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let gid = ctx
         .guild_id()
@@ -183,8 +193,25 @@ pub async fn ranks_config(
         if enabled { "0" } else { "1" },
     )
     .await?;
-    ctx.say(if enabled { "Ranks on." } else { "Ranks off." })
-        .await?;
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    ctx.say(
+        crate::lang::get(
+            &code,
+            if enabled {
+                "disablexp_command_work_enable"
+            } else {
+                "disablexp_command_work_disable"
+            },
+        )
+        .unwrap_or_else(|| {
+            if enabled {
+                "Ranks on.".to_string()
+            } else {
+                "Ranks off.".to_string()
+            }
+        }),
+    )
+    .await?;
     Ok(())
 }
 
@@ -192,6 +219,7 @@ pub async fn ranks_config(
     slash_command,
     prefix_command,
     rename = "channel",
+    aliases("rchannel"),
     default_member_permissions = "ADMINISTRATOR"
 )]
 pub async fn ranks_channel(
@@ -213,7 +241,14 @@ pub async fn ranks_channel(
                 &ch.id.get().to_string(),
             )
             .await?;
-            ctx.say("Ranks channel set.").await?;
+            let code =
+                crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+            ctx.say(
+                crate::lang::get(&code, "setxpchannels_command_work_enable")
+                    .map(|s| s.replace("${argsid}", &ch.id.get().to_string()))
+                    .unwrap_or_else(|| "Ranks channel set.".to_string()),
+            )
+            .await?;
         }
         None => {
             sqlx::query("DELETE FROM kv WHERE guild_id = ? AND key_name = ?")
@@ -221,7 +256,13 @@ pub async fn ranks_channel(
                 .bind("GUILD.RANKS.channel")
                 .execute(&ctx.data().pool)
                 .await?;
-            ctx.say("Ranks channel cleared.").await?;
+            let code =
+                crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+            ctx.say(
+                crate::lang::get(&code, "setxpchannels_command_work_disable")
+                    .unwrap_or_else(|| "Ranks channel cleared.".to_string()),
+            )
+            .await?;
         }
     }
     Ok(())
@@ -256,7 +297,12 @@ pub async fn ranks_ureset(
         .bind(ranks_key(user.id.get()))
         .execute(&ctx.data().pool)
         .await?;
-    ctx.say("Ranks reset for user.").await?;
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    ctx.say(
+        crate::lang::get(&code, "resetallinvites_succes_on_delete")
+            .unwrap_or_else(|| "Ranks reset for user.".to_string()),
+    )
+    .await?;
     Ok(())
 }
 
@@ -285,7 +331,12 @@ pub async fn ranks_greset(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         .bind(&gid)
         .execute(&ctx.data().pool)
         .await?;
-    ctx.say("All ranks reset.").await?;
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    ctx.say(
+        crate::lang::get(&code, "resetallinvites_succes_on_delete")
+            .unwrap_or_else(|| "All ranks reset.".to_string()),
+    )
+    .await?;
     Ok(())
 }
 
@@ -344,7 +395,12 @@ pub async fn ranks_ignore_add(
     Ok(())
 }
 
-#[poise::command(slash_command, prefix_command, rename = "ignore-list")]
+#[poise::command(
+    slash_command,
+    prefix_command,
+    rename = "ignore-list",
+    aliases("ignore")
+)]
 pub async fn ranks_ignore_list(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let gid = ctx
         .guild_id()
@@ -365,6 +421,7 @@ pub async fn ranks_ignore_list(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     slash_command,
     prefix_command,
     rename = "message",
+    aliases("msg"),
     default_member_permissions = "ADMINISTRATOR"
 )]
 pub async fn ranks_msg(
@@ -375,13 +432,18 @@ pub async fn ranks_msg(
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     match template
         .map(|t| t.trim().to_string())
         .filter(|t| !t.is_empty())
     {
         Some(t) => {
             crate::db::kv_set(&ctx.data().pool, &gid, "GUILD.RANKS.message", &t).await?;
-            ctx.say("Level-up message set.").await?;
+            ctx.say(
+                crate::lang::get(&code, "msg_level_up_message_set")
+                    .unwrap_or_else(|| "Level-up message set.".to_string()),
+            )
+            .await?;
         }
         None => {
             sqlx::query("DELETE FROM kv WHERE guild_id = ? AND key_name = ?")
@@ -389,7 +451,11 @@ pub async fn ranks_msg(
                 .bind("GUILD.RANKS.message")
                 .execute(&ctx.data().pool)
                 .await?;
-            ctx.say("Level-up message cleared.").await?;
+            ctx.say(
+                crate::lang::get(&code, "msg_level_up_message_cleared")
+                    .unwrap_or_else(|| "Level-up message cleared.".to_string()),
+            )
+            .await?;
         }
     }
     Ok(())
@@ -438,11 +504,21 @@ pub async fn ranks_role_add(
         &serde_json::to_string(&roles)?,
     )
     .await?;
-    ctx.say("Rank role added.").await?;
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    let lvl = level.max(1) as u64;
+    ctx.say(
+        crate::lang::get(&code, "ranks_config_add_command_work")
+            .map(|s| {
+                s.replace("${selectedRole}", &format!("<@&{}>", role.id.get()))
+                    .replace("${level}", &lvl.to_string())
+            })
+            .unwrap_or_else(|| "Rank role added.".to_string()),
+    )
+    .await?;
     Ok(())
 }
 
-#[poise::command(slash_command, prefix_command, rename = "role-list")]
+#[poise::command(slash_command, prefix_command, rename = "role-list", aliases("rroles"))]
 pub async fn ranks_role_list(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let gid = ctx
         .guild_id()
@@ -492,7 +568,14 @@ pub async fn ranks_xp_channels(
                 )
                 .await?;
             }
-            ctx.say("XP channel added.").await?;
+            let code =
+                crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+            ctx.say(
+                crate::lang::get(&code, "setxpchannels_command_work_enable")
+                    .map(|s| s.replace("${argsid}", &ch.id.get().to_string()))
+                    .unwrap_or_else(|| "XP channel added.".to_string()),
+            )
+            .await?;
         }
         None => {
             let _ = sqlx::query("DELETE FROM kv WHERE guild_id = ? AND key_name = ?")
@@ -500,7 +583,13 @@ pub async fn ranks_xp_channels(
                 .bind("GUILD.RANKS.xpChannels")
                 .execute(&ctx.data().pool)
                 .await;
-            ctx.say("XP channels cleared.").await?;
+            let code =
+                crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+            ctx.say(
+                crate::lang::get(&code, "setxpchannels_command_work_disable")
+                    .unwrap_or_else(|| "XP channels cleared.".to_string()),
+            )
+            .await?;
         }
     }
     Ok(())

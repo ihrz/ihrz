@@ -10,6 +10,7 @@
 #![allow(dead_code)]
 
 mod audio;
+mod backup_types;
 mod bot;
 mod cards;
 mod commands;
@@ -27,6 +28,7 @@ mod logger;
 mod monitor;
 mod notifier;
 mod scheduler;
+mod slashlog;
 mod transcript;
 mod voice;
 
@@ -36,6 +38,10 @@ use anyhow::Context;
 async fn main() -> anyhow::Result<()> {
     dotenvy::dotenv().ok();
     logger::init();
+    // Mirrors core.ts errorManager.uncaughtExceptionHandler(client):
+    // dev (non-production) logs panics to console only, production
+    // also appends them to src/files/error.log.
+    logger::install_error_handlers(!config::is_production_env());
 
     let cfg = config::load().context("load config")?;
     tracing::info!("iHorizon Rust v{} starting", env!("CARGO_PKG_VERSION"));
@@ -46,6 +52,9 @@ async fn main() -> anyhow::Result<()> {
 
     // DB mirrors src/core/database (sqlite by default, mysql optional).
     let pool = db::init(&cfg).await.context("init database")?;
+
+    // Mirrors the old slash.log -> slash.log.json one-shot in core.ts.
+    slashlog::migrate_legacy_log();
 
     bot::run(cfg, pool).await
 }

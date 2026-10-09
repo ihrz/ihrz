@@ -153,7 +153,19 @@ pub async fn counter_channel(
         &channel.id.get().to_string(),
     )
     .await?;
-    ctx.say("Counter channel set.").await?;
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    ctx.say(
+        crate::lang::get(&code, "counter_channel_command_work")
+            .map(|s| {
+                s.replace(
+                    "${interaction.user}",
+                    &format!("<@{}>", ctx.author().id.get()),
+                )
+                .replace("${channel}", &format!("<#{}>", channel.id.get()))
+            })
+            .unwrap_or_else(|| "Counter channel set.".to_string()),
+    )
+    .await?;
     Ok(())
 }
 
@@ -193,6 +205,7 @@ pub async fn counter_config(
     prefix_command,
     category = "newfeatures",
     rename = "nightmode",
+    aliases("modenuit", "nuit", "night", "mode-nuit", "night-mode"),
     default_member_permissions = "ADMINISTRATOR"
 )]
 pub async fn nightmode(
@@ -213,14 +226,34 @@ pub async fn nightmode(
     };
     if let Some(s) = start {
         if !valid_hour(s) {
-            ctx.say("Bad start hour.").await?;
+            let code =
+                crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+            let no = crate::emojis::app_emoji_markup(ctx.http(), "No")
+                .await
+                .unwrap_or_else(|| "❌".to_string());
+            ctx.say(
+                crate::lang::get(&code, "nightmode_invalid_hour_morning")
+                    .map(|s| s.replace("${client.iHorizon_Emojis.No}", &no))
+                    .unwrap_or_else(|| "Bad start hour.".to_string()),
+            )
+            .await?;
             return Ok(());
         }
         cfg.start_hour = s as u8;
     }
     if let Some(e) = end {
         if !valid_hour(e) {
-            ctx.say("Bad end hour.").await?;
+            let code =
+                crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+            let no = crate::emojis::app_emoji_markup(ctx.http(), "No")
+                .await
+                .unwrap_or_else(|| "❌".to_string());
+            ctx.say(
+                crate::lang::get(&code, "nightmode_invalid_hour_night")
+                    .map(|s| s.replace("${client.iHorizon_Emojis.No}", &no))
+                    .unwrap_or_else(|| "Bad end hour.".to_string()),
+            )
+            .await?;
             return Ok(());
         }
         cfg.end_hour = e as u8;
@@ -242,22 +275,37 @@ pub async fn nightmode(
     Ok(())
 }
 
+// Parent for `/git lines` (mirrors gitlines.ts declaration; the
+// toggle itself lives in the `lines` subcommand like !lines.ts).
+/// Git lines module.
 #[poise::command(
     slash_command,
     prefix_command,
     category = "newfeatures",
-    rename = "gitlines",
+    rename = "git",
+    subcommands("git_lines_toggle"),
     default_member_permissions = "ADMINISTRATOR"
 )]
-pub async fn gitlines(
-    ctx: Ctx<'_>,
-    #[description = "on or off"] action: String,
-) -> Result<(), anyhow::Error> {
+pub async fn git_parent(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
+    Ok(())
+}
+
+// Flip UTILS.git_lines (default-on like the TS `!state` toggle)
+// and confirm with git_lines_work[_disabled].
+/// Toggle Git lines unfurls.
+#[poise::command(
+    slash_command,
+    prefix_command,
+    rename = "lines",
+    default_member_permissions = "ADMINISTRATOR"
+)]
+pub async fn git_lines_toggle(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let gid = ctx
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
-    let enabled = matches!(action.to_ascii_lowercase().as_str(), "on" | "power on");
+    let stored = crate::db::kv_get(&ctx.data().pool, &gid, "UTILS.git_lines").await;
+    let enabled = !crate::commands::utils::github_lines_enabled(stored.as_deref());
     crate::db::kv_set(
         &ctx.data().pool,
         &gid,
@@ -265,11 +313,22 @@ pub async fn gitlines(
         if enabled { "1" } else { "0" },
     )
     .await?;
-    ctx.say(if enabled {
-        "Git lines on."
-    } else {
-        "Git lines off."
-    })
+    ctx.say(
+        crate::commands::lang_for(
+            &ctx,
+            if enabled {
+                "git_lines_work"
+            } else {
+                "git_lines_work_disabled"
+            },
+            if enabled {
+                "Git lines on."
+            } else {
+                "Git lines off."
+            },
+        )
+        .await,
+    )
     .await?;
     Ok(())
 }
@@ -318,11 +377,50 @@ pub async fn punishpub(
         &cfg.to_string(),
     )
     .await?;
-    ctx.say("Punishpub updated.").await?;
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    ctx.say(
+        crate::lang::get(&code, "msg_punishpub_updated")
+            .unwrap_or_else(|| "Punishpub updated.".to_string()),
+    )
+    .await?;
     Ok(())
 }
 
-/// Rolesaver on/off switch.
+/// Rolesaver config (TS `GUILD.GUILD_CONFIG.rolesaver` blob
+/// `{enable, timeout, admin}`; falls back to this bot's legacy
+/// flat `.enable` row).
+#[derive(Debug, Clone, Default)]
+pub struct RolesaverCfg {
+    pub enabled: bool,
+    pub skip_admin: bool,
+}
+
+fn truthy(v: &serde_json::Value) -> bool {
+    match v {
+        serde_json::Value::Bool(b) => *b,
+        serde_json::Value::Number(n) => n.as_i64().unwrap_or(0) != 0,
+        serde_json::Value::String(s) => matches!(s.as_str(), "1" | "true"),
+        _ => false,
+    }
+}
+
+pub async fn load_rolesaver_cfg(pool: &crate::db::Pool, guild_id: &str) -> RolesaverCfg {
+    if let Some(raw) = crate::db::kv_get(pool, guild_id, "GUILD.GUILD_CONFIG.rolesaver").await {
+        if let Ok(v) = serde_json::from_str::<serde_json::Value>(&raw) {
+            return RolesaverCfg {
+                enabled: v.get("enable").map(truthy).unwrap_or(false),
+                skip_admin: v.get("admin").and_then(|a| a.as_str()) == Some("no"),
+            };
+        }
+    }
+    RolesaverCfg {
+        enabled: rolesaver_enabled(pool, guild_id).await,
+        skip_admin: false,
+    }
+}
+
+/// Rolesaver on/off switch (blob shape + embeds like
+/// SlashCommands/newfeatures/rolesaver.ts).
 #[poise::command(
     slash_command,
     prefix_command,
@@ -332,25 +430,79 @@ pub async fn punishpub(
 pub async fn rolesaver(
     ctx: Ctx<'_>,
     #[description = "on or off"] action: String,
+    #[description = "Restore admin roles: yes or no"] settings: Option<String>,
 ) -> Result<(), anyhow::Error> {
     let gid = ctx
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
-    let enabled = matches!(action.to_ascii_lowercase().as_str(), "on" | "power on");
-    crate::db::kv_set(
-        &ctx.data().pool,
-        &gid,
-        "GUILD.GUILD_CONFIG.rolesaver.enable",
-        if enabled { "1" } else { "0" },
-    )
-    .await?;
-    ctx.say(if enabled {
-        "Rolesaver on."
-    } else {
-        "Rolesaver off."
-    })
-    .await?;
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    let t = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
+    let (footer_name, footer_bytes) = crate::commands::utils::footer_parts(&ctx, &gid).await;
+    let mut embed = serenity::CreateEmbed::default().colour(serenity::Colour::new(0x3725a4));
+    let mut reply = poise::CreateReply::default();
+    if matches!(action.to_ascii_lowercase().as_str(), "on" | "power on") {
+        let settings = settings.as_deref().unwrap_or("None");
+        let embed = serenity::CreateEmbed::default()
+            .colour(serenity::Colour::new(0x3725a4))
+            .title(t("rolesaver_embed_title"))
+            .description(t("rolesaver_embed_desc"))
+            .field(
+                t("rolesaver_embed_fields_1_name"),
+                format!("`{action}`"),
+                false,
+            )
+            .field(
+                t("rolesaver_embed_fields_2_name"),
+                format!("`{settings}`"),
+                false,
+            )
+            .field(t("rolesaver_embed_fields_3_name"), "`None`", false);
+        let embed =
+            crate::commands::utils::embed_with_footer(embed, &footer_name, footer_bytes.is_some());
+        reply = reply.embed(embed);
+        if let Some(bytes) = footer_bytes {
+            reply = reply.attachment(serenity::CreateAttachment::bytes(bytes, "footer_icon.png"));
+        }
+        ctx.send(reply).await?;
+        crate::db::kv_set(
+            &ctx.data().pool,
+            &gid,
+            "GUILD.GUILD_CONFIG.rolesaver",
+            &serde_json::json!({
+                "enable": true,
+                "timeout": "None",
+                "admin": settings,
+            })
+            .to_string(),
+        )
+        .await?;
+        return Ok(());
+    }
+    if !load_rolesaver_cfg(&ctx.data().pool, &gid).await.enabled {
+        ctx.say(t("rolesaver_on_off_already_set")).await?;
+        return Ok(());
+    }
+    embed = embed
+        .title(t("rolesaver_on_off_embed_title"))
+        .description(t("rolesaver_on_off_embed_desc"))
+        .field(
+            t("rolesaver_on_off_embed_fields_1_name"),
+            format!("`{action}`"),
+            false,
+        );
+    let embed =
+        crate::commands::utils::embed_with_footer(embed, &footer_name, footer_bytes.is_some());
+    reply = reply.embed(embed);
+    if let Some(bytes) = footer_bytes {
+        reply = reply.attachment(serenity::CreateAttachment::bytes(bytes, "footer_icon.png"));
+    }
+    ctx.send(reply).await?;
+    let _ = sqlx::query("DELETE FROM kv WHERE guild_id = ? AND key_name = ?")
+        .bind(&gid)
+        .bind("GUILD.GUILD_CONFIG.rolesaver")
+        .execute(&ctx.data().pool)
+        .await;
     Ok(())
 }
 
@@ -390,11 +542,21 @@ pub async fn report(
     .and_then(|s| s.parse().ok())
     .unwrap_or(0);
     if now - last < 18_000_000 {
-        ctx.say("Report cooldown active.").await?;
+        let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+        ctx.say(
+            crate::lang::get(&code, "msg_report_cooldown_active")
+                .unwrap_or_else(|| "Report cooldown active.".to_string()),
+        )
+        .await?;
         return Ok(());
     }
     if message.split_whitespace().count() < 8 {
-        ctx.say("Please specify (8+ words).").await?;
+        let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+        ctx.say(
+            crate::lang::get(&code, "report_specify")
+                .unwrap_or_else(|| "Please specify (8+ words).".to_string()),
+        )
+        .await?;
         return Ok(());
     }
     crate::db::kv_set(
@@ -411,7 +573,12 @@ pub async fn report(
         &now.to_string(),
     )
     .await?;
-    ctx.say("Report recorded.").await?;
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    ctx.say(
+        crate::lang::get(&code, "report_command_work")
+            .unwrap_or_else(|| "Report recorded.".to_string()),
+    )
+    .await?;
     Ok(())
 }
 

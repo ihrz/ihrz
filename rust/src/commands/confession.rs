@@ -293,12 +293,7 @@ pub async fn handle_confess_button(
     ]);
     comp.create_response(&ctx.http, serenity::CreateInteractionResponse::Modal(modal))
         .await?;
-    let Some(submit) = serenity::collector::ModalInteractionCollector::new(&ctx.shard)
-        .author_id(comp.user.id)
-        .custom_ids(vec!["confess-modal".to_string()])
-        .timeout(std::time::Duration::from_secs(300))
-        .await
-    else {
+    let Some(submit) = super::await_modal_submit(ctx, comp, "confess-modal").await else {
         return Ok(());
     };
     let mut text = String::new();
@@ -536,12 +531,7 @@ pub async fn handle_confession_response(
     ]);
     comp.create_response(&ctx.http, serenity::CreateInteractionResponse::Modal(modal))
         .await?;
-    let Some(submit) = serenity::collector::ModalInteractionCollector::new(&ctx.shard)
-        .author_id(comp.user.id)
-        .custom_ids(vec!["confessionres-modal".to_string()])
-        .timeout(std::time::Duration::from_secs(300))
-        .await
-    else {
+    let Some(submit) = super::await_modal_submit(ctx, comp, "confessionres-modal").await else {
         return Ok(());
     };
     let mut text = String::new();
@@ -630,6 +620,12 @@ pub async fn confession_channel(
 
     let code = crate::db::guild_lang(pool, ctx.guild_id().map(|g| g.get())).await;
     let msg = crate::lang::get(&code, "confession_channel_command_work")
+        .map(|s| {
+            s.replace(
+                "${channel?.toString()}",
+                &format!("<#{}>", channel.id.get()),
+            )
+        })
         .unwrap_or_else(|| "Confession panel sent.".to_string());
     let _ = button_title;
     ctx.say(msg).await?;
@@ -643,7 +639,11 @@ pub async fn confession_config(
     #[description = "on or off"] action: String,
 ) -> Result<(), anyhow::Error> {
     let Some(enabled) = parse_on_off(&action) else {
-        ctx.say("Use on/off.").await?;
+        let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+        ctx.say(
+            crate::lang::get(&code, "msg_use_on_off").unwrap_or_else(|| "Use on/off.".to_string()),
+        )
+        .await?;
         return Ok(());
     };
     let Some(gid) = ctx.guild_id().map(|g| g.get().to_string()) else {
@@ -675,7 +675,11 @@ pub async fn confession_thread(
     #[description = "yes or no"] action: String,
 ) -> Result<(), anyhow::Error> {
     let Some(create) = parse_yes_no(&action) else {
-        ctx.say("Use yes/no.").await?;
+        let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+        ctx.say(
+            crate::lang::get(&code, "msg_use_yes_no").unwrap_or_else(|| "Use yes/no.".to_string()),
+        )
+        .await?;
         return Ok(());
     };
     let Some(gid) = ctx.guild_id().map(|g| g.get().to_string()) else {
@@ -743,8 +747,12 @@ pub async fn confession_list(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     .fetch_all(&ctx.data().pool)
     .await
     .unwrap_or_default();
-    ctx.say(format!("{} archived confessions.", rows.len()))
-        .await?;
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    ctx.say(
+        crate::lang::get(&code, "msg_archived_confessions")
+            .unwrap_or_else(|| format!("{} archived confessions.", rows.len())),
+    )
+    .await?;
     Ok(())
 }
 

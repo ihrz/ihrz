@@ -76,7 +76,19 @@ pub async fn tts_join(
         cfg.text_channel_id = ch.id.get().to_string();
     }
     save_tts(&ctx.data().pool, &gid, &cfg).await?;
-    ctx.say("TTS joined.").await?;
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    let yes = crate::emojis::app_emoji_markup(&ctx.serenity_context().http, "Yes")
+        .await
+        .unwrap_or_else(|| "✅".to_string());
+    ctx.say(
+        crate::lang::get(&code, "tts_join_enabled")
+            .map(|s| {
+                s.replace("${voiceChannel}", &format!("<#{}>", channel.id.get()))
+                    .replace("${client.iHorizon_Emojis.Yes}", &yes)
+            })
+            .unwrap_or_else(|| "TTS joined.".to_string()),
+    )
+    .await?;
     Ok(())
 }
 
@@ -91,7 +103,16 @@ pub async fn tts_leave(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         .bind(TTS_KEY)
         .execute(&ctx.data().pool)
         .await?;
-    ctx.say("TTS left and cleaned up.").await?;
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    let yes = crate::emojis::app_emoji_markup(&ctx.serenity_context().http, "Yes")
+        .await
+        .unwrap_or_else(|| "✅".to_string());
+    ctx.say(
+        crate::lang::get(&code, "tts_leave_disabled")
+            .map(|s| s.replace("${client.iHorizon_Emojis.Yes}", &yes))
+            .unwrap_or_else(|| "TTS left and cleaned up.".to_string()),
+    )
+    .await?;
     Ok(())
 }
 
@@ -109,7 +130,19 @@ pub async fn tts_info(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
             ))
             .await?
         }
-        None => ctx.say("TTS disabled.").await?,
+        None => {
+            let code =
+                crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+            let no = crate::emojis::app_emoji_markup(&ctx.serenity_context().http, "No")
+                .await
+                .unwrap_or_else(|| "❌".to_string());
+            ctx.say(
+                crate::lang::get(&code, "tts_lang_not_active")
+                    .map(|s| s.replace("${client.iHorizon_Emojis.No}", &no))
+                    .unwrap_or_else(|| "TTS disabled.".to_string()),
+            )
+            .await?
+        }
     };
     Ok(())
 }
@@ -120,8 +153,17 @@ pub async fn tts_lang(
     #[description = "TTS language"] lang: String,
 ) -> Result<(), anyhow::Error> {
     let Some(code) = parse_tts_lang(lang.trim()) else {
-        ctx.say("Invalid lang (en-US fr-FR de-DE es-ES it-IT jp-JP pt-PT ru-RU ar-EG).")
-            .await?;
+        let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+        ctx.say(
+            crate::lang::get(
+                &code,
+                "msg_invalid_lang_en_us_fr_fr_de_de_es_es_it_it_jp_jp_pt_pt_ru_ru_ar_eg",
+            )
+            .unwrap_or_else(|| {
+                "Invalid lang (en-US fr-FR de-DE es-ES it-IT jp-JP pt-PT ru-RU ar-EG).".to_string()
+            }),
+        )
+        .await?;
         return Ok(());
     };
     let gid = ctx
@@ -131,7 +173,19 @@ pub async fn tts_lang(
     let mut cfg = load_tts(&ctx.data().pool, &gid).await.unwrap_or_default();
     cfg.lang = code.to_string();
     save_tts(&ctx.data().pool, &gid, &cfg).await?;
-    ctx.say(format!("TTS lang set to {code}.")).await?;
+    let lang_code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    let yes = crate::emojis::app_emoji_markup(&ctx.serenity_context().http, "Yes")
+        .await
+        .unwrap_or_else(|| "✅".to_string());
+    ctx.say(
+        crate::lang::get(&lang_code, "tts_lang_set")
+            .map(|s| {
+                s.replace("${client.iHorizon_Emojis.Yes}", &yes)
+                    .replace("${language}", code)
+            })
+            .unwrap_or_else(|| format!("TTS lang set to {code}.")),
+    )
+    .await?;
     Ok(())
 }
 

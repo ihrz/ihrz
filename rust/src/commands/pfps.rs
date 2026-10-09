@@ -41,6 +41,10 @@ pub async fn pfps_channel(
     .await?;
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let msg = crate::lang::get(&code, "pfps_channel_command_work")
+        .map(|s| {
+            s.replace("${interaction.user}", &ctx.author().to_string())
+                .replace("${channel}", &format!("<#{}>", channel.id.get()))
+        })
         .unwrap_or_else(|| "PFPS channel set.".to_string());
     ctx.say(msg).await?;
     Ok(())
@@ -52,7 +56,11 @@ pub async fn pfps_config(
     #[description = "on or off"] action: String,
 ) -> Result<(), anyhow::Error> {
     let Some(enabled) = parse_on_off(&action) else {
-        ctx.say("Use on/off.").await?;
+        let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+        ctx.say(
+            crate::lang::get(&code, "msg_use_on_off").unwrap_or_else(|| "Use on/off.".to_string()),
+        )
+        .await?;
         return Ok(());
     };
     let Some(gid) = ctx.guild_id().map(|g| g.get().to_string()) else {
@@ -66,8 +74,12 @@ pub async fn pfps_config(
     } else {
         "pfps_config_command_action_off"
     };
-    ctx.say(crate::lang::get(&code, key).unwrap_or_else(|| key.to_string()))
-        .await?;
+    ctx.say(
+        crate::lang::get(&code, key)
+            .map(|s| s.replace("${interaction.user}", &ctx.author().to_string()))
+            .unwrap_or_else(|| key.to_string()),
+    )
+    .await?;
     Ok(())
 }
 

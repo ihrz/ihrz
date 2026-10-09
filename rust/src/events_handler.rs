@@ -28,21 +28,196 @@ pub struct Handler {
     /// Guilds already owner-sealed this boot.
     /// Mirrors guildOwnerSafetySetWhenMessage already_visited.
     pub sealed: Arc<tokio::sync::Mutex<std::collections::HashSet<String>>>,
+    /// Pending security captcha challenges: "guild.user" -> challenge.
+    /// Mirrors Events/security/onMemberJoin.ts (message-collector flow).
+    pub security: Arc<tokio::sync::Mutex<HashMap<String, SecurityChallenge>>>,
+    /// Slash-command file log. Mirrors Events/logs/slashCommandLogger.ts
+    /// (SafeJSONLogger at src/files/slash.log.json).
+    pub slashlog: Arc<crate::slashlog::SlashLog>,
+}
+
+/// Pending captcha challenge for a newcomer.
+pub struct SecurityChallenge {
+    pub channel_id: u64,
+    pub message_id: u64,
+    pub user_id: u64,
+    pub code: String,
+    pub attempts_left: u8,
+    pub role: Option<u64>,
+    pub role2: Option<u64>,
+    pub joined_at: Option<i64>,
+}
+
+/// Key for the pending-challenge map.
+pub fn security_key(guild_id: u64, user_id: u64) -> String {
+    format!("{guild_id}.{user_id}")
+}
+
+/// Captcha code alphabet. Mirrors generateRandomCode in
+/// Events/security/onMemberJoin.ts (no J, 7 chars).
+pub const SECURITY_CODE_ALPHABET: &str = "ABCDEFGHIKLMNOPQRSTUVWXYZ0123456789";
+
+/// Generate a 7-char captcha code.
+pub fn security_code() -> String {
+    use rand::Rng;
+    let mut rng = rand::thread_rng();
+    let alpha: Vec<char> = SECURITY_CODE_ALPHABET.chars().collect();
+    (0..7)
+        .map(|_| alpha[rng.gen_range(0..alpha.len())])
+        .collect()
+}
+
+/// Welcome target: system channel, else the lowest-position text
+/// channel. Mirrors the guildCreate.ts channel pick.
+pub fn welcome_channel(guild: &serenity::Guild) -> Option<serenity::ChannelId> {
+    if let Some(ch) = guild.system_channel_id {
+        return Some(ch);
+    }
+    guild
+        .channels
+        .values()
+        .filter(|c| c.kind == serenity::ChannelType::Text)
+        .min_by_key(|c| c.position)
+        .map(|c| c.id)
 }
 
 impl Handler {
-    pub fn new(pool: Pool) -> Self {
+    pub fn new(pool: Pool, slashlog: Arc<crate::slashlog::SlashLog>) -> Self {
         Self {
             pool,
             spam: Arc::new(tokio::sync::Mutex::new(HashMap::new())),
             invites: Arc::new(tokio::sync::Mutex::new(HashMap::new())),
             sealed: Arc::new(tokio::sync::Mutex::new(std::collections::HashSet::new())),
+            security: Arc::new(tokio::sync::Mutex::new(HashMap::new())),
+            slashlog,
         }
     }
 
-    /// PUNISHPUB spam flow. Mirrors Events/guildconfig/blockSpam.ts:
-    /// non-whitelisted/non-media links and blacklisted terms delete the
-    /// message, bump flags, and sanction at amountMax.
+    /// File-log one slash command invocation. Mirrors the
+    /// interactionCreate leg of Events/logs/slashCommandLogger.ts
+    /// (bot + non-guild skipped; option values redacted by
+    /// sanitizeInteractionOptionValue).
+    async fn log_slash_command(&self, ctx: &serenity::Context, cmd: &serenity::CommandInteraction) {
+        if cmd.user.bot {
+            return;
+        }
+        let Some(guild_id) = cmd.guild_id else {
+            return;
+        };
+        let guild_name = ctx
+            .cache
+            .guild(guild_id)
+            .map(|g| g.name.clone())
+            .unwrap_or_else(|| guild_id.get().to_string());
+        let channel_name = cmd
+            .channel_id
+            .to_channel(&ctx.http)
+            .await
+            .ok()
+            .and_then(|c| c.guild().map(|g| g.name.clone()))
+            .unwrap_or_else(|| "unknown".to_string());
+        let (sub, opts) = crate::slashlog::split_command_options(&cmd.data.options());
+        let entry = crate::slashlog::ParsedSavedCommand {
+            guild_name,
+            guild_id: Some(guild_id.get().to_string()),
+            executor_username: cmd.user.name.clone(),
+            timestamp: chrono::Local::now().timestamp_millis(),
+            channel_name,
+            channel_id: cmd.channel_id.get().to_string(),
+            command: crate::slashlog::format_logged_command(&sub, &opts),
+        };
+        self.slashlog.log(entry).await;
+    }
+
+    /// Captcha attempt handling (mirrors the collector "collect" leg
+    /// in Events/security/onMemberJoin.ts): delete the attempt, pass
+    /// on exact code match (role add, role2 remove, delete prompt),
+    /// otherwise decrement and re-render, kicking at zero.
+    async fn security_answer(&self, ctx: &serenity::Context, msg: &serenity::Message) {
+        let Some(guild_id) = msg.guild_id else {
+            return;
+        };
+        if msg.author.bot {
+            return;
+        }
+        let key = security_key(guild_id.get(), msg.author.id.get());
+        let mut guard = self.security.lock().await;
+        let Some(ch) = guard.get_mut(&key) else {
+            return;
+        };
+        if ch.channel_id != msg.channel_id.get() {
+            return;
+        }
+        let _ = msg.delete(&ctx.http).await;
+        if msg.content == ch.code {
+            let (role, role2, message_id, channel_id) =
+                (ch.role, ch.role2, ch.message_id, ch.channel_id);
+            guard.remove(&key);
+            drop(guard);
+            if let Ok(member) = guild_id.member(&ctx.http, msg.author.id).await {
+                if let Some(r) = role {
+                    let _ = member.add_role(&ctx.http, serenity::RoleId::new(r)).await;
+                }
+                if let Some(r) = role2 {
+                    let _ = member
+                        .remove_role(&ctx.http, serenity::RoleId::new(r))
+                        .await;
+                }
+            }
+            let _ = serenity::ChannelId::new(channel_id)
+                .delete_message(&ctx.http, serenity::MessageId::new(message_id))
+                .await;
+            return;
+        }
+        if ch.attempts_left <= 1 {
+            let (message_id, channel_id) = (ch.message_id, ch.channel_id);
+            guard.remove(&key);
+            drop(guard);
+            let lang_code = crate::db::guild_lang(&self.pool, Some(guild_id.get())).await;
+            let kick_reason =
+                crate::lang::get(&lang_code, "event_security_kick_reason").unwrap_or_default();
+            if let Ok(member) = guild_id.member(&ctx.http, msg.author.id).await {
+                let _ = member.kick_with_reason(&ctx.http, &kick_reason).await;
+            }
+            let _ = serenity::ChannelId::new(channel_id)
+                .delete_message(&ctx.http, serenity::MessageId::new(message_id))
+                .await;
+            return;
+        }
+        ch.attempts_left -= 1;
+        let (left, code, message_id, channel_id) = (
+            ch.attempts_left,
+            ch.code.clone(),
+            ch.message_id,
+            ch.channel_id,
+        );
+        drop(guard);
+        let lang_code = crate::db::guild_lang(&self.pool, Some(guild_id.get())).await;
+        let text = |k: &str| crate::lang::get(&lang_code, k).unwrap_or_default();
+        let emoji = crate::emojis::app_emoji_markup(&ctx.http, "Schedule")
+            .await
+            .unwrap_or_default();
+        let content = format!(
+            "{}\n\n`{code}`\n\n{}\n-# {}",
+            text("event_security").replace("${member}", &format!("<@{}>", msg.author.id.get())),
+            text("event_security_expiry")
+                .replace(
+                    "${timestamp}",
+                    &format!("<t:{}:R>", crate::commands::context::now_ms() / 1000 + 150)
+                )
+                .replace("${attempts}", &left.to_string())
+                .replace("{emoji}", &emoji),
+            text("event_security_footer"),
+        );
+        let _ = serenity::ChannelId::new(channel_id)
+            .edit_message(
+                &ctx.http,
+                serenity::MessageId::new(message_id),
+                serenity::EditMessage::new().content(content),
+            )
+            .await;
+    }
+
     async fn check_punishpub(&self, ctx: &serenity::Context, gid: &str, msg: &serenity::Message) {
         let antipub_off: bool = crate::db::kv_get(&self.pool, gid, "GUILD.GUILD_CONFIG.antipub")
             .await
@@ -156,17 +331,63 @@ impl Handler {
             .await;
     }
 
-    /// Server-log poster. Mirrors Events/logs/* reading
-    /// GUILD.SERVER_LOGS.<suffix> (best-effort, never fails).
-    async fn server_log(&self, ctx: &serenity::Context, gid: &str, suffix: &str, text: String) {
-        let key = format!("GUILD.SERVER_LOGS.{suffix}");
-        let Some(ch) = crate::db::kv_get(&self.pool, gid, &key).await else {
+    /// Moderation audit embed (mirrors logs/addBanLogs.ts,
+    /// removeBanLogs.ts, kickLogs.ts): latest audit entry for the
+    /// action -> #010101 embed with the Reason field, posted to
+    /// GUILD.SERVER_LOGS.moderation. Silent when no log channel or
+    /// no audit entry, like TS. Executor comes from the audit entry;
+    /// target from the caller.
+    async fn mod_audit_log(
+        &self,
+        ctx: &serenity::Context,
+        guild_id: serenity::GuildId,
+        action: serenity::model::guild::audit_log::Action,
+        desc_key: &str,
+        target_id: u64,
+        target_name: Option<&str>,
+    ) {
+        let gid = guild_id.get().to_string();
+        let logs_ch: Option<u64> =
+            crate::db::kv_get(&self.pool, &gid, "GUILD.SERVER_LOGS.moderation")
+                .await
+                .and_then(|s| s.parse().ok());
+        let Some(logs_ch) = logs_ch else {
             return;
         };
-        let Ok(ch_id) = ch.parse::<u64>() else {
+        let Ok(logs) = guild_id
+            .audit_logs(&ctx.http, Some(action), None, None, Some(1))
+            .await
+        else {
             return;
         };
-        let _ = serenity::ChannelId::new(ch_id).say(&ctx.http, text).await;
+        let Some(entry) = logs.entries.first() else {
+            return;
+        };
+        let lang_code = crate::db::guild_lang(&self.pool, Some(guild_id.get())).await;
+        let text = |k: &str| crate::lang::get(&lang_code, k).unwrap_or_default();
+        let desc = text(desc_key)
+            .replace(
+                "${firstEntry.executor.id}",
+                &entry.user_id.get().to_string(),
+            )
+            .replace("${firstEntry.target.id}", &target_id.to_string())
+            .replace("${firstEntry.target.username}", target_name.unwrap_or(""));
+        let reason = entry
+            .reason
+            .clone()
+            .unwrap_or_else(|| text("blacklist_var_no_reason"));
+        let embed = serenity::CreateEmbed::default()
+            .colour(0x010101_u32)
+            .description(desc)
+            .field(
+                text("event_srvLogs_banAdd_fields_name"),
+                text("event_srvLogs_banAdd_fields_value").replace("{reason}", &reason),
+                false,
+            )
+            .timestamp(serenity::Timestamp::now());
+        let _ = serenity::ChannelId::new(logs_ch)
+            .send_message(&ctx.http, serenity::CreateMessage::new().embed(embed))
+            .await;
     }
 
     /// Autoreact emitter. Extracted from the message handler so the
@@ -318,6 +539,393 @@ impl Handler {
     async fn guild_key(&self, guild_id: u64) -> String {
         guild_id.to_string()
     }
+
+    /// Voice state log (mirrors logs/voiceLogs.ts): #010101 embed
+    /// for leave / join / self-deafen / self-undeafen / self-mute /
+    /// self-unmute. Silent when no log channel, for the bot itself,
+    /// or when nothing relevant changed (moves included).
+    async fn voice_state_log(
+        &self,
+        ctx: &serenity::Context,
+        gid: &str,
+        old: Option<&serenity::VoiceState>,
+        new: &serenity::VoiceState,
+    ) {
+        let logs_ch: Option<u64> = crate::db::kv_get(&self.pool, gid, "GUILD.SERVER_LOGS.voice")
+            .await
+            .and_then(|s| s.parse().ok());
+        let Some(logs_ch) = logs_ch else {
+            return;
+        };
+        if new.user_id == ctx.cache.current_user().id {
+            return;
+        }
+        let guild_u64: u64 = gid.parse().unwrap_or(0);
+        let lang_code = crate::db::guild_lang(&self.pool, Some(guild_u64)).await;
+        let text = |k: &str| crate::lang::get(&lang_code, k).unwrap_or_default();
+        let uid = new.user_id.get().to_string();
+        let old_ch = old.and_then(|o| o.channel_id);
+        let desc = if new.channel_id.is_none() {
+            text("event_srvLogs_voiceStateUpdate_description")
+                .replace("${targetUser.id}", &uid)
+                .replace(
+                    "${OchannelID}",
+                    &old_ch.map(|c| c.get().to_string()).unwrap_or_default(),
+                )
+        } else if old_ch.is_none() {
+            text("event_srvLogs_voiceStateUpdate_2_description")
+                .replace("${targetUser.id}", &uid)
+                .replace(
+                    "${channelID}",
+                    &new.channel_id
+                        .map(|c| c.get().to_string())
+                        .unwrap_or_default(),
+                )
+        } else {
+            let ch = new
+                .channel_id
+                .map(|c| c.get().to_string())
+                .unwrap_or_default();
+            let old_deaf = old.map(|o| o.self_deaf).unwrap_or(false);
+            let old_mute = old.map(|o| o.self_mute).unwrap_or(false);
+            if !old_deaf && new.self_deaf {
+                text("event_srvLogs_voiceStateUpdate_3_description")
+                    .replace("${targetUser.id}", &uid)
+                    .replace("${channelID}", &ch)
+            } else if old_deaf && !new.self_deaf {
+                text("event_srvLogs_voiceStateUpdate_4_description")
+                    .replace("${targetUser.id}", &uid)
+                    .replace("${channelID}", &ch)
+            } else if !old_mute && new.self_mute {
+                text("event_srvLogs_voiceStateUpdate_5_description")
+                    .replace("${targetUser.id}", &uid)
+                    .replace("${channelID}", &ch)
+            } else if old_mute && !new.self_mute {
+                text("event_srvLogs_voiceStateUpdate_6_description")
+                    .replace("${targetUser.id}", &uid)
+                    .replace("${channelID}", &ch)
+            } else {
+                return;
+            }
+        };
+        let (name, avatar) = new
+            .user_id
+            .to_user(&ctx.http)
+            .await
+            .map(|u| (u.name.clone(), u.avatar_url().unwrap_or_default()))
+            .unwrap_or_default();
+        let embed = serenity::CreateEmbed::default()
+            .colour(0x010101_u32)
+            .author(serenity::CreateEmbedAuthor::new(name).icon_url(avatar))
+            .description(desc)
+            .timestamp(serenity::Timestamp::now());
+        let _ = serenity::ChannelId::new(logs_ch)
+            .send_message(&ctx.http, serenity::CreateMessage::new().embed(embed))
+            .await;
+    }
+}
+
+/// One rendered board message: content line + embed + file uploads.
+pub struct BoardRender {
+    pub content: String,
+    pub embed: serenity::CreateEmbed,
+    pub files: Vec<serenity::CreateAttachment>,
+}
+
+/// Build the send payload for a new board message (content + embed
+/// + footer/author file uploads).
+pub fn board_send(render: BoardRender) -> serenity::CreateMessage {
+    let mut msg = serenity::CreateMessage::new()
+        .content(render.content)
+        .embed(render.embed);
+    for f in render.files {
+        msg = msg.add_file(f);
+    }
+    msg
+}
+
+/// Render one board message. Mirrors the embed build shared by all
+/// four starboard/skullboard files: board color, author tag +
+/// avatar snapshot (TS uses the raw CDN URL; bytes are attached so
+/// the icon survives avatar changes), 2000-char description
+/// (chars; TS cuts UTF-16 units), original-message link field,
+/// source timestamp, bot footer + icon file, first image
+/// attachment.
+pub async fn render_board_message(
+    pool: &crate::db::Pool,
+    ctx: &serenity::Context,
+    board: &str,
+    message: &serenity::Message,
+    count: i64,
+    gid: &str,
+) -> BoardRender {
+    let code = crate::db::guild_lang(pool, message.guild_id.map(|g| g.get())).await;
+    let t = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
+    let url = crate::funcs::message_url(
+        gid.parse().unwrap_or(0),
+        message.channel_id.get(),
+        message.id.get(),
+    );
+    let desc: String = message.content.chars().take(2000).collect();
+    let desc = if desc.is_empty() { t("var_none") } else { desc };
+    let mut files = Vec::new();
+    let mut embed = serenity::CreateEmbed::default()
+        .colour(serenity::Colour::new(
+            crate::commands::starboard::board_color(board),
+        ))
+        .description(desc)
+        .field(
+            t("var_original_message"),
+            format!("[{}]({url})", t("var_click_here")),
+            false,
+        )
+        .timestamp(message.timestamp);
+    match crate::commands::botcat::download_bytes(&message.author.face()).await {
+        Some(bytes) => {
+            embed = embed.author(
+                serenity::CreateEmbedAuthor::new(message.author.tag())
+                    .icon_url("attachment://board_author.png"),
+            );
+            files.push(serenity::CreateAttachment::bytes(bytes, "board_author.png"));
+        }
+        None => {
+            embed = embed.author(serenity::CreateEmbedAuthor::new(message.author.tag()));
+        }
+    }
+    if let Some(first) = message.attachments.iter().find(|a| {
+        a.content_type
+            .as_deref()
+            .unwrap_or_default()
+            .starts_with("image/")
+    }) {
+        embed = embed.image(&first.url);
+    }
+    let footer_name = crate::commands::botcat::bot_footer_name(
+        crate::db::kv_get(pool, gid, crate::commands::botcat::BOT_NAME_KEY)
+            .await
+            .as_deref(),
+    );
+    let stored = crate::db::kv_get(pool, gid, crate::commands::botcat::BOT_PFP_KEY).await;
+    let icon = match crate::commands::botcat::footer_icon_bytes(stored.as_deref()) {
+        Some(bytes) => Some(bytes),
+        None => {
+            let face = ctx.cache.current_user().face();
+            crate::commands::botcat::download_bytes(&face).await
+        }
+    };
+    match icon {
+        Some(bytes) => {
+            embed = embed.footer(
+                serenity::CreateEmbedFooter::new(footer_name)
+                    .icon_url("attachment://footer_icon.png"),
+            );
+            files.push(serenity::CreateAttachment::bytes(bytes, "footer_icon.png"));
+        }
+        None => {
+            embed = embed.footer(serenity::CreateEmbedFooter::new(footer_name));
+        }
+    }
+    let content = crate::commands::starboard::board_content(
+        crate::commands::starboard::board_emoji(board),
+        count,
+        message.channel_id.get(),
+    );
+    BoardRender {
+        content,
+        embed,
+        files,
+    }
+}
+
+/// Fetch the source message + fresh emoji count for board handling.
+/// Returns None when the message is gone or authored by a bot
+/// (both TS files skip those).
+pub async fn board_source_message(
+    ctx: &serenity::Context,
+    reaction: &serenity::Reaction,
+    emoji: &str,
+    message_id: serenity::MessageId,
+) -> Option<(serenity::Message, i64)> {
+    let channel = reaction.channel(&ctx.http).await.ok()?;
+    let message = channel.id().message(&ctx.http, message_id).await.ok()?;
+    if message.author.bot {
+        return None;
+    }
+    let count: i64 = message
+        .reactions
+        .iter()
+        .filter(|r| r.reaction_type == serenity::ReactionType::Unicode(emoji.to_string()))
+        .map(|r| r.count as i64)
+        .sum();
+    Some((message, count))
+}
+
+/// Mirrors starboard/skullboard onNewReact.ts: threshold post with
+/// the rich embed, edit-in-place on further reactions, repost +
+/// number update when the board message is gone, thread creation
+/// on new posts, DATA entry store.
+pub async fn board_reaction_add(
+    pool: &crate::db::Pool,
+    ctx: &serenity::Context,
+    guild_id: u64,
+    emoji: &str,
+    message: &serenity::Message,
+    count: i64,
+) {
+    let gid = guild_id.to_string();
+    for board in ["starboard", "skullboard"] {
+        if crate::commands::starboard::board_emoji(board) != emoji {
+            continue;
+        }
+        let cfg = crate::commands::starboard::load_board(pool, &gid, board).await;
+        if cfg.enabled == "no" || cfg.channel.is_empty() {
+            continue;
+        }
+        if count < cfg.threshold {
+            continue;
+        }
+        let Ok(board_channel_id) = cfg.channel.parse::<u64>() else {
+            continue;
+        };
+        let board_channel = serenity::ChannelId::new(board_channel_id);
+        // TS instanceof TextChannel gate.
+        let is_text = board_channel
+            .to_channel(&ctx.http)
+            .await
+            .ok()
+            .and_then(|c| c.guild())
+            .is_some();
+        if !is_text {
+            continue;
+        }
+        let mut entries = crate::commands::starboard::load_entries(pool, &gid, board).await;
+        let chan_str = message.channel_id.get().to_string();
+        let msg_str = message.id.get().to_string();
+        let render = render_board_message(pool, ctx, board, message, count, &gid).await;
+        let number: Option<String> =
+            crate::commands::starboard::find_entry(&entries, &chan_str, &msg_str)
+                .map(|e| e.number.clone());
+        if let Some(number) = number {
+            let number: u64 = number.parse().unwrap_or(0);
+            if let Ok(board_msg) = board_channel
+                .message(&ctx.http, serenity::MessageId::new(number))
+                .await
+            {
+                let edit = serenity::EditMessage::new()
+                    .content(render.content)
+                    .embed(render.embed)
+                    .attachments(crate::commands::embed::edit_attachments(render.files));
+                let _ = board_channel
+                    .edit_message(&ctx.http, board_msg.id, edit)
+                    .await;
+            } else if let Ok(new_msg) = board_channel
+                .send_message(&ctx.http, board_send(render))
+                .await
+            {
+                // Board message gone: repost + number update.
+                let num = new_msg.id.get().to_string();
+                for e in entries.iter_mut() {
+                    if e.message_id == msg_str && e.channel_id == chan_str {
+                        e.number = num.clone();
+                    }
+                }
+                crate::commands::starboard::save_entries(pool, &gid, board, &entries).await;
+            }
+        } else if let Ok(board_msg) = board_channel
+            .send_message(&ctx.http, board_send(render))
+            .await
+        {
+            if cfg.create_thread {
+                let code = crate::db::guild_lang(pool, Some(guild_id)).await;
+                let t = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
+                let nick = if message.author.name.is_empty() {
+                    t("var_unknown")
+                } else {
+                    message.author.name.clone()
+                };
+                let emoji = crate::commands::starboard::board_emoji(board);
+                let name = format!(
+                    "{emoji} {}",
+                    t("var_s_message").replace("{nickname}", &nick)
+                );
+                let builder = serenity::CreateThread::new(name)
+                    .auto_archive_duration(serenity::model::channel::AutoArchiveDuration::OneDay);
+                let _ = ctx
+                    .http
+                    .create_thread_from_message(board_channel, board_msg.id, &builder, None)
+                    .await;
+            }
+            entries.push(crate::commands::starboard::BoardEntry {
+                channel_id: chan_str,
+                message_id: msg_str,
+                number: board_msg.id.get().to_string(),
+                author: message.author.id.get().to_string(),
+            });
+            crate::commands::starboard::save_entries(pool, &gid, board, &entries).await;
+        }
+    }
+}
+
+/// Mirrors starboard/skullboard onDeletedReact.ts: below threshold
+/// the board message is deleted and its DATA entry dropped (entry
+/// kept when the delete itself fails); at or above threshold the
+/// board message is re-rendered.
+pub async fn board_reaction_remove(
+    pool: &crate::db::Pool,
+    ctx: &serenity::Context,
+    guild_id: u64,
+    emoji: &str,
+    message: &serenity::Message,
+    count: i64,
+) {
+    let gid = guild_id.to_string();
+    for board in ["starboard", "skullboard"] {
+        if crate::commands::starboard::board_emoji(board) != emoji {
+            continue;
+        }
+        let cfg = crate::commands::starboard::load_board(pool, &gid, board).await;
+        if cfg.enabled == "no" || cfg.channel.is_empty() {
+            continue;
+        }
+        let mut entries = crate::commands::starboard::load_entries(pool, &gid, board).await;
+        let chan_str = message.channel_id.get().to_string();
+        let msg_str = message.id.get().to_string();
+        let Some(entry) = crate::commands::starboard::find_entry(&entries, &chan_str, &msg_str)
+        else {
+            continue;
+        };
+        let number: u64 = entry.number.parse().unwrap_or(0);
+        let Ok(board_channel_id) = cfg.channel.parse::<u64>() else {
+            continue;
+        };
+        let board_channel = serenity::ChannelId::new(board_channel_id);
+        let Ok(board_msg) = board_channel
+            .message(&ctx.http, serenity::MessageId::new(number))
+            .await
+        else {
+            // TS returns here without touching DATA.
+            continue;
+        };
+        if count < cfg.threshold {
+            if board_channel
+                .delete_message(&ctx.http, board_msg.id)
+                .await
+                .is_ok()
+            {
+                entries.retain(|e| !(e.message_id == msg_str && e.channel_id == chan_str));
+                crate::commands::starboard::save_entries(pool, &gid, board, &entries).await;
+            }
+        } else {
+            let render = render_board_message(pool, ctx, board, message, count, &gid).await;
+            let edit = serenity::EditMessage::new()
+                .content(render.content)
+                .embed(render.embed)
+                .attachments(crate::commands::embed::edit_attachments(render.files));
+            let _ = board_channel
+                .edit_message(&ctx.http, board_msg.id, edit)
+                .await;
+        }
+    }
 }
 
 #[serenity::async_trait]
@@ -334,17 +942,228 @@ impl serenity::EventHandler for Handler {
 
     async fn guild_create(
         &self,
-        _ctx: serenity::Context,
+        ctx: serenity::Context,
         guild: serenity::Guild,
         _is_new: Option<bool>,
     ) {
-        // Mirrors guildCreate.ts: ensure GUILD.LANG exists (auto-locale default).
+        // Mirrors client/guildCreate.ts.
         let gid = guild.id.get().to_string();
+        // Cancel a pending deferred wipe from a previous leave.
+        let _ = crate::db::kv_del(&self.pool, &gid, "GUILD_DELETE_QUEUED").await;
+        // Auto-locale default (setLangByRegion).
         if crate::db::kv_get(&self.pool, &gid, "GUILD.LANG")
             .await
             .is_none()
         {
-            let _ = crate::db::kv_set(&self.pool, &gid, "GUILD.LANG", "en-US").await;
+            let _ = crate::db::kv_set(
+                &self.pool,
+                &gid,
+                "GUILD.LANG",
+                crate::lang::locale_lang_code(&guild.preferred_locale),
+            )
+            .await;
+        }
+        let lang_code = crate::db::guild_lang(&self.pool, Some(guild.id.get())).await;
+        let text = |k: &str| crate::lang::get(&lang_code, k).unwrap_or_default();
+        // Seed the guild owner (ownerHelper.addGuildOwner).
+        let _ = crate::db::kv_set(
+            &self.pool,
+            &gid,
+            &format!("GUILD.OWNER.{}", guild.owner_id.get()),
+            "1",
+        )
+        .await;
+        // Blacklist leave: blacklisted owner -> farewell embed, then leave.
+        if crate::db::kv_get(
+            &self.pool,
+            "0",
+            &crate::commands::owner::blacklist_key(guild.owner_id.get()),
+        )
+        .await
+        .is_some()
+        {
+            let embed = serenity::CreateEmbed::default()
+                .colour(0xFF0000_u32)
+                .description(format!(
+                    "Dear <@{}>, I'm sorry, but you have been blacklisted by the bot.\nAs a result, I will be leaving your server. If you have any questions or concerns, please contact my developer.\n\nThank you for your understanding",
+                    guild.owner_id.get()
+                ))
+                .timestamp(serenity::Timestamp::now());
+            if let Some(ch) = welcome_channel(&guild) {
+                let _ = ch
+                    .send_message(&ctx.http, serenity::CreateMessage::new().embed(embed))
+                    .await;
+            }
+            let _ = guild.id.leave(&ctx.http).await;
+            return;
+        }
+        // Cache invites for join attribution (getInvites).
+        if let Ok(live) = guild.id.invites(&ctx.http).await {
+            let mut cache = self.invites.lock().await;
+            let entry = cache.entry(gid.clone()).or_default();
+            for inv in live {
+                entry.insert(
+                    inv.code.clone(),
+                    (
+                        inv.uses,
+                        inv.inviter.as_ref().map(|u| u.id.get()).unwrap_or(0),
+                    ),
+                );
+            }
+        }
+        // Voice-session recovery (mirrors recoverActiveSessions, which TS
+        // runs once at ready): guild_create carries full voice states, so
+        // stale sessions close here with no cache race. Runs per guild
+        // stream (idempotent) rather than once at boot.
+        {
+            let in_voice: std::collections::HashSet<u64> =
+                guild.voice_states.keys().map(|u| u.get()).collect();
+            let now = crate::commands::context::now_ms();
+            crate::events::recover_voice_sessions(&self.pool, &gid, &in_voice, now).await;
+        }
+        // Owner log embed to the guild-logs channel (email leg is SMTP-blocked).
+        if let Ok(logs_ch) = crate::config::load()
+            .map(|c| c.guild_logs_channel_id)
+            .unwrap_or_default()
+            .trim()
+            .parse::<u64>()
+        {
+            let vanity = guild
+                .vanity_url_code
+                .as_ref()
+                .map(|v| format!("discord.gg/{v}"))
+                .unwrap_or_else(|| "None".to_string());
+            let log_embed = serenity::CreateEmbed::default()
+                .colour(0x00FF00_u32)
+                .description("**A new guild added iHorizon !**")
+                .field("Server Name", format!("`{}`", guild.name), true)
+                .field("Server ID", format!("`{}`", guild.id.get()), true)
+                .field(
+                    "Server Region",
+                    format!("`{}`", guild.preferred_locale),
+                    true,
+                )
+                .field(
+                    "Member Count",
+                    format!("`{}` members", guild.member_count),
+                    true,
+                )
+                .field("Vanity URL", format!("`{vanity}`"), true)
+                .field("Guilds total", ctx.cache.guild_count().to_string(), true)
+                .footer(serenity::CreateEmbedFooter::new("iHorizon Joined at"));
+            let _ = serenity::ChannelId::new(logs_ch)
+                .send_message(&ctx.http, serenity::CreateMessage::new().embed(log_embed))
+                .await;
+        }
+        // Welcome message to the server (banner image pending html2png).
+        if let Some(ch) = welcome_channel(&guild) {
+            let titles = crate::lang::get_list(&lang_code, "new_guild_embed_title");
+            let pick = titles
+                .get((crate::commands::context::now_ms() as usize) % titles.len().max(1))
+                .cloned()
+                .unwrap_or_default();
+            let app_id = ctx.cache.current_user().id.get();
+            let embed = serenity::CreateEmbed::default()
+                .colour(0x2134FF_u32)
+                .description(text("new_guild_embed_desc").replace("${randomMessage}", &pick))
+                .footer(serenity::CreateEmbedFooter::new("iHorizon"));
+            let row1 = serenity::CreateActionRow::Buttons(vec![
+                serenity::CreateButton::new_link(format!(
+                    "https://discord.com/api/oauth2/authorize?client_id={app_id}&permissions=8&scope=bot"
+                ))
+                .label(text("guild_create_btn_invite")),
+                serenity::CreateButton::new_link("https://www.ihorizon.org")
+                    .label(text("guild_create_btn_website")),
+                serenity::CreateButton::new_link("https://www.ihorizon.org/search")
+                    .label(text("guild_create_btn_search")),
+            ]);
+            let row2 = serenity::CreateActionRow::Buttons(vec![
+                serenity::CreateButton::new_link("https://gitlab.com/ihrz/ihrz")
+                    .label(text("guild_create_btn_repos")),
+                serenity::CreateButton::new_link("https://discord.gg/ihorizon")
+                    .label(text("guild_create_btn_support")),
+                serenity::CreateButton::new_link("https://docs.ihorizon.org")
+                    .label(text("guild_create_btn_docs")),
+            ]);
+            let _ = ch
+                .send_message(
+                    &ctx.http,
+                    serenity::CreateMessage::new()
+                        .embed(embed)
+                        .components(vec![row1, row2]),
+                )
+                .await;
+        }
+        // Owner welcome DM (inviter resolved via BotAdd audit log, best effort).
+        let app_id = ctx.cache.current_user().id.get();
+        let mut dm_targets = vec![guild.owner_id];
+        if let Ok(logs) = guild
+            .id
+            .audit_logs(
+                &ctx.http,
+                Some(serenity::model::guild::audit_log::Action::Member(
+                    serenity::model::guild::audit_log::MemberAction::BotAdd,
+                )),
+                None,
+                None,
+                Some(1),
+            )
+            .await
+        {
+            if let Some(entry) = logs.entries.first() {
+                let bot_id = ctx.cache.current_user().id.get();
+                if entry.target_id.map(|t| t.get()) == Some(bot_id)
+                    && entry.user_id.get() != guild.owner_id.get()
+                {
+                    dm_targets.push(entry.user_id);
+                }
+            }
+        }
+        for target in dm_targets {
+            if let Ok(user) = target.to_user(&ctx.http).await {
+                let embed = serenity::CreateEmbed::default()
+                    .colour(0x2B2D31_u32)
+                    .description(
+                        text("new_guild_owner_dm_description")
+                            .replace("${owner}", &user.name)
+                            .replace("${guild.name}", &guild.name),
+                    )
+                    .footer(serenity::CreateEmbedFooter::new("iHorizon"))
+                    .timestamp(serenity::Timestamp::now());
+                let row = serenity::CreateActionRow::Buttons(vec![
+                    serenity::CreateButton::new_link(format!(
+                        "https://discord.com/api/oauth2/authorize?client_id={app_id}&permissions=8&scope=bot"
+                    ))
+                    .label(text("guild_create_btn_invite")),
+                    serenity::CreateButton::new_link("https://www.ihorizon.org")
+                        .label(text("guild_create_btn_website")),
+                    serenity::CreateButton::new_link("https://discord.gg/ihorizon")
+                        .label(text("guild_create_btn_support")),
+                ]);
+                let _ = user
+                    .direct_message(
+                        &ctx.http,
+                        serenity::CreateMessage::new()
+                            .embed(embed)
+                            .components(vec![row]),
+                    )
+                    .await;
+            }
+        }
+        // Per-guild bot bio in the join language (setBotBioByLang).
+        if let Some(bio_tpl) = crate::lang::get(&lang_code, "bot_server_bio") {
+            let command_count = crate::commands::all().len();
+            let bio = crate::commands::botcat::sanitize_bio(
+                &bio_tpl.replace("{count}", &command_count.to_string()),
+            );
+            if let Some(token) = crate::config::bot_token() {
+                let _ = crate::commands::botcat::patch_guild_me(
+                    &token,
+                    guild.id.get(),
+                    serde_json::json!({ "bio": bio }),
+                )
+                .await;
+            }
         }
         tracing::debug!("guildCreate {}", gid);
     }
@@ -359,6 +1178,8 @@ impl serenity::EventHandler for Handler {
         // the guild for GC instead of deleting inline (shard race safety).
         let gid = incomplete.id.get().to_string();
         let _ = crate::db::kv_set(&self.pool, &gid, "GUILD_DELETE_QUEUED", "1").await;
+        // Mirrors invitemanager/onGuildLeave.ts: drop the invite cache.
+        self.invites.lock().await.remove(&gid);
         tracing::info!("guildDelete {} queued for GC", gid);
     }
 
@@ -400,15 +1221,31 @@ impl serenity::EventHandler for Handler {
                 }
             }
         }
-        if let Some(role_id) = crate::db::kv_get(&self.pool, &gid, "GUILD.JOIN_ROLE").await {
-            if let Ok(rid) = role_id.parse::<u64>() {
+        // Join roles (mirrors joinRole.ts: blob joinroles string|string[],
+        // legacy GUILD.JOIN_ROLE fallback; arrays replace the member's
+        // roles like roles.set, singles add like roles.add).
+        let join_roles = crate::events::join_role_ids(&self.pool, &gid).await;
+        if join_roles.len() > 1 {
+            let keep: std::collections::HashSet<u64> = join_roles.iter().copied().collect();
+            for role_id in new_member.roles.iter() {
+                if role_id.get() != new_member.guild_id.get() && !keep.contains(&role_id.get()) {
+                    let _ = new_member.remove_role(&ctx.http, *role_id).await;
+                }
+            }
+            for rid in &join_roles {
                 let _ = new_member
-                    .add_role(&ctx.http, serenity::RoleId::new(rid))
+                    .add_role(&ctx.http, serenity::RoleId::new(*rid))
                     .await;
             }
+        } else if let Some(rid) = join_roles.first() {
+            let _ = new_member
+                .add_role(&ctx.http, serenity::RoleId::new(*rid))
+                .await;
         }
         // Invite attribution (mirrors joinMessage invite tracker):
         // diff live invite uses against the cache to find the inviter.
+        // The winner is kept for the join message inviter slots below.
+        let mut attributed: Option<(u64, String, String)> = None;
         if let Ok(live) = new_member.guild_id.invites(&ctx.http).await {
             let mut cache = self.invites.lock().await;
             let entry = cache.entry(gid.clone()).or_default();
@@ -417,6 +1254,7 @@ impl serenity::EventHandler for Handler {
                 if inv.uses > cached {
                     if let Some(inviter) = inv.inviter.as_ref() {
                         let inviter_id = inviter.id.get();
+                        attributed = Some((inviter_id, inv.code.clone(), inviter.name.clone()));
                         entry.insert(inv.code.clone(), (inv.uses, inviter_id));
                         // Credit: invites+1, regular+1, record BY.
                         let stats = crate::commands::invitesmanager::load_invites(
@@ -455,7 +1293,33 @@ impl serenity::EventHandler for Handler {
                 );
             }
         }
-        // Guild blacklist gate (mirrors blacklistFetcher.ts).
+        // Guild blacklist gate (mirrors blacklistFetcher.ts): the global
+        // BLACKLIST.<uid> table carries a reason; DM it, then ban.
+        if let Some(reason) = crate::db::kv_get(
+            &self.pool,
+            "0",
+            &crate::commands::owner::blacklist_key(new_member.user.id.get()),
+        )
+        .await
+        {
+            let lang_code =
+                crate::db::guild_lang(&self.pool, Some(new_member.guild_id.get())).await;
+            let dm = crate::lang::get(&lang_code, "global_blacklist_msg_to_send")
+                .unwrap_or_default()
+                .replace("${data.reason}", &reason);
+            let _ = new_member
+                .user
+                .direct_message(&ctx.http, serenity::CreateMessage::new().content(dm))
+                .await;
+            let ban_reason = crate::lang::get(&lang_code, "global_blacklist_reason")
+                .unwrap_or_default()
+                .replace("${data.reason}", &reason);
+            let _ = new_member
+                .guild_id
+                .ban_with_reason(&ctx.http, new_member.user.id, 0, &ban_reason)
+                .await;
+            return;
+        }
         if crate::db::kv_get(
             &self.pool,
             &gid,
@@ -496,11 +1360,40 @@ impl serenity::EventHandler for Handler {
                 }
             }
         }
-        // Join DM (text template).
-        if let Some(dm) = crate::db::kv_get(&self.pool, &gid, "GUILD.JOIN_DM").await {
+        // Join DM (mirrors joinDm.ts: blob joindm template, legacy
+        // GUILD.JOIN_DM fallback, "off" disables; rendered preview +
+        // disabled "Message from <guild id>" button, keeping the TS quirk).
+        if let Some(tpl) = crate::events::join_dm_template(&self.pool, &gid).await {
+            let count = ctx
+                .cache
+                .guild(new_member.guild_id)
+                .map(|g| g.member_count)
+                .unwrap_or(0);
+            let guild_name = ctx
+                .cache
+                .guild(new_member.guild_id)
+                .map(|g| g.name.clone())
+                .unwrap_or_else(|| "this server".to_string());
+            let text = crate::events::render_join_dm(
+                &tpl,
+                &new_member.user.name,
+                &new_member.user.mention().to_string(),
+                count,
+                &guild_name,
+            );
+            let button = serenity::CreateButton::new("join-dm-from-server")
+                .label(format!("Message from {}", new_member.guild_id.get()))
+                .style(serenity::ButtonStyle::Secondary)
+                .disabled(true);
+            let row = serenity::CreateActionRow::Buttons(vec![button]);
             let _ = new_member
                 .user
-                .direct_message(&ctx.http, serenity::CreateMessage::new().content(dm))
+                .direct_message(
+                    &ctx.http,
+                    serenity::CreateMessage::new()
+                        .content(text)
+                        .components(vec![row]),
+                )
                 .await;
         }
         // Welcome message (text template; image variant pending html2png).
@@ -516,36 +1409,191 @@ impl serenity::EventHandler for Handler {
                             .guild(new_member.guild_id)
                             .map(|g| g.member_count)
                             .unwrap_or(0);
-                        let text = crate::events::render_welcome(
-                            tpl,
-                            &new_member.user.mention().to_string(),
-                            "this server",
-                            count,
+                        // Attributed inviter display (mirrors the joinMessage
+                        // inviterUsername/inviterMention slots incl. the
+                        // custom-vanity variant; TS literal defaults kept
+                        // when unattributed).
+                        let (inv_name, inv_mention) = match &attributed {
+                            Some((iid, code, uname)) => {
+                                let raw = crate::db::kv_get(&self.pool, "0", "api.VANITY").await;
+                                let table: Option<serde_json::Value> =
+                                    raw.and_then(|s| serde_json::from_str(&s).ok());
+                                let bot_id = ctx.cache.current_user().id.get();
+                                let vanity = crate::events::custom_vanity_code(
+                                    table.as_ref(),
+                                    &gid,
+                                    code,
+                                    bot_id,
+                                    *iid,
+                                );
+                                crate::events::inviter_display(
+                                    vanity.as_deref(),
+                                    uname,
+                                    &format!("<@{iid}>"),
+                                )
+                            }
+                            None => ("unknow_user".to_string(), "@unknow_user".to_string()),
+                        };
+                        let text = crate::events::render_inviter_slots(
+                            &crate::events::render_welcome(
+                                tpl,
+                                &new_member.user.mention().to_string(),
+                                "this server",
+                                count,
+                            ),
+                            &inv_name,
+                            &inv_mention,
                         );
                         let _ = serenity::ChannelId::new(ch_id).say(&ctx.http, text).await;
                     }
                 }
             }
         }
-        // Mirrors rolesaver/onMemberJoin.ts: restore snapshot roles.
-        if let Some(raw) = crate::db::kv_get(
-            &self.pool,
-            &gid,
-            &format!("ROLESAVER.{}", new_member.user.id.get()),
-        )
-        .await
+        // Mirrors rolesaver/onMemberJoin.ts: restore snapshot roles
+        // (replace semantics) when enabled, then drop the row.
+        if crate::commands::newfeatures::load_rolesaver_cfg(&self.pool, &gid)
+            .await
+            .enabled
         {
-            let roles: Vec<String> = serde_json::from_str(&raw).unwrap_or_default();
-            for r in roles.iter().filter_map(|s| s.parse::<u64>().ok()) {
-                let _ = new_member
-                    .add_role(&ctx.http, serenity::RoleId::new(r))
+            let key = format!("ROLE_SAVER.{}", new_member.user.id.get());
+            if let Some(raw) = crate::db::kv_get(&self.pool, &gid, &key).await {
+                let roles: Vec<String> = serde_json::from_str(&raw).unwrap_or_default();
+                let want: Vec<serenity::RoleId> = roles
+                    .iter()
+                    .filter_map(|s| s.parse::<u64>().ok())
+                    .map(serenity::RoleId::new)
+                    .collect();
+                // Delta: no audit-log reason in serenity 0.12.
+                for r in want.iter().filter(|r| !new_member.roles.contains(r)) {
+                    let _ = new_member.add_role(&ctx.http, *r).await;
+                }
+                for r in new_member
+                    .roles
+                    .iter()
+                    .filter(|r| r.get() != new_member.guild_id.get() && !want.contains(r))
+                {
+                    let _ = new_member.remove_role(&ctx.http, *r).await;
+                }
+                let _ = sqlx::query("DELETE FROM kv WHERE guild_id = ? AND key_name = ?")
+                    .bind(&gid)
+                    .bind(key)
+                    .execute(&self.pool)
                     .await;
             }
-            let _ = sqlx::query("DELETE FROM kv WHERE guild_id = ? AND key_name = ?")
-                .bind(&gid)
-                .bind(format!("ROLESAVER.{}", new_member.user.id.get()))
-                .execute(&self.pool)
-                .await;
+        }
+        // Ghost-ping watch prime (mirrors ghostPingModule.ts): send the
+        // newcomer's mention into each watch channel, then delete it.
+        for ch in crate::commands::guildconfig::load_ghost(&self.pool, &gid).await {
+            if let Ok(ch_id) = ch.parse::<u64>() {
+                if let Ok(sent) = serenity::ChannelId::new(ch_id)
+                    .say(&ctx.http, format!("<@{}>", new_member.user.id.get()))
+                    .await
+                {
+                    let _ = sent.delete(&ctx.http).await;
+                }
+            }
+        }
+        // Security captcha challenge (mirrors security/onMemberJoin.ts).
+        // The png render is html2png-blocked, so the code goes out as
+        // text; attempts, roles, and the expiry kick all mirror TS.
+        if let Some(raw) = crate::db::kv_get(&self.pool, &gid, "SECURITY").await {
+            if let Ok(cfg) = serde_json::from_str::<serde_json::Value>(&raw) {
+                let disabled = cfg
+                    .get("disable")
+                    .and_then(|d| d.as_bool())
+                    .unwrap_or(false);
+                let ch_id = cfg
+                    .get("channel")
+                    .and_then(|c| c.as_str())
+                    .and_then(|c| c.parse::<u64>().ok());
+                if !disabled {
+                    if let Some(ch_id) = ch_id {
+                        let lang_code =
+                            crate::db::guild_lang(&self.pool, Some(new_member.guild_id.get()))
+                                .await;
+                        let text = |k: &str| crate::lang::get(&lang_code, k).unwrap_or_default();
+                        let code = security_code();
+                        let expires = crate::commands::context::now_ms() / 1000 + 150;
+                        let emoji = crate::emojis::app_emoji_markup(&ctx.http, "Schedule")
+                            .await
+                            .unwrap_or_default();
+                        let content = format!(
+                            "{}\n\n`{code}`\n\n{}\n-# {}",
+                            text("event_security")
+                                .replace("${member}", &format!("<@{}>", new_member.user.id.get())),
+                            text("event_security_expiry")
+                                .replace("${timestamp}", &format!("<t:{expires}:R>"))
+                                .replace("${attempts}", "3")
+                                .replace("{emoji}", &emoji),
+                            text("event_security_footer"),
+                        );
+                        if let Ok(sent) = serenity::ChannelId::new(ch_id)
+                            .send_message(
+                                &ctx.http,
+                                serenity::CreateMessage::new().content(content),
+                            )
+                            .await
+                        {
+                            let role = cfg
+                                .get("role")
+                                .and_then(|r| r.as_str())
+                                .and_then(|r| r.parse::<u64>().ok());
+                            let role2 = cfg
+                                .get("role2")
+                                .and_then(|r| r.as_str())
+                                .and_then(|r| r.parse::<u64>().ok());
+                            let key =
+                                security_key(new_member.guild_id.get(), new_member.user.id.get());
+                            let joined_at = new_member.joined_at.map(|t| t.unix_timestamp());
+                            self.security.lock().await.insert(
+                                key.clone(),
+                                SecurityChallenge {
+                                    channel_id: ch_id,
+                                    message_id: sent.id.get(),
+                                    user_id: new_member.user.id.get(),
+                                    code,
+                                    attempts_left: 3,
+                                    role,
+                                    role2,
+                                    joined_at,
+                                },
+                            );
+                            // Expiry sweep (mirrors the collector "end" leg).
+                            let http = ctx.http.clone();
+                            let pool = self.pool.clone();
+                            let security = self.security.clone();
+                            let guild_id = new_member.guild_id;
+                            let user_id = new_member.user.id;
+                            tokio::spawn(async move {
+                                tokio::time::sleep(std::time::Duration::from_secs(150)).await;
+                                let taken = security.lock().await.remove(&key);
+                                if let Some(ch) = taken {
+                                    let lang_code =
+                                        crate::db::guild_lang(&pool, Some(guild_id.get())).await;
+                                    let kick_reason =
+                                        crate::lang::get(&lang_code, "event_security_kick_reason")
+                                            .unwrap_or_default();
+                                    if let Ok(member) = guild_id.member(&http, user_id).await {
+                                        let same_join =
+                                            member.joined_at.map(|t| t.unix_timestamp())
+                                                == ch.joined_at;
+                                        if member.joined_at.is_none() || same_join {
+                                            let _ =
+                                                member.kick_with_reason(&http, &kick_reason).await;
+                                        }
+                                    }
+                                    let _ = serenity::ChannelId::new(ch.channel_id)
+                                        .delete_message(
+                                            &http,
+                                            serenity::MessageId::new(ch.message_id),
+                                        )
+                                        .await;
+                                }
+                            });
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -577,11 +1625,14 @@ impl serenity::EventHandler for Handler {
                         "kickmember",
                     )
                     .await;
-                    self.server_log(
+                    // Rich audit embed (mirrors logs/kickLogs.ts).
+                    self.mod_audit_log(
                         &ctx,
-                        &guild_id.get().to_string(),
-                        "moderation",
-                        format!("Kicked {}.", user.tag()),
+                        guild_id,
+                        Action::Member(MemberAction::Kick),
+                        "event_srvLogs_guildMemberRemove_description",
+                        user.id.get(),
+                        None,
                     )
                     .await;
                 }
@@ -624,21 +1675,88 @@ impl serenity::EventHandler for Handler {
                 }
             }
         }
-        // Mirrors rolesaver/onMemberLeave.ts: snapshot roles (gated).
-        if !crate::commands::newfeatures::rolesaver_enabled(&self.pool, &gid).await {
+        // Mirrors rolesaver/onMemberLeave.ts: snapshot roles when
+        // enabled (skips @everyone + admin roles on opt-out).
+        let rs_cfg = crate::commands::newfeatures::load_rolesaver_cfg(&self.pool, &gid).await;
+        if rs_cfg.enabled {
             if let Some(m) = member {
-                let roles = crate::events::snapshot_roles(
-                    &m.roles.iter().map(|r| r.get()).collect::<Vec<_>>(),
-                    guild_id.get(),
-                );
+                let admin_of: std::collections::HashMap<u64, bool> = ctx
+                    .cache
+                    .guild(guild_id)
+                    .map(|g| {
+                        g.roles
+                            .iter()
+                            .map(|(id, r)| (id.get(), r.permissions.administrator()))
+                            .collect()
+                    })
+                    .unwrap_or_default();
+                let flagged: Vec<(u64, bool)> = m
+                    .roles
+                    .iter()
+                    .map(|r| (r.get(), admin_of.get(&r.get()).copied().unwrap_or(false)))
+                    .collect();
+                let roles =
+                    crate::events::snapshot_roles(&flagged, guild_id.get(), rs_cfg.skip_admin);
                 let _ = crate::db::kv_set(
                     &self.pool,
                     &gid,
-                    &format!("ROLESAVER.{}", user.id.get()),
+                    &format!("ROLE_SAVER.{}", user.id.get()),
                     &serde_json::to_string(&roles).unwrap_or_default(),
                 )
                 .await;
             }
+        }
+        // Ticket cleanup on leave (mirrors deleteTicketOnLeave.ts):
+        // transcript + log each of the leaver's tickets, delete the
+        // channels, then drop their TICKET_ALL rows.
+        let ticket_rows: Vec<String> = sqlx::query_scalar(
+            "SELECT key_name FROM kv WHERE guild_id = ? AND key_name LIKE 'TICKET_ALL.' || ? || '.%'",
+        )
+        .bind(&gid)
+        .bind(user.id.get().to_string())
+        .fetch_all(&self.pool)
+        .await
+        .unwrap_or_default();
+        if !ticket_rows.is_empty() {
+            let lang_code = crate::db::guild_lang(&self.pool, Some(guild_id.get())).await;
+            let actor = format!("<@{}>", user.id.get());
+            for key in &ticket_rows {
+                if let Some(ch_str) = key.rsplit('.').next() {
+                    if let Ok(ch_id) = ch_str.parse::<u64>() {
+                        let channel_id = serenity::ChannelId::new(ch_id);
+                        let name = channel_id
+                            .to_channel(&ctx.http)
+                            .await
+                            .ok()
+                            .and_then(|c| c.guild().map(|g| g.name.clone()))
+                            .unwrap_or_default();
+                        let _ = crate::commands::ticket::close_ticket_channel(
+                            &ctx.http,
+                            &self.pool,
+                            crate::commands::ticket::TicketCloseSpec {
+                                gid: &gid,
+                                lang_code: &lang_code,
+                                channel_id,
+                                title_key: "event_ticket_logsChannel_onDelete_embed_title",
+                                desc_key: "event_ticket_logsChannel_onDelete_embed_desc",
+                                replacements: &[
+                                    ("${interaction.user}", &actor),
+                                    ("${interaction.channel.name}", &format!("#{name}")),
+                                ],
+                                colour: 0x008000_u32,
+                            },
+                        )
+                        .await;
+                    }
+                }
+            }
+            let _ = sqlx::query(
+                "DELETE FROM kv WHERE guild_id = ? AND key_name LIKE 'TICKET_ALL.' || ? || '.%'",
+            )
+            .bind(&gid)
+            .bind(user.id.get().to_string())
+            .execute(&self.pool)
+            .await;
         }
         tracing::debug!("memberLeave {} user {}", gid, user.id.get());
     }
@@ -674,6 +1792,60 @@ impl serenity::EventHandler for Handler {
         let Some(guild_id) = msg.guild_id else { return };
         let gid = guild_id.get().to_string();
         let ch_id = msg.channel_id.get().to_string();
+        // Embed-builder awaited input (mirrors the handleCollector
+        // message collectors in utils !embed.ts). The input still
+        // flows through normal processing below, like TS.
+        if crate::db::kv_get(
+            &self.pool,
+            &gid,
+            &crate::commands::embed::await_key(msg.author.id.get()),
+        )
+        .await
+        .is_some()
+        {
+            let guild_name = guild_id
+                .to_partial_guild(&_ctx.http)
+                .await
+                .map(|g| g.name)
+                .unwrap_or_else(|_| "this server".to_string());
+            crate::commands::embed::handle_builder_input(
+                &_ctx.http,
+                &self.pool,
+                &gid,
+                &guild_name,
+                &msg,
+            )
+            .await;
+        }
+        // Allowlist lazy seed (mirrors createAllowlistOnMessage.ts):
+        // first observed message creates the owner entry.
+        if !msg.author.bot {
+            let seeded: bool = sqlx::query_scalar(
+                "SELECT COUNT(*) FROM kv WHERE guild_id = ? AND key_name LIKE 'ALLOWLIST.list.%'",
+            )
+            .bind(&gid)
+            .fetch_one(&self.pool)
+            .await
+            .map(|n: i64| n > 0)
+            .unwrap_or(true);
+            if !seeded {
+                if let Ok(owner) = guild_id
+                    .to_partial_guild(&_ctx.http)
+                    .await
+                    .map(|g| g.owner_id.get().to_string())
+                {
+                    let _ = crate::db::kv_set(
+                        &self.pool,
+                        &gid,
+                        &format!("ALLOWLIST.list.{owner}"),
+                        r#"{"allowed":true}"#,
+                    )
+                    .await;
+                }
+            }
+        }
+        // Security captcha answers (mirrors the onMemberJoin collector).
+        self.security_answer(&_ctx, &msg).await;
         // Custom automod enforcement (link/invite/telegram/mass-mention).
         {
             let content = &msg.content;
@@ -710,13 +1882,28 @@ impl serenity::EventHandler for Handler {
                 &gid,
                 msg.author.id.get(),
                 msg.channel_id.get(),
+                msg.content.len() as u64,
+                msg.timestamp.unix_timestamp() * 1000,
             )
             .await;
             if leveled {
                 // Level-up message (template or default).
-                let tpl = crate::db::kv_get(&self.pool, &gid, "GUILD.RANKS.message")
-                    .await
-                    .unwrap_or_else(|| "Level up! {user} is now level {level}.".to_string());
+                // Mirrors ranks/onNewMessage.ts: GUILD.RANKS.message
+                // template, else the event_xp_level_earn lang key.
+                let stored_tpl = crate::db::kv_get(&self.pool, &gid, "GUILD.RANKS.message").await;
+                let tpl = match stored_tpl {
+                    Some(t) => t,
+                    None => {
+                        let lang_code =
+                            crate::db::guild_lang(&self.pool, Some(guild_id.get())).await;
+                        crate::lang::get(&lang_code, "event_xp_level_earn")
+                            .map(|s| {
+                                s.replace("{memberMention}", &msg.author.mention().to_string())
+                                    .replace("{xpLevel}", &level.to_string())
+                            })
+                            .unwrap_or_else(|| "Level up! {user} is now level {level}.".to_string())
+                    }
+                };
                 let text = tpl
                     .replace("{user}", &msg.author.mention().to_string())
                     .replace("{level}", &level.to_string());
@@ -853,18 +2040,22 @@ impl serenity::EventHandler for Handler {
         if autoreact_on {
             Self::autoreact_emit(&self.pool, &_ctx.http, &gid, &msg).await;
         }
-        // Mirrors Events/sticky/onNewMessage.ts: repost text sticky.
-        // Mirrors Events/sticky/onNewMessage.ts: repost text sticky.
-        if let Some(raw) = crate::db::kv_get(
-            &self.pool,
-            &gid,
-            &crate::commands::sticky::sticky_key(msg.channel_id.get()),
-        )
-        .await
-        {
-            if let Ok(cfg) = serde_json::from_str::<crate::commands::sticky::StickyConfig>(&raw) {
-                if !cfg.message.is_empty() && cfg.embed_id.is_none() {
-                    let _ = msg.channel_id.say(&_ctx.http, cfg.message.clone()).await;
+        // Mirrors Events/sticky/onNewMessage.ts: 5s debounced
+        // repost of the enabled sticky (bot/webhook messages skip).
+        if !msg.author.bot && msg.webhook_id.is_none() {
+            if let Some(guild_id) = msg.guild_id {
+                if crate::commands::sticky::load_sticky(&self.pool, &gid, msg.channel_id.get())
+                    .await
+                    .is_some()
+                {
+                    crate::commands::sticky::schedule_refresh(
+                        _ctx.http.clone(),
+                        _ctx.cache.clone(),
+                        self.pool.clone(),
+                        gid.clone(),
+                        guild_id,
+                        msg.channel_id,
+                    );
                 }
             }
         }
@@ -911,11 +2102,38 @@ impl serenity::EventHandler for Handler {
         }
         // Mirrors Events/utils/autoFeur.ts + antiExe.ts + custom reacts.
         {
+            use crate::commands::legacy;
             let raw = crate::db::kv_get(&self.pool, &gid, "UTILS.autoFeur").await;
-            if crate::commands::legacy::flag_on(raw)
-                && crate::commands::legacy::is_quoi_bait(&msg.content)
-            {
-                let _ = msg.reply(&_ctx.http, "feur.").await;
+            if legacy::autofeur_on(raw.clone()) {
+                let lang = crate::db::guild_lang(&self.pool, msg.guild_id.map(|g| g.get())).await;
+                if lang == "fr-ME" {
+                    if let Some(reply) = legacy::autofeur_match(&msg.content) {
+                        let now = crate::commands::context::now_ms();
+                        if legacy::autofeur_cooldown_ok(now, msg.author.id.get()) {
+                            let mut text = reply.to_string();
+                            // Promo suffix 1/8 when never configured.
+                            if raw.is_none() && {
+                                use rand::Rng;
+                                rand::thread_rng().gen_range(0..8) == 0
+                            } {
+                                let prefix = crate::db::guild_prefix(
+                                    &self.pool,
+                                    msg.guild_id.map(|g| g.get()),
+                                    "?",
+                                )
+                                .await;
+                                let emoji =
+                                    crate::emojis::app_emoji_markup(&_ctx.http, "VC_OpenChat")
+                                        .await
+                                        .unwrap_or_default();
+                                text += &legacy::autofeur_promo(&emoji, &prefix);
+                            }
+                            let _ = msg.reply(&_ctx.http, text).await;
+                        }
+                    }
+                } else if legacy::is_quoi_bait(&msg.content) {
+                    let _ = msg.reply(&_ctx.http, "feur.").await;
+                }
             }
             let raw = crate::db::kv_get(&self.pool, &gid, "UTILS.antiExe").await;
             if crate::commands::legacy::flag_on(raw) {
@@ -926,26 +2144,151 @@ impl serenity::EventHandler for Handler {
                     return;
                 }
             }
-            let trigger = msg.content.trim().to_ascii_lowercase();
-            if !trigger.is_empty() {
-                if let Some(resp) =
-                    crate::db::kv_get(&self.pool, &gid, &format!("GUILD.REACT_MSG.{trigger}")).await
-                {
-                    let _ = msg.reply(&_ctx.http, resp).await;
+            // Custom + greeting reacts (mirrors
+            // guildconfig/reactToMessage.ts): literal `false` in
+            // GUILD.GUILD_CONFIG.hey_reaction disables; otherwise a
+            // case-insensitive trigger substring earns its emoji react
+            // and a greeting first word earns a wave.
+            let hey_off = crate::db::kv_get(&self.pool, &gid, "GUILD.GUILD_CONFIG.hey_reaction")
+                .await
+                .as_deref()
+                == Some("false");
+            if !hey_off {
+                let lowered = msg.content.to_ascii_lowercase();
+                let triggers: Vec<String> = sqlx::query_scalar(
+                    "SELECT key_name FROM kv WHERE guild_id = ? AND key_name LIKE 'GUILD.REACT_MSG.%'",
+                )
+                .bind(&gid)
+                .fetch_all(&self.pool)
+                .await
+                .unwrap_or_default();
+                for key in triggers {
+                    if let Some(trigger) = key.strip_prefix("GUILD.REACT_MSG.") {
+                        if !trigger.is_empty() && lowered.contains(trigger) {
+                            if let Some(emoji) = crate::db::kv_get(&self.pool, &gid, &key).await {
+                                let _ = msg
+                                    .react(
+                                        &_ctx.http,
+                                        crate::commands::legacy::parse_react_emoji(&emoji),
+                                    )
+                                    .await;
+                            }
+                            break;
+                        }
+                    }
+                }
+                if crate::commands::legacy::is_greeting_word(&msg.content) {
+                    let _ = msg
+                        .react(
+                            &_ctx.http,
+                            serenity::ReactionType::Unicode("👋".to_string()),
+                        )
+                        .await;
                 }
             }
         }
-        // Mirrors Events/github-lines/onNewMessage.ts: unfurl code links.
-        if crate::db::kv_get(&self.pool, &gid, "UTILS.git_lines")
-            .await
-            .as_deref()
-            == Some("1")
-        {
-            for word in msg.content.split_whitespace().take(3) {
-                if let Some(r) = crate::commands::utils::parse_github_link(word) {
-                    if let Some(snippet) = crate::commands::utils::fetch_snippet(&r).await {
-                        let _ = msg.reply(&_ctx.http, snippet).await;
-                        break;
+        // Mirrors Events/github-lines/onNewMessage.ts: unfurl code
+        // links (GitHub/GitLab/Gist) with spam/limit guards.
+        if !msg.author.bot && msg.webhook_id.is_none() {
+            let stored = crate::db::kv_get(&self.pool, &gid, "UTILS.git_lines").await;
+            if crate::commands::utils::github_lines_enabled(stored.as_deref()) {
+                let targets = crate::commands::utils::extract_git_targets(&msg.content);
+                if !targets.is_empty() {
+                    let code =
+                        crate::db::guild_lang(&self.pool, msg.guild_id.map(|g| g.get())).await;
+                    let t = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
+                    let mut items = vec![];
+                    for target in &targets {
+                        if let Some(d) = crate::commands::utils::fetch_git_target(target).await {
+                            items.push(d);
+                        }
+                    }
+                    let total: usize = items.iter().map(|d| d.line_length).sum();
+                    // Shared 5s auto-delete for the guard replies.
+                    let auto_delete =
+                        |sent: serenity::Message, http: std::sync::Arc<serenity::Http>| {
+                            tokio::spawn(async move {
+                                tokio::time::sleep(std::time::Duration::from_secs(5)).await;
+                                let _ = http.delete_message(sent.channel_id, sent.id, None).await;
+                            });
+                        };
+                    if total > 50 {
+                        if let Ok(sent) = msg
+                            .channel_id
+                            .say(&_ctx.http, t("git_lines_avoiding_spam"))
+                            .await
+                        {
+                            auto_delete(sent, _ctx.http.clone());
+                        }
+                    } else {
+                        let joined = items
+                            .iter()
+                            .map(|d| crate::commands::utils::render_block(&d.display, &d.extension))
+                            .collect::<Vec<_>>()
+                            .join("\n");
+                        if joined.is_empty() {
+                            // No resolvable snippet: silent, like botMsg null.
+                        } else if joined.len() >= 2000 {
+                            if let Ok(sent) = msg
+                                .channel_id
+                                .say(&_ctx.http, t("git_lines_avoiding_limit"))
+                                .await
+                            {
+                                auto_delete(sent, _ctx.http.clone());
+                            }
+                        } else {
+                            let mut out = joined;
+                            // Promo upsell on first sight (key absent, 1/8).
+                            if stored.is_none() && rand::random::<u8>().is_multiple_of(8) {
+                                let promo = t("git_lines_borred_warning");
+                                if let Some(chat) =
+                                    crate::emojis::app_emoji_markup(&_ctx.http, "VC_OpenChat").await
+                                {
+                                    out.push_str(
+                                        &promo.replace(
+                                            "${client.iHorizon_Emojis.VC_OpenChat}",
+                                            &chat,
+                                        ),
+                                    );
+                                }
+                            }
+                            if let Ok(sent) = msg.channel_id.say(&_ctx.http, out).await {
+                                // Author-only trash delete (15s, like the TS
+                                // reaction collector); spawned so the event
+                                // handler never blocks.
+                                let http = _ctx.http.clone();
+                                let shard = _ctx.shard.clone();
+                                let author = msg.author.id;
+                                tokio::spawn(async move {
+                                    let trash = serenity::ReactionType::Unicode("🗑️".to_string());
+                                    let _ = sent.react(&http, trash.clone()).await;
+                                    let collected =
+                                        serenity::collector::ReactionCollector::new(&shard)
+                                            .channel_id(sent.channel_id)
+                                            .message_id(sent.id)
+                                            .author_id(author)
+                                            .timeout(std::time::Duration::from_secs(15))
+                                            .next()
+                                            .await;
+                                    match collected {
+                                        Some(r) if r.emoji == trash => {
+                                            let _ = http
+                                                .delete_message(sent.channel_id, sent.id, None)
+                                                .await;
+                                        }
+                                        _ => {
+                                            let _ = http
+                                                .delete_reaction_me(
+                                                    sent.channel_id,
+                                                    sent.id,
+                                                    &trash,
+                                                )
+                                                .await;
+                                        }
+                                    }
+                                });
+                            }
+                        }
                     }
                 }
             }
@@ -1021,6 +2364,9 @@ impl serenity::EventHandler for Handler {
             }
         }
         self.check_punishpub(&_ctx, &gid, &msg).await;
+        // Honeypot trap trigger (debounced two-pass pipeline).
+        // Mirrors honeypotManager scheduleHoneypotTrigger.
+        crate::commands::honeypot::schedule_trap(&_ctx, &self.pool, &msg);
     }
 
     async fn message_delete(
@@ -1061,17 +2407,95 @@ impl serenity::EventHandler for Handler {
                 &deleted_message_id.get().to_string(),
             )
             .await;
-            self.server_log(
-                &ctx,
+            // Drop any ticket-panel marker bound to the deleted message
+            // (mirrors deleteTicketPanelOnMessageDelete.ts).
+            let _ = crate::db::kv_del(
+                &self.pool,
                 &gid,
-                "message",
-                format!(
-                    "Message {} deleted in <#{}>.",
-                    deleted_message_id.get(),
-                    channel_id.get()
-                ),
+                &format!("GUILD.TICKET.{}", deleted_message_id.get()),
             )
             .await;
+            // Rich delete log (mirrors logs/messageDeleteLogs.ts):
+            // #010101 embed with author + content from the message
+            // cache, attachments re-uploaded; silent on cache miss.
+            // The bot's own messages are skipped, like TS.
+            // Owned snapshot first: the cache guard is not Send and
+            // must drop before any await.
+            let snap: Option<(u64, String, String, String, Vec<(String, String, String)>)> = ctx
+                .cache
+                .message(channel_id, deleted_message_id)
+                .map(|cached| {
+                    (
+                        cached.author.id.get(),
+                        cached.author.name.clone(),
+                        cached.author.avatar_url().unwrap_or_default(),
+                        cached.content.clone(),
+                        cached
+                            .attachments
+                            .iter()
+                            .take(5)
+                            .map(|a| {
+                                (
+                                    a.url.clone(),
+                                    a.filename.clone(),
+                                    a.content_type.clone().unwrap_or_default(),
+                                )
+                            })
+                            .collect(),
+                    )
+                });
+            if let Some((author_id, author_name, avatar, content, attachments)) = snap {
+                if author_id != ctx.cache.current_user().id.get() {
+                    let logs_ch: Option<u64> =
+                        crate::db::kv_get(&self.pool, &gid, "GUILD.SERVER_LOGS.message")
+                            .await
+                            .and_then(|s| s.parse().ok());
+                    if let Some(logs_ch) = logs_ch {
+                        let lang_code =
+                            crate::db::guild_lang(&self.pool, Some(gid.parse().unwrap_or(0))).await;
+                        let text = |k: &str| crate::lang::get(&lang_code, k).unwrap_or_default();
+                        let desc = text("event_srvLogs_messageDelete_description")
+                            .replace("${message.channel.id}", &channel_id.get().to_string())
+                            .replace("${message.content}", &format!(" {content}"));
+                        let mut embed = serenity::CreateEmbed::default()
+                            .colour(0x010101_u32)
+                            .author(serenity::CreateEmbedAuthor::new(author_name).icon_url(avatar))
+                            .description(desc)
+                            .timestamp(serenity::Timestamp::now());
+                        let mut files = vec![];
+                        if attachments.len() == 1 && attachments[0].2.starts_with("image/") {
+                            if let Some(bytes) =
+                                crate::commands::botcat::download_bytes(&attachments[0].0).await
+                            {
+                                files.push(serenity::CreateAttachment::bytes(
+                                    bytes,
+                                    "sniped-image-by-ihorizon.png",
+                                ));
+                                embed = embed.image("attachment://sniped-image-by-ihorizon.png");
+                            }
+                        } else {
+                            for (url, filename, _) in &attachments {
+                                if let Some(bytes) =
+                                    crate::commands::botcat::download_bytes(url).await
+                                {
+                                    files.push(serenity::CreateAttachment::bytes(
+                                        bytes,
+                                        filename.clone(),
+                                    ));
+                                }
+                            }
+                        }
+                        let _ = serenity::ChannelId::new(logs_ch)
+                            .send_message(
+                                &ctx.http,
+                                serenity::CreateMessage::new().embed(embed).files(files),
+                            )
+                            .await;
+                    }
+                }
+            }
+            // Cache miss: TS messageDeleteLogs.ts reads the message
+            // from cache and stays silent without it — no fallback.
         }
     }
 
@@ -1082,25 +2506,67 @@ impl serenity::EventHandler for Handler {
         new: Option<serenity::Message>,
         _event: serenity::MessageUpdateEvent,
     ) {
-        // Mirrors logs/messageUpdateLogs.ts: diff logging.
+        // Rich edit log (mirrors logs/messageUpdateLogs.ts): #010101
+        // embed with author, jump link, Before/After fields (or the
+        // ```diff block past 160 chars). Bots and empty contents
+        // are skipped, like TS.
         if let (Some(old), Some(new)) = (old, new) {
-            if old.content != new.content {
-                if let Some(gid) = new.guild_id {
-                    let before: String = old.content.chars().take(500).collect();
-                    let after: String = new.content.chars().take(500).collect();
-                    self.server_log(
-                        &ctx,
-                        &gid.get().to_string(),
-                        "message",
-                        format!(
-                            "Edited by {} in <#{}>:\n- {before}\n+ {after}",
-                            new.author.tag(),
-                            new.channel_id.get()
-                        ),
-                    )
-                    .await;
-                }
+            if new.author.bot || old.content.is_empty() || new.content.is_empty() {
+                return;
             }
+            if old.content == new.content {
+                return;
+            }
+            let Some(gid) = new.guild_id else {
+                return;
+            };
+            let gid = gid.get().to_string();
+            let logs_ch: Option<u64> =
+                crate::db::kv_get(&self.pool, &gid, "GUILD.SERVER_LOGS.message")
+                    .await
+                    .and_then(|s| s.parse().ok());
+            let Some(logs_ch) = logs_ch else {
+                return;
+            };
+            let lang_code = crate::db::guild_lang(&self.pool, new.guild_id.map(|g| g.get())).await;
+            let text = |k: &str| crate::lang::get(&lang_code, k).unwrap_or_default();
+            let jump = format!(
+                "(https://discord.com/channels/{}/{}/{})",
+                gid,
+                new.channel_id.get(),
+                new.id.get()
+            );
+            let desc = text("event_srvLogs_messageUpdate_description")
+                .replace("${oldMessage.channelId}", &new.channel_id.get().to_string())
+                .replace("(xxx)", &jump);
+            let avatar = new.author.avatar_url().unwrap_or_default();
+            let mut embed = serenity::CreateEmbed::default()
+                .colour(0x010101_u32)
+                .author(serenity::CreateEmbedAuthor::new(new.author.name.clone()).icon_url(avatar))
+                .description(desc)
+                .timestamp(serenity::Timestamp::now());
+            if old.content.len() > 160 || new.content.len() > 160 {
+                embed = embed.field(
+                    text("var_message"),
+                    crate::events::message_diff(&old.content, &new.content),
+                    false,
+                );
+            } else {
+                embed = embed
+                    .field(
+                        text("event_srvLogs_messageUpdate_footer_1"),
+                        old.content.clone(),
+                        false,
+                    )
+                    .field(
+                        text("event_srvLogs_messageUpdate_footer_2"),
+                        new.content.clone(),
+                        false,
+                    );
+            }
+            let _ = serenity::ChannelId::new(logs_ch)
+                .send_message(&ctx.http, serenity::CreateMessage::new().embed(embed))
+                .await;
         }
     }
 
@@ -1118,21 +2584,30 @@ impl serenity::EventHandler for Handler {
             .duration_since(std::time::UNIX_EPOCH)
             .map(|d| d.as_millis() as i64)
             .unwrap_or(0);
+        // Rich voice log (mirrors logs/voiceLogs.ts).
+        self.voice_state_log(&ctx, &gid, old.as_ref(), &new).await;
         // Session tracking (mirrors stats/onVoiceUpdate.ts + economy coins).
         match (old.as_ref().and_then(|o| o.channel_id), new.channel_id) {
             (old_ch, Some(new_ch)) if old_ch != Some(new_ch) => {
-                crate::events::voice_join(&self.pool, &gid, new.user_id.get(), now).await;
-                // Voice logs (join/move/leave).
-                let verb = if old_ch.is_none() {
-                    "joined"
-                } else {
-                    "moved to"
-                };
-                self.server_log(
-                    &ctx,
+                // Boost from shop roles (mirrors getMemberBoost in
+                // processSessionEnd, also applied on move).
+                let roles: Vec<u64> = guild_id
+                    .member(&ctx.http, new.user_id)
+                    .await
+                    .map(|m| m.roles.iter().map(|r| r.get()).collect())
+                    .unwrap_or_default();
+                let shop_raw = crate::db::kv_get(&self.pool, &gid, "ECONOMY.buyableRoles")
+                    .await
+                    .unwrap_or_default();
+                let boost = crate::commands::economy::member_boost(&shop_raw, &roles).max(1) as u64;
+                crate::events::voice_switch(
+                    &self.pool,
                     &gid,
-                    "voice",
-                    format!("<@{}> {verb} <#{}>.", new.user_id.get(), new_ch.get()),
+                    new.user_id.get(),
+                    new_ch.get(),
+                    now,
+                    boost,
+                    true,
                 )
                 .await;
                 // Leash follow (mirrors leashModule.ts): drag followers along.
@@ -1180,7 +2655,15 @@ impl serenity::EventHandler for Handler {
                         .filter(|t| !t.trim().is_empty());
                         let title = match tpl {
                             Some(t) => t.replace("{user}", &name),
-                            None => crate::events::temp_channel_name(&name),
+                            None => {
+                                let lang_code =
+                                    crate::db::guild_lang(&self.pool, Some(guild_id.get())).await;
+                                crate::events::temp_channel_name_in(
+                                    &name,
+                                    crate::lang::get(&lang_code, "temporary_voice_channel_name")
+                                        .as_deref(),
+                                )
+                            }
                         };
                         let builder =
                             serenity::CreateChannel::new(title).kind(serenity::ChannelType::Voice);
@@ -1210,24 +2693,29 @@ impl serenity::EventHandler for Handler {
                 }
             }
             (Some(_), None) => {
-                self.server_log(
-                    &ctx,
-                    &gid,
-                    "voice",
-                    format!("<@{}> left voice.", new.user_id.get()),
-                )
-                .await;
-                // Boost from shop roles (mirrors getMemberBoost).
-                let roles: Vec<u64> = guild_id
-                    .member(&ctx.http, new.user_id)
-                    .await
-                    .map(|m| m.roles.iter().map(|r| r.get()).collect())
-                    .unwrap_or_default();
+                // Member gate (mirrors `newState.member` in processSessionEnd):
+                // a user who left the guild earns nothing. Roles prefer the
+                // event member, falling back to a fetch.
+                let (roles, present) = match new.member.as_ref() {
+                    Some(m) => (m.roles.iter().map(|r| r.get()).collect(), true),
+                    None => match guild_id.member(&ctx.http, new.user_id).await {
+                        Ok(m) => (m.roles.iter().map(|r| r.get()).collect(), true),
+                        Err(_) => (vec![], false),
+                    },
+                };
                 let shop_raw = crate::db::kv_get(&self.pool, &gid, "ECONOMY.buyableRoles")
                     .await
                     .unwrap_or_default();
                 let boost = crate::commands::economy::member_boost(&shop_raw, &roles).max(1) as u64;
-                crate::events::voice_leave(&self.pool, &gid, new.user_id.get(), now, boost).await;
+                crate::events::voice_leave(
+                    &self.pool,
+                    &gid,
+                    new.user_id.get(),
+                    now,
+                    boost,
+                    present,
+                )
+                .await;
             }
             _ => {}
         }
@@ -1298,73 +2786,65 @@ impl serenity::EventHandler for Handler {
     }
 
     async fn reaction_add(&self, ctx: serenity::Context, add: serenity::Reaction) {
-        // Mirrors reactionrole/onReactAdd.ts + starboard/onNewReact.ts.
+        // Mirrors reactionrole/onReactAdd.ts (toggle) + starboard/onNewReact.ts.
         let Some(guild_id) = add.guild_id else { return };
         let Some(user_id) = add.user_id else { return };
-        let gid = guild_id.get().to_string();
-        let emoji = match &add.emoji {
-            serenity::ReactionType::Unicode(u) => u.clone(),
-            serenity::ReactionType::Custom { id, .. } => id.get().to_string(),
-            _ => return,
-        };
-        let key = format!("GUILD.REACTION_ROLES.{}.{}", add.message_id.get(), emoji);
-        if let Some(role_id) = crate::db::kv_get(&self.pool, &gid, &key).await {
-            if let Ok(role_id) = role_id.parse::<u64>() {
-                if let Ok(member) = guild_id.member(&ctx.http, user_id).await {
-                    let _ = member
-                        .add_role(&ctx.http, serenity::RoleId::new(role_id))
-                        .await;
+        // The bot's own seeded reactions never trigger toggles.
+        if user_id != ctx.cache.current_user().id {
+            if let Some(role_id) = crate::commands::rolereactions::lookup_reaction_role(
+                &self.pool,
+                &guild_id.get().to_string(),
+                add.message_id.get(),
+                &add.emoji,
+            )
+            .await
+            {
+                // Missing roles are skipped (cache first, fetch fallback).
+                let mut roles = ctx.cache.guild(guild_id).map(|g| g.roles.clone());
+                if roles
+                    .as_ref()
+                    .map(|m| m.contains_key(&role_id))
+                    .unwrap_or(false)
+                    || guild_id
+                        .roles(&ctx.http)
+                        .await
+                        .map(|m| {
+                            let hit = m.contains_key(&role_id);
+                            roles = Some(m);
+                            hit
+                        })
+                        .unwrap_or(false)
+                {
+                    if let Ok(member) = guild_id.member(&ctx.http, user_id).await {
+                        // Toggle, like the TS has/remove legs (no audit
+                        // reason in serenity 0.12).
+                        if member.roles.contains(&role_id) {
+                            let _ = member.remove_role(&ctx.http, role_id).await;
+                        } else {
+                            let _ = member.add_role(&ctx.http, role_id).await;
+                        }
+                    }
                 }
             }
         }
-        // Mirrors starboard/skullboard onNewReact.ts: post once threshold hit.
-        for (board_name, star_emoji, data_prefix) in [
-            ("starboard", "⭐", "STARBOARD_DATA"),
-            ("skullboard", "💀", "SKULLBOARD_DATA"),
-        ] {
-            let board = crate::commands::starboard::load_board(&self.pool, &gid, board_name).await;
-            if board.enabled == "yes" && !board.channel.is_empty() {
-                if let Ok(channel) = add.channel(&ctx.http).await {
-                    if let Ok(message) = channel.id().message(&ctx.http, add.message_id).await {
-                        let stars = message
-                            .reactions
-                            .iter()
-                            .filter(|r| {
-                                r.reaction_type
-                                    == serenity::ReactionType::Unicode(star_emoji.to_string())
-                            })
-                            .map(|r| r.count as i64)
-                            .sum::<i64>();
-                        if stars >= board.threshold {
-                            let marker = format!("{data_prefix}.{}", add.message_id.get());
-                            if crate::db::kv_get(&self.pool, &gid, &marker).await.is_none() {
-                                let url = format!(
-                                    "https://discord.com/channels/{}/{}/{}",
-                                    gid,
-                                    message.channel_id.get(),
-                                    message.id.get()
-                                );
-                                let embed = serenity::CreateEmbed::default()
-                                    .description(message.content.clone())
-                                    .field("Author", message.author.tag(), true)
-                                    .field("Stars", stars.to_string(), true)
-                                    .field("Jump", url, false);
-                                if let Ok(ch_id) = board.channel.parse::<u64>() {
-                                    let ch = serenity::ChannelId::new(ch_id);
-                                    if ch
-                                        .send_message(
-                                            &ctx.http,
-                                            serenity::CreateMessage::new().embed(embed),
-                                        )
-                                        .await
-                                        .is_ok()
-                                    {
-                                        let _ =
-                                            crate::db::kv_set(&self.pool, &gid, &marker, "1").await;
-                                    }
-                                }
-                            }
-                        }
+        // Mirrors starboard/skullboard onNewReact.ts (rich post/edit +
+        // DATA entries + threads). Independent of the role handler.
+        if let serenity::ReactionType::Unicode(emoji) = &add.emoji {
+            if emoji == "⭐" || emoji == "💀" {
+                let reactor_bot = ctx.cache.user(user_id).map(|u| u.bot).unwrap_or(false);
+                if !reactor_bot {
+                    if let Some((message, count)) =
+                        board_source_message(&ctx, &add, emoji, add.message_id).await
+                    {
+                        board_reaction_add(
+                            &self.pool,
+                            &ctx,
+                            guild_id.get(),
+                            emoji,
+                            &message,
+                            count,
+                        )
+                        .await;
                     }
                 }
             }
@@ -1372,36 +2852,54 @@ impl serenity::EventHandler for Handler {
     }
 
     async fn reaction_remove(&self, ctx: serenity::Context, removed: serenity::Reaction) {
-        // Mirrors reactionrole/onReactRemove.ts.
+        // Mirrors reactionrole/onReactRemove.ts (name-key lookup in
+        // both legs, like the TS duplicate).
+        if let (Some(guild_id), Some(user_id)) = (removed.guild_id, removed.user_id) {
+            if user_id != ctx.cache.current_user().id {
+                let name = match &removed.emoji {
+                    serenity::ReactionType::Unicode(u) => u.clone(),
+                    serenity::ReactionType::Custom { name, .. } => name.clone().unwrap_or_default(),
+                    _ => String::new(),
+                };
+                if !name.is_empty() {
+                    let gid = guild_id.get().to_string();
+                    let key = format!("GUILD.REACTION_ROLES.{}.{}", removed.message_id.get(), name);
+                    if let Some(role_id) = crate::db::kv_get(&self.pool, &gid, &key)
+                        .await
+                        .as_deref()
+                        .and_then(crate::commands::rolereactions::parse_reaction_role)
+                    {
+                        if let Ok(member) = guild_id.member(&ctx.http, user_id).await {
+                            let _ = member
+                                .remove_role(&ctx.http, serenity::RoleId::new(role_id))
+                                .await;
+                        }
+                    }
+                }
+            }
+        }
+        // Mirrors starboard/skullboard onDeletedReact.ts (delete or
+        // re-render below/above threshold). Independent of roles.
         let Some(guild_id) = removed.guild_id else {
             return;
         };
-        let Some(user_id) = removed.user_id else {
-            return;
-        };
-        let gid = guild_id.get().to_string();
         let emoji = match &removed.emoji {
             serenity::ReactionType::Unicode(u) => u.clone(),
-            serenity::ReactionType::Custom { id, .. } => id.get().to_string(),
             _ => return,
         };
-        let key = format!(
-            "GUILD.REACTION_ROLES.{}.{}",
-            removed.message_id.get(),
-            emoji
-        );
-        let Some(role_id) = crate::db::kv_get(&self.pool, &gid, &key).await else {
+        if emoji != "⭐" && emoji != "💀" {
             return;
-        };
-        let Ok(role_id) = role_id.parse::<u64>() else {
-            return;
-        };
-        let Ok(member) = guild_id.member(&ctx.http, user_id).await else {
-            return;
-        };
-        let _ = member
-            .remove_role(&ctx.http, serenity::RoleId::new(role_id))
-            .await;
+        }
+        if let Some(user_id) = removed.user_id {
+            if ctx.cache.user(user_id).map(|u| u.bot).unwrap_or(false) {
+                return;
+            }
+        }
+        if let Some((message, count)) =
+            board_source_message(&ctx, &removed, &emoji, removed.message_id).await
+        {
+            board_reaction_remove(&self.pool, &ctx, guild_id.get(), &emoji, &message, count).await;
+        }
     }
 
     async fn user_update(
@@ -1479,13 +2977,22 @@ impl serenity::EventHandler for Handler {
             "createchannel",
         )
         .await;
-        self.server_log(
-            &ctx,
-            &channel.guild_id.get().to_string(),
-            "channel",
-            format!("Channel created: {} ({}).", channel.name, channel.id.get()),
-        )
-        .await;
+        // No TS channel-create log file exists — the protection
+        // guard above is the whole parity surface.
+        // Setup embed for freshly created "ihorizon-logs" channels
+        // (mirrors logs/ihorizon_logs.ts).
+        if channel.name.contains("ihorizon-logs") {
+            let lang_code = crate::db::guild_lang(&self.pool, Some(channel.guild_id.get())).await;
+            let text = |k: &str| crate::lang::get(&lang_code, k).unwrap_or_default();
+            let embed = serenity::CreateEmbed::default()
+                .colour(0x1E1D22_u32)
+                .title(text("event_channel_create_message_embed_title"))
+                .description(text("event_channel_create_message_embed_description"));
+            let _ = channel
+                .id
+                .send_message(&ctx.http, serenity::CreateMessage::new().embed(embed))
+                .await;
+        }
     }
 
     async fn channel_delete(
@@ -1502,13 +3009,8 @@ impl serenity::EventHandler for Handler {
             "deletechannel",
         )
         .await;
-        self.server_log(
-            &ctx,
-            &channel.guild_id.get().to_string(),
-            "channel",
-            format!("Channel deleted: {} ({}).", channel.name, channel.id.get()),
-        )
-        .await;
+        // No TS channel-delete log file exists — the protection
+        // guard above is the whole parity surface.
         // Purge ticket rows bound to this channel (mirrors
         // deleteTicketPanel.ts).
         let gid = channel.guild_id.get().to_string();
@@ -1523,10 +3025,10 @@ impl serenity::EventHandler for Handler {
     async fn channel_update(
         &self,
         ctx: serenity::Context,
-        _old: Option<serenity::GuildChannel>,
+        old: Option<serenity::GuildChannel>,
         new: serenity::GuildChannel,
     ) {
-        use serenity::model::guild::audit_log::{Action, ChannelAction};
+        use serenity::model::guild::audit_log::{Action, ChannelAction, ChannelOverwriteAction};
         self.protection_guard(
             &ctx,
             new.guild_id,
@@ -1534,13 +3036,107 @@ impl serenity::EventHandler for Handler {
             "updatechannel",
         )
         .await;
-        self.server_log(
-            &ctx,
-            &new.guild_id.get().to_string(),
-            "channel",
-            format!("Channel updated: {} ({}).", new.name, new.id.get()),
-        )
-        .await;
+        // Rich channel-update log (mirrors logs/channelUpdateLogs.ts):
+        // latest ChannelUpdate + ChannelOverwriteUpdate audit entries
+        // -> #010101 embed with the name/overwrite change list.
+        // Silent when no audit entry, both executors are the bot, or
+        // the diff is empty, like TS.
+        let Some(old) = old else {
+            return;
+        };
+        let gid = new.guild_id.get().to_string();
+        let logs_ch: Option<u64> = crate::db::kv_get(&self.pool, &gid, "GUILD.SERVER_LOGS.channel")
+            .await
+            .and_then(|s| s.parse().ok());
+        let Some(logs_ch) = logs_ch else {
+            return;
+        };
+        let self_id = ctx.cache.current_user().id;
+        let rel = new
+            .guild_id
+            .audit_logs(
+                &ctx.http,
+                Some(Action::Channel(ChannelAction::Update)),
+                None,
+                None,
+                Some(1),
+            )
+            .await
+            .ok();
+        let rel2 = new
+            .guild_id
+            .audit_logs(
+                &ctx.http,
+                Some(Action::ChannelOverwrite(ChannelOverwriteAction::Update)),
+                None,
+                None,
+                Some(1),
+            )
+            .await
+            .ok();
+        let (Some(rel), Some(rel2)) = (rel.as_ref(), rel2.as_ref()) else {
+            return;
+        };
+        let (Some(e1), Some(e2)) = (rel.entries.first(), rel2.entries.first()) else {
+            return;
+        };
+        if e1.user_id == self_id && e2.user_id == self_id {
+            return;
+        }
+        let lang_code = crate::db::guild_lang(&self.pool, Some(new.guild_id.get())).await;
+        let text = |k: &str| crate::lang::get(&lang_code, k).unwrap_or_default();
+        let map_ow = |c: &serenity::GuildChannel| {
+            c.permission_overwrites
+                .iter()
+                .map(|o| crate::events::PermOverwriteDiff {
+                    id: match o.kind {
+                        serenity::PermissionOverwriteType::Role(id) => id.get(),
+                        serenity::PermissionOverwriteType::Member(id) => id.get(),
+                        _ => 0,
+                    },
+                    is_role: matches!(o.kind, serenity::PermissionOverwriteType::Role(_)),
+                    allow: o
+                        .allow
+                        .get_permission_names()
+                        .iter()
+                        .map(|s| s.to_string())
+                        .collect(),
+                    deny: o
+                        .deny
+                        .get_permission_names()
+                        .iter()
+                        .map(|s| s.to_string())
+                        .collect(),
+                })
+                .collect::<Vec<_>>()
+        };
+        let old_ow = map_ow(&old);
+        let new_ow = map_ow(&new);
+        let mut changes =
+            crate::events::channel_perm_diff(&old.name, &new.name, &old_ow, &new_ow, &text);
+        if changes.is_empty() {
+            return;
+        }
+        if changes.len() > 1024 {
+            changes = format!("{}...", &changes[..1021]);
+        }
+        let executor_name = e1
+            .user_id
+            .to_user(&ctx.http)
+            .await
+            .map(|u| u.name.clone())
+            .unwrap_or_else(|_| text("var_unknown"));
+        let desc = text("event_srvLogs_channelUpdate_embed_desc")
+            .replace("${newChannel.toString()}", &format!("<#{}>", new.id.get()));
+        let embed = serenity::CreateEmbed::default()
+            .colour(0x010101_u32)
+            .author(serenity::CreateEmbedAuthor::new(executor_name))
+            .description(desc)
+            .field(text("event_srvLogs_messageUpdate_footer_2"), changes, false)
+            .timestamp(serenity::Timestamp::now());
+        let _ = serenity::ChannelId::new(logs_ch)
+            .send_message(&ctx.http, serenity::CreateMessage::new().embed(embed))
+            .await;
     }
 
     async fn guild_ban_addition(
@@ -1557,11 +3153,14 @@ impl serenity::EventHandler for Handler {
             "banmembers",
         )
         .await;
-        self.server_log(
+        // Rich audit embed (mirrors logs/addBanLogs.ts).
+        self.mod_audit_log(
             &ctx,
-            &guild_id.get().to_string(),
-            "moderation",
-            format!("Banned {}.", banned_user.tag()),
+            guild_id,
+            Action::Member(MemberAction::BanAdd),
+            "event_srvLogs_banAdd_description",
+            banned_user.id.get(),
+            None,
         )
         .await;
     }
@@ -1580,11 +3179,14 @@ impl serenity::EventHandler for Handler {
             "unbanmembers",
         )
         .await;
-        self.server_log(
+        // Rich audit embed (mirrors logs/removeBanLogs.ts).
+        self.mod_audit_log(
             &ctx,
-            &guild_id.get().to_string(),
-            "moderation",
-            format!("Unbanned {}.", unbanned_user.tag()),
+            guild_id,
+            Action::Member(MemberAction::BanRemove),
+            "event_srvLogs_banRemove_description",
+            unbanned_user.id.get(),
+            Some(&unbanned_user.name),
         )
         .await;
     }
@@ -1681,41 +3283,219 @@ impl serenity::EventHandler for Handler {
             )
             .await;
         }
-        // Role diff log (mirrors logs/rolesLogs.ts).
-        {
-            let added: Vec<String> = new
-                .roles
-                .iter()
-                .filter(|r| !old.roles.contains(r))
-                .map(|r| format!("<@&{}>", r.get()))
-                .collect();
-            let removed: Vec<String> = old
-                .roles
-                .iter()
-                .filter(|r| !new.roles.contains(r))
-                .map(|r| format!("<@&{}>", r.get()))
-                .collect();
-            if !added.is_empty() || !removed.is_empty() {
-                self.server_log(
-                    &ctx,
-                    &new.guild_id.get().to_string(),
-                    "roles",
-                    format!(
-                        "{} roles: +{} -{}",
-                        new.user.tag(),
-                        added.join(","),
-                        removed.join(",")
-                    ),
-                )
-                .await;
+        // Any role add/remove (mirrors avoidMemberUpdate.ts).
+        if old.roles != new.roles {
+            use serenity::model::guild::audit_log::{Action, MemberAction};
+            self.protection_guard(
+                &ctx,
+                new.guild_id,
+                Action::Member(MemberAction::RoleUpdate),
+                "updatemember",
+            )
+            .await;
+        }
+        // Rich role log (mirrors logs/rolesLogs.ts): latest
+        // MemberRoleUpdate audit entry for the target -> #010101
+        // embed with removed/added role mentions. Silent when roles
+        // are unchanged, no log channel, no audit entry, the
+        // executor is the bot, or the entry targets someone else.
+        if old.roles != new.roles {
+            let gid = new.guild_id.get().to_string();
+            let logs_ch: Option<u64> =
+                crate::db::kv_get(&self.pool, &gid, "GUILD.SERVER_LOGS.roles")
+                    .await
+                    .and_then(|s| s.parse().ok());
+            if let Some(logs_ch) = logs_ch {
+                use serenity::model::guild::audit_log::{Action, Change, MemberAction};
+                let self_id = ctx.cache.current_user().id;
+                if let Ok(logs) = new
+                    .guild_id
+                    .audit_logs(
+                        &ctx.http,
+                        Some(Action::Member(MemberAction::RoleUpdate)),
+                        None,
+                        None,
+                        Some(1),
+                    )
+                    .await
+                {
+                    if let Some(entry) = logs.entries.first() {
+                        let target_ok = entry
+                            .target_id
+                            .map(|t| t.get() == new.user.id.get())
+                            .unwrap_or(false);
+                        if entry.user_id != self_id && target_ok {
+                            let mut added: Vec<u64> = vec![];
+                            let mut removed: Vec<u64> = vec![];
+                            for change in entry.changes.clone().unwrap_or_default() {
+                                match change {
+                                    Change::RolesAdded { new, .. } => {
+                                        added.extend(
+                                            new.unwrap_or_default().iter().map(|r| r.id.get()),
+                                        );
+                                    }
+                                    Change::RolesRemove { new, .. } => {
+                                        removed.extend(
+                                            new.unwrap_or_default().iter().map(|r| r.id.get()),
+                                        );
+                                    }
+                                    _ => {}
+                                }
+                            }
+                            if !added.is_empty() || !removed.is_empty() {
+                                let lang_code =
+                                    crate::db::guild_lang(&self.pool, Some(new.guild_id.get()))
+                                        .await;
+                                let text =
+                                    |k: &str| crate::lang::get(&lang_code, k).unwrap_or_default();
+                                let username = new
+                                    .user
+                                    .id
+                                    .to_user(&ctx.http)
+                                    .await
+                                    .map(|u| u.name.clone())
+                                    .unwrap_or_else(|_| new.user.name.clone());
+                                let avatar = new.user.avatar_url().unwrap_or_default();
+                                let mut desc = " ".to_string();
+                                if !removed.is_empty() {
+                                    desc += &(text("event_srvLogs_guildMemberUpdate_description")
+                                        .replace(
+                                            "${firstEntry.executor.id}",
+                                            &entry.user_id.get().to_string(),
+                                        )
+                                        .replace(
+                                            "${removedRoles}",
+                                            &removed
+                                                .iter()
+                                                .map(|id| format!("<@&{id}>"))
+                                                .collect::<Vec<_>>()
+                                                .join(","),
+                                        )
+                                        .replace("${oldMember.user.username}", &username)
+                                        + "\n");
+                                }
+                                if !added.is_empty() {
+                                    desc += &text("event_srvLogs_guildMemberUpdate_2_description")
+                                        .replace(
+                                            "${firstEntry.executor.id}",
+                                            &entry.user_id.get().to_string(),
+                                        )
+                                        .replace(
+                                            "${addedRoles}",
+                                            &added
+                                                .iter()
+                                                .map(|id| format!("<@&{id}>"))
+                                                .collect::<Vec<_>>()
+                                                .join(","),
+                                        )
+                                        .replace("${oldMember.user.username}", &username);
+                                }
+                                let embed = serenity::CreateEmbed::default()
+                                    .colour(0x010101_u32)
+                                    .author(
+                                        serenity::CreateEmbedAuthor::new(username).icon_url(avatar),
+                                    )
+                                    .description(desc)
+                                    .timestamp(serenity::Timestamp::now());
+                                let _ = serenity::ChannelId::new(logs_ch)
+                                    .send_message(
+                                        &ctx.http,
+                                        serenity::CreateMessage::new().embed(embed),
+                                    )
+                                    .await;
+                            }
+                        }
+                    }
+                }
             }
-            // Boost detection (mirrors logs/boostLogs.ts).
-            if old.premium_since.is_none() && new.premium_since.is_some() {
-                self.server_log(
-                    &ctx,
-                    &new.guild_id.get().to_string(),
-                    "boost",
-                    format!("{} boosted the server!", new.user.tag()),
+        }
+        // Boost detection (mirrors logs/boostLogs.ts): #a27cec
+        // embed with author avatar, add + sub cases, 10-minute
+        // recency guard on fresh boosts.
+        let (old_premium, new_premium) = (old.premium_since, new.premium_since);
+        if old_premium != new_premium {
+            let gid = new.guild_id.get().to_string();
+            let logs_ch: Option<u64> =
+                crate::db::kv_get(&self.pool, &gid, "GUILD.SERVER_LOGS.boosts")
+                    .await
+                    .and_then(|s| s.parse().ok());
+            if let Some(logs_ch) = logs_ch {
+                let now_ms = crate::commands::context::now_ms();
+                let recent = new_premium
+                    .map(|t| now_ms - t.unix_timestamp() * 1000 <= 10 * 60 * 1000)
+                    .unwrap_or(false);
+                let lang_code = crate::db::guild_lang(&self.pool, Some(new.guild_id.get())).await;
+                let text = |k: &str| crate::lang::get(&lang_code, k).unwrap_or_default();
+                let boost_count = new
+                    .guild_id
+                    .to_partial_guild(&ctx.http)
+                    .await
+                    .map(|g| g.premium_subscription_count.unwrap_or(0).to_string())
+                    .unwrap_or_default();
+                let desc = if old_premium.is_none() && new_premium.is_some() && recent {
+                    Some(
+                        text("event_boostlog_add")
+                            .replace("${newMember.user.id}", &new.user.id.get().to_string())
+                            .replace("${newMember.guild.premiumSubscriptionCount}", &boost_count),
+                    )
+                } else if old_premium.is_some() && new_premium.is_none() {
+                    Some(
+                        text("event_boostlog_sub")
+                            .replace("${newMember.user.id}", &new.user.id.get().to_string())
+                            .replace("${newMember.guild.premiumSubscriptionCount}", &boost_count),
+                    )
+                } else {
+                    None
+                };
+                if let Some(desc) = desc {
+                    let mut avatar = new.user.avatar_url().unwrap_or_default();
+                    if avatar.is_empty() {
+                        if let Ok(full) = new.user.id.to_user(&ctx.http).await {
+                            avatar = full.avatar_url().unwrap_or_default();
+                        }
+                    }
+                    let embed = serenity::CreateEmbed::default()
+                        .colour(0xA27CEC_u32)
+                        .author(
+                            serenity::CreateEmbedAuthor::new(new.user.name.clone())
+                                .icon_url(avatar),
+                        )
+                        .description(desc)
+                        .timestamp(serenity::Timestamp::now());
+                    let _ = serenity::ChannelId::new(logs_ch)
+                        .send_message(&ctx.http, serenity::CreateMessage::new().embed(embed))
+                        .await;
+                }
+            }
+        }
+        // Nickname history (mirrors prevnamesModuleGuild.ts): when the
+        // nickname changes, record the previous one with a date stamp.
+        if let (Some(previous), updated) = (old.nick.clone(), &new) {
+            if Some(previous.clone()) != updated.nick && !previous.is_empty() {
+                let guild_name = updated
+                    .guild_id
+                    .to_partial_guild(&ctx.http)
+                    .await
+                    .map(|g| g.name)
+                    .unwrap_or_default();
+                let entry = format!(
+                    "<t:{}:d> - [nickname:{}] {}",
+                    crate::commands::context::now_ms() / 1000,
+                    guild_name,
+                    previous
+                );
+                let key = crate::events::prevnames_key(updated.user.id.get());
+                let raw = crate::db::kv_get(&self.pool, "0", &key).await;
+                let history: Vec<String> = raw
+                    .and_then(|s| serde_json::from_str(&s).ok())
+                    .unwrap_or_default();
+                let next =
+                    crate::events::push_prevname(history, &entry, crate::events::PREVNAMES_CAP);
+                let _ = crate::db::kv_set(
+                    &self.pool,
+                    "0",
+                    &key,
+                    &serde_json::to_string(&next).unwrap_or_default(),
                 )
                 .await;
             }
@@ -1775,12 +3555,123 @@ impl serenity::EventHandler for Handler {
         }
     }
 
+    /// Support role sync (mirrors utils/supportModule.ts): grant or
+    /// remove the configured role based on the user's bio/vanity
+    /// (type "bio") or server tag (type "tag").
+    async fn presence_update(&self, ctx: serenity::Context, new_data: serenity::Presence) {
+        let Some(guild_id) = new_data.guild_id else {
+            return;
+        };
+        use serenity::model::user::OnlineStatus;
+        if matches!(
+            new_data.status,
+            OnlineStatus::Offline | OnlineStatus::Invisible
+        ) {
+            return;
+        }
+        let gid = guild_id.get().to_string();
+        let Some(raw) = crate::db::kv_get(&self.pool, &gid, "GUILD.SUPPORT").await else {
+            return;
+        };
+        let Ok(cfg) = serde_json::from_str::<serde_json::Value>(&raw) else {
+            return;
+        };
+        let Some(role_str) = cfg.get("rolesId").and_then(|r| r.as_str()) else {
+            return;
+        };
+        let Ok(role_id) = role_str.parse::<u64>() else {
+            return;
+        };
+        let role_id = serenity::RoleId::new(role_id);
+        let Ok(member) = guild_id.member(&ctx.http, new_data.user.id).await else {
+            return;
+        };
+        let kind = cfg.get("type").and_then(|t| t.as_str()).unwrap_or("");
+        let has = member.roles.contains(&role_id);
+        // Early-out removals mirroring the TS guards.
+        if kind == "bio"
+            && new_data
+                .activities
+                .first()
+                .and_then(|a| a.state.as_ref())
+                .is_none()
+        {
+            if has {
+                let _ = member.remove_role(&ctx.http, role_id).await;
+            }
+            return;
+        }
+        if kind == "tag" {
+            let tagged = new_data
+                .user
+                .id
+                .to_user(&ctx.http)
+                .await
+                .ok()
+                .and_then(|u| u.primary_guild)
+                .and_then(|p| p.identity_guild_id)
+                == Some(guild_id);
+            if !tagged {
+                if has {
+                    let _ = member.remove_role(&ctx.http, role_id).await;
+                }
+                return;
+            }
+        }
+        let matched = if kind == "bio" {
+            let state = new_data
+                .activities
+                .first()
+                .and_then(|a| a.state.as_ref())
+                .map(|s| s.to_lowercase())
+                .unwrap_or_default();
+            let input = cfg
+                .get("input")
+                .and_then(|i| i.as_str())
+                .unwrap_or_default()
+                .to_lowercase();
+            let vanity = guild_id
+                .to_partial_guild(&ctx.http)
+                .await
+                .ok()
+                .and_then(|g| g.vanity_url_code)
+                .unwrap_or_default()
+                .to_lowercase();
+            state.contains(&input) || (!vanity.is_empty() && state.contains(&vanity))
+        } else if kind == "tag" {
+            new_data
+                .user
+                .id
+                .to_user(&ctx.http)
+                .await
+                .ok()
+                .and_then(|u| u.primary_guild)
+                .and_then(|p| p.identity_guild_id)
+                == Some(guild_id)
+        } else {
+            false
+        };
+        if matched {
+            if !has {
+                let _ = member.add_role(&ctx.http, role_id).await;
+            }
+        } else if has {
+            let _ = member.remove_role(&ctx.http, role_id).await;
+        }
+    }
+
     async fn ratelimit(&self, _data: serenity::RatelimitInfo) {
         // Mirrors client/onRateLimit.ts: throttle logging.
         tracing::warn!("discord rate limited");
     }
 
     async fn interaction_create(&self, ctx: serenity::Context, interaction: serenity::Interaction) {
+        // Mirrors Events/logs/slashCommandLogger.ts interactionCreate
+        // (command rows go to src/files/slash.log.json).
+        if let serenity::Interaction::Command(cmd) = &interaction {
+            self.log_slash_command(&ctx, cmd).await;
+            return;
+        }
         // Mirrors buttonHandler.ts routing for component custom_ids.
         let serenity::Interaction::Component(comp) = interaction else {
             return;
@@ -1800,87 +3691,58 @@ impl serenity::EventHandler for Handler {
         } else if id.starts_with(crate::commands::legacy::NEWSLETTER_TOGGLE_PREFIX) {
             let _ =
                 crate::commands::legacy::handle_newsletter_toggle(&ctx, &comp, &self.pool).await;
-        } else if id.starts_with("confirm-entry-giveaway") {
-            // Mirrors giveawaysManager entry button (AvoidDoubleEntries).
-            let Some(guild_id) = comp.guild_id else {
-                return;
-            };
-            let gid = guild_id.get().to_string();
-            let mid = comp.message.id.get();
-            let key = crate::commands::giveaway::giveaway_key(mid);
-            let raw = crate::db::kv_get(&self.pool, &gid, &key).await;
-            let Some(raw) = raw else { return };
-            let mut v: serde_json::Value = match serde_json::from_str(&raw) {
-                Ok(v) => v,
-                Err(_) => return,
-            };
-            let mut entries: Vec<String> = v
-                .get("entries")
-                .and_then(|e| serde_json::from_value(e.clone()).ok())
-                .unwrap_or_default();
-            let requirement = v
-                .get("requirement")
-                .and_then(|r| r.as_str())
-                .unwrap_or("none")
-                .to_string();
-            let req_value = v
-                .get("requirement_value")
-                .and_then(|r| r.as_str())
-                .unwrap_or("")
-                .to_string();
-            let roles: Vec<u64> = guild_id
-                .member(&ctx.http, comp.user.id)
-                .await
-                .map(|m| m.roles.iter().map(|r| r.get()).collect())
-                .unwrap_or_default();
-            if !crate::commands::giveaway::check_requirement(
-                &self.pool,
-                &gid,
-                comp.user.id.get(),
-                &roles,
-                &requirement,
-                &req_value,
-            )
-            .await
-            {
-                let _ = comp
-                    .create_response(
-                        &ctx.http,
-                        serenity::CreateInteractionResponse::Message(
-                            serenity::CreateInteractionResponseMessage::new()
-                                .content("Requirement not met.")
-                                .ephemeral(true),
-                        ),
+        } else if id == crate::commands::giveaway::GW_ENTRY_ID {
+            crate::commands::giveaway::handle_giveaway_entry(&ctx.http, &self.pool, &comp).await;
+        } else if id == crate::commands::giveaway::GW_LIST_ID {
+            crate::commands::giveaway::handle_giveaway_list(&ctx.http, &self.pool, &comp).await;
+        } else if let Some(rest) = id.strip_prefix(crate::commands::giveaway::GW_LEAVE_ID) {
+            // `giveaway-leave:<mid>` (stateless 60s-collector equivalent).
+            if let Some(mid) = rest.strip_prefix(':').and_then(|s| s.parse::<u64>().ok()) {
+                crate::commands::giveaway::handle_giveaway_leave(&ctx.http, &self.pool, &comp, mid)
+                    .await;
+            }
+        } else if let Some(rest) =
+            id.strip_prefix(crate::commands::giveaway::GW_ENTRIES_PAGE_PREFIX)
+        {
+            // `gw-entries:<mid>:<page>`.
+            let mut parts = rest.split(':');
+            if let (Some(mid), Some(page)) = (parts.next(), parts.next()) {
+                if let (Ok(mid), Ok(page)) = (mid.parse::<u64>(), page.parse::<usize>()) {
+                    crate::commands::giveaway::handle_giveaway_entries_page(
+                        &ctx.http, &self.pool, &comp, mid, page,
                     )
                     .await;
-                return;
+                }
             }
-            let joined = crate::commands::giveaway::join_giveaway(
-                &mut entries,
-                &comp.user.id.get().to_string(),
-            );
-            if let Some(obj) = v.as_object_mut() {
-                obj.insert("entries".into(), serde_json::json!(entries));
-            }
-            let _ = crate::db::kv_set(&self.pool, &gid, &key, &v.to_string()).await;
-            let _ = comp
-                .create_response(
-                    &ctx.http,
-                    serenity::CreateInteractionResponse::Message(
-                        serenity::CreateInteractionResponseMessage::new()
-                            .content(if joined {
-                                "Entered."
-                            } else {
-                                "Already entered."
-                            })
-                            .ephemeral(true),
-                    ),
-                )
+        } else if id == crate::commands::rolereactions::ROLESELECT_MAIN_ID {
+            let _ = crate::commands::rolereactions::handle_roleselect_main(&ctx, &comp, &self.pool)
                 .await;
-        } else if id == crate::commands::rolereactions::ROLESELECT_CUSTOM_ID {
-            let _ = crate::commands::rolereactions::handle_roleselect_pick(&ctx, &comp).await;
+        } else if let Some(rest) =
+            id.strip_prefix(crate::commands::rolereactions::ROLESELECT_ROLE_PICK_PREFIX)
+        {
+            let config_msg = rest.parse::<u64>().unwrap_or(0);
+            let _ = crate::commands::rolereactions::handle_roleselect_role_pick(
+                &ctx, &comp, &self.pool, config_msg,
+            )
+            .await;
+        } else if id.starts_with(crate::commands::rolereactions::ROLESELECT_ROLES_PREFIX) {
+            // Saved-select presses, like
+            // SelectMenu/roleselect_roles.ts.
+            let _ =
+                crate::commands::rolereactions::handle_roleselect_grant(&ctx, &comp, &self.pool)
+                    .await;
         } else if id.starts_with("rolepanel:") {
             let _ = crate::commands::moderation::handle_rolepanel_button(&ctx, &comp).await;
+        } else if let Some(role) =
+            id.strip_prefix(crate::commands::rolereactions::BUTTON_REACTION_PREFIX)
+        {
+            // TS-verbatim role button presses (button_reaction%<role>).
+            if let Ok(role_id) = role.parse::<u64>() {
+                let _ = crate::commands::rolereactions::handle_button_reaction(
+                    &ctx, &comp, &self.pool, role_id,
+                )
+                .await;
+            }
         } else if id == crate::commands::honeypot::HONEYPOT_CUSTOM_ID {
             let _ = crate::commands::honeypot::handle_honeypot_claim(&ctx, &comp, &self.pool).await;
         } else if id == crate::commands::ticket::TICKET_EMBED_DELETE {
@@ -1896,52 +3758,63 @@ impl serenity::EventHandler for Handler {
         } else if id.starts_with(crate::commands::ticket::TICKET_OPEN_CUSTOM_ID_PREFIX) {
             let _ =
                 crate::commands::ticket::handle_ticket_open_button(&ctx, &comp, &self.pool).await;
+        } else if id == crate::commands::ticket::LEGACY_OPEN_BUTTON_ID {
+            // TS-verbatim panel button (CreateTicketChannel v1).
+            let _ =
+                crate::commands::ticket::handle_legacy_ticket_open(&ctx, &comp, &self.pool, None)
+                    .await;
+        } else if id == crate::commands::ticket::LEGACY_SELECT_ID {
+            // TS-verbatim panel select (CreateTicketChannel v1).
+            let selected = match &comp.data.kind {
+                serenity::ComponentInteractionDataKind::StringSelect { values } => {
+                    values.first().cloned()
+                }
+                _ => None,
+            };
+            let _ = crate::commands::ticket::handle_legacy_ticket_open(
+                &ctx, &comp, &self.pool, selected,
+            )
+            .await;
+        } else if id == crate::commands::ticket::V2_SELECT_ID {
+            // TS-verbatim V2 panel select (CreateTicketChannelV2).
+            if let serenity::ComponentInteractionDataKind::StringSelect { values } = &comp.data.kind
+            {
+                if let Some(selected) = values.first() {
+                    let _ = crate::commands::ticket::handle_v2_ticket_open(
+                        &ctx, &comp, &self.pool, selected,
+                    )
+                    .await;
+                }
+            }
         } else if id.starts_with(crate::commands::voicedashboard::TEMPVOICE_PREFIX) {
             let _ =
                 crate::commands::voicedashboard::handle_tempvoice_button(&ctx, &comp, &self.pool)
                     .await;
+        } else if id == crate::commands::welcomer_panel::WELCOMER_SECTION_ID
+            || id.starts_with(crate::commands::welcomer_panel::WELCOMER_PREFIX)
+        {
+            let _ =
+                crate::commands::welcomer_panel::handle_welcomer_component(&ctx, &comp, &self.pool)
+                    .await;
+        } else if id == crate::commands::embed::EMBED_SELECT_ID
+            || id == crate::commands::embed::EMBED_SAVE_CHANNEL_ID
+            || id.starts_with(crate::commands::embed::EMBED_BTN_PREFIX)
+        {
+            crate::commands::embed::handle_embed_component(&ctx.http, &self.pool, &comp).await;
+        } else if id.starts_with(crate::commands::utils::ADMIN_ROLES_PREFIX) {
+            crate::commands::utils::handle_admin_roles_component(&ctx.http, &self.pool, &comp)
+                .await;
+        } else if id == crate::commands::legacy::HELPALL_SELECT_ID {
+            crate::commands::legacy::handle_helpall_select(&ctx.http, &self.pool, &comp).await;
+        } else if id.starts_with(crate::commands::legacy::HELP_SELECT_PREFIX)
+            || id.starts_with(crate::commands::legacy::HELP_PREV_ID)
+            || id.starts_with(crate::commands::legacy::HELP_NEXT_ID)
+        {
+            crate::commands::legacy::handle_help_component(&ctx.http, &self.pool, &comp).await;
         } else {
-            // Generic button-role toggle. Mirrors
-            // Components/Buttons/button_reaction.ts:
-            // GUILD.REACTION_ROLES.<messageId> { [customId]: {rolesID} }.
-            let gid = comp
-                .guild_id
-                .map(|g| g.get().to_string())
-                .unwrap_or_default();
-            let key = format!("GUILD.REACTION_ROLES.{}", comp.message.id.get());
-            if let Some(raw) = crate::db::kv_get(&self.pool, &gid, &key).await {
-                if let Ok(map) = serde_json::from_str::<serde_json::Value>(&raw) {
-                    if let Some(role_id) = map
-                        .get(id)
-                        .and_then(|e| e.get("rolesID"))
-                        .and_then(|r| r.as_str())
-                        .and_then(|s| s.parse::<u64>().ok())
-                    {
-                        if let Some(guild_id) = comp.guild_id {
-                            if let Ok(member) = guild_id.member(&ctx.http, comp.user.id).await {
-                                let role = serenity::RoleId::new(role_id);
-                                let msg = if member.roles.contains(&role) {
-                                    let _ = member.remove_role(&ctx.http, role).await;
-                                    "Role removed."
-                                } else {
-                                    let _ = member.add_role(&ctx.http, role).await;
-                                    "Role added."
-                                };
-                                let _ = comp
-                                    .create_response(
-                                        &ctx.http,
-                                        serenity::CreateInteractionResponse::Message(
-                                            serenity::CreateInteractionResponseMessage::new()
-                                                .content(msg)
-                                                .ephemeral(true),
-                                        ),
-                                    )
-                                    .await;
-                            }
-                        }
-                    }
-                }
-            }
+            // Unknown component ids are ignored (every TS component
+            // file now has a dedicated arm above, including the
+            // verbatim button_reaction% role buttons).
         }
     }
 }

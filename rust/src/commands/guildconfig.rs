@@ -17,7 +17,8 @@ pub struct CommandLimit {
     pub window_ms: i64,
 }
 
-/// Parse "10s/1m/1h" windows. Mirrors commandlimit.ts time parsing.
+/// Parse "10s/1m/1h" windows. Kept for the unit test; the command
+/// itself uses the fuller time_ms port (mirrors to_ms).
 pub fn parse_window_ms(s: &str) -> Option<i64> {
     let s = s.trim().to_ascii_lowercase();
     let (num, mult) = s
@@ -35,7 +36,7 @@ pub fn parse_window_ms(s: &str) -> Option<i64> {
 
 pub const LOG_TYPES: [&str; 11] = [
     "antispam",
-    "boost",
+    "boosts",
     "channel",
     "messages",
     "moderation",
@@ -112,7 +113,54 @@ pub async fn guildconfig(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())
 }
 
-#[poise::command(slash_command, prefix_command, rename = "commandlimit")]
+/// All registered command paths ("cmd", "cmd sub", "cmd group sub").
+/// Mirrors getCommandChoices/resolveCommand over client.commands +
+/// client.subCommands.
+pub fn registered_paths() -> Vec<String> {
+    fn walk(
+        cmd: &poise::Command<crate::bot::Data, anyhow::Error>,
+        prefix: &str,
+        out: &mut Vec<String>,
+    ) {
+        let path = if prefix.is_empty() {
+            cmd.name.clone()
+        } else {
+            format!("{prefix} {}", cmd.name)
+        };
+        out.push(path.clone());
+        for sub in &cmd.subcommands {
+            walk(sub, &path, out);
+        }
+    }
+    let mut out = vec![];
+    for cmd in crate::commands::all() {
+        walk(&cmd, "", &mut out);
+    }
+    out
+}
+
+/// Format a limit. Mirrors formatRateLimit (count + localized window).
+pub fn format_limit(limit: &CommandLimit, code: &str) -> String {
+    crate::lang::get(code, "commandlimit_current_value")
+        .unwrap_or_default()
+        .replace("${count}", &limit.count.to_string())
+        .replace(
+            "${time}",
+            &crate::funcs::beautiful_ms(limit.window_ms as f64),
+        )
+}
+
+// Set/reset/list per-command rate limits. Mirrors
+// HybridCommands/guildconfig/commandlimit.ts (Admin-only, YAML replies,
+// #11304c sorted list embed; storage stays the monolith
+// UTILS.COMMAND_LIMITS map since Rust kv has no nested paths).
+/// Manage command rate limits.
+#[poise::command(
+    slash_command,
+    prefix_command,
+    rename = "commandlimit",
+    default_member_permissions = "ADMINISTRATOR"
+)]
 pub async fn gc_commandlimit(
     ctx: Ctx<'_>,
     #[description = "set, reset or list"] action: String,
@@ -124,67 +172,97 @@ pub async fn gc_commandlimit(
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
-    let raw = crate::db::kv_get(&ctx.data().pool, &gid, "UTILS.COMMAND_LIMITS").await;
+    let pool = &ctx.data().pool;
+    let code = crate::db::guild_lang(pool, ctx.guild_id().map(|g| g.get())).await;
+    let t = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
+    let raw = crate::db::kv_get(pool, &gid, "UTILS.COMMAND_LIMITS").await;
     let mut map: HashMap<String, CommandLimit> = raw
         .and_then(|s| serde_json::from_str(&s).ok())
         .unwrap_or_default();
-    match action.to_ascii_lowercase().as_str() {
-        "list" => {
-            let list = map
-                .iter()
-                .map(|(k, v)| format!("{k}: {}/{}ms", v.count, v.window_ms))
-                .collect::<Vec<_>>()
-                .join("\n");
-            ctx.say(if list.is_empty() {
-                "No limits.".to_string()
-            } else {
-                list
+    if action.eq_ignore_ascii_case("list") {
+        if map.is_empty() {
+            ctx.say(t("commandlimit_list_empty")).await?;
+            return Ok(());
+        }
+        let mut entries: Vec<(&String, &CommandLimit)> = map.iter().collect();
+        entries.sort_by(|a, b| a.0.cmp(b.0));
+        let desc = entries
+            .iter()
+            .map(|(path, limit)| {
+                t("commandlimit_list_item")
+                    .replace("${command}", path)
+                    .replace("${limit}", &format_limit(limit, &code))
             })
-            .await?;
-        }
-        "reset" => {
-            if let Some(cmd) = command {
-                map.remove(&cmd);
-                crate::db::kv_set(
-                    &ctx.data().pool,
-                    &gid,
-                    "UTILS.COMMAND_LIMITS",
-                    &serde_json::to_string(&map)?,
-                )
-                .await?;
-                ctx.say("Limit reset.").await?;
-            }
-        }
-        _ => {
-            let (Some(cmd), Some(count), Some(window)) = (command, count, window) else {
-                ctx.say("Usage: command, count, window.").await?;
-                return Ok(());
-            };
-            let Some(window_ms) = parse_window_ms(&window) else {
-                ctx.say("Bad window (10s/1m/1h).").await?;
-                return Ok(());
-            };
-            map.insert(
-                cmd.clone(),
-                CommandLimit {
-                    count: count.max(1) as u32,
-                    window_ms,
-                },
-            );
-            crate::db::kv_set(
-                &ctx.data().pool,
-                &gid,
-                "UTILS.COMMAND_LIMITS",
-                &serde_json::to_string(&map)?,
-            )
-            .await?;
-            ctx.say(format!("Limit set for {cmd}.")).await?;
-        }
+            .collect::<Vec<_>>()
+            .join("\n");
+        let embed = serenity::CreateEmbed::default()
+            .colour(serenity::Colour::new(0x11304c))
+            .title(t("commandlimit_list_title"))
+            .description(desc);
+        ctx.send(poise::CreateReply::default().embed(embed)).await?;
+        return Ok(());
     }
+    let Some(cmd) = command.as_deref().map(str::trim).filter(|s| !s.is_empty()) else {
+        ctx.say(t("commandlimit_missing_command")).await?;
+        return Ok(());
+    };
+    if !registered_paths().iter().any(|p| p == cmd) {
+        ctx.say(t("var_unreachable_command")).await?;
+        return Ok(());
+    }
+    if action.eq_ignore_ascii_case("reset") {
+        if map.remove(cmd).is_none() {
+            ctx.say(t("commandlimit_reset_missing").replace("${command}", cmd))
+                .await?;
+            return Ok(());
+        }
+        crate::db::kv_set(
+            pool,
+            &gid,
+            "UTILS.COMMAND_LIMITS",
+            &serde_json::to_string(&map)?,
+        )
+        .await?;
+        ctx.say(t("commandlimit_reset_success").replace("${command}", cmd))
+            .await?;
+        return Ok(());
+    }
+    let window_ms = window.as_deref().map(crate::funcs::time_ms).unwrap_or(0.0);
+    let Some(n) = count.filter(|c| *c > 0) else {
+        ctx.say(t("commandlimit_invalid_value")).await?;
+        return Ok(());
+    };
+    if window_ms <= 0.0 {
+        ctx.say(t("commandlimit_invalid_value")).await?;
+        return Ok(());
+    }
+    let limit = CommandLimit {
+        count: n as u32,
+        window_ms: window_ms as i64,
+    };
+    map.insert(cmd.to_string(), limit.clone());
+    crate::db::kv_set(
+        pool,
+        &gid,
+        "UTILS.COMMAND_LIMITS",
+        &serde_json::to_string(&map)?,
+    )
+    .await?;
+    ctx.say(
+        t("commandlimit_set_success")
+            .replace("${command}", cmd)
+            .replace("${limit}", &format_limit(&limit, &code)),
+    )
+    .await?;
     Ok(())
 }
 
-#[poise::command(slash_command, prefix_command, rename = "setlogs")]
+#[poise::command(
+    slash_command,
+    prefix_command,
+    rename = "setlogs",
+    aliases("logs", "setlog")
+)]
 pub async fn gc_setlogs(
     ctx: Ctx<'_>,
     #[description = "Log type"] log_type: String,
@@ -192,8 +270,13 @@ pub async fn gc_setlogs(
     #[channel_types("Text")]
     channel: Option<serenity::GuildChannel>,
 ) -> Result<(), anyhow::Error> {
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     if !valid_log_type(&log_type) {
-        ctx.say("Bad log type.").await?;
+        ctx.say(
+            crate::lang::get(&code, "msg_bad_log_type")
+                .unwrap_or_else(|| "Bad log type.".to_string()),
+        )
+        .await?;
         return Ok(());
     }
     let gid = ctx
@@ -204,7 +287,16 @@ pub async fn gc_setlogs(
     match channel {
         Some(ch) => {
             crate::db::kv_set(&ctx.data().pool, &gid, &key, &ch.id.get().to_string()).await?;
-            ctx.say(format!("Logs {log_type} set.")).await?;
+            let cid = ch.id.get().to_string();
+            ctx.say(
+                crate::lang::get(&code, "setlogschannel_command_work")
+                    .map(|s| {
+                        s.replace("${argsid.id}", &cid)
+                            .replace("${typeOfLogs}", &log_type)
+                    })
+                    .unwrap_or_else(|| format!("Logs {log_type} set.")),
+            )
+            .await?;
         }
         None => {
             sqlx::query("DELETE FROM kv WHERE guild_id = ? AND key_name = ?")
@@ -212,20 +304,44 @@ pub async fn gc_setlogs(
                 .bind(&key)
                 .execute(&ctx.data().pool)
                 .await?;
-            ctx.say(format!("Logs {log_type} cleared.")).await?;
+            let guild_name = ctx.guild().map(|g| g.name.clone()).unwrap_or_default();
+            ctx.say(
+                crate::lang::get(&code, "setlogschannel_command_work_on_delete")
+                    .map(|s| s.replace("${interaction.guild.name}", &guild_name))
+                    .unwrap_or_else(|| format!("Logs {log_type} cleared.")),
+            )
+            .await?;
         }
     }
     Ok(())
 }
 
-#[poise::command(slash_command, prefix_command, rename = "setprefix")]
+#[poise::command(
+    slash_command,
+    prefix_command,
+    rename = "setprefix",
+    aliases("prefix", "changeprefix")
+)]
 pub async fn gc_prefix(
     ctx: Ctx<'_>,
     #[description = "New prefix (1-5 chars)"] prefix: String,
 ) -> Result<(), anyhow::Error> {
     let prefix = prefix.trim().to_string();
-    if prefix.is_empty() || prefix.len() > 5 {
-        ctx.say("Prefix must be 1-5 characters.").await?;
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    if prefix.is_empty() {
+        ctx.say(
+            crate::lang::get(&code, "guildconfig_setbot_prefix_prefix_specify_prefix")
+                .unwrap_or_else(|| "Prefix must be 1-5 characters.".to_string()),
+        )
+        .await?;
+        return Ok(());
+    }
+    if prefix.len() > 5 {
+        ctx.say(
+            crate::lang::get(&code, "guildconfig_setbot_prefix_prefix_too_long")
+                .unwrap_or_else(|| "Prefix must be 1-5 characters.".to_string()),
+        )
+        .await?;
         return Ok(());
     }
     let gid = ctx
@@ -233,11 +349,16 @@ pub async fn gc_prefix(
         .map(|g| g.get().to_string())
         .unwrap_or_default();
     crate::db::kv_set(&ctx.data().pool, &gid, "GUILD.PREFIX", &prefix).await?;
-    ctx.say(format!("Prefix set to `{prefix}`.")).await?;
+    ctx.say(
+        crate::lang::get(&code, "guildconfig_setbot_prefix_prefix_is_good")
+            .map(|s| s.replace("${formatedPrefix}", &prefix))
+            .unwrap_or_else(|| format!("Prefix set to `{prefix}`.")),
+    )
+    .await?;
     Ok(())
 }
 
-#[poise::command(slash_command, prefix_command, rename = "support")]
+#[poise::command(slash_command, prefix_command, rename = "support", aliases("soutien"))]
 pub async fn gc_support(
     ctx: Ctx<'_>,
     #[description = "on or off"] action: String,
@@ -271,8 +392,13 @@ pub async fn gc_autoreact(
     channel: serenity::GuildChannel,
     #[description = "Emoji"] emoji: String,
 ) -> Result<(), anyhow::Error> {
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     if !crate::funcs::is_single_emoji(&emoji) && !crate::funcs::is_discord_emoji(&emoji) {
-        ctx.say("Invalid emoji.").await?;
+        ctx.say(
+            crate::lang::get(&code, "autoreact_invalid_emoji")
+                .unwrap_or_else(|| "Invalid emoji.".to_string()),
+        )
+        .await?;
         return Ok(());
     }
     let gid = ctx
@@ -291,7 +417,11 @@ pub async fn gc_autoreact(
         &serde_json::to_string(&list)?,
     )
     .await?;
-    ctx.say("Autoreact added.").await?;
+    ctx.say(
+        crate::lang::get(&code, "autoreact_add_command_ok")
+            .unwrap_or_else(|| "Autoreact added.".to_string()),
+    )
+    .await?;
     Ok(())
 }
 
@@ -301,12 +431,14 @@ pub async fn gc_autoreact_list(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let raw = crate::db::kv_get(&ctx.data().pool, &gid, "GUILD.AUTOREACT").await;
     let list: Vec<serde_json::Value> = raw
         .and_then(|s| serde_json::from_str(&s).ok())
         .unwrap_or_default();
     ctx.say(if list.is_empty() {
-        "No autoreacts.".to_string()
+        crate::lang::get(&code, "autoreact_remove_not_found")
+            .unwrap_or_else(|| "No autoreacts.".to_string())
     } else {
         list.iter()
             .map(|e| {
@@ -336,9 +468,13 @@ pub async fn gc_autoreact_remove(
     let mut list: Vec<serde_json::Value> = raw
         .and_then(|s| serde_json::from_str(&s).ok())
         .unwrap_or_default();
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let i = index as usize;
     if i == 0 || i > list.len() {
-        ctx.say("Bad index.").await?;
+        ctx.say(
+            crate::lang::get(&code, "msg_bad_index").unwrap_or_else(|| "Bad index.".to_string()),
+        )
+        .await?;
         return Ok(());
     }
     list.remove(i - 1);
@@ -349,7 +485,12 @@ pub async fn gc_autoreact_remove(
         &serde_json::to_string(&list)?,
     )
     .await?;
-    ctx.say("Autoreact removed.").await?;
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    ctx.say(
+        crate::lang::get(&code, "autoreact_remove_command_ok")
+            .unwrap_or_else(|| "Autoreact removed.".to_string()),
+    )
+    .await?;
     Ok(())
 }
 
@@ -371,10 +512,13 @@ pub async fn gc_blockbot(
         if enabled { "1" } else { "0" },
     )
     .await?;
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     ctx.say(if enabled {
-        "Bot joins blocked."
+        crate::lang::get(&code, "blockbot_command_work_on_enable")
+            .unwrap_or_else(|| "Bot joins blocked.".to_string())
     } else {
-        "Bot joins allowed."
+        crate::lang::get(&code, "blockbot_command_work_on_disable")
+            .unwrap_or_else(|| "Bot joins allowed.".to_string())
     })
     .await?;
     Ok(())
@@ -395,17 +539,28 @@ pub async fn gc_toonew(
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    let author_mention = format!("<@{}>", ctx.author().id.get());
     if age.trim().eq_ignore_ascii_case("off") {
         let _ = sqlx::query("DELETE FROM kv WHERE guild_id = ? AND key_name = ?")
             .bind(&gid)
             .bind("GUILD.BLOCK_NEW_ACCOUNT")
             .execute(&ctx.data().pool)
             .await;
-        ctx.say("Age check off.").await?;
+        ctx.say(
+            crate::lang::get(&code, "too_new_account_command_work_on_disable")
+                .map(|s| s.replace("${interaction.user}", &author_mention))
+                .unwrap_or_else(|| "Age check off.".to_string()),
+        )
+        .await?;
         return Ok(());
     }
     let Some(ms) = crate::commands::schedule::parse_duration_ms(&age) else {
-        ctx.say("Bad duration.").await?;
+        ctx.say(
+            crate::lang::get(&code, "too_new_account_invalid_time_on_enable")
+                .unwrap_or_else(|| "Bad duration.".to_string()),
+        )
+        .await?;
         return Ok(());
     };
     crate::db::kv_set(
@@ -415,7 +570,18 @@ pub async fn gc_toonew(
         &serde_json::json!({"state": true, "req": ms}).to_string(),
     )
     .await?;
-    ctx.say("Age check on.").await?;
+    let guild_name = ctx.guild().map(|g| g.name.clone()).unwrap_or_default();
+    let beautiful = crate::funcs::beautiful_ms(ms as f64);
+    ctx.say(
+        crate::lang::get(&code, "too_new_account_command_work_on_enable")
+            .map(|s| {
+                s.replace("${interaction.user}", &author_mention)
+                    .replace("${interaction.guild?.name}", &guild_name)
+                    .replace("${beautifulTime}", &beautiful)
+            })
+            .unwrap_or_else(|| "Age check on.".to_string()),
+    )
+    .await?;
     Ok(())
 }
 
@@ -429,27 +595,39 @@ pub async fn gc_joindm(
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
-    match message
+    let pool = &ctx.data().pool;
+    let code = crate::db::guild_lang(pool, ctx.guild_id().map(|g| g.get())).await;
+    let cleaned = message
         .map(|m| m.trim().to_string())
-        .filter(|m| !m.is_empty())
-    {
-        Some(m) => {
-            crate::db::kv_set(&ctx.data().pool, &gid, "GUILD.JOIN_DM", &m).await?;
-            ctx.say("Join DM set.").await?;
+        .filter(|m| !m.is_empty());
+    let mut cfg = load_guild_config(pool, &gid).await;
+    welcomer_set(
+        &mut cfg,
+        "joindm",
+        cleaned.clone().map(serde_json::Value::String),
+    );
+    save_guild_config(pool, &gid, &cfg).await?;
+    match cleaned {
+        Some(text) => {
+            ctx.say(
+                crate::lang::get(&code, "setjoindm_confirmation_message_on_enable")
+                    .map(|s| s.replace("${dm_msg}", &text))
+                    .unwrap_or_else(|| "Join DM set.".to_string()),
+            )
+            .await?;
         }
         None => {
-            let _ = sqlx::query("DELETE FROM kv WHERE guild_id = ? AND key_name = ?")
-                .bind(&gid)
-                .bind("GUILD.JOIN_DM")
-                .execute(&ctx.data().pool)
-                .await;
-            ctx.say("Join DM cleared.").await?;
+            ctx.say(
+                crate::lang::get(&code, "setjoindm_confirmation_message_on_disable")
+                    .unwrap_or_else(|| "Join DM cleared.".to_string()),
+            )
+            .await?;
         }
     }
     Ok(())
 }
 
-/// Join role. Mirrors joinRole (GUILD.JOIN_ROLE).
+/// Join role. Mirrors joinRole (GUILD.GUILD_CONFIG.joinroles).
 #[poise::command(slash_command, prefix_command, rename = "joinrole")]
 pub async fn gc_joinrole(
     ctx: Ctx<'_>,
@@ -459,25 +637,28 @@ pub async fn gc_joinrole(
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
-    match role {
-        Some(r) => {
-            crate::db::kv_set(
-                &ctx.data().pool,
-                &gid,
-                "GUILD.JOIN_ROLE",
-                &r.id.get().to_string(),
-            )
-            .await?;
-            ctx.say("Join role set.").await?;
-        }
-        None => {
-            let _ = sqlx::query("DELETE FROM kv WHERE guild_id = ? AND key_name = ?")
-                .bind(&gid)
-                .bind("GUILD.JOIN_ROLE")
-                .execute(&ctx.data().pool)
-                .await;
-            ctx.say("Join role cleared.").await?;
-        }
+    let pool = &ctx.data().pool;
+    let mut cfg = load_guild_config(pool, &gid).await;
+    let has_role = role.is_some();
+    welcomer_set(
+        &mut cfg,
+        "joinroles",
+        role.map(|r| serde_json::Value::String(r.id.get().to_string())),
+    );
+    save_guild_config(pool, &gid, &cfg).await?;
+    let code = crate::db::guild_lang(pool, ctx.guild_id().map(|g| g.get())).await;
+    if has_role {
+        ctx.say(
+            crate::lang::get(&code, "msg_join_role_set")
+                .unwrap_or_else(|| "Join role set.".to_string()),
+        )
+        .await?;
+    } else {
+        ctx.say(
+            crate::lang::get(&code, "msg_join_role_cleared")
+                .unwrap_or_else(|| "Join role cleared.".to_string()),
+        )
+        .await?;
     }
     Ok(())
 }
@@ -606,7 +787,12 @@ pub async fn gc_ghost_add(
         )
         .await?;
     }
-    ctx.say("Ghost-ping watch added.").await?;
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    ctx.say(
+        crate::lang::get(&code, "joinghostping_add_sent_to_channel")
+            .unwrap_or_else(|| "Ghost-ping watch added.".to_string()),
+    )
+    .await?;
     Ok(())
 }
 
@@ -631,7 +817,12 @@ pub async fn gc_ghost_remove(
         &serde_json::to_string(&list)?,
     )
     .await?;
-    ctx.say("Ghost-ping watch removed.").await?;
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    ctx.say(
+        crate::lang::get(&code, "joinghostping_remove_ok_embed_desc")
+            .unwrap_or_else(|| "Ghost-ping watch removed.".to_string()),
+    )
+    .await?;
     Ok(())
 }
 
@@ -690,6 +881,7 @@ pub async fn gc_autologs(
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     for t in LOG_TYPES.iter().filter(|t| **t != "all") {
         crate::db::kv_set(
             &ctx.data().pool,
@@ -699,7 +891,22 @@ pub async fn gc_autologs(
         )
         .await?;
     }
-    ctx.say("All server logs pointed here.").await?;
+    let mention = format!("<#{}>", channel.id.get());
+    let types = LOG_TYPES
+        .iter()
+        .filter(|t| **t != "all")
+        .copied()
+        .collect::<Vec<_>>()
+        .join(", ");
+    ctx.say(
+        crate::lang::get(&code, "setlogschannel_utils_command_work")
+            .map(|s| {
+                s.replace("${argsid.id}", &mention)
+                    .replace("${typeOfLogs}", &types)
+            })
+            .unwrap_or_else(|| "All server logs pointed here.".to_string()),
+    )
+    .await?;
     Ok(())
 }
 
@@ -776,7 +983,12 @@ pub async fn gc_perm_set(
         &serde_json::to_string(&perms)?,
     )
     .await?;
-    ctx.say("Permission level set.").await?;
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    ctx.say(
+        crate::lang::get(&code, "msg_permission_level_set")
+            .unwrap_or_else(|| "Permission level set.".to_string()),
+    )
+    .await?;
     Ok(())
 }
 
@@ -791,14 +1003,24 @@ pub async fn gc_perm_user(
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
+    let level = level.clamp(0, 9);
     crate::db::kv_set(
         &ctx.data().pool,
         &gid,
         &format!("UTILS.USER_PERMS.{}", user.id.get()),
-        &level.clamp(0, 9).to_string(),
+        &level.to_string(),
     )
     .await?;
-    ctx.say(format!("User level set for {command}.")).await?;
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    ctx.say(
+        crate::lang::get(&code, "perm_set_ok")
+            .map(|s| {
+                s.replace("${user.toString()}", &user.to_string())
+                    .replace("${perm}", &level.to_string())
+            })
+            .unwrap_or_else(|| format!("User level set for {command}.")),
+    )
+    .await?;
     Ok(())
 }
 
@@ -839,7 +1061,12 @@ pub async fn gc_perm_reset(
         .bind(perm_key(command.trim()))
         .execute(&ctx.data().pool)
         .await?;
-    ctx.say("Permissions reset.").await?;
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    ctx.say(
+        crate::lang::get(&code, "perm_set_command_reset")
+            .unwrap_or_else(|| "Permissions reset.".to_string()),
+    )
+    .await?;
     Ok(())
 }
 
@@ -1341,7 +1568,11 @@ pub async fn gc_perm_roles_edit(
         return Ok(());
     }
     if !(1..=9).contains(&level) {
-        ctx.say("Level must be 1-9.").await?;
+        ctx.say(
+            crate::lang::get(&code, "msg_level_must_be_1_9")
+                .unwrap_or_else(|| "Level must be 1-9.".to_string()),
+        )
+        .await?;
         return Ok(());
     }
     let mut map = load_perm_roles(pool, &gid).await;
@@ -1553,8 +1784,13 @@ pub async fn gc_wc_channel(
     #[channel_types("Text")]
     channel: Option<serenity::GuildChannel>,
 ) -> Result<(), anyhow::Error> {
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let Some(join) = welcomer_kind(&kind) else {
-        ctx.say("Use join or leave.").await?;
+        ctx.say(
+            crate::lang::get(&code, "msg_use_join_or_leave")
+                .unwrap_or_else(|| "Use join or leave.".to_string()),
+        )
+        .await?;
         return Ok(());
     };
     let gid = ctx
@@ -1570,7 +1806,11 @@ pub async fn gc_wc_channel(
         channel.map(|c| serde_json::Value::String(c.id.get().to_string())),
     );
     save_guild_config(pool, &gid, &cfg).await?;
-    ctx.say("Welcomer channel updated.").await?;
+    ctx.say(
+        crate::lang::get(&code, "msg_welcomer_channel_updated")
+            .unwrap_or_else(|| "Welcomer channel updated.".to_string()),
+    )
+    .await?;
     Ok(())
 }
 
@@ -1582,8 +1822,13 @@ pub async fn gc_wc_embed(
     #[description = "join or leave"] kind: String,
     #[description = "Embed id (omit to clear)"] embed_id: Option<String>,
 ) -> Result<(), anyhow::Error> {
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let Some(join) = welcomer_kind(&kind) else {
-        ctx.say("Use join or leave.").await?;
+        ctx.say(
+            crate::lang::get(&code, "msg_use_join_or_leave")
+                .unwrap_or_else(|| "Use join or leave.".to_string()),
+        )
+        .await?;
         return Ok(());
     };
     let gid = ctx
@@ -1602,7 +1847,11 @@ pub async fn gc_wc_embed(
             .map(serde_json::Value::String),
     );
     save_guild_config(pool, &gid, &cfg).await?;
-    ctx.say("Welcomer embed updated.").await?;
+    ctx.say(
+        crate::lang::get(&code, "msg_welcomer_embed_updated")
+            .unwrap_or_else(|| "Welcomer embed updated.".to_string()),
+    )
+    .await?;
     Ok(())
 }
 
@@ -1618,7 +1867,12 @@ pub async fn gc_wc_text(
         welcomer_kind(&kind),
         crate::commands::security::parse_on_off(&action),
     ) else {
-        ctx.say("Use join/leave and on/off.").await?;
+        let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+        ctx.say(
+            crate::lang::get(&code, "msg_use_join_leave_and_on_off")
+                .unwrap_or_else(|| "Use join/leave and on/off.".to_string()),
+        )
+        .await?;
         return Ok(());
     };
     let gid = ctx
@@ -1626,6 +1880,7 @@ pub async fn gc_wc_text(
         .map(|g| g.get().to_string())
         .unwrap_or_default();
     let pool = &ctx.data().pool;
+    let code = crate::db::guild_lang(pool, ctx.guild_id().map(|g| g.get())).await;
     let mut cfg = load_guild_config(pool, &gid).await;
     welcomer_set(
         &mut cfg,
@@ -1637,7 +1892,11 @@ pub async fn gc_wc_text(
         Some(serde_json::Value::Bool(enabled)),
     );
     save_guild_config(pool, &gid, &cfg).await?;
-    ctx.say("Welcomer text updated.").await?;
+    ctx.say(
+        crate::lang::get(&code, "msg_welcomer_text_updated")
+            .unwrap_or_else(|| "Welcomer text updated.".to_string()),
+    )
+    .await?;
     Ok(())
 }
 
@@ -1654,7 +1913,12 @@ pub async fn gc_wc_components(
         welcomer_kind(&kind),
         crate::commands::security::parse_on_off(&action),
     ) else {
-        ctx.say("Use join/leave and on/off.").await?;
+        let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+        ctx.say(
+            crate::lang::get(&code, "msg_use_join_leave_and_on_off")
+                .unwrap_or_else(|| "Use join/leave and on/off.".to_string()),
+        )
+        .await?;
         return Ok(());
     };
     let gid = ctx
@@ -1673,7 +1937,12 @@ pub async fn gc_wc_components(
         Some(serde_json::Value::Bool(enabled)),
     );
     save_guild_config(pool, &gid, &cfg).await?;
-    ctx.say("Welcomer components updated.").await?;
+    let code = crate::db::guild_lang(pool, ctx.guild_id().map(|g| g.get())).await;
+    ctx.say(
+        crate::lang::get(&code, "msg_welcomer_components_updated")
+            .unwrap_or_else(|| "Welcomer components updated.".to_string()),
+    )
+    .await?;
     Ok(())
 }
 
@@ -1683,6 +1952,7 @@ pub async fn gc_setup(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {
         return Ok(());
     };
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let exists = ctx
         .serenity_context()
         .cache
@@ -1694,7 +1964,11 @@ pub async fn gc_setup(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         })
         .unwrap_or(false);
     if exists {
-        ctx.say("Logs channel already exists.").await?;
+        ctx.say(
+            crate::lang::get(&code, "setup_command_error")
+                .unwrap_or_else(|| "Logs channel already exists.".to_string()),
+        )
+        .await?;
         return Ok(());
     }
     guild_id
@@ -1713,12 +1987,26 @@ pub async fn gc_setup(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
                 }]),
         )
         .await?;
-    ctx.say("Logs channel created.").await?;
+    let yes = crate::emojis::app_emoji_markup(ctx.http(), "Yes")
+        .await
+        .unwrap_or_default();
+    ctx.say(
+        crate::lang::get(&code, "setup_command_work")
+            .map(|s| s.replace("${client.iHorizon_Emojis.Yes}", &yes))
+            .unwrap_or_else(|| "Logs channel created.".to_string()),
+    )
+    .await?;
     Ok(())
 }
 
 /// Master switch for autoreacts. Mirrors toggle-react.
-#[poise::command(slash_command, prefix_command, rename = "autoreact-toggle")]
+#[poise::command(
+    slash_command,
+    prefix_command,
+    rename = "autoreact-toggle",
+    aliases("toggle-react", "react-toggle", "togglereact", "reacttoggle"),
+    default_member_permissions = "MANAGE_GUILD_EXPRESSIONS"
+)]
 pub async fn gc_autoreact_toggle(
     ctx: Ctx<'_>,
     #[description = "on or off"] action: String,
@@ -1735,11 +2023,28 @@ pub async fn gc_autoreact_toggle(
         if enabled { "1" } else { "0" },
     )
     .await?;
-    ctx.say(if enabled {
-        "Autoreacts on."
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    let active_msg = if enabled {
+        crate::lang::get(&code, "toggle_react_react").unwrap_or_else(|| "react".to_string())
     } else {
-        "Autoreacts off."
-    })
+        crate::lang::get(&code, "toggle_react_doesnt_react")
+            .unwrap_or_else(|| "no longer react".to_string())
+    };
+    let member_id = ctx.author().id.get().to_string();
+    ctx.say(
+        crate::lang::get(&code, "toggle_react_command_work")
+            .map(|s| {
+                s.replace("{activeMsg}", &active_msg)
+                    .replace("${interaction.member?.id}", &member_id)
+            })
+            .unwrap_or_else(|| {
+                if enabled {
+                    "Autoreacts on.".to_string()
+                } else {
+                    "Autoreacts off.".to_string()
+                }
+            }),
+    )
     .await?;
     Ok(())
 }

@@ -3,11 +3,11 @@
 // Background schedulers. Mirrors src/core/modules/* timers +
 // StreamNotifier/Blogger polling + ready.ts table sweeps.
 //
-// Implemented for real: expired SCHEDULE entries sweep (schedule.rs layout).
-// Other module ticks (membercount 5min, tempRole/tempban 30s, nightmode 60s,
-// giveaways forceUpdate, pfps 45s, StreamNotifier 120s, Blogger 60s) are
-// wired as typed intervals with traced no-op bodies until their modules
-// land, so the timing skeleton is already correct.
+// Implemented for real: expired SCHEDULE entries, expired giveaways,
+// temp roles/bans, membercount refresh (5min), pfps poster (45s),
+// auto-renew, Blogger poll (60s), nightmode (60s). The only remaining
+// skeleton is the 120s StreamNotifier tick, blocked on the
+// Twitch/YouTube/Kick live APIs (see Blocked in MIGRATION.md).
 
 use crate::db::Pool;
 use std::time::Duration;
@@ -54,10 +54,19 @@ pub async fn sweep_expired_schedules(pool: &Pool, now_ms: i64) -> u64 {
     removed
 }
 
+/// Seconds between giveaway expiry sweeps (mirrors the 15s refresh loop).
+const GIVEAWAY_REFRESH_SECS: u64 = 15;
+
 /// End expired giveaways, picking winners deterministically.
-/// Mirrors giveawaysManager refresh(): expired + !ended -> ended + winners.
-/// Returns number of giveaways ended.
-pub async fn sweep_expired_giveaways(pool: &Pool, now_ms: i64) -> u64 {
+/// Mirrors giveawaysManager refresh() -> finish(): expired + !ended
+/// get winners, an ended-board edit and a winners reply. With
+/// `http: None` (tests) only keys are updated. Returns number of
+/// giveaways ended.
+pub async fn sweep_expired_giveaways(
+    pool: &Pool,
+    http: Option<std::sync::Arc<poise::serenity_prelude::Http>>,
+    now_ms: i64,
+) -> u64 {
     let rows: Vec<(String, String)> = sqlx::query_as::<_, (String, String)>(
         "SELECT guild_id, key_name FROM kv WHERE key_name LIKE 'GIVEAWAY.%'",
     )
@@ -67,37 +76,59 @@ pub async fn sweep_expired_giveaways(pool: &Pool, now_ms: i64) -> u64 {
 
     let mut ended = 0u64;
     for (gid, key) in rows {
-        let raw = crate::db::kv_get(pool, &gid, &key).await;
-        let Some(raw) = raw else { continue };
-        let mut v: serde_json::Value = match serde_json::from_str(&raw) {
-            Ok(v) => v,
-            Err(_) => continue,
-        };
-        let expired = v
-            .get("expire_in_ms")
-            .and_then(|n| n.as_i64())
-            .map(|e| now_ms >= e)
-            .unwrap_or(false);
-        let already = v.get("ended").and_then(|b| b.as_bool()).unwrap_or(false);
-        if !expired || already {
+        let mid: u64 = key
+            .strip_prefix("GIVEAWAY.")
+            .and_then(|s| s.parse().ok())
+            .unwrap_or(0);
+        if mid == 0 {
             continue;
         }
-        let entries: Vec<String> = v
-            .get("entries")
-            .and_then(|e| serde_json::from_value(e.clone()).ok())
-            .unwrap_or_default();
-        let count = v.get("winner_count").and_then(|n| n.as_u64()).unwrap_or(1) as usize;
-        let winners = crate::commands::giveaway::pick_winners(&entries, count, now_ms as u64);
-        if let Some(obj) = v.as_object_mut() {
-            obj.insert("ended".into(), true.into());
-            obj.insert("winners".into(), serde_json::json!(winners));
+        let raw = crate::db::kv_get(pool, &gid, &key).await;
+        let Some(raw) = raw else { continue };
+        let mut gw: crate::commands::giveaway::Giveaway = match serde_json::from_str(&raw) {
+            Ok(gw) => gw,
+            Err(_) => continue,
+        };
+        if gw.ended || now_ms < gw.expire_in_ms {
+            continue;
         }
-        if crate::db::kv_set(pool, &gid, &key, &v.to_string())
-            .await
-            .is_ok()
-        {
-            ended += 1;
+        let code = crate::db::guild_lang(pool, gid.parse::<u64>().ok()).await;
+        if let Some(http) = &http {
+            // Shared end flow (board edit + winners reply). A gone
+            // board drops the row like the TS fetch catch.
+            let lived = crate::commands::giveaway::finish_giveaway(
+                pool,
+                http,
+                &gid,
+                mid,
+                &mut gw,
+                now_ms as u64,
+                &code,
+                now_ms / 1000,
+            )
+            .await;
+            if !lived {
+                let _ = crate::db::kv_del(pool, &gid, &key).await;
+                continue;
+            }
+        } else {
+            let winners = crate::commands::giveaway::pick_winners(
+                &gw.entries,
+                &gw.winners,
+                gw.winner_count as usize,
+                now_ms as u64,
+            );
+            gw.winners = winners;
+            gw.ended = true;
+            let _ = crate::db::kv_set(
+                pool,
+                &gid,
+                &key,
+                &serde_json::to_string(&gw).unwrap_or_default(),
+            )
+            .await;
         }
+        ended += 1;
     }
     ended
 }
@@ -270,6 +301,7 @@ pub async fn sweep_pfps(pool: &Pool, http: &std::sync::Arc<poise::serenity_prelu
         let (Ok(gid_num), Ok(ch_num)) = (gid.parse::<u64>(), ch.parse::<u64>()) else {
             continue;
         };
+        let code = crate::db::guild_lang(pool, Some(gid_num)).await;
         let Ok(members) = http
             .get_guild_members(GuildId::new(gid_num), Some(200), None)
             .await
@@ -290,7 +322,11 @@ pub async fn sweep_pfps(pool: &Pool, http: &std::sync::Arc<poise::serenity_prelu
                 http,
                 poise::serenity_prelude::CreateMessage::new().embed(
                     poise::serenity_prelude::CreateEmbed::default()
-                        .title(format!("{}'s avatar", pick.user.tag()))
+                        .title(
+                            crate::lang::get(&code, "pfps_embed_user_title")
+                                .map(|s| s.replace("{username}", &pick.user.tag()))
+                                .unwrap_or_else(|| format!("{}'s avatar", pick.user.tag())),
+                        )
                         .image(url),
                 ),
             )
@@ -444,8 +480,8 @@ pub async fn sweep_nightmode(
     http: &std::sync::Arc<poise::serenity_prelude::Http>,
 ) -> u64 {
     use poise::serenity_prelude::{
-        ChannelType, GuildId, GuildPagination, PermissionOverwrite,
-        PermissionOverwriteType, Permissions, RoleId,
+        ChannelType, GuildId, GuildPagination, PermissionOverwrite, PermissionOverwriteType,
+        Permissions, RoleId,
     };
     let now_hour = std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
@@ -476,11 +512,8 @@ pub async fn sweep_nightmode(
             if !cfg.enabled {
                 continue;
             }
-            let night = crate::commands::newfeatures::night_active(
-                cfg.start_hour,
-                cfg.end_hour,
-                now_hour,
-            );
+            let night =
+                crate::commands::newfeatures::night_active(cfg.start_hour, cfg.end_hour, now_hour);
             let want = if night { "started" } else { "ended" };
             let current = crate::db::kv_get(pool, &gid, "NIGHTMODE.state").await;
             if current.as_deref() == Some(want) {
@@ -534,7 +567,23 @@ pub fn spawn(pool: Pool, http: std::sync::Arc<poise::serenity_prelude::Http>) {
                 if n > 0 {
                     tracing::info!("scheduler: swept {n} expired schedules");
                 }
-                let g = sweep_expired_giveaways(&pool, now).await;
+            }
+        });
+    }
+
+    // Giveaway expiry (real, mirrors the 15s refresh loop).
+    {
+        let pool = pool.clone();
+        let http = http.clone();
+        tokio::spawn(async move {
+            let mut t = tokio::time::interval(Duration::from_secs(GIVEAWAY_REFRESH_SECS));
+            loop {
+                t.tick().await;
+                let now = std::time::SystemTime::now()
+                    .duration_since(std::time::UNIX_EPOCH)
+                    .map(|d| d.as_millis() as i64)
+                    .unwrap_or(0);
+                let g = sweep_expired_giveaways(&pool, Some(http.clone()), now).await;
                 if g > 0 {
                     tracing::info!("scheduler: ended {g} expired giveaways");
                 }
@@ -643,8 +692,11 @@ pub fn spawn(pool: Pool, http: std::sync::Arc<poise::serenity_prelude::Http>) {
         });
     }
 
-    // Skeleton ticks for unported modules (timing mirrors TS).
-    for (name, secs) in [("notifier", NOTIFIER_SECS)] {
+    // Skeleton tick for the StreamNotifier module (timing mirrors the
+    // 120s refresh in core/StreamNotifier.ts). Blocked on the
+    // Twitch/YouTube/Kick live APIs — see Blocked in MIGRATION.md.
+    {
+        let (name, secs) = ("notifier", NOTIFIER_SECS);
         tokio::spawn(async move {
             let mut t = tokio::time::interval(Duration::from_secs(secs));
             loop {
@@ -717,7 +769,7 @@ mod tests {
         let p = pool().await;
         crate::db::kv_set(&p, "g", "GIVEAWAY.1", r#"{"guild_id":"g","channel_id":"c","winner_count":1,"prize":"p","hosted_by":"h","expire_in_ms":100,"ended":false,"entries":["a","b"],"winners":[]}"#).await.unwrap();
         crate::db::kv_set(&p, "g", "GIVEAWAY.2", r#"{"guild_id":"g","channel_id":"c","winner_count":1,"prize":"p","hosted_by":"h","expire_in_ms":9999999999999,"ended":false,"entries":["a"],"winners":[]}"#).await.unwrap();
-        let n = sweep_expired_giveaways(&p, 200).await;
+        let n = sweep_expired_giveaways(&p, None, 200).await;
         assert_eq!(n, 1);
         let raw = crate::db::kv_get(&p, "g", "GIVEAWAY.1").await.unwrap();
         let v: serde_json::Value = serde_json::from_str(&raw).unwrap();
@@ -726,7 +778,7 @@ mod tests {
             v.get("winners").and_then(|w| w.as_array()).map(|a| a.len()),
             Some(1)
         );
-        let n2 = sweep_expired_giveaways(&p, 200).await;
+        let n2 = sweep_expired_giveaways(&p, None, 200).await;
         assert_eq!(n2, 0);
     }
 

@@ -1,0 +1,24 @@
+[Unit]
+Description=iHorizon Rust migration parallel coordinator (authoritative)
+Documentation=file:@REPO@/ops/rust-migration/README-PARALLEL.md
+Wants=network-online.target
+After=network-online.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+WorkingDirectory=@REPO@
+ExecStart=@REPO@/ops/rust-migration/coordinator.sh
+Restart=always
+RestartSec=30
+Nice=10
+StandardOutput=journal
+StandardError=journal
+# Single instance: the coordinator takes a flock on .coordinator.lockfile
+# (auto-released on crash); systemd Restart=always revives crashed runs.
+# Authoritative owner: while this unit is active the legacy
+# ihrz-migration.service MUST stay stopped-or-paused (coord.sh start
+# guarantees the PAUSED guard). Never enable both units simultaneously.
+
+[Install]
+WantedBy=default.target

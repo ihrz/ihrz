@@ -187,4 +187,22 @@ ops/rust-migration/state.json
 ops/rust-migration/loop.log
 ops/rust-migration/gap-candidates.txt
 ops/rust-migration/.loop.lockfile
+ops/rust-migration/.lock
 ops/rust-migration/PAUSED
+# Parallel coordinator runtime state (durable on disk, never committed:
+# authoritative records also land in MIGRATION.md + git merge commits)
+ops/rust-migration/queue.json
+ops/rust-migration/queue.lock
+ops/rust-migration/.loop.lock
+ops/rust-migration/migrate.lock
+ops/rust-migration/migration.lock
+ops/rust-migration/*.bak
+ops/rust-migration/.coordinator.lockfile
+ops/rust-migration/.coord-paused
+ops/rust-migration/coordinator.pid
+ops/rust-migration/coordinator.log
+ops/rust-migration/logs/
+ops/rust-migration/workers/
+ops/rust-migration/inventory-scan.md
+ops/rust-migration/__pycache__/
+.worktrees/

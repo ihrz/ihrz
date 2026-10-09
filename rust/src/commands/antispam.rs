@@ -71,7 +71,12 @@ pub async fn antispam(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())
 }
 
-#[poise::command(slash_command, prefix_command, rename = "config")]
+#[poise::command(
+    slash_command,
+    prefix_command,
+    rename = "config",
+    aliases("mng", "antimng")
+)]
 pub async fn as_config(
     ctx: Ctx<'_>,
     #[description = "on or off"] action: String,
@@ -105,7 +110,12 @@ pub async fn as_config(
     Ok(())
 }
 
-#[poise::command(slash_command, prefix_command, rename = "bypass-roles")]
+#[poise::command(
+    slash_command,
+    prefix_command,
+    rename = "bypass-roles",
+    aliases("bproles")
+)]
 pub async fn as_bypass_roles(
     ctx: Ctx<'_>,
     #[description = "Role"] role: poise::serenity_prelude::Role,
@@ -124,11 +134,21 @@ pub async fn as_bypass_roles(
         list.push(id);
         crate::db::kv_set(&ctx.data().pool, &gid, key, &serde_json::to_string(&list)?).await?;
     }
-    ctx.say("Bypass role added.").await?;
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    ctx.say(
+        crate::lang::get(&code, "msg_bypass_role_added")
+            .unwrap_or_else(|| "Bypass role added.".to_string()),
+    )
+    .await?;
     Ok(())
 }
 
-#[poise::command(slash_command, prefix_command, rename = "ignore-channels")]
+#[poise::command(
+    slash_command,
+    prefix_command,
+    rename = "ignore-channels",
+    aliases("channels")
+)]
 pub async fn as_ignore_channels(
     ctx: Ctx<'_>,
     #[description = "Channel"]
@@ -149,7 +169,12 @@ pub async fn as_ignore_channels(
         list.push(id);
         crate::db::kv_set(&ctx.data().pool, &gid, key, &serde_json::to_string(&list)?).await?;
     }
-    ctx.say("Ignore channel added.").await?;
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    ctx.say(
+        crate::lang::get(&code, "msg_ignore_channel_added")
+            .unwrap_or_else(|| "Ignore channel added.".to_string()),
+    )
+    .await?;
     Ok(())
 }
 

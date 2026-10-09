@@ -29,7 +29,13 @@ pub fn uptime_str(secs: u64) -> String {
 }
 
 /// Bot info. Mirrors src/Interaction/HybridCommands/bot/botinfo.ts.
-#[poise::command(slash_command, prefix_command, category = "bot", rename = "bot-info")]
+#[poise::command(
+    slash_command,
+    prefix_command,
+    category = "bot",
+    rename = "bot-info",
+    aliases("bi")
+)]
 pub async fn botinfo_full(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let guilds = ctx.cache().guild_count();
     let embed = serenity::CreateEmbed::default()
@@ -47,7 +53,16 @@ pub async fn say(
     ctx: Ctx<'_>,
     #[description = "What you want the bot to say"] content: String,
 ) -> Result<(), anyhow::Error> {
-    ctx.say(format!("> {content}")).await?;
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    let footer = crate::lang::get(&code, "say_footer_msg")
+        .map(|s| {
+            s.replace(
+                "${interaction.user}",
+                &format!("<@{}>", ctx.author().id.get()),
+            )
+        })
+        .unwrap_or_default();
+    ctx.say(format!("> {content}{footer}")).await?;
     Ok(())
 }
 
@@ -57,6 +72,7 @@ pub async fn say(
     prefix_command,
     category = "bot",
     rename = "setlang",
+    aliases("setsrvlang", "lang"),
     default_member_permissions = "ADMINISTRATOR"
 )]
 pub async fn setlang(
@@ -64,21 +80,40 @@ pub async fn setlang(
     #[description = "Server language"] lang: String,
 ) -> Result<(), anyhow::Error> {
     let Some(code) = parse_lang(lang.trim()) else {
-        ctx.say("Invalid language. Supported: ar-EG, de-DE, en-US, es-ES, fr-FR, fr-ME, it-IT, jp-JP, pt-PT, ru-RU.")
-            .await?;
+        let glang = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+        ctx.say(
+            crate::lang::get(&glang, "msg_invalid_language_supported_ar_eg_de_de_en_us_es_es_fr_fr_fr_me_it_it_jp_jp_pt_pt_ru_ru")
+                .unwrap_or_else(|| "Invalid language. Supported: ar-EG, de-DE, en-US, es-ES, fr-FR, fr-ME, it-IT, jp-JP, pt-PT, ru-RU.".to_string()),
+        )
+        .await?;
         return Ok(());
     };
     let Some(guild_id) = ctx.guild_id() else {
-        ctx.say("This command must be used in a server.").await?;
+        let glang = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+        ctx.say(
+            crate::lang::get(&glang, "msg_this_command_must_be_used_in_a_server")
+                .unwrap_or_else(|| "This command must be used in a server.".to_string()),
+        )
+        .await?;
         return Ok(());
     };
     crate::db::kv_set(&ctx.data().pool, &guild_id.to_string(), "GUILD.LANG", code).await?;
-    ctx.say(format!("Language set to `{code}`.")).await?;
+    let lang_code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    ctx.say(
+        crate::lang::get(&lang_code, "setserverlang_panel_saved")
+            .unwrap_or_else(|| format!("Language set to `{code}`.")),
+    )
+    .await?;
     Ok(())
 }
 
 /// Get the bot invite link. Mirrors invite.ts.
-#[poise::command(slash_command, prefix_command, category = "bot")]
+#[poise::command(
+    slash_command,
+    prefix_command,
+    category = "bot",
+    aliases("inviteme", "oauth")
+)]
 pub async fn invite(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let app_id = ctx.serenity_context().cache.current_user().id;
     let url = format!(
@@ -89,7 +124,7 @@ pub async fn invite(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
 }
 
 /// Show all links about iHorizon. Mirrors link.ts.
-#[poise::command(slash_command, prefix_command, category = "bot")]
+#[poise::command(slash_command, prefix_command, category = "bot", aliases("link"))]
 pub async fn links(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     ctx.say("Website: https://ihorizon.org | GitLab: https://gitlab.com/ihrz/ihrz")
         .await?;
@@ -103,9 +138,7 @@ pub fn bot_commands() -> Vec<poise::Command<Data, anyhow::Error>> {
         setlang(),
         invite(),
         links(),
-        bot_custom_name(),
-        bot_custom_avatar(),
-        bot_custom_banner(),
+        custom(),
     ]
 }
 
@@ -176,20 +209,130 @@ pub async fn download_bytes(url: &str) -> Option<Vec<u8>> {
         .map(|b| b.to_vec())
 }
 
-/// Set or reset the per-guild bot nickname.
+/// Custom-profile SKU gating the `custom` parent in production.
+/// Mirrors checkCustomSdkGate/hasGuildSku in commandExecutor.ts.
+pub const CUSTOM_SKU_ID: u64 = 1512856902919258384;
+
+/// Pure entitlement match. Mirrors the hasGuildSku `.some()`:
+/// same guild + same sku + not deleted.
+pub fn entitlement_grants(entitlements: &[(u64, u64, bool)], guild_id: u64, sku_id: u64) -> bool {
+    entitlements
+        .iter()
+        .any(|(g, s, deleted)| *g == guild_id && *s == sku_id && !deleted)
+}
+
+/// Live entitlement lookup (best-effort false, like the TS try/catch
+/// around client.rest.get entitlements).
+pub async fn has_guild_sku(http: &std::sync::Arc<serenity::Http>, guild_id: u64) -> bool {
+    // No exclude_ended: TS grants on !deleted alone (expired rows
+    // still count there).
+    let list = http
+        .get_entitlements(
+            None,
+            Some(vec![serenity::SkuId::new(CUSTOM_SKU_ID)]),
+            None,
+            None,
+            Some(100),
+            Some(serenity::GuildId::new(guild_id)),
+            None,
+        )
+        .await
+        .unwrap_or_default();
+    entitlement_grants(
+        &list
+            .iter()
+            .map(|e| {
+                (
+                    e.guild_id.map(|g| g.get()).unwrap_or(0),
+                    e.sku_id.get(),
+                    e.deleted,
+                )
+            })
+            .collect::<Vec<_>>(),
+        guild_id,
+        CUSTOM_SKU_ID,
+    )
+}
+
+/// Paywall for the bare `custom` parent. Mirrors checkCustomSdkGate:
+/// non-production passes, bot owners pass, entitled guilds pass;
+/// otherwise the Boost_Gem store line + Red Pleading upsell embed
+/// goes out and the command stops.
+pub async fn custom_sdk_gate(ctx: &Ctx<'_>) -> bool {
+    if !crate::config::is_production_env() {
+        return true;
+    }
+    if crate::funcs::is_bot_owner(ctx.author().id.get(), &ctx.data().config.owners) {
+        return true;
+    }
+    let gid = ctx.guild_id().map(|g| g.get());
+    if let Some(gid) = gid {
+        if has_guild_sku(&ctx.serenity_context().http, gid).await {
+            return true;
+        }
+    }
+    let pool = &ctx.data().pool;
+    let code = crate::db::guild_lang(pool, gid).await;
+    let t = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
+    let store = "https://discord.com/discovery/applications/945202900907470899/store";
+    let content =
+        match crate::emojis::app_emoji_markup(&ctx.serenity_context().http, "Boost_Gem").await {
+            Some(markup) => format!("{markup} {store}"),
+            None => store.to_string(),
+        };
+    let mut embed = serenity::CreateEmbed::default()
+        .colour(serenity::Colour::RED)
+        .title(t("custom_sdk_only_title"))
+        .description(t("custom_sdk_only_description"));
+    let mut reply = poise::CreateReply::default().content(content);
+    if let Some(bytes) = download_bytes(&crate::funcs::expression_url("Pleading")).await {
+        embed = embed.thumbnail("attachment://pleading.png");
+        reply = reply
+            .embed(embed)
+            .attachment(serenity::CreateAttachment::bytes(bytes, "pleading.png"));
+    } else {
+        reply = reply.embed(embed);
+    }
+    let _ = ctx.send(reply).await;
+    false
+}
+
+/// Custom the bot profile in your discord server.
 #[poise::command(
     slash_command,
     prefix_command,
     category = "bot",
-    rename = "bot-custom-name"
+    rename = "custom",
+    subcommands("custom_name", "custom_avatar", "custom_banner", "custom_bio")
 )]
-pub async fn bot_custom_name(
+pub async fn custom(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
+    // Container only (mirrors custom.ts); the paywall lives on the
+    // bare parent, subcommands are exempt like checkCustomSdkGate.
+    if !custom_sdk_gate(&ctx).await {
+        return Ok(());
+    }
+    Ok(())
+}
+
+/// Set or reset the per-guild bot nickname.
+#[poise::command(
+    slash_command,
+    prefix_command,
+    rename = "name",
+    aliases("botname", "setname", "setbotname")
+)]
+pub async fn custom_name(
     ctx: Ctx<'_>,
     #[description = "set or reset"] action: String,
     #[description = "New bot name"] name: Option<String>,
 ) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {
-        ctx.say("This command must be used in a server.").await?;
+        let glang = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+        ctx.say(
+            crate::lang::get(&glang, "msg_this_command_must_be_used_in_a_server")
+                .unwrap_or_else(|| "This command must be used in a server.".to_string()),
+        )
+        .await?;
         return Ok(());
     };
     let gid = guild_id.get().to_string();
@@ -205,23 +348,55 @@ pub async fn bot_custom_name(
             )
             .await;
         }
-        ctx.say("Bot name reset to default.").await?;
+        let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+        ctx.say(
+            crate::lang::get(&code, "custom_name_reset")
+                .unwrap_or_else(|| "Bot name reset to default.".to_string()),
+        )
+        .await?;
         return Ok(());
     }
     let Some(name) = name.map(|n| n.trim().to_string()).filter(|n| !n.is_empty()) else {
-        ctx.say("Provide a name, or use reset.").await?;
+        let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+        ctx.say(
+            crate::lang::get(&code, "guildconfig_setbot_footername_not_found")
+                .unwrap_or_else(|| "Provide a name, or use reset.".to_string()),
+        )
+        .await?;
         return Ok(());
     };
     if footer_name_too_long(&name) {
-        ctx.say("The bot footer is too long, it will be too ugly to display.")
-            .await?;
+        let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+        ctx.say(
+            crate::lang::get(&code, "guildconfig_setbot_footername_footer_too_long_msg")
+                .unwrap_or_else(|| {
+                    "The bot footer is too long, it will be too ugly to display.".to_string()
+                }),
+        )
+        .await?;
         return Ok(());
     }
     crate::db::kv_set(pool, &gid, BOT_NAME_KEY, &name).await?;
     if let Some(token) = crate::config::bot_token() {
         patch_guild_me(&token, guild_id.get(), serde_json::json!({ "nick": name })).await;
     }
-    ctx.say(format!("Bot name set to `{name}`.")).await?;
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    let yes = crate::emojis::app_emoji_markup(&ctx.serenity_context().http, "Yes")
+        .await
+        .unwrap_or_else(|| "✅".to_string());
+    let crown = crate::emojis::app_emoji_markup(&ctx.serenity_context().http, "Crown")
+        .await
+        .unwrap_or_else(|| "👑".to_string());
+    ctx.say(
+        crate::lang::get(&code, "custom_name_set")
+            .map(|s| {
+                s.replace("${client.iHorizon_Emojis.Yes}", &yes)
+                    .replace("${client.iHorizon_Emojis.Crown}", &crown)
+                    .replace("${name}", &name)
+            })
+            .unwrap_or_else(|| format!("Bot name set to `{name}`.")),
+    )
+    .await?;
     Ok(())
 }
 
@@ -229,16 +404,21 @@ pub async fn bot_custom_name(
 #[poise::command(
     slash_command,
     prefix_command,
-    category = "bot",
-    rename = "bot-custom-avatar"
+    rename = "avatar",
+    aliases("botavatar", "setpic", "setavatar", "setpp")
 )]
-pub async fn bot_custom_avatar(
+pub async fn custom_avatar(
     ctx: Ctx<'_>,
     #[description = "set or reset"] action: String,
     #[description = "New avatar image"] avatar: Option<serenity::Attachment>,
 ) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {
-        ctx.say("This command must be used in a server.").await?;
+        let glang = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+        ctx.say(
+            crate::lang::get(&glang, "msg_this_command_must_be_used_in_a_server")
+                .unwrap_or_else(|| "This command must be used in a server.".to_string()),
+        )
+        .await?;
         return Ok(());
     };
     let gid = guild_id.get().to_string();
@@ -262,18 +442,33 @@ pub async fn bot_custom_avatar(
                 .await;
             }
         }
-        ctx.say("Bot avatar reset to default.").await?;
+        let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+        ctx.say(
+            crate::lang::get(&code, "custom_avatar_reset")
+                .unwrap_or_else(|| "Bot avatar reset to default.".to_string()),
+        )
+        .await?;
         return Ok(());
     }
     let Some(avatar) = avatar else {
-        ctx.say("Attach an image, or use reset.").await?;
+        let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+        ctx.say(
+            crate::lang::get(&code, "msg_attach_an_image_or_use_reset")
+                .unwrap_or_else(|| "Attach an image, or use reset.".to_string()),
+        )
+        .await?;
         return Ok(());
     };
     if !crate::funcs::is_valid_image_type(avatar.content_type.as_deref()) {
         return Ok(());
     }
     let Some(bytes) = download_bytes(&avatar.url).await else {
-        ctx.say("Could not download that image.").await?;
+        let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+        ctx.say(
+            crate::lang::get(&code, "msg_could_not_download_that_image")
+                .unwrap_or_else(|| "Could not download that image.".to_string()),
+        )
+        .await?;
         return Ok(());
     };
     let b64 = crate::emojis::base64_encode(&bytes);
@@ -286,8 +481,23 @@ pub async fn bot_custom_avatar(
         .await;
     }
     crate::db::kv_set(pool, &gid, BOT_PFP_KEY, &b64).await?;
-    ctx.say(format!("Bot avatar updated from `{}`.", avatar.url))
-        .await?;
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    let yes = crate::emojis::app_emoji_markup(&ctx.serenity_context().http, "Yes")
+        .await
+        .unwrap_or_else(|| "✅".to_string());
+    let crown = crate::emojis::app_emoji_markup(&ctx.serenity_context().http, "Crown")
+        .await
+        .unwrap_or_else(|| "👑".to_string());
+    ctx.say(
+        crate::lang::get(&code, "custom_avatar_set")
+            .map(|s| {
+                s.replace("${client.iHorizon_Emojis.Yes}", &yes)
+                    .replace("${client.iHorizon_Emojis.Crown}", &crown)
+                    .replace("${x}", &avatar.url)
+            })
+            .unwrap_or_else(|| format!("Bot avatar updated from `{}`.", avatar.url)),
+    )
+    .await?;
     Ok(())
 }
 
@@ -327,22 +537,32 @@ pub fn app_bot_banner_hash(app: &serde_json::Value) -> Option<String> {
 #[poise::command(
     slash_command,
     prefix_command,
-    category = "bot",
-    rename = "bot-custom-banner"
+    rename = "banner",
+    aliases("botbanner", "setbotbanner", "setbanner")
 )]
-pub async fn bot_custom_banner(
+pub async fn custom_banner(
     ctx: Ctx<'_>,
     #[description = "set or reset"] action: String,
     #[description = "New banner image"] banner: Option<serenity::Attachment>,
 ) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {
-        ctx.say("This command must be used in a server.").await?;
+        let glang = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+        ctx.say(
+            crate::lang::get(&glang, "msg_this_command_must_be_used_in_a_server")
+                .unwrap_or_else(|| "This command must be used in a server.".to_string()),
+        )
+        .await?;
         return Ok(());
     };
     let token = crate::config::bot_token();
     if action.trim().eq_ignore_ascii_case("reset") {
-        ctx.say("You have decided to reset the bot's banner on the server.")
-            .await?;
+        let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+        ctx.say(
+            crate::lang::get(&code, "custom_banner_reset").unwrap_or_else(|| {
+                "You have decided to reset the bot's banner on the server.".to_string()
+            }),
+        )
+        .await?;
         if let Some(token) = token {
             let bot_id = ctx.cache().current_user().id.get();
             if let Some(app) = fetch_application(&token).await {
@@ -368,12 +588,25 @@ pub async fn bot_custom_banner(
     let Some(banner) =
         banner.filter(|b| crate::funcs::is_valid_image_type(b.content_type.as_deref()))
     else {
-        ctx.say("The file does not correspond to an image. Please try again with an image.")
-            .await?;
+        let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+        ctx.say(
+            crate::lang::get(&code, "guildconfig_setbot_footeravatar_incorect").unwrap_or_else(
+                || {
+                    "The file does not correspond to an image. Please try again with an image."
+                        .to_string()
+                },
+            ),
+        )
+        .await?;
         return Ok(());
     };
     let Some(bytes) = download_bytes(&banner.url).await else {
-        ctx.say("Could not download that image.").await?;
+        let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+        ctx.say(
+            crate::lang::get(&code, "msg_could_not_download_that_image")
+                .unwrap_or_else(|| "Could not download that image.".to_string()),
+        )
+        .await?;
         return Ok(());
     };
     if let Some(token) = token {
@@ -389,8 +622,23 @@ pub async fn bot_custom_banner(
         )
         .await;
     }
-    ctx.say(format!("Bot banner updated from `{}`.", banner.url))
-        .await?;
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    let yes = crate::emojis::app_emoji_markup(&ctx.serenity_context().http, "Yes")
+        .await
+        .unwrap_or_else(|| "✅".to_string());
+    let crown = crate::emojis::app_emoji_markup(&ctx.serenity_context().http, "Crown")
+        .await
+        .unwrap_or_else(|| "👑".to_string());
+    ctx.say(
+        crate::lang::get(&code, "custom_banner_set")
+            .map(|s| {
+                s.replace("${client.iHorizon_Emojis.Yes}", &yes)
+                    .replace("${client.iHorizon_Emojis.Crown}", &crown)
+                    .replace("${x}", &banner.url)
+            })
+            .unwrap_or_else(|| format!("Bot banner updated from `{}`.", banner.url)),
+    )
+    .await?;
     Ok(())
 }
 
@@ -416,8 +664,74 @@ pub fn machine_uptime() -> String {
     uptime_str(secs)
 }
 
+/// Set or reset the per-guild bot bio (190 chars, 2 lines).
+#[poise::command(
+    slash_command,
+    prefix_command,
+    rename = "bio",
+    aliases("botbio", "setbotbio", "setbio")
+)]
+pub async fn custom_bio(
+    ctx: Ctx<'_>,
+    #[description = "set or reset"] action: String,
+    #[description = "New bio"] bio: Option<String>,
+) -> Result<(), anyhow::Error> {
+    let Some(guild_id) = ctx.guild_id() else {
+        let glang = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+        ctx.say(
+            crate::lang::get(&glang, "msg_this_command_must_be_used_in_a_server")
+                .unwrap_or_else(|| "This command must be used in a server.".to_string()),
+        )
+        .await?;
+        return Ok(());
+    };
+    let final_bio = if action.trim().eq_ignore_ascii_case("reset") {
+        String::new()
+    } else {
+        sanitize_bio(&bio.unwrap_or_default())
+    };
+    if let Some(token) = crate::config::bot_token() {
+        patch_guild_me(
+            &token,
+            guild_id.get(),
+            serde_json::json!({ "bio": final_bio }),
+        )
+        .await;
+    }
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    let yes = crate::emojis::app_emoji_markup(&ctx.serenity_context().http, "Yes")
+        .await
+        .unwrap_or_else(|| "✅".to_string());
+    let crown = crate::emojis::app_emoji_markup(&ctx.serenity_context().http, "Crown")
+        .await
+        .unwrap_or_else(|| "👑".to_string());
+    ctx.say(
+        crate::lang::get(&code, "custom_desc_set")
+            .map(|s| {
+                s.replace("${client.iHorizon_Emojis.Yes}", &yes)
+                    .replace("${client.iHorizon_Emojis.Crown}", &crown)
+                    .replace("${desc}", &final_bio)
+            })
+            .unwrap_or_else(|| "Bot bio updated.".to_string()),
+    )
+    .await?;
+    Ok(())
+}
+
+/// Sanitize bio like customProfileHelper (190 chars, first 2 lines).
+pub fn sanitize_bio(bio: &str) -> String {
+    let two: Vec<&str> = bio.lines().take(2).collect();
+    two.join("\n").chars().take(190).collect()
+}
+
 /// Status embed. Mirrors bot !status.ts (CPU/memory/uptime/OS/version).
-#[poise::command(slash_command, prefix_command, category = "bot", rename = "status")]
+#[poise::command(
+    slash_command,
+    prefix_command,
+    category = "bot",
+    rename = "status",
+    aliases("server")
+)]
 pub async fn status(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let (total, free) = crate::funcs::system_memory_kb();
     let embed = serenity::CreateEmbed::default()
@@ -454,15 +768,45 @@ macro_rules! lore_cmd {
             Ok(())
         }
     };
+    ($fn_name:ident, $sub:literal, $key:literal, $fallback:literal, $($alias:literal),+) => {
+        #[poise::command(
+            slash_command,
+            prefix_command,
+            category = "bot",
+            rename = $sub,
+            aliases($($alias),*)
+        )]
+        pub async fn $fn_name(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
+            let code =
+                crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+            ctx.say(crate::lang::get(&code, $key).unwrap_or_else(|| $fallback.to_string()))
+                .await?;
+            Ok(())
+        }
+    };
 }
 
 lore_cmd!(andru, "andru", "andru_message", "Andru");
 lore_cmd!(ether, "ether", "ether_message", "Ether");
 lore_cmd!(iris, "iris", "irisweb_message", "Iris");
-lore_cmd!(kisakay, "kisakay", "kisakay_message", "Kisakay");
+lore_cmd!(
+    kisakay,
+    "kisakay",
+    "kisakay_message",
+    "Kisakay",
+    "anaïs",
+    "anais",
+    "kisa"
+);
 
 /// Noaimie picture link. Mirrors !noaimie.ts (fixed asset URL).
-#[poise::command(slash_command, prefix_command, category = "bot", rename = "noaimie")]
+#[poise::command(
+    slash_command,
+    prefix_command,
+    category = "bot",
+    rename = "noaimie",
+    aliases("noemie", "noémie")
+)]
 pub async fn noaimie(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     ctx.say("https://www.ihorizon.org/assets/img/noaimie.jpg")
         .await?;
@@ -491,6 +835,13 @@ mod tests {
     fn parse_lang_is_case_sensitive() {
         assert_eq!(parse_lang("EN-US"), None);
         assert_eq!(parse_lang("en-US"), Some("en-US"));
+    }
+
+    #[test]
+    fn bio_sanitizes_to_190_chars_2_lines() {
+        assert_eq!(sanitize_bio("a\nb\nc"), "a\nb");
+        assert_eq!(sanitize_bio(&"x".repeat(300)).chars().count(), 190);
+        assert_eq!(sanitize_bio(""), "");
     }
 
     #[test]
@@ -542,6 +893,17 @@ mod tests {
         );
         assert_eq!(footer_icon_bytes(None), None);
         assert_eq!(footer_icon_bytes(Some("!!!")), None);
+    }
+
+    #[test]
+    fn entitlement_grants_matches_ts_some() {
+        let sku = CUSTOM_SKU_ID;
+        assert_eq!(CUSTOM_SKU_ID, 1512856902919258384);
+        assert!(entitlement_grants(&[(7, sku, false)], 7, sku));
+        assert!(!entitlement_grants(&[(7, sku, true)], 7, sku));
+        assert!(!entitlement_grants(&[(8, sku, false)], 7, sku));
+        assert!(!entitlement_grants(&[(7, sku + 1, false)], 7, sku));
+        assert!(!entitlement_grants(&[], 7, sku));
     }
 
     #[test]

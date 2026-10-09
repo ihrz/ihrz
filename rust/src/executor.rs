@@ -51,6 +51,41 @@ pub fn total_pages(count: usize, per_page: usize) -> usize {
     count.div_ceil(per_page)
 }
 
+/// Sliding-window rate limiter. Mirrors checkCommandRateLimit: attempts
+/// live in memory (tempTable `COMMAND_LIMITS.<gid>.<path>.<uid>`); now
+/// pushes only on allow, pruned entries outside the window are dropped.
+#[derive(Debug, Default)]
+pub struct RateLimits {
+    inner: HashMap<(u64, u64, String), Vec<i64>>,
+}
+
+impl RateLimits {
+    /// Remaining ms before `user` may run `path` again; 0 = allowed and
+    /// recorded. Denies when `count` attempts are already active inside
+    /// `window_ms` (remaining = window - (now - oldest)).
+    pub fn check(
+        &mut self,
+        guild: u64,
+        user: u64,
+        path: &str,
+        count: u32,
+        window_ms: i64,
+        now_ms: i64,
+    ) -> i64 {
+        if count == 0 || window_ms <= 0 {
+            return 0;
+        }
+        let key = (guild, user, path.to_string());
+        let active = self.inner.entry(key).or_default();
+        active.retain(|t| now_ms - *t < window_ms);
+        if active.len() >= count as usize {
+            let oldest = active[0];
+            return (window_ms - (now_ms - oldest)).max(0);
+        }
+        active.push(now_ms);
+        0
+    }
+}
 /// Custom command permissions. Mirrors permissonsCalculator.ts +
 /// UTILS.PERMS.<command> {users, roles, level} + UTILS.USER_PERMS.<uid>.
 #[derive(Debug, Clone, Default, serde::Serialize, serde::Deserialize)]
@@ -129,6 +164,26 @@ mod tests {
         assert!(empty.is_empty());
         assert_eq!(total_pages(10, 3), 4);
         assert_eq!(total_pages(0, 3), 0);
+    }
+
+    #[test]
+    fn rate_limit_slides() {
+        let mut r = RateLimits::default();
+        assert_eq!(r.check(1, 7, "ping", 2, 1000, 0), 0);
+        assert_eq!(r.check(1, 7, "ping", 2, 1000, 100), 0);
+        // Third attempt inside the window is denied; remaining counts
+        // from the oldest active attempt.
+        assert_eq!(r.check(1, 7, "ping", 2, 1000, 200), 800);
+        // Denied attempts are not recorded: still denied at 500.
+        assert_eq!(r.check(1, 7, "ping", 2, 1000, 500), 500);
+        // Window expired: allowed again.
+        assert_eq!(r.check(1, 7, "ping", 2, 1000, 1000), 0);
+        // Other user / guild / path unaffected.
+        assert_eq!(r.check(1, 8, "ping", 2, 1000, 200), 0);
+        assert_eq!(r.check(1, 7, "pong", 2, 1000, 200), 0);
+        // Degenerate configs never deny.
+        assert_eq!(r.check(1, 7, "ping", 0, 1000, 200), 0);
+        assert_eq!(r.check(1, 7, "ping", 2, 0, 200), 0);
     }
 
     #[test]

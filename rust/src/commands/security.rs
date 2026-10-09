@@ -102,6 +102,10 @@ pub async fn security_channel(
     let lang = ctx.data().pool.clone();
     let code = crate::db::guild_lang(&lang, ctx.guild_id().map(|g| g.get())).await;
     let msg = crate::lang::get(&code, "security_channel_command_work")
+        .map(|s| {
+            s.replace("${interaction.user}", &ctx.author().to_string())
+                .replace("${channel}", &format!("<#{}>", channel.id.get()))
+        })
         .unwrap_or_else(|| "Security channel set.".to_string());
     ctx.say(msg).await?;
     Ok(())
@@ -113,7 +117,11 @@ pub async fn security_config(
     #[description = "on or off"] action: String,
 ) -> Result<(), anyhow::Error> {
     let Some(enabled) = parse_on_off(&action) else {
-        ctx.say("Use on/off.").await?;
+        let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+        ctx.say(
+            crate::lang::get(&code, "msg_use_on_off").unwrap_or_else(|| "Use on/off.".to_string()),
+        )
+        .await?;
         return Ok(());
     };
     let Some(gid) = guild_id_str(&ctx).await else {
@@ -132,7 +140,9 @@ pub async fn security_config(
     } else {
         "security_disable_pw_off"
     };
-    let msg = crate::lang::get(&code, key).unwrap_or_else(|| key.to_string());
+    let msg = crate::lang::get(&code, key)
+        .map(|s| s.replace("${interaction.user}", &ctx.author().to_string()))
+        .unwrap_or_else(|| key.to_string());
     ctx.say(msg).await?;
     Ok(())
 }
@@ -154,6 +164,10 @@ pub async fn security_give(
     .await?;
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let msg = crate::lang::get(&code, "security_role_to_give_command_work")
+        .map(|s| {
+            s.replace("${interaction.user}", &ctx.author().to_string())
+                .replace("${role}", &format!("<@&{}>", role.id.get()))
+        })
         .unwrap_or_else(|| "Role to give set.".to_string());
     ctx.say(msg).await?;
     Ok(())
@@ -174,7 +188,16 @@ pub async fn security_remove(
         &role.id.get().to_string(),
     )
     .await?;
-    ctx.say("Role to remove set.").await?;
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    ctx.say(
+        crate::lang::get(&code, "security_role_to_give_command_work")
+            .map(|s| {
+                s.replace("${role}", &format!("<@&{}>", role.id.get()))
+                    .replace("${interaction.user}", &ctx.author().to_string())
+            })
+            .unwrap_or_else(|| "Role to remove set.".to_string()),
+    )
+    .await?;
     Ok(())
 }
 

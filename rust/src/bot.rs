@@ -10,6 +10,16 @@ use std::sync::Arc;
 pub struct Data {
     pub pool: Pool,
     pub config: Arc<Config>,
+    pub cooldowns: std::sync::Mutex<crate::executor::Cooldowns>,
+    pub rate_limits: std::sync::Mutex<crate::executor::RateLimits>,
+}
+
+/// Current unix millis. Mirrors Date.now() in the executor guards.
+pub fn now_ms() -> i64 {
+    std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|d| d.as_millis() as i64)
+        .unwrap_or(0)
 }
 
 pub type Ctx<'a> = poise::Context<'a, Data, anyhow::Error>;
@@ -90,8 +100,137 @@ fn global_check(
                 return Ok(false);
             }
         }
+        // Global 1s debounce. Mirrors preExecutionCooldown (slash
+        // COOLDOWN.<uid> + message "msg_commands" helper cooldown):
+        // denied runs get lang.Msg_cooldown and never execute.
+        let code = crate::db::guild_lang(pool, ctx.guild_id().map(|g| g.get())).await;
+        let left = ctx
+            .data()
+            .cooldowns
+            .lock()
+            .map(|mut c| c.check(ctx.author().id.get(), "msg_commands", 1000, now_ms()))
+            .unwrap_or(0);
+        if left > 0 {
+            let msg = crate::lang::get(&code, "Msg_cooldown").unwrap_or_default();
+            let _ = ctx
+                .send(poise::CreateReply::default().content(msg).ephemeral(true))
+                .await;
+            return Ok(false);
+        }
+        // Per-command rate limits. Mirrors checkCommandRateLimit:
+        // UTILS.COMMAND_LIMITS.<path> then <category> fallback, guild
+        // owners bypass, denied runs get commandlimit_rate_limited.
+        let path = ctx.command().qualified_name.clone();
+        let raw = crate::db::kv_get(
+            pool,
+            &ctx.guild_id()
+                .map(|g| g.get().to_string())
+                .unwrap_or_default(),
+            "UTILS.COMMAND_LIMITS",
+        )
+        .await;
+        let map: std::collections::HashMap<String, crate::commands::guildconfig::CommandLimit> =
+            raw.and_then(|s| serde_json::from_str(&s).ok())
+                .unwrap_or_default();
+        let category = path.split(' ').next().unwrap_or(&path).to_string();
+        let limit = map.get(&path).or_else(|| map.get(&category)).cloned();
+        if let Some(limit) = limit {
+            if limit.count > 0 && limit.window_ms > 0 {
+                let bypass = match ctx.guild_id() {
+                    Some(gid) => {
+                        let owner = gid
+                            .to_partial_guild(ctx.http())
+                            .await
+                            .map(|g| g.owner_id)
+                            .unwrap_or_else(|_| ctx.author().id);
+                        owner == ctx.author().id
+                            || crate::db::kv_get(
+                                pool,
+                                &gid.get().to_string(),
+                                &format!("GUILD.OWNER.{}", ctx.author().id.get()),
+                            )
+                            .await
+                            .is_some()
+                    }
+                    None => false,
+                };
+                if !bypass {
+                    let left = ctx
+                        .data()
+                        .rate_limits
+                        .lock()
+                        .map(|mut r| {
+                            r.check(
+                                ctx.guild_id().map(|g| g.get()).unwrap_or(0),
+                                ctx.author().id.get(),
+                                &path,
+                                limit.count,
+                                limit.window_ms,
+                                now_ms(),
+                            )
+                        })
+                        .unwrap_or(0);
+                    if left > 0 {
+                        let msg = crate::lang::get(&code, "commandlimit_rate_limited")
+                            .unwrap_or_default()
+                            .replace("${time}", &crate::funcs::beautiful_ms(left as f64));
+                        let _ = ctx
+                            .send(poise::CreateReply::default().content(msg).ephemeral(true))
+                            .await;
+                        return Ok(false);
+                    }
+                }
+            }
+        }
         Ok(true)
     })
+}
+/// Crash reporter. Mirrors handleExecutionError in commandExecutor.ts:
+/// the user gets the error block + /report suggestion, and a report
+/// embed goes to config.core.reportChannelID.
+pub async fn report_command_error(err: poise::FrameworkError<'_, Data, anyhow::Error>) {
+    let (ctx, error_text) = match &err {
+        poise::FrameworkError::Command { ctx, error, .. } => (*ctx, error.to_string()),
+        poise::FrameworkError::CommandPanic { ctx, payload, .. } => (*ctx, format!("{payload:?}")),
+        _ => return,
+    };
+    let is_prefix = matches!(ctx, poise::Context::Prefix(_));
+    let invocation = match ctx {
+        poise::Context::Prefix(p) => p.msg.content.clone(),
+        _ => format!("/{}", ctx.command().qualified_name),
+    };
+    let target_name = ctx.command().name.clone();
+    let error_block = format!(
+        "```TS\nMessage: The command ran into a problem!\nCommand Name: {target_name}\nError: {error_text}```\n"
+    );
+    let _ = ctx
+        .send(
+            poise::CreateReply::default()
+                .content(format!(
+                    "{error_block}**Let me suggest you to report this issue with `/report`.**"
+                ))
+                .ephemeral(true),
+        )
+        .await;
+    let channel_id: u64 = ctx.data().config.report_channel_id.parse().unwrap_or(0);
+    if channel_id == 0 {
+        return;
+    }
+    let embed = serenity::CreateEmbed::default()
+        .title(if is_prefix {
+            "MSG_CMD_CRASH_NOT_HANDLE"
+        } else {
+            "SLASH_CMD_CRASH_NOT_HANDLE"
+        })
+        .description(error_block)
+        .field("User", ctx.author().tag(), false)
+        .field("** **", invocation, false);
+    let _ = serenity::ChannelId::new(channel_id)
+        .send_message(
+            ctx.serenity_context().http.clone(),
+            serenity::CreateMessage::new().embed(embed),
+        )
+        .await;
 }
 /// Per-guild prefix with global default. Mirrors TS
 /// defaultMessageCommandsPrefix + GUILD.PREFIX override.
@@ -147,8 +286,8 @@ pub async fn run(cfg: Config, pool: Pool) -> anyhow::Result<()> {
             command_check: Some(global_check),
             on_error: |err| {
                 Box::pin(async move {
-                    // Mirrors errorManager.ts: structured command error log.
                     tracing::warn!("command error: {err}");
+                    crate::bot::report_command_error(err).await;
                 })
             },
             prefix_options: poise::PrefixFrameworkOptions {
@@ -167,6 +306,8 @@ pub async fn run(cfg: Config, pool: Pool) -> anyhow::Result<()> {
                 Ok(Data {
                     pool: pool_fw.clone(),
                     config: cfg_fw.clone(),
+                    cooldowns: std::sync::Mutex::new(crate::executor::Cooldowns::default()),
+                    rate_limits: std::sync::Mutex::new(crate::executor::RateLimits::default()),
                 })
             })
         })
@@ -174,10 +315,34 @@ pub async fn run(cfg: Config, pool: Pool) -> anyhow::Result<()> {
 
     let mut cache_settings = serenity::Settings::default();
     cache_settings.max_messages = 100;
+    // Slash-command file log (mirrors loggerX in slashCommandLogger.ts).
+    let slashlog = crate::slashlog::SlashLog::new(crate::slashlog::SlashLog::default_path());
+    // Mirrors the SIGINT/SIGTERM flush in slashCommandLogger.ts.
+    {
+        let logs = slashlog.clone();
+        tokio::spawn(async move {
+            #[cfg(unix)]
+            {
+                let mut term =
+                    tokio::signal::unix::signal(tokio::signal::unix::SignalKind::terminate())
+                        .expect("sigterm handler");
+                tokio::select! {
+                    _ = tokio::signal::ctrl_c() => {},
+                    _ = term.recv() => {},
+                }
+            }
+            #[cfg(not(unix))]
+            {
+                let _ = tokio::signal::ctrl_c().await;
+            }
+            tracing::info!("flushing command logs before shutdown...");
+            logs.force_flush().await;
+        });
+    }
     let mut client = serenity::ClientBuilder::new(token, intents())
         .cache_settings(cache_settings)
         .framework(framework)
-        .event_handler(crate::events_handler::Handler::new(pool.clone()))
+        .event_handler(crate::events_handler::Handler::new(pool.clone(), slashlog))
         .await?;
 
     crate::scheduler::spawn(pool.clone(), client.http.clone());
@@ -187,6 +352,7 @@ pub async fn run(cfg: Config, pool: Pool) -> anyhow::Result<()> {
         let http = client.http.clone();
         tokio::spawn(async move {
             crate::emojis::sync(&http).await;
+            crate::emojis::refresh(&http).await;
         });
     }
 

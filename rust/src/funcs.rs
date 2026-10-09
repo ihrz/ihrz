@@ -155,6 +155,26 @@ pub fn message_url(guild_id: u64, channel_id: u64, message_id: u64) -> String {
     format!("https://discord.com/channels/{guild_id}/{channel_id}/{message_id}")
 }
 
+/// Banner image URL template. Mirrors
+/// `core/functions/bannerGenerator.ts` (BANNER_URL with {countryCode}).
+pub const BANNER_URL_TEMPLATE: &str =
+    "https://www.ihorizon.org/assets/img/banner/ihrz_{countryCode}.png";
+
+/// Banner image URL for a guild language code. Mirrors bannerGenerator
+/// (the TS `|| "en-US"` fallback is applied by guild_banner_url).
+pub fn banner_url(lang_code: &str) -> String {
+    BANNER_URL_TEMPLATE.replace("{countryCode}", lang_code)
+}
+
+/// Banner image URL for a guild. Mirrors bannerGenerator(guildId)
+/// (reads GUILD.LANG, falls back to en-US).
+pub async fn guild_banner_url(pool: &crate::db::Pool, guild_id: &str) -> String {
+    let lang = crate::db::kv_get(pool, guild_id, "GUILD.LANG")
+        .await
+        .unwrap_or_else(|| "en-US".to_string());
+    banner_url(&lang)
+}
+
 /// Image content-type guard. Mirrors validImageType.ts exactly.
 pub fn is_valid_image_type(content_type: Option<&str>) -> bool {
     match content_type {
@@ -398,6 +418,10 @@ mod tests {
         assert_eq!(mask_link("see https://x.y"), "Hidden Link");
         assert_eq!(mask_link("plain text"), "plain text");
         assert_eq!(message_url(1, 2, 3), "https://discord.com/channels/1/2/3");
+        assert_eq!(
+            banner_url("fr-FR"),
+            "https://www.ihorizon.org/assets/img/banner/ihrz_fr-FR.png"
+        );
     }
 
     #[test]
@@ -409,6 +433,118 @@ mod tests {
         assert!(is_allowed_links("https://open.spotify.com/x"));
         assert!(!is_allowed_links("https://evil.example/x"));
         assert!(is_allowed_links("not a url"));
+    }
+
+    #[test]
+    fn media_pick_matches_ts() {
+        assert!(is_animated("https://cdn/x/a_abc.png"));
+        assert!(!is_animated("https://cdn/x/bc.png"));
+        assert_eq!(
+            media_by_message("https://img/a.png", None),
+            ("url".to_string(), "https://img/a.png".to_string())
+        );
+        assert_eq!(
+            media_by_message("hi", Some(("https://cdn/x/p.png", Some("image/png")))),
+            ("image.png".to_string(), "https://cdn/x/p.png".to_string())
+        );
+        assert_eq!(
+            media_by_message("hi", Some(("https://cdn/x/a_p.png", Some("image/gif")))),
+            ("image.gif".to_string(), "https://cdn/x/a_p.png".to_string())
+        );
+        assert_eq!(
+            media_by_message("hi", Some(("https://cdn/x/f.txt", Some("text/plain")))),
+            ("none".to_string(), String::new())
+        );
+        assert_eq!(
+            media_by_message("hi", None),
+            ("none".to_string(), String::new())
+        );
+    }
+
+    #[test]
+    fn media_layout_math_matches_ts() {
+        // convertToPng box: wide clamps width, tall clamps height.
+        assert_eq!(fit_dimensions(3840, 1080, 1920, 1080), (1920, 540));
+        assert_eq!(fit_dimensions(1080, 3840, 1920, 1080), (304, 1080));
+        assert_eq!(fit_dimensions(800, 600, 1920, 1080), (1440, 1080));
+        assert_eq!(fit_dimensions(0, 600, 1920, 1080), (0, 0));
+        assert_eq!(
+            fit_dimensions(1920, 1080, MEDIA_FIT_WIDTH, MEDIA_FIT_HEIGHT),
+            (1920, 1080)
+        );
+        // resizeImage letterbox: fit + centered offsets on black canvas.
+        assert_eq!(
+            letterbox_layout(3840, 1080, 1920, 1080),
+            (1920, 540, 0, 270)
+        );
+        assert_eq!(
+            letterbox_layout(1080, 1080, 1920, 1080),
+            (1080, 1080, 420, 0)
+        );
+        // adjustImageQuality ladder 90..=10.
+        assert_eq!(
+            image_quality_steps(),
+            vec![90, 80, 70, 60, 50, 40, 30, 20, 10]
+        );
+        assert_eq!(MEDIA_MAX_IMAGE_BYTES, 15 * 1024 * 1024);
+        assert_eq!(
+            media_temp_dir().file_name().and_then(|s| s.to_str()),
+            Some("media-manipulation")
+        );
+    }
+
+    #[test]
+    fn media_pixel_ops_roundtrip() {
+        // Build a 64x32 RGBA test image, encode PNG in memory.
+        let raw: Vec<u8> = (0..64 * 32)
+            .flat_map(|i| [i as u8, 255 - i as u8, 128, 255])
+            .collect();
+        let src = image::RgbaImage::from_raw(64, 32, raw).expect("test image");
+        let mut buf = std::io::Cursor::new(Vec::new());
+        image::DynamicImage::ImageRgba8(src)
+            .write_to(&mut buf, image::ImageFormat::Png)
+            .expect("encode");
+        let src_png = buf.into_inner();
+
+        // convertToPng: unconditional fit inside 1920x1080 (TS resizes
+        // even small inputs up), output stays valid PNG.
+        let png = convert_to_png(&src_png).expect("convert");
+        let back = image::load_from_memory(&png).expect("decode");
+        assert_eq!((back.width(), back.height()), (1920, 960));
+
+        // resizeImage with dims: letterboxed canvas file, original metadata.
+        let dir = std::env::temp_dir().join("ihrz-media-test");
+        std::fs::create_dir_all(&dir).expect("tmpdir");
+        let out = dir.join("letter.png");
+        let meta = resize_image_file(&png, &out, Some((1920, 1080))).expect("resize");
+        assert_eq!(meta, (1920, 960));
+        let canvas = image::open(&out).expect("canvas");
+        assert_eq!((canvas.width(), canvas.height()), (1920, 1080));
+
+        // resizeImage without dims: straight copy, same metadata.
+        let out2 = dir.join("copy.png");
+        let meta2 = resize_image_file(&png, &out2, None).expect("copy");
+        assert_eq!(meta2, (1920, 960));
+        assert_eq!(std::fs::read(&out2).expect("read"), png);
+
+        // Unsupported bytes fail like the TS throw path.
+        assert!(convert_to_png(b"not an image").is_err());
+        let _ = std::fs::remove_dir_all(&dir);
+    }
+
+    #[test]
+    fn gif_decode_matches_ts_valid_image_type() {
+        // TS validImageType accepts image/gif; convert_to_png decodes
+        // the first frame via the image crate gif feature.
+        let gif: &[u8] = &[
+            0x47, 0x49, 0x46, 0x38, 0x39, 0x61, 0x01, 0x00, 0x01, 0x00, 0x80, 0x00, 0x00, 0xFF,
+            0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x21, 0xF9, 0x04, 0x01, 0x00, 0x00, 0x00, 0x00, 0x2C,
+            0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x01, 0x00, 0x00, 0x02, 0x02, 0x44, 0x01, 0x00,
+            0x3B,
+        ];
+        assert!(is_valid_image_type(Some("image/gif")));
+        let png = convert_to_png(gif).expect("gif converts");
+        assert_eq!(&png[1..4], b"PNG");
     }
 
     #[test]
@@ -780,6 +916,26 @@ pub fn generate_password(opts: &PasswordOptions, seed: u64) -> Result<String, &'
     Ok(out.into_iter().collect())
 }
 
+/// Multiple passwords. Mirrors generateMultiplePasswords
+/// (amount <= 0 errors, like the TS throw).
+pub fn generate_multiple_passwords(
+    amount: usize,
+    opts: &PasswordOptions,
+    seed: u64,
+) -> Result<Vec<String>, &'static str> {
+    if amount == 0 {
+        return Err("amount must be positive");
+    }
+    (0..amount)
+        .map(|i| {
+            generate_password(
+                opts,
+                seed.wrapping_add((i as u64).wrapping_mul(0x9E3779B97F4A7C15)),
+            )
+        })
+        .collect()
+}
+
 /// Database round-trip latency in ms. Mirrors database_latency.ts.
 pub async fn database_latency(pool: &crate::db::Pool) -> u128 {
     let start = std::time::Instant::now();
@@ -817,6 +973,27 @@ mod funcs_part3_tests {
     fn bytes_format() {
         assert_eq!(nice_bytes(0.5), "512 bytes");
         assert_eq!(nice_bytes(2048.0), "2.00 MB");
+    }
+
+    #[test]
+    fn multiple_passwords_match_ts() {
+        let opts = PasswordOptions {
+            length: 16,
+            numbers: true,
+            symbols: false,
+            lowercase: true,
+            uppercase: true,
+            exclude_similar: false,
+            exclude: String::new(),
+            strict: false,
+        };
+        let batch = generate_multiple_passwords(3, &opts, 7).unwrap();
+        assert_eq!(batch.len(), 3);
+        for pw in &batch {
+            assert_eq!(pw.chars().count(), 16);
+            assert!(pw.chars().all(|c| c.is_ascii_alphanumeric()));
+        }
+        assert!(generate_multiple_passwords(0, &opts, 7).is_err());
     }
 
     #[test]
@@ -989,7 +1166,7 @@ mod funcs_part4_tests {
 // ---- randomExpression ----
 
 /// Bot expression image paths. Mirrors randomExpression.ts Expressions map.
-pub const EXPRESSIONS: [(&str, &str); 8] = [
+pub const EXPRESSIONS: [(&str, &str); 10] = [
     ("Blushed", "/assets/img/bot/expression/ihorizon_blushed.png"),
     (
         "Grimacing",
@@ -1010,6 +1187,11 @@ pub const EXPRESSIONS: [(&str, &str); 8] = [
         "Sunglass",
         "/assets/img/bot/expression/ihorizon_sunglass.png",
     ),
+    (
+        "Thinking",
+        "/assets/img/bot/expression/ihorizon_thinking.png",
+    ),
+    ("Wink", "/assets/img/bot/expression/ihorizon_wink.png"),
 ];
 
 pub fn random_expression(seed: u64) -> (&'static str, &'static str) {
@@ -1018,6 +1200,16 @@ pub fn random_expression(seed: u64) -> (&'static str, &'static str) {
     state ^= state >> 7;
     state ^= state << 17;
     EXPRESSIONS[(state % EXPRESSIONS.len() as u64) as usize]
+}
+
+/// Full URL for a named bot expression. Mirrors the TS baseUrl +
+/// Expressions[name] thumbnail usage.
+pub fn expression_url(name: &str) -> String {
+    EXPRESSIONS
+        .iter()
+        .find(|(n, _)| *n == name)
+        .map(|(_, path)| format!("https://www.ihorizon.org{path}"))
+        .unwrap_or_default()
 }
 
 // ---- assetsFinder ----
@@ -1054,6 +1246,12 @@ mod funcs_part5_tests {
         let (name, path) = random_expression(7);
         assert!(EXPRESSIONS.iter().any(|(n, _)| n == &name));
         assert!(path.ends_with(".png"));
+        assert_eq!(EXPRESSIONS.len(), 10);
+        assert_eq!(
+            expression_url("Pleading"),
+            "https://www.ihorizon.org/assets/img/bot/expression/ihorizon_pleading.png"
+        );
+        assert_eq!(expression_url("Nope"), "");
     }
 
     #[test]
@@ -1134,6 +1332,241 @@ pub fn has_blacklisted_term(text: &str) -> bool {
         .any(|t| lower.contains(t))
 }
 
+// ---- mediaManipulation (pure layout math) ----
+// Mirrors src/core/functions/mediaManipulation.ts geometry: convertToPng
+// fits inside 1920x1080 preserving aspect; resizeImage fits inside the
+// requested box then letterboxes onto a black canvas; adjustImageQuality
+// steps JPEG quality 90 down to 10 while the file exceeds 15 MB.
+// Pixel encode/decode needs an image backend (see U-MEME); these pure
+// helpers pin the math and the temp-dir location.
+
+/// 15 MB ceiling from mediaManipulation.ts.
+pub const MEDIA_MAX_IMAGE_BYTES: u64 = 15 * 1024 * 1024;
+
+/// convertToPng fit box.
+pub const MEDIA_FIT_WIDTH: u32 = 1920;
+/// convertToPng fit box.
+pub const MEDIA_FIT_HEIGHT: u32 = 1080;
+
+/// Scratch dir mirror: <os-tmp>/media-manipulation.
+pub fn media_temp_dir() -> std::path::PathBuf {
+    std::env::temp_dir().join("media-manipulation")
+}
+
+/// Fit (src_w, src_h) inside (max_w, max_h) preserving aspect ratio.
+/// Mirrors the shared convertToPng/resizeImage branch (wide inputs clamp
+/// width, otherwise clamp height; the other side is Math.round'ed).
+pub fn fit_dimensions(src_w: u32, src_h: u32, max_w: u32, max_h: u32) -> (u32, u32) {
+    if src_w == 0 || src_h == 0 || max_w == 0 || max_h == 0 {
+        return (0, 0);
+    }
+    let aspect = src_w as f64 / src_h as f64;
+    if aspect > max_w as f64 / max_h as f64 {
+        (max_w, ((max_w as f64 / aspect).round() as u32).max(1))
+    } else {
+        (((max_h as f64 * aspect).round() as u32).max(1), max_h)
+    }
+}
+
+/// Letterbox layout: fitted size plus centering offsets on a
+/// (canvas_w, canvas_h) black canvas. Mirrors the resizeImage composite
+/// (Math.round((canvas - fit) / 2) per axis).
+pub fn letterbox_layout(
+    src_w: u32,
+    src_h: u32,
+    canvas_w: u32,
+    canvas_h: u32,
+) -> (u32, u32, u32, u32) {
+    let (w, h) = fit_dimensions(src_w, src_h, canvas_w, canvas_h);
+    let x = ((canvas_w.saturating_sub(w)) as f64 / 2.0).round() as u32;
+    let y = ((canvas_h.saturating_sub(h)) as f64 / 2.0).round() as u32;
+    (w, h, x, y)
+}
+
+/// Quality ladder from adjustImageQuality (90 down to 10, step 10).
+pub fn image_quality_steps() -> Vec<u8> {
+    (1..=9).rev().map(|q| q * 10).collect()
+}
+
+// ---- mediaManipulation (pixel ops) ----
+// Mirrors src/core/functions/mediaManipulation.ts pixel paths with the
+// `image` crate (png/jpeg/gif; webp falls to the command catch-reply
+// path — the TS browser-decode fallback needs Chromium, which is
+// blocked). Geometry (fit/letterbox/quality ladder/temp dir)
+// lives in the pure section above.
+
+/// Decode any supported buffer, fit inside 1920x1080, return PNG bytes.
+/// Mirrors convertToPng (Jimp.read → resize → getBuffer PNG).
+pub fn convert_to_png(bytes: &[u8]) -> anyhow::Result<Vec<u8>> {
+    let img = image::load_from_memory(bytes).map_err(|e| anyhow::anyhow!("decode failed: {e}"))?;
+    let (w, h) = (img.width(), img.height());
+    let (nw, nh) = fit_dimensions(w, h, MEDIA_FIT_WIDTH, MEDIA_FIT_HEIGHT);
+    let resized = img.resize(nw.max(1), nh.max(1), image::imageops::FilterType::Triangle);
+    let mut out = std::io::Cursor::new(Vec::new());
+    resized
+        .write_to(&mut out, image::ImageFormat::Png)
+        .map_err(|e| anyhow::anyhow!("png encode failed: {e}"))?;
+    Ok(out.into_inner())
+}
+
+/// Enforce the size ceiling like adjustImageQuality. Jimp .quality() only
+/// affects JPEG output, so PNG files keep their bytes (same outcome as
+/// the TS loop, without rewriting identical bytes); JPEGs walk the
+/// quality ladder until they fit.
+pub fn adjust_image_quality(path: &std::path::Path) -> anyhow::Result<()> {
+    for q in image_quality_steps() {
+        let size = std::fs::metadata(path).map(|m| m.len()).unwrap_or(0);
+        if size <= MEDIA_MAX_IMAGE_BYTES {
+            break;
+        }
+        let is_jpeg = matches!(
+            path.extension().and_then(|e| e.to_str()),
+            Some("jpg") | Some("jpeg")
+        );
+        if !is_jpeg {
+            break;
+        }
+        let img = image::open(path).map_err(|e| anyhow::anyhow!("read failed: {e}"))?;
+        let mut buf = std::io::Cursor::new(Vec::new());
+        image::codecs::jpeg::JpegEncoder::new_with_quality(&mut buf, q)
+            .encode_image(&img)
+            .map_err(|e| anyhow::anyhow!("jpeg encode failed: {e}"))?;
+        std::fs::write(path, buf.into_inner())?;
+    }
+    Ok(())
+}
+
+/// Resize (letterboxed on a black w×h canvas when dims are given, else a
+/// straight copy), write to out_path, enforce the size ceiling. Returns
+/// the ORIGINAL (w, h) like the TS metadata (two-sides substitutes the
+/// screen dims into its kdenlive template). Mirrors resizeImage.
+pub fn resize_image_file(
+    png_bytes: &[u8],
+    out_path: &std::path::Path,
+    dims: Option<(u32, u32)>,
+) -> anyhow::Result<(u32, u32)> {
+    let img =
+        image::load_from_memory(png_bytes).map_err(|e| anyhow::anyhow!("decode failed: {e}"))?;
+    let meta = (img.width(), img.height());
+    if let Some((canvas_w, canvas_h)) = dims {
+        let (w, h, x, y) = letterbox_layout(meta.0, meta.1, canvas_w.max(1), canvas_h.max(1));
+        let fit = img.resize(w.max(1), h.max(1), image::imageops::FilterType::Triangle);
+        let mut canvas = image::RgbaImage::from_pixel(
+            canvas_w.max(1),
+            canvas_h.max(1),
+            image::Rgba([0, 0, 0, 255]),
+        );
+        image::imageops::overlay(&mut canvas, &fit.to_rgba8(), x as i64, y as i64);
+        image::DynamicImage::ImageRgba8(canvas)
+            .save(out_path)
+            .map_err(|e| anyhow::anyhow!("write failed: {e}"))?;
+    } else {
+        std::fs::write(out_path, png_bytes)?;
+    }
+    adjust_image_quality(out_path)?;
+    Ok(meta)
+}
+
+// ---- kdenliveManipulator ----
+// Mirrors src/core/functions/kdenliveManipulator.ts (KdenLive class):
+// template read, temp save under the media temp dir, melt export under
+// xvfb-run. Missing binaries surface as Err, which the meme commands
+// turn into the same "An error occurred" reply as the TS catch path.
+
+/// Mirrors KdenLive.open (utf8 project read).
+pub fn kdenlive_open(path: &std::path::Path) -> std::io::Result<String> {
+    std::fs::read_to_string(path)
+}
+
+/// Mirrors KdenLive.tempSave (`<tempDir>/<ms>.kdenlive`).
+pub fn kdenlive_temp_save(data: &str, now_ms: u64) -> std::io::Result<std::path::PathBuf> {
+    let dir = media_temp_dir();
+    std::fs::create_dir_all(&dir)?;
+    let path = dir.join(format!("{now_ms}.kdenlive"));
+    std::fs::write(&path, data)?;
+    Ok(path)
+}
+
+/// Mirrors KdenLive.export
+/// (`xvfb-run -a melt -audio-samplerate 44100 <proj> -consumer
+/// avformat:<out>`; the project is removed only on success, as in TS).
+/// Async with tokio::process so a minutes-long melt render never stalls
+/// a tokio worker; the output name adds the pid because two exports in
+/// the same millisecond would collide on the TS `merged_video_<ms>`
+/// scheme.
+pub async fn kdenlive_export(
+    project: &std::path::Path,
+    now_ms: u64,
+) -> anyhow::Result<std::path::PathBuf> {
+    let out = media_temp_dir().join(format!("merged_video_{now_ms}_{}.mp4", std::process::id()));
+    let status = tokio::process::Command::new("xvfb-run")
+        .args(["-a", "melt", "-audio-samplerate", "44100"])
+        .arg(project)
+        .arg(format!("-consumer avformat:{}", out.display()))
+        .env("LANG", "C")
+        .status()
+        .await
+        .map_err(|e| anyhow::anyhow!("Failed to execute melt: {e}"))?;
+    if !status.success() {
+        return Err(anyhow::anyhow!("melt export failed"));
+    }
+    let _ = std::fs::remove_file(project);
+    Ok(out)
+}
+
+/// HEAD image check. Mirrors mediaManipulation.isImageUrl
+/// (content-type starts with image/; false on any error).
+pub async fn is_image_url(url: &str) -> bool {
+    let ct = match reqwest::Client::new()
+        .head(url)
+        .timeout(std::time::Duration::from_secs(5))
+        .send()
+        .await
+    {
+        Ok(r) => r
+            .headers()
+            .get("content-type")
+            .and_then(|v| v.to_str().ok())
+            .unwrap_or("")
+            .to_ascii_lowercase(),
+        Err(_) => return false,
+    };
+    ct.starts_with("image/")
+}
+
+/// Animated-attachment check. Mirrors method.isAnimated
+/// (file name starts with `a_`).
+pub fn is_animated(attachment_url: &str) -> bool {
+    attachment_url
+        .rsplit('/')
+        .next()
+        .unwrap_or("")
+        .starts_with("a_")
+}
+
+/// Media picked from a message. Mirrors embedHelper.getMediaByMessage:
+/// a valid link in the content wins ("url"), else the first image
+/// attachment (gif name when animated), else ("none", "").
+pub fn media_by_message(
+    content: &str,
+    attachment: Option<(&str, Option<&str>)>,
+) -> (String, String) {
+    if is_valid_link(content) {
+        return ("url".to_string(), content.to_string());
+    }
+    if let Some((url, content_type)) = attachment {
+        if content_type.unwrap_or("").starts_with("image/") {
+            let name = if is_animated(url) {
+                "image.gif"
+            } else {
+                "image.png"
+            };
+            return (name.to_string(), url.to_string());
+        }
+    }
+    ("none".to_string(), String::new())
+}
+
 /// HEAD media check. Mirrors isMediaLink (image/video/gif).
 pub async fn is_media_link(url: &str) -> bool {
     let ct = match reqwest::Client::new()
@@ -1182,6 +1615,235 @@ pub fn dangerous_role_perms(bits: u64, names: [&str; 10]) -> Vec<String> {
         .filter(|(flag, _)| bits & *flag != 0)
         .map(|(_, name)| name.to_string())
         .collect()
+}
+
+/// RGB (0-255) to HSL (h 0-360, s/l 0-100). Mirrors
+/// image_dominant_color.ts rgbToHsl.
+pub fn rgb_to_hsl(r: u8, g: u8, b: u8) -> (f64, f64, f64) {
+    let r = f64::from(r) / 255.0;
+    let g = f64::from(g) / 255.0;
+    let b = f64::from(b) / 255.0;
+    let max = r.max(g).max(b);
+    let min = r.min(g).min(b);
+    let diff = max - min;
+    let l = (max + min) / 2.0;
+    let mut h = 0.0;
+    let mut s = 0.0;
+    if diff != 0.0 {
+        s = if l > 0.5 {
+            diff / (2.0 - max - min)
+        } else {
+            diff / (max + min)
+        };
+        if max == r {
+            h = (g - b) / diff + if g < b { 6.0 } else { 0.0 };
+        } else if max == g {
+            h = (b - r) / diff + 2.0;
+        } else {
+            h = (r - g) / diff + 4.0;
+        }
+        h *= 60.0;
+    }
+    (h, s * 100.0, l * 100.0)
+}
+
+fn clamp_hex(n: i32) -> String {
+    format!("{:02x}", n.clamp(0, 255))
+}
+
+/// Mirrors rgbToHex (values clamped to 0-255).
+pub fn rgb_to_hex(r: i32, g: i32, b: i32) -> String {
+    format!("#{}{}{}", clamp_hex(r), clamp_hex(g), clamp_hex(b))
+}
+
+/// Favors saturated colors with medium-high lightness. Mirrors
+/// getVibrancyScore.
+pub fn vibrancy_score(s: f64, l: f64) -> f64 {
+    s * 1.5 + (100.0 - (l - 60.0).abs())
+}
+
+/// Bucketed color plus its HSL score triple.
+type ScoredColor = ((i32, i32, i32), (f64, f64, f64));
+
+/// Vibrant + dark hex pair over raw RGB pixels. Mirrors
+/// getVibrantAndDarkColors: bucket by rounded tens, drop rare
+/// colors (<= 1% of pixels), split vibrant (l>20, s>20, best
+/// score) vs dark (l<40, darkest), blurple fallback.
+pub fn vibrant_and_dark_colors(pixels: &[(u8, u8, u8)]) -> (String, String) {
+    let mut buckets: Vec<((i32, i32, i32), usize)> = vec![];
+    for (r, g, b) in pixels {
+        let key = (
+            (f64::from(*r) / 10.0).round() as i32 * 10,
+            (f64::from(*g) / 10.0).round() as i32 * 10,
+            (f64::from(*b) / 10.0).round() as i32 * 10,
+        );
+        if let Some(slot) = buckets.iter_mut().find(|(k, _)| *k == key) {
+            slot.1 += 1;
+        } else {
+            buckets.push((key, 1));
+        }
+    }
+    let total = pixels.len().max(1);
+    let kept: Vec<ScoredColor> = buckets
+        .iter()
+        .filter(|(_, count)| *count * 100 > total)
+        .map(|(rgb, _)| {
+            let (r, g, b) = (
+                rgb.0.clamp(0, 255) as u8,
+                rgb.1.clamp(0, 255) as u8,
+                rgb.2.clamp(0, 255) as u8,
+            );
+            (*rgb, rgb_to_hsl(r, g, b))
+        })
+        .collect();
+    let fallback = kept.first().map(|(rgb, _)| *rgb).unwrap_or((88, 101, 242));
+    let vibrant = kept
+        .iter()
+        .filter(|(_, (_, s, l))| *l > 20.0 && *s > 20.0)
+        .max_by(|(_, (_, s1, l1)), (_, (_, s2, l2))| {
+            vibrancy_score(*s1, *l1)
+                .partial_cmp(&vibrancy_score(*s2, *l2))
+                .unwrap_or(std::cmp::Ordering::Equal)
+        })
+        .map(|(rgb, _)| *rgb)
+        .unwrap_or(fallback);
+    let dark = kept
+        .iter()
+        .filter(|(_, (_, _, l))| *l < 40.0)
+        .min_by(|(_, (_, _, l1)), (_, (_, _, l2))| {
+            l1.partial_cmp(l2).unwrap_or(std::cmp::Ordering::Equal)
+        })
+        .map(|(rgb, _)| *rgb)
+        .or_else(|| kept.last().map(|(rgb, _)| *rgb))
+        .unwrap_or(fallback);
+    (
+        rgb_to_hex(vibrant.0, vibrant.1, vibrant.2),
+        rgb_to_hex(dark.0, dark.1, dark.2),
+    )
+}
+
+/// Decode PNG bytes (RGB/RGBA, 8-bit) to raw pixels. Other color
+/// types/depths are rejected (callers fall back, like the TS
+/// try/catch).
+pub fn decode_png_pixels(bytes: &[u8]) -> anyhow::Result<Vec<(u8, u8, u8)>> {
+    let decoder = png::Decoder::new(std::io::Cursor::new(bytes));
+    let mut reader = decoder.read_info()?;
+    let mut buf = vec![
+        0u8;
+        reader
+            .output_buffer_size()
+            .ok_or_else(|| anyhow::anyhow!("unknown png size"))?
+    ];
+    let info = reader.next_frame(&mut buf)?;
+    use png::ColorType;
+    let pixels: Vec<(u8, u8, u8)> = match (info.color_type, info.bit_depth) {
+        (ColorType::Rgb, png::BitDepth::Eight) => {
+            let (chunks, _) = buf.as_chunks::<3>();
+            chunks.iter().map(|c| (c[0], c[1], c[2])).collect()
+        }
+        (ColorType::Rgba, png::BitDepth::Eight) => {
+            let (chunks, _) = buf.as_chunks::<4>();
+            chunks.iter().map(|c| (c[0], c[1], c[2])).collect()
+        }
+        _ => anyhow::bail!("unsupported png shape"),
+    };
+    Ok(pixels)
+}
+
+/// Dominant (vibrant, dark) hex pair for an image URL, base64
+/// blob, or file path. Mirrors image_dominant_color.ts (Jimp.read
+/// accepts the same shapes; non-PNG bytes fall back to Err).
+pub async fn image_dominant_color(input: &str) -> anyhow::Result<(String, String)> {
+    let bytes: Vec<u8> = if input.starts_with("http://") || input.starts_with("https://") {
+        reqwest::get(input).await?.bytes().await?.to_vec()
+    } else if let Some(b64) = input
+        .strip_prefix("data:image/")
+        .and_then(|rest| rest.split_once(";base64,"))
+        .map(|(_, data)| data)
+        .or(
+            if input.trim().len() > 64
+                && input
+                    .trim()
+                    .chars()
+                    .all(|c| c.is_ascii_alphanumeric() || "+/=".contains(c))
+            {
+                Some(input.trim())
+            } else {
+                None
+            },
+        )
+    {
+        crate::emojis::base64_decode(b64).ok_or_else(|| anyhow::anyhow!("bad base64"))?
+    } else {
+        tokio::fs::read(input).await?
+    };
+    Ok(vibrant_and_dark_colors(&decode_png_pixels(&bytes)?))
+}
+
+#[cfg(test)]
+mod funcs_dominant_tests {
+    use super::*;
+
+    #[test]
+    fn hsl_primaries() {
+        let (h, s, l) = rgb_to_hsl(255, 0, 0);
+        assert!((h - 0.0).abs() < 1e-6);
+        assert!((s - 100.0).abs() < 1e-6);
+        assert!((l - 50.0).abs() < 1e-6);
+        let (h, _, _) = rgb_to_hsl(0, 255, 0);
+        assert!((h - 120.0).abs() < 1e-6);
+        let (h, _, _) = rgb_to_hsl(0, 0, 255);
+        assert!((h - 240.0).abs() < 1e-6);
+        let (_, s, _) = rgb_to_hsl(128, 128, 128);
+        assert!(s.abs() < 1e-6);
+    }
+
+    #[test]
+    fn hex_clamps() {
+        assert_eq!(rgb_to_hex(255, 0, 0), "#ff0000");
+        // TS buckets can exceed 255 (round(255/10)*10 = 260).
+        assert_eq!(rgb_to_hex(260, -4, 0), "#ff0000");
+        assert_eq!(rgb_to_hex(88, 101, 242), "#5865f2");
+    }
+
+    #[test]
+    fn solid_red_pair() {
+        let pixels = vec![(255u8, 0u8, 0u8); 400];
+        assert_eq!(
+            vibrant_and_dark_colors(&pixels),
+            ("#ff0000".to_string(), "#ff0000".to_string())
+        );
+    }
+
+    #[test]
+    fn empty_falls_back_to_blurple() {
+        assert_eq!(
+            vibrant_and_dark_colors(&[]),
+            ("#5865f2".to_string(), "#5865f2".to_string())
+        );
+    }
+
+    #[test]
+    fn png_roundtrip_red() {
+        // Encode a 4x4 red PNG, decode, score.
+        let mut buf = vec![];
+        {
+            let mut enc = png::Encoder::new(&mut buf, 4, 4);
+            enc.set_color(png::ColorType::Rgb);
+            enc.set_depth(png::BitDepth::Eight);
+            let mut w = enc.write_header().unwrap();
+            w.write_image_data(&vec![255u8, 0, 0].repeat(16)).unwrap();
+        }
+        let pixels = decode_png_pixels(&buf).unwrap();
+        assert_eq!(pixels.len(), 16);
+        let (c1, _) = vibrant_and_dark_colors(&pixels);
+        assert_eq!(c1, "#ff0000");
+    }
+
+    #[test]
+    fn png_rejects_garbage() {
+        assert!(decode_png_pixels(b"not a png").is_err());
+    }
 }
 
 #[cfg(test)]

@@ -18,7 +18,14 @@ pub fn vd_key(field: &str) -> String {
     prefix_command,
     category = "voicedashboard",
     rename = "voice",
-    subcommands("vd_lobby", "vd_panel", "vd_category", "vd_name", "vd_staff"),
+    subcommands(
+        "vd_lobby",
+        "vd_panel",
+        "vd_category",
+        "vd_name",
+        "vd_position",
+        "vd_staff"
+    ),
     default_member_permissions = "ADMINISTRATOR"
 )]
 pub async fn voicedashboard(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
@@ -43,7 +50,12 @@ pub async fn vd_lobby(
         &channel.id.get().to_string(),
     )
     .await?;
-    ctx.say("Voice lobby set.").await?;
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    ctx.say(
+        crate::lang::get(&code, "msg_voice_lobby_set")
+            .unwrap_or_else(|| "Voice lobby set.".to_string()),
+    )
+    .await?;
     Ok(())
 }
 
@@ -65,7 +77,12 @@ pub async fn vd_panel(
         &channel.id.get().to_string(),
     )
     .await?;
-    ctx.say("Dashboard panel channel set.").await?;
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    ctx.say(
+        crate::lang::get(&code, "msg_dashboard_panel_channel_set")
+            .unwrap_or_else(|| "Dashboard panel channel set.".to_string()),
+    )
+    .await?;
     Ok(())
 }
 
@@ -85,7 +102,12 @@ pub async fn vd_category(
         name.trim(),
     )
     .await?;
-    ctx.say("Temp channels category set.").await?;
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    ctx.say(
+        crate::lang::get(&code, "msg_temp_channels_category_set")
+            .unwrap_or_else(|| "Temp channels category set.".to_string()),
+    )
+    .await?;
     Ok(())
 }
 
@@ -105,7 +127,38 @@ pub async fn vd_name(
         template.trim(),
     )
     .await?;
-    ctx.say("Temp channel name set.").await?;
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    ctx.say(
+        crate::lang::get(&code, "msg_temp_channel_name_set")
+            .unwrap_or_else(|| "Temp channel name set.".to_string()),
+    )
+    .await?;
+    Ok(())
+}
+
+/// Temp-channel position (top/bottom). Mirrors position setter.
+#[poise::command(slash_command, prefix_command, rename = "position")]
+pub async fn vd_position(
+    ctx: Ctx<'_>,
+    #[description = "top or bottom"] position_type: String,
+) -> Result<(), anyhow::Error> {
+    let gid = ctx
+        .guild_id()
+        .map(|g| g.get().to_string())
+        .unwrap_or_default();
+    let pos = position_type.trim().to_lowercase();
+    crate::db::kv_set(
+        &ctx.data().pool,
+        &gid,
+        &vd_key("voice_channel_position"),
+        &pos,
+    )
+    .await?;
+    ctx.say(format!(
+        "Yes | {}",
+        if pos == "top" { "up" } else { "down" }
+    ))
+    .await?;
     Ok(())
 }
 
@@ -125,7 +178,12 @@ pub async fn vd_staff(
         &role.id.get().to_string(),
     )
     .await?;
-    ctx.say("Staff role set.").await?;
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    ctx.say(
+        crate::lang::get(&code, "msg_staff_role_set")
+            .unwrap_or_else(|| "Staff role set.".to_string()),
+    )
+    .await?;
     Ok(())
 }
 
@@ -150,6 +208,26 @@ pub const TEMPVOICE_BLOCK_SELECT: &str = "tempvoice:block-select";
 pub const TEMPVOICE_TRUST_SELECT: &str = "tempvoice:trust-select";
 pub const TEMPVOICE_UNTRUST_SELECT: &str = "tempvoice:untrust-select";
 pub const TEMPVOICE_PRIVACY_SELECT: &str = "tempvoice:privacy-select";
+pub const TEMPVOICE_REGION_SELECT: &str = "tempvoice:region-select";
+
+/// Voice region options. Mirrors the starter menu in
+/// temporary_voice_region_button.ts (label, value).
+pub const VOICE_REGIONS: &[(&str, &str)] = &[
+    ("Singapore", "singapore"),
+    ("Australia/Sydney", "sydney"),
+    ("Russia", "russia"),
+    ("India", "india"),
+    ("Hong Kong", "hongkong"),
+    ("South Africa", "southafrica"),
+    ("Netherland/Rotterdam", "rotterdam"),
+    ("Japan/Tokyo", "japan"),
+    ("South Korea", "south-korea"),
+    ("US/East", "us-east"),
+    ("US/South", "us-south"),
+    ("US/West", "us-west"),
+    ("US/Central", "us-central"),
+    ("Brazil", "brazil"),
+];
 
 /// String-select values of the privacy menu. Mirrors the
 /// `temporary_channel_*` option values in
@@ -234,6 +312,9 @@ pub fn tempvoice_buttons() -> Vec<serenity::CreateActionRow> {
         CreateButton::new(format!("{TEMPVOICE_PREFIX}transfer"))
             .label("Transfer")
             .style(ButtonStyle::Primary),
+        CreateButton::new(format!("{TEMPVOICE_PREFIX}region"))
+            .label("Region")
+            .style(ButtonStyle::Secondary),
     ];
     buttons
         .chunks(5)
@@ -397,6 +478,36 @@ pub async fn handle_tempvoice_button(
             )
             .await?;
         }
+        "region" => {
+            // Region menu with the 14 TS options. Mirrors
+            // temporary_voice_region_button.ts (owner gate + menu).
+            if !owned {
+                return Ok(());
+            }
+            let options: Vec<serenity::CreateSelectMenuOption> = VOICE_REGIONS
+                .iter()
+                .map(|(label, value)| {
+                    serenity::CreateSelectMenuOption::new(label.to_string(), value.to_string())
+                })
+                .collect();
+            let menu = serenity::CreateSelectMenu::new(
+                TEMPVOICE_REGION_SELECT,
+                serenity::CreateSelectMenuKind::String { options },
+            )
+            .placeholder(
+                crate::lang::get(&lang_code, "temporary_voice_region_menu_placeholder")
+                    .unwrap_or_default(),
+            );
+            comp.create_response(
+                &ctx.http,
+                serenity::CreateInteractionResponse::Message(
+                    serenity::CreateInteractionResponseMessage::new()
+                        .components(vec![serenity::CreateActionRow::SelectMenu(menu)])
+                        .ephemeral(true),
+                ),
+            )
+            .await?;
+        }
         "block" => {
             // Block menu: selected members get deny overwrites.
             // Mirrors temporary_voice_block_button.ts.
@@ -479,11 +590,7 @@ pub async fn handle_tempvoice_button(
                 ]);
             comp.create_response(&ctx.http, serenity::CreateInteractionResponse::Modal(modal))
                 .await?;
-            let Some(submit) = serenity::collector::ModalInteractionCollector::new(&ctx.shard)
-                .author_id(comp.user.id)
-                .custom_ids(vec!["tempvoice-transfer".to_string()])
-                .timeout(std::time::Duration::from_secs(120))
-                .await
+            let Some(submit) = super::await_modal_submit(ctx, comp, "tempvoice-transfer").await
             else {
                 return Ok(());
             };
@@ -534,12 +641,7 @@ pub async fn handle_tempvoice_button(
             ]);
             comp.create_response(&ctx.http, serenity::CreateInteractionResponse::Modal(modal))
                 .await?;
-            let Some(submit) = serenity::collector::ModalInteractionCollector::new(&ctx.shard)
-                .author_id(comp.user.id)
-                .custom_ids(vec![modal_id.to_string()])
-                .timeout(std::time::Duration::from_secs(120))
-                .await
-            else {
+            let Some(submit) = super::await_modal_submit(ctx, comp, modal_id).await else {
                 return Ok(());
             };
             let mut value = String::new();
@@ -696,6 +798,7 @@ pub async fn handle_tempvoice_select(
             let embed = serenity::CreateEmbed::default()
                 .description(title)
                 .colour(2829617)
+                .image(crate::funcs::guild_banner_url(pool, &gid).await)
                 .field(
                     crate::lang::get(&lang_code, first_key).unwrap_or_default(),
                     first_val,
@@ -748,11 +851,63 @@ pub async fn handle_tempvoice_select(
                 PRIVACY_CLOSECHAT => "temporary_voice_privacy_menu_closechat_label",
                 _ => "temporary_voice_privacy_menu_openchat_label",
             };
-            let embed = serenity::CreateEmbed::default().colour(2829617).field(
-                crate::lang::get(&lang_code, label_key).unwrap_or_default(),
-                "Yes",
-                true,
-            );
+            let embed = serenity::CreateEmbed::default()
+                .colour(2829617)
+                .image(crate::funcs::guild_banner_url(pool, &gid).await)
+                .field(
+                    crate::lang::get(&lang_code, label_key).unwrap_or_default(),
+                    "Yes",
+                    true,
+                );
+            comp.create_response(
+                &ctx.http,
+                serenity::CreateInteractionResponse::Message(
+                    serenity::CreateInteractionResponseMessage::new()
+                        .embed(embed)
+                        .ephemeral(true),
+                ),
+            )
+            .await?;
+        }
+        TEMPVOICE_REGION_SELECT => {
+            // Apply the picked RTC region to the owner's temp channel.
+            // Mirrors the starter-menu collector (setRTCRegion + summary).
+            let value = match &comp.data.kind {
+                serenity::ComponentInteractionDataKind::StringSelect { values } => {
+                    values.first().cloned().unwrap_or_default()
+                }
+                _ => String::new(),
+            };
+            if !VOICE_REGIONS.iter().any(|(_, v)| *v == value) {
+                return Ok(());
+            }
+            let target = temps
+                .iter()
+                .find(|(uid, _)| *uid == self_id)
+                .map(|(_, ch)| ch.clone())
+                .and_then(|c| c.parse::<u64>().ok())
+                .map(serenity::ChannelId::new)
+                .unwrap_or(voice_id);
+            let _ = target
+                .edit(
+                    &ctx.http,
+                    serenity::EditChannel::new().voice_region(Some(value.clone())),
+                )
+                .await;
+            let region_emoji = crate::emojis::app_emoji_markup(&ctx.http, "VC_Region")
+                .await
+                .unwrap_or_default();
+            let embed = serenity::CreateEmbed::default()
+                .description(
+                    crate::lang::get(&lang_code, "temporary_voice_title_embec").unwrap_or_default(),
+                )
+                .colour(2829617)
+                .image(crate::funcs::guild_banner_url(pool, &gid).await)
+                .field(
+                    crate::lang::get(&lang_code, "temporary_voice_new_region").unwrap_or_default(),
+                    format!("{region_emoji} **{value}**"),
+                    true,
+                );
             comp.create_response(
                 &ctx.http,
                 serenity::CreateInteractionResponse::Message(
@@ -814,5 +969,16 @@ mod tests {
         assert_eq!(privacy_rule(PRIVACY_CLOSECHAT), Some((0, chat)));
         assert_eq!(privacy_rule(PRIVACY_OPENCHAT), Some((chat, 0)));
         assert_eq!(privacy_rule("bogus"), None);
+    }
+
+    #[test]
+    fn region_options_match_ts_starter_menu() {
+        assert_eq!(VOICE_REGIONS.len(), 14);
+        let mut values: Vec<&str> = VOICE_REGIONS.iter().map(|(_, v)| *v).collect();
+        values.sort_unstable();
+        values.dedup();
+        assert_eq!(values.len(), 14);
+        assert!(VOICE_REGIONS.contains(&("Japan/Tokyo", "japan")));
+        assert!(VOICE_REGIONS.contains(&("Brazil", "brazil")));
     }
 }

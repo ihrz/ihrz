@@ -22,7 +22,7 @@ pas parite totale.
 
 ## Etat (2026-10-08)
 
-- 251 tests OK (`cargo test`), `cargo build` OK, `cargo fmt` clean, clippy 0.
+- 253 tests OK (`cargo test`), `cargo build` OK, `cargo fmt` clean, clippy 0.
 - 164 commandes slash+prefix (HybridCommands natifs poise) : les 28
   catégories portées, zéro stub.
 - Audio : `audio.rs` (LavalinkConfig env, AudioBackend trait,

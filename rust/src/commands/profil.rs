@@ -122,7 +122,13 @@ pub async fn profil(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
 }
 
 /// See the iHorizon profil of a member. Mirrors `!show.ts`.
-#[poise::command(slash_command, prefix_command, rename = "show", category = "profil")]
+#[poise::command(
+    slash_command,
+    prefix_command,
+    rename = "show",
+    aliases("me", "prof"),
+    category = "profil"
+)]
 pub async fn profil_show(
     ctx: Ctx<'_>,
     #[description = "The user you want to lookup"] user: Option<serenity::User>,
@@ -190,7 +196,13 @@ pub async fn profil_show(
 }
 
 /// Set your age. Mirrors `!set-age.ts`.
-#[poise::command(slash_command, prefix_command, rename = "set-age", category = "profil")]
+#[poise::command(
+    slash_command,
+    prefix_command,
+    rename = "set-age",
+    aliases("age"),
+    category = "profil"
+)]
 pub async fn profil_age(
     ctx: Ctx<'_>,
     #[description = "Your age on the iHorizon profil"] age: u8,
@@ -222,6 +234,7 @@ pub async fn profil_age(
     slash_command,
     prefix_command,
     rename = "set-description",
+    aliases("desc", "description"),
     category = "profil"
 )]
 pub async fn profil_description(
@@ -246,6 +259,7 @@ pub async fn profil_description(
     slash_command,
     prefix_command,
     rename = "set-gender",
+    aliases("gender"),
     category = "profil"
 )]
 pub async fn profil_gender(
@@ -279,6 +293,7 @@ pub async fn profil_gender(
     slash_command,
     prefix_command,
     rename = "set-pronoun",
+    aliases("pronoun", "pronom"),
     category = "profil"
 )]
 pub async fn profil_pronoun(
@@ -312,6 +327,7 @@ pub async fn profil_pronoun(
     slash_command,
     prefix_command,
     rename = "set-birthday",
+    aliases("birthday", "anniversaire"),
     category = "profil"
 )]
 pub async fn profil_birthday(

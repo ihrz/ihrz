@@ -83,7 +83,18 @@ pub async fn membercount(
     name: Option<String>,
 ) -> Result<(), anyhow::Error> {
     let Some(enabled) = parse_on_off(&action) else {
-        ctx.say("{BotCount}, {RolesCount}, {MemberCount}, {ChannelCount}, {BoostCount}, {VoiceCount}, {OnlineCount}").await?;
+        let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+        ctx.say(
+            crate::lang::get(
+                &code,
+                "msg_botcount_rolescount_membercount_channelcount_boostcount_voicecount_onlinecount",
+            )
+            .unwrap_or_else(|| {
+                "{BotCount}, {RolesCount}, {MemberCount}, {ChannelCount}, {BoostCount}, {VoiceCount}, {OnlineCount}"
+                    .to_string()
+            }),
+        )
+        .await?;
         return Ok(());
     };
     let Some(guild_id) = ctx.guild_id() else {
@@ -97,16 +108,47 @@ pub async fn membercount(
             .bind(&gid)
             .execute(pool)
             .await?;
-        ctx.say("Membercount disabled.").await?;
+        let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+        let yes = crate::emojis::app_emoji_markup(&ctx.serenity_context().http, "Yes")
+            .await
+            .unwrap_or_else(|| "✅".to_string());
+        ctx.say(
+            crate::lang::get(&code, "setmembercount_command_work_on_disable")
+                .map(|s| s.replace("${client.iHorizon_Emojis.Yes}", &yes))
+                .unwrap_or_else(|| "Membercount disabled.".to_string()),
+        )
+        .await?;
         return Ok(());
     }
 
     let Some(template) = name.filter(|n| !n.trim().is_empty()) else {
-        ctx.say("{BotCount}, {RolesCount}, {MemberCount}, {ChannelCount}, {BoostCount}, {VoiceCount}, {OnlineCount}").await?;
+        let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+        ctx.say(
+            crate::lang::get(
+                &code,
+                "msg_botcount_rolescount_membercount_channelcount_boostcount_voicecount_onlinecount",
+            )
+            .unwrap_or_else(|| {
+                "{BotCount}, {RolesCount}, {MemberCount}, {ChannelCount}, {BoostCount}, {VoiceCount}, {OnlineCount}"
+                    .to_string()
+            }),
+        )
+        .await?;
         return Ok(());
     };
     let Some(slot) = mcount_slot(&template) else {
-        ctx.say("{BotCount}, {RolesCount}, {MemberCount}, {ChannelCount}, {BoostCount}, {VoiceCount}, {OnlineCount}").await?;
+        let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+        ctx.say(
+            crate::lang::get(
+                &code,
+                "msg_botcount_rolescount_membercount_channelcount_boostcount_voicecount_onlinecount",
+            )
+            .unwrap_or_else(|| {
+                "{BotCount}, {RolesCount}, {MemberCount}, {ChannelCount}, {BoostCount}, {VoiceCount}, {OnlineCount}"
+                    .to_string()
+            }),
+        )
+        .await?;
         return Ok(());
     };
 
@@ -118,7 +160,16 @@ pub async fn membercount(
     .to_string();
     crate::db::kv_set(pool, &gid, &mcount_key(slot), &value).await?;
 
-    ctx.say(format!("Counter set: {template}")).await?;
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    let yes = crate::emojis::app_emoji_markup(&ctx.serenity_context().http, "Yes")
+        .await
+        .unwrap_or_else(|| "✅".to_string());
+    ctx.say(
+        crate::lang::get(&code, "setmembercount_command_work_on_enable")
+            .map(|s| s.replace("${client.iHorizon_Emojis.Yes}", &yes))
+            .unwrap_or_else(|| format!("Counter set: {template}")),
+    )
+    .await?;
     Ok(())
 }
 

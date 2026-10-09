@@ -202,17 +202,30 @@ pub async fn schedule_create(
     #[description = "Description (10-400 chars)"] description: String,
     #[description = "When (e.g. 10s, 5m, 2h, 7d)"] when: String,
 ) -> Result<(), anyhow::Error> {
+    let lang_code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     if !validate_title(&title) {
-        ctx.say("Title must be 5-30 characters.").await?;
+        ctx.say(
+            crate::lang::get(&lang_code, "msg_title_must_be_5_30_characters")
+                .unwrap_or_else(|| "Title must be 5-30 characters.".to_string()),
+        )
+        .await?;
         return Ok(());
     }
     if !validate_description(&description) {
-        ctx.say("Description must be 10-400 characters.").await?;
+        ctx.say(
+            crate::lang::get(&lang_code, "msg_description_must_be_10_400_characters")
+                .unwrap_or_else(|| "Description must be 10-400 characters.".to_string()),
+        )
+        .await?;
         return Ok(());
     }
     let Some(delta_ms) = parse_duration_ms(&when) else {
-        ctx.say("Invalid duration. Use e.g. 10s, 5m, 2h, 7d.")
-            .await?;
+        ctx.say(
+            crate::lang::get(&lang_code, "schedule_create_not_number_time")
+                .map(|s| s.replace("${interaction.user}", &ctx.author().to_string()))
+                .unwrap_or_else(|| "Invalid duration. Use e.g. 10s, 5m, 2h, 7d.".to_string()),
+        )
+        .await?;
         return Ok(());
     };
     let code = gen_code();
@@ -225,10 +238,19 @@ pub async fn schedule_create(
     let gid = scope_guild(&ctx);
     let user_id = ctx.author().id.get();
     save_entry(&ctx.data().pool, &gid, &entry, user_id).await?;
-    ctx.say(format!(
-        "Scheduled `{code}` (expires <t:{}:F>).",
-        entry.expires_at_ms / 1000
-    ))
+    ctx.say(
+        crate::lang::get(&lang_code, "schedule_create_confirm_msg")
+            .map(|s| {
+                s.replace("${interaction.user}", &ctx.author().to_string())
+                    .replace("${scheduleCode}", &code)
+            })
+            .unwrap_or_else(|| {
+                format!(
+                    "Scheduled `{code}` (expires <t:{}:F>).",
+                    entry.expires_at_ms / 1000
+                )
+            }),
+    )
     .await?;
     Ok(())
 }
@@ -240,10 +262,20 @@ pub async fn schedule_delete(
 ) -> Result<(), anyhow::Error> {
     let gid = scope_guild(&ctx);
     let user_id = ctx.author().id.get();
+    let lang_code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     if delete_entry(&ctx.data().pool, &gid, user_id, code.trim()).await? {
-        ctx.say("Schedule deleted.").await?;
+        ctx.say(
+            crate::lang::get(&lang_code, "schedule_delete_confirm")
+                .unwrap_or_else(|| "Schedule deleted.".to_string()),
+        )
+        .await?;
     } else {
-        ctx.say("Schedule not found.").await?;
+        ctx.say(
+            crate::lang::get(&lang_code, "schedule_delete_not_found")
+                .map(|s| s.replace("${arg0}", code.trim()))
+                .unwrap_or_else(|| "Schedule not found.".to_string()),
+        )
+        .await?;
     }
     Ok(())
 }
@@ -253,7 +285,12 @@ pub async fn schedule_delete_all(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let gid = scope_guild(&ctx);
     let user_id = ctx.author().id.get();
     let n = delete_all_entries(&ctx.data().pool, &gid, user_id).await?;
-    ctx.say(format!("Deleted {n} schedule(s).")).await?;
+    let lang_code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    ctx.say(
+        crate::lang::get(&lang_code, "schedule_deleteall_confirm")
+            .unwrap_or_else(|| format!("Deleted {n} schedule(s).")),
+    )
+    .await?;
     Ok(())
 }
 
@@ -262,12 +299,19 @@ pub async fn schedule_list(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let gid = scope_guild(&ctx);
     let user_id = ctx.author().id.get();
     let entries = list_entries(&ctx.data().pool, &gid, user_id).await;
+    let lang_code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     if entries.is_empty() {
-        ctx.say("No schedules.").await?;
+        ctx.say(
+            crate::lang::get(&lang_code, "schedule_list_not_schedule")
+                .unwrap_or_else(|| "No schedules.".to_string()),
+        )
+        .await?;
         return Ok(());
     }
+    let list_title = crate::lang::get(&lang_code, "schedule_list_title_embed")
+        .unwrap_or_else(|| "Schedules".to_string());
     let mut embed = poise::serenity_prelude::CreateEmbed::default()
-        .title("Schedules")
+        .title(list_title)
         .color(0x60BEE0);
     for e in entries.iter().take(25) {
         embed = embed.field(

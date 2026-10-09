@@ -82,7 +82,12 @@ pub async fn inv(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())
 }
 
-#[poise::command(slash_command, prefix_command, rename = "invites")]
+#[poise::command(
+    slash_command,
+    prefix_command,
+    rename = "invites",
+    aliases("i", "invsee")
+)]
 pub async fn inv_see(
     ctx: Ctx<'_>,
     #[description = "Member"] user: Option<poise::serenity_prelude::User>,
@@ -118,12 +123,25 @@ pub async fn inv_add(
     let cur = load_invites(&ctx.data().pool, &gid, uid).await;
     let next = add_invites(&cur, amount.max(0));
     save_invites(&ctx.data().pool, &gid, uid, &next).await?;
-    ctx.say(format!("Added {amount} invites (total {})", next.invites))
-        .await?;
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    ctx.say(
+        crate::lang::get(&code, "addinvites_confirmation_embed_description")
+            .map(|s| {
+                s.replace("${amount}", &amount.to_string())
+                    .replace("${user}", &format!("<@{uid}>"))
+            })
+            .unwrap_or_else(|| format!("Added {amount} invites (total {})", next.invites)),
+    )
+    .await?;
     Ok(())
 }
 
-#[poise::command(slash_command, prefix_command, rename = "removeinvites")]
+#[poise::command(
+    slash_command,
+    prefix_command,
+    rename = "removeinvites",
+    aliases("rinvites", "subinv")
+)]
 pub async fn inv_remove(
     ctx: Ctx<'_>,
     #[description = "Member"] user: poise::serenity_prelude::User,
@@ -137,12 +155,25 @@ pub async fn inv_remove(
     let cur = load_invites(&ctx.data().pool, &gid, uid).await;
     let next = remove_invites(&cur, amount.max(0));
     save_invites(&ctx.data().pool, &gid, uid, &next).await?;
-    ctx.say(format!("Removed {amount} invites (total {})", next.invites))
-        .await?;
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    ctx.say(
+        crate::lang::get(&code, "removeinvites_confirmation_embed_description")
+            .map(|s| {
+                s.replace("${amount}", &amount.to_string())
+                    .replace("${user}", &format!("<@{uid}>"))
+            })
+            .unwrap_or_else(|| format!("Removed {amount} invites (total {})", next.invites)),
+    )
+    .await?;
     Ok(())
 }
 
-#[poise::command(slash_command, prefix_command, rename = "leaderboard")]
+#[poise::command(
+    slash_command,
+    prefix_command,
+    rename = "leaderboard",
+    aliases("lb-invites", "invlb", "inviteslb")
+)]
 pub async fn inv_lb(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let gid = ctx
         .guild_id()
@@ -183,7 +214,12 @@ pub async fn inv_lb(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())
 }
 
-#[poise::command(slash_command, prefix_command, rename = "reset")]
+#[poise::command(
+    slash_command,
+    prefix_command,
+    rename = "reset",
+    aliases("inv-delete-all", "invreset")
+)]
 pub async fn inv_reset(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     if !crate::commands::prompt_reset_confirm(
         &ctx,
@@ -202,7 +238,12 @@ pub async fn inv_reset(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         .bind(&gid)
         .execute(&ctx.data().pool)
         .await?;
-    ctx.say("Invites reset.").await?;
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    ctx.say(
+        crate::lang::get(&code, "resetallinvites_succes_on_delete")
+            .unwrap_or_else(|| "Invites reset.".to_string()),
+    )
+    .await?;
     Ok(())
 }
 

@@ -54,6 +54,7 @@ pub fn truncate_lyrics(s: &str) -> String {
     prefix_command,
     category = "music",
     rename = "music",
+    aliases("m"),
     subcommands(
         "m_play",
         "m_skip",
@@ -67,21 +68,27 @@ pub fn truncate_lyrics(s: &str) -> String {
         "m_volume",
         "m_nowplaying",
         "m_history",
-        "m_lyrics"
+        "m_lyrics",
+        "m_trackinfo"
     )
 )]
 pub async fn music(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())
 }
 
-#[poise::command(slash_command, prefix_command, rename = "play")]
+#[poise::command(slash_command, prefix_command, rename = "play", aliases("p"))]
 pub async fn m_play(
     ctx: Ctx<'_>,
     #[description = "Title or URL"] title: String,
 ) -> Result<(), anyhow::Error> {
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     if (title.contains("://") || title.contains("www.")) && !crate::funcs::is_allowed_links(&title)
     {
-        ctx.say("Link not allowed.").await?;
+        ctx.say(
+            crate::lang::get(&code, "p_not_allowed")
+                .unwrap_or_else(|| "Link not allowed.".to_string()),
+        )
+        .await?;
         return Ok(());
     }
     let source = crate::voice::route_source(&title);
@@ -115,7 +122,7 @@ pub async fn m_play(
     Ok(())
 }
 
-#[poise::command(slash_command, prefix_command, rename = "skip")]
+#[poise::command(slash_command, prefix_command, rename = "skip", aliases("next"))]
 pub async fn m_skip(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     ctx.say("Skipped. [lavalink wiring pending]").await?;
     Ok(())
@@ -133,7 +140,7 @@ pub async fn m_pause(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())
 }
 
-#[poise::command(slash_command, prefix_command, rename = "resume")]
+#[poise::command(slash_command, prefix_command, rename = "resume", aliases("unpause"))]
 pub async fn m_resume(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     ctx.say("Resumed. [lavalink wiring pending]").await?;
     Ok(())
@@ -145,7 +152,12 @@ pub async fn m_queue(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())
 }
 
-#[poise::command(slash_command, prefix_command, rename = "clear-queue")]
+#[poise::command(
+    slash_command,
+    prefix_command,
+    rename = "clear-queue",
+    aliases("clearqueue")
+)]
 pub async fn m_clear(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     ctx.say("Queue cleared. [lavalink wiring pending]").await?;
     Ok(())
@@ -162,8 +174,13 @@ pub async fn m_loop(
     ctx: Ctx<'_>,
     #[description = "off or track"] mode: String,
 ) -> Result<(), anyhow::Error> {
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let Some(m) = parse_loop(&mode) else {
-        ctx.say("Use off/track.").await?;
+        ctx.say(
+            crate::lang::get(&code, "msg_use_off_track")
+                .unwrap_or_else(|| "Use off/track.".to_string()),
+        )
+        .await?;
         return Ok(());
     };
     ctx.say(format!("Loop: {m:?}. [lavalink wiring pending]"))
@@ -201,8 +218,9 @@ pub async fn m_history(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let list: Vec<HistoryEntry> = raw
         .and_then(|s| serde_json::from_str(&s).ok())
         .unwrap_or_default();
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     ctx.say(if list.is_empty() {
-        "No history.".to_string()
+        crate::lang::get(&code, "history_no_entries").unwrap_or_else(|| "No history.".to_string())
     } else {
         list.iter()
             .rev()
@@ -223,6 +241,20 @@ pub async fn m_lyrics(
     ctx.say(truncate_lyrics(&format!(
         "Lyrics for {query} [lavalink lyrics plugin pending]"
     )))
+    .await?;
+    Ok(())
+}
+
+/// Track info lookup. Mirrors !trackinfo.ts (pending Lavalink search).
+#[poise::command(slash_command, prefix_command, rename = "trackinfo")]
+pub async fn m_trackinfo(
+    ctx: Ctx<'_>,
+    #[description = "Title or URL"] title: Option<String>,
+) -> Result<(), anyhow::Error> {
+    ctx.say(format!(
+        "Track info for {} [lavalink wiring pending]",
+        title.unwrap_or_else(|| "current track".to_string())
+    ))
     .await?;
     Ok(())
 }

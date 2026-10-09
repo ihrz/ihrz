@@ -62,7 +62,12 @@ pub async fn blogger_add(
     channel: serenity::GuildChannel,
 ) -> Result<(), anyhow::Error> {
     if !fetch_rss_ok(rss.trim()).await {
-        ctx.say("Invalid RSS feed.").await?;
+        let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+        ctx.say(
+            crate::lang::get(&code, "blogger_blog_add_invalid_rss")
+                .unwrap_or_else(|| "Invalid RSS feed.".to_string()),
+        )
+        .await?;
         return Ok(());
     }
     let gid = ctx
@@ -79,7 +84,7 @@ pub async fn blogger_add(
             & 0xffffff
     );
     blogs.push(BlogEntry {
-        id,
+        id: id.clone(),
         rss: rss.trim().to_string(),
         channel_id: channel.id.get().to_string(),
     });
@@ -92,7 +97,17 @@ pub async fn blogger_add(
         &serde_json::to_string(&blogs)?,
     )
     .await?;
-    ctx.say("Blog added.").await?;
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    ctx.say(
+        crate::lang::get(&code, "blogger_blog_add_success")
+            .map(|s| {
+                s.replace("${channel.toString()}", &format!("<#{}>", channel.id.get()))
+                    .replace("${blogId}", &id)
+                    .replace("${validation.name}", rss.trim())
+            })
+            .unwrap_or_else(|| "Blog added.".to_string()),
+    )
+    .await?;
     Ok(())
 }
 
@@ -109,7 +124,12 @@ pub async fn blogger_remove(
     let before = blogs.len();
     blogs.retain(|b| b.id != id.trim());
     if blogs.len() == before {
-        ctx.say("Not found.").await?;
+        let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+        ctx.say(
+            crate::lang::get(&code, "blogger_blog_remove_not_found")
+                .unwrap_or_else(|| "Not found.".to_string()),
+        )
+        .await?;
         return Ok(());
     }
     crate::db::kv_set(
@@ -119,7 +139,13 @@ pub async fn blogger_remove(
         &serde_json::to_string(&blogs)?,
     )
     .await?;
-    ctx.say("Blog removed.").await?;
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    ctx.say(
+        crate::lang::get(&code, "blogger_blog_remove_success")
+            .map(|s| s.replace("${blogId}", id.trim()))
+            .unwrap_or_else(|| "Blog removed.".to_string()),
+    )
+    .await?;
     Ok(())
 }
 

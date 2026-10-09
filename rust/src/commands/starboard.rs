@@ -51,6 +51,77 @@ pub fn board_key(board: &str) -> String {
     }
 }
 
+/// Board data array key: GUILD.STARBOARD_DATA / GUILD.SKULLBOARD_DATA.
+pub fn board_data_key(board: &str) -> String {
+    match board {
+        "skullboard" => "GUILD.SKULLBOARD_DATA".to_string(),
+        _ => "GUILD.STARBOARD_DATA".to_string(),
+    }
+}
+
+/// One posted board message. Mirrors StarboardData (camelCase wire
+/// keys: channelId/messageId/number/author).
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(rename_all = "camelCase")]
+pub struct BoardEntry {
+    pub channel_id: String,
+    pub message_id: String,
+    pub number: String,
+    #[serde(default)]
+    pub author: String,
+}
+
+pub async fn load_entries(pool: &crate::db::Pool, guild_id: &str, board: &str) -> Vec<BoardEntry> {
+    crate::db::kv_get(pool, guild_id, &board_data_key(board))
+        .await
+        .and_then(|s| serde_json::from_str(&s).ok())
+        .unwrap_or_default()
+}
+
+pub async fn save_entries(
+    pool: &crate::db::Pool,
+    guild_id: &str,
+    board: &str,
+    entries: &[BoardEntry],
+) {
+    let s = serde_json::to_string(entries).unwrap_or_else(|_| "[]".to_string());
+    let _ = crate::db::kv_set(pool, guild_id, &board_data_key(board), &s).await;
+}
+
+/// Find the board entry for one source message. Mirrors the
+/// starboardData.find(messageId+channelId) in all four event files.
+pub fn find_entry<'a>(
+    entries: &'a [BoardEntry],
+    channel_id: &str,
+    message_id: &str,
+) -> Option<&'a BoardEntry> {
+    entries
+        .iter()
+        .find(|e| e.message_id == message_id && e.channel_id == channel_id)
+}
+
+/// Board message content line. Mirrors `⭐ **n** | <#channel>`
+/// (💀 for skullboard).
+pub fn board_content(emoji: &str, count: i64, channel_id: u64) -> String {
+    format!("{emoji} **{count}** | <#{channel_id}>")
+}
+
+/// Board embed color. Mirrors #ffac33 (star) / #2b2d31 (skull).
+pub fn board_color(board: &str) -> u32 {
+    match board {
+        "skullboard" => 0x2b2d31,
+        _ => 0xffac33,
+    }
+}
+
+/// Board trigger emoji. Mirrors the emoji.name gates.
+pub fn board_emoji(board: &str) -> &'static str {
+    match board {
+        "skullboard" => "💀",
+        _ => "⭐",
+    }
+}
+
 pub async fn load_board(pool: &crate::db::Pool, guild_id: &str, board: &str) -> BoardConfig {
     let raw = crate::db::kv_get(pool, guild_id, &board_key(board)).await;
     raw.and_then(|s| serde_json::from_str(&s).ok())
@@ -203,6 +274,40 @@ mod tests {
         assert_eq!(board_key("starboard"), "GUILD.STARBOARD");
         assert_eq!(board_key("skullboard"), "GUILD.SKULLBOARD");
         assert_eq!(board_key("other"), "GUILD.STARBOARD");
+        assert_eq!(board_data_key("starboard"), "GUILD.STARBOARD_DATA");
+        assert_eq!(board_data_key("skullboard"), "GUILD.SKULLBOARD_DATA");
+    }
+
+    #[test]
+    fn board_render_helpers_match_ts() {
+        assert_eq!(board_content("⭐", 5, 123), "⭐ **5** | <#123>");
+        assert_eq!(board_content("💀", 2, 7), "💀 **2** | <#7>");
+        assert_eq!(board_color("starboard"), 0xffac33);
+        assert_eq!(board_color("skullboard"), 0x2b2d31);
+        assert_eq!(board_emoji("starboard"), "⭐");
+        assert_eq!(board_emoji("skullboard"), "💀");
+        let entries = vec![
+            BoardEntry {
+                channel_id: "10".to_string(),
+                message_id: "20".to_string(),
+                number: "30".to_string(),
+                author: "40".to_string(),
+            },
+            BoardEntry {
+                channel_id: "11".to_string(),
+                message_id: "21".to_string(),
+                number: "31".to_string(),
+                author: "41".to_string(),
+            },
+        ];
+        assert_eq!(find_entry(&entries, "10", "20").unwrap().number, "30");
+        assert!(find_entry(&entries, "10", "21").is_none());
+        assert!(find_entry(&entries, "11", "20").is_none());
+        // Wire shape mirrors StarboardData (camelCase).
+        let json = serde_json::to_string(&entries[0]).unwrap();
+        assert!(json.contains("\"channelId\":\"10\""));
+        assert!(json.contains("\"messageId\":\"20\""));
+        assert!(json.contains("\"number\":\"30\""));
     }
 
     #[test]

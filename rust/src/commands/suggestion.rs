@@ -69,7 +69,16 @@ pub async fn setsuggest_channel(
         &channel.id.get().to_string(),
     )
     .await?;
-    ctx.say("Suggestions channel set.").await?;
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    ctx.say(
+        crate::lang::get(&code, "setsuggest_channel_command_work")
+            .map(|s| {
+                s.replace("${interaction.user}", &ctx.author().to_string())
+                    .replace("${channel}", &format!("<#{}>", channel.id.get()))
+            })
+            .unwrap_or_else(|| "Suggestions channel set.".to_string()),
+    )
+    .await?;
     Ok(())
 }
 
@@ -122,7 +131,12 @@ async fn set_status(
         .unwrap_or_default();
     let raw = crate::db::kv_get(&ctx.data().pool, &gid, &suggestion_key(code.trim())).await;
     let Some(raw) = raw else {
-        ctx.say("Suggestion not found.").await?;
+        let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+        ctx.say(
+            crate::lang::get(&code, "suggest_delete_not_found_db")
+                .unwrap_or_else(|| "Suggestion not found.".to_string()),
+        )
+        .await?;
         return Ok(());
     };
     let mut s: Suggestion = serde_json::from_str(&raw).unwrap_or_default();
@@ -194,7 +208,12 @@ pub async fn suggest_delete(
         .bind(suggestion_key(code.trim()))
         .execute(&ctx.data().pool)
         .await?;
-    ctx.say("Suggestion deleted.").await?;
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    ctx.say(
+        crate::lang::get(&code, "suggest_delete_command_work")
+            .unwrap_or_else(|| "Suggestion deleted.".to_string()),
+    )
+    .await?;
     Ok(())
 }
 
