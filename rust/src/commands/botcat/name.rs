@@ -1,5 +1,15 @@
 use super::*;
 
+/// JS `String.length` counts UTF-16 code units, so `!name.ts` rejects at
+/// `name.length >= 32` units. `encode_utf16().count()` is the matching
+/// Rust measure: identical to `chars().count()` for BMP text, but astral
+/// characters (e.g. emoji) count 2, like in JS. (The shared
+/// `footer_name_too_long` helper in mod.rs counts chars; it agrees for
+/// BMP but under-counts astral-plane names, hence the local check.)
+pub fn footer_name_too_long_utf16(name: &str) -> bool {
+    name.encode_utf16().count() >= 32
+}
+
 /// Set or reset the per-guild bot nickname.
 #[poise::command(
     slash_command,
@@ -52,7 +62,7 @@ pub async fn custom_name(
         .await?;
         return Ok(());
     };
-    if footer_name_too_long(&name) {
+    if footer_name_too_long_utf16(&name) {
         let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
         ctx.say(
             crate::lang::get(&code, "guildconfig_setbot_footername_footer_too_long_msg")
@@ -89,4 +99,26 @@ pub async fn custom_name(
     )
     .await?;
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn utf16_length_matches_js_string_length() {
+        assert_eq!(footer_name_too_long_utf16("abc"), false);
+        // BMP text: 1 unit per char, like JS.
+        assert_eq!("é".encode_utf16().count(), 1);
+        assert_eq!(footer_name_too_long_utf16(&"é".repeat(31)), false);
+        assert_eq!(footer_name_too_long_utf16(&"é".repeat(32)), true);
+        // Astral chars (emoji): 2 units per char, like JS — 16 emoji
+        // hit the 32-unit gate while chars().count() sees only 16.
+        assert_eq!("😀".encode_utf16().count(), 2);
+        assert_eq!("😀".repeat(16).chars().count(), 16);
+        assert_eq!(footer_name_too_long_utf16(&"😀".repeat(15)), false);
+        assert_eq!(footer_name_too_long_utf16(&"😀".repeat(16)), true);
+        assert_eq!(footer_name_too_long_utf16(&"a".repeat(31)), false);
+        assert_eq!(footer_name_too_long_utf16(&"a".repeat(32)), true);
+    }
 }

@@ -26,10 +26,8 @@ pub async fn gc_commandlimit(
     let pool = &ctx.data().pool;
     let code = crate::db::guild_lang(pool, ctx.guild_id().map(|g| g.get())).await;
     let t = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
-    let raw = crate::db::kv_get(pool, &gid, "UTILS.COMMAND_LIMITS").await;
-    let mut map: HashMap<String, CommandLimit> = raw
-        .and_then(|s| serde_json::from_str(&s).ok())
-        .unwrap_or_default();
+    let raw = load_command_limits_routed(pool, &gid).await;
+    let mut map: HashMap<String, CommandLimit> = raw;
     if action.eq_ignore_ascii_case("list") {
         if map.is_empty() {
             ctx.say(t("commandlimit_list_empty")).await?;
@@ -67,8 +65,9 @@ pub async fn gc_commandlimit(
                 .await?;
             return Ok(());
         }
-        crate::db::kv_set(
+        crate::commands::owner::main::routed_set(
             pool,
+            &gid,
             &gid,
             "UTILS.COMMAND_LIMITS",
             &serde_json::to_string(&map)?,
@@ -92,8 +91,9 @@ pub async fn gc_commandlimit(
         window_ms: window_ms as i64,
     };
     map.insert(cmd.to_string(), limit.clone());
-    crate::db::kv_set(
+    crate::commands::owner::main::routed_set(
         pool,
+        &gid,
         &gid,
         "UTILS.COMMAND_LIMITS",
         &serde_json::to_string(&map)?,
@@ -106,4 +106,97 @@ pub async fn gc_commandlimit(
     )
     .await?;
     Ok(())
+}
+
+/// Table-first command-limits read with legacy fallback. Same key
+/// (`UTILS.COMMAND_LIMITS`) and same map shape as the inline read it
+/// replaces; the table handle is primary and a legacy-only row still
+/// resolves via `routed_get` (lazy promotion).
+pub async fn load_command_limits_routed(
+    pool: &crate::db::Pool,
+    gid: &str,
+) -> HashMap<String, CommandLimit> {
+    crate::commands::owner::main::routed_get(pool, gid, gid, "UTILS.COMMAND_LIMITS")
+        .await
+        .and_then(|s| serde_json::from_str(&s).ok())
+        .unwrap_or_default()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    async fn memory_pool() -> crate::db::Pool {
+        use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};
+        use std::str::FromStr;
+        let opts = SqliteConnectOptions::from_str("sqlite::memory:")
+            .unwrap()
+            .create_if_missing(true);
+        let pool = SqlitePoolOptions::new()
+            .max_connections(1)
+            .connect_with(opts)
+            .await
+            .unwrap();
+        sqlx::query(
+            "CREATE TABLE kv (guild_id TEXT NOT NULL, key_name TEXT NOT NULL, value TEXT NOT NULL, PRIMARY KEY (guild_id, key_name))",
+        )
+        .execute(&pool)
+        .await
+        .unwrap();
+        pool
+    }
+
+    #[tokio::test]
+    async fn limits_write_routes_to_table_and_legacy() {
+        let pool = memory_pool().await;
+        let map = serde_json::json!({"ban": {"count": 2, "window_ms": 60_000}});
+        crate::commands::owner::main::routed_set(
+            &pool,
+            "g1",
+            "g1",
+            "UTILS.COMMAND_LIMITS",
+            &map.to_string(),
+        )
+        .await
+        .unwrap();
+        let routed: String = sqlx::query_scalar::<_, String>(
+            "SELECT value FROM kv WHERE guild_id = 'tbl:g1' AND key_name = 'UTILS'",
+        )
+        .fetch_optional(&pool)
+        .await
+        .unwrap()
+        .unwrap();
+        let doc: serde_json::Value = serde_json::from_str(&routed).unwrap();
+        assert_eq!(doc.pointer("/COMMAND_LIMITS").unwrap(), &map);
+        let legacy: String = sqlx::query_scalar::<_, String>(
+            "SELECT value FROM kv WHERE guild_id = 'g1' AND key_name = 'UTILS.COMMAND_LIMITS'",
+        )
+        .fetch_optional(&pool)
+        .await
+        .unwrap()
+        .unwrap();
+        assert_eq!(
+            serde_json::from_str::<serde_json::Value>(&legacy).unwrap(),
+            map
+        );
+        let loaded = load_command_limits_routed(&pool, "g1").await;
+        assert_eq!(loaded["ban"].count, 2);
+        assert_eq!(loaded["ban"].window_ms, 60_000);
+        assert!(load_command_limits_routed(&pool, "g2").await.is_empty());
+    }
+
+    #[tokio::test]
+    async fn limits_read_falls_back_to_legacy_only_row() {
+        let pool = memory_pool().await;
+        crate::db::kv_set(
+            &pool,
+            "g1",
+            "UTILS.COMMAND_LIMITS",
+            &serde_json::json!({"kick": {"count": 1, "window_ms": 10_000}}).to_string(),
+        )
+        .await
+        .unwrap();
+        let loaded = load_command_limits_routed(&pool, "g1").await;
+        assert_eq!(loaded["kick"].count, 1);
+    }
 }

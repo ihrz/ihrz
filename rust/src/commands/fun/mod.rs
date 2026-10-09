@@ -345,23 +345,6 @@ async fn social_gif(
     Ok(())
 }
 
-/// Love compatibility 0..=100. Mirrors !love.ts: deterministic from the
-/// ordered id pair; couples in `always100` (config.command.always100,
-/// "id1xid2") always score 100.
-pub fn love_score(a: u64, b: u64, always100: &[String]) -> u64 {
-    let (lo, hi) = if a <= b { (a, b) } else { (b, a) };
-    if always100.iter().any(|c| c.trim() == format!("{lo}x{hi}")) {
-        return 100;
-    }
-    let mut h = lo.wrapping_mul(0x9E3779B97F4A7C15).wrapping_add(hi);
-    h ^= h >> 30;
-    h = h.wrapping_mul(0xBF58476D1CE4E5B9);
-    h ^= h >> 27;
-    h = h.wrapping_mul(0x94D049BB133111EB);
-    h ^= h >> 31;
-    h % 101
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -459,22 +442,6 @@ mod tests {
     }
 
     #[test]
-    fn love_is_deterministic_and_bounded() {
-        let a = love_score(1, 2, &[]);
-        assert!(a <= 100);
-        assert_eq!(a, love_score(2, 1, &[]));
-        assert_eq!(a, love_score(1, 2, &[]));
-    }
-
-    #[test]
-    fn love_always100_couples() {
-        let forced = vec!["1x2".to_string()];
-        assert_eq!(love_score(1, 2, &forced), 100);
-        assert_eq!(love_score(2, 1, &forced), 100);
-        assert!(love_score(1, 3, &forced) <= 100);
-    }
-
-    #[test]
     fn interaction_line_shapes() {
         assert_eq!(interaction_line("a", "b", "hugs"), "**a** hugs **b**");
     }
@@ -494,58 +461,6 @@ mod tests {
         assert_eq!(animality_url("fox"), "https://api.animality.xyz/all/fox");
         assert_eq!(hack_lines("x").len(), 4);
     }
-}
-
-// ---- caracteres (!caracteres.ts: fontStyles map + convertText) ----
-
-/// Original alphabet. Mirrors fontStyles["Original"] in !caracteres.ts.
-pub const CARACTERES_ORIGINAL: &str =
-    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-
-/// Bold table. Mirrors fontStyles["Bold"] in !caracteres.ts.
-pub const CARACTERES_BOLD: &str = "𝗮𝗯𝗰𝗱𝗲𝗳𝗴𝗵𝗶𝗷𝗸𝗹𝗺𝗻𝗼𝗽𝗾𝗿𝘀𝘁𝘂𝘃𝘄𝘅𝘆𝘇𝗔𝗕𝗖𝗗𝗘𝗙𝗚𝗛𝗜𝗝𝗞𝗟𝗠𝗡𝗢𝗣𝗤𝗥𝗦𝗧𝗨𝗩𝗪𝗫𝗬𝗭𝟬𝟭𝟮𝟯𝟰𝟱𝟲𝟳𝟴𝟵";
-
-/// Fullwidth table. Mirrors fontStyles["FULL"] in !caracteres.ts.
-pub const CARACTERES_FULL: &str = "ａｂｃｄｅｆｇｈｉｊｋｌｍｎｏｐｑｒｓｔｕｖｗｘｙｚＡＢＣＤＥＦＧＨＩＪＫＬＭＮＯＰＱＲＳＴＵＶＷＸＹＺ０１２３４５６７８９";
-
-/// Circled table. Mirrors fontStyles["Circled"] in !caracteres.ts.
-pub const CARACTERES_CIRCLED: &str =
-    "ⓐⓑⓒⓓⓔⓕⓖⓗⓘⓙⓚⓛⓜⓝⓞⓟⓠⓡⓢⓣⓤⓥⓦⓧⓨⓩⒶⒷⒸⒹⒺⒻⒼⒽⒾⒿⓀⓁⓂⓃⓄⓅⓆⓇⓈⓉⓊⓋⓌⓍⓎⓏ⓪①②③④⑤⑥⑦⑧⑨";
-
-/// Style names exposed by the poise port (subset; TS shows 25 via select menu).
-pub fn caracteres_styles() -> &'static [&'static str] {
-    &["Bold", "Full", "Circled"]
-}
-
-pub fn caracteres_table(style: &str) -> Option<&'static str> {
-    match style.to_ascii_lowercase().as_str() {
-        "bold" => Some(CARACTERES_BOLD),
-        "full" => Some(CARACTERES_FULL),
-        "circled" | "circle" => Some(CARACTERES_CIRCLED),
-        _ => None,
-    }
-}
-
-/// Pure port of convertText(text, style) in !caracteres.ts:
-/// index-map each ORIGINAL char to the style table char, passthrough otherwise.
-pub fn convert_font(text: &str, style_table: &str) -> String {
-    let orig: Vec<char> = CARACTERES_ORIGINAL.chars().collect();
-    let styled: Vec<char> = style_table.chars().collect();
-    if styled.len() != orig.len() {
-        return text.to_string();
-    }
-    text.chars()
-        .map(|c| {
-            orig.iter()
-                .position(|&o| o == c)
-                .map(|i| styled[i])
-                .unwrap_or(c)
-        })
-        .collect()
-}
-
-pub fn caracteres_convert(text: &str, style: &str) -> Option<String> {
-    caracteres_table(style).map(|t| convert_font(text, t))
 }
 
 // ---- catsay (!catsay.ts: thecatapi search + catsay html render) ----
@@ -668,23 +583,6 @@ pub fn bubbles_valid_content_type(ct: Option<&str>) -> bool {
 #[cfg(test)]
 mod fun_extra_tests {
     use super::*;
-
-    #[test]
-    fn caracteres_converts_and_passthrough() {
-        assert_eq!(convert_font("ab", CARACTERES_BOLD).chars().count(), 2);
-        assert!(convert_font("ab", CARACTERES_BOLD).contains('𝗮'));
-        assert_eq!(convert_font("a! Z09", CARACTERES_BOLD).chars().count(), 6);
-        assert!(convert_font("!", CARACTERES_BOLD).contains('!'));
-        assert_eq!(convert_font("ab", "short"), "ab");
-    }
-
-    #[test]
-    fn caracteres_tables_resolve() {
-        assert!(caracteres_table("Bold").is_some());
-        assert!(caracteres_table("nope").is_none());
-        assert_eq!(caracteres_convert("hi", "Full").unwrap().chars().count(), 2);
-        assert!(caracteres_convert("hi", "nope").is_none());
-    }
 
     #[test]
     fn catsay_helpers() {
@@ -950,6 +848,7 @@ pub mod misc;
 pub mod social;
 
 pub mod bubbles;
+pub mod captions;
 pub mod caracteres;
 pub mod cat;
 pub mod catsay;
@@ -978,6 +877,7 @@ pub mod sixseven;
 pub mod slap;
 pub mod squirrel;
 pub mod stench;
+pub mod togif;
 pub mod trans;
 pub mod transgender;
 pub mod tweet;

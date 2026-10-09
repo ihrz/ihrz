@@ -31,8 +31,11 @@ pub fn table_backend(pool: &crate::db::Pool) -> crate::backends::Backend {
 
 /// Table-handle read as plain text. Values written via `tbl_set` keep
 /// their JSON shape in store, so this returns the canonical text form:
-/// strings unwrapped, anything else re-serialized (matches the legacy
-/// kv text rows, which callers `from_str` back into structs).
+/// JSON docs/numbers/bools re-serialized, pre-encoded JSON strings
+/// decoded once (`"\"PANEL\""` reads back as `PANEL`). Callers that need
+/// the exact stored bytes (pre-encoded markers) must go through
+/// `decode_stored_string`, which accepts both the decoded and the
+/// legacy quoted form.
 pub async fn tbl_get(pool: &crate::db::Pool, table: &str, key: &str) -> Option<String> {
     let backend = table_backend(pool);
     let v: serde_json::Value = backend.table(table).get(key).await.ok()??;
@@ -40,6 +43,13 @@ pub async fn tbl_get(pool: &crate::db::Pool, table: &str, key: &str) -> Option<S
         serde_json::Value::String(s) => Some(s),
         other => serde_json::to_string(&other).ok(),
     }
+}
+
+/// Decode a stored string that may be a pre-encoded JSON string
+/// (`marker_value` output): the table store decodes once on write while
+/// legacy kv keeps the quoted bytes, so accept both forms.
+pub fn decode_stored_string(raw: &str) -> String {
+    serde_json::from_str::<String>(raw).unwrap_or_else(|_| raw.to_string())
 }
 
 /// Table-handle read as a JSON doc, for walking nested dotted-key

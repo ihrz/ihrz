@@ -41,7 +41,7 @@ pub async fn user_love(
     ctx: Ctx<'_>,
     #[description = "Member"] user: poise::serenity_prelude::User,
 ) -> Result<(), anyhow::Error> {
-    let score = crate::commands::fun::love_score(
+    let score = crate::commands::fun::love::love_roll(
         ctx.author().id.get(),
         user.id.get(),
         &ctx.data().config.always100,

@@ -289,8 +289,9 @@ async fn run_button_panel(
         post = post.add_file(serenity::CreateAttachment::bytes(icon, "footer_icon.png"));
     }
     let sent = channel_id.send_message(&http, post).await?;
-    crate::db::kv_set(
+    crate::commands::owner::main::routed_set(
         pool,
+        gid,
         gid,
         &legacy_panel_key(sent.id.get()),
         &button_panel_value(
@@ -653,8 +654,9 @@ async fn run_builder_save(
         post = post.add_file(serenity::CreateAttachment::bytes(icon, "footer_icon.png"));
     }
     let sent = msg.channel_id.send_message(&http, post).await?;
-    crate::db::kv_set(
+    crate::commands::owner::main::routed_set(
         pool,
+        gid,
         gid,
         &legacy_panel_key(sent.id.get()),
         &select_panel_value(
@@ -879,5 +881,46 @@ mod tests {
         assert!(parse_reason_choice("yes"));
         assert!(!parse_reason_choice("no"));
         assert!(!parse_reason_choice(""));
+    }
+
+    async fn mem_pool() -> crate::db::Pool {
+        use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};
+        use std::str::FromStr;
+        let opts = SqliteConnectOptions::from_str("sqlite::memory:")
+            .unwrap()
+            .create_if_missing(true);
+        let pool = SqlitePoolOptions::new()
+            .max_connections(1)
+            .connect_with(opts)
+            .await
+            .unwrap();
+        sqlx::query(
+            "CREATE TABLE kv (guild_id TEXT NOT NULL, key_name TEXT NOT NULL, value TEXT NOT NULL, PRIMARY KEY (guild_id, key_name))",
+        )
+        .execute(&pool)
+        .await
+        .unwrap();
+        pool
+    }
+
+    #[tokio::test]
+    async fn legacy_marker_dual_writes_table_and_legacy() {
+        use crate::commands::owner::main::{routed_get, tbl_get_value};
+        let pool = mem_pool().await;
+        let key = legacy_panel_key(999);
+        assert_eq!(key, "GUILD.TICKET.999");
+        let value = button_panel_value(7, "Help", 10, 20, "30");
+        crate::commands::owner::main::routed_set(&pool, "g", "g", &key, &value)
+            .await
+            .unwrap();
+        assert_eq!(
+            crate::db::kv_get(&pool, "g", &key).await.as_deref(),
+            Some(value.as_str())
+        );
+        assert!(tbl_get_value(&pool, "g", &key).await.is_some());
+        assert_eq!(
+            routed_get(&pool, "g", "g", &key).await.as_deref(),
+            Some(value.as_str())
+        );
     }
 }

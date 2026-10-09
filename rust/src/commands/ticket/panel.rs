@@ -1776,7 +1776,8 @@ async fn run_send_flow(
     }
     let sent = target.send_message(&sctx.http, opener).await?;
     let (marker_key, marker_val) = marker_pair(sent.id.get(), panel_code);
-    let _ = crate::db::kv_set(pool, gid, &marker_key, &marker_val).await;
+    let _ =
+        crate::commands::owner::main::routed_set(pool, gid, gid, &marker_key, &marker_val).await;
     let _ = chan_pick
         .create_response(&sctx.http, serenity::CreateInteractionResponse::Acknowledge)
         .await;
@@ -1858,7 +1859,8 @@ async fn post_ticket_panel_message(
         .components(vec![serenity::CreateActionRow::SelectMenu(menu)]);
     if let Ok(sent) = ctx.channel_id().send_message(&http, msg).await {
         let (marker_key, marker_val) = marker_pair(sent.id.get(), panel_code);
-        let _ = crate::db::kv_set(pool, gid, &marker_key, &marker_val).await;
+        let _ = crate::commands::owner::main::routed_set(pool, gid, gid, &marker_key, &marker_val)
+            .await;
     }
 }
 
@@ -2261,5 +2263,28 @@ mod tests {
         assert!(tbl_get_value(&pool, "g", &panel_key("p1")).await.is_some());
         // Round-trip through the routed load.
         assert_eq!(load_panel_routed(&pool, "g", "p1").await.name, "Support");
+    }
+
+    #[tokio::test]
+    async fn v2_marker_dual_writes_table_and_legacy() {
+        use crate::commands::owner::main::{routed_get, tbl_get_value};
+        let pool = mem_pool().await;
+        let (key, val) = marker_pair(424242, "PANELCODE1");
+        crate::commands::owner::main::routed_set(&pool, "g", "g", &key, &val)
+            .await
+            .unwrap();
+        assert_eq!(
+            crate::db::kv_get(&pool, "g", &key).await.as_deref(),
+            Some(val.as_str())
+        );
+        assert!(tbl_get_value(&pool, "g", &key).await.is_some());
+        // Functional parity: both stores decode to the same panel code
+        // (kv keeps the quoted bytes, the table decodes once on write).
+        assert_eq!(
+            crate::commands::owner::main::decode_stored_string(
+                &routed_get(&pool, "g", "g", &key).await.unwrap()
+            ),
+            "PANELCODE1"
+        );
     }
 }
