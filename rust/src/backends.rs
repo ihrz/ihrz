@@ -920,6 +920,7 @@ pub enum Backend {
     Sqlite(SqliteBackend),
     Postgres(PostgresBackend),
     HorizonDb(HorizonDbBackend),
+    Cached(CachedBackend),
 }
 
 impl Backend {
@@ -952,6 +953,13 @@ impl Backend {
         Self::HorizonDb(HorizonDbBackend::mock(endpoint))
     }
 
+    /// Cached-postgres orchestration over `primary` (the `og` Postgres in
+    /// `src/core/database/index.ts`): reads served from an in-memory cache,
+    /// every write mirrored to `primary` on the spot.
+    pub fn cached(primary: Backend) -> Self {
+        Self::Cached(CachedBackend::new(primary))
+    }
+
     /// Build from config: `db_method` selects the driver (`sqlite` default,
     /// `memory`, `json`, `postgres`/`postgresql`, `horizondb`/`horizon`/
     /// `ihrzdb` as an offline mock). A `json:<dir>`
@@ -973,6 +981,13 @@ impl Backend {
             "postgres" | "postgresql" => {
                 let url = postgres_url(cfg)?;
                 Ok(Self::postgres_connect(&url).await?)
+            }
+            "cached_postgres" | "cached-postgres" | "cachedpostgres" => {
+                let url = postgres_url(cfg)?;
+                let pg = PostgresBackend::connect(&url).await?;
+                let cached = CachedBackend::new(Backend::Postgres(pg));
+                cached.warm().await?;
+                Ok(Self::Cached(cached))
             }
             "horizondb" | "horizon" | "ihrzdb" => {
                 // Offline mock: database_url is recorded as the endpoint and
@@ -1006,6 +1021,23 @@ impl Table<'_> {
         &self.name
     }
 
+    /// Reject mutations against read-only tables on cached backends. TS
+    /// (`syncToPostgres` in `src/core/database/index.ts`) only consults
+    /// `readOnlyTables` during the 5-minute sync (postgres wins, memory
+    /// rows are clobbered); the Rust cached backend rejects such writes
+    /// upfront instead of accepting-then-clobbering. Plain (non-cached)
+    /// backends are unaffected, matching TS where `readOnlyTables` is
+    /// inert outside `cached_postgres` mode.
+    fn check_writable(&self) -> anyhow::Result<()> {
+        if matches!(self.backend, Backend::Cached(_)) && is_read_only(&self.name) {
+            anyhow::bail!(
+                "table \"{}\" is read-only: postgres wins, cached writes are rejected",
+                self.name
+            );
+        }
+        Ok(())
+    }
+
     /// Alias for `all`, mirroring the TS drivers' `export()` (both
     /// `Postgres.export` and `HorizonDB.export` return the full row scan).
     /// `close()` is intentionally not mapped: `sqlx` pools close on drop and
@@ -1021,6 +1053,7 @@ impl Table<'_> {
             Backend::Sqlite(b) => b.all(&self.name).await,
             Backend::Postgres(b) => b.all(&self.name).await,
             Backend::HorizonDb(b) => Ok(b.all(&self.name).await),
+            Backend::Cached(c) => Ok(c.all(&self.name).await),
         }
     }
 
@@ -1034,6 +1067,7 @@ impl Table<'_> {
             Backend::Sqlite(b) => b.get(&self.name, root).await?,
             Backend::Postgres(b) => b.get(&self.name, root).await?,
             Backend::HorizonDb(b) => b.get(&self.name, root).await,
+            Backend::Cached(c) => c.get(&self.name, root).await,
         };
         match (v, rest) {
             (Some(r), Some(path)) => Ok(get_path(&r, path).cloned()),
@@ -1045,6 +1079,7 @@ impl Table<'_> {
     /// merge into the root row object (see `set_path`).
     async fn write_value(&self, key: &str, value: Value) -> anyhow::Result<()> {
         let (root, rest) = split_path(key);
+        self.check_writable()?;
         match rest {
             None => match self.backend {
                 Backend::Memory(b) => {
@@ -1058,6 +1093,7 @@ impl Table<'_> {
                     b.set(&self.name, key, value).await;
                     Ok(())
                 }
+                Backend::Cached(c) => c.set(&self.name, key, value).await,
             },
             Some(path) => {
                 let current = match self.backend {
@@ -1066,6 +1102,7 @@ impl Table<'_> {
                     Backend::Sqlite(b) => b.get(&self.name, root).await?,
                     Backend::Postgres(b) => b.get(&self.name, root).await?,
                     Backend::HorizonDb(b) => b.get(&self.name, root).await,
+                    Backend::Cached(c) => c.get(&self.name, root).await,
                 };
                 let merged = set_path(current, path, value);
                 match self.backend {
@@ -1080,6 +1117,7 @@ impl Table<'_> {
                         b.set(&self.name, root, merged).await;
                         Ok(())
                     }
+                    Backend::Cached(c) => c.set(&self.name, root, merged).await,
                 }
             }
         }
@@ -1126,12 +1164,14 @@ impl Table<'_> {
             self.write_value(key, merged.clone()).await?;
             return Ok(serde_json::from_value(merged)?);
         }
+        self.check_writable()?;
         let merged = match self.backend {
             Backend::Memory(b) => b.update(&self.name, key, patch).await?,
             Backend::Json(b) => b.update(&self.name, key, patch).await?,
             Backend::Sqlite(b) => b.update(&self.name, key, patch).await?,
             Backend::Postgres(b) => b.update(&self.name, key, patch).await?,
             Backend::HorizonDb(b) => b.update(&self.name, key, patch).await?,
+            Backend::Cached(c) => c.update(&self.name, key, patch).await?,
         };
         Ok(serde_json::from_value(merged)?)
     }
@@ -1147,6 +1187,7 @@ impl Table<'_> {
             Backend::Sqlite(b) => b.has(&self.name, key).await,
             Backend::Postgres(b) => b.has(&self.name, key).await,
             Backend::HorizonDb(b) => Ok(b.has(&self.name, key).await),
+            Backend::Cached(c) => Ok(c.has(&self.name, key).await),
         }
     }
 
@@ -1163,28 +1204,33 @@ impl Table<'_> {
                 Backend::Sqlite(b) => b.get(&self.name, root).await?,
                 Backend::Postgres(b) => b.get(&self.name, root).await?,
                 Backend::HorizonDb(b) => b.get(&self.name, root).await,
+                Backend::Cached(c) => c.get(&self.name, root).await,
             }
             .unwrap_or(Value::Object(serde_json::Map::new()));
             let (merged, removed) = unset_path(current, path);
             self.write_value(root, merged).await?;
             return Ok(u64::from(removed));
         }
+        self.check_writable()?;
         match self.backend {
             Backend::Memory(b) => Ok(b.delete(&self.name, key).await),
             Backend::Json(b) => b.delete(&self.name, key).await,
             Backend::Sqlite(b) => b.delete(&self.name, key).await,
             Backend::Postgres(b) => b.delete(&self.name, key).await,
             Backend::HorizonDb(b) => Ok(b.delete(&self.name, key).await),
+            Backend::Cached(c) => c.delete(&self.name, key).await,
         }
     }
 
     pub async fn delete_all(&self) -> anyhow::Result<u64> {
+        self.check_writable()?;
         match self.backend {
             Backend::Memory(b) => Ok(b.delete_all(&self.name).await),
             Backend::Json(b) => b.delete_all(&self.name).await,
             Backend::Sqlite(b) => b.delete_all(&self.name).await,
             Backend::Postgres(b) => b.delete_all(&self.name).await,
             Backend::HorizonDb(b) => Ok(b.delete_all(&self.name).await),
+            Backend::Cached(c) => c.delete_all(&self.name).await,
         }
     }
 
@@ -1209,12 +1255,14 @@ impl Table<'_> {
         if split_path(key).1.is_some() {
             return self.add_sub_dotted(key, value, false).await;
         }
+        self.check_writable()?;
         match self.backend {
             Backend::Memory(b) => b.add_sub(&self.name, key, value, false).await,
             Backend::Json(b) => b.add_sub(&self.name, key, value, false).await,
             Backend::Sqlite(b) => b.add_sub(&self.name, key, value, false).await,
             Backend::Postgres(b) => b.add_sub(&self.name, key, value, false).await,
             Backend::HorizonDb(b) => b.add_sub(&self.name, key, value, false).await,
+            Backend::Cached(c) => c.add_sub(&self.name, key, value, false).await,
         }
     }
 
@@ -1222,12 +1270,14 @@ impl Table<'_> {
         if split_path(key).1.is_some() {
             return self.add_sub_dotted(key, value, true).await;
         }
+        self.check_writable()?;
         match self.backend {
             Backend::Memory(b) => b.add_sub(&self.name, key, value, true).await,
             Backend::Json(b) => b.add_sub(&self.name, key, value, true).await,
             Backend::Sqlite(b) => b.add_sub(&self.name, key, value, true).await,
             Backend::Postgres(b) => b.add_sub(&self.name, key, value, true).await,
             Backend::HorizonDb(b) => b.add_sub(&self.name, key, value, true).await,
+            Backend::Cached(c) => c.add_sub(&self.name, key, value, true).await,
         }
     }
 
@@ -1246,12 +1296,14 @@ impl Table<'_> {
             self.write_value(key, Value::Array(arr.clone())).await?;
             return Ok(serde_json::from_value(Value::Array(arr))?);
         }
+        self.check_writable()?;
         let arr = match self.backend {
             Backend::Memory(b) => b.push(&self.name, key, values).await?,
             Backend::Json(b) => b.push(&self.name, key, values).await?,
             Backend::Sqlite(b) => b.push(&self.name, key, values).await?,
             Backend::Postgres(b) => b.push(&self.name, key, values).await?,
             Backend::HorizonDb(b) => b.push(&self.name, key, values).await?,
+            Backend::Cached(c) => c.push(&self.name, key, values).await?,
         };
         Ok(serde_json::from_value(Value::Array(arr))?)
     }
@@ -1353,6 +1405,7 @@ impl Table<'_> {
             Backend::Sqlite(b) => b.get_array(&self.name, key).await?,
             Backend::Postgres(b) => b.get_array(&self.name, key).await?,
             Backend::HorizonDb(b) => b.get_array(&self.name, key).await?,
+            Backend::Cached(c) => c.get_array(&self.name, key).await?,
         };
         arr.into_iter()
             .map(|v| serde_json::from_value(v).map_err(anyhow::Error::from))
@@ -1367,7 +1420,402 @@ impl Table<'_> {
             Backend::Sqlite(b) => b.starts_with(&self.name, prefix).await,
             Backend::Postgres(b) => b.starts_with(&self.name, prefix).await,
             Backend::HorizonDb(b) => Ok(b.starts_with(&self.name, prefix).await),
+            Backend::Cached(c) => Ok(c.starts_with(&self.name, prefix).await),
         }
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Orchestration: table registry, read-only tables, cached-postgres mirror
+// sync. Ports `src/core/database/index.ts` (`tables`, `readOnlyTables`,
+// `initializeDatabase`, `syncToPostgres`) over the `Backend` drivers above,
+// matching how `src/core/bot.ts` (`client.db = x`, `client.db2 = y`) and
+// `src/Events/client/ready.ts` (`db.table(name)` per table) consume it.
+// ---------------------------------------------------------------------------
+
+/// Logical tables in TS declaration order (`tables` in
+/// `src/core/database/index.ts`). `Backend::table` / `Database::table`
+/// accept any name (TS `table()` takes any string); this list drives cache
+/// warming and periodic sync.
+pub const TABLES: &[&str] = &[
+    "json",
+    "owner",
+    "blacklist",
+    "prevnames",
+    "api",
+    "temp",
+    "schedule",
+    "user_profil",
+    "authrestore",
+    "metas",
+    "giveaways",
+    "backups",
+];
+
+/// Tables postgres wins for (`readOnlyTables` in
+/// `src/core/database/index.ts`).
+pub const READ_ONLY_TABLES: &[&str] = &["authrestore", "api", "metas"];
+
+/// `readOnlyTables.includes(table)`.
+pub fn is_read_only(table: &str) -> bool {
+    READ_ONLY_TABLES.contains(&table)
+}
+
+/// `setInterval(syncToPostgres, 60000 * 5)` in `src/core/database/index.ts`.
+pub const SYNC_INTERVAL: Duration = Duration::from_secs(300);
+
+/// Shard gate for the `"json"` table. Mirrors `client.inShard(id)` in
+/// `src/core/database/index.ts` (only guild rows owned by this shard are
+/// cached/synced). `None` means allow all; that is the default because
+/// outside a live client there is no shard map to consult.
+pub type ShardGate = dyn Fn(&str) -> bool + Send + Sync;
+
+/// Cached-postgres backend: the `cached_postgres` method of
+/// `initializeDatabase` (`x: Memory` read cache + `og: Postgres` primary).
+/// Reads are served from the in-memory cache; every write lands in the
+/// cache and is mirrored to the primary synchronously.
+///
+/// Mirror delta (the write-only-never-fires fix): each TS driver
+/// (`driver/memory.ts`, `postgres.ts`, `sqlite.ts`, `json.ts`) fans writes
+/// out through `setRowByKey` / `deleteRowByKey` / `deleteAllRows` to a
+/// `private mirrors` list, but nothing in `src/` ever populates that list
+/// (`initializeDatabase` wires `x`/`og`/`y` and never registers a mirror),
+/// so TS mirrors never fire and consistency waits on the 5-minute
+/// `syncToPostgres`. Here the mirror IS the write path: cache first, then
+/// the primary, with the primary error propagated. `sync_table` /
+/// `sync_once` remain for reconciliation (external postgres edits, crash
+/// recovery) and keep the exact `syncToPostgres` direction rules.
+#[derive(Clone)]
+pub struct CachedBackend {
+    cache: MemoryBackend,
+    primary: Box<Backend>,
+    secondary: Option<Box<Backend>>,
+    shard_gate: Option<Arc<ShardGate>>,
+}
+
+impl std::fmt::Debug for CachedBackend {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("CachedBackend")
+            .field("cache", &self.cache)
+            .field("primary", &self.primary)
+            .field("secondary", &self.secondary)
+            .field("has_shard_gate", &self.shard_gate.is_some())
+            .finish()
+    }
+}
+
+impl CachedBackend {
+    pub fn new(primary: Backend) -> Self {
+        Self {
+            cache: MemoryBackend::new(),
+            primary: Box::new(primary),
+            secondary: None,
+            shard_gate: None,
+        }
+    }
+
+    /// Bi-separated second postgres (`y` in `initializeDatabase`, holding
+    /// the `metas` table). Only affects which tables warm/sync: with a
+    /// secondary present only `"json"` is cached and synced, like TS
+    /// (`_tables = dbInstance.y ? ["json"] : tables`).
+    pub fn with_secondary(mut self, secondary: Backend) -> Self {
+        self.secondary = Some(Box::new(secondary));
+        self
+    }
+
+    /// `client.inShard(id)` equivalent for the `"json"` table.
+    pub fn with_shard_gate(mut self, gate: impl Fn(&str) -> bool + Send + Sync + 'static) -> Self {
+        self.shard_gate = Some(Arc::new(gate));
+        self
+    }
+
+    /// The write-through target (`og` in TS).
+    pub fn primary(&self) -> &Backend {
+        &self.primary
+    }
+
+    /// The read cache as a plain backend (shares the store, for tests and
+    /// inspection).
+    pub fn cache(&self) -> Backend {
+        Backend::Memory(self.cache.clone())
+    }
+
+    fn in_shard(&self, id: &str) -> bool {
+        self.shard_gate.as_ref().is_none_or(|g| g(id))
+    }
+
+    fn sync_tables(&self) -> Vec<&str> {
+        if self.secondary.is_some() {
+            vec!["json"]
+        } else {
+            TABLES.to_vec()
+        }
+    }
+
+    async fn all(&self, table: &str) -> Vec<Row> {
+        self.cache.all(table).await
+    }
+
+    async fn get(&self, table: &str, key: &str) -> Option<Value> {
+        self.cache.get(table, key).await
+    }
+
+    async fn set(&self, table: &str, key: &str, value: Value) -> anyhow::Result<()> {
+        self.cache.set(table, key, value.clone()).await;
+        self.mirror_set(table, key, value).await
+    }
+
+    async fn update(&self, table: &str, key: &str, patch: Value) -> anyhow::Result<Value> {
+        let merged = self.cache.update(table, key, patch).await?;
+        self.mirror_set(table, key, merged.clone()).await?;
+        Ok(merged)
+    }
+
+    async fn has(&self, table: &str, key: &str) -> bool {
+        self.cache.has(table, key).await
+    }
+
+    async fn delete(&self, table: &str, key: &str) -> anyhow::Result<u64> {
+        let n = self.cache.delete(table, key).await;
+        self.mirror_delete(table, key).await?;
+        Ok(n)
+    }
+
+    async fn delete_all(&self, table: &str) -> anyhow::Result<u64> {
+        let n = self.cache.delete_all(table).await;
+        self.mirror_delete_all(table).await?;
+        Ok(n)
+    }
+
+    async fn add_sub(&self, table: &str, key: &str, by: f64, sub: bool) -> anyhow::Result<f64> {
+        let n = self.cache.add_sub(table, key, by, sub).await?;
+        self.mirror_set(table, key, Value::from(n)).await?;
+        Ok(n)
+    }
+
+    async fn get_array(&self, table: &str, key: &str) -> anyhow::Result<Vec<Value>> {
+        self.cache.get_array(table, key).await
+    }
+
+    async fn push(&self, table: &str, key: &str, values: Vec<Value>) -> anyhow::Result<Vec<Value>> {
+        let arr = self.cache.push(table, key, values).await?;
+        self.mirror_set(table, key, Value::Array(arr.clone()))
+            .await?;
+        Ok(arr)
+    }
+
+    async fn starts_with(&self, table: &str, prefix: &str) -> Vec<Row> {
+        self.cache.starts_with(table, prefix).await
+    }
+
+    /// Write-through leg of the mirror: the same row into the primary
+    /// without routing back through `Table` (that round-trip is an `async
+    /// fn` future cycle: `Table::delete_all` -> `CachedBackend::delete_all`
+    /// -> `Table::delete_all`, E0733). Leaf primaries are written directly;
+    /// a nested cached primary recurses behind a boxed `dyn Future` so the
+    /// future stays finite.
+    async fn mirror_set(&self, table: &str, key: &str, value: Value) -> anyhow::Result<()> {
+        match self.primary.as_ref() {
+            Backend::Memory(b) => {
+                b.set(table, key, value).await;
+                Ok(())
+            }
+            Backend::Json(b) => b.set(table, key, value).await,
+            Backend::Sqlite(b) => b.set(table, key, &value).await,
+            Backend::Postgres(b) => b.set(table, key, &value).await,
+            Backend::HorizonDb(b) => {
+                b.set(table, key, value).await;
+                Ok(())
+            }
+            // No TS equivalent exists (`og` is always a real Postgres, and
+            // TS mirrors never fire at all); fail fast instead of
+            // recursing the write path.
+            Backend::Cached(_) => {
+                anyhow::bail!("cached backend cannot mirror into another cached backend")
+            }
+        }
+    }
+
+    async fn mirror_delete(&self, table: &str, key: &str) -> anyhow::Result<u64> {
+        match self.primary.as_ref() {
+            Backend::Memory(b) => Ok(b.delete(table, key).await),
+            Backend::Json(b) => b.delete(table, key).await,
+            Backend::Sqlite(b) => b.delete(table, key).await,
+            Backend::Postgres(b) => b.delete(table, key).await,
+            Backend::HorizonDb(b) => Ok(b.delete(table, key).await),
+            Backend::Cached(_) => {
+                anyhow::bail!("cached backend cannot mirror into another cached backend")
+            }
+        }
+    }
+
+    async fn mirror_delete_all(&self, table: &str) -> anyhow::Result<u64> {
+        match self.primary.as_ref() {
+            Backend::Memory(b) => Ok(b.delete_all(table).await),
+            Backend::Json(b) => b.delete_all(table).await,
+            Backend::Sqlite(b) => b.delete_all(table).await,
+            Backend::Postgres(b) => b.delete_all(table).await,
+            Backend::HorizonDb(b) => Ok(b.delete_all(table).await),
+            Backend::Cached(_) => {
+                anyhow::bail!("cached backend cannot mirror into another cached backend")
+            }
+        }
+    }
+
+    /// Boot warming (`initializeDatabase` cached_postgres branch): copy
+    /// primary rows into the cache (`"json"`-only when bi-separated,
+    /// shard-gated like `client.inShard(id)`).
+    pub async fn warm(&self) -> anyhow::Result<()> {
+        for table in self.sync_tables() {
+            for row in self.primary.table(table).all().await? {
+                if table == "json" && !self.in_shard(&row.id) {
+                    continue;
+                }
+                self.cache.set(table, &row.id, row.value).await;
+            }
+        }
+        Ok(())
+    }
+
+    /// One `syncToPostgres` pass over a single table. Direction rules match
+    /// TS exactly: differing rows flow memory -> primary, except read-only
+    /// tables flow primary -> memory; primary rows missing from memory are
+    /// deleted from the primary (non-read-only only); memory rows missing
+    /// from the primary are deleted from memory (read-only only).
+    /// `"json"` writes/deletes toward the primary honor the shard gate.
+    /// Deliberate cleanup: TS re-copies the whole postgres table per
+    /// differing id; only the differing row is copied here (same end
+    /// state). Value comparison is structural (`==`); TS compares
+    /// `JSON.stringify` output, which agrees on parsed JSON values.
+    pub async fn sync_table(&self, table: &str) -> anyhow::Result<()> {
+        let readonly = is_read_only(table);
+        let primary_rows = self.primary.table(table).all().await?;
+        let cache_rows = self.cache.all(table).await;
+        let primary_map: HashMap<&str, &Value> = primary_rows
+            .iter()
+            .map(|r| (r.id.as_str(), &r.value))
+            .collect();
+        let cache_map: HashMap<&str, &Value> = cache_rows
+            .iter()
+            .map(|r| (r.id.as_str(), &r.value))
+            .collect();
+
+        for row in &cache_rows {
+            if primary_map.get(row.id.as_str()) == Some(&&row.value) {
+                continue;
+            }
+            if readonly {
+                if let Some(pv) = primary_map.get(row.id.as_str()) {
+                    self.cache.set(table, &row.id, (*pv).clone()).await;
+                }
+            } else {
+                if table == "json" && !self.in_shard(&row.id) {
+                    continue;
+                }
+                self.primary
+                    .table(table)
+                    .set(row.id.as_str(), row.value.clone())
+                    .await?;
+            }
+        }
+
+        if readonly {
+            for row in &cache_rows {
+                if !primary_map.contains_key(row.id.as_str()) {
+                    self.cache.delete(table, &row.id).await;
+                }
+            }
+        } else {
+            for row in &primary_rows {
+                if !cache_map.contains_key(row.id.as_str()) {
+                    if table == "json" && !self.in_shard(&row.id) {
+                        continue;
+                    }
+                    self.primary.table(table).delete(row.id.as_str()).await?;
+                }
+            }
+        }
+        Ok(())
+    }
+
+    /// Full `syncToPostgres` pass over every synced table.
+    pub async fn sync_once(&self) -> anyhow::Result<()> {
+        for table in self.sync_tables() {
+            self.sync_table(table).await?;
+        }
+        Ok(())
+    }
+
+    /// `setInterval(syncToPostgres, 60000 * 5)`: background reconciliation
+    /// loop; failures are logged and the loop continues.
+    pub fn spawn_sync_loop(self: &Arc<Self>) -> tokio::task::JoinHandle<()> {
+        let me = Arc::clone(self);
+        tokio::spawn(async move {
+            loop {
+                tokio::time::sleep(SYNC_INTERVAL).await;
+                if let Err(e) = me.sync_once().await {
+                    tracing::warn!("cached-postgres sync failed: {e:#}");
+                }
+            }
+        })
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Database: `MultiDB` (`{ og?, x, y? }`) + `initializeDatabase` routing.
+// ---------------------------------------------------------------------------
+
+/// Table registry over a primary backend (`x`, what `client.db` holds) with
+/// an optional secondary (`y` / `client.db2`, the bi-separated second
+/// postgres). `table()` mirrors `db.table(name)` in
+/// `src/Events/client/ready.ts`, including the `client.db2 ? client.db2 :
+/// client.db` preference. kv shapes and the shared `db.sqlite` pool are
+/// untouched: the sqlite path still goes through `crate::db::init`.
+#[derive(Debug, Clone)]
+pub struct Database {
+    x: Backend,
+    y: Option<Backend>,
+}
+
+impl Database {
+    pub fn new(primary: Backend) -> Self {
+        Self {
+            x: primary,
+            y: None,
+        }
+    }
+
+    pub fn with_secondary(mut self, secondary: Backend) -> Self {
+        self.y = Some(secondary);
+        self
+    }
+
+    /// `initializeDatabase` routing by `db_method`. The secondary (`y`)
+    /// stays `None`: the Rust `Config` carries a single `database_url`
+    /// while the TS bi-separated setup needs `mySQL[1]`, so wiring `y`
+    /// waits on a config extension (deferred).
+    pub async fn from_config(cfg: &Config) -> anyhow::Result<Self> {
+        Ok(Self::new(Backend::from_config(cfg).await?))
+    }
+
+    /// `client.db` side.
+    pub fn primary(&self) -> &Backend {
+        &self.x
+    }
+
+    /// `client.db2` side, when configured.
+    pub fn secondary(&self) -> Option<&Backend> {
+        self.y.as_ref()
+    }
+
+    /// `let db = client.db2 ? client.db2 : client.db` (`ready.ts`).
+    pub fn routing_backend(&self) -> &Backend {
+        self.y.as_ref().unwrap_or(&self.x)
+    }
+
+    /// Per-table handle over the routing backend.
+    pub fn table(&self, name: impl Into<String>) -> Table<'_> {
+        self.routing_backend().table(name)
     }
 }
 
@@ -1781,5 +2229,310 @@ mod tests {
                 _ => panic!("expected HorizonDb backend for {alias}"),
             }
         }
+    }
+    #[test]
+    fn orchestration_tables_and_readonly() {
+        assert_eq!(TABLES.len(), 12);
+        for t in [
+            "json",
+            "owner",
+            "blacklist",
+            "prevnames",
+            "api",
+            "temp",
+            "schedule",
+            "user_profil",
+            "authrestore",
+            "metas",
+            "giveaways",
+            "backups",
+        ] {
+            assert!(TABLES.contains(&t), "missing table {t}");
+        }
+        assert_eq!(READ_ONLY_TABLES.len(), 3);
+        for t in ["authrestore", "api", "metas"] {
+            assert!(is_read_only(t), "{t} should be read-only");
+        }
+        assert!(!is_read_only("json"));
+        assert!(!is_read_only("owner"));
+    }
+
+    #[tokio::test]
+    async fn database_routes_tables_and_prefers_secondary() {
+        let db = Database::new(Backend::memory());
+        db.table("owner").set("k", json!(1)).await.unwrap();
+        assert_eq!(
+            db.table("owner").get::<Value>("k").await.unwrap(),
+            Some(json!(1))
+        );
+
+        // ready.ts `client.db2 ? client.db2 : client.db`: y wins.
+        let db2 = Database::new(Backend::memory()).with_secondary(Backend::memory());
+        assert!(db2.secondary().is_some());
+        db2.table("owner").set("k", json!("via-y")).await.unwrap();
+        assert_eq!(
+            db2.primary()
+                .table("owner")
+                .get::<Value>("k")
+                .await
+                .unwrap(),
+            None
+        );
+        assert_eq!(
+            db2.secondary()
+                .unwrap()
+                .table("owner")
+                .get::<Value>("k")
+                .await
+                .unwrap(),
+            Some(json!("via-y"))
+        );
+
+        // from_config routing still works through Database.
+        let mut cfg = Config::default();
+        cfg.db_method = "memory".to_string();
+        let db3 = Database::from_config(&cfg).await.unwrap();
+        assert!(db3.secondary().is_none());
+        db3.table("temp").set("k", json!(true)).await.unwrap();
+        assert!(db3.table("temp").has("k").await.unwrap());
+    }
+
+    #[tokio::test]
+    async fn cached_mirror_fires_on_write() {
+        let b = Backend::cached(Backend::memory());
+        let t = b.table("owner");
+        t.set("k", json!({"a": 1})).await.unwrap();
+        let primary = match &b {
+            Backend::Cached(c) => c.primary().clone(),
+            _ => unreachable!(),
+        };
+        // Mirror fired synchronously: primary has the row with no sync pass.
+        assert_eq!(
+            primary.table("owner").get::<Value>("k").await.unwrap(),
+            Some(json!({"a": 1}))
+        );
+
+        assert_eq!(t.add("n", 2.0).await.unwrap(), 2.0);
+        assert_eq!(
+            primary.table("owner").get::<Value>("n").await.unwrap(),
+            Some(json!(2.0))
+        );
+
+        let arr: Vec<String> = t.push("l", vec!["x".to_string()]).await.unwrap();
+        assert_eq!(arr, vec!["x".to_string()]);
+        assert_eq!(
+            primary.table("owner").get::<Value>("l").await.unwrap(),
+            Some(json!(["x"]))
+        );
+
+        assert_eq!(t.delete("k").await.unwrap(), 1);
+        assert_eq!(
+            primary.table("owner").get::<Value>("k").await.unwrap(),
+            None
+        );
+
+        // Reads are served from the cache even when the primary diverges.
+        t.set("c", json!(7)).await.unwrap();
+        primary.table("owner").delete("c").await.unwrap();
+        assert_eq!(t.get::<Value>("c").await.unwrap(), Some(json!(7)));
+    }
+
+    #[tokio::test]
+    async fn cached_readonly_tables_reject_writes() {
+        let b = Backend::cached(Backend::memory());
+        for table in ["authrestore", "api", "metas"] {
+            let t = b.table(table);
+            assert!(t.set("k", json!(1)).await.is_err(), "{table} set");
+            assert!(t
+                .update::<Value, Value>("k", json!({"a": 1}))
+                .await
+                .is_err());
+            assert!(t.delete("k").await.is_err());
+            assert!(t.delete_all().await.is_err());
+            assert!(t.add("n", 1.0).await.is_err());
+            assert!(t.sub("n", 1.0).await.is_err());
+            assert!(t
+                .push::<String, Vec<String>>("l", vec!["x".into()])
+                .await
+                .is_err());
+            assert!(t
+                .unshift::<String, Vec<String>>("l", vec!["x".into()])
+                .await
+                .is_err());
+            assert!(t.pop::<Value>("l").await.is_err());
+            assert!(t.shift::<Value>("l").await.is_err());
+            assert!(t
+                .pull_values::<String, Vec<String>>("l", vec!["x".into()], false)
+                .await
+                .is_err());
+            assert!(t
+                .pull_where::<Vec<Value>>("l", false, |_, _| true)
+                .await
+                .is_err());
+            assert!(t.set("u.name", json!("ada")).await.is_err());
+            assert_eq!(t.get::<Value>("k").await.unwrap(), None);
+        }
+        // Writable table on the same backend is fine.
+        b.table("json").set("k", json!(1)).await.unwrap();
+        // Same table on a plain backend stays writable: readOnlyTables is
+        // inert outside cached_postgres mode, like TS.
+        Backend::memory()
+            .table("api")
+            .set("k", json!(1))
+            .await
+            .unwrap();
+    }
+
+    #[tokio::test]
+    async fn cached_sync_reconciles_both_directions() {
+        let b = Backend::cached(Backend::memory());
+        let c = match &b {
+            Backend::Cached(c) => c.clone(),
+            _ => unreachable!(),
+        };
+
+        // Writable table: cache wins, primary converges.
+        c.cache()
+            .table("owner")
+            .set("keep", json!(1))
+            .await
+            .unwrap();
+        c.primary()
+            .table("owner")
+            .set("keep", json!(2))
+            .await
+            .unwrap();
+        c.primary()
+            .table("owner")
+            .set("stale", json!(9))
+            .await
+            .unwrap();
+        c.sync_table("owner").await.unwrap();
+        assert_eq!(
+            c.primary()
+                .table("owner")
+                .get::<Value>("keep")
+                .await
+                .unwrap(),
+            Some(json!(1))
+        );
+        assert_eq!(
+            c.primary()
+                .table("owner")
+                .get::<Value>("stale")
+                .await
+                .unwrap(),
+            None
+        );
+
+        // Read-only table: postgres wins, cache converges, primary untouched.
+        c.primary()
+            .table("api")
+            .set("k", json!("pg"))
+            .await
+            .unwrap();
+        c.cache().table("api").set("k", json!("mem")).await.unwrap();
+        c.cache()
+            .table("api")
+            .set("ghost", json!(true))
+            .await
+            .unwrap();
+        c.sync_table("api").await.unwrap();
+        assert_eq!(
+            c.cache().table("api").get::<Value>("k").await.unwrap(),
+            Some(json!("pg"))
+        );
+        assert_eq!(
+            c.cache().table("api").get::<Value>("ghost").await.unwrap(),
+            None
+        );
+        assert_eq!(
+            c.primary()
+                .table("api")
+                .get::<Value>("ghost")
+                .await
+                .unwrap(),
+            None
+        );
+    }
+
+    #[tokio::test]
+    async fn cached_warm_and_shard_gate() {
+        let inner = CachedBackend::new(Backend::memory()).with_shard_gate(|_| false);
+        inner
+            .primary()
+            .table("json")
+            .set("g1", json!({"x": 1}))
+            .await
+            .unwrap();
+        inner
+            .primary()
+            .table("owner")
+            .set("k", json!(1))
+            .await
+            .unwrap();
+        inner.warm().await.unwrap();
+        // json gated out, other tables warm regardless.
+        assert_eq!(
+            inner
+                .cache()
+                .table("json")
+                .get::<Value>("g1")
+                .await
+                .unwrap(),
+            None
+        );
+        assert_eq!(
+            inner
+                .cache()
+                .table("owner")
+                .get::<Value>("k")
+                .await
+                .unwrap(),
+            Some(json!(1))
+        );
+
+        // Gated sync skips json rows toward the primary.
+        inner
+            .cache()
+            .table("json")
+            .set("g2", json!(2))
+            .await
+            .unwrap();
+        inner.sync_table("json").await.unwrap();
+        assert_eq!(
+            inner
+                .primary()
+                .table("json")
+                .get::<Value>("g2")
+                .await
+                .unwrap(),
+            None
+        );
+
+        // Ungated sync pushes them.
+        let open = CachedBackend::new(Backend::memory());
+        open.cache()
+            .table("json")
+            .set("g2", json!(2))
+            .await
+            .unwrap();
+        open.sync_table("json").await.unwrap();
+        assert_eq!(
+            open.primary()
+                .table("json")
+                .get::<Value>("g2")
+                .await
+                .unwrap(),
+            Some(json!(2))
+        );
+    }
+
+    #[tokio::test]
+    async fn from_config_cached_postgres_errors_offline() {
+        let mut cfg = Config::default();
+        cfg.db_method = "cached_postgres".to_string();
+        cfg.database_url = "postgres://127.0.0.1:1/ihrz_test".to_string();
+        assert!(Backend::from_config(&cfg).await.is_err());
     }
 }

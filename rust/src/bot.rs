@@ -309,6 +309,22 @@ fn dynamic_prefix(
     })
 }
 
+/// Partials / enforceNonce parity notes (src/core/bot.ts lines 86-99).
+/// serenity 0.12 exposes no Partials client option: gateway dispatches
+/// always carry their full payload, and cache misses surface as `None`
+/// at the lookup site rather than as partial objects. Mapping of the 10
+/// TS partials: Channel, Message, User, Reaction, GuildMember,
+/// GuildScheduledEvent, ThreadMember, Poll, PollAnswer, SoundboardSound
+/// all arrive complete in serenity events; where this file needs data
+/// that may not be cached it fetches over HTTP instead (the guild-owner
+/// lookup in global_check uses `to_partial_guild`, i.e. a fetch-missing
+/// fallback). Uncached-event handling inside the event dispatcher is
+/// owned by events_handler, out of scope for this file.
+/// enforceNonce likewise has no global flag in serenity: it is a
+/// per-message builder option
+/// (`CreateMessage::enforce_nonce`, only effective with an explicit
+/// `.nonce(...)`). Command replies here go through poise's reply path,
+/// which manages its own idempotency, so no per-send nonce is set.
 fn intents() -> serenity::GatewayIntents {
     // Mirrors the explicit GatewayIntentBits list in src/core/bot.ts.
     serenity::GatewayIntents::GUILDS
@@ -330,6 +346,8 @@ fn intents() -> serenity::GatewayIntents {
         | serenity::GatewayIntents::GUILD_SCHEDULED_EVENTS
         | serenity::GatewayIntents::AUTO_MODERATION_CONFIGURATION
         | serenity::GatewayIntents::AUTO_MODERATION_EXECUTION
+        | serenity::GatewayIntents::GUILD_MESSAGE_POLLS
+        | serenity::GatewayIntents::DIRECT_MESSAGE_POLLS
 }
 
 pub async fn run(cfg: Config, pool: Pool) -> anyhow::Result<()> {
@@ -376,6 +394,17 @@ pub async fn run(cfg: Config, pool: Pool) -> anyhow::Result<()> {
 
     let mut cache_settings = serenity::Settings::default();
     cache_settings.max_messages = 100;
+    // Mirrors the 8h message lifetime in src/core/bot.ts
+    // (DISCORD_MESSAGE_SWEEP_LIFETIME_SECONDS = 60*60*8): serenity has no
+    // per-category sweepers, so the global TTL for temp-cached data is the
+    // closest equivalent. No serenity 0.12 equivalent exists for the
+    // users (bot-only, 30min), presences (offline-only, 15min) and
+    // threads (1h lifetime, 30min interval) sweepers: serenity exposes no
+    // public per-category eviction API, only the max_messages cap above
+    // (mirrors MessageManager: 100) plus this TTL. Periodic selective
+    // eviction is therefore documented as not portable, not approximated
+    // with a no-op ticker.
+    cache_settings.time_to_live = std::time::Duration::from_secs(60 * 60 * 8);
     // Slash-command file log (mirrors loggerX in slashCommandLogger.ts).
     let slashlog = crate::slashlog::SlashLog::new(crate::slashlog::SlashLog::default_path());
     // Mirrors the SIGINT/SIGTERM flush in slashCommandLogger.ts.
@@ -417,14 +446,50 @@ pub async fn run(cfg: Config, pool: Pool) -> anyhow::Result<()> {
         });
     }
 
+    // Release version file. Mirrors `await writeVersionFile(pkg.version)`
+    // in src/index.ts (boot, before spawning shards).
+    if let Err(e) = crate::core::release::write_version_file(env!("CARGO_PKG_VERSION")) {
+        tracing::warn!("version file write failed: {e}");
+    }
+
     // Sharding mirrors ShardingManager in src/index.ts. TOTAL_SHARDS env
-    // override takes priority, same as TS.
-    if let Some(total) = crate::config::Config::default().total_shards {
-        let _ = total;
+    // override (cfg.total_shards, parsed in config::load) takes priority,
+    // same as TS. Explicit count maps to start_shards; otherwise
+    // start_autosharded queries /gateway/bot for Discord's recommended
+    // count, mirroring the gateway half of getOptimalShardCount().
+    // Documented gaps (no serenity 0.12 equivalent): the GUILDS_PER_SHARD
+    // tuning multiplier (TS scales Discord's recommendation by
+    // ceil(1000/700)=2 for lower latency), the spawn pacing (delay 5500,
+    // timeout 30000) and the respawn flag — serenity spawns shards
+    // sequentially and auto-reconnects/resumes dropped shards via the
+    // ShardManager, so respawn:true behaviour is the default, not a flag.
+    let total_shards = cfg.total_shards.filter(|n| *n > 0);
+    if let Some(n) = total_shards {
+        tracing::info!("using TOTAL_SHARDS override: {n}");
+    }
+    // Main-shard release gate. Mirrors checkAndNotifyRelease() running on
+    // shard 0 only (client.isMainShard): in this single-process autoshard
+    // shard 0 is always local, so the gate is evaluated for shard 0 here
+    // at boot. The one-shot claim (v.old.txt rotation) lives in
+    // consume_release_note; the owner-DM fan-out is deferred to the
+    // notifier module, which must call this path only when
+    // crate::funcs::is_main_shard holds.
+    if crate::funcs::is_main_shard(0) {
+        let mut root = std::env::current_dir().unwrap_or_else(|_| ".".into());
+        if root.ends_with("rust") {
+            root.pop();
+        }
+        if let Some(version) = crate::core::release::consume_release_note(&root) {
+            tracing::info!("release {version} pending announcement (main shard)");
+        }
     }
 
     tracing::info!("connecting gateway (autosharded)");
-    match client.start_autosharded().await {
+    let started = match total_shards {
+        Some(n) => client.start_shards(n).await,
+        None => client.start_autosharded().await,
+    };
+    match started {
         Ok(()) => Ok(()),
         Err(e) => {
             // Mirrors core.ts login(): self-heal disallowed intents, else exit.

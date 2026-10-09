@@ -353,6 +353,29 @@ pub fn guild_shard(guild_id: u64, total_shards: u64) -> u64 {
     (guild_id >> 22) % total_shards
 }
 
+/// True when `guild_id` is served by `shard_id`. Mirrors client.inShard
+/// (`guildShard === shardId`; the TS try/catch falls back to `shardId`
+/// on unparsable ids, i.e. true — see `in_shard_str`).
+pub fn in_shard(guild_id: u64, shard_id: u64, total_shards: u64) -> bool {
+    guild_shard(guild_id, total_shards) == shard_id
+}
+
+/// String-guild-id variant. Mirrors client.inShard exactly: an
+/// unparsable id falls back to the local shard, so this returns true.
+pub fn in_shard_str(guild_id: &str, shard_id: u64, total_shards: u64) -> bool {
+    match guild_id.parse::<u64>() {
+        Ok(id) => in_shard(id, shard_id, total_shards),
+        Err(_) => true,
+    }
+}
+
+/// True only for shard 0. Mirrors client.isMainShard
+/// (`(client.shard?.ids[0] ?? 0) === 0`): gates the release-notifier
+/// path (checkAndNotifyRelease) so only the main shard announces.
+pub fn is_main_shard(shard_id: u64) -> bool {
+    shard_id == 0
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -575,6 +598,15 @@ mod tests {
         assert_eq!(guild_shard(1 << 22, 4), 1);
         assert_eq!(guild_shard(0, 4), 0);
         assert_eq!(guild_shard(99, 0), 0);
+        // in_shard mirrors client.inShard (guildShard === shardId).
+        assert!(in_shard(1 << 22, 1, 4));
+        assert!(!in_shard(1 << 22, 0, 4));
+        assert!(in_shard_str(&(1 << 22).to_string(), 1, 4));
+        // TS try/catch: unparsable id falls back to the local shard.
+        assert!(in_shard_str("not-a-snowflake", 2, 4));
+        // is_main_shard mirrors client.isMainShard (ids[0] === 0).
+        assert!(is_main_shard(0));
+        assert!(!is_main_shard(1));
     }
 
     #[tokio::test]

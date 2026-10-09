@@ -1,0 +1,26 @@
+use super::*;
+
+/// Set your description. Mirrors `!set-description.ts`.
+#[poise::command(
+    slash_command,
+    prefix_command,
+    rename = "set-description",
+    aliases("desc", "description"),
+    category = "profil"
+)]
+pub async fn profil_description(
+    ctx: Ctx<'_>,
+    #[description = "Your description on the iHorizon profil"] description: String,
+) -> Result<(), anyhow::Error> {
+    let user_id = ctx.author().id.get();
+    let mut p = load_profil(&ctx.data().pool, user_id).await;
+    p.description = description.chars().take(500).collect();
+    save_profil(&ctx.data().pool, user_id, &p).await?;
+    ctx.send(
+        poise::CreateReply::default()
+            .content("Description saved.")
+            .ephemeral(true),
+    )
+    .await?;
+    Ok(())
+}

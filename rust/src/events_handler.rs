@@ -944,6 +944,15 @@ impl serenity::EventHandler for Handler {
             ready.guilds.len()
         );
         ctx.set_activity(Some(serenity::ActivityData::custom("iHorizon")));
+        // Track-start nowplaying announcer (mirrors the trackStart send
+        // in playerManager.ts). Registered once: ready fires per shard
+        // and the dispatcher would otherwise post once per shard.
+        static ANNOUNCE_ONCE: std::sync::OnceLock<()> = std::sync::OnceLock::new();
+        if ANNOUNCE_ONCE.set(()).is_ok() {
+            crate::lavalink::manager()
+                .register_announce(ctx.http.clone())
+                .await;
+        }
     }
 
     async fn guild_create(
@@ -2600,6 +2609,25 @@ impl serenity::EventHandler for Handler {
             .duration_since(std::time::UNIX_EPOCH)
             .map(|d| d.as_millis() as i64)
             .unwrap_or(0);
+        // Lavalink voice handshake, state half (mirrors the raw.ts
+        // voice-packet forward): our own VoiceStateUpdate carries the
+        // Discord session id. Noted always; pushed to the node only
+        // while joined (channel None = leaving, nothing to forward).
+        if new.user_id == ctx.cache.current_user().id {
+            let m = crate::lavalink::manager();
+            let combined = m
+                .note_voice_state(
+                    guild_id.get(),
+                    new.channel_id.map(|c| c.get()),
+                    new.session_id.clone(),
+                )
+                .await;
+            if new.channel_id.is_some() {
+                if let Some(voice) = combined {
+                    let _ = m.push_voice_state(guild_id.get(), voice).await;
+                }
+            }
+        }
         // Rich voice log (mirrors logs/voiceLogs.ts).
         self.voice_state_log(&ctx, &gid, old.as_ref(), &new).await;
         // Session tracking (mirrors stats/onVoiceUpdate.ts + economy coins).
@@ -2800,6 +2828,88 @@ impl serenity::EventHandler for Handler {
                     .execute(&self.pool)
                     .await;
             }
+        }
+        // Music empty-channel guard (mirrors
+        // stopMusicOnEmptyVoiceChannel.ts, whose TS body is commented
+        // out: bot alone in its music voice channel -> stop + OP4
+        // leave + destroy the node player + notify the stored text
+        // channel with event_mp_emptyChannel). Skipped for the bot's
+        // own updates (it just joined/moved; humans may follow) and
+        // when the cache guild is unavailable (no blind leaves).
+        {
+            let m = crate::lavalink::manager();
+            let snap = m.snapshot(guild_id.get()).await;
+            let bot_id = ctx.cache.current_user().id;
+            if new.user_id != bot_id {
+                if let Some(s) = snap {
+                    if let (Some(vc), true) = (s.voice_channel, s.current.is_some()) {
+                        let occupants = ctx
+                            .cache
+                            .guild(guild_id)
+                            .map(|g| {
+                                g.voice_states
+                                    .values()
+                                    .filter(|v| v.channel_id == Some(serenity::ChannelId::new(vc)))
+                                    .count()
+                            })
+                            .unwrap_or(usize::MAX);
+                        let alone = m
+                            .with_player(guild_id.get(), |p| {
+                                p.voice_channel == Some(vc)
+                                    && crate::lavalink::LavalinkManager::should_leave_when_alone(
+                                        p, occupants,
+                                    )
+                            })
+                            .await;
+                        if alone {
+                            m.with_player(guild_id.get(), |p| p.stop(now)).await;
+                            crate::lavalink::LavalinkManager::send_voice_state(
+                                &ctx.shard,
+                                guild_id.get(),
+                                None,
+                            );
+                            if let Ok((node, session)) =
+                                m.live_node_and_session(guild_id.get()).await
+                            {
+                                let _ = m.rest_destroy(&node, &session, guild_id.get()).await;
+                            }
+                            if let Some(tc) = s.text_channel {
+                                let lang_code =
+                                    crate::db::guild_lang(&self.pool, Some(guild_id.get())).await;
+                                let msg = crate::lang::get(&lang_code, "event_mp_emptyChannel")
+                                    .unwrap_or_default();
+                                if !msg.is_empty() {
+                                    let _ = serenity::ChannelId::new(tc).say(&ctx.http, msg).await;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    async fn voice_server_update(
+        &self,
+        _ctx: serenity::Context,
+        event: serenity::VoiceServerUpdateEvent,
+    ) {
+        // Lavalink voice handshake, server half (mirrors the raw.ts
+        // voice-packet forward): token + endpoint. Combined with the
+        // noted Discord session it is pushed to the node via
+        // update_player. Best-effort: fails silently offline.
+        let Some(guild_id) = event.guild_id else {
+            return;
+        };
+        let Some(endpoint) = event.endpoint else {
+            return;
+        };
+        let m = crate::lavalink::manager();
+        if let Some(voice) = m
+            .note_voice_server(guild_id.get(), event.token, endpoint)
+            .await
+        {
+            let _ = m.push_voice_state(guild_id.get(), voice).await;
         }
     }
 

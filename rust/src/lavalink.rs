@@ -29,10 +29,14 @@ use std::collections::{HashMap, VecDeque};
 use std::fmt;
 use std::sync::{Arc, OnceLock};
 
-use lava_rs::events::{EventDispatcher, TrackEndEvent, TrackEndReason, TrackStartEvent};
+use lava_rs::events::{
+    EventDispatcher, LavalinkEvent, TrackEndEvent, TrackEndReason, TrackEvent, TrackStartEvent,
+};
 use lava_rs::model::{Track, VoiceState};
 use lava_rs::rest::{LoadResult, Player as RestPlayer, UpdatePlayerPayload};
+use lava_rs::ws::session::ReadyPayload;
 use lava_rs::{LavalinkConfig, LavalinkError};
+use poise::serenity_prelude as serenity;
 use tokio::sync::{Mutex, RwLock};
 
 /// Mirrors onEmptyQueue.destroyAfterMs in playerManager.ts.
@@ -295,6 +299,16 @@ pub enum AdvanceOutcome {
     Kept,
 }
 
+/// Outcome of feeding one raw Lavalink node WS text frame.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum FedWs {
+    /// `ready` op: session stored via set_session.
+    Session(String),
+    Started,
+    Ended,
+    Ignored,
+}
+
 /// Discord gateway OP 4 (Voice State Update) payload builder. Sent on the
 /// guild shard to join/move/leave a voice channel; the resulting
 /// voice-state + voice-server events feed `note_voice_state` /
@@ -500,6 +514,129 @@ impl LavalinkManager {
         pending.get(&guild_id).and_then(|p| p.combined())
     }
 
+    /// Push a completed Discord voice handshake to the guild node
+    /// (mirrors the update_player voice forward fed by raw.ts).
+    pub async fn push_voice_state(
+        &self,
+        guild_id: u64,
+        voice: VoiceState,
+    ) -> Result<(), MusicError> {
+        let (node, session) = self.live_node_and_session(guild_id).await?;
+        self.rest_set_voice(&node, &session, guild_id, voice)
+            .await?;
+        Ok(())
+    }
+
+    // ---- node websocket feed (ready session + track events) ----
+
+    /// Parse a node `ready` payload
+    /// (`{"op":"ready","resumed":false,"sessionId":"..."}`) into its
+    /// session id. Anything else (unknown/hello-style ops, garbage)
+    /// yields None — Lavalink v4 sends no `hello`; only `ready`
+    /// carries a session. Uses lava-rs's dedicated ReadyPayload
+    /// parser: the generic LavalinkEvent enum cannot take ready
+    /// frames (its inner struct redeclares the `op` tag field).
+    pub fn parse_ready_session(text: &str) -> Option<String> {
+        ReadyPayload::parse(text).map(|p| p.session_id)
+    }
+
+    /// Feed one raw Lavalink node WS text frame: `ready` stores the
+    /// session (feeds `set_session`, previously unwired);
+    /// track start/end reuse the state handlers + dispatcher fan-out.
+    /// Stats/playerUpdate/exception/stuck/closed frames are ignored.
+    pub async fn feed_node_ws(&self, node_id: &str, text: &str, now_ms: i64) -> FedWs {
+        if let Some(ready) = ReadyPayload::parse(text) {
+            self.set_session(node_id, ready.session_id.clone()).await;
+            return FedWs::Session(ready.session_id);
+        }
+        match LavalinkEvent::parse(text) {
+            Some(LavalinkEvent::Event(ev)) => match *ev {
+                TrackEvent::TrackStartEvent(e) => {
+                    self.handle_track_start(e).await;
+                    FedWs::Started
+                }
+                TrackEvent::TrackEndEvent(e) => {
+                    self.handle_track_end(e, now_ms).await;
+                    FedWs::Ended
+                }
+                _ => FedWs::Ignored,
+            },
+            _ => FedWs::Ignored,
+        }
+    }
+
+    // ---- Discord gateway OP 4 (join/move/leave) ----
+
+    /// Send a voice-state payload on the guild shard (mirrors
+    /// sendToShard in playerManager.ts: join/move/leave). The shard
+    /// messenger takes a tungstenite message as-is (serenity
+    /// re-exports tokio-tungstenite's tungstenite 0.21 Message type,
+    /// hence the direct tungstenite 0.21 dep).
+    pub fn send_voice_state(
+        shard: &serenity::ShardMessenger,
+        guild_id: u64,
+        channel_id: Option<u64>,
+    ) {
+        let payload = voice_state_update_op(guild_id, channel_id).to_string();
+        shard.websocket_message(tungstenite::Message::Text(payload));
+    }
+
+    // ---- track-start announcements + empty-channel guard ----
+
+    /// Track-start status line (mirrors the changeVoiceChannelStatus
+    /// `:musical_note: title - author` payload in playerManager.ts).
+    pub fn nowplaying_text(t: &QueuedTrack) -> String {
+        format!(":musical_note: {} - {}", t.title, t.author)
+    }
+
+    /// Empty-channel guard (mirrors stopMusicOnEmptyVoiceChannel.ts:
+    /// bot alone in its voice channel -> stop + leave). `occupants`
+    /// counts every cached voice state in the bot channel, bot
+    /// included, so `<= 1` means alone.
+    pub fn should_leave_when_alone(player: &GuildPlayer, occupants: usize) -> bool {
+        player.current.is_some() && occupants <= 1
+    }
+
+    /// Post the nowplaying line for the current track when a text
+    /// channel is stored (mirrors the trackStart send in
+    /// playerManager.ts; the rich banner embed stays deferred).
+    /// Runs after handle_track_start on the WS feed path.
+    pub async fn announce_track_start(&self, http: &serenity::Http, guild_id: u64) {
+        let snap = self.snapshot(guild_id).await;
+        let Some(s) = snap else { return };
+        let (Some(ch), Some(cur)) = (s.text_channel, s.current.as_ref()) else {
+            return;
+        };
+        let _ = serenity::ChannelId::new(ch)
+            .say(http, Self::nowplaying_text(cur))
+            .await;
+    }
+
+    /// Register the dispatcher-level nowplaying announcer: every node
+    /// TrackStart posts to the stored text channel. Call once on
+    /// ready with the live Http handle.
+    pub async fn register_announce(&self, http: Arc<serenity::Http>) {
+        self.dispatcher
+            .lock()
+            .await
+            .on_track_start(move |ev: TrackStartEvent| {
+                let http = Arc::clone(&http);
+                async move {
+                    let Ok(gid) = ev.guild_id.parse::<u64>() else {
+                        return;
+                    };
+                    let snap = manager().snapshot(gid).await;
+                    let Some(s) = snap else { return };
+                    let (Some(ch), Some(cur)) = (s.text_channel, s.current.as_ref()) else {
+                        return;
+                    };
+                    let _ = serenity::ChannelId::new(ch)
+                        .say(&http, LavalinkManager::nowplaying_text(cur))
+                        .await;
+                }
+            });
+    }
+
     // ---- identifier routing (mirrors defaultSearchPlatform) ----
 
     /// Plain URLs pass through for server-side LavaSrc resolution
@@ -635,6 +772,23 @@ impl LavalinkManager {
         self.rest_delete(node, &endpoint).await
     }
 
+    /// Push the Discord voice handshake (token/endpoint/session) to
+    /// the node player (mirrors the voice forward in raw.ts).
+    pub async fn rest_set_voice(
+        &self,
+        node: &NodeEntry,
+        session: &str,
+        guild_id: u64,
+        voice: VoiceState,
+    ) -> Result<RestPlayer, MusicError> {
+        let endpoint = format!("/v4/sessions/{session}/players/{guild_id}?noReplace=false");
+        let payload = UpdatePlayerPayload {
+            voice: Some(voice),
+            ..Default::default()
+        };
+        self.rest_patch(node, &endpoint, &payload).await
+    }
+
     // ---- player state access ----
 
     pub async fn with_player<R>(&self, guild_id: u64, f: impl FnOnce(&mut GuildPlayer) -> R) -> R {
@@ -733,6 +887,8 @@ fn urlencoding(s: &str) -> String {
 }
 
 /// Read-only player view for queue/nowplaying/trackinfo replies.
+/// Channel ids route track-start announcements (mirrors
+/// player.textChannelId in playerManager.ts).
 #[derive(Debug, Clone)]
 pub struct PlayerSnapshot {
     pub current: Option<QueuedTrack>,
@@ -740,6 +896,8 @@ pub struct PlayerSnapshot {
     pub loop_mode: LoopMode,
     pub volume: u8,
     pub paused: bool,
+    pub voice_channel: Option<u64>,
+    pub text_channel: Option<u64>,
 }
 
 impl From<&GuildPlayer> for PlayerSnapshot {
@@ -750,6 +908,8 @@ impl From<&GuildPlayer> for PlayerSnapshot {
             loop_mode: p.loop_mode(),
             volume: p.volume,
             paused: p.paused,
+            voice_channel: p.voice_channel,
+            text_channel: p.text_channel,
         }
     }
 }
@@ -907,6 +1067,119 @@ mod tests {
             MusicError::NoNodes
         );
         assert!(m.node_for(1).await.is_none());
+    }
+
+    #[test]
+    fn ready_session_parses_ready_ignores_other_ops() {
+        assert_eq!(
+            LavalinkManager::parse_ready_session(
+                r#"{"op":"ready","resumed":false,"sessionId":"abc123"}"#
+            ),
+            Some("abc123".to_string())
+        );
+        // No hello op in Lavalink v4; unknown ops carry no session.
+        assert_eq!(
+            LavalinkManager::parse_ready_session(r#"{"op":"hello"}"#),
+            None
+        );
+        assert_eq!(
+            LavalinkManager::parse_ready_session(r#"{"op":"stats","players":0}"#),
+            None
+        );
+        assert_eq!(LavalinkManager::parse_ready_session("not json"), None);
+    }
+
+    #[test]
+    fn nowplaying_and_empty_guard() {
+        let t = sample_track("a");
+        assert_eq!(
+            LavalinkManager::nowplaying_text(&t),
+            ":musical_note: a - artist"
+        );
+        let mut p = GuildPlayer::new();
+        // Nothing playing: never leave.
+        assert!(!LavalinkManager::should_leave_when_alone(&p, 1));
+        p.enqueue(sample_track("a"), 0);
+        assert!(LavalinkManager::should_leave_when_alone(&p, 1));
+        assert!(LavalinkManager::should_leave_when_alone(&p, 0));
+        assert!(!LavalinkManager::should_leave_when_alone(&p, 2));
+    }
+
+    fn test_node_cfg() -> NodeCfg {
+        NodeCfg {
+            id: "n1".into(),
+            host: "127.0.0.1".into(),
+            port: 2333,
+            password: "x".into(),
+            secure: false,
+        }
+    }
+
+    fn track_start_frame(guild: &str, title: &str) -> String {
+        serde_json::json!({
+            "op": "event",
+            "type": "TrackStartEvent",
+            "guildId": guild,
+            "track": {
+                "encoded": format!("enc-{title}"),
+                "info": {
+                    "identifier": "id",
+                    "isSeekable": true,
+                    "author": "artist",
+                    "length": 180000,
+                    "isStream": false,
+                    "position": 0,
+                    "title": title,
+                    "sourceName": "youtube"
+                }
+            }
+        })
+        .to_string()
+    }
+
+    #[tokio::test]
+    async fn feed_ready_stores_session() {
+        let m = LavalinkManager::new();
+        m.sync_nodes(&[test_node_cfg()], 9).await;
+        let out = m
+            .feed_node_ws(
+                "n1",
+                r#"{"op":"ready","resumed":false,"sessionId":"sess-1"}"#,
+                0,
+            )
+            .await;
+        assert_eq!(out, FedWs::Session("sess-1".to_string()));
+        let node = m.node_for(77).await.unwrap();
+        assert_eq!(node.session().await, Some("sess-1".to_string()));
+        // Unknown node id: parsed but stored nowhere.
+        let out = m
+            .feed_node_ws(
+                "nope",
+                r#"{"op":"ready","resumed":true,"sessionId":"s"}"#,
+                0,
+            )
+            .await;
+        assert_eq!(out, FedWs::Session("s".to_string()));
+        // Garbage + stats frames are ignored without touching sessions.
+        assert_eq!(m.feed_node_ws("n1", "garbage", 0).await, FedWs::Ignored);
+        assert_eq!(
+            m.feed_node_ws("n1", r#"{"op":"stats","players":0}"#, 0)
+                .await,
+            FedWs::Ignored
+        );
+        assert_eq!(node.session().await, Some("sess-1".to_string()));
+    }
+
+    #[tokio::test]
+    async fn feed_track_start_refreshes_current() {
+        let m = LavalinkManager::new();
+        m.sync_nodes(&[test_node_cfg()], 9).await;
+        let out = m
+            .feed_node_ws("n1", &track_start_frame("7", "hello"), 0)
+            .await;
+        assert_eq!(out, FedWs::Started);
+        let snap = m.snapshot(7).await.unwrap();
+        assert_eq!(snap.current.as_ref().unwrap().title, "hello");
     }
 
     #[tokio::test]
