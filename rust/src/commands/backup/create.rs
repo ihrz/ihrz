@@ -15,14 +15,14 @@ pub async fn backup_create(
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
-    // Owner gate. Mirrors !create.ts: the onlyOwner flag defaults to
-    // deny, so creation is effectively owner-only either way.
+    // Owner gate. Mirrors !create.ts:53 (GUILD.BACKUP.onlyOwner; unset
+    // also means owner-only, like the TS `state === undefined` branch).
     // Clone out of the cache guard: the guard is not Send across awaits.
     let (is_owner, guild) = match ctx.guild() {
         Some(g) => (g.owner_id.get() == ctx.author().id.get(), Some(g.clone())),
         None => (false, None),
     };
-    if !is_owner {
+    if super::backup::backup_only_owner(&ctx.data().pool, &gid).await && !is_owner {
         ctx.say(
             crate::commands::lang_for(
                 &ctx,
@@ -67,7 +67,9 @@ pub async fn backup_create(
         data,
     };
     let stored = serde_json::to_string(&infos).unwrap_or_default();
-    super::backup::bkp_set(&ctx.data().pool, &gid, &id, &stored).await?;
+    // Per-user ownership: mirrors the BACKUPS.<uid>.<id> write in !create.ts:89.
+    let uid = ctx.author().id.get();
+    super::backup::bkp_set(&ctx.data().pool, uid, &id, &stored).await?;
     ctx.say(
         crate::commands::lang_for(
             &ctx,

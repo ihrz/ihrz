@@ -5,6 +5,9 @@ pub async fn bubbles(
     ctx: Ctx<'_>,
     #[description = "Image"] image: poise::serenity_prelude::Attachment,
 ) -> Result<(), anyhow::Error> {
+    if fun_guard(&ctx).await {
+        return Ok(());
+    }
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     if !bubbles_valid_content_type(image.content_type.as_deref()) {
         ctx.say(

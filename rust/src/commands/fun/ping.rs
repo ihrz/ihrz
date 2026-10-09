@@ -8,6 +8,9 @@ use super::*;
     aliases("speed", "pong", "vitesse")
 )]
 pub async fn ping(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
+    if fun_guard(&ctx).await {
+        return Ok(());
+    }
     let down_msg = crate::commands::lang_for(&ctx, "ping_down_msg", "**DOWN**").await;
     let template = crate::commands::lang_for(
         &ctx,

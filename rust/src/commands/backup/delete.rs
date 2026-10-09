@@ -5,12 +5,27 @@ pub async fn backup_delete(
     ctx: Ctx<'_>,
     #[description = "Backup id"] backup_id: String,
 ) -> Result<(), anyhow::Error> {
-    let gid = ctx
-        .guild_id()
-        .map(|g| g.get().to_string())
-        .unwrap_or_default();
-    // Existence gate first, like the data_2 check in !delete.ts:77.
-    let raw = super::backup::bkp_get(&ctx.data().pool, &gid, backup_id.trim()).await;
+    // Ownership gate first, like the BACKUPS.<uid>.<id> check in
+    // !delete.ts:59 (strangers get backup_this_is_not_your_backup).
+    let uid = ctx.author().id.get();
+    let raw = super::backup::bkp_get(&ctx.data().pool, uid, backup_id.trim()).await;
+    if !backup_id.trim().is_empty() && raw.is_none() {
+        let no = crate::emojis::app_emoji_markup(ctx.http(), "No")
+            .await
+            .unwrap_or_else(|| "❌".to_string());
+        ctx.say(
+            crate::commands::lang_for(
+                &ctx,
+                "backup_this_is_not_your_backup",
+                "${client.iHorizon_Emojis.No} | This is not your backup!",
+            )
+            .await
+            .replace("${client.iHorizon_Emojis.No}", &no),
+        )
+        .await?;
+        return Ok(());
+    }
+    // Existence gate next, like the data_2 check in !delete.ts:77.
     if raw.is_none() {
         ctx.say(
             crate::commands::lang_for(
@@ -55,7 +70,7 @@ pub async fn backup_delete(
         .await?;
         return Ok(());
     }
-    super::backup::bkp_del(&ctx.data().pool, &gid, backup_id.trim()).await?;
+    super::backup::bkp_del(&ctx.data().pool, uid, backup_id.trim()).await?;
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let yes = crate::emojis::app_emoji_markup(ctx.http(), "Yes")
         .await

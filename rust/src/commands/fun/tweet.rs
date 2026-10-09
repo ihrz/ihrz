@@ -6,6 +6,9 @@ pub async fn tweet(
     #[description = "Member"] user: Option<poise::serenity_prelude::User>,
     #[description = "Comment"] comment: String,
 ) -> Result<(), anyhow::Error> {
+    if fun_guard(&ctx).await {
+        return Ok(());
+    }
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     if !has_comment(&comment) {
         ctx.say(

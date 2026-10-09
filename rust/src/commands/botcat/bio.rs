@@ -1,6 +1,14 @@
 use super::*;
 
-/// Set or reset the per-guild bot bio (190 chars, 2 lines).
+/// TS `!bio.ts` rejects `desc.length >= 400` (UTF-16 units; char
+/// count is the closest offline equivalent, like footer_name_too_long).
+pub fn bio_too_long(bio: &str) -> bool {
+    bio.chars().count() >= 400
+}
+
+/// Set or reset the per-guild bot bio.
+// 400-char gate (like `!bio.ts`), then the 190-char/2-line sanitize
+// from customProfileHelper.
 #[poise::command(
     slash_command,
     prefix_command,
@@ -22,10 +30,22 @@ pub async fn custom_bio(
         .await?;
         return Ok(());
     };
+    let raw = bio.unwrap_or_default();
+    if !action.trim().eq_ignore_ascii_case("reset") && bio_too_long(&raw) {
+        let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+        ctx.say(
+            crate::lang::get(&code, "guildconfig_setbot_footername_footer_too_long_msg")
+                .unwrap_or_else(|| {
+                    "The bot footer is too long, it will be too ugly to display.".to_string()
+                }),
+        )
+        .await?;
+        return Ok(());
+    }
     let final_bio = if action.trim().eq_ignore_ascii_case("reset") {
         String::new()
     } else {
-        sanitize_bio(&bio.unwrap_or_default())
+        sanitize_bio(&raw)
     };
     if let Some(token) = crate::config::bot_token() {
         patch_guild_me(
@@ -57,4 +77,15 @@ pub async fn custom_bio(
     )
     .await?;
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn bio_gate_matches_ts_400_limit() {
+        assert!(!bio_too_long(&"a".repeat(399)));
+        assert!(bio_too_long(&"a".repeat(400)));
+    }
 }

@@ -6,6 +6,9 @@ pub async fn slap(
     ctx: Ctx<'_>,
     #[description = "Member"] user: poise::serenity_prelude::User,
 ) -> Result<(), anyhow::Error> {
+    if fun_guard(&ctx).await {
+        return Ok(());
+    }
     social_gif(
         &ctx,
         &user,

@@ -12,6 +12,9 @@ pub async fn question(
     ctx: Ctx<'_>,
     #[description = "Your question"] _q: String,
 ) -> Result<(), anyhow::Error> {
+    if fun_guard(&ctx).await {
+        return Ok(());
+    }
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let answers = crate::lang::get_list(&code, "question_s");
     let now = now_ms_sys();

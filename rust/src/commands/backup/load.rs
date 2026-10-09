@@ -15,13 +15,9 @@ pub async fn backup_load(
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
-    // Owner gate. Mirrors !load.ts (GUILD.BACKUP.onlyOwner; unset also
+    // Owner gate. Mirrors !load.ts:57 (GUILD.BACKUP.onlyOwner; unset also
     // means owner-only, like the TS `state === undefined` branch).
-    let only_owner = crate::db::kv_get(&ctx.data().pool, &gid, "GUILD.BACKUP.onlyOwner")
-        .await
-        .as_deref()
-        != Some("0");
-    if only_owner {
+    if super::backup::backup_only_owner(&ctx.data().pool, &gid).await {
         let is_owner = ctx
             .guild()
             .map(|g| g.owner_id.get() == ctx.author().id.get())
@@ -39,6 +35,19 @@ pub async fn backup_load(
             return Ok(());
         }
     }
+    // Bot Administrator precheck. Mirrors the members.me gate in !load.ts:72.
+    if !super::backup::bot_is_guild_admin(&ctx).await {
+        ctx.say(
+            crate::commands::lang_for(
+                &ctx,
+                "backup_i_dont_have_perm_on_load",
+                "I don't have permission `ADMINISTRATOR`",
+            )
+            .await,
+        )
+        .await?;
+        return Ok(());
+    }
     if backup_id.trim().is_empty() {
         ctx.say(
             crate::commands::lang_for(
@@ -51,12 +60,22 @@ pub async fn backup_load(
         .await?;
         return Ok(());
     }
-    let raw = super::backup::bkp_get(&ctx.data().pool, &gid, backup_id.trim()).await;
+    // Per-user ownership. Mirrors the BACKUPS.<uid>.<id> check in
+    // !load.ts:90 (strangers get backup_this_is_not_your_backup).
+    let uid = ctx.author().id.get();
+    let raw = super::backup::bkp_get(&ctx.data().pool, uid, backup_id.trim()).await;
     let Some(raw) = raw else {
-        let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+        let no = crate::emojis::app_emoji_markup(ctx.http(), "No")
+            .await
+            .unwrap_or_else(|| "❌".to_string());
         ctx.say(
-            crate::lang::get(&code, "backup_backup_doesnt_exist")
-                .unwrap_or_else(|| "Error: this backup doesn't exist.".to_string()),
+            crate::commands::lang_for(
+                &ctx,
+                "backup_this_is_not_your_backup",
+                "${client.iHorizon_Emojis.No} | This is not your backup!",
+            )
+            .await
+            .replace("${client.iHorizon_Emojis.No}", &no),
         )
         .await?;
         return Ok(());

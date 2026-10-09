@@ -12,6 +12,9 @@ pub async fn rate(
     ctx: Ctx<'_>,
     #[description = "Thing to rate"] the_things: String,
 ) -> Result<(), anyhow::Error> {
+    if fun_guard(&ctx).await {
+        return Ok(());
+    }
     use rand::Rng;
     let random: u32 = rand::thread_rng().gen_range(0..10);
     ctx.say(

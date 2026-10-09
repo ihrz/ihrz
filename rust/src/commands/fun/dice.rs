@@ -13,6 +13,9 @@ pub async fn dice(
     #[description = "Number of dice"] number: Option<f64>,
     #[description = "Faces per die"] faces: Option<f64>,
 ) -> Result<(), anyhow::Error> {
+    if fun_guard(&ctx).await {
+        return Ok(());
+    }
     let number = number.unwrap_or(1.0).max(1.0) as usize;
     let faces = (faces.unwrap_or(6.0).max(2.0)) as u32;
     let results = roll_dice_set(number, faces);

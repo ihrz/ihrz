@@ -152,6 +152,7 @@ committed — see `.gitignore`. No push without a green
 - [x] U-ETERNAL-8 (2026-10-09: vague-7 6/6 — GW create validation+gates+giveaway-id+embeds, GW logs+confirmations+sweep, schedule confirmations+templates+scope, sticky disabled+footer, D12 leaf routers, ready exception-report + voice econ, audit mod/utils drift → 9 items. Suite 800/0, fmt + clippy clean).
 - [x] U-ETERNAL-9 (2026-10-09: vague-8 6/6 — D13/D14 owners+callers routés, mod clearwarn/lock/rolepanel-i18n + pagination + setup interactif, utils talk/vkick/batch/logs, audit econ/ticket/music → 6 items. Lead: bitflags iter_names fix, doublon addrolereact retiré (existait déjà). Suite 829/0, fmt + clippy clean).
 - [x] U-ETERNAL-10 (2026-10-10: vague-9 5/5 — D15 derniers owners, musique interactive (NP boutons + queue pages + skip notice), ticket logs transcript, utils setups, audit misc fun/backup/owner/profil/stats/botcat → 14 items. Lead: 2 lints. Suite 854/0, fmt + clippy clean).
+- [x] U-ETERNAL-11 (2026-10-10: vague-10 5/5 — fun trans/dog/cat/morse/poll + guard, backup ownership+pagination+precheck, blacklist list+metadata+guards, stats windows+period/limit, botinfo/status/bio/gender. Lead: doublon botinfo retiré (stub utils, vrai = botcat), registre 177. Suite 884/0, fmt + clippy clean).
 
 ## Eternal backlog (seeded 2026-10-09 by 7 read-only audits + lavalink edge audit; full reports in `~/.hermes/cache/delegation/live/deleg_55b606d3/task-{0,1,2,3,4,5,9}.log` — each item is a future unit for other models, files disjoint unless noted)
 

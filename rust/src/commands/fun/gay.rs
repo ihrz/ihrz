@@ -6,6 +6,9 @@ pub async fn gay(
     ctx: Ctx<'_>,
     #[description = "Member"] user: Option<poise::serenity_prelude::User>,
 ) -> Result<(), anyhow::Error> {
+    if fun_guard(&ctx).await {
+        return Ok(());
+    }
     percent_user(
         &ctx,
         user,

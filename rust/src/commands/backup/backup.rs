@@ -21,95 +21,159 @@ pub async fn backup(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())
 }
 
-// ---- U-D3-NAMEDTABLES: backup table handle ----
-// Table `{gid}-backups` (sibling convention: table = legacy scope)
-// with `BACKUP.<id>` keys unchanged. Dotted keys nest under the
-// `BACKUP` root, so the bulk loop walks the root and merges legacy kv
-// rows. The legacy config-snapshot writer in mod.rs still writes kv
-// directly (locked file): routed reads merge it back.
-use crate::commands::owner::main::{
-    legacy_scan, routed_del, routed_get, routed_set, tbl_get_value, walk_path,
-};
-use std::collections::HashSet;
+// ---- U-BACKUP-OWN: per-user ownership ----
+// TS keeps snapshots in metasTable under BACKUPS.<uid>.<id> (see
+// !create.ts:89, !list.ts:67, !load.ts:93, !delete.ts:61): a backup
+// belongs to the creating user, and load/delete/list gate strangers
+// with backup_this_is_not_your_backup. The Rust kv store is
+// guild-scoped, so the metasTable equivalent lives under guild "0"
+// (same convention as the bot-scope helpers in core/mod.rs).
+use crate::commands::owner::main::legacy_scan;
 
-/// Key prefix for the per-guild bulk loop.
-pub const BACKUP_PREFIX: &str = "BACKUP.";
-/// Nested root holding every snapshot of one guild table.
-pub const BACKUP_ROOT: &str = "BACKUP";
+/// metasTable-equivalent scope for per-user backup rows.
+pub const BACKUPS_SCOPE: &str = "0";
+/// Nested root holding every per-user snapshot (metasTable parity).
+pub const BACKUPS_ROOT: &str = "BACKUPS";
+/// List page size. Mirrors itemsPerPage in !list.ts:37.
+pub const BACKUPS_PER_PAGE: usize = 5;
 
-/// Legacy scope preserved verbatim: `{gid}-backups`.
-pub fn backup_scope(gid: &str) -> String {
-    format!("{gid}-backups")
+/// metasTable key for one user's backup. Mirrors
+/// `BACKUPS.${userId}.${backupId}`.
+pub fn backup_user_key(user_id: u64, backup_id: &str) -> String {
+    format!("{BACKUPS_ROOT}.{user_id}.{backup_id}")
 }
 
-pub async fn bkp_get(pool: &crate::db::Pool, gid: &str, backup_id: &str) -> Option<String> {
-    routed_get(
-        pool,
-        &backup_scope(gid),
-        &backup_scope(gid),
-        &backup_key(backup_id),
-    )
-    .await
+/// kv prefix selecting one user's backups (bulk loop half).
+pub fn user_backup_prefix(user_id: u64) -> String {
+    format!("{BACKUPS_ROOT}.{user_id}.")
+}
+
+pub async fn bkp_get(pool: &crate::db::Pool, user_id: u64, backup_id: &str) -> Option<String> {
+    crate::db::kv_get(pool, BACKUPS_SCOPE, &backup_user_key(user_id, backup_id)).await
 }
 
 pub async fn bkp_set(
     pool: &crate::db::Pool,
-    gid: &str,
+    user_id: u64,
     backup_id: &str,
     value: &str,
 ) -> anyhow::Result<()> {
-    routed_set(
+    crate::db::kv_set(
         pool,
-        &backup_scope(gid),
-        &backup_scope(gid),
-        &backup_key(backup_id),
+        BACKUPS_SCOPE,
+        &backup_user_key(user_id, backup_id),
         value,
     )
     .await
 }
 
-pub async fn bkp_del(pool: &crate::db::Pool, gid: &str, backup_id: &str) -> anyhow::Result<()> {
-    let _ = routed_del(
-        pool,
-        &backup_scope(gid),
-        &backup_scope(gid),
-        &backup_key(backup_id),
-    )
-    .await;
-    Ok(())
+pub async fn bkp_del(pool: &crate::db::Pool, user_id: u64, backup_id: &str) -> anyhow::Result<()> {
+    crate::db::kv_del(pool, BACKUPS_SCOPE, &backup_user_key(user_id, backup_id)).await
 }
 
-/// Bulk loop for one guild: table root walked first (sorted by backup
-/// id), then legacy-only rows merged. Table values win on conflicts.
-pub async fn bkp_scan(pool: &crate::db::Pool, gid: &str) -> Vec<(String, String)> {
-    let scope = backup_scope(gid);
-    let mut out: Vec<(String, String)> = vec![];
-    let mut seen: HashSet<String> = HashSet::new();
-    if let Some(root) = tbl_get_value(pool, &scope, BACKUP_ROOT).await {
-        if let Some(obj) = root.as_object() {
-            let mut ids: Vec<&String> = obj.keys().collect();
-            ids.sort();
-            for id in ids {
-                if let Some(s) = walk_path(&root, &[id.as_str()]).and_then(|v| v.as_str()) {
-                    let key = format!("{BACKUP_PREFIX}{id}");
-                    seen.insert(key.clone());
-                    out.push((key, s.to_string()));
-                }
-            }
+/// One user's backups as (id, snapshot) pairs, sorted by id. Mirrors
+/// the `BACKUPS.${userId}` object walk in !list.ts:79.
+pub async fn bkp_scan_user(pool: &crate::db::Pool, user_id: u64) -> Vec<(String, String)> {
+    let prefix = user_backup_prefix(user_id);
+    let mut rows = legacy_scan(pool, BACKUPS_SCOPE, &prefix).await;
+    rows.sort();
+    rows.into_iter()
+        .filter_map(|(k, v)| k.strip_prefix(&prefix).map(|id| (id.to_string(), v)))
+        .collect()
+}
+
+/// onlyOwner flag. TS !manage.ts stores booleans, the Rust port stores
+/// "1"/"0"; both read back as text here. Unset (None) is owner-only,
+/// like the TS `state === undefined` branch.
+pub fn backup_owner_only(raw: Option<&str>) -> bool {
+    match raw {
+        None => true,
+        Some(s) => {
+            let s = s.trim().to_ascii_lowercase();
+            s != "0" && s != "false"
         }
     }
-    for (k, v) in legacy_scan(pool, &scope, BACKUP_PREFIX).await {
-        if seen.insert(k.clone()) {
-            out.push((k, v));
+}
+
+/// Guild's onlyOwner flag (GUILD.BACKUP.onlyOwner).
+pub async fn backup_only_owner(pool: &crate::db::Pool, gid: &str) -> bool {
+    let raw = crate::db::kv_get(pool, gid, "GUILD.BACKUP.onlyOwner").await;
+    backup_owner_only(raw.as_deref())
+}
+
+/// Bot Administrator gate. Mirrors the members.me check in !load.ts:73.
+pub async fn bot_is_guild_admin(ctx: &Ctx<'_>) -> bool {
+    let Some(guild_id) = ctx.guild_id() else {
+        return false;
+    };
+    let bot_id = ctx.serenity_context().cache.current_user().id;
+    // Snapshot out of the cache guard: the guard is not Send across awaits.
+    if let Some(guild) = ctx.guild() {
+        if let Some(member) = guild.members.get(&bot_id) {
+            return guild.member_permissions(member).administrator();
         }
     }
-    out
+    // Cache miss: fetch our member row, then compute against the cached roles.
+    if let Ok(member) = guild_id.member(ctx.http(), bot_id).await {
+        if let Some(guild) = ctx.guild() {
+            return guild.member_permissions(&member).administrator();
+        }
+    }
+    false
+}
+
+/// Display summary parsed from a stored BackupInfos doc:
+/// (guild name, category count, channel count).
+pub fn backup_summary(raw: &str) -> Option<(String, usize, usize)> {
+    let infos: BackupInfos = serde_json::from_str(raw).ok()?;
+    let cats = infos.data.channels.categories.len();
+    let chans = infos
+        .data
+        .channels
+        .categories
+        .iter()
+        .map(|c| c.children.len())
+        .sum::<usize>()
+        + infos.data.channels.others.len();
+    Some((infos.data.name, cats, chans))
+}
+
+/// One list row. Mirrors !list.ts:101
+/// (`${guildName} - (||${id}||)` + backup_string_see_another_v).
+pub fn backup_field(
+    guild_name: &str,
+    backup_id: &str,
+    categories: usize,
+    channels: usize,
+    tpl: &str,
+) -> (String, String) {
+    let name = format!("{guild_name} - (||{backup_id}||)");
+    let value = tpl
+        .replace("${result.categoryCount}", &categories.to_string())
+        .replace("${result.channelCount}", &channels.to_string());
+    (name, value)
+}
+
+/// Detail value for the backup-id view. Mirrors !delete.ts:95
+/// (backup_string_see_v).
+pub fn backup_detail_value(categories: usize, channels: usize, tpl: &str) -> String {
+    tpl.replace("${data.categoryCount}", &categories.to_string())
+        .replace("${data.channelCount}", &channels.to_string())
+}
+
+/// Page count for the 5-per-page list pager.
+pub fn page_count(total: usize) -> usize {
+    total.div_ceil(BACKUPS_PER_PAGE)
 }
 
 #[cfg(test)]
 mod tests {
-    use super::super::{backup_key, gen_backup_id};
-    use super::{backup_scope, bkp_del, bkp_get, bkp_scan, bkp_set, BACKUP_ROOT};
+    use super::super::gen_backup_id;
+    use super::{
+        backup_detail_value, backup_field, backup_owner_only, backup_summary, backup_user_key,
+        bkp_del, bkp_get, bkp_scan_user, bkp_set, page_count, user_backup_prefix, BACKUPS_PER_PAGE,
+        BACKUPS_ROOT, BACKUPS_SCOPE,
+    };
 
     async fn mem_pool() -> crate::db::Pool {
         use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};
@@ -131,53 +195,127 @@ mod tests {
         pool
     }
 
+    fn sample_snapshot() -> String {
+        serde_json::json!({
+            "id": "abc123",
+            "size": 1.5,
+            "data": {
+                "name": "Test Guild",
+                "verificationLevel": 0,
+                "explicitContentFilter": 0,
+                "defaultMessageNotifications": 0,
+                "widget": { "enabled": false },
+                "channels": {
+                    "categories": [
+                        { "name": "cat", "permissions": [], "children": [] }
+                    ],
+                    "others": []
+                },
+                "roles": [],
+                "bans": [],
+                "emojis": [],
+                "members": [],
+                "createdTimestamp": 0,
+                "guildID": "999",
+                "id": "abc123"
+            }
+        })
+        .to_string()
+    }
+
     #[test]
-    fn scope_and_keys_unchanged() {
-        assert_eq!(backup_scope("123"), "123-backups");
-        assert_eq!(backup_key("abc"), "BACKUP.abc");
-        assert_eq!(BACKUP_ROOT, "BACKUP");
+    fn keys_mirror_metastable_shape() {
+        assert_eq!(BACKUPS_ROOT, "BACKUPS");
+        assert_eq!(BACKUPS_SCOPE, "0");
+        assert_eq!(BACKUPS_PER_PAGE, 5);
+        assert_eq!(backup_user_key(7, "abc"), "BACKUPS.7.abc");
+        assert_eq!(user_backup_prefix(7), "BACKUPS.7.");
         assert_eq!(gen_backup_id().len(), 16);
     }
 
-    #[tokio::test]
-    async fn bkp_roundtrip_dual_writes() {
-        let pool = mem_pool().await;
-        assert_eq!(bkp_get(&pool, "g", "id1").await, None);
-        bkp_set(&pool, "g", "id1", "{\"n\":1}").await.unwrap();
-        assert_eq!(
-            bkp_get(&pool, "g", "id1").await.as_deref(),
-            Some("{\"n\":1}")
+    #[test]
+    fn owner_flag_matches_ts_branches() {
+        // Unset (undefined/null in TS) is owner-only.
+        assert!(backup_owner_only(None));
+        // Rust manage writes "1"/"0".
+        assert!(backup_owner_only(Some("1")));
+        assert!(!backup_owner_only(Some("0")));
+        // TS manage writes booleans.
+        assert!(backup_owner_only(Some("true")));
+        assert!(!backup_owner_only(Some("false")));
+        assert!(!backup_owner_only(Some("FALSE")));
+    }
+
+    #[test]
+    fn summary_and_fields_mirror_ts_templates() {
+        let (name, cats, chans) = backup_summary(&sample_snapshot()).unwrap();
+        assert_eq!((name.as_str(), cats, chans), ("Test Guild", 1, 0));
+        assert!(backup_summary("not json").is_none());
+        let (fname, fvalue) = backup_field(
+            "Test Guild",
+            "abc123",
+            1,
+            0,
+            ":placard:・`${result.categoryCount}` :hash:・`${result.channelCount}`",
         );
-        // Legacy scope/key preserved for the locked kv writer+readers.
+        assert_eq!(fname, "Test Guild - (||abc123||)");
+        assert_eq!(fvalue, ":placard:・`1` :hash:・`0`");
         assert_eq!(
-            crate::db::kv_get(&pool, "g-backups", "BACKUP.id1")
+            backup_detail_value(2, 3, "`${data.categoryCount}`/`${data.channelCount}`"),
+            "`2`/`3`"
+        );
+    }
+
+    #[test]
+    fn pages_hold_five_each() {
+        assert_eq!(page_count(0), 0);
+        assert_eq!(page_count(1), 1);
+        assert_eq!(page_count(5), 1);
+        assert_eq!(page_count(6), 2);
+        assert_eq!(page_count(11), 3);
+    }
+
+    #[tokio::test]
+    async fn bkp_roundtrip_per_user_key() {
+        let pool = mem_pool().await;
+        assert_eq!(bkp_get(&pool, 7, "id1").await, None);
+        bkp_set(&pool, 7, "id1", "{\"n\":1}").await.unwrap();
+        assert_eq!(bkp_get(&pool, 7, "id1").await.as_deref(), Some("{\"n\":1}"));
+        // metasTable-equivalent row, verbatim key.
+        assert_eq!(
+            crate::db::kv_get(&pool, "0", "BACKUPS.7.id1")
                 .await
                 .as_deref(),
             Some("{\"n\":1}")
         );
-        bkp_del(&pool, "g", "id1").await.unwrap();
-        assert_eq!(bkp_get(&pool, "g", "id1").await, None);
-        assert_eq!(
-            crate::db::kv_get(&pool, "g-backups", "BACKUP.id1").await,
-            None
-        );
+        bkp_del(&pool, 7, "id1").await.unwrap();
+        assert_eq!(bkp_get(&pool, 7, "id1").await, None);
+        assert_eq!(crate::db::kv_get(&pool, "0", "BACKUPS.7.id1").await, None);
     }
 
     #[tokio::test]
-    async fn bkp_scan_merges_legacy_snapshot_writer() {
+    async fn users_are_isolated_like_ts() {
         let pool = mem_pool().await;
-        // Row written by the locked legacy snapshot path (kv only).
-        crate::db::kv_set(&pool, "g-backups", "BACKUP.old", "snap")
-            .await
-            .unwrap();
-        bkp_set(&pool, "g", "new", "full").await.unwrap();
-        let mut rows = bkp_scan(&pool, "g").await;
-        rows.sort();
+        bkp_set(&pool, 7, "shared", "mine").await.unwrap();
+        // Another user sees neither the row nor the scan.
+        assert_eq!(bkp_get(&pool, 8, "shared").await, None);
+        assert!(bkp_scan_user(&pool, 8).await.is_empty());
+        bkp_del(&pool, 8, "shared").await.unwrap();
+        assert_eq!(bkp_get(&pool, 7, "shared").await.as_deref(), Some("mine"));
+    }
+
+    #[tokio::test]
+    async fn bkp_scan_user_returns_sorted_ids() {
+        let pool = mem_pool().await;
+        bkp_set(&pool, 7, "b-id", "2").await.unwrap();
+        bkp_set(&pool, 7, "a-id", "1").await.unwrap();
+        bkp_set(&pool, 8, "a-id", "other").await.unwrap();
+        let rows = bkp_scan_user(&pool, 7).await;
         assert_eq!(
             rows,
             vec![
-                ("BACKUP.new".to_string(), "full".to_string()),
-                ("BACKUP.old".to_string(), "snap".to_string()),
+                ("a-id".to_string(), "1".to_string()),
+                ("b-id".to_string(), "2".to_string()),
             ]
         );
     }

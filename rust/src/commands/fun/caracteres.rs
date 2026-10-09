@@ -6,6 +6,9 @@ pub async fn caracteres(
     #[description = "Text to transform"] text: String,
     #[description = "Style: Bold, Full, Circled"] style: Option<String>,
 ) -> Result<(), anyhow::Error> {
+    if fun_guard(&ctx).await {
+        return Ok(());
+    }
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let style = style.unwrap_or_else(|| "Bold".to_string());
     match caracteres_convert(&text, &style) {

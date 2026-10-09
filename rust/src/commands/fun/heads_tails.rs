@@ -9,6 +9,9 @@ use super::*;
     aliases("pileouface", "pile-ou-face", "coinflip")
 )]
 pub async fn coinflip(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
+    if fun_guard(&ctx).await {
+        return Ok(());
+    }
     let heads = coin_flip(now_ms_sys()) == "heads";
     let result = if heads {
         crate::commands::lang_for(&ctx, "fun_coinflip_result_heads", "Heads").await

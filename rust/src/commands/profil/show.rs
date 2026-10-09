@@ -112,7 +112,10 @@ pub async fn profil_show(
                     v
                 }
             },
-            p.pronoun.clone().unwrap_or_else(|| unknown.clone()),
+            p.pronoun
+                .as_deref()
+                .map(super::set_pronoun::pronoun_display_value)
+                .unwrap_or_else(|| unknown.clone()),
             false,
         )
         .field(

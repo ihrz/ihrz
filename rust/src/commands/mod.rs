@@ -90,7 +90,6 @@ pub fn all() -> Vec<poise::Command<Data, Error>> {
         fun::social::kiss(),
         fun::social::slap(),
         fun::misc::fun_config(),
-        utils::info::botinfo(),
         utils::info::help_here(),
         utils::info::avatar(),
         utils::info::userinfo(),
@@ -410,7 +409,7 @@ mod tests {
         let cmds = all();
         let names: Vec<String> = cmds.iter().map(|c| c.name.clone()).collect();
         // 4 base + full parents + remaining stubs.
-        assert_eq!(cmds.len(), 178);
+        assert_eq!(cmds.len(), 177);
         for expected in [
             "botinfo",
             "dice",
@@ -528,7 +527,7 @@ mod tests {
             "profil",
             "membercount",
             "confession",
-            "bot-info",
+            "botinfo",
             "status",
             "andru",
             "ether",

@@ -1,24 +1,42 @@
 use super::*;
 
-/// Dog command. Mirrors !dog.ts (random-d.uk fetch).
+/// API endpoint. Mirrors the axios call in !dog.ts.
+pub fn dog_api_url() -> &'static str {
+    "https://dog.ceo/api/breeds/image/random"
+}
+
+/// Parse dog.ceo JSON ({"message": <url>, "status": ...}).
+pub fn parse_dog_ceo_json(raw: &str) -> Option<String> {
+    serde_json::from_str::<serde_json::Value>(raw)
+        .ok()?
+        .get("message")?
+        .as_str()
+        .map(|s| s.to_string())
+}
+
+/// Dog command. Mirrors !dog.ts (dog.ceo fetch, message field).
 #[poise::command(slash_command, prefix_command, category = "fun", rename = "dog")]
 pub async fn dog(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
-    let text = match http_client()
-        .get(animal_api_url("dog").unwrap_or("dogs"))
-        .send()
-        .await
-    {
+    if fun_guard(&ctx).await {
+        return Ok(());
+    }
+    let text = match http_client().get(dog_api_url()).send().await {
         Ok(r) => r.text().await.unwrap_or_default(),
         Err(_) => String::new(),
     };
-    match parse_dog_json(&text) {
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    match parse_dog_ceo_json(&text) {
         Some(u) => {
-            let embed = poise::serenity_prelude::CreateEmbed::default().image(u);
+            let embed = poise::serenity_prelude::CreateEmbed::default()
+                .image(u)
+                .title(
+                    crate::lang::get(&code, "dogs_embed_title")
+                        .unwrap_or_else(|| "🐶 woof-woof.".to_string()),
+                )
+                .timestamp(poise::serenity_prelude::Timestamp::now());
             ctx.send(poise::CreateReply::default().embed(embed)).await?;
         }
         None => {
-            let code =
-                crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
             ctx.say(
                 crate::lang::get(&code, "dogs_embed_command_error")
                     .unwrap_or_else(|| "Error retrieving dog image.".to_string()),
@@ -27,4 +45,25 @@ pub async fn dog(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         }
     }
     Ok(())
+}
+
+#[cfg(test)]
+mod dog_tests {
+    use super::*;
+
+    #[test]
+    fn endpoint_is_dog_ceo() {
+        assert_eq!(dog_api_url(), "https://dog.ceo/api/breeds/image/random");
+    }
+
+    #[test]
+    fn parses_message_field() {
+        let raw = r#"{"message":"https://images.dog.ceo/breeds/hound/x.jpg","status":"success"}"#;
+        assert_eq!(
+            parse_dog_ceo_json(raw).as_deref(),
+            Some("https://images.dog.ceo/breeds/hound/x.jpg")
+        );
+        assert_eq!(parse_dog_ceo_json("nope"), None);
+        assert_eq!(parse_dog_ceo_json(r#"{"url":"https://x/d.png"}"#), None);
+    }
 }

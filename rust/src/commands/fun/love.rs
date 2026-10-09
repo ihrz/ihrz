@@ -7,6 +7,9 @@ pub async fn love(
     #[description = "First user"] user1: poise::serenity_prelude::User,
     #[description = "Second user"] user2: Option<poise::serenity_prelude::User>,
 ) -> Result<(), anyhow::Error> {
+    if fun_guard(&ctx).await {
+        return Ok(());
+    }
     let b = user2
         .map(|u| u.id.get())
         .unwrap_or_else(|| ctx.author().id.get());

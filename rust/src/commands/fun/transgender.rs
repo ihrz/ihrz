@@ -10,6 +10,9 @@ pub async fn transgender(
     ctx: Ctx<'_>,
     #[description = "Member"] user: Option<poise::serenity_prelude::User>,
 ) -> Result<(), anyhow::Error> {
+    if fun_guard(&ctx).await {
+        return Ok(());
+    }
     let u = user.unwrap_or_else(|| ctx.author().clone());
     let avatar = u.face();
     // Canvas fetch pending; URL shape ported.

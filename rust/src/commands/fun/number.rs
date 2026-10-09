@@ -7,6 +7,9 @@ pub async fn number(
     #[description = "Min"] min: Option<i64>,
     #[description = "Max"] max: Option<i64>,
 ) -> Result<(), anyhow::Error> {
+    if fun_guard(&ctx).await {
+        return Ok(());
+    }
     // TS defaults (0/100); roll_range swaps when min > max, like the
     // TS `[min, max] = [max, min]` guard.
     let (min, max) = (min.unwrap_or(0), max.unwrap_or(100));

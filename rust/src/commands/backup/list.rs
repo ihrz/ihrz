@@ -1,28 +1,168 @@
 use super::*;
 
 #[poise::command(slash_command, prefix_command, rename = "list")]
-pub async fn backup_list(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
+pub async fn backup_list(
+    ctx: Ctx<'_>,
+    #[description = "Backup id"] backup_id: Option<String>,
+) -> Result<(), anyhow::Error> {
+    use poise::serenity_prelude as serenity;
+    let uid = ctx.author().id.get();
     let gid = ctx
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
-    let rows: Vec<String> = super::backup::bkp_scan(&ctx.data().pool, &gid)
-        .await
-        .into_iter()
-        .map(|(k, _)| k)
-        .collect();
-    // Mirrors the generateEmbed description switch in !list.ts:114
-    // (all_of_your_backup vs backup_doesnt_exist).
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-    let description = if rows.is_empty() {
+
+    // Backup-id detail view. Mirrors the BACKUPS.<uid>.<id> gate in
+    // !list.ts:64 (strangers get backup_this_is_not_your_backup).
+    if let Some(id) = backup_id
+        .as_deref()
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+    {
+        let Some(raw) = super::backup::bkp_get(&ctx.data().pool, uid, id).await else {
+            let no = crate::emojis::app_emoji_markup(ctx.http(), "No")
+                .await
+                .unwrap_or_else(|| "❌".to_string());
+            ctx.say(
+                crate::commands::lang_for(
+                    &ctx,
+                    "backup_this_is_not_your_backup",
+                    "${client.iHorizon_Emojis.No} | This is not your backup!",
+                )
+                .await
+                .replace("${client.iHorizon_Emojis.No}", &no),
+            )
+            .await?;
+            return Ok(());
+        };
+        let (name, cats, chans) =
+            super::backup::backup_summary(&raw).unwrap_or_else(|| (id.to_string(), 0, 0));
+        let tpl = crate::lang::get(&code, "backup_string_see_v").unwrap_or_else(|| {
+            ":placard:・Categories Count: `${data.categoryCount}`\n:hash:・Channels Count: `${data.channelCount}`"
+                .to_string()
+        });
+        let embed = serenity::CreateEmbed::default()
+            .title(format!("{name} - (||{id}||)"))
+            .description(super::backup::backup_detail_value(cats, chans, &tpl))
+            .author(serenity::CreateEmbedAuthor::new(ctx.author().name.clone()))
+            .timestamp(serenity::Timestamp::now());
+        ctx.send(poise::CreateReply::default().embed(embed)).await?;
+        return Ok(());
+    }
+
+    // Paginated per-user list, 5 per page (itemsPerPage in !list.ts:37).
+    let rows = super::backup::bkp_scan_user(&ctx.data().pool, uid).await;
+    let tpl = crate::lang::get(&code, "backup_string_see_another_v").unwrap_or_else(|| {
+        ":placard:・Categories Count: `${result.categoryCount}`\n:hash:・Channels Count: `${result.channelCount}`"
+            .to_string()
+    });
+    let fields: Vec<(String, String)> = rows
+        .iter()
+        .map(|(id, raw)| match super::backup::backup_summary(raw) {
+            Some((name, cats, chans)) => super::backup::backup_field(&name, id, cats, chans, &tpl),
+            None => (id.clone(), String::new()),
+        })
+        .collect();
+    // Mirrors the generateEmbed description switch in !list.ts:110
+    // (all_of_your_backup vs backup_doesnt_exist).
+    let head = if fields.is_empty() {
         crate::lang::get(&code, "backup_backup_doesnt_exist")
             .unwrap_or_else(|| "Error: this backup doesn't exist.".to_string())
     } else {
-        let head = crate::lang::get(&code, "backup_all_of_your_backup")
-            .unwrap_or_else(|| "**All of your backups:**".to_string());
-        format!("{head}\n{}", rows.join("\n"))
+        crate::lang::get(&code, "backup_all_of_your_backup")
+            .unwrap_or_else(|| "**All of your backups:**".to_string())
     };
-    let embed = poise::serenity_prelude::CreateEmbed::default().description(description);
-    ctx.send(poise::CreateReply::default().embed(embed)).await?;
+    let total_pages = super::backup::page_count(fields.len());
+    let (fname, fbytes) = crate::commands::shared::footer_parts(&ctx, &gid).await;
+    let page_word = crate::lang::get(&code, "var_page").unwrap_or_else(|| "Page".to_string());
+    let author = ctx.author().name.clone();
+    let mk_embed = |page: usize| {
+        let footer = crate::commands::shared::footer_page_text(
+            &fname,
+            &page_word,
+            if fields.is_empty() {
+                1
+            } else {
+                (page + 1) as u64
+            },
+            total_pages.max(1) as u64,
+        );
+        let mut embed = serenity::CreateEmbed::default()
+            .description(head.clone())
+            .author(serenity::CreateEmbedAuthor::new(author.clone()))
+            .footer(
+                serenity::CreateEmbedFooter::new(footer).icon_url(if fbytes.is_some() {
+                    "attachment://footer_icon.png".to_string()
+                } else {
+                    String::new()
+                }),
+            )
+            .timestamp(serenity::Timestamp::now());
+        for (name, value) in fields
+            .iter()
+            .skip(page * super::backup::BACKUPS_PER_PAGE)
+            .take(super::backup::BACKUPS_PER_PAGE)
+        {
+            embed = embed.field(name.clone(), value.clone(), false);
+        }
+        embed
+    };
+    // Mirrors generateButtons in !list.ts:145 (<<< / >>>, Secondary).
+    let mk_row = |page: usize| {
+        serenity::CreateActionRow::Buttons(vec![
+            serenity::CreateButton::new("backup-list-prev")
+                .style(serenity::ButtonStyle::Secondary)
+                .label("<<<")
+                .disabled(page == 0 || fields.is_empty()),
+            serenity::CreateButton::new("backup-list-next")
+                .style(serenity::ButtonStyle::Secondary)
+                .label(">>>")
+                .disabled(page + 1 >= total_pages || fields.is_empty()),
+        ])
+    };
+    let mut reply = poise::CreateReply::default()
+        .embed(mk_embed(0))
+        .components(vec![mk_row(0)]);
+    if let Some(bytes) = fbytes.clone() {
+        reply = reply.attachment(serenity::CreateAttachment::bytes(bytes, "footer_icon.png"));
+    }
+    let handle = ctx.send(reply).await?;
+    if fields.is_empty() {
+        return Ok(());
+    }
+    let mut msg = handle.into_message().await?;
+    let mut page = 0usize;
+    // Mirrors the 60s button collector in !list.ts:189.
+    loop {
+        let press = msg
+            .await_component_interaction(ctx.serenity_context().shard.clone())
+            .timeout(std::time::Duration::from_secs(60))
+            .await;
+        let Some(press) = press else { break };
+        match press.data.custom_id.as_str() {
+            "backup-list-prev" => page = page.saturating_sub(1),
+            "backup-list-next" => {
+                if page + 1 < total_pages {
+                    page += 1;
+                }
+            }
+            _ => continue,
+        }
+        let _ = press
+            .create_response(
+                ctx.http(),
+                serenity::CreateInteractionResponse::UpdateMessage(
+                    serenity::CreateInteractionResponseMessage::new()
+                        .embed(mk_embed(page))
+                        .components(vec![mk_row(page)]),
+                ),
+            )
+            .await;
+    }
+    // Clear the row when the collector ends, like the TS end handler.
+    let _ = msg
+        .edit(ctx.http(), serenity::EditMessage::new().components(vec![]))
+        .await;
     Ok(())
 }
