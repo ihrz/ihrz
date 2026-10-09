@@ -5,7 +5,8 @@
 //
 // Implemented for real: expired SCHEDULE entries, expired giveaways,
 // temp roles/bans, membercount refresh (5min), pfps poster (45s),
-// auto-renew, Blogger poll (60s), nightmode (60s). The only remaining
+// auto-renew, Blogger poll (60s), nightmode (60s), protection
+// structure backup (60s). The only remaining
 // skeleton is the 120s StreamNotifier tick, blocked on the
 // Twitch/YouTube/Kick live APIs (see Blocked in MIGRATION.md).
 
@@ -18,6 +19,7 @@ pub const MEMBERCOUNT_SECS: u64 = 300;
 pub const NIGHTMODE_SECS: u64 = 60;
 pub const GIVEAWAY_SECS: u64 = 60;
 pub const NOTIFIER_SECS: u64 = 120;
+pub const PROTECTION_BACKUP_SECS: u64 = 60;
 
 /// Delete expired SCHEDULE.* entries across all guilds.
 /// Returns number of rows removed.
@@ -551,6 +553,91 @@ pub async fn sweep_nightmode(
     done
 }
 
+/// Protection structure backup. Mirrors backupGuildStructure in
+/// src/Events/protection/ready.ts (60s tick): snapshot each guild's
+/// categories/channels/role membership for the avoidChannelDelete /
+/// avoidRoleDelete restore paths, persisted per guild under
+/// PROTECTION.BACKUP (see commands::protection::backup for the TS key
+/// shapes and the restore mapping). Role-member enumeration is
+/// best-effort and capped; a guild whose channel/role fetch fails keeps
+/// its previous snapshot. Returns number of guilds snapshotted.
+pub async fn sweep_protection_backup(
+    pool: &Pool,
+    http: &std::sync::Arc<poise::serenity_prelude::Http>,
+) -> u64 {
+    use crate::commands::protection::backup::{build_backup, save_backup, BackupRole, RawChannel};
+    use poise::serenity_prelude::{GuildId, GuildPagination, RoleId};
+    use std::collections::HashMap;
+
+    /// Member pages fetched per guild (1000 members each).
+    const MAX_MEMBER_PAGES: usize = 5;
+
+    let mut done = 0u64;
+    let mut after: Option<GuildId> = None;
+    for _ in 0..10 {
+        let page = match http
+            .get_guilds(after.map(GuildPagination::After), Some(200))
+            .await
+        {
+            Ok(p) if !p.is_empty() => p,
+            _ => break,
+        };
+        after = page.last().map(|g| g.id);
+        for partial in &page {
+            let gid = partial.id.get().to_string();
+            let channels = http.get_channels(partial.id).await.unwrap_or_default();
+            let guild = match http.get_guild(partial.id).await {
+                Ok(g) => g,
+                Err(_) => continue,
+            };
+            if channels.is_empty() && guild.roles.is_empty() {
+                continue;
+            }
+            // Best-effort role -> member ids (TS role.members cache).
+            let mut members_of: HashMap<RoleId, Vec<String>> = HashMap::new();
+            let mut cursor: Option<u64> = None;
+            for _ in 0..MAX_MEMBER_PAGES {
+                let members = http
+                    .get_guild_members(partial.id, Some(1000), cursor)
+                    .await
+                    .unwrap_or_default();
+                if members.is_empty() {
+                    break;
+                }
+                cursor = members.last().map(|m| m.user.id.get());
+                for m in &members {
+                    let uid = m.user.id.get().to_string();
+                    for role in &m.roles {
+                        members_of.entry(*role).or_default().push(uid.clone());
+                    }
+                }
+                if members.len() < 1000 {
+                    break;
+                }
+            }
+            let raws: Vec<RawChannel> = channels.iter().map(RawChannel::from).collect();
+            let roles: Vec<BackupRole> = guild
+                .roles
+                .keys()
+                .map(|id| BackupRole {
+                    id: id.get().to_string(),
+                    members: members_of.remove(id).unwrap_or_default(),
+                })
+                .collect();
+            if save_backup(pool, &gid, &build_backup(&raws, roles))
+                .await
+                .is_ok()
+            {
+                done += 1;
+            }
+        }
+        if after.is_none() {
+            break;
+        }
+    }
+    done
+}
+
 pub fn spawn(pool: Pool, http: std::sync::Arc<poise::serenity_prelude::Http>) {
     // Schedule expiry (real).
     {
@@ -688,6 +775,22 @@ pub fn spawn(pool: Pool, http: std::sync::Arc<poise::serenity_prelude::Http>) {
             loop {
                 t.tick().await;
                 sweep_nightmode(&pool, &http).await;
+            }
+        });
+    }
+
+    // Protection structure backup (real, mirrors 60s ready.ts tick).
+    {
+        let pool = pool.clone();
+        let http = http.clone();
+        tokio::spawn(async move {
+            let mut t = tokio::time::interval(Duration::from_secs(PROTECTION_BACKUP_SECS));
+            loop {
+                t.tick().await;
+                let n = sweep_protection_backup(&pool, &http).await;
+                if n > 0 {
+                    tracing::info!("scheduler: backed up {n} guild structures");
+                }
             }
         });
     }

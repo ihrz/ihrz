@@ -2913,6 +2913,90 @@ impl serenity::EventHandler for Handler {
                 }
             }
         }
+        // TTS memberless cleanup (mirrors Events/tts/voiceState.ts +
+        // the offline leg of cleanupTTS in ttsManager.ts): someone left
+        // the TTS voice channel and no non-bot member remains -> stop
+        // playback, OP4-leave (unless H24/7 parks the bot there),
+        // destroy the node player, delete the welcome embed
+        // best-effort, drop GUILD.TTS. The Flowery speak leg stays TS.
+        {
+            let old_ch = old.as_ref().and_then(|o| o.channel_id).map(|c| c.get());
+            let new_ch = new.channel_id.map(|c| c.get());
+            if let Some(raw) = crate::db::kv_get(&self.pool, &gid, "GUILD.TTS").await {
+                if crate::commands::tts::tts_row_enabled(&raw) {
+                    if let Ok(cfg) = serde_json::from_str::<crate::commands::tts::TtsConfig>(&raw) {
+                        if let Ok(tts_vc) = cfg.voice_channel_id.parse::<u64>() {
+                            if crate::commands::tts::tts_voice_left(old_ch, new_ch, tts_vc) {
+                                // Memberless check mirrors isMemberlessChannel
+                                // (fresh fetch in TS; cache voice_states here).
+                                // Missing cache guild = no blind leaves.
+                                let bot_id = ctx.cache.current_user().id;
+                                let humans = ctx.cache.guild(guild_id).map(|g| {
+                                    g.voice_states
+                                        .values()
+                                        .filter(|v| {
+                                            v.channel_id == Some(serenity::ChannelId::new(tts_vc))
+                                                && v.user_id != bot_id
+                                                && !ctx
+                                                    .cache
+                                                    .user(v.user_id)
+                                                    .map(|u| u.bot)
+                                                    .unwrap_or(false)
+                                        })
+                                        .count()
+                                });
+                                if humans == Some(0) {
+                                    let keep =
+                                        match crate::db::kv_get(&self.pool, &gid, "GUILD.H247")
+                                            .await
+                                        {
+                                            Some(hraw) => crate::commands::tts::tts_keep_voice(
+                                                crate::commands::ranks::grant::parse_h247(&hraw)
+                                                    .as_ref(),
+                                                tts_vc,
+                                            ),
+                                            None => false,
+                                        };
+                                    let m = crate::lavalink::manager();
+                                    m.with_player(guild_id.get(), |p| p.stop(now)).await;
+                                    if !keep {
+                                        crate::lavalink::LavalinkManager::send_voice_state(
+                                            &ctx.shard,
+                                            guild_id.get(),
+                                            None,
+                                        );
+                                    }
+                                    if let Ok((node, session)) =
+                                        m.live_node_and_session(guild_id.get()).await
+                                    {
+                                        let _ =
+                                            m.rest_destroy(&node, &session, guild_id.get()).await;
+                                    }
+                                    if let Some((tc, msg)) =
+                                        crate::commands::tts::tts_embed_ids(&raw)
+                                    {
+                                        if let Ok(message) = serenity::ChannelId::new(tc)
+                                            .message(&ctx.http, serenity::MessageId::new(msg))
+                                            .await
+                                        {
+                                            let _ = message.delete(&ctx.http).await;
+                                        }
+                                    }
+                                    let _ = sqlx::query(
+                                        "DELETE FROM kv WHERE guild_id = ? AND key_name = ?",
+                                    )
+                                    .bind(&gid)
+                                    .bind("GUILD.TTS")
+                                    .execute(&self.pool)
+                                    .await;
+                                    tracing::info!("tts cleanup {} channel {}", gid, tts_vc);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     async fn voice_server_update(

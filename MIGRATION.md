@@ -140,6 +140,75 @@ committed — see `.gitignore`. No push without a green
 - [x] U-SHOP-MENU interactive select-menu purchase (2026-10-09: owned-marking, ephemeral collector, restore sweep, 10-min disable; TS double-push bug intentionally not ported).
 - [x] U-DEFERRED-SMALLS (2026-10-09: gateway-tuned shard count w/ override, per-owner locale DM templates, leaderboard user-cache filter. Suite 491/0, fmt + clippy clean).
 - [x] U-SWEEP-1 h247 rejoin + rank-role username grant (2026-10-09: own voice-state break → OP4 rejoin when H247 active; userUpdate → RANK_ROLES grant/remove; 7 tests. Deferred: retry/watchdog timers, member-update hook. Suite 498/0, fmt + clippy clean).
+- [x] U-PROTECTION-BACKUP 60s structure snapshots (2026-10-09: TS key shapes, mapping helpers, 60s sweep; 11 tests. Next: live restore executors, raid-flag gate).
+- [x] U-TTS-CLEANUP offline leg (2026-10-09: memberless TTS teardown + voice arm; speak leg blocked. Next: embed-id persistence, orphan sweep).
+- [x] U-PANEL-OVERFLOW options txt (2026-10-09: overflow gate + file on preview/send; 5 tests. Suite 512/0, fmt + clippy clean).
+
+## Eternal backlog (seeded 2026-10-09 by 7 read-only audits + lavalink edge audit; full reports in `~/.hermes/cache/delegation/live/deleg_55b606d3/task-{0,1,2,3,4,5,9}.log` — each item is a future unit for other models, files disjoint unless noted)
+
+### Events (audit task-0)
+- [ ] E1 generic component + context dispatch (button/select `%`-split registry, ?dm strip, modal submits) — `events_handler.rs`, `bot.rs`.
+- [ ] E2 protection channel restore executors (consume BACKUP snapshots: recreate category/channel, perms/parent/position, dedup) — `events_handler.rs`.
+- [ ] E3 guild-leave 10h cancellable wipe queue + ready recovery (replaces immediate flag) — `events_handler.rs`, `scheduler.rs`.
+- [ ] E4 welcome image/Components-V2 legs (welcomerEmbed resolve, avatar snapshot) — html2png-blocked, text path done.
+- [ ] E5 leash full-fidelity (array store, 30-min expiry, multi-sub, both directions) — `events_handler.rs`.
+- [ ] E6 temp-voice hardening (creation lock, fetch-based emptiness, maskLink names, ready recovery).
+- [ ] E7 snipe key reunification (`GUILD.SNIPE.<channel>` + maskLink; verify reader key first).
+- [ ] E8 mention-ping rank-role grant (`<@bot>` branch in message arm).
+- [ ] E9 guild-leave log embed to guild-logs channel.
+- [ ] E10 captcha PNG leg (image-blocked; attempts/roles/kick done).
+- [ ] E11 protection allowlist-mode exemptions per rule.
+- [ ] E12 command-gate verification (blacklist/cooldown/loggerX on both prefix+slash paths).
+- [ ] E13 ready-sweep leftovers (TTS prefetch/cleanup, usersNamesMap warm, perm-strip sync).
+
+### Core functions (audit task-1)
+- [ ] C1 method.ts prefix-resolver battery → `funcs_resolve.rs` (P0 for prefix parity).
+- [ ] C2 permissonsCalculator full gate + adversarial authz tests (P0).
+- [ ] C3 ticketsManager 2177-line fn-by-fn delta (XL — split by lifecycle).
+- [ ] C4 userStatsUtils 8 fns → pure `stats_calc` module.
+- [ ] C5 ownerHelper table merge + add/remove (DB-backed).
+- [ ] C6 musicPlay URL matchers + durations (offline); handlers behind lavalink-creds gate.
+- [ ] C7 shard_helper cross-shard lookup design (no serenity broadcastEval).
+- [ ] C8 small-batch sweep: getIP, retrieveMyself URLs, AxiosClass wrapper, ModalBuilder, economyLogs centralizer, tempTable KV, authRestore secret flow, assetsCalc, ihorizon_logs send.
+- [ ] C9 verify-only queue: errorManager, loop-body diffs (autorenew/emojis/githubLines/giveaways/honeypot/infra/memberCount/nightMode/pfps/sticky/tempban/tempRole), colors.ts exclusion.
+
+### Slash/context (audit task-2)
+- [ ] S1 decide fate of 5 confirmed Rust extras (`honeypot post`, `lastfm status`, `confession list`, `ghost-list`, `perm-reset`): adopt or delete.
+- [ ] S2 context-menu name alignment (`Love` vs `Estimate the love`, `Play` vs full TS names).
+- [ ] S3 automod renames (`discord-invite`, `telegram`) + voicedashboard mapping + `/allowlist` parent fate.
+
+### I18N (audit task-3)
+- [ ] I1 Tier-1 missing reply keys (history embeds, backup CRUD, giveaway get-data/get-all, serverinfo/prevnames/pfps, caracteres/number/trans, tempmute_unmuted_by_time).
+- [ ] I2 `help_*` 24-key metadata set for guild-language /help.
+- [ ] I3 replace 181 divergent fallbacks with exact en-US (wrong-key reuse first).
+- [ ] I4 CI placeholder check (fallbacks keep `{token}`/`${…}`) + `check:i18n` key-coverage script.
+- [ ] I5 Tier-2 setup modules (welcomerPanel, antispam manage, honeypot config, setlogschannel, nightmode, birthday).
+- [ ] I6 verify-then-delete 312 zero-sender dead keys.
+
+### DB call-sites (audit task-4: 423 legacy lines, 0 migrated)
+- [ ] D1 shared leaf helpers first (`shared.rs`, key-helper fns).
+- [ ] D2 small categories batch → guild tables.
+- [ ] D3 named tables: authrestore, backups, giveaways, schedule, user_profil, blacklist, prevnames.
+- [ ] D4 economy/ranks/moderation (+`add`/`sub` math).
+- [ ] D5 confession/guildconfig/protection/utils/rolereactions/embed/ticket (`starts_with` scan)/legacy/voicedashboard/newfeatures.
+- [ ] D6 `events.rs`, then `events_handler.rs` (85 sites) last.
+- [ ] D7 decide routing for `LASTFM.*` + `newsletter_bl` (no TS named table), then `core/mod.rs`, `db.rs`, `monitor.rs`.
+
+### Prefix (audit task-5)
+- [ ] P1 unify prefix DB key (`BOT.prefix` vs `GUILD.PREFIX`) + migrate existing guilds.
+- [ ] P2 single-vs-dual prefix decision; mention-revert path; length-cap + first-word alignment.
+- [ ] P3 `UseApplicationCommands` channel gate in `global_check`.
+- [ ] P4 `checkCommandArgs` UX (required-count, longString merge, attachment gate, caret embed).
+- [ ] P5 resolver fallbacks (username/role/channel/fuzzy) + mention-offset verify.
+- [ ] P6 prefix-only-as-slash decision (`h`, `grosbg`, meme names) + help scoping; alias-collision fail-fast; case-insensitivity; `number()` coercion; `prefixName` audit (known `prefix`↔`setprefix` flip).
+
+### Music edges (audit task-9)
+- [ ] M1 idle sweep consuming `destroy_due()` (120s → destroy + leave + status clear) — HIGH.
+- [ ] M2 node WS dial at ready/reconnect (track-end advance + announce live) — HIGH.
+- [ ] M3 trackError recovery (skip + fallback re-search + owner log).
+- [ ] M4 history V2 (count cap, TS-shape migration, pagination + txt + delete).
+- [ ] M5 node failover + reconnect backoff.
+- [ ] M6 stage-channel support; M7 volume hardening + push-on-play; M8 history perms alignment.
 - [ ] U-SWEEP-2 protection 60s structure backup (verify avoid* consumers first) + owner eval keep/drop security decision + Rust-only surface triage (`lastfm status`, `honeypot post`, `confession list`, `see`, `embed` scope).
 - [x] U-HYBRID-FIX-1 crash-hardening + error-path exactness (2026-10-09: rolepanel expect + resolve ordering, sticky poison cascade, giveaway epoch fallback; bot.rs error router — ArgumentParse/Cooldown/MissingPerms localized; addrole/delrole/derank TS guard chains restored; registry/keys/storage untouched. Suite 431/0 at the time).
 - [x] U-HYBRID-FIX-2 exactness for economy/ticket/music (2026-10-09: fire-and-forget log sends, shared music guard helpers w/ TS keys + guard order on all 12 commands, NoNodes/NoMatches embeds, leaks removed, byte-identical lyrics fallback. Deferred: h247/TTS interplay, queue loop mode. Suite 477/0).

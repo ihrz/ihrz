@@ -6,4 +6,5 @@
 // TS keys: PROTECTION.<rule> {allow}, PROTECTION.SANCTION,
 // ALLOWLIST.list.<uid> {allowed}.
 
+pub mod backup;
 pub mod protect;

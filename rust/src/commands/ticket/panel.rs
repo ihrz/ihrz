@@ -229,6 +229,113 @@ pub fn summarize_forms(t_overflow: &str, forms: &[TicketForm]) -> String {
     out
 }
 
+/// Overflow gate: mirrors TS shouldAttachOptionsFile (true when the
+/// capped field summary fell back to the overflow key string).
+pub fn options_overflowed(t_overflow: &str, options: &[TicketOption]) -> bool {
+    !options.is_empty() && summarize_options(t_overflow, options) == t_overflow
+}
+
+/// Overflow attachment filename: TS
+/// `ticket-panel-${panelCode}-options.txt`.
+pub fn options_overflow_filename(panel_code: &str) -> String {
+    format!("ticket-panel-{panel_code}-options.txt")
+}
+
+/// Full per-option dump for the overflow .txt file. Mirrors TS
+/// stringifyOptionsDetailed: no 1024 cap, plain labels (no code fence,
+/// no box-drawing), trimEnd; empty list falls back to var_no_set.
+/// `role_name` resolves a role id to its guild name (None -> the
+/// var_unknown key, like TS `r?.name || lang.var_unknown`).
+pub fn detailed_options_content(
+    t: &(dyn Fn(&str) -> String + Send + Sync),
+    options: &[TicketOption],
+    role_name: &dyn Fn(&str) -> Option<String>,
+) -> String {
+    if options.is_empty() {
+        return t("var_no_set");
+    }
+    let unknown = t("var_unknown");
+    let mut out = String::new();
+    for opt in options {
+        out.push_str(&format!("- {}\n", opt.name));
+        if !opt.desc.trim().is_empty() {
+            out.push_str(&format!(
+                "  {}: {}\n",
+                t("ticket_panel_add_option_modal_field2_label"),
+                opt.desc
+            ));
+        }
+        if !opt.emoji.trim().is_empty() {
+            out.push_str(&format!(
+                "  {}: {}\n",
+                t("ticket_panel_add_option_modal_field3_label"),
+                opt.emoji
+            ));
+        }
+        if !opt.category_id.trim().is_empty() {
+            out.push_str(&format!("  Category: <#{}>\n", opt.category_id.trim()));
+        }
+        if !opt.panel_id.trim().is_empty() {
+            out.push_str(&format!(
+                "  {}: {}\n",
+                t("ticket_panel_change_embed_modal_placeholder"),
+                opt.panel_id
+            ));
+        }
+        if !opt.roles_to_ping.is_empty() {
+            out.push_str(&format!("  {}:\n", t("ticket_panel_role_to_ping")));
+            for role in &opt.roles_to_ping {
+                let name = role_name(role).unwrap_or_else(|| unknown.clone());
+                out.push_str(&format!("    - {role} (@{name})\n"));
+            }
+        }
+        if !opt.form.is_empty() {
+            out.push_str(&format!("  {}:\n", t("var_form")));
+            for f in &opt.form {
+                out.push_str(&format!("    - {}\n", f.question_title));
+                if !f.question_placeholder.trim().is_empty() {
+                    out.push_str(&format!("      {}\n", f.question_placeholder));
+                }
+            }
+        }
+        out.push('\n');
+    }
+    out.trim_end().to_string()
+}
+
+/// Builds the overflow attachment pair (filename, utf-8 bytes) when the
+/// options exceed the field caps; None otherwise. Mirrors TS
+/// buildOptionsAttachment. Call sites wrap it in
+/// `serenity::CreateAttachment::bytes(bytes, filename)`.
+pub fn options_overflow_file(
+    t: &(dyn Fn(&str) -> String + Send + Sync),
+    panel_code: &str,
+    options: &[TicketOption],
+    role_name: &dyn Fn(&str) -> Option<String>,
+) -> Option<(String, Vec<u8>)> {
+    if !options_overflowed(&t("ticket_panel_option_fields"), options) {
+        return None;
+    }
+    let content = detailed_options_content(t, options, role_name);
+    Some((options_overflow_filename(panel_code), content.into_bytes()))
+}
+
+/// Resolve a role id to its cached guild name for the overflow file
+/// (TS `guild.roles.cache.get(role)?.name`).
+fn cached_role_name(
+    sctx: &serenity::Context,
+    guild_id: Option<serenity::GuildId>,
+    role_id: &str,
+) -> Option<String> {
+    let gid = guild_id?;
+    let rid = role_id.trim().parse::<u64>().ok()?;
+    sctx.cache.guild(gid).and_then(|g| {
+        g.roles
+            .get(&serenity::RoleId::new(rid))
+            .map(|r| r.name.clone())
+    })
+}
+
 // ---- Editor command ----
 
 /// V2 ticket panel builder.
@@ -328,7 +435,7 @@ pub async fn ticket_panel(
                 break;
             }
             "preview" => {
-                run_preview(&sctx, &pick, pool, &gid, &t, &panel).await?;
+                run_preview(&sctx, &pick, pool, &gid, &t, &panel, &panel_code).await?;
                 continue;
             }
             step => {
@@ -1455,7 +1562,8 @@ async fn run_form_add_modal(
 }
 
 /// Preview step: ephemeral related embed + opener select (preview-only
-/// id). Mirrors preview() (!panel.ts:1613).
+/// id) + the overflow .txt when options exceed the field caps.
+/// Mirrors preview() (!panel.ts:1613).
 async fn run_preview(
     sctx: &serenity::Context,
     pick: &serenity::ComponentInteraction,
@@ -1463,6 +1571,7 @@ async fn run_preview(
     gid: &str,
     t: &(dyn Fn(&str) -> String + Send + Sync),
     panel: &TicketPanel,
+    panel_code: &str,
 ) -> Result<(), anyhow::Error> {
     let related: Option<serde_json::Value> = if panel.related_embed_id.trim().is_empty() {
         None
@@ -1509,16 +1618,22 @@ async fn run_preview(
         serenity::CreateSelectMenuKind::String { options },
     )
     .placeholder(panel.placeholder.clone());
+    let guild_id = pick.guild_id;
+    let overflow = options_overflow_file(t, panel_code, &panel.config.option_fields, &|r| {
+        cached_role_name(sctx, guild_id, r)
+    });
+    let mut reply = serenity::CreateInteractionResponseMessage::new()
+        .content(t("ticket_panel_preview_message"))
+        .embed(embed)
+        .components(vec![serenity::CreateActionRow::SelectMenu(menu)])
+        .ephemeral(true);
+    if let Some((filename, bytes)) = overflow {
+        reply = reply.add_file(serenity::CreateAttachment::bytes(bytes, filename));
+    }
     let _ = pick
         .create_response(
             &sctx.http,
-            serenity::CreateInteractionResponse::Message(
-                serenity::CreateInteractionResponseMessage::new()
-                    .content(t("ticket_panel_preview_message"))
-                    .embed(embed)
-                    .components(vec![serenity::CreateActionRow::SelectMenu(menu)])
-                    .ephemeral(true),
-            ),
+            serenity::CreateInteractionResponse::Message(reply),
         )
         .await;
     Ok(())
@@ -1617,14 +1732,18 @@ async fn run_send_flow(
         serenity::CreateSelectMenuKind::String { options },
     )
     .placeholder(panel.placeholder.clone());
-    let sent = target
-        .send_message(
-            &sctx.http,
-            serenity::CreateMessage::new()
-                .embed(embed)
-                .components(vec![serenity::CreateActionRow::SelectMenu(menu)]),
-        )
-        .await?;
+    let guild_id = chan_pick.guild_id;
+    let mut opener = serenity::CreateMessage::new()
+        .embed(embed)
+        .components(vec![serenity::CreateActionRow::SelectMenu(menu)]);
+    if let Some((filename, bytes)) =
+        options_overflow_file(t, panel_code, &panel.config.option_fields, &|r| {
+            cached_role_name(sctx, guild_id, r)
+        })
+    {
+        opener = opener.add_file(serenity::CreateAttachment::bytes(bytes, filename));
+    }
+    let sent = target.send_message(&sctx.http, opener).await?;
     let (marker_key, marker_val) = marker_pair(sent.id.get(), panel_code);
     let _ = crate::db::kv_set(pool, gid, &marker_key, &marker_val).await;
     let _ = chan_pick
@@ -1904,5 +2023,131 @@ mod tests {
         let v = mint_option_value(&used);
         assert!(v.starts_with("ticket_option_"));
         assert!(!used.contains(&v));
+    }
+
+    fn overflow_t(key: &str) -> String {
+        match key {
+            "ticket_panel_add_option_modal_field2_label" => "Description".to_string(),
+            "ticket_panel_add_option_modal_field3_label" => "Emoji".to_string(),
+            "ticket_panel_change_embed_modal_placeholder" => "Embed ID".to_string(),
+            "ticket_panel_role_to_ping" => "Role to ping".to_string(),
+            "ticket_panel_option_fields" => "OVERFLOW".to_string(),
+            "var_form" => "Form".to_string(),
+            "var_unknown" => "Unknown".to_string(),
+            "var_no_set" => "Not Set".to_string(),
+            _ => key.to_string(),
+        }
+    }
+
+    fn full_option() -> TicketOption {
+        TicketOption {
+            name: "Support".into(),
+            desc: "help".into(),
+            value: "s".into(),
+            emoji: "🔥".into(),
+            category_id: "77".into(),
+            panel_id: "99".into(),
+            roles_to_ping: vec!["123".into()],
+            form: vec![TicketForm {
+                question_id: 0,
+                question_title: "Q1".into(),
+                question_placeholder: "P1".into(),
+            }],
+        }
+    }
+
+    #[test]
+    fn overflow_filename_matches_ts() {
+        assert_eq!(
+            options_overflow_filename("ABC123XYZ9"),
+            "ticket-panel-ABC123XYZ9-options.txt"
+        );
+    }
+
+    #[test]
+    fn overflow_gate_tracks_field_cap() {
+        let small = vec![TicketOption {
+            name: "Support".into(),
+            value: "s".into(),
+            ..Default::default()
+        }];
+        assert!(!options_overflowed("OVERFLOW", &small));
+        assert!(!options_overflowed("OVERFLOW", &[]));
+        let big = TicketOption {
+            name: "n".repeat(200),
+            desc: "d".repeat(200),
+            value: "v".into(),
+            ..Default::default()
+        };
+        let opts: Vec<TicketOption> = (0..10).map(|_| big.clone()).collect();
+        assert!(options_overflowed("OVERFLOW", &opts));
+        assert_eq!(summarize_options("OVERFLOW", &opts), "OVERFLOW");
+    }
+
+    #[test]
+    fn detailed_content_matches_ts_shape() {
+        let opts = vec![full_option()];
+        let content = detailed_options_content(&overflow_t, &opts, &|_| None);
+        assert!(content.starts_with("- Support\n"));
+        assert!(content.contains("  Description: help\n"));
+        assert!(content.contains("  Emoji: 🔥\n"));
+        assert!(content.contains("  Category: <#77>\n"));
+        assert!(content.contains("  Embed ID: 99\n"));
+        assert!(content.contains("  Role to ping:\n"));
+        assert!(content.contains("    - 123 (@Unknown)\n"));
+        assert!(content.contains("  Form:\n"));
+        assert!(content.contains("    - Q1\n"));
+        assert!(content.ends_with("      P1"));
+        assert!(!content.contains("```"));
+        assert!(!content.contains('┖'));
+        assert!(!content.ends_with('\n'));
+        let named = detailed_options_content(&overflow_t, &opts, &|_| Some("Mods".to_string()));
+        assert!(named.contains("    - 123 (@Mods)\n"));
+    }
+
+    #[test]
+    fn detailed_content_empty_and_multi() {
+        assert_eq!(
+            detailed_options_content(&overflow_t, &[], &|_| None),
+            "Not Set"
+        );
+        let opts = vec![
+            TicketOption {
+                name: "A".into(),
+                value: "a".into(),
+                ..Default::default()
+            },
+            TicketOption {
+                name: "B".into(),
+                value: "b".into(),
+                ..Default::default()
+            },
+        ];
+        let content = detailed_options_content(&overflow_t, &opts, &|_| None);
+        assert_eq!(content, "- A\n\n- B");
+    }
+
+    #[test]
+    fn overflow_file_none_when_small_some_when_big() {
+        let small = vec![TicketOption {
+            name: "Support".into(),
+            value: "s".into(),
+            ..Default::default()
+        }];
+        assert!(options_overflow_file(&overflow_t, "CODE1", &small, &|_| None).is_none());
+        let big = TicketOption {
+            name: "n".repeat(200),
+            desc: "d".repeat(200),
+            value: "v".into(),
+            ..Default::default()
+        };
+        let opts: Vec<TicketOption> = (0..10).map(|_| big.clone()).collect();
+        let (name, bytes) =
+            options_overflow_file(&overflow_t, "CODE1", &opts, &|_| None).expect("overflow file");
+        assert_eq!(name, "ticket-panel-CODE1-options.txt");
+        let text = String::from_utf8(bytes).unwrap();
+        assert!(text.len() > 1024);
+        assert!(text.contains("- nnn"));
+        assert!(!text.contains("```"));
     }
 }

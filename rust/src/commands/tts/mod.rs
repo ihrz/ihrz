@@ -47,6 +47,56 @@ pub async fn save_tts(
     crate::db::kv_set(pool, guild_id, TTS_KEY, &serde_json::to_string(cfg)?).await
 }
 
+// Voice-state cleanup predicates. Mirror src/Events/tts/voiceState.ts
+// plus the offline leg of cleanupTTS in
+// src/core/modules/ttsManager.ts. The Flowery speak leg stays TS-side
+// (needs the Flowery key); only leave/stop + state teardown port here.
+
+/// True when a voice update actually left the TTS channel: the channel
+/// changed and the channel left is the TTS voice channel. Mirrors the
+/// `newState.channelId === oldState.channelId` early return plus the
+/// `oldState.channelId !== ttsData.voiceChannelId` guard.
+pub fn tts_voice_left(old_channel: Option<u64>, new_channel: Option<u64>, tts_voice: u64) -> bool {
+    match old_channel {
+        Some(old) if old == tts_voice => new_channel != old_channel,
+        _ => false,
+    }
+}
+
+/// TS getTTSData interop (`if (!data || !data.enabled) return null`):
+/// TS rows carry `enabled`; Rust rows omit it (row presence = enabled).
+/// A missing flag means enabled; malformed rows mean disabled.
+pub fn tts_row_enabled(raw: &str) -> bool {
+    let Ok(v) = serde_json::from_str::<serde_json::Value>(raw) else {
+        return false;
+    };
+    match v.get("enabled") {
+        Some(e) => e.as_bool().unwrap_or(true),
+        None => true,
+    }
+}
+
+/// H247 park guard (mirrors keepVoiceConnection in cleanupTTS): when
+/// H24/7 parks the bot in the TTS channel, stop playback but skip the
+/// OP4 voice leave so the bot never visibly disconnects.
+pub fn tts_keep_voice(
+    h247: Option<&crate::commands::ranks::grant::H247Config>,
+    tts_voice: u64,
+) -> bool {
+    h247.map(|h| h.enabled && h.voice_channel_id == tts_voice)
+        .unwrap_or(false)
+}
+
+/// Best-effort welcome-embed ids (text channel, message) from a
+/// GUILD.TTS row for the embed delete in cleanupTTS. Rust rows lack
+/// embedMessageId; TS-written rows carry it.
+pub fn tts_embed_ids(raw: &str) -> Option<(u64, u64)> {
+    let v: serde_json::Value = serde_json::from_str(raw).ok()?;
+    let text = v.get("textChannelId")?.as_str()?.parse::<u64>().ok()?;
+    let msg = v.get("embedMessageId")?.as_str()?.parse::<u64>().ok()?;
+    Some((text, msg))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -58,6 +108,67 @@ mod tests {
         }
         assert_eq!(parse_tts_lang("xx-XX"), None);
         assert_eq!(parse_tts_lang("fr-ME"), None);
+    }
+
+    #[test]
+    fn voice_left_guards() {
+        // Left the TTS channel entirely or moved away: armed.
+        assert!(tts_voice_left(Some(10), None, 10));
+        assert!(tts_voice_left(Some(10), Some(20), 10));
+        // Mute/deafen-only update (same channel): silent.
+        assert!(!tts_voice_left(Some(10), Some(10), 10));
+        // Left a different channel: not ours.
+        assert!(!tts_voice_left(Some(20), None, 10));
+        assert!(!tts_voice_left(Some(20), Some(30), 10));
+        // Join from nowhere: nothing left.
+        assert!(!tts_voice_left(None, Some(10), 10));
+        assert!(!tts_voice_left(None, None, 10));
+    }
+
+    #[test]
+    fn row_enabled_interop() {
+        // Rust-written rows carry no flag: presence = enabled.
+        assert!(tts_row_enabled(
+            r#"{"text_channel_id":"1","voice_channel_id":"2","lang":"en-US"}"#
+        ));
+        assert!(tts_row_enabled(r#"{"enabled":true,"voiceChannelId":"2"}"#));
+        assert!(!tts_row_enabled(
+            r#"{"enabled":false,"voiceChannelId":"2"}"#
+        ));
+        assert!(!tts_row_enabled("not json"));
+    }
+
+    #[test]
+    fn keep_voice_parks_h247() {
+        use crate::commands::ranks::grant::H247Config;
+        let parked = H247Config {
+            enabled: true,
+            voice_channel_id: 10,
+        };
+        assert!(tts_keep_voice(Some(&parked), 10));
+        assert!(!tts_keep_voice(Some(&parked), 20));
+        assert!(!tts_keep_voice(None, 10));
+        let off = H247Config {
+            enabled: false,
+            voice_channel_id: 10,
+        };
+        assert!(!tts_keep_voice(Some(&off), 10));
+    }
+
+    #[test]
+    fn embed_ids_ts_rows_only() {
+        assert_eq!(
+            tts_embed_ids(
+                r#"{"enabled":true,"voiceChannelId":"2","textChannelId":"3","embedMessageId":"4"}"#
+            ),
+            Some((3, 4))
+        );
+        // Rust rows carry no embedMessageId: no embed to delete.
+        assert_eq!(
+            tts_embed_ids(r#"{"text_channel_id":"3","voice_channel_id":"2","lang":"en-US"}"#),
+            None
+        );
+        assert_eq!(tts_embed_ids("not json"), None);
     }
 }
 
