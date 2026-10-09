@@ -144,7 +144,9 @@ committed — see `.gitignore`. No push without a green
 - [x] U-LAYOUT-PER-COMMAND-2 medium batch (2026-10-09: profil/ranks/giveaway/authrestore/backup split one-file-per-command w/ shims, mod.rs untouched; invitesmanager/blogger/antispam under-400 left. Lead: 12 module_inception allows + shim unused-import allows + doc-blank fixes. Suite 449/0, fmt + clippy clean).
 - [x] U-LAYOUT-PER-COMMAND-3 big batch (2026-10-09: utils 65 files, moderation 22, fun 33 + botcat 13, economy 23, music 15, ticket 15 + guildconfig 17, legacy 16 — all one-file-per-command, bodies verbatim, mod.rs untouched, compat shims. Lead: 1 doc-blank fix. Suite 449/0, fmt + clippy clean. Layout TS-parity now complete across all 40 categories).
 - [x] U-MUSIC-META-CONSUME (2026-10-09: source detection + normalized previews in nowplaying/trackinfo/queue, SVG spotify-banner, Lavalink fallbacks; 11 music tests).
-- [ ] U-CATEGORY-INIT every command category initialized exactly like TS: `init.json` parity per category (name/description/emoji/placeholder keys), registration order, slash-command names/descriptions/options identical, category help-module rendering same fields. Audit `HybridCommands/*/init.json` vs `commands/mod.rs` + category mods; close deltas with zero registry renames.
+- [x] U-TICKET-V2-BUILDER (2026-10-09: full `ticket_panel` builder — 17 TS menu values, pickers, preview, send + marker; 9 new panel tests. Deferred: V2 Container rendering (serenity 0.12), options-overflow txt. Lead: 3 clippy closures).
+- [x] U-CATEGORY-INIT-FIX (2026-10-09: 26/26 init.json exact — parity-locking test added, zero renames; 6 extra subcommands + order quirk intentionally left).
+- [x] U-LAYOUT-PER-COMMAND-4 leftovers (2026-10-09: antispam/blogger/confession/honeypot/stats/sticky/tag/invitesmanager split, mod.rs untouched. Suite 459/0, fmt + clippy clean. All categories now one-file-per-command).
 
 ## Remaining (offline-continuable, dependency order)
 

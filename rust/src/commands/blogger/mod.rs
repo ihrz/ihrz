@@ -6,4 +6,157 @@
 // TS keys: BLOGGER.blogs[] {id, rss, channelId}, BLOGGER.enabled,
 // BLOGGER.lastArticleNotified.
 
-pub mod main;
+use crate::bot::Ctx;
+use serde::{Deserialize, Serialize};
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+pub struct BlogEntry {
+    pub id: String,
+    pub rss: String,
+    #[serde(rename = "channelId")]
+    pub channel_id: String,
+}
+
+/// RSS validation: fetch feed, require XML with an rss/feed root.
+/// Mirrors blogger.validateRssFeed.
+pub fn valid_rss_body(body: &str) -> bool {
+    let t = body.trim_start();
+    (t.starts_with("<?xml") || t.starts_with("<rss") || t.starts_with("<feed"))
+        && (t.contains("<rss") || t.contains("<feed"))
+}
+
+pub async fn fetch_rss_ok(url: &str) -> bool {
+    fetch_rss_title(url).await.is_some()
+}
+
+/// Feed title for success messages. Mirrors TS validation.name
+/// (`validation.name || "Unknown"`); string scan, no new dep.
+pub async fn fetch_rss_title(url: &str) -> Option<String> {
+    let body = match reqwest::Client::new().get(url).send().await {
+        Ok(r) => r.text().await.unwrap_or_default(),
+        Err(_) => return None,
+    };
+    if !valid_rss_body(&body) {
+        return None;
+    }
+    extract_feed_title(&body)
+}
+
+fn extract_feed_title(body: &str) -> Option<String> {
+    let start = body.find("<title>")? + "<title>".len();
+    let end = body[start..].find("</title>")? + start;
+    let mut title = body[start..end].trim().to_string();
+    if let Some(inner) = title
+        .strip_prefix("<![CDATA[")
+        .and_then(|s| s.strip_suffix("]]>"))
+    {
+        title = inner.to_string();
+    }
+    let title = title.trim().to_string();
+    if title.is_empty() {
+        None
+    } else {
+        Some(title)
+    }
+}
+
+pub async fn load_blogs(pool: &crate::db::Pool, guild_id: &str) -> Vec<BlogEntry> {
+    crate::db::kv_get(pool, guild_id, "BLOGGER.blogs")
+        .await
+        .and_then(|s| serde_json::from_str(&s).ok())
+        .unwrap_or_default()
+}
+
+/// RSS item extraction. Latest <item> wins (rss-parser order).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct RssItem {
+    pub id: String,
+    pub title: String,
+    pub link: String,
+}
+
+fn tag_content(item: &str, tag: &str) -> Option<String> {
+    let open = format!("<{tag}");
+    let start = item.find(&open)?;
+    let after_open = item[start..].find('>')? + start + 1;
+    let close = format!("</{tag}>");
+    let end = item[after_open..].find(&close)? + after_open;
+    Some(item[after_open..end].trim().to_string())
+}
+
+pub fn latest_rss_item(body: &str) -> Option<RssItem> {
+    let start = body.find("<item>")?;
+    let end = body[start..].find("</item>")? + start;
+    let item = &body[start..end];
+    let id = tag_content(item, "guid")
+        .or_else(|| tag_content(item, "link"))
+        .filter(|s| !s.is_empty())?;
+    Some(RssItem {
+        id,
+        title: tag_content(item, "title").unwrap_or_default(),
+        link: tag_content(item, "link").unwrap_or_default(),
+    })
+}
+
+/// Already-notified check. Mirrors articleHaveAlreadyBeNotified
+/// (same blog+article id, or newer stored timestamp).
+pub fn already_notified(notified: &[(String, String)], blog_id: &str, article_id: &str) -> bool {
+    notified
+        .iter()
+        .any(|(b, a)| b == blog_id && a == article_id)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn latest_item_parses() {
+        let body = "<rss><channel><item><title>T</title><link>http://x/1</link><guid>g1</guid></item><item><title>O</title></item></channel></rss>";
+        let item = latest_rss_item(body).unwrap();
+        assert_eq!(item.id, "g1");
+        assert_eq!(item.title, "T");
+        assert!(latest_rss_item("no items").is_none());
+        assert!(already_notified(&[("b".into(), "g1".into())], "b", "g1"));
+        assert!(!already_notified(&[], "b", "g1"));
+    }
+
+    #[test]
+    fn feed_title_extracts_channel_title() {
+        let rss = "<?xml version=\"1.0\"?><rss><channel><title><![CDATA[My Blog]]></title><item><title>P1</title></item></channel></rss>";
+        assert_eq!(extract_feed_title(rss).as_deref(), Some("My Blog"));
+        let atom = "<feed><title>Atom Feed</title><entry><title>E</title></entry></feed>";
+        assert_eq!(extract_feed_title(atom).as_deref(), Some("Atom Feed"));
+        assert!(extract_feed_title("not xml").is_none());
+        assert!(extract_feed_title("<rss><channel></channel></rss>").is_none());
+    }
+
+    #[test]
+    fn rss_validation() {
+        assert!(valid_rss_body(
+            r#"<?xml version="1.0"?><rss><channel/></rss>"#
+        ));
+        assert!(valid_rss_body(r#"<feed xmlns="x"></feed>"#));
+        assert!(!valid_rss_body("<html></html>"));
+        assert!(!valid_rss_body(""));
+    }
+}
+
+pub mod add;
+#[allow(clippy::module_inception)]
+pub mod blogger;
+pub mod list;
+pub mod remove;
+pub mod status;
+
+/// Old registry path (`blogger::main::*`) kept working.
+#[allow(clippy::module_inception)]
+#[allow(unused_imports)]
+pub mod main {
+    pub use super::add::*;
+    pub use super::blogger::*;
+    pub use super::list::*;
+    pub use super::remove::*;
+    pub use super::status::*;
+    pub use super::*;
+}

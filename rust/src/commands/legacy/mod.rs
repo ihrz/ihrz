@@ -1564,6 +1564,35 @@ mod tests {
         assert_eq!(one.len(), 1);
         assert_eq!(one[0].title, "T");
     }
+
+    #[test]
+    fn help_categories_match_init_json() {
+        // Mirrors HybridCommands/*/init.json (26 files): exact
+        // categoryName/description/placeholder keys, incl. quirks
+        // (invitesmanager dir -> "invitemanager", tag dir -> "tags").
+        // guildconfig/newfeatures have no init.json on either side.
+        assert_eq!(HELP_CATEGORIES.len(), 26);
+        let by_name = |n: &str| {
+            HELP_CATEGORIES
+                .iter()
+                .find(|(name, _, _, _, _)| *name == n)
+                .unwrap_or_else(|| panic!("help row {n} missing"))
+        };
+        assert_eq!(by_name("invitemanager").1, "help_invitem_dsc");
+        assert_eq!(by_name("invitemanager").2, "help_invitem_fields");
+        assert_eq!(by_name("tags").1, "help_tags_dsc");
+        assert_eq!(by_name("tags").2, "help_tags_fields");
+        assert_eq!(by_name("membercount").1, "help_memberc_dsc");
+        assert_eq!(by_name("moderation").1, "help_mod_dsc");
+        assert_eq!(by_name("profil").1, "help_prof_dsc");
+        assert_eq!(by_name("rolereactions").1, "help_roler_dsc");
+        assert!(!HELP_CATEGORIES
+            .iter()
+            .any(|(n, _, _, _, _)| *n == "guildconfig"));
+        assert!(!HELP_CATEGORIES
+            .iter()
+            .any(|(n, _, _, _, _)| *n == "newfeatures"));
+    }
 }
 
 pub mod add_react;
