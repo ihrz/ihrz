@@ -45,14 +45,49 @@ pub async fn prevnames(
         .global_name
         .clone()
         .unwrap_or_else(|| target.name.clone());
-    let title = crate::lang::get(&code, "prevnames_embed_title")
-        .map(|s| s.replace("${user.username}", &display))
-        .unwrap_or_else(|| format!("List of all {display}'s nicknames"));
+    let title_tpl = crate::lang::get(&code, "prevnames_embed_title")
+        .unwrap_or_else(|| "List of all ${user.username}'s nicknames".to_string());
+    let pages = prevnames_pages(&history, &title_tpl, &display);
+    let (title, desc) = pages.into_iter().next().unwrap_or_default();
     let embed = poise::serenity_prelude::CreateEmbed::default()
-        .title(format!("{title} | Page 1"))
-        .description(history.join("\n"));
+        .title(title)
+        .description(desc);
     ctx.send(poise::CreateReply::default().embed(embed)).await?;
     Ok(())
+}
+
+/// Prevnames pager size from !prevnames.ts.
+pub const PREVNAMES_PER_PAGE: usize = 5;
+
+/// Build pager pages (5 names each). The title template's
+/// `${user.username}` becomes the display name and `| Page N` is
+/// appended, mirroring the TS pages build.
+pub fn prevnames_pages(
+    history: &[String],
+    title_tpl: &str,
+    display: &str,
+) -> Vec<(String, String)> {
+    history
+        .chunks(PREVNAMES_PER_PAGE)
+        .enumerate()
+        .map(|(i, chunk)| {
+            (
+                format!(
+                    "{} | Page {}",
+                    title_tpl.replace("${user.username}", display),
+                    i + 1
+                ),
+                chunk.join("\n"),
+            )
+        })
+        .collect()
+}
+
+/// Trash-button guard: only the profile owner may erase their own
+/// history (`interaction.member?.user.id === user.id`), replying
+/// `prevnames_data_erased` on success.
+pub fn can_erase_prevnames(invoker: u64, target: u64) -> bool {
+    invoker == target
 }
 
 #[cfg(test)]
@@ -84,6 +119,20 @@ mod tests {
     fn table_and_key_layout() {
         assert_eq!(PREVNAMES_TABLE, "prevnames");
         assert_eq!(crate::events::prevnames_key(5), "PREVNAMES.5");
+    }
+
+    #[test]
+    fn pages_chunk_by_five_with_numbered_titles() {
+        use super::{can_erase_prevnames, prevnames_pages};
+        let history: Vec<String> = (0..6).map(|i| format!("name{i}")).collect();
+        let pages = prevnames_pages(&history, "List of all ${user.username}'s nicknames", "bob");
+        assert_eq!(pages.len(), 2);
+        assert_eq!(pages[0].0, "List of all bob's nicknames | Page 1");
+        assert_eq!(pages[0].1, "name0\nname1\nname2\nname3\nname4");
+        assert_eq!(pages[1].0, "List of all bob's nicknames | Page 2");
+        assert_eq!(pages[1].1, "name5");
+        assert!(can_erase_prevnames(7, 7));
+        assert!(!can_erase_prevnames(7, 8));
     }
 
     #[tokio::test]

@@ -69,7 +69,7 @@ pub async fn leash(
             .and_then(|g| g.voice_states.get(&user_id).and_then(|v| v.channel_id))
             .is_some()
     };
-    if !in_voice(member.id) || in_voice(ctx.author().id) {
+    if needs_leash_confirm(in_voice(member.id), in_voice(ctx.author().id)) {
         let no = crate::emojis::app_emoji_markup(&ctx.serenity_context().http, "No")
             .await
             .unwrap_or_else(|| "❌".to_string());
@@ -124,4 +124,23 @@ pub async fn leash(
     )
     .await?;
     Ok(())
+}
+
+/// Confirm gate from !leash.ts: prompt when the target is NOT in voice
+/// or the invoker IS (`!isInVoiceChannel(user) || isInVoiceChannel(me)`).
+pub fn needs_leash_confirm(target_in_vc: bool, invoker_in_vc: bool) -> bool {
+    !target_in_vc || invoker_in_vc
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn confirm_gate_mirrors_ts() {
+        assert!(!needs_leash_confirm(true, false));
+        assert!(needs_leash_confirm(false, false));
+        assert!(needs_leash_confirm(true, true));
+        assert!(needs_leash_confirm(false, true));
+    }
 }

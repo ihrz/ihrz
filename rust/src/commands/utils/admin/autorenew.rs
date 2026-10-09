@@ -39,6 +39,43 @@ pub async fn autorenew(
         .await?;
         return Ok(());
     };
+    // Bounds mirror util !autorenew.ts: 1 minute .. 30 days
+    // (60_000 .. 2_629_800_000 ms).
+    match classify_autorenew(Some(ms)) {
+        AutorenewDecision::TooShort => {
+            let code =
+                crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+            ctx.say(
+                crate::lang::get(&code, "util_autorenew_time_too_short").unwrap_or_else(|| {
+                    "The time between channel renewals must be more than 1 minute".to_string()
+                }),
+            )
+            .await?;
+            return Ok(());
+        }
+        AutorenewDecision::TooLong => {
+            let code =
+                crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+            ctx.say(
+                crate::lang::get(&code, "util_autorenew_time_too_long").unwrap_or_else(|| {
+                    "The time between channel renewals must be less than 30 days".to_string()
+                }),
+            )
+            .await?;
+            return Ok(());
+        }
+        AutorenewDecision::BadDuration => {
+            let code =
+                crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+            ctx.say(
+                crate::lang::get(&code, "msg_bad_duration")
+                    .unwrap_or_else(|| "Bad duration.".to_string()),
+            )
+            .await?;
+            return Ok(());
+        }
+        AutorenewDecision::Ok(_) => {}
+    }
     let now = crate::commands::shared::now_ms();
     crate::commands::owner::main::routed_set(
         &ctx.data().pool,
@@ -63,4 +100,55 @@ pub async fn autorenew(
     )
     .await?;
     Ok(())
+}
+
+/// Renew bounds from util !autorenew.ts: below 1 minute is too short,
+/// above 30 days (2_629_800_000 ms) is too long.
+pub const AUTORENEW_MIN_MS: i64 = 60_000;
+/// 30 days in ms, the TS `parseTime > 2_629_800_000` ceiling.
+pub const AUTORENEW_MAX_MS: i64 = 2_629_800_000;
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum AutorenewDecision {
+    Ok(i64),
+    TooShort,
+    TooLong,
+    BadDuration,
+}
+
+/// Pure bound classifier, unit-tested. `None` (unparsable input) maps
+/// to BadDuration.
+pub fn classify_autorenew(ms: Option<i64>) -> AutorenewDecision {
+    match ms {
+        None => AutorenewDecision::BadDuration,
+        Some(v) if v < AUTORENEW_MIN_MS => AutorenewDecision::TooShort,
+        Some(v) if v > AUTORENEW_MAX_MS => AutorenewDecision::TooLong,
+        Some(v) => AutorenewDecision::Ok(v),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn bounds_mirror_ts() {
+        assert_eq!(classify_autorenew(None), AutorenewDecision::BadDuration);
+        assert_eq!(
+            classify_autorenew(Some(59_999)),
+            AutorenewDecision::TooShort
+        );
+        assert_eq!(
+            classify_autorenew(Some(60_000)),
+            AutorenewDecision::Ok(60_000)
+        );
+        assert_eq!(
+            classify_autorenew(Some(2_629_800_000)),
+            AutorenewDecision::Ok(2_629_800_000)
+        );
+        assert_eq!(
+            classify_autorenew(Some(2_629_800_001)),
+            AutorenewDecision::TooLong
+        );
+    }
 }

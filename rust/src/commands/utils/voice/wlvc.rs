@@ -84,7 +84,7 @@ pub async fn wlvc(
     }
     ctx.say(
         crate::lang::get(&code, "util_wlvc_command_work")
-            .map(|s| s.replace("${member.toString()}", &format!("<@{}>", target.id.get())))
+            .map(|s| fill_reply(&s, &format!("<@{}>", target.id.get())))
             .unwrap_or_else(|| {
                 "${member.toString()} is now allowed to join the frozen voice channel.".to_string()
             }),
@@ -100,6 +100,11 @@ pub fn fill_log(template: &str, invoker: &str, target: &str) -> String {
         .replace("${member.toString()}", target)
 }
 
+/// Fill the wlvc reply template (`${member.toString()}`).
+pub fn fill_reply(template: &str, target: &str) -> String {
+    template.replace("${member.toString()}", target)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -113,6 +118,14 @@ mod tests {
                 "<@2>"
             ),
             "<@1> allowed <@2>"
+        );
+    }
+
+    #[test]
+    fn reply_template_fills() {
+        assert_eq!(
+            fill_reply("${member.toString()} is now allowed.", "<@2>"),
+            "<@2> is now allowed."
         );
     }
 }

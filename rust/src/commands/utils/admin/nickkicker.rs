@@ -110,7 +110,7 @@ pub async fn nickkicker(
                     return Ok(());
                 }
                 let mut words = words;
-                words.push(w.to_lowercase().chars().take(20).collect::<String>());
+                words.push(normalize_nick_word(&w));
                 cfg["words"] = serde_json::Value::from(words);
                 crate::commands::owner::main::routed_set(
                     &ctx.data().pool,
@@ -133,4 +133,55 @@ pub async fn nickkicker(
         }
     }
     Ok(())
+}
+
+/// Max words before `util_nick_kicker_words_max_15` (TS `>= 15`).
+pub const NICK_KICKER_MAX_WORDS: usize = 15;
+/// Max chars per word (modal `maxLength: 20`, TS `substring(0, 20)`).
+pub const NICK_KICKER_MAX_WORD_LEN: usize = 20;
+
+/// Normalize an added word. Mirrors the TS add flow:
+/// `word.toLowerCase().substring(0, 20)`.
+pub fn normalize_nick_word(raw: &str) -> String {
+    raw.to_lowercase()
+        .chars()
+        .take(NICK_KICKER_MAX_WORD_LEN)
+        .collect()
+}
+
+/// Render the words embed field (```-wrapped, `none` fallback).
+pub fn nick_words_field(words: &[String], none: &str) -> String {
+    format!(
+        "```{}```",
+        if words.is_empty() {
+            none.to_string()
+        } else {
+            words.join(", ")
+        }
+    )
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn normalize_lowercases_and_truncates() {
+        assert_eq!(normalize_nick_word("  ABC "), "  abc ");
+        assert_eq!(normalize_nick_word(&"x".repeat(25)), "x".repeat(20));
+    }
+
+    #[test]
+    fn words_field_wraps() {
+        assert_eq!(nick_words_field(&[], "None"), "```None```");
+        assert_eq!(
+            nick_words_field(&["a".to_string(), "b".to_string()], "None"),
+            "```a, b```"
+        );
+    }
+
+    #[test]
+    fn cap_is_fifteen() {
+        assert_eq!(NICK_KICKER_MAX_WORDS, 15);
+    }
 }

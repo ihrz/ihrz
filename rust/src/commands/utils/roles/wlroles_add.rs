@@ -43,8 +43,23 @@ pub async fn wlroles_add(
     Ok(())
 }
 
+/// Render the wlroles setup-panel field. Mirrors the !wlroles.ts embed
+/// field (`<@&id>` joins, `setjoinroles_var_none` fallback).
+pub fn wlroles_field(role_ids: &[String], none: &str) -> String {
+    if role_ids.is_empty() {
+        none.to_string()
+    } else {
+        role_ids
+            .iter()
+            .map(|id| format!("<@&{id}>"))
+            .collect::<Vec<_>>()
+            .join(", ")
+    }
+}
+
 #[cfg(test)]
 mod tests {
+    use super::wlroles_field;
     use crate::commands::owner::main as routed;
 
     async fn memory_pool() -> crate::db::Pool {
@@ -92,6 +107,15 @@ mod tests {
         assert_eq!(
             routed::routed_get(&pool, "g", "g", "UTILS.wlRoles").await,
             None
+        );
+    }
+
+    #[test]
+    fn field_mentions_roles_or_none() {
+        assert_eq!(wlroles_field(&[], "None"), "None");
+        assert_eq!(
+            wlroles_field(&["7".to_string(), "8".to_string()], "None"),
+            "<@&7>, <@&8>"
         );
     }
 }
