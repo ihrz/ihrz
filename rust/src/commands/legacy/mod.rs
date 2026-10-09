@@ -1566,9 +1566,49 @@ mod tests {
     }
 }
 
+pub mod add_react;
 pub mod antiexe;
 pub mod autofeur;
+pub mod fexini;
 pub mod help;
+pub mod help_browser;
+pub mod helpall;
 pub mod info;
+pub mod kawaeine;
+pub mod langstats;
+pub mod list_react;
 pub mod memes;
+pub mod nitrofdp;
+pub mod rap_vs_reality;
 pub mod react;
+pub mod remove_react;
+pub mod securewebhook;
+pub mod shardinfo;
+pub mod status_embed;
+pub mod two_sides;
+pub mod updates;
+pub mod welcomer;
+
+/// Old registry path (`legacy::main::*`) kept working.
+#[allow(unused_imports)]
+pub mod main {
+    pub use super::add_react::*;
+    pub use super::antiexe::*;
+    pub use super::autofeur::*;
+    pub use super::fexini::*;
+    pub use super::help_browser::*;
+    pub use super::helpall::*;
+    pub use super::kawaeine::*;
+    pub use super::langstats::*;
+    pub use super::list_react::*;
+    pub use super::nitrofdp::*;
+    pub use super::rap_vs_reality::*;
+    pub use super::remove_react::*;
+    pub use super::securewebhook::*;
+    pub use super::shardinfo::*;
+    pub use super::status_embed::*;
+    pub use super::two_sides::*;
+    pub use super::updates::*;
+    pub use super::welcomer::*;
+    pub use super::*;
+}

@@ -35,11 +35,11 @@ pub fn uptime_str(secs: u64) -> String {
 
 pub fn bot_commands() -> Vec<poise::Command<Data, anyhow::Error>> {
     vec![
-        core::botinfo_full(),
-        core::say(),
-        core::setlang(),
-        core::invite(),
-        core::links(),
+        botinfo::botinfo_full(),
+        say::say(),
+        setserverlang::setlang(),
+        invite::invite(),
+        link::links(),
         custom::custom(),
     ]
 }
@@ -364,3 +364,42 @@ pub mod custom;
 pub mod lore;
 pub mod noaimie;
 pub mod status;
+
+pub mod andru;
+pub mod avatar;
+pub mod banner;
+pub mod bio;
+pub mod botinfo;
+pub mod ether;
+pub mod invite;
+pub mod iris;
+pub mod kisakay;
+pub mod link;
+pub mod name;
+pub mod say;
+pub mod setserverlang;
+
+/// Old grouped paths (`botcat::core::*`, ...) are thin re-export shims.
+/// `botcat::main::*` re-exports every command like other categories.
+#[allow(unused_imports)]
+pub mod main {
+    pub use super::andru::*;
+    pub use super::avatar::*;
+    pub use super::banner::*;
+    pub use super::bio::*;
+    pub use super::botinfo::*;
+    pub use super::core::*;
+    pub use super::custom::*;
+    pub use super::ether::*;
+    pub use super::invite::*;
+    pub use super::iris::*;
+    pub use super::kisakay::*;
+    pub use super::link::*;
+    pub use super::lore::*;
+    pub use super::name::*;
+    pub use super::noaimie::*;
+    pub use super::say::*;
+    pub use super::setserverlang::*;
+    pub use super::status::*;
+    pub use super::*;
+}

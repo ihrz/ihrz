@@ -1,0 +1,118 @@
+use super::*;
+use poise::serenity_prelude as serenity;
+
+#[poise::command(
+    slash_command,
+    prefix_command,
+    rename = "temprole",
+    aliases("addtemprole", "temporaryrole", "temproles"),
+    default_member_permissions = "ADMINISTRATOR"
+)]
+pub async fn mod_temprole(
+    ctx: Ctx<'_>,
+    #[description = "Member"] user: serenity::User,
+    #[description = "Role"] role: serenity::Role,
+    #[description = "Duration (e.g. 10m, 1h, 7d)"] duration: String,
+    #[description = "Reason"] reason: Option<String>,
+) -> Result<(), anyhow::Error> {
+    let Some(guild_id) = ctx.guild_id() else {
+        return Ok(());
+    };
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    let t = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
+    let mut ms = crate::funcs::time_ms(&duration) as i64;
+    if ms <= 0 {
+        ctx.say(t("too_new_account_invalid_time_on_enable")).await?;
+        return Ok(());
+    }
+    // 1-year clamp with the TS overflow note.
+    let mut overflow = false;
+    if ms > YEAR_MAX_MS {
+        ms = YEAR_MAX_MS;
+        overflow = true;
+    }
+    let pretty = crate::funcs::beautiful_ms(ms as f64);
+    let reason_s = reason.clone().unwrap_or_else(|| t("var_no_set"));
+    let no = emoji(&ctx, "No", "❌").await;
+    let vc = emoji(&ctx, "VC_OpenChat", "💬").await;
+    let guards = guard_data(&ctx, guild_id).await;
+    if let Some(g) = &guards {
+        if !g.bot_perms.manage_roles() {
+            ctx.say(
+                t("temprole_i_dont_have_permission").replace("${client.iHorizon_Emojis.No}", &no),
+            )
+            .await?;
+            return Ok(());
+        }
+    }
+    let member = guild_id.member(ctx.http(), user.id).await.ok();
+    let Some(member) = member else {
+        ctx.say(t("ban_dont_found_member")).await?;
+        return Ok(());
+    };
+    let author_id = ctx.author().id.get();
+    let (bot_top, owner) = guards
+        .as_ref()
+        .map(|g| (g.bot_top, g.owner_id))
+        .unwrap_or((u16::MAX, author_id));
+    if let Some(target_pos) = target_top(&ctx, guild_id, user.id).await {
+        if target_pos >= bot_top && owner != author_id {
+            ctx.say(
+                t("temprole_tomute_highest_role_or_same")
+                    .replace("${client.iHorizon_Emojis.No}", &no)
+                    .replace("${tomute.toString()}", &user.to_string()),
+            )
+            .await?;
+            return Ok(());
+        }
+    }
+    // The role itself must sit below the bot's top role.
+    if role.position >= bot_top && owner != author_id {
+        ctx.say(t("temprole_i_dont_have_permission").replace("${client.iHorizon_Emojis.No}", &no))
+            .await?;
+        return Ok(());
+    }
+    let gid = guild_id.get().to_string();
+    let already = member.roles.contains(&role.id)
+        || crate::db::kv_get(
+            &ctx.data().pool,
+            &gid,
+            &temprole_key(user.id.get(), role.id.get()),
+        )
+        .await
+        .is_some();
+    if already {
+        ctx.say(t("temprole_already_has_role")).await?;
+        return Ok(());
+    }
+    member.add_role(ctx.http(), role.id).await?;
+    let exp = crate::commands::shared::now_ms() + ms;
+    crate::db::kv_set(
+        &ctx.data().pool,
+        &gid,
+        &temprole_key(user.id.get(), role.id.get()),
+        &serde_json::json!({"expires_at_ms": exp}).to_string(),
+    )
+    .await?;
+    let mut content = t("temprole_command_work")
+        .replace("${tomute.id}", &user.id.get().to_string())
+        .replace("${ms(ms(mutetime))}", &pretty)
+        .replace("${reason}", &reason_s);
+    if overflow {
+        content += &t("temprole_tomute_max_time_passed")
+            .replace("${client.iHorizon_Emojis.VC_OpenChat}", &vc);
+    }
+    ctx.say(content).await?;
+    post_mod_log(
+        ctx.http(),
+        guild_id,
+        t("temprole_logs_embed_title"),
+        t("temprole_logs_embed_description")
+            .replace("${interaction.user.id}", &ctx.author().id.get().to_string())
+            .replace("${tomute.id}", &user.id.get().to_string())
+            .replace("${ms(ms(mutetime))}", &pretty)
+            .replace("${reason}", &reason_s),
+    )
+    .await;
+    Ok(())
+}
