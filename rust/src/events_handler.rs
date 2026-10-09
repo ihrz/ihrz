@@ -2628,6 +2628,32 @@ impl serenity::EventHandler for Handler {
                 }
             }
         }
+        // H247 24/7 rejoin guard (mirrors Events/h247/voiceState.ts +
+        // handleH247VoiceStateChange -> ensureH247VoicePresence): only
+        // the bot's own channel change can break the presence. The
+        // voluntary /h247 leave deletes GUILD.H247 first, so this
+        // resolves to a no-op then. Rejoin goes out as a gateway OP4
+        // voice-state update (send_voice_state), like sendH247VoiceStateUpdate.
+        if crate::commands::ranks::grant::h247_voice_broken(
+            new.user_id == ctx.cache.current_user().id,
+            old.as_ref().and_then(|o| o.channel_id).map(|c| c.get()),
+            new.channel_id.map(|c| c.get()),
+        ) {
+            if let Some(raw) = crate::db::kv_get(&self.pool, &gid, "GUILD.H247").await {
+                let target = crate::commands::ranks::grant::h247_rejoin_target(
+                    crate::commands::ranks::grant::parse_h247(&raw).as_ref(),
+                    new.channel_id.map(|c| c.get()),
+                );
+                if let Some(ch) = target {
+                    crate::lavalink::LavalinkManager::send_voice_state(
+                        &ctx.shard,
+                        guild_id.get(),
+                        Some(ch),
+                    );
+                    tracing::info!("h247 rejoin {} -> {}", gid, ch);
+                }
+            }
+        }
         // Rich voice log (mirrors logs/voiceLogs.ts).
         self.voice_state_log(&ctx, &gid, old.as_ref(), &new).await;
         // Session tracking (mirrors stats/onVoiceUpdate.ts + economy coins).
@@ -3033,8 +3059,8 @@ impl serenity::EventHandler for Handler {
 
     async fn user_update(
         &self,
-        _ctx: serenity::Context,
-        _old: Option<serenity::CurrentUser>,
+        ctx: serenity::Context,
+        old: Option<serenity::CurrentUser>,
         new: serenity::CurrentUser,
     ) {
         // Mirrors prevnamesModule.ts (global username history).
@@ -3051,6 +3077,68 @@ impl serenity::EventHandler for Handler {
             &serde_json::to_string(&next).unwrap_or_default(),
         )
         .await;
+        // Rank-role username-change grant (mirrors
+        // Events/utils/rankRoleModule_2.ts): on username/globalName
+        // change, grant or remove the GUILD.RANK_ROLES role based on
+        // whether the new names contain the configured substring.
+        // Reuses the GUILD.RANK_ROLES.roles / .nicknames keys (no new keys).
+        if !crate::commands::ranks::grant::names_changed(
+            old.as_ref().map(|o| o.name.as_str()),
+            old.as_ref().map(|o| o.global_name.as_deref()),
+            &new.name,
+            new.global_name.as_deref(),
+        ) {
+            return;
+        }
+        // Cache snapshot first (mirrors guilds.cache.filter(has member));
+        // the guards are dropped before any await below.
+        let gids: Vec<serenity::GuildId> = ctx
+            .cache
+            .guilds()
+            .into_iter()
+            .filter(|gid| {
+                ctx.cache
+                    .guild(*gid)
+                    .map(|g| g.members.contains_key(&new.id))
+                    .unwrap_or(false)
+            })
+            .collect();
+        for gid in gids {
+            let g = gid.get().to_string();
+            let roles_raw = crate::db::kv_get(&self.pool, &g, "GUILD.RANK_ROLES.roles").await;
+            let nick_raw = crate::db::kv_get(&self.pool, &g, "GUILD.RANK_ROLES.nicknames").await;
+            let (Some(roles_raw), Some(nick_raw)) = (roles_raw, nick_raw) else {
+                continue;
+            };
+            let Some(role_num) = crate::commands::ranks::grant::parse_role_id(&roles_raw) else {
+                continue;
+            };
+            let matched = crate::commands::ranks::grant::rank_needles(&nick_raw)
+                .iter()
+                .any(|n| {
+                    crate::commands::ranks::grant::username_matches(
+                        &new.name,
+                        new.global_name.as_deref(),
+                        n,
+                    )
+                });
+            let Ok(member) = gid.member(&ctx.http, new.id).await else {
+                continue;
+            };
+            let role_id = serenity::RoleId::new(role_num);
+            match crate::commands::ranks::grant::grant_decision(
+                member.roles.contains(&role_id),
+                matched,
+            ) {
+                crate::commands::ranks::grant::RankGrant::Grant => {
+                    let _ = member.add_role(&ctx.http, role_id).await;
+                }
+                crate::commands::ranks::grant::RankGrant::Remove => {
+                    let _ = member.remove_role(&ctx.http, role_id).await;
+                }
+                crate::commands::ranks::grant::RankGrant::Keep => {}
+            }
+        }
     }
 
     async fn guild_role_create(&self, ctx: serenity::Context, new: serenity::Role) {

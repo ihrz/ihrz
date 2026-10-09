@@ -84,6 +84,7 @@ async fn load_rank_roles(pool: &crate::db::Pool, guild_id: &str) -> Vec<RankRole
 
 pub mod channel;
 pub mod config;
+pub mod grant;
 pub mod greset;
 pub mod ignore_channels;
 pub mod leaderboard;
@@ -99,6 +100,7 @@ pub mod ureset;
 pub mod main {
     pub use super::channel::*;
     pub use super::config::*;
+    pub use super::grant::*;
     pub use super::greset::*;
     pub use super::ignore_channels::*;
     pub use super::leaderboard::*;
