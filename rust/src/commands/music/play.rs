@@ -140,7 +140,11 @@ pub async fn m_play(
                 .await?;
         }
         Err(e) => {
-            return Err(anyhow::Error::new(e));
+            // Fallible resolve/start legs beyond no-matches (no
+            // session, REST/transport failure): answer the queue-error
+            // shape instead of dropping into the generic handler with
+            // no user-visible reply.
+            ctx.say(queue_error_text(&code, &e.to_string())).await?;
         }
     }
     Ok(())

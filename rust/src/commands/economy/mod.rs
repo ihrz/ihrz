@@ -494,10 +494,8 @@ pub fn member_boost(shop_json: &str, member_roles: &[u64]) -> i64 {
 }
 
 pub async fn load_econ(pool: &crate::db::Pool, guild_id: &str, user_id: u64) -> EconAccount {
-    crate::db::kv_get(pool, guild_id, &econ_key(user_id))
-        .await
-        .and_then(|s| serde_json::from_str(&s).ok())
-        .unwrap_or_default()
+    // Routed owner: table-first with legacy fallback (see balance.rs).
+    balance::load_econ_routed(pool, guild_id, user_id).await
 }
 
 pub async fn save_econ(
@@ -506,13 +504,8 @@ pub async fn save_econ(
     user_id: u64,
     a: &EconAccount,
 ) -> anyhow::Result<()> {
-    crate::db::kv_set(
-        pool,
-        guild_id,
-        &econ_key(user_id),
-        &serde_json::to_string(a)?,
-    )
-    .await
+    // Routed owner: dual-write so kv-only readers stay fresh.
+    balance::save_econ_routed(pool, guild_id, user_id, a).await
 }
 
 /// JS-like number display: integral floats render without decimals
@@ -1244,6 +1237,66 @@ mod tests {
         add_money(&mut a, -30.0);
         add_money(&mut b, 30.0);
         assert_eq!((a.money, b.money), (70, 30));
+    }
+
+    async fn mem_pool() -> crate::db::Pool {
+        use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};
+        use std::str::FromStr;
+        let opts = SqliteConnectOptions::from_str("sqlite::memory:")
+            .unwrap()
+            .create_if_missing(true);
+        let pool = SqlitePoolOptions::new()
+            .max_connections(1)
+            .connect_with(opts)
+            .await
+            .unwrap();
+        sqlx::query(
+            "CREATE TABLE kv (guild_id TEXT NOT NULL, key_name TEXT NOT NULL, value TEXT NOT NULL, PRIMARY KEY (guild_id, key_name))",
+        )
+        .execute(&pool)
+        .await
+        .unwrap();
+        pool
+    }
+
+    #[tokio::test]
+    async fn owner_econ_delegates_to_routed() {
+        use crate::commands::owner::main::{table_backend, tbl_get_value};
+        let pool = mem_pool().await;
+        // Legacy-only row surfaces through the owner.
+        crate::db::kv_set(&pool, "g", "USER.1.ECONOMY", r#"{"money":100,"bank":50}"#)
+            .await
+            .unwrap();
+        let a = load_econ(&pool, "g", 1).await;
+        assert_eq!((a.money, a.bank), (100, 50));
+        // Table-only row wins (no legacy row present).
+        table_backend(&pool)
+            .table("g")
+            .set(
+                "USER.2.ECONOMY",
+                serde_json::json!({"money": 777, "bank": 0}),
+            )
+            .await
+            .unwrap();
+        assert_eq!(load_econ(&pool, "g", 2).await.money, 777);
+        assert_eq!(load_econ(&pool, "g", 9).await.money, 0);
+        // Owner save dual-writes: kv readers and the table stay fresh.
+        let account = EconAccount {
+            money: 40,
+            bank: 2,
+            ..Default::default()
+        };
+        save_econ(&pool, "g", 4, &account).await.unwrap();
+        let legacy = crate::db::kv_get(&pool, "g", "USER.4.ECONOMY")
+            .await
+            .unwrap();
+        assert_eq!(
+            serde_json::from_str::<EconAccount>(&legacy).unwrap().money,
+            40
+        );
+        let stored = tbl_get_value(&pool, "g", "USER.4.ECONOMY").await.unwrap();
+        assert_eq!(stored.get("bank").and_then(|v| v.as_i64()), Some(2));
+        assert_eq!(load_econ(&pool, "g", 4).await.money, 40);
     }
 
     #[test]

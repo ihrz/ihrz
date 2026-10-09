@@ -455,6 +455,15 @@ impl PendingVoice {
     }
 }
 
+/// Discord-side deps for the trackError report leg (mirrors the
+/// register_shard pattern: captured once at ready, read on the feed).
+#[derive(Debug, Clone)]
+pub struct ExceptionReportCtx {
+    pub http: Arc<serenity::Http>,
+    pub logs_channel_id: String,
+    pub owners: Vec<String>,
+}
+
 pub struct LavalinkManager {
     nodes: RwLock<Vec<Arc<NodeEntry>>>,
     players: Mutex<HashMap<u64, GuildPlayer>>,
@@ -467,6 +476,11 @@ pub struct LavalinkManager {
     /// Total shard count for guild->shard routing (bot.rs shard-count
     /// site; None until known, e.g. autoshard pre-ready).
     total_shards: Mutex<Option<u64>>,
+    /// Track-error report deps (live Http + lavalink_logs_channel_id +
+    /// owners snapshot, registered once at ready). When set, the feed
+    /// TrackException arm runs the bot.rs wrapper; when unset (tests,
+    /// pre-ready) it falls back to the offline recovery.
+    exception_report: Mutex<Option<ExceptionReportCtx>>,
 }
 
 impl LavalinkManager {
@@ -479,6 +493,7 @@ impl LavalinkManager {
             http: reqwest::Client::new(),
             shards: Mutex::new(HashMap::new()),
             total_shards: Mutex::new(None),
+            exception_report: Mutex::new(None),
         }
     }
 
@@ -1030,8 +1045,10 @@ impl LavalinkManager {
     /// Feed one raw Lavalink node WS text frame: `ready` stores the
     /// session (feeds `set_session`, previously unwired);
     /// track start/end reuse the state handlers + dispatcher fan-out;
-    /// exception/stuck run the trackError recovery (fallback re-search,
-    /// then requeue, else skip) with the owner-visible log leg.
+    /// exception runs the bot.rs trackError wrapper when report deps
+    /// are registered (else the offline recovery); stuck runs the
+    /// trackError recovery (fallback re-search, then requeue, else
+    /// skip) with the owner-visible log leg.
     /// Stats/playerUpdate/closed frames are ignored.
     pub async fn feed_node_ws(&self, node_id: &str, text: &str, now_ms: i64) -> FedWs {
         if let Some(ready) = ReadyPayload::parse(text) {
@@ -1049,7 +1066,21 @@ impl LavalinkManager {
                     FedWs::Ended
                 }
                 TrackEvent::TrackExceptionEvent(e) => {
-                    self.handle_track_exception(e, now_ms).await;
+                    match self.exception_report_ctx().await {
+                        Some(ctx) => {
+                            crate::bot::handle_track_exception_event(
+                                &ctx.http,
+                                &ctx.logs_channel_id,
+                                &ctx.owners,
+                                e,
+                                now_ms,
+                            )
+                            .await;
+                        }
+                        None => {
+                            self.handle_track_exception(e, now_ms).await;
+                        }
+                    }
                     FedWs::ErrorHandled
                 }
                 TrackEvent::TrackStuckEvent(e) => {
@@ -1129,6 +1160,28 @@ impl LavalinkManager {
         if slot.is_none() {
             *slot = Some(total as u64);
         }
+    }
+
+    /// Capture the track-error report deps (call once at ready with the
+    /// live Http handle + lavalink_logs_channel_id / owners config
+    /// snapshot). The feed TrackException arm reads this (never a
+    /// dispatcher subscriber: the wrapper dispatches, so subscribing
+    /// it would recurse).
+    pub async fn register_exception_report(
+        &self,
+        http: Arc<serenity::Http>,
+        logs_channel_id: String,
+        owners: Vec<String>,
+    ) {
+        *self.exception_report.lock().await = Some(ExceptionReportCtx {
+            http,
+            logs_channel_id,
+            owners,
+        });
+    }
+
+    async fn exception_report_ctx(&self) -> Option<ExceptionReportCtx> {
+        self.exception_report.lock().await.clone()
     }
 
     /// OP4 leave on the shard serving `guild_id` (mirrors the
@@ -2142,6 +2195,50 @@ mod tests {
         let out = m.feed_node_ws("n1", &stuck_frame("25", "b"), 200).await;
         assert_eq!(out, FedWs::StuckHandled);
         assert!(m.snapshot(25).await.unwrap().current.is_none());
+    }
+
+    #[tokio::test]
+    async fn exception_report_ctx_roundtrip() {
+        let m = LavalinkManager::new();
+        assert!(m.exception_report_ctx().await.is_none());
+        m.register_exception_report(
+            Arc::new(serenity::Http::new("dummy")),
+            "123".to_string(),
+            vec!["111".to_string()],
+        )
+        .await;
+        let ctx = m.exception_report_ctx().await.unwrap();
+        assert_eq!(ctx.logs_channel_id, "123");
+        assert_eq!(ctx.owners, vec!["111".to_string()]);
+    }
+
+    #[tokio::test]
+    async fn feed_exception_routes_through_report_wrapper() {
+        // Offline-safe: empty logs channel id (no report-post I/O) and
+        // no stored text channel (no announce I/O); the wrapper still
+        // runs the recovery on the process-wide manager.
+        let gid = 29_001u64;
+        let gm = manager();
+        gm.with_player(gid, |p| {
+            p.enqueue(sample_track("a"), 0);
+            p.enqueue(sample_track("b"), 0);
+        })
+        .await;
+        let m = LavalinkManager::new();
+        m.register_exception_report(
+            Arc::new(serenity::Http::new("dummy")),
+            String::new(),
+            vec![],
+        )
+        .await;
+        let gid_str = gid.to_string();
+        let out = m
+            .feed_node_ws("n1", &exception_frame(&gid_str, "a", "boom"), 100)
+            .await;
+        assert_eq!(out, FedWs::ErrorHandled);
+        let snap = gm.snapshot(gid).await.unwrap();
+        assert_eq!(snap.current.as_ref().unwrap().title, "b");
+        gm.remove_player(gid).await;
     }
 
     #[tokio::test]

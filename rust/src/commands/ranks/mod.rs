@@ -43,10 +43,8 @@ pub fn apply_xp(mut e: RankEntry, amount: u64) -> (RankEntry, bool) {
 }
 
 pub async fn load_rank(pool: &crate::db::Pool, guild_id: &str, user_id: u64) -> RankEntry {
-    crate::db::kv_get(pool, guild_id, &ranks_key(user_id))
-        .await
-        .and_then(|s| serde_json::from_str(&s).ok())
-        .unwrap_or_default()
+    // Routed owner: table-first with legacy fallback (see show.rs).
+    show::load_rank_routed(pool, guild_id, user_id).await
 }
 
 /// Ignore-list helpers. Mirrors !ignore-channels.ts
@@ -137,5 +135,52 @@ mod tests {
         let (e, leveled) = apply_xp(RankEntry::default(), 50);
         assert!(!leveled);
         assert_eq!(e.level, 0);
+    }
+
+    async fn mem_pool() -> crate::db::Pool {
+        use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};
+        use std::str::FromStr;
+        let opts = SqliteConnectOptions::from_str("sqlite::memory:")
+            .unwrap()
+            .create_if_missing(true);
+        let pool = SqlitePoolOptions::new()
+            .max_connections(1)
+            .connect_with(opts)
+            .await
+            .unwrap();
+        sqlx::query(
+            "CREATE TABLE kv (guild_id TEXT NOT NULL, key_name TEXT NOT NULL, value TEXT NOT NULL, PRIMARY KEY (guild_id, key_name))",
+        )
+        .execute(&pool)
+        .await
+        .unwrap();
+        pool
+    }
+
+    #[tokio::test]
+    async fn owner_load_rank_delegates_to_routed() {
+        use crate::commands::owner::main::table_backend;
+        let pool = mem_pool().await;
+        // Legacy-only row surfaces through the owner.
+        crate::db::kv_set(
+            &pool,
+            "g",
+            "RANKS.1",
+            r#"{"level":2,"xp":10,"xptotal":210}"#,
+        )
+        .await
+        .unwrap();
+        assert_eq!(load_rank(&pool, "g", 1).await.level, 2);
+        // Table-only row wins (no legacy row present).
+        table_backend(&pool)
+            .table("g")
+            .set(
+                "RANKS.2",
+                serde_json::json!({"level": 5, "xp": 1, "xptotal": 501}),
+            )
+            .await
+            .unwrap();
+        assert_eq!(load_rank(&pool, "g", 2).await.level, 5);
+        assert_eq!(load_rank(&pool, "g", 9).await.level, 0);
     }
 }

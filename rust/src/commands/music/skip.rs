@@ -40,22 +40,41 @@ pub async fn m_skip(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         return Ok(());
     }
     // Push the next track (or destroy the node player when drained).
+    // The state advance mirrors the lavalink recovery skip legs, so
+    // the reply carries the outcome in recovery terms: any
+    // guild-visible notice from track_error_notice rides along, and a
+    // failed live push answers with the player-error shape instead of
+    // a success line for playback that never started.
+    let with_notice = |base: String, recovery: &crate::lavalink::ErrorRecovery| {
+        match track_error_notice(recovery) {
+            Some(n) => format!("{base}\n{n}"),
+            None => base,
+        }
+    };
     if let Ok((node, session)) = m.live_node_and_session(gid).await {
         let next = m.snapshot(gid).await.and_then(|s| s.current);
         match next {
             Some(t) => {
-                let _ = m.rest_play(&node, &session, gid, &t.encoded, false).await;
+                if let Err(e) = m.rest_play(&node, &session, gid, &t.encoded, false).await {
+                    ctx.say(player_error_text(&code, &e.to_string())).await?;
+                    return Ok(());
+                }
                 let msg = crate::lang::get(&code, "skip_command_work")
                     .map(|s| s.replace("{queue}", &t.title))
                     .unwrap_or_else(|| format!("Skipped {}", t.title));
-                ctx.say(msg).await?;
+                let recovery = crate::lavalink::ErrorRecovery::Advanced;
+                ctx.say(with_notice(msg, &recovery)).await?;
             }
             None => {
-                let _ = m.rest_destroy(&node, &session, gid).await;
+                if let Err(e) = m.rest_destroy(&node, &session, gid).await {
+                    ctx.say(player_error_text(&code, &e.to_string())).await?;
+                    return Ok(());
+                }
                 let msg = crate::lang::get(&code, "skip_command_work")
                     .map(|s| s.replace("{queue}", &skipped_title))
                     .unwrap_or_else(|| format!("Skipped {skipped_title}"));
-                ctx.say(msg).await?;
+                let recovery = crate::lavalink::ErrorRecovery::Idle;
+                ctx.say(with_notice(msg, &recovery)).await?;
             }
         }
     } else {

@@ -232,13 +232,7 @@ pub async fn handle_ticket_open_button(
     let ch = guild_id
         .create_channel(&ctx.http, builder.permissions(overwrites))
         .await?;
-    crate::db::kv_set(
-        pool,
-        &gid,
-        &format!("TICKET_ALL.{}.{}", comp.user.id.get(), ch.id.get()),
-        "open",
-    )
-    .await?;
+    delete::ticket_put_routed(pool, &gid, comp.user.id.get(), ch.id.get(), "open").await?;
     let chid = ch.id.get().to_string();
     let mut msg = crate::lang::get(&lang_code, "msg_ticket_opened")
         .map(|s| s.replace("{chid}", &chid))
@@ -262,14 +256,8 @@ pub async fn handle_ticket_open_button(
 /// rows plus the nested `TICKET_ALL.<user>` object). Mirrors the
 /// `db.delete(TICKET_ALL.<user>)` in TicketDelete.
 async fn delete_user_ticket_rows(pool: &crate::db::Pool, gid: &str, user_key: &str) {
-    let _ = sqlx::query(
-        "DELETE FROM kv WHERE guild_id = ? AND key_name LIKE 'TICKET_ALL.' || ? || '.%'",
-    )
-    .bind(gid)
-    .bind(user_key)
-    .execute(pool)
-    .await;
-    let _ = crate::db::kv_del(pool, gid, &format!("TICKET_ALL.{user_key}")).await;
+    // Routed owner: clears the legacy rows and the table subtree.
+    delete::ticket_del_user_routed(pool, gid, user_key).await;
 }
 
 /// Fixed custom ids of the in-ticket control message. Mirrors
@@ -306,20 +294,9 @@ pub fn find_ticket_by_channel(
 }
 
 pub async fn load_ticket_entries(pool: &crate::db::Pool, gid: &str) -> Vec<(String, String)> {
-    let keys: Vec<String> = sqlx::query_scalar::<_, String>(
-        "SELECT key_name FROM kv WHERE guild_id = ? AND key_name LIKE 'TICKET_ALL.%'",
-    )
-    .bind(gid)
-    .fetch_all(pool)
-    .await
-    .unwrap_or_default();
-    let mut out = vec![];
-    for key in keys {
-        if let Some(raw) = crate::db::kv_get(pool, gid, &key).await {
-            out.push((key, raw));
-        }
-    }
-    out
+    // Routed owner: table expansion first, legacy rows pass through
+    // (see delete.rs).
+    delete::ticket_entries_routed(pool, gid).await
 }
 
 /// Rewrite a Discord CDN avatar URL to `size=64` (matches the TS
@@ -693,7 +670,7 @@ async fn live_flat_ticket(
                 return Some(ch.to_string());
             }
         }
-        let _ = crate::db::kv_del(pool, gid, &key).await;
+        let _ = crate::commands::owner::main::routed_del(pool, gid, gid, &key).await;
     }
     None
 }
@@ -749,10 +726,11 @@ async fn post_ticket_config_log(
 /// Mirrors deleteTicketChannelFromDatabase in method.ts: never wipes
 /// the whole guild ticket store.
 async fn delete_ticket_row(pool: &crate::db::Pool, gid: &str, channel_id: serenity::ChannelId) {
+    use crate::commands::owner::main::{routed_del, routed_set};
     let want = channel_id.get().to_string();
     let entries = load_ticket_entries(pool, gid).await;
     if let Some((user_key, _)) = find_ticket_by_channel(&entries, &want) {
-        let _ = crate::db::kv_del(pool, gid, &format!("TICKET_ALL.{user_key}.{want}")).await;
+        let _ = routed_del(pool, gid, gid, &format!("TICKET_ALL.{user_key}.{want}")).await;
     }
     for (key, raw) in &entries {
         let mut parts = key.split('.');
@@ -781,10 +759,16 @@ async fn delete_ticket_row(pool: &crate::db::Pool, gid: &str, channel_id: sereni
             .map(|(k, v)| (k.clone(), v.clone()))
             .collect();
         if kept.is_empty() {
-            let _ = crate::db::kv_del(pool, gid, key).await;
+            let _ = routed_del(pool, gid, gid, key).await;
         } else {
-            let _ = crate::db::kv_set(pool, gid, key, &serde_json::Value::Object(kept).to_string())
-                .await;
+            let _ = routed_set(
+                pool,
+                gid,
+                gid,
+                key,
+                &serde_json::Value::Object(kept).to_string(),
+            )
+            .await;
         }
     }
 }
@@ -1347,7 +1331,8 @@ pub async fn live_open_ticket(
     gid: &str,
     tickets_key: &str,
 ) -> Option<String> {
-    let nested: Option<serde_json::Value> = crate::db::kv_get(pool, gid, tickets_key)
+    use crate::commands::owner::main::{routed_del, routed_get};
+    let nested: Option<serde_json::Value> = routed_get(pool, gid, gid, tickets_key)
         .await
         .and_then(|s| serde_json::from_str(&s).ok());
     let channel_id = nested.as_ref().and_then(first_ticket_channel)?;
@@ -1361,12 +1346,12 @@ pub async fn live_open_ticket(
             if fut.await {
                 Some(channel_id)
             } else {
-                let _ = crate::db::kv_del(pool, gid, tickets_key).await;
+                let _ = routed_del(pool, gid, gid, tickets_key).await;
                 None
             }
         }
         None => {
-            let _ = crate::db::kv_del(pool, gid, tickets_key).await;
+            let _ = routed_del(pool, gid, gid, tickets_key).await;
             None
         }
     }
@@ -1381,7 +1366,7 @@ pub async fn record_open_ticket(
     uid: &str,
     channel_id: &str,
 ) {
-    let mut obj = crate::db::kv_get(pool, gid, tickets_key)
+    let mut obj = crate::commands::owner::main::routed_get(pool, gid, gid, tickets_key)
         .await
         .and_then(|s| serde_json::from_str::<serde_json::Value>(&s).ok())
         .and_then(|v| v.as_object().cloned())
@@ -1390,8 +1375,9 @@ pub async fn record_open_ticket(
         channel_id.to_string(),
         serde_json::json!({"channel": channel_id, "author": uid, "alive": true}),
     );
-    let _ = crate::db::kv_set(
+    let _ = crate::commands::owner::main::routed_set(
         pool,
+        gid,
         gid,
         tickets_key,
         &serde_json::Value::Object(obj).to_string(),
@@ -2321,6 +2307,73 @@ mod tests {
             ("TICKET_ALL.111.222.extra".to_string(), "{}".to_string()),
         ];
         assert_eq!(find_ticket_by_channel(&entries, "222"), None);
+    }
+
+    async fn mem_pool() -> crate::db::Pool {
+        use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};
+        use std::str::FromStr;
+        let opts = SqliteConnectOptions::from_str("sqlite::memory:")
+            .unwrap()
+            .create_if_missing(true);
+        let pool = SqlitePoolOptions::new()
+            .max_connections(1)
+            .connect_with(opts)
+            .await
+            .unwrap();
+        sqlx::query(
+            "CREATE TABLE kv (guild_id TEXT NOT NULL, key_name TEXT NOT NULL, value TEXT NOT NULL, PRIMARY KEY (guild_id, key_name))",
+        )
+        .execute(&pool)
+        .await
+        .unwrap();
+        pool
+    }
+
+    #[tokio::test]
+    async fn owner_scan_delegates_to_routed() {
+        use crate::commands::owner::main::table_backend;
+        let pool = mem_pool().await;
+        // Legacy-only rows surface through the owner scan.
+        crate::db::kv_set(&pool, "g", "TICKET_ALL.1.2", "open")
+            .await
+            .unwrap();
+        let entries = load_ticket_entries(&pool, "g").await;
+        assert!(entries.contains(&("TICKET_ALL.1.2".to_string(), "open".to_string())));
+        // Table-only row merges in with the table winning on conflict.
+        table_backend(&pool)
+            .table("g")
+            .set("TICKET_ALL.3.4", serde_json::json!("open"))
+            .await
+            .unwrap();
+        table_backend(&pool)
+            .table("g")
+            .set("TICKET_ALL.1.2", serde_json::json!("closed"))
+            .await
+            .unwrap();
+        let entries = load_ticket_entries(&pool, "g").await;
+        assert!(entries.contains(&("TICKET_ALL.3.4".to_string(), "open".to_string())));
+        assert!(entries.contains(&("TICKET_ALL.1.2".to_string(), "closed".to_string())));
+        assert!(load_ticket_entries(&pool, "other").await.is_empty());
+    }
+
+    #[tokio::test]
+    async fn owner_record_and_wipe_roundtrip() {
+        use crate::commands::owner::main::tbl_get_value;
+        let pool = mem_pool().await;
+        record_open_ticket(&pool, "g", "TICKET_ALL.5", "5", "6").await;
+        // Routed dual-write: kv readers stay fresh and the table holds it.
+        let raw = crate::db::kv_get(&pool, "g", "TICKET_ALL.5").await.unwrap();
+        assert!(raw.contains("\"channel\":\"6\""));
+        assert!(tbl_get_value(&pool, "g", "TICKET_ALL.5").await.is_some());
+        // The owner scan sees the nested row; the wipe clears both stores.
+        assert!(load_ticket_entries(&pool, "g")
+            .await
+            .iter()
+            .any(|(k, _)| k == "TICKET_ALL.5"));
+        delete_user_ticket_rows(&pool, "g", "5").await;
+        assert_eq!(crate::db::kv_get(&pool, "g", "TICKET_ALL.5").await, None);
+        assert!(tbl_get_value(&pool, "g", "TICKET_ALL.5").await.is_none());
+        assert!(load_ticket_entries(&pool, "g").await.is_empty());
     }
 
     #[test]

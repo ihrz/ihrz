@@ -817,6 +817,26 @@ pub fn track_error_notice(recovery: &crate::lavalink::ErrorRecovery) -> Option<S
     }
 }
 
+/// Guild-visible reply when a live playback push fails after the local
+/// state already moved (skip's rest_play/rest_destroy). Mirrors the TS
+/// `event_mp_playerError` shape
+/// (`I'm having trouble connecting => ${error.message}`).
+pub fn player_error_text(code: &str, detail: &str) -> String {
+    crate::lang::get(code, "event_mp_playerError")
+        .map(|s| s.replace("${error.message}", detail))
+        .unwrap_or_else(|| format!("I'm having trouble connecting => {detail}"))
+}
+
+/// Guild-visible reply when resolving/starting playback fails
+/// (play's fallible `play_query` legs beyond no-matches). Mirrors the
+/// TS `event_mp_error` shape
+/// (`There was a problem with the song queue => ${error.message}`).
+pub fn queue_error_text(code: &str, detail: &str) -> String {
+    crate::lang::get(code, "event_mp_error")
+        .map(|s| s.replace("${error.message}", detail))
+        .unwrap_or_else(|| format!("There was a problem with the song queue => {detail}"))
+}
+
 pub mod clear_queue;
 pub mod history;
 pub mod r#loop;
@@ -1194,6 +1214,21 @@ mod tests {
         ] {
             assert_eq!(track_error_notice(&other), None);
         }
+    }
+
+    #[test]
+    fn error_notice_texts_mirror_ts_shapes() {
+        // Byte-identical to the en-US YAML shapes (unknown locales
+        // resolve through the en-US table; the hardcoded fallbacks
+        // match it exactly).
+        assert_eq!(
+            player_error_text("xx-UNKNOWN", "boom"),
+            "I'm having trouble connecting => boom"
+        );
+        assert_eq!(
+            queue_error_text("xx-UNKNOWN", "boom"),
+            "There was a problem with the song queue => boom"
+        );
     }
 
     #[test]
