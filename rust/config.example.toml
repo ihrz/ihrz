@@ -84,6 +84,9 @@ load = "🔄"
 # see U-DB-DRIVERS). `url` shares src/files/db.sqlite with the TS bot.
 method = "sqlite"
 url = "sqlite:./src/files/db.sqlite?mode=rwc"
+# Optional second database (TS `database.mySQL[1]`, `client.db2` side).
+# Empty = no secondary. Real secret via DATABASE_URL_SECONDARY env.
+secondary_url = ""
 
 [lastfm]
 # Optional; required only for the Last.fm scrobbler module.

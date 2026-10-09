@@ -350,6 +350,65 @@ fn intents() -> serenity::GatewayIntents {
         | serenity::GatewayIntents::DIRECT_MESSAGE_POLLS
 }
 
+/// Parse `git remote get-url origin` into an https base URL. Mirrors
+/// parseGitRemote in src/version.ts (`git@host:path` -> `https://host/path`,
+/// trailing `.git` stripped).
+pub fn parse_git_remote(raw: &str) -> String {
+    let mut s = raw.trim().to_string();
+    if let Some(rest) = s.strip_prefix("git@") {
+        if let Some(i) = rest.find(':') {
+            s = format!("https://{}/{}", &rest[..i], &rest[i + 1..]);
+        }
+    }
+    if let Some(stripped) = s.strip_suffix(".git") {
+        s = stripped.to_string();
+    }
+    s
+}
+
+/// Resolve the git remote base URL for release links. `GIT_REMOTE` env
+/// wins (offline/test override); otherwise `git remote get-url origin`
+/// like src/version.ts. Empty when unresolvable (offline checkout).
+pub fn resolve_git_remote() -> String {
+    if let Ok(v) = std::env::var("GIT_REMOTE") {
+        if !v.trim().is_empty() {
+            return parse_git_remote(&v);
+        }
+    }
+    match std::process::Command::new("git")
+        .args(["remote", "get-url", "origin"])
+        .output()
+    {
+        Ok(out) if out.status.success() => parse_git_remote(&String::from_utf8_lossy(&out.stdout)),
+        _ => String::new(),
+    }
+}
+
+/// Resolve the newsletter DM template. Reuses the existing
+/// `newsletter_dm_body` YAML key (never hardcoded); empty when missing.
+pub fn resolve_dm_body_template() -> String {
+    crate::lang::get("en-US", "newsletter_dm_body").unwrap_or_default()
+}
+
+/// Collect guild->owner rows from the gateway cache for the release
+/// notifier. Mirrors getAllGuildOwnerData in releaseNotifier.ts
+/// (no-shard path): one row per cached guild with its owner_id;
+/// unavailable guilds (no cached Guild yet) are skipped. The
+/// first-guild-wins per-owner dedupe lives in the release module
+/// (`dedupe_owners`), so duplicate owners across guilds stay here.
+pub fn collect_guild_owners(cache: &serenity::Cache) -> Vec<crate::core::release::GuildOwner> {
+    let mut rows = Vec::new();
+    for gid in cache.guilds() {
+        if let Some(g) = cache.guild(gid) {
+            rows.push(crate::core::release::GuildOwner {
+                guild_id: gid.get().to_string(),
+                owner_id: g.owner_id.get().to_string(),
+            });
+        }
+    }
+    rows
+}
+
 pub async fn run(cfg: Config, pool: Pool) -> anyhow::Result<()> {
     let token = crate::config::bot_token().ok_or_else(|| {
         anyhow::anyhow!("missing BOT_TOKEN env (mirrors config.discord.token fallback)")
@@ -378,10 +437,50 @@ pub async fn run(cfg: Config, pool: Pool) -> anyhow::Result<()> {
             // the same natively.
             ..Default::default()
         })
-        .setup(|ctx, _ready, framework| {
+        .setup(|ctx, ready, framework| {
             Box::pin(async move {
                 poise::builtins::register_globally(ctx, &framework.options().commands).await?;
                 tracing::info!("slash commands synced");
+                // Release newsletter fan-out (main shard only). Mirrors
+                // checkAndNotifyRelease(client) in ready.ts: owner rows
+                // enumerated from the guild cache, git remote for the
+                // release URL, resolved newsletter_dm_body template.
+                // Spawned so the staggered DM loop never blocks setup;
+                // the module's own guards (main-shard gate, re-entrance,
+                // claim-before-send, distributed lock) apply inside.
+                {
+                    let http = ctx.http.clone();
+                    let cache = ctx.cache.clone();
+                    let pool = pool_fw.clone();
+                    let shard_id = ready.shard.as_ref().map(|s| u64::from(s.id.0)).unwrap_or(0);
+                    tokio::spawn(async move {
+                        let mut root = std::env::current_dir().unwrap_or_else(|_| ".".into());
+                        if root.ends_with("rust") {
+                            root.pop();
+                        }
+                        let entries = collect_guild_owners(&cache);
+                        let summary = crate::core::release::check_and_notify_release(
+                            &pool,
+                            &http,
+                            shard_id,
+                            &root,
+                            &entries,
+                            &resolve_git_remote(),
+                            &resolve_dm_body_template(),
+                        )
+                        .await;
+                        if summary.ran {
+                            tracing::info!(
+                                "release newsletter done: version {:?}, sent {}, blocked {}, transient {}, skipped {}",
+                                summary.version,
+                                summary.sent,
+                                summary.blocked,
+                                summary.transient,
+                                summary.skipped
+                            );
+                        }
+                    });
+                }
                 Ok(Data {
                     pool: pool_fw.clone(),
                     config: cfg_fw.clone(),
@@ -503,5 +602,66 @@ pub async fn run(cfg: Config, pool: Pool) -> anyhow::Result<()> {
             }
             Err(e.into())
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::sync::Mutex;
+
+    static ENV_LOCK: Mutex<()> = Mutex::new(());
+
+    #[test]
+    fn parse_git_remote_mirrors_version_ts() {
+        // https passthrough (trailing .git stripped).
+        assert_eq!(
+            parse_git_remote("https://gitlab.com/ihrz/ihrz.git"),
+            "https://gitlab.com/ihrz/ihrz"
+        );
+        assert_eq!(
+            parse_git_remote("https://gitlab.com/ihrz/ihrz"),
+            "https://gitlab.com/ihrz/ihrz"
+        );
+        // scp-like syntax becomes https.
+        assert_eq!(
+            parse_git_remote("git@gitlab.com:ihrz/ihrz.git"),
+            "https://gitlab.com/ihrz/ihrz"
+        );
+        assert_eq!(parse_git_remote("  "), "");
+        assert_eq!(parse_git_remote(""), "");
+    }
+
+    #[test]
+    fn resolve_git_remote_prefers_env() {
+        let _guard = ENV_LOCK.lock().unwrap();
+        std::env::set_var("GIT_REMOTE", "git@gitlab.com:ihrz/ihrz.git");
+        assert_eq!(resolve_git_remote(), "https://gitlab.com/ihrz/ihrz");
+        std::env::remove_var("GIT_REMOTE");
+    }
+
+    #[test]
+    fn dm_body_template_comes_from_yaml_not_hardcode() {
+        // Reuses the existing newsletter_dm_body key with its placeholders.
+        let template = resolve_dm_body_template();
+        assert!(
+            template.contains("{owner}"),
+            "missing {{owner}} placeholder"
+        );
+        assert!(
+            template.contains("{version}"),
+            "missing {{version}} placeholder"
+        );
+        assert!(
+            template.contains("{releaseUrl}"),
+            "missing {{releaseUrl}} placeholder"
+        );
+    }
+
+    #[test]
+    fn empty_cache_yields_no_owner_rows_offline() {
+        // No live Discord: a default cache has no guilds to enumerate.
+        let cache = serenity::Cache::default();
+        assert!(collect_guild_owners(&cache).is_empty());
     }
 }

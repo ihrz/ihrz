@@ -36,6 +36,11 @@ pub struct Config {
     pub report_channel_id: String,
     #[serde(default)]
     pub database_url: String,
+    /// Optional second database URL (`y` / `client.db2`, the bi-separated
+    /// second postgres from TS `database.mySQL[1]`). Empty/None = no
+    /// secondary. Env-overridable via `DATABASE_URL_SECONDARY`.
+    #[serde(default)]
+    pub database_url_secondary: Option<String>,
     #[serde(default)]
     pub total_shards: Option<u32>,
     // --- config.toml file-backed extras (mirror src/files/config.ts) ---
@@ -93,6 +98,7 @@ impl Default for Config {
             guild_logs_channel_id: String::new(),
             report_channel_id: default_report_channel(),
             database_url: "sqlite:./src/files/db.sqlite?mode=rwc".to_string(),
+            database_url_secondary: None,
             total_shards: None,
             dev_mode: true,
             blacklist_picture: default_blacklist_picture(),
@@ -230,6 +236,10 @@ pub fn load_file_into(cfg: &mut Config, path: &std::path::Path) -> anyhow::Resul
         if let Some(v) = get_str(t, "url") {
             cfg.database_url = v;
         }
+        // Second database URL (TS `database.mySQL[1]`). Empty = None.
+        if let Some(v) = get_str(t, "secondary_url") {
+            cfg.database_url_secondary = if v.trim().is_empty() { None } else { Some(v) };
+        }
     }
     if let Some(t) = table(&root, "lastfm") {
         if let Some(v) = get_str(t, "api_key") {
@@ -273,6 +283,11 @@ pub fn load() -> anyhow::Result<Config> {
     if let Ok(v) = std::env::var("DATABASE_URL") {
         if !v.is_empty() {
             cfg.database_url = v;
+        }
+    }
+    if let Ok(v) = std::env::var("DATABASE_URL_SECONDARY") {
+        if !v.trim().is_empty() {
+            cfg.database_url_secondary = Some(v);
         }
     }
     if let Ok(v) = std::env::var("OWNERS") {
@@ -359,6 +374,7 @@ mod tests {
         assert!(cfg.owners.is_empty());
         assert_eq!(cfg.total_shards, None);
         assert!(cfg.database_url.contains("db.sqlite"));
+        assert_eq!(cfg.database_url_secondary, None);
     }
 
     #[test]
@@ -468,6 +484,46 @@ mod tests {
     }
 
     #[test]
+    fn secondary_url_file_and_env() {
+        let _guard = ENV_LOCK.lock().unwrap();
+        // File value parses; empty string maps to None.
+        let path = write_temp_config("[database]\nsecondary_url = \"postgres://u:p@h:5432/db\"\n");
+        let mut cfg = Config::default();
+        load_file_into(&mut cfg, &path).unwrap();
+        std::fs::remove_file(&path).ok();
+        assert_eq!(
+            cfg.database_url_secondary.as_deref(),
+            Some("postgres://u:p@h:5432/db")
+        );
+
+        let path = write_temp_config("[database]\nsecondary_url = \"\"\n");
+        let mut cfg = Config::default();
+        load_file_into(&mut cfg, &path).unwrap();
+        std::fs::remove_file(&path).ok();
+        assert_eq!(cfg.database_url_secondary, None);
+
+        // Env wins over the file.
+        let path = write_temp_config("[database]\nsecondary_url = \"postgres://file/db\"\n");
+        std::env::set_var("CONFIG_FILE", &path);
+        std::env::set_var("DATABASE_URL_SECONDARY", "postgres://env/db");
+        let cfg = load().unwrap();
+        assert_eq!(
+            cfg.database_url_secondary.as_deref(),
+            Some("postgres://env/db")
+        );
+        // Blank env leaves the file value alone.
+        std::env::set_var("DATABASE_URL_SECONDARY", "   ");
+        let cfg = load().unwrap();
+        assert_eq!(
+            cfg.database_url_secondary.as_deref(),
+            Some("postgres://file/db")
+        );
+        std::env::remove_var("CONFIG_FILE");
+        std::env::remove_var("DATABASE_URL_SECONDARY");
+        std::fs::remove_file(&path).ok();
+    }
+
+    #[test]
     fn file_token_key_is_ignored_token_stays_env_only() {
         let _guard = ENV_LOCK.lock().unwrap();
         let path = write_temp_config("[discord]\ntoken = \"SHOULD-NEVER-BE-READ\"\n");
@@ -504,6 +560,7 @@ mod tests {
             "TOTAL_SHARDS",
             "OWNERS",
             "DATABASE_URL",
+            "DATABASE_URL_SECONDARY",
             "GUILD_LOGS_CHANNEL_ID",
             "REPORT_CHANNEL_ID",
         ] {
@@ -528,6 +585,7 @@ mod tests {
         load_file_into(&mut cfg, &path).unwrap();
         assert_eq!(cfg.prefix, "?");
         assert_eq!(cfg.db_method, "sqlite");
+        assert_eq!(cfg.database_url_secondary, None);
         assert_eq!(cfg.lavalink_nodes.len(), 1);
         assert_eq!(cfg.lavalink_nodes[0].id, "example_node");
     }

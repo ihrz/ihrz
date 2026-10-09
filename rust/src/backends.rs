@@ -1001,6 +1001,42 @@ impl Backend {
         }
     }
 
+    /// Build the optional secondary backend (`y` / `client.db2`, the
+    /// bi-separated second postgres from TS `database.mySQL[1]`).
+    /// Empty/unset URL = `None` (no secondary). URL schemes mirror the
+    /// primary arms without dialing anything unconfigured: `postgres://`
+    /// connects, `sqlite:` opens a second pool, `json:<dir>` / `memory`
+    /// stay offline, anything else is recorded as a HorizonDB endpoint
+    /// mock (never dialed).
+    pub async fn secondary_from_config(cfg: &Config) -> anyhow::Result<Option<Self>> {
+        let url = cfg.database_url_secondary.clone().unwrap_or_default();
+        let url = url.trim().to_string();
+        if url.is_empty() {
+            return Ok(None);
+        }
+        if url.starts_with("postgres://") || url.starts_with("postgresql://") {
+            return Ok(Some(Self::postgres_connect(&url).await?));
+        }
+        if let Some(dir) = url.strip_prefix("json:") {
+            let dir = dir.trim();
+            return Ok(Some(Self::json(if dir.is_empty() {
+                "src/files/jsondb".to_string()
+            } else {
+                dir.to_string()
+            })));
+        }
+        if url == "memory" {
+            return Ok(Some(Self::memory()));
+        }
+        if url.starts_with("sqlite:") || url.ends_with(".sqlite") || url.ends_with(".db") {
+            let mut secondary_cfg = cfg.clone();
+            secondary_cfg.database_url = url;
+            let pool = crate::db::init(&secondary_cfg).await?;
+            return Ok(Some(Self::sqlite(pool)));
+        }
+        Ok(Some(Self::horizondb_mock(url)))
+    }
+
     /// Table-scoped handle, mirroring `driver.table(name)` in TS.
     pub fn table(&self, name: impl Into<String>) -> Table<'_> {
         Table {
@@ -1790,12 +1826,16 @@ impl Database {
         self
     }
 
-    /// `initializeDatabase` routing by `db_method`. The secondary (`y`)
-    /// stays `None`: the Rust `Config` carries a single `database_url`
-    /// while the TS bi-separated setup needs `mySQL[1]`, so wiring `y`
-    /// waits on a config extension (deferred).
+    /// `initializeDatabase` routing by `db_method`. The secondary (`y` /
+    /// `client.db2`, TS `mySQL[1]`) attaches when
+    /// `database.secondary_url` (or `DATABASE_URL_SECONDARY`) is set,
+    /// otherwise it stays `None` and routing falls back to `x`.
     pub async fn from_config(cfg: &Config) -> anyhow::Result<Self> {
-        Ok(Self::new(Backend::from_config(cfg).await?))
+        let mut db = Self::new(Backend::from_config(cfg).await?);
+        if let Some(secondary) = Backend::secondary_from_config(cfg).await? {
+            db = db.with_secondary(secondary);
+        }
+        Ok(db)
     }
 
     /// `client.db` side.
@@ -2295,6 +2335,55 @@ mod tests {
         assert!(db3.secondary().is_none());
         db3.table("temp").set("k", json!(true)).await.unwrap();
         assert!(db3.table("temp").has("k").await.unwrap());
+    }
+
+    #[tokio::test]
+    async fn secondary_from_config_offline_arms() {
+        // Unset / blank URL = no secondary, no I/O.
+        let cfg = Config::default();
+        assert!(Backend::secondary_from_config(&cfg)
+            .await
+            .unwrap()
+            .is_none());
+        let mut blank = Config::default();
+        blank.database_url_secondary = Some("   ".to_string());
+        assert!(Backend::secondary_from_config(&blank)
+            .await
+            .unwrap()
+            .is_none());
+
+        // Offline arms never dial.
+        for url in ["memory", "json:", "https://horizon.example.com/db"] {
+            let mut cfg = Config::default();
+            cfg.db_method = "memory".to_string();
+            cfg.database_url_secondary = Some(url.to_string());
+            let secondary = Backend::secondary_from_config(&cfg).await.unwrap();
+            assert!(secondary.is_some(), "{url} should build a secondary");
+        }
+    }
+
+    #[tokio::test]
+    async fn database_from_config_wires_memory_secondary() {
+        // memory primary + memory secondary: routing prefers y, no I/O.
+        let mut cfg = Config::default();
+        cfg.db_method = "memory".to_string();
+        cfg.database_url_secondary = Some("memory".to_string());
+        let db = Database::from_config(&cfg).await.unwrap();
+        assert!(db.secondary().is_some());
+        db.table("owner").set("k", json!("via-y")).await.unwrap();
+        assert_eq!(
+            db.primary().table("owner").get::<Value>("k").await.unwrap(),
+            None
+        );
+        assert_eq!(
+            db.secondary()
+                .unwrap()
+                .table("owner")
+                .get::<Value>("k")
+                .await
+                .unwrap(),
+            Some(json!("via-y"))
+        );
     }
 
     #[tokio::test]
