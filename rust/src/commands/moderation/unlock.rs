@@ -17,7 +17,11 @@ pub async fn mod_unlock(
     };
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let t = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
+    // TS (!unlock.ts): uneditable channel -> setrankroles_command_error.
     let Some(current) = ctx.guild_channel().await else {
+        let no = emoji(&ctx, "No", "❌").await;
+        ctx.say(render_unlock_error(&t("setrankroles_command_error"), &no))
+            .await?;
         return Ok(());
     };
     let target = role
@@ -51,4 +55,28 @@ pub async fn mod_unlock(
     )
     .await;
     Ok(())
+}
+
+/// Render the `setrankroles_command_error` branch. Pure for tests.
+fn render_unlock_error(template: &str, no_emoji: &str) -> String {
+    template.replace("${client.iHorizon_Emojis.No}", no_emoji)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn renders_error_placeholder() {
+        assert_eq!(
+            render_unlock_error("${client.iHorizon_Emojis.No} boom", "❌"),
+            "❌ boom"
+        );
+    }
+
+    #[test]
+    fn en_us_command_error_key_exists() {
+        let s = crate::lang::get("en-US", "setrankroles_command_error").unwrap_or_default();
+        assert!(s.contains("${client.iHorizon_Emojis.No}"));
+    }
 }

@@ -1,3 +1,4 @@
+use super::talk::post_util_log;
 use super::*;
 
 #[poise::command(
@@ -78,6 +79,17 @@ pub async fn unwlvc(
         &cfg.to_string(),
     )
     .await?;
+    post_util_log(
+        &ctx,
+        guild_id,
+        crate::lang::get(&code, "util_unwlvc_logs_title").unwrap_or_default(),
+        fill_log(
+            &crate::lang::get(&code, "util_unwlvc_logs_description").unwrap_or_default(),
+            &ctx.author().to_string(),
+            &format!("<@{}>", target.id.get()),
+        ),
+    )
+    .await;
     ctx.say(
         crate::lang::get(&code, "util_unwlvc_command_work")
             .map(|s| s.replace("${member.toString()}", &format!("<@{}>", target.id.get())))
@@ -99,4 +111,28 @@ pub async fn unwlvc(
         let _ = guild_id.disconnect_member(ctx.http(), target.id).await;
     }
     Ok(())
+}
+
+/// Fill the unwlvc log template.
+pub fn fill_log(template: &str, invoker: &str, target: &str) -> String {
+    template
+        .replace("${interaction.member.user.toString()}", invoker)
+        .replace("${member.toString()}", target)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn log_template_fills() {
+        assert_eq!(
+            fill_log(
+                "${interaction.member.user.toString()} removed ${member.toString()}",
+                "<@1>",
+                "<@2>"
+            ),
+            "<@1> removed <@2>"
+        );
+    }
 }

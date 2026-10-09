@@ -1,3 +1,4 @@
+use super::talk::post_util_log;
 use super::*;
 
 /// Allow a member in the frozen channel. Mirrors util !wlvc.ts.
@@ -68,6 +69,19 @@ pub async fn wlvc(
         &cfg.to_string(),
     )
     .await?;
+    if let Some(guild_id) = ctx.guild_id() {
+        post_util_log(
+            &ctx,
+            guild_id,
+            crate::lang::get(&code, "util_wlvc_logs_title").unwrap_or_default(),
+            fill_log(
+                &crate::lang::get(&code, "util_wlvc_logs_description").unwrap_or_default(),
+                &ctx.author().to_string(),
+                &format!("<@{}>", target.id.get()),
+            ),
+        )
+        .await;
+    }
     ctx.say(
         crate::lang::get(&code, "util_wlvc_command_work")
             .map(|s| s.replace("${member.toString()}", &format!("<@{}>", target.id.get())))
@@ -77,4 +91,28 @@ pub async fn wlvc(
     )
     .await?;
     Ok(())
+}
+
+/// Fill the wlvc log template.
+pub fn fill_log(template: &str, invoker: &str, target: &str) -> String {
+    template
+        .replace("${interaction.member.user.toString()}", invoker)
+        .replace("${member.toString()}", target)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn log_template_fills() {
+        assert_eq!(
+            fill_log(
+                "${interaction.member.user.toString()} allowed ${member.toString()}",
+                "<@1>",
+                "<@2>"
+            ),
+            "<@1> allowed <@2>"
+        );
+    }
 }

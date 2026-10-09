@@ -1,4 +1,10 @@
+use super::banlist::{clamp_page_idx, dead_row, deny_foreign_press, nav_buttons};
 use super::*;
+use poise::serenity_prelude as serenity;
+
+const PREV_ID: &str = "mod-mutelist-prev";
+const NEXT_ID: &str = "mod-mutelist-next";
+const TRASH_ID: &str = "mod-mutelist-trash";
 
 /// List muted members.
 #[poise::command(
@@ -16,8 +22,8 @@ pub async fn mod_mutelist(
         return Ok(());
     };
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-    let t = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
-    let muted: Vec<(String, i64)> = ctx
+    let t = |k: &str, fb: &str| crate::lang::get(&code, k).unwrap_or_else(|| fb.to_string());
+    let muted: Vec<(serenity::UserId, String)> = ctx
         .serenity_context()
         .cache
         .guild(guild_id)
@@ -25,32 +31,124 @@ pub async fn mod_mutelist(
             g.members
                 .values()
                 .filter(|m| m.communication_disabled_until.is_some())
-                .map(|m| {
-                    let remaining = m
-                        .communication_disabled_until
-                        .map(|until| (until.unix_timestamp() * 1000 - crate::bot::now_ms()).max(0))
-                        .unwrap_or(0);
-                    (m.user.to_string(), remaining)
-                })
+                .map(|m| (m.user.id, m.user.to_string()))
                 .collect()
         })
         .unwrap_or_default();
     if muted.is_empty() {
-        ctx.say(t("prevnames_undetected")).await?;
+        ctx.say(t("prevnames_undetected", "No data found!")).await?;
         return Ok(());
     }
-    let (start, end, pages) = paginate(muted.len(), LIST_PAGE_SIZE, page.unwrap_or(1));
-    let cur = start / LIST_PAGE_SIZE + 1;
-    let body = muted[start..end]
-        .iter()
-        .map(|(mention, remaining)| {
-            format!(
-                "{mention} - `{}`",
-                crate::funcs::beautiful_ms(*remaining as f64)
+    let not_for_you = t("help_not_for_you", "This interaction is not for you");
+    let page_word = t("var_page", "Page");
+    // Page descriptions are rebuilt after the trash button clears the
+    // timeouts, mirroring the TS `generatePages` refresh.
+    let describe = |ids: &[(serenity::UserId, String)]| -> Vec<String> {
+        let now = crate::bot::now_ms();
+        let guild = ctx.serenity_context().cache.guild(guild_id);
+        ids.chunks(LIST_PAGE_SIZE)
+            .map(|chunk| {
+                chunk
+                    .iter()
+                    .map(|(uid, mention)| {
+                        let remaining = guild
+                            .as_ref()
+                            .and_then(|g| g.members.get(uid))
+                            .and_then(|m| m.communication_disabled_until)
+                            .map(|until| (until.unix_timestamp() * 1000 - now).max(0))
+                            .unwrap_or(0);
+                        format!(
+                            "{mention} - `{}`",
+                            crate::funcs::beautiful_ms(remaining as f64)
+                        )
+                    })
+                    .collect::<Vec<_>>()
+                    .join("\n")
+            })
+            .collect()
+    };
+    let mut ids = muted;
+    let mut descs = describe(&ids);
+    let mut cur = clamp_page_idx(page, descs.len());
+    let author = ctx.author().id;
+    let mk_embed = |descs: &[String], cur: usize| {
+        serenity::CreateEmbed::default()
+            .description(descs[cur].clone())
+            .footer(serenity::CreateEmbedFooter::new(format!(
+                "{page_word} {}/{}",
+                cur + 1,
+                descs.len()
+            )))
+            .colour(0x010101)
+            .timestamp(serenity::Timestamp::now())
+    };
+    let mk_row = |cur: usize, total: usize, cleared: bool| {
+        let mut buttons = nav_buttons(PREV_ID, NEXT_ID, cur, total);
+        buttons.push(
+            serenity::CreateButton::new(TRASH_ID)
+                .label("🗑️")
+                .style(serenity::ButtonStyle::Danger)
+                .disabled(cleared),
+        );
+        serenity::CreateActionRow::Buttons(buttons)
+    };
+    let mut cleared = false;
+    let handle = ctx
+        .send(
+            poise::CreateReply::default()
+                .embed(mk_embed(&descs, cur))
+                .components(vec![mk_row(cur, descs.len(), cleared)]),
+        )
+        .await?;
+    let mut msg = handle.into_message().await?;
+    // 60-second collector like the TS `time: 60_000`; prev/next wrap
+    // around, and the trash button unmutes everyone then refreshes.
+    loop {
+        let press = msg
+            .await_component_interaction(ctx.serenity_context().shard.clone())
+            .timeout(std::time::Duration::from_secs(60))
+            .await;
+        let Some(press) = press else { break };
+        if press.user.id != author {
+            deny_foreign_press(ctx.http(), &press, &not_for_you).await;
+            continue;
+        }
+        match press.data.custom_id.as_str() {
+            "mod-mutelist-prev" => {
+                cur = (cur + descs.len().saturating_sub(1)) % descs.len().max(1);
+            }
+            "mod-mutelist-next" => {
+                cur = (cur + 1) % descs.len().max(1);
+            }
+            "mod-mutelist-trash" => {
+                for (uid, _) in &ids {
+                    if let Ok(mut member) = guild_id.member(ctx.http(), *uid).await {
+                        let _ = member.enable_communication(ctx.http()).await;
+                    }
+                }
+                ids.clear();
+                cleared = true;
+                descs = vec![t("prevnames_undetected", "No data found!")];
+                cur = 0;
+            }
+            _ => continue,
+        }
+        let _ = press
+            .create_response(
+                ctx.http(),
+                serenity::CreateInteractionResponse::UpdateMessage(
+                    serenity::CreateInteractionResponseMessage::new()
+                        .embed(mk_embed(&descs, cur))
+                        .components(vec![mk_row(cur, descs.len(), cleared)]),
+                ),
             )
-        })
-        .collect::<Vec<_>>()
-        .join("\n");
-    ctx.say(format!("({cur}/{pages})\n{body}")).await?;
+            .await;
+    }
+    let _ = msg
+        .edit(
+            ctx.http(),
+            serenity::EditMessage::new().components(vec![dead_row(PREV_ID, NEXT_ID)]),
+        )
+        .await;
     Ok(())
 }

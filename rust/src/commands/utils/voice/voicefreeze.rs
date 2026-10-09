@@ -1,3 +1,4 @@
+use super::talk::post_util_log;
 use super::*;
 
 /// Freeze your current voice channel. Mirrors util !freeze.ts.
@@ -42,18 +43,49 @@ pub async fn voicefreeze(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         .to_string(),
     )
     .await?;
+    let channel_mention = format!("<#{}>", channel_id.get());
+    post_util_log(
+        &ctx,
+        guild_id,
+        crate::lang::get(&code, "util_freeze_logs_title").unwrap_or_default(),
+        fill_log(
+            &crate::lang::get(&code, "util_freeze_logs_description").unwrap_or_default(),
+            &ctx.author().to_string(),
+            &channel_mention,
+        ),
+    )
+    .await;
     ctx.say(
         crate::lang::get(&code, "util_freeze_command_work")
-            .map(|s| {
-                s.replace(
-                    "${voiceChannel.toString()}",
-                    &format!("<#{}>", channel_id.get()),
-                )
-            })
+            .map(|s| s.replace("${voiceChannel.toString()}", &channel_mention))
             .unwrap_or_else(|| {
                 "The voice channel ${voiceChannel.toString()} is now frozen.".to_string()
             }),
     )
     .await?;
     Ok(())
+}
+
+/// Fill the freeze log template.
+pub fn fill_log(template: &str, invoker: &str, channel: &str) -> String {
+    template
+        .replace("${interaction.member.user.toString()}", invoker)
+        .replace("${voiceChannel.toString()}", channel)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn log_template_fills() {
+        assert_eq!(
+            fill_log(
+                "${interaction.member.user.toString()} froze ${voiceChannel.toString()}",
+                "<@1>",
+                "<#2>"
+            ),
+            "<@1> froze <#2>"
+        );
+    }
 }
