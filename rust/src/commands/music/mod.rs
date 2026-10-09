@@ -2,10 +2,12 @@
 // Licensed under CC-BY-NC-SA-4.0.
 // Mirrors src/Interaction/HybridCommands/music/* (14 subs).
 //
-// Full audio (LavalinkManager, queue, voice connect) pending lavalink-rs
-// wiring; see voice.rs guards + PORT_INVENTORY.md. Ported for real:
+// Live audio via crate::lavalink (LavalinkManager, queue, voice
+// handshake). Ported for real:
 // MUSIC_HISTORY store (buffer/embed, 30d purge), volume clamp, loop mode
-// parsing, lyrics truncation. Play/skip/stop/pause/resume/queue/clear/
-// shuffle/nowplaying/trackinfo answer with the node state once wired.
+// parsing, lyrics truncation + text-API lookup, duration formatting.
+// Play/skip/stop/pause/resume/queue/clear/
+// shuffle/nowplaying/trackinfo answer from the live player state once a
+// node is configured; lyrics stays on a text API by design.
 
 pub mod main;

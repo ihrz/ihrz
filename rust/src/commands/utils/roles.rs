@@ -1,6 +1,63 @@
 use super::*;
 
-/// Add role. Mirrors utils !addrole.ts.
+use std::collections::HashMap;
+
+/// Hierarchy snapshot for the addrole/delrole guard chain.
+/// Mirrors utils !addrole.ts / !delrole.ts. `None` when the guild is
+/// not cached: guards are skipped, never blocking.
+struct RoleGuards {
+    bot_admin: bool,
+    bot_top: u16,
+    author_top: u16,
+    owner_id: u64,
+}
+
+fn role_top(roles: &HashMap<serenity::RoleId, serenity::Role>, ids: &[serenity::RoleId]) -> u16 {
+    ids.iter()
+        .filter_map(|r| roles.get(r))
+        .map(|r| r.position)
+        .max()
+        .unwrap_or(0)
+}
+
+fn has_admin(roles: &HashMap<serenity::RoleId, serenity::Role>, ids: &[serenity::RoleId]) -> bool {
+    ids.iter().any(|r| {
+        roles
+            .get(r)
+            .map(|role| role.permissions.administrator())
+            .unwrap_or(false)
+    })
+}
+
+async fn role_guards(ctx: &Ctx<'_>, guild_id: serenity::GuildId) -> Option<RoleGuards> {
+    let (bot_roles, author_roles, roles, owner_id) = {
+        let cache = &ctx.serenity_context().cache;
+        let guild = cache.guild(guild_id)?;
+        let bot = guild.members.get(&cache.current_user().id)?.clone();
+        let author_roles = cache
+            .guild(guild_id)?
+            .members
+            .get(&ctx.author().id)
+            .map(|m| m.roles.clone())
+            .unwrap_or_default();
+        (bot.roles, author_roles, guild.roles.clone(), guild.owner_id)
+    };
+    let bot_admin = has_admin(&roles, &bot_roles);
+    Some(RoleGuards {
+        bot_admin,
+        bot_top: role_top(&roles, &bot_roles),
+        author_top: role_top(&roles, &author_roles),
+        owner_id: owner_id.get(),
+    })
+}
+
+async fn app_emoji(http: &serenity::Http, name: &str, fallback: &str) -> String {
+    crate::emojis::app_emoji_markup(http, name)
+        .await
+        .unwrap_or_else(|| fallback.to_string())
+}
+
+/// Add role. Mirrors utils !addrole.ts (guards run before mutation).
 #[poise::command(
     slash_command,
     prefix_command,
@@ -16,9 +73,73 @@ pub async fn addrole(
     let Some(guild_id) = ctx.guild_id() else {
         return Ok(());
     };
-    let member = guild_id.member(ctx.http(), user.id).await?;
+    let pool = &ctx.data().pool;
+    let gid = guild_id.get().to_string();
+    let code = crate::db::guild_lang(pool, Some(guild_id.get())).await;
+    let t = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
+    let no = app_emoji(ctx.http(), "No", "❌").await;
+    let stop = app_emoji(ctx.http(), "Stop", "⛔").await;
+    // Whitelist first. Mirrors `(await client.db.get(...UTILS.wlRoles)) || []`.
+    let allowed: Vec<String> = crate::db::kv_get(pool, &gid, "UTILS.wlRoles")
+        .await
+        .and_then(|s| serde_json::from_str(&s).ok())
+        .unwrap_or_default();
+    if !allowed.contains(&role.id.get().to_string()) && !allowed.is_empty() {
+        ctx.say(t("utils_addrole_not_wl").replace("${client.iHorizon_Emojis.No}", &no))
+            .await?;
+        return Ok(());
+    }
+    let Ok(member) = guild_id.member(ctx.http(), user.id).await else {
+        ctx.say(t("ban_dont_found_member")).await?;
+        return Ok(());
+    };
+    let guards = role_guards(&ctx, guild_id).await;
+    // Bot needs Administrator. Mirrors backup_i_dont_have_permission.
+    if let Some(g) = &guards {
+        if !g.bot_admin {
+            ctx.say(t("backup_i_dont_have_permission")).await?;
+            return Ok(());
+        }
+    }
+    let author_id = ctx.author().id.get();
+    let owner_id = guards.as_ref().map(|g| g.owner_id).unwrap_or(author_id);
+    let author_top = guards.as_ref().map(|g| g.author_top).unwrap_or(u16::MAX);
+    let bot_top = guards.as_ref().map(|g| g.bot_top).unwrap_or(u16::MAX);
+    let target_top = ctx
+        .serenity_context()
+        .cache
+        .guild(guild_id)
+        .map(|g| role_top(&g.roles, &member.roles));
+    if let Some(target_pos) = target_top {
+        if author_top <= target_pos && author_id != user.id.get() && owner_id != author_id {
+            ctx.say(
+                t("utils_addrole_highter_or_egal_roles_msg")
+                    .replace("${client.iHorizon_Emojis.Stop}", &stop),
+            )
+            .await?;
+            return Ok(());
+        }
+    }
+    // Admin-level escalation guard (addrole only, no delrole twin).
+    if role.permissions.administrator() {
+        let target_admin = ctx
+            .serenity_context()
+            .cache
+            .guild(guild_id)
+            .map(|g| has_admin(&g.roles, &member.roles))
+            .unwrap_or(true);
+        if !target_admin {
+            ctx.say(t("utils_addrole_cant_level")).await?;
+            return Ok(());
+        }
+    }
+    if bot_top <= role.position {
+        ctx.say(t("utils_addrole_try2brain")).await?;
+        return Ok(());
+    }
+    // No TS key covers an add failure (TS throws to the executor);
+    // the crash reporter is the matching error path.
     member.add_role(ctx.http(), role.id).await?;
-    let code = crate::db::guild_lang(&ctx.data().pool, Some(guild_id.get())).await;
     ctx.say(
         crate::lang::get(&code, "utils_addrole_command_ok")
             .map(|s| {
@@ -32,7 +153,7 @@ pub async fn addrole(
     Ok(())
 }
 
-/// Remove role. Mirrors utils !delrole.ts.
+/// Remove role. Mirrors utils !delrole.ts (guards before mutation).
 #[poise::command(
     slash_command,
     prefix_command,
@@ -48,9 +169,60 @@ pub async fn delrole(
     let Some(guild_id) = ctx.guild_id() else {
         return Ok(());
     };
-    let member = guild_id.member(ctx.http(), user.id).await?;
+    let pool = &ctx.data().pool;
+    let gid = guild_id.get().to_string();
+    let code = crate::db::guild_lang(pool, Some(guild_id.get())).await;
+    let t = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
+    let no = app_emoji(ctx.http(), "No", "❌").await;
+    let stop = app_emoji(ctx.http(), "Stop", "⛔").await;
+    // Whitelist first. Mirrors `(await client.db.get(...UTILS.wlRoles)) || []`.
+    let allowed: Vec<String> = crate::db::kv_get(pool, &gid, "UTILS.wlRoles")
+        .await
+        .and_then(|s| serde_json::from_str(&s).ok())
+        .unwrap_or_default();
+    if !allowed.contains(&role.id.get().to_string()) && !allowed.is_empty() {
+        ctx.say(t("utils_delrole_not_wl").replace("${client.iHorizon_Emojis.No}", &no))
+            .await?;
+        return Ok(());
+    }
+    let Ok(member) = guild_id.member(ctx.http(), user.id).await else {
+        ctx.say(t("ban_dont_found_member")).await?;
+        return Ok(());
+    };
+    let guards = role_guards(&ctx, guild_id).await;
+    // Bot needs Administrator. Mirrors backup_i_dont_have_permission.
+    if let Some(g) = &guards {
+        if !g.bot_admin {
+            ctx.say(t("backup_i_dont_have_permission")).await?;
+            return Ok(());
+        }
+    }
+    let author_id = ctx.author().id.get();
+    let owner_id = guards.as_ref().map(|g| g.owner_id).unwrap_or(author_id);
+    let author_top = guards.as_ref().map(|g| g.author_top).unwrap_or(u16::MAX);
+    let bot_top = guards.as_ref().map(|g| g.bot_top).unwrap_or(u16::MAX);
+    let target_top = ctx
+        .serenity_context()
+        .cache
+        .guild(guild_id)
+        .map(|g| role_top(&g.roles, &member.roles));
+    if let Some(target_pos) = target_top {
+        if author_top <= target_pos && author_id != user.id.get() && owner_id != author_id {
+            ctx.say(
+                t("utils_delrole_highter_or_egal_roles_msg")
+                    .replace("${client.iHorizon_Emojis.Stop}", &stop),
+            )
+            .await?;
+            return Ok(());
+        }
+    }
+    if bot_top <= role.position {
+        ctx.say(t("utils_delrole_try2brain")).await?;
+        return Ok(());
+    }
+    // No TS key covers a remove failure (TS throws to the executor);
+    // the crash reporter is the matching error path.
     member.remove_role(ctx.http(), role.id).await?;
-    let code = crate::db::guild_lang(&ctx.data().pool, Some(guild_id.get())).await;
     ctx.say(
         crate::lang::get(&code, "utils_delrole_command_ok")
             .map(|s| {
@@ -252,17 +424,73 @@ pub async fn derank(
     let Some(guild_id) = ctx.guild_id() else {
         return Ok(());
     };
-    let member = guild_id.member(ctx.http(), user.id).await?;
-    let roles: Vec<poise::serenity_prelude::RoleId> = member.roles.to_vec();
-    let mut n = 0;
-    for role in roles {
-        if member.remove_role(ctx.http(), role).await.is_ok() {
-            n += 1;
+    let pool = &ctx.data().pool;
+    let code = crate::db::guild_lang(pool, Some(guild_id.get())).await;
+    let t = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
+    // TS falls back to the invoker when prefix resolution fails, and
+    // replies perm_list_no_user only when both are missing.
+    let target_id = user.id;
+    let member = match guild_id.member(ctx.http(), target_id).await {
+        Ok(m) => m,
+        Err(_) => {
+            ctx.say(t("perm_list_no_user")).await?;
+            return Ok(());
+        }
+    };
+    // Author-hierarchy guard. Mirrors !derank.ts
+    // (utils_delrole_highter_or_egal_roles_msg).
+    let guards = role_guards(&ctx, guild_id).await;
+    let author_id = ctx.author().id.get();
+    let owner_id = guards.as_ref().map(|g| g.owner_id).unwrap_or(author_id);
+    let author_top = guards.as_ref().map(|g| g.author_top).unwrap_or(u16::MAX);
+    let target_top = ctx
+        .serenity_context()
+        .cache
+        .guild(guild_id)
+        .map(|g| role_top(&g.roles, &member.roles));
+    if let Some(target_pos) = target_top {
+        if author_top <= target_pos && owner_id != author_id {
+            let stop = app_emoji(ctx.http(), "Stop", "⛔").await;
+            ctx.say(
+                t("utils_delrole_highter_or_egal_roles_msg")
+                    .replace("${client.iHorizon_Emojis.Stop}", &stop),
+            )
+            .await?;
+            return Ok(());
         }
     }
-    let _ = member;
-    ctx.say(format!("Removed {n} roles from {}.", user.tag()))
-        .await?;
+    // Never strip @everyone. Mirrors the TS everyone filter.
+    let everyone = serenity::RoleId::new(guild_id.get());
+    let roles: Vec<poise::serenity_prelude::RoleId> = member
+        .roles
+        .iter()
+        .copied()
+        .filter(|r| *r != everyone)
+        .collect();
+    if roles.is_empty() {
+        ctx.say(t("derank_no_role")).await?;
+        return Ok(());
+    }
+    let mut good = 0;
+    let mut bad = 0;
+    for role in roles {
+        if member.remove_role(ctx.http(), role).await.is_ok() {
+            good += 1;
+        } else {
+            bad += 1;
+        }
+    }
+    if good == 0 && bad > 0 {
+        ctx.say(t("derank_msg_failed")).await?;
+        return Ok(());
+    }
+    ctx.say(
+        t("derank_msg_desc_embed")
+            .replace("${good}", &good.to_string())
+            .replace("${bad}", &bad.to_string())
+            .replace("${member.id}", &target_id.get().to_string()),
+    )
+    .await?;
     Ok(())
 }
 

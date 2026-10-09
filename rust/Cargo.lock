@@ -1134,6 +1134,7 @@ dependencies = [
  "dotenvy",
  "hex",
  "image",
+ "lava-rs",
  "once_cell",
  "pbkdf2",
  "png",
@@ -1210,6 +1211,25 @@ dependencies = [
  "cfg-if",
  "futures-util",
  "wasm-bindgen",
+]
+
+[[package]]
+name = "lava-rs"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7bc3e206eec9464aad7e70f32da796459fc967a2de92748e6aec8edb1ad575ec"
+dependencies = [
+ "async-trait",
+ "http",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "thiserror 1.0.69",
+ "tokio",
+ "tokio-tungstenite",
+ "tracing",
+ "tracing-subscriber",
+ "urlencoding",
 ]
 
 [[package]]

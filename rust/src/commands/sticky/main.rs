@@ -220,9 +220,11 @@ pub async fn refresh_queued(
     guild_id: serenity::GuildId,
     channel_id: serenity::ChannelId,
 ) -> StickyRefresh {
+    // Poison-tolerant: a panicking holder must not cascade into
+    // every later refresh (TS has no shared lock to poison).
     let lock = STICKY_LOCKS
         .lock()
-        .unwrap()
+        .unwrap_or_else(|e| e.into_inner())
         .entry(channel_id.get())
         .or_default()
         .clone();
@@ -240,7 +242,7 @@ pub fn schedule_refresh(
     guild_id: serenity::GuildId,
     channel_id: serenity::ChannelId,
 ) {
-    let mut timers = STICKY_TIMERS.lock().unwrap();
+    let mut timers = STICKY_TIMERS.lock().unwrap_or_else(|e| e.into_inner());
     if let Some(old) = timers.remove(&channel_id.get()) {
         old.abort();
     }

@@ -188,12 +188,7 @@ fn global_check(
 /// Crash reporter. Mirrors handleExecutionError in commandExecutor.ts:
 /// the user gets the error block + /report suggestion, and a report
 /// embed goes to config.core.reportChannelID.
-pub async fn report_command_error(err: poise::FrameworkError<'_, Data, anyhow::Error>) {
-    let (ctx, error_text) = match &err {
-        poise::FrameworkError::Command { ctx, error, .. } => (*ctx, error.to_string()),
-        poise::FrameworkError::CommandPanic { ctx, payload, .. } => (*ctx, format!("{payload:?}")),
-        _ => return,
-    };
+async fn crash_block(ctx: Ctx<'_>, error_text: String) {
     let is_prefix = matches!(ctx, poise::Context::Prefix(_));
     let invocation = match ctx {
         poise::Context::Prefix(p) => p.msg.content.clone(),
@@ -231,6 +226,72 @@ pub async fn report_command_error(err: poise::FrameworkError<'_, Data, anyhow::E
             serenity::CreateMessage::new().embed(embed),
         )
         .await;
+}
+
+/// Localized user-facing reply for framework-level denials.
+/// Mirrors commandExecutor.ts `replyDenied` (plain channel reply,
+/// never ephemeral) + the TS lang keys used on each denial path.
+async fn denial_reply(ctx: Ctx<'_>, key: &str, sub: Option<(&str, String)>) {
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    let mut msg = crate::lang::get(&code, key).unwrap_or_default();
+    if msg.is_empty() {
+        return;
+    }
+    if let Some((pat, val)) = sub {
+        msg = msg.replace(pat, &val);
+    }
+    let _ = ctx.send(poise::CreateReply::default().content(msg)).await;
+}
+
+/// Framework error router. Command/CommandPanic keep the crash block;
+/// parse + permission + cooldown denials get TS-keyed replies instead
+/// of silence. CommandCheckFailed without an error stays silent: the
+/// global check already replied (cooldown / rate-limit) or denied
+/// quietly (blacklist, fun switch, custom perms), mirroring TS.
+pub async fn report_command_error(err: poise::FrameworkError<'_, Data, anyhow::Error>) {
+    match &err {
+        poise::FrameworkError::Command { ctx, error, .. } => {
+            crash_block(*ctx, error.to_string()).await;
+        }
+        poise::FrameworkError::CommandPanic { ctx, payload, .. } => {
+            crash_block(*ctx, format!("{payload:?}")).await;
+        }
+        // Prefix arg that poise could not parse (member/role/user
+        // mention). TS resolves these via method.member/role (null ->
+        // per-command key); ban_dont_found_member is the shared key
+        // used by 6 TS commands for unresolvable member input.
+        poise::FrameworkError::ArgumentParse { ctx, .. } => {
+            denial_reply(*ctx, "ban_dont_found_member", None).await;
+        }
+        // Mirrors the preExecutionCooldown denial (lang.Msg_cooldown).
+        poise::FrameworkError::CooldownHit { ctx, .. } => {
+            denial_reply(*ctx, "Msg_cooldown", None).await;
+        }
+        // Mirrors the bot-permission denial (!addrole.ts,
+        // !delrole.ts use backup_i_dont_have_permission).
+        poise::FrameworkError::MissingBotPermissions { ctx, .. } => {
+            denial_reply(*ctx, "backup_i_dont_have_permission", None).await;
+        }
+        // Mirrors checkNativePermission (var_dont_have_perm + perm name).
+        poise::FrameworkError::MissingUserPermissions {
+            ctx,
+            missing_permissions,
+            ..
+        } => {
+            let perm = missing_permissions
+                .map(|p| p.to_string())
+                .unwrap_or_else(|| "permission".to_string());
+            denial_reply(*ctx, "var_dont_have_perm", Some(("{perm}", perm))).await;
+        }
+        poise::FrameworkError::CommandCheckFailed {
+            ctx,
+            error: Some(error),
+            ..
+        } => {
+            crash_block(*ctx, error.to_string()).await;
+        }
+        _ => {}
+    }
 }
 /// Per-guild prefix with global default. Mirrors TS
 /// defaultMessageCommandsPrefix + GUILD.PREFIX override.

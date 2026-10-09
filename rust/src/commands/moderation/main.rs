@@ -1470,6 +1470,23 @@ pub async fn mod_rolepanel(
     let t = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
     // Member targeting: TS defaults the panel target to the author.
     let target = member.unwrap_or_else(|| ctx.author().clone());
+    // Resolve the target channel before building any UI. Mirrors the
+    // TS guard-typing block (`!interaction.channel` -> silent return):
+    // a non-guild channel cannot host a button panel, and rolepanel.ts
+    // has no key for that case (it always posts in-channel). A fetch
+    // failure propagates to the crash reporter like a TS
+    // interactionSend throw.
+    let target_ch = match channel.id().to_channel(ctx.http()).await {
+        Ok(ch) => match ch.guild() {
+            Some(g) => g,
+            None => return Ok(()),
+        },
+        Err(e) => {
+            return Err(anyhow::anyhow!(
+                "rolepanel: target channel fetch failed: {e}"
+            ))
+        }
+    };
     let all: Vec<serenity::Role> = [Some(role1), role2, role3, role4]
         .into_iter()
         .flatten()
@@ -1507,8 +1524,6 @@ pub async fn mod_rolepanel(
         .map(|c| serenity::CreateActionRow::Buttons(c.to_vec()))
         .collect();
 
-    let guild_channel = channel.id().to_channel(ctx.http()).await?;
-    let target_ch = guild_channel.guild().expect("guild channel only");
     let posted = target_ch
         .send_message(
             ctx.http(),

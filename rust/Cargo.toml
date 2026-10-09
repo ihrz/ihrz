@@ -33,3 +33,4 @@ hex = "0.4"
 png = "0.18"
 image = { version = "0.25.10", default-features = false, features = ["png", "jpeg", "gif"] }
 toml = "1.1.8"
+lava-rs = "0.1.0"

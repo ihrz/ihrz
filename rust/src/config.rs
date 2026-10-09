@@ -6,8 +6,10 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct LavalinkNode {
+    /// Node id (TS: config.lavalink.nodes[].id, e.g. "node0").
     #[serde(default)]
     pub id: String,
+    /// Node host (TS mirror nodes: lava-v4.ajieblogs.eu.org / 192.168.1.193).
     #[serde(default)]
     pub host: String,
     #[serde(default)]

@@ -244,6 +244,7 @@ pub async fn ticket_panel(
         name,
         description: description.unwrap_or_default(),
         category_id: String::new(),
+        panel_code: id.clone(),
         ..Default::default()
     };
     crate::db::kv_set(
@@ -253,6 +254,15 @@ pub async fn ticket_panel(
         &serde_json::to_string(&panel)?,
     )
     .await?;
+    // Post the opener to this channel when the panel already carries a
+    // related embed or options (sendEmbed, !panel.ts:671): related
+    // EMBED row first, default panel embed otherwise, select menu with
+    // the verbatim ticket-open-selection-v2 id, then the
+    // GUILD.TICKET_PANEL.<sentMsgId> -> panelCode marker row. The full
+    // V2 builder UI stays deferred.
+    if !panel.related_embed_id.trim().is_empty() || !panel.config.option_fields.is_empty() {
+        post_ticket_panel_message(&ctx, pool, &gid, &code, &id, &panel).await;
+    }
     ctx.say(
         crate::lang::get(&code, "msg_ticket_panel_id_created")
             .map(|s| s.replace("{id}", &id))
@@ -260,6 +270,80 @@ pub async fn ticket_panel(
     )
     .await?;
     Ok(())
+}
+
+/// Post a V2 opener message for a saved panel and record the
+/// `GUILD.TICKET_PANEL.<sentMsgId>` marker. Mirrors sendEmbed
+/// (!panel.ts:750): related-embed attach, select menu, marker write.
+async fn post_ticket_panel_message(
+    ctx: &Ctx<'_>,
+    pool: &crate::db::Pool,
+    gid: &str,
+    lang_code: &str,
+    panel_code: &str,
+    panel: &TicketPanel,
+) {
+    let t = |k: &str| crate::lang::get(lang_code, k).unwrap_or_default();
+    let http = ctx.serenity_context().http.clone();
+    let mut embed: Option<serenity::CreateEmbed> = None;
+    if !panel.related_embed_id.trim().is_empty() {
+        let stored: Option<serde_json::Value> = crate::db::kv_get(
+            pool,
+            gid,
+            &format!("EMBED.{}", panel.related_embed_id.trim()),
+        )
+        .await
+        .and_then(|s| serde_json::from_str(&s).ok())
+        .and_then(|v: serde_json::Value| v.get("embedSource").cloned());
+        embed = stored.as_ref().and_then(create_embed_from_value);
+    }
+    let embed = embed.unwrap_or_else(|| {
+        serenity::CreateEmbed::default()
+            .title(panel.name.clone())
+            .description(if panel.description.is_empty() {
+                t("sethereticket_description_embed")
+            } else {
+                panel.description.clone()
+            })
+    });
+    let options = panel
+        .config
+        .option_fields
+        .iter()
+        .map(|opt| {
+            let mut builder = serenity::CreateSelectMenuOption::new(
+                opt.name.chars().take(100).collect::<String>(),
+                opt.value.clone(),
+            );
+            if !opt.desc.trim().is_empty() {
+                builder = builder.description(opt.desc.chars().take(100).collect::<String>());
+            }
+            if !opt.emoji.trim().is_empty() {
+                let emoji = opt
+                    .emoji
+                    .parse::<serenity::ReactionType>()
+                    .unwrap_or_else(|_| serenity::ReactionType::Unicode(opt.emoji.clone()));
+                builder = builder.emoji(emoji);
+            }
+            builder
+        })
+        .collect();
+    let menu = serenity::CreateSelectMenu::new(
+        V2_SELECT_ID,
+        serenity::CreateSelectMenuKind::String { options },
+    )
+    .placeholder(if panel.placeholder.is_empty() {
+        t("ticket_panel_default_placeholder")
+    } else {
+        panel.placeholder.clone()
+    });
+    let msg = serenity::CreateMessage::new()
+        .embed(embed)
+        .components(vec![serenity::CreateActionRow::SelectMenu(menu)]);
+    if let Ok(sent) = ctx.channel_id().send_message(&http, msg).await {
+        let marker = serde_json::to_string(&panel_code.to_string()).unwrap_or_default();
+        let _ = crate::db::kv_set(pool, gid, &panel_key(&sent.id.get().to_string()), &marker).await;
+    }
 }
 
 /// Setter for the ticket panel V2 flags.
@@ -316,54 +400,98 @@ pub async fn ticket_panel_v2(
 
 #[poise::command(slash_command, prefix_command, rename = "open")]
 pub async fn ticket_open(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
+    // Mirrors !open.ts -> TicketReOpen (ticketsManager.ts:1709): the
+    // command only runs inside a ticket channel, where it re-grants
+    // the owner (View/Send/Attach/History), replies open_command_work
+    // and posts the onReopen logs embed. It never creates a channel.
     let Some(guild_id) = ctx.guild_id() else {
         return Ok(());
     };
     let gid = guild_id.get().to_string();
-    let author = ctx.author().id;
     let pool = &ctx.data().pool;
     let code = crate::db::guild_lang(pool, ctx.guild_id().map(|g| g.get())).await;
     if ticket_guard_disabled(&ctx, pool, &gid, &code, "open_disabled_command").await {
         return Ok(());
     }
-    // One-ticket-per-user gate with stale-row cleanup, like the
-    // already-opened check in CreateTicketChannel(V2).
-    let http = ctx.serenity_context().http.clone();
-    if let Some(open_id) = live_user_ticket(&http, pool, &gid, author.get()).await {
-        let msg = render_already_opened(
-            &crate::lang::get(&code, "event_ticket_already_opened").unwrap_or_else(|| {
-                "Uh oh, you already have a ticket open (<#${channelId}>)! Please close it before opening a new one."
-                    .to_string()
-            }),
-            &open_id,
-        );
-        ctx.say(msg).await?;
+    let channel_id = ctx.channel_id();
+    if ticket_guard_in_ticket(&ctx, pool, &gid, &code, channel_id, "open_not_in_ticket").await {
         return Ok(());
     }
-    let overwrites = vec![serenity::PermissionOverwrite {
-        allow: serenity::Permissions::VIEW_CHANNEL | serenity::Permissions::SEND_MESSAGES,
-        deny: serenity::Permissions::empty(),
-        kind: serenity::PermissionOverwriteType::Member(author),
-    }];
-    let builder = serenity::CreateChannel::new(format!("ticket-{}", author.get()))
-        .kind(serenity::ChannelType::Text)
-        .permissions(overwrites);
-    let ch = guild_id.create_channel(&ctx.http(), builder).await?;
-    crate::db::kv_set(
-        &ctx.data().pool,
-        &gid,
-        &format!("TICKET_ALL.{}.{}", author.get(), ch.id.get()),
-        "open",
-    )
+    let t = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
+    let entries = load_ticket_entries(pool, &gid).await;
+    let Some(author_id) = ticket_owner_id(&entries, &channel_id.get().to_string()) else {
+        ctx.say(
+            crate::lang::get(&code, "open_command_error")
+                .unwrap_or_else(|| "An error occurred, please try again!".to_string()),
+        )
+        .await?;
+        return Ok(());
+    };
+    let http = ctx.serenity_context().http.clone();
+    if channel_id
+        .create_permission(
+            &http,
+            serenity::PermissionOverwrite {
+                allow: serenity::Permissions::VIEW_CHANNEL
+                    | serenity::Permissions::SEND_MESSAGES
+                    | serenity::Permissions::ATTACH_FILES
+                    | serenity::Permissions::READ_MESSAGE_HISTORY,
+                deny: serenity::Permissions::empty(),
+                kind: serenity::PermissionOverwriteType::Member(serenity::UserId::new(author_id)),
+            },
+        )
+        .await
+        .is_err()
+    {
+        ctx.say(
+            crate::lang::get(&code, "open_command_error")
+                .unwrap_or_else(|| "An error occurred, please try again!".to_string()),
+        )
+        .await?;
+        return Ok(());
+    }
+    ctx.say(t("open_command_work").replace(
+        "${interaction.channel}",
+        &format!("<#{}>", channel_id.get()),
+    ))
     .await?;
-    let chid = ch.id.get().to_string();
-    ctx.say(
-        crate::lang::get(&code, "msg_ticket_opened")
-            .map(|s| s.replace("{chid}", &chid))
-            .unwrap_or_else(|| format!("Ticket opened: <#{chid}>.")),
-    )
-    .await?;
+    post_ticket_reopen_log(&http, pool, &gid, &code, channel_id, ctx.author().id.get()).await;
     Ok(())
+}
+
+/// onReopen logs embed for the reopen flow above (title + desc with
+/// the `${interaction.user}` / `${interaction.channel.id}` slots,
+/// footer file, timestamp). Mirrors TicketReOpen:1744.
+async fn post_ticket_reopen_log(
+    http: &std::sync::Arc<serenity::Http>,
+    pool: &crate::db::Pool,
+    gid: &str,
+    lang_code: &str,
+    channel_id: serenity::ChannelId,
+    actor_id: u64,
+) {
+    let Some(logs) = ticket_logs_channel(pool, gid).await else {
+        return;
+    };
+    let t = |k: &str| crate::lang::get(lang_code, k).unwrap_or_default();
+    let desc = t("event_ticket_logsChannel_onReopen_embed_desc")
+        .replace("${interaction.user}", &format!("<@{actor_id}>"))
+        .replace("${interaction.channel.id}", &channel_id.get().to_string());
+    let (footer_name, footer_icon) = ticket_footer(http, pool, gid).await;
+    let embed = ticket_embed_footer(
+        serenity::CreateEmbed::default()
+            .colour(0x008000_u32)
+            .title(t("event_ticket_logsChannel_onReopen_embed_title"))
+            .description(desc)
+            .timestamp(serenity::Timestamp::now()),
+        &footer_name,
+        footer_icon.is_some(),
+    );
+    let mut log_msg = serenity::CreateMessage::new().embed(embed);
+    if let Some(icon) = footer_icon {
+        log_msg = log_msg.add_file(serenity::CreateAttachment::bytes(icon, "footer_icon.png"));
+    }
+    let _ = logs.send_message(http, log_msg).await;
 }
 
 #[poise::command(
@@ -442,20 +570,8 @@ pub async fn ticket_close(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         .colour(0x0014A8_u32);
     let notify_content = crate::lang::get(&lang_code, "close_command_work_notify_channel")
         .unwrap_or_else(|| "The ticket was successfully closed!".to_string());
-    let _ = channel_id
-        .send_message(
-            &http,
-            serenity::CreateMessage::new()
-                .content(&notify_content)
-                .embed(notify.clone())
-                .add_file(serenity::CreateAttachment::bytes(
-                    html.clone().into_bytes(),
-                    file_name.clone(),
-                )),
-        )
-        .await;
-    // Answer the interaction itself (TS CloseTicket replies via
-    // interactionSend); otherwise slash invocations time out.
+    // Single notify: TS CloseTicket answers once via interactionSend
+    // (content + embed + transcript file).
     let _ = ctx
         .send(
             poise::CreateReply::default()
@@ -541,6 +657,18 @@ pub async fn ticket_add(
             .unwrap_or_else(|| format!("{} added.", user.name)),
     )
     .await?;
+    // onAddMember logs embed + footer file (TicketAddMember:1659).
+    post_ticket_member_log(
+        &ctx.serenity_context().http,
+        pool,
+        &gid,
+        &code,
+        channel.id,
+        &format!("<@{}>", ctx.author().id.get()),
+        &user.to_string(),
+        true,
+    )
+    .await;
     Ok(())
 }
 
@@ -592,7 +720,68 @@ pub async fn ticket_remove(
             .unwrap_or_else(|| format!("{} removed.", user.tag())),
     )
     .await?;
+    // onRemoveMember logs embed + footer file (TicketRemoveMember:1577).
+    post_ticket_member_log(
+        &ctx.serenity_context().http,
+        pool,
+        &gid,
+        &code,
+        channel.id,
+        &format!("<@{}>", ctx.author().id.get()),
+        &user.to_string(),
+        false,
+    )
+    .await;
     Ok(())
+}
+
+/// onAddMember / onRemoveMember logs embed + footer file + timestamp.
+/// Mirrors TicketAddMember:1659 and TicketRemoveMember:1577.
+#[allow(clippy::too_many_arguments)]
+async fn post_ticket_member_log(
+    http: &std::sync::Arc<serenity::Http>,
+    pool: &crate::db::Pool,
+    gid: &str,
+    lang_code: &str,
+    channel_id: serenity::ChannelId,
+    actor_mention: &str,
+    member_mention: &str,
+    added: bool,
+) {
+    let Some(logs) = ticket_logs_channel(pool, gid).await else {
+        return;
+    };
+    let t = |k: &str| crate::lang::get(lang_code, k).unwrap_or_default();
+    let (title_key, desc_key) = if added {
+        (
+            "event_ticket_logsChannel_onAddMember_embed_title",
+            "event_ticket_logsChannel_onAddMember_embed_desc",
+        )
+    } else {
+        (
+            "event_ticket_logsChannel_onRemoveMember_embed_title",
+            "event_ticket_logsChannel_onRemoveMember_embed_desc",
+        )
+    };
+    let desc = t(desc_key)
+        .replace("${member}", member_mention)
+        .replace("${interaction.user}", actor_mention)
+        .replace("${interaction.channel.id}", &channel_id.get().to_string());
+    let (footer_name, footer_icon) = ticket_footer(http, pool, gid).await;
+    let embed = ticket_embed_footer(
+        serenity::CreateEmbed::default()
+            .colour(0x008000_u32)
+            .title(t(title_key))
+            .description(desc)
+            .timestamp(serenity::Timestamp::now()),
+        &footer_name,
+        footer_icon.is_some(),
+    );
+    let mut log_msg = serenity::CreateMessage::new().embed(embed);
+    if let Some(icon) = footer_icon {
+        log_msg = log_msg.add_file(serenity::CreateAttachment::bytes(icon, "footer_icon.png"));
+    }
+    let _ = logs.send_message(http, log_msg).await;
 }
 
 /// Ticket logs channel. Mirrors !log-channel.ts (used by close transcript).
@@ -731,50 +920,75 @@ pub async fn ticket_set_here(
     if ticket_guard_disabled(&ctx, pool, &gid, &code, "ticket_disabled_command").await {
         return Ok(());
     }
-    let id = format!(
-        "{:x}",
-        std::time::SystemTime::now()
-            .duration_since(std::time::UNIX_EPOCH)
-            .map(|d| d.as_nanos())
-            .unwrap_or(1)
-            & 0xffffff
+    // V1 button panel (CreateButtonPanel, ticketsManager.ts:72):
+    // Secondary style + envelope emoji, verbatim open-new-ticket id,
+    // footer + footer file, GUILD.TICKET.<msgId> marker row, then the
+    // onCreation logs embed.
+    let t = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
+    let http = ctx.serenity_context().http.clone();
+    let (footer_name, footer_icon) = ticket_footer(&http, pool, &gid).await;
+    let panel_embed = ticket_embed_footer(
+        serenity::CreateEmbed::default()
+            .title(name.clone())
+            .colour(0x3b8f41_u32)
+            .description(description.clone().unwrap_or_else(|| {
+                crate::lang::get(&code, "sethereticket_description_embed").unwrap_or_default()
+            })),
+        &footer_name,
+        footer_icon.is_some(),
     );
-    let panel = TicketPanel {
-        name: name.clone(),
-        description: description.clone().unwrap_or_default(),
-        ..Default::default()
-    };
-    save_panel(&ctx.data().pool, &gid, &id, &panel).await?;
-    let button = serenity::CreateButton::new(format!("{TICKET_OPEN_CUSTOM_ID_PREFIX}{id}"))
+    let button = serenity::CreateButton::new(LEGACY_OPEN_BUTTON_ID)
         .label(
             crate::lang::get(&code, "event_ticket_button_name")
                 .unwrap_or_else(|| "Open ticket".to_string()),
         )
-        .style(serenity::ButtonStyle::Primary);
-    ctx.channel_id()
-        .send_message(
-            &ctx.http(),
-            serenity::CreateMessage::new()
-                .embed(serenity::CreateEmbed::default().title(name).description(
-                    description.unwrap_or_else(|| {
-                        crate::lang::get(&code, "sethereticket_description_embed")
-                            .unwrap_or_default()
-                    }),
-                ))
-                .button(button),
-        )
-        .await?;
-    ctx.say(
-        crate::lang::get(&code, "ticket_panel_saved_and_sended_panel")
-            .map(|s| {
-                s.replace("${panelCode}", &id).replace(
-                    "${channel.toString()}",
-                    &format!("<#{}>", ctx.channel_id().get()),
-                )
-            })
-            .unwrap_or_else(|| format!("Ticket panel `{id}` posted.")),
+        .emoji(serenity::ReactionType::Unicode("📩".to_string()))
+        .style(serenity::ButtonStyle::Secondary);
+    let mut post = serenity::CreateMessage::new()
+        .embed(panel_embed)
+        .button(button);
+    if let Some(icon) = footer_icon {
+        post = post.add_file(serenity::CreateAttachment::bytes(icon, "footer_icon.png"));
+    }
+    let sent = ctx.channel_id().send_message(&http, post).await?;
+    crate::db::kv_set(
+        pool,
+        &gid,
+        &legacy_panel_key(sent.id.get()),
+        &serde_json::json!({
+            "author": ctx.author().id.get().to_string(),
+            "used": true,
+            "panelName": name,
+            "reason": false,
+            "channel": sent.channel_id.get().to_string(),
+            "messageID": sent.id.get().to_string(),
+            "categoryId": "",
+        })
+        .to_string(),
     )
     .await?;
+    // onCreation logs embed + footer file (CreateButtonPanel:125).
+    if let Some(logs) = ticket_logs_channel(pool, &gid).await {
+        let desc = t("event_ticket_logsChannel_onCreation_embed_desc")
+            .replace("${data.name}", &sent.id.get().to_string())
+            .replace("${interaction}", &format!("<#{}>", ctx.channel_id().get()));
+        let (log_name, log_icon) = ticket_footer(&http, pool, &gid).await;
+        let embed = ticket_embed_footer(
+            serenity::CreateEmbed::default()
+                .colour(0x008000_u32)
+                .title(t("event_ticket_logsChannel_onCreation_embed_title"))
+                .description(desc)
+                .timestamp(serenity::Timestamp::now()),
+            &log_name,
+            log_icon.is_some(),
+        );
+        let mut log_msg = serenity::CreateMessage::new().embed(embed);
+        if let Some(icon) = log_icon {
+            log_msg = log_msg.add_file(serenity::CreateAttachment::bytes(icon, "footer_icon.png"));
+        }
+        let _ = logs.send_message(&http, log_msg).await;
+    }
+    ctx.say(t("sethereticket_command_work")).await?;
     Ok(())
 }
 
@@ -856,7 +1070,7 @@ pub async fn handle_ticket_open_button(
     Ok(())
 }
 
-/// Delete this ticket channel. Mirrors !delete.ts.
+/// Delete this ticket channel (TicketDelete pipeline).
 #[poise::command(slash_command, prefix_command, rename = "delete", aliases("tdelete"))]
 pub async fn ticket_delete(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     // Mirrors !delete.ts guards (disable + delete_not_in_ticket).
@@ -869,33 +1083,105 @@ pub async fn ticket_delete(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     if ticket_guard_disabled(&ctx, pool, &gid, &lang_code, "ticket_disabled_command").await {
         return Ok(());
     }
+    let channel_id = ctx.channel_id();
     if ticket_guard_in_ticket(
         &ctx,
         pool,
         &gid,
         &lang_code,
-        ctx.channel_id(),
+        channel_id,
         "delete_not_in_ticket",
     )
     .await
     {
         return Ok(());
     }
-    ctx.channel_id().delete(&ctx.http()).await?;
+    let t = |k: &str| crate::lang::get(&lang_code, k).unwrap_or_default();
+    let http = ctx.serenity_context().http.clone();
+    let entries = load_ticket_entries(pool, &gid).await;
+    let (user_key, author) =
+        find_ticket_by_channel(&entries, &channel_id.get().to_string()).unwrap_or_default();
+    let owner_id: u64 = author.parse().unwrap_or(0);
+    let deleter_id = ctx.author().id.get();
+    // TS deletes the whole `TICKET_ALL.<user>` row up front.
+    if !user_key.is_empty() {
+        delete_user_ticket_rows(pool, &gid, &user_key).await;
+    }
+    let channel_name = channel_id
+        .name(&http)
+        .await
+        .unwrap_or_else(|_| "ticket".to_string());
+    let Some(logs) = ticket_logs_channel(pool, &gid).await else {
+        let _ = channel_id.delete(&http).await;
+        return Ok(());
+    };
+    let (html, _count) = channel_transcript_html(&http, channel_id).await;
+    let file_name = format!("{gid}-transcript.html");
+    if owner_id != 0 && owner_id != deleter_id {
+        let owner_mention = format!("<@{owner_id}>");
+        let msg = t("ticket_deleted")
+            .replace("${ticketOwnerMention}", &owner_mention)
+            .replace("${deletedByUserId}", &deleter_id.to_string());
+        let _ = dm_user(
+            &http,
+            owner_id,
+            serenity::CreateMessage::new().content(msg).add_file(
+                serenity::CreateAttachment::bytes(html.clone().into_bytes(), file_name.clone()),
+            ),
+        )
+        .await;
+    }
+    let title = t("event_ticket_logsChannel_onDelete_embed_title");
+    let desc = t("event_ticket_logsChannel_onDelete_embed_desc")
+        .replace("${interaction.user}", &ctx.author().to_string())
+        .replace("${interaction.channel.name}", &channel_name);
+    let (footer_name, footer_icon) = ticket_footer(&http, pool, &gid).await;
+    let embed = ticket_embed_footer(
+        serenity::CreateEmbed::default()
+            .colour(0x008000_u32)
+            .title(title)
+            .description(desc)
+            .timestamp(serenity::Timestamp::now()),
+        &footer_name,
+        footer_icon.is_some(),
+    );
+    let _ = channel_id.delete(&http).await;
+    let mut log_msg =
+        serenity::CreateMessage::new()
+            .embed(embed)
+            .add_file(serenity::CreateAttachment::bytes(
+                html.into_bytes(),
+                file_name,
+            ));
+    if let Some(icon) = footer_icon {
+        log_msg = log_msg.add_file(serenity::CreateAttachment::bytes(icon, "footer_icon.png"));
+    }
+    let _ = logs.send_message(&http, log_msg).await;
     Ok(())
 }
 
-/// Ping participants. Mirrors !remind.ts.
+/// Drop every TICKET_ALL row of one user (flat `TICKET_ALL.<user>.*`
+/// rows plus the nested `TICKET_ALL.<user>` object). Mirrors the
+/// `db.delete(TICKET_ALL.<user>)` in TicketDelete.
+async fn delete_user_ticket_rows(pool: &crate::db::Pool, gid: &str, user_key: &str) {
+    let _ = sqlx::query(
+        "DELETE FROM kv WHERE guild_id = ? AND key_name LIKE 'TICKET_ALL.' || ? || '.%'",
+    )
+    .bind(gid)
+    .bind(user_key)
+    .execute(pool)
+    .await;
+    let _ = crate::db::kv_del(pool, gid, &format!("TICKET_ALL.{user_key}")).await;
+}
+
+/// Remind the ticket owner (TicketRemind pipeline).
 #[poise::command(
     slash_command,
     prefix_command,
     rename = "remind",
     default_member_permissions = "MANAGE_CHANNELS"
 )]
-pub async fn ticket_remind(
-    ctx: Ctx<'_>,
-    #[description = "Extra text"] text: Option<String>,
-) -> Result<(), anyhow::Error> {
+pub async fn ticket_remind(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     // Mirrors !remind.ts guards (disable + delete_not_in_ticket; TS
     // uses the delete key on this path too).
     let gid = ctx
@@ -907,23 +1193,81 @@ pub async fn ticket_remind(
     if ticket_guard_disabled(&ctx, pool, &gid, &lang_code, "ticket_disabled_command").await {
         return Ok(());
     }
+    let channel_id = ctx.channel_id();
     if ticket_guard_in_ticket(
         &ctx,
         pool,
         &gid,
         &lang_code,
-        ctx.channel_id(),
+        channel_id,
         "delete_not_in_ticket",
     )
     .await
     {
         return Ok(());
     }
-    ctx.say(format!(
-        "@here {}",
-        text.unwrap_or_else(|| "Update please.".to_string())
-    ))
-    .await?;
+    let t = |k: &str| crate::lang::get(&lang_code, k).unwrap_or_default();
+    let http = ctx.serenity_context().http.clone();
+    let entries = load_ticket_entries(pool, &gid).await;
+    let Some(owner_id) = ticket_owner_id(&entries, &channel_id.get().to_string()) else {
+        ctx.say(t("open_not_in_ticket")).await?;
+        return Ok(());
+    };
+    // Last owner message out of the last 100 (TicketRemind:2099).
+    let recent = channel_id
+        .messages(&http, serenity::GetMessages::new().limit(100))
+        .await
+        .unwrap_or_default();
+    let last_owner = recent
+        .iter()
+        .filter(|m| m.author.id.get() == owner_id)
+        .max_by_key(|m| m.timestamp.unix_timestamp());
+    let now_ms = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|d| d.as_millis() as i64)
+        .unwrap_or(0);
+    let time = match last_owner {
+        Some(m) => {
+            let ts_ms = m.timestamp.unix_timestamp() * 1000;
+            crate::funcs::beautiful_ms((now_ms - ts_ms).max(0) as f64)
+        }
+        None => t("var_never"),
+    };
+    let channel_link = format!("https://discord.com/channels/{gid}/{}", channel_id.get());
+    let field_value = match last_owner {
+        Some(m) => format!("[{time}]({channel_link}/{})", m.id.get()),
+        None => format!("[{time}]({channel_link})"),
+    };
+    let (footer_name, footer_icon) = ticket_footer(&http, pool, &gid).await;
+    let mut foot = serenity::CreateEmbedFooter::new(footer_name);
+    if footer_icon.is_some() {
+        foot = foot.icon_url("attachment://footer_icon.png");
+    }
+    let embed = serenity::CreateEmbed::default()
+        .title(t("ticket_remind_embed_title"))
+        .description(t("ticket_remind_embed_desc"))
+        .field(t("ticket_remind_embed_fields_1_name"), field_value, false)
+        .colour(serenity::Colour::RED)
+        .footer(foot);
+    let mut dm = serenity::CreateMessage::new()
+        .content(&channel_link)
+        .embed(embed);
+    if let Some(icon) = footer_icon {
+        dm = dm.add_file(serenity::CreateAttachment::bytes(icon, "footer_icon.png"));
+    }
+    if dm_user(&http, owner_id, dm).await {
+        ctx.say(t("ticket_remind_command_ok")).await?;
+    } else {
+        let no = crate::emojis::app_emoji_markup(&http, "No")
+            .await
+            .unwrap_or_else(|| "❌".to_string());
+        ctx.say(
+            t("utils_dm_cant")
+                .replace("${client.iHorizon_Emojis.No}", &no)
+                .replace("${targetMember.toString()}", &format!("<@{owner_id}>")),
+        )
+        .await?;
+    }
     Ok(())
 }
 
@@ -1072,9 +1416,9 @@ pub async fn ticket_unlink(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
                 .await;
         }
     }
-    // Edit the panel (first) message: unlink line, embeds and
-    // components cleared.
-    if let Some(first) = oldest_message_id(&http, channel_id).await {
+    // Edit the panel (first) message: unlink line, embeds,
+    // components and files cleared.
+    if let Some(first) = first_panel_message_id(&http, channel_id).await {
         let content = crate::lang::get(&code, "ticket_unlink_panel_edited_content")
             .map(|s| s.replace("{user}", &ctx.author().to_string()))
             .unwrap_or_else(|| "Channel unlinked.".to_string());
@@ -1085,7 +1429,8 @@ pub async fn ticket_unlink(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
                 serenity::EditMessage::new()
                     .content(content)
                     .embeds(vec![])
-                    .components(vec![]),
+                    .components(vec![])
+                    .remove_all_attachments(),
             )
             .await;
     }
@@ -1152,18 +1497,35 @@ pub async fn load_ticket_entries(pool: &crate::db::Pool, gid: &str) -> Vec<(Stri
     out
 }
 
-/// Snapshot the last 100 messages of a channel as (html, count).
-/// Shared by the close/transcript/delete ticket flows (mirrors
-/// discord-html-transcripts usage in ticketsManager.ts).
+/// Snapshot the full history of a channel as (html, count),
+/// chronological. Shared by the close/transcript/delete ticket flows
+/// (mirrors discord-html-transcripts createTranscript {limit: -1} in
+/// ticketsManager.ts).
 pub async fn channel_transcript_html(
     http: &std::sync::Arc<serenity::Http>,
     channel_id: serenity::ChannelId,
 ) -> (String, usize) {
-    let msgs = channel_id
-        .messages(http, serenity::GetMessages::new().limit(100))
-        .await
-        .unwrap_or_default();
-    let snap: Vec<crate::transcript::TranscriptMessage> = msgs
+    let mut all = vec![];
+    let mut before: Option<serenity::MessageId> = None;
+    loop {
+        let mut query = serenity::GetMessages::new().limit(100);
+        if let Some(cursor) = before {
+            query = query.before(cursor);
+        }
+        let batch = channel_id.messages(http, query).await.unwrap_or_default();
+        if batch.is_empty() {
+            break;
+        }
+        let full = batch.len() == 100;
+        before = batch.last().map(|m| m.id);
+        all.extend(batch);
+        if !full {
+            break;
+        }
+    }
+    // Newest-first pages -> chronological transcript.
+    all.reverse();
+    let snap: Vec<crate::transcript::TranscriptMessage> = all
         .iter()
         .map(|m| crate::transcript::TranscriptMessage {
             author_tag: m.author.tag(),
@@ -1452,30 +1814,24 @@ async fn delete_ticket_row(pool: &crate::db::Pool, gid: &str, channel_id: sereni
     }
 }
 
-/// Oldest message id of a channel (bounded walk back, newest-first
-/// pages). TS unlink edits the panel (first) message.
-async fn oldest_message_id(
+/// First (panel) message id of a channel with a single fetch, like
+/// `messages.fetch({after: "0", limit: 1})` in !unlink.ts.
+async fn first_panel_message_id(
     http: &std::sync::Arc<serenity::Http>,
     channel_id: serenity::ChannelId,
 ) -> Option<serenity::MessageId> {
-    let mut before: Option<serenity::MessageId> = None;
-    let mut oldest: Option<serenity::MessageId> = None;
-    for _ in 0..10 {
-        let mut query = serenity::GetMessages::new().limit(100);
-        if let Some(cursor) = before {
-            query = query.before(cursor);
-        }
-        let msgs = channel_id.messages(http, query).await.unwrap_or_default();
-        if msgs.is_empty() {
-            break;
-        }
-        oldest = msgs.last().map(|m| m.id);
-        if msgs.len() < 100 {
-            break;
-        }
-        before = msgs.last().map(|m| m.id);
-    }
-    oldest
+    channel_id
+        .messages(
+            http,
+            serenity::GetMessages::new()
+                .after(serenity::MessageId::new(1))
+                .limit(1),
+        )
+        .await
+        .ok()?
+        .into_iter()
+        .next()
+        .map(|m| m.id)
 }
 
 /// Shared close pipeline: HTML transcript + logs embed, then delete
@@ -1558,11 +1914,8 @@ pub async fn handle_ticket_embed_delete(
     };
     let author_id: u64 = author.parse().unwrap_or(0);
     let deleter_id = comp.user.id.get();
-    let _ = sqlx::query("DELETE FROM kv WHERE guild_id = ? AND key_name = ?")
-        .bind(&gid)
-        .bind(format!("TICKET_ALL.{user_key}.{}", channel_id.get()))
-        .execute(pool)
-        .await;
+    // TS TicketDelete drops the whole `TICKET_ALL.<user>` row up front.
+    delete_user_ticket_rows(pool, &gid, &user_key).await;
     let channel_name = channel_id
         .name(&ctx.http)
         .await
@@ -1590,20 +1943,25 @@ pub async fn handle_ticket_embed_delete(
             .unwrap_or_default()
             .replace("${interaction.user}", &comp.user.to_string())
             .replace("${interaction.channel.name}", &channel_name);
-        let embed = serenity::CreateEmbed::default()
-            .colour(0x008000)
-            .title(title)
-            .description(desc)
-            .timestamp(serenity::Timestamp::now());
+        let (footer_name, footer_icon) = ticket_footer(&ctx.http, pool, &gid).await;
+        let embed = ticket_embed_footer(
+            serenity::CreateEmbed::default()
+                .colour(0x008000)
+                .title(title)
+                .description(desc)
+                .timestamp(serenity::Timestamp::now()),
+            &footer_name,
+            footer_icon.is_some(),
+        );
+        // TS deletes the channel before posting the logs embed.
         let _ = channel_id.delete(&ctx.http).await;
-        let _ = logs
-            .send_message(
-                &ctx.http,
-                serenity::CreateMessage::new().embed(embed).add_file(
-                    serenity::CreateAttachment::bytes(html.into_bytes(), file_name),
-                ),
-            )
-            .await;
+        let mut log_msg = serenity::CreateMessage::new().embed(embed).add_file(
+            serenity::CreateAttachment::bytes(html.into_bytes(), file_name),
+        );
+        if let Some(icon) = footer_icon {
+            log_msg = log_msg.add_file(serenity::CreateAttachment::bytes(icon, "footer_icon.png"));
+        }
+        let _ = logs.send_message(&ctx.http, log_msg).await;
     } else {
         let _ = channel_id.delete(&ctx.http).await;
     }
@@ -1629,15 +1987,27 @@ pub async fn handle_ticket_embed_transcript(
     }
     let (html, _) = channel_transcript_html(&ctx.http, comp.channel_id).await;
     let ack = crate::lang::get(&lang_code, "guildconfig_config_save_check_dm").unwrap_or_default();
-    comp.create_response(
-        &ctx.http,
-        serenity::CreateInteractionResponse::Message(
-            serenity::CreateInteractionResponseMessage::new()
-                .content(ack)
-                .ephemeral(true),
-        ),
-    )
-    .await?;
+    // TS TicketTranscript replies, or edits the reply when the
+    // interaction is already deferred: try the reply first, fall back
+    // to editing the deferred response.
+    if comp
+        .create_response(
+            &ctx.http,
+            serenity::CreateInteractionResponse::Message(
+                serenity::CreateInteractionResponseMessage::new()
+                    .content(&ack)
+                    .ephemeral(true),
+            ),
+        )
+        .await
+        .is_err()
+    {
+        comp.edit_response(
+            &ctx.http,
+            serenity::EditInteractionResponse::new().content(ack),
+        )
+        .await?;
+    }
     let desc = crate::lang::get(&lang_code, "close_title_sourcebin").unwrap_or_default();
     let body = crate::lang::get(&lang_code, "transript_command_work").unwrap_or_default();
     let embed = serenity::CreateEmbed::default()
@@ -1685,16 +2055,18 @@ pub async fn handle_ticket_select_user(
     let gid = guild_id.get().to_string();
     let lang_code = crate::db::guild_lang(pool, Some(guild_id.get())).await;
     let channel_id = comp.channel_id;
-    let owner_key = format!("TICKET_ALL.{}.{}", comp.user.id.get(), channel_id.get());
-    let Some(owner_raw) = crate::db::kv_get(pool, &gid, &owner_key).await else {
+    // Only the ticket opener may use the menu (TicketAddMember_2:1922):
+    // defer first and stop otherwise. The owner resolves across both
+    // store shapes.
+    let entries = load_ticket_entries(pool, &gid).await;
+    let is_owner = ticket_owner_id(&entries, &channel_id.get().to_string())
+        .is_some_and(|id| id == comp.user.id.get());
+    if !is_owner {
         comp.create_response(&ctx.http, serenity::CreateInteractionResponse::Acknowledge)
             .await?;
         return Ok(());
-    };
-    let author = serde_json::from_str::<serde_json::Value>(&owner_raw)
-        .ok()
-        .and_then(|v| v.get("author").and_then(|a| a.as_str()).map(str::to_string))
-        .unwrap_or_else(|| comp.user.id.get().to_string());
+    }
+    let author = comp.user.id.get().to_string();
     let selected: Vec<String> = match &comp.data.kind {
         serenity::ComponentInteractionDataKind::UserSelect { values } => {
             values.iter().map(|u| u.get().to_string()).collect()
@@ -1798,14 +2170,21 @@ pub async fn handle_ticket_select_user(
         .replace("${removedMembers}", &mentions(&removed))
         .replace("${addedMembers}", &mentions(&added))
         .replace("${interaction.channel}", &format!("<#{channel_id}>"));
-        let embed = serenity::CreateEmbed::default()
-            .colour(0x008000)
-            .title(title)
-            .description(desc)
-            .timestamp(serenity::Timestamp::now());
-        let _ = logs
-            .send_message(&ctx.http, serenity::CreateMessage::new().embed(embed))
-            .await;
+        let (footer_name, footer_icon) = ticket_footer(&ctx.http, pool, &gid).await;
+        let embed = ticket_embed_footer(
+            serenity::CreateEmbed::default()
+                .colour(0x008000)
+                .title(title)
+                .description(desc)
+                .timestamp(serenity::Timestamp::now()),
+            &footer_name,
+            footer_icon.is_some(),
+        );
+        let mut log_msg = serenity::CreateMessage::new().embed(embed);
+        if let Some(icon) = footer_icon {
+            log_msg = log_msg.add_file(serenity::CreateAttachment::bytes(icon, "footer_icon.png"));
+        }
+        let _ = logs.send_message(&ctx.http, log_msg).await;
     }
     Ok(())
 }
@@ -2458,6 +2837,11 @@ pub fn create_embed_from_value(v: &serde_json::Value) -> Option<serenity::Create
     if let Some(url) = v.get("url").and_then(|x| x.as_str()) {
         embed = embed.url(url.to_string());
     }
+    if let Some(ts) = v.get("timestamp").and_then(|x| x.as_str()) {
+        if let Ok(stamp) = serenity::Timestamp::parse(ts) {
+            embed = embed.timestamp(stamp);
+        }
+    }
     Some(embed)
 }
 
@@ -2471,18 +2855,17 @@ pub fn render_v2_opener(template: &str, placeholder: &str, msg: &str, category: 
 }
 
 /// V2 ticket message content: opener mention when pingUser, plus
-/// `<@&role>` pings from the option and the panel. None when empty
-/// (TS sends undefined).
+/// `<@&role>` pings from the option and the panel, each role followed
+/// by a space. None when empty (TS sends undefined). Mirrors
+/// CreateChannelV2:1305 (`content = mention`, then
+/// `content += `<@&${role}> `` per role).
 pub fn v2_content(ping_user: bool, user_mention: &str, roles: &[String]) -> Option<String> {
     let mut content = String::new();
     if ping_user {
         content.push_str(user_mention);
     }
     for role in roles {
-        if !content.is_empty() {
-            content.push(' ');
-        }
-        content.push_str(&format!("<@&{role}>"));
+        content.push_str(&format!("<@&{role}> "));
     }
     if content.is_empty() {
         None
@@ -2697,6 +3080,16 @@ pub async fn handle_v2_ticket_open(
         .map(|g| (g.name.clone(), g.member_count))
         .unwrap_or_default();
     let created_at = comp.user.created_at().unix_timestamp();
+    // Real account-creation date for the {createdAt} slot (TS:
+    // user.createdAt.toLocaleDateString(guildLocale), en-US shape
+    // M/D/YYYY).
+    let created_date = chrono::DateTime::from_timestamp(created_at, 0)
+        .map(|dt| {
+            use chrono::Datelike;
+            let d = dt.naive_utc().date();
+            format!("{}/{}/{}", d.month(), d.day(), d.year())
+        })
+        .unwrap_or_default();
     let mut opener: Vec<serenity::CreateEmbed> = vec![];
     let mut with_file = false;
     if let Some(embed_id) = panel_embed_id {
@@ -2713,7 +3106,7 @@ pub async fn handle_v2_ticket_open(
                 member_count,
                 guild_name: &guild_name,
                 created_relative: &format!("<t:{created_at}:R>"),
-                created_date: "",
+                created_date: &created_date,
                 category: chosen_name,
             })
         });
@@ -3003,15 +3396,16 @@ mod tests {
         // Opener uses the placeholder in the panelName slot.
         let desc = render_v2_opener("```${result.panelName}``` {msg} {category}", "PH", "M", "C");
         assert!(desc.contains("```PH```") && desc.contains('M') && desc.contains('C'));
-        // Content: mention + role pings, None when empty.
+        // Content mirrors CreateChannelV2: mention then `<@&r> ` per
+        // role (trailing space), None when empty.
         assert_eq!(
             v2_content(true, "<@1>", &["2".to_string()]),
-            Some("<@1> <@&2>".to_string())
+            Some("<@1><@&2> ".to_string())
         );
         assert_eq!(v2_content(false, "<@1>", &[]), None);
         assert_eq!(
             v2_content(false, "<@1>", &["2".to_string(), "3".to_string()]),
-            Some("<@&2> <@&3>".to_string())
+            Some("<@&2> <@&3> ".to_string())
         );
         // Preview resolves member/guild slots + category, keeps
         // intimate literals like render_join_dm.
@@ -3027,9 +3421,9 @@ mod tests {
         });
         assert!(out.contains("U") && out.contains('G') && out.contains("Cat"));
         assert!(out.contains("unknow_user"));
-        // Stored embed JSON round-trips the common keys.
+        // Stored embed JSON round-trips the common keys (incl. timestamp).
         let v: serde_json::Value = serde_json::from_str(
-            r#"{"title":"T","description":"D","color":2829617,"fields":[{"name":"N","value":"V","inline":true}],"footer":{"text":"F"},"author":{"name":"A"},"image":{"url":"i"},"thumbnail":{"url":"t"},"url":"u"}"#,
+            r#"{"title":"T","description":"D","color":2829617,"fields":[{"name":"N","value":"V","inline":true}],"footer":{"text":"F"},"author":{"name":"A"},"image":{"url":"i"},"thumbnail":{"url":"t"},"url":"u","timestamp":"2024-01-02T03:04:05.000Z"}"#,
         )
         .unwrap();
         assert!(create_embed_from_value(&v).is_some());

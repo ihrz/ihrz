@@ -30,7 +30,35 @@ always100 = []
 users = []
 
 [lavalink]
-# Mirrors config.lavalink.nodes. Empty = audio stays on the offline mock.
+# Mirrors config.lavalink.nodes in src/files/config.ts. Empty = audio
+# commands run against local player state only (offline mock path).
+#
+# Server-side sources (Spotify / Apple Music / Deezer / Tidal / YouTube)
+# are resolved by plugins installed ON THE NODE, not in this bot — plain
+# track URLs pass through and only bare text gets the `ytsearch:` prefix
+# (mirrors defaultSearchPlatform: "youtube"). Node application.yml needs:
+#   lavalink:
+#     plugins:
+#       - "com.github.topi314.lavasrc:lavasrc-plugin:<version>"
+#       - "com.github.topi314.lavayoutube:youtube-plugin:<version>"
+#   plugins:
+#     lavasrc:
+#       providers: [spotify, applemusic, deezer, tidal, youtube]
+# (credentials per provider live in the node config, never here.)
+#
+# TS reference nodes (fill in real secrets, never commit them):
+# [[lavalink.nodes]]
+# id = "node0"
+# host = "lava-v4.ajieblogs.eu.org"
+# port = 443
+# authorization = "https://dsc.gg/ajidevserver"
+# secure = true
+# [[lavalink.nodes]]
+# id = "node1"
+# host = "192.168.1.193"
+# port = 2333
+# authorization = "X4yI618A6jz!Ij0@Hq(={"
+# secure = false
 [[lavalink.nodes]]
 id = "example_node"
 host = "lavalink.example.com"

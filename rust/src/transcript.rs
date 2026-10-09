@@ -55,7 +55,16 @@ pub fn build_html(channel_name: &str, messages: &[TranscriptMessage]) -> String 
         }
         h.push_str("</div>");
     }
-    h.push_str("</body></html>");
+    // Mirrors discord-html-transcripts footerText "Exported {number}
+    // message{s}".
+    h.push_str("<div class=\"footer\">Exported ");
+    h.push_str(&messages.len().to_string());
+    h.push_str(if messages.len() == 1 {
+        " message"
+    } else {
+        " messages"
+    });
+    h.push_str("</div></body></html>");
     h
 }
 
@@ -94,5 +103,15 @@ mod tests {
         assert!(html.contains("hi &amp; bye"));
         assert!(html.contains("http://x/y.png"));
         assert!(!html.contains("<script"));
+        assert!(html.contains("Exported 2 messages"));
+        let single = vec![TranscriptMessage {
+            author_tag: "c".into(),
+            author_id: 2,
+            content: "file".into(),
+            timestamp_ms: 2000,
+            attachments: vec![],
+        }];
+        assert!(build_html("t", &single).contains("Exported 1 message"));
+        assert!(build_html("t", &[]).contains("Exported 0 messages"));
     }
 }

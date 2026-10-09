@@ -267,11 +267,12 @@ pub fn ended_board_shell(
     apply_giveaway_image(embed, image_url)
 }
 
-/// Unix timestamp that never fails (epoch fallback is infallible).
+/// Unix timestamp that never panics: out-of-range input falls back to
+/// the epoch, and `now()` is the infallible terminal fallback.
 pub fn unix_ts(secs: i64) -> serenity::Timestamp {
     serenity::Timestamp::from_unix_timestamp(secs)
         .or_else(|_| serenity::Timestamp::from_unix_timestamp(0))
-        .expect("epoch timestamp is valid")
+        .unwrap_or_else(|_| serenity::Timestamp::now())
 }
 
 /// Winners line: `<@a>,<@b>` or the None fallback. Mirrors
@@ -867,10 +868,7 @@ pub async fn gw_create(
         .colour(serenity::Colour::new(GW_COLOR))
         .title(gw.prize.clone())
         .description(desc)
-        .timestamp(
-            serenity::Timestamp::from_unix_timestamp(gw.expire_in_ms / 1000)
-                .unwrap_or_else(|_| serenity::Timestamp::from_unix_timestamp(0).unwrap()),
-        );
+        .timestamp(unix_ts(gw.expire_in_ms / 1000));
     embed = giveaway_embed_footer(embed, &footer_name, footer_icon.is_some());
     embed = apply_giveaway_image(embed, gw.embed_image_url.as_deref());
     let mut reply =
