@@ -1088,14 +1088,31 @@ pub fn spawn(pool: Pool, http: std::sync::Arc<poise::serenity_prelude::Http>) {
         });
     }
 
-    // Infrastructure monitoring (real, mirrors 60s manager tick).
+    // Infrastructure monitoring (real, mirrors 60s manager tick:
+    // probe + INFRA.status record, then the status-panel broadcast
+    // to every MISC.statusEmbed channel).
     {
         let pool = pool.clone();
+        let http = http.clone();
         tokio::spawn(async move {
             let mut t = tokio::time::interval(Duration::from_secs(60));
             loop {
                 t.tick().await;
-                crate::monitor::tick(&pool, 0).await;
+                let status = crate::monitor::tick(&pool, 0).await;
+                let now_secs = std::time::SystemTime::now()
+                    .duration_since(std::time::UNIX_EPOCH)
+                    .map(|d| d.as_secs() as i64)
+                    .unwrap_or(0);
+                let n = crate::monitor::sweep_status_panel(
+                    &pool,
+                    Some(&http),
+                    &status.services,
+                    now_secs,
+                )
+                .await;
+                if n > 0 {
+                    tracing::info!("scheduler: updated {n} status panels");
+                }
             }
         });
     }

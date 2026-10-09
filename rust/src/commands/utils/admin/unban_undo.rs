@@ -13,7 +13,13 @@ pub async fn unban_undo(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         return Ok(());
     };
     let gid = guild_id.get().to_string();
-    let raw = crate::db::kv_get(&ctx.data().pool, &gid, "UTILS.unban_members").await;
+    let raw = crate::commands::owner::main::routed_get(
+        &ctx.data().pool,
+        &gid,
+        &gid,
+        "UTILS.unban_members",
+    )
+    .await;
     let list: Vec<String> = raw
         .and_then(|s| serde_json::from_str(&s).ok())
         .unwrap_or_default();

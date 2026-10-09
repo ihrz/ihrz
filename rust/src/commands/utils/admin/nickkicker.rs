@@ -20,7 +20,9 @@ pub async fn nickkicker(
         .unwrap_or_default();
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let t = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
-    let raw = crate::db::kv_get(&ctx.data().pool, &gid, "UTILS.NICK_KICKER").await;
+    let raw =
+        crate::commands::owner::main::routed_get(&ctx.data().pool, &gid, &gid, "UTILS.NICK_KICKER")
+            .await;
     let mut cfg: serde_json::Value = raw
         .and_then(|s| serde_json::from_str(&s).ok())
         .unwrap_or(serde_json::json!({"enabled": true, "words": []}));
@@ -61,8 +63,9 @@ pub async fn nickkicker(
         }
         words.retain(|w| w != &r);
         cfg["words"] = serde_json::Value::from(words);
-        crate::db::kv_set(
+        crate::commands::owner::main::routed_set(
             &ctx.data().pool,
+            &gid,
             &gid,
             "UTILS.NICK_KICKER",
             &cfg.to_string(),
@@ -76,8 +79,9 @@ pub async fn nickkicker(
         Some(w) => match w.to_ascii_lowercase().as_str() {
             "enable" | "on" => {
                 cfg["enabled"] = serde_json::Value::Bool(true);
-                crate::db::kv_set(
+                crate::commands::owner::main::routed_set(
                     &ctx.data().pool,
+                    &gid,
                     &gid,
                     "UTILS.NICK_KICKER",
                     &cfg.to_string(),
@@ -88,8 +92,9 @@ pub async fn nickkicker(
             }
             "disable" | "off" => {
                 cfg["enabled"] = serde_json::Value::Bool(false);
-                crate::db::kv_set(
+                crate::commands::owner::main::routed_set(
                     &ctx.data().pool,
+                    &gid,
                     &gid,
                     "UTILS.NICK_KICKER",
                     &cfg.to_string(),
@@ -107,8 +112,9 @@ pub async fn nickkicker(
                 let mut words = words;
                 words.push(w.to_lowercase().chars().take(20).collect::<String>());
                 cfg["words"] = serde_json::Value::from(words);
-                crate::db::kv_set(
+                crate::commands::owner::main::routed_set(
                     &ctx.data().pool,
+                    &gid,
                     &gid,
                     "UTILS.NICK_KICKER",
                     &cfg.to_string(),

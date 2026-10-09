@@ -2573,4 +2573,18 @@ export interface LanguageData {
 	msg_word_added: string;
 	msg_rank_roles_empty: string;
 	msg_rank_role_row: string;
+	msg_antispam_config_updated: string;
+	msg_nightmode_updated: string;
+	msg_ghost_list_empty: string;
+	msg_guildconfig_show_empty: string;
+	msg_support_enabled: string;
+	msg_perm_list_detail: string;
+	msg_perm_list_default: string;
+	msg_notifier_list_empty: string;
+	msg_profil_invalid_age: string;
+	msg_profil_invalid_gender: string;
+	msg_profil_invalid_pronoun: string;
+	msg_profil_birthday_invalid: string;
+	msg_profil_birthday_saved: string;
+	msg_profil_use_subcommand: string;
 }

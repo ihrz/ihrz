@@ -18,10 +18,11 @@ pub async fn unleash(
         .unwrap_or_default();
     let pool = &ctx.data().pool;
     let code = crate::db::guild_lang(pool, ctx.guild_id().map(|g| g.get())).await;
-    let pairs: Vec<serde_json::Value> = crate::db::kv_get(pool, &gid, "UTILS.LEASH")
-        .await
-        .and_then(|s| serde_json::from_str(&s).ok())
-        .unwrap_or_default();
+    let pairs: Vec<serde_json::Value> =
+        crate::commands::owner::main::routed_get(pool, &gid, &gid, "UTILS.LEASH")
+            .await
+            .and_then(|s| serde_json::from_str(&s).ok())
+            .unwrap_or_default();
     let dom = ctx.author().id.get().to_string();
     let sub = member.id.get().to_string();
     if !pairs.iter().any(|p| {
@@ -48,7 +49,14 @@ pub async fn unleash(
                 && p.get("sub").and_then(|s| s.as_str()) == Some(sub.as_str()))
         })
         .collect();
-    crate::db::kv_set(pool, &gid, "UTILS.LEASH", &serde_json::to_string(&kept)?).await?;
+    crate::commands::owner::main::routed_set(
+        pool,
+        &gid,
+        &gid,
+        "UTILS.LEASH",
+        &serde_json::to_string(&kept)?,
+    )
+    .await?;
     let yes_mark = crate::emojis::app_emoji_markup(&ctx.serenity_context().http, "Yes")
         .await
         .unwrap_or_else(|| "✅".to_string());

@@ -20,11 +20,13 @@ pub async fn setmentionrole(
         .map(|g| g.get().to_string())
         .unwrap_or_default();
     if action.trim().eq_ignore_ascii_case("off") {
-        let _ = sqlx::query("DELETE FROM kv WHERE guild_id = ? AND key_name = ?")
-            .bind(&gid)
-            .bind("GUILD.RANK_ROLES.nicknames")
-            .execute(&ctx.data().pool)
-            .await;
+        let _ = crate::commands::owner::main::routed_del(
+            &ctx.data().pool,
+            &gid,
+            &gid,
+            "GUILD.RANK_ROLES.nicknames",
+        )
+        .await;
         let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
         ctx.say(
             crate::lang::get(&code, "setrankroles_command_work_disable")
@@ -52,13 +54,20 @@ pub async fn setmentionrole(
         .await?;
         return Ok(());
     };
-    let raw = crate::db::kv_get(&ctx.data().pool, &gid, "GUILD.RANK_ROLES.nicknames").await;
+    let raw = crate::commands::owner::main::routed_get(
+        &ctx.data().pool,
+        &gid,
+        &gid,
+        "GUILD.RANK_ROLES.nicknames",
+    )
+    .await;
     let mut map: std::collections::HashMap<String, String> = raw
         .and_then(|s| serde_json::from_str(&s).ok())
         .unwrap_or_default();
     map.insert(part.trim().to_string(), role.id.get().to_string());
-    crate::db::kv_set(
+    crate::commands::owner::main::routed_set(
         &ctx.data().pool,
+        &gid,
         &gid,
         "GUILD.RANK_ROLES.nicknames",
         &serde_json::to_string(&map)?,

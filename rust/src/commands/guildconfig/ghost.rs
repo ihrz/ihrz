@@ -88,8 +88,10 @@ pub async fn gc_ghost_list(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         .map(|g| g.get().to_string())
         .unwrap_or_default();
     let list = load_ghost(&ctx.data().pool, &gid).await;
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     ctx.say(if list.is_empty() {
-        "No ghost-ping watches.".to_string()
+        crate::lang::get(&code, "msg_ghost_list_empty")
+            .unwrap_or_else(|| "No ghost-ping watches.".to_string())
     } else {
         list.join(", ")
     })

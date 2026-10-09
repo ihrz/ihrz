@@ -72,10 +72,16 @@ pub async fn counter_config(
         if enabled { "on" } else { "off" },
     )
     .await?;
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    let author = format!("<@{}>", ctx.author().id.get());
     ctx.say(if enabled {
-        "Counter on."
+        crate::lang::get(&code, "counter_config_command_action_on")
+            .map(|s| s.replace("${interaction.user}", &author))
+            .unwrap_or_else(|| format!("{author}, you have set to `Power On` the Counter Module.\nIf the channel doesn't exist, configure it with the command: **/counter channel**."))
     } else {
-        "Counter off."
+        crate::lang::get(&code, "counter_config_command_action_off")
+            .map(|s| s.replace("${interaction.user}", &author))
+            .unwrap_or_else(|| format!("{author}, you have set to `Power Off` the Counter Module."))
     })
     .await?;
     Ok(())

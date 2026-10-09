@@ -29,12 +29,17 @@ pub fn table_backend(pool: &crate::db::Pool) -> crate::backends::Backend {
     crate::backends::Backend::sqlite(pool.clone())
 }
 
-/// Table-handle read as plain text. Values are always written via
-/// `tbl_set` as strings, so this round-trips; anything else reads as
-/// missing and the caller falls back to legacy kv.
+/// Table-handle read as plain text. Values written via `tbl_set` keep
+/// their JSON shape in store, so this returns the canonical text form:
+/// strings unwrapped, anything else re-serialized (matches the legacy
+/// kv text rows, which callers `from_str` back into structs).
 pub async fn tbl_get(pool: &crate::db::Pool, table: &str, key: &str) -> Option<String> {
     let backend = table_backend(pool);
-    backend.table(table).get::<String>(key).await.ok().flatten()
+    let v: serde_json::Value = backend.table(table).get(key).await.ok()??;
+    match v {
+        serde_json::Value::String(s) => Some(s),
+        other => serde_json::to_string(&other).ok(),
+    }
 }
 
 /// Table-handle read as a JSON doc, for walking nested dotted-key
@@ -75,7 +80,11 @@ pub async fn tbl_set(
     value: &str,
 ) -> anyhow::Result<()> {
     let backend = table_backend(pool);
-    backend.table(table).set(key, value.to_string()).await
+    // Store JSON documents as values (TS object semantics); plain strings
+    // that are not valid JSON stay strings (legacy kv parity).
+    let v: serde_json::Value =
+        serde_json::from_str(value).unwrap_or(serde_json::Value::String(value.to_string()));
+    backend.table(table).set(key, v).await
 }
 
 /// Table-handle delete. Pre-checks existence first: a dotted delete on

@@ -344,6 +344,126 @@ where
     out
 }
 
+/// Batch outcome. Mirrors BatchProcessorResult ({success, failed}).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub struct BatchProcessorResult {
+    pub success: usize,
+    pub failed: usize,
+}
+
+/// Counted batch runner. Mirrors processBatch exactly: chunked loop
+/// over `batchSize` (default 10), per-item try/catch (a processor
+/// failure counts as failed, never aborts the run), `onProgress`
+/// after each batch with (completed, total), and `delay` ms between
+/// batches (skipped after the last one; 0 disables the sleep so
+/// offline tests stay instant).
+pub async fn process_batch_full<T, F, Fut, P>(
+    items: &[T],
+    batch_size: usize,
+    delay_ms: u64,
+    mut on_progress: Option<P>,
+    mut processor: F,
+) -> BatchProcessorResult
+where
+    T: Clone,
+    F: FnMut(T) -> Fut,
+    Fut: std::future::Future<Output = bool>,
+    P: FnMut(usize, usize),
+{
+    let size = batch_size.max(1);
+    let total = items.len();
+    let mut result = BatchProcessorResult::default();
+    let batch_count = total.div_ceil(size);
+    for (index, chunk) in items.chunks(size).enumerate() {
+        // Own the batch before awaiting so no slice borrow is held
+        // across the processor await (keeps spawned futures Send).
+        for item in chunk.iter().cloned() {
+            if processor(item).await {
+                result.success += 1;
+            } else {
+                result.failed += 1;
+            }
+        }
+        if let Some(ref mut progress) = on_progress {
+            progress(result.success + result.failed, total);
+        }
+        if delay_ms > 0 && index + 1 < batch_count {
+            tokio::time::sleep(std::time::Duration::from_millis(delay_ms)).await;
+        }
+    }
+    result
+}
+
+/// Background batch runner. Mirrors processBatchAsync (setImmediate +
+/// onComplete): the work runs on a spawned task and the callback
+/// fires with the final counts. Returns the join handle.
+pub fn process_batch_async<T, F, Fut, C>(
+    items: Vec<T>,
+    batch_size: usize,
+    delay_ms: u64,
+    processor: F,
+    on_complete: Option<C>,
+) -> tokio::task::JoinHandle<BatchProcessorResult>
+where
+    T: Clone + Send + Sync + 'static,
+    F: FnMut(T) -> Fut + Send + 'static,
+    Fut: std::future::Future<Output = bool> + Send + 'static,
+    C: FnOnce(BatchProcessorResult) + Send + 'static,
+{
+    tokio::spawn(async move {
+        let result = process_batch_full(
+            &items,
+            batch_size,
+            delay_ms,
+            None::<fn(usize, usize)>,
+            processor,
+        )
+        .await;
+        if let Some(done) = on_complete {
+            done(result);
+        }
+        result
+    })
+}
+
+/// Remote asset length table. Mirrors the length.json fetch in
+/// assetsCalc.ts (TS `Assets`: string keys to counts).
+pub const ASSETS_LENGTHS_URL: &str =
+    "https://gitlab.com/ihrz/assets/-/raw/main/length.json?ref_type=heads";
+
+/// Parse the length.json body into per-type gif counts. None when the
+/// body is not a JSON object (mirrors the TS JSON.parse, minus the
+/// throw: unusable bodies stay unusable). Non-integer values are
+/// skipped like unknown keys.
+pub fn parse_assets_lengths(raw: &str) -> Option<std::collections::HashMap<String, u64>> {
+    // TS assetsCalc hands a bare `"kiss":30,...}` fragment (length.json
+    // body without the opening brace); accept both fragment and full
+    // object shapes.
+    let shaped = raw.trim();
+    let shaped = if shaped.starts_with('{') {
+        shaped.to_string()
+    } else {
+        format!("{{{shaped}")
+    };
+    let value: serde_json::Value = serde_json::from_str(&shaped).ok()?;
+    let table = value.as_object()?;
+    let mut out = std::collections::HashMap::with_capacity(table.len());
+    for (key, count) in table {
+        if let Some(n) = count.as_u64() {
+            out.insert(key.clone(), n);
+        }
+    }
+    Some(out)
+}
+
+/// Gif count for one asset type. Mirrors the `assets[type]` read the
+/// TS callers do after assetsCalc fills `client.assets`.
+pub fn assets_length(
+    table: &std::collections::HashMap<String, u64>,
+    asset_type: &str,
+) -> Option<u64> {
+    table.get(asset_type).copied()
+}
 /// Shard id for a guild. Mirrors client.inShard
 /// (`(guildId >> 22n) % totalShards`).
 pub fn guild_shard(guild_id: u64, total_shards: u64) -> u64 {
@@ -666,6 +786,72 @@ mod tests {
         let items = vec![1, 2, 3, 4, 5];
         let out = process_batch(&items, 2, |x| async move { x % 2 == 0 }).await;
         assert_eq!(out, vec![false, true, false, true, false]);
+    }
+
+    #[tokio::test]
+    async fn batch_full_counts_progress_and_async_complete() {
+        // Counts mirror {success, failed}; progress fires per batch.
+        let items = vec![1, 2, 3, 4, 5];
+        let mut seen = vec![];
+        let result = process_batch_full(
+            &items,
+            2,
+            0,
+            Some(&mut |done: usize, total: usize| {
+                seen.push((done, total));
+            }),
+            |x| async move { x % 2 == 0 },
+        )
+        .await;
+        assert_eq!(
+            result,
+            BatchProcessorResult {
+                success: 2,
+                failed: 3
+            }
+        );
+        assert_eq!(seen, vec![(2, 5), (4, 5), (5, 5)]);
+        // Empty input: no batches, no progress, zero counts.
+        let empty: Vec<i32> = vec![];
+        let result = process_batch_full(&empty, 10, 0, None::<fn(usize, usize)>, |x| async move {
+            let _ = x;
+            true
+        })
+        .await;
+        assert_eq!(result, BatchProcessorResult::default());
+        // Background spawn mirrors setImmediate + onComplete.
+        let (tx, rx) = tokio::sync::oneshot::channel();
+        let handle = process_batch_async(
+            vec![2, 4, 5],
+            10,
+            0,
+            |x| async move { x % 2 == 0 },
+            Some(|r: BatchProcessorResult| {
+                let _ = tx.send(r);
+            }),
+        );
+        let joined = handle.await.unwrap();
+        assert_eq!(
+            joined,
+            BatchProcessorResult {
+                success: 2,
+                failed: 1
+            }
+        );
+        assert_eq!(rx.await.unwrap(), joined);
+    }
+
+    #[test]
+    fn assets_lengths_parse_and_lookup() {
+        let table = parse_assets_lengths("\"kiss\":30,\"slap\":30,\"hug\":30}").unwrap();
+        assert_eq!(assets_length(&table, "hug"), Some(30));
+        assert_eq!(assets_length(&table, "unknown"), None);
+        assert!(parse_assets_lengths("not json").is_none());
+        assert!(parse_assets_lengths("[1,2]").is_none());
+        // Non-integer values are skipped, integers kept.
+        let mixed = parse_assets_lengths("\"hug\":30,\"bad\":\"x\"}").unwrap();
+        assert_eq!(mixed.len(), 1);
+        assert!(ASSETS_LENGTHS_URL.contains("length.json"));
     }
 }
 

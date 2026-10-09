@@ -1,5 +1,9 @@
 use super::*;
 
+/// Named `vanity` table handle for the bot-global api.VANITY map.
+/// Legacy scope "0" and keys are unchanged (prevnames precedent).
+pub const VANITY_TABLE: &str = "vanity";
+
 /// Claim a custom vanity URL for this guild.
 #[poise::command(
     slash_command,
@@ -36,7 +40,13 @@ pub async fn vanity_generator(
         ctx.say(vanity_invalid_text(&invalid_tpl, &code)).await?;
         return Ok(());
     }
-    let raw = crate::db::kv_get(&ctx.data().pool, "0", "api.VANITY").await;
+    let raw = crate::commands::owner::main::routed_get(
+        &ctx.data().pool,
+        VANITY_TABLE,
+        crate::commands::owner::main::GLOBAL_SCOPE,
+        "api.VANITY",
+    )
+    .await;
     let table: Option<serde_json::Value> = raw.and_then(|s| serde_json::from_str(&s).ok());
     if vanity_already_claimed(table.as_ref(), &code) {
         ctx.say(claimed).await?;

@@ -13,23 +13,27 @@ pub async fn profil_gender(
     #[description = "Gender that fits you the most (female, male, non-binary)"] gender: String,
 ) -> Result<(), anyhow::Error> {
     if !validate_gender(&gender) {
-        ctx.send(
-            poise::CreateReply::default()
-                .content("Invalid gender: expected female, male or non-binary.")
-                .ephemeral(true),
+        let msg = crate::commands::lang_for(
+            &ctx,
+            "msg_profil_invalid_gender",
+            "Invalid gender: expected female, male or non-binary.",
         )
-        .await?;
+        .await;
+        ctx.send(poise::CreateReply::default().content(msg).ephemeral(true))
+            .await?;
         return Ok(());
     }
     let user_id = ctx.author().id.get();
     let mut p = super::profil::load_profil_routed(&ctx.data().pool, user_id).await;
     p.gender = Some(gender.to_ascii_lowercase());
     super::profil::save_profil_routed(&ctx.data().pool, user_id, &p).await?;
-    ctx.send(
-        poise::CreateReply::default()
-            .content("Gender saved.")
-            .ephemeral(true),
+    let msg = crate::commands::lang_for(
+        &ctx,
+        "setprofildescriptions_command_work",
+        "**Your description has been updated successfully.**",
     )
-    .await?;
+    .await;
+    ctx.send(poise::CreateReply::default().content(msg).ephemeral(true))
+        .await?;
     Ok(())
 }

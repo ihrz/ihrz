@@ -32,8 +32,9 @@ pub async fn unban_all(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
             unbanned.push(ban.user.id.get().to_string());
         }
     }
-    crate::db::kv_set(
+    crate::commands::owner::main::routed_set(
         &ctx.data().pool,
+        &gid,
         &gid,
         "UTILS.unban_members",
         &serde_json::to_string(&unbanned)?,

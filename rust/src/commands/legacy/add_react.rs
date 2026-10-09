@@ -15,8 +15,9 @@ pub async fn add_react(
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
-    crate::db::kv_set(
+    crate::commands::owner::main::routed_set(
         &ctx.data().pool,
+        &gid,
         &gid,
         &format!("GUILD.REACT_MSG.{}", trigger.trim().to_ascii_lowercase()),
         response.trim(),

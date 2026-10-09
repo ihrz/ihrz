@@ -28,8 +28,9 @@ pub async fn voicefreeze(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         return Ok(());
     };
     let gid = guild_id.get().to_string();
-    crate::db::kv_set(
+    crate::commands::owner::main::routed_set(
         &ctx.data().pool,
+        &gid,
         &gid,
         "UTILS.VOICE_FREEZE",
         &serde_json::json!({

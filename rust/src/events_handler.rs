@@ -16,6 +16,158 @@ use std::sync::Arc;
 /// Invite uses cache: guild -> code -> (uses, inviter).
 type InviteCache = HashMap<String, HashMap<String, (u64, u64)>>;
 
+/// Guild-table backend for U-D6 routing (keys unchanged).
+fn guild_backend(pool: &crate::db::Pool) -> crate::backends::Backend {
+    crate::backends::Backend::sqlite(pool.clone())
+}
+
+/// Stringify a table value like the legacy kv rows: plain strings stay
+/// plain, integers render without `.0`, anything else renders compact JSON.
+fn table_string(v: &serde_json::Value) -> String {
+    match v {
+        serde_json::Value::String(s) => s.clone(),
+        serde_json::Value::Number(n) => {
+            if let Some(i) = n.as_i64() {
+                i.to_string()
+            } else if let Some(u) = n.as_u64() {
+                u.to_string()
+            } else if let Some(f) = n.as_f64() {
+                if f.fract() == 0.0 && f >= i64::MIN as f64 && f <= i64::MAX as f64 {
+                    (f as i64).to_string()
+                } else {
+                    f.to_string()
+                }
+            } else {
+                n.to_string()
+            }
+        }
+        other => other.to_string(),
+    }
+}
+
+/// Table-first read of one dotted key with legacy flat-row fallback.
+/// Keys unchanged; legacy `(gid, key)` rows stay readable.
+async fn tbl_get(pool: &crate::db::Pool, gid: &str, key: &str) -> Option<String> {
+    let backend = guild_backend(pool);
+    let table = backend.table(gid);
+    if let Ok(Some(v)) = table.get::<serde_json::Value>(key).await {
+        return Some(table_string(&v));
+    }
+    // Blob stored as JSON text under an ancestor: decode string
+    // intermediates while walking the dotted path.
+    if key.contains('.') {
+        let mut segs = key.split('.');
+        let root = segs.next().unwrap_or("");
+        if let Ok(Some(mut cur)) = table.get::<serde_json::Value>(root).await {
+            let mut hit = true;
+            for seg in segs {
+                if let serde_json::Value::String(s) = &cur {
+                    cur = serde_json::from_str(s).unwrap_or(serde_json::Value::Null);
+                }
+                match &cur {
+                    serde_json::Value::Object(m) => {
+                        cur = m.get(seg).cloned().unwrap_or(serde_json::Value::Null);
+                    }
+                    _ => {
+                        hit = false;
+                        break;
+                    }
+                }
+            }
+            if hit && !cur.is_null() {
+                return Some(table_string(&cur));
+            }
+        }
+    }
+    crate::db::kv_get(pool, gid, key).await
+}
+
+/// Table-routed write, dual-stored (keys unchanged). Handler keys are
+/// co-owned with command modules in files this unit cannot touch (the
+/// U-D3 dual-write precedent): the table handle is the primary store
+/// and the legacy kv row keeps unmigrated kv readers fresh.
+async fn tbl_set(pool: &crate::db::Pool, gid: &str, key: &str, value: &str) -> anyhow::Result<()> {
+    let _ = guild_backend(pool).table(gid).set(key, value).await;
+    crate::db::kv_set(pool, gid, key, value).await
+}
+
+/// Table-routed delete: clears the guild-table row and any legacy row.
+async fn tbl_del(pool: &crate::db::Pool, gid: &str, key: &str) -> anyhow::Result<()> {
+    let backend = guild_backend(pool);
+    let _ = backend.table(gid).delete(key).await;
+    crate::db::kv_del(pool, gid, key).await
+}
+
+/// Structured dual write for blobs with struct decoders in migrated
+/// modules (e.g. SUGGESTION.*): the table holds the real JSON value and
+/// the legacy kv row keeps the JSON text. Keys unchanged.
+async fn tbl_set_json<T: serde::Serialize>(
+    pool: &crate::db::Pool,
+    gid: &str,
+    key: &str,
+    value: &T,
+) -> anyhow::Result<()> {
+    let raw = serde_json::to_string(value).unwrap_or_default();
+    let _ = guild_backend(pool).table(gid).set(key, value).await;
+    crate::db::kv_set(pool, gid, key, &raw).await
+}
+
+/// Expand one table root object into full dotted keys.
+fn expand_scan(base: String, v: &serde_json::Value, out: &mut Vec<(String, String)>) {
+    match v {
+        serde_json::Value::Object(m) => {
+            for (k, child) in m {
+                expand_scan(format!("{base}.{k}"), child, out);
+            }
+        }
+        // JSON-text leaves stay leaves (legacy flat-row semantics).
+        leaf => out.push((base, table_string(leaf))),
+    }
+}
+
+/// Table-first prefix scan with legacy flat-row fallback (table wins on
+/// key conflicts). Keys unchanged.
+async fn tbl_scan_prefix(pool: &crate::db::Pool, gid: &str, prefix: &str) -> Vec<(String, String)> {
+    let mut merged = std::collections::HashMap::new();
+    let rows: Vec<(String, String)> = sqlx::query_as::<_, (String, String)>(
+        "SELECT key_name, value FROM kv WHERE guild_id = ? AND key_name LIKE ?",
+    )
+    .bind(gid)
+    .bind(format!("{prefix}%"))
+    .fetch_all(pool)
+    .await
+    .unwrap_or_default();
+    for (k, v) in rows {
+        merged.insert(k, v);
+    }
+    let root = prefix.split('.').next().unwrap_or("");
+    if !root.is_empty() {
+        let backend = guild_backend(pool);
+        let table = backend.table(gid);
+        if let Ok(Some(rv)) = table.get::<serde_json::Value>(root).await {
+            let mut expanded = Vec::new();
+            expand_scan(root.to_string(), &rv, &mut expanded);
+            for (k, v) in expanded {
+                if k.starts_with(prefix) {
+                    merged.insert(k, v);
+                }
+            }
+        }
+    }
+    let mut out: Vec<(String, String)> = merged.into_iter().collect();
+    out.sort_by(|a, b| a.0.cmp(&b.0));
+    out
+}
+
+/// Table-routed prefix delete: clears matching guild-table rows and any
+/// legacy rows.
+async fn tbl_del_prefix(pool: &crate::db::Pool, gid: &str, prefix: &str) -> anyhow::Result<()> {
+    for (k, _) in tbl_scan_prefix(pool, gid, prefix).await {
+        let _ = tbl_del(pool, gid, &k).await;
+    }
+    Ok(())
+}
+
 #[derive(Clone)]
 pub struct Handler {
     pub pool: Pool,
@@ -412,7 +564,7 @@ impl Handler {
     }
 
     async fn check_punishpub(&self, ctx: &serenity::Context, gid: &str, msg: &serenity::Message) {
-        let antipub_off: bool = crate::db::kv_get(&self.pool, gid, "GUILD.GUILD_CONFIG.antipub")
+        let antipub_off: bool = tbl_get(&self.pool, gid, "GUILD.GUILD_CONFIG.antipub")
             .await
             .and_then(|s| serde_json::from_str::<serde_json::Value>(&s).ok())
             .and_then(|v| v.as_str().map(|x| x == "off"))
@@ -452,7 +604,7 @@ impl Handler {
         }
         let _ = msg.delete(&ctx.http).await;
         let flag_key = format!("PUNISH_DATA.{gid}.{}", msg.author.id.get());
-        let flags: i64 = crate::db::kv_get(&self.pool, gid, &flag_key)
+        let flags: i64 = tbl_get(&self.pool, gid, &flag_key)
             .await
             .and_then(|s| {
                 serde_json::from_str::<serde_json::Value>(&s)
@@ -461,14 +613,14 @@ impl Handler {
             })
             .unwrap_or(0);
         let new_flags = flags + 1;
-        let _ = crate::db::kv_set(
+        let _ = tbl_set(
             &self.pool,
             gid,
             &flag_key,
             &serde_json::json!({"flags": new_flags}).to_string(),
         )
         .await;
-        let raw = match crate::db::kv_get(&self.pool, gid, "GUILD.PUNISH.PUNISH_PUB").await {
+        let raw = match tbl_get(&self.pool, gid, "GUILD.PUNISH.PUNISH_PUB").await {
             Some(raw) => raw,
             None => return,
         };
@@ -517,11 +669,7 @@ impl Handler {
                 }
             }
         }
-        let _ = sqlx::query("DELETE FROM kv WHERE guild_id = ? AND key_name = ?")
-            .bind(gid)
-            .bind(&flag_key)
-            .execute(&self.pool)
-            .await;
+        let _ = tbl_del(&self.pool, gid, &flag_key).await;
     }
 
     /// Moderation audit embed (mirrors logs/addBanLogs.ts,
@@ -540,10 +688,9 @@ impl Handler {
         target_name: Option<&str>,
     ) {
         let gid = guild_id.get().to_string();
-        let logs_ch: Option<u64> =
-            crate::db::kv_get(&self.pool, &gid, "GUILD.SERVER_LOGS.moderation")
-                .await
-                .and_then(|s| s.parse().ok());
+        let logs_ch: Option<u64> = tbl_get(&self.pool, &gid, "GUILD.SERVER_LOGS.moderation")
+            .await
+            .and_then(|s| s.parse().ok());
         let Some(logs_ch) = logs_ch else {
             return;
         };
@@ -591,7 +738,7 @@ impl Handler {
         gid: &str,
         msg: &serenity::Message,
     ) {
-        let Some(raw) = crate::db::kv_get(pool, gid, "GUILD.AUTOREACT").await else {
+        let Some(raw) = tbl_get(pool, gid, "GUILD.AUTOREACT").await else {
             return;
         };
         let list: Vec<serde_json::Value> = serde_json::from_str(&raw).unwrap_or_default();
@@ -613,7 +760,7 @@ impl Handler {
     }
 
     async fn automod_on(&self, guild_id: &str, kind: &str) -> bool {
-        crate::db::kv_get(
+        tbl_get(
             &self.pool,
             guild_id,
             &crate::commands::guildconfig::automod_key(kind),
@@ -635,7 +782,7 @@ impl Handler {
         rule: &str,
     ) {
         let gid = guild_id.get().to_string();
-        let allowed: bool = crate::db::kv_get(&self.pool, &gid, &format!("PROTECTION.{rule}"))
+        let allowed: bool = tbl_get(&self.pool, &gid, &format!("PROTECTION.{rule}"))
             .await
             .and_then(|s| {
                 serde_json::from_str::<crate::commands::protection::protect::RuleState>(&s).ok()
@@ -659,7 +806,7 @@ impl Handler {
             return;
         }
         // Derogations are exempt from protection sanctions.
-        let derogated: bool = crate::db::kv_get(&self.pool, &gid, "GUILD.UTILS.DEROGATION")
+        let derogated: bool = tbl_get(&self.pool, &gid, "GUILD.UTILS.DEROGATION")
             .await
             .and_then(|s| serde_json::from_str::<Vec<String>>(&s).ok())
             .map(|list| list.contains(&exec.to_string()))
@@ -668,10 +815,10 @@ impl Handler {
             return;
         }
         let decision = crate::events::protection_decision(
-            crate::db::kv_get(&self.pool, &gid, &format!("GUILD.OWNER.{exec}"))
+            tbl_get(&self.pool, &gid, &format!("GUILD.OWNER.{exec}"))
                 .await
                 .is_some(),
-            crate::db::kv_get(&self.pool, &gid, &format!("ALLOWLIST.list.{exec}"))
+            tbl_get(&self.pool, &gid, &format!("ALLOWLIST.list.{exec}"))
                 .await
                 .is_some(),
             false,
@@ -679,7 +826,7 @@ impl Handler {
         if decision != crate::events::PunishDecision::Punish {
             return;
         }
-        let sanction: String = crate::db::kv_get(&self.pool, &gid, "PROTECTION.SANCTION")
+        let sanction: String = tbl_get(&self.pool, &gid, "PROTECTION.SANCTION")
             .await
             .unwrap_or_else(|| "ban".to_string());
         match sanction.to_ascii_lowercase().as_str() {
@@ -923,7 +1070,7 @@ impl Handler {
         old: Option<&serenity::VoiceState>,
         new: &serenity::VoiceState,
     ) {
-        let logs_ch: Option<u64> = crate::db::kv_get(&self.pool, gid, "GUILD.SERVER_LOGS.voice")
+        let logs_ch: Option<u64> = tbl_get(&self.pool, gid, "GUILD.SERVER_LOGS.voice")
             .await
             .and_then(|s| s.parse().ok());
         let Some(logs_ch) = logs_ch else {
@@ -1073,11 +1220,11 @@ pub async fn render_board_message(
         embed = embed.image(&first.url);
     }
     let footer_name = crate::commands::botcat::bot_footer_name(
-        crate::db::kv_get(pool, gid, crate::commands::botcat::BOT_NAME_KEY)
+        tbl_get(pool, gid, crate::commands::botcat::BOT_NAME_KEY)
             .await
             .as_deref(),
     );
-    let stored = crate::db::kv_get(pool, gid, crate::commands::botcat::BOT_PFP_KEY).await;
+    let stored = tbl_get(pool, gid, crate::commands::botcat::BOT_PFP_KEY).await;
     let icon = match crate::commands::botcat::footer_icon_bytes(stored.as_deref()) {
         Some(bytes) => Some(bytes),
         None => {
@@ -1343,13 +1490,10 @@ impl serenity::EventHandler for Handler {
             }
         }
         // Drop the legacy immediate flag (migration from the old design).
-        let _ = crate::db::kv_del(&self.pool, &gid, "GUILD_DELETE_QUEUED").await;
+        let _ = tbl_del(&self.pool, &gid, "GUILD_DELETE_QUEUED").await;
         // Auto-locale default (setLangByRegion).
-        if crate::db::kv_get(&self.pool, &gid, "GUILD.LANG")
-            .await
-            .is_none()
-        {
-            let _ = crate::db::kv_set(
+        if tbl_get(&self.pool, &gid, "GUILD.LANG").await.is_none() {
+            let _ = tbl_set(
                 &self.pool,
                 &gid,
                 "GUILD.LANG",
@@ -1360,7 +1504,7 @@ impl serenity::EventHandler for Handler {
         let lang_code = crate::db::guild_lang(&self.pool, Some(guild.id.get())).await;
         let text = |k: &str| crate::lang::get(&lang_code, k).unwrap_or_default();
         // Seed the guild owner (ownerHelper.addGuildOwner).
-        let _ = crate::db::kv_set(
+        let _ = tbl_set(
             &self.pool,
             &gid,
             &format!("GUILD.OWNER.{}", guild.owner_id.get()),
@@ -1368,7 +1512,7 @@ impl serenity::EventHandler for Handler {
         )
         .await;
         // Blacklist leave: blacklisted owner -> farewell embed, then leave.
-        if crate::db::kv_get(
+        if tbl_get(
             &self.pool,
             "0",
             &crate::commands::owner::main::blacklist_key(guild.owner_id.get()),
@@ -1421,28 +1565,18 @@ impl serenity::EventHandler for Handler {
         // channels (guild_create carries full voice states, so no cache
         // race like the per-update sweep).
         {
-            let rows: Vec<(String, String)> = sqlx::query_as::<_, (String, String)>(
-                "SELECT key_name, value FROM kv WHERE guild_id = ? AND key_name LIKE 'CUSTOM_VOICE.%.%'",
-            )
-            .bind(&gid)
-            .fetch_all(&self.pool)
-            .await
-            .unwrap_or_default();
+            let rows: Vec<(String, String)> = tbl_scan_prefix(&self.pool, &gid, "CUSTOM_VOICE.")
+                .await
+                .into_iter()
+                .filter(|(k, _)| k["CUSTOM_VOICE.".len()..].contains('.'))
+                .collect();
             for (key, ch_id) in rows {
                 let Ok(ch_num) = ch_id.trim().parse::<u64>() else {
-                    let _ = sqlx::query("DELETE FROM kv WHERE guild_id = ? AND key_name = ?")
-                        .bind(&gid)
-                        .bind(&key)
-                        .execute(&self.pool)
-                        .await;
+                    let _ = tbl_del(&self.pool, &gid, &key).await;
                     continue;
                 };
                 if ch_num == 0 || !guild.channels.keys().any(|c| c.get() == ch_num) {
-                    let _ = sqlx::query("DELETE FROM kv WHERE guild_id = ? AND key_name = ?")
-                        .bind(&gid)
-                        .bind(&key)
-                        .execute(&self.pool)
-                        .await;
+                    let _ = tbl_del(&self.pool, &gid, &key).await;
                     continue;
                 }
                 let occupied = guild
@@ -1451,11 +1585,7 @@ impl serenity::EventHandler for Handler {
                     .any(|v| v.channel_id == Some(serenity::ChannelId::new(ch_num)));
                 if !occupied {
                     let _ = serenity::ChannelId::new(ch_num).delete(&ctx.http).await;
-                    let _ = sqlx::query("DELETE FROM kv WHERE guild_id = ? AND key_name = ?")
-                        .bind(&gid)
-                        .bind(&key)
-                        .execute(&self.pool)
-                        .await;
+                    let _ = tbl_del(&self.pool, &gid, &key).await;
                 }
             }
         }
@@ -1653,7 +1783,7 @@ impl serenity::EventHandler for Handler {
         let delete_at = wipe_queue_enqueue(&mut queue, &gid, &name, &owner, now);
         crate::scheduler::save_wipe_queue(&self.pool, &queue).await;
         // Drop the legacy immediate flag (migration from the old design).
-        let _ = crate::db::kv_del(&self.pool, &gid, "GUILD_DELETE_QUEUED").await;
+        let _ = tbl_del(&self.pool, &gid, "GUILD_DELETE_QUEUED").await;
         // Mirrors invitemanager/onGuildLeave.ts: drop the invite cache.
         self.invites.lock().await.remove(&gid);
         tracing::info!("guildDelete {} queued, wipe at {}", gid, delete_at);
@@ -1708,7 +1838,7 @@ impl serenity::EventHandler for Handler {
         let gid = new_member.guild_id.get().to_string();
         // Block bots when configured.
         if new_member.user.bot
-            && crate::db::kv_get(&self.pool, &gid, "GUILD.BLOCK_BOT")
+            && tbl_get(&self.pool, &gid, "GUILD.BLOCK_BOT")
                 .await
                 .as_deref()
                 == Some("1")
@@ -1720,7 +1850,7 @@ impl serenity::EventHandler for Handler {
             return;
         }
         // Minimum account age gate.
-        if let Some(raw) = crate::db::kv_get(&self.pool, &gid, "GUILD.BLOCK_NEW_ACCOUNT").await {
+        if let Some(raw) = tbl_get(&self.pool, &gid, "GUILD.BLOCK_NEW_ACCOUNT").await {
             if let Ok(v) = serde_json::from_str::<serde_json::Value>(&raw) {
                 let req = v.get("req").and_then(|r| r.as_i64()).unwrap_or(0);
                 let now = std::time::SystemTime::now()
@@ -1790,7 +1920,7 @@ impl serenity::EventHandler for Handler {
                             &self.pool, &gid, inviter_id, &next,
                         )
                         .await;
-                        let _ = crate::db::kv_set(
+                        let _ = tbl_set(
                             &self.pool,
                             &gid,
                             &format!("USER.{}.INVITES.BY", new_member.user.id.get()),
@@ -1814,7 +1944,7 @@ impl serenity::EventHandler for Handler {
         }
         // Guild blacklist gate (mirrors blacklistFetcher.ts): the global
         // BLACKLIST.<uid> table carries a reason; DM it, then ban.
-        if let Some(reason) = crate::db::kv_get(
+        if let Some(reason) = tbl_get(
             &self.pool,
             "0",
             &crate::commands::owner::main::blacklist_key(new_member.user.id.get()),
@@ -1839,7 +1969,7 @@ impl serenity::EventHandler for Handler {
                 .await;
             return;
         }
-        if crate::db::kv_get(
+        if tbl_get(
             &self.pool,
             &gid,
             &format!("BLACKLIST.{}", new_member.user.id.get()),
@@ -1854,7 +1984,7 @@ impl serenity::EventHandler for Handler {
             return;
         }
         // Nickname kicker (mirrors nickKicker.ts).
-        if let Some(raw) = crate::db::kv_get(&self.pool, &gid, "UTILS.NICK_KICKER").await {
+        if let Some(raw) = tbl_get(&self.pool, &gid, "UTILS.NICK_KICKER").await {
             if let Ok(cfg) = serde_json::from_str::<serde_json::Value>(&raw) {
                 let enabled = cfg
                     .get("enabled")
@@ -1916,7 +2046,7 @@ impl serenity::EventHandler for Handler {
                 .await;
         }
         // Welcome message (text template; image variant pending html2png).
-        if let Some(raw) = crate::db::kv_get(&self.pool, &gid, "GUILD.GUILD_CONFIG").await {
+        if let Some(raw) = tbl_get(&self.pool, &gid, "GUILD.GUILD_CONFIG").await {
             if let Ok(cfg) = serde_json::from_str::<serde_json::Value>(&raw) {
                 if let (Some(ch), Some(tpl)) = (
                     cfg.get("join").and_then(|c| c.as_str()),
@@ -1934,7 +2064,7 @@ impl serenity::EventHandler for Handler {
                         // when unattributed).
                         let (inv_name, inv_mention) = match &attributed {
                             Some((iid, code, uname)) => {
-                                let raw = crate::db::kv_get(&self.pool, "0", "api.VANITY").await;
+                                let raw = tbl_get(&self.pool, "0", "api.VANITY").await;
                                 let table: Option<serde_json::Value> =
                                     raw.and_then(|s| serde_json::from_str(&s).ok());
                                 let bot_id = ctx.cache.current_user().id.get();
@@ -1975,7 +2105,7 @@ impl serenity::EventHandler for Handler {
             .enabled
         {
             let key = format!("ROLE_SAVER.{}", new_member.user.id.get());
-            if let Some(raw) = crate::db::kv_get(&self.pool, &gid, &key).await {
+            if let Some(raw) = tbl_get(&self.pool, &gid, &key).await {
                 let roles: Vec<String> = serde_json::from_str(&raw).unwrap_or_default();
                 let want: Vec<serenity::RoleId> = roles
                     .iter()
@@ -1993,11 +2123,7 @@ impl serenity::EventHandler for Handler {
                 {
                     let _ = new_member.remove_role(&ctx.http, *r).await;
                 }
-                let _ = sqlx::query("DELETE FROM kv WHERE guild_id = ? AND key_name = ?")
-                    .bind(&gid)
-                    .bind(key)
-                    .execute(&self.pool)
-                    .await;
+                let _ = tbl_del(&self.pool, &gid, &key).await;
             }
         }
         // Ghost-ping watch prime (mirrors ghostPingModule.ts): send the
@@ -2015,7 +2141,7 @@ impl serenity::EventHandler for Handler {
         // Security captcha challenge (mirrors security/onMemberJoin.ts).
         // The png render is html2png-blocked, so the code goes out as
         // text; attempts, roles, and the expiry kick all mirror TS.
-        if let Some(raw) = crate::db::kv_get(&self.pool, &gid, "SECURITY").await {
+        if let Some(raw) = tbl_get(&self.pool, &gid, "SECURITY").await {
             if let Ok(cfg) = serde_json::from_str::<serde_json::Value>(&raw) {
                 let disabled = cfg
                     .get("disable")
@@ -2160,7 +2286,7 @@ impl serenity::EventHandler for Handler {
         // Leaves tracking (mirrors invitesmanager leaves): decrement the
         // recorded inviter, record the leave.
         let gid = guild_id.get().to_string();
-        if let Some(by) = crate::db::kv_get(
+        if let Some(by) = tbl_get(
             &self.pool,
             &gid,
             &format!("USER.{}.INVITES.BY", user.id.get()),
@@ -2181,7 +2307,7 @@ impl serenity::EventHandler for Handler {
         }
         // Leave message (mirrors leaveMessage.ts text path).
         let gid = guild_id.get().to_string();
-        if let Some(raw) = crate::db::kv_get(&self.pool, &gid, "GUILD.GUILD_CONFIG").await {
+        if let Some(raw) = tbl_get(&self.pool, &gid, "GUILD.GUILD_CONFIG").await {
             if let Ok(cfg) = serde_json::from_str::<serde_json::Value>(&raw) {
                 if let (Some(ch), Some(tpl)) = (
                     cfg.get("leave").and_then(|c| c.as_str()),
@@ -2217,7 +2343,7 @@ impl serenity::EventHandler for Handler {
                     .collect();
                 let roles =
                     crate::events::snapshot_roles(&flagged, guild_id.get(), rs_cfg.skip_admin);
-                let _ = crate::db::kv_set(
+                let _ = tbl_set(
                     &self.pool,
                     &gid,
                     &format!("ROLE_SAVER.{}", user.id.get()),
@@ -2229,14 +2355,12 @@ impl serenity::EventHandler for Handler {
         // Ticket cleanup on leave (mirrors deleteTicketOnLeave.ts):
         // transcript + log each of the leaver's tickets, delete the
         // channels, then drop their TICKET_ALL rows.
-        let ticket_rows: Vec<String> = sqlx::query_scalar(
-            "SELECT key_name FROM kv WHERE guild_id = ? AND key_name LIKE 'TICKET_ALL.' || ? || '.%'",
-        )
-        .bind(&gid)
-        .bind(user.id.get().to_string())
-        .fetch_all(&self.pool)
-        .await
-        .unwrap_or_default();
+        let ticket_rows: Vec<String> =
+            tbl_scan_prefix(&self.pool, &gid, &format!("TICKET_ALL.{}.", user.id.get()))
+                .await
+                .into_iter()
+                .map(|(k, _)| k)
+                .collect();
         if !ticket_rows.is_empty() {
             let lang_code = crate::db::guild_lang(&self.pool, Some(guild_id.get())).await;
             let actor = format!("<@{}>", user.id.get());
@@ -2270,13 +2394,8 @@ impl serenity::EventHandler for Handler {
                     }
                 }
             }
-            let _ = sqlx::query(
-                "DELETE FROM kv WHERE guild_id = ? AND key_name LIKE 'TICKET_ALL.' || ? || '.%'",
-            )
-            .bind(&gid)
-            .bind(user.id.get().to_string())
-            .execute(&self.pool)
-            .await;
+            let _ =
+                tbl_del_prefix(&self.pool, &gid, &format!("TICKET_ALL.{}.", user.id.get())).await;
         }
         tracing::debug!("memberLeave {} user {}", gid, user.id.get());
     }
@@ -2299,13 +2418,8 @@ impl serenity::EventHandler for Handler {
                     .await
                     .map(|g| g.owner_id.get().to_string())
                 {
-                    let _ = crate::db::kv_set(
-                        &self.pool,
-                        &gid,
-                        &format!("GUILD.OWNER.{owner_id}"),
-                        "1",
-                    )
-                    .await;
+                    let _ =
+                        tbl_set(&self.pool, &gid, &format!("GUILD.OWNER.{owner_id}"), "1").await;
                 }
             }
         }
@@ -2315,7 +2429,7 @@ impl serenity::EventHandler for Handler {
         // Embed-builder awaited input (mirrors the handleCollector
         // message collectors in utils !embed.ts). The input still
         // flows through normal processing below, like TS.
-        if crate::db::kv_get(
+        if tbl_get(
             &self.pool,
             &gid,
             &crate::commands::embed::embed_builder::await_key(msg.author.id.get()),
@@ -2340,21 +2454,16 @@ impl serenity::EventHandler for Handler {
         // Allowlist lazy seed (mirrors createAllowlistOnMessage.ts):
         // first observed message creates the owner entry.
         if !msg.author.bot {
-            let seeded: bool = sqlx::query_scalar(
-                "SELECT COUNT(*) FROM kv WHERE guild_id = ? AND key_name LIKE 'ALLOWLIST.list.%'",
-            )
-            .bind(&gid)
-            .fetch_one(&self.pool)
-            .await
-            .map(|n: i64| n > 0)
-            .unwrap_or(true);
+            let seeded: bool = !tbl_scan_prefix(&self.pool, &gid, "ALLOWLIST.list.")
+                .await
+                .is_empty();
             if !seeded {
                 if let Ok(owner) = guild_id
                     .to_partial_guild(&_ctx.http)
                     .await
                     .map(|g| g.owner_id.get().to_string())
                 {
-                    let _ = crate::db::kv_set(
+                    let _ = tbl_set(
                         &self.pool,
                         &gid,
                         &format!("ALLOWLIST.list.{owner}"),
@@ -2374,9 +2483,8 @@ impl serenity::EventHandler for Handler {
         // the TS early returns; processing then falls through below.
         if is_bot_ping(&msg.content, _ctx.cache.current_user().id.get()) {
             if let Ok(member) = guild_id.member(&_ctx.http, msg.author.id).await {
-                let roles_raw = crate::db::kv_get(&self.pool, &gid, "GUILD.RANK_ROLES.roles").await;
-                let nick_raw =
-                    crate::db::kv_get(&self.pool, &gid, "GUILD.RANK_ROLES.nicknames").await;
+                let roles_raw = tbl_get(&self.pool, &gid, "GUILD.RANK_ROLES.roles").await;
+                let nick_raw = tbl_get(&self.pool, &gid, "GUILD.RANK_ROLES.nicknames").await;
                 if let (Some(roles_raw), Some(nick_raw)) = (roles_raw, nick_raw) {
                     if let Some(role_num) = crate::commands::ranks::grant::parse_role_id(&roles_raw)
                     {
@@ -2432,11 +2540,11 @@ impl serenity::EventHandler for Handler {
             }
         }
         // XP ignore gate (mirrors !ignore-channels.ts).
-        let ignore_raw = crate::db::kv_get(&self.pool, &gid, "GUILD.RANKS.ignoreChannels").await;
+        let ignore_raw = tbl_get(&self.pool, &gid, "GUILD.RANKS.ignoreChannels").await;
         let ignore: Vec<String> = ignore_raw
             .and_then(|s| serde_json::from_str(&s).ok())
             .unwrap_or_default();
-        let xp_only: Vec<String> = crate::db::kv_get(&self.pool, &gid, "GUILD.RANKS.xpChannels")
+        let xp_only: Vec<String> = tbl_get(&self.pool, &gid, "GUILD.RANKS.xpChannels")
             .await
             .and_then(|s| serde_json::from_str(&s).ok())
             .unwrap_or_default();
@@ -2460,7 +2568,7 @@ impl serenity::EventHandler for Handler {
                 // Level-up message (template or default).
                 // Mirrors ranks/onNewMessage.ts: GUILD.RANKS.message
                 // template, else the event_xp_level_earn lang key.
-                let stored_tpl = crate::db::kv_get(&self.pool, &gid, "GUILD.RANKS.message").await;
+                let stored_tpl = tbl_get(&self.pool, &gid, "GUILD.RANKS.message").await;
                 let tpl = match stored_tpl {
                     Some(t) => t,
                     None => {
@@ -2479,7 +2587,7 @@ impl serenity::EventHandler for Handler {
                     .replace("{level}", &level.to_string());
                 let _ = msg.channel_id.say(&_ctx.http, text).await;
                 // Rank-role rewards.
-                let roles_raw = crate::db::kv_get(&self.pool, &gid, "GUILD.RANKS.roles").await;
+                let roles_raw = tbl_get(&self.pool, &gid, "GUILD.RANKS.roles").await;
                 let roles: Vec<crate::commands::ranks::main::RankRole> = roles_raw
                     .and_then(|s| serde_json::from_str(&s).ok())
                     .unwrap_or_default();
@@ -2499,16 +2607,16 @@ impl serenity::EventHandler for Handler {
         // COUNTER_DATA to zero with ✅/❌ reactions, replies and
         // topic updates).
         if msg.webhook_id.is_none() && !msg.content.trim().is_empty() {
-            if let Some(counter_ch) = crate::db::kv_get(&self.pool, &gid, "COUNTER.channel").await {
+            if let Some(counter_ch) = tbl_get(&self.pool, &gid, "COUNTER.channel").await {
                 if counter_ch == msg.channel_id.get().to_string() {
-                    let enabled = crate::db::kv_get(&self.pool, &gid, "COUNTER.config")
+                    let enabled = tbl_get(&self.pool, &gid, "COUNTER.config")
                         .await
                         .map(|v| v != "off")
                         .unwrap_or(true);
                     if enabled {
                         use crate::commands::newfeatures as nf;
                         let author_id = msg.author.id.get().to_string();
-                        let raw = crate::db::kv_get(&self.pool, &gid, "COUNTER_DATA").await;
+                        let raw = tbl_get(&self.pool, &gid, "COUNTER_DATA").await;
                         let last = nf::parse_counter_data(raw.as_deref());
                         let code = crate::db::guild_lang(&self.pool, Some(guild_id.get())).await;
                         let text = |key: &str, fallback: &str| {
@@ -2526,7 +2634,7 @@ impl serenity::EventHandler for Handler {
                                     amount: number,
                                     user_id: Some(author_id),
                                 };
-                                let _ = crate::db::kv_set(
+                                let _ = tbl_set(
                                     &self.pool,
                                     &gid,
                                     "COUNTER_DATA",
@@ -2544,9 +2652,7 @@ impl serenity::EventHandler for Handler {
                             }
                             nf::CounterOutcome::WrongNumber { same_user, number } => {
                                 let _ = msg.react(&_ctx.http, '❌').await;
-                                let _ =
-                                    crate::db::kv_set(&self.pool, &gid, "COUNTER_DATA", &reset())
-                                        .await;
+                                let _ = tbl_set(&self.pool, &gid, "COUNTER_DATA", &reset()).await;
                                 if same_user {
                                     let reply = text(
                                         "counter_error_too_much_u",
@@ -2572,9 +2678,7 @@ impl serenity::EventHandler for Handler {
                             }
                             nf::CounterOutcome::NotNumber => {
                                 let _ = msg.react(&_ctx.http, '❌').await;
-                                let _ =
-                                    crate::db::kv_set(&self.pool, &gid, "COUNTER_DATA", &reset())
-                                        .await;
+                                let _ = tbl_set(&self.pool, &gid, "COUNTER_DATA", &reset()).await;
                                 let reply = text(
                                     "counter_error_syntaxic",
                                     "Wrong number. Next number is 1.",
@@ -2588,7 +2692,7 @@ impl serenity::EventHandler for Handler {
             }
         }
         // Mirrors Events/utils/picOnlyModule.ts: media-only channels.
-        if let Some(raw) = crate::db::kv_get(&self.pool, &gid, "UTILS.picOnly").await {
+        if let Some(raw) = tbl_get(&self.pool, &gid, "UTILS.picOnly").await {
             let list: Vec<String> = serde_json::from_str(&raw).unwrap_or_default();
             if list.contains(&msg.channel_id.get().to_string()) {
                 let has_media = !msg.attachments.is_empty()
@@ -2603,7 +2707,7 @@ impl serenity::EventHandler for Handler {
             }
         }
         // Mirrors Events/guildconfig/autoreact.ts (master switch first).
-        let autoreact_on = crate::db::kv_get(&self.pool, &gid, "GUILD.AUTOREACT.enabled")
+        let autoreact_on = tbl_get(&self.pool, &gid, "GUILD.AUTOREACT.enabled")
             .await
             .map(|v| v != "0")
             .unwrap_or(true);
@@ -2634,9 +2738,9 @@ impl serenity::EventHandler for Handler {
             }
         }
         // Mirrors Events/suggestion/onNewMessage.ts: thread + record + votes.
-        if let Some(suggest_ch) = crate::db::kv_get(&self.pool, &gid, "SUGGEST.channel").await {
+        if let Some(suggest_ch) = tbl_get(&self.pool, &gid, "SUGGEST.channel").await {
             if suggest_ch == msg.channel_id.get().to_string() {
-                let disabled = crate::db::kv_get(&self.pool, &gid, "SUGGEST.disable")
+                let disabled = tbl_get(&self.pool, &gid, "SUGGEST.disable")
                     .await
                     .as_deref()
                     == Some("1");
@@ -2657,11 +2761,11 @@ impl serenity::EventHandler for Handler {
                             thread_id: thread.id.get().to_string(),
                             status: "open".to_string(),
                         };
-                        let _ = crate::db::kv_set(
+                        let _ = tbl_set_json(
                             &self.pool,
                             &gid,
                             &crate::commands::suggestion::suggestion_key(&code),
-                            &serde_json::to_string(&rec).unwrap_or_default(),
+                            &rec,
                         )
                         .await;
                     }
@@ -2677,7 +2781,7 @@ impl serenity::EventHandler for Handler {
         // Mirrors Events/utils/autoFeur.ts + antiExe.ts + custom reacts.
         {
             use crate::commands::legacy;
-            let raw = crate::db::kv_get(&self.pool, &gid, "UTILS.autoFeur").await;
+            let raw = tbl_get(&self.pool, &gid, "UTILS.autoFeur").await;
             if legacy::autofeur_on(raw.clone()) {
                 let lang = crate::db::guild_lang(&self.pool, msg.guild_id.map(|g| g.get())).await;
                 if lang == "fr-ME" {
@@ -2709,7 +2813,7 @@ impl serenity::EventHandler for Handler {
                     let _ = msg.reply(&_ctx.http, "feur.").await;
                 }
             }
-            let raw = crate::db::kv_get(&self.pool, &gid, "UTILS.antiExe").await;
+            let raw = tbl_get(&self.pool, &gid, "UTILS.antiExe").await;
             if crate::commands::legacy::flag_on(raw) {
                 let names: Vec<String> =
                     msg.attachments.iter().map(|a| a.filename.clone()).collect();
@@ -2723,23 +2827,21 @@ impl serenity::EventHandler for Handler {
             // GUILD.GUILD_CONFIG.hey_reaction disables; otherwise a
             // case-insensitive trigger substring earns its emoji react
             // and a greeting first word earns a wave.
-            let hey_off = crate::db::kv_get(&self.pool, &gid, "GUILD.GUILD_CONFIG.hey_reaction")
+            let hey_off = tbl_get(&self.pool, &gid, "GUILD.GUILD_CONFIG.hey_reaction")
                 .await
                 .as_deref()
                 == Some("false");
             if !hey_off {
                 let lowered = msg.content.to_ascii_lowercase();
-                let triggers: Vec<String> = sqlx::query_scalar(
-                    "SELECT key_name FROM kv WHERE guild_id = ? AND key_name LIKE 'GUILD.REACT_MSG.%'",
-                )
-                .bind(&gid)
-                .fetch_all(&self.pool)
-                .await
-                .unwrap_or_default();
+                let triggers: Vec<String> = tbl_scan_prefix(&self.pool, &gid, "GUILD.REACT_MSG.")
+                    .await
+                    .into_iter()
+                    .map(|(k, _)| k)
+                    .collect();
                 for key in triggers {
                     if let Some(trigger) = key.strip_prefix("GUILD.REACT_MSG.") {
                         if !trigger.is_empty() && lowered.contains(trigger) {
-                            if let Some(emoji) = crate::db::kv_get(&self.pool, &gid, &key).await {
+                            if let Some(emoji) = tbl_get(&self.pool, &gid, &key).await {
                                 let _ = msg
                                     .react(
                                         &_ctx.http,
@@ -2764,7 +2866,7 @@ impl serenity::EventHandler for Handler {
         // Mirrors Events/github-lines/onNewMessage.ts: unfurl code
         // links (GitHub/GitLab/Gist) with spam/limit guards.
         if !msg.author.bot && msg.webhook_id.is_none() {
-            let stored = crate::db::kv_get(&self.pool, &gid, "UTILS.git_lines").await;
+            let stored = tbl_get(&self.pool, &gid, "UTILS.git_lines").await;
             if crate::commands::utils::github_lines_enabled(stored.as_deref()) {
                 let targets = crate::commands::utils::extract_git_targets(&msg.content);
                 if !targets.is_empty() {
@@ -2871,12 +2973,12 @@ impl serenity::EventHandler for Handler {
         // Bypass roles/channels are exempt.
         let bypassed = {
             let bypass_roles: Vec<String> =
-                crate::db::kv_get(&self.pool, &gid, "GUILD.ANTISPAM.BYPASS_ROLES")
+                tbl_get(&self.pool, &gid, "GUILD.ANTISPAM.BYPASS_ROLES")
                     .await
                     .and_then(|s| serde_json::from_str(&s).ok())
                     .unwrap_or_default();
             let bypass_channels: Vec<String> =
-                crate::db::kv_get(&self.pool, &gid, "GUILD.ANTISPAM.BYPASS_CHANNELS")
+                tbl_get(&self.pool, &gid, "GUILD.ANTISPAM.BYPASS_CHANNELS")
                     .await
                     .and_then(|s| serde_json::from_str(&s).ok())
                     .unwrap_or_default();
@@ -2889,7 +2991,7 @@ impl serenity::EventHandler for Handler {
                 || member_roles.iter().any(|r| bypass_roles.contains(r))
         };
         if !bypassed {
-            if let Some(raw) = crate::db::kv_get(
+            if let Some(raw) = tbl_get(
                 &self.pool,
                 &gid,
                 crate::commands::antispam::main::ANTISPAM_KEY,
@@ -2970,7 +3072,7 @@ impl serenity::EventHandler for Handler {
                         .to_string()
                     });
             if let Some(snap) = snap {
-                let _ = crate::db::kv_set(
+                let _ = tbl_set(
                     &self.pool,
                     &gid,
                     &format!("SNIPE.{}", channel_id.get()),
@@ -2978,7 +3080,7 @@ impl serenity::EventHandler for Handler {
                 )
                 .await;
             }
-            let _ = crate::db::kv_set(
+            let _ = tbl_set(
                 &self.pool,
                 &gid,
                 "SNIPE.last_deleted_id",
@@ -2987,7 +3089,7 @@ impl serenity::EventHandler for Handler {
             .await;
             // Drop any ticket-panel marker bound to the deleted message
             // (mirrors deleteTicketPanelOnMessageDelete.ts).
-            let _ = crate::db::kv_del(
+            let _ = tbl_del(
                 &self.pool,
                 &gid,
                 &format!("GUILD.TICKET.{}", deleted_message_id.get()),
@@ -3025,7 +3127,7 @@ impl serenity::EventHandler for Handler {
             if let Some((author_id, author_name, avatar, content, attachments)) = snap {
                 if author_id != ctx.cache.current_user().id.get() {
                     let logs_ch: Option<u64> =
-                        crate::db::kv_get(&self.pool, &gid, "GUILD.SERVER_LOGS.message")
+                        tbl_get(&self.pool, &gid, "GUILD.SERVER_LOGS.message")
                             .await
                             .and_then(|s| s.parse().ok());
                     if let Some(logs_ch) = logs_ch {
@@ -3099,10 +3201,9 @@ impl serenity::EventHandler for Handler {
                 return;
             };
             let gid = gid.get().to_string();
-            let logs_ch: Option<u64> =
-                crate::db::kv_get(&self.pool, &gid, "GUILD.SERVER_LOGS.message")
-                    .await
-                    .and_then(|s| s.parse().ok());
+            let logs_ch: Option<u64> = tbl_get(&self.pool, &gid, "GUILD.SERVER_LOGS.message")
+                .await
+                .and_then(|s| s.parse().ok());
             let Some(logs_ch) = logs_ch else {
                 return;
             };
@@ -3192,7 +3293,7 @@ impl serenity::EventHandler for Handler {
             old.as_ref().and_then(|o| o.channel_id).map(|c| c.get()),
             new.channel_id.map(|c| c.get()),
         ) {
-            if let Some(raw) = crate::db::kv_get(&self.pool, &gid, "GUILD.H247").await {
+            if let Some(raw) = tbl_get(&self.pool, &gid, "GUILD.H247").await {
                 let target = crate::commands::ranks::grant::h247_rejoin_target(
                     crate::commands::ranks::grant::parse_h247(&raw).as_ref(),
                     new.channel_id.map(|c| c.get()),
@@ -3219,7 +3320,7 @@ impl serenity::EventHandler for Handler {
                     .await
                     .map(|m| m.roles.iter().map(|r| r.get()).collect())
                     .unwrap_or_default();
-                let shop_raw = crate::db::kv_get(&self.pool, &gid, "ECONOMY.buyableRoles")
+                let shop_raw = tbl_get(&self.pool, &gid, "ECONOMY.buyableRoles")
                     .await
                     .unwrap_or_default();
                 let boost =
@@ -3240,7 +3341,7 @@ impl serenity::EventHandler for Handler {
                 // then both move directions apply: dom moved -> subs follow
                 // the dom's new channel; sub moved -> the sub is pulled back
                 // to the dom's channel.
-                if let Some(raw) = crate::db::kv_get(&self.pool, &gid, "UTILS.LEASH").await {
+                if let Some(raw) = tbl_get(&self.pool, &gid, "UTILS.LEASH").await {
                     let entries: Vec<LeashEntry> = serde_json::from_str(&raw).unwrap_or_default();
                     let valid: Vec<LeashEntry> = entries
                         .iter()
@@ -3248,7 +3349,7 @@ impl serenity::EventHandler for Handler {
                         .cloned()
                         .collect();
                     if valid.len() != entries.len() {
-                        let _ = crate::db::kv_set(
+                        let _ = tbl_set(
                             &self.pool,
                             &gid,
                             "UTILS.LEASH",
@@ -3295,7 +3396,7 @@ impl serenity::EventHandler for Handler {
                 }
                 // Lobby spawn (mirrors voicedashboard): temp channel + move.
                 if let Some(lobby) =
-                    crate::db::kv_get(&self.pool, &gid, "GUILD.VOICE_INTERFACE.voice_channel").await
+                    tbl_get(&self.pool, &gid, "GUILD.VOICE_INTERFACE.voice_channel").await
                 {
                     if lobby == new_ch.get().to_string() {
                         // Pending-creation lock (mirrors
@@ -3319,13 +3420,9 @@ impl serenity::EventHandler for Handler {
                         let name = crate::funcs::mask_link(&raw_name);
                         // Name template (VOICE_INTERFACE.voice_channel_name,
                         // {user} placeholder) or default.
-                        let tpl = crate::db::kv_get(
-                            &self.pool,
-                            &gid,
-                            "VOICE_INTERFACE.voice_channel_name",
-                        )
-                        .await
-                        .filter(|t| !t.trim().is_empty());
+                        let tpl = tbl_get(&self.pool, &gid, "VOICE_INTERFACE.voice_channel_name")
+                            .await
+                            .filter(|t| !t.trim().is_empty());
                         let title = match tpl {
                             Some(t) => t.replace("{user}", &name),
                             None => {
@@ -3342,7 +3439,7 @@ impl serenity::EventHandler for Handler {
                             serenity::CreateChannel::new(title).kind(serenity::ChannelType::Voice);
                         if let Ok(ch) = guild_id.create_channel(&ctx.http, builder).await {
                             let _ = guild_id.move_member(&ctx.http, new.user_id, ch.id).await;
-                            let _ = crate::db::kv_set(
+                            let _ = tbl_set(
                                 &self.pool,
                                 &gid,
                                 &crate::events::temp_voice_key(guild_id.get(), new.user_id.get()),
@@ -3382,7 +3479,7 @@ impl serenity::EventHandler for Handler {
                         Err(_) => (vec![], false),
                     },
                 };
-                let shop_raw = crate::db::kv_get(&self.pool, &gid, "ECONOMY.buyableRoles")
+                let shop_raw = tbl_get(&self.pool, &gid, "ECONOMY.buyableRoles")
                     .await
                     .unwrap_or_default();
                 let boost =
@@ -3401,7 +3498,7 @@ impl serenity::EventHandler for Handler {
         }
         // Voice freeze enforcement (mirrors voiceTalkFreeze.ts).
         if new.channel_id.is_some() {
-            if let Some(raw) = crate::db::kv_get(&self.pool, &gid, "UTILS.VOICE_FREEZE").await {
+            if let Some(raw) = tbl_get(&self.pool, &gid, "UTILS.VOICE_FREEZE").await {
                 // Array shape: frozen member list. Object shape: channel-bound
                 // freeze with allowedUsers (mirrors !wlvc.ts).
                 let frozen_member = serde_json::from_str::<Vec<String>>(&raw)
@@ -3441,28 +3538,18 @@ impl serenity::EventHandler for Handler {
         // voice-state membership (mirrors isMemberlessChannel, where a
         // fetch failure counts as empty — here a missing cache guild
         // counts as empty once the channel itself is confirmed gone).
-        let rows: Vec<(String, String)> = sqlx::query_as::<_, (String, String)>(
-            "SELECT key_name, value FROM kv WHERE guild_id = ? AND key_name LIKE 'CUSTOM_VOICE.%.%'",
-        )
-        .bind(&gid)
-        .fetch_all(&self.pool)
-        .await
-        .unwrap_or_default();
+        let rows: Vec<(String, String)> = tbl_scan_prefix(&self.pool, &gid, "CUSTOM_VOICE.")
+            .await
+            .into_iter()
+            .filter(|(k, _)| k["CUSTOM_VOICE.".len()..].contains('.'))
+            .collect();
         for (key, ch_id) in rows {
             let Ok(ch_num) = ch_id.trim().parse::<u64>() else {
-                let _ = sqlx::query("DELETE FROM kv WHERE guild_id = ? AND key_name = ?")
-                    .bind(&gid)
-                    .bind(&key)
-                    .execute(&self.pool)
-                    .await;
+                let _ = tbl_del(&self.pool, &gid, &key).await;
                 continue;
             };
             if ch_num == 0 {
-                let _ = sqlx::query("DELETE FROM kv WHERE guild_id = ? AND key_name = ?")
-                    .bind(&gid)
-                    .bind(&key)
-                    .execute(&self.pool)
-                    .await;
+                let _ = tbl_del(&self.pool, &gid, &key).await;
                 continue;
             }
             // The cache guard is scoped and dropped before any await
@@ -3480,20 +3567,12 @@ impl serenity::EventHandler for Handler {
             };
             if channel_gone {
                 // Channel already gone (mirrors `!channel`): drop the key.
-                let _ = sqlx::query("DELETE FROM kv WHERE guild_id = ? AND key_name = ?")
-                    .bind(&gid)
-                    .bind(&key)
-                    .execute(&self.pool)
-                    .await;
+                let _ = tbl_del(&self.pool, &gid, &key).await;
                 continue;
             }
             if !occupied {
                 let _ = serenity::ChannelId::new(ch_num).delete(&ctx.http).await;
-                let _ = sqlx::query("DELETE FROM kv WHERE guild_id = ? AND key_name = ?")
-                    .bind(&gid)
-                    .bind(&key)
-                    .execute(&self.pool)
-                    .await;
+                let _ = tbl_del(&self.pool, &gid, &key).await;
             }
         }
         // Music empty-channel guard (mirrors
@@ -3563,7 +3642,7 @@ impl serenity::EventHandler for Handler {
         {
             let old_ch = old.as_ref().and_then(|o| o.channel_id).map(|c| c.get());
             let new_ch = new.channel_id.map(|c| c.get());
-            if let Some(raw) = crate::db::kv_get(&self.pool, &gid, "GUILD.TTS").await {
+            if let Some(raw) = tbl_get(&self.pool, &gid, "GUILD.TTS").await {
                 if crate::commands::tts::tts_row_enabled(&raw) {
                     if let Ok(cfg) = serde_json::from_str::<crate::commands::tts::TtsConfig>(&raw) {
                         if let Ok(tts_vc) = cfg.voice_channel_id.parse::<u64>() {
@@ -3587,17 +3666,14 @@ impl serenity::EventHandler for Handler {
                                         .count()
                                 });
                                 if humans == Some(0) {
-                                    let keep =
-                                        match crate::db::kv_get(&self.pool, &gid, "GUILD.H247")
-                                            .await
-                                        {
-                                            Some(hraw) => crate::commands::tts::tts_keep_voice(
-                                                crate::commands::ranks::grant::parse_h247(&hraw)
-                                                    .as_ref(),
-                                                tts_vc,
-                                            ),
-                                            None => false,
-                                        };
+                                    let keep = match tbl_get(&self.pool, &gid, "GUILD.H247").await {
+                                        Some(hraw) => crate::commands::tts::tts_keep_voice(
+                                            crate::commands::ranks::grant::parse_h247(&hraw)
+                                                .as_ref(),
+                                            tts_vc,
+                                        ),
+                                        None => false,
+                                    };
                                     let m = crate::lavalink::manager();
                                     m.with_player(guild_id.get(), |p| p.stop(now)).await;
                                     if !keep {
@@ -3623,13 +3699,7 @@ impl serenity::EventHandler for Handler {
                                             let _ = message.delete(&ctx.http).await;
                                         }
                                     }
-                                    let _ = sqlx::query(
-                                        "DELETE FROM kv WHERE guild_id = ? AND key_name = ?",
-                                    )
-                                    .bind(&gid)
-                                    .bind("GUILD.TTS")
-                                    .execute(&self.pool)
-                                    .await;
+                                    let _ = tbl_del(&self.pool, &gid, "GUILD.TTS").await;
                                     tracing::info!("tts cleanup {} channel {}", gid, tts_vc);
                                 }
                             }
@@ -3744,7 +3814,7 @@ impl serenity::EventHandler for Handler {
                 if !name.is_empty() {
                     let gid = guild_id.get().to_string();
                     let key = format!("GUILD.REACTION_ROLES.{}.{}", removed.message_id.get(), name);
-                    if let Some(role_id) = crate::db::kv_get(&self.pool, &gid, &key)
+                    if let Some(role_id) = tbl_get(&self.pool, &gid, &key)
                         .await
                         .as_deref()
                         .and_then(crate::commands::rolereactions::rolereaction::parse_reaction_role)
@@ -3790,12 +3860,12 @@ impl serenity::EventHandler for Handler {
     ) {
         // Mirrors prevnamesModule.ts (global username history).
         let key = crate::events::prevnames_key(new.id.get());
-        let raw = crate::db::kv_get(&self.pool, "0", &key).await;
+        let raw = tbl_get(&self.pool, "0", &key).await;
         let history: Vec<String> = raw
             .and_then(|s| serde_json::from_str(&s).ok())
             .unwrap_or_default();
         let next = crate::events::push_prevname(history, &new.name, crate::events::PREVNAMES_CAP);
-        let _ = crate::db::kv_set(
+        let _ = tbl_set(
             &self.pool,
             "0",
             &key,
@@ -3830,8 +3900,8 @@ impl serenity::EventHandler for Handler {
             .collect();
         for gid in gids {
             let g = gid.get().to_string();
-            let roles_raw = crate::db::kv_get(&self.pool, &g, "GUILD.RANK_ROLES.roles").await;
-            let nick_raw = crate::db::kv_get(&self.pool, &g, "GUILD.RANK_ROLES.nicknames").await;
+            let roles_raw = tbl_get(&self.pool, &g, "GUILD.RANK_ROLES.roles").await;
+            let nick_raw = tbl_get(&self.pool, &g, "GUILD.RANK_ROLES.nicknames").await;
             let (Some(roles_raw), Some(nick_raw)) = (roles_raw, nick_raw) else {
                 continue;
             };
@@ -3965,12 +4035,13 @@ impl serenity::EventHandler for Handler {
         // Purge ticket rows bound to this channel (mirrors
         // deleteTicketPanel.ts).
         let gid = channel.guild_id.get().to_string();
-        let _ =
-            sqlx::query("DELETE FROM kv WHERE guild_id = ? AND key_name LIKE 'TICKET_ALL.%.' || ?")
-                .bind(&gid)
-                .bind(channel.id.get().to_string())
-                .execute(&self.pool)
-                .await;
+        // Purge ticket rows bound to this channel: TICKET_ALL.<user>.<channel>.
+        let chan_suffix = format!(".{}", channel.id.get());
+        for (k, _) in tbl_scan_prefix(&self.pool, &gid, "TICKET_ALL.").await {
+            if k.ends_with(&chan_suffix) {
+                let _ = tbl_del(&self.pool, &gid, &k).await;
+            }
+        }
         // Live restore (mirrors avoidChannelDelete.ts): clone-restore
         // the deleted channel/category from the structure snapshot.
         self.restore_deleted_channel(&ctx, &channel).await;
@@ -3999,7 +4070,7 @@ impl serenity::EventHandler for Handler {
             return;
         };
         let gid = new.guild_id.get().to_string();
-        let logs_ch: Option<u64> = crate::db::kv_get(&self.pool, &gid, "GUILD.SERVER_LOGS.channel")
+        let logs_ch: Option<u64> = tbl_get(&self.pool, &gid, "GUILD.SERVER_LOGS.channel")
             .await
             .and_then(|s| s.parse().ok());
         let Some(logs_ch) = logs_ch else {
@@ -4184,7 +4255,7 @@ impl serenity::EventHandler for Handler {
             let gid = updated.guild_id.get().to_string();
             for role_id in updated.roles.iter() {
                 let key = format!("GUILD.UTILS.ROLE_LIMIT.{}", role_id.get());
-                if let Some(limit) = crate::db::kv_get(&self.pool, &gid, &key)
+                if let Some(limit) = tbl_get(&self.pool, &gid, &key)
                     .await
                     .and_then(|s| s.parse::<usize>().ok())
                 {
@@ -4255,10 +4326,9 @@ impl serenity::EventHandler for Handler {
         // executor is the bot, or the entry targets someone else.
         if old.roles != new.roles {
             let gid = new.guild_id.get().to_string();
-            let logs_ch: Option<u64> =
-                crate::db::kv_get(&self.pool, &gid, "GUILD.SERVER_LOGS.roles")
-                    .await
-                    .and_then(|s| s.parse().ok());
+            let logs_ch: Option<u64> = tbl_get(&self.pool, &gid, "GUILD.SERVER_LOGS.roles")
+                .await
+                .and_then(|s| s.parse().ok());
             if let Some(logs_ch) = logs_ch {
                 use serenity::model::guild::audit_log::{Action, Change, MemberAction};
                 let self_id = ctx.cache.current_user().id;
@@ -4369,10 +4439,9 @@ impl serenity::EventHandler for Handler {
         let (old_premium, new_premium) = (old.premium_since, new.premium_since);
         if old_premium != new_premium {
             let gid = new.guild_id.get().to_string();
-            let logs_ch: Option<u64> =
-                crate::db::kv_get(&self.pool, &gid, "GUILD.SERVER_LOGS.boosts")
-                    .await
-                    .and_then(|s| s.parse().ok());
+            let logs_ch: Option<u64> = tbl_get(&self.pool, &gid, "GUILD.SERVER_LOGS.boosts")
+                .await
+                .and_then(|s| s.parse().ok());
             if let Some(logs_ch) = logs_ch {
                 let now_ms = crate::commands::context::now_ms();
                 let recent = new_premium
@@ -4439,13 +4508,13 @@ impl serenity::EventHandler for Handler {
                     previous
                 );
                 let key = crate::events::prevnames_key(updated.user.id.get());
-                let raw = crate::db::kv_get(&self.pool, "0", &key).await;
+                let raw = tbl_get(&self.pool, "0", &key).await;
                 let history: Vec<String> = raw
                     .and_then(|s| serde_json::from_str(&s).ok())
                     .unwrap_or_default();
                 let next =
                     crate::events::push_prevname(history, &entry, crate::events::PREVNAMES_CAP);
-                let _ = crate::db::kv_set(
+                let _ = tbl_set(
                     &self.pool,
                     "0",
                     &key,
@@ -4460,7 +4529,7 @@ impl serenity::EventHandler for Handler {
             .clone()
             .unwrap_or_else(|| new.user.name.clone())
             .to_ascii_lowercase();
-        if let Some(raw) = crate::db::kv_get(
+        if let Some(raw) = tbl_get(
             &self.pool,
             &new.guild_id.get().to_string(),
             "GUILD.RANK_ROLES.nicknames",
@@ -4524,7 +4593,7 @@ impl serenity::EventHandler for Handler {
             return;
         }
         let gid = guild_id.get().to_string();
-        let Some(raw) = crate::db::kv_get(&self.pool, &gid, "GUILD.SUPPORT").await else {
+        let Some(raw) = tbl_get(&self.pool, &gid, "GUILD.SUPPORT").await else {
             return;
         };
         let Ok(cfg) = serde_json::from_str::<serde_json::Value>(&raw) else {
@@ -5001,5 +5070,82 @@ mod restore_tests {
         assert_eq!(leave_embed_vanity(Some("abc")), "discord.gg/abc");
         assert_eq!(leave_embed_vanity(None), "None");
         assert_eq!(leave_embed_vanity(Some("")), "None");
+    }
+
+    async fn memory_pool() -> crate::db::Pool {
+        use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};
+        use std::str::FromStr;
+        let opts = SqliteConnectOptions::from_str("sqlite::memory:").unwrap();
+        let pool = SqlitePoolOptions::new()
+            .max_connections(1)
+            .connect_with(opts)
+            .await
+            .unwrap();
+        sqlx::query("CREATE TABLE kv (guild_id TEXT NOT NULL, key_name TEXT NOT NULL, value TEXT NOT NULL, PRIMARY KEY (guild_id, key_name))")
+            .execute(&pool)
+            .await
+            .unwrap();
+        pool
+    }
+
+    #[tokio::test]
+    async fn table_routing_with_legacy_fallback() {
+        let pool = memory_pool().await;
+        // Writes land in the guild table AND the legacy row (dual-store:
+        // handler keys are co-owned with command modules).
+        tbl_set(&pool, "g1", "GUILD.SUPPORT", "on").await.unwrap();
+        assert_eq!(
+            tbl_get(&pool, "g1", "GUILD.SUPPORT").await.as_deref(),
+            Some("on")
+        );
+        let legacy: Option<String> = sqlx::query_scalar::<_, String>(
+            "SELECT value FROM kv WHERE guild_id = 'g1' AND key_name = 'GUILD.SUPPORT'",
+        )
+        .fetch_optional(&pool)
+        .await
+        .unwrap();
+        assert_eq!(legacy, Some("on".to_string()));
+        // Legacy rows still read, table wins on conflicts.
+        crate::db::kv_set(&pool, "g2", "GUILD.SUPPORT", "off")
+            .await
+            .unwrap();
+        assert_eq!(
+            tbl_get(&pool, "g2", "GUILD.SUPPORT").await.as_deref(),
+            Some("off")
+        );
+        tbl_set(&pool, "g2", "GUILD.SUPPORT", "on").await.unwrap();
+        assert_eq!(
+            tbl_get(&pool, "g2", "GUILD.SUPPORT").await.as_deref(),
+            Some("on")
+        );
+        // Dotted-leaf reads walk table blobs.
+        tbl_set(&pool, "g1", "GUILD.GUILD_CONFIG", "{\"antipub\":true}")
+            .await
+            .unwrap();
+        assert_eq!(
+            tbl_get(&pool, "g1", "GUILD.GUILD_CONFIG.antipub")
+                .await
+                .as_deref(),
+            Some("true")
+        );
+        // Prefix scans merge table rows with legacy rows.
+        crate::db::kv_set(&pool, "g1", "CUSTOM_VOICE.1.2", "42")
+            .await
+            .unwrap();
+        tbl_set(&pool, "g1", "CUSTOM_VOICE.1.3", "43")
+            .await
+            .unwrap();
+        let scan = tbl_scan_prefix(&pool, "g1", "CUSTOM_VOICE.").await;
+        let keys: Vec<&str> = scan.iter().map(|(k, _)| k.as_str()).collect();
+        assert!(keys.contains(&"CUSTOM_VOICE.1.2"));
+        assert!(keys.contains(&"CUSTOM_VOICE.1.3"));
+        // Prefix deletes clear both stores.
+        tbl_del_prefix(&pool, "g1", "CUSTOM_VOICE.").await.unwrap();
+        assert!(tbl_scan_prefix(&pool, "g1", "CUSTOM_VOICE.")
+            .await
+            .is_empty());
+        // Single deletes clear both stores.
+        tbl_del(&pool, "g2", "GUILD.SUPPORT").await.unwrap();
+        assert!(tbl_get(&pool, "g2", "GUILD.SUPPORT").await.is_none());
     }
 }

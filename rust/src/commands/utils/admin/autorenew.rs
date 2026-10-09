@@ -21,11 +21,7 @@ pub async fn autorenew(
         .unwrap_or_default();
     let key = format!("UTILS.renew_channel.{}", channel.id.get());
     if every.trim().eq_ignore_ascii_case("off") {
-        let _ = sqlx::query("DELETE FROM kv WHERE guild_id = ? AND key_name = ?")
-            .bind(&gid)
-            .bind(&key)
-            .execute(&ctx.data().pool)
-            .await;
+        let _ = crate::commands::owner::main::routed_del(&ctx.data().pool, &gid, &gid, &key).await;
         let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
         ctx.say(
             crate::lang::get(&code, "msg_auto_renew_off")
@@ -44,8 +40,9 @@ pub async fn autorenew(
         return Ok(());
     };
     let now = crate::commands::shared::now_ms();
-    crate::db::kv_set(
+    crate::commands::owner::main::routed_set(
         &ctx.data().pool,
+        &gid,
         &gid,
         &key,
         &serde_json::json!({"timestamp": now, "maxTime": ms}).to_string(),

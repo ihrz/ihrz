@@ -19,19 +19,21 @@ pub async fn leash(
     let pool = &ctx.data().pool;
     let code = crate::db::guild_lang(pool, ctx.guild_id().map(|g| g.get())).await;
     // Config cap, mirroring the TS default {maxLeashedByUsers: 3}.
-    let max_leashed: usize = crate::db::kv_get(pool, &gid, "UTILS.LEASH_CONFIG")
-        .await
-        .and_then(|s| serde_json::from_str::<serde_json::Value>(&s).ok())
-        .and_then(|v| {
-            v.get("maxLeashedByUsers")
-                .and_then(|m| m.as_u64())
-                .map(|m| m as usize)
-        })
-        .unwrap_or(3);
-    let mut pairs: Vec<serde_json::Value> = crate::db::kv_get(pool, &gid, "UTILS.LEASH")
-        .await
-        .and_then(|s| serde_json::from_str(&s).ok())
-        .unwrap_or_default();
+    let max_leashed: usize =
+        crate::commands::owner::main::routed_get(pool, &gid, &gid, "UTILS.LEASH_CONFIG")
+            .await
+            .and_then(|s| serde_json::from_str::<serde_json::Value>(&s).ok())
+            .and_then(|v| {
+                v.get("maxLeashedByUsers")
+                    .and_then(|m| m.as_u64())
+                    .map(|m| m as usize)
+            })
+            .unwrap_or(3);
+    let mut pairs: Vec<serde_json::Value> =
+        crate::commands::owner::main::routed_get(pool, &gid, &gid, "UTILS.LEASH")
+            .await
+            .and_then(|s| serde_json::from_str(&s).ok())
+            .unwrap_or_default();
     let dom = ctx.author().id.get().to_string();
     let sub = member.id.get().to_string();
     let owned: Vec<&serde_json::Value> = pairs
@@ -103,7 +105,14 @@ pub async fn leash(
         "sub": sub,
         "timestamp": crate::commands::shared::now_ms(),
     }));
-    crate::db::kv_set(pool, &gid, "UTILS.LEASH", &serde_json::to_string(&pairs)?).await?;
+    crate::commands::owner::main::routed_set(
+        pool,
+        &gid,
+        &gid,
+        "UTILS.LEASH",
+        &serde_json::to_string(&pairs)?,
+    )
+    .await?;
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let yes_mark = crate::emojis::app_emoji_markup(&ctx.serenity_context().http, "Yes")
         .await

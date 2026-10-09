@@ -23,8 +23,9 @@ pub async fn confession_config(
         return Ok(());
     };
     let pool = &ctx.data().pool;
-    crate::db::kv_set(
+    crate::commands::owner::main::routed_set(
         pool,
+        &gid,
         &gid,
         "GUILD.CONFESSION.disable",
         if enabled { "0" } else { "1" },

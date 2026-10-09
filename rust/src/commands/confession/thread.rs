@@ -23,8 +23,9 @@ pub async fn confession_thread(
         return Ok(());
     };
     let pool = &ctx.data().pool;
-    crate::db::kv_set(
+    crate::commands::owner::main::routed_set(
         pool,
+        &gid,
         &gid,
         "GUILD.CONFESSION.thread",
         if create { "yes" } else { "no" },

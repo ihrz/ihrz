@@ -25,7 +25,11 @@ pub async fn gc_support(
     .await?;
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     if enabled {
-        ctx.say("Support on.").await?;
+        ctx.say(
+            crate::lang::get(&code, "msg_support_enabled")
+                .unwrap_or_else(|| "Support on.".to_string()),
+        )
+        .await?;
     } else {
         let guild_name = ctx.guild().map(|g| g.name.clone()).unwrap_or_default();
         ctx.say(

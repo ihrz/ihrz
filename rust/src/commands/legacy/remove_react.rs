@@ -14,14 +14,13 @@ pub async fn remove_react(
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
-    sqlx::query("DELETE FROM kv WHERE guild_id = ? AND key_name = ?")
-        .bind(&gid)
-        .bind(format!(
-            "GUILD.REACT_MSG.{}",
-            trigger.trim().to_ascii_lowercase()
-        ))
-        .execute(&ctx.data().pool)
-        .await?;
+    let _ = crate::commands::owner::main::routed_del(
+        &ctx.data().pool,
+        &gid,
+        &gid,
+        &format!("GUILD.REACT_MSG.{}", trigger.trim().to_ascii_lowercase()),
+    )
+    .await?;
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     ctx.say(
         crate::lang::get(&code, "remove_react_command_work")

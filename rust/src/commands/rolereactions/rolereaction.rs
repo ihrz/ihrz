@@ -56,7 +56,9 @@ pub async fn lookup_reaction_role(
     emoji: &serenity::ReactionType,
 ) -> Option<serenity::RoleId> {
     for key in reaction_role_keys(emoji) {
-        let raw = crate::db::kv_get(pool, gid, &reaction_row_key(mid, &key)).await;
+        let raw =
+            crate::commands::owner::main::routed_get(pool, gid, gid, &reaction_row_key(mid, &key))
+                .await;
         if let Some(id) = raw.as_deref().and_then(parse_reaction_role) {
             return Some(serenity::RoleId::new(id));
         }
@@ -175,8 +177,9 @@ pub async fn rr_add(
         .await?;
         return Ok(());
     }
-    crate::db::kv_set(
+    crate::commands::owner::main::routed_set(
         &ctx.data().pool,
+        &gid,
         &gid,
         &reaction_row_key(mid, &reaction),
         &serde_json::json!({
@@ -281,9 +284,10 @@ pub async fn rr_remove(
         return Ok(());
     };
     let key = reaction_row_key(mid, &reaction);
-    let row: Option<ButtonRoleRow> = crate::db::kv_get(&ctx.data().pool, &gid, &key)
-        .await
-        .and_then(|s| serde_json::from_str(&s).ok());
+    let row: Option<ButtonRoleRow> =
+        crate::commands::owner::main::routed_get(&ctx.data().pool, &gid, &gid, &key)
+            .await
+            .and_then(|s| serde_json::from_str(&s).ok());
     let Some(fetched) = row else {
         ctx.say(
             crate::commands::lang_for(
@@ -316,7 +320,7 @@ pub async fn rr_remove(
     {
         tracing::warn!("rolereactions: failed to remove own reaction");
     }
-    let _ = crate::db::kv_del(&ctx.data().pool, &gid, &key).await;
+    let _ = crate::commands::owner::main::routed_del(&ctx.data().pool, &gid, &gid, &key).await;
     let uid = ctx.author().id.get().to_string();
     post_ihorizon_log(
         &http,
@@ -459,27 +463,37 @@ pub fn remove_button_by_emoji(rows: &mut Vec<serde_json::Value>, reaction: &str)
 }
 
 /// All button rows for a message (the TS nested-object read over
-/// `GUILD.REACTION_ROLES.<msg>`).
+/// `GUILD.REACTION_ROLES.<msg>`): guild-table subtree first, legacy
+/// kv rows filling gaps (table wins). Keys unchanged.
 pub async fn load_button_rows(
     pool: &crate::db::Pool,
     gid: &str,
     mid: u64,
 ) -> Vec<(String, ButtonRoleRow)> {
-    let rows: Vec<(String, String)> = sqlx::query_as::<_, (String, String)>(
-        "SELECT key_name, value FROM kv WHERE guild_id = ? AND key_name LIKE ?",
-    )
-    .bind(gid)
-    .bind(format!("GUILD.REACTION_ROLES.{mid}.%"))
-    .fetch_all(pool)
-    .await
-    .unwrap_or_default();
-    rows.into_iter()
-        .filter_map(|(k, v)| {
-            serde_json::from_str::<ButtonRoleRow>(&v)
-                .ok()
-                .map(|r| (k, r))
-        })
-        .collect()
+    use crate::commands::owner::main as routed;
+    let prefix = format!("GUILD.REACTION_ROLES.{mid}.");
+    let mut by_key: std::collections::HashMap<String, ButtonRoleRow> =
+        std::collections::HashMap::new();
+    for (k, v) in routed::legacy_scan(pool, gid, &prefix).await {
+        if let Ok(row) = serde_json::from_str::<ButtonRoleRow>(&v) {
+            by_key.insert(k, row);
+        }
+    }
+    let mid_s = mid.to_string();
+    if let Some(root) = routed::tbl_get_value(pool, gid, "GUILD").await {
+        if let Some(obj) =
+            routed::walk_path(&root, &["REACTION_ROLES", &mid_s]).and_then(|v| v.as_object())
+        {
+            for (sub, v) in obj {
+                if let Ok(row) = serde_json::from_value::<ButtonRoleRow>(v.clone()) {
+                    by_key.insert(format!("{prefix}{sub}"), row);
+                }
+            }
+        }
+    }
+    let mut rows: Vec<(String, ButtonRoleRow)> = by_key.into_iter().collect();
+    rows.sort_by(|a, b| a.0.cmp(&b.0));
+    rows
 }
 
 /// #bf0bb9 log embed to the name-contains `ihorizon-logs` channel.
@@ -654,8 +668,9 @@ async fn rolebutton_add(
         return Ok(());
     }
     let gid = guild_id.get().to_string();
-    crate::db::kv_set(
+    crate::commands::owner::main::routed_set(
         &ctx.data().pool,
+        &gid,
         &gid,
         &button_role_key(mid, &role.id.get().to_string()),
         &serde_json::json!({
@@ -796,7 +811,7 @@ async fn rolebutton_remove(
             return Ok(());
         };
     }
-    let _ = crate::db::kv_del(&ctx.data().pool, &gid, key).await;
+    let _ = crate::commands::owner::main::routed_del(&ctx.data().pool, &gid, &gid, key).await;
     let uid = ctx.author().id.get().to_string();
     let http = ctx.serenity_context().http.clone();
     post_ihorizon_log(
@@ -864,10 +879,14 @@ pub async fn handle_button_reaction(
             ),
         )
     };
-    let row: Option<ButtonRoleRow> =
-        crate::db::kv_get(pool, &gid, &button_role_key(mid, &role_id.to_string()))
-            .await
-            .and_then(|s| serde_json::from_str(&s).ok());
+    let row: Option<ButtonRoleRow> = crate::commands::owner::main::routed_get(
+        pool,
+        &gid,
+        &gid,
+        &button_role_key(mid, &role_id.to_string()),
+    )
+    .await
+    .and_then(|s| serde_json::from_str(&s).ok());
     let Some(_) = row else { return Ok(()) };
     let roles = guild_id.roles(&ctx.http).await.unwrap_or_default();
     let Some(target) = roles.get(&serenity::RoleId::new(role_id)) else {
@@ -1068,7 +1087,7 @@ pub async fn load_roleselect(
     guild_id: &str,
     message_id: u64,
 ) -> Vec<RoleSelectEntry> {
-    crate::db::kv_get(pool, guild_id, &roleselect_key(message_id))
+    crate::commands::owner::main::routed_get(pool, guild_id, guild_id, &roleselect_key(message_id))
         .await
         .and_then(|s| serde_json::from_str(&s).ok())
         .unwrap_or_default()
@@ -1192,8 +1211,9 @@ pub async fn roleselect(
         )
         .await?;
     let config_msg = handle.message().await?.id.get();
-    let _ = crate::db::kv_set(
+    let _ = crate::commands::owner::main::routed_set(
         &ctx.data().pool,
+        &gid,
         &gid,
         &roleselect_draft_key(config_msg),
         &serde_json::to_string(&draft)?,
@@ -1335,14 +1355,15 @@ async fn refresh_config(
 
 /// Load a builder draft by config message id.
 async fn load_draft(pool: &crate::db::Pool, gid: &str, config_msg: u64) -> Option<RoleSelectDraft> {
-    crate::db::kv_get(pool, gid, &roleselect_draft_key(config_msg))
+    crate::commands::owner::main::routed_get(pool, gid, gid, &roleselect_draft_key(config_msg))
         .await
         .and_then(|s| serde_json::from_str(&s).ok())
 }
 
 async fn save_draft(pool: &crate::db::Pool, gid: &str, config_msg: u64, draft: &RoleSelectDraft) {
-    let _ = crate::db::kv_set(
+    let _ = crate::commands::owner::main::routed_set(
         pool,
+        gid,
         gid,
         &roleselect_draft_key(config_msg),
         &serde_json::to_string(draft).unwrap_or_default(),
@@ -1577,8 +1598,9 @@ pub async fn handle_roleselect_main(
         }
         "save" => {
             let key = roleselect_key(draft.target_msg.parse::<u64>().unwrap_or(0));
-            if crate::db::kv_set(
+            if crate::commands::owner::main::routed_set(
                 pool,
+                &gid,
                 &gid,
                 &key,
                 &serde_json::to_string(&draft.data).unwrap_or_default(),
@@ -1634,7 +1656,13 @@ pub async fn handle_roleselect_main(
                     serenity::EditMessage::new().components(vec![]),
                 )
                 .await;
-            let _ = crate::db::kv_del(pool, &gid, &roleselect_draft_key(config_msg)).await;
+            let _ = crate::commands::owner::main::routed_del(
+                pool,
+                &gid,
+                &gid,
+                &roleselect_draft_key(config_msg),
+            )
+            .await;
         }
         _ => {
             // cancel (and anything unknown): confirm + strip rows.
@@ -1655,7 +1683,13 @@ pub async fn handle_roleselect_main(
                     serenity::EditMessage::new().components(vec![]),
                 )
                 .await;
-            let _ = crate::db::kv_del(pool, &gid, &roleselect_draft_key(config_msg)).await;
+            let _ = crate::commands::owner::main::routed_del(
+                pool,
+                &gid,
+                &gid,
+                &roleselect_draft_key(config_msg),
+            )
+            .await;
         }
     }
     Ok(())
@@ -2141,5 +2175,54 @@ mod tests {
         ]})];
         assert!(remove_button_by_emoji(&mut solo, "123"));
         assert!(solo.is_empty());
+    }
+
+    async fn memory_pool() -> crate::db::Pool {
+        use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};
+        use std::str::FromStr;
+        let opts = SqliteConnectOptions::from_str("sqlite::memory:").unwrap();
+        let pool = SqlitePoolOptions::new()
+            .max_connections(1)
+            .connect_with(opts)
+            .await
+            .unwrap();
+        sqlx::query("CREATE TABLE kv (guild_id TEXT NOT NULL, key_name TEXT NOT NULL, value TEXT NOT NULL, PRIMARY KEY (guild_id, key_name))")
+            .execute(&pool)
+            .await
+            .unwrap();
+        pool
+    }
+
+    #[tokio::test]
+    async fn button_rows_table_routing_with_legacy_fallback() {
+        use crate::commands::owner::main as routed;
+        let pool = memory_pool().await;
+        let row = r#"{"rolesID":"7","reactionNAME":"x","enable":true}"#;
+        // Routed write dual-writes; the union scan sees it.
+        routed::routed_set(&pool, "g", "g", "GUILD.REACTION_ROLES.11.btn_7", row)
+            .await
+            .unwrap();
+        let rows = load_button_rows(&pool, "g", 11).await;
+        assert_eq!(rows.len(), 1);
+        assert_eq!(rows[0].0, "GUILD.REACTION_ROLES.11.btn_7");
+        assert_eq!(rows[0].1.roles_id, "7");
+        // Legacy-only row for another message merges in.
+        crate::db::kv_set(&pool, "g", "GUILD.REACTION_ROLES.12.btn_9", row)
+            .await
+            .unwrap();
+        assert_eq!(load_button_rows(&pool, "g", 12).await.len(), 1);
+        assert_eq!(load_button_rows(&pool, "g", 11).await.len(), 1);
+        // Table wins over a stale legacy row for the same key.
+        crate::db::kv_set(
+            &pool,
+            "g",
+            "GUILD.REACTION_ROLES.11.btn_7",
+            r#"{"rolesID":"8","reactionNAME":"x","enable":true}"#,
+        )
+        .await
+        .unwrap();
+        let rows = load_button_rows(&pool, "g", 11).await;
+        assert_eq!(rows.len(), 1);
+        assert_eq!(rows[0].1.roles_id, "7");
     }
 }

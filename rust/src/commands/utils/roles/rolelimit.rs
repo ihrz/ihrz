@@ -22,11 +22,8 @@ pub async fn rolelimit(
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     match limit.unwrap_or(0) {
         0 => {
-            let _ = sqlx::query("DELETE FROM kv WHERE guild_id = ? AND key_name = ?")
-                .bind(&gid)
-                .bind(&key)
-                .execute(&ctx.data().pool)
-                .await;
+            let _ =
+                crate::commands::owner::main::routed_del(&ctx.data().pool, &gid, &gid, &key).await;
             ctx.say(
                 crate::lang::get(&code, "msg_role_limit_cleared")
                     .unwrap_or_else(|| "Role limit cleared.".to_string()),
@@ -34,7 +31,14 @@ pub async fn rolelimit(
             .await?;
         }
         n => {
-            crate::db::kv_set(&ctx.data().pool, &gid, &key, &n.max(1).to_string()).await?;
+            crate::commands::owner::main::routed_set(
+                &ctx.data().pool,
+                &gid,
+                &gid,
+                &key,
+                &n.max(1).to_string(),
+            )
+            .await?;
             ctx.say(
                 crate::lang::get(&code, "msg_role_limit_set")
                     .unwrap_or_else(|| "Role limit set.".to_string()),

@@ -34,14 +34,26 @@ pub async fn snipe(
             }
         },
     };
-    let raw = crate::db::kv_get(&ctx.data().pool, &gid, &format!("SNIPE.{ch_id}")).await;
+    let raw = crate::commands::owner::main::routed_get(
+        &ctx.data().pool,
+        &gid,
+        &gid,
+        &format!("SNIPE.{ch_id}"),
+    )
+    .await;
     if let Some(v) = raw.and_then(|r| serde_json::from_str::<serde_json::Value>(&r).ok()) {
         let author = v.get("author").and_then(|a| a.as_str()).unwrap_or("?");
         let content = v.get("content").and_then(|c| c.as_str()).unwrap_or("");
         ctx.say(format!("{author}: {content}")).await?;
         return Ok(());
     }
-    let last = crate::db::kv_get(&ctx.data().pool, &gid, "SNIPE.last_deleted_id").await;
+    let last = crate::commands::owner::main::routed_get(
+        &ctx.data().pool,
+        &gid,
+        &gid,
+        "SNIPE.last_deleted_id",
+    )
+    .await;
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     ctx.say(match last {
         Some(id) => format!("Last deleted message id: {id}"),

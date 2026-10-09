@@ -65,12 +65,19 @@ pub async fn nightmode(
         &serde_json::to_string(&cfg)?,
     )
     .await?;
-    ctx.say(format!(
-        "Nightmode {} ({}h-{}h).",
-        if enabled { "on" } else { "off" },
-        cfg.start_hour,
-        cfg.end_hour
-    ))
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    let state = if enabled { "on" } else { "off" };
+    ctx.say(
+        crate::lang::get(&code, "msg_nightmode_updated")
+            .map(|s| {
+                s.replace("${state}", state)
+                    .replace("${start}", &cfg.start_hour.to_string())
+                    .replace("${end}", &cfg.end_hour.to_string())
+            })
+            .unwrap_or_else(|| {
+                format!("Nightmode {state} ({}h-{}h).", cfg.start_hour, cfg.end_hour)
+            }),
+    )
     .await?;
     Ok(())
 }

@@ -39,8 +39,9 @@ pub async fn vd_lobby(
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
-    crate::db::kv_set(
+    crate::commands::owner::main::routed_set(
         &ctx.data().pool,
+        &gid,
         &gid,
         &vd_key("voice_channel"),
         &channel.id.get().to_string(),
@@ -71,8 +72,9 @@ pub async fn vd_panel(
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
-    crate::db::kv_set(
+    crate::commands::owner::main::routed_set(
         &ctx.data().pool,
+        &gid,
         &gid,
         &vd_key("interface"),
         &channel.id.get().to_string(),
@@ -101,8 +103,9 @@ pub async fn vd_category(
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
-    crate::db::kv_set(
+    crate::commands::owner::main::routed_set(
         &ctx.data().pool,
+        &gid,
         &gid,
         &vd_key("voice_channel_category"),
         name.trim(),
@@ -131,8 +134,9 @@ pub async fn vd_name(
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
-    crate::db::kv_set(
+    crate::commands::owner::main::routed_set(
         &ctx.data().pool,
+        &gid,
         &gid,
         &vd_key("voice_channel_name"),
         template.trim(),
@@ -163,8 +167,9 @@ pub async fn vd_position(
         .map(|g| g.get().to_string())
         .unwrap_or_default();
     let pos = position_type.trim().to_lowercase();
-    crate::db::kv_set(
+    crate::commands::owner::main::routed_set(
         &ctx.data().pool,
+        &gid,
         &gid,
         &vd_key("voice_channel_position"),
         &pos,
@@ -192,8 +197,9 @@ pub async fn vd_staff(
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
-    crate::db::kv_set(
+    crate::commands::owner::main::routed_set(
         &ctx.data().pool,
+        &gid,
         &gid,
         &vd_key("staff_role"),
         &role.id.get().to_string(),
@@ -379,21 +385,32 @@ pub fn temp_sweep_action(channel_exists: bool, occupied: bool) -> TempSweep {
     }
 }
 
-/// Load (user_id, channel_id) temp pairs for a guild.
+/// Load (user_id, channel_id) temp pairs for a guild: guild-table
+/// subtree first, legacy kv rows filling gaps (table wins).
+/// Mirrors the ticket TICKET_ALL prefix scan; keys unchanged.
 pub async fn load_temps(pool: &crate::db::Pool, guild_id: &str) -> Vec<(String, String)> {
-    let rows: Vec<(String, String)> = sqlx::query_as::<_, (String, String)>(
-        "SELECT key_name, value FROM kv WHERE guild_id = ? AND key_name LIKE 'CUSTOM_VOICE.%'",
-    )
-    .bind(guild_id)
-    .fetch_all(pool)
-    .await
-    .unwrap_or_default();
-    rows.iter()
-        .filter_map(|(k, v)| {
-            let uid = k.rsplit('.').next()?.to_string();
-            Some((uid, v.clone()))
-        })
-        .collect()
+    use crate::commands::owner::main as routed;
+    let mut by_uid: std::collections::HashMap<String, String> = std::collections::HashMap::new();
+    for (k, v) in routed::legacy_scan(pool, guild_id, "CUSTOM_VOICE.").await {
+        if let Some(uid) = k.rsplit('.').next() {
+            by_uid.insert(uid.to_string(), v);
+        }
+    }
+    // Table nests CUSTOM_VOICE.<gid>.<uid>; walk the guild layer.
+    if let Some(root) = routed::tbl_get_value(pool, guild_id, "CUSTOM_VOICE").await {
+        if let Some(obj) = routed::walk_path(&root, &[guild_id]).and_then(|v| v.as_object()) {
+            for (uid, v) in obj {
+                let ch = match v {
+                    serde_json::Value::String(s) => s.clone(),
+                    other => other.to_string(),
+                };
+                by_uid.insert(uid.clone(), ch);
+            }
+        }
+    }
+    let mut rows: Vec<(String, String)> = by_uid.into_iter().collect();
+    rows.sort();
+    rows
 }
 
 /// Dashboard button handler. Called from events_handler interaction_create.
@@ -443,8 +460,9 @@ pub async fn handle_tempvoice_button(
             if owner_inside {
                 return Ok(());
             }
-            let _ = crate::db::kv_set(
+            let _ = crate::commands::owner::main::routed_set(
                 pool,
+                &gid,
                 &gid,
                 &crate::events::temp_voice_key(guild_id.get(), comp.user.id.get()),
                 &channel_id,
@@ -465,11 +483,13 @@ pub async fn handle_tempvoice_button(
                 return Ok(());
             }
             let _ = ch.delete(&ctx.http).await;
-            let _ = sqlx::query("DELETE FROM kv WHERE guild_id = ? AND key_name = ?")
-                .bind(&gid)
-                .bind(format!("CUSTOM_VOICE.{gid}.{user_id}"))
-                .execute(pool)
-                .await;
+            let _ = crate::commands::owner::main::routed_del(
+                pool,
+                &gid,
+                &gid,
+                &format!("CUSTOM_VOICE.{gid}.{user_id}"),
+            )
+            .await;
         }
         "privacy" => {
             // Privacy menu with the 6 TS options (lock/unlock,
@@ -664,13 +684,16 @@ pub async fn handle_tempvoice_button(
             let Ok(new_owner) = value.trim().parse::<u64>() else {
                 return Ok(());
             };
-            let _ = sqlx::query("DELETE FROM kv WHERE guild_id = ? AND key_name = ?")
-                .bind(&gid)
-                .bind(format!("CUSTOM_VOICE.{gid}.{user_id}"))
-                .execute(pool)
-                .await;
-            let _ = crate::db::kv_set(
+            let _ = crate::commands::owner::main::routed_del(
                 pool,
+                &gid,
+                &gid,
+                &format!("CUSTOM_VOICE.{gid}.{user_id}"),
+            )
+            .await;
+            let _ = crate::commands::owner::main::routed_set(
+                pool,
+                &gid,
                 &gid,
                 &crate::events::temp_voice_key(guild_id.get(), new_owner),
                 &channel_id,
@@ -1056,5 +1079,59 @@ mod tests {
         assert_eq!(temp_sweep_action(true, false), TempSweep::DeleteChannel);
         // Occupied -> keep.
         assert_eq!(temp_sweep_action(true, true), TempSweep::Keep);
+    }
+
+    async fn memory_pool() -> crate::db::Pool {
+        use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};
+        use std::str::FromStr;
+        let opts = SqliteConnectOptions::from_str("sqlite::memory:").unwrap();
+        let pool = SqlitePoolOptions::new()
+            .max_connections(1)
+            .connect_with(opts)
+            .await
+            .unwrap();
+        sqlx::query("CREATE TABLE kv (guild_id TEXT NOT NULL, key_name TEXT NOT NULL, value TEXT NOT NULL, PRIMARY KEY (guild_id, key_name))")
+            .execute(&pool)
+            .await
+            .unwrap();
+        pool
+    }
+
+    #[tokio::test]
+    async fn temps_table_routing_with_legacy_fallback() {
+        use crate::commands::owner::main as routed;
+        let pool = memory_pool().await;
+        // Routed write dual-writes; the union scan sees it.
+        routed::routed_set(&pool, "g", "g", "CUSTOM_VOICE.g.5", "111")
+            .await
+            .unwrap();
+        assert_eq!(
+            load_temps(&pool, "g").await,
+            vec![("5".to_string(), "111".to_string())]
+        );
+        // Legacy-only row merges in.
+        crate::db::kv_set(&pool, "g", "CUSTOM_VOICE.g.7", "222")
+            .await
+            .unwrap();
+        assert_eq!(load_temps(&pool, "g").await.len(), 2);
+        // Table wins over a stale legacy row for the same user.
+        crate::db::kv_set(&pool, "g", "CUSTOM_VOICE.g.5", "999")
+            .await
+            .unwrap();
+        assert_eq!(
+            load_temps(&pool, "g").await,
+            vec![
+                ("5".to_string(), "111".to_string()),
+                ("7".to_string(), "222".to_string()),
+            ]
+        );
+        // Delete clears both stores.
+        assert!(routed::routed_del(&pool, "g", "g", "CUSTOM_VOICE.g.5")
+            .await
+            .unwrap());
+        assert_eq!(
+            load_temps(&pool, "g").await,
+            vec![("7".to_string(), "222".to_string())]
+        );
     }
 }

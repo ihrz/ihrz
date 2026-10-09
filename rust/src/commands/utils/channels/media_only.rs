@@ -17,7 +17,9 @@ pub async fn media_only(
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
-    let raw = crate::db::kv_get(&ctx.data().pool, &gid, "UTILS.picOnly").await;
+    let raw =
+        crate::commands::owner::main::routed_get(&ctx.data().pool, &gid, &gid, "UTILS.picOnly")
+            .await;
     let mut list: Vec<String> = raw
         .and_then(|s| serde_json::from_str(&s).ok())
         .unwrap_or_default();
@@ -29,8 +31,9 @@ pub async fn media_only(
         list.push(id);
         "Media-only on."
     };
-    crate::db::kv_set(
+    crate::commands::owner::main::routed_set(
         &ctx.data().pool,
+        &gid,
         &gid,
         "UTILS.picOnly",
         &serde_json::to_string(&list)?,

@@ -332,14 +332,15 @@ pub async fn load_draft(
     gid: &str,
     builder: u64,
 ) -> Option<EmbedDraftState> {
-    crate::db::kv_get(pool, gid, &draft_key(builder))
+    crate::commands::owner::main::routed_get(pool, gid, gid, &draft_key(builder))
         .await
         .and_then(|s| serde_json::from_str(&s).ok())
 }
 
 pub async fn save_draft(pool: &crate::db::Pool, gid: &str, builder: u64, state: &EmbedDraftState) {
-    let _ = crate::db::kv_set(
+    let _ = crate::commands::owner::main::routed_set(
         pool,
+        gid,
         gid,
         &draft_key(builder),
         &serde_json::to_string(state).unwrap_or_default(),
@@ -348,7 +349,7 @@ pub async fn save_draft(pool: &crate::db::Pool, gid: &str, builder: u64, state: 
 }
 
 pub async fn drop_draft(pool: &crate::db::Pool, gid: &str, builder: u64) {
-    let _ = crate::db::kv_del(pool, gid, &draft_key(builder)).await;
+    let _ = crate::commands::owner::main::routed_del(pool, gid, gid, &draft_key(builder)).await;
 }
 
 /// Select-menu option values in TS order (labels from lang at render).
@@ -531,8 +532,9 @@ pub async fn start_await(
         .await;
     // Best-effort prompt id (ephemeral responses have no id; store 0).
     let _ = msg;
-    let _ = crate::db::kv_set(
+    let _ = crate::commands::owner::main::routed_set(
         pool,
+        gid,
         gid,
         &await_key(comp.user.id.get()),
         &serde_json::to_string(&EmbedAwait {
@@ -587,12 +589,12 @@ pub async fn take_await(
     user_id: u64,
     channel_id: u64,
 ) -> Option<EmbedAwait> {
-    let raw = crate::db::kv_get(pool, gid, &await_key(user_id)).await?;
+    let raw = crate::commands::owner::main::routed_get(pool, gid, gid, &await_key(user_id)).await?;
     let row: EmbedAwait = serde_json::from_str(&raw).ok()?;
     if row.channel != channel_id {
         return None;
     }
-    crate::db::kv_del(pool, gid, &await_key(user_id))
+    crate::commands::owner::main::routed_del(pool, gid, gid, &await_key(user_id))
         .await
         .ok()?;
     Some(row)
@@ -878,8 +880,9 @@ async fn handle_save(
     };
     let embed_id =
         crate::funcs::generate_password(&opts, seed).unwrap_or_else(|_| format!("{seed:016}"));
-    let _ = crate::db::kv_set(
+    let _ = crate::commands::owner::main::routed_set(
         pool,
+        gid,
         gid,
         &format!("EMBED.{embed_id}"),
         &serde_json::json!({
@@ -1002,7 +1005,10 @@ pub async fn embed_builder(
     let mut embed = empty_embed();
     if let Some(arg) = id.as_deref() {
         if crate::funcs::is_valid_embed_id(arg) {
-            if let Some(raw) = crate::db::kv_get(pool, &gid, &format!("EMBED.{arg}")).await {
+            if let Some(raw) =
+                crate::commands::owner::main::routed_get(pool, &gid, &gid, &format!("EMBED.{arg}"))
+                    .await
+            {
                 if let Ok(v) = serde_json::from_str::<serde_json::Value>(&raw) {
                     if let Some(src) = v.get("embedSource").cloned() {
                         embed = src;
@@ -1148,5 +1154,64 @@ mod tests {
             select_label_key("7bis"),
             "embed_placeholde_option_change_footer_image"
         );
+    }
+
+    async fn memory_pool() -> crate::db::Pool {
+        use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};
+        use std::str::FromStr;
+        let opts = SqliteConnectOptions::from_str("sqlite::memory:").unwrap();
+        let pool = SqlitePoolOptions::new()
+            .max_connections(1)
+            .connect_with(opts)
+            .await
+            .unwrap();
+        sqlx::query("CREATE TABLE kv (guild_id TEXT NOT NULL, key_name TEXT NOT NULL, value TEXT NOT NULL, PRIMARY KEY (guild_id, key_name))")
+            .execute(&pool)
+            .await
+            .unwrap();
+        pool
+    }
+
+    #[tokio::test]
+    async fn draft_table_routing_with_legacy_fallback() {
+        use crate::commands::owner::main as routed;
+        let pool = memory_pool().await;
+        let state = EmbedDraftState {
+            owner: "1".to_string(),
+            embed: empty_embed(),
+            files: HashMap::new(),
+        };
+        save_draft(&pool, "g", 5, &state).await;
+        assert_eq!(load_draft(&pool, "g", 5).await.unwrap().owner, "1");
+        // Legacy-only draft still loads.
+        crate::db::kv_set(
+            &pool,
+            "g",
+            &draft_key(6),
+            &serde_json::to_string(&state).unwrap(),
+        )
+        .await
+        .unwrap();
+        assert_eq!(load_draft(&pool, "g", 6).await.unwrap().owner, "1");
+        // Take-await consumes both stores.
+        let await_row = EmbedAwait {
+            builder: 5,
+            channel: 9,
+            prompt: 0,
+            action: "title".to_string(),
+        };
+        routed::routed_set(
+            &pool,
+            "g",
+            "g",
+            &await_key(3),
+            &serde_json::to_string(&await_row).unwrap(),
+        )
+        .await
+        .unwrap();
+        assert_eq!(take_await(&pool, "g", 3, 9).await.unwrap().builder, 5);
+        assert!(take_await(&pool, "g", 3, 9).await.is_none());
+        drop_draft(&pool, "g", 5).await;
+        assert!(load_draft(&pool, "g", 5).await.is_none());
     }
 }

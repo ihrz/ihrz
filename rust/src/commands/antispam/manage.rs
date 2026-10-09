@@ -22,11 +22,16 @@ pub async fn as_config(
         cfg.threshold = t.clamp(2, 20) as u32;
     }
     save_antispam(&ctx.data().pool, &gid, &cfg).await?;
-    ctx.say(format!(
-        "Antispam {} (threshold {})",
-        if cfg.enabled { "on" } else { "off" },
-        cfg.threshold
-    ))
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    let state = if cfg.enabled { "on" } else { "off" };
+    ctx.say(
+        crate::lang::get(&code, "msg_antispam_config_updated")
+            .map(|s| {
+                s.replace("${state}", state)
+                    .replace("${threshold}", &cfg.threshold.to_string())
+            })
+            .unwrap_or_else(|| format!("Antispam {state} (threshold {}).", cfg.threshold)),
+    )
     .await?;
     Ok(())
 }

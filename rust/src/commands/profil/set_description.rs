@@ -16,11 +16,13 @@ pub async fn profil_description(
     let mut p = super::profil::load_profil_routed(&ctx.data().pool, user_id).await;
     p.description = description.chars().take(500).collect();
     super::profil::save_profil_routed(&ctx.data().pool, user_id, &p).await?;
-    ctx.send(
-        poise::CreateReply::default()
-            .content("Description saved.")
-            .ephemeral(true),
+    let msg = crate::commands::lang_for(
+        &ctx,
+        "setprofildescriptions_command_work",
+        "**Your description has been updated successfully.**",
     )
-    .await?;
+    .await;
+    ctx.send(poise::CreateReply::default().content(msg).ephemeral(true))
+        .await?;
     Ok(())
 }

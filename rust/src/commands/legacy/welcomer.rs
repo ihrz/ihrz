@@ -17,7 +17,13 @@ pub async fn welcomer(
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
-    let raw = crate::db::kv_get(&ctx.data().pool, &gid, "GUILD.GUILD_CONFIG").await;
+    let raw = crate::commands::owner::main::routed_get(
+        &ctx.data().pool,
+        &gid,
+        &gid,
+        "GUILD.GUILD_CONFIG",
+    )
+    .await;
     let mut cfg: serde_json::Value = raw
         .and_then(|s| serde_json::from_str(&s).ok())
         .unwrap_or(serde_json::json!({}));
@@ -33,8 +39,9 @@ pub async fn welcomer(
     if let Some(m) = leave_message {
         cfg["leavemessage"] = serde_json::Value::String(m);
     }
-    crate::db::kv_set(
+    crate::commands::owner::main::routed_set(
         &ctx.data().pool,
+        &gid,
         &gid,
         "GUILD.GUILD_CONFIG",
         &cfg.to_string(),

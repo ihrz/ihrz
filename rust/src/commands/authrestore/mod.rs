@@ -637,6 +637,79 @@ pub fn forcejoin_payload(
     })
 }
 
+/// Key-update payload. Mirrors `AuthRestore_KeyUpdate_EntryType`
+/// sent by `securityCodeUpdate` (TS key `securityCodeUpdate`).
+pub fn key_update_payload(guild_id: &str, api_token: &str, secret_code: &str) -> serde_json::Value {
+    serde_json::json!({
+        "guildId": guild_id,
+        "apiToken": api_token,
+        "secretCode": secret_code,
+    })
+}
+
+/// Role-update payload. Mirrors `AuthRestore_RoleUpdate_EntryType`
+/// sent by `changeRoleAuthRestore`.
+pub fn role_update_payload(guild_id: &str, api_token: &str, role_id: &str) -> serde_json::Value {
+    serde_json::json!({
+        "guildId": guild_id,
+        "apiToken": api_token,
+        "roleId": role_id,
+    })
+}
+
+/// Gateway response. Mirrors `AuthRestore_ResponseType`
+/// (`status: "OK" | "ERR"`, `message`, optional `secretCode`);
+/// `ForceJoin_ResponseType` is the same shape without the code.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct AuthRestoreResponse {
+    pub ok: bool,
+    pub message: String,
+    pub secret_code: String,
+}
+
+/// Parse a gateway response body. `None` when `status` is missing
+/// (mirrors the TS `|| {}` fallback: no status means unusable).
+/// `secretCode` defaults to empty like the TS `?.` access.
+pub fn parse_authrestore_response(body: &serde_json::Value) -> Option<AuthRestoreResponse> {
+    let status = body.get("status")?.as_str()?;
+    Some(AuthRestoreResponse {
+        ok: status == "OK",
+        message: body
+            .get("message")
+            .and_then(|m| m.as_str())
+            .unwrap_or_default()
+            .to_string(),
+        secret_code: body
+            .get("secretCode")
+            .and_then(|s| s.as_str())
+            .unwrap_or_default()
+            .to_string(),
+    })
+}
+
+/// `secretCode` string from a gateway body, empty when absent.
+/// Mirrors the `body.secretCode` reads in !set.ts / !force-join.ts.
+pub fn secret_from_response(body: &serde_json::Value) -> String {
+    parse_authrestore_response(body)
+        .map(|r| r.secret_code)
+        .unwrap_or_default()
+}
+
+/// OAuth2 link without a guild state. Mirrors
+/// `createOauth2LinkWithoutGuild` (`Oauth2_Link.split("&state=")[0]`,
+/// default scope `"identify"`).
+pub fn oauth2_link_without_guild(
+    client_id: &str,
+    redirect_uri: &str,
+    scope: Option<&str>,
+) -> String {
+    crate::funcs::oauth2_link(client_id, redirect_uri, scope.unwrap_or("identify"), "")
+        .split("&state=")
+        .next()
+        .unwrap_or_default()
+        .to_string()
+}
+
 /// POST a JSON payload to the gateway. Returns the decoded body;
 /// any transport error means the gateway is down (TS catch path).
 pub async fn gateway_post(
@@ -912,6 +985,38 @@ mod tests {
         assert_eq!(locale_emoji("xx-YY"), "🌐");
         // Exact TS table: unknown regional variants fall back to 🌐.
         assert_eq!(locale_emoji("fr-FR"), "🌐");
+    }
+
+    #[test]
+    fn secret_flow_payloads_responses_and_guildless_link() {
+        // Key/role update payloads mirror the TS entry types exactly.
+        let key = key_update_payload("g", "tok", "s3cr3t");
+        assert_eq!(key["guildId"], "g");
+        assert_eq!(key["apiToken"], "tok");
+        assert_eq!(key["secretCode"], "s3cr3t");
+        let role = role_update_payload("g", "tok", "r9");
+        assert_eq!(role["guildId"], "g");
+        assert_eq!(role["roleId"], "r9");
+        // Gateway response parsing (AuthRestore_ResponseType shape).
+        let ok = serde_json::json!({"status": "OK", "message": "m", "secretCode": "abc"});
+        let parsed = parse_authrestore_response(&ok).unwrap();
+        assert!(parsed.ok);
+        assert_eq!(parsed.secret_code, "abc");
+        assert_eq!(secret_from_response(&ok), "abc");
+        let err = serde_json::json!({"status": "ERR", "message": "bad"});
+        let parsed_err = parse_authrestore_response(&err).unwrap();
+        assert!(!parsed_err.ok);
+        assert_eq!(parsed_err.secret_code, "");
+        assert_eq!(secret_from_response(&err), "");
+        // TS `|| {}` fallback: no status means unusable.
+        assert!(parse_authrestore_response(&serde_json::json!({})).is_none());
+        assert_eq!(secret_from_response(&serde_json::json!({})), "");
+        // Guild-less link drops the state like split("&state=")[0].
+        let bare = oauth2_link_without_guild("cid", "https://gw/cb", None);
+        assert!(bare.contains("scope=identify"));
+        assert!(!bare.contains("state="));
+        let scoped = oauth2_link_without_guild("cid", "https://gw/cb", Some("guilds.join"));
+        assert!(scoped.contains("scope=guilds.join"));
     }
 
     #[test]

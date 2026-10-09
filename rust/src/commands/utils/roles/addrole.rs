@@ -23,10 +23,11 @@ pub async fn addrole(
     let no = app_emoji(ctx.http(), "No", "❌").await;
     let stop = app_emoji(ctx.http(), "Stop", "⛔").await;
     // Whitelist first. Mirrors `(await client.db.get(...UTILS.wlRoles)) || []`.
-    let allowed: Vec<String> = crate::db::kv_get(pool, &gid, "UTILS.wlRoles")
-        .await
-        .and_then(|s| serde_json::from_str(&s).ok())
-        .unwrap_or_default();
+    let allowed: Vec<String> =
+        crate::commands::owner::main::routed_get(pool, &gid, &gid, "UTILS.wlRoles")
+            .await
+            .and_then(|s| serde_json::from_str(&s).ok())
+            .unwrap_or_default();
     if !allowed.contains(&role.id.get().to_string()) && !allowed.is_empty() {
         ctx.say(t("utils_addrole_not_wl").replace("${client.iHorizon_Emojis.No}", &no))
             .await?;

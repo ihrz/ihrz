@@ -88,14 +88,24 @@ pub async fn gc_perm_list(
         .map(|g| g.get().to_string())
         .unwrap_or_default();
     let perms = load_cmd_perms(&ctx.data().pool, &gid, command.trim()).await;
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     ctx.say(match perms {
-        Some(p) => format!(
-            "level {:?}, users [{}], roles [{}]",
-            p.level,
-            p.users.join(","),
-            p.roles.join(",")
-        ),
-        None => "Default permissions.".to_string(),
+        Some(p) => crate::lang::get(&code, "msg_perm_list_detail")
+            .map(|s| {
+                s.replace("${level}", &format!("{:?}", p.level))
+                    .replace("${users}", &p.users.join(","))
+                    .replace("${roles}", &p.roles.join(","))
+            })
+            .unwrap_or_else(|| {
+                format!(
+                    "level {:?}, users [{}], roles [{}]",
+                    p.level,
+                    p.users.join(","),
+                    p.roles.join(",")
+                )
+            }),
+        None => crate::lang::get(&code, "msg_perm_list_default")
+            .unwrap_or_else(|| "Default permissions.".to_string()),
     })
     .await?;
     Ok(())

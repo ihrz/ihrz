@@ -18,6 +18,8 @@ dev_mode = true
 blacklist_picture = "https://ihorizon.org/assets/img/bot/bsod.png"
 guild_logs_channel_id = ""
 report_channel_id = "1509600857828626482"
+# The Discord channel ID for logs when lavalink throws an error
+# (trackError full report + owner ping). Empty = no error-channel post.
 lavalink_logs_channel_id = ""
 
 [command]

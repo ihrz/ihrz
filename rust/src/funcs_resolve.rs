@@ -65,9 +65,42 @@ impl Entry {
     }
 }
 
+/// Bot-mention prefix filter for the user-mention feed. Mirrors the
+/// `prefix_mention` branch in method.ts user(): when the prefix itself
+/// is the bot mention, parsedUsers[0] is the bot, so the bot id is
+/// dropped before the caller indexes the list (the `mentions` param of
+/// resolve_user). Non-mention prefixes pass through untouched. Pure
+/// over plain snapshots for offline use.
+pub fn feed_user_mentions(
+    parsed_users: &[String],
+    bot_id: &str,
+    is_mention_prefix: bool,
+) -> Vec<String> {
+    if is_mention_prefix {
+        parsed_users
+            .iter()
+            .filter(|id| id.as_str() != bot_id)
+            .cloned()
+            .collect()
+    } else {
+        parsed_users.to_vec()
+    }
+}
+
+/// Indexed mention feed for the channel/role resolvers. Mirrors
+/// `interaction.mentions.channels.map((x) => x)[argsNumber]` and the
+/// roles equivalent in method.ts channel()/role(): the caller passes
+/// the already-ordered mention id list plus the arg index, and feeds
+/// the result as the `mention` param of resolve_channel/resolve_role.
+pub fn feed_mention_at(mentions: &[String], index: usize) -> Option<String> {
+    mentions.get(index).cloned()
+}
+
 /// Resolve a user id from a prefix arg. Mirrors method.ts user().
-/// `mentions` is the ordered parsedUsers list (already bot-filtered by the
-/// caller); `members` is the guild member cache snapshot (id, username).
+/// `mentions` is the ordered parsedUsers list already passed through
+/// feed_user_mentions (bot-prefix filtering happens there, see
+/// method.ts user()); `members` is the guild member cache snapshot
+/// (id, username).
 pub fn resolve_user(arg: Option<&str>, mentions: &[String], members: &[Entry]) -> Option<String> {
     let arg = arg?;
     if let Some(id) = mentions.first() {
@@ -208,7 +241,17 @@ pub fn resolve_long_string(args: &[String], index: usize) -> Option<String> {
     }
 }
 
-/// Parsed int arg, 0 on NaN. Mirrors method.ts number().
+/// Parsed int arg, 0 on NaN. Mirrors method.ts number()
+/// (`Number.isNaN(parseInt(value)) ? 0 : parseInt(value)`).
+///
+/// DECISION (number-coercion): TS parseInt is lenient — parseInt("42abc")
+/// is 42, parseInt("3.9") is 3, parseInt("0x10") is 16 — while this port
+/// uses a strict whole-string i64 parse (anything non-canonical -> 0).
+/// Strict is deliberate: prefix args arrive pre-split on whitespace, so
+/// trailing garbage ("42abc") is user error, not a numeric prefix worth
+/// salvaging, and hex/float truncation would surprise per-command range
+/// checks. Canonical ints ("42", "-7") agree with TS exactly; only the
+/// garbage cases differ, and both sides yield 0 for missing/empty input.
 pub fn resolve_number(args: &[String], index: usize) -> i64 {
     args.get(index)
         .and_then(|s| s.parse::<i64>().ok())
@@ -336,6 +379,32 @@ mod tests {
     }
 
     #[test]
+    fn mention_prefix_feed_drops_bot_id() {
+        let parsed = vec!["BOT".to_string(), "111".to_string(), "222".to_string()];
+        // Mention prefix: bot id filtered out before indexing.
+        assert_eq!(
+            feed_user_mentions(&parsed, "BOT", true),
+            vec!["111".to_string(), "222".to_string()]
+        );
+        // Plain prefix: passthrough, bot entry stays.
+        assert_eq!(feed_user_mentions(&parsed, "BOT", false), parsed);
+        // Adversarial: bot id absent -> unchanged.
+        assert_eq!(
+            feed_user_mentions(&["111".to_string()], "BOT", true),
+            vec!["111".to_string()]
+        );
+        assert!(feed_user_mentions(&[], "BOT", true).is_empty());
+    }
+
+    #[test]
+    fn indexed_mention_feed_mirrors_args_number_indexing() {
+        let mentions = vec!["10".to_string(), "20".to_string()];
+        assert_eq!(feed_mention_at(&mentions, 0).as_deref(), Some("10"));
+        assert_eq!(feed_mention_at(&mentions, 1).as_deref(), Some("20"));
+        assert_eq!(feed_mention_at(&mentions, 2), None);
+    }
+
+    #[test]
     fn string_number_scalars() {
         let args = vec!["a".to_string(), "42".to_string(), "".to_string()];
         assert_eq!(resolve_string(&args, 0).as_deref(), Some("a"));
@@ -345,5 +414,15 @@ mod tests {
         assert_eq!(resolve_number(&args, 1), 42);
         assert_eq!(resolve_number(&args, 0), 0);
         assert_eq!(resolve_number(&args, 9), 0);
+    }
+
+    #[test]
+    fn number_coercion_is_strict_unlike_parse_int() {
+        // DECISION record (see resolve_number docs): TS parseInt would
+        // salvage 42 from "42abc" and 3 from "3.9"; the port yields 0.
+        let args = vec!["42abc".to_string(), "3.9".to_string(), "0x10".to_string()];
+        assert_eq!(resolve_number(&args, 0), 0);
+        assert_eq!(resolve_number(&args, 1), 0);
+        assert_eq!(resolve_number(&args, 2), 0);
     }
 }

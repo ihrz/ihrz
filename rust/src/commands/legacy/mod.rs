@@ -701,7 +701,7 @@ pub async fn handle_helpall_select(
                 cat.clone(),
                 cat.to_lowercase().replace(char::is_whitespace, "_"),
             )
-            .description(format!("{} Commands", list.len())),
+            .description(help::help_option_desc(&code, list.len())),
         );
     }
     let select = serenity::CreateSelectMenu::new(
@@ -1032,7 +1032,7 @@ pub fn collect_help_cats(
     prefix: &str,
 ) -> Vec<HelpBrowserCat> {
     let mut out = Vec::new();
-    for (name, _desc_key, placeholder_key, emoji_name, color) in table {
+    for (name, desc_key, placeholder_key, emoji_name, color) in table {
         let mut fields: Vec<(String, String)> = registry
             .iter()
             .filter(|(cat, _, _)| cat == name)
@@ -1045,7 +1045,7 @@ pub fn collect_help_cats(
         out.push(HelpBrowserCat {
             name: name.to_string(),
             title: title_of(placeholder_key),
-            desc: String::new(),
+            desc: title_of(desc_key),
             color: *color,
             emoji_name: emoji_name.to_string(),
             fields,
@@ -1537,6 +1537,27 @@ mod tests {
     }
 
     #[test]
+    fn collect_help_cats_wires_desc_and_title() {
+        let registry = [("bot", "ping", "pong")];
+        let table = [(
+            "bot",
+            "help_bot_dsc",
+            "help_bot_fields",
+            "ECBDD_Badge",
+            1u32,
+        )];
+        let cats = collect_help_cats(&registry, &table, &|k| format!("T:{k}"), "?");
+        assert_eq!(cats.len(), 1);
+        assert_eq!(cats[0].name, "bot");
+        assert_eq!(cats[0].title, "T:help_bot_fields");
+        assert_eq!(cats[0].desc, "T:help_bot_dsc");
+        assert_eq!(
+            cats[0].fields,
+            vec![("`?ping`".to_string(), "pong".to_string())]
+        );
+    }
+
+    #[test]
     fn help_browser_helpers_match_ts() {
         assert_eq!(HELP_CATEGORIES.len(), 26);
         let active = help_active_categories(&["bot", "utils", "nope"]);
@@ -1601,6 +1622,7 @@ pub mod autofeur;
 pub mod fexini;
 pub mod help;
 pub mod help_browser;
+pub mod help_main;
 pub mod helpall;
 pub mod info;
 pub mod kawaeine;
@@ -1626,6 +1648,7 @@ pub mod main {
     pub use super::autofeur::*;
     pub use super::fexini::*;
     pub use super::help_browser::*;
+    pub use super::help_main::*;
     pub use super::helpall::*;
     pub use super::kawaeine::*;
     pub use super::langstats::*;

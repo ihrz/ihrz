@@ -13,23 +13,27 @@ pub async fn profil_pronoun(
     #[description = "Pronoun (she/her, he/him, they/them, xe/xem, ze/zem, other)"] pronoun: String,
 ) -> Result<(), anyhow::Error> {
     if !validate_pronoun(&pronoun) {
-        ctx.send(
-            poise::CreateReply::default()
-                .content("Invalid pronoun: expected she/her, he/him, they/them, xe/xem, ze/zem or other.")
-                .ephemeral(true),
+        let msg = crate::commands::lang_for(
+            &ctx,
+            "msg_profil_invalid_pronoun",
+            "Invalid pronoun: expected she/her, he/him, they/them, xe/xem, ze/zem or other.",
         )
-        .await?;
+        .await;
+        ctx.send(poise::CreateReply::default().content(msg).ephemeral(true))
+            .await?;
         return Ok(());
     }
     let user_id = ctx.author().id.get();
     let mut p = super::profil::load_profil_routed(&ctx.data().pool, user_id).await;
     p.pronoun = Some(pronoun.to_ascii_lowercase().replace('-', "/"));
     super::profil::save_profil_routed(&ctx.data().pool, user_id, &p).await?;
-    ctx.send(
-        poise::CreateReply::default()
-            .content("Pronoun saved.")
-            .ephemeral(true),
+    let msg = crate::commands::lang_for(
+        &ctx,
+        "setprofildescriptions_command_work",
+        "**Your description has been updated successfully.**",
     )
-    .await?;
+    .await;
+    ctx.send(poise::CreateReply::default().content(msg).ephemeral(true))
+        .await?;
     Ok(())
 }

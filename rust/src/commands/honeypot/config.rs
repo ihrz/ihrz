@@ -14,15 +14,27 @@ pub async fn honeypot_config(
         .map(|g| g.get().to_string())
         .unwrap_or_default();
     let enabled = matches!(action.to_ascii_lowercase().as_str(), "on" | "power on");
+    let channel_id = channel
+        .as_ref()
+        .map(|c| c.id.get().to_string())
+        .unwrap_or_default();
+    let mention = channel
+        .as_ref()
+        .map(|c| format!("<#{}>", c.id.get()))
+        .unwrap_or_default();
     let cfg = serde_json::json!({
         "enabled": enabled,
-        "channelId": channel.map(|c| c.id.get().to_string()).unwrap_or_default(),
+        "channelId": channel_id,
     });
     save_honeypot(&ctx.data().pool, &gid, &cfg).await?;
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     ctx.say(if enabled {
-        "Honeypot on."
+        crate::lang::get(&code, "honeypot_config_enable_success")
+            .map(|s| s.replace("${channel}", &mention))
+            .unwrap_or_else(|| format!("Honeypot is now enabled in {mention}."))
     } else {
-        "Honeypot off."
+        crate::lang::get(&code, "honeypot_config_disable_success")
+            .unwrap_or_else(|| "Honeypot is now disabled.".to_string())
     })
     .await?;
     Ok(())

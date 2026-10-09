@@ -20,15 +20,7 @@ pub async fn authrestore_get(
     let data = data.clone();
     if let Some(url) = gateway_endpoint(crate::funcs::GatewayMethod::AddSecurityCodeAmount) {
         let token = crate::config::api_token().unwrap_or_default();
-        let _ = gateway_post(
-            &url,
-            &serde_json::json!({
-                "guildId": config_guild_id,
-                "apiToken": token,
-                "secretCode": key,
-            }),
-        )
-        .await;
+        let _ = gateway_post(&url, &key_update_payload(&config_guild_id, &token, &key)).await;
     }
     let http = ctx.serenity_context();
     let role_text = match data.config.role_id.parse::<u64>() {

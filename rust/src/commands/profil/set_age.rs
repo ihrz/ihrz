@@ -13,23 +13,27 @@ pub async fn profil_age(
     #[description = "Your age on the iHorizon profil"] age: u8,
 ) -> Result<(), anyhow::Error> {
     if !validate_age(age) {
-        ctx.send(
-            poise::CreateReply::default()
-                .content("Invalid age: must be between 13 and 120.")
-                .ephemeral(true),
+        let msg = crate::commands::lang_for(
+            &ctx,
+            "msg_profil_invalid_age",
+            "Invalid age: must be between 13 and 120.",
         )
-        .await?;
+        .await;
+        ctx.send(poise::CreateReply::default().content(msg).ephemeral(true))
+            .await?;
         return Ok(());
     }
     let user_id = ctx.author().id.get();
     let mut p = super::profil::load_profil_routed(&ctx.data().pool, user_id).await;
     p.age = Some(age);
     super::profil::save_profil_routed(&ctx.data().pool, user_id, &p).await?;
-    ctx.send(
-        poise::CreateReply::default()
-            .content("Age saved.")
-            .ephemeral(true),
+    let msg = crate::commands::lang_for(
+        &ctx,
+        "setprofilage_command_work",
+        "**Your profile age has been updated successfully.**",
     )
-    .await?;
+    .await;
+    ctx.send(poise::CreateReply::default().content(msg).ephemeral(true))
+        .await?;
     Ok(())
 }

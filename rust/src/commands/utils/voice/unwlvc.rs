@@ -27,7 +27,13 @@ pub async fn unwlvc(
         .await?;
         return Ok(());
     };
-    let raw = crate::db::kv_get(&ctx.data().pool, &gid, "UTILS.VOICE_FREEZE").await;
+    let raw = crate::commands::owner::main::routed_get(
+        &ctx.data().pool,
+        &gid,
+        &gid,
+        "UTILS.VOICE_FREEZE",
+    )
+    .await;
     let mut cfg: serde_json::Value = raw
         .and_then(|s| serde_json::from_str(&s).ok())
         .unwrap_or(serde_json::json!({}));
@@ -64,8 +70,9 @@ pub async fn unwlvc(
         .filter(|id| id != &target.id.get().to_string())
         .collect();
     cfg["allowedUsers"] = serde_json::Value::from(kept);
-    crate::db::kv_set(
+    crate::commands::owner::main::routed_set(
         &ctx.data().pool,
+        &gid,
         &gid,
         "UTILS.VOICE_FREEZE",
         &cfg.to_string(),

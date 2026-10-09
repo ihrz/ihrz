@@ -24,7 +24,14 @@ pub async fn confession_cooldown(
         .await?;
         return Ok(());
     };
-    crate::db::kv_set(pool, &gid, "GUILD.CONFESSION.cooldown", &ms.to_string()).await?;
+    crate::commands::owner::main::routed_set(
+        pool,
+        &gid,
+        &gid,
+        "GUILD.CONFESSION.cooldown",
+        &ms.to_string(),
+    )
+    .await?;
     ctx.say(beautiful_duration(ms)).await?;
     Ok(())
 }

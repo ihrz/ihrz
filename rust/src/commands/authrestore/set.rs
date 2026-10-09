@@ -98,11 +98,7 @@ pub async fn authrestore_set(
     );
     let payload = create_payload(&guild_id, &token, &role.id.get().to_string(), author_json);
     let secret = match gateway_post(&url, &payload).await {
-        Ok(body) => body
-            .get("secretCode")
-            .and_then(|s| s.as_str())
-            .unwrap_or_default()
-            .to_string(),
+        Ok(body) => secret_from_response(&body),
         Err(_) => {
             ctx.say(
                 t(

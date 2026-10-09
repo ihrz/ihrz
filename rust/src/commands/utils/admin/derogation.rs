@@ -55,17 +55,18 @@ pub async fn derogation(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let wanted = poise::serenity_prelude::Permissions::all()
         .difference(poise::serenity_prelude::Permissions::ADMINISTRATOR);
     // Stored role id (plain string, like the TS db.set(role.id)).
-    let stored: Option<String> = crate::db::kv_get(pool, &gid, derogation_key())
-        .await
-        .and_then(|s| {
-            if let Ok(v) = serde_json::from_str::<serde_json::Value>(&s) {
-                v.as_str().map(str::to_string)
-            } else if s.chars().all(|c| c.is_ascii_digit()) && !s.is_empty() {
-                Some(s)
-            } else {
-                None
-            }
-        });
+    let stored: Option<String> =
+        crate::commands::owner::main::routed_get(pool, &gid, &gid, derogation_key())
+            .await
+            .and_then(|s| {
+                if let Ok(v) = serde_json::from_str::<serde_json::Value>(&s) {
+                    v.as_str().map(str::to_string)
+                } else if s.chars().all(|c| c.is_ascii_digit()) && !s.is_empty() {
+                    Some(s)
+                } else {
+                    None
+                }
+            });
     let mut role_id: Option<u64> =
         stored
             .as_deref()
@@ -91,7 +92,14 @@ pub async fn derogation(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
             Ok(role) => {
                 role_id = Some(role.id.get());
                 created = true;
-                crate::db::kv_set(pool, &gid, derogation_key(), &role.id.get().to_string()).await?;
+                crate::commands::owner::main::routed_set(
+                    pool,
+                    &gid,
+                    &gid,
+                    derogation_key(),
+                    &role.id.get().to_string(),
+                )
+                .await?;
             }
             Err(_) => {
                 ctx.send(

@@ -512,6 +512,21 @@ pub fn collect_users_names(
     map
 }
 
+/// Prefix dispatch options. Mirrors the TS prefix path
+/// (messageCommandHandler.ts): per-guild dynamic prefix, bot mention
+/// as prefix, and case-insensitive command lookup (TS
+/// `args.shift()?.toLowerCase()`; poise `case_insensitive_commands`,
+/// pinned true so a default flip can never break parity). Extracted
+/// so the flag is offline-verifiable in tests.
+fn prefix_options(mention_as_prefix: bool) -> poise::PrefixFrameworkOptions<Data, anyhow::Error> {
+    poise::PrefixFrameworkOptions {
+        dynamic_prefix: Some(dynamic_prefix),
+        mention_as_prefix,
+        case_insensitive_commands: true,
+        ..Default::default()
+    }
+}
+
 pub async fn run(cfg: Config, pool: Pool) -> anyhow::Result<()> {
     let token = crate::config::bot_token().ok_or_else(|| {
         anyhow::anyhow!("missing BOT_TOKEN env (mirrors config.discord.token fallback)")
@@ -536,11 +551,7 @@ pub async fn run(cfg: Config, pool: Pool) -> anyhow::Result<()> {
                     crate::bot::report_command_error(err).await;
                 })
             },
-            prefix_options: poise::PrefixFrameworkOptions {
-                dynamic_prefix: Some(dynamic_prefix),
-                mention_as_prefix: cfg.message_commands_mention,
-                ..Default::default()
-            },
+            prefix_options: prefix_options(cfg.message_commands_mention),
             // HybridCommands in TS run as both slash + prefix; poise does
             // the same natively.
             ..Default::default()
@@ -759,6 +770,15 @@ mod tests {
     use std::sync::Mutex;
 
     static ENV_LOCK: Mutex<()> = Mutex::new(());
+
+    #[test]
+    fn prefix_dispatch_is_case_insensitive_like_ts() {
+        // TS lowercases the invoked name before lookup
+        // (messageCommandHandler.ts `args.shift()?.toLowerCase()`).
+        // Both mention-prefix settings must keep the pin.
+        assert!(prefix_options(true).case_insensitive_commands);
+        assert!(prefix_options(false).case_insensitive_commands);
+    }
 
     #[test]
     fn parse_git_remote_mirrors_version_ts() {

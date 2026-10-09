@@ -18,13 +18,16 @@ pub async fn autofeur(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     if lang != "fr-ME" {
         return Ok(());
     }
-    let state = crate::db::kv_get(&ctx.data().pool, &gid, "UTILS.autoFeur").await;
+    let state =
+        crate::commands::owner::main::routed_get(&ctx.data().pool, &gid, &gid, "UTILS.autoFeur")
+            .await;
     let enabled = !matches!(
         state.as_deref().map(str::trim),
         Some("1") | Some("true") | Some("on")
     );
-    crate::db::kv_set(
+    crate::commands::owner::main::routed_set(
         &ctx.data().pool,
+        &gid,
         &gid,
         "UTILS.autoFeur",
         if enabled { "1" } else { "0" },

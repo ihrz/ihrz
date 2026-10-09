@@ -773,22 +773,61 @@ impl LavalinkManager {
         ))
     }
 
-    /// Owner-visible diagnostics line for a failed track (mirrors the
-    /// TS `trackError` error_log fields available offline: guild,
-    /// requester, title/author/uri/encoded, source, exception message,
-    /// node hint). Live-only client stats (WS ping/status, heartbeat)
-    /// have no Rust equivalent yet and are omitted.
+    /// Full owner-visible diagnostics document for a failed track: a
+    /// one-line summary (kept in the tracing log) followed by the
+    /// markdown body posted to the lavalink error channel. Mirrors the
+    /// TS `trackError` error_log fields: guild, requester,
+    /// title/author/uri/encoded, source, stream flag, exception
+    /// message/severity/cause, node hint. Live-only client stats (WS
+    /// ping/status, heartbeat) have no Rust equivalent yet and are
+    /// omitted.
     pub fn track_error_report(
         ev: &TrackExceptionEvent,
         requester: Option<u64>,
         node_hint: Option<&str>,
     ) -> String {
+        let requester_tag = requester
+            .map(|r| format!("<@{r}>"))
+            .unwrap_or_else(|| "-".to_string());
+        let generated_ms = std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .map(|d| d.as_millis())
+            .unwrap_or(0);
         format!(
-            "trackError guild={} requester={} track={} - {} uri={} encoded={} source={} error={} node={}",
+            "trackError guild={} requester={} track={} - {} uri={} encoded={} source={} error={} node={}\n\
+             \n\
+             ==================================================================================\n\
+             \n\
+             # Oops! Lavalink issue when lavalink-client \"trackError\" event.\n\
+             \n\
+             ==================================================================================\n\
+             \n\
+             # Debug Info\n\
+             \n\
+             ## Guild about\n\
+             Guild:\n\
+             \u{20} * Guild ID: `{}`\n\
+             \u{20} * requester User ID: `{}`\n\
+             \n\
+             ## Track about\n\
+             Track:\n\
+             \u{20} * Track Info (title, author): `{} - {}`\n\
+             \u{20} * Uri: `{}`\n\
+             \u{20} * Encoded: `{}`\n\
+             Source: `{}`\n\
+             Stream?: `{}`\n\
+             \n\
+             ## Error\n\
+             <TrackExceptionEvent>.error: `{}`\n\
+             <TrackExceptionEvent>.exception.severity: `{}`\n\
+             <TrackExceptionEvent>.exception.cause: `{}`\n\
+             \n\
+             ## Node about\n\
+             Node: `{}`\n\
+             \n\
+             Report generated at `{generated_ms}ms`",
             ev.guild_id,
-            requester
-                .map(|r| format!("<@{r}>"))
-                .unwrap_or_else(|| "-".to_string()),
+            requester_tag,
             ev.track.info.title,
             ev.track.info.author,
             ev.track.info.uri.as_deref().unwrap_or("-"),
@@ -796,19 +835,106 @@ impl LavalinkManager {
             ev.track.info.source_name,
             ev.exception.message,
             node_hint.unwrap_or("-"),
+            ev.guild_id,
+            requester_tag,
+            ev.track.info.title,
+            ev.track.info.author,
+            ev.track.info.uri.as_deref().unwrap_or("-"),
+            ev.track.encoded,
+            ev.track.info.source_name,
+            if ev.track.info.is_stream {
+                "yes"
+            } else {
+                "no"
+            },
+            ev.exception.message,
+            ev.exception.severity,
+            ev.exception.cause,
+            node_hint.unwrap_or("-"),
         )
     }
 
-    /// Post the trackError diagnostics line to the guild's stored text
-    /// channel (owner-visible leg of the TS error-channel send; the
-    /// full report stays in the tracing log for the dedicated
-    /// error-channel wiring).
+    /// Parse the configured lavalink error-channel id. Empty/unset or
+    /// non-numeric values mean no channel (mirrors the TS fetch-fail
+    /// guard that leaves `lavalink_error_channel` unusable).
+    pub fn resolve_error_channel_id(raw: &str) -> Option<u64> {
+        let trimmed = raw.trim();
+        if trimmed.is_empty() {
+            return None;
+        }
+        trimmed.parse::<u64>().ok()
+    }
+
+    /// Owner-ping line posted above the diagnostics file. Mirrors the
+    /// TS `"<@" + owners[0] + ">\nIssue with lavalink founded!"`
+    /// send; no ping when no owner is configured.
+    pub fn error_report_content(first_owner: Option<&str>) -> String {
+        match first_owner.map(str::trim).filter(|s| !s.is_empty()) {
+            Some(owner) => format!("<@{owner}>\nIssue with lavalink founded!"),
+            None => "Issue with lavalink founded!".to_string(),
+        }
+    }
+
+    /// Diagnostics attachment name (mirrors the TS
+    /// `` `logs-${Date.now()}.md` `` file).
+    pub fn error_report_filename(now_ms: i64) -> String {
+        format!("logs-{now_ms}.md")
+    }
+
+    /// Guild-facing notice for the Requeued recovery leg (the TS side
+    /// requeues the fallback hit silently; the guild only sees
+    /// playback restart).
+    pub fn requeued_notice_text(title: &str) -> String {
+        format!("Fallback track requeued: {title}")
+    }
+
+    /// Post the full trackError report + owner ping to the configured
+    /// lavalink error channel (the TS error-channel send leg, with the
+    /// markdown report as a `.md` attachment). Returns false when the
+    /// channel id is unset/unparsable or the send fails.
+    pub async fn post_track_error_report(
+        http: &serenity::Http,
+        raw_channel_id: &str,
+        first_owner: Option<&str>,
+        report: &str,
+        now_ms: i64,
+    ) -> bool {
+        let Some(channel) = Self::resolve_error_channel_id(raw_channel_id) else {
+            return false;
+        };
+        let message = serenity::CreateMessage::new()
+            .content(Self::error_report_content(first_owner))
+            .add_file(serenity::CreateAttachment::bytes(
+                report.as_bytes().to_vec(),
+                Self::error_report_filename(now_ms),
+            ));
+        serenity::ChannelId::new(channel)
+            .send_message(http, message)
+            .await
+            .is_ok()
+    }
+
+    /// Post the trackError skip detail to the guild's stored text
+    /// channel (guild-visible leg; the full report goes to the
+    /// dedicated error channel via
+    /// [`Self::post_track_error_report`]).
     pub async fn announce_track_error(&self, http: &serenity::Http, guild_id: u64, detail: &str) {
         let snap = self.snapshot(guild_id).await;
         let Some(s) = snap else { return };
         let Some(ch) = s.text_channel else { return };
         let _ = serenity::ChannelId::new(ch)
             .say(http, format!("Track error skipped: {detail}"))
+            .await;
+    }
+
+    /// Post the Requeued recovery notice to the guild's stored text
+    /// channel (guild-visible leg of the fallback re-search hit).
+    pub async fn announce_requeued(&self, http: &serenity::Http, guild_id: u64, title: &str) {
+        let snap = self.snapshot(guild_id).await;
+        let Some(s) = snap else { return };
+        let Some(ch) = s.text_channel else { return };
+        let _ = serenity::ChannelId::new(ch)
+            .say(http, Self::requeued_notice_text(title))
             .await;
     }
 
@@ -1878,12 +2004,48 @@ mod tests {
             "youtube",
             "boom",
             "n1 h:1 secure=no",
+            // Full markdown body (TS error_log mirror).
+            "lavalink-client \"trackError\" event",
+            "## Guild about",
+            "## Track about",
+            "## Error",
+            "## Node about",
+            "Stream?",
+            "common",
+            "test",
+            "Report generated",
         ] {
             assert!(report.contains(want), "report missing {want}: {report}");
         }
         let bare = LavalinkManager::track_error_report(&ev, None, None);
         assert!(bare.contains("requester=-"));
         assert!(bare.contains("node=-"));
+    }
+
+    #[test]
+    fn error_channel_builders_stay_offline() {
+        assert_eq!(
+            LavalinkManager::resolve_error_channel_id(" 123 "),
+            Some(123)
+        );
+        assert_eq!(LavalinkManager::resolve_error_channel_id(""), None);
+        assert_eq!(LavalinkManager::resolve_error_channel_id("   "), None);
+        assert_eq!(LavalinkManager::resolve_error_channel_id("abc"), None);
+        assert_eq!(
+            LavalinkManager::error_report_content(Some("111")),
+            "<@111>\nIssue with lavalink founded!"
+        );
+        assert_eq!(
+            LavalinkManager::error_report_content(None),
+            "Issue with lavalink founded!"
+        );
+        assert_eq!(
+            LavalinkManager::error_report_content(Some("  ")),
+            "Issue with lavalink founded!"
+        );
+        assert_eq!(LavalinkManager::error_report_filename(42), "logs-42.md");
+        let notice = LavalinkManager::requeued_notice_text("hello");
+        assert!(notice.contains("hello"), "notice missing title: {notice}");
     }
 
     #[tokio::test]

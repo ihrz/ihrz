@@ -15,12 +15,14 @@ pub async fn profil_birthday(
     #[description = "Birth year (1900-2100)"] year: i32,
 ) -> Result<(), anyhow::Error> {
     if !validate_birthday(day, month, year) {
-        ctx.send(
-            poise::CreateReply::default()
-                .content("Invalid birthday: check day/month/year (year 1900-2100).")
-                .ephemeral(true),
+        let msg = crate::commands::lang_for(
+            &ctx,
+            "msg_profil_birthday_invalid",
+            "Invalid birthday: check day/month/year (year 1900-2100).",
         )
-        .await?;
+        .await;
+        ctx.send(poise::CreateReply::default().content(msg).ephemeral(true))
+            .await?;
         return Ok(());
     }
     let user_id = ctx.author().id.get();
@@ -29,11 +31,8 @@ pub async fn profil_birthday(
     p.bday_month = Some(month);
     p.bday_year = Some(year);
     super::profil::save_profil_routed(&ctx.data().pool, user_id, &p).await?;
-    ctx.send(
-        poise::CreateReply::default()
-            .content("Birthday saved.")
-            .ephemeral(true),
-    )
-    .await?;
+    let msg = crate::commands::lang_for(&ctx, "msg_profil_birthday_saved", "Birthday saved.").await;
+    ctx.send(poise::CreateReply::default().content(msg).ephemeral(true))
+        .await?;
     Ok(())
 }

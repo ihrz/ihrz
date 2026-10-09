@@ -34,19 +34,25 @@ pub async fn helpall(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         .await
         .map(|m| m.roles.iter().map(|r| r.get()).collect())
         .unwrap_or_default();
-    let user_level: u8 = crate::db::kv_get(pool, &gid, &format!("UTILS.USER_PERMS.{uid}"))
-        .await
-        .and_then(|s| s.parse().ok())
-        .unwrap_or(0);
+    let user_level: u8 = crate::commands::owner::main::routed_get(
+        pool,
+        &gid,
+        &gid,
+        &format!("UTILS.USER_PERMS.{uid}"),
+    )
+    .await
+    .and_then(|s| s.parse().ok())
+    .unwrap_or(0);
     let roles_map: std::collections::HashMap<String, String> =
-        crate::db::kv_get(pool, &gid, "UTILS.roles")
+        crate::commands::owner::main::routed_get(pool, &gid, &gid, "UTILS.roles")
             .await
             .and_then(|s| serde_json::from_str(&s).ok())
             .unwrap_or_default();
     let user_level = user_level.max(crate::executor::role_level(&member_roles, &roles_map));
-    let is_owner = crate::db::kv_get(pool, &gid, &format!("GUILD.OWNER.{uid}"))
-        .await
-        .is_some();
+    let is_owner =
+        crate::commands::owner::main::routed_get(pool, &gid, &gid, &format!("GUILD.OWNER.{uid}"))
+            .await
+            .is_some();
     // Role names for the gate suffix.
     let role_names: std::collections::HashMap<String, String> = ctx
         .serenity_context()
@@ -124,6 +130,66 @@ pub async fn helpall(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     reply.embeds = first_embeds;
     let reply = ctx.send(reply).await?;
     let mid = reply.message().await?.id.get();
-    let _ = crate::db::kv_set(pool, &gid, &helpall_key(mid), &uid.to_string()).await;
+    let _ = crate::commands::owner::main::routed_set(
+        pool,
+        &gid,
+        &gid,
+        &helpall_key(mid),
+        &uid.to_string(),
+    )
+    .await;
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::commands::owner::main as routed;
+
+    async fn memory_pool() -> crate::db::Pool {
+        use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};
+        use std::str::FromStr;
+        let opts = SqliteConnectOptions::from_str("sqlite::memory:").unwrap();
+        let pool = SqlitePoolOptions::new()
+            .max_connections(1)
+            .connect_with(opts)
+            .await
+            .unwrap();
+        sqlx::query("CREATE TABLE kv (guild_id TEXT NOT NULL, key_name TEXT NOT NULL, value TEXT NOT NULL, PRIMARY KEY (guild_id, key_name))")
+            .execute(&pool)
+            .await
+            .unwrap();
+        pool
+    }
+
+    #[tokio::test]
+    async fn legacy_keys_table_routing_with_fallback() {
+        let pool = memory_pool().await;
+        routed::routed_set(&pool, "g", "g", "UTILS.autoFeur", "1")
+            .await
+            .unwrap();
+        assert_eq!(
+            routed::routed_get(&pool, "g", "g", "UTILS.autoFeur")
+                .await
+                .as_deref(),
+            Some("1")
+        );
+        // Legacy-only rows (GUILD.REACT_MSG, GUILD.GUILD_CONFIG) still read.
+        crate::db::kv_set(&pool, "g", "GUILD.REACT_MSG.feuer", "antwort")
+            .await
+            .unwrap();
+        assert_eq!(
+            routed::routed_get(&pool, "g", "g", "GUILD.REACT_MSG.feuer")
+                .await
+                .as_deref(),
+            Some("antwort")
+        );
+        // Delete clears both stores.
+        assert!(routed::routed_del(&pool, "g", "g", "UTILS.autoFeur")
+            .await
+            .unwrap());
+        assert_eq!(
+            routed::routed_get(&pool, "g", "g", "UTILS.autoFeur").await,
+            None
+        );
+    }
 }

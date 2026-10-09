@@ -2,6 +2,7 @@
 // Licensed under CC-BY-NC-SA-4.0.
 // Mirrors src/core/core.ts main() init + src/core/modules/releaseNotifier.ts.
 
+pub mod guild_lookup;
 pub mod release {
     /// Mirrors writeVersionFile(): compares Cargo version against v.txt so
     /// shard 0 can run checkAndNotifyRelease() once per release.

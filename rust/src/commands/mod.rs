@@ -759,4 +759,50 @@ mod tests {
             );
         }
     }
+
+    #[test]
+    fn prefix_aliases_collide_fail_fast() {
+        // Mirrors loadHybridCommands.ts process.exit(1): command names
+        // and every alias share one flat message_commands map, and
+        // registering an already-taken key kills the boot. Subcommand
+        // leaf names are deliberately excluded: TS overwrites those
+        // silently (no has() check) and poise dispatches them
+        // hierarchically — backup, giveaway, tag and schedule each own
+        // a "create" leaf — so a flat check over leaf names would
+        // false-positive. Keys are lowercased because prefix lookup is
+        // case-insensitive on both sides (TS toLowerCase, poise
+        // case_insensitive_commands), so "Foo" vs "foo" collide live.
+        fn collect_aliases<'a>(
+            cmds: &'a [poise::Command<super::Data, super::Error>],
+            out: &mut Vec<(&'a str, &'a str)>,
+        ) {
+            for c in cmds {
+                for a in &c.aliases {
+                    out.push((c.name.as_str(), a.as_str()));
+                }
+                collect_aliases(&c.subcommands, out);
+            }
+        }
+        let cmds = all();
+        let mut seen: std::collections::HashMap<String, String> = std::collections::HashMap::new();
+        for cmd in &cmds {
+            let folded = cmd.name.to_lowercase();
+            if let Some(owner) = seen.insert(folded, cmd.name.clone()) {
+                panic!(
+                    "command \"{}\" collides with \"{owner}\" (would process.exit(1) in TS)",
+                    cmd.name
+                );
+            }
+        }
+        let mut nested = vec![];
+        collect_aliases(&cmds, &mut nested);
+        for (owner, alias) in nested {
+            let folded = alias.to_lowercase();
+            if let Some(taken) = seen.insert(folded, owner.to_string()) {
+                panic!(
+                    "alias \"{alias}\" of \"{owner}\" collides with \"{taken}\" (would process.exit(1) in TS)"
+                );
+            }
+        }
+    }
 }

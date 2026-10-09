@@ -82,10 +82,10 @@ pub async fn protect_rule(
         .unwrap_or_default();
     let allow = matches!(allow.to_ascii_lowercase().as_str(), "on" | "allow");
     if rule == "cls" {
-        sqlx::query("DELETE FROM kv WHERE guild_id = ? AND key_name LIKE 'PROTECTION.%'")
-            .bind(&gid)
-            .execute(&ctx.data().pool)
+        // Table-routed clear: legacy prefix rows plus the guild-table subtree.
+        crate::commands::owner::main::legacy_del_prefix(&ctx.data().pool, &gid, "PROTECTION.")
             .await?;
+        let _ = crate::commands::owner::main::tbl_del(&ctx.data().pool, &gid, "PROTECTION").await;
         let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
         let guild_name = ctx.guild().map(|g| g.name.clone()).unwrap_or_default();
         ctx.say(
@@ -108,8 +108,9 @@ pub async fn protect_rule(
         vec![rule.clone()]
     };
     for r in targets {
-        crate::db::kv_set(
+        crate::commands::owner::main::routed_set(
             &ctx.data().pool,
+            &gid,
             &gid,
             &format!("PROTECTION.{r}"),
             &serde_json::to_string(&RuleState { allow })?,
@@ -147,8 +148,9 @@ pub async fn protect_sanction(
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
-    crate::db::kv_set(
+    crate::commands::owner::main::routed_set(
         &ctx.data().pool,
+        &gid,
         &gid,
         "PROTECTION.SANCTION",
         sanction.trim(),
@@ -170,6 +172,51 @@ pub async fn protect_sanction(
     Ok(())
 }
 
+/// All PROTECTION.* rows: guild-table subtree first, legacy kv rows
+/// filling gaps (table wins). Mirrors the sticky load_all_stickies
+/// union scan; keys unchanged.
+pub async fn load_protection_rows(pool: &crate::db::Pool, gid: &str) -> Vec<(String, String)> {
+    use crate::commands::owner::main as routed;
+    let mut map = std::collections::HashMap::new();
+    if let Some(root) = routed::tbl_get_value(pool, gid, "PROTECTION").await {
+        if let Some(obj) = root.as_object() {
+            for (k, v) in obj {
+                let val = match v {
+                    serde_json::Value::String(s) => s.clone(),
+                    other => other.to_string(),
+                };
+                map.insert(format!("PROTECTION.{k}"), val);
+            }
+        }
+    }
+    for (k, v) in routed::legacy_scan(pool, gid, "PROTECTION.").await {
+        map.entry(k).or_insert(v);
+    }
+    let mut rows: Vec<(String, String)> = map.into_iter().collect();
+    rows.sort_by(|a, b| a.0.cmp(&b.0));
+    rows
+}
+
+/// All ALLOWLIST.list.* key names: guild-table subtree first, legacy
+/// kv rows filling gaps. Mirrors the ticket TICKET_ALL prefix scan.
+pub async fn load_allowlist(pool: &crate::db::Pool, gid: &str) -> Vec<String> {
+    use crate::commands::owner::main as routed;
+    let mut ids = std::collections::HashSet::new();
+    if let Some(root) = routed::tbl_get_value(pool, gid, "ALLOWLIST").await {
+        if let Some(list) = routed::walk_path(&root, &["list"]).and_then(|v| v.as_object()) {
+            for k in list.keys() {
+                ids.insert(format!("ALLOWLIST.list.{k}"));
+            }
+        }
+    }
+    for (k, _) in routed::legacy_scan(pool, gid, "ALLOWLIST.list.").await {
+        ids.insert(k);
+    }
+    let mut rows: Vec<String> = ids.into_iter().collect();
+    rows.sort();
+    rows
+}
+
 #[poise::command(
     slash_command,
     prefix_command,
@@ -181,13 +228,7 @@ pub async fn protect_show(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
-    let rows: Vec<(String, String)> = sqlx::query_as::<_, (String, String)>(
-        "SELECT key_name, value FROM kv WHERE guild_id = ? AND key_name LIKE 'PROTECTION.%'",
-    )
-    .bind(&gid)
-    .fetch_all(&ctx.data().pool)
-    .await
-    .unwrap_or_default();
+    let rows = load_protection_rows(&ctx.data().pool, &gid).await;
     ctx.say(if rows.is_empty() {
         "No protection rules.".to_string()
     } else {
@@ -209,8 +250,9 @@ pub async fn protect_allow_add(
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
-    crate::db::kv_set(
+    crate::commands::owner::main::routed_set(
         &ctx.data().pool,
+        &gid,
         &gid,
         &format!("ALLOWLIST.list.{}", user.id.get()),
         r#"{"allowed":true}"#,
@@ -235,11 +277,13 @@ pub async fn protect_allow_remove(
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
-    sqlx::query("DELETE FROM kv WHERE guild_id = ? AND key_name = ?")
-        .bind(&gid)
-        .bind(format!("ALLOWLIST.list.{}", user.id.get()))
-        .execute(&ctx.data().pool)
-        .await?;
+    let _ = crate::commands::owner::main::routed_del(
+        &ctx.data().pool,
+        &gid,
+        &gid,
+        &format!("ALLOWLIST.list.{}", user.id.get()),
+    )
+    .await?;
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     ctx.say(
         crate::lang::get(&code, "allowlist_delete_command_work")
@@ -256,13 +300,7 @@ pub async fn protect_allow_show(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
-    let rows: Vec<String> = sqlx::query_scalar::<_, String>(
-        "SELECT key_name FROM kv WHERE guild_id = ? AND key_name LIKE 'ALLOWLIST.list.%'",
-    )
-    .bind(&gid)
-    .fetch_all(&ctx.data().pool)
-    .await
-    .unwrap_or_default();
+    let rows = load_allowlist(&ctx.data().pool, &gid).await;
     ctx.say(if rows.is_empty() {
         "Allowlist empty.".to_string()
     } else {
@@ -290,5 +328,66 @@ mod tests {
         assert_eq!(rule_for_event("channelDelete"), Some("deletechannel"));
         assert_eq!(rule_for_event("guildBanAdd"), Some("banmembers"));
         assert_eq!(rule_for_event("nope"), None);
+    }
+
+    async fn memory_pool() -> crate::db::Pool {
+        use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};
+        use std::str::FromStr;
+        let opts = SqliteConnectOptions::from_str("sqlite::memory:").unwrap();
+        let pool = SqlitePoolOptions::new()
+            .max_connections(1)
+            .connect_with(opts)
+            .await
+            .unwrap();
+        sqlx::query("CREATE TABLE kv (guild_id TEXT NOT NULL, key_name TEXT NOT NULL, value TEXT NOT NULL, PRIMARY KEY (guild_id, key_name))")
+            .execute(&pool)
+            .await
+            .unwrap();
+        pool
+    }
+
+    #[tokio::test]
+    async fn table_routing_with_legacy_fallback() {
+        use crate::commands::owner::main as routed;
+        let pool = memory_pool().await;
+        // Routed write dual-writes: table handle primary, legacy kv mirror.
+        routed::routed_set(&pool, "g", "g", "PROTECTION.webhook", r#"{"allow":true}"#)
+            .await
+            .unwrap();
+        assert_eq!(
+            routed::routed_get(&pool, "g", "g", "PROTECTION.webhook")
+                .await
+                .as_deref(),
+            Some(r#"{"allow":true}"#)
+        );
+        // Legacy-only row still reads (and promotes into the table).
+        crate::db::kv_set(&pool, "g", "PROTECTION.banmembers", r#"{"allow":false}"#)
+            .await
+            .unwrap();
+        let rows = load_protection_rows(&pool, "g").await;
+        assert_eq!(rows.len(), 2);
+        assert!(rows.iter().any(|(k, _)| k == "PROTECTION.webhook"));
+        assert!(rows.iter().any(|(k, _)| k == "PROTECTION.banmembers"));
+        // Table wins over a stale legacy row for the same key.
+        crate::db::kv_set(&pool, "g", "PROTECTION.webhook", r#"{"allow":false}"#)
+            .await
+            .unwrap();
+        let rows = load_protection_rows(&pool, "g").await;
+        let webhook = rows
+            .iter()
+            .find(|(k, _)| k == "PROTECTION.webhook")
+            .map(|(_, v)| v.clone())
+            .unwrap();
+        assert_eq!(webhook, r#"{"allow":true}"#);
+        // Allowlist union scan merges both stores.
+        routed::routed_set(&pool, "g", "g", "ALLOWLIST.list.7", r#"{"allowed":true}"#)
+            .await
+            .unwrap();
+        crate::db::kv_set(&pool, "g", "ALLOWLIST.list.9", r#"{"allowed":true}"#)
+            .await
+            .unwrap();
+        let allow = load_allowlist(&pool, "g").await;
+        assert!(allow.contains(&"ALLOWLIST.list.7".to_string()));
+        assert!(allow.contains(&"ALLOWLIST.list.9".to_string()));
     }
 }

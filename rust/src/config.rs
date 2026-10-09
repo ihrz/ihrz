@@ -305,6 +305,11 @@ pub fn load() -> anyhow::Result<Config> {
             cfg.report_channel_id = v;
         }
     }
+    if let Ok(v) = std::env::var("LAVALINK_LOGS_CHANNEL_ID") {
+        if !v.is_empty() {
+            cfg.lavalink_logs_channel_id = v;
+        }
+    }
 
     Ok(cfg)
 }
@@ -483,6 +488,30 @@ mod tests {
         assert_eq!(cfg.lavalink_nodes.len(), 1);
         assert_eq!(cfg.lavalink_nodes[0].port, 2333);
         assert!(cfg.lavalink_nodes[0].secure);
+    }
+
+    #[test]
+    fn lavalink_logs_channel_file_and_env() {
+        let _guard = ENV_LOCK.lock().unwrap();
+        let path = write_temp_config("[core]\nlavalink_logs_channel_id = \"555\"\n");
+        let mut cfg = Config::default();
+        load_file_into(&mut cfg, &path).unwrap();
+        std::fs::remove_file(&path).ok();
+        assert_eq!(cfg.lavalink_logs_channel_id, "555");
+
+        // Env wins over the file.
+        let path = write_temp_config("[core]\nlavalink_logs_channel_id = \"555\"\n");
+        std::env::set_var("CONFIG_FILE", &path);
+        std::env::set_var("LAVALINK_LOGS_CHANNEL_ID", "777");
+        let cfg = load().unwrap();
+        assert_eq!(cfg.lavalink_logs_channel_id, "777");
+        // Blank env leaves the file value alone.
+        std::env::set_var("LAVALINK_LOGS_CHANNEL_ID", "");
+        let cfg = load().unwrap();
+        assert_eq!(cfg.lavalink_logs_channel_id, "555");
+        std::env::remove_var("CONFIG_FILE");
+        std::env::remove_var("LAVALINK_LOGS_CHANNEL_ID");
+        std::fs::remove_file(&path).ok();
     }
 
     #[test]

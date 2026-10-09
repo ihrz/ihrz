@@ -200,11 +200,19 @@ pub async fn save_backup(
     guild_id: &str,
     backup: &GuildBackup,
 ) -> anyhow::Result<()> {
-    crate::db::kv_set(pool, guild_id, BACKUP_KEY, &serde_json::to_string(backup)?).await
+    crate::commands::owner::main::routed_set(
+        pool,
+        guild_id,
+        guild_id,
+        BACKUP_KEY,
+        &serde_json::to_string(backup)?,
+    )
+    .await
 }
 
 pub async fn load_backup(pool: &crate::db::Pool, guild_id: &str) -> Option<GuildBackup> {
-    let raw = crate::db::kv_get(pool, guild_id, BACKUP_KEY).await?;
+    let raw =
+        crate::commands::owner::main::routed_get(pool, guild_id, guild_id, BACKUP_KEY).await?;
     serde_json::from_str(&raw).ok()
 }
 

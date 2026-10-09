@@ -19,8 +19,9 @@ pub async fn confession_channel(
         return Ok(());
     };
     let pool = &ctx.data().pool;
-    crate::db::kv_set(
+    crate::commands::owner::main::routed_set(
         pool,
+        &gid,
         &gid,
         "CONFESSION.channel",
         &channel.id.get().to_string(),

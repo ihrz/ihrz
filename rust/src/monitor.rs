@@ -211,6 +211,9 @@ pub async fn tick(pool: &crate::db::Pool, discord_ms: u64) -> InfraStatus {
         discord_ms,
         services,
     };
+    // Ping history (mirrors `if (this.lastResult.PublicBot?.latency)`
+    // addPingToHistory): only positive samples are stored.
+    record_ping(pool, status.services.public_bot.latency).await;
     let _ = crate::db::kv_set(
         pool,
         "0",
@@ -545,6 +548,369 @@ pub async fn fetch_ip(use_ipv6: bool) -> Result<String, String> {
     Ok(ip)
 }
 
+// ---- Status panel broadcast + ping history/chart ----
+// Mirrors src/core/modules/infrastructureMonitoringManager.ts
+// refresh(): MISC.statusEmbed channel sweep, ping history (cap 60),
+// chart data/stats/SVG, status embed fields. The PNG render
+// (html2png) has no Rust equivalent here, so the broadcast edits
+// the embed fields + relative-timestamp content without re-attaching
+// the chart image; the SVG builder below feeds a future render path.
+
+/// Mirrors MAX_PING_HISTORY.
+pub const MAX_PING_HISTORY: usize = 60;
+/// kv key (guild "0", metasTable scope) holding the ping history JSON array.
+pub const PING_HISTORY_KEY: &str = "INFRA.pingHistory";
+/// kv key prefix (guild "0") for panel targets. Mirrors
+/// `metasTable.set('MISC.statusEmbed.<guild>', {message_id, guild_id,
+/// channel_id})`, flattened like the other dotted Rust kv keys.
+pub const STATUS_PANEL_PREFIX: &str = "MISC.statusEmbed.";
+/// Bot-global kv scope. Mirrors db.table("metas").
+pub const META_SCOPE: &str = "0";
+/// Mirrors `.setColor("#ff40c4")`.
+pub const STATUS_PANEL_COLOUR: u32 = 0xff40c4;
+
+/// Mirrors calculatePingStats().
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct PingStats {
+    pub current: u64,
+    pub avg: u64,
+    pub max: u64,
+    pub min: u64,
+}
+
+impl PingStats {
+    pub fn zero() -> Self {
+        Self {
+            current: 0,
+            avg: 0,
+            max: 0,
+            min: 0,
+        }
+    }
+}
+
+/// Mirrors calculatePingStats(): only pings > 0 count, avg is rounded.
+pub fn calculate_ping_stats(history: &[u64]) -> PingStats {
+    let valid: Vec<u64> = history.iter().copied().filter(|p| *p > 0).collect();
+    if valid.is_empty() {
+        return PingStats::zero();
+    }
+    let current = valid[valid.len() - 1];
+    let sum: u64 = valid.iter().sum();
+    let avg = (sum as f64 / valid.len() as f64).round() as u64;
+    PingStats {
+        current,
+        avg,
+        max: *valid.iter().max().unwrap_or(&0),
+        min: *valid.iter().min().unwrap_or(&0),
+    }
+}
+
+/// Mirrors addPingToHistory(): ignores non-positive pings, caps at 60.
+pub fn push_ping_history(history: &mut Vec<u64>, ping: u64) {
+    if ping == 0 {
+        return;
+    }
+    history.push(ping);
+    if history.len() > MAX_PING_HISTORY {
+        history.remove(0);
+    }
+}
+
+/// Mirrors generatePingChartData(): 60 slots (None = gap), labels
+/// `"59m" .. "1m", "Now"`, history right-aligned.
+pub fn ping_chart_data(history: &[u64]) -> (Vec<Option<u64>>, Vec<String>) {
+    let mut data: Vec<Option<u64>> = vec![None; MAX_PING_HISTORY];
+    let mut labels = Vec::with_capacity(MAX_PING_HISTORY);
+    for i in (0..MAX_PING_HISTORY).rev() {
+        labels.push(if i == 0 {
+            "Now".to_string()
+        } else {
+            format!("{i}m")
+        });
+    }
+    let start = MAX_PING_HISTORY.saturating_sub(history.len());
+    for (i, ping) in history.iter().enumerate() {
+        if start + i < MAX_PING_HISTORY {
+            data[start + i] = Some(*ping);
+        }
+    }
+    (data, labels)
+}
+
+/// Mirrors buildPingChartSvg(). Pure SVG string; the TS caller embeds
+/// it into the botLatencyMonitoring HTML template before html2png.
+pub fn build_ping_chart_svg(data: &[Option<u64>], labels: &[String]) -> String {
+    const W: f64 = 904.0;
+    const H: f64 = 190.0;
+    const PAD_L: f64 = 8.0;
+    const PAD_R: f64 = 8.0;
+    const PAD_T: f64 = 12.0;
+    const PAD_B: f64 = 24.0;
+    let inner_w = W - PAD_L - PAD_R;
+    let inner_h = H - PAD_T - PAD_B;
+    let base = PAD_T + inner_h;
+
+    let valid: Vec<f64> = data
+        .iter()
+        .filter_map(|v| (*v).filter(|p| *p > 0).map(|p| p as f64))
+        .collect();
+    let max_ping = valid.iter().cloned().fold(1.0_f64, f64::max);
+    let ceiling = (max_ping * 1.2).max(10.0);
+
+    let n = data.len();
+    let x_at = |i: usize| PAD_L + (inner_w * i as f64) / (n.saturating_sub(1).max(1) as f64);
+    let y_at = |ping: f64| PAD_T + inner_h - (ping.min(ceiling) / ceiling) * inner_h;
+
+    let mut line_paths: Vec<String> = vec![];
+    let mut area_paths: Vec<String> = vec![];
+    let mut segment: Vec<String> = vec![];
+    let mut flush = |segment: &mut Vec<String>| {
+        if segment.len() == 1 {
+            line_paths.push(segment[0].clone());
+        } else if segment.len() > 1 {
+            let d = format!("M{}", segment.join(" L"));
+            line_paths.push(d);
+            let first_x = segment[0].split(',').next().unwrap_or("");
+            let last_x = segment[segment.len() - 1].split(',').next().unwrap_or("");
+            area_paths.push(format!(
+                "M{first_x},{base} L{} L{last_x},{base} Z",
+                segment.join(" L")
+            ));
+        }
+        segment.clear();
+    };
+    for (i, v) in data.iter().enumerate() {
+        match v {
+            Some(p) if *p > 0 => {
+                segment.push(format!("{:.1},{:.1}", x_at(i), y_at(*p as f64)));
+            }
+            _ => flush(&mut segment),
+        }
+    }
+    flush(&mut segment);
+
+    let mut line_path = line_paths.join(" ");
+    if line_path.trim().is_empty() {
+        line_path = format!("M{PAD_L},{base} L{},{base}", W - PAD_R);
+    }
+    // TS splits the combined path on " M" so each sub-path gets its
+    // own stroked <path>; mirror that shape here.
+    let stroked = line_path
+        .trim()
+        .split(" M")
+        .enumerate()
+        .map(|(idx, d)| {
+            let d = if idx == 0 {
+                d.to_string()
+            } else {
+                format!("M{d}")
+            };
+            format!(
+                "<path d=\"{d}\" fill=\"none\" stroke=\"#5865F2\" stroke-width=\"2.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\"/>"
+            )
+        })
+        .collect::<String>();
+
+    let mut grid = String::new();
+    for g in 0..=3 {
+        let gy = PAD_T + (inner_h * g as f64) / 3.0;
+        grid.push_str(&format!(
+            "<line x1=\"{PAD_L}\" y1=\"{gy:.1}\" x2=\"{:.1}\" y2=\"{gy:.1}\" stroke=\"rgba(255,255,255,0.06)\" stroke-width=\"1\"/>",
+            W - PAD_R
+        ));
+    }
+
+    let mut label_svg = String::new();
+    let tick_every = 6;
+    let mut i = 0;
+    while i < n {
+        let raw = labels.get(i).cloned().unwrap_or_default();
+        let label = raw.replace('&', "&amp;").replace('<', "&lt;");
+        label_svg.push_str(&format!(
+            "<text x=\"{:.1}\" y=\"{:.1}\" fill=\"#8B8E98\" font-size=\"9\" font-weight=\"600\" text-anchor=\"middle\" font-family=\"Inter, system-ui, sans-serif\">{label}</text>",
+            x_at(i),
+            H - 8.0
+        ));
+        i += tick_every;
+    }
+    // Always label the newest slot (TS right-edge "Now"), even when it
+    // falls between ticks.
+    if n > 0 && !(n - 1).is_multiple_of(tick_every) {
+        let raw = labels.get(n - 1).cloned().unwrap_or_default();
+        let label = raw.replace('&', "&amp;").replace('<', "&lt;");
+        label_svg.push_str(&format!(
+            "<text x=\"{:.1}\" y=\"{:.1}\" fill=\"#8B8E98\" font-size=\"9\" font-weight=\"600\" text-anchor=\"middle\" font-family=\"Inter, system-ui, sans-serif\">{label}</text>",
+            x_at(n - 1),
+            H - 8.0
+        ));
+    }
+
+    format!(
+        "<svg width=\"{W}\" height=\"{H}\" viewBox=\"0 0 {W} {H}\" xmlns=\"http://www.w3.org/2000/svg\" role=\"img\"><defs><linearGradient id=\"pingFill\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#5865F2\" stop-opacity=\"0.4\"/><stop offset=\"0.5\" stop-color=\"#5865F2\" stop-opacity=\"0.2\"/><stop offset=\"1\" stop-color=\"#5865F2\" stop-opacity=\"0\"/></linearGradient></defs>{grid}<path d=\"{}\" fill=\"url(#pingFill)\"/>{stroked}{label_svg}</svg>",
+        area_paths.join(" ").trim()
+    )
+}
+
+/// Field name/value pairs for the status embed. Mirrors
+/// updateStatusEmbed() minus the emoji prefixes (panel owns icons
+/// via format_status, like the service aggregation above).
+pub fn status_panel_fields(services: &ServiceResults) -> Vec<(String, bool, String)> {
+    vec![
+        (
+            "iHorizon (Public Bot)".to_string(),
+            false,
+            format_status(&services.public_bot),
+        ),
+        (
+            "HorizonGateway (Public/Private API)".to_string(),
+            false,
+            format_status(&services.horizon_gateway),
+        ),
+        (
+            "Lavalink (Music Player)".to_string(),
+            false,
+            format_status(&services.lavalink),
+        ),
+        (
+            "iHorizon Website".to_string(),
+            false,
+            format_status(&services.website),
+        ),
+    ]
+}
+
+/// Status-panel message target. Mirrors the
+/// `{message_id, guild_id, channel_id}` rows under MISC.statusEmbed.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct StatusPanelTarget {
+    pub guild_id: u64,
+    pub channel_id: u64,
+    pub message_id: u64,
+}
+
+fn parse_snowflake(value: &serde_json::Value) -> Option<u64> {
+    if let Some(s) = value.as_str() {
+        s.parse().ok()
+    } else {
+        value.as_u64()
+    }
+}
+
+/// Parse one panel row; ids arrive as strings from discord.js.
+pub fn parse_status_panel_entry(raw: &str) -> Option<StatusPanelTarget> {
+    let v: serde_json::Value = serde_json::from_str(raw).ok()?;
+    Some(StatusPanelTarget {
+        guild_id: v.get("guild_id").and_then(parse_snowflake)?,
+        channel_id: v.get("channel_id").and_then(parse_snowflake)?,
+        message_id: v.get("message_id").and_then(parse_snowflake)?,
+    })
+}
+
+/// Load all panel targets (guild "0", `MISC.statusEmbed.%`).
+/// Malformed rows are skipped; entries are never deleted here
+/// (TS keeps them on missing-message and retries next minute).
+pub async fn load_status_panels(pool: &crate::db::Pool) -> Vec<StatusPanelTarget> {
+    let rows: Vec<(String, String)> = sqlx::query_as::<_, (String, String)>(
+        "SELECT key_name, value FROM kv WHERE guild_id = '0' AND key_name LIKE 'MISC.statusEmbed.%'",
+    )
+    .fetch_all(pool)
+    .await
+    .unwrap_or_default();
+    rows.iter()
+        .filter_map(|(_, value)| parse_status_panel_entry(value))
+        .collect()
+}
+
+/// Load the persisted ping history (empty when unset/malformed).
+pub async fn load_ping_history(pool: &crate::db::Pool) -> Vec<u64> {
+    match crate::db::kv_get(pool, META_SCOPE, PING_HISTORY_KEY).await {
+        Some(raw) => serde_json::from_str::<Vec<u64>>(&raw).unwrap_or_default(),
+        None => vec![],
+    }
+}
+
+async fn save_ping_history(pool: &crate::db::Pool, history: &[u64]) {
+    let _ = crate::db::kv_set(
+        pool,
+        META_SCOPE,
+        PING_HISTORY_KEY,
+        &serde_json::to_string(history).unwrap_or_else(|_| "[]".to_string()),
+    )
+    .await;
+}
+
+/// Record one latency sample with the TS `if (latency)` guard.
+/// Returns the updated history.
+pub async fn record_ping(pool: &crate::db::Pool, latency_ms: u64) -> Vec<u64> {
+    let mut history = load_ping_history(pool).await;
+    push_ping_history(&mut history, latency_ms);
+    // Persist even on ignored (zero) samples so the key exists after
+    // the first tick, mirroring the manager's always-on refresh.
+    save_ping_history(pool, &history).await;
+    history
+}
+
+/// Build the status-panel embed. Mirrors refresh()/updateStatusEmbed().
+pub fn build_status_embed(services: &ServiceResults) -> poise::serenity_prelude::CreateEmbed {
+    let fields: Vec<(String, String, bool)> = status_panel_fields(services)
+        .into_iter()
+        .map(|(name, inline, value)| (name, value, inline))
+        .collect();
+    poise::serenity_prelude::CreateEmbed::default()
+        .colour(STATUS_PANEL_COLOUR)
+        .title("iHorizon Status Panel")
+        .description(
+            "This embed refresh every 1 minutes for showing the latest informations about iHorizon infrastructure",
+        )
+        .fields(fields)
+        .timestamp(poise::serenity_prelude::Timestamp::now())
+}
+
+/// Broadcast the status embed to every MISC.statusEmbed panel.
+/// Mirrors the refresh() channel loop: fetch message, edit content +
+/// embed; missing/failed messages keep their entry for next minute.
+/// With `http: None` (tests) no network happens and the return is the
+/// number of loadable panels (dry-run). Returns panels edited
+/// (or loadable when dry-run).
+pub async fn sweep_status_panel(
+    pool: &crate::db::Pool,
+    http: Option<&std::sync::Arc<poise::serenity_prelude::Http>>,
+    services: &ServiceResults,
+    now_secs: i64,
+) -> u64 {
+    use poise::serenity_prelude::{ChannelId, EditMessage, MessageId};
+    let targets = load_status_panels(pool).await;
+    let Some(http) = http else {
+        return targets.len() as u64;
+    };
+    let embed = build_status_embed(services);
+    let content = format!("**Last update:** <t:{now_secs}:R>");
+    let mut done = 0u64;
+    for target in targets {
+        let res = ChannelId::new(target.channel_id)
+            .edit_message(
+                http,
+                MessageId::new(target.message_id),
+                EditMessage::new().content(&content).embed(embed.clone()),
+            )
+            .await;
+        match res {
+            Ok(_) => done += 1,
+            Err(e) => {
+                // Entry kept at all costs: retry on the next minute.
+                tracing::warn!(
+                    "infra: status panel update failed for guild {} channel {} message {}: {e} (entry kept)",
+                    target.guild_id,
+                    target.channel_id,
+                    target.message_id,
+                );
+            }
+        }
+    }
+    done
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -801,5 +1167,174 @@ mod tests {
         assert!(!services.lavalink.up);
         assert_eq!(services.lavalink.latency, 0);
         assert!(services.website.up);
+    }
+
+    // ---- Status panel broadcast + ping history/chart ----
+
+    #[test]
+    fn ping_history_ignores_zero_and_caps_at_60() {
+        let mut history = vec![];
+        push_ping_history(&mut history, 0);
+        assert!(history.is_empty());
+        for i in 1..=65u64 {
+            push_ping_history(&mut history, i);
+        }
+        assert_eq!(history.len(), MAX_PING_HISTORY);
+        assert_eq!(history[0], 6);
+        assert_eq!(history[MAX_PING_HISTORY - 1], 65);
+    }
+
+    #[test]
+    fn ping_stats_match_ts() {
+        assert_eq!(calculate_ping_stats(&[]), PingStats::zero());
+        assert_eq!(calculate_ping_stats(&[0, 0]), PingStats::zero());
+        // current = last valid, avg rounded, max/min over valid.
+        assert_eq!(
+            calculate_ping_stats(&[10, 20, 30]),
+            PingStats {
+                current: 30,
+                avg: 20,
+                max: 30,
+                min: 10,
+            }
+        );
+        assert_eq!(calculate_ping_stats(&[10, 11]).avg, 11);
+    }
+
+    #[test]
+    fn ping_chart_data_right_aligns_and_labels() {
+        let (data, labels) = ping_chart_data(&[50, 60]);
+        assert_eq!(data.len(), MAX_PING_HISTORY);
+        assert_eq!(labels.len(), MAX_PING_HISTORY);
+        assert_eq!(labels[0], "59m");
+        assert_eq!(labels[MAX_PING_HISTORY - 1], "Now");
+        assert_eq!(data[MAX_PING_HISTORY - 2], Some(50));
+        assert_eq!(data[MAX_PING_HISTORY - 1], Some(60));
+        assert_eq!(data[0], None);
+    }
+
+    #[test]
+    fn ping_chart_svg_shapes() {
+        let (data, labels) = ping_chart_data(&[40, 80]);
+        let svg = build_ping_chart_svg(&data, &labels);
+        assert!(svg.starts_with("<svg"));
+        assert!(svg.contains("pingFill"));
+        assert!(svg.contains("stroke=\"#5865F2\""));
+        assert!(svg.contains(">Now</text>"));
+        // Empty history falls back to the flat baseline, no crash.
+        let (empty, empty_labels) = ping_chart_data(&[]);
+        let flat = build_ping_chart_svg(&empty, &empty_labels);
+        assert!(flat.contains("<svg"));
+        assert!(flat.contains("stroke=\"#5865F2\""));
+    }
+
+    #[test]
+    fn status_panel_fields_match_ts_names() {
+        let mut services = ServiceResults::default();
+        services.public_bot = ResponseResult {
+            up: true,
+            latency: 42,
+        };
+        let fields = status_panel_fields(&services);
+        let names: Vec<&str> = fields.iter().map(|(n, _, _)| n.as_str()).collect();
+        assert_eq!(
+            names,
+            [
+                "iHorizon (Public Bot)",
+                "HorizonGateway (Public/Private API)",
+                "Lavalink (Music Player)",
+                "iHorizon Website"
+            ]
+        );
+        assert_eq!(fields[0].2, "Online | Latency: 42ms");
+        assert_eq!(fields[1].2, "Offline");
+    }
+
+    #[test]
+    fn status_panel_entry_parses_string_and_number_ids() {
+        let parsed =
+            parse_status_panel_entry(r#"{"message_id":"111","guild_id":"222","channel_id":"333"}"#)
+                .unwrap();
+        assert_eq!(
+            parsed,
+            StatusPanelTarget {
+                guild_id: 222,
+                channel_id: 333,
+                message_id: 111,
+            }
+        );
+        let numeric =
+            parse_status_panel_entry(r#"{"message_id":1,"guild_id":2,"channel_id":3}"#).unwrap();
+        assert_eq!(numeric.message_id, 1);
+        assert!(parse_status_panel_entry(r#"{"message_id":"1"}"#).is_none());
+        assert!(parse_status_panel_entry("not-json").is_none());
+    }
+
+    async fn panel_pool() -> crate::db::Pool {
+        use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};
+        use std::str::FromStr;
+        let opts = SqliteConnectOptions::from_str("sqlite::memory:").unwrap();
+        let pool = SqlitePoolOptions::new()
+            .max_connections(1)
+            .connect_with(opts)
+            .await
+            .unwrap();
+        sqlx::query("CREATE TABLE kv (guild_id TEXT NOT NULL, key_name TEXT NOT NULL, value TEXT NOT NULL, PRIMARY KEY (guild_id, key_name))")
+            .execute(&pool)
+            .await
+            .unwrap();
+        sqlx::query("CREATE TABLE guild_lang (guild_id TEXT PRIMARY KEY, lang TEXT NOT NULL DEFAULT 'en-US')")
+            .execute(&pool)
+            .await
+            .unwrap();
+        pool
+    }
+
+    #[tokio::test]
+    async fn ping_history_roundtrips_through_kv() {
+        let pool = panel_pool().await;
+        assert_eq!(load_ping_history(&pool).await, Vec::<u64>::new());
+        assert_eq!(record_ping(&pool, 0).await, Vec::<u64>::new());
+        assert_eq!(record_ping(&pool, 25).await, vec![25]);
+        assert_eq!(load_ping_history(&pool).await, vec![25]);
+        assert_eq!(record_ping(&pool, 35).await, vec![25, 35]);
+    }
+
+    #[tokio::test]
+    async fn status_panel_sweep_dry_run_counts_loadable_panels() {
+        let pool = panel_pool().await;
+        crate::db::kv_set(
+            &pool,
+            "0",
+            "MISC.statusEmbed.100",
+            r#"{"message_id":"1","guild_id":"100","channel_id":"200"}"#,
+        )
+        .await
+        .unwrap();
+        crate::db::kv_set(
+            &pool,
+            "0",
+            "MISC.statusEmbed.101",
+            r#"{"message_id":2,"guild_id":101,"channel_id":201}"#,
+        )
+        .await
+        .unwrap();
+        // Malformed rows are skipped, other scopes ignored.
+        crate::db::kv_set(&pool, "0", "MISC.statusEmbed.102", "nope")
+            .await
+            .unwrap();
+        crate::db::kv_set(
+            &pool,
+            "999",
+            "MISC.statusEmbed.999",
+            r#"{"message_id":"9","guild_id":"999","channel_id":"999"}"#,
+        )
+        .await
+        .unwrap();
+        let targets = load_status_panels(&pool).await;
+        assert_eq!(targets.len(), 2);
+        let services = ServiceResults::default();
+        // Offline: http None performs no network, returns loadable count.
+        assert_eq!(sweep_status_panel(&pool, None, &services, 0).await, 2);
     }
 }

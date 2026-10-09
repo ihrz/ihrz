@@ -36,11 +36,7 @@ pub async fn authrestore_roles(
     let token = crate::config::api_token().unwrap_or_default();
     if gateway_post(
         &url,
-        &serde_json::json!({
-            "guildId": guild_id,
-            "apiToken": token,
-            "roleId": role.id.get().to_string(),
-        }),
+        &role_update_payload(&guild_id, &token, &role.id.get().to_string()),
     )
     .await
     .is_err()

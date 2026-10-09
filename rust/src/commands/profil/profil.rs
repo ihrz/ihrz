@@ -20,12 +20,14 @@ use super::{
     )
 )]
 pub async fn profil(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
-    ctx.send(
-        poise::CreateReply::default()
-            .content("Use a subcommand: show, set-age, set-description, set-gender, set-pronoun, set-birthday.")
-            .ephemeral(true),
+    let msg = crate::commands::lang_for(
+        &ctx,
+        "msg_profil_use_subcommand",
+        "Use a subcommand: show, set-age, set-description, set-gender, set-pronoun, set-birthday.",
     )
-    .await?;
+    .await;
+    ctx.send(poise::CreateReply::default().content(msg).ephemeral(true))
+        .await?;
     Ok(())
 }
 
