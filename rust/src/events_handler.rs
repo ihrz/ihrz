@@ -168,6 +168,144 @@ async fn tbl_del_prefix(pool: &crate::db::Pool, gid: &str, prefix: &str) -> anyh
     Ok(())
 }
 
+/// Leaf routed read: table handle first, legacy kv fallback (keys
+/// unchanged). Thin wrapper over the shared routed primitive so each
+/// emitter leaf below has a named loader.
+async fn leaf_routed(pool: &crate::db::Pool, gid: &str, key: &str) -> Option<String> {
+    crate::commands::owner::main::routed_get(pool, gid, gid, key).await
+}
+
+/// GUILD.GUILD_CONFIG blob, table-routed (keys unchanged).
+async fn guild_config_routed(pool: &crate::db::Pool, gid: &str) -> serde_json::Value {
+    crate::commands::shared::load_guild_config(pool, gid).await
+}
+
+/// One GUILD.GUILD_CONFIG.<field> leaf (e.g. antipub, hey_reaction).
+async fn guild_config_field_routed(
+    pool: &crate::db::Pool,
+    gid: &str,
+    field: &str,
+) -> Option<String> {
+    leaf_routed(pool, gid, &format!("GUILD.GUILD_CONFIG.{field}")).await
+}
+
+/// GUILD.RANK_ROLES.roles single-role leaf (raw role-id string).
+async fn rank_role_single_routed(pool: &crate::db::Pool, gid: &str) -> Option<String> {
+    leaf_routed(pool, gid, "GUILD.RANK_ROLES.roles").await
+}
+
+/// GUILD.RANK_ROLES.nicknames leaf (raw matcher string).
+async fn rank_nicknames_routed(pool: &crate::db::Pool, gid: &str) -> Option<String> {
+    leaf_routed(pool, gid, "GUILD.RANK_ROLES.nicknames").await
+}
+
+/// GUILD.RANKS.xpChannels leaf.
+async fn ranks_xp_channels_routed(pool: &crate::db::Pool, gid: &str) -> Vec<String> {
+    leaf_routed(pool, gid, "GUILD.RANKS.xpChannels")
+        .await
+        .and_then(|s| serde_json::from_str(&s).ok())
+        .unwrap_or_default()
+}
+
+/// GUILD.RANKS.message leaf (level-up template).
+async fn ranks_message_routed(pool: &crate::db::Pool, gid: &str) -> Option<String> {
+    leaf_routed(pool, gid, "GUILD.RANKS.message").await
+}
+
+/// COUNTER.channel leaf.
+async fn counter_channel_routed(pool: &crate::db::Pool, gid: &str) -> Option<String> {
+    leaf_routed(pool, gid, "COUNTER.channel").await
+}
+
+/// COUNTER.config leaf.
+async fn counter_config_routed(pool: &crate::db::Pool, gid: &str) -> Option<String> {
+    leaf_routed(pool, gid, "COUNTER.config").await
+}
+
+/// COUNTER_DATA leaf.
+async fn counter_data_routed(pool: &crate::db::Pool, gid: &str) -> Option<String> {
+    leaf_routed(pool, gid, "COUNTER_DATA").await
+}
+
+/// SUGGEST.channel leaf.
+async fn suggest_channel_routed(pool: &crate::db::Pool, gid: &str) -> Option<String> {
+    crate::commands::suggestion::load_suggest_string(pool, gid, "SUGGEST.channel").await
+}
+
+/// SUGGEST.disable leaf, true on "1".
+async fn suggest_disabled_routed(pool: &crate::db::Pool, gid: &str) -> bool {
+    crate::commands::suggestion::load_suggest_string(pool, gid, "SUGGEST.disable")
+        .await
+        .as_deref()
+        == Some("1")
+}
+
+/// GUILD.VOICE_INTERFACE.voice_channel lobby leaf.
+async fn voice_lobby_routed(pool: &crate::db::Pool, gid: &str) -> Option<String> {
+    leaf_routed(pool, gid, "GUILD.VOICE_INTERFACE.voice_channel").await
+}
+
+/// VOICE_INTERFACE.voice_channel_name template leaf.
+async fn voice_name_tpl_routed(pool: &crate::db::Pool, gid: &str) -> Option<String> {
+    leaf_routed(pool, gid, "VOICE_INTERFACE.voice_channel_name")
+        .await
+        .filter(|t| !t.trim().is_empty())
+}
+
+/// CUSTOM_VOICE.<gid>.<uid> rows as (key, channel_id), table-first
+/// with legacy fallback (keys unchanged).
+async fn custom_voice_rows_routed(pool: &crate::db::Pool, gid: &str) -> Vec<(String, String)> {
+    tbl_scan_prefix(pool, gid, "CUSTOM_VOICE.")
+        .await
+        .into_iter()
+        .filter(|(k, _)| k["CUSTOM_VOICE.".len()..].contains('.'))
+        .collect()
+}
+
+/// PROTECTION.<rule> allow flag leaf. Absent rows mean allowed (open
+/// by default, mirrors the guard).
+async fn protection_rule_routed(
+    pool: &crate::db::Pool,
+    gid: &str,
+    rule: &str,
+) -> Option<crate::commands::protection::protect::RuleState> {
+    leaf_routed(pool, gid, &format!("PROTECTION.{rule}"))
+        .await
+        .and_then(|s| serde_json::from_str(&s).ok())
+}
+
+/// PROTECTION.SANCTION leaf ("ban" default at the call site).
+async fn protection_sanction_routed(pool: &crate::db::Pool, gid: &str) -> Option<String> {
+    leaf_routed(pool, gid, "PROTECTION.SANCTION").await
+}
+
+/// GUILD.OWNER.<uid> leaf (owner entries).
+async fn owner_entry_routed(pool: &crate::db::Pool, gid: &str, user_id: u64) -> Option<String> {
+    leaf_routed(pool, gid, &format!("GUILD.OWNER.{user_id}")).await
+}
+
+/// ALLOWLIST.list.<uid> leaf.
+async fn allowlist_entry_routed(pool: &crate::db::Pool, gid: &str, user_id: u64) -> Option<String> {
+    leaf_routed(pool, gid, &format!("ALLOWLIST.list.{user_id}")).await
+}
+
+/// True once any ALLOWLIST.list.* entry exists (lazy-seed gate).
+async fn allowlist_seeded_routed(pool: &crate::db::Pool, gid: &str) -> bool {
+    !crate::commands::protection::protect::load_allowlist(pool, gid)
+        .await
+        .is_empty()
+}
+
+/// True when the executor is derogated (exempt from protection
+/// sanctions). Mirrors the GUILD.UTILS.DEROGATION list check.
+async fn derogated_routed(pool: &crate::db::Pool, gid: &str, user_id: u64) -> bool {
+    leaf_routed(pool, gid, "GUILD.UTILS.DEROGATION")
+        .await
+        .and_then(|s| serde_json::from_str::<Vec<String>>(&s).ok())
+        .map(|list| list.contains(&user_id.to_string()))
+        .unwrap_or(false)
+}
+
 #[derive(Clone)]
 pub struct Handler {
     pub pool: Pool,
@@ -564,7 +702,7 @@ impl Handler {
     }
 
     async fn check_punishpub(&self, ctx: &serenity::Context, gid: &str, msg: &serenity::Message) {
-        let antipub_off: bool = tbl_get(&self.pool, gid, "GUILD.GUILD_CONFIG.antipub")
+        let antipub_off: bool = guild_config_field_routed(&self.pool, gid, "antipub")
             .await
             .and_then(|s| serde_json::from_str::<serde_json::Value>(&s).ok())
             .and_then(|v| v.as_str().map(|x| x == "off"))
@@ -787,11 +925,8 @@ impl Handler {
         rule: &str,
     ) {
         let gid = guild_id.get().to_string();
-        let allowed: bool = tbl_get(&self.pool, &gid, &format!("PROTECTION.{rule}"))
+        let allowed: bool = protection_rule_routed(&self.pool, &gid, rule)
             .await
-            .and_then(|s| {
-                serde_json::from_str::<crate::commands::protection::protect::RuleState>(&s).ok()
-            })
             .map(|r| r.allow)
             .unwrap_or(true);
         if allowed {
@@ -811,19 +946,15 @@ impl Handler {
             return;
         }
         // Derogations are exempt from protection sanctions.
-        let derogated: bool = tbl_get(&self.pool, &gid, "GUILD.UTILS.DEROGATION")
-            .await
-            .and_then(|s| serde_json::from_str::<Vec<String>>(&s).ok())
-            .map(|list| list.contains(&exec.to_string()))
-            .unwrap_or(false);
+        let derogated: bool = derogated_routed(&self.pool, &gid, exec.get()).await;
         if derogated {
             return;
         }
         let decision = crate::events::protection_decision(
-            tbl_get(&self.pool, &gid, &format!("GUILD.OWNER.{exec}"))
+            owner_entry_routed(&self.pool, &gid, exec.get())
                 .await
                 .is_some(),
-            tbl_get(&self.pool, &gid, &format!("ALLOWLIST.list.{exec}"))
+            allowlist_entry_routed(&self.pool, &gid, exec.get())
                 .await
                 .is_some(),
             false,
@@ -831,7 +962,7 @@ impl Handler {
         if decision != crate::events::PunishDecision::Punish {
             return;
         }
-        let sanction: String = tbl_get(&self.pool, &gid, "PROTECTION.SANCTION")
+        let sanction: String = protection_sanction_routed(&self.pool, &gid)
             .await
             .unwrap_or_else(|| "ban".to_string());
         match sanction.to_ascii_lowercase().as_str() {
@@ -1573,11 +1704,7 @@ impl serenity::EventHandler for Handler {
         // channels (guild_create carries full voice states, so no cache
         // race like the per-update sweep).
         {
-            let rows: Vec<(String, String)> = tbl_scan_prefix(&self.pool, &gid, "CUSTOM_VOICE.")
-                .await
-                .into_iter()
-                .filter(|(k, _)| k["CUSTOM_VOICE.".len()..].contains('.'))
-                .collect();
+            let rows: Vec<(String, String)> = custom_voice_rows_routed(&self.pool, &gid).await;
             for (key, ch_id) in rows {
                 let Ok(ch_num) = ch_id.trim().parse::<u64>() else {
                     let _ = tbl_del(&self.pool, &gid, &key).await;
@@ -2054,55 +2181,54 @@ impl serenity::EventHandler for Handler {
                 .await;
         }
         // Welcome message (text template; image variant pending html2png).
-        if let Some(raw) = tbl_get(&self.pool, &gid, "GUILD.GUILD_CONFIG").await {
-            if let Ok(cfg) = serde_json::from_str::<serde_json::Value>(&raw) {
-                if let (Some(ch), Some(tpl)) = (
-                    cfg.get("join").and_then(|c| c.as_str()),
-                    cfg.get("joinmessage").and_then(|m| m.as_str()),
-                ) {
-                    if let Ok(ch_id) = ch.parse::<u64>() {
-                        let count = ctx
-                            .cache
-                            .guild(new_member.guild_id)
-                            .map(|g| g.member_count)
-                            .unwrap_or(0);
-                        // Attributed inviter display (mirrors the joinMessage
-                        // inviterUsername/inviterMention slots incl. the
-                        // custom-vanity variant; TS literal defaults kept
-                        // when unattributed).
-                        let (inv_name, inv_mention) = match &attributed {
-                            Some((iid, code, uname)) => {
-                                let raw = tbl_get(&self.pool, "0", "api.VANITY").await;
-                                let table: Option<serde_json::Value> =
-                                    raw.and_then(|s| serde_json::from_str(&s).ok());
-                                let bot_id = ctx.cache.current_user().id.get();
-                                let vanity = crate::events::custom_vanity_code(
-                                    table.as_ref(),
-                                    &gid,
-                                    code,
-                                    bot_id,
-                                    *iid,
-                                );
-                                crate::events::inviter_display(
-                                    vanity.as_deref(),
-                                    uname,
-                                    &format!("<@{iid}>"),
-                                )
-                            }
-                            None => ("unknow_user".to_string(), "@unknow_user".to_string()),
-                        };
-                        let text = crate::events::render_inviter_slots(
-                            &crate::events::render_welcome(
-                                tpl,
-                                &new_member.user.mention().to_string(),
-                                "this server",
-                                count,
-                            ),
-                            &inv_name,
-                            &inv_mention,
-                        );
-                        let _ = serenity::ChannelId::new(ch_id).say(&ctx.http, text).await;
-                    }
+        {
+            let cfg = guild_config_routed(&self.pool, &gid).await;
+            if let (Some(ch), Some(tpl)) = (
+                cfg.get("join").and_then(|c| c.as_str()),
+                cfg.get("joinmessage").and_then(|m| m.as_str()),
+            ) {
+                if let Ok(ch_id) = ch.parse::<u64>() {
+                    let count = ctx
+                        .cache
+                        .guild(new_member.guild_id)
+                        .map(|g| g.member_count)
+                        .unwrap_or(0);
+                    // Attributed inviter display (mirrors the joinMessage
+                    // inviterUsername/inviterMention slots incl. the
+                    // custom-vanity variant; TS literal defaults kept
+                    // when unattributed).
+                    let (inv_name, inv_mention) = match &attributed {
+                        Some((iid, code, uname)) => {
+                            let raw = tbl_get(&self.pool, "0", "api.VANITY").await;
+                            let table: Option<serde_json::Value> =
+                                raw.and_then(|s| serde_json::from_str(&s).ok());
+                            let bot_id = ctx.cache.current_user().id.get();
+                            let vanity = crate::events::custom_vanity_code(
+                                table.as_ref(),
+                                &gid,
+                                code,
+                                bot_id,
+                                *iid,
+                            );
+                            crate::events::inviter_display(
+                                vanity.as_deref(),
+                                uname,
+                                &format!("<@{iid}>"),
+                            )
+                        }
+                        None => ("unknow_user".to_string(), "@unknow_user".to_string()),
+                    };
+                    let text = crate::events::render_inviter_slots(
+                        &crate::events::render_welcome(
+                            tpl,
+                            &new_member.user.mention().to_string(),
+                            "this server",
+                            count,
+                        ),
+                        &inv_name,
+                        &inv_mention,
+                    );
+                    let _ = serenity::ChannelId::new(ch_id).say(&ctx.http, text).await;
                 }
             }
         }
@@ -2315,17 +2441,15 @@ impl serenity::EventHandler for Handler {
         }
         // Leave message (mirrors leaveMessage.ts text path).
         let gid = guild_id.get().to_string();
-        if let Some(raw) = tbl_get(&self.pool, &gid, "GUILD.GUILD_CONFIG").await {
-            if let Ok(cfg) = serde_json::from_str::<serde_json::Value>(&raw) {
-                if let (Some(ch), Some(tpl)) = (
-                    cfg.get("leave").and_then(|c| c.as_str()),
-                    cfg.get("leavemessage").and_then(|m| m.as_str()),
-                ) {
-                    if let Ok(ch_id) = ch.parse::<u64>() {
-                        let text =
-                            crate::events::render_welcome(tpl, &user.tag(), "this server", 0);
-                        let _ = serenity::ChannelId::new(ch_id).say(&ctx.http, text).await;
-                    }
+        {
+            let cfg = guild_config_routed(&self.pool, &gid).await;
+            if let (Some(ch), Some(tpl)) = (
+                cfg.get("leave").and_then(|c| c.as_str()),
+                cfg.get("leavemessage").and_then(|m| m.as_str()),
+            ) {
+                if let Ok(ch_id) = ch.parse::<u64>() {
+                    let text = crate::events::render_welcome(tpl, &user.tag(), "this server", 0);
+                    let _ = serenity::ChannelId::new(ch_id).say(&ctx.http, text).await;
                 }
             }
         }
@@ -2462,9 +2586,7 @@ impl serenity::EventHandler for Handler {
         // Allowlist lazy seed (mirrors createAllowlistOnMessage.ts):
         // first observed message creates the owner entry.
         if !msg.author.bot {
-            let seeded: bool = !tbl_scan_prefix(&self.pool, &gid, "ALLOWLIST.list.")
-                .await
-                .is_empty();
+            let seeded: bool = allowlist_seeded_routed(&self.pool, &gid).await;
             if !seeded {
                 if let Ok(owner) = guild_id
                     .to_partial_guild(&_ctx.http)
@@ -2491,8 +2613,8 @@ impl serenity::EventHandler for Handler {
         // the TS early returns; processing then falls through below.
         if is_bot_ping(&msg.content, _ctx.cache.current_user().id.get()) {
             if let Ok(member) = guild_id.member(&_ctx.http, msg.author.id).await {
-                let roles_raw = tbl_get(&self.pool, &gid, "GUILD.RANK_ROLES.roles").await;
-                let nick_raw = tbl_get(&self.pool, &gid, "GUILD.RANK_ROLES.nicknames").await;
+                let roles_raw = rank_role_single_routed(&self.pool, &gid).await;
+                let nick_raw = rank_nicknames_routed(&self.pool, &gid).await;
                 if let (Some(roles_raw), Some(nick_raw)) = (roles_raw, nick_raw) {
                     if let Some(role_num) = crate::commands::ranks::grant::parse_role_id(&roles_raw)
                     {
@@ -2548,14 +2670,9 @@ impl serenity::EventHandler for Handler {
             }
         }
         // XP ignore gate (mirrors !ignore-channels.ts).
-        let ignore_raw = tbl_get(&self.pool, &gid, "GUILD.RANKS.ignoreChannels").await;
-        let ignore: Vec<String> = ignore_raw
-            .and_then(|s| serde_json::from_str(&s).ok())
-            .unwrap_or_default();
-        let xp_only: Vec<String> = tbl_get(&self.pool, &gid, "GUILD.RANKS.xpChannels")
-            .await
-            .and_then(|s| serde_json::from_str(&s).ok())
-            .unwrap_or_default();
+        let ignore: Vec<String> =
+            crate::commands::ranks::ignore_channels::load_ignore_routed(&self.pool, &gid).await;
+        let xp_only: Vec<String> = ranks_xp_channels_routed(&self.pool, &gid).await;
         if crate::events::should_gain_xp(&ignore, &ch_id)
             && (xp_only.is_empty() || xp_only.contains(&ch_id))
         {
@@ -2576,7 +2693,7 @@ impl serenity::EventHandler for Handler {
                 // Level-up message (template or default).
                 // Mirrors ranks/onNewMessage.ts: GUILD.RANKS.message
                 // template, else the event_xp_level_earn lang key.
-                let stored_tpl = tbl_get(&self.pool, &gid, "GUILD.RANKS.message").await;
+                let stored_tpl = ranks_message_routed(&self.pool, &gid).await;
                 let tpl = match stored_tpl {
                     Some(t) => t,
                     None => {
@@ -2595,10 +2712,8 @@ impl serenity::EventHandler for Handler {
                     .replace("{level}", &level.to_string());
                 let _ = msg.channel_id.say(&_ctx.http, text).await;
                 // Rank-role rewards.
-                let roles_raw = tbl_get(&self.pool, &gid, "GUILD.RANKS.roles").await;
-                let roles: Vec<crate::commands::ranks::main::RankRole> = roles_raw
-                    .and_then(|s| serde_json::from_str(&s).ok())
-                    .unwrap_or_default();
+                let roles: Vec<crate::commands::ranks::main::RankRole> =
+                    crate::commands::ranks::roles::load_rank_roles_routed(&self.pool, &gid).await;
                 for role_id in crate::events::roles_earned(&roles, before, level) {
                     if let Ok(rid) = role_id.parse::<u64>() {
                         if let Ok(member) = guild_id.member(&_ctx.http, msg.author.id).await {
@@ -2615,16 +2730,16 @@ impl serenity::EventHandler for Handler {
         // COUNTER_DATA to zero with ✅/❌ reactions, replies and
         // topic updates).
         if msg.webhook_id.is_none() && !msg.content.trim().is_empty() {
-            if let Some(counter_ch) = tbl_get(&self.pool, &gid, "COUNTER.channel").await {
+            if let Some(counter_ch) = counter_channel_routed(&self.pool, &gid).await {
                 if counter_ch == msg.channel_id.get().to_string() {
-                    let enabled = tbl_get(&self.pool, &gid, "COUNTER.config")
+                    let enabled = counter_config_routed(&self.pool, &gid)
                         .await
                         .map(|v| v != "off")
                         .unwrap_or(true);
                     if enabled {
                         use crate::commands::newfeatures as nf;
                         let author_id = msg.author.id.get().to_string();
-                        let raw = tbl_get(&self.pool, &gid, "COUNTER_DATA").await;
+                        let raw = counter_data_routed(&self.pool, &gid).await;
                         let last = nf::parse_counter_data(raw.as_deref());
                         let code = crate::db::guild_lang(&self.pool, Some(guild_id.get())).await;
                         let text = |key: &str, fallback: &str| {
@@ -2745,13 +2860,11 @@ impl serenity::EventHandler for Handler {
             }
         }
         // Mirrors Events/suggestion/onNewMessage.ts: thread + record + votes.
-        if let Some(suggest_ch) = tbl_get(&self.pool, &gid, "SUGGEST.channel").await {
+        // Kept expanded: the nested channel/disabled guards span awaits.
+        #[allow(clippy::collapsible_if)]
+        if let Some(suggest_ch) = suggest_channel_routed(&self.pool, &gid).await {
             if suggest_ch == msg.channel_id.get().to_string() {
-                let disabled = tbl_get(&self.pool, &gid, "SUGGEST.disable")
-                    .await
-                    .as_deref()
-                    == Some("1");
-                if !disabled {
+                if !suggest_disabled_routed(&self.pool, &gid).await {
                     let now = std::time::SystemTime::now()
                         .duration_since(std::time::UNIX_EPOCH)
                         .map(|d| d.as_nanos() as u64)
@@ -2834,7 +2947,7 @@ impl serenity::EventHandler for Handler {
             // GUILD.GUILD_CONFIG.hey_reaction disables; otherwise a
             // case-insensitive trigger substring earns its emoji react
             // and a greeting first word earns a wave.
-            let hey_off = tbl_get(&self.pool, &gid, "GUILD.GUILD_CONFIG.hey_reaction")
+            let hey_off = guild_config_field_routed(&self.pool, &gid, "hey_reaction")
                 .await
                 .as_deref()
                 == Some("false");
@@ -3407,9 +3520,7 @@ impl serenity::EventHandler for Handler {
                     }
                 }
                 // Lobby spawn (mirrors voicedashboard): temp channel + move.
-                if let Some(lobby) =
-                    tbl_get(&self.pool, &gid, "GUILD.VOICE_INTERFACE.voice_channel").await
-                {
+                if let Some(lobby) = voice_lobby_routed(&self.pool, &gid).await {
                     if lobby == new_ch.get().to_string() {
                         // Pending-creation lock (mirrors
                         // pendingCustomVoiceCreations): Discord may emit
@@ -3432,9 +3543,7 @@ impl serenity::EventHandler for Handler {
                         let name = crate::funcs::mask_link(&raw_name);
                         // Name template (VOICE_INTERFACE.voice_channel_name,
                         // {user} placeholder) or default.
-                        let tpl = tbl_get(&self.pool, &gid, "VOICE_INTERFACE.voice_channel_name")
-                            .await
-                            .filter(|t| !t.trim().is_empty());
+                        let tpl = voice_name_tpl_routed(&self.pool, &gid).await;
                         let title = match tpl {
                             Some(t) => t.replace("{user}", &name),
                             None => {
@@ -3550,11 +3659,7 @@ impl serenity::EventHandler for Handler {
         // voice-state membership (mirrors isMemberlessChannel, where a
         // fetch failure counts as empty — here a missing cache guild
         // counts as empty once the channel itself is confirmed gone).
-        let rows: Vec<(String, String)> = tbl_scan_prefix(&self.pool, &gid, "CUSTOM_VOICE.")
-            .await
-            .into_iter()
-            .filter(|(k, _)| k["CUSTOM_VOICE.".len()..].contains('.'))
-            .collect();
+        let rows: Vec<(String, String)> = custom_voice_rows_routed(&self.pool, &gid).await;
         for (key, ch_id) in rows {
             let Ok(ch_num) = ch_id.trim().parse::<u64>() else {
                 let _ = tbl_del(&self.pool, &gid, &key).await;
@@ -3912,8 +4017,8 @@ impl serenity::EventHandler for Handler {
             .collect();
         for gid in gids {
             let g = gid.get().to_string();
-            let roles_raw = tbl_get(&self.pool, &g, "GUILD.RANK_ROLES.roles").await;
-            let nick_raw = tbl_get(&self.pool, &g, "GUILD.RANK_ROLES.nicknames").await;
+            let roles_raw = rank_role_single_routed(&self.pool, &g).await;
+            let nick_raw = rank_nicknames_routed(&self.pool, &g).await;
             let (Some(roles_raw), Some(nick_raw)) = (roles_raw, nick_raw) else {
                 continue;
             };
@@ -4550,12 +4655,7 @@ impl serenity::EventHandler for Handler {
             .clone()
             .unwrap_or_else(|| new.user.name.clone())
             .to_ascii_lowercase();
-        if let Some(raw) = tbl_get(
-            &self.pool,
-            &new.guild_id.get().to_string(),
-            "GUILD.RANK_ROLES.nicknames",
-        )
-        .await
+        if let Some(raw) = rank_nicknames_routed(&self.pool, &new.guild_id.get().to_string()).await
         {
             if let Ok(map) = serde_json::from_str::<std::collections::HashMap<String, String>>(&raw)
             {
@@ -5107,6 +5207,167 @@ mod restore_tests {
             .await
             .unwrap();
         pool
+    }
+
+    #[tokio::test]
+    async fn emitter_leaf_loaders_route_table_first() {
+        let pool = memory_pool().await;
+        // GUILD_CONFIG leaf + blob.
+        tbl_set(&pool, "g1", "GUILD.GUILD_CONFIG.antipub", "off")
+            .await
+            .unwrap();
+        assert_eq!(
+            guild_config_field_routed(&pool, "g1", "antipub")
+                .await
+                .as_deref(),
+            Some("off")
+        );
+        crate::commands::guildconfig::welcomer::save_guild_config_routed(
+            &pool,
+            "g1",
+            &serde_json::json!({"join": "7"}),
+        )
+        .await
+        .unwrap();
+        assert_eq!(
+            guild_config_routed(&pool, "g1")
+                .await
+                .get("join")
+                .and_then(|v| v.as_str()),
+            Some("7")
+        );
+        // Legacy-only rows still read through the leaf.
+        crate::db::kv_set(&pool, "g1", "GUILD.GUILD_CONFIG.hey_reaction", "false")
+            .await
+            .unwrap();
+        assert_eq!(
+            guild_config_field_routed(&pool, "g1", "hey_reaction")
+                .await
+                .as_deref(),
+            Some("false")
+        );
+        // RANK_ROLES single + nicknames.
+        tbl_set(&pool, "g1", "GUILD.RANK_ROLES.roles", "99")
+            .await
+            .unwrap();
+        tbl_set(&pool, "g1", "GUILD.RANK_ROLES.nicknames", "vip")
+            .await
+            .unwrap();
+        assert_eq!(
+            rank_role_single_routed(&pool, "g1").await.as_deref(),
+            Some("99")
+        );
+        assert_eq!(
+            rank_nicknames_routed(&pool, "g1").await.as_deref(),
+            Some("vip")
+        );
+        // RANKS xp channels + message.
+        tbl_set(&pool, "g1", "GUILD.RANKS.xpChannels", "[\"5\"]")
+            .await
+            .unwrap();
+        tbl_set(&pool, "g1", "GUILD.RANKS.message", "gg {user}")
+            .await
+            .unwrap();
+        assert_eq!(
+            ranks_xp_channels_routed(&pool, "g1").await,
+            vec!["5".to_string()]
+        );
+        assert_eq!(
+            ranks_message_routed(&pool, "g1").await.as_deref(),
+            Some("gg {user}")
+        );
+        assert!(ranks_xp_channels_routed(&pool, "g9").await.is_empty());
+        // COUNTER leaves.
+        tbl_set(&pool, "g1", "COUNTER.channel", "11").await.unwrap();
+        tbl_set(&pool, "g1", "COUNTER.config", "off").await.unwrap();
+        tbl_set(&pool, "g1", "COUNTER_DATA", "{\"amount\":3}")
+            .await
+            .unwrap();
+        assert_eq!(
+            counter_channel_routed(&pool, "g1").await.as_deref(),
+            Some("11")
+        );
+        assert_eq!(
+            counter_config_routed(&pool, "g1").await.as_deref(),
+            Some("off")
+        );
+        assert!(counter_data_routed(&pool, "g1").await.is_some());
+        // SUGGEST leaves.
+        crate::commands::suggestion::save_suggest_string(&pool, "g1", "SUGGEST.channel", "12")
+            .await
+            .unwrap();
+        crate::commands::suggestion::save_suggest_string(&pool, "g1", "SUGGEST.disable", "1")
+            .await
+            .unwrap();
+        assert_eq!(
+            suggest_channel_routed(&pool, "g1").await.as_deref(),
+            Some("12")
+        );
+        assert!(suggest_disabled_routed(&pool, "g1").await);
+        assert!(!suggest_disabled_routed(&pool, "g9").await);
+        // VOICE_INTERFACE leaves.
+        tbl_set(&pool, "g1", "GUILD.VOICE_INTERFACE.voice_channel", "13")
+            .await
+            .unwrap();
+        tbl_set(
+            &pool,
+            "g1",
+            "VOICE_INTERFACE.voice_channel_name",
+            "{user} room",
+        )
+        .await
+        .unwrap();
+        assert_eq!(voice_lobby_routed(&pool, "g1").await.as_deref(), Some("13"));
+        assert_eq!(
+            voice_name_tpl_routed(&pool, "g1").await.as_deref(),
+            Some("{user} room")
+        );
+        assert!(voice_name_tpl_routed(&pool, "g9").await.is_none());
+        // CUSTOM_VOICE rows (table + legacy merge, dotted only).
+        tbl_set(&pool, "g1", "CUSTOM_VOICE.g1.5", "111")
+            .await
+            .unwrap();
+        crate::db::kv_set(&pool, "g1", "CUSTOM_VOICE.g1.7", "222")
+            .await
+            .unwrap();
+        let rows = custom_voice_rows_routed(&pool, "g1").await;
+        let keys: Vec<&str> = rows.iter().map(|(k, _)| k.as_str()).collect();
+        assert!(keys.contains(&"CUSTOM_VOICE.g1.5"));
+        assert!(keys.contains(&"CUSTOM_VOICE.g1.7"));
+        // Protection / owner / allowlist leaves.
+        tbl_set(&pool, "g1", "PROTECTION.createrole", "{\"allow\":false}")
+            .await
+            .unwrap();
+        assert!(protection_rule_routed(&pool, "g1", "createrole")
+            .await
+            .map(|r| !r.allow)
+            .unwrap_or(false));
+        assert!(protection_rule_routed(&pool, "g1", "nope").await.is_none());
+        tbl_set(&pool, "g1", "PROTECTION.SANCTION", "kick")
+            .await
+            .unwrap();
+        assert_eq!(
+            protection_sanction_routed(&pool, "g1").await.as_deref(),
+            Some("kick")
+        );
+        tbl_set(&pool, "g1", "GUILD.OWNER.8", "1").await.unwrap();
+        assert_eq!(
+            owner_entry_routed(&pool, "g1", 8).await.as_deref(),
+            Some("1")
+        );
+        assert!(owner_entry_routed(&pool, "g1", 9).await.is_none());
+        tbl_set(&pool, "g1", "ALLOWLIST.list.8", "{\"allowed\":true}")
+            .await
+            .unwrap();
+        assert!(allowlist_entry_routed(&pool, "g1", 8).await.is_some());
+        assert!(allowlist_seeded_routed(&pool, "g1").await);
+        assert!(!allowlist_seeded_routed(&pool, "g9").await);
+        // Derogation leaf.
+        tbl_set(&pool, "g1", "GUILD.UTILS.DEROGATION", "[\"8\"]")
+            .await
+            .unwrap();
+        assert!(derogated_routed(&pool, "g1", 8).await);
+        assert!(!derogated_routed(&pool, "g1", 9).await);
     }
 
     #[tokio::test]

@@ -3428,3 +3428,18 @@ stats_compare_text: "${user1}：${a_messages}msg/${a_voice}m 対 ${user2}：${b_
 stats_gstats_text: "追跡メンバー：${count} | メッセージ：${messages} | VC：${voice}分"
 stats_ustats_text: "メッセージ：${messages}（日 ${d_msg} / 週 ${w_msg} / 月 ${m_msg}）| VC：${voice}分（日 ${d_vc}分 / 週 ${w_vc}分 / 月 ${m_vc}分）| 上位チャンネル：${top_text} | 上位VC：${top_vc}"
 stats_channel_single_text: "<#${channel}>：${count}件のメッセージ。"
+
+# Antispam manage + honeypot claim (U-ANTISPAM-FIX1/U-HONEY-T1)
+msg_antispam_manage_updated: "Antispam ${state}（しきい値 ${threshold}、${punishment} ${punish_time}、ウィンドウ ${max_interval}、Bot ${ignore_bots}、クリーンアップ ${remove_messages}）。"
+msg_antispam_manage_current: "Antispam ${state}（しきい値 ${threshold}、${punishment} ${punish_time}、ウィンドウ ${max_interval}、Bot ${ignore_bots}、クリーンアップ ${remove_messages}）。"
+msg_antispam_invalid_duration: "無効な期間です（10s、5m、2hを試してください）。"
+msg_antispam_invalid_action: "無効なアクションです（add、remove、listのいずれか）。"
+msg_antispam_missing_role: "add/removeにはロールが必要です。"
+msg_antispam_missing_channel: "add/removeにはチャンネルが必要です。"
+msg_bypass_role_removed: "バイパスロールを削除しました。"
+msg_bypass_roles_list: "バイパスロール：${roles}。"
+msg_bypass_roles_empty: "バイパスロールがありません。"
+msg_ignore_channel_removed: "無視チャンネルを削除しました。"
+msg_ignore_channels_list: "無視チャンネル：${channels}。"
+msg_ignore_channels_empty: "無視チャンネルがありません。"
+honeypot_claim_button_label: "受け取る"

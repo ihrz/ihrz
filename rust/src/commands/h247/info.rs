@@ -1,6 +1,6 @@
 use super::*;
 
-#[poise::command(slash_command, prefix_command, rename = "info")]
+#[poise::command(slash_command, prefix_command, rename = "info", aliases("h247info"))]
 pub async fn h247_info(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let gid = ctx
         .guild_id()

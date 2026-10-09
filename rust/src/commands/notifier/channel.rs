@@ -10,7 +10,7 @@ use poise::serenity_prelude as serenity;
 pub async fn notifier_channel(
     ctx: Ctx<'_>,
     #[description = "Channel"]
-    #[channel_types("Text")]
+    #[channel_types("Text", "News")]
     channel: serenity::GuildChannel,
 ) -> Result<(), anyhow::Error> {
     let gid = ctx

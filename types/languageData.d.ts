@@ -2600,4 +2600,17 @@ export interface LanguageData {
 	stats_gstats_text: string;
 	stats_ustats_text: string;
 	stats_channel_single_text: string;
+	msg_antispam_manage_updated: string;
+	msg_antispam_manage_current: string;
+	msg_antispam_invalid_duration: string;
+	msg_antispam_invalid_action: string;
+	msg_antispam_missing_role: string;
+	msg_antispam_missing_channel: string;
+	msg_bypass_role_removed: string;
+	msg_bypass_roles_list: string;
+	msg_bypass_roles_empty: string;
+	msg_ignore_channel_removed: string;
+	msg_ignore_channels_list: string;
+	msg_ignore_channels_empty: string;
+	honeypot_claim_button_label: string;
 }

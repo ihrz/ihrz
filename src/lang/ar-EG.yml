@@ -3422,3 +3422,18 @@ stats_compare_text: "${user1}: ${a_messages} رسالة/${a_voice}د مقابل 
 stats_gstats_text: "الأعضاء المتتبعون: ${count} | الرسائل: ${messages} | الصوت: ${voice}د"
 stats_ustats_text: "الرسائل: ${messages} (اليوم ${d_msg} / الأسبوع ${w_msg} / الشهر ${m_msg}) | الصوت: ${voice}د (اليوم ${d_vc}د / الأسبوع ${w_vc}د / الشهر ${m_vc}د) | أهم القنوات: ${top_text} | أهم الصوت: ${top_vc}"
 stats_channel_single_text: "<#${channel}>: ${count} رسالة."
+
+# Antispam manage + honeypot claim (U-ANTISPAM-FIX1/U-HONEY-T1)
+msg_antispam_manage_updated: "مكافحة السبام ${state} (الحد ${threshold}، ${punishment} ${punish_time}، النافذة ${max_interval}، البوتات ${ignore_bots}، التنظيف ${remove_messages})."
+msg_antispam_manage_current: "مكافحة السبام ${state} (الحد ${threshold}، ${punishment} ${punish_time}، النافذة ${max_interval}، البوتات ${ignore_bots}، التنظيف ${remove_messages})."
+msg_antispam_invalid_duration: "مدة غير صالحة (جرّب 10s أو 5m أو 2h)."
+msg_antispam_invalid_action: "إجراء غير صالح (add أو remove أو list)."
+msg_antispam_missing_role: "يلزم دور لـ add/remove."
+msg_antispam_missing_channel: "يلزم قناة لـ add/remove."
+msg_bypass_role_removed: "تمت إزالة دور التجاوز."
+msg_bypass_roles_list: "أدوار التجاوز: ${roles}."
+msg_bypass_roles_empty: "لا توجد أدوار تجاوز."
+msg_ignore_channel_removed: "تمت إزالة القناة المتجاهلة."
+msg_ignore_channels_list: "القنوات المتجاهلة: ${channels}."
+msg_ignore_channels_empty: "لا توجد قنوات متجاهلة."
+honeypot_claim_button_label: "استلام"

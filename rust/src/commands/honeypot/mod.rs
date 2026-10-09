@@ -76,9 +76,40 @@ pub async fn handle_honeypot_claim(
     )
     .await?;
     let http = ctx.http.clone();
+    let pool_clone = pool.clone();
     tokio::spawn(async move {
-        tokio::time::sleep(std::time::Duration::from_secs(2)).await;
-        let _ = guild_id.ban(&http, user_id, 0).await;
+        // Two-pass trap window like TS (1500ms + 8000ms): honor the
+        // configured action, never a fixed ban; post to the logs channel.
+        tokio::time::sleep(std::time::Duration::from_millis(1500)).await;
+        let trap = parse_trap_config(load_honeypot_raw(&pool_clone, &gid).await);
+        let sanction = post::resolve_claim_sanction(&trap.action);
+        match sanction {
+            "ban" => {
+                let _ = guild_id
+                    .ban(&http, user_id, post::CLAIM_BAN_DELETE_SECS as u8)
+                    .await;
+            }
+            "kick" => {
+                let _ = guild_id.kick(&http, user_id).await;
+            }
+            _ => {}
+        }
+        if post::should_post_claim_log(&trap.logs_channel_id) {
+            if let Ok(chan_id) = trap.logs_channel_id.parse::<u64>() {
+                let chan = serenity::ChannelId::new(chan_id);
+                let _ = chan
+                    .say(
+                        &http,
+                        format!(
+                            "Honeypot claim by <@{}>: {}",
+                            user_id.get(),
+                            post::claim_log_key(sanction),
+                        ),
+                    )
+                    .await;
+            }
+        }
+        tokio::time::sleep(std::time::Duration::from_millis(6500)).await;
     });
     Ok(())
 }

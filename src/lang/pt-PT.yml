@@ -3428,3 +3428,18 @@ stats_compare_text: "${user1}: ${a_messages}msg/${a_voice}m vs ${user2}: ${b_mes
 stats_gstats_text: "Membros registados: ${count} | Mensagens: ${messages} | Voz: ${voice}m"
 stats_ustats_text: "Mensagens: ${messages} (dia ${d_msg} / semana ${w_msg} / mês ${m_msg}) | Voz: ${voice}m (dia ${d_vc}m / semana ${w_vc}m / mês ${m_vc}m) | Top canais: ${top_text} | Top voz: ${top_vc}"
 stats_channel_single_text: "<#${channel}>: ${count} mensagens."
+
+# Antispam manage + honeypot claim (U-ANTISPAM-FIX1/U-HONEY-T1)
+msg_antispam_manage_updated: "Antispam ${state} (limite ${threshold}, ${punishment} ${punish_time}, janela ${max_interval}, bots ${ignore_bots}, limpeza ${remove_messages})."
+msg_antispam_manage_current: "Antispam ${state} (limite ${threshold}, ${punishment} ${punish_time}, janela ${max_interval}, bots ${ignore_bots}, limpeza ${remove_messages})."
+msg_antispam_invalid_duration: "Duração inválida (tenta 10s, 5m, 2h)."
+msg_antispam_invalid_action: "Ação inválida (add, remove ou list)."
+msg_antispam_missing_role: "É necessário um cargo para add/remove."
+msg_antispam_missing_channel: "É necessário um canal para add/remove."
+msg_bypass_role_removed: "Cargo de bypass removido."
+msg_bypass_roles_list: "Cargos de bypass: ${roles}."
+msg_bypass_roles_empty: "Sem cargos de bypass."
+msg_ignore_channel_removed: "Canal ignorado removido."
+msg_ignore_channels_list: "Canais ignorados: ${channels}."
+msg_ignore_channels_empty: "Sem canais ignorados."
+honeypot_claim_button_label: "Resgatar"

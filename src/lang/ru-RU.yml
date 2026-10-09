@@ -3428,3 +3428,18 @@ stats_compare_text: "${user1}: ${a_messages}сообщ/${a_voice}м против
 stats_gstats_text: "Отслеживается участников: ${count} | Сообщений: ${messages} | Войс: ${voice}м"
 stats_ustats_text: "Сообщений: ${messages} (день ${d_msg} / неделя ${w_msg} / месяц ${m_msg}) | Войс: ${voice}м (день ${d_vc}м / неделя ${w_vc}м / месяц ${m_vc}м) | Топ каналов: ${top_text} | Топ войса: ${top_vc}"
 stats_channel_single_text: "<#${channel}>: ${count} сообщений."
+
+# Antispam manage + honeypot claim (U-ANTISPAM-FIX1/U-HONEY-T1)
+msg_antispam_manage_updated: "Антиспам ${state} (порог ${threshold}, ${punishment} ${punish_time}, окно ${max_interval}, боты ${ignore_bots}, очистка ${remove_messages})."
+msg_antispam_manage_current: "Антиспам ${state} (порог ${threshold}, ${punishment} ${punish_time}, окно ${max_interval}, боты ${ignore_bots}, очистка ${remove_messages})."
+msg_antispam_invalid_duration: "Недопустимая длительность (попробуйте 10s, 5m, 2h)."
+msg_antispam_invalid_action: "Недопустимое действие (add, remove или list)."
+msg_antispam_missing_role: "Для add/remove нужна роль."
+msg_antispam_missing_channel: "Для add/remove нужен канал."
+msg_bypass_role_removed: "Bypass-роль удалена."
+msg_bypass_roles_list: "Bypass-роли: ${roles}."
+msg_bypass_roles_empty: "Нет bypass-ролей."
+msg_ignore_channel_removed: "Игнорируемый канал удалён."
+msg_ignore_channels_list: "Игнорируемые каналы: ${channels}."
+msg_ignore_channels_empty: "Нет игнорируемых каналов."
+honeypot_claim_button_label: "Забрать"

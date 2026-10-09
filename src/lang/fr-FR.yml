@@ -3427,3 +3427,18 @@ stats_compare_text: "${user1} : ${a_messages}msg/${a_voice}m contre ${user2} : $
 stats_gstats_text: "Membres suivis : ${count} | Messages : ${messages} | Vocal : ${voice}m"
 stats_ustats_text: "Messages : ${messages} (jour ${d_msg} / semaine ${w_msg} / mois ${m_msg}) | Vocal : ${voice}m (jour ${d_vc}m / semaine ${w_vc}m / mois ${m_vc}m) | Top salons : ${top_text} | Top vocal : ${top_vc}"
 stats_channel_single_text: "<#${channel}> : ${count} messages."
+
+# Antispam manage + honeypot claim (U-ANTISPAM-FIX1/U-HONEY-T1)
+msg_antispam_manage_updated: "Antispam ${state} (seuil ${threshold}, ${punishment} ${punish_time}, fenêtre ${max_interval}, bots ${ignore_bots}, nettoyage ${remove_messages})."
+msg_antispam_manage_current: "Antispam ${state} (seuil ${threshold}, ${punishment} ${punish_time}, fenêtre ${max_interval}, bots ${ignore_bots}, nettoyage ${remove_messages})."
+msg_antispam_invalid_duration: "Durée invalide (essayez 10s, 5m, 2h)."
+msg_antispam_invalid_action: "Action invalide (add, remove ou list)."
+msg_antispam_missing_role: "Un rôle est requis pour add/remove."
+msg_antispam_missing_channel: "Un salon est requis pour add/remove."
+msg_bypass_role_removed: "Rôle bypass retiré."
+msg_bypass_roles_list: "Rôles bypass : ${roles}."
+msg_bypass_roles_empty: "Aucun rôle bypass."
+msg_ignore_channel_removed: "Salon ignoré retiré."
+msg_ignore_channels_list: "Salons ignorés : ${channels}."
+msg_ignore_channels_empty: "Aucun salon ignoré."
+honeypot_claim_button_label: "Réclamer"
