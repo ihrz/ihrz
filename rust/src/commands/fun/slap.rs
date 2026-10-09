@@ -11,7 +11,7 @@ pub async fn slap(
         &user,
         "slap",
         "slap_embed_description",
-        "<@${interaction.user.id}> slaps <@${slap.id}>",
+        "<@${interaction.user.id}> slaps <@${slap.id}> 😓",
         0x42FF08,
         "${slap.id}",
     )

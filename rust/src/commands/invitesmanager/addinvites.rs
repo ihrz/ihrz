@@ -22,11 +22,9 @@ pub async fn inv_add(
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     ctx.say(
         crate::lang::get(&code, "addinvites_confirmation_embed_description")
-            .map(|s| {
-                s.replace("${amount}", &amount.to_string())
-                    .replace("${user}", &format!("<@{uid}>"))
-            })
-            .unwrap_or_else(|| format!("Added {amount} invites (total {})", next.invites)),
+            .unwrap_or_else(|| "Added ${amount} invites for ${user}".to_string())
+            .replace("${amount}", &amount.to_string())
+            .replace("${user}", &format!("<@{uid}>")),
     )
     .await?;
     Ok(())

@@ -3415,3 +3415,17 @@ msg_profil_birthday_invalid: "Ungültiger Geburtstag: Tag/Monat/Jahr prüfen (Ja
 msg_profil_birthday_saved: "Geburtstag gespeichert."
 msg_profil_use_subcommand: "Verwende einen Unterbefehl: show, set-age, set-description, set-gender, set-pronoun, set-birthday."
 msg_automod_toggled: "Automod ${kind} ${state}."
+
+# Tier-3 replies (U-I6)
+owner_list_empty: "Keine Bot-Besitzer."
+owner_blinfo_line: "${user} blacklisted: ${reason}"
+fun_caracteres_unknown_style: "Unbekannter Stil `{style}`. Verfügbar: {styles}"
+fun_youtube_pending: "${display}: ${comment} (${likes} Likes, Render ausstehend)"
+fun_tweet_pending: "${display} ${handle}: ${comment} (${likes} Likes, ${retweets} RTs, ${replies} Antworten, ${views} Aufrufe, Render ausstehend)"
+fun_bubbles_pending: "${file} (Render ausstehend für ${url})"
+invites_leaderboard_empty: "Keine Einladungen."
+stats_compare_same_user: "Vergleiche zwei verschiedene Benutzer."
+stats_compare_text: "${user1}: ${a_messages}msg/${a_voice}m vs ${user2}: ${b_messages}msg/${b_voice}m — Gewinner ${winner}"
+stats_gstats_text: "Mitglieder erfasst: ${count} | Nachrichten: ${messages} | Voice: ${voice}m"
+stats_ustats_text: "Nachrichten: ${messages} (Tag ${d_msg} / Woche ${w_msg} / Monat ${m_msg}) | Voice: ${voice}m (Tag ${d_vc}m / Woche ${w_vc}m / Monat ${m_vc}m) | Top-Kanäle: ${top_text} | Top-Voice: ${top_vc}"
+stats_channel_single_text: "<#${channel}>: ${count} Nachrichten."

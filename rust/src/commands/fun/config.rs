@@ -39,19 +39,15 @@ pub async fn fun_config(
     });
     ctx.say(
         crate::lang::get(&code, "fun_disable_command_msg")
-            .map(|s| {
-                s.replace("${action_type}", &action_type).replace(
-                    "${interaction.member?.user.toString()}",
-                    &format!("<@{}>", ctx.author().id.get()),
-                )
-            })
             .unwrap_or_else(|| {
-                if enabled {
-                    "Fun on.".to_string()
-                } else {
-                    "Fun off.".to_string()
-                }
-            }),
+                "${interaction.member?.user.toString()}, you have ${action_type} the fun category!"
+                    .to_string()
+            })
+            .replace("${action_type}", &action_type)
+            .replace(
+                "${interaction.member?.user.toString()}",
+                &format!("<@{}>", ctx.author().id.get()),
+            ),
     )
     .await?;
     Ok(())

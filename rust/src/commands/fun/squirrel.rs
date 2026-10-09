@@ -8,7 +8,7 @@ pub async fn squirrel(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         "https://api.animality.xyz/all/squirrel",
         "image",
         "squirrel_embed_title",
-        "squirrel",
+        "chit-chit 🐿️",
     )
     .await
 }

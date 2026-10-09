@@ -53,7 +53,7 @@ pub async fn eco_shop(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let code = crate::db::guild_lang(pool, ctx.guild_id().map(|g| g.get())).await;
     let text = |k: &str, fb: &str| crate::lang::get(&code, k).unwrap_or_else(|| fb.to_string());
     let uid = ctx.author().id.get();
-    let base = load_econ(pool, &gid, uid).await;
+    let base = balance::load_econ_routed(pool, &gid, uid).await;
     // Restore sweep: re-grant owned roles the member is missing, like
     // the !shop.ts owned-roles loop ("[Economy Shop] Role was not given
     // to the user."). Purchases themselves go through /economy buy.
@@ -289,7 +289,7 @@ async fn do_buy(
     };
     let price = item.price;
     let uid = ctx.author().id.get();
-    let mut a = load_econ(pool, &gid, uid).await;
+    let mut a = balance::load_econ_routed(pool, &gid, uid).await;
     // Owned-role path (!shop.ts collector): already-owned roles are
     // re-granted if missing and never charged.
     if a.owned_roles.iter().any(|r| r == &role_id.to_string()) {
@@ -314,7 +314,7 @@ async fn do_buy(
     }
     a.money = (a.money as f64 - price) as i64;
     a.owned_roles.push(role_id.to_string());
-    save_econ(pool, &gid, uid, &a).await?;
+    balance::save_econ_routed(pool, &gid, uid, &a).await?;
     if let Some(guild_id) = ctx.guild_id() {
         if let Ok(member) = guild_id.member(ctx.http(), ctx.author().id).await {
             let _ = member

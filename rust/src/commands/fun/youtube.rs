@@ -6,8 +6,8 @@ pub async fn youtube(
     #[description = "Member"] user: Option<poise::serenity_prelude::User>,
     #[description = "Comment"] comment: String,
 ) -> Result<(), anyhow::Error> {
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     if !has_comment(&comment) {
-        let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
         ctx.say(
             crate::lang::get(&code, "fun_var_good_sentence")
                 .unwrap_or_else(|| "Please, send a good sentence!".to_string()),
@@ -23,11 +23,17 @@ pub async fn youtube(
         .duration_since(std::time::UNIX_EPOCH)
         .map(|d| d.as_millis() as u64)
         .unwrap_or(1);
+    let likes = youtube_likes(now).to_string();
     // html2png comment-card render pending; text shape ported.
-    ctx.say(format!(
-        "{display}: {comment} ({} likes, render pending)",
-        youtube_likes(now)
-    ))
+    ctx.say(
+        crate::lang::get(&code, "fun_youtube_pending")
+            .map(|s| {
+                s.replace("${display}", &display)
+                    .replace("${comment}", &comment)
+                    .replace("${likes}", &likes)
+            })
+            .unwrap_or_else(|| format!("{display}: {comment} ({likes} likes, render pending)")),
+    )
     .await?;
     Ok(())
 }

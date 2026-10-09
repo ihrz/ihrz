@@ -20,10 +20,10 @@ pub async fn eco_balance_remove(
         .map(|g| g.get().to_string())
         .unwrap_or_default();
     let uid = user.id.get();
-    let mut a = load_econ(&ctx.data().pool, &gid, uid).await;
+    let mut a = balance::load_econ_routed(&ctx.data().pool, &gid, uid).await;
     // No clamp: TS `db.sub` is raw arithmetic (balance may go negative).
     add_money(&mut a, -amount);
-    save_econ(&ctx.data().pool, &gid, uid, &a).await?;
+    balance::save_econ_routed(&ctx.data().pool, &gid, uid, &a).await?;
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     // TS posts the ihorizon log BEFORE replying with the embed, and the
     // economy log after.

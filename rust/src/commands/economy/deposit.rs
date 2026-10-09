@@ -14,7 +14,7 @@ pub async fn eco_deposit(
         .map(|g| g.get().to_string())
         .unwrap_or_default();
     let uid = ctx.author().id.get();
-    let mut a = load_econ(&ctx.data().pool, &gid, uid).await;
+    let mut a = balance::load_econ_routed(&ctx.data().pool, &gid, uid).await;
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     // Mirrors !deposit.ts: `toDeposit === "all"` takes the wallet, then
     // `isNaN(Number(...))` / `Number(...) <= 0` gate on the not-integer
@@ -55,7 +55,7 @@ pub async fn eco_deposit(
     // then posts the economy log.
     a.money -= n;
     a.bank += n;
-    save_econ(&ctx.data().pool, &gid, uid, &a).await?;
+    balance::save_econ_routed(&ctx.data().pool, &gid, uid, &a).await?;
     let author = user_mention(uid);
     let money = n.to_string();
     let coin = coin_markup(&ctx).await;

@@ -24,7 +24,7 @@ pub async fn gc_joinrole(
         "joinroles",
         role.map(|r| serde_json::Value::String(r.id.get().to_string())),
     );
-    save_guild_config(pool, &gid, &cfg).await?;
+    super::welcomer::save_guild_config_routed(pool, &gid, &cfg).await?;
     let code = crate::db::guild_lang(pool, ctx.guild_id().map(|g| g.get())).await;
     if has_role {
         ctx.say(

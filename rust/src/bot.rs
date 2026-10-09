@@ -527,6 +527,70 @@ fn prefix_options(mention_as_prefix: bool) -> poise::PrefixFrameworkOptions<Data
     }
 }
 
+/// First configured owner id for the lavalink error ping (TS owners[0]).
+/// Blank entries count as unconfigured (no ping).
+pub fn track_error_owner(owners: &[String]) -> Option<&str> {
+    owners.first().map(|s| s.trim()).filter(|s| !s.is_empty())
+}
+
+/// Guild-visible branch of a trackError recovery: the requeued fallback
+/// title on the fallback re-search hit, None for the skip legs (the
+/// caller announces those via announce_track_error instead).
+pub fn requeued_title(recovery: &crate::lavalink::ErrorRecovery) -> Option<&str> {
+    match recovery {
+        crate::lavalink::ErrorRecovery::Requeued { title } => Some(title.as_str()),
+        _ => None,
+    }
+}
+
+/// Track-exception event wiring: run the recovery, then post the full
+/// diagnostics report + owners[0] ping to lavalink_logs_channel_id,
+/// then branch the guild-visible leg (Requeued -> announce_requeued,
+/// else announce_track_error with the exception detail). Exactly one
+/// handle_track_exception call: the report is built before the state
+/// advances (the failed track's requester is lost after). Never run
+/// this as a dispatcher subscriber: handle dispatches, so subscribing
+/// it would recurse.
+pub async fn handle_track_exception_event(
+    http: &serenity::Http,
+    logs_channel_id: &str,
+    owners: &[String],
+    ev: lava_rs::events::TrackExceptionEvent,
+    now_ms: i64,
+) -> crate::lavalink::ErrorRecovery {
+    let mgr = crate::lavalink::manager();
+    let guild_id = ev.guild_id.parse::<u64>().unwrap_or(0);
+    let detail = ev.exception.message.clone();
+    let report = match guild_id {
+        0 => crate::lavalink::LavalinkManager::track_error_report(&ev, None, None),
+        gid => {
+            let requester = mgr
+                .snapshot(gid)
+                .await
+                .and_then(|s| s.current.map(|t| t.requester));
+            crate::lavalink::LavalinkManager::track_error_report(&ev, requester, None)
+        }
+    };
+    let recovery = mgr.handle_track_exception(ev, now_ms).await;
+    let _ = crate::lavalink::LavalinkManager::post_track_error_report(
+        http,
+        logs_channel_id,
+        track_error_owner(owners),
+        &report,
+        now_ms,
+    )
+    .await;
+    match &recovery {
+        crate::lavalink::ErrorRecovery::Requeued { title } => {
+            mgr.announce_requeued(http, guild_id, title).await;
+        }
+        _ => {
+            mgr.announce_track_error(http, guild_id, &detail).await;
+        }
+    }
+    recovery
+}
+
 pub async fn run(cfg: Config, pool: Pool) -> anyhow::Result<()> {
     let token = crate::config::bot_token().ok_or_else(|| {
         anyhow::anyhow!("missing BOT_TOKEN env (mirrors config.discord.token fallback)")
@@ -874,6 +938,34 @@ mod tests {
             shard_presence_name(3, 0),
             "Shards #3 | 0 Servers | www.ihorizon.org"
         );
+    }
+
+    #[test]
+    fn track_error_owner_uses_first_configured_owner() {
+        let owners = vec!["111".to_string(), "222".to_string()];
+        assert_eq!(track_error_owner(&owners), Some("111"));
+        let blank: Vec<String> = vec!["   ".to_string()];
+        assert_eq!(track_error_owner(&blank), None);
+        let empty: Vec<String> = vec![];
+        assert_eq!(track_error_owner(&empty), None);
+    }
+
+    #[test]
+    fn requeued_branch_only_matches_requeued_recovery() {
+        use crate::lavalink::ErrorRecovery;
+        assert_eq!(
+            requeued_title(&ErrorRecovery::Requeued {
+                title: "hit".to_string()
+            }),
+            Some("hit")
+        );
+        for other in [
+            ErrorRecovery::Advanced,
+            ErrorRecovery::Idle,
+            ErrorRecovery::NoPlayer,
+        ] {
+            assert_eq!(requeued_title(&other), None);
+        }
     }
 
     #[test]

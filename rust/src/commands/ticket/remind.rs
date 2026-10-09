@@ -68,7 +68,7 @@ pub async fn ticket_remind(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     }
     let t = |k: &str| crate::lang::get(&lang_code, k).unwrap_or_default();
     let http = ctx.serenity_context().http.clone();
-    let entries = load_ticket_entries(pool, &gid).await;
+    let entries = delete::ticket_entries_routed(pool, &gid).await;
     let Some(owner_id) = ticket_owner_id(&entries, &channel_id.get().to_string()) else {
         ctx.say(t("open_not_in_ticket")).await?;
         return Ok(());

@@ -81,7 +81,11 @@ pub async fn custom_name(
                     .replace("${client.iHorizon_Emojis.Crown}", &crown)
                     .replace("${name}", &name)
             })
-            .unwrap_or_else(|| format!("Bot name set to `{name}`.")),
+            .unwrap_or_else(|| {
+                format!(
+                    "{yes} **You have decided to change the bot's name on the server. Embed footers are now modified, as well as the bot's name on the server.**\n{crown} New value: `{name}`"
+                )
+            }),
     )
     .await?;
     Ok(())

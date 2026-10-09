@@ -8,7 +8,7 @@ pub async fn dolphin(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         "https://api.animality.xyz/all/dolphin",
         "image",
         "dolphin_embed_title",
-        "dolphin",
+        "eee-eee-click-click 🐬",
     )
     .await
 }

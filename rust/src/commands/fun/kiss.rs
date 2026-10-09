@@ -11,7 +11,7 @@ pub async fn kiss(
         &user,
         "kiss",
         "kiss_embed_description",
-        "<@${interaction.user.id}> gives a kiss to <@${kiss.id}>",
+        "<@${interaction.user.id}> gives a kiss to <@${kiss.id}> 💏",
         0xFF0884,
         "${kiss.id}",
     )

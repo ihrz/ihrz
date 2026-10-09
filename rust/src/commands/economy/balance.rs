@@ -1,5 +1,34 @@
 use super::*;
 
+/// Table-first economy account load with legacy kv fallback (keys
+/// unchanged). A legacy hit promotes into the table so rows migrate
+/// lazily; pair with `save_econ_routed` (dual-write) so kv-only
+/// readers (mod.rs `load_econ`, `claim_inner`) stay fresh.
+pub async fn load_econ_routed(pool: &crate::db::Pool, guild_id: &str, user_id: u64) -> EconAccount {
+    crate::commands::owner::main::routed_get(pool, guild_id, guild_id, &econ_key(user_id))
+        .await
+        .and_then(|s| serde_json::from_str(&s).ok())
+        .unwrap_or_default()
+}
+
+/// Table-first economy account store with legacy kv dual-write (keys
+/// unchanged).
+pub async fn save_econ_routed(
+    pool: &crate::db::Pool,
+    guild_id: &str,
+    user_id: u64,
+    account: &EconAccount,
+) -> anyhow::Result<()> {
+    crate::commands::owner::main::routed_set(
+        pool,
+        guild_id,
+        guild_id,
+        &econ_key(user_id),
+        &serde_json::to_string(account)?,
+    )
+    .await
+}
+
 /// Mirrors `!balance.ts`.
 #[poise::command(
     slash_command,
@@ -22,7 +51,7 @@ pub async fn eco_balance(
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
-    let a = load_econ(&ctx.data().pool, &gid, uid).await;
+    let a = load_econ_routed(&ctx.data().pool, &gid, uid).await;
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let coin = coin_markup(&ctx).await;
     let wallet = wallet_markup(&ctx).await;
@@ -81,4 +110,88 @@ pub async fn eco_balance(
     }
     ctx.send(poise::CreateReply::default().embed(embed)).await?;
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{load_econ_routed, save_econ_routed};
+    use crate::commands::economy::EconAccount;
+
+    async fn mem_pool() -> crate::db::Pool {
+        use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};
+        use std::str::FromStr;
+        let opts = SqliteConnectOptions::from_str("sqlite::memory:")
+            .unwrap()
+            .create_if_missing(true);
+        let pool = SqlitePoolOptions::new()
+            .max_connections(1)
+            .connect_with(opts)
+            .await
+            .unwrap();
+        sqlx::query(
+            "CREATE TABLE kv (guild_id TEXT NOT NULL, key_name TEXT NOT NULL, value TEXT NOT NULL, PRIMARY KEY (guild_id, key_name))",
+        )
+        .execute(&pool)
+        .await
+        .unwrap();
+        pool
+    }
+
+    #[tokio::test]
+    async fn legacy_account_reads_and_promotes_to_table() {
+        use crate::commands::owner::main::tbl_get_value;
+        let pool = mem_pool().await;
+        crate::db::kv_set(&pool, "g", "USER.1.ECONOMY", r#"{"money":100,"bank":50}"#)
+            .await
+            .unwrap();
+        let a = load_econ_routed(&pool, "g", 1).await;
+        assert_eq!((a.money, a.bank), (100, 50));
+        // Legacy hit promotes into the table handle.
+        let promoted = tbl_get_value(&pool, "g", "USER.1.ECONOMY").await.unwrap();
+        assert_eq!(promoted.get("money").and_then(|v| v.as_i64()), Some(100));
+        // Unknown users still default.
+        assert_eq!(load_econ_routed(&pool, "g", 9).await.money, 0);
+    }
+
+    #[tokio::test]
+    async fn table_wins_over_legacy_on_conflict() {
+        use crate::commands::owner::main::table_backend;
+        let pool = mem_pool().await;
+        crate::db::kv_set(&pool, "g", "USER.1.ECONOMY", r#"{"money":1,"bank":0}"#)
+            .await
+            .unwrap();
+        table_backend(&pool)
+            .table("g")
+            .set(
+                "USER.1.ECONOMY",
+                serde_json::json!({"money": 777, "bank": 0}),
+            )
+            .await
+            .unwrap();
+        assert_eq!(load_econ_routed(&pool, "g", 1).await.money, 777);
+    }
+
+    #[tokio::test]
+    async fn save_dual_writes_table_and_legacy() {
+        use crate::commands::owner::main::tbl_get_value;
+        let pool = mem_pool().await;
+        let account = EconAccount {
+            money: 40,
+            bank: 2,
+            ..Default::default()
+        };
+        save_econ_routed(&pool, "g", 4, &account).await.unwrap();
+        // kv-only readers (load_econ, claim_inner) stay fresh.
+        let legacy = crate::db::kv_get(&pool, "g", "USER.4.ECONOMY")
+            .await
+            .unwrap();
+        assert_eq!(
+            serde_json::from_str::<EconAccount>(&legacy).unwrap().money,
+            40
+        );
+        let stored = tbl_get_value(&pool, "g", "USER.4.ECONOMY").await.unwrap();
+        assert_eq!(stored.get("bank").and_then(|v| v.as_i64()), Some(2));
+        // Round-trip through the routed loader.
+        assert_eq!(load_econ_routed(&pool, "g", 4).await.money, 40);
+    }
 }

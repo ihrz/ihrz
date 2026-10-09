@@ -28,24 +28,42 @@ pub async fn stats_user(
         .iter()
         .map(|(ch, ms)| format!("<#{ch}> ({}m)", ms / 60_000))
         .collect();
-    ctx.say(format!(
-        "Messages: {} (day {d_msg} / week {w_msg} / month {m_msg}) | Voice: {}m (day {}m / week {}m / month {}m)\nTop channels: {}\nTop voice: {}",
-        s.messages,
-        s.voice_ms / 60_000,
-        d_vc / 60_000,
-        w_vc / 60_000,
-        m_vc / 60_000,
-        if top_text.is_empty() {
-            "-".to_string()
-        } else {
-            top_text.join(", ")
-        },
-        if top_vc.is_empty() {
-            "-".to_string()
-        } else {
-            top_vc.join(", ")
-        },
-    ))
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    let top_text_str = if top_text.is_empty() {
+        "-".to_string()
+    } else {
+        top_text.join(", ")
+    };
+    let top_vc_str = if top_vc.is_empty() {
+        "-".to_string()
+    } else {
+        top_vc.join(", ")
+    };
+    ctx.say(
+        crate::lang::get(&code, "stats_ustats_text")
+            .map(|t| {
+                t.replace("${messages}", &s.messages.to_string())
+                    .replace("${d_msg}", &d_msg.to_string())
+                    .replace("${w_msg}", &w_msg.to_string())
+                    .replace("${m_msg}", &m_msg.to_string())
+                    .replace("${voice}", &(s.voice_ms / 60_000).to_string())
+                    .replace("${d_vc}", &(d_vc / 60_000).to_string())
+                    .replace("${w_vc}", &(w_vc / 60_000).to_string())
+                    .replace("${m_vc}", &(m_vc / 60_000).to_string())
+                    .replace("${top_text}", &top_text_str)
+                    .replace("${top_vc}", &top_vc_str)
+            })
+            .unwrap_or_else(|| {
+                format!(
+                    "Messages: {} (day {d_msg} / week {w_msg} / month {m_msg}) | Voice: {}m (day {}m / week {}m / month {}m)\nTop channels: {top_text_str}\nTop voice: {top_vc_str}",
+                    s.messages,
+                    s.voice_ms / 60_000,
+                    d_vc / 60_000,
+                    w_vc / 60_000,
+                    m_vc / 60_000,
+                )
+            }),
+    )
     .await?;
     Ok(())
 }

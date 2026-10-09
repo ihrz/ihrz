@@ -804,6 +804,19 @@ pub fn queue_line(idx: usize, title: &str, author: &str, uri: Option<&str>) -> S
     }
 }
 
+/// Guild-visible line for a trackError recovery outcome: the Requeued
+/// fallback-hit notice, None for the skip legs (announced via
+/// announce_track_error instead). Reuses the manager notice text so a
+/// command reply matches the player-channel post.
+pub fn track_error_notice(recovery: &crate::lavalink::ErrorRecovery) -> Option<String> {
+    match recovery {
+        crate::lavalink::ErrorRecovery::Requeued { title } => Some(
+            crate::lavalink::LavalinkManager::requeued_notice_text(title),
+        ),
+        _ => None,
+    }
+}
+
 pub mod clear_queue;
 pub mod history;
 pub mod r#loop;
@@ -1160,6 +1173,27 @@ mod tests {
         assert!(svg.contains("Artist&quot;X&quot;"));
         assert!(svg.contains("playing - Spotify"));
         assert!(svg.starts_with("<svg"));
+    }
+
+    #[test]
+    fn track_error_notice_only_covers_requeued_branch() {
+        use crate::lavalink::ErrorRecovery;
+        let hit = track_error_notice(&ErrorRecovery::Requeued {
+            title: "Fallback Song".to_string(),
+        });
+        assert_eq!(
+            hit,
+            Some(crate::lavalink::LavalinkManager::requeued_notice_text(
+                "Fallback Song"
+            ))
+        );
+        for other in [
+            ErrorRecovery::Advanced,
+            ErrorRecovery::Idle,
+            ErrorRecovery::NoPlayer,
+        ] {
+            assert_eq!(track_error_notice(&other), None);
+        }
     }
 
     #[test]

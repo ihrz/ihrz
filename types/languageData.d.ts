@@ -2588,4 +2588,16 @@ export interface LanguageData {
 	msg_profil_birthday_saved: string;
 	msg_profil_use_subcommand: string;
 	msg_automod_toggled: string;
+	owner_list_empty: string;
+	owner_blinfo_line: string;
+	fun_caracteres_unknown_style: string;
+	fun_youtube_pending: string;
+	fun_tweet_pending: string;
+	fun_bubbles_pending: string;
+	invites_leaderboard_empty: string;
+	stats_compare_same_user: string;
+	stats_compare_text: string;
+	stats_gstats_text: string;
+	stats_ustats_text: string;
+	stats_channel_single_text: string;
 }

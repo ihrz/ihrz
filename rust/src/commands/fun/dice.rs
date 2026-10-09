@@ -18,17 +18,17 @@ pub async fn dice(
     let results = roll_dice_set(number, faces);
     let total: u32 = results.iter().sum();
     let embed = poise::serenity_prelude::CreateEmbed::default()
-        .title(crate::commands::lang_for(&ctx, "fun_dice_embed_title", "Dice Roll Result").await)
+        .title(crate::commands::lang_for(&ctx, "fun_dice_embed_title", "🎲 Dice Roll Result").await)
         .description(format!(
             "{} {number} x D{faces}\n{} {}\n{} {total}",
-            crate::commands::lang_for(&ctx, "fun_dice_var_rolled_dices", "Rolled Dice:").await,
-            crate::commands::lang_for(&ctx, "fun_dice_var_results", "Results:").await,
+            crate::commands::lang_for(&ctx, "fun_dice_var_rolled_dices", "**Rolled Dice:**").await,
+            crate::commands::lang_for(&ctx, "fun_dice_var_results", "**Results:**").await,
             results
                 .iter()
                 .map(|r| r.to_string())
                 .collect::<Vec<_>>()
                 .join(", "),
-            crate::commands::lang_for(&ctx, "fun_dice_var_total", "Total:").await,
+            crate::commands::lang_for(&ctx, "fun_dice_var_total", "**Total:**").await,
         ))
         .colour(random_colour());
     ctx.send(poise::CreateReply::default().embed(embed)).await?;

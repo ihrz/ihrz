@@ -31,11 +31,11 @@ pub async fn eco_balance_add(
             .unwrap_or_else(|| format!("Added {}.", fmt_num(amount))),
     )
     .await?;
-    let mut a = load_econ(&ctx.data().pool, &gid, uid).await;
+    let mut a = balance::load_econ_routed(&ctx.data().pool, &gid, uid).await;
     // No clamp: TS `db.add` is raw arithmetic (negatives subtract,
     // floats persist).
     add_money(&mut a, amount);
-    save_econ(&ctx.data().pool, &gid, uid, &a).await?;
+    balance::save_econ_routed(&ctx.data().pool, &gid, uid, &a).await?;
     let invoker_id = ctx.author().id.get().to_string();
     let title =
         crate::commands::lang_for(&ctx, "addmoney_logs_embed_title", "Money addition").await;

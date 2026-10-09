@@ -9,6 +9,7 @@
 use crate::bot::Ctx;
 use poise::serenity_prelude as serenity;
 use serde::{Deserialize, Serialize};
+use std::collections::{HashMap, HashSet};
 
 #[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq)]
 #[serde(rename_all = "camelCase")]
@@ -321,6 +322,98 @@ pub async fn load_ticket_entries(pool: &crate::db::Pool, gid: &str) -> Vec<(Stri
     out
 }
 
+/// Rewrite a Discord CDN avatar URL to `size=64` (matches the TS
+/// `displayAvatarURL({ size: 64 })` hydrate shape; serenity `face()`
+/// ships `size=1024`). Appends the param when absent.
+pub fn avatar_url_64(url: &str) -> String {
+    if let Some(pos) = url.find("size=") {
+        let start = pos + "size=".len();
+        let mut end = start;
+        while end < url.len() && url.as_bytes()[end].is_ascii_digit() {
+            end += 1;
+        }
+        let mut out = String::with_capacity(url.len());
+        out.push_str(&url[..start]);
+        out.push_str("64");
+        out.push_str(&url[end..]);
+        return out;
+    }
+    if url.contains('?') {
+        format!("{url}&size=64")
+    } else {
+        format!("{url}?size=64")
+    }
+}
+
+/// Rewrite a Discord CDN avatar URL to `size=512` (TS favicon shape:
+/// `displayAvatarURL({ size: 512, extension: "png" })`).
+pub fn avatar_url_512(url: &str) -> String {
+    if let Some(pos) = url.find("size=") {
+        let start = pos + "size=".len();
+        let mut end = start;
+        while end < url.len() && url.as_bytes()[end].is_ascii_digit() {
+            end += 1;
+        }
+        let mut out = String::with_capacity(url.len());
+        out.push_str(&url[..start]);
+        out.push_str("512");
+        out.push_str(&url[end..]);
+        return out;
+    }
+    if url.contains('?') {
+        format!("{url}&size=512")
+    } else {
+        format!("{url}?size=512")
+    }
+}
+
+fn mime_for_url(url: &str) -> Option<&'static str> {
+    let path = url.split(['?', '#']).next().unwrap_or(url);
+    match path
+        .rsplit('.')
+        .next()
+        .unwrap_or("")
+        .to_ascii_lowercase()
+        .as_str()
+    {
+        "png" => Some("image/png"),
+        "jpg" | "jpeg" => Some("image/jpeg"),
+        "gif" => Some("image/gif"),
+        "webp" => Some("image/webp"),
+        "avif" => Some("image/avif"),
+        "bmp" => Some("image/bmp"),
+        "svg" => Some("image/svg+xml"),
+        _ => None,
+    }
+}
+
+/// Build a `data:` URI for prefetched bytes (mime guessed from the
+/// URL extension). Returns None for unknown extensions so callers
+/// keep the remote URL (same as `saveImages: false`).
+pub fn data_uri_for_url(url: &str, bytes: &[u8]) -> Option<String> {
+    let mime = mime_for_url(url)?;
+    if bytes.is_empty() {
+        return None;
+    }
+    Some(format!(
+        "data:{mime};base64,{}",
+        crate::emojis::base64_encode(bytes)
+    ))
+}
+
+/// Best-effort fetch of one URL into a `data:` URI. Offline / error /
+/// unknown-mime all yield None (graceful skip, no new deps).
+async fn fetch_data_uri(url: &str) -> Option<String> {
+    // Bound single-file cost so one huge attachment cannot balloon the
+    // transcript; misses simply stay remote.
+    const MAX_BYTES: usize = 8 * 1024 * 1024;
+    let bytes = crate::commands::botcat::download_bytes(url).await?;
+    if bytes.is_empty() || bytes.len() > MAX_BYTES {
+        return None;
+    }
+    data_uri_for_url(url, &bytes)
+}
+
 /// Snapshot the full history of a channel as (html, count),
 /// chronological. Shared by the close/transcript/delete ticket flows
 /// (mirrors discord-html-transcripts createTranscript {limit: -1} in
@@ -349,17 +442,75 @@ pub async fn channel_transcript_html(
     }
     // Newest-first pages -> chronological transcript.
     all.reverse();
-    let snap: Vec<crate::transcript::TranscriptMessage> = all
+    // Enriched snapshot: avatar_url at size 64 + bot flag (hydrate
+    // parity), attachments passed through for saveImages-style
+    // inlining below.
+    let snap: Vec<crate::transcript::RichTranscriptMessage> = all
         .iter()
-        .map(|m| crate::transcript::TranscriptMessage {
+        .map(|m| crate::transcript::RichTranscriptMessage {
             author_tag: m.author.tag(),
             author_id: m.author.id.get(),
+            avatar_url: Some(avatar_url_64(&m.author.face())),
+            bot: m.author.bot,
             content: m.content.clone(),
             timestamp_ms: m.timestamp.unix_timestamp() * 1000,
             attachments: m.attachments.iter().map(|a| a.url.clone()).collect(),
         })
         .collect();
-    let html = crate::transcript::build_html("ticket", &snap);
+    // Dedup prefetch: avatars + image attachments (capped so a huge
+    // channel cannot stall the close flow). Best-effort; offline
+    // misses fall back to remote URLs in the renderer.
+    let mut avatar_urls: Vec<String> = vec![];
+    let mut seen_avatars = HashSet::new();
+    let mut image_urls: Vec<String> = vec![];
+    let mut seen_images = HashSet::new();
+    for m in &snap {
+        if let Some(url) = &m.avatar_url {
+            if seen_avatars.insert(url.clone()) {
+                avatar_urls.push(url.clone());
+            }
+        }
+        for a in &m.attachments {
+            if crate::transcript::is_image_url(a) && seen_images.insert(a.clone()) {
+                image_urls.push(a.clone());
+                if image_urls.len() >= 100 {
+                    break;
+                }
+            }
+        }
+    }
+    let mut avatar_cache: HashMap<String, String> = HashMap::new();
+    for url in &avatar_urls {
+        if let Some(data_uri) = fetch_data_uri(url).await {
+            avatar_cache.insert(url.clone(), data_uri);
+        }
+    }
+    let mut image_cache: HashMap<String, String> = HashMap::new();
+    for url in &image_urls {
+        if let Some(data_uri) = fetch_data_uri(url).await {
+            image_cache.insert(url.clone(), data_uri);
+        }
+    }
+    // Favicon: live bot avatar (TS `favicon` option), inlined when the
+    // fetch succeeds, remote URL otherwise, omitted when unknown.
+    let favicon_url = http
+        .get_current_user()
+        .await
+        .ok()
+        .map(|me| avatar_url_512(&me.face()));
+    let mut favicon_url = favicon_url;
+    if let Some(url) = favicon_url.clone() {
+        if let Some(data_uri) = fetch_data_uri(&url).await {
+            favicon_url = Some(data_uri);
+        }
+    }
+    let options = crate::transcript::TranscriptOptions {
+        favicon_url,
+        avatar_cache,
+        image_cache,
+        ..Default::default()
+    };
+    let html = crate::transcript::build_html_with_options("ticket", &snap, &options);
     (html, snap.len())
 }
 
@@ -2290,5 +2441,91 @@ mod tests {
         .unwrap();
         assert!(create_embed_from_value(&v).is_some());
         assert!(create_embed_from_value(&serde_json::json!([1, 2])).is_none());
+    }
+
+    #[test]
+    fn avatar_url_size_rewrites_match_ts_hydrate() {
+        // serenity face() ships size=1024; hydrate parity is size=64.
+        assert_eq!(
+            avatar_url_64("https://cdn.discordapp.com/avatars/1/abc.webp?size=1024"),
+            "https://cdn.discordapp.com/avatars/1/abc.webp?size=64"
+        );
+        assert_eq!(
+            avatar_url_512("https://cdn.discordapp.com/avatars/1/abc.webp?size=1024"),
+            "https://cdn.discordapp.com/avatars/1/abc.webp?size=512"
+        );
+        // No size param: appended, preserving existing query.
+        assert_eq!(
+            avatar_url_64("https://cdn.discordapp.com/embed/avatars/0.png"),
+            "https://cdn.discordapp.com/embed/avatars/0.png?size=64"
+        );
+        assert_eq!(
+            avatar_url_64("https://x/y.png?foo=1"),
+            "https://x/y.png?foo=1&size=64"
+        );
+    }
+
+    #[test]
+    fn data_uri_guesses_mime_from_fixture_urls() {
+        let png = data_uri_for_url("https://cdn/x/a.png?size=64", b"Man").unwrap();
+        assert!(png.starts_with("data:image/png;base64,TWFu"));
+        let webp = data_uri_for_url("https://cdn/x/a.webp", b"Man").unwrap();
+        assert!(webp.starts_with("data:image/webp;base64,"));
+        assert!(data_uri_for_url("https://cdn/x/report.pdf", b"Man").is_none());
+        assert!(data_uri_for_url("https://cdn/x/a.png", b"").is_none());
+    }
+
+    #[test]
+    fn hydrate_fixture_renders_avatar_bot_and_inline_image() {
+        use crate::transcript::{build_html_with_options, TranscriptOptions};
+        use std::collections::HashMap;
+        let avatar = avatar_url_64("https://cdn.discordapp.com/avatars/7/abc.webp?size=1024");
+        assert!(avatar.ends_with("size=64"));
+        let rich = vec![
+            crate::transcript::RichTranscriptMessage {
+                author_tag: "bot".into(),
+                author_id: 7,
+                avatar_url: Some(avatar.clone()),
+                bot: true,
+                content: "hey".into(),
+                timestamp_ms: 1000,
+                attachments: vec!["https://cdn/x/pic.png".into()],
+            },
+            crate::transcript::RichTranscriptMessage {
+                author_tag: "user".into(),
+                author_id: 8,
+                avatar_url: Some(avatar.clone()),
+                bot: false,
+                content: "hi".into(),
+                timestamp_ms: 2000,
+                attachments: vec![],
+            },
+        ];
+        // Online shape: remote avatar + BOT tag + remote image.
+        let online = build_html_with_options("ticket", &rich, &TranscriptOptions::default());
+        assert!(online.contains(&avatar));
+        assert!(online.contains("BOT</span>"));
+        // Offline shape: prefetched caches inline, href stays remote.
+        let mut avatar_cache = HashMap::new();
+        avatar_cache.insert(avatar.clone(), "data:image/webp;base64,TWFu".into());
+        let mut image_cache = HashMap::new();
+        image_cache.insert(
+            "https://cdn/x/pic.png".into(),
+            "data:image/png;base64,TWFu".into(),
+        );
+        let offline = build_html_with_options(
+            "ticket",
+            &rich,
+            &TranscriptOptions {
+                avatar_cache,
+                image_cache,
+                favicon_url: Some("data:image/png;base64,TWFu".into()),
+                ..Default::default()
+            },
+        );
+        assert!(offline.contains("src=\"data:image/webp;base64,TWFu\""));
+        assert!(offline.contains("src=\"data:image/png;base64,TWFu\""));
+        assert!(offline.contains("href=\"https://cdn/x/pic.png\""));
+        assert!(offline.contains("<link rel=\"icon\""));
     }
 }

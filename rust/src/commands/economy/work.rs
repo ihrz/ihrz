@@ -23,7 +23,7 @@ pub async fn eco_work(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     }
     let tune = load_tuning(pool, &gid, "work").await;
     let uid = ctx.author().id.get();
-    let mut account = load_econ(pool, &gid, uid).await;
+    let mut account = balance::load_econ_routed(pool, &gid, uid).await;
     let now = now_ms();
     if account.work != 0 && tune.cooldown_ms - (now - account.work) > 0 {
         let units = time_units(&ctx).await;
@@ -69,6 +69,6 @@ pub async fn eco_work(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     ctx.send(poise::CreateReply::default().embed(embed)).await?;
     account.money += amount;
     account.work = now;
-    save_econ(pool, &gid, uid, &account).await?;
+    balance::save_econ_routed(pool, &gid, uid, &account).await?;
     Ok(())
 }

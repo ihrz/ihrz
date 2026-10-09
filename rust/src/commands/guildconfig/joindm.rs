@@ -26,7 +26,7 @@ pub async fn gc_joindm(
         "joindm",
         cleaned.clone().map(serde_json::Value::String),
     );
-    save_guild_config(pool, &gid, &cfg).await?;
+    super::welcomer::save_guild_config_routed(pool, &gid, &cfg).await?;
     match cleaned {
         Some(text) => {
             ctx.say(

@@ -3414,3 +3414,17 @@ msg_profil_birthday_invalid: "Cumpleaños no válido: revisa día/mes/año (año
 msg_profil_birthday_saved: "Cumpleaños guardado."
 msg_profil_use_subcommand: "Usa un subcomando: show, set-age, set-description, set-gender, set-pronoun, set-birthday."
 msg_automod_toggled: "Automod ${kind} ${state}."
+
+# Tier-3 replies (U-I6)
+owner_list_empty: "Sin propietarios del bot."
+owner_blinfo_line: "${user} en lista negra: ${reason}"
+fun_caracteres_unknown_style: "Estilo desconocido `{style}`. Disponibles: {styles}"
+fun_youtube_pending: "${display}: ${comment} (${likes} me gusta, render pendiente)"
+fun_tweet_pending: "${display} ${handle}: ${comment} (${likes} me gusta, ${retweets} RTs, ${replies} respuestas, ${views} vistas, render pendiente)"
+fun_bubbles_pending: "${file} (render pendiente para ${url})"
+invites_leaderboard_empty: "Sin invitaciones."
+stats_compare_same_user: "Compara dos usuarios distintos."
+stats_compare_text: "${user1}: ${a_messages}msg/${a_voice}m vs ${user2}: ${b_messages}msg/${b_voice}m — ganador ${winner}"
+stats_gstats_text: "Miembros rastreados: ${count} | Mensajes: ${messages} | Voz: ${voice}m"
+stats_ustats_text: "Mensajes: ${messages} (día ${d_msg} / semana ${w_msg} / mes ${m_msg}) | Voz: ${voice}m (día ${d_vc}m / semana ${w_vc}m / mes ${m_vc}m) | Top canales: ${top_text} | Top voz: ${top_vc}"
+stats_channel_single_text: "<#${channel}>: ${count} mensajes."

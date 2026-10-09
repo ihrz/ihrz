@@ -18,7 +18,7 @@ pub async fn eco_rob(
     // TS default `?? 3000000` for ECONOMY.settings.rob.cooldown.
     let tune = load_tuning(&ctx.data().pool, &gid, "rob").await;
     let from = ctx.author().id.get();
-    let mut a = load_econ(&ctx.data().pool, &gid, from).await;
+    let mut a = balance::load_econ_routed(&ctx.data().pool, &gid, from).await;
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let now = now_ms();
     if a.rob != 0 && tune.cooldown_ms - (now - a.rob) > 0 {
@@ -35,7 +35,7 @@ pub async fn eco_rob(
             .await?;
         return Ok(());
     }
-    let mut b = load_econ(&ctx.data().pool, &gid, user.id.get()).await;
+    let mut b = balance::load_econ_routed(&ctx.data().pool, &gid, user.id.get()).await;
     // Both sides need 250+ (`author < 250`, `targetuser < 250`); unset
     // balances read as 0 (never the string "null" — kept correct).
     if a.money < 250 {
@@ -79,8 +79,8 @@ pub async fn eco_rob(
     b.money -= loot;
     a.money += loot;
     a.rob = now;
-    save_econ(&ctx.data().pool, &gid, from, &a).await?;
-    save_econ(&ctx.data().pool, &gid, user.id.get(), &b).await?;
+    balance::save_econ_routed(&ctx.data().pool, &gid, from, &a).await?;
+    balance::save_econ_routed(&ctx.data().pool, &gid, user.id.get(), &b).await?;
     let author = user_mention(from);
     let target = user_mention(user.id.get());
     let amt = loot.to_string();

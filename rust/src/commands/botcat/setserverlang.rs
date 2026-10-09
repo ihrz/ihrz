@@ -35,7 +35,7 @@ pub async fn setlang(
     let lang_code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     ctx.say(
         crate::lang::get(&lang_code, "setserverlang_panel_saved")
-            .unwrap_or_else(|| format!("Language set to `{code}`.")),
+            .unwrap_or_else(|| "The language has been successfully changed!".to_string()),
     )
     .await?;
     Ok(())

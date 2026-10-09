@@ -107,7 +107,12 @@ pub async fn custom_banner(
                     .replace("${client.iHorizon_Emojis.Crown}", &crown)
                     .replace("${x}", &banner.url)
             })
-            .unwrap_or_else(|| format!("Bot banner updated from `{}`.", banner.url)),
+            .unwrap_or_else(|| {
+                format!(
+                    "{yes} **You have decided to change the bot's banner on the server.**\n{crown} New value: `{}`",
+                    banner.url
+                )
+            }),
     )
     .await?;
     Ok(())

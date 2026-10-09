@@ -10,7 +10,7 @@ pub async fn gay(
         &ctx,
         user,
         "fun_gay_command_ok",
-        "The user ${user} is **${random}%** gay",
+        "The user ${user} is **${random}%** gay 🏳️‍🌈",
     )
     .await
 }

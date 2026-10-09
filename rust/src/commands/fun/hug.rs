@@ -11,7 +11,7 @@ pub async fn hug(
         &user,
         "hug",
         "hug_embed_title",
-        "<@${interaction.user.id}> gives a hug to <@${hug.id}>",
+        "<@${interaction.user.id}> gives a hug to <@${hug.id}> ❤️",
         0xFFB6C1,
         "${hug.id}",
     )

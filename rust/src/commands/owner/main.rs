@@ -239,8 +239,9 @@ pub async fn owner_list(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     // Merged view: config owners + persisted owner table.
     // Mirrors getBotOwner() in ownerHelper.ts.
     let owners = crate::db::bot_owner_ids(&ctx.data().pool, &ctx.data().config.owners).await;
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     ctx.say(if owners.is_empty() {
-        "No bot owners.".to_string()
+        crate::lang::get(&code, "owner_list_empty").unwrap_or_else(|| "No bot owners.".to_string())
     } else {
         owners.join(", ")
     })
@@ -262,8 +263,10 @@ pub async fn owner_add(
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     ctx.say(
         crate::lang::get(&code, "owner_is_now_owner")
-            .map(|s| s.replace("${member.user.username}", &user.tag()))
-            .unwrap_or_else(|| format!("{} is now guild owner.", user.tag())),
+            .unwrap_or_else(|| {
+                "${member.user.username} is now an owner of the iHorizon Project!".to_string()
+            })
+            .replace("${member.user.username}", &user.tag()),
     )
     .await?;
     Ok(())
@@ -317,17 +320,20 @@ pub async fn owner_blacklist(
     if !require_bot_owner(&ctx).await {
         return Ok(());
     }
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     bl_set(
         &ctx.data().pool,
         user.id.get(),
-        &reason.unwrap_or_else(|| "No reason".to_string()),
+        &reason.unwrap_or_else(|| {
+            crate::lang::get(&code, "blacklist_var_no_reason")
+                .unwrap_or_else(|| "No reason found".to_string())
+        }),
     )
     .await?;
-    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     ctx.say(
         crate::lang::get(&code, "blacklist_command_work")
-            .map(|s| s.replace("${member.user.username}", &user.tag()))
-            .unwrap_or_else(|| format!("{} blacklisted.", user.tag())),
+            .unwrap_or_else(|| "${member.user.username} is now blacklisted".to_string())
+            .replace("${member.user.username}", &user.tag()),
     )
     .await?;
     Ok(())
@@ -368,7 +374,9 @@ pub async fn owner_blinfo(
     let reason = bl_get(&ctx.data().pool, user.id.get()).await;
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     ctx.say(match reason {
-        Some(r) => format!("{} blacklisted: {r}", user.tag()),
+        Some(r) => crate::lang::get(&code, "owner_blinfo_line")
+            .map(|s| s.replace("${user}", &user.tag()).replace("${reason}", &r))
+            .unwrap_or_else(|| format!("{} blacklisted: {r}", user.tag())),
         None => crate::lang::get(&code, "unblacklist_not_blacklisted")
             .map(|s| s.replace("${member.id}", &user.id.get().to_string()))
             .unwrap_or_else(|| "<@${member.id}> was not blacklisted".to_string()),

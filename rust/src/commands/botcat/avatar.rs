@@ -61,6 +61,16 @@ pub async fn custom_avatar(
         return Ok(());
     };
     if !crate::funcs::is_valid_image_type(avatar.content_type.as_deref()) {
+        let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+        ctx.say(
+            crate::lang::get(&code, "guildconfig_setbot_footeravatar_incorect").unwrap_or_else(
+                || {
+                    "The file does not correspond to an image. Please try again with an image."
+                        .to_string()
+                },
+            ),
+        )
+        .await?;
         return Ok(());
     }
     let Some(bytes) = download_bytes(&avatar.url).await else {
@@ -96,7 +106,12 @@ pub async fn custom_avatar(
                     .replace("${client.iHorizon_Emojis.Crown}", &crown)
                     .replace("${x}", &avatar.url)
             })
-            .unwrap_or_else(|| format!("Bot avatar updated from `{}`.", avatar.url)),
+            .unwrap_or_else(|| {
+                format!(
+                    "{yes} **You have decided to change the bot's profile picture on the server. Embed footers are now modified, as well as the bot's profile picture on the server.**\n{crown} New value: `{}`",
+                    avatar.url
+                )
+            }),
     )
     .await?;
     Ok(())

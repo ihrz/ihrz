@@ -37,7 +37,7 @@ pub async fn gc_wc_channel(
         field,
         channel.map(|c| serde_json::Value::String(c.id.get().to_string())),
     );
-    save_guild_config(pool, &gid, &cfg).await?;
+    save_guild_config_routed(pool, &gid, &cfg).await?;
     ctx.say(
         crate::lang::get(&code, "msg_welcomer_channel_updated")
             .unwrap_or_else(|| "Welcomer channel updated.".to_string()),
@@ -83,7 +83,7 @@ pub async fn gc_wc_embed(
             .filter(|s| !s.is_empty())
             .map(serde_json::Value::String),
     );
-    save_guild_config(pool, &gid, &cfg).await?;
+    save_guild_config_routed(pool, &gid, &cfg).await?;
     ctx.say(
         crate::lang::get(&code, "msg_welcomer_embed_updated")
             .unwrap_or_else(|| "Welcomer embed updated.".to_string()),
@@ -132,7 +132,7 @@ pub async fn gc_wc_text(
         },
         Some(serde_json::Value::Bool(enabled)),
     );
-    save_guild_config(pool, &gid, &cfg).await?;
+    save_guild_config_routed(pool, &gid, &cfg).await?;
     ctx.say(
         crate::lang::get(&code, "msg_welcomer_text_updated")
             .unwrap_or_else(|| "Welcomer text updated.".to_string()),
@@ -182,11 +182,95 @@ pub async fn gc_wc_components(
         },
         Some(serde_json::Value::Bool(enabled)),
     );
-    save_guild_config(pool, &gid, &cfg).await?;
+    save_guild_config_routed(pool, &gid, &cfg).await?;
     ctx.say(
         crate::lang::get(&code, "msg_welcomer_components_updated")
             .unwrap_or_else(|| "Welcomer components updated.".to_string()),
     )
     .await?;
     Ok(())
+}
+
+/// Table-first guild-config blob write with legacy fallback. Same key
+/// (`GUILD.GUILD_CONFIG`) and same JSON shape as `save_guild_config`;
+/// the table handle is primary and the flat legacy row stays fresh for
+/// unmigrated kv readers (U-D3 dual-write precedent). Reads already
+/// prefer the table via `load_guild_config`.
+pub async fn save_guild_config_routed(
+    pool: &crate::db::Pool,
+    gid: &str,
+    cfg: &serde_json::Value,
+) -> anyhow::Result<()> {
+    save_guild_config(pool, gid, cfg).await?;
+    crate::db::kv_set(pool, gid, "GUILD.GUILD_CONFIG", &cfg.to_string()).await?;
+    Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    async fn memory_pool() -> crate::db::Pool {
+        use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};
+        use std::str::FromStr;
+        let opts = SqliteConnectOptions::from_str("sqlite::memory:")
+            .unwrap()
+            .create_if_missing(true);
+        let pool = SqlitePoolOptions::new()
+            .max_connections(1)
+            .connect_with(opts)
+            .await
+            .unwrap();
+        sqlx::query(
+            "CREATE TABLE kv (guild_id TEXT NOT NULL, key_name TEXT NOT NULL, value TEXT NOT NULL, PRIMARY KEY (guild_id, key_name))",
+        )
+        .execute(&pool)
+        .await
+        .unwrap();
+        pool
+    }
+
+    #[tokio::test]
+    async fn blob_write_routes_to_table_and_legacy() {
+        let pool = memory_pool().await;
+        let cfg = serde_json::json!({"join": "11", "joinroles": "22"});
+        save_guild_config_routed(&pool, "g1", &cfg).await.unwrap();
+        assert_eq!(load_guild_config(&pool, "g1").await, cfg);
+        // Table handle holds the blob under the GUILD root.
+        let routed: String = sqlx::query_scalar::<_, String>(
+            "SELECT value FROM kv WHERE guild_id = 'tbl:g1' AND key_name = 'GUILD'",
+        )
+        .fetch_optional(&pool)
+        .await
+        .unwrap()
+        .unwrap();
+        assert_eq!(
+            serde_json::from_str::<serde_json::Value>(&routed).unwrap(),
+            serde_json::json!({"GUILD_CONFIG": {"join": "11", "joinroles": "22"}})
+        );
+        // Legacy flat row stays fresh for unmigrated readers.
+        let legacy: String = sqlx::query_scalar::<_, String>(
+            "SELECT value FROM kv WHERE guild_id = 'g1' AND key_name = 'GUILD.GUILD_CONFIG'",
+        )
+        .fetch_optional(&pool)
+        .await
+        .unwrap()
+        .unwrap();
+        assert_eq!(
+            serde_json::from_str::<serde_json::Value>(&legacy).unwrap(),
+            cfg
+        );
+        // Other guilds are isolated.
+        assert_eq!(load_guild_config(&pool, "g2").await, serde_json::json!({}));
+    }
+
+    #[tokio::test]
+    async fn blob_read_falls_back_to_legacy_only_row() {
+        let pool = memory_pool().await;
+        let cfg = serde_json::json!({"joindm": "hello"});
+        crate::db::kv_set(&pool, "g1", "GUILD.GUILD_CONFIG", &cfg.to_string())
+            .await
+            .unwrap();
+        assert_eq!(load_guild_config(&pool, "g1").await, cfg);
+    }
 }

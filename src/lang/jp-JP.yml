@@ -3414,3 +3414,17 @@ msg_profil_birthday_invalid: "無効な誕生日です：日/月/年を確認し
 msg_profil_birthday_saved: "誕生日を保存しました。"
 msg_profil_use_subcommand: "サブコマンドを使ってください：show、set-age、set-description、set-gender、set-pronoun、set-birthday。"
 msg_automod_toggled: "Automod ${kind} ${state}。"
+
+# Tier-3 replies (U-I6)
+owner_list_empty: "Botのオーナーはいません。"
+owner_blinfo_line: "${user}はブラックリスト登録済み：${reason}"
+fun_caracteres_unknown_style: "不明なスタイル `{style}`。利用可能：{styles}"
+fun_youtube_pending: "${display}：${comment}（${likes}いいね、レンダリング待ち）"
+fun_tweet_pending: "${display} ${handle}：${comment}（${likes}いいね、${retweets}リツイート、${replies}返信、${views}表示、レンダリング待ち）"
+fun_bubbles_pending: "${file}（${url}のレンダリング待ち）"
+invites_leaderboard_empty: "招待がありません。"
+stats_compare_same_user: "異なる2人のユーザーを比較してください。"
+stats_compare_text: "${user1}：${a_messages}msg/${a_voice}m 対 ${user2}：${b_messages}msg/${b_voice}m — 勝者 ${winner}"
+stats_gstats_text: "追跡メンバー：${count} | メッセージ：${messages} | VC：${voice}分"
+stats_ustats_text: "メッセージ：${messages}（日 ${d_msg} / 週 ${w_msg} / 月 ${m_msg}）| VC：${voice}分（日 ${d_vc}分 / 週 ${w_vc}分 / 月 ${m_vc}分）| 上位チャンネル：${top_text} | 上位VC：${top_vc}"
+stats_channel_single_text: "<#${channel}>：${count}件のメッセージ。"

@@ -17,12 +17,13 @@ pub async fn gc_ghost_add(
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
-    let mut list = load_ghost(&ctx.data().pool, &gid).await;
+    let mut list = load_ghost_routed(&ctx.data().pool, &gid).await;
     let id = channel.id.get().to_string();
     if !list.contains(&id) {
         list.push(id);
-        crate::db::kv_set(
+        crate::commands::owner::main::routed_set(
             &ctx.data().pool,
+            &gid,
             &gid,
             ghost_key(),
             &serde_json::to_string(&list)?,
@@ -56,11 +57,12 @@ pub async fn gc_ghost_remove(
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
-    let mut list = load_ghost(&ctx.data().pool, &gid).await;
+    let mut list = load_ghost_routed(&ctx.data().pool, &gid).await;
     let id = channel.id.get().to_string();
     list.retain(|c| c != &id);
-    crate::db::kv_set(
+    crate::commands::owner::main::routed_set(
         &ctx.data().pool,
+        &gid,
         &gid,
         ghost_key(),
         &serde_json::to_string(&list)?,
@@ -87,7 +89,7 @@ pub async fn gc_ghost_list(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
-    let list = load_ghost(&ctx.data().pool, &gid).await;
+    let list = load_ghost_routed(&ctx.data().pool, &gid).await;
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     ctx.say(if list.is_empty() {
         crate::lang::get(&code, "msg_ghost_list_empty")
@@ -97,4 +99,101 @@ pub async fn gc_ghost_list(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     })
     .await?;
     Ok(())
+}
+
+/// Table-first ghost-ping read with legacy fallback. Mirrors
+/// `load_ghost` (same key, same JSON list shape) over the routed
+/// handle: the table is primary, a legacy-only row still resolves and
+/// is promoted lazily by `routed_get`.
+pub async fn load_ghost_routed(pool: &crate::db::Pool, gid: &str) -> Vec<String> {
+    crate::commands::owner::main::routed_get(pool, gid, gid, ghost_key())
+        .await
+        .and_then(|s| serde_json::from_str(&s).ok())
+        .unwrap_or_default()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    async fn memory_pool() -> crate::db::Pool {
+        use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};
+        use std::str::FromStr;
+        let opts = SqliteConnectOptions::from_str("sqlite::memory:")
+            .unwrap()
+            .create_if_missing(true);
+        let pool = SqlitePoolOptions::new()
+            .max_connections(1)
+            .connect_with(opts)
+            .await
+            .unwrap();
+        sqlx::query(
+            "CREATE TABLE kv (guild_id TEXT NOT NULL, key_name TEXT NOT NULL, value TEXT NOT NULL, PRIMARY KEY (guild_id, key_name))",
+        )
+        .execute(&pool)
+        .await
+        .unwrap();
+        pool
+    }
+
+    #[test]
+    fn ghost_key_unchanged() {
+        assert_eq!(ghost_key(), "GUILD.GUILD_CONFIG.GHOST_PING.channels");
+    }
+
+    #[tokio::test]
+    async fn ghost_write_routes_to_table_and_legacy() {
+        let pool = memory_pool().await;
+        let list = vec!["11".to_string(), "22".to_string()];
+        crate::commands::owner::main::routed_set(
+            &pool,
+            "g1",
+            "g1",
+            ghost_key(),
+            &serde_json::to_string(&list).unwrap(),
+        )
+        .await
+        .unwrap();
+        // Table handle holds the dotted key under the GUILD root.
+        let routed: String = sqlx::query_scalar::<_, String>(
+            "SELECT value FROM kv WHERE guild_id = 'tbl:g1' AND key_name = 'GUILD'",
+        )
+        .fetch_optional(&pool)
+        .await
+        .unwrap()
+        .unwrap();
+        let doc: serde_json::Value = serde_json::from_str(&routed).unwrap();
+        assert_eq!(
+            doc.pointer("/GUILD_CONFIG/GHOST_PING/channels").unwrap(),
+            &serde_json::json!(["11", "22"])
+        );
+        // Legacy flat row stays fresh for unmigrated readers.
+        let legacy: String = sqlx::query_scalar::<_, String>(
+            "SELECT value FROM kv WHERE guild_id = 'g1' AND key_name = 'GUILD.GUILD_CONFIG.GHOST_PING.channels'",
+        )
+        .fetch_optional(&pool)
+        .await
+        .unwrap()
+        .unwrap();
+        assert_eq!(
+            serde_json::from_str::<serde_json::Value>(&legacy).unwrap(),
+            serde_json::json!(["11", "22"])
+        );
+        // Other guilds are isolated.
+        assert!(load_ghost_routed(&pool, "g2").await.is_empty());
+    }
+
+    #[tokio::test]
+    async fn ghost_read_falls_back_to_legacy_only_row() {
+        let pool = memory_pool().await;
+        crate::db::kv_set(
+            &pool,
+            "g1",
+            ghost_key(),
+            &serde_json::to_string(&vec!["7".to_string()]).unwrap(),
+        )
+        .await
+        .unwrap();
+        assert_eq!(load_ghost_routed(&pool, "g1").await, vec!["7".to_string()]);
+    }
 }

@@ -551,10 +551,18 @@ pub async fn fetch_ip(use_ipv6: bool) -> Result<String, String> {
 // ---- Status panel broadcast + ping history/chart ----
 // Mirrors src/core/modules/infrastructureMonitoringManager.ts
 // refresh(): MISC.statusEmbed channel sweep, ping history (cap 60),
-// chart data/stats/SVG, status embed fields. The PNG render
-// (html2png) has no Rust equivalent here, so the broadcast edits
-// the embed fields + relative-timestamp content without re-attaching
-// the chart image; the SVG builder below feeds a future render path.
+// chart data/stats/SVG, status embed fields.
+//
+// U-CHART-PATH DECISION (offline-safe, Chromium blocked infra-wide):
+// SVG-as-attachment is implemented (pure builder below, no network,
+// no renderer); PNG render is DEFERRED. Rationale: the TS path embeds
+// the chart inline via html2png(Chromium) as `ping-chart.png` with
+// `setImage("attachment://ping-chart.png")`. There is no Chromium and
+// no html2png equivalent in Rust, so PNG bytes cannot be produced
+// offline and are not faked. Discord does not render SVG attachments
+// as embed images either, so the SVG ships as a downloadable file
+// attachment (wired in by a future send path), while the sweep stays
+// embed-only by design and never re-attaches the chart image.
 
 /// Mirrors MAX_PING_HISTORY.
 pub const MAX_PING_HISTORY: usize = 60;
@@ -750,6 +758,24 @@ pub fn build_ping_chart_svg(data: &[Option<u64>], labels: &[String]) -> String {
         "<svg width=\"{W}\" height=\"{H}\" viewBox=\"0 0 {W} {H}\" xmlns=\"http://www.w3.org/2000/svg\" role=\"img\"><defs><linearGradient id=\"pingFill\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#5865F2\" stop-opacity=\"0.4\"/><stop offset=\"0.5\" stop-color=\"#5865F2\" stop-opacity=\"0.2\"/><stop offset=\"1\" stop-color=\"#5865F2\" stop-opacity=\"0\"/></linearGradient></defs>{grid}<path d=\"{}\" fill=\"url(#pingFill)\"/>{stroked}{label_svg}</svg>",
         area_paths.join(" ").trim()
     )
+}
+
+/// Offline-safe chart artifact for the U-CHART-PATH decision.
+///
+/// Returns `(filename, svg_bytes)` for a Discord file attachment, built
+/// purely from ping history with no renderer and no network. The `.svg`
+/// extension is deliberate: PNG bytes cannot be produced without
+/// Chromium/html2png, and are not faked. Note Discord does not render
+/// SVG attachments as embed images, so this ships as a downloadable
+/// file (NOT `setImage`), unlike the TS inline `ping-chart.png`.
+/// Wiring it into a send/edit path is a future unit; the sweep stays
+/// embed-only.
+pub const PING_CHART_FILENAME: &str = "ping-chart.svg";
+
+pub fn ping_chart_attachment(history: &[u64]) -> (String, Vec<u8>) {
+    let (data, labels) = ping_chart_data(history);
+    let svg = build_ping_chart_svg(&data, &labels);
+    (PING_CHART_FILENAME.to_string(), svg.into_bytes())
 }
 
 /// Field name/value pairs for the status embed. Mirrors
@@ -1226,6 +1252,24 @@ mod tests {
         let flat = build_ping_chart_svg(&empty, &empty_labels);
         assert!(flat.contains("<svg"));
         assert!(flat.contains("stroke=\"#5865F2\""));
+    }
+
+    #[test]
+    fn ping_chart_attachment_is_offline_svg_file() {
+        // SVG-as-attachment (U-CHART-PATH): filename keeps the chart
+        // identity with an honest .svg extension, never .png.
+        let (name, bytes) = ping_chart_attachment(&[40, 80]);
+        assert_eq!(name, "ping-chart.svg");
+        assert_eq!(name, PING_CHART_FILENAME);
+        let svg = String::from_utf8(bytes).unwrap();
+        assert!(svg.starts_with("<svg"));
+        assert!(svg.contains("pingFill"));
+        assert!(svg.contains(">Now</text>"));
+        // Empty history still yields a valid file (flat baseline).
+        let (empty_name, empty_bytes) = ping_chart_attachment(&[]);
+        assert_eq!(empty_name, "ping-chart.svg");
+        let empty_svg = String::from_utf8(empty_bytes).unwrap();
+        assert!(empty_svg.starts_with("<svg"));
     }
 
     #[test]

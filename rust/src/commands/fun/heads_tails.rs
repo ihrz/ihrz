@@ -16,7 +16,9 @@ pub async fn coinflip(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         crate::commands::lang_for(&ctx, "fun_coinflip_result_tails", "Tails").await
     };
     let embed = poise::serenity_prelude::CreateEmbed::default()
-        .title(crate::commands::lang_for(&ctx, "fun_coinflip_embed_title", "Heads or Tails").await)
+        .title(
+            crate::commands::lang_for(&ctx, "fun_coinflip_embed_title", "🪙 Heads or Tails").await,
+        )
         .description(format!(
             "{} {result}",
             crate::commands::lang_for(&ctx, "fun_coinflip_result_text", "The result is:").await

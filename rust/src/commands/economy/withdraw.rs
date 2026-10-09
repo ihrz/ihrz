@@ -14,7 +14,7 @@ pub async fn eco_withdraw(
         .map(|g| g.get().to_string())
         .unwrap_or_default();
     let uid = ctx.author().id.get();
-    let mut a = load_econ(&ctx.data().pool, &gid, uid).await;
+    let mut a = balance::load_econ_routed(&ctx.data().pool, &gid, uid).await;
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     // Mirrors !withdraw.ts: `toWithdraw === "all"` takes the bank, then
     // `isNaN(Number(...))` gates on not-integer, `parseInt(...) <= 0`
@@ -48,7 +48,7 @@ pub async fn eco_withdraw(
     // then posts the economy log.
     a.bank -= n;
     a.money += n;
-    save_econ(&ctx.data().pool, &gid, uid, &a).await?;
+    balance::save_econ_routed(&ctx.data().pool, &gid, uid, &a).await?;
     let author = user_mention(uid);
     let money = n.to_string();
     let coin = coin_markup(&ctx).await;

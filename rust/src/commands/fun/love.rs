@@ -14,12 +14,13 @@ pub async fn love(
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     ctx.say(
         crate::lang::get(&code, "love_embed_description")
-            .map(|s| {
-                s.replace("${user1.username}", &user1.tag())
-                    .replace("${user2.username}", &format!("<@{b}>"))
-                    .replace("${randomNumber}", &score.to_string())
+            .unwrap_or_else(|| {
+                "**${user1.username}** + **${user2.username}** = __${randomNumber}%__ of love 💗"
+                    .to_string()
             })
-            .unwrap_or_else(|| format!("Love between {} and <@{b}>: {score}%", user1.tag())),
+            .replace("${user1.username}", &user1.tag())
+            .replace("${user2.username}", &format!("<@{b}>"))
+            .replace("${randomNumber}", &score.to_string()),
     )
     .await?;
     Ok(())

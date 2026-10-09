@@ -45,7 +45,7 @@ pub async fn ticket_close(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         return Ok(());
     }
     let t = |k: &str| crate::lang::get(&lang_code, k).unwrap_or_default();
-    let entries = load_ticket_entries(pool, &gid).await;
+    let entries = delete::ticket_entries_routed(pool, &gid).await;
     let Some(author_id) = ticket_owner_id(&entries, &channel_id.get().to_string()) else {
         ctx.say(
             crate::lang::get(&lang_code, "close_command_error")

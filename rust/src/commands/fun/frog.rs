@@ -8,7 +8,7 @@ pub async fn frog(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         "https://api.animality.xyz/all/frog",
         "image",
         "frog_embed_title",
-        "frog",
+        "croak-croak 🐸",
     )
     .await
 }

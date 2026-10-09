@@ -9,7 +9,12 @@ use super::*;
 )]
 pub async fn ping(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let down_msg = crate::commands::lang_for(&ctx, "ping_down_msg", "**DOWN**").await;
-    let template = crate::commands::lang_for(&ctx, "ping_embed_desc", "Pong!").await;
+    let template = crate::commands::lang_for(
+        &ctx,
+        "ping_embed_desc",
+        "# Pong! ${interaction.client.user.username}'s Network Stats:\n\n**[Discord Website Ping]** >> `${_net03}` ms.\n**[Cloudflare Ping]** >> `${_net02}` ms.\n**[Google Ping]** >> `${_net01}` ms.\n\n${client.iHorizon_Emojis.Crown} **[iHorizon Website Ping]** >> `${_net04}` ms.\n${client.iHorizon_Emojis.Crown} **[Websocket Ping]** `${client.ws.ping}` ms.\n\n## ${client.iHorizon_Emojis.Pointer} **[Average]** >> (avg)`${averagePing}` ms.",
+    )
+    .await;
     let loading = ctx.say("...").await?;
     let ws_ms = ctx.ping().await.as_millis();
     let cfg = crate::monitor::PingConfig::default();

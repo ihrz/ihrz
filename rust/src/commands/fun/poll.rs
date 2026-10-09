@@ -20,13 +20,17 @@ pub async fn poll(
         .await?;
         return Ok(());
     }
-    ctx.say(
+    let title = crate::lang::get(&code, "poll_embed_title")
+        .unwrap_or_else(|| "__**Poll**__: `${interaction.user.username}`".to_string())
+        .replace("${interaction.user.username}", &ctx.author().name);
+    ctx.say(format!(
+        "{title}\n{}",
         opts.iter()
             .enumerate()
             .map(|(i, o)| format!("{}. {o}", i + 1))
             .collect::<Vec<_>>()
             .join("\n"),
-    )
+    ))
     .await?;
     Ok(())
 }

@@ -8,7 +8,7 @@ pub async fn fox(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         "https://api.animality.xyz/all/fox",
         "image",
         "fox_embed_title",
-        "fox",
+        "wa-pa-pa-pa-pa 🦊",
     )
     .await
 }

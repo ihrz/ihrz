@@ -3408,3 +3408,17 @@ msg_profil_birthday_invalid: "تاريخ ميلاد غير صالح: تحقق م
 msg_profil_birthday_saved: "تم حفظ تاريخ الميلاد."
 msg_profil_use_subcommand: "استخدم أمرًا فرعيًا: show أو set-age أو set-description أو set-gender أو set-pronoun أو set-birthday."
 msg_automod_toggled: "الإشراف التلقائي ${kind} ${state}."
+
+# Tier-3 replies (U-I6)
+owner_list_empty: "لا يوجد مالكو بوت."
+owner_blinfo_line: "${user} في القائمة السوداء: ${reason}"
+fun_caracteres_unknown_style: "نمط غير معروف `{style}`. المتاح: {styles}"
+fun_youtube_pending: "${display}: ${comment} (${likes} إعجاب، العرض قيد الانتظار)"
+fun_tweet_pending: "${display} ${handle}: ${comment} (${likes} إعجاب، ${retweets} إعادة نشر، ${replies} ردود، ${views} مشاهدة، العرض قيد الانتظار)"
+fun_bubbles_pending: "${file} (العرض قيد الانتظار لـ ${url})"
+invites_leaderboard_empty: "لا توجد دعوات."
+stats_compare_same_user: "قارن بين مستخدمين مختلفين."
+stats_compare_text: "${user1}: ${a_messages} رسالة/${a_voice}د مقابل ${user2}: ${b_messages} رسالة/${b_voice}د — الفائز ${winner}"
+stats_gstats_text: "الأعضاء المتتبعون: ${count} | الرسائل: ${messages} | الصوت: ${voice}د"
+stats_ustats_text: "الرسائل: ${messages} (اليوم ${d_msg} / الأسبوع ${w_msg} / الشهر ${m_msg}) | الصوت: ${voice}د (اليوم ${d_vc}د / الأسبوع ${w_vc}د / الشهر ${m_vc}د) | أهم القنوات: ${top_text} | أهم الصوت: ${top_vc}"
+stats_channel_single_text: "<#${channel}>: ${count} رسالة."

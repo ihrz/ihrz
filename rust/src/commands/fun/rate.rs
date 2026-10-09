@@ -18,7 +18,7 @@ pub async fn rate(
         crate::commands::lang_for(
             &ctx,
             "fun_rate_command_ok",
-            "I rate ${the_things} ${random}/10.",
+            "I rate **${the_things}** ${random}/10.",
         )
         .await
         .replace("${the_things}", &the_things)

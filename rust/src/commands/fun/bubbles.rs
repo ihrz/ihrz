@@ -15,11 +15,12 @@ pub async fn bubbles(
         return Ok(());
     }
     // GIF render (html2png bubbles template) pending; validation shape ported.
-    ctx.say(format!(
-        "{} (render pending for {})",
-        bubbles_output_name(),
-        image.url
-    ))
+    let file = bubbles_output_name();
+    ctx.say(
+        crate::lang::get(&code, "fun_bubbles_pending")
+            .map(|s| s.replace("${file}", file).replace("${url}", &image.url))
+            .unwrap_or_else(|| format!("{file} (render pending for {})", image.url)),
+    )
     .await?;
     Ok(())
 }

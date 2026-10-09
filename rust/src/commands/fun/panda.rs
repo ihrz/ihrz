@@ -8,7 +8,7 @@ pub async fn panda(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         "https://api.animality.xyz/all/panda",
         "image",
         "panda_embed_title",
-        "panda",
+        "Mwaa 🐼",
     )
     .await
 }

@@ -11,7 +11,7 @@ pub async fn inv_reset(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     if !crate::commands::prompt_reset_confirm(
         &ctx,
         "resetallinvites_warning_msg",
-        "Delete all invite data? This is irreversible.",
+        "**Are you really sure you want to delete all of the Invite Manager's data?\nThis action is permanent and you can't roll it back.**\n**This action is destructive!!**",
     )
     .await?
     {

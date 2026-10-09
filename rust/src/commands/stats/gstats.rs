@@ -13,12 +13,23 @@ pub async fn stats_guild(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         messages += s.messages;
         voice_ms += s.voice_ms;
     }
-    ctx.say(format!(
-        "Members tracked: {} | Messages: {} | Voice: {}m",
-        rows.len(),
-        messages,
-        voice_ms / 60_000
-    ))
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    ctx.say(
+        crate::lang::get(&code, "stats_gstats_text")
+            .map(|t| {
+                t.replace("${count}", &rows.len().to_string())
+                    .replace("${messages}", &messages.to_string())
+                    .replace("${voice}", &(voice_ms / 60_000).to_string())
+            })
+            .unwrap_or_else(|| {
+                format!(
+                    "Members tracked: {} | Messages: {} | Voice: {}m",
+                    rows.len(),
+                    messages,
+                    voice_ms / 60_000
+                )
+            }),
+    )
     .await?;
     Ok(())
 }

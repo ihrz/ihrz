@@ -26,7 +26,7 @@ pub async fn eco_pay(
         .unwrap_or_default();
     let from = ctx.author().id.get();
     let to = user.id.get();
-    let a = load_econ(&ctx.data().pool, &gid, from).await;
+    let a = balance::load_econ_routed(&ctx.data().pool, &gid, from).await;
     // TS: `if (amount && member < amount)` — falsy amounts (0) skip the
     // check and flow through to a no-op add/sub + success reply.
     if amount != 0.0 && (a.money as f64) < amount {
@@ -60,11 +60,11 @@ pub async fn eco_pay(
     )
     .await?;
     let mut a = a;
-    let mut b = load_econ(&ctx.data().pool, &gid, to).await;
+    let mut b = balance::load_econ_routed(&ctx.data().pool, &gid, to).await;
     add_money(&mut b, amount);
     add_money(&mut a, -amount);
-    save_econ(&ctx.data().pool, &gid, from, &a).await?;
-    save_econ(&ctx.data().pool, &gid, to, &b).await?;
+    balance::save_econ_routed(&ctx.data().pool, &gid, from, &a).await?;
+    balance::save_econ_routed(&ctx.data().pool, &gid, to, &b).await?;
     let author = user_mention(from);
     let target = user_mention(to);
     let amt = fmt_num(amount);

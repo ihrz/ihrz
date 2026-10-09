@@ -19,10 +19,14 @@ pub async fn inv_lb(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         .enumerate()
         .map(|(i, (uid, s))| format!("{}. <@{uid}> — {}", i + 1, s.invites))
         .collect();
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    let header = crate::lang::get(&code, "leaderboard_default_text")
+        .unwrap_or_else(|| "**__Leaderboard__**".to_string());
     ctx.say(if top.is_empty() {
-        "No invites.".to_string()
+        crate::lang::get(&code, "invites_leaderboard_empty")
+            .unwrap_or_else(|| "No invites.".to_string())
     } else {
-        top.join("\n")
+        format!("{header}\n{}", top.join("\n"))
     })
     .await?;
     Ok(())

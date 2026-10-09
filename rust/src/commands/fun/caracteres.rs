@@ -18,10 +18,12 @@ pub async fn caracteres(
             .await?;
         }
         None => {
-            ctx.say(format!(
-                "Unknown style `{style}`. Available: {}",
-                caracteres_styles().join(", ")
-            ))
+            let styles = caracteres_styles().join(", ");
+            ctx.say(
+                crate::lang::get(&code, "fun_caracteres_unknown_style")
+                    .map(|s| s.replace("{style}", &style).replace("{styles}", &styles))
+                    .unwrap_or_else(|| format!("Unknown style `{style}`. Available: {styles}")),
+            )
             .await?;
         }
     }

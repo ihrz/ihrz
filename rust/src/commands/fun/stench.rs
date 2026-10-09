@@ -16,7 +16,7 @@ pub async fn stench(
         &ctx,
         user,
         "fun_stench_command_ok",
-        "The user ${user} is **${random}%** stinky",
+        "The user ${user} is **${random}%** stinky 👃🛀",
     )
     .await
 }
