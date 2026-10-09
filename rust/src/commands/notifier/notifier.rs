@@ -52,6 +52,14 @@ pub fn newsletter_toggle(
 }
 
 async fn newsletter_map(pool: &crate::db::Pool) -> std::collections::HashMap<String, bool> {
+    let backend = crate::backends::Backend::sqlite(pool.clone());
+    let table = backend.table("0");
+    if let Ok(Some(map)) = table
+        .get::<std::collections::HashMap<String, bool>>(NEWSLETTER_BL_KEY)
+        .await
+    {
+        return map;
+    }
     crate::db::kv_get(pool, "0", NEWSLETTER_BL_KEY)
         .await
         .and_then(|s| serde_json::from_str(&s).ok())
@@ -80,7 +88,8 @@ pub async fn newsletter_set(
     } else {
         map.remove(owner_id);
     }
-    crate::db::kv_set(pool, "0", NEWSLETTER_BL_KEY, &serde_json::to_string(&map)?).await?;
+    let backend = crate::backends::Backend::sqlite(pool.clone());
+    backend.table("0").set(NEWSLETTER_BL_KEY, &map).await?;
     Ok(unsubscribed)
 }
 

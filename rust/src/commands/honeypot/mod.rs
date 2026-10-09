@@ -16,6 +16,37 @@ pub fn honeypot_key() -> &'static str {
     "GUILD.HONEYPOT"
 }
 
+/// Guild-table backend for D1 routing (keys unchanged).
+fn guild_backend(pool: &crate::db::Pool) -> crate::backends::Backend {
+    crate::backends::Backend::sqlite(pool.clone())
+}
+
+/// Table-routed raw read with legacy flat-row fallback: table JSON
+/// values stringify, plain strings pass through, legacy rows as-is.
+async fn load_honeypot_raw(pool: &crate::db::Pool, guild_id: &str) -> Option<String> {
+    let backend = guild_backend(pool);
+    let table = backend.table(guild_id);
+    if let Ok(Some(v)) = table.get::<serde_json::Value>(honeypot_key()).await {
+        return match v {
+            serde_json::Value::String(s) => Some(s),
+            other => Some(other.to_string()),
+        };
+    }
+    crate::db::kv_get(pool, guild_id, honeypot_key()).await
+}
+
+/// Table-routed write for the trap blob (keys unchanged).
+async fn save_honeypot(
+    pool: &crate::db::Pool,
+    guild_id: &str,
+    cfg: &serde_json::Value,
+) -> anyhow::Result<()> {
+    guild_backend(pool)
+        .table(guild_id)
+        .set(honeypot_key(), cfg)
+        .await
+}
+
 /// Lure claim handler: grace delay, then ban if still enabled.
 pub async fn handle_honeypot_claim(
     ctx: &serenity::Context,
@@ -26,7 +57,7 @@ pub async fn handle_honeypot_claim(
         return Ok(());
     };
     let gid = guild_id.get().to_string();
-    let enabled: bool = crate::db::kv_get(pool, &gid, honeypot_key())
+    let enabled: bool = load_honeypot_raw(pool, &gid)
         .await
         .and_then(|s| serde_json::from_str::<serde_json::Value>(&s).ok())
         .and_then(|v| v.get("enabled").and_then(|e| e.as_bool()))
@@ -163,7 +194,7 @@ pub async fn run_trap_pipeline(
 ) -> anyhow::Result<()> {
     let gid = guild_id.get().to_string();
     let msg = channel_id.message(http, msg_id).await?;
-    let trap = parse_trap_config(crate::db::kv_get(pool, &gid, honeypot_key()).await);
+    let trap = parse_trap_config(load_honeypot_raw(pool, &gid).await);
     if !trap.enabled
         || trap.channel_id.is_empty()
         || channel_id.get().to_string() != trap.channel_id
@@ -230,14 +261,14 @@ pub async fn run_trap_pipeline(
     let second = sweep_user_messages(http, guild_id, msg.author.id).await;
     let deleted = first + second;
     // 4. Persist lastTriggeredAt like the TS manager.
-    if let Some(raw) = crate::db::kv_get(pool, &gid, honeypot_key()).await {
+    if let Some(raw) = load_honeypot_raw(pool, &gid).await {
         if let Ok(mut v) = serde_json::from_str::<serde_json::Value>(&raw) {
             if let Some(obj) = v.as_object_mut() {
                 obj.insert(
                     "lastTriggeredAt".into(),
                     serde_json::json!(crate::commands::context::now_ms()),
                 );
-                let _ = crate::db::kv_set(pool, &gid, honeypot_key(), &v.to_string()).await;
+                let _ = save_honeypot(pool, &gid, &v).await;
             }
         }
     }
@@ -432,6 +463,54 @@ mod tests {
     #[test]
     fn key_shape() {
         assert_eq!(honeypot_key(), "GUILD.HONEYPOT");
+    }
+
+    async fn memory_pool() -> crate::db::Pool {
+        use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};
+        use std::str::FromStr;
+        let opts = SqliteConnectOptions::from_str("sqlite::memory:").unwrap();
+        let pool = SqlitePoolOptions::new()
+            .max_connections(1)
+            .connect_with(opts)
+            .await
+            .unwrap();
+        sqlx::query("CREATE TABLE kv (guild_id TEXT NOT NULL, key_name TEXT NOT NULL, value TEXT NOT NULL, PRIMARY KEY (guild_id, key_name))")
+            .execute(&pool)
+            .await
+            .unwrap();
+        pool
+    }
+
+    #[tokio::test]
+    async fn table_routing_with_legacy_fallback() {
+        let pool = memory_pool().await;
+        save_honeypot(
+            &pool,
+            "g1",
+            &serde_json::json!({"enabled": true, "channelId": "3"}),
+        )
+        .await
+        .unwrap();
+        let trap = parse_trap_config(load_honeypot_raw(&pool, "g1").await);
+        assert!(trap.enabled);
+        assert_eq!(trap.channel_id, "3");
+        // Table-routed rows live under `tbl:<gid>`, never as flat legacy rows.
+        let legacy: Option<String> = sqlx::query_scalar::<_, String>(
+            "SELECT value FROM kv WHERE guild_id = 'g1' AND key_name = 'GUILD.HONEYPOT'",
+        )
+        .fetch_optional(&pool)
+        .await
+        .unwrap();
+        assert_eq!(legacy, None);
+        // Legacy rows still read, table wins over legacy.
+        crate::db::kv_set(&pool, "g2", honeypot_key(), r#"{"enabled":true}"#)
+            .await
+            .unwrap();
+        assert!(parse_trap_config(load_honeypot_raw(&pool, "g2").await).enabled);
+        crate::db::kv_set(&pool, "g1", honeypot_key(), r#"{"enabled":false}"#)
+            .await
+            .unwrap();
+        assert!(parse_trap_config(load_honeypot_raw(&pool, "g1").await).enabled);
     }
 }
 

@@ -10,12 +10,7 @@ pub async fn backup_delete(
         .map(|g| g.get().to_string())
         .unwrap_or_default();
     // Existence gate first, like the data_2 check in !delete.ts:77.
-    let raw = crate::db::kv_get(
-        &ctx.data().pool,
-        &format!("{gid}-backups"),
-        &backup_key(backup_id.trim()),
-    )
-    .await;
+    let raw = super::backup::bkp_get(&ctx.data().pool, &gid, backup_id.trim()).await;
     if raw.is_none() {
         ctx.say(
             crate::commands::lang_for(
@@ -60,11 +55,7 @@ pub async fn backup_delete(
         .await?;
         return Ok(());
     }
-    sqlx::query("DELETE FROM kv WHERE guild_id = ? AND key_name = ?")
-        .bind(format!("{gid}-backups"))
-        .bind(backup_key(backup_id.trim()))
-        .execute(&ctx.data().pool)
-        .await?;
+    super::backup::bkp_del(&ctx.data().pool, &gid, backup_id.trim()).await?;
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let yes = crate::emojis::app_emoji_markup(ctx.http(), "Yes")
         .await

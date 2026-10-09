@@ -73,10 +73,33 @@ pub struct BoardEntry {
     pub author: String,
 }
 
+/// Guild-table backend for D1 routing (keys unchanged).
+fn guild_backend(pool: &crate::db::Pool) -> crate::backends::Backend {
+    crate::backends::Backend::sqlite(pool.clone())
+}
+
+/// Table-routed read with legacy flat-row fallback. Writers store under
+/// `tbl:<gid>`; legacy `(gid, key)` rows stay readable.
+async fn table_value_or_legacy(
+    pool: &crate::db::Pool,
+    guild_id: &str,
+    key: &str,
+) -> Option<serde_json::Value> {
+    let backend = guild_backend(pool);
+    let table = backend.table(guild_id);
+    if let Ok(Some(v)) = table.get::<serde_json::Value>(key).await {
+        return Some(v);
+    }
+    let s = crate::db::kv_get(pool, guild_id, key).await?;
+    serde_json::from_str(&s)
+        .ok()
+        .or(Some(serde_json::Value::String(s)))
+}
+
 pub async fn load_entries(pool: &crate::db::Pool, guild_id: &str, board: &str) -> Vec<BoardEntry> {
-    crate::db::kv_get(pool, guild_id, &board_data_key(board))
+    table_value_or_legacy(pool, guild_id, &board_data_key(board))
         .await
-        .and_then(|s| serde_json::from_str(&s).ok())
+        .and_then(|v| serde_json::from_value(v).ok())
         .unwrap_or_default()
 }
 
@@ -86,8 +109,10 @@ pub async fn save_entries(
     board: &str,
     entries: &[BoardEntry],
 ) {
-    let s = serde_json::to_string(entries).unwrap_or_else(|_| "[]".to_string());
-    let _ = crate::db::kv_set(pool, guild_id, &board_data_key(board), &s).await;
+    let _ = guild_backend(pool)
+        .table(guild_id)
+        .set(&board_data_key(board), entries)
+        .await;
 }
 
 /// Find the board entry for one source message. Mirrors the
@@ -125,8 +150,9 @@ pub fn board_emoji(board: &str) -> &'static str {
 }
 
 pub async fn load_board(pool: &crate::db::Pool, guild_id: &str, board: &str) -> BoardConfig {
-    let raw = crate::db::kv_get(pool, guild_id, &board_key(board)).await;
-    raw.and_then(|s| serde_json::from_str(&s).ok())
+    table_value_or_legacy(pool, guild_id, &board_key(board))
+        .await
+        .and_then(|v| serde_json::from_value(v).ok())
         .unwrap_or_default()
 }
 
@@ -136,8 +162,10 @@ pub async fn save_board(
     board: &str,
     cfg: &BoardConfig,
 ) -> anyhow::Result<()> {
-    let s = serde_json::to_string(cfg)?;
-    crate::db::kv_set(pool, guild_id, &board_key(board), &s).await
+    guild_backend(pool)
+        .table(guild_id)
+        .set(&board_key(board), cfg)
+        .await
 }
 
 macro_rules! board_subs {
@@ -316,6 +344,85 @@ mod tests {
         save_board(&pool, "g", "starboard", &cfg).await.unwrap();
         let re = load_board(&pool, "g", "starboard").await;
         assert_eq!(re.threshold, 10);
+    }
+
+    #[tokio::test]
+    async fn table_routing_with_legacy_fallback() {
+        use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};
+        use std::str::FromStr;
+        let opts = SqliteConnectOptions::from_str("sqlite::memory:").unwrap();
+        let pool = SqlitePoolOptions::new()
+            .max_connections(1)
+            .connect_with(opts)
+            .await
+            .unwrap();
+        sqlx::query("CREATE TABLE kv (guild_id TEXT NOT NULL, key_name TEXT NOT NULL, value TEXT NOT NULL, PRIMARY KEY (guild_id, key_name))")
+            .execute(&pool).await.unwrap();
+        let cfg = BoardConfig {
+            channel: "5".into(),
+            create_thread: false,
+            enabled: "yes".into(),
+            threshold: 4,
+        };
+        save_board(&pool, "g1", "starboard", &cfg).await.unwrap();
+        // Table-routed rows live under `tbl:<gid>`, never as flat legacy rows.
+        let legacy: Option<String> = sqlx::query_scalar::<_, String>(
+            "SELECT value FROM kv WHERE guild_id = 'g1' AND key_name = 'GUILD.STARBOARD'",
+        )
+        .fetch_optional(&pool)
+        .await
+        .unwrap();
+        assert_eq!(legacy, None);
+        let routed: String = sqlx::query_scalar::<_, String>(
+            "SELECT value FROM kv WHERE guild_id = 'tbl:g1' AND key_name = 'GUILD'",
+        )
+        .fetch_optional(&pool)
+        .await
+        .unwrap()
+        .unwrap();
+        assert!(routed.contains("STARBOARD"));
+        // Legacy rows still read, table wins over legacy.
+        crate::db::kv_set(
+            &pool,
+            "g2",
+            &board_key("starboard"),
+            r#"{"threshold":7,"enabled":"yes"}"#,
+        )
+        .await
+        .unwrap();
+        assert_eq!(load_board(&pool, "g2", "starboard").await.threshold, 7);
+        crate::db::kv_set(
+            &pool,
+            "g1",
+            &board_key("starboard"),
+            r#"{"threshold":9,"enabled":"yes"}"#,
+        )
+        .await
+        .unwrap();
+        assert_eq!(load_board(&pool, "g1", "starboard").await.threshold, 4);
+        // Entries round-trip with legacy fallback.
+        save_entries(
+            &pool,
+            "g1",
+            "starboard",
+            &[BoardEntry {
+                channel_id: "1".into(),
+                message_id: "2".into(),
+                number: "3".into(),
+                author: "4".into(),
+            }],
+        )
+        .await;
+        assert_eq!(load_entries(&pool, "g1", "starboard").await.len(), 1);
+        crate::db::kv_set(
+            &pool,
+            "g2",
+            &board_data_key("starboard"),
+            r#"[{"channelId":"1","messageId":"2","number":"3"}]"#,
+        )
+        .await
+        .unwrap();
+        assert_eq!(load_entries(&pool, "g2", "starboard").await.len(), 1);
     }
 }
 

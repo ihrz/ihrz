@@ -14,7 +14,7 @@ pub async fn profil_show(
     #[description = "The user you want to lookup"] user: Option<serenity::User>,
 ) -> Result<(), anyhow::Error> {
     let target = user.as_ref().unwrap_or_else(|| ctx.author());
-    let p = load_profil(&ctx.data().pool, target.id.get()).await;
+    let p = super::profil::load_profil_routed(&ctx.data().pool, target.id.get()).await;
     let gid = ctx
         .guild_id()
         .map(|g| g.get().to_string())

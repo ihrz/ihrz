@@ -146,13 +146,7 @@ pub async fn authrestore_set(
         channel_id: channel_id.get().to_string(),
         message_id: message_id.clone(),
     };
-    crate::db::kv_set(
-        &ctx.data().pool,
-        &guild_id,
-        "GUILD.RESTORECORD",
-        &serde_json::to_string(&record).unwrap_or_default(),
-    )
-    .await?;
+    super::authrestore::restore_record_set(&ctx.data().pool, &guild_id, &record).await?;
     let channel_str = channel_id.get().to_string();
     let msg_link = format!("https://discord.com/channels/{guild_id}/{channel_str}/{message_id}");
     ctx.send(

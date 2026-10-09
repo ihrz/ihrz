@@ -49,7 +49,17 @@ pub async fn m_play(
     .await;
     match m.play_query(gid, &title, requester, now_ms()).await {
         Ok((pos, t)) => {
-            record_history(&ctx.data().pool, gid, &title).await;
+            // Rich entry (mirrors musicPlay.ts buffer/embed rows:
+            // requester - resolved title | uri by requester).
+            let requester_tag = format!("<@{requester}>");
+            record_history_full(
+                &ctx.data().pool,
+                gid,
+                &t.title,
+                t.uri.as_deref(),
+                Some(&requester_tag),
+            )
+            .await;
             let timer = emoji_markup(&ctx, "Timer", "⏱️").await;
             let content = crate::lang::get(&code, "p_loading_message")
                 .map(|s| {

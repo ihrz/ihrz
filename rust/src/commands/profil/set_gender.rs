@@ -22,9 +22,9 @@ pub async fn profil_gender(
         return Ok(());
     }
     let user_id = ctx.author().id.get();
-    let mut p = load_profil(&ctx.data().pool, user_id).await;
+    let mut p = super::profil::load_profil_routed(&ctx.data().pool, user_id).await;
     p.gender = Some(gender.to_ascii_lowercase());
-    save_profil(&ctx.data().pool, user_id, &p).await?;
+    super::profil::save_profil_routed(&ctx.data().pool, user_id, &p).await?;
     ctx.send(
         poise::CreateReply::default()
             .content("Gender saved.")

@@ -1,5 +1,9 @@
 use super::*;
 
+/// Named table mirroring TS `prevnamesTable`. Scope "0" and
+/// `PREVNAMES.<uid>` keys are unchanged from the legacy kv layout.
+pub const PREVNAMES_TABLE: &str = "prevnames";
+
 /// Previous names. Mirrors utils !prevnames.ts (tracked in user_update).
 #[poise::command(
     slash_command,
@@ -13,9 +17,13 @@ pub async fn prevnames(
     #[description = "Member"] user: Option<poise::serenity_prelude::User>,
 ) -> Result<(), anyhow::Error> {
     let target = user.unwrap_or_else(|| ctx.author().clone());
-    let raw = crate::db::kv_get(
+    // Named `prevnames` table first, legacy kv fallback (the writer in
+    // events.rs still targets kv): scope "0", `PREVNAMES.<uid>` keys
+    // unchanged, fallback hits promoted lazily.
+    let raw = crate::commands::owner::main::routed_get(
         &ctx.data().pool,
-        "0",
+        PREVNAMES_TABLE,
+        crate::commands::owner::main::GLOBAL_SCOPE,
         &crate::events::prevnames_key(target.id.get()),
     )
     .await;
@@ -45,4 +53,51 @@ pub async fn prevnames(
         .description(history.join("\n"));
     ctx.send(poise::CreateReply::default().embed(embed)).await?;
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::PREVNAMES_TABLE;
+    use crate::commands::owner::main::{routed_get, GLOBAL_SCOPE};
+
+    async fn mem_pool() -> crate::db::Pool {
+        use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};
+        use std::str::FromStr;
+        let opts = SqliteConnectOptions::from_str("sqlite::memory:")
+            .unwrap()
+            .create_if_missing(true);
+        let pool = SqlitePoolOptions::new()
+            .max_connections(1)
+            .connect_with(opts)
+            .await
+            .unwrap();
+        sqlx::query(
+            "CREATE TABLE kv (guild_id TEXT NOT NULL, key_name TEXT NOT NULL, value TEXT NOT NULL, PRIMARY KEY (guild_id, key_name))",
+        )
+        .execute(&pool)
+        .await
+        .unwrap();
+        pool
+    }
+
+    #[test]
+    fn table_and_key_layout() {
+        assert_eq!(PREVNAMES_TABLE, "prevnames");
+        assert_eq!(crate::events::prevnames_key(5), "PREVNAMES.5");
+    }
+
+    #[tokio::test]
+    async fn routed_read_falls_back_to_kv_writer_and_promotes() {
+        let pool = mem_pool().await;
+        // events.rs writer shape: kv only, scope "0".
+        crate::db::kv_set(&pool, "0", "PREVNAMES.5", "[\"old\"]")
+            .await
+            .unwrap();
+        let raw = routed_get(&pool, PREVNAMES_TABLE, GLOBAL_SCOPE, "PREVNAMES.5").await;
+        assert_eq!(raw.as_deref(), Some("[\"old\"]"));
+        // Promoted: survives the legacy row's removal.
+        crate::db::kv_del(&pool, "0", "PREVNAMES.5").await.unwrap();
+        let raw = routed_get(&pool, PREVNAMES_TABLE, GLOBAL_SCOPE, "PREVNAMES.5").await;
+        assert_eq!(raw.as_deref(), Some("[\"old\"]"));
+    }
 }

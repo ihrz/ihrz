@@ -14,7 +14,7 @@ pub async fn security_give(
     let Some(gid) = guild_id_str(&ctx).await else {
         return Ok(());
     };
-    crate::db::kv_set(
+    save_security_string(
         &ctx.data().pool,
         &gid,
         "SECURITY.role",

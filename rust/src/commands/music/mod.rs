@@ -229,9 +229,8 @@ async fn record_history(pool: &crate::db::Pool, gid: u64, title: &str) {
     record_history_full(pool, gid, title, None, None).await;
 }
 
-/// Rich write path (requester + URI). The play command still calls
-/// `record_history` (title-only); wiring `QueuedTrack` fields through
-/// is a follow-up in `play.rs` (out of this unit's scope).
+/// Rich write path (requester + URI), fed by the play command with the
+/// resolved track fields (mirrors the musicPlay.ts buffer/embed rows).
 async fn record_history_full(
     pool: &crate::db::Pool,
     gid: u64,

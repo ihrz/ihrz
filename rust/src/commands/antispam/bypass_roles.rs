@@ -16,14 +16,11 @@ pub async fn as_bypass_roles(
         .map(|g| g.get().to_string())
         .unwrap_or_default();
     let key = "GUILD.ANTISPAM.BYPASS_ROLES";
-    let raw = crate::db::kv_get(&ctx.data().pool, &gid, key).await;
-    let mut list: Vec<String> = raw
-        .and_then(|s| serde_json::from_str(&s).ok())
-        .unwrap_or_default();
+    let mut list: Vec<String> = load_string_list(&ctx.data().pool, &gid, key).await;
     let id = role.id.get().to_string();
     if !list.contains(&id) {
         list.push(id);
-        crate::db::kv_set(&ctx.data().pool, &gid, key, &serde_json::to_string(&list)?).await?;
+        save_string_list(&ctx.data().pool, &gid, key, &list).await?;
     }
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     ctx.say(

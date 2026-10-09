@@ -16,7 +16,7 @@ pub async fn gw_get_data(
         .map(|g| g.get().to_string())
         .unwrap_or_default();
     let mid: u64 = message_id.trim().parse().unwrap_or(0);
-    let raw = crate::db::kv_get(&ctx.data().pool, &gid, &giveaway_key(mid)).await;
+    let raw = super::gw::store_get(&ctx.data().pool, &gid, mid).await;
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let t = |k: &str, fb: &str| crate::lang::get(&code, k).unwrap_or_else(|| fb.to_string());
     match raw.and_then(|r| serde_json::from_str::<Giveaway>(&r).ok()) {

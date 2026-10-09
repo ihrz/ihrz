@@ -778,14 +778,72 @@ mod trans_tests {
 /// Fun kill-switch check for the global gate.
 /// Mirrors the `GUILD.FUN.states === "off"` guards (!config.ts stores
 /// "on"/"off"; legacy "0" still counts as off).
+/// Table-routed read with legacy flat-row fallback (keys unchanged).
 pub async fn fun_enabled(pool: &crate::db::Pool, guild_id: Option<u64>) -> bool {
     let Some(gid) = guild_id else {
         return true;
     };
-    crate::db::kv_get(pool, &gid.to_string(), "GUILD.FUN.states")
+    let gid = gid.to_string();
+    let backend = crate::backends::Backend::sqlite(pool.clone());
+    let table = backend.table(&gid);
+    let raw: Option<String> = match table.get::<serde_json::Value>("GUILD.FUN.states").await {
+        Ok(Some(serde_json::Value::String(s))) => Some(s),
+        Ok(Some(other)) => Some(other.to_string()),
+        _ => crate::db::kv_get(pool, &gid, "GUILD.FUN.states").await,
+    };
+    raw.map(|v| v != "off" && v != "0").unwrap_or(true)
+}
+
+#[cfg(test)]
+mod fun_enabled_tests {
+    use super::*;
+
+    async fn memory_pool() -> crate::db::Pool {
+        use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};
+        use std::str::FromStr;
+        let opts = SqliteConnectOptions::from_str("sqlite::memory:").unwrap();
+        let pool = SqlitePoolOptions::new()
+            .max_connections(1)
+            .connect_with(opts)
+            .await
+            .unwrap();
+        sqlx::query("CREATE TABLE kv (guild_id TEXT NOT NULL, key_name TEXT NOT NULL, value TEXT NOT NULL, PRIMARY KEY (guild_id, key_name))")
+            .execute(&pool)
+            .await
+            .unwrap();
+        pool
+    }
+
+    #[tokio::test]
+    async fn table_routing_with_legacy_fallback() {
+        let pool = memory_pool().await;
+        // Default (no row): enabled.
+        assert!(fun_enabled(&pool, Some(1)).await);
+        assert!(fun_enabled(&pool, None).await);
+        // Table-routed write disables.
+        crate::backends::Backend::sqlite(pool.clone())
+            .table("1")
+            .set("GUILD.FUN.states", "0")
+            .await
+            .unwrap();
+        assert!(!fun_enabled(&pool, Some(1)).await);
+        let legacy: Option<String> = sqlx::query_scalar::<_, String>(
+            "SELECT value FROM kv WHERE guild_id = '1' AND key_name = 'GUILD.FUN.states'",
+        )
+        .fetch_optional(&pool)
         .await
-        .map(|v| v != "off" && v != "0")
-        .unwrap_or(true)
+        .unwrap();
+        assert_eq!(legacy, None);
+        // Legacy rows still read, table wins over legacy.
+        crate::db::kv_set(&pool, "2", "GUILD.FUN.states", "off")
+            .await
+            .unwrap();
+        assert!(!fun_enabled(&pool, Some(2)).await);
+        crate::db::kv_set(&pool, "1", "GUILD.FUN.states", "1")
+            .await
+            .unwrap();
+        assert!(!fun_enabled(&pool, Some(1)).await);
+    }
 }
 
 /// Random embed colour. Mirrors `.setColor("Random")`.

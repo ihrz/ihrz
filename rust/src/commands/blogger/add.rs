@@ -44,13 +44,7 @@ pub async fn blogger_add(
     });
     blogs.sort_by(|a, b| a.rss.cmp(&b.rss));
     blogs.dedup_by(|a, b| a.rss == b.rss && a.channel_id == b.channel_id);
-    crate::db::kv_set(
-        &ctx.data().pool,
-        &gid,
-        "BLOGGER.blogs",
-        &serde_json::to_string(&blogs)?,
-    )
-    .await?;
+    save_blogs(&ctx.data().pool, &gid, &blogs).await?;
     let feed_title = feed_title.unwrap_or_else(|| "Unknown".to_string());
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     ctx.say(

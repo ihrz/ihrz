@@ -15,18 +15,7 @@ pub async fn sticky_list(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         .unwrap_or_default();
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let t = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
-    let rows: Vec<(String, String)> = sqlx::query_as::<_, (String, String)>(
-        "SELECT key_name, value FROM kv WHERE guild_id = ? AND key_name LIKE 'STICKY.%'",
-    )
-    .bind(&gid)
-    .fetch_all(&ctx.data().pool)
-    .await
-    .unwrap_or_default();
-    let mut cfgs: Vec<StickyConfig> = rows
-        .iter()
-        .filter_map(|(_, v)| serde_json::from_str(v).ok())
-        .filter(|cfg: &StickyConfig| cfg.enabled)
-        .collect();
+    let mut cfgs: Vec<StickyConfig> = load_all_stickies(&ctx.data().pool, &gid).await;
     cfgs.sort_by(|a, b| a.channel_id.cmp(&b.channel_id));
     let desc = if cfgs.is_empty() {
         t("sticky_list_embed_desc_empty")

@@ -55,6 +55,49 @@ pub fn mcount_key(slot: &str) -> String {
     format!("GUILD.MCOUNT.{slot}")
 }
 
+/// Guild-table backend for D1 routing (keys unchanged).
+fn guild_backend(pool: &crate::db::Pool) -> crate::backends::Backend {
+    crate::backends::Backend::sqlite(pool.clone())
+}
+
+/// Table-routed write for one counter slot (keys unchanged).
+pub async fn save_mcount(
+    pool: &crate::db::Pool,
+    guild_id: &str,
+    slot: &str,
+    value: &str,
+) -> anyhow::Result<()> {
+    guild_backend(pool)
+        .table(guild_id)
+        .set(&mcount_key(slot), value)
+        .await
+}
+
+/// Table-routed raw read with legacy fallback (one counter slot).
+pub async fn load_mcount(pool: &crate::db::Pool, guild_id: &str, slot: &str) -> Option<String> {
+    let backend = guild_backend(pool);
+    let table = backend.table(guild_id);
+    if let Ok(Some(v)) = table.get::<serde_json::Value>(&mcount_key(slot)).await {
+        return match v {
+            serde_json::Value::String(s) => Some(s),
+            other => Some(other.to_string()),
+        };
+    }
+    crate::db::kv_get(pool, guild_id, &mcount_key(slot)).await
+}
+
+/// Disable path: clears the whole MCOUNT subtree from the guild table
+/// plus every legacy `GUILD.MCOUNT.%` row.
+pub async fn delete_all_mcount(pool: &crate::db::Pool, guild_id: &str) -> anyhow::Result<()> {
+    let backend = guild_backend(pool);
+    let _ = backend.table(guild_id).delete("GUILD.MCOUNT").await;
+    sqlx::query("DELETE FROM kv WHERE guild_id = ? AND key_name LIKE 'GUILD.MCOUNT.%'")
+        .bind(guild_id)
+        .execute(pool)
+        .await?;
+    Ok(())
+}
+
 pub fn render_name(template: &str, counts: &MemberCounts) -> String {
     template
         .replace("{MemberCount}", &counts.member.to_string())
@@ -150,6 +193,50 @@ mod tests {
         assert_eq!(mcount_slot("{BotCount}"), Some("bot"));
         assert_eq!(mcount_slot("no placeholder"), None);
         assert_eq!(mcount_key("member"), "GUILD.MCOUNT.member");
+    }
+
+    async fn memory_pool() -> crate::db::Pool {
+        use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};
+        use std::str::FromStr;
+        let opts = SqliteConnectOptions::from_str("sqlite::memory:").unwrap();
+        let pool = SqlitePoolOptions::new()
+            .max_connections(1)
+            .connect_with(opts)
+            .await
+            .unwrap();
+        sqlx::query("CREATE TABLE kv (guild_id TEXT NOT NULL, key_name TEXT NOT NULL, value TEXT NOT NULL, PRIMARY KEY (guild_id, key_name))")
+            .execute(&pool)
+            .await
+            .unwrap();
+        pool
+    }
+
+    #[tokio::test]
+    async fn table_routing_with_legacy_fallback() {
+        let pool = memory_pool().await;
+        save_mcount(&pool, "g1", "member", r#"{"enable":true}"#)
+            .await
+            .unwrap();
+        assert!(load_mcount(&pool, "g1", "member").await.is_some());
+        // Table-routed rows live under `tbl:<gid>`, never as flat legacy rows.
+        let legacy: Option<String> = sqlx::query_scalar::<_, String>(
+            "SELECT value FROM kv WHERE guild_id = 'g1' AND key_name = 'GUILD.MCOUNT.member'",
+        )
+        .fetch_optional(&pool)
+        .await
+        .unwrap();
+        assert_eq!(legacy, None);
+        // Legacy rows still read.
+        crate::db::kv_set(&pool, "g2", &mcount_key("bot"), r#"{"enable":true}"#)
+            .await
+            .unwrap();
+        assert!(load_mcount(&pool, "g2", "bot").await.is_some());
+        assert!(load_mcount(&pool, "g2", "member").await.is_none());
+        // Disable clears both stores.
+        delete_all_mcount(&pool, "g2").await.unwrap();
+        assert!(load_mcount(&pool, "g2", "bot").await.is_none());
+        delete_all_mcount(&pool, "g1").await.unwrap();
+        assert!(load_mcount(&pool, "g1", "member").await.is_none());
     }
 }
 

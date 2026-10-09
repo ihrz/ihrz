@@ -47,7 +47,7 @@ pub async fn sticky_disable(
             .delete_message(&ctx.http(), serenity::MessageId::new(last))
             .await;
     }
-    let _ = crate::db::kv_del(&ctx.data().pool, &gid, &sticky_key(channel.id.get())).await;
+    delete_sticky(&ctx.data().pool, &gid, channel.id.get()).await;
     ctx.say(fill(
         &t("sticky_disable_command_work"),
         &[

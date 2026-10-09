@@ -60,11 +60,68 @@ fn extract_feed_title(body: &str) -> Option<String> {
     }
 }
 
+pub const BLOGS_KEY: &str = "BLOGGER.blogs";
+
+/// Guild-table backend for D1 routing (keys unchanged).
+fn guild_backend(pool: &crate::db::Pool) -> crate::backends::Backend {
+    crate::backends::Backend::sqlite(pool.clone())
+}
+
+/// Table-routed read with legacy flat-row fallback. Writers store under
+/// `tbl:<gid>`; legacy `(gid, key)` rows stay readable.
+async fn table_value_or_legacy(
+    pool: &crate::db::Pool,
+    guild_id: &str,
+    key: &str,
+) -> Option<serde_json::Value> {
+    let backend = guild_backend(pool);
+    let table = backend.table(guild_id);
+    if let Ok(Some(v)) = table.get::<serde_json::Value>(key).await {
+        return Some(v);
+    }
+    let s = crate::db::kv_get(pool, guild_id, key).await?;
+    serde_json::from_str(&s)
+        .ok()
+        .or(Some(serde_json::Value::String(s)))
+}
+
 pub async fn load_blogs(pool: &crate::db::Pool, guild_id: &str) -> Vec<BlogEntry> {
-    crate::db::kv_get(pool, guild_id, "BLOGGER.blogs")
+    table_value_or_legacy(pool, guild_id, BLOGS_KEY)
         .await
-        .and_then(|s| serde_json::from_str(&s).ok())
+        .and_then(|v| serde_json::from_value(v).ok())
         .unwrap_or_default()
+}
+
+/// Table-routed write for the blog list (keys unchanged).
+pub async fn save_blogs(
+    pool: &crate::db::Pool,
+    guild_id: &str,
+    blogs: &[BlogEntry],
+) -> anyhow::Result<()> {
+    guild_backend(pool)
+        .table(guild_id)
+        .set(BLOGS_KEY, blogs)
+        .await
+}
+
+/// Table-routed plain-string read with legacy fallback (BLOGGER.enabled).
+pub async fn load_blog_string(pool: &crate::db::Pool, guild_id: &str, key: &str) -> Option<String> {
+    table_value_or_legacy(pool, guild_id, key)
+        .await
+        .map(|v| match v {
+            serde_json::Value::String(s) => s,
+            other => other.to_string(),
+        })
+}
+
+/// Table-routed plain-string write (keys unchanged).
+pub async fn save_blog_string(
+    pool: &crate::db::Pool,
+    guild_id: &str,
+    key: &str,
+    value: &str,
+) -> anyhow::Result<()> {
+    guild_backend(pool).table(guild_id).set(key, value).await
 }
 
 /// RSS item extraction. Latest <item> wins (rss-parser order).
@@ -109,6 +166,75 @@ pub fn already_notified(notified: &[(String, String)], blog_id: &str, article_id
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    async fn memory_pool() -> crate::db::Pool {
+        use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};
+        use std::str::FromStr;
+        let opts = SqliteConnectOptions::from_str("sqlite::memory:").unwrap();
+        let pool = SqlitePoolOptions::new()
+            .max_connections(1)
+            .connect_with(opts)
+            .await
+            .unwrap();
+        sqlx::query("CREATE TABLE kv (guild_id TEXT NOT NULL, key_name TEXT NOT NULL, value TEXT NOT NULL, PRIMARY KEY (guild_id, key_name))")
+            .execute(&pool)
+            .await
+            .unwrap();
+        pool
+    }
+
+    #[tokio::test]
+    async fn table_routing_with_legacy_fallback() {
+        let pool = memory_pool().await;
+        save_blogs(
+            &pool,
+            "g1",
+            &[BlogEntry {
+                id: "b1".into(),
+                rss: "http://x/rss".into(),
+                channel_id: "7".into(),
+            }],
+        )
+        .await
+        .unwrap();
+        assert_eq!(load_blogs(&pool, "g1").await.len(), 1);
+        let legacy: Option<String> = sqlx::query_scalar::<_, String>(
+            "SELECT value FROM kv WHERE guild_id = 'g1' AND key_name = 'BLOGGER.blogs'",
+        )
+        .fetch_optional(&pool)
+        .await
+        .unwrap();
+        assert_eq!(legacy, None);
+        // Legacy rows still read.
+        crate::db::kv_set(
+            &pool,
+            "g2",
+            BLOGS_KEY,
+            r#"[{"id":"b9","rss":"r","channelId":"1"}]"#,
+        )
+        .await
+        .unwrap();
+        assert_eq!(load_blogs(&pool, "g2").await.len(), 1);
+        // Plain-string keys round-trip with legacy fallback.
+        save_blog_string(&pool, "g1", "BLOGGER.enabled", "1")
+            .await
+            .unwrap();
+        assert_eq!(
+            load_blog_string(&pool, "g1", "BLOGGER.enabled")
+                .await
+                .as_deref(),
+            Some("1")
+        );
+        crate::db::kv_set(&pool, "g2", "BLOGGER.enabled", "0")
+            .await
+            .unwrap();
+        assert_eq!(
+            load_blog_string(&pool, "g2", "BLOGGER.enabled")
+                .await
+                .as_deref(),
+            Some("0")
+        );
+    }
 
     #[test]
     fn latest_item_parses() {

@@ -11,13 +11,11 @@ pub async fn gw_list(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
-    let rows: Vec<String> = sqlx::query_scalar::<_, String>(
-        "SELECT key_name FROM kv WHERE guild_id = ? AND key_name LIKE 'GIVEAWAY.%'",
-    )
-    .bind(&gid)
-    .fetch_all(&ctx.data().pool)
-    .await
-    .unwrap_or_default();
+    let rows: Vec<String> = super::gw::store_scan(&ctx.data().pool, &gid)
+        .await
+        .into_iter()
+        .map(|(k, _)| k)
+        .collect();
     ctx.say(if rows.is_empty() {
         "No giveaways.".to_string()
     } else {
@@ -40,13 +38,7 @@ pub async fn gw_get_all(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
-    let rows: Vec<(String, String)> = sqlx::query_as::<_, (String, String)>(
-        "SELECT key_name, value FROM kv WHERE guild_id = ? AND key_name LIKE 'GIVEAWAY.%'",
-    )
-    .bind(&gid)
-    .fetch_all(&ctx.data().pool)
-    .await
-    .unwrap_or_default();
+    let rows: Vec<(String, String)> = super::gw::store_scan(&ctx.data().pool, &gid).await;
     // Mirrors the embed in !get-all.ts:57-88 (title + one field per
     // live giveaway; empty store sends the bare titled embed).
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;

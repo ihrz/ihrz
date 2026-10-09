@@ -11,7 +11,7 @@ pub async fn authrestore_get(
     ctx: Ctx<'_>,
     #[description = "Private key of the AuthRestore config"] key: String,
 ) -> Result<(), anyhow::Error> {
-    let entries = load_authrestore_entries(&ctx.data().pool).await;
+    let entries = super::authrestore::load_authrestore_entries_routed(&ctx.data().pool).await;
     let Some((config_guild_id, data)) = find_guild_by_secret(&entries, &key) else {
         reply_missing_key(&ctx, &key).await?;
         return Ok(());
@@ -86,7 +86,7 @@ pub async fn authrestore_get(
         let _ = name;
         main = main.field(label, value, inline);
     }
-    let all_saved = load_saved_members(&ctx.data().pool).await;
+    let all_saved = super::authrestore::load_saved_members_routed(&ctx.data().pool).await;
     let members = saved_for_guild(&all_saved, &data.members);
     let members_title = t(&ctx, "rc_get_secondEmbed_title", "Stored user(s)").await;
     let footer_tpl = t(&ctx, "rc_get_secondEmbed_footer", "Page ${from} / ${to}").await;

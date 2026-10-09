@@ -108,7 +108,7 @@ pub async fn helpall(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         }
         options.push(
             serenity::CreateSelectMenuOption::new(cat.clone(), key.clone())
-                .description(format!("{} Commands", items.len())),
+                .description(super::help::help_option_desc(&code, items.len())),
         );
         if first_embeds.is_empty() {
             first_embeds = helpall_pages(cat, items, &prefix, &desc_tpl, &footer);

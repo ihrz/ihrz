@@ -6,13 +6,11 @@ pub async fn backup_list(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
-    let rows: Vec<String> = sqlx::query_scalar::<_, String>(
-        "SELECT key_name FROM kv WHERE guild_id = ? AND key_name LIKE 'BACKUP.%'",
-    )
-    .bind(format!("{gid}-backups"))
-    .fetch_all(&ctx.data().pool)
-    .await
-    .unwrap_or_default();
+    let rows: Vec<String> = super::backup::bkp_scan(&ctx.data().pool, &gid)
+        .await
+        .into_iter()
+        .map(|(k, _)| k)
+        .collect();
     // Mirrors the generateEmbed description switch in !list.ts:114
     // (all_of_your_backup vs backup_doesnt_exist).
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;

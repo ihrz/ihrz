@@ -17,7 +17,7 @@ pub async fn gw_reroll(
         .map(|g| g.get().to_string())
         .unwrap_or_default();
     let mid: u64 = message_id.trim().parse().unwrap_or(0);
-    let raw = crate::db::kv_get(&ctx.data().pool, &gid, &giveaway_key(mid)).await;
+    let raw = super::gw::store_get(&ctx.data().pool, &gid, mid).await;
     let code_early = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let t_early = |k: &str| crate::lang::get(&code_early, k).unwrap_or_default();
     let Some(raw) = raw else {
@@ -60,7 +60,7 @@ pub async fn gw_reroll(
         seed,
     );
     let winners_now = gw.winners.clone();
-    let _ = crate::db::kv_set(pool, &gid, &giveaway_key(mid), &serde_json::to_string(&gw)?).await;
+    let _ = super::gw::store_set(pool, &gid, mid, &serde_json::to_string(&gw)?).await;
     let http = &ctx.serenity_context().http;
     let Ok(channel) = gw.channel_id.parse::<u64>() else {
         return Ok(());
@@ -68,7 +68,7 @@ pub async fn gw_reroll(
     let channel = serenity::ChannelId::new(channel);
     let Ok(message) = channel.message(http, serenity::MessageId::new(mid)).await else {
         // Board message gone: drop the row like the TS fetch catch.
-        let _ = crate::db::kv_del(pool, &gid, &giveaway_key(mid)).await;
+        let _ = super::gw::store_del(pool, &gid, mid).await;
         return Ok(());
     };
     let (ended, time2) = stamp_pair(gw.expire_in_ms);

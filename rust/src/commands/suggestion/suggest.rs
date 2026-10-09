@@ -21,8 +21,8 @@ async fn set_status(
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
-    let raw = crate::db::kv_get(&ctx.data().pool, &gid, &suggestion_key(code.trim())).await;
-    let Some(raw) = raw else {
+    let raw = load_suggestion(&ctx.data().pool, &gid, code).await;
+    let Some(mut s) = raw else {
         let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
         ctx.say(
             crate::lang::get(&code, "suggest_delete_not_found_db")
@@ -31,7 +31,6 @@ async fn set_status(
         .await?;
         return Ok(());
     };
-    let mut s: Suggestion = serde_json::from_str(&raw).unwrap_or_default();
     s.status = status.to_string();
     if let Ok(thread_id) = s.thread_id.parse::<u64>() {
         if thread_id != 0 {
@@ -46,13 +45,7 @@ async fn set_status(
                 .await;
         }
     }
-    crate::db::kv_set(
-        &ctx.data().pool,
-        &gid,
-        &suggestion_key(code.trim()),
-        &serde_json::to_string(&s)?,
-    )
-    .await?;
+    save_suggestion(&ctx.data().pool, &gid, code, &s).await?;
     ctx.say(format!(
         "Suggestion {code} {status}.{}",
         reply.map(|r| format!(" Reply: {r}")).unwrap_or_default()
@@ -115,11 +108,7 @@ pub async fn suggest_delete(
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
-    sqlx::query("DELETE FROM kv WHERE guild_id = ? AND key_name = ?")
-        .bind(&gid)
-        .bind(suggestion_key(code.trim()))
-        .execute(&ctx.data().pool)
-        .await?;
+    delete_suggestion(&ctx.data().pool, &gid, &code).await?;
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     ctx.say(
         crate::lang::get(&code, "suggest_delete_command_work")

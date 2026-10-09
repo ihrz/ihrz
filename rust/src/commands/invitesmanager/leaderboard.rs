@@ -11,25 +11,7 @@ pub async fn inv_lb(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
-    let rows: Vec<(String, String)> = sqlx::query_as::<_, (String, String)>(
-        "SELECT key_name, value FROM kv WHERE guild_id = ? AND key_name LIKE 'USER.%.INVITES'",
-    )
-    .bind(&gid)
-    .fetch_all(&ctx.data().pool)
-    .await
-    .unwrap_or_default();
-    let mut parsed: Vec<(u64, InviteStats)> = rows
-        .iter()
-        .filter_map(|(k, v)| {
-            let id = k
-                .strip_prefix("USER.")?
-                .strip_suffix(".INVITES")?
-                .parse()
-                .ok()?;
-            let s: InviteStats = serde_json::from_str(v).ok()?;
-            Some((id, s))
-        })
-        .collect();
+    let mut parsed: Vec<(u64, InviteStats)> = load_all_invites(&ctx.data().pool, &gid).await;
     parsed = sort_leaderboard(parsed);
     let page = crate::executor::paginate(&parsed, 1, 15);
     let top: Vec<String> = page

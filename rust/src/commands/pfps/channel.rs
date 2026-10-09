@@ -16,7 +16,7 @@ pub async fn pfps_channel(
     let Some(gid) = ctx.guild_id().map(|g| g.get().to_string()) else {
         return Ok(());
     };
-    crate::db::kv_set(
+    save_pfps_string(
         &ctx.data().pool,
         &gid,
         "PFPS.channel",

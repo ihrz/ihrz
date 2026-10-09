@@ -17,13 +17,10 @@ pub async fn fun_config(
         .map(|g| g.get().to_string())
         .unwrap_or_default();
     let enabled = matches!(action.to_ascii_lowercase().as_str(), "on" | "power on");
-    crate::db::kv_set(
-        &ctx.data().pool,
-        &gid,
-        "GUILD.FUN.states",
-        if enabled { "1" } else { "0" },
-    )
-    .await?;
+    crate::backends::Backend::sqlite(ctx.data().pool.clone())
+        .table(&gid)
+        .set("GUILD.FUN.states", if enabled { "1" } else { "0" })
+        .await?;
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let action_type = crate::lang::get(
         &code,

@@ -22,7 +22,7 @@ pub async fn pfps_config(
         return Ok(());
     };
     let flag = if enabled { "0" } else { "1" };
-    crate::db::kv_set(&ctx.data().pool, &gid, "PFPS.disable", flag).await?;
+    save_pfps_string(&ctx.data().pool, &gid, "PFPS.disable", flag).await?;
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let key = if enabled {
         "pfps_config_command_action_on"

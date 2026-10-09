@@ -15,7 +15,7 @@ pub async fn blogger_status(
         .map(|g| g.get().to_string())
         .unwrap_or_default();
     let enabled = matches!(action.to_ascii_lowercase().as_str(), "on" | "power on");
-    crate::db::kv_set(
+    save_blog_string(
         &ctx.data().pool,
         &gid,
         "BLOGGER.enabled",

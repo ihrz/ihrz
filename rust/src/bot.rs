@@ -7,11 +7,22 @@ use crate::{commands, config::Config, db::Pool};
 use poise::serenity_prelude as serenity;
 use std::sync::Arc;
 
+/// Prefix arg UX (required-count, longString tail merge,
+/// attachment-required gate, caret usage-error embed). Declared here via
+/// path attribute so the port stays within this file's scope: pure
+/// policy in prefix_args.rs, Discord hooks below.
+#[path = "prefix_args.rs"]
+pub mod prefix_args;
+
 pub struct Data {
     pub pool: Pool,
     pub config: Arc<Config>,
     pub cooldowns: std::sync::Mutex<crate::executor::Cooldowns>,
     pub rate_limits: std::sync::Mutex<crate::executor::RateLimits>,
+    /// Command file log. Mirrors the SafeJSONLogger shared by the TS
+    /// message + slash handlers; the prefix leg logs here (pre-command
+    /// hook), the slash leg in events_handler::log_slash_command.
+    pub slashlog: Arc<crate::slashlog::SlashLog>,
 }
 
 /// Current unix millis. Mirrors Date.now() in the executor guards.
@@ -293,6 +304,47 @@ pub async fn report_command_error(err: poise::FrameworkError<'_, Data, anyhow::E
         _ => {}
     }
 }
+/// Pre-command hook: prefix file-log gate. Mirrors loggerX.addCommand
+/// in messageCommandHandler.ts (channel, full content, executor,
+/// guild, timestamp, channel id). Slash invocations are already logged
+/// by the interactionCreate leg (events_handler::log_slash_command),
+/// so only the prefix path logs here; logging both would double-log
+/// slash. Gate verdicts need no hook: poise runs command_check
+/// (global_check: blacklist, 1s debounce, rate limits) on both the
+/// prefix and slash dispatch paths, and per-command cooldowns via
+/// check_permissions_and_cooldown on both as well.
+fn pre_command_hook(ctx: poise::Context<'_, Data, anyhow::Error>) -> poise::BoxFuture<'_, ()> {
+    Box::pin(async move {
+        let poise::Context::Prefix(p) = ctx else {
+            return;
+        };
+        let Some(guild_id) = p.msg.guild_id else {
+            return;
+        };
+        let cache = &p.serenity_context.cache;
+        let guild_name = cache
+            .guild(guild_id)
+            .map(|g| g.name.clone())
+            .unwrap_or_else(|| guild_id.get().to_string());
+        let channel_name = cache
+            .guild(guild_id)
+            .and_then(|g| g.channels.get(&p.msg.channel_id).map(|c| c.name.clone()))
+            .unwrap_or_else(|| "unknown".to_string());
+        p.data
+            .slashlog
+            .log(crate::slashlog::ParsedSavedCommand {
+                guild_name,
+                guild_id: Some(guild_id.get().to_string()),
+                executor_username: p.msg.author.name.clone(),
+                timestamp: now_ms(),
+                channel_name,
+                channel_id: p.msg.channel_id.get().to_string(),
+                command: p.msg.content.trim().to_string(),
+            })
+            .await;
+    })
+}
+
 /// Per-guild prefix with global default. Mirrors TS
 /// defaultMessageCommandsPrefix + GUILD.PREFIX override.
 fn dynamic_prefix(
@@ -419,11 +471,16 @@ pub async fn run(cfg: Config, pool: Pool) -> anyhow::Result<()> {
     let cfg = Arc::new(cfg);
     let pool_fw = pool.clone();
     let cfg_fw = cfg.clone();
+    // SlashLog shared with the pre-command prefix file-log gate; the
+    // event handler keeps its own clone for the slash leg.
+    let slashlog = crate::slashlog::SlashLog::new(crate::slashlog::SlashLog::default_path());
+    let slashlog_fw = slashlog.clone();
 
     let framework = poise::Framework::builder()
         .options(poise::FrameworkOptions {
             commands: commands::all(),
             command_check: Some(global_check),
+            pre_command: pre_command_hook,
             on_error: |err| {
                 Box::pin(async move {
                     tracing::warn!("command error: {err}");
@@ -509,6 +566,7 @@ pub async fn run(cfg: Config, pool: Pool) -> anyhow::Result<()> {
                     config: cfg_fw.clone(),
                     cooldowns: std::sync::Mutex::new(crate::executor::Cooldowns::default()),
                     rate_limits: std::sync::Mutex::new(crate::executor::RateLimits::default()),
+                    slashlog: slashlog_fw.clone(),
                 })
             })
         })
@@ -528,7 +586,8 @@ pub async fn run(cfg: Config, pool: Pool) -> anyhow::Result<()> {
     // with a no-op ticker.
     cache_settings.time_to_live = std::time::Duration::from_secs(60 * 60 * 8);
     // Slash-command file log (mirrors loggerX in slashCommandLogger.ts).
-    let slashlog = crate::slashlog::SlashLog::new(crate::slashlog::SlashLog::default_path());
+    // Created at the top of run() and shared with Data for the prefix
+    // leg; the shutdown flush below drains both legs' entries.
     // Mirrors the SIGINT/SIGTERM flush in slashCommandLogger.ts.
     {
         let logs = slashlog.clone();

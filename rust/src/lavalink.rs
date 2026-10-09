@@ -31,7 +31,8 @@ use std::sync::{Arc, OnceLock};
 use std::time::{Duration, Instant};
 
 use lava_rs::events::{
-    EventDispatcher, LavalinkEvent, TrackEndEvent, TrackEndReason, TrackEvent, TrackStartEvent,
+    EventDispatcher, LavalinkEvent, TrackEndEvent, TrackEndReason, TrackEvent, TrackExceptionEvent,
+    TrackStartEvent, TrackStuckEvent,
 };
 use lava_rs::model::{Track, VoiceState};
 use lava_rs::rest::{LoadResult, Player as RestPlayer, UpdatePlayerPayload};
@@ -304,6 +305,62 @@ pub enum AdvanceOutcome {
     Kept,
 }
 
+/// Fallback re-search source for a failed track (mirrors the two
+/// `player.node.search` branches in the TS `trackError` handler:
+/// `scsearch` for broken playback, `deezer` for login-gated videos).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum FallbackSource {
+    SoundCloud,
+    Deezer,
+}
+
+/// TS branch selector: which exception messages get a fallback
+/// re-search (`"Something broke when playing the track."` ->
+/// SoundCloud, `"This video requires login."` -> Deezer). Anything
+/// else returns None (skip to next, log only).
+pub fn fallback_source_for(exception_message: &str) -> Option<FallbackSource> {
+    match exception_message {
+        "Something broke when playing the track." => Some(FallbackSource::SoundCloud),
+        "This video requires login." => Some(FallbackSource::Deezer),
+        _ => None,
+    }
+}
+
+/// Fallback re-search identifier for `title - author` on the given
+/// source (mirrors the TS `query` + `source` search args).
+pub fn fallback_identifier(source: FallbackSource, title: &str, author: &str) -> String {
+    let q = format!("{title} - {author}");
+    match source {
+        FallbackSource::SoundCloud => format!("scsearch:{q}"),
+        FallbackSource::Deezer => format!("dzsearch:{q}"),
+    }
+}
+
+/// Outcome of a trackError/trackStuck recovery step.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum ErrorRecovery {
+    /// Fallback re-search hit: the replacement is now current.
+    Requeued { title: String },
+    /// Failed track dropped, next queued track started.
+    Advanced,
+    /// Failed track dropped, queue drained (TS onEmptyQueue path).
+    Idle,
+    /// No player state for the guild (nothing to recover).
+    NoPlayer,
+}
+
+/// Flatten a load result to its playable tracks (first-track and
+/// playlist legs mirror `play_query`; empty/error legs are dropped
+/// here — the caller falls through to the skip path).
+fn load_tracks_flat(loaded: LoadResult) -> Vec<Track> {
+    match loaded {
+        LoadResult::Track(t) => vec![t],
+        LoadResult::Playlist(data) => data.tracks,
+        LoadResult::Search(v) => v.into_iter().take(1).collect(),
+        LoadResult::Empty | LoadResult::Error(_) => vec![],
+    }
+}
+
 /// Outcome of feeding one raw Lavalink node WS text frame.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum FedWs {
@@ -311,6 +368,8 @@ pub enum FedWs {
     Session(String),
     Started,
     Ended,
+    ErrorHandled,
+    StuckHandled,
     Ignored,
 }
 
@@ -493,6 +552,22 @@ impl LavalinkManager {
         self.dispatcher.lock().await.on_track_end(handler);
     }
 
+    pub async fn on_track_exception<F, Fut>(&self, handler: F)
+    where
+        F: Fn(TrackExceptionEvent) -> Fut + Send + Sync + 'static,
+        Fut: std::future::Future<Output = ()> + Send,
+    {
+        self.dispatcher.lock().await.on_track_exception(handler);
+    }
+
+    pub async fn on_track_stuck<F, Fut>(&self, handler: F)
+    where
+        F: Fn(TrackStuckEvent) -> Fut + Send + Sync + 'static,
+        Fut: std::future::Future<Output = ()> + Send,
+    {
+        self.dispatcher.lock().await.on_track_stuck(handler);
+    }
+
     /// Incoming WS TrackStart: refresh current from the node payload and
     /// fan out to registered callbacks (mirrors playerManager trackStart).
     pub async fn handle_track_start(&self, ev: TrackStartEvent) {
@@ -540,6 +615,188 @@ impl LavalinkManager {
             let _ = self.rest_play(&node, &session, gid, &encoded, false).await;
         }
         self.dispatcher.lock().await.dispatch_track_end(ev).await;
+    }
+
+    // ---- trackError recovery (mirrors playerManager.ts trackError) ----
+
+    /// Incoming WS TrackException: log the owner-visible diagnostics,
+    /// try the TS fallback re-search branches, else skip to the next
+    /// queued track (or idle). The live re-search + requeue legs are
+    /// best-effort: with no live node/session the state still advances
+    /// so the offline path stays unit-testable.
+    pub async fn handle_track_exception(
+        &self,
+        ev: TrackExceptionEvent,
+        now_ms: i64,
+    ) -> ErrorRecovery {
+        let gid = match ev.guild_id.parse::<u64>() {
+            Ok(g) => g,
+            Err(_) => return ErrorRecovery::NoPlayer,
+        };
+        let failed = match self.snapshot(gid).await.and_then(|s| s.current) {
+            Some(t) => t,
+            None => return ErrorRecovery::NoPlayer,
+        };
+        let report = Self::track_error_report(
+            &ev,
+            Some(failed.requester),
+            self.node_for_guild_hint(&ev.guild_id).await.as_deref(),
+        );
+        tracing::error!("lavalink trackError: {report}");
+        if let Some(source) = fallback_source_for(&ev.exception.message) {
+            let query = fallback_identifier(source, &failed.title, &failed.author);
+            if let Ok((node, session)) = self.live_node_and_session(gid).await {
+                match self.rest_load(&node, &query).await {
+                    Ok(loaded) => {
+                        let mut tracks = load_tracks_flat(loaded);
+                        if !tracks.is_empty() {
+                            let requester = failed.requester;
+                            let first = QueuedTrack::from((&tracks.remove(0), requester));
+                            let title = first.title.clone();
+                            let encoded = first.encoded.clone();
+                            self.with_player(gid, |p| {
+                                p.current = Some(first);
+                                for t in tracks.drain(..) {
+                                    p.queue.push_back(QueuedTrack::from((&t, requester)));
+                                }
+                                p.idle_since_ms = None;
+                            })
+                            .await;
+                            let _ = self.rest_play(&node, &session, gid, &encoded, false).await;
+                            self.dispatcher
+                                .lock()
+                                .await
+                                .dispatch_track_exception(ev)
+                                .await;
+                            return ErrorRecovery::Requeued { title };
+                        }
+                    }
+                    Err(e) => {
+                        tracing::warn!("lavalink trackError fallback search failed: {e}");
+                    }
+                }
+            }
+        }
+        let outcome = self.skip_to_next(gid, now_ms).await;
+        self.dispatcher
+            .lock()
+            .await
+            .dispatch_track_exception(ev)
+            .await;
+        outcome
+    }
+
+    /// Incoming WS TrackStuck: the TS side has no stuck branch, so this
+    /// skips the wedged track (state always advances) and logs the
+    /// owner-visible diagnostics, mirroring the trackError log leg.
+    pub async fn handle_track_stuck(&self, ev: TrackStuckEvent, now_ms: i64) -> ErrorRecovery {
+        let report = format!(
+            "trackStuck guild={} threshold_ms={} track={} - {} uri={} encoded={}",
+            ev.guild_id,
+            ev.threshold_ms,
+            ev.track.info.title,
+            ev.track.info.author,
+            ev.track.info.uri.as_deref().unwrap_or("-"),
+            ev.track.encoded,
+        );
+        tracing::error!("lavalink trackStuck: {report}");
+        let gid = match ev.guild_id.parse::<u64>() {
+            Ok(g) => g,
+            Err(_) => return ErrorRecovery::NoPlayer,
+        };
+        if self.snapshot(gid).await.is_none() {
+            return ErrorRecovery::NoPlayer;
+        }
+        let outcome = self.skip_to_next(gid, now_ms).await;
+        self.dispatcher.lock().await.dispatch_track_stuck(ev).await;
+        outcome
+    }
+
+    /// Pop the failed/wedged current track and start the next queued
+    /// one (live rest_play is best-effort; offline only state moves).
+    async fn skip_to_next(&self, guild_id: u64, now_ms: i64) -> ErrorRecovery {
+        let advanced: Option<bool> = {
+            let mut players = self.players.lock().await;
+            match players.get_mut(&guild_id) {
+                Some(p) => {
+                    p.skip(now_ms);
+                    Some(p.current.is_some())
+                }
+                None => None,
+            }
+        };
+        match advanced {
+            None => ErrorRecovery::NoPlayer,
+            Some(false) => ErrorRecovery::Idle,
+            Some(true) => {
+                let encoded = self
+                    .snapshot(guild_id)
+                    .await
+                    .and_then(|s| s.current.map(|t| t.encoded));
+                match encoded {
+                    Some(e) => {
+                        if let Ok((node, session)) = self.live_node_and_session(guild_id).await {
+                            let _ = self.rest_play(&node, &session, guild_id, &e, false).await;
+                        }
+                        ErrorRecovery::Advanced
+                    }
+                    None => ErrorRecovery::Idle,
+                }
+            }
+        }
+    }
+
+    /// Best-effort node hint for the diagnostics report (id/host/port/
+    /// secure of the guild-affine node, if any). Never fails.
+    async fn node_for_guild_hint(&self, guild_id: &str) -> Option<String> {
+        let gid = guild_id.parse::<u64>().ok()?;
+        let node = self.node_for(gid).await?;
+        Some(format!(
+            "{} {}:{} secure={}",
+            node.id,
+            node.lava_cfg.host,
+            node.lava_cfg.port,
+            if node.secure { "yes" } else { "no" },
+        ))
+    }
+
+    /// Owner-visible diagnostics line for a failed track (mirrors the
+    /// TS `trackError` error_log fields available offline: guild,
+    /// requester, title/author/uri/encoded, source, exception message,
+    /// node hint). Live-only client stats (WS ping/status, heartbeat)
+    /// have no Rust equivalent yet and are omitted.
+    pub fn track_error_report(
+        ev: &TrackExceptionEvent,
+        requester: Option<u64>,
+        node_hint: Option<&str>,
+    ) -> String {
+        format!(
+            "trackError guild={} requester={} track={} - {} uri={} encoded={} source={} error={} node={}",
+            ev.guild_id,
+            requester
+                .map(|r| format!("<@{r}>"))
+                .unwrap_or_else(|| "-".to_string()),
+            ev.track.info.title,
+            ev.track.info.author,
+            ev.track.info.uri.as_deref().unwrap_or("-"),
+            ev.track.encoded,
+            ev.track.info.source_name,
+            ev.exception.message,
+            node_hint.unwrap_or("-"),
+        )
+    }
+
+    /// Post the trackError diagnostics line to the guild's stored text
+    /// channel (owner-visible leg of the TS error-channel send; the
+    /// full report stays in the tracing log for the dedicated
+    /// error-channel wiring).
+    pub async fn announce_track_error(&self, http: &serenity::Http, guild_id: u64, detail: &str) {
+        let snap = self.snapshot(guild_id).await;
+        let Some(s) = snap else { return };
+        let Some(ch) = s.text_channel else { return };
+        let _ = serenity::ChannelId::new(ch)
+            .say(http, format!("Track error skipped: {detail}"))
+            .await;
     }
 
     // ---- voice handshake (mirrors raw.ts) ----
@@ -603,8 +860,10 @@ impl LavalinkManager {
 
     /// Feed one raw Lavalink node WS text frame: `ready` stores the
     /// session (feeds `set_session`, previously unwired);
-    /// track start/end reuse the state handlers + dispatcher fan-out.
-    /// Stats/playerUpdate/exception/stuck/closed frames are ignored.
+    /// track start/end reuse the state handlers + dispatcher fan-out;
+    /// exception/stuck run the trackError recovery (fallback re-search,
+    /// then requeue, else skip) with the owner-visible log leg.
+    /// Stats/playerUpdate/closed frames are ignored.
     pub async fn feed_node_ws(&self, node_id: &str, text: &str, now_ms: i64) -> FedWs {
         if let Some(ready) = ReadyPayload::parse(text) {
             self.set_session(node_id, ready.session_id.clone()).await;
@@ -619,6 +878,14 @@ impl LavalinkManager {
                 TrackEvent::TrackEndEvent(e) => {
                     self.handle_track_end(e, now_ms).await;
                     FedWs::Ended
+                }
+                TrackEvent::TrackExceptionEvent(e) => {
+                    self.handle_track_exception(e, now_ms).await;
+                    FedWs::ErrorHandled
+                }
+                TrackEvent::TrackStuckEvent(e) => {
+                    self.handle_track_stuck(e, now_ms).await;
+                    FedWs::StuckHandled
                 }
                 _ => FedWs::Ignored,
             },
@@ -1447,6 +1714,208 @@ mod tests {
         assert_eq!(out, FedWs::Started);
         let snap = m.snapshot(7).await.unwrap();
         assert_eq!(snap.current.as_ref().unwrap().title, "hello");
+    }
+
+    fn track_value(title: &str) -> serde_json::Value {
+        serde_json::json!({
+            "encoded": format!("enc-{title}"),
+            "info": {
+                "identifier": "id",
+                "isSeekable": true,
+                "author": "artist",
+                "length": 180000,
+                "isStream": false,
+                "position": 0,
+                "title": title,
+                "uri": format!("https://example.test/{title}"),
+                "sourceName": "youtube"
+            }
+        })
+    }
+
+    fn exception_frame(guild: &str, title: &str, message: &str) -> String {
+        serde_json::json!({
+            "op": "event",
+            "type": "TrackExceptionEvent",
+            "guildId": guild,
+            "track": track_value(title),
+            "exception": {
+                "message": message,
+                "severity": "common",
+                "cause": "test"
+            }
+        })
+        .to_string()
+    }
+
+    fn stuck_frame(guild: &str, title: &str) -> String {
+        serde_json::json!({
+            "op": "event",
+            "type": "TrackStuckEvent",
+            "guildId": guild,
+            "track": track_value(title),
+            "thresholdMs": 10_000
+        })
+        .to_string()
+    }
+
+    fn parse_exception(text: &str) -> TrackExceptionEvent {
+        match LavalinkEvent::parse(text) {
+            Some(LavalinkEvent::Event(ev)) => match *ev {
+                TrackEvent::TrackExceptionEvent(e) => e,
+                _ => panic!("expected TrackExceptionEvent"),
+            },
+            _ => panic!("exception frame did not parse"),
+        }
+    }
+
+    fn parse_stuck(text: &str) -> TrackStuckEvent {
+        match LavalinkEvent::parse(text) {
+            Some(LavalinkEvent::Event(ev)) => match *ev {
+                TrackEvent::TrackStuckEvent(e) => e,
+                _ => panic!("expected TrackStuckEvent"),
+            },
+            _ => panic!("stuck frame did not parse"),
+        }
+    }
+
+    #[test]
+    fn fallback_source_mirrors_ts_branches() {
+        assert_eq!(
+            fallback_source_for("Something broke when playing the track."),
+            Some(FallbackSource::SoundCloud)
+        );
+        assert_eq!(
+            fallback_source_for("This video requires login."),
+            Some(FallbackSource::Deezer)
+        );
+        assert_eq!(fallback_source_for("boom"), None);
+        assert_eq!(
+            fallback_identifier(FallbackSource::SoundCloud, "Song", "Band"),
+            "scsearch:Song - Band"
+        );
+        assert_eq!(
+            fallback_identifier(FallbackSource::Deezer, "Song", "Band"),
+            "dzsearch:Song - Band"
+        );
+    }
+
+    #[test]
+    fn track_error_report_carries_ts_fields() {
+        let ev = parse_exception(&exception_frame("7", "hello", "boom"));
+        let report = LavalinkManager::track_error_report(&ev, Some(42), Some("n1 h:1 secure=no"));
+        for want in [
+            "trackError",
+            "guild=7",
+            "<@42>",
+            "hello - artist",
+            "https://example.test/hello",
+            "enc-hello",
+            "youtube",
+            "boom",
+            "n1 h:1 secure=no",
+        ] {
+            assert!(report.contains(want), "report missing {want}: {report}");
+        }
+        let bare = LavalinkManager::track_error_report(&ev, None, None);
+        assert!(bare.contains("requester=-"));
+        assert!(bare.contains("node=-"));
+    }
+
+    #[tokio::test]
+    async fn exception_without_player_is_noop() {
+        let m = LavalinkManager::new();
+        let ev = parse_exception(&exception_frame("21", "ghost", "boom"));
+        assert_eq!(
+            m.handle_track_exception(ev, 100).await,
+            ErrorRecovery::NoPlayer
+        );
+        let stuck = parse_stuck(&stuck_frame("21", "ghost"));
+        assert_eq!(
+            m.handle_track_stuck(stuck, 100).await,
+            ErrorRecovery::NoPlayer
+        );
+    }
+
+    #[tokio::test]
+    async fn exception_skips_failed_track_offline() {
+        let m = LavalinkManager::new();
+        m.with_player(22, |p| {
+            p.enqueue(sample_track("a"), 0);
+            p.enqueue(sample_track("b"), 0);
+        })
+        .await;
+        // Fallback-branch message, but with no live node the re-search
+        // leg is skipped and state still advances past the failure.
+        let ev = parse_exception(&exception_frame(
+            "22",
+            "a",
+            "Something broke when playing the track.",
+        ));
+        assert_eq!(
+            m.handle_track_exception(ev, 100).await,
+            ErrorRecovery::Advanced
+        );
+        let snap = m.snapshot(22).await.unwrap();
+        assert_eq!(snap.current.as_ref().unwrap().title, "b");
+    }
+
+    #[tokio::test]
+    async fn exception_on_last_track_idles() {
+        let m = LavalinkManager::new();
+        m.with_player(23, |p| {
+            p.enqueue(sample_track("solo"), 0);
+        })
+        .await;
+        let ev = parse_exception(&exception_frame("23", "solo", "other failure"));
+        assert_eq!(m.handle_track_exception(ev, 100).await, ErrorRecovery::Idle);
+        let snap = m.snapshot(23).await.unwrap();
+        assert!(snap.current.is_none());
+    }
+
+    #[tokio::test]
+    async fn stuck_skips_wedged_track() {
+        let m = LavalinkManager::new();
+        m.with_player(24, |p| {
+            p.enqueue(sample_track("a"), 0);
+            p.enqueue(sample_track("b"), 0);
+        })
+        .await;
+        let stuck = parse_stuck(&stuck_frame("24", "a"));
+        assert_eq!(
+            m.handle_track_stuck(stuck, 100).await,
+            ErrorRecovery::Advanced
+        );
+        let snap = m.snapshot(24).await.unwrap();
+        assert_eq!(snap.current.as_ref().unwrap().title, "b");
+    }
+
+    #[tokio::test]
+    async fn feed_routes_exception_and_stuck() {
+        let m = LavalinkManager::new();
+        m.sync_nodes(&[test_node_cfg()], 9).await;
+        m.with_player(25, |p| {
+            p.enqueue(sample_track("a"), 0);
+            p.enqueue(sample_track("b"), 0);
+        })
+        .await;
+        let out = m
+            .feed_node_ws("n1", &exception_frame("25", "a", "boom"), 100)
+            .await;
+        assert_eq!(out, FedWs::ErrorHandled);
+        assert_eq!(
+            m.snapshot(25)
+                .await
+                .unwrap()
+                .current
+                .as_ref()
+                .unwrap()
+                .title,
+            "b"
+        );
+        let out = m.feed_node_ws("n1", &stuck_frame("25", "b"), 200).await;
+        assert_eq!(out, FedWs::StuckHandled);
+        assert!(m.snapshot(25).await.unwrap().current.is_none());
     }
 
     #[tokio::test]

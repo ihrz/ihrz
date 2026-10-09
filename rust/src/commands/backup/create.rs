@@ -67,13 +67,7 @@ pub async fn backup_create(
         data,
     };
     let stored = serde_json::to_string(&infos).unwrap_or_default();
-    crate::db::kv_set(
-        &ctx.data().pool,
-        &format!("{gid}-backups"),
-        &backup_key(&id),
-        &stored,
-    )
-    .await?;
+    super::backup::bkp_set(&ctx.data().pool, &gid, &id, &stored).await?;
     ctx.say(
         crate::commands::lang_for(
             &ctx,

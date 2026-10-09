@@ -14,7 +14,7 @@ pub async fn authrestore_force_join(
     let Some(guild_id) = ctx.guild_id().map(|g| g.get().to_string()) else {
         return Ok(());
     };
-    let entries = load_authrestore_entries(&ctx.data().pool).await;
+    let entries = super::authrestore::load_authrestore_entries_routed(&ctx.data().pool).await;
     let Some((config_guild_id, data)) = find_guild_by_secret(&entries, &key) else {
         reply_missing_key(&ctx, &key).await?;
         return Ok(());

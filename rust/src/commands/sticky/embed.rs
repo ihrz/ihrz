@@ -59,13 +59,7 @@ pub async fn sticky_embed(
         last_message_id: previous.and_then(|p| p.last_message_id),
         enabled: true,
     };
-    crate::db::kv_set(
-        &ctx.data().pool,
-        &gid,
-        &sticky_key(channel.id.get()),
-        &serde_json::to_string(&cfg)?,
-    )
-    .await?;
+    save_sticky(&ctx.data().pool, &gid, &cfg).await?;
     if let Some(guild_id) = ctx.guild_id() {
         let sctx = ctx.serenity_context();
         refresh_queued(

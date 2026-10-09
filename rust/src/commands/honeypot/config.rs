@@ -18,7 +18,7 @@ pub async fn honeypot_config(
         "enabled": enabled,
         "channelId": channel.map(|c| c.id.get().to_string()).unwrap_or_default(),
     });
-    crate::db::kv_set(&ctx.data().pool, &gid, honeypot_key(), &cfg.to_string()).await?;
+    save_honeypot(&ctx.data().pool, &gid, &cfg).await?;
     ctx.say(if enabled {
         "Honeypot on."
     } else {

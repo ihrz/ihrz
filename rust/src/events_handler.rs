@@ -126,6 +126,80 @@ pub fn restore_slot_release(running: &mut HashSet<String>, guild_id: &str) {
     running.remove(guild_id);
 }
 
+/// Delay before a left guild's data is wiped. Mirrors
+/// GUILD_DELETE_DELAY in Events/client/deleteDatabaseDataOnGuildLeave.ts.
+pub const GUILD_WIPE_DELAY_MS: i64 = 10 * 60 * 60 * 1000;
+
+/// Global wipe-queue key. Mirrors GUILD_DELETE_QUEUE_KEY (a single
+/// global row, hence the "0" scope like other global keys).
+pub const GUILD_DELETE_QUEUE_KEY: &str = "GUILD_DELETE_QUEUE_KEY";
+/// Scope holding the global wipe queue (mirrors the single-key TS store).
+pub const GUILD_WIPE_QUEUE_SCOPE: &str = "0";
+
+/// Pending deferred guild-data wipe. Mirrors PendingGuildDeletion
+/// in Events/client/deleteDatabaseDataOnGuildLeave.ts (camelCase
+/// wire shape kept for fidelity).
+#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+pub struct PendingGuildDeletion {
+    #[serde(rename = "guildId")]
+    pub guild_id: String,
+    #[serde(rename = "guildName")]
+    pub guild_name: String,
+    #[serde(rename = "ownerId")]
+    pub owner_id: String,
+    #[serde(rename = "deleteAt")]
+    pub delete_at: i64,
+}
+
+/// Enqueue (or refresh) a deferred wipe for a left guild. Returns
+/// the wipe deadline. Pure predicate backing guild_delete,
+/// unit-tested below (no Discord needed).
+pub fn wipe_queue_enqueue(
+    queue: &mut HashMap<String, PendingGuildDeletion>,
+    guild_id: &str,
+    guild_name: &str,
+    owner_id: &str,
+    now_ms: i64,
+) -> i64 {
+    let delete_at = now_ms.saturating_add(GUILD_WIPE_DELAY_MS);
+    queue.insert(
+        guild_id.to_string(),
+        PendingGuildDeletion {
+            guild_id: guild_id.to_string(),
+            guild_name: guild_name.to_string(),
+            owner_id: owner_id.to_string(),
+            delete_at,
+        },
+    );
+    delete_at
+}
+
+/// Cancel a pending wipe on rejoin. True when an entry existed.
+/// Pure predicate backing guild_create (mirrors
+/// cancelPendingGuildDataDeletion), unit-tested below.
+pub fn wipe_queue_cancel(
+    queue: &mut HashMap<String, PendingGuildDeletion>,
+    guild_id: &str,
+) -> bool {
+    queue.remove(guild_id).is_some()
+}
+
+/// Guilds whose wipe is due: deadline passed and the bot is still
+/// absent (mirrors clearGuildData's cache guard that skips guilds
+/// back in cache). Pure predicate backing the wipe-queue sweep and
+/// the ready recovery, unit-tested below.
+pub fn wipe_queue_due(
+    queue: &HashMap<String, PendingGuildDeletion>,
+    now_ms: i64,
+    present: &HashSet<String>,
+) -> Vec<String> {
+    queue
+        .iter()
+        .filter(|(gid, p)| now_ms >= p.delete_at && !present.contains(*gid))
+        .map(|(gid, _)| gid.clone())
+        .collect()
+}
+
 impl Handler {
     pub fn new(pool: Pool, slashlog: Arc<crate::slashlog::SlashLog>) -> Self {
         Self {
@@ -1186,7 +1260,16 @@ impl serenity::EventHandler for Handler {
     ) {
         // Mirrors client/guildCreate.ts.
         let gid = guild.id.get().to_string();
-        // Cancel a pending deferred wipe from a previous leave.
+        // Cancel a pending deferred wipe from a previous leave (mirrors
+        // cancelPendingGuildDataDeletion in deleteDatabaseDataOnGuildLeave.ts).
+        {
+            let mut queue = crate::scheduler::load_wipe_queue(&self.pool).await;
+            if wipe_queue_cancel(&mut queue, &gid) {
+                crate::scheduler::save_wipe_queue(&self.pool, &queue).await;
+                tracing::info!("guildCreate {} cancelled pending wipe", gid);
+            }
+        }
+        // Drop the legacy immediate flag (migration from the old design).
         let _ = crate::db::kv_del(&self.pool, &gid, "GUILD_DELETE_QUEUED").await;
         // Auto-locale default (setLangByRegion).
         if crate::db::kv_get(&self.pool, &gid, "GUILD.LANG")
@@ -1436,15 +1519,27 @@ impl serenity::EventHandler for Handler {
         &self,
         _ctx: serenity::Context,
         incomplete: serenity::UnavailableGuild,
-        _full: Option<serenity::Guild>,
+        full: Option<serenity::Guild>,
     ) {
-        // Mirrors deleteDatabaseDataOnGuildLeave.ts: deferred wipe. We flag
-        // the guild for GC instead of deleting inline (shard race safety).
+        // Mirrors deleteDatabaseDataOnGuildLeave.ts: enqueue a 10h
+        // cancellable wipe instead of deleting inline (shard race safety).
         let gid = incomplete.id.get().to_string();
-        let _ = crate::db::kv_set(&self.pool, &gid, "GUILD_DELETE_QUEUED", "1").await;
+        let now = crate::commands::context::now_ms();
+        let mut queue = crate::scheduler::load_wipe_queue(&self.pool).await;
+        // The unavailable payload only carries the id; name/owner are
+        // best effort from the full guild when Discord provides it.
+        let name = full.as_ref().map(|g| g.name.clone()).unwrap_or_default();
+        let owner = full
+            .as_ref()
+            .map(|g| g.owner_id.get().to_string())
+            .unwrap_or_default();
+        let delete_at = wipe_queue_enqueue(&mut queue, &gid, &name, &owner, now);
+        crate::scheduler::save_wipe_queue(&self.pool, &queue).await;
+        // Drop the legacy immediate flag (migration from the old design).
+        let _ = crate::db::kv_del(&self.pool, &gid, "GUILD_DELETE_QUEUED").await;
         // Mirrors invitemanager/onGuildLeave.ts: drop the invite cache.
         self.invites.lock().await.remove(&gid);
-        tracing::info!("guildDelete {} queued for GC", gid);
+        tracing::info!("guildDelete {} queued, wipe at {}", gid, delete_at);
     }
 
     async fn guild_member_addition(&self, ctx: serenity::Context, new_member: serenity::Member) {
@@ -4494,5 +4589,51 @@ mod restore_tests {
             &["u1".to_string(), "u2".to_string()]
         );
         assert!(crate::commands::protection::backup::role_members(&b, "unknown").is_empty());
+    }
+
+    #[test]
+    fn wipe_queue_enqueue_sets_ten_hour_deadline() {
+        let mut q = HashMap::new();
+        let delete_at = wipe_queue_enqueue(&mut q, "g1", "Guild", "o1", 1_000);
+        assert_eq!(delete_at, 1_000 + GUILD_WIPE_DELAY_MS);
+        assert_eq!(q["g1"].delete_at, delete_at);
+        assert_eq!(q["g1"].guild_name, "Guild");
+        // A second leave refreshes the deadline instead of duplicating.
+        let later = wipe_queue_enqueue(&mut q, "g1", "Guild", "o1", 2_000);
+        assert_eq!(later, 2_000 + GUILD_WIPE_DELAY_MS);
+        assert_eq!(q.len(), 1);
+    }
+
+    #[test]
+    fn wipe_queue_cancel_removes_pending_only() {
+        let mut q = HashMap::new();
+        wipe_queue_enqueue(&mut q, "g1", "Guild", "o1", 0);
+        wipe_queue_enqueue(&mut q, "g2", "Other", "o2", 0);
+        assert!(wipe_queue_cancel(&mut q, "g1"));
+        // Cancelling twice reports nothing left to cancel.
+        assert!(!wipe_queue_cancel(&mut q, "g1"));
+        // Other guilds are unaffected.
+        assert!(q.contains_key("g2"));
+        assert!(!wipe_queue_cancel(&mut q, "missing"));
+    }
+
+    #[test]
+    fn wipe_queue_due_fires_only_when_expired_and_absent() {
+        let mut q = HashMap::new();
+        wipe_queue_enqueue(&mut q, "gone", "Gone", "o1", 0);
+        wipe_queue_enqueue(&mut q, "fresh", "Fresh", "o2", 0);
+        wipe_queue_enqueue(&mut q, "back", "Back", "o3", 0);
+        let deadline = GUILD_WIPE_DELAY_MS;
+        // Before the deadline nothing is due (ready recovery keeps all).
+        let empty = HashSet::new();
+        assert!(wipe_queue_due(&q, deadline - 1, &empty).is_empty());
+        // At the deadline the absent guild is due...
+        let mut due = wipe_queue_due(&q, deadline, &HashSet::from(["back".to_string()]));
+        due.sort();
+        assert_eq!(due, vec!["fresh".to_string(), "gone".to_string()]);
+        // ...but a rejoined guild present in cache is spared.
+        let present: HashSet<String> =
+            HashSet::from(["back".to_string(), "fresh".to_string(), "gone".to_string()]);
+        assert!(wipe_queue_due(&q, deadline, &present).is_empty());
     }
 }

@@ -11,7 +11,13 @@ pub async fn authrestore_delete(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id().map(|g| g.get().to_string()) else {
         return Ok(());
     };
-    let stored = crate::db::kv_get(&ctx.data().pool, &guild_id, "GUILD.RESTORECORD").await;
+    let stored = crate::commands::owner::main::routed_get(
+        &ctx.data().pool,
+        super::authrestore::AUTHRESTORE_TABLE,
+        &guild_id,
+        super::authrestore::RESTORE_RECORD_KEY,
+    )
+    .await;
     let Some(raw) = stored else {
         ctx.say(
             t(
@@ -104,7 +110,7 @@ pub async fn authrestore_delete(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         .await?;
         return Ok(());
     }
-    crate::db::kv_del(&ctx.data().pool, &guild_id, "GUILD.RESTORECORD").await?;
+    super::authrestore::restore_record_del(&ctx.data().pool, &guild_id).await?;
     ctx.send(
         poise::CreateReply::default()
             .content(

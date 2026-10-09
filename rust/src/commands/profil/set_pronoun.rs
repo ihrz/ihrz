@@ -22,9 +22,9 @@ pub async fn profil_pronoun(
         return Ok(());
     }
     let user_id = ctx.author().id.get();
-    let mut p = load_profil(&ctx.data().pool, user_id).await;
+    let mut p = super::profil::load_profil_routed(&ctx.data().pool, user_id).await;
     p.pronoun = Some(pronoun.to_ascii_lowercase().replace('-', "/"));
-    save_profil(&ctx.data().pool, user_id, &p).await?;
+    super::profil::save_profil_routed(&ctx.data().pool, user_id, &p).await?;
     ctx.send(
         poise::CreateReply::default()
             .content("Pronoun saved.")

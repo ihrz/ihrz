@@ -28,10 +28,7 @@ pub async fn membercount(
     let pool = &ctx.data().pool;
 
     if !enabled {
-        sqlx::query("DELETE FROM kv WHERE guild_id = ? AND key_name LIKE 'GUILD.MCOUNT.%'")
-            .bind(&gid)
-            .execute(pool)
-            .await?;
+        delete_all_mcount(pool, &gid).await?;
         let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
         let yes = crate::emojis::app_emoji_markup(&ctx.serenity_context().http, "Yes")
             .await
@@ -60,7 +57,7 @@ pub async fn membercount(
         "channel": channel.id.get().to_string(),
     })
     .to_string();
-    crate::db::kv_set(pool, &gid, &mcount_key(slot), &value).await?;
+    save_mcount(pool, &gid, slot, &value).await?;
 
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let yes = crate::emojis::app_emoji_markup(&ctx.serenity_context().http, "Yes")

@@ -15,7 +15,7 @@ pub async fn gw_entries(
         .map(|g| g.get().to_string())
         .unwrap_or_default();
     let mid: u64 = message_id.trim().parse().unwrap_or(0);
-    let raw = crate::db::kv_get(&ctx.data().pool, &gid, &giveaway_key(mid)).await;
+    let raw = super::gw::store_get(&ctx.data().pool, &gid, mid).await;
     let code_early = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let t_early = |k: &str| crate::lang::get(&code_early, k).unwrap_or_default();
     let Some(raw) = raw else {

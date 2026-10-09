@@ -51,12 +51,7 @@ pub async fn backup_load(
         .await?;
         return Ok(());
     }
-    let raw = crate::db::kv_get(
-        &ctx.data().pool,
-        &format!("{gid}-backups"),
-        &backup_key(backup_id.trim()),
-    )
-    .await;
+    let raw = super::backup::bkp_get(&ctx.data().pool, &gid, backup_id.trim()).await;
     let Some(raw) = raw else {
         let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
         ctx.say(

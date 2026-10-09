@@ -14,7 +14,7 @@ pub async fn notifier_message(
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
-    crate::db::kv_set(&ctx.data().pool, &gid, "NOTIFIER.message", template.trim()).await?;
+    save_notifier_string(&ctx.data().pool, &gid, "NOTIFIER.message", template.trim()).await?;
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let tick = crate::emojis::app_emoji_markup(ctx.http(), "GreenTick")
         .await

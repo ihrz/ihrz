@@ -11,6 +11,8 @@
 // Twitch/YouTube/Kick live APIs (see Blocked in MIGRATION.md).
 
 use crate::db::Pool;
+use crate::events_handler::{wipe_queue_due, PendingGuildDeletion, GUILD_DELETE_QUEUE_KEY};
+use std::collections::{HashMap, HashSet};
 use std::time::Duration;
 
 pub const SCHEDULE_SWEEP_SECS: u64 = 60;
@@ -21,6 +23,10 @@ pub const GIVEAWAY_SECS: u64 = 60;
 pub const NOTIFIER_SECS: u64 = 120;
 pub const PROTECTION_BACKUP_SECS: u64 = 60;
 pub const IDLE_SWEEP_SECS: u64 = 60;
+/// Wipe-queue sweep interval. Poll-based instead of the TS
+/// per-guild timers so pending wipes survive restarts; the first
+/// tick after boot is the ready recovery.
+pub const WIPE_QUEUE_SWEEP_SECS: u64 = 60;
 
 /// Delete expired SCHEDULE.* entries across all guilds.
 /// Returns number of rows removed.
@@ -639,6 +645,77 @@ pub async fn sweep_protection_backup(
     done
 }
 
+/// Load the global deferred-wipe queue. Missing or malformed rows
+/// read as empty (best effort, never panic).
+pub async fn load_wipe_queue(pool: &Pool) -> HashMap<String, PendingGuildDeletion> {
+    match crate::db::kv_get(
+        pool,
+        crate::events_handler::GUILD_WIPE_QUEUE_SCOPE,
+        GUILD_DELETE_QUEUE_KEY,
+    )
+    .await
+    {
+        Some(raw) => serde_json::from_str(&raw).unwrap_or_default(),
+        None => HashMap::new(),
+    }
+}
+
+/// Persist the global deferred-wipe queue (best effort).
+pub async fn save_wipe_queue(pool: &Pool, queue: &HashMap<String, PendingGuildDeletion>) {
+    let raw = serde_json::to_string(queue).unwrap_or_else(|_| "{}".to_string());
+    if let Err(e) = crate::db::kv_set(
+        pool,
+        crate::events_handler::GUILD_WIPE_QUEUE_SCOPE,
+        GUILD_DELETE_QUEUE_KEY,
+        &raw,
+    )
+    .await
+    {
+        tracing::warn!("scheduler: wipe queue save failed: {e}");
+    }
+}
+
+/// Delete one guild's rows. Mirrors client.db.delete(guildId) in
+/// clearGuildData (kv rows plus the Rust-side lang row).
+async fn wipe_guild_data(pool: &Pool, guild_id: &str) {
+    let _ = sqlx::query("DELETE FROM kv WHERE guild_id = ?")
+        .bind(guild_id)
+        .execute(pool)
+        .await;
+    let _ = sqlx::query("DELETE FROM guild_lang WHERE guild_id = ?")
+        .bind(guild_id)
+        .execute(pool)
+        .await;
+}
+
+/// Sweep due deferred guild wipes. Loads the global wipe queue,
+/// wipes guilds past their deadline (skipping guilds in `present`,
+/// which mirrors clearGuildData's cache guard for rejoined guilds),
+/// and persists the remainder. Returns guilds wiped. The timer tick
+/// passes an empty `present` set; the first tick after boot doubles
+/// as the ready recovery (mirrors
+/// recoverPendingGuildDataDeletions).
+pub async fn sweep_guild_wipe_queue(pool: &Pool, now_ms: i64, present: &HashSet<String>) -> u64 {
+    let mut queue = load_wipe_queue(pool).await;
+    if queue.is_empty() {
+        return 0;
+    }
+    let due = wipe_queue_due(&queue, now_ms, present);
+    if due.is_empty() {
+        return 0;
+    }
+    for gid in &due {
+        wipe_guild_data(pool, gid).await;
+        queue.remove(gid);
+    }
+    save_wipe_queue(pool, &queue).await;
+    let n = due.len() as u64;
+    if n > 0 {
+        tracing::info!("scheduler: wiped {n} left guilds");
+    }
+    n
+}
+
 /// Idle player sweep. Mirrors onEmptyQueue.destroyAfterMs (120s) +
 /// queueEnd in playerManager.ts: players idle past the window get
 /// their node player REST-destroyed, an OP4 leave on the serving
@@ -839,6 +916,31 @@ pub fn spawn(pool: Pool, http: std::sync::Arc<poise::serenity_prelude::Http>) {
         });
     }
 
+    // Deferred guild-wipe queue (real, mirrors the 10h cancellable
+    // deletion in deleteDatabaseDataOnGuildLeave.ts). Poll-based so
+    // pending wipes survive restarts; the first tick after boot is
+    // the ready recovery (mirrors
+    // recoverPendingGuildDataDeletions). No cache access here, so
+    // the tick passes an empty present set; rejoin safety comes
+    // from the guild_create cancel.
+    {
+        let pool = pool.clone();
+        tokio::spawn(async move {
+            let mut t = tokio::time::interval(Duration::from_secs(WIPE_QUEUE_SWEEP_SECS));
+            loop {
+                t.tick().await;
+                let now = std::time::SystemTime::now()
+                    .duration_since(std::time::UNIX_EPOCH)
+                    .map(|d| d.as_millis() as i64)
+                    .unwrap_or(0);
+                let n = sweep_guild_wipe_queue(&pool, now, &HashSet::new()).await;
+                if n > 0 {
+                    tracing::info!("scheduler: wiped {n} left guilds");
+                }
+            }
+        });
+    }
+
     // Skeleton tick for the StreamNotifier module (timing mirrors the
     // 120s refresh in core/StreamNotifier.ts). Blocked on the
     // Twitch/YouTube/Kick live APIs — see Blocked in MIGRATION.md.
@@ -977,5 +1079,59 @@ mod tests {
         // Cleanup so later suites see a clean manager.
         m.remove_player(OLD).await;
         assert_eq!(sweep_idle_players(None, now).await, 0);
+    }
+
+    #[tokio::test]
+    async fn wipe_sweep_wipes_only_due_and_absent() {
+        use crate::events_handler::wipe_queue_enqueue;
+        let p = pool().await;
+        for gid in ["gone", "back", "fresh"] {
+            crate::db::kv_set(&p, gid, "GUILD.LANG", "en-US")
+                .await
+                .unwrap();
+        }
+        let mut q = HashMap::new();
+        // All three left at t=0, so all expire at the 10h deadline.
+        for (gid, name) in [("gone", "Gone"), ("back", "Back"), ("fresh", "Fresh")] {
+            wipe_queue_enqueue(&mut q, gid, name, "o1", 0);
+        }
+        save_wipe_queue(&p, &q).await;
+        let deadline = crate::events_handler::GUILD_WIPE_DELAY_MS;
+        // Before the deadline nothing happens (ready recovery keeps all).
+        assert_eq!(
+            sweep_guild_wipe_queue(&p, deadline - 1, &HashSet::new()).await,
+            0
+        );
+        // At the deadline the absent guild is wiped; the rejoined
+        // guild ("back", present in cache) is spared.
+        let present = HashSet::from(["back".to_string()]);
+        assert_eq!(sweep_guild_wipe_queue(&p, deadline, &present).await, 2);
+        assert!(crate::db::kv_get(&p, "gone", "GUILD.LANG").await.is_none());
+        assert!(crate::db::kv_get(&p, "fresh", "GUILD.LANG").await.is_none());
+        assert!(crate::db::kv_get(&p, "back", "GUILD.LANG").await.is_some());
+        // Wiped guilds leave the queue; the spared one stays queued.
+        let rest = load_wipe_queue(&p).await;
+        assert!(!rest.contains_key("gone"));
+        assert!(!rest.contains_key("fresh"));
+        assert!(rest.contains_key("back"));
+        // Second sweep is a no-op.
+        assert_eq!(sweep_guild_wipe_queue(&p, deadline, &present).await, 0);
+    }
+
+    #[tokio::test]
+    async fn wipe_sweep_tolerates_malformed_queue() {
+        let p = pool().await;
+        crate::db::kv_set(
+            &p,
+            crate::events_handler::GUILD_WIPE_QUEUE_SCOPE,
+            GUILD_DELETE_QUEUE_KEY,
+            "not-json",
+        )
+        .await
+        .unwrap();
+        assert_eq!(
+            sweep_guild_wipe_queue(&p, i64::MAX, &HashSet::new()).await,
+            0
+        );
     }
 }

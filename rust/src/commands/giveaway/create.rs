@@ -85,12 +85,6 @@ pub async fn gw_create(
     }
     let handle = ctx.send(reply).await?;
     let mid = handle.message().await?.id.get();
-    crate::db::kv_set(
-        &ctx.data().pool,
-        &gid,
-        &giveaway_key(mid),
-        &serde_json::to_string(&gw)?,
-    )
-    .await?;
+    super::gw::store_set(&ctx.data().pool, &gid, mid, &serde_json::to_string(&gw)?).await?;
     Ok(())
 }

@@ -17,7 +17,7 @@ pub async fn notifier_channel(
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
-    crate::db::kv_set(
+    save_notifier_string(
         &ctx.data().pool,
         &gid,
         "NOTIFIER.channelId",

@@ -40,6 +40,100 @@ pub fn sticky_key(channel_id: u64) -> String {
     format!("STICKY.{channel_id}")
 }
 
+/// Guild-table backend for D1 routing (keys unchanged).
+fn guild_backend(pool: &crate::db::Pool) -> crate::backends::Backend {
+    crate::backends::Backend::sqlite(pool.clone())
+}
+
+/// Table-routed read with legacy flat-row fallback. Writers store under
+/// `tbl:<gid>`; legacy `(gid, key)` rows stay readable.
+async fn table_value_or_legacy(
+    pool: &crate::db::Pool,
+    guild_id: &str,
+    key: &str,
+) -> Option<serde_json::Value> {
+    let backend = guild_backend(pool);
+    let table = backend.table(guild_id);
+    if let Ok(Some(v)) = table.get::<serde_json::Value>(key).await {
+        return Some(v);
+    }
+    let s = crate::db::kv_get(pool, guild_id, key).await?;
+    serde_json::from_str(&s)
+        .ok()
+        .or(Some(serde_json::Value::String(s)))
+}
+
+/// Table-routed write for one sticky config (keys unchanged).
+pub async fn save_sticky(
+    pool: &crate::db::Pool,
+    guild_id: &str,
+    cfg: &StickyConfig,
+) -> anyhow::Result<()> {
+    guild_backend(pool)
+        .table(guild_id)
+        .set(&sticky_key(cfg.channel_id.parse().unwrap_or(0)), cfg)
+        .await
+}
+
+/// Table-routed delete: clears the guild-table row and any legacy row.
+pub async fn delete_sticky(pool: &crate::db::Pool, guild_id: &str, channel_id: u64) {
+    let backend = guild_backend(pool);
+    let _ = backend
+        .table(guild_id)
+        .delete(&sticky_key(channel_id))
+        .await;
+    let _ = crate::db::kv_del(pool, guild_id, &sticky_key(channel_id)).await;
+}
+
+/// Every enabled sticky config: guild-table subtree first, legacy
+/// `STICKY.%` rows filling gaps (table wins).
+pub async fn load_all_stickies(pool: &crate::db::Pool, guild_id: &str) -> Vec<StickyConfig> {
+    let mut by_channel: std::collections::HashMap<String, StickyConfig> =
+        std::collections::HashMap::new();
+    let backend = guild_backend(pool);
+    if let Ok(Some(root)) = backend
+        .table(guild_id)
+        .get::<serde_json::Value>("STICKY")
+        .await
+    {
+        if let Some(map) = root.as_object() {
+            for (id, v) in map {
+                if id.is_empty() || id.contains('.') {
+                    continue;
+                }
+                if let Ok(cfg) = serde_json::from_value::<StickyConfig>(v.clone()) {
+                    if cfg.enabled {
+                        by_channel.insert(id.clone(), cfg);
+                    }
+                }
+            }
+        }
+    }
+    let rows: Vec<(String, String)> = sqlx::query_as::<_, (String, String)>(
+        "SELECT key_name, value FROM kv WHERE guild_id = ? AND key_name LIKE 'STICKY.%'",
+    )
+    .bind(guild_id)
+    .fetch_all(pool)
+    .await
+    .unwrap_or_default();
+    for (k, v) in &rows {
+        let Some(id) = k.strip_prefix("STICKY.") else {
+            continue;
+        };
+        if id.is_empty() || id.contains('.') || by_channel.contains_key(id) {
+            continue;
+        }
+        if let Ok(cfg) = serde_json::from_str::<StickyConfig>(v) {
+            if cfg.enabled {
+                by_channel.insert(id.to_string(), cfg);
+            }
+        }
+    }
+    let mut out: Vec<StickyConfig> = by_channel.into_values().collect();
+    out.sort_by(|a, b| a.channel_id.cmp(&b.channel_id));
+    out
+}
+
 /// Enabled configs only (TS getStickyChannelConfig returns null
 /// when `!config?.enabled`).
 pub async fn load_sticky(
@@ -47,9 +141,9 @@ pub async fn load_sticky(
     guild_id: &str,
     channel_id: u64,
 ) -> Option<StickyConfig> {
-    crate::db::kv_get(pool, guild_id, &sticky_key(channel_id))
+    table_value_or_legacy(pool, guild_id, &sticky_key(channel_id))
         .await
-        .and_then(|s| serde_json::from_str(&s).ok())
+        .and_then(|v| serde_json::from_value(v).ok())
         .filter(|cfg: &StickyConfig| cfg.enabled)
 }
 
@@ -135,9 +229,8 @@ async fn load_embed_source(
     gid: &str,
     embed_id: &str,
 ) -> Option<serde_json::Value> {
-    let raw = crate::db::kv_get(pool, gid, &format!("EMBED.{embed_id}")).await?;
-    serde_json::from_str::<serde_json::Value>(&raw)
-        .ok()?
+    table_value_or_legacy(pool, gid, &format!("EMBED.{embed_id}"))
+        .await?
         .get("embedSource")
         .cloned()
 }
@@ -200,13 +293,7 @@ pub async fn refresh_sticky(
     let mut updated = cfg.clone();
     updated.channel_id = channel_id.get().to_string();
     updated.last_message_id = Some(sent.id.get().to_string());
-    let _ = crate::db::kv_set(
-        pool,
-        gid,
-        &sticky_key(channel_id.get()),
-        &serde_json::to_string(&updated).unwrap_or_default(),
-    )
-    .await;
+    let _ = save_sticky(pool, gid, &updated).await;
     StickyRefresh {
         status: StickyStatus::Sent,
         message_id: Some(sent.id.get()),
@@ -329,6 +416,86 @@ mod tests {
             list_line("1", Some("hi"), None, "T ${channel}", "E", "TE"),
             "T <#1>"
         );
+    }
+
+    async fn memory_pool() -> crate::db::Pool {
+        use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};
+        use std::str::FromStr;
+        let opts = SqliteConnectOptions::from_str("sqlite::memory:").unwrap();
+        let pool = SqlitePoolOptions::new()
+            .max_connections(1)
+            .connect_with(opts)
+            .await
+            .unwrap();
+        sqlx::query("CREATE TABLE kv (guild_id TEXT NOT NULL, key_name TEXT NOT NULL, value TEXT NOT NULL, PRIMARY KEY (guild_id, key_name))")
+            .execute(&pool)
+            .await
+            .unwrap();
+        pool
+    }
+
+    fn sticky_cfg(channel: &str, content: &str) -> StickyConfig {
+        StickyConfig {
+            channel_id: channel.to_string(),
+            content: Some(content.to_string()),
+            embed_id: None,
+            last_message_id: None,
+            enabled: true,
+        }
+    }
+
+    #[tokio::test]
+    async fn table_routing_with_legacy_fallback() {
+        let pool = memory_pool().await;
+        save_sticky(&pool, "g1", &sticky_cfg("11", "hi"))
+            .await
+            .unwrap();
+        assert_eq!(
+            load_sticky(&pool, "g1", 11)
+                .await
+                .unwrap()
+                .content
+                .as_deref(),
+            Some("hi")
+        );
+        // Table-routed rows live under `tbl:<gid>`, never as flat legacy rows.
+        let legacy: Option<String> = sqlx::query_scalar::<_, String>(
+            "SELECT value FROM kv WHERE guild_id = 'g1' AND key_name = 'STICKY.11'",
+        )
+        .fetch_optional(&pool)
+        .await
+        .unwrap();
+        assert_eq!(legacy, None);
+        // Legacy rows still read (single + union scan).
+        crate::db::kv_set(
+            &pool,
+            "g1",
+            &sticky_key(22),
+            r#"{"channelId":"22","content":"old"}"#,
+        )
+        .await
+        .unwrap();
+        assert_eq!(
+            load_sticky(&pool, "g1", 22)
+                .await
+                .unwrap()
+                .content
+                .as_deref(),
+            Some("old")
+        );
+        assert_eq!(load_all_stickies(&pool, "g1").await.len(), 2);
+        // Delete clears both stores.
+        crate::db::kv_set(
+            &pool,
+            "g1",
+            &sticky_key(11),
+            r#"{"channelId":"11","content":"stale"}"#,
+        )
+        .await
+        .unwrap();
+        delete_sticky(&pool, "g1", 11).await;
+        assert!(load_sticky(&pool, "g1", 11).await.is_none());
+        assert_eq!(load_all_stickies(&pool, "g1").await.len(), 1);
     }
 }
 
