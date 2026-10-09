@@ -16,7 +16,8 @@ pub async fn tag_list(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let mut names: Vec<String> = store.stored_tags.keys().cloned().collect();
     names.sort();
     ctx.say(if names.is_empty() {
-        crate::lang::get(&code, "tag_list_no_anything").unwrap_or_else(|| "No tags.".to_string())
+        crate::lang::get(&code, "tag_list_no_anything")
+            .unwrap_or_else(|| "There are no tags saved on this guild!".to_string())
     } else {
         names.join(", ")
     })

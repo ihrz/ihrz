@@ -33,13 +33,14 @@ pub async fn eco_ureset(
         .map(|g| g.get().to_string())
         .unwrap_or_default();
     // Delete the blob row plus any leaf rows under it (TS deletes the
-    // whole `USER.<id>.ECONOMY` subtree).
+    // whole `USER.<id>.ECONOMY` subtree), in both stores.
     sqlx::query("DELETE FROM kv WHERE guild_id = ? AND (key_name = ? OR key_name LIKE ?)")
         .bind(&gid)
         .bind(econ_key(target))
         .bind(format!("{}.%", econ_key(target)))
         .execute(&ctx.data().pool)
         .await?;
+    let _ = crate::commands::owner::main::tbl_del(&ctx.data().pool, &gid, &econ_key(target)).await;
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     ctx.say(
         crate::lang::get(&code, "resetallinvites_succes_on_delete")

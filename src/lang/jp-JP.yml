@@ -1757,6 +1757,7 @@ history_embed_title: "${interaction.guild?.name}の音楽履歴 | ページ ${i 
 history_embed_footer_text: "iHorizon | ページ ${currentPage + 1}/${pages.length}"
 history_delete_embed_title: "✅ 履歴を削除しました"
 history_delete_embed_desc: "音楽の履歴が正常に削除されました。"
+music_history_no_permission: "音楽履歴を見るには管理者権限が必要です。"
 
 # /music lyrics
 lyrics_embed_title_unknown: "不明なタイトル"
@@ -1773,6 +1774,7 @@ music_lyrics: "歌詞"
 music_link_here: "リンクをクリック: [クリック]({link})"
 
 music_volume_command_ok: "${client.iHorizon_Emojis.Yes} **音量を** `${Number(query)}`% **に設定しました**"
+music_volume_invalid: "無効な音量です：10から100の間の数字を入力してください。"
 
 # Giveaway commands
 # /end, /start, /reroll

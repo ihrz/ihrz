@@ -25,7 +25,7 @@ pub async fn bringall(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         ctx.say(
             crate::lang::get(&code, "renewvc_not_in_voice")
                 .map(|s| s.replace("${client.iHorizon_Emojis.No}", &no))
-                .unwrap_or_else(|| "Join a voice channel first.".to_string()),
+                .unwrap_or_else(|| "${client.iHorizon_Emojis.No} You must be connected to a voice channel to use this command!".to_string()),
         )
         .await?;
         return Ok(());

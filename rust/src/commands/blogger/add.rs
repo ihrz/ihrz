@@ -19,7 +19,7 @@ pub async fn blogger_add(
         let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
         ctx.say(
             crate::lang::get(&code, "blogger_blog_add_invalid_rss")
-                .unwrap_or_else(|| "Invalid RSS feed.".to_string()),
+                .unwrap_or_else(|| "❌ The provided RSS feed is invalid or unreachable. Please check the URL and try again.".to_string()),
         )
         .await?;
         return Ok(());
@@ -54,7 +54,7 @@ pub async fn blogger_add(
                     .replace("${blogId}", &id)
                     .replace("${validation.name}", &feed_title)
             })
-            .unwrap_or_else(|| "Blog added.".to_string()),
+            .unwrap_or_else(|| "✅ RSS feed **${validation.name}** has been added! Notifications will be sent to ${channel.toString()} (ID: `${blogId}`)".to_string()),
     )
     .await?;
     Ok(())

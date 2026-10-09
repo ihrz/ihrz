@@ -46,7 +46,7 @@ pub async fn custom_avatar(
         let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
         ctx.say(
             crate::lang::get(&code, "custom_avatar_reset")
-                .unwrap_or_else(|| "Bot avatar reset to default.".to_string()),
+                .unwrap_or_else(|| "You have decided to reset the bot's profile picture on the server. Embed footers will return to their default state, as well as the bot's profile picture on the server.".to_string()),
         )
         .await?;
         return Ok(());

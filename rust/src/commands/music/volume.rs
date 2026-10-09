@@ -1,15 +1,30 @@
 use super::*;
 
-/// Mirrors `!volume.ts`.
+// Mirrors `!volume.ts` (`parseInt(String(query))`, `setVolume` +
+// `customVolume` re-apply). Two recorded differences: non-numeric
+// input is refused instead of storing NaN, and the reply shows the
+// clamped level actually applied (TS echoes the raw query, so
+// `!volume 500` would claim 500% while playing 100).
+/// Set the playback volume (10-100).
 #[poise::command(slash_command, prefix_command, rename = "volume")]
 pub async fn m_volume(
     ctx: Ctx<'_>,
-    #[description = "10-100"] level: i64,
+    #[description = "10-100"] level: String,
 ) -> Result<(), anyhow::Error> {
     let Some(gid) = guild_id_of(&ctx) else {
         return Ok(());
     };
     let code = lang_code(&ctx).await;
+    let Some(want) = parse_volume_query(&level) else {
+        say_key(
+            &ctx,
+            &code,
+            "music_volume_invalid",
+            "Invalid volume: give a number between 10 and 100.",
+        )
+        .await?;
+        return Ok(());
+    };
     let m = synced_mgr(&ctx).await;
     let snap = m.snapshot(gid).await;
     if snap.as_ref().and_then(|s| s.current.clone()).is_none() || voice_channel_of(&ctx).is_none() {
@@ -22,7 +37,7 @@ pub async fn m_volume(
         .await?;
         return Ok(());
     }
-    let v = m.with_player(gid, |p| p.set_volume(level)).await;
+    let v = m.with_player(gid, |p| p.set_volume(i64::from(want))).await;
     if let Ok((node, session)) = m.live_node_and_session(gid).await {
         let _ = m.rest_set_volume(&node, &session, gid, v).await;
     }
@@ -30,9 +45,9 @@ pub async fn m_volume(
     let msg = crate::lang::get(&code, "music_volume_command_ok")
         .map(|s| {
             s.replace("${client.iHorizon_Emojis.Yes}", &yes)
-                .replace("${Number(query)}", &level.to_string())
+                .replace("${Number(query)}", &v.to_string())
         })
-        .unwrap_or_else(|| format!("Volume set to `{level}`%"));
+        .unwrap_or_else(|| format!("Volume set to `{v}`%"));
     ctx.say(msg).await?;
     Ok(())
 }

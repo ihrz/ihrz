@@ -40,8 +40,9 @@ pub async fn report(
     if message.split_whitespace().count() < 8 {
         let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
         ctx.say(
-            crate::lang::get(&code, "report_specify")
-                .unwrap_or_else(|| "Please specify (8+ words).".to_string()),
+            crate::lang::get(&code, "report_specify").unwrap_or_else(|| {
+                "Please specify the bug. Please make good and full sentences!".to_string()
+            }),
         )
         .await?;
         return Ok(());
@@ -63,7 +64,7 @@ pub async fn report(
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     ctx.say(
         crate::lang::get(&code, "report_command_work")
-            .unwrap_or_else(|| "Report recorded.".to_string()),
+            .unwrap_or_else(|| "**Thanks for submitting a bug!**".to_string()),
     )
     .await?;
     Ok(())

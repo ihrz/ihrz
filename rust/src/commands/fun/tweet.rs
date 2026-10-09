@@ -10,7 +10,7 @@ pub async fn tweet(
         let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
         ctx.say(
             crate::lang::get(&code, "fun_var_good_sentence")
-                .unwrap_or_else(|| "Please, send a good sentence.".to_string()),
+                .unwrap_or_else(|| "Please, send a good sentence!".to_string()),
         )
         .await?;
         return Ok(());

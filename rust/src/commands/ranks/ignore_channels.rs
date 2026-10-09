@@ -21,8 +21,9 @@ pub async fn ranks_ignore_add(
         load_ignore(&ctx.data().pool, &gid).await,
         &channel.id.get().to_string(),
     );
-    crate::db::kv_set(
+    crate::commands::owner::main::routed_set(
         &ctx.data().pool,
+        &gid,
         &gid,
         "GUILD.RANKS.ignoreChannels",
         &serde_json::to_string(&next)?,

@@ -1831,6 +1831,19 @@ async fn post_ticket_panel_message(
     }
 }
 
+/// Parse a roles-to-ping CSV into snowflake ids: plain ids, mentions
+/// (`<@&123>`) and stray whitespace all reduce to digit runs,
+/// deduplicated in order. Mirrors the RoleSelect values TS stores.
+pub fn parse_roles_csv(csv: &str) -> Vec<String> {
+    let mut out: Vec<String> = vec![];
+    for chunk in csv.split([',', ' ', '\n', '\t']) {
+        let digits: String = chunk.chars().filter(|c| c.is_ascii_digit()).collect();
+        if !digits.is_empty() && !out.contains(&digits) {
+            out.push(digits);
+        }
+    }
+    out
+}
 /// Setter for the ticket panel V2 flags.
 #[poise::command(
     slash_command,
@@ -1851,13 +1864,13 @@ pub async fn ticket_panel_v2(
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
-    let mut panel = load_panel(&ctx.data().pool, &gid, panel_id.trim()).await;
+    let pid = panel_id.trim().to_string();
+    if pid.is_empty() {
+        return Ok(());
+    }
+    let mut panel = load_panel(&ctx.data().pool, &gid, &pid).await;
     if let Some(csv) = roles_to_ping {
-        panel.config.roles_to_ping = csv
-            .split(',')
-            .map(|s| s.trim().to_string())
-            .filter(|s| !s.is_empty())
-            .collect();
+        panel.config.roles_to_ping = parse_roles_csv(&csv);
     }
     if let Some(v) = ping_user {
         panel.config.ping_user = v;
@@ -1871,9 +1884,8 @@ pub async fn ticket_panel_v2(
     if let Some(v) = user_select_panel {
         panel.config.user_select_panel = v;
     }
-    save_panel(&ctx.data().pool, &gid, panel_id.trim(), &panel).await?;
+    save_panel(&ctx.data().pool, &gid, &pid, &panel).await?;
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-    let pid = panel_id.trim().to_string();
     ctx.say(
         crate::lang::get(&code, "msg_ticket_panel_updated")
             .map(|s| s.replace("{id}", &pid))
@@ -1886,6 +1898,16 @@ pub async fn ticket_panel_v2(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn roles_csv_parses_ids_mentions_and_dupes() {
+        assert_eq!(
+            parse_roles_csv("123, <@&456>, 123  789"),
+            vec!["123".to_string(), "456".to_string(), "789".to_string()]
+        );
+        assert!(parse_roles_csv("").is_empty());
+        assert!(parse_roles_csv("  , <@&> ").is_empty());
+    }
 
     #[test]
     fn panel_code_keeps_stored() {

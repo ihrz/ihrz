@@ -97,7 +97,7 @@ pub async fn protect_rule(
                     )
                     .replace("${interaction.guild.name}", &guild_name)
                 })
-                .unwrap_or_else(|| "Protection cleared.".to_string()),
+                .unwrap_or_else(|| "${interaction.user}, all of the rules for `${interaction.guild.name}` have been deleted. Protection module is now disabled!".to_string()),
         )
         .await?;
         return Ok(());
@@ -164,7 +164,7 @@ pub async fn protect_sanction(
                 )
                 .replace("${choose}", sanction.trim())
             })
-            .unwrap_or_else(|| "Sanction set.".to_string()),
+            .unwrap_or_else(|| "${interaction.user}, rule sanction has been set. When the user breaks the rule, it's **${choose}**, and the bot cancels its action.".to_string()),
     )
     .await?;
     Ok(())
@@ -220,7 +220,7 @@ pub async fn protect_allow_add(
     ctx.say(
         crate::lang::get(&code, "allowlist_add_command_work")
             .map(|s| s.replace("${member.user}", &format!("<@{}>", user.id.get())))
-            .unwrap_or_else(|| "Allowlisted.".to_string()),
+            .unwrap_or_else(|| "${member.user} has been added to the allowlist!".to_string()),
     )
     .await?;
     Ok(())
@@ -244,7 +244,7 @@ pub async fn protect_allow_remove(
     ctx.say(
         crate::lang::get(&code, "allowlist_delete_command_work")
             .map(|s| s.replace("${member.user}", &format!("<@{}>", user.id.get())))
-            .unwrap_or_else(|| "Allowlist removed.".to_string()),
+            .unwrap_or_else(|| "${member.user} has been removed from the allowlist!".to_string()),
     )
     .await?;
     Ok(())

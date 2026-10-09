@@ -49,7 +49,7 @@ pub async fn custom_bio(
                     .replace("${client.iHorizon_Emojis.Crown}", &crown)
                     .replace("${desc}", &final_bio)
             })
-            .unwrap_or_else(|| "Bot bio updated.".to_string()),
+            .unwrap_or_else(|| "${client.iHorizon_Emojis.Yes} **You have decided to change the bot's description on the server. Embed footers are now modified, as well as the bot's description on the server.**\n${client.iHorizon_Emojis.Crown} New value: `${desc}`".to_string()),
     )
     .await?;
     Ok(())

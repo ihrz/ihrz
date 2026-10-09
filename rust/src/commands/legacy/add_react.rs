@@ -36,7 +36,7 @@ pub async fn add_react(
                 )
                 .replace("{emoji}", response.trim())
             })
-            .unwrap_or_else(|| "Custom react added.".to_string()),
+            .unwrap_or_else(|| "<@${interaction.member?.id}>, now when a member sends `${message.toLowerCase()}`, the bot will **react** with {emoji}".to_string()),
     )
     .await?;
     Ok(())

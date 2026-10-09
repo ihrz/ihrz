@@ -23,8 +23,9 @@ pub async fn ranks_role_add(
         role_id: id,
         level: level.max(1) as u64,
     });
-    crate::db::kv_set(
+    crate::commands::owner::main::routed_set(
         &ctx.data().pool,
+        &gid,
         &gid,
         "GUILD.RANKS.roles",
         &serde_json::to_string(&roles)?,

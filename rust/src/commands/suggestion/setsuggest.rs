@@ -41,7 +41,10 @@ pub async fn setsuggest_channel(
                 s.replace("${interaction.user}", &ctx.author().to_string())
                     .replace("${channel}", &format!("<#{}>", channel.id.get()))
             })
-            .unwrap_or_else(|| "Suggestions channel set.".to_string()),
+            .unwrap_or_else(|| {
+                "${interaction.user}, you have set the Suggestion Module's channel to ${channel}!"
+                    .to_string()
+            }),
     )
     .await?;
     Ok(())

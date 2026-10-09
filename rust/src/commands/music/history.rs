@@ -2,6 +2,12 @@ use super::*;
 
 /// Mirrors `!history.ts`: 30d TTL purge on read, 10/page embed,
 /// `.txt` export, delete action.
+///
+/// TS parity record (music.ts): `history` carries
+/// `permission: PermissionFlagsBits.Administrator` while every other
+/// music subcommand is `permission: null`. Slash parity comes from
+/// `default_member_permissions` below; prefix commands bypass
+/// Discord's gate, so non-admins are refused again at runtime.
 #[poise::command(
     slash_command,
     prefix_command,
@@ -17,6 +23,16 @@ pub async fn m_history(
         return Ok(());
     };
     let code = lang_code(&ctx).await;
+    if !caller_is_admin(&ctx).await {
+        say_key(
+            &ctx,
+            &code,
+            "music_history_no_permission",
+            "You need the Administrator permission to view the music history.",
+        )
+        .await?;
+        return Ok(());
+    };
     let key = gid.to_string();
     let now = now_ms();
     let raw = crate::db::kv_get(&ctx.data().pool, &key, HISTORY_KEY).await;

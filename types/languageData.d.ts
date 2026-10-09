@@ -1341,6 +1341,7 @@ export interface LanguageData {
 	history_embed_footer_text: string;
 	history_delete_embed_title: string;
 	history_delete_embed_desc: string;
+	music_history_no_permission: string;
 	lyrics_embed_title_unknown: string;
 	lyrics_embed_author_name_unknown: string;
 	lyrics_not_found: string;
@@ -1350,6 +1351,7 @@ export interface LanguageData {
 	music_lyrics: string;
 	music_link_here: string;
 	music_volume_command_ok: string;
+	music_volume_invalid: string;
 	end_not_admin: string;
 	end_not_find_giveaway: string;
 	end_confirmation_message: string;

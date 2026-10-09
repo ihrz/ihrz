@@ -28,7 +28,10 @@ pub async fn security_remove(
                 s.replace("${role}", &format!("<@&{}>", role.id.get()))
                     .replace("${interaction.user}", &ctx.author().to_string())
             })
-            .unwrap_or_else(|| "Role to remove set.".to_string()),
+            .unwrap_or_else(|| {
+                "${interaction.user}, you have set the role to ${role} for the Security Module!"
+                    .to_string()
+            }),
     )
     .await?;
     Ok(())

@@ -36,7 +36,7 @@ pub async fn chan_hide(
         ctx.say(
             crate::lang::get(&code, "channel_hide_already_hidden")
                 .map(|s| s.replace("@everyone", &mention))
-                .unwrap_or_else(|| "Channel hidden.".to_string()),
+                .unwrap_or_else(|| "This channel is already hidden from @everyone".to_string()),
         )
         .await?;
         return Ok(());
@@ -57,7 +57,7 @@ pub async fn chan_hide(
     {
         ctx.say(
             crate::lang::get(&code, "renew_dont_have_permission")
-                .unwrap_or_else(|| "No permission.".to_string()),
+                .unwrap_or_else(|| ":x: **Can't** `Don't have permission!`".to_string()),
         )
         .await?;
         return Ok(());
@@ -65,7 +65,7 @@ pub async fn chan_hide(
     ctx.say(
         crate::lang::get(&code, "channel_hide_success")
             .map(|s| s.replace("@everyone", &mention))
-            .unwrap_or_else(|| "Channel hidden.".to_string()),
+            .unwrap_or_else(|| "Channel has been hidden from @everyone".to_string()),
     )
     .await?;
     Ok(())

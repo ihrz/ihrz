@@ -18,7 +18,7 @@ pub async fn gc_autoreact(
     if !crate::funcs::is_single_emoji(&emoji) && !crate::funcs::is_discord_emoji(&emoji) {
         ctx.say(
             crate::lang::get(&code, "autoreact_invalid_emoji")
-                .unwrap_or_else(|| "Invalid emoji.".to_string()),
+                .unwrap_or_else(|| "Invalid emoji. Please enter a valid emoji.".to_string()),
         )
         .await?;
         return Ok(());
@@ -41,7 +41,7 @@ pub async fn gc_autoreact(
     .await?;
     ctx.say(
         crate::lang::get(&code, "autoreact_add_command_ok")
-            .unwrap_or_else(|| "Autoreact added.".to_string()),
+            .unwrap_or_else(|| "The autoreact configuration has been set.".to_string()),
     )
     .await?;
     Ok(())
@@ -65,13 +65,15 @@ pub async fn gc_autoreact_list(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         .unwrap_or_default();
     ctx.say(if list.is_empty() {
         crate::lang::get(&code, "autoreact_remove_not_found")
-            .unwrap_or_else(|| "No autoreacts.".to_string())
+            .unwrap_or_else(|| "No autoreact configurations set.".to_string())
     } else {
         list.iter()
             .map(|e| {
                 format!(
                     "<#{}> {}",
-                    e.get("channelId").and_then(|c| c.as_str()).unwrap_or("?"),
+                    e.get("channelId")
+                        .and_then(|c| c.as_str())
+                        .unwrap_or("No autoreact configurations set."),
                     e.get("emoji").and_then(|x| x.as_str()).unwrap_or("?")
                 )
             })
@@ -119,8 +121,9 @@ pub async fn gc_autoreact_remove(
     .await?;
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     ctx.say(
-        crate::lang::get(&code, "autoreact_remove_command_ok")
-            .unwrap_or_else(|| "Autoreact removed.".to_string()),
+        crate::lang::get(&code, "autoreact_remove_command_ok").unwrap_or_else(|| {
+            "The autoreact configuration for this channel has been removed.".to_string()
+        }),
     )
     .await?;
     Ok(())

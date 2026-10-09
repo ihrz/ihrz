@@ -64,7 +64,9 @@ pub async fn wlvc(
     ctx.say(
         crate::lang::get(&code, "util_wlvc_command_work")
             .map(|s| s.replace("${member.toString()}", &format!("<@{}>", target.id.get())))
-            .unwrap_or_else(|| "Voice freeze channel set.".to_string()),
+            .unwrap_or_else(|| {
+                "${member.toString()} is now allowed to join the frozen voice channel.".to_string()
+            }),
     )
     .await?;
     Ok(())

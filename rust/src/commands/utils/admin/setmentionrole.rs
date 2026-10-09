@@ -29,7 +29,9 @@ pub async fn setmentionrole(
         ctx.say(
             crate::lang::get(&code, "setrankroles_command_work_disable")
                 .map(|s| s.replace("${interaction.user.id}", &ctx.author().id.get().to_string()))
-                .unwrap_or_else(|| "Mention-role off.".to_string()),
+                .unwrap_or_else(|| {
+                    "<@${interaction.user.id}>, you have deleted the rank role!".to_string()
+                }),
         )
         .await?;
         return Ok(());
@@ -42,7 +44,10 @@ pub async fn setmentionrole(
         ctx.say(
             crate::lang::get(&code, "setrankroles_not_roles_typed")
                 .map(|s| s.replace("${client.iHorizon_Emojis.No}", &no))
-                .unwrap_or_else(|| "Give a role and a nickname part.".to_string()),
+                .unwrap_or_else(|| {
+                    "${client.iHorizon_Emojis.No} You have not included any roles in your command!"
+                        .to_string()
+                }),
         )
         .await?;
         return Ok(());
@@ -63,7 +68,10 @@ pub async fn setmentionrole(
     ctx.say(
         crate::lang::get(&code, "setrankroles_command_work")
             .map(|s| s.replace("${argsid}", &role.id.get().to_string()))
-            .unwrap_or_else(|| "Mention-role set.".to_string()),
+            .unwrap_or_else(|| {
+                "Now, when you ping me `@iHorizon` I will add the following roles: <@&${argsid}>"
+                    .to_string()
+            }),
     )
     .await?;
     Ok(())

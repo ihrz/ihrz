@@ -44,7 +44,7 @@ pub async fn counter_channel(
                 )
                 .replace("${channel}", &format!("<#{}>", channel.id.get()))
             })
-            .unwrap_or_else(|| "Counter channel set.".to_string()),
+            .unwrap_or_else(|| "${interaction.user}, you have successfully set the Counter module to the channel ${channel}!".to_string()),
     )
     .await?;
     Ok(())

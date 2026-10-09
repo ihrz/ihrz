@@ -34,7 +34,7 @@ pub async fn nightmode(
             ctx.say(
                 crate::lang::get(&code, "nightmode_invalid_hour_morning")
                     .map(|s| s.replace("${client.iHorizon_Emojis.No}", &no))
-                    .unwrap_or_else(|| "Bad start hour.".to_string()),
+                    .unwrap_or_else(|| "${client.iHorizon_Emojis.No} Start time is not valid. Use format: 21:30 or 2130".to_string()),
             )
             .await?;
             return Ok(());
@@ -51,7 +51,7 @@ pub async fn nightmode(
             ctx.say(
                 crate::lang::get(&code, "nightmode_invalid_hour_night")
                     .map(|s| s.replace("${client.iHorizon_Emojis.No}", &no))
-                    .unwrap_or_else(|| "Bad end hour.".to_string()),
+                    .unwrap_or_else(|| "${client.iHorizon_Emojis.No} End time is not valid. Use format: 06:15 or 0615".to_string()),
             )
             .await?;
             return Ok(());

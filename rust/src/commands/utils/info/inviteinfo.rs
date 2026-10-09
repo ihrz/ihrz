@@ -18,7 +18,7 @@ pub async fn inviteinfo(
     if !is_valid_discord_invite(&invite) {
         ctx.say(
             crate::lang::get(&code, "util_inviteinfo_not_valid_invite")
-                .unwrap_or_else(|| "Invalid invite.".to_string()),
+                .unwrap_or_else(|| "This `discord_invite` is not valid!".to_string()),
         )
         .await?;
         return Ok(());
@@ -34,7 +34,7 @@ pub async fn inviteinfo(
         Err(_) => {
             ctx.say(
                 crate::lang::get(&code, "util_inviteinfo_not_valid_invite")
-                    .unwrap_or_else(|| "Invalid invite.".to_string()),
+                    .unwrap_or_else(|| "This `discord_invite` is not valid!".to_string()),
             )
             .await?;
             return Ok(());

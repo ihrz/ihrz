@@ -16,7 +16,8 @@ pub async fn allwebhooks(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let hooks = guild_id.webhooks(ctx.http()).await.unwrap_or_default();
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     ctx.say(if hooks.is_empty() {
-        crate::lang::get(&code, "util_no_webhooks").unwrap_or_else(|| "No webhooks.".to_string())
+        crate::lang::get(&code, "util_no_webhooks")
+            .unwrap_or_else(|| "There are no webhooks in this guild.".to_string())
     } else {
         hooks
             .iter()

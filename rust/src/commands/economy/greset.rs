@@ -1,5 +1,29 @@
 use super::*;
 
+/// Routed guild wipe: legacy blob + leaf rows plus every table-nested
+/// `USER.<uid>.ECONOMY` doc. The table `USER` root is shared with other
+/// per-user rows (WARNS), so only the ECONOMY subtree is removed.
+async fn clear_guild_econ(pool: &crate::db::Pool, guild_id: &str) -> anyhow::Result<()> {
+    use crate::commands::owner::main::{tbl_del, tbl_get_value};
+    sqlx::query("DELETE FROM kv WHERE guild_id = ? AND key_name LIKE 'USER.%.ECONOMY%'")
+        .bind(guild_id)
+        .execute(pool)
+        .await?;
+    if let Some(root) = tbl_get_value(pool, guild_id, "USER").await {
+        if let Some(obj) = root.as_object() {
+            let uids: Vec<String> = obj
+                .iter()
+                .filter(|(_, node)| node.get("ECONOMY").is_some())
+                .map(|(uid, _)| uid.clone())
+                .collect();
+            for uid in uids {
+                let _ = tbl_del(pool, guild_id, &format!("USER.{uid}.ECONOMY")).await;
+            }
+        }
+    }
+    Ok(())
+}
+
 /// Mirrors `!greset.ts`.
 #[poise::command(
     slash_command,
@@ -22,10 +46,7 @@ pub async fn eco_greset(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
-    sqlx::query("DELETE FROM kv WHERE guild_id = ? AND key_name LIKE 'USER.%.ECONOMY%'")
-        .bind(&gid)
-        .execute(&ctx.data().pool)
-        .await?;
+    clear_guild_econ(&ctx.data().pool, &gid).await?;
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     ctx.say(
         crate::lang::get(&code, "resetallinvites_succes_on_delete")
@@ -50,4 +71,66 @@ pub async fn eco_greset(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     );
     post_ihorizon_log(&ctx, &title, &desc).await;
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::clear_guild_econ;
+
+    async fn mem_pool() -> crate::db::Pool {
+        use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};
+        use std::str::FromStr;
+        let opts = SqliteConnectOptions::from_str("sqlite::memory:")
+            .unwrap()
+            .create_if_missing(true);
+        let pool = SqlitePoolOptions::new()
+            .max_connections(1)
+            .connect_with(opts)
+            .await
+            .unwrap();
+        sqlx::query(
+            "CREATE TABLE kv (guild_id TEXT NOT NULL, key_name TEXT NOT NULL, value TEXT NOT NULL, PRIMARY KEY (guild_id, key_name))",
+        )
+        .execute(&pool)
+        .await
+        .unwrap();
+        pool
+    }
+
+    #[tokio::test]
+    async fn greset_clears_both_stores_but_keeps_other_user_rows() {
+        use crate::commands::owner::main::{table_backend, tbl_get_value};
+        let pool = mem_pool().await;
+        crate::db::kv_set(&pool, "g", "USER.1.ECONOMY", r#"{"money":5}"#)
+            .await
+            .unwrap();
+        crate::db::kv_set(&pool, "g", "USER.1.WARNS", "[]")
+            .await
+            .unwrap();
+        table_backend(&pool)
+            .table("g")
+            .set("USER.2.ECONOMY", serde_json::json!({"money": 7}))
+            .await
+            .unwrap();
+        // Shared table USER root also holds a non-economy row.
+        table_backend(&pool)
+            .table("g")
+            .set("USER.2.WARNS", serde_json::json!([]))
+            .await
+            .unwrap();
+        clear_guild_econ(&pool, "g").await.unwrap();
+        assert_eq!(crate::db::kv_get(&pool, "g", "USER.1.ECONOMY").await, None);
+        // Unrelated legacy rows survive.
+        assert_eq!(
+            crate::db::kv_get(&pool, "g", "USER.1.WARNS")
+                .await
+                .as_deref(),
+            Some("[]")
+        );
+        let root = tbl_get_value(&pool, "g", "USER").await.unwrap();
+        assert!(root.get("1").and_then(|n| n.get("ECONOMY")).is_none());
+        assert!(root.get("2").and_then(|n| n.get("ECONOMY")).is_none());
+        // Non-economy table rows survive.
+        assert!(root.get("2").and_then(|n| n.get("WARNS")).is_some());
+    }
 }

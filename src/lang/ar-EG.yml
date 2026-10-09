@@ -1758,6 +1758,7 @@ history_embed_title: "${interaction.guild?.name} تاريخ الموسيقى | �
 history_embed_footer_text: "iHorizon | الصفحة ${currentPage + 1}/${pages.length}"
 history_delete_embed_title: "✅ تم حذف السجل"
 history_delete_embed_desc: "تم حذف سجل الموسيقى بنجاح."
+music_history_no_permission: "تحتاج إلى صلاحية المسؤول لعرض سجل الموسيقى."
 
 # /music lyrics
 lyrics_embed_title_unknown: "العنوان غير معروف"
@@ -1774,6 +1775,7 @@ music_lyrics: "كلمات"
 music_link_here: "رابط هنا: [انقر هنا]({link})"
 
 music_volume_command_ok: "${client.iHorizon_Emojis.Yes} **تم ضبط مستوى الصوت إلى** `${Number(query)}`%"
+music_volume_invalid: "مستوى صوت غير صالح: أدخل رقمًا بين 10 و 100."
 
 # Giveaway commands
 # /end, /start, /reroll

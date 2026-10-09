@@ -36,9 +36,10 @@ pub async fn eco_balance(
         .as_ref()
         .map(|u| u.to_string())
         .unwrap_or_else(|| ctx.author().to_string());
-    let shop_json = crate::db::kv_get(&ctx.data().pool, &gid, shop_key())
-        .await
-        .unwrap_or_else(|| "{}".to_string());
+    let shop_json =
+        crate::commands::owner::main::routed_get(&ctx.data().pool, &gid, &gid, shop_key())
+            .await
+            .unwrap_or_else(|| "{}".to_string());
     let boost = member_boost(&shop_json, &invoker_roles(&ctx).await);
     let total = a.money + a.bank;
     // Mirrors !balance.ts: #e3c6ff embed, "`name`'s Wallet" title,

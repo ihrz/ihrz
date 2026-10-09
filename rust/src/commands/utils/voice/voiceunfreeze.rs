@@ -40,7 +40,7 @@ pub async fn voiceunfreeze(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         .await;
     ctx.say(
         crate::lang::get(&code, "util_unfreeze_command_work")
-            .unwrap_or_else(|| "Unfrozen.".to_string()),
+            .unwrap_or_else(|| "The voice channel is no longer frozen.".to_string()),
     )
     .await?;
     Ok(())

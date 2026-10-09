@@ -15,8 +15,9 @@ pub async fn ranks_config(
         .map(|g| g.get().to_string())
         .unwrap_or_default();
     let enabled = matches!(action.to_ascii_lowercase().as_str(), "on" | "power on");
-    crate::db::kv_set(
+    crate::commands::owner::main::routed_set(
         &ctx.data().pool,
+        &gid,
         &gid,
         "GUILD.RANKS.disable",
         if enabled { "0" } else { "1" },

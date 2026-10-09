@@ -51,7 +51,10 @@ pub async fn serverinfo(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     )
     .replace(
         "${interaction.guild.description}",
-        cached.description.as_deref().unwrap_or("None"),
+        cached
+            .description
+            .as_deref()
+            .unwrap_or("**Description**: ${interaction.guild.description}"),
     );
     let joined_at = ctx
         .author_member()

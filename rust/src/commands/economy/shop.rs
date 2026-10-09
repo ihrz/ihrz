@@ -74,7 +74,7 @@ pub async fn eco_shop(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
             .await?;
         return Ok(());
     }
-    let shop_json = crate::db::kv_get(pool, &gid, shop_key())
+    let shop_json = crate::commands::owner::main::routed_get(pool, &gid, &gid, shop_key())
         .await
         .unwrap_or_else(|| "{}".to_string());
     let boost = member_boost(&shop_json, &invoker_roles(&ctx).await);

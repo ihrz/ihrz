@@ -42,7 +42,7 @@ pub async fn serverpic(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         .image(url.clone());
     let button = serenity::CreateButton::new_link(url).label(
         crate::lang::get(&code, "pfps_download_guild_button")
-            .unwrap_or_else(|| "Download.".to_string()),
+            .unwrap_or_else(|| "Download Guild Avatar".to_string()),
     );
     ctx.send(
         poise::CreateReply::default()

@@ -23,26 +23,193 @@ pub async fn tcp_open(host: &str, port: u16, timeout: Duration) -> bool {
         .is_some()
 }
 
+// ---- Service checks (TS: infrastructureMonitoringManager.ts) ----
+// Mirrors ResponseResult { up, latency } plus the checkAllServices keys:
+// PublicBot, HorizonGateway, Lavalink, iHorizonWebsite. Lavalink was the
+// only probe ported before; the HTTP checks + aggregation land here.
+
+/// Mirrors the TS `ResponseResult`. Serde keys stay `up`/`latency`.
+#[derive(Debug, Clone, Default, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct ResponseResult {
+    pub up: bool,
+    pub latency: u64,
+}
+
+impl ResponseResult {
+    pub fn down() -> Self {
+        Self::default()
+    }
+}
+
+/// Probe target for iHorizonWebsite(). Mirrors the hardcoded TS URL.
+pub const WEBSITE_URL: &str = "https://www.ihorizon.org";
+/// Env key for the gateway base URL (TS: client.config.api.HorizonGateway).
+pub const GATEWAY_ENV_KEY: &str = "HORIZON_GATEWAY_URL";
+/// Mirrors `private timeout = 5000`.
+pub const MONITOR_TIMEOUT: Duration = Duration::from_secs(5);
+
+/// Gateway URL from env. Empty/missing mirrors the TS falsy-URL path
+/// in HorizonGateway(), which returns down without a request.
+pub fn gateway_url_from_env() -> Option<String> {
+    std::env::var(GATEWAY_ENV_KEY)
+        .ok()
+        .map(|s| s.trim().to_string())
+        .filter(|s| !s.is_empty())
+}
+
+/// Mirrors PublicBot(): up = ws READY, latency = ws ping.
+/// Here `discord_ms` carries the gateway ping (0 = not ready -> down).
+pub fn public_bot_result(discord_ms: u64) -> ResponseResult {
+    if discord_ms > 0 {
+        ResponseResult {
+            up: true,
+            latency: discord_ms,
+        }
+    } else {
+        ResponseResult::down()
+    }
+}
+
+/// GET probe with latency. Up only on 2xx, mirroring the TS axios calls
+/// (axios rejects non-2xx, so HorizonGateway's bare `up: true` on success
+/// and iHorizonWebsite's explicit range check behave the same).
+pub async fn http_check(url: &str, timeout: Duration) -> ResponseResult {
+    let client = match reqwest::Client::builder().timeout(timeout).build() {
+        Ok(c) => c,
+        Err(_) => return ResponseResult::down(),
+    };
+    let start = std::time::Instant::now();
+    match client.get(url).send().await {
+        Ok(resp) => {
+            if resp.status().is_success() {
+                ResponseResult {
+                    up: true,
+                    latency: start.elapsed().as_millis().min(u128::from(u64::MAX)) as u64,
+                }
+            } else {
+                ResponseResult::down()
+            }
+        }
+        Err(_) => ResponseResult::down(),
+    }
+}
+
+/// Mirrors HorizonGateway(): falsy URL -> down, else GET with timeout.
+pub async fn check_horizon_gateway(url: Option<&str>, timeout: Duration) -> ResponseResult {
+    match url {
+        Some(u) if !u.trim().is_empty() => http_check(u, timeout).await,
+        _ => ResponseResult::down(),
+    }
+}
+
+/// Mirrors iHorizonWebsite(): GET with timeout, up on 2xx.
+pub async fn check_website(url: &str, timeout: Duration) -> ResponseResult {
+    http_check(url, timeout).await
+}
+
+/// TCP probe with latency. Mirrors checkTcpConnection().
+pub async fn check_tcp_result(host: &str, port: u16, timeout: Duration) -> ResponseResult {
+    let start = std::time::Instant::now();
+    if tcp_open(host, port, timeout).await {
+        ResponseResult {
+            up: true,
+            latency: start.elapsed().as_millis().min(u128::from(u64::MAX)) as u64,
+        }
+    } else {
+        ResponseResult::down()
+    }
+}
+
+/// Aggregation matching the TS checkAllServices() return shape
+/// (keys PublicBot/HorizonGateway/Lavalink/iHorizonWebsite).
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+pub struct ServiceResults {
+    #[serde(rename = "PublicBot")]
+    pub public_bot: ResponseResult,
+    #[serde(rename = "HorizonGateway")]
+    pub horizon_gateway: ResponseResult,
+    #[serde(rename = "Lavalink")]
+    pub lavalink: ResponseResult,
+    #[serde(rename = "iHorizonWebsite")]
+    pub website: ResponseResult,
+}
+
+impl Default for ServiceResults {
+    fn default() -> Self {
+        Self {
+            public_bot: ResponseResult::down(),
+            horizon_gateway: ResponseResult::down(),
+            lavalink: ResponseResult::down(),
+            website: ResponseResult::down(),
+        }
+    }
+}
+
+/// Mirrors formatStatus() minus the emoji prefix (the panel owns icons):
+/// up -> `Online | Latency: Nms`, down -> `Offline`.
+pub fn format_status(result: &ResponseResult) -> String {
+    if result.up {
+        format!("Online | Latency: {}ms", result.latency)
+    } else {
+        "Offline".to_string()
+    }
+}
+
+/// Concurrent fan-out mirroring `Promise.all([...])` in checkAllServices().
+pub async fn check_all_services(
+    discord_ms: u64,
+    gateway_url: Option<&str>,
+    lavalink_host: &str,
+    lavalink_port: u16,
+    website_url: &str,
+    timeout: Duration,
+) -> ServiceResults {
+    let (gateway, lavalink, website) = tokio::join!(
+        check_horizon_gateway(gateway_url, timeout),
+        check_tcp_result(lavalink_host, lavalink_port, timeout),
+        check_website(website_url, timeout),
+    );
+    ServiceResults {
+        public_bot: public_bot_result(discord_ms),
+        horizon_gateway: gateway,
+        lavalink,
+        website,
+    }
+}
+
 #[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
 pub struct InfraStatus {
     pub at_ms: i64,
     pub lavalink_ok: bool,
     pub discord_ms: u64,
+    /// Full aggregation; flattened keys match the TS record.
+    #[serde(default)]
+    pub services: ServiceResults,
 }
 
-/// 60s tick: probe Lavalink (env config) + record status.
+/// 60s tick: probe Lavalink (env config) + HTTP services, record status.
 /// Discord gateway latency is filled by the caller when available.
 pub async fn tick(pool: &crate::db::Pool, discord_ms: u64) -> InfraStatus {
     let cfg = crate::audio::LavalinkConfig::from_env()
         .unwrap_or(crate::audio::LavalinkConfig::parse(None, None, None, None).unwrap());
-    let lavalink_ok = tcp_open(&cfg.host, cfg.port, Duration::from_secs(5)).await;
+    let gateway_url = gateway_url_from_env();
+    let services = check_all_services(
+        discord_ms,
+        gateway_url.as_deref(),
+        &cfg.host,
+        cfg.port,
+        WEBSITE_URL,
+        MONITOR_TIMEOUT,
+    )
+    .await;
     let status = InfraStatus {
         at_ms: std::time::SystemTime::now()
             .duration_since(std::time::UNIX_EPOCH)
             .map(|d| d.as_millis() as i64)
             .unwrap_or(0),
-        lavalink_ok,
+        lavalink_ok: services.lavalink.up,
         discord_ms,
+        services,
     };
     let _ = crate::db::kv_set(
         pool,
@@ -52,9 +219,12 @@ pub async fn tick(pool: &crate::db::Pool, discord_ms: u64) -> InfraStatus {
     )
     .await;
     tracing::info!(
-        "infra: lavalink {}:{} ok={lavalink_ok} discord={discord_ms}ms",
+        "infra: lavalink {}:{} ok={} discord={discord_ms}ms gateway={} website={}",
         cfg.host,
-        cfg.port
+        cfg.port,
+        status.lavalink_ok,
+        format_status(&status.services.horizon_gateway),
+        format_status(&status.services.website),
     );
     status
 }
@@ -512,5 +682,124 @@ mod tests {
         assert_eq!(cached_ip(false).as_deref(), Some("5.6.7.8"));
         clear_ip_cache();
         assert_eq!(cached_ip(false), None);
+    }
+
+    // ---- Service checks (mocked endpoints) ----
+
+    #[test]
+    fn public_bot_maps_ping_to_ready() {
+        assert_eq!(
+            public_bot_result(120),
+            ResponseResult {
+                up: true,
+                latency: 120
+            }
+        );
+        assert_eq!(public_bot_result(0), ResponseResult::down());
+    }
+
+    #[test]
+    fn format_status_matches_ts_shapes() {
+        assert_eq!(
+            format_status(&ResponseResult {
+                up: true,
+                latency: 42
+            }),
+            "Online | Latency: 42ms"
+        );
+        assert_eq!(format_status(&ResponseResult::down()), "Offline");
+    }
+
+    #[test]
+    fn service_keys_match_ts_record() {
+        let services = ServiceResults::default();
+        let value = serde_json::to_value(&services).unwrap();
+        let obj = value.as_object().unwrap();
+        for key in ["PublicBot", "HorizonGateway", "Lavalink", "iHorizonWebsite"] {
+            let entry = obj.get(key).unwrap();
+            assert_eq!(entry.get("up").unwrap(), &serde_json::Value::Bool(false));
+            assert_eq!(entry.get("latency").unwrap(), &serde_json::Value::from(0));
+        }
+    }
+
+    #[tokio::test]
+    async fn gateway_empty_url_is_down_without_request() {
+        let timeout = Duration::from_millis(200);
+        assert_eq!(
+            check_horizon_gateway(None, timeout).await,
+            ResponseResult::down()
+        );
+        assert_eq!(
+            check_horizon_gateway(Some("   "), timeout).await,
+            ResponseResult::down()
+        );
+    }
+
+    /// Minimal single-shot HTTP origin for offline tests.
+    async fn spawn_http(status: u16, body: &'static str) -> String {
+        let listener = tokio::net::TcpListener::bind("127.0.0.1:0").await.unwrap();
+        let addr = listener.local_addr().unwrap();
+        tokio::spawn(async move {
+            if let Ok((mut sock, _)) = listener.accept().await {
+                use tokio::io::{AsyncReadExt, AsyncWriteExt};
+                let mut buf = vec![0u8; 4096];
+                let _ = sock.read(&mut buf).await;
+                let reason = if status == 200 {
+                    "OK"
+                } else {
+                    "Internal Server Error"
+                };
+                let resp = format!(
+                    "HTTP/1.1 {status} {reason}\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{body}",
+                    body.len()
+                );
+                let _ = sock.write_all(resp.as_bytes()).await;
+            }
+        });
+        format!("http://{addr}/")
+    }
+
+    #[tokio::test]
+    async fn http_check_up_on_2xx_down_on_500() {
+        let timeout = Duration::from_secs(2);
+        let ok_url = spawn_http(200, "ok").await;
+        let ok = http_check(&ok_url, timeout).await;
+        assert!(ok.up);
+
+        let bad_url = spawn_http(500, "boom").await;
+        assert_eq!(http_check(&bad_url, timeout).await, ResponseResult::down());
+    }
+
+    #[tokio::test]
+    async fn http_check_closed_port_is_down() {
+        let r = http_check("http://127.0.0.1:1/", Duration::from_millis(300)).await;
+        assert_eq!(r, ResponseResult::down());
+    }
+
+    #[tokio::test]
+    async fn check_all_services_fans_out_like_ts() {
+        let timeout = Duration::from_secs(2);
+        let gateway_url = spawn_http(200, "gateway").await;
+        let website_url = spawn_http(200, "site").await;
+        let services = check_all_services(
+            77,
+            Some(&gateway_url),
+            "127.0.0.1",
+            1,
+            &website_url,
+            timeout,
+        )
+        .await;
+        assert_eq!(
+            services.public_bot,
+            ResponseResult {
+                up: true,
+                latency: 77
+            }
+        );
+        assert!(services.horizon_gateway.up);
+        assert!(!services.lavalink.up);
+        assert_eq!(services.lavalink.latency, 0);
+        assert!(services.website.up);
     }
 }

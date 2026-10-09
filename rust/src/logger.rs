@@ -20,9 +20,11 @@ pub fn init() {
 // Mirrors src/core/modules/errorManager.ts: uncaught errors are logged
 // and, outside dev mode, appended to src/files/error.log one entry at a
 // time (never holding a descriptor open — the old TS streaming version
-// leaked one fd per error until EMFILE). Rust has no unhandledRejection
-// event; async task failures are logged at their spawn sites, while this
-// panic hook covers the uncaughtException leg. Date stamp reuses
+// leaked one fd per error until EMFILE). The panic hook below covers the
+// uncaughtException leg; report_rejection/spawn_tracked cover the
+// unhandledRejection leg (TS: unconditional console.error + gated file
+// append). Rust has no process-wide rejection event, so async failures
+// must be routed through these explicitly. Date stamp reuses
 // funcs::format_date with the same "DD/MM/YYYY HH:mm:ss" tokens.
 
 /// Mirrors the TS `<cwd>/src/files/error.log` location. The TS cwd is
@@ -90,6 +92,57 @@ pub fn install_error_handlers(dev_mode: bool) {
     }));
 }
 
+/// Central async-failure handler. Mirrors the TS unhandledRejection leg
+/// (errorManager.ts:65-77): the detail is ALWAYS emitted via
+/// tracing::error (the unconditional `console.error(err)` equivalent),
+/// and outside dev mode the marker lines are emitted and the entry is
+/// also appended to error.log. Pass the same `dev_mode` flag used for
+/// install_error_handlers.
+pub fn report_rejection(detail: &str, dev_mode: bool) {
+    tracing::error!("{detail}");
+    if !dev_mode {
+        tracing::error!("Error detected");
+        tracing::error!("Save in the logs");
+        append_error_log(detail);
+    }
+}
+
+/// Await-site convention for fallible async work: routes Err through
+/// report_rejection (with task-name context) and folds to Option.
+/// Usage: `let Some(x) = logger::log_task_outcome("rss-poll", dev, fetch().await) else { return };`
+pub fn log_task_outcome<T, E: std::fmt::Display>(
+    task_name: &str,
+    dev_mode: bool,
+    result: Result<T, E>,
+) -> Option<T> {
+    match result {
+        Ok(value) => Some(value),
+        Err(err) => {
+            report_rejection(&format!("{task_name}: {err}"), dev_mode);
+            None
+        }
+    }
+}
+
+/// Fire-and-forget convention replacing bare `tokio::spawn`: the task's
+/// Err outcome is routed through report_rejection instead of being
+/// silently dropped (the closest Rust analogue to unhandledRejection).
+/// Usage: `logger::spawn_tracked("presence-refresh", dev, async move { ... Ok(()) });`
+pub fn spawn_tracked<T, E, F>(
+    task_name: &'static str,
+    dev_mode: bool,
+    fut: F,
+) -> tokio::task::JoinHandle<()>
+where
+    F: std::future::Future<Output = Result<T, E>> + Send + 'static,
+    T: Send + 'static,
+    E: std::fmt::Display + Send + 'static,
+{
+    tokio::spawn(async move {
+        log_task_outcome(task_name, dev_mode, fut.await);
+    })
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -104,5 +157,30 @@ mod tests {
     #[test]
     fn error_log_path_targets_src_files() {
         assert!(error_log_path().ends_with("src/files/error.log"));
+    }
+
+    #[test]
+    fn log_task_outcome_passes_ok_through() {
+        let out: Option<u32> = log_task_outcome("probe", true, Ok::<u32, &str>(7));
+        assert_eq!(out, Some(7));
+    }
+
+    #[test]
+    fn log_task_outcome_folds_err_to_none() {
+        // dev_mode=true so no error.log write; only the unconditional log fires.
+        let out: Option<u32> = log_task_outcome("probe", true, Err("boom"));
+        assert_eq!(out, None);
+    }
+
+    #[tokio::test]
+    async fn spawn_tracked_completes_ok_task() {
+        let handle = spawn_tracked("probe-ok", true, async { Ok::<u32, &str>(7) });
+        assert!(handle.await.is_ok());
+    }
+
+    #[tokio::test]
+    async fn spawn_tracked_swallows_err_without_panic() {
+        let handle = spawn_tracked("probe-err", true, async { Err::<u32, &str>("boom") });
+        assert!(handle.await.is_ok());
     }
 }

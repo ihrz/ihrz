@@ -1757,6 +1757,7 @@ history_embed_title: "Historial de Música de ${interaction.guild?.name} | Pági
 history_embed_footer_text: "iHorizon | Página ${currentPage + 1}/${pages.length}"
 history_delete_embed_title: "✅ Historial eliminado"
 history_delete_embed_desc: "El historial de música se ha eliminado correctamente."
+music_history_no_permission: "Necesitas el permiso de Administrador para ver el historial de música."
 
 # /music lyrics
 lyrics_embed_title_unknown: "Título desconocido"
@@ -1773,6 +1774,7 @@ music_lyrics: "Letras"
 music_link_here: "Enlace aquí: [Haz clic aquí]({link})"
 
 music_volume_command_ok: "${client.iHorizon_Emojis.Yes} **volumen establecido en** `${Number(query)}`%"
+music_volume_invalid: "Volumen no válido: indica un número entre 10 y 100."
 
 # Giveaway commands
 # /end, /start, /reroll

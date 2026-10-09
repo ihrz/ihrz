@@ -144,7 +144,8 @@ committed — see `.gitignore`. No push without a green
 - [x] U-TTS-CLEANUP offline leg (2026-10-09: memberless TTS teardown + voice arm; speak leg blocked. Next: embed-id persistence, orphan sweep).
 - [x] U-PANEL-OVERFLOW options txt (2026-10-09: overflow gate + file on preview/send; 5 tests. Suite 512/0, fmt + clippy clean).
 - [x] U-ETERNAL-1 (2026-10-09: E2 restore, M1/M2, C1/C2/C4, I1, D1 + fallback, S2, M4, C8/P1. Suite 575/0).
-- [x] U-ETERNAL-2 (2026-10-09: E3 10h wipe queue + recovery; C3 ticketsManager delta (all 15 fns covered, 5 verify sub-items); I2 guild-language /help kit; D2 16 cats + D3 7 named tables migrated w/ fallback; P4 prefix arg UX + file-log hook; M3 trackError recovery + rich history wiring; C7 cross-shard design; C9 verify sweep (10 FIX-UNITS banked); S3 rename decisions recorded. Suite 641/0, fmt + clippy clean).
+- [x] U-ETERNAL-2 (2026-10-09: E3 wipe queue; C3 delta; I2 help kit; D2/D3 tables; P4 args; M3 recovery; C7/C9/S3 banked. Suite 641/0).
+- [x] U-ETERNAL-3 (2026-10-09: C9 scheduler divergences (memberCount gate, autorenew warning+fidelity, nightMode tz, pfps scope, giveaway lifetime, tempRole cleanup); emoji prefix normalization; logger rejection wrapper; monitor 4-service checks; E5+E6+E8+E9 events; E13 ready leftovers; M5-M8 music; I3 130 fallbacks exact; C3 5 sub-items; D4 big-cat tables; lead YAML insert music_volume_invalid + music_history_no_permission x10 + type:lang. Suite 701/0, fmt + clippy clean).
 
 ## Eternal backlog (seeded 2026-10-09 by 7 read-only audits + lavalink edge audit; full reports in `~/.hermes/cache/delegation/live/deleg_55b606d3/task-{0,1,2,3,4,5,9}.log` — each item is a future unit for other models, files disjoint unless noted)
 

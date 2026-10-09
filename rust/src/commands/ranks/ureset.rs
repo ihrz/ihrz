@@ -25,11 +25,13 @@ pub async fn ranks_ureset(
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
-    sqlx::query("DELETE FROM kv WHERE guild_id = ? AND key_name = ?")
-        .bind(&gid)
-        .bind(ranks_key(user.id.get()))
-        .execute(&ctx.data().pool)
-        .await?;
+    let _ = crate::commands::owner::main::routed_del(
+        &ctx.data().pool,
+        &gid,
+        &gid,
+        &ranks_key(user.id.get()),
+    )
+    .await;
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     ctx.say(
         crate::lang::get(&code, "resetallinvites_succes_on_delete")

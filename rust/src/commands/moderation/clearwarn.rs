@@ -20,11 +20,13 @@ pub async fn mod_clearwarn(
     let warn_count = load_warns(&ctx.data().pool, &gid, user.id.get())
         .await
         .len();
-    sqlx::query("DELETE FROM kv WHERE guild_id = ? AND key_name = ?")
-        .bind(&gid)
-        .bind(warns_key(user.id.get()))
-        .execute(&ctx.data().pool)
-        .await?;
+    let _ = crate::commands::owner::main::routed_del(
+        &ctx.data().pool,
+        &gid,
+        &gid,
+        &warns_key(user.id.get()),
+    )
+    .await;
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let yes = crate::emojis::app_emoji_markup(&ctx.serenity_context().http, "Yes")
         .await

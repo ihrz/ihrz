@@ -53,14 +53,17 @@ pub async fn voicemove(
                         s.replace("${member?.toString()}", &format!("<@{}>", user.id.get()))
                             .replace("${channel.toString()}", &format!("<#{}>", to.id.get()))
                     })
-                    .unwrap_or_else(|| "Moved.".to_string()),
+                    .unwrap_or_else(|| {
+                        "${member?.toString()} is now in ${channel.toString()}".to_string()
+                    }),
             )
             .await?
         }
         Err(_) => {
             ctx.say(
-                crate::lang::get(&code, "util_move_not_in_vc")
-                    .unwrap_or_else(|| "Move failed (member not in voice?).".to_string()),
+                crate::lang::get(&code, "util_move_not_in_vc").unwrap_or_else(|| {
+                    "The member you want to move is not connected to any voice channel".to_string()
+                }),
             )
             .await?
         }

@@ -19,8 +19,10 @@ pub async fn tag_create(
     let name = tag_name.trim().to_ascii_lowercase();
     if !valid_tag_name(&name) {
         ctx.say(
-            crate::lang::get(&code, "tag_create_not_good_name")
-                .unwrap_or_else(|| "Bad tag name (lowercase a-z 0-9 -, 2-32).".to_string()),
+            crate::lang::get(&code, "tag_create_not_good_name").unwrap_or_else(|| {
+                "The tag name must not include spaces and must not exceed 16 characters."
+                    .to_string()
+            }),
         )
         .await?;
         return Ok(());
@@ -33,7 +35,7 @@ pub async fn tag_create(
     if store.stored_tags.contains_key(&name) {
         ctx.say(
             crate::lang::get(&code, "tag_create_already_exist")
-                .unwrap_or_else(|| "Tag already exists.".to_string()),
+                .unwrap_or_else(|| "The tag already exists.".to_string()),
         )
         .await?;
         return Ok(());

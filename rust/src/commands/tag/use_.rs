@@ -24,7 +24,7 @@ pub async fn tag_use(
                     s.replace("${tag_name}", &name)
                         .replace("${tag.createBy}", &create_by)
                 })
-                .unwrap_or_else(|| "Not allowed.".to_string()),
+                .unwrap_or_else(|| "You are not allowed to use the tag `${tag_name}`.\nYou need the Administrator permission, or you can ask the tag owner <@${tag.createBy}> to add you to the whitelist (`tag wlroles-use`).".to_string()),
         )
         .await?;
         return Ok(());
@@ -34,7 +34,7 @@ pub async fn tag_use(
         ctx.say(
             crate::lang::get(&code, "tag_doesnt_exist")
                 .map(|s| s.replace("${tag_name}", &name))
-                .unwrap_or_else(|| "Tag doesn't exist.".to_string()),
+                .unwrap_or_else(|| "The tag `${tag_name}` doesn't exist!".to_string()),
         )
         .await?;
         return Ok(());

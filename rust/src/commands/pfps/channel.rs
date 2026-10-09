@@ -29,7 +29,7 @@ pub async fn pfps_channel(
             s.replace("${interaction.user}", &ctx.author().to_string())
                 .replace("${channel}", &format!("<#{}>", channel.id.get()))
         })
-        .unwrap_or_else(|| "PFPS channel set.".to_string());
+        .unwrap_or_else(|| "${interaction.user}, you have successfully set the PFPS module to the channel ${channel}!".to_string());
     ctx.say(msg).await?;
     Ok(())
 }

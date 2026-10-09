@@ -40,8 +40,9 @@ pub async fn leash(
         .collect();
     if owned.len() >= max_leashed {
         ctx.say(
-            crate::lang::get(&code, "util_leash_too_naugthy")
-                .unwrap_or_else(|| "Too many leashed.".to_string()),
+            crate::lang::get(&code, "util_leash_too_naugthy").unwrap_or_else(|| {
+                "You little rascal, you can't leash more than 3 people :D".to_string()
+            }),
         )
         .await?;
         return Ok(());
@@ -110,7 +111,7 @@ pub async fn leash(
     ctx.say(
         crate::lang::get(&code, "util_leash_confirmed_leash")
             .map(|s| s.replace("${client.iHorizon_Emojis.Yes}", &yes_mark))
-            .unwrap_or_else(|| "Leash set.".to_string()),
+            .unwrap_or_else(|| "${client.iHorizon_Emojis.Yes} | You have successfully leashed the user in this guild :smirk:".to_string()),
     )
     .await?;
     Ok(())

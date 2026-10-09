@@ -27,7 +27,7 @@ pub async fn vkick(
         Err(_) => {
             ctx.say(
                 crate::lang::get(&code, "vkick_not_in_vc")
-                    .unwrap_or_else(|| "Not in voice.".to_string()),
+                    .unwrap_or_else(|| "The member is not in a voice channel.".to_string()),
             )
             .await?
         }

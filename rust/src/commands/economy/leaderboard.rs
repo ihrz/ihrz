@@ -22,6 +22,55 @@ fn filter_cached_users(
         .collect()
 }
 
+/// Routed board scan: table `USER` root walked first, then legacy-only
+/// blob rows (`USER.<id>.ECONOMY` exactly; leaf rows under a blob path
+/// must not double-count). Table values win on uid conflicts.
+/// Mirrors the D3 merged-scan precedent (schedule user_entry_texts).
+async fn board_rows(pool: &crate::db::Pool, guild_id: &str) -> Vec<(u64, i64, i64)> {
+    use crate::commands::owner::main::{legacy_scan, tbl_get_value};
+    use std::collections::BTreeMap;
+    let mut merged: BTreeMap<u64, (i64, i64)> = BTreeMap::new();
+    for (k, v) in legacy_scan(pool, guild_id, "USER.").await {
+        let rest = match k.strip_prefix("USER.") {
+            Some(r) => r,
+            None => continue,
+        };
+        let (id, tail) = match rest.split_once('.') {
+            Some(p) => p,
+            None => continue,
+        };
+        if tail != "ECONOMY" {
+            continue;
+        }
+        let Ok(id): Result<u64, _> = id.parse() else {
+            continue;
+        };
+        if let Ok(a) = serde_json::from_str::<EconAccount>(&v) {
+            merged.insert(id, (a.money + a.bank, a.bank));
+        }
+    }
+    if let Some(root) = tbl_get_value(pool, guild_id, "USER").await {
+        if let Some(obj) = root.as_object() {
+            for (id_s, node) in obj {
+                let Ok(id): Result<u64, _> = id_s.parse() else {
+                    continue;
+                };
+                if let Some(doc) = node.get("ECONOMY") {
+                    if let Ok(a) = serde_json::from_value::<EconAccount>(doc.clone()) {
+                        merged.insert(id, (a.money + a.bank, a.bank));
+                    }
+                }
+            }
+        }
+    }
+    let mut parsed: Vec<(u64, i64, i64)> = merged
+        .into_iter()
+        .map(|(id, (total, bank))| (id, total, bank))
+        .collect();
+    parsed.sort_by_key(|a| std::cmp::Reverse(a.1));
+    parsed
+}
+
 #[poise::command(
     slash_command,
     prefix_command,
@@ -37,29 +86,7 @@ pub async fn eco_leaderboard(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
-    // Blob rows only (`USER.<id>.ECONOMY` exactly); leaf rows under a
-    // blob path must not double-count.
-    let rows: Vec<(String, String)> = sqlx::query_as::<_, (String, String)>(
-        "SELECT key_name, value FROM kv WHERE guild_id = ? AND key_name LIKE 'USER.%.ECONOMY%'",
-    )
-    .bind(&gid)
-    .fetch_all(&ctx.data().pool)
-    .await
-    .unwrap_or_default();
-    let mut parsed: Vec<(u64, i64, i64)> = rows
-        .iter()
-        .filter_map(|(k, v)| {
-            let rest = k.strip_prefix("USER.")?;
-            let (id, tail) = rest.split_once('.')?;
-            if tail != "ECONOMY" {
-                return None;
-            }
-            let id: u64 = id.parse().ok()?;
-            let a: EconAccount = serde_json::from_str(v).ok()?;
-            Some((id, a.money + a.bank, a.bank))
-        })
-        .collect();
-    parsed.sort_by_key(|a| std::cmp::Reverse(a.1));
+    let mut parsed = board_rows(&ctx.data().pool, &gid).await;
     // Skip rows whose user is not in the gateway cache, mirroring
     // `users.cache.get(i)` + `if (!user ...) continue` in TS.
     parsed = filter_cached_users(parsed, &|uid| ctx.cache().user(uid).is_some());
@@ -240,7 +267,28 @@ pub async fn eco_leaderboard(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
 
 #[cfg(test)]
 mod tests {
+    use super::board_rows;
     use super::filter_cached_users;
+
+    async fn mem_pool() -> crate::db::Pool {
+        use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};
+        use std::str::FromStr;
+        let opts = SqliteConnectOptions::from_str("sqlite::memory:")
+            .unwrap()
+            .create_if_missing(true);
+        let pool = SqlitePoolOptions::new()
+            .max_connections(1)
+            .connect_with(opts)
+            .await
+            .unwrap();
+        sqlx::query(
+            "CREATE TABLE kv (guild_id TEXT NOT NULL, key_name TEXT NOT NULL, value TEXT NOT NULL, PRIMARY KEY (guild_id, key_name))",
+        )
+        .execute(&pool)
+        .await
+        .unwrap();
+        pool
+    }
 
     #[test]
     fn uncached_rows_are_skipped_like_ts() {
@@ -251,5 +299,40 @@ mod tests {
         let out = filter_cached_users(rows, &|uid| uid != 2);
         assert_eq!(out, vec![(1u64, 300i64, 100i64), (3, 100, 0)]);
         assert!(filter_cached_users(vec![], &|_| true).is_empty());
+    }
+
+    #[tokio::test]
+    async fn board_merges_table_and_legacy_rows_table_wins() {
+        use crate::commands::owner::main::{legacy_scan, table_backend};
+        let pool = mem_pool().await;
+        // Legacy-only blob row.
+        crate::db::kv_set(&pool, "g", "USER.1.ECONOMY", r#"{"money":100,"bank":50}"#)
+            .await
+            .unwrap();
+        // Legacy leaf rows under a blob path never double-count.
+        crate::db::kv_set(&pool, "g", "USER.1.ECONOMY.money", "9999")
+            .await
+            .unwrap();
+        // Table-only row (dual-written shape, no legacy row).
+        table_backend(&pool)
+            .table("g")
+            .set(
+                "USER.2.ECONOMY",
+                serde_json::json!({"money": 10, "bank": 5}),
+            )
+            .await
+            .unwrap();
+        let rows = board_rows(&pool, "g").await;
+        assert_eq!(rows, vec![(1u64, 150i64, 50i64), (2, 15, 5)]);
+        // Other guilds are isolated.
+        assert!(board_rows(&pool, "other").await.is_empty());
+        // Dual-written uid: table value wins over the legacy row.
+        crate::db::kv_set(&pool, "g", "USER.2.ECONOMY", r#"{"money":1000,"bank":0}"#)
+            .await
+            .unwrap();
+        let rows = board_rows(&pool, "g").await;
+        assert_eq!(rows[0], (1u64, 150i64, 50i64));
+        assert_eq!(rows[1], (2u64, 15i64, 5i64));
+        assert!(!legacy_scan(&pool, "g", "USER.").await.is_empty());
     }
 }

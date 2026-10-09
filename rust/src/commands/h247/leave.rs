@@ -19,7 +19,10 @@ pub async fn h247_leave(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     ctx.say(
         crate::lang::get(&code, "h247_left")
             .map(|s| s.replace("${client.iHorizon_Emojis.Yes}", &yes))
-            .unwrap_or_else(|| "H247 left.".to_string()),
+            .unwrap_or_else(|| {
+                "${client.iHorizon_Emojis.Yes} The H24/7 module has been disabled on this server!"
+                    .to_string()
+            }),
     )
     .await?;
     Ok(())

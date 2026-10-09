@@ -31,7 +31,7 @@ pub async fn gc_support(
         ctx.say(
             crate::lang::get(&code, "support_command_work_on_disable")
                 .map(|s| s.replace("${interaction.guild.name}", &guild_name))
-                .unwrap_or_else(|| "Support off.".to_string()),
+                .unwrap_or_else(|| "You have set up the support module for **${interaction.guild.name}**.\nNobody will receive a role now!".to_string()),
         )
         .await?;
     }

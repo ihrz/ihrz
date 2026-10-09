@@ -52,7 +52,9 @@ pub async fn unwlvc(
         ctx.say(
             crate::lang::get(&code, "util_unwlvc_not_whitelisted")
                 .map(|s| s.replace("${member.toString()}", &format!("<@{}>", target.id.get())))
-                .unwrap_or_else(|| "Not whitelisted.".to_string()),
+                .unwrap_or_else(|| {
+                    "${member.toString()} is not allowed in the frozen voice channel.".to_string()
+                }),
         )
         .await?;
         return Ok(());
@@ -72,7 +74,9 @@ pub async fn unwlvc(
     ctx.say(
         crate::lang::get(&code, "util_unwlvc_command_work")
             .map(|s| s.replace("${member.toString()}", &format!("<@{}>", target.id.get())))
-            .unwrap_or_else(|| "Voice freeze cleared.".to_string()),
+            .unwrap_or_else(|| {
+                "${member.toString()} can no longer join the frozen voice channel.".to_string()
+            }),
     )
     .await?;
     // Mirror !unwlvc.ts: disconnect the member when they sit in the

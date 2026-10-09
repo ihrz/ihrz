@@ -54,9 +54,11 @@ pub async fn mod_unban(
         .http()
         .remove_ban(guild_id, serenity::UserId::new(uid), Some(&reason_s))
         .await;
-    // Clear any tempban row for the user.
+    // Clear any tempban row for the user, in both stores.
     let gid = guild_id.get().to_string();
-    let _ = crate::db::kv_del(&ctx.data().pool, &gid, &tempban_key(uid)).await;
+    let _ =
+        crate::commands::owner::main::routed_del(&ctx.data().pool, &gid, &gid, &tempban_key(uid))
+            .await;
     ctx.say(t("unban_is_now_unbanned").replace("${userID}", &uid.to_string()))
         .await?;
     post_mod_log(

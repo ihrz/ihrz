@@ -511,14 +511,29 @@ impl LavalinkManager {
         }
     }
 
-    /// Deterministic node pick (guild-affine, mirrors least-penalty
-    /// routing intent without live stats in the offline path).
-    pub async fn node_for(&self, guild_id: u64) -> Option<Arc<NodeEntry>> {
+    /// Guild-affine node order: the affine pick first, then the rest
+    /// in stable config order. Failover legs walk this order and use
+    /// the first node with a ready session instead of failing when
+    /// only the primary is down.
+    pub async fn nodes_in_failover_order(&self, guild_id: u64) -> Vec<Arc<NodeEntry>> {
         let nodes = self.nodes.read().await;
         if nodes.is_empty() {
-            return None;
+            return vec![];
         }
-        Some(Arc::clone(&nodes[guild_id as usize % nodes.len()]))
+        let start = guild_id as usize % nodes.len();
+        (0..nodes.len())
+            .map(|i| Arc::clone(&nodes[(start + i) % nodes.len()]))
+            .collect()
+    }
+
+    /// Deterministic node pick (guild-affine, mirrors least-penalty
+    /// routing intent without live stats in the offline path).
+    /// First entry of [`Self::nodes_in_failover_order`].
+    pub async fn node_for(&self, guild_id: u64) -> Option<Arc<NodeEntry>> {
+        self.nodes_in_failover_order(guild_id)
+            .await
+            .into_iter()
+            .next()
     }
 
     pub async fn set_session(&self, node_id: &str, session: String) {
@@ -592,12 +607,10 @@ impl LavalinkManager {
                     match p.advance_on_end(&ev.reason, now_ms) {
                         AdvanceOutcome::Next => {
                             let enc = p.current.as_ref().map(|t| t.encoded.clone());
-                            let node = self.node_for(gid).await;
-                            match (node, enc) {
-                                (Some(n), Some(e)) => {
-                                    let sess = n.session().await;
-                                    sess.map(|s| (n, s, e))
-                                }
+                            drop(players);
+                            let live = self.live_node_and_session(gid).await.ok();
+                            match (live, enc) {
+                                (Some((n, s)), Some(e)) => Some((n, s, e)),
                                 _ => None,
                             }
                         }
@@ -843,6 +856,36 @@ impl LavalinkManager {
         self.rest_set_voice(&node, &session, guild_id, voice)
             .await?;
         Ok(())
+    }
+
+    // ---- stage channels (no TS equivalent; intentional addition) ----
+
+    /// True for Stage voice channels: bots join them suppressed
+    /// (audience) and must be unsuppressed before audio is heard.
+    /// The TS side never detects this (playerManager.ts has no
+    /// stage branch), so joining a stage silently plays to nobody.
+    pub fn is_stage_channel(kind: serenity::ChannelType) -> bool {
+        matches!(kind, serenity::ChannelType::Stage)
+    }
+
+    /// Best-effort request to speak on a stage channel (unsuppress
+    /// the bot via PATCH voice-state/@me, the bot equivalent of
+    /// accepting a speak invite). False on any HTTP failure, in
+    /// which case the caller refuses the play with a user message.
+    pub async fn request_stage_speaker(
+        http: &serenity::Http,
+        guild_id: u64,
+        channel_id: u64,
+    ) -> bool {
+        http.edit_voice_state_me(
+            serenity::GuildId::new(guild_id),
+            &serde_json::json!({
+                "channel_id": channel_id.to_string(),
+                "suppress": false,
+            }),
+        )
+        .await
+        .is_ok()
     }
 
     // ---- node websocket feed (ready session + track events) ----
@@ -1270,12 +1313,14 @@ impl LavalinkManager {
         &self,
         guild_id: u64,
     ) -> Result<(Arc<NodeEntry>, String), MusicError> {
-        let node = self.node_for(guild_id).await.ok_or(MusicError::NoNodes)?;
-        let session = node
-            .session()
-            .await
-            .ok_or_else(|| MusicError::NoSession(node.id.clone()))?;
-        Ok((node, session))
+        let ordered = self.nodes_in_failover_order(guild_id).await;
+        let first = ordered.first().ok_or(MusicError::NoNodes)?;
+        for node in &ordered {
+            if let Some(session) = node.session().await {
+                return Ok((Arc::clone(node), session));
+            }
+        }
+        Err(MusicError::NoSession(first.id.clone()))
     }
 
     /// Resolve + enqueue. Returns (position, track title): position 0
@@ -1321,10 +1366,20 @@ impl LavalinkManager {
             })
             .await;
         if position == 0 {
-            if let Some(current) = self.snapshot(guild_id).await.and_then(|s| s.current) {
-                let _ = self
+            let snap = self.snapshot(guild_id).await;
+            if let Some(current) = snap.as_ref().and_then(|s| s.current.clone()) {
+                let out = self
                     .rest_play(&node, &session, guild_id, &current.encoded, false)
-                    .await?;
+                    .await;
+                // Re-apply the stored volume on every fresh start
+                // (mirrors musicPlay.ts `player.setVolume(player.customVolume
+                // || DEFAULT_VOLUME)` after createPlayer): the node
+                // player is new, so it would otherwise play at 100.
+                let volume = snap.map(|s| s.volume).unwrap_or(100);
+                let _ = self
+                    .rest_set_volume(&node, &session, guild_id, volume)
+                    .await;
+                out?;
             }
         }
         Ok((position, title))
@@ -1345,6 +1400,14 @@ const NODE_WS_FIRST_BACKOFF: Duration = Duration::from_secs(5);
 const NODE_WS_MAX_BACKOFF: Duration = Duration::from_secs(50);
 /// A connection living longer than this resets the backoff.
 const NODE_WS_STABLE_FOR: Duration = Duration::from_secs(60);
+
+/// Next reconnect delay: double the last wait, capped at 50s
+/// (mirrors the TS `retryDelay: 50_000` ceiling; retries are
+/// unbounded like `retryAmount: Infinity`). Pure so the schedule
+/// stays unit-testable without a node.
+pub fn next_backoff(current: Duration) -> Duration {
+    (current * 2).min(NODE_WS_MAX_BACKOFF)
+}
 
 fn now_ms_wall() -> i64 {
     std::time::SystemTime::now()
@@ -1379,7 +1442,7 @@ pub fn spawn_node_ws(cfg: NodeCfg, user_id: u64) {
                 Err(e) => {
                     tracing::warn!("lavalink ws {node_id}: request build failed ({e}), retry");
                     tokio::time::sleep(backoff).await;
-                    backoff = (backoff * 2).min(NODE_WS_MAX_BACKOFF);
+                    backoff = next_backoff(backoff);
                     continue;
                 }
             };
@@ -1400,10 +1463,11 @@ pub fn spawn_node_ws(cfg: NodeCfg, user_id: u64) {
             let _ = pump.await;
             if connected_at.elapsed() >= NODE_WS_STABLE_FOR {
                 backoff = NODE_WS_FIRST_BACKOFF;
-            } else {
-                backoff = (backoff * 2).min(NODE_WS_MAX_BACKOFF);
             }
+            // Sleep the current wait, then step it up for the next
+            // drop (first redial waits 5s, doubling to the 50s cap).
             tokio::time::sleep(backoff).await;
+            backoff = next_backoff(backoff);
         }
     });
 }
@@ -2021,6 +2085,99 @@ mod tests {
             .sweep_idle_destroy(1000 + EMPTY_QUEUE_DESTROY_AFTER_MS)
             .await
             .is_empty());
+    }
+
+    #[test]
+    fn backoff_doubles_and_caps_at_50s() {
+        assert_eq!(
+            next_backoff(Duration::from_secs(5)),
+            Duration::from_secs(10)
+        );
+        assert_eq!(
+            next_backoff(Duration::from_secs(25)),
+            Duration::from_secs(50)
+        );
+        assert_eq!(
+            next_backoff(Duration::from_secs(50)),
+            Duration::from_secs(50)
+        );
+    }
+
+    #[test]
+    fn stage_channel_detect() {
+        assert!(LavalinkManager::is_stage_channel(
+            serenity::ChannelType::Stage
+        ));
+        assert!(!LavalinkManager::is_stage_channel(
+            serenity::ChannelType::Voice
+        ));
+        assert!(!LavalinkManager::is_stage_channel(
+            serenity::ChannelType::Text
+        ));
+    }
+
+    fn two_node_cfgs() -> Vec<NodeCfg> {
+        vec![
+            NodeCfg {
+                id: "n1".into(),
+                host: "127.0.0.1".into(),
+                port: 2333,
+                password: "x".into(),
+                secure: false,
+            },
+            NodeCfg {
+                id: "n2".into(),
+                host: "127.0.0.2".into(),
+                port: 2333,
+                password: "x".into(),
+                secure: false,
+            },
+        ]
+    }
+
+    #[tokio::test]
+    async fn failover_order_starts_affine_then_rest() {
+        let m = LavalinkManager::new();
+        m.sync_nodes(&two_node_cfgs(), 9).await;
+        // Guild 0 is affine to n1, guild 1 to n2.
+        let o0: Vec<String> = m
+            .nodes_in_failover_order(0)
+            .await
+            .iter()
+            .map(|n| n.id.clone())
+            .collect();
+        assert_eq!(o0, vec!["n1".to_string(), "n2".to_string()]);
+        let o1: Vec<String> = m
+            .nodes_in_failover_order(1)
+            .await
+            .iter()
+            .map(|n| n.id.clone())
+            .collect();
+        assert_eq!(o1, vec!["n2".to_string(), "n1".to_string()]);
+        assert!(LavalinkManager::new()
+            .nodes_in_failover_order(0)
+            .await
+            .is_empty());
+    }
+
+    #[tokio::test]
+    async fn live_session_fails_over_to_healthy_node() {
+        let m = LavalinkManager::new();
+        m.sync_nodes(&two_node_cfgs(), 9).await;
+        // Only n2 has a session; guild 0 is affine to n1, must fail over.
+        m.set_session("n2", "sess-2".to_string()).await;
+        let (node, session) = m.live_node_and_session(0).await.unwrap();
+        assert_eq!(node.id, "n2");
+        assert_eq!(session, "sess-2");
+        // No sessions anywhere: NoSession names the affine node.
+        let m2 = LavalinkManager::new();
+        m2.sync_nodes(&two_node_cfgs(), 9).await;
+        let err = m2
+            .live_node_and_session(1)
+            .await
+            .err()
+            .expect("expected NoSession");
+        assert_eq!(err, MusicError::NoSession("n2".to_string()));
     }
 
     #[tokio::test]

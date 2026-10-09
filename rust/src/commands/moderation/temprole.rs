@@ -74,8 +74,9 @@ pub async fn mod_temprole(
     }
     let gid = guild_id.get().to_string();
     let already = member.roles.contains(&role.id)
-        || crate::db::kv_get(
+        || crate::commands::owner::main::routed_get(
             &ctx.data().pool,
+            &gid,
             &gid,
             &temprole_key(user.id.get(), role.id.get()),
         )
@@ -87,8 +88,9 @@ pub async fn mod_temprole(
     }
     member.add_role(ctx.http(), role.id).await?;
     let exp = crate::commands::shared::now_ms() + ms;
-    crate::db::kv_set(
+    crate::commands::owner::main::routed_set(
         &ctx.data().pool,
+        &gid,
         &gid,
         &temprole_key(user.id.get(), role.id.get()),
         &serde_json::json!({"expires_at_ms": exp}).to_string(),

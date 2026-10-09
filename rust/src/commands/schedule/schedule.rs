@@ -51,7 +51,7 @@ pub async fn schedule_create(
         ctx.say(
             crate::lang::get(&lang_code, "schedule_create_not_number_time")
                 .map(|s| s.replace("${interaction.user}", &ctx.author().to_string()))
-                .unwrap_or_else(|| "Invalid duration. Use e.g. 10s, 5m, 2h, 7d.".to_string()),
+                .unwrap_or_else(|| "${interaction.user}, your response (the time you want to be notified about this schedule) is not a number!".to_string()),
         )
         .await?;
         return Ok(());
@@ -94,14 +94,14 @@ pub async fn schedule_delete(
     if delete_entry_routed(&ctx.data().pool, &gid, user_id, code.trim()).await? {
         ctx.say(
             crate::lang::get(&lang_code, "schedule_delete_confirm")
-                .unwrap_or_else(|| "Schedule deleted.".to_string()),
+                .unwrap_or_else(|| "Schedule deleted!".to_string()),
         )
         .await?;
     } else {
         ctx.say(
             crate::lang::get(&lang_code, "schedule_delete_not_found")
                 .map(|s| s.replace("${arg0}", code.trim()))
-                .unwrap_or_else(|| "Schedule not found.".to_string()),
+                .unwrap_or_else(|| "There are no SCHEDULES (${arg0}) for this member!".to_string()),
         )
         .await?;
     }
@@ -131,13 +131,13 @@ pub async fn schedule_list(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     if entries.is_empty() {
         ctx.say(
             crate::lang::get(&lang_code, "schedule_list_not_schedule")
-                .unwrap_or_else(|| "No schedules.".to_string()),
+                .unwrap_or_else(|| "There are no SCHEDULES for this member!".to_string()),
         )
         .await?;
         return Ok(());
     }
     let list_title = crate::lang::get(&lang_code, "schedule_list_title_embed")
-        .unwrap_or_else(|| "Schedules".to_string());
+        .unwrap_or_else(|| "Listing all Schedules".to_string());
     let mut embed = poise::serenity_prelude::CreateEmbed::default()
         .title(list_title)
         .color(0x60BEE0);

@@ -40,7 +40,9 @@ pub async fn confession_channel(
                 &format!("<#{}>", channel.id.get()),
             )
         })
-        .unwrap_or_else(|| "Confession panel sent.".to_string());
+        .unwrap_or_else(|| {
+            "The confession panel has been sent to ${channel?.toString()}".to_string()
+        });
     let _ = button_title;
     ctx.say(msg).await?;
     Ok(())

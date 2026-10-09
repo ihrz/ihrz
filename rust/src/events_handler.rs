@@ -37,6 +37,10 @@ pub struct Handler {
     /// Guilds with a protection restore currently running.
     /// Mirrors restorationInProgress in avoidChannelDelete.ts.
     pub restoring: Arc<tokio::sync::Mutex<HashSet<String>>>,
+    /// In-flight temp-voice creations: "guild.user".
+    /// Mirrors pendingCustomVoiceCreations in
+    /// Events/voicedashboard/voiceState.ts.
+    pub temp_pending: Arc<tokio::sync::Mutex<HashSet<String>>>,
 }
 
 /// Pending captcha challenge for a newcomer.
@@ -126,6 +130,74 @@ pub fn restore_slot_release(running: &mut HashSet<String>, guild_id: &str) {
     running.remove(guild_id);
 }
 
+/// Leash pairing lifetime. Mirrors the 30-minute expiry filter in
+/// Events/utils/leashModule.ts.
+pub const LEASH_EXPIRY_MS: i64 = 30 * 60 * 1000;
+
+/// One UTILS.LEASH row. Mirrors DatabaseStructure.LeashData
+/// ({dom, sub, timestamp}); sub may hold a comma-separated list of
+/// follower ids.
+#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize)]
+pub struct LeashEntry {
+    pub dom: String,
+    pub sub: String,
+    pub timestamp: i64,
+}
+
+/// True while a pairing is still live (age within the 30-minute window).
+/// Pure predicate backing the leash prune, unit-tested below.
+pub fn leash_valid(entry_timestamp: i64, now_ms: i64) -> bool {
+    now_ms.saturating_sub(entry_timestamp) <= LEASH_EXPIRY_MS
+}
+
+/// Split a pairing's sub CSV into follower ids (trims whitespace,
+/// drops empties). Pure, unit-tested below.
+pub fn leash_sub_ids(sub_csv: &str) -> Vec<String> {
+    sub_csv
+        .split(',')
+        .map(|s| s.trim().to_string())
+        .filter(|s| !s.is_empty())
+        .collect()
+}
+
+/// True when the changing member belongs to this pairing (either as
+/// dom or as one of the CSV subs). Pure, unit-tested below.
+pub fn leash_entry_matches(entry: &LeashEntry, changing_id: &str) -> bool {
+    entry.dom == changing_id || leash_sub_ids(&entry.sub).iter().any(|s| s == changing_id)
+}
+
+/// True when the changing member is the dom of this pairing.
+/// Decides the move direction: dom moved -> subs follow the dom's new
+/// channel; sub moved -> the sub is pulled back to the dom's channel.
+/// Pure, unit-tested below.
+pub fn leash_is_dom(entry: &LeashEntry, changing_id: &str) -> bool {
+    entry.dom == changing_id
+}
+
+/// In-flight temp-voice creation key. Mirrors the
+/// `${guildId}.${userId}` key of pendingCustomVoiceCreations in
+/// Events/voicedashboard/voiceState.ts. Pure, unit-tested below.
+pub fn temp_creation_key(guild_id: &str, user_id: &str) -> String {
+    format!("{guild_id}.{user_id}")
+}
+
+/// Exact bot-mention ping gate. Mirrors rankRoleModule.ts: only a
+/// message whose whole content is `<@{botId}>` triggers the
+/// rank-role grant/info path. Pure, unit-tested below.
+pub fn is_bot_ping(content: &str, bot_id: u64) -> bool {
+    content == format!("<@{bot_id}>")
+}
+
+/// Vanity display for the guild-leave log embed. Mirrors
+/// removeGuildLog.ts (`discord.gg/<code>`, else "None"). Pure,
+/// unit-tested below.
+pub fn leave_embed_vanity(vanity_code: Option<&str>) -> String {
+    match vanity_code {
+        Some(code) if !code.is_empty() => format!("discord.gg/{code}"),
+        _ => "None".to_string(),
+    }
+}
+
 /// Delay before a left guild's data is wiped. Mirrors
 /// GUILD_DELETE_DELAY in Events/client/deleteDatabaseDataOnGuildLeave.ts.
 pub const GUILD_WIPE_DELAY_MS: i64 = 10 * 60 * 60 * 1000;
@@ -210,6 +282,7 @@ impl Handler {
             security: Arc::new(tokio::sync::Mutex::new(HashMap::new())),
             slashlog,
             restoring: Arc::new(tokio::sync::Mutex::new(HashSet::new())),
+            temp_pending: Arc::new(tokio::sync::Mutex::new(HashSet::new())),
         }
     }
 
@@ -1342,6 +1415,50 @@ impl serenity::EventHandler for Handler {
             let now = crate::commands::context::now_ms();
             crate::events::recover_voice_sessions(&self.pool, &gid, &in_voice, now).await;
         }
+        // Temp-voice ready recovery (mirrors recoverCustomVoiceChannels
+        // in voicedashboard/voiceState.ts): drop malformed rows, drop
+        // rows whose channel no longer exists, delete emptied temp
+        // channels (guild_create carries full voice states, so no cache
+        // race like the per-update sweep).
+        {
+            let rows: Vec<(String, String)> = sqlx::query_as::<_, (String, String)>(
+                "SELECT key_name, value FROM kv WHERE guild_id = ? AND key_name LIKE 'CUSTOM_VOICE.%.%'",
+            )
+            .bind(&gid)
+            .fetch_all(&self.pool)
+            .await
+            .unwrap_or_default();
+            for (key, ch_id) in rows {
+                let Ok(ch_num) = ch_id.trim().parse::<u64>() else {
+                    let _ = sqlx::query("DELETE FROM kv WHERE guild_id = ? AND key_name = ?")
+                        .bind(&gid)
+                        .bind(&key)
+                        .execute(&self.pool)
+                        .await;
+                    continue;
+                };
+                if ch_num == 0 || !guild.channels.keys().any(|c| c.get() == ch_num) {
+                    let _ = sqlx::query("DELETE FROM kv WHERE guild_id = ? AND key_name = ?")
+                        .bind(&gid)
+                        .bind(&key)
+                        .execute(&self.pool)
+                        .await;
+                    continue;
+                }
+                let occupied = guild
+                    .voice_states
+                    .values()
+                    .any(|v| v.channel_id == Some(serenity::ChannelId::new(ch_num)));
+                if !occupied {
+                    let _ = serenity::ChannelId::new(ch_num).delete(&ctx.http).await;
+                    let _ = sqlx::query("DELETE FROM kv WHERE guild_id = ? AND key_name = ?")
+                        .bind(&gid)
+                        .bind(&key)
+                        .execute(&self.pool)
+                        .await;
+                }
+            }
+        }
         // Seed the protection structure snapshot so delete-restore
         // works before the first 60s sweep (mirrors
         // backupGuildStructure in protection/ready.ts).
@@ -1517,7 +1634,7 @@ impl serenity::EventHandler for Handler {
 
     async fn guild_delete(
         &self,
-        _ctx: serenity::Context,
+        ctx: serenity::Context,
         incomplete: serenity::UnavailableGuild,
         full: Option<serenity::Guild>,
     ) {
@@ -1540,6 +1657,49 @@ impl serenity::EventHandler for Handler {
         // Mirrors invitemanager/onGuildLeave.ts: drop the invite cache.
         self.invites.lock().await.remove(&gid);
         tracing::info!("guildDelete {} queued, wipe at {}", gid, delete_at);
+        // Leave log embed (mirrors Events/client/removeGuildLog.ts).
+        // The unavailable payload only carries the id; fields fall back
+        // to the id when Discord provides no full guild.
+        if let Ok(logs_ch) = crate::config::load()
+            .map(|c| c.guild_logs_channel_id)
+            .unwrap_or_default()
+            .trim()
+            .parse::<u64>()
+        {
+            let vanity =
+                leave_embed_vanity(full.as_ref().and_then(|g| g.vanity_url_code.as_deref()));
+            let (gname, locale, members, icon) = full
+                .as_ref()
+                .map(|g| {
+                    (
+                        g.name.clone(),
+                        g.preferred_locale.clone(),
+                        g.member_count.to_string(),
+                        g.icon_url(),
+                    )
+                })
+                .unwrap_or_else(|| (gid.clone(), "unknown".to_string(), "idk".to_string(), None));
+            let mut leave_embed = serenity::CreateEmbed::default()
+                .colour(0xFF0505_u32)
+                .description("**A guild removed iHorizon !**")
+                .field("Server Name", format!("`{gname}`"), true)
+                .field("Server ID", format!("`{gid}`"), true)
+                .field("Server Region", format!("`{locale}`"), true)
+                .field("Member Count", format!("`{members}` members"), true)
+                .field("Vanity URL", format!("`{vanity}`"), true)
+                .field(
+                    "New guilds total",
+                    ctx.cache.guild_count().to_string(),
+                    true,
+                )
+                .footer(serenity::CreateEmbedFooter::new("iHorizon Left at"));
+            if let Some(url) = icon {
+                leave_embed = leave_embed.thumbnail(url);
+            }
+            let _ = serenity::ChannelId::new(logs_ch)
+                .send_message(&ctx.http, serenity::CreateMessage::new().embed(leave_embed))
+                .await;
+        }
     }
 
     async fn guild_member_addition(&self, ctx: serenity::Context, new_member: serenity::Member) {
@@ -2206,6 +2366,55 @@ impl serenity::EventHandler for Handler {
         }
         // Security captcha answers (mirrors the onMemberJoin collector).
         self.security_answer(&_ctx, &msg).await;
+        // Mention-ping rank-role grant (mirrors
+        // Events/utils/rankRoleModule.ts): a message whose whole content
+        // is `<@{botId}>` grants the GUILD.RANK_ROLES role when the
+        // author's username/globalName contains the configured substring.
+        // No match (or already holding the role) is a silent no-op, like
+        // the TS early returns; processing then falls through below.
+        if is_bot_ping(&msg.content, _ctx.cache.current_user().id.get()) {
+            if let Ok(member) = guild_id.member(&_ctx.http, msg.author.id).await {
+                let roles_raw = crate::db::kv_get(&self.pool, &gid, "GUILD.RANK_ROLES.roles").await;
+                let nick_raw =
+                    crate::db::kv_get(&self.pool, &gid, "GUILD.RANK_ROLES.nicknames").await;
+                if let (Some(roles_raw), Some(nick_raw)) = (roles_raw, nick_raw) {
+                    if let Some(role_num) = crate::commands::ranks::grant::parse_role_id(&roles_raw)
+                    {
+                        let needles = crate::commands::ranks::grant::rank_needles(&nick_raw);
+                        // Empty needles = no nickname gate configured
+                        // (mirrors falsy `dbGet.nicknames`): grant directly.
+                        let matched = needles.is_empty()
+                            || needles.iter().any(|n| {
+                                crate::commands::ranks::grant::username_matches(
+                                    &msg.author.name,
+                                    msg.author.global_name.as_deref(),
+                                    n,
+                                )
+                            });
+                        let role_id = serenity::RoleId::new(role_num);
+                        if matched && !member.roles.contains(&role_id) {
+                            let _ = member.add_role(&_ctx.http, role_id).await;
+                            let lang_code =
+                                crate::db::guild_lang(&self.pool, Some(guild_id.get())).await;
+                            let text = crate::lang::get(&lang_code, "event_rank_role")
+                                .unwrap_or_default()
+                                .replace("${message.author.id}", &msg.author.id.get().to_string())
+                                .replace("${fetch.id}", &role_num.to_string());
+                            if !text.is_empty() {
+                                let embed = serenity::CreateEmbed::default().description(text);
+                                let _ = msg
+                                    .channel_id
+                                    .send_message(
+                                        &_ctx.http,
+                                        serenity::CreateMessage::new().embed(embed),
+                                    )
+                                    .await;
+                            }
+                        }
+                    }
+                }
+            }
+        }
         // Custom automod enforcement (link/invite/telegram/mass-mention).
         {
             let content = &msg.content;
@@ -3025,27 +3234,62 @@ impl serenity::EventHandler for Handler {
                     true,
                 )
                 .await;
-                // Leash follow (mirrors leashModule.ts): drag followers along.
-                let rows: Vec<(String, String)> = sqlx::query_as::<_, (String, String)>(
-                    "SELECT key_name, value FROM kv WHERE guild_id = ? AND key_name LIKE 'UTILS.LEASH.%'",
-                )
-                .bind(&gid)
-                .fetch_all(&self.pool)
-                .await
-                .unwrap_or_default();
-                for (key, target) in rows {
-                    if target == new.user_id.get().to_string() {
-                        if let Some(fid) = key
-                            .strip_prefix("UTILS.LEASH.")
-                            .and_then(|x| x.parse::<u64>().ok())
-                        {
-                            let _ = guild_id
-                                .move_member(
-                                    &ctx.http,
-                                    poise::serenity_prelude::UserId::new(fid),
-                                    new_ch,
-                                )
-                                .await;
+                // Leash follow (mirrors Events/utils/leashModule.ts): the
+                // single UTILS.LEASH array holds {dom, sub (CSV), timestamp}
+                // pairings with a 30-minute life. Expired rows are pruned,
+                // then both move directions apply: dom moved -> subs follow
+                // the dom's new channel; sub moved -> the sub is pulled back
+                // to the dom's channel.
+                if let Some(raw) = crate::db::kv_get(&self.pool, &gid, "UTILS.LEASH").await {
+                    let entries: Vec<LeashEntry> = serde_json::from_str(&raw).unwrap_or_default();
+                    let valid: Vec<LeashEntry> = entries
+                        .iter()
+                        .filter(|e| leash_valid(e.timestamp, now))
+                        .cloned()
+                        .collect();
+                    if valid.len() != entries.len() {
+                        let _ = crate::db::kv_set(
+                            &self.pool,
+                            &gid,
+                            "UTILS.LEASH",
+                            &serde_json::to_string(&valid).unwrap_or_default(),
+                        )
+                        .await;
+                    }
+                    let changing = new.user_id.get().to_string();
+                    let dom_channels: std::collections::HashMap<String, serenity::ChannelId> = ctx
+                        .cache
+                        .guild(guild_id)
+                        .map(|g| {
+                            g.voice_states
+                                .iter()
+                                .filter_map(|(uid, vs)| {
+                                    vs.channel_id.map(|c| (uid.get().to_string(), c))
+                                })
+                                .collect()
+                        })
+                        .unwrap_or_default();
+                    for pairing in valid.iter().filter(|e| leash_entry_matches(e, &changing)) {
+                        let subs = leash_sub_ids(&pairing.sub);
+                        let Some(dom_ch) = dom_channels.get(&pairing.dom).copied() else {
+                            continue;
+                        };
+                        if leash_is_dom(pairing, &changing) {
+                            // Dom moved: drag every sub that is not already
+                            // in the dom's new channel.
+                            for sub in &subs {
+                                if dom_channels.get(sub).copied() == Some(dom_ch) {
+                                    continue;
+                                }
+                                if let Ok(uid) = sub.parse::<u64>() {
+                                    let _ = guild_id
+                                        .move_member(&ctx.http, serenity::UserId::new(uid), dom_ch)
+                                        .await;
+                                }
+                            }
+                        } else if dom_channels.get(&changing).copied() != Some(dom_ch) {
+                            // Sub moved away: pull it back to the dom.
+                            let _ = guild_id.move_member(&ctx.http, new.user_id, dom_ch).await;
                         }
                     }
                 }
@@ -3054,11 +3298,25 @@ impl serenity::EventHandler for Handler {
                     crate::db::kv_get(&self.pool, &gid, "GUILD.VOICE_INTERFACE.voice_channel").await
                 {
                     if lobby == new_ch.get().to_string() {
-                        let name = new
+                        // Pending-creation lock (mirrors
+                        // pendingCustomVoiceCreations): Discord may emit
+                        // several updates for one hub join while creation is
+                        // still async; without it two concurrent creations
+                        // orphan each other's channel.
+                        let creation_key = temp_creation_key(&gid, &new.user_id.get().to_string());
+                        {
+                            let mut pending = self.temp_pending.lock().await;
+                            if !restore_slot_claim(&mut pending, &creation_key) {
+                                return;
+                            }
+                        }
+                        let raw_name = new
                             .member
                             .as_ref()
                             .map(|m| m.user.name.clone())
                             .unwrap_or_else(|| "voice".to_string());
+                        // Mask links in display names (mirrors maskLink).
+                        let name = crate::funcs::mask_link(&raw_name);
                         // Name template (VOICE_INTERFACE.voice_channel_name,
                         // {user} placeholder) or default.
                         let tpl = crate::db::kv_get(
@@ -3102,6 +3360,12 @@ impl serenity::EventHandler for Handler {
                                         ),
                                 )
                                 .await;
+                        }
+                        // Release the creation lock (mirrors the finally
+                        // delete in voiceState.ts).
+                        {
+                            let mut pending = self.temp_pending.lock().await;
+                            restore_slot_release(&mut pending, &creation_key);
                         }
                         return;
                     }
@@ -3169,7 +3433,14 @@ impl serenity::EventHandler for Handler {
                 }
             }
         }
-        // Sweep emptied temp channels for this guild.
+        // Sweep emptied temp channels for this guild (mirrors the
+        // cleanup legs of voicedashboard/voiceState.ts). Malformed rows
+        // are dropped like the TS `typeof channelId !== "string"` guard;
+        // channels gone from cache are deleted best-effort and dropped
+        // like the TS `!channel` guard; emptiness is decided from fresh
+        // voice-state membership (mirrors isMemberlessChannel, where a
+        // fetch failure counts as empty — here a missing cache guild
+        // counts as empty once the channel itself is confirmed gone).
         let rows: Vec<(String, String)> = sqlx::query_as::<_, (String, String)>(
             "SELECT key_name, value FROM kv WHERE guild_id = ? AND key_name LIKE 'CUSTOM_VOICE.%.%'",
         )
@@ -3178,18 +3449,44 @@ impl serenity::EventHandler for Handler {
         .await
         .unwrap_or_default();
         for (key, ch_id) in rows {
-            let Ok(ch_num) = ch_id.parse::<u64>() else {
+            let Ok(ch_num) = ch_id.trim().parse::<u64>() else {
+                let _ = sqlx::query("DELETE FROM kv WHERE guild_id = ? AND key_name = ?")
+                    .bind(&gid)
+                    .bind(&key)
+                    .execute(&self.pool)
+                    .await;
                 continue;
             };
-            let occupied = ctx
-                .cache
-                .guild(guild_id)
-                .map(|g| {
-                    g.voice_states
+            if ch_num == 0 {
+                let _ = sqlx::query("DELETE FROM kv WHERE guild_id = ? AND key_name = ?")
+                    .bind(&gid)
+                    .bind(&key)
+                    .execute(&self.pool)
+                    .await;
+                continue;
+            }
+            // The cache guard is scoped and dropped before any await
+            // (CacheRef is not Send).
+            let (channel_gone, occupied) = match ctx.cache.guild(guild_id) {
+                Some(g) => {
+                    let gone = !g.channels.keys().any(|c| c.get() == ch_num);
+                    let occ = g
+                        .voice_states
                         .values()
-                        .any(|v| v.channel_id == Some(serenity::ChannelId::new(ch_num)))
-                })
-                .unwrap_or(true);
+                        .any(|v| v.channel_id == Some(serenity::ChannelId::new(ch_num)));
+                    (gone, occ)
+                }
+                None => (false, true),
+            };
+            if channel_gone {
+                // Channel already gone (mirrors `!channel`): drop the key.
+                let _ = sqlx::query("DELETE FROM kv WHERE guild_id = ? AND key_name = ?")
+                    .bind(&gid)
+                    .bind(&key)
+                    .execute(&self.pool)
+                    .await;
+                continue;
+            }
             if !occupied {
                 let _ = serenity::ChannelId::new(ch_num).delete(&ctx.http).await;
                 let _ = sqlx::query("DELETE FROM kv WHERE guild_id = ? AND key_name = ?")
@@ -4635,5 +4932,74 @@ mod restore_tests {
         let present: HashSet<String> =
             HashSet::from(["back".to_string(), "fresh".to_string(), "gone".to_string()]);
         assert!(wipe_queue_due(&q, deadline, &present).is_empty());
+    }
+
+    #[test]
+    fn leash_expiry_prunes_at_thirty_minutes() {
+        assert!(leash_valid(1_000, 1_000 + LEASH_EXPIRY_MS));
+        assert!(!leash_valid(1_000, 1_000 + LEASH_EXPIRY_MS + 1));
+        assert_eq!(LEASH_EXPIRY_MS, 30 * 60 * 1000);
+    }
+
+    #[test]
+    fn leash_sub_csv_splits_and_matches() {
+        assert_eq!(leash_sub_ids("1, 2,,3 "), vec!["1", "2", "3"]);
+        assert!(leash_sub_ids("").is_empty());
+        let entry = LeashEntry {
+            dom: "9".to_string(),
+            sub: "1,2".to_string(),
+            timestamp: 0,
+        };
+        // Dom and each CSV sub match; outsiders do not.
+        assert!(leash_entry_matches(&entry, "9"));
+        assert!(leash_entry_matches(&entry, "1"));
+        assert!(leash_entry_matches(&entry, "2"));
+        assert!(!leash_entry_matches(&entry, "12"));
+        assert!(!leash_entry_matches(&entry, "7"));
+        // Direction: dom move drags subs, sub move pulls back.
+        assert!(leash_is_dom(&entry, "9"));
+        assert!(!leash_is_dom(&entry, "1"));
+    }
+
+    #[test]
+    fn leash_entries_round_trip_ts_shape() {
+        // Mirrors DatabaseStructure.LeashData ({dom, sub, timestamp}).
+        let entry = LeashEntry {
+            dom: "9".to_string(),
+            sub: "1".to_string(),
+            timestamp: 42,
+        };
+        let raw = serde_json::to_string(&vec![entry.clone()]).unwrap();
+        let back: Vec<LeashEntry> = serde_json::from_str(&raw).unwrap();
+        assert_eq!(back, vec![entry]);
+    }
+
+    #[test]
+    fn temp_creation_key_and_lock_dedup() {
+        assert_eq!(temp_creation_key("g", "u"), "g.u");
+        // The pending set reuses the restore slot claim/release.
+        let mut pending = HashSet::new();
+        let key = temp_creation_key("g", "u");
+        assert!(restore_slot_claim(&mut pending, &key));
+        assert!(!restore_slot_claim(&mut pending, &key));
+        restore_slot_release(&mut pending, &key);
+        assert!(restore_slot_claim(&mut pending, &key));
+    }
+
+    #[test]
+    fn bot_ping_gate_is_exact_mention_only() {
+        assert!(is_bot_ping("<@123>", 123));
+        assert!(!is_bot_ping("<@123> ", 123));
+        assert!(!is_bot_ping("<@!123>", 123));
+        assert!(!is_bot_ping("<@124>", 123));
+        assert!(!is_bot_ping("hello <@123>", 123));
+        assert!(!is_bot_ping("", 123));
+    }
+
+    #[test]
+    fn leave_vanity_formats_like_ts() {
+        assert_eq!(leave_embed_vanity(Some("abc")), "discord.gg/abc");
+        assert_eq!(leave_embed_vanity(None), "None");
+        assert_eq!(leave_embed_vanity(Some("")), "None");
     }
 }

@@ -12,9 +12,9 @@ pub async fn botinfo_full(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let guilds = ctx.cache().guild_count();
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let servers_name = crate::lang::get(&code, "botinfo_embed_fields_myservers")
-        .unwrap_or_else(|| "Servers".to_string());
+        .unwrap_or_else(|| "My Servers:".to_string());
     let created_by_name = crate::lang::get(&code, "botinfo_embed_fields_created_by")
-        .unwrap_or_else(|| "Created by".to_string());
+        .unwrap_or_else(|| "Created by:".to_string());
     let embed = serenity::CreateEmbed::default()
         .title("iHorizon")
         .field(servers_name, format!("{guilds}"), false)

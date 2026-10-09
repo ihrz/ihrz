@@ -20,8 +20,9 @@ pub async fn ranks_channel(
         .unwrap_or_default();
     match channel {
         Some(ch) => {
-            crate::db::kv_set(
+            crate::commands::owner::main::routed_set(
                 &ctx.data().pool,
+                &gid,
                 &gid,
                 "GUILD.RANKS.channel",
                 &ch.id.get().to_string(),
@@ -37,11 +38,13 @@ pub async fn ranks_channel(
             .await?;
         }
         None => {
-            sqlx::query("DELETE FROM kv WHERE guild_id = ? AND key_name = ?")
-                .bind(&gid)
-                .bind("GUILD.RANKS.channel")
-                .execute(&ctx.data().pool)
-                .await?;
+            crate::commands::owner::main::routed_del(
+                &ctx.data().pool,
+                &gid,
+                &gid,
+                "GUILD.RANKS.channel",
+            )
+            .await?;
             let code =
                 crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
             ctx.say(
@@ -69,15 +72,22 @@ pub async fn ranks_xp_channels(
         .unwrap_or_default();
     match channel {
         Some(ch) => {
-            let raw = crate::db::kv_get(&ctx.data().pool, &gid, "GUILD.RANKS.xpChannels").await;
+            let raw = crate::commands::owner::main::routed_get(
+                &ctx.data().pool,
+                &gid,
+                &gid,
+                "GUILD.RANKS.xpChannels",
+            )
+            .await;
             let mut list: Vec<String> = raw
                 .and_then(|s| serde_json::from_str(&s).ok())
                 .unwrap_or_default();
             let id = ch.id.get().to_string();
             if !list.contains(&id) {
                 list.push(id);
-                crate::db::kv_set(
+                crate::commands::owner::main::routed_set(
                     &ctx.data().pool,
+                    &gid,
                     &gid,
                     "GUILD.RANKS.xpChannels",
                     &serde_json::to_string(&list)?,
@@ -94,11 +104,13 @@ pub async fn ranks_xp_channels(
             .await?;
         }
         None => {
-            let _ = sqlx::query("DELETE FROM kv WHERE guild_id = ? AND key_name = ?")
-                .bind(&gid)
-                .bind("GUILD.RANKS.xpChannels")
-                .execute(&ctx.data().pool)
-                .await;
+            let _ = crate::commands::owner::main::routed_del(
+                &ctx.data().pool,
+                &gid,
+                &gid,
+                "GUILD.RANKS.xpChannels",
+            )
+            .await;
             let code =
                 crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
             ctx.say(

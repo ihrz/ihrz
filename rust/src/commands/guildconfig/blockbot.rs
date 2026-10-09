@@ -25,11 +25,15 @@ pub async fn gc_blockbot(
     .await?;
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     ctx.say(if enabled {
-        crate::lang::get(&code, "blockbot_command_work_on_enable")
-            .unwrap_or_else(|| "Bot joins blocked.".to_string())
+        crate::lang::get(&code, "blockbot_command_work_on_enable").unwrap_or_else(|| {
+            "**You have enabled the `BlockBot`**\nNow bots **can't** be added to this guild!"
+                .to_string()
+        })
     } else {
-        crate::lang::get(&code, "blockbot_command_work_on_disable")
-            .unwrap_or_else(|| "Bot joins allowed.".to_string())
+        crate::lang::get(&code, "blockbot_command_work_on_disable").unwrap_or_else(|| {
+            "**You have disabled the `BlockBot`**\nNow bots **can** be added to this guild!"
+                .to_string()
+        })
     })
     .await?;
     Ok(())

@@ -46,7 +46,7 @@ pub async fn snipe(
     ctx.say(match last {
         Some(id) => format!("Last deleted message id: {id}"),
         None => crate::lang::get(&code, "snipe_no_previous_message_deleted")
-            .unwrap_or_else(|| "Nothing to snipe.".to_string()),
+            .unwrap_or_else(|| "No messages have been deleted in this channel!".to_string()),
     })
     .await?;
     Ok(())

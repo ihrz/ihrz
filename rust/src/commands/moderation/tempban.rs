@@ -70,9 +70,14 @@ pub async fn mod_tempban(
     }
     let gid = guild_id.get().to_string();
     // Mirrors tempbanManager.isAlreadyBanned.
-    if crate::db::kv_get(&ctx.data().pool, &gid, &tempban_key(user.id.get()))
-        .await
-        .is_some()
+    if crate::commands::owner::main::routed_get(
+        &ctx.data().pool,
+        &gid,
+        &gid,
+        &tempban_key(user.id.get()),
+    )
+    .await
+    .is_some()
     {
         ctx.say(t("tempban_already_banned")).await?;
         return Ok(());
@@ -97,8 +102,9 @@ pub async fn mod_tempban(
         return Ok(());
     }
     let exp = crate::commands::shared::now_ms() + ms;
-    crate::db::kv_set(
+    crate::commands::owner::main::routed_set(
         &ctx.data().pool,
+        &gid,
         &gid,
         &tempban_key(user.id.get()),
         &serde_json::json!({"expires_at_ms": exp, "reason": reason_s}).to_string(),
@@ -126,4 +132,61 @@ pub async fn mod_tempban(
     )
     .await;
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    async fn mem_pool() -> crate::db::Pool {
+        use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};
+        use std::str::FromStr;
+        let opts = SqliteConnectOptions::from_str("sqlite::memory:")
+            .unwrap()
+            .create_if_missing(true);
+        let pool = SqlitePoolOptions::new()
+            .max_connections(1)
+            .connect_with(opts)
+            .await
+            .unwrap();
+        sqlx::query(
+            "CREATE TABLE kv (guild_id TEXT NOT NULL, key_name TEXT NOT NULL, value TEXT NOT NULL, PRIMARY KEY (guild_id, key_name))",
+        )
+        .execute(&pool)
+        .await
+        .unwrap();
+        pool
+    }
+
+    #[test]
+    fn sanction_keys_match_ts_layout() {
+        assert_eq!(tempban_key(7), "GUILD.TEMPBAN.7");
+        assert_eq!(temprole_key(7, 9), "GUILD.TEMPROLE.7.9");
+    }
+
+    #[tokio::test]
+    async fn temp_sanctions_roundtrip_through_both_stores() {
+        use crate::commands::owner::main::{routed_del, routed_get, routed_set};
+        let pool = mem_pool().await;
+        let ban = tempban_key(7);
+        let role = temprole_key(7, 9);
+        assert_eq!(routed_get(&pool, "g", "g", &ban).await, None);
+        // Legacy-only row (expiry sweep shape) is found table-first.
+        crate::db::kv_set(&pool, "g", &ban, r#"{"expires_at_ms":5}"#)
+            .await
+            .unwrap();
+        assert!(routed_get(&pool, "g", "g", &ban).await.is_some());
+        routed_set(&pool, "g", "g", &role, r#"{"expires_at_ms":9}"#)
+            .await
+            .unwrap();
+        // Locked legacy readers still see the dual write.
+        assert_eq!(
+            crate::db::kv_get(&pool, "g", &role).await.as_deref(),
+            Some(r#"{"expires_at_ms":9}"#)
+        );
+        assert!(routed_del(&pool, "g", "g", &ban).await.unwrap());
+        assert!(routed_del(&pool, "g", "g", &role).await.unwrap());
+        assert_eq!(routed_get(&pool, "g", "g", &ban).await, None);
+        assert_eq!(routed_get(&pool, "g", "g", &role).await, None);
+    }
 }

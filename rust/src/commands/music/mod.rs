@@ -191,6 +191,43 @@ pub fn fmt_duration(ms: u64) -> String {
     format!("{}:{:02}", s / 60, s % 60)
 }
 
+/// Parse a volume argument like TS `parseInt(String(query))`:
+/// leading-integer parse, non-numeric (NaN) -> None, then the
+/// 10..=100 clamp. Pure and offline-testable.
+pub fn parse_volume_query(raw: &str) -> Option<u8> {
+    let s = raw.trim();
+    if s.is_empty() {
+        return None;
+    }
+    let negative = s.starts_with('-');
+    let digits: String = s
+        .trim_start_matches(['+', '-'])
+        .chars()
+        .take_while(|c| c.is_ascii_digit())
+        .collect();
+    if digits.is_empty() {
+        return None;
+    }
+    let magnitude: i64 = digits.parse().unwrap_or(i64::MAX);
+    let n = if negative {
+        magnitude.saturating_neg()
+    } else {
+        magnitude
+    };
+    Some(crate::voice::clamp_volume(n) as u8)
+}
+
+/// Runtime Administrator check for prefix parity: poise
+/// `default_member_permissions` only gates slash commands, while the
+/// TS `permission` field gates both paths. False when the member or
+/// its permissions are unavailable.
+pub async fn caller_is_admin(ctx: &Ctx<'_>) -> bool {
+    match ctx.author_member().await {
+        Some(m) => m.permissions.map(|p| p.administrator()).unwrap_or(false),
+        None => false,
+    }
+}
+
 fn now_ms() -> i64 {
     crate::commands::schedule::main::now_ms()
 }
@@ -954,6 +991,23 @@ mod tests {
         assert_eq!(fmt_duration(0), "0:00");
         assert_eq!(fmt_duration(65_000), "1:05");
         assert_eq!(fmt_duration(3_600_000), "60:00");
+    }
+
+    #[test]
+    fn volume_query_parses_like_ts_parseint() {
+        assert_eq!(parse_volume_query("75"), Some(75));
+        assert_eq!(parse_volume_query("  80  "), Some(80));
+        assert_eq!(parse_volume_query("75abc"), Some(75));
+        assert_eq!(parse_volume_query("12.9"), Some(12));
+        assert_eq!(parse_volume_query("+60"), Some(60));
+        assert_eq!(parse_volume_query("5"), Some(10));
+        assert_eq!(parse_volume_query("-5"), Some(10));
+        assert_eq!(parse_volume_query("500"), Some(100));
+        assert_eq!(parse_volume_query("99999999999999999999999"), Some(100));
+        assert_eq!(parse_volume_query(""), None);
+        assert_eq!(parse_volume_query("   "), None);
+        assert_eq!(parse_volume_query("abc"), None);
+        assert_eq!(parse_volume_query("NaN"), None);
     }
 
     #[test]

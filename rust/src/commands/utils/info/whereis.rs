@@ -28,7 +28,7 @@ pub async fn whereis(
     let Some((member, voice)) = snapshot else {
         ctx.say(
             crate::lang::get(&code, "ban_dont_found_member")
-                .unwrap_or_else(|| "Member not found.".to_string()),
+                .unwrap_or_else(|| "🔍 | Cannot find this member".to_string()),
         )
         .await?;
         return Ok(());
@@ -36,7 +36,7 @@ pub async fn whereis(
     let Some(vs) = voice.and_then(|v| v.channel_id.map(|c| (c, v))) else {
         ctx.say(
             crate::lang::get(&code, "util_not_in_vc")
-                .unwrap_or_else(|| "Not in voice.".to_string()),
+                .unwrap_or_else(|| "The members are not in a voice channel".to_string()),
         )
         .await?;
         return Ok(());

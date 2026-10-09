@@ -31,7 +31,7 @@ pub async fn role_members(
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     ctx.say(if members.is_empty() {
         crate::lang::get(&code, "util_role_members_no_one")
-            .unwrap_or_else(|| "Nobody has this role.".to_string())
+            .unwrap_or_else(|| "There is nobody with that role on the server".to_string())
     } else {
         members.join(", ")
     })

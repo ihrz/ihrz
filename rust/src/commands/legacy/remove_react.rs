@@ -35,7 +35,7 @@ pub async fn remove_react(
                     &trigger.trim().to_ascii_lowercase(),
                 )
             })
-            .unwrap_or_else(|| "Custom react removed.".to_string()),
+            .unwrap_or_else(|| "<@${interaction.member?.id}>, now when a member sends `${message.toLowerCase()}`, the bot will **no longer react**.".to_string()),
     )
     .await?;
     Ok(())

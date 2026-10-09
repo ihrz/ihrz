@@ -21,7 +21,7 @@ pub async fn blogger_remove(
         let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
         ctx.say(
             crate::lang::get(&code, "blogger_blog_remove_not_found")
-                .unwrap_or_else(|| "Not found.".to_string()),
+                .unwrap_or_else(|| "❌ No RSS feed found with this ID.".to_string()),
         )
         .await?;
         return Ok(());
@@ -31,7 +31,7 @@ pub async fn blogger_remove(
     ctx.say(
         crate::lang::get(&code, "blogger_blog_remove_success")
             .map(|s| s.replace("${blogId}", id.trim()))
-            .unwrap_or_else(|| "Blog removed.".to_string()),
+            .unwrap_or_else(|| "✅ RSS feed with ID `${blogId}` has been removed.".to_string()),
     )
     .await?;
     Ok(())

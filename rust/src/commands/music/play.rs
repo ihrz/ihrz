@@ -42,6 +42,31 @@ pub async fn m_play(
     }
     let requester = ctx.author().id.get();
     let text_channel = ctx.channel_id().get();
+    // Stage channels join suppressed (audience): ask for speaker, and
+    // refuse the play when the bot cannot be unsuppressed (the TS
+    // side has no stage branch and would play to nobody).
+    let is_stage = ctx
+        .serenity_context()
+        .cache
+        .guild(serenity::GuildId::new(gid))
+        .and_then(|g| {
+            g.channels
+                .get(&serenity::ChannelId::new(voice))
+                .map(|c| c.kind)
+        })
+        .map(crate::lavalink::LavalinkManager::is_stage_channel)
+        .unwrap_or(false);
+    if is_stage {
+        let speaker =
+            crate::lavalink::LavalinkManager::request_stage_speaker(ctx.http(), gid, voice).await;
+        if !speaker {
+            ctx.say(
+                "I can't get speaker permission in this stage channel. Ask a moderator to invite me to speak, then try again.",
+            )
+            .await?;
+            return Ok(());
+        }
+    }
     m.with_player(gid, |p| {
         p.voice_channel = Some(voice);
         p.text_channel = Some(text_channel);

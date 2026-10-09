@@ -21,7 +21,7 @@ pub async fn unban_all(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     if bans.is_empty() {
         ctx.say(
             crate::lang::get(&code, "action_unban_all_no_banned_members")
-                .unwrap_or_else(|| "No banned members.".to_string()),
+                .unwrap_or_else(|| "There are no banned members.".to_string()),
         )
         .await?;
         return Ok(());

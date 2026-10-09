@@ -19,7 +19,7 @@ pub async fn tag_edit(
         ctx.say(
             crate::lang::get(&code, "tag_doesnt_exist")
                 .map(|s| s.replace("${tag_name}", &current))
-                .unwrap_or_else(|| "Tag doesn't exist.".to_string()),
+                .unwrap_or_else(|| "The tag `${tag_name}` doesn't exist!".to_string()),
         )
         .await?;
         return Ok(());

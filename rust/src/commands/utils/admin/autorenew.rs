@@ -62,7 +62,7 @@ pub async fn autorenew(
                     .replace("${channel.toString()}", &format!("<#{}>", channel.id.get()))
                     .replace("${time}", &every)
             })
-            .unwrap_or_else(|| "Auto-renew set.".to_string()),
+            .unwrap_or_else(|| "${client.iHorizon_Emojis.Yes} Now, the ${channel.toString()} channel is automatically deleted-created (renewed) every ${time}!\nTo stop the channel from being renewed, just delete it by yourself.".to_string()),
     )
     .await?;
     Ok(())

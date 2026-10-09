@@ -1757,6 +1757,7 @@ history_embed_title: "История Музыки ${interaction.guild?.name} | �
 history_embed_footer_text: "iHorizon | Страница ${currentPage + 1}/${pages.length}"
 history_delete_embed_title: "✅ История удалена"
 history_delete_embed_desc: "История музыки была успешно удалена."
+music_history_no_permission: "Необходимо право администратора для просмотра истории музыки."
 
 # /music lyrics
 lyrics_embed_title_unknown: "Неизвестный заголовок"
@@ -1773,6 +1774,7 @@ music_lyrics: "Тексты"
 music_link_here: "Ссылка здесь: [Клик здесь]({link})"
 
 music_volume_command_ok: "${client.iHorizon_Emojis.Yes} **громкость установлена на** `${Number(query)}`%"
+music_volume_invalid: "Недопустимая громкость: укажите число от 10 до 100."
 
 # Команды раздачи призов
 # /end, /start, /reroll

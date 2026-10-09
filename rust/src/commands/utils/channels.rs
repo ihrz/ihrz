@@ -35,10 +35,10 @@ async fn hide_all_inner(ctx: &Ctx<'_>, unhide: bool, role_id: u64) -> Result<(),
     let mention = format!("<@&{role_id}>");
     ctx.say(if unhide {
         crate::lang::get(&code, "channel_unhideall_in_progress")
-            .unwrap_or_else(|| "Unhiding.".to_string())
+            .unwrap_or_else(|| "Unhiding all channels in progress...".to_string())
     } else {
         crate::lang::get(&code, "channel_hideall_in_progress")
-            .unwrap_or_else(|| "Hiding.".to_string())
+            .unwrap_or_else(|| "Hiding all channels in progress...".to_string())
     })
     .await?;
     let channels: Vec<poise::serenity_prelude::ChannelId> = ctx
@@ -131,7 +131,7 @@ async fn hide_all_inner(ctx: &Ctx<'_>, unhide: bool, role_id: u64) -> Result<(),
                     s.replace("{unhiddenCount}", &done.to_string())
                         .replace("{errorCount}", &errors.to_string())
                 })
-                .unwrap_or_else(|| "Unhid all.".to_string()),
+                .unwrap_or_else(|| "**Unhiding completed!**\n**Statistics:**\n• **{unhiddenCount}** channels unhidden\n• **{errorCount}** errors encountered".to_string()),
         )
         .await?;
     } else {
@@ -142,7 +142,7 @@ async fn hide_all_inner(ctx: &Ctx<'_>, unhide: bool, role_id: u64) -> Result<(),
                         .replace("{errorCount}", &errors.to_string())
                         .replace("@everyone", &mention)
                 })
-                .unwrap_or_else(|| "Hid all.".to_string()),
+                .unwrap_or_else(|| "**Hiding completed!**\n**Statistics:**\n• **{hiddenCount}** channels hidden\n• **{errorCount}** errors encountered".to_string()),
         )
         .await?;
     }

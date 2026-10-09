@@ -35,7 +35,7 @@ pub async fn admin_users(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     ctx.say(if admins.is_empty() {
         crate::lang::get(&code, "all_admins_nobody_admins")
-            .unwrap_or_else(|| "No admins.".to_string())
+            .unwrap_or_else(|| "There is no administrator in this guild!".to_string())
     } else {
         admins.join(", ")
     })

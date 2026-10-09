@@ -20,8 +20,9 @@ pub async fn eco_set_money(
         .map(|g| g.get().to_string())
         .unwrap_or_default();
     // TS `db.set` on the leaf key stores the raw amount.
-    crate::db::kv_set(
+    crate::commands::owner::main::routed_set(
         &ctx.data().pool,
+        &gid,
         &gid,
         &format!("ECONOMY.settings.{}.amount", kind.key()),
         &serde_json::to_string(&num_json(amount))?,

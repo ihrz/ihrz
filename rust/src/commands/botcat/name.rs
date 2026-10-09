@@ -38,7 +38,7 @@ pub async fn custom_name(
         let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
         ctx.say(
             crate::lang::get(&code, "custom_name_reset")
-                .unwrap_or_else(|| "Bot name reset to default.".to_string()),
+                .unwrap_or_else(|| "You have decided to reset the bot's name on the server. Embed footers will return to their default state, as well as the bot's name on the server.".to_string()),
         )
         .await?;
         return Ok(());
@@ -47,7 +47,7 @@ pub async fn custom_name(
         let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
         ctx.say(
             crate::lang::get(&code, "guildconfig_setbot_footername_not_found")
-                .unwrap_or_else(|| "Provide a name, or use reset.".to_string()),
+                .unwrap_or_else(|| "The footer name is not found. Please try again!".to_string()),
         )
         .await?;
         return Ok(());

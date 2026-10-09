@@ -123,7 +123,7 @@ pub async fn gc_perm_reset(
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     ctx.say(
         crate::lang::get(&code, "perm_set_command_reset")
-            .unwrap_or_else(|| "Permissions reset.".to_string()),
+            .unwrap_or_else(|| "This command has been reset".to_string()),
     )
     .await?;
     Ok(())
@@ -455,8 +455,9 @@ pub async fn gc_perm_roles_create(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let code = crate::db::guild_lang(pool, ctx.guild_id().map(|g| g.get())).await;
     if !is_guild_owner(ctx).await {
         ctx.say(
-            crate::lang::get(&code, "perm_roles_not_owner")
-                .unwrap_or_else(|| "Not owner.".to_string()),
+            crate::lang::get(&code, "perm_roles_not_owner").unwrap_or_else(|| {
+                "Only the server owner can add permission level roles.".to_string()
+            }),
         )
         .await?;
         return Ok(());
@@ -500,7 +501,9 @@ pub async fn gc_perm_roles_create(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         Err(_) => {
             let code = crate::db::guild_lang(pool, ctx.guild_id().map(|g| g.get())).await;
             ctx.say(
-                crate::lang::get(&code, "perm_roles_error").unwrap_or_else(|| "Error.".to_string()),
+                crate::lang::get(&code, "perm_roles_error").unwrap_or_else(|| {
+                    "An error occurred while creating or updating the roles.".to_string()
+                }),
             )
             .await?;
         }
@@ -527,8 +530,9 @@ pub async fn gc_perm_roles_edit(
     let code = crate::db::guild_lang(pool, ctx.guild_id().map(|g| g.get())).await;
     if !is_guild_owner(ctx).await {
         ctx.say(
-            crate::lang::get(&code, "perm_roles_not_owner")
-                .unwrap_or_else(|| "Not owner.".to_string()),
+            crate::lang::get(&code, "perm_roles_not_owner").unwrap_or_else(|| {
+                "Only the server owner can add permission level roles.".to_string()
+            }),
         )
         .await?;
         return Ok(());

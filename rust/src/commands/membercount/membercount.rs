@@ -36,7 +36,9 @@ pub async fn membercount(
         ctx.say(
             crate::lang::get(&code, "setmembercount_command_work_on_disable")
                 .map(|s| s.replace("${client.iHorizon_Emojis.Yes}", &yes))
-                .unwrap_or_else(|| "Membercount disabled.".to_string()),
+                .unwrap_or_else(|| {
+                    "${client.iHorizon_Emojis.Yes} | Successfully removed MemberCount.".to_string()
+                }),
         )
         .await?;
         return Ok(());

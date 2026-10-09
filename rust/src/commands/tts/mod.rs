@@ -128,6 +128,100 @@ pub fn tts_embed_ids(raw: &str) -> Option<(u64, u64)> {
     Some((text, msg))
 }
 
+// Flowery voice selection (offline leg of prefetchFloweryVoices in
+// src/core/modules/ttsManager.ts). The fetch leg (GET
+// api.flowery.pw/v1/tts/voices into voiceMappingCache) needs the live
+// HTTP call and stays caller-side; the per-language pick
+// (Microsoft Azure > Google Translate > any match) plus the
+// locale->language table are pure here so the warm path is testable.
+
+/// One entry of the Flowery `/v1/tts/voices` list.
+#[derive(Debug, Clone, PartialEq)]
+pub struct FloweryVoice {
+    pub id: String,
+    pub source: String,
+    pub lang_code: String,
+}
+
+/// Voice-language codes per TTS language, mirroring LANGUAGE_CODES.
+pub fn flowery_codes(lang: &str) -> Option<&'static [&'static str]> {
+    match lang {
+        "fr" => Some(&["fr-FR", "fr-CA"]),
+        "en" => Some(&["en-US", "en-GB", "en-AU"]),
+        "pt" => Some(&["pt-BR", "pt-PT"]),
+        "ru" => Some(&["ru-RU"]),
+        "de" => Some(&["de-DE"]),
+        "es" => Some(&["es-ES", "es-MX"]),
+        "it" => Some(&["it-IT"]),
+        "ja" => Some(&["ja-JP"]),
+        "ar" => Some(&["ar-SA", "ar-XA", "ar-EG"]),
+        _ => None,
+    }
+}
+
+/// Guild locale -> voice language, mirroring LOCALE_TO_LANG
+/// (jp-JP uses `ja`; fr-ME falls back to `fr`).
+pub fn flowery_lang_for_locale(locale: &str) -> Option<&'static str> {
+    match locale {
+        "fr-FR" | "fr-ME" => Some("fr"),
+        "en-US" => Some("en"),
+        "de-DE" => Some("de"),
+        "es-ES" => Some("es"),
+        "it-IT" => Some("it"),
+        "jp-JP" => Some("ja"),
+        "pt-PT" => Some("pt"),
+        "ru-RU" => Some("ru"),
+        "ar-EG" => Some("ar"),
+        _ => None,
+    }
+}
+
+/// Pick the voice for one language: Microsoft Azure first, then Google
+/// Translate, then any code match. Mirrors the mapping loop in
+/// getFloweryVoiceMapping.
+pub fn select_flowery_voice<'a>(
+    voices: &'a [FloweryVoice],
+    lang: &str,
+) -> Option<&'a FloweryVoice> {
+    let codes = flowery_codes(lang)?;
+    voices
+        .iter()
+        .find(|v| codes.contains(&v.lang_code.as_str()) && v.source == "Microsoft Azure")
+        .or_else(|| {
+            voices
+                .iter()
+                .find(|v| codes.contains(&v.lang_code.as_str()) && v.source == "Google Translate")
+        })
+        .or_else(|| {
+            voices
+                .iter()
+                .find(|v| codes.contains(&v.lang_code.as_str()))
+        })
+}
+
+/// Voice id for a guild locale, mirroring resolveFloweryVoice.
+pub fn resolve_flowery_voice_id(voices: &[FloweryVoice], locale: &str) -> Option<String> {
+    let lang = flowery_lang_for_locale(locale)?;
+    select_flowery_voice(voices, lang).map(|v| v.id.clone())
+}
+
+/// Orphan sweep (offline leg of cleanupOrphanedTTS in
+/// src/core/modules/ttsManager.ts, called from ready.ts). Every stored
+/// TTS row is stale at boot (no voice session survives a restart), so
+/// each guild with a row present (= enabled, see tts_row_enabled) has
+/// its row deleted and is reported. The player-destroy, welcome-embed
+/// delete and voice-status legs need the live gateway and stay
+/// caller-side. Returns the swept guild ids.
+pub async fn sweep_orphaned_tts(pool: &crate::db::Pool, guild_ids: &[String]) -> Vec<String> {
+    let mut swept = Vec::new();
+    for gid in guild_ids {
+        if load_tts(pool, gid).await.is_some() && delete_tts(pool, gid).await.is_ok() {
+            swept.push(gid.clone());
+        }
+    }
+    swept
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -256,6 +350,84 @@ mod tests {
             None
         );
         assert_eq!(tts_embed_ids("not json"), None);
+    }
+
+    fn sample_voices() -> Vec<FloweryVoice> {
+        vec![
+            FloweryVoice {
+                id: "google-fr".into(),
+                source: "Google Translate".into(),
+                lang_code: "fr-FR".into(),
+            },
+            FloweryVoice {
+                id: "azure-fr".into(),
+                source: "Microsoft Azure".into(),
+                lang_code: "fr-FR".into(),
+            },
+            FloweryVoice {
+                id: "other-en".into(),
+                source: "Other".into(),
+                lang_code: "en-US".into(),
+            },
+        ]
+    }
+
+    #[test]
+    fn flowery_pick_prefers_azure_then_google_then_any() {
+        let voices = sample_voices();
+        // Azure wins over Google for fr.
+        assert_eq!(select_flowery_voice(&voices, "fr").unwrap().id, "azure-fr");
+        // No Azure/Google for en: any code match.
+        assert_eq!(select_flowery_voice(&voices, "en").unwrap().id, "other-en");
+        // No voice at all for de.
+        assert_eq!(select_flowery_voice(&voices, "de"), None);
+        assert_eq!(select_flowery_voice(&voices, "xx"), None);
+    }
+
+    #[test]
+    fn flowery_locale_mapping_covers_guild_locales() {
+        let voices = sample_voices();
+        assert_eq!(
+            resolve_flowery_voice_id(&voices, "fr-FR"),
+            Some("azure-fr".into())
+        );
+        // fr-ME falls back to fr, jp-JP resolves to ja.
+        assert_eq!(
+            resolve_flowery_voice_id(&voices, "fr-ME"),
+            Some("azure-fr".into())
+        );
+        assert_eq!(
+            resolve_flowery_voice_id(&voices, "en-US"),
+            Some("other-en".into())
+        );
+        assert_eq!(resolve_flowery_voice_id(&voices, "jp-JP"), None);
+        assert_eq!(resolve_flowery_voice_id(&voices, "xx-XX"), None);
+    }
+
+    #[tokio::test]
+    async fn orphan_sweep_clears_stored_rows_only() {
+        let pool = memory_pool().await;
+        for (gid, lang) in [("g1", "en-US"), ("g2", "fr-FR")] {
+            save_tts(
+                &pool,
+                gid,
+                &TtsConfig {
+                    text_channel_id: "1".into(),
+                    voice_channel_id: "2".into(),
+                    lang: lang.into(),
+                },
+            )
+            .await
+            .unwrap();
+        }
+        let swept = sweep_orphaned_tts(
+            &pool,
+            &["g1".to_string(), "g2".to_string(), "g9".to_string()],
+        )
+        .await;
+        assert_eq!(swept, vec!["g1".to_string(), "g2".to_string()]);
+        assert!(load_tts(&pool, "g1").await.is_none());
+        assert!(load_tts(&pool, "g2").await.is_none());
     }
 }
 

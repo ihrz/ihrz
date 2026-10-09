@@ -31,8 +31,10 @@ pub async fn gc_ghost_add(
     }
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     ctx.say(
-        crate::lang::get(&code, "joinghostping_add_sent_to_channel")
-            .unwrap_or_else(|| "Ghost-ping watch added.".to_string()),
+        crate::lang::get(&code, "joinghostping_add_sent_to_channel").unwrap_or_else(|| {
+            "From now on, when a member joins the guild, I'll send a ghost message **here**."
+                .to_string()
+        }),
     )
     .await?;
     Ok(())
@@ -66,8 +68,9 @@ pub async fn gc_ghost_remove(
     .await?;
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     ctx.say(
-        crate::lang::get(&code, "joinghostping_remove_ok_embed_desc")
-            .unwrap_or_else(|| "Ghost-ping watch removed.".to_string()),
+        crate::lang::get(&code, "joinghostping_remove_ok_embed_desc").unwrap_or_else(|| {
+            "The channels have been deleted from the Join GhostPing Module!".to_string()
+        }),
     )
     .await?;
     Ok(())

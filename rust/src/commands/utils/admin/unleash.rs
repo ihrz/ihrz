@@ -34,7 +34,9 @@ pub async fn unleash(
         ctx.say(
             crate::lang::get(&code, "util_unleash_not_in_leash")
                 .map(|s| s.replace("${client.iHorizon_Emojis.No}", &no))
-                .unwrap_or_else(|| "Not in leash.".to_string()),
+                .unwrap_or_else(|| {
+                    "${client.iHorizon_Emojis.No} | This user is not on your leash!".to_string()
+                }),
         )
         .await?;
         return Ok(());
@@ -53,7 +55,7 @@ pub async fn unleash(
     ctx.say(
         crate::lang::get(&code, "util_unleash_command_ok")
             .map(|s| s.replace("${client.iHorizon_Emojis.Yes}", &yes_mark))
-            .unwrap_or_else(|| "Leash removed.".to_string()),
+            .unwrap_or_else(|| "${client.iHorizon_Emojis.Yes} | You have successfully unleashed the user in this guild :)".to_string()),
     )
     .await?;
     Ok(())

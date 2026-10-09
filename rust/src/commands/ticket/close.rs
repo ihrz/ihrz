@@ -1,6 +1,14 @@
 use super::*;
 use poise::serenity_prelude as serenity;
 
+/// Logs-embed description for the close flow: actor + channel slots.
+/// Mirrors CloseTicket (TS sends the transcript file only to the
+/// channel notify, never to the logs message).
+pub fn close_log_desc(template: &str, actor_mention: &str, channel_id: u64) -> String {
+    template
+        .replace("${interaction.user}", actor_mention)
+        .replace("${interaction.channel.id}", &channel_id.to_string())
+}
 #[poise::command(
     slash_command,
     prefix_command,
@@ -85,16 +93,18 @@ pub async fn ticket_close(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
                 .content(notify_content)
                 .embed(notify)
                 .attachment(serenity::CreateAttachment::bytes(
-                    html.clone().into_bytes(),
-                    file_name.clone(),
+                    html.into_bytes(),
+                    file_name,
                 )),
         )
         .await;
     if let Some(logs) = ticket_logs_channel(pool, &gid).await {
         let actor = format!("<@{}>", ctx.author().id.get());
-        let desc = t("event_ticket_logsChannel_onClose_embed_desc")
-            .replace("${interaction.user}", &actor)
-            .replace("${interaction.channel.id}", &channel_id.get().to_string());
+        let desc = close_log_desc(
+            &t("event_ticket_logsChannel_onClose_embed_desc"),
+            &actor,
+            channel_id.get(),
+        );
         let (footer_name, footer_icon) = ticket_footer(&http, pool, &gid).await;
         let mut footer = serenity::CreateEmbedFooter::new(footer_name);
         if footer_icon.is_some() {
@@ -106,13 +116,26 @@ pub async fn ticket_close(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
             .description(desc)
             .footer(footer)
             .timestamp(serenity::Timestamp::now());
-        let mut log_msg = serenity::CreateMessage::new().embed(embed).add_file(
-            serenity::CreateAttachment::bytes(html.into_bytes(), file_name),
-        );
+        let mut log_msg = serenity::CreateMessage::new().embed(embed);
         if let Some(icon) = footer_icon {
             log_msg = log_msg.add_file(serenity::CreateAttachment::bytes(icon, "footer_icon.png"));
         }
         let _ = logs.send_message(&http, log_msg).await;
     }
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn log_desc_fills_actor_and_channel() {
+        let out = close_log_desc(
+            "by ${interaction.user} in ${interaction.channel.id}!",
+            "<@7>",
+            42,
+        );
+        assert_eq!(out, "by <@7> in 42!");
+    }
 }

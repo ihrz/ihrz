@@ -22,7 +22,9 @@ pub async fn notifier_message(
     ctx.say(
         crate::lang::get(&code, "notifier_config_message_command_work_on_enable")
             .map(|s| s.replace("${client.iHorizon_Emojis.GreenTick}", &tick))
-            .unwrap_or_else(|| "Notifier message set.".to_string()),
+            .unwrap_or_else(|| {
+                "${client.iHorizon_Emojis.GreenTick} | Successfully set notify message.".to_string()
+            }),
     )
     .await?;
     Ok(())

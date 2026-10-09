@@ -49,7 +49,9 @@ pub async fn voicefreeze(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
                     &format!("<#{}>", channel_id.get()),
                 )
             })
-            .unwrap_or_else(|| "Frozen.".to_string()),
+            .unwrap_or_else(|| {
+                "The voice channel ${voiceChannel.toString()} is now frozen.".to_string()
+            }),
     )
     .await?;
     Ok(())

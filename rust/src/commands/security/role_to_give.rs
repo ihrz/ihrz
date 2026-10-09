@@ -27,7 +27,10 @@ pub async fn security_give(
             s.replace("${interaction.user}", &ctx.author().to_string())
                 .replace("${role}", &format!("<@&{}>", role.id.get()))
         })
-        .unwrap_or_else(|| "Role to give set.".to_string());
+        .unwrap_or_else(|| {
+            "${interaction.user}, you have set the role to ${role} for the Security Module!"
+                .to_string()
+        });
     ctx.say(msg).await?;
     Ok(())
 }

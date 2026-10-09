@@ -26,7 +26,7 @@ pub async fn gc_setup(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     if exists {
         ctx.say(
             crate::lang::get(&code, "setup_command_error")
-                .unwrap_or_else(|| "Logs channel already exists.".to_string()),
+                .unwrap_or_else(|| "The bot has already set up the logs channels, or the bot doesn't have enough permissions...".to_string()),
         )
         .await?;
         return Ok(());
@@ -53,7 +53,7 @@ pub async fn gc_setup(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     ctx.say(
         crate::lang::get(&code, "setup_command_work")
             .map(|s| s.replace("${client.iHorizon_Emojis.Yes}", &yes))
-            .unwrap_or_else(|| "Logs channel created.".to_string()),
+            .unwrap_or_else(|| "${client.iHorizon_Emojis.Yes} | Channel Setup".to_string()),
     )
     .await?;
     Ok(())

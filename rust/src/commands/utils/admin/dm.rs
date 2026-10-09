@@ -56,7 +56,7 @@ pub async fn dm(
                             &format!("<@{}>", user.id.get()),
                         )
                     })
-                    .unwrap_or_else(|| "DM sent.".to_string()),
+                    .unwrap_or_else(|| "${client.iHorizon_Emojis.Yes} The message was successfully sent to ${targetMember.toString()}.".to_string()),
             )
             .await?
         }
@@ -69,7 +69,7 @@ pub async fn dm(
                             &format!("<@{}>", user.id.get()),
                         )
                     })
-                    .unwrap_or_else(|| "Could not DM (closed DMs?).".to_string()),
+                    .unwrap_or_else(|| "${client.iHorizon_Emojis.No} I couldn't send a message to ${targetMember.toString()}. They may have blocked private messages, or they may have blocked me!".to_string()),
             )
             .await?
         }

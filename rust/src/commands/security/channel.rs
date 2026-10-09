@@ -30,7 +30,10 @@ pub async fn security_channel(
             s.replace("${interaction.user}", &ctx.author().to_string())
                 .replace("${channel}", &format!("<#{}>", channel.id.get()))
         })
-        .unwrap_or_else(|| "Security channel set.".to_string());
+        .unwrap_or_else(|| {
+            "${interaction.user}, you have set the channel to ${channel} for the Security Module!"
+                .to_string()
+        });
     ctx.say(msg).await?;
     Ok(())
 }

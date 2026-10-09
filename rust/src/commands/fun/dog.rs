@@ -21,7 +21,7 @@ pub async fn dog(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
                 crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
             ctx.say(
                 crate::lang::get(&code, "dogs_embed_command_error")
-                    .unwrap_or_else(|| "Dog API down.".to_string()),
+                    .unwrap_or_else(|| "Error retrieving dog image.".to_string()),
             )
             .await?;
         }

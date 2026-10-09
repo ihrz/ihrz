@@ -463,6 +463,55 @@ pub fn collect_guild_owners(cache: &serenity::Cache) -> Vec<crate::core::release
     rows
 }
 
+/// Strip custom `perm`/`permission` props from a command payload.
+/// Mirrors removePermissionProperties in src/core/commandsSync.ts (used
+/// for the REST PUT body and the dev commands.json dump): arrays are
+/// mapped, non-objects pass through, nested objects are cleaned
+/// recursively. Poise serializes slash options from function
+/// parameters (no custom fields to carry), so this applies to JSON
+/// payload snapshots, not the poise registration call itself.
+pub fn strip_perm_props(value: &mut serde_json::Value) {
+    match value {
+        serde_json::Value::Array(items) => {
+            for item in items {
+                strip_perm_props(item);
+            }
+        }
+        serde_json::Value::Object(map) => {
+            map.remove("perm");
+            map.remove("permission");
+            for (_, v) in map.iter_mut() {
+                strip_perm_props(v);
+            }
+        }
+        _ => {}
+    }
+}
+
+/// Shard presence activity name. Mirrors the (currently disabled)
+/// quotesPresence body in ready.ts:
+/// `Shards #<id> | <guilds> Servers | www.ihorizon.org`
+/// (ActivityType.Playing, per-shard id). Pure so the template is
+/// testable offline; the live setPresence call stays caller-side.
+pub fn shard_presence_name(shard_id: u64, guilds: u64) -> String {
+    format!("Shards #{shard_id} | {guilds} Servers | www.ihorizon.org")
+}
+
+/// Warm rows for the username cache. Mirrors the ready.ts loop filling
+/// usersNamesMap from the guild member cache:
+/// `usersNamesMap.set(id, { username, globalName })`. Takes plain
+/// rows so it stays offline-testable; the live caller feeds it from
+/// the gateway cache. Later rows win on duplicate ids.
+pub fn collect_users_names(
+    entries: impl IntoIterator<Item = (u64, String, Option<String>)>,
+) -> std::collections::HashMap<u64, (String, Option<String>)> {
+    let mut map = std::collections::HashMap::new();
+    for (id, username, global_name) in entries {
+        map.insert(id, (username, global_name));
+    }
+    map
+}
+
 pub async fn run(cfg: Config, pool: Pool) -> anyhow::Result<()> {
     let token = crate::config::bot_token().ok_or_else(|| {
         anyhow::anyhow!("missing BOT_TOKEN env (mirrors config.discord.token fallback)")
@@ -767,5 +816,57 @@ mod tests {
         // No live Discord: a default cache has no guilds to enumerate.
         let cache = serenity::Cache::default();
         assert!(collect_guild_owners(&cache).is_empty());
+    }
+
+    #[test]
+    fn perm_strip_drops_perm_keys_recursively() {
+        let mut v = serde_json::json!({
+            "name": "x",
+            "perm": "admin",
+            "permission": 8,
+            "options": [
+                {"name": "a", "perm": "x", "nested": {"permission": true, "keep": 1}}
+            ],
+            "plain": [1, "s", null]
+        });
+        strip_perm_props(&mut v);
+        assert_eq!(
+            v,
+            serde_json::json!({
+                "name": "x",
+                "options": [{"name": "a", "nested": {"keep": 1}}],
+                "plain": [1, "s", null]
+            })
+        );
+        // Non-objects pass through untouched.
+        let mut scalar = serde_json::json!("perm");
+        strip_perm_props(&mut scalar);
+        assert_eq!(scalar, serde_json::json!("perm"));
+    }
+
+    #[test]
+    fn shard_presence_template_matches_ts() {
+        assert_eq!(
+            shard_presence_name(0, 123),
+            "Shards #0 | 123 Servers | www.ihorizon.org"
+        );
+        assert_eq!(
+            shard_presence_name(3, 0),
+            "Shards #3 | 0 Servers | www.ihorizon.org"
+        );
+    }
+
+    #[test]
+    fn users_names_warm_keeps_username_and_global_name() {
+        let rows = collect_users_names(vec![
+            (1u64, "alice".to_string(), Some("Alice".to_string())),
+            (2u64, "bot".to_string(), None),
+            // Later rows win, like Map.set in the TS warm loop.
+            (1u64, "alice2".to_string(), None),
+        ]);
+        assert_eq!(rows.len(), 2);
+        assert_eq!(rows[&1], ("alice2".to_string(), None));
+        assert_eq!(rows[&2], ("bot".to_string(), None));
+        assert!(collect_users_names(vec![]).is_empty());
     }
 }

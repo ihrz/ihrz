@@ -36,7 +36,7 @@ pub async fn chan_unhide(
         ctx.say(
             crate::lang::get(&code, "channel_unhide_already_visible")
                 .map(|s| s.replace("@everyone", &mention))
-                .unwrap_or_else(|| "Channel unhidden.".to_string()),
+                .unwrap_or_else(|| "This channel is already visible to @everyone".to_string()),
         )
         .await?;
         return Ok(());
@@ -79,7 +79,7 @@ pub async fn chan_unhide(
     {
         ctx.say(
             crate::lang::get(&code, "renew_dont_have_permission")
-                .unwrap_or_else(|| "No permission.".to_string()),
+                .unwrap_or_else(|| ":x: **Can't** `Don't have permission!`".to_string()),
         )
         .await?;
         return Ok(());
@@ -87,7 +87,7 @@ pub async fn chan_unhide(
     ctx.say(
         crate::lang::get(&code, "channel_unhide_success")
             .map(|s| s.replace("@everyone", &mention))
-            .unwrap_or_else(|| "Channel unhidden.".to_string()),
+            .unwrap_or_else(|| "The channel is now visible to @everyone".to_string()),
     )
     .await?;
     Ok(())

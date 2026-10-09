@@ -21,7 +21,7 @@ pub async fn wakeup(
     if user.id == ctx.author().id {
         ctx.say(
             crate::lang::get(&code, "util_wakeup_yourself")
-                .unwrap_or_else(|| "Not yourself.".to_string()),
+                .unwrap_or_else(|| "Bro, are you dumb or what? Don't tell me you're sleeping on the keyboard while typing this command lol".to_string()),
         )
         .await?;
         return Ok(());
@@ -47,7 +47,7 @@ pub async fn wakeup(
         ctx.say(
             crate::lang::get(&code, "util_wakeup_not_in_vc")
                 .map(|s| s.replace("${user.displayName}", &display))
-                .unwrap_or_else(|| "Join a voice channel first.".to_string()),
+                .unwrap_or_else(|| "Bro, the bot isn't going to clone ${user.displayName} with the same profile pic and banner to make you think they woke up... They're not even in the VC lol".to_string()),
         )
         .await?;
         return Ok(());
@@ -61,7 +61,7 @@ pub async fn wakeup(
         ctx.say(
             crate::lang::get(&code, "util_wakeup_not_in_vc")
                 .map(|s| s.replace("${user.displayName}", &display))
-                .unwrap_or_else(|| "Join a voice channel first.".to_string()),
+                .unwrap_or_else(|| "Bro, the bot isn't going to clone ${user.displayName} with the same profile pic and banner to make you think they woke up... They're not even in the VC lol".to_string()),
         )
         .await?;
         return Ok(());
@@ -70,7 +70,7 @@ pub async fn wakeup(
     ctx.say(
         crate::lang::get(&code, "util_wakeup_command_work")
             .map(|s| s.replace("${user.toString()}", &format!("<@{}>", user.id.get())))
-            .unwrap_or_else(|| "Moved.".to_string()),
+            .unwrap_or_else(|| "Let's go wake up ${user.toString()}!".to_string()),
     )
     .await?;
     let _ = guild_id.move_member(ctx.http(), user.id, target).await;

@@ -343,6 +343,42 @@ pub fn tempvoice_buttons() -> Vec<serenity::CreateActionRow> {
         .collect()
 }
 
+/// Temp-voice sweep decision. Mirrors the cleanup legs of
+/// Events/voicedashboard/voiceState.ts (`typeof channelId !==
+/// "string"` guard, `!channel` guard, isMemberlessChannel).
+/// Pure predicate backing the voice-state sweep and the guild-create
+/// recovery, unit-tested below (no Discord needed).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum TempSweep {
+    /// Row is malformed or the channel is already gone: drop the key.
+    CleanupKey,
+    /// Channel exists and is empty: delete it, then drop the key.
+    DeleteChannel,
+    /// Channel exists and is occupied: keep everything.
+    Keep,
+}
+
+/// Parse a CUSTOM_VOICE row value. None mirrors the TS
+/// `typeof channelId !== "string"` guard (malformed rows are dropped).
+pub fn parse_temp_channel_id(raw: &str) -> Option<u64> {
+    let id = raw.trim().parse::<u64>().ok()?;
+    if id == 0 {
+        None
+    } else {
+        Some(id)
+    }
+}
+
+/// Decide a temp row's fate from channel existence + occupancy.
+/// Pure, unit-tested below.
+pub fn temp_sweep_action(channel_exists: bool, occupied: bool) -> TempSweep {
+    match (channel_exists, occupied) {
+        (false, _) => TempSweep::CleanupKey,
+        (true, false) => TempSweep::DeleteChannel,
+        (true, true) => TempSweep::Keep,
+    }
+}
+
 /// Load (user_id, channel_id) temp pairs for a guild.
 pub async fn load_temps(pool: &crate::db::Pool, guild_id: &str) -> Vec<(String, String)> {
     let rows: Vec<(String, String)> = sqlx::query_as::<_, (String, String)>(
@@ -1003,5 +1039,22 @@ mod tests {
         assert_eq!(values.len(), 14);
         assert!(VOICE_REGIONS.contains(&("Japan/Tokyo", "japan")));
         assert!(VOICE_REGIONS.contains(&("Brazil", "brazil")));
+    }
+
+    #[test]
+    fn temp_sweep_parses_and_decides_like_ts() {
+        // Malformed rows (TS `typeof !== "string"` guard) -> drop key.
+        assert_eq!(parse_temp_channel_id("123"), Some(123));
+        assert_eq!(parse_temp_channel_id("  123 "), Some(123));
+        assert_eq!(parse_temp_channel_id(""), None);
+        assert_eq!(parse_temp_channel_id("abc"), None);
+        assert_eq!(parse_temp_channel_id("0"), None);
+        // Gone channel -> drop key without delete call.
+        assert_eq!(temp_sweep_action(false, false), TempSweep::CleanupKey);
+        assert_eq!(temp_sweep_action(false, true), TempSweep::CleanupKey);
+        // Existing but memberless -> delete + drop.
+        assert_eq!(temp_sweep_action(true, false), TempSweep::DeleteChannel);
+        // Occupied -> keep.
+        assert_eq!(temp_sweep_action(true, true), TempSweep::Keep);
     }
 }

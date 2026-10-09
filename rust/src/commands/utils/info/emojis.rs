@@ -45,7 +45,7 @@ pub async fn emojis(
                     ctx.http(),
                     crate::lang::get(&code, "emoji_send_err_emoji")
                         .map(|s| s.replace("${emoji.name}", token))
-                        .unwrap_or_else(|| "Emoji failed.".to_string()),
+                        .unwrap_or_else(|| "__Error when creating new emoji__ with the following name: **${emoji.name}**!".to_string()),
                 )
                 .await?;
             continue;
@@ -71,7 +71,7 @@ pub async fn emojis(
                                 s.replace("${emoji.name}", &created.name)
                                     .replace("${emoji}", &created.to_string())
                             })
-                            .unwrap_or_else(|| "Emoji added.".to_string()),
+                            .unwrap_or_else(|| "__Created new emoji__ with the following name: **${emoji.name}**! (${emoji})".to_string()),
                     )
                     .await?;
             }
@@ -81,7 +81,7 @@ pub async fn emojis(
                         ctx.http(),
                         crate::lang::get(&code, "emoji_send_err_emoji")
                             .map(|s| s.replace("${emoji.name}", token))
-                            .unwrap_or_else(|| "Emoji failed.".to_string()),
+                            .unwrap_or_else(|| "__Error when creating new emoji__ with the following name: **${emoji.name}**!".to_string()),
                     )
                     .await?;
             }

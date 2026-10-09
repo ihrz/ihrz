@@ -21,7 +21,7 @@ pub async fn list_react(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     ctx.say(if rows.is_empty() {
         crate::lang::get(&code, "list_react_nothing_found")
-            .unwrap_or_else(|| "No custom reacts.".to_string())
+            .unwrap_or_else(|| "No data found, please add some first.".to_string())
     } else {
         rows.join("\n")
     })

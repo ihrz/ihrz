@@ -1,6 +1,12 @@
 use super::*;
 use poise::serenity_prelude as serenity;
 
+/// Render the remove confirmation: TS fills the `${member.tag}`
+/// slot with the member username (not the `name#discriminator` tag).
+pub fn render_remove_work(template: &str, username: &str) -> String {
+    template.replace("${member.tag}", username)
+}
+
 #[poise::command(
     slash_command,
     prefix_command,
@@ -45,8 +51,8 @@ pub async fn ticket_remove(
         .await?;
     ctx.say(
         crate::lang::get(&code, "remove_command_work")
-            .map(|s| s.replace("${member.tag}", &user.tag()))
-            .unwrap_or_else(|| format!("{} removed.", user.tag())),
+            .map(|s| render_remove_work(&s, &user.name))
+            .unwrap_or_else(|| format!("{} removed.", user.name)),
     )
     .await?;
     // onRemoveMember logs embed + footer file (TicketRemoveMember:1577).
@@ -62,4 +68,18 @@ pub async fn ticket_remove(
     )
     .await;
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn remove_work_uses_username() {
+        assert_eq!(
+            render_remove_work("Bye ${member.tag}!", "kisakay"),
+            "Bye kisakay!"
+        );
+        assert_eq!(render_remove_work("no slot", "kisakay"), "no slot");
+    }
 }

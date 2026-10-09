@@ -25,7 +25,7 @@ pub async fn gc_toonew(
         ctx.say(
             crate::lang::get(&code, "too_new_account_command_work_on_disable")
                 .map(|s| s.replace("${interaction.user}", &author_mention))
-                .unwrap_or_else(|| "Age check off.".to_string()),
+                .unwrap_or_else(|| "${interaction.user}, the module has been successfully disabled. New members' account creation dates will no longer be checked.".to_string()),
         )
         .await?;
         return Ok(());
@@ -33,7 +33,7 @@ pub async fn gc_toonew(
     let Some(ms) = crate::commands::shared::parse_duration_ms(&age) else {
         ctx.say(
             crate::lang::get(&code, "too_new_account_invalid_time_on_enable")
-                .unwrap_or_else(|| "Bad duration.".to_string()),
+                .unwrap_or_else(|| "The time you entered is not valid! **Example of valid time**: `3h; 30m; 4mo; 4w; 4y` -> 3 hours; 30 minutes; 4 month(s); 4 weeks; 4 years".to_string()),
         )
         .await?;
         return Ok(());
@@ -54,7 +54,7 @@ pub async fn gc_toonew(
                     .replace("${interaction.guild?.name}", &guild_name)
                     .replace("${beautifulTime}", &beautiful)
             })
-            .unwrap_or_else(|| "Age check on.".to_string()),
+            .unwrap_or_else(|| "${interaction.user}, new members joining **${interaction.guild?.name}** with accounts younger than `${beautifulTime}` will now be kicked.".to_string()),
     )
     .await?;
     Ok(())

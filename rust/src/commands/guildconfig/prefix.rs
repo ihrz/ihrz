@@ -22,8 +22,9 @@ pub async fn gc_prefix(
     if raw.eq_ignore_ascii_case("mention") || raw.eq_ignore_ascii_case("reset") {
         crate::db::clear_guild_prefix(&ctx.data().pool, &gid).await?;
         ctx.say(
-            crate::lang::get(&code, "guildconfig_setbot_prefix_prefix_now_mention")
-                .unwrap_or_else(|| "Prefix reverted to mention.".to_string()),
+            crate::lang::get(&code, "guildconfig_setbot_prefix_prefix_now_mention").unwrap_or_else(
+                || "The bot prefix for Message's command is now mention! `@Ping-Me`".to_string(),
+            ),
         )
         .await?;
         return Ok(());
@@ -31,7 +32,7 @@ pub async fn gc_prefix(
     if raw.is_empty() {
         ctx.say(
             crate::lang::get(&code, "guildconfig_setbot_prefix_prefix_specify_prefix")
-                .unwrap_or_else(|| "Prefix must be 1-5 characters.".to_string()),
+                .unwrap_or_else(|| "You need to specify the bot prefix.".to_string()),
         )
         .await?;
         return Ok(());
@@ -39,8 +40,9 @@ pub async fn gc_prefix(
     // CapGate: TS rejects `prefix.length >= 5` (4 chars max).
     if crate::db::prefix_too_long(&raw) {
         ctx.say(
-            crate::lang::get(&code, "guildconfig_setbot_prefix_prefix_too_long")
-                .unwrap_or_else(|| "Prefix must be 1-5 characters.".to_string()),
+            crate::lang::get(&code, "guildconfig_setbot_prefix_prefix_too_long").unwrap_or_else(
+                || "The bot prefix is too long, it will be too difficult to use.".to_string(),
+            ),
         )
         .await?;
         return Ok(());
@@ -50,7 +52,7 @@ pub async fn gc_prefix(
     if formated.is_empty() {
         ctx.say(
             crate::lang::get(&code, "guildconfig_setbot_prefix_prefix_specify_prefix")
-                .unwrap_or_else(|| "Prefix must be 1-5 characters.".to_string()),
+                .unwrap_or_else(|| "You need to specify the bot prefix.".to_string()),
         )
         .await?;
         return Ok(());

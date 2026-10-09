@@ -32,14 +32,17 @@ pub async fn gc_joindm(
             ctx.say(
                 crate::lang::get(&code, "setjoindm_confirmation_message_on_enable")
                     .map(|s| s.replace("${dm_msg}", &text))
-                    .unwrap_or_else(|| "Join DM set.".to_string()),
+                    .unwrap_or_else(|| {
+                        "You have successfully set the join DM to:```${dm_msg}``` And enabled it"
+                            .to_string()
+                    }),
             )
             .await?;
         }
         None => {
             ctx.say(
                 crate::lang::get(&code, "setjoindm_confirmation_message_on_disable")
-                    .unwrap_or_else(|| "Join DM cleared.".to_string()),
+                    .unwrap_or_else(|| "You have successfully disabled the join DM!".to_string()),
             )
             .await?;
         }

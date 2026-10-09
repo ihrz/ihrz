@@ -275,7 +275,7 @@ pub async fn owner_remove(
     ctx.say(
         crate::lang::get(&code, "unowner_command_work")
             .map(|s| s.replace("${member.username}", &user.tag()))
-            .unwrap_or_else(|| "Guild owner removed.".to_string()),
+            .unwrap_or_else(|| "${member.username} is no longer an owner".to_string()),
     )
     .await?;
     Ok(())
@@ -292,8 +292,9 @@ async fn require_bot_owner<'a>(ctx: &Ctx<'a>) -> bool {
         return true;
     }
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-    let msg = crate::lang::get(&code, "blacklist_not_owner")
-        .unwrap_or_else(|| "Bot owner only.".to_string());
+    let msg = crate::lang::get(&code, "blacklist_not_owner").unwrap_or_else(|| {
+        "You are not an owner of the iHorizon Project. You can't use this command.".to_string()
+    });
     let _ = ctx.say(msg).await;
     false
 }
@@ -336,7 +337,7 @@ pub async fn owner_unblacklist(
     ctx.say(
         crate::lang::get(&code, "unblacklist_command_work")
             .map(|s| s.replace("${member.id}", &user.id.get().to_string()))
-            .unwrap_or_else(|| "Unblacklisted.".to_string()),
+            .unwrap_or_else(|| "<@${member.id}> is no longer blacklisted".to_string()),
     )
     .await?;
     Ok(())
@@ -361,7 +362,7 @@ pub async fn owner_blinfo(
         Some(r) => format!("{} blacklisted: {r}", user.tag()),
         None => crate::lang::get(&code, "unblacklist_not_blacklisted")
             .map(|s| s.replace("${member.id}", &user.id.get().to_string()))
-            .unwrap_or_else(|| "Not blacklisted.".to_string()),
+            .unwrap_or_else(|| "<@${member.id}> was not blacklisted".to_string()),
     })
     .await?;
     Ok(())

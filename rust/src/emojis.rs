@@ -84,10 +84,18 @@ pub fn base64_decode(s: &str) -> Option<Vec<u8>> {
     Some(out)
 }
 
+/// Strip one leading `iHorizon_` prefix. Mirrors the TS namespace mapping
+/// (`local_emoji.Name.replace("iHorizon_", "")`): stored app-emoji names
+/// (`iHorizon_Yes`) and callers (`Yes`) resolve to the same key (`Yes`).
+/// Names without the prefix pass through unchanged.
+pub fn emoji_key(name: &str) -> &str {
+    name.strip_prefix("iHorizon_").unwrap_or(name)
+}
+
 /// iHorizon_Yes.png -> "Yes". Mirrors the Pascal_Snake namespace mapping.
 pub fn emoji_name(file_name: &str) -> Option<String> {
     let stem = file_name.rsplit_once('.')?.0;
-    let name = stem.strip_prefix("iHorizon_").unwrap_or(stem);
+    let name = emoji_key(stem);
     if name.is_empty() || !name.chars().all(|c| c.is_ascii_alphanumeric() || c == '_') {
         return None;
     }
@@ -124,20 +132,33 @@ pub async fn app_emoji_markup(http: &poise::serenity_prelude::Http, name: &str) 
         .map(|(id, name, animated)| format_markup(&name, id, animated))
 }
 
-/// Cached app-emoji entry: raw id, name and animated flag (for the
+/// Cached app-emoji entry: raw id, full stored name and animated flag (for the
 /// ReactionType::Custom spots that need the id, e.g. help menus).
+/// `name` accepts the stripped namespace key (`Yes`) or the stored name
+/// (`iHorizon_Yes`); markup always uses the full stored name like the TS
+/// FormatedName template.
 pub async fn cached_emoji_entry(
     http: &poise::serenity_prelude::Http,
     name: &str,
 ) -> Option<(u64, String, bool)> {
-    cached_emoji_table(http)
-        .await
-        .get(name)
-        .map(|(id, animated)| (*id, name.to_string(), *animated))
+    let table = cached_emoji_table(http).await;
+    table_entry(&table, name)
 }
 
-/// Name -> `<a?:name:id>` markup. Mirrors the FormatedName template in
-/// emojisManager.ts (`<${animated ? "a" : ""}:${name}:${id}>`).
+/// Pure lookup behind `cached_emoji_entry`: normalize the `iHorizon_`
+/// prefix on the query side so prefixed and unprefixed callers hit the
+/// same entry. Returns (id, full stored name, animated).
+fn table_entry(table: &EmojiTable, name: &str) -> Option<(u64, String, bool)> {
+    table
+        .get(emoji_key(name))
+        .map(|(id, animated, full_name)| (*id, full_name.clone(), *animated))
+}
+
+/// Namespace key -> `<a?:name:id>` markup. Mirrors the FormatedName template in
+/// emojisManager.ts (`<${animated ? "a" : ""}:${name}:${id}>`): keys are the
+/// stripped namespace (`Yes`), markup keeps the full stored name
+/// (`<:iHorizon_Yes:id>`) so both prefixed and unprefixed stored names
+/// resolve from either query form.
 pub fn emoji_map(
     emojis: &[poise::serenity_prelude::Emoji],
 ) -> std::collections::HashMap<String, String> {
@@ -145,7 +166,7 @@ pub fn emoji_map(
         .iter()
         .map(|e| {
             (
-                e.name.clone(),
+                emoji_key(&e.name).to_string(),
                 format_markup(&e.name, e.id.get(), e.animated),
             )
         })
@@ -160,7 +181,10 @@ fn format_markup(name: &str, id: u64, animated: bool) -> String {
     }
 }
 
-type EmojiTable = std::collections::HashMap<String, (u64, bool)>;
+/// Namespace key -> (id, animated, full stored name). Keys are normalized
+/// with `emoji_key` so prefixed stored names (`iHorizon_Yes`) match
+/// stripped queries (`Yes`) and vice versa.
+type EmojiTable = std::collections::HashMap<String, (u64, bool, String)>;
 
 static EMOJI_CACHE: std::sync::OnceLock<
     std::sync::Mutex<(EmojiTable, Option<std::time::Instant>)>,
@@ -171,7 +195,12 @@ pub async fn refresh(http: &poise::serenity_prelude::Http) {
     let fetched = http.get_application_emojis().await.unwrap_or_default();
     let table: EmojiTable = fetched
         .iter()
-        .map(|e| (e.name.clone(), (e.id.get(), e.animated)))
+        .map(|e| {
+            (
+                emoji_key(&e.name).to_string(),
+                (e.id.get(), e.animated, e.name.clone()),
+            )
+        })
         .collect();
     let cache = EMOJI_CACHE.get_or_init(|| std::sync::Mutex::new((EmojiTable::new(), None)));
     let mut guard = cache.lock().unwrap_or_else(|e| e.into_inner());
@@ -193,13 +222,17 @@ async fn cached_emoji_table(http: &poise::serenity_prelude::Http) -> EmojiTable 
 }
 
 /// Upload missing app emojis. Best-effort, traced, never fails boot.
+/// Mirrors the TS compare (`x.Name === local_emoji.Name`, both full
+/// prefixed names) via normalized keys, so prefixed stored names match
+/// stripped local names and emojis are not re-created every boot.
+/// Uploads keep the full `iHorizon_<Name>` file stem like the TS.
 pub async fn sync(http: &Arc<poise::serenity_prelude::Http>) {
     let existing: Vec<String> = http
         .get_application_emojis()
         .await
         .unwrap_or_default()
         .iter()
-        .map(|e| e.name.clone())
+        .map(|e| emoji_key(&e.name).to_string())
         .collect();
     let dir = assets_dir();
     let entries = std::fs::read_dir(&dir).map(|r| r.count()).unwrap_or(0);
@@ -220,6 +253,9 @@ pub async fn sync(http: &Arc<poise::serenity_prelude::Http>) {
         if existing.iter().any(|e| e == &name) {
             continue;
         }
+        // Full file stem (`iHorizon_Yes`) for the upload, like the TS
+        // (`name: local_emoji.Name`); `name` above is the stripped key.
+        let full_name = fname.rsplit_once('.').map(|(s, _)| s).unwrap_or(fname);
         let Ok(bytes) = std::fs::read(&path) else {
             continue;
         };
@@ -230,7 +266,7 @@ pub async fn sync(http: &Arc<poise::serenity_prelude::Http>) {
             continue;
         };
         match http
-            .create_application_emoji(&serde_json::json!({"name": name, "image": image}))
+            .create_application_emoji(&serde_json::json!({"name": full_name, "image": image}))
             .await
         {
             Ok(_) => tracing::info!("emoji synced: {name}"),
@@ -296,6 +332,64 @@ mod tests {
         );
         assert_eq!(emoji_name("nope.txt").as_deref(), Some("nope"));
         assert_eq!(emoji_name("iHorizon_.png"), None);
+    }
+
+    #[test]
+    fn prefix_key_normalizes_both_sides() {
+        // Stored app-emoji names (`iHorizon_Yes`) and stripped namespace
+        // keys (`Yes`) resolve identically, like the TS full-name compare.
+        assert_eq!(emoji_key("iHorizon_Yes"), "Yes");
+        assert_eq!(emoji_key("Yes"), "Yes");
+        assert_eq!(emoji_key("iHorizon_Save_Clip"), "Save_Clip");
+        assert_eq!(emoji_key("Save_Clip"), "Save_Clip");
+        // Sync-compare side: prefixed stored vs stripped local match.
+        let existing = ["iHorizon_Yes", "iHorizon_Crown"]
+            .iter()
+            .map(|e| emoji_key(e).to_string())
+            .collect::<Vec<_>>();
+        let local = emoji_name("iHorizon_Yes.png").unwrap();
+        assert!(existing.iter().any(|e| e == &local));
+        let missing = emoji_name("iHorizon_Nope.png").unwrap();
+        assert!(!existing.iter().any(|e| e == &missing));
+    }
+
+    #[test]
+    fn markup_lookup_hits_prefixed_and_unprefixed() {
+        // Emoji is non_exhaustive: build via JSON like the API would.
+        let raw = serde_json::json!([
+            {"id": "1", "name": "iHorizon_Yes", "animated": false},
+            {"id": "2", "name": "Wave", "animated": true}
+        ]);
+        let emojis: Vec<poise::serenity_prelude::Emoji> = serde_json::from_value(raw).unwrap();
+        let map = emoji_map(&emojis);
+        // Stripped query hits the prefixed stored emoji; markup keeps the
+        // full stored name like the TS FormatedName template.
+        assert_eq!(
+            map.get("Yes").map(String::as_str),
+            Some("<:iHorizon_Yes:1>")
+        );
+        // Unprefixed stored names keep working as before.
+        assert_eq!(map.get("Wave").map(String::as_str), Some("<a:Wave:2>"));
+    }
+
+    #[test]
+    fn table_lookup_accepts_either_name_form() {
+        let mut table: EmojiTable = std::collections::HashMap::new();
+        table.insert(
+            emoji_key("iHorizon_Yes").to_string(),
+            (7, false, "iHorizon_Yes".to_string()),
+        );
+        // Both query forms resolve; the returned name is the full stored
+        // name so markup renders `<:iHorizon_Yes:7>`.
+        assert_eq!(
+            table_entry(&table, "Yes"),
+            Some((7, "iHorizon_Yes".to_string(), false))
+        );
+        assert_eq!(
+            table_entry(&table, "iHorizon_Yes"),
+            Some((7, "iHorizon_Yes".to_string(), false))
+        );
+        assert_eq!(table_entry(&table, "Nope"), None);
     }
 
     #[test]

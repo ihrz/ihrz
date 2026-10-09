@@ -1,6 +1,39 @@
 use super::*;
 use poise::serenity_prelude as serenity;
 
+/// Localized short duration like TS `to_beautiful_string(ms, lang)`:
+/// localized unit names concatenated without separator, zero falls
+/// back to `0` + the minute name. `units` is
+/// [year, month, week, day, hour, minute, second] (`var_year`,
+/// `var_mo`, `var_w`, `var_d`, `var_h`, `var_m`, `var_s`).
+pub fn beautiful_duration(ms: i64, units: [&str; 7]) -> String {
+    let factors = [
+        31_557_600_000i64,
+        2_592_000_000,
+        604_800_000,
+        86_400_000,
+        3_600_000,
+        60_000,
+        1_000,
+    ];
+    let mut rest = ms.max(0);
+    let mut out = String::new();
+    for (unit, factor) in units.iter().zip(factors) {
+        if rest >= factor {
+            out.push_str(&format!("{}{}", rest / factor, unit));
+            rest %= factor;
+        }
+    }
+    if rest > 0 {
+        out.push_str(&format!("{rest}ms"));
+    }
+    if out.is_empty() {
+        format!("0{}", units[5])
+    } else {
+        out
+    }
+}
+
 /// Remind the ticket owner (TicketRemind pipeline).
 #[poise::command(
     slash_command,
@@ -56,7 +89,25 @@ pub async fn ticket_remind(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let time = match last_owner {
         Some(m) => {
             let ts_ms = m.timestamp.unix_timestamp() * 1000;
-            crate::funcs::beautiful_ms((now_ms - ts_ms).max(0) as f64)
+            let units = [
+                t("var_year"),
+                t("var_mo"),
+                t("var_w"),
+                t("var_d"),
+                t("var_h"),
+                t("var_m"),
+                t("var_s"),
+            ];
+            let refs = [
+                units[0].as_str(),
+                units[1].as_str(),
+                units[2].as_str(),
+                units[3].as_str(),
+                units[4].as_str(),
+                units[5].as_str(),
+                units[6].as_str(),
+            ];
+            beautiful_duration(now_ms - ts_ms, refs)
         }
         None => t("var_never"),
     };
@@ -96,4 +147,42 @@ pub async fn ticket_remind(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         .await?;
     }
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn en() -> [&'static str; 7] {
+        [
+            "year(s)",
+            "month(s)",
+            "week(s)",
+            "day(s)",
+            "hour(s)",
+            "minute(s)",
+            "second(s)",
+        ]
+    }
+
+    #[test]
+    fn duration_concatenates_localized_units() {
+        assert_eq!(beautiful_duration(3_600_000, en()), "1hour(s)");
+        assert_eq!(beautiful_duration(90_000, en()), "1minute(s)30second(s)");
+        assert_eq!(beautiful_duration(500, en()), "500ms");
+    }
+
+    #[test]
+    fn duration_zero_falls_back_to_minutes() {
+        assert_eq!(beautiful_duration(0, en()), "0minute(s)");
+        assert_eq!(beautiful_duration(-5, en()), "0minute(s)");
+    }
+
+    #[test]
+    fn duration_covers_large_units() {
+        assert_eq!(
+            beautiful_duration(2 * 86_400_000 + 3_600_000, en()),
+            "2day(s)1hour(s)"
+        );
+    }
 }

@@ -1,6 +1,12 @@
 use super::*;
 use poise::serenity_prelude as serenity;
 
+/// Render the add confirmation: TS fills every `${member.tag}`
+/// slot with the member username.
+pub fn render_add_work(template: &str, username: &str) -> String {
+    template.replace("${member.tag}", username)
+}
+
 #[poise::command(
     slash_command,
     prefix_command,
@@ -44,7 +50,7 @@ pub async fn ticket_add(
         .await?;
     ctx.say(
         crate::lang::get(&code, "add_command_work")
-            .map(|s| s.replace("${member.tag}", &user.name))
+            .map(|s| render_add_work(&s, &user.name))
             .unwrap_or_else(|| format!("{} added.", user.name)),
     )
     .await?;
@@ -61,4 +67,17 @@ pub async fn ticket_add(
     )
     .await;
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn add_work_fills_every_slot_with_username() {
+        assert_eq!(
+            render_add_work("${member.tag} + ${member.tag}", "kisakay"),
+            "kisakay + kisakay"
+        );
+    }
 }

@@ -914,7 +914,7 @@ pub async fn animal_pic(
                 crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
             ctx.say(
                 crate::lang::get(&code, "fun_var_down_api")
-                    .unwrap_or_else(|| "Image API down.".to_string()),
+                    .unwrap_or_else(|| "Error: Seems like the API is down!".to_string()),
             )
             .await?;
         }

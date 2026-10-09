@@ -28,7 +28,7 @@ pub async fn gw_create(
                         &format!("<@{}>", ctx.author().id.get()),
                     )
                 })
-                .unwrap_or_else(|| "Bad duration.".to_string()),
+                .unwrap_or_else(|| "${interaction.user}, the giveaway duration you specified is invalid, please try again!".to_string()),
         )
         .await?;
         return Ok(());

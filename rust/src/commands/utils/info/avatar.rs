@@ -37,7 +37,7 @@ pub async fn avatar(
         )
         .description(
             crate::lang::get(&code, "avatar_embed_description")
-                .unwrap_or_else(|| "Avatar.".to_string()),
+                .unwrap_or_else(|| "__**Avatar**__: `${mentionedUser.username}`".to_string()),
         )
         .image(url)
         .timestamp(poise::serenity_prelude::Timestamp::now());

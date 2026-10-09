@@ -41,7 +41,9 @@ pub async fn gc_autologs(
                 s.replace("${argsid.id}", &mention)
                     .replace("${typeOfLogs}", &types)
             })
-            .unwrap_or_else(|| "All server logs pointed here.".to_string()),
+            .unwrap_or_else(|| {
+                "You have successfully set up the `${typeOfLogs}` in ${argsid.id}!".to_string()
+            }),
     )
     .await?;
     Ok(())

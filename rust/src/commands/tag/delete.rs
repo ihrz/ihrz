@@ -24,7 +24,7 @@ pub async fn tag_delete(
         ctx.say(
             crate::lang::get(&code, "tag_delete_dnt_exist")
                 .map(|s| s.replace("${tag_name}", &tag_name))
-                .unwrap_or_else(|| "Tag doesn't exist.".to_string()),
+                .unwrap_or_else(|| "The tag `${tag_name}` doesn't exist.".to_string()),
         )
         .await?;
         return Ok(());
@@ -33,7 +33,7 @@ pub async fn tag_delete(
     ctx.say(
         crate::lang::get(&code, "tag_delete_command_ok")
             .map(|s| s.replace("${tag_name}", &tag_name))
-            .unwrap_or_else(|| "Tag deleted.".to_string()),
+            .unwrap_or_else(|| "The tag `${tag_name}` has been deleted.".to_string()),
     )
     .await?;
     Ok(())

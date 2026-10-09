@@ -33,7 +33,14 @@ pub async fn eco_config(
             .await?;
         } else {
             // TS `db.set(..., false)`: a real boolean, not "0".
-            crate::db::kv_set(&ctx.data().pool, &gid, "ECONOMY.disabled", "false").await?;
+            crate::commands::owner::main::routed_set(
+                &ctx.data().pool,
+                &gid,
+                &gid,
+                "ECONOMY.disabled",
+                "false",
+            )
+            .await?;
             ctx.say(
                 crate::lang::get(&code, "economy_disable_set_enable")
                     .map(|s| s.replace("${interaction.user.id}", &author_id))
@@ -60,7 +67,14 @@ pub async fn eco_config(
             .await?;
         } else {
             // TS `db.set(..., true)`: a real boolean, not "1".
-            crate::db::kv_set(&ctx.data().pool, &gid, "ECONOMY.disabled", "true").await?;
+            crate::commands::owner::main::routed_set(
+                &ctx.data().pool,
+                &gid,
+                &gid,
+                "ECONOMY.disabled",
+                "true",
+            )
+            .await?;
             ctx.say(
                 crate::lang::get(&code, "economy_disable_set_disable")
                     .map(|s| s.replace("${interaction.user.id}", &author_id))
@@ -92,4 +106,62 @@ pub async fn eco_config(
     .replace("${state}", state);
     post_ihorizon_log(&ctx, &title, &desc).await;
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    async fn mem_pool() -> crate::db::Pool {
+        use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};
+        use std::str::FromStr;
+        let opts = SqliteConnectOptions::from_str("sqlite::memory:")
+            .unwrap()
+            .create_if_missing(true);
+        let pool = SqlitePoolOptions::new()
+            .max_connections(1)
+            .connect_with(opts)
+            .await
+            .unwrap();
+        sqlx::query(
+            "CREATE TABLE kv (guild_id TEXT NOT NULL, key_name TEXT NOT NULL, value TEXT NOT NULL, PRIMARY KEY (guild_id, key_name))",
+        )
+        .execute(&pool)
+        .await
+        .unwrap();
+        pool
+    }
+
+    #[tokio::test]
+    async fn disabled_flag_dual_writes_table_and_legacy() {
+        use crate::commands::owner::main::{routed_get, routed_set, tbl_get_value};
+        let pool = mem_pool().await;
+        // Table-first read falls back to the legacy row and promotes it.
+        crate::db::kv_set(&pool, "g", "ECONOMY.disabled", "true")
+            .await
+            .unwrap();
+        assert_eq!(
+            routed_get(&pool, "g", "g", "ECONOMY.disabled")
+                .await
+                .as_deref(),
+            Some("true")
+        );
+        assert!(tbl_get_value(&pool, "g", "ECONOMY.disabled")
+            .await
+            .is_some());
+        // Writes land in both stores so locked legacy readers stay fresh.
+        routed_set(&pool, "g", "g", "ECONOMY.disabled", "false")
+            .await
+            .unwrap();
+        assert_eq!(
+            crate::db::kv_get(&pool, "g", "ECONOMY.disabled")
+                .await
+                .as_deref(),
+            Some("false")
+        );
+        assert_eq!(
+            routed_get(&pool, "g", "g", "ECONOMY.disabled")
+                .await
+                .as_deref(),
+            Some("false")
+        );
+    }
 }

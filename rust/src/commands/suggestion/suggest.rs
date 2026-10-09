@@ -26,7 +26,7 @@ async fn set_status(
         let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
         ctx.say(
             crate::lang::get(&code, "suggest_delete_not_found_db")
-                .unwrap_or_else(|| "Suggestion not found.".to_string()),
+                .unwrap_or_else(|| "The suggestion is not found in my DB!".to_string()),
         )
         .await?;
         return Ok(());
@@ -112,7 +112,7 @@ pub async fn suggest_delete(
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     ctx.say(
         crate::lang::get(&code, "suggest_delete_command_work")
-            .unwrap_or_else(|| "Suggestion deleted.".to_string()),
+            .unwrap_or_else(|| "You have deleted the suggestion!".to_string()),
     )
     .await?;
     Ok(())
