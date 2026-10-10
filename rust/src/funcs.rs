@@ -1132,9 +1132,54 @@ pub struct PasswordOptions {
     pub strict: bool,
 }
 
-/// Password generator. Mirrors generatePassword (xorshift seed; strict
-/// mode guarantees one char per enabled class).
-pub fn generate_password(opts: &PasswordOptions, seed: u64) -> Result<String, &'static str> {
+/// Password generator. Mirrors generatePassword: crypto-secure sampling
+/// with rejection (like the TS getSecureRandomChar limit-bucket loop
+/// over crypto.randomFillSync), strict mode guaranteeing one char per
+/// enabled class (like the TS crypto.randomInt patch-up).
+/// `seed` is kept only so the existing call sites compile; it is
+/// ignored — use generate_password_seeded for deterministic tests.
+pub fn generate_password(opts: &PasswordOptions, _seed: u64) -> Result<String, &'static str> {
+    let (pool, classes) = password_pool(opts)?;
+    let mut out: Vec<char> = (0..opts.length)
+        .map(|_| pool[secure_index(pool.len())])
+        .collect();
+    if opts.strict {
+        for class in &classes {
+            let pos = secure_index(opts.length);
+            out[pos] = class[secure_index(class.len())];
+        }
+    }
+    Ok(out.into_iter().collect())
+}
+
+/// Deterministic password generator for tests only. Same pool/strict
+/// semantics as generate_password but driven by an xorshift64 stream
+/// so fixtures are reproducible. Never use for real secrets.
+pub fn generate_password_seeded(opts: &PasswordOptions, seed: u64) -> Result<String, &'static str> {
+    let (pool, classes) = password_pool(opts)?;
+    let mut state = if seed == 0 { 0x9E3779B97F4A7C15 } else { seed };
+    let mut next = move || {
+        state ^= state << 13;
+        state ^= state >> 7;
+        state ^= state << 17;
+        state
+    };
+    let mut out: Vec<char> = (0..opts.length)
+        .map(|_| pool[(next() % pool.len() as u64) as usize])
+        .collect();
+    if opts.strict {
+        for class in &classes {
+            let pos = (next() as usize) % opts.length;
+            out[pos] = class[(next() as usize) % class.len()];
+        }
+    }
+    Ok(out.into_iter().collect())
+}
+
+/// Character pool + per-class alphabets for the password generators.
+/// Mirrors the charSets/exclude/excludeSimilarCharacters assembly in
+/// random.ts (symbols === true maps to "!@#$%^&*()_+=").
+fn password_pool(opts: &PasswordOptions) -> Result<(Vec<char>, Vec<Vec<char>>), &'static str> {
     if opts.length == 0 {
         return Err("length must be positive");
     }
@@ -1164,46 +1209,235 @@ pub fn generate_password(opts: &PasswordOptions, seed: u64) -> Result<String, &'
     if pool.is_empty() {
         return Err("no characters left after exclusions");
     }
-    let pool: Vec<char> = pool.chars().collect();
-    let mut state = if seed == 0 { 0x9E3779B97F4A7C15 } else { seed };
-    let mut next = move || {
-        state ^= state << 13;
-        state ^= state >> 7;
-        state ^= state << 17;
-        state
-    };
-    let mut out: Vec<char> = (0..opts.length)
-        .map(|_| pool[(next() % pool.len() as u64) as usize])
-        .collect();
-    if opts.strict {
-        for (i, class) in classes.iter().enumerate() {
-            let class: Vec<char> = class.chars().collect();
-            let pos = (next() as usize) % opts.length;
-            out[pos] = class[(next() as usize) % class.len()];
-            let _ = i;
+    Ok((
+        pool.chars().collect(),
+        classes.iter().map(|c| c.chars().collect()).collect(),
+    ))
+}
+
+/// Uniform index in [0, limit) from OsRng with rejection sampling.
+/// Mirrors the TS limit-bucket loop (256 - (256 % len)) generalized to
+/// u64 draws so any pool/length stays unbiased.
+fn secure_index(limit: usize) -> usize {
+    use rand::{rngs::OsRng, RngCore};
+    if limit <= 1 {
+        return 0;
+    }
+    let limit64 = limit as u64;
+    let bound = u64::MAX - (u64::MAX % limit64);
+    let mut buf = [0u8; 8];
+    loop {
+        OsRng.fill_bytes(&mut buf);
+        let v = u64::from_le_bytes(buf);
+        if v < bound {
+            return (v % limit64) as usize;
         }
     }
-    Ok(out.into_iter().collect())
 }
 
 /// Multiple passwords. Mirrors generateMultiplePasswords
-/// (amount <= 0 errors, like the TS throw).
+/// (amount <= 0 errors, like the TS throw). Each password draws from
+/// OsRng; `seed` is ignored (kept for call-site compatibility).
 pub fn generate_multiple_passwords(
     amount: usize,
     opts: &PasswordOptions,
-    seed: u64,
+    _seed: u64,
 ) -> Result<Vec<String>, &'static str> {
     if amount == 0 {
         return Err("amount must be positive");
     }
-    (0..amount)
-        .map(|i| {
-            generate_password(
-                opts,
-                seed.wrapping_add((i as u64).wrapping_mul(0x9E3779B97F4A7C15)),
-            )
-        })
-        .collect()
+    (0..amount).map(|_| generate_password(opts, 0)).collect()
+}
+
+// ---- axios.ts shared HTTP helper ----
+
+/// HTTP method vocabulary. Mirrors the AxiosRequestConfig method field
+/// (default GET; the class exposes request/head/get/post/put).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum HttpMethod {
+    #[default]
+    Get,
+    Post,
+    Put,
+    Head,
+}
+
+/// Typed HTTP failure. Mirrors handleRequestError: only transport-level
+/// failures are errors — HTTP error statuses are returned as responses
+/// (fetch/axios-wrapper never rejects on status), so callers check
+/// HttpResponse::ok() like the TS status/data shapes do.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum HttpError {
+    Timeout,
+    Transport(String),
+    InvalidUrl(String),
+}
+
+impl std::fmt::Display for HttpError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Timeout => write!(f, "request timed out"),
+            Self::Transport(e) => write!(f, "request failed: {e}"),
+            Self::InvalidUrl(u) => write!(f, "invalid URL: {u}"),
+        }
+    }
+}
+
+impl std::error::Error for HttpError {}
+
+/// Request shape. Mirrors AxiosRequestConfig: baseURL join, JSON
+/// content-type default, binary Accept, timeout, responseType.
+#[derive(Debug, Clone, Default)]
+pub struct HttpRequest {
+    pub url: String,
+    pub method: HttpMethod,
+    pub base_url: String,
+    pub headers: Vec<(String, String)>,
+    pub json_body: Option<String>,
+    pub timeout: Option<std::time::Duration>,
+    /// When true, mirrors responseType arrayBuffer (Accept binary +
+    /// raw bytes instead of the JSON/text sniff).
+    pub binary: bool,
+}
+
+/// Response shape. Mirrors AxiosResponse {data, status, statusText,
+/// headers} with data split by the content sniff.
+#[derive(Debug, Clone)]
+pub struct HttpResponse {
+    pub status: u16,
+    pub body_text: String,
+    pub body_json: Option<serde_json::Value>,
+    pub body_bytes: Option<Vec<u8>>,
+}
+
+impl HttpResponse {
+    /// Mirrors the axios 2xx contract (non-2xx is data, not a throw).
+    pub fn ok(&self) -> bool {
+        (200..300).contains(&self.status)
+    }
+}
+
+/// Join baseURL + url exactly like the TS `baseURL ? baseURL + url : url`.
+pub fn join_url(base_url: &str, url: &str) -> String {
+    if base_url.is_empty() {
+        return url.to_string();
+    }
+    format!("{base_url}{url}")
+}
+
+/// Execute one request with the axios.ts defaults: Content-Type
+/// application/json unless overridden, Accept application/octet-stream
+/// for binary, reqwest timeout standing in for AbortSignal.timeout.
+pub async fn http_request(req: &HttpRequest) -> Result<HttpResponse, HttpError> {
+    let full = join_url(&req.base_url, &req.url);
+    if full.is_empty() {
+        return Err(HttpError::InvalidUrl(full));
+    }
+    let mut builder = reqwest::Client::builder();
+    if let Some(t) = req.timeout {
+        builder = builder.timeout(t);
+    }
+    let client = builder
+        .build()
+        .map_err(|e| HttpError::Transport(e.to_string()))?;
+    let mut rb = match req.method {
+        HttpMethod::Get => client.get(&full),
+        HttpMethod::Post => client.post(&full),
+        HttpMethod::Put => client.put(&full),
+        HttpMethod::Head => client.head(&full),
+    };
+    rb = rb.header("Content-Type", "application/json");
+    if req.binary {
+        rb = rb.header("Accept", "application/octet-stream");
+    }
+    for (k, v) in &req.headers {
+        rb = rb.header(k.as_str(), v.as_str());
+    }
+    if let Some(body) = &req.json_body {
+        rb = rb.body(body.clone());
+    }
+    let resp = rb.send().await.map_err(|e| {
+        if e.is_timeout() {
+            HttpError::Timeout
+        } else {
+            HttpError::Transport(e.to_string())
+        }
+    })?;
+    let status = resp.status().as_u16();
+    if req.method == HttpMethod::Head {
+        return Ok(HttpResponse {
+            status,
+            body_text: String::new(),
+            body_json: None,
+            body_bytes: None,
+        });
+    }
+    if req.binary {
+        let bytes = resp
+            .bytes()
+            .await
+            .map_err(|e| HttpError::Transport(e.to_string()))?;
+        return Ok(HttpResponse {
+            status,
+            body_text: String::new(),
+            body_json: None,
+            body_bytes: Some(bytes.to_vec()),
+        });
+    }
+    let is_json = resp
+        .headers()
+        .get("content-type")
+        .and_then(|v| v.to_str().ok())
+        .is_some_and(|ct| ct.contains("application/json"));
+    let text = resp
+        .text()
+        .await
+        .map_err(|e| HttpError::Transport(e.to_string()))?;
+    let body_json = if is_json {
+        serde_json::from_str(&text).ok()
+    } else {
+        None
+    };
+    Ok(HttpResponse {
+        status,
+        body_text: text,
+        body_json,
+        body_bytes: None,
+    })
+}
+
+/// GET shorthand. Mirrors axios.get(url, config).
+pub async fn http_get(
+    url: &str,
+    base_url: &str,
+    timeout: Option<std::time::Duration>,
+) -> Result<HttpResponse, HttpError> {
+    http_request(&HttpRequest {
+        url: url.to_string(),
+        base_url: base_url.to_string(),
+        timeout,
+        ..Default::default()
+    })
+    .await
+}
+
+/// POST shorthand with a pre-serialized JSON body. Mirrors
+/// axios.post(url, data, config).
+pub async fn http_post_json(
+    url: &str,
+    base_url: &str,
+    json_body: &str,
+    timeout: Option<std::time::Duration>,
+) -> Result<HttpResponse, HttpError> {
+    http_request(&HttpRequest {
+        url: url.to_string(),
+        method: HttpMethod::Post,
+        base_url: base_url.to_string(),
+        json_body: Some(json_body.to_string()),
+        timeout,
+        ..Default::default()
+    })
+    .await
 }
 
 /// Database round-trip latency in ms. Mirrors database_latency.ts.
@@ -1310,6 +1544,95 @@ mod funcs_part3_tests {
             .collect();
         assert_eq!(pws.len(), 3);
         assert!(pws.iter().all(|p| p.chars().count() == 8));
+    }
+
+    #[test]
+    fn seeded_passwords_are_deterministic() {
+        let opts = PasswordOptions {
+            length: 16,
+            numbers: true,
+            symbols: true,
+            lowercase: true,
+            uppercase: true,
+            exclude_similar: false,
+            exclude: String::new(),
+            strict: true,
+        };
+        let a = generate_password_seeded(&opts, 42).unwrap();
+        let b = generate_password_seeded(&opts, 42).unwrap();
+        assert_eq!(a, b);
+        assert_eq!(a.chars().count(), 16);
+        assert!(generate_password_seeded(&opts, 0).is_ok());
+        assert!(generate_password_seeded(
+            &PasswordOptions {
+                length: 0,
+                ..opts.clone()
+            },
+            42
+        )
+        .is_err());
+    }
+
+    #[test]
+    fn csprng_passwords_have_shape_and_vary() {
+        let strict_opts = PasswordOptions {
+            length: 24,
+            numbers: true,
+            symbols: false,
+            lowercase: true,
+            uppercase: true,
+            exclude_similar: true,
+            exclude: String::new(),
+            strict: true,
+        };
+        let a = generate_password(&strict_opts, 0).unwrap();
+        let b = generate_password(&strict_opts, 0).unwrap();
+        for pw in [&a, &b] {
+            assert_eq!(pw.chars().count(), 24);
+            assert!(pw.chars().any(|c| c.is_ascii_digit()));
+            assert!(pw.chars().any(|c| c.is_ascii_lowercase()));
+            assert!(pw.chars().any(|c| c.is_ascii_uppercase()));
+        }
+        // Two 24-char draws from ~60 symbols colliding is ~2^-140.
+        assert_ne!(a, b);
+        // excludeSimilarCharacters holds for the pool draws (strict is
+        // off: like the TS, strict patches from the unfiltered classes).
+        let filtered_opts = PasswordOptions {
+            strict: false,
+            ..strict_opts.clone()
+        };
+        for _ in 0..8 {
+            let pw = generate_password(&filtered_opts, 0).unwrap();
+            assert!(!pw.chars().any(|c| "il1Lo0O".contains(c)));
+        }
+    }
+
+    #[test]
+    fn http_join_and_ok() {
+        assert_eq!(join_url("", "/x"), "/x");
+        assert_eq!(
+            join_url("https://api.twitch.tv/helix", "/streams?user_login=a"),
+            "https://api.twitch.tv/helix/streams?user_login=a"
+        );
+        let ok = HttpResponse {
+            status: 200,
+            body_text: String::new(),
+            body_json: None,
+            body_bytes: None,
+        };
+        assert!(ok.ok());
+        let redirect = HttpResponse {
+            status: 301,
+            ..ok.clone()
+        };
+        assert!(!redirect.ok());
+        let err = HttpResponse {
+            status: 404,
+            ..ok.clone()
+        };
+        assert!(!err.ok());
+        assert_eq!(HttpError::Timeout.to_string(), "request timed out");
+        assert!(HttpRequest::default().timeout.is_none());
     }
 
     #[tokio::test]

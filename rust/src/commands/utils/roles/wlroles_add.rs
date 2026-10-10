@@ -93,7 +93,10 @@ async fn post_wlroles_log(ctx: &Ctx<'_>, guild_id: poise::serenity_prelude::Guil
 // bot ManageRoles gate (`setjoinroles_var_perm_issue`), hierarchy
 // guard (`setjoinroles_too_highter_roles`), dangerous-permission
 // confirmation (`setjoinroles_warn_*`), ihorizon audit log
-// (`utils_wlRoles_logsEmbed_*`).
+// (`utils_wlRoles_logsEmbed_*`). One role per call: poise 0.6 registers
+// `Vec<T>` slash params as a single optional option (0-or-1 values), so a
+// Vec would add prefix-variadic without slash multi-select parity —
+// repeat the call per role like the TS multi-select does in one panel.
 #[poise::command(
     slash_command,
     prefix_command,

@@ -143,6 +143,29 @@ where
     })
 }
 
+/// Shard tag for log lines. Mirrors the `SHARD#${shardId}` stamp in
+/// src/core/logger.ts getCurrentTime (`global.client?.shard?.ids[0]`,
+/// `?? "X"` when unsharded). Pass None for the unsharded fallback.
+pub fn shard_tag(shard_id: Option<&str>) -> String {
+    format!("SHARD#{}", shard_id.unwrap_or("X"))
+}
+
+/// Full log-line prefix. Mirrors formatMessage's
+/// `[${timestamp} ${level}]:` where timestamp already carries the
+/// shard tag (`SHARD#<id> <locale timestamp>`).
+pub fn log_prefix(shard_id: Option<&str>, timestamp: &str, level: &str) -> String {
+    format!("[{} {timestamp} {level}]:", shard_tag(shard_id))
+}
+
+/// Current shard id from the environment. The serenity shard id is only
+/// known at runtime in the event handler; SHARD_ID lets operators tag
+/// logs for single-shard runs, otherwise the TS "X" fallback applies.
+pub fn current_shard_id() -> Option<String> {
+    std::env::var("SHARD_ID")
+        .ok()
+        .filter(|s| !s.trim().is_empty())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -170,6 +193,22 @@ mod tests {
         // dev_mode=true so no error.log write; only the unconditional log fires.
         let out: Option<u32> = log_task_outcome("probe", true, Err("boom"));
         assert_eq!(out, None);
+    }
+
+    #[test]
+    fn shard_prefix_matches_ts_shape() {
+        // TS getCurrentTime: `SHARD#${ids[0] ?? "X"} ${timestamp}`,
+        // formatMessage wraps as `[${timestamp} ${level}]:`.
+        assert_eq!(shard_tag(Some("0")), "SHARD#0");
+        assert_eq!(shard_tag(None), "SHARD#X");
+        assert_eq!(
+            log_prefix(Some("2"), "10/10/2026, 12:00:00", "LOG"),
+            "[SHARD#2 10/10/2026, 12:00:00 LOG]:"
+        );
+        assert_eq!(
+            log_prefix(None, "10/10/2026, 12:00:00", "ERR"),
+            "[SHARD#X 10/10/2026, 12:00:00 ERR]:"
+        );
     }
 
     #[tokio::test]

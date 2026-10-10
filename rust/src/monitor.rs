@@ -73,24 +73,15 @@ pub fn public_bot_result(discord_ms: u64) -> ResponseResult {
 /// GET probe with latency. Up only on 2xx, mirroring the TS axios calls
 /// (axios rejects non-2xx, so HorizonGateway's bare `up: true` on success
 /// and iHorizonWebsite's explicit range check behave the same).
+/// Runs on the shared funcs::http_get helper (axios.ts port).
 pub async fn http_check(url: &str, timeout: Duration) -> ResponseResult {
-    let client = match reqwest::Client::builder().timeout(timeout).build() {
-        Ok(c) => c,
-        Err(_) => return ResponseResult::down(),
-    };
     let start = std::time::Instant::now();
-    match client.get(url).send().await {
-        Ok(resp) => {
-            if resp.status().is_success() {
-                ResponseResult {
-                    up: true,
-                    latency: start.elapsed().as_millis().min(u128::from(u64::MAX)) as u64,
-                }
-            } else {
-                ResponseResult::down()
-            }
-        }
-        Err(_) => ResponseResult::down(),
+    match crate::funcs::http_get(url, "", Some(timeout)).await {
+        Ok(resp) if resp.ok() => ResponseResult {
+            up: true,
+            latency: start.elapsed().as_millis().min(u128::from(u64::MAX)) as u64,
+        },
+        _ => ResponseResult::down(),
     }
 }
 

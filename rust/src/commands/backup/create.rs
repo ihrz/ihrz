@@ -10,7 +10,7 @@ use poise::serenity_prelude as serenity;
 )]
 pub async fn backup_create(
     ctx: Ctx<'_>,
-    #[description = "Save messages (yes/no)"] save_messages: Option<String>,
+    #[description = "Save messages (yes/no)"] save_messages: String,
 ) -> Result<(), anyhow::Error> {
     let gid = ctx
         .guild_id()
@@ -38,11 +38,9 @@ pub async fn backup_create(
     let Some(guild) = guild else {
         return legacy_config_backup(&ctx, &gid).await;
     };
-    // TS !create.ts: save-message "yes" -> 100 msgs/channel, else 0.
-    let save_yes = save_messages
-        .as_deref()
-        .map(|s| s.eq_ignore_ascii_case("yes"))
-        .unwrap_or(false);
+    // TS !create.ts: save-message "yes" -> 100 msgs/channel, else 0
+    // (required yes/no choice in backup.ts).
+    let save_yes = save_messages.eq_ignore_ascii_case("yes");
     let opts = CreateOptions {
         backup_id: None,
         max_messages_per_channel: Some(if save_yes { 100 } else { 0 }),

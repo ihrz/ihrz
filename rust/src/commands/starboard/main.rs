@@ -67,6 +67,7 @@ pub async fn starboard_channel(
     ctx: Ctx<'_>,
     #[description = "Target channel"]
     #[channel_types("Text", "News")]
+    #[rename = "to"]
     channel: serenity::GuildChannel,
 ) -> Result<(), anyhow::Error> {
     let Some(gid) = ctx.guild_id().map(|g| g.get().to_string()) else {

@@ -15,6 +15,7 @@ pub async fn massmove(
     from: Option<poise::serenity_prelude::GuildChannel>,
     #[description = "To channel"]
     #[channel_types("Voice")]
+    #[rename = "channel"]
     to: poise::serenity_prelude::GuildChannel,
 ) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {

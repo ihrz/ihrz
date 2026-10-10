@@ -39,6 +39,10 @@ pub async fn save_ignore_routed(
     rename = "ignore-add",
     default_member_permissions = "ADMINISTRATOR"
 )]
+// One channel per call (toggle). The TS path (!ignore-channels.ts) is a
+// multi channel-select panel; poise 0.6 registers `Vec<T>` slash params as
+// a single optional option (0-or-1 values, no multi-select parity), so the
+// flattened slash/prefix form stays single-channel — repeat per channel.
 pub async fn ranks_ignore_add(
     ctx: Ctx<'_>,
     #[description = "Channel"]

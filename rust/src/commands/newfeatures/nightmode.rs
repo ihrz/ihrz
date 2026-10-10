@@ -81,3 +81,100 @@ pub async fn nightmode(
     .await?;
     Ok(())
 }
+
+/// One clock reading. Mirrors time_beautifuer_with_minutes: 24h renders
+/// `HH:MM` zero-padded, 12h renders `H:MMAM/PM` with the TS period rule
+/// (hour < 12 || hour == 24 -> AM; hour % 12 == 0 shows 12).
+pub fn time_beautifuer_with_minutes(hour: u8, minute: u8, twelve_hour: bool) -> String {
+    if twelve_hour {
+        let period = if hour < 12 || hour == 24 { "AM" } else { "PM" };
+        let display = match hour % 12 {
+            0 => 12,
+            h => h,
+        };
+        format!("{display}:{minute:02}{period}")
+    } else {
+        format!("{hour:02}:{minute:02}")
+    }
+}
+
+/// Whole night window label. Mirrors time_beautifuer for the 4-slot
+/// format [startHour, startMinute, endHour, endMinute]:
+/// `start24 - end24 (start12 - end12)`.
+pub fn time_beautifuer(range: [u8; 4]) -> String {
+    let start24 = time_beautifuer_with_minutes(range[0], range[1], false);
+    let end24 = time_beautifuer_with_minutes(range[2], range[3], false);
+    let start12 = time_beautifuer_with_minutes(range[0], range[1], true);
+    let end12 = time_beautifuer_with_minutes(range[2], range[3], true);
+    format!("{start24} - {end24} ({start12} - {end12})")
+}
+
+/// UTC offset (hours) to IANA zone. Mirrors utcTimezones in
+/// src/core/locales.ts exactly — including the missing +8 slot (the TS
+/// table jumps from +7 Asia/Bangkok to +9 Asia/Tokyo), so unknown
+/// offsets stay None like the TS `utcTimezones[utc]` undefined leg.
+pub fn utc_timezone_name(offset_hours: i8) -> Option<&'static str> {
+    Some(match offset_hours {
+        -11 => "Pacific/Pago_Pago",
+        -10 => "Pacific/Honolulu",
+        -9 => "America/Anchorage",
+        -8 => "America/Los_Angeles",
+        -7 => "America/Denver",
+        -6 => "America/Chicago",
+        -5 => "America/New_York",
+        -4 => "America/Halifax",
+        -3 => "America/Argentina/Buenos_Aires",
+        -2 => "America/Noronha",
+        -1 => "Atlantic/Azores",
+        0 => "Etc/UTC",
+        1 => "Europe/Paris",
+        2 => "Europe/Athens",
+        3 => "Europe/Moscow",
+        4 => "Asia/Dubai",
+        5 => "Asia/Karachi",
+        6 => "Asia/Dhaka",
+        7 => "Asia/Bangkok",
+        9 => "Asia/Tokyo",
+        10 => "Australia/Sydney",
+        11 => "Pacific/Noumea",
+        12 => "Pacific/Auckland",
+        13 => "Pacific/Tongatapu",
+        14 => "Pacific/Kiritimati",
+        _ => return None,
+    })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{time_beautifuer, time_beautifuer_with_minutes, utc_timezone_name};
+
+    #[test]
+    fn minutes_render_matches_ts() {
+        // Doc example: 21:30 -> "21:30" / "9:30PM".
+        assert_eq!(time_beautifuer_with_minutes(21, 30, false), "21:30");
+        assert_eq!(time_beautifuer_with_minutes(21, 30, true), "9:30PM");
+        assert_eq!(time_beautifuer_with_minutes(0, 5, false), "00:05");
+        assert_eq!(time_beautifuer_with_minutes(0, 5, true), "12:05AM");
+        assert_eq!(time_beautifuer_with_minutes(12, 0, true), "12:00PM");
+        assert_eq!(time_beautifuer_with_minutes(9, 7, true), "9:07AM");
+    }
+
+    #[test]
+    fn window_label_matches_ts() {
+        assert_eq!(
+            time_beautifuer([22, 0, 7, 30]),
+            "22:00 - 07:30 (10:00PM - 7:30AM)"
+        );
+    }
+
+    #[test]
+    fn utc_table_matches_ts() {
+        assert_eq!(utc_timezone_name(0), Some("Etc/UTC"));
+        assert_eq!(utc_timezone_name(1), Some("Europe/Paris"));
+        assert_eq!(utc_timezone_name(-5), Some("America/New_York"));
+        assert_eq!(utc_timezone_name(9), Some("Asia/Tokyo"));
+        // The TS table has no +8 entry.
+        assert_eq!(utc_timezone_name(8), None);
+        assert_eq!(utc_timezone_name(99), None);
+    }
+}

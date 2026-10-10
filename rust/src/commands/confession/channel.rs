@@ -76,9 +76,7 @@ fn panel_desc_fallback() -> String {
 // Stores CONFESSION.channel, confirms, then posts the panel embed + button
 // (honoring button-title) and binds GUILD.CONFESSION.panel.
 //
-// Prefix parity: the channel is optional on the message path
-// (`client.func.method.channel(...) || interaction.channel`), so it is
-// optional here too and defaults to the invoking channel.
+// Both options are required like the TS schema (channel + button-title).
 #[poise::command(
     slash_command,
     prefix_command,
@@ -87,24 +85,18 @@ fn panel_desc_fallback() -> String {
 )]
 pub async fn confession_channel(
     ctx: Ctx<'_>,
-    #[description = "The confession channel (defaults to this channel)"]
+    #[description = "The confession channel"]
     #[channel_types("Text")]
-    channel: Option<serenity::GuildChannel>,
-    #[description = "The button title"] button_title: Option<String>,
+    channel: serenity::GuildChannel,
+    #[description = "The button title"]
+    #[rename = "button-title"]
+    button_title: String,
 ) -> Result<(), anyhow::Error> {
     let Some(gid) = ctx.guild_id().map(|g| g.get().to_string()) else {
         return Ok(());
     };
     let pool = &ctx.data().pool;
-    // Explicit channel wins; otherwise the invoking channel (TS prefix
-    // `|| interaction.channel` fallback).
-    let target_id: u64 = match &channel {
-        Some(c) => c.id.get(),
-        None => match ctx.guild_channel().await {
-            Some(c) => c.id.get(),
-            None => ctx.channel_id().get(),
-        },
-    };
+    let target_id: u64 = channel.id.get();
     crate::commands::owner::main::routed_set(
         pool,
         &gid,
@@ -114,7 +106,7 @@ pub async fn confession_channel(
     )
     .await?;
 
-    let button_label = panel_button_label(button_title.as_deref());
+    let button_label = panel_button_label(Some(&button_title));
 
     let code = crate::db::guild_lang(pool, ctx.guild_id().map(|g| g.get())).await;
     let msg = crate::lang::get(&code, "confession_channel_command_work")

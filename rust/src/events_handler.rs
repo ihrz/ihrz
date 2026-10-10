@@ -533,6 +533,54 @@ async fn voice_freeze_routed(pool: &crate::db::Pool, gid: &str) -> Option<String
     leaf_routed(pool, gid, "UTILS.VOICE_FREEZE").await
 }
 
+/// UTILS.VOICE_TALK leaf (raw JSON blob string, `{ channelId }`).
+async fn voice_talk_routed(pool: &crate::db::Pool, gid: &str) -> Option<String> {
+    leaf_routed(pool, gid, "UTILS.VOICE_TALK").await
+}
+
+/// Repeat-join counter parse (mirrors tooNewAccount.ts `|| 0`).
+fn too_new_join_count(raw: Option<&str>) -> u64 {
+    raw.and_then(|s| s.parse::<u64>().ok()).unwrap_or(0)
+}
+
+/// Ban once the counter passes maxJoin (mirrors
+/// `if (baseData.maxJoin && joinCount > baseData.maxJoin)`; a missing
+/// or non-positive maxJoin never bans).
+fn too_new_should_ban(join_count: u64, max_join: Option<i64>) -> bool {
+    max_join.is_some_and(|m| m > 0 && (join_count as i64) > m)
+}
+
+/// Voice talk/freeze bypass (mirrors voiceTalkFreeze.ts: bots,
+/// Administrators and ManageChannels members are never muted,
+/// unmuted, disconnected or timed out by these legs).
+fn voice_talk_bypass(is_bot: bool, administrator: bool, manage_channels: bool) -> bool {
+    is_bot || administrator || manage_channels
+}
+
+/// Autocomplete choice filter for the commandlimit `command` option
+/// (mirrors commandlimit.ts autocomplete: substring-or-prefix match
+/// on the focused value, first 25). Pure for unit tests.
+fn autocomplete_command_choices(paths: &[String], focused: &str) -> Vec<String> {
+    paths
+        .iter()
+        .filter(|p| p.contains(focused) || p.starts_with(focused))
+        .take(25)
+        .cloned()
+        .collect()
+}
+
+/// LastFM tracked-channel membership change (mirrors the TS
+/// wasInTrackedChannel/isInTrackedChannel branch): `Some(true)` =
+/// attach, `Some(false)` = detach, `None` = no-op. Pure; the live
+/// attach/detach stays unwired (see the voice_state_update note).
+fn lastfm_tracked_change(old_ch: Option<u64>, new_ch: Option<u64>, tracked: u64) -> Option<bool> {
+    match (old_ch == Some(tracked), new_ch == Some(tracked)) {
+        (false, true) => Some(true),
+        (true, false) => Some(false),
+        _ => None,
+    }
+}
+
 /// GUILD.TTS leaf (raw JSON blob string).
 async fn tts_raw_routed(pool: &crate::db::Pool, gid: &str) -> Option<String> {
     leaf_routed(pool, gid, "GUILD.TTS").await
@@ -3592,10 +3640,13 @@ impl serenity::EventHandler for Handler {
                 .await;
             return;
         }
-        // Minimum account age gate.
+        // Minimum account age gate (mirrors tooNewAccount.ts: repeat-join
+        // counter on USER.<uid>.BLOCK_NEW_ACCOUNT, kick while under
+        // maxJoin, ban past it).
         if let Some(raw) = block_new_account_routed(&self.pool, &gid).await {
             if let Ok(v) = serde_json::from_str::<serde_json::Value>(&raw) {
                 let req = v.get("req").and_then(|r| r.as_i64()).unwrap_or(0);
+                let max_join = v.get("maxJoin").and_then(|m| m.as_i64());
                 let now = std::time::SystemTime::now()
                     .duration_since(std::time::UNIX_EPOCH)
                     .map(|d| d.as_secs() as i64)
@@ -3605,10 +3656,31 @@ impl serenity::EventHandler for Handler {
                     req,
                     now,
                 ) {
-                    let _ = new_member
-                        .guild_id
-                        .kick_with_reason(&ctx.http, new_member.user.id, "account too new")
-                        .await;
+                    let count_key = format!("USER.{}.BLOCK_NEW_ACCOUNT", new_member.user.id.get());
+                    let join_count =
+                        too_new_join_count(tbl_get(&self.pool, &gid, &count_key).await.as_deref())
+                            + 1;
+                    let _ = tbl_set(&self.pool, &gid, &count_key, &join_count.to_string()).await;
+                    if too_new_should_ban(join_count, max_join) {
+                        let _ = new_member
+                            .guild_id
+                            .ban_with_reason(
+                                &ctx.http,
+                                new_member.user.id,
+                                0,
+                                "[TooNewAccount] User join too much.",
+                            )
+                            .await;
+                    } else {
+                        let _ = new_member
+                            .guild_id
+                            .kick_with_reason(
+                                &ctx.http,
+                                new_member.user.id,
+                                "[TooNewAccount] Account is too new",
+                            )
+                            .await;
+                    }
                     return;
                 }
             }
@@ -3870,8 +3942,24 @@ impl serenity::EventHandler for Handler {
         }
         // Ghost-ping watch prime (mirrors ghostPingModule.ts): send the
         // newcomer's mention into each watch channel, then delete it.
+        // Per-channel bot-Administrator gate (mirrors the TS skip when
+        // the bot lacks Administrator): cache-only like the TS
+        // `channels.cache.get`, default-deny on lookup failure.
         for ch in crate::commands::guildconfig::load_ghost(&self.pool, &gid).await {
             if let Ok(ch_id) = ch.parse::<u64>() {
+                let bot_id = ctx.cache.current_user().id;
+                let allowed = ctx
+                    .cache
+                    .guild(new_member.guild_id)
+                    .and_then(|gd| {
+                        let gch = gd.channels.get(&serenity::ChannelId::new(ch_id))?;
+                        let bot_member = gd.members.get(&bot_id)?;
+                        Some(gd.user_permissions_in(gch, bot_member).administrator())
+                    })
+                    .unwrap_or(false);
+                if !allowed {
+                    continue;
+                }
                 if let Ok(sent) = serenity::ChannelId::new(ch_id)
                     .say(&ctx.http, format!("<@{}>", new_member.user.id.get()))
                     .await
@@ -5708,36 +5796,190 @@ impl serenity::EventHandler for Handler {
             }
             _ => {}
         }
-        // Voice freeze enforcement (mirrors voiceTalkFreeze.ts).
-        if new.channel_id.is_some() {
-            if let Some(raw) = voice_freeze_routed(&self.pool, &gid).await {
-                // Array shape: frozen member list. Object shape: channel-bound
-                // freeze with allowedUsers (mirrors !wlvc.ts).
+        // Voice talk auto-mute (mirrors the UTILS.VOICE_TALK leg of
+        // voiceTalkFreeze.ts): leaving the talk channel while
+        // server-muted unmutes; joining it server-mutes. Bots,
+        // Administrators and ManageChannels members bypass both.
+        if let Some(raw) = voice_talk_routed(&self.pool, &gid).await {
+            if let Ok(v) = serde_json::from_str::<serde_json::Value>(&raw) {
+                if let Some(talk_ch) = v
+                    .get("channelId")
+                    .and_then(|c| c.as_str())
+                    .map(str::to_string)
+                {
+                    let old_ch = old
+                        .as_ref()
+                        .and_then(|o| o.channel_id)
+                        .map(|c| c.get().to_string());
+                    let new_ch = new.channel_id.map(|c| c.get().to_string());
+                    // Leave cleanup (runs even when leaving to nowhere).
+                    if old_ch.as_deref() == Some(&talk_ch) && new_ch.as_deref() != Some(&talk_ch) {
+                        let was_muted = old.as_ref().map(|o| o.mute).unwrap_or(false);
+                        if was_muted {
+                            if let Ok(mut member) = guild_id.member(&ctx.http, new.user_id).await {
+                                if !member.user.bot {
+                                    let _ = member
+                                        .edit(
+                                            &ctx.http,
+                                            serenity::EditMember::new()
+                                                .mute(false)
+                                                .audit_log_reason("talk leave cleanup"),
+                                        )
+                                        .await;
+                                }
+                            }
+                        }
+                    }
+                    // Join auto-mute.
+                    if new_ch.as_deref() == Some(&talk_ch) && old_ch.as_deref() != Some(&talk_ch) {
+                        let member_opt = match new.member.clone() {
+                            Some(m) => Some(m),
+                            None => guild_id.member(&ctx.http, new.user_id).await.ok(),
+                        };
+                        if let Some(member) = member_opt {
+                            let (admin, manage) = ctx
+                                .cache
+                                .guild(guild_id)
+                                .map(|gd| {
+                                    let p = gd.member_permissions(&member);
+                                    (p.administrator(), p.manage_channels())
+                                })
+                                .unwrap_or((false, false));
+                            if !voice_talk_bypass(member.user.bot, admin, manage) && !new.mute {
+                                let mut member = member;
+                                let _ = member
+                                    .edit(
+                                        &ctx.http,
+                                        serenity::EditMember::new()
+                                            .mute(true)
+                                            .audit_log_reason("talk join auto mute"),
+                                    )
+                                    .await;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        // LastFM tracked-channel member attach/detach (mirrors
+        // lavalink-client/lastFMScrobbler.ts -> handleVoiceStateUpdate):
+        // intentionally not wired. The Rust LastFmSession (lavalink.rs:
+        // LastFmSession/ScrobbleDue plus should_scrobble) is
+        // track-scoped — lastfm_track_start clears/opens it,
+        // lastfm_track_end_due/lastfm_queue_end close it (queue-end is
+        // already called from on_voice_disconnect above) — while the TS
+        // attach/detach syncs per-listener sessions that need each
+        // user's decrypted LastFM session key (`<uid>.lastfm` profile
+        // rows, encrypted with the API secret) plus the signed
+        // now-playing/scrobble POSTs and per-listener thresholds. Those
+        // live behind rows and secrets this handler cannot reach, so
+        // member join/leave of the player voice channel performs no
+        // LastFM I/O here. lastfm_tracked_change keeps the
+        // join/leave/no-op classification unit-tested for the future
+        // live caller.
+        // Voice freeze enforcement (mirrors the UTILS.VOICE_FREEZE leg
+        // of voiceTalkFreeze.ts).
+        if let Some(raw) = voice_freeze_routed(&self.pool, &gid).await {
+            // Array shape: frozen member list from !freeze (mute leg,
+            // unchanged).
+            if new.channel_id.is_some() {
                 let frozen_member = serde_json::from_str::<Vec<String>>(&raw)
                     .map(|list| list.contains(&new.user_id.get().to_string()))
                     .unwrap_or(false);
-                let frozen_channel = serde_json::from_str::<serde_json::Value>(&raw)
-                    .ok()
-                    .map(|v| {
-                        let ch_ok = v.get("channelId").and_then(|c| c.as_str())
-                            == Some(
-                                &new.channel_id
-                                    .map(|c| c.get().to_string())
-                                    .unwrap_or_default(),
-                            );
-                        let allowed: Vec<String> = v
-                            .get("allowedUsers")
-                            .and_then(|a| serde_json::from_value(a.clone()).ok())
-                            .unwrap_or_default();
-                        ch_ok && !allowed.contains(&new.user_id.get().to_string())
-                    })
-                    .unwrap_or(false);
-                if frozen_member || frozen_channel {
-                    if let Ok(member) = guild_id.member(&ctx.http, new.user_id).await {
-                        let mut member = member;
+                if frozen_member {
+                    if let Ok(mut member) = guild_id.member(&ctx.http, new.user_id).await {
                         let _ = member
                             .edit(&ctx.http, serenity::EditMember::new().mute(true))
                             .await;
+                    }
+                }
+            }
+            // Object shape: channel-bound freeze with allowedUsers
+            // (mirrors !wlvc.ts). Enforcement is disconnect + 5s
+            // timeout (mirrors `setChannel(null)` + `timeout(5000)`),
+            // never a mute. A missing/non-voice channel or an emptied
+            // channel drops the stale key.
+            if let Ok(v) = serde_json::from_str::<serde_json::Value>(&raw) {
+                if let Some(freeze_ch) = v
+                    .get("channelId")
+                    .and_then(|c| c.as_str())
+                    .map(str::to_string)
+                {
+                    let freeze_id = freeze_ch.parse::<u64>().unwrap_or(0);
+                    let occupants = match serenity::ChannelId::new(freeze_id)
+                        .to_channel(&ctx.http)
+                        .await
+                    {
+                        Ok(serenity::Channel::Guild(g))
+                            if g.kind == serenity::ChannelType::Voice =>
+                        {
+                            ctx.cache
+                                .guild(guild_id)
+                                .map(|gd| {
+                                    gd.voice_states
+                                        .values()
+                                        .filter(|vs| {
+                                            vs.channel_id
+                                                == Some(serenity::ChannelId::new(freeze_id))
+                                        })
+                                        .count()
+                                })
+                                .unwrap_or(usize::MAX)
+                        }
+                        _ => usize::MAX - 1,
+                    };
+                    if occupants == 0 || occupants == usize::MAX - 1 {
+                        let _ = tbl_del(&self.pool, &gid, "UTILS.VOICE_FREEZE").await;
+                    } else {
+                        let old_ch = old
+                            .as_ref()
+                            .and_then(|o| o.channel_id)
+                            .map(|c| c.get().to_string());
+                        let new_ch = new.channel_id.map(|c| c.get().to_string());
+                        if new_ch.as_deref() == Some(&freeze_ch)
+                            && old_ch.as_deref() != Some(&freeze_ch)
+                        {
+                            let allowed: Vec<String> = v
+                                .get("allowedUsers")
+                                .and_then(|a| serde_json::from_value(a.clone()).ok())
+                                .unwrap_or_default();
+                            let member_opt = match new.member.clone() {
+                                Some(m) => Some(m),
+                                None => guild_id.member(&ctx.http, new.user_id).await.ok(),
+                            };
+                            if let Some(member) = member_opt {
+                                let (admin, manage) = ctx
+                                    .cache
+                                    .guild(guild_id)
+                                    .map(|gd| {
+                                        let p = gd.member_permissions(&member);
+                                        (p.administrator(), p.manage_channels())
+                                    })
+                                    .unwrap_or((false, false));
+                                if !voice_talk_bypass(member.user.bot, admin, manage)
+                                    && !allowed.contains(&new.user_id.get().to_string())
+                                {
+                                    let _ =
+                                        guild_id.disconnect_member(&ctx.http, new.user_id).await;
+                                    if let Ok(mut member) =
+                                        guild_id.member(&ctx.http, new.user_id).await
+                                    {
+                                        let until = std::time::SystemTime::now()
+                                            .duration_since(std::time::UNIX_EPOCH)
+                                            .map(|d| d.as_secs() as i64)
+                                            .unwrap_or(0)
+                                            + 5;
+                                        if let Ok(ts) =
+                                            serenity::Timestamp::from_unix_timestamp(until)
+                                        {
+                                            let _ = member
+                                                .disable_communication_until_datetime(&ctx.http, ts)
+                                                .await;
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -7013,6 +7255,52 @@ impl serenity::EventHandler for Handler {
     }
 
     async fn interaction_create(&self, ctx: serenity::Context, interaction: serenity::Interaction) {
+        // Autocomplete routing (mirrors slashCommandHandler.ts
+        // isAutocomplete leg: the owning command answers). Only
+        // commandlimit declares an autocomplete option (the `command`
+        // string, choices from getCommandChoices = all registered
+        // command paths incl. subcommands); other commands get an empty
+        // choice list so the interaction is still acknowledged.
+        // Poise has no autocomplete hook for gc_commandlimit (its
+        // `command` param declares no autocomplete fn), so this raw arm
+        // is the only responder — no double-ack risk.
+        if let serenity::Interaction::Autocomplete(auto) = &interaction {
+            let focused = auto
+                .data
+                .options
+                .iter()
+                .find_map(|o| match &o.value {
+                    serenity::CommandDataOptionValue::Autocomplete { value, .. }
+                        if o.name == "command" =>
+                    {
+                        Some(value.clone())
+                    }
+                    _ => None,
+                })
+                .unwrap_or_default();
+            let paths: Vec<String> = if auto.data.name == "commandlimit" {
+                crate::commands::guildconfig::registered_paths()
+            } else {
+                Vec::new()
+            };
+            let choices = autocomplete_command_choices(&paths, &focused);
+            let response = serenity::CreateAutocompleteResponse::new().set_choices(
+                choices
+                    .into_iter()
+                    .map(|c| {
+                        let choice: serenity::AutocompleteChoice = c.into();
+                        choice
+                    })
+                    .collect(),
+            );
+            let _ = auto
+                .create_response(
+                    &ctx.http,
+                    serenity::CreateInteractionResponse::Autocomplete(response),
+                )
+                .await;
+            return;
+        }
         // Mirrors Events/logs/slashCommandLogger.ts interactionCreate
         // (command rows go to src/files/slash.log.json).
         if let serenity::Interaction::Command(cmd) = &interaction {
@@ -7847,6 +8135,44 @@ mod restore_tests {
             Some("TestBot")
         );
         assert!(bot_pfp_routed(&pool, "g1").await.is_none());
+    }
+
+    #[test]
+    fn events_fix4_pure_decisions() {
+        // tooNewAccount counter (mirrors `|| 0` + maxJoin ban leg).
+        assert_eq!(too_new_join_count(None), 0);
+        assert_eq!(too_new_join_count(Some("3")), 3);
+        assert_eq!(too_new_join_count(Some("nope")), 0);
+        assert!(too_new_should_ban(4, Some(3)));
+        assert!(!too_new_should_ban(3, Some(3)));
+        assert!(!too_new_should_ban(99, None));
+        assert!(!too_new_should_ban(99, Some(0)));
+        // Voice talk/freeze bypass (bot/Admin/ManageChannels).
+        assert!(voice_talk_bypass(true, false, false));
+        assert!(voice_talk_bypass(false, true, false));
+        assert!(voice_talk_bypass(false, false, true));
+        assert!(!voice_talk_bypass(false, false, false));
+        // Autocomplete filter (mirrors commandlimit.ts: includes ||
+        // startsWith, first 25).
+        let paths = vec![
+            "commandlimit".to_string(),
+            "play".to_string(),
+            "player stop".to_string(),
+        ];
+        assert_eq!(autocomplete_command_choices(&paths, "").len(), 3);
+        assert_eq!(
+            autocomplete_command_choices(&paths, "play"),
+            vec!["play".to_string(), "player stop".to_string()]
+        );
+        assert!(autocomplete_command_choices(&paths, "zzz").is_empty());
+        let many: Vec<String> = (0..40).map(|i| format!("cmd{i}")).collect();
+        assert_eq!(autocomplete_command_choices(&many, "cmd").len(), 25);
+        // LastFM tracked-channel classification (attach/detach/no-op).
+        assert_eq!(lastfm_tracked_change(Some(1), Some(7), 7), Some(true));
+        assert_eq!(lastfm_tracked_change(Some(7), Some(1), 7), Some(false));
+        assert_eq!(lastfm_tracked_change(Some(7), Some(7), 7), None);
+        assert_eq!(lastfm_tracked_change(None, None, 7), None);
+        assert_eq!(lastfm_tracked_change(Some(1), Some(2), 7), None);
     }
 
     #[test]

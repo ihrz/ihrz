@@ -59,7 +59,7 @@ pub fn requirement_error_key(requirement: &str, value: &str) -> Option<&'static 
 )]
 pub async fn gw_create(
     ctx: Ctx<'_>,
-    #[description = "Winners"] winners: String,
+    #[description = "Winners"] winners: f64,
     #[description = "Duration (e.g. 10m, 1h, 7d)"] time: String,
     #[description = "Requirement: none, invites, messages, roles"] requirement: String,
     #[description = "Prize"] prize: String,
@@ -69,8 +69,9 @@ pub async fn gw_create(
     let pool_early = &ctx.data().pool;
     let code_early = crate::db::guild_lang(pool_early, ctx.guild_id().map(|g| g.get())).await;
     // Mirrors !create.ts:77-85 (raw count validated in-handler:
-    // NaN / <= 0 -> start_is_not_valid).
-    let winners = parse_winners_count(&winners);
+    // NaN / <= 0 -> start_is_not_valid). Discord delivers a Number
+    // (f64); the cast truncates like the TS parseInt.
+    let winners = winners as i64;
     if !validate_winners(winners) {
         ctx.say(crate::lang::get(&code_early, "start_is_not_valid").unwrap_or_default())
             .await?;

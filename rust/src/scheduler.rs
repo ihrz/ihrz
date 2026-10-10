@@ -1760,19 +1760,258 @@ pub fn spawn(pool: Pool, http: std::sync::Arc<poise::serenity_prelude::Http>) {
         });
     }
 
-    // Skeleton tick for the StreamNotifier module (timing mirrors the
-    // 120s refresh in core/StreamNotifier.ts). Blocked on the
-    // Twitch/YouTube/Kick live APIs — see Blocked in MIGRATION.md.
+    // StreamNotifier poll (timing mirrors the 120s refresh in
+    // core/StreamNotifier.ts; store + dedup above, live fetch blocked
+    // on API creds — see the section note).
     {
-        let (name, secs) = ("notifier", NOTIFIER_SECS);
+        let pool = pool.clone();
         tokio::spawn(async move {
-            let mut t = tokio::time::interval(Duration::from_secs(secs));
+            let mut t = tokio::time::interval(Duration::from_secs(NOTIFIER_SECS));
             loop {
                 t.tick().await;
-                tracing::debug!("scheduler tick: {name} (module pending)");
+                let (guilds, watches) = sweep_notifier_once(&pool).await;
+                if watches > 0 {
+                    tracing::debug!(
+                        "scheduler tick: notifier ({guilds} guilds, {watches} watches)"
+                    );
+                }
             }
         });
     }
+}
+
+// ---- StreamNotifier poll (120s) ----
+// Mirrors src/core/StreamNotifier.ts: start() runs getAppAccessToken +
+// refresh, then setInterval(refresh, 120_000). refresh() walks every
+// guild's NOTIFIER.users, fetches the latest Twitch/YouTube media,
+// skips mediaHaveAlreadyBeNotified rows, pushes the new
+// {userId, mediaId, timestamp} row and sends the rendered message +
+// link button.
+//
+// Status: poll skeleton with store. Ported for real: the 120s tick,
+// NOTIFIER.users config surface (commands/notifier), the
+// already-notified store below and the notifier.rs announce dedup.
+// Blocked on live I/O: no TWITCH_APPLICATION_ID / TWITCH_APPLICATION_SECRET /
+// YOUTUBE_API_KEY reaches this binary (config.rs carries no notifier
+// creds), and sending needs a Discord channel handle the scheduler
+// does not hold. With creds, the per-watch fetch is: Twitch Helix
+// /streams?user_login (bearer from the client-credentials token call)
+// or YouTube search.list order=date + the getLatestMedia latest-item
+// reduce, then the announce gate below.
+
+/// Twitch Helix streams endpoint. Mirrors checkTwitchStream.
+pub const TWITCH_HELIX_STREAMS: &str = "https://api.twitch.tv/helix/streams";
+/// Twitch app-token endpoint. Mirrors getAppAccessToken.
+pub const TWITCH_OAUTH_TOKEN_URL: &str = "https://id.twitch.tv/oauth2/token";
+/// YouTube search endpoint. Mirrors getLatestYouTubeVideos.
+pub const YOUTUBE_SEARCH_URL: &str = "https://www.googleapis.com/youtube/v3/search";
+
+/// Mirrors checkTwitchStream's Helix query.
+pub fn twitch_streams_url(user_login: &str) -> String {
+    format!("{TWITCH_HELIX_STREAMS}?user_login={user_login}")
+}
+
+/// Mirrors the twitch artistLink (`https://twitch.tv/<user>`).
+pub fn twitch_profile_url(user_login: &str) -> String {
+    format!("https://twitch.tv/{user_login}")
+}
+
+/// Mirrors getLatestYouTubeVideos' search.list query.
+pub fn youtube_search_url(channel_id: &str, api_key: &str) -> String {
+    format!(
+        "{YOUTUBE_SEARCH_URL}?key={api_key}&channelId={channel_id}&part=snippet,id&order=date&maxResults=5"
+    )
+}
+
+/// Mirrors the YouTube media link (`.../watch?v=<id>`).
+pub fn youtube_video_url(video_id: &str) -> String {
+    format!("https://www.youtube.com/watch?v={video_id}")
+}
+
+/// Mirrors the YouTube artistLink (`.../channel/<id>`).
+pub fn youtube_channel_url(channel_id: &str) -> String {
+    format!("https://youtube.com/channel/{channel_id}")
+}
+
+/// Live-API credentials from the environment. None mirrors the TS
+/// constructor receiving empty keys: polling degrades to the
+/// store-only skeleton (no token call, no fetch).
+#[derive(Debug, Clone, Default)]
+pub struct NotifierCreds {
+    pub twitch_client_id: String,
+    pub twitch_client_secret: String,
+    pub youtube_api_key: String,
+}
+
+impl NotifierCreds {
+    fn env_non_empty(key: &str) -> Option<String> {
+        std::env::var(key).ok().filter(|s| !s.trim().is_empty())
+    }
+
+    pub fn from_env() -> Option<Self> {
+        Some(Self {
+            twitch_client_id: Self::env_non_empty("TWITCH_APPLICATION_ID")?,
+            twitch_client_secret: Self::env_non_empty("TWITCH_APPLICATION_SECRET")?,
+            youtube_api_key: Self::env_non_empty("YOUTUBE_API_KEY")?,
+        })
+    }
+}
+
+/// One NOTIFIER.lastMediaNotified row. Serde keys match the TS push
+/// ({userId, mediaId, timestamp}); timestamp_ms carries the same
+/// instant as unix millis for the >= comparison.
+#[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
+pub struct NotifiedMedia {
+    #[serde(rename = "userId")]
+    pub user_id: String,
+    #[serde(rename = "mediaId")]
+    pub media_id: String,
+    #[serde(rename = "timestamp")]
+    pub timestamp_ms: i64,
+}
+
+/// Already-notified check. Mirrors mediaHaveAlreadyBeNotified: same
+/// user AND (same media id OR stored timestamp >= candidate pub date).
+pub fn media_already_notified(
+    last: &[NotifiedMedia],
+    user_id: &str,
+    media_id: &str,
+    pub_ms: i64,
+) -> bool {
+    last.iter().any(|item| {
+        item.user_id == user_id && (item.media_id == media_id || item.timestamp_ms >= pub_ms)
+    })
+}
+
+/// TS isValidVideo quirk: refresh sends when
+/// `!alreadyNotified || isValidVideo(media)`, and isValidVideo is true
+/// when any nested value is null/undefined. Ported so the gate below
+/// stays verbatim.
+pub fn json_has_null(value: &serde_json::Value) -> bool {
+    match value {
+        serde_json::Value::Null => true,
+        serde_json::Value::Array(items) => items.iter().any(json_has_null),
+        serde_json::Value::Object(map) => map.values().any(json_has_null),
+        _ => false,
+    }
+}
+
+/// Announce gate. Returns the media id when the TS refresh would send.
+pub fn pending_notifier_media(
+    last: &[NotifiedMedia],
+    user_id: &str,
+    media_id: &str,
+    pub_ms: i64,
+    raw: &serde_json::Value,
+) -> Option<String> {
+    if media_id.is_empty() {
+        return None;
+    }
+    if !media_already_notified(last, user_id, media_id, pub_ms) || json_has_null(raw) {
+        Some(media_id.to_string())
+    } else {
+        None
+    }
+}
+
+/// Parse the NOTIFIER.lastMediaNotified store (array of rows; the TS
+/// defaults to [] when the key is missing).
+pub fn parse_notified_list(raw: Option<&str>) -> Vec<NotifiedMedia> {
+    let Some(raw) = raw else {
+        return Vec::new();
+    };
+    serde_json::from_str(raw).unwrap_or_default()
+}
+
+/// Append one row. Mirrors client.db.push.
+pub fn push_notified_media(
+    mut list: Vec<NotifiedMedia>,
+    entry: NotifiedMedia,
+) -> Vec<NotifiedMedia> {
+    list.push(entry);
+    list
+}
+
+/// Store read: guild-table row first, legacy kv fallback.
+pub async fn load_notified_media(pool: &Pool, gid: &str) -> Vec<NotifiedMedia> {
+    let backend = crate::backends::Backend::sqlite(pool.clone());
+    if let Ok(Some(value)) = backend
+        .table(gid)
+        .get::<serde_json::Value>("NOTIFIER.lastMediaNotified")
+        .await
+    {
+        let parsed: Vec<NotifiedMedia> = match &value {
+            serde_json::Value::String(s) => serde_json::from_str(s).unwrap_or_default(),
+            _ => serde_json::from_value(value).unwrap_or_default(),
+        };
+        return parsed;
+    }
+    parse_notified_list(
+        crate::db::kv_get(pool, gid, "NOTIFIER.lastMediaNotified")
+            .await
+            .as_deref(),
+    )
+}
+
+/// Store write: guild-table row plus legacy kv (routed dual-write).
+pub async fn record_notified_media(
+    pool: &Pool,
+    gid: &str,
+    entry: &NotifiedMedia,
+) -> anyhow::Result<()> {
+    let mut list = load_notified_media(pool, gid).await;
+    list = push_notified_media(list, entry.clone());
+    let raw = serde_json::to_string(&list).unwrap_or_else(|_| "[]".to_string());
+    crate::backends::Backend::sqlite(pool.clone())
+        .table(gid)
+        .set("NOTIFIER.lastMediaNotified", &raw)
+        .await?;
+    crate::db::kv_set(pool, gid, "NOTIFIER.lastMediaNotified", &raw).await?;
+    Ok(())
+}
+
+/// Guild ids with a NOTIFIER.users config (legacy rows + table roots).
+async fn notifier_guild_ids(pool: &Pool) -> Vec<String> {
+    let mut ids: HashSet<String> = HashSet::new();
+    let legacy: Vec<String> = sqlx::query_scalar(
+        "SELECT DISTINCT guild_id FROM kv WHERE key_name = 'NOTIFIER.users' AND guild_id NOT LIKE 'tbl:%'",
+    )
+    .fetch_all(pool)
+    .await
+    .unwrap_or_default();
+    ids.extend(legacy);
+    let roots: Vec<String> = sqlx::query_scalar(
+        "SELECT DISTINCT guild_id FROM kv WHERE guild_id LIKE 'tbl:%' AND key_name = 'NOTIFIER.users'",
+    )
+    .fetch_all(pool)
+    .await
+    .unwrap_or_default();
+    for row in roots {
+        if let Some(gid) = row.strip_prefix("tbl:") {
+            ids.insert(gid.to_string());
+        }
+    }
+    ids.into_iter().collect()
+}
+
+/// One 120s pass over every configured guild. Returns
+/// (guilds, watches). The live per-watch fetch + Discord send stay
+/// unwired (see the section note); the pass exercises config load +
+/// store so the wiring has a seam.
+pub async fn sweep_notifier_once(pool: &Pool) -> (usize, usize) {
+    let gids = notifier_guild_ids(pool).await;
+    let mut watches = 0usize;
+    for gid in &gids {
+        watches += crate::commands::notifier::load_entries(pool, gid)
+            .await
+            .len();
+    }
+    if NotifierCreds::from_env().is_none() && watches > 0 {
+        tracing::debug!(
+            "notifier tick: no API credentials (TWITCH_APPLICATION_ID/TWITCH_APPLICATION_SECRET/YOUTUBE_API_KEY); store-only pass over {watches} watches"
+        );
+    }
+    (gids.len(), watches)
 }
 
 #[cfg(test)]
@@ -1970,6 +2209,79 @@ mod tests {
         assert_eq!(SCHEDULE_SWEEP_SECS, 50);
         assert_eq!(H247_WATCHDOG_SECS, 60);
         assert_eq!(TEMPVOICE_RECOVERY_SECS, 120);
+        // StreamNotifier.start: setInterval(refresh, 120_000).
+        assert_eq!(NOTIFIER_SECS, 120);
+    }
+
+    #[test]
+    fn notifier_urls_match_ts() {
+        assert_eq!(
+            twitch_streams_url("ninja"),
+            "https://api.twitch.tv/helix/streams?user_login=ninja"
+        );
+        assert_eq!(twitch_profile_url("ninja"), "https://twitch.tv/ninja");
+        assert_eq!(
+            youtube_search_url("chan", "key"),
+            "https://www.googleapis.com/youtube/v3/search?key=key&channelId=chan&part=snippet,id&order=date&maxResults=5"
+        );
+        assert_eq!(
+            youtube_video_url("vid"),
+            "https://www.youtube.com/watch?v=vid"
+        );
+        assert_eq!(
+            youtube_channel_url("chan"),
+            "https://youtube.com/channel/chan"
+        );
+    }
+
+    #[test]
+    fn notifier_dedup_matches_ts() {
+        let last = vec![NotifiedMedia {
+            user_id: "u".to_string(),
+            media_id: "v1".to_string(),
+            timestamp_ms: 100,
+        }];
+        // Same media id re-notifies never.
+        assert!(media_already_notified(&last, "u", "v1", 50));
+        // Stored timestamp >= candidate pub date counts as notified.
+        assert!(media_already_notified(&last, "u", "v2", 100));
+        // Newer candidate passes.
+        assert!(!media_already_notified(&last, "u", "v2", 101));
+        // Another user's row does not cover this user.
+        assert!(!media_already_notified(&last, "other", "v1", 50));
+        // Gate mirrors the refresh send condition.
+        let clean = serde_json::json!({"title": "x"});
+        assert!(pending_notifier_media(&last, "u", "v2", 101, &clean).is_some());
+        assert!(pending_notifier_media(&last, "u", "v1", 50, &clean).is_none());
+        // isValidVideo quirk: nulls inside force the announce.
+        let quirky = serde_json::json!({"title": null});
+        assert!(json_has_null(&quirky));
+        assert!(!json_has_null(&clean));
+        assert!(pending_notifier_media(&last, "u", "v1", 50, &quirky).is_some());
+        assert!(pending_notifier_media(&last, "u", "", 0, &clean).is_none());
+        // Store parse: missing key -> [], like the TS `|| []`.
+        assert!(parse_notified_list(None).is_empty());
+        assert!(parse_notified_list(Some("nope")).is_empty());
+    }
+
+    #[tokio::test]
+    async fn notified_store_round_trips() {
+        let p = pool().await;
+        assert!(load_notified_media(&p, "g9").await.is_empty());
+        let entry = NotifiedMedia {
+            user_id: "u".to_string(),
+            media_id: "v1".to_string(),
+            timestamp_ms: 100,
+        };
+        record_notified_media(&p, "g9", &entry).await.unwrap();
+        let list = load_notified_media(&p, "g9").await;
+        assert_eq!(list, vec![entry]);
+        assert!(media_already_notified(&list, "u", "v1", 50));
+        // Sweep sees the configured guild (legacy row written by the test).
+        crate::db::kv_set(&p, "g9", "NOTIFIER.users", "[]")
+            .await
+            .unwrap();
+        assert_eq!(sweep_notifier_once(&p).await, (1, 0));
     }
 
     #[tokio::test]

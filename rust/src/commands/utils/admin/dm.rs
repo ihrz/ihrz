@@ -15,7 +15,7 @@ pub async fn dm(
     ctx: Ctx<'_>,
     #[description = "Member"] user: poise::serenity_prelude::User,
     #[description = "Message"] message: String,
-    #[description = "Private (yes to hide the author button)"] private: Option<PrivateChoice>,
+    #[description = "Private (yes to hide the author button)"] private: PrivateChoice,
 ) -> Result<(), anyhow::Error> {
     use poise::serenity_prelude as serenity;
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
@@ -88,9 +88,10 @@ pub enum PrivateChoice {
 }
 
 /// Is the `private` choice set to "yes"? Mirrors
-/// `interaction.options.getString("private") === "yes"`.
-pub fn is_private_choice(private: Option<PrivateChoice>) -> bool {
-    matches!(private, Some(PrivateChoice::Yes))
+/// `interaction.options.getString("private") === "yes"`
+/// (required yes/no choice in utils.ts).
+pub fn is_private_choice(private: PrivateChoice) -> bool {
+    matches!(private, PrivateChoice::Yes)
 }
 
 #[cfg(test)]
@@ -100,9 +101,8 @@ mod tests {
 
     #[test]
     fn private_choice_parsing() {
-        assert!(is_private_choice(Some(PrivateChoice::Yes)));
-        assert!(!is_private_choice(Some(PrivateChoice::No)));
-        assert!(!is_private_choice(None));
+        assert!(is_private_choice(PrivateChoice::Yes));
+        assert!(!is_private_choice(PrivateChoice::No));
         assert_eq!(PrivateChoice::from_name("Yes"), Some(PrivateChoice::Yes));
         assert_eq!(PrivateChoice::from_name("No"), Some(PrivateChoice::No));
     }

@@ -610,6 +610,92 @@ pub fn render_join_dm(
         .replace("{blogName}", "Unknown Blog Name")
 }
 
+/// Stored-embed key. Mirrors the `EMBED.${embedId}` metasTable lookup
+/// in welcomerEmbed.ts (records hold {embedOwner, embedSource}).
+pub fn welcomer_embed_key(embed_id: &str) -> String {
+    format!("EMBED.{embed_id}")
+}
+
+/// Extract the embedSource payload from an EMBED record body.
+/// Returns None for missing/unparsable records or records without
+/// embedSource (mirrors the `if (!record?.embedSource) return null` leg).
+pub fn welcomer_embed_source(record_json: &str) -> Option<serde_json::Value> {
+    serde_json::from_str::<serde_json::Value>(record_json)
+        .ok()?
+        .get("embedSource")
+        .cloned()
+}
+
+/// Preview-render a stored embed. Mirrors resolveWelcomerEmbed: the
+/// source is deep-cloned (like the TS JSON round-trip) and `render`
+/// — the generateCustomMessagePreview port (render_welcome /
+/// render_join_dm / render_inviter_slots) — runs over title,
+/// description, footer.text, author.name and every fields[].name/value.
+pub fn apply_embed_preview(
+    source: &serde_json::Value,
+    render: impl Fn(&str) -> String,
+) -> serde_json::Value {
+    let mut out = source.clone();
+    for key in ["title", "description"] {
+        if let Some(text) = out.get(key).and_then(|v| v.as_str()).map(str::to_string) {
+            out[key] = render(&text).into();
+        }
+    }
+    for path in [["footer", "text"], ["author", "name"]] {
+        if let Some(text) = out
+            .get(path[0])
+            .and_then(|v| v.get(path[1]))
+            .and_then(|v| v.as_str())
+            .map(str::to_string)
+        {
+            out[path[0]][path[1]] = render(&text).into();
+        }
+    }
+    if let Some(fields) = out.get_mut("fields").and_then(|v| v.as_array_mut()) {
+        for field in fields.iter_mut() {
+            for key in ["name", "value"] {
+                if let Some(text) = field.get(key).and_then(|v| v.as_str()).map(str::to_string) {
+                    field[key] = render(&text).into();
+                }
+            }
+        }
+    }
+    out
+}
+
+/// Load a stored welcomer embed's embedSource. `scope` is the guild id
+/// (EMBED rows are written per-guild via routed_set, with the legacy kv
+/// row as fallback — both covered by tbl_get).
+pub async fn load_welcomer_embed_source(
+    pool: &crate::db::Pool,
+    scope: &str,
+    embed_id: &str,
+) -> Option<serde_json::Value> {
+    if embed_id.is_empty() {
+        return None;
+    }
+    let raw = tbl_get(pool, scope, &welcomer_embed_key(embed_id)).await?;
+    welcomer_embed_source(&raw)
+}
+
+/// Account date slots for join messages. Mirrors the two
+/// generateCustomMessagePreview legs the fixed render_join_dm cannot
+/// fill without the Discord user object: {createdAt} is the locale date
+/// string (input.user.createdAt.toLocaleDateString(guildLocal)),
+/// {accountCreationTimestamp} is the relative timestamp
+/// (time(createdAt, "R") -> <t:unix:R>). Chain after render_join_dm /
+/// render_welcome / render_xp_announce.
+pub fn render_account_time_slots(
+    template: &str,
+    created_at_date: &str,
+    created_unix_secs: i64,
+) -> String {
+    template.replace("{createdAt}", created_at_date).replace(
+        "{accountCreationTimestamp}",
+        &format!("<t:{created_unix_secs}:R>"),
+    )
+}
+
 /// Join-role list from the welcomer blob. Mirrors joinRole.ts
 /// (GUILD.GUILD_CONFIG.joinroles as string | string[]), falling back
 /// to the legacy GUILD.JOIN_ROLE row written by the old setter.
@@ -1464,6 +1550,63 @@ mod tests {
             out,
             "Hi bob <@9> #42 in G by unknow_user (@unknow_user x1337) lvl 1337 ft Ninja"
         );
+    }
+
+    #[test]
+    fn account_time_slots_match_ts() {
+        // {accountCreationTimestamp} is time(createdAt, "R").
+        let out = render_account_time_slots(
+            "joined {createdAt} ({accountCreationTimestamp})",
+            "01/15/2023",
+            1673740800,
+        );
+        assert_eq!(out, "joined 01/15/2023 (<t:1673740800:R>)");
+        // Chains after the fixed renderers.
+        let chained = render_account_time_slots(
+            &render_join_dm("{memberUsername} {createdAt}", "bob", "<@9>", 1, "G"),
+            "01/15/2023",
+            1673740800,
+        );
+        assert_eq!(chained, "bob 01/15/2023");
+        assert_eq!(render_account_time_slots("plain", "x", 0), "plain");
+    }
+
+    #[test]
+    fn welcomer_embed_preview_applies_all_ts_fields() {
+        assert_eq!(welcomer_embed_key("abc123"), "EMBED.abc123");
+        let record = serde_json::json!({
+            "embedOwner": "9",
+            "embedSource": {
+                "title": "Hi {memberUsername}",
+                "description": "{guildName} #{memberCount}",
+                "footer": { "text": "by {inviterUsername}" },
+                "author": { "name": "{artistAuthor}" },
+                "fields": [
+                    { "name": "{xpLevel}", "value": "{blogName}" },
+                    { "name": "plain", "value": "plain" }
+                ],
+                "color": 123
+            }
+        });
+        let source = welcomer_embed_source(&record.to_string()).unwrap();
+        let out = apply_embed_preview(&source, |s| render_join_dm(s, "bob", "<@9>", 42, "G"));
+        assert_eq!(out["title"], "Hi bob");
+        assert_eq!(out["description"], "G #42");
+        assert_eq!(out["footer"]["text"], "by unknow_user");
+        assert_eq!(out["author"]["name"], "Ninja");
+        assert_eq!(out["fields"][0]["name"], "1337");
+        assert_eq!(out["fields"][0]["value"], "Unknown Blog Name");
+        assert_eq!(out["fields"][1]["name"], "plain");
+        // Untouched shape: non-string slots survive, source not mutated.
+        assert_eq!(out["color"], 123);
+        assert!(source["title"]
+            .as_str()
+            .unwrap()
+            .contains("{memberUsername}"));
+        // Null legs mirror the TS early return.
+        assert!(welcomer_embed_source("{}").is_none());
+        assert!(welcomer_embed_source("not json").is_none());
+        assert!(welcomer_embed_source(r#"{"embedOwner":"9"}"#).is_none());
     }
 
     #[tokio::test]

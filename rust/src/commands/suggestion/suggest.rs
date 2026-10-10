@@ -271,7 +271,9 @@ async fn moderate(
 )]
 pub async fn suggest_accept(
     ctx: Ctx<'_>,
-    #[description = "Code"] code: String,
+    #[description = "Code"]
+    #[rename = "id"]
+    code: String,
     #[description = "Reason"] reason: String,
 ) -> Result<(), anyhow::Error> {
     moderate(ctx, &code, &ACCEPT, reason).await
@@ -286,7 +288,9 @@ pub async fn suggest_accept(
 )]
 pub async fn suggest_deny(
     ctx: Ctx<'_>,
-    #[description = "Code"] code: String,
+    #[description = "Code"]
+    #[rename = "id"]
+    code: String,
     #[description = "Reason"] reason: String,
 ) -> Result<(), anyhow::Error> {
     moderate(ctx, &code, &DENY, reason).await
@@ -301,8 +305,12 @@ pub async fn suggest_deny(
 )]
 pub async fn suggest_reply(
     ctx: Ctx<'_>,
-    #[description = "Code"] code: String,
-    #[description = "Reply"] reply: String,
+    #[description = "Code"]
+    #[rename = "id"]
+    code: String,
+    #[description = "Reply"]
+    #[rename = "message"]
+    reply: String,
 ) -> Result<(), anyhow::Error> {
     moderate(ctx, &code, &REPLY, reply).await
 }
@@ -316,7 +324,9 @@ pub async fn suggest_reply(
 )]
 pub async fn suggest_delete(
     ctx: Ctx<'_>,
-    #[description = "Code"] code: String,
+    #[description = "Code"]
+    #[rename = "id"]
+    code: String,
 ) -> Result<(), anyhow::Error> {
     let code_trim = code.trim();
     let gid = ctx
