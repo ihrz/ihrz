@@ -71,8 +71,10 @@ pub async fn bkp_del(pool: &crate::db::Pool, user_id: u64, backup_id: &str) -> a
     crate::db::kv_del(pool, BACKUPS_SCOPE, &backup_user_key(user_id, backup_id)).await
 }
 
-/// One user's backups as (id, snapshot) pairs, sorted by id. Mirrors
-/// the `BACKUPS.${userId}` object walk in !list.ts:79.
+/// One user's backups as (id, snapshot) pairs, sorted by id.
+/// Deliberate keep: TS walks the `BACKUPS.${userId}` object in
+/// insertion order (!list.ts:87-105); the kv port sorts so pages are
+/// stable across restarts.
 pub async fn bkp_scan_user(pool: &crate::db::Pool, user_id: u64) -> Vec<(String, String)> {
     let prefix = user_backup_prefix(user_id);
     let mut rows = legacy_scan(pool, BACKUPS_SCOPE, &prefix).await;

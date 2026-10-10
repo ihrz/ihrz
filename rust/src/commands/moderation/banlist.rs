@@ -2,6 +2,10 @@ use super::*;
 use poise::serenity_prelude as serenity;
 
 /// Clamp an optional 1-based `page` arg to a 0-based page index.
+/// The `page` slash option itself is a deliberate additive extra:
+/// !banlist.ts, !mutelist.ts and !warnlist.ts always start on the
+/// first page (no TS counterpart); kept so long lists can jump
+/// straight to a page.
 pub(crate) fn clamp_page_idx(page: Option<i64>, total_pages: usize) -> usize {
     let total = total_pages.max(1);
     (page.unwrap_or(1).clamp(1, total as i64) - 1) as usize

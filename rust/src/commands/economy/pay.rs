@@ -38,6 +38,10 @@ pub async fn eco_pay(
         return Ok(());
     }
     // TS replies BEFORE mutating (interactionSend, then db.add/sub).
+    // DELIBERATE KEEP on the display name (`!pay.ts:94-102` uses
+    // `user.globalName || user.displayName`): a serenity `User` carries
+    // no guild display name (no nickname), so the username is the
+    // closest available fallback — never a raw CDN-style guess.
     let payer = ctx
         .author()
         .global_name

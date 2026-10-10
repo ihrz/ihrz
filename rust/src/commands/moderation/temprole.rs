@@ -56,8 +56,10 @@ pub async fn mod_temprole(
             return Ok(());
         }
     }
+    // TS `if (!roleTime || !memberToAdd || !roleToAdd) return;`
+    // (!temprole.ts:72-74): an unresolvable member is a silent return,
+    // no additive reply.
     if guild_id.member(ctx.http(), member.id).await.is_err() {
-        ctx.say(t("ban_dont_found_member")).await?;
         return Ok(());
     };
     let author_id = ctx.author().id.get();

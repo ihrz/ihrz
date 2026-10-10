@@ -95,29 +95,6 @@ fn setup_refused_reason(
     None
 }
 
-/// Prefix self-words resolving to the author. Mirrors the
-/// `["myself", "self", "me", "moi"]` check in resolveTargetMember
-/// (!rolepanel.ts); compared lowercase like the TS
-/// `args?.[0]?.toLowerCase()`.
-fn is_self_word(s: &str) -> bool {
-    matches!(s.to_lowercase().as_str(), "myself" | "self" | "me" | "moi")
-}
-
-/// Mention (`<@id>` / `<@!id>`) or raw id from the member arg.
-fn parse_user_id_arg(s: &str) -> Option<serenity::UserId> {
-    let t = s.trim();
-    let inner = t
-        .strip_prefix("<@")
-        .and_then(|r| r.strip_suffix('>'))
-        .map(|r| r.strip_prefix('!').unwrap_or(r))
-        .unwrap_or(t);
-    inner
-        .parse::<u64>()
-        .ok()
-        .filter(|n| *n != 0)
-        .map(serenity::UserId::new)
-}
-
 /// Audit-log reason stamped on role add/remove, mirroring the TS
 /// `` `[RolePanel] Author: ${author.id}` `` reasons.
 fn rolepanel_audit_reason(author_id: u64) -> String {
@@ -159,7 +136,7 @@ fn build_apply_message(
 )]
 pub async fn mod_rolepanel(
     ctx: Ctx<'_>,
-    #[description = "Member the panel is for (default yourself)"] member: Option<String>,
+    #[description = "Member the panel is for (default yourself)"] member: Option<serenity::User>,
 ) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {
         return Ok(());
@@ -167,28 +144,18 @@ pub async fn mod_rolepanel(
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let t = |k: &str, fb: &str| crate::lang::get(&code, k).unwrap_or_else(|| fb.to_string());
     let author_id = ctx.author().id.get();
-    // Target member (TS resolveTargetMember): no arg or a self-word
-    // (myself/self/me/moi) -> the author; a mention/id -> that member;
-    // anything else -> ban_dont_found_member.
-    let arg = member.as_deref().map(str::trim).unwrap_or("");
-    let target = if arg.is_empty() || is_self_word(arg) {
-        match ctx.author_member().await {
+    // Target member (TS resolveTargetMember in !rolepanel.ts): the slash
+    // `member` option is type User, optional (mod.ts:858-872), with
+    // Discord-side validation and a user picker. An omitted option, an
+    // unknown user, or a user outside the guild all resolve to the
+    // author (`getMember("member") || interaction.member`).
+    let want = member.map(|u| u.id).unwrap_or_else(|| ctx.author().id);
+    let target = match guild_id.member(ctx.http(), want).await.ok() {
+        Some(m) => m,
+        None => match ctx.author_member().await {
             Some(m) => m.into_owned(),
             None => return Ok(()),
-        }
-    } else {
-        let found = match parse_user_id_arg(arg) {
-            Some(id) => guild_id.member(ctx.http(), id).await.ok(),
-            None => None,
-        };
-        match found {
-            Some(m) => m,
-            None => {
-                ctx.say(t("ban_dont_found_member", "🔍 | Cannot find this member"))
-                    .await?;
-                return Ok(());
-            }
-        }
+        },
     };
     let target_id = target.user.id;
     let target_mention = format!("<@{target_id}>");
@@ -403,10 +370,24 @@ pub async fn mod_rolepanel(
                     added.push(format!("<@&{}>", role.id.get()));
                 }
             }
-            let done = serenity::CreateEmbed::default()
+            // Result edits the setup message in place like the TS
+            // `embed.setDescription(...); embed.setFields([]);
+            // originalResponse.edit({embeds: [embed]})`
+            // (!rolepanel.ts:206-216): same title/colour, fields cleared,
+            // and the guild-icon thumbnail kept (editing in place never
+            // drops it).
+            let mut done = serenity::CreateEmbed::default()
                 .title(t("rolepanel_setup_embed_title", "Role panel setup"))
                 .description(build_apply_message(&added, &removed, &refused_apply, &tl))
                 .colour(0x016C9A);
+            if let Some(url) = ctx
+                .serenity_context()
+                .cache
+                .guild(guild_id)
+                .and_then(|g| g.icon_url())
+            {
+                done = done.thumbnail(url);
+            }
             let _ = press
                 .create_response(
                     ctx.http(),
@@ -582,33 +563,13 @@ mod tests {
     use super::*;
 
     #[test]
-    fn self_words_resolve_to_author() {
-        for w in ["myself", "self", "me", "moi", "ME", "Moi", " me "] {
-            assert!(is_self_word(w.trim()), "self word: {w}");
-        }
-        assert!(!is_self_word(""));
-        assert!(!is_self_word("<@123>"));
-        assert!(!is_self_word("someone"));
-    }
-
-    #[test]
-    fn member_arg_parses_mention_or_id() {
-        assert_eq!(
-            parse_user_id_arg("<@123>"),
-            Some(serenity::UserId::new(123))
-        );
-        assert_eq!(
-            parse_user_id_arg("<@!123>"),
-            Some(serenity::UserId::new(123))
-        );
-        assert_eq!(parse_user_id_arg("123"), Some(serenity::UserId::new(123)));
-        assert_eq!(
-            parse_user_id_arg("  123  "),
-            Some(serenity::UserId::new(123))
-        );
-        assert_eq!(parse_user_id_arg("me"), None);
-        assert_eq!(parse_user_id_arg("0"), None);
-        assert_eq!(parse_user_id_arg("abc"), None);
+    fn slash_member_option_is_optional_user_picker() {
+        // TS mod.ts:858-872: `member` is type User, required false, so
+        // slash shows a user picker with Discord-side validation and an
+        // omitted option falls back to the author.
+        let cmd = mod_rolepanel();
+        let names: Vec<&str> = cmd.parameters.iter().map(|p| p.name.as_str()).collect();
+        assert_eq!(names, vec!["member"]);
     }
 
     #[test]

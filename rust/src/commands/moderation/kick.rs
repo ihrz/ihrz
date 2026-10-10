@@ -72,9 +72,11 @@ pub async fn mod_kick(
         )
         .await;
     let audit = format!("Kicked by: {} | Reason: {reason}", ctx.author().name);
-    // Deliberate divergence from TS: !kick.ts keeps flowing into the
-    // success embed + log after a failed kick (the .catch only sends the
-    // error), while here the success reply/log are gated on success.
+    // Deliberate divergence from TS (kept): !kick.ts:130-169 keeps
+    // flowing into the success embed + log after a failed kick (the
+    // `.catch` only sends the error reply, then the chain still runs
+    // the success branch — a TS double-reply bug), while here the
+    // success reply/log are gated on success.
     if guild_id
         .kick_with_reason(ctx.http(), member.id, &audit)
         .await

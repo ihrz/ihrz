@@ -19,7 +19,6 @@ pub const SCHEDULE_SWEEP_SECS: u64 = 50;
 pub const TEMP_EXPIRY_SECS: u64 = 30;
 pub const MEMBERCOUNT_SECS: u64 = 300;
 pub const NIGHTMODE_SECS: u64 = 60;
-pub const GIVEAWAY_SECS: u64 = 60;
 pub const NOTIFIER_SECS: u64 = 120;
 pub const PROTECTION_BACKUP_SECS: u64 = 60;
 pub const IDLE_SWEEP_SECS: u64 = 60;
@@ -249,8 +248,10 @@ async fn notify_schedule_expiry(
     let _ = dm.send_message(http, msg).await;
 }
 
-/// Seconds between giveaway expiry sweeps (mirrors the 15s refresh loop).
-const GIVEAWAY_REFRESH_SECS: u64 = 15;
+/// Seconds between giveaway expiry sweeps. Mirrors `forceUpdateEvery:
+/// 3600` in src/core/core.ts (the `setInterval(refresh, ...)` period in
+/// the GiveawayManager constructor, ~4s).
+const GIVEAWAY_REFRESH_SECS: u64 = 4;
 
 /// End expired giveaways, picking winners deterministically.
 /// Mirrors giveawaysManager refresh() -> finish(): expired + !ended
@@ -1578,7 +1579,7 @@ pub fn spawn(pool: Pool, http: std::sync::Arc<poise::serenity_prelude::Http>) {
         });
     }
 
-    // Giveaway expiry (real, mirrors the 15s refresh loop).
+    // Giveaway expiry (real, mirrors the forceUpdateEvery sweep).
     {
         let pool = pool.clone();
         let http = http.clone();

@@ -5,6 +5,7 @@ use super::*;
     slash_command,
     prefix_command,
     rename = "ureset",
+    aliases("economy-ureset"),
     default_member_permissions = "ADMINISTRATOR"
 )]
 pub async fn eco_ureset(

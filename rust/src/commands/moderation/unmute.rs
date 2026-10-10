@@ -19,7 +19,11 @@ pub async fn mod_unmute(
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let t = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
     let no = emoji(&ctx, "No", "❌").await;
-    // TS checks ManageRoles on the bot here.
+    // Bot ManageRoles gate, kept: poise `default_member_permissions`
+    // gates the invoker, not the bot. Mirrors the live
+    // `members.me?.permissions.has([ManageRoles])` check in
+    // !unmute.ts:64-74 (snapshot-based here; skipped only when the
+    // guild is not cached) — safer than dropping it and 403ing per press.
     if let Some(g) = guard_data(&ctx, guild_id).await {
         if !g.bot_perms.manage_roles() {
             ctx.say(
@@ -34,12 +38,15 @@ pub async fn mod_unmute(
             .await?;
         return Ok(());
     }
+    // TS `if (!tomute) return;` (!unmute.ts:62): an unresolvable member
+    // is a silent return, no additive reply.
     let member = guild_id.member(ctx.http(), user.id).await.ok();
     let Some(mut member) = member else {
-        ctx.say(t("ban_dont_found_member")).await?;
         return Ok(());
     };
-    if member.communication_disabled_until.is_none() {
+    // Active timeout only, like `!tomute?.isCommunicationDisabled()`
+    // (!unmute.ts:88): expiry in the future, not merely set.
+    if !timeout_active(member.communication_disabled_until, crate::bot::now_ms()) {
         ctx.say(t("unmute_not_muted")).await?;
         return Ok(());
     }

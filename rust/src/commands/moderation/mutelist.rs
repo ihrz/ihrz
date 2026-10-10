@@ -23,18 +23,22 @@ pub async fn mod_mutelist(
     };
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let t = |k: &str, fb: &str| crate::lang::get(&code, k).unwrap_or_else(|| fb.to_string());
-    let muted: Vec<(serenity::UserId, String)> = ctx
-        .serenity_context()
-        .cache
-        .guild(guild_id)
-        .map(|g| {
-            g.members
-                .values()
-                .filter(|m| m.communication_disabled_until.is_some())
-                .map(|m| (m.user.id, m.user.to_string()))
-                .collect()
-        })
-        .unwrap_or_default();
+    let muted: Vec<(serenity::UserId, String)> = {
+        let now = crate::bot::now_ms();
+        ctx.serenity_context()
+            .cache
+            .guild(guild_id)
+            .map(|g| {
+                g.members
+                    .values()
+                    // Active timeout only, like `isCommunicationDisabled()`
+                    // (!mutelist.ts:55): expiry in the future, not merely set.
+                    .filter(|m| timeout_active(m.communication_disabled_until, now))
+                    .map(|m| (m.user.id, m.user.to_string()))
+                    .collect()
+            })
+            .unwrap_or_default()
+    };
     if muted.is_empty() {
         ctx.say(t("prevnames_undetected", "No data found!")).await?;
         return Ok(());

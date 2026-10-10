@@ -281,15 +281,25 @@ pub fn is_duplicate_rank_role(roles: &[RankRole], role_id: &str) -> bool {
 
 /// Validate the level modal input. Mirrors `!roles.ts:284-319`: the
 /// modal caps at 4 chars (`maxLength: 4`), `parseInt`, and rejects NaN
-/// or `<= 0` with `ranks_config_add_invalid_level`. Returns the level
-/// on success.
+/// or `<= 0` with `ranks_config_add_invalid_level`. `parseInt` reads an
+/// optional sign plus leading ASCII digits and ignores trailing garbage
+/// (`"12abc"` -> 12); empty or digit-less input is NaN. Returns the
+/// level on success.
 pub fn parse_rank_level_input(input: &str) -> Option<u64> {
     let trimmed = input.trim();
     if trimmed.is_empty() || trimmed.len() > 4 {
         return None;
     }
-    match trimmed.parse::<i64>() {
-        Ok(n) if n > 0 => Some(n as u64),
+    let (digits, negative) = match trimmed.strip_prefix('-') {
+        Some(rest) => (rest, true),
+        None => (trimmed.strip_prefix('+').unwrap_or(trimmed), false),
+    };
+    let leading: String = digits.chars().take_while(|c| c.is_ascii_digit()).collect();
+    if leading.is_empty() {
+        return None;
+    }
+    match leading.parse::<i64>() {
+        Ok(n) if !negative && n > 0 => Some(n as u64),
         _ => None,
     }
 }
@@ -593,6 +603,11 @@ mod tests {
         assert_eq!(parse_rank_level_input("abc"), None);
         assert_eq!(parse_rank_level_input(""), None);
         assert_eq!(parse_rank_level_input("12345"), None);
+        // parseInt trailing-garbage parity (!roles.ts:306).
+        assert_eq!(parse_rank_level_input("12ab"), Some(12));
+        assert_eq!(parse_rank_level_input("3.9"), Some(3));
+        assert_eq!(parse_rank_level_input("+7"), Some(7));
+        assert_eq!(parse_rank_level_input("-"), None);
     }
 
     #[test]

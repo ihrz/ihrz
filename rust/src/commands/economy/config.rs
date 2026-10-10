@@ -25,6 +25,7 @@ pub async fn economy_disabled_routed(pool: &crate::db::Pool, guild_id: &str) -> 
     slash_command,
     prefix_command,
     rename = "config",
+    aliases("ecconfig"),
     default_member_permissions = "ADMINISTRATOR"
 )]
 pub async fn eco_config(

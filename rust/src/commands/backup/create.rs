@@ -1,6 +1,18 @@
 use super::*;
 use poise::serenity_prelude as serenity;
 
+/// Save-messages budget. Mirrors !create.ts:70
+/// (`svMsg === "yes" ? 100 : 0`): exact `"yes"` match, and a missing
+/// prefix arg (None, no poise parse error) falls into the 0 leg like
+/// the TS `string(args, 0)` undefined case.
+pub fn save_messages_budget(save_messages: Option<&str>) -> u64 {
+    if save_messages == Some("yes") {
+        100
+    } else {
+        0
+    }
+}
+
 #[poise::command(
     slash_command,
     prefix_command,
@@ -10,8 +22,12 @@ use poise::serenity_prelude as serenity;
 )]
 pub async fn backup_create(
     ctx: Ctx<'_>,
-    #[description = "Save messages (yes/no)"] save_messages: String,
+    #[description = "Save messages (yes/no)"] save_messages: Option<String>,
 ) -> Result<(), anyhow::Error> {
+    // Defer up front: the snapshot walks message pages plus per-emoji
+    // image fetches, past the 3s interaction token (backup.ts:260
+    // `thinking: true`).
+    ctx.defer().await?;
     let gid = ctx
         .guild_id()
         .map(|g| g.get().to_string())
@@ -38,12 +54,9 @@ pub async fn backup_create(
     let Some(guild) = guild else {
         return legacy_config_backup(&ctx, &gid).await;
     };
-    // TS !create.ts: save-message "yes" -> 100 msgs/channel, else 0
-    // (required yes/no choice in backup.ts).
-    let save_yes = save_messages.eq_ignore_ascii_case("yes");
     let opts = CreateOptions {
         backup_id: None,
-        max_messages_per_channel: Some(if save_yes { 100 } else { 0 }),
+        max_messages_per_channel: Some(save_messages_budget(save_messages.as_deref())),
         json_save: Some(true),
         json_beautify: Some(true),
         do_not_backup: Some(vec![]),
@@ -138,6 +151,15 @@ pub async fn post_backup_create_log(ctx: &Ctx<'_>) {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn save_budget_matches_ts_branches() {
+        // Exact "yes" only (!create.ts:70); missing arg -> 0, no error.
+        assert_eq!(save_messages_budget(Some("yes")), 100);
+        assert_eq!(save_messages_budget(Some("no")), 0);
+        assert_eq!(save_messages_budget(Some("YES")), 0);
+        assert_eq!(save_messages_budget(None), 0);
+    }
 
     #[test]
     fn create_log_renders_user_slot() {

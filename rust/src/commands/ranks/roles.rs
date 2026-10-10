@@ -93,6 +93,18 @@ pub async fn ranks_role_add(
     };
     let id = role.id.get().to_string();
     let roles = load_rank_roles_routed(&ctx.data().pool, &gid).await;
+    // Cap gate first: mirrors `!roles.ts:227-237` — the 25-role check runs
+    // before the role picker and the level modal parse (`:303-319`), so a
+    // full roster reports `ranks_config_add_max_roles` even for a level
+    // input that would otherwise fail validation.
+    if super::rank_roles_at_cap(&roles) {
+        ctx.say(say(
+            "ranks_config_add_max_roles",
+            "You've reached the maximum number of rank roles (25).",
+        ))
+        .await?;
+        return Ok(());
+    }
     // Level gate (mirrors the `!roles.ts:306-319` modal parse:
     // `parseInt`, NaN or `<= 0` rejected).
     let Some(lvl) = super::parse_rank_level_input(&level.to_string()) else {
@@ -103,15 +115,6 @@ pub async fn ranks_role_add(
         .await?;
         return Ok(());
     };
-    // 25-role cap (mirrors `!roles.ts:228-237`).
-    if super::rank_roles_at_cap(&roles) {
-        ctx.say(say(
-            "ranks_config_add_max_roles",
-            "You've reached the maximum number of rank roles (25).",
-        ))
-        .await?;
-        return Ok(());
-    }
     // Duplicate role (mirrors `!roles.ts:321-335`).
     if super::is_duplicate_rank_role(&roles, &id) {
         ctx.say(
@@ -125,7 +128,11 @@ pub async fn ranks_role_add(
         return Ok(());
     }
     let mut roles = roles;
-    roles.retain(|r| r.role_id != id);
+    // Map-key overwrite: mirrors `!roles.ts:338`
+    // (`ranksConfig.ranksRoles[level] = selectedRole.id`) — assigning an
+    // already-used level replaces its role instead of stacking a second
+    // entry on the same level.
+    roles.retain(|r| r.level != lvl);
     roles.push(RankRole {
         role_id: id.clone(),
         level: lvl,
@@ -161,7 +168,16 @@ pub async fn ranks_role_add(
     Ok(())
 }
 
-#[poise::command(slash_command, prefix_command, rename = "role-list", aliases("rroles"))]
+/// List rank roles.
+// The TS `roles` panel (`ranks.ts:44-60`) requires Administrator for
+// the whole panel (list included), so this leaf carries the same gate.
+#[poise::command(
+    slash_command,
+    prefix_command,
+    rename = "role-list",
+    aliases("rroles"),
+    default_member_permissions = "ADMINISTRATOR"
+)]
 pub async fn ranks_role_list(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let gid = ctx
         .guild_id()

@@ -20,9 +20,13 @@ pub fn parse_winners_count(raw: &str) -> i64 {
         .unwrap_or(0)
 }
 
-/// Truncate the prize to the TS `substring(0, 256)` limit.
+/// Truncate the prize to the TS `substring(0, 256)` limit. JS strings
+/// count UTF-16 code units, so astral characters (emoji) take two
+/// slots; splitting a surrogate pair yields a lone surrogate, rendered
+/// here as the Unicode replacement character.
 pub fn truncate_prize(prize: &str) -> String {
-    prize.chars().take(256).collect()
+    let units: Vec<u16> = prize.encode_utf16().take(256).collect();
+    String::from_utf16_lossy(&units)
 }
 
 /// Image-source gate. Mirrors !create.ts:74 (the prefix path forces
@@ -79,8 +83,9 @@ pub async fn gw_create(
     }
     // Mirrors !create.ts:87-99 (bad duration -> start_time_not_valid,
     // checked before the requirement gates like the TS order
-    // winners -> duration -> requirement).
-    let delta = crate::commands::schedule::main::parse_duration_ms(&time);
+    // winners -> duration -> requirement). The duration goes through
+    // the full timeCalculator mirror (compound sums, FR/EN aliases).
+    let delta = super::gw_parse_duration_ms(&time);
     let Some(delta) = delta else {
         ctx.say(
             crate::lang::get(&code_early, "start_time_not_valid")
@@ -287,10 +292,16 @@ mod tests {
     }
 
     #[test]
-    fn prize_truncates_at_256_chars() {
+    fn prize_truncates_at_256_utf16_units() {
+        // Like JS `substring(0, 256)`: BMP chars take one slot, astral
+        // characters (emoji) take two.
         let long = "p".repeat(300);
-        assert_eq!(truncate_prize(&long).chars().count(), 256);
+        assert_eq!(truncate_prize(&long).encode_utf16().count(), 256);
         assert_eq!(truncate_prize("prize"), "prize");
+        let emoji = "😀".repeat(200);
+        let cut = truncate_prize(&emoji);
+        assert_eq!(cut.encode_utf16().count(), 256);
+        assert_eq!(cut.chars().count(), 128);
     }
 
     #[test]

@@ -31,7 +31,10 @@ pub fn should_backup(kind: &str, opts: &CreateOptions) -> bool {
         .unwrap_or(true)
 }
 
-/// Message fetch budget. TS defaults NaN to 10 (index.ts default).
+/// Message fetch budget. TS `fetchChannelMessages` (util.ts:176) uses
+/// `isNaN(maxMessagesPerChannel) ? 10 : max`; JSON has no NaN, so the
+/// Rust `Option<u64>` None leg covers both TS undefined and NaN with
+/// the same stored result (10). Documented, no behavior change.
 pub fn message_limit(opts: &CreateOptions) -> u64 {
     opts.max_messages_per_channel.unwrap_or(10)
 }
@@ -219,10 +222,39 @@ pub async fn collect_bans(
         .collect()
 }
 
+/// Mention-clean message text. Mirrors discord.js `cleanContent`
+/// (util.ts:222 stores `msg.cleanContent`, not the raw content):
+/// user/channel/role mentions render as readable `@name`/`#name`.
+/// Nicknames are not resolved (cache-only snapshot); usernames stand in.
+pub fn clean_content(
+    msg: &poise::serenity_prelude::Message,
+    guild: &poise::serenity_prelude::Guild,
+) -> String {
+    let mut out = msg.content.clone();
+    for user in &msg.mentions {
+        let plain = format!("@{}", user.name);
+        out = out.replace(&format!("<@{}>", user.id.get()), &plain);
+        out = out.replace(&format!("<@!{}>", user.id.get()), &plain);
+    }
+    for id in &msg.mention_roles {
+        if let Some(role) = guild.roles.get(id) {
+            out = out.replace(&format!("<@&{}>", id.get()), &format!("@{}", role.name));
+        }
+    }
+    for ch in &msg.mention_channels {
+        out = out.replace(&format!("<#{}>", ch.id.get()), &format!("#{}", ch.name));
+    }
+    for (id, channel) in &guild.channels {
+        out = out.replace(&format!("<#{}>", id.get()), &format!("#{}", channel.name));
+    }
+    out
+}
+
 /// Paged message fetch, newest-first like channel.messages.fetch.
 /// Stops at the budget (TS breaks when messages.length >= messageCount).
 pub async fn collect_channel_messages(
     http: &poise::serenity_prelude::Http,
+    guild: &poise::serenity_prelude::Guild,
     channel_id: poise::serenity_prelude::ChannelId,
     budget: u64,
 ) -> Vec<MessageData> {
@@ -244,8 +276,15 @@ pub async fn collect_channel_messages(
             }
             out.push(MessageData {
                 username: msg.author.name.clone(),
-                avatar: msg.author.avatar_url(),
-                content: Some(msg.content.clone()),
+                // Always a URL string like displayAvatarURL(): the
+                // default avatar when the user has none (util.ts:221).
+                avatar: Some(
+                    msg.author
+                        .avatar_url()
+                        .unwrap_or_else(|| msg.author.default_avatar_url()),
+                ),
+                // cleanContent, not raw content (util.ts:222).
+                content: Some(clean_content(msg, guild)),
                 embeds: Some(
                     msg.embeds
                         .iter()
@@ -262,6 +301,8 @@ pub async fn collect_channel_messages(
                         .collect(),
                 ),
                 pinned: Some(msg.pinned),
+                // Timestamp Display is RFC 3339 (ISO), like
+                // msg.createdAt.toISOString() (util.ts:226).
                 sent_at: msg.timestamp.to_string(),
             });
         }
@@ -299,7 +340,7 @@ async fn collect_text_channel(
     let budget = message_limit(opts);
     let mut thread_data = vec![];
     for thread in threads {
-        let messages = collect_channel_messages(http, thread.id, budget).await;
+        let messages = collect_channel_messages(http, guild, thread.id, budget).await;
         thread_data.push(collect_thread(thread, messages));
     }
     TextChannelData {
@@ -316,7 +357,7 @@ async fn collect_text_channel(
             None
         },
         is_news: channel.kind == T::News,
-        messages: collect_channel_messages(http, channel.id, budget).await,
+        messages: collect_channel_messages(http, guild, channel.id, budget).await,
         threads: thread_data,
     }
 }
@@ -346,8 +387,12 @@ fn collect_voice_channel(
 }
 
 /// Mirrors getChannels (categories by position, children by position,
-/// system channels skipped, active threads grouped under parents).
-/// Archived threads have no cached equivalent (documented delta).
+/// system channels skipped, threads grouped under parents).
+/// Thread-source delta (documented, kept): TS walks the cached
+/// `channel.threads.cache` (util.ts:264, includes cached archived
+/// threads), while the port groups `get_active_threads` results by
+/// parent. Archived threads have no cached equivalent in serenity, so
+/// they are absent from snapshots either way here.
 pub async fn collect_channels(
     http: &poise::serenity_prelude::Http,
     guild: &poise::serenity_prelude::Guild,
@@ -572,7 +617,9 @@ pub fn gen_backup_id() -> String {
 }
 
 /// Legacy config-only snapshot (kv dump) when no cached guild is
-/// available. Kept so create still works outside the cache path.
+/// available. Kept deliberately (not a TS path): create must still
+/// answer outside the guild-cache path instead of erroring, and load
+/// already knows how to restore these `{entries}` dumps.
 async fn legacy_config_backup(ctx: &Ctx<'_>, gid: &str) -> Result<(), anyhow::Error> {
     let rows: Vec<(String, String)> = crate::db::kv_scan(&ctx.data().pool, gid).await;
     let id = gen_backup_id();
@@ -623,6 +670,23 @@ pub mod main {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn clean_content_renders_mentions_like_ts() {
+        use poise::serenity_prelude as serenity;
+        let mut guild = serenity::Guild::default();
+        let mut role = serenity::Role::default();
+        role.name = "Mods".to_string();
+        guild.roles.insert(serenity::RoleId::new(7), role);
+        let mut msg = serenity::Message::default();
+        msg.content = "hi <@123> and <@!123> <@&7> <#9>".to_string();
+        let mut user = serenity::User::default();
+        user.id = serenity::UserId::new(123);
+        user.name = "Kisa".to_string();
+        msg.mentions = vec![user];
+        msg.mention_roles = vec![serenity::RoleId::new(7)];
+        assert_eq!(clean_content(&msg, &guild), "hi @Kisa and @Kisa @Mods <#9>");
+    }
 
     #[test]
     fn id_is_hex_16() {

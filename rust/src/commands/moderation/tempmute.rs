@@ -67,9 +67,11 @@ pub async fn mod_timeout(
             return Ok(());
         }
     }
+    // TS `if (!mutetime || !tomute || !mutetime) return;`
+    // (!tempmute.ts:67-69): an unresolvable member is a silent return,
+    // no additive reply.
     let member = guild_id.member(ctx.http(), user.id).await.ok();
     let Some(mut member) = member else {
-        ctx.say(t("ban_dont_found_member")).await?;
         return Ok(());
     };
     if member_is_admin(&ctx, guild_id, &member) {
@@ -107,7 +109,9 @@ pub async fn mod_timeout(
             .await?;
         return Ok(());
     }
-    if member.communication_disabled_until.is_some() {
+    // Active timeout only, like `tomute.isCommunicationDisabled()`
+    // (!tempmute.ts:162): expiry in the future, not merely set.
+    if timeout_active(member.communication_disabled_until, crate::bot::now_ms()) {
         ctx.say(t("tempmute_already_muted")).await?;
         return Ok(());
     }

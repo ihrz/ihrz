@@ -5,6 +5,7 @@ use super::*;
     slash_command,
     prefix_command,
     rename = "balance-add",
+    aliases("addmoney"),
     default_member_permissions = "ADMINISTRATOR"
 )]
 pub async fn eco_balance_add(

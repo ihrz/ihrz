@@ -46,35 +46,42 @@ pub async fn gw_end(
         .duration_since(std::time::UNIX_EPOCH)
         .map(|d| d.as_nanos() as u64)
         .unwrap_or(1);
+    // Mirrors !end.ts: isValid first (-> end_not_find_giveaway), then
+    // isEnded (-> end_command_error).
+    if !gw.is_valid {
+        let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+        ctx.say(
+            crate::lang::get(&code, "end_not_find_giveaway")
+                .unwrap_or_default()
+                .replace("${gw}", message_id.trim()),
+        )
+        .await?;
+        return Ok(());
+    }
     if gw.ended {
         let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
         ctx.say(crate::lang::get(&code, "end_command_error").unwrap_or_default())
             .await?;
         return Ok(());
     }
-    // Shared end flow: winners, board edit, winners reply.
-    // Mirrors end() -> finish().
-    let pool = &ctx.data().pool;
-    let code = crate::db::guild_lang(pool, ctx.guild_id().map(|g| g.get())).await;
-    let now_secs = seed / 1_000_000_000;
-    let lived = finish_giveaway(
-        pool,
-        &ctx.serenity_context().http,
-        &home_gid,
-        mid,
-        &mut gw,
-        seed,
-        &code,
-        now_secs as i64,
-    )
-    .await;
-    if !lived {
-        // Board message gone: drop the row like the TS fetch catch.
-        let _ = super::gw::store_del(pool, &home_gid, mid).await;
-        ctx.say(crate::lang::get(&code, "event_gw_finnish_cannot_msg").unwrap_or_default())
-            .await?;
-        return Ok(());
-    }
+    // Mirrors !end.ts: `client.giveawaysManager.end(...)` is NOT
+    // awaited — the confirmation goes out immediately while the shared
+    // end flow (winners, board edit, winners reply) runs detached. A
+    // gone board drops the row like the TS fetch catch.
+    let pool = ctx.data().pool.clone();
+    let http = ctx.serenity_context().http.clone();
+    let code = crate::db::guild_lang(&pool, ctx.guild_id().map(|g| g.get())).await;
+    let now_secs = (seed / 1_000_000_000) as i64;
+    let code_task = code.clone();
+    tokio::spawn(async move {
+        let lived = finish_giveaway(
+            &pool, &http, &home_gid, mid, &mut gw, seed, &code_task, now_secs,
+        )
+        .await;
+        if !lived {
+            let _ = super::gw::store_del(&pool, &home_gid, mid).await;
+        }
+    });
     // Success confirmation first, then the audit log. Mirrors !end.ts
     // (`end_confirmation_message` with ${timeEstimate} -> "0").
     ctx.say(render_end_confirmation(

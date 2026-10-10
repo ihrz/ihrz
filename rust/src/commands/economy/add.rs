@@ -15,6 +15,7 @@ pub fn shop_at_cap(role_count: usize) -> bool {
     slash_command,
     prefix_command,
     rename = "role-add",
+    aliases("economy-role-add"),
     default_member_permissions = "MANAGE_GUILD"
 )]
 pub async fn eco_role_add(
@@ -103,6 +104,12 @@ pub async fn eco_role_add(
         .await?;
         return Ok(());
     }
+    // DELIBERATE KEEP (differs from `economy/!add.ts:107-109`): TS
+    // overwrites the whole entry with `{ price }`, wiping a previously
+    // set boost. The Rust side preserves the existing boost instead —
+    // the TS wipe is silent data loss (re-adding a role at a new price
+    // destroys its multiplier with no warning), so parity is refused
+    // here and the boost survives the re-add.
     roles.insert(
         id.clone(),
         ShopEntry {

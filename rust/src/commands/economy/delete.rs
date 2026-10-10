@@ -5,6 +5,7 @@ use super::*;
     slash_command,
     prefix_command,
     rename = "role-delete",
+    aliases("economy-role-delete"),
     default_member_permissions = "MANAGE_GUILD"
 )]
 pub async fn eco_role_delete(

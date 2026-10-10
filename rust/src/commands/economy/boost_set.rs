@@ -5,6 +5,7 @@ use super::*;
     slash_command,
     prefix_command,
     rename = "boost-set",
+    aliases("economy-boost-set"),
     default_member_permissions = "MANAGE_GUILD"
 )]
 pub async fn eco_boost_set(

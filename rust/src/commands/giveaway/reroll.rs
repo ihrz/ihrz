@@ -51,6 +51,13 @@ pub async fn gw_reroll(
     let pool = &ctx.data().pool;
     let code = crate::db::guild_lang(pool, ctx.guild_id().map(|g| g.get())).await;
     let t = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
+    // Mirrors !reroll.ts: isValid first (-> reroll_dont_find_giveaway),
+    // then isEnded (-> reroll_giveaway_not_over).
+    if !gw.is_valid {
+        ctx.say(t("reroll_dont_find_giveaway").replace("{args}", message_id.trim()))
+            .await?;
+        return Ok(());
+    }
     if !gw.ended {
         ctx.say(t("reroll_giveaway_not_over")).await?;
         return Ok(());
@@ -100,7 +107,12 @@ pub async fn gw_reroll(
         ));
     }
     let _ = channel.edit_message(http, message.id, edit).await;
-    if winners_now.first().map(|w| w.as_str()) == Some("None") || winners_now.is_empty() {
+    // Mirrors reroll(): `if (winner && winner[0] !== "None")` posts
+    // the win message, else the cannot message. An empty pick
+    // (`winner = []`, so `winner[0]` is undefined) still posts
+    // `event_gw_reroll_win_msg` with an empty winners string — unlike
+    // finish(), which falls back to the cannot message when empty.
+    if winners_now.first().map(|w| w.as_str()) == Some("None") {
         let _ = message.reply(http, t("event_gw_finnish_cannot_msg")).await;
     } else {
         let content = t("event_gw_reroll_win_msg")

@@ -1,11 +1,12 @@
 use super::*;
 
 /// Free-text reward-kind path. Mirrors `!set-money.ts:60-61`: the
-/// prefix path takes `method.string(args, 0)` verbatim with no
-/// registry check, so any kind string is accepted and normalised for
-/// the `ECONOMY.settings.{kind}.amount` leaf key.
+/// prefix path takes `method.string(args, 0)` verbatim with no case
+/// folding and no registry check, so the kind is stored under
+/// `ECONOMY.settings.{kind}.amount` exactly as typed (slash choices
+/// already constrain to lowercase `daily`/`weekly`/`monthly`).
 pub fn normalize_reward_kind(kind: &str) -> String {
-    kind.trim().to_ascii_lowercase()
+    kind.trim().to_string()
 }
 
 /// Mirrors `!set-money.ts`.

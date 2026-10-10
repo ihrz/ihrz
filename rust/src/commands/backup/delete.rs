@@ -188,8 +188,8 @@ pub async fn backup_delete(
         ),
     };
     // TS edits the same embed in place, so the outcome keeps the
-    // guild/id/counts field and the timestamp; only title and color
-    // change (!delete.ts:139-157).
+    // guild/id/counts field and the original timestamp; only title
+    // and color change (!delete.ts:139-157). No fresh timestamp here.
     let _ = msg
         .edit(
             ctx.http(),
@@ -198,7 +198,6 @@ pub async fn backup_delete(
                     serenity::CreateEmbed::default()
                         .title(title)
                         .colour(serenity::Colour::new(color))
-                        .timestamp(serenity::Timestamp::now())
                         .field(
                             delete_field_name(&guild_name, backup_id.trim()),
                             field_value,

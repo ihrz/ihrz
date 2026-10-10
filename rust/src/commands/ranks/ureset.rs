@@ -6,6 +6,7 @@ use poise::serenity_prelude as serenity;
     slash_command,
     prefix_command,
     rename = "ureset",
+    aliases("ranks-ureset"),
     default_member_permissions = "ADMINISTRATOR"
 )]
 pub async fn ranks_ureset(

@@ -22,7 +22,11 @@ pub async fn gw_get_data(
         .map(|g| g.get().to_string())
         .unwrap_or_default();
     let mid: u64 = message_id.trim().parse().unwrap_or(0);
-    let raw = super::gw::store_get(&ctx.data().pool, &gid, mid).await;
+    // Global board read like TS GetGiveawayData (keyed by message id,
+    // not by guild); siblings (end/reroll/list-entries) already do this.
+    let raw = super::gw::store_lookup(&ctx.data().pool, &gid, mid)
+        .await
+        .map(|(_, raw)| raw);
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let t = |k: &str, fb: &str| crate::lang::get(&code, k).unwrap_or_else(|| fb.to_string());
     match raw.and_then(|r| serde_json::from_str::<Giveaway>(&r).ok()) {

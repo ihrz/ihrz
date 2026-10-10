@@ -3,6 +3,11 @@ use super::*;
 /// Routed warns wipe: legacy `USER.%.WARNS` rows plus every table-nested
 /// `USER.<uid>.WARNS` doc. The table `USER` root is shared with other
 /// per-user rows (ECONOMY), so only the WARNS subtree is removed.
+/// Deliberate real wipe (kept): !clear-all-warns.ts loops
+/// `for (const entries in DbData)` — `entries` is the array INDEX, so it
+/// deletes `USER.0.WARNS`, `USER.1.WARNS`, ... (keys that never exist)
+/// instead of the users' real WARNS rows (a TS bug); here the actual
+/// WARNS rows are deleted in both stores.
 async fn clear_all_warn_tables(pool: &crate::db::Pool, guild_id: &str) -> anyhow::Result<()> {
     use crate::commands::owner::main::{tbl_del, tbl_get_value};
     // LIKE `USER.%.WARNS` has a middle wildcard: scan the `USER.` rows via
@@ -41,6 +46,10 @@ async fn clear_all_warn_tables(pool: &crate::db::Pool, guild_id: &str) -> anyhow
     default_member_permissions = "ADMINISTRATOR"
 )]
 pub async fn mod_clear_all_warns(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
+    // Decline/timeout reply lives in the shared helper, mirroring the
+    // TS `else { setjoinroles_action_canceled }` branch
+    // (!clear-all-warns.ts): `prompt_reset_confirm` sends the cancel
+    // text and yields false, so this just returns.
     if !crate::commands::prompt_reset_confirm(
         &ctx,
         "clear_allwarns_confirmation_message",

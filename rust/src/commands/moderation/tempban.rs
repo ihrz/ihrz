@@ -93,12 +93,15 @@ pub async fn mod_tempban(
         ctx.say(t("tempban_already_banned")).await?;
         return Ok(());
     }
-    // Audit reason mirrors tempbanManager.addban: the plain reason text.
-    if guild_id
-        .ban_with_reason(ctx.http(), user.id, 0, &reason_s)
-        .await
-        .is_err()
-    {
+    // Audit reason mirrors tempbanManager.addban
+    // (src/core/modules/tempbanManager.ts): the raw reason text, and
+    // nothing when omitted (`reason || undefined` in !tempban.ts:153-158)
+    // — never the `var_no_set` display fallback, which is reply-only.
+    let ban_res = match reason.as_deref() {
+        Some(r) => guild_id.ban_with_reason(ctx.http(), user.id, 0, r).await,
+        None => guild_id.ban(ctx.http(), user.id, 0).await,
+    };
+    if ban_res.is_err() {
         ctx.say(t("tempban_i_dont_have_permission").replace("${client.iHorizon_Emojis.No}", &no))
             .await?;
         return Ok(());

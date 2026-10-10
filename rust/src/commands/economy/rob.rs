@@ -58,6 +58,10 @@ pub async fn eco_rob(
         return Ok(());
     }
     if b.money < ROB_MIN_MONEY {
+        // DELIBERATE KEEP on the name (`!rob.ts:112-120` casts
+        // `user.globalName as string` with no fallback): a serenity
+        // `User` carries no guild display name, so the username stands
+        // in rather than rendering "null".
         let target_name = user
             .global_name
             .clone()

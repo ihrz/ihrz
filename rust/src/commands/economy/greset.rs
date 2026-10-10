@@ -32,6 +32,7 @@ async fn clear_guild_econ(pool: &crate::db::Pool, guild_id: &str) -> anyhow::Res
     slash_command,
     prefix_command,
     rename = "greset",
+    aliases("economy-greset"),
     default_member_permissions = "ADMINISTRATOR"
 )]
 pub async fn eco_greset(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {

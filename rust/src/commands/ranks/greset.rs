@@ -46,6 +46,7 @@ pub async fn clear_guild_ranks(pool: &crate::db::Pool, guild_id: &str) -> anyhow
     slash_command,
     prefix_command,
     rename = "greset",
+    aliases("ranks-greset"),
     default_member_permissions = "ADMINISTRATOR"
 )]
 pub async fn ranks_greset(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {

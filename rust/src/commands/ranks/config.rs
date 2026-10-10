@@ -1,11 +1,13 @@
 use super::*;
 
-/// Third disable state. Mirrors `ranks/!config.ts:69-87`: `on` stores
-/// `true`, `off` stores boolean `false` (announce suppressed, XP still
-/// gained), `disable` stores the string `"disable"` (nothing is gained
-/// — see `xp_gain_blocked`). Unknown input does nothing, like TS.
+/// Third disable state. Mirrors `ranks/!config.ts:50,69,88`: the prefix
+/// path compares with case-sensitive `==`, so only the exact inputs
+/// `on` / `off` / `disable` act — `ON` or `OFF` do nothing in TS.
+/// `on` stores `true`, `off` stores boolean `false`, `disable` stores
+/// the string `"disable"` (nothing is gained — see `xp_gain_blocked`).
+/// Unknown input does nothing, like TS.
 pub fn config_value(action: &str) -> Option<&'static str> {
-    match action.to_ascii_lowercase().as_str() {
+    match action.trim() {
         "on" => Some("true"),
         "off" => Some("false"),
         "disable" => Some("disable"),
@@ -18,6 +20,7 @@ pub fn config_value(action: &str) -> Option<&'static str> {
     slash_command,
     prefix_command,
     rename = "config",
+    aliases("rconfig"),
     default_member_permissions = "ADMINISTRATOR"
 )]
 pub async fn ranks_config(

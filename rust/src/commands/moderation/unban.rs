@@ -62,16 +62,20 @@ pub async fn mod_unban(
         .http()
         .remove_ban(guild_id, ban.user.id, Some(&reason_s))
         .await;
-    // Clear any tempban row for the user, in both stores.
+    // Clear any tempban row for the user, in both stores. Deliberate
+    // harmless improvement (kept): !unban.ts has no tempban cleanup —
+    // without this the expiry sweep would later act on a stale row for
+    // an already-unbanned user.
     let gid = guild_id.get().to_string();
     let _ =
         crate::commands::owner::main::routed_del(&ctx.data().pool, &gid, &gid, &tempban_key(uid))
             .await;
     ctx.say(t("unban_is_now_unbanned").replace("${userID}", &uid.to_string()))
         .await?;
-    // Deliberate divergence from TS: !unban.ts posts the log
-    // unconditionally (even when the fetch fails or the target is not
-    // banned); here the log is gated on reaching the unban.
+    // Deliberate divergence from TS (kept): !unban.ts:106-116 posts the
+    // log unconditionally (even when the fetch fails or the target is
+    // not banned — a TS bug); here the log is gated on reaching the
+    // unban, so failures stay silent like the rest of the flow.
     post_mod_log(
         ctx.http(),
         guild_id,

@@ -29,13 +29,18 @@ fn normalize_snapshot(snap: &serde_json::Value) -> Option<BackupInfos> {
     slash_command,
     prefix_command,
     rename = "load",
-    aliases("restore", "backup-load"),
+    // No "restore" alias: TS only registers the backup-load prefix
+    // name (backup.ts prefixName), so the port keeps backup-load alone.
+    aliases("backup-load"),
     default_member_permissions = "ADMINISTRATOR"
 )]
 pub async fn backup_load(
     ctx: Ctx<'_>,
     #[description = "Backup id"] backup_id: String,
 ) -> Result<(), anyhow::Error> {
+    // Defer up front: the restore rewrites roles/channels/emojis/bans,
+    // past the 3s interaction token (backup.ts:260 `thinking: true`).
+    ctx.defer().await?;
     let gid = ctx
         .guild_id()
         .map(|g| g.get().to_string())
@@ -89,9 +94,14 @@ pub async fn backup_load(
     // !load.ts:90 (strangers get backup_this_is_not_your_backup).
     // Rust kv rows stay primary; TS-created snapshots only exist in the
     // shared `backups` table (global backupID), so the server owner (or
-    // an admin) may fall back to that shared row. Anyone else without
-    // a per-user pointer is rejected like the TS gate.
+    // an admin) may fall back to that shared row as a compat path.
+    // Anyone else without a per-user pointer is rejected like the TS
+    // gate. Kept deliberately: without it, snapshots taken by the TS
+    // bot would be unloadable from the port.
     let uid = ctx.author().id.get();
+    // Trimmed (deliberate keep): TS matches the raw id verbatim, but
+    // slash/prefix input often carries stray whitespace; trimming only
+    // widens exact-id hits, never mismatches.
     let id = backup_id.trim();
     let raw = match super::backup::bkp_get(&ctx.data().pool, uid, id).await {
         Some(raw) => Some(raw),
@@ -116,7 +126,20 @@ pub async fn backup_load(
         .await?;
         return Ok(());
     };
-    let snap: serde_json::Value = serde_json::from_str(&raw).unwrap_or(serde_json::Value::Null);
+    // Fetch failure mirrors the fetchBackup().catch leg in !load.ts:145
+    // (console.error + bare No-emoji channel message): the row exists
+    // but is not even JSON, so there is nothing to restore.
+    let snap: serde_json::Value = match serde_json::from_str(&raw) {
+        Ok(v) => v,
+        Err(e) => {
+            tracing::error!("backup {id} snapshot unreadable: {e}");
+            let no = crate::emojis::app_emoji_markup(ctx.http(), "No")
+                .await
+                .unwrap_or_else(|| "❌".to_string());
+            ctx.channel_id().say(ctx.http(), no).await?;
+            return Ok(());
+        }
+    };
     // Destructive restore needs an explicit yes. Mirrors the
     // promptYesOrNo gate in backup/!load.ts (abort -> backup_not_load).
     let content = crate::commands::lang_for(
@@ -170,33 +193,15 @@ pub async fn backup_load(
             )
             .await?;
             let opts = crate::commands::backup_restore::default_load_options();
-            let (roles, channels, emojis, bans) = crate::commands::backup_restore::restore_backup(
+            // TS !load.ts sends no success message after the restore
+            // (only the waiting notice before it), so stay silent here.
+            let _ = crate::commands::backup_restore::restore_backup(
                 ctx.http(),
                 guild_id,
                 &infos.data,
                 &opts,
             )
             .await;
-            // TS !load.ts sends no dedicated success string (the
-            // restore only reports counts upstream); reuse the closest
-            // existing key instead of hardcoding.
-            let code =
-                crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-            ctx.say(
-                crate::lang::get(&code, "msg_restored_keys")
-                    .map(|s| {
-                        s.replace("{roles}", &roles.to_string())
-                            .replace("{channels}", &channels.to_string())
-                            .replace("{emojis}", &emojis.to_string())
-                            .replace("{bans}", &bans.to_string())
-                    })
-                    .unwrap_or_else(|| {
-                        format!(
-                            "Restored {roles} roles, {channels} channels, {emojis} emojis, {bans} bans."
-                        )
-                    }),
-            )
-            .await?;
             return Ok(());
         }
         // Corrupt snapshot: neither kv entries nor a guild backup.

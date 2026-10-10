@@ -124,9 +124,16 @@ pub async fn eco_shop(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let text = |k: &str, fb: &str| crate::lang::get(&code, k).unwrap_or_else(|| fb.to_string());
     let uid = ctx.author().id.get();
     let base = balance::load_econ_routed(pool, &gid, uid).await;
-    // Restore sweep: re-grant owned roles the member is missing, like
-    // the !shop.ts owned-roles loop ("[Economy Shop] Role was not given
-    // to the user."). Purchases themselves go through /economy buy.
+    // Restore sweep: re-grant owned roles the member is missing.
+    // DELIBERATE KEEP (extends `economy/!shop.ts:143-150`): the TS
+    // restore loop sits behind `selectMenuOptions.length === 0`, which is
+    // unreachable dead code — the options map 1:1 over a non-empty
+    // `buyableRolesArray` (the empty case returns earlier at `:89-94`),
+    // so TS never re-grants. The Rust side runs the sweep on every shop
+    // open with the same reason string ("[Economy Shop] Role was not
+    // given to the user."), because silently keeping paid roles
+    // ungranted is the worse behaviour. Purchases themselves go through
+    // /economy buy.
     if let Some(guild_id) = ctx.guild_id() {
         if let Ok(member) = guild_id.member(ctx.http(), ctx.author().id).await {
             for role_id in &base.owned_roles {

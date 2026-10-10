@@ -1,6 +1,15 @@
 use super::*;
 
 /// Restrict backups to guild owner. Mirrors !manage.ts (onlyOwner).
+/// Owner-only scope resolution. Mirrors !manage.ts:61-65: slash offers
+/// only the `owner`/`admin` choices (backup.ts:230-251), and the prefix
+/// path reads the raw word at args[1] (`string(args, 1)`); only the
+/// exact `"owner"` string enables owner-only, everything else
+/// (unknown words, missing arg) falls into the admin leg.
+pub fn manage_owner_only(scope: Option<&str>) -> bool {
+    scope == Some("owner")
+}
+
 #[poise::command(
     slash_command,
     prefix_command,
@@ -9,7 +18,7 @@ use super::*;
 )]
 pub async fn backup_manage(
     ctx: Ctx<'_>,
-    #[description = "owner or admin"] scope: String,
+    #[description = "owner or admin"] scope: Option<String>,
 ) -> Result<(), anyhow::Error> {
     let gid = ctx
         .guild_id()
@@ -32,7 +41,7 @@ pub async fn backup_manage(
         .await?;
         return Ok(());
     }
-    let owner_only = matches!(scope.to_ascii_lowercase().as_str(), "owner");
+    let owner_only = manage_owner_only(scope.as_deref());
     crate::db::kv_set(
         &ctx.data().pool,
         &gid,
@@ -67,4 +76,19 @@ pub async fn backup_manage(
     )
     .await?;
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::manage_owner_only;
+
+    #[test]
+    fn scope_matches_ts_branches() {
+        // Exact "owner" only (!manage.ts:61); unknown/missing -> admin.
+        assert!(manage_owner_only(Some("owner")));
+        assert!(!manage_owner_only(Some("admin")));
+        assert!(!manage_owner_only(Some("OWNER")));
+        assert!(!manage_owner_only(Some("whatever")));
+        assert!(!manage_owner_only(None));
+    }
 }

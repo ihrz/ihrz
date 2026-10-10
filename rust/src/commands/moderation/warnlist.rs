@@ -2,11 +2,13 @@ use super::banlist::{clamp_page_idx, dead_row, nav_buttons};
 use super::*;
 use poise::serenity_prelude as serenity;
 
-/// Escape backticks in a warnlist field. Mirrors the TS
-/// `.replace("`", "\\`")` calls: JS `String.replace` with a string
-/// pattern replaces the first occurrence only.
+/// Escape every backtick in a warnlist field so the `` `reason` `` code
+/// fence cannot break. !warnlist.ts:94-100 uses JS `.replace("`",
+/// ...)` (string pattern: first occurrence only); global here is a
+/// deliberate fix — a reason with two or more backticks would
+/// otherwise render broken.
 fn escape_warn_field(s: &str) -> String {
-    s.replacen('`', "\\`", 1)
+    s.replace('`', "\\`")
 }
 
 /// Author mention for a warn row. Legacy rows (and rows without a
@@ -183,8 +185,11 @@ mod tests {
     }
 
     #[test]
-    fn escape_warn_field_mirrors_js_replace() {
-        assert_eq!(escape_warn_field("a`b`c"), "a\\`b`c");
+    fn escape_warn_field_is_global() {
+        // JS `.replace` with a string pattern stops at the first
+        // backtick (!warnlist.ts:94-100); Rust escapes all of them so
+        // multi-backtick reasons cannot break the code fence.
+        assert_eq!(escape_warn_field("a`b`c"), "a\\`b\\`c");
         assert_eq!(escape_warn_field("plain"), "plain");
     }
 

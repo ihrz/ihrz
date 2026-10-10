@@ -731,19 +731,28 @@ pub async fn restore_backup(
     if opts.clear_guild_before_restore {
         clear_guild(http, guild_id).await;
     }
+    // Independent legs run together like the Promise.all in index.ts
+    // load(). Roles stay sequential before channels on purpose: the
+    // overwrite pass resolves role names against the live guild roles,
+    // so channels must see the restored roles (role-referencing order).
     restore_config(http, guild_id, data).await;
     restore_roles(http, guild_id, data).await;
-    restore_channels(http, guild_id, data, opts).await;
-    restore_afk(http, guild_id, data).await;
-    let emojis = restore_emojis(http, guild_id, data).await;
-    let bans = restore_bans(http, guild_id, data).await;
-    restore_widget(http, guild_id, data).await;
-    (
-        data.roles.len(),
-        data.channels.categories.len() + data.channels.others.len(),
-        emojis,
-        bans,
-    )
+    let ((), emojis, bans, (), ()) = tokio::join!(
+        restore_channels(http, guild_id, data, opts),
+        restore_emojis(http, guild_id, data),
+        restore_bans(http, guild_id, data),
+        restore_afk(http, guild_id, data),
+        restore_widget(http, guild_id, data),
+    );
+    // Channel count mirrors the !create.ts:75-80 meta (category
+    // children only; `others` are never counted).
+    let channels = data
+        .channels
+        .categories
+        .iter()
+        .map(|c| c.children.len())
+        .sum::<usize>();
+    (data.roles.len(), channels, emojis, bans)
 }
 
 #[cfg(test)]

@@ -39,8 +39,10 @@ pub async fn save_ignore_routed(
     rename = "ignore-add",
     default_member_permissions = "ADMINISTRATOR"
 )]
-// One channel per call (toggle). The TS path (!ignore-channels.ts) is a
-// multi channel-select panel; poise 0.6 registers `Vec<T>` slash params as
+// One channel per call (toggle). DELIBERATE KEEP (differs from
+// `ranks/!ignore-channels.ts:78-87,125-145`): the TS path is a multi
+// channel-select panel (`setMaxValues(25)`, save button persists the
+// whole selection); poise 0.6 registers `Vec<T>` slash params as
 // a single optional option (0-or-1 values, no multi-select parity), so the
 // flattened slash/prefix form stays single-channel — repeat per channel.
 pub async fn ranks_ignore_add(
@@ -70,11 +72,16 @@ pub async fn ranks_ignore_add(
     Ok(())
 }
 
+/// List ignored channels.
+// The TS `ignore-channels` panel (`ranks.ts:333-348`) requires
+// Administrator for the whole panel (view included), so this leaf
+// carries the same gate.
 #[poise::command(
     slash_command,
     prefix_command,
     rename = "ignore-list",
-    aliases("ignore")
+    aliases("ignore", "ranks-ignore-channels"),
+    default_member_permissions = "ADMINISTRATOR"
 )]
 pub async fn ranks_ignore_list(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let gid = ctx

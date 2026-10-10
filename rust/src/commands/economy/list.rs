@@ -5,6 +5,7 @@ use super::*;
     slash_command,
     prefix_command,
     rename = "role-list",
+    aliases("economy-role-list"),
     default_member_permissions = "MANAGE_GUILD"
 )]
 pub async fn eco_role_list(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {

@@ -39,11 +39,12 @@ pub async fn load_tuning_routed(pool: &crate::db::Pool, guild_id: &str, kind: &s
 }
 
 /// Free-text tuning-kind path. Mirrors `!set-cooldown.ts:60-61`: the
-/// prefix path takes `method.string(args, 0)` verbatim with no
-/// registry check, so any kind string is accepted and normalised for
-/// the `ECONOMY.settings.{kind}.cooldown` leaf key.
+/// prefix path takes `method.string(args, 0)` verbatim with no case
+/// folding and no registry check, so the kind is stored under
+/// `ECONOMY.settings.{kind}.cooldown` exactly as typed (slash choices
+/// already constrain to lowercase `rob`/`work`).
 pub fn normalize_cooldown_kind(kind: &str) -> String {
-    kind.trim().to_ascii_lowercase()
+    kind.trim().to_string()
 }
 
 /// Mirrors `!set-cooldown.ts`.
@@ -117,8 +118,9 @@ mod tests {
 
     #[test]
     fn cooldown_kind_normalises_free_text() {
-        assert_eq!(normalize_cooldown_kind(" Work "), "work");
-        assert_eq!(normalize_cooldown_kind("DAILY"), "daily");
+        // Mirrors `!set-cooldown.ts:60-61`: verbatim, no case folding.
+        assert_eq!(normalize_cooldown_kind(" Work "), "Work");
+        assert_eq!(normalize_cooldown_kind("daily"), "daily");
     }
 
     async fn mem_pool() -> crate::db::Pool {

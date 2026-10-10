@@ -36,7 +36,7 @@ fn preview_block(
     slash_command,
     prefix_command,
     rename = "message",
-    aliases("msg"),
+    aliases("msg", "ranks-message"),
     default_member_permissions = "ADMINISTRATOR"
 )]
 pub async fn ranks_msg(

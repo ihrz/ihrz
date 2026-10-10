@@ -23,6 +23,16 @@ pub const GW_ENTRIES_PAGE_PREFIX: &str = "gw-entries:";
 /// Winners link button on ended boards. Mirrors the Finnish button.
 pub const GW_FINISH_URL: &str =
     "https://media.tenor.com/uO4u0ib3oK0AAAAC/done-and-done-spongebob.gif";
+/// Seconds a stateless entries pager stays usable. Mirrors the 15-min
+/// `createMessageComponentCollector({ time: 60_000 * 15 })` in
+/// listEntries (giveawaysManager.ts:704-707); the Rust buttons carry
+/// their creation timestamp in the custom id instead.
+pub const GW_PAGER_TTL_SECS: i64 = 15 * 60;
+/// Seconds a stateless leave-confirm stays usable. Mirrors the 60s
+/// collector in removeEntries (giveawaysManager.ts:278-281); the Rust
+/// prompt reuses the ephemeral message age instead (the locked
+/// component router only parses `giveaway-leave:<mid>`).
+pub const GW_LEAVE_TTL_SECS: i64 = 60;
 /// Entries pager page size. Mirrors usersPerPage in listEntries.
 pub const GW_ENTRIES_PER_PAGE: usize = 10;
 
@@ -41,12 +51,116 @@ pub fn gw_entries_page_id_for(message_id: u64, page: usize, invoker: u64) -> Str
 /// the legacy `gw-entries:<mid>:<page>` and the invoker-carrying
 /// `gw-entries:<mid>:<page>:<invoker>` shapes.
 pub fn parse_gw_entries_page_id(id: &str) -> Option<(u64, usize, Option<u64>)> {
+    let (mid, page, invoker, _) = parse_gw_entries_page_full(id)?;
+    Some((mid, page, invoker))
+}
+
+/// Full pager-id parse: `gw-entries:<mid>:<page>[:<invoker>[:<ts>]]`.
+/// Legacy ids carry no invoker/timestamp; the timestamped shape is
+/// emitted by `gw_entries_page_id_for_ts` (GW9 expiry).
+pub fn parse_gw_entries_page_full(id: &str) -> Option<(u64, usize, Option<u64>, Option<i64>)> {
     let rest = id.strip_prefix(GW_ENTRIES_PAGE_PREFIX)?;
     let mut parts = rest.split(':');
     let mid = parts.next()?.parse::<u64>().ok()?;
     let page = parts.next()?.parse::<usize>().ok()?;
     let invoker = parts.next().and_then(|s| s.parse::<u64>().ok());
-    Some((mid, page, invoker))
+    let ts = parts.next().and_then(|s| s.parse::<i64>().ok());
+    Some((mid, page, invoker, ts))
+}
+
+/// Pager id carrying viewer + creation time, for the 15-min TS window.
+/// Mirrors listEntries' `createMessageComponentCollector({ time })`.
+pub fn gw_entries_page_id_for_ts(
+    message_id: u64,
+    page: usize,
+    invoker: u64,
+    created_secs: i64,
+) -> String {
+    format!("{GW_ENTRIES_PAGE_PREFIX}{message_id}:{page}:{invoker}:{created_secs}")
+}
+
+/// True when a timestamped pager id is older than GW_PAGER_TTL_SECS.
+/// Ids without a timestamp predate expiry (grandfathered, like the old
+/// stateless buttons); clock skew into the future never expires.
+pub fn pager_id_expired(created_secs: Option<i64>, now_secs: i64) -> bool {
+    created_secs
+        .map(|ts| now_secs.saturating_sub(ts) > GW_PAGER_TTL_SECS)
+        .unwrap_or(false)
+}
+
+/// Full-fidelity duration parser. Mirrors `client.timeCalculator.to_ms`
+/// (src/core/functions/ms.ts), which !create.ts feeds raw into: greedy
+/// `<signed float><unit-letters>` tokens are summed, so compounds like
+/// `1h30m` work and FR/EN aliases, weeks, months and years resolve.
+/// Bare numbers match no token and total 0 (invalid, like the TS
+/// `!duration` gate); negatives keep their sign (a non-zero TS total is
+/// truthy, i.e. accepted). A giveaway-local copy: the shared
+/// `shared::parse_duration_ms` is single-unit only and owned by other
+/// modules with their own tests.
+pub fn gw_parse_duration_ms(raw: &str) -> Option<i64> {
+    fn mult(unit: &str) -> i64 {
+        match unit {
+            "ms" | "msec" | "millisecond" | "milliseconds" | "milliseconde" | "millisecondes" => 1,
+            "s" | "sec" | "secs" | "second" | "seconds" | "seconde" | "secondes" => 1_000,
+            "m" | "min" | "mins" | "minute" | "minutes" => 60_000,
+            "h" | "hr" | "hrs" | "hour" | "hours" | "heure" | "heures" => 3_600_000,
+            "d" | "day" | "days" | "j" | "jour" | "jours" => 86_400_000,
+            "w" | "sm" | "week" | "weeks" | "semaine" | "semaines" => 604_800_000,
+            "mo" | "mois" | "month" | "months" => 2_592_000_000,
+            "y" | "yr" | "yrs" | "year" | "years" | "an" | "ans" => 31_557_600_000,
+            // Unknown units contribute value * 0 like the TS
+            // `multipliers[unit] ?? 0` fallback.
+            _ => 0,
+        }
+    }
+    fn num_start_at(b: &[u8], i: usize) -> bool {
+        if b[i].is_ascii_digit() {
+            return true;
+        }
+        let after = |j: usize| b.get(j).copied().unwrap_or(0);
+        if b[i] == b'.' && after(i + 1).is_ascii_digit() {
+            return true;
+        }
+        if b[i] == b'-' {
+            return after(i + 1).is_ascii_digit()
+                || (after(i + 1) == b'.' && after(i + 2).is_ascii_digit());
+        }
+        false
+    }
+    let s = raw.trim().to_ascii_lowercase().replacen(' ', "", 1); // like the TS `replace(" ", "")`: only the first space
+    if s.is_empty() {
+        return None;
+    }
+    let b = s.as_bytes();
+    let mut i = 0;
+    let mut total: f64 = 0.0;
+    while i < b.len() {
+        if !num_start_at(b, i) {
+            i += 1;
+            continue;
+        }
+        let mut j = i + usize::from(b[i] == b'-');
+        while j < b.len() && (b[j].is_ascii_digit() || b[j] == b'.') {
+            j += 1;
+        }
+        let num: f64 = s[i..j].parse().unwrap_or(0.0);
+        let mut k = j;
+        while k < b.len() && b[k].is_ascii_alphabetic() {
+            k += 1;
+        }
+        if k == j {
+            // Bare number with no unit: no TS token, contributes nothing.
+            i = j;
+            continue;
+        }
+        total += num * mult(&s[j..k]) as f64;
+        i = k;
+    }
+    if total == 0.0 {
+        None
+    } else {
+        Some(total as i64)
+    }
 }
 
 /// Split entries into (title, description) pages of
@@ -108,7 +222,7 @@ pub fn stamp_pair(expire_in_ms: i64) -> (String, String) {
     (format!("<t:{secs}:R>"), format!("<t:{secs}:D>"))
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize)]
 pub struct Giveaway {
     pub guild_id: String,
     pub channel_id: String,
@@ -116,34 +230,123 @@ pub struct Giveaway {
     pub prize: String,
     pub hosted_by: String,
     pub expire_in_ms: i64,
-    #[serde(default)]
     pub ended: bool,
-    #[serde(default)]
     pub entries: Vec<String>,
-    #[serde(default)]
     pub winners: Vec<String>,
     /// none | invites | messages | roles (mirrors create requirement choice).
-    #[serde(default = "default_req")]
     pub requirement: String,
-    #[serde(default)]
     pub requirement_value: String,
     /// Stored validity flag. Mirrors `isValid: true` written by
     /// create() in giveawaysManager.ts:166 and read by
     /// !get-data.ts:104-109. Old rows without the flag count as valid.
-    #[serde(default = "default_true")]
     pub is_valid: bool,
     /// Validated embed image URL (mirrors create embedImageURL via
     /// mediaManipulation.isImageUrl; display rework pending).
-    #[serde(default)]
     pub embed_image_url: Option<String>,
 }
 
-fn default_req() -> String {
-    "none".to_string()
-}
-
-fn default_true() -> bool {
-    true
+// Custom deserializer: TS rows (types/giveaways.d.ts) use camelCase
+// keys, a numeric `ended` enum (1 = ENDED, 2 = NOT_ENDED), an ISO
+// `expireIn` Date, a nested `requirement: { type, value }` object and
+// `winners: string[] | string`. Accept both shapes so legacy TS rows
+// and Rust rows parse into one struct; serialization stays snake_case.
+impl<'de> Deserialize<'de> for Giveaway {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        let v = serde_json::Value::deserialize(deserializer)?;
+        let get = |snake: &str, camel: &str| -> Option<&serde_json::Value> {
+            v.get(snake).or_else(|| v.get(camel))
+        };
+        let text = |snake: &str, camel: &str| -> String {
+            get(snake, camel)
+                .and_then(|x| x.as_str())
+                .unwrap_or_default()
+                .to_string()
+        };
+        // String-or-string[] list. A lone string wraps to one entry,
+        // except the winners `"None"` sentinel (finish() stores
+        // `winner || "None"`) which means no winners.
+        let str_list = |key: &str, none_means_empty: bool| -> Vec<String> {
+            match v.get(key) {
+                Some(serde_json::Value::Array(a)) => a
+                    .iter()
+                    .filter_map(|x| {
+                        x.as_str().map(|s| s.to_string()).or_else(|| {
+                            x.as_u64()
+                                .map(|n| n.to_string())
+                                .or_else(|| x.as_i64().map(|n| n.to_string()))
+                        })
+                    })
+                    .collect(),
+                Some(serde_json::Value::String(s)) if s.is_empty() => vec![],
+                Some(serde_json::Value::String(s)) if none_means_empty && s == "None" => {
+                    vec![]
+                }
+                Some(serde_json::Value::String(s)) => vec![s.clone()],
+                _ => vec![],
+            }
+        };
+        let ended = match v.get("ended") {
+            Some(serde_json::Value::Bool(b)) => *b,
+            // GiveawayEndedStatus: ENDED = 1, NOT_ENDED = 2.
+            Some(serde_json::Value::Number(n)) => n.as_i64().map(|i| i == 1).unwrap_or(false),
+            _ => false,
+        };
+        let expire_in_ms = match get("expire_in_ms", "expireIn") {
+            Some(serde_json::Value::Number(n)) => n.as_i64().unwrap_or(0),
+            Some(serde_json::Value::String(s)) => s.parse::<i64>().unwrap_or_else(|_| {
+                chrono::DateTime::parse_from_rfc3339(s)
+                    .map(|d| d.timestamp_millis())
+                    .unwrap_or(0)
+            }),
+            _ => 0,
+        };
+        let (requirement, requirement_value) = match v.get("requirement") {
+            Some(serde_json::Value::String(s)) => (
+                s.clone(),
+                v.get("requirement_value")
+                    .or_else(|| v.get("requirementValue"))
+                    .and_then(|x| x.as_str())
+                    .unwrap_or_default()
+                    .to_string(),
+            ),
+            Some(obj) if obj.is_object() => (
+                obj.get("type")
+                    .and_then(|x| x.as_str())
+                    .unwrap_or("none")
+                    .to_string(),
+                obj.get("value")
+                    .and_then(|x| x.as_str())
+                    .unwrap_or_default()
+                    .to_string(),
+            ),
+            _ => ("none".to_string(), String::new()),
+        };
+        Ok(Giveaway {
+            guild_id: text("guild_id", "guildId"),
+            channel_id: text("channel_id", "channelId"),
+            winner_count: get("winner_count", "winnerCount")
+                .and_then(|x| x.as_u64().or_else(|| x.as_f64().map(|f| f as u64)))
+                .unwrap_or(1) as u32,
+            prize: text("prize", "prize"),
+            hosted_by: text("hosted_by", "hostedBy"),
+            expire_in_ms,
+            ended,
+            entries: str_list("entries", false),
+            winners: str_list("winners", true),
+            requirement,
+            requirement_value,
+            is_valid: get("is_valid", "isValid")
+                .and_then(|x| x.as_bool())
+                .unwrap_or(true),
+            embed_image_url: get("embed_image_url", "embedImageURL")
+                .and_then(|x| x.as_str())
+                .filter(|u| !u.is_empty())
+                .map(|u| u.to_string()),
+        })
+    }
 }
 
 /// Requirement gate. Mirrors the entry checks in giveawaysManager.
@@ -487,6 +690,33 @@ pub async fn handle_giveaway_entry(
         .await
         .map(|m| m.roles.iter().map(|r| r.get()).collect())
         .unwrap_or_default();
+    let uid = comp.user.id.get().to_string();
+    // Already-entered check comes first like addEntries
+    // (giveawaysManager.ts:184-187): a re-press opens the
+    // leave-confirm even when the requirement would now fail.
+    if entries.iter().any(|e| e == &uid) {
+        // Already in: leave-confirm step (60s TS collector becomes a
+        // stateless leave button carrying the board id).
+        let content =
+            t("event_gw_confirm_leave_msg").replace("${interaction.user}", &comp.user.to_string());
+        let row = serenity::CreateActionRow::Buttons(vec![serenity::CreateButton::new(format!(
+            "{GW_LEAVE_ID}:{mid}"
+        ))
+        .label(t("event_gw_leave_button_placeholder"))
+        .style(serenity::ButtonStyle::Danger)]);
+        let _ = comp
+            .create_response(
+                http,
+                serenity::CreateInteractionResponse::Message(
+                    serenity::CreateInteractionResponseMessage::new()
+                        .content(content)
+                        .components(vec![row])
+                        .ephemeral(true),
+                ),
+            )
+            .await;
+        return;
+    }
     if !check_requirement(
         pool,
         &gid,
@@ -510,30 +740,6 @@ pub async fn handle_giveaway_entry(
                 serenity::CreateInteractionResponse::Message(
                     serenity::CreateInteractionResponseMessage::new()
                         .content(content)
-                        .ephemeral(true),
-                ),
-            )
-            .await;
-        return;
-    }
-    let uid = comp.user.id.get().to_string();
-    if entries.iter().any(|e| e == &uid) {
-        // Already in: leave-confirm step (60s TS collector becomes a
-        // stateless leave button carrying the board id).
-        let content =
-            t("event_gw_confirm_leave_msg").replace("${interaction.user}", &comp.user.to_string());
-        let row = serenity::CreateActionRow::Buttons(vec![serenity::CreateButton::new(format!(
-            "{GW_LEAVE_ID}:{mid}"
-        ))
-        .label(t("event_gw_leave_button_placeholder"))
-        .style(serenity::ButtonStyle::Danger)]);
-        let _ = comp
-            .create_response(
-                http,
-                serenity::CreateInteractionResponse::Message(
-                    serenity::CreateInteractionResponseMessage::new()
-                        .content(content)
-                        .components(vec![row])
                         .ephemeral(true),
                 ),
             )
@@ -591,6 +797,28 @@ pub async fn handle_giveaway_leave(
         return;
     };
     let gid = guild_id.get().to_string();
+    // Stateless expiry for the 60s TS collector (removeEntries,
+    // giveawaysManager.ts:278-281): the prompt is the ephemeral message
+    // carrying this button, so its age is the collector age. An expired
+    // prompt loses its buttons like the TS collector-end cleanup, and
+    // the press is dropped without touching entries.
+    let now_secs = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|d| d.as_secs() as i64)
+        .unwrap_or(0);
+    if now_secs.saturating_sub(comp.message.timestamp.unix_timestamp()) > GW_LEAVE_TTL_SECS {
+        let _ = comp
+            .create_response(
+                http,
+                serenity::CreateInteractionResponse::UpdateMessage(
+                    serenity::CreateInteractionResponseMessage::new()
+                        .content(comp.message.content.clone())
+                        .components(vec![]),
+                ),
+            )
+            .await;
+        return;
+    }
     let code = crate::db::guild_lang(pool, Some(guild_id.get())).await;
     let t = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
     let mut entries: Vec<String> = load_giveaway(pool, &gid, mid)
@@ -721,6 +949,7 @@ pub async fn render_entries_page<F: Fn(&str) -> String>(
     }
     let page = page.min(pages.len() - 1);
     let (footer_name, icon) = giveaway_footer(pool, http, gid).await;
+    let now_secs = crate::commands::schedule::main::now_ms() / 1000;
     let footer = format!(
         "{} • {} {}/{}",
         footer_name,
@@ -733,10 +962,17 @@ pub async fn render_entries_page<F: Fn(&str) -> String>(
         .title(pages[page].0.clone())
         .description(pages[page].1.clone())
         .footer(serenity::CreateEmbedFooter::new(footer).icon_url("attachment://footer_icon.png"))
-        .timestamp(unix_ts(crate::commands::schedule::main::now_ms() / 1000));
+        .timestamp(unix_ts(now_secs));
     let mut components = vec![];
     if pages.len() > 1 {
-        components.push(entries_pager_row(mid, page, pages.len(), invoker));
+        components.push(entries_pager_row(
+            mid,
+            page,
+            pages.len(),
+            invoker,
+            now_secs,
+            false,
+        ));
     }
     Some((embed, components, icon))
 }
@@ -784,10 +1020,11 @@ pub async fn send_entries_page(
         .await;
 }
 
-/// Entries pager press (`gw-entries:<mid>:<page>[:<invoker>]`).
-/// Wrap-around paging like listEntries; presses carry the viewing
-/// invoker in the button id (the 15-min TS collector filtered by
-/// member id instead).
+/// Entries pager press (`gw-entries:<mid>:<page>[:<invoker>[:<ts>]]`).
+/// Wrap-around paging like listEntries. Only the viewer who opened the
+/// list may turn pages (the 15-min TS collector filtered by member id
+/// instead); presses on an expired list re-render the page disabled
+/// like the TS collector-end cleanup.
 pub async fn handle_giveaway_entries_page(
     http: &std::sync::Arc<serenity::Http>,
     pool: &crate::db::Pool,
@@ -799,6 +1036,16 @@ pub async fn handle_giveaway_entries_page(
         return;
     };
     let gid = guild_id.get().to_string();
+    let presser = comp.user.id.get();
+    let (_, _, id_invoker, id_ts) =
+        parse_gw_entries_page_full(&comp.data.custom_id).unwrap_or((mid, page, None, None));
+    if let Some(invoker) = id_invoker {
+        if invoker != presser {
+            return;
+        }
+    }
+    let now_secs = crate::commands::schedule::main::now_ms() / 1000;
+    let expired = pager_id_expired(id_ts, now_secs);
     let code = crate::db::guild_lang(pool, Some(guild_id.get())).await;
     let t = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
     let Some(v) = load_giveaway(pool, &gid, mid).await else {
@@ -817,7 +1064,11 @@ pub async fn handle_giveaway_entries_page(
     }
     // Wrap-around like the TS previousPage/nextPage collector.
     let page = page % pages.len();
-    let invoker = Some(comp.user.id.get());
+    // The creation timestamp rides along in the button id so the
+    // 15-min window stays fixed from the list open (a fresh ts here
+    // would slide it on every press, unlike the TS collector).
+    let created = id_ts.unwrap_or(now_secs);
+    let invoker = id_invoker.or(Some(presser));
     let (footer_name, icon) = giveaway_footer(pool, http, &gid).await;
     let embed = serenity::CreateEmbed::default()
         .colour(serenity::Colour::new(GW_COLOR))
@@ -836,7 +1087,14 @@ pub async fn handle_giveaway_entries_page(
         .timestamp(unix_ts(crate::commands::schedule::main::now_ms() / 1000));
     let mut msg = serenity::CreateInteractionResponseMessage::new()
         .embed(embed)
-        .components(vec![entries_pager_row(mid, page, pages.len(), invoker)]);
+        .components(vec![entries_pager_row(
+            mid,
+            page,
+            pages.len(),
+            invoker,
+            created,
+            expired,
+        )]);
     if let Some(bytes) = icon {
         msg = msg.add_file(serenity::CreateAttachment::bytes(bytes, "footer_icon.png"));
     }
@@ -850,15 +1108,19 @@ pub async fn handle_giveaway_entries_page(
 
 /// Pager row for the entries list. Page rides in the button ids
 /// (stateless; the 15-min TS collector has no equivalent). Wrap-around
-/// like listEntries; the viewing invoker rides along when known.
+/// like listEntries; the viewing invoker and the list creation time
+/// ride along when known (`gw-entries:<mid>:<page>:<invoker>:<ts>`).
+/// An expired list renders disabled like the TS collector-end cleanup.
 pub fn entries_pager_row(
     message_id: u64,
     page: usize,
     pages: usize,
     invoker: Option<u64>,
+    created_secs: i64,
+    disabled: bool,
 ) -> serenity::CreateActionRow {
     let id = |p: usize| match invoker {
-        Some(uid) => gw_entries_page_id_for(message_id, p, uid),
+        Some(uid) => gw_entries_page_id_for_ts(message_id, p, uid, created_secs),
         None => gw_entries_page_id(message_id, p),
     };
     let prev = if page == 0 {
@@ -867,15 +1129,16 @@ pub fn entries_pager_row(
         page - 1
     };
     let next = (page + 1) % pages;
+    let off = pages <= 1 || disabled;
     serenity::CreateActionRow::Buttons(vec![
         serenity::CreateButton::new(id(prev))
             .label("<<<")
             .style(serenity::ButtonStyle::Secondary)
-            .disabled(pages <= 1),
+            .disabled(off),
         serenity::CreateButton::new(id(next))
             .label(">>>")
             .style(serenity::ButtonStyle::Secondary)
-            .disabled(pages <= 1),
+            .disabled(off),
     ])
 }
 
@@ -1009,6 +1272,87 @@ mod tests {
         assert!(pages[0].1.ends_with("10. <@10>"));
         assert_eq!(pages[1].1, "11. <@11>\n12. <@12>");
         assert!(entries_pages("T", &[]).is_empty());
+    }
+
+    #[test]
+    fn duration_parser_mirrors_ts_time_calculator() {
+        // Single units.
+        assert_eq!(gw_parse_duration_ms("10s"), Some(10_000));
+        assert_eq!(gw_parse_duration_ms("5m"), Some(300_000));
+        assert_eq!(gw_parse_duration_ms("2h"), Some(7_200_000));
+        assert_eq!(gw_parse_duration_ms("7d"), Some(604_800_000));
+        assert_eq!(gw_parse_duration_ms("500ms"), Some(500));
+        // Compound sums.
+        assert_eq!(gw_parse_duration_ms("1h30m"), Some(5_400_000));
+        assert_eq!(gw_parse_duration_ms("1h 30m"), Some(5_400_000));
+        // Floats.
+        assert_eq!(gw_parse_duration_ms("1.5h"), Some(5_400_000));
+        // Weeks / months / years + FR aliases.
+        assert_eq!(gw_parse_duration_ms("1w"), Some(604_800_000));
+        assert_eq!(gw_parse_duration_ms("2 semaines"), Some(2 * 604_800_000));
+        assert_eq!(gw_parse_duration_ms("1mois"), Some(2_592_000_000));
+        assert_eq!(gw_parse_duration_ms("1an"), Some(31_557_600_000));
+        assert_eq!(gw_parse_duration_ms("3 jours"), Some(3 * 86_400_000));
+        assert_eq!(gw_parse_duration_ms("1hour"), Some(3_600_000));
+        // Bare numbers total 0 like the TS `!duration` gate.
+        assert_eq!(gw_parse_duration_ms("10"), None);
+        assert_eq!(gw_parse_duration_ms(""), None);
+        assert_eq!(gw_parse_duration_ms("abc"), None);
+        assert_eq!(gw_parse_duration_ms("0s"), None);
+        assert_eq!(gw_parse_duration_ms("10x"), None);
+        // Negatives keep their sign (non-zero TS totals are truthy).
+        assert_eq!(gw_parse_duration_ms("-5m"), Some(-300_000));
+    }
+
+    #[test]
+    fn pager_ids_carry_invoker_and_expiry() {
+        assert_eq!(
+            gw_entries_page_id_for_ts(9, 2, 42, 1000),
+            "gw-entries:9:2:42:1000"
+        );
+        assert_eq!(
+            parse_gw_entries_page_full("gw-entries:9:2:42:1000"),
+            Some((9, 2, Some(42), Some(1000)))
+        );
+        // Legacy shapes still parse with no timestamp.
+        assert_eq!(
+            parse_gw_entries_page_full("gw-entries:9:2:42"),
+            Some((9, 2, Some(42), None))
+        );
+        assert_eq!(
+            parse_gw_entries_page_full("gw-entries:9:2"),
+            Some((9, 2, None, None))
+        );
+        // 15-min window; missing timestamps are grandfathered.
+        assert!(!pager_id_expired(Some(1000), 1000 + GW_PAGER_TTL_SECS));
+        assert!(pager_id_expired(Some(1000), 1001 + GW_PAGER_TTL_SECS));
+        assert!(!pager_id_expired(None, i64::MAX));
+        assert!(!pager_id_expired(Some(2000), 1000));
+    }
+
+    #[test]
+    fn legacy_ts_rows_parse() {
+        // TS-shaped row: numeric ended enum, ISO expireIn, nested
+        // requirement, camelCase keys (types/giveaways.d.ts).
+        let raw = r#"{"isValid":true,"guildId":"g","channelId":"c","entries":["a"],"winners":[],"winnerCount":1,"prize":"p","hostedBy":"h","ended":2,"expireIn":"2030-01-01T00:00:00.000Z","embedImageURL":null,"requirement":{"type":"roles","value":"9"}}"#;
+        let gw: Giveaway = serde_json::from_str(raw).unwrap();
+        assert!(!gw.ended);
+        assert!(gw.is_valid);
+        assert_eq!(gw.requirement, "roles");
+        assert_eq!(gw.requirement_value, "9");
+        assert!(gw.expire_in_ms > 1_800_000_000_000);
+        // ENDED = 1 reads as ended.
+        let ended_raw = raw.replace("\"ended\":2", "\"ended\":1");
+        let ended: Giveaway = serde_json::from_str(&ended_raw).unwrap();
+        assert!(ended.ended);
+        // Winners as a string: "None" sentinel means empty.
+        let s = r#"{"guildId":"g","winners":"None"}"#;
+        let gw2: Giveaway = serde_json::from_str(s).unwrap();
+        assert!(gw2.winners.is_empty());
+        // expireIn as raw ms number.
+        let n = r#"{"guildId":"g","expireIn":1700000000000}"#;
+        let gw3: Giveaway = serde_json::from_str(n).unwrap();
+        assert_eq!(gw3.expire_in_ms, 1_700_000_000_000);
     }
 
     #[tokio::test]

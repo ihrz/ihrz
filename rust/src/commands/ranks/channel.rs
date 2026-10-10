@@ -171,9 +171,15 @@ async fn run_channel_action(
             )
             .replace("${interaction.user.id}", &author_id);
             crate::commands::economy::post_ihorizon_log(&ctx, &title, &desc).await;
+            // Mirrors `!channel.ts:122-131`: the already-disabled leg fires
+            // only when the stored value is literally `"off"`. TS never
+            // writes `"off"` (the branch deletes the row), so a missing row
+            // falls through to delete + success reply — NOT the
+            // already-disabled message.
             if load_xp_channel_routed(&ctx.data().pool, &gid)
                 .await
-                .is_none()
+                .as_deref()
+                == Some("off")
             {
                 ctx.say(say(
                     "setxpchannels_already_disabled_disable",
@@ -199,9 +205,10 @@ async fn run_channel_action(
             ))
             .await?;
         }
+        // Mirrors `ranks/!channel.ts:60-146`: only `on`/`off` do anything.
+        // Any other input falls through every branch and returns silently.
         _ => {
-            ctx.say("Use `on [channel]` to set the XP announce channel or `off` to disable it.")
-                .await?;
+            return Ok(());
         }
     }
     Ok(())
@@ -211,7 +218,7 @@ async fn run_channel_action(
     slash_command,
     prefix_command,
     rename = "channel",
-    aliases("rchannel"),
+    aliases("rchannel", "ranks-channel"),
     default_member_permissions = "ADMINISTRATOR"
 )]
 pub async fn ranks_channel(

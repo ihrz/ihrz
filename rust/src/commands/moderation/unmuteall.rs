@@ -16,6 +16,11 @@ pub async fn mod_unmuteall(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let t = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
     let no = emoji(&ctx, "No", "❌").await;
+    // Bot ManageRoles gate, kept: poise `default_member_permissions`
+    // gates the invoker, not the bot. Mirrors the live
+    // `members.me?.permissions.has([ManageRoles])` check in
+    // !unmuteall.ts:46-58 (snapshot-based here; skipped only when the
+    // guild is not cached) — safer than dropping it and 403ing per member.
     if let Some(g) = guard_data(&ctx, guild_id).await {
         if !g.bot_perms.manage_roles() {
             ctx.say(
@@ -25,18 +30,22 @@ pub async fn mod_unmuteall(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
             return Ok(());
         }
     }
-    let ids: Vec<poise::serenity_prelude::UserId> = ctx
-        .serenity_context()
-        .cache
-        .guild(guild_id)
-        .map(|g| {
-            g.members
-                .values()
-                .filter(|m| m.communication_disabled_until.is_some())
-                .map(|m| m.user.id)
-                .collect()
-        })
-        .unwrap_or_default();
+    let ids: Vec<poise::serenity_prelude::UserId> = {
+        let now = crate::bot::now_ms();
+        ctx.serenity_context()
+            .cache
+            .guild(guild_id)
+            .map(|g| {
+                g.members
+                    .values()
+                    // Active timeout only, like `isCommunicationDisabled()`
+                    // (!unmuteall.ts:62): expiry in the future, not merely set.
+                    .filter(|m| timeout_active(m.communication_disabled_until, now))
+                    .map(|m| m.user.id)
+                    .collect()
+            })
+            .unwrap_or_default()
+    };
     if ids.is_empty() {
         ctx.say(t("unmuteall_no_muted_members")).await?;
         return Ok(());

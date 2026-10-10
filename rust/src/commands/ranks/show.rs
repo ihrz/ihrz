@@ -38,7 +38,7 @@ pub async fn save_rank_routed(
     slash_command,
     prefix_command,
     rename = "show",
-    aliases("rsee", "look", "level")
+    aliases("rsee", "look", "level", "ranks-show")
 )]
 pub async fn ranks_show(
     ctx: Ctx<'_>,
@@ -56,8 +56,16 @@ pub async fn ranks_show(
     let level = e.level;
     let currentxp = e.xp;
     let need = level.saturating_mul(500).saturating_add(500).max(500);
+    // DELIBERATE KEEP (differs from `!show.ts:75-76`): TS computes
+    // `xpNeeded - currentxp` raw, which goes negative on an overfilled
+    // bar and renders a negative "XP remaining" count. The Rust side
+    // saturates at 0 — the TS negative is a display bug, not data.
     let remaining = need.saturating_sub(currentxp);
-    // TS display name: `user.globalName || user.displayName`.
+    // TS display name (`!show.ts:82,105-108`): `globalName ||
+    // displayName` on the guild member.
+    // DELIBERATE KEEP on the fallback: a serenity `User` carries no guild
+    // display name (no nickname), so the username stands in — the same
+    // username fallback used by the pay reply.
     let display = member
         .global_name
         .clone()

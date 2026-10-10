@@ -25,7 +25,10 @@ pub async fn backup_list(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     // Member display-name fallback, like `username || displayName` in
     // !list.ts:117-121. Icon stays a snapshot file (never a raw CDN
     // URL), like the `user_icon.png` file in !list.ts:173-179
-    // (confession download_bytes pattern).
+    // (confession download_bytes pattern). Deliberate keep: when the
+    // download fails TS still attaches an empty `user_icon.png`
+    // (broken file); the port drops the icon reference instead so no
+    // dangling attachment is rendered.
     let member_display = ctx
         .author_member()
         .await
@@ -140,6 +143,9 @@ pub async fn backup_list(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
             .timeout(std::time::Duration::from_secs(60))
             .await;
         let Some(press) = press else { break };
+        // Deliberate keep: TS steps the page without bounds
+        // (!list.ts:192-203, prev on page 0 renders an empty slice);
+        // the port clamps so the pager never shows a blank page.
         match press.data.custom_id.as_str() {
             "backup-list-prev" => page = page.saturating_sub(1),
             "backup-list-next" => {

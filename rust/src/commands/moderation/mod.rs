@@ -42,6 +42,17 @@ pub fn temp_expired(entry: &TempEntry, now_ms: i64) -> bool {
     now_ms >= entry.expires_at_ms
 }
 
+/// Whether a member's timeout is currently active. Mirrors discord.js
+/// `isCommunicationDisabled()` used in !mutelist.ts:55, !unmuteall.ts:62,
+/// !tempmute.ts:162 and !unmute.ts:88: the expiry must lie in the future,
+/// a merely present (already lapsed) `communicationDisabledUntil` does
+/// not count. Pure for tests.
+pub(crate) fn timeout_active(until: Option<serenity::Timestamp>, now_ms: i64) -> bool {
+    until
+        .map(|t| t.unix_timestamp() * 1000 > now_ms)
+        .unwrap_or(false)
+}
+
 pub fn temprole_key(user_id: u64, role_id: u64) -> String {
     format!("GUILD.TEMPROLE.{user_id}.{role_id}")
 }
@@ -461,7 +472,13 @@ async fn lock_all_inner(
                 .collect()
         })
         .unwrap_or_default();
-    // TS fires one overwrite per text channel without awaiting each.
+    // Deliberate pacing choice (kept): !lock-all.ts / !unlock-all.ts
+    // fire `permissionOverwrites.create` per text channel without
+    // awaiting and reply immediately; here each overwrite is awaited
+    // sequentially so per-channel failures are absorbed and the reply
+    // only goes out once the sweep is done. Same end state, different
+    // backpressure — sequential avoids a burst of parallel writes on
+    // large guilds.
     for ch in channels {
         let overwrite = if unlock {
             // TS unlock-all writes {SendMessages: true}.
@@ -585,6 +602,18 @@ pub mod main {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn timeout_active_needs_future_expiry() {
+        // Mirrors discord.js `isCommunicationDisabled()`: a present but
+        // lapsed `communicationDisabledUntil` does not count.
+        let now_ms = 1_700_000_000_000;
+        let future = serenity::Timestamp::from_unix_timestamp(now_ms / 1000 + 60).unwrap();
+        let past = serenity::Timestamp::from_unix_timestamp(now_ms / 1000 - 60).unwrap();
+        assert!(timeout_active(Some(future), now_ms));
+        assert!(!timeout_active(Some(past), now_ms));
+        assert!(!timeout_active(None, now_ms));
+    }
 
     #[test]
     fn warn_push_remove() {

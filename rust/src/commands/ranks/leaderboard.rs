@@ -86,7 +86,7 @@ async fn board_rows(pool: &crate::db::Pool, guild_id: &str) -> Vec<(u64, RankEnt
     slash_command,
     prefix_command,
     rename = "leaderboard",
-    aliases("rankslb")
+    aliases("rankslb", "ranks-leaderboard")
 )]
 pub async fn ranks_leaderboard(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     use poise::serenity_prelude as serenity;

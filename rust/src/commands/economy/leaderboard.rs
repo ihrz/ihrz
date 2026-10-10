@@ -24,6 +24,11 @@ fn filter_cached_users(
 
 /// Top-8 podium rows for the SVG card: mention + non-negative wealth.
 /// Pure so the mapping is unit-testable without Discord.
+/// DELIBERATE KEEP (differs from `economy/!leaderboard.ts:81-86`): TS
+/// sums `(bank || 0) + (money || 0)` raw, so a debted account renders a
+/// negative podium wealth. The Rust side saturates at 0 — the TS
+/// negative is a display bug (an SVG bar cannot render a negative
+/// width), not data; stored balances are untouched.
 fn podium_entries(rows: &[(u64, i64, i64)]) -> Vec<(String, u64)> {
     rows.iter()
         .take(8)
@@ -84,7 +89,7 @@ async fn board_rows(pool: &crate::db::Pool, guild_id: &str) -> Vec<(u64, i64, i6
     slash_command,
     prefix_command,
     rename = "leaderboard",
-    aliases("eclb", "eco-lb", "economy-lb")
+    aliases("eclb", "eco-lb", "economy-lb", "economy-leaderboard")
 )]
 pub async fn eco_leaderboard(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     use poise::serenity_prelude as serenity;
