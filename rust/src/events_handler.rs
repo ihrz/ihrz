@@ -957,10 +957,7 @@ pub fn render_leave_notice_text(
 ) -> String {
     template
         .replace("${guild.name}", guild_name)
-        .replace(
-            "${deleteAt}",
-            &discord_timestamp(delete_at_secs, ts_style),
-        )
+        .replace("${deleteAt}", &discord_timestamp(delete_at_secs, ts_style))
 }
 
 /// Fill a guild template carrying only `${guild.name}` (the
@@ -1048,6 +1045,103 @@ pub fn wipe_queue_due(
         .filter(|(gid, p)| now_ms >= p.delete_at && !present.contains(*gid))
         .map(|(gid, _)| gid.clone())
         .collect()
+}
+
+/// Owner leave-notice DM. Mirrors notifyOwnerFromAnotherGuild in
+/// Events/client/deleteDatabaseDataOnGuildLeave.ts:118-159 (best
+/// effort, failures only traced). Sends only when the owner still
+/// shares another guild with the bot (the TS another-guild gate);
+/// templates are the guild_leave_data_clear_notice_* YAML keys.
+pub async fn send_leave_notice_dm(
+    ctx: &serenity::Context,
+    pool: &Pool,
+    guild: &serenity::Guild,
+    delete_at_ms: i64,
+) {
+    let owner_id = guild.owner_id;
+    let still_shared =
+        ctx.cache.guilds().iter().any(|id| {
+            *id != guild.id && ctx.cache.guild(*id).is_some_and(|g| g.owner_id == owner_id)
+        });
+    if !still_shared {
+        return;
+    }
+    let gid = guild.id.get().to_string();
+    let lang_code = crate::db::guild_lang(pool, Some(guild.id.get())).await;
+    let text = |k: &str| crate::lang::get(&lang_code, k).unwrap_or_default();
+    let Ok(owner) = owner_id.to_user(&ctx.http).await else {
+        return;
+    };
+    let delete_at_secs = delete_at_ms.div_euclid(1000);
+    let embed = serenity::CreateEmbed::default()
+        .colour(0x11304C_u32)
+        .title(render_leave_notice_text(
+            &text("guild_leave_data_clear_notice_title"),
+            &guild.name,
+            delete_at_secs,
+            'F',
+        ))
+        .description(render_leave_notice_text(
+            &text("guild_leave_data_clear_notice_description"),
+            &guild.name,
+            delete_at_secs,
+            'F',
+        ))
+        .timestamp(serenity::Timestamp::now())
+        .thumbnail(EXPRESSION_SOB_THUMB)
+        .footer(serenity::CreateEmbedFooter::new(
+            crate::commands::botcat::bot_footer_name(bot_name_routed(pool, &gid).await.as_deref()),
+        ));
+    let content = render_leave_notice_text(
+        &text("guild_leave_data_clear_notice_message"),
+        &guild.name,
+        delete_at_secs,
+        'R',
+    );
+    let _ = owner
+        .direct_message(
+            &ctx.http,
+            serenity::CreateMessage::new().content(content).embed(embed),
+        )
+        .await;
+}
+
+/// Owner cancel-notice DM. Mirrors cancelPendingGuildDataDeletion in
+/// Events/client/deleteDatabaseDataOnGuildLeave.ts:179-209 (best
+/// effort, failures only traced). Templates are the
+/// guild_leave_data_clear_cancelled_* YAML keys.
+pub async fn send_wipe_cancel_dm(ctx: &serenity::Context, pool: &Pool, guild: &serenity::Guild) {
+    let gid = guild.id.get().to_string();
+    let lang_code = crate::db::guild_lang(pool, Some(guild.id.get())).await;
+    let text = |k: &str| crate::lang::get(&lang_code, k).unwrap_or_default();
+    let Ok(owner) = guild.owner_id.to_user(&ctx.http).await else {
+        return;
+    };
+    let embed = serenity::CreateEmbed::default()
+        .colour(0x57F287_u32)
+        .title(render_guild_name_text(
+            &text("guild_leave_data_clear_cancelled_title"),
+            &guild.name,
+        ))
+        .description(render_guild_name_text(
+            &text("guild_leave_data_clear_cancelled_description"),
+            &guild.name,
+        ))
+        .timestamp(serenity::Timestamp::now())
+        .thumbnail(EXPRESSION_WINK_THUMB)
+        .footer(serenity::CreateEmbedFooter::new(
+            crate::commands::botcat::bot_footer_name(bot_name_routed(pool, &gid).await.as_deref()),
+        ));
+    let content = render_guild_name_text(
+        &text("guild_leave_data_clear_cancelled_message"),
+        &guild.name,
+    );
+    let _ = owner
+        .direct_message(
+            &ctx.http,
+            serenity::CreateMessage::new().content(content).embed(embed),
+        )
+        .await;
 }
 
 /// Debounce quiet window before a tripping guild is punished.
@@ -3631,6 +3725,9 @@ impl serenity::EventHandler for Handler {
             if wipe_queue_cancel(&mut queue, &gid) {
                 crate::scheduler::save_wipe_queue(&self.pool, &queue).await;
                 tracing::info!("guildCreate {} cancelled pending wipe", gid);
+                // Owner cancel-notice DM (mirrors the cancelled-notice
+                // leg of cancelPendingGuildDataDeletion).
+                send_wipe_cancel_dm(&ctx, &self.pool, &guild).await;
             }
         }
         // Drop the legacy immediate flag (migration from the old design).
@@ -4140,6 +4237,12 @@ impl serenity::EventHandler for Handler {
             .unwrap_or_default();
         let delete_at = wipe_queue_enqueue(&mut queue, &gid, &name, &owner, now);
         crate::scheduler::save_wipe_queue(&self.pool, &queue).await;
+        // Owner leave-notice DM (mirrors notifyOwnerFromAnotherGuild in
+        // deleteDatabaseDataOnGuildLeave.ts:118-159). Only when Discord
+        // ships the full guild (boot unavailability carries no payload).
+        if let Some(g) = full.as_ref() {
+            send_leave_notice_dm(&ctx, &self.pool, g, delete_at).await;
+        }
         // Owner "Leave Guild" mail (mirrors removeGuildLog.ts:95). Only
         // when Discord ships the full guild (boot unavailability carries
         // no payload). Blocking SMTP via spawn_blocking.
@@ -4187,6 +4290,27 @@ impl serenity::EventHandler for Handler {
                     )
                 })
                 .unwrap_or_else(|| (gid.clone(), "unknown".to_string(), "idk".to_string(), None));
+            // Shard-wide member total (mirrors getShardStats users in
+            // removeGuildLog.ts; this process's cache here, like the
+            // join log embed above).
+            let mut total_members = 0u64;
+            for cached_id in ctx.cache.guilds() {
+                if let Some(cached) = ctx.cache.guild(cached_id) {
+                    total_members += cached.member_count;
+                }
+            }
+            // Footer icon attachment (mirrors the join log embed chrome;
+            // removeGuildLog.ts:90-93 sets iconURL
+            // "attachment://footer_icon.png").
+            let footer_icon: Option<Vec<u8>> = match crate::commands::botcat::footer_icon_bytes(
+                bot_pfp_routed(&self.pool, &gid).await.as_deref(),
+            ) {
+                Some(bytes) => Some(bytes),
+                None => {
+                    let face = ctx.cache.current_user().face();
+                    crate::commands::shared::download_bytes(&face).await
+                }
+            };
             let mut leave_embed = serenity::CreateEmbed::default()
                 .colour(0xFF0505_u32)
                 .description("**A guild removed iHorizon !**")
@@ -4200,12 +4324,36 @@ impl serenity::EventHandler for Handler {
                     ctx.cache.guild_count().to_string(),
                     true,
                 )
-                .footer(serenity::CreateEmbedFooter::new("iHorizon Left at"));
+                .field(
+                    "New members total",
+                    format!("{total_members} members"),
+                    true,
+                )
+                .field("Shard", shard_label(ctx.shard_id.get()), true);
+            // Joined-at timestamp (mirrors
+            // `.setTimestamp(guild.joinedTimestamp)` in removeGuildLog.ts).
+            if let Some(g) = full.as_ref() {
+                leave_embed = leave_embed.timestamp(g.joined_at);
+            }
+            if footer_icon.is_some() {
+                leave_embed = leave_embed.footer(
+                    serenity::CreateEmbedFooter::new("iHorizon ・ Joined at")
+                        .icon_url("attachment://footer_icon.png"),
+                );
+            } else {
+                leave_embed =
+                    leave_embed.footer(serenity::CreateEmbedFooter::new("iHorizon ・ Joined at"));
+            }
             if let Some(url) = icon {
                 leave_embed = leave_embed.thumbnail(url);
             }
+            let mut leave_msg = serenity::CreateMessage::new().embed(leave_embed);
+            if let Some(bytes) = footer_icon {
+                leave_msg =
+                    leave_msg.add_file(serenity::CreateAttachment::bytes(bytes, "footer_icon.png"));
+            }
             let _ = serenity::ChannelId::new(logs_ch)
-                .send_message(&ctx.http, serenity::CreateMessage::new().embed(leave_embed))
+                .send_message(&ctx.http, leave_msg)
                 .await;
         }
     }
@@ -8321,11 +8469,22 @@ impl serenity::EventHandler for Handler {
             self.log_slash_command(&ctx, cmd).await;
             return;
         }
+        // Global ModalSubmit arm: per-command modals are consumed by
+        // their ModalInteractionCollectors on the shard (see
+        // crate::commands::await_modal_submit), so the handler only
+        // routes the variant here and never into the component arms
+        // below. Existing arms above stay first.
+        if let serenity::Interaction::Modal(_) = &interaction {
+            return;
+        }
         // Mirrors buttonHandler.ts routing for component custom_ids.
         let serenity::Interaction::Component(comp) = interaction else {
             return;
         };
-        let id = comp.data.custom_id.as_str();
+        // Global ?dm-strip (mirrors buttonHandler.ts:30-37): DM-variant
+        // buttons carry a `?dm` suffix; per-id arms below match the
+        // clean id.
+        let id = strip_dm_suffix(comp.data.custom_id.as_str());
         if id == "new-confession-button" {
             // Mirrors confession panel submit entry: modal -> cooldown gate
             // -> anonymous post (see handle_confess_button).
@@ -8508,9 +8667,14 @@ impl serenity::EventHandler for Handler {
         {
             crate::commands::legacy::handle_help_component(&ctx.http, &self.pool, &comp).await;
         } else {
-            // Unknown component ids are ignored (every TS component
-            // file now has a dedicated arm above, including the
-            // verbatim button_reaction% role buttons).
+            // Generic %-split fallback (mirrors buttonHandler.ts:38 /
+            // selectMenuHandler.ts:35): unknown button/select ids
+            // resolve by their prefix segment. Every TS component file
+            // already has a dedicated arm above (including the verbatim
+            // button_reaction% role buttons), so a miss here is a
+            // no-op like the TS registry miss (`if (get)` guard).
+            let prefix = component_prefix(id);
+            tracing::debug!("ignoring unknown component id (prefix: {prefix})");
         }
     }
 }
@@ -9713,5 +9877,98 @@ mod legacy_voice_tests {
         }
         // Staff get rights, not an empty allow set.
         assert!(!allow.is_empty());
+    }
+}
+
+#[cfg(test)]
+mod component_registry_tests {
+    use super::*;
+
+    #[test]
+    fn dm_suffix_strips_only_trailing_marker() {
+        // Mirrors buttonHandler.ts:30-37 (slice(0, -3) on ?dm end).
+        assert_eq!(
+            strip_dm_suffix("newsletter-toggle%123?dm"),
+            "newsletter-toggle%123"
+        );
+        assert_eq!(
+            strip_dm_suffix("new-confession-button"),
+            "new-confession-button"
+        );
+        assert_eq!(strip_dm_suffix(""), "");
+        // A mid-string ?dm is not a DM variant marker.
+        assert_eq!(strip_dm_suffix("?dmfoo"), "?dmfoo");
+        assert_eq!(strip_dm_suffix("a?dmb"), "a?dmb");
+    }
+
+    #[test]
+    fn prefix_segment_splits_on_first_percent() {
+        // Mirrors buttonHandler.ts:38 / selectMenuHandler.ts:35.
+        assert_eq!(
+            component_prefix("newsletter-toggle%123"),
+            "newsletter-toggle"
+        );
+        assert_eq!(component_prefix("button_reaction%456"), "button_reaction");
+        assert_eq!(component_prefix("plain-id"), "plain-id");
+        assert_eq!(component_prefix(""), "");
+        // Registry key is the first segment even with several parts.
+        assert_eq!(component_prefix("a%b%c"), "a");
+    }
+
+    #[test]
+    fn dm_stripped_ids_still_hit_percent_arms() {
+        // The global ?dm-strip runs before the per-id arms, so a DM
+        // newsletter press keeps its % suffix for the prefix arm.
+        let id = strip_dm_suffix("newsletter-toggle%123?dm");
+        assert!(id.starts_with(crate::commands::legacy::NEWSLETTER_TOGGLE_PREFIX));
+        assert_eq!(component_prefix(id), "newsletter-toggle");
+    }
+
+    #[test]
+    fn discord_timestamp_mentions_use_style() {
+        assert_eq!(discord_timestamp(1_700_000_000, 'F'), "<t:1700000000:F>");
+        assert_eq!(discord_timestamp(1_700_000_000, 'R'), "<t:1700000000:R>");
+        assert_eq!(discord_timestamp(0, 'F'), "<t:0:F>");
+    }
+
+    #[test]
+    fn leave_notice_templates_fill_both_placeholders() {
+        // Mirrors the TS replace chain: ${guild.name} everywhere,
+        // ${deleteAt} as <t:F> in the embed, <t:R> in the DM content.
+        let desc = render_leave_notice_text(
+            "kicked from `${guild.name}`, cleared ${deleteAt}",
+            "Test Guild",
+            1_700_000_000,
+            'F',
+        );
+        assert_eq!(desc, "kicked from `Test Guild`, cleared <t:1700000000:F>");
+        let msg = render_leave_notice_text(
+            "kicked from `${guild.name}`, cleared ${deleteAt}",
+            "Test Guild",
+            1_700_000_000,
+            'R',
+        );
+        assert_eq!(msg, "kicked from `Test Guild`, cleared <t:1700000000:R>");
+        // Title template carries no ${deleteAt}; only the name fills.
+        let title = render_leave_notice_text("left ${guild.name}", "G", 0, 'F');
+        assert_eq!(title, "left G");
+    }
+
+    #[test]
+    fn cancel_templates_fill_guild_name_only() {
+        assert_eq!(
+            render_guild_name_text("back on ${guild.name}!", "Test Guild"),
+            "back on Test Guild!"
+        );
+        assert_eq!(
+            render_guild_name_text("no placeholders", "G"),
+            "no placeholders"
+        );
+    }
+
+    #[test]
+    fn shard_label_matches_ts_shard_tag() {
+        assert_eq!(shard_label(0), "#0");
+        assert_eq!(shard_label(7), "#7");
     }
 }
