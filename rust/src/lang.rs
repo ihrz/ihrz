@@ -414,4 +414,98 @@ mod tests {
             Some("Administrator")
         );
     }
+
+    /// Extract every replace-target token from a YAML value: `${...}`
+    /// (method.replace targets) and `{name}` (template fills). Pure
+    /// scanner so the audit needs no regex dependency.
+    fn placeholder_tokens(value: &str) -> std::collections::BTreeSet<String> {
+        let mut out = std::collections::BTreeSet::new();
+        let bytes = value.as_bytes();
+        let mut i = 0;
+        while i < bytes.len() {
+            if bytes[i] == b'$' && i + 1 < bytes.len() && bytes[i + 1] == b'{' {
+                if let Some(end) = value[i + 2..].find('}') {
+                    out.insert(value[i..i + 2 + end + 1].to_string());
+                    i += 2 + end + 1;
+                    continue;
+                }
+                break;
+            }
+            if bytes[i] == b'{' {
+                if let Some(end) = value[i + 1..].find('}') {
+                    let inner = &value[i + 1..i + 1 + end];
+                    if !inner.is_empty()
+                        && inner
+                            .bytes()
+                            .all(|b| b.is_ascii_alphanumeric() || b == b'_')
+                    {
+                        out.insert(value[i..i + 1 + end + 1].to_string());
+                    }
+                    i += 1 + end + 1;
+                    continue;
+                }
+                break;
+            }
+            i += 1;
+        }
+        out
+    }
+
+    #[test]
+    fn placeholder_tokens_match_en_us_in_all_locales() {
+        // I4 portable equivalent (no CI in this repo): every locale must
+        // carry the exact replace-target tokens of en-US, otherwise the
+        // `.replace(token, ...)` calls in TS/Rust miss and users see raw
+        // `${...}`/`{...}` text (lived bug: jp-JP
+        // `perm_roles_created_role` used `join('、')` while the code
+        // replaces `join(', ')`). Exceptions below are upstream-authored
+        // meme-locale rewrites (fr-ME) and one fr-FR joke rewrite where
+        // the token is deliberately absent (no garbage renders, the name
+        // is just dropped); `var_doesnt_have_permissions` additionally
+        // has zero TS/Rust callers (dead key, I6 queue).
+        const EXCEPTIONS: &[(&str, &str)] = &[
+            ("fr-FR", "util_wakeup_not_in_vc"),
+            ("fr-ME", "var_doesnt_have_permissions"),
+            ("fr-ME", "kisakay_message"),
+            ("fr-ME", "setjoindm_help_embed_desc"),
+            ("fr-ME", "setjoinmessage_help_embed_desc"),
+            ("fr-ME", "notifier_config_message_command_work_on_enable"),
+            ("fr-ME", "event_welcomer_inviter"),
+            ("fr-ME", "event_welcomer_default"),
+            ("fr-ME", "ping_bot_show_info_msg"),
+        ];
+        let en = table_for("en-US");
+        let en_map = en.as_mapping().expect("en-US.yml should parse");
+        for code in [
+            "ar-EG", "de-DE", "es-ES", "fr-FR", "fr-ME", "it-IT", "jp-JP", "pt-PT", "ru-RU",
+        ] {
+            let table = table_for(code);
+            let map = table.as_mapping().expect("locale should parse");
+            assert_eq!(
+                map.len(),
+                en_map.len(),
+                "{code} key count drifted from en-US"
+            );
+            for (key, value) in en_map {
+                let Some(key) = key.as_str() else { continue };
+                let en_text = value.as_str().unwrap_or_default();
+                let want = placeholder_tokens(en_text);
+                if want.is_empty() {
+                    continue;
+                }
+                if EXCEPTIONS.contains(&(code, key)) {
+                    continue;
+                }
+                let got = map
+                    .get(key)
+                    .and_then(|v| v.as_str())
+                    .map(placeholder_tokens)
+                    .unwrap_or_default();
+                assert_eq!(
+                    got, want,
+                    "{code}.{key}: placeholder set drifted from en-US"
+                );
+            }
+        }
+    }
 }
