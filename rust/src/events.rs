@@ -801,14 +801,93 @@ pub fn message_diff(old_text: &str, new_text: &str) -> String {
     format!("```diff\n{}\n```", out.join("\n"))
 }
 
-pub async fn record_message_activity(
+/// Handler context for one XP message: Discord-only inputs the DB
+/// layer cannot see (SendMessages permission, MsgChannel lookup,
+/// member roles, already-resolved guild-lang template). `None`
+/// overrides draw live RNG so tests stay deterministic.
+pub struct XpMessageInput<'a> {
+    pub command_handled: bool,
+    pub can_send: bool,
+    pub channel_exists: bool,
+    pub member_roles: &'a [u64],
+    pub shop_json: Option<&'a str>,
+    pub xp_gain_override: Option<u64>,
+    pub hint_roll_override: Option<f64>,
+    pub template_override: Option<&'a str>,
+    pub additional_info_override: Option<&'a str>,
+    pub emoji_markup: &'a str,
+    pub member_username: &'a str,
+    pub member_mention: &'a str,
+    pub member_count: u64,
+    pub guild_name: &'a str,
+}
+
+impl<'a> Default for XpMessageInput<'a> {
+    fn default() -> Self {
+        Self {
+            command_handled: false,
+            can_send: true,
+            channel_exists: true,
+            member_roles: &[],
+            shop_json: None,
+            xp_gain_override: None,
+            hint_roll_override: None,
+            template_override: None,
+            additional_info_override: None,
+            emoji_markup: "",
+            member_username: "",
+            member_mention: "",
+            member_count: 0,
+            guild_name: "",
+        }
+    }
+}
+
+/// Outcome of one XP message: new level, whether it leveled, the
+/// drawn gain, and the rendered announce (None when suppressed).
+pub struct XpMessageOutcome {
+    pub level: u64,
+    pub leveled: bool,
+    pub xp_gain: u64,
+    pub target: XpAnnounceTarget,
+    pub text: Option<String>,
+}
+
+/// Parse the stored xpchannels leaf: plain id or JSON list (legacy
+/// GUILD.RANKS.xpChannels); first id wins, empty means unset.
+fn parse_xp_channel(raw: &str) -> Option<String> {
+    let decoded = crate::commands::owner::main::decode_stored_string(raw);
+    let trimmed = decoded.trim();
+    if let Ok(list) = serde_json::from_str::<Vec<String>>(trimmed) {
+        return list
+            .into_iter()
+            .map(|s| s.trim().to_string())
+            .find(|s| !s.is_empty());
+    }
+    if trimmed.is_empty() {
+        None
+    } else {
+        Some(trimmed.to_string())
+    }
+}
+
+/// Full XP message path. Mirrors Events/ranks/onNewMessage.ts end to
+/// end through the pure helpers: STATS always recorded, then the
+/// xp_skip_for_command / xp_gain_blocked gates, the RNG gain, real
+/// memberBoost coins via xp_levelup_coins, then the
+/// xp_announce_suppressed / xp_announce_target routing with
+/// render_xp_announce + xp_new_user_hint. GUILD.XP_LEVELING rows are
+/// read table-first with legacy fallback (keys unchanged).
+pub async fn record_message_activity_full(
     pool: &crate::db::Pool,
     guild_id: &str,
     user_id: u64,
     channel_id: u64,
     content_len: u64,
     now_ms: i64,
-) -> (u64, bool) {
+    input: XpMessageInput<'_>,
+) -> XpMessageOutcome {
+    // STATS always (mirrors Events/stats/onNewMessage.ts).
     let chan_key = channel_stats_key(channel_id);
     let _ = tbl_add(pool, guild_id, &chan_key, 1.0).await;
     let mut stats = crate::commands::stats::main::load_stats(pool, guild_id, user_id).await;
@@ -830,15 +909,52 @@ pub async fn record_message_activity(
     .await;
 
     let entry = crate::commands::ranks::main::load_rank(pool, guild_id, user_id).await;
+    let no_xp = |level: u64| XpMessageOutcome {
+        level,
+        leveled: false,
+        xp_gain: 0,
+        target: XpAnnounceTarget::Suppressed,
+        text: None,
+    };
+    // parseMessageCommand early-return: handled commands earn nothing.
+    if xp_skip_for_command(input.command_handled) {
+        return no_xp(entry.level);
+    }
+    let disable = crate::commands::ranks::migrated_get(
+        pool,
+        guild_id,
+        crate::commands::ranks::GUILD_DISABLE_NEW,
+        &[crate::commands::ranks::GUILD_DISABLE_OLD],
+    )
+    .await;
+    let bypass = crate::commands::ranks::ignore_channels::load_ignore_routed(pool, guild_id).await;
+    if xp_gain_blocked(disable.as_deref(), &bypass, &channel_id.to_string()) {
+        return no_xp(entry.level);
+    }
+
     // TS: Math.floor(Math.random() * 3) + 35.
-    let xp_gain: u64 = rand::Rng::gen_range(&mut rand::thread_rng(), 35..=37);
+    let xp_gain: u64 = input
+        .xp_gain_override
+        .unwrap_or_else(|| rand::Rng::gen_range(&mut rand::thread_rng(), 35..=37));
     let (next, leveled) = crate::commands::ranks::main::apply_xp(entry, xp_gain);
     let level = next.level;
     let _ = crate::commands::ranks::main::save_rank(pool, guild_id, user_id, &next).await;
     if leveled {
-        // TS: addCoins(member, randomNumber * memberBoost). Boost needs
-        // member roles (handler layer); credit the base gain here.
-        let reward = crate::commands::ranks::main::coins_for_levelup(xp_gain, 1);
+        // TS: addCoins(member, randomNumber * getMemberBoost(member)).
+        // Shop JSON passed by the handler when member roles are known,
+        // otherwise loaded here; missing shop falls back to boost 1.
+        let shop = match input.shop_json {
+            Some(raw) => raw.to_string(),
+            None => crate::commands::owner::main::routed_get(
+                pool,
+                guild_id,
+                guild_id,
+                crate::commands::economy::shop_key(),
+            )
+            .await
+            .unwrap_or_else(|| "{}".to_string()),
+        };
+        let reward = xp_levelup_coins(xp_gain, &shop, input.member_roles);
         if reward > 0 {
             let mut econ =
                 crate::commands::economy::balance::load_econ_routed(pool, guild_id, user_id).await;
@@ -848,7 +964,111 @@ pub async fn record_message_activity(
                     .await;
         }
     }
-    (level, leveled)
+    if !leveled {
+        return XpMessageOutcome {
+            level,
+            leveled,
+            xp_gain,
+            target: XpAnnounceTarget::Suppressed,
+            text: None,
+        };
+    }
+    // Announce gate: silenced mode or missing SendMessages stays silent
+    // (XP above already gained).
+    if xp_announce_suppressed(disable.as_deref(), input.can_send) {
+        return XpMessageOutcome {
+            level,
+            leveled,
+            xp_gain,
+            target: XpAnnounceTarget::Suppressed,
+            text: None,
+        };
+    }
+    let xp_raw = crate::commands::ranks::migrated_get(
+        pool,
+        guild_id,
+        crate::commands::ranks::GUILD_XPCHANNEL_NEW,
+        &[
+            crate::commands::ranks::GUILD_XPCHANNEL_OLD_SINGLE,
+            crate::commands::ranks::GUILD_XPCHANNEL_OLD_LIST,
+        ],
+    )
+    .await;
+    let xp_chan = xp_raw.as_deref().and_then(parse_xp_channel);
+    let target = xp_announce_target(xp_chan.as_deref(), input.channel_exists);
+    if target == XpAnnounceTarget::Suppressed {
+        return XpMessageOutcome {
+            level,
+            leveled,
+            xp_gain,
+            target,
+            text: None,
+        };
+    }
+    // Handler-injected guild-lang template first, stored message row
+    // next, exact en-US fallback last (YAML untouched).
+    let template = match input.template_override {
+        Some(t) => t.to_string(),
+        None => crate::commands::ranks::migrated_get(
+            pool,
+            guild_id,
+            crate::commands::ranks::GUILD_MESSAGE_NEW,
+            &[crate::commands::ranks::GUILD_MESSAGE_OLD],
+        )
+        .await
+        .unwrap_or_else(|| XP_EARN_FALLBACK.to_string()),
+    };
+    let info = input
+        .additional_info_override
+        .unwrap_or(XP_ADDITIONAL_INFO_FALLBACK);
+    let roll: f64 = input
+        .hint_roll_override
+        .unwrap_or_else(|| rand::Rng::gen_range(&mut rand::thread_rng(), 0.0..1.0));
+    let msg = render_xp_announce(
+        &template,
+        input.member_username,
+        input.member_mention,
+        input.member_count,
+        input.guild_name,
+        level,
+    );
+    let text = xp_new_user_hint(&msg, level, roll, info, input.emoji_markup);
+    XpMessageOutcome {
+        level,
+        leveled,
+        xp_gain,
+        target,
+        text: Some(text),
+    }
+}
+
+/// Record one message: +1 STATS message, +35..=37 RANKS XP
+/// (level-ups applied, coins credited on level-up).
+/// Mirrors Events/stats/onNewMessage.ts + ranks/onNewMessage.ts
+/// (`Math.floor(Math.random() * 3) + 35`, threshold `level * 500`,
+/// `addCoins(member, randomNumber * memberBoost)`).
+/// Member boost is unavailable at this layer, so the credit uses the
+/// base gain (boost 1); the Discord handler applies the real shop
+/// boost when it has member roles (see record_message_activity_full).
+pub async fn record_message_activity(
+    pool: &crate::db::Pool,
+    guild_id: &str,
+    user_id: u64,
+    channel_id: u64,
+    content_len: u64,
+    now_ms: i64,
+) -> (u64, bool) {
+    let out = record_message_activity_full(
+        pool,
+        guild_id,
+        user_id,
+        channel_id,
+        content_len,
+        now_ms,
+        XpMessageInput::default(),
+    )
+    .await;
+    (out.level, out.leveled)
 }
 
 /// XP gain gate. Mirrors ranks/onNewMessage.ts (`xpTurn === "disable"`
@@ -1369,6 +1589,249 @@ mod tests {
         // No matching role or broken shop falls back to boost 1.
         assert_eq!(xp_levelup_coins(35, shop, &[9]), 35);
         assert_eq!(xp_levelup_coins(35, "nope", &[2]), 35);
+    }
+
+    #[test]
+    fn xp_channel_parse_single_or_list() {
+        assert_eq!(parse_xp_channel("99"), Some("99".to_string()));
+        assert_eq!(parse_xp_channel("\"99\""), Some("99".to_string()));
+        assert_eq!(parse_xp_channel(r#"["a","b"]"#), Some("a".to_string()));
+        assert_eq!(parse_xp_channel(""), None);
+        assert_eq!(parse_xp_channel("   "), None);
+    }
+
+    #[tokio::test]
+    async fn xp_full_gates_mirror_ts() {
+        use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};
+        use std::str::FromStr;
+        let opts = SqliteConnectOptions::from_str("sqlite::memory:").unwrap();
+        let pool = SqlitePoolOptions::new()
+            .max_connections(1)
+            .connect_with(opts)
+            .await
+            .unwrap();
+        sqlx::query("CREATE TABLE kv (guild_id TEXT NOT NULL, key_name TEXT NOT NULL, value TEXT NOT NULL, PRIMARY KEY (guild_id, key_name))")
+            .execute(&pool).await.unwrap();
+        sqlx::query("CREATE TABLE guild_lang (guild_id TEXT PRIMARY KEY, lang TEXT NOT NULL DEFAULT 'en-US')")
+            .execute(&pool).await.unwrap();
+        // parseMessageCommand early-return: stats recorded, no XP.
+        let out = record_message_activity_full(
+            &pool,
+            "g",
+            1,
+            7,
+            5,
+            1_000,
+            XpMessageInput {
+                command_handled: true,
+                ..Default::default()
+            },
+        )
+        .await;
+        assert_eq!((out.level, out.leveled, out.xp_gain), (0, false, 0));
+        assert_eq!(out.target, XpAnnounceTarget::Suppressed);
+        assert!(out.text.is_none());
+        let rank = crate::commands::ranks::main::load_rank(&pool, "g", 1).await;
+        assert_eq!(rank.xp, 0);
+        // Full disable blocks XP but stats still land.
+        crate::db::kv_set(&pool, "g", "GUILD.XP_LEVELING.disable", "disable")
+            .await
+            .unwrap();
+        let out =
+            record_message_activity_full(&pool, "g", 1, 7, 5, 1_000, XpMessageInput::default())
+                .await;
+        assert_eq!((out.leveled, out.xp_gain), (false, 0));
+        let s = crate::commands::stats::main::load_stats(&pool, "g", 1).await;
+        assert_eq!(s.messages, 2);
+        // tbl_del clears both the table and the legacy row (reads promote
+        // legacy hits into the table, so kv_del alone would leave the
+        // promoted value behind).
+        tbl_del(&pool, "g", "GUILD.XP_LEVELING.disable")
+            .await
+            .unwrap();
+        // Bypassed channel blocks XP.
+        crate::db::kv_set(&pool, "g", "GUILD.XP_LEVELING.bypassChannels", r#"["7"]"#)
+            .await
+            .unwrap();
+        let out =
+            record_message_activity_full(&pool, "g", 1, 7, 5, 1_000, XpMessageInput::default())
+                .await;
+        assert_eq!((out.leveled, out.xp_gain), (false, 0));
+        tbl_del(&pool, "g", "GUILD.XP_LEVELING.bypassChannels")
+            .await
+            .unwrap();
+        // Clear gates: XP flows again (deterministic gain).
+        let out = record_message_activity_full(
+            &pool,
+            "g",
+            1,
+            7,
+            5,
+            1_000,
+            XpMessageInput {
+                xp_gain_override: Some(35),
+                can_send: false,
+                ..Default::default()
+            },
+        )
+        .await;
+        assert_eq!((out.leveled, out.xp_gain), (false, 35));
+        let rank = crate::commands::ranks::main::load_rank(&pool, "g", 1).await;
+        assert_eq!(rank.xp, 35);
+    }
+
+    #[tokio::test]
+    async fn xp_full_levelup_announce_hint_and_boosted_coins() {
+        use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};
+        use std::str::FromStr;
+        let opts = SqliteConnectOptions::from_str("sqlite::memory:").unwrap();
+        let pool = SqlitePoolOptions::new()
+            .max_connections(1)
+            .connect_with(opts)
+            .await
+            .unwrap();
+        sqlx::query("CREATE TABLE kv (guild_id TEXT NOT NULL, key_name TEXT NOT NULL, value TEXT NOT NULL, PRIMARY KEY (guild_id, key_name))")
+            .execute(&pool).await.unwrap();
+        sqlx::query("CREATE TABLE guild_lang (guild_id TEXT PRIMARY KEY, lang TEXT NOT NULL DEFAULT 'en-US')")
+            .execute(&pool).await.unwrap();
+        // Seed just under the 500 XP threshold so the fixed gain levels to 1.
+        crate::commands::ranks::main::save_rank(
+            &pool,
+            "g",
+            1,
+            &crate::commands::ranks::main::RankEntry {
+                level: 0,
+                xp: 490,
+                xptotal: 490,
+            },
+        )
+        .await;
+        let roles = [2u64];
+        let out = record_message_activity_full(
+            &pool,
+            "g",
+            1,
+            7,
+            5,
+            1_000,
+            XpMessageInput {
+                xp_gain_override: Some(35),
+                hint_roll_override: Some(0.2),
+                template_override: Some("GG {memberMention} lvl {xpLevel}"),
+                additional_info_override: Some("INFO ${client.iHorizon_Emojis.VC_OpenChat} tail"),
+                emoji_markup: "<:chat>",
+                member_username: "bob",
+                member_mention: "<@1>",
+                member_count: 42,
+                guild_name: "G",
+                member_roles: &roles,
+                shop_json: Some(r#"{"2":{"boost":3}}"#),
+                ..Default::default()
+            },
+        )
+        .await;
+        assert!(out.leveled);
+        assert_eq!((out.level, out.xp_gain), (1, 35));
+        assert_eq!(out.target, XpAnnounceTarget::ReplyInPlace);
+        assert_eq!(out.text.as_deref(), Some("GG <@1> lvl 1INFO <:chat> tail"));
+        // Real shop boost: 35 x 3.
+        let econ = crate::commands::economy::balance::load_econ_routed(&pool, "g", 1).await;
+        assert_eq!(econ.money, 105);
+    }
+
+    #[tokio::test]
+    async fn xp_full_announce_routing_and_permission_gate() {
+        use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};
+        use std::str::FromStr;
+        let opts = SqliteConnectOptions::from_str("sqlite::memory:").unwrap();
+        let pool = SqlitePoolOptions::new()
+            .max_connections(1)
+            .connect_with(opts)
+            .await
+            .unwrap();
+        sqlx::query("CREATE TABLE kv (guild_id TEXT NOT NULL, key_name TEXT NOT NULL, value TEXT NOT NULL, PRIMARY KEY (guild_id, key_name))")
+            .execute(&pool).await.unwrap();
+        sqlx::query("CREATE TABLE guild_lang (guild_id TEXT PRIMARY KEY, lang TEXT NOT NULL DEFAULT 'en-US')")
+            .execute(&pool).await.unwrap();
+        async fn seed_near_level(pool: &crate::db::Pool) {
+            crate::commands::ranks::main::save_rank(
+                pool,
+                "g",
+                1,
+                &crate::commands::ranks::main::RankEntry {
+                    level: 0,
+                    xp: 490,
+                    xptotal: 490,
+                },
+            )
+            .await;
+        }
+        crate::db::kv_set(&pool, "g", "GUILD.XP_LEVELING.xpchannels", "99")
+            .await
+            .unwrap();
+        // Set but unresolvable -> silent, though XP + base coins land.
+        seed_near_level(&pool).await;
+        let out = record_message_activity_full(
+            &pool,
+            "g",
+            1,
+            7,
+            5,
+            1_000,
+            XpMessageInput {
+                xp_gain_override: Some(35),
+                channel_exists: false,
+                ..Default::default()
+            },
+        )
+        .await;
+        assert!(out.leveled);
+        assert_eq!(out.target, XpAnnounceTarget::Suppressed);
+        assert!(out.text.is_none());
+        // Resolvable -> send there with the en-US fallback template.
+        seed_near_level(&pool).await;
+        let out = record_message_activity_full(
+            &pool,
+            "g",
+            1,
+            7,
+            5,
+            1_000,
+            XpMessageInput {
+                xp_gain_override: Some(35),
+                hint_roll_override: Some(0.9),
+                member_mention: "<@1>",
+                ..Default::default()
+            },
+        )
+        .await;
+        assert_eq!(
+            out.target,
+            XpAnnounceTarget::SendToChannel("99".to_string())
+        );
+        assert_eq!(
+            out.text.as_deref(),
+            Some("**GG**, <@1> you have leveled up! (Level: **1**)")
+        );
+        // Missing SendMessages stays silent (XP still gained).
+        seed_near_level(&pool).await;
+        let out = record_message_activity_full(
+            &pool,
+            "g",
+            1,
+            7,
+            5,
+            1_000,
+            XpMessageInput {
+                xp_gain_override: Some(35),
+                can_send: false,
+                ..Default::default()
+            },
+        )
+        .await;
+        assert!(out.leveled);
+        assert_eq!(out.target, XpAnnounceTarget::Suppressed);
+        assert!(out.text.is_none());
     }
 
     #[test]

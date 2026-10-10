@@ -2935,37 +2935,90 @@ impl serenity::EventHandler for Handler {
                 crate::commands::ranks::main::load_rank(&self.pool, &gid, msg.author.id.get())
                     .await
                     .level;
-            let (level, leveled) = crate::events::record_message_activity(
+            // Stored custom message or guild-lang default; the full path
+            // prefers it over its own en-US fallback (YAML untouched).
+            let stored_tpl = ranks_message_routed(&self.pool, &gid).await;
+            let tpl_owned = match stored_tpl {
+                Some(t) => t,
+                None => {
+                    let lang_code = crate::db::guild_lang(&self.pool, Some(guild_id.get())).await;
+                    crate::lang::get(&lang_code, "event_xp_level_earn")
+                        .map(|s| {
+                            s.replace("{memberMention}", &msg.author.mention().to_string())
+                                .replace("{xpLevel}", &before.to_string())
+                        })
+                        .unwrap_or_else(|| "Level up! {user} is now level {level}.".to_string())
+                }
+            };
+            // Bot SendMessages in this channel (best-effort allow on
+            // lookup failure, like the other emitter guards here).
+            // Deprecated GuildChannel::permissions_for_user avoided:
+            // Guild::user_permissions_in is the supported path.
+            let can_send = match msg.channel(&_ctx.http).await {
+                Ok(serenity::Channel::Guild(g)) => _ctx
+                    .cache
+                    .guild(guild_id)
+                    .and_then(|gd| {
+                        let bot = _ctx.cache.current_user().id;
+                        gd.members
+                            .get(&bot)
+                            .map(|m| gd.user_permissions_in(&g, m).send_messages())
+                    })
+                    .unwrap_or(true),
+                _ => true,
+            };
+            let role_ids: Vec<u64> = msg
+                .member
+                .as_ref()
+                .map(|m| m.roles.iter().map(|r| r.get()).collect())
+                .unwrap_or_default();
+            let mention_owned = msg.author.mention().to_string();
+            let (guild_name_owned, member_count) = _ctx
+                .cache
+                .guild(guild_id)
+                .map(|g| (g.name.clone(), g.member_count))
+                .unwrap_or_default();
+            let out = crate::events::record_message_activity_full(
                 &self.pool,
                 &gid,
                 msg.author.id.get(),
                 msg.channel_id.get(),
                 msg.content.len() as u64,
                 msg.timestamp.unix_timestamp() * 1000,
+                crate::events::XpMessageInput {
+                    // Prefix dispatch lives in poise, outside this path;
+                    // keep earning for every message like before.
+                    command_handled: false,
+                    can_send,
+                    channel_exists: true,
+                    member_roles: &role_ids,
+                    shop_json: None,
+                    template_override: Some(&tpl_owned),
+                    member_username: &msg.author.name,
+                    member_mention: &mention_owned,
+                    member_count,
+                    guild_name: &guild_name_owned,
+                    ..Default::default()
+                },
             )
             .await;
-            if leveled {
-                // Level-up message (template or default).
-                // Mirrors ranks/onNewMessage.ts: GUILD.RANKS.message
-                // template, else the event_xp_level_earn lang key.
-                let stored_tpl = ranks_message_routed(&self.pool, &gid).await;
-                let tpl = match stored_tpl {
-                    Some(t) => t,
-                    None => {
-                        let lang_code =
-                            crate::db::guild_lang(&self.pool, Some(guild_id.get())).await;
-                        crate::lang::get(&lang_code, "event_xp_level_earn")
-                            .map(|s| {
-                                s.replace("{memberMention}", &msg.author.mention().to_string())
-                                    .replace("{xpLevel}", &level.to_string())
-                            })
-                            .unwrap_or_else(|| "Level up! {user} is now level {level}.".to_string())
+            let level = out.level;
+            if out.leveled {
+                // Level-up announce routed by the full path (in place,
+                // xpchannels, or silent).
+                if let Some(text) = out.text {
+                    match out.target {
+                        crate::events::XpAnnounceTarget::ReplyInPlace => {
+                            let _ = msg.channel_id.say(&_ctx.http, text).await;
+                        }
+                        crate::events::XpAnnounceTarget::SendToChannel(id) => {
+                            if let Ok(chan) = id.parse::<u64>() {
+                                let _ = serenity::ChannelId::new(chan).say(&_ctx.http, text).await;
+                            }
+                        }
+                        crate::events::XpAnnounceTarget::Suppressed => {}
                     }
-                };
-                let text = tpl
-                    .replace("{user}", &msg.author.mention().to_string())
-                    .replace("{level}", &level.to_string());
-                let _ = msg.channel_id.say(&_ctx.http, text).await;
+                }
                 // Rank-role rewards.
                 let roles: Vec<crate::commands::ranks::main::RankRole> =
                     crate::commands::ranks::roles::load_rank_roles_routed(&self.pool, &gid).await;
