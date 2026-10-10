@@ -227,22 +227,22 @@ committed — see `.gitignore`. No push without a green
 ## Eternal backlog (seeded 2026-10-09 by 7 read-only audits + lavalink edge audit; full reports in `~/.hermes/cache/delegation/live/deleg_55b606d3/task-{0,1,2,3,4,5,9}.log` — each item is a future unit for other models, files disjoint unless noted)
 
 ### Events (audit task-0)
-- [ ] E1 generic component + context dispatch (button/select `%`-split registry, ?dm strip, modal submits) — `events_handler.rs`, `bot.rs`.
-- [ ] E2 protection channel restore executors (consume BACKUP snapshots: recreate category/channel, perms/parent/position, dedup) — `events_handler.rs`.
-- [ ] E3 guild-leave 10h cancellable wipe queue + ready recovery (replaces immediate flag) — `events_handler.rs`, `scheduler.rs`.
+- [x] E1 generic component + context dispatch — DONE (U-ETERNAL-76: ?dm-strip + %-split fallback + ModalSubmit arm).
+- [x] E2 protection channel restore executors — VERIFIED done (U-ETERNAL-76 sweep: snapshot/restore executors + tests present).
+- [x] E3 guild-leave 10h cancellable wipe queue + ready recovery — DONE (U-ETERNAL-76: queue verified + owner DMs added).
 - [ ] E4 welcome image/Components-V2 legs (welcomerEmbed resolve, avatar snapshot) — html2png-blocked, text path done.
 - [x] E5 leash full-fidelity — VERIFIED done (U-ETERNAL-43): array store, 30-min prune (`leash_valid`), CSV multi-sub (`leash_sub_ids`), both directions (`leash_is_dom`), wired in voice-state arm, unit-tested.
-- [ ] E6 temp-voice hardening (creation lock, fetch-based emptiness, maskLink names, ready recovery).
+- [x] E6 temp-voice hardening — VERIFIED done (U-ETERNAL-76 sweep: lock, emptiness sweep, maskLink, recovery + tick + test).
 - [~] E7 snipe key reunification (reader DONE in U-ETERNAL-43 — TS `GUILD.SNIPE.<channel>` first + legacy fallbacks + TS embed; writer half QUEUED: `message_delete` in `events_handler.rs` must store the TS shape `{snipe: maskLink, snipeUserInfoTag, snipeUserInfoPp, snipeTimestamp}` under the TS key).
 - [x] E8 mention-ping rank-role grant — VERIFIED done (U-ETERNAL-43): `is_bot_ping` exact-`<@id>` gate wired in message arm, unit-tested.
-- [ ] E9 guild-leave log embed to guild-logs channel.
+- [x] E9 guild-leave log embed to guild-logs channel — DONE (U-ETERNAL-76: members-total + shard fields, joinedTimestamp, footer parity).
 - [ ] E10 captcha PNG leg (image-blocked; attempts/roles/kick done).
-- [ ] E11 protection allowlist-mode exemptions per rule.
-- [ ] E12 command-gate verification (blacklist/cooldown/loggerX on both prefix+slash paths).
-- [ ] E13 ready-sweep leftovers (TTS prefetch/cleanup, usersNamesMap warm, perm-strip sync).
+- [x] E11 protection allowlist-mode exemptions per rule — VERIFIED done (U-ETERNAL-76 sweep: all 13 rules via protection_guard + tests).
+- [x] E12 command-gate verification — DONE (U-ETERNAL-74: gates verified identical both paths + 2 fixes + guard test).
+- [x] E13 ready-sweep leftovers — VERIFIED done (U-ETERNAL-76 sweep: TTS prefetch/cleanup, usersNamesMap warm, perm-strip sync + tests).
 
 ### Core functions (audit task-1)
-- [ ] C1 method.ts prefix-resolver battery → `funcs_resolve.rs` (P0 for prefix parity). Resolvers + prefix_args VERIFIED done (U-ETERNAL-70); missing slice queued: C1-send (interactionSend/channelSend/reply/checkCommandArgs/createAwesomeEmbed/button/punish/warn → new `funcs_send.rs`).
+- [ ] C1 method.ts prefix-resolver battery → `funcs_resolve.rs` (P0 for prefix parity). Resolvers + prefix_args VERIFIED done (U-ETERNAL-70); missing slice queued: C1-send delivery wiring (pure `funcs_send.rs` DONE in U-ETERNAL-72).
 - [ ] C2 permissonsCalculator full gate + adversarial authz tests (P0). Gate + 9 tests VERIFIED done (U-ETERNAL-70); missing slice queued: C2-deny (sendErrorMessage neededPerm builder, blocked on C1-send delivery).
 - [x] C3 ticketsManager 2177-line fn-by-fn delta — VERIFIED done (U-ETERNAL-70: lifecycle-split across ticket/ + transcript.rs, all exports covered).
 - [x] C4 userStatsUtils 8 fns → pure `stats_calc` module — VERIFIED done (U-ETERNAL-70: 9 pure fns cover all portable TS fns; `getChannelName` correctly excluded, needs live Guild).
