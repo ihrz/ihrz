@@ -420,6 +420,68 @@ pub fn parse_entry_requirement(v: &serde_json::Value) -> (String, String) {
     }
 }
 
+/// Count a raw messages store value like the TS messages leg
+/// (giveawaysManager.ts:198-205): TS pushes one record per message into
+/// `<gid>.STATS.USER.<uid>.messages` (onNewMessage.ts:39), so an array
+/// reads via `length`; the Rust `UserStats.messages` u64 counter reads
+/// directly. Objects (a `STATS.USER.<uid>` row) recurse into `messages`.
+pub fn count_messages_value(v: &serde_json::Value) -> u64 {
+    match v {
+        serde_json::Value::Array(a) => a.len() as u64,
+        serde_json::Value::Number(n) => n
+            .as_u64()
+            .or_else(|| n.as_f64().filter(|f| *f >= 0.0).map(|f| f as u64))
+            .unwrap_or(0),
+        serde_json::Value::String(s) => s.trim().parse::<u64>().unwrap_or(0),
+        serde_json::Value::Object(map) => {
+            map.get("messages").map(count_messages_value).unwrap_or(0)
+        }
+        _ => 0,
+    }
+}
+
+/// Table-routed read with legacy flat-row fallback for stats keys.
+/// Mirrors `table_value_or_legacy` in stats (kept local: that helper is
+/// private and this module is the only other reader of these keys).
+async fn gw_stats_value(
+    pool: &crate::db::Pool,
+    guild_id: &str,
+    key: &str,
+) -> Option<serde_json::Value> {
+    let backend = crate::backends::Backend::sqlite(pool.clone());
+    if let Ok(Some(v)) = backend.table(guild_id).get::<serde_json::Value>(key).await {
+        return Some(v);
+    }
+    let s = crate::db::kv_get(pool, guild_id, key).await?;
+    serde_json::from_str(&s)
+        .ok()
+        .or(Some(serde_json::Value::String(s)))
+}
+
+/// Total messages for the giveaway entry gate. Accepts all three shapes:
+/// the TS array at `STATS.USER.<uid>.messages` (length, per
+/// giveawaysManager.ts:198-205 + onNewMessage.ts:39), the nested legacy
+/// `STATS.USER` map indexed by user id, and the Rust `UserStats.messages`
+/// u64 counter (plus `msg_log` length). Takes the max so split-brain
+/// rows never undercount.
+pub async fn load_messages_count(pool: &crate::db::Pool, guild_id: &str, user_id: u64) -> u64 {
+    let mut best = 0u64;
+    if let Some(v) = gw_stats_value(pool, guild_id, &format!("STATS.USER.{user_id}.messages")).await
+    {
+        best = best.max(count_messages_value(&v));
+    }
+    if let Some(v) = gw_stats_value(pool, guild_id, &format!("STATS.USER.{user_id}")).await {
+        best = best.max(count_messages_value(&v));
+    }
+    if let Some(v) = gw_stats_value(pool, guild_id, "STATS.USER").await {
+        if let Some(user) = v.get(user_id.to_string()) {
+            best = best.max(count_messages_value(user));
+        }
+    }
+    let stats = crate::commands::stats::main::load_stats(pool, guild_id, user_id).await;
+    best.max(stats.messages.max(stats.msg_log.len() as u64))
+}
+
 /// Requirement gate. Mirrors the entry checks in giveawaysManager.
 pub async fn check_requirement(
     pool: &crate::db::Pool,
@@ -438,8 +500,7 @@ pub async fn check_requirement(
         }
         "messages" => {
             let need: u64 = value.trim().parse().unwrap_or(u64::MAX);
-            let stats = crate::commands::stats::main::load_stats(pool, guild_id, user_id).await;
-            stats.messages >= need
+            load_messages_count(pool, guild_id, user_id).await >= need
         }
         "roles" => value
             .trim()
@@ -1427,6 +1488,67 @@ mod tests {
         assert!(!check_requirement(&pool, "g", 1, &[], "messages", "5").await);
         assert!(!check_requirement(&pool, "g", 1, &[7], "roles", "9").await);
         assert!(check_requirement(&pool, "g", 1, &[9], "roles", "9").await);
+    }
+
+    #[test]
+    fn messages_count_reads_all_store_shapes() {
+        // TS array shape (onNewMessage pushes one record per message).
+        let arr = serde_json::json!([{"a": 1}, {"a": 2}, {"a": 3}]);
+        assert_eq!(count_messages_value(&arr), 3);
+        assert_eq!(count_messages_value(&serde_json::json!([])), 0);
+        // Rust u64 counter (plus floats/strings that coerce cleanly).
+        assert_eq!(count_messages_value(&serde_json::json!(7)), 7);
+        assert_eq!(count_messages_value(&serde_json::json!(5.0)), 5);
+        assert_eq!(count_messages_value(&serde_json::json!("4")), 4);
+        assert_eq!(count_messages_value(&serde_json::json!(-2)), 0);
+        assert_eq!(count_messages_value(&serde_json::json!(null)), 0);
+        // User rows recurse into `messages` (TS array or Rust counter).
+        let row = serde_json::json!({"messages": [{"a": 1}], "voices": []});
+        assert_eq!(count_messages_value(&row), 1);
+        let row = serde_json::json!({"messages": 6});
+        assert_eq!(count_messages_value(&row), 6);
+        assert_eq!(count_messages_value(&serde_json::json!({"voices": []})), 0);
+    }
+
+    #[tokio::test]
+    async fn messages_gate_accepts_ts_array_nested_and_counter() {
+        let pool = crate::db::memory_pool().await;
+        let backend = crate::backends::Backend::sqlite(pool.clone());
+        // 1. TS array shape: one record per message (onNewMessage.ts:39),
+        // read via length (giveawaysManager.ts:198-205).
+        let msgs: Vec<serde_json::Value> =
+            (0..5).map(|i| serde_json::json!({"sent_ts": i})).collect();
+        backend
+            .table("ts-array")
+            .set("STATS.USER.1.messages", &msgs)
+            .await
+            .unwrap();
+        assert_eq!(load_messages_count(&pool, "ts-array", 1).await, 5);
+        assert!(check_requirement(&pool, "ts-array", 1, &[], "messages", "5").await);
+        assert!(!check_requirement(&pool, "ts-array", 1, &[], "messages", "6").await);
+        // 2. Nested legacy `STATS.USER` map (flat kv row) indexed by user.
+        let map = serde_json::json!({"1": {"messages": [{"a": 1}, {"a": 2}, {"a": 3}]}});
+        crate::db::kv_set(&pool, "legacy-map", "STATS.USER", &map.to_string())
+            .await
+            .unwrap();
+        assert_eq!(load_messages_count(&pool, "legacy-map", 1).await, 3);
+        assert!(check_requirement(&pool, "legacy-map", 1, &[], "messages", "3").await);
+        assert!(!check_requirement(&pool, "legacy-map", 1, &[], "messages", "4").await);
+        // 3. Rust u64 counter row.
+        crate::commands::stats::save_stats(
+            &pool,
+            "rust-counter",
+            1,
+            &crate::commands::stats::UserStats {
+                messages: 5,
+                ..Default::default()
+            },
+        )
+        .await
+        .unwrap();
+        assert_eq!(load_messages_count(&pool, "rust-counter", 1).await, 5);
+        assert!(check_requirement(&pool, "rust-counter", 1, &[], "messages", "5").await);
+        assert!(!check_requirement(&pool, "rust-counter", 1, &[], "messages", "6").await);
     }
 
     #[test]

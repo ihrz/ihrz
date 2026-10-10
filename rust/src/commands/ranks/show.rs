@@ -36,9 +36,14 @@ pub async fn save_rank_routed(
 
 /// Guild display name for the rank card. Mirrors `!show.ts:82,105-108`
 /// (`user.user.globalName || user.displayName` on the guild member):
-/// the member's display name (server nickname first) wins, falling back
-/// to the global name / username when the member is not resolvable.
+/// the global name wins, then the member's display name (server
+/// nickname first), falling back to the username when neither resolves.
 pub async fn rank_display_name(ctx: &Ctx<'_>, user: &serenity::User) -> String {
+    if let Some(g) = &user.global_name {
+        if !g.is_empty() {
+            return g.clone();
+        }
+    }
     if let Some(gid) = ctx.guild_id() {
         if let Ok(member) = gid.member(ctx.http(), user.id).await {
             let name = member.display_name();
@@ -47,9 +52,7 @@ pub async fn rank_display_name(ctx: &Ctx<'_>, user: &serenity::User) -> String {
             }
         }
     }
-    user.global_name
-        .clone()
-        .unwrap_or_else(|| user.name.clone())
+    user.name.clone()
 }
 
 /// Show the sticky configuration of one channel

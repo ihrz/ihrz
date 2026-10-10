@@ -674,9 +674,12 @@ pub async fn post_economy_log(
     };
     let gid = guild_id.get().to_string();
     let pool = &ctx.data().pool;
-    let channel_id: Option<u64> = crate::db::kv_get(pool, &gid, ECONOMY_LOG_KEY)
-        .await
-        .and_then(|s| s.trim().parse().ok());
+    // Table-first with legacy kv fallback (lazy promotion via routed_get);
+    // legacy-only rows written by the TS side still resolve.
+    let channel_id: Option<u64> =
+        crate::commands::owner::main::routed_get(pool, &gid, &gid, ECONOMY_LOG_KEY)
+            .await
+            .and_then(|s| s.trim().parse().ok());
     let Some(channel_id) = channel_id else {
         return Ok(());
     };
@@ -1418,6 +1421,33 @@ mod tests {
     fn economy_log_colour_matches_sendembed() {
         assert_eq!(ECONOMY_LOG_COLOUR, 0xF1C232);
         assert_eq!(ECONOMY_LOG_KEY, "GUILD.SERVER_LOGS.economy");
+    }
+
+    #[tokio::test]
+    async fn economy_log_channel_routed_reads_legacy_and_promotes() {
+        use crate::commands::owner::main::{table_backend, tbl_get_value};
+        let pool = mem_pool().await;
+        // Legacy-only row (TS writer shape) resolves through the routed
+        // read used by post_economy_log and promotes into the table.
+        crate::db::kv_set(&pool, "g", ECONOMY_LOG_KEY, "12345")
+            .await
+            .unwrap();
+        let raw = crate::commands::owner::main::routed_get(&pool, "g", "g", ECONOMY_LOG_KEY).await;
+        assert_eq!(raw.as_deref(), Some("12345"));
+        assert!(tbl_get_value(&pool, "g", ECONOMY_LOG_KEY).await.is_some());
+        // Table wins on conflict.
+        table_backend(&pool)
+            .table("g")
+            .set(ECONOMY_LOG_KEY, serde_json::json!("777"))
+            .await
+            .unwrap();
+        let raw = crate::commands::owner::main::routed_get(&pool, "g", "g", ECONOMY_LOG_KEY).await;
+        assert_eq!(raw.as_deref(), Some("777"));
+        // Unset guilds stay silent (None -> post_economy_log returns).
+        assert_eq!(
+            crate::commands::owner::main::routed_get(&pool, "n", "n", ECONOMY_LOG_KEY).await,
+            None
+        );
     }
 
     #[test]

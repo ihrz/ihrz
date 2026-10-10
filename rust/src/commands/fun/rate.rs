@@ -2,9 +2,11 @@ use super::*;
 
 /// Rate something X/10. Mirrors !rate.ts.
 // Alias note, maskLink on the subject, stripped allowedMentions.
-// Required like the TS slash option (`the_things`, required: true in
-// fun.ts); `#[rest]` keeps multi-word prefix subjects whole. An empty
-// subject still falls back to "nothing" like `string || "nothing"`.
+// Optional, defaulting to "nothing" like `string || "nothing"` in
+// !rate.ts: the TS slash option is required:true in fun.ts, but the
+// prefix path (`longString(args, 0)`) can be empty, so `Option` keeps
+// a bare `!rate` working instead of raising a framework error.
+// `#[rest]` keeps multi-word prefix subjects whole.
 #[poise::command(
     slash_command,
     prefix_command,
@@ -16,13 +18,13 @@ pub async fn rate(
     ctx: Ctx<'_>,
     #[description = "Thing to rate"]
     #[rest]
-    the_things: String,
+    the_things: Option<String>,
 ) -> Result<(), anyhow::Error> {
     // No fun guard: `!rate.ts` has no `GUILD.FUN.states` check,
     // so rating runs even with fun disabled.
     use rand::Rng;
     let random: u32 = rand::thread_rng().gen_range(0..10);
-    let masked = crate::funcs::mask_link(&rate_subject(&the_things));
+    let masked = crate::funcs::mask_link(&rate_subject(the_things.as_deref().unwrap_or("")));
     let content = crate::commands::lang_for(
         &ctx,
         "fun_rate_command_ok",

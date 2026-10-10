@@ -50,7 +50,18 @@ pub fn user_backup_prefix(user_id: u64) -> String {
     format!("{BACKUPS_ROOT}.{user_id}.")
 }
 
+/// Snapshot read: named `backups` table first (TS parity —
+/// src/core/backup/src/index.ts:300 keys rows by global backupID),
+/// legacy per-user kv row fallback (never dropped: Rust-only snapshots
+/// predate the table write).
+/// NOTE: no lazy promotion — kv rows hold the full BackupInfos while
+/// the table holds the bare BackupData; promoting would corrupt the TS
+/// shape. Callers needing an ownership proof use `bkp_owns`, never this
+/// fallback: a shared-table row alone never proves ownership.
 pub async fn bkp_get(pool: &crate::db::Pool, user_id: u64, backup_id: &str) -> Option<String> {
+    if let Some(shared) = crate::db::backup_get(pool, backup_id).await {
+        return Some(shared);
+    }
     crate::db::kv_get(pool, BACKUPS_SCOPE, &backup_user_key(user_id, backup_id)).await
 }
 
@@ -60,17 +71,34 @@ pub async fn bkp_set(
     backup_id: &str,
     value: &str,
 ) -> anyhow::Result<()> {
+    // Dual-write (routed_set pattern): legacy kv row first so
+    // unmigrated per-user readers stay fresh, then the named table row.
     crate::db::kv_set(
         pool,
         BACKUPS_SCOPE,
         &backup_user_key(user_id, backup_id),
         value,
     )
-    .await
+    .await?;
+    crate::db::ensure_backups_table(pool).await?;
+    crate::db::backup_set(pool, backup_id, value).await
 }
 
 pub async fn bkp_del(pool: &crate::db::Pool, user_id: u64, backup_id: &str) -> anyhow::Result<()> {
-    crate::db::kv_del(pool, BACKUPS_SCOPE, &backup_user_key(user_id, backup_id)).await
+    // Clears both stores (routed_del pattern): the per-user pointer and
+    // the shared snapshot row (`client.backup.remove(backupID)` in
+    // !delete.ts:134).
+    crate::db::kv_del(pool, BACKUPS_SCOPE, &backup_user_key(user_id, backup_id)).await?;
+    crate::db::backup_del(pool, backup_id).await
+}
+
+/// Ownership pointer check (kv only, never the shared table). Gates the
+/// stranger rejection like the `BACKUPS.<uid>.<id>` lookup in
+/// !delete.ts:59 / !list.ts:64 / !load.ts:90.
+pub async fn bkp_owns(pool: &crate::db::Pool, user_id: u64, backup_id: &str) -> bool {
+    crate::db::kv_get(pool, BACKUPS_SCOPE, &backup_user_key(user_id, backup_id))
+        .await
+        .is_some()
 }
 
 /// One user's backups as (id, snapshot) pairs, sorted by id.
@@ -179,14 +207,6 @@ pub fn page_count(total: usize) -> usize {
     total.div_ceil(BACKUPS_PER_PAGE)
 }
 
-/// Delete the shared snapshot row (`backups` table, global backupID).
-/// Mirrors `client.backup.remove(backupID)` in !delete.ts:134 (the
-/// per-user pointer delete is `bkp_del`). Callers treat a missing
-/// table/row as best-effort, like the TS fire-and-forget call.
-pub async fn shared_snapshot_del(pool: &crate::db::Pool, backup_id: &str) -> anyhow::Result<()> {
-    crate::db::backup_del(pool, backup_id).await
-}
-
 /// True when the invoker owns the guild or holds ADMINISTRATOR.
 /// Gates the shared-snapshot fallback in load: strangers without a
 /// per-user pointer get backup_this_is_not_your_backup (!load.ts:90).
@@ -210,7 +230,7 @@ mod tests {
     use super::super::gen_backup_id;
     use super::{
         backup_field, backup_meta, backup_owner_only, backup_summary, backup_user_key, bkp_del,
-        bkp_get, bkp_scan_user, bkp_set, page_count, shared_snapshot_del, user_backup_prefix,
+        bkp_get, bkp_owns, bkp_scan_user, bkp_set, page_count, user_backup_prefix,
         BACKUPS_PER_PAGE, BACKUPS_ROOT, BACKUPS_SCOPE,
     };
 
@@ -338,11 +358,16 @@ mod tests {
     async fn users_are_isolated_like_ts() {
         let pool = mem_pool().await;
         bkp_set(&pool, 7, "shared", "mine").await.unwrap();
-        // Another user sees neither the row nor the scan.
-        assert_eq!(bkp_get(&pool, 8, "shared").await, None);
+        // Ownership pointers and scans stay per-user (!delete.ts:59,
+        // !list.ts:64): another user owns nothing and scans nothing, so
+        // the delete/list gates (on `bkp_owns`) reject strangers before
+        // any delete runs.
+        assert!(!bkp_owns(&pool, 8, "shared").await);
         assert!(bkp_scan_user(&pool, 8).await.is_empty());
-        bkp_del(&pool, 8, "shared").await.unwrap();
         assert_eq!(bkp_get(&pool, 7, "shared").await.as_deref(), Some("mine"));
+        bkp_del(&pool, 7, "shared").await.unwrap();
+        assert!(!bkp_owns(&pool, 7, "shared").await);
+        assert_eq!(bkp_get(&pool, 7, "shared").await, None);
     }
 
     #[tokio::test]
@@ -362,17 +387,77 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn shared_snapshot_del_removes_global_row() {
-        // Mirrors `client.backup.remove(backupID)` in !delete.ts:134.
-        // NOTE: round-trip seeding of the TS `backups` table needs a
-        // `backup_set` driver op (requested from the db lead); until then
-        // cover the best-effort contract callers rely on (`let _ = ...`
-        // in delete.rs): deleting a missing id never leaves a row behind.
+    async fn bkp_get_prefers_named_table_with_kv_fallback() {
+        // D3-BACKUP: named `backups` table is primary, the per-user kv
+        // row is the legacy fallback (never dropped).
         let pool = mem_pool().await;
-        let _ = shared_snapshot_del(&pool, "gone").await;
+        assert_eq!(bkp_get(&pool, 7, "id1").await, None);
+        // Legacy-only row (pre-table snapshot) still reads.
+        crate::db::kv_set(&pool, "0", "BACKUPS.7.legacy", "v1")
+            .await
+            .unwrap();
+        assert_eq!(bkp_get(&pool, 7, "legacy").await.as_deref(), Some("v1"));
+        // Table row wins when both stores hold the id (fresher: TS-side
+        // edits only touch the table).
+        crate::db::ensure_backups_table(&pool).await.unwrap();
+        crate::db::backup_set(&pool, "legacy", "v2").await.unwrap();
+        assert_eq!(bkp_get(&pool, 7, "legacy").await.as_deref(), Some("v2"));
+        // Other users share the table row (global backupID); ownership
+        // stays a kv-pointer question answered by `bkp_owns`.
+        assert_eq!(bkp_get(&pool, 8, "legacy").await.as_deref(), Some("v2"));
+        assert!(!bkp_owns(&pool, 8, "legacy").await);
+    }
+
+    #[tokio::test]
+    async fn bkp_set_dual_writes_both_stores() {
+        let pool = mem_pool().await;
+        bkp_set(&pool, 7, "id1", "v1").await.unwrap();
+        assert_eq!(
+            crate::db::kv_get(&pool, "0", "BACKUPS.7.id1")
+                .await
+                .as_deref(),
+            Some("v1")
+        );
+        assert_eq!(
+            crate::db::backup_get(&pool, "id1").await.as_deref(),
+            Some("v1")
+        );
+        assert_eq!(bkp_get(&pool, 7, "id1").await.as_deref(), Some("v1"));
+    }
+
+    #[tokio::test]
+    async fn bkp_del_clears_both_stores() {
+        // Mirrors `client.backup.remove(backupID)` in !delete.ts:134 plus
+        // the per-user pointer delete; a missing id stays a harmless
+        // no-op (callers rely on the best-effort contract).
+        let pool = mem_pool().await;
+        bkp_del(&pool, 7, "gone").await.unwrap();
+        assert_eq!(crate::db::backup_get(&pool, "gone").await, None);
+        bkp_set(&pool, 7, "gone", "v1").await.unwrap();
+        bkp_del(&pool, 7, "gone").await.unwrap();
+        assert_eq!(bkp_get(&pool, 7, "gone").await, None);
+        assert_eq!(crate::db::kv_get(&pool, "0", "BACKUPS.7.gone").await, None);
         assert_eq!(crate::db::backup_get(&pool, "gone").await, None);
         // Second delete of the same missing row is equally harmless.
-        let _ = shared_snapshot_del(&pool, "gone").await;
-        assert_eq!(crate::db::backup_get(&pool, "gone").await, None);
+        bkp_del(&pool, 7, "gone").await.unwrap();
+        assert_eq!(bkp_get(&pool, 7, "gone").await, None);
+    }
+
+    #[tokio::test]
+    async fn bkp_owns_checks_kv_pointer_only() {
+        // A shared-table row alone never proves ownership (!delete.ts:59:
+        // strangers get backup_this_is_not_your_backup).
+        let pool = mem_pool().await;
+        crate::db::ensure_backups_table(&pool).await.unwrap();
+        crate::db::backup_set(&pool, "shared", "ts-row")
+            .await
+            .unwrap();
+        assert!(!bkp_owns(&pool, 7, "shared").await);
+        assert!(!bkp_owns(&pool, 8, "shared").await);
+        bkp_set(&pool, 7, "shared", "mine").await.unwrap();
+        assert!(bkp_owns(&pool, 7, "shared").await);
+        assert!(!bkp_owns(&pool, 8, "shared").await);
+        bkp_del(&pool, 7, "shared").await.unwrap();
+        assert!(!bkp_owns(&pool, 7, "shared").await);
     }
 }

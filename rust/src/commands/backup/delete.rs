@@ -58,8 +58,14 @@ pub async fn backup_delete(
     };
     // Ownership gate, like the BACKUPS.<uid>.<id> check in
     // !delete.ts:59 (strangers get backup_this_is_not_your_backup).
+    // `bkp_owns` reads the kv pointer only: a shared-table row alone
+    // never proves ownership.
     let uid = ctx.author().id.get();
-    let raw = super::backup::bkp_get(&ctx.data().pool, uid, &backup_id).await;
+    let raw = if super::backup::bkp_owns(&ctx.data().pool, uid, &backup_id).await {
+        super::backup::bkp_get(&ctx.data().pool, uid, &backup_id).await
+    } else {
+        None
+    };
     let Some(raw) = raw else {
         let no = crate::emojis::app_emoji_markup(ctx.http(), "No")
             .await
@@ -187,10 +193,10 @@ pub async fn backup_delete(
         .unwrap_or_else(|| "❌".to_string());
     let (title, color) = match pressed.as_ref().map(|i| i.data.custom_id.as_str()) {
         Some("backup-trash-button") => {
+            // `bkp_del` clears the per-user pointer and the shared
+            // snapshot row (BACKUPS.<uid>.<id> + `client.backup.remove`
+            // in !delete.ts:134).
             super::backup::bkp_del(&ctx.data().pool, uid, &backup_id).await?;
-            // Drop the shared snapshot too, like `client.backup.remove`
-            // in !delete.ts:134 (best-effort, like the TS fire-and-forget).
-            let _ = super::backup::shared_snapshot_del(&ctx.data().pool, &backup_id).await;
             (
                 crate::commands::lang_for(
                     &ctx,

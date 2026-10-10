@@ -9,14 +9,19 @@ pub fn validate_winners(n: i64) -> bool {
 }
 
 /// Parse the raw winner input, like `getNumber` + `parseInt` in
-/// !create.ts:60-85. Unparseable input maps to 0 so the
+/// !create.ts:60-85. The slash schema types `winner` as Number (gw.ts),
+/// so fractional input (2.5) reaches the handler as a float; TS
+/// `parseInt("2.5")` truncates to 2 for the guard but stores the raw
+/// float as `winnerCount` (create() passes it through). Ceiling instead
+/// (2.5 -> 3) so the stored u32 count covers the requested winners;
+/// unparseable, non-finite or non-positive input maps to 0 so the
 /// `start_is_not_valid` guard below rejects it in-handler.
 pub fn parse_winners_count(raw: &str) -> i64 {
     raw.trim()
         .parse::<f64>()
         .ok()
-        .filter(|n| n.is_finite())
-        .map(|n| n as i64)
+        .filter(|n| n.is_finite() && *n > 0.0)
+        .map(|n| n.ceil() as i64)
         .unwrap_or(0)
 }
 
@@ -374,15 +379,23 @@ mod tests {
     #[test]
     fn winners_raw_string_parses_like_ts_number() {
         // !create.ts:77-80 (`isNaN || parseInt <= 0` -> start_is_not_valid).
+        // Fractions ceil (2.5 -> 3) so the stored u32 covers the request;
+        // anything else unusable maps to 0 for the guard.
         assert_eq!(parse_winners_count("3"), 3);
         assert_eq!(parse_winners_count(" 2 "), 2);
-        assert_eq!(parse_winners_count("3.9"), 3);
+        assert_eq!(parse_winners_count("2.5"), 3);
+        assert_eq!(parse_winners_count("3.9"), 4);
         assert_eq!(parse_winners_count("abc"), 0);
         assert_eq!(parse_winners_count(""), 0);
-        assert_eq!(parse_winners_count("-2"), -2);
+        assert_eq!(parse_winners_count("0"), 0);
+        assert_eq!(parse_winners_count("-2"), 0);
+        assert_eq!(parse_winners_count("NaN"), 0);
+        assert_eq!(parse_winners_count("inf"), 0);
         assert!(validate_winners(parse_winners_count("3")));
+        assert!(validate_winners(parse_winners_count("2.5")));
         assert!(!validate_winners(parse_winners_count("abc")));
         assert!(!validate_winners(parse_winners_count("0")));
+        assert!(!validate_winners(parse_winners_count("-2")));
     }
 
     #[test]

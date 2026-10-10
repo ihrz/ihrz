@@ -92,7 +92,10 @@ pub fn roll_dice_set(count: usize, faces: u32) -> Vec<u32> {
         .collect()
 }
 
-/// Coin flip. Mirrors !heads-tails.ts.
+/// Deterministic coin flip. Test-only (cfg(test)): production flips via
+/// `coin_flip_random()` below (`Math.random() < 0.5`); this pins the
+/// heads/tails mapping without shipping dead code.
+#[cfg(test)]
 pub fn coin_flip(now_ms: u64) -> &'static str {
     if now_ms.is_multiple_of(2) {
         "heads"

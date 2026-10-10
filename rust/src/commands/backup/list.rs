@@ -46,10 +46,9 @@ pub async fn backup_list(
     // ADOPT (recorded): strict per-user check only, no owner/admin
     // shared-table fallback (unlike load.rs) — TS has none here either.
     if let Some(owned) = list_gate_id(backup_id.as_deref()) {
-        if super::backup::bkp_get(&ctx.data().pool, uid, owned)
-            .await
-            .is_none()
-        {
+        // `bkp_owns` reads the kv pointer only: a shared-table row alone
+        // never proves ownership.
+        if !super::backup::bkp_owns(&ctx.data().pool, uid, owned).await {
             let no = crate::emojis::app_emoji_markup(ctx.http(), "No")
                 .await
                 .unwrap_or_else(|| "❌".to_string());

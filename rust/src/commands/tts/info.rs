@@ -33,7 +33,7 @@ pub async fn tts_info(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
             },
             true,
         );
-    if let Some(c) = cfg {
+    if let Some(c) = cfg.as_ref().filter(|c| c.enabled) {
         embed = embed
             .field(
                 t("var_voice_channel", "Voice Channel"),

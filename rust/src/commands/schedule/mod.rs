@@ -100,15 +100,18 @@ pub fn scope_guild(ctx: &Ctx<'_>) -> String {
         .unwrap_or_else(|| "global".to_string())
 }
 
+/// Legacy-entry helpers, routed through the guild-scoped named-table
+/// pair in `schedule.rs` (table first, legacy kv fallback with lazy
+/// promotion, dual writes). Keys (`SCHEDULE.<uid>.<code>`) are
+/// unchanged and TS-era `{title, description, expired}` rows still
+/// parse via `entry_from_value`, so no legacy read is dropped.
 pub async fn load_entry(
     pool: &crate::db::Pool,
     guild_id: &str,
     user_id: u64,
     code: &str,
 ) -> Option<ScheduleEntry> {
-    let raw = crate::db::kv_get(pool, guild_id, &schedule_key(user_id, code)).await?;
-    let v: serde_json::Value = serde_json::from_str(&raw).ok()?;
-    entry_from_value(&v, code)
+    schedule::load_entry_routed(pool, guild_id, user_id, code).await
 }
 
 pub async fn save_entry(
@@ -117,8 +120,7 @@ pub async fn save_entry(
     entry: &ScheduleEntry,
     user_id: u64,
 ) -> anyhow::Result<()> {
-    let s = serde_json::to_string(entry)?;
-    crate::db::kv_set(pool, guild_id, &schedule_key(user_id, &entry.code), &s).await
+    schedule::save_entry_routed(pool, guild_id, entry, user_id).await
 }
 
 pub async fn delete_entry(
@@ -127,10 +129,7 @@ pub async fn delete_entry(
     user_id: u64,
     code: &str,
 ) -> anyhow::Result<bool> {
-    let key = schedule_key(user_id, code);
-    let existed = crate::db::kv_get(pool, guild_id, &key).await.is_some();
-    crate::db::kv_del(pool, guild_id, &key).await?;
-    Ok(existed)
+    schedule::delete_entry_routed(pool, guild_id, user_id, code).await
 }
 
 pub async fn list_entries(
@@ -138,18 +137,7 @@ pub async fn list_entries(
     guild_id: &str,
     user_id: u64,
 ) -> Vec<ScheduleEntry> {
-    let rows: Vec<(String, String)> =
-        crate::db::kv_scan_prefix(pool, guild_id, &schedule_prefix(user_id)).await;
-    let mut out: Vec<ScheduleEntry> = rows
-        .iter()
-        .filter_map(|(key, s)| {
-            let v: serde_json::Value = serde_json::from_str(s).ok()?;
-            let code = key.rsplit('.').next().unwrap_or("");
-            entry_from_value(&v, code)
-        })
-        .collect();
-    out.sort_by_key(|e| e.expires_at_ms);
-    out
+    schedule::list_entries_routed(pool, guild_id, user_id).await
 }
 
 pub async fn delete_all_entries(
@@ -157,12 +145,7 @@ pub async fn delete_all_entries(
     guild_id: &str,
     user_id: u64,
 ) -> anyhow::Result<u64> {
-    let prefix = schedule_prefix(user_id);
-    let n = crate::db::kv_scan_prefix(pool, guild_id, &prefix)
-        .await
-        .len() as u64;
-    crate::db::kv_del_prefix(pool, guild_id, &prefix).await?;
-    Ok(n)
+    schedule::delete_all_entries_routed(pool, guild_id, user_id).await
 }
 
 #[cfg(test)]
@@ -261,6 +244,60 @@ mod tests {
         assert_eq!(entry_from_value(&v2, "X").unwrap().expires_at_ms, 5);
         assert_eq!(expiry_ms_of(&v), Some(777));
         assert_eq!(expiry_ms_of(&serde_json::json!({})), None);
+    }
+
+    async fn mem_pool() -> crate::db::Pool {
+        crate::db::memory_pool().await
+    }
+
+    fn sample(code: &str, expires: i64) -> ScheduleEntry {
+        ScheduleEntry {
+            code: code.to_string(),
+            title: "title".to_string(),
+            description: "a description here".to_string(),
+            expires_at_ms: expires,
+        }
+    }
+
+    #[tokio::test]
+    async fn legacy_wrappers_delegate_to_routed() {
+        let pool = mem_pool().await;
+        // Legacy-only TS-writer row surfaces through the wrapper.
+        crate::db::kv_set(
+            &pool,
+            "g",
+            "SCHEDULE.7.OLD",
+            r#"{"title":"t","description":"a description","expired":42}"#,
+        )
+        .await
+        .unwrap();
+        let e = load_entry(&pool, "g", 7, "OLD").await.unwrap();
+        assert_eq!(e.code, "OLD");
+        assert_eq!(e.expires_at_ms, 42);
+        assert_eq!(list_entries(&pool, "g", 7).await.len(), 1);
+        // Wrapper writes land in both stores (dual-write).
+        save_entry(&pool, "g", &sample("NEW", 200), 7)
+            .await
+            .unwrap();
+        assert!(crate::db::kv_get(&pool, "g", "SCHEDULE.7.NEW")
+            .await
+            .is_some());
+        assert_eq!(
+            load_entry(&pool, "g", 7, "NEW")
+                .await
+                .unwrap()
+                .expires_at_ms,
+            200
+        );
+        let list = list_entries(&pool, "g", 7).await;
+        assert_eq!(
+            list.iter().map(|e| e.code.as_str()).collect::<Vec<_>>(),
+            vec!["OLD", "NEW"]
+        );
+        assert!(delete_entry(&pool, "g", 7, "NEW").await.unwrap());
+        assert!(!delete_entry(&pool, "g", 7, "NEW").await.unwrap());
+        assert_eq!(delete_all_entries(&pool, "g", 7).await.unwrap(), 1);
+        assert!(list_entries(&pool, "g", 7).await.is_empty());
     }
 }
 

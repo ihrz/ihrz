@@ -34,22 +34,16 @@ pub struct Profil {
     pub bday_year: Option<i32>,
 }
 
-fn profil_key(user_id: u64) -> String {
-    format!("PROFIL.{user_id}")
-}
-
+/// Legacy profil helpers, routed through the `user_profil` named-table
+/// pair in `profil.rs` (table first, legacy scope-"0" kv blob +
+/// TS per-field leaves as fallback, dual writes). Scope (`"0"`) and
+/// `PROFIL.<uid>` keys are unchanged, so no legacy read is dropped.
 async fn load_profil(pool: &Pool, user_id: u64) -> Profil {
-    let key = profil_key(user_id);
-    match crate::db::kv_get(pool, "0", &key).await {
-        Some(raw) => serde_json::from_str(&raw).unwrap_or_default(),
-        None => Profil::default(),
-    }
+    profil::load_profil_routed(pool, user_id).await
 }
 
 async fn save_profil(pool: &Pool, user_id: u64, profil: &Profil) -> anyhow::Result<()> {
-    let key = profil_key(user_id);
-    let raw = serde_json::to_string(profil)?;
-    crate::db::kv_set(pool, "0", &key, &raw).await
+    profil::save_profil_routed(pool, user_id, profil).await
 }
 
 /// Tolerant age parse: the shared DB is written by TS with JS numbers
@@ -229,5 +223,53 @@ mod tests {
         assert!(!validate_birthday(1, 13, 2000));
         assert!(!validate_birthday(1, 1, 1899));
         assert!(!validate_birthday(1, 1, 2101));
+    }
+
+    async fn mem_pool() -> crate::db::Pool {
+        crate::db::memory_pool().await
+    }
+
+    #[tokio::test]
+    async fn legacy_wrappers_delegate_to_routed() {
+        use super::profil::PROFIL_TABLE;
+        use crate::commands::owner::main::{routed_get, routed_set, GLOBAL_SCOPE};
+        let pool = mem_pool().await;
+        // Legacy-only kv blob (scope "0") surfaces through the wrapper.
+        let old = Profil {
+            description: "old".to_string(),
+            age: Some(20.0),
+            ..Profil::default()
+        };
+        crate::db::kv_set(
+            &pool,
+            "0",
+            "PROFIL.77",
+            &serde_json::to_string(&old).unwrap(),
+        )
+        .await
+        .unwrap();
+        // TS per-field leaf fills a gap the blob leaves.
+        routed_set(&pool, PROFIL_TABLE, GLOBAL_SCOPE, "77.gender", "male")
+            .await
+            .unwrap();
+        let back = load_profil(&pool, 77).await;
+        assert_eq!(back.description, "old");
+        assert_eq!(back.age, Some(20.0));
+        assert_eq!(back.gender.as_deref(), Some("male"));
+        // Wrapper writes land in both stores (dual-write).
+        let mut p = back;
+        p.pronoun = Some("he-him".to_string());
+        save_profil(&pool, 77, &p).await.unwrap();
+        assert!(crate::db::kv_get(&pool, "0", "PROFIL.77").await.is_some());
+        assert_eq!(
+            routed_get(&pool, PROFIL_TABLE, GLOBAL_SCOPE, "77.pronoun")
+                .await
+                .as_deref(),
+            Some("he-him")
+        );
+        assert_eq!(
+            load_profil(&pool, 77).await.pronoun.as_deref(),
+            Some("he-him")
+        );
     }
 }

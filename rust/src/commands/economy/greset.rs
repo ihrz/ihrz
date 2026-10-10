@@ -1,17 +1,12 @@
 use super::*;
 
-/// Routed guild wipe: legacy blob + leaf rows plus every table-nested
-/// `USER.<uid>.ECONOMY` doc. The table `USER` root is shared with other
-/// per-user rows (WARNS), so only the ECONOMY subtree is removed.
+/// Routed guild wipe: every table-nested `USER.<uid>.ECONOMY` doc first,
+/// then the legacy blob + leaf rows. The table `USER` root is shared with
+/// other per-user rows (WARNS), so only the ECONOMY subtree is removed.
 async fn clear_guild_econ(pool: &crate::db::Pool, guild_id: &str) -> anyhow::Result<()> {
     use crate::commands::owner::main::{tbl_del, tbl_get_value};
-    // LIKE `USER.%.ECONOMY%` has a middle wildcard: scan the `USER.` rows
-    // via the driver and delete the ECONOMY-subtree hits.
-    for (k, _) in crate::db::kv_scan_prefix(pool, guild_id, "USER.").await {
-        if k.contains(".ECONOMY") {
-            crate::db::kv_del(pool, guild_id, &k).await?;
-        }
-    }
+    // Table-first: walk the nested USER doc (backend tables store dotted
+    // keys nested under the root, so bulk loops walk instead of scanning).
     if let Some(root) = tbl_get_value(pool, guild_id, "USER").await {
         if let Some(obj) = root.as_object() {
             let uids: Vec<String> = obj
@@ -22,6 +17,13 @@ async fn clear_guild_econ(pool: &crate::db::Pool, guild_id: &str) -> anyhow::Res
             for uid in uids {
                 let _ = tbl_del(pool, guild_id, &format!("USER.{uid}.ECONOMY")).await;
             }
+        }
+    }
+    // Legacy fallback: LIKE `USER.%.ECONOMY%` has a middle wildcard, so
+    // scan the `USER.` rows via the driver and delete ECONOMY-subtree hits.
+    for (k, _) in crate::db::kv_scan_prefix(pool, guild_id, "USER.").await {
+        if k.contains(".ECONOMY") {
+            crate::db::kv_del(pool, guild_id, &k).await?;
         }
     }
     Ok(())
@@ -107,6 +109,10 @@ mod tests {
         crate::db::kv_set(&pool, "g", "USER.1.WARNS", "[]")
             .await
             .unwrap();
+        // Legacy leaf row under the blob (TS subtree delete shape).
+        crate::db::kv_set(&pool, "g", "USER.3.ECONOMY.money", "5")
+            .await
+            .unwrap();
         table_backend(&pool)
             .table("g")
             .set("USER.2.ECONOMY", serde_json::json!({"money": 7}))
@@ -120,6 +126,11 @@ mod tests {
             .unwrap();
         clear_guild_econ(&pool, "g").await.unwrap();
         assert_eq!(crate::db::kv_get(&pool, "g", "USER.1.ECONOMY").await, None);
+        // Legacy leaf rows under the blob go too.
+        assert_eq!(
+            crate::db::kv_get(&pool, "g", "USER.3.ECONOMY.money").await,
+            None
+        );
         // Unrelated legacy rows survive.
         assert_eq!(
             crate::db::kv_get(&pool, "g", "USER.1.WARNS")

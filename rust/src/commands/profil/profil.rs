@@ -32,8 +32,8 @@ pub async fn profil(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
 
 // ---- U-D3-NAMEDTABLES: named `user_profil` table handle ----
 // Scope "0" and `PROFIL.<uid>` keys are unchanged from the legacy kv
-// layout. (The locked `load_profil`/`save_profil` in mod.rs stay on kv;
-// the subcommands below use the routed pair instead.)
+// layout. (The `load_profil`/`save_profil` wrappers in mod.rs delegate
+// to the routed pair below; the subcommands use it directly.)
 use crate::commands::owner::main::{routed_get, GLOBAL_SCOPE};
 
 /// Named table mirroring TS `profilTable` (`user_profil`).

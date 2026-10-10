@@ -15,8 +15,8 @@ use super::*;
 )]
 pub async fn dice(
     ctx: Ctx<'_>,
-    #[description = "Number of dice (1-7)"] number: Option<String>,
-    #[description = "Faces per die (1-12)"] faces: Option<String>,
+    #[description = "Number of dice to roll"] number: Option<String>,
+    #[description = "Number of faces on the dice"] faces: Option<String>,
 ) -> Result<(), anyhow::Error> {
     // No fun guard: `!dice.ts` (33-70) has no `GUILD.FUN.states` check,
     // so the roll runs even with fun disabled.

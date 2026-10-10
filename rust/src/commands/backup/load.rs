@@ -1,15 +1,12 @@
 use super::*;
 
-/// TS `backups` SQL-table read by global backupID.
-/// TS stores full guild snapshots in the `backups` table (row ID =
-/// backupID, `json` = bare BackupData) via src/core/backup/src/index.ts:300,
-/// while metasTable only holds per-user `{guildName, categoryCount,
-/// channelCount}` pointers (!create.ts:89). Snapshots created by TS therefore
-/// have no Rust kv row. Missing table / missing row -> None (never an error).
-async fn ts_backups_table_get(pool: &crate::db::Pool, backup_id: &str) -> Option<String> {
-    crate::db::backup_get(pool, backup_id).await
-}
-
+/// D3-BACKUP: snapshot reads go through `bkp_get` (named `backups`
+/// table primary, legacy per-user kv fallback). TS stores full guild
+/// snapshots in the `backups` table (row ID = backupID, `json` = bare
+/// BackupData) via src/core/backup/src/index.ts:300, while metasTable
+/// only holds per-user `{guildName, categoryCount, channelCount}`
+/// pointers (!create.ts:89).
+///
 /// One snapshot shape for the restore path below. Rust kv rows store
 /// BackupInfos; TS `backups`-table rows store the bare BackupData, so wrap
 /// the latter (size unknown -> 0.0; only used for display upstream).
@@ -95,23 +92,23 @@ pub async fn backup_load(
     }
     // Per-user ownership. Mirrors the BACKUPS.<uid>.<id> check in
     // !load.ts:90 (strangers get backup_this_is_not_your_backup).
-    // Rust kv rows stay primary; TS-created snapshots only exist in the
-    // shared `backups` table (global backupID), so the server owner (or
-    // an admin) may fall back to that shared row as a compat path.
-    // Anyone else without a per-user pointer is rejected like the TS
-    // gate. Kept deliberately: without it, snapshots taken by the TS
-    // bot would be unloadable from the port.
+    // `bkp_get` reads the named `backups` table first with the legacy
+    // per-user kv row as fallback, so TS-created snapshots (shared row
+    // only) stay loadable; `bkp_owns` keeps the stranger gate strict
+    // because a shared-table row alone never proves ownership. Kept
+    // deliberately: without the owner/admin fallback, snapshots taken
+    // by the TS bot would be unloadable from the port.
     let uid = ctx.author().id.get();
     // Trimmed (deliberate keep): TS matches the raw id verbatim, but
     // slash/prefix input often carries stray whitespace; trimming only
     // widens exact-id hits, never mismatches.
     let id = backup_id.trim();
-    let raw = match super::backup::bkp_get(&ctx.data().pool, uid, id).await {
-        Some(raw) => Some(raw),
-        None if super::backup::invoker_is_owner_or_admin(&ctx).await => {
-            ts_backups_table_get(&ctx.data().pool, id).await
-        }
-        None => None,
+    let raw = if super::backup::bkp_owns(&ctx.data().pool, uid, id).await
+        || super::backup::invoker_is_owner_or_admin(&ctx).await
+    {
+        super::backup::bkp_get(&ctx.data().pool, uid, id).await
+    } else {
+        None
     };
     let Some(raw) = raw else {
         let no = crate::emojis::app_emoji_markup(ctx.http(), "No")
@@ -247,7 +244,8 @@ pub async fn backup_load(
 
 #[cfg(test)]
 mod tests {
-    use super::{normalize_snapshot, ts_backups_table_get};
+    use super::super::backup::{bkp_get, bkp_owns, bkp_set};
+    use super::normalize_snapshot;
 
     /// Minimal TS `backups`-table row: the bare BackupData written by
     /// src/core/backup/src/index.ts:300 (no id/size/data wrapper).
@@ -315,53 +313,49 @@ mod tests {
 
     #[tokio::test]
     async fn ts_table_missing_means_no_fallback_row() {
-        // Fresh Rust-only db has no TS `backups` table: fallback is None,
-        // never an error (mirrors fetchBackup rejecting -> not-your-backup).
+        // Fresh Rust-only db has no TS `backups` table and no kv row:
+        // `bkp_get` is None, never an error (mirrors fetchBackup
+        // rejecting -> not-your-backup).
         let pool = mem_pool().await;
-        assert_eq!(ts_backups_table_get(&pool, "whatever").await, None);
+        assert_eq!(bkp_get(&pool, 7, "whatever").await, None);
     }
 
     #[tokio::test]
     async fn ts_table_row_reads_by_global_id() {
         // Seed-then-read through the driver: backup_set writes the TS
-        // `backups` row, backup_get reads it back by global ID.
+        // `backups` row, `bkp_get` reads it back by global ID even with
+        // no per-user kv row (TS-created snapshot, owner/admin path).
         let pool = mem_pool().await;
         crate::db::ensure_backups_table(&pool).await.unwrap();
         crate::db::backup_set(&pool, "snowflake19", &ts_backup_data("snowflake19"))
             .await
             .unwrap();
-        let raw = ts_backups_table_get(&pool, "snowflake19").await;
+        let raw = bkp_get(&pool, 99, "snowflake19").await;
         assert_eq!(raw.as_deref(), Some(ts_backup_data("snowflake19").as_str()));
-        assert_eq!(ts_backups_table_get(&pool, "other-id").await, None);
+        assert!(!bkp_owns(&pool, 99, "snowflake19").await);
+        assert_eq!(bkp_get(&pool, 99, "other-id").await, None);
     }
 
     #[tokio::test]
-    async fn kv_stays_primary_over_ts_table() {
-        // Resolution order used by backup_load: kv first, TS table fallback.
+    async fn shared_table_wins_with_kv_fallback() {
+        // D3-BACKUP resolution order used by backup_load: named table
+        // first (fresher: TS-side edits only touch the table), legacy kv
+        // row fallback, None when neither exists.
         let pool = mem_pool().await;
-        super::super::backup::bkp_set(&pool, 7, "both", "{\"kv\":true}")
+        bkp_set(&pool, 7, "both", "kv-row").await.unwrap();
+        crate::db::backup_set(&pool, "both", "ts-row")
             .await
             .unwrap();
-        crate::db::ensure_backups_table(&pool).await.unwrap();
-        crate::db::backup_set(&pool, "both", "{\"ts\":true}")
+        assert_eq!(bkp_get(&pool, 7, "both").await.as_deref(), Some("ts-row"));
+        // Legacy-only row (kv, no table row) still surfaces.
+        crate::db::kv_set(&pool, "0", "BACKUPS.8.legacy", "kv-only")
             .await
             .unwrap();
-        let raw = match super::super::backup::bkp_get(&pool, 7, "both").await {
-            Some(raw) => Some(raw),
-            None => ts_backups_table_get(&pool, "both").await,
-        };
-        assert_eq!(raw.as_deref(), Some("{\"kv\":true}"));
-        // No kv row but a TS row -> fallback surfaces the TS row.
-        let raw = match super::super::backup::bkp_get(&pool, 8, "both").await {
-            Some(raw) => Some(raw),
-            None => ts_backups_table_get(&pool, "both").await,
-        };
-        assert_eq!(raw.as_deref(), Some("{\"ts\":true}"));
-        // Neither kv row nor TS row -> fallback surfaces None.
-        let raw = match super::super::backup::bkp_get(&pool, 9, "neither").await {
-            Some(raw) => Some(raw),
-            None => ts_backups_table_get(&pool, "neither").await,
-        };
-        assert_eq!(raw, None);
+        assert_eq!(
+            bkp_get(&pool, 8, "legacy").await.as_deref(),
+            Some("kv-only")
+        );
+        // Neither kv row nor TS row -> None.
+        assert_eq!(bkp_get(&pool, 9, "neither").await, None);
     }
 }

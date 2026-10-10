@@ -1,8 +1,9 @@
 use super::*;
 
-/// Routed warns wipe: legacy `USER.%.WARNS` rows plus every table-nested
-/// `USER.<uid>.WARNS` doc. The table `USER` root is shared with other
-/// per-user rows (ECONOMY), so only the WARNS subtree is removed.
+/// Routed warns wipe: every table-nested `USER.<uid>.WARNS` doc first,
+/// then the legacy `USER.%.WARNS` rows. The table `USER` root is shared
+/// with other per-user rows (ECONOMY), so only the WARNS subtree is
+/// removed.
 /// Deliberate real wipe (kept): !clear-all-warns.ts loops
 /// `for (const entries in DbData)` — `entries` is the array INDEX, so it
 /// deletes `USER.0.WARNS`, `USER.1.WARNS`, ... (keys that never exist)
@@ -10,13 +11,8 @@ use super::*;
 /// WARNS rows are deleted in both stores.
 async fn clear_all_warn_tables(pool: &crate::db::Pool, guild_id: &str) -> anyhow::Result<()> {
     use crate::commands::owner::main::{tbl_del, tbl_get_value};
-    // LIKE `USER.%.WARNS` has a middle wildcard: scan the `USER.` rows via
-    // the driver and delete the WARNS-subtree hits.
-    for (k, _) in crate::db::kv_scan_prefix(pool, guild_id, "USER.").await {
-        if k.contains(".WARNS") {
-            crate::db::kv_del(pool, guild_id, &k).await?;
-        }
-    }
+    // Table-first: walk the nested USER doc (backend tables store dotted
+    // keys nested under the root, so bulk loops walk instead of scanning).
     if let Some(root) = tbl_get_value(pool, guild_id, "USER").await {
         if let Some(obj) = root.as_object() {
             let uids: Vec<String> = obj
@@ -27,6 +23,13 @@ async fn clear_all_warn_tables(pool: &crate::db::Pool, guild_id: &str) -> anyhow
             for uid in uids {
                 let _ = tbl_del(pool, guild_id, &format!("USER.{uid}.WARNS")).await;
             }
+        }
+    }
+    // Legacy fallback: LIKE `USER.%.WARNS` has a middle wildcard, so
+    // scan the `USER.` rows via the driver and delete WARNS-subtree hits.
+    for (k, _) in crate::db::kv_scan_prefix(pool, guild_id, "USER.").await {
+        if k.contains(".WARNS") {
+            crate::db::kv_del(pool, guild_id, &k).await?;
         }
     }
     Ok(())
@@ -89,6 +92,11 @@ mod tests {
         crate::db::kv_set(&pool, "g", "USER.1.WARNS", r#"[{"id":"a"}]"#)
             .await
             .unwrap();
+        // Second legacy-only user: the fallback sweep must catch every
+        // USER.<uid>.WARNS row, not just the first.
+        crate::db::kv_set(&pool, "g", "USER.3.WARNS", r#"[{"id":"c"}]"#)
+            .await
+            .unwrap();
         table_backend(&pool)
             .table("g")
             .set("USER.2.WARNS", serde_json::json!([{"id": "b"}]))
@@ -102,6 +110,7 @@ mod tests {
             .unwrap();
         clear_all_warn_tables(&pool, "g").await.unwrap();
         assert_eq!(crate::db::kv_get(&pool, "g", "USER.1.WARNS").await, None);
+        assert_eq!(crate::db::kv_get(&pool, "g", "USER.3.WARNS").await, None);
         let root = tbl_get_value(&pool, "g", "USER").await.unwrap();
         assert!(root.get("2").and_then(|n| n.get("WARNS")).is_none());
         assert!(root.get("2").and_then(|n| n.get("ECONOMY")).is_some());

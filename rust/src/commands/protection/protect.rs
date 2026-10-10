@@ -293,7 +293,11 @@ pub async fn protect_rule(
         return Ok(());
     }
     // Set legs (`all` / single rule) require a mode; without `allow` the
-    // TS fallthrough replies `close_error_command`.
+    // TS fallthrough replies `close_error_command`. Verdict (strict on
+    // purpose): TS `!actions.ts` stores any truthy `allow` string verbatim
+    // as `{mode}`, while the guards only ever match `allowlist`/`nobody`
+    // — so a junk mode never sanctions there either. Rejecting it here
+    // keeps the same no-sanction outcome without persisting junk rows.
     let Some(mode) = allow.as_deref().and_then(normalize_mode) else {
         let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
         ctx.say(

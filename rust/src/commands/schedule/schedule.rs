@@ -1060,7 +1060,10 @@ pub async fn load_entry_routed(
     code: &str,
 ) -> Option<ScheduleEntry> {
     let raw = routed_get(pool, guild_id, guild_id, &schedule_key(user_id, code)).await?;
-    serde_json::from_str(&raw).ok()
+    let v: serde_json::Value = serde_json::from_str(&raw).ok()?;
+    // Legacy `{title, description, expired}` rows carry no `code`;
+    // the key suffix fills it so TS-era rows still load.
+    super::entry_from_value(&v, code)
 }
 
 pub async fn save_entry_routed(
@@ -1089,11 +1092,17 @@ pub async fn delete_entry_routed(
     routed_del(pool, guild_id, guild_id, &schedule_key(user_id, code)).await
 }
 
-/// Merged entry texts for one user: table root walked first, then
-/// legacy-only rows. Table values win on code conflicts.
-async fn user_entry_texts(pool: &crate::db::Pool, guild_id: &str, user_id: u64) -> Vec<String> {
+/// Merged entry (code, raw text) pairs for one user: table root
+/// walked first, then legacy-only rows. Table values win on code
+/// conflicts. Codes come from the keys so legacy `{expired}` rows
+/// (no inner `code`) still parse via `entry_from_value`.
+async fn user_entry_texts(
+    pool: &crate::db::Pool,
+    guild_id: &str,
+    user_id: u64,
+) -> Vec<(String, String)> {
     let uid = user_id.to_string();
-    let mut out: Vec<String> = vec![];
+    let mut out: Vec<(String, String)> = vec![];
     let mut seen: HashSet<String> = HashSet::new();
     if let Some(root) = tbl_get_value(pool, guild_id, SCHEDULE_ROOT).await {
         if let Some(user) = walk_path(&root, &[uid.as_str()]) {
@@ -1101,7 +1110,7 @@ async fn user_entry_texts(pool: &crate::db::Pool, guild_id: &str, user_id: u64) 
                 for (code, v) in obj {
                     if let Some(s) = v.as_str() {
                         seen.insert(code.clone());
-                        out.push(s.to_string());
+                        out.push((code.clone(), s.to_string()));
                     }
                 }
             }
@@ -1110,7 +1119,7 @@ async fn user_entry_texts(pool: &crate::db::Pool, guild_id: &str, user_id: u64) 
     for (k, v) in legacy_scan(pool, guild_id, &schedule_prefix(user_id)).await {
         let code = k.strip_prefix(&schedule_prefix(user_id)).unwrap_or(&k);
         if seen.insert(code.to_string()) {
-            out.push(v);
+            out.push((code.to_string(), v));
         }
     }
     out
@@ -1122,9 +1131,11 @@ pub async fn list_entries_routed(
     user_id: u64,
 ) -> Vec<ScheduleEntry> {
     let mut out: Vec<ScheduleEntry> = vec![];
-    for raw in user_entry_texts(pool, guild_id, user_id).await {
-        if let Ok(e) = serde_json::from_str(&raw) {
-            out.push(e);
+    for (code, raw) in user_entry_texts(pool, guild_id, user_id).await {
+        if let Ok(v) = serde_json::from_str::<serde_json::Value>(&raw) {
+            if let Some(e) = super::entry_from_value(&v, &code) {
+                out.push(e);
+            }
         }
     }
     out.sort_by_key(|e| e.expires_at_ms);
@@ -1237,6 +1248,27 @@ mod tests {
         );
         assert_eq!(list_entries_routed(&pool, "g", 2).await.len(), 1);
         assert_eq!(delete_all_entries_routed(&pool, "g", 2).await.unwrap(), 1);
+    }
+
+    #[tokio::test]
+    async fn routed_parses_legacy_expired_shape() {
+        let pool = mem_pool().await;
+        // True TS-writer shape: no `code`, expiry under `expired`.
+        crate::db::kv_set(
+            &pool,
+            "g",
+            "SCHEDULE.3.LEGACY",
+            r#"{"title":"t","description":"a description","expired":77}"#,
+        )
+        .await
+        .unwrap();
+        let e = load_entry_routed(&pool, "g", 3, "LEGACY").await.unwrap();
+        assert_eq!(e.code, "LEGACY");
+        assert_eq!(e.expires_at_ms, 77);
+        let list = list_entries_routed(&pool, "g", 3).await;
+        assert_eq!(list.len(), 1);
+        assert_eq!(list[0].code, "LEGACY");
+        assert_eq!(delete_all_entries_routed(&pool, "g", 3).await.unwrap(), 1);
     }
 
     #[test]

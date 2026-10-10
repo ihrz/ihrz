@@ -1402,7 +1402,7 @@ impl Handler {
         // code again. The late answer is deleted, the member kicked, the
         // challenge message removed.
         if crate::commands::context::now_ms() / 1000 >= ch.expires_at {
-            let (message_id, channel_id) = (ch.message_id, ch.channel_id);
+            let (message_id, channel_id, joined_at) = (ch.message_id, ch.channel_id, ch.joined_at);
             guard.remove(&key);
             drop(guard);
             let _ = msg.delete(&ctx.http).await;
@@ -1410,7 +1410,15 @@ impl Handler {
             let kick_reason =
                 crate::lang::get(&lang_code, "event_security_kick_reason").unwrap_or_default();
             if let Ok(member) = guild_id.member(&ctx.http, msg.author.id).await {
-                let _ = member.kick_with_reason(&ctx.http, &kick_reason).await;
+                // Same-join guard (mirrors the collector "end" leg in
+                // onMemberJoin.ts `if (!member.joinedAt ||
+                // memberJoinDate === member.joinedAt)`): a member who left
+                // and rejoined under a new join is never kicked for the
+                // previous challenge.
+                let same_join = member.joined_at.map(|t| t.unix_timestamp()) == joined_at;
+                if member.joined_at.is_none() || same_join {
+                    let _ = member.kick_with_reason(&ctx.http, &kick_reason).await;
+                }
             }
             let _ = serenity::ChannelId::new(channel_id)
                 .delete_message(&ctx.http, serenity::MessageId::new(message_id))
@@ -1449,14 +1457,20 @@ impl Handler {
             return;
         }
         if ch.attempts_left <= 1 {
-            let (message_id, channel_id) = (ch.message_id, ch.channel_id);
+            let (message_id, channel_id, joined_at) = (ch.message_id, ch.channel_id, ch.joined_at);
             guard.remove(&key);
             drop(guard);
             let lang_code = crate::db::guild_lang(&self.pool, Some(guild_id.get())).await;
             let kick_reason =
                 crate::lang::get(&lang_code, "event_security_kick_reason").unwrap_or_default();
             if let Ok(member) = guild_id.member(&ctx.http, msg.author.id).await {
-                let _ = member.kick_with_reason(&ctx.http, &kick_reason).await;
+                // Same-join guard, as above (onMemberJoin.ts collector
+                // "end" leg): never kick a rejoined member for the old
+                // challenge.
+                let same_join = member.joined_at.map(|t| t.unix_timestamp()) == joined_at;
+                if member.joined_at.is_none() || same_join {
+                    let _ = member.kick_with_reason(&ctx.http, &kick_reason).await;
+                }
             }
             let _ = serenity::ChannelId::new(channel_id)
                 .delete_message(&ctx.http, serenity::MessageId::new(message_id))
@@ -2490,7 +2504,10 @@ impl Handler {
         }
         // Mode enforcement mirrors avoid*.ts: `allowlist` sanctions
         // anyone without an allowlist entry; `nobody` sanctions anyone
-        // but the guild owner.
+        // but the guild owner. Verdict (kept): the allowlist lookup runs
+        // only in `allowlist` mode, exactly like the TS
+        // `if (data.<rule>.mode === "allowlist")` branch — no cross-mode
+        // allowlist exemption exists in either path.
         let should = match mode.as_str() {
             "allowlist" => allowlist_entry_routed(&self.pool, &gid, exec.get())
                 .await
@@ -2805,6 +2822,10 @@ impl Handler {
         // Pass 4: snapshot top-level channels with no snapshot parent that
         // are still missing (uncategorized text channels, which the
         // category passes never cover) recreate top-level.
+        // Verdict (deliberate extension, no TS counterpart):
+        // avoidChannelDelete.ts only rebuilds categories plus their
+        // categorized children, so an uncategorized top-level channel
+        // would otherwise never come back.
         for entry in &backup.channels {
             if live_ids.contains(&entry.id) || entry.parent.is_some() {
                 continue;
@@ -2861,6 +2882,16 @@ impl Handler {
         let Ok(new_role) = guild_id.create_role(&ctx.http, builder).await else {
             return;
         };
+        // Post-create position set (mirrors avoidRoleDelete.ts
+        // `await newRole.setPosition(role.rawPosition)`): the create
+        // payload carries no operative position, the reorder happens here.
+        let _ = guild_id
+            .edit_role(
+                &ctx.http,
+                new_role.id,
+                serenity::EditRole::new().position(deleted.position),
+            )
+            .await;
         for uid in members {
             if let Ok(member) = guild_id.member(&ctx.http, serenity::UserId::new(uid)).await {
                 let _ = member.add_role(&ctx.http, new_role.id).await;
@@ -8018,7 +8049,11 @@ impl serenity::EventHandler for Handler {
             .await;
         // Webhook-create revert (mirrors avoidWebhookModifying.ts):
         // punish ran inside the guard, then the created webhook is
-        // deleted by audit-target id.
+        // deleted by audit-target id. Verdict (kept verbatim): the guard
+        // target is the channel id and the delete filters on
+        // `webhook.id === relevantLog.targetId`, exactly like TS —
+        // only the attributed webhook is removed, never the channel's
+        // other webhooks.
         if let Some(hit) = hit {
             if let Ok(hooks) = guild_id.webhooks(&ctx.http).await {
                 for hook in hooks

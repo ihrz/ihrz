@@ -75,21 +75,26 @@ pub fn remove_warn(mut warns: Vec<Warn>, id: &str) -> (Vec<Warn>, bool) {
     (warns, removed)
 }
 
+/// Table-first warns load with legacy kv fallback (keys unchanged). A
+/// legacy hit promotes into the table so rows migrate lazily; pair with
+/// `save_warns` (dual-write) so kv-only readers stay fresh.
 pub async fn load_warns(pool: &crate::db::Pool, guild_id: &str, user_id: u64) -> Vec<Warn> {
-    crate::db::kv_get(pool, guild_id, &warns_key(user_id))
+    crate::commands::owner::main::routed_get(pool, guild_id, guild_id, &warns_key(user_id))
         .await
         .and_then(|s| serde_json::from_str(&s).ok())
         .unwrap_or_default()
 }
 
+/// Table-first warns store with legacy kv dual-write (keys unchanged).
 pub async fn save_warns(
     pool: &crate::db::Pool,
     guild_id: &str,
     user_id: u64,
     warns: &[Warn],
 ) -> anyhow::Result<()> {
-    crate::db::kv_set(
+    crate::commands::owner::main::routed_set(
         pool,
+        guild_id,
         guild_id,
         &warns_key(user_id),
         &serde_json::to_string(warns)?,
@@ -708,6 +713,77 @@ mod tests {
         let raw = serde_json::to_string(&ts).unwrap();
         assert!(raw.contains("\"timestamp\"") && raw.contains("\"authorID\""));
         assert!(!raw.contains("\"at\"") && !raw.contains("author_id"));
+    }
+
+    async fn mem_pool() -> crate::db::Pool {
+        crate::db::memory_pool().await
+    }
+
+    #[tokio::test]
+    async fn warns_routed_legacy_reads_and_promotes_to_table() {
+        use crate::commands::owner::main::tbl_get_value;
+        let pool = mem_pool().await;
+        // TS row shape (timestamp / authorID keys) reads through the
+        // routed loader and promotes into the table.
+        crate::db::kv_set(
+            &pool,
+            "g",
+            &warns_key(1),
+            r#"[{"id":"b","reason":"s","timestamp":1720000000000,"authorID":"123"}]"#,
+        )
+        .await
+        .unwrap();
+        let warns = load_warns(&pool, "g", 1).await;
+        assert_eq!(warns.len(), 1);
+        assert_eq!(warns[0].author_id.as_deref(), Some("123"));
+        assert!(tbl_get_value(&pool, "g", &warns_key(1)).await.is_some());
+        // Unknown users still default.
+        assert!(load_warns(&pool, "g", 9).await.is_empty());
+    }
+
+    #[tokio::test]
+    async fn warns_routed_table_wins_over_legacy_on_conflict() {
+        use crate::commands::owner::main::table_backend;
+        let pool = mem_pool().await;
+        crate::db::kv_set(
+            &pool,
+            "g",
+            &warns_key(1),
+            r#"[{"id":"old","reason":"x","at":1}]"#,
+        )
+        .await
+        .unwrap();
+        table_backend(&pool)
+            .table("g")
+            .set(
+                &warns_key(1),
+                serde_json::json!([{"id": "new", "reason": "y", "timestamp": 2}]),
+            )
+            .await
+            .unwrap();
+        let warns = load_warns(&pool, "g", 1).await;
+        assert_eq!(warns.len(), 1);
+        assert_eq!(warns[0].id, "new");
+    }
+
+    #[tokio::test]
+    async fn warns_routed_save_dual_writes_table_and_legacy() {
+        use crate::commands::owner::main::tbl_get_value;
+        let pool = mem_pool().await;
+        let warns = vec![Warn {
+            id: "a".into(),
+            reason: "r".into(),
+            at: 1,
+            author_id: Some("7".into()),
+        }];
+        save_warns(&pool, "g", 4, &warns).await.unwrap();
+        // Legacy kv readers stay fresh.
+        let legacy = crate::db::kv_get(&pool, "g", &warns_key(4)).await.unwrap();
+        let back: Vec<Warn> = serde_json::from_str(&legacy).unwrap();
+        assert_eq!(back, warns);
+        assert!(tbl_get_value(&pool, "g", &warns_key(4)).await.is_some());
+        // Round-trip through the routed loader.
+        assert_eq!(load_warns(&pool, "g", 4).await, warns);
     }
 
     #[test]

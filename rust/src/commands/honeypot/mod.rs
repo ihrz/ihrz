@@ -658,6 +658,11 @@ pub async fn run_trap_pipeline(
 /// deletion alike. Mirrors HONEYPOT_WINDOW_MS.
 pub const HONEYPOT_WINDOW_MS: i64 = 2 * 3_600_000;
 
+/// Bulk-delete age ceiling (ms). Discord rejects a bulk request holding
+/// messages older than 14 days; mirrors the `filterOld=true` flag in
+/// `bulkDelete([...], true)` (honeypotManager.ts deleteRecentMessages).
+pub const BULK_DELETE_WINDOW_MS: i64 = 14 * 24 * 3_600_000;
+
 /// Ban honoring the TS 2h native message-deletion window
 /// (`deleteMessageSeconds: 7200`). The bulk-ban endpoint is the only
 /// single-call path with second-granularity deletion, so it goes first;
@@ -783,15 +788,27 @@ async fn sweep_channel_messages(
             .iter()
             .filter(|m| m.author.id == user_id && m.timestamp.unix_timestamp() * 1000 >= cutoff_ms)
             .collect();
-        if targets.len() == 1 {
-            if targets[0].delete(http).await.is_ok() {
+        // Under-14d targets go the bulk route (anything older would fail
+        // the whole bulk request); older ones fall back to single deletes
+        // so they are still removed instead of silently skipped.
+        let bulk_cutoff_ms = crate::commands::context::now_ms() - BULK_DELETE_WINDOW_MS;
+        let (fresh, stale): (Vec<_>, Vec<_>) = targets
+            .into_iter()
+            .partition(|m| m.timestamp.unix_timestamp() * 1000 >= bulk_cutoff_ms);
+        if fresh.len() == 1 {
+            if fresh[0].delete(http).await.is_ok() {
                 deleted += 1;
             }
-        } else if targets.len() > 1 {
-            let ids: Vec<serenity::MessageId> = targets.iter().map(|m| m.id).collect();
+        } else if fresh.len() > 1 {
+            let ids: Vec<serenity::MessageId> = fresh.iter().map(|m| m.id).collect();
             let n = ids.len() as u64;
             if channel_id.delete_messages(http, &ids).await.is_ok() {
                 deleted += n;
+            }
+        }
+        for m in stale {
+            if m.delete(http).await.is_ok() {
+                deleted += 1;
             }
         }
         let oldest = fetched.last();
