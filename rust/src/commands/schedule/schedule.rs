@@ -59,27 +59,52 @@ pub async fn schedule_create(
     let code = gen_code();
     let entry = ScheduleEntry {
         code: code.clone(),
-        title,
-        description,
-        expires_at_ms: now_ms().saturating_add(delta_ms),
+        title: title.clone(),
+        description: description.clone(),
+        expires_at_ms: expiry_at_ms(now_ms(), delta_ms),
     };
     let gid = scope_guild(&ctx);
     let user_id = ctx.author().id.get();
     save_entry_routed(&ctx.data().pool, &gid, &entry, user_id).await?;
-    ctx.say(
-        crate::lang::get(&lang_code, "schedule_create_confirm_msg")
-            .map(|s| {
-                s.replace("${interaction.user}", &ctx.author().to_string())
-                    .replace("${scheduleCode}", &code)
-            })
-            .unwrap_or_else(|| {
-                format!(
-                    "Scheduled `{code}` (expires <t:{}:F>).",
-                    entry.expires_at_ms / 1000
-                )
-            }),
-    )
-    .await?;
+    // TS parity (`executeAfterModal` / `__0`): preview description
+    // (```name``` ```desc```), confirm title
+    // (`schedule_create_embed_title_confirm`), one inline field named
+    // `schedule_create_embed_fields_name_confirm` with the formatted
+    // expiry, content from `schedule_create_confirm_msg`,
+    // color #00549F + timestamp + footer.
+    let preview = render_create_preview_description(&entry.title, &entry.description);
+    let confirm_title = render_create_confirm_title(
+        &crate::lang::get(&lang_code, "schedule_create_embed_title_confirm")
+            .unwrap_or_else(|| "#${scheduleCode} Schedule Created!".to_string()),
+        &code,
+    );
+    let field_name = crate::lang::get(&lang_code, "schedule_create_embed_fields_name_confirm")
+        .unwrap_or_else(|| "Notified Date".to_string());
+    let content = render_create_confirm_msg(
+        &crate::lang::get(&lang_code, "schedule_create_confirm_msg").unwrap_or_else(|| {
+            "${interaction.user}, your schedule has been created!\nCode: `${scheduleCode}`"
+                .to_string()
+        }),
+        &ctx.author().to_string(),
+        &code,
+    );
+    let embed = poise::serenity_prelude::CreateEmbed::default()
+        .title(confirm_title)
+        .description(preview)
+        .field(field_name, format_expiry_local(entry.expires_at_ms), true)
+        .color(0x00549F)
+        .timestamp(poise::serenity_prelude::Timestamp::now());
+    let (footer_name, footer_bytes) = crate::commands::utils::footer_parts(&ctx, &gid).await;
+    let embed =
+        crate::commands::utils::embed_with_footer(embed, &footer_name, footer_bytes.is_some());
+    let mut reply = poise::CreateReply::default().content(content).embed(embed);
+    if let Some(bytes) = footer_bytes {
+        reply = reply.attachment(poise::serenity_prelude::CreateAttachment::bytes(
+            bytes,
+            "footer_icon.png",
+        ));
+    }
+    ctx.send(reply).await?;
     Ok(())
 }
 
@@ -244,6 +269,31 @@ pub fn render_schedule_field(
     let out = out.replace("${date}", expires_display);
     let out = out.replace("${fetched[i]?.title}", title);
     out.replace("${fetched[i]?.description}", description)
+}
+
+/// Create-flow confirm helpers (TS `executeAfterModal` / `__0`).
+/// Preview embed description: ` ```name``` ```desc``` `.
+pub fn render_create_preview_description(name: &str, desc: &str) -> String {
+    format!("```{name}``````{desc}```")
+}
+
+/// Confirm title from `schedule_create_embed_title_confirm`
+/// (`#${scheduleCode} Schedule Created!` in en-US).
+pub fn render_create_confirm_title(template: &str, code: &str) -> String {
+    template.replace("${scheduleCode}", code)
+}
+
+/// Confirm message from `schedule_create_confirm_msg`
+/// (`${interaction.user}` + `${scheduleCode}` in en-US).
+pub fn render_create_confirm_msg(template: &str, user_mention: &str, code: &str) -> String {
+    template
+        .replace("${interaction.user}", user_mention)
+        .replace("${scheduleCode}", code)
+}
+
+/// Expiry instant like TS `Date.now() + date0` (saturating).
+pub fn expiry_at_ms(now_ms: i64, delta_ms: i64) -> i64 {
+    now_ms.saturating_add(delta_ms)
 }
 
 // ---- U-D3-NAMEDTABLES: schedule table handle ----
@@ -504,5 +554,49 @@ mod tests {
     #[test]
     fn list_cap_is_discord_field_limit() {
         assert_eq!(SCHEDULE_LIST_CAP, 25);
+    }
+
+    #[test]
+    fn create_preview_matches_ts_modal_embed() {
+        // TS: .setDescription(` ```${name}``` ```${desc}``` `)
+        assert_eq!(
+            render_create_preview_description("Party", "at home"),
+            "```Party``````at home```"
+        );
+    }
+
+    #[test]
+    fn create_confirm_title_interpolates_code() {
+        assert_eq!(
+            render_create_confirm_title("#${scheduleCode} Schedule Created!", "ABC123"),
+            "#ABC123 Schedule Created!"
+        );
+    }
+
+    #[test]
+    fn create_confirm_msg_interpolates_user_and_code() {
+        assert_eq!(
+            render_create_confirm_msg(
+                "${interaction.user}, your schedule has been created!\nCode: `${scheduleCode}`",
+                "<@123>",
+                "ABC123"
+            ),
+            "<@123>, your schedule has been created!\nCode: `ABC123`"
+        );
+    }
+
+    #[test]
+    fn create_expiry_adds_delta_like_ts() {
+        // TS: expired: Date.now() + date0
+        assert_eq!(expiry_at_ms(1_000, 60_000), 61_000);
+        assert_eq!(expiry_at_ms(i64::MAX, 1), i64::MAX);
+    }
+
+    #[test]
+    fn create_confirm_field_value_is_formatted_expiry() {
+        // Field value renders through the same local-time formatter
+        // as the list fields (`YYYY/MM/DD HH:mm:ss` shape).
+        let s = format_expiry_local(expiry_at_ms(1_700_000_000_000, 60_000));
+        assert_eq!(s.len(), 19);
     }
 }

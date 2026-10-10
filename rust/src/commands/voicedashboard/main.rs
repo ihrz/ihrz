@@ -1,6 +1,20 @@
 use crate::bot::Ctx;
 use poise::serenity_prelude as serenity;
 
+// Interface-path decision (U-VOICE-IFACE): ADOPT FLAT, do not restore the
+// TS `interface` subgroup (`/voicedashboard interface set-voice-channel|...`).
+// Rationale: no Rust module on this branch uses poise subcommand groups (all
+// flat `/voice lobby|panel|category|name|position|staff`), and restoring the
+// subgroup would perpetuate the TS `set-voice-channel-catgory` typo in the
+// public command tree. DB keys (`VOICE_INTERFACE.*`) are unchanged, so
+// existing guild config carries over. Migration mapping:
+//   interface set-voice-channel          -> /voice lobby (VOICE_INTERFACE.voice_channel)
+//   interface set-text-channel           -> /voice panel (VOICE_INTERFACE.interface)
+//   interface set-voice-channel-catgory  -> /voice category (VOICE_INTERFACE.voice_channel_category)
+//   interface set-voice-channel-name     -> /voice name (VOICE_INTERFACE.voice_channel_name)
+//   interface set-voice-channel-position -> /voice position (VOICE_INTERFACE.voice_channel_position)
+//   set-staff-role                       -> /voice staff (VOICE_INTERFACE.staff_role)
+
 pub fn vd_key(field: &str) -> String {
     format!("VOICE_INTERFACE.{field}")
 }
@@ -97,7 +111,9 @@ pub async fn vd_panel(
 )]
 pub async fn vd_category(
     ctx: Ctx<'_>,
-    #[description = "Category name"] name: String,
+    #[description = "Category where temp channels are created"]
+    #[channel_types("Category")]
+    channel: serenity::GuildChannel,
 ) -> Result<(), anyhow::Error> {
     let gid = ctx
         .guild_id()
@@ -108,7 +124,7 @@ pub async fn vd_category(
         &gid,
         &gid,
         &vd_key("voice_channel_category"),
-        name.trim(),
+        &channel.id.get().to_string(),
     )
     .await?;
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
@@ -151,7 +167,17 @@ pub async fn vd_name(
     Ok(())
 }
 
-/// Temp-channel position (top/bottom). Mirrors position setter.
+/// Temp-channel position (top/bottom). Mirrors the position_type choices
+/// (`top` | `bottom`) in voicedashboard.ts; the reply mirrors the TS
+/// Yes-arrow acknowledgement (`Yes | ⬆` for top, `Yes | ⬇` otherwise).
+pub fn parse_position(raw: &str) -> Option<&'static str> {
+    match raw.trim().to_lowercase().as_str() {
+        "top" => Some("top"),
+        "bottom" => Some("bottom"),
+        _ => None,
+    }
+}
+
 #[poise::command(
     slash_command,
     prefix_command,
@@ -166,23 +192,23 @@ pub async fn vd_position(
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
-    let pos = position_type.trim().to_lowercase();
+    let pos = parse_position(&position_type).unwrap_or("bottom");
     crate::commands::owner::main::routed_set(
         &ctx.data().pool,
         &gid,
         &gid,
         &vd_key("voice_channel_position"),
-        &pos,
+        pos,
     )
     .await?;
-    ctx.say(format!(
-        "Yes | {}",
-        if pos == "top" { "up" } else { "down" }
-    ))
-    .await?;
+    ctx.say(format!("Yes | {}", if pos == "top" { "⬆" } else { "⬇" }))
+        .await?;
     Ok(())
 }
 
+// Staff role setter. Single-write note: the TS flow collects roles via a
+// select menu but performs exactly one `db.set(VOICE_INTERFACE.staff_role)`
+// on save-button confirm; this flat command is that single write.
 #[poise::command(
     slash_command,
     prefix_command,
@@ -1022,6 +1048,31 @@ mod tests {
     #[test]
     fn key_shapes() {
         assert_eq!(vd_key("voice_channel"), "VOICE_INTERFACE.voice_channel");
+        assert_eq!(vd_key("interface"), "VOICE_INTERFACE.interface");
+        assert_eq!(
+            vd_key("voice_channel_category"),
+            "VOICE_INTERFACE.voice_channel_category"
+        );
+        assert_eq!(
+            vd_key("voice_channel_name"),
+            "VOICE_INTERFACE.voice_channel_name"
+        );
+        assert_eq!(
+            vd_key("voice_channel_position"),
+            "VOICE_INTERFACE.voice_channel_position"
+        );
+        assert_eq!(vd_key("staff_role"), "VOICE_INTERFACE.staff_role");
+    }
+
+    #[test]
+    fn position_parses_ts_choices_only() {
+        assert_eq!(parse_position("top"), Some("top"));
+        assert_eq!(parse_position("bottom"), Some("bottom"));
+        assert_eq!(parse_position(" Top "), Some("top"));
+        assert_eq!(parse_position("BOTTOM"), Some("bottom"));
+        assert_eq!(parse_position("up"), None);
+        assert_eq!(parse_position("down"), None);
+        assert_eq!(parse_position(""), None);
     }
 
     #[test]
