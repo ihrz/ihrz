@@ -117,7 +117,7 @@ pub async fn eco_leaderboard(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     if parsed.is_empty() {
         ctx.say(
             crate::lang::get(&code, "perm_list_no_user")
-                .unwrap_or_else(|| "No economy data.".to_string()),
+                .unwrap_or_else(|| "No user found".to_string()),
         )
         .await?;
         return Ok(());
@@ -126,7 +126,7 @@ pub async fn eco_leaderboard(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let bank_name =
         crate::lang::get(&code, "balance_embed_fields1_name").unwrap_or_else(|| "Bank".to_string());
     let money_name = crate::lang::get(&code, "balance_embed_fields2_name")
-        .unwrap_or_else(|| "Wallet".to_string());
+        .unwrap_or_else(|| "In Balance".to_string());
     let page_word = crate::lang::get(&code, "var_page").unwrap_or_else(|| "Page".to_string());
     let title = crate::lang::get(&code, "economy_leaderboard_embed_title")
         // TS also runs a backtick-quoted title replace when building the
