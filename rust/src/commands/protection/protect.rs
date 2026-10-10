@@ -1,4 +1,5 @@
 use crate::bot::Ctx;
+use poise::serenity_prelude as serenity;
 use serde::{Deserialize, Serialize};
 
 /// Rule values from authorization.ts (cls/all are pseudo-commands).
@@ -24,7 +25,73 @@ pub fn valid_rule(rule: &str) -> bool {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RuleState {
-    pub allow: bool,
+    /// TS `{mode}` vocabulary (`allowlist` | `member` | `nobody`).
+    /// Empty on legacy `{allow: bool}` rows (see `effective_mode`).
+    #[serde(default)]
+    pub mode: String,
+    /// Legacy Rust-port shape, kept readable, never written anymore.
+    #[serde(default, skip_serializing)]
+    pub allow: Option<bool>,
+}
+
+impl RuleState {
+    /// Effective TS mode. Legacy `{allow: true}` rows read as `member`
+    /// (open) and `{allow: false}` as `nobody` (deny-all).
+    pub fn effective_mode(&self) -> &str {
+        if !self.mode.is_empty() {
+            &self.mode
+        } else if self.allow == Some(false) {
+            "nobody"
+        } else {
+            "member"
+        }
+    }
+}
+
+/// Rule mode vocabulary from authorization.ts (`!actions.ts` choices).
+pub const MODES: [&str; 3] = ["allowlist", "member", "nobody"];
+
+pub fn valid_mode(mode: &str) -> bool {
+    MODES.contains(&mode.trim().to_ascii_lowercase().as_str())
+}
+
+/// Accept the TS mode values plus the previous on/off switch
+/// (`on` -> `member`, `off` -> `nobody`). None on unknown input.
+pub fn normalize_mode(raw: &str) -> Option<String> {
+    match raw.trim().to_ascii_lowercase().as_str() {
+        "allowlist" | "member" | "nobody" => Some(raw.trim().to_ascii_lowercase()),
+        "on" | "allow" => Some("member".to_string()),
+        "off" | "deny" => Some("nobody".to_string()),
+        _ => None,
+    }
+}
+
+/// Human label for a rule mode, mirroring the `!actions.ts` reply mapping.
+pub fn mode_display(lang_code: &str, mode: &str) -> String {
+    let (key, fallback) = match mode {
+        "member" => ("authorization_actions_everyone", "everyone"),
+        "allowlist" => ("authorization_actions_allowlist", "allowlist"),
+        _ => ("authorization_actions_nobody", "nobody"),
+    };
+    crate::lang::get(lang_code, key).unwrap_or_else(|| fallback.to_string())
+}
+
+/// Sanction vocabulary from authorization.ts (`!sanction.ts` choices).
+/// Mirrors `punish()` in src/core/functions/method.ts.
+pub const SANCTIONS: [&str; 3] = ["simply", "simply+derank", "simply+ban"];
+
+pub fn valid_sanction(sanction: &str) -> bool {
+    SANCTIONS.contains(&sanction.trim())
+}
+
+/// Human label for a sanction, mirroring the `!sanction.ts` reply mapping.
+pub fn sanction_display(lang_code: &str, sanction: &str) -> String {
+    let (key, fallback) = match sanction.trim() {
+        "simply" => ("authorization_sanction_simply", "simply"),
+        "simply+derank" => ("authorization_sanction_simply_unrank", "simply+derank"),
+        _ => ("authorization_sanction_simply_ban", "simply+ban"),
+    };
+    crate::lang::get(lang_code, key).unwrap_or_else(|| fallback.to_string())
 }
 
 /// Audit action -> protection rule name. Mirrors avoid*.ts mapping.
@@ -67,7 +134,7 @@ pub async fn protect(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
 pub async fn protect_rule(
     ctx: Ctx<'_>,
     #[description = "Rule (or all/cls)"] rule: String,
-    #[description = "on to allow, off to deny"] allow: String,
+    #[description = "allowlist, member or nobody"] allow: String,
 ) -> Result<(), anyhow::Error> {
     let rule = rule.trim().to_ascii_lowercase();
     if !valid_rule(&rule) {
@@ -76,11 +143,16 @@ pub async fn protect_rule(
             .await?;
         return Ok(());
     }
+    let Some(mode) = normalize_mode(&allow) else {
+        let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+        ctx.say(crate::lang::get(&code, "msg_bad_rule").unwrap_or_else(|| "Bad rule.".to_string()))
+            .await?;
+        return Ok(());
+    };
     let gid = ctx
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
-    let allow = matches!(allow.to_ascii_lowercase().as_str(), "on" | "allow");
     if rule == "cls" {
         // Table-routed clear: legacy prefix rows plus the guild-table subtree.
         crate::commands::owner::main::legacy_del_prefix(&ctx.data().pool, &gid, "PROTECTION.")
@@ -113,7 +185,10 @@ pub async fn protect_rule(
             &gid,
             &gid,
             &format!("PROTECTION.{r}"),
-            &serde_json::to_string(&RuleState { allow })?,
+            &serde_json::to_string(&RuleState {
+                mode: mode.clone(),
+                allow: None,
+            })?,
         )
         .await?;
     }
@@ -126,7 +201,7 @@ pub async fn protect_rule(
                     &format!("<@{}>", ctx.author().id.get()),
                 )
                 .replace("${rule.toUpperCase()}", &rule.to_uppercase())
-                .replace("${allow}", if allow { "on" } else { "off" })
+                .replace("${allow}", &mode_display(&code, &mode))
             })
             .unwrap_or_else(|| format!("Rule {rule} set.")),
     )
@@ -142,8 +217,15 @@ pub async fn protect_rule(
 )]
 pub async fn protect_sanction(
     ctx: Ctx<'_>,
-    #[description = "ban, kick or timeout"] sanction: String,
+    #[description = "simply, simply+derank or simply+ban"] sanction: String,
 ) -> Result<(), anyhow::Error> {
+    let sanction = sanction.trim().to_string();
+    if !valid_sanction(&sanction) {
+        let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+        ctx.say(crate::lang::get(&code, "msg_bad_rule").unwrap_or_else(|| "Bad rule.".to_string()))
+            .await?;
+        return Ok(());
+    }
     let gid = ctx
         .guild_id()
         .map(|g| g.get().to_string())
@@ -153,7 +235,7 @@ pub async fn protect_sanction(
         &gid,
         &gid,
         "PROTECTION.SANCTION",
-        sanction.trim(),
+        &sanction,
     )
     .await?;
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
@@ -164,12 +246,94 @@ pub async fn protect_sanction(
                     "${interaction.user}",
                     &format!("<@{}>", ctx.author().id.get()),
                 )
-                .replace("${choose}", sanction.trim())
+                .replace("${choose}", &sanction_display(&code, &sanction))
             })
             .unwrap_or_else(|| "${interaction.user}, rule sanction has been set. When the user breaks the rule, it's **${choose}**, and the bot cancels its action.".to_string()),
     )
     .await?;
     Ok(())
+}
+
+/// Strip a member of all removable roles. Mirrors `derank()` in
+/// src/core/functions/method.ts: a managed app-role keeps its slot
+/// with ViewChannel-only permissions; every other role below the
+/// bot's highest role (minus @everyone) is removed, per-role
+/// failures ignored like the TS `.catch(() => {})`.
+pub async fn derank_member(
+    http: &std::sync::Arc<serenity::Http>,
+    guild_id: serenity::GuildId,
+    user_id: serenity::UserId,
+    reason: &str,
+) -> anyhow::Result<()> {
+    let roles = guild_id.roles(http).await?;
+    let bot_top: u16 = match http.get_current_user().await.ok() {
+        Some(bot) => match guild_id.member(http, bot.id).await {
+            Ok(m) => roles
+                .values()
+                .filter(|r| m.roles.contains(&r.id))
+                .map(|r| r.position)
+                .max()
+                .unwrap_or(u16::MAX),
+            Err(_) => u16::MAX,
+        },
+        None => u16::MAX,
+    };
+    if let Some(app) = roles.values().find(|r| r.managed) {
+        let _ = guild_id
+            .edit_role(
+                http,
+                app.id,
+                serenity::EditRole::new()
+                    .permissions(serenity::Permissions::VIEW_CHANNEL)
+                    .audit_log_reason(reason),
+            )
+            .await;
+    }
+    let Ok(member) = guild_id.member(http, user_id).await else {
+        return Ok(());
+    };
+    let everyone = serenity::RoleId::new(guild_id.get());
+    for role_id in &member.roles {
+        if *role_id == everyone {
+            continue;
+        }
+        let Some(role) = roles.get(role_id) else {
+            continue;
+        };
+        if role.managed || role.position >= bot_top {
+            continue;
+        }
+        let _ = member.remove_role(http, *role_id).await;
+    }
+    Ok(())
+}
+
+/// Apply a PROTECTION.SANCTION value. Mirrors `punish()` in
+/// src/core/functions/method.ts: `simply` only cancels the action
+/// (done by the caller's restore leg), `simply+derank` deranks,
+/// `simply+ban` bans with a derank fallback when the ban fails.
+/// Unknown values no-op like the TS `default` branch.
+pub async fn apply_sanction(
+    http: &std::sync::Arc<serenity::Http>,
+    guild_id: serenity::GuildId,
+    user_id: serenity::UserId,
+    sanction: &str,
+    reason: &str,
+) {
+    match sanction.trim() {
+        "simply+derank" => {
+            let _ = derank_member(http, guild_id, user_id, reason).await;
+        }
+        "simply+ban"
+            if guild_id
+                .ban_with_reason(http, user_id, 0, reason)
+                .await
+                .is_err() =>
+        {
+            let _ = derank_member(http, guild_id, user_id, reason).await;
+        }
+        _ => {}
+    }
 }
 
 /// All PROTECTION.* rows: guild-table subtree first, legacy kv rows
@@ -315,11 +479,43 @@ mod tests {
     use super::*;
 
     #[test]
-    fn rules_cover_ts_authorization() {
-        assert_eq!(RULES.len(), 13);
-        assert!(valid_rule("createrole"));
-        assert!(valid_rule("all") && valid_rule("cls"));
-        assert!(!valid_rule("bogus"));
+    fn mode_vocab_matches_ts_actions() {
+        assert_eq!(MODES.len(), 3);
+        assert!(valid_mode("allowlist") && valid_mode("member") && valid_mode("nobody"));
+        assert!(!valid_mode("bogus"));
+        assert_eq!(normalize_mode("allowlist").as_deref(), Some("allowlist"));
+        assert_eq!(normalize_mode("member").as_deref(), Some("member"));
+        assert_eq!(normalize_mode("nobody").as_deref(), Some("nobody"));
+        assert_eq!(normalize_mode("on").as_deref(), Some("member"));
+        assert_eq!(normalize_mode("off").as_deref(), Some("nobody"));
+        assert!(normalize_mode("ban").is_none());
+    }
+
+    #[test]
+    fn legacy_allow_rows_stay_readable() {
+        let open: RuleState = serde_json::from_str(r#"{"allow":true}"#).unwrap();
+        assert_eq!(open.effective_mode(), "member");
+        let deny: RuleState = serde_json::from_str(r#"{"allow":false}"#).unwrap();
+        assert_eq!(deny.effective_mode(), "nobody");
+        let mode: RuleState = serde_json::from_str(r#"{"mode":"allowlist"}"#).unwrap();
+        assert_eq!(mode.effective_mode(), "allowlist");
+        let stored = serde_json::to_string(&RuleState {
+            mode: "nobody".to_string(),
+            allow: None,
+        })
+        .unwrap();
+        assert_eq!(stored, r#"{"mode":"nobody"}"#);
+    }
+
+    #[test]
+    fn sanction_vocab_matches_ts_punish() {
+        assert_eq!(SANCTIONS.len(), 3);
+        assert!(valid_sanction("simply"));
+        assert!(valid_sanction("simply+derank"));
+        assert!(valid_sanction("simply+ban"));
+        assert!(!valid_sanction("ban"));
+        assert!(!valid_sanction("kick"));
+        assert!(!valid_sanction("timeout"));
     }
 
     #[test]

@@ -433,26 +433,111 @@ pub async fn sweep_temp_expiry(
     (roles, unbans)
 }
 
+/// Table-routed guild id scope. Mirrors `tbl:<table>` in backends.rs:
+/// table rows live under guild_id `tbl:<gid>` with the dot-root key.
+pub fn mcount_table_guild_id(row_guild_id: &str) -> Option<&str> {
+    row_guild_id.strip_prefix("tbl:")
+}
+
+/// Slot suffix of a `GUILD.MCOUNT.<slot>` key.
+pub fn mcount_slot_of_key(key: &str) -> Option<&str> {
+    key.strip_prefix("GUILD.MCOUNT.")
+}
+
+/// Slot config: template name + voice channel id. The channel accepts
+/// the TS string shape and numeric ids; the enable gate stays in
+/// `membercount_slot_enabled` (only explicit `false` opts out).
+pub fn mcount_slot_config(cfg: &serde_json::Value) -> Option<(&str, u64)> {
+    let tpl = cfg.get("name")?.as_str()?;
+    let ch = match cfg.get("channel")? {
+        serde_json::Value::String(s) => s.parse::<u64>().ok()?,
+        serde_json::Value::Number(n) => n.as_u64()?,
+        _ => return None,
+    };
+    Some((tpl, ch))
+}
+
+/// Extract per-slot configs from a table-routed `GUILD` root object
+/// (`value.MCOUNT.<slot>`), the write shape of `save_mcount`.
+pub fn mcount_table_slots(root: &serde_json::Value) -> Vec<(String, serde_json::Value)> {
+    root.get("MCOUNT")
+        .and_then(|m| m.as_object())
+        .map(|m| m.iter().map(|(k, v)| (k.clone(), v.clone())).collect())
+        .unwrap_or_default()
+}
+
 /// Membercount refresh. Mirrors memberCountManager 5min tick: for each
-/// GUILD.MCOUNT.<slot> config, fetch the preview count and rename the
-/// voice channel from its template ({MemberCount} supported live).
+/// GUILD.MCOUNT.<slot> config, render all 7 placeholders from live
+/// counts (exact `guild.member_count` preferred over the preview
+/// approximation) and rename the voice channel from its template.
+///
+/// Sources: table-routed `tbl:<gid>` GUILD roots first, legacy flat
+/// `GUILD.MCOUNT.%` rows as fallback (table wins per slot).
+/// Note: TS Refresh renders the channel slot with the roles count
+/// (upstream quirk); the sweep uses the real channel count instead.
 pub async fn sweep_membercount(
     pool: &Pool,
     http: &std::sync::Arc<poise::serenity_prelude::Http>,
 ) -> u64 {
     use poise::serenity_prelude::{ChannelId, GuildId};
-    let rows: Vec<(String, String, String)> = sqlx::query_as::<_, (String, String, String)>(
+    use std::collections::HashMap;
+
+    // slot configs keyed by (gid, slot); table rows win over legacy.
+    let mut slots: HashMap<(String, String), serde_json::Value> = HashMap::new();
+    let legacy: Vec<(String, String, String)> = sqlx::query_as::<_, (String, String, String)>(
         "SELECT guild_id, key_name, value FROM kv WHERE key_name LIKE 'GUILD.MCOUNT.%'",
     )
     .fetch_all(pool)
     .await
     .unwrap_or_default();
-    let mut done = 0u64;
-    for (gid, _key, raw) in rows {
-        let Ok(gid_num) = gid.parse::<u64>() else {
+    for (gid, key, raw) in legacy {
+        if mcount_table_guild_id(&gid).is_some() {
+            continue;
+        }
+        let Some(slot) = mcount_slot_of_key(&key) else {
             continue;
         };
-        let Ok(cfg) = serde_json::from_str::<serde_json::Value>(&raw) else {
+        if slot.contains('.') {
+            continue;
+        }
+        if let Ok(cfg) = serde_json::from_str::<serde_json::Value>(&raw) {
+            slots.entry((gid, slot.to_string())).or_insert(cfg);
+        }
+    }
+    let table_roots: Vec<(String, String)> = sqlx::query_as::<_, (String, String)>(
+        "SELECT guild_id, value FROM kv WHERE guild_id LIKE 'tbl:%' AND key_name = 'GUILD'",
+    )
+    .fetch_all(pool)
+    .await
+    .unwrap_or_default();
+    for (row_gid, raw) in table_roots {
+        let Some(gid) = mcount_table_guild_id(&row_gid) else {
+            continue;
+        };
+        let Ok(root) = serde_json::from_str::<serde_json::Value>(&raw) else {
+            continue;
+        };
+        // Table values may be stored doubly-encoded (string of JSON)
+        // by string-taking writers; accept both shapes.
+        let parsed: Option<serde_json::Value> = match &root {
+            serde_json::Value::String(s) => serde_json::from_str(s).ok(),
+            _ => None,
+        };
+        let root_ref = parsed.as_ref().unwrap_or(&root);
+        for (slot, cfg) in mcount_table_slots(root_ref) {
+            let cfg = match &cfg {
+                serde_json::Value::String(s) => {
+                    serde_json::from_str(s).unwrap_or(serde_json::Value::Null)
+                }
+                other => other.clone(),
+            };
+            slots.insert((gid.to_string(), slot), cfg);
+        }
+    }
+
+    let mut done = 0u64;
+    for ((gid, _slot), cfg) in slots {
+        let Ok(gid_num) = gid.parse::<u64>() else {
             continue;
         };
         // TS memberCountManager has no enable gate; only an explicit
@@ -460,41 +545,15 @@ pub async fn sweep_membercount(
         if !membercount_slot_enabled(&cfg) {
             continue;
         }
-        let (Some(tpl), Some(ch)) = (
-            cfg.get("name").and_then(|n| n.as_str()),
-            cfg.get("channel").and_then(|c| c.as_str()),
-        ) else {
+        let Some((tpl, ch_num)) = mcount_slot_config(&cfg) else {
             continue;
         };
-        let Ok(ch_num) = ch.parse::<u64>() else {
-            continue;
-        };
-        let count = http
-            .get_guild_preview(GuildId::new(gid_num))
-            .await
-            .map(|p| p.approximate_member_count)
-            .unwrap_or(0);
-        // Full guild fetch for role/channel/boost counts (best-effort).
-        let (roles, channels, boosts) = match http.get_guild(GuildId::new(gid_num)).await {
-            Ok(g) => {
-                let chans = http
-                    .get_channels(GuildId::new(gid_num))
-                    .await
-                    .map(|c| c.len() as u64)
-                    .unwrap_or(0);
-                (
-                    g.roles.len() as u64,
-                    chans,
-                    g.premium_subscription_count.unwrap_or(0),
-                )
-            }
-            Err(_) => (0, 0, 0),
-        };
-        let name = tpl
-            .replace("{MemberCount}", &count.to_string())
-            .replace("{RolesCount}", &roles.to_string())
-            .replace("{ChannelCount}", &channels.to_string())
-            .replace("{BoostCount}", &boosts.to_string());
+        let counts = crate::commands::membercount::membercount::fetch_channel_counts(
+            http,
+            GuildId::new(gid_num),
+        )
+        .await;
+        let name = crate::commands::membercount::render_name(tpl, &counts);
         if ChannelId::new(ch_num)
             .edit(
                 http,
@@ -1610,6 +1669,24 @@ mod tests {
         assert!(!membercount_slot_enabled(
             &serde_json::json!({"enable": false})
         ));
+    }
+
+    #[test]
+    fn mcount_slot_sources_parse() {
+        assert_eq!(mcount_table_guild_id("tbl:123"), Some("123"));
+        assert_eq!(mcount_table_guild_id("123"), None);
+        assert_eq!(mcount_slot_of_key("GUILD.MCOUNT.member"), Some("member"));
+        assert_eq!(mcount_slot_of_key("GUILD.MCOUNT"), None);
+        let cfg = serde_json::json!({"name": "N {MemberCount}", "channel": "99"});
+        assert_eq!(mcount_slot_config(&cfg), Some(("N {MemberCount}", 99)));
+        let cfg = serde_json::json!({"name": "N", "channel": 99});
+        assert_eq!(mcount_slot_config(&cfg), Some(("N", 99)));
+        assert_eq!(mcount_slot_config(&serde_json::json!({"name": "N"})), None);
+        let root =
+            serde_json::json!({"MCOUNT": {"member": {"name": "a"}, "bot": "{\"name\":\"b\"}"}});
+        let slots = mcount_table_slots(&root);
+        assert_eq!(slots.len(), 2);
+        assert!(mcount_table_slots(&serde_json::json!({})).is_empty());
     }
 
     #[test]

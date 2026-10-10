@@ -1223,7 +1223,7 @@ impl Handler {
     }
 
     /// Anti-raid guard. Mirrors Events/protection/avoid*.ts with
-    /// PROTECTION.<rule> {allow} + PROTECTION.SANCTION + ALLOWLIST keys:
+    /// PROTECTION.<rule> {mode} + PROTECTION.SANCTION + ALLOWLIST keys:
     /// fetch the audit-log executor, skip owner/allowlisted/bot, apply the
     /// configured sanction otherwise. Never panics.
     async fn protection_guard(
@@ -1233,12 +1233,15 @@ impl Handler {
         action: serenity::model::guild::audit_log::Action,
         rule: &str,
     ) {
+        use crate::commands::protection::protect as protect_cmd;
         let gid = guild_id.get().to_string();
-        let allowed: bool = protection_rule_routed(&self.pool, &gid, rule)
+        // TS rule vocabulary: only `allowlist` / `nobody` modes sanction;
+        // `member` (and absent rows) leave everyone alone.
+        let mode: String = protection_rule_routed(&self.pool, &gid, rule)
             .await
-            .map(|r| r.allow)
-            .unwrap_or(true);
-        if allowed {
+            .map(|r| r.effective_mode().to_string())
+            .unwrap_or_else(|| "member".to_string());
+        if mode != "allowlist" && mode != "nobody" {
             return;
         }
         let Ok(logs) = guild_id
@@ -1259,48 +1262,38 @@ impl Handler {
         if derogated {
             return;
         }
-        let decision = crate::events::protection_decision(
-            owner_entry_routed(&self.pool, &gid, exec.get())
+        // Mode enforcement mirrors avoid*.ts: `allowlist` sanctions
+        // anyone without an allowlist entry; `nobody` sanctions anyone
+        // but the guild owner.
+        let should = match mode.as_str() {
+            "allowlist" => allowlist_entry_routed(&self.pool, &gid, exec.get())
                 .await
-                .is_some(),
-            allowlist_entry_routed(&self.pool, &gid, exec.get())
-                .await
-                .is_some(),
-            false,
-        );
-        if decision != crate::events::PunishDecision::Punish {
+                .is_none(),
+            _ => {
+                let owner = guild_id
+                    .to_partial_guild(&ctx.http)
+                    .await
+                    .map(|g| g.owner_id)
+                    .ok();
+                Some(exec) != owner
+            }
+        };
+        if !should {
             return;
         }
+        // OWNER-table entries are derogated too (mirrors `!isOwner`).
+        if owner_entry_routed(&self.pool, &gid, exec.get())
+            .await
+            .is_some()
+        {
+            return;
+        }
+        // TS punish(): `simply` only cancels the action (the caller's
+        // restore leg); the +derank / +ban suffixes add the sanction.
         let sanction: String = protection_sanction_routed(&self.pool, &gid)
             .await
-            .unwrap_or_else(|| "ban".to_string());
-        match sanction.to_ascii_lowercase().as_str() {
-            "kick" => {
-                let _ = guild_id
-                    .kick_with_reason(&ctx.http, exec, "protection")
-                    .await;
-            }
-            "timeout" | "mute" => {
-                if let Ok(member) = guild_id.member(&ctx.http, exec).await {
-                    let mut member = member;
-                    let until = serenity::Timestamp::from_unix_timestamp(
-                        std::time::SystemTime::now()
-                            .duration_since(std::time::UNIX_EPOCH)
-                            .map(|d| d.as_secs() as i64)
-                            .unwrap_or(0)
-                            + 3600,
-                    );
-                    if let Ok(until) = until {
-                        let _ = member
-                            .disable_communication_until_datetime(&ctx.http, until)
-                            .await;
-                    }
-                }
-            }
-            _ => {
-                let _ = guild_id.ban(&ctx.http, exec, 0).await;
-            }
-        }
+            .unwrap_or_else(|| "simply".to_string());
+        protect_cmd::apply_sanction(&ctx.http, guild_id, exec, &sanction, "Protect!").await;
         // Mirrors ihorizon_logs.ts: report to the ihorizon-logs channel.
         if let Ok(channels) = guild_id.channels(&ctx.http).await {
             let list: Vec<(u64, String)> = channels
@@ -2841,7 +2834,7 @@ impl serenity::EventHandler for Handler {
         let gid = guild_id.get().to_string();
         if let Some(by) = invites_by_routed(&self.pool, &gid, user.id.get())
             .await
-            .and_then(|s| s.parse::<u64>().ok())
+            .and_then(|s| crate::commands::invitesmanager::parse_inviter_by_str(&s))
         {
             let stats =
                 crate::commands::invitesmanager::inv::load_invites(&self.pool, &gid, by).await;
@@ -3329,42 +3322,110 @@ impl serenity::EventHandler for Handler {
                 }
             }
         }
-        // Mirrors Events/suggestion/onNewMessage.ts: thread + record + votes.
+        // Mirrors Events/suggestion/onNewMessage.ts: delete the original,
+        // 5-word gate, bot-posted `#code` embed, thread on the bot
+        // message, Yes/No votes, SUGGESTION.<code> record.
         // Kept expanded: the nested channel/disabled guards span awaits.
         #[allow(clippy::collapsible_if)]
         if let Some(suggest_ch) = suggest_channel_routed(&self.pool, &gid).await {
             if suggest_ch == msg.channel_id.get().to_string() {
                 if !suggest_disabled_routed(&self.pool, &gid).await {
-                    let now = std::time::SystemTime::now()
-                        .duration_since(std::time::UNIX_EPOCH)
-                        .map(|d| d.as_nanos() as u64)
-                        .unwrap_or(1);
-                    let code = crate::commands::suggestion::gen_suggest_code(now);
-                    if let Ok(thread) = msg
-                        .channel_id
-                        .create_thread(&_ctx.http, serenity::CreateThread::new(format!("#{code}")))
-                        .await
-                    {
-                        let rec = crate::commands::suggestion::Suggestion {
-                            author: msg.author.id.get().to_string(),
-                            msg_id: msg.id.get().to_string(),
-                            thread_id: thread.id.get().to_string(),
-                            status: "open".to_string(),
-                        };
-                        let _ = tbl_set_json(
-                            &self.pool,
-                            &gid,
-                            &crate::commands::suggestion::suggestion_key(&code),
-                            &rec,
-                        )
-                        .await;
+                    if msg.webhook_id.is_none() {
+                        let _ = msg.delete(&_ctx.http).await;
+                        if msg.content.split(' ').count() >= 5 {
+                            let now = std::time::SystemTime::now()
+                                .duration_since(std::time::UNIX_EPOCH)
+                                .map(|d| d.as_nanos() as u64)
+                                .unwrap_or(1);
+                            let code = crate::commands::suggestion::gen_suggest_code(now);
+                            let lang_code =
+                                crate::db::guild_lang(&self.pool, msg.guild_id.map(|g| g.get()))
+                                    .await;
+                            let text =
+                                |k: &str| crate::lang::get(&lang_code, k).unwrap_or_default();
+                            let author_name = text("event_suggestion_embed_author")
+                                .replace("${message.author.username}", &msg.author.name);
+                            let mut embed = serenity::CreateEmbed::default()
+                                .colour(0x4000FF_u32)
+                                .title(format!("#{code}"))
+                                .author(
+                                    serenity::CreateEmbedAuthor::new(author_name)
+                                        .icon_url(msg.author.face()),
+                                )
+                                .description(format!("```{}```", msg.content))
+                                .footer(serenity::CreateEmbedFooter::new(
+                                    crate::commands::botcat::bot_footer_name(
+                                        bot_name_routed(&self.pool, &gid).await.as_deref(),
+                                    ),
+                                ))
+                                .timestamp(serenity::Timestamp::now());
+                            if let Ok(guild) = guild_id.to_partial_guild(&_ctx.http).await {
+                                if let Some(icon) = guild.icon_url() {
+                                    embed = embed.thumbnail(icon);
+                                }
+                            }
+                            let sent = msg
+                                .channel_id
+                                .send_message(
+                                    &_ctx.http,
+                                    serenity::CreateMessage::new()
+                                        .content(format!("<@{}>", msg.author.id.get()))
+                                        .embed(embed),
+                                )
+                                .await;
+                            if let Ok(sent) = sent {
+                                let builder = serenity::CreateThread::new(format!("#{code}"));
+                                if let Ok(thread) = _ctx
+                                    .http
+                                    .create_thread_from_message(
+                                        msg.channel_id,
+                                        sent.id,
+                                        &builder,
+                                        None,
+                                    )
+                                    .await
+                                {
+                                    for vote in ["Yes", "No"] {
+                                        let reaction = match crate::emojis::cached_emoji_entry(
+                                            &_ctx.http, vote,
+                                        )
+                                        .await
+                                        {
+                                            Some((id, name, animated)) => {
+                                                serenity::ReactionType::Custom {
+                                                    animated,
+                                                    id: serenity::EmojiId::new(id),
+                                                    name: Some(name),
+                                                }
+                                            }
+                                            None => {
+                                                serenity::ReactionType::Unicode(if vote == "Yes" {
+                                                    "✅".to_string()
+                                                } else {
+                                                    "❌".to_string()
+                                                })
+                                            }
+                                        };
+                                        let _ = sent.react(&_ctx.http, reaction).await;
+                                    }
+                                    let rec = crate::commands::suggestion::Suggestion {
+                                        author: msg.author.id.get().to_string(),
+                                        msg_id: sent.id.get().to_string(),
+                                        thread_id: thread.id.get().to_string(),
+                                        status: "open".to_string(),
+                                        replied: false,
+                                    };
+                                    let _ = tbl_set_json(
+                                        &self.pool,
+                                        &gid,
+                                        &crate::commands::suggestion::suggestion_key(&code),
+                                        &rec,
+                                    )
+                                    .await;
+                                }
+                            }
+                        }
                     }
-                    let _ = msg
-                        .react(&_ctx.http, serenity::ReactionType::Unicode("⬆️".into()))
-                        .await;
-                    let _ = msg
-                        .react(&_ctx.http, serenity::ReactionType::Unicode("⬇️".into()))
-                        .await;
                 }
             }
         }
@@ -5847,7 +5908,7 @@ mod restore_tests {
             .unwrap();
         assert!(protection_rule_routed(&pool, "g1", "createrole")
             .await
-            .map(|r| !r.allow)
+            .map(|r| r.effective_mode() == "nobody")
             .unwrap_or(false));
         assert!(protection_rule_routed(&pool, "g1", "nope").await.is_none());
         tbl_set(&pool, "g1", "PROTECTION.SANCTION", "kick")

@@ -135,13 +135,20 @@ pub async fn tts_join(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         },
         None => true,
     };
-    // Guard 3 inputs: stored TTS row (presence = enabled). The live player
-    // leg stays TS-side (no per-guild player handle in this port), so a
-    // stored row with no live session takes the cleanup path.
+    // Guard 3 inputs: stored TTS row (presence = enabled) plus the live
+    // lavalink snapshot. A stored row with no live session takes the
+    // cleanup path; a stored row with a live voice session refuses.
     let tts_enabled = load_tts(&ctx.data().pool, &gid).await.is_some();
-    // Guard 4: no live music handle in this port (lavalink legs stay
-    // caller-side); best effort off.
-    let music_playing = false;
+    let player_snapshot = crate::lavalink::manager().snapshot(guild_id.get()).await;
+    let player_connected = player_snapshot
+        .as_ref()
+        .map(|p| p.voice_channel.is_some())
+        .unwrap_or(false);
+    // Guard 4: live music state (current track, unpaused).
+    let music_playing = player_snapshot
+        .as_ref()
+        .map(|p| p.current.is_some() && !p.paused)
+        .unwrap_or(false);
     // Guard 5: H24/7 park mismatch.
     let h247 = load_h247_raw(&ctx.data().pool, &gid)
         .await
@@ -152,7 +159,7 @@ pub async fn tts_join(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         member_voice,
         text_based,
         tts_enabled,
-        player_connected: false,
+        player_connected,
         music_playing,
         h247,
     }) {
@@ -203,21 +210,108 @@ pub async fn tts_join(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         }
     }
 
-    // TS stores textChannelId = voiceChannelId (the voice channel itself).
+    // Live join leg (mirrors createPlayer + connect + voice status +
+    // welcome embed in TS !join.ts). TS stores textChannelId =
+    // voiceChannelId (the voice channel itself).
     let voice_id = member_voice.unwrap_or_default();
     let tts_lang = crate::lang::get(&code, "tts_join_lang_fallback")
         .filter(|s| !s.trim().is_empty())
         .unwrap_or_else(|| "en-US".to_string());
-    save_tts(
-        &ctx.data().pool,
-        &gid,
-        &TtsConfig {
-            text_channel_id: voice_id.to_string(),
-            voice_channel_id: voice_id.to_string(),
-            lang: tts_lang,
-        },
-    )
-    .await?;
+
+    let live: anyhow::Result<()> = async {
+        // Create/connect the player: gateway OP4 join + local state.
+        crate::lavalink::LavalinkManager::send_voice_state(
+            &ctx.serenity_context().shard,
+            guild_id.get(),
+            Some(voice_id),
+        );
+        crate::lavalink::manager()
+            .with_player(guild_id.get(), |p| {
+                p.voice_channel = Some(voice_id);
+                p.text_channel = Some(voice_id);
+            })
+            .await;
+        // Voice-channel status (mirrors changeVoiceChannelStatus).
+        let status = crate::lang::get(&code, "tts_voice_status")
+            .unwrap_or_else(|| "TTS Mode - Text-to-Speech".to_string());
+        let _ = ctx
+            .http()
+            .edit_voice_status(
+                serenity::ChannelId::new(voice_id),
+                &serde_json::json!({ "status": status }),
+                None,
+            )
+            .await;
+        // Welcome embed posted into the voice channel; its id is
+        // persisted as embedMessageId (mirrors sendTTSWelcomeEmbed).
+        let members: Vec<String> = ctx
+            .serenity_context()
+            .cache
+            .guild(guild_id)
+            .map(|g| {
+                g.voice_states
+                    .iter()
+                    .filter(|(_, v)| v.channel_id.map(|c| c.get()) == Some(voice_id))
+                    .map(|(u, _)| format!("<@{u}>"))
+                    .collect()
+            })
+            .unwrap_or_default();
+        let embed = serenity::CreateEmbed::new()
+            .color(0x5865F2)
+            .title(
+                crate::lang::get(&code, "tts_embed_title")
+                    .unwrap_or_else(|| "TTS Mode Activated".to_string()),
+            )
+            .description(
+                crate::lang::get(&code, "tts_embed_description")
+                    .map(|s| {
+                        let members = if members.is_empty() {
+                            crate::lang::get(&code, "var_none")
+                                .unwrap_or_else(|| "None".to_string())
+                        } else {
+                            members.join(", ")
+                        };
+                        s.replace("${voiceChannel}", &format!("<#{voice_id}>"))
+                            .replace("${members}", &members)
+                    })
+                    .unwrap_or_else(|| format!("TTS active in <#{voice_id}>.")),
+            )
+            .footer(serenity::CreateEmbedFooter::new(
+                crate::lang::get(&code, "tts_embed_footer")
+                    .unwrap_or_else(|| "Use /tts leave to stop TTS".to_string()),
+            ))
+            .timestamp(serenity::Timestamp::now());
+        let embed_message_id = serenity::ChannelId::new(voice_id)
+            .send_message(ctx.http(), serenity::CreateMessage::new().embed(embed))
+            .await
+            .map(|m| m.id.get().to_string())
+            .unwrap_or_default();
+        // Persist with embedMessageId + enabled flag (TS row shape;
+        // load_tts ignores the extras, tts_embed_ids reads them back).
+        let row = serde_json::json!({
+            "enabled": true,
+            "textChannelId": voice_id.to_string(),
+            "voiceChannelId": voice_id.to_string(),
+            "embedMessageId": embed_message_id,
+            "lang": tts_lang,
+        });
+        crate::backends::Backend::sqlite(ctx.data().pool.clone())
+            .table(gid.clone())
+            .set(TTS_KEY, row)
+            .await?;
+        Ok(())
+    }
+    .await;
+
+    if let Err(e) = live {
+        tracing::warn!("tts join failed for {gid}: {e:#}");
+        ctx.say(refuse(
+            "tts_join_error",
+            "An error occurred while enabling TTS mode.",
+        ))
+        .await?;
+        return Ok(());
+    }
     ctx.say(
         crate::lang::get(&code, "tts_join_enabled")
             .map(|s| {

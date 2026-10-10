@@ -3,9 +3,13 @@
 // Mirrors src/Interaction/HybridCommands/antispam/* (!manage 780l,
 // !bypass-roles, !ignore-channels).
 //
-// TS keys: GUILD.ANTISPAM {ignoreBots, maxInterval, enabled, threshold,
-// removeMessages, punishment, punishTime}, GUILD.ANTISPAM.BYPASS_CHANNELS[],
+// TS keys: GUILD.ANTISPAM {Enabled, Threshold, maxInterval, ignoreBots,
+// removeMessages, punishment_type, punishTime}, GUILD.ANTISPAM.BYPASS_CHANNELS[],
 // GUILD.ANTISPAM.BYPASS_ROLES[].
+// Fresh-row defaults (!manage baseData): ignoreBots false, maxInterval 1900,
+// Enabled true, Threshold 3, removeMessages true, punishment_type "mute",
+// punishTime 15m. Presets (AntiSpamPreset): chill 1900 / guard 2700 /
+// extreme 3200 maxInterval.
 // The 780-line collector UI (!manage) is flattened to direct subcommands;
 // runtime detection lives in Events/antispam (pending).
 
@@ -14,17 +18,43 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct AntispamConfig {
-    #[serde(default = "on")]
+    #[serde(rename = "Enabled", alias = "enabled", default = "on")]
     pub enabled: bool,
-    #[serde(default = "def_threshold")]
+    #[serde(rename = "Threshold", alias = "threshold", default = "def_threshold")]
     pub threshold: u32,
-    #[serde(default = "def_interval")]
+    #[serde(
+        rename = "maxInterval",
+        alias = "max_interval_ms",
+        alias = "maxinterval",
+        default = "def_interval"
+    )]
     pub max_interval_ms: i64,
-    #[serde(default = "on")]
+    #[serde(
+        rename = "ignoreBots",
+        alias = "ignore_bots",
+        alias = "ignorebots",
+        default
+    )]
+    pub ignore_bots: bool,
+    #[serde(
+        rename = "removeMessages",
+        alias = "remove_messages",
+        alias = "removemessages",
+        default = "on"
+    )]
     pub remove_messages: bool,
-    #[serde(default)]
-    pub punishment: String,
-    #[serde(default)]
+    #[serde(
+        rename = "punishment_type",
+        alias = "punishment",
+        default = "def_punishment"
+    )]
+    pub punishment_type: String,
+    #[serde(
+        rename = "punishTime",
+        alias = "punish_time_ms",
+        alias = "punishtime",
+        default = "def_punish_time"
+    )]
     pub punish_time_ms: i64,
 }
 
@@ -32,22 +62,138 @@ fn on() -> bool {
     true
 }
 fn def_threshold() -> u32 {
-    5
+    3
 }
 fn def_interval() -> i64 {
-    2000
+    1900
+}
+fn def_punishment() -> String {
+    "mute".to_string()
+}
+fn def_punish_time() -> i64 {
+    900_000
 }
 
 impl Default for AntispamConfig {
     fn default() -> Self {
         Self {
             enabled: true,
-            threshold: 5,
-            max_interval_ms: 2000,
+            threshold: 3,
+            max_interval_ms: 1900,
+            ignore_bots: false,
             remove_messages: true,
-            punishment: "mute".into(),
-            punish_time_ms: 600_000,
+            punishment_type: "mute".into(),
+            punish_time_ms: 900_000,
         }
+    }
+}
+
+impl AntispamConfig {
+    /// Preset configs mirroring !manage AntiSpamPreset. Bypass lists live
+    /// under separate keys, so presets never touch them (like the TS
+    /// spread that preserves baseData.BYPASS_*).
+    pub fn chill() -> Self {
+        Self {
+            enabled: true,
+            threshold: 7,
+            max_interval_ms: 1900,
+            ignore_bots: true,
+            remove_messages: true,
+            punishment_type: "mute".into(),
+            punish_time_ms: 120_000,
+        }
+    }
+
+    pub fn guard() -> Self {
+        Self {
+            enabled: true,
+            threshold: 5,
+            max_interval_ms: 2700,
+            ignore_bots: false,
+            remove_messages: true,
+            punishment_type: "mute".into(),
+            punish_time_ms: 240_000,
+        }
+    }
+
+    pub fn extreme() -> Self {
+        Self {
+            enabled: true,
+            threshold: 3,
+            max_interval_ms: 3200,
+            ignore_bots: false,
+            remove_messages: true,
+            punishment_type: "mute".into(),
+            punish_time_ms: 1_800_000,
+        }
+    }
+
+    /// Look up a preset by name ("chill" | "guard" | "extreme").
+    pub fn preset(name: &str) -> Option<Self> {
+        match name.trim().to_ascii_lowercase().as_str() {
+            "chill" => Some(Self::chill()),
+            "guard" => Some(Self::guard()),
+            "extreme" => Some(Self::extreme()),
+            _ => None,
+        }
+    }
+
+    /// True for the !manage punishment select values (mute | kick | ban).
+    pub fn is_valid_punishment(value: &str) -> bool {
+        matches!(
+            value.trim().to_ascii_lowercase().as_str(),
+            "mute" | "kick" | "ban"
+        )
+    }
+
+    /// Per-field boolean setter mirroring the !manage yes/no selects.
+    /// Accepts TS ("Enabled", "ignoreBots", "removeMessages") and
+    /// snake_case spellings. False for unknown keys.
+    pub fn set_bool(&mut self, key: &str, value: bool) -> bool {
+        match key {
+            "Enabled" | "enabled" => self.enabled = value,
+            "ignoreBots" | "ignore_bots" | "ignorebots" => self.ignore_bots = value,
+            "removeMessages" | "remove_messages" | "removemessages" => {
+                self.remove_messages = value;
+            }
+            _ => return false,
+        }
+        true
+    }
+
+    /// Per-field numeric setter mirroring the !manage modals. Threshold is
+    /// clamped like the slash config path (2-20); durations must be
+    /// positive. False for unknown keys or out-of-range values.
+    pub fn set_number(&mut self, key: &str, value: i64) -> bool {
+        match key {
+            "Threshold" | "threshold" => {
+                self.threshold = value.clamp(2, 20) as u32;
+            }
+            "maxInterval" | "max_interval_ms" | "maxinterval" => {
+                if value <= 0 {
+                    return false;
+                }
+                self.max_interval_ms = value;
+            }
+            "punishTime" | "punish_time_ms" | "punishtime" => {
+                if value <= 0 {
+                    return false;
+                }
+                self.punish_time_ms = value;
+            }
+            _ => return false,
+        }
+        true
+    }
+
+    /// Punishment setter mirroring the !manage punish-type select.
+    /// Only mute | kick | ban; false otherwise (config unchanged).
+    pub fn set_punishment(&mut self, value: &str) -> bool {
+        if !Self::is_valid_punishment(value) {
+            return false;
+        }
+        self.punishment_type = value.trim().to_ascii_lowercase();
+        true
     }
 }
 
@@ -130,6 +276,131 @@ mod tests {
         assert!(!window_tripped(4, 5, 1000, 2000));
         assert!(!window_tripped(9, 5, 5000, 2000));
         assert!(!window_tripped(9, 0, 100, 2000));
+    }
+
+    #[test]
+    fn defaults_match_ts_fresh_row() {
+        // !manage baseData fallback: ignoreBots false, maxInterval 1900,
+        // Enabled true, Threshold 3, removeMessages true, mute, 15m.
+        let cfg = AntispamConfig::default();
+        assert!(cfg.enabled);
+        assert_eq!(cfg.threshold, 3);
+        assert_eq!(cfg.max_interval_ms, 1900);
+        assert!(!cfg.ignore_bots);
+        assert!(cfg.remove_messages);
+        assert_eq!(cfg.punishment_type, "mute");
+        assert_eq!(cfg.punish_time_ms, 900_000);
+    }
+
+    #[test]
+    fn serializes_with_ts_field_names() {
+        let v = serde_json::to_value(AntispamConfig::default()).unwrap();
+        assert_eq!(v["Enabled"], serde_json::json!(true));
+        assert_eq!(v["Threshold"], serde_json::json!(3));
+        assert_eq!(v["maxInterval"], serde_json::json!(1900));
+        assert_eq!(v["ignoreBots"], serde_json::json!(false));
+        assert_eq!(v["removeMessages"], serde_json::json!(true));
+        assert_eq!(v["punishment_type"], serde_json::json!("mute"));
+        assert_eq!(v["punishTime"], serde_json::json!(900_000));
+    }
+
+    #[test]
+    fn legacy_rows_read_both_casings() {
+        // TS-shaped row (PascalCase/camelCase keys).
+        let ts: AntispamConfig = serde_json::from_value(serde_json::json!({
+            "Enabled": false,
+            "Threshold": 7,
+            "maxInterval": 2700,
+            "ignoreBots": true,
+            "removeMessages": false,
+            "punishment_type": "ban",
+            "punishTime": 240_000,
+        }))
+        .unwrap();
+        assert!(!ts.enabled);
+        assert_eq!(ts.threshold, 7);
+        assert_eq!(ts.max_interval_ms, 2700);
+        assert!(ts.ignore_bots);
+        assert!(!ts.remove_messages);
+        assert_eq!(ts.punishment_type, "ban");
+        assert_eq!(ts.punish_time_ms, 240_000);
+        // Old Rust-shaped row (snake_case keys) still reads.
+        let rust: AntispamConfig = serde_json::from_value(serde_json::json!({
+            "enabled": true,
+            "threshold": 9,
+            "max_interval_ms": 1500,
+            "remove_messages": false,
+            "punishment": "kick",
+            "punish_time_ms": 60_000,
+        }))
+        .unwrap();
+        assert!(rust.enabled);
+        assert_eq!(rust.threshold, 9);
+        assert_eq!(rust.max_interval_ms, 1500);
+        assert!(!rust.ignore_bots);
+        assert!(!rust.remove_messages);
+        assert_eq!(rust.punishment_type, "kick");
+        assert_eq!(rust.punish_time_ms, 60_000);
+        // Sparse rows fall back to TS fresh-row defaults per field.
+        let sparse: AntispamConfig =
+            serde_json::from_value(serde_json::json!({"Threshold": 4})).unwrap();
+        assert_eq!(sparse.threshold, 4);
+        assert_eq!(sparse.max_interval_ms, 1900);
+        assert_eq!(sparse.punishment_type, "mute");
+    }
+
+    #[test]
+    fn presets_match_ts() {
+        let chill = AntispamConfig::preset("chill").unwrap();
+        assert_eq!(chill.max_interval_ms, 1900);
+        assert_eq!(chill.threshold, 7);
+        assert!(chill.ignore_bots);
+        assert_eq!(chill.punish_time_ms, 120_000);
+        let guard = AntispamConfig::preset("guard").unwrap();
+        assert_eq!(guard.max_interval_ms, 2700);
+        assert_eq!(guard.threshold, 5);
+        assert!(!guard.ignore_bots);
+        assert_eq!(guard.punish_time_ms, 240_000);
+        let extreme = AntispamConfig::preset("extreme").unwrap();
+        assert_eq!(extreme.max_interval_ms, 3200);
+        assert_eq!(extreme.threshold, 3);
+        assert!(!extreme.ignore_bots);
+        assert_eq!(extreme.punish_time_ms, 1_800_000);
+        for p in [chill, guard, extreme] {
+            assert!(p.enabled);
+            assert!(p.remove_messages);
+            assert_eq!(p.punishment_type, "mute");
+        }
+        assert!(AntispamConfig::preset("bogus").is_none());
+    }
+
+    #[test]
+    fn per_field_setters() {
+        let mut cfg = AntispamConfig::default();
+        assert!(cfg.set_bool("Enabled", false));
+        assert!(!cfg.enabled);
+        assert!(cfg.set_bool("ignoreBots", true));
+        assert!(cfg.ignore_bots);
+        assert!(cfg.set_bool("remove_messages", false));
+        assert!(!cfg.remove_messages);
+        assert!(!cfg.set_bool("bogus", true));
+        assert!(cfg.set_number("Threshold", 50));
+        assert_eq!(cfg.threshold, 20);
+        assert!(cfg.set_number("threshold", 0));
+        assert_eq!(cfg.threshold, 2);
+        assert!(cfg.set_number("maxInterval", 2700));
+        assert_eq!(cfg.max_interval_ms, 2700);
+        assert!(!cfg.set_number("maxInterval", -5));
+        assert!(cfg.set_number("punishTime", 60_000));
+        assert_eq!(cfg.punish_time_ms, 60_000);
+        assert!(!cfg.set_number("punishTime", 0));
+        assert!(!cfg.set_number("bogus", 1));
+        assert!(cfg.set_punishment("ban"));
+        assert_eq!(cfg.punishment_type, "ban");
+        assert!(cfg.set_punishment("KICK"));
+        assert_eq!(cfg.punishment_type, "kick");
+        assert!(!cfg.set_punishment("timeout"));
+        assert_eq!(cfg.punishment_type, "kick");
     }
 
     async fn memory_pool() -> crate::db::Pool {

@@ -1,4 +1,5 @@
 use super::*;
+use poise::serenity_prelude as serenity;
 
 #[poise::command(
     slash_command,
@@ -89,5 +90,62 @@ pub async fn backup_create(
         .replace("${backupData.id}", &id),
     )
     .await?;
+    // Creation audit embed after the snapshot is stored. Mirrors the
+    // ihorizon_logs call in !create.ts:104-111.
+    post_backup_create_log(&ctx).await;
     Ok(())
+}
+
+/// Render the creation audit-log description
+/// (`backup_logs_embed_description_on_creation`).
+pub fn render_backup_create_log(template: &str, user_id: u64) -> String {
+    template.replace("${interaction.user.id}", &user_id.to_string())
+}
+
+/// Post one #bf0bb9 embed to the name-contains `ihorizon-logs`
+/// channel. Mirrors ihorizon_logs.ts (best-effort, silent when
+/// missing).
+pub async fn post_backup_create_log(ctx: &Ctx<'_>) {
+    use poise::serenity_prelude::{CreateEmbed, CreateMessage};
+    let title =
+        crate::commands::lang_for(ctx, "backup_logs_embed_title_on_creation", "Backup Logs").await;
+    let description = render_backup_create_log(
+        &crate::commands::lang_for(
+            ctx,
+            "backup_logs_embed_description_on_creation",
+            "<@${interaction.user.id}> created a backup!",
+        )
+        .await,
+        ctx.author().id.get(),
+    );
+    let Some(guild_id) = ctx.guild_id() else {
+        return;
+    };
+    let Ok(channels) = ctx.http().get_channels(guild_id).await else {
+        return;
+    };
+    let Some(ch) = channels.iter().find(|c| c.name.contains("ihorizon-logs")) else {
+        return;
+    };
+    let embed = CreateEmbed::default()
+        .colour(serenity::Colour::new(0xbf0bb9))
+        .title(title)
+        .description(description);
+    let _ = ch
+        .id
+        .send_message(ctx.http(), CreateMessage::new().embed(embed))
+        .await;
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn create_log_renders_user_slot() {
+        assert_eq!(
+            render_backup_create_log("<@${interaction.user.id}> created a backup!", 42),
+            "<@42> created a backup!"
+        );
+    }
 }

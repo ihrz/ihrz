@@ -57,12 +57,79 @@ pub fn add_invites(s: &InviteStats, amount: i64) -> InviteStats {
 }
 
 pub fn remove_invites(s: &InviteStats, amount: i64) -> InviteStats {
+    // Mirrors TS `db.sub` (no floor): negative totals are allowed.
     InviteStats {
-        invites: (s.invites - amount).max(0),
+        invites: s.invites - amount,
         regular: s.regular,
-        bonus: (s.bonus - amount).max(0),
+        bonus: s.bonus - amount,
         leaves: s.leaves,
     }
+}
+
+/// Legacy `USER.<uid>.INVITES.BY` compat: TS `recordInviterStats`
+/// (joinMessage.ts) writes `{inviter, invite}`, while the Rust join path
+/// writes a raw-id string. Accept object, numeric, or raw-id forms.
+pub fn parse_inviter_by(v: &serde_json::Value) -> Option<u64> {
+    match v {
+        serde_json::Value::Number(n) => n
+            .as_u64()
+            .or_else(|| n.as_i64().and_then(|i| u64::try_from(i).ok())),
+        serde_json::Value::String(s) => parse_inviter_by_str(s),
+        serde_json::Value::Object(m) => m.get("inviter").and_then(parse_inviter_by),
+        _ => None,
+    }
+}
+
+/// Parse a raw BY leaf: plain id, JSON number, quoted id, or a
+/// JSON-encoded legacy `{inviter, invite}` object.
+pub fn parse_inviter_by_str(s: &str) -> Option<u64> {
+    let t = s.trim();
+    if let Ok(id) = t.parse::<u64>() {
+        return Some(id);
+    }
+    if let Ok(v) = serde_json::from_str::<serde_json::Value>(t) {
+        if let Some(id) = parse_inviter_by(&v) {
+            return Some(id);
+        }
+    }
+    t.trim_matches('"').parse::<u64>().ok()
+}
+
+/// Routed BY read (guild table first, legacy flat row second) with legacy
+/// shape compat. Leave-decrement consumers must use this instead of a raw
+/// `parse::<u64>` so pre-migration rows still decrement.
+pub async fn load_inviter_by(pool: &crate::db::Pool, guild_id: &str, user_id: u64) -> Option<u64> {
+    let raw = table_value_or_legacy(pool, guild_id, &format!("USER.{user_id}.INVITES.BY")).await?;
+    parse_inviter_by(&raw)
+}
+
+/// Post an invites audit embed to the `ihorizon-logs` channel.
+/// Mirrors `client.func.ihorizon_logs`; silent when absent.
+pub async fn post_inv_log(
+    ctx: &Ctx<'_>,
+    guild_id: poise::serenity_prelude::GuildId,
+    title: String,
+    description: String,
+) {
+    let Ok(channels) = guild_id.channels(ctx.http()).await else {
+        return;
+    };
+    let list: Vec<(u64, String)> = channels
+        .iter()
+        .map(|(id, c)| (id.get(), c.name.clone()))
+        .collect();
+    let Some(log_id) = crate::funcs::logs_channel_id(&list) else {
+        return;
+    };
+    let embed = poise::serenity_prelude::CreateEmbed::default()
+        .title(title)
+        .description(description);
+    let _ = poise::serenity_prelude::ChannelId::new(log_id)
+        .send_message(
+            ctx.http(),
+            poise::serenity_prelude::CreateMessage::new().embed(embed),
+        )
+        .await;
 }
 
 /// Sort desc by invites, stable by user id asc. Mirrors leaderboard tri.
@@ -185,7 +252,8 @@ mod tests {
     }
 
     #[test]
-    fn remove_floors_at_zero() {
+    fn remove_matches_db_sub_no_floor() {
+        // TS uses `db.sub` with no clamp: negatives are allowed.
         let s = remove_invites(
             &InviteStats {
                 invites: 3,
@@ -194,8 +262,31 @@ mod tests {
             },
             10,
         );
-        assert_eq!(s.invites, 0);
-        assert_eq!(s.bonus, 0);
+        assert_eq!(s.invites, -7);
+        assert_eq!(s.bonus, -7);
+    }
+
+    #[test]
+    fn inviter_by_accepts_legacy_object_and_raw_forms() {
+        // Legacy TS shape written by recordInviterStats.
+        let obj: serde_json::Value =
+            serde_json::from_str(r#"{"inviter":"123","invite":"abc"}"#).unwrap();
+        assert_eq!(parse_inviter_by(&obj), Some(123));
+        let obj_num: serde_json::Value =
+            serde_json::from_str(r#"{"inviter":456,"invite":"abc"}"#).unwrap();
+        assert_eq!(parse_inviter_by(&obj_num), Some(456));
+        // Raw-id string (Rust join path) and JSON number.
+        assert_eq!(
+            parse_inviter_by(&serde_json::Value::String("789".to_string())),
+            Some(789)
+        );
+        assert_eq!(parse_inviter_by(&serde_json::json!(321)), Some(321));
+        assert_eq!(parse_inviter_by_str("  654  "), Some(654));
+        assert_eq!(
+            parse_inviter_by_str(r#"{"inviter":"987","invite":"xyz"}"#),
+            Some(987)
+        );
+        assert_eq!(parse_inviter_by_str("not-an-id"), None);
     }
 
     #[test]

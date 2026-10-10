@@ -42,16 +42,25 @@ pub async fn gw_get_all(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
             .replace("${interaction.guild?.name}", &guild_name),
         )
         .timestamp(serenity::Timestamp::now());
-    // Author mirrors !get-all.ts:66-69 (guild name + guild icon).
-    match ctx.guild().and_then(|g| g.icon_url()) {
-        Some(url) => {
-            embed =
-                embed.author(serenity::CreateEmbedAuthor::new(guild_name.clone()).icon_url(url));
-        }
-        None => {
-            embed = embed.author(serenity::CreateEmbedAuthor::new(guild_name.clone()));
-        }
-    }
+    // Author icon is an image64 snapshot sent as guild_icon.png, never
+    // a raw CDN URL (which rots to "media lost"). Mirrors
+    // !get-all.ts:66-69 + 92-100 (guild iconURL, bot avatar
+    // fallback, empty buffer when the fetch fails).
+    let bot_face = ctx
+        .serenity_context()
+        .http
+        .get_current_user()
+        .await
+        .map(|u| u.face())
+        .unwrap_or_default();
+    let guild_icon = ctx.guild().and_then(|g| g.icon_url());
+    let icon_bytes = crate::image64::image64(guild_icon_source(guild_icon.as_deref(), &bot_face))
+        .await
+        .unwrap_or_default();
+    embed = embed.author(
+        serenity::CreateEmbedAuthor::new(guild_name.clone())
+            .icon_url("attachment://guild_icon.png"),
+    );
     for (k, v) in &rows {
         if let Ok(gw) = serde_json::from_str::<Giveaway>(v) {
             if gw.ended {
@@ -78,12 +87,26 @@ pub async fn gw_get_all(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let (footer_name, footer_icon) =
         giveaway_footer(&ctx.data().pool, &ctx.serenity_context().http, &gid).await;
     embed = giveaway_embed_footer(embed, &footer_name, footer_icon.is_some());
-    let mut reply = poise::CreateReply::default().embed(embed);
+    let mut reply =
+        poise::CreateReply::default()
+            .embed(embed)
+            .attachment(serenity::CreateAttachment::bytes(
+                icon_bytes,
+                "guild_icon.png",
+            ));
     if let Some(icon) = footer_icon {
         reply = reply.attachment(serenity::CreateAttachment::bytes(icon, "footer_icon.png"));
     }
     ctx.send(reply).await?;
     Ok(())
+}
+
+/// Pick the guild-icon snapshot source. Mirrors !get-all.ts:95-98
+/// (guild iconURL, bot avatar fallback).
+pub fn guild_icon_source<'a>(guild_icon: Option<&'a str>, bot_face: &'a str) -> &'a str {
+    guild_icon
+        .filter(|u| !u.trim().is_empty())
+        .unwrap_or(bot_face)
 }
 
 #[cfg(test)]
@@ -96,6 +119,22 @@ mod tests {
         assert_eq!(
             giveaway_message_url("g", "c", "m"),
             "https://discord.com/channels/g/c/m"
+        );
+    }
+
+    #[test]
+    fn icon_source_prefers_guild_icon() {
+        assert_eq!(
+            guild_icon_source(Some("https://cdn/guild.png"), "https://cdn/bot.png"),
+            "https://cdn/guild.png"
+        );
+        assert_eq!(
+            guild_icon_source(None, "https://cdn/bot.png"),
+            "https://cdn/bot.png"
+        );
+        assert_eq!(
+            guild_icon_source(Some("  "), "https://cdn/bot.png"),
+            "https://cdn/bot.png"
         );
     }
 }

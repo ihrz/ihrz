@@ -1,4 +1,5 @@
 use crate::bot::Ctx;
+use crate::commands::moderation::banlist::deny_foreign_press;
 use poise::serenity_prelude as serenity;
 
 // Interface-path decision (U-VOICE-IFACE): ADOPT FLAT, do not restore the
@@ -82,24 +83,69 @@ pub async fn vd_panel(
     #[channel_types("Text")]
     channel: serenity::GuildChannel,
 ) -> Result<(), anyhow::Error> {
+    ctx.defer().await?;
     let gid = ctx
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
+    let pool = &ctx.data().pool;
+    let code = crate::db::guild_lang(pool, ctx.guild_id().map(|g| g.get())).await;
+    let t = |k: &str, fb: &str| crate::lang::get(&code, k).unwrap_or_else(|| fb.to_string());
+    // Dashboard embed. Mirrors !set-text-channel.ts: banner image,
+    // description, 15 fields (11 emoji values + 4 spacers), footer.
+    let mut embed = serenity::CreateEmbed::default()
+        .colour(2829617)
+        .description(t(
+            "tempvoice_if_text_desc_embed",
+            "## TempVoice Interface\nThis **interface** can be used to manage temporary voice channels.\n",
+        ))
+        .image(crate::funcs::guild_banner_url(pool, &gid).await);
+    for slot in PANEL_FIELDS {
+        match slot {
+            Some((key, emoji_name, fallback)) => {
+                let template = t(key, fallback);
+                let markup = crate::emojis::app_emoji_markup(ctx.http(), emoji_name)
+                    .await
+                    .unwrap_or_default();
+                embed = embed.field(
+                    "** **",
+                    render_panel_field(&template, emoji_name, &markup),
+                    true,
+                );
+            }
+            None => {
+                embed = embed.field("** **", "** **", true);
+            }
+        }
+    }
+    let (fname, fbytes) = crate::commands::shared::footer_parts(&ctx, &gid).await;
+    embed = crate::commands::shared::embed_with_footer(embed, &fname, fbytes.is_some());
+    let mut post = serenity::CreateMessage::new()
+        .embed(embed)
+        .components(panel_buttons(ctx.http()).await);
+    if let Some(bytes) = fbytes {
+        post = post.add_file(serenity::CreateAttachment::bytes(bytes, "footer_icon.png"));
+    }
+    // Post into the target channel (TS `targetedChannel.send`), then
+    // acknowledge with `Yes | <message url>` like the TS editReply.
+    let sent = channel.id.send_message(ctx.http(), post).await?;
     crate::commands::owner::main::routed_set(
-        &ctx.data().pool,
+        pool,
         &gid,
         &gid,
         &vd_key("interface"),
         &channel.id.get().to_string(),
     )
     .await?;
-    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-    ctx.say(
-        crate::lang::get(&code, "msg_dashboard_panel_channel_set")
-            .unwrap_or_else(|| "Dashboard panel channel set.".to_string()),
-    )
-    .await?;
+    let yes = crate::emojis::app_emoji_markup(ctx.http(), "Yes")
+        .await
+        .unwrap_or_else(|| "✅".to_string());
+    let url = format!(
+        "https://discord.com/channels/{gid}/{ch}/{msg}",
+        ch = channel.id.get(),
+        msg = sent.id.get()
+    );
+    ctx.say(format!("{yes} | {url}")).await?;
     Ok(())
 }
 
@@ -206,37 +252,184 @@ pub async fn vd_position(
     Ok(())
 }
 
-// Staff role setter. Single-write note: the TS flow collects roles via a
-// select menu but performs exactly one `db.set(VOICE_INTERFACE.staff_role)`
-// on save-button confirm; this flat command is that single write.
+// Staff role setup. Mirrors !set-staff-role.ts: no slash options; the
+// command posts an embed (current staff mentions) with a RoleSelect
+// (up to 8) + a save button, both collected for 240s, and persists the
+// picked ids as one JSON array on save-button confirm.
+pub const STAFF_SELECT_ID: &str = "voice-staff-role-selecter";
+pub const STAFF_SAVE_ID: &str = "voice-staff-role-save-button";
+pub const STAFF_SETUP_TIMEOUT_SECS: u64 = 240;
+
+/// Decode a stored `VOICE_INTERFACE.staff_role` value. This command
+/// writes a JSON array; a bare role-id string is the legacy TS shape
+/// (mirrors the `typeof staff_roles === "string"` backward-compat
+/// branch in !set-staff-role.ts).
+pub fn parse_staff_roles(raw: Option<&str>) -> Vec<String> {
+    match raw.map(str::trim) {
+        None | Some("") => vec![],
+        Some(s) => serde_json::from_str::<Vec<String>>(s).unwrap_or_else(|_| vec![s.to_string()]),
+    }
+}
+
+/// Staff ids rendered as role mentions, mirroring the TS
+/// `staff_roles.map((x) => `<@&${x}>`).join(", ")` value.
+pub fn staff_roles_value(ids: &[String]) -> String {
+    ids.iter()
+        .map(|id| format!("<@&{id}>"))
+        .collect::<Vec<_>>()
+        .join(", ")
+}
+
 #[poise::command(
     slash_command,
     prefix_command,
     rename = "staff",
     default_member_permissions = "ADMINISTRATOR"
 )]
-pub async fn vd_staff(
-    ctx: Ctx<'_>,
-    #[description = "Staff role"] role: serenity::Role,
-) -> Result<(), anyhow::Error> {
-    let gid = ctx
-        .guild_id()
-        .map(|g| g.get().to_string())
-        .unwrap_or_default();
-    crate::commands::owner::main::routed_set(
-        &ctx.data().pool,
-        &gid,
-        &gid,
-        &vd_key("staff_role"),
-        &role.id.get().to_string(),
+pub async fn vd_staff(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
+    let Some(guild_id) = ctx.guild_id() else {
+        return Ok(());
+    };
+    ctx.defer().await?;
+    let gid = guild_id.get().to_string();
+    let pool = &ctx.data().pool;
+    let code = crate::db::guild_lang(pool, Some(guild_id.get())).await;
+    let t = |k: &str, fb: &str| crate::lang::get(&code, k).unwrap_or_else(|| fb.to_string());
+    let author_id = ctx.author().id.get();
+    let not_for_you = t("help_not_for_you", "This interaction is not for you");
+    let none_word = t("setjoinroles_var_none", "None");
+    // Field name mirrors the TS `|| "Staff Roles"` default.
+    let field_name = t("setjoinroles_help_embed_fields_1_name", "Staff Roles");
+    let desc = t(
+        "tempvoice_staff_desc_embed",
+        "## TempVoice Staff Role\nRoles listed here can now join and moderate the channel!\n",
+    );
+    let stored =
+        crate::commands::owner::main::routed_get(pool, &gid, &gid, &vd_key("staff_role")).await;
+    let staff_roles = parse_staff_roles(stored.as_deref());
+    let mk_embed = |ids: &[String]| {
+        let value = if ids.is_empty() {
+            none_word.clone()
+        } else {
+            staff_roles_value(ids)
+        };
+        serenity::CreateEmbed::default()
+            .colour(2829617)
+            .description(desc.clone())
+            .field(field_name.clone(), value, false)
+    };
+    let default_roles = {
+        let ids: Vec<serenity::RoleId> = staff_roles
+            .iter()
+            .filter_map(|s| s.parse::<u64>().ok().map(serenity::RoleId::new))
+            .collect();
+        if ids.is_empty() {
+            None
+        } else {
+            Some(ids)
+        }
+    };
+    let menu = serenity::CreateSelectMenu::new(
+        STAFF_SELECT_ID,
+        serenity::CreateSelectMenuKind::Role { default_roles },
     )
-    .await?;
-    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-    ctx.say(
-        crate::lang::get(&code, "msg_staff_role_set")
-            .unwrap_or_else(|| "Staff role set.".to_string()),
-    )
-    .await?;
+    .min_values(0)
+    .max_values(8);
+    let mut save = serenity::CreateButton::new(STAFF_SAVE_ID).style(serenity::ButtonStyle::Primary);
+    save = save.emoji(serenity::ReactionType::Unicode("💾".to_string()));
+    let select_row = || serenity::CreateActionRow::SelectMenu(menu.clone());
+    let save_row = |b: serenity::CreateButton| serenity::CreateActionRow::Buttons(vec![b]);
+    let (fname, fbytes) = crate::commands::shared::footer_parts(&ctx, &gid).await;
+    let mut reply = poise::CreateReply::default()
+        .embed(crate::commands::shared::embed_with_footer(
+            mk_embed(&staff_roles),
+            &fname,
+            fbytes.is_some(),
+        ))
+        .components(vec![select_row(), save_row(save.clone())]);
+    if let Some(bytes) = fbytes {
+        reply = reply.attachment(serenity::CreateAttachment::bytes(bytes, "footer_icon.png"));
+    }
+    let handle = ctx.send(reply).await?;
+    let mut msg = handle.into_message().await?;
+    // Untouched select saves the loaded array; a touched one saves the
+    // latest pick (mirrors the TS collector reset + save-button write).
+    let mut pending: Option<Vec<String>> = None;
+    // Single loop drives both collectors (role select + save button),
+    // author-gated like the TS filters, 240s like the TS `time`.
+    loop {
+        let press = msg
+            .await_component_interaction(ctx.serenity_context().shard.clone())
+            .timeout(std::time::Duration::from_secs(STAFF_SETUP_TIMEOUT_SECS))
+            .await;
+        let Some(press) = press else { break };
+        if press.user.id.get() != author_id {
+            deny_foreign_press(ctx.http(), &press, &not_for_you).await;
+            continue;
+        }
+        if press.data.custom_id == STAFF_SELECT_ID {
+            let ids = match &press.data.kind {
+                serenity::ComponentInteractionDataKind::RoleSelect { values } => values
+                    .iter()
+                    .map(|r| r.get().to_string())
+                    .collect::<Vec<_>>(),
+                _ => continue,
+            };
+            pending = Some(ids.clone());
+            let _ = press
+                .create_response(
+                    ctx.http(),
+                    serenity::CreateInteractionResponse::UpdateMessage(
+                        serenity::CreateInteractionResponseMessage::new().embed(mk_embed(&ids)),
+                    ),
+                )
+                .await;
+        } else if press.data.custom_id == STAFF_SAVE_ID {
+            let final_ids = pending.clone().unwrap_or_else(|| staff_roles.clone());
+            let raw = serde_json::to_string(&final_ids).unwrap_or_else(|_| "[]".to_string());
+            crate::commands::owner::main::routed_set(pool, &gid, &gid, &vd_key("staff_role"), &raw)
+                .await?;
+            // Success state mirrors the TS save-button restyle
+            // (Success + Yes emoji + disabled).
+            let mut done = serenity::CreateButton::new(STAFF_SAVE_ID)
+                .style(serenity::ButtonStyle::Success)
+                .disabled(true);
+            if let Some((id, name, animated)) =
+                crate::emojis::cached_emoji_entry(ctx.http(), "Yes").await
+            {
+                done = done.emoji(serenity::ReactionType::Custom {
+                    animated,
+                    id: serenity::EmojiId::new(id),
+                    name: Some(name),
+                });
+            } else {
+                done = done.emoji(serenity::ReactionType::Unicode("✅".to_string()));
+            }
+            let _ = press
+                .create_response(
+                    ctx.http(),
+                    serenity::CreateInteractionResponse::UpdateMessage(
+                        serenity::CreateInteractionResponseMessage::new()
+                            .embed(mk_embed(&final_ids))
+                            .components(vec![save_row(done)]),
+                    ),
+                )
+                .await;
+            break;
+        }
+    }
+    // TS `end` handler disables both rows.
+    let mut dead_menu = menu.clone();
+    dead_menu = dead_menu.disabled(true);
+    let _ = msg
+        .edit(
+            ctx.http(),
+            serenity::EditMessage::new().components(vec![
+                serenity::CreateActionRow::SelectMenu(dead_menu),
+                save_row(save.disabled(true)),
+            ]),
+        )
+        .await;
     Ok(())
 }
 
@@ -258,6 +451,7 @@ pub const TEMPVOICE_PREFIX: &str = "tempvoice:";
 /// buttons. Mirrors the TS collectors (custom ids kept distinct from
 /// the legacy `temporary_voice_*` ones, same semantics).
 pub const TEMPVOICE_BLOCK_SELECT: &str = "tempvoice:block-select";
+pub const TEMPVOICE_UNBLOCK_SELECT: &str = "tempvoice:unblock-select";
 pub const TEMPVOICE_TRUST_SELECT: &str = "tempvoice:trust-select";
 pub const TEMPVOICE_UNTRUST_SELECT: &str = "tempvoice:untrust-select";
 pub const TEMPVOICE_PRIVACY_SELECT: &str = "tempvoice:privacy-select";
@@ -335,44 +529,152 @@ pub fn privacy_rule(value: &str) -> Option<(u64, u64)> {
     }
 }
 
+/// Dashboard button layout: (action suffix, text label, emoji namespace).
+/// Order mirrors the TS `buttonRows` in !set-text-channel.ts
+/// (limit, name, claim, privacy, region / trust, block, transfer,
+/// unblock, untrust / delete); chunked in fives like the TS rows.
+pub const PANEL_BUTTONS: &[(&str, &str, &str)] = &[
+    ("limit", "Limit", "VC_Limit"),
+    ("name", "Name", "VC_Name"),
+    ("claim", "Claim", "VC_Claim"),
+    ("privacy", "Privacy", "VC_Privacy"),
+    ("region", "Region", "VC_Region"),
+    ("trust", "Trust", "VC_Trust"),
+    ("block", "Block", "VC_Block"),
+    ("transfer", "Transfer", "VC_Transfer"),
+    ("unblock", "Unblock", "VC_Unblock"),
+    ("untrust", "Untrust", "VC_Untrust"),
+    ("delete", "Delete", "VC_Delete"),
+];
+
+fn panel_button_style(action: &str) -> serenity::ButtonStyle {
+    use serenity::ButtonStyle;
+    match action {
+        "block" | "delete" => ButtonStyle::Danger,
+        "claim" => ButtonStyle::Success,
+        "trust" | "transfer" => ButtonStyle::Primary,
+        _ => ButtonStyle::Secondary,
+    }
+}
+
+fn panel_button(action: &str, label: &str) -> serenity::CreateButton {
+    serenity::CreateButton::new(format!("{TEMPVOICE_PREFIX}{action}"))
+        .label(label)
+        .style(panel_button_style(action))
+}
+
+/// Emoji for a dashboard button: synced app emoji when warm, otherwise
+/// the text label alone (the sync builder below covers the cold case).
+async fn with_panel_emoji(
+    http: &serenity::Http,
+    button: serenity::CreateButton,
+    emoji_name: &str,
+) -> serenity::CreateButton {
+    if let Some((id, name, animated)) = crate::emojis::cached_emoji_entry(http, emoji_name).await {
+        button.emoji(serenity::ReactionType::Custom {
+            animated,
+            id: serenity::EmojiId::new(id),
+            name: Some(name),
+        })
+    } else {
+        button
+    }
+}
+
+/// Dashboard buttons with VC_* emoji labels. Posted by vd_panel;
+/// mirrors the emoji-only TS panel buttons (labels kept as fallback).
+pub async fn panel_buttons(http: &serenity::Http) -> Vec<serenity::CreateActionRow> {
+    let mut rows = vec![];
+    for chunk in PANEL_BUTTONS.chunks(5) {
+        let mut buttons = vec![];
+        for (action, label, emoji_name) in chunk {
+            buttons.push(with_panel_emoji(http, panel_button(action, label), emoji_name).await);
+        }
+        rows.push(serenity::CreateActionRow::Buttons(buttons));
+    }
+    rows
+}
+
 pub fn tempvoice_buttons() -> Vec<serenity::CreateActionRow> {
-    use serenity::{ButtonStyle, CreateActionRow, CreateButton};
-    let buttons = [
-        CreateButton::new(format!("{TEMPVOICE_PREFIX}name"))
-            .label("Name")
-            .style(ButtonStyle::Secondary),
-        CreateButton::new(format!("{TEMPVOICE_PREFIX}limit"))
-            .label("Limit")
-            .style(ButtonStyle::Secondary),
-        CreateButton::new(format!("{TEMPVOICE_PREFIX}privacy"))
-            .label("Privacy")
-            .style(ButtonStyle::Secondary),
-        CreateButton::new(format!("{TEMPVOICE_PREFIX}block"))
-            .label("Block")
-            .style(ButtonStyle::Danger),
-        CreateButton::new(format!("{TEMPVOICE_PREFIX}claim"))
-            .label("Claim")
-            .style(ButtonStyle::Success),
-        CreateButton::new(format!("{TEMPVOICE_PREFIX}delete"))
-            .label("Delete")
-            .style(ButtonStyle::Danger),
-        CreateButton::new(format!("{TEMPVOICE_PREFIX}trust"))
-            .label("Trust")
-            .style(ButtonStyle::Primary),
-        CreateButton::new(format!("{TEMPVOICE_PREFIX}untrust"))
-            .label("Untrust")
-            .style(ButtonStyle::Secondary),
-        CreateButton::new(format!("{TEMPVOICE_PREFIX}transfer"))
-            .label("Transfer")
-            .style(ButtonStyle::Primary),
-        CreateButton::new(format!("{TEMPVOICE_PREFIX}region"))
-            .label("Region")
-            .style(ButtonStyle::Secondary),
-    ];
-    buttons
+    PANEL_BUTTONS
         .chunks(5)
-        .map(|c| CreateActionRow::Buttons(c.to_vec()))
+        .map(|c| {
+            serenity::CreateActionRow::Buttons(
+                c.iter().map(|(a, l, _)| panel_button(a, l)).collect(),
+            )
+        })
         .collect()
+}
+
+/// Dashboard embed fields in TS addFields order: (lang key, emoji
+/// namespace, exact en-US fallback); None slots are the `** **` spacer
+/// fields. Mirrors !set-text-channel.ts (15 fields).
+pub const PANEL_FIELDS: &[Option<(&str, &str, &str)>] = &[
+    Some((
+        "tempvoice_if_text_fields_value_limit",
+        "VC_Limit",
+        "${client.iHorizon_Emojis.VC_Limit} **Change limit**",
+    )),
+    Some((
+        "tempvoice_if_text_fields_value_name",
+        "VC_Name",
+        "${client.iHorizon_Emojis.VC_Name} **Change Name**",
+    )),
+    Some((
+        "tempvoice_if_text_fields_value_region",
+        "VC_Region",
+        "${client.iHorizon_Emojis.VC_Region} **Change Region**",
+    )),
+    Some((
+        "tempvoice_if_text_fields_value_trust",
+        "VC_Trust",
+        "${client.iHorizon_Emojis.VC_Trust} **Trust**",
+    )),
+    None,
+    Some((
+        "tempvoice_if_text_fields_value_untrust",
+        "VC_Untrust",
+        "${client.iHorizon_Emojis.VC_Untrust} **Untrust**",
+    )),
+    Some((
+        "tempvoice_if_text_fields_value_block",
+        "VC_Block",
+        "${client.iHorizon_Emojis.VC_Block} **Block**",
+    )),
+    None,
+    Some((
+        "tempvoice_if_text_fields_value_unblock",
+        "VC_Unblock",
+        "${client.iHorizon_Emojis.VC_Unblock} **Unblock**",
+    )),
+    Some((
+        "tempvoice_if_text_fields_value_claim",
+        "VC_Claim",
+        "${client.iHorizon_Emojis.VC_Claim} **Claim**",
+    )),
+    Some((
+        "tempvoice_if_text_fields_value_privacy",
+        "VC_Privacy",
+        "${client.iHorizon_Emojis.VC_Privacy} **Privacy**",
+    )),
+    Some((
+        "tempvoice_if_text_fields_value_transfer",
+        "VC_Transfer",
+        "${client.iHorizon_Emojis.VC_Transfer} **Transfer**",
+    )),
+    None,
+    Some((
+        "tempvoice_if_text_fields_value_delete",
+        "VC_Delete",
+        "${client.iHorizon_Emojis.VC_Delete} **Delete**",
+    )),
+    None,
+];
+
+/// Fill the `${client.iHorizon_Emojis.<Name>}` slot of a panel field
+/// template with the resolved emoji markup. Mirrors the TS `.replace`.
+pub fn render_panel_field(template: &str, emoji_name: &str, markup: &str) -> String {
+    template.replace(&format!("${{client.iHorizon_Emojis.{emoji_name}}}"), markup)
 }
 
 /// Temp-voice sweep decision. Mirrors the cleanup legs of
@@ -611,21 +913,36 @@ pub async fn handle_tempvoice_button(
             )
             .await?;
         }
-        "block" => {
-            // Block menu: selected members get deny overwrites.
-            // Mirrors temporary_voice_block_button.ts.
+        "block" | "unblock" => {
+            // Block menu: selected members get deny overwrites; unblock
+            // shares the shape (mirrors temporary_voice_unblock_button.ts,
+            // whose added members get the same deny set while removed ones
+            // are cleared, like the block collector).
             if !owned {
                 return Ok(());
             }
+            let (custom_id, placeholder_key, placeholder_fb) = if action == "block" {
+                (
+                    TEMPVOICE_BLOCK_SELECT,
+                    "temporary_voice_block_button_menu_placeholder",
+                    "Selected users will be untrusted to join",
+                )
+            } else {
+                (
+                    TEMPVOICE_UNBLOCK_SELECT,
+                    "temporary_voice_transfer_unblocked_placeholder",
+                    "Selected users will be unblocked to join",
+                )
+            };
             let menu = serenity::CreateSelectMenu::new(
-                TEMPVOICE_BLOCK_SELECT,
+                custom_id,
                 serenity::CreateSelectMenuKind::User {
                     default_users: None,
                 },
             )
             .placeholder(
-                crate::lang::get(&lang_code, "temporary_voice_block_button_menu_placeholder")
-                    .unwrap_or_default(),
+                crate::lang::get(&lang_code, placeholder_key)
+                    .unwrap_or_else(|| placeholder_fb.to_string()),
             )
             .min_values(0)
             .max_values(10);
@@ -825,7 +1142,10 @@ pub async fn handle_tempvoice_select(
         }
     };
     match comp.data.custom_id.as_str() {
-        TEMPVOICE_TRUST_SELECT | TEMPVOICE_UNTRUST_SELECT | TEMPVOICE_BLOCK_SELECT => {
+        TEMPVOICE_TRUST_SELECT
+        | TEMPVOICE_UNTRUST_SELECT
+        | TEMPVOICE_BLOCK_SELECT
+        | TEMPVOICE_UNBLOCK_SELECT => {
             let selected: Vec<String> = match &comp.data.kind {
                 serenity::ComponentInteractionDataKind::UserSelect { values } => {
                     values.iter().map(|u| u.get().to_string()).collect()
@@ -843,7 +1163,10 @@ pub async fn handle_tempvoice_select(
                         .await;
                 }
             }
-            let is_block = comp.data.custom_id.as_str() == TEMPVOICE_BLOCK_SELECT;
+            let is_block = matches!(
+                comp.data.custom_id.as_str(),
+                TEMPVOICE_BLOCK_SELECT | TEMPVOICE_UNBLOCK_SELECT
+            );
             for id in &added {
                 if let Ok(uid) = id.parse::<u64>() {
                     let (allow, deny) = if is_block {
@@ -1113,6 +1436,105 @@ mod tests {
         assert!(VOICE_REGIONS.contains(&("Brazil", "brazil")));
     }
 
+    #[test]
+    fn staff_roles_parse_json_array_and_legacy_string() {
+        assert!(parse_staff_roles(None).is_empty());
+        assert!(parse_staff_roles(Some("")).is_empty());
+        assert!(parse_staff_roles(Some("   ")).is_empty());
+        assert_eq!(parse_staff_roles(Some("[]")), Vec::<String>::new());
+        assert_eq!(
+            parse_staff_roles(Some("[\"1\",\"2\"]")),
+            vec!["1".to_string(), "2".to_string()]
+        );
+        // Legacy TS shape: bare role-id string wraps to one element.
+        assert_eq!(parse_staff_roles(Some("123")), vec!["123".to_string()]);
+        assert_eq!(parse_staff_roles(Some("  123  ")), vec!["123".to_string()]);
+        // Round-trip of what the save button persists.
+        let saved = serde_json::to_string(&vec!["7".to_string()]).unwrap();
+        assert_eq!(parse_staff_roles(Some(&saved)), vec!["7".to_string()]);
+    }
+
+    #[test]
+    fn staff_roles_value_mentions_like_ts() {
+        assert_eq!(staff_roles_value(&[]), "");
+        assert_eq!(
+            staff_roles_value(&["1".to_string(), "2".to_string()]),
+            "<@&1>, <@&2>"
+        );
+    }
+
+    #[test]
+    fn panel_fields_match_ts_embed() {
+        // 15 fields: 11 emoji values + 4 spacers, TS addFields order.
+        assert_eq!(PANEL_FIELDS.len(), 15);
+        let spacers: Vec<usize> = PANEL_FIELDS
+            .iter()
+            .enumerate()
+            .filter_map(|(i, f)| f.is_none().then_some(i))
+            .collect();
+        assert_eq!(spacers, vec![4, 7, 12, 14]);
+        let keys: Vec<&str> = PANEL_FIELDS
+            .iter()
+            .filter_map(|f| f.as_ref().map(|slot| slot.0))
+            .collect();
+        assert_eq!(
+            keys,
+            vec![
+                "tempvoice_if_text_fields_value_limit",
+                "tempvoice_if_text_fields_value_name",
+                "tempvoice_if_text_fields_value_region",
+                "tempvoice_if_text_fields_value_trust",
+                "tempvoice_if_text_fields_value_untrust",
+                "tempvoice_if_text_fields_value_block",
+                "tempvoice_if_text_fields_value_unblock",
+                "tempvoice_if_text_fields_value_claim",
+                "tempvoice_if_text_fields_value_privacy",
+                "tempvoice_if_text_fields_value_transfer",
+                "tempvoice_if_text_fields_value_delete",
+            ]
+        );
+    }
+
+    #[test]
+    fn panel_field_renders_emoji_slot_like_ts() {
+        let out = render_panel_field(
+            "${client.iHorizon_Emojis.VC_Limit} **Change limit**",
+            "VC_Limit",
+            "<:VC_Limit:9>",
+        );
+        assert_eq!(out, "<:VC_Limit:9> **Change limit**");
+        // Cold emoji cache leaves the template text (region handler
+        // already tolerates empty markup the same way).
+        let out = render_panel_field(
+            "${client.iHorizon_Emojis.VC_Limit} **Change limit**",
+            "VC_Limit",
+            "",
+        );
+        assert_eq!(out, " **Change limit**");
+    }
+
+    #[test]
+    fn panel_buttons_cover_all_ts_actions() {
+        // 11 actions incl. unblock, unique, chunked 5/5/1 like TS rows.
+        assert_eq!(PANEL_BUTTONS.len(), 11);
+        let mut actions: Vec<&str> = PANEL_BUTTONS.iter().map(|(a, _, _)| *a).collect();
+        actions.sort_unstable();
+        let mut deduped = actions.clone();
+        deduped.dedup();
+        assert_eq!(actions, deduped);
+        assert!(PANEL_BUTTONS.contains(&("unblock", "Unblock", "VC_Unblock")));
+        assert_eq!(PANEL_BUTTONS.chunks(5).count(), 3);
+        // Sync builder (in-channel controls) exposes the same 11.
+        let rows = tempvoice_buttons();
+        assert_eq!(rows.len(), 3);
+        assert_eq!(panel_button_style("block"), serenity::ButtonStyle::Danger);
+        assert_eq!(panel_button_style("claim"), serenity::ButtonStyle::Success);
+        assert_eq!(panel_button_style("trust"), serenity::ButtonStyle::Primary);
+        assert_eq!(
+            panel_button_style("unblock"),
+            serenity::ButtonStyle::Secondary
+        );
+    }
     #[test]
     fn temp_sweep_parses_and_decides_like_ts() {
         // Malformed rows (TS `typeof !== "string"` guard) -> drop key.

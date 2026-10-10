@@ -174,6 +174,7 @@ committed — see `.gitignore`. No push without a green
 - [x] U-ETERNAL-30 (2026-10-10: redo mod-renames (wipe tiers) — 9 fichiers, tests 9/9. Suite 1113/0, fmt + clippy clean).
 - [x] U-ETERNAL-31 (2026-10-10: vague-28 5/5 — music interactif/embeds, ticket close + lavalink, owner dual-scope, say/botinfo/confession. Lead: stash worker droppé (obsolète), 1 lint. Suite 1143/0, fmt + clippy clean).
 - [x] U-ETERNAL-32 (2026-10-10: vague-29 4/4 audits batch-5 (giveaway/backup/voice, protection, social, misc) → 27 items. Suite 1143/0, tree inchangé).
+- [x] U-ETERNAL-33 (2026-10-10: vague-30 7/7 — vd panel + staff, bk/gw, honey/antispam, invites, mcount/suggest, h247/tts, protect/suggest-intake. Lead: BY-legacy, 4 lints. Suite 1180/0, fmt + clippy clean).
 ## Eternal backlog (seeded 2026-10-09 by 7 read-only audits + lavalink edge audit; full reports in `~/.hermes/cache/delegation/live/deleg_55b606d3/task-{0,1,2,3,4,5,9}.log` — each item is a future unit for other models, files disjoint unless noted)
 
 ### Events (audit task-0)

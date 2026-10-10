@@ -23,10 +23,23 @@ pub async fn tts_lang(
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
+    let lang_code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    // Not-active guard (mirrors TS !lang.ts): refusing before any write.
+    if load_tts(&ctx.data().pool, &gid).await.is_none() {
+        let no = crate::emojis::app_emoji_markup(&ctx.serenity_context().http, "No")
+            .await
+            .unwrap_or_else(|| "❌".to_string());
+        ctx.say(
+            crate::lang::get(&lang_code, "tts_lang_not_active")
+                .map(|s| s.replace("${client.iHorizon_Emojis.No}", &no))
+                .unwrap_or_else(|| "The TTS module is not currently active.".to_string()),
+        )
+        .await?;
+        return Ok(());
+    }
     let mut cfg = load_tts(&ctx.data().pool, &gid).await.unwrap_or_default();
     cfg.lang = code.to_string();
     save_tts(&ctx.data().pool, &gid, &cfg).await?;
-    let lang_code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let yes = crate::emojis::app_emoji_markup(&ctx.serenity_context().http, "Yes")
         .await
         .unwrap_or_else(|| "✅".to_string());

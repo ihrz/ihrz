@@ -13,6 +13,16 @@ pub fn truncate_prize(prize: &str) -> String {
     prize.chars().take(256).collect()
 }
 
+/// Image-source gate. Mirrors !create.ts:74 (the prefix path forces
+/// `imageUrl` to `""`, so no embed image is ever set from prefix).
+pub fn resolve_image_source(is_prefix: bool, image: Option<&str>) -> Option<&str> {
+    if is_prefix {
+        None
+    } else {
+        image.filter(|u| !u.is_empty())
+    }
+}
+
 /// Requirement-value gate. Mirrors !create.ts:102-134.
 /// Returns the failing lang key, or None when valid.
 pub fn requirement_error_key(requirement: &str, value: &str) -> Option<&'static str> {
@@ -104,6 +114,9 @@ pub async fn gw_create(
         .map(|g| g.get().to_string())
         .unwrap_or_default();
     let now = crate::commands::schedule::main::now_ms();
+    // Prefix invocations carry no image option (TS forces imageUrl
+    // to "" on the prefix path); slash honors a valid image URL.
+    let is_prefix = matches!(ctx, poise::Context::Prefix(_));
     let gw = Giveaway {
         guild_id: gid.clone(),
         channel_id: ctx.channel_id().get().to_string(),
@@ -116,8 +129,8 @@ pub async fn gw_create(
         winners: vec![],
         requirement,
         requirement_value: req_value,
-        embed_image_url: match image {
-            Some(url) if crate::funcs::is_image_url(&url).await => Some(url),
+        embed_image_url: match resolve_image_source(is_prefix, image.as_deref()) {
+            Some(url) if crate::funcs::is_image_url(url).await => Some(url.to_string()),
             _ => None,
         },
     };
@@ -244,6 +257,17 @@ mod tests {
         let long = "p".repeat(300);
         assert_eq!(truncate_prize(&long).chars().count(), 256);
         assert_eq!(truncate_prize("prize"), "prize");
+    }
+
+    #[test]
+    fn prefix_path_ignores_image() {
+        assert_eq!(resolve_image_source(true, Some("https://x/y.png")), None);
+        assert_eq!(
+            resolve_image_source(false, Some("https://x/y.png")),
+            Some("https://x/y.png")
+        );
+        assert_eq!(resolve_image_source(false, None), None);
+        assert_eq!(resolve_image_source(false, Some("")), None);
     }
 
     #[test]

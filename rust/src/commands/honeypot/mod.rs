@@ -85,9 +85,8 @@ pub async fn handle_honeypot_claim(
         let sanction = post::resolve_claim_sanction(&trap.action);
         match sanction {
             "ban" => {
-                let _ = guild_id
-                    .ban(&http, user_id, post::CLAIM_BAN_DELETE_SECS as u8)
-                    .await;
+                let _ =
+                    ban_with_cleanup_window(&http, guild_id, user_id, "Honeypot triggered").await;
             }
             "kick" => {
                 let _ = guild_id.kick(&http, user_id).await;
@@ -274,11 +273,7 @@ pub async fn run_trap_pipeline(
             }
         }
         "ban" => {
-            if guild_id
-                .ban_with_reason(http, msg.author.id, 0, "Honeypot triggered")
-                .await
-                .is_ok()
-            {
+            if ban_with_cleanup_window(http, guild_id, msg.author.id, "Honeypot triggered").await {
                 "ban"
             } else {
                 "failed"
@@ -407,59 +402,164 @@ pub async fn run_trap_pipeline(
     Ok(())
 }
 
-/// Delete one user's messages from the last 2h across guild text
-/// channels. Mirrors deleteRecentMessages (100/fetch pagination,
-/// single delete or bulk, stops at cutoff). Returns deleted count.
+/// Two-hour window (ms) for the manual cleanup sweeps and the native ban
+/// deletion alike. Mirrors HONEYPOT_WINDOW_MS.
+pub const HONEYPOT_WINDOW_MS: i64 = 2 * 3_600_000;
+
+/// Ban honoring the TS 2h native message-deletion window
+/// (`deleteMessageSeconds: 7200`). The bulk-ban endpoint is the only
+/// single-call path with second-granularity deletion, so it goes first;
+/// on failure fall back to a classic ban since the manual sweeps delete
+/// the rest anyway.
+pub async fn ban_with_cleanup_window(
+    http: &std::sync::Arc<serenity::Http>,
+    guild_id: serenity::GuildId,
+    user_id: serenity::UserId,
+    reason: &str,
+) -> bool {
+    if let Ok(res) = guild_id
+        .bulk_ban(http, &[user_id], post::CLAIM_BAN_DELETE_SECS, Some(reason))
+        .await
+    {
+        if res.banned_users.contains(&user_id) {
+            return true;
+        }
+    }
+    guild_id
+        .ban_with_reason(http, user_id, 0, reason)
+        .await
+        .is_ok()
+}
+
+/// Channel ids to sweep: guild text-like channels plus active threads plus
+/// archived public threads of text/announcement/forum parents. Mirrors
+/// collectChannels (fetch + fetchActiveThreads + fetchArchived public).
+async fn collect_sweep_channels(
+    http: &std::sync::Arc<serenity::Http>,
+    guild_id: serenity::GuildId,
+) -> Vec<serenity::ChannelId> {
+    use serenity::model::channel::ChannelType;
+    let mut ids: Vec<serenity::ChannelId> = Vec::new();
+    let mut seen = std::collections::HashSet::new();
+    let channels = guild_id.channels(http).await.unwrap_or_default();
+    let mut parents: Vec<serenity::ChannelId> = Vec::new();
+    for (id, ch) in &channels {
+        match ch.kind {
+            ChannelType::Text
+            | ChannelType::News
+            | ChannelType::Voice
+            | ChannelType::Forum
+            | ChannelType::Stage => {
+                if seen.insert(id.get()) {
+                    ids.push(*id);
+                }
+                if matches!(
+                    ch.kind,
+                    ChannelType::Text | ChannelType::News | ChannelType::Forum
+                ) {
+                    parents.push(*id);
+                }
+            }
+            _ => {}
+        }
+    }
+    // Active threads (never cache-only: uncached threads would keep spam).
+    if let Ok(active) = guild_id.get_active_threads(http).await {
+        for t in &active.threads {
+            if seen.insert(t.id.get()) {
+                ids.push(t.id);
+            }
+        }
+    }
+    // Best effort: spam may also sit in archived threads.
+    for parent in parents {
+        let mut before: Option<u64> = None;
+        loop {
+            let page = match http
+                .get_channel_archived_public_threads(parent, before, Some(100))
+                .await
+            {
+                Ok(p) => p,
+                Err(_) => break,
+            };
+            let n = page.threads.len();
+            for t in &page.threads {
+                if seen.insert(t.id.get()) {
+                    ids.push(t.id);
+                }
+            }
+            if n < 100 {
+                break;
+            }
+            before = page.threads.last().map(|t| t.id.get());
+            if before.is_none() {
+                break;
+            }
+        }
+    }
+    ids
+}
+
+/// Paginated per-channel sweep with the 2h cutoff. Mirrors one
+/// deleteRecentMessages channel pass (100/fetch, single delete or bulk,
+/// stop at cutoff or channel start).
+async fn sweep_channel_messages(
+    http: &std::sync::Arc<serenity::Http>,
+    channel_id: serenity::ChannelId,
+    user_id: serenity::UserId,
+    cutoff_ms: i64,
+) -> u64 {
+    let mut deleted = 0u64;
+    let mut before: Option<serenity::MessageId> = None;
+    loop {
+        let mut get = serenity::GetMessages::new().limit(100);
+        if let Some(b) = before {
+            get = get.before(b);
+        }
+        let Ok(fetched) = channel_id.messages(http, get).await else {
+            break;
+        };
+        if fetched.is_empty() {
+            break;
+        }
+        let targets: Vec<&serenity::Message> = fetched
+            .iter()
+            .filter(|m| m.author.id == user_id && m.timestamp.unix_timestamp() * 1000 >= cutoff_ms)
+            .collect();
+        if targets.len() == 1 {
+            if targets[0].delete(http).await.is_ok() {
+                deleted += 1;
+            }
+        } else if targets.len() > 1 {
+            let ids: Vec<serenity::MessageId> = targets.iter().map(|m| m.id).collect();
+            let n = ids.len() as u64;
+            if channel_id.delete_messages(http, &ids).await.is_ok() {
+                deleted += n;
+            }
+        }
+        let oldest = fetched.last();
+        let done = oldest.map(|m| m.timestamp.unix_timestamp() * 1000 < cutoff_ms);
+        if done.unwrap_or(true) || fetched.len() < 100 {
+            break;
+        }
+        before = oldest.map(|m| m.id);
+    }
+    deleted
+}
+
+/// Delete one user's messages from the last 2h across guild text channels,
+/// active threads and archived public threads. Mirrors deleteRecentMessages
+/// (100/fetch pagination, single delete or bulk, stops at cutoff).
+/// Returns deleted count.
 pub async fn sweep_user_messages(
     http: &std::sync::Arc<serenity::Http>,
     guild_id: serenity::GuildId,
     user_id: serenity::UserId,
 ) -> u64 {
-    use serenity::model::channel::ChannelType;
-    let cutoff = crate::commands::context::now_ms() - 2 * 3_600_000;
-    let channels = guild_id.channels(http).await.unwrap_or_default();
+    let cutoff_ms = crate::commands::context::now_ms() - HONEYPOT_WINDOW_MS;
     let mut deleted = 0u64;
-    for (id, ch) in channels {
-        if !matches!(
-            ch.kind,
-            ChannelType::Text | ChannelType::News | ChannelType::Voice
-        ) {
-            continue;
-        }
-        let mut before: Option<serenity::MessageId> = None;
-        loop {
-            let mut get = serenity::GetMessages::new().limit(100);
-            if let Some(b) = before {
-                get = get.before(b);
-            }
-            let Ok(fetched) = id.messages(http, get).await else {
-                break;
-            };
-            if fetched.is_empty() {
-                break;
-            }
-            let targets: Vec<&serenity::Message> = fetched
-                .iter()
-                .filter(|m| m.author.id == user_id && m.timestamp.unix_timestamp() * 1000 >= cutoff)
-                .collect();
-            if targets.len() == 1 {
-                if targets[0].delete(http).await.is_ok() {
-                    deleted += 1;
-                }
-            } else if targets.len() > 1 {
-                let ids: Vec<serenity::MessageId> = targets.iter().map(|m| m.id).collect();
-                let n = ids.len() as u64;
-                if id.delete_messages(http, &ids).await.is_ok() {
-                    deleted += n;
-                }
-            }
-            let oldest = fetched.last();
-            let done = oldest.map(|m| m.timestamp.unix_timestamp() * 1000 < cutoff);
-            if done.unwrap_or(true) || fetched.len() < 100 {
-                break;
-            }
-            before = oldest.map(|m| m.id);
-        }
+    for id in collect_sweep_channels(http, guild_id).await {
+        deleted += sweep_channel_messages(http, id, user_id, cutoff_ms).await;
     }
     deleted
 }
@@ -494,6 +594,15 @@ mod tests {
     #[test]
     fn key_shape() {
         assert_eq!(honeypot_key(), "GUILD.HONEYPOT");
+    }
+
+    #[test]
+    fn sweep_window_is_two_hours() {
+        assert_eq!(HONEYPOT_WINDOW_MS, 7_200_000);
+        assert_eq!(
+            HONEYPOT_WINDOW_MS / 1000,
+            post::CLAIM_BAN_DELETE_SECS as i64
+        );
     }
 
     async fn memory_pool() -> crate::db::Pool {

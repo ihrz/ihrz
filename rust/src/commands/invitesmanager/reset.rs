@@ -28,5 +28,20 @@ pub async fn inv_reset(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
             .unwrap_or_else(|| "Successfully deleted!".to_string()),
     )
     .await?;
+    if let Some(log_gid) = ctx.guild_id() {
+        let author_mention = format!("<@{}>", ctx.author().id.get());
+        post_inv_log(
+            &ctx,
+            log_gid,
+            crate::lang::get(&code, "resetallinvites_logs_embed_title")
+                .unwrap_or_else(|| "Invite Manager Logs (DANGEROUS ACTION)".to_string()),
+            crate::lang::get(&code, "resetallinvites_logs_embed_desc").unwrap_or_else(|| {
+                "${interaction.member.user.toString()} has deleted all data of the Invites Manager!"
+                    .to_string()
+            })
+            .replace("${interaction.member.user.toString()}", &author_mention),
+        )
+        .await;
+    }
     Ok(())
 }

@@ -20,6 +20,30 @@ pub struct Suggestion {
     pub thread_id: String,
     #[serde(default)]
     pub status: String,
+    /// TS writes `SUGGESTION.<id>.replied = true` on accept/deny/reply.
+    /// Dual-written with `status` so both shapes read as answered.
+    #[serde(default)]
+    pub replied: bool,
+}
+
+/// Embed colors for accept/deny/reply. Mirrors !accept.ts (#21744c),
+/// !deny.ts (#f13b38) and !reply.ts (#8afe46).
+pub const SUGGEST_ACCEPT_COLOR: u32 = 0x21_74_4c;
+pub const SUGGEST_DENY_COLOR: u32 = 0xf1_3b_38;
+pub const SUGGEST_REPLY_COLOR: u32 = 0x8a_fe_46;
+
+impl Suggestion {
+    /// Already answered: TS `replied` flag or a non-open status left by
+    /// earlier Rust writes ("accepted"/"denied"/"replied").
+    pub fn is_answered(&self) -> bool {
+        self.replied || matches!(self.status.as_str(), "accepted" | "denied" | "replied")
+    }
+
+    /// Dual-write: TS `replied` flag plus the Rust `status` string.
+    pub fn mark_answered(&mut self, status: &str) {
+        self.replied = true;
+        self.status = status.to_string();
+    }
 }
 
 pub fn suggestion_key(code: &str) -> String {
@@ -89,7 +113,9 @@ pub async fn delete_suggestion(
 }
 
 /// Table-routed plain-string read with legacy fallback
-/// (SUGGEST.channel / SUGGEST.disable).
+/// (SUGGEST.channel / SUGGEST.disable). JSON booleans normalize to
+/// "1"/"0" so `== "1"` readers (events_handler) keep working after
+/// the boolean write.
 pub async fn load_suggest_string(
     pool: &crate::db::Pool,
     guild_id: &str,
@@ -99,8 +125,37 @@ pub async fn load_suggest_string(
         .await
         .map(|v| match v {
             serde_json::Value::String(s) => s,
+            serde_json::Value::Bool(b) => {
+                if b {
+                    "1".to_string()
+                } else {
+                    "0".to_string()
+                }
+            }
             other => other.to_string(),
         })
+}
+
+/// SUGGEST.disable read. Accepts the TS JSON boolean (`true`), the
+/// legacy "1" string and the normalized "1" from `load_suggest_string`.
+/// Mirrors `baseData?.disable === true` / truthy checks in
+/// !accept/!deny/!reply/!delete.ts.
+pub fn suggest_disabled_value(raw: Option<&str>) -> bool {
+    matches!(
+        raw.map(str::trim)
+            .map(|s| s.to_ascii_lowercase())
+            .as_deref(),
+        Some("1") | Some("true")
+    )
+}
+
+/// SUGGEST.disable table-routed read.
+pub async fn load_suggest_disabled(pool: &crate::db::Pool, guild_id: &str) -> bool {
+    suggest_disabled_value(
+        load_suggest_string(pool, guild_id, "SUGGEST.disable")
+            .await
+            .as_deref(),
+    )
 }
 
 /// Table-routed plain-string write (keys unchanged).
@@ -111,6 +166,19 @@ pub async fn save_suggest_string(
     value: &str,
 ) -> anyhow::Result<()> {
     guild_backend(pool).table(guild_id).set(key, value).await
+}
+
+/// SUGGEST.disable write as a JSON boolean. Mirrors !config.ts
+/// `client.db.set(..., false/true)` (keys unchanged).
+pub async fn save_suggest_disable(
+    pool: &crate::db::Pool,
+    guild_id: &str,
+    disabled: bool,
+) -> anyhow::Result<()> {
+    guild_backend(pool)
+        .table(guild_id)
+        .set("SUGGEST.disable", disabled)
+        .await
 }
 
 /// 6-char uppercase code. Mirrors TS suggestCode generation.
@@ -131,6 +199,62 @@ pub fn gen_suggest_code(seed: u64) -> String {
 mod tests {
     use super::*;
 
+    #[test]
+    fn disabled_read_accepts_1_and_true() {
+        assert!(suggest_disabled_value(Some("1")));
+        assert!(suggest_disabled_value(Some("true")));
+        assert!(suggest_disabled_value(Some("True")));
+        assert!(suggest_disabled_value(Some(" 1 ")));
+        assert!(!suggest_disabled_value(Some("0")));
+        assert!(!suggest_disabled_value(Some("false")));
+        assert!(!suggest_disabled_value(None));
+    }
+
+    #[test]
+    fn answered_covers_replied_flag_and_legacy_status() {
+        let mut s = Suggestion::default();
+        assert!(!s.is_answered());
+        s.mark_answered("accepted");
+        assert!(s.is_answered());
+        assert!(s.replied);
+        assert_eq!(s.status, "accepted");
+        // Legacy Rust rows (status only) and TS rows (replied only).
+        let legacy = Suggestion {
+            status: "denied".into(),
+            ..Default::default()
+        };
+        assert!(legacy.is_answered());
+        let ts = Suggestion {
+            replied: true,
+            ..Default::default()
+        };
+        assert!(ts.is_answered());
+        // Missing keys default to unanswered (serde default).
+        let open: Suggestion = serde_json::from_value(serde_json::json!({"author": "u1"})).unwrap();
+        assert!(!open.is_answered());
+    }
+
+    #[tokio::test]
+    async fn disable_boolean_round_trip() {
+        let pool = memory_pool().await;
+        save_suggest_disable(&pool, "g1", true).await.unwrap();
+        assert!(load_suggest_disabled(&pool, "g1").await);
+        // Normalized for `== "1"` readers.
+        assert_eq!(
+            load_suggest_string(&pool, "g1", "SUGGEST.disable")
+                .await
+                .as_deref(),
+            Some("1")
+        );
+        save_suggest_disable(&pool, "g1", false).await.unwrap();
+        assert!(!load_suggest_disabled(&pool, "g1").await);
+        // Legacy "1" rows still read as disabled.
+        crate::db::kv_set(&pool, "g2", "SUGGEST.disable", "1")
+            .await
+            .unwrap();
+        assert!(load_suggest_disabled(&pool, "g2").await);
+        assert!(!load_suggest_disabled(&pool, "g9").await);
+    }
     #[test]
     fn code_is_6_upper_alnum() {
         let c = gen_suggest_code(42);

@@ -28,5 +28,23 @@ pub async fn inv_remove(
             .replace("${user}", &format!("<@{uid}>")),
     )
     .await?;
+    if let Some(log_gid) = ctx.guild_id() {
+        let author_id = ctx.author().id.get();
+        post_inv_log(
+            &ctx,
+            log_gid,
+            crate::lang::get(&code, "removeinvites_logs_embed_title")
+                .unwrap_or_else(|| "Invite Manager Logs".to_string()),
+            crate::lang::get(&code, "removeinvites_logs_embed_description")
+                .unwrap_or_else(|| {
+                    "<@${interaction.user.id}> removed ${amount} invites from <@${user.id}>!"
+                        .to_string()
+                })
+                .replace("${interaction.user.id}", &author_id.to_string())
+                .replace("${amount}", &amount.to_string())
+                .replace("${user.id}", &uid.to_string()),
+        )
+        .await;
+    }
     Ok(())
 }
