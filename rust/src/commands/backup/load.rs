@@ -339,10 +339,16 @@ mod tests {
             None => ts_backups_table_get(&pool, "both").await,
         };
         assert_eq!(raw.as_deref(), Some("{\"kv\":true}"));
-        // No kv row and no TS row -> fallback surfaces None.
+        // No kv row but a TS row -> fallback surfaces the TS row.
         let raw = match super::super::backup::bkp_get(&pool, 8, "both").await {
             Some(raw) => Some(raw),
             None => ts_backups_table_get(&pool, "both").await,
+        };
+        assert_eq!(raw.as_deref(), Some("{\"ts\":true}"));
+        // Neither kv row nor TS row -> fallback surfaces None.
+        let raw = match super::super::backup::bkp_get(&pool, 9, "neither").await {
+            Some(raw) => Some(raw),
+            None => ts_backups_table_get(&pool, "neither").await,
         };
         assert_eq!(raw, None);
     }

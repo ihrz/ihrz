@@ -3,12 +3,13 @@
 # Copy to `config.toml` (next to this file, or repo-root `rust/config.toml`):
 #   cp config.example.toml config.toml
 # Load order: built-in defaults < config.toml < environment variables.
-# SECURITY: the Discord bot token is ENV-ONLY (`BOT_TOKEN`). There is no
-# `token` key on purpose — never put a real token in this file.
-# Same for `HORIZON_API_TOKEN` (api.api_token) and Last.fm secrets below.
+# Tokens: env wins (BOT_TOKEN, HORIZON_API_TOKEN); the `token` / `api_token`
+# file keys below are the fallback (mirrors TS `process.env.X || config...`).
+# Never commit a real token — `config.toml` stays local (gitignored).
 
 [discord]
-# token: intentionally absent — export BOT_TOKEN in the environment.
+# token: Discord bot token (TS config.discord.token). Env BOT_TOKEN wins.
+# token = "paste-bot-token-here"
 phone_presence = false
 message_commands_mention = true
 default_prefix = "?"
@@ -75,7 +76,8 @@ horizon_gateway_local = "http://127.0.0.1:31981"
 # wins over this value.
 horizon_gateway = "http://127.0.0.1:31981"
 client_id = ""
-# api_token: intentionally absent — export HORIZON_API_TOKEN in the environment.
+# api_token: HorizonGateway token (TS config.api.apiToken). Env wins.
+# api_token = "paste-api-token-here"
 
 [console]
 # Mirrors config.console.emojis (cosmetic startup glyphs, TS console only).

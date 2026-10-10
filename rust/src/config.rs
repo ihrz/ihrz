@@ -134,6 +134,14 @@ pub struct Config {
     /// Send join/leave mails (TS: `EMAIL_WHEN_CHANGE_GUILD === "true"`).
     #[serde(default)]
     pub notify_new_guild: bool,
+    /// Discord bot token (TS: `config.discord.token`). File fallback —
+    /// env `BOT_TOKEN` wins via [`bot_token()`]. Empty = unset.
+    #[serde(default)]
+    pub token: String,
+    /// HorizonGateway API token (TS: `config.api.apiToken`). File
+    /// fallback — env `HORIZON_API_TOKEN` wins via [`api_token()`].
+    #[serde(default)]
+    pub api_token: String,
 }
 
 fn default_prefix() -> String {
@@ -190,6 +198,8 @@ impl Default for Config {
             smtp_pass: String::new(),
             owner_mail: String::new(),
             notify_new_guild: false,
+            token: String::new(),
+            api_token: String::new(),
         }
     }
 }
@@ -240,15 +250,36 @@ fn table<'a>(
 /// Overlay one config.toml file onto `cfg`. Sections mirror
 /// `src/files/config.ts` (`[discord]`, `[core]`, `[command]`, `[owners]`,
 /// `[lavalink]`, `[api]`, `[console]`, `[database]`, `[lastfm]`).
-/// Secret keys (`discord.token`, `api.api_token`, lastfm secrets are read
-/// but real credentials must live in env) never override env: callers apply
-/// env vars after this, and real tokens must never be committed to the file.
+/// Secret keys (`discord.token`, `api.api_token`, lastfm secrets) are read
+/// here as file fallback; env vars (`BOT_TOKEN`, `HORIZON_API_TOKEN`,
+/// `LASTFM_*`) always win. `rust/config.toml` is gitignored (local-only),
+/// so file tokens are never committed — prefer env on shared machines.
+/// File-loaded token fallback, populated by [`load_file_into`] (single
+/// funnel for both production `load()` and tests). Env vars always win;
+/// [`bot_token()`] / [`api_token()`] consult these only when the env is
+/// unset. `OnceLock` + set-if-non-empty keeps parallel tests
+/// order-independent (only token-bearing files ever set them).
+static FILE_BOT_TOKEN: std::sync::OnceLock<String> = std::sync::OnceLock::new();
+static FILE_API_TOKEN: std::sync::OnceLock<String> = std::sync::OnceLock::new();
+
+fn remember_file_tokens(c: &Config) {
+    if !c.token.trim().is_empty() {
+        let _ = FILE_BOT_TOKEN.set(c.token.clone());
+    }
+    if !c.api_token.trim().is_empty() {
+        let _ = FILE_API_TOKEN.set(c.api_token.clone());
+    }
+}
+
 pub fn load_file_into(cfg: &mut Config, path: &std::path::Path) -> anyhow::Result<()> {
     let text = std::fs::read_to_string(path)?;
     let value: toml::Value = toml::from_str(&text)?;
     let root = value.as_table().cloned().unwrap_or_default();
 
     if let Some(t) = table(&root, "discord") {
+        if let Some(v) = get_str(t, "token") {
+            cfg.token = v;
+        }
         if let Some(v) = get_str(t, "default_prefix") {
             cfg.prefix = v;
         }
@@ -304,6 +335,9 @@ pub fn load_file_into(cfg: &mut Config, path: &std::path::Path) -> anyhow::Resul
         }
     }
     if let Some(t) = table(&root, "api") {
+        if let Some(v) = get_str(t, "api_token") {
+            cfg.api_token = v;
+        }
         if let Some(v) = get_str(t, "horizon_gateway") {
             cfg.gateway = v;
         }
@@ -377,13 +411,15 @@ pub fn load_file_into(cfg: &mut Config, path: &std::path::Path) -> anyhow::Resul
         }
     }
 
+    remember_file_tokens(cfg);
     Ok(())
 }
 
 /// Load order: built-in defaults < config.toml file < env vars.
-/// Mirrors TS (`process.env.BOT_TOKEN || config.discord.token`) with one
-/// deliberate exception: the bot token is env-only (`BOT_TOKEN`) and is
-/// never read from the file, so a real token can never be committed.
+/// Mirrors TS (`process.env.BOT_TOKEN || config.discord.token`): file
+/// values are the fallback, env always wins. `rust/config.toml` is
+/// gitignored (local-only), so a real token there is never committed —
+/// but prefer env on shared machines.
 pub fn load() -> anyhow::Result<Config> {
     let mut cfg = Config::default();
 
@@ -495,16 +531,25 @@ pub fn parse_phone_presence(s: &str) -> bool {
     s == "1" || s.eq_ignore_ascii_case("true")
 }
 
+/// Discord bot token. Mirrors TS (`process.env.BOT_TOKEN ||
+/// config.discord.token`): env `BOT_TOKEN` wins, otherwise the
+/// `[discord] token` file value loaded by [`load_file_into`].
 pub fn bot_token() -> Option<String> {
-    std::env::var("BOT_TOKEN").ok().filter(|s| !s.is_empty())
+    std::env::var("BOT_TOKEN")
+        .ok()
+        .filter(|s| !s.is_empty())
+        .or_else(|| FILE_BOT_TOKEN.get().cloned())
 }
 
 /// API token for HorizonGateway-signed flows (config save link,
-/// config restore decrypt). Mirrors config.api.apiToken, env-first.
+/// config restore decrypt). Mirrors TS (`process.env.API_TOKEN ||
+/// config.api.apiToken`): env `HORIZON_API_TOKEN` wins, otherwise the
+/// `[api] api_token` file value.
 pub fn api_token() -> Option<String> {
     std::env::var("HORIZON_API_TOKEN")
         .ok()
         .filter(|s| !s.is_empty())
+        .or_else(|| FILE_API_TOKEN.get().cloned())
 }
 
 /// Base URL of the HorizonGateway API. Mirrors
@@ -804,15 +849,19 @@ mod tests {
     }
 
     #[test]
-    fn file_token_key_is_ignored_token_stays_env_only() {
+    fn file_token_key_is_honored_when_env_unset_env_wins() {
         let _guard = ENV_LOCK.lock().unwrap();
-        let path = write_temp_config("[discord]\ntoken = \"SHOULD-NEVER-BE-READ\"\n");
+        let path = write_temp_config("[discord]\ntoken = \"FILE-TOKEN-123\"\n");
         let mut cfg = Config::default();
         load_file_into(&mut cfg, &path).unwrap();
         std::fs::remove_file(&path).ok();
+        assert_eq!(cfg.token, "FILE-TOKEN-123");
 
         std::env::remove_var("BOT_TOKEN");
-        assert_eq!(bot_token(), None);
+        assert_eq!(bot_token(), Some("FILE-TOKEN-123".to_string()));
+        std::env::set_var("BOT_TOKEN", "ENV-TOKEN-456");
+        assert_eq!(bot_token(), Some("ENV-TOKEN-456".to_string()));
+        std::env::remove_var("BOT_TOKEN");
     }
 
     #[test]

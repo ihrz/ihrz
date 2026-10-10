@@ -1111,7 +1111,7 @@ pub fn valid_shard_override(total_shards_override: Option<u32>) -> Option<u32> {
 
 pub async fn run(cfg: Config, pool: Pool) -> anyhow::Result<()> {
     let token = crate::config::bot_token().ok_or_else(|| {
-        anyhow::anyhow!("missing BOT_TOKEN env (mirrors config.discord.token fallback)")
+        anyhow::anyhow!("missing token: set BOT_TOKEN env or [discord] token in config.toml")
     })?;
 
     let cfg = Arc::new(cfg);
