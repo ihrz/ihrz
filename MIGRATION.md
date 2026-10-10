@@ -271,14 +271,15 @@ committed — see `.gitignore`. No push without a green
 - [x] I5 Tier-2 setup modules (welcomerPanel, antispam manage, honeypot config, setlogschannel, nightmode, birthday) — DONE (U-ETERNAL-82: 5/6 verified PORTED by sweep, nightmode panel worker-spec'd 1224 lines + 12 tests).
 - [x] I6 verify-then-delete 312 zero-sender dead keys — DONE (U-ETERNAL-80: recount 279 verified DEAD, 271 deleted, 8 fixtures kept, 29 ALIVE exclusions documented).
 
-### DB call-sites (audit task-4: 423 legacy lines, 0 migrated)
-- [ ] D1 shared leaf helpers first (`shared.rs`, key-helper fns).
-- [ ] D2 small categories batch → guild tables.
-- [ ] D3 named tables: authrestore, backups, giveaways, schedule, user_profil, blacklist, prevnames.
-- [ ] D4 economy/ranks/moderation (+`add`/`sub` math).
-- [ ] D5 confession/guildconfig/protection/utils/rolereactions/embed/ticket (`starts_with` scan)/legacy/voicedashboard/newfeatures.
-- [ ] D6 `events.rs`, then `events_handler.rs` (85 sites) last.
-- [ ] D7 decide routing for `LASTFM.*` + `newsletter_bl` (no TS named table), then `core/mod.rs`, `db.rs`, `monitor.rs`.
+### DB call-sites (audit task-4: 423 legacy lines, 0 migrated; triaged U-ETERNAL-83: D1+D6 DONE, rest PARTIAL/TODO with 12 confirmed gap items below)
+- [x] D1 shared leaf helpers first (`shared.rs`, key-helper fns) — DONE (U-ETERNAL-83: table-routed loaders + dual-write tbl_* primitives + table_value_or_legacy fallback by design).
+- [~] D2 small categories batch → guild tables — PARTIAL (gaps: D2-SMALL live kv readers in membercount/h247/sticky/suggestion/tts/notifier/pfps/tag/starboard/stats/blogger/invitesmanager/honeypot/antispam/botcat/music-history/utils).
+- [~] D3 named tables — PARTIAL (authrestore/prevnames/blacklist readers DONE; gaps: D3-BACKUP backup*.rs→backup_get/set/del, D3-GIVEAWAY mod.rs 7 sites→gw.rs, D3-SCHEDULE-PROFIL schedule/mod.rs 5 + profil/mod.rs 2).
+- [~] D4 economy/ranks/moderation (+`add`/`sub` math) — PARTIAL (ranks DONE, economy near-done; gaps: D4-ECON-MOD ECONOMY_LOG_KEY read, greset/ureset prefix deletes, warns load/save + clear-all scan).
+- [~] D5 confession/guildconfig/protection/utils/rolereactions/embed/ticket/legacy/voicedashboard/newfeatures — PARTIAL (protection/rolereactions/embed/voicedashboard/guildconfig-subset DONE; gaps: D5-CONFESSION 19, D5-GUILDCONFIG perm 15+automod 9+tonew/blockbot/welcomer/mod, D5-TICKET 12, D5-LEGACY 8, D5-NEWFEATURES 15; no starts_with scan in live ticket code).
+- [x] D6 `events.rs`, then `events_handler.rs` (85 sites) — DONE live (U-ETERNAL-83: events.rs live 0, 63 *_routed loaders + 292 uses; only GUILD.LANG by-design + BOT bio for D7 remain).
+- [ ] D7 decide routing for `LASTFM.*` + `newsletter_bl` (no TS named table), then `core/mod.rs`, `db.rs`, `monitor.rs` — TODO (gaps: D7-LASTFM LASTFM.<uid>/GUILD.LASTFM, D7-METAS newsletter_bl + meta_*/monitor/scheduler-sweeps/bot-temp/funcs_perms/funcs/lang).
+- [x] U-ETERNAL-83 (2026-10-10: D-track triage sweep (D1-D7, live-vs-test kv_* classification @f18fe6672): D1+D6 DONE, D2/D3/D4/D5 PARTIAL, D7 TODO; 12 confirmed gap items recorded above. Suite untouched — read-only).
 
 ### Prefix (audit task-5)
 - [ ] P1 unify prefix DB key (`BOT.prefix` vs `GUILD.PREFIX`) + migrate existing guilds.
