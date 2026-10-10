@@ -23,7 +23,7 @@ pub async fn h247_info(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         .title(t("h247_info_embed_title", "H24/7 Module Information"))
         .description(t(
             "h247_info_embed_description",
-            "The H24/7 module keeps iHorizon connected to a voice channel.",
+            "The H24/7 module keeps iHorizon connected to a voice channel around the clock, even with nothing playing. It is useful to keep a server's voice streak alive.\nWhile this module is enabled, music and TTS can only run inside the H24/7 voice channel.\nThe connection automatically recovers after restarts or player shutdowns.",
         ))
         .field(
             t("h247_info_field_status", "Status"),
@@ -45,7 +45,7 @@ pub async fn h247_info(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         t("h247_info_field_howto", "How to use"),
         t(
             "h247_info_howto_value",
-            "Use `/h247 join` to park iHorizon in a voice channel.",
+            "Use `/h247 join` to park iHorizon in a voice channel.\nUse `/h247 leave` to disable the module.\nUse `/h247 info` to display this panel.",
         ),
         false,
     );

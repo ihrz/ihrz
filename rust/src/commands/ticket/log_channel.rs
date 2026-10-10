@@ -42,8 +42,10 @@ pub async fn ticket_log_channel(
     )
     .await?;
     let desc = logchannel_desc(
-        &crate::lang::get(&code, "ticket_logchannel_embed_desc")
-            .unwrap_or_else(|| "Ticket logs channel set.".to_string()),
+        &crate::lang::get(&code, "ticket_logchannel_embed_desc").unwrap_or_else(|| {
+            "${interaction.user}, you have set the Ticket module's log channel to ${channel}!"
+                .to_string()
+        }),
         &format!("<@{}>", ctx.author().id.get()),
         &format!("<#{}>", channel.id.get()),
     );

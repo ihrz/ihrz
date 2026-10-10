@@ -304,7 +304,7 @@ async fn run_button_panel(
     let button = serenity::CreateButton::new(LEGACY_OPEN_BUTTON_ID)
         .label(
             crate::lang::get(lang_code, "event_ticket_button_name")
-                .unwrap_or_else(|| "Open ticket".to_string()),
+                .unwrap_or_else(|| "Create Ticket".to_string()),
         )
         .emoji(serenity::ReactionType::Unicode("📩".to_string()))
         .style(serenity::ButtonStyle::Secondary);

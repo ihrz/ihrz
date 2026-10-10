@@ -65,7 +65,7 @@ pub async fn ticket_set_category(
     .await?;
     let desc = setcategory_desc(
         &crate::lang::get(&code, "setticketcategory_command_work")
-            .unwrap_or_else(|| "Ticket category set.".to_string()),
+            .unwrap_or_else(|| "<@${interaction.user.id}>, you have set the category for the ticket channels to `${category.name}`!".to_string()),
         &cat_name,
         ctx.author().id.get(),
     );

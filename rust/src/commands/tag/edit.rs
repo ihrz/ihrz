@@ -40,7 +40,7 @@ pub async fn tag_edit(
         store.stored_tags.insert(current.clone(), entry);
         ctx.say(
             crate::lang::get(&code, "tag_edit_error_perm").unwrap_or_else(|| {
-                "Only an administrator or the tag creator can edit it.".to_string()
+                "To modify the tag, you need to have Administrator permissions or be the tag's owner.".to_string()
             }),
         )
         .await?;

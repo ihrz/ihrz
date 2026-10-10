@@ -327,7 +327,10 @@ pub async fn vd_staff(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let not_for_you = t("help_not_for_you", "This interaction is not for you");
     let none_word = t("setjoinroles_var_none", "None");
     // Field name mirrors the TS `|| "Staff Roles"` default.
-    let field_name = t("setjoinroles_help_embed_fields_1_name", "Staff Roles");
+    let field_name = t(
+        "setjoinroles_help_embed_fields_1_name",
+        "All registered roles",
+    );
     let desc = t(
         "tempvoice_staff_desc_embed",
         "## TempVoice Staff Role\nRoles listed here can now join and moderate the channel!\n",
@@ -424,11 +427,11 @@ pub async fn vd_staff(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
             // !set-staff-role.ts (best-effort).
             let log_title = t(
                 "setjoinroles_logs_embed_title_on_enable",
-                "Staff Role Updated",
+                "SetJoinRoles Logs",
             );
             let log_desc = t(
                 "setjoinroles_logs_embed_description_on_enable",
-                "Staff roles updated by ${interaction.user.id}",
+                "<@${interaction.user.id}> set the join roles!",
             )
             .replace("${interaction.user.id}", &author_id.to_string());
             crate::commands::economy::post_ihorizon_log(&ctx, &log_title, &log_desc).await;

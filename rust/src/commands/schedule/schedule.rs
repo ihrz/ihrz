@@ -642,7 +642,7 @@ pub(crate) async fn guided_list(
         let list_title = t("schedule_list_title_embed", "Listing all Schedules");
         let field_template = t(
             "schedule_list_fields_embed",
-            "**Ends at**: ${date}```${title}``````${description}```\n",
+            "**Ends at**: ${date.format(new Date(fetched[i]?.expired), 'YYYY/MM/DD HH:mm:ss')}```${fetched[i]?.title}``````${fetched[i]?.description}```\n",
         );
         // Uncapped like TS `__3`: one embed per 25-row chunk, up to 10
         // per message (Discord limits); overflow pages follow up so no
@@ -892,7 +892,7 @@ pub async fn schedule_list(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     // TS parity: field bodies render through `schedule_list_fields_embed`
     // (`${date...}` / `${fetched[i]?.title}` / `${fetched[i]?.description}`).
     let field_template = crate::lang::get(&lang_code, "schedule_list_fields_embed")
-        .unwrap_or_else(|| "**Ends at**: ${date}```${title}``````${description}```\n".to_string());
+        .unwrap_or_else(|| "**Ends at**: ${date.format(new Date(fetched[i]?.expired), 'YYYY/MM/DD HH:mm:ss')}```${fetched[i]?.title}``````${fetched[i]?.description}```\n".to_string());
     // SCOPE DECISION (recorded): TS reads the global `schedule`
     // table keyed `${userId}.${code}` (see ready.ts `scheduleTable`), so a
     // schedule created in one guild is visible/deletable from any other.

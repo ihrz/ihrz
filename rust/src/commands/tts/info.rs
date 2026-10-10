@@ -22,7 +22,7 @@ pub async fn tts_info(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         .title(t("tts_info_embed_title", "TTS Module Information"))
         .description(t(
             "tts_info_embed_description",
-            "The TTS module reads messages aloud in a voice channel.",
+            "The TTS (Text-to-Speech) module allows iHorizon to read messages aloud in a voice channel. When enabled, every message sent in the configured text channel by members who are in the voice channel will be spoken by iHorizon.",
         ))
         .field(
             t("tts_info_field_status", "Status"),
@@ -55,7 +55,7 @@ pub async fn tts_info(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         t("tts_info_field_howto", "How to use"),
         t(
             "tts_info_howto_value",
-            "Use `/tts join` to start TTS in your voice channel.",
+            "Use `/tts join` to start TTS in your voice channel.\nUse `/tts leave` to stop TTS.\nUse `/tts lang` to change the voice language.",
         ),
         false,
     );

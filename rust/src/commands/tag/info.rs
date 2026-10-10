@@ -14,9 +14,13 @@ pub async fn tag_info(
     let store = load_tags(&ctx.data().pool, &gid).await;
     let Some(e) = store.stored_tags.get(&name) else {
         ctx.say(
-            crate::commands::lang_for(&ctx, "tag_doesnt_exist", "Tag doesn't exist.")
-                .await
-                .replace("${tag_name}", &tag_name),
+            crate::commands::lang_for(
+                &ctx,
+                "tag_doesnt_exist",
+                "The tag `${tag_name}` doesn't exist!",
+            )
+            .await
+            .replace("${tag_name}", &tag_name),
         )
         .await?;
         return Ok(());

@@ -47,7 +47,7 @@ pub async fn ticket_rename(
     {
         ctx.say(
             crate::lang::get(&code, "ticket_rename_ok")
-                .unwrap_or_else(|| "Ticket renamed.".to_string()),
+                .unwrap_or_else(|| "Ticket channel has been renamed!".to_string()),
         )
         .await?;
     } else {

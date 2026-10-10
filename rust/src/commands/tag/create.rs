@@ -19,7 +19,7 @@ pub async fn tag_create(
     if !tag_allowed(&ctx, "whitelist_create").await {
         ctx.say(
             crate::lang::get(&code, "tag_create_not_permited")
-                .unwrap_or_else(|| "Not allowed.".to_string()),
+                .unwrap_or_else(|| "You are not allowed to create a tag.\nYou need the Administrator permission or you need to be in the whitelist (`/tag wlroles-create`).".to_string()),
         )
         .await?;
         return Ok(());
@@ -66,7 +66,7 @@ pub async fn tag_create(
     if !embed_ok {
         ctx.say(
             crate::lang::get(&code, "tag_create_embed_doesnt_exist")
-                .unwrap_or_else(|| "That embed doesn't exist.".to_string()),
+                .unwrap_or_else(|| "The embed doesn't exist.".to_string()),
         )
         .await?;
         return Ok(());
