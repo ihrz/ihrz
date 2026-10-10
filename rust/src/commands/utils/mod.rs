@@ -1365,4 +1365,6 @@ pub mod admin;
 pub mod channels;
 pub mod info;
 pub mod roles;
+#[allow(clippy::module_inception)]
+pub mod utils;
 pub mod voice;

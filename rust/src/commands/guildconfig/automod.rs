@@ -361,7 +361,7 @@ macro_rules! keyword_command {
     ($fn_name:ident, $sub:literal, $kind:literal) => {
         #[poise::command(
                                                     slash_command,
-                                                    prefix_command,
+    prefix_command,
                                                     rename = $sub,
                                                     default_member_permissions = "ADMINISTRATOR"
                                                 )]
@@ -421,6 +421,7 @@ macro_rules! keyword_command {
     };
 }
 
+/// Automod subgroup. Mirrors the TS automod subcommand group.
 #[poise::command(
     slash_command,
     prefix_command,

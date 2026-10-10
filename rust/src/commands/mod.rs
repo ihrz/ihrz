@@ -57,101 +57,9 @@ type Error = anyhow::Error;
 
 pub fn all() -> Vec<poise::Command<Data, Error>> {
     vec![
-        fun::games::dice(),
-        fun::games::coinflip(),
-        fun::games::number(),
-        fun::games::question(),
-        fun::games::morse(),
-        fun::social::love(),
-        fun::games::poll(),
-        fun::games::hack(),
-        fun::animals::cat(),
-        fun::animals::dog(),
-        fun::social::rate(),
-        fun::social::gay(),
-        fun::social::stench(),
-        fun::media::caracteres(),
-        fun::animals::catsay(),
-        fun::media::transgender(),
-        fun::media::youtube(),
-        fun::media::tweet(),
-        fun::media::bubbles(),
-        fun::animals::dolphin(),
-        fun::animals::duck(),
-        fun::animals::fox(),
-        fun::animals::frog(),
-        fun::animals::panda(),
-        fun::animals::squirrel(),
-        fun::misc::sixseven(),
-        fun::misc::grosbg(),
-        fun::media::trans(),
-        fun::media::captions(),
-        fun::media::togif(),
-        fun::social::hug(),
-        fun::social::kiss(),
-        fun::social::slap(),
-        fun::misc::fun_config(),
-        utils::info::avatar(),
-        utils::info::userinfo(),
-        utils::info::top(),
-        utils::info::serverinfo(),
-        utils::info::snipe(),
-        utils::info::prevnames(),
-        utils::info::whereis(),
-        utils::info::serverpic(),
-        utils::roles::addrole(),
-        utils::roles::delrole(),
-        utils::admin::embed_post(),
+        fun::fun::fun(),
+        utils::utils::utils(),
         embed::embed_builder::embed_builder(),
-        utils::voice::massmove(),
-        utils::admin::dm(),
-        utils::admin::leash(),
-        utils::admin::unleash(),
-        utils::roles::admin_roles(),
-        utils::voice::voicemove(),
-        utils::voice::wlvc(),
-        utils::voice::unwlvc(),
-        utils::admin::zip_stickers(),
-        utils::admin::zip_emojis(),
-        utils::admin::unzip_emojis(),
-        utils::voice::renewvc(),
-        utils::voice::vkick(),
-        utils::info::emojis(),
-        utils::roles::nickrole(),
-        utils::roles::rolelimit(),
-        utils::channels::renew(),
-        utils::channels::syncchan(),
-        utils::roles::derank(),
-        utils::roles::massiverole(),
-        utils::admin::wakeup(),
-        utils::admin::derogation(),
-        utils::voice::vc_list(),
-        utils::voice::bringall(),
-        utils::voice::talk(),
-        utils::voice::untalk(),
-        utils::admin::allbots(),
-        utils::roles::role_members(),
-        utils::info::inviteinfo(),
-        utils::admin::allwebhooks(),
-        utils::admin::admin_users(),
-        utils::admin::setmentionrole(),
-        utils::admin::autorenew(),
-        utils::channels::slowmode(),
-        utils::info::sticker(),
-        utils::admin::nickkicker(),
-        utils::channels::chan_hide(),
-        utils::channels::chan_hideall(),
-        utils::channels::chan_unhideall(),
-        utils::channels::chan_unhide(),
-        utils::admin::unban_all(),
-        utils::admin::unban_undo(),
-        utils::roles::wlroles_add(),
-        utils::roles::wlroles_list(),
-        utils::roles::wlroles(),
-        utils::channels::media_only(),
-        utils::voice::voicefreeze(),
-        utils::voice::voiceunfreeze(),
-        utils::info::banner(),
         moderation::main::moderation(),
         protection::protect::protect(),
         security::main::security(),
@@ -168,26 +76,7 @@ pub fn all() -> Vec<poise::Command<Data, Error>> {
         notifier::main::notifier(),
         blogger::main::blogger(),
         lastfm::main::lastfm(),
-        legacy::autofeur::autofeur(),
-        legacy::antiexe::antiexe(),
-        legacy::react::add_react(),
-        legacy::react::list_react(),
-        legacy::react::remove_react(),
-        legacy::info::welcomer(),
-        legacy::info::updates(),
-        legacy::help::helpall(),
-        legacy::help::help_browser(),
-        legacy::help_main::help_main(),
-        legacy::info::shardinfo(),
-        legacy::info::status_embed(),
-        legacy::info::langstats(),
-        legacy::memes::nitrofdp(),
-        legacy::info::securewebhook(),
-        legacy::memes::fexini(),
-        legacy::memes::kawaeine(),
-        legacy::memes::rap_vs_reality(),
-        legacy::memes::two_sides(),
-        utils::admin::vanity_generator(),
+        legacy::legacy::legacy(),
         tts::main::tts(),
         h247::main::h247(),
         context::user::user_lookup(),
@@ -199,11 +88,8 @@ pub fn all() -> Vec<poise::Command<Data, Error>> {
         voicedashboard::main::voicedashboard(),
         suggestion::setsuggest::setsuggest(),
         suggestion::suggest::suggest(),
+        newfeatures::newfeatures::newfeatures(),
         newfeatures::counter::counter(),
-        newfeatures::rolesaver::rolesaver(),
-        newfeatures::report::report(),
-        newfeatures::punishpub::punishpub(),
-        newfeatures::nightmode::nightmode(),
         newfeatures::git::git_parent(),
         giveaway::main::giveaway(),
         ticket::main::ticket(),
@@ -213,9 +99,6 @@ pub fn all() -> Vec<poise::Command<Data, Error>> {
         invitesmanager::inv::inv(),
         membercount::main::membercount(),
         rolereactions::rolereaction::rolereaction(),
-        rolereactions::rolereaction::addrolereact(),
-        rolereactions::rolereaction::rolebutton(),
-        rolereactions::rolereaction::roleselect(),
         starboard::main::starboard(),
         starboard::skullboard::skullboard(),
         sticky::main::sticky(),
@@ -224,19 +107,7 @@ pub fn all() -> Vec<poise::Command<Data, Error>> {
         owner::main::unowner_alias(),
         owner::main::bl_alias(),
         owner::main::unblacklist_alias(),
-        botcat::core::botinfo_full(),
-        botcat::core::ping(),
-        botcat::core::help(),
-        botcat::status::status(),
-        botcat::lore::andru(),
-        botcat::lore::ether(),
-        botcat::lore::iris(),
-        botcat::lore::kisakay(),
-        botcat::noaimie::noaimie(),
-        botcat::core::say(),
-        botcat::core::setlang(),
-        botcat::core::invite(),
-        botcat::core::links(),
+        botcat::bot::bot(),
         botcat::custom::custom(),
         stats::main::stats(),
     ]
@@ -391,6 +262,17 @@ pub fn defer_policy(qualified_path: &str) -> DeferPolicy {
     }
     if let Some((parent, _)) = qualified_path.split_once(' ') {
         if PUBLIC_PATHS.contains(&parent) {
+            return DeferPolicy::PUBLIC;
+        }
+    }
+    // U-SLASHGROUPS: leaves moved under parents (`fun dice`), but the
+    // tables still list flat leaf names — match the leaf segment too so
+    // per-leaf TS thinking flags survive regrouping.
+    if let Some(leaf) = qualified_path.rsplit(' ').next() {
+        if EPHEMERAL_PATHS.contains(&leaf) {
+            return DeferPolicy::EPHEMERAL;
+        }
+        if PUBLIC_PATHS.contains(&leaf) {
             return DeferPolicy::PUBLIC;
         }
     }
@@ -568,10 +450,62 @@ mod tests {
     fn registry_has_expected_commands() {
         let cmds = all();
         let names: Vec<String> = cmds.iter().map(|c| c.name.clone()).collect();
-        // 4 base + full parents + remaining stubs.
-        assert_eq!(cmds.len(), 182);
+        // Parents + flat singles + context entries (U-SLASHGROUPS: leaves
+        // live nested under parents; Discord caps top-level slash at 100).
+        assert_eq!(cmds.len(), 53);
+        // Every nested leaf keeps working through its parent.
+        fn flatten<'a>(
+            cmds: &'a [poise::Command<super::Data, super::Error>],
+            out: &mut Vec<&'a poise::Command<super::Data, super::Error>>,
+        ) {
+            for c in cmds {
+                out.push(c);
+                flatten(&c.subcommands, out);
+            }
+        }
+        let mut flat = vec![];
+        flatten(&cmds, &mut flat);
+        let flat_names: Vec<String> = flat.iter().map(|c| c.name.clone()).collect();
         for expected in [
+            "bot",
+            "fun",
+            "utils",
+            "legacy",
+            "newfeatures",
+            "dice",
+            "ban",
+            "play",
+            "gw",
+            "ticket",
+            "backup",
+            "tag",
+            "stats",
+            "protect",
+            "honeypot",
+            "antispam",
+            "ranks",
+            "economy",
+            "confession",
+            "music",
+            "guildconfig",
+            "mod",
+            "authrestore",
+            "security",
+            "counter",
+            "git",
+            "owner",
+            "rolereaction",
+            "pfps",
+            "starboard",
+            "skullboard",
+            "schedule",
+            "profil",
+            "membercount",
             "botinfo",
+            "status",
+            "andru",
+            "ether",
+            "iris",
             "dice",
             "heads-tails",
             "number",
@@ -739,8 +673,23 @@ mod tests {
             "vanity-generator",
             "embed",
         ] {
-            assert!(names.contains(&expected.to_string()), "missing {expected}");
+            assert!(
+                flat_names.contains(&expected.to_string()),
+                "missing {expected}"
+            );
         }
+        // Discord caps top-level slash commands at 100: only parents and
+        // flat singles may carry a slash action (U-SLASHGROUPS).
+        let slash_top: Vec<&String> = cmds
+            .iter()
+            .filter(|c| c.slash_action.is_some())
+            .map(|c| &c.name)
+            .collect();
+        assert!(
+            slash_top.len() <= 100,
+            "too many top-level slash commands: {}",
+            slash_top.len()
+        );
     }
 
     #[test]
@@ -1010,13 +959,19 @@ mod defer_policy_tests {
     #[test]
     fn flat_ported_subcommands_keep_ts_flags() {
         assert_eq!(defer_policy("dice"), DeferPolicy::PUBLIC);
+        assert_eq!(defer_policy("fun dice"), DeferPolicy::PUBLIC);
         assert_eq!(defer_policy("renew"), DeferPolicy::PUBLIC);
+        assert_eq!(defer_policy("utils renew"), DeferPolicy::PUBLIC);
         assert_eq!(defer_policy("massmove"), DeferPolicy::PUBLIC);
+        assert_eq!(defer_policy("utils massmove"), DeferPolicy::PUBLIC);
         assert_eq!(defer_policy("ranks config"), DeferPolicy::PUBLIC);
         assert_eq!(defer_policy("ranks role-add"), DeferPolicy::PUBLIC);
         assert_eq!(defer_policy("caracteres"), DeferPolicy::EPHEMERAL);
+        assert_eq!(defer_policy("fun caracteres"), DeferPolicy::EPHEMERAL);
         assert_eq!(defer_policy("vc"), DeferPolicy::EPHEMERAL);
+        assert_eq!(defer_policy("utils vc"), DeferPolicy::EPHEMERAL);
         assert_eq!(defer_policy("inviteinfo"), DeferPolicy::EPHEMERAL);
+        assert_eq!(defer_policy("utils inviteinfo"), DeferPolicy::EPHEMERAL);
         // TS thinking:false parents ported flat stay non-deferred.
         assert_eq!(defer_policy("ranks show"), DeferPolicy::NONE);
     }

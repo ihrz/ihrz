@@ -271,7 +271,8 @@ pub fn post_change_display(member_url: Option<&str>, attachment_url: &str) -> St
 
 macro_rules! lore_cmd {
     ($fn_name:ident, $sub:literal, $key:literal, $fallback:literal) => {
-        #[poise::command(slash_command, prefix_command, category = "bot", rename = $sub)]
+        #[poise::command(slash_command,
+    prefix_command, category = "bot", rename = $sub)]
         pub async fn $fn_name(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
             let code =
                 crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
@@ -283,7 +284,7 @@ macro_rules! lore_cmd {
     ($fn_name:ident, $sub:literal, $key:literal, $fallback:literal, $($alias:literal),+) => {
         #[poise::command(
             slash_command,
-            prefix_command,
+    prefix_command,
             category = "bot",
             rename = $sub,
             aliases($($alias),*)
@@ -475,6 +476,7 @@ pub mod andru;
 pub mod avatar;
 pub mod banner;
 pub mod bio;
+pub mod bot;
 pub mod botinfo;
 pub mod ether;
 pub mod help;
@@ -495,6 +497,7 @@ pub mod main {
     pub use super::avatar::*;
     pub use super::banner::*;
     pub use super::bio::*;
+    pub use super::bot::*;
     pub use super::botinfo::*;
     pub use super::core::*;
     pub use super::custom::*;

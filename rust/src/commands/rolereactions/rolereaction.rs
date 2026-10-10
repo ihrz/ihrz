@@ -72,7 +72,7 @@ pub async fn lookup_reaction_role(
     category = "rolereactions",
     rename = "rolereaction",
     aliases("rolereact"),
-    subcommands("rr_add", "rr_remove"),
+    subcommands("rr_add", "rr_remove", "rolebutton", "roleselect", "addrolereact"),
     default_member_permissions = "ADMINISTRATOR"
 )]
 pub async fn rolereaction(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {

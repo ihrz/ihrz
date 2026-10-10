@@ -7,6 +7,7 @@ use super::{
     set_here::ticket_set_here, transcript::ticket_transcript, unlink::ticket_unlink,
 };
 
+/// Parent group. Mirrors the TS `ticket` HybridCommand definition.
 #[poise::command(
     slash_command,
     prefix_command,

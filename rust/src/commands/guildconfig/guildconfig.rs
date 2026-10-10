@@ -13,6 +13,7 @@ use super::{
     welcomer::gc_wc_components, welcomer::gc_wc_embed, welcomer::gc_wc_panel, welcomer::gc_wc_text,
 };
 
+/// Parent group. Mirrors the TS `guildconfig` SlashCommand definition.
 #[poise::command(
     slash_command,
     prefix_command,

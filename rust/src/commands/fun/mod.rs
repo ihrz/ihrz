@@ -900,6 +900,7 @@ pub mod dolphin;
 pub mod duck;
 pub mod fox;
 pub mod frog;
+pub mod fun;
 pub mod gay;
 pub mod grosbg;
 pub mod hack;
@@ -939,6 +940,7 @@ pub mod main {
     pub use super::duck::*;
     pub use super::fox::*;
     pub use super::frog::*;
+    pub use super::fun::*;
     pub use super::games::*;
     pub use super::gay::*;
     pub use super::grosbg::*;

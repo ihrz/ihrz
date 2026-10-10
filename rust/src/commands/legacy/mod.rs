@@ -1694,6 +1694,8 @@ pub mod helpall;
 pub mod info;
 pub mod kawaeine;
 pub mod langstats;
+#[allow(clippy::module_inception)]
+pub mod legacy;
 pub mod list_react;
 pub mod memes;
 pub mod nitrofdp;
@@ -1719,6 +1721,7 @@ pub mod main {
     pub use super::helpall::*;
     pub use super::kawaeine::*;
     pub use super::langstats::*;
+    pub use super::legacy::*;
     pub use super::list_react::*;
     pub use super::nitrofdp::*;
     pub use super::rap_vs_reality::*;
