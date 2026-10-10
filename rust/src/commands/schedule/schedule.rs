@@ -1,5 +1,155 @@
 use super::*;
 
+/// Guided panel (TS `schedule.ts` parity, layered over the subcommands).
+/// Menu collector `time: 420_000`, delete / delete-all / when prompts
+/// `time: 120_000`; the menu is disabled when the collector ends.
+pub const GUIDED_MENU_ID: &str = "schedule_starter";
+pub const GUIDED_MENU_TIMEOUT_SECS: u64 = 420;
+pub const GUIDED_PROMPT_TIMEOUT_SECS: u64 = 120;
+pub const GUIDED_CREATE_MODAL_ID: &str = "schedule_create_modal";
+pub const GUIDED_DELETE_MODAL_ID: &str = "schedule_delete_modal";
+pub const GUIDED_DELETE_ALL_YES_ID: &str = "schedule_delete_all_yes";
+pub const GUIDED_DELETE_ALL_NO_ID: &str = "schedule_delete_all_no";
+pub const GUIDED_FIELD_NAME: &str = "name";
+pub const GUIDED_FIELD_DESC: &str = "desc";
+pub const GUIDED_FIELD_WHEN: &str = "when";
+pub const GUIDED_FIELD_CODE: &str = "code";
+
+/// Discord caps modal input labels at 45 chars; longer lang strings
+/// (e.g. `schedule_delete_question`) are truncated, never dropped.
+pub const MODAL_LABEL_CHARS: usize = 45;
+
+pub fn modal_label(s: &str) -> String {
+    s.chars().take(MODAL_LABEL_CHARS).collect()
+}
+
+/// Menu choices in TS declaration order (values "0".."3").
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum GuidedChoice {
+    Create,
+    Delete,
+    DeleteAll,
+    List,
+}
+
+pub fn guided_choice_of(value: &str) -> Option<GuidedChoice> {
+    match value {
+        "0" => Some(GuidedChoice::Create),
+        "1" => Some(GuidedChoice::Delete),
+        "2" => Some(GuidedChoice::DeleteAll),
+        "3" => Some(GuidedChoice::List),
+        _ => None,
+    }
+}
+
+/// (value, emoji) pairs mirroring the TS select options
+/// (create, delete, delete-all, list).
+pub fn guided_menu_values() -> [(&'static str, &'static str); 4] {
+    [("0", "📝"), ("1", "🗑️"), ("2", "⚠️"), ("3", "📜")]
+}
+
+pub fn guided_menu(
+    placeholder: &str,
+    labels: [&str; 4],
+) -> poise::serenity_prelude::CreateSelectMenu {
+    use poise::serenity_prelude as serenity;
+    let options = guided_menu_values()
+        .iter()
+        .zip(labels)
+        .map(|((value, emoji), label)| {
+            serenity::CreateSelectMenuOption::new(label.to_string(), value.to_string())
+                .emoji(serenity::ReactionType::Unicode(emoji.to_string()))
+        })
+        .collect();
+    serenity::CreateSelectMenu::new(
+        GUIDED_MENU_ID,
+        serenity::CreateSelectMenuKind::String { options },
+    )
+    .placeholder(placeholder.to_string())
+}
+
+/// Create modal options. Bounds mirror the TS modal (name 5..30,
+/// desc 10..400); `when` folds the duration question TS asks through
+/// a follow-up message collector into the modal so the whole flow
+/// stays inside component interactions.
+pub fn create_modal_opts(
+    title: &str,
+    name_label: &str,
+    desc_label: &str,
+    when_label: &str,
+) -> crate::modal_helper::ModalOptions {
+    use crate::modal_helper::{ModalField, ModalOptions, TextField, TextStyle};
+    let mut opts = ModalOptions::new(title, GUIDED_CREATE_MODAL_ID);
+    opts.defer_update = false;
+    opts.fields.push(ModalField::Text(TextField {
+        custom_id: GUIDED_FIELD_NAME.to_string(),
+        label: modal_label(name_label),
+        placeholder: None,
+        style: TextStyle::Short,
+        required: true,
+        max_length: Some(30),
+        min_length: Some(5),
+        value: None,
+    }));
+    opts.fields.push(ModalField::Text(TextField {
+        custom_id: GUIDED_FIELD_DESC.to_string(),
+        label: modal_label(desc_label),
+        placeholder: None,
+        style: TextStyle::Paragraph,
+        required: true,
+        max_length: Some(400),
+        min_length: Some(10),
+        value: None,
+    }));
+    opts.fields.push(ModalField::Text(TextField {
+        custom_id: GUIDED_FIELD_WHEN.to_string(),
+        label: modal_label(when_label),
+        placeholder: Some("10s, 5m, 2h, 7d".to_string()),
+        style: TextStyle::Short,
+        required: true,
+        max_length: Some(32),
+        min_length: Some(1),
+        value: None,
+    }));
+    opts
+}
+
+/// Delete modal options: single schedule-code input, mirroring the TS
+/// `schedule_delete_question` message-collector prompt.
+pub fn delete_modal_opts(title: &str, code_label: &str) -> crate::modal_helper::ModalOptions {
+    use crate::modal_helper::{ModalField, ModalOptions, TextField, TextStyle};
+    let mut opts = ModalOptions::new(title, GUIDED_DELETE_MODAL_ID);
+    opts.defer_update = false;
+    opts.fields.push(ModalField::Text(TextField {
+        custom_id: GUIDED_FIELD_CODE.to_string(),
+        label: modal_label(code_label),
+        placeholder: None,
+        style: TextStyle::Short,
+        required: true,
+        max_length: Some(32),
+        min_length: Some(1),
+        value: None,
+    }));
+    opts
+}
+
+/// Delete-all confirm buttons. Mirrors the TS `(Y/n)` message
+/// collector (`y`/`yes` deletes, anything else cancels).
+pub fn delete_all_confirm_row(
+    yes_label: &str,
+    no_label: &str,
+) -> poise::serenity_prelude::CreateActionRow {
+    use poise::serenity_prelude as serenity;
+    serenity::CreateActionRow::Buttons(vec![
+        serenity::CreateButton::new(GUIDED_DELETE_ALL_YES_ID)
+            .style(serenity::ButtonStyle::Danger)
+            .label(yes_label.to_string()),
+        serenity::CreateButton::new(GUIDED_DELETE_ALL_NO_ID)
+            .style(serenity::ButtonStyle::Success)
+            .label(no_label.to_string()),
+    ])
+}
+
 #[poise::command(
     slash_command,
     prefix_command,
@@ -13,13 +163,506 @@ use super::*;
     )
 )]
 pub async fn schedule(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
-    let msg = crate::commands::lang_for(
-        &ctx,
-        "schedule_menu_placeholder",
-        "Use a subcommand: create, delete, delete-all, list.",
-    )
-    .await;
-    ctx.say(msg).await?;
+    use poise::serenity_prelude as serenity;
+    let pool = ctx.data().pool.clone();
+    let lang_code = crate::db::guild_lang(&pool, ctx.guild_id().map(|g| g.get())).await;
+    let t = |k: &str, fb: &str| crate::lang::get(&lang_code, k).unwrap_or_else(|| fb.to_string());
+    let author = ctx.author().id;
+    let author_mention = ctx.author().to_string();
+    let labels = [
+        t("schedule_menu_choice_0", "Create Schedule"),
+        t("schedule_menu_choice_1", "Delete Schedule"),
+        t("schedule_menu_choice_2", "Delete All Schedules"),
+        t("schedule_menu_choice_3", "List All Schedules"),
+    ];
+    let menu = guided_menu(
+        &t("schedule_menu_placeholder", "What do you want to do?"),
+        [
+            labels[0].as_str(),
+            labels[1].as_str(),
+            labels[2].as_str(),
+            labels[3].as_str(),
+        ],
+    );
+    let menu_row = || serenity::CreateActionRow::SelectMenu(menu.clone());
+    let not_for_you = t(
+        "embed_interaction_not_for_you",
+        "This interaction is not for you",
+    );
+    let handle = ctx
+        .send(
+            poise::CreateReply::default()
+                .content(author_mention.clone())
+                .components(vec![menu_row()]),
+        )
+        .await?;
+    let mut msg = handle.into_message().await?;
+    // Menu collector, author-gated like the TS filter
+    // (`time: 420_000`).
+    let deadline =
+        std::time::Instant::now() + std::time::Duration::from_secs(GUIDED_MENU_TIMEOUT_SECS);
+    loop {
+        let remaining = deadline.saturating_duration_since(std::time::Instant::now());
+        if remaining.is_zero() {
+            break;
+        }
+        let Some(press) = msg
+            .await_component_interaction(ctx.serenity_context().shard.clone())
+            .timeout(remaining)
+            .await
+        else {
+            break;
+        };
+        if press.data.custom_id != GUIDED_MENU_ID {
+            continue;
+        }
+        if press.user.id != author {
+            let _ = press
+                .create_response(
+                    ctx.http(),
+                    serenity::CreateInteractionResponse::Message(
+                        serenity::CreateInteractionResponseMessage::new()
+                            .content(not_for_you.clone())
+                            .ephemeral(true),
+                    ),
+                )
+                .await;
+            continue;
+        }
+        let value = match &press.data.kind {
+            serenity::ComponentInteractionDataKind::StringSelect { values } => {
+                values.first().cloned().unwrap_or_default()
+            }
+            _ => continue,
+        };
+        match guided_choice_of(&value) {
+            Some(GuidedChoice::Create) => {
+                guided_create(&ctx, &press, &lang_code, &author_mention).await?;
+            }
+            Some(GuidedChoice::Delete) => {
+                guided_delete(&ctx, &press, &lang_code).await?;
+            }
+            Some(GuidedChoice::DeleteAll) => {
+                guided_delete_all(
+                    &ctx,
+                    &press,
+                    &mut msg,
+                    &lang_code,
+                    &menu,
+                    &menu_row(),
+                    &author_mention,
+                    &not_for_you,
+                )
+                .await?;
+            }
+            Some(GuidedChoice::List) => {
+                guided_list(&ctx, &press, &lang_code, &menu, &menu_row()).await?;
+            }
+            None => continue,
+        }
+    }
+    // Timeout-disable like the TS collector `end` handler.
+    let dead = menu.clone().disabled(true);
+    let _ = msg
+        .edit(
+            ctx.http(),
+            serenity::EditMessage::new()
+                .components(vec![serenity::CreateActionRow::SelectMenu(dead)]),
+        )
+        .await;
+    Ok(())
+}
+
+/// Guided create: modal (name/desc/when) then the same validation +
+/// confirm rendering as `schedule_create`. The result goes to an
+/// ephemeral follow-up so the panel stays usable until it times out.
+async fn guided_create(
+    ctx: &Ctx<'_>,
+    press: &poise::serenity_prelude::ComponentInteraction,
+    lang_code: &str,
+    author_mention: &str,
+) -> Result<(), anyhow::Error> {
+    use poise::serenity_prelude as serenity;
+    let t = |k: &str, fb: &str| crate::lang::get(lang_code, k).unwrap_or_else(|| fb.to_string());
+    let opts = create_modal_opts(
+        &t("schedule_modal_title", "Schedule Manager"),
+        &t("schedule_modal_fields_1_label", "The Schedule name?"),
+        &t("schedule_modal_fields_2_label", "The Schedule description?"),
+        "When? (e.g. 10s, 5m, 2h, 7d)",
+    );
+    let modal = crate::modal_helper::build_modal(&opts)
+        .map_err(|_| anyhow::anyhow!("unsupported modal field"))?;
+    press
+        .create_response(
+            ctx.http(),
+            serenity::CreateInteractionResponse::Modal(modal),
+        )
+        .await?;
+    let Some(submit) =
+        crate::commands::await_modal_submit(ctx.serenity_context(), press, GUIDED_CREATE_MODAL_ID)
+            .await
+    else {
+        return Ok(());
+    };
+    let name = crate::modal_helper::text_value(&submit, GUIDED_FIELD_NAME);
+    let desc = crate::modal_helper::text_value(&submit, GUIDED_FIELD_DESC);
+    let when = crate::modal_helper::text_value(&submit, GUIDED_FIELD_WHEN);
+    let _ = submit
+        .create_response(ctx.http(), serenity::CreateInteractionResponse::Acknowledge)
+        .await;
+    let mut followup = serenity::CreateInteractionResponseFollowup::new().ephemeral(true);
+    // Validation mirrors `schedule_create` (Discord already enforces
+    // the modal min/max lengths; these cover prefix-style bypasses).
+    if !validate_title(&name) {
+        followup = followup.content(t(
+            "msg_title_must_be_5_30_characters",
+            "Title must be 5-30 characters.",
+        ));
+        let _ = submit.create_followup(ctx.http(), followup).await;
+        return Ok(());
+    }
+    if !validate_description(&desc) {
+        followup = followup.content(t(
+            "msg_description_must_be_10_400_characters",
+            "Description must be 10-400 characters.",
+        ));
+        let _ = submit.create_followup(ctx.http(), followup).await;
+        return Ok(());
+    }
+    let Some(delta_ms) = parse_duration_ms(&when) else {
+        followup = followup.content(
+            t(
+                "schedule_create_not_number_time",
+                "${interaction.user}, your response (the time you want to be notified about this schedule) is not a number!",
+            )
+            .replace("${interaction.user}", author_mention),
+        );
+        let _ = submit.create_followup(ctx.http(), followup).await;
+        return Ok(());
+    };
+    let code = gen_code();
+    let entry = ScheduleEntry {
+        code: code.clone(),
+        title: name,
+        description: desc,
+        expires_at_ms: expiry_at_ms(now_ms(), delta_ms),
+    };
+    let gid = scope_guild(ctx);
+    let user_id = ctx.author().id.get();
+    save_entry_routed(&ctx.data().pool, &gid, &entry, user_id).await?;
+    let preview = render_create_preview_description(&entry.title, &entry.description);
+    let confirm_title = render_create_confirm_title(
+        &t(
+            "schedule_create_embed_title_confirm",
+            "#${scheduleCode} Schedule Created!",
+        ),
+        &code,
+    );
+    let field_name = t("schedule_create_embed_fields_name_confirm", "Notified Date");
+    let content = render_create_confirm_msg(
+        &t(
+            "schedule_create_confirm_msg",
+            "${interaction.user}, your schedule has been created!\nCode: `${scheduleCode}`",
+        ),
+        author_mention,
+        &code,
+    );
+    let embed = serenity::CreateEmbed::default()
+        .title(confirm_title)
+        .description(preview)
+        .field(field_name, format_expiry_local(entry.expires_at_ms), true)
+        .color(0x00549F)
+        .timestamp(serenity::Timestamp::now());
+    let (footer_name, footer_bytes) = crate::commands::utils::footer_parts(ctx, &gid).await;
+    let embed =
+        crate::commands::utils::embed_with_footer(embed, &footer_name, footer_bytes.is_some());
+    followup = followup.content(content).embed(embed);
+    if let Some(bytes) = footer_bytes {
+        followup = followup.add_file(serenity::CreateAttachment::bytes(bytes, "footer_icon.png"));
+    }
+    let _ = submit.create_followup(ctx.http(), followup).await;
+    Ok(())
+}
+
+/// Guided delete: code modal mirroring the TS
+/// `schedule_delete_question` prompt, then the same delete/
+/// not-found replies as `schedule_delete`.
+async fn guided_delete(
+    ctx: &Ctx<'_>,
+    press: &poise::serenity_prelude::ComponentInteraction,
+    lang_code: &str,
+) -> Result<(), anyhow::Error> {
+    use poise::serenity_prelude as serenity;
+    let t = |k: &str, fb: &str| crate::lang::get(lang_code, k).unwrap_or_else(|| fb.to_string());
+    let opts = delete_modal_opts(
+        &t("schedule_modal_title", "Schedule Manager"),
+        &t(
+            "schedule_delete_question",
+            "What is the ID of the Schedule you want to delete?",
+        ),
+    );
+    let modal = crate::modal_helper::build_modal(&opts)
+        .map_err(|_| anyhow::anyhow!("unsupported modal field"))?;
+    press
+        .create_response(
+            ctx.http(),
+            serenity::CreateInteractionResponse::Modal(modal),
+        )
+        .await?;
+    let Some(submit) =
+        crate::commands::await_modal_submit(ctx.serenity_context(), press, GUIDED_DELETE_MODAL_ID)
+            .await
+    else {
+        return Ok(());
+    };
+    let code = crate::modal_helper::text_value(&submit, GUIDED_FIELD_CODE);
+    let _ = submit
+        .create_response(ctx.http(), serenity::CreateInteractionResponse::Acknowledge)
+        .await;
+    let gid = scope_guild(ctx);
+    let user_id = ctx.author().id.get();
+    let followup = serenity::CreateInteractionResponseFollowup::new().ephemeral(true);
+    if delete_entry_routed(&ctx.data().pool, &gid, user_id, code.trim()).await? {
+        let (footer_name, footer_bytes) = crate::commands::utils::footer_parts(ctx, &gid).await;
+        let author_name = press
+            .user
+            .global_name
+            .clone()
+            .unwrap_or_else(|| press.user.name.clone());
+        let title = t(
+            "schedule_delete_title_embed",
+            "Deleting a Schedule (${arg0})",
+        )
+        .replace("${arg0}", code.trim());
+        let embed = serenity::CreateEmbed::default()
+            .author(serenity::CreateEmbedAuthor::new(author_name))
+            .title(title)
+            .color(0xFF0A0A)
+            .timestamp(serenity::Timestamp::now());
+        let embed =
+            crate::commands::utils::embed_with_footer(embed, &footer_name, footer_bytes.is_some());
+        let mut followup = followup
+            .content(t("schedule_delete_confirm", "Schedule deleted!"))
+            .embed(embed);
+        if let Some(bytes) = footer_bytes {
+            followup =
+                followup.add_file(serenity::CreateAttachment::bytes(bytes, "footer_icon.png"));
+        }
+        let _ = submit.create_followup(ctx.http(), followup).await;
+    } else {
+        let followup = followup.content(
+            t(
+                "schedule_delete_not_found",
+                "There are no SCHEDULES (${arg0}) for this member!",
+            )
+            .replace("${arg0}", code.trim()),
+        );
+        let _ = submit.create_followup(ctx.http(), followup).await;
+    }
+    Ok(())
+}
+
+/// Guided delete-all: Yes/No buttons mirroring the TS `(Y/n)`
+/// collector (`time: 120_000`), then the confirm/cancel replies.
+/// The panel menu is restored afterwards so the collector stays alive.
+#[allow(clippy::too_many_arguments)]
+async fn guided_delete_all(
+    ctx: &Ctx<'_>,
+    press: &poise::serenity_prelude::ComponentInteraction,
+    menu_msg: &mut poise::serenity_prelude::Message,
+    lang_code: &str,
+    menu: &poise::serenity_prelude::CreateSelectMenu,
+    menu_row: &poise::serenity_prelude::CreateActionRow,
+    author_mention: &str,
+    not_for_you: &str,
+) -> Result<(), anyhow::Error> {
+    use poise::serenity_prelude as serenity;
+    let t = |k: &str, fb: &str| crate::lang::get(lang_code, k).unwrap_or_else(|| fb.to_string());
+    let author = ctx.author().id;
+    let _ = menu;
+    press
+        .create_response(
+            ctx.http(),
+            serenity::CreateInteractionResponse::UpdateMessage(
+                serenity::CreateInteractionResponseMessage::new()
+                    .content(t(
+                        "schedule_deleteall_question",
+                        "Are you sure to delete all of your schedules? (Y/n)",
+                    ))
+                    .embeds(vec![])
+                    .components(vec![delete_all_confirm_row("Yes", "No")]),
+            ),
+        )
+        .await?;
+    // Confirm-button wait, author-gated like the TS message filter
+    // (`time: 120_000`).
+    let deadline =
+        std::time::Instant::now() + std::time::Duration::from_secs(GUIDED_PROMPT_TIMEOUT_SECS);
+    let mut confirmed: Option<bool> = None;
+    loop {
+        let remaining = deadline.saturating_duration_since(std::time::Instant::now());
+        if remaining.is_zero() {
+            break;
+        }
+        let Some(pick) = menu_msg
+            .await_component_interaction(ctx.serenity_context().shard.clone())
+            .timeout(remaining)
+            .await
+        else {
+            break;
+        };
+        if pick.data.custom_id != GUIDED_DELETE_ALL_YES_ID
+            && pick.data.custom_id != GUIDED_DELETE_ALL_NO_ID
+        {
+            continue;
+        }
+        if pick.user.id != author {
+            let _ = pick
+                .create_response(
+                    ctx.http(),
+                    serenity::CreateInteractionResponse::Message(
+                        serenity::CreateInteractionResponseMessage::new()
+                            .content(not_for_you.to_string())
+                            .ephemeral(true),
+                    ),
+                )
+                .await;
+            continue;
+        }
+        confirmed = Some(pick.data.custom_id == GUIDED_DELETE_ALL_YES_ID);
+        let _ = pick
+            .create_response(ctx.http(), serenity::CreateInteractionResponse::Acknowledge)
+            .await;
+        break;
+    }
+    let gid = scope_guild(ctx);
+    let user_id = ctx.author().id.get();
+    match confirmed {
+        Some(true) => {
+            let _ = delete_all_entries_routed(&ctx.data().pool, &gid, user_id).await?;
+            let (footer_name, footer_bytes) = crate::commands::utils::footer_parts(ctx, &gid).await;
+            let embed = serenity::CreateEmbed::default()
+                .title(t(
+                    "schedule_deleteall_title_embed",
+                    "Deleting all Schedules",
+                ))
+                .description(t(
+                    "schedule_deleteall_desc_embed",
+                    "All of your schedules have been deleted!",
+                ))
+                .color(0xFF0A0A);
+            let embed = crate::commands::utils::embed_with_footer(
+                embed,
+                &footer_name,
+                footer_bytes.is_some(),
+            );
+            let mut edit = serenity::EditMessage::new()
+                .content(t(
+                    "schedule_deleteall_confirm",
+                    "All of your schedules have been deleted!",
+                ))
+                .embeds(vec![embed])
+                .components(vec![menu_row.clone()]);
+            if let Some(bytes) = footer_bytes {
+                edit = edit.attachments(
+                    serenity::EditAttachments::new()
+                        .add(serenity::CreateAttachment::bytes(bytes, "footer_icon.png")),
+                );
+            }
+            let _ = menu_msg.edit(ctx.http(), edit).await;
+        }
+        Some(false) => {
+            let _ = menu_msg
+                .edit(
+                    ctx.http(),
+                    serenity::EditMessage::new()
+                        .content(t(
+                            "schedule_deleteall_cancel",
+                            "The `DELETE_ALL` action has been cancelled!",
+                        ))
+                        .embeds(vec![])
+                        .components(vec![menu_row.clone()]),
+                )
+                .await;
+        }
+        // Timeout: quietly restore the panel like the TS collector end.
+        None => {
+            let _ = menu_msg
+                .edit(
+                    ctx.http(),
+                    serenity::EditMessage::new()
+                        .content(author_mention.to_string())
+                        .embeds(vec![])
+                        .components(vec![menu_row.clone()]),
+                )
+                .await;
+        }
+    }
+    Ok(())
+}
+
+/// Guided list: renders the same embed as `schedule_list` into the
+/// panel (TS `__3` edits the original interaction), keeping the menu
+/// attached so the collector stays alive.
+async fn guided_list(
+    ctx: &Ctx<'_>,
+    press: &poise::serenity_prelude::ComponentInteraction,
+    lang_code: &str,
+    menu: &poise::serenity_prelude::CreateSelectMenu,
+    menu_row: &poise::serenity_prelude::CreateActionRow,
+) -> Result<(), anyhow::Error> {
+    use poise::serenity_prelude as serenity;
+    let t = |k: &str, fb: &str| crate::lang::get(lang_code, k).unwrap_or_else(|| fb.to_string());
+    let _ = menu;
+    let gid = scope_guild(ctx);
+    let user_id = ctx.author().id.get();
+    let entries = list_entries_routed(&ctx.data().pool, &gid, user_id).await;
+    let mut update =
+        serenity::CreateInteractionResponseMessage::new().components(vec![menu_row.clone()]);
+    if entries.is_empty() {
+        update = update.content(t(
+            "schedule_list_not_schedule",
+            "There are no SCHEDULES for this member!",
+        ));
+    } else {
+        let list_title = t("schedule_list_title_embed", "Listing all Schedules");
+        let field_template = t(
+            "schedule_list_fields_embed",
+            "**Ends at**: ${date}```${title}``````${description}```\n",
+        );
+        let mut embed = serenity::CreateEmbed::default()
+            .title(list_title)
+            .color(0x60BEE0);
+        for e in entries.iter().take(SCHEDULE_LIST_CAP) {
+            embed = embed.field(
+                format!("#{}", e.code),
+                render_schedule_field(
+                    &field_template,
+                    &e.title,
+                    &e.description,
+                    &format_expiry_local(e.expires_at_ms),
+                ),
+                false,
+            );
+        }
+        let (footer_name, footer_bytes) = crate::commands::utils::footer_parts(ctx, &gid).await;
+        let embed =
+            crate::commands::utils::embed_with_footer(embed, &footer_name, footer_bytes.is_some());
+        update = update.content(t(
+            "schedule_list_content_message",
+            "Here's your schedule list!",
+        ));
+        update = update.embed(embed);
+        if let Some(bytes) = footer_bytes {
+            update = update.add_file(serenity::CreateAttachment::bytes(bytes, "footer_icon.png"));
+        }
+    }
+    let _ = press
+        .create_response(
+            ctx.http(),
+            serenity::CreateInteractionResponse::UpdateMessage(update),
+        )
+        .await;
     Ok(())
 }
 
@@ -511,6 +1154,107 @@ mod tests {
         );
         assert_eq!(list_entries_routed(&pool, "g", 2).await.len(), 1);
         assert_eq!(delete_all_entries_routed(&pool, "g", 2).await.unwrap(), 1);
+    }
+
+    #[test]
+    fn guided_timeouts_mirror_ts_collectors() {
+        // TS menu collector `time: 420_000`, delete / delete-all /
+        // when message collectors `time: 120_000`.
+        assert_eq!(GUIDED_MENU_TIMEOUT_SECS, 420);
+        assert_eq!(GUIDED_PROMPT_TIMEOUT_SECS, 120);
+    }
+
+    #[test]
+    fn guided_choice_values_mirror_ts_menu() {
+        assert_eq!(guided_choice_of("0"), Some(GuidedChoice::Create));
+        assert_eq!(guided_choice_of("1"), Some(GuidedChoice::Delete));
+        assert_eq!(guided_choice_of("2"), Some(GuidedChoice::DeleteAll));
+        assert_eq!(guided_choice_of("3"), Some(GuidedChoice::List));
+        assert_eq!(guided_choice_of("4"), None);
+        assert_eq!(guided_choice_of(""), None);
+        assert_eq!(guided_choice_of("starter"), None);
+    }
+
+    #[test]
+    fn guided_menu_values_carry_ts_emoji() {
+        let vals = guided_menu_values();
+        assert_eq!(
+            [vals[0].0, vals[1].0, vals[2].0, vals[3].0],
+            ["0", "1", "2", "3"]
+        );
+        assert_eq!(
+            [vals[0].1, vals[1].1, vals[2].1, vals[3].1],
+            ["📝", "🗑️", "⚠️", "📜"]
+        );
+    }
+
+    #[test]
+    fn modal_label_truncates_to_discord_limit() {
+        assert_eq!(modal_label("Short"), "Short");
+        // `schedule_delete_question` (51 chars) must fit the 45-char
+        // input-label cap without being dropped.
+        let long = "What is the ID of the Schedule you want to delete?";
+        assert_eq!(modal_label(long).chars().count(), MODAL_LABEL_CHARS);
+    }
+
+    #[test]
+    fn guided_create_modal_mirrors_ts_constraints() {
+        use crate::modal_helper::{ModalField, TextStyle};
+        let opts = create_modal_opts("T", "Name?", "Desc?", "When?");
+        assert_eq!(opts.custom_id, GUIDED_CREATE_MODAL_ID);
+        assert!(!opts.defer_update);
+        assert_eq!(opts.fields.len(), 3);
+        let bounds: Vec<(&str, u16, u16, TextStyle)> = opts
+            .fields
+            .iter()
+            .map(|f| match f {
+                ModalField::Text(t) => (
+                    t.custom_id.as_str(),
+                    t.min_length.unwrap_or(0),
+                    t.max_length.unwrap_or(0),
+                    t.style,
+                ),
+                _ => panic!("guided modals are text-only"),
+            })
+            .collect();
+        // TS modal: name 5..30 (short), desc 10..400 (paragraph).
+        assert!(bounds.contains(&("name", 5, 30, TextStyle::Short)));
+        assert!(bounds.contains(&("desc", 10, 400, TextStyle::Paragraph)));
+        assert!(bounds.contains(&("when", 1, 32, TextStyle::Short)));
+        // Serenity-expressible (no Components-V2 field kinds).
+        assert!(crate::modal_helper::build_modal(&opts).is_ok());
+    }
+
+    #[test]
+    fn guided_delete_modal_is_single_code_field() {
+        use crate::modal_helper::ModalField;
+        let opts = delete_modal_opts("T", "What is the ID?");
+        assert_eq!(opts.custom_id, GUIDED_DELETE_MODAL_ID);
+        assert_eq!(opts.fields.len(), 1);
+        match &opts.fields[0] {
+            ModalField::Text(t) => {
+                assert_eq!(t.custom_id, "code");
+                assert!(t.required);
+            }
+            _ => panic!("guided modals are text-only"),
+        }
+        assert!(crate::modal_helper::build_modal(&opts).is_ok());
+    }
+
+    #[test]
+    fn guided_ids_are_namespaced_and_distinct() {
+        assert_ne!(GUIDED_MENU_ID, GUIDED_CREATE_MODAL_ID);
+        assert_ne!(GUIDED_MENU_ID, GUIDED_DELETE_MODAL_ID);
+        assert_ne!(GUIDED_CREATE_MODAL_ID, GUIDED_DELETE_MODAL_ID);
+        assert_ne!(GUIDED_DELETE_ALL_YES_ID, GUIDED_DELETE_ALL_NO_ID);
+    }
+
+    #[test]
+    fn guided_builders_smoke() {
+        // Builders must construct without panicking (Discord-shape
+        // assertions live server-side; ids/values are covered above).
+        let _ = guided_menu("Pick?", ["a", "b", "c", "d"]);
+        let _ = delete_all_confirm_row("Yes", "No");
     }
 
     #[test]

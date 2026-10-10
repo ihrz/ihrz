@@ -156,6 +156,263 @@ pub fn podium_svg(entries: &[(String, u64)]) -> String {
     )
 }
 
+/// Captcha challenge as rasterized PNG bytes (no chromium, no html2png).
+///
+/// Port of `src/core/captcha.ts` + `src/assets/html/captcha.html`:
+/// 900x300 parchment (`#d6d2c8`) card, dark (`#1c130a`) code glyphs,
+/// fixed distortion strokes drawn OVER the text (like `.captcha-lines`
+/// at z-index 3). Glyphs come from an embedded 5x7 bitmap font — no
+/// external font, image, or network — so output is deterministic per
+/// code (same code yields identical bytes).
+///
+/// The PNG itself carries the challenge: attach it as `captcha.png`
+/// (via `CreateAttachment::bytes`) and do NOT repeat the code in the
+/// message text. The events_handler captcha leg reads this pure fn.
+pub const CAPTCHA_WIDTH: u32 = 900;
+pub const CAPTCHA_HEIGHT: u32 = 300;
+
+const CAPTCHA_BG: [u8; 3] = [0xd6, 0xd2, 0xc8];
+const CAPTCHA_INK: [u8; 3] = [0x1c, 0x13, 0x0a];
+
+/// Render `code` (uppercased, unknown chars become `?`) to PNG bytes.
+pub fn captcha_png(code: &str) -> Vec<u8> {
+    use image::codecs::png::PngEncoder;
+    use image::{ExtendedColorType, ImageEncoder};
+
+    let mut img = image::RgbImage::new(CAPTCHA_WIDTH, CAPTCHA_HEIGHT);
+    for px in img.pixels_mut() {
+        *px = image::Rgb(CAPTCHA_BG);
+    }
+
+    draw_captcha_text(&mut img, code);
+    draw_captcha_strokes(&mut img);
+    draw_captcha_noise(&mut img, code);
+
+    let mut buf = Vec::new();
+    PngEncoder::new(&mut buf)
+        .write_image(
+            &img.into_raw(),
+            CAPTCHA_WIDTH,
+            CAPTCHA_HEIGHT,
+            ExtendedColorType::Rgb8,
+        )
+        .expect("captcha PNG encode to memory");
+    buf
+}
+
+/// FNV-1a 64-bit hash. Seeds the deterministic jitter/noise so the
+/// same code always renders the same image.
+fn captcha_hash(code: &str) -> u64 {
+    let mut h: u64 = 0xcbf29ce484222325;
+    for b in code.bytes() {
+        h ^= b as u64;
+        h = h.wrapping_mul(0x100000001b3);
+    }
+    h
+}
+
+/// Deterministic xorshift64 step for jitter/noise.
+fn captcha_rand(state: &mut u64) -> u64 {
+    let mut x = *state | 1;
+    x ^= x << 13;
+    x ^= x >> 7;
+    x ^= x << 17;
+    *state = x;
+    x
+}
+
+fn captcha_blend(img: &mut image::RgbImage, x: u32, y: u32, rgb: [u8; 3], alpha: f32) {
+    if x >= CAPTCHA_WIDTH || y >= CAPTCHA_HEIGHT {
+        return;
+    }
+    let dst = img.get_pixel_mut(x, y).0;
+    let a = alpha.clamp(0.0, 1.0);
+    let mut out = [0u8; 3];
+    for i in 0..3 {
+        out[i] = (rgb[i] as f32 * a + dst[i] as f32 * (1.0 - a)).round() as u8;
+    }
+    *img.get_pixel_mut(x, y) = image::Rgb(out);
+}
+
+/// Filled disc stamp for thick strokes.
+fn captcha_disc(img: &mut image::RgbImage, cx: i32, cy: i32, r: i32, rgb: [u8; 3], alpha: f32) {
+    for dy in -r..=r {
+        for dx in -r..=r {
+            if dx * dx + dy * dy <= r * r {
+                let (x, y) = (cx + dx, cy + dy);
+                if x >= 0 && y >= 0 {
+                    captcha_blend(img, x as u32, y as u32, rgb, alpha);
+                }
+            }
+        }
+    }
+}
+
+/// Bresenham line with round stamps. Mirrors one `<line>`/`<path>`
+/// of the captcha.html distortion overlay, scaled to 900x300.
+fn captcha_line(
+    img: &mut image::RgbImage,
+    x0: i32,
+    y0: i32,
+    x1: i32,
+    y1: i32,
+    width: i32,
+    alpha: f32,
+) {
+    let (mut x, mut y) = (x0, y0);
+    let dx = (x1 - x0).abs();
+    let dy = -(y1 - y0).abs();
+    let sx = if x0 < x1 { 1 } else { -1 };
+    let sy = if y0 < y1 { 1 } else { -1 };
+    let r = (width.max(1) - 1).max(0);
+    loop {
+        captcha_disc(img, x, y, r, CAPTCHA_INK, alpha);
+        if x == x1 && y == y1 {
+            break;
+        }
+        let e2 = 2 * (dx + dy);
+        if e2 >= dy {
+            if x == x1 {
+                break;
+            }
+            x += sx;
+        }
+        if e2 <= dx {
+            if y == y1 {
+                break;
+            }
+            y += sy;
+        }
+    }
+}
+
+/// Quadratic bezier sampled into stamps. Mirrors the
+/// `M 27 88 Q 60 5 99 48` curve of captcha.html, scaled to 900x300.
+#[allow(clippy::too_many_arguments)]
+fn captcha_quad(
+    img: &mut image::RgbImage,
+    x0: i32,
+    y0: i32,
+    cx: i32,
+    cy: i32,
+    x1: i32,
+    y1: i32,
+    width: i32,
+    alpha: f32,
+) {
+    let steps = 140;
+    for i in 0..=steps {
+        let t = i as f32 / steps as f32;
+        let u = 1.0 - t;
+        let x = (u * u * x0 as f32 + 2.0 * u * t * cx as f32 + t * t * x1 as f32).round() as i32;
+        let y = (u * u * y0 as f32 + 2.0 * u * t * cy as f32 + t * t * y1 as f32).round() as i32;
+        captcha_disc(img, x, y, (width.max(1) - 1).max(0), CAPTCHA_INK, alpha);
+    }
+}
+
+/// 5x7 bitmap rows for the captcha alphabet
+/// (`ABCDEFGHIKLMNOPQRSTUVWXYZ0123456789`, no J).
+/// Each u8 holds one row, bit 4 = leftmost pixel.
+fn captcha_glyph(c: char) -> [u8; 7] {
+    match c {
+        'A' => [0x0E, 0x11, 0x11, 0x1F, 0x11, 0x11, 0x11],
+        'B' => [0x1E, 0x11, 0x11, 0x1E, 0x11, 0x11, 0x1E],
+        'C' => [0x0E, 0x11, 0x10, 0x10, 0x10, 0x11, 0x0E],
+        'D' => [0x1E, 0x11, 0x11, 0x11, 0x11, 0x11, 0x1E],
+        'E' => [0x1F, 0x10, 0x10, 0x1E, 0x10, 0x10, 0x1F],
+        'F' => [0x1F, 0x10, 0x10, 0x1E, 0x10, 0x10, 0x10],
+        'G' => [0x0E, 0x11, 0x10, 0x17, 0x11, 0x11, 0x0F],
+        'H' => [0x11, 0x11, 0x11, 0x1F, 0x11, 0x11, 0x11],
+        'I' => [0x0E, 0x04, 0x04, 0x04, 0x04, 0x04, 0x0E],
+        'K' => [0x11, 0x12, 0x14, 0x18, 0x14, 0x12, 0x11],
+        'L' => [0x10, 0x10, 0x10, 0x10, 0x10, 0x10, 0x1F],
+        'M' => [0x11, 0x1B, 0x15, 0x15, 0x11, 0x11, 0x11],
+        'N' => [0x11, 0x19, 0x15, 0x13, 0x11, 0x11, 0x11],
+        'O' => [0x0E, 0x11, 0x11, 0x11, 0x11, 0x11, 0x0E],
+        'P' => [0x1E, 0x11, 0x11, 0x1E, 0x10, 0x10, 0x10],
+        'Q' => [0x0E, 0x11, 0x11, 0x11, 0x15, 0x12, 0x0D],
+        'R' => [0x1E, 0x11, 0x11, 0x1E, 0x14, 0x12, 0x11],
+        'S' => [0x0F, 0x10, 0x10, 0x0E, 0x01, 0x01, 0x1E],
+        'T' => [0x1F, 0x04, 0x04, 0x04, 0x04, 0x04, 0x04],
+        'U' => [0x11, 0x11, 0x11, 0x11, 0x11, 0x11, 0x0E],
+        'V' => [0x11, 0x11, 0x11, 0x11, 0x11, 0x0A, 0x04],
+        'W' => [0x11, 0x11, 0x11, 0x15, 0x15, 0x1B, 0x11],
+        'X' => [0x11, 0x11, 0x0A, 0x04, 0x0A, 0x11, 0x11],
+        'Y' => [0x11, 0x11, 0x0A, 0x04, 0x04, 0x04, 0x04],
+        'Z' => [0x1F, 0x01, 0x02, 0x04, 0x08, 0x10, 0x1F],
+        '0' => [0x0E, 0x11, 0x13, 0x15, 0x19, 0x11, 0x0E],
+        '1' => [0x04, 0x0C, 0x04, 0x04, 0x04, 0x04, 0x0E],
+        '2' => [0x0E, 0x11, 0x01, 0x06, 0x08, 0x10, 0x1F],
+        '3' => [0x1F, 0x02, 0x04, 0x02, 0x01, 0x11, 0x0E],
+        '4' => [0x02, 0x06, 0x0A, 0x12, 0x1F, 0x02, 0x02],
+        '5' => [0x1F, 0x10, 0x1E, 0x01, 0x01, 0x11, 0x0E],
+        '6' => [0x06, 0x08, 0x10, 0x1E, 0x11, 0x11, 0x0E],
+        '7' => [0x1F, 0x01, 0x02, 0x04, 0x08, 0x08, 0x08],
+        '8' => [0x0E, 0x11, 0x11, 0x0E, 0x11, 0x11, 0x0E],
+        '9' => [0x0E, 0x11, 0x11, 0x0F, 0x01, 0x02, 0x0C],
+        _ => [0x0E, 0x11, 0x01, 0x02, 0x04, 0x00, 0x04],
+    }
+}
+
+/// Centered code line: 9x glyph scale, 20px tracking, small
+/// deterministic vertical jitter per char (bot-readable, hard to OCR).
+fn draw_captcha_text(img: &mut image::RgbImage, code: &str) {
+    const SCALE: i32 = 9;
+    const TRACKING: i32 = 20;
+    let chars: Vec<char> = code.to_uppercase().chars().collect();
+    if chars.is_empty() {
+        return;
+    }
+    let cell_w = 5 * SCALE + TRACKING;
+    let total_w = chars.len() as i32 * cell_w - TRACKING;
+    let mut rng = captcha_hash(code);
+    let x0 = (CAPTCHA_WIDTH as i32 - total_w) / 2;
+    let y0 = (CAPTCHA_HEIGHT as i32 - 7 * SCALE) / 2;
+    for (i, c) in chars.iter().enumerate() {
+        let glyph = captcha_glyph(*c);
+        let jitter = (captcha_rand(&mut rng) % 21) as i32 - 10;
+        let gx = x0 + i as i32 * cell_w;
+        let gy = (y0 + jitter).clamp(8, CAPTCHA_HEIGHT as i32 - 7 * SCALE - 8);
+        for (row, bits) in glyph.iter().enumerate() {
+            for col in 0..5 {
+                if (bits >> (4 - col)) & 1 == 1 {
+                    for sy in 0..SCALE {
+                        for sx in 0..SCALE {
+                            captcha_blend(
+                                img,
+                                (gx + col * SCALE + sx) as u32,
+                                (gy + row as i32 * SCALE + sy) as u32,
+                                CAPTCHA_INK,
+                                1.0,
+                            );
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+/// Fixed distortion strokes over the text. Coordinates are the
+/// captcha.html overlay (viewBox 100x100) scaled to 900x300.
+fn draw_captcha_strokes(img: &mut image::RgbImage) {
+    captcha_line(img, 18, 210, 252, 45, 4, 0.7);
+    captcha_line(img, 9, 120, 243, 240, 4, 0.6);
+    captcha_line(img, 54, 60, 216, 255, 3, 0.5);
+    captcha_quad(img, 243, 264, 540, 15, 891, 144, 4, 0.55);
+}
+
+/// Deterministic speckle noise (inset 8px so the card edge stays
+/// clean parchment). Seeded by the code, like the text jitter.
+fn draw_captcha_noise(img: &mut image::RgbImage, code: &str) {
+    let mut rng = captcha_hash(code) ^ 0x9e3779b97f4a7c15;
+    for _ in 0..700 {
+        let x = 8 + (captcha_rand(&mut rng) % (CAPTCHA_WIDTH - 16) as u64) as u32;
+        let y = 8 + (captcha_rand(&mut rng) % (CAPTCHA_HEIGHT - 16) as u64) as u32;
+        captcha_blend(img, x, y, CAPTCHA_INK, 0.10);
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -250,5 +507,45 @@ mod tests {
         let evil = podium_svg(&[("<b>&Co</b>".to_string(), 42)]);
         assert!(!evil.contains("<b>"));
         assert!(evil.contains("&lt;b&gt;&amp;Co&lt;/b&gt;"));
+    }
+
+    #[test]
+    fn captcha_png_is_real_png_900x300() {
+        let png = captcha_png("ABCDEFG");
+        assert!(png.len() > 1000, "too small: {}", png.len());
+        assert_eq!(&png[0..8], &[137, 80, 78, 71, 13, 10, 26, 10], "PNG magic");
+        let img = image::load_from_memory(&png).expect("decodable PNG");
+        assert_eq!((img.width(), img.height()), (900, 300));
+        let rgb = img.to_rgb8();
+        // Clean parchment edge (noise is inset 8px, strokes stay clear).
+        assert_eq!(rgb.get_pixel(2, 2).0, [0xd6, 0xd2, 0xc8]);
+    }
+
+    #[test]
+    fn captcha_png_carries_ink_and_varies_per_code() {
+        let a = captcha_png("AAAAAAA");
+        let b = captcha_png("BBBBBBB");
+        assert_ne!(a, b, "different codes must rasterize differently");
+        assert_eq!(a, captcha_png("AAAAAAA"), "deterministic per code");
+        let img = image::load_from_memory(&a)
+            .expect("decodable PNG")
+            .to_rgb8();
+        let ink = img
+            .pixels()
+            .filter(|p| {
+                let d = (p.0[0] as i32 - 0x1c).abs()
+                    + (p.0[1] as i32 - 0x13).abs()
+                    + (p.0[2] as i32 - 0x0a).abs();
+                d < 60
+            })
+            .count();
+        assert!(ink > 1000, "code glyphs missing, ink px: {ink}");
+    }
+
+    #[test]
+    fn captcha_png_empty_code_stays_valid() {
+        let png = captcha_png("");
+        let img = image::load_from_memory(&png).expect("decodable PNG");
+        assert_eq!((img.width(), img.height()), (900, 300));
     }
 }

@@ -281,6 +281,47 @@ async fn voice_name_tpl_routed(pool: &crate::db::Pool, gid: &str) -> Option<Stri
         .filter(|t| !t.trim().is_empty())
 }
 
+/// Legacy dashboard button id -> tempvoice action suffix. Mirrors the
+/// `customId` values of the buttonRows in
+/// voicedashboard/!set-text-channel.ts (`temporary_voice_<action>_button`,
+/// 11 live buttons). Disabled spacer buttons
+/// (`temporary_voice_disable*_button`) and unknown ids map to None.
+pub fn legacy_tempvoice_action(id: &str) -> Option<&'static str> {
+    match id {
+        "temporary_voice_limit_button" => Some("limit"),
+        "temporary_voice_name_button" => Some("name"),
+        "temporary_voice_claim_button" => Some("claim"),
+        "temporary_voice_privacy_button" => Some("privacy"),
+        "temporary_voice_region_button" => Some("region"),
+        "temporary_voice_trust_button" => Some("trust"),
+        "temporary_voice_block_button" => Some("block"),
+        "temporary_voice_transfer_button" => Some("transfer"),
+        "temporary_voice_unblock_button" => Some("unblock"),
+        "temporary_voice_untrust_button" => Some("untrust"),
+        "temporary_voice_delete_button" => Some("delete"),
+        _ => None,
+    }
+}
+
+/// Allow set for staff roles on lobby-spawned temp channels. Mirrors the
+/// staff permissionOverwrites.edit block in
+/// Events/voicedashboard/voiceState.ts (join + moderate rights).
+pub fn staff_voice_allow() -> serenity::Permissions {
+    use serenity::Permissions as P;
+    P::VIEW_CHANNEL
+        | P::CONNECT
+        | P::STREAM
+        | P::SPEAK
+        | P::SEND_MESSAGES
+        | P::USE_APPLICATION_COMMANDS
+        | P::ATTACH_FILES
+        | P::ADD_REACTIONS
+        | P::MUTE_MEMBERS
+        | P::DEAFEN_MEMBERS
+        | P::PRIORITY_SPEAKER
+        | P::KICK_MEMBERS
+}
+
 /// CUSTOM_VOICE.<gid>.<uid> rows as (key, channel_id), table-first
 /// with legacy fallback (keys unchanged).
 async fn custom_voice_rows_routed(pool: &crate::db::Pool, gid: &str) -> Vec<(String, String)> {
@@ -598,6 +639,25 @@ pub struct Handler {
     /// Sliding-window message timestamps per (guild,user).
     /// Mirrors Events/antispam in-memory raidInfo cache.
     pub spam: Arc<tokio::sync::Mutex<HashMap<String, Vec<i64>>>>,
+    /// Antispam message cache per guild. Mirrors `cache.messages` in
+    /// Events/antispam/onNewMessage.ts (8h TTL, purged on each hit).
+    pub antispam_msgs: Arc<tokio::sync::Mutex<HashMap<String, Vec<CachedSpamMessage>>>>,
+    /// Antispam warn flags per guild per user. Mirrors
+    /// `cache.membersFlags` (dropped once the author has no live
+    /// message left).
+    pub antispam_flags: Arc<tokio::sync::Mutex<HashMap<String, HashMap<String, u32>>>>,
+    /// Guilds -> users awaiting the debounced punish batch. Mirrors
+    /// `cache.membersToPunish`.
+    pub antispam_punish: Arc<tokio::sync::Mutex<HashMap<String, HashSet<u64>>>>,
+    /// Per-guild debounce deadlines (epoch ms). Mirrors the
+    /// `timeouts` map behind `waitForFinish` (5s of quiet, reset on
+    /// every tripping message).
+    pub antispam_deadline: Arc<tokio::sync::Mutex<HashMap<String, i64>>>,
+    /// Guilds with a debounce flush task already scheduled.
+    pub antispam_flush: Arc<tokio::sync::Mutex<HashSet<String>>>,
+    /// Last tripping channel per guild (warn-message target).
+    /// Mirrors `message.channel` in the TS punish branch.
+    pub antispam_warn_ch: Arc<tokio::sync::Mutex<HashMap<String, u64>>>,
     /// Invite uses cache per guild: code -> (uses, inviter).
     /// Mirrors invitemanager onInviteCreate/Delete tracking.
     pub invites: Arc<tokio::sync::Mutex<InviteCache>>,
@@ -613,6 +673,10 @@ pub struct Handler {
     /// Guilds with a protection restore currently running.
     /// Mirrors restorationInProgress in avoidChannelDelete.ts.
     pub restoring: Arc<tokio::sync::Mutex<HashSet<String>>>,
+    /// Handled audit-log entry ids for protection attribution.
+    /// Mirrors handledAuditLogEntries in Events/protection/ready.ts
+    /// (getLogs dedup: each entry sanctions at most once).
+    pub handled_audit: Arc<tokio::sync::Mutex<HashSet<String>>>,
     /// In-flight temp-voice creations: "guild.user".
     /// Mirrors pendingCustomVoiceCreations in
     /// Events/voicedashboard/voiceState.ts.
@@ -650,25 +714,10 @@ pub fn security_code() -> String {
     crate::commands::security::security_code()
 }
 
-/// Captcha image challenge as a self-contained SVG (cards.rs pattern:
-/// no chromium, no html2png, no external font/image/network).
+/// Captcha image challenge is rasterized by `crate::cards::captcha_png`
+/// (900x300 parchment PNG, no Chromium); the join leg attaches it as
+/// `captcha.png` with the code only in the image, never in text.
 ///
-/// Decision: TS sends `captcha.png` (html2png of `captcha.html`) as the
-/// challenge. No SVG/PNG rasterizer exists in the Rust tree, and PNG
-/// bytes must never be faked, so the join leg attaches this SVG
-/// (`captcha.svg`, same `CreateAttachment::bytes` shape as the rank
-/// cards) with the code kept in the message text as the readable
-/// fallback. Layout mirrors `captcha.html`: parchment `#d6d2c8`
-/// container, dark `#1c130a` code text, fixed distortion strokes.
-/// The retry leg only edits text (like TS), so the image stays put.
-pub fn captcha_svg(code: &str) -> String {
-    let safe = crate::cards::escape_xml(code);
-    format!(
-        r##"<svg xmlns="http://www.w3.org/2000/svg" width="900" height="300" viewBox="0 0 900 300" role="img" aria-label="Captcha challenge"><rect x="0" y="0" width="900" height="300" rx="3" fill="#d6d2c8"/><text x="450" y="185" text-anchor="middle" font-family="serif" font-size="76" letter-spacing="12" fill="#1c130a">{safe}</text><g stroke="#1c130a" fill="none"><line x1="18" y1="210" x2="252" y2="45" stroke-width="4" opacity="0.7"/><line x1="9" y1="120" x2="243" y2="240" stroke-width="3.5" opacity="0.6"/><line x1="54" y1="60" x2="216" y2="255" stroke-width="3" opacity="0.5"/><path d="M 243 264 Q 540 15 891 144" stroke-width="3.5" opacity="0.55"/></g></svg>"##,
-        safe = safe,
-    )
-}
-
 /// Welcome target: system channel, else the lowest-position text
 /// channel. Mirrors the guildCreate.ts channel pick.
 pub fn welcome_channel(guild: &serenity::Guild) -> Option<serenity::ChannelId> {
@@ -723,6 +772,49 @@ pub fn restore_slot_claim(running: &mut HashSet<String>, guild_id: &str) -> bool
 /// predicate backing Handler::restore_release, unit-tested below.
 pub fn restore_slot_release(running: &mut HashSet<String>, guild_id: &str) {
     running.remove(guild_id);
+}
+
+/// Audit-log attribution window in ms. Mirrors AUDIT_LOG_WINDOW_MS in
+/// Events/protection/ready.ts (the getLogs 20s recency gate).
+pub const AUDIT_LOG_WINDOW_MS: i64 = 20_000;
+
+/// Audit-log fetch depth. Mirrors AUDIT_LOG_FETCH_LIMIT in
+/// Events/protection/ready.ts: the last 40 entries are scanned for a
+/// target-id match instead of trusting the latest entry blindly.
+pub const AUDIT_LOG_FETCH_LIMIT: u8 = 40;
+
+/// Attributed protection hit: the sanctioned executor plus the audit
+/// entry's target id. The target id backs the webhook-delete revert
+/// leg (delete exactly the created webhook, mirroring
+/// avoidWebhookModifying.ts). Pure data.
+pub struct ProtectionHit {
+    pub executor: serenity::UserId,
+    pub entry_target: Option<u64>,
+}
+
+/// Pure audit-log attribution predicate backing protection_guard.
+/// Mirrors getLogs in Events/protection/ready.ts: target-id match,
+/// executor present and not the bot, entry created within the 20s
+/// window. `entry_created_ms` is the snowflake-derived creation time
+/// in ms. Unit-tested below (no Discord needed).
+pub fn audit_entry_relevant(
+    entry_target: Option<u64>,
+    executor_id: u64,
+    bot_id: u64,
+    entry_created_ms: i64,
+    now_ms: i64,
+    expected_target: Option<u64>,
+) -> bool {
+    let target_ok = match (entry_target, expected_target) {
+        (Some(found), Some(expected)) => found == expected,
+        // TS always passes a concrete target; without one there is
+        // nothing to attribute.
+        _ => false,
+    };
+    target_ok
+        && executor_id != 0
+        && executor_id != bot_id
+        && now_ms.saturating_sub(entry_created_ms) <= AUDIT_LOG_WINDOW_MS
 }
 
 /// Leash pairing lifetime. Mirrors the 30-minute expiry filter in
@@ -867,16 +959,183 @@ pub fn wipe_queue_due(
         .collect()
 }
 
+/// Debounce quiet window before a tripping guild is punished.
+/// Mirrors the 5000ms `setTimeout` in `waitForFinish`
+/// (Events/antispam/onNewMessage.ts).
+pub const ANTISPAM_DEBOUNCE_MS: i64 = 5000;
+
+/// Cached-message lifetime. Mirrors ANTISPAM_MESSAGE_TTL (8h) in
+/// Events/antispam/onNewMessage.ts.
+pub const ANTISPAM_TTL_MS: i64 = 8 * 60 * 60 * 1000;
+
+/// Bulk-delete slice size. Mirrors CHUNK_SIZE in clearSpamMessages.
+pub const ANTISPAM_BULK_CHUNK: usize = 15;
+
+/// Channel batch width for the clear pass. Mirrors `batchSize: 3`
+/// in the clearSpamMessages processBatchAsync call.
+pub const ANTISPAM_CHANNEL_BATCH: usize = 3;
+
+/// Pacing between channel batches. Mirrors `delay: 100`.
+pub const ANTISPAM_CHANNEL_BATCH_DELAY_MS: u64 = 100;
+
+/// Self-delete delay of the warn message. Mirrors the 4000ms
+/// `setTimeout(() => msg.delete())` in sendWarningMessage.
+pub const ANTISPAM_WARN_DELETE_SECS: u64 = 4;
+
+/// One cached guild message. Mirrors AntiSpam.CachedMessage
+/// (messageID, guildID, authorID, channelID, content,
+/// sentTimestamp, isSpam). Pure data, unit-tested below.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct CachedSpamMessage {
+    pub message_id: u64,
+    pub channel_id: u64,
+    pub author_id: u64,
+    pub sent_at: i64,
+    pub is_spam: bool,
+}
+
+/// Log-embed context for one antispam sanction batch. Bundles the
+/// seven arguments `antispam_log` needs so the method keeps a single
+/// parameter (clippy `too_many_arguments`).
+pub struct AntispamLog<'a> {
+    pub http: &'a std::sync::Arc<serenity::Http>,
+    pub guild_id: serenity::GuildId,
+    pub gid: &'a str,
+    pub users: &'a [u64],
+    pub punishment_type: &'a str,
+    pub lang_code: &'a str,
+    pub bot_id: u64,
+}
+
+/// Sanction context for one antispam-punished member. Bundles the
+/// seven arguments `antispam_punish_user` needs so the method keeps
+/// a single parameter (clippy `too_many_arguments`).
+pub struct AntispamPunish<'a> {
+    pub http: &'a std::sync::Arc<serenity::Http>,
+    pub guild_id: serenity::GuildId,
+    pub gid: &'a str,
+    pub user_id: u64,
+    pub cfg: &'a crate::commands::antispam::main::AntispamConfig,
+    pub lang_code: &'a str,
+    pub bot_id: u64,
+}
+
+/// Exemption snapshot for one message. Mirrors the early-return
+/// chain at the top of the TS messageCreate run (bot Administrator
+/// gate, Enabled flag, webhook/self, guild owner, Administrator
+/// members, ignoreBots, bypass roles/channels incl. parent).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub struct AntispamGate {
+    pub bot_admin: bool,
+    pub enabled: bool,
+    pub webhook: bool,
+    pub self_msg: bool,
+    pub owner: bool,
+    pub admin: bool,
+    pub bot_ignored: bool,
+    pub bypass: bool,
+}
+
+/// True when the message skips antispam analysis. Pure predicate
+/// backing Handler::antispam_message, unit-tested below.
+pub fn antispam_skipped(g: &AntispamGate) -> bool {
+    !g.bot_admin
+        || !g.enabled
+        || g.webhook
+        || g.self_msg
+        || g.owner
+        || g.admin
+        || g.bot_ignored
+        || g.bypass
+}
+
+/// Drop cached messages older than the 8h TTL. Mirrors
+/// purgeOldGuildMessages (strict `>`, like TS). Pure, unit-tested.
+pub fn antispam_purge_old(msgs: &mut Vec<CachedSpamMessage>, now_ms: i64) {
+    msgs.retain(|m| now_ms - m.sent_at <= ANTISPAM_TTL_MS);
+}
+
+/// Drop warn flags for authors with no live message left. Mirrors
+/// purgeOldMemberFlags. Pure, unit-tested.
+pub fn antispam_prune_flags(flags: &mut HashMap<String, u32>, msgs: &[CachedSpamMessage]) {
+    let active: HashSet<u64> = msgs.iter().map(|m| m.author_id).collect();
+    flags.retain(|k, _| {
+        k.parse::<u64>()
+            .map(|id| active.contains(&id))
+            .unwrap_or(false)
+    });
+}
+
+/// Newest cached timestamp for one author, if any. Pure, unit-tested.
+pub fn antispam_last_sent(msgs: &[CachedSpamMessage], author_id: u64) -> Option<i64> {
+    msgs.iter()
+        .filter(|m| m.author_id == author_id)
+        .map(|m| m.sent_at)
+        .max()
+}
+
+/// Elapsed time since the author's previous message. None on first
+/// sight (TS then uses `maxInterval + 1`, i.e. no flag). Pure,
+/// unit-tested.
+pub fn antispam_elapsed(
+    msgs: &[CachedSpamMessage],
+    author_id: u64,
+    now_ms: i64,
+    max_interval_ms: i64,
+) -> Option<i64> {
+    match antispam_last_sent(msgs, author_id) {
+        Some(last) => Some(now_ms - last),
+        None => Some(max_interval_ms + 1),
+    }
+}
+
+/// True when the elapsed gap trips the sliding window
+/// (`elapsedTime < maxInterval` -> flag +1, isSpam). Pure,
+/// unit-tested.
+pub fn antispam_gap_tripped(elapsed_ms: Option<i64>, max_interval_ms: i64) -> bool {
+    elapsed_ms.map(|e| e < max_interval_ms).unwrap_or(false)
+}
+
+/// True when accumulated flags reach the punish threshold.
+/// Pure, unit-tested.
+pub fn antispam_threshold_tripped(flags: u32, threshold: u32) -> bool {
+    threshold > 0 && flags >= threshold
+}
+
+/// Split message ids into bulk-delete slices. Mirrors the
+/// `slice(i, i + CHUNK_SIZE)` loop in clearSpamMessages. Pure,
+/// unit-tested.
+pub fn antispam_chunks<T: Clone>(ids: &[T], size: usize) -> Vec<Vec<T>> {
+    if size == 0 {
+        return Vec::new();
+    }
+    ids.chunks(size).map(|c| c.to_vec()).collect()
+}
+
+/// Build the warn text: base template with the mentions slot
+/// filled, plus the punishment-type suffix. Mirrors
+/// sendWarningMessage. Pure, unit-tested.
+pub fn antispam_warn_text(base: &str, suffix: &str, mentions: &str) -> String {
+    format!("{}{suffix}", base.replace("${mentionedMembers}", mentions))
+}
+
 impl Handler {
     pub fn new(pool: Pool, slashlog: Arc<crate::slashlog::SlashLog>) -> Self {
         Self {
             pool,
             spam: Arc::new(tokio::sync::Mutex::new(HashMap::new())),
+            antispam_msgs: Arc::new(tokio::sync::Mutex::new(HashMap::new())),
+            antispam_flags: Arc::new(tokio::sync::Mutex::new(HashMap::new())),
+            antispam_punish: Arc::new(tokio::sync::Mutex::new(HashMap::new())),
+            antispam_deadline: Arc::new(tokio::sync::Mutex::new(HashMap::new())),
+            antispam_flush: Arc::new(tokio::sync::Mutex::new(HashSet::new())),
+            antispam_warn_ch: Arc::new(tokio::sync::Mutex::new(HashMap::new())),
             invites: Arc::new(tokio::sync::Mutex::new(HashMap::new())),
             sealed: Arc::new(tokio::sync::Mutex::new(std::collections::HashSet::new())),
             security: Arc::new(tokio::sync::Mutex::new(HashMap::new())),
             slashlog,
             restoring: Arc::new(tokio::sync::Mutex::new(HashSet::new())),
+            handled_audit: Arc::new(tokio::sync::Mutex::new(HashSet::new())),
             temp_pending: Arc::new(tokio::sync::Mutex::new(HashSet::new())),
             mailer: Arc::new(crate::mailer::Mailer::init_from_env("iHorizon")),
         }
@@ -1126,6 +1385,545 @@ impl Handler {
         let _ = tbl_del(&self.pool, gid, &flag_key).await;
     }
 
+    /// Full antispam pipeline. Mirrors the messageCreate run in
+    /// Events/antispam/onNewMessage.ts: bot-Administrator gate,
+    /// GUILD.ANTISPAM config load, bypass roles/channels (channel +
+    /// parent), then the webhook/self/owner/Administrator/ignoreBots
+    /// exemptions, the sliding-window flag counting with the 8h TTL
+    /// purges, and the 5s debounced punish batch on threshold.
+    /// Best-effort, never panics.
+    ///
+    /// Runs before the bot gate in `message` (its own TS listener):
+    /// bot messages are still scanned unless `ignoreBots` is set.
+    async fn antispam_message(&self, ctx: &serenity::Context, msg: &serenity::Message) {
+        let Some(guild_id) = msg.guild_id else {
+            return;
+        };
+        let gid = guild_id.get().to_string();
+        let bot_id = ctx.cache.current_user().id.get();
+        let bot_admin = self.bot_is_admin(ctx, guild_id).await;
+        let cfg = antispam_cfg_routed(&self.pool, &gid).await;
+        let Some(cfg) = cfg else {
+            return;
+        };
+        // Bypass roles + channels (channel id and its parent, like
+        // the TS `BYPASS_CHANNELS.includes(parentId)` check).
+        let bypass_roles: Vec<String> = antispam_bypass_roles_routed(&self.pool, &gid).await;
+        let bypass_channels: Vec<String> = antispam_bypass_channels_routed(&self.pool, &gid).await;
+        let member_roles: Vec<String> = msg
+            .member
+            .as_ref()
+            .map(|m| m.roles.iter().map(|r| r.get().to_string()).collect())
+            .unwrap_or_default();
+        let parent = Self::antispam_parent_id(ctx, guild_id, msg.channel_id).await;
+        let bypass = bypass_channels.contains(&msg.channel_id.get().to_string())
+            || parent
+                .map(|p| bypass_channels.contains(&p.to_string()))
+                .unwrap_or(false)
+            || member_roles.iter().any(|r| bypass_roles.contains(r));
+        // Owner + Administrator snapshots (cache-only, no await while
+        // the guard lives).
+        let (owner_id, author_admin) = match ctx.cache.guild(guild_id) {
+            Some(g) => {
+                let owner = g.owner_id.get();
+                let admin = msg
+                    .member
+                    .as_ref()
+                    .map(|m| {
+                        m.permissions.map(|p| p.administrator()).unwrap_or(false)
+                            || m.roles.iter().any(|r| {
+                                g.roles
+                                    .get(r)
+                                    .map(|role| role.permissions.administrator())
+                                    .unwrap_or(false)
+                            })
+                    })
+                    .unwrap_or(false);
+                (owner, admin)
+            }
+            None => (0, false),
+        };
+        let gate = AntispamGate {
+            bot_admin,
+            enabled: cfg.enabled,
+            webhook: msg.webhook_id.is_some(),
+            self_msg: msg.author.id.get() == bot_id,
+            owner: msg.author.id.get() == owner_id,
+            admin: author_admin,
+            bot_ignored: cfg.ignore_bots && msg.author.bot,
+            bypass,
+        };
+        if antispam_skipped(&gate) {
+            return;
+        }
+        let now = crate::commands::context::now_ms();
+        let author_id = msg.author.id.get();
+        let tripped = {
+            let mut stored = self.antispam_msgs.lock().await;
+            let mut flags = self.antispam_flags.lock().await;
+            let vec = stored.entry(gid.clone()).or_default();
+            antispam_purge_old(vec, now);
+            let fmap = flags.entry(gid.clone()).or_default();
+            antispam_prune_flags(fmap, vec);
+            let elapsed = antispam_elapsed(vec, author_id, now, cfg.max_interval_ms);
+            let is_spam = antispam_gap_tripped(elapsed, cfg.max_interval_ms);
+            let count = fmap.entry(author_id.to_string()).or_insert(0);
+            if is_spam {
+                *count = count.saturating_add(1);
+            }
+            let threshold_hit = antispam_threshold_tripped(*count, cfg.threshold);
+            let flagged_spam = is_spam || threshold_hit;
+            vec.push(CachedSpamMessage {
+                message_id: msg.id.get(),
+                channel_id: msg.channel_id.get(),
+                author_id,
+                sent_at: msg.timestamp.unix_timestamp() * 1000,
+                is_spam: flagged_spam,
+            });
+            if threshold_hit {
+                self.antispam_punish
+                    .lock()
+                    .await
+                    .entry(gid.clone())
+                    .or_default()
+                    .insert(author_id);
+                self.antispam_deadline
+                    .lock()
+                    .await
+                    .insert(gid.clone(), now + ANTISPAM_DEBOUNCE_MS);
+                self.antispam_warn_ch
+                    .lock()
+                    .await
+                    .insert(gid.clone(), msg.channel_id.get());
+            }
+            threshold_hit
+        };
+        if tripped {
+            self.antispam_ensure_flush(ctx, guild_id, bot_id).await;
+        }
+    }
+
+    /// Parent channel id for the bypass check. Cache first, HTTP
+    /// fallback. None for top-level channels. Mirrors
+    /// `(message.channel as GuildBasedChannel).parentId`.
+    async fn antispam_parent_id(
+        ctx: &serenity::Context,
+        guild_id: serenity::GuildId,
+        channel_id: serenity::ChannelId,
+    ) -> Option<u64> {
+        if let Some(g) = ctx.cache.guild(guild_id) {
+            if let Some(ch) = g.channels.get(&channel_id) {
+                return ch.parent_id.map(|p| p.get());
+            }
+        }
+        ctx.http
+            .get_channel(channel_id)
+            .await
+            .ok()
+            .and_then(|c| c.guild())
+            .and_then(|g| g.parent_id.map(|p| p.get()))
+    }
+
+    /// Claim the debounce flush slot and spawn the flush task.
+    /// Mirrors `waitForFinish`: the task waits for 5s of quiet
+    /// (deadline resets on every tripping message), then runs the
+    /// punish + clear + warn + log batch once.
+    async fn antispam_ensure_flush(
+        &self,
+        ctx: &serenity::Context,
+        guild_id: serenity::GuildId,
+        bot_id: u64,
+    ) {
+        let gid = guild_id.get().to_string();
+        {
+            let mut flushing = self.antispam_flush.lock().await;
+            if !flushing.insert(gid.clone()) {
+                return;
+            }
+        }
+        let this = self.clone();
+        let http = ctx.http.clone();
+        tokio::spawn(async move {
+            loop {
+                let deadline = this
+                    .antispam_deadline
+                    .lock()
+                    .await
+                    .get(&gid)
+                    .copied()
+                    .unwrap_or(0);
+                let now = crate::commands::context::now_ms();
+                if now >= deadline {
+                    break;
+                }
+                tokio::time::sleep(std::time::Duration::from_millis(
+                    (deadline - now).clamp(1, 1000) as u64,
+                ))
+                .await;
+            }
+            this.antispam_flush_guild(&http, guild_id, bot_id).await;
+            this.antispam_flush.lock().await.remove(&gid);
+        });
+    }
+
+    /// Debounced punish batch. Mirrors the post-`waitForFinish`
+    /// branch: PunishUsers, clearSpamMessages, sendWarningMessage,
+    /// logsAction, then the membersToPunish clear. Best-effort.
+    async fn antispam_flush_guild(
+        &self,
+        http: &std::sync::Arc<serenity::Http>,
+        guild_id: serenity::GuildId,
+        bot_id: u64,
+    ) {
+        let gid = guild_id.get().to_string();
+        let users: Vec<u64> = self
+            .antispam_punish
+            .lock()
+            .await
+            .remove(&gid)
+            .map(|s| s.into_iter().collect())
+            .unwrap_or_default();
+        self.antispam_deadline.lock().await.remove(&gid);
+        if users.is_empty() {
+            return;
+        }
+        let Some(cfg) = antispam_cfg_routed(&self.pool, &gid).await else {
+            return;
+        };
+        let lang_code = crate::db::guild_lang(&self.pool, Some(guild_id.get())).await;
+        // PunishUsers leg (batchSize 5 / delay 200 in TS; sequential
+        // here, each call best-effort like the TS `.catch(() => {})`).
+        for uid in &users {
+            self.antispam_punish_user(AntispamPunish {
+                http,
+                guild_id,
+                gid: &gid,
+                user_id: *uid,
+                cfg: &cfg,
+                lang_code: &lang_code,
+                bot_id,
+            })
+            .await;
+        }
+        // Flags clear per punished member (TS deletes inside the
+        // punish batch).
+        if let Some(fmap) = self.antispam_flags.lock().await.get_mut(&gid) {
+            for uid in &users {
+                fmap.remove(&uid.to_string());
+            }
+        }
+        if cfg.remove_messages {
+            self.antispam_clear_guild(http, &gid, &users).await;
+        }
+        let warn_ch = self.antispam_warn_ch.lock().await.remove(&gid);
+        if let Some(ch) = warn_ch {
+            self.antispam_warn(http, &gid, ch, &users, &cfg.punishment_type, &lang_code)
+                .await;
+        }
+        self.antispam_log(AntispamLog {
+            http,
+            guild_id,
+            gid: &gid,
+            users: &users,
+            punishment_type: &cfg.punishment_type,
+            lang_code: &lang_code,
+            bot_id,
+        })
+        .await;
+    }
+
+    /// One member sanction. Mirrors PunishUsers: mute needs
+    /// ModerateMembers + role hierarchy + non-owner (then a
+    /// `timeout` plus the warnMember "Antispam Punishment" entry),
+    /// ban needs BanMembers + hierarchy + bannable, kick needs
+    /// KickMembers + hierarchy + kickable. Best-effort, never panics.
+    async fn antispam_punish_user(&self, p: AntispamPunish<'_>) {
+        let AntispamPunish {
+            http,
+            guild_id,
+            gid,
+            user_id,
+            cfg,
+            lang_code,
+            bot_id,
+        } = p;
+        let owner: u64 = guild_id
+            .to_partial_guild(http)
+            .await
+            .map(|g| g.owner_id.get())
+            .unwrap_or(0);
+        if user_id == owner {
+            return;
+        }
+        let roles = http.get_guild_roles(guild_id).await.unwrap_or_default();
+        let bot_roles: Vec<serenity::RoleId> = guild_id
+            .member(http, serenity::UserId::new(bot_id))
+            .await
+            .map(|m| m.roles)
+            .unwrap_or_default();
+        let mut bot_perms = serenity::Permissions::empty();
+        let mut bot_top: u16 = 0;
+        for r in &roles {
+            if bot_roles.contains(&r.id) {
+                bot_perms |= r.permissions;
+                bot_top = bot_top.max(r.position);
+            }
+            if r.id.get() == guild_id.get() {
+                bot_perms |= r.permissions;
+            }
+        }
+        if bot_perms.administrator() {
+            bot_perms = serenity::Permissions::all();
+        }
+        let target = guild_id
+            .member(http, serenity::UserId::new(user_id))
+            .await
+            .ok();
+        let target_top: Option<u16> = target.as_ref().map(|m| {
+            m.roles
+                .iter()
+                .filter_map(|id| roles.iter().find(|r| &r.id == id))
+                .map(|r| r.position)
+                .max()
+                .unwrap_or(0)
+        });
+        let outranked = target_top.map(|t| bot_top > t).unwrap_or(false);
+        match cfg.punishment_type.trim().to_ascii_lowercase().as_str() {
+            "mute" => {
+                let Some(member) = target else {
+                    return;
+                };
+                if !bot_perms.moderate_members() || !outranked {
+                    return;
+                }
+                let mut member = member;
+                let secs = (cfg.punish_time_ms / 1000).clamp(1, 28 * 24 * 60 * 60);
+                let now_secs = std::time::SystemTime::now()
+                    .duration_since(std::time::UNIX_EPOCH)
+                    .map(|d| d.as_secs() as i64)
+                    .unwrap_or(0);
+                if let Ok(until) = serenity::Timestamp::from_unix_timestamp(now_secs + secs) {
+                    let _ = member
+                        .disable_communication_until_datetime(http, until)
+                        .await;
+                }
+                // warnMember "Antispam Punishment" entry (TS
+                // `member.client.func.method.warnMember(...,
+                // "Antispam Punishment", lang).catch(() => {})`).
+                if let Ok(target_user) = serenity::UserId::new(user_id).to_user(http).await {
+                    let guild_name = guild_id
+                        .to_partial_guild(http)
+                        .await
+                        .map(|g| g.name)
+                        .unwrap_or_else(|_| "this server".to_string());
+                    let bot_name = http
+                        .get_current_user()
+                        .await
+                        .map(|u| u.name.clone())
+                        .unwrap_or_default();
+                    let guild_roles = roles
+                        .iter()
+                        .map(|r| (r.id, (r.name.clone(), r.position)))
+                        .collect();
+                    crate::commands::moderation::warn_member_with_author(
+                        &crate::commands::moderation::WarnContext {
+                            http,
+                            guild_name: Some(guild_name),
+                            author_top_roles: Some(bot_roles),
+                            guild_roles: Some(guild_roles),
+                            pool: &self.pool,
+                            gid,
+                            guild_id,
+                            author_name: &bot_name,
+                            target: &target_user,
+                            reason: "Antispam Punishment",
+                            lang_code,
+                        },
+                        Some(bot_id),
+                    )
+                    .await;
+                }
+            }
+            "ban" => {
+                if !bot_perms.ban_members() {
+                    return;
+                }
+                if target.is_some() && !outranked {
+                    return;
+                }
+                let _ = guild_id
+                    .ban_with_reason(http, serenity::UserId::new(user_id), 0, "Spamming!")
+                    .await;
+            }
+            _ => {
+                // "kick" and unknown values fall through to kick, like
+                // the TS switch (mute / ban / kick arms).
+                if !bot_perms.kick_members() {
+                    return;
+                }
+                if target.is_some() && !outranked {
+                    return;
+                }
+                let _ = guild_id
+                    .kick_with_reason(http, serenity::UserId::new(user_id), "Spamming!")
+                    .await;
+            }
+        }
+    }
+
+    /// Bulk-delete pass. Mirrors clearSpamMessages: spam-flagged
+    /// messages plus every message of punished authors, grouped by
+    /// channel, 15 ids per bulkDelete, 3 channels per batch with
+    /// 100ms pacing. Deleted ids leave the cache, like TS.
+    async fn antispam_clear_guild(
+        &self,
+        http: &std::sync::Arc<serenity::Http>,
+        gid: &str,
+        users: &[u64],
+    ) {
+        let punished: HashSet<u64> = users.iter().copied().collect();
+        let doomed: Vec<(u64, u64)> = {
+            let mut stored = self.antispam_msgs.lock().await;
+            let Some(vec) = stored.get_mut(gid) else {
+                return;
+            };
+            let pick: Vec<(u64, u64)> = vec
+                .iter()
+                .filter(|m| m.is_spam || punished.contains(&m.author_id))
+                .map(|m| (m.channel_id, m.message_id))
+                .collect();
+            vec.retain(|m| !(m.is_spam || punished.contains(&m.author_id)));
+            pick
+        };
+        if doomed.is_empty() {
+            return;
+        }
+        let mut by_channel: Vec<(u64, Vec<u64>)> = Vec::new();
+        for (ch, id) in doomed {
+            match by_channel.iter_mut().find(|(c, _)| *c == ch) {
+                Some((_, ids)) => ids.push(id),
+                None => by_channel.push((ch, vec![id])),
+            }
+        }
+        for batch in by_channel.chunks(ANTISPAM_CHANNEL_BATCH) {
+            for (ch, ids) in batch {
+                let channel = serenity::ChannelId::new(*ch);
+                for chunk in antispam_chunks(ids, ANTISPAM_BULK_CHUNK) {
+                    let mids: Vec<serenity::MessageId> = chunk
+                        .iter()
+                        .map(|id| serenity::MessageId::new(*id))
+                        .collect();
+                    // bulkDelete(chunk, true) filters >14d messages;
+                    // fall back to single deletes when the bulk call
+                    // rejects the chunk, best-effort either way.
+                    if channel.delete_messages(http, &mids).await.is_err() {
+                        for mid in mids {
+                            let _ = http.delete_message(channel, mid, None).await;
+                        }
+                    }
+                }
+            }
+            tokio::time::sleep(std::time::Duration::from_millis(
+                ANTISPAM_CHANNEL_BATCH_DELAY_MS,
+            ))
+            .await;
+        }
+    }
+
+    /// Warn message with the punishment suffix, self-deleting after
+    /// 4s. Mirrors sendWarningMessage. Best-effort.
+    async fn antispam_warn(
+        &self,
+        http: &std::sync::Arc<serenity::Http>,
+        gid: &str,
+        channel_id: u64,
+        users: &[u64],
+        punishment_type: &str,
+        lang_code: &str,
+    ) {
+        let _ = gid;
+        let valid: Vec<u64> = users.to_vec();
+        if valid.is_empty() {
+            return;
+        }
+        let text = |k: &str| crate::lang::get(lang_code, k).unwrap_or_default();
+        let mentions: String = valid
+            .iter()
+            .map(|u| format!("<@{u}>"))
+            .collect::<Vec<_>>()
+            .join(", ");
+        let suffix = match punishment_type.trim().to_ascii_lowercase().as_str() {
+            "mute" => text("antispam_more_mute_msg"),
+            "kick" => text("antispam_more_kick_msg"),
+            "ban" => text("antispam_more_ban_msg"),
+            _ => String::new(),
+        };
+        let content = antispam_warn_text(&text("antispam_base_warn_message"), &suffix, &mentions);
+        if content.trim().is_empty() {
+            return;
+        }
+        if let Ok(sent) = serenity::ChannelId::new(channel_id)
+            .send_message(http, serenity::CreateMessage::new().content(content))
+            .await
+        {
+            let http = http.clone();
+            tokio::spawn(async move {
+                tokio::time::sleep(std::time::Duration::from_secs(ANTISPAM_WARN_DELETE_SECS)).await;
+                let _ = http.delete_message(sent.channel_id, sent.id, None).await;
+            });
+        }
+    }
+
+    /// Moderation log embed. Mirrors logsAction:
+    /// GUILD.SERVER_LOGS.antispam channel, `#e4433f` embed titled
+    /// `antispam_log_embed_title` with the sanction type, description
+    /// with the bot mention, the literal "sanction" action and the
+    /// punished mentions. Silent without a log channel, like TS.
+    async fn antispam_log(&self, l: AntispamLog<'_>) {
+        let AntispamLog {
+            http,
+            guild_id,
+            gid,
+            users,
+            punishment_type,
+            lang_code,
+            bot_id,
+        } = l;
+        if users.is_empty() {
+            return;
+        }
+        let text = |k: &str| crate::lang::get(lang_code, k).unwrap_or_default();
+        let logs_ch: Option<u64> =
+            crate::commands::guildconfig::setlogschannel::load_log_channel_routed(
+                &self.pool, gid, "antispam",
+            )
+            .await
+            .and_then(|s| s.parse().ok());
+        let Some(logs_ch) = logs_ch else {
+            return;
+        };
+        let sanction = punishment_type.trim().to_ascii_lowercase();
+        let mentions: String = users
+            .iter()
+            .map(|u| format!("<@{u}>"))
+            .collect::<Vec<_>>()
+            .join(",");
+        let embed = serenity::CreateEmbed::default()
+            .colour(0xe4433f_u32)
+            .title(text("antispam_log_embed_title").replace("${actionType}", &sanction))
+            .description(
+                text("antispam_log_embed_desc")
+                    .replace("${client.user?.toString()}", &format!("<@{bot_id}>"))
+                    .replace("${actionType}", "sanction")
+                    .replace("${user.toString()}", &mentions),
+            )
+            .timestamp(serenity::Timestamp::now());
+        let _ = serenity::ChannelId::new(logs_ch)
+            .send_message(http, serenity::CreateMessage::new().embed(embed))
+            .await;
+        let _ = guild_id;
+    }
+
     /// Moderation audit embed (mirrors logs/addBanLogs.ts,
     /// removeBanLogs.ts, kickLogs.ts): latest audit entry for the
     /// action -> #010101 embed with the Reason field, posted to
@@ -1224,15 +2022,19 @@ impl Handler {
 
     /// Anti-raid guard. Mirrors Events/protection/avoid*.ts with
     /// PROTECTION.<rule> {mode} + PROTECTION.SANCTION + ALLOWLIST keys:
-    /// fetch the audit-log executor, skip owner/allowlisted/bot, apply the
-    /// configured sanction otherwise. Never panics.
+    /// attribute via getLogs semantics (target-id match, 20s recency,
+    /// handled-set dedup), skip owner/allowlisted/bot, apply the
+    /// configured sanction otherwise. Returns the hit on sanction so
+    /// callers can run their restore leg (channel delete, ban lift,
+    /// re-ban, webhook delete, guild-field revert). Never panics.
     async fn protection_guard(
         &self,
         ctx: &serenity::Context,
         guild_id: serenity::GuildId,
         action: serenity::model::guild::audit_log::Action,
         rule: &str,
-    ) {
+        target_id: Option<u64>,
+    ) -> Option<ProtectionHit> {
         use crate::commands::protection::protect as protect_cmd;
         let gid = guild_id.get().to_string();
         // TS rule vocabulary: only `allowlist` / `nobody` modes sanction;
@@ -1242,25 +2044,47 @@ impl Handler {
             .map(|r| r.effective_mode().to_string())
             .unwrap_or_else(|| "member".to_string());
         if mode != "allowlist" && mode != "nobody" {
-            return;
+            return None;
         }
+        // Attribution (mirrors getLogs in Events/protection/ready.ts):
+        // scan the recent entries for a target-id match inside the 20s
+        // window instead of trusting the latest entry blindly.
         let Ok(logs) = guild_id
-            .audit_logs(&ctx.http, Some(action), None, None, Some(1))
+            .audit_logs(
+                &ctx.http,
+                Some(action),
+                None,
+                None,
+                Some(AUDIT_LOG_FETCH_LIMIT),
+            )
             .await
         else {
-            return;
+            return None;
         };
-        let Some(entry) = logs.entries.first() else {
-            return;
-        };
+        let bot_id = ctx.cache.current_user().id.get();
+        let now_ms = chrono::Local::now().timestamp_millis();
+        let entry = logs.entries.iter().find(|e| {
+            audit_entry_relevant(
+                e.target_id.map(|t| t.get()),
+                e.user_id.get(),
+                bot_id,
+                e.id.created_at().unix_timestamp() * 1000,
+                now_ms,
+                target_id,
+            )
+        })?;
         let exec = entry.user_id;
-        if exec == ctx.cache.current_user().id {
-            return;
+        let entry_target = entry.target_id.map(|t| t.get());
+        let entry_key = entry.id.get().to_string();
+        // Handled-set dedup (mirrors handledAuditLogEntries in
+        // ready.ts): each audit entry sanctions at most once.
+        if !self.handled_audit.lock().await.insert(entry_key) {
+            return None;
         }
         // Derogations are exempt from protection sanctions.
         let derogated: bool = derogated_routed(&self.pool, &gid, exec.get()).await;
         if derogated {
-            return;
+            return None;
         }
         // Mode enforcement mirrors avoid*.ts: `allowlist` sanctions
         // anyone without an allowlist entry; `nobody` sanctions anyone
@@ -1279,14 +2103,14 @@ impl Handler {
             }
         };
         if !should {
-            return;
+            return None;
         }
         // OWNER-table entries are derogated too (mirrors `!isOwner`).
         if owner_entry_routed(&self.pool, &gid, exec.get())
             .await
             .is_some()
         {
-            return;
+            return None;
         }
         // TS punish(): `simply` only cancels the action (the caller's
         // restore leg); the +derank / +ban suffixes add the sanction.
@@ -1314,6 +2138,10 @@ impl Handler {
                     .await;
             }
         }
+        Some(ProtectionHit {
+            executor: exec,
+            entry_target,
+        })
     }
 
     /// Claim the per-guild restore slot. Returns false when a restore
@@ -1490,6 +2318,76 @@ impl Handler {
             if let Ok(member) = guild_id.member(&ctx.http, serenity::UserId::new(uid)).await {
                 let _ = member.add_role(&ctx.http, new_role.id).await;
             }
+        }
+    }
+
+    /// Guild-field revert. Mirrors avoidGuildEdit.ts: after punish ran
+    /// inside the guard, each field that drifted from the pre-update
+    /// snapshot is written back in one edit. Icon (needs fresh upload
+    /// bytes) and MFA level (no API setter) cannot be reverted and are
+    /// skipped. Best-effort, never panics.
+    async fn revert_guild_edit(
+        &self,
+        ctx: &serenity::Context,
+        guild_id: serenity::GuildId,
+        old: &serenity::Guild,
+        new: &serenity::PartialGuild,
+    ) {
+        let mut builder = serenity::EditGuild::new();
+        let mut dirty = false;
+        if old.name != new.name {
+            builder = builder.name(old.name.clone());
+            dirty = true;
+        }
+        let afk_changed = match (&old.afk_metadata, &new.afk_metadata) {
+            (Some(o), Some(n)) => {
+                o.afk_channel_id != n.afk_channel_id || o.afk_timeout != n.afk_timeout
+            }
+            (None, None) => false,
+            _ => true,
+        };
+        if afk_changed {
+            match &old.afk_metadata {
+                Some(o) => {
+                    builder = builder
+                        .afk_channel(Some(o.afk_channel_id))
+                        .afk_timeout(o.afk_timeout);
+                }
+                None => {
+                    builder = builder.afk_channel(None);
+                }
+            }
+            dirty = true;
+        }
+        if old.banner != new.banner {
+            builder = builder.banner(old.banner.clone());
+            dirty = true;
+        }
+        if old.default_message_notifications != new.default_message_notifications {
+            builder =
+                builder.default_message_notifications(Some(old.default_message_notifications));
+            dirty = true;
+        }
+        let old_splash = old.discovery_splash.as_ref().map(|h| h.to_string());
+        let new_splash = new.discovery_splash.as_ref().map(|h| h.to_string());
+        if old_splash != new_splash {
+            builder = builder.discovery_splash(old_splash);
+            dirty = true;
+        }
+        if old.explicit_content_filter != new.explicit_content_filter {
+            builder = builder.explicit_content_filter(Some(old.explicit_content_filter));
+            dirty = true;
+        }
+        if old.preferred_locale != new.preferred_locale {
+            builder = builder.preferred_locale(Some(old.preferred_locale.clone()));
+            dirty = true;
+        }
+        if old.premium_progress_bar_enabled != new.premium_progress_bar_enabled {
+            builder = builder.premium_progress_bar_enabled(old.premium_progress_bar_enabled);
+            dirty = true;
+        }
+        if dirty {
+            let _ = guild_id.edit(&ctx.http, builder).await;
         }
     }
 
@@ -2677,11 +3575,10 @@ impl serenity::EventHandler for Handler {
             }
         }
         // Security captcha challenge (mirrors security/onMemberJoin.ts).
-        // Image decision: TS attaches html2png `captcha.png`; no PNG
-        // rasterizer exists in Rust, so attach the self-contained
-        // `captcha_svg` (`captcha.svg`, cards.rs pattern) and keep the
-        // code in text as the readable fallback. Attempts, roles, and
-        // the expiry kick all mirror TS.
+        // Image decision: TS attaches html2png `captcha.png`; Rust
+        // rasterizes `crate::cards::captcha_png` (900x300 parchment, no
+        // Chromium). The code lives only in the image, never in text.
+        // Attempts, roles, and the expiry kick all mirror TS.
         if let Some(raw) = security_cfg_routed(&self.pool, &gid).await {
             if let Ok(cfg) = serde_json::from_str::<serde_json::Value>(&raw) {
                 let disabled = cfg
@@ -2704,7 +3601,7 @@ impl serenity::EventHandler for Handler {
                             .await
                             .unwrap_or_default();
                         let content = format!(
-                            "{}\n\n`{code}`\n\n{}\n-# {}",
+                            "{}\n\n{}\n-# {}",
                             text("event_security")
                                 .replace("${member}", &format!("<@{}>", new_member.user.id.get())),
                             text("event_security_expiry")
@@ -2718,8 +3615,8 @@ impl serenity::EventHandler for Handler {
                                 &ctx.http,
                                 serenity::CreateMessage::new().content(content).add_file(
                                     serenity::CreateAttachment::bytes(
-                                        captcha_svg(&code).into_bytes(),
-                                        "captcha.svg",
+                                        crate::cards::captcha_png(&code),
+                                        "captcha.png",
                                     ),
                                 ),
                             )
@@ -2795,39 +3692,30 @@ impl serenity::EventHandler for Handler {
         user: serenity::User,
         member: Option<serenity::Member>,
     ) {
-        // Mirrors avoidKickMember.ts: audit-log kick attribution.
+        // Mirrors avoidKickMember.ts: audit-log kick attribution
+        // (target-id match, 20s recency, handled-set dedup live inside
+        // the guard now). Kick has no reversal leg in TS.
         {
             use serenity::model::guild::audit_log::{Action, MemberAction};
-            if let Ok(logs) = guild_id
-                .audit_logs(
-                    &ctx.http,
-                    Some(Action::Member(MemberAction::Kick)),
-                    None,
-                    None,
-                    Some(1),
+            let _ = self
+                .protection_guard(
+                    &ctx,
+                    guild_id,
+                    Action::Member(MemberAction::Kick),
+                    "kickmember",
+                    Some(user.id.get()),
                 )
-                .await
-            {
-                if !logs.entries.is_empty() {
-                    self.protection_guard(
-                        &ctx,
-                        guild_id,
-                        Action::Member(MemberAction::Kick),
-                        "kickmember",
-                    )
-                    .await;
-                    // Rich audit embed (mirrors logs/kickLogs.ts).
-                    self.mod_audit_log(
-                        &ctx,
-                        guild_id,
-                        Action::Member(MemberAction::Kick),
-                        "event_srvLogs_guildMemberRemove_description",
-                        user.id.get(),
-                        None,
-                    )
-                    .await;
-                }
-            }
+                .await;
+            // Rich audit embed (mirrors logs/kickLogs.ts).
+            self.mod_audit_log(
+                &ctx,
+                guild_id,
+                Action::Member(MemberAction::Kick),
+                "event_srvLogs_guildMemberRemove_description",
+                user.id.get(),
+                None,
+            )
+            .await;
         }
         // Leaves tracking (mirrors invitesmanager leaves): decrement the
         // recorded inviter, record the leave.
@@ -2947,6 +3835,11 @@ impl serenity::EventHandler for Handler {
     }
 
     async fn message(&self, _ctx: serenity::Context, msg: serenity::Message) {
+        // Mirrors Events/antispam/onNewMessage.ts (its own TS
+        // listener): evaluated before the bot gate so `ignoreBots:
+        // false` configs still scan bot messages; the leg applies
+        // its own exemptions (webhook/self/owner/Admin/bypass).
+        self.antispam_message(&_ctx, &msg).await;
         // Mirrors Events/stats/onNewMessage.ts + ranks/onNewMessage.ts.
         if msg.author.bot {
             return;
@@ -3690,62 +4583,6 @@ impl serenity::EventHandler for Handler {
                 }
             }
         }
-        // Mirrors Events/antispam/onNewMessage.ts sliding window.
-        // Bypass roles/channels are exempt.
-        let bypassed = {
-            let bypass_roles: Vec<String> = antispam_bypass_roles_routed(&self.pool, &gid).await;
-            let bypass_channels: Vec<String> =
-                antispam_bypass_channels_routed(&self.pool, &gid).await;
-            let member_roles: Vec<String> = msg
-                .member
-                .as_ref()
-                .map(|m| m.roles.iter().map(|r| r.get().to_string()).collect())
-                .unwrap_or_default();
-            bypass_channels.contains(&msg.channel_id.get().to_string())
-                || member_roles.iter().any(|r| bypass_roles.contains(r))
-        };
-        if !bypassed {
-            if let Some(cfg) = antispam_cfg_routed(&self.pool, &gid).await {
-                if cfg.enabled {
-                    let now = std::time::SystemTime::now()
-                        .duration_since(std::time::UNIX_EPOCH)
-                        .map(|d| d.as_millis() as i64)
-                        .unwrap_or(0);
-                    let slot = format!("{gid}.{}", msg.author.id.get());
-                    let mut spam = self.spam.lock().await;
-                    let entry = spam.entry(slot).or_default();
-                    entry.push(now);
-                    entry.retain(|t| now - t <= cfg.max_interval_ms);
-                    if crate::commands::antispam::main::window_tripped(
-                        entry.len() as u32,
-                        cfg.threshold,
-                        cfg.max_interval_ms,
-                        cfg.max_interval_ms,
-                    ) {
-                        entry.clear();
-                        drop(spam);
-                        let _ = msg.delete(&_ctx.http).await;
-                        if let Some(guild_id) = msg.guild_id {
-                            if let Ok(mut member) = guild_id.member(&_ctx.http, msg.author.id).await
-                            {
-                                let until = serenity::Timestamp::from_unix_timestamp(
-                                    std::time::SystemTime::now()
-                                        .duration_since(std::time::UNIX_EPOCH)
-                                        .map(|d| d.as_secs() as i64)
-                                        .unwrap_or(0)
-                                        + (cfg.punish_time_ms / 1000).max(60),
-                                );
-                                if let Ok(until) = until {
-                                    let _ = member
-                                        .disable_communication_until_datetime(&_ctx.http, until)
-                                        .await;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
         self.check_punishpub(&_ctx, &gid, &msg).await;
         // Honeypot trap trigger (debounced two-pass pipeline).
         // Mirrors honeypotManager scheduleHoneypotTrigger.
@@ -4141,6 +4978,49 @@ impl serenity::EventHandler for Handler {
                             serenity::CreateChannel::new(title).kind(serenity::ChannelType::Voice);
                         if let Ok(ch) = guild_id.create_channel(&ctx.http, builder).await {
                             let _ = guild_id.move_member(&ctx.http, new.user_id, ch.id).await;
+                            // Staff overwrites (mirrors voiceState.ts:273):
+                            // VOICE_INTERFACE.staff_role is one role id
+                            // (legacy string) or a JSON array; every listed
+                            // role gets join + moderate rights, like TS.
+                            // Roles missing from the guild cache are skipped
+                            // (mirrors the roles.cache.get guard).
+                            if let Some(staff_raw) =
+                                leaf_routed(&self.pool, &gid, "VOICE_INTERFACE.staff_role").await
+                            {
+                                let staff =
+                                    crate::commands::voicedashboard::main::parse_staff_roles(Some(
+                                        &staff_raw,
+                                    ));
+                                // Resolve ids up front: the cache guard is
+                                // not Send and must not be held across awaits.
+                                let staff_ids: Vec<u64> = {
+                                    let cached = ctx.cache.guild(guild_id);
+                                    staff
+                                        .iter()
+                                        .filter_map(|r| r.parse::<u64>().ok())
+                                        .filter(|rid| {
+                                            cached.as_ref().is_none_or(|g| {
+                                                g.roles.contains_key(&serenity::RoleId::new(*rid))
+                                            })
+                                        })
+                                        .collect()
+                                };
+                                for role_id in staff_ids {
+                                    let _ = ch
+                                        .id
+                                        .create_permission(
+                                            &ctx.http,
+                                            serenity::PermissionOverwrite {
+                                                allow: staff_voice_allow(),
+                                                deny: serenity::Permissions::empty(),
+                                                kind: serenity::PermissionOverwriteType::Role(
+                                                    serenity::RoleId::new(role_id),
+                                                ),
+                                            },
+                                        )
+                                        .await;
+                                }
+                            }
                             let _ = tbl_set(
                                 &self.pool,
                                 &gid,
@@ -4629,13 +5509,15 @@ impl serenity::EventHandler for Handler {
 
     async fn guild_role_create(&self, ctx: serenity::Context, new: serenity::Role) {
         use serenity::model::guild::audit_log::{Action, RoleAction};
-        self.protection_guard(
-            &ctx,
-            new.guild_id,
-            Action::Role(RoleAction::Create),
-            "createrole",
-        )
-        .await;
+        let _ = self
+            .protection_guard(
+                &ctx,
+                new.guild_id,
+                Action::Role(RoleAction::Create),
+                "createrole",
+                Some(new.id.get()),
+            )
+            .await;
     }
 
     async fn guild_role_delete(
@@ -4646,13 +5528,15 @@ impl serenity::EventHandler for Handler {
         removed_role_data_if_available: Option<serenity::Role>,
     ) {
         use serenity::model::guild::audit_log::{Action, RoleAction};
-        self.protection_guard(
-            &ctx,
-            guild_id,
-            Action::Role(RoleAction::Delete),
-            "deleterole",
-        )
-        .await;
+        let _ = self
+            .protection_guard(
+                &ctx,
+                guild_id,
+                Action::Role(RoleAction::Delete),
+                "deleterole",
+                Some(removed_role_id.get()),
+            )
+            .await;
         // Live restore (mirrors avoidRoleDelete.ts): rebuild the role
         // from the event payload and re-add the snapshot members.
         self.restore_deleted_role(
@@ -4671,26 +5555,34 @@ impl serenity::EventHandler for Handler {
         new: serenity::Role,
     ) {
         use serenity::model::guild::audit_log::{Action, RoleAction};
-        self.protection_guard(
-            &ctx,
-            new.guild_id,
-            Action::Role(RoleAction::Update),
-            "updaterole",
-        )
-        .await;
+        let _ = self
+            .protection_guard(
+                &ctx,
+                new.guild_id,
+                Action::Role(RoleAction::Update),
+                "updaterole",
+                Some(new.id.get()),
+            )
+            .await;
     }
 
     async fn channel_create(&self, ctx: serenity::Context, channel: serenity::GuildChannel) {
         use serenity::model::guild::audit_log::{Action, ChannelAction};
-        self.protection_guard(
-            &ctx,
-            channel.guild_id,
-            Action::Channel(ChannelAction::Create),
-            "createchannel",
-        )
-        .await;
-        // No TS channel-create log file exists — the protection
-        // guard above is the whole parity surface.
+        let hit = self
+            .protection_guard(
+                &ctx,
+                channel.guild_id,
+                Action::Channel(ChannelAction::Create),
+                "createchannel",
+                Some(channel.id.get()),
+            )
+            .await;
+        // Unauthorized channel-create revert (mirrors
+        // avoidChannelCreate.ts): punish ran inside the guard, then
+        // the created channel is deleted.
+        if hit.is_some() {
+            let _ = channel.id.delete(&ctx.http).await;
+        }
         // Setup embed for freshly created "ihorizon-logs" channels
         // (mirrors logs/ihorizon_logs.ts).
         if channel.name.contains("ihorizon-logs") {
@@ -4714,13 +5606,15 @@ impl serenity::EventHandler for Handler {
         _messages: Option<Vec<serenity::Message>>,
     ) {
         use serenity::model::guild::audit_log::{Action, ChannelAction};
-        self.protection_guard(
-            &ctx,
-            channel.guild_id,
-            Action::Channel(ChannelAction::Delete),
-            "deletechannel",
-        )
-        .await;
+        let _ = self
+            .protection_guard(
+                &ctx,
+                channel.guild_id,
+                Action::Channel(ChannelAction::Delete),
+                "deletechannel",
+                Some(channel.id.get()),
+            )
+            .await;
         // No TS channel-delete log file exists — the protection
         // guard above is the whole parity surface.
         // Purge ticket rows bound to this channel (mirrors
@@ -4745,13 +5639,15 @@ impl serenity::EventHandler for Handler {
         new: serenity::GuildChannel,
     ) {
         use serenity::model::guild::audit_log::{Action, ChannelAction, ChannelOverwriteAction};
-        self.protection_guard(
-            &ctx,
-            new.guild_id,
-            Action::Channel(ChannelAction::Update),
-            "updatechannel",
-        )
-        .await;
+        let _ = self
+            .protection_guard(
+                &ctx,
+                new.guild_id,
+                Action::Channel(ChannelAction::Update),
+                "updatechannel",
+                Some(new.id.get()),
+            )
+            .await;
         // Rich channel-update log (mirrors logs/channelUpdateLogs.ts):
         // latest ChannelUpdate + ChannelOverwriteUpdate audit entries
         // -> #010101 embed with the name/overwrite change list.
@@ -4865,13 +5761,20 @@ impl serenity::EventHandler for Handler {
         banned_user: serenity::User,
     ) {
         use serenity::model::guild::audit_log::{Action, MemberAction};
-        self.protection_guard(
-            &ctx,
-            guild_id,
-            Action::Member(MemberAction::BanAdd),
-            "banmembers",
-        )
-        .await;
+        let hit = self
+            .protection_guard(
+                &ctx,
+                guild_id,
+                Action::Member(MemberAction::BanAdd),
+                "banmembers",
+                Some(banned_user.id.get()),
+            )
+            .await;
+        // Unauthorized-ban reversal (mirrors avoidBanMember.ts):
+        // punish ran inside the guard, then the ban is lifted.
+        if hit.is_some() {
+            let _ = guild_id.unban(&ctx.http, banned_user.id).await;
+        }
         // Rich audit embed (mirrors logs/addBanLogs.ts).
         self.mod_audit_log(
             &ctx,
@@ -4891,13 +5794,20 @@ impl serenity::EventHandler for Handler {
         unbanned_user: serenity::User,
     ) {
         use serenity::model::guild::audit_log::{Action, MemberAction};
-        self.protection_guard(
-            &ctx,
-            guild_id,
-            Action::Member(MemberAction::BanRemove),
-            "unbanmembers",
-        )
-        .await;
+        let hit = self
+            .protection_guard(
+                &ctx,
+                guild_id,
+                Action::Member(MemberAction::BanRemove),
+                "unbanmembers",
+                Some(unbanned_user.id.get()),
+            )
+            .await;
+        // Unauthorized-unban reversal (mirrors avoidUnbanMember.ts):
+        // punish ran inside the guard, then the user is re-banned.
+        if hit.is_some() {
+            let _ = guild_id.ban(&ctx.http, unbanned_user.id, 0).await;
+        }
         // Rich audit embed (mirrors logs/removeBanLogs.ts).
         self.mod_audit_log(
             &ctx,
@@ -4913,28 +5823,60 @@ impl serenity::EventHandler for Handler {
     async fn guild_update(
         &self,
         ctx: serenity::Context,
-        _old_data_if_available: Option<serenity::Guild>,
+        old_data_if_available: Option<serenity::Guild>,
         new_data: serenity::PartialGuild,
     ) {
         use serenity::model::guild::audit_log::Action;
-        self.protection_guard(&ctx, new_data.id, Action::GuildUpdate, "updateguild")
+        let hit = self
+            .protection_guard(
+                &ctx,
+                new_data.id,
+                Action::GuildUpdate,
+                "updateguild",
+                Some(new_data.id.get()),
+            )
             .await;
+        // Guild-field revert (mirrors avoidGuildEdit.ts): restore each
+        // drifted field from the pre-update snapshot.
+        if hit.is_some() {
+            if let Some(old) = old_data_if_available.as_ref() {
+                self.revert_guild_edit(&ctx, new_data.id, old, &new_data)
+                    .await;
+            }
+        }
     }
 
     async fn webhook_update(
         &self,
         ctx: serenity::Context,
         guild_id: serenity::GuildId,
-        _belongs_to_channel_id: serenity::ChannelId,
+        belongs_to_channel_id: serenity::ChannelId,
     ) {
         use serenity::model::guild::audit_log::{Action, WebhookAction};
-        self.protection_guard(
-            &ctx,
-            guild_id,
-            Action::Webhook(WebhookAction::Create),
-            "webhook",
-        )
-        .await;
+        let hit = self
+            .protection_guard(
+                &ctx,
+                guild_id,
+                Action::Webhook(WebhookAction::Create),
+                "webhook",
+                // TS passes the channel id as the audit target
+                // (avoidWebhookModifying.ts), kept verbatim.
+                Some(belongs_to_channel_id.get()),
+            )
+            .await;
+        // Webhook-create revert (mirrors avoidWebhookModifying.ts):
+        // punish ran inside the guard, then the created webhook is
+        // deleted by audit-target id.
+        if let Some(hit) = hit {
+            if let Ok(hooks) = guild_id.webhooks(&ctx.http).await {
+                for hook in hooks
+                    .iter()
+                    .filter(|h| Some(h.id.get()) == hit.entry_target)
+                {
+                    let _ = hook.delete(&ctx.http).await;
+                }
+            }
+        }
     }
 
     async fn guild_member_update(
@@ -4990,24 +5932,28 @@ impl serenity::EventHandler for Handler {
         let before = admin_roles(&old);
         if admin_roles(&new).iter().any(|r| !before.contains(r)) {
             use serenity::model::guild::audit_log::{Action, MemberAction};
-            self.protection_guard(
-                &ctx,
-                new.guild_id,
-                Action::Member(MemberAction::RoleUpdate),
-                "add_admin_roles",
-            )
-            .await;
+            let _ = self
+                .protection_guard(
+                    &ctx,
+                    new.guild_id,
+                    Action::Member(MemberAction::RoleUpdate),
+                    "add_admin_roles",
+                    Some(new.user.id.get()),
+                )
+                .await;
         }
         // Any role add/remove (mirrors avoidMemberUpdate.ts).
         if old.roles != new.roles {
             use serenity::model::guild::audit_log::{Action, MemberAction};
-            self.protection_guard(
-                &ctx,
-                new.guild_id,
-                Action::Member(MemberAction::RoleUpdate),
-                "updatemember",
-            )
-            .await;
+            let _ = self
+                .protection_guard(
+                    &ctx,
+                    new.guild_id,
+                    Action::Member(MemberAction::RoleUpdate),
+                    "updatemember",
+                    Some(new.user.id.get()),
+                )
+                .await;
         }
         // Rich role log (mirrors logs/rolesLogs.ts): latest
         // MemberRoleUpdate audit entry for the target -> #010101
@@ -5518,6 +6464,19 @@ impl serenity::EventHandler for Handler {
         } else if id.starts_with(crate::commands::voicedashboard::main::TEMPVOICE_PREFIX) {
             let _ = crate::commands::voicedashboard::main::handle_tempvoice_button(
                 &ctx, &comp, &self.pool,
+            )
+            .await;
+        } else if let Some(action) = legacy_tempvoice_action(id) {
+            // Legacy dashboard buttons (temporary_voice_*_button, from panels
+            // posted by !set-text-channel.ts) predate the tempvoice: ids.
+            // Rewrite onto the new handler so old panels keep working.
+            let mut legacy = comp.clone();
+            legacy.data.custom_id = format!(
+                "{}{action}",
+                crate::commands::voicedashboard::main::TEMPVOICE_PREFIX
+            );
+            let _ = crate::commands::voicedashboard::main::handle_tempvoice_button(
+                &ctx, &legacy, &self.pool,
             )
             .await;
         } else if id == crate::commands::welcomer_panel::main::WELCOMER_SECTION_ID
@@ -6245,6 +7204,78 @@ mod restore_tests {
 }
 
 #[cfg(test)]
+mod protection_audit_tests {
+    use super::*;
+
+    #[test]
+    fn relevant_when_target_matches_and_fresh() {
+        assert!(audit_entry_relevant(
+            Some(10),
+            7,
+            99,
+            1_000,
+            1_000 + 5_000,
+            Some(10)
+        ));
+    }
+
+    #[test]
+    fn irrelevant_on_target_mismatch_or_missing() {
+        assert!(!audit_entry_relevant(
+            Some(11),
+            7,
+            99,
+            1_000,
+            6_000,
+            Some(10)
+        ));
+        assert!(!audit_entry_relevant(Some(10), 7, 99, 1_000, 6_000, None));
+        assert!(!audit_entry_relevant(None, 7, 99, 1_000, 6_000, Some(10)));
+    }
+
+    #[test]
+    fn irrelevant_when_executor_is_bot_or_missing() {
+        assert!(!audit_entry_relevant(
+            Some(10),
+            99,
+            99,
+            1_000,
+            6_000,
+            Some(10)
+        ));
+        assert!(!audit_entry_relevant(
+            Some(10),
+            0,
+            99,
+            1_000,
+            6_000,
+            Some(10)
+        ));
+    }
+
+    #[test]
+    fn irrelevant_when_stale() {
+        assert!(!audit_entry_relevant(
+            Some(10),
+            7,
+            99,
+            1_000,
+            1_000 + AUDIT_LOG_WINDOW_MS + 1,
+            Some(10)
+        ));
+        // Exactly at the window edge still counts.
+        assert!(audit_entry_relevant(
+            Some(10),
+            7,
+            99,
+            1_000,
+            1_000 + AUDIT_LOG_WINDOW_MS,
+            Some(10)
+        ));
+    }
+}
+
+#[cfg(test)]
 mod welcomer_tests {
     use super::*;
 
@@ -6300,22 +7331,232 @@ mod security_tests {
     }
 
     #[test]
-    fn captcha_svg_is_self_contained_and_embeds_code() {
-        let svg = captcha_svg("ABC123K");
-        assert!(svg.starts_with("<svg"), "{svg}");
-        assert!(svg.contains("ABC123K"), "{svg}");
-        assert!(svg.contains("#d6d2c8"), "{svg}");
-        assert!(svg.contains("#1c130a"), "{svg}");
-        // Self-contained: no external refs (the xmlns namespace URI is
-        // mandatory and never fetched over the network).
-        assert!(!svg.contains("<image"), "{svg}");
-        assert!(!svg.contains("xlink:href"), "{svg}");
+    fn captcha_png_is_real_png() {
+        let png = crate::cards::captcha_png("ABC123K");
+        assert_eq!(&png[0..8], &[137, 80, 78, 71, 13, 10, 26, 10]);
+        assert!(!png.is_empty());
+    }
+}
+
+#[cfg(test)]
+mod antispam_tests {
+    use super::*;
+
+    fn cached(author: u64, sent_at: i64, spam: bool) -> CachedSpamMessage {
+        CachedSpamMessage {
+            message_id: 1,
+            channel_id: 2,
+            author_id: author,
+            sent_at,
+            is_spam: spam,
+        }
+    }
+
+    fn open_gate() -> AntispamGate {
+        AntispamGate {
+            bot_admin: true,
+            enabled: true,
+            webhook: false,
+            self_msg: false,
+            owner: false,
+            admin: false,
+            bot_ignored: false,
+            bypass: false,
+        }
     }
 
     #[test]
-    fn captcha_svg_escapes_code() {
-        let svg = captcha_svg("A&C<K>");
-        assert!(!svg.contains("A&C<K>"), "{svg}");
-        assert!(svg.contains("A&amp;C&lt;K&gt;"), "{svg}");
+    fn gate_passes_only_when_fully_clear() {
+        assert!(!antispam_skipped(&open_gate()));
+        for gate in [
+            AntispamGate {
+                bot_admin: false,
+                ..open_gate()
+            },
+            AntispamGate {
+                enabled: false,
+                ..open_gate()
+            },
+            AntispamGate {
+                webhook: true,
+                ..open_gate()
+            },
+            AntispamGate {
+                self_msg: true,
+                ..open_gate()
+            },
+            AntispamGate {
+                owner: true,
+                ..open_gate()
+            },
+            AntispamGate {
+                admin: true,
+                ..open_gate()
+            },
+            AntispamGate {
+                bot_ignored: true,
+                ..open_gate()
+            },
+            AntispamGate {
+                bypass: true,
+                ..open_gate()
+            },
+        ] {
+            assert!(antispam_skipped(&gate), "{gate:?}");
+        }
+    }
+
+    #[test]
+    fn purge_drops_only_expired_messages() {
+        let now = 1_000_000;
+        let mut msgs = vec![
+            cached(1, now - ANTISPAM_TTL_MS, false),
+            cached(2, now - ANTISPAM_TTL_MS - 1, false),
+            cached(3, now, false),
+        ];
+        antispam_purge_old(&mut msgs, now);
+        let authors: Vec<u64> = msgs.iter().map(|m| m.author_id).collect();
+        assert_eq!(authors, vec![1, 3]);
+    }
+
+    #[test]
+    fn prune_flags_keeps_only_active_authors() {
+        let mut flags: HashMap<String, u32> = [
+            ("7".to_string(), 2),
+            ("8".to_string(), 1),
+            ("bogus".to_string(), 9),
+        ]
+        .into_iter()
+        .collect();
+        antispam_prune_flags(&mut flags, &[cached(7, 0, false)]);
+        assert_eq!(flags.len(), 1);
+        assert_eq!(flags.get("7"), Some(&2));
+    }
+
+    #[test]
+    fn elapsed_first_sight_never_trips_gap() {
+        // No prior message: elapsed is maxInterval + 1, like TS.
+        let elapsed = antispam_elapsed(&[], 9, 5000, 1900);
+        assert_eq!(elapsed, Some(1901));
+        assert!(!antispam_gap_tripped(elapsed, 1900));
+        // Tight gap trips, wide gap does not.
+        let msgs = vec![cached(9, 4000, false)];
+        assert!(antispam_gap_tripped(
+            antispam_elapsed(&msgs, 9, 5000, 1900),
+            1900
+        ));
+        assert!(!antispam_gap_tripped(
+            antispam_elapsed(&msgs, 9, 7000, 1900),
+            1900
+        ));
+        assert!(!antispam_gap_tripped(None, 1900));
+    }
+
+    #[test]
+    fn threshold_needs_positive_config_and_enough_flags() {
+        assert!(antispam_threshold_tripped(3, 3));
+        assert!(!antispam_threshold_tripped(2, 3));
+        assert!(!antispam_threshold_tripped(99, 0));
+    }
+
+    #[test]
+    fn chunks_match_bulk_delete_slices() {
+        let ids: Vec<u64> = (0..32).collect();
+        let parts = antispam_chunks(&ids, ANTISPAM_BULK_CHUNK);
+        assert_eq!(parts.len(), 3);
+        assert_eq!(parts[0].len(), 15);
+        assert_eq!(parts[1].len(), 15);
+        assert_eq!(parts[2].len(), 2);
+        assert!(antispam_chunks::<u64>(&ids, 0).is_empty());
+    }
+
+    #[test]
+    fn warn_text_fills_mentions_and_suffix() {
+        let out = antispam_warn_text(
+            "Warning ${mentionedMembers}, stop.",
+            "You will be muted.",
+            "<@1>, <@2>",
+        );
+        assert_eq!(out, "Warning <@1>, <@2>, stop.You will be muted.");
+    }
+
+    #[test]
+    fn pipeline_constants_mirror_ts() {
+        assert_eq!(ANTISPAM_DEBOUNCE_MS, 5000);
+        assert_eq!(ANTISPAM_TTL_MS, 8 * 60 * 60 * 1000);
+        assert_eq!(ANTISPAM_BULK_CHUNK, 15);
+        assert_eq!(ANTISPAM_CHANNEL_BATCH, 3);
+        assert_eq!(ANTISPAM_CHANNEL_BATCH_DELAY_MS, 100);
+        assert_eq!(ANTISPAM_WARN_DELETE_SECS, 4);
+    }
+}
+
+#[cfg(test)]
+mod legacy_voice_tests {
+    use super::*;
+
+    #[test]
+    fn legacy_buttons_map_to_tempvoice_actions() {
+        let cases = [
+            ("temporary_voice_limit_button", "limit"),
+            ("temporary_voice_name_button", "name"),
+            ("temporary_voice_claim_button", "claim"),
+            ("temporary_voice_privacy_button", "privacy"),
+            ("temporary_voice_region_button", "region"),
+            ("temporary_voice_trust_button", "trust"),
+            ("temporary_voice_block_button", "block"),
+            ("temporary_voice_transfer_button", "transfer"),
+            ("temporary_voice_unblock_button", "unblock"),
+            ("temporary_voice_untrust_button", "untrust"),
+            ("temporary_voice_delete_button", "delete"),
+        ];
+        assert_eq!(cases.len(), 11);
+        for (legacy, action) in cases {
+            assert_eq!(legacy_tempvoice_action(legacy), Some(action), "{legacy}");
+            // Rewritten id lands on the tempvoice handler prefix.
+            let rewritten = format!(
+                "{}{action}",
+                crate::commands::voicedashboard::main::TEMPVOICE_PREFIX
+            );
+            assert!(rewritten.starts_with(crate::commands::voicedashboard::main::TEMPVOICE_PREFIX));
+        }
+    }
+
+    #[test]
+    fn legacy_spacers_and_unknown_ids_map_to_none() {
+        for id in [
+            "temporary_voice_disable1_button",
+            "temporary_voice_disable2_button",
+            "temporary_voice_disable3_button",
+            "temporary_voice_disable4_button",
+            "tempvoice:limit",
+            "",
+        ] {
+            assert_eq!(legacy_tempvoice_action(id), None, "{id}");
+        }
+    }
+
+    #[test]
+    fn staff_allow_covers_join_and_moderate_bits() {
+        use poise::serenity_prelude::Permissions as P;
+        let allow = staff_voice_allow();
+        for p in [
+            P::VIEW_CHANNEL,
+            P::CONNECT,
+            P::STREAM,
+            P::SPEAK,
+            P::SEND_MESSAGES,
+            P::USE_APPLICATION_COMMANDS,
+            P::ATTACH_FILES,
+            P::ADD_REACTIONS,
+            P::MUTE_MEMBERS,
+            P::DEAFEN_MEMBERS,
+            P::PRIORITY_SPEAKER,
+            P::KICK_MEMBERS,
+        ] {
+            assert!(allow.contains(p), "{p:?}");
+        }
+        // Staff get rights, not an empty allow set.
+        assert!(!allow.is_empty());
     }
 }

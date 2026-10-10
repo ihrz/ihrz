@@ -7,6 +7,208 @@ pub const WELCOMER_SECTIONS: [&str; 6] = ["join", "leave", "dm", "roles", "chann
 pub const PANEL_ACCENT: u32 = 0xffb3cc;
 const PANEL_SECTION_FIELD: &str = "welcomerPanelSection";
 const PENDING_ROLES_FIELD: &str = "welcomerPendingRoles";
+/// Ephemeral banner picker (frame vs size target). The panel is
+/// stateless per interaction (unlike the TS in-memory collector), so
+/// the open picker persists here until a pick, reset, or section
+/// switch clears it. Values: "frame" | "size:text" | "size:avatar".
+const BANNER_PICKER_FIELD: &str = "welcomerBannerPicker";
+
+/// String-select ids for the banner editors. Mirror welcomerPanel.ts.
+pub const BANNER_PROP_ID: &str = "welcomer-banner-prop";
+pub const BANNER_FRAME_PICK_ID: &str = "welcomer-frame-pick";
+pub const BANNER_SIZE_PICK_ID: &str = "welcomer-size-pick";
+
+/// Defaults mirror DEFAULT_IMAGE_CONFIG in welcomerPanel.ts.
+pub const DEFAULT_BANNER_BACKGROUND: &str =
+    "https://img.freepik.com/vecteurs-libre/fond-courbe-bleue_53876-113112.jpg";
+pub const DEFAULT_BANNER_FRAME: &str = "status";
+pub const DEFAULT_BANNER_TEXT_COLOUR: &str = "#000000";
+pub const DEFAULT_BANNER_TEXT_SIZE: &str = "40px";
+pub const DEFAULT_BANNER_AVATAR_SIZE: &str = "140px";
+
+/// Banner prop actions mirror BannerPropAction in welcomerPanel.ts.
+pub const BANNER_PROPS: [&str; 6] = [
+    "change_background",
+    "change_frame",
+    "change_text_colour",
+    "change_text_message",
+    "change_text_size",
+    "change_avatar_size",
+];
+/// Frame values mirror profilePictureRound ("status" | "hexProfileColor").
+pub const BANNER_FRAMES: [&str; 2] = ["hexProfileColor", "status"];
+/// Size values mirror buildSizePickerRow (text 0.5..4, avatar 0.5..3).
+pub const BANNER_TEXT_SIZES: [&str; 6] = ["20px", "40px", "60px", "80px", "120px", "160px"];
+pub const BANNER_AVATAR_SIZES: [&str; 5] = ["70px", "140px", "210px", "280px", "430px"];
+/// Size labels mirror `${var_text_size}<mult>` / `${var_avatar_size}<mult>`.
+pub const BANNER_TEXT_MULTS: [&str; 6] = ["0.5", "1", "1.5", "2", "3", "4"];
+pub const BANNER_AVATAR_MULTS: [&str; 5] = ["0.5", "1", "1.5", "2", "3"];
+/// TS modal bounds for the banner editors.
+pub const BANNER_URL_MAX_CHARS: usize = 300;
+pub const BANNER_MESSAGE_MIN_CHARS: usize = 15;
+pub const BANNER_MESSAGE_MAX_CHARS: usize = 100;
+
+/// Join banner options. Mirrors DatabaseStructure.JoinBannerOptions.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct BannerConfig {
+    pub background_url: String,
+    pub frame: String,
+    pub text_colour: String,
+    pub message: Option<String>,
+    pub text_size: String,
+    pub avatar_size: String,
+}
+
+impl Default for BannerConfig {
+    fn default() -> Self {
+        BannerConfig {
+            background_url: DEFAULT_BANNER_BACKGROUND.to_string(),
+            frame: DEFAULT_BANNER_FRAME.to_string(),
+            text_colour: DEFAULT_BANNER_TEXT_COLOUR.to_string(),
+            message: None,
+            text_size: DEFAULT_BANNER_TEXT_SIZE.to_string(),
+            avatar_size: DEFAULT_BANNER_AVATAR_SIZE.to_string(),
+        }
+    }
+}
+
+/// Open contextual picker. Mirrors ContextualPicker in welcomerPanel.ts.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub enum BannerPicker {
+    #[default]
+    None,
+    Frame,
+    TextSize,
+    AvatarSize,
+}
+
+impl BannerPicker {
+    fn stored(self) -> Option<String> {
+        match self {
+            BannerPicker::None => None,
+            BannerPicker::Frame => Some("frame".to_string()),
+            BannerPicker::TextSize => Some("size:text".to_string()),
+            BannerPicker::AvatarSize => Some("size:avatar".to_string()),
+        }
+    }
+
+    fn parse(s: &str) -> BannerPicker {
+        match s {
+            "frame" => BannerPicker::Frame,
+            "size:text" => BannerPicker::TextSize,
+            "size:avatar" => BannerPicker::AvatarSize,
+            _ => BannerPicker::None,
+        }
+    }
+}
+
+/// Validate a banner prop action. Mirrors BannerPropAction.
+pub fn banner_prop(s: &str) -> Option<&'static str> {
+    BANNER_PROPS.iter().find(|v| **v == s).copied()
+}
+
+/// Hex colour check. Mirrors isValidColor (`/^#([0-9a-f]{3}){1,2}$/i`).
+pub fn is_valid_hex_colour(s: &str) -> bool {
+    let hex = s.strip_prefix('#').unwrap_or("\x00");
+    (hex.len() == 3 || hex.len() == 6) && hex.bytes().all(|b| b.is_ascii_hexdigit())
+}
+
+/// Frame enum check. Mirrors profilePictureRound ("status" | "hexProfileColor").
+pub fn banner_frame(s: &str) -> Option<&'static str> {
+    BANNER_FRAMES.iter().find(|v| **v == s).copied()
+}
+
+/// Size enum checks. Mirror the buildSizePickerRow option values.
+pub fn banner_text_size(s: &str) -> Option<&'static str> {
+    BANNER_TEXT_SIZES.iter().find(|v| **v == s).copied()
+}
+
+pub fn banner_avatar_size(s: &str) -> Option<&'static str> {
+    BANNER_AVATAR_SIZES.iter().find(|v| **v == s).copied()
+}
+
+/// Background URL check (no network): http(s) scheme, 7..=300 chars
+/// like the TS background modal (minLength 7, maxLength 300), plus the
+/// isImageUrl spirit (must look like a fetchable image URL).
+pub fn is_valid_background_url(s: &str) -> bool {
+    let url = s.trim();
+    let len = url.chars().count();
+    (7..=BANNER_URL_MAX_CHARS).contains(&len)
+        && (url.starts_with("http://") || url.starts_with("https://"))
+        && !url.contains(char::is_whitespace)
+}
+
+/// Banner message check: 15..=100 chars like the TS text modal
+/// (minLength 15, maxLength 100).
+pub fn validate_banner_message(s: &str) -> bool {
+    let len = s.trim().chars().count();
+    (BANNER_MESSAGE_MIN_CHARS..=BANNER_MESSAGE_MAX_CHARS).contains(&len)
+}
+
+/// Read the banner config from the blob, falling back to
+/// DEFAULT_IMAGE_CONFIG per field like openWelcomerPanel.
+pub fn banner_config(cfg: &serde_json::Value, default_message: &str) -> BannerConfig {
+    let banner = cfg.get("joinbanner");
+    let field = |name: &str| banner.and_then(|b| b.get(name)).and_then(|v| v.as_str());
+    BannerConfig {
+        background_url: field("backgroundURL")
+            .filter(|s| !s.is_empty())
+            .unwrap_or(DEFAULT_BANNER_BACKGROUND)
+            .to_string(),
+        frame: field("profilePictureRound")
+            .and_then(banner_frame)
+            .unwrap_or(DEFAULT_BANNER_FRAME)
+            .to_string(),
+        text_colour: field("textColour")
+            .filter(|s| is_valid_hex_colour(s))
+            .unwrap_or(DEFAULT_BANNER_TEXT_COLOUR)
+            .to_string(),
+        message: field("message")
+            .filter(|s| !s.trim().is_empty())
+            .map(String::from)
+            .or_else(|| Some(default_message.to_string())),
+        text_size: field("textSize")
+            .and_then(banner_text_size)
+            .unwrap_or(DEFAULT_BANNER_TEXT_SIZE)
+            .to_string(),
+        avatar_size: field("avatarSize")
+            .and_then(banner_avatar_size)
+            .unwrap_or(DEFAULT_BANNER_AVATAR_SIZE)
+            .to_string(),
+    }
+}
+
+/// Serialize the banner config back to the joinbanner blob shape.
+pub fn banner_config_value(b: &BannerConfig) -> serde_json::Value {
+    let mut map = serde_json::Map::new();
+    map.insert(
+        "backgroundURL".to_string(),
+        serde_json::Value::String(b.background_url.clone()),
+    );
+    map.insert(
+        "profilePictureRound".to_string(),
+        serde_json::Value::String(b.frame.clone()),
+    );
+    map.insert(
+        "textColour".to_string(),
+        serde_json::Value::String(b.text_colour.clone()),
+    );
+    if let Some(message) = &b.message {
+        map.insert(
+            "message".to_string(),
+            serde_json::Value::String(message.clone()),
+        );
+    }
+    map.insert(
+        "textSize".to_string(),
+        serde_json::Value::String(b.text_size.clone()),
+    );
+    map.insert(
+        "avatarSize".to_string(),
+        serde_json::Value::String(b.avatar_size.clone()),
+    );
+    serde_json::Value::Object(map)
+}
 
 /// Validate a panel section name. Mirrors the WelcomerSection union.
 pub fn welcomer_section(s: &str) -> Option<&'static str> {
@@ -23,6 +225,8 @@ pub struct PanelState {
     pub join_channel: Option<String>,
     pub leave_channel: Option<String>,
     pub banner_state: String,
+    pub banner: BannerConfig,
+    pub banner_picker: BannerPicker,
     pub join_embed_id: Option<String>,
     pub leave_embed_id: Option<String>,
     pub join_text: bool,
@@ -41,7 +245,15 @@ fn blob_bool(cfg: &serde_json::Value, field: &str) -> bool {
 
 /// Load the panel snapshot. Mirrors the Promise.all db reads in
 /// openWelcomerPanel (message truncation to 1010 chars included).
-pub async fn load_panel_state(pool: &crate::db::Pool, gid: &str, section: &str) -> PanelState {
+/// `default_message` fills the banner message slot like
+/// `lang.setjoinmessage_image_default_text` in TS (callers pass the
+/// resolved lang string; no live preview image is rendered).
+pub async fn load_panel_state(
+    pool: &crate::db::Pool,
+    gid: &str,
+    section: &str,
+    default_message: &str,
+) -> PanelState {
     let cfg = crate::commands::guildconfig::load_guild_config(pool, gid).await;
     let trunc = |v: Option<String>| v.map(|s| s.chars().take(1010).collect());
     let roles = match cfg.get("joinroles") {
@@ -61,6 +273,12 @@ pub async fn load_panel_state(pool: &crate::db::Pool, gid: &str, section: &str) 
         join_channel: blob_str(&cfg, "join"),
         leave_channel: blob_str(&cfg, "leave"),
         banner_state: blob_str(&cfg, "joinbannerStates").unwrap_or_else(|| "on".to_string()),
+        banner: banner_config(&cfg, default_message),
+        banner_picker: cfg
+            .get(BANNER_PICKER_FIELD)
+            .and_then(|v| v.as_str())
+            .map(BannerPicker::parse)
+            .unwrap_or_default(),
         join_embed_id: blob_str(&cfg, "joinEmbedId"),
         leave_embed_id: blob_str(&cfg, "leaveEmbedId"),
         join_text: blob_bool(&cfg, "joinTextEnabled"),
@@ -242,10 +460,62 @@ pub fn panel_description(st: &PanelState, lang_code: &str) -> String {
             } else {
                 t(lang_code, "var_disabled")
             };
+            // No live preview (unlike the TS MediaGallery): the stored
+            // prop values are listed so the panel stays dependency-free.
+            let b = &st.banner;
+            let message = b.message.clone().unwrap_or_default();
             [
                 head,
                 format!("### {}", t(lang_code, "setjoinmessage_var_image_card")),
                 status,
+                format!(
+                    "**{}**\n```{}```",
+                    t(
+                        lang_code,
+                        "setjoinmessage_change_image_propreties_background"
+                    ),
+                    b.background_url,
+                ),
+                format!(
+                    "**{}**\n`{}`",
+                    t(
+                        lang_code,
+                        "setjoinmessage_change_image_propreties_frame_color"
+                    ),
+                    b.frame,
+                ),
+                format!(
+                    "**{}**\n`{}`",
+                    t(
+                        lang_code,
+                        "setjoinmessage_change_image_propreties_text_colour"
+                    ),
+                    b.text_colour,
+                ),
+                format!(
+                    "**{}**\n```{}```",
+                    t(
+                        lang_code,
+                        "setjoinmessage_change_image_propreties_text_message"
+                    ),
+                    message,
+                ),
+                format!(
+                    "**{}**\n`{}`",
+                    t(
+                        lang_code,
+                        "setjoinmessage_change_image_propreties_text_size"
+                    ),
+                    b.text_size,
+                ),
+                format!(
+                    "**{}**\n`{}`",
+                    t(
+                        lang_code,
+                        "setjoinmessage_change_image_propreties_avatar_size"
+                    ),
+                    b.avatar_size,
+                ),
             ]
             .join("\n")
         }
@@ -254,6 +524,115 @@ pub fn panel_description(st: &PanelState, lang_code: &str) -> String {
 
 fn button(id: &str, label: String, style: serenity::ButtonStyle) -> serenity::CreateButton {
     serenity::CreateButton::new(id).label(label).style(style)
+}
+
+/// Banner prop picker. Mirrors buildPropSelectRow (6 prop actions).
+fn banner_prop_row(lang_code: &str) -> serenity::CreateActionRow {
+    let opts: Vec<serenity::CreateSelectMenuOption> = [
+        (
+            "setjoinmessage_change_image_propreties_background",
+            "change_background",
+        ),
+        (
+            "setjoinmessage_change_image_propreties_frame_color",
+            "change_frame",
+        ),
+        (
+            "setjoinmessage_change_image_propreties_text_colour",
+            "change_text_colour",
+        ),
+        (
+            "setjoinmessage_change_image_propreties_text_message",
+            "change_text_message",
+        ),
+        (
+            "setjoinmessage_change_image_propreties_text_size",
+            "change_text_size",
+        ),
+        (
+            "setjoinmessage_change_image_propreties_avatar_size",
+            "change_avatar_size",
+        ),
+    ]
+    .iter()
+    .map(|(key, value)| serenity::CreateSelectMenuOption::new(t(lang_code, key), *value))
+    .collect();
+    serenity::CreateActionRow::SelectMenu(
+        serenity::CreateSelectMenu::new(
+            BANNER_PROP_ID,
+            serenity::CreateSelectMenuKind::String { options: opts },
+        )
+        .placeholder(t(lang_code, "setjoinmessage_change_image_button_title")),
+    )
+}
+
+/// Frame picker. Mirrors buildFramePickerRow (hexProfileColor | status).
+fn banner_frame_row(lang_code: &str) -> serenity::CreateActionRow {
+    let opts = [
+        (
+            "setjoinmessage_change_image_menu_frame_color_profil",
+            "hexProfileColor",
+        ),
+        (
+            "setjoinmessage_change_image_menu_frame_status_profil",
+            "status",
+        ),
+    ]
+    .iter()
+    .map(|(key, value)| serenity::CreateSelectMenuOption::new(t(lang_code, key), *value))
+    .collect();
+    serenity::CreateActionRow::SelectMenu(
+        serenity::CreateSelectMenu::new(
+            BANNER_FRAME_PICK_ID,
+            serenity::CreateSelectMenuKind::String { options: opts },
+        )
+        .placeholder(t(
+            lang_code,
+            "setjoinmessage_change_image_propreties_frame_color",
+        )),
+    )
+}
+
+/// Size picker for the text or avatar target. Mirrors
+/// buildSizePickerRow (mult labels, px values).
+fn banner_size_row(lang_code: &str, target: &str) -> serenity::CreateActionRow {
+    let opts: Vec<serenity::CreateSelectMenuOption> = if target == "text" {
+        BANNER_TEXT_SIZES
+            .iter()
+            .zip(BANNER_TEXT_MULTS.iter())
+            .map(|(value, mult)| {
+                serenity::CreateSelectMenuOption::new(
+                    format!("{}{mult}", t(lang_code, "setjoinmessage_var_text_size")),
+                    *value,
+                )
+            })
+            .collect()
+    } else {
+        BANNER_AVATAR_SIZES
+            .iter()
+            .zip(BANNER_AVATAR_MULTS.iter())
+            .map(|(value, mult)| {
+                serenity::CreateSelectMenuOption::new(
+                    format!("{}{mult}", t(lang_code, "setjoinmessage_var_avatar_size")),
+                    *value,
+                )
+            })
+            .collect()
+    };
+    serenity::CreateActionRow::SelectMenu(
+        serenity::CreateSelectMenu::new(
+            BANNER_SIZE_PICK_ID,
+            serenity::CreateSelectMenuKind::String { options: opts },
+        )
+        .placeholder(t(
+            lang_code,
+            if target == "text" {
+                "setjoinmessage_change_image_propreties_text_size"
+            } else {
+                "setjoinmessage_change_image_propreties_avatar_size"
+            },
+        )),
+    )
 }
 
 /// Section picker + per-section controls. Mirrors buildSectionSelectRow
@@ -441,6 +820,16 @@ pub fn panel_rows(st: &PanelState, lang_code: &str) -> Vec<serenity::CreateActio
                     },
                 ),
             ]));
+            // Prop editor + contextual picker (frame / size). Mirrors
+            // buildPropSelectRow + buildFramePickerRow +
+            // buildSizePickerRow. No live preview is attached.
+            rows.push(banner_prop_row(lang_code));
+            match st.banner_picker {
+                BannerPicker::Frame => rows.push(banner_frame_row(lang_code)),
+                BannerPicker::TextSize => rows.push(banner_size_row(lang_code, "text")),
+                BannerPicker::AvatarSize => rows.push(banner_size_row(lang_code, "avatar")),
+                BannerPicker::None => {}
+            }
         }
     }
     rows
@@ -455,7 +844,8 @@ pub async fn welcomer_panel(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let gid = guild_id.get().to_string();
     let pool = &ctx.data().pool;
     let lang_code = crate::db::guild_lang(pool, Some(guild_id.get())).await;
-    let st = load_panel_state(pool, &gid, "join").await;
+    let default_message = t(&lang_code, "setjoinmessage_image_default_text");
+    let st = load_panel_state(pool, &gid, "join", &default_message).await;
     let embed = serenity::CreateEmbed::default()
         .colour(PANEL_ACCENT)
         .description(panel_description(&st, &lang_code));
@@ -512,7 +902,13 @@ async fn rerender(
         .and_then(|v| v.as_str())
         .unwrap_or("join")
         .to_string();
-    let st = load_panel_state(pool, gid, &section).await;
+    let st = load_panel_state(
+        pool,
+        gid,
+        &section,
+        &t(lang_code, "setjoinmessage_image_default_text"),
+    )
+    .await;
     let embed = serenity::CreateEmbed::default()
         .colour(PANEL_ACCENT)
         .description(panel_description(&st, lang_code));
@@ -535,7 +931,38 @@ async fn set_section(pool: &crate::db::Pool, gid: &str, section: &str) {
         PANEL_SECTION_FIELD,
         Some(serde_json::Value::String(section.to_string())),
     );
+    // Section switch closes the contextual banner picker (like TS
+    // `state.picker = null`).
+    crate::commands::guildconfig::welcomer_set(&mut cfg, BANNER_PICKER_FIELD, None);
     let _ = crate::commands::guildconfig::save_guild_config(pool, gid, &cfg).await;
+}
+
+/// Persist the banner config + picker state. Mirrors saveBanner plus
+/// the picker transitions in handlePropAction.
+async fn save_banner(
+    pool: &crate::db::Pool,
+    gid: &str,
+    banner: &BannerConfig,
+    picker: BannerPicker,
+) -> anyhow::Result<()> {
+    let mut cfg = crate::commands::guildconfig::load_guild_config(pool, gid).await;
+    crate::commands::guildconfig::welcomer_set(
+        &mut cfg,
+        "joinbanner",
+        Some(banner_config_value(banner)),
+    );
+    crate::commands::guildconfig::welcomer_set(
+        &mut cfg,
+        BANNER_PICKER_FIELD,
+        picker.stored().map(serde_json::Value::String),
+    );
+    crate::commands::guildconfig::save_guild_config(pool, gid, &cfg).await
+}
+
+/// Load the banner config with the lang default message.
+async fn load_banner(pool: &crate::db::Pool, gid: &str, lang_code: &str) -> BannerConfig {
+    let cfg = crate::commands::guildconfig::load_guild_config(pool, gid).await;
+    banner_config(&cfg, &t(lang_code, "setjoinmessage_image_default_text"))
 }
 
 async fn ephemeral(
@@ -557,7 +984,8 @@ async fn ephemeral(
 
 /// Component dispatch. Mirrors the panel collector (section switch,
 /// message/embed/dm modals + resets, toggles, channel + role picks,
-/// dangerous-role confirm, banner reset/toggle).
+/// dangerous-role confirm, banner reset/toggle + 6 banner prop editors
+/// with hex/enum validation and prop/size picker rows; no live preview).
 pub async fn handle_welcomer_component(
     ctx: &serenity::Context,
     comp: &serenity::ComponentInteraction,
@@ -957,11 +1385,13 @@ pub async fn handle_welcomer_component(
         return Ok(());
     }
 
-    // Banner reset + on/off toggle (image editing stays blocked).
+    // Banner reset (defaults like TS) + on/off toggle.
     if id == "welcomer-banner-reset" {
-        let mut cfg = crate::commands::guildconfig::load_guild_config(pool, &gid).await;
-        crate::commands::guildconfig::welcomer_set(&mut cfg, "joinbanner", None);
-        crate::commands::guildconfig::save_guild_config(pool, &gid, &cfg).await?;
+        let banner = BannerConfig {
+            message: Some(t(&lang_code, "setjoinmessage_image_default_text")),
+            ..BannerConfig::default()
+        };
+        save_banner(pool, &gid, &banner, BannerPicker::None).await?;
         rerender(ctx, comp, pool, &gid, &lang_code).await;
         return Ok(());
     }
@@ -981,6 +1411,254 @@ pub async fn handle_welcomer_component(
         rerender(ctx, comp, pool, &gid, &lang_code).await;
         return Ok(());
     }
+
+    // Banner prop picker (opens modals or the frame/size pickers).
+    // Mirrors handlePropAction.
+    if id == BANNER_PROP_ID {
+        if let serenity::ComponentInteractionDataKind::StringSelect { values } = &comp.data.kind {
+            if let Some(prop) = values.first().and_then(|s| banner_prop(s)) {
+                handle_banner_prop(ctx, comp, pool, &gid, &lang_code, prop).await?;
+                return Ok(());
+            }
+        }
+        rerender(ctx, comp, pool, &gid, &lang_code).await;
+        return Ok(());
+    }
+
+    // Frame pick (hexProfileColor | status). Mirrors welcomer-frame-pick.
+    if id == BANNER_FRAME_PICK_ID {
+        if let serenity::ComponentInteractionDataKind::StringSelect { values } = &comp.data.kind {
+            if let Some(frame) = values.first().and_then(|s| banner_frame(s)) {
+                let mut banner = load_banner(pool, &gid, &lang_code).await;
+                banner.frame = frame.to_string();
+                save_banner(pool, &gid, &banner, BannerPicker::None).await?;
+            }
+        }
+        rerender(ctx, comp, pool, &gid, &lang_code).await;
+        return Ok(());
+    }
+
+    // Size pick (text vs avatar targets). Mirrors welcomer-size-pick.
+    if id == BANNER_SIZE_PICK_ID {
+        if let serenity::ComponentInteractionDataKind::StringSelect { values } = &comp.data.kind {
+            let cfg = crate::commands::guildconfig::load_guild_config(pool, &gid).await;
+            let picker = cfg
+                .get(BANNER_PICKER_FIELD)
+                .and_then(|v| v.as_str())
+                .map(BannerPicker::parse)
+                .unwrap_or_default();
+            if let Some(value) = values.first().map(String::as_str) {
+                let mut banner =
+                    banner_config(&cfg, &t(&lang_code, "setjoinmessage_image_default_text"));
+                let valid = match picker {
+                    BannerPicker::TextSize => banner_text_size(value).map(|_| {
+                        banner.text_size = value.to_string();
+                    }),
+                    BannerPicker::AvatarSize => banner_avatar_size(value).map(|_| {
+                        banner.avatar_size = value.to_string();
+                    }),
+                    _ => None,
+                };
+                if valid.is_some() {
+                    save_banner(pool, &gid, &banner, BannerPicker::None).await?;
+                }
+            }
+        }
+        rerender(ctx, comp, pool, &gid, &lang_code).await;
+        return Ok(());
+    }
+    Ok(())
+}
+
+/// Banner prop dispatch. Mirrors handlePropAction: background/colour/
+/// message open modals with validation, frame/size open the contextual
+/// picker rows. No live preview is rendered (unlike the TS
+/// generateJoinImage MediaGallery).
+async fn handle_banner_prop(
+    ctx: &serenity::Context,
+    comp: &serenity::ComponentInteraction,
+    pool: &crate::db::Pool,
+    gid: &str,
+    lang_code: &str,
+    prop: &str,
+) -> anyhow::Result<()> {
+    match prop {
+        "change_background" => {
+            let mut modal_opts = crate::modal_helper::ModalOptions::new(
+                &t(
+                    lang_code,
+                    "setjoinmessage_change_image_propreties_background",
+                ),
+                "welcomer-background-modal",
+            );
+            modal_opts
+                .fields
+                .push(crate::modal_helper::ModalField::Text(
+                    crate::modal_helper::TextField {
+                        custom_id: "url".to_string(),
+                        label: t(lang_code, "setjoinmessage_modal_fields_background_url"),
+                        placeholder: None,
+                        style: crate::modal_helper::TextStyle::Short,
+                        required: true,
+                        max_length: Some(300),
+                        min_length: Some(7),
+                        value: None,
+                    },
+                ));
+            let modal = crate::modal_helper::build_modal(&modal_opts)
+                .map_err(|_| anyhow::anyhow!("unsupported modal field"))?;
+            comp.create_response(&ctx.http, serenity::CreateInteractionResponse::Modal(modal))
+                .await?;
+            let Some(submit) =
+                crate::commands::await_modal_submit(ctx, comp, "welcomer-background-modal").await
+            else {
+                return Ok(());
+            };
+            let url = crate::modal_helper::text_value(&submit, "url")
+                .trim()
+                .to_string();
+            if !is_valid_background_url(&url) {
+                let _ = submit
+                    .create_response(
+                        ctx,
+                        serenity::CreateInteractionResponse::Message(
+                            serenity::CreateInteractionResponseMessage::new()
+                                .content(t(lang_code, "setjoinmessage_change_image_invalid_url"))
+                                .ephemeral(true),
+                        ),
+                    )
+                    .await;
+                return Ok(());
+            }
+            let mut banner = load_banner(pool, gid, lang_code).await;
+            banner.background_url = url;
+            save_banner(pool, gid, &banner, BannerPicker::None).await?;
+            let _ = submit
+                .create_response(ctx, serenity::CreateInteractionResponse::Acknowledge)
+                .await;
+        }
+        "change_frame" => {
+            let banner = load_banner(pool, gid, lang_code).await;
+            save_banner(pool, gid, &banner, BannerPicker::Frame).await?;
+        }
+        "change_text_colour" => {
+            let mut modal_opts = crate::modal_helper::ModalOptions::new(
+                &t(
+                    lang_code,
+                    "setjoinmessage_change_image_propreties_text_colour",
+                ),
+                "welcomer-colour-modal",
+            );
+            modal_opts
+                .fields
+                .push(crate::modal_helper::ModalField::Text(
+                    crate::modal_helper::TextField {
+                        custom_id: "colour".to_string(),
+                        label: t(lang_code, "setjoinmessage_modal_fields_hex_color"),
+                        placeholder: None,
+                        style: crate::modal_helper::TextStyle::Short,
+                        required: true,
+                        max_length: Some(9),
+                        min_length: Some(3),
+                        value: None,
+                    },
+                ));
+            let modal = crate::modal_helper::build_modal(&modal_opts)
+                .map_err(|_| anyhow::anyhow!("unsupported modal field"))?;
+            comp.create_response(&ctx.http, serenity::CreateInteractionResponse::Modal(modal))
+                .await?;
+            let Some(submit) =
+                crate::commands::await_modal_submit(ctx, comp, "welcomer-colour-modal").await
+            else {
+                return Ok(());
+            };
+            let colour = crate::modal_helper::text_value(&submit, "colour")
+                .trim()
+                .to_string();
+            if !is_valid_hex_colour(&colour) {
+                let no = crate::emojis::app_emoji_markup(&ctx.http, "No")
+                    .await
+                    .unwrap_or_else(|| "❌".to_string());
+                let _ = submit
+                    .create_response(
+                        ctx,
+                        serenity::CreateInteractionResponse::Message(
+                            serenity::CreateInteractionResponseMessage::new()
+                                .content(
+                                    t(lang_code, "embed_choose_12_error")
+                                        .replace("${client.iHorizon_Emojis.No}", &no),
+                                )
+                                .ephemeral(true),
+                        ),
+                    )
+                    .await;
+                return Ok(());
+            }
+            let mut banner = load_banner(pool, gid, lang_code).await;
+            banner.text_colour = colour;
+            save_banner(pool, gid, &banner, BannerPicker::None).await?;
+            let _ = submit
+                .create_response(ctx, serenity::CreateInteractionResponse::Acknowledge)
+                .await;
+        }
+        "change_text_message" => {
+            let mut modal_opts = crate::modal_helper::ModalOptions::new(
+                &t(
+                    lang_code,
+                    "setjoinmessage_change_image_propreties_text_message",
+                ),
+                "welcomer-text-modal",
+            );
+            modal_opts
+                .fields
+                .push(crate::modal_helper::ModalField::Text(
+                    crate::modal_helper::TextField {
+                        custom_id: "msg".to_string(),
+                        label: t(lang_code, "setjoinmessage_modal_fields_message"),
+                        placeholder: None,
+                        style: crate::modal_helper::TextStyle::Short,
+                        required: true,
+                        max_length: Some(100),
+                        min_length: Some(15),
+                        value: None,
+                    },
+                ));
+            let modal = crate::modal_helper::build_modal(&modal_opts)
+                .map_err(|_| anyhow::anyhow!("unsupported modal field"))?;
+            comp.create_response(&ctx.http, serenity::CreateInteractionResponse::Modal(modal))
+                .await?;
+            let Some(submit) =
+                crate::commands::await_modal_submit(ctx, comp, "welcomer-text-modal").await
+            else {
+                return Ok(());
+            };
+            let message = crate::modal_helper::text_value(&submit, "msg")
+                .trim()
+                .to_string();
+            if !validate_banner_message(&message) {
+                let _ = submit
+                    .create_response(ctx, serenity::CreateInteractionResponse::Acknowledge)
+                    .await;
+                return Ok(());
+            }
+            let mut banner = load_banner(pool, gid, lang_code).await;
+            banner.message = Some(message);
+            save_banner(pool, gid, &banner, BannerPicker::None).await?;
+            let _ = submit
+                .create_response(ctx, serenity::CreateInteractionResponse::Acknowledge)
+                .await;
+        }
+        "change_text_size" => {
+            let banner = load_banner(pool, gid, lang_code).await;
+            save_banner(pool, gid, &banner, BannerPicker::TextSize).await?;
+        }
+        "change_avatar_size" => {
+            let banner = load_banner(pool, gid, lang_code).await;
+            save_banner(pool, gid, &banner, BannerPicker::AvatarSize).await?;
+        }
+        _ => {}
+    }
+    rerender(ctx, comp, pool, gid, lang_code).await;
     Ok(())
 }
 
@@ -1182,6 +1860,8 @@ mod tests {
                 join_channel: None,
                 leave_channel: None,
                 banner_state: "on".to_string(),
+                banner: BannerConfig::default(),
+                banner_picker: BannerPicker::None,
                 join_embed_id: None,
                 leave_embed_id: None,
                 join_text: true,
@@ -1192,6 +1872,157 @@ mod tests {
             let desc = panel_description(&st, lang);
             assert!(desc.starts_with("## "), "{section}");
             assert!(!panel_rows(&st, lang).is_empty(), "{section}");
+        }
+    }
+
+    #[test]
+    fn banner_validators_mirror_ts() {
+        assert!(is_valid_hex_colour("#000000"));
+        assert!(is_valid_hex_colour("#fff"));
+        assert!(is_valid_hex_colour("#AbC123"));
+        assert!(!is_valid_hex_colour("000000"));
+        assert!(!is_valid_hex_colour("#ff"));
+        assert!(!is_valid_hex_colour("#gggggg"));
+        assert!(!is_valid_hex_colour(""));
+        assert_eq!(banner_frame("status"), Some("status"));
+        assert_eq!(banner_frame("hexProfileColor"), Some("hexProfileColor"));
+        assert_eq!(banner_frame("round"), None);
+        assert_eq!(banner_text_size("40px"), Some("40px"));
+        assert_eq!(banner_text_size("120px"), Some("120px"));
+        assert_eq!(banner_text_size("50px"), None);
+        assert_eq!(banner_avatar_size("140px"), Some("140px"));
+        assert_eq!(banner_avatar_size("430px"), Some("430px"));
+        assert_eq!(banner_avatar_size("160px"), None);
+        assert_eq!(banner_prop("change_background"), Some("change_background"));
+        assert_eq!(
+            banner_prop("change_avatar_size"),
+            Some("change_avatar_size")
+        );
+        assert_eq!(banner_prop("change_preview"), None);
+        assert_eq!(BannerPicker::parse("frame"), BannerPicker::Frame);
+        assert_eq!(BannerPicker::parse("size:text"), BannerPicker::TextSize);
+        assert_eq!(BannerPicker::parse("size:avatar"), BannerPicker::AvatarSize);
+        assert_eq!(BannerPicker::parse("nope"), BannerPicker::None);
+        assert_eq!(BannerPicker::Frame.stored(), Some("frame".to_string()));
+        assert_eq!(BannerPicker::None.stored(), None);
+    }
+
+    #[test]
+    fn banner_url_and_message_bounds_mirror_modals() {
+        assert!(is_valid_background_url("https://example.com/bg.png"));
+        assert!(is_valid_background_url("http://a.co/x"));
+        assert!(!is_valid_background_url("ftp://example.com/bg.png"));
+        assert!(!is_valid_background_url("notaurl"));
+        assert!(!is_valid_background_url("https://a b.com/x"));
+        assert!(!is_valid_background_url(&format!(
+            "https://x.co/{}",
+            "a".repeat(300)
+        )));
+        assert!(validate_banner_message("Welcome to the server, friend!"));
+        assert!(validate_banner_message(&"a".repeat(15)));
+        assert!(validate_banner_message(&"a".repeat(100)));
+        assert!(!validate_banner_message("too short"));
+        assert!(!validate_banner_message(&"a".repeat(101)));
+    }
+
+    #[test]
+    fn banner_config_defaults_and_roundtrip() {
+        let cfg = serde_json::json!({});
+        let b = banner_config(&cfg, "hello");
+        assert_eq!(b.background_url, DEFAULT_BANNER_BACKGROUND);
+        assert_eq!(b.frame, "status");
+        assert_eq!(b.text_colour, "#000000");
+        assert_eq!(b.message, Some("hello".to_string()));
+        assert_eq!(b.text_size, "40px");
+        assert_eq!(b.avatar_size, "140px");
+        // Stored blob wins; invalid values fall back to defaults.
+        let cfg = serde_json::json!({
+            "joinbanner": {
+                "backgroundURL": "https://cdn.example/a.png",
+                "profilePictureRound": "hexProfileColor",
+                "textColour": "not-a-colour",
+                "message": "custom welcome message here!",
+                "textSize": "80px",
+                "avatarSize": "999px",
+            }
+        });
+        let b = banner_config(&cfg, "hello");
+        assert_eq!(b.background_url, "https://cdn.example/a.png");
+        assert_eq!(b.frame, "hexProfileColor");
+        assert_eq!(b.text_colour, "#000000");
+        assert_eq!(b.message, Some("custom welcome message here!".to_string()));
+        assert_eq!(b.text_size, "80px");
+        assert_eq!(b.avatar_size, "140px");
+        // Roundtrip keeps the TS blob shape.
+        let v = banner_config_value(&b);
+        assert_eq!(v["backgroundURL"], "https://cdn.example/a.png");
+        assert_eq!(v["profilePictureRound"], "hexProfileColor");
+        assert_eq!(v["textSize"], "80px");
+        let back = banner_config(&serde_json::json!({ "joinbanner": v }), "hello");
+        assert_eq!(back, b);
+    }
+
+    #[test]
+    fn banner_section_lists_props_without_preview() {
+        let lang = "en-US";
+        let st = PanelState {
+            section: "banner".to_string(),
+            join_message: None,
+            leave_message: None,
+            join_dm: None,
+            join_roles: vec![],
+            join_channel: None,
+            leave_channel: None,
+            banner_state: "on".to_string(),
+            banner: BannerConfig::default(),
+            banner_picker: BannerPicker::None,
+            join_embed_id: None,
+            leave_embed_id: None,
+            join_text: true,
+            leave_text: true,
+            join_components: true,
+            leave_components: true,
+        };
+        let desc = panel_description(&st, lang);
+        assert!(desc.contains(DEFAULT_BANNER_BACKGROUND));
+        assert!(desc.contains("status"));
+        assert!(desc.contains("#000000"));
+        assert!(desc.contains("40px"));
+        assert!(desc.contains("140px"));
+        // No preview attachment marker.
+        assert!(!desc.contains("attachment://"));
+        // Prop row present; no picker row until one opens.
+        assert_eq!(panel_rows(&st, lang).len(), 3);
+        let frame = PanelState {
+            banner_picker: BannerPicker::Frame,
+            ..st_clone(&st)
+        };
+        assert_eq!(panel_rows(&frame, lang).len(), 4);
+        let size = PanelState {
+            banner_picker: BannerPicker::TextSize,
+            ..st_clone(&st)
+        };
+        assert_eq!(panel_rows(&size, lang).len(), 4);
+    }
+
+    fn st_clone(st: &PanelState) -> PanelState {
+        PanelState {
+            section: st.section.clone(),
+            join_message: st.join_message.clone(),
+            leave_message: st.leave_message.clone(),
+            join_dm: st.join_dm.clone(),
+            join_roles: st.join_roles.clone(),
+            join_channel: st.join_channel.clone(),
+            leave_channel: st.leave_channel.clone(),
+            banner_state: st.banner_state.clone(),
+            banner: st.banner.clone(),
+            banner_picker: BannerPicker::None,
+            join_embed_id: st.join_embed_id.clone(),
+            leave_embed_id: st.leave_embed_id.clone(),
+            join_text: st.join_text,
+            leave_text: st.leave_text,
+            join_components: st.join_components,
+            leave_components: st.leave_components,
         }
     }
 }
