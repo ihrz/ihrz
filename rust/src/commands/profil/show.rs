@@ -32,6 +32,15 @@ pub fn fr_me_gender(gender: &str, lang_code: &str) -> String {
     }
 }
 
+/// Age display. Mirrors `if (!age) age = unknown` + `age + suffix` in
+/// `!show.ts:65-66,126`: missing, 0 and NaN read as unknown; whole floats
+/// print int-shaped (`25`, not `25.0`), matching the TS display.
+pub fn age_display(age: Option<f64>, unknown: &str) -> String {
+    age.filter(|a| *a != 0.0 && !a.is_nan())
+        .map(|a| a.to_string())
+        .unwrap_or_else(|| unknown.to_string())
+}
+
 /// See the iHorizon profil of a member. Mirrors `!show.ts`.
 #[poise::command(
     slash_command,
@@ -100,10 +109,8 @@ pub async fn profil_show(
             v
         }
     };
-    let age_str = p
-        .age
-        .map(|a| a.to_string())
-        .unwrap_or_else(|| unknown.clone());
+    // Mirrors `if (!age)` in `!show.ts:66`: 0 and NaN read as unknown.
+    let age_str = age_display(p.age, &unknown);
     let embed = serenity::CreateEmbed::default()
         .title(title)
         .description(if p.description.is_empty() {
@@ -179,8 +186,17 @@ pub async fn profil_show(
 
 #[cfg(test)]
 mod tests {
-    use super::{birthday_discord_timestamp, fr_me_gender};
+    use super::{age_display, birthday_discord_timestamp, fr_me_gender};
     use chrono::{Datelike, Local, TimeZone};
+
+    #[test]
+    fn age_display_matches_ts_falsy_and_concat_rules() {
+        assert_eq!(age_display(Some(25.0), "?"), "25");
+        assert_eq!(age_display(Some(25.5), "?"), "25.5");
+        assert_eq!(age_display(None, "?"), "?");
+        assert_eq!(age_display(Some(0.0), "?"), "?");
+        assert_eq!(age_display(Some(f64::NAN), "?"), "?");
+    }
 
     #[test]
     fn fr_me_easter_egg_overrides_stored_gender() {

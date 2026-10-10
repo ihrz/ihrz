@@ -3408,8 +3408,6 @@ msg_perm_list_detail: "уровень ${level}, пользователи [${user
 msg_perm_list_default: "Права по умолчанию."
 msg_notifier_list_empty: "Нет записей notifier."
 msg_profil_invalid_age: "Недопустимый возраст: от 13 до 120."
-msg_profil_invalid_gender: "Недопустимый пол: ожидается female, male или non-binary."
-msg_profil_invalid_pronoun: "Недопустимое местоимение: ожидается she/her, he/him, they/them, xe/xem, ze/zem или other."
 msg_profil_birthday_invalid: "Недопустимая дата рождения: проверьте день/месяц/год (год 1900-2100)."
 msg_profil_birthday_saved: "Дата рождения сохранена."
 msg_profil_use_subcommand: "Используйте подкоманду: show, set-age, set-description, set-gender, set-pronoun, set-birthday."

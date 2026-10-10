@@ -91,13 +91,13 @@ mod tests {
         assert!(load_profil_routed(&pool, 11).await.description.is_empty());
         let p = Profil {
             description: "hi".to_string(),
-            age: Some(21),
+            age: Some(21.0),
             ..Default::default()
         };
         save_profil_routed(&pool, 11, &p).await.unwrap();
         let back = load_profil_routed(&pool, 11).await;
         assert_eq!(back.description, "hi");
-        assert_eq!(back.age, Some(21));
+        assert_eq!(back.age, Some(21.0));
         // Legacy kv reader sees the unchanged key.
         assert!(crate::db::kv_get(&pool, "0", "PROFIL.11").await.is_some());
     }

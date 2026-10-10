@@ -11,7 +11,6 @@
 
 use crate::bot::Ctx;
 use serde::{Deserialize, Serialize};
-use std::collections::BTreeMap;
 
 /// Tolerant i64 leaf/object field. The shared live DB is written by the TS
 /// side with JS numbers (floats possible via getNumber inputs), so a strict
@@ -324,7 +323,99 @@ impl Serialize for ShopEntry {
     }
 }
 
-pub type ShopMap = BTreeMap<String, ShopEntry>;
+/// Insertion-ordered buyable-roles map. Mirrors the TS
+/// `ECONOMY.buyableRoles` plain object: `Object.entries` (and
+/// `economyHelper.generateRoleFields`, whose `.sort` compares whole role
+/// objects so `Number(...)` is NaN and the sort is a no-op) observes
+/// insertion order. A BTreeMap would reorder by role id instead, so this
+/// keeps entries in document order: re-inserts update in place (like JS
+/// assignment), delete + re-add moves to the end (like JS).
+#[derive(Debug, Clone, Default)]
+pub struct ShopMap(Vec<(String, ShopEntry)>);
+
+impl ShopMap {
+    pub fn new() -> Self {
+        Self(Vec::new())
+    }
+
+    pub fn len(&self) -> usize {
+        self.0.len()
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.0.is_empty()
+    }
+
+    pub fn get(&self, role_id: &str) -> Option<&ShopEntry> {
+        self.0.iter().find(|(id, _)| id == role_id).map(|(_, e)| e)
+    }
+
+    pub fn contains_key(&self, role_id: &str) -> bool {
+        self.0.iter().any(|(id, _)| id == role_id)
+    }
+
+    pub fn insert(&mut self, role_id: String, entry: ShopEntry) {
+        if let Some(slot) = self.0.iter_mut().find(|(id, _)| *id == role_id) {
+            slot.1 = entry;
+        } else {
+            self.0.push((role_id, entry));
+        }
+    }
+
+    pub fn remove(&mut self, role_id: &str) {
+        self.0.retain(|(id, _)| id != role_id);
+    }
+
+    pub fn iter(&self) -> impl Iterator<Item = &(String, ShopEntry)> {
+        self.0.iter()
+    }
+}
+
+impl FromIterator<(String, ShopEntry)> for ShopMap {
+    fn from_iter<I: IntoIterator<Item = (String, ShopEntry)>>(iter: I) -> Self {
+        let mut map = ShopMap::new();
+        for (k, v) in iter {
+            map.insert(k, v);
+        }
+        map
+    }
+}
+
+impl Serialize for ShopMap {
+    fn serialize<S: serde::Serializer>(&self, s: S) -> Result<S::Ok, S::Error> {
+        use serde::ser::SerializeMap;
+        let mut m = s.serialize_map(Some(self.0.len()))?;
+        for (k, v) in &self.0 {
+            m.serialize_entry(k, v)?;
+        }
+        m.end()
+    }
+}
+
+impl<'de> Deserialize<'de> for ShopMap {
+    fn deserialize<D: serde::Deserializer<'de>>(d: D) -> Result<Self, D::Error> {
+        struct OrderedMap;
+        impl<'de> serde::de::Visitor<'de> for OrderedMap {
+            type Value = ShopMap;
+            fn expecting(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+                f.write_str("an object map of role id to shop entry")
+            }
+            fn visit_map<A: serde::de::MapAccess<'de>>(
+                self,
+                mut map: A,
+            ) -> Result<ShopMap, A::Error> {
+                // serde_json streams object pairs in document order, so
+                // collecting here preserves the TS insertion order.
+                let mut out = ShopMap::new();
+                while let Some((k, v)) = map.next_entry::<String, ShopEntry>()? {
+                    out.insert(k, v);
+                }
+                Ok(out)
+            }
+        }
+        d.deserialize_map(OrderedMap)
+    }
+}
 
 pub fn shop_key() -> &'static str {
     "ECONOMY.buyableRoles"
@@ -856,6 +947,16 @@ pub struct ClaimText<'a> {
     pub cooldown_key: &'a str,
 }
 
+/// Daily disabled-message quirk. Mirrors `!daily.ts:71`, which replaces the
+/// typo `"${interaction.member.user.od}"` — a search string that never
+/// matches, so the template (YAML `economy_disable_msg`, holding
+/// `${interaction.user.id}`) is sent raw with the placeholder visible.
+/// Every other economy subcommand substitutes correctly, so only the daily
+/// claim uses this. TS is frozen; the quirk is mirrored, not fixed.
+pub fn daily_disabled_text(template: &str, user_id: u64) -> String {
+    template.replace("${interaction.member.user.od}", &user_id.to_string())
+}
+
 /// Shared timed-claim flow. Mirrors !daily/!weekly/!monthly.ts
 /// (tuning + boost amount, cooldown error, reward embed with Coin
 /// suffix, reply BEFORE the money add + timestamp store).
@@ -871,12 +972,15 @@ pub async fn claim_inner(
     let gid = guild_id.get().to_string();
     let pool = &ctx.data().pool;
     if config::economy_disabled_routed(pool, &gid).await {
-        ctx.say(
-            crate::commands::lang_for(ctx, "economy_disable_msg", "Economy is disabled.")
-                .await
-                .replace("${interaction.user.id}", &ctx.author().id.get().to_string()),
-        )
-        .await?;
+        let template =
+            crate::commands::lang_for(ctx, "economy_disable_msg", "Economy is disabled.").await;
+        let uid = ctx.author().id.get();
+        let text = if kind == "daily" {
+            daily_disabled_text(&template, uid)
+        } else {
+            template.replace("${interaction.user.id}", &uid.to_string())
+        };
+        ctx.say(text).await?;
         return Ok(());
     }
     let tune = set_cooldown::load_tuning_routed(pool, &gid, kind).await;
@@ -1123,6 +1227,57 @@ mod tests {
         );
         let s = serde_json::to_string(&shop).unwrap();
         assert_eq!(s, r#"{"1":{"price":100,"boost":2}}"#);
+    }
+
+    #[test]
+    fn daily_disabled_message_goes_out_raw_like_ts() {
+        // !daily.ts:71 replaces the typo "${interaction.member.user.od}",
+        // which never matches: the template is sent raw, placeholder and
+        // all, while every other subcommand substitutes the caller id.
+        let template = "<@1>, disabled! ${interaction.user.id}";
+        assert_eq!(daily_disabled_text(template, 1), template);
+        assert_eq!(
+            template.replace("${interaction.user.id}", "1"),
+            "<@1>, disabled! 1"
+        );
+    }
+
+    #[test]
+    fn shop_keeps_insertion_order_not_key_order() {
+        // economyHelper.generateRoleFields observes insertion order (its
+        // `.sort` compares whole role objects, so it is a no-op).
+        let raw = r#"{"999":{"price":10},"111":{"price":20},"50":{"price":30}}"#;
+        let shop: ShopMap = serde_json::from_str(raw).unwrap();
+        let ids: Vec<&str> = shop.iter().map(|(id, _)| id.as_str()).collect();
+        assert_eq!(ids, vec!["999", "111", "50"]);
+        // Round-trip keeps document order, unlike a BTreeMap.
+        assert_eq!(serde_json::to_string(&shop).unwrap(), raw);
+    }
+
+    #[test]
+    fn shop_reinsert_updates_in_place_like_js() {
+        let mut shop: ShopMap =
+            serde_json::from_str(r#"{"a":{"price":1},"b":{"price":2}}"#).unwrap();
+        shop.insert(
+            "a".to_string(),
+            ShopEntry {
+                price: 9.0,
+                boost: None,
+            },
+        );
+        let ids: Vec<&str> = shop.iter().map(|(id, _)| id.as_str()).collect();
+        assert_eq!(ids, vec!["a", "b"]);
+        assert_eq!(shop.get("a").map(|e| e.price), Some(9.0));
+        shop.remove("a");
+        shop.insert(
+            "a".to_string(),
+            ShopEntry {
+                price: 9.0,
+                boost: None,
+            },
+        );
+        let ids: Vec<&str> = shop.iter().map(|(id, _)| id.as_str()).collect();
+        assert_eq!(ids, vec!["b", "a"]);
     }
 
     #[test]

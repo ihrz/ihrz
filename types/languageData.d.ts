@@ -2582,8 +2582,6 @@ export interface LanguageData {
 	msg_perm_list_default: string;
 	msg_notifier_list_empty: string;
 	msg_profil_invalid_age: string;
-	msg_profil_invalid_gender: string;
-	msg_profil_invalid_pronoun: string;
 	msg_profil_birthday_invalid: string;
 	msg_profil_birthday_saved: string;
 	msg_profil_use_subcommand: string;

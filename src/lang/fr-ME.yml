@@ -3411,8 +3411,6 @@ msg_perm_list_detail: "niveau ${level}, utilisateurs [${users}], rôles [${roles
 msg_perm_list_default: "Permissions par défaut."
 msg_notifier_list_empty: "Aucune entrée notifier enregistrée."
 msg_profil_invalid_age: "Âge invalide : il doit être compris entre 13 et 120."
-msg_profil_invalid_gender: "Genre invalide : attendu female, male ou non-binary."
-msg_profil_invalid_pronoun: "Pronom invalide : attendu she/her, he/him, they/them, xe/xem, ze/zem ou other."
 msg_profil_birthday_invalid: "Anniversaire invalide : vérifiez le jour, le mois et l’année (année 1900-2100)."
 msg_profil_birthday_saved: "Anniversaire enregistré."
 msg_profil_use_subcommand: "Utilisez une sous-commande : show, set-age, set-description, set-gender, set-pronoun, set-birthday."

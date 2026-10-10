@@ -1,6 +1,8 @@
 use super::*;
 
 /// Set your description. Mirrors `!set-description.ts`.
+///
+/// The TS stores the text verbatim (`profilTable.set(..., desc)`) with no
 #[poise::command(
     slash_command,
     prefix_command,
@@ -14,7 +16,7 @@ pub async fn profil_description(
 ) -> Result<(), anyhow::Error> {
     let user_id = ctx.author().id.get();
     let mut p = super::profil::load_profil_routed(&ctx.data().pool, user_id).await;
-    p.description = description.chars().take(500).collect();
+    p.description = description;
     super::profil::save_profil_routed(&ctx.data().pool, user_id, &p).await?;
     let msg = crate::commands::lang_for(
         &ctx,

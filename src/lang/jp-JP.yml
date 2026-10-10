@@ -3408,8 +3408,6 @@ msg_perm_list_detail: "レベル ${level}、ユーザー [${users}]、ロール 
 msg_perm_list_default: "デフォルトの権限。"
 msg_notifier_list_empty: "notifierのエントリがありません。"
 msg_profil_invalid_age: "無効な年齢です：13から120の間で入力してください。"
-msg_profil_invalid_gender: "無効な性別です：female、male、non-binaryのいずれかを入力してください。"
-msg_profil_invalid_pronoun: "無効な代名詞です：she/her、he/him、they/them、xe/xem、ze/zem、otherのいずれかを入力してください。"
 msg_profil_birthday_invalid: "無効な誕生日です：日/月/年を確認してください（年は1900-2100）。"
 msg_profil_birthday_saved: "誕生日を保存しました。"
 msg_profil_use_subcommand: "サブコマンドを使ってください：show、set-age、set-description、set-gender、set-pronoun、set-birthday。"

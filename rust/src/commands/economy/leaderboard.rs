@@ -22,6 +22,15 @@ fn filter_cached_users(
         .collect()
 }
 
+/// Top-8 podium rows for the SVG card: mention + non-negative wealth.
+/// Pure so the mapping is unit-testable without Discord.
+fn podium_entries(rows: &[(u64, i64, i64)]) -> Vec<(String, u64)> {
+    rows.iter()
+        .take(8)
+        .map(|(uid, total, _)| (format!("<@{uid}>"), (*total).max(0) as u64))
+        .collect()
+}
+
 /// Routed board scan: table `USER` root walked first, then legacy-only
 /// blob rows (`USER.<id>.ECONOMY` exactly; leaf rows under a blob path
 /// must not double-count). Table values win on uid conflicts.
@@ -125,6 +134,11 @@ pub async fn eco_leaderboard(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let items_per_page = 10usize;
     let total_pages = parsed.len().div_ceil(items_per_page);
     let (fname, fbytes) = crate::commands::shared::footer_parts(&ctx, &gid).await;
+    // Podium card mirroring the `podiumEconomyModule` PNG content (top
+    // usernames + wealth). Chromium/html2png rendering is unavailable, so
+    // the self-contained SVG from cards.rs is attached instead of rendering
+    // PNG — same pattern as the ranks leaderboard. No PNG render attempted.
+    let svg = crate::cards::podium_svg_with_unit(&podium_entries(&parsed), "coins");
     let mk_embed = |page: usize| {
         let start = page * items_per_page;
         let lines: Vec<String> = parsed
@@ -159,6 +173,7 @@ pub async fn eco_leaderboard(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
             .title(title.clone())
             .colour(0xFFD700)
             .description(desc)
+            .image("attachment://podium.svg")
             .footer(
                 serenity::CreateEmbedFooter::new(footer).icon_url(if fbytes.is_some() {
                     "attachment://footer_icon.png".to_string()
@@ -194,7 +209,11 @@ pub async fn eco_leaderboard(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     };
     let mut reply = poise::CreateReply::default()
         .embed(mk_embed(0))
-        .components(vec![mk_row(0)]);
+        .components(vec![mk_row(0)])
+        .attachment(serenity::CreateAttachment::bytes(
+            svg.into_bytes(),
+            "podium.svg",
+        ));
     if let Some(bytes) = fbytes.clone() {
         reply = reply.attachment(serenity::CreateAttachment::bytes(bytes, "footer_icon.png"));
     }
@@ -269,6 +288,20 @@ pub async fn eco_leaderboard(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
 mod tests {
     use super::board_rows;
     use super::filter_cached_users;
+    use super::podium_entries;
+
+    #[test]
+    fn podium_maps_mentions_and_clamps_negative_wealth() {
+        let rows = vec![(1u64, 300i64, 100i64), (2, -50, 0)];
+        assert_eq!(
+            podium_entries(&rows),
+            vec![("<@1>".to_string(), 300u64), ("<@2>".to_string(), 0u64),]
+        );
+        assert!(podium_entries(&[]).is_empty());
+        // SVG card only takes the top 8, like the ranks board.
+        let many: Vec<(u64, i64, i64)> = (1..=10).map(|i| (i, 100, 0)).collect();
+        assert_eq!(podium_entries(&many).len(), 8);
+    }
 
     async fn mem_pool() -> crate::db::Pool {
         use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};

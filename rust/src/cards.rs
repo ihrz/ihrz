@@ -173,6 +173,15 @@ pub fn authrestore_dashboard_svg(
 /// `entries` is expected pre-sorted (rank 1 first), `(display_name, score)`.
 /// Score is XP (ranks) or wealth (economy). Self-contained 800x460 SVG.
 pub fn podium_svg(entries: &[(String, u64)]) -> String {
+    podium_svg_with_unit(entries, "XP")
+}
+
+/// Score-unit variant of [`podium_svg`]. The economy leaderboard reuses the
+/// same SVG shape for wealth (unit `"coins"`): Chromium/html2png PNG
+/// rendering is unavailable here, so the SVG itself is attached instead of
+/// rendering the `podiumEconomyModule` HTML to PNG — same pattern as the
+/// rank cards. No PNG render is attempted, deliberately.
+pub fn podium_svg_with_unit(entries: &[(String, u64)], unit: &str) -> String {
     const MEDALS: [(&str, &str); 3] = [("#ffd700", "#1"), ("#c0c0c0", "#2"), ("#cd7f32", "#3")];
     // Visual order: 2nd left, 1st center (taller), 3rd right — like the HTML.
     const SLOTS: [(usize, u64, u64, u64); 3] = [
@@ -186,7 +195,7 @@ pub fn podium_svg(entries: &[(String, u64)]) -> String {
         if let Some((name, score)) = entries.get(entry_idx) {
             let (color, rank) = MEDALS[entry_idx.min(2)];
             podium.push_str(&format!(
-                r##"<g><rect x="{x}" y="{bar_y}" width="200" height="{bar_h}" rx="12" fill="#23272A" stroke="{color}" stroke-width="3"/><rect x="{x}" y="{bar_y}" width="200" height="5" fill="{color}"/><circle cx="{cx}" cy="{ay}" r="28" fill="{color}"/><text x="{cx}" y="{ayr}" text-anchor="middle" font-family="sans-serif" font-size="22" font-weight="bold" fill="#23272A">{rank_n}</text><text x="{cx}" y="{ny}" text-anchor="middle" font-family="sans-serif" font-size="16" font-weight="bold" fill="#ffffff">{name}</text><text x="{cx}" y="{sy}" text-anchor="middle" font-family="sans-serif" font-size="14" fill="#B9BBBE">{score} XP</text><text x="{cx}" y="{ry}" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold" fill="{color}">{rank}</text></g>"##,
+                r##"<g><rect x="{x}" y="{bar_y}" width="200" height="{bar_h}" rx="12" fill="#23272A" stroke="{color}" stroke-width="3"/><rect x="{x}" y="{bar_y}" width="200" height="5" fill="{color}"/><circle cx="{cx}" cy="{ay}" r="28" fill="{color}"/><text x="{cx}" y="{ayr}" text-anchor="middle" font-family="sans-serif" font-size="22" font-weight="bold" fill="#23272A">{rank_n}</text><text x="{cx}" y="{ny}" text-anchor="middle" font-family="sans-serif" font-size="16" font-weight="bold" fill="#ffffff">{name}</text><text x="{cx}" y="{sy}" text-anchor="middle" font-family="sans-serif" font-size="14" fill="#B9BBBE">{score} {unit}</text><text x="{cx}" y="{ry}" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold" fill="{color}">{rank}</text></g>"##,
                 x = x,
                 bar_y = bar_y,
                 bar_h = bar_h,
@@ -198,6 +207,7 @@ pub fn podium_svg(entries: &[(String, u64)]) -> String {
                 name = escape_xml(name),
                 sy = bar_y + 84,
                 score = score,
+                unit = escape_xml(unit),
                 ry = bar_y + 108,
                 color = color,
                 rank = rank,
@@ -226,11 +236,12 @@ pub fn podium_svg(entries: &[(String, u64)]) -> String {
                 break;
             }
             list.push_str(&format!(
-                r##"<text x="60" y="{row_y}" font-family="sans-serif" font-size="13" fill="#B9BBBE">#{rank}</text><text x="110" y="{row_y}" font-family="sans-serif" font-size="13" fill="#ffffff">{name}</text><text x="740" y="{row_y}" text-anchor="end" font-family="sans-serif" font-size="13" fill="#B9BBBE">{score} XP</text>"##,
+                r##"<text x="60" y="{row_y}" font-family="sans-serif" font-size="13" fill="#B9BBBE">#{rank}</text><text x="110" y="{row_y}" font-family="sans-serif" font-size="13" fill="#ffffff">{name}</text><text x="740" y="{row_y}" text-anchor="end" font-family="sans-serif" font-size="13" fill="#B9BBBE">{score} {unit}</text>"##,
                 row_y = row_y,
                 rank = i + 1,
                 name = escape_xml(name),
                 score = score,
+                unit = escape_xml(unit),
             ));
         }
     }
@@ -593,6 +604,23 @@ mod tests {
         let evil = podium_svg(&[("<b>&Co</b>".to_string(), 42)]);
         assert!(!evil.contains("<b>"));
         assert!(evil.contains("&lt;b&gt;&amp;Co&lt;/b&gt;"));
+    }
+
+    #[test]
+    fn podium_default_unit_stays_xp_for_ranks() {
+        let svg = podium_svg(&[("Alice".to_string(), 9000)]);
+        assert!(svg.contains("9000 XP"));
+    }
+
+    #[test]
+    fn podium_economy_unit_labels_wealth_as_coins() {
+        // Economy reuses the SVG shape with wealth + coin unit instead of
+        // rendering the podiumEconomyModule HTML to PNG (no Chromium).
+        let entries = vec![("Alice".to_string(), 9000), ("Bob".to_string(), 7000)];
+        let svg = podium_svg_with_unit(&entries, "coins");
+        assert!(svg.contains("9000 coins"));
+        assert!(svg.contains("7000 coins"));
+        assert!(!svg.contains("XP"));
     }
 
     #[test]

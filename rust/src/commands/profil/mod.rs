@@ -11,8 +11,15 @@ use serde::{Deserialize, Serialize};
 pub struct Profil {
     #[serde(default)]
     pub description: String,
-    #[serde(default)]
-    pub age: Option<u8>,
+    // TS stores whatever `getNumber("age")` yields (floats included, no
+    // range gate), so age is f64 here too; whole values serialize
+    // int-shaped (`25`, not `25.0`) to match the TS DB shape.
+    #[serde(
+        default,
+        deserialize_with = "de_opt_age",
+        serialize_with = "ser_opt_age"
+    )]
+    pub age: Option<f64>,
     #[serde(default)]
     pub gender: Option<String>,
     #[serde(default)]
@@ -46,22 +53,63 @@ async fn save_profil(pool: &Pool, user_id: u64, profil: &Profil) -> anyhow::Resu
 #[allow(dead_code)]
 fn touch_data_type(_: &Data) {}
 
-pub fn validate_age(age: u8) -> bool {
-    (13..=120).contains(&age)
+/// Tolerant age parse: the shared DB is written by TS with JS numbers
+/// (floats possible via `getNumber`), so ints, floats and numeric strings
+/// all load; null/missing/garbage become None instead of failing the blob.
+fn de_opt_age<'de, D>(d: D) -> Result<Option<f64>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    use serde::de::{self, Visitor};
+    struct V;
+    impl<'de> Visitor<'de> for V {
+        type Value = Option<f64>;
+        fn expecting(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+            f.write_str("an age number or null")
+        }
+        fn visit_none<E: de::Error>(self) -> Result<Option<f64>, E> {
+            Ok(None)
+        }
+        fn visit_unit<E: de::Error>(self) -> Result<Option<f64>, E> {
+            Ok(None)
+        }
+        fn visit_i64<E: de::Error>(self, v: i64) -> Result<Option<f64>, E> {
+            Ok(Some(v as f64))
+        }
+        fn visit_u64<E: de::Error>(self, v: u64) -> Result<Option<f64>, E> {
+            Ok(Some(v as f64))
+        }
+        fn visit_f64<E: de::Error>(self, v: f64) -> Result<Option<f64>, E> {
+            Ok(Some(v))
+        }
+        fn visit_str<E: de::Error>(self, v: &str) -> Result<Option<f64>, E> {
+            Ok(v.trim().parse::<f64>().ok())
+        }
+        fn visit_some<D2>(self, d: D2) -> Result<Option<f64>, D2::Error>
+        where
+            D2: serde::Deserializer<'de>,
+        {
+            d.deserialize_any(V)
+        }
+    }
+    d.deserialize_option(V)
+}
+
+/// Integer-valued ages serialize int-shaped so the shared-DB shape matches
+/// what TS writes (`25`, not `25.0`).
+fn ser_opt_age<S: serde::Serializer>(v: &Option<f64>, s: S) -> Result<S::Ok, S::Error> {
+    match v {
+        None => s.serialize_none(),
+        Some(f) if f.is_finite() && f.fract() == 0.0 => s.serialize_i64(*f as i64),
+        Some(f) if f.is_finite() => s.serialize_f64(*f),
+        Some(_) => s.serialize_none(),
+    }
 }
 
 pub fn validate_gender(gender: &str) -> bool {
     matches!(
         gender.to_ascii_lowercase().as_str(),
         "female" | "male" | "non-binary"
-    )
-}
-
-pub fn validate_pronoun(pronoun: &str) -> bool {
-    let normalized = pronoun.to_ascii_lowercase().replace('-', "/");
-    matches!(
-        normalized.as_str(),
-        "she/her" | "he/him" | "they/them" | "xe/xem" | "ze/zem" | "other"
     )
 }
 
@@ -122,16 +170,31 @@ mod tests {
     use super::*;
 
     #[test]
-    fn age_accepts_valid_range() {
-        assert!(validate_age(13));
-        assert!(validate_age(25));
-        assert!(validate_age(120));
+    fn age_parses_ts_number_shapes() {
+        // `getNumber("age")` may store floats; all numeric shapes load.
+        let p: Profil = serde_json::from_str(r#"{"age":25}"#).unwrap();
+        assert_eq!(p.age, Some(25.0));
+        let p: Profil = serde_json::from_str(r#"{"age":25.5}"#).unwrap();
+        assert_eq!(p.age, Some(25.5));
+        let p: Profil = serde_json::from_str(r#"{"age":null}"#).unwrap();
+        assert_eq!(p.age, None);
+        assert_eq!(Profil::default().age, None);
     }
 
     #[test]
-    fn age_rejects_out_of_range() {
-        assert!(!validate_age(0));
-        assert!(!validate_age(12));
+    fn age_serializes_int_shaped_like_ts() {
+        let p = Profil {
+            age: Some(25.0),
+            ..Profil::default()
+        };
+        let raw = serde_json::to_string(&p).unwrap();
+        assert!(raw.contains(r#""age":25"#), "{raw}");
+        assert!(!raw.contains("25.0"), "{raw}");
+        let p = Profil {
+            age: Some(25.5),
+            ..Profil::default()
+        };
+        assert!(serde_json::to_string(&p).unwrap().contains(r#""age":25.5"#));
     }
 
     #[test]
@@ -146,27 +209,6 @@ mod tests {
     fn gender_rejects_unknown() {
         assert!(!validate_gender("other"));
         assert!(!validate_gender(""));
-    }
-
-    #[test]
-    fn pronoun_accepts_known_values() {
-        for v in [
-            "she/her",
-            "he/him",
-            "they/them",
-            "xe/xem",
-            "ze/zem",
-            "other",
-        ] {
-            assert!(validate_pronoun(v), "{v}");
-        }
-        assert!(validate_pronoun("she-her"));
-    }
-
-    #[test]
-    fn pronoun_rejects_unknown() {
-        assert!(!validate_pronoun("it/its"));
-        assert!(!validate_pronoun(""));
     }
 
     #[test]

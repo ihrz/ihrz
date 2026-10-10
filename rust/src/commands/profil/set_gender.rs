@@ -13,6 +13,10 @@ pub fn gender_stored_value(gender: &str) -> Option<&'static str> {
 }
 
 /// Set your gender. Mirrors `!set-gender.ts` (female | male | non-binary).
+///
+/// TS quirk mirrored here: the `switch` has no default arm, so an unmatched
+/// prefix-path input writes nothing yet the success message is still sent.
+/// Slash choices already constrain slash input to the three values.
 #[poise::command(
     slash_command,
     prefix_command,
@@ -24,21 +28,12 @@ pub async fn profil_gender(
     ctx: Ctx<'_>,
     #[description = "Gender that fits you the most (female, male, non-binary)"] gender: String,
 ) -> Result<(), anyhow::Error> {
-    let Some(stored) = gender_stored_value(&gender) else {
-        let msg = crate::commands::lang_for(
-            &ctx,
-            "msg_profil_invalid_gender",
-            "Invalid gender: expected female, male or non-binary.",
-        )
-        .await;
-        ctx.send(poise::CreateReply::default().content(msg).ephemeral(true))
-            .await?;
-        return Ok(());
-    };
-    let user_id = ctx.author().id.get();
-    let mut p = super::profil::load_profil_routed(&ctx.data().pool, user_id).await;
-    p.gender = Some(stored.to_string());
-    super::profil::save_profil_routed(&ctx.data().pool, user_id, &p).await?;
+    if let Some(stored) = gender_stored_value(&gender) {
+        let user_id = ctx.author().id.get();
+        let mut p = super::profil::load_profil_routed(&ctx.data().pool, user_id).await;
+        p.gender = Some(stored.to_string());
+        super::profil::save_profil_routed(&ctx.data().pool, user_id, &p).await?;
+    }
     let msg = crate::commands::lang_for(
         &ctx,
         "setprofildescriptions_command_work",
@@ -69,7 +64,10 @@ mod tests {
     }
 
     #[test]
-    fn gender_rejects_unknown() {
+    fn gender_unmatched_maps_to_nothing_like_ts_switch() {
+        // !set-gender.ts has no default arm: unmatched input writes nothing
+        // (the command still replies success). The mapper returning None is
+        // the "no write" signal, not an error.
         assert_eq!(gender_stored_value("other"), None);
         assert_eq!(gender_stored_value(""), None);
         assert_eq!(gender_stored_value("♀ Female"), None);
