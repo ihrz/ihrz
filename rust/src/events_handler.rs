@@ -306,6 +306,217 @@ async fn derogated_routed(pool: &crate::db::Pool, gid: &str, user_id: u64) -> bo
         .unwrap_or(false)
 }
 
+/// GUILD.PUNISH.PUNISH_PUB leaf (raw JSON blob string).
+async fn punish_pub_routed(pool: &crate::db::Pool, gid: &str) -> Option<String> {
+    leaf_routed(pool, gid, "GUILD.PUNISH.PUNISH_PUB").await
+}
+
+/// PUNISH_DATA.<gid>.<uid> leaf (raw JSON blob string).
+async fn punish_data_routed(pool: &crate::db::Pool, gid: &str, user_id: u64) -> Option<String> {
+    leaf_routed(pool, gid, &format!("PUNISH_DATA.{gid}.{user_id}")).await
+}
+
+/// GUILD.AUTOMOD.<kind> flag leaf, true on "1".
+async fn automod_flag_routed(pool: &crate::db::Pool, gid: &str, kind: &str) -> bool {
+    leaf_routed(pool, gid, &crate::commands::guildconfig::automod_key(kind))
+        .await
+        .as_deref()
+        == Some("1")
+}
+
+/// GUILD.LANG leaf.
+async fn guild_lang_routed(pool: &crate::db::Pool, gid: &str) -> Option<String> {
+    leaf_routed(pool, gid, "GUILD.LANG").await
+}
+
+/// GUILD.BLOCK_BOT flag leaf, true on "1".
+async fn block_bot_routed(pool: &crate::db::Pool, gid: &str) -> bool {
+    leaf_routed(pool, gid, "GUILD.BLOCK_BOT").await.as_deref() == Some("1")
+}
+
+/// GUILD.BLOCK_NEW_ACCOUNT leaf (raw JSON blob string).
+async fn block_new_account_routed(pool: &crate::db::Pool, gid: &str) -> Option<String> {
+    leaf_routed(pool, gid, "GUILD.BLOCK_NEW_ACCOUNT").await
+}
+
+/// UTILS.NICK_KICKER leaf (raw JSON blob string).
+async fn nick_kicker_routed(pool: &crate::db::Pool, gid: &str) -> Option<String> {
+    leaf_routed(pool, gid, "UTILS.NICK_KICKER").await
+}
+
+/// Global api.VANITY table (scope "0"), parsed.
+async fn vanity_table_routed(pool: &crate::db::Pool) -> Option<serde_json::Value> {
+    leaf_routed(pool, "0", "api.VANITY")
+        .await
+        .and_then(|s| serde_json::from_str(&s).ok())
+}
+
+/// ROLE_SAVER.<uid> leaf (raw role-id JSON array string).
+async fn rolesaver_row_routed(pool: &crate::db::Pool, gid: &str, user_id: u64) -> Option<String> {
+    leaf_routed(pool, gid, &format!("ROLE_SAVER.{user_id}")).await
+}
+
+/// SECURITY leaf (raw JSON blob string).
+async fn security_cfg_routed(pool: &crate::db::Pool, gid: &str) -> Option<String> {
+    leaf_routed(pool, gid, "SECURITY").await
+}
+
+/// USER.<uid>.INVITES.BY leaf (raw inviter-id string).
+async fn invites_by_routed(pool: &crate::db::Pool, gid: &str, user_id: u64) -> Option<String> {
+    leaf_routed(pool, gid, &format!("USER.{user_id}.INVITES.BY")).await
+}
+
+/// UTILS.picOnly leaf (raw JSON string-list).
+async fn pic_only_routed(pool: &crate::db::Pool, gid: &str) -> Option<String> {
+    leaf_routed(pool, gid, "UTILS.picOnly").await
+}
+
+/// UTILS.autoFeur leaf.
+async fn autofeur_routed(pool: &crate::db::Pool, gid: &str) -> Option<String> {
+    leaf_routed(pool, gid, "UTILS.autoFeur").await
+}
+
+/// UTILS.antiExe leaf.
+async fn antiexe_routed(pool: &crate::db::Pool, gid: &str) -> Option<String> {
+    leaf_routed(pool, gid, "UTILS.antiExe").await
+}
+
+/// GUILD.REACT_MSG.* trigger keys, table-first with legacy fallback
+/// (keys unchanged).
+async fn react_msg_keys_routed(pool: &crate::db::Pool, gid: &str) -> Vec<String> {
+    tbl_scan_prefix(pool, gid, "GUILD.REACT_MSG.")
+        .await
+        .into_iter()
+        .map(|(k, _)| k)
+        .collect()
+}
+
+/// One GUILD.REACT_MSG.<trigger> emoji leaf.
+async fn react_msg_emoji_routed(pool: &crate::db::Pool, gid: &str, key: &str) -> Option<String> {
+    leaf_routed(pool, gid, key).await
+}
+
+/// UTILS.git_lines leaf.
+async fn git_lines_routed(pool: &crate::db::Pool, gid: &str) -> Option<String> {
+    leaf_routed(pool, gid, "UTILS.git_lines").await
+}
+
+/// GUILD.ANTISPAM.BYPASS_ROLES leaf, parsed.
+async fn antispam_bypass_roles_routed(pool: &crate::db::Pool, gid: &str) -> Vec<String> {
+    leaf_routed(pool, gid, "GUILD.ANTISPAM.BYPASS_ROLES")
+        .await
+        .and_then(|s| serde_json::from_str(&s).ok())
+        .unwrap_or_default()
+}
+
+/// GUILD.ANTISPAM.BYPASS_CHANNELS leaf, parsed.
+async fn antispam_bypass_channels_routed(pool: &crate::db::Pool, gid: &str) -> Vec<String> {
+    leaf_routed(pool, gid, "GUILD.ANTISPAM.BYPASS_CHANNELS")
+        .await
+        .and_then(|s| serde_json::from_str(&s).ok())
+        .unwrap_or_default()
+}
+
+/// GUILD.ANTISPAM config blob leaf, parsed.
+async fn antispam_cfg_routed(
+    pool: &crate::db::Pool,
+    gid: &str,
+) -> Option<crate::commands::antispam::main::AntispamConfig> {
+    leaf_routed(pool, gid, crate::commands::antispam::main::ANTISPAM_KEY)
+        .await
+        .and_then(|s| serde_json::from_str(&s).ok())
+}
+
+/// GUILD.H247 leaf (raw string).
+async fn h247_routed(pool: &crate::db::Pool, gid: &str) -> Option<String> {
+    leaf_routed(pool, gid, "GUILD.H247").await
+}
+
+/// ECONOMY.buyableRoles leaf (raw JSON string, empty when unset).
+async fn buyable_roles_routed(pool: &crate::db::Pool, gid: &str) -> String {
+    leaf_routed(pool, gid, "ECONOMY.buyableRoles")
+        .await
+        .unwrap_or_default()
+}
+
+/// UTILS.LEASH leaf (raw JSON blob string).
+async fn leash_routed(pool: &crate::db::Pool, gid: &str) -> Option<String> {
+    leaf_routed(pool, gid, "UTILS.LEASH").await
+}
+
+/// UTILS.VOICE_FREEZE leaf (raw JSON blob string).
+async fn voice_freeze_routed(pool: &crate::db::Pool, gid: &str) -> Option<String> {
+    leaf_routed(pool, gid, "UTILS.VOICE_FREEZE").await
+}
+
+/// GUILD.TTS leaf (raw JSON blob string).
+async fn tts_raw_routed(pool: &crate::db::Pool, gid: &str) -> Option<String> {
+    leaf_routed(pool, gid, "GUILD.TTS").await
+}
+
+/// GUILD.REACTION_ROLES.<mid>.<name> leaf, parsed to a role id.
+async fn reaction_role_routed(
+    pool: &crate::db::Pool,
+    gid: &str,
+    message_id: u64,
+    name: &str,
+) -> Option<u64> {
+    leaf_routed(
+        pool,
+        gid,
+        &format!("GUILD.REACTION_ROLES.{message_id}.{name}"),
+    )
+    .await
+    .as_deref()
+    .and_then(crate::commands::rolereactions::rolereaction::parse_reaction_role)
+}
+
+/// Global PREVNAMES.<uid> history leaf, parsed.
+async fn prevnames_routed(pool: &crate::db::Pool, user_id: u64) -> Vec<String> {
+    leaf_routed(pool, "0", &crate::events::prevnames_key(user_id))
+        .await
+        .and_then(|s| serde_json::from_str(&s).ok())
+        .unwrap_or_default()
+}
+
+/// GUILD.UTILS.ROLE_LIMIT.<role> leaf, parsed.
+async fn role_limit_routed(pool: &crate::db::Pool, gid: &str, role_id: u64) -> Option<usize> {
+    leaf_routed(pool, gid, &format!("GUILD.UTILS.ROLE_LIMIT.{role_id}"))
+        .await
+        .and_then(|s| s.parse::<usize>().ok())
+}
+
+/// GUILD.SUPPORT leaf (raw JSON blob string).
+async fn support_cfg_routed(pool: &crate::db::Pool, gid: &str) -> Option<String> {
+    leaf_routed(pool, gid, "GUILD.SUPPORT").await
+}
+
+/// BOT.botName leaf.
+async fn bot_name_routed(pool: &crate::db::Pool, gid: &str) -> Option<String> {
+    leaf_routed(pool, gid, crate::commands::botcat::BOT_NAME_KEY).await
+}
+
+/// BOT.botPFP leaf.
+async fn bot_pfp_routed(pool: &crate::db::Pool, gid: &str) -> Option<String> {
+    leaf_routed(pool, gid, crate::commands::botcat::BOT_PFP_KEY).await
+}
+
+/// TICKET_ALL.<user>.<channel> rows for one user, table-first with
+/// legacy fallback (keys unchanged).
+async fn ticket_user_rows_routed(pool: &crate::db::Pool, gid: &str, user_id: u64) -> Vec<String> {
+    tbl_scan_prefix(pool, gid, &format!("TICKET_ALL.{user_id}."))
+        .await
+        .into_iter()
+        .map(|(k, _)| k)
+        .collect()
+}
+
+/// All TICKET_ALL.* rows, table-first with legacy fallback (keys
+/// unchanged).
+async fn ticket_rows_routed(pool: &crate::db::Pool, gid: &str) -> Vec<(String, String)> {
+    tbl_scan_prefix(pool, gid, "TICKET_ALL.").await
+}
+
 #[derive(Clone)]
 pub struct Handler {
     pub pool: Pool,
@@ -741,8 +952,7 @@ impl Handler {
             return;
         }
         let _ = msg.delete(&ctx.http).await;
-        let flag_key = format!("PUNISH_DATA.{gid}.{}", msg.author.id.get());
-        let flags: i64 = tbl_get(&self.pool, gid, &flag_key)
+        let flags: i64 = punish_data_routed(&self.pool, gid, msg.author.id.get())
             .await
             .and_then(|s| {
                 serde_json::from_str::<serde_json::Value>(&s)
@@ -751,6 +961,7 @@ impl Handler {
             })
             .unwrap_or(0);
         let new_flags = flags + 1;
+        let flag_key = format!("PUNISH_DATA.{gid}.{}", msg.author.id.get());
         let _ = tbl_set(
             &self.pool,
             gid,
@@ -758,7 +969,7 @@ impl Handler {
             &serde_json::json!({"flags": new_flags}).to_string(),
         )
         .await;
-        let raw = match tbl_get(&self.pool, gid, "GUILD.PUNISH.PUNISH_PUB").await {
+        let raw = match punish_pub_routed(&self.pool, gid).await {
             Some(raw) => raw,
             None => return,
         };
@@ -903,14 +1114,7 @@ impl Handler {
     }
 
     async fn automod_on(&self, guild_id: &str, kind: &str) -> bool {
-        tbl_get(
-            &self.pool,
-            guild_id,
-            &crate::commands::guildconfig::automod_key(kind),
-        )
-        .await
-        .as_deref()
-            == Some("1")
+        automod_flag_routed(&self.pool, guild_id, kind).await
     }
 
     /// Anti-raid guard. Mirrors Events/protection/avoid*.ts with
@@ -1358,12 +1562,9 @@ pub async fn render_board_message(
     }) {
         embed = embed.image(&first.url);
     }
-    let footer_name = crate::commands::botcat::bot_footer_name(
-        tbl_get(pool, gid, crate::commands::botcat::BOT_NAME_KEY)
-            .await
-            .as_deref(),
-    );
-    let stored = tbl_get(pool, gid, crate::commands::botcat::BOT_PFP_KEY).await;
+    let footer_name =
+        crate::commands::botcat::bot_footer_name(bot_name_routed(pool, gid).await.as_deref());
+    let stored = bot_pfp_routed(pool, gid).await;
     let icon = match crate::commands::botcat::footer_icon_bytes(stored.as_deref()) {
         Some(bytes) => Some(bytes),
         None => {
@@ -1631,7 +1832,7 @@ impl serenity::EventHandler for Handler {
         // Drop the legacy immediate flag (migration from the old design).
         let _ = tbl_del(&self.pool, &gid, "GUILD_DELETE_QUEUED").await;
         // Auto-locale default (setLangByRegion).
-        if tbl_get(&self.pool, &gid, "GUILD.LANG").await.is_none() {
+        if guild_lang_routed(&self.pool, &gid).await.is_none() {
             let _ = tbl_set(
                 &self.pool,
                 &gid,
@@ -1972,12 +2173,7 @@ impl serenity::EventHandler for Handler {
         // + blockBot.ts + tooNewAccount.ts.
         let gid = new_member.guild_id.get().to_string();
         // Block bots when configured.
-        if new_member.user.bot
-            && tbl_get(&self.pool, &gid, "GUILD.BLOCK_BOT")
-                .await
-                .as_deref()
-                == Some("1")
-        {
+        if new_member.user.bot && block_bot_routed(&self.pool, &gid).await {
             let _ = new_member
                 .guild_id
                 .kick_with_reason(&ctx.http, new_member.user.id, "bots blocked")
@@ -1985,7 +2181,7 @@ impl serenity::EventHandler for Handler {
             return;
         }
         // Minimum account age gate.
-        if let Some(raw) = tbl_get(&self.pool, &gid, "GUILD.BLOCK_NEW_ACCOUNT").await {
+        if let Some(raw) = block_new_account_routed(&self.pool, &gid).await {
             if let Ok(v) = serde_json::from_str::<serde_json::Value>(&raw) {
                 let req = v.get("req").and_then(|r| r.as_i64()).unwrap_or(0);
                 let now = std::time::SystemTime::now()
@@ -2119,7 +2315,7 @@ impl serenity::EventHandler for Handler {
             return;
         }
         // Nickname kicker (mirrors nickKicker.ts).
-        if let Some(raw) = tbl_get(&self.pool, &gid, "UTILS.NICK_KICKER").await {
+        if let Some(raw) = nick_kicker_routed(&self.pool, &gid).await {
             if let Ok(cfg) = serde_json::from_str::<serde_json::Value>(&raw) {
                 let enabled = cfg
                     .get("enabled")
@@ -2199,9 +2395,7 @@ impl serenity::EventHandler for Handler {
                     // when unattributed).
                     let (inv_name, inv_mention) = match &attributed {
                         Some((iid, code, uname)) => {
-                            let raw = tbl_get(&self.pool, "0", "api.VANITY").await;
-                            let table: Option<serde_json::Value> =
-                                raw.and_then(|s| serde_json::from_str(&s).ok());
+                            let table = vanity_table_routed(&self.pool).await;
                             let bot_id = ctx.cache.current_user().id.get();
                             let vanity = crate::events::custom_vanity_code(
                                 table.as_ref(),
@@ -2239,7 +2433,9 @@ impl serenity::EventHandler for Handler {
             .enabled
         {
             let key = format!("ROLE_SAVER.{}", new_member.user.id.get());
-            if let Some(raw) = tbl_get(&self.pool, &gid, &key).await {
+            if let Some(raw) =
+                rolesaver_row_routed(&self.pool, &gid, new_member.user.id.get()).await
+            {
                 let roles: Vec<String> = serde_json::from_str(&raw).unwrap_or_default();
                 let want: Vec<serenity::RoleId> = roles
                     .iter()
@@ -2275,7 +2471,7 @@ impl serenity::EventHandler for Handler {
         // Security captcha challenge (mirrors security/onMemberJoin.ts).
         // The png render is html2png-blocked, so the code goes out as
         // text; attempts, roles, and the expiry kick all mirror TS.
-        if let Some(raw) = tbl_get(&self.pool, &gid, "SECURITY").await {
+        if let Some(raw) = security_cfg_routed(&self.pool, &gid).await {
             if let Ok(cfg) = serde_json::from_str::<serde_json::Value>(&raw) {
                 let disabled = cfg
                     .get("disable")
@@ -2420,13 +2616,9 @@ impl serenity::EventHandler for Handler {
         // Leaves tracking (mirrors invitesmanager leaves): decrement the
         // recorded inviter, record the leave.
         let gid = guild_id.get().to_string();
-        if let Some(by) = tbl_get(
-            &self.pool,
-            &gid,
-            &format!("USER.{}.INVITES.BY", user.id.get()),
-        )
-        .await
-        .and_then(|s| s.parse::<u64>().ok())
+        if let Some(by) = invites_by_routed(&self.pool, &gid, user.id.get())
+            .await
+            .and_then(|s| s.parse::<u64>().ok())
         {
             let stats =
                 crate::commands::invitesmanager::inv::load_invites(&self.pool, &gid, by).await;
@@ -2488,11 +2680,7 @@ impl serenity::EventHandler for Handler {
         // transcript + log each of the leaver's tickets, delete the
         // channels, then drop their TICKET_ALL rows.
         let ticket_rows: Vec<String> =
-            tbl_scan_prefix(&self.pool, &gid, &format!("TICKET_ALL.{}.", user.id.get()))
-                .await
-                .into_iter()
-                .map(|(k, _)| k)
-                .collect();
+            ticket_user_rows_routed(&self.pool, &gid, user.id.get()).await;
         if !ticket_rows.is_empty() {
             let lang_code = crate::db::guild_lang(&self.pool, Some(guild_id.get())).await;
             let actor = format!("<@{}>", user.id.get());
@@ -2815,7 +3003,7 @@ impl serenity::EventHandler for Handler {
             }
         }
         // Mirrors Events/utils/picOnlyModule.ts: media-only channels.
-        if let Some(raw) = tbl_get(&self.pool, &gid, "UTILS.picOnly").await {
+        if let Some(raw) = pic_only_routed(&self.pool, &gid).await {
             let list: Vec<String> = serde_json::from_str(&raw).unwrap_or_default();
             if list.contains(&msg.channel_id.get().to_string()) {
                 let has_media = !msg.attachments.is_empty()
@@ -2901,7 +3089,7 @@ impl serenity::EventHandler for Handler {
         // Mirrors Events/utils/autoFeur.ts + antiExe.ts + custom reacts.
         {
             use crate::commands::legacy;
-            let raw = tbl_get(&self.pool, &gid, "UTILS.autoFeur").await;
+            let raw = autofeur_routed(&self.pool, &gid).await;
             if legacy::autofeur_on(raw.clone()) {
                 let lang = crate::db::guild_lang(&self.pool, msg.guild_id.map(|g| g.get())).await;
                 if lang == "fr-ME" {
@@ -2933,7 +3121,7 @@ impl serenity::EventHandler for Handler {
                     let _ = msg.reply(&_ctx.http, "feur.").await;
                 }
             }
-            let raw = tbl_get(&self.pool, &gid, "UTILS.antiExe").await;
+            let raw = antiexe_routed(&self.pool, &gid).await;
             if crate::commands::legacy::flag_on(raw) {
                 let names: Vec<String> =
                     msg.attachments.iter().map(|a| a.filename.clone()).collect();
@@ -2953,15 +3141,13 @@ impl serenity::EventHandler for Handler {
                 == Some("false");
             if !hey_off {
                 let lowered = msg.content.to_ascii_lowercase();
-                let triggers: Vec<String> = tbl_scan_prefix(&self.pool, &gid, "GUILD.REACT_MSG.")
-                    .await
-                    .into_iter()
-                    .map(|(k, _)| k)
-                    .collect();
+                let triggers: Vec<String> = react_msg_keys_routed(&self.pool, &gid).await;
                 for key in triggers {
                     if let Some(trigger) = key.strip_prefix("GUILD.REACT_MSG.") {
                         if !trigger.is_empty() && lowered.contains(trigger) {
-                            if let Some(emoji) = tbl_get(&self.pool, &gid, &key).await {
+                            if let Some(emoji) =
+                                react_msg_emoji_routed(&self.pool, &gid, &key).await
+                            {
                                 let _ = msg
                                     .react(
                                         &_ctx.http,
@@ -2986,7 +3172,7 @@ impl serenity::EventHandler for Handler {
         // Mirrors Events/github-lines/onNewMessage.ts: unfurl code
         // links (GitHub/GitLab/Gist) with spam/limit guards.
         if !msg.author.bot && msg.webhook_id.is_none() {
-            let stored = tbl_get(&self.pool, &gid, "UTILS.git_lines").await;
+            let stored = git_lines_routed(&self.pool, &gid).await;
             if crate::commands::utils::github_lines_enabled(stored.as_deref()) {
                 let targets = crate::commands::utils::extract_git_targets(&msg.content);
                 if !targets.is_empty() {
@@ -3092,16 +3278,9 @@ impl serenity::EventHandler for Handler {
         // Mirrors Events/antispam/onNewMessage.ts sliding window.
         // Bypass roles/channels are exempt.
         let bypassed = {
-            let bypass_roles: Vec<String> =
-                tbl_get(&self.pool, &gid, "GUILD.ANTISPAM.BYPASS_ROLES")
-                    .await
-                    .and_then(|s| serde_json::from_str(&s).ok())
-                    .unwrap_or_default();
+            let bypass_roles: Vec<String> = antispam_bypass_roles_routed(&self.pool, &gid).await;
             let bypass_channels: Vec<String> =
-                tbl_get(&self.pool, &gid, "GUILD.ANTISPAM.BYPASS_CHANNELS")
-                    .await
-                    .and_then(|s| serde_json::from_str(&s).ok())
-                    .unwrap_or_default();
+                antispam_bypass_channels_routed(&self.pool, &gid).await;
             let member_roles: Vec<String> = msg
                 .member
                 .as_ref()
@@ -3111,51 +3290,40 @@ impl serenity::EventHandler for Handler {
                 || member_roles.iter().any(|r| bypass_roles.contains(r))
         };
         if !bypassed {
-            if let Some(raw) = tbl_get(
-                &self.pool,
-                &gid,
-                crate::commands::antispam::main::ANTISPAM_KEY,
-            )
-            .await
-            {
-                if let Ok(cfg) =
-                    serde_json::from_str::<crate::commands::antispam::main::AntispamConfig>(&raw)
-                {
-                    if cfg.enabled {
-                        let now = std::time::SystemTime::now()
-                            .duration_since(std::time::UNIX_EPOCH)
-                            .map(|d| d.as_millis() as i64)
-                            .unwrap_or(0);
-                        let slot = format!("{gid}.{}", msg.author.id.get());
-                        let mut spam = self.spam.lock().await;
-                        let entry = spam.entry(slot).or_default();
-                        entry.push(now);
-                        entry.retain(|t| now - t <= cfg.max_interval_ms);
-                        if crate::commands::antispam::main::window_tripped(
-                            entry.len() as u32,
-                            cfg.threshold,
-                            cfg.max_interval_ms,
-                            cfg.max_interval_ms,
-                        ) {
-                            entry.clear();
-                            drop(spam);
-                            let _ = msg.delete(&_ctx.http).await;
-                            if let Some(guild_id) = msg.guild_id {
-                                if let Ok(mut member) =
-                                    guild_id.member(&_ctx.http, msg.author.id).await
-                                {
-                                    let until = serenity::Timestamp::from_unix_timestamp(
-                                        std::time::SystemTime::now()
-                                            .duration_since(std::time::UNIX_EPOCH)
-                                            .map(|d| d.as_secs() as i64)
-                                            .unwrap_or(0)
-                                            + (cfg.punish_time_ms / 1000).max(60),
-                                    );
-                                    if let Ok(until) = until {
-                                        let _ = member
-                                            .disable_communication_until_datetime(&_ctx.http, until)
-                                            .await;
-                                    }
+            if let Some(cfg) = antispam_cfg_routed(&self.pool, &gid).await {
+                if cfg.enabled {
+                    let now = std::time::SystemTime::now()
+                        .duration_since(std::time::UNIX_EPOCH)
+                        .map(|d| d.as_millis() as i64)
+                        .unwrap_or(0);
+                    let slot = format!("{gid}.{}", msg.author.id.get());
+                    let mut spam = self.spam.lock().await;
+                    let entry = spam.entry(slot).or_default();
+                    entry.push(now);
+                    entry.retain(|t| now - t <= cfg.max_interval_ms);
+                    if crate::commands::antispam::main::window_tripped(
+                        entry.len() as u32,
+                        cfg.threshold,
+                        cfg.max_interval_ms,
+                        cfg.max_interval_ms,
+                    ) {
+                        entry.clear();
+                        drop(spam);
+                        let _ = msg.delete(&_ctx.http).await;
+                        if let Some(guild_id) = msg.guild_id {
+                            if let Ok(mut member) = guild_id.member(&_ctx.http, msg.author.id).await
+                            {
+                                let until = serenity::Timestamp::from_unix_timestamp(
+                                    std::time::SystemTime::now()
+                                        .duration_since(std::time::UNIX_EPOCH)
+                                        .map(|d| d.as_secs() as i64)
+                                        .unwrap_or(0)
+                                        + (cfg.punish_time_ms / 1000).max(60),
+                                );
+                                if let Ok(until) = until {
+                                    let _ = member
+                                        .disable_communication_until_datetime(&_ctx.http, until)
+                                        .await;
                                 }
                             }
                         }
@@ -3418,7 +3586,7 @@ impl serenity::EventHandler for Handler {
             old.as_ref().and_then(|o| o.channel_id).map(|c| c.get()),
             new.channel_id.map(|c| c.get()),
         ) {
-            if let Some(raw) = tbl_get(&self.pool, &gid, "GUILD.H247").await {
+            if let Some(raw) = h247_routed(&self.pool, &gid).await {
                 let target = crate::commands::ranks::grant::h247_rejoin_target(
                     crate::commands::ranks::grant::parse_h247(&raw).as_ref(),
                     new.channel_id.map(|c| c.get()),
@@ -3445,9 +3613,7 @@ impl serenity::EventHandler for Handler {
                     .await
                     .map(|m| m.roles.iter().map(|r| r.get()).collect())
                     .unwrap_or_default();
-                let shop_raw = tbl_get(&self.pool, &gid, "ECONOMY.buyableRoles")
-                    .await
-                    .unwrap_or_default();
+                let shop_raw = buyable_roles_routed(&self.pool, &gid).await;
                 let boost =
                     crate::commands::economy::main::member_boost(&shop_raw, &roles).max(1) as u64;
                 crate::events::voice_switch(
@@ -3466,7 +3632,7 @@ impl serenity::EventHandler for Handler {
                 // then both move directions apply: dom moved -> subs follow
                 // the dom's new channel; sub moved -> the sub is pulled back
                 // to the dom's channel.
-                if let Some(raw) = tbl_get(&self.pool, &gid, "UTILS.LEASH").await {
+                if let Some(raw) = leash_routed(&self.pool, &gid).await {
                     let entries: Vec<LeashEntry> = serde_json::from_str(&raw).unwrap_or_default();
                     let valid: Vec<LeashEntry> = entries
                         .iter()
@@ -3600,9 +3766,7 @@ impl serenity::EventHandler for Handler {
                         Err(_) => (vec![], false),
                     },
                 };
-                let shop_raw = tbl_get(&self.pool, &gid, "ECONOMY.buyableRoles")
-                    .await
-                    .unwrap_or_default();
+                let shop_raw = buyable_roles_routed(&self.pool, &gid).await;
                 let boost =
                     crate::commands::economy::main::member_boost(&shop_raw, &roles).max(1) as u64;
                 crate::events::voice_leave(
@@ -3619,7 +3783,7 @@ impl serenity::EventHandler for Handler {
         }
         // Voice freeze enforcement (mirrors voiceTalkFreeze.ts).
         if new.channel_id.is_some() {
-            if let Some(raw) = tbl_get(&self.pool, &gid, "UTILS.VOICE_FREEZE").await {
+            if let Some(raw) = voice_freeze_routed(&self.pool, &gid).await {
                 // Array shape: frozen member list. Object shape: channel-bound
                 // freeze with allowedUsers (mirrors !wlvc.ts).
                 let frozen_member = serde_json::from_str::<Vec<String>>(&raw)
@@ -3759,7 +3923,7 @@ impl serenity::EventHandler for Handler {
         {
             let old_ch = old.as_ref().and_then(|o| o.channel_id).map(|c| c.get());
             let new_ch = new.channel_id.map(|c| c.get());
-            if let Some(raw) = tbl_get(&self.pool, &gid, "GUILD.TTS").await {
+            if let Some(raw) = tts_raw_routed(&self.pool, &gid).await {
                 if crate::commands::tts::tts_row_enabled(&raw) {
                     if let Ok(cfg) = serde_json::from_str::<crate::commands::tts::TtsConfig>(&raw) {
                         if let Ok(tts_vc) = cfg.voice_channel_id.parse::<u64>() {
@@ -3783,7 +3947,7 @@ impl serenity::EventHandler for Handler {
                                         .count()
                                 });
                                 if humans == Some(0) {
-                                    let keep = match tbl_get(&self.pool, &gid, "GUILD.H247").await {
+                                    let keep = match h247_routed(&self.pool, &gid).await {
                                         Some(hraw) => crate::commands::tts::tts_keep_voice(
                                             crate::commands::ranks::grant::parse_h247(&hraw)
                                                 .as_ref(),
@@ -3930,11 +4094,9 @@ impl serenity::EventHandler for Handler {
                 };
                 if !name.is_empty() {
                     let gid = guild_id.get().to_string();
-                    let key = format!("GUILD.REACTION_ROLES.{}.{}", removed.message_id.get(), name);
-                    if let Some(role_id) = tbl_get(&self.pool, &gid, &key)
-                        .await
-                        .as_deref()
-                        .and_then(crate::commands::rolereactions::rolereaction::parse_reaction_role)
+                    if let Some(role_id) =
+                        reaction_role_routed(&self.pool, &gid, removed.message_id.get(), &name)
+                            .await
                     {
                         if let Ok(member) = guild_id.member(&ctx.http, user_id).await {
                             let _ = member
@@ -3977,10 +4139,7 @@ impl serenity::EventHandler for Handler {
     ) {
         // Mirrors prevnamesModule.ts (global username history).
         let key = crate::events::prevnames_key(new.id.get());
-        let raw = tbl_get(&self.pool, "0", &key).await;
-        let history: Vec<String> = raw
-            .and_then(|s| serde_json::from_str(&s).ok())
-            .unwrap_or_default();
+        let history: Vec<String> = prevnames_routed(&self.pool, new.id.get()).await;
         let next = crate::events::push_prevname(history, &new.name, crate::events::PREVNAMES_CAP);
         let _ = tbl_set(
             &self.pool,
@@ -4154,7 +4313,7 @@ impl serenity::EventHandler for Handler {
         let gid = channel.guild_id.get().to_string();
         // Purge ticket rows bound to this channel: TICKET_ALL.<user>.<channel>.
         let chan_suffix = format!(".{}", channel.id.get());
-        for (k, _) in tbl_scan_prefix(&self.pool, &gid, "TICKET_ALL.").await {
+        for (k, _) in ticket_rows_routed(&self.pool, &gid).await {
             if k.ends_with(&chan_suffix) {
                 let _ = tbl_del(&self.pool, &gid, &k).await;
             }
@@ -4374,11 +4533,7 @@ impl serenity::EventHandler for Handler {
         if let Some(ref updated) = new {
             let gid = updated.guild_id.get().to_string();
             for role_id in updated.roles.iter() {
-                let key = format!("GUILD.UTILS.ROLE_LIMIT.{}", role_id.get());
-                if let Some(limit) = tbl_get(&self.pool, &gid, &key)
-                    .await
-                    .and_then(|s| s.parse::<usize>().ok())
-                {
+                if let Some(limit) = role_limit_routed(&self.pool, &gid, role_id.get()).await {
                     let count = ctx
                         .cache
                         .guild(updated.guild_id)
@@ -4634,10 +4789,8 @@ impl serenity::EventHandler for Handler {
                     previous
                 );
                 let key = crate::events::prevnames_key(updated.user.id.get());
-                let raw = tbl_get(&self.pool, "0", &key).await;
-                let history: Vec<String> = raw
-                    .and_then(|s| serde_json::from_str(&s).ok())
-                    .unwrap_or_default();
+                let history: Vec<String> =
+                    prevnames_routed(&self.pool, updated.user.id.get()).await;
                 let next =
                     crate::events::push_prevname(history, &entry, crate::events::PREVNAMES_CAP);
                 let _ = tbl_set(
@@ -4714,7 +4867,7 @@ impl serenity::EventHandler for Handler {
             return;
         }
         let gid = guild_id.get().to_string();
-        let Some(raw) = tbl_get(&self.pool, &gid, "GUILD.SUPPORT").await else {
+        let Some(raw) = support_cfg_routed(&self.pool, &gid).await else {
             return;
         };
         let Ok(cfg) = serde_json::from_str::<serde_json::Value>(&raw) else {
@@ -5368,6 +5521,180 @@ mod restore_tests {
             .unwrap();
         assert!(derogated_routed(&pool, "g1", 8).await);
         assert!(!derogated_routed(&pool, "g1", 9).await);
+        // Punish leaves.
+        tbl_set(
+            &pool,
+            "g1",
+            "GUILD.PUNISH.PUNISH_PUB",
+            "{\"state\":\"true\"}",
+        )
+        .await
+        .unwrap();
+        assert!(punish_pub_routed(&pool, "g1").await.is_some());
+        assert!(punish_pub_routed(&pool, "g9").await.is_none());
+        tbl_set(&pool, "g1", "PUNISH_DATA.g1.8", "{\"flags\":2}")
+            .await
+            .unwrap();
+        assert_eq!(
+            punish_data_routed(&pool, "g1", 8).await.as_deref(),
+            Some("{\"flags\":2}")
+        );
+        assert!(punish_data_routed(&pool, "g1", 9).await.is_none());
+        // Automod + lang leaves (legacy-only rows read through).
+        crate::db::kv_set(&pool, "g1", "GUILD.AUTOMOD.spam", "1")
+            .await
+            .unwrap();
+        assert!(automod_flag_routed(&pool, "g1", "spam").await);
+        assert!(!automod_flag_routed(&pool, "g1", "links").await);
+        crate::db::kv_set(&pool, "g1", "GUILD.LANG", "fr-FR")
+            .await
+            .unwrap();
+        assert_eq!(
+            guild_lang_routed(&pool, "g1").await.as_deref(),
+            Some("fr-FR")
+        );
+        // Block gates.
+        tbl_set(&pool, "g1", "GUILD.BLOCK_BOT", "1").await.unwrap();
+        assert!(block_bot_routed(&pool, "g1").await);
+        assert!(!block_bot_routed(&pool, "g9").await);
+        tbl_set(&pool, "g1", "GUILD.BLOCK_NEW_ACCOUNT", "{\"req\":7}")
+            .await
+            .unwrap();
+        assert!(block_new_account_routed(&pool, "g1").await.is_some());
+        // Nick kicker + vanity + rolesaver + security.
+        tbl_set(&pool, "g1", "UTILS.NICK_KICKER", "{\"enabled\":true}")
+            .await
+            .unwrap();
+        assert!(nick_kicker_routed(&pool, "g1").await.is_some());
+        crate::db::kv_set(&pool, "0", "api.VANITY", "{\"g1\":\"abc\"}")
+            .await
+            .unwrap();
+        assert_eq!(
+            vanity_table_routed(&pool)
+                .await
+                .and_then(|v| v.get("g1").cloned()),
+            Some(serde_json::Value::String("abc".to_string()))
+        );
+        tbl_set(&pool, "g1", "ROLE_SAVER.8", "[\"1\",\"2\"]")
+            .await
+            .unwrap();
+        assert_eq!(
+            rolesaver_row_routed(&pool, "g1", 8).await.as_deref(),
+            Some("[\"1\",\"2\"]")
+        );
+        assert!(rolesaver_row_routed(&pool, "g1", 9).await.is_none());
+        tbl_set(&pool, "g1", "SECURITY", "{\"disable\":false}")
+            .await
+            .unwrap();
+        assert!(security_cfg_routed(&pool, "g1").await.is_some());
+        // Invites BY + tickets.
+        tbl_set(&pool, "g1", "USER.5.INVITES.BY", "8")
+            .await
+            .unwrap();
+        assert_eq!(
+            invites_by_routed(&pool, "g1", 5).await.as_deref(),
+            Some("8")
+        );
+        tbl_set(&pool, "g1", "TICKET_ALL.5.77", "open")
+            .await
+            .unwrap();
+        crate::db::kv_set(&pool, "g1", "TICKET_ALL.5.78", "open")
+            .await
+            .unwrap();
+        let urows = ticket_user_rows_routed(&pool, "g1", 5).await;
+        assert!(urows.contains(&"TICKET_ALL.5.77".to_string()));
+        assert!(urows.contains(&"TICKET_ALL.5.78".to_string()));
+        assert!(!ticket_rows_routed(&pool, "g1").await.is_empty());
+        // Utils leaves.
+        tbl_set(&pool, "g1", "UTILS.picOnly", "[\"11\"]")
+            .await
+            .unwrap();
+        assert!(pic_only_routed(&pool, "g1").await.is_some());
+        tbl_set(&pool, "g1", "UTILS.autoFeur", "1").await.unwrap();
+        assert_eq!(autofeur_routed(&pool, "g1").await.as_deref(), Some("1"));
+        tbl_set(&pool, "g1", "UTILS.antiExe", "1").await.unwrap();
+        assert_eq!(antiexe_routed(&pool, "g1").await.as_deref(), Some("1"));
+        tbl_set(&pool, "g1", "GUILD.REACT_MSG.hello", "wave")
+            .await
+            .unwrap();
+        assert!(react_msg_keys_routed(&pool, "g1")
+            .await
+            .contains(&"GUILD.REACT_MSG.hello".to_string()));
+        assert!(react_msg_emoji_routed(&pool, "g1", "GUILD.REACT_MSG.hello")
+            .await
+            .is_some());
+        tbl_set(&pool, "g1", "UTILS.git_lines", "1").await.unwrap();
+        assert_eq!(git_lines_routed(&pool, "g1").await.as_deref(), Some("1"));
+        // Antispam leaves.
+        tbl_set(&pool, "g1", "GUILD.ANTISPAM.BYPASS_ROLES", "[\"3\"]")
+            .await
+            .unwrap();
+        assert_eq!(
+            antispam_bypass_roles_routed(&pool, "g1").await,
+            vec!["3".to_string()]
+        );
+        assert!(antispam_bypass_channels_routed(&pool, "g1")
+            .await
+            .is_empty());
+        tbl_set(&pool, "g1", "GUILD.ANTISPAM", "{\"enabled\":true}")
+            .await
+            .unwrap();
+        assert!(antispam_cfg_routed(&pool, "g1")
+            .await
+            .map(|c| c.enabled)
+            .unwrap_or(false));
+        assert!(antispam_cfg_routed(&pool, "g9").await.is_none());
+        // Voice / economy leaves.
+        tbl_set(&pool, "g1", "GUILD.H247", "99").await.unwrap();
+        assert_eq!(h247_routed(&pool, "g1").await.as_deref(), Some("99"));
+        tbl_set(&pool, "g1", "ECONOMY.buyableRoles", "[]")
+            .await
+            .unwrap();
+        assert_eq!(buyable_roles_routed(&pool, "g1").await, "[]");
+        assert!(buyable_roles_routed(&pool, "g9").await.is_empty());
+        tbl_set(&pool, "g1", "UTILS.LEASH", "[]").await.unwrap();
+        assert!(leash_routed(&pool, "g1").await.is_some());
+        tbl_set(&pool, "g1", "UTILS.VOICE_FREEZE", "[]")
+            .await
+            .unwrap();
+        assert!(voice_freeze_routed(&pool, "g1").await.is_some());
+        tbl_set(&pool, "g1", "GUILD.TTS", "{\"voiceChannelId\":\"4\"}")
+            .await
+            .unwrap();
+        assert!(tts_raw_routed(&pool, "g1").await.is_some());
+        // Reaction roles + prevnames + role limit + support + bot profile.
+        tbl_set(&pool, "g1", "GUILD.REACTION_ROLES.10.thumbsup", "42")
+            .await
+            .unwrap();
+        assert_eq!(
+            reaction_role_routed(&pool, "g1", 10, "thumbsup").await,
+            Some(42)
+        );
+        assert!(reaction_role_routed(&pool, "g1", 10, "nope")
+            .await
+            .is_none());
+        tbl_set(&pool, "0", "PREVNAMES.8", "[\"old\"]")
+            .await
+            .unwrap();
+        assert_eq!(prevnames_routed(&pool, 8).await, vec!["old".to_string()]);
+        assert!(prevnames_routed(&pool, 9).await.is_empty());
+        tbl_set(&pool, "g1", "GUILD.UTILS.ROLE_LIMIT.6", "3")
+            .await
+            .unwrap();
+        assert_eq!(role_limit_routed(&pool, "g1", 6).await, Some(3));
+        assert!(role_limit_routed(&pool, "g1", 7).await.is_none());
+        tbl_set(&pool, "g1", "GUILD.SUPPORT", "{\"rolesId\":\"5\"}")
+            .await
+            .unwrap();
+        assert!(support_cfg_routed(&pool, "g1").await.is_some());
+        tbl_set(&pool, "g1", "BOT.botName", "TestBot")
+            .await
+            .unwrap();
+        assert_eq!(
+            bot_name_routed(&pool, "g1").await.as_deref(),
+            Some("TestBot")
+        );
+        assert!(bot_pfp_routed(&pool, "g1").await.is_none());
     }
 
     #[tokio::test]

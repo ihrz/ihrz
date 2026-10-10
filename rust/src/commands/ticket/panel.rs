@@ -85,7 +85,7 @@ pub fn assemble_panel_code(existing: Option<&str>) -> String {
             length: 10,
             numbers: true,
             symbols: false,
-            lowercase: false,
+            lowercase: true,
             uppercase: true,
             exclude_similar: false,
             exclude: String::new(),
@@ -125,7 +125,7 @@ pub fn mint_option_value(used: &[String]) -> String {
                 length: 12,
                 numbers: true,
                 symbols: false,
-                lowercase: false,
+                lowercase: true,
                 uppercase: true,
                 exclude_similar: false,
                 exclude: String::new(),
@@ -1953,9 +1953,9 @@ mod tests {
         for seed in [None, Some(""), Some("   ")] {
             let code = assemble_panel_code(seed);
             assert_eq!(code.len(), 10, "code: {code}");
-            assert!(code
-                .chars()
-                .all(|c| c.is_ascii_uppercase() || c.is_ascii_digit()));
+            // TS charset: generatePassword defaults lowercase:true, so
+            // codes are mixed-case alphanumerics (upper+lower+digits).
+            assert!(code.chars().all(|c| c.is_ascii_alphanumeric()));
         }
         let a = assemble_panel_code(None);
         assert_eq!(a.len(), 10);

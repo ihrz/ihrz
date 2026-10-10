@@ -156,6 +156,7 @@ committed — see `.gitignore`. No push without a green
 - [x] U-ETERNAL-12 (2026-10-10: vague-11 5/5 — guildconfig/ticket callers routés, fun captions/togif/catsay/love/caracteres-26, setserverlang panel + invite/link embeds, verify audit (GW/schedule/sticky confirmés, ticket+music résiduels déjà fixés). Lead: decode_stored_string + test D17 parité fonctionnelle, captions/togif enregistrés (registre 179), love_score/caracteres morts supprimés, user.rs→love_roll. Suite 916/0, fmt + clippy clean).
 - [x] U-ETERNAL-13 (2026-10-10: vague-12 5/5 — D18 emitters, D19 ticket mod, D20 econ mod, D21 save_rank + XP table-only (dual-write terminé), audit batch-3 → 11 items. Suite 917/0, fmt + clippy clean).
 - [x] U-ETERNAL-14 (2026-10-10: vague-13 5/5 — protection schema TS, antispam manage, honeypot pipeline + tts guards, aliases batch-3 + confession panel, emitters-2. Lead: 13 clés YAML x10, claim rewired action+logs, starboard macro morte supprimée, 3 lints. Suite 937/0, fmt + clippy clean).
+- [x] U-ETERNAL-15 (2026-10-10: vague-14 5/5 — voice flat adopté + category/position fixés, authrestore pager + force-join progress, schedule confirm embed, emitters-3 (30 loaders), verify vagues 8-13 (4 zones confirmées). Lead: panel-code charset lowercase:true + test. Suite 942/0, fmt + clippy clean).
 
 ## Eternal backlog (seeded 2026-10-09 by 7 read-only audits + lavalink edge audit; full reports in `~/.hermes/cache/delegation/live/deleg_55b606d3/task-{0,1,2,3,4,5,9}.log` — each item is a future unit for other models, files disjoint unless noted)
 
