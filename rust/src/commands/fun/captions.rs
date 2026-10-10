@@ -27,13 +27,10 @@ pub async fn captions(
     }
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     // Mirrors `client.func.validImageType(image.contentType)` in `!captions.ts`
-    // (exact allowlist: png/jpeg/jpg/gif/webp).
+    // (exact allowlist: png/jpeg/jpg/gif/webp); the deny is the `No`
+    // app-emoji reply like `!captions.ts` and `!bubbles.ts`.
     if !crate::funcs::is_valid_image_type(image.content_type.as_deref()) {
-        ctx.say(
-            crate::lang::get(&code, "msg_invalid_image_type")
-                .unwrap_or_else(|| "Invalid image type.".to_string()),
-        )
-        .await?;
+        deny_no_emoji(&ctx).await;
         return Ok(());
     }
     // GIF render (`html2png` captions template, `.meme-container`) pending;

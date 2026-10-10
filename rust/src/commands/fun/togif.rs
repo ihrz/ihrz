@@ -46,16 +46,14 @@ pub fn togif_flatten_white(img: &image::RgbaImage) -> image::RgbImage {
     out
 }
 
-/// Deny reply for bad source images. Mirrors the `No` emoji replies in
-/// `!togif.ts` (both the content-type guard and the conversion catch).
-async fn deny_invalid(ctx: &Ctx<'_>, code: &str) -> Result<(), anyhow::Error> {
-    ctx.say(
-        crate::lang::get(code, "msg_invalid_image_type")
-            .unwrap_or_else(|| "Invalid image type.".to_string()),
-    )
-    .await?;
+/// Deny reply for bad source images. Mirrors the `No` app-emoji replies in
+/// `!togif.ts` (both the content-type guard and the conversion catch),
+/// via the shared `deny_no_emoji` helper (bubbles deny pattern).
+async fn deny_invalid(ctx: &Ctx<'_>, _code: &str) -> Result<(), anyhow::Error> {
+    deny_no_emoji(ctx).await;
     Ok(())
 }
+
 #[poise::command(slash_command, prefix_command, category = "fun", rename = "togif")]
 pub async fn togif(
     ctx: Ctx<'_>,
@@ -75,10 +73,13 @@ pub async fn togif(
     }
     // Mirrors `createGifFromUrl`: download (15 MiB cap), decode, clamp the
     // long side to 512, flatten alpha on white, encode GIF.
-    // Delta (documented): single-frame output vs the TS two identical
-    // frames (visually identical still); webp sources need the TS
-    // browser-canvas decode path and fall into the deny reply here
-    // (`image` enables png/jpeg/gif only).
+    // Deliberate webp denial (documented): `validImageType` allowlists webp
+    // and TS decodes it through a headless-browser canvas
+    // (`decodeWithBrowser`), but the Rust `image` crate is built with
+    // `features = ["png", "jpeg", "gif"]` only (see Cargo.toml) — no webp
+    // decoder exists in the tree — so webp sources fall into the deny reply
+    // here. Delta (documented): single-frame output vs the TS two identical
+    // frames (visually identical still).
     let bytes = match reqwest::Client::new().get(&image.url).send().await {
         Ok(resp) => match resp.bytes().await {
             Ok(b) => b.to_vec(),

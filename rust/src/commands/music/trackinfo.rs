@@ -49,14 +49,10 @@ pub async fn m_trackinfo(
             }
         }
     }
-    match m.snapshot(gid).await.and_then(|s| s.current) {
-        Some(t) => {
-            let p = preview_for_track(&t).await;
-            let requester = user_name_for(&ctx, Some(t.requester)).await;
-            reply_for_queued(&ctx, &code, &t, &p, &requester).await
-        }
-        None => no_result(&ctx, &code).await,
-    }
+    // No query means no search, hence the no-result embed — mirrors
+    // `!trackinfo.ts:61-73` (`searchMusicQuery(query || "")` with no
+    // current-track fallback).
+    no_result(&ctx, &code).await
 }
 
 /// Lava search-hit path: artwork/colour from the hit, enrichment for the
@@ -120,39 +116,6 @@ async fn reply_for_preview(
         query,
     )
     .await
-}
-
-/// Current-track path (no query): lyrics over `title - author`.
-async fn reply_for_queued(
-    ctx: &Ctx<'_>,
-    code: &str,
-    t: &crate::lavalink::QueuedTrack,
-    p: &NormalizedPreview,
-    requester: &str,
-) -> Result<(), anyhow::Error> {
-    let lyrics_query = format!("{} - {}", t.title, t.author);
-    reply_for_trackinfo(
-        ctx,
-        code,
-        &t.title,
-        &t.author,
-        t.uri.as_deref(),
-        p.image.as_deref(),
-        requester,
-        Some(&lyrics_query),
-    )
-    .await
-}
-
-/// Display name for a user id: cache hit, else the invoker (TS always
-/// resolves the requester User; the id may have left the guild).
-async fn user_name_for(ctx: &Ctx<'_>, user_id: Option<u64>) -> String {
-    if let Some(id) = user_id {
-        if let Some(u) = ctx.serenity_context().cache.user(serenity::UserId::new(id)) {
-            return u.name.clone();
-        }
-    }
-    ctx.author().name.clone()
 }
 
 #[allow(clippy::too_many_arguments)]

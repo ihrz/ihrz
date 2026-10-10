@@ -1917,83 +1917,9 @@ async fn post_ticket_panel_message(
     }
 }
 
-/// Parse a roles-to-ping CSV into snowflake ids: plain ids, mentions
-/// (`<@&123>`) and stray whitespace all reduce to digit runs,
-/// deduplicated in order. Mirrors the RoleSelect values TS stores.
-pub fn parse_roles_csv(csv: &str) -> Vec<String> {
-    let mut out: Vec<String> = vec![];
-    for chunk in csv.split([',', ' ', '\n', '\t']) {
-        let digits: String = chunk.chars().filter(|c| c.is_ascii_digit()).collect();
-        if !digits.is_empty() && !out.contains(&digits) {
-            out.push(digits);
-        }
-    }
-    out
-}
-/// Setter for the ticket panel V2 flags.
-#[poise::command(
-    slash_command,
-    prefix_command,
-    rename = "panel-v2",
-    default_member_permissions = "ADMINISTRATOR"
-)]
-pub async fn ticket_panel_v2(
-    ctx: Ctx<'_>,
-    #[description = "Panel id"] panel_id: String,
-    #[description = "Role ids to ping (comma separated)"] roles_to_ping: Option<String>,
-    #[description = "Ping ticket opener"] ping_user: Option<bool>,
-    #[description = "Show delete button"] delete_button: Option<bool>,
-    #[description = "Show transcript button"] transcript_button: Option<bool>,
-    #[description = "Show user select panel"] user_select_panel: Option<bool>,
-) -> Result<(), anyhow::Error> {
-    let gid = ctx
-        .guild_id()
-        .map(|g| g.get().to_string())
-        .unwrap_or_default();
-    let pid = panel_id.trim().to_string();
-    if pid.is_empty() {
-        return Ok(());
-    }
-    let mut panel = load_panel_routed(&ctx.data().pool, &gid, &pid).await;
-    if let Some(csv) = roles_to_ping {
-        panel.config.roles_to_ping = parse_roles_csv(&csv);
-    }
-    if let Some(v) = ping_user {
-        panel.config.ping_user = v;
-    }
-    if let Some(v) = delete_button {
-        panel.config.delete_button = v;
-    }
-    if let Some(v) = transcript_button {
-        panel.config.transcript_button = v;
-    }
-    if let Some(v) = user_select_panel {
-        panel.config.user_select_panel = v;
-    }
-    save_panel_routed(&ctx.data().pool, &gid, &pid, &panel).await?;
-    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-    ctx.say(
-        crate::lang::get(&code, "msg_ticket_panel_updated")
-            .map(|s| s.replace("{id}", &pid))
-            .unwrap_or_else(|| format!("Ticket panel `{pid}` updated.")),
-    )
-    .await?;
-    Ok(())
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    #[test]
-    fn roles_csv_parses_ids_mentions_and_dupes() {
-        assert_eq!(
-            parse_roles_csv("123, <@&456>, 123  789"),
-            vec!["123".to_string(), "456".to_string(), "789".to_string()]
-        );
-        assert!(parse_roles_csv("").is_empty());
-        assert!(parse_roles_csv("  , <@&> ").is_empty());
-    }
 
     #[test]
     fn panel_code_keeps_stored() {

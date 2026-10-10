@@ -113,7 +113,7 @@ pub async fn ticket_delete(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         let _ = channel_id.delete(&http).await;
         return Ok(());
     };
-    let (html, _count) = channel_transcript_html(&http, channel_id).await;
+    let (html, _count) = channel_transcript_html(&http, channel_id, false).await;
     let file_name = format!("{gid}-transcript.html");
     if owner_id != 0 && owner_id != deleter_id {
         let owner_mention = format!("<@{owner_id}>");
@@ -144,16 +144,16 @@ pub async fn ticket_delete(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         footer_icon.is_some(),
     );
     let _ = channel_id.delete(&http).await;
-    let mut log_msg =
-        serenity::CreateMessage::new()
-            .embed(embed)
-            .add_file(serenity::CreateAttachment::bytes(
-                html.into_bytes(),
-                file_name,
-            ));
+    // TS TicketDelete files order: footer attachment first, transcript
+    // second (close flow is the reverse; see close.rs).
+    let mut log_msg = serenity::CreateMessage::new().embed(embed);
     if let Some(icon) = footer_icon {
         log_msg = log_msg.add_file(serenity::CreateAttachment::bytes(icon, "footer_icon.png"));
     }
+    log_msg = log_msg.add_file(serenity::CreateAttachment::bytes(
+        html.into_bytes(),
+        file_name,
+    ));
     let _ = logs.send_message(&http, log_msg).await;
     Ok(())
 }

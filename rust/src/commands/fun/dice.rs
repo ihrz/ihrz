@@ -1,8 +1,9 @@
 use super::*;
 
 /// Dice roll. Mirrors !dice.ts.
-// Slash caps mirror the `to(7)` / `to(12)` choices in fun.ts; prefix input
-// is clamped the same way.
+// Slash caps live in the `#[min]`/`#[max]` attributes (and the `to(7)` /
+// `to(12)` choices in fun.ts); prefix input is unbounded like the TS
+// `for (let i = 0; i < number; i++)` loop, which applies no cap.
 #[poise::command(
     slash_command,
     prefix_command,
@@ -24,8 +25,7 @@ pub async fn dice(
     if fun_guard(&ctx).await {
         return Ok(());
     }
-    let number = number.unwrap_or(1).clamp(1, 7) as usize;
-    let faces = number_faces(faces.unwrap_or(6));
+    let (number, faces) = dice_counts(number, faces);
     let results = roll_dice_set(number, faces);
     let total: u32 = results.iter().sum();
     let embed = poise::serenity_prelude::CreateEmbed::default()
@@ -46,9 +46,15 @@ pub async fn dice(
     Ok(())
 }
 
-/// Clamp faces to the 1-12 slash range. Mirrors the `to(12)` choices.
-pub fn number_faces(faces: i64) -> u32 {
-    faces.clamp(1, 12) as u32
+/// Prefix counts. Mirrors the uncapped TS loop: no upper clamp here
+/// (slash-only caps come from the command attributes). Lower bounds only
+/// keep the conversion safe: negative counts roll nothing (the TS loop
+/// body never runs), faces floor at 1.
+pub fn dice_counts(number: Option<i64>, faces: Option<i64>) -> (usize, u32) {
+    (
+        number.unwrap_or(1).max(0) as usize,
+        faces.unwrap_or(6).clamp(1, u32::MAX as i64) as u32,
+    )
 }
 
 #[cfg(test)]
@@ -56,10 +62,12 @@ mod dice_tests {
     use super::*;
 
     #[test]
-    fn faces_clamp_to_slash_range() {
-        assert_eq!(number_faces(6), 6);
-        assert_eq!(number_faces(0), 1);
-        assert_eq!(number_faces(-3), 1);
-        assert_eq!(number_faces(99), 12);
+    fn prefix_counts_uncapped_like_ts() {
+        // Slash-only caps live in the attributes; prefix values pass through.
+        assert_eq!(dice_counts(Some(99), Some(100)), (99, 100));
+        assert_eq!(dice_counts(None, None), (1, 6));
+        // Lower bounds only: negatives degrade to no rolls / single-face.
+        assert_eq!(dice_counts(Some(-3), Some(0)), (0, 1));
+        assert_eq!(dice_counts(Some(0), Some(-3)), (0, 1));
     }
 }

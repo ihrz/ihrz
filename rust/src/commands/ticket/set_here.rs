@@ -26,9 +26,12 @@ const PROMPT_TIMEOUT_SECS: u64 = 300;
 
 // ---- Pure builder pieces (offline-testable, mirror TS exactly) ----
 
-/// Keep only the snowflake digits (`<#123>` / `123` -> `123`).
-pub fn sanitize_category_id(raw: &str) -> String {
-    raw.chars().filter(|c| c.is_ascii_digit()).collect()
+/// Ticket-category id for the panel marker: the picked channel's id,
+/// empty when none (TS `data.category`, null when unset).
+pub fn panel_category_id(channel: Option<&serenity::Channel>) -> String {
+    channel
+        .map(|c| c.id().get().to_string())
+        .unwrap_or_default()
 }
 
 /// Button-panel marker row (`GUILD.TICKET.<msgId>`). TS
@@ -152,7 +155,9 @@ pub async fn ticket_set_here(
     ctx: Ctx<'_>,
     #[description = "Panel name"] name: String,
     #[description = "Description"] description: Option<String>,
-    #[description = "Ticket category id"] category: Option<String>,
+    #[description = "Ticket category"]
+    #[channel_types("Category")]
+    category: Option<serenity::Channel>,
 ) -> Result<(), anyhow::Error> {
     let gid = ctx
         .guild_id()
@@ -165,7 +170,7 @@ pub async fn ticket_set_here(
         return Ok(());
     }
     let t = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
-    let category_id = sanitize_category_id(category.as_deref().unwrap_or_default());
+    let category_id = panel_category_id(category.as_ref());
     let type_menu = serenity::CreateSelectMenu::new(
         TYPE_PICK_ID,
         serenity::CreateSelectMenuKind::String {
@@ -804,10 +809,23 @@ mod tests {
     }
 
     #[test]
-    fn category_id_keeps_digits_only() {
-        assert_eq!(sanitize_category_id("<#123>"), "123");
-        assert_eq!(sanitize_category_id("456"), "456");
-        assert_eq!(sanitize_category_id(""), "");
+    fn category_id_comes_from_picked_channel() {
+        assert_eq!(panel_category_id(None), "");
+        // GuildChannel is non_exhaustive: build it through JSON.
+        let gc: serenity::GuildChannel = serde_json::from_value(serde_json::json!({
+            "id": "123",
+            "guild_id": "1",
+            "type": 4,
+            "name": "tickets",
+            "position": 0,
+            "permission_overwrites": [],
+            "nsfw": false
+        }))
+        .unwrap();
+        assert_eq!(
+            panel_category_id(Some(&serenity::Channel::Guild(gc))),
+            "123"
+        );
     }
 
     #[test]

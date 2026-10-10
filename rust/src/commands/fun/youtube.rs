@@ -21,8 +21,10 @@ pub async fn youtube(
         .duration_since(std::time::UNIX_EPOCH)
         .map(|d| d.as_millis() as u64)
         .unwrap_or(1);
-    let likes = youtube_likes(now).to_string();
-    // html2png comment-card render pending; text shape ported.
+    let likes = crate::funcs::format_number(youtube_likes(now) as f64);
+    // html2png comment-card render pending; text shape ported. Likes go
+    // through the number beautifier like `{likes}` in `!youtube.ts`
+    // (`client.func.numberBeautifuer`).
     ctx.say(
         crate::lang::get(&code, "fun_youtube_pending")
             .map(|s| {

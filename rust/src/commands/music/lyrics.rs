@@ -88,11 +88,12 @@ pub(crate) async fn resolve_lyrics_meta(
     }
 }
 
-/// TS `substring(0, 1997)` + `"..."` suffix rule, char-safe
-/// (`trimmed.length === 1997` iff the source was longer).
+/// TS `substring(0, 1997)` + `"..."` suffix rule (`trimmed.length ===
+/// 1997`, which holds whenever the source reached that width —
+/// including an exactly-1997 source), char-safe.
 pub fn lyrics_embed_description(text: &str) -> String {
     let trimmed: String = text.chars().take(1997).collect();
-    if text.chars().count() > 1997 {
+    if text.chars().count() >= 1997 {
         format!("{trimmed}...")
     } else {
         trimmed
@@ -178,11 +179,16 @@ mod tests {
     }
 
     #[test]
-    fn description_exact_1997_has_no_suffix() {
-        // TS only appends "..." when trimmed.length === 1997 came from a
-        // longer source; an exactly-1997 source renders bare.
+    fn description_exact_1997_gets_suffix_like_ts() {
+        // TS checks `trimmed.length === 1997`, which also holds for an
+        // exactly-1997 source, so the suffix applies there too.
         let exact = "y".repeat(1997);
-        assert_eq!(lyrics_embed_description(&exact), exact);
+        assert_eq!(
+            lyrics_embed_description(&exact),
+            format!("{}...", "y".repeat(1997))
+        );
+        let under = "y".repeat(1996);
+        assert_eq!(lyrics_embed_description(&under), under);
         let over = "y".repeat(1998);
         assert_eq!(
             lyrics_embed_description(&over),

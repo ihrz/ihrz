@@ -1,5 +1,16 @@
 use super::*;
 
+/// Parse the config action. Mirrors !config.ts:50/68 — only the exact
+/// `on` / `off` values act (slash choices lock to those); anything else
+/// is a silent no-op, never a disable.
+pub fn parse_config_action(action: &str) -> Option<bool> {
+    match action {
+        "on" => Some(true),
+        "off" => Some(false),
+        _ => None,
+    }
+}
+
 #[poise::command(
     slash_command,
     prefix_command,
@@ -14,7 +25,9 @@ pub async fn ticket_config(
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
-    let enabled = matches!(action.to_ascii_lowercase().as_str(), "on" | "power on");
+    let Some(enabled) = parse_config_action(&action) else {
+        return Ok(());
+    };
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     // Config audit log, like the ihorizon_logs calls in !config.ts.
     if let Some(guild_id) = ctx.guild_id() {
@@ -67,6 +80,7 @@ pub async fn ticket_config(
 
 #[cfg(test)]
 mod tests {
+    use super::parse_config_action;
     async fn mem_pool() -> crate::db::Pool {
         use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};
         use std::str::FromStr;
@@ -85,6 +99,18 @@ mod tests {
         .await
         .unwrap();
         pool
+    }
+
+    #[test]
+    fn only_exact_on_off_act() {
+        assert_eq!(parse_config_action("on"), Some(true));
+        assert_eq!(parse_config_action("off"), Some(false));
+        // Anything else is a silent no-op, never a disable.
+        for bad in [
+            "", "ON", "OFF", "power on", "enable", "disable", " on", "on ",
+        ] {
+            assert_eq!(parse_config_action(bad), None, "input: {bad:?}");
+        }
     }
 
     #[tokio::test]

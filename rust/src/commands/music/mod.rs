@@ -202,12 +202,6 @@ pub fn fmt_track_duration(total_ms: u64) -> String {
     )
 }
 
-/// Pause gate (mirrors `!pause.ts`: pausing needs a live track that is
-/// not already paused).
-pub fn can_pause(has_current: bool, paused: bool) -> bool {
-    has_current && !paused
-}
-
 /// H247 play guard (mirrors the `getH247Data` leg in
 /// `handleMusicPlay`): refuse when 24/7 is enabled and the requester
 /// is not in the parked voice channel.
@@ -829,16 +823,12 @@ fn preview_embed(p: &NormalizedPreview, length_ms: Option<u64>) -> serenity::Cre
     embed
 }
 
-/// Queue line for one track: markdown link when a URI exists, tagged with
-/// the detected provider (pure, no network fan-out over the queue).
-pub fn queue_line(idx: usize, title: &str, author: &str, uri: Option<&str>) -> String {
-    let tag = uri
-        .and_then(detect_meta_source)
-        .map(|s| format!(" [{}]", meta_source_tag(s)))
-        .unwrap_or_default();
+/// Queue line for one upcoming track, mirroring `!queue.ts`:
+/// `**n)** [title](uri)` (bare `**n)** title` when no URI).
+pub fn queue_line(idx: usize, title: &str, uri: Option<&str>) -> String {
     match uri.filter(|u| !u.is_empty()) {
-        Some(u) => format!("{idx}. [{title}]({u}) - {author}{tag}"),
-        None => format!("{idx}. {title} - {author}{tag}"),
+        Some(u) => format!("**{idx})** [{title}]({u})"),
+        None => format!("**{idx})** {title}"),
     }
 }
 
@@ -1089,13 +1079,6 @@ mod tests {
     }
 
     #[test]
-    fn pause_gate_needs_live_unpaused_track() {
-        assert!(can_pause(true, false));
-        assert!(!can_pause(false, false));
-        assert!(!can_pause(true, true));
-    }
-
-    #[test]
     fn h247_guard_matches_ts_leg() {
         assert!(h247_refuses(true, Some(7), Some(8)));
         assert!(h247_refuses(true, Some(7), None));
@@ -1311,21 +1294,16 @@ mod tests {
     }
 
     #[test]
-    fn queue_lines_tag_sources() {
-        let s = queue_line(
-            1,
-            "Song",
-            "Artist",
-            Some("https://open.spotify.com/track/abc"),
+    fn queue_lines_match_ts_shape() {
+        assert_eq!(
+            queue_line(1, "Song", Some("https://open.spotify.com/track/abc")),
+            "**1)** [Song](https://open.spotify.com/track/abc)"
         );
-        assert!(s.contains("[Spotify]"), "{s}");
-        assert!(
-            s.contains("[Song](https://open.spotify.com/track/abc)"),
-            "{s}"
+        assert_eq!(
+            queue_line(2, "V", Some("https://www.youtube.com/watch?v=x")),
+            "**2)** [V](https://www.youtube.com/watch?v=x)"
         );
-        let y = queue_line(2, "V", "A", Some("https://www.youtube.com/watch?v=x"));
-        assert!(!y.contains("Spotify"), "{y}");
-        let n = queue_line(3, "V", "A", None);
-        assert!(n.contains("3. V - A"), "{n}");
+        assert_eq!(queue_line(3, "V", None), "**3)** V");
+        assert_eq!(queue_line(4, "V", Some("")), "**4)** V");
     }
 }

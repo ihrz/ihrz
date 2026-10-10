@@ -28,7 +28,9 @@ pub async fn m_loop(
         return Ok(());
     }
     let Some(m) = parse_loop(&mode) else {
-        say_key(&ctx, &code, "msg_use_off_track", "Use off/track.").await?;
+        // TS `!loop.ts` never validates: `setRepeatMode(mode)` with an
+        // unknown mode just fails silently (caught + logged). Stay
+        // silent too — no `msg_use_off_track` reply.
         return Ok(());
     };
     let live_mode: crate::lavalink::LoopMode = m.into();

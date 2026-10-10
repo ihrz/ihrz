@@ -391,10 +391,14 @@ async fn fetch_data_uri(url: &str) -> Option<String> {
 /// Snapshot the full history of a channel as (html, count),
 /// chronological. Shared by the close/transcript/delete ticket flows
 /// (mirrors discord-html-transcripts createTranscript {limit: -1} in
-/// ticketsManager.ts).
+/// ticketsManager.ts). `enriched` mirrors the TS transcript options
+/// split: only the transcript flow (TicketTranscript) uses `hydrate` +
+/// `saveImages` + `favicon`; close/delete/leave pass plain (`hydrate`
+/// only — remote avatar URLs, no prefetch, no favicon).
 pub async fn channel_transcript_html(
     http: &std::sync::Arc<serenity::Http>,
     channel_id: serenity::ChannelId,
+    enriched: bool,
 ) -> (String, usize) {
     let mut all = vec![];
     let mut before: Option<serenity::MessageId> = None;
@@ -431,24 +435,27 @@ pub async fn channel_transcript_html(
             attachments: m.attachments.iter().map(|a| a.url.clone()).collect(),
         })
         .collect();
-    // Dedup prefetch: avatars + image attachments (capped so a huge
-    // channel cannot stall the close flow). Best-effort; offline
-    // misses fall back to remote URLs in the renderer.
+    // Dedup prefetch (enriched only): avatars + image attachments
+    // (capped so a huge channel cannot stall the close flow).
+    // Best-effort; offline misses fall back to remote URLs in the
+    // renderer. Plain flows skip this entirely (TS `hydrate` only).
     let mut avatar_urls: Vec<String> = vec![];
     let mut seen_avatars = HashSet::new();
     let mut image_urls: Vec<String> = vec![];
     let mut seen_images = HashSet::new();
-    for m in &snap {
-        if let Some(url) = &m.avatar_url {
-            if seen_avatars.insert(url.clone()) {
-                avatar_urls.push(url.clone());
+    if enriched {
+        for m in &snap {
+            if let Some(url) = &m.avatar_url {
+                if seen_avatars.insert(url.clone()) {
+                    avatar_urls.push(url.clone());
+                }
             }
-        }
-        for a in &m.attachments {
-            if crate::transcript::is_image_url(a) && seen_images.insert(a.clone()) {
-                image_urls.push(a.clone());
-                if image_urls.len() >= 100 {
-                    break;
+            for a in &m.attachments {
+                if crate::transcript::is_image_url(a) && seen_images.insert(a.clone()) {
+                    image_urls.push(a.clone());
+                    if image_urls.len() >= 100 {
+                        break;
+                    }
                 }
             }
         }
@@ -465,17 +472,20 @@ pub async fn channel_transcript_html(
             image_cache.insert(url.clone(), data_uri);
         }
     }
-    // Favicon: live bot avatar (TS `favicon` option), inlined when the
-    // fetch succeeds, remote URL otherwise, omitted when unknown.
-    let favicon_url = http
-        .get_current_user()
-        .await
-        .ok()
-        .map(|me| avatar_url_512(&me.face()));
-    let mut favicon_url = favicon_url;
-    if let Some(url) = favicon_url.clone() {
-        if let Some(data_uri) = fetch_data_uri(&url).await {
-            favicon_url = Some(data_uri);
+    // Favicon (enriched only): live bot avatar (TS `favicon` option),
+    // inlined when the fetch succeeds, remote URL otherwise, omitted
+    // when unknown.
+    let mut favicon_url: Option<String> = None;
+    if enriched {
+        favicon_url = http
+            .get_current_user()
+            .await
+            .ok()
+            .map(|me| avatar_url_512(&me.face()));
+        if let Some(url) = favicon_url.clone() {
+            if let Some(data_uri) = fetch_data_uri(&url).await {
+                favicon_url = Some(data_uri);
+            }
         }
     }
     let options = crate::transcript::TranscriptOptions {
@@ -822,7 +832,7 @@ pub async fn close_ticket_channel(
     spec: TicketCloseSpec<'_>,
 ) -> anyhow::Result<()> {
     let text = |k: &str| crate::lang::get(spec.lang_code, k).unwrap_or_default();
-    let (html, _count) = channel_transcript_html(http, spec.channel_id).await;
+    let (html, _count) = channel_transcript_html(http, spec.channel_id, false).await;
     let mut desc = text(spec.desc_key);
     for (from, to) in spec.replacements {
         desc = desc.replace(from, to);
@@ -864,6 +874,18 @@ async fn dm_user(
     user.direct_message(http, msg).await.is_ok()
 }
 
+/// Guild-text check for the transcript flows. Mirrors the
+/// `interactionChannel?.type !== ChannelType.GuildText` early return
+/// at the top of TicketTranscript.
+pub async fn is_guild_text_channel(http: &serenity::Http, channel_id: serenity::ChannelId) -> bool {
+    channel_id
+        .to_channel(http)
+        .await
+        .ok()
+        .map(|c| matches!(c.guild(), Some(gc) if gc.kind == serenity::ChannelType::Text))
+        .unwrap_or(false)
+}
+
 /// Delete-button on the in-ticket control message. Mirrors
 /// TicketDelete: drop the TICKET_ALL row, DM the transcript to the
 /// owner when someone else deletes, log to GUILD.TICKET.logs, then
@@ -893,7 +915,7 @@ pub async fn handle_ticket_embed_delete(
         .await
         .unwrap_or_else(|_| "ticket".to_string());
     if let Some(logs) = ticket_logs_channel(pool, &gid).await {
-        let (html, _) = channel_transcript_html(&ctx.http, channel_id).await;
+        let (html, _) = channel_transcript_html(&ctx.http, channel_id, false).await;
         let file_name = format!("{gid}-transcript.html");
         if author_id != 0 && author_id != deleter_id {
             let msg = crate::lang::get(&lang_code, "ticket_deleted")
@@ -925,14 +947,17 @@ pub async fn handle_ticket_embed_delete(
             &footer_name,
             footer_icon.is_some(),
         );
-        // TS deletes the channel before posting the logs embed.
+        // TS deletes the channel before posting the logs embed, with the
+        // footer attachment first and the transcript second.
         let _ = channel_id.delete(&ctx.http).await;
-        let mut log_msg = serenity::CreateMessage::new().embed(embed).add_file(
-            serenity::CreateAttachment::bytes(html.into_bytes(), file_name),
-        );
+        let mut log_msg = serenity::CreateMessage::new().embed(embed);
         if let Some(icon) = footer_icon {
             log_msg = log_msg.add_file(serenity::CreateAttachment::bytes(icon, "footer_icon.png"));
         }
+        log_msg = log_msg.add_file(serenity::CreateAttachment::bytes(
+            html.into_bytes(),
+            file_name,
+        ));
         let _ = logs.send_message(&ctx.http, log_msg).await;
     } else {
         let _ = channel_id.delete(&ctx.http).await;
@@ -951,13 +976,17 @@ pub async fn handle_ticket_embed_transcript(
     let Some(guild_id) = comp.guild_id else {
         return Ok(());
     };
+    // TS TicketTranscript bails unless the channel is guild text.
+    if !is_guild_text_channel(&ctx.http, comp.channel_id).await {
+        return Ok(());
+    }
     let gid = guild_id.get().to_string();
     let lang_code = crate::db::guild_lang(pool, Some(guild_id.get())).await;
     let entries = load_ticket_entries(pool, &gid).await;
     if find_ticket_by_channel(&entries, &comp.channel_id.get().to_string()).is_none() {
         return Ok(());
     }
-    let (html, _) = channel_transcript_html(&ctx.http, comp.channel_id).await;
+    let (html, _) = channel_transcript_html(&ctx.http, comp.channel_id, true).await;
     let ack = crate::lang::get(&lang_code, "guildconfig_config_save_check_dm").unwrap_or_default();
     // TS TicketTranscript replies, or edits the reply when the
     // interaction is already deferred: try the reply first, fall back

@@ -15,7 +15,7 @@ pub fn render_add_work(template: &str, username: &str) -> String {
 )]
 pub async fn ticket_add(
     ctx: Ctx<'_>,
-    #[description = "Member"] user: serenity::User,
+    #[description = "Member"] user: Option<serenity::User>,
 ) -> Result<(), anyhow::Error> {
     let gid = ctx
         .guild_id()
@@ -28,6 +28,16 @@ pub async fn ticket_add(
     if ticket_guard_disabled(&ctx, pool, &gid, &code, "ticket_disabled_command").await {
         return Ok(());
     }
+    // Unresolvable prefix input parses to None (TS method.user null ->
+    // throw): answer add_command_error instead of granting nothing.
+    let Some(user) = user else {
+        ctx.say(
+            crate::lang::get(&code, "add_command_error")
+                .unwrap_or_else(|| "An error occurred, please try again".to_string()),
+        )
+        .await?;
+        return Ok(());
+    };
     let Some(channel) = ctx.guild_channel().await else {
         return Ok(());
     };

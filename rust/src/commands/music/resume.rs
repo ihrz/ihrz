@@ -10,7 +10,9 @@ pub async fn m_resume(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let voice = voice_channel_of(&ctx);
     let m = synced_mgr(&ctx).await;
     let snap = m.snapshot(gid).await;
-    if snap.as_ref().and_then(|s| s.current.clone()).is_none() || voice.is_none() {
+    // Mirrors `!resume.ts:57` (`!player || !voiceChannel`): no
+    // current-track requirement.
+    if snap.is_none() || voice.is_none() {
         say_key(
             &ctx,
             &code,

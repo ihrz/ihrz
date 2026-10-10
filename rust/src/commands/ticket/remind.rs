@@ -34,6 +34,23 @@ pub fn beautiful_duration(ms: i64, units: [&str; 7]) -> String {
     }
 }
 
+/// Bare channel link for the remind DM content.
+/// Mirrors TicketRemind:2122.
+pub fn remind_channel_link(gid: &str, channel_id: u64) -> String {
+    format!("https://discord.com/channels/{gid}/{channel_id}")
+}
+
+/// Last-owner-message field value: `[time](link/messageId)`.
+/// Mirrors TicketRemind:2129 (always the /messageId shape); with no
+/// owner message TS renders the literal `undefined` id, so the bare
+/// link is used instead (same destination as the DM content above).
+pub fn remind_field_value(channel_link: &str, time: &str, message_id: Option<u64>) -> String {
+    match message_id {
+        Some(id) => format!("[{time}]({channel_link}/{id})"),
+        None => format!("[{time}]({channel_link})"),
+    }
+}
+
 /// Remind the ticket owner (TicketRemind pipeline).
 #[poise::command(
     slash_command,
@@ -73,14 +90,36 @@ pub async fn ticket_remind(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         ctx.say(t("open_not_in_ticket")).await?;
         return Ok(());
     };
-    // Last owner message out of the last 100 (TicketRemind:2099).
-    let recent = channel_id
+    // Owner member first (TicketRemind resolves the guild member, then
+    // messages). Absent member -> cant-DM reply, no DM attempt.
+    let owner_uid = serenity::UserId::new(owner_id);
+    let member = match ctx.guild_id() {
+        Some(g) => http.get_member(g, owner_uid).await.ok(),
+        None => None,
+    };
+    let Some(member) = member else {
+        let no = crate::emojis::app_emoji_markup(&http, "No")
+            .await
+            .unwrap_or_else(|| "❌".to_string());
+        ctx.say(
+            t("utils_dm_cant")
+                .replace("${client.iHorizon_Emojis.No}", &no)
+                .replace("${targetMember.toString()}", &format!("<@{owner_id}>")),
+        )
+        .await?;
+        return Ok(());
+    };
+    // Last owner message out of the last 100 (TicketRemind:2099);
+    // a failed fetch aborts silently like TS (`if (!messages) return`).
+    let Ok(recent) = channel_id
         .messages(&http, serenity::GetMessages::new().limit(100))
         .await
-        .unwrap_or_default();
+    else {
+        return Ok(());
+    };
     let last_owner = recent
         .iter()
-        .filter(|m| m.author.id.get() == owner_id)
+        .filter(|m| m.author.id == member.user.id)
         .max_by_key(|m| m.timestamp.unix_timestamp());
     let now_ms = std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
@@ -111,11 +150,8 @@ pub async fn ticket_remind(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         }
         None => t("var_never"),
     };
-    let channel_link = format!("https://discord.com/channels/{gid}/{}", channel_id.get());
-    let field_value = match last_owner {
-        Some(m) => format!("[{time}]({channel_link}/{})", m.id.get()),
-        None => format!("[{time}]({channel_link})"),
-    };
+    let channel_link = remind_channel_link(&gid, channel_id.get());
+    let field_value = remind_field_value(&channel_link, &time, last_owner.map(|m| m.id.get()));
     let (footer_name, footer_icon) = ticket_footer(&http, pool, &gid).await;
     let mut foot = serenity::CreateEmbedFooter::new(footer_name);
     if footer_icon.is_some() {
@@ -163,6 +199,22 @@ mod tests {
             "minute(s)",
             "second(s)",
         ]
+    }
+
+    #[test]
+    fn remind_links_mirror_ts_shapes() {
+        let link = remind_channel_link("1", 2);
+        assert_eq!(link, "https://discord.com/channels/1/2");
+        // Field value always carries the /messageId shape (TS:2129).
+        assert_eq!(
+            remind_field_value(&link, "3hour(s)", Some(4)),
+            "[3hour(s)](https://discord.com/channels/1/2/4)"
+        );
+        // No owner message: bare link (TS renders `undefined` here).
+        assert_eq!(
+            remind_field_value(&link, "never", None),
+            "[never](https://discord.com/channels/1/2)"
+        );
     }
 
     #[test]

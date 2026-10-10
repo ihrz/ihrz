@@ -3817,7 +3817,13 @@ impl serenity::EventHandler for Handler {
         }
         // Ticket cleanup on leave (mirrors deleteTicketOnLeave.ts):
         // transcript + log each of the leaver's tickets, delete the
-        // channels, then drop their TICKET_ALL rows.
+        // channels, then drop their TICKET_ALL rows. Deliberate
+        // deviation: TS `return`s out of the whole loop (skipping the
+        // channel delete AND the row delete for that and every
+        // remaining ticket) when the logs channel is missing. Here
+        // close_ticket_channel still deletes the channel without a
+        // logs channel, and every ticket is processed, so one missing
+        // channel can never orphan the rest.
         let ticket_rows: Vec<String> =
             ticket_user_rows_routed(&self.pool, &gid, user.id.get()).await;
         if !ticket_rows.is_empty() {
@@ -3844,7 +3850,7 @@ impl serenity::EventHandler for Handler {
                                 desc_key: "event_ticket_logsChannel_onDelete_embed_desc",
                                 replacements: &[
                                     ("${interaction.user}", &actor),
-                                    ("${interaction.channel.name}", &format!("#{name}")),
+                                    ("${interaction.channel.name}", &name),
                                 ],
                                 colour: 0x008000_u32,
                             },

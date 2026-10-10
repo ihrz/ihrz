@@ -62,7 +62,7 @@ pub async fn ticket_close(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         return Ok(());
     };
     let http = ctx.serenity_context().http.clone();
-    let (html, _count) = channel_transcript_html(&http, channel_id).await;
+    let (html, _count) = channel_transcript_html(&http, channel_id, false).await;
     // Revoke the owner (TS create() with false flags = deny). A
     // missing member throws in TS -> close_command_error, same here.
     if channel_id

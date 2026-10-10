@@ -585,11 +585,11 @@ pub fn build_track_label(title: &str, author: &str) -> String {
 }
 
 /// Word-level fuzzy match (mirrors `music_proximity.isSimilar` with
-/// its default 0.5 / 0.7 thresholds): every query word needs a
+/// its default 0.5 / 0.6 thresholds): every query word needs a
 /// track word scoring >= word_threshold, and the share of matched
 /// words must reach threshold.
 pub fn is_similar(query: &str, title: &str, author: &str) -> bool {
-    is_similar_thresholds(query, title, author, 0.5, 0.7)
+    is_similar_thresholds(query, title, author, 0.5, 0.6)
 }
 
 pub fn is_similar_thresholds(
@@ -1801,18 +1801,42 @@ impl LavalinkManager {
 
     /// Register the dispatcher-level nowplaying announcer: every node
     /// TrackStart posts the rich announce to the stored text channel.
+    /// Also registers the queueEnd voice-status clear (playerManager.ts
+    /// `queueEnd` leg): when a TrackEnd drains the player to idle
+    /// (no current track), the voice channel status is cleared.
     /// Call once on ready with the live Http handle.
     pub async fn register_announce(&self, http: Arc<serenity::Http>) {
+        let start_http = Arc::clone(&http);
         self.dispatcher
             .lock()
             .await
             .on_track_start(move |ev: TrackStartEvent| {
-                let http = Arc::clone(&http);
+                let http = Arc::clone(&start_http);
                 async move {
                     let Ok(gid) = ev.guild_id.parse::<u64>() else {
                         return;
                     };
                     manager().announce_track_start(&http, gid).await;
+                }
+            });
+        let idle_http = Arc::clone(&http);
+        self.dispatcher
+            .lock()
+            .await
+            .on_track_end(move |ev: TrackEndEvent| {
+                let http = Arc::clone(&idle_http);
+                async move {
+                    let Ok(gid) = ev.guild_id.parse::<u64>() else {
+                        return;
+                    };
+                    let snap = manager().snapshot(gid).await;
+                    let idle = snap.as_ref().and_then(|s| s.current.clone()).is_none();
+                    let vc = snap.as_ref().and_then(|s| s.voice_channel);
+                    if idle {
+                        if let Some(vc) = vc {
+                            let _ = Self::clear_voice_status(&http, vc).await;
+                        }
+                    }
                 }
             });
     }

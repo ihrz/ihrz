@@ -1,6 +1,31 @@
 use super::*;
 use poise::serenity_prelude as serenity;
 
+/// Reopen grant bits (TS TicketReOpen edit: View + Send + Attach +
+/// ReadHistory).
+pub fn reopen_grant() -> serenity::Permissions {
+    serenity::Permissions::VIEW_CHANNEL
+        | serenity::Permissions::SEND_MESSAGES
+        | serenity::Permissions::ATTACH_FILES
+        | serenity::Permissions::READ_MESSAGE_HISTORY
+}
+
+/// Merge the reopen grant into the owner's existing overwrite, like TS
+/// `permissionOverwrites.edit` (PATCH merge). `create_permission` is a
+/// PUT that would replace the overwrite and drop unrelated bits.
+pub fn merge_reopen_overwrite(
+    author_id: u64,
+    allow: serenity::Permissions,
+    deny: serenity::Permissions,
+) -> serenity::PermissionOverwrite {
+    let grant = reopen_grant();
+    serenity::PermissionOverwrite {
+        allow: allow | grant,
+        deny: deny - grant,
+        kind: serenity::PermissionOverwriteType::Member(serenity::UserId::new(author_id)),
+    }
+}
+
 #[poise::command(slash_command, prefix_command, rename = "open")]
 pub async fn ticket_open(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     // Mirrors !open.ts -> TicketReOpen (ticketsManager.ts:1709): the
@@ -31,18 +56,27 @@ pub async fn ticket_open(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         return Ok(());
     };
     let http = ctx.serenity_context().http.clone();
+    // TS uses permissionOverwrites.edit (merge into the existing
+    // overwrite); read it first so the PUT below merges like the PATCH.
+    let (allow, deny) = channel_id
+        .to_channel(&http)
+        .await
+        .ok()
+        .and_then(|c| c.guild())
+        .and_then(|gc| {
+            gc.permission_overwrites.iter().find_map(|o| match o.kind {
+                serenity::PermissionOverwriteType::Member(id) if id.get() == author_id => {
+                    Some((o.allow, o.deny))
+                }
+                _ => None,
+            })
+        })
+        .unwrap_or((
+            serenity::Permissions::empty(),
+            serenity::Permissions::empty(),
+        ));
     if channel_id
-        .create_permission(
-            &http,
-            serenity::PermissionOverwrite {
-                allow: serenity::Permissions::VIEW_CHANNEL
-                    | serenity::Permissions::SEND_MESSAGES
-                    | serenity::Permissions::ATTACH_FILES
-                    | serenity::Permissions::READ_MESSAGE_HISTORY,
-                deny: serenity::Permissions::empty(),
-                kind: serenity::PermissionOverwriteType::Member(serenity::UserId::new(author_id)),
-            },
-        )
+        .create_permission(&http, merge_reopen_overwrite(author_id, allow, deny))
         .await
         .is_err()
     {
@@ -95,4 +129,39 @@ async fn post_ticket_reopen_log(
         log_msg = log_msg.add_file(serenity::CreateAttachment::bytes(icon, "footer_icon.png"));
     }
     let _ = logs.send_message(http, log_msg).await;
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn reopen_merge_adds_grant_and_clears_deny() {
+        let out = merge_reopen_overwrite(
+            7,
+            serenity::Permissions::empty(),
+            serenity::Permissions::VIEW_CHANNEL | serenity::Permissions::MANAGE_MESSAGES,
+        );
+        // Grant bits land in allow and leave deny.
+        assert!(out.allow.contains(reopen_grant()));
+        assert!(!out.deny.intersects(reopen_grant()));
+        // Unrelated deny bits survive the merge (no replace-drop).
+        assert!(out.deny.contains(serenity::Permissions::MANAGE_MESSAGES));
+        assert!(matches!(
+            out.kind,
+            serenity::PermissionOverwriteType::Member(id) if id.get() == 7
+        ));
+    }
+
+    #[test]
+    fn reopen_merge_keeps_unrelated_allow() {
+        let out = merge_reopen_overwrite(
+            9,
+            serenity::Permissions::MANAGE_CHANNELS,
+            serenity::Permissions::empty(),
+        );
+        assert!(out.allow.contains(serenity::Permissions::MANAGE_CHANNELS));
+        assert!(out.allow.contains(reopen_grant()));
+        assert!(out.deny.is_empty());
+    }
 }

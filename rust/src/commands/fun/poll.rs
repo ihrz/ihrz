@@ -16,25 +16,25 @@ pub fn poll_description(message: &str) -> String {
     format!("**{message}**")
 }
 
-/// App-emoji reaction with unicode fallback. Mirrors `msg.react(Yes/No)`:
-/// the synced app emoji when present, else the plain unicode mark.
-pub fn custom_or_unicode(
+/// App-emoji reaction. Mirrors `msg.react(Yes/No)` in `!poll.ts`, which
+/// reacts with the synced `client.iHorizon_Emojis` app emojis only (no
+/// unicode fallback in TS). `cached_emoji_entry` reads the same boot-warmed
+/// cache as `app_emoji_markup`; a missing entry skips that react.
+pub fn app_reaction(
     entry: Option<(u64, String, bool)>,
-    fallback: &str,
-) -> poise::serenity_prelude::ReactionType {
-    match entry {
-        Some((id, name, animated)) => poise::serenity_prelude::ReactionType::Custom {
+) -> Option<poise::serenity_prelude::ReactionType> {
+    entry.map(
+        |(id, name, animated)| poise::serenity_prelude::ReactionType::Custom {
             animated,
             id: poise::serenity_prelude::EmojiId::new(id),
             name: Some(name),
         },
-        None => poise::serenity_prelude::ReactionType::Unicode(fallback.to_string()),
-    }
+    )
 }
 
 /// Poll command. Mirrors !poll.ts.
 // ADMINISTRATOR permission comes from fun.ts; Yes/No reacts use the app
-// emojis with unicode fallback.
+// emojis only (no unicode fallback, like TS).
 #[poise::command(
     slash_command,
     prefix_command,
@@ -81,10 +81,11 @@ pub async fn poll(
     let handle = ctx.send(poise::CreateReply::default().embed(embed)).await?;
     if let Ok(sent) = handle.into_message().await {
         let http = ctx.serenity_context().http.clone();
-        let yes = custom_or_unicode(crate::emojis::cached_emoji_entry(&http, "Yes").await, "✅");
-        let no = custom_or_unicode(crate::emojis::cached_emoji_entry(&http, "No").await, "❌");
-        let _ = sent.react(&http, yes).await;
-        let _ = sent.react(&http, no).await;
+        for name in ["Yes", "No"] {
+            if let Some(rt) = app_reaction(crate::emojis::cached_emoji_entry(&http, name).await) {
+                let _ = sent.react(&http, rt).await;
+            }
+        }
     }
     Ok(())
 }
@@ -116,13 +117,11 @@ mod poll_tests {
     }
 
     #[test]
-    fn reactions_fall_back_to_unicode() {
-        assert_eq!(
-            custom_or_unicode(None, "✅"),
-            poise::serenity_prelude::ReactionType::Unicode("✅".to_string())
-        );
-        match custom_or_unicode(Some((7, "iHorizon_Yes".to_string(), false)), "✅") {
-            poise::serenity_prelude::ReactionType::Custom { id, name, .. } => {
+    fn reactions_are_app_emoji_only() {
+        // No unicode fallback: a missing entry yields no reaction.
+        assert_eq!(app_reaction(None), None);
+        match app_reaction(Some((7, "iHorizon_Yes".to_string(), false))) {
+            Some(poise::serenity_prelude::ReactionType::Custom { id, name, .. }) => {
                 assert_eq!(id.get(), 7);
                 assert_eq!(name.as_deref(), Some("iHorizon_Yes"));
             }

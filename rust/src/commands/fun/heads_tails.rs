@@ -2,12 +2,13 @@ use super::*;
 
 /// Coin flip. Mirrors !heads-tails.ts (pileouface/pile-ou-face aliases,
 /// `Math.random() < 0.5`).
+// No `coinflip` alias: fun.ts declares only pileouface/pile-ou-face.
 #[poise::command(
     slash_command,
     prefix_command,
     category = "fun",
     rename = "heads-tails",
-    aliases("pileouface", "pile-ou-face", "coinflip")
+    aliases("pileouface", "pile-ou-face")
 )]
 pub async fn coinflip(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     if fun_guard(&ctx).await {

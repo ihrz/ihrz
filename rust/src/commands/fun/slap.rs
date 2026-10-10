@@ -1,8 +1,11 @@
 use super::*;
 
 /// Slap command. Mirrors fun !slap.ts.
-// Target defaults to the invoker on prefix (`|| interaction.author`);
-// single deny lives in `social_gif` (see below).
+// Deliberate deviation (documented): TS has no no-target fallback and
+// renders `${slap.id}` as "undefined" (`slap?.id`), while hug/kiss fall
+// back to the invoker. Slapping yourself reads better than slapping
+// "undefined", so the invoker fallback from `social_gif` applies here too.
+// Single deny lives in `social_gif` (see below).
 #[poise::command(slash_command, prefix_command, category = "fun", rename = "slap")]
 pub async fn slap(
     ctx: Ctx<'_>,

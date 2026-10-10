@@ -158,6 +158,18 @@ pub async fn m_nowplaying(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         .await?;
         return Ok(());
     };
+    // Mirrors `!nowplaying.ts:82` (`!player || !player.playing`): a
+    // paused player refuses like nothing playing.
+    if s.paused {
+        say_key(
+            &ctx,
+            &code,
+            "nowplaying_no_queue",
+            "There is nothing playing",
+        )
+        .await?;
+        return Ok(());
+    }
     if voice.is_none() {
         say_key(
             &ctx,

@@ -42,8 +42,11 @@ pub async fn m_queue(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     {
         return Ok(());
     }
-    let (current, queue) = (s.current, s.queue);
-    if current.is_none() && queue.is_empty() {
+    // Upcoming-only lines, mirroring `!queue.ts:84-87`
+    // (`**${++idx})** [${title}](${uri})` over `player.queue.tracks`).
+    // No Now-playing head, no author/tag suffixes.
+    let queue = s.queue;
+    if queue.is_empty() {
         say_key(
             &ctx,
             &code,
@@ -53,29 +56,11 @@ pub async fn m_queue(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         .await?;
         return Ok(());
     }
-    // Enrich the now-playing head via metadata (single fetch); queued
-    // lines are source-tagged without network fan-out, all falling back
-    // to Lavalink info.
-    let mut lines = vec![];
-    if let Some(ref current) = current {
-        let head = preview_for_track(current).await;
-        let head_artist = head
-            .artist
-            .clone()
-            .unwrap_or_else(|| current.author.clone());
-        let head_uri = if head.link.is_empty() {
-            current.uri.as_deref()
-        } else {
-            Some(head.link.as_str())
-        };
-        lines.push(format!(
-            "Now: {}",
-            queue_line(0, &head.title, &head_artist, head_uri)
-        ));
-    }
-    for (i, t) in queue.iter().enumerate() {
-        lines.push(queue_line(i + 1, &t.title, &t.author, t.uri.as_deref()));
-    }
+    let lines: Vec<String> = queue
+        .iter()
+        .enumerate()
+        .map(|(i, t)| queue_line(i + 1, &t.title, t.uri.as_deref()))
+        .collect();
     let pages = queue_pages(&lines);
     let total_pages = pages.len().max(1);
     let total_tracks = queue.len();

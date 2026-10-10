@@ -656,6 +656,16 @@ mod fun_extra_tests {
         assert_eq!(truncate_display_name(&"a".repeat(20)).chars().count(), 15);
         assert_eq!(youtube_likes(0), 1);
         assert_eq!(youtube_likes(90_000), 1);
+        // `{likes}` goes through numberBeautifuer (K/M/B/T, 1 decimal).
+        assert_eq!(crate::funcs::format_number(youtube_likes(0) as f64), "1");
+        assert_eq!(
+            crate::funcs::format_number(youtube_likes(1500) as f64),
+            "1.5K"
+        );
+        assert_eq!(
+            crate::funcs::format_number(youtube_likes(89_999) as f64),
+            "90.0K"
+        );
         // `user.globalName || user.username`, truncated at 15 chars.
         assert_eq!(youtube_display_name(Some("Bo"), "bobby"), "Bo");
         assert_eq!(youtube_display_name(None, "bobby"), "bobby");
@@ -808,6 +818,17 @@ pub async fn fun_guard(ctx: &Ctx<'_>) -> bool {
     .await
     .ok();
     true
+}
+
+/// Deny reply with the `No` app emoji. Mirrors the
+/// `content: client.iHorizon_Emojis.No` denies in `!bubbles.ts`,
+/// `!captions.ts` and `!togif.ts` (same boot-warmed cache as the poll
+/// Yes/No reacts via `app_emoji_markup`).
+pub async fn deny_no_emoji(ctx: &Ctx<'_>) {
+    let no = crate::emojis::app_emoji_markup(&ctx.serenity_context().http, "No")
+        .await
+        .unwrap_or_else(|| "❌".to_string());
+    let _ = ctx.say(no).await;
 }
 
 /// Fetch one image URL field from a JSON HTTP API.

@@ -17,15 +17,36 @@ pub fn resolve_cat_image(body: &str) -> String {
     }
 }
 
-/// Cat command. Mirrors !cat.ts (edgecats.net fetch).
+/// Down-API reply. Mirrors the `fun_var_down_api` deny shared with the
+/// other animal picture commands (`animal_pic`).
+async fn cat_down(ctx: &Ctx<'_>) -> Result<(), anyhow::Error> {
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    ctx.say(
+        crate::lang::get(&code, "fun_var_down_api")
+            .unwrap_or_else(|| "Error: Seems like the API is down!".to_string()),
+    )
+    .await?;
+    Ok(())
+}
+
 #[poise::command(slash_command, prefix_command, category = "fun", rename = "cat")]
 pub async fn cat(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     if fun_guard(&ctx).await {
         return Ok(());
     }
+    // TS has no catch here (fetch failure stays silent); a dead API should
+    // not render a broken embed, so deny loudly like the other animal
+    // picture commands (`fun_var_down_api`).
     let text = match http_client().get(cat_api_url()).send().await {
-        Ok(r) => r.text().await.unwrap_or_default(),
-        Err(_) => String::new(),
+        Ok(r) => match r.text().await {
+            Ok(t) => t,
+            Err(_) => {
+                return cat_down(&ctx).await;
+            }
+        },
+        Err(_) => {
+            return cat_down(&ctx).await;
+        }
     };
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let embed = poise::serenity_prelude::CreateEmbed::default()
