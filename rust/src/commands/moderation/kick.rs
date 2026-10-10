@@ -34,9 +34,9 @@ pub async fn mod_kick(
             .await?;
         return Ok(());
     }
+    // TS `if (!member) return;`: missing member is a silent return, no reply.
     let guild_member = guild_id.member(ctx.http(), member.id).await.ok();
     let Some(guild_member) = guild_member else {
-        ctx.say(t("ban_dont_found_member")).await?;
         return Ok(());
     };
     if let Some(target_pos) = target_top(&ctx, guild_id, member.id).await {
@@ -72,6 +72,9 @@ pub async fn mod_kick(
         )
         .await;
     let audit = format!("Kicked by: {} | Reason: {reason}", ctx.author().name);
+    // Deliberate divergence from TS: !kick.ts keeps flowing into the
+    // success embed + log after a failed kick (the .catch only sends the
+    // error), while here the success reply/log are gated on success.
     if guild_id
         .kick_with_reason(ctx.http(), member.id, &audit)
         .await

@@ -87,25 +87,77 @@ pub async fn ranks_role_add(
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
-    let mut roles = load_rank_roles_routed(&ctx.data().pool, &gid).await;
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    let say = |key: &str, fallback: &str| {
+        crate::lang::get(&code, key).unwrap_or_else(|| fallback.to_string())
+    };
     let id = role.id.get().to_string();
+    let roles = load_rank_roles_routed(&ctx.data().pool, &gid).await;
+    // Level gate (mirrors the `!roles.ts:306-319` modal parse:
+    // `parseInt`, NaN or `<= 0` rejected).
+    let Some(lvl) = super::parse_rank_level_input(&level.to_string()) else {
+        ctx.say(say(
+            "ranks_config_add_invalid_level",
+            "Invalid level: use a number between 1 and 9999.",
+        ))
+        .await?;
+        return Ok(());
+    };
+    // 25-role cap (mirrors `!roles.ts:228-237`).
+    if super::rank_roles_at_cap(&roles) {
+        ctx.say(say(
+            "ranks_config_add_max_roles",
+            "You've reached the maximum number of rank roles (25).",
+        ))
+        .await?;
+        return Ok(());
+    }
+    // Duplicate role (mirrors `!roles.ts:321-335`).
+    if super::is_duplicate_rank_role(&roles, &id) {
+        ctx.say(
+            say(
+                "ranks_config_add_invalid_role",
+                "Role <@&id> is already a rank reward.",
+            )
+            .replace("{role}", &format!("<@&{id}>")),
+        )
+        .await?;
+        return Ok(());
+    }
+    let mut roles = roles;
     roles.retain(|r| r.role_id != id);
     roles.push(RankRole {
-        role_id: id,
-        level: level.max(1) as u64,
+        role_id: id.clone(),
+        level: lvl,
     });
     save_rank_roles_routed(&ctx.data().pool, &gid, &roles).await?;
-    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-    let lvl = level.max(1) as u64;
     ctx.say(
-        crate::lang::get(&code, "ranks_config_add_command_work")
-            .map(|s| {
-                s.replace("${selectedRole}", &format!("<@&{}>", role.id.get()))
-                    .replace("${level}", &lvl.to_string())
-            })
-            .unwrap_or_else(|| format!("Role <@&{}> added for level {}!", role.id.get(), lvl)),
+        say(
+            "ranks_config_add_command_work",
+            "Role <@&r> added for level L!",
+        )
+        .replace("${selectedRole}", &format!("<@&{}>", role.id.get()))
+        .replace("${level}", &lvl.to_string()),
     )
     .await?;
+    // Dangerous-permission warning (mirrors `!roles.ts:357-368`).
+    let held = super::dangerous_role_perm_names(role.permissions.bits());
+    if !held.is_empty() {
+        let joined = held.join("\n");
+        ctx.send(
+            poise::CreateReply::default()
+                .content(
+                    say(
+                        "ranks_config_add_command_warn",
+                        "Warning: <@&r> holds dangerous permissions:\nP",
+                    )
+                    .replace("${selectedRole}", &format!("<@&{}>", role.id.get()))
+                    .replace("${_}", &joined),
+                )
+                .ephemeral(true),
+        )
+        .await?;
+    }
     Ok(())
 }
 

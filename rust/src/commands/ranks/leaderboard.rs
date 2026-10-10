@@ -113,13 +113,39 @@ pub async fn ranks_leaderboard(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         .unwrap_or_else(|| "Ranks leaderboard".to_string());
     let not_for_you = crate::lang::get(&code, "help_not_for_you")
         .unwrap_or_else(|| "This interaction is not for you.".to_string());
-    let svg = crate::cards::podium_svg(
-        &parsed
-            .iter()
-            .take(8)
-            .map(|(uid, e)| (format!("<@{uid}>"), e.xptotal))
-            .collect::<Vec<_>>(),
-    );
+    let lvl_label = |level: u64| {
+        crate::lang::get(&code, "ranks_config_var_level")
+            .map(|s| s.replace("{level}", &level.to_string()))
+            .unwrap_or_else(|| format!("Level {level}"))
+    };
+    // Top-3 podium data (mirrors the `podiumRanksModule.html` slots):
+    // username, guild-lang level label, beautified XP
+    // (`formatNumber`), and an embedded avatar snapshot (never a raw
+    // CDN URL). Only the top 3 hit the network; rows below reuse text.
+    let mut podium: Vec<crate::cards::PodiumRankEntry> = Vec::new();
+    for (uid, e) in parsed.iter().take(8) {
+        // Owned snapshot first: the cache guard is not Send and must
+        // drop before the avatar fetch await below.
+        let (name, face) = match ctx.cache().user(*uid) {
+            Some(u) => (u.name.clone(), Some(u.face())),
+            None => (format!("<@{uid}>"), None),
+        };
+        let avatar = if podium.len() < 3 {
+            match face {
+                Some(url) => crate::image64::image64_data_url(&url, "image/png").await,
+                None => None,
+            }
+        } else {
+            None
+        };
+        podium.push(crate::cards::PodiumRankEntry {
+            name,
+            level_label: lvl_label(e.level),
+            xp_text: super::beautify_number(e.xptotal),
+            avatar,
+        });
+    }
+    let svg = crate::cards::podium_ranks_svg(&title, &podium);
     // Pagination setup: 10 entries per page like TS `itemsPerPage`.
     let items_per_page = 10usize;
     let total_pages = page_count(parsed.len(), items_per_page);

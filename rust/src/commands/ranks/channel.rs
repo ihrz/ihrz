@@ -67,6 +67,146 @@ pub async fn clear_xp_channel_routed(
     )
     .await
 }
+
+/// Shared `on`/`off` runner. Mirrors `ranks/!channel.ts:50-146`:
+/// `on` stores the channel (explicit option, else the current channel
+/// like the TS prefix fallback `|| interaction.channel`), posts the
+/// confirmation message INTO the set channel (`:89-92`), and replies in
+/// place; `off` deletes the row. Same-row / already-unset calls hit the
+/// `already_*` guards instead of writing.
+async fn run_channel_action(
+    ctx: Ctx<'_>,
+    action: Option<String>,
+    channel: Option<serenity::GuildChannel>,
+) -> Result<(), anyhow::Error> {
+    let gid = ctx
+        .guild_id()
+        .map(|g| g.get().to_string())
+        .unwrap_or_default();
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    let say = |key: &str, fallback: &str| {
+        crate::lang::get(&code, key).unwrap_or_else(|| fallback.to_string())
+    };
+    let author_id = ctx.author().id.get().to_string();
+    let act = action
+        .as_deref()
+        .map(|a| a.trim().to_lowercase())
+        .unwrap_or_else(|| "on".to_string());
+    match act.as_str() {
+        // `on` (default when omitted): announce channel set.
+        "on" => {
+            let Some(target) = channel
+                .as_ref()
+                .map(|c| c.id.get().to_string())
+                .or_else(|| Some(ctx.channel_id().get().to_string()))
+            else {
+                ctx.say(say(
+                    "setxpchannels_valid_channel_message",
+                    "Please provide a valid channel.",
+                ))
+                .await?;
+                return Ok(());
+            };
+            let title = say(
+                "setxpchannels_logs_embed_title_enable",
+                "XP Channel Logs (enable)",
+            );
+            let desc = say(
+                "setxpchannels_logs_embed_description_enable",
+                "XP channel set by <@user> to <#chan>.",
+            )
+            .replace("${interaction.user.id}", &author_id)
+            .replace("${argsid}", &target);
+            crate::commands::economy::post_ihorizon_log(&ctx, &title, &desc).await;
+            if load_xp_channel_routed(&ctx.data().pool, &gid)
+                .await
+                .as_deref()
+                == Some(&target)
+            {
+                ctx.say(say(
+                    "setxpchannels_already_with_this_config",
+                    "This channel is already the XP channel.",
+                ))
+                .await?;
+                return Ok(());
+            }
+            // Confirmation goes INTO the set channel, like TS `:89-92`;
+            // a send failure surfaces the error leg, nothing is stored.
+            let confirm = say(
+                "setxpchannels_confirmation_message",
+                "This channel is now the XP announce channel.",
+            );
+            if let Ok(id) = target.parse::<u64>() {
+                if serenity::ChannelId::new(id)
+                    .say(ctx.http(), &confirm)
+                    .await
+                    .is_err()
+                {
+                    ctx.say(say(
+                        "setxpchannels_command_error_enable",
+                        "Could not set the XP channel.",
+                    ))
+                    .await?;
+                    return Ok(());
+                }
+            }
+            save_xp_channel_routed(&ctx.data().pool, &gid, &target).await?;
+            ctx.say(
+                say(
+                    "setxpchannels_command_work_enable",
+                    "You have successfully set the custom XP channel to <#id>.",
+                )
+                .replace("${argsid}", &target),
+            )
+            .await?;
+        }
+        "off" => {
+            let title = say(
+                "setxpchannels_logs_embed_title_disable",
+                "XP Channel Logs (disable)",
+            );
+            let desc = say(
+                "setxpchannels_logs_embed_description_disable",
+                "XP channel disabled by <@user>.",
+            )
+            .replace("${interaction.user.id}", &author_id);
+            crate::commands::economy::post_ihorizon_log(&ctx, &title, &desc).await;
+            if load_xp_channel_routed(&ctx.data().pool, &gid)
+                .await
+                .is_none()
+            {
+                ctx.say(say(
+                    "setxpchannels_already_disabled_disable",
+                    "The XP channel is already disabled.",
+                ))
+                .await?;
+                return Ok(());
+            }
+            if clear_xp_channel_routed(&ctx.data().pool, &gid)
+                .await
+                .is_err()
+            {
+                ctx.say(say(
+                    "setxpchannels_command_error_disable",
+                    "Could not disable the XP channel.",
+                ))
+                .await?;
+                return Ok(());
+            }
+            ctx.say(say(
+                "setxpchannels_command_work_disable",
+                "You have successfully disabled the custom XP channel!",
+            ))
+            .await?;
+        }
+        _ => {
+            ctx.say("Use `on [channel]` to set the XP announce channel or `off` to disable it.")
+                .await?;
+        }
+    }
+    Ok(())
+}
+
 #[poise::command(
     slash_command,
     prefix_command,
@@ -76,88 +216,24 @@ pub async fn clear_xp_channel_routed(
 )]
 pub async fn ranks_channel(
     ctx: Ctx<'_>,
-    #[description = "Channel"]
+    #[description = "on or off"] action: Option<String>,
+    #[description = "Channel (defaults to this one)"]
     #[channel_types("Text")]
     channel: Option<serenity::GuildChannel>,
 ) -> Result<(), anyhow::Error> {
-    let gid = ctx
-        .guild_id()
-        .map(|g| g.get().to_string())
-        .unwrap_or_default();
-    match channel {
-        Some(ch) => {
-            save_xp_channel_routed(&ctx.data().pool, &gid, &ch.id.get().to_string()).await?;
-            let code =
-                crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-            ctx.say(
-                crate::lang::get(&code, "setxpchannels_command_work_enable")
-                    .map(|s| s.replace("${argsid}", &ch.id.get().to_string()))
-                    .unwrap_or_else(|| {
-                        format!(
-                            "You have successfully set the custom XP channel to <#{}>",
-                            ch.id.get()
-                        )
-                    }),
-            )
-            .await?;
-        }
-        None => {
-            clear_xp_channel_routed(&ctx.data().pool, &gid).await?;
-            let code =
-                crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-            ctx.say(
-                crate::lang::get(&code, "setxpchannels_command_work_disable").unwrap_or_else(
-                    || "You have successfully disabled the custom XP channel!".to_string(),
-                ),
-            )
-            .await?;
-        }
-    }
-    Ok(())
+    run_channel_action(ctx, action, channel).await
 }
 
 /// XP channel (TS single-string shape). Setting overwrites; omit to clear.
 #[poise::command(slash_command, prefix_command, rename = "xp-channels")]
 pub async fn ranks_xp_channels(
     ctx: Ctx<'_>,
-    #[description = "Channel (omit to clear all)"]
+    #[description = "on or off"] action: Option<String>,
+    #[description = "Channel (defaults to this one)"]
     #[channel_types("Text")]
     channel: Option<serenity::GuildChannel>,
 ) -> Result<(), anyhow::Error> {
-    let gid = ctx
-        .guild_id()
-        .map(|g| g.get().to_string())
-        .unwrap_or_default();
-    match channel {
-        Some(ch) => {
-            save_xp_channel_routed(&ctx.data().pool, &gid, &ch.id.get().to_string()).await?;
-            let code =
-                crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-            ctx.say(
-                crate::lang::get(&code, "setxpchannels_command_work_enable")
-                    .map(|s| s.replace("${argsid}", &ch.id.get().to_string()))
-                    .unwrap_or_else(|| {
-                        format!(
-                            "You have successfully set the custom XP channel to <#{}>",
-                            ch.id.get()
-                        )
-                    }),
-            )
-            .await?;
-        }
-        None => {
-            let _ = clear_xp_channel_routed(&ctx.data().pool, &gid).await;
-            let code =
-                crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-            ctx.say(
-                crate::lang::get(&code, "setxpchannels_command_work_disable").unwrap_or_else(
-                    || "You have successfully disabled the custom XP channel!".to_string(),
-                ),
-            )
-            .await?;
-        }
-    }
-    Ok(())
+    run_channel_action(ctx, action, channel).await
 }
 
 #[cfg(test)]

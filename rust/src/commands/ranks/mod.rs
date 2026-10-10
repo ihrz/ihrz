@@ -123,16 +123,23 @@ pub fn coins_for_levelup(xp_gain: u64, boost_mult: f64) -> f64 {
 
 /// Apply one message of XP with TS onNewMessage.ts parity: the event
 /// path defaults a missing/zero level to 1 (`baseData?.level || 1`),
-/// then a SINGLE strict-`<` level-up per message
-/// (`if (level * 500 < xp)`), subtracting the crossed threshold.
+/// then a SINGLE strict-`<` level-up per message. The TS compares the
+/// PRE-add xp (`level * 500 < baseData?.xp` on the stale object fetched
+/// before the `db.add` calls, `:55-57,:81`), so the threshold is tested
+/// against the xp value BEFORE crediting `amount`; credit lands on both
+/// `xp` and `xptotal` either way, and a crossing subtracts the crossed
+/// threshold and bumps the stored level by 1.
 /// Returns (new_entry, leveled).
 pub fn apply_xp(mut e: RankEntry, amount: u64) -> (RankEntry, bool) {
     let base = if e.level == 0 { 1 } else { e.level };
-    e.xp += amount;
-    e.xptotal += amount;
     let threshold = base.saturating_mul(500);
-    if threshold < e.xp {
-        e.xp -= threshold;
+    // PRE-add comparison: stale `baseData.xp` like TS (fresh rows carry
+    // xp 0/undefined, so the first messages never level).
+    let leveled = threshold < e.xp;
+    e.xp = e.xp.saturating_add(amount);
+    e.xptotal = e.xptotal.saturating_add(amount);
+    if leveled {
+        e.xp = e.xp.saturating_sub(threshold);
         e.level += 1;
         (e, true)
     } else {
@@ -224,6 +231,166 @@ async fn load_rank_roles(pool: &crate::db::Pool, guild_id: &str) -> Vec<RankRole
     roles::load_rank_roles_routed(pool, guild_id).await
 }
 
+/// Highest rank role at or below `new_level` (TS `!roles.ts` add flow
+/// picks `ranksRoles[level]`; the level-up path in
+/// `Events/ranks/onNewMessage.ts:103-158` picks the highest role with
+/// `roleLevel <= newLevel`, assigns it, and removes every other
+/// configured rank role the member holds).
+/// Returns (role_to_assign, roles_to_remove): `role_to_assign` is Some
+/// only when the member does not already hold it; `roles_to_remove`
+/// holds the member's other configured rank-role ids.
+pub fn rank_role_assignment(
+    roles: &[RankRole],
+    new_level: u64,
+    member_role_ids: &[String],
+) -> (Option<String>, Vec<String>) {
+    let best = roles
+        .iter()
+        .filter(|r| r.level <= new_level)
+        .max_by_key(|r| r.level)
+        .map(|r| r.role_id.clone());
+    let Some(assign) = best else {
+        return (None, Vec::new());
+    };
+    let remove = roles
+        .iter()
+        .map(|r| r.role_id.clone())
+        .filter(|id| *id != assign && member_role_ids.iter().any(|m| m == id))
+        .collect();
+    if member_role_ids.iter().any(|m| m == &assign) {
+        (None, remove)
+    } else {
+        (Some(assign), remove)
+    }
+}
+
+/// Rank-role table cap. Mirrors `!roles.ts:228-237`: past 25 configured
+/// roles the add flow is rejected with `ranks_config_add_max_roles`.
+pub const MAX_RANK_ROLES: usize = 25;
+
+/// True when no more rank roles may be configured.
+pub fn rank_roles_at_cap(roles: &[RankRole]) -> bool {
+    roles.len() >= MAX_RANK_ROLES
+}
+
+/// True when `role_id` is already a configured rank-role reward.
+/// Mirrors `!roles.ts:321-335` (`ranks_config_add_invalid_role`).
+pub fn is_duplicate_rank_role(roles: &[RankRole], role_id: &str) -> bool {
+    roles.iter().any(|r| r.role_id == role_id)
+}
+
+/// Validate the level modal input. Mirrors `!roles.ts:284-319`: the
+/// modal caps at 4 chars (`maxLength: 4`), `parseInt`, and rejects NaN
+/// or `<= 0` with `ranks_config_add_invalid_level`. Returns the level
+/// on success.
+pub fn parse_rank_level_input(input: &str) -> Option<u64> {
+    let trimmed = input.trim();
+    if trimmed.is_empty() || trimmed.len() > 4 {
+        return None;
+    }
+    match trimmed.parse::<i64>() {
+        Ok(n) if n > 0 => Some(n as u64),
+        _ => None,
+    }
+}
+
+/// Dangerous-role warning flags. Mirrors `getDangerousPermissions`
+/// (`core/functions/method.ts`): (Discord permission bit, English
+/// fallback name). Names fall back to English because the TS names are
+/// guild-lang strings and YAML stays untouched; callers prefer the
+/// `setjoinroles_var_perm_*` keys when present.
+pub const DANGEROUS_ROLE_PERMS: &[(u64, &str)] = &[
+    (0x0000_0008, "Administrator"),
+    (0x0000_0020, "Manage Server"),
+    (0x1000_0000, "Manage Roles"),
+    (0x0002_0000, "Mention Everyone"),
+    (0x0000_0004, "Ban Members"),
+    (0x0000_0002, "Kick Members"),
+    (0x2000_0000, "Manage Webhooks"),
+    (0x0000_0010, "Manage Channels"),
+    (0x4000_0000, "Manage Expressions"),
+    (0x0008_0000, "View Creator Monetization Analytics"),
+];
+
+/// English fallback names of the dangerous permissions held by
+/// `perm_bits` (serenity `Permissions::bits()`). Mirrors the
+/// `!roles.ts:271-282` scan feeding the `ranks_config_add_command_warn`
+/// follow-up.
+pub fn dangerous_role_perm_names(perm_bits: u64) -> Vec<String> {
+    DANGEROUS_ROLE_PERMS
+        .iter()
+        .filter(|(flag, _)| perm_bits & flag == *flag)
+        .map(|(_, name)| name.to_string())
+        .collect()
+}
+
+/// Compact number display. Mirrors `core/functions/numberBeautifuer.ts`
+/// (`formatNumber`, used for the podium `{N_xp}` slots): K/M/B/T with
+/// one decimal, otherwise the plain integer with locale grouping
+/// (grouping uses `,` like `toLocaleString` en-US).
+pub fn beautify_number(num: u64) -> String {
+    let n = num as f64;
+    if n >= 1_000_000_000_000.0 {
+        return format!("{:.1}T", n / 1_000_000_000_000.0);
+    }
+    if n >= 1_000_000_000.0 {
+        return format!("{:.1}B", n / 1_000_000_000.0);
+    }
+    if n >= 1_000_000.0 {
+        return format!("{:.1}M", n / 1_000_000.0);
+    }
+    if n >= 1_000.0 {
+        return format!("{:.1}K", n / 1_000.0);
+    }
+    let s = num.to_string();
+    let mut out = String::with_capacity(s.len() + s.len() / 3);
+    for (i, c) in s.chars().enumerate() {
+        if i > 0 && (s.len() - i).is_multiple_of(3) {
+            out.push(',');
+        }
+        out.push(c);
+    }
+    out
+}
+
+/// Minimum level-up template length. Mirrors the `!message.ts:145`
+/// modal `minLength: 2` (Discord rejects shorter submissions).
+pub const MIN_XP_MESSAGE_LEN: usize = 2;
+
+/// True when a custom level-up template passes the modal length gate.
+pub fn xp_message_valid(template: &str) -> bool {
+    template.chars().count() >= MIN_XP_MESSAGE_LEN
+}
+
+/// Prefix-command detection. Mirrors `parseMessageCommand`
+/// (`Events/interaction/messageCommandHandler.ts`): a message consumed
+/// as a prefix command never earns XP. The full TS run (cooldowns,
+/// perms, dispatch) lives in poise outside the event path, so this
+/// mirrors the cheap prefix gate — content starts with the guild prefix
+/// (or a bot mention prefix) followed by a command token. Over-skips
+/// only unknown `prefix + gibberish` messages; every real prefix
+/// command is caught.
+pub fn message_is_prefix_command(content: &str, prefix: &str, bot_id: u64) -> bool {
+    let after = if !prefix.is_empty() && content.starts_with(prefix) {
+        Some(&content[prefix.len()..])
+    } else {
+        mention_prefix_rest(content, bot_id)
+    };
+    match after {
+        Some(rest) => !rest.trim_start().is_empty(),
+        None => false,
+    }
+}
+
+fn mention_prefix_rest(content: &str, bot_id: u64) -> Option<&str> {
+    for cand in [format!("<@{bot_id}>"), format!("<@!{bot_id}>")] {
+        if content.starts_with(&cand) {
+            return Some(&content[cand.len()..]);
+        }
+    }
+    None
+}
+
 pub mod channel;
 pub mod config;
 pub mod greset;
@@ -273,36 +440,55 @@ mod tests {
     }
 
     #[test]
-    fn apply_xp_levels_up() {
-        let (e, leveled) = apply_xp(RankEntry::default(), 550);
+    fn apply_xp_levels_up_on_pre_add_threshold() {
+        // TS compares the PRE-add xp (stale baseData): level 1 with 501
+        // banked crosses 500 even before this message's credit lands.
+        let (e, leveled) = apply_xp(
+            RankEntry {
+                level: 1,
+                xp: 501,
+                xptotal: 501,
+            },
+            35,
+        );
         assert!(leveled);
-        assert_eq!(e.level, 1);
-        assert_eq!(e.xp, 50);
-        assert_eq!(e.xptotal, 550);
+        assert_eq!(e.level, 2);
+        assert_eq!(e.xp, 36);
+        assert_eq!(e.xptotal, 536);
     }
 
     #[test]
     fn apply_xp_single_strict_levelup_per_message() {
         // Fresh row defaults to effective level 1 (`|| 1` in TS) but the
-        // stored level stays 0 until a threshold actually crosses.
+        // stale xp is 0, so the first messages never level even with a
+        // huge gain (credit still lands on xp/xptotal).
         let (e, leveled) = apply_xp(RankEntry::default(), 35);
         assert!(!leveled);
         assert_eq!((e.level, e.xp, e.xptotal), (0, 35, 35));
-        // Strict `<`: exactly at the threshold does NOT level.
+        // Strict `<` on the PRE-add value: exactly at the threshold does
+        // NOT level; the credit still lands.
         let (e, leveled) = apply_xp(
             RankEntry {
                 level: 1,
-                xp: 465,
-                xptotal: 465,
+                xp: 500,
+                xptotal: 500,
             },
             35,
         );
         assert!(!leveled);
-        assert_eq!((e.level, e.xp), (1, 500));
-        // One message levels at most once, even far past the curve.
-        let (e, leveled) = apply_xp(RankEntry::default(), 5000);
+        assert_eq!((e.level, e.xp), (1, 535));
+        // One message levels at most once, even far past the curve; the
+        // stale check fires once and the whole credit is kept.
+        let (e, leveled) = apply_xp(
+            RankEntry {
+                level: 1,
+                xp: 600,
+                xptotal: 600,
+            },
+            5000,
+        );
         assert!(leveled);
-        assert_eq!((e.level, e.xp, e.xptotal), (1, 4500, 5000));
+        assert_eq!((e.level, e.xp, e.xptotal), (2, 5100, 5600));
     }
 
     #[test]
@@ -351,6 +537,104 @@ mod tests {
                 level: 5
             }]
         );
+    }
+
+    #[test]
+    fn rank_role_assignment_picks_highest_at_or_below_and_cleans_stale() {
+        let roles = vec![
+            RankRole {
+                role_id: "low".to_string(),
+                level: 2,
+            },
+            RankRole {
+                role_id: "high".to_string(),
+                level: 5,
+            },
+        ];
+        // New level 7, member holds the old low role: assign high,
+        // remove low.
+        assert_eq!(
+            rank_role_assignment(&roles, 7, &["low".to_string()]),
+            (Some("high".to_string()), vec!["low".to_string()])
+        );
+        // Already holding the right role: no assign, still cleans stale.
+        assert_eq!(
+            rank_role_assignment(&roles, 7, &["low".to_string(), "high".to_string()]),
+            (None, vec!["low".to_string()])
+        );
+        // New level below every role: nothing to do.
+        assert_eq!(
+            rank_role_assignment(&roles, 1, &[]),
+            (None, Vec::<String>::new())
+        );
+        // Highest role AT the level wins over lower ones.
+        assert_eq!(
+            rank_role_assignment(&roles, 5, &[]),
+            (Some("high".to_string()), Vec::<String>::new())
+        );
+    }
+
+    #[test]
+    fn rank_role_guards_cap_duplicate_and_level() {
+        let full: Vec<RankRole> = (1..=25)
+            .map(|l| RankRole {
+                role_id: l.to_string(),
+                level: l as u64,
+            })
+            .collect();
+        assert!(rank_roles_at_cap(&full));
+        assert!(!rank_roles_at_cap(&full[..24]));
+        assert!(is_duplicate_rank_role(&full, "7"));
+        assert!(!is_duplicate_rank_role(&full, "99"));
+        assert_eq!(parse_rank_level_input("5"), Some(5));
+        assert_eq!(parse_rank_level_input(" 12 "), Some(12));
+        assert_eq!(parse_rank_level_input("0"), None);
+        assert_eq!(parse_rank_level_input("-3"), None);
+        assert_eq!(parse_rank_level_input("abc"), None);
+        assert_eq!(parse_rank_level_input(""), None);
+        assert_eq!(parse_rank_level_input("12345"), None);
+    }
+
+    #[test]
+    fn dangerous_perm_names_match_ts_flags() {
+        // Administrator (0x8) + BanMembers (0x4).
+        assert_eq!(
+            dangerous_role_perm_names(0xC),
+            vec!["Administrator".to_string(), "Ban Members".to_string()]
+        );
+        assert!(dangerous_role_perm_names(0).is_empty());
+        assert_eq!(dangerous_role_perm_names(0x8).len(), 1);
+    }
+
+    #[test]
+    fn beautify_number_matches_ts_format() {
+        assert_eq!(beautify_number(999), "999");
+        assert_eq!(beautify_number(1000), "1.0K");
+        assert_eq!(beautify_number(1500), "1.5K");
+        assert_eq!(beautify_number(2_500_000), "2.5M");
+        assert_eq!(beautify_number(3_000_000_000), "3.0B");
+        assert_eq!(beautify_number(1_500_000_000_000), "1.5T");
+    }
+
+    #[test]
+    fn xp_message_length_gate_matches_modal() {
+        assert!(!xp_message_valid("a"));
+        assert!(!xp_message_valid(""));
+        assert!(xp_message_valid("ab"));
+        assert!(xp_message_valid("gg {user}"));
+    }
+
+    #[test]
+    fn prefix_command_detection_matches_ts_gate() {
+        assert!(message_is_prefix_command("?ranks show", "?", 123));
+        assert!(message_is_prefix_command("? ranks", "?", 123));
+        assert!(!message_is_prefix_command("hello ?", "?", 123));
+        assert!(!message_is_prefix_command("?", "?", 123));
+        assert!(!message_is_prefix_command("?  ", "?", 123));
+        assert!(message_is_prefix_command("<@123>ranks", "?", 123));
+        assert!(message_is_prefix_command("<@!123> ranks", "?", 123));
+        assert!(!message_is_prefix_command("<@123>", "?", 123));
+        assert!(!message_is_prefix_command("hi", "?", 123));
     }
 
     async fn mem_pool() -> crate::db::Pool {

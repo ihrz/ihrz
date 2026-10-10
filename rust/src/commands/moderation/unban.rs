@@ -1,6 +1,13 @@
 use super::*;
 use poise::serenity_prelude as serenity;
 
+/// Raw id match against a fetched ban entry. Mirrors the TS
+/// `bans.find(ban => ban.user.id == userID)` string comparison: no
+/// numeric parse, so garbage input just never matches. Pure for tests.
+fn ban_matches_want(ban_user_id: serenity::UserId, want: &str) -> bool {
+    ban_user_id.get().to_string() == want.trim()
+}
+
 /// Unban a user by id.
 #[poise::command(
     slash_command,
@@ -30,10 +37,10 @@ pub async fn mod_unban(
         }
     }
     let reason_s = reason.unwrap_or_else(|| t("unban_reason"));
-    let Ok(uid) = user_id.trim().parse::<u64>() else {
-        ctx.say(t("msg_bad_user_id")).await?;
-        return Ok(());
-    };
+    // No id parse gate: like TS (`bans.find(ban => ban.user.id ==
+    // userID)`), the raw string is matched against the fetched bans, so a
+    // non-numeric id simply falls into the not-banned branch below.
+    let want = user_id.trim();
     // Fetch-first flow: nobody-banned branch, then not-banned branch.
     let bans = guild_id
         .bans(ctx.http(), None, None)
@@ -44,15 +51,16 @@ pub async fn mod_unban(
             .await?;
         return Ok(());
     }
-    if !bans.iter().any(|b| b.user.id.get() == uid) {
+    let Some(ban) = bans.iter().find(|b| ban_matches_want(b.user.id, want)) else {
         ctx.say(t("unban_the_member_is_not_banned").replace("${client.iHorizon_Emojis.No}", &no))
             .await?;
         return Ok(());
-    }
+    };
+    let uid = ban.user.id.get();
     // Audit reason carried on the unban, best-effort like TS.
     let _ = ctx
         .http()
-        .remove_ban(guild_id, serenity::UserId::new(uid), Some(&reason_s))
+        .remove_ban(guild_id, ban.user.id, Some(&reason_s))
         .await;
     // Clear any tempban row for the user, in both stores.
     let gid = guild_id.get().to_string();
@@ -61,6 +69,9 @@ pub async fn mod_unban(
             .await;
     ctx.say(t("unban_is_now_unbanned").replace("${userID}", &uid.to_string()))
         .await?;
+    // Deliberate divergence from TS: !unban.ts posts the log
+    // unconditionally (even when the fetch fails or the target is not
+    // banned); here the log is gated on reaching the unban.
     post_mod_log(
         ctx.http(),
         guild_id,
@@ -71,4 +82,21 @@ pub async fn mod_unban(
     )
     .await;
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn ban_match_is_raw_string_compare() {
+        let id = serenity::UserId::new(123);
+        assert!(ban_matches_want(id, "123"));
+        assert!(ban_matches_want(id, "  123  "));
+        assert!(!ban_matches_want(id, "124"));
+        // No parse gate: garbage input just never matches (not-banned
+        // branch), instead of a dedicated bad-id reply.
+        assert!(!ban_matches_want(id, "abc"));
+        assert!(!ban_matches_want(id, ""));
+    }
 }

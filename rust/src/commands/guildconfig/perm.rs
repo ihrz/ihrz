@@ -36,6 +36,21 @@ pub async fn gc_perm_set(
     Ok(())
 }
 
+/// Escalation gate for `perm-user`. Mirrors `!set-user.ts`:
+/// `fetchedPerm <= parseInt(perm) && guild.ownerId !== member.id`
+/// warns and returns. `checkUserPermissions` reads the caller's
+/// `UTILS.USER_PERMS.<caller>` row (or 0); the `Array.isArray` arm in
+/// TS never fires for that helper (it returns a level), so it maps to
+/// "not blocked". Pure for testability.
+pub fn perm_user_blocked(caller_level: i64, target: i64, is_owner: bool) -> bool {
+    !is_owner && caller_level <= target
+}
+
+/// Key for one user's global level (`UTILS.USER_PERMS.<uid>`).
+pub fn user_perm_key(user_id: u64) -> String {
+    format!("UTILS.USER_PERMS.{user_id}")
+}
+
 #[poise::command(
     slash_command,
     prefix_command,
@@ -46,21 +61,69 @@ pub async fn gc_perm_user(
     ctx: Ctx<'_>,
     #[description = "Command name"] command: String,
     #[description = "Member"] user: serenity::User,
-    #[description = "Level 0-9"] level: i64,
+    #[description = "Level 0-9 (0 deletes)"] level: i64,
 ) -> Result<(), anyhow::Error> {
+    // Command-arg drift (documented, signature kept): TS `!set-user.ts`
+    // takes only (user, permission) and stores a GLOBAL per-user level
+    // (`UTILS.USER_PERMS.<uid>`); the Rust `command` arg is unused on
+    // the write path (fallback text only) and does not scope the row.
     let gid = ctx
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
+    let pool = &ctx.data().pool;
+    let code = crate::db::guild_lang(pool, ctx.guild_id().map(|g| g.get())).await;
     let level = level.clamp(0, 9);
+    // `perm === "0"` deletes the row (TS `db.delete`).
+    if level == 0 {
+        let _ = sqlx::query("DELETE FROM kv WHERE guild_id = ? AND key_name = ?")
+            .bind(&gid)
+            .bind(user_perm_key(user.id.get()))
+            .execute(pool)
+            .await;
+        ctx.say(
+            crate::lang::get(&code, "perm_set_deleted")
+                .map(|s| s.replace("${user.toString()}", &user.to_string()))
+                .unwrap_or_else(|| format!("Permission deleted for {}.", user.to_string())),
+        )
+        .await?;
+        return Ok(());
+    }
+    // Escalation guard (non-owners cannot grant at/above their own level).
+    let caller_level: i64 = crate::db::kv_get(pool, &gid, &user_perm_key(ctx.author().id.get()))
+        .await
+        .and_then(|s| s.trim().parse().ok())
+        .unwrap_or(0);
+    let is_owner = ctx
+        .guild()
+        .map(|g| g.owner_id.get() == ctx.author().id.get())
+        .unwrap_or(false);
+    if perm_user_blocked(caller_level, level, is_owner) {
+        ctx.say(
+            crate::lang::get(&code, "perm_set_warn_message")
+                .map(|s| {
+                    s.replace(
+                        "${interaction.member.toString()}",
+                        &ctx.author().to_string(),
+                    )
+                })
+                .unwrap_or_else(|| {
+                    format!(
+                        "{} You cannot set a permission at or above your own level.",
+                        ctx.author().to_string()
+                    )
+                }),
+        )
+        .await?;
+        return Ok(());
+    }
     crate::db::kv_set(
-        &ctx.data().pool,
+        pool,
         &gid,
-        &format!("UTILS.USER_PERMS.{}", user.id.get()),
+        &user_perm_key(user.id.get()),
         &level.to_string(),
     )
     .await?;
-    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     ctx.say(
         crate::lang::get(&code, "perm_set_ok")
             .map(|s| {

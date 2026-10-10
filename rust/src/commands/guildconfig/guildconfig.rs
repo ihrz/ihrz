@@ -10,7 +10,7 @@ use super::{
     perm::gc_perm_roles_edit, perm::gc_perm_set, perm::gc_perm_user, prefix::gc_prefix,
     restore::gc_config_restore, save::gc_config_save, setlogschannel::gc_setlogs, setup::gc_setup,
     show::gc_show, support::gc_support, tonew::gc_toonew, welcomer::gc_wc_channel,
-    welcomer::gc_wc_components, welcomer::gc_wc_embed, welcomer::gc_wc_text,
+    welcomer::gc_wc_components, welcomer::gc_wc_embed, welcomer::gc_wc_panel, welcomer::gc_wc_text,
 };
 
 #[poise::command(
@@ -42,6 +42,7 @@ use super::{
         "gc_wc_embed",
         "gc_wc_text",
         "gc_wc_components",
+        "gc_wc_panel",
         "gc_config_save",
         "gc_config_restore",
         "gc_perm_roles_create",

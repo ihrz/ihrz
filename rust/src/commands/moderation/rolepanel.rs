@@ -1,4 +1,3 @@
-use super::banlist::deny_foreign_press;
 use super::*;
 use poise::serenity_prelude as serenity;
 
@@ -96,6 +95,29 @@ fn setup_refused_reason(
     None
 }
 
+/// Prefix self-words resolving to the author. Mirrors the
+/// `["myself", "self", "me", "moi"]` check in resolveTargetMember
+/// (!rolepanel.ts); compared lowercase like the TS
+/// `args?.[0]?.toLowerCase()`.
+fn is_self_word(s: &str) -> bool {
+    matches!(s.to_lowercase().as_str(), "myself" | "self" | "me" | "moi")
+}
+
+/// Mention (`<@id>` / `<@!id>`) or raw id from the member arg.
+fn parse_user_id_arg(s: &str) -> Option<serenity::UserId> {
+    let t = s.trim();
+    let inner = t
+        .strip_prefix("<@")
+        .and_then(|r| r.strip_suffix('>'))
+        .map(|r| r.strip_prefix('!').unwrap_or(r))
+        .unwrap_or(t);
+    inner
+        .parse::<u64>()
+        .ok()
+        .filter(|n| *n != 0)
+        .map(serenity::UserId::new)
+}
+
 /// Audit-log reason stamped on role add/remove, mirroring the TS
 /// `` `[RolePanel] Author: ${author.id}` `` reasons.
 fn rolepanel_audit_reason(author_id: u64) -> String {
@@ -137,7 +159,7 @@ fn build_apply_message(
 )]
 pub async fn mod_rolepanel(
     ctx: Ctx<'_>,
-    #[description = "Member the panel is for (default yourself)"] member: Option<serenity::User>,
+    #[description = "Member the panel is for (default yourself)"] member: Option<String>,
 ) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {
         return Ok(());
@@ -145,20 +167,28 @@ pub async fn mod_rolepanel(
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let t = |k: &str, fb: &str| crate::lang::get(&code, k).unwrap_or_else(|| fb.to_string());
     let author_id = ctx.author().id.get();
-    // Target member: explicit user or the author (TS resolveTargetMember).
-    let target = match member {
-        Some(user) => match guild_id.member(ctx.http(), user.id).await {
-            Ok(m) => m,
-            Err(_) => {
+    // Target member (TS resolveTargetMember): no arg or a self-word
+    // (myself/self/me/moi) -> the author; a mention/id -> that member;
+    // anything else -> ban_dont_found_member.
+    let arg = member.as_deref().map(str::trim).unwrap_or("");
+    let target = if arg.is_empty() || is_self_word(arg) {
+        match ctx.author_member().await {
+            Some(m) => m.into_owned(),
+            None => return Ok(()),
+        }
+    } else {
+        let found = match parse_user_id_arg(arg) {
+            Some(id) => guild_id.member(ctx.http(), id).await.ok(),
+            None => None,
+        };
+        match found {
+            Some(m) => m,
+            None => {
                 ctx.say(t("ban_dont_found_member", "🔍 | Cannot find this member"))
                     .await?;
                 return Ok(());
             }
-        },
-        None => match ctx.author_member().await {
-            Some(m) => m.into_owned(),
-            None => return Ok(()),
-        },
+        }
     };
     let target_id = target.user.id;
     let target_mention = format!("<@{target_id}>");
@@ -188,7 +218,8 @@ pub async fn mod_rolepanel(
         bot_perms: guild_perms(&roles, &bot_roles, guild_id),
         author_perms: guild_perms(&roles, &author_roles, guild_id),
     };
-    let not_for_you = t("help_not_for_you", "This interaction is not for you");
+    // TS collectors filter on the author id, so foreign presses are
+    // silently ignored (banlist is the only list that replies).
     let none_word = t("var_none", "None");
     let tl = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
     // Setup embed, mirroring the TS title/desc/roles-field/refused-field.
@@ -281,7 +312,6 @@ pub async fn mod_rolepanel(
             .await;
         let Some(press) = press else { break };
         if press.user.id.get() != author_id {
-            deny_foreign_press(ctx.http(), &press, &not_for_you).await;
             continue;
         }
         if press.data.custom_id == SELECT_ID {
@@ -360,16 +390,16 @@ pub async fn mod_rolepanel(
                     .map(|m| m.roles.contains(&role.id))
                     .unwrap_or(false);
                 if has {
-                    let _ = ctx
-                        .http()
+                    // TS awaits each add/remove with no .catch: the first
+                    // failure aborts the apply (no result embed, no log).
+                    ctx.http()
                         .remove_member_role(guild_id, target_id, role.id, Some(&audit_reason))
-                        .await;
+                        .await?;
                     removed.push(format!("<@&{}>", role.id.get()));
                 } else {
-                    let _ = ctx
-                        .http()
+                    ctx.http()
                         .add_member_role(guild_id, target_id, role.id, Some(&audit_reason))
-                        .await;
+                        .await?;
                     added.push(format!("<@&{}>", role.id.get()));
                 }
             }
@@ -550,6 +580,36 @@ fn button_toggled(code: &str, had_role: bool, role_mention: &str) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn self_words_resolve_to_author() {
+        for w in ["myself", "self", "me", "moi", "ME", "Moi", " me "] {
+            assert!(is_self_word(w.trim()), "self word: {w}");
+        }
+        assert!(!is_self_word(""));
+        assert!(!is_self_word("<@123>"));
+        assert!(!is_self_word("someone"));
+    }
+
+    #[test]
+    fn member_arg_parses_mention_or_id() {
+        assert_eq!(
+            parse_user_id_arg("<@123>"),
+            Some(serenity::UserId::new(123))
+        );
+        assert_eq!(
+            parse_user_id_arg("<@!123>"),
+            Some(serenity::UserId::new(123))
+        );
+        assert_eq!(parse_user_id_arg("123"), Some(serenity::UserId::new(123)));
+        assert_eq!(
+            parse_user_id_arg("  123  "),
+            Some(serenity::UserId::new(123))
+        );
+        assert_eq!(parse_user_id_arg("me"), None);
+        assert_eq!(parse_user_id_arg("0"), None);
+        assert_eq!(parse_user_id_arg("abc"), None);
+    }
 
     #[test]
     fn button_lang_prefers_guild_locale() {

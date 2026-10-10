@@ -3411,6 +3411,8 @@ msg_profil_invalid_age: "無効な年齢です：13から120の間で入力し�
 msg_profil_birthday_invalid: "無効な誕生日です：日/月/年を確認してください（年は1900-2100）。"
 msg_profil_birthday_saved: "誕生日を保存しました。"
 msg_profil_use_subcommand: "サブコマンドを使ってください：show、set-age、set-description、set-gender、set-pronoun、set-birthday。"
+msg_welcomer_panel_title: "Welcomer panel"
+msg_welcomer_panel_hint: "Use wc-channel / wc-embed / wc-text / wc-components to configure join and leave messages."
 msg_automod_toggled: "Automod ${kind} ${state}。"
 
 # Tier-3 replies (U-I6)

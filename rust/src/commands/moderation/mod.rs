@@ -262,6 +262,63 @@ pub async fn moderation(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())
 }
 
+/// Highest author role name for the warn DM. Mirrors
+/// `author.roles.highest.name` in method.warnMember: the raw role name
+/// with no `@` prefix (`everyone` when unknown).
+pub fn warn_top_role_name(
+    author_top_roles: &Option<Vec<serenity::RoleId>>,
+    guild_roles: &Option<std::collections::HashMap<serenity::RoleId, (String, u16)>>,
+) -> String {
+    author_top_roles
+        .as_ref()
+        .and_then(|roles| {
+            guild_roles.as_ref().and_then(|map| {
+                roles
+                    .iter()
+                    .filter_map(|r| map.get(r))
+                    .max_by_key(|(_, pos)| *pos)
+                    .map(|(name, _)| name.clone())
+            })
+        })
+        .unwrap_or_else(|| "everyone".to_string())
+}
+
+/// Localized short duration like TS `to_beautiful_string(ms, lang)`:
+/// localized unit names concatenated without separator, zero falls
+/// back to `0` + the minute name. `units` is [year, month, week, day,
+/// hour, minute, second] (`var_year`, `var_mo`, `var_w`, `var_d`,
+/// `var_h`, `var_m`, `var_s`); the ms unit name stays `ms` like TS.
+pub fn beautiful_ms_lang(ms: f64, units: &[String; 7]) -> String {
+    if !ms.is_finite() || ms < 0.0 {
+        return format!("0{}", units[5]);
+    }
+    let mut rest = ms.max(0.0) as u64;
+    let factors = [
+        31_557_600_000u64,
+        2_592_000_000,
+        604_800_000,
+        86_400_000,
+        3_600_000,
+        60_000,
+        1_000,
+    ];
+    let mut out = String::new();
+    for (unit, factor) in units.iter().zip(factors) {
+        if rest >= factor {
+            out.push_str(&format!("{}{}", rest / factor, unit));
+            rest %= factor;
+        }
+    }
+    if rest > 0 {
+        out.push_str(&format!("{rest}ms"));
+    }
+    if out.is_empty() {
+        format!("0{}", units[5])
+    } else {
+        out
+    }
+}
+
 /// Inputs for [`warn_member`]. Struct keeps clippy arg-count clean.
 pub struct WarnContext<'a> {
     pub http: &'a serenity::Http,
@@ -330,19 +387,9 @@ pub async fn warn_member_with_author(
     );
     let total = warns.len();
     let _ = save_warns(w.pool, w.gid, uid, &warns).await;
-    let top_role = w
-        .author_top_roles
-        .as_ref()
-        .and_then(|roles| {
-            w.guild_roles.as_ref().and_then(|map| {
-                roles
-                    .iter()
-                    .filter_map(|r| map.get(r))
-                    .max_by_key(|(_, pos)| *pos)
-                    .map(|(name, _)| format!("@{name}"))
-            })
-        })
-        .unwrap_or_else(|| "@everyone".to_string());
+    // Highest-role name goes into the DM raw (no `@` prefix), like TS
+    // `author.roles.highest.name`.
+    let top_role = warn_top_role_name(&w.author_top_roles, &w.guild_roles);
     let guild_name = w
         .guild_name
         .clone()
@@ -389,28 +436,6 @@ pub fn parse_rolepanel_custom_id(custom_id: &str) -> Option<serenity::RoleId> {
 
 pub fn rolepanel_custom_id(role_id: serenity::RoleId) -> String {
     format!("rolepanel:{}", role_id.get())
-}
-
-/// Refused-role reason. Mirrors getRefusedRoleReason in !rolepanel.ts.
-fn rolepanel_refused_reason(
-    role: &serenity::Role,
-    guild_id: serenity::GuildId,
-    bot_top: u16,
-    author_top: u16,
-    author_id: u64,
-    owner_id: u64,
-    t: &impl Fn(&str) -> String,
-) -> Option<String> {
-    if role.id.get() == guild_id.get() || role.managed {
-        return Some(t("rolepanel_role_managed_or_everyone"));
-    }
-    if bot_top <= role.position {
-        return Some(t("rolepanel_role_too_high_bot"));
-    }
-    if owner_id != author_id && author_top <= role.position {
-        return Some(t("rolepanel_role_too_high_user"));
-    }
-    None
 }
 
 async fn lock_all_inner(
@@ -625,5 +650,71 @@ mod tests {
         assert_eq!(paginate(12, 5, 3), (10, 12, 3));
         assert_eq!(paginate(12, 5, 99), (10, 12, 3));
         assert_eq!(paginate(0, 5, 1), (0, 0, 1));
+    }
+
+    fn test_units() -> [String; 7] {
+        [
+            "y".to_string(),
+            "mo".to_string(),
+            "w".to_string(),
+            "d".to_string(),
+            "h".to_string(),
+            "m".to_string(),
+            "s".to_string(),
+        ]
+    }
+
+    #[test]
+    fn beautiful_ms_lang_decomposes_like_ts() {
+        let u = test_units();
+        assert_eq!(beautiful_ms_lang(3_600_000.0, &u), "1h");
+        assert_eq!(beautiful_ms_lang(90_000.0, &u), "1m30s");
+        assert_eq!(
+            beautiful_ms_lang(31_557_600_000.0 + 86_400_000.0, &u),
+            "1y1d"
+        );
+        assert_eq!(beautiful_ms_lang(500.0, &u), "500ms");
+    }
+
+    #[test]
+    fn beautiful_ms_lang_zero_falls_back_to_minute() {
+        let u = test_units();
+        assert_eq!(beautiful_ms_lang(0.0, &u), "0m");
+        assert_eq!(beautiful_ms_lang(-5.0, &u), "0m");
+    }
+
+    #[test]
+    fn beautiful_ms_lang_uses_guild_unit_names() {
+        let u = [
+            "year(s)".to_string(),
+            "month(s)".to_string(),
+            "week(s)".to_string(),
+            "day(s)".to_string(),
+            "hour(s)".to_string(),
+            "minute(s)".to_string(),
+            "second(s)".to_string(),
+        ];
+        assert_eq!(beautiful_ms_lang(3_600_000.0, &u), "1hour(s)");
+        assert_eq!(beautiful_ms_lang(0.0, &u), "0minute(s)");
+    }
+
+    #[test]
+    fn warn_top_role_name_has_no_at_prefix() {
+        let mut map = std::collections::HashMap::new();
+        map.insert(serenity::RoleId::new(1), ("Admin".to_string(), 5u16));
+        map.insert(serenity::RoleId::new(2), ("Mod".to_string(), 9u16));
+        let roles = Some(vec![serenity::RoleId::new(1), serenity::RoleId::new(2)]);
+        assert_eq!(warn_top_role_name(&roles, &Some(map)), "Mod".to_string());
+    }
+
+    #[test]
+    fn warn_top_role_name_falls_back_to_everyone() {
+        let none: Option<Vec<serenity::RoleId>> = None;
+        let map: Option<std::collections::HashMap<serenity::RoleId, (String, u16)>> = None;
+        assert_eq!(warn_top_role_name(&none, &map), "everyone".to_string());
+        assert_eq!(
+            warn_top_role_name(&Some(vec![]), &map),
+            "everyone".to_string()
+        );
     }
 }

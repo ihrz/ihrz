@@ -1,6 +1,13 @@
-use super::banlist::{clamp_page_idx, dead_row, deny_foreign_press, nav_buttons};
+use super::banlist::{clamp_page_idx, dead_row, nav_buttons};
 use super::*;
 use poise::serenity_prelude as serenity;
+
+/// Escape backticks in a warnlist field. Mirrors the TS
+/// `.replace("`", "\\`")` calls: JS `String.replace` with a string
+/// pattern replaces the first occurrence only.
+fn escape_warn_field(s: &str) -> String {
+    s.replacen('`', "\\`", 1)
+}
 
 /// Author mention for a warn row. Legacy rows (and rows without a
 /// usable id) fall back to the `var_unknown` word.
@@ -43,7 +50,8 @@ pub async fn mod_warnlist(
         .await?;
         return Ok(());
     }
-    let not_for_you = t("help_not_for_you", "This interaction is not for you");
+    // TS uses a collector `filter` (author only), so foreign presses are
+    // silently ignored; only banlist replies `help_not_for_you`.
     let page_word = t("var_page", "Page");
     let name = member
         .global_name
@@ -71,10 +79,10 @@ pub async fn mod_warnlist(
                     .replace("${x.id}", &w.id)
                     .replace(
                         "${format(x.timestamp, 'DD/MM/YYYY')}",
-                        &crate::funcs::format_date(w.at / 1000, "DD/MM/YYYY"),
+                        &escape_warn_field(&crate::funcs::format_date(w.at / 1000, "DD/MM/YYYY")),
                     )
-                    .replace("${x.authorID}", &author_mention(w, &unknown))
-                    .replace("${x.reason}", &w.reason)
+                    .replace("${x.authorID}", &escape_warn_field(&author_mention(w, &unknown)))
+                    .replace("${x.reason}", &escape_warn_field(&w.reason))
                 })
                 .collect::<Vec<_>>()
                 .join("\n");
@@ -117,7 +125,6 @@ pub async fn mod_warnlist(
             .await;
         let Some(press) = press else { break };
         if press.user.id != author {
-            deny_foreign_press(ctx.http(), &press, &not_for_you).await;
             continue;
         }
         match press.data.custom_id.as_str() {
@@ -173,6 +180,12 @@ mod tests {
     fn author_mention_falls_back_for_legacy_rows() {
         assert_eq!(author_mention(&warn_with(None), "Unknown"), "Unknown");
         assert_eq!(author_mention(&warn_with(Some("")), "Unknown"), "Unknown");
+    }
+
+    #[test]
+    fn escape_warn_field_mirrors_js_replace() {
+        assert_eq!(escape_warn_field("a`b`c"), "a\\`b`c");
+        assert_eq!(escape_warn_field("plain"), "plain");
     }
 
     #[test]

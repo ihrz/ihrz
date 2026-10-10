@@ -3411,6 +3411,8 @@ msg_profil_invalid_age: "Недопустимый возраст: от 13 до 1
 msg_profil_birthday_invalid: "Недопустимая дата рождения: проверьте день/месяц/год (год 1900-2100)."
 msg_profil_birthday_saved: "Дата рождения сохранена."
 msg_profil_use_subcommand: "Используйте подкоманду: show, set-age, set-description, set-gender, set-pronoun, set-birthday."
+msg_welcomer_panel_title: "Welcomer panel"
+msg_welcomer_panel_hint: "Use wc-channel / wc-embed / wc-text / wc-components to configure join and leave messages."
 msg_automod_toggled: "Автомод ${kind} ${state}."
 
 # Tier-3 replies (U-I6)

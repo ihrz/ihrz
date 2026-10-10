@@ -3405,6 +3405,8 @@ msg_profil_invalid_age: "عمر غير صالح: يجب أن يكون بين 13 
 msg_profil_birthday_invalid: "تاريخ ميلاد غير صالح: تحقق من اليوم/الشهر/السنة (السنة 1900-2100)."
 msg_profil_birthday_saved: "تم حفظ تاريخ الميلاد."
 msg_profil_use_subcommand: "استخدم أمرًا فرعيًا: show أو set-age أو set-description أو set-gender أو set-pronoun أو set-birthday."
+msg_welcomer_panel_title: "Welcomer panel"
+msg_welcomer_panel_hint: "Use wc-channel / wc-embed / wc-text / wc-components to configure join and leave messages."
 msg_automod_toggled: "الإشراف التلقائي ${kind} ${state}."
 
 # Tier-3 replies (U-I6)

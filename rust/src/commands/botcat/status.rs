@@ -77,6 +77,45 @@ pub fn os_info_value() -> String {
     format!("{pretty} {} {}", std::env::consts::OS, kernel_release())
 }
 
+/// Discord timestamp. Mirrors `time(date, "d")` in status.ts
+/// (`<t:epoch:d>`, short date).
+pub fn discord_ts(epoch_secs: u64) -> String {
+    format!("<t:{epoch_secs}:d>")
+}
+
+/// Machine boot time as a unix epoch. Mirrors
+/// `new Date(Date.now() - os.uptime() * 1000)` in status.ts
+/// (`None` off-Linux / unreadable uptime).
+pub fn machine_boot_epoch() -> Option<u64> {
+    let secs: u64 = std::fs::read_to_string("/proc/uptime")
+        .ok()?
+        .split_whitespace()
+        .next()?
+        .parse::<f64>()
+        .ok()? as u64;
+    let now = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .ok()?
+        .as_secs();
+    now.checked_sub(secs)
+}
+
+/// `Machine Uptime` field value. Mirrors the `os.uptime()` block
+/// (Discord timestamp of the boot date, like `time(..., "d")`).
+pub fn machine_uptime_ts() -> String {
+    machine_boot_epoch()
+        .map(discord_ts)
+        .unwrap_or_else(machine_uptime)
+}
+
+/// `Bot Uptime` field value. Mirrors the `process.uptime()` block
+/// (Discord timestamp of the process start date).
+pub fn bot_uptime_ts() -> String {
+    proc_start_epoch_secs()
+        .map(discord_ts)
+        .unwrap_or_else(process_uptime)
+}
+
 fn git_cmd(args: &[&str]) -> Option<String> {
     let out = std::process::Command::new("git").args(args).output().ok()?;
     if !out.status.success() {
@@ -162,6 +201,12 @@ pub fn rustc_version() -> Option<String> {
     aliases("server")
 )]
 pub async fn status(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
+    // Guard's Typing: status.ts returns silently outside a guild
+    // (needs the guild icon for the thumbnail + footer).
+    let Some(guild_id) = ctx.guild_id() else {
+        return Ok(());
+    };
+    let gid = guild_id.get().to_string();
     let mem = crate::funcs::system_memory_kb();
     // TS bot status.ts reports used as MemTotal - MemAvailable; fall
     // back to MemFree on kernels without MemAvailable (pre-3.14).
@@ -174,6 +219,17 @@ pub async fn status(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         Some(url) => format!("[{}]({url})", bot_version_label()),
         None => bot_version_label(),
     };
+    // Emoji field names mirror status.ts (`${emojis} OS`,
+    // `${Logo} Bot Version`, `${Bun} Bun Version`); the toolchain row
+    // reports rustc (documented port mapping on rustc_version()).
+    let http = &ctx.serenity_context().http;
+    let os_name = super::os_emoji_name();
+    let os_emoji = match os_name {
+        Some(name) => crate::emojis::app_emoji_markup(http, name).await,
+        None => None,
+    };
+    let logo = crate::emojis::app_emoji_markup(http, "Logo").await;
+    let bun = crate::emojis::app_emoji_markup(http, "Bun").await;
     let mut embed = serenity::CreateEmbed::default()
         .colour(0x82CDA8)
         .field(
@@ -190,14 +246,35 @@ pub async fn status(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
             ),
             false,
         )
-        .field("Machine Uptime", machine_uptime(), false)
-        .field("Bot Uptime", process_uptime(), false)
-        .field("OS", os_info_value(), false)
-        .field("Bot Version", version_value, false);
+        .field("Machine Uptime", machine_uptime_ts(), false)
+        .field("Bot Uptime", bot_uptime_ts(), false)
+        .field(
+            super::prefixed_field_name(os_emoji.as_deref(), "OS"),
+            os_info_value(),
+            false,
+        )
+        .field(
+            super::prefixed_field_name(logo.as_deref(), "Bot Version"),
+            version_value,
+            false,
+        );
     if let Some(rustc) = rustc_version() {
-        embed = embed.field("Rust Version", rustc, false);
+        embed = embed.field(
+            super::prefixed_field_name(bun.as_deref(), "Rust Version"),
+            rustc,
+            false,
+        );
     }
-    ctx.send(poise::CreateReply::default().embed(embed)).await?;
+    if let Some(icon) = ctx.guild().and_then(|g| g.icon_url()) {
+        embed = embed.thumbnail(icon);
+    }
+    let (footer_name, footer_bytes) = crate::commands::shared::footer_parts(&ctx, &gid).await;
+    embed = crate::commands::shared::embed_with_footer(embed, &footer_name, footer_bytes.is_some());
+    let mut reply = poise::CreateReply::default().embed(embed);
+    if let Some(bytes) = footer_bytes {
+        reply = reply.attachment(serenity::CreateAttachment::bytes(bytes, "footer_icon.png"));
+    }
+    ctx.send(reply).await?;
     Ok(())
 }
 
@@ -259,5 +336,32 @@ mod tests {
         let _ = os_info_value();
         let _ = rustc_version();
         let _ = bot_commit_url();
+    }
+
+    #[test]
+    fn discord_ts_mirrors_discord_js_time_d() {
+        assert_eq!(discord_ts(1700000000), "<t:1700000000:d>");
+        assert_eq!(discord_ts(0), "<t:0:d>");
+    }
+
+    #[test]
+    fn uptime_ts_values_are_discord_timestamps() {
+        for value in [machine_uptime_ts(), bot_uptime_ts()] {
+            assert!(
+                value.starts_with("<t:") && value.ends_with(":d>"),
+                "should be a Discord timestamp, got {value:?}"
+            );
+        }
+    }
+
+    #[test]
+    fn machine_boot_epoch_never_in_future() {
+        if let Some(boot) = machine_boot_epoch() {
+            let now = std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap()
+                .as_secs();
+            assert!(boot <= now);
+        }
     }
 }

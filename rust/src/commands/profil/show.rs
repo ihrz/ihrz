@@ -5,11 +5,24 @@ use poise::serenity_prelude as serenity;
 /// Discord relative-timestamp for this year's birthday, mirroring
 /// `!show.ts` (`time(new Date(year, month - 1, day), "R")`).
 /// `year` is injected (callers pass the current local year) so the
-/// conversion stays unit-testable. None when the date is impossible
-/// (e.g. Feb 29 on a common year).
+/// conversion stays unit-testable.
+///
+/// NOTE on date rollover: the JS `Date` constructor rolls overflowing
+/// month/day values forward (e.g. `new Date(2025, 1, 29)` becomes Mar 1
+/// 2025) instead of erroring, and this mirrors that: the month is
+/// normalized with Euclidean wraparound, then `day - 1` days are added
+/// onto the first of the month, so Feb 29 on a common year renders as
+/// Mar 1 exactly like TS. None only when the normalized year itself is
+/// out of chrono range.
 pub fn birthday_discord_timestamp(day: u8, month: u8, year: i32) -> Option<i64> {
     use chrono::{Local, TimeZone};
-    let date = chrono::NaiveDate::from_ymd_opt(year, month as u32, day as u32)?;
+    let m0 = month as i32 - 1;
+    let (yn, mn) = (
+        year.saturating_add(m0.div_euclid(12)),
+        m0.rem_euclid(12) + 1,
+    );
+    let first = chrono::NaiveDate::from_ymd_opt(yn, mn as u32, 1)?;
+    let date = first + chrono::Duration::days(day as i64 - 1);
     let naive = date.and_hms_opt(0, 0, 0)?;
     match Local.from_local_datetime(&naive) {
         chrono::LocalResult::Single(dt) => Some(dt.timestamp()),
@@ -215,10 +228,12 @@ mod tests {
     }
 
     #[test]
-    fn birthday_rejects_impossible_dates() {
-        // Feb 29 on a common year has no midnight mapping target.
-        assert!(birthday_discord_timestamp(29, 2, 2025).is_none());
-        assert!(birthday_discord_timestamp(31, 4, 2024).is_none());
+    fn birthday_rolls_over_like_js_date() {
+        // JS `new Date(2025, 1, 29)` rolls forward to Mar 1 2025.
+        let ts = birthday_discord_timestamp(29, 2, 2025).unwrap();
+        let dt = Local.timestamp_opt(ts, 0).single().unwrap();
+        assert_eq!((dt.day(), dt.month(), dt.year()), (1, 3, 2025));
+        assert!(birthday_discord_timestamp(31, 4, 2024).is_some());
         assert!(birthday_discord_timestamp(29, 2, 2024).is_some());
     }
 }

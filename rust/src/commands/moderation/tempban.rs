@@ -19,6 +19,18 @@ pub async fn mod_tempban(
     };
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let t = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
+    // Display mirrors TS `to_beautiful_string(banTime, lang)`: localized
+    // units formatted from the pre-clamp input, even on overflow.
+    let units = [
+        t("var_year"),
+        t("var_mo"),
+        t("var_w"),
+        t("var_d"),
+        t("var_h"),
+        t("var_m"),
+        t("var_s"),
+    ];
+    let pretty = beautiful_ms_lang(crate::funcs::time_ms(&duration), &units);
     let mut ms = crate::funcs::time_ms(&duration) as i64;
     if ms <= 0 {
         ctx.say(t("too_new_account_invalid_time_on_enable")).await?;
@@ -30,7 +42,6 @@ pub async fn mod_tempban(
         ms = YEAR_MAX_MS;
         overflow = true;
     }
-    let pretty = crate::funcs::beautiful_ms(ms as f64);
     let reason_s = reason.clone().unwrap_or_else(|| t("var_no_set"));
     let no = emoji(&ctx, "No", "❌").await;
     let vc = emoji(&ctx, "VC_OpenChat", "💬").await;
@@ -82,18 +93,9 @@ pub async fn mod_tempban(
         ctx.say(t("tempban_already_banned")).await?;
         return Ok(());
     }
-    let by = ctx
-        .author()
-        .global_name
-        .clone()
-        .unwrap_or_else(|| ctx.author().name.clone());
+    // Audit reason mirrors tempbanManager.addban: the plain reason text.
     if guild_id
-        .ban_with_reason(
-            ctx.http(),
-            user.id,
-            0,
-            &format!("Tempbanned by: {by} | Reason: {reason_s}"),
-        )
+        .ban_with_reason(ctx.http(), user.id, 0, &reason_s)
         .await
         .is_err()
     {

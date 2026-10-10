@@ -3413,6 +3413,8 @@ msg_profil_invalid_age: "Invalid age: must be between 13 and 120."
 msg_profil_birthday_invalid: "Invalid birthday: check day/month/year (year 1900-2100)."
 msg_profil_birthday_saved: "Birthday saved."
 msg_profil_use_subcommand: "Use a subcommand: show, set-age, set-description, set-gender, set-pronoun, set-birthday."
+msg_welcomer_panel_title: "Welcomer panel"
+msg_welcomer_panel_hint: "Use wc-channel / wc-embed / wc-text / wc-components to configure join and leave messages."
 msg_automod_toggled: "Automod ${kind} ${state}."
 
 # Tier-3 replies (U-I6)

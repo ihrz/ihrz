@@ -1,4 +1,4 @@
-use super::banlist::{clamp_page_idx, dead_row, deny_foreign_press, nav_buttons};
+use super::banlist::{clamp_page_idx, dead_row, nav_buttons};
 use super::*;
 use poise::serenity_prelude as serenity;
 
@@ -39,8 +39,20 @@ pub async fn mod_mutelist(
         ctx.say(t("prevnames_undetected", "No data found!")).await?;
         return Ok(());
     }
-    let not_for_you = t("help_not_for_you", "This interaction is not for you");
+    // TS uses a collector `filter` (author only), so foreign presses are
+    // silently ignored; only banlist replies `help_not_for_you`.
     let page_word = t("var_page", "Page");
+    // Localized unit names for the remaining-time display, mirroring
+    // `to_beautiful_string(remaining, lang)` in !mutelist.ts.
+    let units = [
+        t("var_year", "y"),
+        t("var_mo", "mo"),
+        t("var_w", "w"),
+        t("var_d", "d"),
+        t("var_h", "h"),
+        t("var_m", "m"),
+        t("var_s", "s"),
+    ];
     // Page descriptions are rebuilt after the trash button clears the
     // timeouts, mirroring the TS `generatePages` refresh.
     let describe = |ids: &[(serenity::UserId, String)]| -> Vec<String> {
@@ -59,7 +71,7 @@ pub async fn mod_mutelist(
                             .unwrap_or(0);
                         format!(
                             "{mention} - `{}`",
-                            crate::funcs::beautiful_ms(remaining as f64)
+                            beautiful_ms_lang(remaining as f64, &units)
                         )
                     })
                     .collect::<Vec<_>>()
@@ -110,7 +122,6 @@ pub async fn mod_mutelist(
             .await;
         let Some(press) = press else { break };
         if press.user.id != author {
-            deny_foreign_press(ctx.http(), &press, &not_for_you).await;
             continue;
         }
         match press.data.custom_id.as_str() {

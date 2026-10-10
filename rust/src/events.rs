@@ -296,9 +296,12 @@ pub fn voice_session_key(user_id: u64) -> String {
 }
 
 /// Coins earned: floor(minutes / 10), multiplied by boost.
-/// Mirrors onVoiceUpdate.ts (Math.floor(durationMin / 10) * boost).
-pub fn coins_for_voice(minutes: u64, boost_mult: u64) -> i64 {
-    ((minutes / 10) * boost_mult.max(1)) as i64
+/// Mirrors onVoiceUpdate.ts
+/// (`Math.floor(durationMin / 10) * getMemberBoost(member)`): the boost
+/// is the float-preserving shop multiplier, so the product stays float
+/// like the TS number; the integer wallet truncates on credit.
+pub fn coins_for_voice(minutes: u64, boost_mult: f64) -> f64 {
+    ((minutes / 10) as f64) * boost_mult.max(1.0)
 }
 
 pub async fn voice_join(
@@ -334,7 +337,7 @@ struct VoiceClose {
     channel_id: u64,
     start: i64,
     now_ms: i64,
-    boost_mult: u64,
+    boost_mult: f64,
     pay: bool,
 }
 
@@ -348,9 +351,10 @@ async fn close_voice_session(
     let minutes = elapsed_ms / 60_000;
     // TS pays only when coinsEarned > 0 AND newState.member is non-null
     // (a user who left the guild earns nothing). Stats are pushed either
-    // way, exactly like processSessionEnd.
+    // way, exactly like processSessionEnd. The float product truncates
+    // toward zero on the integer wallet credit.
     let coins = if close.pay {
-        coins_for_voice(minutes, close.boost_mult)
+        coins_for_voice(minutes, close.boost_mult) as i64
     } else {
         0
     };
@@ -389,7 +393,7 @@ pub async fn voice_leave(
     guild_id: &str,
     user_id: u64,
     now_ms: i64,
-    boost_mult: u64,
+    boost_mult: f64,
     pay: bool,
 ) -> (u64, i64) {
     let raw: Option<String> = tbl_get(pool, guild_id, &voice_session_key(user_id)).await;
@@ -423,7 +427,7 @@ pub async fn voice_switch(
     user_id: u64,
     new_channel_id: u64,
     now_ms: i64,
-    boost_mult: u64,
+    boost_mult: f64,
     pay: bool,
 ) -> (u64, i64) {
     let raw: Option<String> = tbl_get(pool, guild_id, &voice_session_key(user_id)).await;
@@ -490,7 +494,7 @@ pub async fn recover_voice_sessions(
                 channel_id,
                 start,
                 now_ms,
-                boost_mult: 1,
+                boost_mult: 1.0,
                 pay: false,
             },
         )
@@ -1034,7 +1038,14 @@ pub async fn record_message_activity_full(
         input.guild_name,
         level,
     );
-    let text = xp_new_user_hint(&msg, level, roll, info, input.emoji_markup);
+    let text = xp_new_user_hint(
+        &msg,
+        level,
+        roll,
+        info,
+        input.emoji_markup,
+        target == XpAnnounceTarget::ReplyInPlace,
+    );
     XpMessageOutcome {
         level,
         leveled,
@@ -1164,15 +1175,18 @@ pub fn render_xp_announce(
 /// New-user hint. Mirrors onNewMessage.ts: on the first level-up
 /// (newLevel === 1) the additional-info line (emoji slot filled) is
 /// appended on a 1/2 roll (`Math.random() < 0.5`; `roll` is the
-/// handler's draw so this stays deterministic in tests).
+/// handler's draw so this stays deterministic in tests). The TS appends
+/// the hint only inside the `!xpChan` branch (reply in place), never on
+/// the xpchannels leg — `reply_in_place` carries that routing.
 pub fn xp_new_user_hint(
     msg: &str,
     new_level: u64,
     roll: f64,
     additional_info: &str,
     emoji_markup: &str,
+    reply_in_place: bool,
 ) -> String {
-    if new_level == 1 && roll < 0.5 {
+    if reply_in_place && new_level == 1 && roll < 0.5 {
         format!(
             "{msg}{}",
             additional_info.replace("${client.iHorizon_Emojis.VC_OpenChat}", emoji_markup)
@@ -1297,11 +1311,14 @@ mod tests {
 
     #[test]
     fn voice_coins_and_sessions() {
-        assert_eq!(coins_for_voice(10, 1), 1);
-        assert_eq!(coins_for_voice(10, 3), 3);
-        assert_eq!(coins_for_voice(9, 5), 0);
-        assert_eq!(coins_for_voice(25, 2), 4);
-        assert_eq!(coins_for_voice(0, 5), 0);
+        assert_eq!(coins_for_voice(10, 1.0), 1.0);
+        assert_eq!(coins_for_voice(10, 3.0), 3.0);
+        assert_eq!(coins_for_voice(9, 5.0), 0.0);
+        assert_eq!(coins_for_voice(25, 2.0), 4.0);
+        assert_eq!(coins_for_voice(0, 5.0), 0.0);
+        // Fractional shop boosts stay fractional like the TS number.
+        assert_eq!(coins_for_voice(20, 1.5), 3.0);
+        assert_eq!(coins_for_voice(10, 0.5), 1.0);
     }
 
     #[tokio::test]
@@ -1319,7 +1336,7 @@ mod tests {
         sqlx::query("CREATE TABLE guild_lang (guild_id TEXT PRIMARY KEY, lang TEXT NOT NULL DEFAULT 'en-US')")
             .execute(&pool).await.unwrap();
         voice_join(&pool, "g", 1, 9, 0).await;
-        let (minutes, coins) = voice_leave(&pool, "g", 1, 6_000_000, 2, true).await;
+        let (minutes, coins) = voice_leave(&pool, "g", 1, 6_000_000, 2.0, true).await;
         assert_eq!((minutes, coins), (100, 20));
         let econ = crate::commands::economy::balance::load_econ_routed(&pool, "g", 1).await;
         assert_eq!(econ.money, 20);
@@ -1329,7 +1346,7 @@ mod tests {
         assert_eq!(stats.voice_log[0].channel_id, 9);
         assert_eq!(stats.voice_log[0].end_ts, 6_000_000);
         // No session -> nothing.
-        assert_eq!(voice_leave(&pool, "g", 1, 999_999, 1, true).await, (0, 0));
+        assert_eq!(voice_leave(&pool, "g", 1, 999_999, 1.0, true).await, (0, 0));
     }
 
     #[tokio::test]
@@ -1349,7 +1366,7 @@ mod tests {
         // pay=false (user left the guild, TS newState.member null):
         // no coins, but the session still closes and stats push.
         voice_join(&pool, "g", 1, 9, 0).await;
-        let (minutes, coins) = voice_leave(&pool, "g", 1, 6_100_000, 2, false).await;
+        let (minutes, coins) = voice_leave(&pool, "g", 1, 6_100_000, 2.0, false).await;
         assert_eq!((minutes, coins), (101, 0));
         let econ = crate::commands::economy::balance::load_econ_routed(&pool, "g", 1).await;
         assert_eq!(econ.money, 0);
@@ -1563,22 +1580,28 @@ mod tests {
     #[test]
     fn xp_new_user_hint_only_first_level_on_hit_roll() {
         let base = "Level up!";
-        // Level 1 + winning roll appends the info line with emoji filled.
+        // Level 1 + winning roll + reply-in-place appends the info line
+        // with emoji filled.
         assert_eq!(
-            xp_new_user_hint(base, 1, 0.2, XP_ADDITIONAL_INFO_FALLBACK, "<:chat>"),
+            xp_new_user_hint(base, 1, 0.2, XP_ADDITIONAL_INFO_FALLBACK, "<:chat>", true),
             "Level up!\n-# <:chat> Do you find this message annoying? You can disable this message by disabling the leveling system with the `/ranks config` command."
         );
-        // Losing roll, higher level, or boundary roll stay silent.
+        // Losing roll, higher level, boundary roll, or the xpchannels leg
+        // stay silent.
         assert_eq!(
-            xp_new_user_hint(base, 1, 0.9, XP_ADDITIONAL_INFO_FALLBACK, "<:chat>"),
+            xp_new_user_hint(base, 1, 0.9, XP_ADDITIONAL_INFO_FALLBACK, "<:chat>", true),
             base
         );
         assert_eq!(
-            xp_new_user_hint(base, 2, 0.1, XP_ADDITIONAL_INFO_FALLBACK, "<:chat>"),
+            xp_new_user_hint(base, 2, 0.1, XP_ADDITIONAL_INFO_FALLBACK, "<:chat>", true),
             base
         );
         assert_eq!(
-            xp_new_user_hint(base, 1, 0.5, XP_ADDITIONAL_INFO_FALLBACK, "<:chat>"),
+            xp_new_user_hint(base, 1, 0.5, XP_ADDITIONAL_INFO_FALLBACK, "<:chat>", true),
+            base
+        );
+        assert_eq!(
+            xp_new_user_hint(base, 1, 0.2, XP_ADDITIONAL_INFO_FALLBACK, "<:chat>", false),
             base
         );
     }
@@ -1699,15 +1722,16 @@ mod tests {
             .execute(&pool).await.unwrap();
         sqlx::query("CREATE TABLE guild_lang (guild_id TEXT PRIMARY KEY, lang TEXT NOT NULL DEFAULT 'en-US')")
             .execute(&pool).await.unwrap();
-        // Seed just under the 500 XP threshold so the fixed gain levels to 1.
+        // Seed just over the 500 XP stale threshold so the fixed gain
+        // levels stored level 0 -> 1 (TS compares the PRE-add xp).
         let _ = crate::commands::ranks::main::save_rank(
             &pool,
             "g",
             1,
             &crate::commands::ranks::main::RankEntry {
                 level: 0,
-                xp: 490,
-                xptotal: 490,
+                xp: 501,
+                xptotal: 501,
             },
         )
         .await;
@@ -1765,8 +1789,8 @@ mod tests {
                 1,
                 &crate::commands::ranks::main::RankEntry {
                     level: 0,
-                    xp: 490,
-                    xptotal: 490,
+                    xp: 501,
+                    xptotal: 501,
                 },
             )
             .await;
@@ -1977,7 +2001,7 @@ mod tests {
         crate::db::kv_set(&pool, "g1", &voice_session_key(2), "0:9")
             .await
             .unwrap();
-        let (minutes, _) = voice_leave(&pool, "g1", 2, 6_000_000, 1, true).await;
+        let (minutes, _) = voice_leave(&pool, "g1", 2, 6_000_000, 1.0, true).await;
         assert_eq!(minutes, 100);
         assert!(tbl_get(&pool, "g1", &voice_session_key(2)).await.is_none());
         // Prefix scans merge table rows with legacy rows.
@@ -2021,7 +2045,7 @@ mod tests {
         sqlx::query("CREATE TABLE guild_lang (guild_id TEXT PRIMARY KEY, lang TEXT NOT NULL DEFAULT 'en-US')")
             .execute(&pool).await.unwrap();
         voice_join(&pool, "g", 1, 9, 0).await;
-        let (_, coins) = voice_leave(&pool, "g", 1, 6_000_000, 2, true).await;
+        let (_, coins) = voice_leave(&pool, "g", 1, 6_000_000, 2.0, true).await;
         assert_eq!(coins, 20);
         // Table-first reader sees the voice earnings.
         let routed = crate::commands::economy::balance::load_econ_routed(&pool, "g", 1).await;

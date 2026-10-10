@@ -454,6 +454,18 @@ mod tests {
     }
 
     #[test]
+    fn perm_user_gate_and_key() {
+        use super::perm::{perm_user_blocked, user_perm_key};
+        assert_eq!(user_perm_key(7), "UTILS.USER_PERMS.7");
+        // TS: fetchedPerm <= perm && not owner -> warn.
+        assert!(perm_user_blocked(2, 3, false));
+        assert!(perm_user_blocked(3, 3, false));
+        assert!(!perm_user_blocked(4, 3, false));
+        assert!(!perm_user_blocked(0, 9, true));
+        assert!(!perm_user_blocked(2, 3, true));
+    }
+
+    #[test]
     fn perm_level_names() {
         assert_eq!(perm_level_name(0), "Default");
         assert_eq!(perm_level_name(1), "Perm 1");
@@ -507,6 +519,33 @@ mod tests {
         let live: std::collections::HashSet<String> = ["99".to_string()].into_iter().collect();
         let filtered = perm_list_fields(&entries, "Permission", Some(&live));
         assert_eq!(filtered.len(), 2);
+    }
+
+    #[test]
+    fn welcomer_panel_fields_summarize() {
+        let cfg = serde_json::json!({
+            "join": "11",
+            "leave": "",
+            "joinmessage": "hi",
+            "joinroles": ["5"],
+            "joinTextEnabled": false,
+        });
+        let fields = super::welcomer::welcomer_panel_fields(&cfg);
+        assert_eq!(fields.len(), 7);
+        let join = fields.iter().find(|(n, _, _)| n == "Join channel").unwrap();
+        assert_eq!(join.1, "<#11>");
+        let leave = fields
+            .iter()
+            .find(|(n, _, _)| n == "Leave channel")
+            .unwrap();
+        assert_eq!(leave.1, "Not set");
+        let roles = fields.iter().find(|(n, _, _)| n == "Join roles").unwrap();
+        assert_eq!(roles.1, "<@&5>");
+        let toggles = fields
+            .iter()
+            .find(|(n, _, _)| n == "Join text / components")
+            .unwrap();
+        assert_eq!(toggles.1, "off / on");
     }
 
     #[test]

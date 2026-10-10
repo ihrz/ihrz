@@ -99,17 +99,25 @@ pub async fn custom_avatar(
     let crown = crate::emojis::app_emoji_markup(&ctx.serenity_context().http, "Crown")
         .await
         .unwrap_or_else(|| "👑".to_string());
+    // `${x}` is the post-change guild member avatar (!avatar.ts reads
+    // `members.me.avatarURL()` after the change), not the upload URL.
+    let bot_id = ctx.cache().current_user().id;
+    let member_avatar = guild_id
+        .member(&ctx.serenity_context().http, bot_id)
+        .await
+        .ok()
+        .and_then(|m| m.avatar_url());
+    let x = super::post_change_display(member_avatar.as_deref(), &avatar.url);
     ctx.say(
         crate::lang::get(&code, "custom_avatar_set")
             .map(|s| {
                 s.replace("${client.iHorizon_Emojis.Yes}", &yes)
                     .replace("${client.iHorizon_Emojis.Crown}", &crown)
-                    .replace("${x}", &avatar.url)
+                    .replace("${x}", &x)
             })
             .unwrap_or_else(|| {
                 format!(
-                    "{yes} **You have decided to change the bot's profile picture on the server. Embed footers are now modified, as well as the bot's profile picture on the server.**\n{crown} New value: `{}`",
-                    avatar.url
+                    "{yes} **You have decided to change the bot's profile picture on the server. Embed footers are now modified, as well as the bot's profile picture on the server.**\n{crown} New value: `{x}`"
                 )
             }),
     )

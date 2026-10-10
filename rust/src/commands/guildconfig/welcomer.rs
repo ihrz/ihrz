@@ -191,6 +191,135 @@ pub async fn gc_wc_components(
     Ok(())
 }
 
+/// Show the welcomer setup and how to configure it.
+#[poise::command(
+    slash_command,
+    prefix_command,
+    rename = "wc-panel",
+    default_member_permissions = "ADMINISTRATOR"
+)]
+pub async fn gc_wc_panel(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
+    // UX split (documented, not a regression): `openWelcomerPanel`
+    // (`SlashCommands/guildconfig/welcomerPanel.ts`, ~1800 lines) is a
+    // stateful Components-V2 guided panel (section select,
+    // channel/role pickers, modals, live banner preview, 800s
+    // collector) with no poise equivalent at this scope, so it is NOT
+    // ported 1:1. This command renders the same stored state as one
+    // summary embed and points at the atomic setters above that
+    // persist the same `GUILD.GUILD_CONFIG` keys the panel writes.
+    let gid = ctx
+        .guild_id()
+        .map(|g| g.get().to_string())
+        .unwrap_or_default();
+    let pool = &ctx.data().pool;
+    let code = crate::db::guild_lang(pool, ctx.guild_id().map(|g| g.get())).await;
+    let cfg = load_guild_config(pool, &gid).await;
+    let mut embed = serenity::CreateEmbed::default()
+        .colour(0xFFB3CC)
+        .title(
+            crate::lang::get(&code, "msg_welcomer_panel_title")
+                .unwrap_or_else(|| "Welcomer panel".to_string()),
+        )
+        .description(
+            crate::lang::get(&code, "msg_welcomer_panel_hint").unwrap_or_else(|| {
+                "Use wc-channel / wc-embed / wc-text / wc-components to configure join and leave messages."
+                    .to_string()
+            }),
+        )
+        .timestamp(serenity::Timestamp::now());
+    for (name, value, inline) in welcomer_panel_fields(&cfg) {
+        embed = embed.field(name, value, inline);
+    }
+    ctx.send(poise::CreateReply::default().embed(embed)).await?;
+    Ok(())
+}
+
+/// Summary fields for the welcomer overview. Pure for testability.
+pub fn welcomer_panel_fields(cfg: &serde_json::Value) -> Vec<(String, String, bool)> {
+    let str_of = |key: &str| cfg.get(key).and_then(|v| v.as_str()).unwrap_or("");
+    let chan = |key: &str| {
+        let id = str_of(key);
+        if id.is_empty() {
+            "Not set".to_string()
+        } else {
+            format!("<#{id}>")
+        }
+    };
+    let on_off = |key: &str, default: bool| {
+        let on = cfg.get(key).and_then(|v| v.as_bool()).unwrap_or(default);
+        if on {
+            "on".to_string()
+        } else {
+            "off".to_string()
+        }
+    };
+    let roles = match cfg.get("joinroles") {
+        Some(serde_json::Value::Array(a)) => {
+            let ids: Vec<String> = a
+                .iter()
+                .filter_map(|x| x.as_str().map(|s| s.to_string()))
+                .collect();
+            if ids.is_empty() {
+                "Not set".to_string()
+            } else {
+                ids.iter()
+                    .map(|id| format!("<@&{id}>"))
+                    .collect::<Vec<_>>()
+                    .join(", ")
+            }
+        }
+        Some(serde_json::Value::String(s)) if !s.is_empty() => format!("<@&{s}>"),
+        _ => "Not set".to_string(),
+    };
+    vec![
+        ("Join channel".to_string(), chan("join"), true),
+        ("Leave channel".to_string(), chan("leave"), true),
+        (
+            "Join message".to_string(),
+            {
+                let m = str_of("joinmessage");
+                if m.is_empty() {
+                    "Not set".to_string()
+                } else {
+                    format!("```{m}```")
+                }
+            },
+            false,
+        ),
+        (
+            "Leave message".to_string(),
+            {
+                let m = str_of("leavemessage");
+                if m.is_empty() {
+                    "Not set".to_string()
+                } else {
+                    format!("```{m}```")
+                }
+            },
+            false,
+        ),
+        ("Join roles".to_string(), roles, false),
+        (
+            "Join text / components".to_string(),
+            format!(
+                "{} / {}",
+                on_off("joinTextEnabled", true),
+                on_off("joinComponentsEnabled", true)
+            ),
+            true,
+        ),
+        (
+            "Leave text / components".to_string(),
+            format!(
+                "{} / {}",
+                on_off("leaveTextEnabled", true),
+                on_off("leaveComponentsEnabled", true)
+            ),
+            true,
+        ),
+    ]
+}
+
 /// Table-first guild-config blob write with legacy fallback. Same key
 /// (`GUILD.GUILD_CONFIG`) and same JSON shape as `save_guild_config`;
 /// the table handle is primary and the flat legacy row stays fresh for

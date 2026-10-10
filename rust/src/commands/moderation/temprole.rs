@@ -20,6 +20,18 @@ pub async fn mod_temprole(
     };
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let t = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
+    // Display mirrors TS `to_beautiful_string(roleTime, lang)`: localized
+    // units formatted from the pre-clamp input, even on overflow.
+    let units = [
+        t("var_year"),
+        t("var_mo"),
+        t("var_w"),
+        t("var_d"),
+        t("var_h"),
+        t("var_m"),
+        t("var_s"),
+    ];
+    let pretty = beautiful_ms_lang(crate::funcs::time_ms(&time), &units);
     let mut ms = crate::funcs::time_ms(&time) as i64;
     if ms <= 0 {
         ctx.say(t("too_new_account_invalid_time_on_enable")).await?;
@@ -31,7 +43,6 @@ pub async fn mod_temprole(
         ms = YEAR_MAX_MS;
         overflow = true;
     }
-    let pretty = crate::funcs::beautiful_ms(ms as f64);
     let reason_s = reason.clone().unwrap_or_else(|| t("var_no_set"));
     let no = emoji(&ctx, "No", "❌").await;
     let vc = emoji(&ctx, "VC_OpenChat", "💬").await;
@@ -45,8 +56,7 @@ pub async fn mod_temprole(
             return Ok(());
         }
     }
-    let guild_member = guild_id.member(ctx.http(), member.id).await.ok();
-    let Some(guild_member) = guild_member else {
+    if guild_id.member(ctx.http(), member.id).await.is_err() {
         ctx.say(t("ban_dont_found_member")).await?;
         return Ok(());
     };
@@ -73,20 +83,24 @@ pub async fn mod_temprole(
         return Ok(());
     }
     let gid = guild_id.get().to_string();
-    let already = guild_member.roles.contains(&role.id)
-        || crate::commands::owner::main::routed_get(
-            &ctx.data().pool,
-            &gid,
-            &gid,
-            &temprole_key(member.id.get(), role.id.get()),
-        )
-        .await
-        .is_some();
+    // Mirrors temproleManager.isAlreadyWithThisRole: temp rows only, not
+    // whether the member currently holds the role.
+    let already = crate::commands::owner::main::routed_get(
+        &ctx.data().pool,
+        &gid,
+        &gid,
+        &temprole_key(member.id.get(), role.id.get()),
+    )
+    .await
+    .is_some();
     if already {
         ctx.say(t("temprole_already_has_role")).await?;
         return Ok(());
     }
-    guild_member.add_role(ctx.http(), role.id).await?;
+    // Audit reason mirrors tempRoleManager.addrole: the raw reason.
+    ctx.http()
+        .add_member_role(guild_id, member.id, role.id, reason.as_deref())
+        .await?;
     let exp = crate::commands::shared::now_ms() + ms;
     crate::commands::owner::main::routed_set(
         &ctx.data().pool,

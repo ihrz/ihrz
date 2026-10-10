@@ -2585,6 +2585,8 @@ export interface LanguageData {
 	msg_profil_birthday_invalid: string;
 	msg_profil_birthday_saved: string;
 	msg_profil_use_subcommand: string;
+	msg_welcomer_panel_title: string;
+	msg_welcomer_panel_hint: string;
 	msg_automod_toggled: string;
 	owner_list_empty: string;
 	owner_blinfo_line: string;

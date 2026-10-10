@@ -27,15 +27,25 @@ pub async fn mod_unlock(
     let target = role
         .map(|r| r.id)
         .unwrap_or_else(|| serenity::RoleId::new(guild_id.get()));
-    // TS writes {SendMessages: null, Connect: null}; an empty PUT
-    // overwrite is the equivalent neutral state.
+    // TS writes {SendMessages: null, Connect: null}: only those two are
+    // cleared, every other overwrite flag survives the PUT.
+    let (allow, deny) = current
+        .permission_overwrites
+        .iter()
+        .find(|o| o.kind == serenity::PermissionOverwriteType::Role(target))
+        .map(|o| (o.allow, o.deny))
+        .unwrap_or((
+            serenity::Permissions::empty(),
+            serenity::Permissions::empty(),
+        ));
+    let (allow, deny) = merge_unlock_overwrite(allow, deny);
     let _ = current
         .id
         .create_permission(
             ctx.http(),
             serenity::PermissionOverwrite {
-                allow: serenity::Permissions::empty(),
-                deny: serenity::Permissions::empty(),
+                allow,
+                deny,
                 kind: serenity::PermissionOverwriteType::Role(target),
             },
         )
@@ -57,6 +67,18 @@ pub async fn mod_unlock(
     Ok(())
 }
 
+/// Clear only SendMessages + Connect from an existing overwrite.
+/// Mirrors the TS `permissionOverwrites.edit(role, {SendMessages: null,
+/// Connect: null})`: those two flags are neutralized, every other flag
+/// is preserved. Pure for tests.
+fn merge_unlock_overwrite(
+    allow: serenity::Permissions,
+    deny: serenity::Permissions,
+) -> (serenity::Permissions, serenity::Permissions) {
+    let bits = serenity::Permissions::SEND_MESSAGES | serenity::Permissions::CONNECT;
+    (allow & !bits, deny & !bits)
+}
+
 /// Render the `setrankroles_command_error` branch. Pure for tests.
 fn render_unlock_error(template: &str, no_emoji: &str) -> String {
     template.replace("${client.iHorizon_Emojis.No}", no_emoji)
@@ -72,6 +94,22 @@ mod tests {
             render_unlock_error("${client.iHorizon_Emojis.No} boom", "❌"),
             "❌ boom"
         );
+    }
+
+    #[test]
+    fn merge_clears_only_send_and_connect() {
+        use poise::serenity_prelude::Permissions;
+        let (allow, deny) = merge_unlock_overwrite(
+            Permissions::SEND_MESSAGES | Permissions::VIEW_CHANNEL,
+            Permissions::CONNECT | Permissions::MANAGE_MESSAGES,
+        );
+        assert!(!allow.send_messages());
+        assert!(allow.view_channel());
+        assert!(!deny.connect());
+        assert!(deny.manage_messages());
+        // Empty overwrite stays empty (neutral), like TS null/null.
+        let (allow, deny) = merge_unlock_overwrite(Permissions::empty(), Permissions::empty());
+        assert!(allow.is_empty() && deny.is_empty());
     }
 
     #[test]

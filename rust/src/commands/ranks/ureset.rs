@@ -1,7 +1,7 @@
 use super::*;
 use poise::serenity_prelude as serenity;
 
-/// Reset one user's ranks. Mirrors !ureset.ts.
+/// Reset one user's ranks (defaults to yourself).
 #[poise::command(
     slash_command,
     prefix_command,
@@ -10,7 +10,7 @@ use poise::serenity_prelude as serenity;
 )]
 pub async fn ranks_ureset(
     ctx: Ctx<'_>,
-    #[description = "Member"] user: serenity::User,
+    #[description = "Member (defaults to yourself)"] user: Option<serenity::User>,
 ) -> Result<(), anyhow::Error> {
     if !crate::commands::prompt_reset_confirm(
         &ctx,
@@ -25,11 +25,13 @@ pub async fn ranks_ureset(
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
-    let _ = crate::commands::owner::main::routed_del(
+    let target = user.as_ref().unwrap_or_else(|| ctx.author());
+    let target_id = target.id.get();
+    let _ = super::migrated_del(
         &ctx.data().pool,
         &gid,
-        &gid,
-        &ranks_key(user.id.get()),
+        &super::user_key_new(target_id),
+        &[&super::user_key_old(target_id)],
     )
     .await;
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
@@ -38,5 +40,19 @@ pub async fn ranks_ureset(
             .unwrap_or_else(|| "Successfully deleted!".to_string()),
     )
     .await?;
+    // Audit log (mirrors `!ureset.ts:81-89`).
+    let author_id = ctx.author().id.get();
+    let title = crate::lang::get(&code, "resetallinvites_logs_embed_title")
+        .unwrap_or_else(|| "Reset Logs".to_string());
+    let desc = crate::lang::get(&code, "reset_uranks_logs_embed_desc")
+        .map(|s| {
+            s.replace(
+                "${interaction.member.user.toString()}",
+                &format!("<@{author_id}>"),
+            )
+            .replace("${user.toString()}", &format!("<@{target_id}>"))
+        })
+        .unwrap_or_else(|| format!("Ranks of <@{target_id}> reset by <@{author_id}>."));
+    crate::commands::economy::post_ihorizon_log(&ctx, &title, &desc).await;
     Ok(())
 }

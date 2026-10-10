@@ -27,14 +27,25 @@ pub async fn mod_lock(
     let target = role
         .map(|r| r.id)
         .unwrap_or_else(|| serenity::RoleId::new(guild_id.get()));
-    // TS denies both SendMessages and Connect.
+    // TS denies SendMessages + Connect via `.edit` (merge). Read the
+    // existing overwrite so other flags survive the PUT.
+    let (allow, deny) = current
+        .permission_overwrites
+        .iter()
+        .find(|o| o.kind == serenity::PermissionOverwriteType::Role(target))
+        .map(|o| (o.allow, o.deny))
+        .unwrap_or((
+            serenity::Permissions::empty(),
+            serenity::Permissions::empty(),
+        ));
+    let (allow, deny) = merge_lock_overwrite(allow, deny);
     let _ = current
         .id
         .create_permission(
             ctx.http(),
             serenity::PermissionOverwrite {
-                allow: serenity::Permissions::empty(),
-                deny: serenity::Permissions::SEND_MESSAGES | serenity::Permissions::CONNECT,
+                allow,
+                deny,
                 kind: serenity::PermissionOverwriteType::Role(target),
             },
         )
@@ -58,6 +69,18 @@ pub async fn mod_lock(
     Ok(())
 }
 
+/// Merge the lock deny flags into an existing overwrite. Mirrors the TS
+/// `permissionOverwrites.edit(role, {SendMessages: false, Connect:
+/// false})`: those two move to deny (and out of allow), every other
+/// flag is preserved. Pure for tests.
+fn merge_lock_overwrite(
+    allow: serenity::Permissions,
+    deny: serenity::Permissions,
+) -> (serenity::Permissions, serenity::Permissions) {
+    let bits = serenity::Permissions::SEND_MESSAGES | serenity::Permissions::CONNECT;
+    (allow & !bits, deny | bits)
+}
+
 /// Render the `setrankroles_command_error` branch. Pure for tests.
 fn render_lock_error(template: &str, no_emoji: &str) -> String {
     template.replace("${client.iHorizon_Emojis.No}", no_emoji)
@@ -73,6 +96,23 @@ mod tests {
             render_lock_error("${client.iHorizon_Emojis.No} boom", "❌"),
             "❌ boom"
         );
+    }
+
+    #[test]
+    fn merge_preserves_other_flags() {
+        use poise::serenity_prelude::Permissions;
+        let (allow, deny) = merge_lock_overwrite(
+            Permissions::SEND_MESSAGES | Permissions::VIEW_CHANNEL,
+            Permissions::MANAGE_MESSAGES,
+        );
+        assert!(!allow.send_messages());
+        assert!(allow.view_channel());
+        assert!(deny.send_messages() && deny.connect());
+        assert!(deny.manage_messages());
+        // Empty overwrite just denies the two.
+        let (allow, deny) = merge_lock_overwrite(Permissions::empty(), Permissions::empty());
+        assert!(allow.is_empty());
+        assert_eq!(deny, Permissions::SEND_MESSAGES | Permissions::CONNECT);
     }
 
     #[test]

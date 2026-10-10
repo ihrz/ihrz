@@ -4177,7 +4177,6 @@ impl serenity::EventHandler for Handler {
         }
         let Some(guild_id) = msg.guild_id else { return };
         let gid = guild_id.get().to_string();
-        let ch_id = msg.channel_id.get().to_string();
         // TTS speak arm (mirrors src/Events/tts/messageCreate.ts): an
         // enabled TTS row + message in the TTS text channel + author in
         // the TTS voice channel + text within the 300-char cap speaks
@@ -4368,38 +4367,23 @@ impl serenity::EventHandler for Handler {
                 return;
             }
         }
-        // XP ignore gate (mirrors !ignore-channels.ts).
-        let ignore: Vec<String> =
-            crate::commands::ranks::ignore_channels::load_ignore_routed(&self.pool, &gid).await;
-        let xp_only: Vec<String> = ranks_xp_channels_routed(&self.pool, &gid).await;
-        if crate::events::should_gain_xp(&ignore, &ch_id)
-            && (xp_only.is_empty() || xp_only.contains(&ch_id))
-        {
-            let before =
-                crate::commands::ranks::main::load_rank(&self.pool, &gid, msg.author.id.get())
-                    .await
-                    .level;
-            // Stored custom message or guild-lang default; the full path
-            // prefers it over its own en-US fallback (YAML untouched).
-            let stored_tpl = ranks_message_routed(&self.pool, &gid).await;
-            let tpl_owned = match stored_tpl {
-                Some(t) => t,
-                None => {
-                    let lang_code = crate::db::guild_lang(&self.pool, Some(guild_id.get())).await;
-                    crate::lang::get(&lang_code, "event_xp_level_earn")
-                        .map(|s| {
-                            s.replace("{memberMention}", &msg.author.mention().to_string())
-                                .replace("{xpLevel}", &before.to_string())
-                        })
-                        .unwrap_or_else(|| "Level up! {user} is now level {level}.".to_string())
-                }
-            };
-            // Bot SendMessages in this channel (best-effort allow on
-            // lookup failure, like the other emitter guards here).
-            // Deprecated GuildChannel::permissions_for_user avoided:
-            // Guild::user_permissions_in is the supported path.
-            let can_send = match msg.channel(&_ctx.http).await {
-                Ok(serenity::Channel::Guild(g)) => _ctx
+        // XP + stats (mirrors Events/ranks/onNewMessage.ts +
+        // Events/stats/onNewMessage.ts). STATS are recorded for every
+        // message; the XP legs gate inside `record_message_activity_full`
+        // (parseMessageCommand skip, `disable`, bypassChannels). There is
+        // no xpchannels earning gate in TS — the channel only routes the
+        // announce. Non-GuildText channels earn no XP (TS
+        // `channel.type !== ChannelType.GuildText` return) but still
+        // record stats, so they ride the same command-skip leg.
+        // Bot SendMessages in this channel (best-effort allow on
+        // lookup failure, like the other emitter guards here).
+        // Deprecated GuildChannel::permissions_for_user avoided:
+        // Guild::user_permissions_in is the supported path.
+        let bot_id = _ctx.cache.current_user().id.get();
+        let (is_guild_text, can_send) = match msg.channel(&_ctx.http).await {
+            Ok(serenity::Channel::Guild(g)) => {
+                let text = g.kind == serenity::ChannelType::Text;
+                let send = _ctx
                     .cache
                     .guild(guild_id)
                     .and_then(|gd| {
@@ -4408,71 +4392,100 @@ impl serenity::EventHandler for Handler {
                             .get(&bot)
                             .map(|m| gd.user_permissions_in(&g, m).send_messages())
                     })
-                    .unwrap_or(true),
-                _ => true,
-            };
-            let role_ids: Vec<u64> = msg
-                .member
-                .as_ref()
-                .map(|m| m.roles.iter().map(|r| r.get()).collect())
-                .unwrap_or_default();
-            let mention_owned = msg.author.mention().to_string();
-            let (guild_name_owned, member_count) = _ctx
-                .cache
-                .guild(guild_id)
-                .map(|g| (g.name.clone(), g.member_count))
-                .unwrap_or_default();
-            let out = crate::events::record_message_activity_full(
-                &self.pool,
-                &gid,
-                msg.author.id.get(),
-                msg.channel_id.get(),
-                msg.content.len() as u64,
-                msg.timestamp.unix_timestamp() * 1000,
-                crate::events::XpMessageInput {
-                    // Prefix dispatch lives in poise, outside this path;
-                    // keep earning for every message like before.
-                    command_handled: false,
-                    can_send,
-                    channel_exists: true,
-                    member_roles: &role_ids,
-                    shop_json: None,
-                    template_override: Some(&tpl_owned),
-                    member_username: &msg.author.name,
-                    member_mention: &mention_owned,
-                    member_count,
-                    guild_name: &guild_name_owned,
-                    ..Default::default()
-                },
-            )
-            .await;
-            let level = out.level;
-            if out.leveled {
-                // Level-up announce routed by the full path (in place,
-                // xpchannels, or silent).
-                if let Some(text) = out.text {
-                    match out.target {
-                        crate::events::XpAnnounceTarget::ReplyInPlace => {
-                            let _ = msg.channel_id.say(&_ctx.http, text).await;
-                        }
-                        crate::events::XpAnnounceTarget::SendToChannel(id) => {
-                            if let Ok(chan) = id.parse::<u64>() {
-                                let _ = serenity::ChannelId::new(chan).say(&_ctx.http, text).await;
-                            }
-                        }
-                        crate::events::XpAnnounceTarget::Suppressed => {}
+                    .unwrap_or(true);
+                (text, send)
+            }
+            _ => (false, true),
+        };
+        // Prefix-command detection (mirrors the parseMessageCommand
+        // early-return): a consumed command earns no XP, stats still land.
+        let prefix = crate::db::guild_prefix(&self.pool, Some(guild_id.get()), "?").await;
+        let command_handled =
+            crate::commands::ranks::main::message_is_prefix_command(&msg.content, &prefix, bot_id)
+                || !is_guild_text;
+        // Stored custom message or guild-lang default, rendered by the
+        // full path with the POST-level-up level (TS
+        // `generateCustomMessagePreview(..., { ranks: { level: newLevel } })`).
+        // Never pre-rendered here: the stale pre-level value is wrong.
+        let lang_code = crate::db::guild_lang(&self.pool, Some(guild_id.get())).await;
+        let stored_tpl = ranks_message_routed(&self.pool, &gid).await;
+        let earn_tpl = stored_tpl.or_else(|| {
+            crate::lang::get(&lang_code, "event_xp_level_earn").filter(|s| !s.is_empty())
+        });
+        let info_tpl = crate::lang::get(&lang_code, "event_xp_level_additional_info")
+            .filter(|s| !s.is_empty());
+        let role_ids: Vec<u64> = msg
+            .member
+            .as_ref()
+            .map(|m| m.roles.iter().map(|r| r.get()).collect())
+            .unwrap_or_default();
+        let mention_owned = msg.author.mention().to_string();
+        let (guild_name_owned, member_count) = _ctx
+            .cache
+            .guild(guild_id)
+            .map(|g| (g.name.clone(), g.member_count))
+            .unwrap_or_default();
+        let out = crate::events::record_message_activity_full(
+            &self.pool,
+            &gid,
+            msg.author.id.get(),
+            msg.channel_id.get(),
+            msg.content.len() as u64,
+            msg.timestamp.unix_timestamp() * 1000,
+            crate::events::XpMessageInput {
+                command_handled,
+                can_send,
+                channel_exists: true,
+                member_roles: &role_ids,
+                shop_json: None,
+                template_override: earn_tpl.as_deref(),
+                additional_info_override: info_tpl.as_deref(),
+                member_username: &msg.author.name,
+                member_mention: &mention_owned,
+                member_count,
+                guild_name: &guild_name_owned,
+                ..Default::default()
+            },
+        )
+        .await;
+        let level = out.level;
+        if out.leveled {
+            // Level-up announce routed by the full path (in place,
+            // xpchannels, or silent).
+            if let Some(text) = out.text {
+                match out.target {
+                    crate::events::XpAnnounceTarget::ReplyInPlace => {
+                        let _ = msg.channel_id.say(&_ctx.http, text).await;
                     }
+                    crate::events::XpAnnounceTarget::SendToChannel(id) => {
+                        if let Ok(chan) = id.parse::<u64>() {
+                            let _ = serenity::ChannelId::new(chan).say(&_ctx.http, text).await;
+                        }
+                    }
+                    crate::events::XpAnnounceTarget::Suppressed => {}
                 }
-                // Rank-role rewards.
+            }
+            // Rank-role rewards (mirrors onNewMessage.ts:103-158): the
+            // highest role at or below the new level is assigned, every
+            // other configured rank role the member holds is removed.
+            if let Ok(member) = guild_id.member(&_ctx.http, msg.author.id).await {
                 let roles: Vec<crate::commands::ranks::main::RankRole> =
                     crate::commands::ranks::roles::load_rank_roles_routed(&self.pool, &gid).await;
-                for role_id in crate::events::roles_earned(&roles, before, level) {
+                let held: Vec<String> = member.roles.iter().map(|r| r.get().to_string()).collect();
+                let (assign, remove) =
+                    crate::commands::ranks::main::rank_role_assignment(&roles, level, &held);
+                for role_id in remove {
                     if let Ok(rid) = role_id.parse::<u64>() {
-                        if let Ok(member) = guild_id.member(&_ctx.http, msg.author.id).await {
-                            let _ = member
-                                .add_role(&_ctx.http, poise::serenity_prelude::RoleId::new(rid))
-                                .await;
-                        }
+                        let _ = member
+                            .remove_role(&_ctx.http, poise::serenity_prelude::RoleId::new(rid))
+                            .await;
+                    }
+                }
+                if let Some(role_id) = assign {
+                    if let Ok(rid) = role_id.parse::<u64>() {
+                        let _ = member
+                            .add_role(&_ctx.http, poise::serenity_prelude::RoleId::new(rid))
+                            .await;
                     }
                 }
             }
@@ -5320,7 +5333,7 @@ impl serenity::EventHandler for Handler {
                     .unwrap_or_default();
                 let shop_raw = buyable_roles_routed(&self.pool, &gid).await;
                 let boost =
-                    crate::commands::economy::main::member_boost(&shop_raw, &roles).max(1) as u64;
+                    crate::commands::economy::main::member_boost_f64(&shop_raw, &roles).max(1.0);
                 crate::events::voice_switch(
                     &self.pool,
                     &gid,
@@ -5682,7 +5695,7 @@ impl serenity::EventHandler for Handler {
                 };
                 let shop_raw = buyable_roles_routed(&self.pool, &gid).await;
                 let boost =
-                    crate::commands::economy::main::member_boost(&shop_raw, &roles).max(1) as u64;
+                    crate::commands::economy::main::member_boost_f64(&shop_raw, &roles).max(1.0);
                 crate::events::voice_leave(
                     &self.pool,
                     &gid,

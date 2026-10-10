@@ -100,17 +100,25 @@ pub async fn custom_banner(
     let crown = crate::emojis::app_emoji_markup(&ctx.serenity_context().http, "Crown")
         .await
         .unwrap_or_else(|| "👑".to_string());
+    // `${x}` is the post-change guild member banner (!banner.ts reads
+    // `members.me.bannerURL()` after the change), not the upload URL.
+    let bot_id = ctx.cache().current_user().id;
+    let member_banner = guild_id
+        .member(&ctx.serenity_context().http, bot_id)
+        .await
+        .ok()
+        .and_then(|m| m.banner_url());
+    let x = super::post_change_display(member_banner.as_deref(), &banner.url);
     ctx.say(
         crate::lang::get(&code, "custom_banner_set")
             .map(|s| {
                 s.replace("${client.iHorizon_Emojis.Yes}", &yes)
                     .replace("${client.iHorizon_Emojis.Crown}", &crown)
-                    .replace("${x}", &banner.url)
+                    .replace("${x}", &x)
             })
             .unwrap_or_else(|| {
                 format!(
-                    "{yes} **You have decided to change the bot's banner on the server.**\n{crown} New value: `{}`",
-                    banner.url
+                    "{yes} **You have decided to change the bot's banner on the server.**\n{crown} New value: `{x}`"
                 )
             }),
     )

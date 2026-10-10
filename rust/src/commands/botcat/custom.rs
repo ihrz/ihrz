@@ -4,7 +4,7 @@ use super::*;
 #[poise::command(
     slash_command,
     prefix_command,
-    category = "bot",
+    category = "profil",
     rename = "custom",
     subcommands("custom_name", "custom_avatar", "custom_banner", "custom_bio")
 )]

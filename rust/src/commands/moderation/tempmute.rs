@@ -30,6 +30,18 @@ pub async fn mod_timeout(
     };
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let t = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
+    // Display mirrors TS `to_beautiful_string(mutetime, lang)`: localized
+    // units formatted from the pre-clamp input, even on overflow.
+    let units = [
+        t("var_year"),
+        t("var_mo"),
+        t("var_w"),
+        t("var_d"),
+        t("var_h"),
+        t("var_m"),
+        t("var_s"),
+    ];
+    let pretty = beautiful_ms_lang(crate::funcs::time_ms(&time), &units);
     // Human durations like TS timeCalculator; invalid -> invalid-time text.
     let mut ms = crate::funcs::time_ms(&time) as i64;
     if ms <= 0 {
@@ -42,7 +54,6 @@ pub async fn mod_timeout(
         ms = TIMEOUT_MAX_MS;
         overflow = true;
     }
-    let pretty = crate::funcs::beautiful_ms(ms as f64);
     let reason_s = reason.clone().unwrap_or_else(|| t("var_no_set"));
     let no = emoji(&ctx, "No", "❌").await;
     let vc = emoji(&ctx, "VC_OpenChat", "💬").await;

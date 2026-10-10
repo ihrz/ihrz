@@ -240,6 +240,35 @@ pub fn sanitize_bio(bio: &str) -> String {
     two.join("\n").chars().take(190).collect()
 }
 
+/// App-emoji name for the `OS` status field. Mirrors getOS.ts
+/// (Tux/Finder/Win10/Win11, `None` on unmapped platforms).
+pub fn os_emoji_name() -> Option<&'static str> {
+    match std::env::consts::OS {
+        "linux" => Some("Tux"),
+        "macos" => Some("Finder"),
+        "windows" => Some("Win10"),
+        _ => None,
+    }
+}
+
+/// Status embed field name with its app-emoji prefix. Mirrors
+/// status.ts `` `${emoji} OS` `` / `` `${Logo} Bot Version` ``
+/// (plain base name when the emoji markup is unavailable).
+pub fn prefixed_field_name(emoji_markup: Option<&str>, base: &str) -> String {
+    match emoji_markup {
+        Some(markup) => format!("{markup} {base}"),
+        None => base.to_string(),
+    }
+}
+
+/// `${x}` value for the avatar/banner set replies. Mirrors
+/// `!avatar.ts` / `!banner.ts` reading the URL off the guild member
+/// after the PATCH; falls back to the uploaded attachment URL when
+/// the member fetch yields nothing.
+pub fn post_change_display(member_url: Option<&str>, attachment_url: &str) -> String {
+    member_url.unwrap_or(attachment_url).to_string()
+}
+
 macro_rules! lore_cmd {
     ($fn_name:ident, $sub:literal, $key:literal, $fallback:literal) => {
         #[poise::command(slash_command, prefix_command, category = "bot", rename = $sub)]
@@ -402,6 +431,37 @@ mod tests {
         assert_eq!(app_bio(&no_desc), None);
         let no_banner = serde_json::json!({"description": "hello", "bot": {}});
         assert_eq!(app_banner_for(&no_banner, 9), None);
+    }
+
+    #[test]
+    fn post_change_display_prefers_guild_member_url() {
+        assert_eq!(
+            post_change_display(Some("https://cdn/member-avatar"), "https://cdn/attachment"),
+            "https://cdn/member-avatar"
+        );
+        assert_eq!(
+            post_change_display(None, "https://cdn/attachment"),
+            "https://cdn/attachment"
+        );
+    }
+
+    #[test]
+    fn os_emoji_name_matches_get_os_platforms() {
+        assert_eq!(
+            os_emoji_name(),
+            match std::env::consts::OS {
+                "linux" => Some("Tux"),
+                "macos" => Some("Finder"),
+                "windows" => Some("Win10"),
+                _ => None,
+            }
+        );
+    }
+
+    #[test]
+    fn prefixed_field_name_mirrors_ts_emoji_prefix() {
+        assert_eq!(prefixed_field_name(Some("<:Tux:1>"), "OS"), "<:Tux:1> OS");
+        assert_eq!(prefixed_field_name(None, "OS"), "OS");
     }
 }
 

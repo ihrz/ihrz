@@ -510,6 +510,118 @@ fn draw_captcha_noise(img: &mut image::RgbImage, code: &str) {
     }
 }
 
+/// One podium slot for the ranks leaderboard. All strings are
+/// pre-rendered by the caller (username, guild-lang level label,
+/// beautified XP); `avatar` is an embedded `data:` URL snapshot (never
+/// a remote CDN URL, so the card survives avatar changes), `None` keeps
+/// the initial placeholder. Mirrors the `podiumRanksModule.html` slots
+/// (`{N_username}`, `{N_level}`, `{N_avatar}`, `{N_xp}` with
+/// `formatNumber` beautification).
+pub struct PodiumRankEntry {
+    pub name: String,
+    pub level_label: String,
+    pub xp_text: String,
+    pub avatar: Option<String>,
+}
+
+/// Ranks podium card: top-3 highlight (username + avatar + level +
+/// beautified XP) with the ranked list below. Self-contained 800x500
+/// SVG — no Chromium/html2png render is attempted, deliberately (same
+/// pattern as [`podium_svg`]). `entries` is expected pre-sorted (rank 1
+/// first); missing slots render dimmed.
+pub fn podium_ranks_svg(title: &str, entries: &[PodiumRankEntry]) -> String {
+    const MEDALS: [(&str, &str); 3] = [("#ffd700", "#1"), ("#c0c0c0", "#2"), ("#cd7f32", "#3")];
+    // Visual order: 2nd left, 1st center (taller), 3rd right — like the HTML.
+    const SLOTS: [(usize, u64, u64, u64); 3] = [
+        (1, 80, 190, 170),  // entry index, x, bar y, bar h
+        (0, 300, 140, 220), // winner, taller
+        (2, 520, 190, 170),
+    ];
+
+    let mut podium = String::new();
+    for (entry_idx, x, bar_y, bar_h) in SLOTS {
+        let Some(e) = entries.get(entry_idx) else {
+            podium.push_str(&format!(
+                r##"<g opacity="0.35"><rect x="{x}" y="{bar_y}" width="200" height="{bar_h}" rx="12" fill="#23272A"/><text x="{cx}" y="{ty}" text-anchor="middle" font-family="sans-serif" font-size="14" fill="#B9BBBE">—</text></g>"##,
+                x = x,
+                bar_y = bar_y,
+                bar_h = bar_h,
+                cx = x + 100,
+                ty = bar_y + 85,
+            ));
+            continue;
+        };
+        let (color, rank) = MEDALS[entry_idx.min(2)];
+        let cx = x + 100;
+        let ay = bar_y - 34;
+        let face = match e.avatar.as_deref().map(str::trim).filter(|s| !s.is_empty()) {
+            Some(url) => format!(
+                r##"<clipPath id="ih-p{entry_idx}"><circle cx="{cx}" cy="{ay}" r="28"/></clipPath><g clip-path="url(#ih-p{entry_idx})"><image href="{src}" x="{ix}" y="{iy}" width="56" height="56" preserveAspectRatio="xMidYMid slice"/></g>"##,
+                entry_idx = entry_idx,
+                cx = cx,
+                ay = ay,
+                src = escape_xml(url),
+                ix = cx - 28,
+                iy = ay - 28,
+            ),
+            None => format!(
+                r##"<circle cx="{cx}" cy="{ay}" r="28" fill="{color}"/><text x="{cx}" y="{ayr}" text-anchor="middle" font-family="sans-serif" font-size="22" font-weight="bold" fill="#23272A">{initial}</text>"##,
+                cx = cx,
+                ay = ay,
+                ayr = ay + 8,
+                color = color,
+                initial = initial(&e.name),
+            ),
+        };
+        podium.push_str(&format!(
+            r##"<g><rect x="{x}" y="{bar_y}" width="200" height="{bar_h}" rx="12" fill="#23272A" stroke="{color}" stroke-width="3"/><rect x="{x}" y="{bar_y}" width="200" height="5" fill="{color}"/>{face}<text x="{cx}" y="{ny}" text-anchor="middle" font-family="sans-serif" font-size="16" font-weight="bold" fill="#ffffff">{name}</text><text x="{cx}" y="{ly}" text-anchor="middle" font-family="sans-serif" font-size="14" fill="#B9BBBE">{level}</text><text x="{cx}" y="{sy}" text-anchor="middle" font-family="sans-serif" font-size="14" font-weight="bold" fill="#ffffff">{xp}</text><text x="{cx}" y="{ry}" text-anchor="middle" font-family="sans-serif" font-size="13" font-weight="bold" fill="{color}">{rank}</text></g>"##,
+            x = x,
+            bar_y = bar_y,
+            bar_h = bar_h,
+            color = color,
+            face = face,
+            cx = cx,
+            ny = bar_y + 48,
+            name = escape_xml(&e.name),
+            ly = bar_y + 70,
+            level = escape_xml(&e.level_label),
+            sy = bar_y + 92,
+            xp = escape_xml(&e.xp_text),
+            ry = bar_y + 114,
+            rank = rank,
+        ));
+    }
+
+    let mut list = String::new();
+    if entries.is_empty() {
+        list.push_str(
+            r##"<text x="400" y="440" text-anchor="middle" font-family="sans-serif" font-size="16" fill="#B9BBBE">No entries yet</text>"##,
+        );
+    } else {
+        for (i, e) in entries.iter().take(8).enumerate() {
+            let row_y = 390 + (i as u64) * 22;
+            if row_y > 484 {
+                break;
+            }
+            list.push_str(&format!(
+                r##"<text x="60" y="{row_y}" font-family="sans-serif" font-size="13" fill="#B9BBBE">#{rank}</text><text x="110" y="{row_y}" font-family="sans-serif" font-size="13" fill="#ffffff">{name}</text><text x="740" y="{row_y}" text-anchor="end" font-family="sans-serif" font-size="13" fill="#B9BBBE">{level} • {xp}</text>"##,
+                row_y = row_y,
+                rank = i + 1,
+                name = escape_xml(&e.name),
+                level = escape_xml(&e.level_label),
+                xp = escape_xml(&e.xp_text),
+            ));
+        }
+    }
+
+    format!(
+        r##"<svg xmlns="http://www.w3.org/2000/svg" width="800" height="500" viewBox="0 0 800 500" role="img" aria-label="Podium"><rect x="0" y="0" width="800" height="500" rx="16" fill="#36393f"/><text x="400" y="44" text-anchor="middle" font-family="sans-serif" font-size="28" font-weight="bold" fill="#ffffff">{title}</text><rect x="60" y="60" width="680" height="5" fill="#9a5af2"/>{podium}{list}</svg>"##,
+        title = escape_xml(title),
+        podium = podium,
+        list = list,
+    )
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -695,5 +807,42 @@ mod tests {
         assert!(!evil.contains("<b>"));
         assert!(evil.contains("&lt;b&gt;&amp;Co&lt;/b&gt;"));
         assert!(evil.contains("No locales yet"));
+    }
+
+    #[test]
+    fn ranks_podium_shows_usernames_avatars_and_beautified_xp() {
+        let entries = vec![
+            PodiumRankEntry {
+                name: "Ada".to_string(),
+                level_label: "Level 7".to_string(),
+                xp_text: "2.5K".to_string(),
+                avatar: Some("data:image/png;base64,AAAA".to_string()),
+            },
+            PodiumRankEntry {
+                name: "<b>Bob</b>".to_string(),
+                level_label: "Level 3".to_string(),
+                xp_text: "900".to_string(),
+                avatar: None,
+            },
+            PodiumRankEntry {
+                name: "Cara".to_string(),
+                level_label: "Level 1".to_string(),
+                xp_text: "50".to_string(),
+                avatar: None,
+            },
+        ];
+        let svg = podium_ranks_svg("Board", &entries);
+        assert!(svg.starts_with("<svg"));
+        assert!(svg.contains("Ada"));
+        assert!(svg.contains("Level 7"));
+        assert!(svg.contains("2.5K"));
+        // Avatar snapshot embedded, never a remote URL.
+        assert!(svg.contains("data:image/png;base64,AAAA"));
+        assert!(svg.contains("<image"));
+        // Missing avatar falls back to the initial placeholder.
+        assert!(svg.contains(">C<"));
+        // XSS-safe username.
+        assert!(!svg.contains("<b>Bob</b>"));
+        assert!(svg.contains("&lt;b&gt;Bob&lt;/b&gt;"));
     }
 }
