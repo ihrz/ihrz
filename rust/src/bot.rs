@@ -1082,6 +1082,33 @@ pub async fn handle_track_exception_event(
     recovery
 }
 
+/// True when gateway session starts are nearly exhausted. Mirrors the
+/// `remaining < 10` IDENTIFY-token guard in getOptimalShardCount
+/// (src/index.ts). Pure so the threshold is offline-testable; the live
+/// warn log stays caller-side in run().
+pub fn session_starts_low(remaining: u64) -> bool {
+    remaining < 10
+}
+
+/// Whole seconds until the session-start window resets. Mirrors
+/// `Math.round(reset_after / 1000)` in getOptimalShardCount
+/// (src/index.ts; reset_after arrives in ms). Pure for tests.
+pub fn session_reset_secs(reset_after_ms: u64) -> u64 {
+    reset_after_ms.saturating_add(500) / 1000
+}
+
+/// Explicit TOTAL_SHARDS override validation at boot. Mirrors the TS
+/// `Number(process.env.TOTAL_SHARDS)` + `!isNaN` gate: NaN/negative
+/// never survive the u32 parse in config::load (None), and an explicit
+/// 0 is rejected here (None) instead of silently falling through to
+/// the tuned count, so the caller can warn. Pure for tests.
+pub fn valid_shard_override(total_shards_override: Option<u32>) -> Option<u32> {
+    match total_shards_override {
+        Some(n) if n > 0 => Some(n),
+        _ => None,
+    }
+}
+
 pub async fn run(cfg: Config, pool: Pool) -> anyhow::Result<()> {
     let token = crate::config::bot_token().ok_or_else(|| {
         anyhow::anyhow!("missing BOT_TOKEN env (mirrors config.discord.token fallback)")
@@ -1266,20 +1293,50 @@ pub async fn run(cfg: Config, pool: Pool) -> anyhow::Result<()> {
     // 30000) and the respawn flag — serenity spawns shards sequentially
     // and auto-reconnects/resumes dropped shards via the ShardManager,
     // so respawn:true behaviour is the default, not a flag.
-    let gateway_recommended: Option<u32> = match client.http.get_bot_gateway().await {
+    let gateway = match client.http.get_bot_gateway().await {
         Ok(g) => {
+            // Mirrors the three [Gateway] logs in getOptimalShardCount
+            // (src/index.ts): recommendation, session-start budget, and
+            // max concurrency, plus the remaining < 10 IDENTIFY warning.
             tracing::info!("[Gateway] Discord recommends: {} shards", g.shards);
-            Some(g.shards)
+            tracing::info!(
+                "[Gateway] Session starts remaining: {}/{}",
+                g.session_start_limit.remaining,
+                g.session_start_limit.total
+            );
+            tracing::info!(
+                "[Gateway] Max concurrency: {}",
+                g.session_start_limit.max_concurrency
+            );
+            if session_starts_low(g.session_start_limit.remaining) {
+                tracing::warn!(
+                    "[Gateway] Only {} IDENTIFY tokens left, resets in {}s",
+                    g.session_start_limit.remaining,
+                    session_reset_secs(g.session_start_limit.reset_after)
+                );
+            }
+            Some(g)
         }
         Err(e) => {
             tracing::warn!("gateway/bot query failed ({e}), falling back to autoshard");
             None
         }
     };
-    let total_shards = crate::funcs::resolve_shard_count(gateway_recommended, cfg.total_shards);
+    let gateway_recommended: Option<u32> = gateway.map(|g| g.shards);
+    // Explicit override validation: NaN/negative TOTAL_SHARDS never
+    // survive the u32 parse in config::load (None); an explicit 0 is
+    // rejected here with a warning instead of silently falling back to
+    // the tuned count.
+    if cfg.total_shards == Some(0) {
+        tracing::warn!("ignoring TOTAL_SHARDS override: must be >= 1, using gateway-tuned count");
+    }
+    let total_shards = crate::funcs::resolve_shard_count(
+        gateway_recommended,
+        valid_shard_override(cfg.total_shards),
+    );
     if let Some(n) = total_shards {
         crate::lavalink::manager().set_total_shards(n as u64).await;
-        if cfg.total_shards.filter(|m| *m > 0).is_some() {
+        if valid_shard_override(cfg.total_shards).is_some() {
             tracing::info!("using TOTAL_SHARDS override: {n}");
         } else if let Some(rec) = gateway_recommended {
             tracing::info!(
@@ -1658,6 +1715,34 @@ mod tests {
             shard_presence_name(3, 0),
             "Shards #3 | 0 Servers | www.ihorizon.org"
         );
+    }
+
+    #[test]
+    fn session_start_warning_threshold_matches_ts() {
+        // Mirrors `remaining < 10` in getOptimalShardCount: 10 is fine,
+        // 9 warns.
+        assert!(!session_starts_low(10));
+        assert!(!session_starts_low(1000));
+        assert!(session_starts_low(9));
+        assert!(session_starts_low(0));
+    }
+
+    #[test]
+    fn session_reset_secs_rounds_like_ts_math_round() {
+        // Mirrors `Math.round(reset_after / 1000)` (reset_after in ms).
+        assert_eq!(session_reset_secs(0), 0);
+        assert_eq!(session_reset_secs(1400), 1);
+        assert_eq!(session_reset_secs(1500), 2);
+        assert_eq!(session_reset_secs(60_000), 60);
+    }
+
+    #[test]
+    fn shard_override_rejects_zero_explicitly() {
+        // TOTAL_SHARDS=0 is rejected (None) instead of silently falling
+        // back; positive overrides pass through, unset stays unset.
+        assert_eq!(valid_shard_override(Some(4)), Some(4));
+        assert_eq!(valid_shard_override(Some(0)), None);
+        assert_eq!(valid_shard_override(None), None);
     }
 
     #[test]
