@@ -7,46 +7,21 @@ var_user: "ユーザー"
 var_author: "著者"
 var_reason: "理由"
 var_guild: "ギルド"
-var_sanction: "制裁"
-var_time: "時間"
 var_message: "メッセージ"
 var_no_set: "設定されていない"
 var_none: "なし"
 var_roles: "役割"
-var_names: "名前"
 var_text_channel: "テキストチャンネル"
 var_voice_channel: "ボイスチャンネル"
-var_creator: "作成者"
 var_doesnt_have_permissions: "この操作を行う権限がありません。{permission} 権限が必要です。"
-var_ihorizon: "iHorizon"
-var_developer: "開発者"
-var_chance: "チャンス"
-var_other: "その他"
 var_unknown: "不明"
-var_secure: "安全"
-var_unsecure: "安全でない"
-var_prefix: "プレフィックス"
-var_slash: "スラッシュ"
-var_discord: "ディスコード"
-var_network: "ネットワーク"
 var_latency: "レイテンシ"
-var_bot: "ボット"
-var_true: "真"
-var_false: "偽"
 var_enabled: "有効"
 var_disabled: "無効"
 var_yes: "はい"
 var_no: "いいえ"
-var_colour: "色"
-var_length: "長さ"
-var_good: "良い"
-var_size: "サイズ"
 var_level: "レベル"
-var_add: "追加"
-var_remove: "削除"
-var_edit: "編集"
 var_confirm: "確認"
-var_succes: "成功"
 var_page: "ページ"
 var_permission: "権限"
 var_usage: "使用法"
@@ -66,7 +41,6 @@ var_d: "日"
 var_h: "時間"
 var_m: "分"
 var_s: "秒"
-var_ms: "ミリ秒"
 var_banned_user: "BANされたユーザー"
 var_no_one_banned: "このサーバーでBANされているユーザーはいません。"
 var_category: "カテゴリー"
@@ -123,7 +97,6 @@ perm_managenicknames_name: "ニックネームを管理"
 perm_manageroles_name: "ロールを管理"
 perm_managewebhooks_name: "Webhookを管理"
 perm_manageemojisandstickers_name: "絵文字とステッカーを管理"
-perm_manageguildexpressions_name: "サーバー表現を管理"
 perm_useapplicationcommands_name: "アプリコマンドを使用"
 perm_requesttospeak_name: "発言をリクエスト"
 perm_manageevents_name: "イベントを管理"
@@ -148,28 +121,21 @@ perm_useexternalapps_name: "外部アプリを使用"
 ticket_disabled_command: "このコマンドは管理者によって無効化されています！"
 
 # /add
-add_disabled_command: "このコマンドは管理者によって無効化されています！"
 add_command_work: "${member.tag} をチケットに追加しました！"
 add_command_error: "エラーが発生しました。もう一度お試しください。"
 
 # /close
-close_disabled_command: "このコマンドは管理者によって無効化されています！"
 close_title_sourcebin: "iHorizon によるチケットのトランスクリプト"
-close_description_sourcebin: " "
 close_error_command: "エラーが発生しました。もう一度お試しください。"
-close_command_work_channel: "チケットを終了しました。iHorizon からトランスクリプトが送信されました。"
 close_command_work_notify_channel: "チケットは正常に終了しました！"
 close_command_error: "エラーが発生しました。もう一度お試しください。"
 close_not_in_ticket: "チケットチャンネルの外でこのコマンドを使用することはできません！"
 
 # /delete
-delete_disabled_command: "このコマンドは管理者によって無効化されています！"
 delete_not_in_ticket: "チケットチャンネルの外でこのコマンドを使用することはできません！"
 ticket_deleted: "チケット ${ticketOwnerMention} は <@${deletedByUserId}> によって削除されました。トランスクリプトはこちらです："
 
 # /sethereticket
-sethereticket_disabled_command: "このコマンドは管理者によって無効化されています！"
-sethereticket_not_admin: ":x: | このコマンドを実行するには、このサーバーの管理者である必要があります！"
 sethereticket_description_embed: "新しいチケットを作成するには、📩 にリアクションしてください。"
 sethereticket_command_work: "チケットパネルが正常に設定されました！"
 sethereticket_command_type_menu_placeholder: "パネルのタイプを選択してください"
@@ -199,21 +165,15 @@ open_command_error: "エラーが発生しました。もう一度お試しく�
 open_not_in_ticket: "このコマンドはチケットチャンネル以外では使用できません！"
 
 # /remove
-remove_disabled_command: "管理者がチケットコマンドを無効にしたため、このコマンドを使用することはできません！"
 remove_not_in_ticket: "このコマンドはチケットチャンネル以外では使用できません！"
 remove_command_error: "エラーが発生しました。もう一度お試しください。"
 remove_command_work: "${member.tag} をチケットから削除しました！"
 
 # /transript
-transript_disabled_command: "管理者がチケットコマンドを無効にしたため、このコマンドを使用することはできません！"
-transript_name_sourcebin: " "
-transript_title_sourcebin: "${channel.name} のチケットチャットの転記"
-transript_command_error: "エラーが発生しました。もう一度お試しください。"
 transript_command_work: "チケットを閉じました。iHorizonが転記を送信しました。"
 transript_not_in_ticket: "このコマンドはチケットチャンネル以外では使用できません！"
 
 # /disableticket
-disableticket_not_admin: ":x: | このコマンドを実行するには、このサーバーの管理者である必要があります！"
 disableticket_logs_embed_title_disable: "DisableTicket ログ"
 disableticket_logs_embed_description_disable: "<@${interaction.user.id}> がチケットコマンドを無効にしました！"
 disableticket_command_work_disable: "チケットコマンドを無効にしました！"
@@ -222,8 +182,6 @@ disableticket_logs_embed_description_enable: "<@${interaction.user.id}> がチ�
 disableticket_command_work_enable: "チケットコマンドを有効にしました！"
 
 # /setticketcategory
-setticketcategory_not_admin: ":x: | このコマンドをリクエストするには、サーバーの管理者である必要があります！"
-setticketcategory_disabled_command: "このコマンドは管理者によって無効化されているため、使用できません！"
 setticketcategory_not_a_category: "指定されたチャンネルはカテゴリーではありません。もう一度試してください。"
 setticketcategory_command_work: "<@${interaction.user.id}>さん、チケットチャンネルのカテゴリーを `${category.name}` に設定しました！"
 
@@ -258,15 +216,12 @@ ticket_panel_change_category_channelSelect_placeholder: "カテゴリーを選�
 ticket_panel_select_channel_to_send: "埋め込みを送信するチャンネルを選択"
 ticket_panel_change_placeholder_modal_title: "プレースホルダーを変更"
 ticket_panel_change_placeholder_modal_placeholder: "新しいプレースホルダー"
-ticket_panel_need_save_config: "埋め込みを送信する前に現在の設定を保存する必要があります"
 ticket_panel_need_1_option: "埋め込みを送信するには少なくとも1つのオプションが必要です"
 ticket_panel_related_embed_dont_exist: "関連する埋め込みが存在しません"
 ticket_panel_channel_error: "チャンネルが存在しないか、メッセージを送信する権限がありません"
-ticket_panel_embed_been_send: "埋め込みがチャンネルに送信されました"
 ticket_panel_successfully_saved: "設定が正常に保存されました"
 ticket_panel_change_role_roleSelect_placeholder: "ロールを選択"
 ticket_panel_change_role_interaction_content: "チケットが開かれた時にメンションされるロールを選択してください"
-ticket_panel_change_embed_modal_title: "関連埋め込みを変更"
 ticket_panel_change_embed_modal_placeholder: "埋め込みID"
 ticket_panel_change_embed_dont_exist: "埋め込みが存在しません"
 ticket_panel_change_option_select_placeholder: "オプションを選択"
@@ -308,8 +263,6 @@ ticket_panel_panel_16_label: "オプションごとにフォームを設定"
 ticket_panel_panel_17_label: "オプションごとにメンションするロールを設定します"
 ticket_panel_manage_form_title: "オプションのフォームを管理: **${option.name}**"
 ticket_panel_change_embed_options: "チャンネルパネルの埋め込みIDを編集するオプションを選択してください。"
-ticket_panel_change_embed_options_null: "チャンネルパネルの埋め込みIDを編集するオプションがありません。"
-ticket_panel_change_embed_options_chose: "チャンネルパネルIDを編集するカテゴリを選択してください。"
 ticket_panel_add_a_question: "質問を追加"
 ticket_panel_remove_a_question: "質問を削除"
 ticket_panel_option_invalid: "❌ 無効なオプション。"
@@ -338,7 +291,6 @@ var_never: "なし"
 # /xp, /setxpchannels, /disablexp
 
 # /disablexp
-disablexp_not_admin: ":x: | 管理者である必要があります！"
 disablexp_logs_embed_title_disable: "XP無効化ログ"
 disablexp_logs_embed_description_disable: "<@${interaction.user.id}> がXPを無効化しました！"
 disablexp_command_work_disable: "レベリングメッセージ（XP）の送信を無効にしました！"
@@ -348,7 +300,6 @@ disablexp_command_work_enable: "レベリングメッセージ（XP）の送信�
 disablexp_command_work_disable_entierly: "ランクモジュールが正常に無効化されました！（メッセージなし、ユーザーはレベルを獲得しません）"
 
 # /setxpchannels
-setxpchannels_not_admin: ":x: | このコマンドを実行するには、サーバーの管理者である必要があります！"
 setxpchannels_logs_embed_title_disable: "XPチャンネル設定ログ"
 setxpchannels_logs_embed_description_disable: "<@${interaction.user.id}> がカスタムXPチャンネルを無効化しました。デフォルト設定に戻します..."
 setxpchannels_already_disabled_disable: "カスタムXPチャンネルは既に無効化されています！"
@@ -373,28 +324,19 @@ level_xp_needed_for_new_level: "次のレベルまでのXP："
 level_xp_total: "合計XP："
 
 # /ranks leaderboard
-ranks_leaderboard_top_txt: "トップ#${i}"
-ranks_leaderboard_top_txt_raw: "トップ#${i} ${index.rawText}\n"
-ranks_leaderboard_txt_text: "👤 ${user} `(${user.globalName})`\n⭐ ➥ **レベル**: `${a.level || '0'}`\n🔱 ➥ **総XP**: `${a.xptotal}`"
 ranks_leaderboard_embed_title: "🏆 サーバーレジェンドリーダーボード"
-ranks_leaderboard_embed_footer: "ページ ${cPage} / ${totalPages} • 総XPでランク付け"
 
 # /ranks ignore-channels
 ranks_ignorechannels_embed_title: "ランクモジュールの設定"
 ranks_ignorechannels_embed_desc: "これらのチャネルのいずれかに新しいメッセージが送信されると、ランクモジュールはそれを無視します。"
 
 # /ranks set-message
-ranksSetMessage_not_admin: ":x: | このコマンドを要求するには、このサーバーの管理者である必要があります！"
 ranksSetMessage_help_embed_title: "/ranks set-message ヘルプ!"
-ranksSetMessage_help_embed_description: "/ranks set-message"
-ranksSetMessage_help_embed_fields_name: "使い方?"
 ranksSetMessage_logs_embed_title_on_enable: "RanksSetMessage ログ"
 ranksSetMessage_logs_embed_description_on_enable: "<@${interaction.user.id}> がランクメッセージを設定しました！"
 ranksSetMessage_command_work_on_enable: "${client.iHorizon_Emojis.GreenTick} | ランクメッセージが正常に設定されました。"
 ranksSetMessage_logs_embed_title_on_disable: "RanksSetMessage ログ"
 ranksSetMessage_logs_embed_description_on_disable: "<@${interaction.user.id}> がランクメッセージを削除しました！"
-ranksSetMessage_command_work_on_disable: "${client.iHorizon_Emojis.Yes} | カスタムランクメッセージが正常に削除されました。"
-ranksSetMessage_command_work_ls: "ランクメッセージは:"
 ranksSetMessage_help_embed_fields_custom_name: "カスタムメッセージ"
 ranksSetMessage_help_embed_fields_custom_name_empy: "未設定！"
 ranksSetMessage_help_embed_fields_default_name_empy: "デフォルトメッセージ"
@@ -538,10 +480,8 @@ ether_message: "${client.iHorizon_Emojis.Sparkles} EtherはiHorizonプロジェ�
 irisweb_message: "😼ナヤウェブは私の2番目の開発者/貢献者 , ナヤウェブ x キサケイ ❤️"
 
 # /ping
-pong_message: "【:ballot_box_with_check:】__**Pong**__ : "
 
 # /status
-status_be_bot_dev: ":x: | **Botの開発者である必要があります！**"
 
 # /help
 help_tip_embed: "```${client.user?.username} ・ ヘルプメニュー```\n${client.iHorizon_Emojis.Pin} ・ **${categories.length}** 利用可能なコマンドカテゴリ\n${client.iHorizon_Emojis.Slash_Bot_Badge} ・ **${client.content.filter(c => c.messageCmd === false).length}** 利用可能なスラッシュコマンド\n${client.iHorizon_Emojis.Crown} ・ **作成者** <@${config.owner.ownerid1}>, <@${config.owner.ownerid2}>\n\n```知ってますか？ ・ ヒント```\n${client.iHorizon_Emojis.VC_Region} ・ ${client.user?.username} は**100％マルチ言語**です\n${client.iHorizon_Emojis.Slash_Bot_Badge} ・ `/setlang language:Japanese`"
@@ -639,7 +579,6 @@ custom_desc_reset: "サーバー上のボットの説明をリセットするこ
 custom_desc_set: "${client.iHorizon_Emojis.Yes} **サーバー上のボットの説明を変更することにしました。埋め込みのフッターが変更され、サーバー上のボットの説明も同様です。**\n${client.iHorizon_Emojis.Crown} 新しい値: `${desc}`"
 custom_banner_reset: "サーバー上のボットのバナーをリセットすることにしました。"
 custom_banner_set: "${client.iHorizon_Emojis.Yes} **サーバー上のボットのバナーを変更することにしました。**\n${client.iHorizon_Emojis.Crown} 新しい値: `${x}`"
-custom_sdk_only: "このコマンドは、本番環境では `Custom iHorizon Profile` サブスクリプションを持つサーバーでのみ利用できます。"
 custom_sdk_only_title: "Custom iHorizon Profile で iHorizon を支援"
 custom_sdk_only_description: "私たちのボットは 2022 年から無料かつオープンソースです。ボットの運用、開発、ホスティングを続けるために収益が必要です。運用コストはサーバー、boosts、ドメイン、ライセンスを含めて年間およそ 500 EUR です。\n\n`/custom` コマンドを使うと、アバター、名前、バナー、自己紹介を変更して、あなたのサーバー上で iHorizon のアイデンティティを変えることができます。これを使うと、iHorizon の視覚的なアイデンティティはあなたのサーバーから消えます。\n\nそのため、月額 2.99 USD の Discord 内サブスクリプションを用意しました。\n\nこのサブスクリプションを購入すると、このコマンドを使えるようになります。OWN-IHRZ のようなカスタム bot だと思ってください。ただし、安定していて、クリーンで、しっかり動作します。"
 
@@ -684,7 +623,6 @@ hug_embed_title: "<@${interaction.user.id}> が <@${hug.id}> にハグ❤️"
 kiss_embed_description: "<@${interaction.user.id}> が <@${kiss.id}> にキス💏"
 
 # /poll
-poll_not_admin: "権限がありません！"
 poll_embed_title: "__**投票**__: `${interaction.user.username}`"
 poll_embed_fields_reaction: "下のリアクションをタップしてください。⬇"
 poll_embed_fields_choice: ":white_check_mark: **はい**\n :x: **いいえ **"
@@ -765,15 +703,11 @@ fun_trans_command_ok: "ユーザー ${user} は **${random}%** トランスジ�
 economy_cooldown_error: "このコマンドを再度実行するには **${time}** 待つ必要があります！"
 
 # /addmoney
-addmoney_not_admin: "`ADMINISTRATOR` 権限がないため、このコマンドを実行できません。"
 addmoney_logs_embed_title: "Economy Logs"
 addmoney_logs_embed_description: "<@${interaction.user.id}> Added ${amount.value} coin to <@${user.user.id}> !"
 addmoney_command_work: "<@${user.user.id}> に `${amount.value}`$ 追加に成功しました"
 
 # /balance
-balance_dont_have_wallet: "👛 財布がありません... !"
-balance_he_dont_have_wallet: "${client.iHorizon_Emojis.Wallet} ${user} は財布を持っていません... !"
-balance_have_wallet: "👛 ${bal} コインを持っています！"
 balance_he_have_wallet: "${client.iHorizon_Emojis.Wallet} ${user} は ${bal} コインを持っています！"
 balance_embed_fields1_name: "銀行"
 balance_embed_fields2_name: "バランス中"
@@ -796,7 +730,6 @@ pay_dont_have_enought_to_give: "残高より多い金額は支払えません。
 pay_command_work: "${interaction.user.username}さんが${user.user.username}さんに${amount}$を支払いました。"
 
 # /removemoney
-removemoney_not_admin: "必要な権限 `ADMINISTRATOR` を持っていないため、このコマンドを実行できません。"
 removemoney_embed_title: "お金を取り除きました！"
 removemoney_embed_fields: "金額"
 removemoney_embed_second_fields: "残高が更新されました"
@@ -804,7 +737,6 @@ removemoney_logs_embed_description: "<@${interaction.user.id}>さんが<@${user.
 removemoney_logs_embed_title: "経済ログ"
 
 # /rob
-rob_cooldown_error: "**50分間待ってから、再びユーザーを強盗することができます！**"
 rob_dont_enought_error: ":x: 誰かを強盗するには、少なくとも250$必要です。"
 rob_him_dont_enought_error: ":x: ${user.user.username}さんには強盗できるだけのお金がありません。"
 rob_embed_description: "<@${interaction.user.id}>さんが<@${user.id}>さんを強盗して、${random}を手に入れました！"
@@ -834,10 +766,8 @@ deposit_embed_fields1_name: "銀行"
 
 # /leaderboard
 economy_leaderboard_embed_title: "`${interaction.guild.name}`の経済リーダーボード"
-economy_leaderboard_embed_fields_value: "<@${userId}> - 銀行: `${userData.bank || 0}`${client.iHorizon_Emojis.Coin} | バランス: `${userData.money || 0}`${client.iHorizon_Emojis.Coin}"
 
 # /economy disable
-economy_disable_not_admin: ":x: | このコマンドを実行するには、このサーバーの管理者である必要があります！"
 economy_disable_already_disable: "<@${interaction.user.id}>、経済モジュールは既に **無効** になっています！"
 economy_disable_already_enable: "<@${interaction.user.id}>、経済モジュールは既に **有効** になっています！"
 economy_disable_set_enable: "<@${interaction.user.id}>、経済モジュールを正常に **有効化** しました！"
@@ -965,7 +895,6 @@ serverinfo_embed_fields_joinat: "🚲・**参加日時:**"
 serverinfo_embed_fields_createat: "⚓・**作成日時:**"
 
 # /setrankroles
-setrankroles_not_admin: "${client.iHorizon_Emojis.No} このサーバーの管理者ではありません。このコマンドを実行することはできません！"
 setrankroles_already_this_in_db: "${client.iHorizon_Emojis.No} ランクロールは既にこのサーバーのデータベースに存在します。"
 setrankroles_not_roles_typed: "${client.iHorizon_Emojis.No} コマンドには役職が指定されていません！"
 setrankroles_command_work: "今後、`@iHorizon` とメンションすると、以下の役職が追加されます: <@&${argsid}>"
@@ -982,7 +911,6 @@ setrankroles_command_work_with_nicknames_2: "\n**注意**:\nニックネーム�
 snipe_no_previous_message_deleted: "このチャンネルで削除されたメッセージはありません！"
 
 # /userinfo
-userinfo_wait_please: "${client.iHorizon_Emojis.Timer} 少々お待ちください..."
 userinfo_embed_fields_1_name: "バッジ"
 userinfo_embed_fields_2_name: "ユーザー名"
 userinfo_embed_fields_3_name: "表示名"
@@ -994,7 +922,6 @@ userinfo_button_label: "ユーザープロフィール"
 # /renew
 renew_channel_send_success: "${interaction.user} チャンネルが再作成されました！"
 renew_dont_have_permission: ":x: **権限がありません！**"
-renew_not_administrator: ":x: **このコマンドを使用するための管理者ではありません！**"
 
 # /renewvc
 renewvc_not_in_voice: "${client.iHorizon_Emojis.No} このコマンドを使用するにはボイスチャンネルに接続している必要があります！"
@@ -1004,9 +931,7 @@ renewvc_dont_have_permission: ":x: **権限がありません！**"
 # /prevnames
 prevnames_embed_title: "${user.username} のニックネームのリスト"
 prevnames_undetected: "データが見つかりませんでした！"
-prevnames_not_admin: "このコマンドを実行するための `ADMINISTRATOR` 権限がありません！"
 prevnames_data_erased: "以前のユーザー名は、あなたの要望に基づいて完全に削除されました！"
-prevnames_embed_footer_text: "iHorizon | ページ ${currentPage + 1}/${pages.length}"
 
 # /blockbot
 blockbot_not_owner: ":x: **サーバーのオーナーではありません！**"
@@ -1031,7 +956,6 @@ massiverole_too_much_member: "メンバーが多すぎて、実行できませ�
 # /nickrole
 nickrole_add_command_work: "${interaction.user}さん、iHorizonがnickroleコマンドを実行しました。\n\n**${a}**人のユーザーが${role}ロールを受け取りました\n**${s}**人のユーザーはニックネームに`${part_of_nickname}`を含んでいませんでした\niHorizonは**${e}**人のユーザーにロールを追加できませんでした。"
 nickrole_sub_command_work: "${interaction.user}さん、iHorizonがnickroleコマンドを実行しました。\n\n**${a}**人のユーザーが${role}ロールを失いました\n**${s}**人のユーザーはニックネームに`${part_of_nickname}`を含まなくなりました\niHorizonは**${e}**人のユーザーからロールを削除できませんでした。"
-nickrole_too_much_member: "メンバーが多すぎるため、実行できません。レート制限の可能性があります！"
 
 # /emoji
 emoji_send_new_emoji: "__新しい絵文字が作成されました__ 名前：**${emoji.name}** ! (${emoji})"
@@ -1040,7 +964,6 @@ emoji_embed_desc_work: "__`${interaction.guild.name}` に**${cnt}**個の絵文�
 
 # /derank
 derank_msg_desc_embed: "## 私は<@${member.id}>から**${good}**つの役職を削除しました。\n## ただし、**${bad}**つの役職を削除できませんでした。"
-derank_msg_failed: "役職の削除中にエラーが発生しました。"
 derank_no_role: "このメンバーには削除するロールがありません。"
 
 # /アクション全員の禁止解除
@@ -1051,16 +974,9 @@ action_unban_all_no_banned_members: "禁止されているメンバーはいま�
 action_unban_undo_embed_desc: "## 全員の禁止解除を元に戻す\n${client.iHorizon_Emojis.Yes} | ギルドで`${banned_members.length}`人のメンバーを成功裏に禁止しました！\n${client.iHorizon_Emojis.No} | `${cannot_ban}`人のメンバーを禁止解除できません！"
 
 # /vc
-vc_embed_desc: "## ボイスステータス\n`${voiceStates?.size}` 人がボイスチャンネルにいます：\n${client.iHorizon_Emojis.iHorizon_Streaming} **=>** ${voiceStates?.filter(vc => vc.streaming).size}\n${client.iHorizon_Emojis.iHorizon_Deaf} **=>** ${voiceStates?.filter(vc => vc.selfDeaf).size}\n${client.iHorizon_Emojis.iHorizon_Mute} **=>** ${voiceStates?.filter(vc => vc.selfMute).size}\n${client.iHorizon_Emojis.iHorizon_Camera} **=>** ${voiceStates?.filter(vc => vc.selfVideo).size}\n## メンバーステータス\n`${membersStates?.size}` 人がギルドにいます：\n${client.iHorizon_Emojis.DND} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"dnd\").size}\n${client.iHorizon_Emojis.Online} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"online\").size}\n${client.iHorizon_Emojis.Idle} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"idle\").size}\n${client.iHorizon_Emojis.Invisible} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"invisible\").size}\n## ブーストステータス\n`${interaction.guild?.premiumSubscriptionCount}` ブーストがギルドにあります、\n${interaction.guild?.roles.premiumSubscriberRole?.members.map(usr => `<@${usr.id}>`)}"
-vc_embed_fields_1_name: "・メンバー数"
-vc_embed_fields_1_value: "```py\n${interaction.guild?.memberCount} 人のメンバー```"
-vc_embed_fields_2_name: "・チャンネル数"
-vc_embed_fields_2_value: "```py\n${textChannelSize} テキストチャンネル\n${voiceChannelSize} ボイスチャンネル```"
-vc_embed_short_desc: "## ボイスステータス\n`${voiceStates?.size}` 人がボイスチャンネルにいます:\n${client.iHorizon_Emojis.iHorizon_Streaming} **=>** ${total_members_vc_streaming}\n${client.iHorizon_Emojis.iHorizon_Deaf} **=>** ${total_members_vc_deaf}\n${client.iHorizon_Emojis.iHorizon_Mute} **=>** ${total_members_vc_mute}\n${client.iHorizon_Emojis.iHorizon_Camera} **=>** ${total_members_vc_video}\n## メンバーステータス\n`${total_members_size}` 人がギルドにいます:\n${client.iHorizon_Emojis.DND} **=>** ${total_members_states_dnd}\n${client.iHorizon_Emojis.Online} **=>** ${total_members_states_online}\n${client.iHorizon_Emojis.Idle} **=>** ${total_members_states_idle}"
 
 # /massmove
 massmove_results: "${interaction.user}さん、iHorizonはボイスチャンネル間でメンバーを移動しました。\n\n**${movedCount}**人のメンバーが${fromChannel}から${toChannel}に正常に移動しました。\n**${errorCount}**人のメンバーは移動できませんでした (詳細はサーバーログをご確認ください)。"
-massmove_too_much_member: "メンバーが多すぎます。レート制限の可能性があるため、実行できません。"
 
 # /all-admins
 all_admins_nobody_admins: "このサーバーに管理者はいません！"
@@ -1114,12 +1030,10 @@ utils_piconly_embed_fields2_placeholder: "画像/動画の下にスレッドを�
 utils_piconly_var_thread_name: "{name} によるスレッド"
 
 # /zip-emojis
-zip_emojis_doesnt_have_perm: "絵文字を管理する権限がありません。"
 zip_emojis_command_work: "🎉 **${calcTime}**ミリ秒で書き出し完了！${emojis.size}個の絵文字を含むアーカイブはこちらです。"
 zip_emojis_command_error: "絵文字の書き出し中にエラーが発生しました。"
 
 # /zip-stickers
-zip_stickers_doesnt_have_perm: "ステッカーを管理する権限がありません。"
 zip_stickers_command_work: "🎉 **${calcTime}**ミリ秒でエクスポートが完了しました！ ${stickers.size}枚のステッカーが含まれるアーカイブです。"
 zip_stickers_command_error: "ステッカーをエクスポート中にエラーが発生しました。"
 
@@ -1293,32 +1207,21 @@ util_move_command_ok: "${member?.toString()} は ${channel.toString()} に移動
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
 
 # /blockpub
-blockpub_not_admin: ":x: | このサーバーの管理者である必要があります！"
-blockpub_now_enable: "📌 | アンチ広告機能が有効になりました（管理者以外のユーザーには機能します）"
-blockpub_now_disable: "📌 | アンチ広告機能が無効になりました！"
 
 # /guildprofil
-guildprofil_not_admin: ":x: | このサーバーの管理者である必要があります！"
 guildprofil_not_set_reactionrole: "設定なし！"
 guildprofil_set_reactionrole: "**MessageID**: `${i}` -> ${emoji || key}で<@&${rolesID}>の役割を与えます\n"
 guildprofil_not_set_ticketFetched: "設定なし！"
-guildprofil_set_ticketFetched: ""
 guildprofil_not_set_punishPub: "設定なし！"
 guildprofil_set_punishPub: "`${punishPub.punishementType}`：max：`${punishPub.amountMax}`フラグ。"
 guildprofil_not_set_supportConfig: "設定なし！"
 guildprofil_set_supportConfig: "bio内の`${supportConfig.input}`で<@&${supportConfig.rolesId}>の役割を与えます。"
 guildprofil_not_set_setchannelsjoin: "設定なし！"
-guildprofil_set_setchannelsjoin: ""
 guildprofil_not_set_setchannelsleave: "設定なし！"
-guildprofil_set_setchannelsleave: ""
 guildprofil_not_set_joinmessage: "設定なし！"
-guildprofil_set_joinmessage: ""
 guildprofil_not_set_leavemessage: "設定なし！"
-guildprofil_set_leavemessage: ""
 guildprofil_not_set_joinroles: "設定なし！"
-guildprofil_set_joinroles: ""
 guildprofil_not_set_joinDmMessage: "設定なし！"
-guildprofil_set_joinDmMessage: ""
 guildprofil_not_set_blockpub: "オフ"
 guildprofil_set_blockpub: "オン"
 guildprofil_embed_description: "`ギルドの設定：` ${interaction.guild.name} !"
@@ -1344,8 +1247,6 @@ guildprofil_embed_fields_logs: "ログ"
 guildprofil_embed_fields_ranks: "ランク"
 
 # /setchannels
-setchannels_not_admin: ":x: | このコマンドを実行するには、このサーバーの管理者である必要があります！"
-setchannels_not_specified_args: "モジュールに有効なチャンネルを指定する必要があります。"
 setchannels_already_this_channel_on_join: "このチャンネルはすでに参加時のモジュールとして構成されています！"
 setchannels_confirmation_message_on_join: "**参加チャンネルがここに設定されました！** :tada:"
 setchannels_command_error_on_join: "エラー：権限が不足しているか、チャンネルが存在しません"
@@ -1368,42 +1269,27 @@ setchannels_button_delete: "設定を削除"
 setchannels_embed_fields_value_join: "参加チャンネル"
 setchannels_embed_fields_value_leave: "退出チャンネル"
 setchannels_not_a_text_channel: "${client.iHorizon_Emojis.Warning_Icon} 指定されたチャンネルはテキストチャンネルではありません！"
-setchannels_which_channel: "<@${interaction.user.id}>, どのチャンネルに設定しますか？"
-setchannels_title_embed_panel: "ギルド構成のチャンネルの設定パネル"
 
 # /setjoindm
-setjoindm_not_admin: ":x: | 管理者である必要があります！"
 setjoindm_logs_embed_title_on_enable: "JoinDmの設定"
 setjoindm_logs_embed_description_on_enable: "<@${interaction.user.id}> がJoinDmメッセージを設定しました！"
-setjoindm_not_specified_args_on_enable: "有効なJoinDmメッセージを指定する必要があります。"
 setjoindm_confirmation_message_on_enable: "JoinDmを ```${dm_msg}``` に設定し、有効にしました！"
-setjoindm_command_error_on_enable: "エラー：パーミッションが足りないか、チャンネルが存在しません。"
 setjoindm_logs_embed_title_on_disable: "JoinDmの設定"
 setjoindm_logs_embed_description_on_disable: "<@${interaction.user.id}> がJoinDmメッセージを無効にしました！"
 setjoindm_confirmation_message_on_disable: "JoinDmを無効にしました！"
-setjoindm_command_error_on_disable: "エラー：パーミッションが足りないか、チャンネルが存在しません。"
 setjoindm_already_disable: "JoinDmは既に無効です！"
-setjoindm_not_setup_ls: "JoinDmは設定されていません！"
-setjoindm_command_work_ls: "JoinDmメッセージは：\n```${already_off}```"
-setjoindm_help_embed_title: "JoinDMメッセージの設定ヘルプ！"
 setjoindm_help_embed_desc: "{memberUsername} => メンバーのユーザー名\n{memberMention} => メンバーをメンション\n{memberCount} => サーバーのメンバー数\n{guildName} => サーバー名\n{createdAt} => アカウント作成日（dd/mm/yyyy）\n{accountCreationTimestamp} => アカウント作成日のタイムスタンプ"
 setjoindm_buttom_set_name: "メッセージを設定"
 setjoindm_buttom_delete_name: "DMメッセージを削除"
 setjoindm_awaiting_response: "チャンネルに新しいカスタムJoinDMメッセージを入力してください。"
 
 # /setjoinmessage
-setjoinmessage_not_admin: ":x: | このコマンドを実行するには、このサーバーの管理者である必要があります！"
-setjoinmessage_help_embed_title: "setjoinmessageのヘルプ！"
-setjoinmessage_help_embed_description: "/setjoinmessage <Power on / Power off / Show the message set> <join message>"
-setjoinmessage_help_embed_fields_name: "使い方"
-setjoinmessage_help_embed_fields_value: "```/setjoinmessage <Power on / Power off / Show the message set> <message>```\n{user} = メンバーのユーザー名\n{membercount} = ギルドのメンバー数\n{createdat} = メンバーアカウントの作成日\n{guild} = ギルドの名前\n{inviter} = 招待者のユーザー名＆識別子\n{invites} = 招待数"
 setjoinmessage_logs_embed_title_on_enable: "SetJoinMessage Logs"
 setjoinmessage_logs_embed_description_on_enable: "<@${interaction.user.id}> が参加メッセージを設定しました！"
 setjoinmessage_command_work_on_enable: "${client.iHorizon_Emojis.GreenTick}  | カスタム参加メッセージの設定に成功しました。"
 setjoinmessage_logs_embed_title_on_disable: "SetJoinMessage Logs"
 setjoinmessage_logs_embed_description_on_disable: "<@${interaction.user.id}> が参加メッセージを削除しました！"
 setjoinmessage_command_work_on_disable: "${client.iHorizon_Emojis.Yes} | カスタム参加メッセージの削除に成功しました。"
-setjoinmessage_command_work_ls: "参加メッセージは以下の通りです："
 setjoinmessage_help_embed_fields_custom_name: "カスタムメッセージ"
 setjoinmessage_help_embed_fields_custom_name_empy: "未設定！"
 setjoinmessage_help_embed_fields_default_name_empy: "デフォルトメッセージ"
@@ -1445,19 +1331,15 @@ setjoinroles_var_perm_manage_channels: "チャンネルを管理する"
 setjoinroles_var_perm_manage_expression: "絵文字、ステッカー、サウンドボードを管理する"
 setjoinroles_var_perm_view_monetization_analytics: "クリエーターの収益化と分析を表示する"
 setjoinroles_var_perm_issue: "ロールを管理する権限がありません。"
-setjoinroles_var_timesup: "ロールの選択の時間が切れました。"
 setjoinroles_warn_dangerous_perm: "次のロールは危険な権限を持っています。本当にそれらを割り当てますか？"
 setjoinroles_warn_title: "警告！"
 setjoinroles_timesup_button: "時間切れ！"
 setjoinroles_action_canceled: "アクションがキャンセルされました"
 setjoinroles_too_highter_roles: "次のロールは私の役職よりも高い位置にあります。"
-setjoinroles_not_admin: ":x: | このコマンドを実行するには、このサーバーの管理者である必要があります！"
-setjoinroles_help_embed_title: "参加ロールモジュール"
 setjoinroles_help_embed_description: "新しいメンバーに与えるすべてのロールです。"
 setjoinroles_help_embed_fields_1_name: "すべての登録済みロール"
 setjoinroles_logs_embed_title_on_enable: "JoinRolesログ"
 setjoinroles_logs_embed_description_on_enable: "<@${interaction.user.id}>が参加ロールを設定しました！"
-setjoinroles_already_on_enable: "参加ロールはすでにこのロールで構成されています！"
 
 # /welcomer
 welcomer_panel_title: "ウェルカム"
@@ -1481,30 +1363,20 @@ welcomer_render_mode_components: "Components（カード）"
 welcomer_render_mode_simple: "シンプルメッセージ"
 
 # /setleavemessage
-setleavemessage_not_admin: ":x: | このコマンドを要求するには、このサーバーの管理者である必要があります！"
-setleavemessage_help_embed_title: "/setleavemessage ヘルプ！"
-setleavemessage_help_embed_description: "/setleavemessage <オン/オフ/設定されたメッセージを表示する> <退出メッセージ>"
-setleavemessage_help_embed_fields_name: "使い方？"
-setleavemessage_help_embed_fields_value: "`/setleavemessage <オン/オフ/設定されたメッセージを表示する> <メッセージ>を使用してください。`\n{user} = メンバーのユーザー名\n{membercount} = ギルドのメンバー数\n{guild} = ギルドの名前"
 setleavemessage_logs_embed_title_on_enable: "SetLeaveMessage ログ"
 setleavemessage_logs_embed_description_on_enable: "<@${interaction.user.id}>が退出メッセージを設定しました！"
 setleavemessage_command_work_on_enable: "${client.iHorizon_Emojis.Yes} | カスタム退出メッセージを正常に設定しました。"
 setleavemessage_logs_embed_title_on_disable: "SetLeaveMessage ログ"
 setleavemessage_logs_embed_description_on_disable: "<@${interaction.user.id}>が退出メッセージを削除しました！"
 setleavemessage_command_work_on_disable: "${client.iHorizon_Emojis.Yes} | カスタム退出メッセージを正常に削除しました。"
-setleavemessage_command_work_ls: "退出メッセージは次のとおりです。"
 setleavemessage_awaiting_response: "休暇メッセージを書きます。"
 
 # /setup
-setup_not_admin: ":x: | このサーバーの管理者である必要があります！"
 setup_command_work: "${client.iHorizon_Emojis.Yes} | チャンネルセットアップ完了"
 setup_command_error: "ボットは既にログチャンネルを設定しています！またはボットに権限がありません..."
 
 # /setlogschannel
-setlogschannel_not_admin: ":x: | このコマンドを実行するには、サーバーの管理者である必要があります！"
-setlogschannel_not_specified_args: "モジュールに有効なチャンネルを指定する必要があります。"
 setlogschannel_confirmation_message: "${client.iHorizon_Emojis.Yes} | `${typeOfLogs}` は <@${interaction.user.id}> によって設定されました！"
-setlogschannel_already_this_channel: "このサーバーは既にログのためのこのチャンネルを持っています！"
 setlogschannel_already_deleted: "このサーバーは既に `SERVER_LOGS` を持っていません！"
 setlogschannel_command_error: "コマンドの実行中にエラーが発生しましたか？"
 setlogschannel_command_work: "<#${argsid.id}> に `${typeOfLogs}` を正常に設定しました！"
@@ -1512,7 +1384,6 @@ setlogschannel_utils_command_work: "${argsid.id} に `${typeOfLogs}` を正常�
 setlogschannel_command_work_on_delete: "**${interaction.guild.name}** からすべての `SERVER_LOGS` を正常に削除しました！"
 setlogschannel_logs_embed_title: "サーバーログの設定"
 setlogschannel_logs_embed_description_on_enable: "<@${interaction.user.id}> が `${typeOfLogs}` を <#${argsid.id}> に設定しました"
-setlogschannel_logs_embed_title_on_off: "サーバーログの設定"
 setlogschannel_logs_embed_description_on_off: "<@${interaction.user.id}> がギルド内のすべての `SERVER_LOGS` を削除しました！"
 setlogschannel_var_roles: "役職のログ"
 setlogschannel_var_mods: "モデレーションログ"
@@ -1566,21 +1437,16 @@ too_new_account_dont_specified_time_on_enable: "時間が指定されていま�
 too_new_account_invalid_time_on_enable: "入力した時間が無効です！ **有効な時間の例**: `3h; 30m; 4w; 4y` -> 3時間; 30分; 4週間; 4年"
 too_new_account_logEmbed_title: "TooNewAccount モジュール"
 too_new_account_logEmbed_desc_on_enable: "${interaction.user} が TooNewAccount モジュールを有効にしました。アカウントは最低でも ${beautifulTime} 経過している必要があり、ユーザーが `${maxJoin}` 回以上参加するとBANされます。"
-too_new_account_command_work_on_enable: "${interaction.user}、**${interaction.guild?.name}** に参加する新しいメンバーは、アカウントが `${beautifulTime}` より若い場合、強制退出させられます。"
 too_new_account_command_work_on_enable2: "\n-#  ${client.iHorizon_Emojis.Sparkles} アカウントがサーバーに**`${maxJoin}`**回参加すると、BANされます。"
 too_new_account_logEmbed_desc_on_disable: "${interaction.user} がモジュールを無効にしました！"
 too_new_account_command_work_on_disable: "${interaction.user}、モジュールは正常に無効化されました。新しいメンバーのアカウント作成日はチェックされなくなります。"
 
 # /guildconfig set-bot footer-name
 guildconfig_setbot_footername_footer_too_long_msg: "ボットのフッターが長すぎます。表示するには醜すぎます。"
-guildconfig_setbot_footername_is_good: "正常に変更されました。すべてのiHorizon埋め込みは`${footerName}`をフッターとして使用します！"
-guildconfig_setbot_footername_is_reset: "フッター名が削除されました。これで、すべてのiHorizon埋め込みは`ボットの名前`を使用します。"
 guildconfig_setbot_footername_not_found: "フッター名が見つかりません。もう一度お試しください！"
 
 # /guildconfig set-bot footer-pfp
-guildconfig_setbot_footeravatar_is_good: "正常に変更されました。iHorizonのすべての埋め込みはフッターとして`image`を使用します！"
 guildconfig_setbot_footeravatar_incorect: "ファイルが画像ではありません。画像を使ってもう一度お試しください。"
-guildconfig_setbot_footeravatar_is_reset: "フッターアバターが削除されました。これで、すべてのiHorizon埋め込みは`ボットのアバター`を使用します。"
 
 # /guildconfig set-bot prefix
 guildconfig_setbot_prefix_prefix_now_mention: "コマンドのボットプレフィックスは今メンションです！ `@Ping-Me`"
@@ -1594,7 +1460,6 @@ guildconfig_config_save_user_msg: "`${interaction.guild.name}` の設定のバ�
 guildconfig_config_save_user_msg_2: "サーバーのバックアップをダウンロードするリンクはこちらです！\n"
 
 # /guildconfig config restore
-guildconfig_config_restore_err_msg: "ファイルのダウンロード中にエラーが発生しました。"
 guildconfig_config_restore_msg: "データがデータベースに保存されました。"
 
 # /perm add
@@ -1602,7 +1467,6 @@ perm_add_args_error: "変更するコマンドや設定する権限を指定し�
 
 # /perm list
 perm_list_embed_title: "すべてのユーザーの権限："
-perm_list_unknown_user: "不明なユーザー (ID: ${userId})"
 perm_list_no_user: "ユーザーが見つかりません"
 var_command: "コマンド"
 var_subcommand: "サブコマンド"
@@ -1689,7 +1553,6 @@ autoreact_remove_command_ok: "このチャンネルのオートリアクト設�
 # /setmembercount
 
 # /setmembercount
-setmembercount_not_admin: ":x: | このコマンドを要求するには、このサーバーの管理者である必要があります！"
 setmembercount_helpembed_title: "メンバーカウント設定ヘルプ！"
 setmembercount_helpembed_description: "/membercount <有効 / 無効> <チャンネル名>"
 setmembercount_helpembed_fields_name: "使い方"
@@ -1720,7 +1583,6 @@ loop_command_work: "{mode} | ループモードが更新されました"
 
 # /nowplaying
 nowplaying_no_queue: "再生中の曲はありません"
-nowplaying_message_embed_title: "再生中の曲"
 nowplaying_resume_button: "${interaction.user}が**音楽を再開**しました！"
 nowplaying_pause_button: "${interaction.user}が**音楽を一時停止**しました！"
 nowplaying_lyrics_button: "この曲の歌詞は見つかりませんでした"
@@ -1751,7 +1613,6 @@ queue_no_queue: "キューがありません"
 queue_empty_queue: "キューにはもうトラックがありません"
 queue_embed_title: "キューされた曲"
 queue_embed_description_empty: "**もうキューされた曲はありません**"
-queue_embed_footer_text: "ページ {index} | 合計 {track} トラック"
 
 # /shuffle
 shuffle_no_queue: "私はボイスチャンネルにいません"
@@ -1764,7 +1625,6 @@ history_embed_title: "${interaction.guild?.name}の音楽履歴 | ページ ${i 
 history_embed_footer_text: "iHorizon | ページ ${currentPage + 1}/${pages.length}"
 history_delete_embed_title: "✅ 履歴を削除しました"
 history_delete_embed_desc: "音楽の履歴が正常に削除されました。"
-music_history_no_permission: "音楽履歴を見るには管理者権限が必要です。"
 
 # /music lyrics
 lyrics_embed_title_unknown: "不明なタイトル"
@@ -1787,7 +1647,6 @@ music_volume_invalid: "無効な音量です：10から100の間の数字を入�
 # /end, /start, /reroll
 
 # /end
-end_not_admin: "このギブアウェイを終了するための権限が必要です。"
 end_not_find_giveaway: "`${gw}`のギブアウェイが見つかりませんでした。"
 end_confirmation_message: "ギブアウェイはあと${timeEstimate}秒で終了します..."
 end_logs_embed_title: "ギブアウェイのログ"
@@ -1795,10 +1654,8 @@ end_logs_embed_description: "<@${interaction.user.id}>がこのIDでギブアウ
 end_command_error: "このギブアウェイはすでに終了しています！"
 
 # /start
-start_not_perm: "ギブアウェイを開始するには、メッセージを管理する権限が必要です。"
 start_is_not_valid: "有効な受賞者の数を指定する必要があります！"
 start_confirmation_command: "${giveawayChannel}でギブアウェイが開始されました！"
-start_logs_embed_title: "ギブアウェイのログ"
 start_logs_embed_description: "<@${interaction.user.id}>が${giveawayChannel}でギブアウェイを開始しました。"
 start_time_not_valid: "${interaction.user}、指定したギブアウェイの期間が無効です。もう一度試してみてください！"
 start_invalid_invites_req_value: "${client.iHorizon_Emojis.No} | 「招待」の値が無効です！ギブアウェイに参加するために招待数を指定する必要があります！"
@@ -1806,12 +1663,10 @@ start_invalid_messages_req_value: "${client.iHorizon_Emojis.No} | 「メッセ�
 start_invalid_roles_req_value: "${client.iHorizon_Emojis.No} | 「役割」の値のロールが見つかりません！ギブアウェイに参加するためにロールIDを指定する必要があります！"
 
 # /reroll
-reroll_not_perm: "このギブアウェイを終了するためには、メッセージを管理する権限が必要です。"
 reroll_dont_find_giveaway: "`{args}` に対応するギブアウェイが見つかりませんでした。"
 reroll_command_work: "ギブアウェイが再開されました！"
 reroll_logs_embed_title: "ギブアウェイログ"
 reroll_logs_embed_description: "<@${interaction.user.id}> がこのIDのギブアウェイを再開しました：${giveaway.messageID}"
-reroll_command_error: "エラー！"
 reroll_giveaway_not_over: "このプレゼントは終了していません！"
 
 # /get-all
@@ -1845,31 +1700,24 @@ avatar_embed_description: "素晴らしいアバターをご覧ください！ :
 avatar_embed_title: "__**アバター**__: `${mentionedUser.username}`"
 
 # /ban
-ban_not_permission: "${client.iHorizon_Emojis.No} | メンバーをBANする権限がありません。"
 ban_dont_found_member: "🔍 | そのメンバーが見つかりません"
 ban_dont_have_perm_myself: "${client.iHorizon_Emojis.No} | 私にはメンバーをBANする権限がありません！"
 ban_try_to_ban_yourself: "${client.iHorizon_Emojis.No} | 自分自身をBANすることはできません！"
 ban_attempt_ban_higter_member: "${client.iHorizon_Emojis.Stop} あなたよりも高い役職のユーザーをBANすることはできません..."
 ban_cant_ban_member: "${client.iHorizon_Emojis.No} | そのメンバーをBANすることができません"
 ban_message_to_the_banned_member: "あなたはこのサーバー `${interaction.guild.name}` からBANされました。理由: **`${reason}`**"
-ban_command_work: "<@${member.user.id}> が <@${interaction.member.id}> によってBANされました。"
 ban_logs_embed_title: "BANログ"
 ban_logs_embed_description: "<@${interaction.member.id}> によって <@${member.user.id}> がBANされました。"
 
 # /kick
-kick_not_permission: "${client.iHorizon_Emojis.No} | メンバーをキックする権限がありません。"
 kick_dont_have_permission: "${client.iHorizon_Emojis.No} | メンバーをキックする権限がありません！"
 kick_attempt_kick_your_self: "${client.iHorizon_Emojis.No} | 自分自身をキックすることはできません！"
 kick_attempt_kick_higter_member: "${client.iHorizon_Emojis.Stop} 自分よりも権限が高いユーザーをキックすることはできません..."
 kick_message_to_the_banned_member: "あなたは `${interaction.member.user.username}` によって、このサーバー：**${interaction.guild.name}** からキックされました。"
-kick_command_work: "${interaction.user} によって ${member.user} がキックされました。"
 kick_logs_embed_title: "キックログ"
 kick_logs_embed_description: "<@${interaction.user.id}> によって ${member.user} がキックされました。"
 
 # /clear
-clear_dont_have_permission: "${client.iHorizon_Emojis.No} | `MANAGE_MESSAGES` の権限がありません。"
-clear_max_message_limit: "${client.iHorizon_Emojis.No} | 一度に99以上のメッセージを削除することはできません！"
-clear_channel_message_deleted: "${messages.size} 個のメッセージが削除されました！"
 clear_confirmation_message: "${messages.size} 個のメッセージが削除されました！"
 clear_logs_embed_title: "メッセージクリアログ"
 clear_logs_embed_description: "<@${interaction.user.id}> が <#${interaction.channel.id}> で ${messages.size} 個のメッセージをクリアしました。"
@@ -1877,18 +1725,15 @@ clear_command_no_message: "このチャンネルには削除できるメッセ�
 
 # /lock
 lock_embed_message_description: "<@${interaction.user.id}> によってチャンネルがロックされました。"
-lock_dont_have_permission: "${client.iHorizon_Emojis.No} | チャンネルをロックする権限がありません。"
 lock_logs_embed_title: "ロックログ"
 lock_logs_embed_description: "<@${interaction.user.id}> によって <#${interaction.channel.id}> がロックされました。"
 
 # /unlock
 unlock_embed_message_description: "チャンネルが正常にアンロックされました！"
-unlock_dont_have_permission: "${client.iHorizon_Emojis.No} | チャンネルをアンロックする権限がありません。"
 unlock_logs_embed_title: "アンロックログ"
 unlock_logs_embed_description: "<@${interaction.user.id}> が <#${interaction.channel.id}> をアンロックしました。"
 
 # /lockall
-lockall_dont_have_permission: "${client.iHorizon_Emojis.No} | 全てのチャンネルをロックする権限がありません。"
 lockall_embed_message_description: "全てのチャンネルが <@${interaction.user.id}> によってロックされました。"
 lockall_logs_embed_title: "ロックオールログ"
 lockall_logs_embed_description: "<@${interaction.user.id}> が全てのチャンネルをロックしました！"
@@ -1899,7 +1744,6 @@ unlockall_logs_embed_title: "アンロックオールログ"
 unlockall_logs_embed_description: "<@${interaction.user.id}> が全てのチャンネルをアンロックしました！"
 
 # /unban
-unban_dont_have_permission: "${client.iHorizon_Emojis.No} | メンバーをアンバンする権限がありません。"
 unban_bot_dont_have_permission: "${client.iHorizon_Emojis.No} | 私には権限がありません。"
 unban_there_is_nobody_banned: "${client.iHorizon_Emojis.No} | **このサーバーから誰もBANされていません！**"
 unban_the_member_is_not_banned: "${client.iHorizon_Emojis.No} | **指定されたIDは、このサーバーからBANされていません！**"
@@ -1909,7 +1753,6 @@ unban_logs_embed_description: "<@${interaction.user.id}>によって<@${userID}>
 unban_reason: "理由が提供されませんでした。"
 
 # /tempmute
-tempmute_dont_have_permission: "${client.iHorizon_Emojis.No} | メンバーを一時的にミュートする権限がありません。"
 tempmute_i_dont_have_permission: "${client.iHorizon_Emojis.No} | 私には権限がありません。"
 tempmute_cannot_mute_yourself: "${client.iHorizon_Emojis.No} | 自分自身をミュートすることはできません！"
 tempmute_already_muted: "このユーザーはすでにミュートされています！"
@@ -1917,31 +1760,24 @@ tempmute_command_work: "<@${tomute.id}> は ${ms(ms(mutetime))} の間ミュー�
 tempmute_unmuted_by_time: "<@${tomute.id}>さんがミュート解除されました！"
 tempmute_logs_embed_title: "Tempmute Logs"
 tempmute_logs_embed_description: "<@${interaction.user.id}> が <@${tomute.id}> を ${ms(ms(mutetime))} の間ミュートしました\n**理由**: `${reason}`"
-tempmute_reason_create_roles: "一時ミュートのミュート役職を作成してください！"
 tempmute_tomute_is_admin: "${client.iHorizon_Emojis.No} | ユーザーは管理者権限を持っているため、ミュートできません。"
 tempmute_tomute_highest_role_or_same: "${client.iHorizon_Emojis.No} | **このサーバーでの私の役職は ${tomute.toString()} と同じかそれ以下です。このメンバーをモデレートできません。**"
 tempmute_cannot_mute_higher_role: "${client.iHorizon_Emojis.No} | **${tomute.toString()}'s role is higher than or equal to yours. You cannot timeout this member.**"
 tempmute_tomute_max_time_passed: "\n-# ${client.iHorizon_Emojis.VC_OpenChat} Discordではミュートの制限は28日です。28日を適用しました。"
 
 # /temprole
-temprole_dont_have_permission: "${client.iHorizon_Emojis.No} | メンバーに一時ロールを追加する権限がありません。"
 temprole_i_dont_have_permission: "${client.iHorizon_Emojis.No} | 私には権限がありません。"
-temprole_cannot_add_yourself: "${client.iHorizon_Emojis.No} | 自分に一時ロールを追加することはできません！"
 temprole_already_has_role: "このユーザーはすでにこの一時ロールを持っています！"
 temprole_command_work: "<@${tomute.id}> に ${ms(ms(mutetime))} の間ロールが付与されました\n**理由**: `${reason}`"
-temprole_removed_by_time: "<@${tomute.id}> の一時ロールが削除されました！"
 temprole_logs_embed_title: "一時ロールログ"
 temprole_logs_embed_description: "<@${interaction.user.id}> が <@${tomute.id}> に ${ms(ms(mutetime))} の一時ロールを追加しました\n**理由**: `${reason}`"
-temprole_tomute_is_admin: "${client.iHorizon_Emojis.No} | このユーザーは管理者権限を持っているため、一時ロールを付与できません。"
 temprole_tomute_highest_role_or_same: "${client.iHorizon_Emojis.No} | **私の役職はこのサーバーで ${tomute.toString()} と同じか下のため、このメンバーを管理できません。**"
 temprole_tomute_max_time_passed: "\n-# ${client.iHorizon_Emojis.VC_OpenChat} 一時ロールの最大期間は1年です。1年を適用しました。"
 
 # /unmute
-unmute_dont_have_permission: "${client.iHorizon_Emojis.No} | メンバーをミュート解除する権限がありません。"
 unmute_attempt_mute_your_self: "${client.iHorizon_Emojis.No} | 自分自身をミュートすることはできません！"
 unmute_i_dont_have_permission: "${client.iHorizon_Emojis.No} | 私には権限がありません。"
 unmute_not_muted: "このユーザーはミュートされていません！"
-unmute_muted_role_doesnt_exist: "`muted` 役職が存在しません。ミュート役職を作成してから、ユーザーをミュートしてください..."
 unmute_command_work: "<@${tomute.id}>さんがミュート解除されました！"
 unmute_logs_embed_title: "Unmute Logs"
 unmute_logs_embed_description: "<@${interaction.user.id}>さんが<@${tomute.id}>さんのミュートを解除しました。"
@@ -1955,7 +1791,6 @@ unmuteall_logs_embed_description: "<@${interaction.user.id}>さんが ${unmuted}
 warn_command_work: "${client.iHorizon_Emojis.Yes} ${member?.toString()} が警告されました！**理由**：`${reason}`\n__警告ID__：`${warnId}`"
 warn_logEmbed_title: "警告ログ"
 warn_logEmbed_desc: "${interaction.member.toString()} が ${member?.toString()} に警告しました。理由：`${reason}`"
-warn_dont_have_permission: "${client.iHorizon_Emojis.No} | このDiscordサーバーでメンバーに警告を与える権限がありません。"
 
 # /unwarn
 unwarn_cannot_found: "${client.iHorizon_Emojis.No} ${member?.toString()} はデータベースに警告が見つかりません！"
@@ -1963,7 +1798,6 @@ unwarn_cannot_found_id: "${client.iHorizon_Emojis.No} ${member?.toString()} 提�
 unwarn_command_ok: "${client.iHorizon_Emojis.Yes} ${member?.toString()} の警告が解除されました！"
 unwarn_logEmbed_title: "警告解除ログ"
 unwarn_logEmbed_desc: "${interaction.member.toString()} が ${member?.toString()} の警告を解除しました"
-unwarn_dont_have_permission: "${client.iHorizon_Emojis.No} | このDiscordサーバーでメンバーの警告を削除する権限がありません。"
 
 # /clear-allwarns
 clear_allwarns_confirmation_message: "**本当にすべての警告データを削除してもよろしいですか？ このアクションは永続的であり、元に戻すことはできません。** **このアクションは破壊的です!!**"
@@ -1973,7 +1807,6 @@ clear_allwarns_command_ok: "このDiscordサーバーのすべての警告が削
 warnlist_no_data: "${client.iHorizon_Emojis.No} ${member?.toString()} はデータベースに警告が見つかりません！"
 warnlist_embed_desc: "### ID：${x.id} - ${format(x.timestamp, 'DD/MM/YYYY')}\n> 作成者：<@${x.authorID}>\n> 理由：`${x.reason}`"
 warnlist_embed_title: "${member?.user.globalName} の警告リスト | ページ ${i / usersPerPage + 1}"
-warnlist_dont_have_permission: "${client.iHorizon_Emojis.No} | このDiscordサーバーでメンバーの警告を管理する権限がありません。"
 
 # /baninfo
 baninfo_not_banned: "ユーザーはBANされていません"
@@ -1986,36 +1819,28 @@ var_ban_date: "BAN日時"
 clearwarn_command_ok: "${client.iHorizon_Emojis.Yes} ${interaction.member.toString()}、${member?.toString()} の **`${allWarns.length}`** 件の警告が削除されました。"
 
 # /tempban
-tempban_dont_have_permission: "メンバーを一時的にBANする権限がありません。"
 tempban_i_dont_have_permission: "メンバーをBANする権限がありません。"
-tempban_cannot_ban_yourself: "自分自身をBANすることはできません！"
 tempban_already_banned: "このユーザーはすでに一時的にBANされています！"
 tempban_command_work: "**<@${user.id}>** は **${duration}** の間、一時的にBANされました\n**理由**: `${reason}`"
-tempban_unbanned_by_time: "**<@${user.id}>** のBANが解除されました！"
 tempban_logs_embed_title: "一時BANログ"
 tempban_logs_embed_description: "**<@${executor.id}>** が **<@${user.id}>** を **${duration}** 一時的にBANしました\n**理由**: `${reason}`"
 tempban_user_is_admin: "ユーザーは管理者権限を持っているため、BANできません。"
 tempban_user_highest_role_or_same: "私のサーバーでのロールが **user_mention** と同じか低いため、このメンバーをモデレートできません。"
 tempban_max_time_passed: "\n*一時BANの最長期間は1年です。1年を適用しました。*"
-tempban_user_not_in_guild: "このユーザーはサーバーにいませんが、BANは可能です。"
 
 # Backup commands
 # /backup
 
 # /backup
-backup_wait_please: "⏲ お待ちください..."
-backup_not_admin: ":x: | サーバーの管理者でなければ、バックアップの作成を要求できません！"
 backup_i_dont_have_permission: "私には `ADMINISTRATOR` 権限がありません。"
 backup_command_work_on_creation: ":white_check_mark: バックアップが正常に作成されました。"
 backup_command_work_info_on_creation: "バックアップが作成されました！ID: `${backupData.id}`!"
 backup_logs_embed_title_on_creation: "Backup Logs"
 backup_logs_embed_description_on_creation: "<@${interaction.user.id}>さんがバックアップを作成しました！"
-backup_dont_have_perm_on_load: ":x: | バックアップを読み込むためには、サーバーの管理者である必要があります！"
 backup_i_dont_have_perm_on_load: "管理者権限が必要です。"
 backup_unvalid_id_on_load: ":x: | 有効なバックアップIDを指定する必要があります！"
 backup_waiting_on_load: "${client.iHorizon_Emojis.Yes} - 読み込み中..."
 backup_error_on_load: ":x: | 申し訳ありませんが、エラーが発生しました... 管理者権限を持っているか確認してください！"
-backup_error_when_fetch_backup_on_load: ":x: | ${backupID} のバックアップは見つかりませんでした！"
 backup_this_is_not_your_backup: "${client.iHorizon_Emojis.No} | これはあなたのバックアップではありません！"
 backup_backup_doesnt_exist: "ERROR? バックアップが存在しません。"
 backup_create_usage_save_message: "使い方：`/backup create save-message:<yes|no>` — チャンネルごとに最大100件のメッセージを保存するには `yes`、それ以外は `no` を指定してください。"
@@ -2043,7 +1868,6 @@ backup_manage_command_ok: "バックアップモジュールが更新されま�
 # /reactionroles
 
 # /reactionroles
-reactionroles_dont_admin_added: ":x: | このコマンドを使用するには、サーバーの管理者である必要があります！"
 reactionroles_embed_message_description_added: "__使い方__\n/rolesreaction add `<message id>` `<reaction>` `<rolesid>`\n/rolesreaction remove `<message id>` `<reaction>`\n/rolesreaction list `<message id>`"
 reactionroles_missing_reaction_added: "引数が足りません：リアクションの絵文字"
 reactionroles_invalid_emote_format_added: "${client.iHorizon_Emojis.No} | `<::xxx>` 形式の `CUSTOM_EMOJI` を送信することはできません！ID のみ必要です！"
@@ -2101,7 +1925,6 @@ roleselect_modal2_placeholder: "選択メニューのプレースホルダー"
 # /punishpub, /report, /support
 
 # /punishpub
-punishpub_not_admin: ":x: | このコマンドを使用するには、サーバーの管理者である必要があります！"
 punishpub_too_hight_enable: "許容範囲を超えています！お勧めできません！"
 punishpub_negative_number_enable: "負の数を入力することはできません！"
 punishpub_zero_number_enable: "0は不可能です！"
@@ -2119,7 +1942,6 @@ report_specify: "バグを指定してください。良い文章を作成して
 report_command_work: "**バグを報告してくれてありがとう！**"
 
 # /support
-support_not_admin: ":x: | このコマンドを使用するには、サーバーの管理者である必要があります！"
 support_command_work: "**${interaction.guild.name}**のサポートモジュールを設定しました。\nユーザーが次のバイオを持っている場合:\n**${input}**。\n彼らに<@&${roles.id}>役割を与えるべきです！"
 support_command_work_on_disable: "**${interaction.guild.name}**のサポートモジュールを設定しました。\n今は誰も役割を持っていません！"
 support_command_not_role: ":x: | 役割を指定していません！"
@@ -2134,26 +1956,19 @@ updates_embed_description: "iHorizonの最新の変更とアップデートで�
 updates_field_version: "バージョン"
 updates_field_commit: "最新コミット"
 updates_field_branch: "ブランチ"
-updates_field_links: "リンク"
-updates_changelog_attached: "完全なチェンジログはPDFで添付されています。"
-newsletter_dm_title: "iHorizon {version} - Release Notes"
 newsletter_dm_body: "{owner}さん、こんにちは。\n\niHorizonの新しいメジャーバージョンがデプロイされました。\n\n**バージョン**: {version}\n**リリース**: {releaseUrl}\n\n完全なチェンジログはPDFで添付されています。\n\nヘルプが必要ですか？サポートサーバーに参加してください: https://discord.gg/ihorizon\n-# +updates を使用するか、下のボタンで購読を管理してください。"
 newsletter_btn_unsubscribe: "Unsubscribe from newsletter"
 newsletter_btn_subscribe: "Subscribe to newsletter"
 newsletter_not_owner: "あはは、私のコードの変更をリアルタイムで見たいと思ってくれるなんて嬉しいよ :3\n\n**でもね、まずは私をDiscordサーバーに追加してね：**\n\n<https://discord.com/oauth2/authorize?client_id=${clientId}>\n**そうすれば最新情報をお届けするよ。**\n\n> 別の方法：discord.gg/ihorizon に参加することもできるよ。創設者たちがアップデートのたびにチェンジログをピンしてくれるんだ。お好きな方を選んでね :3"
 newsletter_toggle_enabled: "Newsletter notifications enabled."
 newsletter_toggle_disabled: "Newsletter notifications disabled."
-setserverlang_not_admin: ":x: | このコマンドを使用するには、サーバーの管理者である必要があります！"
 setserverlang_logs_embed_title_on_enable: "SetServerLangログ"
 setserverlang_logs_embed_description_on_enable: "<@${interaction.user.id}>はiHorizonの言語を**${type}**に設定しました！"
-setserverlang_already: "既にこの言語で動作しています！"
-setserverlang_command_work_enable: "私の言語は今**${type}**になりました"
 setserverlang_panel_title: "言語選択"
 setserverlang_panel_description: "このサーバーでiHorizonが使用する言語を選択してください。"
 setserverlang_panel_current: "現在の言語"
 setserverlang_panel_select: "言語を選択..."
 setserverlang_panel_saved: "言語が正常に変更されました！"
-setserverlang_command_error_enable: "エラー！"
 
 # /embed
 embed_placeholder_string_select_menu_builder: "何をしたいですか？"
@@ -2282,7 +2097,6 @@ counter_actual_number: "✨ **現在の数字:** {number}"
 # /setsuggest, /suggest
 
 # /suggest accept
-suggest_accept_not_admin: "あなたは管理者ではありません！"
 suggest_acceptnot_good_channel: "このコマンドは提案モジュールのチャンネルで実行する必要があります (<#${baseData?.channel}>)！\n提案モジュールが無効になっていないか確認してください！"
 suggest_accept_not_found_db: "提案はデータベースで見つかりませんでした！"
 suggest_accept_already_replied: "この提案はすでに回答されています！"
@@ -2292,7 +2106,6 @@ suggest_accept_command_work: "提案を受け入れました！\nhttps://discord
 suggest_accept_command_error: "提案はDiscordのチャンネルで見つかりませんでした！"
 
 # /suggest deny
-suggest_deny_not_admin: "あなたは管理者ではありません！"
 suggest_deny_not_good_channel: "このコマンドは提案モジュールのチャンネルで実行する必要があります (<#${baseData?.channel}>)！\n提案モジュールが無効になっていないか確認してください！"
 suggest_deny_not_found_db: "提案はデータベースで見つかりませんでした！"
 suggest_deny_already_replied: "この提案はすでに回答されています！"
@@ -2302,7 +2115,6 @@ suggest_deny_command_work: "提案を拒否しました！\nhttps://discord.com/
 suggest_deny_command_error: "提案はDiscordのチャンネルで見つかりませんでした！"
 
 # /suggest reply
-suggest_reply_not_admin: "あなたは管理者ではありません！"
 suggest_reply_not_good_channel: "このコマンドは提案モジュールのチャンネルで実行する必要があります (<#${baseData?.channel}>)！\n提案モジュールが無効になっていないか確認してください！"
 suggest_replynot_found_db: "提案はデータベースで見つかりませんでした！"
 suggest_reply_already_replied: "この提案はすでに回答されています！"
@@ -2312,19 +2124,16 @@ suggest_reply_command_work: "提案に対する応答を送信しました！\nh
 suggest_reply_command_error: "提案はDiscordのチャンネルで見つかりませんでした！"
 
 # /suggest delete
-suggest_delete_not_delete: "あなたは管理者ではありません！"
 suggest_delete_not_good_channel: "このコマンドは提案モジュールのチャンネルで実行する必要があります (<#${baseData?.channel}>)！\n提案モジュールが無効になっていないか確認してください！"
 suggest_delete_not_found_db: "提案はデータベースで見つかりませんでした！"
 suggest_delete_command_work: "提案を削除しました！"
 suggest_delete_command_error: "提案はDiscordのチャンネルで見つかりませんでした！"
 
 # /setsuggest disable
-setsuggest_disable_not_admin: "あなたは管理者ではありません！"
 setsuggest_disable_pw_on: "${interaction.user}、提案モジュールを有効にしました！"
 setsuggest_disable_pw_off: "${interaction.user}、提案モジュールを無効にしました！"
 
 # /setsuggest channel
-setsuggest_channel_not_admin: "あなたは管理者ではありません！"
 setsuggest_channel_already_set_with_that: "${interaction.user}、提案モジュールのチャンネルは既に ${channel} に設定されています！"
 setsuggest_channel_embed_title: "提案モジュールがここに設定されました！"
 setsuggest_channel_embed_desc: "これで、ここにメッセージを送信する許可があるすべてのユーザーは、メッセージを送信するだけで提案できます！"
@@ -2334,16 +2143,13 @@ setsuggest_channel_command_work: "${interaction.user}、提案モジュールの
 # /セキュリティ
 
 # /セキュリティ 無効化
-security_disable_not_admin: "管理者ではありません！"
 security_disable_pw_on: "${interaction.user} さん、セキュリティモジュールをオンにしました！"
 security_disable_pw_off: "${interaction.user} さん、セキュリティモジュールをオフにしました。"
 
 # /セキュリティ ロール割り当て
-security_role_to_give_not_admin: "管理者ではありません！"
 security_role_to_give_command_work: "${interaction.user} さん、セキュリティモジュールのロールを ${role} に設定しました！"
 
 # /セキュリティ チャンネル
-security_channel_not_admin: "管理者ではありません！"
 security_channel_command_work: "${interaction.user} さん、セキュリティモジュールのチャンネルを ${channel} に設定しました！"
 
 # スケジュールコマンド
@@ -2382,12 +2188,10 @@ schedule_create_confirm_msg: "${interaction.user}、スケジュールが作成�
 # /pfps channel, /pfps config
 
 # /pfps config
-pfps_config_not_admin: ":x: このコマンドを実行するための管理者権限がありません"
 pfps_config_command_action_on: "${interaction.user}、あなたはPFPSモジュールを「オン」に設定しました。\nチャンネルが存在しない場合は、次のコマンドで設定してください：**/pfps channel**。"
 pfps_config_command_action_off: "${interaction.user}、あなたはPFPSモジュールを「オフ」に設定しました。"
 
 # /pfps channel
-pfps_channel_not_admin: ":x: このコマンドを実行するための管理者権限がありません"
 pfps_channel_embed_title: "ここにPFPSモジュールが設定されています！"
 pfps_channel_embed_desc: "${interaction.user} がPFPSモジュールをここに設定しました！\nこれから30秒ごとに、iHorizonがこのギルドのランダムなユーザーのアバターを送信します！\n最善を尽くします！"
 pfps_channel_command_work: "${interaction.user}、チャンネル${channel} にPFPSモジュールを正常に設定しました！"
@@ -2486,7 +2290,6 @@ tag_edit_command_ok: "現在のタグ名が **`${current_tag_name}`** から **`
 # /text, /voice, /status, /staff
 
 # /voice インターフェースを設定する
-tempvoice_if_text_not_admin: "<@${interaction.user.id}>, このコマンドを使用する権限がありません！"
 tempvoice_if_text_desc_embed: "## TempVoice インターフェース\nこの**インターフェース**は一時的な音声チャンネルを管理するために使用できます。\n"
 tempvoice_if_text_fields_value_limit: "${client.iHorizon_Emojis.VC_Limit} **制限を変更する**"
 tempvoice_if_text_fields_value_name: "${client.iHorizon_Emojis.VC_Name} **名前を変更する**"
@@ -2501,10 +2304,8 @@ tempvoice_if_text_fields_value_transfer: "${client.iHorizon_Emojis.VC_Transfer} 
 tempvoice_if_text_fields_value_delete: "${client.iHorizon_Emojis.VC_Delete} **削除する**"
 
 # /voice インターフェースを設定する
-tempvoice_vc_not_admin: "<@${interaction.user.id}>, このコマンドを使用する権限がありません！"
 
 # /voice インターフェースを設定する
-tempvoice_staff_not_admin: "<@${interaction.user.id}>, このコマンドを使用する権限がありません！"
 tempvoice_staff_desc_embed: "## TempVoiceスタッフロール\nここにあるロールはチャンネルに入り、モデレートできるようになりました！\n"
 
 # 告白モジュール
@@ -2545,18 +2346,10 @@ antispam_manage_choices_3_label: "処罰の種類"
 antispam_manage_choices_3_desc: "ユーザーにどのような種類の制裁を与えるか"
 antispam_manage_choices_4_label: "処罰時間"
 antispam_manage_choices_4_desc: "制裁がどれくらい続くか"
-antispam_manage_choices_5_label: "処罰時間倍率"
-antispam_manage_choices_5_desc: "制裁の期間がそれぞれの処罰に対して乗算されるかどうか"
 antispam_manage_choices_6_label: "メッセージを削除する"
 antispam_manage_choices_6_desc: "スパムメッセージを削除する"
 antispam_manage_choices_7_label: "最大メッセージ間隔"
 antispam_manage_choices_7_desc: "スパムと見なすためのメッセージ間の最大間隔"
-antispam_manage_choices_8_label: "最大重複メッセージ数"
-antispam_manage_choices_8_desc: "制裁前の最大重複メッセージ数"
-antispam_manage_choices_9_label: "最大重複間隔"
-antispam_manage_choices_9_desc: "ユーザーをフラグするための重複メッセージ間の間隔"
-antispam_manage_choices_10_label: "最大類似メッセージ数"
-antispam_manage_choices_10_desc: "制裁前の最大類似メッセージ数"
 antispam_manage_choices_12_label: "罰則前の閾値"
 antispam_manage_choices_12_desc: "罰則前の最大閾値"
 antispam_manage_select_menu_punish_mute_label: "メンバーをミュートする"
@@ -2596,7 +2389,6 @@ stats_gstats_detail_text: "トップメンバー：\n${top_members}\nトップ�
 channel_stats_title: "チャンネル統計"
 stats_channel_invalid: "指定されたチャンネルは無効です。"
 top_active_users_title: "アクティブユーザー上位"
-activity_overview: "アクティビティ概要"
 active_users_title: "アクティブユーザー"
 var_members: "メンバー"
 
@@ -2655,7 +2447,6 @@ blogger_generateConfigurationEmbed_embed_title: "📰 ブロガー設定"
 blogger_no_rss: "設定されたRSSフィードがありません。"
 blogger_generateConfigurationEmbed_embed_fields_1_name: "ステータス"
 blogger_generateConfigurationEmbed_embed_fields_2_name: "合計ブログ数"
-blogger_unknown_blog: "不明なブログ"
 blogger_on_new_article_default_message: "📰 新しい記事が公開されました！\n**{articleTitle}**（{articleAuthor} 著）\n{articleLink}"
 blogger_config_status_enabled: "✅ ブロガーモジュールが**有効化**されました。RSSフィードが監視されます。"
 blogger_config_status_disabled: "❌ ブロガーモジュールが**無効化**されました。RSSフィードは監視されません。"
@@ -2737,7 +2528,6 @@ media_gen_error_args: "2つの有効な画像URLを提供してください。"
 
 # jp-JP.yml (Japanese - Japan)
 batch_ban_process: "🔄 ${guilds.length}個のサーバーで${member.user.username}をBAN中..."
-batch_unban_process: "🔄 ${banned_members.size}人のメンバーのBAN解除中..."
 batch_unblacklist_process: "🔄 ${guildObjects.length}個のサーバーで${bannedMember.username}をブラックリストから削除中..."
 batch_unbanall_process: "🔄 ${banned_members.size}人のメンバーのBAN解除中..."
 batch_massiverole_process: "🔄 ${membersToProcess.length}人のメンバーにロールを付与中..."
@@ -2761,7 +2551,6 @@ event_mp_playerError: "接続に問題があります => ${error.message}"
 event_mp_error: "曲のキューに問題があります => ${error.message}"
 event_mp_emptyChannel: "${client.iHorizon_Emojis.No} | 誰もボイスチャンネルにいないため、退出します..."
 event_mp_playerSkip: "${client.iHorizon_Emojis.Music_Icon} - **${track.title}** をスキップしました！"
-event_mp_emptyQueue: "${client.iHorizon_Emojis.Warning_Icon} - キューにはもう曲がありません！音楽を停止しました。"
 
 # Channel Create Events
 event_channel_create_message_embed_title: "正常にセットアップされました！"
@@ -2791,8 +2580,6 @@ event_ticket_create_reason_modal_fields_1_label: "チケットの理由"
 event_ticket_reason_embed_desc: "# チケットの理由\n`${reason}`"
 
 # interactionCreateイベント：
-iC_event_cooldown: "クールダウン、コマンド間に少し待ってください！"
-iC_event_connection_error: "接続エラー！"
 
 # Cooldown
 Msg_cooldown: "「コマンドを実行する前に、一秒待っていただけますか？お願いします。」"
@@ -2802,8 +2589,6 @@ ticket_module_button_delete: "チケットを削除"
 ticket_module_button_transcript: "チケットの記録"
 ticket_module_button_addmember: "メンバーを追加"
 ticket_module_button_removemember: "メンバーを削除"
-ticket_module_add_question: "チケットに追加したいユーザーは誰ですか？（ユーザーIDを指定してください）！"
-ticket_module_remove_question: "チケットから削除したいユーザーは誰ですか？（ユーザーIDを指定してください）！"
 ticket_transcript_failed_to_send: "ファイルをプライベートメッセージで送信しようとしましたが、あなたはDMをブロックしています :/"
 
 # サーバーログ
@@ -2839,7 +2624,6 @@ event_rank_role: "<@${message.author.id}>さん、あなたは今、役職 <@&${
 event_suggestion_embed_author: "${message.author.username} からの新しい提案"
 
 # セキュリティイベント
-event_security_title: "${guild}へようこそ！"
 event_security: "${member}さん、このメッセージに表示されているCAPTCHAを入力してください。"
 event_security_expiry: "{emoji} 自動キック ${timestamp}（残り **${attempts}** 回の試行）。"
 event_security_footer: "数秒しかかからず、コミュニティの安全維持に役立ちます。"
@@ -2867,8 +2651,6 @@ event_ticket_already_opened: "あらら、既にチケットが開いていま�
 
 # ギブアウェイイベント
 event_gw_reroll_win_msg: "おめでとうございます、${winners}さん！ **${fetch[channelId][messageId].prize}** を獲得しました！"
-event_gw_reroll_cannot_win_msg: "有効な応募者がいないため、受賞者を決定できませんでした！"
-event_gw_finnish_msg: "おめでとうございます、${winners}さん！ **${fetch.prize}** を獲得しました！"
 event_gw_finnish_cannot_msg: "有効な応募者がいないため、受賞者を決定できませんでした！"
 event_gw_finnish_button_title: "ギブアウェイ終了"
 event_gw_entries_button_title: "参加者一覧"
@@ -2948,7 +2730,6 @@ temporary_voice_channel_name: "{nickname}のチャンネル"
 # 保護モジュール
 # イベントメッセージ
 
-protection_avoid_channel_delete: "**保護モードオン**\n<@${channel.guild.ownerId}>, チャンネルが再作成されました, <@${firstEntry.executorId}> がチャンネルを削除しようとしました!"
 protection_blockbot_embed_title: "⚠️ ${member.guild.name}で危険 ⚠️"
 protection_blockbot_embed_desc: "# ボット追加警告\n誰かがDiscordボットを追加しようとしました。"
 var_target_bot: "対象ボット"
@@ -3001,12 +2782,7 @@ rolepanel_setup_embed_desc: "${member} に追加または削除するロール�
 rolepanel_setup_embed_roles_field: "許可されたロール"
 rolepanel_setup_embed_refused_field: "拒否されたロール"
 rolepanel_setup_select_placeholder: "提供するロールを選択"
-rolepanel_setup_apply_button: "パネルを作成"
 rolepanel_setup_no_roles: "有効なロールが選択されていません。"
-rolepanel_setup_saved: "ロールパネルを送信しました。"
-rolepanel_panel_embed_title: "ロールパネル"
-rolepanel_panel_embed_desc: "プロフィールに追加または削除するロールを選択してください。"
-rolepanel_panel_select_placeholder: "ロールを選択"
 rolepanel_role_managed_or_everyone: "システムロールまたは @everyone"
 rolepanel_role_too_high_bot: "ボットより高いロール"
 rolepanel_role_too_high_user: "あなたより高いロール"
@@ -3014,8 +2790,6 @@ rolepanel_role_missing_permissions: "不足している権限: ${permissions}"
 rolepanel_apply_added: "追加されたロール: ${roles}"
 rolepanel_apply_removed: "削除されたロール: ${roles}"
 rolepanel_apply_refused: "拒否されたロール: ${roles}"
-rolepanel_logs_embed_title_create: "ロールパネルログ"
-rolepanel_logs_embed_desc_create: "<@${interaction.user.id}> がロールパネル (${message.id}) を作成しました: ${roles}"
 rolepanel_logs_embed_title_apply: "ロールパネル使用ログ"
 rolepanel_logs_embed_desc_apply: "<@${interaction.user.id}> がパネルで <@${member.id}> のロールを変更しました。追加: ${addedRoles} | 削除: ${removedRoles}"
 
@@ -3058,10 +2832,8 @@ addrolereact_role_added: "役割 {role} を追加しました。{count} 人の�
 addrolereact_error: "コマンドの実行中にエラーが発生しました。"
 
 # チャンネル非表示/表示コマンド
-channel_hide_in_progress: "現在のチャンネルを非表示にしています..."
 channel_hide_success: "チャンネルが@everyoneから非表示になりました"
 channel_hide_already_hidden: "このチャンネルは既に@everyoneから非表示になっています"
-channel_unhide_in_progress: "現在のチャンネルを表示しています..."
 channel_unhide_success: "チャンネルが@everyoneに表示されるようになりました"
 channel_unhide_already_visible: "このチャンネルは既に@everyoneに表示されています"
 channel_hideall_in_progress: "すべてのチャンネルを非表示にしています..."
@@ -3081,7 +2853,6 @@ new_guild_embed_title:
     - "新しい冒険が始まります！🚀"
     - "素晴らしいメンバーが到着しました！✨"
 new_guild_embed_desc: "## ${randomMessage}\nこんにちは、素晴らしい友達たち！\n\n私はiHorizon、あなたのDiscord体験を特別で楽しいものにするために設計された高度なボットです。\n\n✨ **私ができること：**\n• インテリジェントでプロフェッショナルなサーバー管理\n• インタラクティブなゲームと無限のエンターテイメント\n• コミュニティ組織のための便利なツール\n• 24時間365日のテクニカルサポート\n\n私のコマンドを探索し、無限の可能性の世界に飛び込んでください。\n一緒に美しい思い出でいっぱいの素晴らしいコミュニティを構築しましょう！\n\n私を選んでくれてありがとう、この素晴らしい冒険を始めましょう！🌟"
-new_guild_owner_dm_title: "iHorizonファミリーへようこそ！"
 new_guild_owner_dm_description: "# iHorizonをサーバーに追加してくれてありがとう！\n\n> *待って...それだけ？いいえ、絶対に違います。*\n\niHorizonはDiscordボットです。でもそれだけじゃない。コミュニティであり、伝説であり、6年以上（2020年）かけて構築されたプロジェクトです。\niHorizonを使うことは、完全なDiscordボットを持つことだけではなく、永遠に**無料**で**オープンソース**。それは**コンセプト**を受け入れることでもあります。\n\n> **無料のDiscordボットは有料ボットよりも良い仕事ができる。**\n*そう、それがiHorizon：情熱的な人々によって6年間維持されてきた完全なボットです。*\n\nそう...このメッセージの後、ありがとう。\n私たちはレギオンです。#ihorizon"
 guild_create_btn_invite: "iHorizonを招待"
 guild_create_btn_website: "iHorizonウェブサイト"
@@ -3282,7 +3053,6 @@ tts_embed_title: "TTSモード有効"
 tts_embed_description: "TTSモジュールが${voiceChannel}で有効になりました。\nボイスチャンネルにいるメンバーがここに送信したすべてのメッセージが読み上げられます。\n\n**ボイスチャンネルのメンバー:** ${members}"
 tts_embed_footer: "/tts leave でTTSを停止"
 tts_join_not_text_based: "${client.iHorizon_Emojis.No} このボイスチャンネルはテキストメッセージをサポートしていません。テキストインボイスを有効にするか、別のボイスチャンネルを使用してください。"
-tts_music_blocked: "${client.iHorizon_Emojis.No} TTSモジュールが現在有効です。音楽を再生する前にTTSを無効にしてください。"
 tts_voice_status: "TTSモード - 音声合成"
 
 # H24/7 module
@@ -3329,32 +3099,21 @@ msg_bad_new_name: "名前が無効です。"
 msg_bad_platform_twitch_youtube_kick: "プラットフォームが無効です（twitch、youtube、kick）。"
 msg_bad_rule: "ルールが無効です。"
 msg_bad_sticker_id: "スタンプIDが無効です。"
-msg_bad_user_id: "ユーザーIDが無効です。"
 msg_bad_zip: "zipが無効です。"
-msg_boost_set: "ブーストを設定しました。"
-msg_botcount_rolescount_membercount_channelcount_boostcount_voicecount_onlinecount: "{BotCount}, {RolesCount}, {MemberCount}, {ChannelCount}, {BoostCount}, {VoiceCount}, {OnlineCount}"
 msg_bypass_role_added: "バイパスロールを追加しました。"
-msg_cat_api_down: "猫APIがダウンしています。"
 msg_could_not_download_that_image: "その画像をダウンロードできませんでした。"
-msg_dashboard_panel_channel_set: "ダッシュボードパネルのチャンネルを設定しました。"
-msg_derogation_added: "特例を追加しました。"
 msg_description_must_be_10_400_characters: "説明は10〜400文字にしてください。"
 msg_download_failed: "ダウンロードに失敗しました。"
 msg_empty_message: "空のメッセージ。"
 msg_fetch_failed: "取得に失敗しました。"
 msg_frozen: "フリーズしました。"
-msg_give_at_least_2_options: "2つ以上の選択肢を入力してください。"
 msg_guild_not_cached: "サーバーがキャッシュされていません。"
 msg_hid_all: "すべて非表示にしました。"
 msg_ignore_channel_added: "無視チャンネルを追加しました。"
-msg_invalid_image_type: "画像タイプが無効です。"
-msg_invalid_lang_en_us_fr_fr_de_de_es_es_it_it_jp_jp_pt_pt_ru_ru_ar_eg: "無効な言語です（en-US fr-FR de-DE es-ES it-IT jp-JP pt-PT ru-RU ar-EG）。"
 msg_invalid_language_supported_ar_eg_de_de_en_us_es_es_fr_fr_fr_me_it_it_jp_jp_pt_pt_ru_ru: "無効な言語です。対応：ar-EG、de-DE、en-US、es-ES、fr-FR、fr-ME、it-IT、jp-JP、pt-PT、ru-RU。"
 msg_join_role_cleared: "参加ロールを削除しました。"
 msg_join_role_set: "参加ロールを設定しました。"
 msg_level_must_be_1_9: "レベルは1〜9にしてください。"
-msg_level_up_message_cleared: "レベルアップメッセージを削除しました。"
-msg_level_up_message_set: "レベルアップメッセージを設定しました。"
 msg_loading: "読み込み中..."
 msg_love_score: "愛：{score}%"
 msg_muted: "ミュートしました。"
@@ -3363,8 +3122,6 @@ msg_no_emojis: "絵文字がありません。"
 msg_no_server_icon: "サーバーアイコンがありません。"
 msg_no_stickers: "スタンプがありません。"
 msg_not_found: "見つかりません。"
-msg_notifier_entry_added: "通知エントリを追加しました。"
-msg_notifier_entry_removed: "通知エントリを削除しました。"
 msg_permission_level_set: "権限レベルを設定しました。"
 msg_punishpub_updated: "Punishpubを更新しました。"
 msg_queued_title_lavalink_wiring_pending: "Queued: {title} [lavalink wiring pending]"
@@ -3373,16 +3130,9 @@ msg_restored_keys: "{restored}キーを復元しました。"
 msg_role_limit_cleared: "ロール制限を削除しました。"
 msg_role_limit_set: "ロール制限を設定しました。"
 msg_shop_role_added: "ショップロールを追加しました。"
-msg_shop_role_removed: "ショップロールを削除しました。"
-msg_staff_role_set: "スタッフロ－ルを設定しました。"
 msg_sticker_added: "スタンプを追加しました。"
-msg_style_out: "**{style}**：{out}"
-msg_temp_channel_name_set: "一時チャンネル名を設定しました。"
-msg_temp_channels_category_set: "一時チャンネルカテゴリを設定しました。"
 msg_this_command_must_be_used_in_a_server: "このコマンドはサーバー内で使用してください。"
 msg_ticket_opened: "チケットを開きました：<#{chid}>。"
-msg_ticket_panel_id_created: "チケットパネル`{id}`を作成しました。"
-msg_ticket_panel_updated: "チケットパネル`{id}`を更新しました。"
 msg_title_must_be_5_30_characters: "タイトルは5〜30文字にしてください。"
 msg_translation_failed: "翻訳に失敗しました。"
 msg_unhid_all: "すべて表示しました。"
@@ -3390,13 +3140,7 @@ msg_unmuted: "ミュートを解除しました。"
 msg_upload_failed: "アップロードに失敗しました。"
 msg_use_join_leave_and_on_off: "join/leaveとon/offを使用してください。"
 msg_use_join_or_leave: "joinまたはleaveを使用してください。"
-msg_use_off_track: "off/track/queueを使用してください。"
 msg_use_on_off: "on/offを使用してください。"
-msg_use_yes_no: "yes/noを使用してください。"
-msg_voice_freeze_channel_set: "ボイスフリーズチャンネルを設定しました。"
-msg_voice_freeze_cleared: "ボイスフリーズを解除しました。"
-msg_voice_kicked: "ボイスキックしました。"
-msg_voice_lobby_set: "ボイスロビーを設定しました。"
 msg_welcomer_channel_updated: "Welcomerチャンネルを更新しました。"
 msg_welcomer_components_updated: "Welcomerコンポーネントを更新しました。"
 msg_welcomer_embed_updated: "Welcomer埋め込みを更新しました。"
@@ -3413,14 +3157,10 @@ msg_antispam_config_updated: "Antispam ${state}（しきい値 ${threshold}）�
 msg_nightmode_updated: "ナイトモード ${state}（${start}時-${end}時）。"
 msg_ghost_list_empty: "ghost-pingの監視はありません。"
 msg_guildconfig_show_empty: "設定が保存されていません。"
-msg_support_enabled: "サポートがオンになりました。"
 msg_perm_list_detail: "レベル ${level}、ユーザー [${users}]、ロール [${roles}]"
 msg_perm_list_default: "デフォルトの権限。"
-msg_notifier_list_empty: "notifierのエントリがありません。"
-msg_profil_invalid_age: "無効な年齢です：13から120の間で入力してください。"
 msg_profil_birthday_invalid: "無効な誕生日です：日/月/年を確認してください（年は1900-2100）。"
 msg_profil_birthday_saved: "誕生日を保存しました。"
-msg_profil_use_subcommand: "サブコマンドを使ってください：show、set-age、set-description、set-gender、set-pronoun、set-birthday。"
 msg_profil_gender_invalid: "無効な性別です：female、male、non-binary のいずれかを選んでください。"
 msg_profil_pronoun_invalid: "無効な代名詞です：she/her、he/him、they/them、xe/xem、ze/zem、other のいずれかを選んでください。"
 msg_welcomer_panel_title: "Welcomer panel"
@@ -3429,30 +3169,19 @@ msg_automod_toggled: "Automod ${kind} ${state}。"
 
 # Tier-3 replies (U-I6)
 owner_list_empty: "Botのオーナーはいません。"
-owner_blinfo_line: "${user}はブラックリスト登録済み：${reason}"
-fun_caracteres_unknown_style: "不明なスタイル `{style}`。利用可能：{styles}"
 fun_youtube_pending: "${display}：${comment}（${likes}いいね、レンダリング待ち）"
 fun_tweet_pending: "${display} ${handle}：${comment}（${likes}いいね、${retweets}リツイート、${replies}返信、${views}表示、レンダリング待ち）"
 fun_bubbles_pending: "${file}（${url}のレンダリング待ち）"
-invites_leaderboard_empty: "招待がありません。"
 stats_compare_same_user: "異なる2人のユーザーを比較してください。"
-stats_compare_text: "${user1}：${a_messages}msg/${a_voice}m 対 ${user2}：${b_messages}msg/${b_voice}m — 勝者 ${winner}"
 stats_gstats_text: "追跡メンバー：${count} | メッセージ：${messages} | VC：${voice}分"
 stats_ustats_text: "メッセージ：${messages}（日 ${d_msg} / 週 ${w_msg} / 月 ${m_msg}）| VC：${voice}分（日 ${d_vc}分 / 週 ${w_vc}分 / 月 ${m_vc}分）| 上位チャンネル：${top_text} | 上位VC：${top_vc}"
-stats_channel_single_text: "<#${channel}>：${count}件のメッセージ。"
 
 # Antispam manage + honeypot claim (U-ANTISPAM-FIX1/U-HONEY-T1)
 msg_antispam_manage_updated: "Antispam ${state}（しきい値 ${threshold}、${punishment} ${punish_time}、ウィンドウ ${max_interval}、Bot ${ignore_bots}、クリーンアップ ${remove_messages}）。"
-msg_antispam_manage_current: "Antispam ${state}（しきい値 ${threshold}、${punishment} ${punish_time}、ウィンドウ ${max_interval}、Bot ${ignore_bots}、クリーンアップ ${remove_messages}）。"
 msg_antispam_invalid_duration: "無効な期間です（10s、5m、2hを試してください）。"
 msg_antispam_invalid_choice: "Unknown choice \"${choice}\" (${want})."
-msg_antispam_invalid_action: "無効なアクションです（add、remove、listのいずれか）。"
-msg_antispam_missing_role: "add/removeにはロールが必要です。"
-msg_antispam_missing_channel: "add/removeにはチャンネルが必要です。"
 msg_bypass_role_removed: "バイパスロールを削除しました。"
-msg_bypass_roles_list: "バイパスロール：${roles}。"
 msg_bypass_roles_cleared: "バイパスロールをすべて削除しました。"
-msg_bypass_roles_empty: "バイパスロールがありません。"
 msg_ignore_channel_removed: "無視チャンネルを削除しました。"
 msg_ignore_channels_list: "無視チャンネル：${channels}。"
 msg_ignore_channels_cleared: "無視チャンネルをすべて削除しました。"

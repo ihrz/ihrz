@@ -7,46 +7,21 @@ var_user: "مستخدم"
 var_author: "مؤلف"
 var_reason: "سبب"
 var_guild: "الجمعية"
-var_sanction: "عقوبة"
-var_time: "وقت"
 var_message: "رسالة"
 var_no_set: "غير محدد"
 var_none: "لا شيء"
 var_roles: "أدوار"
-var_names: "أسماء"
 var_text_channel: "قناة نصية"
 var_voice_channel: "قناة صوتية"
-var_creator: "مؤسس"
 var_doesnt_have_permissions: "أنت غير مصرح لك بذلك. تحتاج إلى إذن {permission}."
-var_ihorizon: "iHorizon"
-var_developer: "مطور"
-var_chance: "حظ"
-var_other: "أخرى"
 var_unknown: "مجهول"
-var_secure: "آمن"
-var_unsecure: "غير آمن"
-var_prefix: "بادئة"
-var_slash: "شرطة مائلة"
-var_discord: "ديسكورد"
-var_network: "شبكة"
 var_latency: "كمون"
-var_bot: "روبوت"
-var_true: "صحيح"
-var_false: "خطأ"
 var_enabled: "مفعل"
 var_disabled: "معطل"
 var_yes: "نعم"
 var_no: "لا"
-var_colour: "لون"
-var_length: "طول"
-var_good: "جيد"
-var_size: "حجم"
 var_level: "مستوى"
-var_add: "أضف"
-var_remove: "إزالة"
-var_edit: "تعديل"
 var_confirm: "تأكيد"
-var_succes: "نجاح"
 var_page: "صفحة"
 var_permission: "إذن"
 var_usage: "الاستخدام"
@@ -66,7 +41,6 @@ var_d: "يوم/أيام"
 var_h: "ساعة/ساعات"
 var_m: "دقيقة/دقائق"
 var_s: "ثانية/ثوانٍ"
-var_ms: "ميلي ثانية"
 var_banned_user: "المستخدم/المستخدمون المحظورون"
 var_no_one_banned: "لا يوجد أي مستخدم محظور في هذا الخادم."
 var_category: "الفئة"
@@ -123,7 +97,6 @@ perm_managenicknames_name: "إدارة الألقاب"
 perm_manageroles_name: "إدارة الأدوار"
 perm_managewebhooks_name: "إدارة الويب هوكس"
 perm_manageemojisandstickers_name: "إدارة الإيموجي والملصقات"
-perm_manageguildexpressions_name: "إدارة تعبيرات الخادم"
 perm_useapplicationcommands_name: "استخدام أوامر التطبيق"
 perm_requesttospeak_name: "طلب التحدث"
 perm_manageevents_name: "إدارة الأحداث"
@@ -148,28 +121,21 @@ perm_useexternalapps_name: "استخدام التطبيقات الخارجية"
 ticket_disabled_command: "لا يمكنك استخدام هذا الأمر لأن المسؤول قام بتعطيل أمر التذاكر!"
 
 # /add
-add_disabled_command: "لا يمكنك استخدام هذا الأمر لأن المسؤول قام بتعطيل أمر التذاكر!"
 add_command_work: "تمت إضافة ${member.tag} إلى تذكرتك بنجاح!"
 add_command_error: "حدث خطأ، يرجى المحاولة مرة أخرى"
 
 # /close
-close_disabled_command: "لا يمكنك استخدام هذا الأمر لأن المسؤول قام بتعطيل أمر التذاكر!"
 close_title_sourcebin: "تذكرة تمت أرشفتها بواسطة iHorizon"
-close_description_sourcebin: " "
 close_error_command: "حدث خطأ، يرجى المحاولة مرة أخرى!"
-close_command_work_channel: "لقد قمت بإغلاق تذكرتك. لقد أرسل لك iHorizon النسخة المترجمة"
 close_command_work_notify_channel: "تم إغلاق التذكرة بنجاح!"
 close_command_error: "حدث خطأ، يرجى المحاولة مرة أخرى!"
 close_not_in_ticket: "لا يمكنك استخدام هذا الأمر خارج قناة التذاكر!"
 
 # /delete
-delete_disabled_command: "لا يمكنك استخدام هذا الأمر لأن المسؤول قام بتعطيل أمر التذاكر!"
 delete_not_in_ticket: "لا يمكنك استخدام هذا الأمر خارج قناة التذاكر!"
 ticket_deleted: "تم حذف التذكرة ${ticketOwnerMention} بواسطة <@${deletedByUserId}>. إليك النص:"
 
 # /sethereticket
-sethereticket_disabled_command: "لا يمكنك استخدام هذا الأمر لأن المسؤول قام بتعطيل أمر التذاكر!"
-sethereticket_not_admin: ":x: | يجب أن تكون مسؤولاً في هذا الخادم لتنفيذ هذا الأمر!"
 sethereticket_description_embed: "لإنشاء تذكرة جديدة، يرجى التفاعل مع 📩"
 sethereticket_command_work: "تم إعداد لوحة التذاكر بنجاح!"
 sethereticket_command_type_menu_placeholder: "ما نوع اللوحة الذي تريده؟"
@@ -199,21 +165,15 @@ open_command_error: "حدث خطأ، يرجى المحاولة مرة أخرى!"
 open_not_in_ticket: "لا يمكنك استخدام هذا الأمر خارج قناة التذاكر!"
 
 # /remove
-remove_disabled_command: "لا يمكنك استخدام هذا الأمر لأن المسؤول قام بتعطيل أمر التذاكر!"
 remove_not_in_ticket: "لا يمكنك استخدام هذا الأمر خارج قناة التذاكر!"
 remove_command_error: "حدث خطأ، يرجى المحاولة مرة أخرى"
 remove_command_work: "تمت إزالة ${member.tag} من تذكرتك بنجاح!"
 
 # /transript
-transript_disabled_command: "لا يمكنك استخدام هذا الأمر لأن المسؤول قام بتعطيل أمر التذاكر!"
-transript_name_sourcebin: " "
-transript_title_sourcebin: "نسخة محادثة التذكرة لـ ${channel.name}"
-transript_command_error: "حدث خطأ، يرجى المحاولة مرة أخرى!"
 transript_command_work: "لقد قمت بإغلاق تذكرتك. لقد أرسل لك iHorizon النسخة المترجمة"
 transript_not_in_ticket: "لا يمكنك استخدام هذا الأمر خارج قناة التذاكر!"
 
 # /disableticket
-disableticket_not_admin: ":x: | يجب أن تكون مسؤولاً في هذا الخادم لتنفيذ هذا الأمر!"
 disableticket_logs_embed_title_disable: "سجلات تعطيل التذاكر"
 disableticket_logs_embed_description_disable: "<@${interaction.user.id}> قام بتعطيل أوامر التذاكر!"
 disableticket_command_work_disable: "لقد قمت بتعطيل أوامر التذاكر بنجاح!"
@@ -222,8 +182,6 @@ disableticket_logs_embed_description_enable: "<@${interaction.user.id}> قام �
 disableticket_command_work_enable: "لقد قمت بتفعيل أوامر التذاكر بنجاح!"
 
 # /setticketcategory
-setticketcategory_not_admin: ":x: | يجب أن تكون مسؤولاً في هذا الخادم لتنفيذ هذا الأمر!"
-setticketcategory_disabled_command: "لا يمكنك استخدام هذه الأوامر لأن المسؤول قام بتعطيل أوامر التذاكر!"
 setticketcategory_not_a_category: "القناة المحددة ليست فئة، يرجى المحاولة مرة أخرى."
 setticketcategory_command_work: "<@${interaction.user.id}>, لقد قمت بتعيين الفئة لقناة التذاكر إلى `${category.name}`!"
 
@@ -258,15 +216,12 @@ ticket_panel_change_category_channelSelect_placeholder: "اختر فئة"
 ticket_panel_select_channel_to_send: "اختر قناة لإرسال التضمين"
 ticket_panel_change_placeholder_modal_title: "تغيير النص التوضيحي"
 ticket_panel_change_placeholder_modal_placeholder: "نص توضيحي جديد"
-ticket_panel_need_save_config: "تحتاج إلى حفظ التكوين الحالي قبل إرسال التضمين"
 ticket_panel_need_1_option: "تحتاج إلى خيار واحد على الأقل لإرسال التضمين"
 ticket_panel_related_embed_dont_exist: "التضمين المرتبط غير موجود"
 ticket_panel_channel_error: "القناة غير موجودة أو ليس لدي صلاحية إرسال رسائل فيها"
-ticket_panel_embed_been_send: "تم إرسال التضمين إلى القناة"
 ticket_panel_successfully_saved: "تم حفظ التكوين بنجاح"
 ticket_panel_change_role_roleSelect_placeholder: "اختر دورًا"
 ticket_panel_change_role_interaction_content: "اختر دورًا لتغيير الدور الذي سيتم تنبيهه عند فتح تذكرة"
-ticket_panel_change_embed_modal_title: "تغيير التضمين المرتبط"
 ticket_panel_change_embed_modal_placeholder: "معرف التضمين"
 ticket_panel_change_embed_dont_exist: "التضمين غير موجود"
 ticket_panel_change_option_select_placeholder: "اختر خيارًا"
@@ -308,8 +263,6 @@ ticket_panel_panel_16_label: "إعداد نموذج لكل خيار"
 ticket_panel_panel_17_label: "قم بتكوين الأدوار التي سيتم الإشارة إليها لكل خيار"
 ticket_panel_manage_form_title: "إدارة النموذج للخيار: **${option.name}**"
 ticket_panel_change_embed_options: "اختر خيارًا لتعديل معرف التضمين في لوحة القناة."
-ticket_panel_change_embed_options_null: "لا توجد خيارات لتعديل معرف التضمين في لوحة القناة."
-ticket_panel_change_embed_options_chose: "اختر الفئة لتعديل معرف لوحة القناة."
 ticket_panel_add_a_question: "إضافة سؤال"
 ticket_panel_remove_a_question: "حذف سؤال"
 ticket_panel_option_invalid: "❌ خيار غير صالح."
@@ -338,7 +291,6 @@ var_never: "أبدًا"
 # /level, /setxpchannels, /disablexp
 
 # /disablexp
-disablexp_not_admin: ":x: | يجب أن تكون مسؤولاً في هذا الخادم لتنفيذ هذا الأمر!"
 disablexp_logs_embed_title_disable: "سجلات تعطيل XP"
 disablexp_logs_embed_description_disable: "<@${interaction.user.id}> قام بتعطيل XP!"
 disablexp_command_work_disable: "لقد قمت بتعطيل رسالة المستوى (XP) بنجاح"
@@ -348,7 +300,6 @@ disablexp_command_work_enable: "لقد قمت بتفعيل رسالة المست
 disablexp_command_work_disable_entierly: "لقد قمت بتعطيل وحدة الرتب بنجاح! (لا رسائل بعد الآن، ولن يحصل المستخدمون على مستوى)"
 
 # /setxpchannels
-setxpchannels_not_admin: ":x: | يجب أن تكون مسؤولاً في هذا الخادم لتنفيذ هذا الأمر!"
 setxpchannels_logs_embed_title_disable: "سجلات تعيين قنوات XP"
 setxpchannels_logs_embed_description_disable: "<@${interaction.user.id}> قام بتعطيل قنوات XP المخصصة. لقد قمت بإعادة تعيين الإعدادات الافتراضية..."
 setxpchannels_already_disabled_disable: "قنوات XP المخصصة قد تم تعطيلها بالفعل!"
@@ -373,28 +324,19 @@ level_xp_needed_for_new_level: "نقاط الخبرة المطلوبة للمس�
 level_xp_total: "مجموع نقاط الخبرة:"
 
 # /ranks leaderboard
-ranks_leaderboard_top_txt: "أفضل #${i}"
-ranks_leaderboard_top_txt_raw: "أفضل #${i} ${index.rawText}\n"
-ranks_leaderboard_txt_text: "👤 ${user} `(${user.globalName})`\n⭐ ➥ **المستوى**: `${a.level || '0'}`\n🔱 ➥ **إجمالي XP**: `${a.xptotal}`"
 ranks_leaderboard_embed_title: "🏆 لوحة صدارة الأساطير في الخادم"
-ranks_leaderboard_embed_footer: "الصفحة ${cPage} من ${totalPages} • مُرتبة حسب إجمالي النقاط"
 
 # /ranks ignore-channels
 ranks_ignorechannels_embed_title: "إعدادات وحدة الرتب"
 ranks_ignorechannels_embed_desc: "عندما يتم إرسال رسالة جديدة في أحد هذه القنوات، ستتجاهل وحدة الرتب الرسالة."
 
 # /ranks set-message
-ranksSetMessage_not_admin: ":x: | يجب أن تكون مسؤولاً في هذا الخادم لتنفيذ هذا الأمر!"
 ranksSetMessage_help_embed_title: "مساعدة /ranks set-message"
-ranksSetMessage_help_embed_description: "/ranks set-message"
-ranksSetMessage_help_embed_fields_name: "كيفية الاستخدام؟"
 ranksSetMessage_logs_embed_title_on_enable: "سجلات تعيين رسالة الرتب"
 ranksSetMessage_logs_embed_description_on_enable: "<@${interaction.user.id}> قام بتعيين رسالة الرتب!"
 ranksSetMessage_command_work_on_enable: "${client.iHorizon_Emojis.GreenTick} | تم تعيين رسالة الرتب بنجاح."
 ranksSetMessage_logs_embed_title_on_disable: "سجلات حذف رسالة الرتب"
 ranksSetMessage_logs_embed_description_on_disable: "<@${interaction.user.id}> قام بحذف رسالة الرتب!"
-ranksSetMessage_command_work_on_disable: "${client.iHorizon_Emojis.Yes} | تم حذف رسالة الرتب المخصصة بنجاح."
-ranksSetMessage_command_work_ls: "رسالة الرتب هي:"
 ranksSetMessage_help_embed_fields_custom_name: "رسالة مخصصة"
 ranksSetMessage_help_embed_fields_custom_name_empy: "لم يتم تعيينها!"
 ranksSetMessage_help_embed_fields_default_name_empy: "الرسالة الافتراضية"
@@ -538,10 +480,8 @@ ether_message: "${client.iHorizon_Emojis.Sparkles} Ether كان مساهمًا �
 irisweb_message: "😼 IrisWeb هو مطور/مساهم الثاني لي، IrisWeb x Kisakay ❤️"
 
 # /ping
-pong_message: "【:ballot_box_with_check:】__**Pong**__ : "
 
 # /status
-status_be_bot_dev: ":x: | **يجب أن تكون مطور البوت للقيام بذلك!**"
 
 # /help
 help_tip_embed: "```${client.user?.username} ・ قائمة المساعدة```\n${client.iHorizon_Emojis.Pin} ・ **${categories.length}** فئة أوامر متاحة\n${client.iHorizon_Emojis.Slash_Bot_Badge} ・ **${client.content.filter(c => c.messageCmd === false).length}** أوامر سلاش متاحة\n${client.iHorizon_Emojis.Crown} ・ **أنشأه** <@${config.owner.ownerid1}>, <@${config.owner.ownerid2}>\n\n```هل تعلم؟ ・ نصائح```\n${client.iHorizon_Emojis.VC_Region} ・ ${client.user?.username} هو **100% متعدد اللغات**\n${client.iHorizon_Emojis.Slash_Bot_Badge} ・ `/setlang language:Japanese`"
@@ -639,7 +579,6 @@ custom_desc_reset: "لقد قررت إعادة تعيين وصف البوت عل
 custom_desc_set: "${client.iHorizon_Emojis.Yes} **لقد قررت تغيير وصف البوت على الخادم. تم الآن تعديل تذييلات الرسائل المضمنة، بالإضافة إلى وصف البوت على الخادم.**\n${client.iHorizon_Emojis.Crown} القيمة الجديدة: `${desc}`"
 custom_banner_reset: "لقد قررت إعادة تعيين لافتة البوت على الخادم."
 custom_banner_set: "${client.iHorizon_Emojis.Yes} **لقد قررت تغيير لافتة البوت على الخادم.**\n${client.iHorizon_Emojis.Crown} القيمة الجديدة: `${x}`"
-custom_sdk_only: "هذا الأمر متاح في بيئة الإنتاج فقط للخوادم التي لديها اشتراك `Custom iHorizon Profile`."
 custom_sdk_only_title: "ادعم iHorizon عبر Custom iHorizon Profile"
 custom_sdk_only_description: "البوت الخاص بنا مجاني ومفتوح المصدر منذ 2022. نحن بحاجة إلى دخل لمواصلة تشغيل البوت وتطويره واستضافته. تكاليف التشغيل لدينا تقارب 500 يورو سنوياً بين الخوادم والـ boosts والنطاقات والتراخيص.\n\nأمر `/custom` يتيح لك تغيير هوية iHorizon داخل خادمك عبر تعديل الصورة الرمزية والاسم والبنر والنبذة. عند استخدامه، تختفي الهوية البصرية لـ iHorizon من خادمك.\n\nلذلك أضفنا اشتراكاً مدمجاً في Discord بسعر 2.99 دولار أمريكي شهرياً.\n\nعند شراء هذا الاشتراك، ستتمكن من استخدام هذا الأمر. اعتبره بوتاً مخصصاً بأسلوب OWN-IHRZ، لكن بشكل مستقر ونظيف وعملي بالكامل."
 
@@ -684,7 +623,6 @@ hug_embed_title: "<@${interaction.user.id}> قدم عناقاً إلى <@${hug.i
 kiss_embed_description: "<@${interaction.user.id}> قبلة لـ <@${kiss.id}> 💏"
 
 # /poll
-poll_not_admin: "ليس لديك الصلاحيات لتنفيذ هذا الأمر!"
 poll_embed_title: "__**استطلاع**__: `${interaction.user.username}`"
 poll_embed_fields_reaction: "اضغط على التفاعلات أدناه.⬇"
 poll_embed_fields_choice: ":white_check_mark: **نعم**\n :x: **لا** "
@@ -765,15 +703,11 @@ fun_trans_command_ok: "المستخدم ${user} هو **${random}%** متحول �
 economy_cooldown_error: "انتظر **${time}** قبل أن تتمكن من تنفيذ هذا الأمر مرة أخرى!"
 
 # /addmoney
-addmoney_not_admin: "لا يمكنك تنفيذ هذا الأمر لأنك لا تمتلك الصلاحيات اللازمة `ADMINISTRATOR`"
 addmoney_logs_embed_title: "سجلات الاقتصاد"
 addmoney_logs_embed_description: "<@${interaction.user.id}> أضاف ${amount.value} عملة لـ <@${user.user.id}> !"
 addmoney_command_work: "تمت إضافة `${amount.value}`$ بنجاح إلى <@${user.user.id}>"
 
 # /balance
-balance_dont_have_wallet: "👛 لا تمتلك محفظة... !"
-balance_he_dont_have_wallet: "${client.iHorizon_Emojis.Wallet} ${user} لا يمتلك محفظة... !"
-balance_have_wallet: "👛 لديك ${bal} عملة(ات) !"
 balance_he_have_wallet: "${client.iHorizon_Emojis.Wallet} ${user} يمتلك ${bal} عملة(ات) !"
 balance_embed_fields1_name: "البنك"
 balance_embed_fields2_name: "الرصيد"
@@ -796,7 +730,6 @@ pay_dont_have_enought_to_give: "هذا المبلغ أكثر من رصيدك. ح
 pay_command_work: "${interaction.user.username}, لقد قمت بدفع مبلغ ${amount}$ بنجاح إلى ${user.user.username}."
 
 # /removemoney
-removemoney_not_admin: "لا يمكنك تنفيذ هذا الأمر لأنك لا تمتلك الصلاحيات اللازمة `ADMINISTRATOR`."
 removemoney_embed_title: "تم إزالة المال!"
 removemoney_embed_fields: "المبلغ"
 removemoney_embed_second_fields: "تحديث الرصيد"
@@ -804,7 +737,6 @@ removemoney_logs_embed_description: "<@${interaction.user.id}> قام بإزال
 removemoney_logs_embed_title: "سجلات الاقتصاد"
 
 # /rob
-rob_cooldown_error: "**انتظر 50 دقيقة قبل محاولة سرقة مستخدم آخر!**"
 rob_dont_enought_error: ":x: تحتاج إلى 250$ على الأقل لسرقة شخص ما."
 rob_him_dont_enought_error: ":x: ${user.user.username} لا يمتلك ما يكفي لسرقته."
 rob_embed_description: "<@${interaction.user.id}> قمت بسرقة <@${user.id}> ونجحت في الهروب بمبلغ ${random}!"
@@ -834,10 +766,8 @@ deposit_embed_fields1_name: "البنك"
 
 # /leaderboard
 economy_leaderboard_embed_title: "قائمة المتصدرين الاقتصادية لـ `${interaction.guild.name}`"
-economy_leaderboard_embed_fields_value: "<@${userId}> - البنك: `${userData.bank || 0}`${client.iHorizon_Emojis.Coin} | الرصيد: `${userData.money || 0}`${client.iHorizon_Emojis.Coin}"
 
 # /economy disable
-economy_disable_not_admin: ":x: | يجب أن تكون مشرفًا في هذا الخادم لتنفيذ هذا الأمر!"
 economy_disable_already_disable: "<@${interaction.user.id}>, تم تعطيل وحدة الاقتصاد بالفعل!"
 economy_disable_already_enable: "<@${interaction.user.id}>, تم تفعيل وحدة الاقتصاد بالفعل!"
 economy_disable_set_enable: "<@${interaction.user.id}>, لقد قمت بتفعيل وحدة الاقتصاد بنجاح!"
@@ -965,7 +895,6 @@ serverinfo_embed_fields_joinat: "🚲・**انضمام في:**"
 serverinfo_embed_fields_createat: "⚓・**إنشاء في:**"
 
 # /setrankroles
-setrankroles_not_admin: "${client.iHorizon_Emojis.No} أنت لست مشرفًا في هذا الخادم. لا يمكنك تنفيذ هذه الأوامر!"
 setrankroles_already_this_in_db: "${client.iHorizon_Emojis.No} الأدوار التصنيفية موجودة بالفعل في قاعدة بيانات هذا الخادم."
 setrankroles_not_roles_typed: "${client.iHorizon_Emojis.No} لم تقم بإدراج أي أدوار في أوامرك!"
 setrankroles_command_work: "الآن، عندما تشير إليّ بـ `@iHorizon` سأضيف الأدوار التالية: <@&${argsid}>"
@@ -982,7 +911,6 @@ setrankroles_command_work_with_nicknames_2: "\n**ملاحظة**:\nإذا أزا�
 snipe_no_previous_message_deleted: "لا توجد رسائل محذوفة في هذه القناة!"
 
 # /userinfo
-userinfo_wait_please: "${client.iHorizon_Emojis.Timer} يرجى الانتظار..."
 userinfo_embed_fields_1_name: "شعار"
 userinfo_embed_fields_2_name: "اسم المستخدم"
 userinfo_embed_fields_3_name: "الاسم المعروض"
@@ -994,7 +922,6 @@ userinfo_button_label: "ملف المستخدم"
 # /renew
 renew_channel_send_success: "${interaction.user} تم إعادة إنشاء القناة!"
 renew_dont_have_permission: ":x: **لا يمكن** `لا تملك الإذن!`"
-renew_not_administrator: ":x: **أنت لست مشرفًا لاستخدام هذا الأمر!**"
 
 # /renewvc
 renewvc_not_in_voice: "${client.iHorizon_Emojis.No} يجب أن تكون متصلاً بقناة صوتية لاستخدام هذا الأمر!"
@@ -1004,9 +931,7 @@ renewvc_dont_have_permission: ":x: **لا يمكن** `لا تملك الإذن!`
 # /prevnames
 prevnames_embed_title: "قائمة جميع الألقاب السابقة لـ ${user.username}"
 prevnames_undetected: "لم يتم العثور على بيانات!"
-prevnames_not_admin: "ليس لديك صلاحية `ADMINISTRATOR` لتنفيذ هذا الأمر!"
 prevnames_data_erased: "تمت إزالة أسماء المستخدمين السابقة بالكامل بناءً على طلبك!"
-prevnames_embed_footer_text: "iHorizon | الصفحة ${currentPage + 1}/${pages.length}"
 
 # /blockbot
 blockbot_not_owner: ":x: **أنت لست مالك الخادم!**"
@@ -1031,7 +956,6 @@ massiverole_too_much_member: "عدد كبير جدًا من الأعضاء، ل�
 # /nickrole
 nickrole_add_command_work: "${interaction.user}, لقد نفذت iHorizon أمر nickrole.\n\n**${a}** مستخدم(s) حصلوا على دور ${role}\n**${s}** مستخدم(s) لم يكن لديهم `${part_of_nickname}` في اللقب\nفشلت iHorizon في إضافة الدور إلى **${e}** مستخدم(s)."
 nickrole_sub_command_work: "${interaction.user}, لقد نفذت iHorizon أمر nickrole.\n\n**${a}** مستخدم(s) فقدوا دور ${role}\n**${s}** مستخدم(s) لم يعد لديهم `${part_of_nickname}` في اللقب\nفشلت iHorizon في إزالة الدور من **${e}** مستخدم(s)."
-nickrole_too_much_member: "عدد كبير جدًا من الأعضاء، لا يمكن متابعة التنفيذ بسبب احتمالية وجود حد معدل!"
 
 # /emoji
 emoji_send_new_emoji: "__تم إنشاء رمز تعبيري جديد__ بالاسم **${emoji.name}**! (${emoji})"
@@ -1040,7 +964,6 @@ emoji_embed_desc_work: "__تم إنشاء **${cnt}** رمز تعبيري في `$
 
 # /derank
 derank_msg_desc_embed: "## لقد قمت بنجاح بإزالة **${good}** دور(s) من <@${member.id}>.\n## ومع ذلك، فشلت في إزالة **${bad}** دور(s)."
-derank_msg_failed: "حدث خطأ أثناء إزالة الأدوار."
 derank_no_role: "هذا العضو ليس لديه أدوار للإزالة."
 
 # /action unban all
@@ -1051,17 +974,10 @@ action_unban_all_no_banned_members: "لا يوجد أعضاء محظورين."
 action_unban_undo_embed_desc: "## التراجع عن إلغاء الحظر لجميع الأعضاء\n${client.iHorizon_Emojis.Yes} | لقد قمت بنجاح بحظر `${banned_members.length}` عضو(s) في الخادم!\n${client.iHorizon_Emojis.No} | لا يمكنني حظر `${cannot_ban}` عضو(s)!"
 
 # /vc
-vc_embed_desc: "## حالات الصوت\n`${voiceStates?.size}` عضو/أعضاء في القناة الصوتية :\n${client.iHorizon_Emojis.iHorizon_Streaming} **=>** ${voiceStates?.filter(vc => vc.streaming).size}\n${client.iHorizon_Emojis.iHorizon_Deaf} **=>** ${voiceStates?.filter(vc => vc.selfDeaf).size}\n${client.iHorizon_Emojis.iHorizon_Mute} **=>** ${voiceStates?.filter(vc => vc.selfMute).size}\n${client.iHorizon_Emojis.iHorizon_Camera} **=>** ${voiceStates?.filter(vc => vc.selfVideo).size}\n## حالات الأعضاء\n`${membersStates?.size}` عضو/أعضاء في الخادم :\n${client.iHorizon_Emojis.DND} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"dnd\").size}\n${client.iHorizon_Emojis.Online} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"online\").size}\n${client.iHorizon_Emojis.Idle} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"idle\").size}\n${client.iHorizon_Emojis.Invisible} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"invisible\").size}\n## حالات التعزيز\n`${interaction.guild?.premiumSubscriptionCount}` تعزيز/تعزيزات في الخادم،\n${interaction.guild?.roles.premiumSubscriberRole?.members.map(usr => `<@${usr.id}>`)}"
 
-vc_embed_fields_1_name: "・عدد الأعضاء"
-vc_embed_fields_1_value: "```py\n${interaction.guild?.memberCount} أعضاء```"
-vc_embed_fields_2_name: "・عدد القنوات"
-vc_embed_fields_2_value: "```py\n${textChannelSize} قناة نصية\n${voiceChannelSize} قناة صوتية```"
-vc_embed_short_desc: "## حالات الصوت\n`${voiceStates?.size}` عضو/أعضاء في قناة صوتية:\n${client.iHorizon_Emojis.iHorizon_Streaming} **=>** ${total_members_vc_streaming}\n${client.iHorizon_Emojis.iHorizon_Deaf} **=>** ${total_members_vc_deaf}\n${client.iHorizon_Emojis.iHorizon_Mute} **=>** ${total_members_vc_mute}\n${client.iHorizon_Emojis.iHorizon_Camera} **=>** ${total_members_vc_video}\n## حالات الأعضاء\n`${total_members_size}` عضو/أعضاء في الخادم:\n${client.iHorizon_Emojis.DND} **=>** ${total_members_states_dnd}\n${client.iHorizon_Emojis.Online} **=>** ${total_members_states_online}\n${client.iHorizon_Emojis.Idle} **=>** ${total_members_states_idle}"
 
 # /massmove
 massmove_results: "${interaction.user}, لقد قامت iHorizon بنقل الأعضاء بين القنوات الصوتية.\n\n**${movedCount}** عضو/أعضاء تم نقلهم بنجاح من ${fromChannel} إلى ${toChannel}.\n**${errorCount}** عضو/أعضاء لم يمكن نقلهم (راجع سجلات الخادم للحصول على التفاصيل)."
-massmove_too_much_member: "عدد كبير جدًا من الأعضاء، لا يمكن تنفيذ ذلك بسبب احتمالية وجود حد معدل!"
 
 # /all-admins
 all_admins_nobody_admins: "لا يوجد مشرفون في هذا الخادم!"
@@ -1115,12 +1031,10 @@ utils_piconly_embed_fields2_placeholder: "إنشاء موضوع تحت الصو�
 utils_piconly_var_thread_name: "موضوع بواسطة {name}"
 
 # /zip-emojis
-zip_emojis_doesnt_have_perm: "ليس لديك إذن لإدارة الرموز التعبيرية."
 zip_emojis_command_work: "🎉 اكتمل التصدير في **${calcTime}** مللي ثانية! إليك الأرشيف الذي يحتوي على ${emojis.size} رمز تعبيري."
 zip_emojis_command_error: "حدث خطأ أثناء تصدير الرموز التعبيرية."
 
 # /zip-stickers
-zip_stickers_doesnt_have_perm: "ليس لديك إذن لإدارة الملصقات."
 zip_stickers_command_work: "🎉 تم التصدير في **${calcTime}** مللي ثانية! إليك الأرشيف الذي يحتوي على ${stickers.size} ملصقات."
 zip_stickers_command_error: "حدث خطأ أثناء تصدير الملصقات."
 
@@ -1294,32 +1208,21 @@ util_move_command_ok: "${member?.toString()} الآن في ${channel.toString()}
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
 
 # /blockpub
-blockpub_not_admin: ":x: | يجب أن تكون مشرفًا في هذا الخادم!"
-blockpub_now_enable: "📌 | تم تفعيل نظام مكافحة الإعلانات (يعمل مع الجميع باستثناء المشرفين)"
-blockpub_now_disable: "📌 | تم تعطيل نظام مكافحة الإعلانات!"
 
 # /guildprofil
-guildprofil_not_admin: ":x: | يجب أن تكون مشرفًا في هذا الخادم!"
 guildprofil_not_set_reactionrole: "لم يتم تعيينه!"
 guildprofil_set_reactionrole: "**MessageID**: `${i}` -> ${emoji || key} يعطي <@&${rolesID}> دور\n"
 guildprofil_not_set_ticketFetched: "لم يتم تعيينه!"
-guildprofil_set_ticketFetched: ""
 guildprofil_not_set_punishPub: "لم يتم تعيينه!"
 guildprofil_set_punishPub: "`${punishPub.punishementType}`: أقصى: `${punishPub.amountMax}` علامات."
 guildprofil_not_set_supportConfig: "لم يتم تعيينه!"
 guildprofil_set_supportConfig: "`${supportConfig.input}` في السيرة الذاتية يعطي <@&${supportConfig.rolesId}> دور."
 guildprofil_not_set_setchannelsjoin: "لم يتم تعيينه!"
-guildprofil_set_setchannelsjoin: ""
 guildprofil_not_set_setchannelsleave: "لم يتم تعيينه!"
-guildprofil_set_setchannelsleave: ""
 guildprofil_not_set_joinmessage: "لم يتم تعيينه!"
-guildprofil_set_joinmessage: ""
 guildprofil_not_set_leavemessage: "لم يتم تعيينه!"
-guildprofil_set_leavemessage: ""
 guildprofil_not_set_joinroles: "لم يتم تعيينه!"
-guildprofil_set_joinroles: ""
 guildprofil_not_set_joinDmMessage: "لم يتم تعيينه!"
-guildprofil_set_joinDmMessage: ""
 guildprofil_not_set_blockpub: "مغلق"
 guildprofil_set_blockpub: "مفتوح"
 guildprofil_embed_description: "`إعدادات الخادم:` ${interaction.guild.name}!"
@@ -1345,8 +1248,6 @@ guildprofil_embed_fields_logs: "السجلات"
 guildprofil_embed_fields_ranks: "الرتب"
 
 # /setchannels
-setchannels_not_admin: ":x: | يجب أن تكون مشرفًا في هذا الخادم لطلب هذه الأوامر!"
-setchannels_not_specified_args: "يجب أن تحدد قناة صالحة لوحدتك."
 setchannels_already_this_channel_on_join: "الوحدة مكونة بالفعل بهذا القناة!"
 setchannels_confirmation_message_on_join: "**قناة الانضمام تم تعيينها هنا!** :tada:"
 setchannels_command_error_on_join: "خطأ: صلاحيات مفقودة أو القناة غير موجودة"
@@ -1369,42 +1270,27 @@ setchannels_button_delete: "حذف الإعداد"
 setchannels_embed_fields_value_join: "قناة الانضمام"
 setchannels_embed_fields_value_leave: "قناة الخروج"
 setchannels_not_a_text_channel: "${client.iHorizon_Emojis.Warning_Icon} القناة المحددة ليست قناة نصية!"
-setchannels_which_channel: "<@${interaction.user.id}>, أي قناة تريد تعيينها؟"
-setchannels_title_embed_panel: "لوحة الإعداد لقنوات GuildConfig"
 
 # /setjoindm
-setjoindm_not_admin: ":x: | يجب أن تكون مشرفًا في هذا الخادم لطلب هذه الأوامر!"
 setjoindm_logs_embed_title_on_enable: "تعيين سجل JoinDm"
 setjoindm_logs_embed_description_on_enable: "<@${interaction.user.id}> قام بتعيين رسالة DM عند الانضمام!"
-setjoindm_not_specified_args_on_enable: "يجب أن تحدد رسالة صالحة لـ DM عند الانضمام."
 setjoindm_confirmation_message_on_enable: "لقد قمت بنجاح بتعيين DM عند الانضمام إلى :```${dm_msg}``` وتفعيله"
-setjoindm_command_error_on_enable: "خطأ: صلاحيات مفقودة أو القناة غير موجودة"
 setjoindm_logs_embed_title_on_disable: "تعيين سجل JoinDm"
 setjoindm_logs_embed_description_on_disable: "<@${interaction.user.id}> قام بتعطيل رسالة DM عند الانضمام!"
 setjoindm_confirmation_message_on_disable: "لقد قمت بنجاح بتعطيل DM عند الانضمام!"
-setjoindm_command_error_on_disable: "خطأ: صلاحيات مفقودة أو القناة غير موجودة"
 setjoindm_already_disable: "رسالة DM عند الانضمام معطلة بالفعل!"
-setjoindm_not_setup_ls: "لا توجد إعدادات DM عند الانضمام هنا!"
-setjoindm_command_work_ls: "رسالة DM عند الانضمام هي: \n```${already_off}```"
-setjoindm_help_embed_title: "مساعدة تعيين رسالة JoinDM!"
 setjoindm_help_embed_desc: "{memberUsername} => اسم المستخدم للعضو\n{memberMention} => ذكر العضو\n{memberCount} => عدد الأعضاء في الخادم\n{guildName} => اسم الخادم\n{createdAt} => تاريخ إنشاء الحساب باليوم/الشهر/السنة\n{accountCreationTimestamp} => توقيت تاريخ إنشاء الحساب"
 setjoindm_buttom_set_name: "تعيين الرسالة"
 setjoindm_buttom_delete_name: "حذف رسالة DM"
 setjoindm_awaiting_response: "اكتب رسالة JoinDM جديدة مخصصة في القناة."
 
 # /setjoinmessage
-setjoinmessage_not_admin: ":x: | يجب أن تكون مشرفًا في هذا الخادم لطلب هذه الأوامر!"
-setjoinmessage_help_embed_title: "مساعدة setjoinmessage!"
-setjoinmessage_help_embed_description: "/setjoinmessage <تشغيل / إيقاف التشغيل / عرض الرسالة المحددة> <رسالة الانضمام>"
-setjoinmessage_help_embed_fields_name: "كيف تستخدم؟"
-setjoinmessage_help_embed_fields_value: "استخدم ```/setjoinmessage <تشغيل / إيقاف التشغيل / عرض الرسالة المحددة> <الرسالة>```\n{user} = اسم المستخدم للعضو\n{membercount} = عدد أعضاء الخادم\n{createdat} = تاريخ إنشاء حساب العضو\n{guild} = اسم الخادم\n{inviter} = اسم المستخدم والتمييز للداعي\n{invites} = عدد الدعوات للعضو"
 setjoinmessage_logs_embed_title_on_enable: "سجلات SetJoinMessage"
 setjoinmessage_logs_embed_description_on_enable: "<@${interaction.user.id}> قام بتعيين رسالة الانضمام!"
 setjoinmessage_command_work_on_enable: "${client.iHorizon_Emojis.GreenTick} | تم تعيين رسالة الانضمام المخصصة بنجاح."
 setjoinmessage_logs_embed_title_on_disable: "سجلات SetJoinMessage"
 setjoinmessage_logs_embed_description_on_disable: "<@${interaction.user.id}> حذف رسالة الانضمام!"
 setjoinmessage_command_work_on_disable: "${client.iHorizon_Emojis.Yes} | تم حذف رسالة الانضمام المخصصة بنجاح."
-setjoinmessage_command_work_ls: "رسالة الانضمام هي:"
 setjoinmessage_help_embed_fields_custom_name: "الرسالة المخصصة"
 setjoinmessage_help_embed_fields_custom_name_empy: "لم يتم تعيينها!"
 setjoinmessage_help_embed_fields_default_name_empy: "الرسالة الافتراضية"
@@ -1446,19 +1332,15 @@ setjoinroles_var_perm_manage_channels: "إدارة القنوات"
 setjoinroles_var_perm_manage_expression: "إدارة الرموز التعبيرية، الملصقات والصوتيات"
 setjoinroles_var_perm_view_monetization_analytics: "عرض تحليلات وإيرادات المبدعين"
 setjoinroles_var_perm_issue: "لا أملك إذن لإدارة الأدوار."
-setjoinroles_var_timesup: "انتهى الوقت لاختيار الدور."
 setjoinroles_warn_dangerous_perm: "الأدوار التالية تحتوي على صلاحيات خطيرة. هل تريد فعلاً تعيينها؟"
 setjoinroles_warn_title: "تحذير!"
 setjoinroles_timesup_button: "انتهى الوقت!"
 setjoinroles_action_canceled: "تم إلغاء الإجراء"
 setjoinroles_too_highter_roles: "الأدوار التالية لها موضع أعلى مقارنة بموقعي."
-setjoinroles_not_admin: ":x: | يجب أن تكون مشرفًا في هذا الخادم لطلب هذه الأوامر!"
-setjoinroles_help_embed_title: "وحدة JoinRoles"
 setjoinroles_help_embed_description: "هنا جميع الأدوار التي أعطيها للأعضاء الجدد"
 setjoinroles_help_embed_fields_1_name: "جميع الأدوار المسجلة"
 setjoinroles_logs_embed_title_on_enable: "سجلات SetJoinRoles"
 setjoinroles_logs_embed_description_on_enable: "<@${interaction.user.id}> قام بتعيين الأدوار عند الانضمام!"
-setjoinroles_already_on_enable: "الأدوار عند الانضمام مكونة بالفعل بهذا الدور!"
 
 # /welcomer
 welcomer_panel_title: "الترحيب"
@@ -1482,30 +1364,20 @@ welcomer_render_mode_components: "Components (بطاقة)"
 welcomer_render_mode_simple: "رسالة بسيطة"
 
 # /setleavemessage
-setleavemessage_not_admin: ":x: | يجب أن تكون مشرفًا في هذا الخادم لطلب هذه الأوامر!"
-setleavemessage_help_embed_title: "مساعدة /setleavemessage!"
-setleavemessage_help_embed_description: "/setleavemessage <تشغيل / إيقاف التشغيل / عرض الرسالة المحددة> <رسالة الخروج>"
-setleavemessage_help_embed_fields_name: "كيف تستخدم؟"
-setleavemessage_help_embed_fields_value: "استخدم ```/setleavemessage <تشغيل / إيقاف التشغيل / عرض الرسالة المحددة> <الرسالة>```\n{user} = اسم المستخدم للعضو\n{membercount} = عدد أعضاء الخادم\n{guild} = اسم الخادم"
 setleavemessage_logs_embed_title_on_enable: "سجلات SetLeaveMessage"
 setleavemessage_logs_embed_description_on_enable: "<@${interaction.user.id}> قام بتعيين رسالة الخروج!"
 setleavemessage_command_work_on_enable: "${client.iHorizon_Emojis.Yes} | تم تعيين رسالة الخروج المخصصة بنجاح."
 setleavemessage_logs_embed_title_on_disable: "سجلات SetLeaveMessage"
 setleavemessage_logs_embed_description_on_disable: "<@${interaction.user.id}> حذف رسالة الخروج!"
 setleavemessage_command_work_on_disable: "${client.iHorizon_Emojis.Yes} | تم حذف رسالة الخروج المخصصة بنجاح."
-setleavemessage_command_work_ls: "رسالة الخروج هي:"
 setleavemessage_awaiting_response: "اكتب رسالة الخروج المخصصة الجديدة."
 
 # /setup
-setup_not_admin: ":x: | يجب أن تكون مشرفًا في هذا الخادم!"
 setup_command_work: "${client.iHorizon_Emojis.Yes} | إعداد القناة"
 setup_command_error: "لقد قام البوت بالفعل بإعداد قنوات السجلات! أو أن البوت ليس لديه إذن..."
 
 # /setlogschannel
-setlogschannel_not_admin: ":x: | يجب أن تكون مشرفًا في هذا الخادم لطلب هذه الأوامر!"
-setlogschannel_not_specified_args: "يجب أن تحدد قناة صالحة للوحدة الخاصة بك."
 setlogschannel_confirmation_message: "${client.iHorizon_Emojis.Yes} | تم إعداد `${typeOfLogs}` هنا بواسطة <@${interaction.user.id}>!"
-setlogschannel_already_this_channel: "تمت إعداد القناة لهذا الخادم بالفعل!"
 setlogschannel_already_deleted: "لم يعد لهذا الخادم `SERVER_LOGS`!"
 setlogschannel_command_error: "خطأ؟"
 setlogschannel_command_work: "لقد قمت بنجاح بإعداد `${typeOfLogs}` في <#${argsid.id}>!"
@@ -1513,7 +1385,6 @@ setlogschannel_utils_command_work: "لقد قمت بنجاح بإعداد `${typ
 setlogschannel_command_work_on_delete: "لقد قمت بنجاح بحذف جميع `SERVER_LOGS` في **${interaction.guild.name}**"
 setlogschannel_logs_embed_title: "تعيين سجلات الخادم"
 setlogschannel_logs_embed_description_on_enable: "<@${interaction.user.id}> قام بتعيين `${typeOfLogs}` إلى <#${argsid.id}>"
-setlogschannel_logs_embed_title_on_off: "تعيين سجلات الخادم"
 setlogschannel_logs_embed_description_on_off: "<@${interaction.user.id}> حذف جميع `SERVER_LOGS` في الخادم!"
 setlogschannel_var_roles: "سجلات الأدوار"
 setlogschannel_var_mods: "سجلات الإدارة"
@@ -1567,21 +1438,16 @@ too_new_account_dont_specified_time_on_enable: "لم تقم بتحديد وقت.
 too_new_account_invalid_time_on_enable: "الوقت الذي أدخلته غير صالح! **مثال على الوقت الصحيح**: `3h; 30m; 4w; 4y` -> 3 ساعات؛ 30 دقيقة؛ 4 أسابيع؛ 4 سنوات"
 too_new_account_logEmbed_title: "وحدة الحسابات الجديدة جدًا"
 too_new_account_logEmbed_desc_on_enable: "${interaction.user} قام بتفعيل وحدة TooNewAccount. يجب أن يكون عمر الحسابات الآن على الأقل ${beautifulTime}، وإذا انضم المستخدم أكثر من `${maxJoin}` مرة، سيتم حظره."
-too_new_account_command_work_on_enable: "${interaction.user}, الآن، سيتم طرد الأعضاء الجدد الذين ينضمون إلى **${interaction.guild?.name}** بحسابات أقل من `${beautifulTime}`."
 too_new_account_command_work_on_enable2: "\n-#  ${client.iHorizon_Emojis.Sparkles} بعد أن ينضم الحساب إلى الخادم **`${maxJoin}`** مرة، سيتم حظره."
 too_new_account_logEmbed_desc_on_disable: "${interaction.user} قد قام بإيقاف هذه الوحدة!"
 too_new_account_command_work_on_disable: "${interaction.user}, تم تعطيل الوحدة بنجاح. لن يتم التحقق بعد الآن من تواريخ إنشاء الحسابات للأعضاء الجدد."
 
 # /guildconfig set-bot footer-name
 guildconfig_setbot_footername_footer_too_long_msg: "اسم التذييل طويل جدًا، سيكون عرضه غير جميل."
-guildconfig_setbot_footername_is_good: "تم التغيير بنجاح، جميع الرسائل المدمجة من iHorizon ستستخدم `${footerName}` كتذييل!"
-guildconfig_setbot_footername_is_reset: "تم حذف اسم التذييل. الآن جميع الرسائل المدمجة من iHorizon ستستخدم `اسم البوت`."
 guildconfig_setbot_footername_not_found: "لم يتم العثور على اسم التذييل. يرجى المحاولة مرة أخرى!"
 
 # /guildconfig set-bot footer-pfp
-guildconfig_setbot_footeravatar_is_good: "تم التغيير بنجاح، جميع الرسائل المدمجة من iHorizon ستستخدم `الصورة` كتذييل!"
 guildconfig_setbot_footeravatar_incorect: "الملف لا يتوافق مع صورة. يرجى المحاولة مرة أخرى بصورة."
-guildconfig_setbot_footeravatar_is_reset: "تم حذف صورة التذييل. الآن جميع الرسائل المدمجة من iHorizon ستستخدم `صورة البوت`."
 
 # /guildconfig set-bot prefix
 guildconfig_setbot_prefix_prefix_now_mention: "الرمز المميز للبوت لأوامر الرسائل هو الآن الإشارة! `@Ping-Me`"
@@ -1595,7 +1461,6 @@ guildconfig_config_save_user_msg: "هذه نسخة احتياطية من إعد�
 guildconfig_config_save_user_msg_2: "إليك الرابط لتنزيل نسخة احتياطية من الخادم!\n"
 
 # /guildconfig config restore
-guildconfig_config_restore_err_msg: "حدث خطأ أثناء تنزيل الملف."
 guildconfig_config_restore_msg: "تم تعيين البيانات في قاعدة بياناتي."
 
 # /perm add
@@ -1603,7 +1468,6 @@ perm_add_args_error: "لم تحدد الأوامر التي تريد تغيير�
 
 # /perm list
 perm_list_embed_title: "أذونات جميع المستخدمين:"
-perm_list_unknown_user: "مستخدم غير معروف (ID: ${userId})"
 perm_list_no_user: "لم يتم العثور على المستخدم"
 var_command: "أمر"
 var_subcommand: "أمر فرعي"
@@ -1690,7 +1554,6 @@ autoreact_remove_command_ok: "تمت إزالة تكوين التفاعل الت
 # /setmembercount
 
 # /setmembercount
-setmembercount_not_admin: ":x: | يجب أن تكون مسؤولًا عن الخادم لتطلب هذا الأمر!"
 setmembercount_helpembed_title: "مساعدة Set MemberCount!"
 setmembercount_helpembed_description: "/membercount <تفعيل / إيقاف> <اسم القناة>"
 setmembercount_helpembed_fields_name: "كيف تستخدمه؟"
@@ -1721,7 +1584,6 @@ loop_command_work: "{mode} | تم تحديث وضع التكرار"
 
 # /nowplaying
 nowplaying_no_queue: "لا يوجد شيء يتم تشغيله حاليًا"
-nowplaying_message_embed_title: "الآن يتم التشغيل"
 nowplaying_resume_button: "${interaction.user} **استأنف** الموسيقى!"
 nowplaying_pause_button: "${interaction.user} **أوقف** الموسيقى!"
 nowplaying_lyrics_button: "لم يتم العثور على كلمات هذه الأغنية"
@@ -1752,7 +1614,6 @@ queue_no_queue: "لا توجد قائمة تشغيل"
 queue_empty_queue: "لا توجد مسارات أخرى في قائمة التشغيل"
 queue_embed_title: "قائمة التشغيل"
 queue_embed_description_empty: "**لا توجد أغاني أخرى في قائمة التشغيل**"
-queue_embed_footer_text: "الصفحة {index} | إجمالي {track} مسارات"
 
 # /shuffle
 shuffle_no_queue: "أنا لست في قناة صوتية"
@@ -1765,7 +1626,6 @@ history_embed_title: "${interaction.guild?.name} تاريخ الموسيقى | �
 history_embed_footer_text: "iHorizon | الصفحة ${currentPage + 1}/${pages.length}"
 history_delete_embed_title: "✅ تم حذف السجل"
 history_delete_embed_desc: "تم حذف سجل الموسيقى بنجاح."
-music_history_no_permission: "تحتاج إلى صلاحية المسؤول لعرض سجل الموسيقى."
 
 # /music lyrics
 lyrics_embed_title_unknown: "العنوان غير معروف"
@@ -1788,7 +1648,6 @@ music_volume_invalid: "مستوى صوت غير صالح: أدخل رقمًا ب
 # /end, /start, /reroll
 
 # /end
-end_not_admin: "يجب أن تكون لديك أذونات إدارة الرسائل لإنهاء هذه المسابقة."
 end_not_find_giveaway: "لم يتم العثور على مسابقة لـ `${gw}`."
 end_confirmation_message: "ستنتهي المسابقة خلال (${timeEstimate}) ثوانٍ..."
 end_logs_embed_title: "سجلات المسابقات"
@@ -1796,10 +1655,8 @@ end_logs_embed_description: "<@${interaction.user.id}> أنهى المسابقا
 end_command_error: "هذه المسابقة انتهت بالفعل!"
 
 # /start
-start_not_perm: "يجب أن تكون لديك أذونات إدارة الرسائل لبدء المسابقات."
 start_is_not_valid: "يجب عليك تحديد عدد الفائزين الصحيح!"
 start_confirmation_command: "تم بدء المسابقة في ${giveawayChannel}!"
-start_logs_embed_title: "سجلات المسابقات"
 start_logs_embed_description: "<@${interaction.user.id}> بدأ مسابقة في: ${giveawayChannel}"
 start_time_not_valid: "${interaction.user}, مدة المسابقة التي حددتها غير صحيحة، يرجى المحاولة مرة أخرى!"
 start_invalid_invites_req_value: "${client.iHorizon_Emojis.No} | القيمة لـ 'دعوات' غير صالحة! يجب أن يكون عدد الدعوات للانضمام إلى الهدية!"
@@ -1807,12 +1664,10 @@ start_invalid_messages_req_value: "${client.iHorizon_Emojis.No} | القيمة �
 start_invalid_roles_req_value: "${client.iHorizon_Emojis.No} | الدور لقيمة 'الأدوار' غير موجود! يجب إدخال معرف الدور للانضمام إلى الهدية!"
 
 # /reroll
-reroll_not_perm: "يجب أن تكون لديك أذونات إدارة الرسائل لإنهاء هذه المسابقة."
 reroll_dont_find_giveaway: "لم يتم العثور على مسابقة لـ `{args}`."
 reroll_command_work: "تم إعادة تشغيل المسابقة!"
 reroll_logs_embed_title: "سجلات المسابقات"
 reroll_logs_embed_description: "<@${interaction.user.id}> أعاد تشغيل المسابقة بهذا المعرف: ${giveaway.messageID}"
-reroll_command_error: "حدث خطأ!"
 reroll_giveaway_not_over: "لم تنتهِ هذه المسابقة بعد!"
 
 # /get-all
@@ -1845,31 +1700,24 @@ avatar_embed_description: "شوف هذا الصورة الرائعة! :D"
 avatar_embed_title: "__**الصورة الشخصية**__: `${mentionedUser.username}`"
 
 # /ban
-ban_not_permission: "${client.iHorizon_Emojis.No} | ليس لديك إذن لحظر الأعضاء."
 ban_dont_found_member: "🔍 | لا يمكن العثور على هذا العضو"
 ban_dont_have_perm_myself: "${client.iHorizon_Emojis.No} | ليس لدي إذن لحظر الأعضاء!"
 ban_try_to_ban_yourself: "${client.iHorizon_Emojis.No} | لا يمكنك حظر نفسك!"
 ban_attempt_ban_higter_member: "${client.iHorizon_Emojis.Stop} لا يمكنك حظر عضو لديه دور أعلى منك..."
 ban_cant_ban_member: "${client.iHorizon_Emojis.No} | لا أستطيع حظر هذا العضو"
 ban_message_to_the_banned_member: "لقد تم حظرك من هذا الخادم: `${interaction.guild.name}` للسبب: **`${reason}`**"
-ban_command_work: "<@${member.user.id}> تم حظره بواسطة <@${interaction.member.id}>"
 ban_logs_embed_title: "سجلات الحظر"
 ban_logs_embed_description: "<@${member.user.id}> تم حظره بواسطة <@${interaction.member.id}>"
 
 # /kick
-kick_not_permission: "${client.iHorizon_Emojis.No} | ليس لديك إذن لطرد الأعضاء."
 kick_dont_have_permission: "${client.iHorizon_Emojis.No} | ليس لدي إذن لطرد الأعضاء!"
 kick_attempt_kick_your_self: "${client.iHorizon_Emojis.No} | لا يمكنك طرد نفسك!"
 kick_attempt_kick_higter_member: "${client.iHorizon_Emojis.Stop} لا يمكنك طرد عضو لديه دور أعلى منك..."
 kick_message_to_the_banned_member: "لقد تم طردك من هذا الخادم: **${interaction.guild.name}** بواسطة `${interaction.member.user.username}`"
-kick_command_work: "${member.user} تم طرده بواسطة ${interaction.user}"
 kick_logs_embed_title: "سجلات الطرد"
 kick_logs_embed_description: "${member.user} طرد بواسطة <@${interaction.user.id}>"
 
 # /clear
-clear_dont_have_permission: "${client.iHorizon_Emojis.No} | ليس لديك إذن `إدارة الرسائل`."
-clear_max_message_limit: "${client.iHorizon_Emojis.No} | لا أستطيع حذف أكثر من 99 رسالة في مرة واحدة!"
-clear_channel_message_deleted: "${messages.size} رسالة تم حذفها!"
 clear_confirmation_message: "${messages.size} رسالة تم حذفها!"
 clear_logs_embed_title: "سجلات حذف الرسائل"
 clear_logs_embed_description: "<@${interaction.user.id}> حذف ${messages.size} رسالة في <#${interaction.channel.id}>"
@@ -1877,18 +1725,15 @@ clear_command_no_message: "لا توجد رسائل لحذفها في هذه ا�
 
 # /lock
 lock_embed_message_description: "تم قفل القناة بواسطة <@${interaction.user.id}>."
-lock_dont_have_permission: "${client.iHorizon_Emojis.No} | ليس لديك إذن لقفل القنوات."
 lock_logs_embed_title: "سجلات قفل القنوات"
 lock_logs_embed_description: "<@${interaction.user.id}> قفل <#${interaction.channel.id}>"
 
 # /unlock
 unlock_embed_message_description: "تم فتح القناة بنجاح!"
-unlock_dont_have_permission: "${client.iHorizon_Emojis.No} | ليس لديك إذن لفتح القناة."
 unlock_logs_embed_title: "سجلات فتح القنوات"
 unlock_logs_embed_description: "<@${interaction.user.id}> فتح <#${interaction.channel.id}>"
 
 # /lockall
-lockall_dont_have_permission: "${client.iHorizon_Emojis.No} | ليس لديك إذن لقفل جميع القنوات."
 lockall_embed_message_description: "تم قفل جميع القنوات بواسطة <@${interaction.user.id}>."
 lockall_logs_embed_title: "سجلات قفل جميع القنوات"
 lockall_logs_embed_description: "<@${interaction.user.id}> قفل جميع القنوات!"
@@ -1899,7 +1744,6 @@ unlockall_logs_embed_title: "سجلات فك قفل جميع القنوات"
 unlockall_logs_embed_description: "<@${interaction.user.id}> فكّ قفل جميع القنوات!"
 
 # /unban
-unban_dont_have_permission: "${client.iHorizon_Emojis.No} | ليس لديك إذن لفك حظر الأعضاء."
 unban_bot_dont_have_permission: "${client.iHorizon_Emojis.No} | ليس لدي إذن."
 unban_there_is_nobody_banned: "${client.iHorizon_Emojis.No} | **لا يوجد أي عضو محظور في هذا الخادم!**"
 unban_the_member_is_not_banned: "${client.iHorizon_Emojis.No} | **الرقم المحدد ليس محظورًا من هذا الخادم**!"
@@ -1909,7 +1753,6 @@ unban_logs_embed_description: "<@${userID}> تم رفع حظره من الخاد
 unban_reason: "لم يتم تقديم سبب."
 
 # /tempmute
-tempmute_dont_have_permission: "${client.iHorizon_Emojis.No} | ليس لديك إذن لتحديد مدة الميوت."
 tempmute_i_dont_have_permission: "${client.iHorizon_Emojis.No} | ليس لدي إذن."
 tempmute_cannot_mute_yourself: "${client.iHorizon_Emojis.No} | لا يمكنك إسكات نفسك!"
 tempmute_already_muted: "هذا العضو مُسكَت بالفعل!"
@@ -1917,31 +1760,24 @@ tempmute_command_work: "<@${tomute.id}> تم كتمه لمدة ${ms(ms(mutetime)
 tempmute_unmuted_by_time: "<@${tomute.id}> تم رفع الميوت!"
 tempmute_logs_embed_title: "سجلات الميوت المؤقت"
 tempmute_logs_embed_description: "<@${interaction.user.id}> قام بكتم <@${tomute.id}> لمدة ${ms(ms(mutetime))}\n**السبب**: `${reason}`"
-tempmute_reason_create_roles: "إنشاء دور مؤقت للميوت!"
 tempmute_tomute_is_admin: "${client.iHorizon_Emojis.No} | المستخدم لديه صلاحيات المسؤول، لا أستطيع كتمه."
 tempmute_tomute_highest_role_or_same: "${client.iHorizon_Emojis.No} | **دوري في هذا الخادم أقل أو مساوٍ لـ ${tomute.toString()}. لا أستطيع معاقبة هذا العضو.**"
 tempmute_cannot_mute_higher_role: "${client.iHorizon_Emojis.No} | **${tomute.toString()}'s role is higher than or equal to yours. You cannot timeout this member.**"
 tempmute_tomute_max_time_passed: "\n-# ${client.iHorizon_Emojis.VC_OpenChat} لدى ديسكورد حد أقصى قدره 28 يومًا للكتم. لقد قمت بتطبيق 28 يومًا."
 
 # /temprole
-temprole_dont_have_permission: "${client.iHorizon_Emojis.No} | ليس لديك الإذن لإضافة أدوار مؤقتة للأعضاء."
 temprole_i_dont_have_permission: "${client.iHorizon_Emojis.No} | ليس لدي الإذن."
-temprole_cannot_add_yourself: "${client.iHorizon_Emojis.No} | لا يمكنك إضافة دور مؤقت لنفسك!"
 temprole_already_has_role: "هذا المستخدم لديه هذا الدور المؤقت بالفعل!"
 temprole_command_work: "<@${tomute.id}> تم منحه الدور لمدة ${ms(ms(mutetime))}\n**السبب**: `${reason}`"
-temprole_removed_by_time: "تمت إزالة الدور المؤقت من <@${tomute.id}>!"
 temprole_logs_embed_title: "سجل الأدوار المؤقتة"
 temprole_logs_embed_description: "<@${interaction.user.id}> أضاف دوراً مؤقتاً لـ <@${tomute.id}> لمدة ${ms(ms(mutetime))}\n**السبب**: `${reason}`"
-temprole_tomute_is_admin: "${client.iHorizon_Emojis.No} | هذا المستخدم لديه صلاحيات المدير، لا يمكنني إضافة دور مؤقت له."
 temprole_tomute_highest_role_or_same: "${client.iHorizon_Emojis.No} | **دوري في هذا الخادم أقل أو مساوٍ لـ ${tomute.toString()}. لا يمكنني إدارة هذا العضو.**"
 temprole_tomute_max_time_passed: "\n-# ${client.iHorizon_Emojis.VC_OpenChat} الحد الأقصى لمدة الدور المؤقت هو سنة واحدة. لقد طبقت سنة كاملة."
 
 # /unmute
-unmute_dont_have_permission: "${client.iHorizon_Emojis.No} | ليس لديك إذن لرفع الميوت."
 unmute_attempt_mute_your_self: "${client.iHorizon_Emojis.No} | لا يمكنك رفع ميوت نفسك!"
 unmute_i_dont_have_permission: "${client.iHorizon_Emojis.No} | ليس لدي إذن."
 unmute_not_muted: "هذا العضو ليس مُسكَت!"
-unmute_muted_role_doesnt_exist: "دور `المسكت` غير موجود. يرجى إسكات العضو **قبل** إنشاء أدوار الميوت..."
 unmute_command_work: "<@${tomute.id}> تم رفع ميوته!"
 unmute_logs_embed_title: "سجلات رفع الميوت"
 unmute_logs_embed_description: "<@${interaction.user.id}> رفع ميوت <@${tomute.id}>"
@@ -1955,7 +1791,6 @@ unmuteall_logs_embed_description: "<@${interaction.user.id}> رفع الميوت
 warn_command_work: "${client.iHorizon_Emojis.Yes} ${member?.toString()} اتحذر! **السبب**: `${reason}`\n__رقم التحذير__: `${warnId}`"
 warn_logEmbed_title: "سجلات التحذير"
 warn_logEmbed_desc: "${interaction.member.toString()} حذر ${member?.toString()} بسبب `${reason}`"
-warn_dont_have_permission: "${client.iHorizon_Emojis.No} | ليس لديك إذن لتحذير عضو في هذا السيرفر."
 
 # /unwarn
 unwarn_cannot_found: "${client.iHorizon_Emojis.No} ${member?.toString()} شكله مفيش تحذيرات ليه في قاعدة البيانات بتاعتي!"
@@ -1963,7 +1798,6 @@ unwarn_cannot_found_id: "${client.iHorizon_Emojis.No} ${member?.toString()} رق
 unwarn_command_ok: "${client.iHorizon_Emojis.Yes} ${member?.toString()} تم إلغاء التحذير بتاعه!"
 unwarn_logEmbed_title: "سجلات إلغاء التحذير"
 unwarn_logEmbed_desc: "${interaction.member.toString()} ألغى تحذير ${member?.toString()}"
-unwarn_dont_have_permission: "${client.iHorizon_Emojis.No} | ليس لديك إذن لإزالة تحذير من عضو في هذا السيرفر."
 
 # /clear-allwarns
 clear_allwarns_confirmation_message: "**هل أنت متأكد حقاً من رغبتك في حذف جميع بيانات التحذيرات؟ هذا الإجراء دائم ولا يمكن التراجع عنه.** **هذا الإجراء مدمر!!**"
@@ -1973,7 +1807,6 @@ clear_allwarns_command_ok: "تم حذف جميع التحذيرات في هذا 
 warnlist_no_data: "${client.iHorizon_Emojis.No} ${member?.toString()} شكله مفيش تحذيرات ليه في قاعدة البيانات بتاعتي!"
 warnlist_embed_desc: "### الرقم: ${x.id} - ${format(x.timestamp, 'DD/MM/YYYY')}\n> الكاتب: <@${x.authorID}>\n> السبب: `${x.reason}`"
 warnlist_embed_title: "قائمة تحذيرات ${member?.user.globalName} | الصفحة ${i / usersPerPage + 1}"
-warnlist_dont_have_permission: "${client.iHorizon_Emojis.No} | ليس لديك إذن لإدارة تحذيرات الأعضاء في هذا السيرفر."
 
 # /baninfo
 baninfo_not_banned: "المستخدم غير محظور"
@@ -1986,36 +1819,28 @@ var_ban_date: "تاريخ الحظر"
 clearwarn_command_ok: "${client.iHorizon_Emojis.Yes} ${interaction.member.toString()}, تم مسح **`${allWarns.length}`** تحذير(ات) من ${member?.toString()}"
 
 # /tempban
-tempban_dont_have_permission: "ليس لديك صلاحية لحظر الأعضاء مؤقتًا."
 tempban_i_dont_have_permission: "ليس لدي صلاحية لحظر الأعضاء."
-tempban_cannot_ban_yourself: "لا يمكنك حظر نفسك!"
 tempban_already_banned: "هذا المستخدم محظور مؤقتًا بالفعل!"
 tempban_command_work: "**<@${user.id}>** تم حظره مؤقتًا لمدة **${duration}**\n**السبب**: `${reason}`"
-tempban_unbanned_by_time: "**<@${user.id}>** تم رفع الحظر عنه!"
 tempban_logs_embed_title: "سجلات الحظر المؤقت"
 tempban_logs_embed_description: "**<@${executor.id}>** قام بحظر **<@${user.id}>** مؤقتًا لمدة **${duration}**\n**السبب**: `${reason}`"
 tempban_user_is_admin: "هذا المستخدم لديه صلاحيات المدير، لا يمكنني حظره."
 tempban_user_highest_role_or_same: "رتبتي في الخادم أقل أو مساوية لـ **user_mention**. لا يمكنني تنفيذ إجراء على هذا العضو."
 tempban_max_time_passed: "\n*الحد الأقصى للحظر المؤقت هو سنة واحدة. تم تطبيق سنة واحدة.*"
-tempban_user_not_in_guild: "هذا المستخدم ليس في الخادم لكنه ما زال قابلًا للحظر."
 
 # Backup commands
 # /backup
 
 # /backup
-backup_wait_please: "⏲ يرجى الانتظار..."
-backup_not_admin: ":x: | يجب أن تكون مشرفاً في هذا الخادم لطلب نسخة احتياطية!"
 backup_i_dont_have_permission: "ليس لدي إذن `ADMINISTRATOR`"
 backup_command_work_on_creation: ":white_check_mark: تم إنشاء النسخة الاحتياطية بنجاح."
 backup_command_work_info_on_creation: "تم إنشاء النسخة الاحتياطية! ID: `${backupData.id}`!"
 backup_logs_embed_title_on_creation: "سجلات النسخ الاحتياطي"
 backup_logs_embed_description_on_creation: "<@${interaction.user.id}> أنشأ نسخة احتياطية!"
-backup_dont_have_perm_on_load: ":x: | يجب أن تكون مشرفاً في هذا الخادم لتحميل نسخة احتياطية!"
 backup_i_dont_have_perm_on_load: "ليس لدي إذن `ADMINISTRATOR`"
 backup_unvalid_id_on_load: ":x: | يجب تحديد ID صحيح للنسخة الاحتياطية!"
 backup_waiting_on_load: "${client.iHorizon_Emojis.Yes} - جاري التحميل..."
 backup_error_on_load: ":x: | عذراً، حدث خطأ... يرجى التحقق من أن لدي إذن المشرف!"
-backup_error_when_fetch_backup_on_load: ":x: | لم يتم العثور على نسخة احتياطية لـ ${backupID}!"
 backup_this_is_not_your_backup: "${client.iHorizon_Emojis.No} | هذه ليست نسختك الاحتياطية!"
 backup_backup_doesnt_exist: "خطأ؟ النسخة الاحتياطية غير موجودة."
 backup_create_usage_save_message: "الاستخدام: `/backup create save-message:<yes|no>` — مرر `yes` لحفظ ما يصل إلى 100 رسالة لكل قناة، و `no` بخلاف ذلك."
@@ -2043,7 +1868,6 @@ backup_manage_command_ok: "تم تحديث وحدة النسخ الاحتياط�
 # /reactionroles
 
 # /reactionroles
-reactionroles_dont_admin_added: ":x: | يجب أن تكون مشرفاً في هذا الخادم لطلب هذه الأوامر!"
 reactionroles_embed_message_description_added: "__كيفية الاستخدام؟__\n/rolesreaction add `<message id>` `<reaction>` `<rolesid>`\n/rolesreaction remove `<message id>` `<reaction>`\n/rolesreaction list `<message id>`"
 reactionroles_missing_reaction_added: "مفقود: رمز التعبير"
 reactionroles_invalid_emote_format_added: "${client.iHorizon_Emojis.No} | لا يمكنك إرسال `CUSTOM_EMOJI` بصيغة `<::xxx>`! أحتاج فقط إلى ID الخاص بها!"
@@ -2101,7 +1925,6 @@ roleselect_modal2_placeholder: "عنصر نائب للقائمة المنسدل�
 # /punishpub, /report, /support
 
 # /punishpub
-punishpub_not_admin: ":x: | يجب أن تكون مشرفاً في هذا الخادم لطلب هذه الأوامر!"
 punishpub_too_hight_enable: "العدد الذي حددته مرتفع جداً! غير موصى به!"
 punishpub_negative_number_enable: "لا يمكنك إدخال عدد سلبي!"
 punishpub_zero_number_enable: "العدد 0 غير ممكن!"
@@ -2119,7 +1942,6 @@ report_specify: "يرجى تحديد المشكلة، يرجى كتابة جمل
 report_command_work: "**شكراً لتقديمك المشكلة!**"
 
 # /support
-support_not_admin: ":x: | يجب أن تكون مشرفاً في هذا الخادم لطلب هذه الأوامر!"
 support_command_work: "لقد قمت بإعداد وحدة الدعم لـ **${interaction.guild.name}**.\nعندما يكون لدى المستخدم في سيرتهم:\n**${input}**.\nيجب أن أعطيهم دور <@&${roles.id}>!"
 support_command_work_on_disable: "لقد قمت بإعداد وحدة الدعم لـ **${interaction.guild.name}**.\nلا أحد يمكنه الحصول على دور الآن!"
 support_command_not_role: ":x: | لم تقم بتحديد الدور!"
@@ -2134,26 +1956,19 @@ updates_embed_description: "هذه هي أحدث التغييرات والتحد
 updates_field_version: "الإصدار"
 updates_field_commit: "آخر Commit"
 updates_field_branch: "الفرع"
-updates_field_links: "روابط"
-updates_changelog_attached: "سجل التغييرات الكامل مرفق بصيغة PDF."
-newsletter_dm_title: "iHorizon {version} - Release Notes"
 newsletter_dm_body: "مرحباً {owner},\n\nتم نشر نسخة رئيسية جديدة من iHorizon.\n\n**الإصدار**: {version}\n**الرابط**: {releaseUrl}\n\nسجل التغييرات الكامل مرفق بصيغة PDF.\n\nتحتاج مساعدة؟ انضم إلى خادم الدعم: https://discord.gg/ihorizon\n-# استخدم +updates أو الزر أدناه لإدارة اشتراكك."
 newsletter_btn_unsubscribe: "Unsubscribe from newsletter"
 newsletter_btn_subscribe: "Subscribe to newsletter"
 newsletter_not_owner: "آها، يسعدني أن أعرف أنني أثير اهتمامك لدرجة أنك تريد رؤية تغييرات الكود في الوقت الفعلي :3\n\n**لكن مهلاً، عليك إضافتي إلى خادم Discord أولاً:**\n\n<https://discord.com/oauth2/authorize?client_id=${clientId}>\n**سأبقيك على اطلاع بهذه الطريقة.**\n\n> بديل آخر: يمكنك الانضمام إلى discord.gg/ihorizon. مؤسساتي يقمن بعمل ping مع التغييرات عند كل تحديث. الخيار لك :3"
 newsletter_toggle_enabled: "Newsletter notifications enabled."
 newsletter_toggle_disabled: "Newsletter notifications disabled."
-setserverlang_not_admin: ":x: | يجب أن تكون مشرفاً في هذا الخادم لطلب هذه الأوامر!"
 setserverlang_logs_embed_title_on_enable: "سجلات تغيير اللغة"
 setserverlang_logs_embed_description_on_enable: "<@${interaction.user.id}> قام بتغيير لغة iHorizon إلى **${type}**!"
-setserverlang_already: "أنا بالفعل على هذه اللغة!"
-setserverlang_command_work_enable: "لغتي الآن هي **${type}**"
 setserverlang_panel_title: "اختيار اللغة"
 setserverlang_panel_description: "اختر اللغة التي تريد أن يستخدمها iHorizon على هذا الخادم."
 setserverlang_panel_current: "اللغة الحالية"
 setserverlang_panel_select: "اختر لغة..."
 setserverlang_panel_saved: "تم تغيير اللغة بنجاح!"
-setserverlang_command_error_enable: "خطأ!"
 
 # /الإيمبد
 embed_placeholder_string_select_menu_builder: "ماذا تريد أن تفعل؟"
@@ -2282,7 +2097,6 @@ counter_actual_number: "✨ **الرقم الحالي:** {number}"
 # /setsuggest, /suggest
 
 # /suggest accept
-suggest_accept_not_admin: "أنت لست مشرفاً!"
 suggest_acceptnot_good_channel: "يجب تشغيل هذا الأمر في قناة وحدة الاقتراحات (<#${baseData?.channel}>)!\nيرجى التحقق من عدم تعطيل وحدة الاقتراحات!"
 suggest_accept_not_found_db: "لم يتم العثور على الاقتراح في قاعدة بياناتي!"
 suggest_accept_already_replied: "تم الرد على هذا الاقتراح بالفعل!"
@@ -2292,7 +2106,6 @@ suggest_accept_command_work: "لقد قمت بقبول الاقتراح!\nhttps:
 suggest_accept_command_error: "لم يتم العثور على الاقتراح في قناة Discord!"
 
 # /suggest deny
-suggest_deny_not_admin: "أنت لست مشرفاً!"
 suggest_deny_not_good_channel: "يجب تشغيل هذا الأمر في قناة وحدة الاقتراحات (<#${baseData?.channel}>)!\nيرجى التحقق من عدم تعطيل وحدة الاقتراحات!"
 suggest_deny_not_found_db: "لم يتم العثور على الاقتراح في قاعدة بياناتي!"
 suggest_deny_already_replied: "تم الرد على هذا الاقتراح بالفعل!"
@@ -2302,7 +2115,6 @@ suggest_deny_command_work: "لقد قمت برفض الاقتراح!\nhttps://di
 suggest_deny_command_error: "لم يتم العثور على الاقتراح في قناة Discord!"
 
 # /suggest reply
-suggest_reply_not_admin: "أنت لست مشرفاً!"
 suggest_reply_not_good_channel: "يجب تشغيل هذا الأمر في قناة وحدة الاقتراحات (<#${baseData?.channel}>)!\nيرجى التحقق من عدم تعطيل وحدة الاقتراحات!"
 suggest_replynot_found_db: "لم يتم العثور على الاقتراح في قاعدة بياناتي!"
 suggest_reply_already_replied: "تم الرد على هذا الاقتراح بالفعل!"
@@ -2312,19 +2124,16 @@ suggest_reply_command_work: "لقد قمت بإرسال رد على الاقتر
 suggest_reply_command_error: "لم يتم العثور على الاقتراح في قناة Discord!"
 
 # /suggest delete
-suggest_delete_not_delete: "أنت لست مشرفاً!"
 suggest_delete_not_good_channel: "يجب تشغيل هذا الأمر في قناة وحدة الاقتراحات (<#${baseData?.channel}>)!\nيرجى التحقق من عدم تعطيل وحدة الاقتراحات!"
 suggest_delete_not_found_db: "لم يتم العثور على الاقتراح في قاعدة بياناتي!"
 suggest_delete_command_work: "لقد قمت بحذف الاقتراح!"
 suggest_delete_command_error: "لم يتم العثور على الاقتراح في قناة Discord!"
 
 # /setsuggest disable
-setsuggest_disable_not_admin: "أنت لست مشرفاً!"
 setsuggest_disable_pw_on: "${interaction.user}, لقد قمت بتفعيل وحدة الاقتراحات!"
 setsuggest_disable_pw_off: "${interaction.user}, لقد قمت بإيقاف وحدة الاقتراحات!"
 
 # /setsuggest channel
-setsuggest_channel_not_admin: "أنت لست مشرفاً!"
 setsuggest_channel_already_set_with_that: "${interaction.user}, قناة وحدة الاقتراحات تم تعيينها بالفعل إلى ${channel}!"
 setsuggest_channel_embed_title: "تم تعيين قناة وحدة الاقتراحات هنا!"
 setsuggest_channel_embed_desc: "الآن، جميع المستخدمين المسموح لهم بإرسال الرسائل هنا يمكنهم تقديم اقتراحات عن طريق إرسال رسالة فقط!"
@@ -2334,16 +2143,13 @@ setsuggest_channel_command_work: "${interaction.user}, لقد قمت بتعيي�
 # /security
 
 # /security disable
-security_disable_not_admin: "أنت لست مشرفاً!"
 security_disable_pw_on: "${interaction.user}, لقد قمت بتفعيل وحدة الأمان!"
 security_disable_pw_off: "${interaction.user}, لقد قمت بإيقاف وحدة الأمان!"
 
 # /security role-to-give
-security_role_to_give_not_admin: "أنت لست مشرفاً!"
 security_role_to_give_command_work: "${interaction.user}, لقد قمت بتعيين الدور إلى ${role} لوحدة الأمان!"
 
 # /security channel
-security_channel_not_admin: "أنت لست مشرفاً!"
 security_channel_command_work: "${interaction.user}, لقد قمت بتعيين القناة إلى ${channel} لوحدة الأمان!"
 
 # Schedule Command
@@ -2382,12 +2188,10 @@ schedule_create_confirm_msg: "${interaction.user}, تم إنشاء جدولك!\n
 # /pfps channel, /pfps config
 
 # /pfps config
-pfps_config_not_admin: ":x: أنت لا تمتلك صلاحيات الإدارة لتنفيذ هذا الأمر"
 pfps_config_command_action_on: "${interaction.user}, لقد قمت بتفعيل وحدة PFPS.\nإذا كانت القناة غير موجودة، قم بتكوينها باستخدام الأمر: **/pfps channel**."
 pfps_config_command_action_off: "${interaction.user}, لقد قمت بإيقاف وحدة PFPS."
 
 # /pfps channel
-pfps_channel_not_admin: ":x: أنت لا تمتلك صلاحيات الإدارة لتنفيذ هذا الأمر"
 pfps_channel_embed_title: "تم تعيين وحدة PFPS هنا!"
 pfps_channel_embed_desc: "${interaction.user} قد قام بتعيين وحدة PFPS هنا!\nالآن كل 30 ثانية، سأرسل صورة عشوائية من مستخدم في هذه الخادم!\nسأبذل قصارى جهدي!"
 pfps_channel_command_work: "${interaction.user}, لقد قمت بنجاح بتعيين وحدة PFPS إلى القناة ${channel}!"
@@ -2486,7 +2290,6 @@ tag_edit_command_ok: "تم تعديل اسم الوسم الحالي من **`${c
 # /text, /voice, /status, /staff
 
 # /voice interface set-text-channel
-tempvoice_if_text_not_admin: "<@${interaction.user.id}>, ليس لديك الصلاحية لاستخدام هذا الأمر!"
 tempvoice_if_text_desc_embed: "## واجهة TempVoice\nهذه **الواجهة** يمكن استخدامها لإدارة قنوات الصوت المؤقتة.\n"
 tempvoice_if_text_fields_value_limit: "${client.iHorizon_Emojis.VC_Limit} **تغيير الحد**"
 tempvoice_if_text_fields_value_name: "${client.iHorizon_Emojis.VC_Name} **تغيير الاسم**"
@@ -2501,10 +2304,8 @@ tempvoice_if_text_fields_value_transfer: "${client.iHorizon_Emojis.VC_Transfer} 
 tempvoice_if_text_fields_value_delete: "${client.iHorizon_Emojis.VC_Delete} **حذف**"
 
 # /voice inteface set-voice-channel
-tempvoice_vc_not_admin: "<@${interaction.user.id}>, ليس لديك الصلاحية لاستخدام هذه الأوامر!"
 
 # /voice interface set-staff-role
-tempvoice_staff_not_admin: "<@${interaction.user.id}>, ليس لديك الصلاحية لاستخدام هذا الأمر!"
 tempvoice_staff_desc_embed: "## دور طاقم TempVoice\nيمكن للأدوار هنا الآن دخول القناة والإشراف!\n"
 
 # Confessionn Module
@@ -2545,18 +2346,10 @@ antispam_manage_choices_3_label: "نوع العقوبة"
 antispam_manage_choices_3_desc: "ما هو نوع العقوبة التي سأعطيها للمستخدم"
 antispam_manage_choices_4_label: "مدة العقوبة"
 antispam_manage_choices_4_desc: "مدة العقوبة"
-antispam_manage_choices_5_label: "مضاعف وقت العقوبة"
-antispam_manage_choices_5_desc: "إذا تم مضاعفة مدة العقوبة لكل عقوبة"
 antispam_manage_choices_6_label: "حذف الرسائل"
 antispam_manage_choices_6_desc: "حذف الرسائل المسيئة"
 antispam_manage_choices_7_label: "الحد الأقصى للفترة بين الرسائل"
 antispam_manage_choices_7_desc: "أقصى فترة بين الرسائل لتصنيفها كسبام"
-antispam_manage_choices_8_label: "الحد الأقصى للرسائل المكررة"
-antispam_manage_choices_8_desc: "أقصى عدد من الرسائل المكررة قبل العقوبة"
-antispam_manage_choices_9_label: "الحد الأقصى للفترة بين الرسائل المكررة"
-antispam_manage_choices_9_desc: "الفترة بين الرسائل المكررة لتمييز المستخدم"
-antispam_manage_choices_10_label: "الحد الأقصى للرسائل المشابهة"
-antispam_manage_choices_10_desc: "أقصى عدد من الرسائل المشابهة قبل العقوبة"
 antispam_manage_choices_12_label: "الحد الأقصى قبل العقوبة"
 antispam_manage_choices_12_desc: "الحد الأقصى قبل العقوبة"
 antispam_manage_select_menu_punish_mute_label: "كتم الأعضاء"
@@ -2596,7 +2389,6 @@ stats_gstats_detail_text: "أعلى الأعضاء:\n${top_members}\nأعلى ا
 channel_stats_title: "إحصائيات القناة"
 stats_channel_invalid: "القناة المحددة غير صالحة."
 top_active_users_title: "أكثر المستخدمين نشاطًا"
-activity_overview: "نظرة عامة على النشاط"
 active_users_title: "المستخدمون النشطون"
 var_members: "عضو/أعضاء"
 
@@ -2655,7 +2447,6 @@ blogger_generateConfigurationEmbed_embed_title: "📰 إعدادات المدو�
 blogger_no_rss: "لم يتم تكوين أي موجز RSS."
 blogger_generateConfigurationEmbed_embed_fields_1_name: "الحالة"
 blogger_generateConfigurationEmbed_embed_fields_2_name: "إجمالي المدونات"
-blogger_unknown_blog: "مدونة غير معروفة"
 blogger_on_new_article_default_message: "📰 تم نشر مقال جديد!\n**{articleTitle}** بواسطة {articleAuthor}\n{articleLink}"
 blogger_config_status_enabled: "✅ تم **تفعيل** وحدة المدونة. سيتم مراقبة موجزات RSS."
 blogger_config_status_disabled: "❌ تم **تعطيل** وحدة المدونة. لن يتم مراقبة موجزات RSS."
@@ -2737,7 +2528,6 @@ media_gen_error_args: "يرجى تقديم رابطين صالحين للصور.
 
 # ar-EG.yml (Arabic - Egypt)
 batch_ban_process: "🔄 جاري حظر ${member.user.username} في ${guilds.length} خادم..."
-batch_unban_process: "🔄 جاري إلغاء حظر ${banned_members.size} عضو..."
 batch_unblacklist_process: "🔄 جاري إزالة ${bannedMember.username} من القائمة السوداء في ${guildObjects.length} خادم..."
 batch_unbanall_process: "🔄 جاري إلغاء حظر ${banned_members.size} عضو..."
 batch_massiverole_process: "🔄 جاري إضافة دور لـ ${membersToProcess.length} عضو..."
@@ -2761,7 +2551,6 @@ event_mp_playerError: "توجد مشكلة في الاتصال => ${error.messag
 event_mp_error: "حدثت مشكلة في قائمة الأغاني => ${error.message}"
 event_mp_emptyChannel: "${client.iHorizon_Emojis.No} | لا يوجد أحد في القناة الصوتية، سيتم مغادرة القناة..."
 event_mp_playerSkip: "${client.iHorizon_Emojis.Music_Icon} - تم تخطي **${track.title}**!"
-event_mp_emptyQueue: "${client.iHorizon_Emojis.Warning_Icon} - توقفت الموسيقى لأنه لا يوجد المزيد من الأغاني في قائمة الانتظار!"
 
 # أحداث إنشاء القنوات
 event_channel_create_message_embed_title: "تم الإعداد بنجاح!"
@@ -2791,8 +2580,6 @@ event_ticket_create_reason_modal_fields_1_label: "سبب التذكرة"
 event_ticket_reason_embed_desc: "# سبب التذكرة\n```${reason}```"
 
 # أحداث التفاعل
-iC_event_cooldown: "توقف، يرجى الانتظار قليلاً بين الأوامر!"
-iC_event_connection_error: "خطأ في الاتصال!"
 
 # التبريد
 Msg_cooldown: "هل يمكنك الانتظار قليلاً قبل تنفيذ الأمر؟"
@@ -2802,8 +2589,6 @@ ticket_module_button_delete: "حذف التذكرة"
 ticket_module_button_transcript: "نسخة من التذكرة"
 ticket_module_button_addmember: "إضافة عضو"
 ticket_module_button_removemember: "إزالة عضو"
-ticket_module_add_question: "من تريد إضافته إلى تذكرتك؟ (حدد معرف المستخدم)!"
-ticket_module_remove_question: "من هو المستخدم الذي تريد إزالته من تذكرتك؟ (حدد معرف المستخدم)!"
 ticket_transcript_failed_to_send: "لقد حاولت إرسال الملف لك في رسالة خاصة، لكن لقد قمت بحظر الرسائل الخاصة بك :/"
 
 # سجلات الخادم
@@ -2839,7 +2624,6 @@ event_rank_role: "<@${message.author.id}>, لديك الآن الدور <@&${fet
 event_suggestion_embed_author: "اقتراح جديد من ${message.author.username}"
 
 # حدث الأمان
-event_security_title: "مرحبًا بك في ${guild}!"
 event_security: "${member}، يرجى كتابة رمز التحقق الظاهر في هذه الرسالة."
 event_security_expiry: "{emoji} طرد تلقائي ${timestamp} (**${attempts}** محاولة/محاولات متبقية)."
 event_security_footer: "لن يستغرق هذا سوى بضع ثوانٍ ويساعد في الحفاظ على أمان مجتمعنا."
@@ -2867,8 +2651,6 @@ event_ticket_already_opened: "عذرًا، لديك بالفعل تذكرة مف
 
 # حدث السحب
 event_gw_reroll_win_msg: "تهانينا ${winners}! فزت بـ **${fetch[channelId][messageId].prize}**!"
-event_gw_reroll_cannot_win_msg: "لا توجد مشاركات صالحة، لذا لم يتم تحديد فائز!"
-event_gw_finnish_msg: "تهانينا ${winners}! فزت بـ **${fetch.prize}**!"
 event_gw_finnish_cannot_msg: "لا توجد مشاركات صالحة، لذا لم يتم تحديد فائز!"
 event_gw_finnish_button_title: "السحب انتهى"
 event_gw_entries_button_title: "قائمة المشاركين"
@@ -2944,7 +2726,6 @@ temporary_voice_channel_name: "قناة {nickname}"
 # وحدة الحماية
 # رسالة الحدث
 
-protection_avoid_channel_delete: "**وضع الحماية مفعل**\n<@${channel.guild.ownerId}>, تم إعادة إنشاء القناة، <@${firstEntry.executorId}> حاول حذف القناة!"
 protection_blockbot_embed_title: "⚠️ خطر في ${member.guild.name} ⚠️"
 protection_blockbot_embed_desc: "# تحذير إضافة بوت\nشخص ما حاول إضافة بوت ديسكورد."
 var_target_bot: "البوت المستهدف"
@@ -2995,12 +2776,7 @@ rolepanel_setup_embed_desc: "حدد الأدوار لإضافتها أو إزا�
 rolepanel_setup_embed_roles_field: "الأدوار المسموح بها"
 rolepanel_setup_embed_refused_field: "الأدوار المرفوضة"
 rolepanel_setup_select_placeholder: "حدد الأدوار المعروضة"
-rolepanel_setup_apply_button: "إنشاء اللوحة"
 rolepanel_setup_no_roles: "لم يتم تحديد أي دور صالح."
-rolepanel_setup_saved: "تم إرسال لوحة الأدوار."
-rolepanel_panel_embed_title: "لوحة الأدوار"
-rolepanel_panel_embed_desc: "اختر الأدوار لإضافتها أو إزالتها من ملفك."
-rolepanel_panel_select_placeholder: "اختر أدوارك"
 rolepanel_role_managed_or_everyone: "دور نظام أو @everyone"
 rolepanel_role_too_high_bot: "دور أعلى من البوت"
 rolepanel_role_too_high_user: "دور أعلى منك"
@@ -3008,8 +2784,6 @@ rolepanel_role_missing_permissions: "الأذونات الناقصة: ${permissi
 rolepanel_apply_added: "الأدوار المضافة: ${roles}"
 rolepanel_apply_removed: "الأدوار المزالة: ${roles}"
 rolepanel_apply_refused: "الأدوار المرفوضة: ${roles}"
-rolepanel_logs_embed_title_create: "سجلات لوحة الأدوار"
-rolepanel_logs_embed_desc_create: "<@${interaction.user.id}> أنشأ لوحة أدوار (${message.id}) مع: ${roles}"
 rolepanel_logs_embed_title_apply: "سجلات استخدام لوحة الأدوار"
 rolepanel_logs_embed_desc_apply: "<@${interaction.user.id}> عدّل أدوار <@${member.id}> عبر لوحة. تمت الإضافة: ${addedRoles} | تمت الإزالة: ${removedRoles}"
 
@@ -3052,10 +2826,8 @@ addrolereact_role_added: "Ajout du rôle {role} terminé. {count} utilisateurs o
 addrolereact_error: "Erreur lors de l'exécution de la commande."
 
 # أوامر إخفاء/إظهار القنوات
-channel_hide_in_progress: "...جاري إخفاء القناة الحالية"
 channel_hide_success: "تم إخفاء القناة عن @everyone"
 channel_hide_already_hidden: "هذه القناة مخفية بالفعل عن @everyone"
-channel_unhide_in_progress: "...جاري إظهار القناة الحالية"
 channel_unhide_success: "القناة مرئية الآن لـ @everyone"
 channel_unhide_already_visible: "هذه القناة مرئية بالفعل لـ @everyone"
 channel_hideall_in_progress: "...جاري إخفاء جميع القنوات"
@@ -3075,7 +2847,6 @@ new_guild_embed_title:
     - "!مرحباً بالمغامرة الجديدة 🚀"
     - "!عضو جديد رائع انضم إلينا ✨"
 new_guild_embed_desc: "## ${randomMessage}\n!مرحباً بكم، أصدقائي الأعزاء\n\n.أنا iHorizon، بوت متطور مصمم لجعل تجربتكم على ديسكورد استثنائية ومليئة بالمرح\n\n:✨ ما يمكنني فعله لكم\n• إدارة الخادم بذكاء واحترافية\n• ألعاب تفاعلية وترفيه لا محدود\n• أدوات مفيدة لتنظيم المجتمع\n• دعم فني متاح على مدار الساعة\n\n.استكشفوا أوامري واكتشفوا عالماً من الإمكانيات اللامحدودة\n!معاً سنبني مجتمعاً رائعاً ومليئاً بالذكريات الجميلة\n\n!شكراً لاختياركم لي، فلنبدأ المغامرة 🌟"
-new_guild_owner_dm_title: "أهلاً بك في عائلة iHorizon!"
 new_guild_owner_dm_description: "# شكراً لإضافة iHorizon إلى خادمك!\n\n> *انتظر... هل هذا كل شيء؟ لا، بالتأكيد لا.*\n\niHorizon هو بوت Discord، حسناً؟ لكن ليس هذا فقط. إنه أيضاً مجتمع، قصة، مشروع بُني على مدى أكثر من 6 سنوات (2020).\nاستخدام iHorizon ليس مجرد الحصول على بوت Discord كامل، مجاني إلى الأبد **ومفتوح المصدر**. إنه أيضاً تبني **مفهوم**.\n\n> **بوت Discord المجاني يمكنه القيام بعمل أفضل من البوتات المدفوعة.**\n*نعم، هذا هو iHorizon: بوت كامل، تمت صيانته لمدة 6 سنوات من قبل أشخاص شغوفين.*\n\nإذاً نعم... بعد هذه الرسالة، شكراً.\nنحن فيلق. #ihorizon"
 guild_create_btn_invite: "دعوة iHorizon"
 guild_create_btn_website: "موقع iHorizon"
@@ -3276,7 +3047,6 @@ tts_embed_title: "تم تفعيل وضع TTS"
 tts_embed_description: "وحدة TTS نشطة الآن في ${voiceChannel}.\nسيتم قراءة جميع الرسائل المرسلة هنا من قبل الأعضاء في القناة الصوتية بصوت عالٍ.\n\n**الأعضاء في الصوت:** ${members}"
 tts_embed_footer: "استخدم /tts leave لإيقاف TTS"
 tts_join_not_text_based: "${client.iHorizon_Emojis.No} هذه القناة الصوتية لا تدعم الرسائل النصية. يرجى تفعيل النص في الصوت أو استخدام قناة صوتية أخرى."
-tts_music_blocked: "${client.iHorizon_Emojis.No} وحدة TTS نشطة حالياً. يرجى تعطيل TTS قبل تشغيل الموسيقى."
 tts_voice_status: "وضع TTS - تحويل النص إلى كلام"
 
 # H24/7 module
@@ -3323,32 +3093,21 @@ msg_bad_new_name: "اسم غير صالح."
 msg_bad_platform_twitch_youtube_kick: "منصة غير صالحة (twitch، youtube، kick)."
 msg_bad_rule: "قاعدة غير صالحة."
 msg_bad_sticker_id: "معرف ملصق غير صالح."
-msg_bad_user_id: "معرف مستخدم غير صالح."
 msg_bad_zip: "ملف zip غير صالح."
-msg_boost_set: "تم تعيين التعزيز."
-msg_botcount_rolescount_membercount_channelcount_boostcount_voicecount_onlinecount: "{BotCount}, {RolesCount}, {MemberCount}, {ChannelCount}, {BoostCount}, {VoiceCount}, {OnlineCount}"
 msg_bypass_role_added: "تمت إضافة دور التجاوز."
-msg_cat_api_down: "واجهة القطط متعطلة."
 msg_could_not_download_that_image: "تعذر تنزيل تلك الصورة."
-msg_dashboard_panel_channel_set: "تم تعيين قناة لوحة التحكم."
-msg_derogation_added: "تمت إضافة الاستثناء."
 msg_description_must_be_10_400_characters: "يجب أن يكون الوصف من 10 إلى 400 حرف."
 msg_download_failed: "فشل التنزيل."
 msg_empty_message: "رسالة فارغة."
 msg_fetch_failed: "فشل الجلب."
 msg_frozen: "مجمد."
-msg_give_at_least_2_options: "اذكر خيارين على الأقل."
 msg_guild_not_cached: "السيرفر غير مخزن."
 msg_hid_all: "تم إخفاء الكل."
 msg_ignore_channel_added: "تمت إضافة القناة المتجاهلة."
-msg_invalid_image_type: "نوع صورة غير صالح."
-msg_invalid_lang_en_us_fr_fr_de_de_es_es_it_it_jp_jp_pt_pt_ru_ru_ar_eg: "لغة غير صالحة (en-US fr-FR de-DE es-ES it-IT jp-JP pt-PT ru-RU ar-EG)."
 msg_invalid_language_supported_ar_eg_de_de_en_us_es_es_fr_fr_fr_me_it_it_jp_jp_pt_pt_ru_ru: "لغة غير صالحة. المدعومة: ar-EG، de-DE، en-US، es-ES، fr-FR، fr-ME، it-IT، jp-JP، pt-PT، ru-RU."
 msg_join_role_cleared: "تمت إزالة دور الدخول."
 msg_join_role_set: "تم تعيين دور الدخول."
 msg_level_must_be_1_9: "يجب أن يكون المستوى من 1 إلى 9."
-msg_level_up_message_cleared: "تمت إزالة رسالة الترقي."
-msg_level_up_message_set: "تم تعيين رسالة الترقي."
 msg_loading: "جار التحميل..."
 msg_love_score: "الحب: {score}%"
 msg_muted: "مكتوم."
@@ -3357,8 +3116,6 @@ msg_no_emojis: "لا توجد إيموجيات."
 msg_no_server_icon: "لا توجد أيقونة سيرفر."
 msg_no_stickers: "لا توجد ملصقات."
 msg_not_found: "غير موجود."
-msg_notifier_entry_added: "تمت إضافة إدخال المنبه."
-msg_notifier_entry_removed: "تمت إزالة إدخال المنبه."
 msg_permission_level_set: "تم تعيين مستوى الصلاحية."
 msg_punishpub_updated: "تم تحديث Punishpub."
 msg_queued_title_lavalink_wiring_pending: "Queued: {title} [lavalink wiring pending]"
@@ -3367,16 +3124,9 @@ msg_restored_keys: "تمت استعادة {restored} مفاتيح."
 msg_role_limit_cleared: "تمت إزالة حد الأدوار."
 msg_role_limit_set: "تم تعيين حد الأدوار."
 msg_shop_role_added: "تمت إضافة دور المتجر."
-msg_shop_role_removed: "تمت إزالة دور المتجر."
-msg_staff_role_set: "تم تعيين دور الطاقم."
 msg_sticker_added: "تمت إضافة الملصق."
-msg_style_out: "**{style}**: {out}"
-msg_temp_channel_name_set: "تم تعيين اسم القناة المؤقتة."
-msg_temp_channels_category_set: "تم تعيين فئة القنوات المؤقتة."
 msg_this_command_must_be_used_in_a_server: "يجب استخدام هذا الأمر في سيرفر."
 msg_ticket_opened: "تم فتح التذكرة: <#{chid}>."
-msg_ticket_panel_id_created: "تم إنشاء لوحة التذاكر `{id}`."
-msg_ticket_panel_updated: "تم تحديث لوحة التذاكر `{id}`."
 msg_title_must_be_5_30_characters: "يجب أن يكون العنوان من 5 إلى 30 حرف."
 msg_translation_failed: "فشلت الترجمة."
 msg_unhid_all: "تم إظهار الكل."
@@ -3384,13 +3134,7 @@ msg_unmuted: "غير مكتوم."
 msg_upload_failed: "فشل الرفع."
 msg_use_join_leave_and_on_off: "استخدم join/leave و on/off."
 msg_use_join_or_leave: "استخدم join أو leave."
-msg_use_off_track: "استخدم off/track/queue."
 msg_use_on_off: "استخدم on/off."
-msg_use_yes_no: "استخدم yes/no."
-msg_voice_freeze_channel_set: "تم تعيين قناة التجميد الصوتي."
-msg_voice_freeze_cleared: "تمت إزالة التجميد الصوتي."
-msg_voice_kicked: "تم الطرد الصوتي."
-msg_voice_lobby_set: "تم تعيين البهو الصوتي."
 msg_welcomer_channel_updated: "تم تحديث قناة Welcomer."
 msg_welcomer_components_updated: "تم تحديث مكونات Welcomer."
 msg_welcomer_embed_updated: "تم تحديث تضمين Welcomer."
@@ -3407,14 +3151,10 @@ msg_antispam_config_updated: "مكافحة السبام ${state} (الحد ${thr
 msg_nightmode_updated: "الوضع الليلي ${state} (${start}h-${end}h)."
 msg_ghost_list_empty: "لا توجد مراقبة ghost-ping."
 msg_guildconfig_show_empty: "لا يوجد إعداد محفوظ."
-msg_support_enabled: "تم تفعيل الدعم."
 msg_perm_list_detail: "المستوى ${level}, المستخدمون [${users}], الأدوار [${roles}]"
 msg_perm_list_default: "الأذونات الافتراضية."
-msg_notifier_list_empty: "لا توجد إدخالات notifier."
-msg_profil_invalid_age: "عمر غير صالح: يجب أن يكون بين 13 و 120."
 msg_profil_birthday_invalid: "تاريخ ميلاد غير صالح: تحقق من اليوم/الشهر/السنة (السنة 1900-2100)."
 msg_profil_birthday_saved: "تم حفظ تاريخ الميلاد."
-msg_profil_use_subcommand: "استخدم أمرًا فرعيًا: show أو set-age أو set-description أو set-gender أو set-pronoun أو set-birthday."
 msg_profil_gender_invalid: "جنس غير صالح: اختر female أو male أو non-binary."
 msg_profil_pronoun_invalid: "ضمير غير صالح: اختر she/her أو he/him أو they/them أو xe/xem أو ze/zem أو other."
 msg_welcomer_panel_title: "Welcomer panel"
@@ -3423,30 +3163,19 @@ msg_automod_toggled: "الإشراف التلقائي ${kind} ${state}."
 
 # Tier-3 replies (U-I6)
 owner_list_empty: "لا يوجد مالكو بوت."
-owner_blinfo_line: "${user} في القائمة السوداء: ${reason}"
-fun_caracteres_unknown_style: "نمط غير معروف `{style}`. المتاح: {styles}"
 fun_youtube_pending: "${display}: ${comment} (${likes} إعجاب، العرض قيد الانتظار)"
 fun_tweet_pending: "${display} ${handle}: ${comment} (${likes} إعجاب، ${retweets} إعادة نشر، ${replies} ردود، ${views} مشاهدة، العرض قيد الانتظار)"
 fun_bubbles_pending: "${file} (العرض قيد الانتظار لـ ${url})"
-invites_leaderboard_empty: "لا توجد دعوات."
 stats_compare_same_user: "قارن بين مستخدمين مختلفين."
-stats_compare_text: "${user1}: ${a_messages} رسالة/${a_voice}د مقابل ${user2}: ${b_messages} رسالة/${b_voice}د — الفائز ${winner}"
 stats_gstats_text: "الأعضاء المتتبعون: ${count} | الرسائل: ${messages} | الصوت: ${voice}د"
 stats_ustats_text: "الرسائل: ${messages} (اليوم ${d_msg} / الأسبوع ${w_msg} / الشهر ${m_msg}) | الصوت: ${voice}د (اليوم ${d_vc}د / الأسبوع ${w_vc}د / الشهر ${m_vc}د) | أهم القنوات: ${top_text} | أهم الصوت: ${top_vc}"
-stats_channel_single_text: "<#${channel}>: ${count} رسالة."
 
 # Antispam manage + honeypot claim (U-ANTISPAM-FIX1/U-HONEY-T1)
 msg_antispam_manage_updated: "مكافحة السبام ${state} (الحد ${threshold}، ${punishment} ${punish_time}، النافذة ${max_interval}، البوتات ${ignore_bots}، التنظيف ${remove_messages})."
-msg_antispam_manage_current: "مكافحة السبام ${state} (الحد ${threshold}، ${punishment} ${punish_time}، النافذة ${max_interval}، البوتات ${ignore_bots}، التنظيف ${remove_messages})."
 msg_antispam_invalid_duration: "مدة غير صالحة (جرّب 10s أو 5m أو 2h)."
 msg_antispam_invalid_choice: "Unknown choice \"${choice}\" (${want})."
-msg_antispam_invalid_action: "إجراء غير صالح (add أو remove أو list)."
-msg_antispam_missing_role: "يلزم دور لـ add/remove."
-msg_antispam_missing_channel: "يلزم قناة لـ add/remove."
 msg_bypass_role_removed: "تمت إزالة دور التجاوز."
-msg_bypass_roles_list: "أدوار التجاوز: ${roles}."
 msg_bypass_roles_cleared: "تم مسح أدوار التجاوز."
-msg_bypass_roles_empty: "لا توجد أدوار تجاوز."
 msg_ignore_channel_removed: "تمت إزالة القناة المتجاهلة."
 msg_ignore_channels_list: "القنوات المتجاهلة: ${channels}."
 msg_ignore_channels_cleared: "تم مسح القنوات المتجاهلة."

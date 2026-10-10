@@ -227,6 +227,7 @@ committed — see `.gitignore`. No push without a green
 - [x] U-ETERNAL-77 (2026-10-10: E7 snipe writer closed (`events_handler.rs` test-only +21): writer already stored TS shape via ts_snipe_json/save_snipe_routed under GUILD.SNIPE.<channel>; added round-trip test through the real reader. Lead: trio on settled tree. Suite 1533/0, fmt + clippy clean).
 - [x] U-ETERNAL-78 (2026-10-10: vague-67 epfm-fix11 (podium top-3, number/dice/age parse-fallbacks) + psgo-fix11 (show footers, SANCTION-only edge) + ugh-fix11 (user.id token, Unknown Blog, tonew verdict, channel liveness) + tcsb-fix11 (codes 62-pool, confessionres fallback, author nu, close/reopen verdict, cooldown verdict). Suite 1537/0, fmt + clippy clean).
 - [x] U-ETERNAL-79 (2026-10-10: I3 fallback sweep (142 divergent, 0 missing-key): 8 parallel batches B1-B8 across economy/authrestore/rolereactions/context/moderation/stats/music/utils/ranks/guildconfig/tag/ticket/voicedashboard/botcat/h247/schedule/tts/backup/confession/fun/membercount/nightmode/lavalink + lead-fixed leaderboard leftovers; all fallbacks byte-exact en-US. Lead: per-batch marker verify + local freeze commits, trio on settled tree. Suite 1537/0, fmt + clippy clean).
+- [x] U-ETERNAL-80 (2026-10-10: I6 dead-key deletion (271 keys x 10 locales + type:lang retype): 279 verified DEAD minus 8 lang-test fixtures kept (var_latency, msg_frozen, msg_not_found, msg_shop_role_added, msg_translation_failed, bledit_reason_updated, var_doesnt_have_permissions, event_welcomer_default); first 279-attempt restored when fixtures proved required. Lead: trio on settled tree (tests green; fmt+clippy deltas quarantined to third-party in-flight events_handler.rs, untouched). Suite 1537/0).
 ## Eternal backlog (seeded 2026-10-09 by 7 read-only audits + lavalink edge audit; full reports in `~/.hermes/cache/delegation/live/deleg_55b606d3/task-{0,1,2,3,4,5,9}.log` — each item is a future unit for other models, files disjoint unless noted)
 
 ### Events (audit task-0)
@@ -266,7 +267,7 @@ committed — see `.gitignore`. No push without a green
 - [x] I3 replace 181 divergent fallbacks with exact en-US — DONE (U-ETERNAL-79: enumerated 780 sites, 142 divergent fixed across 8 batches, 0 missing-key; audit over-counted, verified on disk).
 - [x] I4 placeholder/CI check — DONE in U-ETERNAL-41 (`placeholder_tokens_match_en_us_in_all_locales`: token-set + key-count parity; no CI in repo so the cargo test is the check).
 - [ ] I5 Tier-2 setup modules (welcomerPanel, antispam manage, honeypot config, setlogschannel, nightmode, birthday).
-- [ ] I6 verify-then-delete 312 zero-sender dead keys.
+- [x] I6 verify-then-delete 312 zero-sender dead keys — DONE (U-ETERNAL-80: recount 279 verified DEAD, 271 deleted, 8 fixtures kept, 29 ALIVE exclusions documented).
 
 ### DB call-sites (audit task-4: 423 legacy lines, 0 migrated)
 - [ ] D1 shared leaf helpers first (`shared.rs`, key-helper fns).

@@ -7,46 +7,21 @@ var_user: "Utente"
 var_author: "Autore"
 var_reason: "Motivo"
 var_guild: "Gilda"
-var_sanction: "Sanzione"
-var_time: "Tempo"
 var_message: "Messaggio"
 var_no_set: "Non impostato"
 var_none: "Nessuno"
 var_roles: "Ruoli"
-var_names: "Nomi"
 var_text_channel: "Canale testo"
 var_voice_channel: "Canale voce"
-var_creator: "Creatore"
 var_doesnt_have_permissions: "Non sei autorizzato a fare questo. Hai bisogno del permesso {permission}."
-var_ihorizon: "iHorizon"
-var_developer: "Sviluppatore"
-var_chance: "Fortuna"
-var_other: "Altro"
 var_unknown: "Sconosciuto"
-var_secure: "Sicuro"
-var_unsecure: "Non sicuro"
-var_prefix: "Prefisso"
-var_slash: "Slash"
-var_discord: "Discord"
-var_network: "Rete"
 var_latency: "Latente"
-var_bot: "Bot"
-var_true: "Vero"
-var_false: "Falso"
 var_enabled: "Abilitato"
 var_disabled: "Disabilitato"
 var_yes: "Sì"
 var_no: "No"
-var_colour: "Colore"
-var_length: "Lunghezza"
-var_good: "Buono"
-var_size: "Dimensione"
 var_level: "Livello"
-var_add: "Aggiungi"
-var_remove: "Rimuovi"
-var_edit: "Modifica"
 var_confirm: "Conferma"
-var_succes: "Successo"
 var_page: "Pagina"
 var_permission: "Permesso"
 var_usage: "Utilizzo"
@@ -66,7 +41,6 @@ var_d: "giorno/i"
 var_h: "ora/e"
 var_m: "minuto/i"
 var_s: "secondo/i"
-var_ms: "millisecondo/i"
 var_banned_user: "Utente/i Bannato/i"
 var_no_one_banned: "Nessuno è bannato in questo server."
 var_category: "Categoria"
@@ -123,7 +97,6 @@ perm_managenicknames_name: "Gestisci nickname"
 perm_manageroles_name: "Gestisci ruoli"
 perm_managewebhooks_name: "Gestisci webhook"
 perm_manageemojisandstickers_name: "Gestisci emoji e sticker"
-perm_manageguildexpressions_name: "Gestisci espressioni server"
 perm_useapplicationcommands_name: "Usa comandi applicazione"
 perm_requesttospeak_name: "Richiedi di parlare"
 perm_manageevents_name: "Gestisci eventi"
@@ -148,28 +121,21 @@ perm_useexternalapps_name: "Usa app esterne"
 ticket_disabled_command: "Non puoi utilizzare questo comando perché un amministratore ha disabilitato i comandi per i ticket!"
 
 # /add
-add_disabled_command: "Non puoi utilizzare questo comando perché un amministratore ha disabilitato i comandi per i ticket!"
 add_command_work: "${member.tag} è stato aggiunto con successo al tuo ticket!"
 add_command_error: "Si è verificato un errore, per favore riprova."
 
 # /close
-close_disabled_command: "Non puoi utilizzare questo comando perché un amministratore ha disabilitato i comandi per i ticket!"
 close_title_sourcebin: "Trascrizione del ticket da iHorizon"
-close_description_sourcebin: " "
 close_error_command: "Si è verificato un errore, per favore riprova!"
-close_command_work_channel: "Hai chiuso il tuo ticket. iHorizon ti ha inviato la trascrizione"
 close_command_work_notify_channel: "Il ticket è stato chiuso con successo!"
 close_command_error: "Si è verificato un errore, per favore riprova!"
 close_not_in_ticket: "Non puoi utilizzare questo comando al di fuori di un canale ticket!"
 
 # /delete
-delete_disabled_command: "Non puoi utilizzare questo comando perché un amministratore ha disabilitato i comandi per i ticket!"
 delete_not_in_ticket: "Non puoi utilizzare questo comando al di fuori di un canale ticket!"
 ticket_deleted: "Il ticket ${ticketOwnerMention} è stato eliminato da <@${deletedByUserId}>. Ecco la trascrizione:"
 
 # /sethereticket
-sethereticket_disabled_command: "Non puoi utilizzare questo comando perché un altro amministratore ha disabilitato i comandi per i ticket!"
-sethereticket_not_admin: ":x: | Devi essere un amministratore di questo server per richiedere questo comando!"
 sethereticket_description_embed: "Per creare un nuovo ticket, reagisci con 📩"
 sethereticket_command_work: "Il pannello dei ticket è stato impostato con successo!"
 sethereticket_command_type_menu_placeholder: "Che tipo di pannello vuoi?"
@@ -199,21 +165,15 @@ open_command_error: "Si è verificato un errore, per favore riprova!"
 open_not_in_ticket: "Non puoi utilizzare questo comando al di fuori di un canale ticket!"
 
 # /remove
-remove_disabled_command: "Non puoi utilizzare questo comando perché un amministratore ha disabilitato i comandi per i ticket!"
 remove_not_in_ticket: "Non puoi utilizzare questo comando al di fuori di un canale ticket!"
 remove_command_error: "Si è verificato un errore, per favore riprova!"
 remove_command_work: "${member.tag} è stato rimosso con successo dal tuo ticket!"
 
 # /transript
-transript_disabled_command: "Non puoi utilizzare questo comando perché un amministratore ha disabilitato i comandi per i ticket!"
-transript_name_sourcebin: " "
-transript_title_sourcebin: "Trascrizione della chat ticket per ${channel.name}"
-transript_command_error: "Si è verificato un errore, per favore riprova!"
 transript_command_work: "Hai chiuso il tuo ticket. iHorizon ti ha inviato la trascrizione"
 transript_not_in_ticket: "Non puoi utilizzare questo comando al di fuori di un canale ticket!"
 
 # /disableticket
-disableticket_not_admin: ":x: | Devi essere un amministratore di questo server per richiedere questo comando!"
 disableticket_logs_embed_title_disable: "Registri DisableTicket"
 disableticket_logs_embed_description_disable: "<@${interaction.user.id}> ha disattivato i comandi per i ticket!"
 disableticket_command_work_disable: "Hai disattivato con successo i comandi per i ticket!"
@@ -222,8 +182,6 @@ disableticket_logs_embed_description_enable: "<@${interaction.user.id}> ha attiv
 disableticket_command_work_enable: "Hai attivato con successo i comandi per i ticket!"
 
 # /setticketcategory
-setticketcategory_not_admin: ":x: | Devi essere un amministratore di questo server per richiedere questo comando!"
-setticketcategory_disabled_command: "Non puoi utilizzare questo comando perché un amministratore ha disabilitato i comandi dei ticket!"
 setticketcategory_not_a_category: "Il canale specificato non è una categoria, riprova."
 setticketcategory_command_work: "<@${interaction.user.id}>, hai impostato la categoria per il canale dei ticket su `${category.name}`!"
 
@@ -258,15 +216,12 @@ ticket_panel_change_category_channelSelect_placeholder: "Seleziona una categoria
 ticket_panel_select_channel_to_send: "Seleziona un canale dove inviare l'embed"
 ticket_panel_change_placeholder_modal_title: "Modifica Segnaposto"
 ticket_panel_change_placeholder_modal_placeholder: "Nuovo Segnaposto"
-ticket_panel_need_save_config: "Devi salvare la configurazione attuale prima di inviare l'embed"
 ticket_panel_need_1_option: "Hai bisogno di almeno un'opzione per inviare l'embed"
 ticket_panel_related_embed_dont_exist: "L'embed correlato non esiste"
 ticket_panel_channel_error: "Il canale non esiste o non ho il permesso di inviarvi messaggi"
-ticket_panel_embed_been_send: "L'embed è stato inviato nel canale"
 ticket_panel_successfully_saved: "La configurazione è stata salvata con successo"
 ticket_panel_change_role_roleSelect_placeholder: "Seleziona un ruolo"
 ticket_panel_change_role_interaction_content: "Seleziona un ruolo che verrà menzionato quando viene aperto un ticket"
-ticket_panel_change_embed_modal_title: "Modifica Embed Correlato"
 ticket_panel_change_embed_modal_placeholder: "ID dell'Embed"
 ticket_panel_change_embed_dont_exist: "L'embed non esiste"
 ticket_panel_change_option_select_placeholder: "Seleziona un'opzione"
@@ -308,8 +263,6 @@ ticket_panel_panel_16_label: "Configura un modulo per opzione"
 ticket_panel_panel_17_label: "Configura i ruoli da menzionare per ogni opzione"
 ticket_panel_manage_form_title: "Gestisci il modulo per l'opzione: **${option.name}**"
 ticket_panel_change_embed_options: "Seleziona un'opzione per modificare l'ID embed del pannello del canale."
-ticket_panel_change_embed_options_null: "Non ci sono opzioni per modificare l'ID embed del pannello del canale."
-ticket_panel_change_embed_options_chose: "Scegli la categoria per modificare l'ID del pannello del canale."
 ticket_panel_add_a_question: "Aggiungi una domanda"
 ticket_panel_remove_a_question: "Rimuovi una domanda"
 ticket_panel_option_invalid: "❌ Opzione non valida."
@@ -338,7 +291,6 @@ var_never: "Mai"
 # /xp, /setxpchannels, /disablexp
 
 # /disablexp
-disablexp_not_admin: ":x: | Devi essere un amministratore di questo server per richiedere questo comando!"
 disablexp_logs_embed_title_disable: "Registri disattivazione XP"
 disablexp_logs_embed_description_disable: "<@${interaction.user.id}> ha disattivato l'XP!"
 disablexp_command_work_disable: "Hai disattivato con successo il messaggio di livellamento (XP)"
@@ -348,7 +300,6 @@ disablexp_command_work_enable: "Hai attivato con successo il messaggio di livell
 disablexp_command_work_disable_entierly: "Hai disabilitato con successo il modulo dei livelli! (Nessun altro messaggio e gli utenti non guadagnano livelli)"
 
 # /setxpchannels
-setxpchannels_not_admin: ":x: | Devi essere un amministratore del server per richiedere questo comando!"
 setxpchannels_logs_embed_title_disable: "Log di SetXpChannels"
 setxpchannels_logs_embed_description_disable: "<@${interaction.user.id}> ha disabilitato i canali di XP personalizzati. Ho impostato le impostazioni predefinite..."
 setxpchannels_already_disabled_disable: "I canali di XP personalizzati sono già disattivati!"
@@ -373,28 +324,19 @@ level_xp_needed_for_new_level: "XP per il prossimo livello:"
 level_xp_total: "XP totale:"
 
 # /ranks leaderboard
-ranks_leaderboard_top_txt: "Top #${i}"
-ranks_leaderboard_top_txt_raw: "Top #${i} ${index.rawText}\n"
-ranks_leaderboard_txt_text: "👤 ${user} `(${user.globalName})`\n⭐ ➥ **Livello**: `${a.level || '0'}`\n🔱 ➥ **XP Totale**: `${a.xptotal}`"
 ranks_leaderboard_embed_title: "🏆 Classifica delle Leggende del Server"
-ranks_leaderboard_embed_footer: "Pagina ${cPage} di ${totalPages} • Classificato per XP Totale"
 
 # /ranks ignore-channels
 ranks_ignorechannels_embed_title: "Configurazioni del Modulo Classifiche"
 ranks_ignorechannels_embed_desc: "Quando vengono inviati nuovi messaggi in uno di questi canali, il Modulo Classifiche li ignora."
 
 # /ranks set-message
-ranksSetMessage_not_admin: ":x: | Devi essere un amministratore di questo server per richiedere questo comando!"
 ranksSetMessage_help_embed_title: "/ranks set-message Aiuto!"
-ranksSetMessage_help_embed_description: "/ranks set-message"
-ranksSetMessage_help_embed_fields_name: "Come usare?"
 ranksSetMessage_logs_embed_title_on_enable: "Registri di RanksSetMessage"
 ranksSetMessage_logs_embed_description_on_enable: "<@${interaction.user.id}> ha impostato il messaggio dei ranghi!"
 ranksSetMessage_command_work_on_enable: "${client.iHorizon_Emojis.GreenTick} | Messaggio dei ranghi impostato con successo."
 ranksSetMessage_logs_embed_title_on_disable: "Registri di RanksSetMessage"
 ranksSetMessage_logs_embed_description_on_disable: "<@${interaction.user.id}> ha eliminato il messaggio dei ranghi!"
-ranksSetMessage_command_work_on_disable: "${client.iHorizon_Emojis.Yes} | Messaggio dei ranghi personalizzato eliminato con successo."
-ranksSetMessage_command_work_ls: "Il messaggio dei ranghi è:"
 ranksSetMessage_help_embed_fields_custom_name: "Messaggio personalizzato"
 ranksSetMessage_help_embed_fields_custom_name_empy: "Non impostato!"
 ranksSetMessage_help_embed_fields_default_name_empy: "Messaggio predefinito"
@@ -538,10 +480,8 @@ ether_message: "${client.iHorizon_Emojis.Sparkles} Ether è stato un collaborato
 irisweb_message: "😼IrisWeb è il mio secondo sviluppatore/contribuente , IrisWeb x Kisakay ❤️"
 
 # /ping
-pong_message: "【:ballot_box_with_check:】__**Pong**__ : "
 
 # /status
-status_be_bot_dev: "**:x: | Devi essere lo sviluppatore del bot per farlo!**"
 
 # /help
 help_tip_embed: "```${client.user?.username} ・ Menu di aiuto```\n${client.iHorizon_Emojis.Pin} ・ **${categories.length}** categorie di comandi disponibili\n${client.iHorizon_Emojis.Slash_Bot_Badge} ・ **${client.content.filter(c => c.messageCmd === false).length}** comandi Slash disponibili\n${client.iHorizon_Emojis.Crown} ・ **Creato da** <@${config.owner.ownerid1}>, <@${config.owner.ownerid2}>\n\n```Lo sapevi? ・ Suggerimenti```\n${client.iHorizon_Emojis.VC_Region} ・ ${client.user?.username} è **100% multilingue**\n${client.iHorizon_Emojis.Slash_Bot_Badge} ・ `/setlang language:Japanese`"
@@ -639,7 +579,6 @@ custom_desc_reset: "Hai deciso di ripristinare la descrizione del bot sul server
 custom_desc_set: "${client.iHorizon_Emojis.Yes} **Hai deciso di cambiare la descrizione del bot sul server. I piè di pagina degli embed sono ora modificati, così come la descrizione del bot sul server.**\n${client.iHorizon_Emojis.Crown} Nuovo valore: `${desc}`"
 custom_banner_reset: "Hai deciso di ripristinare il banner del bot sul server."
 custom_banner_set: "${client.iHorizon_Emojis.Yes} **Hai deciso di cambiare il banner del bot sul server.**\n${client.iHorizon_Emojis.Crown} Nuovo valore: `${x}`"
-custom_sdk_only: "Questo comando è disponibile in produzione solo per i server con l'abbonamento `Custom iHorizon Profile`."
 custom_sdk_only_title: "Supporta iHorizon con Custom iHorizon Profile"
 custom_sdk_only_description: "Il nostro bot è gratuito e open source dal 2022. Abbiamo bisogno di entrate per continuare a gestire, sviluppare e ospitare il bot. I nostri costi operativi sono intorno ai 500 EUR all'anno tra server, boost, domini e licenze.\n\nIl comando `/custom` ti permette di cambiare l'identità di iHorizon nel tuo server modificando avatar, nome, banner e bio. Usandolo, l'identità visiva di iHorizon scompare dal tuo server.\n\nAbbiamo quindi introdotto un abbonamento integrato in Discord al prezzo di 2.99 USD al mese.\n\nAcquistando questo abbonamento, potrai usare questo comando. Consideralo come un bot custom, in stile OWN-IHRZ, ma stabile, pulito e pienamente funzionante."
 
@@ -684,7 +623,6 @@ hug_embed_title: "<@${interaction.user.id}> abbraccia <@${hug.id}> ❤️"
 kiss_embed_description: "<@${interaction.user.id}> dà un bacio a <@${kiss.id}> 💏"
 
 # /poll
-poll_not_admin: "Non hai i permessi per farlo!"
 poll_embed_title: "Sondaggio: **`${interaction.user.username}`**"
 poll_embed_fields_reaction: "Clicca sulle reazioni qui sotto.⬇"
 poll_embed_fields_choice: ":white_check_mark: **Sì**\n :x: **No**"
@@ -765,15 +703,11 @@ fun_trans_command_ok: "L’utente ${user} è **${random}%** transgender 🏳️�
 economy_cooldown_error: "Aspetta **${time}** prima di poter eseguire nuovamente questo comando!"
 
 # /addmoney
-addmoney_not_admin: "Non puoi eseguire questo comando perché non hai le autorizzazioni necessarie ADMINISTRATOR"
 addmoney_logs_embed_title: "Registri dell'economia"
 addmoney_logs_embed_description: "<@${interaction.user.id}> Ha aggiunto ${amount.value} moneta a <@${user.user.id}> !"
 addmoney_command_work: "Aggiunti con successo `${amount.value}`$ a <@${user.user.id}>"
 
 # /balance
-balance_dont_have_wallet: "👛 Non hai un portafoglio... !"
-balance_he_dont_have_wallet: "${client.iHorizon_Emojis.Wallet} ${user} non ha un portafoglio... !"
-balance_have_wallet: "👛 Hai ${bal} monete !"
 balance_he_have_wallet: "${client.iHorizon_Emojis.Wallet} ${user} ha ${bal} monete !"
 balance_embed_fields1_name: "Banca"
 balance_embed_fields2_name: "In Saldo"
@@ -796,7 +730,6 @@ pay_dont_have_enought_to_give: "Non hai abbastanza soldi nel tuo conto. Riprova.
 pay_command_work: "${interaction.user.username}, hai inviato con successo ${amount}$ a ${user.user.username}."
 
 # /removemoney
-removemoney_not_admin: "Non puoi eseguire questo comando perché non hai i permessi necessari ADMINISTRATOR"
 removemoney_embed_title: "Soldi Rimossi!"
 removemoney_embed_fields: "Quantità"
 removemoney_embed_second_fields: "Saldo Aggiornato"
@@ -804,7 +737,6 @@ removemoney_logs_embed_description: "<@${interaction.user.id}> ha rimosso ${amou
 removemoney_logs_embed_title: "Log Economia"
 
 # /rob
-rob_cooldown_error: "Attendi 50 minuti prima di derubare di nuovo un utente!"
 rob_dont_enought_error: ":x: Devi avere almeno 250$ per derubare qualcuno."
 rob_him_dont_enought_error: ":x: ${user.user.username} non ha abbastanza soldi da poter essere derubato."
 rob_embed_description: "<@${interaction.user.id}> hai derubato <@${user.id}> e sei riuscito a scappare con ${random}!"
@@ -834,10 +766,8 @@ deposit_embed_fields1_name: "Banca"
 
 # /leaderboard
 economy_leaderboard_embed_title: "Classifica economica di `${interaction.guild.name}`"
-economy_leaderboard_embed_fields_value: "<@${userId}> - Banca: `${userData.bank || 0}`${client.iHorizon_Emojis.Coin} | Saldo: `${userData.money || 0}`${client.iHorizon_Emojis.Coin}"
 
 # /economy disable
-economy_disable_not_admin: ":x: | Devi essere un amministratore di questo server per eseguire questo comando!"
 economy_disable_already_disable: "<@${interaction.user.id}>, il Modulo Economia è già **disabilitato**!"
 economy_disable_already_enable: "<@${interaction.user.id}>, il Modulo Economia è già **abilitato**!"
 economy_disable_set_enable: "<@${interaction.user.id}>, hai abilitato con successo il Modulo Economia!"
@@ -965,7 +895,6 @@ serverinfo_embed_fields_joinat: "🚲・Entrato il:"
 serverinfo_embed_fields_createat: "⚓・Creato il:"
 
 # /setrankroles
-setrankroles_not_admin: "${client.iHorizon_Emojis.No} Non sei un amministratore di questo server. Non puoi eseguire questo comando!"
 setrankroles_already_this_in_db: "${client.iHorizon_Emojis.No} I ruoli di classifica sono già presenti nel database di questo server."
 setrankroles_not_roles_typed: "${client.iHorizon_Emojis.No} Non hai specificato nessun ruolo nel tuo comando!"
 setrankroles_command_work: "Ora, quando mi menzioni `@iHorizon`, aggiungerò i seguenti ruoli: <@&${argsid}>"
@@ -982,7 +911,6 @@ setrankroles_command_work_with_nicknames_2: "\n**Nota**:\nSe la persona rimuove 
 snipe_no_previous_message_deleted: "Nessun messaggio eliminato in questo canale!"
 
 # /userinfo
-userinfo_wait_please: "${client.iHorizon_Emojis.Timer} Attendere prego..."
 userinfo_embed_fields_1_name: "Distintivo"
 userinfo_embed_fields_2_name: "Nome utente"
 userinfo_embed_fields_3_name: "Nome visualizzato"
@@ -994,7 +922,6 @@ userinfo_button_label: "Profilo utente"
 # /renew
 renew_channel_send_success: "Canale ricreato da ${interaction.user}!"
 renew_dont_have_permission: ":x: Non posso farlo Non ho i permessi necessari!"
-renew_not_administrator: ":x: **Non sei un amministratore per utilizzare questo comando!**"
 
 # /renewvc
 renewvc_not_in_voice: "${client.iHorizon_Emojis.No} Devi essere connesso a un canale vocale per usare questo comando!"
@@ -1004,9 +931,7 @@ renewvc_dont_have_permission: ":x: Non posso farlo Non ho i permessi necessari!"
 # /prevnames
 prevnames_embed_title: "Elenco di tutti i soprannomi di ${user.username}"
 prevnames_undetected: "Nessun dato trovato!"
-prevnames_not_admin: "Non hai il permesso `ADMINISTRATOR` per eseguire questo comando!"
 prevnames_data_erased: "I tuoi vecchi nomi utente sono stati completamente eliminati su tua richiesta!"
-prevnames_embed_footer_text: "iHorizon | Pagina ${currentPage + 1}/${pages.length}"
 
 # /blockbot
 blockbot_not_owner: ":x: **¡No eres el propietario del servidor!**"
@@ -1031,7 +956,6 @@ massiverole_too_much_member: "Troppi membri, non posso farlo a causa di possibil
 # /nickrole
 nickrole_add_command_work: "${interaction.user}, iHorizon ha eseguito il comando nickrole.\n\n**${a}** utente/i ha/hanno ricevuto il ruolo ${role}\n**${s}** utente/i non aveva/no `${part_of_nickname}` nel nickname\niHorizon non è riuscito ad aggiungere il ruolo a **${e}** utente/i."
 nickrole_sub_command_work: "${interaction.user}, iHorizon ha eseguito il comando nickrole.\n\n**${a}** utente/i ha/hanno perso il ruolo ${role}\n**${s}** utente/i non aveva/no più `${part_of_nickname}` nel nickname\niHorizon non è riuscito a rimuovere il ruolo da **${e}** utente/i."
-nickrole_too_much_member: "Troppi membri, non posso procedere a causa di un possibile limite di rate!"
 
 # /emoji
 emoji_send_new_emoji: "__Nuovo emoji creato__ con nome **${emoji.name}** ! (${emoji})"
@@ -1040,7 +964,6 @@ emoji_embed_desc_work: "__Creati **${cnt}** emoji in `${interaction.guild.name}`
 
 # /derank
 derank_msg_desc_embed: "## Ho rimosso con successo **${good}** ruolo/i da <@${member.id}>.\n## Tuttavia, non sono riuscito a rimuovere **${bad}** ruolo/i."
-derank_msg_failed: "Si è verificato un errore durante la rimozione dei ruoli."
 derank_no_role: "Questo membro non ha ruoli da rimuovere."
 
 # /azione sblocca tutto
@@ -1051,16 +974,9 @@ action_unban_all_no_banned_members: "Non ci sono membri bannati."
 action_unban_undo_embed_desc: "## Annulla lo sblocco di tutti\n${client.iHorizon_Emojis.Yes} | Ho bandito con successo `${banned_members.length}` membro(i) nella gilda!\n${client.iHorizon_Emojis.No} | Non posso sbloccare `${cannot_ban}` membro(i)!"
 
 # /vc
-vc_embed_desc: "## Stati Vocali\n`${voiceStates?.size}` membro(i) è nel canale vocale:\n${client.iHorizon_Emojis.iHorizon_Streaming} **=>** ${voiceStates?.filter(vc => vc.streaming).size}\n${client.iHorizon_Emojis.iHorizon_Deaf} **=>** ${voiceStates?.filter(vc => vc.selfDeaf).size}\n${client.iHorizon_Emojis.iHorizon_Mute} **=>** ${voiceStates?.filter(vc => vc.selfMute).size}\n${client.iHorizon_Emojis.iHorizon_Camera} **=>** ${voiceStates?.filter(vc => vc.selfVideo).size}\n## Stati dei Membri\n`${membersStates?.size}` membro(i) sono nella gilda:\n${client.iHorizon_Emojis.DND} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"dnd\").size}\n${client.iHorizon_Emojis.Online} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"online\").size}\n${client.iHorizon_Emojis.Idle} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"idle\").size}\n${client.iHorizon_Emojis.Invisible} **=>** ${membersStates?.filter(mbr => mbr.presence?.status === \"invisible\").size}\n## Stati dei Boost\n`${interaction.guild?.premiumSubscriptionCount}` boost nella gilda,\n${interaction.guild?.roles.premiumSubscriberRole?.members.map(usr => `<@${usr.id}>`)}"
-vc_embed_fields_1_name: "・Numero di Membri"
-vc_embed_fields_1_value: "```py\n${interaction.guild?.memberCount} membri```"
-vc_embed_fields_2_name: "・Numero di Canali"
-vc_embed_fields_2_value: "```py\n${textChannelSize} canale(i) di testo\n${voiceChannelSize} canale(i) vocale(i)```"
-vc_embed_short_desc: "## Stati Vocali\n`${voiceStates?.size}` membro(i) è nel canale vocale:\n${client.iHorizon_Emojis.iHorizon_Streaming} **=>** ${total_members_vc_streaming}\n${client.iHorizon_Emojis.iHorizon_Deaf} **=>** ${total_members_vc_deaf}\n${client.iHorizon_Emojis.iHorizon_Mute} **=>** ${total_members_vc_mute}\n${client.iHorizon_Emojis.iHorizon_Camera} **=>** ${total_members_vc_video}\n## Stati dei Membri\n`${total_members_size}` membro(i) sono nella gilda:\n${client.iHorizon_Emojis.DND} **=>** ${total_members_states_dnd}\n${client.iHorizon_Emojis.Online} **=>** ${total_members_states_online}\n${client.iHorizon_Emojis.Idle} **=>** ${total_members_states_idle}"
 
 # /massmove
 massmove_results: "${interaction.user}, iHorizon ha spostato i membri tra i canali vocali.\n\n**${movedCount}** membro/i sono stati spostati con successo da ${fromChannel} a ${toChannel}.\n**${errorCount}** membro/i non hanno potuto essere spostati (vedere i log del server per i dettagli)."
-massmove_too_much_member: "Troppi membri, non posso farlo a causa di un possibile rate limiting!"
 
 # /all-admins
 all_admins_nobody_admins: "Non c'è nessun amministratore in questo server!"
@@ -1114,12 +1030,10 @@ utils_piconly_embed_fields2_placeholder: "Crea un thread sotto l'immagine/video"
 utils_piconly_var_thread_name: "Thread di {name}"
 
 # /zip-emojis
-zip_emojis_doesnt_have_perm: "Non hai il permesso di gestire le emoji."
 zip_emojis_command_work: "🎉 Esportazione completata in **${calcTime}**ms! Ecco l'archivio contenente ${emojis.size} emoji."
 zip_emojis_command_error: "Si è verificato un errore durante l'esportazione delle emoji."
 
 # /zip-stickers
-zip_stickers_doesnt_have_perm: "Non hai il permesso di gestire gli adesivi."
 zip_stickers_command_work: "🎉 Esportazione completata in **${calcTime}**ms! Ecco l'archivio che contiene ${stickers.size} adesivi."
 zip_stickers_command_error: "Si è verificato un errore durante l'esportazione degli adesivi."
 
@@ -1293,32 +1207,21 @@ util_move_command_ok: "${member?.toString()} è ora in ${channel.toString()}"
 # /blockpub, /guildprofil, /setchannels, /setjoindm, /setjoinmessage, /setjoinroles, /setleavemessage, /setup
 
 # /blockpub
-blockpub_not_admin: ":x: | Devi essere un amministratore di questo server!"
-blockpub_now_enable: "📌 | L'antipub è ora attivo (funziona per tutti tranne gli amministratori)"
-blockpub_now_disable: "📌 | L'antipub è ora disattivato!"
 
 # /guildprofil
-guildprofil_not_admin: ":x: | Devi essere un amministratore di questo server!"
 guildprofil_not_set_reactionrole: "Non impostato!"
 guildprofil_set_reactionrole: "ID Messaggio: ${i} -> ${emoji || key} dà il ruolo <@&${rolesID}>.\n"
 guildprofil_not_set_ticketFetched: "Non impostato!"
-guildprofil_set_ticketFetched: ""
 guildprofil_not_set_punishPub: "Non impostato!"
 guildprofil_set_punishPub: "${punishPub.punishementType}: massimo: ${punishPub.amountMax} flags."
 guildprofil_not_set_supportConfig: "Non impostato!"
 guildprofil_set_supportConfig: "${supportConfig.input} nella bio dà il ruolo <@&${supportConfig.rolesId}>."
 guildprofil_not_set_setchannelsjoin: "Non impostato!"
-guildprofil_set_setchannelsjoin: ""
 guildprofil_not_set_setchannelsleave: "Non impostato!"
-guildprofil_set_setchannelsleave: ""
 guildprofil_not_set_joinmessage: "Non impostato!"
-guildprofil_set_joinmessage: ""
 guildprofil_not_set_leavemessage: "Non impostato!"
-guildprofil_set_leavemessage: ""
 guildprofil_not_set_joinroles: "Non impostato!"
-guildprofil_set_joinroles: ""
 guildprofil_not_set_joinDmMessage: "Non impostato!"
-guildprofil_set_joinDmMessage: ""
 guildprofil_not_set_blockpub: "Disattivato"
 guildprofil_set_blockpub: "Attivato"
 guildprofil_embed_description: "Configurazione server: ${interaction.guild.name} !"
@@ -1344,8 +1247,6 @@ guildprofil_embed_fields_logs: "Log"
 guildprofil_embed_fields_ranks: "Gradi"
 
 # /setchannels
-setchannels_not_admin: ":x: | Devi essere un amministratore di questo server per richiedere questo comando!"
-setchannels_not_specified_args: "Devi specificare un canale valido per il tuo modulo."
 setchannels_already_this_channel_on_join: "Il modulo è già configurato con questi canali!"
 setchannels_confirmation_message_on_join: "Canale di ingresso impostato qui! :tada:"
 setchannels_command_error_on_join: "Errore: autorizzazioni mancanti o canale inesistente"
@@ -1368,42 +1269,27 @@ setchannels_button_delete: "Elimina configurazione"
 setchannels_embed_fields_value_join: "Canale di ingresso"
 setchannels_embed_fields_value_leave: "Canale di uscita"
 setchannels_not_a_text_channel: "${client.iHorizon_Emojis.Warning_Icon} Il canale specificato non è un canale di testo!"
-setchannels_which_channel: "<@${interaction.user.id}>, Quale canale desideri installare?"
-setchannels_title_embed_panel: "Pannello di configurazione per i canali della configurazione della gilda"
 
 # /setjoindm
-setjoindm_not_admin: ":x: | Devi essere un amministratore di questo server per richiedere questo comando!"
 setjoindm_logs_embed_title_on_enable: "Registri di impostazione messaggio di benvenuto"
 setjoindm_logs_embed_description_on_enable: "<@${interaction.user.id}> ha impostato il messaggio di benvenuto!"
-setjoindm_not_specified_args_on_enable: "Devi specificare un messaggio valido per il tuo messaggio di benvenuto."
 setjoindm_confirmation_message_on_enable: "Hai impostato con successo il messaggio di benvenuto su: ```${dm_msg}``` e lo hai abilitato!"
-setjoindm_command_error_on_enable: "Errore: permessi mancanti o il canale non esiste"
 setjoindm_logs_embed_title_on_disable: "Registri di impostazione messaggio di benvenuto"
 setjoindm_logs_embed_description_on_disable: "<@${interaction.user.id}> ha disabilitato il messaggio di benvenuto!"
 setjoindm_confirmation_message_on_disable: "Hai disabilitato con successo il messaggio di benvenuto!"
-setjoindm_command_error_on_disable: "Errore: permessi mancanti o il canale non esiste"
 setjoindm_already_disable: "Il messaggio di benvenuto è già disabilitato!"
-setjoindm_not_setup_ls: "Non è stato impostato alcun messaggio di benvenuto qui!"
-setjoindm_command_work_ls: "Il messaggio di benvenuto è: \n${already_off}"
-setjoindm_help_embed_title: "Guida per impostare il messaggio di unione DM!"
 setjoindm_help_embed_desc: "{memberUsername} => Il nome utente del membro\n{memberMention} => Menziona il membro\n{memberCount} => Numero di membri nella gilda\n{guildName} => Nome della gilda\n{createdAt} => Data di creazione dell'account in gg/mm/aaaa\n{accountCreationTimestamp} => Il timestamp della data di creazione dell'account"
 setjoindm_buttom_set_name: "Imposta Messaggio"
 setjoindm_buttom_delete_name: "Elimina Messaggio DM"
 setjoindm_awaiting_response: "Scrivi il nuovo messaggio personalizzato di unione DM nel canale."
 
 # /setjoinmessage
-setjoinmessage_not_admin: ":x: | Devi essere un amministratore di questo server per richiedere questo comando per i canali di benvenuto!"
-setjoinmessage_help_embed_title: "Aiuto per setjoinmessage!"
-setjoinmessage_help_embed_description: "/setjoinmessage <Power on /Power off/Mostra il messaggio impostato> <messaggio di benvenuto>"
-setjoinmessage_help_embed_fields_name: "Come usarlo?"
-setjoinmessage_help_embed_fields_value: "Usa /setjoinmessage <Power on /Power off/Mostra il messaggio impostato> <messaggio>\n{user} = Nome utente del membro\n{membercount} = Conteggio membri del server\n{createdat} = Data di creazione dell'account del membro\n{guild} = Il nome del server\n{inviter} = Nome utente e discriminante dell'invitante\n{invites} = Il numero di inviti dell'invitante"
 setjoinmessage_logs_embed_title_on_enable: "Log di setjoinmessage"
 setjoinmessage_logs_embed_description_on_enable: "<@${interaction.user.id}> ha impostato il messaggio di benvenuto!"
 setjoinmessage_command_work_on_enable: "${client.iHorizon_Emojis.GreenTick}  | Messaggio di benvenuto personalizzato impostato con successo."
 setjoinmessage_logs_embed_title_on_disable: "Log di setjoinmessage"
 setjoinmessage_logs_embed_description_on_disable: "<@${interaction.user.id}> ha eliminato il messaggio di benvenuto!"
 setjoinmessage_command_work_on_disable: "${client.iHorizon_Emojis.Yes} | Messaggio di benvenuto personalizzato eliminato con successo."
-setjoinmessage_command_work_ls: "Il messaggio di benvenuto impostato è:"
 setjoinmessage_help_embed_fields_custom_name: "Messaggio Personalizzato"
 setjoinmessage_help_embed_fields_custom_name_empy: "Non impostato!"
 setjoinmessage_help_embed_fields_default_name_empy: "Messaggio Predefinito"
@@ -1445,19 +1331,15 @@ setjoinroles_var_perm_manage_channels: "Gestisci i canali"
 setjoinroles_var_perm_manage_expression: "Gestisci emoji, adesivi e soundboard"
 setjoinroles_var_perm_view_monetization_analytics: "Visualizza la monetizzazione e le analisi del creatore"
 setjoinroles_var_perm_issue: "Non ho il permesso di gestire i ruoli."
-setjoinroles_var_timesup: "Tempo scaduto per la selezione del ruolo."
 setjoinroles_warn_dangerous_perm: "I seguenti ruoli hanno permessi pericolosi. Vuoi davvero assegnarli?"
 setjoinroles_warn_title: "Attenzione!"
 setjoinroles_timesup_button: "Tempo scaduto!"
 setjoinroles_action_canceled: "Azione annullata"
 setjoinroles_too_highter_roles: "I seguenti ruoli hanno una posizione più alta rispetto alla mia."
-setjoinroles_not_admin: ":x: | Devi essere un amministratore di questo server per utilizzare questo comando!"
-setjoinroles_help_embed_title: "Modulo ruoli di ingresso"
 setjoinroles_help_embed_description: "Ecco tutti i ruoli che do al nuovo membro."
 setjoinroles_help_embed_fields_1_name: "Tutti i ruoli registrati"
 setjoinroles_logs_embed_title_on_enable: "Registri dei ruoli di ingresso"
 setjoinroles_logs_embed_description_on_enable: "<@${interaction.user.id}> ha impostato i ruoli di ingresso!"
-setjoinroles_already_on_enable: "I ruoli di ingresso sono già configurati con questo ruolo!"
 
 # /welcomer
 welcomer_panel_title: "Benvenuto"
@@ -1481,30 +1363,20 @@ welcomer_render_mode_components: "Components (scheda)"
 welcomer_render_mode_simple: "Messaggio semplice"
 
 # /setleavemessage
-setleavemessage_not_admin: ":x: | Devi essere un amministratore di questo server per richiedere i comandi dei canali di benvenuto!"
-setleavemessage_help_embed_title: "/setleavemessage Aiuto!"
-setleavemessage_help_embed_description: "/setleavemessage <Accendi /Spegni/Mostra il messaggio impostato> <messaggio di uscita>"
-setleavemessage_help_embed_fields_name: "come si usa?"
-setleavemessage_help_embed_fields_value: "Usa /setleavemessage <Accendi /Spegni/Mostra il messaggio impostato> <messaggio>\n{user} = Nome utente del membro\n{membercount} = numero di membri del server\n{guild} = Nome del server"
 setleavemessage_logs_embed_title_on_enable: "SetLeaveMessage Logs"
 setleavemessage_logs_embed_description_on_enable: "<@${interaction.user.id}> ha impostato il messaggio di uscita!"
 setleavemessage_command_work_on_enable: "${client.iHorizon_Emojis.Yes} | Messaggio di uscita personalizzato impostato con successo."
 setleavemessage_logs_embed_title_on_disable: "SetLeaveMessage Logs"
 setleavemessage_logs_embed_description_on_disable: "<@${interaction.user.id}> ha eliminato il messaggio di uscita!"
 setleavemessage_command_work_on_disable: "${client.iHorizon_Emojis.Yes} | Messaggio di uscita personalizzato eliminato con successo."
-setleavemessage_command_work_ls: "Il messaggio di uscita è:"
 setleavemessage_awaiting_response: "Scrivi il nuovo messaggio di congedo."
 
 # /setup
-setup_not_admin: ":x: | Devi essere un amministratore di questo server!"
 setup_command_work: "${client.iHorizon_Emojis.Yes} | Canali di setup configurati con successo."
 setup_command_error: "Il bot ha già configurato i canali di log! Oppure il bot non ha le autorizzazioni necessarie..."
 
 # /setlogschannel
-setlogschannel_not_admin: ":x: | Devi essere un amministratore di questo server per utilizzare questo comando!"
-setlogschannel_not_specified_args: "Devi specificare un canale valido per il tuo modulo."
 setlogschannel_confirmation_message: "${client.iHorizon_Emojis.Yes} | Ora è stato impostato il canale per `${typeOfLogs}`, configurato da <@${interaction.user.id}> !"
-setlogschannel_already_this_channel: "Questo server ha già questo canale per i log!"
 setlogschannel_already_deleted: "Questo server non ha più il canale `SERVER_LOGS`!"
 setlogschannel_command_error: "Errore durante l'esecuzione del comando?"
 setlogschannel_command_work: "Hai configurato correttamente `${typeOfLogs}` in <#${argsid.id}> !"
@@ -1512,7 +1384,6 @@ setlogschannel_utils_command_work: "Hai configurato correttamente `${typeOfLogs}
 setlogschannel_command_work_on_delete: "Hai eliminato correttamente tutti i `SERVER_LOGS` in **${interaction.guild.name}**"
 setlogschannel_logs_embed_title: "Impostazione ServerLogs"
 setlogschannel_logs_embed_description_on_enable: "<@${interaction.user.id}> ha impostato `${typeOfLogs}` su <#${argsid.id}>"
-setlogschannel_logs_embed_title_on_off: "Impostazione ServerLogs"
 setlogschannel_logs_embed_description_on_off: "<@${interaction.user.id}> ha eliminato tutti i `SERVER_LOGS` nel server!"
 setlogschannel_var_roles: "Log dei ruoli"
 setlogschannel_var_mods: "Log di moderazione"
@@ -1566,21 +1437,16 @@ too_new_account_dont_specified_time_on_enable: "Non hai specificato un tempo. Pe
 too_new_account_invalid_time_on_enable: "Il tempo inserito non è valido! **Esempio di tempo valido**: `3h; 30m; 4w; 4y` -> 3 ore; 30 minuti; 4 settimane; 4 anni"
 too_new_account_logEmbed_title: "Modulo TooNewAccount"
 too_new_account_logEmbed_desc_on_enable: "${interaction.user} ha attivato il modulo TooNewAccount. Gli account devono ora avere almeno ${beautifulTime} di età e, se un utente si unisce più di `${maxJoin}` volte, verrà bannato."
-too_new_account_command_work_on_enable: "${interaction.user}, i nuovi membri che si uniscono a **${interaction.guild?.name}** con account più giovani di `${beautifulTime}` saranno ora espulsi."
 too_new_account_command_work_on_enable2: "\n-#  ${client.iHorizon_Emojis.Sparkles} Dopo che l'account si unisce al server **`${maxJoin}`** volte, verrà bannato."
 too_new_account_logEmbed_desc_on_disable: "${interaction.user} ha disabilitato il modulo!"
 too_new_account_command_work_on_disable: "${interaction.user}, il modulo è stato disabilitato con successo. La data di creazione dei nuovi account dei membri non sarà più verificata."
 
 # /guildconfig set-bot footer-name
 guildconfig_setbot_footername_footer_too_long_msg: "Il piè di pagina del bot è troppo lungo, sarà troppo brutto da visualizzare."
-guildconfig_setbot_footername_is_good: "Modificato con successo, tutti gli embed di iHorizon useranno `${footerName}` come piè di pagina!"
-guildconfig_setbot_footername_is_reset: "Il nome del piè di pagina è stato eliminato. Ora tutti gli embed di iHorizon utilizzeranno il `nome del bot`."
 guildconfig_setbot_footername_not_found: "Il nome del piè di pagina non è stato trovato. Per favore, riprova!"
 
 # /guildconfig set-bot footer-pfp
-guildconfig_setbot_footeravatar_is_good: "Modificato con successo, tutti gli embed di iHorizon useranno `image` come piè di pagina!"
 guildconfig_setbot_footeravatar_incorect: "Il file non corrisponde a un'immagine. Per favore, riprova con un'immagine."
-guildconfig_setbot_footeravatar_is_reset: "L'avatar del piè di pagina è stato eliminato. Ora tutti gli embed di iHorizon utilizzeranno l'`avatar del bot`."
 
 # /guildconfig set-bot prefix
 guildconfig_setbot_prefix_prefix_now_mention: "Il prefisso del bot per i comandi ora è menzione! `@Ping-Me`"
@@ -1594,7 +1460,6 @@ guildconfig_config_save_user_msg: "Questo è il backup delle configurazioni di `
 guildconfig_config_save_user_msg_2: "Ecco il link per scaricare il backup del server!\n"
 
 # /guildconfig config restore
-guildconfig_config_restore_err_msg: "Si è verificato un errore durante il download del file."
 guildconfig_config_restore_msg: "I dati sono stati salvati nel mio database."
 
 # /perm add
@@ -1602,7 +1467,6 @@ perm_add_args_error: "Non hai specificato i comandi da modificare o il permesso 
 
 # /perm list
 perm_list_embed_title: "Permessi di tutti gli utenti:"
-perm_list_unknown_user: "Utente sconosciuto (ID: ${userId})"
 perm_list_no_user: "Utente non trovato"
 var_command: "Comando"
 var_subcommand: "Sottocomando"
@@ -1689,7 +1553,6 @@ autoreact_remove_command_ok: "La configurazione dell'autoreact per questo canale
 # /setmembercount
 
 # /setmembercount
-setmembercount_not_admin: ":x: | Devi essere un amministratore di questo server per richiedere i comandi dei canali di benvenuto!"
 setmembercount_helpembed_title: "Aiuto di Set MemberCount!"
 setmembercount_helpembed_description: "/membercount <Attiva / Disattiva> <Nome del canale>"
 setmembercount_helpembed_fields_name: "Come si usa?"
@@ -1720,7 +1583,6 @@ loop_command_work: "{mode} | Modalità loop aggiornata"
 
 # /nowplaying
 nowplaying_no_queue: "Non c'è nulla in riproduzione"
-nowplaying_message_embed_title: "In riproduzione"
 nowplaying_resume_button: "${interaction.user} **riprende** la musica!"
 nowplaying_pause_button: "${interaction.user} **mette in pausa** la musica!"
 nowplaying_lyrics_button: "I testi di questa canzone non sono stati trovati"
@@ -1751,7 +1613,6 @@ queue_no_queue: "Non c'è alcuna coda"
 queue_empty_queue: "Non ci sono altre tracce nella coda"
 queue_embed_title: "Coda dei brani"
 queue_embed_description_empty: "Nessuna canzone in coda"
-queue_embed_footer_text: "Pagina {index} | Totale {track} brani"
 
 # /shuffle
 shuffle_no_queue: "Non sono in un canale vocale"
@@ -1764,7 +1625,6 @@ history_embed_title: "Storia della Musica di ${interaction.guild?.name} | Pagina
 history_embed_footer_text: "iHorizon | Pagina ${currentPage + 1}/${pages.length}"
 history_delete_embed_title: "✅ Cronologia eliminata"
 history_delete_embed_desc: "La cronologia musicale è stata eliminata con successo."
-music_history_no_permission: "È necessario il permesso di Amministratore per vedere la cronologia musicale."
 
 # /music lyrics
 lyrics_embed_title_unknown: "Titolo sconosciuto"
@@ -1786,7 +1646,6 @@ music_volume_invalid: "Volume non valido: indica un numero tra 10 e 100."
 # /end, /start, /reroll
 
 # /end
-end_not_admin: "Devi avere i permessi per gestire i messaggi per terminare questo giveaway."
 end_not_find_giveaway: "Impossibile trovare un giveaway per ${gw}."
 end_confirmation_message: "Il giveaway terminerà tra meno di (${timeEstimate}) secondi..."
 end_logs_embed_title: "Registri Giveaway"
@@ -1794,10 +1653,8 @@ end_logs_embed_description: "<@${interaction.user.id}> ha terminato i giveaway c
 end_command_error: "Questo giveaway è già terminato!"
 
 # /start
-start_not_perm: "Devi avere i permessi per gestire i messaggi per avviare i giveaway."
 start_is_not_valid: "Devi specificare un numero valido di vincitori!"
 start_confirmation_command: "Il giveaway è stato avviato in ${giveawayChannel}!"
-start_logs_embed_title: "Registri Giveaway"
 start_logs_embed_description: "<@${interaction.user.id}> ha avviato un giveaway in: ${giveawayChannel}"
 start_time_not_valid: "${interaction.user}, la durata del giveaway che hai specificato non è valida, riprova!"
 start_invalid_invites_req_value: "${client.iHorizon_Emojis.No} | Il valore per 'inviti' non è valido! Devi specificare un numero di inviti per partecipare al giveaway!"
@@ -1805,12 +1662,10 @@ start_invalid_messages_req_value: "${client.iHorizon_Emojis.No} | Il valore per 
 start_invalid_roles_req_value: "${client.iHorizon_Emojis.No} | Il ruolo per 'ruoli' non è trovato! Devi fornire un ID di ruolo per partecipare al giveaway!"
 
 # /reroll
-reroll_not_perm: "Devi avere i permessi per gestire i messaggi per eseguire nuovamente questo giveaway."
 reroll_dont_find_giveaway: "Non ho trovato alcun giveaway con id {args}."
 reroll_command_work: "Giveaway ripartito!"
 reroll_logs_embed_title: "Logs Giveaways"
 reroll_logs_embed_description: "<@${interaction.user.id}> ha rifatto il giveaway con questo id: ${giveaway.messageID}"
-reroll_command_error: "Errore!"
 reroll_giveaway_not_over: "Questo giveaway non è ancora terminato!"
 
 # /get-all
@@ -1844,31 +1699,24 @@ avatar_embed_description: "Guarda questo incredibile avatar! :D"
 avatar_embed_title: "__**Avatar**__: `${mentionedUser.username}`"
 
 # /ban
-ban_not_permission: "${client.iHorizon_Emojis.No} | Non hai il permesso di bannare i membri."
 ban_dont_found_member: "🔍 | Impossibile trovare questo membro"
 ban_dont_have_perm_myself: "${client.iHorizon_Emojis.No} | Non ho il permesso di bannare i membri!"
 ban_try_to_ban_yourself: "${client.iHorizon_Emojis.No} | Non puoi bannare te stesso!"
 ban_attempt_ban_higter_member: "${client.iHorizon_Emojis.Stop} Non puoi bannare un utente con un ruolo superiore al tuo..."
 ban_cant_ban_member: "${client.iHorizon_Emojis.No} | Non posso bannare quel membro"
 ban_message_to_the_banned_member: "Sei stato bannato da questo server: `${interaction.guild.name}` per il motivo: **`${reason}`**"
-ban_command_work: "<@${member.user.id}> bannato da <@${interaction.member.id}>"
 ban_logs_embed_title: "Log del Ban"
 ban_logs_embed_description: "<@${member.user.id}> bannato da <@${interaction.member.id}>"
 
 # /kick
-kick_not_permission: "${client.iHorizon_Emojis.No} | Non hai il permesso di espellere i membri."
 kick_dont_have_permission: "${client.iHorizon_Emojis.No} | Non ho il permesso di espellere i membri!"
 kick_attempt_kick_your_self: "${client.iHorizon_Emojis.No} | Non puoi espellere te stesso!"
 kick_attempt_kick_higter_member: "${client.iHorizon_Emojis.Stop} Non puoi espellere un utente con un ruolo superiore al tuo..."
 kick_message_to_the_banned_member: "Sei stato espulso da questo server: ${interaction.guild.name} da ${interaction.member.user.username}"
-kick_command_work: "${member.user} è stato espulso da ${interaction.user}"
 kick_logs_embed_title: "Log di Espulsioni"
 kick_logs_embed_description: "${member.user} espulso da <@${interaction.user.id}>"
 
 # /clear
-clear_dont_have_permission: "${client.iHorizon_Emojis.No} | Non hai il permesso di MANAGE_MESSAGES."
-clear_max_message_limit: "${client.iHorizon_Emojis.No} | Non posso eliminare più di 99 messaggi in una volta!"
-clear_channel_message_deleted: "${messages.size} messaggi eliminati!"
 clear_confirmation_message: "${messages.size} messaggi sono stati eliminati!"
 clear_logs_embed_title: "Log eliminazione messaggi"
 clear_logs_embed_description: "<@${interaction.user.id}> ha eliminato ${messages.size} messaggi in <#${interaction.channel.id}>"
@@ -1876,18 +1724,15 @@ clear_command_no_message: "Non ci sono messaggi da eliminare in questo canale"
 
 # /lock
 lock_embed_message_description: "Il canale è stato bloccato da <@${interaction.user.id}>."
-lock_dont_have_permission: "${client.iHorizon_Emojis.No} | Non hai i permessi per bloccare i canali."
 lock_logs_embed_title: "Log di Blocco"
 lock_logs_embed_description: "<@${interaction.user.id}> ha bloccato il canale <#${interaction.channel.id}>"
 
 # /unlock
 unlock_embed_message_description: "Il canale è stato sbloccato con successo!"
-unlock_dont_have_permission: "${client.iHorizon_Emojis.No} | Non hai il permesso di sbloccare il canale."
 unlock_logs_embed_title: "Log di sblocco"
 unlock_logs_embed_description: "<@${interaction.user.id}> ha sbloccato <#${interaction.channel.id}>"
 
 # /lockall
-lockall_dont_have_permission: "${client.iHorizon_Emojis.No} | Non hai il permesso di bloccare tutti i canali."
 lockall_embed_message_description: "Tutti i canali sono stati bloccati da <@${interaction.user.id}>."
 lockall_logs_embed_title: "Log Blocco Canali"
 lockall_logs_embed_description: "<@${interaction.user.id}> ha bloccato tutti i canali!"
@@ -1898,7 +1743,6 @@ unlockall_logs_embed_title: "Log Sblocco Canali"
 unlockall_logs_embed_description: "<@${interaction.user.id}> ha sbloccato tutti i canali!"
 
 # /unban
-unban_dont_have_permission: "${client.iHorizon_Emojis.No} | Non hai il permesso di sbannare i membri."
 unban_bot_dont_have_permission: "${client.iHorizon_Emojis.No} | Non ho il permesso di sbannare i membri."
 unban_there_is_nobody_banned: "${client.iHorizon_Emojis.No} | **Non c'è nessuno sbannato da questo server!**"
 unban_the_member_is_not_banned: "${client.iHorizon_Emojis.No} | **L'ID indicato non è stato sbannato da questo server!**"
@@ -1908,7 +1752,6 @@ unban_logs_embed_description: "<@${userID}> è stato sbannato dal server da <@${
 unban_reason: "Nessuna ragione è stata fornita."
 
 # /tempmute
-tempmute_dont_have_permission: "${client.iHorizon_Emojis.No} | Non hai il permesso di mutare temporaneamente i membri."
 tempmute_i_dont_have_permission: "${client.iHorizon_Emojis.No} | Non ho il permesso."
 tempmute_cannot_mute_yourself: "${client.iHorizon_Emojis.No} | Non puoi mutare te stesso!"
 tempmute_already_muted: "Questo utente è già mutato!"
@@ -1916,31 +1759,24 @@ tempmute_command_work: "<@${tomute.id}> è stato silenziato per ${ms(ms(mutetime
 tempmute_unmuted_by_time: "<@${tomute.id}> è stato smutato!"
 tempmute_logs_embed_title: "Log Tempmute"
 tempmute_logs_embed_description: "<@${interaction.user.id}> ha silenziato <@${tomute.id}> per ${ms(ms(mutetime))}\n**Motivo**: `${reason}`"
-tempmute_reason_create_roles: "Creazione del ruolo temporaneo di muting!"
 tempmute_tomute_is_admin: "${client.iHorizon_Emojis.No} | L'utente ha i permessi di amministratore, non posso mutarlo."
 tempmute_tomute_highest_role_or_same: "${client.iHorizon_Emojis.No} | **Il mio ruolo su questo server è inferiore o uguale a ${tomute.toString()}. Non posso moderare questo membro.**"
 tempmute_cannot_mute_higher_role: "${client.iHorizon_Emojis.No} | **${tomute.toString()}'s role is higher than or equal to yours. You cannot timeout this member.**"
 tempmute_tomute_max_time_passed: "\n-# ${client.iHorizon_Emojis.VC_OpenChat} Discord ha un limite di 28 giorni per un mute. Ho applicato 28 giorni."
 
 # /temprole
-temprole_dont_have_permission: "${client.iHorizon_Emojis.No} | Non hai il permesso di aggiungere ruoli temporanei ai membri."
 temprole_i_dont_have_permission: "${client.iHorizon_Emojis.No} | Non ho il permesso."
-temprole_cannot_add_yourself: "${client.iHorizon_Emojis.No} | Non puoi aggiungere un ruolo temporaneo a te stesso!"
 temprole_already_has_role: "Questo utente ha già questo ruolo temporaneo!"
 temprole_command_work: "<@${tomute.id}> ha ricevuto il ruolo per ${ms(ms(mutetime))}\n**Motivo**: `${reason}`"
-temprole_removed_by_time: "Il ruolo temporaneo di <@${tomute.id}> è stato rimosso!"
 temprole_logs_embed_title: "Log Ruoli Temporanei"
 temprole_logs_embed_description: "<@${interaction.user.id}> ha aggiunto un ruolo temporaneo a <@${tomute.id}> per ${ms(ms(mutetime))}\n**Motivo**: `${reason}`"
-temprole_tomute_is_admin: "${client.iHorizon_Emojis.No} | L'utente ha permessi da amministratore, non posso assegnargli un ruolo temporaneo."
 temprole_tomute_highest_role_or_same: "${client.iHorizon_Emojis.No} | **Il mio ruolo su questo server è inferiore o uguale a ${tomute.toString()}. Non posso moderare questo membro.**"
 temprole_tomute_max_time_passed: "\n-# ${client.iHorizon_Emojis.VC_OpenChat} Il tempo massimo per un ruolo temporaneo è 1 anno. Ho applicato 1 anno."
 
 # /unmute
-unmute_dont_have_permission: "${client.iHorizon_Emojis.No} | Non hai il permesso di smutare i membri."
 unmute_attempt_mute_your_self: "${client.iHorizon_Emojis.No} | Non puoi smutarti da solo!"
 unmute_i_dont_have_permission: "${client.iHorizon_Emojis.No} | Non ho il permesso."
 unmute_not_muted: "Questo utente non è mutato!"
-unmute_muted_role_doesnt_exist: "Il ruolo mutato non esiste. Per favore muta l'utente prima di creare il ruolo per la muta..."
 unmute_command_work: "<@${tomute.id}> è stato smutato!"
 unmute_logs_embed_title: "Unmute Logs"
 unmute_logs_embed_description: "<@${interaction.user.id}> smuta <@${tomute.id}>."
@@ -1954,7 +1790,6 @@ unmuteall_logs_embed_description: "<@${interaction.user.id}> ha smutato ${unmute
 warn_command_work: "${client.iHorizon_Emojis.Yes} ${member?.toString()} è stato avvertito! **Motivo**: `${reason}`\n__ID Avvertimento__: `${warnId}`"
 warn_logEmbed_title: "Registro Avvertimenti"
 warn_logEmbed_desc: "${interaction.member.toString()} ha avvertito ${member?.toString()} per `${reason}`"
-warn_dont_have_permission: "${client.iHorizon_Emojis.No} | Non hai il permesso di avvertire un membro in questo server Discord."
 
 # /unwarn
 unwarn_cannot_found: "${client.iHorizon_Emojis.No} ${member?.toString()} sembra non avere avvertimenti nel mio database!"
@@ -1962,7 +1797,6 @@ unwarn_cannot_found_id: "${client.iHorizon_Emojis.No} ${member?.toString()} l'ID
 unwarn_command_ok: "${client.iHorizon_Emojis.Yes} L'avvertimento di ${member?.toString()} è stato rimosso!"
 unwarn_logEmbed_title: "Registro Rimozioni Avvertimenti"
 unwarn_logEmbed_desc: "${interaction.member.toString()} ha rimosso l'avvertimento di ${member?.toString()}"
-unwarn_dont_have_permission: "${client.iHorizon_Emojis.No} | Non hai il permesso di rimuovere un avvertimento da un membro in questo server Discord."
 
 # /clear-allwarns
 clear_allwarns_confirmation_message: "**Sei davvero sicuro di voler eliminare tutti i dati degli avvertimenti? Questa azione è permanente e non può essere annullata.** **Questa azione è distruttiva!!**"
@@ -1972,7 +1806,6 @@ clear_allwarns_command_ok: "Tutti gli avvertimenti in questo server Discord sono
 warnlist_no_data: "${client.iHorizon_Emojis.No} ${member?.toString()} sembra non avere avvertimenti nel mio database!"
 warnlist_embed_desc: "### ID: ${x.id} - ${format(x.timestamp, 'DD/MM/YYYY')}\n> Autore: <@${x.authorID}>\n> Motivo: `${x.reason}`"
 warnlist_embed_title: "Lista Avvertimenti di ${member?.user.globalName} | Pagina ${i / usersPerPage + 1}"
-warnlist_dont_have_permission: "${client.iHorizon_Emojis.No} | Non hai il permesso di gestire gli avvertimenti dei membri in questo server Discord."
 
 # /baninfo
 baninfo_not_banned: "L'utente non è bannato"
@@ -1985,36 +1818,28 @@ var_ban_date: "Data del ban"
 clearwarn_command_ok: "${client.iHorizon_Emojis.Yes} ${interaction.member.toString()}, **`${allWarns.length}`** avvertimento/i di ${member?.toString()} è/sono stato/i cancellato/i."
 
 # /tempban
-tempban_dont_have_permission: "Non hai il permesso di bannare temporaneamente i membri."
 tempban_i_dont_have_permission: "Non ho il permesso di bannare i membri."
-tempban_cannot_ban_yourself: "Non puoi bannare te stesso!"
 tempban_already_banned: "Questo utente è già temporaneamente bannato!"
 tempban_command_work: "**<@${user.id}>** è stato temporaneamente bannato per **${duration}**\n**Motivo**: `${reason}`"
-tempban_unbanned_by_time: "**<@${user.id}>** è stato sbannato!"
 tempban_logs_embed_title: "Log del ban temporaneo"
 tempban_logs_embed_description: "**<@${executor.id}>** ha bannato temporaneamente **<@${user.id}>** per **${duration}**\n**Motivo**: `${reason}`"
 tempban_user_is_admin: "L'utente ha permessi da amministratore, non posso bannarlo."
 tempban_user_highest_role_or_same: "Il mio ruolo su questo server è inferiore o uguale a quello di **user_mention**. Non posso moderare questo membro."
 tempban_max_time_passed: "\n*Il tempo massimo per un ban temporaneo è 1 anno. Ho applicato 1 anno.*"
-tempban_user_not_in_guild: "Questo utente non è nel server ma può comunque essere bannato."
 
 # Backup commands
 # /backup
 
 # /backup
-backup_wait_please: "⏲ Attendere prego..."
-backup_not_admin: ":x: | Devi essere amministratore di questo server per richiedere un backup!"
 backup_i_dont_have_permission: "Non ho il permesso di AMMINISTRATORE"
 backup_command_work_on_creation: ":white_check_mark: Backup creato con successo."
 backup_command_work_info_on_creation: "Il backup è stato creato! ID: ${backupData.id}!"
 backup_logs_embed_title_on_creation: "Log Backup"
 backup_logs_embed_description_on_creation: "<@${interaction.user.id}> ha creato un backup!"
-backup_dont_have_perm_on_load: ":x: | Devi essere amministratore di questo server per caricare un backup!"
 backup_i_dont_have_perm_on_load: "Non ho il permesso di AMMINISTRATORE"
 backup_unvalid_id_on_load: ":x: | Devi specificare un ID backup valido!"
 backup_waiting_on_load: "${client.iHorizon_Emojis.Yes} - Caricamento in corso..."
 backup_error_on_load: ":x: | Spiacenti, si è verificato un errore... Controlla che abbia i permessi di amministratore!"
-backup_error_when_fetch_backup_on_load: ":x: | Nessun backup trovato per ${backupID} !"
 backup_this_is_not_your_backup: "${client.iHorizon_Emojis.No} | Questo non è il tuo backup!"
 backup_backup_doesnt_exist: "ERRORE? Il backup non esiste."
 backup_create_usage_save_message: "Uso: `/backup create save-message:<yes|no>` — passa `yes` per salvare fino a 100 messaggi per canale, `no` altrimenti."
@@ -2042,7 +1867,6 @@ backup_manage_command_ok: "Il modulo di backup è stato aggiornato. D'ora in poi
 # /reactionroles
 
 # /reactionroles
-reactionroles_dont_admin_added: ":x: | Devi essere un amministratore di questo server per richiedere i comandi dei canali di benvenuto!"
 reactionroles_embed_message_description_added: "come si usa?\n/rolesreaction add <id messaggio> <reazione> <id ruolo>\n/rolesreaction remove <id messaggio> <reazione>\n/rolesreaction list <id messaggio>"
 reactionroles_missing_reaction_added: "Argomento mancante: Emoji della reazione"
 reactionroles_invalid_emote_format_added: "${client.iHorizon_Emojis.No} | Non puoi inviarmi un CUSTOM_EMOJI nel formato <::xxx>! Ho bisogno solo del loro ID!"
@@ -2100,7 +1924,6 @@ roleselect_modal2_placeholder: "Segnaposto del menu"
 # /punishpub, /report, /support
 
 # /punishpub
-punishpub_not_admin: ":x: | Devi essere un amministratore del server per richiedere questo comando!"
 punishpub_too_hight_enable: "La quantità inserita è troppo alta! Non è consigliabile!"
 punishpub_negative_number_enable: "Non puoi inserire numeri negativi!"
 punishpub_zero_number_enable: "Il numero 0 non è valido!"
@@ -2118,7 +1941,6 @@ report_specify: "**Per favore specifica il bug. Per favore, crea una buona frase
 report_command_work: "**Grazie per aver segnalato un bug**!"
 
 # /support
-support_not_admin: ":x: | Devi essere un amministratore di questo server per richiedere questi comandi!"
 support_command_work: "Hai configurato il modulo di supporto per ${interaction.guild.name}.\nQuando un utente ha questa descrizione:\n**${input}**.\nDovrei assegnare loro il ruolo <@&${roles.id}>!"
 support_command_work_on_disable: "Hai configurato il modulo di supporto per ${interaction.guild.name}.\nNessuno può avere il ruolo ora!"
 support_command_not_role: ":x: | Non hai specificato il ruolo!"
@@ -2133,26 +1955,19 @@ updates_embed_description: "Ecco gli ultimi cambiamenti e aggiornamenti per iHor
 updates_field_version: "Versione"
 updates_field_commit: "Ultimo commit"
 updates_field_branch: "Branch"
-updates_field_links: "Link"
-updates_changelog_attached: "Il changelog completo è allegato come PDF."
-newsletter_dm_title: "iHorizon {version} - Release Notes"
 newsletter_dm_body: "Ciao {owner},\n\nUna nuova versione maggiore di iHorizon è stata rilasciata.\n\n**Versione**: {version}\n**Release**: {releaseUrl}\n\nIl changelog completo è allegato come PDF.\n\nHai bisogno di aiuto? Unisciti al nostro server di supporto: https://discord.gg/ihorizon\n-# Usa +updates per gestire il tuo abbonamento o il pulsante qui sotto per disiscriverti."
 newsletter_btn_unsubscribe: "Unsubscribe from newsletter"
 newsletter_btn_subscribe: "Subscribe to newsletter"
 newsletter_not_owner: "Ahah, sono felice di sapere che ti interesso abbastanza da voler vedere i cambiamenti del mio codice in tempo reale :3\n\n**Ma hey, devi aggiungermi su un server Discord prima:**\n\n<https://discord.com/oauth2/authorize?client_id=${clientId}>\n**Ti terrò aggiornato così.**\n\n> Un'altra alternativa: puoi unirti a discord.gg/ihorizon. Le mie fondatrici fanno ping con il changelog ad ogni aggiornamento. A te la scelta :3"
 newsletter_toggle_enabled: "Newsletter notifications enabled."
 newsletter_toggle_disabled: "Newsletter notifications disabled."
-setserverlang_not_admin: ":x: | Devi essere un amministratore del server per richiedere questo comando!"
 setserverlang_logs_embed_title_on_enable: "SetServerLang Log"
 setserverlang_logs_embed_description_on_enable: "<@${interaction.user.id}> ha impostato la lingua di iHorizon su ${type}!"
-setserverlang_already: "Sono già in questa lingua!"
-setserverlang_command_work_enable: "La mia lingua è ora su ${type}"
 setserverlang_panel_title: "Selezione lingua"
 setserverlang_panel_description: "Seleziona la lingua che vuoi che iHorizon usi su questo server."
 setserverlang_panel_current: "Lingua attuale"
 setserverlang_panel_select: "Scegli una lingua..."
 setserverlang_panel_saved: "La lingua è stata cambiata con successo!"
-setserverlang_command_error_enable: "errore!"
 
 # /embed
 embed_placeholder_string_select_menu_builder: "Cosa vuoi fare?"
@@ -2281,7 +2096,6 @@ counter_actual_number: "✨ **Numero attuale:** {number}"
 # /impostasuggerimento, /suggerisci
 
 # /suggerisci accetta
-suggest_accept_not_admin: "Non sei un amministratore!"
 suggest_acceptnot_good_channel: "Questa comando deve essere eseguita nel canale del modulo suggerimenti (<#${baseData?.channel}>)!\nPer favore verifica che il modulo suggerimenti non sia disabilitato!"
 suggest_accept_not_found_db: "Il suggerimento non è stato trovato nel mio database!"
 suggest_accept_already_replied: "Questo suggerimento ha già ricevuto una risposta!"
@@ -2291,7 +2105,6 @@ suggest_accept_command_work: "Hai accettato il suggerimento !\nhttps://discord.c
 suggest_accept_command_error: "Il suggerimento non è stato trovato nel canale Discord!"
 
 # /suggerisci rifiuta
-suggest_deny_not_admin: "Non sei un amministratore!"
 suggest_deny_not_good_channel: "Questa comando deve essere eseguita nel canale del modulo suggerimenti (<#${baseData?.channel}>)!\nPer favore verifica che il modulo suggerimenti non sia disabilitato!"
 suggest_deny_not_found_db: "Il suggerimento non è stato trovato nel mio database!"
 suggest_deny_already_replied: "Questo suggerimento ha già ricevuto una risposta!"
@@ -2301,7 +2114,6 @@ suggest_deny_command_work: "Hai rifiutato il suggerimento !\nhttps://discord.com
 suggest_deny_command_error: "Il suggerimento non è stato trovato nel canale Discord!"
 
 # /suggerisci risposta
-suggest_reply_not_admin: "Non sei un amministratore!"
 suggest_reply_not_good_channel: "Questa comando deve essere eseguita nel canale del modulo suggerimenti (<#${baseData?.channel}>)!\nPer favore verifica che il modulo suggerimenti non sia disabilitato!"
 suggest_replynot_found_db: "Il suggerimento non è stato trovato nel mio database!"
 suggest_reply_already_replied: "Questo suggerimento ha già ricevuto una risposta!"
@@ -2311,19 +2123,16 @@ suggest_reply_command_work: "Hai inviato una risposta al suggerimento !\nhttps:/
 suggest_reply_command_error: "Il suggerimento non è stato trovato nel canale Discord!"
 
 # /suggerisci elimina
-suggest_delete_not_delete: "Non sei un amministratore!"
 suggest_delete_not_good_channel: "Questa comando deve essere eseguita nel canale del modulo suggerimenti (<#${baseData?.channel}>)!\nPer favore verifica che il modulo suggerimenti non sia disabilitato!"
 suggest_delete_not_found_db: "Il suggerimento non è stato trovato nel mio database!"
 suggest_delete_command_work: "Hai eliminato il suggerimento !"
 suggest_delete_command_error: "Il suggerimento non è stato trovato nel canale Discord!"
 
 # /impostasuggerimento disattiva
-setsuggest_disable_not_admin: "Non sei un amministratore!"
 setsuggest_disable_pw_on: "${interaction.user}, hai attivato il modulo suggerimenti!"
 setsuggest_disable_pw_off: "${interaction.user}, hai disattivato il modulo suggerimenti!"
 
 # /impostasuggerimento canale
-setsuggest_channel_not_admin: "Non sei un amministratore!"
 setsuggest_channel_already_set_with_that: "${interaction.user}, il canale del modulo suggerimenti è già configurato in ${channel} !"
 setsuggest_channel_embed_title: "Il modulo suggerimenti è stato impostato qui !"
 setsuggest_channel_embed_desc: "Ora, tutti gli utenti autorizzati ad inviare messaggi qui possono suggerire semplicemente inviando un messaggio!"
@@ -2333,16 +2142,13 @@ setsuggest_channel_command_work: "${interaction.user}, hai impostato il canale d
 # /sicurezza
 
 # /sicurezza disattiva
-security_disable_not_admin: "Non sei un amministratore!"
 security_disable_pw_on: "${interaction.user}, hai attivato il modulo di sicurezza!"
 security_disable_pw_off: "${interaction.user}, hai disattivato il modulo di sicurezza."
 
 # /sicurezza ruolo-da-assegnare
-security_role_to_give_not_admin: "Non sei un amministratore!"
 security_role_to_give_command_work: "${interaction.user}, hai impostato il ruolo ${role} per il modulo di sicurezza!"
 
 # /sicurezza canale
-security_channel_not_admin: "Non sei un amministratore!"
 security_channel_command_work: "${interaction.user}, hai impostato il canale ${channel} per il modulo di sicurezza!"
 
 # Comando di Pianificazione
@@ -2381,12 +2187,10 @@ schedule_create_confirm_msg: "${interaction.user}, la tua pianificazione è stat
 # /pfps channel, /pfps config
 
 # /pfps config
-pfps_config_not_admin: ":x: Non hai le autorizzazioni di amministratore per eseguire questo comando"
 pfps_config_command_action_on: "${interaction.user}, hai impostato il modulo PFPS su 'Acceso'.\nSe il canale non esiste, configuralo con il comando: **/pfps channel**."
 pfps_config_command_action_off: "${interaction.user}, hai impostato il modulo PFPS su 'Spento'."
 
 # /pfps channel
-pfps_channel_not_admin: ":x: Non hai le autorizzazioni di amministratore per eseguire questo comando"
 pfps_channel_embed_title: "Modulo PFPS impostato qui!"
 pfps_channel_embed_desc: "${interaction.user} ha impostato il modulo PFPS qui!\nOra ogni 15 secondi, iHorizon invierà un avatar di un utente casuale in questa gilda!\nFarò del mio meglio!"
 pfps_channel_command_work: "${interaction.user}, hai impostato con successo il modulo PFPS nel canale ${channel} !"
@@ -2485,7 +2289,6 @@ tag_edit_command_ok: "Il nome del tag corrente è stato modificato da **`${curre
 # /testo, /voce, /stato, /personale
 
 # Interfaccia /voce per impostare il canale di testo
-tempvoice_if_text_not_admin: "<@${interaction.user.id}>, non sei autorizzato a usare questo comando!"
 tempvoice_if_text_desc_embed: "## Interfaccia TempVoice\nQuesta **interfaccia** può essere utilizzata per gestire canali vocali temporanei.\n"
 tempvoice_if_text_fields_value_limit: "${client.iHorizon_Emojis.VC_Limit} **Modifica limite**"
 tempvoice_if_text_fields_value_name: "${client.iHorizon_Emojis.VC_Name} **Modifica nome**"
@@ -2500,10 +2303,8 @@ tempvoice_if_text_fields_value_transfer: "${client.iHorizon_Emojis.VC_Transfer} 
 tempvoice_if_text_fields_value_delete: "${client.iHorizon_Emojis.VC_Delete} **Elimina**"
 
 # Interfaccia /voce per impostare il canale vocale
-tempvoice_vc_not_admin: "<@${interaction.user.id}>, non sei autorizzato a usare questi comandi!"
 
 # Interfaccia /voce per impostare il ruolo dello staff
-tempvoice_staff_not_admin: "<@${interaction.user.id}>, non sei autorizzato a usare questo comando!"
 tempvoice_staff_desc_embed: "## Ruolo dello staff TempVoice\nI ruoli qui ora possono entrare nel canale e moderarlo!\n"
 
 # Modulo Confessioni
@@ -2544,18 +2345,10 @@ antispam_manage_choices_3_label: "Tipo di punizione"
 antispam_manage_choices_3_desc: "Che tipo di sanzione darò all'utente?"
 antispam_manage_choices_4_label: "Tempo di punizione"
 antispam_manage_choices_4_desc: "Quanto dura la sanzione"
-antispam_manage_choices_5_label: "Moltiplicatore del tempo di punizione"
-antispam_manage_choices_5_desc: "Se la durata della sanzione viene moltiplicata per ogni punizione"
 antispam_manage_choices_6_label: "Rimuovi messaggi"
 antispam_manage_choices_6_desc: "Elimina il messaggio di spam"
 antispam_manage_choices_7_label: "Intervallo massimo tra i messaggi"
 antispam_manage_choices_7_desc: "Intervallo massimo tra i messaggi per considerarli spam"
-antispam_manage_choices_8_label: "Max messaggi duplicati"
-antispam_manage_choices_8_desc: "Quantità massima di messaggi duplicati prima della sanzione"
-antispam_manage_choices_9_label: "Intervallo massimo tra duplicati"
-antispam_manage_choices_9_desc: "L'intervallo tra messaggi duplicati per segnalare l'utente"
-antispam_manage_choices_10_label: "Max messaggi simili"
-antispam_manage_choices_10_desc: "Quantità massima di messaggi simili prima della sanzione"
 antispam_manage_choices_12_label: "Soglia prima della punizione"
 antispam_manage_choices_12_desc: "La soglia massima prima della punizione"
 antispam_manage_select_menu_punish_mute_label: "Silenzia membri"
@@ -2595,7 +2388,6 @@ stats_gstats_detail_text: "Top membri:\n${top_members}\nTop canali:\n${top_text}
 channel_stats_title: "Statistiche del Canale"
 stats_channel_invalid: "Canale specificato non valido."
 top_active_users_title: "Utenti Più Attivi"
-activity_overview: "Panoramica dell'Attività"
 active_users_title: "Utenti Attivi"
 var_members: "membro/i"
 
@@ -2654,7 +2446,6 @@ blogger_generateConfigurationEmbed_embed_title: "📰 Configurazione Blogger"
 blogger_no_rss: "Nessun feed RSS configurato."
 blogger_generateConfigurationEmbed_embed_fields_1_name: "Stato"
 blogger_generateConfigurationEmbed_embed_fields_2_name: "Totale Blog"
-blogger_unknown_blog: "Blog sconosciuto"
 blogger_on_new_article_default_message: "📰 Nuovo articolo pubblicato!\n**{articleTitle}** di {articleAuthor}\n{articleLink}"
 blogger_config_status_enabled: "✅ Il modulo Blogger è stato **abilitato**. I feed RSS verranno monitorati."
 blogger_config_status_disabled: "❌ Il modulo Blogger è stato **disabilitato**. I feed RSS non verranno monitorati."
@@ -2736,7 +2527,6 @@ media_gen_error_args: "Per favore, fornisci due URL di immagini valide."
 
 # it-IT.yml (Italian - Italy)
 batch_ban_process: "🔄 Bannando ${member.user.username} su ${guilds.length} server..."
-batch_unban_process: "🔄 Sbannando ${banned_members.size} membri..."
 batch_unblacklist_process: "🔄 Rimuovendo ${bannedMember.username} dalla blacklist su ${guildObjects.length} server..."
 batch_unbanall_process: "🔄 Sbannando ${banned_members.size} membri..."
 batch_massiverole_process: "🔄 Aggiungendo ruolo a ${membersToProcess.length} membri..."
@@ -2760,7 +2550,6 @@ event_mp_playerError: "Sto avendo problemi di connessione => ${error.message}"
 event_mp_error: "Si è verificato un problema con la coda di riproduzione della canzone => ${error.message}"
 event_mp_emptyChannel: "${client.iHorizon_Emojis.No} | Nessuno è nel canale vocale, esco..."
 event_mp_playerSkip: "${client.iHorizon_Emojis.Music_Icon} - Salto di `${track.title}` !"
-event_mp_emptyQueue: "${client.iHorizon_Emojis.Warning_Icon} - La musica si è fermata poiché non ci sono più brani nella coda di riproduzione!"
 
 # Channel Create Events
 event_channel_create_message_embed_title: "Setup effettuato con successo!"
@@ -2790,8 +2579,6 @@ event_ticket_create_reason_modal_fields_1_label: "Motivo del ticket"
 event_ticket_reason_embed_desc: "# Motivo del ticket\n`${reason}`"
 
 # Eventi di interactionCreate:
-iC_event_cooldown: "Cooldown, attendere un po' tra i comandi!"
-iC_event_connection_error: "Errore di connessione!"
 
 # Cooldown
 Msg_cooldown: "Puoi pazientare un secondo prima di eseguire un comando, per favore?"
@@ -2801,8 +2588,6 @@ ticket_module_button_delete: "Elimina Ticket"
 ticket_module_button_transcript: "Trascrivi Ticket"
 ticket_module_button_addmember: "Aggiungi Membro"
 ticket_module_button_removemember: "Rimuovi Membro"
-ticket_module_add_question: "Chi vuoi aggiungere al tuo ticket? (Specificare l'ID utente)!"
-ticket_module_remove_question: "Chi è l'utente che desideri rimuovere dal tuo ticket? (Specificare l'ID utente)!"
 ticket_transcript_failed_to_send: "Ho provato a inviarti il file in un messaggio privato, ma hai bloccato i tuoi DM :/"
 
 # Registri del Server
@@ -2838,7 +2623,6 @@ event_rank_role: "<@${message.author.id}>, ora hai il ruolo <@&${fetch.id}>"
 event_suggestion_embed_author: "Nuovo suggerimento da ${message.author.username}"
 
 # Evento di sicurezza
-event_security_title: "Benvenuto su ${guild}!"
 event_security: "${member}, inserisci il captcha mostrato in questo messaggio."
 event_security_expiry: "{emoji} Espulsione automatica ${timestamp} (**${attempts}** tentativo/i rimanente/i)."
 event_security_footer: "Richiede solo pochi secondi e aiuta a mantenere sicura la nostra comunità."
@@ -2866,8 +2650,6 @@ event_ticket_already_opened: "Ops, hai già un ticket aperto (<#${channelId}>)! 
 
 # Evento Giveaway
 event_gw_reroll_win_msg: "Congratulazioni ${winners}! Hai vinto **${fetch[channelId][messageId].prize}**!"
-event_gw_reroll_cannot_win_msg: "Nessun partecipante valido, quindi il vincitore non può essere determinato!"
-event_gw_finnish_msg: "Congratulazioni ${winners}! Hai vinto **${fetch.prize}**!"
 event_gw_finnish_cannot_msg: "Nessun partecipante valido, quindi il vincitore non può essere determinato!"
 event_gw_finnish_button_title: "Giveaway Concluso"
 event_gw_entries_button_title: "Elenco partecipanti"
@@ -2947,7 +2729,6 @@ temporary_voice_channel_name: "Canale di {nickname}"
 # Modulo di Protezione
 # Messaggio di evento
 
-protection_avoid_channel_delete: "**MODALITÀ PROTEZIONE ATTIVA**\n<@${channel.guild.ownerId}>, il canale è stato ricreato, <@${firstEntry.executorId}> ha tentato di eliminare il canale!"
 protection_blockbot_embed_title: "⚠️ Pericolo in ${member.guild.name} ⚠️"
 protection_blockbot_embed_desc: "# Avviso Aggiunta Bot\nQualcuno ha cercato di aggiungere un bot Discord."
 var_target_bot: "Bot di destinazione"
@@ -3000,12 +2781,7 @@ rolepanel_setup_embed_desc: "Seleziona i ruoli da aggiungere o rimuovere da ${me
 rolepanel_setup_embed_roles_field: "Ruoli consentiti"
 rolepanel_setup_embed_refused_field: "Ruoli rifiutati"
 rolepanel_setup_select_placeholder: "Seleziona i ruoli da offrire"
-rolepanel_setup_apply_button: "Crea pannello"
 rolepanel_setup_no_roles: "Nessun ruolo valido è stato selezionato."
-rolepanel_setup_saved: "Il pannello dei ruoli è stato inviato."
-rolepanel_panel_embed_title: "Pannello ruoli"
-rolepanel_panel_embed_desc: "Scegli i ruoli da aggiungere o rimuovere dal tuo profilo."
-rolepanel_panel_select_placeholder: "Scegli i tuoi ruoli"
 rolepanel_role_managed_or_everyone: "Ruolo di sistema o @everyone"
 rolepanel_role_too_high_bot: "Ruolo più alto del bot"
 rolepanel_role_too_high_user: "Ruolo più alto del tuo"
@@ -3013,8 +2789,6 @@ rolepanel_role_missing_permissions: "Permessi mancanti: ${permissions}"
 rolepanel_apply_added: "Ruoli aggiunti: ${roles}"
 rolepanel_apply_removed: "Ruoli rimossi: ${roles}"
 rolepanel_apply_refused: "Ruoli rifiutati: ${roles}"
-rolepanel_logs_embed_title_create: "Log pannello ruoli"
-rolepanel_logs_embed_desc_create: "<@${interaction.user.id}> ha creato un pannello ruoli (${message.id}) con: ${roles}"
 rolepanel_logs_embed_title_apply: "Log utilizzo pannello ruoli"
 rolepanel_logs_embed_desc_apply: "<@${interaction.user.id}> ha modificato i ruoli di <@${member.id}> tramite un pannello. Aggiunti: ${addedRoles} | Rimossi: ${removedRoles}"
 
@@ -3057,10 +2831,8 @@ addrolereact_role_added: "Ruolo {role} aggiunto. {count} utenti hanno ricevuto i
 addrolereact_error: "Errore durante l'esecuzione del comando."
 
 # Comandi nascondi/mostra canali
-channel_hide_in_progress: "Nascondendo il canale corrente..."
 channel_hide_success: "Il canale è stato nascosto per @everyone"
 channel_hide_already_hidden: "Questo canale è già nascosto per @everyone"
-channel_unhide_in_progress: "Mostrando il canale corrente..."
 channel_unhide_success: "Il canale è ora visibile per @everyone"
 channel_unhide_already_visible: "Questo canale è già visibile per @everyone"
 channel_hideall_in_progress: "Nascondendo tutti i canali in corso..."
@@ -3080,7 +2852,6 @@ new_guild_embed_title:
     - "Una nuova avventura inizia! 🚀"
     - "Un membro fantastico è arrivato! ✨"
 new_guild_embed_desc: "## ${randomMessage}\nCiao, amici straordinari!\n\nSono iHorizon, un bot avanzato progettato per rendere la vostra esperienza Discord eccezionale e piena di divertimento.\n\n✨ **Cosa posso fare per voi:**\n• Gestione del server con intelligenza e professionalità\n• Giochi interattivi e intrattenimento illimitato\n• Strumenti utili per l'organizzazione della comunità\n• Supporto tecnico disponibile 24/7\n\nEsplorate i miei comandi e immergetevi in un mondo di possibilità infinite.\nInsieme costruiremo una comunità fantastica piena di bellissimi ricordi!\n\nGrazie per avermi scelto, iniziamo questa incredibile avventura! 🌟"
-new_guild_owner_dm_title: "Benvenuto nella famiglia iHorizon!"
 new_guild_owner_dm_description: "# Grazie per aver aggiunto iHorizon al tuo server!\n\n> *Aspetta... Tutto qui? No, assolutamente no.*\n\niHorizon è un bot Discord, ok? Ma non solo. È anche una comunità, una storia, un progetto costruito in oltre 6 anni (2020).\nUsare iHorizon non significa solo avere un bot Discord completo, per sempre **gratuito** e **open source**. Significa anche abbracciare un **concetto**.\n\n> **Un bot Discord gratuito può fare un lavoro migliore dei bot a pagamento.**\n*Sì, questo è iHorizon: un bot completo, mantenuto per 6 anni da persone appassionate.*\n\nQuindi sì... dopo questo messaggio, grazie.\nSiamo legione. #ihorizon"
 guild_create_btn_invite: "Invita iHorizon"
 guild_create_btn_website: "Sito Web iHorizon"
@@ -3281,7 +3052,6 @@ tts_embed_title: "Modalita TTS Attivata"
 tts_embed_description: "Il modulo TTS e ora attivo in ${voiceChannel}.\nTutti i messaggi inviati qui dai membri nel canale vocale saranno letti ad alta voce.\n\n**Membri in voce:** ${members}"
 tts_embed_footer: "Usa /tts leave per fermare TTS"
 tts_join_not_text_based: "${client.iHorizon_Emojis.No} Questo canale vocale non supporta i messaggi di testo. Per favore, abilita il testo nel canale vocale o usa un altro canale vocale."
-tts_music_blocked: "${client.iHorizon_Emojis.No} Il modulo TTS e attualmente attivo. Per favore, disattiva TTS prima di riprodurre musica."
 tts_voice_status: "Modalità TTS - Sintesi Vocale"
 
 # H24/7 module
@@ -3328,32 +3098,21 @@ msg_bad_new_name: "Nome non valido."
 msg_bad_platform_twitch_youtube_kick: "Piattaforma non valida (twitch, youtube, kick)."
 msg_bad_rule: "Regola non valida."
 msg_bad_sticker_id: "ID sticker non valido."
-msg_bad_user_id: "ID utente non valido."
 msg_bad_zip: "Zip non valido."
-msg_boost_set: "Boost impostato."
-msg_botcount_rolescount_membercount_channelcount_boostcount_voicecount_onlinecount: "{BotCount}, {RolesCount}, {MemberCount}, {ChannelCount}, {BoostCount}, {VoiceCount}, {OnlineCount}"
 msg_bypass_role_added: "Ruolo bypass aggiunto."
-msg_cat_api_down: "API dei gatti non disponibile."
 msg_could_not_download_that_image: "Impossibile scaricare quell'immagine."
-msg_dashboard_panel_channel_set: "Canale del pannello impostato."
-msg_derogation_added: "Deroga aggiunta."
 msg_description_must_be_10_400_characters: "La descrizione deve avere 10-400 caratteri."
 msg_download_failed: "Download fallito."
 msg_empty_message: "Messaggio vuoto."
 msg_fetch_failed: "Recupero fallito."
 msg_frozen: "Congelato."
-msg_give_at_least_2_options: "Dai almeno 2 opzioni."
 msg_guild_not_cached: "Server non in cache."
 msg_hid_all: "Tutto nascosto."
 msg_ignore_channel_added: "Canale ignorato aggiunto."
-msg_invalid_image_type: "Tipo di immagine non valido."
-msg_invalid_lang_en_us_fr_fr_de_de_es_es_it_it_jp_jp_pt_pt_ru_ru_ar_eg: "Lingua non valida (en-US fr-FR de-DE es-ES it-IT jp-JP pt-PT ru-RU ar-EG)."
 msg_invalid_language_supported_ar_eg_de_de_en_us_es_es_fr_fr_fr_me_it_it_jp_jp_pt_pt_ru_ru: "Lingua non valida. Supportate: ar-EG, de-DE, en-US, es-ES, fr-FR, fr-ME, it-IT, jp-JP, pt-PT, ru-RU."
 msg_join_role_cleared: "Ruolo d'ingresso rimosso."
 msg_join_role_set: "Ruolo d'ingresso impostato."
 msg_level_must_be_1_9: "Il livello deve essere 1-9."
-msg_level_up_message_cleared: "Messaggio di level-up rimosso."
-msg_level_up_message_set: "Messaggio di level-up impostato."
 msg_loading: "Caricamento..."
 msg_love_score: "Amore: {score}%"
 msg_muted: "Mutato."
@@ -3362,8 +3121,6 @@ msg_no_emojis: "Nessuna emoji."
 msg_no_server_icon: "Nessuna icona del server."
 msg_no_stickers: "Nessuno sticker."
 msg_not_found: "Non trovato."
-msg_notifier_entry_added: "Voce del notifier aggiunta."
-msg_notifier_entry_removed: "Voce del notifier rimossa."
 msg_permission_level_set: "Livello di permesso impostato."
 msg_punishpub_updated: "Punishpub aggiornato."
 msg_queued_title_lavalink_wiring_pending: "Queued: {title} [lavalink wiring pending]"
@@ -3372,16 +3129,9 @@ msg_restored_keys: "{restored} chiavi ripristinate."
 msg_role_limit_cleared: "Limite ruoli rimosso."
 msg_role_limit_set: "Limite ruoli impostato."
 msg_shop_role_added: "Ruolo negozio aggiunto."
-msg_shop_role_removed: "Ruolo negozio rimosso."
-msg_staff_role_set: "Ruolo staff impostato."
 msg_sticker_added: "Sticker aggiunto."
-msg_style_out: "**{style}**: {out}"
-msg_temp_channel_name_set: "Nome canale temp impostato."
-msg_temp_channels_category_set: "Categoria canali temp impostata."
 msg_this_command_must_be_used_in_a_server: "Questo comando va usato in un server."
 msg_ticket_opened: "Ticket aperto: <#{chid}>."
-msg_ticket_panel_id_created: "Pannello ticket `{id}` creato."
-msg_ticket_panel_updated: "Pannello ticket `{id}` aggiornato."
 msg_title_must_be_5_30_characters: "Il titolo deve avere 5-30 caratteri."
 msg_translation_failed: "Traduzione fallita."
 msg_unhid_all: "Tutto visibile."
@@ -3389,13 +3139,7 @@ msg_unmuted: "Smutato."
 msg_upload_failed: "Upload fallito."
 msg_use_join_leave_and_on_off: "Usa join/leave e on/off."
 msg_use_join_or_leave: "Usa join o leave."
-msg_use_off_track: "Usa off/track/queue."
 msg_use_on_off: "Usa on/off."
-msg_use_yes_no: "Usa yes/no."
-msg_voice_freeze_channel_set: "Canale voice-freeze impostato."
-msg_voice_freeze_cleared: "Voice-freeze rimosso."
-msg_voice_kicked: "Kick vocale eseguito."
-msg_voice_lobby_set: "Lobby vocale impostata."
 msg_welcomer_channel_updated: "Canale Welcomer aggiornato."
 msg_welcomer_components_updated: "Componenti Welcomer aggiornati."
 msg_welcomer_embed_updated: "Embed Welcomer aggiornato."
@@ -3412,14 +3156,10 @@ msg_antispam_config_updated: "Antispam ${state} (soglia ${threshold})."
 msg_nightmode_updated: "Nightmode ${state} (${start}h-${end}h)."
 msg_ghost_list_empty: "Nessun controllo ghost-ping."
 msg_guildconfig_show_empty: "Nessuna configurazione salvata."
-msg_support_enabled: "Supporto attivato."
 msg_perm_list_detail: "livello ${level}, utenti [${users}], ruoli [${roles}]"
 msg_perm_list_default: "Permessi predefiniti."
-msg_notifier_list_empty: "Nessuna voce notifier."
-msg_profil_invalid_age: "Età non valida: deve essere compresa tra 13 e 120."
 msg_profil_birthday_invalid: "Compleanno non valido: controlla giorno/mese/anno (anno 1900-2100)."
 msg_profil_birthday_saved: "Compleanno salvato."
-msg_profil_use_subcommand: "Usa un sottocomando: show, set-age, set-description, set-gender, set-pronoun, set-birthday."
 msg_profil_gender_invalid: "Genere non valido: scegli female, male o non-binary."
 msg_profil_pronoun_invalid: "Pronome non valido: scegli she/her, he/him, they/them, xe/xem, ze/zem o other."
 msg_welcomer_panel_title: "Welcomer panel"
@@ -3428,30 +3168,19 @@ msg_automod_toggled: "Automod ${kind} ${state}."
 
 # Tier-3 replies (U-I6)
 owner_list_empty: "Nessun proprietario del bot."
-owner_blinfo_line: "${user} in blacklist: ${reason}"
-fun_caracteres_unknown_style: "Stile sconosciuto `{style}`. Disponibili: {styles}"
 fun_youtube_pending: "${display}: ${comment} (${likes} mi piace, render in attesa)"
 fun_tweet_pending: "${display} ${handle}: ${comment} (${likes} mi piace, ${retweets} RTs, ${replies} risposte, ${views} visualizzazioni, render in attesa)"
 fun_bubbles_pending: "${file} (render in attesa per ${url})"
-invites_leaderboard_empty: "Nessun invito."
 stats_compare_same_user: "Confronta due utenti diversi."
-stats_compare_text: "${user1}: ${a_messages}msg/${a_voice}m vs ${user2}: ${b_messages}msg/${b_voice}m — vincitore ${winner}"
 stats_gstats_text: "Membri tracciati: ${count} | Messaggi: ${messages} | Vocale: ${voice}m"
 stats_ustats_text: "Messaggi: ${messages} (giorno ${d_msg} / settimana ${w_msg} / mese ${m_msg}) | Vocale: ${voice}m (giorno ${d_vc}m / settimana ${w_vc}m / mese ${m_vc}m) | Top canali: ${top_text} | Top vocale: ${top_vc}"
-stats_channel_single_text: "<#${channel}>: ${count} messaggi."
 
 # Antispam manage + honeypot claim (U-ANTISPAM-FIX1/U-HONEY-T1)
 msg_antispam_manage_updated: "Antispam ${state} (soglia ${threshold}, ${punishment} ${punish_time}, finestra ${max_interval}, bot ${ignore_bots}, pulizia ${remove_messages})."
-msg_antispam_manage_current: "Antispam ${state} (soglia ${threshold}, ${punishment} ${punish_time}, finestra ${max_interval}, bot ${ignore_bots}, pulizia ${remove_messages})."
 msg_antispam_invalid_duration: "Durata non valida (prova 10s, 5m, 2h)."
 msg_antispam_invalid_choice: "Unknown choice \"${choice}\" (${want})."
-msg_antispam_invalid_action: "Azione non valida (add, remove o list)."
-msg_antispam_missing_role: "È richiesto un ruolo per add/remove."
-msg_antispam_missing_channel: "È richiesto un canale per add/remove."
 msg_bypass_role_removed: "Ruolo bypass rimosso."
-msg_bypass_roles_list: "Ruoli bypass: ${roles}."
 msg_bypass_roles_cleared: "Ruoli bypass cancellati."
-msg_bypass_roles_empty: "Nessun ruolo bypass."
 msg_ignore_channel_removed: "Canale ignorato rimosso."
 msg_ignore_channels_list: "Canali ignorati: ${channels}."
 msg_ignore_channels_cleared: "Canali ignorati cancellati."
