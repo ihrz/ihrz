@@ -130,6 +130,8 @@ pub struct SubCommandInfo {
     pub aliases: Vec<String>,
 }
 
+/// Arity mirrors createAwesomeEmbed (TS takes the same resolved inputs).
+#[allow(clippy::too_many_arguments)]
 pub fn awesome_embed(
     lang_code: &str,
     command_name: &str,
@@ -318,6 +320,14 @@ fn is_numeric(s: &str) -> bool {
 /// Pure core of isValidArgument. Mention / id / numeric / choices /
 /// number / string / unknown resolve without the guild; name lookups
 /// (username, role name, channel name / fuzzy) need it.
+fn mention_or_numeric(mention_hit: bool, numeric_hit: bool) -> Shape {
+    if mention_hit || numeric_hit {
+        Shape::Valid
+    } else {
+        Shape::GuildLookup
+    }
+}
+
 fn check_shape(type_label: &str, value: &str) -> Shape {
     if type_label.contains('/') {
         return if type_label.split('/').any(|c| c == value) {
@@ -344,33 +354,24 @@ fn check_shape(type_label: &str, value: &str) -> Shape {
                 .strip_prefix("<@")
                 .and_then(|s| s.strip_suffix('>'))
                 .map(|s| s.strip_prefix('!').unwrap_or(s));
-            if inner.map(is_all_digits).unwrap_or(false) && v.len() > 4 {
-                Shape::Valid
-            } else if is_numeric(v) {
-                Shape::Valid
-            } else {
-                Shape::GuildLookup
-            }
+            mention_or_numeric(
+                inner.map(is_all_digits).unwrap_or(false) && v.len() > 4,
+                is_numeric(v),
+            )
         }
         "roles" => {
             let v = value.trim();
-            if v.starts_with("<@&") && v.ends_with('>') && is_all_digits(&v[3..v.len() - 1]) {
-                Shape::Valid
-            } else if is_numeric(v) {
-                Shape::Valid
-            } else {
-                Shape::GuildLookup
-            }
+            mention_or_numeric(
+                v.starts_with("<@&") && v.ends_with('>') && is_all_digits(&v[3..v.len() - 1]),
+                is_numeric(v),
+            )
         }
         "channel" => {
             let v = value.trim();
-            if v.starts_with("<#") && v.ends_with('>') && is_all_digits(&v[2..v.len() - 1]) {
-                Shape::Valid
-            } else if is_all_digits(v) {
-                Shape::Valid
-            } else {
-                Shape::GuildLookup
-            }
+            mention_or_numeric(
+                v.starts_with("<#") && v.ends_with('>') && is_all_digits(&v[2..v.len() - 1]),
+                is_all_digits(v),
+            )
         }
         _ => Shape::Invalid,
     }
@@ -675,6 +676,8 @@ pub struct WarnPayload {
     pub button_disabled: bool,
 }
 
+/// Arity mirrors warnMember (TS interpolates the same fields).
+#[allow(clippy::too_many_arguments)]
 pub fn warn_payload(
     lang_code: &str,
     warn_id: &str,
