@@ -468,6 +468,18 @@ pub fn load() -> anyhow::Result<Config> {
     if let Ok(v) = std::env::var("EMAIL_WHEN_CHANGE_GUILD") {
         cfg.notify_new_guild = v == "1" || v.eq_ignore_ascii_case("true");
     }
+    // Last.fm keys (TS: `process.env.LASTFM_API_KEY ||
+    // config.lastfm?.apiKey`, same for shared secret — env wins).
+    if let Ok(v) = std::env::var("LASTFM_API_KEY") {
+        if !v.is_empty() {
+            cfg.lastfm_api_key = v;
+        }
+    }
+    if let Ok(v) = std::env::var("LASTFM_SHARED_SECRET") {
+        if !v.is_empty() {
+            cfg.lastfm_shared_secret = v;
+        }
+    }
 
     Ok(cfg)
 }
@@ -843,6 +855,33 @@ mod tests {
         let cfg = cfg.unwrap();
         assert!(!cfg.phone_presence);
         assert!(cfg.database_url.contains("db.sqlite") || !cfg.database_url.is_empty());
+    }
+
+    #[test]
+    fn lastfm_env_wins_over_file() {
+        let _guard = ENV_LOCK.lock().unwrap();
+        let path = write_temp_config(
+            "[lastfm]\napi_key = \"file-key\"\nshared_secret = \"file-secret\"\n",
+        );
+        std::env::set_var("CONFIG_FILE", &path);
+        std::env::remove_var("LASTFM_API_KEY");
+        std::env::remove_var("LASTFM_SHARED_SECRET");
+        let cfg = load().unwrap();
+        assert_eq!(cfg.lastfm_api_key, "file-key");
+        assert_eq!(cfg.lastfm_shared_secret, "file-secret");
+        // Env wins; blank env leaves the file value alone (TS `||` chain).
+        std::env::set_var("LASTFM_API_KEY", "env-key");
+        std::env::set_var("LASTFM_SHARED_SECRET", "env-secret");
+        let cfg = load().unwrap();
+        assert_eq!(cfg.lastfm_api_key, "env-key");
+        assert_eq!(cfg.lastfm_shared_secret, "env-secret");
+        std::env::set_var("LASTFM_API_KEY", "");
+        let cfg = load().unwrap();
+        assert_eq!(cfg.lastfm_api_key, "file-key");
+        std::env::remove_var("CONFIG_FILE");
+        std::env::remove_var("LASTFM_API_KEY");
+        std::env::remove_var("LASTFM_SHARED_SECRET");
+        std::fs::remove_file(&path).ok();
     }
 
     #[test]
