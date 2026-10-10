@@ -18,8 +18,15 @@ pub async fn authrestore_set(
         return Ok(());
     };
     let Some(role) = role else {
-        ctx.say(t(&ctx, "buttonreaction_roles_not_found", "Role not found.").await)
-            .await?;
+        ctx.say(
+            t(
+                &ctx,
+                "buttonreaction_roles_not_found",
+                "Missing arguments: You haven't specified the roles to set!",
+            )
+            .await,
+        )
+        .await?;
         return Ok(());
     };
     let http = ctx.serenity_context();
@@ -31,7 +38,7 @@ pub async fn authrestore_set(
                 t(
                     &ctx,
                     "reactionroles_cant_fetched_reaction_remove",
-                    "Could not fetch that message.",
+                    "Can't fetch targeted reaction on this message!",
                 )
                 .await
             ))
@@ -45,7 +52,7 @@ pub async fn authrestore_set(
             t(
                 &ctx,
                 "reactionroles_cant_fetched_reaction_remove",
-                "Could not fetch that message.",
+                "Can't fetch targeted reaction on this message!",
             )
             .await,
         )
@@ -61,7 +68,7 @@ pub async fn authrestore_set(
                 t(
                     &ctx,
                     "reactionroles_cant_fetched_reaction_remove",
-                    "Could not fetch that message.",
+                    "Can't fetch targeted reaction on this message!",
                 )
                 .await
             ))
@@ -74,7 +81,7 @@ pub async fn authrestore_set(
             t(
                 &ctx,
                 "buttonreaction_message_other_user_error",
-                "That message was not sent by the bot.",
+                "I can't modify the components of another user's message. You need to choose a message sent by myself. Tip: Do `/utils embed` to create your own beautiful embed!",
             )
             .await,
         )
@@ -132,7 +139,7 @@ pub async fn authrestore_set(
             t(
                 &ctx,
                 "reactionroles_cant_fetched_reaction_remove",
-                "Could not fetch that message.",
+                "Can't fetch targeted reaction on this message!",
             )
             .await
         ))
@@ -152,7 +159,7 @@ pub async fn authrestore_set(
                 t(
                     &ctx,
                     "rc_command_ok",
-                    "AuthRestore configured. Code: ${res.secretCode} at ${msgLink}",
+                    "${interaction.user.toString()}, you have just set up the \"AuthRestore\" module. Now, when a member of the Discord server clicks on the button and logs in via OAuth2, they will be added to the database. They will eventually be able to automatically join the server with OAuth2.\n# READ CAREFULLY\nThe message ${msgLink} now has a button that will serve as a verification.\nHERE IS THE PRIVATE CODE THAT MUST NOT BE DISCLOSED TO ANYONE. A PERSON WITH THIS CODE COULD DELETE IT, ADD MEMBERS TO THEIR SERVER... KEEP IT SOMEWHERE SAFE. iHorizon WILL NEVER GIVE IT TO YOU AGAIN:\n```${res.secretCode}```",
                 )
                 .await
                 .replace("${interaction.user.toString()}", &ctx.author().to_string())
@@ -169,7 +176,7 @@ pub async fn authrestore_set(
     let dm_text = t(
         &ctx,
         "rc_command_ok_dm",
-        "AuthRestore code: ${res.secretCode}",
+        "# The AuthRestore code for ${interaction.guild.name}\n```${res.secretCode}```",
     )
     .await
     .replace("${interaction.guild.name}", &guild_name)
@@ -182,7 +189,14 @@ pub async fn authrestore_set(
         Ok(_) => {
             ctx.send(
                 poise::CreateReply::default()
-                    .content(t(&ctx, "rc_command_dm_ok", "Code sent in DM.").await)
+                    .content(
+                        t(
+                            &ctx,
+                            "rc_command_dm_ok",
+                            "In case you missed it, I sent you the code in a private message!",
+                        )
+                        .await,
+                    )
                     .ephemeral(true),
             )
             .await?;
@@ -190,7 +204,7 @@ pub async fn authrestore_set(
         Err(_) => {
             ctx.send(
                 poise::CreateReply::default()
-                    .content(t(&ctx, "rc_command_dm_failed", "Could not DM you the code.").await)
+                    .content(t(&ctx, "rc_command_dm_failed", "I tried to send you the code in a private message, but you have blocked your DMs :/").await)
                     .ephemeral(true),
             )
             .await?;

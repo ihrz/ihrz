@@ -768,7 +768,7 @@ async fn reply_missing_key(ctx: &Ctx<'_>, secret: &str) -> Result<(), anyhow::Er
     let text = t(
         ctx,
         "rc_key_doesnt_exist",
-        "That AuthRestore key doesn't exist: ${secretCode}",
+        "${client.iHorizon_Emojis.No} The AuthRestore module with the following key: **${secretCode}** doesn't exist!",
     )
     .await
     .replace("${secretCode}", secret);

@@ -41,7 +41,7 @@ pub async fn authrestore_delete(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
                 t(
                     &ctx,
                     "reactionroles_cant_fetched_reaction_remove",
-                    "Could not fetch that message.",
+                    "Can't fetch targeted reaction on this message!",
                 )
                 .await
             ))
@@ -58,7 +58,7 @@ pub async fn authrestore_delete(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
                 t(
                     &ctx,
                     "reactionroles_cant_fetched_reaction_remove",
-                    "Could not fetch that message.",
+                    "Can't fetch targeted reaction on this message!",
                 )
                 .await,
             )
@@ -75,7 +75,7 @@ pub async fn authrestore_delete(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
                 t(
                     &ctx,
                     "reactionroles_cant_fetched_reaction_remove",
-                    "Could not fetch that message.",
+                    "Can't fetch targeted reaction on this message!",
                 )
                 .await
             ))
@@ -88,7 +88,7 @@ pub async fn authrestore_delete(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
             t(
                 &ctx,
                 "buttonreaction_message_other_user_error",
-                "That message was not sent by the bot.",
+                "I can't modify the components of another user's message. You need to choose a message sent by myself. Tip: Do `/utils embed` to create your own beautiful embed!",
             )
             .await,
         )
@@ -104,7 +104,7 @@ pub async fn authrestore_delete(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
             t(
                 &ctx,
                 "reactionroles_cant_fetched_reaction_remove",
-                "Could not fetch that message.",
+                "Can't fetch targeted reaction on this message!",
             )
             .await
         ))
@@ -118,7 +118,7 @@ pub async fn authrestore_delete(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
                 t(
                     &ctx,
                     "rc_delete_command_ok",
-                    "AuthRestore configuration deleted.",
+                    "${interaction.user.toString()}, you have just deleted the configuration of the \"AuthRestore\" module. For security (data) reasons, I will only delete the button, but the oauth2 data and the secret code will be deleted in 48 hours!",
                 )
                 .await
                 .replace("${interaction.user.toString()}", &ctx.author().to_string()),
