@@ -3113,6 +3113,15 @@ impl serenity::EventHandler for Handler {
                 .register_announce(ctx.http.clone())
                 .await;
         }
+        // Flowery voice prefetch (mirrors prefetchFloweryVoices() in
+        // ready.ts). Once per process; silent on failure, speakTTS
+        // falls back to the default voice.
+        static FLOWERY_ONCE: std::sync::OnceLock<()> = std::sync::OnceLock::new();
+        if FLOWERY_ONCE.set(()).is_ok() {
+            tokio::spawn(async move {
+                crate::commands::tts::speak::prefetch_flowery_voices().await;
+            });
+        }
         // Owner "Bot Is Ready" mail (mirrors ready.ts:467-483, main shard
         // only). Blocking SMTP goes through spawn_blocking; the mailer is
         // silent when SMTP env is incomplete.
@@ -3258,6 +3267,53 @@ impl serenity::EventHandler for Handler {
                 if !occupied {
                     let _ = serenity::ChannelId::new(ch_num).delete(&ctx.http).await;
                     let _ = tbl_del(&self.pool, &gid, &key).await;
+                }
+            }
+        }
+        // Serving-shard messenger mirror for the H247 watchdog (the
+        // lavalink registry exposes no accessor; event arms run on the
+        // guild's shard, so this is always the right one).
+        crate::commands::h247::session::note_messenger(guild.id.get(), ctx.shard.clone()).await;
+        // Orphan TTS sweep (offline leg of cleanupOrphanedTTS, called
+        // from ready.ts): no voice session survives a restart, so a
+        // stored TTS row is stale. guild_create replays per guild at
+        // boot, which covers both boot and late joins. The welcome
+        // embed delete + voice-status legs need live channel state and
+        // stay with the voice-state cleanup arm.
+        {
+            let swept =
+                crate::commands::tts::sweep_orphaned_tts(&self.pool, std::slice::from_ref(&gid))
+                    .await;
+            if !swept.is_empty() {
+                crate::lavalink::manager()
+                    .remove_player(guild.id.get())
+                    .await;
+                tracing::info!("guildCreate {} swept orphaned TTS row", gid);
+            }
+        }
+        // H247 rejoin on guild_create/boot (mirrors recoverH247Sessions,
+        // which TS runs once at ready): re-emit the parked presence
+        // send-only (confirm=false, like TS) unless the replayed voice
+        // states already show the bot parked.
+        {
+            let stored = crate::commands::h247::load_h247(&self.pool, &gid).await;
+            if stored.enabled {
+                if let Ok(ch_num) = stored.voice_channel_id.parse::<u64>() {
+                    crate::commands::h247::session::prime_session(guild.id.get(), ch_num).await;
+                    let bot_id = ctx.cache.current_user().id;
+                    let parked = guild
+                        .voice_states
+                        .get(&bot_id)
+                        .and_then(|v| v.channel_id)
+                        .map(|c| c.get());
+                    if parked != Some(ch_num) {
+                        crate::lavalink::LavalinkManager::send_voice_state(
+                            &ctx.shard,
+                            guild.id.get(),
+                            Some(ch_num),
+                        );
+                        tracing::info!("guildCreate {} rejoined H247 channel {}", gid, ch_num);
+                    }
                 }
             }
         }
@@ -3473,6 +3529,11 @@ impl serenity::EventHandler for Handler {
         let _ = tbl_del(&self.pool, &gid, "GUILD_DELETE_QUEUED").await;
         // Mirrors invitemanager/onGuildLeave.ts: drop the invite cache.
         self.invites.lock().await.remove(&gid);
+        // Drop the H247 in-memory session + serving-shard mirror (the
+        // persisted GUILD.H247 row itself is wiped with everything else
+        // by the deferred queue above).
+        crate::commands::h247::session::clear_guild(incomplete.id.get()).await;
+        crate::commands::h247::session::prune_messenger(incomplete.id.get()).await;
         tracing::info!("guildDelete {} queued, wipe at {}", gid, delete_at);
         // Leave log embed (mirrors Events/client/removeGuildLog.ts).
         // The unavailable payload only carries the id; fields fall back
@@ -4117,6 +4178,89 @@ impl serenity::EventHandler for Handler {
         let Some(guild_id) = msg.guild_id else { return };
         let gid = guild_id.get().to_string();
         let ch_id = msg.channel_id.get().to_string();
+        // TTS speak arm (mirrors src/Events/tts/messageCreate.ts): an
+        // enabled TTS row + message in the TTS text channel + author in
+        // the TTS voice channel + text within the 300-char cap speaks
+        // via Flowery (script-locale override -> TTS lang -> guild lang
+        // -> en-US). URL-only messages are skipped, failures are
+        // silent. Serenity has no cleanContent, so raw content is used
+        // throughout (mention syntax is spoken literally).
+        // Owned snapshot first: the cache guard is not Send and must
+        // drop before any await.
+        {
+            let armed: Option<(u64, String)> = match tts_raw_routed(&self.pool, &gid).await {
+                Some(raw) if crate::commands::tts::tts_row_enabled(&raw) => {
+                    match serde_json::from_str::<crate::commands::tts::TtsConfig>(&raw) {
+                        Ok(cfg) => {
+                            let text_ok = crate::commands::tts::tts_message_text_ok(&msg.content)
+                                && !crate::commands::tts::tts_is_url(&msg.content);
+                            let in_text = cfg
+                                .text_channel_id
+                                .parse::<u64>()
+                                .map(|tc| tc == msg.channel_id.get())
+                                .unwrap_or(false);
+                            let in_voice = cfg
+                                .voice_channel_id
+                                .parse::<u64>()
+                                .map(|vc| {
+                                    _ctx.cache
+                                        .guild(guild_id)
+                                        .and_then(|g| g.voice_states.get(&msg.author.id).cloned())
+                                        .and_then(|v| v.channel_id)
+                                        .map(|c| c.get() == vc)
+                                        .unwrap_or(false)
+                                })
+                                .unwrap_or(false);
+                            if text_ok && in_text && in_voice {
+                                cfg.voice_channel_id
+                                    .parse::<u64>()
+                                    .ok()
+                                    .map(|vc| (vc, cfg.lang.clone()))
+                            } else {
+                                None
+                            }
+                        }
+                        Err(_) => None,
+                    }
+                }
+                _ => None,
+            };
+            if let Some((tts_vc, tts_lang)) = armed {
+                let detected = crate::commands::tts::detect_message_locale(&msg.content);
+                let server_lang = crate::db::guild_lang(&self.pool, Some(guild_id.get())).await;
+                let locale = crate::commands::tts::resolve_tts_locale(
+                    detected,
+                    Some(&tts_lang),
+                    Some(&server_lang),
+                );
+                // Self-heal (mirrors the createPlayer + connect leg in
+                // speakTTS): no live player -> re-emit the OP4 join to
+                // the TTS channel before queueing.
+                if crate::lavalink::manager()
+                    .snapshot(guild_id.get())
+                    .await
+                    .is_none()
+                {
+                    crate::lavalink::LavalinkManager::send_voice_state(
+                        &_ctx.shard,
+                        guild_id.get(),
+                        Some(tts_vc),
+                    );
+                }
+                let bot_id = _ctx.cache.current_user().id.get();
+                if let Err(e) = crate::commands::tts::speak::speak_tts(
+                    &self.pool,
+                    guild_id.get(),
+                    &msg.content,
+                    &locale,
+                    bot_id,
+                )
+                .await
+                {
+                    tracing::warn!("tts speak failed in guild {gid}: {e:#}");
+                }
+            }
+        }
         // Embed-builder awaited input (mirrors the handleCollector
         // message collectors in utils !embed.ts). The input still
         // flows through normal processing below, like TS.
@@ -5098,6 +5242,9 @@ impl serenity::EventHandler for Handler {
             .duration_since(std::time::UNIX_EPOCH)
             .map(|d| d.as_millis() as i64)
             .unwrap_or(0);
+        // Serving-shard messenger mirror for the H247 watchdog (this
+        // arm runs on the guild's shard).
+        crate::commands::h247::session::note_messenger(guild_id.get(), ctx.shard.clone()).await;
         // Lavalink voice handshake, state half (mirrors the raw.ts
         // voice-packet forward): our own VoiceStateUpdate carries the
         // Discord session id. Noted always; pushed to the node only
@@ -5133,11 +5280,17 @@ impl serenity::EventHandler for Handler {
         // voluntary /h247 leave deletes GUILD.H247 first, so this
         // resolves to a no-op then. Rejoin goes out as a gateway OP4
         // voice-state update (send_voice_state), like sendH247VoiceStateUpdate.
-        if crate::commands::h247::grant::h247_voice_broken(
+        // Rejoin cooldown (mirrors h247EventRejoinCooldowns): a burst
+        // of gateway updates cannot loop the rejoin. Stamps only when
+        // the presence actually broke (short-circuit order matters).
+        let h247_broken = crate::commands::h247::grant::h247_voice_broken(
             new.user_id == ctx.cache.current_user().id,
             old.as_ref().and_then(|o| o.channel_id).map(|c| c.get()),
             new.channel_id.map(|c| c.get()),
-        ) {
+        );
+        let h247_due = !h247_broken
+            || crate::commands::h247::session::event_rejoin_due(guild_id.get(), now).await;
+        if h247_broken && h247_due {
             if let Some(raw) = h247_routed(&self.pool, &gid).await {
                 let target = crate::commands::h247::grant::h247_rejoin_target(
                     crate::commands::h247::grant::parse_h247(&raw).as_ref(),
@@ -5413,6 +5566,40 @@ impl serenity::EventHandler for Handler {
                             }
                             return;
                         }
+                        // Post-move verify (mirrors the fetch({force: true})
+                        // then-leg after setChannel): the create only
+                        // sticks when the member actually landed in the
+                        // new channel. The REST member fetch refreshes
+                        // the cache (no voice state on the wire, so the
+                        // channel itself is read back from cache right
+                        // after); a fetch failure or a channel mismatch
+                        // deletes the channel and drops the tracked row
+                        // while it points at it.
+                        let moved_ok = match guild_id.member(&ctx.http, new.user_id).await {
+                            Err(_) => false,
+                            Ok(_) => {
+                                let landed = ctx
+                                    .cache
+                                    .guild(guild_id)
+                                    .and_then(|g| g.voice_states.get(&new.user_id).cloned())
+                                    .and_then(|v| v.channel_id)
+                                    .map(|c| c.get());
+                                crate::voice::temp_move_verified(landed, ch.id.get())
+                            }
+                        };
+                        if !moved_ok {
+                            let _ = ch.id.delete(&ctx.http).await;
+                            if let Some(cur) = tbl_get(&self.pool, &gid, &own_key).await {
+                                if cur.trim() == ch.id.get().to_string() {
+                                    let _ = tbl_del(&self.pool, &gid, &own_key).await;
+                                }
+                            }
+                            {
+                                let mut pending = self.temp_pending.lock().await;
+                                restore_slot_release(&mut pending, &creation_key);
+                            }
+                            return;
+                        }
                         // Owner full allow set (mirrors the propriétaire
                         // edit after the move).
                         let _ = ch
@@ -5650,9 +5837,20 @@ impl serenity::EventHandler for Handler {
                     if let Ok(cfg) = serde_json::from_str::<crate::commands::tts::TtsConfig>(&raw) {
                         if let Ok(tts_vc) = cfg.voice_channel_id.parse::<u64>() {
                             if crate::commands::tts::tts_voice_left(old_ch, new_ch, tts_vc) {
-                                // Memberless check mirrors isMemberlessChannel
-                                // (fresh fetch in TS; cache voice_states here).
+                                // Memberless check mirrors isMemberlessChannel:
+                                // TS does a fresh `channel.fetch()` first and
+                                // treats a fetch failure as memberless
+                                // (deleted channel => cleanup). Same here:
+                                // the fetch doubles as the existence check.
+                                // The member count itself stays cache-based
+                                // (Discord exposes no REST voice-state list;
+                                // discord.js `channel.members` is cache data
+                                // too, so this matches TS in practice).
                                 // Missing cache guild = no blind leaves.
+                                let channel_gone = serenity::ChannelId::new(tts_vc)
+                                    .to_channel(&ctx.http)
+                                    .await
+                                    .is_err();
                                 let bot_id = ctx.cache.current_user().id;
                                 let humans = ctx.cache.guild(guild_id).map(|g| {
                                     g.voice_states
@@ -5668,7 +5866,10 @@ impl serenity::EventHandler for Handler {
                                         })
                                         .count()
                                 });
-                                if humans == Some(0) {
+                                // Missing cache guild = no blind leaves,
+                                // but a gone channel always cleans up (TS
+                                // catch => true).
+                                if channel_gone || humans == Some(0) {
                                     let keep = match h247_routed(&self.pool, &gid).await {
                                         Some(hraw) => crate::commands::tts::tts_keep_voice(
                                             crate::commands::h247::grant::parse_h247(&hraw)

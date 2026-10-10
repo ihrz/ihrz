@@ -205,6 +205,116 @@ pub fn resolve_flowery_voice_id(voices: &[FloweryVoice], locale: &str) -> Option
     select_flowery_voice(voices, lang).map(|v| v.id.clone())
 }
 
+// messageCreate speak arm (pure leg of src/Events/tts/messageCreate.ts).
+// The live arm (guild row + voice-membership + speak) runs in the
+// message handler; the text gate, script-locale detectors, URL skip
+// and locale fallback are pure here so they stay unit-tested.
+
+/// Max speakable message size. Mirrors `if (text.length > 300) return`
+/// (JS counts UTF-16 code units, so astral-plane chars count double).
+pub const TTS_MAX_CHARS: usize = 300;
+
+/// True when the message text may be spoken: non-empty and within the
+/// 300 UTF-16-unit cap.
+pub fn tts_message_text_ok(text: &str) -> bool {
+    !text.is_empty() && text.encode_utf16().count() <= TTS_MAX_CHARS
+}
+
+/// Punctuation-ish, mirroring the `[\s\p{P}]` strip in
+/// detectMessageLocale. Without a Unicode regex dep this covers ASCII
+/// punctuation plus the General/CJK/Halfwidth punctuation blocks and
+/// the Hebrew/Arabic punctuation points the detectors scan.
+fn tts_locale_noise(c: char) -> bool {
+    if c.is_whitespace() || c.is_ascii_punctuation() {
+        return true;
+    }
+    matches!(c,
+        '\u{a1}' | '\u{bf}' | '\u{378}' | '\u{55a}'..='\u{55f}' | '\u{58a}' | '\u{5be}' | '\u{5c0}' | '\u{5c3}' | '\u{5c6}' | '\u{5f3}'..='\u{5f4}'
+        | '\u{609}'..='\u{60d}' | '\u{61b}' | '\u{61e}'..='\u{61f}' | '\u{66a}'..='\u{66d}' | '\u{6d4}'
+        | '\u{700}'..='\u{70d}' | '\u{bf7}' | '\u{2010}'..='\u{2027}' | '\u{2030}'..='\u{205e}'
+        | '\u{3000}'..='\u{303f}' | '\u{fe30}'..='\u{fe4f}' | '\u{ff00}'..='\u{ffef}')
+}
+
+/// Script detectors mirroring DETECTORS in messageCreate.ts, in order:
+/// Cyrillic -> ru-RU, Hiragana/Katakana/CJK -> jp-JP, Hangul -> jp-JP
+/// (TS quirk, kept: there is no ko-KR TTS locale), Arabic/Hebrew ->
+/// ar-EG. A script wins at a 40% share of the noise-stripped text.
+fn tts_script_hit(c: char, detector: u8) -> bool {
+    match detector {
+        0 => matches!(c, 'а'..='я' | 'А'..='Я' | 'ё' | 'Ё'),
+        1 => {
+            matches!(c, '\u{3040}'..='\u{309f}' | '\u{30a0}'..='\u{30ff}' | '\u{4e00}'..='\u{9fff}')
+        }
+        2 => matches!(c, '\u{ac00}'..='\u{d7af}'),
+        _ => matches!(c, '\u{600}'..='\u{6ff}' | '\u{590}'..='\u{5ff}'),
+    }
+}
+
+/// Locale override from the message script, mirroring
+/// detectMessageLocale (40% threshold on noise-stripped text).
+pub fn detect_message_locale(text: &str) -> Option<&'static str> {
+    const LOCALES: [&str; 4] = ["ru-RU", "jp-JP", "jp-JP", "ar-EG"];
+    let cleaned: Vec<char> = text.chars().filter(|c| !tts_locale_noise(*c)).collect();
+    if cleaned.is_empty() {
+        return None;
+    }
+    for (i, locale) in LOCALES.iter().enumerate() {
+        let hits = cleaned
+            .iter()
+            .filter(|c| tts_script_hit(**c, i as u8))
+            .count();
+        // Float compare like TS (`matches.length >= cleaned.length * 0.4`).
+        if hits as f64 >= cleaned.len() as f64 * 0.4 {
+            return Some(locale);
+        }
+    }
+    None
+}
+
+/// True when the whole message is one URL, mirroring isUrl
+/// (`new URL(str)` only parses absolute URLs with a scheme + host).
+pub fn tts_is_url(text: &str) -> bool {
+    let t = text.trim();
+    let Some(colon) = t.find(':') else {
+        return false;
+    };
+    let (scheme, rest) = t.split_at(colon);
+    if scheme.is_empty()
+        || !scheme.starts_with(|c: char| c.is_ascii_alphabetic())
+        || !scheme
+            .chars()
+            .all(|c| c.is_ascii_alphanumeric() || matches!(c, '+' | '-' | '.'))
+    {
+        return false;
+    }
+    let after = &rest[1..];
+    let host = after
+        .strip_prefix("//")
+        .map(|h| h.split('/').next().unwrap_or(""))
+        .unwrap_or("");
+    !host.is_empty()
+}
+
+/// Locale fallback chain, mirroring
+/// `detectedLocale || ttsData.lang || serverLocale || "en-US"`.
+pub fn resolve_tts_locale(
+    detected: Option<&str>,
+    tts_lang: Option<&str>,
+    server_lang: Option<&str>,
+) -> String {
+    detected
+        .or(tts_lang)
+        .or(server_lang)
+        .unwrap_or("en-US")
+        .to_string()
+}
+
+/// Whitespace collapse + trim, mirroring the speakTTS sanitize
+/// (`text.replace(/\s+/g, " ").trim()`).
+pub fn sanitize_tts_text(text: &str) -> String {
+    text.split_whitespace().collect::<Vec<_>>().join(" ")
+}
+
 /// Orphan sweep (offline leg of cleanupOrphanedTTS in
 /// src/core/modules/ttsManager.ts, called from ready.ts). Every stored
 /// TTS row is stale at boot (no voice session survives a restart), so
@@ -304,6 +414,61 @@ mod tests {
         // Join from nowhere: nothing left.
         assert!(!tts_voice_left(None, Some(10), 10));
         assert!(!tts_voice_left(None, None, 10));
+    }
+
+    #[test]
+    fn message_text_gate_caps_at_300_utf16_units() {
+        assert!(tts_message_text_ok("hello"));
+        assert!(!tts_message_text_ok(""));
+        assert!(tts_message_text_ok(&"a".repeat(300)));
+        assert!(!tts_message_text_ok(&"a".repeat(301)));
+        // Astral-plane chars count double, like JS string length.
+        assert!(tts_message_text_ok(&"😀".repeat(150)));
+        assert!(!tts_message_text_ok(&"😀".repeat(151)));
+    }
+
+    #[test]
+    fn detectors_mirror_ts_scripts_and_threshold() {
+        assert_eq!(detect_message_locale("Привет, как дела"), Some("ru-RU"));
+        assert_eq!(detect_message_locale("こんにちは世界"), Some("jp-JP"));
+        assert_eq!(detect_message_locale("你好世界朋友们"), Some("jp-JP"));
+        // Hangul maps to jp-JP (TS quirk: no ko-KR TTS locale exists).
+        assert_eq!(detect_message_locale("안녕하세요 여러분"), Some("jp-JP"));
+        assert_eq!(detect_message_locale("مرحبا بالعالم الجديد"), Some("ar-EG"));
+        // Below the 40% share: no override.
+        assert_eq!(detect_message_locale("hello world"), None);
+        assert_eq!(detect_message_locale("hello Привет world"), None);
+        // Noise-only text: no override.
+        assert_eq!(detect_message_locale("... !!  "), None);
+        assert_eq!(detect_message_locale(""), None);
+    }
+
+    #[test]
+    fn url_skip_mirrors_ts_is_url() {
+        assert!(tts_is_url("https://example.com/foo?bar=baz"));
+        assert!(tts_is_url("http://x.y"));
+        assert!(tts_is_url("ftp://files.example.com/a"));
+        assert!(!tts_is_url("notaurl"));
+        assert!(!tts_is_url("example.com/path"));
+        assert!(!tts_is_url("http://"));
+        assert!(!tts_is_url(""));
+        assert!(!tts_is_url("hello: world"));
+    }
+
+    #[test]
+    fn locale_fallback_chain_and_sanitize() {
+        assert_eq!(
+            resolve_tts_locale(Some("ru-RU"), Some("fr-FR"), Some("de-DE")),
+            "ru-RU"
+        );
+        assert_eq!(
+            resolve_tts_locale(None, Some("fr-FR"), Some("de-DE")),
+            "fr-FR"
+        );
+        assert_eq!(resolve_tts_locale(None, None, Some("de-DE")), "de-DE");
+        assert_eq!(resolve_tts_locale(None, None, None), "en-US");
+        assert_eq!(sanitize_tts_text("  hello \t\n  world  "), "hello world");
+        assert_eq!(sanitize_tts_text("   "), "");
     }
 
     #[test]
@@ -435,6 +600,7 @@ pub mod info;
 pub mod join;
 pub mod lang;
 pub mod leave;
+pub mod speak;
 #[allow(clippy::module_inception)]
 pub mod tts;
 

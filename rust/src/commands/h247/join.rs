@@ -53,6 +53,42 @@ pub fn evaluate_h247_join_guards(s: &H247JoinState) -> H247JoinGuard {
     }
 }
 
+/// Bot permission gate for the join. Mirrors the Connect + Speak
+/// `permissionsIn` check inside joinH247VoiceChannel: without both,
+/// the join is refused (TS surfaces it as a failed join). Like
+/// discord.js `has()`, ADMINISTRATOR implies every permission.
+pub fn h247_bot_may_join(perms: serenity::Permissions) -> bool {
+    perms.contains(serenity::Permissions::ADMINISTRATOR)
+        || (perms.contains(serenity::Permissions::CONNECT)
+            && perms.contains(serenity::Permissions::SPEAK))
+}
+
+/// Connect confirm for the join. Mirrors waitForH247VoiceConnection:
+/// poll the cached bot voice state (up to 8 x 300ms) for the parked
+/// channel before persisting.
+pub async fn confirm_h247_join(
+    cache: &std::sync::Arc<serenity::Cache>,
+    guild_id: serenity::GuildId,
+    bot_id: serenity::UserId,
+    target: u64,
+) -> bool {
+    for _ in 0..crate::voice::H247_JOIN_CONFIRM_ATTEMPTS {
+        tokio::time::sleep(std::time::Duration::from_millis(
+            crate::voice::H247_JOIN_CONFIRM_INTERVAL_MS as u64,
+        ))
+        .await;
+        let parked = cache
+            .guild(guild_id)
+            .and_then(|g| g.voice_states.get(&bot_id).cloned())
+            .and_then(|v| v.channel_id)
+            .map(|c| c.get());
+        if parked == Some(target) {
+            return true;
+        }
+    }
+    false
+}
+
 /// Lang key for each refusal guard. None means proceed.
 pub fn h247_join_refusal_key(g: &H247JoinGuard) -> Option<&'static str> {
     match g {
@@ -188,13 +224,47 @@ pub async fn h247_join(
                     let _ = mgr.rest_destroy(&node, &session, guild_id.get()).await;
                 }
             }
-            // Real voice join (gateway OP4, mirrors joinH247VoiceChannel)
-            // before persisting: the row is stored only after the join.
+            // Permission gate (mirrors the Connect + Speak
+            // permissionsIn check in joinH247VoiceChannel): without
+            // both, the join fails like TS. Owned snapshot first: the
+            // cache guard is not Send and must drop before any await.
+            let bot_id = ctx.serenity_context().cache.current_user().id;
+            let may_join = ctx
+                .serenity_context()
+                .cache
+                .guild(guild_id)
+                .and_then(|g| {
+                    let me = g.members.get(&bot_id)?.clone();
+                    Some(h247_bot_may_join(g.user_permissions_in(&channel, &me)))
+                })
+                .unwrap_or(false);
+            if !may_join {
+                ctx.say(refuse(
+                    "h247_join_error",
+                    "An error occurred while enabling the H24/7 module.",
+                ))
+                .await?;
+                return Ok(());
+            }
+            // Real voice join (gateway OP4, mirrors joinH247VoiceChannel).
             crate::lavalink::LavalinkManager::send_voice_state(
                 &ctx.serenity_context().shard,
                 guild_id.get(),
                 Some(target),
             );
+            // Connect confirm before persisting (mirrors
+            // waitForH247VoiceConnection): the row is stored only after
+            // the bot is observed in the channel.
+            if !confirm_h247_join(&ctx.serenity_context().cache, guild_id, bot_id, target).await {
+                tracing::warn!("h247 join for {gid} got no voice state for channel {target}");
+                ctx.say(refuse(
+                    "h247_join_error",
+                    "An error occurred while enabling the H24/7 module.",
+                ))
+                .await?;
+                return Ok(());
+            }
+            crate::commands::h247::session::prime_session(guild_id.get(), target).await;
             if let Err(e) = save_h247(
                 &ctx.data().pool,
                 &gid,
@@ -326,5 +396,16 @@ mod tests {
             }),
             None
         );
+    }
+
+    #[test]
+    fn perm_gate_needs_connect_and_speak() {
+        use super::serenity::Permissions as P;
+        assert!(h247_bot_may_join(P::CONNECT | P::SPEAK));
+        // discord.js has() implies everything under ADMINISTRATOR.
+        assert!(h247_bot_may_join(P::ADMINISTRATOR));
+        assert!(!h247_bot_may_join(P::CONNECT));
+        assert!(!h247_bot_may_join(P::SPEAK));
+        assert!(!h247_bot_may_join(P::empty()));
     }
 }

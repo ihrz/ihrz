@@ -15,7 +15,7 @@ use crate::events_handler::{wipe_queue_due, PendingGuildDeletion, GUILD_DELETE_Q
 use std::collections::{HashMap, HashSet};
 use std::time::Duration;
 
-pub const SCHEDULE_SWEEP_SECS: u64 = 60;
+pub const SCHEDULE_SWEEP_SECS: u64 = 50;
 pub const TEMP_EXPIRY_SECS: u64 = 30;
 pub const MEMBERCOUNT_SECS: u64 = 300;
 pub const NIGHTMODE_SECS: u64 = 60;
@@ -23,6 +23,12 @@ pub const GIVEAWAY_SECS: u64 = 60;
 pub const NOTIFIER_SECS: u64 = 120;
 pub const PROTECTION_BACKUP_SECS: u64 = 60;
 pub const IDLE_SWEEP_SECS: u64 = 60;
+/// H24/7 watchdog interval. Mirrors `setInterval(watchdogH247Sessions,
+/// 60_000)` in src/Events/client/ready.ts.
+pub const H247_WATCHDOG_SECS: u64 = 60;
+/// Temp-voice recovery interval. Mirrors `setInterval(()
+/// => recoverCustomVoiceChannels(client), 120_000)` in ready.ts.
+pub const TEMPVOICE_RECOVERY_SECS: u64 = 120;
 /// Wipe-queue sweep interval. Poll-based instead of the TS
 /// per-guild timers so pending wipes survive restarts; the first
 /// tick after boot is the ready recovery.
@@ -1201,19 +1207,74 @@ pub async fn sweep_guild_wipe_queue(pool: &Pool, now_ms: i64, present: &HashSet<
     n
 }
 
+/// Parked H24/7 channel for a guild, table-first with legacy fallback
+/// (keys unchanged). Reads the table-routed `tbl:<gid>` GUILD root
+/// (doubly-encoded accepted, like the membercount sweep) then the
+/// legacy `GUILD.H247` kv row; parses with the grant decoder (enabled
+/// + voiceChannelId string shape).
+pub async fn h247_parked_channel(pool: &Pool, gid: &str) -> Option<u64> {
+    let table_root: Option<u64> = sqlx::query_scalar::<_, String>(
+        "SELECT value FROM kv WHERE guild_id = ? AND key_name = 'GUILD'",
+    )
+    .bind(format!("tbl:{gid}"))
+    .fetch_optional(pool)
+    .await
+    .unwrap_or_default()
+    .and_then(|raw| {
+        let root: serde_json::Value = serde_json::from_str(&raw).ok()?;
+        let root_ref = match &root {
+            serde_json::Value::String(s) => serde_json::from_str(s).ok()?,
+            v => v.clone(),
+        };
+        let h247 = root_ref.get("H247")?;
+        let text = match h247 {
+            serde_json::Value::String(s) => serde_json::from_str::<serde_json::Value>(s)
+                .map(|v| v.to_string())
+                .unwrap_or_else(|_| s.clone()),
+            v => v.to_string(),
+        };
+        crate::commands::h247::grant::parse_h247(&text).map(|c| c.voice_channel_id)
+    });
+    if table_root.is_some() {
+        return table_root;
+    }
+    let raw = crate::db::kv_get(pool, gid, "GUILD.H247").await?;
+    crate::commands::h247::grant::parse_h247(&raw).map(|c| c.voice_channel_id)
+}
+
 /// Idle player sweep. Mirrors onEmptyQueue.destroyAfterMs (120s) +
 /// queueEnd in playerManager.ts: players idle past the window get
 /// their node player REST-destroyed, an OP4 leave on the serving
 /// shard, and their voice-channel status cleared. `http: None`
 /// (tests) skips the status clear; the OP4 leg no-ops until a shard
 /// messenger registers at ready. Returns players destroyed.
+///
+/// H24/7 park leg (mirrors handleH247PlayerIdleDestroy): when the
+/// destroyed player sat in the parked H24/7 channel, the OP4 leave and
+/// the status clear are skipped so the bot never visibly disconnects,
+/// and a detached post-destroy rejoin (mirrors
+/// handleH247PlayerDestroyed) re-emits the voice presence.
 pub async fn sweep_idle_players(
+    pool: &Pool,
     http: Option<&std::sync::Arc<poise::serenity_prelude::Http>>,
     now_ms: i64,
 ) -> u64 {
     let targets = crate::lavalink::manager().sweep_idle_destroy(now_ms).await;
     let n = targets.len() as u64;
     for t in targets {
+        let gid = t.guild_id.to_string();
+        let parked = h247_parked_channel(pool, &gid).await;
+        if crate::voice::h247_idle_keep_voice(parked, t.voice_channel) {
+            tracing::info!(
+                "scheduler: kept parked H247 voice for guild {} (channel {})",
+                t.guild_id,
+                t.voice_channel.unwrap_or(0),
+            );
+            if let Some(ch) = t.voice_channel {
+                spawn_h247_post_destroy_rejoin(t.guild_id, ch);
+            }
+            continue;
+        }
         if let Some(http) = http {
             if let Some(vc) = t.voice_channel {
                 crate::lavalink::LavalinkManager::clear_voice_status(http, vc).await;
@@ -1225,6 +1286,226 @@ pub async fn sweep_idle_players(
         tracing::info!("scheduler: destroyed {n} idle players");
     }
     n
+}
+
+/// Post-destroy H24/7 rejoin. Mirrors handleH247PlayerDestroyed: skip
+/// when a player already exists, then up to 3 force re-emits (1s then
+/// 2s delays) with a connect confirm between attempts. The confirm
+/// polls the cached Discord handshake (no guild cache is reachable
+/// from the scheduler, so the TS disconnect-observe leg is
+/// approximated: the force update is idempotent, and a handshake that
+/// already names the parked channel counts as confirmed). Detached so
+/// the sweep tick never blocks on the retry delays.
+pub fn spawn_h247_post_destroy_rejoin(guild_id: u64, channel_id: u64) {
+    tokio::spawn(async move {
+        use crate::commands::h247::session;
+        let mgr = crate::lavalink::manager();
+        for attempt in 0..crate::voice::H247_REJOIN_MAX_ATTEMPTS {
+            let wait_ms = if attempt == 0 {
+                crate::voice::H247_REJOIN_DELAY_MS
+            } else {
+                crate::voice::H247_REJOIN_RETRY_MS
+            };
+            tokio::time::sleep(std::time::Duration::from_millis(wait_ms as u64)).await;
+            // The player always disconnects before destroy, but a fresh
+            // player (music/TTS leg) may already own the connection.
+            if mgr.snapshot(guild_id).await.is_some() {
+                return;
+            }
+            let Some(messenger) = session::messenger_for(guild_id).await else {
+                continue;
+            };
+            // Force re-emit: idempotent on Discord's side and repairs a
+            // dead session the noted state wrongly reports as alive.
+            crate::lavalink::LavalinkManager::send_voice_state(
+                &messenger,
+                guild_id,
+                Some(channel_id),
+            );
+            if confirm_h247_parked(guild_id, channel_id).await {
+                session::clear_warn(guild_id).await;
+                tracing::info!(
+                    "scheduler: restored H247 voice for guild {guild_id} (channel {channel_id})"
+                );
+                return;
+            }
+        }
+        let now = std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .map(|d| d.as_millis() as i64)
+            .unwrap_or(0);
+        if session::warn_due(guild_id, now).await {
+            tracing::warn!(
+                "Unable to restore the H24/7 voice connection for guild {guild_id} after the player was destroyed"
+            );
+        }
+    });
+}
+
+/// Connect confirm for scheduler-driven H247 rejoins. Polls the noted
+/// Discord handshake (up to 8 x 300ms, like
+/// H247_JOIN_CONFIRM_ATTEMPTS x H247_JOIN_CONFIRM_INTERVAL_MS) for the
+/// parked channel.
+pub async fn confirm_h247_parked(guild_id: u64, channel_id: u64) -> bool {
+    use crate::voice::{H247_JOIN_CONFIRM_ATTEMPTS, H247_JOIN_CONFIRM_INTERVAL_MS};
+    for _ in 0..H247_JOIN_CONFIRM_ATTEMPTS {
+        tokio::time::sleep(std::time::Duration::from_millis(
+            H247_JOIN_CONFIRM_INTERVAL_MS as u64,
+        ))
+        .await;
+        let noted = crate::lavalink::manager()
+            .take_pending_voice(guild_id)
+            .await
+            .and_then(|v| v.channel_id.parse::<u64>().ok());
+        if noted == Some(channel_id) {
+            return true;
+        }
+    }
+    false
+}
+
+/// H24/7 watchdog. Mirrors watchdogH247Sessions + ensureH247VoicePresence
+/// in src/core/modules/h247Manager.ts: the periodic safety net for
+/// everything the event-driven paths miss (guilds unavailable at boot,
+/// dropped gateway events, expired sessions after long uptimes).
+/// Steady-state cost is a session-map lookup per guild; the database
+/// is only read on unknown guilds (negative-cached for 30min when
+/// H24/7 is not enabled). On mismatch an OP4 rejoin goes out on the
+/// noted serving-shard messenger (send-only, like recoverH247Sessions
+/// with confirm=false); failures warn at most every 30min per guild.
+/// Returns guilds restored.
+pub async fn sweep_h247_watchdog(
+    pool: &Pool,
+    http: &std::sync::Arc<poise::serenity_prelude::Http>,
+) -> u64 {
+    use crate::commands::h247::session;
+    use poise::serenity_prelude::{GuildId, GuildPagination};
+    let now = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|d| d.as_millis() as i64)
+        .unwrap_or(0);
+    let mut restored = 0u64;
+    let mut after: Option<GuildId> = None;
+    for _ in 0..10 {
+        let page = match http
+            .get_guilds(after.map(GuildPagination::After), Some(200))
+            .await
+        {
+            Ok(p) if !p.is_empty() => p,
+            _ => break,
+        };
+        after = page.last().map(|g| g.id);
+        for partial in &page {
+            let gid_num = partial.id.get();
+            let gid = gid_num.to_string();
+            // Expected channel: session mirror first, DB on miss.
+            let expected = match session::parked_channel(gid_num).await {
+                Some(ch) => Some(ch),
+                None => {
+                    if session::negative_hit(gid_num, now).await {
+                        continue;
+                    }
+                    match h247_parked_channel(pool, &gid).await {
+                        Some(ch) => {
+                            session::prime_session(gid_num, ch).await;
+                            Some(ch)
+                        }
+                        None => {
+                            session::note_negative(gid_num, now).await;
+                            continue;
+                        }
+                    }
+                }
+            };
+            let Some(expected) = expected else {
+                continue;
+            };
+            // Noted Discord presence (both handshake halves feed the
+            // lavalink pending cache from the event arms).
+            let noted = crate::lavalink::manager()
+                .take_pending_voice(gid_num)
+                .await
+                .and_then(|v| v.channel_id.parse::<u64>().ok());
+            if noted == Some(expected) {
+                continue;
+            }
+            let Some(messenger) = session::messenger_for(gid_num).await else {
+                if session::warn_due(gid_num, now).await {
+                    tracing::warn!(
+                        "H24/7 watchdog for guild {gid}: not in parked channel {expected}, no serving shard noted yet"
+                    );
+                }
+                continue;
+            };
+            crate::lavalink::LavalinkManager::send_voice_state(&messenger, gid_num, Some(expected));
+            session::clear_warn(gid_num).await;
+            tracing::info!("scheduler: restored H247 voice for guild {gid} (channel {expected})");
+            restored += 1;
+        }
+    }
+    restored
+}
+
+/// Temp-voice recovery sweep. Mirrors recoverCustomVoiceChannels in
+/// src/Events/voicedashboard/voiceState.ts on the 120s ready.ts timer:
+/// drop malformed CUSTOM_VOICE rows and rows whose channel no longer
+/// exists (channel fetch fails).
+///
+/// Documented delta: the TS memberless leg (delete emptied temp
+/// channels) needs the gateway voice-state cache, which the scheduler
+/// cannot reach (spawn takes pool + http only). Emptied channels are
+/// still reclaimed by the voice_state_update sweep and the
+/// guild_create recovery, which both see full voice states.
+pub async fn sweep_temp_voice_recovery(
+    pool: &Pool,
+    http: &std::sync::Arc<poise::serenity_prelude::Http>,
+) -> u64 {
+    use poise::serenity_prelude::{ChannelId, GuildId, GuildPagination};
+    let mut dropped = 0u64;
+    let mut after: Option<GuildId> = None;
+    for _ in 0..10 {
+        let page = match http
+            .get_guilds(after.map(GuildPagination::After), Some(200))
+            .await
+        {
+            Ok(p) if !p.is_empty() => p,
+            _ => break,
+        };
+        after = page.last().map(|g| g.id);
+        for partial in &page {
+            let gid = partial.id.get().to_string();
+            let rows: Vec<(String, String)> = sqlx::query_as::<_, (String, String)>(
+                "SELECT key_name, value FROM kv WHERE guild_id = ? AND key_name LIKE 'CUSTOM_VOICE.%'",
+            )
+            .bind(&gid)
+            .fetch_all(pool)
+            .await
+            .unwrap_or_default();
+            for (key, raw) in rows {
+                // Strip JSON quoting from string-taking writers.
+                let text = raw.trim().trim_matches('"').to_string();
+                let Ok(ch_num) = text.parse::<u64>() else {
+                    let _ = crate::db::kv_del(pool, &gid, &key).await;
+                    dropped += 1;
+                    continue;
+                };
+                if ch_num == 0 {
+                    let _ = crate::db::kv_del(pool, &gid, &key).await;
+                    dropped += 1;
+                    continue;
+                }
+                // Channel gone (deleted externally): drop the row like TS.
+                if http.get_channel(ChannelId::new(ch_num)).await.is_err() {
+                    let _ = crate::db::kv_del(pool, &gid, &key).await;
+                    dropped += 1;
+                }
+            }
+        }
+    }
+    if dropped > 0 {
+        tracing::info!("scheduler: dropped {dropped} stale temp-voice rows");
+    }
+    dropped
 }
 
 pub fn spawn(pool: Pool, http: std::sync::Arc<poise::serenity_prelude::Http>) {
@@ -1403,8 +1684,10 @@ pub fn spawn(pool: Pool, http: std::sync::Arc<poise::serenity_prelude::Http>) {
     }
 
     // Idle player sweep (real, mirrors onEmptyQueue.destroyAfterMs 120s
-    // + queueEnd: rest_destroy + OP4 leave + status clear).
+    // + queueEnd: rest_destroy + OP4 leave + status clear, parked-H247
+    // keep-voice leg included).
     {
+        let pool = pool.clone();
         let http = http.clone();
         tokio::spawn(async move {
             let mut t = tokio::time::interval(Duration::from_secs(IDLE_SWEEP_SECS));
@@ -1414,7 +1697,40 @@ pub fn spawn(pool: Pool, http: std::sync::Arc<poise::serenity_prelude::Http>) {
                     .duration_since(std::time::UNIX_EPOCH)
                     .map(|d| d.as_millis() as i64)
                     .unwrap_or(0);
-                sweep_idle_players(Some(&http), now).await;
+                sweep_idle_players(&pool, Some(&http), now).await;
+            }
+        });
+    }
+
+    // H24/7 watchdog (real, mirrors the 60s watchdogH247Sessions tick
+    // in ready.ts: session-mirror lookup, DB prime with negative
+    // cache, OP4 rejoin on mismatch, 30min warn throttle).
+    {
+        let pool = pool.clone();
+        let http = http.clone();
+        tokio::spawn(async move {
+            let mut t = tokio::time::interval(Duration::from_secs(H247_WATCHDOG_SECS));
+            loop {
+                t.tick().await;
+                let n = sweep_h247_watchdog(&pool, &http).await;
+                if n > 0 {
+                    tracing::info!("scheduler: watchdog restored {n} H247 sessions");
+                }
+            }
+        });
+    }
+
+    // Temp-voice recovery (real, mirrors the 120s
+    // recoverCustomVoiceChannels tick in ready.ts: malformed rows +
+    // channels deleted externally).
+    {
+        let pool = pool.clone();
+        let http = http.clone();
+        tokio::spawn(async move {
+            let mut t = tokio::time::interval(Duration::from_secs(TEMPVOICE_RECOVERY_SECS));
+            loop {
+                t.tick().await;
+                sweep_temp_voice_recovery(&pool, &http).await;
             }
         });
     }
@@ -1601,6 +1917,7 @@ mod tests {
         // Unique guild so this never races other manager() users.
         const GID: u64 = 918_273_645;
         const OLD: u64 = 918_273_646;
+        let p = pool().await;
         let m = crate::lavalink::manager();
         // GID idle a full 120s -> destroyed; OLD only 60s -> kept.
         let now = 1000 + crate::lavalink::EMPTY_QUEUE_DESTROY_AFTER_MS;
@@ -1613,13 +1930,46 @@ mod tests {
             p.stop(now - 60_000);
         })
         .await;
-        assert_eq!(sweep_idle_players(None, now - 60_000).await, 0);
-        assert_eq!(sweep_idle_players(None, now).await, 1);
+        assert_eq!(sweep_idle_players(&p, None, now - 60_000).await, 0);
+        assert_eq!(sweep_idle_players(&p, None, now).await, 1);
         assert!(m.snapshot(GID).await.is_none());
         assert!(m.snapshot(OLD).await.is_some());
         // Cleanup so later suites see a clean manager.
         m.remove_player(OLD).await;
-        assert_eq!(sweep_idle_players(None, now).await, 0);
+        assert_eq!(sweep_idle_players(&p, None, now).await, 0);
+    }
+
+    #[tokio::test]
+    async fn h247_parked_channel_reads_legacy_row() {
+        let p = pool().await;
+        assert_eq!(h247_parked_channel(&p, "noguild").await, None);
+        crate::db::kv_set(
+            &p,
+            "h1",
+            "GUILD.H247",
+            r#"{"enabled":true,"voiceChannelId":"4242"}"#,
+        )
+        .await
+        .unwrap();
+        assert_eq!(h247_parked_channel(&p, "h1").await, Some(4242));
+        // Disabled rows do not park.
+        crate::db::kv_set(
+            &p,
+            "h2",
+            "GUILD.H247",
+            r#"{"enabled":false,"voiceChannelId":"9"}"#,
+        )
+        .await
+        .unwrap();
+        assert_eq!(h247_parked_channel(&p, "h2").await, None);
+    }
+
+    #[test]
+    fn sweep_intervals_mirror_ready_timers() {
+        // ready.ts: refreshSchedule 50s, watchdog 60s, temp recovery 120s.
+        assert_eq!(SCHEDULE_SWEEP_SECS, 50);
+        assert_eq!(H247_WATCHDOG_SECS, 60);
+        assert_eq!(TEMPVOICE_RECOVERY_SECS, 120);
     }
 
     #[tokio::test]

@@ -149,6 +149,7 @@ pub mod h247;
 pub mod info;
 pub mod join;
 pub mod leave;
+pub mod session;
 
 /// Old registry path (`h247::main::h247`) kept working.
 pub mod main {

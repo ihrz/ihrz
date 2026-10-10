@@ -187,6 +187,35 @@ pub fn h247_negative_cached(resolved_at_ms: i64, now_ms: i64) -> bool {
     now_ms.saturating_sub(resolved_at_ms) < H247_NEGATIVE_CACHE_TTL_MS
 }
 
+/// Watchdog warn throttle. Mirrors h247WatchdogWarns: failures are
+/// retried silently until H247_WATCHDOG_WARN_INTERVAL_MS elapses since
+/// the last warning (no record yet means a warning is due).
+pub fn h247_warn_due(last_warn_ms: Option<i64>, now_ms: i64) -> bool {
+    match last_warn_ms {
+        None => true,
+        Some(last) => now_ms.saturating_sub(last) >= H247_WATCHDOG_WARN_INTERVAL_MS,
+    }
+}
+
+/// Idle-destroy park guard. Mirrors handleH247PlayerIdleDestroy: when
+/// H24/7 parks the bot in the destroyed player's voice channel, the
+/// destroy must not emit the OP4 voice leave (nor clear the channel
+/// status) so the bot never visibly disconnects.
+pub fn h247_idle_keep_voice(parked_channel: Option<u64>, destroyed_voice: Option<u64>) -> bool {
+    match (parked_channel, destroyed_voice) {
+        (Some(parked), Some(voice)) => parked == voice,
+        _ => false,
+    }
+}
+
+/// Post-move verify. Mirrors the `.then(fetch member, force: true)`
+/// leg after setChannel in voicedashboard/voiceState.ts: the create
+/// only sticks when the member actually landed in the new channel.
+/// A fetch failure (None) or a channel mismatch rolls the create back.
+pub fn temp_move_verified(fetched_channel: Option<u64>, expected_channel: u64) -> bool {
+    fetched_channel == Some(expected_channel)
+}
+
 /// In-memory track queue. Mirrors the Lavalink player queue surface used
 /// by musicPlay.ts (!play/skip/clear-queue/shuffle/queue): append, skip,
 /// clear, deterministic shuffle (seeded xorshift, no RNG dep).
@@ -327,6 +356,41 @@ mod tests {
         // Negative cache: valid inside the TTL only.
         assert!(h247_negative_cached(0, H247_NEGATIVE_CACHE_TTL_MS - 1));
         assert!(!h247_negative_cached(0, H247_NEGATIVE_CACHE_TTL_MS));
+    }
+
+    #[test]
+    fn h247_warn_throttle_mirrors_watchdog_warns() {
+        // Never warned: due.
+        assert!(h247_warn_due(None, 10_000));
+        // Just warned: silent.
+        assert!(!h247_warn_due(Some(10_000), 10_000));
+        assert!(!h247_warn_due(
+            Some(10_000),
+            10_000 + H247_WATCHDOG_WARN_INTERVAL_MS - 1
+        ));
+        // Interval elapsed: warn again.
+        assert!(h247_warn_due(
+            Some(10_000),
+            10_000 + H247_WATCHDOG_WARN_INTERVAL_MS
+        ));
+    }
+
+    #[test]
+    fn h247_idle_destroy_keeps_parked_voice() {
+        // Parked channel destroyed: keep the voice connection.
+        assert!(h247_idle_keep_voice(Some(7), Some(7)));
+        // Different channel, unknown park, or no channel: normal leave.
+        assert!(!h247_idle_keep_voice(Some(7), Some(9)));
+        assert!(!h247_idle_keep_voice(None, Some(7)));
+        assert!(!h247_idle_keep_voice(Some(7), None));
+        assert!(!h247_idle_keep_voice(None, None));
+    }
+
+    #[test]
+    fn temp_move_verify_rolls_back_on_mismatch() {
+        assert!(temp_move_verified(Some(7), 7));
+        assert!(!temp_move_verified(Some(9), 7));
+        assert!(!temp_move_verified(None, 7));
     }
 
     #[test]
