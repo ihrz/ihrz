@@ -286,13 +286,14 @@ committed — see `.gitignore`. No push without a green
 - [x] U-ETERNAL-88 (2026-10-10: D5-GUILDCONFIG + D7-LASTFM (2 workers): guildconfig 32 sites (perm 15, automod 9, tonew/blockbot 2+2, mod ghost/perm-roles/restore; welcomer already dual-write verified) table-first w/ legacy fallback + dual-write; lastfm routing decision table-first-on-kv (not named table — per-user scope shape) + 5 sites (login/status/config/lavalink-tip) via lastfm_username/save/guild_lastfm fns, absorbed in third-party 176546110 with markers verified intact. Suite 1607/0, fmt + clippy clean on workdir tree).
 - [x] U-ETERNAL-87 (2026-10-10: vague-70 msv-fix11 (tts/notifier/blogger aliases, compare Option, h247 Option, invites f64, lang doc) + obel-fix6 (EMBED global, unban sweep gate, updates embed, 5 verdicts) + evts-fix5 (wipe tbl-scope, idle 120s, lyrics verdict, invite seed) + boot-fix5 (DM username, unsubscribe btn, heartbeat, commands.json, prune spawn, shard logs, invite gate). Suite 1590/0, fmt + clippy clean).
 
-### Prefix (audit task-5)
-- [ ] P1 unify prefix DB key (`BOT.prefix` vs `GUILD.PREFIX`) + migrate existing guilds.
-- [ ] P2 single-vs-dual prefix decision; mention-revert path; length-cap + first-word alignment.
-- [ ] P3 `UseApplicationCommands` channel gate in `global_check`.
-- [ ] P4 `checkCommandArgs` UX (required-count, longString merge, attachment gate, caret embed).
-- [ ] P5 resolver fallbacks (username/role/channel/fuzzy) + mention-offset verify.
-- [ ] P6 prefix-only-as-slash decision (`h`, `grosbg`, meme names) + help scoping; alias-collision fail-fast; case-insensitivity; `number()` coercion; `prefixName` audit (known `prefix`↔`setprefix` flip).
+### Prefix (audit task-5; triaged U-ETERNAL-89: P1+P2 DONE, P3 TODO, P4/P5/P6 PARTIAL with 4 gap items below)
+- [x] P1 unify prefix DB key (`BOT.prefix` vs `GUILD.PREFIX`) + migrate existing guilds — DONE (U-ETERNAL-89: TS truth is BOT.prefix only; PREFIX_KEY + migrate_prefix_key lazy migrate-on-read via guild_prefix ← dynamic_prefix; no backfill needed).
+- [x] P2 single-vs-dual prefix decision; mention-revert path; length-cap + first-word alignment — DONE (U-ETERNAL-89: single-slot parity, revert/cap/truncate live; minor corner queued: single-vs-dual doc when mention-mode + custom prefix).
+- [ ] P3 `UseApplicationCommands` channel gate in `global_check` — TODO (gap: P3-USEAPP-GATE silent-deny parity, TS messageCommandHandler.ts:168-171, zero hits in rust/src).
+- [~] P4 `checkCommandArgs` UX (required-count, longString merge, attachment gate, caret embed) — PARTIAL (pure + wiring DONE; gap: P4-CHOICES-GATE isValidArgument choices/channel-type on prefix path).
+- [~] P5 resolver fallbacks (username/role/channel/fuzzy) + mention-offset verify — PARTIAL (pure battery DONE, TS order exact; gap: P5-RESOLVER-WIRING zero live call sites — wire feed_*/resolve_* or record poise-equivalence with tests).
+- [~] P6 prefix-only-as-slash decision (`h`, `grosbg`, meme names) + help scoping; alias-collision fail-fast; case-insensitivity; `number()` coercion; `prefixName` audit (known `prefix`↔`setprefix` flip) — PARTIAL (alias/case/help-prefix/number DONE; gap: P6-PREFIXNAME-AUDIT prefixName None everywhere + setprefix perm-key compat + h/grosbg/meme scope decision).
+- [x] U-ETERNAL-89 (2026-10-10: P-track triage sweep (P1-P6, call-site verified @c11367a89): P1+P2 DONE, P3 TODO, P4/P5/P6 PARTIAL; 4 confirmed gap items (P3-USEAPP-GATE, P4-CHOICES-GATE, P5-RESOLVER-WIRING, P6-PREFIXNAME-AUDIT) + 1 doc corner (P2 single-vs-dual). Suite untouched — read-only).
 
 ### Music edges (audit task-9)
 - [ ] M1 idle sweep consuming `destroy_due()` (120s → destroy + leave + status clear) — HIGH.
