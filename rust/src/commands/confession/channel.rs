@@ -58,7 +58,7 @@ pub async fn post_panel_log(
         return;
     };
     let title = crate::lang::get(lang_code, "confession_channel_log_embed_title")
-        .unwrap_or_else(|| "Confession".to_string());
+        .unwrap_or_else(|| "SetChannel Confession Module".to_string());
     let desc = crate::lang::get(lang_code, "confession_channel_log_embed_desc")
         .map(|s| {
             s.replace("${interaction.user}", &format!("<@{author_id}>"))

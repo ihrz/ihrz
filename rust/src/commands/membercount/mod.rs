@@ -130,7 +130,7 @@ pub async fn send_mcount_help(ctx: &Ctx<'_>) -> Result<(), anyhow::Error> {
     let fvalue = crate::commands::lang_for(
         ctx,
         "setmembercount_helpembed_fields_value",
-        "{MemberCount} = members\n{RolesCount} = roles\n{BotCount} = bots\n{ChannelCount} = channels\n{BoostCount} = boosts\n{VoiceCount} = in voice\n{OnlineCount} = online",
+        "{MemberCount} = number of members in the server\n{RolesCount} = number of roles\n{BotCount} = number of bots in the server\n{ChannelCount} = number of channels in the server\n{BoostCount} = number of boosts on the server\n{VoiceCount} = total number of members in voice channel on the guild\n{OnlineCount} = total online members in the guild",
     )
     .await;
     ctx.send(

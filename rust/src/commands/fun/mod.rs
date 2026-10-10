@@ -799,7 +799,7 @@ pub async fn fun_guard(ctx: &Ctx<'_>) -> bool {
         crate::commands::lang_for(
             ctx,
             "fun_category_disable",
-            "Fun commands are disabled in this server.",
+            "You cannot use this command as the fun commands category is disabled in this server.",
         )
         .await,
     )

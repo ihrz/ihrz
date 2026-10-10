@@ -2152,7 +2152,7 @@ impl LavalinkManager {
     ) -> serenity::CreateEmbed {
         let desc = crate::lang::get(lang_code, "event_mp_playerStart")
             .unwrap_or_else(|| {
-                "🎵 - Now playing [`${track.title}`](${url}) in **${queue.channel.name}**..."
+                "${client.iHorizon_Emojis.Music_Icon} - Now playing [`${track.title}`](${url}) in **${queue.channel.name}**..."
                     .to_string()
             })
             .replace("${client.iHorizon_Emojis.Music_Icon}", music_icon)

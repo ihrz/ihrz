@@ -63,7 +63,7 @@ pub async fn backup_create(
             crate::commands::lang_for(
                 &ctx,
                 "backup_manage_nique_tes_mort",
-                "Access denied. This command is reserved for the server owner.",
+                "Access denied. This command is reserved for the server owner.\n# You cannot disable backup protection to compromise the server's security.\n# Any abuse attempt will be reported and blocked.",
             )
             .await,
         )

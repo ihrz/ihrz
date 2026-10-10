@@ -34,7 +34,7 @@ pub async fn nightmode(
     if !is_guild_owner {
         ctx.say(
             crate::lang::get(&code, "blockbot_not_owner")
-                .unwrap_or_else(|| "Only the server owner can use this.".to_string()),
+                .unwrap_or_else(|| ":x: **You are not the Owner of the server!**".to_string()),
         )
         .await?;
         return Ok(());
