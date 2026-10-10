@@ -136,10 +136,16 @@ pub async fn tts_join(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         },
         None => true,
     };
-    // Guard 3 inputs: stored TTS row (presence = enabled) plus the live
-    // lavalink snapshot. A stored row with no live session takes the
-    // cleanup path; a stored row with a live voice session refuses.
-    let tts_enabled = load_tts(&ctx.data().pool, &gid).await.is_some();
+    // Guard 3 inputs: stored TTS row plus the live lavalink snapshot.
+    // TS !join.ts refuses only when `existingTTS && existingTTS.enabled`
+    // (getTTSData already nulls disabled rows), so a stored row with
+    // `enabled: false` behaves like no row: no refusal, no cleanup.
+    // A stored row with no live session takes the cleanup path; a stored
+    // row with a live voice session refuses.
+    let tts_enabled = load_tts(&ctx.data().pool, &gid)
+        .await
+        .map(|c| c.enabled)
+        .unwrap_or(false);
     let player_snapshot = crate::lavalink::manager().snapshot(guild_id.get()).await;
     let player_connected = player_snapshot
         .as_ref()

@@ -7,6 +7,12 @@ pub async fn eco_pay(
     // Amount-first like the TS option order (`amount`, then `member` in
     // economy.ts): poise parses prefix args positionally, so this keeps
     // `!pay <amount> <member>` aligned on both paths.
+    // ORDER NOTE (checked sane): on the TS prefix path both `amount`
+    // (`method.number(args, 0)`) and `member` (`method.member(..., args,
+    // 0)`) parse at index 0 (`!pay.ts:53-58`) — the member resolver
+    // scans the whole arg string for a mention/id, so the index is not
+    // load-bearing. Keeping the slash order positionally is the sane
+    // mapping, not a divergence.
     #[description = "Amount"] amount: f64,
     #[description = "Member"]
     #[rename = "member"]

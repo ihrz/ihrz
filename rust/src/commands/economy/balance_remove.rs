@@ -12,6 +12,10 @@ pub async fn eco_balance_remove(
     ctx: Ctx<'_>,
     // Amount-first like the TS option order (`amount`, then `member`),
     // same positional-prefix reason as `eco_balance_add`.
+    // ORDER NOTE (checked sane): the TS prefix path parses both `amount`
+    // and `member` at index 0 (`!balance-remove.ts:67-72`), but the
+    // member resolver scans the whole arg string, so the shared index
+    // is not load-bearing. Slash order kept positionally.
     #[description = "Amount"] amount: f64,
     #[description = "Member"]
     #[rename = "member"]

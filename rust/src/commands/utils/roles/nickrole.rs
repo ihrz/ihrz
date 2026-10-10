@@ -22,17 +22,21 @@ pub async fn nickrole(
     let t = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
     // Lower the query once here; the matcher compares raw fields.
     let part = nickname.to_lowercase();
-    let add = !matches!(
-        action.to_ascii_lowercase().as_str(),
-        "sub" | "remove" | "del" | "off"
-    );
+    // TS !nickrole.ts compares `action_1 === "add"` / `=== "sub"` with
+    // no case fold and no catch-all: any other action silently returns
+    // with no members touched.
+    let add = match nick_action(&action) {
+        Some(add) => add,
+        None => return Ok(()),
+    };
     let members = guild_id
         .members(ctx.http(), None, None)
         .await
         .unwrap_or_default();
     let total = members.len();
-    // TS matches globalName or nickname (case-insensitive) and skips
-    // members already in the target state.
+    // TS matches globalName or guild nickname (case-insensitive) and
+    // skips members already in the target state. The bare username is
+    // never consulted (!nickrole.ts:75-81,160-166).
     let targets: Vec<serenity::UserId> = members
         .iter()
         .filter(|m| {
@@ -42,7 +46,7 @@ pub async fn nickrole(
             }
             let nick = m.nick.as_deref().unwrap_or("");
             let global = m.user.global_name.as_deref().unwrap_or("");
-            nick_matches_part(nick, global, &m.user.name, &part)
+            nick_matches_part(nick, global, &part)
         })
         .map(|m| m.user.id)
         .collect();
@@ -111,18 +115,25 @@ pub async fn nickrole(
     Ok(())
 }
 
-/// Case-insensitive substring match over nickname, global name and
-/// username. The caller lowers the query once; the fields are matched
-/// raw here. Mirrors the TS globalName/nickname filter.
-pub fn nick_matches_part(
-    nick: &str,
-    global_name: &str,
-    username: &str,
-    lowered_part: &str,
-) -> bool {
-    nick.to_lowercase().contains(lowered_part)
-        || global_name.to_lowercase().contains(lowered_part)
-        || username.to_lowercase().contains(lowered_part)
+/// Parse the action option. Mirrors the `action_1 === "add"` /
+/// `action_1 === "sub"` branches in !nickrole.ts: exact match, no case
+/// fold, no catch-all. `Some(true)` adds, `Some(false)` removes, and any
+/// other input is `None` — the caller returns silently with no members
+/// touched, like TS falling through both branches.
+pub fn nick_action(action: &str) -> Option<bool> {
+    match action {
+        "add" => Some(true),
+        "sub" => Some(false),
+        _ => None,
+    }
+}
+
+/// Case-insensitive substring match over guild nickname and global
+/// display name only. The caller lowers the query once; the fields are
+/// matched raw here. Mirrors the TS globalName/nickname filter
+/// (!nickrole.ts:75-81); the bare username is never consulted.
+pub fn nick_matches_part(nick: &str, global_name: &str, lowered_part: &str) -> bool {
+    nick.to_lowercase().contains(lowered_part) || global_name.to_lowercase().contains(lowered_part)
 }
 
 /// Fill the `${membersToProcess.length}` progress template.
@@ -154,21 +165,39 @@ mod tests {
     use super::*;
 
     #[test]
+    fn action_parses_exact_like_ts() {
+        assert_eq!(nick_action("add"), Some(true));
+        assert_eq!(nick_action("sub"), Some(false));
+        // TS compares `===` with no case fold and no catch-all: anything
+        // else falls through both branches (silent no-op, no members
+        // touched). A typo must never mass-add.
+        assert_eq!(nick_action("ADD"), None);
+        assert_eq!(nick_action("SUB"), None);
+        assert_eq!(nick_action("remove"), None);
+        assert_eq!(nick_action("del"), None);
+        assert_eq!(nick_action("off"), None);
+        assert_eq!(nick_action("whatever"), None);
+        assert_eq!(nick_action(""), None);
+    }
+
+    #[test]
     fn nickname_matching_matches_ts() {
-        assert!(nick_matches_part("CoolGuy", "", "user", "cool"));
-        assert!(nick_matches_part("", "Cool Name", "user", "cool"));
-        assert!(nick_matches_part("", "", "CoolUser", "cool"));
-        assert!(!nick_matches_part("Bob", "Rob", "bob", "cool"));
-        assert!(!nick_matches_part("", "", "", "x"));
+        assert!(nick_matches_part("CoolGuy", "", "cool"));
+        assert!(nick_matches_part("", "Cool Name", "cool"));
+        // TS never consults the bare username: a username-only match
+        // is not a target.
+        assert!(!nick_matches_part("", "", "cool"));
+        assert!(!nick_matches_part("Bob", "Rob", "cool"));
+        assert!(!nick_matches_part("", "", "x"));
     }
 
     #[test]
     fn raw_query_matches_without_caller_lowering() {
         // Caller lowers once; the matcher compares the raw fields.
         let query = "COOL".to_lowercase();
-        assert!(nick_matches_part("coolkid", "", "user", &query));
-        assert!(nick_matches_part("", "MyCoolName", "user", &query));
-        assert!(!nick_matches_part("bob", "rob", "bob", &query));
+        assert!(nick_matches_part("coolkid", "", &query));
+        assert!(nick_matches_part("", "MyCoolName", &query));
+        assert!(!nick_matches_part("bob", "rob", &query));
     }
 
     #[test]

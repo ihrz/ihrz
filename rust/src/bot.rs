@@ -1259,6 +1259,23 @@ pub async fn run(cfg: Config, pool: Pool) -> anyhow::Result<()> {
                         tracing::warn!("owner seed failed for {id}: {e}");
                     }
                 }
+                // Owner prune (C11: mirrors the fetch-or-delete half of
+                // refreshDatabaseModel — stored rows whose user no longer
+                // resolves are deleted so stale owners don't accumulate).
+                for stored in crate::db::stored_bot_owners(&pool_fw).await {
+                    let Ok(id) = stored.trim().parse::<u64>() else {
+                        continue;
+                    };
+                    if serenity::model::id::UserId::new(id)
+                        .to_user(&ctx.http)
+                        .await
+                        .is_err()
+                    {
+                        if let Err(e) = crate::db::remove_bot_owner(&pool_fw, id).await {
+                            tracing::warn!("owner prune failed for {id}: {e}");
+                        }
+                    }
+                }
                 // Dev commands.json dump (mirrors the `version.env ===
                 // "dev"` branch in ready.ts writing
                 // src/files/commands.json with perm-stripped options).

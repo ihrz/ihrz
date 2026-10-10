@@ -6,7 +6,7 @@ use poise::serenity_prelude as serenity;
     slash_command,
     prefix_command,
     rename = "clearwarn",
-    aliases("clearwarns", "clearsanctions", "clearsanction"),
+    aliases("clearwarn", "clearwarns", "clearsanctions", "clearsanction"),
     default_member_permissions = "ADMINISTRATOR"
 )]
 pub async fn mod_clearwarn(

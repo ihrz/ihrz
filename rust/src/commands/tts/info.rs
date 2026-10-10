@@ -14,7 +14,8 @@ pub async fn tts_info(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     };
 
     let cfg = load_tts(&ctx.data().pool, &gid).await;
-    let active = cfg.is_some();
+    // TS !info.ts: `const isActive = ttsData && ttsData.enabled`.
+    let active = cfg.as_ref().map(|c| c.enabled).unwrap_or(false);
 
     let mut embed = serenity::CreateEmbed::new()
         .color(if active { 0x57F287 } else { 0xED4245 })

@@ -38,6 +38,26 @@ pub async fn load_tuning_routed(pool: &crate::db::Pool, guild_id: &str, kind: &s
     }
 }
 
+/// Cooldown duration parse. Mirrors `client.timeCalculator.to_ms` in
+/// `!set-cooldown.ts` via the shared [`crate::funcs::time_ms`]: compound
+/// (`1h30m`), decimal (`1.5h`), week/month/year (`2w`, `1mo`, `1y`) and
+/// French (`1heure`, `2jours`) units all parse. Garbage yields 0.0 and is
+/// rejected like the TS `if (!time)` invalid-time reply.
+/// KEPT STRICT (negative): TS would accept a negative total (truthy), but
+/// a negative cooldown is never useful, so negatives stay on the invalid
+/// reply path.
+pub fn parse_cooldown_ms(raw: &str) -> Option<i64> {
+    let ms = crate::funcs::time_ms(raw);
+    if !ms.is_finite() || ms <= 0.0 {
+        return None;
+    }
+    let v = ms as i64;
+    if v <= 0 {
+        return None;
+    }
+    Some(v)
+}
+
 /// Tunable cooldown kinds. Mirrors the `!set-cooldown.ts` slash
 /// `choices` (`rob` | `work`) in `economy.ts`.
 pub const SET_COOLDOWN_KINDS: &[&str] = &["rob", "work"];
@@ -86,7 +106,7 @@ pub async fn eco_set_cooldown(
         .await?;
         return Ok(());
     }
-    let Some(ms) = crate::commands::schedule::main::parse_duration_ms(&cooldown) else {
+    let Some(ms) = parse_cooldown_ms(&cooldown) else {
         let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
         ctx.say(
             crate::lang::get(&code, "economy_manage_rewards_cooldown_invalid_time")
@@ -134,10 +154,36 @@ pub async fn eco_set_cooldown(
 
 #[cfg(test)]
 mod tests {
-    use super::{leaf_num_routed, load_tuning_routed, validate_set_cooldown_kind};
+    use super::{
+        leaf_num_routed, load_tuning_routed, parse_cooldown_ms, validate_set_cooldown_kind,
+    };
 
     async fn mem_pool() -> crate::db::Pool {
         crate::db::memory_pool().await
+    }
+
+    #[test]
+    fn cooldown_durations_match_time_calculator() {
+        // Single units (the old narrow parser's range).
+        assert_eq!(parse_cooldown_ms("10s"), Some(10_000));
+        assert_eq!(parse_cooldown_ms("5m"), Some(300_000));
+        assert_eq!(parse_cooldown_ms("2h"), Some(7_200_000));
+        assert_eq!(parse_cooldown_ms("7d"), Some(604_800_000));
+        // Widened: compounds, decimals, weeks/months/years, French units.
+        assert_eq!(parse_cooldown_ms("1h30m"), Some(5_400_000));
+        assert_eq!(parse_cooldown_ms("1.5h"), Some(5_400_000));
+        assert_eq!(parse_cooldown_ms("2w"), Some(1_209_600_000));
+        assert_eq!(parse_cooldown_ms("1week"), Some(604_800_000));
+        assert_eq!(parse_cooldown_ms("1mo"), Some(2_592_000_000));
+        assert_eq!(parse_cooldown_ms("1y"), Some(31_557_600_000));
+        assert_eq!(parse_cooldown_ms("1heure"), Some(3_600_000));
+        assert_eq!(parse_cooldown_ms("2jours"), Some(172_800_000));
+        // Invalid stays on the invalid-time reply path, like TS `!time`.
+        assert_eq!(parse_cooldown_ms(""), None);
+        assert_eq!(parse_cooldown_ms("abc"), None);
+        assert_eq!(parse_cooldown_ms("0s"), None);
+        // KEPT STRICT: TS would accept these (truthy), we reject.
+        assert_eq!(parse_cooldown_ms("-5m"), None);
     }
 
     #[test]

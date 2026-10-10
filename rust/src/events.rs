@@ -132,184 +132,7 @@ pub async fn load_prevnames_dual(
     merged
 }
 
-/// Guild-table backend for U-D6 routing (keys unchanged).
-fn guild_backend(pool: &crate::db::Pool) -> crate::backends::Backend {
-    crate::backends::Backend::sqlite(pool.clone())
-}
-
-/// Stringify a table value like the legacy kv rows: plain strings stay
-/// plain, integers render without `.0`, anything else renders compact JSON.
-fn table_string(v: &serde_json::Value) -> String {
-    match v {
-        serde_json::Value::String(s) => s.clone(),
-        serde_json::Value::Number(n) => {
-            if let Some(i) = n.as_i64() {
-                i.to_string()
-            } else if let Some(u) = n.as_u64() {
-                u.to_string()
-            } else if let Some(f) = n.as_f64() {
-                if f.fract() == 0.0 && f >= i64::MIN as f64 && f <= i64::MAX as f64 {
-                    (f as i64).to_string()
-                } else {
-                    f.to_string()
-                }
-            } else {
-                n.to_string()
-            }
-        }
-        other => other.to_string(),
-    }
-}
-
-/// Table-first read of one dotted key with legacy flat-row fallback.
-/// Writers store under `tbl:<gid>`; legacy `(gid, key)` rows stay readable.
-async fn tbl_get(pool: &crate::db::Pool, gid: &str, key: &str) -> Option<String> {
-    let backend = guild_backend(pool);
-    let table = backend.table(gid);
-    if let Ok(Some(v)) = table.get::<serde_json::Value>(key).await {
-        return Some(table_string(&v));
-    }
-    // Blob stored as JSON text under an ancestor: decode string
-    // intermediates while walking the dotted path.
-    if key.contains('.') {
-        let mut segs = key.split('.');
-        let root = segs.next().unwrap_or("");
-        if let Ok(Some(mut cur)) = table.get::<serde_json::Value>(root).await {
-            let mut hit = true;
-            for seg in segs {
-                if let serde_json::Value::String(s) = &cur {
-                    cur = serde_json::from_str(s).unwrap_or(serde_json::Value::Null);
-                }
-                match &cur {
-                    serde_json::Value::Object(m) => {
-                        cur = m.get(seg).cloned().unwrap_or(serde_json::Value::Null);
-                    }
-                    _ => {
-                        hit = false;
-                        break;
-                    }
-                }
-            }
-            if hit && !cur.is_null() {
-                return Some(table_string(&cur));
-            }
-        }
-    }
-    crate::db::kv_get(pool, gid, key).await
-}
-
-/// Table-routed write (keys unchanged).
-async fn tbl_set(pool: &crate::db::Pool, gid: &str, key: &str, value: &str) -> anyhow::Result<()> {
-    guild_backend(pool).table(gid).set(key, value).await
-}
-
-/// Table-routed delete: clears the guild-table row and any legacy row.
-async fn tbl_del(pool: &crate::db::Pool, gid: &str, key: &str) -> anyhow::Result<()> {
-    let backend = guild_backend(pool);
-    let _ = backend.table(gid).delete(key).await;
-    crate::db::kv_del(pool, gid, key).await
-}
-
-/// Structured dual write for blobs co-owned with not-yet-migrated
-/// modules: the table holds the real JSON value (so table-first struct
-/// decoders keep working) and the legacy kv row keeps the JSON text for
-/// kv readers. Keys unchanged.
-async fn tbl_set_json_dual<T: serde::Serialize>(
-    pool: &crate::db::Pool,
-    gid: &str,
-    key: &str,
-    value: &T,
-) -> anyhow::Result<()> {
-    let raw = serde_json::to_string(value).unwrap_or_default();
-    let _ = guild_backend(pool).table(gid).set(key, value).await;
-    crate::db::kv_set(pool, gid, key, &raw).await
-}
-
-/// Table-routed counter add with one-time legacy seeding so counters never
-/// reset at cutover. Returns the new value.
-async fn tbl_add(pool: &crate::db::Pool, gid: &str, key: &str, delta: f64) -> f64 {
-    let backend = guild_backend(pool);
-    let table = backend.table(gid);
-    if table.get_raw(key).await.ok().flatten().is_none() {
-        if let Some(s) = crate::db::kv_get(pool, gid, key).await {
-            let base: f64 = serde_json::from_str::<serde_json::Value>(&s)
-                .ok()
-                .and_then(|v| match &v {
-                    serde_json::Value::Number(n) => n.as_f64(),
-                    serde_json::Value::String(x) => x.trim().parse().ok(),
-                    serde_json::Value::Bool(b) => Some(if *b { 1.0 } else { 0.0 }),
-                    _ => None,
-                })
-                .or_else(|| s.trim().parse().ok())
-                .unwrap_or(0.0);
-            if base != 0.0 {
-                let _ = table.set(key, base).await;
-            }
-            let _ = crate::db::kv_del(pool, gid, key).await;
-        }
-    }
-    table.add(key, delta).await.unwrap_or(delta)
-}
-
-/// Expand one table root object into full dotted keys.
-fn expand_scan(base: String, v: &serde_json::Value, out: &mut Vec<(String, String)>) {
-    match v {
-        serde_json::Value::Object(m) => {
-            for (k, child) in m {
-                expand_scan(format!("{base}.{k}"), child, out);
-            }
-        }
-        // JSON-text leaves stay leaves (legacy flat-row semantics).
-        leaf => out.push((base, table_string(leaf))),
-    }
-}
-
-/// Table-first prefix scan with legacy flat-row fallback (table wins on
-/// key conflicts). Keys unchanged.
-pub async fn tbl_scan_prefix(
-    pool: &crate::db::Pool,
-    gid: &str,
-    prefix: &str,
-) -> Vec<(String, String)> {
-    let mut merged = std::collections::HashMap::new();
-    let rows: Vec<(String, String)> = sqlx::query_as::<_, (String, String)>(
-        "SELECT key_name, value FROM kv WHERE guild_id = ? AND key_name LIKE ?",
-    )
-    .bind(gid)
-    .bind(format!("{prefix}%"))
-    .fetch_all(pool)
-    .await
-    .unwrap_or_default();
-    for (k, v) in rows {
-        merged.insert(k, v);
-    }
-    let root = prefix.split('.').next().unwrap_or("");
-    if !root.is_empty() {
-        let backend = guild_backend(pool);
-        let table = backend.table(gid);
-        if let Ok(Some(rv)) = table.get::<serde_json::Value>(root).await {
-            let mut expanded = Vec::new();
-            expand_scan(root.to_string(), &rv, &mut expanded);
-            for (k, v) in expanded {
-                if k.starts_with(prefix) {
-                    merged.insert(k, v);
-                }
-            }
-        }
-    }
-    let mut out: Vec<(String, String)> = merged.into_iter().collect();
-    out.sort_by(|a, b| a.0.cmp(&b.0));
-    out
-}
-
-/// Table-routed prefix delete: clears matching guild-table rows and any
-/// legacy rows.
-pub async fn tbl_del_prefix(pool: &crate::db::Pool, gid: &str, prefix: &str) -> anyhow::Result<()> {
-    for (k, _) in tbl_scan_prefix(pool, gid, prefix).await {
-        let _ = tbl_del(pool, gid, &k).await;
-    }
-    Ok(())
-}
+// ---- tbl_* routing lives in crate::db (single home, C5) ----
 
 /// Role snapshot for rolesaver. Mirrors onMemberLeave/onMemberJoin:
 /// skips @everyone and, when the guild opts out of admin restore
@@ -352,7 +175,7 @@ pub async fn voice_join(
     channel_id: u64,
     now_ms: i64,
 ) {
-    let _ = tbl_set(
+    let _ = crate::db::tbl_set(
         pool,
         guild_id,
         &voice_session_key(user_id),
@@ -366,7 +189,8 @@ pub async fn voice_join(
         "startTimestamp": now_ms,
         "channelId": channel_id.to_string(),
     });
-    let _ = tbl_set_json_dual(pool, guild_id, &active_voice_session_key(user_id), &session).await;
+    let _ =
+        crate::db::tbl_set_json(pool, guild_id, &active_voice_session_key(user_id), &session).await;
 }
 
 /// Parse a session value. Accepts the Rust `"<start_ms>:<channel_id>"`
@@ -414,10 +238,10 @@ pub async fn load_voice_session_raw(
     guild_id: &str,
     user_id: u64,
 ) -> Option<String> {
-    if let Some(raw) = tbl_get(pool, guild_id, &voice_session_key(user_id)).await {
+    if let Some(raw) = crate::db::tbl_get(pool, guild_id, &voice_session_key(user_id)).await {
         return Some(raw);
     }
-    tbl_get(pool, guild_id, &active_voice_session_key(user_id)).await
+    crate::db::tbl_get(pool, guild_id, &active_voice_session_key(user_id)).await
 }
 
 /// Parameters for closing one voice leg (keeps arg counts clippy-clean).
@@ -463,7 +287,7 @@ async fn close_voice_session(
             channel_id: close.channel_id,
         },
     );
-    let _ = tbl_set_json_dual(
+    let _ = crate::db::tbl_set_json(
         pool,
         guild_id,
         &crate::commands::stats::main::stats_key(user_id),
@@ -543,8 +367,8 @@ pub async fn voice_switch(
 
 /// Delete one session row (both keys: Rust string + TS object).
 pub async fn delete_voice_session(pool: &crate::db::Pool, guild_id: &str, user_id: u64) {
-    let _ = tbl_del(pool, guild_id, &voice_session_key(user_id)).await;
-    let _ = tbl_del(pool, guild_id, &active_voice_session_key(user_id)).await;
+    let _ = crate::db::tbl_del(pool, guild_id, &voice_session_key(user_id)).await;
+    let _ = crate::db::tbl_del(pool, guild_id, &active_voice_session_key(user_id)).await;
 }
 
 /// Boot recovery. Mirrors recoverActiveSessions in onVoiceUpdate.ts:
@@ -558,9 +382,9 @@ pub async fn recover_voice_sessions(
     in_voice: &std::collections::HashSet<u64>,
     now_ms: i64,
 ) -> usize {
-    let mut rows = tbl_scan_prefix(pool, guild_id, "VOICE_SESSION.").await;
+    let mut rows = crate::db::tbl_scan_prefix(pool, guild_id, "VOICE_SESSION.").await;
     // TS-keyed sessions (ACTIVE_VOICE_SESSIONS.<uid> objects) recover too.
-    let mut ts_rows = tbl_scan_prefix(pool, guild_id, "ACTIVE_VOICE_SESSIONS.").await;
+    let mut ts_rows = crate::db::tbl_scan_prefix(pool, guild_id, "ACTIVE_VOICE_SESSIONS.").await;
     rows.append(&mut ts_rows);
     let mut closed = 0;
     let mut seen = std::collections::HashSet::new();
@@ -622,7 +446,7 @@ pub async fn load_temp_voice_channel(
 ) -> Option<String> {
     let key = temp_voice_key(guild_id, user_id);
     let gid = guild_id.to_string();
-    if let Some(v) = tbl_get(pool, &gid, &key).await {
+    if let Some(v) = crate::db::tbl_get(pool, &gid, &key).await {
         return Some(v);
     }
     crate::commands::owner::main::routed_get(pool, "temp", "temp", &key).await
@@ -792,7 +616,7 @@ pub async fn load_welcomer_embed_source(
     if embed_id.is_empty() {
         return None;
     }
-    let raw = tbl_get(pool, scope, &welcomer_embed_key(embed_id)).await?;
+    let raw = crate::db::tbl_get(pool, scope, &welcomer_embed_key(embed_id)).await?;
     welcomer_embed_source(&raw)
 }
 
@@ -819,7 +643,7 @@ pub fn render_account_time_slots(
 /// to the legacy GUILD.JOIN_ROLE row written by the old setter.
 pub async fn join_role_ids(pool: &crate::db::Pool, gid: &str) -> Vec<u64> {
     let parse = |s: &str| s.parse::<u64>().ok();
-    if let Some(raw) = tbl_get(pool, gid, "GUILD.GUILD_CONFIG").await {
+    if let Some(raw) = crate::db::tbl_get(pool, gid, "GUILD.GUILD_CONFIG").await {
         if let Ok(cfg) = serde_json::from_str::<serde_json::Value>(&raw) {
             if let Some(v) = cfg.get("joinroles") {
                 if let Some(s) = v.as_str() {
@@ -834,7 +658,7 @@ pub async fn join_role_ids(pool: &crate::db::Pool, gid: &str) -> Vec<u64> {
             }
         }
     }
-    tbl_get(pool, gid, "GUILD.JOIN_ROLE")
+    crate::db::tbl_get(pool, gid, "GUILD.JOIN_ROLE")
         .await
         .and_then(|s| parse(&s))
         .into_iter()
@@ -845,7 +669,7 @@ pub async fn join_role_ids(pool: &crate::db::Pool, gid: &str) -> Vec<u64> {
 /// (GUILD.GUILD_CONFIG.joindm; "off" disables), falling back to the
 /// legacy GUILD.JOIN_DM row. Returns None when unset or "off".
 pub async fn join_dm_template(pool: &crate::db::Pool, gid: &str) -> Option<String> {
-    let blob = if let Some(raw) = tbl_get(pool, gid, "GUILD.GUILD_CONFIG").await {
+    let blob = if let Some(raw) = crate::db::tbl_get(pool, gid, "GUILD.GUILD_CONFIG").await {
         serde_json::from_str::<serde_json::Value>(&raw)
             .ok()
             .and_then(|cfg| cfg.get("joindm").and_then(|v| v.as_str()).map(String::from))
@@ -854,7 +678,7 @@ pub async fn join_dm_template(pool: &crate::db::Pool, gid: &str) -> Option<Strin
     };
     let tpl = match blob {
         Some(t) => Some(t),
-        None => tbl_get(pool, gid, "GUILD.JOIN_DM").await,
+        None => crate::db::tbl_get(pool, gid, "GUILD.JOIN_DM").await,
     }?;
     if tpl == "off" {
         return None;
@@ -1104,7 +928,7 @@ pub async fn record_message_activity_full(
             channel_id,
         },
     );
-    let _ = tbl_set_json_dual(
+    let _ = crate::db::tbl_set_json(
         pool,
         guild_id,
         &crate::commands::stats::main::stats_key(user_id),
@@ -1550,7 +1374,7 @@ mod tests {
     async fn temp_voice_reads_guild_then_temp_scope() {
         use crate::commands::owner::main as routed;
         let pool = crate::db::memory_pool().await;
-        tbl_set(&pool, "5", &temp_voice_key(5, 6), "111")
+        crate::db::tbl_set(&pool, "5", &temp_voice_key(5, 6), "111")
             .await
             .unwrap();
         routed::routed_set(&pool, "temp", "temp", &temp_voice_key(5, 6), "222")
@@ -1560,7 +1384,9 @@ mod tests {
             load_temp_voice_channel(&pool, 5, 6).await.as_deref(),
             Some("111")
         );
-        tbl_del(&pool, "5", &temp_voice_key(5, 6)).await.unwrap();
+        crate::db::tbl_del(&pool, "5", &temp_voice_key(5, 6))
+            .await
+            .unwrap();
         crate::db::kv_del(&pool, "5", &temp_voice_key(5, 6))
             .await
             .unwrap();
@@ -1609,19 +1435,21 @@ mod tests {
         voice_join(&pool, "g", 1, 9, 1000).await;
         // Rust string form under the Rust key.
         assert_eq!(
-            tbl_get(&pool, "g", &voice_session_key(1)).await.as_deref(),
+            crate::db::tbl_get(&pool, "g", &voice_session_key(1))
+                .await
+                .as_deref(),
             Some("1000:9")
         );
         // TS object form under the TS key.
-        let ts_raw = tbl_get(&pool, "g", &active_voice_session_key(1))
+        let ts_raw = crate::db::tbl_get(&pool, "g", &active_voice_session_key(1))
             .await
             .expect("TS key dual-written");
         assert_eq!(parse_voice_session(&ts_raw), Some((1000, 9)));
         // TS-only session (Rust key deleted, e.g. TS join): leave resolves.
-        let _ = tbl_del(&pool, "g", &voice_session_key(1)).await;
+        let _ = crate::db::tbl_del(&pool, "g", &voice_session_key(1)).await;
         let (minutes, _) = voice_leave(&pool, "g", 1, 61_000, 1.0, false).await;
         assert_eq!(minutes, 1);
-        assert!(tbl_get(&pool, "g", &active_voice_session_key(1))
+        assert!(crate::db::tbl_get(&pool, "g", &active_voice_session_key(1))
             .await
             .is_none());
     }
@@ -1658,7 +1486,9 @@ mod tests {
         assert_eq!(stats.voice_ms, 6_100_000);
         assert_eq!(stats.voice_log.len(), 1);
         // Session row is gone in both cases.
-        assert!(tbl_get(&pool, "g", &voice_session_key(1)).await.is_none());
+        assert!(crate::db::tbl_get(&pool, "g", &voice_session_key(1))
+            .await
+            .is_none());
     }
 
     #[tokio::test]
@@ -1672,8 +1502,12 @@ mod tests {
             recover_voice_sessions(&pool, "g", &in_voice, 6_000_000).await,
             1
         );
-        assert!(tbl_get(&pool, "g", &voice_session_key(1)).await.is_some());
-        assert!(tbl_get(&pool, "g", &voice_session_key(2)).await.is_none());
+        assert!(crate::db::tbl_get(&pool, "g", &voice_session_key(1))
+            .await
+            .is_some());
+        assert!(crate::db::tbl_get(&pool, "g", &voice_session_key(2))
+            .await
+            .is_none());
         let econ = crate::commands::economy::balance::load_econ_routed(&pool, "g", 2).await;
         assert_eq!(econ.money, 0.0);
         let stats = crate::commands::stats::main::load_stats(&pool, "g", 2).await;
@@ -1992,7 +1826,7 @@ mod tests {
         // tbl_del clears both the table and the legacy row (reads promote
         // legacy hits into the table, so kv_del alone would leave the
         // promoted value behind).
-        tbl_del(&pool, "g", "GUILD.XP_LEVELING.disable")
+        crate::db::tbl_del(&pool, "g", "GUILD.XP_LEVELING.disable")
             .await
             .unwrap();
         // Bypassed channel blocks XP.
@@ -2003,7 +1837,7 @@ mod tests {
             record_message_activity_full(&pool, "g", 1, 7, 5, 1_000, XpMessageInput::default())
                 .await;
         assert_eq!((out.leveled, out.xp_gain), (false, 0));
-        tbl_del(&pool, "g", "GUILD.XP_LEVELING.bypassChannels")
+        crate::db::tbl_del(&pool, "g", "GUILD.XP_LEVELING.bypassChannels")
             .await
             .unwrap();
         // Clear gates: XP flows again (deterministic gain).
@@ -2244,22 +2078,30 @@ mod tests {
     #[tokio::test]
     async fn table_routing_with_legacy_fallback() {
         let pool = crate::db::memory_pool().await;
-        // Table-routed writes land under `tbl:<gid>`, never as flat rows.
-        tbl_set(&pool, "g1", "GUILD.JOIN_ROLE", "7").await.unwrap();
+        // Unified dual write (C5): table-routed writes land under
+        // `tbl:<gid>` AND refresh the legacy kv row for unmigrated
+        // readers; table-first reads win on conflicts.
+        crate::db::tbl_set(&pool, "g1", "GUILD.JOIN_ROLE", "7")
+            .await
+            .unwrap();
         assert_eq!(join_role_ids(&pool, "g1").await, vec![7]);
         let legacy: Option<String> = crate::db::kv_get(&pool, "g1", "GUILD.JOIN_ROLE").await;
-        assert_eq!(legacy, None);
+        assert_eq!(legacy.as_deref(), Some("7"));
         // Legacy rows still read, table wins on conflicts.
         crate::db::kv_set(&pool, "g2", "GUILD.JOIN_ROLE", "9")
             .await
             .unwrap();
         assert_eq!(join_role_ids(&pool, "g2").await, vec![9]);
-        tbl_set(&pool, "g2", "GUILD.JOIN_ROLE", "10").await.unwrap();
+        crate::db::tbl_set(&pool, "g2", "GUILD.JOIN_ROLE", "10")
+            .await
+            .unwrap();
         assert_eq!(join_role_ids(&pool, "g2").await, vec![10]);
         // Voice sessions round-trip through the guild table.
         voice_join(&pool, "g1", 1, 9, 0).await;
         assert_eq!(
-            tbl_get(&pool, "g1", &voice_session_key(1)).await.as_deref(),
+            crate::db::tbl_get(&pool, "g1", &voice_session_key(1))
+                .await
+                .as_deref(),
             Some("0:9")
         );
         // Legacy session rows still close and pay.
@@ -2268,12 +2110,14 @@ mod tests {
             .unwrap();
         let (minutes, _) = voice_leave(&pool, "g1", 2, 6_000_000, 1.0, true).await;
         assert_eq!(minutes, 100);
-        assert!(tbl_get(&pool, "g1", &voice_session_key(2)).await.is_none());
+        assert!(crate::db::tbl_get(&pool, "g1", &voice_session_key(2))
+            .await
+            .is_none());
         // Prefix scans merge table rows with legacy rows.
         crate::db::kv_set(&pool, "g1", &voice_session_key(3), "0:9")
             .await
             .unwrap();
-        let scan = tbl_scan_prefix(&pool, "g1", "VOICE_SESSION.").await;
+        let scan = crate::db::tbl_scan_prefix(&pool, "g1", "VOICE_SESSION.").await;
         let keys: Vec<&str> = scan.iter().map(|(k, _)| k.as_str()).collect();
         assert!(keys.contains(&voice_session_key(1).as_str()));
         assert!(keys.contains(&voice_session_key(3).as_str()));
@@ -2281,17 +2125,26 @@ mod tests {
         crate::db::kv_set(&pool, "g1", "COUNTER.hits", "4")
             .await
             .unwrap();
-        assert_eq!(tbl_add(&pool, "g1", "COUNTER.hits", 1.0).await, 5.0);
         assert_eq!(
-            tbl_get(&pool, "g1", "COUNTER.hits").await.as_deref(),
+            crate::db::tbl_add(&pool, "g1", "COUNTER.hits", 1.0).await,
+            5.0
+        );
+        assert_eq!(
+            crate::db::tbl_get(&pool, "g1", "COUNTER.hits")
+                .await
+                .as_deref(),
             Some("5")
         );
         // Delete clears both stores.
-        tbl_set(&pool, "g1", "GUILD.JOIN_DM", "hey").await.unwrap();
+        crate::db::tbl_set(&pool, "g1", "GUILD.JOIN_DM", "hey")
+            .await
+            .unwrap();
         crate::db::kv_set(&pool, "g1", "GUILD.JOIN_DM", "stale")
             .await
             .unwrap();
-        tbl_del(&pool, "g1", "GUILD.JOIN_DM").await.unwrap();
+        crate::db::tbl_del(&pool, "g1", "GUILD.JOIN_DM")
+            .await
+            .unwrap();
         assert!(join_dm_template(&pool, "g1").await.is_none());
     }
 

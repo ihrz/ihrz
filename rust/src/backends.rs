@@ -837,16 +837,25 @@ impl PostgresBackend {
 /// `MemoryBackend`: identical value semantics, zero network. Anything
 /// constructed here reports `is_mock()`; live verification against a real
 /// endpoint is still queued.
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone)]
 pub struct HorizonDbBackend {
     inner: MemoryBackend,
     endpoint: String,
+    request_timeout: Duration,
+}
+
+impl Default for HorizonDbBackend {
+    fn default() -> Self {
+        Self::mock("")
+    }
 }
 
 impl HorizonDbBackend {
     /// Build the mock. `endpoint` is recorded for diagnostics only (never
     /// dialed); an empty string falls back to the TS default
-    /// `ws://127.0.0.1:8080`.
+    /// `ws://127.0.0.1:8080`. The per-request timeout defaults to the TS
+    /// `requestTimeoutMs` default (10s); override with
+    /// `with_request_timeout` (wired from config by `from_config`, C7).
     pub fn mock(endpoint: impl Into<String>) -> Self {
         let endpoint = endpoint.into();
         Self {
@@ -856,7 +865,22 @@ impl HorizonDbBackend {
             } else {
                 endpoint
             },
+            request_timeout: Duration::from_millis(10_000),
         }
+    }
+
+    /// Override the per-request timeout (TS `requestTimeoutMs`).
+    /// Recorded for the future live WS client; the mock dials nothing.
+    pub fn with_request_timeout(mut self, timeout: Duration) -> Self {
+        if !timeout.is_zero() {
+            self.request_timeout = timeout;
+        }
+        self
+    }
+
+    /// Recorded per-request timeout (C7).
+    pub fn request_timeout(&self) -> Duration {
+        self.request_timeout
     }
 
     /// Recorded endpoint (diagnostics only — never dialed by the mock).
@@ -990,18 +1014,52 @@ impl Backend {
             "cached_postgres" | "cached-postgres" | "cachedpostgres" => {
                 let url = postgres_url(cfg)?;
                 let pg = PostgresBackend::connect(&url).await?;
-                let cached = CachedBackend::new(Backend::Postgres(pg));
+                let mut cached = CachedBackend::new(Backend::Postgres(pg));
+                // Shard gate at boot (C6): gate warm/sync to locally-owned
+                // guild ids only when this process declares its shard
+                // (`SHARD_ID` + `TOTAL_SHARDS`); unset (single-process /
+                // autoshard default) means allow all, matching TS where
+                // `inShard` is true for some local shard.
+                if let (Some(shard_id), Some(total)) = (cfg.shard_id, cfg.total_shards) {
+                    cached = cached.with_shard_gate(shard_gate_for(shard_id, total));
+                }
                 cached.warm().await?;
                 Ok(Self::Cached(cached))
             }
             "horizondb" | "horizon" | "ihrzdb" => {
+                // Fail-loud (C8): no live WS client exists in this port, so
+                // booting `horizondb` into a silent in-memory mock would
+                // accept writes that vanish on restart and diverge from TS
+                // (which dials `ws://host:port` over the private SDK and
+                // throws when `horizon_db` is unconfigured). Refuse unless
+                // the offline mock is explicitly opted into for tests/dev.
+                let mock_opt_in = std::env::var("HORIZONDB_OFFLINE_MOCK")
+                    .is_ok_and(|v| v == "1" || v.eq_ignore_ascii_case("true"));
+                if !mock_opt_in {
+                    anyhow::bail!(
+                        "db_method \"horizondb\" has no live client in the Rust port \
+                         (TS dials ws://host:port via the private horizondb SDK); \
+                         refusing to boot against a silent in-memory mock. \
+                         Set HORIZONDB_OFFLINE_MOCK=1 to opt into the offline mock, \
+                         or use method \"sqlite\"/\"memory\"."
+                    );
+                }
                 // Offline mock: endpoint recorded, never dialed, so this
                 // arm cannot fail on I/O. `database.horizon_db` parts win
                 // (TS `ws://host:port`); otherwise database_url verbatim.
+                // The configured `requestTimeoutMs` is honored through
+                // construction (C7).
                 let endpoint = cfg
                     .horizondb_endpoint()
                     .unwrap_or_else(|| cfg.database_url.clone());
-                Ok(Self::horizondb_mock(endpoint))
+                let timeout = cfg
+                    .horizon_db
+                    .as_ref()
+                    .map(|h| h.request_timeout())
+                    .unwrap_or_else(|| Duration::from_millis(10_000));
+                Ok(Self::HorizonDb(
+                    HorizonDbBackend::mock(endpoint).with_request_timeout(timeout),
+                ))
             }
             _ => {
                 let pool = crate::db::init(cfg).await?;
@@ -1073,22 +1131,12 @@ impl Table<'_> {
         &self.name
     }
 
-    /// Reject mutations against read-only tables on cached backends. TS
-    /// (`syncToPostgres` in `src/core/database/index.ts`) only consults
-    /// `readOnlyTables` during the 5-minute sync (postgres wins, memory
-    /// rows are clobbered); the Rust cached backend rejects such writes
-    /// upfront instead of accepting-then-clobbering. Plain (non-cached)
-    /// backends are unaffected, matching TS where `readOnlyTables` is
-    /// inert outside `cached_postgres` mode.
-    fn check_writable(&self) -> anyhow::Result<()> {
-        if matches!(self.backend, Backend::Cached(_)) && is_read_only(&self.name) {
-            anyhow::bail!(
-                "table \"{}\" is read-only: postgres wins, cached writes are rejected",
-                self.name
-            );
-        }
-        Ok(())
-    }
+    // Write path note (C3): TS (`syncToPostgres` in
+    // `src/core/database/index.ts`) consults `readOnlyTables` ONLY during
+    // the 5-minute sync (postgres wins, memory rows are clobbered for
+    // `authrestore`/`api`/`metas`); writes are never rejected. This port
+    // matches that: every mutation writes through (cache + mirror), and
+    // the sync-direction rules live in `sync_table` alone.
 
     /// Alias for `all`, mirroring the TS drivers' `export()` (both
     /// `Postgres.export` and `HorizonDB.export` return the full row scan).
@@ -1131,7 +1179,6 @@ impl Table<'_> {
     /// merge into the root row object (see `set_path`).
     async fn write_value(&self, key: &str, value: Value) -> anyhow::Result<()> {
         let (root, rest) = split_path(key);
-        self.check_writable()?;
         match rest {
             None => match self.backend {
                 Backend::Memory(b) => {
@@ -1216,7 +1263,6 @@ impl Table<'_> {
             self.write_value(key, merged.clone()).await?;
             return Ok(serde_json::from_value(merged)?);
         }
-        self.check_writable()?;
         let merged = match self.backend {
             Backend::Memory(b) => b.update(&self.name, key, patch).await?,
             Backend::Json(b) => b.update(&self.name, key, patch).await?,
@@ -1263,7 +1309,6 @@ impl Table<'_> {
             self.write_value(root, merged).await?;
             return Ok(u64::from(removed));
         }
-        self.check_writable()?;
         match self.backend {
             Backend::Memory(b) => Ok(b.delete(&self.name, key).await),
             Backend::Json(b) => b.delete(&self.name, key).await,
@@ -1275,7 +1320,6 @@ impl Table<'_> {
     }
 
     pub async fn delete_all(&self) -> anyhow::Result<u64> {
-        self.check_writable()?;
         match self.backend {
             Backend::Memory(b) => Ok(b.delete_all(&self.name).await),
             Backend::Json(b) => b.delete_all(&self.name).await,
@@ -1307,7 +1351,6 @@ impl Table<'_> {
         if split_path(key).1.is_some() {
             return self.add_sub_dotted(key, value, false).await;
         }
-        self.check_writable()?;
         match self.backend {
             Backend::Memory(b) => b.add_sub(&self.name, key, value, false).await,
             Backend::Json(b) => b.add_sub(&self.name, key, value, false).await,
@@ -1322,7 +1365,6 @@ impl Table<'_> {
         if split_path(key).1.is_some() {
             return self.add_sub_dotted(key, value, true).await;
         }
-        self.check_writable()?;
         match self.backend {
             Backend::Memory(b) => b.add_sub(&self.name, key, value, true).await,
             Backend::Json(b) => b.add_sub(&self.name, key, value, true).await,
@@ -1348,7 +1390,6 @@ impl Table<'_> {
             self.write_value(key, Value::Array(arr.clone())).await?;
             return Ok(serde_json::from_value(Value::Array(arr))?);
         }
-        self.check_writable()?;
         let arr = match self.backend {
             Backend::Memory(b) => b.push(&self.name, key, values).await?,
             Backend::Json(b) => b.push(&self.name, key, values).await?,
@@ -1521,6 +1562,16 @@ pub const SYNC_INTERVAL: Duration = Duration::from_secs(300);
 /// cached/synced). `None` means allow all; that is the default because
 /// outside a live client there is no shard map to consult.
 pub type ShardGate = dyn Fn(&str) -> bool + Send + Sync;
+
+/// Boot shard gate (C6): `client.inShard(id)` as a `ShardGate` closure
+/// for one declared shard. Wired by `from_config` when `SHARD_ID` +
+/// `TOTAL_SHARDS` are both set; unparsable ids fall back to the local
+/// shard (true), exactly like the TS try/catch.
+pub fn shard_gate_for(shard_id: u32, total_shards: u32) -> impl Fn(&str) -> bool + Send + Sync {
+    move |id: &str| {
+        crate::funcs::in_shard_str(id, u64::from(shard_id), u64::from(total_shards.max(1)))
+    }
+}
 
 /// Cached-postgres backend: the `cached_postgres` method of
 /// `initializeDatabase` (`x: Memory` read cache + `og: Postgres` primary).
@@ -2249,14 +2300,22 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn from_config_horizondb_needs_no_network() {
+    async fn from_config_horizondb_fails_loud_without_opt_in() {
+        // C8: no live WS client exists, so booting `horizondb` without the
+        // explicit offline-mock opt-in refuses instead of silently
+        // accepting writes into a memory mock that vanish on restart.
         let mut cfg = Config::default();
         cfg.db_method = "horizondb".to_string();
         cfg.database_url = String::new();
+        assert!(Backend::from_config(&cfg).await.is_err());
+
+        std::env::set_var("HORIZONDB_OFFLINE_MOCK", "1");
         match Backend::from_config(&cfg).await.unwrap() {
             Backend::HorizonDb(h) => {
                 assert!(h.is_mock());
                 assert_eq!(h.endpoint(), "ws://127.0.0.1:8080");
+                // C7: TS `requestTimeoutMs` default honored.
+                assert_eq!(h.request_timeout(), Duration::from_millis(10_000));
             }
             _ => panic!("expected HorizonDb backend"),
         }
@@ -2270,6 +2329,20 @@ mod tests {
                 _ => panic!("expected HorizonDb backend for {alias}"),
             }
         }
+
+        // Configured timeout flows through construction.
+        cfg.db_method = "horizondb".to_string();
+        cfg.horizon_db = Some(crate::config::HorizonDbParts {
+            request_timeout_ms: 2500,
+            ..Default::default()
+        });
+        match Backend::from_config(&cfg).await.unwrap() {
+            Backend::HorizonDb(h) => {
+                assert_eq!(h.request_timeout(), Duration::from_millis(2500))
+            }
+            _ => panic!("expected HorizonDb backend"),
+        }
+        std::env::remove_var("HORIZONDB_OFFLINE_MOCK");
     }
     #[test]
     fn orchestration_tables_and_readonly() {
@@ -2336,6 +2409,29 @@ mod tests {
         assert!(db3.secondary().is_none());
         db3.table("temp").set("k", json!(true)).await.unwrap();
         assert!(db3.table("temp").has("k").await.unwrap());
+
+        // C17: lock the `client.db2 ? client.db2 : client.db` routing
+        // itself — `routing_backend` must BE the secondary when present
+        // and the primary otherwise (not a copy, not a third backend).
+        assert!(std::ptr::eq(
+            db2.routing_backend(),
+            db2.secondary().unwrap()
+        ));
+        assert!(std::ptr::eq(db.routing_backend(), db.primary()));
+        assert!(std::ptr::eq(db3.routing_backend(), db3.primary()));
+    }
+
+    #[test]
+    fn shard_gate_for_matches_in_shard_math() {
+        // C6 boot gate: same `(guildId >> 22) % totalShards` ownership as
+        // `client.inShard`, including the unparsable-id fallback (true).
+        let gate = shard_gate_for(1, 2);
+        assert!(gate(&((1u64 << 22) + 5).to_string()));
+        assert!(!gate(&(5u64.to_string())));
+        assert!(gate("not-a-snowflake"));
+        let gate0 = shard_gate_for(0, 2);
+        assert!(gate0(&(5u64.to_string())));
+        assert!(!gate0(&((1u64 << 22) + 5).to_string()));
     }
 
     #[tokio::test]
@@ -2428,40 +2524,78 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn cached_readonly_tables_reject_writes() {
+    async fn cached_readonly_tables_write_through_sync_direction_kept() {
+        // C3: TS never rejects writes to `readOnlyTables` — the direction
+        // rule lives in `syncToPostgres` alone. Writes land in cache +
+        // primary; the next sync still clobbers cache from primary.
         let b = Backend::cached(Backend::memory());
         for table in ["authrestore", "api", "metas"] {
             let t = b.table(table);
-            assert!(t.set("k", json!(1)).await.is_err(), "{table} set");
-            assert!(t
-                .update::<Value, Value>("k", json!({"a": 1}))
+            t.set("k", json!(1)).await.unwrap();
+            assert_eq!(
+                t.get::<Value>("k").await.unwrap(),
+                Some(json!(1)),
+                "{table} set"
+            );
+            t.set("k", json!({"z": 0})).await.unwrap();
+            assert_eq!(
+                t.update::<Value, Value>("k", json!({"a": 1}))
+                    .await
+                    .unwrap(),
+                json!({"z": 0, "a": 1})
+            );
+            assert_eq!(t.delete("k").await.unwrap(), 1);
+            t.set("k", json!(1)).await.unwrap();
+            assert_eq!(t.delete_all().await.unwrap(), 1);
+            assert_eq!(t.add("n", 1.0).await.unwrap(), 1.0);
+            assert_eq!(t.sub("n", 1.0).await.unwrap(), 0.0);
+            let arr: Vec<String> = t.push("l", vec!["x".to_string()]).await.unwrap();
+            assert_eq!(arr, vec!["x".to_string()]);
+            let arr: Vec<String> = t.unshift("l", vec!["y".to_string()]).await.unwrap();
+            assert_eq!(arr, vec!["y".to_string(), "x".to_string()]);
+            assert_eq!(t.pop::<Value>("l").await.unwrap(), Some(json!("x")));
+            assert_eq!(t.shift::<Value>("l").await.unwrap(), Some(json!("y")));
+            let kept: Vec<Value> = t
+                .pull_values("l", Vec::<String>::new(), false)
                 .await
-                .is_err());
-            assert!(t.delete("k").await.is_err());
-            assert!(t.delete_all().await.is_err());
-            assert!(t.add("n", 1.0).await.is_err());
-            assert!(t.sub("n", 1.0).await.is_err());
-            assert!(t
-                .push::<String, Vec<String>>("l", vec!["x".into()])
-                .await
-                .is_err());
-            assert!(t
-                .unshift::<String, Vec<String>>("l", vec!["x".into()])
-                .await
-                .is_err());
-            assert!(t.pop::<Value>("l").await.is_err());
-            assert!(t.shift::<Value>("l").await.is_err());
-            assert!(t
-                .pull_values::<String, Vec<String>>("l", vec!["x".into()], false)
-                .await
-                .is_err());
-            assert!(t
-                .pull_where::<Vec<Value>>("l", false, |_, _| true)
-                .await
-                .is_err());
-            assert!(t.set("u.name", json!("ada")).await.is_err());
-            assert_eq!(t.get::<Value>("k").await.unwrap(), None);
+                .unwrap();
+            assert!(kept.is_empty());
+            let kept: Vec<Value> = t.pull_where("l", false, |_, _| true).await.unwrap();
+            assert!(kept.is_empty());
+            t.set("u.name", json!("ada")).await.unwrap();
+            assert_eq!(t.get::<Value>("u.name").await.unwrap(), Some(json!("ada")));
+            // Mirror fired: the primary holds the write with no sync pass.
+            let primary = match &b {
+                Backend::Cached(c) => c.primary().clone(),
+                _ => unreachable!(),
+            };
+            assert_eq!(
+                primary.table(table).get::<Value>("u.name").await.unwrap(),
+                Some(json!("ada")),
+                "{table} mirror"
+            );
         }
+        // Sync direction kept: primary wins on read-only tables.
+        let b2 = Backend::cached(Backend::memory());
+        let c2 = match &b2 {
+            Backend::Cached(c) => c.clone(),
+            _ => unreachable!(),
+        };
+        // Sync direction kept: primary wins on read-only tables. Note the
+        // write-through mirror runs first, so the primary divergence is
+        // staged after the cache write (otherwise both sides agree and
+        // the sync is a no-op).
+        b2.table("api").set("k", json!("cache")).await.unwrap();
+        c2.primary()
+            .table("api")
+            .set("k", json!("primary"))
+            .await
+            .unwrap();
+        c2.sync_table("api").await.unwrap();
+        assert_eq!(
+            b2.table("api").get::<Value>("k").await.unwrap(),
+            Some(json!("primary"))
+        );
         // Writable table on the same backend is fine.
         b.table("json").set("k", json!(1)).await.unwrap();
         // Same table on a plain backend stays writable: readOnlyTables is

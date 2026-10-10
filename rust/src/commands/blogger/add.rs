@@ -19,7 +19,10 @@ pub async fn blogger_add(
     let say = |key: &str, fallback: &str| {
         crate::lang::get(&code, key).unwrap_or_else(|| fallback.to_string())
     };
-    let (valid, feed_title) = validate_rss_feed(rss.trim()).await;
+    // TS !add.ts validates the raw `rss` arg (`validateRssFeed(rss)`)
+    // and stores it raw (`rss: rss`). No trim anywhere on this path:
+    // a padded URL validates/fetches or fails exactly like TS.
+    let (valid, feed_title) = validate_rss_feed(&rss).await;
     if !valid {
         ctx.say(say(
             "blogger_blog_add_invalid_rss",
@@ -41,7 +44,7 @@ pub async fn blogger_add(
     let id = new_blog_id(now_ms);
     blogs.push(BlogEntry {
         id: id.clone(),
-        rss: rss.trim().to_string(),
+        rss: rss.clone(),
         channel_id: channel.id.get().to_string(),
     });
     // Insertion order is kept (TS pushes); dedup keeps the first
@@ -52,8 +55,8 @@ pub async fn blogger_add(
     // message below echoes the NEW blogId — exactly like TS, so the
     // echoed id of a dupe re-add is not removable via `!remove`.
     // (Full-object dedup would allow dupes, each removable by its own
-    // id; TS does not do that, so neither do we.) The trim() on rss is
-    // a benign normalization on top (TS validates/stores the raw arg).
+    // id; TS does not do that, so neither do we.) The rss is stored
+    // raw, exactly like TS (`rss: rss`, no trim).
     let mut seen = std::collections::HashSet::new();
     blogs.retain(|b| seen.insert((b.rss.clone(), b.channel_id.clone())));
     save_blogs(&ctx.data().pool, &gid, &blogs).await?;

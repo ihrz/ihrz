@@ -93,9 +93,14 @@ pub async fn tts_leave(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     };
 
     let cfg = load_tts(&ctx.data().pool, &gid).await;
-    let tts = cfg
-        .as_ref()
-        .and_then(|c| c.voice_channel_id.parse::<u64>().ok().map(|v| (true, v)));
+    // TS !leave.ts guards on `!ttsData || !ttsData.enabled`: a stored
+    // row with `enabled: false` refuses like a missing row.
+    let tts = cfg.as_ref().and_then(|c| {
+        c.voice_channel_id
+            .parse::<u64>()
+            .ok()
+            .map(|v| (c.enabled, v))
+    });
     let member_voice = ctx
         .serenity_context()
         .cache

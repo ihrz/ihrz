@@ -34,7 +34,7 @@ pub async fn profil(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
 // Scope "0" and `PROFIL.<uid>` keys are unchanged from the legacy kv
 // layout. (The locked `load_profil`/`save_profil` in mod.rs stay on kv;
 // the subcommands below use the routed pair instead.)
-use crate::commands::owner::main::{routed_get, routed_set, GLOBAL_SCOPE};
+use crate::commands::owner::main::{routed_get, GLOBAL_SCOPE};
 
 /// Named table mirroring TS `profilTable` (`user_profil`).
 pub const PROFIL_TABLE: &str = "user_profil";
@@ -134,14 +134,74 @@ async fn merge_profil_leaves(pool: &crate::db::Pool, user_id: u64, p: &mut Profi
 }
 
 /// Routed profil save (dual-write, mirrors `profilTable.set`).
+/// Writes the `PROFIL.<uid>` blob AND the TS per-field leaves
+/// (`<uid>.desc` / `.age` / `.gender` / `.pronoun` /
+/// `.birthday.(day|month|year)`), so the TS `!show.ts` leaf-only reads
+/// see Rust writes during a dual run. Unset fields delete their leaf
+/// (rather than leaving a stale value the load-merge would resurrect).
 pub async fn save_profil_routed(
     pool: &crate::db::Pool,
     user_id: u64,
     profil: &Profil,
 ) -> anyhow::Result<()> {
+    use crate::commands::owner::main::{routed_del, routed_set};
     let key = format!("PROFIL.{user_id}");
     let raw = serde_json::to_string(profil)?;
-    routed_set(pool, PROFIL_TABLE, GLOBAL_SCOPE, &key, &raw).await
+    routed_set(pool, PROFIL_TABLE, GLOBAL_SCOPE, &key, &raw).await?;
+    let field = |name: &str| format!("{user_id}.{name}");
+    if !profil.description.is_empty() {
+        routed_set(
+            pool,
+            PROFIL_TABLE,
+            GLOBAL_SCOPE,
+            &field("desc"),
+            &profil.description,
+        )
+        .await?;
+    } else {
+        routed_del(pool, PROFIL_TABLE, GLOBAL_SCOPE, &field("desc")).await?;
+    }
+    if let Some(age) = profil.age {
+        let text = if age.is_finite() && age.fract() == 0.0 {
+            format!("{}", age as i64)
+        } else {
+            format!("{age}")
+        };
+        routed_set(pool, PROFIL_TABLE, GLOBAL_SCOPE, &field("age"), &text).await?;
+    } else {
+        routed_del(pool, PROFIL_TABLE, GLOBAL_SCOPE, &field("age")).await?;
+    }
+    match profil.gender.as_deref().filter(|s| !s.is_empty()) {
+        Some(gender) => {
+            routed_set(pool, PROFIL_TABLE, GLOBAL_SCOPE, &field("gender"), gender).await?;
+        }
+        None => {
+            routed_del(pool, PROFIL_TABLE, GLOBAL_SCOPE, &field("gender")).await?;
+        }
+    }
+    match profil.pronoun.as_deref().filter(|s| !s.is_empty()) {
+        Some(pronoun) => {
+            routed_set(pool, PROFIL_TABLE, GLOBAL_SCOPE, &field("pronoun"), pronoun).await?;
+        }
+        None => {
+            routed_del(pool, PROFIL_TABLE, GLOBAL_SCOPE, &field("pronoun")).await?;
+        }
+    }
+    for (leaf, value) in [
+        ("birthday.day", profil.bday_day.map(|d| d.to_string())),
+        ("birthday.month", profil.bday_month.map(|m| m.to_string())),
+        ("birthday.year", profil.bday_year.map(|y| y.to_string())),
+    ] {
+        match value {
+            Some(text) => {
+                routed_set(pool, PROFIL_TABLE, GLOBAL_SCOPE, &field(leaf), &text).await?;
+            }
+            None => {
+                routed_del(pool, PROFIL_TABLE, GLOBAL_SCOPE, &field(leaf)).await?;
+            }
+        }
+    }
+    Ok(())
 }
 
 #[cfg(test)]
@@ -179,6 +239,29 @@ mod tests {
         assert_eq!(back.age, Some(21.0));
         // Legacy kv reader sees the unchanged key.
         assert!(crate::db::kv_get(&pool, "0", "PROFIL.11").await.is_some());
+        // TS-shaped per-field leaves mirror the blob for TS `!show` reads.
+        use crate::commands::owner::main::routed_get;
+        assert_eq!(
+            routed_get(&pool, PROFIL_TABLE, GLOBAL_SCOPE, "11.desc")
+                .await
+                .as_deref(),
+            Some("hi")
+        );
+        assert_eq!(
+            routed_get(&pool, PROFIL_TABLE, GLOBAL_SCOPE, "11.age")
+                .await
+                .as_deref(),
+            Some("21")
+        );
+        // Unset fields leave no stale leaf behind.
+        assert_eq!(
+            routed_get(&pool, PROFIL_TABLE, GLOBAL_SCOPE, "11.gender").await,
+            None
+        );
+        assert_eq!(
+            routed_get(&pool, PROFIL_TABLE, GLOBAL_SCOPE, "11.birthday.day").await,
+            None
+        );
     }
 
     #[tokio::test]

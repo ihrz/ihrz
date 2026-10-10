@@ -54,6 +54,40 @@ pub fn requirement_error_key(requirement: &str, value: &str) -> Option<&'static 
     }
 }
 
+/// Roles-requirement gate. Mirrors `!interaction.guild.roles.cache.has(value)`
+/// in !create.ts:124-134: a numeric id is not enough, the role must resolve
+/// against the guild. `guild_has_role` is the cache/HTTP resolution result;
+/// `None` (guild unreadable) rejects like the TS cache miss, it never falls
+/// back to accepting a bare number.
+pub fn roles_requirement_invalid(value: &str, guild_has_role: Option<bool>) -> bool {
+    if value.trim().parse::<u64>().is_err() {
+        return true;
+    }
+    !guild_has_role.unwrap_or(false)
+}
+
+/// Resolve whether the roles-requirement value names a role in the guild.
+/// Cache first, HTTP fallback (same pattern as the antispam leg: serenity
+/// may leave the cache cold where discord.js always populates it).
+/// Returns `None` when the value is not a role id or the guild id is unknown.
+pub async fn roles_requirement_guild_has(ctx: Ctx<'_>, value: &str) -> Option<bool> {
+    let rid = value
+        .trim()
+        .parse::<u64>()
+        .map(serenity::RoleId::new)
+        .ok()?;
+    let cached = ctx.guild().map(|g| g.roles.contains_key(&rid));
+    if cached == Some(true) {
+        return cached;
+    }
+    if let Some(gid) = ctx.guild_id() {
+        if let Ok(roles) = ctx.serenity_context().http.get_guild_roles(gid).await {
+            return Some(roles.iter().any(|role| role.id == rid));
+        }
+    }
+    cached
+}
+
 /// Fixed requirement choice. Mirrors the `choices` list on the
 /// `requirement` option in gw.ts (none/invites/messages/roles).
 /// Slash shows the TS values as the choice labels; prefix takes the
@@ -139,33 +173,38 @@ pub async fn gw_create(
     // choices reject them up front (slash UI + prefix parse).
     let requirement = gw_requirement_value(requirement);
     let req_value = requirement_value.unwrap_or_default();
-    if let Some(key) = requirement_error_key(&requirement, &req_value) {
-        // Roles need a guild-cache check like
-        // `interaction.guild.roles.cache.has(value)`; fall back to the
-        // numeric check above when the guild is unavailable.
-        let mut invalid = true;
-        if requirement == "roles" {
-            if let Some(guild) = ctx.guild() {
-                let rid = req_value
-                    .trim()
-                    .parse::<u64>()
-                    .map(serenity::RoleId::new)
-                    .ok();
-                invalid = rid.map(|r| !guild.roles.contains_key(&r)).unwrap_or(true);
-            }
-        }
-        if invalid {
+    // Roles resolve against the guild like
+    // `interaction.guild.roles.cache.has(value)` in !create.ts:124-134:
+    // unknown ids are rejected with start_invalid_roles_req_value and
+    // never stored. (The numeric pre-check in requirement_error_key alone
+    // is not enough — it accepted any parseable id.)
+    if requirement == "roles" {
+        if roles_requirement_invalid(
+            &req_value,
+            roles_requirement_guild_has(ctx, &req_value).await,
+        ) {
             let no = crate::emojis::app_emoji_markup(&ctx.serenity_context().http, "No")
                 .await
                 .unwrap_or_default();
             ctx.say(
-                crate::lang::get(&code_early, key)
+                crate::lang::get(&code_early, "start_invalid_roles_req_value")
                     .unwrap_or_default()
                     .replace("${client.iHorizon_Emojis.No}", &no),
             )
             .await?;
             return Ok(());
         }
+    } else if let Some(key) = requirement_error_key(&requirement, &req_value) {
+        let no = crate::emojis::app_emoji_markup(&ctx.serenity_context().http, "No")
+            .await
+            .unwrap_or_default();
+        ctx.say(
+            crate::lang::get(&code_early, key)
+                .unwrap_or_default()
+                .replace("${client.iHorizon_Emojis.No}", &no),
+        )
+        .await?;
+        return Ok(());
     }
     let gid = ctx
         .guild_id()
@@ -389,5 +428,19 @@ mod tests {
         );
         assert_eq!(requirement_error_key("roles", "123"), None);
         assert_eq!(requirement_error_key("none", ""), None);
+    }
+
+    #[test]
+    fn roles_requirement_resolves_against_guild() {
+        // Non-numeric values never resolve (!create.ts rejects: cache.has
+        // is false for them).
+        assert!(roles_requirement_invalid("not-a-role", Some(true)));
+        assert!(roles_requirement_invalid("", None));
+        // Numeric but unknown to the guild (or guild unreadable) rejects:
+        // a bare parseable id must never be stored.
+        assert!(roles_requirement_invalid("123", Some(false)));
+        assert!(roles_requirement_invalid("123", None));
+        // Only a guild-confirmed role passes.
+        assert!(!roles_requirement_invalid("123", Some(true)));
     }
 }

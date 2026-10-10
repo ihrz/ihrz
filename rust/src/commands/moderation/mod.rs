@@ -17,13 +17,15 @@ use serde::{Deserialize, Serialize};
 pub struct Warn {
     pub id: String,
     pub reason: String,
-    /// Warn creation time in ms. `timestamp` alias reads rows written by
-    /// the TS bot (`DatabaseStructure.WarnsData`).
-    #[serde(default, alias = "timestamp")]
+    /// Warn creation time in ms. Serializes as `timestamp` like the TS
+    /// `warnMember` row (`method.ts:1260-1275`); `at` stays a read alias
+    /// for rows written by older Rust builds.
+    #[serde(default, rename = "timestamp", alias = "at")]
     pub at: i64,
     /// Warning author (moderator) id. `None` for legacy rows written
-    /// before the field existed; `authorID` alias reads TS rows.
-    #[serde(default, alias = "authorID")]
+    /// before the field existed. Serializes as `authorID` like TS;
+    /// `author_id` stays a read alias for older Rust rows.
+    #[serde(default, rename = "authorID", alias = "author_id")]
     pub author_id: Option<String>,
 }
 
@@ -460,6 +462,32 @@ pub fn rolepanel_custom_id(role_id: serenity::RoleId) -> String {
     format!("rolepanel:{}", role_id.get())
 }
 
+/// Merge the lock-all deny flag into an existing overwrite. Mirrors the
+/// TS `permissionOverwrites.create(role, {SendMessages: false})` in
+/// `!lock-all.ts`, which merges: only SendMessages moves to deny (out of
+/// allow), every other flag is preserved across the PUT. Pure for tests.
+/// (Unlike the single `!lock.ts`, lock-all touches SendMessages only —
+/// Connect is left alone.)
+pub fn merge_lock_all_overwrite(
+    allow: serenity::Permissions,
+    deny: serenity::Permissions,
+) -> (serenity::Permissions, serenity::Permissions) {
+    let bit = serenity::Permissions::SEND_MESSAGES;
+    (allow & !bit, deny | bit)
+}
+
+/// Merge the unlock-all allow flag into an existing overwrite. Mirrors
+/// the TS `permissionOverwrites.create(role, {SendMessages: true})` in
+/// `!unlock-all.ts`: only SendMessages moves to allow (out of deny),
+/// every other flag is preserved. Pure for tests.
+pub fn merge_unlock_all_overwrite(
+    allow: serenity::Permissions,
+    deny: serenity::Permissions,
+) -> (serenity::Permissions, serenity::Permissions) {
+    let bit = serenity::Permissions::SEND_MESSAGES;
+    (allow | bit, deny & !bit)
+}
+
 async fn lock_all_inner(
     ctx: &Ctx<'_>,
     unlock: bool,
@@ -471,7 +499,15 @@ async fn lock_all_inner(
     let target = role
         .map(|r| r.id)
         .unwrap_or_else(|| serenity::RoleId::new(guild_id.get()));
-    let channels: Vec<poise::serenity_prelude::ChannelId> = ctx
+    // Same read-merge pattern as the single lock/unlock: serenity's
+    // `create_permission` is a full-overwrite PUT, while the TS
+    // `permissionOverwrites.create` merges. Snapshot each channel's
+    // existing overwrite for the target role so unrelated flags survive.
+    let channels: Vec<(
+        poise::serenity_prelude::ChannelId,
+        serenity::Permissions,
+        serenity::Permissions,
+    )> = ctx
         .serenity_context()
         .cache
         .guild(guild_id)
@@ -479,7 +515,18 @@ async fn lock_all_inner(
             g.channels
                 .values()
                 .filter(|c| c.kind == poise::serenity_prelude::ChannelType::Text)
-                .map(|c| c.id)
+                .map(|c| {
+                    let (allow, deny) = c
+                        .permission_overwrites
+                        .iter()
+                        .find(|o| o.kind == serenity::PermissionOverwriteType::Role(target))
+                        .map(|o| (o.allow, o.deny))
+                        .unwrap_or((
+                            serenity::Permissions::empty(),
+                            serenity::Permissions::empty(),
+                        ));
+                    (c.id, allow, deny)
+                })
                 .collect()
         })
         .unwrap_or_default();
@@ -490,21 +537,18 @@ async fn lock_all_inner(
     // only goes out once the sweep is done. Same end state, different
     // backpressure — sequential avoids a burst of parallel writes on
     // large guilds.
-    for ch in channels {
-        let overwrite = if unlock {
-            // TS unlock-all writes {SendMessages: true}.
-            serenity::PermissionOverwrite {
-                allow: serenity::Permissions::SEND_MESSAGES,
-                deny: serenity::Permissions::empty(),
-                kind: serenity::PermissionOverwriteType::Role(target),
-            }
+    for (ch, allow, deny) in channels {
+        let (allow, deny) = if unlock {
+            // TS unlock-all writes {SendMessages: true} (merged).
+            merge_unlock_all_overwrite(allow, deny)
         } else {
-            // TS lock-all writes {SendMessages: false}.
-            serenity::PermissionOverwrite {
-                allow: serenity::Permissions::empty(),
-                deny: serenity::Permissions::SEND_MESSAGES,
-                kind: serenity::PermissionOverwriteType::Role(target),
-            }
+            // TS lock-all writes {SendMessages: false} (merged).
+            merge_lock_all_overwrite(allow, deny)
+        };
+        let overwrite = serenity::PermissionOverwrite {
+            allow,
+            deny,
+            kind: serenity::PermissionOverwriteType::Role(target),
         };
         let _ = ch.create_permission(ctx.http(), overwrite).await;
     }
@@ -659,6 +703,34 @@ mod tests {
         // Round-trip keeps the author.
         let back: Vec<Warn> = serde_json::from_str(&serde_json::to_string(&ts).unwrap()).unwrap();
         assert_eq!(back, ts);
+        // Writes use the TS key shape (timestamp / authorID), so the TS
+        // bot reads Rust rows verbatim.
+        let raw = serde_json::to_string(&ts).unwrap();
+        assert!(raw.contains("\"timestamp\"") && raw.contains("\"authorID\""));
+        assert!(!raw.contains("\"at\"") && !raw.contains("author_id"));
+    }
+
+    #[test]
+    fn lock_all_merge_preserves_other_flags() {
+        use poise::serenity_prelude::Permissions;
+        // Lock: only SendMessages moves to deny; Connect and the rest
+        // survive (single-lock pattern, SendMessages-only like TS).
+        let (allow, deny) =
+            merge_lock_all_overwrite(Permissions::VIEW_CHANNEL, Permissions::CONNECT);
+        assert!(allow.view_channel() && !allow.send_messages());
+        assert!(deny.send_messages() && deny.connect());
+        // Unlock: only SendMessages moves to allow.
+        let (allow, deny) = merge_unlock_all_overwrite(
+            Permissions::empty(),
+            Permissions::SEND_MESSAGES | Permissions::MANAGE_MESSAGES,
+        );
+        assert!(allow.send_messages());
+        assert!(!deny.send_messages() && deny.manage_messages());
+        // Empty overwrite: lock denies SendMessages, unlock allows it.
+        let (allow, deny) = merge_lock_all_overwrite(Permissions::empty(), Permissions::empty());
+        assert!(allow.is_empty() && deny.send_messages());
+        let (allow, deny) = merge_unlock_all_overwrite(Permissions::empty(), Permissions::empty());
+        assert!(allow.send_messages() && deny.is_empty());
     }
 
     #[test]

@@ -85,38 +85,10 @@ pub async fn userinfo(
     } else {
         format!("{base_badges}, {}", extra.join(", "))
     };
-    // Presence from cache.
-    let presence = ctx.guild_id().and_then(|gid| {
-        ctx.serenity_context()
-            .cache
-            .guild(gid)
-            .and_then(|g| g.presences.get(&u.id).cloned())
-    });
-    let presence_label = presence
-        .map(|p| {
-            let status = p.status.name().to_string();
-            match p.client_status {
-                Some(cs) => {
-                    let mut platforms = vec![];
-                    if cs.desktop.is_some() {
-                        platforms.push("desktop");
-                    }
-                    if cs.mobile.is_some() {
-                        platforms.push("mobile");
-                    }
-                    if cs.web.is_some() {
-                        platforms.push("web");
-                    }
-                    if platforms.is_empty() {
-                        status
-                    } else {
-                        format!("{} ({})", status, platforms.join(", "))
-                    }
-                }
-                None => status,
-            }
-        })
-        .unwrap_or_else(|| notfound.clone());
+    // TS !userinfo.ts renders exactly five info fields plus roles (no
+    // presence field), so no presence lookup happens here. Strings must
+    // stay in YAML — no hardcoded field names (no YAML edits in this
+    // pass, so the extra field is dropped rather than moved).
     // Nitro heuristic (no gateway): animated avatar -> Classic (1),
     // banner -> Boost (2). `premium_type` 3 (Nitro Basic) only arrives via
     // the HorizonGateway UserInfo lookup inside GetNitro, which has no Rust
@@ -176,7 +148,6 @@ pub async fn userinfo(
             true,
         )
         .field(f("userinfo_embed_fields_5_name"), nitro, true)
-        .field("Presence", presence_label, true)
         .field(f("var_roles"), roles, false);
     embed = embed_with_footer(embed, &footer_name, footer_bytes.is_some());
     let face_url = u.face();

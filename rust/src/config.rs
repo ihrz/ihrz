@@ -7,6 +7,11 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct LavalinkNode {
     /// Node id (TS: config.lavalink.nodes[].id, e.g. "node0").
+    /// NOTE (C19): TS `src/files/config.ts` lavalink nodes carry NO
+    /// per-node retry options (only id/host/port/authorization/secure).
+    /// `retryAmount: Infinity` / `retryDelay: 50_000` are hardcoded in
+    /// `src/core/modules/playerManager.ts` and mirrored as the reconnect
+    /// schedule constants in `lavalink.rs` — there is nothing to parse here.
     #[serde(default)]
     pub id: String,
     /// Node host (TS mirror nodes: lava-v4.ajieblogs.eu.org / 192.168.1.193).
@@ -52,6 +57,33 @@ pub struct HorizonDbParts {
     pub login: String,
     #[serde(default)]
     pub password: String,
+    /// Per-request timeout in milliseconds (TS:
+    /// `database.horizon_db.requestTimeoutMs`, default 10000). Parsed from
+    /// `[database.horizon_db] request_timeout_ms`; env
+    /// `HORIZONDB_REQUEST_TIMEOUT_MS` wins. Honored by the HorizonDB
+    /// backend construction (recorded on the mock for the future live WS
+    /// client, which passes it as `requestTimeoutMs` like horizondb.ts).
+    #[serde(default = "default_horizon_request_timeout_ms")]
+    pub request_timeout_ms: u64,
+}
+
+impl HorizonDbParts {
+    /// Per-request timeout as a `Duration` (TS default 10s).
+    pub fn request_timeout(&self) -> std::time::Duration {
+        std::time::Duration::from_millis(self.request_timeout_ms.max(1))
+    }
+}
+
+impl Default for HorizonDbParts {
+    fn default() -> Self {
+        Self {
+            host: String::new(),
+            port: 0,
+            login: String::new(),
+            password: String::new(),
+            request_timeout_ms: default_horizon_request_timeout_ms(),
+        }
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -86,6 +118,15 @@ pub struct Config {
     pub database_url_secondary: Option<String>,
     #[serde(default)]
     pub total_shards: Option<u32>,
+    /// This process's shard id for shard-gated backends (TS:
+    /// `client.shard.ids`). `None` (default) = single-process/autoshard:
+    /// no gate, every guild row warms (matches TS where `inShard` is true
+    /// for some local shard). Set `SHARD_ID` (or `[discord] shard_id`)
+    /// together with `TOTAL_SHARDS` for multi-process sharding so the
+    /// cached-postgres boot (`Backend::from_config`) gates warm/sync to
+    /// locally-owned guild ids (C6).
+    #[serde(default)]
+    pub shard_id: Option<u32>,
     // --- config.toml file-backed extras (mirror src/files/config.ts) ---
     #[serde(default = "default_true")]
     pub dev_mode: bool,
@@ -223,6 +264,11 @@ fn default_db_method() -> String {
     "sqlite".to_string()
 }
 
+/// TS `database.horizon_db.requestTimeoutMs` default (10000 ms).
+fn default_horizon_request_timeout_ms() -> u64 {
+    10_000
+}
+
 impl Default for Config {
     fn default() -> Self {
         Self {
@@ -235,6 +281,7 @@ impl Default for Config {
             database_url: "sqlite:./src/files/db.sqlite?mode=rwc".to_string(),
             database_url_secondary: None,
             total_shards: None,
+            shard_id: None,
             dev_mode: true,
             blacklist_picture: default_blacklist_picture(),
             lavalink_logs_channel_id: default_lavalink_logs_channel(),
@@ -353,6 +400,9 @@ pub fn load_file_into(cfg: &mut Config, path: &std::path::Path) -> anyhow::Resul
         if let Some(v) = get_bool(t, "message_commands_mention") {
             cfg.message_commands_mention = v;
         }
+        if let Some(n) = t.get("shard_id").and_then(|v| v.as_integer()) {
+            cfg.shard_id = u32::try_from(n).ok();
+        }
     }
     if let Some(t) = table(&root, "core") {
         if let Some(v) = get_bool(t, "dev_mode") {
@@ -446,6 +496,11 @@ pub fn load_file_into(cfg: &mut Config, path: &std::path::Path) -> anyhow::Resul
                 port: ht.get("port").and_then(|v| v.as_integer()).unwrap_or(0) as u16,
                 login: get_str(ht, "login").unwrap_or_default(),
                 password: get_str(ht, "password").unwrap_or_default(),
+                request_timeout_ms: ht
+                    .get("request_timeout_ms")
+                    .and_then(|v| v.as_integer())
+                    .map(|n| n.max(0) as u64)
+                    .unwrap_or_else(default_horizon_request_timeout_ms),
             });
         }
     }
@@ -505,6 +560,24 @@ pub fn load() -> anyhow::Result<Config> {
     if let Ok(v) = std::env::var("TOTAL_SHARDS") {
         if let Ok(n) = v.parse::<u32>() {
             cfg.total_shards = Some(n);
+        }
+    }
+    if let Ok(v) = std::env::var("SHARD_ID") {
+        if let Ok(n) = v.parse::<u32>() {
+            cfg.shard_id = Some(n);
+        }
+    }
+    // HorizonDB per-request timeout (TS `database.horizon_db.requestTimeoutMs`).
+    if let Ok(v) = std::env::var("HORIZONDB_REQUEST_TIMEOUT_MS") {
+        if let Ok(n) = v.parse::<u64>() {
+            if let Some(h) = cfg.horizon_db.as_mut() {
+                h.request_timeout_ms = n;
+            } else {
+                cfg.horizon_db = Some(HorizonDbParts {
+                    request_timeout_ms: n,
+                    ..Default::default()
+                });
+            }
         }
     }
     if let Ok(v) = std::env::var("DATABASE_URL") {
@@ -727,6 +800,7 @@ mod tests {
         assert_eq!(cfg.db_method, "sqlite");
         assert!(cfg.owners.is_empty());
         assert_eq!(cfg.total_shards, None);
+        assert_eq!(cfg.shard_id, None);
         assert!(cfg.database_url.contains("db.sqlite"));
         assert_eq!(cfg.database_url_secondary, None);
     }
@@ -764,18 +838,39 @@ mod tests {
         std::env::set_var("DEFAULT_PREFIX", "!");
         std::env::set_var("PHONE_PRESENCE", "true");
         std::env::set_var("TOTAL_SHARDS", "4");
+        std::env::set_var("SHARD_ID", "2");
         std::env::set_var("OWNERS", "111, 222");
+        std::env::set_var("HORIZONDB_REQUEST_TIMEOUT_MS", "2500");
 
         let cfg = load().unwrap();
         assert_eq!(cfg.prefix, "!");
         assert!(cfg.phone_presence);
         assert_eq!(cfg.total_shards, Some(4));
+        assert_eq!(cfg.shard_id, Some(2));
         assert_eq!(cfg.owners, vec!["111".to_string(), "222".to_string()]);
+        assert_eq!(
+            cfg.horizon_db.as_ref().map(|h| h.request_timeout_ms),
+            Some(2500)
+        );
 
         std::env::remove_var("DEFAULT_PREFIX");
         std::env::remove_var("PHONE_PRESENCE");
         std::env::remove_var("TOTAL_SHARDS");
+        std::env::remove_var("SHARD_ID");
         std::env::remove_var("OWNERS");
+        std::env::remove_var("HORIZONDB_REQUEST_TIMEOUT_MS");
+    }
+
+    #[test]
+    fn horizon_request_timeout_defaults_to_ts_10s() {
+        // TS `database.horizon_db.requestTimeoutMs` default (C7).
+        let parts: HorizonDbParts = serde_json::from_str("{}").unwrap();
+        assert_eq!(parts.request_timeout_ms, 10_000);
+        assert_eq!(
+            parts.request_timeout(),
+            std::time::Duration::from_millis(10_000)
+        );
+        assert_eq!(HorizonDbParts::default().request_timeout_ms, 10_000);
     }
 
     #[test]

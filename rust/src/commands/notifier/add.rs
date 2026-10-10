@@ -60,7 +60,16 @@ pub async fn notifier_add(
         id_or_username: author,
         platform,
     });
-    dedup_entries(&mut entries);
+    // Exact dedup, mirroring the TS JSON-stringify uniqueness filter in
+    // !add.ts (`JSON.stringify(t) === JSON.stringify(value)`): the
+    // (platform, author) pair compares verbatim, no lowercase fold.
+    // (The shared `dedup_entries` helper in mod.rs folds platform case
+    // and is out of scope here; the slash `platform` choice casing
+    // passes through untouched either way.)
+    {
+        let mut seen = std::collections::HashSet::new();
+        entries.retain(|e| seen.insert((e.platform.clone(), e.id_or_username.clone())));
+    }
     save_entries(&ctx.data().pool, &gid, &entries).await?;
     let (authors, config) = authors_and_config_embeds(&ctx.data().pool, &gid, &code).await;
     ctx.send(poise::CreateReply::default().embed(authors).embed(config))

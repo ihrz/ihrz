@@ -719,8 +719,10 @@ mod trans_tests {
 }
 
 /// Fun kill-switch check for the global gate.
-/// Mirrors the `GUILD.FUN.states === "off"` guards (!config.ts stores
-/// "on"/"off"; legacy "0" still counts as off).
+/// Mirrors the `GUILD.FUN.states === "off"` guards: only the exact
+/// `"off"` value disables (strict like TS — `!config.ts` stores the
+/// action verbatim, so any other text, including a legacy `"0"`,
+/// counts as enabled, exactly as the TS guard treats it).
 /// Table-routed read with legacy flat-row fallback (keys unchanged).
 pub async fn fun_enabled(pool: &crate::db::Pool, guild_id: Option<u64>) -> bool {
     let Some(gid) = guild_id else {
@@ -734,7 +736,7 @@ pub async fn fun_enabled(pool: &crate::db::Pool, guild_id: Option<u64>) -> bool 
         Ok(Some(other)) => Some(other.to_string()),
         _ => crate::db::kv_get(pool, &gid, "GUILD.FUN.states").await,
     };
-    raw.map(|v| v != "off" && v != "0").unwrap_or(true)
+    raw.map(|v| v != "off").unwrap_or(true)
 }
 
 #[cfg(test)]
@@ -751,10 +753,10 @@ mod fun_enabled_tests {
         // Default (no row): enabled.
         assert!(fun_enabled(&pool, Some(1)).await);
         assert!(fun_enabled(&pool, None).await);
-        // Table-routed write disables.
+        // Table-routed write disables (strict "off" only).
         crate::backends::Backend::sqlite(pool.clone())
             .table("1")
-            .set("GUILD.FUN.states", "0")
+            .set("GUILD.FUN.states", "off")
             .await
             .unwrap();
         assert!(!fun_enabled(&pool, Some(1)).await);
@@ -765,6 +767,12 @@ mod fun_enabled_tests {
             .await
             .unwrap();
         assert!(!fun_enabled(&pool, Some(2)).await);
+        // Strict `=== "off"` like TS: anything else counts as enabled,
+        // including a legacy "0" (the TS guard never matched it either).
+        crate::db::kv_set(&pool, "3", "GUILD.FUN.states", "0")
+            .await
+            .unwrap();
+        assert!(fun_enabled(&pool, Some(3)).await);
         crate::db::kv_set(&pool, "1", "GUILD.FUN.states", "1")
             .await
             .unwrap();

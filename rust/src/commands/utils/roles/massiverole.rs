@@ -116,13 +116,12 @@ pub async fn massiverole(
 }
 
 /// Parse the action option. Mirrors the `action === "add"` / `action ===
-/// "sub"` branches in !massiverole.ts (the slash choices only ever send
-/// those two values): `Some(true)` adds, `Some(false)` removes, and any
-/// other input is `None` — the caller returns silently with no members
-/// touched, like TS leaving just the loading ack. Case-insensitive so
-/// prefix `ADD` / `SUB` still work.
+/// "sub"` branches in !massiverole.ts: exact match, no case fold.
+/// `Some(true)` adds, `Some(false)` removes, and any other input is
+/// `None` — the caller returns silently with no members touched, like
+/// TS leaving just the loading ack.
 pub fn mass_action(action: &str) -> Option<bool> {
-    match action.to_ascii_lowercase().as_str() {
+    match action {
         "add" => Some(true),
         "sub" => Some(false),
         _ => None,
@@ -167,11 +166,14 @@ mod tests {
     #[test]
     fn action_parses_like_ts() {
         assert_eq!(mass_action("add"), Some(true));
-        assert_eq!(mass_action("ADD"), Some(true));
         assert_eq!(mass_action("sub"), Some(false));
-        assert_eq!(mass_action("SUB"), Some(false));
-        // Unknown actions run no branch in TS (!massiverole.ts:73,181):
-        // silent return, no members touched (a typo must never mass-add).
+        // TS compares `===` with no case fold (!massiverole.ts:78,181):
+        // `ADD` falls through both branches (silent return, no members
+        // touched). Unknown actions run no branch in TS (loading ack
+        // only): silent return, no members touched (a typo must never
+        // mass-add).
+        assert_eq!(mass_action("ADD"), None);
+        assert_eq!(mass_action("SUB"), None);
         assert_eq!(mass_action("whatever"), None);
         assert_eq!(mass_action("remove"), None);
         assert_eq!(mass_action("del"), None);

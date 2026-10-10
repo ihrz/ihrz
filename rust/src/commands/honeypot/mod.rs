@@ -278,6 +278,83 @@ pub fn parse_trap_config(raw: Option<String>) -> HoneypotTrap {
 pub fn staff_exempt(perms: serenity::Permissions) -> bool {
     perms.administrator() || perms.manage_guild() || perms.ban_members() || perms.kick_members()
 }
+/// Effective staff permission bits: the member's direct bits OR'd with its
+/// guild role permissions. Needed because serenity's `Member.permissions`
+/// is only the direct field (often `None`), while discord.js
+/// `member.permissions` in Events/honeypot/honeypot.ts is already effective.
+/// Same role-perm OR pattern as the antispam leg in events_handler.rs.
+pub fn effective_staff_perms(
+    direct: Option<serenity::Permissions>,
+    role_perms: &[serenity::Permissions],
+) -> serenity::Permissions {
+    let mut eff = direct.unwrap_or_else(serenity::Permissions::empty);
+    for p in role_perms {
+        eff |= *p;
+    }
+    eff
+}
+
+/// Sync cache-only staff verdict. `Some(exempt)` when the cache settles it,
+/// `None` when undecided: member missing (serenity leaves `message.member`
+/// empty where discord.js always populates it), guild uncached, or a member
+/// role absent from the cached role map. `None` callers must resolve over
+/// HTTP (antispam-leg pattern) instead of trapping blind.
+pub fn staff_exempt_cached(ctx: &serenity::Context, msg: &serenity::Message) -> Option<bool> {
+    let m = msg.member.as_ref()?;
+    if m.roles.is_empty() {
+        return Some(staff_exempt(
+            m.permissions.unwrap_or_else(serenity::Permissions::empty),
+        ));
+    }
+    let g = ctx.cache.guild(msg.guild_id?)?;
+    let mut role_perms: Vec<serenity::Permissions> = Vec::with_capacity(m.roles.len());
+    for r in &m.roles {
+        // Any unresolvable role means partial data: stay undecided rather
+        // than trapping staff on an incomplete OR.
+        role_perms.push(g.roles.get(r)?.permissions);
+    }
+    Some(staff_exempt(effective_staff_perms(
+        m.permissions,
+        &role_perms,
+    )))
+}
+
+/// Async staff exemption with member-fetch fallback + role-perm OR. Mirrors
+/// the antispam leg: HTTP-fetch the member on cache miss, then OR the direct
+/// bits with the guild role permissions fetched over HTTP. No member at all
+/// means not exempt (TS `message.member?.permissions.any(...)` is falsy
+/// without a member, so the trap proceeds).
+pub async fn staff_exempt_fetched(
+    http: &std::sync::Arc<serenity::Http>,
+    msg: &serenity::Message,
+) -> bool {
+    let Some(guild_id) = msg.guild_id else {
+        return false;
+    };
+    // `Message.member` is a `PartialMember` while the HTTP fetch yields a
+    // full `Member`: normalize to plain (roles, permissions) pairs, both
+    // shapes carry the same two fields.
+    let (roles, direct): (Vec<serenity::RoleId>, Option<serenity::Permissions>) =
+        match msg.member.as_ref() {
+            Some(m) => (m.roles.clone(), m.permissions),
+            None => match guild_id.member(http, msg.author.id).await {
+                Ok(m) => (m.roles, m.permissions),
+                Err(_) => return false,
+            },
+        };
+    let mut role_perms: Vec<serenity::Permissions> = Vec::new();
+    if !roles.is_empty() {
+        if let Ok(all) = http.get_guild_roles(guild_id).await {
+            for r in &roles {
+                if let Some(role) = all.iter().find(|role| &role.id == r) {
+                    role_perms.push(role.permissions);
+                }
+            }
+        }
+    }
+    staff_exempt(effective_staff_perms(direct, &role_perms))
+}
+
 /// Truncate a log field. Mirrors truncate() (1024 + ...).
 pub fn truncate_field(s: &str) -> String {
     const MAX: usize = 1024;
@@ -312,6 +389,42 @@ pub async fn trap_spawn_allowed(pool: &crate::db::Pool, guild_id: &str, channel_
 /// guild.channel.user, 1500ms delay, latest message wins.
 /// Mirrors scheduleHoneypotTrigger/queueHoneypotTrigger.
 pub fn schedule_trap(ctx: &serenity::Context, pool: &crate::db::Pool, msg: &serenity::Message) {
+    if msg.guild_id.is_none() {
+        return;
+    }
+    if msg.author.bot || msg.webhook_id.is_some() {
+        return;
+    }
+    // Staff are exempt (mirrors Events/honeypot/honeypot.ts). The cache
+    // settles the common case synchronously; undecided verdicts (member or
+    // guild cache miss) resolve over HTTP like the antispam leg, so staff
+    // keep their exemption on a cache miss and role-granted staff are
+    // covered by the role-perm OR.
+    match staff_exempt_cached(ctx, msg) {
+        Some(true) => return,
+        Some(false) => schedule_trap_inner(ctx.http.clone(), pool.clone(), msg.clone()),
+        None => {
+            let http = ctx.http.clone();
+            let pool = pool.clone();
+            let owned = msg.clone();
+            tokio::spawn(async move {
+                if staff_exempt_fetched(&http, &owned).await {
+                    return;
+                }
+                schedule_trap_inner(http, pool, owned);
+            });
+        }
+    }
+}
+
+/// Debounced scheduling body shared by the sync fast path and the async
+/// fetch-fallback path: per-key seq/count bookkeeping, then the 1500ms
+/// delayed pipeline spawn (latest message wins).
+fn schedule_trap_inner(
+    http: std::sync::Arc<serenity::Http>,
+    pool: crate::db::Pool,
+    msg: serenity::Message,
+) {
     use std::collections::HashMap;
     use std::sync::{Mutex, OnceLock};
     static SEQS: OnceLock<Mutex<HashMap<String, u64>>> = OnceLock::new();
@@ -319,15 +432,6 @@ pub fn schedule_trap(ctx: &serenity::Context, pool: &crate::db::Pool, msg: &sere
     let Some(guild_id) = msg.guild_id else {
         return;
     };
-    if msg.author.bot || msg.webhook_id.is_some() {
-        return;
-    }
-    // Staff are exempt (mirrors Events/honeypot/honeypot.ts).
-    if let Some(perms) = msg.member.as_ref().and_then(|m| m.permissions) {
-        if staff_exempt(perms) {
-            return;
-        }
-    }
     let key = format!(
         "{}.{}.{}",
         guild_id.get(),
@@ -349,8 +453,6 @@ pub fn schedule_trap(ctx: &serenity::Context, pool: &crate::db::Pool, msg: &sere
         let n = next_trigger_count(guard.get(&key).copied());
         guard.insert(key.clone(), n);
     }
-    let http = ctx.http.clone();
-    let pool = pool.clone();
     let msg_id = msg.id;
     let channel_id = msg.channel_id;
     tokio::spawn(async move {
@@ -739,6 +841,32 @@ mod tests {
         assert!(staff_exempt(Permissions::KICK_MEMBERS));
         assert!(!staff_exempt(Permissions::empty()));
         assert!(!staff_exempt(Permissions::SEND_MESSAGES));
+    }
+
+    #[test]
+    fn effective_staff_perms_or_direct_with_roles() {
+        use poise::serenity_prelude::Permissions;
+        // Direct bits alone still exempt (old cache-member path).
+        assert!(staff_exempt(effective_staff_perms(
+            Some(Permissions::KICK_MEMBERS),
+            &[]
+        )));
+        // Unset direct field (`None`) + staff role perm exempts: this is the
+        // role-perm OR the old `msg.member.permissions` check missed.
+        assert!(staff_exempt(effective_staff_perms(
+            None,
+            &[Permissions::MANAGE_GUILD]
+        )));
+        assert!(staff_exempt(effective_staff_perms(
+            Some(Permissions::empty()),
+            &[Permissions::BAN_MEMBERS]
+        )));
+        // No staff bits anywhere: not exempt.
+        assert!(!staff_exempt(effective_staff_perms(
+            None,
+            &[Permissions::SEND_MESSAGES]
+        )));
+        assert!(!staff_exempt(effective_staff_perms(None, &[])));
     }
 
     #[test]

@@ -148,8 +148,19 @@ mod tests {
         crate::db::memory_pool().await
     }
 
+    /// Flat per-user temp-sanction keys (`GUILD.TEMPBAN.{uid}`,
+    /// `GUILD.TEMPROLE.{uid}.{rid}`, guild id as the legacy scope).
+    /// SCOPE/LAYOUT NOTE (dual-run gap, kept by design — do NOT relayout):
+    /// the TS managers (`tempbanManager.ts`, `tempRoleManager.ts`) keep one
+    /// object blob per guild (`{guild}.GUILD.TEMPBAN` / `.TEMPROLE` mapping
+    /// user ids to `{time, ...}` rows), while this port writes flat
+    /// per-user keys dual-routed (table + kv). Each side only sees its own
+    /// rows during a dual run, and the expiry sweep (`scheduler.rs`
+    /// `sweep_temp_expiry`) scans the flat keys. Unifying the layouts
+    /// would orphan one side's live sanctions, so the gap stays
+    /// documented instead.
     #[test]
-    fn sanction_keys_match_ts_layout() {
+    fn sanction_keys_flat_per_user_layout() {
         assert_eq!(tempban_key(7), "GUILD.TEMPBAN.7");
         assert_eq!(temprole_key(7, 9), "GUILD.TEMPROLE.7.9");
     }

@@ -46,7 +46,7 @@ pub async fn delete_tts(pool: &crate::db::Pool, guild_id: &str) -> anyhow::Resul
     Ok(())
 }
 
-#[derive(Debug, Clone, Default, Serialize, Deserialize, PartialEq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct TtsConfig {
     #[serde(default)]
     pub text_channel_id: String,
@@ -54,6 +54,26 @@ pub struct TtsConfig {
     pub voice_channel_id: String,
     #[serde(default = "default_tts_lang")]
     pub lang: String,
+    /// TS row flag (`setTTSData` writes `enabled: true`; getTTSData
+    /// returns null when `!data || !data.enabled`). Missing on legacy
+    /// Rust rows, which read as enabled (row presence = enabled).
+    #[serde(default = "default_true")]
+    pub enabled: bool,
+}
+
+fn default_true() -> bool {
+    true
+}
+
+impl Default for TtsConfig {
+    fn default() -> Self {
+        Self {
+            text_channel_id: String::new(),
+            voice_channel_id: String::new(),
+            lang: default_tts_lang(),
+            enabled: true,
+        }
+    }
 }
 
 fn default_tts_lang() -> String {
@@ -540,6 +560,7 @@ mod tests {
                 text_channel_id: "1".into(),
                 voice_channel_id: "2".into(),
                 lang: "fr-FR".into(),
+                enabled: true,
             },
         )
         .await
@@ -760,6 +781,7 @@ mod tests {
                     text_channel_id: "1".into(),
                     voice_channel_id: "2".into(),
                     lang: lang.into(),
+                    enabled: true,
                 },
             )
             .await

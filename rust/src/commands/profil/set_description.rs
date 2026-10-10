@@ -15,6 +15,10 @@ pub fn default_description(desc: Option<String>) -> String {
 }
 
 /// Set your description on the iHorizon's Profil!
+// The `description` param is required on slash like the TS
+// `getString("description")!`; on prefix it takes the rest of the line
+// like the TS `args?.join(" ")`. An empty value still maps to `"None"`
+// via `default_description` (the TS prefix `|| "None"` default, kept).
 #[poise::command(
     slash_command,
     prefix_command,
@@ -24,11 +28,13 @@ pub fn default_description(desc: Option<String>) -> String {
 )]
 pub async fn profil_description(
     ctx: Ctx<'_>,
-    #[description = "Your description on the iHorizon profil"] description: Option<String>,
+    #[description = "Your description on the iHorizon profil"]
+    #[rest]
+    description: String,
 ) -> Result<(), anyhow::Error> {
     let user_id = ctx.author().id.get();
     let mut p = super::profil::load_profil_routed(&ctx.data().pool, user_id).await;
-    p.description = default_description(description);
+    p.description = default_description(Some(description));
     super::profil::save_profil_routed(&ctx.data().pool, user_id, &p).await?;
     let msg = crate::commands::lang_for(
         &ctx,

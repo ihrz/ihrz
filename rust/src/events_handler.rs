@@ -16,160 +16,8 @@ use std::sync::Arc;
 /// Invite uses cache: guild -> code -> (uses, inviter).
 type InviteCache = HashMap<String, HashMap<String, (u64, u64)>>;
 
-/// Guild-table backend for U-D6 routing (keys unchanged).
-fn guild_backend(pool: &crate::db::Pool) -> crate::backends::Backend {
-    crate::backends::Backend::sqlite(pool.clone())
-}
-
-/// Stringify a table value like the legacy kv rows: plain strings stay
-/// plain, integers render without `.0`, anything else renders compact JSON.
-fn table_string(v: &serde_json::Value) -> String {
-    match v {
-        serde_json::Value::String(s) => s.clone(),
-        serde_json::Value::Number(n) => {
-            if let Some(i) = n.as_i64() {
-                i.to_string()
-            } else if let Some(u) = n.as_u64() {
-                u.to_string()
-            } else if let Some(f) = n.as_f64() {
-                if f.fract() == 0.0 && f >= i64::MIN as f64 && f <= i64::MAX as f64 {
-                    (f as i64).to_string()
-                } else {
-                    f.to_string()
-                }
-            } else {
-                n.to_string()
-            }
-        }
-        other => other.to_string(),
-    }
-}
-
-/// Table-first read of one dotted key with legacy flat-row fallback.
-/// Keys unchanged; legacy `(gid, key)` rows stay readable.
-async fn tbl_get(pool: &crate::db::Pool, gid: &str, key: &str) -> Option<String> {
-    let backend = guild_backend(pool);
-    let table = backend.table(gid);
-    if let Ok(Some(v)) = table.get::<serde_json::Value>(key).await {
-        return Some(table_string(&v));
-    }
-    // Blob stored as JSON text under an ancestor: decode string
-    // intermediates while walking the dotted path.
-    if key.contains('.') {
-        let mut segs = key.split('.');
-        let root = segs.next().unwrap_or("");
-        if let Ok(Some(mut cur)) = table.get::<serde_json::Value>(root).await {
-            let mut hit = true;
-            for seg in segs {
-                if let serde_json::Value::String(s) = &cur {
-                    cur = serde_json::from_str(s).unwrap_or(serde_json::Value::Null);
-                }
-                match &cur {
-                    serde_json::Value::Object(m) => {
-                        cur = m.get(seg).cloned().unwrap_or(serde_json::Value::Null);
-                    }
-                    _ => {
-                        hit = false;
-                        break;
-                    }
-                }
-            }
-            if hit && !cur.is_null() {
-                return Some(table_string(&cur));
-            }
-        }
-    }
-    crate::db::kv_get(pool, gid, key).await
-}
-
-/// Table-routed write, dual-stored (keys unchanged). Handler keys are
-/// co-owned with command modules in files this unit cannot touch (the
-/// U-D3 dual-write precedent): the table handle is the primary store
-/// and the legacy kv row keeps unmigrated kv readers fresh.
-async fn tbl_set(pool: &crate::db::Pool, gid: &str, key: &str, value: &str) -> anyhow::Result<()> {
-    let _ = guild_backend(pool).table(gid).set(key, value).await;
-    crate::db::kv_set(pool, gid, key, value).await
-}
-
-/// Table-routed delete: clears the guild-table row and any legacy row.
-async fn tbl_del(pool: &crate::db::Pool, gid: &str, key: &str) -> anyhow::Result<()> {
-    let backend = guild_backend(pool);
-    let _ = backend.table(gid).delete(key).await;
-    crate::db::kv_del(pool, gid, key).await
-}
-
-/// Structured dual write for blobs with struct decoders in migrated
-/// modules (e.g. SUGGESTION.*): the table holds the real JSON value and
-/// the legacy kv row keeps the JSON text. Keys unchanged.
-async fn tbl_set_json<T: serde::Serialize>(
-    pool: &crate::db::Pool,
-    gid: &str,
-    key: &str,
-    value: &T,
-) -> anyhow::Result<()> {
-    let raw = serde_json::to_string(value).unwrap_or_default();
-    let _ = guild_backend(pool).table(gid).set(key, value).await;
-    crate::db::kv_set(pool, gid, key, &raw).await
-}
-
-/// Expand one table root object into full dotted keys.
-fn expand_scan(base: String, v: &serde_json::Value, out: &mut Vec<(String, String)>) {
-    match v {
-        serde_json::Value::Object(m) => {
-            for (k, child) in m {
-                expand_scan(format!("{base}.{k}"), child, out);
-            }
-        }
-        // JSON-text leaves stay leaves (legacy flat-row semantics).
-        leaf => out.push((base, table_string(leaf))),
-    }
-}
-
-/// Table-first prefix scan with legacy flat-row fallback (table wins on
-/// key conflicts). Keys unchanged.
-async fn tbl_scan_prefix(pool: &crate::db::Pool, gid: &str, prefix: &str) -> Vec<(String, String)> {
-    let mut merged = std::collections::HashMap::new();
-    let rows: Vec<(String, String)> = sqlx::query_as::<_, (String, String)>(
-        "SELECT key_name, value FROM kv WHERE guild_id = ? AND key_name LIKE ?",
-    )
-    .bind(gid)
-    .bind(format!("{prefix}%"))
-    .fetch_all(pool)
-    .await
-    .unwrap_or_default();
-    for (k, v) in rows {
-        merged.insert(k, v);
-    }
-    let root = prefix.split('.').next().unwrap_or("");
-    if !root.is_empty() {
-        let backend = guild_backend(pool);
-        let table = backend.table(gid);
-        if let Ok(Some(rv)) = table.get::<serde_json::Value>(root).await {
-            let mut expanded = Vec::new();
-            expand_scan(root.to_string(), &rv, &mut expanded);
-            for (k, v) in expanded {
-                if k.starts_with(prefix) {
-                    merged.insert(k, v);
-                }
-            }
-        }
-    }
-    let mut out: Vec<(String, String)> = merged.into_iter().collect();
-    out.sort_by(|a, b| a.0.cmp(&b.0));
-    out
-}
-
-/// Table-routed prefix delete: clears matching guild-table rows and any
-/// legacy rows. Only enumerated exact rows are deleted (scan, then
-/// delete each key) — deliberately narrower than the TS
-/// `client.db.delete(`${guildId}`)` whole-subtree wipe in
-/// deleteDatabaseDataOnGuildLeave.ts.
-async fn tbl_del_prefix(pool: &crate::db::Pool, gid: &str, prefix: &str) -> anyhow::Result<()> {
-    for (k, _) in tbl_scan_prefix(pool, gid, prefix).await {
-        let _ = tbl_del(pool, gid, &k).await;
-    }
-    Ok(())
-}
+// tbl_* routing lives in crate::db (single home, C5); the forks that
+// lived here are deleted and call sites below use `crate::db::tbl_*`.
 
 /// Leaf routed read: table handle first, legacy kv fallback (keys
 /// unchanged). Thin wrapper over the shared routed primitive so each
@@ -328,7 +176,7 @@ pub fn staff_voice_allow() -> serenity::Permissions {
 /// CUSTOM_VOICE.<gid>.<uid> rows as (key, channel_id), table-first
 /// with legacy fallback (keys unchanged).
 async fn custom_voice_rows_routed(pool: &crate::db::Pool, gid: &str) -> Vec<(String, String)> {
-    tbl_scan_prefix(pool, gid, "CUSTOM_VOICE.")
+    crate::db::tbl_scan_prefix(pool, gid, "CUSTOM_VOICE.")
         .await
         .into_iter()
         .filter(|(k, _)| k["CUSTOM_VOICE.".len()..].contains('.'))
@@ -450,7 +298,12 @@ async fn automod_flag_routed(pool: &crate::db::Pool, gid: &str, kind: &str) -> b
 
 /// GUILD.LANG leaf.
 async fn guild_lang_routed(pool: &crate::db::Pool, gid: &str) -> Option<String> {
-    leaf_routed(pool, gid, "GUILD.LANG").await
+    // C1/C2: kv GUILD.LANG is the single source (TS getLanguageData).
+    // Table rows are legacy and must never shadow it here; blank ==
+    // unset so the guild_create setLangByRegion default still fires.
+    crate::db::kv_get(pool, gid, crate::db::GUILD_LANG_KEY)
+        .await
+        .filter(|s| !s.trim().is_empty())
 }
 
 /// GUILD.BLOCK_BOT flag leaf. Accepts the Rust "1" write and the TS
@@ -512,7 +365,7 @@ async fn antiexe_routed(pool: &crate::db::Pool, gid: &str) -> Option<String> {
 /// GUILD.REACT_MSG.* trigger keys, table-first with legacy fallback
 /// (keys unchanged).
 async fn react_msg_keys_routed(pool: &crate::db::Pool, gid: &str) -> Vec<String> {
-    tbl_scan_prefix(pool, gid, "GUILD.REACT_MSG.")
+    crate::db::tbl_scan_prefix(pool, gid, "GUILD.REACT_MSG.")
         .await
         .into_iter()
         .map(|(k, _)| k)
@@ -747,7 +600,7 @@ pub fn ts_snipe_json(
 /// TICKET_ALL.<user>.<channel> rows for one user, table-first with
 /// legacy fallback (keys unchanged).
 async fn ticket_user_rows_routed(pool: &crate::db::Pool, gid: &str, user_id: u64) -> Vec<String> {
-    tbl_scan_prefix(pool, gid, &format!("TICKET_ALL.{user_id}."))
+    crate::db::tbl_scan_prefix(pool, gid, &format!("TICKET_ALL.{user_id}."))
         .await
         .into_iter()
         .map(|(k, _)| k)
@@ -757,7 +610,7 @@ async fn ticket_user_rows_routed(pool: &crate::db::Pool, gid: &str, user_id: u64
 /// All TICKET_ALL.* rows, table-first with legacy fallback (keys
 /// unchanged).
 async fn ticket_rows_routed(pool: &crate::db::Pool, gid: &str) -> Vec<(String, String)> {
-    tbl_scan_prefix(pool, gid, "TICKET_ALL.").await
+    crate::db::tbl_scan_prefix(pool, gid, "TICKET_ALL.").await
 }
 
 #[derive(Clone)]
@@ -1572,7 +1425,7 @@ impl Handler {
         // blockSpam.ts, as a real delete instead of an empty-object
         // tombstone).
         let flag_key = format!("PUNISH_DATA.{gid}.{}", author.get());
-        let _ = tbl_del(&self.pool, gid, &flag_key).await;
+        let _ = crate::db::tbl_del(&self.pool, gid, &flag_key).await;
     }
 
     async fn check_punishpub(&self, ctx: &serenity::Context, gid: &str, msg: &serenity::Message) {
@@ -1713,7 +1566,7 @@ impl Handler {
         // LOG?.amountMax / LOG?.state).
         let new_flags = stored.unwrap_or(0) + 1;
         let flag_key = format!("PUNISH_DATA.{gid}.{}", msg.author.id.get());
-        let _ = tbl_set(
+        let _ = crate::db::tbl_set(
             &self.pool,
             gid,
             &flag_key,
@@ -3699,10 +3552,10 @@ impl serenity::EventHandler for Handler {
             }
         }
         // Drop the legacy immediate flag (migration from the old design).
-        let _ = tbl_del(&self.pool, &gid, "GUILD_DELETE_QUEUED").await;
+        let _ = crate::db::tbl_del(&self.pool, &gid, "GUILD_DELETE_QUEUED").await;
         // Auto-locale default (setLangByRegion).
         if guild_lang_routed(&self.pool, &gid).await.is_none() {
-            let _ = tbl_set(
+            let _ = crate::db::tbl_set(
                 &self.pool,
                 &gid,
                 "GUILD.LANG",
@@ -3713,7 +3566,7 @@ impl serenity::EventHandler for Handler {
         let lang_code = crate::db::guild_lang(&self.pool, Some(guild.id.get())).await;
         let text = |k: &str| crate::lang::get(&lang_code, k).unwrap_or_default();
         // Seed the guild owner (ownerHelper.addGuildOwner).
-        let _ = tbl_set(
+        let _ = crate::db::tbl_set(
             &self.pool,
             &gid,
             &format!("GUILD.OWNER.{}", guild.owner_id.get()),
@@ -3773,11 +3626,11 @@ impl serenity::EventHandler for Handler {
             let rows: Vec<(String, String)> = custom_voice_rows_routed(&self.pool, &gid).await;
             for (key, ch_id) in rows {
                 let Ok(ch_num) = ch_id.trim().parse::<u64>() else {
-                    let _ = tbl_del(&self.pool, &gid, &key).await;
+                    let _ = crate::db::tbl_del(&self.pool, &gid, &key).await;
                     continue;
                 };
                 if ch_num == 0 || !guild.channels.keys().any(|c| c.get() == ch_num) {
-                    let _ = tbl_del(&self.pool, &gid, &key).await;
+                    let _ = crate::db::tbl_del(&self.pool, &gid, &key).await;
                     continue;
                 }
                 let occupied = guild
@@ -3786,7 +3639,7 @@ impl serenity::EventHandler for Handler {
                     .any(|v| v.channel_id == Some(serenity::ChannelId::new(ch_num)));
                 if !occupied {
                     let _ = serenity::ChannelId::new(ch_num).delete(&ctx.http).await;
-                    let _ = tbl_del(&self.pool, &gid, &key).await;
+                    let _ = crate::db::tbl_del(&self.pool, &gid, &key).await;
                 }
             }
         }
@@ -4051,7 +3904,7 @@ impl serenity::EventHandler for Handler {
             });
         }
         // Drop the legacy immediate flag (migration from the old design).
-        let _ = tbl_del(&self.pool, &gid, "GUILD_DELETE_QUEUED").await;
+        let _ = crate::db::tbl_del(&self.pool, &gid, "GUILD_DELETE_QUEUED").await;
         // Mirrors invitemanager/onGuildLeave.ts: drop the invite cache.
         self.invites.lock().await.remove(&gid);
         // Drop the H247 in-memory session + serving-shard mirror (the
@@ -4246,10 +4099,14 @@ impl serenity::EventHandler for Handler {
                     now,
                 ) {
                     let count_key = format!("USER.{}.BLOCK_NEW_ACCOUNT", new_member.user.id.get());
-                    let join_count =
-                        too_new_join_count(tbl_get(&self.pool, &gid, &count_key).await.as_deref())
-                            + 1;
-                    let _ = tbl_set(&self.pool, &gid, &count_key, &join_count.to_string()).await;
+                    let join_count = too_new_join_count(
+                        crate::db::tbl_get(&self.pool, &gid, &count_key)
+                            .await
+                            .as_deref(),
+                    ) + 1;
+                    let _ =
+                        crate::db::tbl_set(&self.pool, &gid, &count_key, &join_count.to_string())
+                            .await;
                     if too_new_should_ban(join_count, max_join) {
                         let _ = new_member
                             .guild_id
@@ -4330,7 +4187,7 @@ impl serenity::EventHandler for Handler {
                             &self.pool, &gid, inviter_id, &next,
                         )
                         .await;
-                        let _ = tbl_set(
+                        let _ = crate::db::tbl_set(
                             &self.pool,
                             &gid,
                             &format!("USER.{}.INVITES.BY", new_member.user.id.get()),
@@ -4532,7 +4389,7 @@ impl serenity::EventHandler for Handler {
                 {
                     let _ = new_member.remove_role(&ctx.http, *r).await;
                 }
-                let _ = tbl_del(&self.pool, &gid, &key).await;
+                let _ = crate::db::tbl_del(&self.pool, &gid, &key).await;
             }
         }
         // Ghost-ping watch prime (mirrors ghostPingModule.ts): send the
@@ -4791,7 +4648,7 @@ impl serenity::EventHandler for Handler {
                     .collect();
                 let roles =
                     crate::events::snapshot_roles(&flagged, guild_id.get(), rs_cfg.skip_admin);
-                let _ = tbl_set(
+                let _ = crate::db::tbl_set(
                     &self.pool,
                     &gid,
                     &format!("ROLE_SAVER.{}", user.id.get()),
@@ -4844,8 +4701,12 @@ impl serenity::EventHandler for Handler {
                     }
                 }
             }
-            let _ =
-                tbl_del_prefix(&self.pool, &gid, &format!("TICKET_ALL.{}.", user.id.get())).await;
+            let _ = crate::db::tbl_del_prefix(
+                &self.pool,
+                &gid,
+                &format!("TICKET_ALL.{}.", user.id.get()),
+            )
+            .await;
         }
         tracing::debug!("memberLeave {} user {}", gid, user.id.get());
     }
@@ -4873,8 +4734,13 @@ impl serenity::EventHandler for Handler {
                     .await
                     .map(|g| g.owner_id.get().to_string())
                 {
-                    let _ =
-                        tbl_set(&self.pool, &gid, &format!("GUILD.OWNER.{owner_id}"), "1").await;
+                    let _ = crate::db::tbl_set(
+                        &self.pool,
+                        &gid,
+                        &format!("GUILD.OWNER.{owner_id}"),
+                        "1",
+                    )
+                    .await;
                 }
             }
         }
@@ -4997,7 +4863,7 @@ impl serenity::EventHandler for Handler {
                     .await
                     .map(|g| g.owner_id.get().to_string())
                 {
-                    let _ = tbl_set(
+                    let _ = crate::db::tbl_set(
                         &self.pool,
                         &gid,
                         &format!("ALLOWLIST.list.{owner}"),
@@ -5281,7 +5147,7 @@ impl serenity::EventHandler for Handler {
                                     amount: number,
                                     user_id: Some(author_id),
                                 };
-                                let _ = tbl_set(
+                                let _ = crate::db::tbl_set(
                                     &self.pool,
                                     &gid,
                                     "COUNTER_DATA",
@@ -5299,7 +5165,9 @@ impl serenity::EventHandler for Handler {
                             }
                             nf::CounterOutcome::WrongNumber { same_user, number } => {
                                 let _ = msg.react(&_ctx.http, '❌').await;
-                                let _ = tbl_set(&self.pool, &gid, "COUNTER_DATA", &reset()).await;
+                                let _ =
+                                    crate::db::tbl_set(&self.pool, &gid, "COUNTER_DATA", &reset())
+                                        .await;
                                 if same_user {
                                     let reply = text(
                                         "counter_error_too_much_u",
@@ -5325,7 +5193,9 @@ impl serenity::EventHandler for Handler {
                             }
                             nf::CounterOutcome::NotNumber => {
                                 let _ = msg.react(&_ctx.http, '❌').await;
-                                let _ = tbl_set(&self.pool, &gid, "COUNTER_DATA", &reset()).await;
+                                let _ =
+                                    crate::db::tbl_set(&self.pool, &gid, "COUNTER_DATA", &reset())
+                                        .await;
                                 let reply = text(
                                     "counter_error_syntaxic",
                                     "Wrong number. Next number is 1.",
@@ -5490,7 +5360,7 @@ impl serenity::EventHandler for Handler {
                                         status: "open".to_string(),
                                         replied: false,
                                     };
-                                    let _ = tbl_set_json(
+                                    let _ = crate::db::tbl_set_json(
                                         &self.pool,
                                         &gid,
                                         &crate::commands::suggestion::suggestion_key(&code),
@@ -5865,7 +5735,7 @@ impl serenity::EventHandler for Handler {
             .await;
             // Drop any ticket-panel marker bound to the deleted message
             // (mirrors deleteTicketPanelOnMessageDelete.ts).
-            let _ = tbl_del(
+            let _ = crate::db::tbl_del(
                 &self.pool,
                 &gid,
                 &format!("GUILD.TICKET.{}", deleted_message_id.get()),
@@ -6181,7 +6051,7 @@ impl serenity::EventHandler for Handler {
                         .cloned()
                         .collect();
                     if valid.len() != entries.len() {
-                        let _ = tbl_set(
+                        let _ = crate::db::tbl_set(
                             &self.pool,
                             &gid,
                             "UTILS.LEASH",
@@ -6236,7 +6106,8 @@ impl serenity::EventHandler for Handler {
                         // back into it and stop. A stale row (gone /
                         // non-voice channel) is dropped like the TS
                         // `channelDb && !ownedChannel` cleanup.
-                        if let Some(own_raw) = tbl_get(&self.pool, &gid, &own_key).await {
+                        if let Some(own_raw) = crate::db::tbl_get(&self.pool, &gid, &own_key).await
+                        {
                             let stale = match own_raw.trim().parse::<u64>() {
                                 Ok(own_num) if own_num != 0 => {
                                     let own_ch = serenity::ChannelId::new(own_num);
@@ -6256,7 +6127,7 @@ impl serenity::EventHandler for Handler {
                                 _ => true,
                             };
                             if stale {
-                                let _ = tbl_del(&self.pool, &gid, &own_key).await;
+                                let _ = crate::db::tbl_del(&self.pool, &gid, &own_key).await;
                             }
                         }
                         // Pending-creation lock (mirrors
@@ -6350,7 +6221,13 @@ impl serenity::EventHandler for Handler {
                         // Track the row before any follow-up edit (mirrors
                         // tempTable.set right after create): a failed move
                         // below rolls back exactly this row.
-                        let _ = tbl_set(&self.pool, &gid, &own_key, &ch.id.get().to_string()).await;
+                        let _ = crate::db::tbl_set(
+                            &self.pool,
+                            &gid,
+                            &own_key,
+                            &ch.id.get().to_string(),
+                        )
+                        .await;
                         // Category move (mirrors setParent(PotentialCategory)).
                         if let Some(cat) = category_num {
                             let _ = ch
@@ -6394,9 +6271,10 @@ impl serenity::EventHandler for Handler {
                             .is_err()
                         {
                             let _ = ch.id.delete(&ctx.http).await;
-                            if let Some(cur) = tbl_get(&self.pool, &gid, &own_key).await {
+                            if let Some(cur) = crate::db::tbl_get(&self.pool, &gid, &own_key).await
+                            {
                                 if cur.trim() == ch.id.get().to_string() {
-                                    let _ = tbl_del(&self.pool, &gid, &own_key).await;
+                                    let _ = crate::db::tbl_del(&self.pool, &gid, &own_key).await;
                                 }
                             }
                             {
@@ -6428,9 +6306,10 @@ impl serenity::EventHandler for Handler {
                         };
                         if !moved_ok {
                             let _ = ch.id.delete(&ctx.http).await;
-                            if let Some(cur) = tbl_get(&self.pool, &gid, &own_key).await {
+                            if let Some(cur) = crate::db::tbl_get(&self.pool, &gid, &own_key).await
+                            {
                                 if cur.trim() == ch.id.get().to_string() {
-                                    let _ = tbl_del(&self.pool, &gid, &own_key).await;
+                                    let _ = crate::db::tbl_del(&self.pool, &gid, &own_key).await;
                                 }
                             }
                             {
@@ -6694,7 +6573,7 @@ impl serenity::EventHandler for Handler {
                         _ => usize::MAX - 1,
                     };
                     if occupants == 0 || occupants == usize::MAX - 1 {
-                        let _ = tbl_del(&self.pool, &gid, "UTILS.VOICE_FREEZE").await;
+                        let _ = crate::db::tbl_del(&self.pool, &gid, "UTILS.VOICE_FREEZE").await;
                     } else {
                         let old_ch = old
                             .as_ref()
@@ -6774,12 +6653,12 @@ impl serenity::EventHandler for Handler {
                     use crate::commands::voicedashboard::main as vd;
                     if vd::fetch_voice_channel(&ctx.http, old_ch).await.is_none() {
                         for (key, _) in &tied {
-                            let _ = tbl_del(&self.pool, &gid, key).await;
+                            let _ = crate::db::tbl_del(&self.pool, &gid, key).await;
                         }
                     } else if vd::voice_occupants(&ctx, guild_id, old_ch) == 0 {
                         let _ = old_ch.delete(&ctx.http).await;
                         for (key, _) in &tied {
-                            let _ = tbl_del(&self.pool, &gid, key).await;
+                            let _ = crate::db::tbl_del(&self.pool, &gid, key).await;
                         }
                     }
                 }
@@ -6938,7 +6817,7 @@ impl serenity::EventHandler for Handler {
                                         &ctx.http, tts_vc,
                                     )
                                     .await;
-                                    let _ = tbl_del(&self.pool, &gid, "GUILD.TTS").await;
+                                    let _ = crate::db::tbl_del(&self.pool, &gid, "GUILD.TTS").await;
                                     tracing::info!("tts cleanup {} channel {}", gid, tts_vc);
                                 }
                             }
@@ -7127,7 +7006,7 @@ impl serenity::EventHandler for Handler {
                     history =
                         crate::events::push_prevname(history, &entry, crate::events::PREVNAMES_CAP);
                 }
-                let _ = tbl_set(
+                let _ = crate::db::tbl_set(
                     &self.pool,
                     "0",
                     &key,
@@ -7337,7 +7216,7 @@ impl serenity::EventHandler for Handler {
         let chan_suffix = format!(".{}", channel.id.get());
         for (k, _) in ticket_rows_routed(&self.pool, &gid).await {
             if k.ends_with(&chan_suffix) {
-                let _ = tbl_del(&self.pool, &gid, &k).await;
+                let _ = crate::db::tbl_del(&self.pool, &gid, &k).await;
             }
         }
         // Live restore (mirrors avoidChannelDelete.ts): punish ran inside
@@ -7902,7 +7781,7 @@ impl serenity::EventHandler for Handler {
                     prevnames_routed(&self.pool, updated.user.id.get()).await;
                 let next =
                     crate::events::push_prevname(history, &entry, crate::events::PREVNAMES_CAP);
-                let _ = tbl_set(
+                let _ = crate::db::tbl_set(
                     &self.pool,
                     "0",
                     &key,
@@ -8622,7 +8501,7 @@ mod restore_tests {
     async fn emitter_leaf_loaders_route_table_first() {
         let pool = memory_pool().await;
         // GUILD_CONFIG leaf + blob.
-        tbl_set(&pool, "g1", "GUILD.GUILD_CONFIG.antipub", "off")
+        crate::db::tbl_set(&pool, "g1", "GUILD.GUILD_CONFIG.antipub", "off")
             .await
             .unwrap();
         assert_eq!(
@@ -8656,10 +8535,10 @@ mod restore_tests {
             Some("false")
         );
         // RANK_ROLES single + nicknames.
-        tbl_set(&pool, "g1", "GUILD.RANK_ROLES.roles", "99")
+        crate::db::tbl_set(&pool, "g1", "GUILD.RANK_ROLES.roles", "99")
             .await
             .unwrap();
-        tbl_set(&pool, "g1", "GUILD.RANK_ROLES.nicknames", "vip")
+        crate::db::tbl_set(&pool, "g1", "GUILD.RANK_ROLES.nicknames", "vip")
             .await
             .unwrap();
         assert_eq!(
@@ -8671,10 +8550,10 @@ mod restore_tests {
             Some("vip")
         );
         // RANKS xp channels + message.
-        tbl_set(&pool, "g1", "GUILD.RANKS.xpChannels", "[\"5\"]")
+        crate::db::tbl_set(&pool, "g1", "GUILD.RANKS.xpChannels", "[\"5\"]")
             .await
             .unwrap();
-        tbl_set(&pool, "g1", "GUILD.RANKS.message", "gg {user}")
+        crate::db::tbl_set(&pool, "g1", "GUILD.RANKS.message", "gg {user}")
             .await
             .unwrap();
         assert_eq!(
@@ -8687,9 +8566,13 @@ mod restore_tests {
         );
         assert!(ranks_xp_channels_routed(&pool, "g9").await.is_empty());
         // COUNTER leaves.
-        tbl_set(&pool, "g1", "COUNTER.channel", "11").await.unwrap();
-        tbl_set(&pool, "g1", "COUNTER.config", "off").await.unwrap();
-        tbl_set(&pool, "g1", "COUNTER_DATA", "{\"amount\":3}")
+        crate::db::tbl_set(&pool, "g1", "COUNTER.channel", "11")
+            .await
+            .unwrap();
+        crate::db::tbl_set(&pool, "g1", "COUNTER.config", "off")
+            .await
+            .unwrap();
+        crate::db::tbl_set(&pool, "g1", "COUNTER_DATA", "{\"amount\":3}")
             .await
             .unwrap();
         assert_eq!(
@@ -8715,10 +8598,10 @@ mod restore_tests {
         assert!(suggest_disabled_routed(&pool, "g1").await);
         assert!(!suggest_disabled_routed(&pool, "g9").await);
         // VOICE_INTERFACE leaves.
-        tbl_set(&pool, "g1", "GUILD.VOICE_INTERFACE.voice_channel", "13")
+        crate::db::tbl_set(&pool, "g1", "GUILD.VOICE_INTERFACE.voice_channel", "13")
             .await
             .unwrap();
-        tbl_set(
+        crate::db::tbl_set(
             &pool,
             "g1",
             "VOICE_INTERFACE.voice_channel_name",
@@ -8733,7 +8616,7 @@ mod restore_tests {
         );
         assert!(voice_name_tpl_routed(&pool, "g9").await.is_none());
         // CUSTOM_VOICE rows (table + legacy merge, dotted only).
-        tbl_set(&pool, "g1", "CUSTOM_VOICE.g1.5", "111")
+        crate::db::tbl_set(&pool, "g1", "CUSTOM_VOICE.g1.5", "111")
             .await
             .unwrap();
         crate::db::kv_set(&pool, "g1", "CUSTOM_VOICE.g1.7", "222")
@@ -8745,7 +8628,7 @@ mod restore_tests {
         assert!(keys.contains(&"CUSTOM_VOICE.g1.7"));
         // Protection / owner / allowlist leaves.
         // Legacy {allow:false} rows are open (member), mirroring the TS === mode gate.
-        tbl_set(&pool, "g1", "PROTECTION.createrole", "{\"allow\":false}")
+        crate::db::tbl_set(&pool, "g1", "PROTECTION.createrole", "{\"allow\":false}")
             .await
             .unwrap();
         assert!(protection_rule_routed(&pool, "g1", "createrole")
@@ -8753,33 +8636,35 @@ mod restore_tests {
             .map(|r| r.effective_mode() == "member")
             .unwrap_or(false));
         assert!(protection_rule_routed(&pool, "g1", "nope").await.is_none());
-        tbl_set(&pool, "g1", "PROTECTION.SANCTION", "kick")
+        crate::db::tbl_set(&pool, "g1", "PROTECTION.SANCTION", "kick")
             .await
             .unwrap();
         assert_eq!(
             protection_sanction_routed(&pool, "g1").await.as_deref(),
             Some("kick")
         );
-        tbl_set(&pool, "g1", "GUILD.OWNER.8", "1").await.unwrap();
+        crate::db::tbl_set(&pool, "g1", "GUILD.OWNER.8", "1")
+            .await
+            .unwrap();
         assert_eq!(
             owner_entry_routed(&pool, "g1", 8).await.as_deref(),
             Some("1")
         );
         assert!(owner_entry_routed(&pool, "g1", 9).await.is_none());
-        tbl_set(&pool, "g1", "ALLOWLIST.list.8", "{\"allowed\":true}")
+        crate::db::tbl_set(&pool, "g1", "ALLOWLIST.list.8", "{\"allowed\":true}")
             .await
             .unwrap();
         assert!(allowlist_entry_routed(&pool, "g1", 8).await.is_some());
         assert!(allowlist_seeded_routed(&pool, "g1").await);
         assert!(!allowlist_seeded_routed(&pool, "g9").await);
         // Derogation leaf.
-        tbl_set(&pool, "g1", "GUILD.UTILS.DEROGATION", "[\"8\"]")
+        crate::db::tbl_set(&pool, "g1", "GUILD.UTILS.DEROGATION", "[\"8\"]")
             .await
             .unwrap();
         assert!(derogated_routed(&pool, "g1", 8).await);
         assert!(!derogated_routed(&pool, "g1", 9).await);
         // Punish leaves.
-        tbl_set(
+        crate::db::tbl_set(
             &pool,
             "g1",
             "GUILD.PUNISH.PUNISH_PUB",
@@ -8789,7 +8674,7 @@ mod restore_tests {
         .unwrap();
         assert!(punish_pub_routed(&pool, "g1").await.is_some());
         assert!(punish_pub_routed(&pool, "g9").await.is_none());
-        tbl_set(&pool, "g1", "PUNISH_DATA.g1.8", "{\"flags\":2}")
+        crate::db::tbl_set(&pool, "g1", "PUNISH_DATA.g1.8", "{\"flags\":2}")
             .await
             .unwrap();
         assert_eq!(
@@ -8811,15 +8696,17 @@ mod restore_tests {
             Some("fr-FR")
         );
         // Block gates.
-        tbl_set(&pool, "g1", "GUILD.BLOCK_BOT", "1").await.unwrap();
+        crate::db::tbl_set(&pool, "g1", "GUILD.BLOCK_BOT", "1")
+            .await
+            .unwrap();
         assert!(block_bot_routed(&pool, "g1").await);
         assert!(!block_bot_routed(&pool, "g9").await);
-        tbl_set(&pool, "g1", "GUILD.BLOCK_NEW_ACCOUNT", "{\"req\":7}")
+        crate::db::tbl_set(&pool, "g1", "GUILD.BLOCK_NEW_ACCOUNT", "{\"req\":7}")
             .await
             .unwrap();
         assert!(block_new_account_routed(&pool, "g1").await.is_some());
         // Nick kicker + vanity + rolesaver + security.
-        tbl_set(&pool, "g1", "UTILS.NICK_KICKER", "{\"enabled\":true}")
+        crate::db::tbl_set(&pool, "g1", "UTILS.NICK_KICKER", "{\"enabled\":true}")
             .await
             .unwrap();
         assert!(nick_kicker_routed(&pool, "g1").await.is_some());
@@ -8832,7 +8719,7 @@ mod restore_tests {
                 .and_then(|v| v.get("g1").cloned()),
             Some(serde_json::Value::String("abc".to_string()))
         );
-        tbl_set(&pool, "g1", "ROLE_SAVER.8", "[\"1\",\"2\"]")
+        crate::db::tbl_set(&pool, "g1", "ROLE_SAVER.8", "[\"1\",\"2\"]")
             .await
             .unwrap();
         assert_eq!(
@@ -8840,19 +8727,19 @@ mod restore_tests {
             Some("[\"1\",\"2\"]")
         );
         assert!(rolesaver_row_routed(&pool, "g1", 9).await.is_none());
-        tbl_set(&pool, "g1", "SECURITY", "{\"disable\":false}")
+        crate::db::tbl_set(&pool, "g1", "SECURITY", "{\"disable\":false}")
             .await
             .unwrap();
         assert!(security_cfg_routed(&pool, "g1").await.is_some());
         // Invites BY + tickets.
-        tbl_set(&pool, "g1", "USER.5.INVITES.BY", "8")
+        crate::db::tbl_set(&pool, "g1", "USER.5.INVITES.BY", "8")
             .await
             .unwrap();
         assert_eq!(
             invites_by_routed(&pool, "g1", 5).await.as_deref(),
             Some("8")
         );
-        tbl_set(&pool, "g1", "TICKET_ALL.5.77", "open")
+        crate::db::tbl_set(&pool, "g1", "TICKET_ALL.5.77", "open")
             .await
             .unwrap();
         crate::db::kv_set(&pool, "g1", "TICKET_ALL.5.78", "open")
@@ -8863,15 +8750,19 @@ mod restore_tests {
         assert!(urows.contains(&"TICKET_ALL.5.78".to_string()));
         assert!(!ticket_rows_routed(&pool, "g1").await.is_empty());
         // Utils leaves.
-        tbl_set(&pool, "g1", "UTILS.picOnly", "[\"11\"]")
+        crate::db::tbl_set(&pool, "g1", "UTILS.picOnly", "[\"11\"]")
             .await
             .unwrap();
         assert!(pic_only_routed(&pool, "g1").await.is_some());
-        tbl_set(&pool, "g1", "UTILS.autoFeur", "1").await.unwrap();
+        crate::db::tbl_set(&pool, "g1", "UTILS.autoFeur", "1")
+            .await
+            .unwrap();
         assert_eq!(autofeur_routed(&pool, "g1").await.as_deref(), Some("1"));
-        tbl_set(&pool, "g1", "UTILS.antiExe", "1").await.unwrap();
+        crate::db::tbl_set(&pool, "g1", "UTILS.antiExe", "1")
+            .await
+            .unwrap();
         assert_eq!(antiexe_routed(&pool, "g1").await.as_deref(), Some("1"));
-        tbl_set(&pool, "g1", "GUILD.REACT_MSG.hello", "wave")
+        crate::db::tbl_set(&pool, "g1", "GUILD.REACT_MSG.hello", "wave")
             .await
             .unwrap();
         assert!(react_msg_keys_routed(&pool, "g1")
@@ -8880,10 +8771,12 @@ mod restore_tests {
         assert!(react_msg_emoji_routed(&pool, "g1", "GUILD.REACT_MSG.hello")
             .await
             .is_some());
-        tbl_set(&pool, "g1", "UTILS.git_lines", "1").await.unwrap();
+        crate::db::tbl_set(&pool, "g1", "UTILS.git_lines", "1")
+            .await
+            .unwrap();
         assert_eq!(git_lines_routed(&pool, "g1").await.as_deref(), Some("1"));
         // Antispam leaves.
-        tbl_set(&pool, "g1", "GUILD.ANTISPAM.BYPASS_ROLES", "[\"3\"]")
+        crate::db::tbl_set(&pool, "g1", "GUILD.ANTISPAM.BYPASS_ROLES", "[\"3\"]")
             .await
             .unwrap();
         assert_eq!(
@@ -8893,7 +8786,7 @@ mod restore_tests {
         assert!(antispam_bypass_channels_routed(&pool, "g1")
             .await
             .is_empty());
-        tbl_set(&pool, "g1", "GUILD.ANTISPAM", "{\"enabled\":true}")
+        crate::db::tbl_set(&pool, "g1", "GUILD.ANTISPAM", "{\"enabled\":true}")
             .await
             .unwrap();
         assert!(antispam_cfg_routed(&pool, "g1")
@@ -8902,25 +8795,29 @@ mod restore_tests {
             .unwrap_or(false));
         assert!(antispam_cfg_routed(&pool, "g9").await.is_none());
         // Voice / economy leaves.
-        tbl_set(&pool, "g1", "GUILD.H247", "99").await.unwrap();
+        crate::db::tbl_set(&pool, "g1", "GUILD.H247", "99")
+            .await
+            .unwrap();
         assert_eq!(h247_routed(&pool, "g1").await.as_deref(), Some("99"));
-        tbl_set(&pool, "g1", "ECONOMY.buyableRoles", "[]")
+        crate::db::tbl_set(&pool, "g1", "ECONOMY.buyableRoles", "[]")
             .await
             .unwrap();
         assert_eq!(buyable_roles_routed(&pool, "g1").await, "[]");
         assert!(buyable_roles_routed(&pool, "g9").await.is_empty());
-        tbl_set(&pool, "g1", "UTILS.LEASH", "[]").await.unwrap();
+        crate::db::tbl_set(&pool, "g1", "UTILS.LEASH", "[]")
+            .await
+            .unwrap();
         assert!(leash_routed(&pool, "g1").await.is_some());
-        tbl_set(&pool, "g1", "UTILS.VOICE_FREEZE", "[]")
+        crate::db::tbl_set(&pool, "g1", "UTILS.VOICE_FREEZE", "[]")
             .await
             .unwrap();
         assert!(voice_freeze_routed(&pool, "g1").await.is_some());
-        tbl_set(&pool, "g1", "GUILD.TTS", "{\"voiceChannelId\":\"4\"}")
+        crate::db::tbl_set(&pool, "g1", "GUILD.TTS", "{\"voiceChannelId\":\"4\"}")
             .await
             .unwrap();
         assert!(tts_raw_routed(&pool, "g1").await.is_some());
         // Reaction roles + prevnames + role limit + support + bot profile.
-        tbl_set(&pool, "g1", "GUILD.REACTION_ROLES.10.thumbsup", "42")
+        crate::db::tbl_set(&pool, "g1", "GUILD.REACTION_ROLES.10.thumbsup", "42")
             .await
             .unwrap();
         assert_eq!(
@@ -8930,21 +8827,21 @@ mod restore_tests {
         assert!(reaction_role_routed(&pool, "g1", 10, "nope")
             .await
             .is_none());
-        tbl_set(&pool, "0", "PREVNAMES.8", "[\"old\"]")
+        crate::db::tbl_set(&pool, "0", "PREVNAMES.8", "[\"old\"]")
             .await
             .unwrap();
         assert_eq!(prevnames_routed(&pool, 8).await, vec!["old".to_string()]);
         assert!(prevnames_routed(&pool, 9).await.is_empty());
-        tbl_set(&pool, "g1", "GUILD.UTILS.ROLE_LIMIT.6", "3")
+        crate::db::tbl_set(&pool, "g1", "GUILD.UTILS.ROLE_LIMIT.6", "3")
             .await
             .unwrap();
         assert_eq!(role_limit_routed(&pool, "g1", 6).await, Some(3));
         assert!(role_limit_routed(&pool, "g1", 7).await.is_none());
-        tbl_set(&pool, "g1", "GUILD.SUPPORT", "{\"rolesId\":\"5\"}")
+        crate::db::tbl_set(&pool, "g1", "GUILD.SUPPORT", "{\"rolesId\":\"5\"}")
             .await
             .unwrap();
         assert!(support_cfg_routed(&pool, "g1").await.is_some());
-        tbl_set(&pool, "g1", "BOT.botName", "TestBot")
+        crate::db::tbl_set(&pool, "g1", "BOT.botName", "TestBot")
             .await
             .unwrap();
         assert_eq!(
@@ -9086,9 +8983,13 @@ mod restore_tests {
         let pool = memory_pool().await;
         // Writes land in the guild table AND the legacy row (dual-store:
         // handler keys are co-owned with command modules).
-        tbl_set(&pool, "g1", "GUILD.SUPPORT", "on").await.unwrap();
+        crate::db::tbl_set(&pool, "g1", "GUILD.SUPPORT", "on")
+            .await
+            .unwrap();
         assert_eq!(
-            tbl_get(&pool, "g1", "GUILD.SUPPORT").await.as_deref(),
+            crate::db::tbl_get(&pool, "g1", "GUILD.SUPPORT")
+                .await
+                .as_deref(),
             Some("on")
         );
         let legacy: Option<String> = crate::db::kv_get(&pool, "g1", "GUILD.SUPPORT").await;
@@ -9098,20 +8999,26 @@ mod restore_tests {
             .await
             .unwrap();
         assert_eq!(
-            tbl_get(&pool, "g2", "GUILD.SUPPORT").await.as_deref(),
+            crate::db::tbl_get(&pool, "g2", "GUILD.SUPPORT")
+                .await
+                .as_deref(),
             Some("off")
         );
-        tbl_set(&pool, "g2", "GUILD.SUPPORT", "on").await.unwrap();
-        assert_eq!(
-            tbl_get(&pool, "g2", "GUILD.SUPPORT").await.as_deref(),
-            Some("on")
-        );
-        // Dotted-leaf reads walk table blobs.
-        tbl_set(&pool, "g1", "GUILD.GUILD_CONFIG", "{\"antipub\":true}")
+        crate::db::tbl_set(&pool, "g2", "GUILD.SUPPORT", "on")
             .await
             .unwrap();
         assert_eq!(
-            tbl_get(&pool, "g1", "GUILD.GUILD_CONFIG.antipub")
+            crate::db::tbl_get(&pool, "g2", "GUILD.SUPPORT")
+                .await
+                .as_deref(),
+            Some("on")
+        );
+        // Dotted-leaf reads walk table blobs.
+        crate::db::tbl_set(&pool, "g1", "GUILD.GUILD_CONFIG", "{\"antipub\":true}")
+            .await
+            .unwrap();
+        assert_eq!(
+            crate::db::tbl_get(&pool, "g1", "GUILD.GUILD_CONFIG.antipub")
                 .await
                 .as_deref(),
             Some("true")
@@ -9120,21 +9027,27 @@ mod restore_tests {
         crate::db::kv_set(&pool, "g1", "CUSTOM_VOICE.1.2", "42")
             .await
             .unwrap();
-        tbl_set(&pool, "g1", "CUSTOM_VOICE.1.3", "43")
+        crate::db::tbl_set(&pool, "g1", "CUSTOM_VOICE.1.3", "43")
             .await
             .unwrap();
-        let scan = tbl_scan_prefix(&pool, "g1", "CUSTOM_VOICE.").await;
+        let scan = crate::db::tbl_scan_prefix(&pool, "g1", "CUSTOM_VOICE.").await;
         let keys: Vec<&str> = scan.iter().map(|(k, _)| k.as_str()).collect();
         assert!(keys.contains(&"CUSTOM_VOICE.1.2"));
         assert!(keys.contains(&"CUSTOM_VOICE.1.3"));
         // Prefix deletes clear both stores.
-        tbl_del_prefix(&pool, "g1", "CUSTOM_VOICE.").await.unwrap();
-        assert!(tbl_scan_prefix(&pool, "g1", "CUSTOM_VOICE.")
+        crate::db::tbl_del_prefix(&pool, "g1", "CUSTOM_VOICE.")
+            .await
+            .unwrap();
+        assert!(crate::db::tbl_scan_prefix(&pool, "g1", "CUSTOM_VOICE.")
             .await
             .is_empty());
         // Single deletes clear both stores.
-        tbl_del(&pool, "g2", "GUILD.SUPPORT").await.unwrap();
-        assert!(tbl_get(&pool, "g2", "GUILD.SUPPORT").await.is_none());
+        crate::db::tbl_del(&pool, "g2", "GUILD.SUPPORT")
+            .await
+            .unwrap();
+        assert!(crate::db::tbl_get(&pool, "g2", "GUILD.SUPPORT")
+            .await
+            .is_none());
     }
 }
 

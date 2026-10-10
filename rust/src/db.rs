@@ -50,15 +50,16 @@ pub async fn init(cfg: &Config) -> anyhow::Result<Pool> {
     .execute(&pool)
     .await?;
 
-    // Guild language table mirrors GUILD_CONFIG.lang used by getLanguageData.
-    sqlx::query(
-        "CREATE TABLE IF NOT EXISTS guild_lang (
-            guild_id TEXT PRIMARY KEY,
-            lang TEXT NOT NULL DEFAULT 'en-US'
-        )",
-    )
-    .execute(&pool)
-    .await?;
+    // Dropped table (C2): per-guild language used to live in a dedicated
+    // `guild_lang` table that no writer ever populated (setlang writes kv
+    // `GUILD.LANG`), so every guild resolved `en-US`. The single source of
+    // truth is now kv `GUILD.LANG` (see `GUILD_LANG_KEY` / `guild_lang`,
+    // mirroring TS `getLanguageData`). Drop the dead table when present so
+    // stale rows cannot shadow anything; `clear_guild_lang` below stays as
+    // a kv-backed compat wrapper (scheduler wipe path).
+    sqlx::query("DROP TABLE IF EXISTS guild_lang")
+        .execute(&pool)
+        .await?;
 
     Ok(pool)
 }
@@ -160,6 +161,184 @@ pub async fn kv_del_guild(pool: &Pool, guild_id: &str) -> anyhow::Result<()> {
     Ok(())
 }
 
+// ---- tbl_* routed helpers (single home, C5) ----
+// The guild-table forks that lived in events.rs / events_handler.rs
+// (and the same shape in commands/owner/main.rs, out of scope here)
+// are unified here. Semantics: table handle first (`tbl:<gid>` scope via
+// the sqlite backend), legacy flat kv row as fallback; writes dual-store
+// so unmigrated kv readers stay fresh. Keys unchanged.
+
+/// Guild-table backend for tbl_* routing (keys unchanged).
+fn guild_table_backend(pool: &Pool) -> crate::backends::Backend {
+    crate::backends::Backend::sqlite(pool.clone())
+}
+
+/// Stringify a table value like the legacy kv rows: plain strings stay
+/// plain, integers render without `.0`, anything else renders compact JSON.
+fn table_string(v: &serde_json::Value) -> String {
+    match v {
+        serde_json::Value::String(s) => s.clone(),
+        serde_json::Value::Number(n) => {
+            if let Some(i) = n.as_i64() {
+                i.to_string()
+            } else if let Some(u) = n.as_u64() {
+                u.to_string()
+            } else if let Some(f) = n.as_f64() {
+                if f.fract() == 0.0 && f >= i64::MIN as f64 && f <= i64::MAX as f64 {
+                    (f as i64).to_string()
+                } else {
+                    f.to_string()
+                }
+            } else {
+                n.to_string()
+            }
+        }
+        other => other.to_string(),
+    }
+}
+
+/// Table-first read of one dotted key with legacy flat-row fallback.
+/// Writers store under `tbl:<gid>`; legacy `(gid, key)` rows stay readable.
+pub async fn tbl_get(pool: &Pool, gid: &str, key: &str) -> Option<String> {
+    let backend = guild_table_backend(pool);
+    let table = backend.table(gid);
+    if let Ok(Some(v)) = table.get::<serde_json::Value>(key).await {
+        return Some(table_string(&v));
+    }
+    // Blob stored as JSON text under an ancestor: decode string
+    // intermediates while walking the dotted path.
+    if key.contains('.') {
+        let mut segs = key.split('.');
+        let root = segs.next().unwrap_or("");
+        if let Ok(Some(mut cur)) = table.get::<serde_json::Value>(root).await {
+            let mut hit = true;
+            for seg in segs {
+                if let serde_json::Value::String(s) = &cur {
+                    cur = serde_json::from_str(s).unwrap_or(serde_json::Value::Null);
+                }
+                match &cur {
+                    serde_json::Value::Object(m) => {
+                        cur = m.get(seg).cloned().unwrap_or(serde_json::Value::Null);
+                    }
+                    _ => {
+                        hit = false;
+                        break;
+                    }
+                }
+            }
+            if hit && !cur.is_null() {
+                return Some(table_string(&cur));
+            }
+        }
+    }
+    kv_get(pool, gid, key).await
+}
+
+/// Table-routed write, dual-stored (keys unchanged): the table handle is
+/// the primary store and the legacy kv row keeps unmigrated kv readers
+/// fresh (the U-D3 dual-write precedent).
+pub async fn tbl_set(pool: &Pool, gid: &str, key: &str, value: &str) -> anyhow::Result<()> {
+    let _ = guild_table_backend(pool).table(gid).set(key, value).await;
+    kv_set(pool, gid, key, value).await
+}
+
+/// Table-routed delete: clears the guild-table row and any legacy row.
+pub async fn tbl_del(pool: &Pool, gid: &str, key: &str) -> anyhow::Result<()> {
+    let backend = guild_table_backend(pool);
+    let _ = backend.table(gid).delete(key).await;
+    kv_del(pool, gid, key).await
+}
+
+/// Structured dual write for blobs co-owned with not-yet-migrated
+/// modules: the table holds the real JSON value (so table-first struct
+/// decoders keep working) and the legacy kv row keeps the JSON text for
+/// kv readers. Keys unchanged.
+pub async fn tbl_set_json<T: serde::Serialize>(
+    pool: &Pool,
+    gid: &str,
+    key: &str,
+    value: &T,
+) -> anyhow::Result<()> {
+    let raw = serde_json::to_string(value).unwrap_or_default();
+    let _ = guild_table_backend(pool).table(gid).set(key, value).await;
+    kv_set(pool, gid, key, &raw).await
+}
+
+/// Table-routed counter add with one-time legacy seeding so counters never
+/// reset at cutover. Returns the new value.
+pub async fn tbl_add(pool: &Pool, gid: &str, key: &str, delta: f64) -> f64 {
+    let backend = guild_table_backend(pool);
+    let table = backend.table(gid);
+    if table.get_raw(key).await.ok().flatten().is_none() {
+        if let Some(s) = kv_get(pool, gid, key).await {
+            let base: f64 = serde_json::from_str::<serde_json::Value>(&s)
+                .ok()
+                .and_then(|v| match &v {
+                    serde_json::Value::Number(n) => n.as_f64(),
+                    serde_json::Value::String(x) => x.trim().parse().ok(),
+                    serde_json::Value::Bool(b) => Some(if *b { 1.0 } else { 0.0 }),
+                    _ => None,
+                })
+                .or_else(|| s.trim().parse().ok())
+                .unwrap_or(0.0);
+            if base != 0.0 {
+                let _ = table.set(key, base).await;
+            }
+            let _ = kv_del(pool, gid, key).await;
+        }
+    }
+    table.add(key, delta).await.unwrap_or(delta)
+}
+
+/// Expand one table root object into full dotted keys.
+fn expand_scan(base: String, v: &serde_json::Value, out: &mut Vec<(String, String)>) {
+    match v {
+        serde_json::Value::Object(m) => {
+            for (k, child) in m {
+                expand_scan(format!("{base}.{k}"), child, out);
+            }
+        }
+        // JSON-text leaves stay leaves (legacy flat-row semantics).
+        leaf => out.push((base, table_string(leaf))),
+    }
+}
+
+/// Table-first prefix scan with legacy flat-row fallback (table wins on
+/// key conflicts). The kv leg routes through `kv_scan_prefix` (C4:
+/// escaped LIKE, no raw SQL at call sites). Keys unchanged.
+pub async fn tbl_scan_prefix(pool: &Pool, gid: &str, prefix: &str) -> Vec<(String, String)> {
+    let mut merged = std::collections::HashMap::new();
+    for (k, v) in kv_scan_prefix(pool, gid, prefix).await {
+        merged.insert(k, v);
+    }
+    let root = prefix.split('.').next().unwrap_or("");
+    if !root.is_empty() {
+        let backend = guild_table_backend(pool);
+        let table = backend.table(gid);
+        if let Ok(Some(rv)) = table.get::<serde_json::Value>(root).await {
+            let mut expanded = Vec::new();
+            expand_scan(root.to_string(), &rv, &mut expanded);
+            for (k, v) in expanded {
+                if k.starts_with(prefix) {
+                    merged.insert(k, v);
+                }
+            }
+        }
+    }
+    let mut out: Vec<(String, String)> = merged.into_iter().collect();
+    out.sort_by(|a, b| a.0.cmp(&b.0));
+    out
+}
+
+/// Table-routed prefix delete: clears matching guild-table rows and any
+/// legacy rows.
+pub async fn tbl_del_prefix(pool: &Pool, gid: &str, prefix: &str) -> anyhow::Result<()> {
+    for (k, _) in tbl_scan_prefix(pool, gid, prefix).await {
+        let _ = tbl_del(pool, gid, &k).await;
+    }
+    Ok(())
+}
+
 /// TS `backups`-table read by global backup ID. Missing table/row -> None.
 pub async fn backup_get(pool: &Pool, backup_id: &str) -> Option<String> {
     sqlx::query_scalar::<_, String>("SELECT json FROM backups WHERE ID = ?")
@@ -170,8 +349,11 @@ pub async fn backup_get(pool: &Pool, backup_id: &str) -> Option<String> {
         .flatten()
 }
 
-/// Delete a TS `backups`-table row by global backup ID (best-effort).
+/// Delete a TS `backups`-table row by global backup ID. Auto-creates the
+/// table first (C18: delete paths must not fail on a fresh database where
+/// no backup was ever written); missing row stays a no-op.
 pub async fn backup_del(pool: &Pool, backup_id: &str) -> anyhow::Result<()> {
+    ensure_backups_table(pool).await?;
     sqlx::query("DELETE FROM backups WHERE ID = ?")
         .bind(backup_id)
         .execute(pool)
@@ -229,8 +411,11 @@ pub async fn schedule_set(pool: &Pool, user_id: &str, json: &str) -> anyhow::Res
     Ok(())
 }
 
-/// Delete one TS `schedule`-table row by user ID (best-effort).
+/// Delete one TS `schedule`-table row by user ID. Auto-creates the table
+/// first (C18: sweep deletes must not fail when the table was never
+/// written, e.g. first boot with no schedules).
 pub async fn schedule_del(pool: &Pool, user_id: &str) -> anyhow::Result<()> {
+    ensure_schedule_table(pool).await?;
     sqlx::query("DELETE FROM schedule WHERE ID = ?")
         .bind(user_id)
         .execute(pool)
@@ -246,13 +431,12 @@ pub async fn ensure_schedule_table(pool: &Pool) -> anyhow::Result<()> {
     Ok(())
 }
 
-/// Drop a guild's language row.
+/// Drop a guild's language row. Compat wrapper kept for the scheduler wipe
+/// path: the dedicated `guild_lang` table is dropped (C2, see `init`), so
+/// this clears the kv `GUILD.LANG` row. `kv_del_guild` already covers it;
+/// this stays for targeted clears.
 pub async fn clear_guild_lang(pool: &Pool, guild_id: &str) -> anyhow::Result<()> {
-    sqlx::query("DELETE FROM guild_lang WHERE guild_id = ?")
-        .bind(guild_id)
-        .execute(pool)
-        .await?;
-    Ok(())
+    kv_del(pool, guild_id, GUILD_LANG_KEY).await
 }
 
 /// In-memory pool with driver tables created. Test-only shared helper —
@@ -271,12 +455,6 @@ pub async fn memory_pool() -> Pool {
         .unwrap();
     sqlx::query(
         "CREATE TABLE kv (guild_id TEXT NOT NULL, key_name TEXT NOT NULL, value TEXT NOT NULL, PRIMARY KEY (guild_id, key_name))",
-    )
-    .execute(&pool)
-    .await
-    .unwrap();
-    sqlx::query(
-        "CREATE TABLE guild_lang (guild_id TEXT PRIMARY KEY, lang TEXT NOT NULL DEFAULT 'en-US')",
     )
     .execute(&pool)
     .await
@@ -355,17 +533,15 @@ pub fn owner_key(user_id: u64) -> String {
 }
 
 /// Persisted bot-owner ids (scope "0"). Mirrors `ownerTable.all()`.
+/// Scans through `kv_scan_prefix` (C4: escaped LIKE, no raw SQL).
 pub async fn stored_bot_owners(pool: &Pool) -> Vec<String> {
-    sqlx::query_scalar::<_, String>(
-        "SELECT key_name FROM kv WHERE guild_id = '0' AND key_name LIKE 'OWNER.%'",
-    )
-    .fetch_all(pool)
-    .await
-    .unwrap_or_default()
-    .into_iter()
-    .filter_map(|k| k.strip_prefix("OWNER.").map(|s| s.to_string()))
-    .filter(|s| !s.is_empty())
-    .collect()
+    kv_scan_prefix(pool, "0", "OWNER.")
+        .await
+        .into_iter()
+        .map(|(k, _)| k)
+        .filter_map(|k| k.strip_prefix("OWNER.").map(|s| s.to_string()))
+        .filter(|s| !s.is_empty())
+        .collect()
 }
 
 /// Merged bot owners: config (`client.owners`) + persisted table.
@@ -379,19 +555,16 @@ pub async fn bot_owner_ids(pool: &Pool, config_owners: &[String]) -> Vec<String>
 }
 
 /// Stored guild-owner ids for one guild. Mirrors the `Object.keys(...`
-/// `${guild.id}.OWNER`)` half of getGuildOwner().
+/// `${guild.id}.OWNER`)` half of getGuildOwner(). Scans through
+/// `kv_scan_prefix` (C4: escaped LIKE, no raw SQL).
 pub async fn stored_guild_owners(pool: &Pool, guild_id: &str) -> Vec<String> {
-    sqlx::query_scalar::<_, String>(
-        "SELECT key_name FROM kv WHERE guild_id = ? AND key_name LIKE 'OWNER.%'",
-    )
-    .bind(guild_id)
-    .fetch_all(pool)
-    .await
-    .unwrap_or_default()
-    .into_iter()
-    .filter_map(|k| k.strip_prefix("OWNER.").map(|s| s.to_string()))
-    .filter(|s| !s.is_empty())
-    .collect()
+    kv_scan_prefix(pool, guild_id, "OWNER.")
+        .await
+        .into_iter()
+        .map(|(k, _)| k)
+        .filter_map(|k| k.strip_prefix("OWNER.").map(|s| s.to_string()))
+        .filter(|s| !s.is_empty())
+        .collect()
 }
 
 /// Merged guild owners: Discord `ownerId` + stored rows, deduped.
@@ -441,20 +614,23 @@ pub async fn is_blacklisted(pool: &Pool, user_id: u64) -> bool {
     .is_some()
 }
 
-/// Mirrors getLanguageData(guildId): per-guild lang, en-US fallback.
+/// Canonical per-guild language key. Mirrors the TS source of truth: the
+/// flat-kv projection of `${guildId}.GUILD.LANG` (setserverlang.ts writes
+/// the code here as a plain string; `getLanguageData` reads the same leaf
+/// with an `en-US` fallback).
+pub const GUILD_LANG_KEY: &str = "GUILD.LANG";
+
+/// Mirrors getLanguageData(guildId): per-guild lang from the single kv
+/// source of truth (`GUILD.LANG`), `en-US` fallback (C1/C2). Blank rows
+/// fall back too, matching the TS `if (!lang)` guard.
 pub async fn guild_lang(pool: &Pool, guild_id: Option<u64>) -> String {
     let Some(id) = guild_id else {
         return "en-US".to_string();
     };
-    let gid = id.to_string();
-    let lang: Option<String> =
-        sqlx::query_scalar::<_, String>("SELECT lang FROM guild_lang WHERE guild_id = ?")
-            .bind(&gid)
-            .fetch_optional(pool)
-            .await
-            .ok()
-            .flatten();
-    lang.unwrap_or_else(|| "en-US".to_string())
+    kv_get(pool, &id.to_string(), GUILD_LANG_KEY)
+        .await
+        .filter(|s| !s.trim().is_empty())
+        .unwrap_or_else(|| "en-US".to_string())
 }
 
 #[cfg(test)]
@@ -532,12 +708,46 @@ mod tests {
 
     #[tokio::test]
     async fn guild_lang_returns_stored_value() {
+        // Single source (C1/C2): setlang persists kv GUILD.LANG, and
+        // guild_lang reads that same row (no side table).
         let pool = memory_pool().await;
-        sqlx::query("INSERT INTO guild_lang (guild_id, lang) VALUES ('456', 'fr-FR')")
-            .execute(&pool)
-            .await
-            .unwrap();
+        assert_eq!(GUILD_LANG_KEY, "GUILD.LANG");
+        kv_set(&pool, "456", GUILD_LANG_KEY, "fr-FR").await.unwrap();
         assert_eq!(guild_lang(&pool, Some(456)).await, "fr-FR");
+    }
+
+    #[tokio::test]
+    async fn guild_lang_blank_row_falls_back() {
+        // Mirrors the TS `if (!lang)` guard in getLanguageData.
+        let pool = memory_pool().await;
+        kv_set(&pool, "456", GUILD_LANG_KEY, "   ").await.unwrap();
+        assert_eq!(guild_lang(&pool, Some(456)).await, "en-US");
+    }
+
+    #[tokio::test]
+    async fn guild_lang_wipe_clears_row() {
+        // Wipe path (C2): guild leave cleanup removes the lang row with
+        // everything else; the compat clear does the targeted variant.
+        let pool = memory_pool().await;
+        kv_set(&pool, "456", GUILD_LANG_KEY, "fr-FR").await.unwrap();
+        clear_guild_lang(&pool, "456").await.unwrap();
+        assert_eq!(guild_lang(&pool, Some(456)).await, "en-US");
+        kv_set(&pool, "456", GUILD_LANG_KEY, "fr-FR").await.unwrap();
+        kv_del_guild(&pool, "456").await.unwrap();
+        assert_eq!(guild_lang(&pool, Some(456)).await, "en-US");
+    }
+
+    #[tokio::test]
+    async fn tbl_home_roundtrip_dual_store() {
+        // Single home (C5): table-first reads see dual writes, and the
+        // legacy kv row stays fresh for unmigrated readers.
+        let pool = memory_pool().await;
+        tbl_set(&pool, "g", "A.b", "1").await.unwrap();
+        assert_eq!(tbl_get(&pool, "g", "A.b").await.as_deref(), Some("1"));
+        assert_eq!(kv_get(&pool, "g", "A.b").await.as_deref(), Some("1"));
+        tbl_del(&pool, "g", "A.b").await.unwrap();
+        assert!(tbl_get(&pool, "g", "A.b").await.is_none());
+        assert!(kv_get(&pool, "g", "A.b").await.is_none());
     }
 
     #[tokio::test]

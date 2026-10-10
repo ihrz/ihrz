@@ -18,15 +18,16 @@ async fn tts_lang_autocomplete<'a>(
 /// Default TTS language, mirroring `!lang.ts` (`args?.[0] || "en-US"`).
 pub const DEFAULT_TTS_LANG: &str = "en-US";
 
-/// Resolve the raw language argument like `!lang.ts`: a missing/blank
-/// argument reads as `en-US`, anything else is stored verbatim — no
-/// parse-time reject on the prefix path (poise `ChoiceParameter` would
-/// refuse unknown prefix input before this runs, which the TS prefix
-/// leg never does).
+/// Resolve the raw language argument like `!lang.ts`: only a missing
+/// argument (`None`, slash omitted) or an empty string (`""`, the other
+/// JS-falsy case of `||`) reads as `en-US`. Anything else — including
+/// whitespace or an unknown code — is stored verbatim with no
+/// validation, exactly like the TS prefix leg.
 pub fn resolve_tts_lang(raw: Option<&str>) -> String {
-    match raw.map(str::trim).filter(|s| !s.is_empty()) {
-        Some(s) => s.to_string(),
+    match raw {
         None => DEFAULT_TTS_LANG.to_string(),
+        Some("") => DEFAULT_TTS_LANG.to_string(),
+        Some(s) => s.to_string(),
     }
 }
 
@@ -45,8 +46,14 @@ pub async fn tts_lang(
         .map(|g| g.get().to_string())
         .unwrap_or_default();
     let lang_code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-    // Not-active guard (mirrors TS !lang.ts): refusing before any write.
-    if load_tts(&ctx.data().pool, &gid).await.is_none() {
+    // Not-active guard (mirrors TS !lang.ts `!ttsData || !ttsData.enabled`):
+    // refusing before any write. A stored row with `enabled: false`
+    // refuses like a missing row.
+    if !load_tts(&ctx.data().pool, &gid)
+        .await
+        .map(|c| c.enabled)
+        .unwrap_or(false)
+    {
         let no = crate::emojis::app_emoji_markup(&ctx.serenity_context().http, "No")
             .await
             .unwrap_or_else(|| "❌".to_string());
@@ -81,18 +88,20 @@ mod tests {
     use super::*;
 
     #[test]
-    fn missing_or_blank_lang_defaults_to_en_us() {
+    fn missing_or_empty_lang_defaults_to_en_us() {
         assert_eq!(resolve_tts_lang(None), "en-US");
         assert_eq!(resolve_tts_lang(Some("")), "en-US");
-        assert_eq!(resolve_tts_lang(Some("   ")), "en-US");
     }
 
     #[test]
     fn prefix_free_text_is_stored_verbatim() {
-        // TS `!lang.ts` stores the prefix arg without validation.
+        // TS `!lang.ts` (`args?.[0] || "en-US"`) stores the prefix arg
+        // without validation: only "" is falsy besides undefined, so
+        // whitespace and unknown codes persist verbatim.
         assert_eq!(resolve_tts_lang(Some("fr-FR")), "fr-FR");
         assert_eq!(resolve_tts_lang(Some("xx-YY")), "xx-YY");
-        assert_eq!(resolve_tts_lang(Some("  de-DE  ")), "de-DE");
+        assert_eq!(resolve_tts_lang(Some("   ")), "   ");
+        assert_eq!(resolve_tts_lang(Some("  de-DE  ")), "  de-DE  ");
     }
 
     #[test]
