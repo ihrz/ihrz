@@ -377,6 +377,8 @@ export interface LanguageData {
 	reset_uranks_logs_embed_title: string;
 	reset_uranks_logs_embed_desc: string;
 	ranks_config_embed_title: string;
+	ranks_ureset_missing_user: string;
+	ranks_channel_missing_action: string;
 	ranks_config_embed_desc: string;
 	ranks_config_autofields_name: string;
 	ranks_config_autofields_value: string;

@@ -411,6 +411,8 @@ reset_uranks_logs_embed_desc: "${interaction.member.user.toString()} が ${user.
 
 # /ranks config
 ranks_config_embed_title: "🏆 ランクロール設定"
+ranks_ureset_missing_user: "XPをリセットするユーザーを指定してください。"
+ranks_channel_missing_action: "アクションを指定してください：on または off。"
 ranks_config_embed_desc: "サーバーのXPに基づいたロール報酬をカスタマイズしましょう！"
 ranks_config_autofields_name: "🌟 レベル ${level}"
 ranks_config_autofields_value: "ロール: <@&${roleId}>\n🔓 レベル ${level} でアンロック"

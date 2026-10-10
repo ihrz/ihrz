@@ -19,7 +19,8 @@ pub async fn eco_ureset(
         .map(|u| u.id.get())
         .unwrap_or_else(|| ctx.author().id.get());
     // Cancel replies with setjoinroles_action_canceled via
-    // prompt_reset_confirm, like the TS else branch.
+    // prompt_reset_confirm, like the TS else branch
+    // (`economy/!ureset.ts:88-93`: interactionSend cancel text + components:[]).
     if !crate::commands::prompt_reset_confirm(
         &ctx,
         "reset_ueconomy_are_you_sure",

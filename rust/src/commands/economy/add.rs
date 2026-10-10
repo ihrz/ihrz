@@ -32,7 +32,9 @@ pub async fn eco_role_add(
     let id = role.id.get().to_string();
     // Warn before selling a role with dangerous permissions. Mirrors
     // the roleDangerousPermissions promptYesOrNo gate in economy/!add.ts
-    // (abort -> economy_role_add_canceled).
+    // (abort -> economy_role_add_canceled via interactionSend, `!add.ts:82-96`).
+    // CONFIRM: the cancel/error replies below go to the channel like the TS
+    // interactionSend calls (no ephemeral, no DM).
     let perm_keys: [(&str, &str); 10] = [
         ("setjoinroles_var_perm_admin", "Administrator"),
         ("setjoinroles_var_perm_manage_guild", "Manage Server"),

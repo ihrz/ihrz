@@ -118,6 +118,9 @@ pub fn format_timestamp_utc(timestamp_ms: i64) -> String {
 
 /// True for attachment URLs the library renders as inline images
 /// (content-type `image/*`; here guessed from the file extension).
+/// SPLIT, INTENTIONAL: offline extension guess only — do not merge with
+/// the network HEAD predicate [`crate::funcs::is_image_url`]; byte
+/// fetching lives in [`crate::image64::image64`].
 pub fn is_image_url(url: &str) -> bool {
     let path = url.split(['?', '#']).next().unwrap_or(url);
     let ext = path.rsplit('.').next().unwrap_or("").to_ascii_lowercase();

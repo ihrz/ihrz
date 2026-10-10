@@ -358,6 +358,10 @@ fn slash_invocation(path: &str) -> String {
 /// Guild-wide Administrator check (owner counts, like TS
 /// `permissions.has(Administrator)`). Missing guild/member/cache data
 /// falls back to false, mirroring the TS optional chaining.
+// Scoped allow: covers only the deprecated `Member::permissions(&cache)`
+// call below (serenity suggests `Guild::user_permissions_in`, which drops
+// overwrite handling — do not migrate blindly). Re-evaluate on serenity
+// upgrade; do not broaden to the whole module.
 #[allow(deprecated)]
 async fn is_guild_admin(ctx: Ctx<'_>, user_id: serenity::UserId) -> bool {
     let Some(gid) = ctx.guild_id() else {

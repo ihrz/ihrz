@@ -4,8 +4,8 @@
 //
 // Full inventory: see rust/PORT_INVENTORY.md (events section to be extended).
 // This module hosts pure routing helpers shared by the serenity event
-// handler (to be wired in bot.rs): log-channel routing, protection punish
-// decisions, XP/level math. All Discord I/O stays in the handler; only
+// handler (`events_handler.rs`, wired): log-channel routing, protection
+// punish decisions, XP/level math. All Discord I/O stays in the handler; only
 // pure logic lives here so it stays unit-testable.
 
 /// Server-log categories mirroring {guild}.GUILD.SERVER_LOGS.* keys.

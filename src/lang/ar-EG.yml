@@ -411,6 +411,8 @@ reset_uranks_logs_embed_desc: "${interaction.member.user.toString()} قام بح
 
 # /ranks config
 ranks_config_embed_title: "🏆 تكوين أدوار الرتب"
+ranks_ureset_missing_user: "يرجى تحديد المستخدم الذي يجب إعادة تعيين XP الخاص به."
+ranks_channel_missing_action: "يرجى تحديد إجراء: on أو off."
 ranks_config_embed_desc: "قم بتخصيص مكافآت الأدوار المستندة إلى نقاط الخبرة في الخادم الخاص بك!"
 ranks_config_autofields_name: "🌟 المستوى ${level}"
 ranks_config_autofields_value: "الدور: <@&${roleId}>\n🔓 يتم فتحه عند المستوى ${level}"

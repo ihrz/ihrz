@@ -68,7 +68,10 @@ pub async fn gc_support(
     let gid = guild_id.get().to_string();
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let guild_name = ctx.guild().map(|g| g.name.clone()).unwrap_or_default();
-    let on = matches!(action.to_ascii_lowercase().as_str(), "on" | "power on");
+    // Mirrors `support.ts` (`if (action == "on")`): the match is exact.
+    // Anything else (including `power on` or case variants) disables
+    // via row DELETE below — no case-fold, no extra spellings.
+    let on = action == "on";
 
     if on {
         let Some(role) = roles else {
@@ -79,10 +82,11 @@ pub async fn gc_support(
             .await?;
             return Ok(());
         };
-        // Rejects anything but `bio`/`tag` like the TS `!type` guard
-        // (slash choices already constrain this; the prefix path needs it).
-        let kind = r#type.unwrap_or_default().to_ascii_lowercase();
-        if !matches!(kind.as_str(), "bio" | "tag") {
+        // Missing/empty type answers `support_command_not_type` like
+        // the TS `if (!type)` guard; a present type is stored verbatim
+        // (`type: type || "tag"`) — no bio/tag allowlist rejection.
+        let kind = r#type.unwrap_or_default();
+        if kind.is_empty() {
             ctx.say(
                 crate::lang::get(&code, "support_command_not_type").unwrap_or_else(|| {
                     ":x: | You did not specify the type of support!".to_string()

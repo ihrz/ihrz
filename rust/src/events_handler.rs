@@ -1265,7 +1265,10 @@ pub fn antispam_elapsed(
 /// (`elapsedTime < maxInterval` -> flag +1, isSpam). Pure,
 /// unit-tested.
 pub fn antispam_gap_tripped(elapsed_ms: Option<i64>, max_interval_ms: i64) -> bool {
-    elapsed_ms.map(|e| e < max_interval_ms).unwrap_or(false)
+    // TS: `if (elapsedTime && elapsedTime < maxInterval)` — elapsed 0 is falsy, no flag.
+    elapsed_ms
+        .map(|e| e > 0 && e < max_interval_ms)
+        .unwrap_or(false)
 }
 
 /// True when accumulated flags reach the punish threshold.
@@ -8741,12 +8744,13 @@ mod restore_tests {
         assert!(keys.contains(&"CUSTOM_VOICE.g1.5"));
         assert!(keys.contains(&"CUSTOM_VOICE.g1.7"));
         // Protection / owner / allowlist leaves.
+        // Legacy {allow:false} rows are open (member), mirroring the TS === mode gate.
         tbl_set(&pool, "g1", "PROTECTION.createrole", "{\"allow\":false}")
             .await
             .unwrap();
         assert!(protection_rule_routed(&pool, "g1", "createrole")
             .await
-            .map(|r| r.effective_mode() == "nobody")
+            .map(|r| r.effective_mode() == "member")
             .unwrap_or(false));
         assert!(protection_rule_routed(&pool, "g1", "nope").await.is_none());
         tbl_set(&pool, "g1", "PROTECTION.SANCTION", "kick")

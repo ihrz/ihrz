@@ -38,13 +38,13 @@ pub struct RuleState {
 }
 
 impl RuleState {
-    /// Effective TS mode. Legacy `{allow: true}` rows read as `member`
-    /// (open) and `{allow: false}` as `nobody` (deny-all).
+    /// Effective TS mode. Only the stored `mode` string counts: the TS
+    /// event guards compare `data.<rule>.mode === "allowlist"` /
+    /// `=== "nobody"`, so legacy `{allow: bool}` rows (no `mode`) never
+    /// sanction — they read as `member` (open) and the guard no-ops.
     pub fn effective_mode(&self) -> &str {
         if !self.mode.is_empty() {
             &self.mode
-        } else if self.allow == Some(false) {
-            "nobody"
         } else {
             "member"
         }
@@ -170,7 +170,9 @@ pub fn protection_rules_text(rows: &[(String, String)]) -> String {
     text
 }
 
-/// Sanction label for the show panel. Mirrors `!show.ts:87-93`.
+/// Sanction label for the show panel. Mirrors `!show.ts:87-93`: three
+/// plain `if`s with no default, so an unset or unknown SANCTION renders
+/// an empty label (never a fallback).
 pub fn show_sanction_label(lang_code: &str, sanction: Option<&str>) -> String {
     let (key, fallback) = match sanction.unwrap_or("").trim() {
         "simply+ban" => (
@@ -181,7 +183,8 @@ pub fn show_sanction_label(lang_code: &str, sanction: Option<&str>) -> String {
             "authorization_configshow_simply_unrank",
             "Simply Cancel Action & Unrank",
         ),
-        _ => ("authorization_configshow_simply", "Simply Cancel Action"),
+        "simply" => ("authorization_configshow_simply", "Simply Cancel Action"),
+        _ => return String::new(),
     };
     crate::lang::get(lang_code, key).unwrap_or_else(|| fallback.to_string())
 }
@@ -828,10 +831,13 @@ mod tests {
 
     #[test]
     fn legacy_allow_rows_stay_readable() {
+        // Legacy `{allow: bool}` rows carry no TS `mode`, so the event
+        // gate (`=== "allowlist"` / `=== "nobody"`) never fires: both
+        // read as `member` (open, no sanction).
         let open: RuleState = serde_json::from_str(r#"{"allow":true}"#).unwrap();
         assert_eq!(open.effective_mode(), "member");
         let deny: RuleState = serde_json::from_str(r#"{"allow":false}"#).unwrap();
-        assert_eq!(deny.effective_mode(), "nobody");
+        assert_eq!(deny.effective_mode(), "member");
         let mode: RuleState = serde_json::from_str(r#"{"mode":"allowlist"}"#).unwrap();
         assert_eq!(mode.effective_mode(), "allowlist");
         let stored = serde_json::to_string(&RuleState {
@@ -851,6 +857,17 @@ mod tests {
         assert!(!valid_sanction("ban"));
         assert!(!valid_sanction("kick"));
         assert!(!valid_sanction("timeout"));
+    }
+
+    #[test]
+    fn show_sanction_label_empty_without_known_value() {
+        // `!show.ts:87-93` has three plain `if`s and no default: unset or
+        // unknown SANCTION renders empty, never a fallback label.
+        assert_eq!(show_sanction_label("en-US", None), "");
+        assert_eq!(show_sanction_label("en-US", Some("bogus")), "");
+        assert!(!show_sanction_label("en-US", Some("simply")).is_empty());
+        assert!(!show_sanction_label("en-US", Some("simply+ban")).is_empty());
+        assert!(!show_sanction_label("en-US", Some("simply+derank")).is_empty());
     }
 
     #[test]
@@ -889,12 +906,12 @@ mod tests {
         let text = protection_rules_text(&rows);
         assert!(text.contains("**WEBHOOK** -> `allowlist`"));
         assert!(!text.contains("SANCTION"));
-        // Legacy rows render through the effective mode.
+        // Legacy rows render through the effective mode (open, no sanction).
         let legacy = vec![(
             "PROTECTION.banmembers".to_string(),
             r#"{"allow":false}"#.to_string(),
         )];
-        assert!(protection_rules_text(&legacy).contains("**BANMEMBERS** -> `nobody`"));
+        assert!(protection_rules_text(&legacy).contains("**BANMEMBERS** -> `member`"));
         assert!(protection_rules_text(&[]).is_empty());
     }
 

@@ -22,9 +22,8 @@ pub async fn dice(
     #[max = 12]
     faces: Option<i64>,
 ) -> Result<(), anyhow::Error> {
-    if fun_guard(&ctx).await {
-        return Ok(());
-    }
+    // No fun guard: `!dice.ts` (33-70) has no `GUILD.FUN.states` check,
+    // so the roll runs even with fun disabled.
     let (number, faces) = dice_counts(number, faces);
     let results = roll_dice_set(number, faces);
     let total: u32 = results.iter().sum();

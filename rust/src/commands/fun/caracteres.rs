@@ -271,6 +271,9 @@ pub async fn caracteres(
         if press.data.custom_id != FONT_SELECT_ID {
             continue;
         }
+        // KEEP: wrong-user pick gets the ephemeral `help_not_for_you`
+        // reply like the TS collector (`fun/!caracteres.ts:214-226`), and
+        // the menu is stripped on end like `!caracteres.ts:261-267`.
         if press.user.id != author {
             let _ = press
                 .create_response(

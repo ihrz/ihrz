@@ -411,6 +411,8 @@ reset_uranks_logs_embed_desc: "${interaction.member.user.toString()} has deleted
 
 # /ranks config
 ranks_config_embed_title: "🏆 Rank Roles Configuration"
+ranks_ureset_missing_user: "Please specify the user whose XP should be reset."
+ranks_channel_missing_action: "Please specify an action: on or off."
 ranks_config_embed_desc: "Customize your server's XP-based role rewards!"
 ranks_config_autofields_name: "🌟 Level ${level}"
 ranks_config_autofields_value: "Role: <@&${roleId}>\n🔓 Unlocked at level ${level}"

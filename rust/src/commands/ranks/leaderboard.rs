@@ -1,13 +1,14 @@
 use super::*;
 
 /// Rank medal per position. Mirrors `!leaderboard.ts`
-/// (🥇🥈🥉 for the top 3, 💠 below).
+/// (`` `🥇 ` `` — the trailing space inside the code span is part of
+/// the TS literal, so it lives in the medal value, not the format).
 fn medal_for(rank: usize) -> &'static str {
     match rank {
-        0 => "🥇",
-        1 => "🥈",
-        2 => "🥉",
-        _ => "💠",
+        0 => "🥇 ",
+        1 => "🥈 ",
+        2 => "🥉 ",
+        _ => "💠 ",
     }
 }
 
@@ -161,7 +162,7 @@ pub async fn ranks_leaderboard(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
             .map(|(i, (uid, e))| {
                 let rank = start + i;
                 format!(
-                    "`{} ` **{}** ・ <@{uid}>\n  ┖  {lvl_word} **{}** (**{}** XP)",
+                    "`{}` **{}** ・ <@{uid}>\n  ┖  {lvl_word} **{}** (**{}** XP)",
                     medal_for(rank),
                     rank + 1,
                     e.level,
@@ -312,11 +313,11 @@ mod tests {
 
     #[test]
     fn medals_match_ts_leaderboard() {
-        assert_eq!(medal_for(0), "🥇");
-        assert_eq!(medal_for(1), "🥈");
-        assert_eq!(medal_for(2), "🥉");
-        assert_eq!(medal_for(3), "💠");
-        assert_eq!(medal_for(40), "💠");
+        assert_eq!(medal_for(0), "🥇 ");
+        assert_eq!(medal_for(1), "🥈 ");
+        assert_eq!(medal_for(2), "🥉 ");
+        assert_eq!(medal_for(3), "💠 ");
+        assert_eq!(medal_for(40), "💠 ");
     }
 
     #[test]

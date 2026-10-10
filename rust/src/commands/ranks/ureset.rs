@@ -18,15 +18,21 @@ pub async fn ranks_ureset(
     ctx: Ctx<'_>,
     #[description = "Member to reset (defaults to self on prefix)"] user: Option<serenity::User>,
 ) -> Result<(), anyhow::Error> {
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let target_id = match user {
         Some(u) => u.id.get(),
         // Prefix-only self default, like TS `|| interaction.member`.
         None if matches!(ctx, poise::Context::Prefix(_)) => ctx.author().id.get(),
-        // Slash keeps the TS `required: true` user option: without a
-        // target there is nothing to reset.
+        // Slash without a target cannot fall back (TS declares the
+        // option `required: true`): answer the usage reply. The text
+        // lives behind `ranks_ureset_missing_user` (new lang key,
+        // YAML pending) — never a hardcoded string.
         None => {
-            ctx.say("Please specify the user whose ranks data should be reset.")
-                .await?;
+            if let Some(usage) =
+                crate::lang::get(&code, "ranks_ureset_missing_user").filter(|s| !s.is_empty())
+            {
+                ctx.say(usage).await?;
+            }
             return Ok(());
         }
     };
@@ -50,7 +56,6 @@ pub async fn ranks_ureset(
         &[&super::user_key_old(target_id)],
     )
     .await;
-    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     ctx.say(
         crate::lang::get(&code, "resetallinvites_succes_on_delete")
             .unwrap_or_else(|| "Successfully deleted!".to_string()),

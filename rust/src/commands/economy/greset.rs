@@ -46,6 +46,9 @@ async fn clear_guild_econ(pool: &crate::db::Pool, guild_id: &str) -> anyhow::Res
 )]
 pub async fn eco_greset(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     // NOTE: !greset.ts has no disabled gate — none here either.
+    // CONFIRM: cancel replies with setjoinroles_action_canceled via
+    // prompt_reset_confirm, like the TS else branch
+    // (`economy/!greset.ts`: interactionSend cancel text + components:[]).
     if !crate::commands::prompt_reset_confirm(
         &ctx,
         "reset_geconomy_are_you_sure",

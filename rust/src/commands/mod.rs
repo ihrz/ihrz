@@ -1,12 +1,12 @@
 // iHorizon Discord Bot (https://gitlab.com/ihrz/ihrz)
 // Licensed under CC-BY-NC-SA-4.0.
-// Mirrors src/Interaction/HybridCommands/* + !BlankHybridCommandTemplate.ts.
-//
-// Template for new commands (copy-paste):
-//   #[poise::command(slash_command, prefix_command, category = "<category>")]
-//   pub async fn mycmd(ctx: Ctx<'_>) -> Result<(), Error> { ... }
-// and register it in all() below. Each category dir in TS maps to a
-// submodule here (see fun::, utils::).
+//! Mirrors src/Interaction/HybridCommands/* + !BlankHybridCommandTemplate.ts.
+//!
+//! Template for new commands (copy-paste):
+//!   #[poise::command(slash_command, prefix_command, category = "<category>")]
+//!   pub async fn mycmd(ctx: Ctx<'_>) -> Result<(), Error> { ... }
+//! and register it in all() below. Each category dir in TS maps to a
+//! submodule here (see fun::, utils::).
 
 pub mod antispam;
 pub mod authrestore;
@@ -831,7 +831,8 @@ mod tests {
         assert!(has_gate("history", Permissions::ADMINISTRATOR));
         assert!(has_gate("user_lookup", Permissions::ADMINISTRATOR));
         assert!(has_gate("embed", Permissions::MANAGE_MESSAGES));
-        assert!(has_gate("massmove", Permissions::MANAGE_GUILD));
+        // TS utils.ts:713-717: MoveMembers + ModerateMembers (not MANAGE_GUILD).
+        assert!(has_gate("massmove", Permissions::MOVE_MEMBERS));
         assert!(has_gate("wlroles", Permissions::ADMINISTRATOR));
         assert!(has_gate("say", Permissions::ADMINISTRATOR));
         assert!(has_gate("create-thread", Permissions::ADMINISTRATOR));

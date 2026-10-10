@@ -411,6 +411,8 @@ reset_uranks_logs_embed_desc: "${interaction.member.user.toString()} ha eliminad
 
 # /ranks config
 ranks_config_embed_title: "🏆 Configuración de Roles por Rangos"
+ranks_ureset_missing_user: "Especifica el usuario cuyo XP debe restablecerse."
+ranks_channel_missing_action: "Especifica una acción: on u off."
 ranks_config_embed_desc: "¡Personaliza las recompensas de roles basadas en XP de tu servidor!"
 ranks_config_autofields_name: "🌟 Nivel ${level}"
 ranks_config_autofields_value: "Rol: <@&${roleId}>\n🔓 Desbloqueado al nivel ${level}"

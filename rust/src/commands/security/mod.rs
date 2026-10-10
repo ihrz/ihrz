@@ -100,20 +100,12 @@ pub fn disable_flag(enabled: bool) -> bool {
     !enabled
 }
 
-/// Tolerant read of the `disable` leaf. Accepts JSON bool (current),
-/// number 1/0, and legacy strings "1"/"0"/"true"/"false" (pre-bool rows
-/// written as plain strings). Anything else (missing, null, other
-/// strings) reads as enabled (false), mirroring the gate's
-/// `unwrap_or(false)`.
+/// Strict-bool read of the `disable` leaf. `security/!config.ts` writes a
+/// real JSON bool (`client.db.set("<gid>.SECURITY.disable", false/true)`),
+/// so only `Bool` counts; numbers, strings (including 1/"1"/"true"),
+/// null, and missing all read as enabled (false).
 pub fn security_disabled_value(v: Option<&serde_json::Value>) -> bool {
-    match v {
-        Some(serde_json::Value::Bool(b)) => *b,
-        Some(serde_json::Value::Number(n)) => n.as_i64().is_some_and(|i| i != 0),
-        Some(serde_json::Value::String(s)) => {
-            matches!(s.trim().to_ascii_lowercase().as_str(), "1" | "true")
-        }
-        _ => false,
-    }
+    matches!(v, Some(serde_json::Value::Bool(true)))
 }
 
 pub async fn guild_id_str(ctx: &Ctx<'_>) -> Option<String> {
@@ -182,9 +174,8 @@ pub async fn save_security_bool(
     guild_backend(pool).table(guild_id).set(key, value).await
 }
 
-/// Tolerant read of SECURITY.disable (bool / 1 / "1" / "true" forms).
-/// The join gate in `events_handler.rs` should prefer this over a bare
-/// `as_bool()` so pre-bool string rows still disable the module.
+/// Strict-bool read of SECURITY.disable. Only a stored JSON bool counts;
+/// anything else (numbers, strings, null, missing) reads as enabled.
 pub async fn load_security_disabled(pool: &crate::db::Pool, guild_id: &str) -> bool {
     security_disabled_value(
         table_value_or_legacy(pool, guild_id, "SECURITY.disable")
@@ -213,15 +204,18 @@ mod tests {
     }
 
     #[test]
-    fn disabled_read_accepts_bool_number_and_string_forms() {
+    fn disabled_read_is_strict_bool_only() {
         use serde_json::{json, Value};
         assert!(security_disabled_value(Some(&json!(true))));
         assert!(!security_disabled_value(Some(&json!(false))));
-        assert!(security_disabled_value(Some(&json!(1))));
+        // Numbers and strings never count, even truthy-looking ones.
+        assert!(!security_disabled_value(Some(&json!(1))));
         assert!(!security_disabled_value(Some(&json!(0))));
-        assert!(security_disabled_value(Some(&Value::String("1".into()))));
-        assert!(security_disabled_value(Some(&Value::String("true".into()))));
-        assert!(security_disabled_value(Some(&Value::String(
+        assert!(!security_disabled_value(Some(&Value::String("1".into()))));
+        assert!(!security_disabled_value(Some(&Value::String(
+            "true".into()
+        ))));
+        assert!(!security_disabled_value(Some(&Value::String(
             " True ".into()
         ))));
         assert!(!security_disabled_value(Some(&Value::String("0".into()))));

@@ -10,7 +10,9 @@ use super::*;
 )]
 pub async fn derank(
     ctx: Ctx<'_>,
-    #[description = "Member"] user: poise::serenity_prelude::User,
+    #[description = "Member (defaults to self on prefix)"] user: Option<
+        poise::serenity_prelude::User,
+    >,
 ) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {
         return Ok(());
@@ -18,9 +20,18 @@ pub async fn derank(
     let pool = &ctx.data().pool;
     let code = crate::db::guild_lang(pool, Some(guild_id.get())).await;
     let t = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
-    // TS falls back to the invoker when prefix resolution fails, and
-    // replies perm_list_no_user only when both are missing.
-    let target_id = user.id;
+    // TS prefix falls back to the invoker
+    // (`member(...) || interaction.member`); slash has no fallback,
+    // so a missing member answers `perm_list_no_user` like TS
+    // `if (!member)`.
+    let target_id = match user {
+        Some(u) => u.id,
+        None if matches!(ctx, poise::Context::Prefix(_)) => ctx.author().id,
+        None => {
+            ctx.say(t("perm_list_no_user")).await?;
+            return Ok(());
+        }
+    };
     let member = match guild_id.member(ctx.http(), target_id).await {
         Ok(m) => m,
         Err(_) => {
@@ -86,10 +97,10 @@ pub async fn derank(
         success: good,
         failed: bad,
     };
-    if result.success == 0 && result.failed > 0 {
-        ctx.say(t("derank_msg_failed")).await?;
-        return Ok(());
-    }
+    // TS parity (`!derank.ts` completion callback): the result embed is
+    // always sent, even when every removal failed (good == 0). There
+    // is no all-failed early text on the TS path (`derank_msg_failed`
+    // is a YAML-only key TS never sends).
     // Final result is a new message (TS interactionSend), with the bot
     // footer like the other batch commands.
     let desc = fill_desc(

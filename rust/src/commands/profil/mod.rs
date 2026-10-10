@@ -3,7 +3,9 @@
 // Mirrors src/Interaction/HybridCommands/profil/* (!show, !set-age,
 // !set-description, !set-gender, !set-pronoun, !set-birthday).
 
-use crate::bot::{Ctx, Data};
+// Re-exported to child command modules via `use super::*` (profil.rs,
+// show.rs, set_*): they resolve `Ctx` through this import.
+use crate::bot::Ctx;
 use crate::db::Pool;
 use serde::{Deserialize, Serialize};
 
@@ -49,9 +51,6 @@ async fn save_profil(pool: &Pool, user_id: u64, profil: &Profil) -> anyhow::Resu
     let raw = serde_json::to_string(profil)?;
     crate::db::kv_set(pool, "0", &key, &raw).await
 }
-
-#[allow(dead_code)]
-fn touch_data_type(_: &Data) {}
 
 /// Tolerant age parse: the shared DB is written by TS with JS numbers
 /// (floats possible via `getNumber`), so ints, floats and numeric strings

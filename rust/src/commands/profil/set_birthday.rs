@@ -38,6 +38,9 @@ pub fn validate_birthday_ts(day: u8, month: u8, year: i32) -> bool {
 /// (`invalid_day` / `invalid_month` / `invalid_year` + `already_set`
 /// replies, `!set-birthday.ts:309-405`); here every invalid birthday
 /// gets the one `msg_profil_birthday_invalid` reply.
+/// CONFIRM: replies stay ephemeral like the TS confirm-button answers
+/// (`!set-birthday.ts:177-186`, `buttonInteraction.reply` with the
+/// ephemeral flag), only the field granularity is flattened.
 #[poise::command(
     slash_command,
     prefix_command,

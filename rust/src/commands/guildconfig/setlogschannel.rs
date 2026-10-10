@@ -136,7 +136,7 @@ pub async fn gc_setlogs(
         .await?;
         return Ok(());
     }
-    handle_single(&ctx, &code, &normalize_log_type(&t), channel).await?;
+    handle_single(&ctx, &code, &t, channel).await?;
     Ok(())
 }
 
@@ -147,7 +147,7 @@ pub async fn gc_setlogs(
 async fn handle_single(
     ctx: &Ctx<'_>,
     code: &str,
-    canonical: &str,
+    raw_type: &str,
     channel: Option<serenity::GuildChannel>,
 ) -> Result<(), anyhow::Error> {
     let Some(ch) = channel else {
@@ -162,7 +162,7 @@ async fn handle_single(
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
-    let key = log_channel_key(canonical);
+    let key = log_channel_key(raw_type);
     let current =
         crate::commands::owner::main::routed_get(&ctx.data().pool, &gid, &gid, &key).await;
     let cid = ch.id.get().to_string();
@@ -175,7 +175,7 @@ async fn handle_single(
         .await?;
         return Ok(());
     }
-    let label = display_name(code, canonical);
+    let label = display_name(code, raw_type);
     let user_id = ctx.author().id.get();
     // Resolve the Yes app emoji like TS (`client.iHorizon_Emojis.Yes`);
     // plain check-mark fallback when the emoji cache is cold (no YAML).
@@ -495,14 +495,19 @@ pub fn slug_channel_name(label: &str) -> String {
     }
 }
 
-/// Key for one log type. `ticket` (and its `ticket-log-channel` auto
-/// id) uses the special `GUILD.TICKET.logs` key; everything else uses
-/// `GUILD.SERVER_LOGS.<type>` (normalized, so `boosts` folds to
-/// `boost` and `messages` to `message`).
+/// Key for one log type. Mirrors the TS single-set write
+/// (`setlogschannel.ts:264-272,317-327`): only the exact
+/// `ticket-log-channel` id uses the special `GUILD.TICKET.logs` key;
+/// the slash `ticket` choice writes `GUILD.SERVER_LOGS.ticket` like
+/// every other type. Other spellings still normalize (`boosts` folds
+/// to `boost`, `messages` to `message`).
 pub fn log_channel_key(log_type: &str) -> String {
+    if log_type.trim().to_ascii_lowercase() == "ticket-log-channel" {
+        return "GUILD.TICKET.logs".to_string();
+    }
     let norm = normalize_log_type(log_type);
     if norm == "ticket" {
-        return "GUILD.TICKET.logs".to_string();
+        return "GUILD.SERVER_LOGS.ticket".to_string();
     }
     format!("GUILD.SERVER_LOGS.{norm}")
 }
@@ -517,9 +522,9 @@ pub fn auto_db_key(auto_id: &str) -> String {
     format!("GUILD.SERVER_LOGS.{auto_id}")
 }
 
-/// Table-first log-channel read with legacy fallback. Ticket resolves
-/// via the special `GUILD.TICKET.logs` key first, then the legacy
-/// `GUILD.SERVER_LOGS.ticket` single-set rows TS used to write;
+/// Table-first log-channel read with legacy fallback. Both ticket rows
+/// cross-read: `GUILD.SERVER_LOGS.ticket` (slash single-set) and the
+/// special `GUILD.TICKET.logs` (`ticket-log-channel` id);
 /// `boost`/`message` also cross-read their plural spellings.
 pub async fn load_log_channel_routed(
     pool: &crate::db::Pool,
@@ -533,7 +538,7 @@ pub async fn load_log_channel_routed(
         "boosts" => keys.push("GUILD.SERVER_LOGS.boost".to_string()),
         "message" => keys.push("GUILD.SERVER_LOGS.messages".to_string()),
         "messages" => keys.push("GUILD.SERVER_LOGS.message".to_string()),
-        "ticket" => keys.push("GUILD.SERVER_LOGS.ticket".to_string()),
+        "ticket" => keys.push("GUILD.TICKET.logs".to_string()),
         _ => {}
     }
     for key in &keys {
@@ -682,7 +687,10 @@ mod tests {
 
     #[test]
     fn ticket_uses_special_key() {
-        assert_eq!(log_channel_key("ticket"), "GUILD.TICKET.logs");
+        // Single-set `ticket` (slash choice) writes SERVER_LOGS.ticket
+        // like every other type; only the exact `ticket-log-channel`
+        // id uses the special TICKET.logs key.
+        assert_eq!(log_channel_key("ticket"), "GUILD.SERVER_LOGS.ticket");
         assert_eq!(log_channel_key("ticket-log-channel"), "GUILD.TICKET.logs");
         assert_eq!(auto_db_key("ticket-log-channel"), "GUILD.TICKET.logs");
     }
@@ -899,7 +907,7 @@ mod tests {
             &pool,
             "g1",
             "g1",
-            &log_channel_key("ticket"),
+            &log_channel_key("ticket-log-channel"),
             "444",
         )
         .await
@@ -909,7 +917,9 @@ mod tests {
         assert!(!any_server_logs_set(&pool, "g1").await);
         assert_eq!(load_log_channel_routed(&pool, "g1", "boost").await, None);
         assert_eq!(load_log_channel_routed(&pool, "g1", "message").await, None);
-        // TS `off` deletes only the SERVER_LOGS subtree: ticket survives.
+        // TS `off` deletes only the SERVER_LOGS subtree: the
+        // `ticket-log-channel` row (GUILD.TICKET.logs) survives, while
+        // a slash single-set `ticket` row (SERVER_LOGS.ticket) does not.
         assert_eq!(
             load_log_channel_routed(&pool, "g1", "ticket")
                 .await

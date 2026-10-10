@@ -9,7 +9,8 @@ use super::*;
     prefix_command,
     category = "utils",
     rename = "dm",
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    user_cooldown = 120
 )]
 pub async fn dm(
     ctx: Ctx<'_>,

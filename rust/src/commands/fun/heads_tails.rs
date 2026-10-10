@@ -11,9 +11,8 @@ use super::*;
     aliases("pileouface", "pile-ou-face")
 )]
 pub async fn coinflip(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
-    if fun_guard(&ctx).await {
-        return Ok(());
-    }
+    // No fun guard: `!heads-tails.ts` has no `GUILD.FUN.states` check,
+    // so the flip runs even with fun disabled.
     let heads = coin_flip_random();
     let result = if heads {
         crate::commands::lang_for(&ctx, "fun_coinflip_result_heads", "Heads").await

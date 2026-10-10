@@ -411,6 +411,8 @@ reset_uranks_logs_embed_desc: "${interaction.member.user.toString()} hat alle Ra
 
 # /ranks config
 ranks_config_embed_title: "🏆 Rangrollen-Konfiguration"
+ranks_ureset_missing_user: "Bitte gib den Benutzer an, dessen XP zurückgesetzt werden soll."
+ranks_channel_missing_action: "Bitte gib eine Aktion an: on oder off."
 ranks_config_embed_desc: "Passen Sie die rollenbasierten Belohnungen Ihres Servers an!"
 ranks_config_autofields_name: "🌟 Stufe ${level}"
 ranks_config_autofields_value: "Rolle: <@&${roleId}>\n🔓 Freigeschaltet bei Stufe ${level}"

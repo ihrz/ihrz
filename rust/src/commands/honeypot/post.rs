@@ -26,13 +26,15 @@ pub fn claim_dm_key(result: &str) -> &'static str {
     }
 }
 
-/// Log-title lang key for a sanction result. Mirrors getLogActionLabel.
+/// Log-title lang key for a sanction result. Mirrors getLogActionLabel in
+/// `src/Interaction/SlashCommands/honeypot/!config.ts`: only kick/ban
+/// get dedicated keys; `none` and `failed` fall through to the default
+/// `honeypot_action_none` ("Delete messages only").
 pub fn claim_log_key(result: &str) -> &'static str {
     match result {
         "ban" => "honeypot_log_action_ban",
         "kick" => "honeypot_log_action_kick",
-        "none" => "honeypot_log_action_none",
-        _ => "honeypot_action_failed",
+        _ => "honeypot_action_none",
     }
 }
 
@@ -118,8 +120,7 @@ pub fn build_claim_log_embed(
             match data.action_result {
                 "ban" => "honeypot_log_action_ban",
                 "kick" => "honeypot_log_action_kick",
-                "none" => "honeypot_log_action_none",
-                _ => "honeypot_action_failed",
+                _ => "honeypot_action_none",
             },
             data.action_result,
         ),
@@ -178,8 +179,7 @@ pub fn build_claim_log_embed(
                 match data.action_result {
                     "ban" => "honeypot_log_action_ban",
                     "kick" => "honeypot_log_action_kick",
-                    "none" => "honeypot_log_action_none",
-                    _ => "honeypot_action_failed",
+                    _ => "honeypot_action_none",
                 },
                 data.action_result,
             ),
@@ -276,8 +276,8 @@ mod tests {
         assert_eq!(claim_dm_key("failed"), "honeypot_action_failed");
         assert_eq!(claim_log_key("ban"), "honeypot_log_action_ban");
         assert_eq!(claim_log_key("kick"), "honeypot_log_action_kick");
-        assert_eq!(claim_log_key("none"), "honeypot_log_action_none");
-        assert_eq!(claim_log_key("failed"), "honeypot_action_failed");
+        assert_eq!(claim_log_key("none"), "honeypot_action_none");
+        assert_eq!(claim_log_key("failed"), "honeypot_action_none");
     }
 
     #[test]

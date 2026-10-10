@@ -99,7 +99,8 @@ pub async fn mod_clear(
     let handle = ctx
         .say(t("clear_confirmation_message").replace("${messages.size}", &n.to_string()))
         .await?;
-    // Auto-delete the confirmation after 5s like afterSent.
+    // Auto-delete the confirmation after 5s like afterSent
+    // (`moderation/!clear.ts:13-28`): channel-visible reply, never ephemeral.
     if let Ok(sent) = handle.into_message().await {
         let http = ctx.serenity_context().http.clone();
         let invoker = match ctx {

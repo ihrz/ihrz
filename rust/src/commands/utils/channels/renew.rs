@@ -25,12 +25,6 @@ pub async fn renew(
         return Ok(());
     };
     let code = crate::db::guild_lang(&ctx.data().pool, Some(guild_id.get())).await;
-    // TS `channel.deletable` gate: the bot must be able to manage and
-    // delete this channel.
-    if !bot_guild_permissions(&ctx, guild_id).manage_channels() {
-        send_renew_denied(&ctx, &code).await;
-        return Ok(());
-    }
     let ch = match channel {
         Some(c) => c,
         None => match ctx.guild_channel().await {
@@ -38,6 +32,14 @@ pub async fn renew(
             None => return Ok(()),
         },
     };
+    // Mirrors TS `channel.deletable` (`!renew.ts:38-44`): the gate is
+    // per-channel (bot ManageChannels in THIS channel, overwrites
+    // included), not just guild-wide. Hierarchy/overwrite failures
+    // still surface as `renew_dont_have_permission` below.
+    if !bot_can_manage_channel(&ctx, guild_id, &ch) {
+        send_renew_denied(&ctx, &code).await;
+        return Ok(());
+    }
     let old_id = ch.id;
     let was_system = ctx
         .serenity_context()
@@ -80,7 +82,14 @@ pub async fn renew(
         builder = builder.available_tags(ch.available_tags.clone());
     }
     let author = ctx.author().id;
-    let reason = format!("Channel re-create by {author} ({})", author.get());
+    // Verbatim TS audit reason (`!renew.ts` clone call):
+    // `` `Channel re-create by ${interaction.member.user} (${interaction.member.user.id})` ``
+    // where `${User}` stringifies to the `<@id>` mention.
+    let reason = format!(
+        "Channel re-create by <@{}> ({})",
+        author.get(),
+        author.get()
+    );
     let new_ch = match guild_id
         .create_channel(ctx.http(), builder.audit_log_reason(&reason))
         .await
@@ -114,6 +123,26 @@ pub async fn renew(
         .send_message(ctx.http(), serenity::CreateMessage::new().content(text))
         .await;
     Ok(())
+}
+
+/// Per-channel bot ManageChannels check. Mirrors TS `channel.deletable`
+/// for the resolved channel: the bot's effective permissions IN this
+/// channel (role overwrites included), not just the guild-wide grant.
+/// Uncached guild/member rows cannot prove deletability, so they deny.
+fn bot_can_manage_channel(
+    ctx: &Ctx<'_>,
+    guild_id: poise::serenity_prelude::GuildId,
+    ch: &poise::serenity_prelude::GuildChannel,
+) -> bool {
+    let cache = &ctx.serenity_context().cache;
+    let bot_id = cache.current_user().id;
+    let Some(guild) = cache.guild(guild_id) else {
+        return false;
+    };
+    let Some(member) = guild.members.get(&bot_id).cloned() else {
+        return false;
+    };
+    guild.user_permissions_in(ch, &member).manage_channels()
 }
 
 /// Ephemeral `renew_dont_have_permission` reply. Mirrors the TS

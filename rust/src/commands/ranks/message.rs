@@ -2,10 +2,9 @@ use super::*;
 use poise::serenity_prelude as serenity;
 use poise::serenity_prelude::Mentionable;
 
-// Button custom ids. Mirror `!message.ts:104,108`.
-#[allow(dead_code)]
+// Button custom ids. Mirror `!message.ts:104,108`. Unwired until the
+// rank-message command leg lands; crate-level `dead_code` cover applies.
 pub const MSG_SET_ID: &str = "xpMessage-set-message";
-#[allow(dead_code)]
 pub const MSG_DEFAULT_ID: &str = "xpMessage-default-message";
 
 /// Cap a level-up template at 1010 chars. Mirrors the TS modal
@@ -119,8 +118,9 @@ pub async fn ranks_msg(
         ctx.send(poise::CreateReply::default().embed(embed)).await?;
         return Ok(());
     };
-    let trimmed = template.trim().to_string();
-    if trimmed.is_empty() {
+    // TS stores the modal response verbatim (`!message.ts:177-180`):
+    // no trim. Only a truly empty template clears the row.
+    if template.is_empty() {
         super::migrated_del(
             &ctx.data().pool,
             &gid,
@@ -143,7 +143,8 @@ pub async fn ranks_msg(
     }
     // Modal `minLength: 2` gate (`!message.ts:145`): a non-empty template
     // shorter than 2 chars is rejected (an empty template clears above).
-    if !super::xp_message_valid(&trimmed) {
+    // Length applies to the raw template, like the TS modal input.
+    if !super::xp_message_valid(&template) {
         ctx.say(
             crate::lang::get(&code, "msg_ranks_message_too_short").unwrap_or_else(|| {
                 "Message too short: the level-up template needs at least 2 characters.".to_string()
@@ -152,7 +153,7 @@ pub async fn ranks_msg(
         .await?;
         return Ok(());
     }
-    let capped = truncate_xp_message(&trimmed);
+    let capped = truncate_xp_message(&template);
     super::migrated_set(
         &ctx.data().pool,
         &gid,

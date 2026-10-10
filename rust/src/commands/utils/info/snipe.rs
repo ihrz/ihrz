@@ -66,14 +66,14 @@ pub async fn snipe(
         ctx.say(format!("{author}: {content}")).await?;
         return Ok(());
     }
-    let last =
-        crate::commands::owner::main::routed_get(pool, &gid, &gid, "SNIPE.last_deleted_id").await;
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-    ctx.say(match last {
-        Some(id) => format!("Last deleted message id: {id}"),
-        None => crate::lang::get(&code, "snipe_no_previous_message_deleted")
+    // Mirrors `!snipe.ts` (`if (!based || !message_content)`): with no
+    // snapshot the reply is the TS fallback key — no invented text
+    // (the legacy `last_deleted_id` marker never had a TS reader).
+    ctx.say(
+        crate::lang::get(&code, "snipe_no_previous_message_deleted")
             .unwrap_or_else(|| "No messages have been deleted in this channel!".to_string()),
-    })
+    )
     .await?;
     Ok(())
 }

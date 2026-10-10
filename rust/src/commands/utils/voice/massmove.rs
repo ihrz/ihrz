@@ -1,12 +1,16 @@
 use super::*;
 
 /// Mass-move voice members. Mirrors utils !massmove.ts.
+// TS decl (utils.ts): permission [MoveMembers, ModerateMembers],
+// cooldown 5m; a null target is a silent return (`if (toChannel ===
+// null) return`).
 #[poise::command(
     slash_command,
     prefix_command,
     category = "utils",
     rename = "massmove",
-    default_member_permissions = "MANAGE_GUILD"
+    default_member_permissions = "MOVE_MEMBERS | MODERATE_MEMBERS",
+    user_cooldown = 300
 )]
 pub async fn massmove(
     ctx: Ctx<'_>,
@@ -16,9 +20,14 @@ pub async fn massmove(
     #[description = "To channel"]
     #[channel_types("Voice")]
     #[rename = "channel"]
-    to: poise::serenity_prelude::GuildChannel,
+    to: Option<poise::serenity_prelude::GuildChannel>,
 ) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {
+        return Ok(());
+    };
+    // Mirrors `!massmove.ts` (`if (toChannel === null) return`): no
+    // target is a silent no-op, before any loading ack.
+    let Some(to) = to else {
         return Ok(());
     };
     let members: Vec<poise::serenity_prelude::UserId> = ctx

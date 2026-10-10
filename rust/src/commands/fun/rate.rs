@@ -18,9 +18,8 @@ pub async fn rate(
     #[rest]
     the_things: String,
 ) -> Result<(), anyhow::Error> {
-    if fun_guard(&ctx).await {
-        return Ok(());
-    }
+    // No fun guard: `!rate.ts` has no `GUILD.FUN.states` check,
+    // so rating runs even with fun disabled.
     use rand::Rng;
     let random: u32 = rand::thread_rng().gen_range(0..10);
     let masked = crate::funcs::mask_link(&rate_subject(&the_things));

@@ -7,7 +7,8 @@ use super::*;
     category = "utils",
     rename = "massiverole",
     aliases("massrole", "massroles"),
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    user_cooldown = 300
 )]
 pub async fn massiverole(
     ctx: Ctx<'_>,

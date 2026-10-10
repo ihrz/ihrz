@@ -411,6 +411,8 @@ reset_uranks_logs_embed_desc: "${interaction.member.user.toString()} удали�
 
 # /ranks config
 ranks_config_embed_title: "🏆 Конфигурация Ранг Ролей"
+ranks_ureset_missing_user: "Укажи пользователя, чей XP нужно сбросить."
+ranks_channel_missing_action: "Укажи действие: on или off."
 ranks_config_embed_desc: "Настройте роли-награды на основе XP вашего сервера!"
 ranks_config_autofields_name: "🌟 Уровень ${level}"
 ranks_config_autofields_value: "Роль: <@&${roleId}>\n🔓 Разблокируется на уровне ${level}"

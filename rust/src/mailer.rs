@@ -47,6 +47,9 @@ impl MailerConfig {
     }
 
     /// Build from the loaded `Config` (env already overlaid on file).
+    /// Mirrors TS `init(false)`. Currently unwired: the live path is
+    /// [`Mailer::init_from_env`] (see `events_handler.rs`); kept for the
+    /// config-file boot path once it lands.
     pub fn from_app_config(cfg: &crate::config::Config, bot_name: &str) -> Self {
         Self {
             host: cfg.smtp_host.clone(),

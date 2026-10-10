@@ -109,9 +109,19 @@ async fn run_channel_action(
     let author_id = ctx.author().id.get().to_string();
     // Mirrors `ranks/!channel.ts:60-146`: only an explicit `on`/`off`
     // acts. The slash `action` option is `required: true`, so a
-    // missing action only happens on prefix — and TS leaves a bare
-    // call (no `type`) silent, with no default-on.
+    // missing action on slash answers the usage reply (never silent);
+    // a bare prefix call keeps the TS silent no-op. The text lives
+    // behind `ranks_channel_missing_action` (new lang key, YAML
+    // pending) — never a hardcoded string.
     let Some(action) = action else {
+        if matches!(ctx, poise::Context::Prefix(_)) {
+            return Ok(());
+        }
+        if let Some(usage) =
+            crate::lang::get(&code, "ranks_channel_missing_action").filter(|s| !s.is_empty())
+        {
+            ctx.say(usage).await?;
+        }
         return Ok(());
     };
     // Exact match like TS (`===` / `==`): no trim, no lowercase fold.

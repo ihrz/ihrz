@@ -23,7 +23,7 @@ pub fn enable_debug() {
 
 fn log(msg: &str) {
     if DEBUG.load(Ordering::Relaxed) {
-        eprintln!("amazon music: {msg}");
+        tracing::debug!("amazon music: {msg}");
     }
 }
 
