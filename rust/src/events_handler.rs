@@ -618,6 +618,10 @@ async fn ticket_rows_routed(pool: &crate::db::Pool, gid: &str) -> Vec<(String, S
     crate::db::tbl_scan_prefix(pool, gid, "TICKET_ALL.").await
 }
 
+/// Last-known names per user: (username, globalName).
+/// Mirrors `usersNamesMap` in src/core/prevnamesModule.ts.
+pub type NamesMap = HashMap<u64, (String, Option<String>)>;
+
 #[derive(Clone)]
 pub struct Handler {
     pub pool: Pool,
@@ -666,12 +670,8 @@ pub struct Handler {
     /// Mirrors pendingCustomVoiceCreations in
     /// Events/voicedashboard/voiceState.ts.
     pub temp_pending: Arc<tokio::sync::Mutex<HashSet<String>>>,
-    /// Last-known names per user: (username, globalName).
-    /// Mirrors `usersNamesMap` in src/core/prevnamesModule.ts (warmed
-    /// from the member cache at ready, refreshed on every user_update).
-    /// Serenity `old` is None on cache miss; the map is the fallback
-    /// for the previous-name diff below.
-    pub names: Arc<tokio::sync::Mutex<HashMap<u64, (String, Option<String>)>>>,
+    /// Last-known names per user, warmed from the member cache at ready.
+    pub names: Arc<tokio::sync::Mutex<NamesMap>>,
     /// SMTP owner mailer. Mirrors `client.email` (core.ts:134).
     /// Silent when SMTP env is incomplete (guarded by `connected`).
     pub mailer: Arc<crate::mailer::Mailer>,
