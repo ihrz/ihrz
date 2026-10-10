@@ -17,7 +17,14 @@ use serde::{Deserialize, Serialize};
 pub struct Warn {
     pub id: String,
     pub reason: String,
+    /// Warn creation time in ms. `timestamp` alias reads rows written by
+    /// the TS bot (`DatabaseStructure.WarnsData`).
+    #[serde(default, alias = "timestamp")]
     pub at: i64,
+    /// Warning author (moderator) id. `None` for legacy rows written
+    /// before the field existed; `authorID` alias reads TS rows.
+    #[serde(default, alias = "authorID")]
+    pub author_id: Option<String>,
 }
 
 pub fn warns_key(user_id: u64) -> String {
@@ -274,7 +281,19 @@ pub struct WarnContext<'a> {
 /// (generatePassword id, USER.<uid>.WARNS push, Red DM embed with the
 /// disabled guild button; send is best-effort like TS .catch).
 /// Returns (warn id, total warns).
+///
+/// `WarnContext` carries no author id (kept stable for the anti-spam
+/// caller in events_handler.rs), so this wrapper records no author.
+/// Prefer [`warn_member_with_author`] when the moderator id is known.
 pub async fn warn_member(w: &WarnContext<'_>) -> (String, usize) {
+    warn_member_with_author(w, None).await
+}
+
+/// [`warn_member`] with the warning author's id persisted on the row.
+pub async fn warn_member_with_author(
+    w: &WarnContext<'_>,
+    author_id: Option<u64>,
+) -> (String, usize) {
     let text = |k: &str| crate::lang::get(w.lang_code, k).unwrap_or_default();
     let uid = w.target.id.get();
     let mut warns = load_warns(w.pool, w.gid, uid).await;
@@ -306,6 +325,7 @@ pub async fn warn_member(w: &WarnContext<'_>) -> (String, usize) {
             id: id.clone(),
             reason: w.reason.to_string(),
             at,
+            author_id: author_id.map(|a| a.to_string()),
         },
     );
     let total = warns.len();
@@ -547,13 +567,33 @@ mod tests {
             id: "a".into(),
             reason: "r".into(),
             at: 1,
+            author_id: Some("7".into()),
         };
         let v = push_warn(vec![], w);
         assert_eq!(v.len(), 1);
+        assert_eq!(v[0].author_id.as_deref(), Some("7"));
         let (v, removed) = remove_warn(v, "a");
         assert!(removed && v.is_empty());
         let (_, removed) = remove_warn(v, "missing");
         assert!(!removed);
+    }
+
+    #[test]
+    fn warn_author_id_legacy_and_ts_rows() {
+        // Legacy Rust row without the field.
+        let legacy: Vec<Warn> =
+            serde_json::from_str(r#"[{"id":"a","reason":"r","at":1}]"#).unwrap();
+        assert_eq!(legacy[0].author_id, None);
+        // Row written by the TS bot (timestamp / authorID keys).
+        let ts: Vec<Warn> = serde_json::from_str(
+            r#"[{"id":"b","reason":"s","timestamp":1720000000000,"authorID":"123"}]"#,
+        )
+        .unwrap();
+        assert_eq!(ts[0].at, 1720000000000);
+        assert_eq!(ts[0].author_id.as_deref(), Some("123"));
+        // Round-trip keeps the author.
+        let back: Vec<Warn> = serde_json::from_str(&serde_json::to_string(&ts).unwrap()).unwrap();
+        assert_eq!(back, ts);
     }
 
     #[test]

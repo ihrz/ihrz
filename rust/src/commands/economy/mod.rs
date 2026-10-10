@@ -342,13 +342,13 @@ pub fn now_ms() -> i64 {
         .unwrap_or(0)
 }
 
-/// Member boost multiplier from shop roles. Mirrors
+/// Member boost multiplier from shop roles, float-preserving. Mirrors
 /// economyHelper.getMemberBoost (highest matching numeric boost,
-/// missing counts as 0, result falls back to 1).
-pub fn member_boost(shop_json: &str, member_roles: &[u64]) -> i64 {
+/// missing counts as 0, result falls back to 1 like TS `|| 1`).
+pub fn member_boost_f64(shop_json: &str, member_roles: &[u64]) -> f64 {
     let v: serde_json::Value = match serde_json::from_str(shop_json) {
         Ok(v) => v,
-        Err(_) => return 1,
+        Err(_) => return 1.0,
     };
     fn num(v: &serde_json::Value) -> Option<f64> {
         if let Some(n) = v.as_f64() {
@@ -403,7 +403,19 @@ pub fn member_boost(shop_json: &str, member_roles: &[u64]) -> i64 {
         }
         _ => {}
     }
-    (best as i64).max(1)
+    if best > 0.0 {
+        best
+    } else {
+        1.0
+    }
+}
+
+/// Member boost multiplier from shop roles, integer-truncated.
+/// Integer call sites (work amounts, voice boosts) keep this; the XP
+/// level-up coin path uses [`member_boost_f64`] so fractional boosts
+/// (e.g. x1.5) survive the multiply like the TS number.
+pub fn member_boost(shop_json: &str, member_roles: &[u64]) -> i64 {
+    (member_boost_f64(shop_json, member_roles) as i64).max(1)
 }
 
 /// JS-like number display: integral floats render without decimals
@@ -996,6 +1008,20 @@ mod tests {
             r#"[{"role_id":"1","price":10,"boost":"x3"},{"role_id":"2","price":5,"boost":"x2"}]"#;
         assert_eq!(member_boost(legacy_arr, &[2]), 2);
         assert_eq!(member_boost(legacy_arr, &[1, 2]), 3);
+    }
+
+    #[test]
+    fn float_boost_preserves_fractions() {
+        // Fractional shop boosts survive (TS `getMemberBoost` number).
+        let shop = r#"{"1":{"price":10,"boost":1.5},"2":{"price":5,"boost":2}}"#;
+        assert_eq!(member_boost_f64(shop, &[1]), 1.5);
+        assert_eq!(member_boost_f64(shop, &[1, 2]), 2.0);
+        assert_eq!(member_boost_f64(shop, &[9]), 1.0);
+        assert_eq!(member_boost_f64("nope", &[1]), 1.0);
+        assert_eq!(member_boost_f64(r#"{"1":{"price":10}}"#, &[1]), 1.0);
+        // Integer truncation stays on the i64 wrapper for integer callers.
+        assert_eq!(member_boost(shop, &[1]), 1);
+        assert_eq!(member_boost(shop, &[1, 2]), 2);
     }
 
     #[test]

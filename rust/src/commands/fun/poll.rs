@@ -16,11 +16,37 @@ pub fn poll_description(message: &str) -> String {
     format!("**{message}**")
 }
 
-/// Poll command. Mirrors !poll.ts (message + embed + gif + Yes/No reacts).
-#[poise::command(slash_command, prefix_command, category = "fun", rename = "poll")]
+/// App-emoji reaction with unicode fallback. Mirrors `msg.react(Yes/No)`:
+/// the synced app emoji when present, else the plain unicode mark.
+pub fn custom_or_unicode(
+    entry: Option<(u64, String, bool)>,
+    fallback: &str,
+) -> poise::serenity_prelude::ReactionType {
+    match entry {
+        Some((id, name, animated)) => poise::serenity_prelude::ReactionType::Custom {
+            animated,
+            id: poise::serenity_prelude::EmojiId::new(id),
+            name: Some(name),
+        },
+        None => poise::serenity_prelude::ReactionType::Unicode(fallback.to_string()),
+    }
+}
+
+/// Poll command. Mirrors !poll.ts.
+// ADMINISTRATOR permission comes from fun.ts; Yes/No reacts use the app
+// emojis with unicode fallback.
+#[poise::command(
+    slash_command,
+    prefix_command,
+    category = "fun",
+    rename = "poll",
+    default_member_permissions = "ADMINISTRATOR"
+)]
 pub async fn poll(
     ctx: Ctx<'_>,
-    #[description = "Poll message"] message: String,
+    #[description = "Poll message"]
+    #[rest]
+    message: String,
 ) -> Result<(), anyhow::Error> {
     if fun_guard(&ctx).await {
         return Ok(());
@@ -55,8 +81,10 @@ pub async fn poll(
     let handle = ctx.send(poise::CreateReply::default().embed(embed)).await?;
     if let Ok(sent) = handle.into_message().await {
         let http = ctx.serenity_context().http.clone();
-        let _ = sent.react(&http, '✅').await;
-        let _ = sent.react(&http, '❌').await;
+        let yes = custom_or_unicode(crate::emojis::cached_emoji_entry(&http, "Yes").await, "✅");
+        let no = custom_or_unicode(crate::emojis::cached_emoji_entry(&http, "No").await, "❌");
+        let _ = sent.react(&http, yes).await;
+        let _ = sent.react(&http, no).await;
     }
     Ok(())
 }
@@ -85,5 +113,20 @@ mod poll_tests {
             "https://www.ihorizon.org/assets/img/poll_embed_image.gif"
         );
         assert_eq!(POLL_COLOUR, 0xddd98b);
+    }
+
+    #[test]
+    fn reactions_fall_back_to_unicode() {
+        assert_eq!(
+            custom_or_unicode(None, "✅"),
+            poise::serenity_prelude::ReactionType::Unicode("✅".to_string())
+        );
+        match custom_or_unicode(Some((7, "iHorizon_Yes".to_string(), false)), "✅") {
+            poise::serenity_prelude::ReactionType::Custom { id, name, .. } => {
+                assert_eq!(id.get(), 7);
+                assert_eq!(name.as_deref(), Some("iHorizon_Yes"));
+            }
+            other => panic!("expected custom, got {other:?}"),
+        }
     }
 }

@@ -1,6 +1,12 @@
 use super::*;
 use poise::serenity_prelude as serenity;
 
+/// Display name like discord.js `user.displayName`
+/// (global name, else the username).
+fn display_name<'a>(global_name: Option<&'a str>, name: &'a str) -> &'a str {
+    global_name.filter(|s| !s.is_empty()).unwrap_or(name)
+}
+
 /// Show ban info for a user.
 #[poise::command(
     slash_command,
@@ -10,21 +16,15 @@ use poise::serenity_prelude as serenity;
 )]
 pub async fn mod_baninfo(
     ctx: Ctx<'_>,
-    #[description = "User id"] user_id: String,
+    #[description = "User"] user: serenity::User,
 ) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {
         return Ok(());
     };
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let t = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
-    let Ok(uid) = user_id.trim().parse::<u64>() else {
-        ctx.say(t("baninfo_user_not_found")).await?;
-        return Ok(());
-    };
-    let ban = guild_id
-        .get_ban(ctx.http(), serenity::UserId::new(uid))
-        .await
-        .unwrap_or(None);
+    let uid = user.id.get();
+    let ban = guild_id.get_ban(ctx.http(), user.id).await.unwrap_or(None);
     let Some(ban) = ban else {
         ctx.say(t("baninfo_not_banned")).await?;
         return Ok(());
@@ -57,13 +57,8 @@ pub async fn mod_baninfo(
                 .unwrap_or_else(|| t("var_unknown"));
         }
     }
-    let name = ban
-        .user
-        .global_name
-        .clone()
-        .unwrap_or_else(|| ban.user.name.clone());
-    let avatar = ban.user.avatar_url().unwrap_or_default();
-    let mut embed = serenity::CreateEmbed::default()
+    let name = display_name(user.global_name.as_deref(), &user.name).to_string();
+    let embed = serenity::CreateEmbed::default()
         .title(format!("{}: {name}", t("baninfo_ban_info")))
         .colour(serenity::Colour::from_rgb(79, 219, 18))
         .description(format!(
@@ -72,10 +67,22 @@ pub async fn mod_baninfo(
             t("var_banned_by"),
             t("var_reason"),
             ban.reason.unwrap_or_else(|| t("blacklist_var_no_reason")),
-        ));
-    if !avatar.is_empty() {
-        embed = embed.thumbnail(avatar);
-    }
+        ))
+        // `face()` keeps the animated (gif) avatar when there is one,
+        // like `displayAvatarURL({ forceStatic: false })`.
+        .thumbnail(user.face());
     ctx.send(poise::CreateReply::default().embed(embed)).await?;
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn display_name_prefers_global_name() {
+        assert_eq!(display_name(Some("Glo"), "user"), "Glo");
+        assert_eq!(display_name(None, "user"), "user");
+        assert_eq!(display_name(Some(""), "user"), "user");
+    }
 }

@@ -1,6 +1,7 @@
 use super::*;
 
-/// Coin flip. Mirrors !heads-tails.ts (pileouface/pile-ou-face aliases).
+/// Coin flip. Mirrors !heads-tails.ts (pileouface/pile-ou-face aliases,
+/// `Math.random() < 0.5`).
 #[poise::command(
     slash_command,
     prefix_command,
@@ -12,7 +13,7 @@ pub async fn coinflip(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     if fun_guard(&ctx).await {
         return Ok(());
     }
-    let heads = coin_flip(now_ms_sys()) == "heads";
+    let heads = coin_flip_random();
     let result = if heads {
         crate::commands::lang_for(&ctx, "fun_coinflip_result_heads", "Heads").await
     } else {
@@ -29,4 +30,20 @@ pub async fn coinflip(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         .colour(random_colour());
     ctx.send(poise::CreateReply::default().embed(embed)).await?;
     Ok(())
+}
+
+#[cfg(test)]
+mod coinflip_tests {
+    use super::*;
+
+    #[test]
+    fn random_flip_hits_both_sides() {
+        let mut heads = 0;
+        for _ in 0..200 {
+            if coin_flip_random() {
+                heads += 1;
+            }
+        }
+        assert!(heads > 0 && heads < 200, "flip looks stuck: {heads}/200");
+    }
 }

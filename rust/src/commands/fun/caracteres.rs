@@ -63,37 +63,150 @@ pub fn convert_text(text: &str, style: &str) -> Option<String> {
     )
 }
 
+/// Select-menu custom id. Mirrors `font_style_select` in `!caracteres.ts`.
+pub const FONT_SELECT_ID: &str = "font_style_select";
+
+/// Collector lifetime. Mirrors `time: 60_000 * 7` (7 minutes).
+pub const FONT_COLLECTOR_SECS: u64 = 7 * 60;
+
+/// Styles shown in the select menu: TS declaration order minus `Original`,
+/// first 25 (`.filter(s => s !== "Original").slice(0, 25)`).
+pub fn menu_styles() -> Vec<&'static str> {
+    style_names().into_iter().take(25).collect()
+}
+
+/// Option description: `${var_preview}: ${converted}`, capped at Discord's
+/// 100-char option-description limit.
+pub fn preview_desc(preview_word: &str, converted: &str) -> String {
+    let full = format!("{preview_word}: {converted}");
+    full.chars().take(100).collect()
+}
+
 #[poise::command(slash_command, prefix_command, category = "fun", rename = "caracteres")]
 pub async fn caracteres(
     ctx: Ctx<'_>,
-    #[description = "Text to transform"] text: String,
-    #[description = "Style (name or alias; default Bold)"] style: Option<String>,
+    #[description = "Text to transform"]
+    #[rest]
+    text: Option<String>,
 ) -> Result<(), anyhow::Error> {
     if fun_guard(&ctx).await {
         return Ok(());
     }
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-    let style = style.unwrap_or_else(|| "Bold".to_string());
-    match convert_text(&text, &style) {
-        Some(out) => {
-            ctx.say(
-                crate::lang::get(&code, "msg_style_out")
-                    .map(|s| s.replace("{style}", &style).replace("{out}", &out))
-                    .unwrap_or_else(|| format!("**{style}**: {out}")),
+    let f = |k: &str, fb: &str| crate::lang::get(&code, k).unwrap_or_else(|| fb.to_string());
+    let Some(input) = text.filter(|s| !s.is_empty()) else {
+        ctx.say(f(
+            "fun_caracteres_command_ok",
+            "Please provide a text to transform!",
+        ))
+        .await?;
+        return Ok(());
+    };
+    let preview_word = f("var_preview", "Preview");
+    let options: Vec<poise::serenity_prelude::CreateSelectMenuOption> = menu_styles()
+        .iter()
+        .map(|style| {
+            let converted = convert_text(&input, style).unwrap_or_else(|| input.clone());
+            poise::serenity_prelude::CreateSelectMenuOption::new(
+                style.to_string(),
+                style.to_string(),
             )
-            .await?;
-        }
-        None => {
-            let styles: Vec<String> = FONT_TABLES.iter().map(|(_, a, _)| a.to_string()).collect();
-            let styles = styles.join(", ");
-            ctx.say(
-                crate::lang::get(&code, "fun_caracteres_unknown_style")
-                    .map(|s| s.replace("{style}", &style).replace("{styles}", &styles))
-                    .unwrap_or_else(|| format!("Unknown style `{style}`. Available: {styles}")),
+            .description(preview_desc(&preview_word, &converted))
+        })
+        .collect();
+    let menu = poise::serenity_prelude::CreateSelectMenu::new(
+        FONT_SELECT_ID,
+        poise::serenity_prelude::CreateSelectMenuKind::String { options },
+    )
+    .placeholder(f(
+        "fun_caracteres_select_menu_placeholder",
+        "Choose a font style...",
+    ));
+    let embed = poise::serenity_prelude::CreateEmbed::default()
+        .title(f("fun_caracteres_help_title", "Select a text style"))
+        .description(
+            f(
+                "fun_caracteres_embed_desc",
+                "Original text: **${inputText}**",
             )
-            .await?;
+            .replace("${inputText}", &input),
+        )
+        .colour(0x3498dbu32)
+        .timestamp(poise::serenity_prelude::Timestamp::now());
+    let author = ctx.author().id;
+    let not_for_you = f("help_not_for_you", "This interaction is not for you");
+    let title_tpl = f(
+        "fun_caracteres_final_embed_title",
+        "Transformed Text - Style: ${selectedStyle}",
+    );
+    let field1 = f("fun_caracteres_final_embed_field1_name", "Original Text");
+    let field2 = f("fun_caracteres_final_embed_field2_name", "Transformed Text");
+    let handle = ctx
+        .send(poise::CreateReply::default().embed(embed).components(vec![
+            poise::serenity_prelude::CreateActionRow::SelectMenu(menu),
+        ]))
+        .await?;
+    let mut msg = handle.into_message().await?;
+    // Collector: author-only picks, 7-minute window like the TS collector.
+    let deadline = std::time::Instant::now() + std::time::Duration::from_secs(FONT_COLLECTOR_SECS);
+    loop {
+        let remaining = deadline.saturating_duration_since(std::time::Instant::now());
+        if remaining.is_zero() {
+            break;
         }
+        let Some(press) = msg
+            .await_component_interaction(ctx.serenity_context().shard.clone())
+            .timeout(remaining)
+            .await
+        else {
+            break;
+        };
+        if press.data.custom_id != FONT_SELECT_ID {
+            continue;
+        }
+        if press.user.id != author {
+            let _ = press
+                .create_response(
+                    ctx.http(),
+                    poise::serenity_prelude::CreateInteractionResponse::Message(
+                        poise::serenity_prelude::CreateInteractionResponseMessage::new()
+                            .content(not_for_you.clone())
+                            .ephemeral(true),
+                    ),
+                )
+                .await;
+            continue;
+        }
+        let selected = match &press.data.kind {
+            poise::serenity_prelude::ComponentInteractionDataKind::StringSelect { values } => {
+                values.first().cloned().unwrap_or_default()
+            }
+            _ => continue,
+        };
+        let converted = convert_text(&input, &selected).unwrap_or_else(|| input.clone());
+        let result = poise::serenity_prelude::CreateEmbed::default()
+            .title(title_tpl.replace("${selectedStyle}", &selected))
+            .field(field1.clone(), format!("```{input}```"), false)
+            .field(field2.clone(), format!("```{converted}```"), false)
+            .colour(0x2ecc71u32)
+            .timestamp(poise::serenity_prelude::Timestamp::now());
+        let _ = press
+            .create_response(
+                ctx.http(),
+                poise::serenity_prelude::CreateInteractionResponse::UpdateMessage(
+                    poise::serenity_prelude::CreateInteractionResponseMessage::new().embed(result),
+                ),
+            )
+            .await;
+        break;
     }
+    // Disable-on-end: strip the menu like the TS `end` handler.
+    let _ = msg
+        .edit(
+            ctx.http(),
+            poise::serenity_prelude::EditMessage::new().components(vec![]),
+        )
+        .await;
     Ok(())
 }
 
@@ -141,5 +254,22 @@ mod caracteres_tests {
     fn unknown_style_is_none() {
         assert!(convert_text("hi", "nope").is_none());
         assert!(convert_text("hi", "").is_none());
+    }
+
+    #[test]
+    fn menu_shows_first_25_styles() {
+        let menu = menu_styles();
+        assert_eq!(menu.len(), 25);
+        assert_eq!(menu[0], style_names()[0]);
+        assert_eq!(menu[24], style_names()[24]);
+    }
+
+    #[test]
+    fn preview_desc_caps_at_100_chars() {
+        let short = preview_desc("Preview", "abc");
+        assert_eq!(short, "Preview: abc");
+        let long = preview_desc("Preview", &"x".repeat(200));
+        assert_eq!(long.chars().count(), 100);
+        assert!(long.starts_with("Preview: "));
     }
 }

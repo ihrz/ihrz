@@ -169,6 +169,7 @@ committed — see `.gitignore`. No push without a green
 - [x] U-ETERNAL-25 (2026-10-10: vague-23 4/4 — crash reporter TS, perm names localisés, captcha CSPRNG + SVG, modals migrés (5 fichiers). Lead: test captcha resserré. Suite 1031/0, fmt + clippy clean).
 - [x] U-ETERNAL-26 (2026-10-10: vague-24 4/4 — defer global, cooldowns DB partagés, fallbacks exécuteur, mailer lettre + paywall ALLOW. Lead: wiring ready/join/leave + 2 allows. Suite 1054/0, fmt + clippy clean).
 - [x] U-ETERNAL-27 (2026-10-10: vague-25 4/4 — boot parity (session-start log + shard validation), audits fun/utils + mod/guildconfig + econ/profil → 24 items. Suite 1057/0, fmt + clippy clean).
+- [x] U-ETERNAL-28 (2026-10-10: vague-26 5/5 — warn authorID, setlogs full, support/autoreact, ranks/profil, fun-ux. Lead: off-guard ticket, 3 lints, anti-exe author id. Suite 1094/0, fmt + clippy clean).
 ## Eternal backlog (seeded 2026-10-09 by 7 read-only audits + lavalink edge audit; full reports in `~/.hermes/cache/delegation/live/deleg_55b606d3/task-{0,1,2,3,4,5,9}.log` — each item is a future unit for other models, files disjoint unless noted)
 
 ### Events (audit task-0)

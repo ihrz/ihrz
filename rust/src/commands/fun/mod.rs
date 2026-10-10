@@ -85,7 +85,7 @@ pub fn roll_dice_set(count: usize, faces: u32) -> Vec<u32> {
     use rand::Rng;
     let mut rng = rand::thread_rng();
     (0..count)
-        .map(|_| rng.gen_range(1..=faces.max(2)))
+        .map(|_| rng.gen_range(1..=faces.max(1)))
         .collect()
 }
 
@@ -96,6 +96,12 @@ pub fn coin_flip(now_ms: u64) -> &'static str {
     } else {
         "tails"
     }
+}
+
+/// Random coin flip. Mirrors `Math.random() < 0.5` in !heads-tails.ts.
+pub fn coin_flip_random() -> bool {
+    use rand::Rng;
+    rand::thread_rng().gen_bool(0.5)
 }
 
 /// Random number in [min, max]. Mirrors !number.ts.
@@ -424,6 +430,8 @@ mod tests {
         }
         let one = super::roll_dice_set(1, 2);
         assert_eq!(one.len(), 1);
+        // Single-face dice always roll 1 (slash choices allow faces = 1).
+        assert_eq!(super::roll_dice_set(3, 1), vec![1, 1, 1]);
     }
 
     #[test]

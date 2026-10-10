@@ -44,50 +44,86 @@ pub async fn ranks_show(
     ctx: Ctx<'_>,
     #[description = "Member"] user: Option<serenity::User>,
 ) -> Result<(), anyhow::Error> {
-    let uid = user
-        .as_ref()
-        .map(|u| u.id.get())
-        .unwrap_or_else(|| ctx.author().id.get());
+    let member = user.as_ref().unwrap_or_else(|| ctx.author());
+    let uid = member.id.get();
     let gid = ctx
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
     let e = load_rank_routed(&ctx.data().pool, &gid, uid).await;
-    let name = user
-        .as_ref()
-        .map(|u| u.name.clone())
-        .unwrap_or_else(|| ctx.author().name.clone());
-    let need = xp_needed(e.level + 1);
-    let remaining = need.saturating_sub(e.xp);
+    // Mirrors !show.ts: `level = baseData?.level || 0`,
+    // `currentxp = baseData?.xp || 0`, `xpNeeded = level * 500 + 500`.
+    let level = e.level;
+    let currentxp = e.xp;
+    let need = level.saturating_mul(500).saturating_add(500).max(500);
+    let remaining = need.saturating_sub(currentxp);
+    // TS display name: `user.globalName || user.displayName`.
+    let display = member
+        .global_name
+        .clone()
+        .unwrap_or_else(|| member.name.clone());
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-    // Mirror the TS !show embed text (level_embed_* keys) alongside the card.
+    // Snapshot the avatar via the shared image64 helper so the card and
+    // the thumbnail survive avatar changes (never a raw CDN URL).
+    let face_url = member.face();
+    let face_bytes = crate::image64::image64(&face_url).await;
+    let avatar_data = face_bytes
+        .as_deref()
+        .map(|b| crate::image64::data_url(b, "image/png"));
     let title = crate::lang::get(&code, "level_embed_title")
-        .map(|s| s.replace("${user.username}", &name))
-        .unwrap_or_else(|| format!("__**XP Level**__: `{name}`"));
-    let progress = crate::lang::get(&code, "level_embed_fields1_value")
+        .map(|s| s.replace("${user.username}", &display))
+        .unwrap_or_else(|| format!("__**XP Level**__: `{display}`"));
+    // TS pairs the fields cross-wise: fields1_name carries the LEVEL
+    // value (fields2_value), fields2_name carries the XP value
+    // (fields1_value).
+    let level_name =
+        crate::lang::get(&code, "level_embed_fields1_name").unwrap_or_else(|| "Level".to_string());
+    let level_value = crate::lang::get(&code, "level_embed_fields2_value")
+        .map(|s| s.replace("${level}", &level.to_string()))
+        .unwrap_or_else(|| format!("`{level}`"));
+    let xp_name = crate::lang::get(&code, "level_embed_fields2_name")
+        .unwrap_or_else(|| "Experience".to_string());
+    let xp_value = crate::lang::get(&code, "level_embed_fields1_value")
         .map(|s| {
-            s.replace("${currentxp}", &e.xp.to_string())
+            s.replace("${currentxp}", &currentxp.to_string())
                 .replace("${xpNeeded}", &need.to_string())
         })
-        .unwrap_or_else(|| format!("`{}/{}`", e.xp, need));
-    let level = crate::lang::get(&code, "level_embed_fields2_value")
-        .map(|s| s.replace("${level}", &e.level.to_string()))
-        .unwrap_or_else(|| format!("`{}`", e.level));
+        .unwrap_or_else(|| format!("`{currentxp}/{need}`"));
     let desc = crate::lang::get(&code, "level_embed_description")
         .map(|s| s.replace("${expNeededForLevelUp}", &remaining.to_string()))
         .unwrap_or_else(|| {
             format!("`{remaining}` **experience points needed for the next level!**")
         });
-    let svg = crate::cards::rank_card_svg(&name, e.level, e.xp, need, e.xptotal);
-    ctx.send(
+    let svg = crate::cards::rank_card_svg(&display, level, currentxp, avatar_data.as_deref());
+    let mut embed = serenity::CreateEmbed::default()
+        .title(title)
+        .colour(0x9A5AF2)
+        .description(desc)
+        .field(level_name, level_value, true)
+        .field(xp_name, xp_value, true)
+        .image("attachment://rank.svg")
+        .timestamp(serenity::Timestamp::now());
+    embed = if face_bytes.is_some() {
+        embed.thumbnail("attachment://avatar.png")
+    } else {
+        embed.thumbnail(face_url)
+    };
+    let (fname, fbytes) = crate::commands::shared::footer_parts(&ctx, &gid).await;
+    embed = crate::commands::shared::embed_with_footer(embed, &fname, fbytes.is_some());
+    let mut reply =
         poise::CreateReply::default()
-            .content(format!("{title}\n{progress} {level}\n{desc}"))
-            .attachment(poise::serenity_prelude::CreateAttachment::bytes(
+            .embed(embed)
+            .attachment(serenity::CreateAttachment::bytes(
                 svg.into_bytes(),
                 "rank.svg",
-            )),
-    )
-    .await?;
+            ));
+    if let Some(bytes) = face_bytes {
+        reply = reply.attachment(serenity::CreateAttachment::bytes(bytes, "avatar.png"));
+    }
+    if let Some(bytes) = fbytes {
+        reply = reply.attachment(serenity::CreateAttachment::bytes(bytes, "footer_icon.png"));
+    }
+    ctx.send(reply).await?;
     Ok(())
 }
 

@@ -114,22 +114,30 @@ pub fn xp_needed(level: u64) -> u64 {
 }
 
 /// Coins rewarded on level-up. Mirrors ranks/onNewMessage.ts:
-/// `randomNumber * memberBoost` credited via addCoins.
-pub fn coins_for_levelup(xp_gain: u64, boost_mult: i64) -> i64 {
-    (xp_gain as i64).saturating_mul(boost_mult.max(1))
+/// `randomNumber * memberBoost` credited via addCoins. The boost is the
+/// float-preserving shop multiplier (already fallen back to 1 by
+/// `member_boost_f64`); the product stays float like the TS number.
+pub fn coins_for_levelup(xp_gain: u64, boost_mult: f64) -> f64 {
+    (xp_gain as f64) * boost_mult
 }
 
-/// Apply XP, leveling up while threshold crossed. Returns (new_entry, leveled).
+/// Apply one message of XP with TS onNewMessage.ts parity: the event
+/// path defaults a missing/zero level to 1 (`baseData?.level || 1`),
+/// then a SINGLE strict-`<` level-up per message
+/// (`if (level * 500 < xp)`), subtracting the crossed threshold.
+/// Returns (new_entry, leveled).
 pub fn apply_xp(mut e: RankEntry, amount: u64) -> (RankEntry, bool) {
+    let base = if e.level == 0 { 1 } else { e.level };
     e.xp += amount;
     e.xptotal += amount;
-    let mut leveled = false;
-    while e.xp >= xp_needed(e.level + 1) {
-        e.xp -= xp_needed(e.level + 1);
+    let threshold = base.saturating_mul(500);
+    if threshold < e.xp {
+        e.xp -= threshold;
         e.level += 1;
-        leveled = true;
+        (e, true)
+    } else {
+        (e, false)
     }
-    (e, leveled)
 }
 
 pub async fn load_rank(pool: &crate::db::Pool, guild_id: &str, user_id: u64) -> RankEntry {
@@ -258,9 +266,10 @@ mod tests {
 
     #[test]
     fn levelup_reward_scales_with_boost() {
-        assert_eq!(coins_for_levelup(35, 1), 35);
-        assert_eq!(coins_for_levelup(37, 3), 111);
-        assert_eq!(coins_for_levelup(36, 0), 36);
+        assert_eq!(coins_for_levelup(35, 1.0), 35.0);
+        assert_eq!(coins_for_levelup(37, 3.0), 111.0);
+        // Float-preserving like the TS `randomNumber * memberBoost`.
+        assert_eq!(coins_for_levelup(35, 2.5), 87.5);
     }
 
     #[test]
@@ -270,6 +279,30 @@ mod tests {
         assert_eq!(e.level, 1);
         assert_eq!(e.xp, 50);
         assert_eq!(e.xptotal, 550);
+    }
+
+    #[test]
+    fn apply_xp_single_strict_levelup_per_message() {
+        // Fresh row defaults to effective level 1 (`|| 1` in TS) but the
+        // stored level stays 0 until a threshold actually crosses.
+        let (e, leveled) = apply_xp(RankEntry::default(), 35);
+        assert!(!leveled);
+        assert_eq!((e.level, e.xp, e.xptotal), (0, 35, 35));
+        // Strict `<`: exactly at the threshold does NOT level.
+        let (e, leveled) = apply_xp(
+            RankEntry {
+                level: 1,
+                xp: 465,
+                xptotal: 465,
+            },
+            35,
+        );
+        assert!(!leveled);
+        assert_eq!((e.level, e.xp), (1, 500));
+        // One message levels at most once, even far past the curve.
+        let (e, leveled) = apply_xp(RankEntry::default(), 5000);
+        assert!(leveled);
+        assert_eq!((e.level, e.xp, e.xptotal), (1, 4500, 5000));
     }
 
     #[test]

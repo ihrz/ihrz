@@ -955,10 +955,12 @@ pub async fn record_message_activity_full(
             .unwrap_or_else(|| "{}".to_string()),
         };
         let reward = xp_levelup_coins(xp_gain, &shop, input.member_roles);
-        if reward > 0 {
+        if reward > 0.0 {
             let mut econ =
                 crate::commands::economy::balance::load_econ_routed(pool, guild_id, user_id).await;
-            econ.money = econ.money.saturating_add(reward);
+            // Integer wallet: TS addCoins carries the float into db.add;
+            // the i64 wallet truncates toward zero on credit.
+            econ.money = econ.money.saturating_add(reward as i64);
             let _ =
                 crate::commands::economy::balance::save_econ_routed(pool, guild_id, user_id, &econ)
                     .await;
@@ -1182,12 +1184,12 @@ pub fn xp_new_user_hint(
 
 /// Real level-up coin credit. Mirrors onNewMessage.ts
 /// `addCoins(member, randomNumber * getMemberBoost(member))`: the shop
-/// boost rolls through economy member_boost (missing shop/roles fall
-/// back to 1, same as TS).
-pub fn xp_levelup_coins(xp_gain: u64, shop_json: &str, member_roles: &[u64]) -> i64 {
+/// boost rolls through economy member_boost_f64 (missing shop/roles
+/// fall back to 1, same as TS). Float-preserving like the TS number.
+pub fn xp_levelup_coins(xp_gain: u64, shop_json: &str, member_roles: &[u64]) -> f64 {
     crate::commands::ranks::main::coins_for_levelup(
         xp_gain,
-        crate::commands::economy::main::member_boost(shop_json, member_roles),
+        crate::commands::economy::main::member_boost_f64(shop_json, member_roles),
     )
 }
 
@@ -1584,11 +1586,14 @@ mod tests {
     #[test]
     fn xp_levelup_coins_use_shop_boost() {
         let shop = r#"{"2":{"boost":3},"5":{"boost":2}}"#;
-        assert_eq!(xp_levelup_coins(35, shop, &[2]), 105);
-        assert_eq!(xp_levelup_coins(35, shop, &[5]), 70);
+        assert_eq!(xp_levelup_coins(35, shop, &[2]), 105.0);
+        assert_eq!(xp_levelup_coins(35, shop, &[5]), 70.0);
         // No matching role or broken shop falls back to boost 1.
-        assert_eq!(xp_levelup_coins(35, shop, &[9]), 35);
-        assert_eq!(xp_levelup_coins(35, "nope", &[2]), 35);
+        assert_eq!(xp_levelup_coins(35, shop, &[9]), 35.0);
+        assert_eq!(xp_levelup_coins(35, "nope", &[2]), 35.0);
+        // Fractional boosts stay fractional (TS number multiply).
+        let frac = r#"{"2":{"boost":1.5}}"#;
+        assert_eq!(xp_levelup_coins(35, frac, &[2]), 52.5);
     }
 
     #[test]

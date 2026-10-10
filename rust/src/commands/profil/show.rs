@@ -1,5 +1,21 @@
 use super::*;
+use chrono::Datelike;
 use poise::serenity_prelude as serenity;
+
+/// Discord relative-timestamp for this year's birthday, mirroring
+/// `!show.ts` (`time(new Date(year, month - 1, day), "R")`).
+/// `year` is injected (callers pass the current local year) so the
+/// conversion stays unit-testable. None when the date is impossible
+/// (e.g. Feb 29 on a common year).
+pub fn birthday_discord_timestamp(day: u8, month: u8, year: i32) -> Option<i64> {
+    use chrono::{Local, TimeZone};
+    let date = chrono::NaiveDate::from_ymd_opt(year, month as u32, day as u32)?;
+    let naive = date.and_hms_opt(0, 0, 0)?;
+    match Local.from_local_datetime(&naive) {
+        chrono::LocalResult::Single(dt) => Some(dt.timestamp()),
+        _ => None,
+    }
+}
 
 /// See the iHorizon profil of a member. Mirrors `!show.ts`.
 #[poise::command(
@@ -29,14 +45,6 @@ pub async fn profil_show(
     let rank =
         crate::commands::ranks::main::load_rank(&ctx.data().pool, &gid, target.id.get()).await;
 
-    let birthday = match (p.bday_day, p.bday_month, p.bday_year) {
-        (Some(d), Some(m), Some(y)) => format!("{d:02}/{m:02}/{y}"),
-        (Some(d), Some(m), None) => format!("{d:02}/{m:02}"),
-        _ => {
-            crate::lang::get(&lang_code, "profil_unknown").unwrap_or_else(|| "Unknown".to_string())
-        }
-    };
-
     let t = |k: &str| crate::lang::get(&lang_code, k).unwrap_or_default();
     let unknown = t("profil_unknown");
     let unknown = if unknown.is_empty() {
@@ -55,15 +63,32 @@ pub async fn profil_show(
                 .replace("${client.iHorizon_Emojis.Pin}", &pin)
         })
         .unwrap_or_else(|| format!("{}'s profil", target.name));
-    let age_val = p
-        .age
-        .map(|a| format!("{a}{}", t("profil_embed_fields_age_value")))
-        .unwrap_or_else(|| unknown.clone());
-    let age_val = if age_val.is_empty() {
-        unknown.clone()
-    } else {
-        age_val
+    // Mirrors `time(new Date(...), "R")`: this year's month/day as a
+    // Discord relative timestamp.
+    let birthday = match (p.bday_day, p.bday_month) {
+        (Some(d), Some(m)) => {
+            let year = chrono::Local::now().date_naive().year();
+            birthday_discord_timestamp(d, m, year)
+                .map(|ts| format!("<t:{ts}:R>"))
+                .unwrap_or_else(|| unknown.clone())
+        }
+        _ => unknown.clone(),
     };
+
+    // Field order and inline flags mirror `!show.ts` exactly: nickname,
+    // money, xplevels, age, gender, pronouns, birthdate — all non-inline.
+    let field = |key: &str, fallback: &str| {
+        let v = t(key);
+        if v.is_empty() {
+            fallback.to_string()
+        } else {
+            v
+        }
+    };
+    let age_str = p
+        .age
+        .map(|a| a.to_string())
+        .unwrap_or_else(|| unknown.clone());
     let embed = serenity::CreateEmbed::default()
         .title(title)
         .description(if p.description.is_empty() {
@@ -72,50 +97,32 @@ pub async fn profil_show(
             format!("`{}`", p.description)
         })
         .field(
-            {
-                let v = t("profil_embed_fields_nickname");
-                if v.is_empty() {
-                    "Nickname".to_string()
-                } else {
-                    v
-                }
-            },
+            field("profil_embed_fields_nickname", "Nickname"),
             target.name.clone(),
             false,
         )
         .field(
-            {
-                let v = t("profil_embed_fields_age");
-                if v.is_empty() {
-                    "Age".to_string()
-                } else {
-                    v
-                }
-            },
-            age_val,
+            field("profil_embed_fields_money", "Money"),
+            format!("{}{}", money.money, t("profil_embed_fields_money_value")),
             false,
         )
         .field(
-            {
-                let v = t("profil_embed_fields_gender");
-                if v.is_empty() {
-                    "Gender".to_string()
-                } else {
-                    v
-                }
-            },
+            field("profil_embed_fields_xplevels", "Level"),
+            format!("{}{}", rank.level, t("profil_embed_fields_xplevels_value")),
+            false,
+        )
+        .field(
+            field("profil_embed_fields_age", "Age"),
+            format!("{age_str}{}", t("profil_embed_fields_age_value")),
+            false,
+        )
+        .field(
+            field("profil_embed_fields_gender", "Gender"),
             p.gender.clone().unwrap_or_else(|| unknown.clone()),
             false,
         )
         .field(
-            {
-                let v = t("profil_embed_fields_pronouns");
-                if v.is_empty() {
-                    "Pronouns".to_string()
-                } else {
-                    v
-                }
-            },
+            field("profil_embed_fields_pronouns", "Pronouns"),
             p.pronoun
                 .as_deref()
                 .map(super::set_pronoun::pronoun_display_value)
@@ -123,41 +130,12 @@ pub async fn profil_show(
             false,
         )
         .field(
-            {
-                let v = t("profil_embed_fields_birthdate");
-                if v.is_empty() {
-                    "Birthdate".to_string()
-                } else {
-                    v
-                }
-            },
+            field("profil_embed_fields_birthdate", "Birthdate"),
             birthday,
             false,
         )
-        .field(
-            {
-                let v = t("profil_embed_fields_money");
-                if v.is_empty() {
-                    "Money".to_string()
-                } else {
-                    v
-                }
-            },
-            format!("{}{}", money.money, t("profil_embed_fields_money_value")),
-            true,
-        )
-        .field(
-            {
-                let v = t("profil_embed_fields_xplevels");
-                if v.is_empty() {
-                    "Level".to_string()
-                } else {
-                    v
-                }
-            },
-            format!("{}{}", rank.level, t("profil_embed_fields_xplevels_value")),
-            true,
-        );
+        .colour(0xFFA550)
+        .timestamp(serenity::Timestamp::now());
     // Snapshot the avatar via the shared image64 helper so the thumbnail
     // survives avatar changes; fall back to the CDN URL when offline.
     let face_url = target.face();
@@ -166,13 +144,38 @@ pub async fn profil_show(
         embed.thumbnail("attachment://avatar.png")
     } else {
         embed.thumbnail(face_url)
-    }
-    .colour(0xFFA550);
+    };
+    let (fname, fbytes) = crate::commands::shared::footer_parts(&ctx, &gid).await;
+    let embed = crate::commands::shared::embed_with_footer(embed, &fname, fbytes.is_some());
 
     let mut reply = poise::CreateReply::default().embed(embed);
     if let Some(bytes) = face_bytes {
         reply = reply.attachment(serenity::CreateAttachment::bytes(bytes, "avatar.png"));
     }
+    if let Some(bytes) = fbytes {
+        reply = reply.attachment(serenity::CreateAttachment::bytes(bytes, "footer_icon.png"));
+    }
     ctx.send(reply).await?;
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::birthday_discord_timestamp;
+    use chrono::{Datelike, Local, TimeZone};
+
+    #[test]
+    fn birthday_renders_this_year_month_day() {
+        let ts = birthday_discord_timestamp(15, 6, 2024).unwrap();
+        let dt = Local.timestamp_opt(ts, 0).single().unwrap();
+        assert_eq!((dt.day(), dt.month(), dt.year()), (15, 6, 2024));
+    }
+
+    #[test]
+    fn birthday_rejects_impossible_dates() {
+        // Feb 29 on a common year has no midnight mapping target.
+        assert!(birthday_discord_timestamp(29, 2, 2025).is_none());
+        assert!(birthday_discord_timestamp(31, 4, 2024).is_none());
+        assert!(birthday_discord_timestamp(29, 2, 2024).is_some());
+    }
 }

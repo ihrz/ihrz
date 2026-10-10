@@ -1,6 +1,17 @@
 use super::*;
 use poise::serenity_prelude as serenity;
 
+/// Full TS bot gate for !tempmute.ts: the bot needs ManageMessages,
+/// MuteMembers, ViewAuditLog and ManageGuild together.
+fn bot_can_tempmute(perms: serenity::Permissions) -> bool {
+    perms.contains(
+        serenity::Permissions::MANAGE_MESSAGES
+            | serenity::Permissions::MUTE_MEMBERS
+            | serenity::Permissions::VIEW_AUDIT_LOG
+            | serenity::Permissions::MANAGE_GUILD,
+    )
+}
+
 #[poise::command(
     slash_command,
     prefix_command,
@@ -37,7 +48,7 @@ pub async fn mod_timeout(
     let vc = emoji(&ctx, "VC_OpenChat", "💬").await;
     let guards = guard_data(&ctx, guild_id).await;
     if let Some(g) = &guards {
-        if !g.bot_perms.moderate_members() {
+        if !bot_can_tempmute(g.bot_perms) {
             ctx.say(
                 t("tempmute_i_dont_have_permission").replace("${client.iHorizon_Emojis.No}", &no),
             )
@@ -149,19 +160,22 @@ pub async fn mod_timeout(
                 )
             })
             .unwrap_or((None, None));
-        let _ = warn_member(&WarnContext {
-            http: ctx.http(),
-            guild_name,
-            author_top_roles: author_top,
-            guild_roles,
-            pool,
-            gid: &gid,
-            guild_id,
-            author_name: &ctx.author().name,
-            target: &user,
-            reason: &reason_text,
-            lang_code: &lang_code,
-        })
+        let _ = warn_member_with_author(
+            &WarnContext {
+                http: ctx.http(),
+                guild_name,
+                author_top_roles: author_top,
+                guild_roles,
+                pool,
+                gid: &gid,
+                guild_id,
+                author_name: &ctx.author().name,
+                target: &user,
+                reason: &reason_text,
+                lang_code: &lang_code,
+            },
+            Some(ctx.author().id.get()),
+        )
         .await;
     }
     // Unmute notice. Mirrors the setTimeout in !tempmute.ts:186-197
@@ -192,4 +206,35 @@ pub async fn mod_timeout(
         });
     }
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn gate() -> serenity::Permissions {
+        serenity::Permissions::MANAGE_MESSAGES
+            | serenity::Permissions::MUTE_MEMBERS
+            | serenity::Permissions::VIEW_AUDIT_LOG
+            | serenity::Permissions::MANAGE_GUILD
+    }
+
+    #[test]
+    fn tempmute_gate_needs_all_four() {
+        assert!(bot_can_tempmute(gate()));
+        assert!(!bot_can_tempmute(
+            gate() - serenity::Permissions::MANAGE_MESSAGES
+        ));
+        assert!(!bot_can_tempmute(
+            gate() - serenity::Permissions::MUTE_MEMBERS
+        ));
+        assert!(!bot_can_tempmute(
+            gate() - serenity::Permissions::VIEW_AUDIT_LOG
+        ));
+        assert!(!bot_can_tempmute(
+            gate() - serenity::Permissions::MANAGE_GUILD
+        ));
+        assert!(!bot_can_tempmute(serenity::Permissions::MODERATE_MEMBERS));
+        assert!(!bot_can_tempmute(serenity::Permissions::empty()));
+    }
 }

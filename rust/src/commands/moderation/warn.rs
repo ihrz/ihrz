@@ -39,19 +39,22 @@ pub async fn mod_warn(
                 )
             })
             .unwrap_or((None, None));
-        warn_member(&WarnContext {
-            http: ctx.http(),
-            guild_name,
-            author_top_roles: author_top,
-            guild_roles,
-            pool,
-            gid: &gid,
-            guild_id,
-            author_name: &ctx.author().name,
-            target: &user,
-            reason: &reason,
-            lang_code: &lang_code,
-        })
+        warn_member_with_author(
+            &WarnContext {
+                http: ctx.http(),
+                guild_name,
+                author_top_roles: author_top,
+                guild_roles,
+                pool,
+                gid: &gid,
+                guild_id,
+                author_name: &ctx.author().name,
+                target: &user,
+                reason: &reason,
+                lang_code: &lang_code,
+            },
+            Some(ctx.author().id.get()),
+        )
         .await
     } else {
         // DM context: record without the guild DM flourish.
@@ -64,6 +67,7 @@ pub async fn mod_warn(
                 id: id.clone(),
                 reason: reason.clone(),
                 at: 0,
+                author_id: Some(ctx.author().id.get().to_string()),
             },
         );
         let total = warns.len();

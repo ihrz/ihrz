@@ -35,23 +35,43 @@ fn initial(username: &str) -> String {
     escape_xml(&c.to_uppercase().to_string())
 }
 
-/// 800x250 rank card. Self-contained SVG, no external font/image/network.
+/// 800x250 rank card. Self-contained SVG, no external font/network.
+/// `avatar` is an embedded `data:` URL (never a remote CDN URL, so the
+/// card survives avatar changes); `None` keeps the initial placeholder.
 ///
-/// Mirrors `ranksCard.html`: username, `LEVEL {level}`, progress bar
-/// (`CURRENT_XP / XP_NEEDED`), `{needed_xp}` remaining + `{xp_total}` total.
-pub fn rank_card_svg(username: &str, level: u64, xp: u64, needed: u64, total: u64) -> String {
+/// Mirrors `ranksCard.html` as driven by `!show.ts`: username,
+/// `{level} LEVEL`, progress bar (`CURRENT_XP / XP_NEEDED` where
+/// `XP_NEEDED = level * 500 + 500`), `{needed_xp} XP_REMAINING`, and —
+/// exactly like TS — the `{xp_total}` slot shows the CURRENT xp
+/// (`TOTAL_XP` is replaced with `currentxp` in TS).
+pub fn rank_card_svg(username: &str, level: u64, xp: u64, avatar: Option<&str>) -> String {
     let safe_name = escape_xml(username);
+    // TS: `const xpNeeded = level * 500 + 500`.
+    let needed = level.saturating_mul(500).saturating_add(500).max(500);
     let ratio = progress_ratio(xp, needed);
     let percent = ratio * 100.0;
     // Track geometry must stay in sync with the `<rect>` below.
     const TRACK_W: f64 = 530.0;
     let bar_w = (TRACK_W * ratio).round() as u64;
     let remaining = needed.saturating_sub(xp);
+    // TS TOTAL_XP slot carries the current xp, not a lifetime total.
+    let total = xp;
+
+    let face = match avatar.map(str::trim).filter(|s| !s.is_empty()) {
+        Some(url) => format!(
+            r##"<clipPath id="ih-avatar"><circle cx="115" cy="125" r="60"/></clipPath><g clip-path="url(#ih-avatar)"><image href="{src}" x="55" y="65" width="120" height="120" preserveAspectRatio="xMidYMid slice"/></g>"##,
+            src = escape_xml(url),
+        ),
+        None => format!(
+            r##"<circle cx="115" cy="125" r="60" fill="#9a5af2"/><text x="115" y="145" text-anchor="middle" font-family="sans-serif" font-size="52" font-weight="bold" fill="#ffffff">{initial}</text>"##,
+            initial = initial(username),
+        ),
+    };
 
     format!(
-        r##"<svg xmlns="http://www.w3.org/2000/svg" width="800" height="250" viewBox="0 0 800 250" role="img" aria-label="Rank card for {safe_name}"><defs><linearGradient id="ih-bar" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#9a5af2"/><stop offset="100%" stop-color="#6d28d9"/></linearGradient><clipPath id="ih-track"><rect x="230" y="150" width="530" height="28" rx="14"/></clipPath></defs><rect x="0" y="0" width="800" height="250" rx="16" fill="#2C2F33"/><rect x="10" y="10" width="780" height="230" rx="12" fill="#23272A"/><circle cx="115" cy="125" r="60" fill="#9a5af2"/><circle cx="115" cy="125" r="60" fill="none" stroke="#6d28d9" stroke-width="4"/><text x="115" y="145" text-anchor="middle" font-family="sans-serif" font-size="52" font-weight="bold" fill="#ffffff">{initial}</text><text x="230" y="70" font-family="sans-serif" font-size="30" font-weight="bold" fill="#ffffff">{safe_name}</text><text x="230" y="108" font-family="sans-serif" font-size="20" fill="#B9BBBE">LEVEL {level}</text><rect x="230" y="150" width="530" height="28" rx="14" fill="#40444B"/><g clip-path="url(#ih-track)"><rect x="230" y="150" width="{bar_w}" height="28" fill="url(#ih-bar)"/></g><text x="495" y="170" text-anchor="middle" font-family="sans-serif" font-size="14" font-weight="bold" fill="#ffffff">{xp} / {needed} XP ({percent:.1}%)</text><text x="230" y="210" font-family="sans-serif" font-size="14" fill="#B9BBBE">{remaining} XP needed</text><text x="760" y="210" text-anchor="end" font-family="sans-serif" font-size="14" fill="#B9BBBE">Total {total} XP</text></svg>"##,
+        r##"<svg xmlns="http://www.w3.org/2000/svg" width="800" height="250" viewBox="0 0 800 250" role="img" aria-label="Rank card for {safe_name}"><defs><linearGradient id="ih-bar" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#9a5af2"/><stop offset="100%" stop-color="#6d28d9"/></linearGradient><clipPath id="ih-track"><rect x="230" y="150" width="530" height="28" rx="14"/></clipPath></defs><rect x="0" y="0" width="800" height="250" rx="16" fill="#2C2F33"/><rect x="10" y="10" width="780" height="230" rx="12" fill="#23272A"/>{face}<circle cx="115" cy="125" r="60" fill="none" stroke="#6d28d9" stroke-width="4"/><text x="230" y="70" font-family="sans-serif" font-size="30" font-weight="bold" fill="#ffffff">{safe_name}</text><text x="230" y="108" font-family="sans-serif" font-size="20" fill="#B9BBBE">LEVEL {level}</text><rect x="230" y="150" width="530" height="28" rx="14" fill="#40444B"/><g clip-path="url(#ih-track)"><rect x="230" y="150" width="{bar_w}" height="28" fill="url(#ih-bar)"/></g><text x="495" y="170" text-anchor="middle" font-family="sans-serif" font-size="14" font-weight="bold" fill="#ffffff">{xp} / {needed} XP ({percent:.1}%)</text><text x="230" y="210" font-family="sans-serif" font-size="14" fill="#B9BBBE">{remaining} XP needed</text><text x="760" y="210" text-anchor="end" font-family="sans-serif" font-size="14" fill="#B9BBBE">Total {total} XP</text></svg>"##,
         safe_name = safe_name,
-        initial = initial(username),
+        face = face,
         level = level,
         bar_w = bar_w,
         xp = xp,
@@ -142,7 +162,7 @@ mod tests {
 
     #[test]
     fn rank_card_is_self_contained_svg() {
-        let svg = rank_card_svg("Kisakay", 7, 250, 500, 3750);
+        let svg = rank_card_svg("Kisakay", 7, 250, None);
         assert!(svg.starts_with("<svg"), "must start with <svg");
         assert!(svg.contains(r#"xmlns="http://www.w3.org/2000/svg""#));
         assert!(svg.contains(r#"width="800""#));
@@ -150,13 +170,15 @@ mod tests {
         assert!(svg.contains("</svg>"));
         assert!(svg.contains("#9a5af2"), "iHorizon brand color");
         assert!(!svg.contains("xlink:href"), "no external refs");
-        assert!(!svg.contains("<image"), "no external images");
         assert!(!svg.contains("AVATAR_URL"), "no unreplaced placeholder");
+        // No avatar: initial placeholder, no remote image.
+        assert!(!svg.contains("<image"), "no external images");
     }
 
     #[test]
-    fn rank_card_progress_50_percent() {
-        let svg = rank_card_svg("User", 1, 250, 500, 250);
+    fn rank_card_progress_matches_ts_curve() {
+        // TS: xpNeeded = level * 500 + 500; level 0 -> 500.
+        let svg = rank_card_svg("User", 0, 250, None);
         // Track is 530px wide -> 50% == 265px bar.
         assert!(svg.contains(r#"width="265""#), "bar:\n{svg}");
         assert!(svg.contains("50.0%"));
@@ -164,8 +186,19 @@ mod tests {
     }
 
     #[test]
+    fn rank_card_embeds_avatar_when_provided() {
+        let svg = rank_card_svg("User", 1, 10, Some("data:image/png;base64,AAAA"));
+        assert!(svg.contains("<image"), "avatar missing:\n{svg}");
+        assert!(svg.contains("data:image/png;base64,AAAA"));
+        assert!(svg.contains("clip-path=\"url(#ih-avatar)\""));
+        // Empty/blank avatar falls back to the initial placeholder.
+        let svg = rank_card_svg("User", 1, 10, Some("  "));
+        assert!(!svg.contains("<image"));
+    }
+
+    #[test]
     fn rank_card_escapes_xss_username() {
-        let svg = rank_card_svg("<script>alert(&'x')</script>", 3, 10, 100, 10);
+        let svg = rank_card_svg("<script>alert(&'x')</script>", 3, 10, None);
         assert!(!svg.contains("<script>"), "raw tag leaked:\n{svg}");
         assert!(svg.contains("&lt;script&gt;"));
         assert!(svg.contains("&amp;"));
@@ -174,15 +207,17 @@ mod tests {
 
     #[test]
     fn rank_card_shows_level_and_totals() {
-        let svg = rank_card_svg("Ada", 12, 6000, 6500, 42000);
+        // TS TOTAL_XP slot carries the CURRENT xp (level 12 -> 6500 needed).
+        let svg = rank_card_svg("Ada", 12, 6000, None);
         assert!(svg.contains("LEVEL 12"));
+        assert!(svg.contains("6000 / 6500 XP"));
         assert!(svg.contains("500 XP needed")); // 6500 - 6000
-        assert!(svg.contains("Total 42000 XP"));
+        assert!(svg.contains("Total 6000 XP"));
     }
 
     #[test]
-    fn rank_card_zero_needed_does_not_nan() {
-        let svg = rank_card_svg("Zero", 0, 0, 0, 0);
+    fn rank_card_zero_xp_does_not_nan() {
+        let svg = rank_card_svg("Zero", 0, 0, None);
         assert!(svg.contains(r#"width="0""#));
         assert!(svg.contains("0.0%"));
         assert!(!svg.contains("NaN"));

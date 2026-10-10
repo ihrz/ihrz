@@ -3461,7 +3461,10 @@ impl serenity::EventHandler for Handler {
                                 )
                             })
                             .unwrap_or((None, "this server".to_string(), Default::default()));
-                        crate::commands::moderation::warn_member(
+                        // Copy the bot id out first: the CacheRef guard is
+                        // !Send and must not live across the await below.
+                        let bot_author_id = _ctx.cache.current_user().id.get();
+                        crate::commands::moderation::warn_member_with_author(
                             &crate::commands::moderation::WarnContext {
                                 http: &_ctx.http,
                                 guild_name: Some(guild_name),
@@ -3475,6 +3478,7 @@ impl serenity::EventHandler for Handler {
                                 reason: "[Anti-Exe] sending binary file",
                                 lang_code: &lang_code,
                             },
+                            Some(bot_author_id),
                         )
                         .await;
                     }

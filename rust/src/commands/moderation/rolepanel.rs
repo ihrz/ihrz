@@ -96,6 +96,12 @@ fn setup_refused_reason(
     None
 }
 
+/// Audit-log reason stamped on role add/remove, mirroring the TS
+/// `` `[RolePanel] Author: ${author.id}` `` reasons.
+fn rolepanel_audit_reason(author_id: u64) -> String {
+    format!("[RolePanel] Author: {author_id}")
+}
+
 /// Apply-result message. Mirrors buildApplyMessage in !rolepanel.ts.
 fn build_apply_message(
     added: &[String],
@@ -342,6 +348,7 @@ pub async fn mod_rolepanel(
             let mut added = vec![];
             let mut removed = vec![];
             let mut refused_apply = vec![];
+            let audit_reason = rolepanel_audit_reason(author_id);
             for role in &selected {
                 if let Some(why) = setup_refused_reason(role, guild_id, &snap, author_id, &tl) {
                     refused_apply.push(format!("<@&{}>: {why}", role.id.get()));
@@ -352,14 +359,18 @@ pub async fn mod_rolepanel(
                     .await
                     .map(|m| m.roles.contains(&role.id))
                     .unwrap_or(false);
-                if let Ok(m) = guild_id.member(ctx.http(), target_id).await {
-                    if has {
-                        let _ = m.remove_role(ctx.http(), role.id).await;
-                        removed.push(format!("<@&{}>", role.id.get()));
-                    } else {
-                        let _ = m.add_role(ctx.http(), role.id).await;
-                        added.push(format!("<@&{}>", role.id.get()));
-                    }
+                if has {
+                    let _ = ctx
+                        .http()
+                        .remove_member_role(guild_id, target_id, role.id, Some(&audit_reason))
+                        .await;
+                    removed.push(format!("<@&{}>", role.id.get()));
+                } else {
+                    let _ = ctx
+                        .http()
+                        .add_member_role(guild_id, target_id, role.id, Some(&audit_reason))
+                        .await;
+                    added.push(format!("<@&{}>", role.id.get()));
                 }
             }
             let done = serenity::CreateEmbed::default()
@@ -474,10 +485,15 @@ pub async fn handle_rolepanel_button(
     }
     let member = guild_id.member(&ctx.http, comp.user.id).await?;
     let has = member.roles.contains(&role_id);
+    let audit_reason = rolepanel_audit_reason(comp.user.id.get());
     if has {
-        member.remove_role(&ctx.http, role_id).await?;
+        ctx.http
+            .remove_member_role(guild_id, comp.user.id, role_id, Some(&audit_reason))
+            .await?;
     } else {
-        member.add_role(&ctx.http, role_id).await?;
+        ctx.http
+            .add_member_role(guild_id, comp.user.id, role_id, Some(&audit_reason))
+            .await?;
     }
     comp.create_response(
         &ctx.http,
@@ -568,6 +584,14 @@ mod tests {
                 "missing en-US key: {key}"
             );
         }
+    }
+
+    #[test]
+    fn audit_reason_matches_ts() {
+        assert_eq!(
+            rolepanel_audit_reason(123),
+            "[RolePanel] Author: 123".to_string()
+        );
     }
 
     #[test]

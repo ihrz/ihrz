@@ -1,5 +1,21 @@
 use super::*;
 
+/// Rank medal per position. Mirrors `!leaderboard.ts`
+/// (🥇🥈🥉 for the top 3, 💠 below).
+fn medal_for(rank: usize) -> &'static str {
+    match rank {
+        0 => "🥇",
+        1 => "🥈",
+        2 => "🥉",
+        _ => "💠",
+    }
+}
+
+/// Page count for `total` entries at `per_page` rows (10/page in TS).
+fn page_count(total: usize, per_page: usize) -> usize {
+    total.div_ceil(per_page.max(1))
+}
+
 /// Routed board scan: `USER.<uid>.XP_LEVELING` rows walked first, then
 /// legacy-only `RANKS.<uid>` rows. Table values win on uid conflicts,
 /// mirroring the D3 merged-scan precedent (economy board_rows).
@@ -73,12 +89,30 @@ async fn board_rows(pool: &crate::db::Pool, guild_id: &str) -> Vec<(u64, RankEnt
     aliases("rankslb")
 )]
 pub async fn ranks_leaderboard(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
+    use poise::serenity_prelude as serenity;
     let gid = ctx
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-    let parsed = board_rows(&ctx.data().pool, &gid).await;
+    let mut parsed = board_rows(&ctx.data().pool, &gid).await;
+    // Skip rows whose user is not in the gateway cache, mirroring
+    // `users.cache.get(i)` + `if (!user ...) continue` in TS.
+    parsed.retain(|(uid, _)| ctx.cache().user(*uid).is_some());
+    if parsed.is_empty() {
+        ctx.say(
+            crate::lang::get(&code, "perm_list_no_user")
+                .unwrap_or_else(|| "No user found".to_string()),
+        )
+        .await?;
+        return Ok(());
+    }
+    let lvl_word = crate::lang::get(&code, "var_level").unwrap_or_else(|| "Level".to_string());
+    let page_word = crate::lang::get(&code, "var_page").unwrap_or_else(|| "Page".to_string());
+    let title = crate::lang::get(&code, "ranks_leaderboard_embed_title")
+        .unwrap_or_else(|| "Ranks leaderboard".to_string());
+    let not_for_you = crate::lang::get(&code, "help_not_for_you")
+        .unwrap_or_else(|| "This interaction is not for you.".to_string());
     let svg = crate::cards::podium_svg(
         &parsed
             .iter()
@@ -86,40 +120,186 @@ pub async fn ranks_leaderboard(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
             .map(|(uid, e)| (format!("<@{uid}>"), e.xptotal))
             .collect::<Vec<_>>(),
     );
-    let lvl_word = crate::lang::get(&code, "var_level").unwrap_or_else(|| "Level".to_string());
-    let top: Vec<String> = parsed
-        .iter()
-        .take(15)
-        .enumerate()
-        .map(|(i, (uid, e))| {
-            format!(
-                "{}. <@{uid}> — {lvl_word} {} ({} XP)",
-                i + 1,
-                e.level,
-                e.xptotal
-            )
-        })
-        .collect();
-    ctx.send(
-        poise::CreateReply::default()
-            .content(if top.is_empty() {
-                crate::lang::get(&code, "perm_list_no_user")
-                    .unwrap_or_else(|| "No user found".to_string())
-            } else {
-                top.join("\n")
+    // Pagination setup: 10 entries per page like TS `itemsPerPage`.
+    let items_per_page = 10usize;
+    let total_pages = page_count(parsed.len(), items_per_page);
+    let (fname, fbytes) = crate::commands::shared::footer_parts(&ctx, &gid).await;
+    let mk_embed = |page: usize| {
+        let start = page * items_per_page;
+        let desc = parsed
+            .iter()
+            .skip(start)
+            .take(items_per_page)
+            .enumerate()
+            .map(|(i, (uid, e))| {
+                let rank = start + i;
+                format!(
+                    "`{} ` **{}** ・ <@{uid}>\n  ┖  {lvl_word} **{}** (**{}** XP)",
+                    medal_for(rank),
+                    rank + 1,
+                    e.level,
+                    e.xptotal
+                )
             })
-            .attachment(poise::serenity_prelude::CreateAttachment::bytes(
-                svg.into_bytes(),
-                "podium.svg",
-            )),
-    )
-    .await?;
+            .collect::<Vec<_>>()
+            .join("\n");
+        let footer = crate::commands::shared::footer_page_text(
+            &fname,
+            &page_word,
+            (page + 1) as u64,
+            total_pages as u64,
+        );
+        serenity::CreateEmbed::default()
+            .title(title.clone())
+            .colour(0xFFC6FA)
+            .description(desc)
+            .image("attachment://podium.svg")
+            .footer(
+                serenity::CreateEmbedFooter::new(footer).icon_url(if fbytes.is_some() {
+                    "attachment://footer_icon.png".to_string()
+                } else {
+                    String::new()
+                }),
+            )
+            .timestamp(serenity::Timestamp::now())
+    };
+    let mk_row = |page: usize| {
+        serenity::CreateActionRow::Buttons(vec![
+            serenity::CreateButton::new("rk-lb-first")
+                .style(serenity::ButtonStyle::Primary)
+                .label("<<<")
+                .disabled(page == 0),
+            serenity::CreateButton::new("rk-lb-prev")
+                .style(serenity::ButtonStyle::Primary)
+                .label("<")
+                .disabled(page == 0),
+            serenity::CreateButton::new("rk-lb-page")
+                .style(serenity::ButtonStyle::Secondary)
+                .label(format!("{page_word} {}/{}", page + 1, total_pages))
+                .disabled(true),
+            serenity::CreateButton::new("rk-lb-next")
+                .style(serenity::ButtonStyle::Primary)
+                .label(">")
+                .disabled(page + 1 >= total_pages),
+            serenity::CreateButton::new("rk-lb-last")
+                .style(serenity::ButtonStyle::Primary)
+                .label(">>>")
+                .disabled(page + 1 >= total_pages),
+        ])
+    };
+    let mut reply = poise::CreateReply::default()
+        .embed(mk_embed(0))
+        .components(vec![mk_row(0)])
+        .attachment(serenity::CreateAttachment::bytes(
+            svg.into_bytes(),
+            "podium.svg",
+        ));
+    if let Some(bytes) = fbytes.clone() {
+        reply = reply.attachment(serenity::CreateAttachment::bytes(bytes, "footer_icon.png"));
+    }
+    let handle = ctx.send(reply).await?;
+    let mut msg = handle.into_message().await?;
+    let mut page = 0usize;
+    let author_id = ctx.author().id;
+    // Mirrors the 15-minute button collector; only the invoker may turn
+    // pages (others get the ephemeral `help_not_for_you` reply like TS).
+    loop {
+        let press = msg
+            .await_component_interaction(ctx.serenity_context().shard.clone())
+            .timeout(std::time::Duration::from_secs(60 * 15))
+            .await;
+        let Some(press) = press else { break };
+        if !press.data.custom_id.starts_with("rk-lb-") {
+            continue;
+        }
+        if press.user.id != author_id {
+            let _ = press
+                .create_response(
+                    ctx.http(),
+                    serenity::CreateInteractionResponse::Message(
+                        serenity::CreateInteractionResponseMessage::new()
+                            .content(not_for_you.clone())
+                            .ephemeral(true),
+                    ),
+                )
+                .await;
+            continue;
+        }
+        match press.data.custom_id.as_str() {
+            "rk-lb-first" => page = 0,
+            "rk-lb-prev" => page = page.saturating_sub(1),
+            "rk-lb-next" => {
+                if page + 1 < total_pages {
+                    page += 1;
+                }
+            }
+            "rk-lb-last" => page = total_pages - 1,
+            _ => continue,
+        }
+        let _ = press
+            .create_response(
+                ctx.http(),
+                serenity::CreateInteractionResponse::UpdateMessage(
+                    serenity::CreateInteractionResponseMessage::new()
+                        .embed(mk_embed(page))
+                        .components(vec![mk_row(page)]),
+                ),
+            )
+            .await;
+    }
+    // Disable the row when the collector ends, like the TS end handler.
+    let end_row = serenity::CreateActionRow::Buttons(vec![
+        serenity::CreateButton::new("rk-lb-first")
+            .style(serenity::ButtonStyle::Secondary)
+            .label("<<<")
+            .disabled(true),
+        serenity::CreateButton::new("rk-lb-prev")
+            .style(serenity::ButtonStyle::Secondary)
+            .label("<")
+            .disabled(true),
+        serenity::CreateButton::new("rk-lb-page")
+            .style(serenity::ButtonStyle::Primary)
+            .label(format!("{page_word} {}/{}", page + 1, total_pages))
+            .disabled(true),
+        serenity::CreateButton::new("rk-lb-next")
+            .style(serenity::ButtonStyle::Secondary)
+            .label(">")
+            .disabled(true),
+        serenity::CreateButton::new("rk-lb-last")
+            .style(serenity::ButtonStyle::Secondary)
+            .label(">>>")
+            .disabled(true),
+    ]);
+    let _ = msg
+        .edit(
+            ctx.http(),
+            serenity::EditMessage::new().components(vec![end_row]),
+        )
+        .await;
     Ok(())
 }
 
 #[cfg(test)]
 mod tests {
-    use super::board_rows;
+    use super::{board_rows, medal_for, page_count};
+
+    #[test]
+    fn medals_match_ts_leaderboard() {
+        assert_eq!(medal_for(0), "🥇");
+        assert_eq!(medal_for(1), "🥈");
+        assert_eq!(medal_for(2), "🥉");
+        assert_eq!(medal_for(3), "💠");
+        assert_eq!(medal_for(40), "💠");
+    }
+
+    #[test]
+    fn ten_entries_per_page() {
+        assert_eq!(page_count(0, 10), 0);
+        assert_eq!(page_count(1, 10), 1);
+        assert_eq!(page_count(10, 10), 1);
+        assert_eq!(page_count(11, 10), 2);
+        assert_eq!(page_count(25, 10), 3);
+    }
 
     async fn mem_pool() -> crate::db::Pool {
         use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};

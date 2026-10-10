@@ -1,6 +1,11 @@
 use super::*;
 use poise::serenity_prelude as serenity;
 
+/// Pacing between history fetches on the member-filtered path.
+/// Mirrors `FETCH_DELAY_MS` in !clear.ts (stays clear of the
+/// messages.fetch rate limit).
+const FETCH_DELAY_MS: u64 = 350;
+
 #[poise::command(
     slash_command,
     prefix_command,
@@ -22,7 +27,7 @@ pub async fn mod_clear(
     let mut collected: Vec<serenity::Message> = vec![];
     // Member filter scans back through history like findMessagesByAuthor.
     let mut before: Option<serenity::MessageId> = None;
-    for _ in 0..10 {
+    for i in 0..10 {
         let mut q = serenity::GetMessages::new().limit(100);
         if let Some(b) = before {
             q = q.before(b);
@@ -52,6 +57,11 @@ pub async fn mod_clear(
         }
         if member.is_none() {
             break;
+        }
+        // Pace history fetches on the member-filtered path, like the TS
+        // `if (!isLastIteration) await Bun.sleep(FETCH_DELAY_MS)`.
+        if i + 1 < 10 {
+            tokio::time::sleep(std::time::Duration::from_millis(FETCH_DELAY_MS)).await;
         }
     }
     if collected.is_empty() {
@@ -103,4 +113,18 @@ pub async fn mod_clear(
         .await;
     }
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn fetch_pacing_matches_ts() {
+        assert_eq!(FETCH_DELAY_MS, 350);
+        assert_eq!(
+            std::time::Duration::from_millis(FETCH_DELAY_MS),
+            std::time::Duration::from_millis(350)
+        );
+    }
 }

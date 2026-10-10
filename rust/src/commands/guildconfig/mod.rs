@@ -3,7 +3,7 @@
 // Mirrors src/Interaction/HybridCommands/guildconfig/* (autoreact,
 // commandlimit, setlogschannel, support).
 //
-// TS keys: GUILD.AUTOREACT [{channelId, emoji}], UTILS.COMMAND_LIMITS
+// TS keys: GUILD.AUTOREACT {channelId: [emoji]}, GUILD.GUILD_CONFIG.hey_reaction, UTILS.COMMAND_LIMITS
 // {cmd: {count, windowMs}}, GUILD.SERVER_LOGS.<type>, GUILD.SUPPORT.
 
 use crate::bot::Ctx;

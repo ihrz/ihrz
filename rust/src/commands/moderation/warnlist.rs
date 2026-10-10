@@ -2,6 +2,15 @@ use super::banlist::{clamp_page_idx, dead_row, deny_foreign_press, nav_buttons};
 use super::*;
 use poise::serenity_prelude as serenity;
 
+/// Author mention for a warn row. Legacy rows (and rows without a
+/// usable id) fall back to the `var_unknown` word.
+fn author_mention(warn: &Warn, unknown: &str) -> String {
+    match warn.author_id.as_deref().filter(|s| !s.is_empty()) {
+        Some(id) => format!("<@{id}>"),
+        None => unknown.to_string(),
+    }
+}
+
 #[poise::command(
     slash_command,
     prefix_command,
@@ -64,7 +73,7 @@ pub async fn mod_warnlist(
                         "${format(x.timestamp, 'DD/MM/YYYY')}",
                         &crate::funcs::format_date(w.at / 1000, "DD/MM/YYYY"),
                     )
-                    .replace("${x.authorID}", &unknown)
+                    .replace("${x.authorID}", &author_mention(w, &unknown))
                     .replace("${x.reason}", &w.reason)
                 })
                 .collect::<Vec<_>>()
@@ -140,4 +149,29 @@ pub async fn mod_warnlist(
         )
         .await;
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn warn_with(author_id: Option<&str>) -> Warn {
+        Warn {
+            id: "x".into(),
+            reason: "r".into(),
+            at: 1,
+            author_id: author_id.map(|s| s.to_string()),
+        }
+    }
+
+    #[test]
+    fn author_mention_renders_real_author() {
+        assert_eq!(author_mention(&warn_with(Some("123")), "Unknown"), "<@123>");
+    }
+
+    #[test]
+    fn author_mention_falls_back_for_legacy_rows() {
+        assert_eq!(author_mention(&warn_with(None), "Unknown"), "Unknown");
+        assert_eq!(author_mention(&warn_with(Some("")), "Unknown"), "Unknown");
+    }
 }
