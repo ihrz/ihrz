@@ -268,7 +268,7 @@ committed — see `.gitignore`. No push without a green
 - [x] I2 `help_*` metadata set — VERIFIED done (U-ETERNAL-44): 78 `help_*` keys in en-US.yml, guild-language /help via `help_main` (registered) + `help_here` carrier.
 - [x] I3 replace 181 divergent fallbacks with exact en-US — DONE (U-ETERNAL-79: enumerated 780 sites, 142 divergent fixed across 8 batches, 0 missing-key; audit over-counted, verified on disk).
 - [x] I4 placeholder/CI check — DONE in U-ETERNAL-41 (`placeholder_tokens_match_en_us_in_all_locales`: token-set + key-count parity; no CI in repo so the cargo test is the check).
-- [ ] I5 Tier-2 setup modules (welcomerPanel, antispam manage, honeypot config, setlogschannel, nightmode, birthday).
+- [x] I5 Tier-2 setup modules (welcomerPanel, antispam manage, honeypot config, setlogschannel, nightmode, birthday) — DONE (U-ETERNAL-82: 5/6 verified PORTED by sweep, nightmode panel worker-spec'd 1224 lines + 12 tests).
 - [x] I6 verify-then-delete 312 zero-sender dead keys — DONE (U-ETERNAL-80: recount 279 verified DEAD, 271 deleted, 8 fixtures kept, 29 ALIVE exclusions documented).
 
 ### DB call-sites (audit task-4: 423 legacy lines, 0 migrated)
