@@ -4,8 +4,13 @@
 //
 // TS keys: <guild>.STATS (guild aggregates), <guild>.STATS.USER.<uid>
 // {messages[], voices[]} histories + aggregate counters. Window
-// calculators + ustats periods/top-channels ported (text form; the
-// TS PNG cards stay pending); compare (pure embed) fully ported.
+// calculators + ustats periods/top-channels ported (text form).
+//
+// PNG note (kept, intentional): the TS top-messages/top-voice/
+// channel-stats cards render HTML via client.func.html2png (puppeteer
+// Chromium or HorizonGateway). Chromium is excluded from this runtime
+// and the gateway is external infra, so the PNG leg stays unported;
+// the same rankings render as text. Compare (pure embed) fully ported.
 
 use crate::bot::Ctx;
 use serde::{Deserialize, Serialize};
@@ -303,29 +308,134 @@ pub async fn load_all_channel_counts(pool: &crate::db::Pool, guild_id: &str) -> 
     out
 }
 
+/// Leaderboard period. Mirrors the `period` option in !top-messages.ts
+/// / !top-voice.ts: "daily" | "weekly" | "monthly", default "monthly".
+/// Unknown input falls back to monthly, like the TS includes() guard.
+pub fn parse_top_period(raw: Option<&str>) -> &'static str {
+    match raw.map(|s| s.trim().to_ascii_lowercase()).as_deref() {
+        Some("daily") => "daily",
+        Some("weekly") => "weekly",
+        _ => "monthly",
+    }
+}
+
+/// Leaderboard row cap. Mirrors the TS `limit` option: default 10,
+/// prefix args clamped to 5..=25 (`Math.min(Math.max(n, 5), 25)`).
+pub fn clamp_top_limit(raw: Option<i64>) -> usize {
+    raw.unwrap_or(10).clamp(5, 25) as usize
+}
+
+/// Window timeout (ms) for a leaderboard period. Mirrors the TS
+/// dailyTimeout/weeklyTimeout/monthlyTimeout in !top-messages.ts and
+/// !top-voice.ts (monthly = 2_592_000_000, i.e. 30 days).
+pub fn top_period_timeout_ms(period: &str) -> i64 {
+    match period {
+        "daily" => 86_400_000,
+        "weekly" => 604_800_000,
+        _ => 2_592_000_000,
+    }
+}
+
+/// Message count inside a leaderboard window. Same predicate as the TS
+/// `nowTimestamp - message.sentTimestamp <= timeout` loop.
+pub fn msg_window_count(messages: &[StatsMessage], now_ms: i64, timeout_ms: i64) -> u64 {
+    messages
+        .iter()
+        .filter(|m| now_ms - m.sent_ts <= timeout_ms)
+        .count() as u64
+}
+
+/// Voice ms inside a leaderboard window. Same predicate as the TS
+/// `nowTimestamp - voice.endTimestamp <= timeout` loop.
+pub fn voice_window_total(voices: &[StatsVoice], now_ms: i64, timeout_ms: i64) -> u64 {
+    voices
+        .iter()
+        .filter(|v| now_ms - v.end_ts <= timeout_ms)
+        .map(|v| (v.end_ts - v.start_ts).max(0) as u64)
+        .sum()
+}
+
+/// Compact duration label. Mirrors `to_beautiful_string` short form in
+/// src/core/functions/ms.ts over y/mo/w/d/h/m/s/ms (largest units
+/// first, remainders appended); empty renders "0m" like the TS
+/// `return result === "" ? "0" + lang.var_m` leg. Unit words come from
+/// the guild lang (var_year/var_mo/var_w/var_d/var_h/var_m/var_s)
+/// with plain-letter fallbacks.
+pub fn beautiful_voice_ms(ms: u64, code: &str) -> String {
+    let unit = |key: &str, fallback: &str| {
+        crate::lang::get(code, key).unwrap_or_else(|| fallback.to_string())
+    };
+    let table: [(u64, String); 8] = [
+        (31_557_600_000, unit("var_year", "y")),
+        (2_592_000_000, unit("var_mo", "mo")),
+        (604_800_000, unit("var_w", "w")),
+        (86_400_000, unit("var_d", "d")),
+        (3_600_000, unit("var_h", "h")),
+        (60_000, unit("var_m", "m")),
+        (1_000, unit("var_s", "s")),
+        (1, "ms".to_string()),
+    ];
+    let mut rest = ms;
+    let mut out = String::new();
+    for (factor, name) in &table {
+        if rest >= *factor {
+            let value = rest / factor;
+            if !out.is_empty() {
+                out.push(' ');
+            }
+            out.push_str(&format!("{value}{name}"));
+            rest %= factor;
+            if rest == 0 {
+                break;
+            }
+        }
+    }
+    if out.is_empty() {
+        format!("0{}", unit("var_m", "m"))
+    } else {
+        out
+    }
+}
+
 async fn top_by(
     ctx: &Ctx<'_>,
-    pick: fn(&UserStats) -> u64,
-    unit: &str,
+    kind: &str,
+    period: &str,
+    limit: usize,
 ) -> Result<(), anyhow::Error> {
     let gid = ctx
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
-    let mut parsed: Vec<(u64, u64)> = load_all_user_stats(&ctx.data().pool, &gid)
-        .await
-        .into_iter()
-        .map(|(id, s)| (id, pick(&s)))
-        .collect();
-    parsed.sort_by_key(|a| std::cmp::Reverse(a.1));
+    let timeout = top_period_timeout_ms(period);
+    let now_ms = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|d| d.as_millis() as i64)
+        .unwrap_or(0);
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    let mut parsed: Vec<(u64, u64, String)> = Vec::new();
+    for (id, s) in load_all_user_stats(&ctx.data().pool, &gid).await {
+        let (n, label) = if kind == "voice" {
+            let total = voice_window_total(&s.voice_log, now_ms, timeout);
+            (total, beautiful_voice_ms(total, &code))
+        } else {
+            let n = msg_window_count(&s.msg_log, now_ms, timeout);
+            (n, n.to_string())
+        };
+        if n > 0 {
+            parsed.push((id, n, label));
+        }
+    }
+    // TS drops zero-activity users, sorts desc, slices to `limit`.
+    parsed.sort_by(|a, b| b.1.cmp(&a.1).then(a.0.cmp(&b.0)));
     let top: Vec<String> = parsed
         .iter()
-        .take(10)
+        .take(limit)
         .enumerate()
-        .map(|(i, (uid, n))| format!("{}. <@{uid}> — {n}{unit}", i + 1))
+        .map(|(i, (uid, _, label))| format!("{}. <@{uid}> — {label}", i + 1))
         .collect();
     ctx.say(if top.is_empty() {
-        "No data.".to_string()
+        crate::lang::get(&code, "stats_no_data").unwrap_or_else(|| "No data.".to_string())
     } else {
         top.join("\n")
     })
@@ -384,6 +494,54 @@ mod tests {
             top_voice_channels(&voices, 5),
             vec![(5, 100_001_000), (6, 100_000_000)]
         );
+    }
+
+    #[test]
+    fn top_period_and_limit_mirror_ts() {
+        assert_eq!(parse_top_period(None), "monthly");
+        assert_eq!(parse_top_period(Some("daily")), "daily");
+        assert_eq!(parse_top_period(Some("WEEKLY")), "weekly");
+        // Unknown falls back to monthly, like the TS includes() guard.
+        assert_eq!(parse_top_period(Some("yearly")), "monthly");
+        assert_eq!(clamp_top_limit(None), 10);
+        assert_eq!(clamp_top_limit(Some(7)), 7);
+        assert_eq!(clamp_top_limit(Some(1)), 5);
+        assert_eq!(clamp_top_limit(Some(99)), 25);
+        assert_eq!(top_period_timeout_ms("daily"), 86_400_000);
+        assert_eq!(top_period_timeout_ms("weekly"), 604_800_000);
+        assert_eq!(top_period_timeout_ms("monthly"), 2_592_000_000);
+    }
+
+    #[test]
+    fn beautiful_durations_mirror_to_beautiful_string() {
+        // en-US short names are the quirky TS ones (var_h = "hour(s)").
+        assert_eq!(beautiful_voice_ms(3_600_000, "en-US"), "1hour(s)");
+        assert_eq!(
+            beautiful_voice_ms(90_000, "en-US"),
+            "1minute(s) 30second(s)"
+        );
+        assert_eq!(beautiful_voice_ms(500, "en-US"), "500ms");
+        // Empty renders "0"+var_m, like the TS `result === ""` leg.
+        assert_eq!(beautiful_voice_ms(0, "en-US"), "0minute(s)");
+        // Window predicate: end_ts inside the timeout counts.
+        let now = 3_000_000_000i64;
+        let voices = vec![
+            StatsVoice {
+                start_ts: now - 2_000,
+                end_ts: now - 1_000,
+                channel_id: 1,
+            },
+            StatsVoice {
+                start_ts: now - 200_000_000,
+                end_ts: now - 100_000_000,
+                channel_id: 1,
+            },
+        ];
+        assert_eq!(voice_window_total(&voices, now, 86_400_000), 1_000);
+        assert_eq!(voice_window_total(&voices, now, 604_800_000), 100_001_000);
+        let log = vec![msg(now - 1_000, 1), msg(now - 200_000_000, 2)];
+        assert_eq!(msg_window_count(&log, now, 86_400_000), 1);
+        assert_eq!(msg_window_count(&log, now, 604_800_000), 2);
     }
 
     #[test]

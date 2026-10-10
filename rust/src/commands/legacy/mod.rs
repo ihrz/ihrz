@@ -665,7 +665,7 @@ pub async fn handle_helpall_select(
         _ => return,
     };
     // Recompute the category embeds (same code path as the entry).
-    let prefix = crate::db::guild_prefix(pool, Some(guild_id.get()), "?").await;
+    let prefix = crate::db::guild_prefix(pool, Some(guild_id.get()), ".").await;
     let entries = crate::commands::guildconfig::load_all_cmd_perms(pool, &gid).await;
     let uid = comp.user.id.get();
     let roles_map: std::collections::HashMap<String, String> =
@@ -1282,7 +1282,7 @@ async fn update_help_message(
     let Some(guild_id) = comp.guild_id else {
         return;
     };
-    let prefix = crate::db::guild_prefix(pool, Some(guild_id.get()), "?").await;
+    let prefix = crate::db::guild_prefix(pool, Some(guild_id.get()), ".").await;
     let code = crate::db::guild_lang(pool, Some(guild_id.get())).await;
     let t = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
     // Rebuild from owned data (registry Commands are owned here).

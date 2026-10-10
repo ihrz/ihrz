@@ -1,6 +1,9 @@
 use super::*;
 
 /// Toggle the discussion thread under each confession. Mirrors !thread.ts.
+// The raw action string is stored as-is (prefix defaults to `"0s"`
+// when missing, like `string(args!, 0) || "0s"`); only the exact
+// `"yes"` replies enabled, everything else replies disabled.
 #[poise::command(
     slash_command,
     prefix_command,
@@ -9,30 +12,18 @@ use super::*;
 )]
 pub async fn confession_thread(
     ctx: Ctx<'_>,
-    #[description = "yes or no"] action: String,
+    #[description = "yes or no"] action: Option<String>,
 ) -> Result<(), anyhow::Error> {
-    let Some(create) = parse_yes_no(&action) else {
-        let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-        ctx.say(
-            crate::lang::get(&code, "msg_use_yes_no").unwrap_or_else(|| "Use yes/no.".to_string()),
-        )
-        .await?;
-        return Ok(());
-    };
+    let raw = action.as_deref().unwrap_or("0s");
     let Some(gid) = ctx.guild_id().map(|g| g.get().to_string()) else {
         return Ok(());
     };
     let pool = &ctx.data().pool;
-    crate::commands::owner::main::routed_set(
-        pool,
-        &gid,
-        &gid,
-        "GUILD.CONFESSION.thread",
-        if create { "yes" } else { "no" },
-    )
-    .await?;
+    crate::commands::owner::main::routed_set(pool, &gid, &gid, "GUILD.CONFESSION.thread", raw)
+        .await?;
     let code = crate::db::guild_lang(pool, ctx.guild_id().map(|g| g.get())).await;
-    let key = if create {
+    // Exact match like TS (`action === "yes" ? enabled : disabled`).
+    let key = if parse_yes_no(raw).unwrap_or(false) {
         "confession_thread_enabled"
     } else {
         "confession_thread_disabled"

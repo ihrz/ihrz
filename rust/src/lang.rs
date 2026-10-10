@@ -44,6 +44,12 @@ fn table() -> &'static HashMap<String, serde_yaml::Value> {
 /// Mirrors getLanguageData(guildId): guild lookup happens in db layer;
 /// here we resolve a language code to its YAML table with en-US fallback
 /// for the *lookup* only (never a substitute for missing keys).
+/// FORGIVING FALLBACK, INTENTIONAL (H20): unknown codes resolve to the
+/// en-US table instead of erroring, mirroring getLanguageDataByCode's
+/// default branch. Every guild path must still do DB -> code -> table
+/// (`kv_get GUILD.LANG`, default `"en-US"` when unset, then this fn) —
+/// cf. getLanguageData.ts and funcs::guild_banner_url. Callers resolve
+/// keys via [`get`]/[`get_list`] on the returned table.
 pub fn table_for(code: &str) -> serde_yaml::Value {
     let t = table();
     t.get(code)
@@ -54,6 +60,10 @@ pub fn table_for(code: &str) -> serde_yaml::Value {
 
 /// Map a Discord locale to an iHorizon language code.
 /// Mirrors setLangByRegion in client/guildCreate.ts.
+/// SUBSET MAP, INTENTIONAL (H20): only the locales TS handles are mapped
+/// (`fr`, `en-US`/`en-GB`, `es-ES`, `de`, `it`, `ja`, `pt-BR`, `ru`);
+/// everything else falls back to `en-US` exactly like the TS default
+/// branch. Do not extend without mirroring the TS switch first.
 pub fn locale_lang_code(locale: &str) -> &'static str {
     match locale {
         "fr" => "fr-FR",

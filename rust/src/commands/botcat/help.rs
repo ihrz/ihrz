@@ -104,15 +104,74 @@ fn help_options(cmd: &poise::Command<Data, anyhow::Error>) -> Vec<HelpOptionDoc>
         .collect()
 }
 
+/// Static category page. Nearest viable to one TS select-menu page:
+/// every command in the named category (case-insensitive) as
+/// `name — description` lines in a single embed, footer attached.
+/// Returns None when `target` matches no category. Capped at 25 rows
+/// (embed field limit) with a "+N more" tail instead of buttons.
+async fn render_help_category(
+    ctx: &Ctx<'_>,
+    target: &str,
+    footer_name: &str,
+    with_icon: bool,
+) -> Option<poise::serenity_prelude::CreateEmbed> {
+    let needle = target.trim().to_ascii_lowercase();
+    let framework = ctx.framework();
+    let commands = &framework.options().commands;
+    let known = commands
+        .iter()
+        .filter_map(|c| c.category.as_deref())
+        .any(|c| c.eq_ignore_ascii_case(&needle));
+    if !known {
+        return None;
+    }
+    let prefix = crate::db::guild_prefix(
+        &ctx.data().pool,
+        ctx.guild_id().map(|g| g.get()),
+        &ctx.data().config.prefix,
+    )
+    .await;
+    let mut rows: Vec<String> = commands
+        .iter()
+        .filter(|c| {
+            c.category
+                .as_deref()
+                .is_some_and(|c| c.eq_ignore_ascii_case(&needle))
+        })
+        .map(|c| {
+            let desc = c.description.clone().unwrap_or_default();
+            let short = desc.chars().take(80).collect::<String>();
+            format!("`{prefix}{}` — {short}", c.name)
+        })
+        .collect();
+    rows.sort();
+    let overflow = rows.len().saturating_sub(25);
+    rows.truncate(25);
+    let mut desc = rows.join("\n");
+    if overflow > 0 {
+        desc.push_str(&format!("\n... +{overflow} more"));
+    }
+    Some(embed_with_footer(
+        poise::serenity_prelude::CreateEmbed::default()
+            .colour(0x001EFF_u32)
+            .title(needle)
+            .description(desc),
+        footer_name,
+        with_icon,
+    ))
+}
+
 /// Get a list of all the commands!
 // Without a name renders the tip embed (category/slash counts, footer
-// + icon attachment, search content line); with a name renders the
-// per-command awesomeEmbed or the unreachable notice. Mirrors
+// + icon attachment, search content line); with a command name renders
+// the per-command awesomeEmbed or the unreachable notice; with a
+// CATEGORY name renders that category's command list (nearest viable
+// to the TS category select menu). Mirrors
 // src/Interaction/HybridCommands/bot/help.ts (category `bot`,
 // optional `command-name` option). Delta: the interactive category
 // select menus + button pagination (840s collector, disable-on-end)
-// have no component-dispatch hook in this port, so the overview is
-// static.
+// have no component-dispatch hook in this port, so the overview and
+// category views are static (no buttons, no collectors).
 #[poise::command(slash_command, prefix_command, category = "bot", rename = "help")]
 pub async fn help(
     ctx: Ctx<'_>,
@@ -182,6 +241,12 @@ pub async fn help(
             };
             let embed = embed_with_footer(build_awesome_embed(&input), &footer_name, with_icon);
             reply = reply.embed(embed);
+        } else if let Some(cat_embed) =
+            render_help_category(&ctx, target, &footer_name, with_icon).await
+        {
+            // Category-name hit: static stand-in for the TS select-menu
+            // category page (command rows, no pagination buttons).
+            reply = reply.embed(cat_embed);
         } else {
             let no = crate::emojis::app_emoji_markup(ctx.http(), "No")
                 .await

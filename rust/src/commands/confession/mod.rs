@@ -4,24 +4,35 @@
 // (+ !channel.ts, !config.ts, !cooldown.ts, !thread.ts).
 //
 // TS keys: <guild>.CONFESSION.channel, <guild>.GUILD.CONFESSION.panel,
-// <guild>.GUILD.CONFESSION.disable, <guild>.GUILD.CONFESSION.thread,
-// <guild>.GUILD.CONFESSION.cooldown.
+// <guild>.GUILD.CONFESSION.thread, <guild>.GUILD.CONFESSION.cooldown,
+// <guild>.GUILD.CONFESSION.ALL_CONFESSIONS.<n>.
+//
+// NOTE (TS writer/reader key mismatch, kept for interop): TS !config.ts
+// writes the legacy `CONFESSION.disable` boolean, but the TS readers
+// (new-confession-button.ts, confess flow) check the namespaced
+// `GUILD.CONFESSION.disable`. Rust writes real JSON booleans to both
+// keys and treats either one as disabling. The `"false"` legacy string
+// never reads as disabled: readers only match `"1"`/`"true"`
+// (bool-or-string tolerant, both sides).
 
 use crate::bot::Ctx;
 use poise::serenity_prelude as serenity;
 
-/// "on" => enabled, "off" => disabled. Mirrors !config.ts action choices.
+/// "on" => enabled, "off" => disabled. Mirrors !config.ts action choices
+/// with the TS exact `===` match (no case folding): anything else,
+/// including "ON", is a silent no-op.
 pub fn parse_on_off(action: &str) -> Option<bool> {
-    match action.to_ascii_lowercase().as_str() {
+    match action {
         "on" => Some(true),
         "off" => Some(false),
         _ => None,
     }
 }
 
-/// "yes" => create a thread, "no" => skip it. Mirrors !thread.ts choices.
+/// "yes" => create a thread, "no" => skip it. Mirrors !thread.ts choices
+/// with the TS exact `===` match (no case folding).
 pub fn parse_yes_no(action: &str) -> Option<bool> {
-    match action.to_ascii_lowercase().as_str() {
+    match action {
         "yes" => Some(true),
         "no" => Some(false),
         _ => None,
@@ -258,12 +269,16 @@ pub async fn post_confession_log(
 }
 
 /// Parse the `confess-private` modal field. Mirrors the TS
-/// `case_private` checkbox (default true): empty/yes-like stays
-/// anonymous, only an explicit no-like answer takes the public path.
+/// `case_private` checkbox (default true): anonymous unless the user
+/// gives an explicit no-like answer. Native modals have no checkbox,
+/// so a short yes/no field carries it (max 3 chars); only the exact
+/// no-like spellings (`no`, `n`, `non`) take the public path —
+/// anything else, including typos, stays anonymous like the TS
+/// default-true checkbox.
 pub fn parse_confession_private(raw: Option<&str>) -> bool {
-    matches!(
+    !matches!(
         raw.map(|s| s.trim().to_ascii_lowercase()).as_deref(),
-        None | Some("") | Some("yes") | Some("y") | Some("true") | Some("oui") | Some("o")
+        Some("no") | Some("n") | Some("non")
     )
 }
 
@@ -282,7 +297,7 @@ pub async fn handle_confess_button(
     let gid = guild_id.get().to_string();
     // Disabled module ignores panel clicks. Mirrors the disable gate in
     // new-confession-button.ts; both the legacy `CONFESSION.disable`
-    // boolean and `GUILD.CONFESSION.disable` ("1") disable.
+    // boolean and `GUILD.CONFESSION.disable` disable.
     if is_confession_disabled(pool, &gid).await {
         return Ok(());
     }
@@ -413,8 +428,8 @@ pub async fn handle_confess_button(
             }
         }
     }
-    // `case_private` default true: empty/yes-like stays anonymous, only
-    // an explicit no-like answer takes the public path (avatar footer).
+    // `case_private` default true: anonymous unless the input is an
+    // explicit no-like answer (`no`/`n`/`non`).
     let private = parse_confession_private(private_raw.as_deref());
     text = crate::funcs::mask_link(&text);
     if text.len() < 2 {
@@ -970,9 +985,13 @@ mod tests {
         assert!(parse_confession_private(Some("")));
         assert!(parse_confession_private(Some("yes")));
         assert!(parse_confession_private(Some(" YES ")));
+        assert!(parse_confession_private(Some("oui")));
+        // Only exact no-like spellings go public; typos stay anonymous.
         assert!(!parse_confession_private(Some("no")));
         assert!(!parse_confession_private(Some("Non")));
-        assert!(!parse_confession_private(Some("bogus")));
+        assert!(!parse_confession_private(Some("n")));
+        assert!(!parse_confession_private(Some("non")));
+        assert!(parse_confession_private(Some("bogus")));
     }
 
     #[test]
@@ -980,6 +999,10 @@ mod tests {
         assert_eq!(parse_on_off("on"), Some(true));
         assert_eq!(parse_on_off("off"), Some(false));
         assert_eq!(parse_on_off("bogus"), None);
+        // TS exact `===`: no case folding, no trimming.
+        assert_eq!(parse_on_off("ON"), None);
+        assert_eq!(parse_on_off("OFF"), None);
+        assert_eq!(parse_on_off(" on"), None);
     }
 
     #[test]
@@ -999,6 +1022,9 @@ mod tests {
         assert_eq!(parse_yes_no("yes"), Some(true));
         assert_eq!(parse_yes_no("no"), Some(false));
         assert_eq!(parse_yes_no("maybe"), None);
+        // TS exact `===`: no case folding.
+        assert_eq!(parse_yes_no("YES"), None);
+        assert_eq!(parse_yes_no("No"), None);
     }
 
     #[test]

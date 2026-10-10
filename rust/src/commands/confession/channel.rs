@@ -11,6 +11,11 @@ pub const CONFESSION_PANEL_COLOR: u32 = 0xff_05_aa;
 /// Normalize the panel button label. Mirrors
 /// `interaction.options.getString("button-title")?.substring(0, 32) || "+"`
 /// (prefix: second arg, same fallback).
+///
+/// Intentional cut difference (kept): TS `substring` cuts UTF-16 code
+/// units and can split a surrogate pair; Rust cuts `char`s instead, so
+/// astral-plane characters (emoji) stay whole. Same 32-unit budget for
+/// BMP text, strictly safer outside it.
 pub fn panel_button_label(input: Option<&str>) -> String {
     input
         .map(|t| t.chars().take(32).collect::<String>())
@@ -30,8 +35,10 @@ pub fn panel_store_json(channel_id: u64, message_id: u64) -> String {
 
 /// Unique panel-post nonce. Mirrors `SnowflakeUtil.generate().toString()`
 /// in !channel.ts (time-based, unique per post for `enforceNonce`).
+/// The random suffix keeps two reconfigurations inside the same
+/// millisecond distinct (a plain `{channel}-{ms}` pair would collide).
 pub fn panel_nonce(channel_id: u64, now_ms: u64) -> String {
-    format!("{channel_id}-{now_ms}")
+    format!("{channel_id}-{now_ms}-{}", rand::random::<u32>())
 }
 
 /// Audit entry for the panel post. Mirrors `client.func.ihorizon_logs`
@@ -74,10 +81,11 @@ fn panel_desc_fallback() -> String {
 
 /// Set the confession panel channel. Mirrors !channel.ts.
 //
-// The channel option is optional: slash falls back to the invoking
-// channel and prefix falls back to the parsed channel arg, then the
-// invoking channel (TS `(channel || interaction.channel)`). The
-// button title is optional with the TS `|| "+"` fallback (32 chars).
+// The slash options are required in the TS schema (`required: true`
+// on both `channel` and `button-title`); only the prefix path falls
+// back (invoking channel, `"+"` title). Same split as ranks/channel:
+// a missing option on slash answers with a usage hint, on prefix it
+// uses the TS `(channel || interaction.channel)` / `|| "+"` fallback.
 #[poise::command(
     slash_command,
     prefix_command,
@@ -97,13 +105,18 @@ pub async fn confession_channel(
         return Ok(());
     };
     let pool = &ctx.data().pool;
-    // TS `interaction.options.getChannel("channel")` (slash) /
-    // parsed-or-current channel (prefix); the option itself is
-    // required in the TS schema but the runtime always has the
-    // invoking channel to fall back on.
-    let target_id: u64 = channel
-        .map(|c| c.id.get())
-        .unwrap_or_else(|| ctx.channel_id().get());
+    // TS `interaction.options.getChannel("channel")` (slash, required)
+    // vs parsed-or-current channel (prefix). No new YAML: the slash
+    // usage hints below are plain fallbacks.
+    let is_prefix = matches!(ctx, poise::Context::Prefix(_));
+    let target_id: u64 = match channel.map(|c| c.id.get()) {
+        Some(id) => id,
+        None if is_prefix => ctx.channel_id().get(),
+        None => {
+            ctx.say("Please provide a channel.").await?;
+            return Ok(());
+        }
+    };
     crate::commands::owner::main::routed_set(
         pool,
         &gid,
@@ -113,7 +126,16 @@ pub async fn confession_channel(
     )
     .await?;
 
-    let button_label = panel_button_label(button_title.as_deref());
+    let button_label = match button_title.as_deref() {
+        // TS `getString("button-title")?.substring(0, 32) || "+"`.
+        Some(t) => panel_button_label(Some(t)),
+        // Prefix-only fallback; slash requires the title.
+        None if is_prefix => panel_button_label(None),
+        None => {
+            ctx.say("Please provide a button title.").await?;
+            return Ok(());
+        }
+    };
 
     let code = crate::db::guild_lang(pool, ctx.guild_id().map(|g| g.get())).await;
     let msg = crate::lang::get(&code, "confession_channel_command_work")
@@ -212,7 +234,9 @@ mod tests {
     #[test]
     fn panel_nonce_is_unique_per_post() {
         let a = panel_nonce(11, 1000);
-        assert!(a.contains("11"));
+        assert!(a.starts_with("11-1000-"));
+        // Random suffix: same inputs still differ (same-ms reconfig).
+        assert_ne!(a, panel_nonce(11, 1000));
         assert_ne!(a, panel_nonce(11, 1001));
         assert_ne!(a, panel_nonce(22, 1000));
     }

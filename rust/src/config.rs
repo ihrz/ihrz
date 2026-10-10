@@ -55,16 +55,25 @@ pub struct HorizonDbParts {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+/// Runtime configuration. Mirrors src/files/config.ts section by section;
+/// field docs name the TS source for each default (H19).
+/// KNOWN GAPS (recorded, not mirrored): `core.bash` (startup banner flag)
+/// and `console.emojis` (OK/ERROR/HOST/KISA/LOAD glyphs) have no Rust
+/// counterpart — cosmetically TS-only, no behavioral effect on the port.
 pub struct Config {
+    /// TS `discord.defaultMessageCommandsPrefix` (".").
     #[serde(default = "default_prefix")]
     pub prefix: String,
-    #[serde(default)]
-    pub phone_presence: bool,
+    /// TS `discord.phonePresence` (true).
     #[serde(default = "default_true")]
+    pub phone_presence: bool,
+    /// TS `discord.messageCommandsMention` (false).
+    #[serde(default = "default_false")]
     pub message_commands_mention: bool,
     #[serde(default)]
     pub owners: Vec<String>,
-    #[serde(default)]
+    /// TS `core.guildLogsChannelID` ("1509600857828626482").
+    #[serde(default = "default_guild_logs_channel")]
     pub guild_logs_channel_id: String,
     #[serde(default = "default_report_channel")]
     pub report_channel_id: String,
@@ -82,25 +91,34 @@ pub struct Config {
     pub dev_mode: bool,
     #[serde(default = "default_blacklist_picture")]
     pub blacklist_picture: String,
-    #[serde(default)]
+    /// TS `core.lavalinkLogsChannelID` ("1535344739325575182").
+    #[serde(default = "default_lavalink_logs_channel")]
     pub lavalink_logs_channel_id: String,
-    #[serde(default)]
+    /// TS `command.always100` love-couples (6 entries).
+    #[serde(default = "default_always100")]
     pub always100: Vec<String>,
     #[serde(default)]
     pub lavalink_nodes: Vec<LavalinkNode>,
-    #[serde(default)]
+    /// Local gateway base (TS `config.api.HorizonGatewayLocal`,
+    /// "http://127.0.0.1:31981"). Env has no local override; file value
+    /// only. See [`Config::gateway_internal`].
+    #[serde(default = "default_gateway")]
     pub gateway_local: String,
     /// Public HorizonGateway base URL (TS: `config.api.HorizonGateway`,
     /// e.g. `https://gateway.ihorizon.org`). File value; env
     /// `HORIZON_GATEWAY` wins via [`Config::gateway_public`].
-    #[serde(default)]
+    #[serde(default = "default_gateway")]
     pub gateway: String,
-    #[serde(default)]
+    /// TS `config.api.clientID` ("1053818045073739817").
+    #[serde(default = "default_client_id")]
     pub client_id: String,
     #[serde(default)]
     pub lastfm_api_key: String,
     #[serde(default)]
     pub lastfm_shared_secret: String,
+    /// KEPT DIVERGENT (H19): TS defaults to `"horizondb"`; the Rust port
+    /// defaults to `"sqlite"` (local `db.sqlite`, zero-infra deploys).
+    /// Set `[database] method = "horizondb"` (+ horizon_db parts) for parity.
     #[serde(default = "default_db_method")]
     pub db_method: String,
     /// `database.mySQL[]` parts. `[0]` = primary postgres, `[1]` =
@@ -145,11 +163,50 @@ pub struct Config {
 }
 
 fn default_prefix() -> String {
-    "?".to_string()
+    ".".to_string()
 }
 
 fn default_true() -> bool {
     true
+}
+
+fn default_false() -> bool {
+    false
+}
+
+fn default_guild_logs_channel() -> String {
+    // Mirrors config.core.guildLogsChannelID in src/files/config.ts.
+    "1509600857828626482".to_string()
+}
+
+fn default_lavalink_logs_channel() -> String {
+    // Mirrors config.core.lavalinkLogsChannelID in src/files/config.ts.
+    "1535344739325575182".to_string()
+}
+
+fn default_always100() -> Vec<String> {
+    // Mirrors config.command.always100 in src/files/config.ts.
+    [
+        "171356978310938624x1099042785736282205",
+        "1142148870177038487x1120421099671408670",
+        "945202900907470899x1191806926514814976",
+        "1181123770845503600x1200572468918767819",
+        "171356978310938624x1200572468918767819",
+        "422866241200586753x967195787555667979",
+    ]
+    .iter()
+    .map(|s| s.to_string())
+    .collect()
+}
+
+fn default_gateway() -> String {
+    // Mirrors config.api.HorizonGateway(Local) in src/files/config.ts.
+    "http://127.0.0.1:31981".to_string()
+}
+
+fn default_client_id() -> String {
+    // Mirrors config.api.clientID in src/files/config.ts.
+    "1053818045073739817".to_string()
 }
 
 fn default_report_channel() -> String {
@@ -170,22 +227,22 @@ impl Default for Config {
     fn default() -> Self {
         Self {
             prefix: default_prefix(),
-            phone_presence: false,
-            message_commands_mention: true,
+            phone_presence: true,
+            message_commands_mention: false,
             owners: vec![],
-            guild_logs_channel_id: String::new(),
+            guild_logs_channel_id: default_guild_logs_channel(),
             report_channel_id: default_report_channel(),
             database_url: "sqlite:./src/files/db.sqlite?mode=rwc".to_string(),
             database_url_secondary: None,
             total_shards: None,
             dev_mode: true,
             blacklist_picture: default_blacklist_picture(),
-            lavalink_logs_channel_id: String::new(),
-            always100: vec![],
+            lavalink_logs_channel_id: default_lavalink_logs_channel(),
+            always100: default_always100(),
             lavalink_nodes: vec![],
-            gateway_local: String::new(),
-            gateway: String::new(),
-            client_id: String::new(),
+            gateway_local: default_gateway(),
+            gateway: default_gateway(),
+            client_id: default_client_id(),
             lastfm_api_key: String::new(),
             lastfm_shared_secret: String::new(),
             db_method: default_db_method(),
@@ -261,6 +318,10 @@ fn table<'a>(
 /// order-independent (only token-bearing files ever set them).
 static FILE_BOT_TOKEN: std::sync::OnceLock<String> = std::sync::OnceLock::new();
 static FILE_API_TOKEN: std::sync::OnceLock<String> = std::sync::OnceLock::new();
+/// File-loaded gateway base fallback for [`gateway_base`] (H18). Set from
+/// `[api] horizon_gateway` by [`load_file_into`]; env `HORIZON_GATEWAY`
+/// always wins.
+static FILE_GATEWAY: std::sync::OnceLock<String> = std::sync::OnceLock::new();
 
 fn remember_file_tokens(c: &Config) {
     if !c.token.trim().is_empty() {
@@ -268,6 +329,9 @@ fn remember_file_tokens(c: &Config) {
     }
     if !c.api_token.trim().is_empty() {
         let _ = FILE_API_TOKEN.set(c.api_token.clone());
+    }
+    if !c.gateway.trim().is_empty() {
+        let _ = FILE_GATEWAY.set(c.gateway.clone());
     }
 }
 
@@ -553,11 +617,14 @@ pub fn api_token() -> Option<String> {
 }
 
 /// Base URL of the HorizonGateway API. Mirrors
-/// config.api.HorizonGateway, env-first.
+/// config.api.HorizonGateway, env-first (H18): env `HORIZON_GATEWAY` wins,
+/// otherwise the `[api] horizon_gateway` file value remembered by
+/// [`load_file_into`]. (Previously env-only with no file fallback.)
 pub fn gateway_base() -> Option<String> {
     std::env::var("HORIZON_GATEWAY")
         .ok()
         .filter(|s| !s.is_empty())
+        .or_else(|| FILE_GATEWAY.get().cloned())
 }
 
 impl Config {
@@ -576,6 +643,17 @@ impl Config {
                     Some(v)
                 }
             })
+    }
+
+    /// Internal gateway base URL. Mirrors HorizonGatewayInternal (H18):
+    /// `HorizonGatewayLocal` wins when set, otherwise [`Config::gateway_public`].
+    /// No env override exists for the local base in TS either — file value only.
+    pub fn gateway_internal(&self) -> Option<String> {
+        let local = self.gateway_local.trim();
+        if !local.is_empty() {
+            return Some(local.to_string());
+        }
+        self.gateway_public()
     }
 
     /// Compose a postgres connection string from `database.mySQL[]`
@@ -636,9 +714,17 @@ mod tests {
     #[test]
     fn default_values_mirror_ts_config_example() {
         let cfg = Config::default();
-        assert_eq!(cfg.prefix, "?");
-        assert!(!cfg.phone_presence);
-        assert!(cfg.message_commands_mention);
+        assert_eq!(cfg.prefix, ".");
+        assert!(cfg.phone_presence);
+        assert!(!cfg.message_commands_mention);
+        assert_eq!(cfg.guild_logs_channel_id, "1509600857828626482");
+        assert_eq!(cfg.lavalink_logs_channel_id, "1535344739325575182");
+        assert_eq!(cfg.always100.len(), 6);
+        assert_eq!(cfg.client_id, "1053818045073739817");
+        assert_eq!(cfg.gateway, "http://127.0.0.1:31981");
+        assert_eq!(cfg.gateway_local, "http://127.0.0.1:31981");
+        // KEPT DIVERGENT (H19): TS defaults to horizondb, Rust to sqlite.
+        assert_eq!(cfg.db_method, "sqlite");
         assert!(cfg.owners.is_empty());
         assert_eq!(cfg.total_shards, None);
         assert!(cfg.database_url.contains("db.sqlite"));
@@ -667,8 +753,9 @@ mod tests {
     #[test]
     fn serde_defaults_fill_missing_fields() {
         let cfg: Config = serde_json::from_str("{}").unwrap();
-        assert_eq!(cfg.prefix, "?");
-        assert!(cfg.message_commands_mention);
+        assert_eq!(cfg.prefix, ".");
+        assert!(cfg.phone_presence);
+        assert!(!cfg.message_commands_mention);
     }
 
     #[test]
@@ -738,7 +825,7 @@ mod tests {
 
         assert_eq!(cfg.prefix, "!");
         assert!(cfg.phone_presence);
-        assert!(cfg.message_commands_mention);
+        assert!(!cfg.message_commands_mention);
         assert!(!cfg.dev_mode);
         assert_eq!(cfg.report_channel_id, "999");
         assert_eq!(cfg.owners, vec!["111".to_string(), "222".to_string()]);
@@ -769,16 +856,35 @@ mod tests {
     #[test]
     fn gateway_public_prefers_env_over_file() {
         let _guard = ENV_LOCK.lock().unwrap();
+        std::env::remove_var("HORIZON_GATEWAY");
         let mut cfg = Config::default();
-        assert_eq!(cfg.gateway_public(), None);
-        cfg.gateway = "https://gateway.example.org".to_string();
+        // Built-in default mirrors the TS example gateway (H19).
         assert_eq!(
             cfg.gateway_public().as_deref(),
+            Some("http://127.0.0.1:31981")
+        );
+        // Internal prefers the local base (H18).
+        assert_eq!(
+            cfg.gateway_internal().as_deref(),
+            Some("http://127.0.0.1:31981")
+        );
+        cfg.gateway = "https://gateway.example.org".to_string();
+        cfg.gateway_local = String::new();
+        assert_eq!(
+            cfg.gateway_public().as_deref(),
+            Some("https://gateway.example.org")
+        );
+        assert_eq!(
+            cfg.gateway_internal().as_deref(),
             Some("https://gateway.example.org")
         );
         std::env::set_var("HORIZON_GATEWAY", "https://env.example.org");
         assert_eq!(
             cfg.gateway_public().as_deref(),
+            Some("https://env.example.org")
+        );
+        assert_eq!(
+            cfg.gateway_internal().as_deref(),
             Some("https://env.example.org")
         );
         std::env::remove_var("HORIZON_GATEWAY");
@@ -902,7 +1008,9 @@ mod tests {
         let cfg = load();
         std::env::remove_var("CONFIG_FILE");
         let cfg = cfg.unwrap();
-        assert!(!cfg.phone_presence);
+        // TS-aligned defaults (config.ts: phonePresence true, prefix ".").
+        assert!(cfg.phone_presence);
+        assert_eq!(cfg.prefix, ".");
         assert!(cfg.database_url.contains("db.sqlite") || !cfg.database_url.is_empty());
     }
 

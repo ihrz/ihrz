@@ -28,8 +28,10 @@ pub async fn ticket_remove(
     // correct (!add-member.ts index 1 is off-by-one). Poise parses the
     // first prefix arg as User here, matching that shape, so both add
     // and remove stay index-free.
-    // Mirrors !remove-member.ts: disable guard, then the is-ticket
-    // guard (remove_not_in_ticket), then the deny.
+    // Order mirrors !remove-member.ts (resolve-then-guard): poise
+    // resolves the required `user` during parsing, before the body
+    // runs, so resolution precedes the disable guard below, then the
+    // is-ticket guard (remove_not_in_ticket), then the deny.
     if ticket_guard_disabled(&ctx, pool, &gid, &code, "ticket_disabled_command").await {
         return Ok(());
     }

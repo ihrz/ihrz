@@ -5,22 +5,35 @@
 // inline call sites: botcat/avatar (download + base64 data URL),
 // profil/show (avatar snapshot for the thumbnail attachment), ticket
 // transcript stub (prefetched avatar/image caches).
+//
+// The HEAD content-type predicate (`isImageUrl`) intentionally does NOT
+// live here — see funcs::is_image_url, the canonical home documenting the
+// split with transcript::is_image_url (H16).
 
 /// Fetch raw image bytes. Returns None on any network or read error,
-/// mirroring the TS try/catch that returns undefined.
+/// mirroring the TS try/catch that returns undefined, with two deliberate
+/// hardenings documented here (H15):
+/// - sends `Accept: application/octet-stream` like the axios wrapper does
+///   for `responseType: "arrayBuffer"`;
+/// - uses a 30s timeout (the TS path has no default timeout);
+/// - returns None on non-2xx statuses, while the TS code returns the body
+///   regardless of status (fetch never rejects on status). Failing closed
+///   avoids embedding gateway error pages as avatars.
 pub async fn image64(url: &str) -> Option<Vec<u8>> {
     if url.trim().is_empty() {
         return None;
     }
-    reqwest::Client::new()
+    let resp = reqwest::Client::new()
         .get(url)
+        .header("Accept", "application/octet-stream")
+        .timeout(std::time::Duration::from_secs(30))
         .send()
         .await
-        .ok()?
-        .bytes()
-        .await
-        .ok()
-        .map(|b| b.to_vec())
+        .ok()?;
+    if !(200..300).contains(&resp.status().as_u16()) {
+        return None;
+    }
+    resp.bytes().await.ok().map(|b| b.to_vec())
 }
 
 /// Wrap bytes as a `data:<mime>;base64,...` URL for embedding avatars

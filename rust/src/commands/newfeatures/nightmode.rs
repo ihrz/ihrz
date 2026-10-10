@@ -1,5 +1,9 @@
 use super::*;
 
+/// Nightmode quick toggle (guild owner only).
+// The TS panel (enable/notify/hours/derank/timezone selects + bot
+// whitelist, 30 min collectors) has no dispatch hook here; this keeps
+// the owner gate and on/off + hour args while preserving the full blob.
 #[poise::command(
     slash_command,
     prefix_command,
@@ -14,20 +18,46 @@ pub async fn nightmode(
     #[description = "Start hour 0-23"] start: Option<i64>,
     #[description = "End hour 0-23"] end: Option<i64>,
 ) -> Result<(), anyhow::Error> {
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    // Guild-owner gate (TS: interaction.guild.ownerId check). HTTP
+    // fetch only: holding the cache Guild across an await is not Send.
+    let is_guild_owner = match ctx.guild_id() {
+        Some(gid) => ctx
+            .http()
+            .get_guild(gid)
+            .await
+            .map(|g| g.owner_id == ctx.author().id)
+            .unwrap_or(false),
+        None => false,
+    };
+    if !is_guild_owner {
+        ctx.say(
+            crate::lang::get(&code, "blockbot_not_owner")
+                .unwrap_or_else(|| "Only the server owner can use this.".to_string()),
+        )
+        .await?;
+        return Ok(());
+    }
     let gid = ctx
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
+    // Load the full blob (defaults = TS fallback literal), never reset it.
+    let mut cfg: NightmodeConfig = crate::db::kv_get(&ctx.data().pool, &gid, "UTILS.NIGHT_MODE")
+        .await
+        .and_then(|s| serde_json::from_str(&s).ok())
+        .unwrap_or(NightmodeConfig {
+            enabled: false,
+            notify: true,
+            time: [21, 0, 9, 0],
+            wl_bots: Vec::new(),
+            derank_bot: true,
+            utc: 1,
+        });
     let enabled = matches!(action.to_ascii_lowercase().as_str(), "on" | "power on");
-    let mut cfg = NightmodeConfig {
-        enabled,
-        start_hour: 22,
-        end_hour: 7,
-    };
+    cfg.enabled = enabled;
     if let Some(s) = start {
         if !valid_hour(s) {
-            let code =
-                crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
             let no = crate::emojis::app_emoji_markup(ctx.http(), "No")
                 .await
                 .unwrap_or_else(|| "❌".to_string());
@@ -39,12 +69,11 @@ pub async fn nightmode(
             .await?;
             return Ok(());
         }
-        cfg.start_hour = s as u8;
+        cfg.time[0] = s as u8;
+        cfg.time[1] = 0;
     }
     if let Some(e) = end {
         if !valid_hour(e) {
-            let code =
-                crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
             let no = crate::emojis::app_emoji_markup(ctx.http(), "No")
                 .await
                 .unwrap_or_else(|| "❌".to_string());
@@ -56,7 +85,8 @@ pub async fn nightmode(
             .await?;
             return Ok(());
         }
-        cfg.end_hour = e as u8;
+        cfg.time[2] = e as u8;
+        cfg.time[3] = 0;
     }
     crate::db::kv_set(
         &ctx.data().pool,
@@ -65,17 +95,22 @@ pub async fn nightmode(
         &serde_json::to_string(&cfg)?,
     )
     .await?;
-    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let state = if enabled { "on" } else { "off" };
+    let window = time_beautifuer(cfg.time);
     ctx.say(
         crate::lang::get(&code, "msg_nightmode_updated")
             .map(|s| {
                 s.replace("${state}", state)
-                    .replace("${start}", &cfg.start_hour.to_string())
-                    .replace("${end}", &cfg.end_hour.to_string())
+                    .replace("${start}", &cfg.time[0].to_string())
+                    .replace("${end}", &cfg.time[2].to_string())
             })
             .unwrap_or_else(|| {
-                format!("Nightmode {state} ({}h-{}h).", cfg.start_hour, cfg.end_hour)
+                format!(
+                    "Nightmode {state} ({window}, notify {}, derank {}, UTC{}).",
+                    if cfg.notify { "on" } else { "off" },
+                    if cfg.derank_bot { "on" } else { "off" },
+                    cfg.utc,
+                )
             }),
     )
     .await?;

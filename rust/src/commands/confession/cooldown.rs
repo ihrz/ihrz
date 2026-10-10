@@ -70,6 +70,10 @@ async fn post_cooldown_log(ctx: &Ctx<'_>, title: &str, description: &str) {
 }
 
 /// Change the cooldown between confessions. Mirrors !cooldown.ts.
+// The slash `time` option is required in the TS schema; the prefix
+// path defaults a missing arg to `"0s"` (like
+// `string(args!, 0) || "0s"`), which parses to no time and answers
+// the invalid-time line, exactly like TS (`to_ms("0s")` is falsy).
 #[poise::command(
     slash_command,
     prefix_command,
@@ -78,14 +82,15 @@ async fn post_cooldown_log(ctx: &Ctx<'_>, title: &str, description: &str) {
 )]
 pub async fn confession_cooldown(
     ctx: Ctx<'_>,
-    #[description = "Cooldown like 3h/30m/10s"] time: String,
+    #[description = "Cooldown like 3h/30m/10s"] time: Option<String>,
 ) -> Result<(), anyhow::Error> {
     let Some(gid) = ctx.guild_id().map(|g| g.get().to_string()) else {
         return Ok(());
     };
     let pool = &ctx.data().pool;
     let code = crate::db::guild_lang(pool, ctx.guild_id().map(|g| g.get())).await;
-    let Some(ms) = parse_cooldown_ms(&time) else {
+    let raw = time.as_deref().unwrap_or("0s");
+    let Some(ms) = parse_cooldown_ms(raw) else {
         ctx.say(
             crate::lang::get(&code, "too_new_account_invalid_time_on_enable")
                 .unwrap_or_else(|| "The time you entered is not valid! **Example of valid time**: `3h; 30m; 4mo; 4w; 4y` -> 3 hours; 30 minutes; 4 month(s); 4 weeks; 4 years".to_string()),

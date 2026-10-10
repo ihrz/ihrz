@@ -1,18 +1,22 @@
 use super::*;
+use poise::serenity_prelude as serenity;
 
+/// Compare two members side by side (no winner).
+// Mirrors stats compare: monthly counts + beautiful voice, daily/weekly/
+// monthly rows. The earlier Rust "winner" line was invented (TS has none).
 #[poise::command(slash_command, prefix_command, rename = "compare", aliases("cmp"))]
 pub async fn stats_compare(
     ctx: Ctx<'_>,
     #[description = "First user"] user1: poise::serenity_prelude::User,
     #[description = "Second user"] user2: poise::serenity_prelude::User,
 ) -> Result<(), anyhow::Error> {
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    let t = |key: &str, fallback: &str| {
+        crate::lang::get(&code, key).unwrap_or_else(|| fallback.to_string())
+    };
     if user1.id == user2.id {
-        let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-        ctx.say(
-            crate::lang::get(&code, "stats_compare_same_user")
-                .unwrap_or_else(|| "Compare two different users.".to_string()),
-        )
-        .await?;
+        ctx.say(t("stats_compare_same_user", "Compare two different users."))
+            .await?;
         return Ok(());
     }
     let gid = ctx
@@ -21,38 +25,69 @@ pub async fn stats_compare(
         .unwrap_or_default();
     let a = load_stats(&ctx.data().pool, &gid, user1.id.get()).await;
     let b = load_stats(&ctx.data().pool, &gid, user2.id.get()).await;
-    let winner = if a.messages + a.voice_ms >= b.messages + b.voice_ms {
-        &user1
-    } else {
-        &user2
-    };
-    ctx.say(
-        crate::lang::get(
-            &crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await,
-            "stats_compare_text",
+    let now_ms = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|d| d.as_millis() as i64)
+        .unwrap_or(0);
+    // TS timeouts in !compare.ts (monthly = 30 days here).
+    let (day_to, week_to, month_to) = (86_400_000i64, 604_800_000i64, 2_592_000_000i64);
+    let name1 = user1
+        .global_name
+        .clone()
+        .unwrap_or_else(|| user1.name.clone());
+    let name2 = user2
+        .global_name
+        .clone()
+        .unwrap_or_else(|| user2.name.clone());
+    let msg_word = t("messages_word", "messages");
+    let row = |s: &UserStats, timeout: i64| {
+        (
+            msg_window_count(&s.msg_log, now_ms, timeout),
+            beautiful_voice_ms(voice_window_total(&s.voice_log, now_ms, timeout), &code),
         )
-        .map(|t| {
-            t.replace("${user1}", &user1.tag())
-                .replace("${a_messages}", &a.messages.to_string())
-                .replace("${a_voice}", &(a.voice_ms / 60_000).to_string())
-                .replace("${user2}", &user2.tag())
-                .replace("${b_messages}", &b.messages.to_string())
-                .replace("${b_voice}", &(b.voice_ms / 60_000).to_string())
-                .replace("${winner}", &winner.tag())
-        })
-        .unwrap_or_else(|| {
+    };
+    let (a_d_msg, a_d_vc) = row(&a, day_to);
+    let (b_d_msg, b_d_vc) = row(&b, day_to);
+    let (a_w_msg, a_w_vc) = row(&a, week_to);
+    let (b_w_msg, b_w_vc) = row(&b, week_to);
+    let (a_m_msg, a_m_vc) = row(&a, month_to);
+    let (b_m_msg, b_m_vc) = row(&b, month_to);
+    let embed = serenity::CreateEmbed::default()
+        .title(t("stats_compare_title", "Compare"))
+        .colour(0x5865F2_u32)
+        .description(format!("{name1} vs {name2}"))
+        .field(
+            format!("📨 {}", t("messages_word", "messages")),
+            format!("**{name1}**: {a_m_msg} | **{name2}**: {b_m_msg}"),
+            true,
+        )
+        .field(
+            format!("🎤 {}", t("voice_activity", "Voice activity")),
+            format!("**{name1}**: {a_m_vc} | **{name2}**: {b_m_vc}"),
+            true,
+        )
+        .field(
+            t("var_1d", "1d"),
             format!(
-                "{}: {}msg/{}m vs {}: {}msg/{}m — winner {}",
-                user1.tag(),
-                a.messages,
-                a.voice_ms / 60_000,
-                user2.tag(),
-                b.messages,
-                b.voice_ms / 60_000,
-                winner.tag()
-            )
-        }),
-    )
-    .await?;
+                "**{name1}**: {a_d_msg} {msg_word}, {a_d_vc}\n**{name2}**: {b_d_msg} {msg_word}, {b_d_vc}"
+            ),
+            false,
+        )
+        .field(
+            t("var_7d", "7d"),
+            format!(
+                "**{name1}**: {a_w_msg} {msg_word}, {a_w_vc}\n**{name2}**: {b_w_msg} {msg_word}, {b_w_vc}"
+            ),
+            false,
+        )
+        .field(
+            t("var_14d", "14d"),
+            format!(
+                "**{name1}**: {a_m_msg} {msg_word}, {a_m_vc}\n**{name2}**: {b_m_msg} {msg_word}, {b_m_vc}"
+            ),
+            false,
+        )
+        .timestamp(serenity::Timestamp::now());
+    ctx.send(poise::CreateReply::default().embed(embed)).await?;
     Ok(())
 }

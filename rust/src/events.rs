@@ -95,6 +95,14 @@ pub fn push_prevname(mut history: Vec<String>, name: &str, cap: usize) -> Vec<St
 
 pub const PREVNAMES_CAP: usize = 20;
 
+/// Dated prevnames entry. Mirrors prevnamesModule.ts /
+/// prevnamesModuleGuild.ts (`time(date, "d")` renders `<t:unix:d>`):
+/// `<t:unix:d> - [username|globalName|nickname:guild] oldValue`.
+/// The stored value is always the OLD name, never the new one.
+pub fn prevname_entry(unix_secs: i64, kind: &str, old_value: &str) -> String {
+    format!("<t:{unix_secs}:d> - [{kind}] {old_value}")
+}
+
 pub fn prevnames_key(user_id: u64) -> String {
     format!("PREVNAMES.{user_id}")
 }
@@ -1379,6 +1387,18 @@ mod tests {
         let h = push_prevname(h, "c", 3);
         let h = push_prevname(h, "d", 3);
         assert_eq!(h, vec!["d".to_string(), "c".to_string(), "b".to_string()]);
+    }
+
+    #[test]
+    fn prevname_entry_mirrors_module_format() {
+        assert_eq!(
+            prevname_entry(1700000000, "username", "oldname"),
+            "<t:1700000000:d> - [username] oldname"
+        );
+        assert_eq!(
+            prevname_entry(1700000000, "globalName", "Old Display"),
+            "<t:1700000000:d> - [globalName] Old Display"
+        );
     }
 
     #[test]

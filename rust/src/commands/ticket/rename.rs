@@ -59,3 +59,24 @@ pub async fn ticket_rename(
     }
     Ok(())
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn rest_keeps_slash_name_option() {
+        // `#[rest]` only affects prefix parsing (rest-of-line, like TS
+        // `longString(args, 0)`); the same parameter still registers as
+        // the required slash `name` option, so it is harmless on slash.
+        let cmd = ticket_rename();
+        assert!(cmd.slash_action.is_some());
+        assert!(cmd.prefix_action.is_some());
+        let param = cmd
+            .parameters
+            .iter()
+            .find(|p| p.name == "name")
+            .expect("slash `name` option");
+        assert!(param.required);
+    }
+}

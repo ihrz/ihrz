@@ -7,5 +7,9 @@
 // Blacklist: bot table BLACKLIST.<uid> {reason} +
 // guild table <guild>.BLACKLIST.<uid>. Eval is intentionally NOT ported
 // (arbitrary code execution has no Rust equivalent).
+// Prefix note: TS `unowner`/`bl`/`massunban` were top-level commands;
+// restored as thin top-level delegates (`unowner_alias`, `bl_alias`,
+// `unblacklist_alias`, registered in commands/mod.rs) plus `owner`
+// subcommand aliases.
 
 pub mod main;

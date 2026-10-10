@@ -221,6 +221,9 @@ pub fn all() -> Vec<poise::Command<Data, Error>> {
         sticky::main::sticky(),
         tag::main::tag(),
         owner::main::owner(),
+        owner::main::unowner_alias(),
+        owner::main::bl_alias(),
+        owner::main::unblacklist_alias(),
         botcat::core::botinfo_full(),
         botcat::core::ping(),
         botcat::core::help(),
@@ -566,7 +569,7 @@ mod tests {
         let cmds = all();
         let names: Vec<String> = cmds.iter().map(|c| c.name.clone()).collect();
         // 4 base + full parents + remaining stubs.
-        assert_eq!(cmds.len(), 179);
+        assert_eq!(cmds.len(), 182);
         for expected in [
             "botinfo",
             "dice",
@@ -846,7 +849,8 @@ mod tests {
         assert!(has_alias("ustats", "u"));
         assert!(has_alias("channel-stats", "chstats"));
         assert!(has_alias("play", "p"));
-        assert!(has_alias("blacklist", "bl"));
+        // `bl` is a top-level delegate now (was an alias of `blacklist`).
+        assert!(flat.iter().any(|c| c.name == "bl"));
         assert!(has_alias("kisakay", "anaïs"));
         // U-GATES2-UTILS representative gates.
         assert!(find("derank")

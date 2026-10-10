@@ -11,9 +11,13 @@ pub fn setcategory_desc(template: &str, category_name: &str, author_id: u64) -> 
 }
 
 /// Default ticket category (TS !set-category.ts).
-///
-/// The slash option is the `category-name` channel picker
-/// (GuildCategory-only).
+//
+// The slash option is the raw `category-name` channel picker (no
+// picker-type filter, like TS `getChannel("category-name", true)`);
+// the `not_a_category` branch rejects anything that is not a
+// category channel. A missing/unresolvable prefix arg is `None` and
+// hits the same branch (TS resolves `null`, which is not
+// `instanceof CategoryChannel` either).
 #[poise::command(
     slash_command,
     prefix_command,
@@ -24,8 +28,7 @@ pub async fn ticket_set_category(
     ctx: Ctx<'_>,
     #[description = "Category"]
     #[rename = "category-name"]
-    #[channel_types("Category")]
-    category: serenity::Channel,
+    category: Option<serenity::Channel>,
 ) -> Result<(), anyhow::Error> {
     let gid = ctx
         .guild_id()
@@ -43,8 +46,8 @@ pub async fn ticket_set_category(
             "The channel specified is not a category, please try again.".to_string()
         })
     };
-    let Some((cat_id, cat_name)) = (match &category {
-        serenity::Channel::Guild(gc) if gc.kind == serenity::ChannelType::Category => {
+    let Some((cat_id, cat_name)) = (match category.as_ref() {
+        Some(serenity::Channel::Guild(gc)) if gc.kind == serenity::ChannelType::Category => {
             Some((gc.id, gc.name.clone()))
         }
         _ => None,

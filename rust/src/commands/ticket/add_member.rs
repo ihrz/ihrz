@@ -28,8 +28,11 @@ pub async fn ticket_add(
     // correct while !add-member.ts index 1 is off-by-one (reads past the
     // mention). Poise parses the first prefix arg as User here, matching
     // the correct shape, so both add and remove stay index-free.
-    // Mirrors !add-member.ts: disable guard, then the is-ticket
-    // guard (close_not_in_ticket), then the grant.
+    // Order mirrors !add-member.ts (guard-then-resolve): the disable
+    // guard runs before member resolution, then the is-ticket guard
+    // (close_not_in_ticket), then the grant. `user` stays Option so the
+    // prefix path can answer add_command_error on unresolvable input
+    // instead of throwing like TS (`method.user(...)!`).
     if ticket_guard_disabled(&ctx, pool, &gid, &code, "ticket_disabled_command").await {
         return Ok(());
     }

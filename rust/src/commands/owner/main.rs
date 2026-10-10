@@ -670,11 +670,15 @@ pub async fn owner_add(
     }
 }
 
-#[poise::command(slash_command, prefix_command, rename = "remove", aliases("unowner"))]
+#[poise::command(slash_command, prefix_command, rename = "remove")]
 pub async fn owner_remove(
     ctx: Ctx<'_>,
     #[description = "Member"] user: serenity::User,
 ) -> Result<(), anyhow::Error> {
+    owner_remove_inner(ctx, user).await
+}
+
+async fn owner_remove_inner(ctx: Ctx<'_>, user: serenity::User) -> Result<(), anyhow::Error> {
     let code = lang_code(&ctx).await;
     let Some(scope) = owner_scope(&ctx).await else {
         return Ok(());
@@ -866,11 +870,19 @@ async fn send_bl_pager(
     Ok(())
 }
 
-#[poise::command(slash_command, prefix_command, rename = "blacklist", aliases("bl"))]
+#[poise::command(slash_command, prefix_command, rename = "blacklist")]
 pub async fn owner_blacklist(
     ctx: Ctx<'_>,
     #[description = "Member"] user: Option<serenity::User>,
     #[description = "Reason"] reason: Option<String>,
+) -> Result<(), anyhow::Error> {
+    owner_blacklist_inner(ctx, user, reason).await
+}
+
+async fn owner_blacklist_inner(
+    ctx: Ctx<'_>,
+    user: Option<serenity::User>,
+    reason: Option<String>,
 ) -> Result<(), anyhow::Error> {
     let code = lang_code(&ctx).await;
     let Some(scope) = owner_scope(&ctx).await else {
@@ -1091,11 +1103,15 @@ pub async fn owner_blacklist(
     }
 }
 
-#[poise::command(slash_command, prefix_command, rename = "unblacklist", aliases("unbl"))]
+#[poise::command(slash_command, prefix_command, rename = "unblacklist")]
 pub async fn owner_unblacklist(
     ctx: Ctx<'_>,
     #[description = "Member"] user: serenity::User,
 ) -> Result<(), anyhow::Error> {
+    owner_unblacklist_inner(ctx, user).await
+}
+
+async fn owner_unblacklist_inner(ctx: Ctx<'_>, user: serenity::User) -> Result<(), anyhow::Error> {
     let code = lang_code(&ctx).await;
     let Some(scope) = owner_scope(&ctx).await else {
         return Ok(());
@@ -1401,6 +1417,47 @@ pub async fn owner_bledit(
             Ok(())
         }
     }
+}
+
+/// Top-level old spellings (unowner / bl / unblacklist).
+// TS exposes these as standalone commands; the Rust parent nests them
+// under `owner ...`, so bare `!unowner` / `!bl` no longer resolve.
+// Thin delegates restoring the old surface (forward to the bodies).
+// Registration note: add `owner::main::unowner_alias()`,
+// `owner::main::bl_alias()`, `owner::main::unblacklist_alias()` to the
+// command list in rust/src/commands/mod.rs (outside this module's
+// scope, so wiring is left to the integrator).
+#[poise::command(slash_command, prefix_command, category = "owner", rename = "unowner")]
+pub async fn unowner_alias(
+    ctx: Ctx<'_>,
+    #[description = "Member"] user: serenity::User,
+) -> Result<(), anyhow::Error> {
+    owner_remove_inner(ctx, user).await
+}
+
+/// Top-level `bl` alias for `owner blacklist` (TS aliases: ["bl"]).
+#[poise::command(slash_command, prefix_command, category = "owner", rename = "bl")]
+pub async fn bl_alias(
+    ctx: Ctx<'_>,
+    #[description = "Member"] user: Option<serenity::User>,
+    #[description = "Reason"] reason: Option<String>,
+) -> Result<(), anyhow::Error> {
+    owner_blacklist_inner(ctx, user, reason).await
+}
+
+/// Top-level `unblacklist` (+ `unbl`) alias (TS aliases: ["unbl"]).
+#[poise::command(
+    slash_command,
+    prefix_command,
+    category = "owner",
+    rename = "unblacklist",
+    aliases("unbl")
+)]
+pub async fn unblacklist_alias(
+    ctx: Ctx<'_>,
+    #[description = "Member"] user: serenity::User,
+) -> Result<(), anyhow::Error> {
+    owner_unblacklist_inner(ctx, user).await
 }
 
 #[cfg(test)]

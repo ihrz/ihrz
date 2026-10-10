@@ -10,18 +10,38 @@ use poise::serenity_prelude as serenity;
 
 use serde::{Deserialize, Serialize};
 
+/// Nightmode blob. Mirrors DatabaseStructure.NightMode
+/// (`UTILS.NIGHT_MODE`): enabled/notify/time[4]/wlBots/derankBot/utc.
+/// The 60s scheduler tick (scheduler.rs sweep_nightmode) reads this
+/// exact shape, so writers must keep it — the earlier
+/// start_hour/end_hour struct never matched the tick reader.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct NightmodeConfig {
     #[serde(default)]
     pub enabled: bool,
-    #[serde(default)]
-    pub start_hour: u8,
-    #[serde(default = "default_end")]
-    pub end_hour: u8,
+    #[serde(default = "default_true")]
+    pub notify: bool,
+    /// [startHour, startMinute, endHour, endMinute]. TS default [21,0,9,0].
+    #[serde(default = "default_time")]
+    pub time: [u8; 4],
+    #[serde(rename = "wlBots", default)]
+    pub wl_bots: Vec<String>,
+    #[serde(rename = "derankBot", default = "default_true")]
+    pub derank_bot: bool,
+    #[serde(default = "default_utc")]
+    pub utc: i8,
 }
 
-fn default_end() -> u8 {
-    7
+fn default_true() -> bool {
+    true
+}
+
+fn default_time() -> [u8; 4] {
+    [21, 0, 9, 0]
+}
+
+fn default_utc() -> i8 {
+    1
 }
 
 pub fn valid_hour(h: i64) -> bool {

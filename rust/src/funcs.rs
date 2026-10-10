@@ -26,6 +26,9 @@ fn unit_multiplier(unit: &str) -> f64 {
 /// Parse durations like "1h30m", "-2.5d". Mirrors
 /// iHorizonTimeCalculator.to_ms (regex `(-?\d*\.?\d+)([a-zA-Z]+)`, unknown
 /// units contribute 0).
+/// KEPT LENIENT (H6): TS removes only the first `" "` while this strips
+/// all whitespace — a strict superset that parses every TS-accepted input
+/// identically.
 pub fn time_ms(input: &str) -> f64 {
     let s: String = input.chars().filter(|c| !c.is_whitespace()).collect();
     let bytes = s.as_bytes();
@@ -57,8 +60,12 @@ pub fn time_ms(input: &str) -> f64 {
     total
 }
 
-/// Compact duration label. Mirrors to_beautiful_string short form
-/// (y/mo/w/d/h/m/s decomposition).
+/// Compact duration label. Mirrors to_beautiful_string short form with a
+/// null lang (unit letters y/mo/w/d/h/m/s, "0s" fallback).
+/// NOTE: TS call sites always pass the guild lang, so the en-US result is
+/// e.g. "1hour(s)"; see [`beautiful_ms_in`] for the lang-aware form.
+/// Callers that cannot resolve a guild lang (cooldown, slowmode) use this
+/// null-lang shorthand intentionally.
 pub fn beautiful_ms(ms: f64) -> String {
     if !ms.is_finite() || ms < 0.0 {
         return "0s".to_string();
@@ -90,8 +97,116 @@ pub fn beautiful_ms(ms: f64) -> String {
     parts.join(" ")
 }
 
+/// Short-unit suffix lookup for [`beautiful_ms_in`]: `var_*` YAML value
+/// with the null-lang unit letter as fallback (mirrors
+/// `lang ? lang.var_x : "y"` in ms.ts).
+fn var_short(lang_code: &str, key: &str, fallback: &str) -> String {
+    crate::lang::get(lang_code, key).unwrap_or_else(|| fallback.to_string())
+}
+
+/// Lang-aware duration label. Mirrors to_beautiful_string exactly:
+/// suffixes come from the `var_year/var_mo/var_w/var_d/var_h/var_m/var_s`
+/// YAML keys, short parts are glued (`1m30s`-style), long parts are
+/// space-separated English (`1 minute 30 seconds`), the `ms` unit is
+/// included, and empty output falls back to `"0" + var_m`.
+/// Default (en-US) quirk, kept verbatim: `beautiful_ms_in(3_600_000.0,
+/// "en-US", false)` is `"1hour(s)"`, and the zero fallback is
+/// `"0minute(s)"`.
+/// Non-finite input is pinned to the zero fallback here; TS would render
+/// `Infinityyear(s)...` via Math.floor(Infinity) — a divergence kept
+/// intentionally (see test `beautiful_infinity_pinned`).
+/// Negative and NaN inputs fall through to the fallback exactly like TS
+/// (every `milliseconds >= factor` comparison is false).
+pub fn beautiful_ms_in(ms: f64, lang_code: &str, long: bool) -> String {
+    let var_m = var_short(lang_code, "var_m", "m");
+    if !ms.is_finite() || ms < 0.0 {
+        return format!("0{var_m}");
+    }
+    let shorts = [
+        var_short(lang_code, "var_year", "y"),
+        var_short(lang_code, "var_mo", "mo"),
+        var_short(lang_code, "var_w", "w"),
+        var_short(lang_code, "var_d", "d"),
+        var_short(lang_code, "var_h", "h"),
+        var_short(lang_code, "var_m", "m"),
+        var_short(lang_code, "var_s", "s"),
+    ];
+    // (factor, English long name); ms handled inline like the TS tail entry.
+    let factors = [
+        (31_557_600_000.0, "year"),
+        (2_592_000_000.0, "month"),
+        (604_800_000.0, "week"),
+        (86_400_000.0, "day"),
+        (3_600_000.0, "hour"),
+        (60_000.0, "minute"),
+        (1_000.0, "second"),
+    ];
+    let mut rest = ms;
+    let mut result = String::new();
+    for ((factor, long_name), short) in factors.iter().zip(shorts.iter()) {
+        if rest >= *factor {
+            let value = (rest / factor).floor();
+            if long {
+                let plural = if value > 1.0 { "s" } else { "" };
+                result.push_str(&format!("{value} {long_name}{plural}"));
+            } else {
+                result.push_str(&format!("{value}{short}"));
+            }
+            rest %= factor;
+            if rest > 0.0 {
+                if long {
+                    result.push(' ');
+                }
+            } else {
+                break;
+            }
+        }
+    }
+    if rest >= 1.0 && rest < 1_000.0 && !long {
+        // Leftover below one second: the TS `ms` tail entry
+        // (factor 1, short "ms", never localized).
+        result.push_str(&format!("{}ms", rest.floor()));
+    } else if rest >= 1.0 && rest < 1_000.0 {
+        let value = rest.floor();
+        let plural = if value > 1.0 { "s" } else { "" };
+        result.push_str(&format!("{value} millisecond{plural}"));
+    }
+    if result.is_empty() {
+        format!("0{var_m}")
+    } else {
+        result.trim().to_string()
+    }
+}
+
+/// Long-form duration label with English unit names. Mirrors
+/// to_beautiful_string with `{ long: true }` (long names are hardcoded
+/// English in TS, independent of lang).
+pub fn beautiful_ms_long(ms: f64) -> String {
+    beautiful_ms_in(ms, "en-US", true)
+}
+
+/// String-input duration label. Mirrors the
+/// `typeof timeStringOrMs === "string"` branch (runs [`time_ms`] first,
+/// then formats like [`beautiful_ms_in`]).
+pub fn beautiful_str(input: &str, lang_code: &str, long: bool) -> String {
+    beautiful_ms_in(time_ms(input), lang_code, long)
+}
+
 /// Number beautifier. Mirrors numberBeautifuer.ts (K/M/B/T, 1 decimal).
+/// Non-finite inputs mirror the TS arithmetic exactly: NaN matches no
+/// threshold and renders `"NaN"` (via `NaN.toLocaleString()`), while
+/// ±Infinity takes the T branch (`(Infinity).toFixed(1)` is `"Infinity"`).
 pub fn format_number(num: f64) -> String {
+    if num.is_nan() {
+        return "NaN".to_string();
+    }
+    if num.is_infinite() {
+        return if num > 0.0 {
+            "InfinityT".to_string()
+        } else {
+            "-InfinityT".to_string()
+        };
+    }
     let neg = num < 0.0;
     let abs = num.abs();
     let prefix = if neg { "-" } else { "" };
@@ -557,6 +672,48 @@ mod tests {
     }
 
     #[test]
+    fn beautiful_lang_aware_en_us_quirk() {
+        // en-US var_* values carry the "(s)" quirk verbatim (H1).
+        assert_eq!(beautiful_ms_in(3_600_000.0, "en-US", false), "1hour(s)");
+        assert_eq!(
+            beautiful_ms_in(90_000.0, "en-US", false),
+            "1minute(s)30second(s)"
+        );
+        assert_eq!(beautiful_ms_in(500.0, "en-US", false), "500ms");
+        assert_eq!(beautiful_ms_in(0.0, "en-US", false), "0minute(s)");
+        assert_eq!(beautiful_ms_in(-5.0, "en-US", false), "0minute(s)");
+        assert_eq!(beautiful_ms_in(f64::NAN, "en-US", false), "0minute(s)");
+        // Unknown code falls back to the en-US table (H20 forgiving path).
+        assert_eq!(beautiful_ms_in(3_600_000.0, "xx-XX", false), "1hour(s)");
+    }
+
+    #[test]
+    fn beautiful_long_english_names() {
+        // Long names are hardcoded English, independent of lang (H2).
+        assert_eq!(beautiful_ms_long(3_600_000.0), "1 hour");
+        assert_eq!(beautiful_ms_long(90_000.0), "1 minute 30 seconds");
+        assert_eq!(beautiful_ms_long(500.0), "500 milliseconds");
+        assert_eq!(beautiful_ms_in(0.0, "fr-FR", true), "0minute(s)");
+    }
+
+    #[test]
+    fn beautiful_str_parses_first() {
+        // String input runs time_ms first (H5).
+        assert_eq!(
+            beautiful_str("1h30m", "en-US", false),
+            "1hour(s)30minute(s)"
+        );
+        assert_eq!(beautiful_str("1h30m", "en-US", true), "1 hour 30 minutes");
+    }
+
+    #[test]
+    fn beautiful_infinity_pinned() {
+        // TS would print "Infinityyear(s)..."; pinned to the fallback (H4).
+        assert_eq!(beautiful_ms_in(f64::INFINITY, "en-US", false), "0minute(s)");
+        assert_eq!(beautiful_ms(f64::INFINITY), "0s");
+    }
+
+    #[test]
     fn gateway_tuned_shard_count() {
         // Mirrors getOptimalShardCount in src/index.ts: multiplier
         // Math.ceil(1000/700) = 2, tuned = max(rec, rec * 2).
@@ -593,6 +750,10 @@ mod tests {
         assert_eq!(format_number(2_500_000.0), "2.5M");
         assert_eq!(format_number(-3_000_000_000.0), "-3.0B");
         assert_eq!(format_number(2_000_000_000_000.0), "2.0T");
+        // Non-finite mirrors the TS arithmetic (H7).
+        assert_eq!(format_number(f64::NAN), "NaN");
+        assert_eq!(format_number(f64::INFINITY), "InfinityT");
+        assert_eq!(format_number(f64::NEG_INFINITY), "-InfinityT");
     }
 
     #[test]
@@ -944,6 +1105,166 @@ pub fn gateway_url(base: &str, method: GatewayMethod) -> Result<String, &'static
     Ok(data)
 }
 
+/// Internal gateway URL: local base wins, public base is the fallback.
+/// Mirrors HorizonGatewayInternal (`HorizonGatewayLocal || HorizonGateway`).
+/// `local`/`public` are the already-resolved base URLs (env-first via
+/// [`crate::config::Config::gateway_internal`]); empty/None means unset.
+pub fn gateway_internal_url(
+    local: Option<&str>,
+    public: Option<&str>,
+    method: GatewayMethod,
+) -> Result<String, &'static str> {
+    let base = local
+        .filter(|s| !s.trim().is_empty())
+        .or_else(|| public.filter(|s| !s.trim().is_empty()))
+        .unwrap_or("");
+    gateway_url(base, method)
+}
+
+/// Rendered-image failure. Mirrors the three throws in the
+/// HorizonGateway branch of html2png.ts.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum GatewayRenderError {
+    Transport(String),
+    /// Non-200 with the response body attached (TS includes
+    /// `HTTP <status> on <endpoint>: <message>`).
+    Status(u16, String),
+    UnexpectedContentType(String),
+    EmptyImage,
+}
+
+impl std::fmt::Display for GatewayRenderError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Transport(e) => write!(f, "gateway request failed: {e}"),
+            Self::Status(s, m) => {
+                write!(f, "HorizonGateway image generation failed (HTTP {s}): {m}")
+            }
+            Self::UnexpectedContentType(ct) => write!(
+                f,
+                "HorizonGateway image generation returned an unexpected content type: {ct}"
+            ),
+            Self::EmptyImage => {
+                write!(
+                    f,
+                    "HorizonGateway image generation returned an empty image."
+                )
+            }
+        }
+    }
+}
+
+impl std::error::Error for GatewayRenderError {}
+
+/// Render HTML to PNG through HorizonGateway. Mirrors the
+/// `client.config.api.HorizonGateway` branch of html2png.ts exactly:
+/// multipart POST (adminKey, options JSON, code, assetN blobs + assets
+/// meta JSON) to the ImageGeneration endpoint; non-200 throws with the
+/// body, a non-image/png content-type throws, an empty body throws.
+/// No Chromium/local render exists here (standing exclusion) — when no
+/// gateway base is configured this returns Transport("...empty...")
+/// instead of falling back to puppeteer like the TS else-branch.
+pub async fn gateway_render_html(
+    gateway_base: &str,
+    api_token: &str,
+    code: &str,
+    options_json: &str,
+    assets: &[(String, String, Vec<u8>)],
+    timeout: Option<std::time::Duration>,
+) -> Result<Vec<u8>, GatewayRenderError> {
+    let endpoint = gateway_url(gateway_base, GatewayMethod::ImageGeneration)
+        .map_err(|e| GatewayRenderError::Transport(e.to_string()))?;
+    // Manual multipart/form-data (reqwest has no multipart feature enabled):
+    // field layout mirrors the TS FormData appends 1:1.
+    let boundary = format!("ihrz{:x}", rand_boundary());
+    let mut body: Vec<u8> = Vec::new();
+    let mut part = |name: &str, data: &[u8], filename: Option<&str>, mime: Option<&str>| {
+        body.extend_from_slice(format!("--{boundary}\r\n").as_bytes());
+        match (filename, mime) {
+            (Some(f), Some(m)) => body.extend_from_slice(
+                format!("Content-Disposition: form-data; name=\"{name}\"; filename=\"{f}\"\r\nContent-Type: {m}\r\n\r\n").as_bytes(),
+            ),
+            _ => body.extend_from_slice(
+                format!("Content-Disposition: form-data; name=\"{name}\"\r\n\r\n").as_bytes(),
+            ),
+        }
+        body.extend_from_slice(data);
+        body.extend_from_slice(b"\r\n");
+    };
+    part("adminKey", api_token.as_bytes(), None, None);
+    part("options", options_json.as_bytes(), None, None);
+    part("code", code.as_bytes(), None, None);
+    let mut meta = serde_json::Map::new();
+    for (i, (token, mime, bytes)) in assets.iter().enumerate() {
+        let field = format!("asset{i}");
+        let mut entry = serde_json::Map::new();
+        entry.insert(
+            "token".to_string(),
+            serde_json::Value::String(token.clone()),
+        );
+        entry.insert("mime".to_string(), serde_json::Value::String(mime.clone()));
+        meta.insert(field.clone(), serde_json::Value::Object(entry));
+        part(&field, bytes, Some(&format!("{field}.png")), Some(mime));
+    }
+    part(
+        "assets",
+        serde_json::Value::Object(meta).to_string().as_bytes(),
+        None,
+        None,
+    );
+    body.extend_from_slice(format!("--{boundary}--\r\n").as_bytes());
+
+    let mut builder = reqwest::Client::builder();
+    if let Some(t) = timeout {
+        builder = builder.timeout(t);
+    }
+    let client = builder
+        .build()
+        .map_err(|e| GatewayRenderError::Transport(e.to_string()))?;
+    let resp = client
+        .post(&endpoint)
+        .header(
+            "Content-Type",
+            format!("multipart/form-data; boundary={boundary}"),
+        )
+        .body(body)
+        .send()
+        .await
+        .map_err(|e| GatewayRenderError::Transport(e.to_string()))?;
+    let status = resp.status().as_u16();
+    let content_type = resp
+        .headers()
+        .get("content-type")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or_default()
+        .to_string();
+    let bytes = resp
+        .bytes()
+        .await
+        .map_err(|e| GatewayRenderError::Transport(e.to_string()))?;
+    if status != 200 {
+        let message = String::from_utf8_lossy(&bytes).into_owned();
+        return Err(GatewayRenderError::Status(status, message));
+    }
+    if !content_type.is_empty() && !content_type.contains("image/png") {
+        return Err(GatewayRenderError::UnexpectedContentType(content_type));
+    }
+    if bytes.is_empty() {
+        return Err(GatewayRenderError::EmptyImage);
+    }
+    Ok(bytes.to_vec())
+}
+
+/// Cheap non-crypto boundary nonce (uniqueness only, not secrecy).
+fn rand_boundary() -> u64 {
+    use std::time::{SystemTime, UNIX_EPOCH};
+    let nanos = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .map(|d| d.subsec_nanos() as u64)
+        .unwrap_or(0);
+    nanos ^ (std::process::id() as u64).wrapping_mul(0x9E37_79B9_7F4A_7C15)
+}
+
 // ---- ownerHelper (pure parts) ----
 
 /// Guild owner id set: ownerId + stored OWNER keys. Mirrors getGuildOwner.
@@ -985,6 +1306,39 @@ mod funcs_part2_tests {
             "http://127.0.0.1:31981/api/ihorizon/v1/image"
         );
         assert!(gateway_url("", GatewayMethod::UserInfo).is_err());
+    }
+
+    #[test]
+    fn gateway_internal_prefers_local() {
+        // Mirrors HorizonGatewayInternal (local wins, public fallback).
+        assert_eq!(
+            gateway_internal_url(
+                Some("http://127.0.0.1:31981"),
+                Some("https://gateway.ihorizon.org"),
+                GatewayMethod::ImageGeneration
+            )
+            .unwrap(),
+            "http://127.0.0.1:31981/api/ihorizon/v1/image"
+        );
+        assert_eq!(
+            gateway_internal_url(
+                None,
+                Some("https://gateway.ihorizon.org"),
+                GatewayMethod::UserInfo
+            )
+            .unwrap(),
+            "https://gateway.ihorizon.org/api/ihorizon/v1/userinfo"
+        );
+        assert_eq!(
+            gateway_internal_url(
+                Some(""),
+                Some("https://gateway.ihorizon.org"),
+                GatewayMethod::UserInfo
+            )
+            .unwrap(),
+            "https://gateway.ihorizon.org/api/ihorizon/v1/userinfo"
+        );
+        assert!(gateway_internal_url(None, None, GatewayMethod::UserInfo).is_err());
     }
 
     #[test]
@@ -1266,6 +1620,10 @@ pub enum HttpMethod {
 /// failures are errors — HTTP error statuses are returned as responses
 /// (fetch/axios-wrapper never rejects on status), so callers check
 /// HttpResponse::ok() like the TS status/data shapes do.
+/// NOTE (H14, docs-only): the TS AxiosError envelope ({config, code,
+/// request, response}) is intentionally not mirrored — handleRequestError
+/// is the identity function, so the envelope carries no information the
+/// HttpResponse + HttpError pair does not already provide.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum HttpError {
     Timeout,
@@ -1287,6 +1645,10 @@ impl std::error::Error for HttpError {}
 
 /// Request shape. Mirrors AxiosRequestConfig: baseURL join, JSON
 /// content-type default, binary Accept, timeout, responseType.
+/// NOTE (H8): the TS `params` field is declared but never used — `request()`
+/// destructures it and never appends it to the URL, and no call site in
+/// `src/` passes `params`. It is omitted here intentionally rather than
+/// mirrored as dead surface.
 #[derive(Debug, Clone, Default)]
 pub struct HttpRequest {
     pub url: String,
@@ -1305,6 +1667,12 @@ pub struct HttpRequest {
 #[derive(Debug, Clone)]
 pub struct HttpResponse {
     pub status: u16,
+    /// Mirrors `statusText` (reason phrase; empty on HTTP/2 where the
+    /// wire carries none).
+    pub status_text: String,
+    /// Mirrors `headers` (the fetch Headers object): all response
+    /// headers, lowercased names, in wire order.
+    pub headers: Vec<(String, String)>,
     pub body_text: String,
     pub body_json: Option<serde_json::Value>,
     pub body_bytes: Option<Vec<u8>>,
@@ -1328,6 +1696,9 @@ pub fn join_url(base_url: &str, url: &str) -> String {
 /// Execute one request with the axios.ts defaults: Content-Type
 /// application/json unless overridden, Accept application/octet-stream
 /// for binary, reqwest timeout standing in for AbortSignal.timeout.
+/// Content sniff mirrors `if (responseType === "json" || isJSON)`: a JSON
+/// content-type always takes the text/JSON path — even for binary
+/// requests — and only a non-JSON binary response comes back as bytes.
 pub async fn http_request(req: &HttpRequest) -> Result<HttpResponse, HttpError> {
     let full = join_url(&req.base_url, &req.url);
     if full.is_empty() {
@@ -1364,31 +1735,51 @@ pub async fn http_request(req: &HttpRequest) -> Result<HttpResponse, HttpError> 
         }
     })?;
     let status = resp.status().as_u16();
+    let status_text = resp
+        .status()
+        .canonical_reason()
+        .unwrap_or_default()
+        .to_string();
+    let headers: Vec<(String, String)> = resp
+        .headers()
+        .iter()
+        .map(|(k, v)| {
+            (
+                k.as_str().to_ascii_lowercase(),
+                v.to_str().unwrap_or_default().to_string(),
+            )
+        })
+        .collect();
+    let content_type = headers
+        .iter()
+        .find(|(k, _)| k == "content-type")
+        .map(|(_, v)| v.clone())
+        .unwrap_or_default();
+    let is_json = content_type.contains("application/json");
     if req.method == HttpMethod::Head {
         return Ok(HttpResponse {
             status,
+            status_text,
+            headers,
             body_text: String::new(),
             body_json: None,
             body_bytes: None,
         });
     }
-    if req.binary {
+    if req.binary && !is_json {
         let bytes = resp
             .bytes()
             .await
             .map_err(|e| HttpError::Transport(e.to_string()))?;
         return Ok(HttpResponse {
             status,
+            status_text,
+            headers,
             body_text: String::new(),
             body_json: None,
             body_bytes: Some(bytes.to_vec()),
         });
     }
-    let is_json = resp
-        .headers()
-        .get("content-type")
-        .and_then(|v| v.to_str().ok())
-        .is_some_and(|ct| ct.contains("application/json"));
     let text = resp
         .text()
         .await
@@ -1400,6 +1791,8 @@ pub async fn http_request(req: &HttpRequest) -> Result<HttpResponse, HttpError> 
     };
     Ok(HttpResponse {
         status,
+        status_text,
+        headers,
         body_text: text,
         body_json,
         body_bytes: None,
@@ -1434,6 +1827,42 @@ pub async fn http_post_json(
         method: HttpMethod::Post,
         base_url: base_url.to_string(),
         json_body: Some(json_body.to_string()),
+        timeout,
+        ..Default::default()
+    })
+    .await
+}
+
+/// PUT shorthand with a pre-serialized JSON body. Mirrors
+/// axios.put(url, data, config).
+pub async fn http_put(
+    url: &str,
+    base_url: &str,
+    json_body: &str,
+    timeout: Option<std::time::Duration>,
+) -> Result<HttpResponse, HttpError> {
+    http_request(&HttpRequest {
+        url: url.to_string(),
+        method: HttpMethod::Put,
+        base_url: base_url.to_string(),
+        json_body: Some(json_body.to_string()),
+        timeout,
+        ..Default::default()
+    })
+    .await
+}
+
+/// HEAD shorthand. Mirrors axios.head(url, config): status + headers only,
+/// empty body (see [`http_request`]).
+pub async fn http_head(
+    url: &str,
+    base_url: &str,
+    timeout: Option<std::time::Duration>,
+) -> Result<HttpResponse, HttpError> {
+    http_request(&HttpRequest {
+        url: url.to_string(),
+        method: HttpMethod::Head,
+        base_url: base_url.to_string(),
         timeout,
         ..Default::default()
     })
@@ -1616,6 +2045,8 @@ mod funcs_part3_tests {
         );
         let ok = HttpResponse {
             status: 200,
+            status_text: "OK".to_string(),
+            headers: vec![],
             body_text: String::new(),
             body_json: None,
             body_bytes: None,
@@ -2178,8 +2609,16 @@ pub async fn kdenlive_export(
     Ok(out)
 }
 
-/// HEAD image check. Mirrors mediaManipulation.isImageUrl
-/// (content-type starts with image/; false on any error).
+/// HEAD image check. Canonical home of the TS `isImageUrl` predicate
+/// (src/core/functions/image64.ts: HEAD + `content-type starts with
+/// image/`; false on any error, including a missing content-type header —
+/// the TS `startsWith` on null throws inside the try, so it also yields
+/// false).
+/// SPLIT, INTENTIONAL (H16): this network predicate lives here, not in
+/// image64.rs (which only fetches bytes); `transcript::is_image_url` is a
+/// different, offline extension-guess helper over attachment URLs and must
+/// not be merged with this one. New call sites needing a HEAD image gate
+/// should use this function (or [`http_head`]).
 pub async fn is_image_url(url: &str) -> bool {
     let ct = match reqwest::Client::new()
         .head(url)

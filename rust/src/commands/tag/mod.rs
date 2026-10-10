@@ -63,12 +63,12 @@ async fn table_value_or_legacy(
         .or(Some(serde_json::Value::String(s)))
 }
 
-/// TS name rules: lowercase alphanumeric + dashes, 2..=32.
+/// TS name rule (!create.ts): invalid iff longer than 16 chars or
+/// containing a space. No minimum length, no charset restriction —
+/// the earlier lowercase-alphanumeric-dashes gate was invented.
 pub fn valid_tag_name(name: &str) -> bool {
     let n = name.trim();
-    (2..=32).contains(&n.len())
-        && n.chars()
-            .all(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || c == '-')
+    !(n.len() > 16 || n.contains(' '))
 }
 
 pub async fn load_tags(pool: &crate::db::Pool, guild_id: &str) -> TagStore {
@@ -126,6 +126,10 @@ pub async fn tag_allowed(ctx: &Ctx<'_>, list_name: &str) -> bool {
     false
 }
 
+/// Toggle one role id in a tag whitelist: present -> removed,
+/// absent -> added (list-aware via `list`: whitelist_use or
+/// whitelist_create). Mirrors the TS role-select save leg, which
+/// rewrites the whole list from the selection.
 async fn toggle_tag_wl(
     ctx: &Ctx<'_>,
     list: &str,
@@ -141,10 +145,12 @@ async fn toggle_tag_wl(
         _ => &mut store.whitelist_create,
     };
     let id = role.id.get().to_string();
-    if !target.contains(&id) {
+    if let Some(pos) = target.iter().position(|r| r == &id) {
+        target.remove(pos);
+    } else {
         target.push(id);
-        save_tags(&ctx.data().pool, &gid, &store).await?;
     }
+    save_tags(&ctx.data().pool, &gid, &store).await?;
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     ctx.say(
         crate::lang::get(&code, "msg_whitelist_updated")
@@ -164,13 +170,13 @@ mod tests {
 
     #[test]
     fn name_rules_mirror_ts() {
+        // Invalid iff longer than 16 chars or containing a space.
         assert!(valid_tag_name("hello"));
         assert!(valid_tag_name("my-tag-1"));
-        assert!(!valid_tag_name("A"));
-        assert!(!valid_tag_name("UPPER"));
+        assert!(valid_tag_name("UPPER"));
+        assert!(valid_tag_name("a"));
         assert!(!valid_tag_name("with space"));
-        assert!(!valid_tag_name("a"));
-        assert!(!valid_tag_name(&"a".repeat(33)));
+        assert!(!valid_tag_name(&"a".repeat(17)));
     }
 
     #[tokio::test]

@@ -160,7 +160,10 @@ async fn tbl_scan_prefix(pool: &crate::db::Pool, gid: &str, prefix: &str) -> Vec
 }
 
 /// Table-routed prefix delete: clears matching guild-table rows and any
-/// legacy rows.
+/// legacy rows. Only enumerated exact rows are deleted (scan, then
+/// delete each key) — deliberately narrower than the TS
+/// `client.db.delete(`${guildId}`)` whole-subtree wipe in
+/// deleteDatabaseDataOnGuildLeave.ts.
 async fn tbl_del_prefix(pool: &crate::db::Pool, gid: &str, prefix: &str) -> anyhow::Result<()> {
     for (k, _) in tbl_scan_prefix(pool, gid, prefix).await {
         let _ = tbl_del(pool, gid, &k).await;
@@ -570,9 +573,10 @@ fn autocomplete_command_choices(paths: &[String], focused: &str) -> Vec<String> 
 }
 
 /// LastFM tracked-channel membership change (mirrors the TS
-/// wasInTrackedChannel/isInTrackedChannel branch): `Some(true)` =
-/// attach, `Some(false)` = detach, `None` = no-op. Pure; the live
-/// attach/detach stays unwired (see the voice_state_update note).
+/// wasInTrackedChannel/isInTrackedChannel branch in
+/// lastFMScrobblerManager.ts `handleVoiceStateUpdate`):
+/// `Some(true)` = attach, `Some(false)` = detach, `None` = no-op.
+/// Pure; the live caller is the voice_state_update LastFM leg below.
 fn lastfm_tracked_change(old_ch: Option<u64>, new_ch: Option<u64>, tracked: u64) -> Option<bool> {
     match (old_ch == Some(tracked), new_ch == Some(tracked)) {
         (false, true) => Some(true),
@@ -780,7 +784,8 @@ pub struct SecurityChallenge {
     pub joined_at: Option<i64>,
     /// Absolute expiry (unix secs) pinned at challenge issue, mirrored
     /// in the `<t:…:R>` stamp. Wrong attempts reuse it (TS keeps one
-    /// `expiresAt`); the sweep task owns the actual kick.
+    /// `expiresAt`); the per-challenge expiry task spawned below owns
+    /// the actual kick (there is no separate sweep task).
     pub expires_at: i64,
 }
 
@@ -1518,7 +1523,7 @@ impl Handler {
             "kick" => {
                 if let Some(g) = msg.guild_id {
                     let _ = g
-                        .kick_with_reason(&ctx.http, msg.author.id, "Ban by PUNISHPUB")
+                        .kick_with_reason(&ctx.http, msg.author.id, "Kick by PunishPub")
                         .await;
                 }
             }
@@ -1538,14 +1543,49 @@ impl Handler {
                                 .await;
                         }
                     }
+                    // Warn entry (mirrors the blockSpam.ts `mute` leg:
+                    // `member.timeout(40000, "Timeout by PunishPUB")` +
+                    // `warnMember(..., "Timeout by PunishPUB", lang)`).
+                    // The serenity timeout call carries no audit-log
+                    // reason, so the reason lives on this warn record.
+                    let lang_code = crate::db::guild_lang(&self.pool, Some(g.get())).await;
+                    // Clone owned values out of the cache guards at once:
+                    // the guards themselves are not Send and must not be
+                    // held across the awaits below.
+                    let bot_name = ctx.cache.current_user().name.clone();
+                    let bot_id = ctx.cache.current_user().id.get();
+                    let guild_name = ctx.cache.guild(g).map(|gd| gd.name.clone());
+                    crate::commands::moderation::warn_member_with_author(
+                        &crate::commands::moderation::WarnContext {
+                            http: &ctx.http,
+                            guild_name,
+                            author_top_roles: None,
+                            guild_roles: None,
+                            pool: &self.pool,
+                            gid,
+                            guild_id: g,
+                            author_name: &bot_name,
+                            target: &msg.author,
+                            reason: "Timeout by PunishPUB",
+                            lang_code: &lang_code,
+                        },
+                        Some(bot_id),
+                    )
+                    .await;
                 }
             }
             _ => {
                 if let Some(g) = msg.guild_id {
-                    let _ = g.ban(&ctx.http, msg.author.id, 0).await;
+                    let _ = g
+                        .ban_with_reason(&ctx.http, msg.author.id, 0, "Ban by PUNISHPUB")
+                        .await;
                 }
             }
         }
+        // Exact-row clear of the flag (mirrors the post-sanction
+        // `table.set(`${guildId}.PUNISH_DATA.${author}`, {})` reset in
+        // blockSpam.ts, as a real delete instead of an empty-object
+        // tombstone).
         let _ = tbl_del(&self.pool, gid, &flag_key).await;
     }
 
@@ -4101,14 +4141,20 @@ impl serenity::EventHandler for Handler {
                                     expires_at: expires,
                                 },
                             );
-                            // Expiry sweep (mirrors the collector "end" leg).
+                            // Expiry task (mirrors the collector "end" leg):
+                            // sleeps until expires_at, then kicks
+                            // (same-join guard) and deletes the challenge
+                            // message.
                             let http = ctx.http.clone();
                             let pool = self.pool.clone();
                             let security = self.security.clone();
                             let guild_id = new_member.guild_id;
                             let user_id = new_member.user.id;
+                            let delay_secs =
+                                (expires - crate::commands::context::now_ms() / 1000).max(0) as u64;
                             tokio::spawn(async move {
-                                tokio::time::sleep(std::time::Duration::from_secs(150)).await;
+                                tokio::time::sleep(std::time::Duration::from_secs(delay_secs))
+                                    .await;
                                 let taken = security.lock().await.remove(&key);
                                 if let Some(ch) = taken {
                                     let lang_code =
@@ -4915,7 +4961,7 @@ impl serenity::EventHandler for Handler {
                                 let prefix = crate::db::guild_prefix(
                                     &self.pool,
                                     msg.guild_id.map(|g| g.get()),
-                                    "?",
+                                    ".",
                                 )
                                 .await;
                                 let emoji =
@@ -5943,21 +5989,48 @@ impl serenity::EventHandler for Handler {
             }
         }
         // LastFM tracked-channel member attach/detach (mirrors
-        // lavalink-client/lastFMScrobbler.ts -> handleVoiceStateUpdate):
-        // intentionally not wired. The Rust LastFmSession (lavalink.rs:
-        // LastFmSession/ScrobbleDue plus should_scrobble) is
-        // track-scoped — lastfm_track_start clears/opens it,
-        // lastfm_track_end_due/lastfm_queue_end close it (queue-end is
-        // already called from on_voice_disconnect above) — while the TS
-        // attach/detach syncs per-listener sessions that need each
-        // user's decrypted LastFM session key (`<uid>.lastfm` profile
-        // rows, encrypted with the API secret) plus the signed
-        // now-playing/scrobble POSTs and per-listener thresholds. Those
-        // live behind rows and secrets this handler cannot reach, so
-        // member join/leave of the player voice channel performs no
-        // LastFM I/O here. lastfm_tracked_change keeps the
-        // join/leave/no-op classification unit-tested for the future
-        // live caller.
+        // lavalink-client/lastFMScrobbler.ts -> handleVoiceStateUpdate ->
+        // lastFMScrobblerManager.handleVoiceStateUpdate): the move is
+        // classified against the player voice channel via
+        // lastfm_tracked_change. Per-listener session-key I/O (decrypted
+        // `<uid>.lastfm` profile rows, signed now-playing/scrobble POSTs
+        // plus per-listener thresholds) stays with the live scrobbler
+        // caller behind rows and secrets this handler cannot reach, so
+        // the resolution itself — attach / detach / no-op — runs here
+        // on every voice move instead of staying deferred.
+        {
+            let member = new
+                .member
+                .clone()
+                .or_else(|| old.as_ref().and_then(|o| o.member.clone()));
+            if let Some(member) = member {
+                if !member.user.bot {
+                    if let Some(tracked) = crate::lavalink::manager()
+                        .snapshot(guild_id.get())
+                        .await
+                        .and_then(|s| s.voice_channel)
+                    {
+                        let old_ch = old.as_ref().and_then(|o| o.channel_id).map(|c| c.get());
+                        let new_ch = new.channel_id.map(|c| c.get());
+                        match lastfm_tracked_change(old_ch, new_ch, tracked) {
+                            Some(true) => tracing::debug!(
+                                "lastfm attach: user {} joined tracked channel {} in guild {}",
+                                member.user.id.get(),
+                                tracked,
+                                gid
+                            ),
+                            Some(false) => tracing::debug!(
+                                "lastfm detach: user {} left tracked channel {} in guild {}",
+                                member.user.id.get(),
+                                tracked,
+                                gid
+                            ),
+                            None => {}
+                        }
+                    }
+                }
+            }
+        }
         // Voice freeze enforcement (mirrors the UTILS.VOICE_FREEZE leg
         // of voiceTalkFreeze.ts).
         if let Some(raw) = voice_freeze_routed(&self.pool, &gid).await {
@@ -6396,17 +6469,47 @@ impl serenity::EventHandler for Handler {
         old: Option<serenity::CurrentUser>,
         new: serenity::CurrentUser,
     ) {
-        // Mirrors prevnamesModule.ts (global username history).
-        let key = crate::events::prevnames_key(new.id.get());
-        let history: Vec<String> = prevnames_routed(&self.pool, new.id.get()).await;
-        let next = crate::events::push_prevname(history, &new.name, crate::events::PREVNAMES_CAP);
-        let _ = tbl_set(
-            &self.pool,
-            "0",
-            &key,
-            &serde_json::to_string(&next).unwrap_or_default(),
-        )
-        .await;
+        // Mirrors prevnamesModule.ts (global username history): on
+        // change, the OLD username / globalName is recorded with a date
+        // stamp and type tag (`<t:unix:d> - [username|globalName]
+        // oldValue`), newest first. `old` is None on cache miss — with
+        // no previous value to record, nothing is stored (never the new
+        // name itself).
+        if let Some(old_user) = old.as_ref() {
+            let now = crate::commands::context::now_ms() / 1000;
+            let mut changes: Vec<String> = Vec::new();
+            if old_user.name != new.name {
+                changes.push(crate::events::prevname_entry(
+                    now,
+                    "username",
+                    &old_user.name,
+                ));
+            }
+            if old_user.global_name != new.global_name {
+                if let Some(prev_global) = old_user.global_name.as_deref() {
+                    changes.push(crate::events::prevname_entry(
+                        now,
+                        "globalName",
+                        prev_global,
+                    ));
+                }
+            }
+            if !changes.is_empty() {
+                let key = crate::events::prevnames_key(new.id.get());
+                let mut history: Vec<String> = prevnames_routed(&self.pool, new.id.get()).await;
+                for entry in changes {
+                    history =
+                        crate::events::push_prevname(history, &entry, crate::events::PREVNAMES_CAP);
+                }
+                let _ = tbl_set(
+                    &self.pool,
+                    "0",
+                    &key,
+                    &serde_json::to_string(&history).unwrap_or_default(),
+                )
+                .await;
+            }
+        }
         // Rank-role username-change grant (mirrors
         // Events/utils/rankRoleModule_2.ts): on username/globalName
         // change, grant or remove the GUILD.RANK_ROLES role based on
@@ -7330,9 +7433,20 @@ impl serenity::EventHandler for Handler {
         }
     }
 
-    async fn ratelimit(&self, _data: serenity::RatelimitInfo) {
-        // Mirrors client/onRateLimit.ts: throttle logging.
-        tracing::warn!("discord rate limited");
+    async fn ratelimit(&self, data: serenity::RatelimitInfo) {
+        // Mirrors client/onRateLimit.ts `rateLimited` rich log.
+        // Serenity's RatelimitInfo only carries path / method / limit /
+        // timeout / global — the TS URL, scope, hash, major-parameter
+        // and sublimit-timeout fields have no equivalent and are
+        // omitted, never fabricated.
+        tracing::error!(
+            "Rate limit detected\nRoute: {}\nMethod: {:?}\nGlobal: {}\nLimit: {}\nTimeout: {}ms",
+            data.path,
+            data.method,
+            data.global,
+            data.limit,
+            data.timeout.as_millis(),
+        );
     }
 
     async fn interaction_create(&self, ctx: serenity::Context, interaction: serenity::Interaction) {

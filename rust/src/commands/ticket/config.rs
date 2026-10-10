@@ -54,7 +54,10 @@ pub async fn ticket_config(
         &gid,
         &gid,
         "GUILD.TICKET.disable",
-        if enabled { "0" } else { "1" },
+        // Real JSON booleans like TS (`client.db.set(key, true/false)`,
+        // sqlite driver JSON-stringifies); readers stay tolerant of the
+        // legacy `"0"`/`"1"` strings on both sides.
+        if enabled { "false" } else { "true" },
     )
     .await?;
     ctx.say(
@@ -101,14 +104,14 @@ mod tests {
     async fn disable_flag_dual_writes_table_and_legacy() {
         use crate::commands::owner::main::tbl_get_value;
         let pool = mem_pool().await;
-        crate::commands::owner::main::routed_set(&pool, "g", "g", "GUILD.TICKET.disable", "1")
+        crate::commands::owner::main::routed_set(&pool, "g", "g", "GUILD.TICKET.disable", "true")
             .await
             .unwrap();
         assert_eq!(
             crate::db::kv_get(&pool, "g", "GUILD.TICKET.disable")
                 .await
                 .as_deref(),
-            Some("1")
+            Some("true")
         );
         assert!(tbl_get_value(&pool, "g", "GUILD.TICKET.disable")
             .await

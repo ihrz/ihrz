@@ -506,12 +506,17 @@ async fn ticket_logs_channel(pool: &crate::db::Pool, gid: &str) -> Option<sereni
 }
 
 /// Ticket module kill-switch. Mirrors the `GUILD.TICKET.disable`
-/// guard in every ticket subcommand (Rust writes "0"/"1", TS writes
-/// booleans, so both shapes count as disabled).
+/// guard in every ticket subcommand. Both sides now write real JSON
+/// booleans (TS `client.db.set(key, bool)`, Rust `"true"`/`"false"`);
+/// the legacy `"0"`/`"1"` strings still count, so either shape reads
+/// as disabled and `"false"` never does.
 async fn ticket_disabled(pool: &crate::db::Pool, gid: &str) -> bool {
     crate::db::kv_get(pool, gid, "GUILD.TICKET.disable")
         .await
-        .is_some_and(|v| v == "1" || v.eq_ignore_ascii_case("true"))
+        .is_some_and(|v| {
+            let t = v.trim();
+            t == "1" || t.eq_ignore_ascii_case("true")
+        })
 }
 
 /// Say a language line with a static fallback.
@@ -2374,6 +2379,34 @@ mod tests {
 
     async fn mem_pool() -> crate::db::Pool {
         crate::db::memory_pool().await
+    }
+
+    #[tokio::test]
+    async fn disable_reads_bool_or_string_both_sides() {
+        // Canonical writes are real JSON booleans; legacy `"0"`/`"1"`
+        // strings still read, and `"false"` never reads as disabled.
+        for (stored, disabled) in [
+            ("true", true),
+            ("TRUE", true),
+            ("1", true),
+            (" true ", true),
+            ("false", false),
+            ("FALSE", false),
+            ("0", false),
+            ("bogus", false),
+        ] {
+            let pool = mem_pool().await;
+            crate::db::kv_set(&pool, "g", "GUILD.TICKET.disable", stored)
+                .await
+                .unwrap();
+            assert_eq!(
+                ticket_disabled(&pool, "g").await,
+                disabled,
+                "stored: {stored:?}"
+            );
+        }
+        let pool = mem_pool().await;
+        assert!(!ticket_disabled(&pool, "g").await);
     }
 
     #[tokio::test]

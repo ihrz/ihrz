@@ -49,12 +49,9 @@ pub async fn confession_config(
     ctx: Ctx<'_>,
     #[description = "on or off"] action: String,
 ) -> Result<(), anyhow::Error> {
+    // Unknown actions are a silent no-op, mirroring !config.ts (its
+    // if/else-if simply falls through with no reply).
     let Some(enabled) = parse_on_off(&action) else {
-        let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-        ctx.say(
-            crate::lang::get(&code, "msg_use_on_off").unwrap_or_else(|| "Use on/off.".to_string()),
-        )
-        .await?;
         return Ok(());
     };
     let Some(gid) = ctx.guild_id().map(|g| g.get().to_string()) else {
@@ -62,8 +59,10 @@ pub async fn confession_config(
     };
     let pool = &ctx.data().pool;
     // TS !config.ts writes the legacy `CONFESSION.disable` boolean; keep
-    // the namespaced `GUILD.CONFESSION.disable` ("0"/"1") too so both
-    // readers (TS legacy, Rust namespaced) agree.
+    // the namespaced `GUILD.CONFESSION.disable` too so both readers
+    // (TS legacy, Rust namespaced) agree. Both are real JSON booleans
+    // like TS (`client.db.set(key, bool)`); readers stay tolerant of
+    // the legacy `"0"`/`"1"` strings on both sides.
     crate::commands::owner::main::routed_set(
         pool,
         &gid,
@@ -77,7 +76,7 @@ pub async fn confession_config(
         &gid,
         &gid,
         "GUILD.CONFESSION.disable",
-        if enabled { "0" } else { "1" },
+        if enabled { "false" } else { "true" },
     )
     .await?;
     let code = crate::db::guild_lang(pool, ctx.guild_id().map(|g| g.get())).await;
