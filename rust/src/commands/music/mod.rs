@@ -1211,6 +1211,7 @@ mod tests {
             detect_meta_source("https://music.apple.com/us/album/foo/123?i=456"),
             Some(MetaSource::Apple)
         );
+        // Placeholder ASINs (B0XXXX/B0YYYY): host routing only, no catalog lookup.
         assert_eq!(
             detect_meta_source("https://music.amazon.fr/albums/B0XXXX?trackAsin=B0YYYY"),
             Some(MetaSource::Amazon)

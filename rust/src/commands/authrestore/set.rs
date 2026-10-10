@@ -10,7 +10,9 @@ use poise::serenity_prelude as serenity;
 )]
 pub async fn authrestore_set(
     ctx: Ctx<'_>,
-    #[description = "Channel holding the message"] channel: serenity::Channel,
+    #[description = "Channel holding the message"]
+    #[channel_types("Text")]
+    channel: serenity::Channel,
     #[description = "Message id to attach the button to"] message_id: String,
     #[description = "Role given after verify"] role: Option<serenity::Role>,
 ) -> Result<(), anyhow::Error> {
@@ -181,34 +183,34 @@ pub async fn authrestore_set(
     .await
     .replace("${interaction.guild.name}", &guild_name)
     .replace("${res.secretCode}", &secret);
-    match ctx
+    // TS !set.ts chains `.catch(dm_failed).then(dm_ok)`: the dm_ok
+    // follow-up is sent in both legs, with dm_failed first when the
+    // DM itself bounces.
+    if ctx
         .author()
         .direct_message(http, serenity::CreateMessage::new().content(dm_text))
         .await
+        .is_err()
     {
-        Ok(_) => {
-            ctx.send(
-                poise::CreateReply::default()
-                    .content(
-                        t(
-                            &ctx,
-                            "rc_command_dm_ok",
-                            "In case you missed it, I sent you the code in a private message!",
-                        )
-                        .await,
-                    )
-                    .ephemeral(true),
-            )
-            .await?;
-        }
-        Err(_) => {
-            ctx.send(
-                poise::CreateReply::default()
-                    .content(t(&ctx, "rc_command_dm_failed", "I tried to send you the code in a private message, but you have blocked your DMs :/").await)
-                    .ephemeral(true),
-            )
-            .await?;
-        }
+        ctx.send(
+            poise::CreateReply::default()
+                .content(t(&ctx, "rc_command_dm_failed", "I tried to send you the code in a private message, but you have blocked your DMs :/").await)
+                .ephemeral(true),
+        )
+        .await?;
     }
+    ctx.send(
+        poise::CreateReply::default()
+            .content(
+                t(
+                    &ctx,
+                    "rc_command_dm_ok",
+                    "In case you missed it, I sent you the code in a private message!",
+                )
+                .await,
+            )
+            .ephemeral(true),
+    )
+    .await?;
     Ok(())
 }

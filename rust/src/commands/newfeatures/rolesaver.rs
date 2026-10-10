@@ -40,7 +40,10 @@ pub async fn rolesaver(
     let (footer_name, footer_bytes) = crate::commands::utils::footer_parts(&ctx, &gid).await;
     let mut embed = serenity::CreateEmbed::default().colour(serenity::Colour::new(0x3725a4));
     let mut reply = poise::CreateReply::default();
-    if matches!(action.to_ascii_lowercase().as_str(), "on" | "power on") {
+    // TS switches on exact `action === "on"` / `=== "off"` (slash
+    // choices); any other value silently does nothing — no embed, no
+    // store write.
+    if action == "on" {
         let settings = norm_rolesaver_settings(settings.as_deref());
         let embed = serenity::CreateEmbed::default()
             .colour(serenity::Colour::new(0x3725a4))
@@ -76,6 +79,11 @@ pub async fn rolesaver(
             .to_string(),
         )
         .await?;
+        return Ok(());
+    }
+    // TS `else if (action === "off")`: unknown actions return silently
+    // above instead of running the off leg.
+    if action != "off" {
         return Ok(());
     }
     if !load_rolesaver_cfg(&ctx.data().pool, &gid).await.enabled {

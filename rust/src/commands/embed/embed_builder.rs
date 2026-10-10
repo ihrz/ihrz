@@ -29,6 +29,11 @@ pub struct EmbedDraftState {
     pub embed: serde_json::Value,
     /// footer | image | thumbnail file payloads.
     pub files: HashMap<String, DraftFile>,
+    /// Entry `id` arg when it is a valid embed id (TS `run(arg)` keeps
+    /// it for the save button). `handle_save` overwrites `EMBED.{id}`
+    /// when the stored owner still matches the clicker, else mints.
+    #[serde(default)]
+    pub saved_id: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -843,8 +848,9 @@ async fn handle_select(s: &SelectCtx<'_>) {
     }
 }
 
-/// Save button. Mirrors saveEmbed (owner overwrite else fresh 16-char
-/// id) + the save update.
+/// Save button. Mirrors saveEmbed(arg): when the draft was opened with
+/// a valid saved id AND the stored embedOwner is the clicker, the same
+/// id is overwritten; otherwise a fresh 16-char id is minted.
 async fn handle_save(
     http: &serenity::Http,
     pool: &crate::db::Pool,
@@ -854,24 +860,43 @@ async fn handle_save(
     state: &EmbedDraftState,
 ) {
     let uid = comp.user.id.get().to_string();
-    // Optional id override arrives via the entry arg only; without it
-    // always mint (TS saveEmbed(arg) with arg None).
-    let seed = std::time::SystemTime::now()
-        .duration_since(std::time::UNIX_EPOCH)
-        .map(|d| d.as_nanos() as u64)
-        .unwrap_or(1);
-    let opts = crate::funcs::PasswordOptions {
-        length: 16,
-        numbers: false,
-        symbols: false,
-        lowercase: true,
-        uppercase: true,
-        exclude_similar: false,
-        exclude: String::new(),
-        strict: false,
+    // Owner-overwrite leg: valid entry id + stored owner match, like
+    // `potentialEmbed?.embedOwner === member.id` in saveEmbed.
+    let mut overwrite: Option<String> = None;
+    if let Some(arg) = state.saved_id.as_deref() {
+        if crate::funcs::is_valid_embed_id(arg) {
+            if let Some(raw) =
+                crate::commands::owner::main::routed_get(pool, gid, gid, &format!("EMBED.{arg}"))
+                    .await
+            {
+                if let Ok(v) = serde_json::from_str::<serde_json::Value>(&raw) {
+                    if v.get("embedOwner").and_then(|o| o.as_str()) == Some(uid.as_str()) {
+                        overwrite = Some(arg.to_string());
+                    }
+                }
+            }
+        }
+    }
+    let embed_id = match overwrite {
+        Some(id) => id,
+        None => {
+            let seed = std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .map(|d| d.as_nanos() as u64)
+                .unwrap_or(1);
+            let opts = crate::funcs::PasswordOptions {
+                length: 16,
+                numbers: false,
+                symbols: false,
+                lowercase: true,
+                uppercase: true,
+                exclude_similar: false,
+                exclude: String::new(),
+                strict: false,
+            };
+            crate::funcs::generate_password(&opts, seed).unwrap_or_else(|_| format!("{seed:016}"))
+        }
     };
-    let embed_id =
-        crate::funcs::generate_password(&opts, seed).unwrap_or_else(|_| format!("{seed:016}"));
     let _ = crate::commands::owner::main::routed_set(
         pool,
         gid,
@@ -995,8 +1020,12 @@ pub async fn embed_builder(
     let pool = &ctx.data().pool;
     let uid = ctx.author().id.get().to_string();
     let mut embed = empty_embed();
+    // Keep the entry id for the save button (TS `run(arg)` passes it
+    // to `saveEmbed` for the owner-overwrite leg).
+    let mut saved_id: Option<String> = None;
     if let Some(arg) = id.as_deref() {
         if crate::funcs::is_valid_embed_id(arg) {
+            saved_id = Some(arg.to_string());
             if let Some(raw) =
                 crate::commands::owner::main::routed_get(pool, &gid, &gid, &format!("EMBED.{arg}"))
                     .await
@@ -1055,6 +1084,7 @@ pub async fn embed_builder(
             owner: uid,
             embed,
             files: HashMap::new(),
+            saved_id,
         },
     )
     .await;
@@ -1083,6 +1113,7 @@ mod tests {
             owner: "1".to_string(),
             embed: empty_embed(),
             files: HashMap::new(),
+            saved_id: None,
         };
         assert!(apply_text_action(&mut s, "1", "Hello"));
         assert_eq!(s.embed["title"], "Hello");
@@ -1112,6 +1143,7 @@ mod tests {
             owner: "1".to_string(),
             embed: empty_embed(),
             files: HashMap::new(),
+            saved_id: None,
         };
         apply_media_pick(&mut s, "image", ("url", "https://img/x.png", None));
         assert_eq!(s.embed["image"]["url"], "https://img/x.png");
@@ -1160,6 +1192,7 @@ mod tests {
             owner: "1".to_string(),
             embed: empty_embed(),
             files: HashMap::new(),
+            saved_id: None,
         };
         save_draft(&pool, "g", 5, &state).await;
         assert_eq!(load_draft(&pool, "g", 5).await.unwrap().owner, "1");

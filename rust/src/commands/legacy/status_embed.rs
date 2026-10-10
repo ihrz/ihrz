@@ -1,6 +1,9 @@
 use super::*;
 
 /// Status embed. Mirrors status-embed.ts (local process status).
+///
+/// TS gates the run on `isBotOwner` (`else return`) — mirrored here
+/// before any status read.
 #[poise::command(
     slash_command,
     prefix_command,
@@ -8,6 +11,13 @@ use super::*;
     rename = "status-embed"
 )]
 pub async fn status_embed(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
+    let owners = crate::db::bot_owner_ids(&ctx.data().pool, &ctx.data().config.owners).await;
+    if !owners
+        .iter()
+        .any(|o| o == &ctx.author().id.get().to_string())
+    {
+        return Ok(());
+    }
     let latency = ctx.ping().await.as_millis();
     let db_ms = crate::funcs::database_latency(&ctx.data().pool).await;
     let mem = crate::funcs::system_memory_kb();

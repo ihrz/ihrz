@@ -841,6 +841,13 @@ mod tests {
         assert!(has_gate("unban-all", Permissions::ADMINISTRATOR));
         assert!(has_gate("sanction", Permissions::ADMINISTRATOR));
         assert!(has_gate("lobby", Permissions::ADMINISTRATOR));
+        // TS @add-react.ts:46 / @remove-react.ts:46 / @list-react.ts.
+        assert!(has_gate("add-react", Permissions::MANAGE_GUILD_EXPRESSIONS));
+        assert!(has_gate(
+            "remove-react",
+            Permissions::MANAGE_GUILD_EXPRESSIONS
+        ));
+        assert!(has_gate("list-react", Permissions::ADD_REACTIONS));
     }
 
     #[test]

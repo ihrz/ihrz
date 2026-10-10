@@ -545,8 +545,11 @@ fn display_name(user: &serenity::User) -> String {
 }
 
 /// Owners embed for the no-arg add path. Mirrors the TS
-/// `Owners [Bot]` / `Owners [Guild]` embeds.
-fn owners_embed(title: &str, owners: &[String]) -> serenity::CreateEmbed {
+/// `Owners [Bot]` / `Owners [Guild]` embeds: color + author name (not
+/// a title) + mention description + shared footer text. No timestamp.
+/// Callers attach the footer icon file like the TS
+/// `footerAttachmentBuilder` send.
+fn owners_embed(title: &str, owners: &[String], footer_name: &str) -> serenity::CreateEmbed {
     let desc = owners
         .iter()
         .map(|id| format!("<@{id}>"))
@@ -554,9 +557,9 @@ fn owners_embed(title: &str, owners: &[String]) -> serenity::CreateEmbed {
         .join("\n");
     serenity::CreateEmbed::default()
         .colour(0x2E2EFE_u32)
-        .title(title)
+        .author(serenity::CreateEmbedAuthor::new(title))
         .description(desc)
-        .timestamp(serenity::Timestamp::now())
+        .footer(serenity::CreateEmbedFooter::new(footer_name))
 }
 
 /// Subcommand for owner category!
@@ -612,10 +615,22 @@ pub async fn owner_add(
             let owners =
                 crate::db::bot_owner_ids(&ctx.data().pool, &ctx.data().config.owners).await;
             let Some(target) = user else {
-                ctx.send(
-                    poise::CreateReply::default().embed(owners_embed("Owners [Bot]", &owners)),
-                )
-                .await?;
+                let gid_s = ctx
+                    .guild_id()
+                    .map(|g| g.get().to_string())
+                    .unwrap_or_default();
+                let (footer_name, footer_bytes) =
+                    crate::commands::utils::footer_parts(&ctx, &gid_s).await;
+                let mut reply = poise::CreateReply::default().embed(owners_embed(
+                    "Owners [Bot]",
+                    &owners,
+                    &footer_name,
+                ));
+                if let Some(bytes) = footer_bytes {
+                    reply = reply
+                        .attachment(serenity::CreateAttachment::bytes(bytes, "footer_icon.png"));
+                }
+                ctx.send(reply).await?;
                 return Ok(());
             };
             if owners.iter().any(|o| o == &target.id.get().to_string()) {
@@ -648,10 +663,18 @@ pub async fn owner_add(
                 crate::db::guild_owner_ids(&ctx.data().pool, &gid_s, discord_owner_id(&ctx, gid))
                     .await;
             let Some(target) = user else {
-                ctx.send(
-                    poise::CreateReply::default().embed(owners_embed("Owners [Guild]", &owners)),
-                )
-                .await?;
+                let (footer_name, footer_bytes) =
+                    crate::commands::utils::footer_parts(&ctx, &gid_s).await;
+                let mut reply = poise::CreateReply::default().embed(owners_embed(
+                    "Owners [Guild]",
+                    &owners,
+                    &footer_name,
+                ));
+                if let Some(bytes) = footer_bytes {
+                    reply = reply
+                        .attachment(serenity::CreateAttachment::bytes(bytes, "footer_icon.png"));
+                }
+                ctx.send(reply).await?;
                 return Ok(());
             };
             if owners.iter().any(|o| o == &target.id.get().to_string()) {
@@ -1019,7 +1042,10 @@ async fn owner_blacklist_inner(
                     "✅ ${username} banned on **${totalSuccess}** server(s) across all shards (`{score}`)",
                 )
                 .replace("{score}", &score)
-                .replace("{username}", &display_name(&target))
+                // TS branch-1 names the plain `member.user.username` here
+                // (the globalName form is only used for the direct
+                // replies), so this is `target.name`, not display_name.
+                .replace("{username}", &target.name)
                 .replace("${totalSuccess}", &total_success.to_string()),
             )
             .await?;

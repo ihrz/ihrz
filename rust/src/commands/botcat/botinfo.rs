@@ -94,7 +94,9 @@ pub async fn botinfo_full(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
             t("botinfo_embed_fields_created_by", "Created by:"),
             "<@171356978310938624>",
             false,
-        );
+        )
+        // TS botinfo.ts calls .setTimestamp() on the info embed.
+        .timestamp(serenity::Timestamp::now());
     let embed =
         crate::commands::utils::embed_with_footer(embed, &footer_name, footer_bytes.is_some());
     let mut reply = poise::CreateReply::default().embed(embed);

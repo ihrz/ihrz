@@ -666,6 +666,12 @@ pub struct Handler {
     /// Mirrors pendingCustomVoiceCreations in
     /// Events/voicedashboard/voiceState.ts.
     pub temp_pending: Arc<tokio::sync::Mutex<HashSet<String>>>,
+    /// Last-known names per user: (username, globalName).
+    /// Mirrors `usersNamesMap` in src/core/prevnamesModule.ts (warmed
+    /// from the member cache at ready, refreshed on every user_update).
+    /// Serenity `old` is None on cache miss; the map is the fallback
+    /// for the previous-name diff below.
+    pub names: Arc<tokio::sync::Mutex<HashMap<u64, (String, Option<String>)>>>,
     /// SMTP owner mailer. Mirrors `client.email` (core.ts:134).
     /// Silent when SMTP env is incomplete (guarded by `connected`).
     pub mailer: Arc<crate::mailer::Mailer>,
@@ -878,9 +884,14 @@ pub fn leash_sub_ids(sub_csv: &str) -> Vec<String> {
 }
 
 /// True when the changing member belongs to this pairing (either as
-/// dom or as one of the CSV subs). Pure, unit-tested below.
+/// dom or as the whole sub field). Mirrors leashModule.ts verbatim:
+/// `x.sub === id || x.dom === id` compares the raw sub string, NOT
+/// the split CSV parts (so a multi-sub pairing only matches on the
+/// dom side, like TS). The CSV split (`leash_sub_ids`) applies only
+/// once a pairing matched, when resolving which subs to move.
+/// Pure, unit-tested below.
 pub fn leash_entry_matches(entry: &LeashEntry, changing_id: &str) -> bool {
-    entry.dom == changing_id || leash_sub_ids(&entry.sub).iter().any(|s| s == changing_id)
+    entry.dom == changing_id || entry.sub == changing_id
 }
 
 /// True when the changing member is the dom of this pairing.
@@ -1325,6 +1336,7 @@ impl Handler {
             restoring: Arc::new(tokio::sync::Mutex::new(HashSet::new())),
             handled_audit: Arc::new(tokio::sync::Mutex::new(HashSet::new())),
             temp_pending: Arc::new(tokio::sync::Mutex::new(HashSet::new())),
+            names: Arc::new(tokio::sync::Mutex::new(HashMap::new())),
             mailer: Arc::new(crate::mailer::Mailer::init_from_env("iHorizon")),
         }
     }
@@ -2606,6 +2618,18 @@ impl Handler {
         perms.view_audit_log() && perms.manage_guild()
     }
 
+    /// ManageRoles gate. Mirrors the `members.me` ManageRoles early
+    /// return at the top of guildconfig/joinRole.ts and
+    /// utils/supportModule.ts: without it every role add/remove
+    /// below would fail.
+    async fn bot_can_manage_roles(
+        &self,
+        ctx: &serenity::Context,
+        guild_id: serenity::GuildId,
+    ) -> bool {
+        self.bot_effective_perms(ctx, guild_id).await.manage_roles()
+    }
+
     /// Per-rule bot-permission gate (audit P2). Mirrors the `members.me`
     /// early returns at the top of each Events/protection/avoid*.ts
     /// file, evaluated BEFORE audit-log attribution like the
@@ -3553,10 +3577,10 @@ impl serenity::EventHandler for Handler {
         }
         // Username warm map (mirrors the usersNamesMap loop at the end
         // of ready.ts: `usersNamesMap.set(id, { username, globalName })`
-        // over every cached guild member). The Rust prevnames path is
-        // DB-backed and reads the serenity `old` payload on
-        // user_update, so no live consumer needs the map; the call
-        // keeps the helper wired to the gateway cache like TS.
+        // over every cached guild member). Retained in `self.names` so
+        // user_update has a previous-name fallback when the serenity
+        // `old` payload is None (cache miss), exactly like TS
+        // `cached?.username ?? oldUser.username`.
         {
             let entries: Vec<(u64, String, Option<String>)> = ctx
                 .cache
@@ -3574,6 +3598,7 @@ impl serenity::EventHandler for Handler {
                 .collect();
             let warmed = crate::bot::collect_users_names(entries);
             tracing::debug!("ready: warmed {} username rows", warmed.len());
+            *self.names.lock().await = warmed;
         }
         // BOT metas push (mirrors refreshBotData in ready.ts: boot push
         // + 45s interval, main shard only; the retry budget lives in
@@ -4358,7 +4383,11 @@ impl serenity::EventHandler for Handler {
         }
     }
 
-    async fn guild_member_addition(&self, ctx: serenity::Context, new_member: serenity::Member) {
+    async fn guild_member_addition(
+        &self,
+        ctx: serenity::Context,
+        mut new_member: serenity::Member,
+    ) {
         // Mirrors guildconfig/joinRole.ts + joinMessage.ts + joinDm.ts
         // + blockBot.ts + tooNewAccount.ts.
         let gid = new_member.guild_id.get().to_string();
@@ -4534,7 +4563,12 @@ impl serenity::EventHandler for Handler {
         // Join roles (mirrors joinRole.ts: blob joinroles string|string[],
         // legacy GUILD.JOIN_ROLE fallback). Array.isArray decides the shape:
         // a stored array (even single-element) replaces the member's roles
-        // like roles.set, a bare string adds like roles.add.
+        // like roles.set, a bare string adds like roles.add. The TS
+        // ManageRoles early return is mirrored first: without it every
+        // role call below would fail.
+        if !self.bot_can_manage_roles(&ctx, new_member.guild_id).await {
+            return;
+        }
         let join_roles = crate::events::join_role_ids(&self.pool, &gid).await;
         let join_is_array: bool = guild_config_routed(&self.pool, &gid)
             .await
@@ -4542,17 +4576,16 @@ impl serenity::EventHandler for Handler {
             .map(|v| v.is_array())
             .unwrap_or(false);
         if join_is_array && !join_roles.is_empty() {
-            let keep: std::collections::HashSet<u64> = join_roles.iter().copied().collect();
-            for role_id in new_member.roles.iter() {
-                if role_id.get() != new_member.guild_id.get() && !keep.contains(&role_id.get()) {
-                    let _ = new_member.remove_role(&ctx.http, *role_id).await;
-                }
-            }
-            for rid in &join_roles {
-                let _ = new_member
-                    .add_role(&ctx.http, serenity::RoleId::new(*rid))
-                    .await;
-            }
+            // Atomic replace in one call (mirrors `member.roles.set`
+            // with an audit reason; serenity 0.12 carries no reason
+            // slot, documented delta).
+            let want: Vec<serenity::RoleId> = join_roles
+                .iter()
+                .map(|rid| serenity::RoleId::new(*rid))
+                .collect();
+            let _ = new_member
+                .edit(&ctx.http, serenity::EditMember::new().roles(want))
+                .await;
         } else if let Some(rid) = join_roles.first() {
             let _ = new_member
                 .add_role(&ctx.http, serenity::RoleId::new(*rid))
@@ -4647,7 +4680,10 @@ impl serenity::EventHandler for Handler {
                 .await;
             return;
         }
-        // Nickname kicker (mirrors nickKicker.ts).
+        // Nickname kicker (mirrors nickKicker.ts: username, displayName
+        // and globalName are all scanned; the member is DM'd the
+        // `event_nick_kicker_kick_msg` notice, then kicked with the
+        // `event_nick_kicker_kick_reason` lang reason).
         if let Some(raw) = nick_kicker_routed(&self.pool, &gid).await {
             if let Ok(cfg) = serde_json::from_str::<serde_json::Value>(&raw) {
                 let enabled = cfg
@@ -4663,11 +4699,28 @@ impl serenity::EventHandler for Handler {
                         &words,
                         &new_member.user.name,
                         Some(&new_member.nick.clone().unwrap_or_default()),
+                        new_member.user.global_name.as_deref(),
                     )
                 {
+                    let lang_code =
+                        crate::db::guild_lang(&self.pool, Some(new_member.guild_id.get())).await;
+                    let guild_name = ctx
+                        .cache
+                        .guild(new_member.guild_id)
+                        .map(|g| g.name.clone())
+                        .unwrap_or_else(|| "this server".to_string());
+                    let dm = crate::lang::get(&lang_code, "event_nick_kicker_kick_msg")
+                        .unwrap_or_default()
+                        .replace("${member.guild.name}", &guild_name);
+                    let _ = new_member
+                        .user
+                        .direct_message(&ctx.http, serenity::CreateMessage::new().content(dm))
+                        .await;
+                    let reason = crate::lang::get(&lang_code, "event_nick_kicker_kick_reason")
+                        .unwrap_or_default();
                     let _ = new_member
                         .guild_id
-                        .kick_with_reason(&ctx.http, new_member.user.id, "banned nickname")
+                        .kick_with_reason(&ctx.http, new_member.user.id, &reason)
                         .await;
                     return;
                 }
@@ -4771,6 +4824,11 @@ impl serenity::EventHandler for Handler {
         }
         // Mirrors rolesaver/onMemberJoin.ts: restore snapshot roles
         // (replace semantics) when enabled, then drop the row.
+        // ATOMICITY VERDICT: TS itself is not atomic either
+        // (`roles.set` then `db.delete` as two awaits). A crash between
+        // the two re-restores idempotently on next join, and the row
+        // delete only runs after the role calls, so a partial restore
+        // is retried rather than lost. Kept as-is on purpose.
         if crate::commands::newfeatures::load_rolesaver_cfg(&self.pool, &gid)
             .await
             .enabled
@@ -4780,6 +4838,11 @@ impl serenity::EventHandler for Handler {
                 rolesaver_row_routed(&self.pool, &gid, new_member.user.id.get()).await
             {
                 let roles: Vec<String> = serde_json::from_str(&raw).unwrap_or_default();
+                // TS `if (!array || array.length === 0) return`: an empty
+                // snapshot restores nothing (and must not wipe roles).
+                if roles.is_empty() {
+                    return;
+                }
                 let want: Vec<serenity::RoleId> = roles
                     .iter()
                     .filter_map(|s| s.parse::<u64>().ok())
@@ -4897,6 +4960,20 @@ impl serenity::EventHandler for Handler {
                                 .get("role2")
                                 .and_then(|r| r.as_str())
                                 .and_then(|r| r.parse::<u64>().ok());
+                            // Still-present guard: the member may have left
+                            // between join and the challenge send. Parking a
+                            // challenge (and its expiry kick) for a gone
+                            // member would kick a later rejoin under the old
+                            // same-join window, so drop the message instead.
+                            if new_member
+                                .guild_id
+                                .member(&ctx.http, new_member.user.id)
+                                .await
+                                .is_err()
+                            {
+                                let _ = sent.delete(&ctx.http).await;
+                                return;
+                            }
                             let key =
                                 security_key(new_member.guild_id.get(), new_member.user.id.get());
                             let joined_at = new_member.joined_at.map(|t| t.unix_timestamp());
@@ -6163,9 +6240,13 @@ impl serenity::EventHandler for Handler {
                     )
                 });
             if let Some((legacy, ts_snap)) = snap {
-                // TS shape at GUILD.SNIPE.<channel> (snipeModule.ts
-                // verbatim); the legacy SNIPE.<channel> row stays as
-                // fallback for old readers.
+                // DUAL-WRITE VERDICT: TS snipeModule.ts sets the SAME
+                // GUILD.SNIPE.<channel> key twice back-to-back with the
+                // identical payload (a redundant double-set, not two
+                // shapes). One write carries the full TS shape; the
+                // second write keeps the legacy SNIPE.<channel> row as
+                // fallback for old readers. No behavior is lost by
+                // collapsing the duplicate.
                 let _ = save_snipe_routed(
                     &self.pool,
                     &gid,
@@ -7432,21 +7513,29 @@ impl serenity::EventHandler for Handler {
         // Mirrors prevnamesModule.ts (global username history): on
         // change, the OLD username / globalName is recorded with a date
         // stamp and type tag (`<t:unix:d> - [username|globalName]
-        // oldValue`), newest first. `old` is None on cache miss — with
-        // no previous value to record, nothing is stored (never the new
-        // name itself).
-        if let Some(old_user) = old.as_ref() {
+        // oldValue`), newest first. Previous names resolve like TS
+        // `cached?.username ?? oldUser.username`: the serenity `old`
+        // payload first, the retained `self.names` map (warmed at
+        // ready, refreshed below) on cache miss. With neither known,
+        // nothing is stored — never the new name itself.
+        let known: Option<(String, Option<String>)> =
+            self.names.lock().await.get(&new.id.get()).cloned();
+        let (prev_name, prev_global): (Option<String>, Option<Option<String>>) = match old.as_ref()
+        {
+            Some(o) => (Some(o.name.clone()), Some(o.global_name.clone())),
+            None => match known {
+                Some((n, g)) => (Some(n), Some(g)),
+                None => (None, None),
+            },
+        };
+        if let (Some(pn), Some(pg)) = (&prev_name, &prev_global) {
             let now = crate::commands::context::now_ms() / 1000;
             let mut changes: Vec<String> = Vec::new();
-            if old_user.name != new.name {
-                changes.push(crate::events::prevname_entry(
-                    now,
-                    "username",
-                    &old_user.name,
-                ));
+            if *pn != new.name {
+                changes.push(crate::events::prevname_entry(now, "username", pn));
             }
-            if old_user.global_name != new.global_name {
-                if let Some(prev_global) = old_user.global_name.as_deref() {
+            if *pg != new.global_name {
+                if let Some(prev_global) = pg.as_deref() {
                     changes.push(crate::events::prevname_entry(
                         now,
                         "globalName",
@@ -7470,14 +7559,20 @@ impl serenity::EventHandler for Handler {
                 .await;
             }
         }
+        // Refresh the retained map (mirrors the trailing
+        // `usersNamesMap.set` in prevnamesModule.ts).
+        self.names
+            .lock()
+            .await
+            .insert(new.id.get(), (new.name.clone(), new.global_name.clone()));
         // Rank-role username-change grant (mirrors
         // Events/utils/rankRoleModule_2.ts): on username/globalName
         // change, grant or remove the GUILD.RANK_ROLES role based on
         // whether the new names contain the configured substring.
         // Reuses the GUILD.RANK_ROLES.roles / .nicknames keys (no new keys).
         if !crate::commands::h247::grant::names_changed(
-            old.as_ref().map(|o| o.name.as_str()),
-            old.as_ref().map(|o| o.global_name.as_deref()),
+            prev_name.as_deref(),
+            prev_global.as_ref().map(|g| g.as_deref()),
             &new.name,
             new.global_name.as_deref(),
         ) {
@@ -8298,11 +8393,20 @@ impl serenity::EventHandler for Handler {
     /// Support role sync (mirrors utils/supportModule.ts): grant or
     /// remove the configured role based on the user's bio/vanity
     /// (type "bio") or server tag (type "tag").
+    /// TYPE VERDICT: TS `if (!someinfo.type) someinfo.type === "bio"`
+    /// is a comparison, not an assignment — a missing or unknown type
+    /// stays unmatched, so nothing is granted and an existing role is
+    /// removed. The empty-kind fallthrough below mirrors that exactly.
     async fn presence_update(&self, ctx: serenity::Context, new_data: serenity::Presence) {
         let Some(guild_id) = new_data.guild_id else {
             return;
         };
         use serenity::model::user::OnlineStatus;
+        // ManageRoles gate (mirrors the `members.me` permissions check
+        // at the top of supportModule.ts).
+        if !self.bot_can_manage_roles(&ctx, guild_id).await {
+            return;
+        }
         if matches!(
             new_data.status,
             OnlineStatus::Offline | OnlineStatus::Invisible
@@ -8323,6 +8427,34 @@ impl serenity::EventHandler for Handler {
             return;
         };
         let role_id = serenity::RoleId::new(role_id);
+        // Hierarchy gate (mirrors `members.me.roles.highest.position <
+        // fetchedRoles.rawPosition` → return): the bot cannot manage a
+        // role at or above its own highest role. Cache snapshot, like
+        // the TS `roles.cache` / `members.cache` reads; an unresolvable
+        // target role or bot row fails closed.
+        let dominated: bool = ctx
+            .cache
+            .guild(guild_id)
+            .map(|g| {
+                let bot_id = ctx.cache.current_user().id;
+                let top: Option<u16> = g.members.get(&bot_id).map(|m| {
+                    m.roles
+                        .iter()
+                        .filter_map(|r| g.roles.get(r))
+                        .map(|r| r.position)
+                        .max()
+                        .unwrap_or(0)
+                });
+                let want: Option<u16> = g.roles.get(&role_id).map(|r| r.position);
+                match (top, want) {
+                    (Some(t), Some(w)) => t < w,
+                    _ => true,
+                }
+            })
+            .unwrap_or(true);
+        if dominated {
+            return;
+        }
         let Ok(member) = guild_id.member(&ctx.http, new_data.user.id).await else {
             return;
         };
@@ -8911,12 +9043,20 @@ mod restore_tests {
             sub: "1,2".to_string(),
             timestamp: 0,
         };
-        // Dom and each CSV sub match; outsiders do not.
+        // Whole-string filter like TS (`x.sub === id || x.dom === id`):
+        // the dom matches, a multi-id CSV sub does NOT match any single
+        // part, outsiders do not match.
         assert!(leash_entry_matches(&entry, "9"));
-        assert!(leash_entry_matches(&entry, "1"));
-        assert!(leash_entry_matches(&entry, "2"));
+        assert!(!leash_entry_matches(&entry, "1"));
+        assert!(!leash_entry_matches(&entry, "2"));
         assert!(!leash_entry_matches(&entry, "12"));
         assert!(!leash_entry_matches(&entry, "7"));
+        let single = LeashEntry {
+            dom: "9".to_string(),
+            sub: "1".to_string(),
+            timestamp: 0,
+        };
+        assert!(leash_entry_matches(&single, "1"));
         // Direction: dom move drags subs, sub move pulls back.
         assert!(leash_is_dom(&entry, "9"));
         assert!(!leash_is_dom(&entry, "1"));

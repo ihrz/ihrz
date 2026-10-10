@@ -139,7 +139,8 @@ pub async fn prevnames(
                             ctx.http(),
                             serenity::EditMessage::new()
                                 .content(t("prevnames_data_erased"))
-                                .suppress_embeds(true)
+                                // TS clears embeds/components/files here.
+                                .embeds(Vec::new())
                                 .components(vec![]),
                         )
                         .await;

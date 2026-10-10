@@ -1,6 +1,7 @@
 use super::*;
 
-/// Bug report (5h cooldown, stored).
+/// Bug report (5h cooldown, guild-owner only, forwarded to the dev
+/// report channel like report.ts).
 #[poise::command(
     slash_command,
     prefix_command,
@@ -37,7 +38,27 @@ pub async fn report(
         .await?;
         return Ok(());
     }
-    if message.split_whitespace().count() < 8 {
+    // TS restricts reports to the guild owner (checked after the
+    // cooldown): anyone else gets `report_owner_need`.
+    let discord_owner = ctx
+        .serenity_context()
+        .cache
+        .guild(guild_id)
+        .map(|g| g.owner_id.get());
+    if discord_owner != Some(uid) {
+        let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+        ctx.say(
+            crate::lang::get(&code, "report_owner_need").unwrap_or_else(|| {
+                ":x: | **You must be the owner of the server to be able to run this command!**"
+                    .to_string()
+            }),
+        )
+        .await?;
+        return Ok(());
+    }
+    // TS counts words with `split(" ")` (empty segments count), not
+    // whitespace runs.
+    if message.split(' ').count() < 8 {
         let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
         ctx.say(
             crate::lang::get(&code, "report_specify").unwrap_or_else(|| {
@@ -47,13 +68,24 @@ pub async fn report(
         .await?;
         return Ok(());
     }
-    crate::db::kv_set(
-        &ctx.data().pool,
-        &gid,
-        &format!("REPORTS.{now}.{uid}"),
-        &message,
-    )
-    .await?;
+    // TS forwards the report as an embed to the dev report channel
+    // (`config.core.reportChannelID`) instead of storing it: red
+    // embed, reporter + text + server id, then the cooldown is set.
+    let reporter = ctx
+        .author()
+        .global_name
+        .clone()
+        .unwrap_or_else(|| ctx.author().name.clone());
+    let fwd = serenity::CreateEmbed::default().colour(0xff0000).description(format!(
+        "**{reporter}** (<@{uid}>) reported:\n~~--------------------------------~~\n{message}\n~~--------------------------------~~\nServer ID: **{gid}**"
+    ));
+    if let Ok(channel_id) = ctx.data().config.report_channel_id.parse::<u64>() {
+        if channel_id != 0 {
+            let _ = serenity::ChannelId::new(channel_id)
+                .send_message(ctx.http(), serenity::CreateMessage::new().embed(fwd))
+                .await;
+        }
+    }
     crate::db::kv_set(
         &ctx.data().pool,
         &gid,

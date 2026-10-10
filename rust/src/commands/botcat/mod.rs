@@ -191,8 +191,15 @@ pub fn machine_uptime() -> String {
     uptime_str(secs)
 }
 
-/// Sanitize bio like customProfileHelper (190 chars, first 2 lines).
+/// Sanitize bio like customProfileHelper.changeGuildBotBio: at most
+/// 190 chars, and only bios OVER 190 (JS `bio.length`, i.e. UTF-16
+/// units) are cut to their first 2 lines first. Short bios keep all
+/// their lines (`bio.length <= 190 ? bio : ...`). The 190-char cut
+/// spreads by code point (`[...s]`), matching `chars()` here.
 pub fn sanitize_bio(bio: &str) -> String {
+    if bio.encode_utf16().count() <= 190 {
+        return bio.to_string();
+    }
     let two: Vec<&str> = bio.lines().take(2).collect();
     two.join("\n").chars().take(190).collect()
 }
@@ -308,7 +315,9 @@ mod tests {
 
     #[test]
     fn bio_sanitizes_to_190_chars_2_lines() {
-        assert_eq!(sanitize_bio("a\nb\nc"), "a\nb");
+        // Short bios (<= 190 UTF-16 units) keep all their lines, like
+        // `bio.length <= 190 ? bio : ...` in changeGuildBotBio.
+        assert_eq!(sanitize_bio("a\nb\nc"), "a\nb\nc");
         assert_eq!(sanitize_bio(&"x".repeat(300)).chars().count(), 190);
         assert_eq!(sanitize_bio(""), "");
     }

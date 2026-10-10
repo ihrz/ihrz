@@ -69,7 +69,11 @@ pub fn levenshtein(a: &str, b: &str) -> usize {
 }
 
 /// Normalized string similarity. Mirrors similarity()
-/// (lowercased both sides, 1.0 when both empty).
+/// (lowercased both sides, 1.0 when both empty). Carve-out: the
+/// channel-name fuzzy leg in method.ts `isValidArgument`
+/// (`similarity(query, name) >= 0.6`) reuses this metric but stays
+/// delivery-side (needs the guild cache); only the music-search gate
+/// (`is_similar` below) is modeled here.
 pub fn similarity(a: &str, b: &str) -> f64 {
     let lowered_a = a.to_lowercase();
     let lowered_b = b.to_lowercase();

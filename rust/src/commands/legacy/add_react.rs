@@ -6,7 +6,9 @@ use super::*;
     prefix_command,
     category = "utils",
     rename = "add-react",
-    aliases("react-add", "addreact", "reactadd")
+    aliases("react-add", "addreact", "reactadd"),
+    // @add-react.ts: permission ManageGuildExpressions.
+    default_member_permissions = "MANAGE_GUILD_EXPRESSIONS"
 )]
 pub async fn add_react(
     ctx: Ctx<'_>,

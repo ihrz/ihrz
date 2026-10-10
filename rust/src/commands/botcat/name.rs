@@ -36,6 +36,14 @@ pub async fn custom_name(
     let pool = &ctx.data().pool;
     if action.trim().eq_ignore_ascii_case("reset") {
         crate::db::kv_del(pool, &gid, BOT_NAME_KEY).await?;
+        // TS replies first, then restores the display name (banner.rs
+        // follows the same reply-then-patch order for its reset).
+        let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+        ctx.say(
+            crate::lang::get(&code, "custom_name_reset")
+                .unwrap_or_else(|| "You have decided to reset the bot's name on the server. Embed footers will return to their default state, as well as the bot's name on the server.".to_string()),
+        )
+        .await?;
         let fallback = ctx.cache().current_user().display_name().to_string();
         if let Some(token) = crate::config::bot_token() {
             patch_guild_me(
@@ -45,12 +53,6 @@ pub async fn custom_name(
             )
             .await;
         }
-        let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-        ctx.say(
-            crate::lang::get(&code, "custom_name_reset")
-                .unwrap_or_else(|| "You have decided to reset the bot's name on the server. Embed footers will return to their default state, as well as the bot's name on the server.".to_string()),
-        )
-        .await?;
         return Ok(());
     }
     let Some(name) = name.map(|n| n.trim().to_string()).filter(|n| !n.is_empty()) else {

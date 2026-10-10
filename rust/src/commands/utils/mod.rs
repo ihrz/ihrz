@@ -114,13 +114,27 @@ fn g_roles_admin(
 }
 
 /// Nickname kicker config. Mirrors util !nick-kicker.ts
-/// (UTILS.NICK_KICKER {enabled, words[]}).
-pub fn nick_matches(words: &[String], username: &str, display: Option<&str>) -> bool {
+/// (UTILS.NICK_KICKER {enabled, words[]}): a member trips when any
+/// word appears in the username, the guild display name, or the
+/// global display name (TS checks all three: username, displayName,
+/// globalName). Case-insensitive substring, like TS toLowerCase().
+pub fn nick_matches(
+    words: &[String],
+    username: &str,
+    display: Option<&str>,
+    global_name: Option<&str>,
+) -> bool {
     let username = username.to_ascii_lowercase();
     let display = display.map(|d| d.to_ascii_lowercase());
+    let global_name = global_name.map(|g| g.to_ascii_lowercase());
     words.iter().any(|w| {
         let w = w.to_ascii_lowercase();
-        username.contains(&w) || display.as_ref().map(|d| d.contains(&w)).unwrap_or(false)
+        username.contains(&w)
+            || display.as_ref().map(|d| d.contains(&w)).unwrap_or(false)
+            || global_name
+                .as_ref()
+                .map(|g| g.contains(&w))
+                .unwrap_or(false)
     })
 }
 
@@ -743,10 +757,11 @@ mod tests {
     #[test]
     fn nick_kicker_matches() {
         let words = vec!["bad".to_string()];
-        assert!(nick_matches(&words, "xBadx", None));
-        assert!(nick_matches(&words, "ok", Some("myBADname")));
-        assert!(!nick_matches(&words, "ok", Some("fine")));
-        assert!(!nick_matches(&[], "bad", None));
+        assert!(nick_matches(&words, "xBadx", None, None));
+        assert!(nick_matches(&words, "ok", Some("myBADname"), None));
+        assert!(nick_matches(&words, "ok", None, Some("The Bad One")));
+        assert!(!nick_matches(&words, "ok", Some("fine"), Some("Fine Name")));
+        assert!(!nick_matches(&[], "bad", None, None));
     }
 
     #[test]

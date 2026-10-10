@@ -478,7 +478,8 @@ pub async fn guild_prefix(pool: &Pool, guild_id: Option<u64>, default: &str) -> 
 pub const PREFIX_KEY: &str = "BOT.prefix";
 
 /// Legacy key written by the early Rust port (`GUILD.PREFIX`, never used
-/// by TS). Kept only so existing guilds can be migrated.
+/// by TS). Kept only so existing guilds can be migrated; removed by
+/// `migrate_prefix_key` once copied to the canonical key.
 pub const LEGACY_PREFIX_KEY: &str = "GUILD.PREFIX";
 
 /// Store a guild prefix under the canonical key.

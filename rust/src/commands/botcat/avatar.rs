@@ -27,9 +27,20 @@ pub async fn custom_avatar(
     let token = crate::config::bot_token();
     if action.trim().eq_ignore_ascii_case("reset") {
         crate::db::kv_del(pool, &gid, BOT_PFP_KEY).await?;
+        // TS replies first, then restores the *current global* avatar
+        // (`client.user.avatarURL()`), like banner.rs does for the
+        // banner. `face()` is only the fallback when the bot has no
+        // custom global avatar.
+        let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+        ctx.say(
+            crate::lang::get(&code, "custom_avatar_reset")
+                .unwrap_or_else(|| "You have decided to reset the bot's profile picture on the server. Embed footers will return to their default state, as well as the bot's profile picture on the server.".to_string()),
+        )
+        .await?;
         if let Some(token) = token {
-            let face = ctx.cache().current_user().face();
-            if let Some(bytes) = download_bytes(&face).await {
+            let me = ctx.cache().current_user().clone();
+            let global = me.avatar_url().unwrap_or_else(|| me.face());
+            if let Some(bytes) = download_bytes(&global).await {
                 patch_guild_me(
                     &token,
                     guild_id.get(),
@@ -43,12 +54,6 @@ pub async fn custom_avatar(
                 .await;
             }
         }
-        let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-        ctx.say(
-            crate::lang::get(&code, "custom_avatar_reset")
-                .unwrap_or_else(|| "You have decided to reset the bot's profile picture on the server. Embed footers will return to their default state, as well as the bot's profile picture on the server.".to_string()),
-        )
-        .await?;
         return Ok(());
     }
     let Some(avatar) = avatar else {

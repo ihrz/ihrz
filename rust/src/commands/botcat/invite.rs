@@ -38,13 +38,6 @@ pub async fn invite(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let mut reply = poise::CreateReply::default().embed(embed).components(vec![
         serenity::CreateActionRow::Buttons(vec![serenity::CreateButton::new_link(url)
             .label(t("invite_embed_title", "Thank you for adding iHorizon!"))]),
-        // Exemplar for the shared TopGG helper (U-AWESOMEEMBED): the vote
-        // row mirrors generateTopggActionRow (link + label; the TS TOPGG
-        // app emoji is omitted until its id is resolvable post-sync).
-        crate::commands::shared::generate_topgg_action_row(
-            app_id,
-            &t("topgg_vote_button_label", "Vote for iHorizon"),
-        ),
     ]);
     if let Some(bytes) = footer_bytes {
         reply = reply.attachment(serenity::CreateAttachment::bytes(bytes, "footer_icon.png"));

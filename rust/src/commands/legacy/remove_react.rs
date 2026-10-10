@@ -6,7 +6,9 @@ use super::*;
     prefix_command,
     category = "utils",
     rename = "remove-react",
-    aliases("react-remove", "removereact", "reactremove")
+    aliases("react-remove", "removereact", "reactremove"),
+    // @remove-react.ts: permission ManageGuildExpressions.
+    default_member_permissions = "MANAGE_GUILD_EXPRESSIONS"
 )]
 pub async fn remove_react(
     ctx: Ctx<'_>,

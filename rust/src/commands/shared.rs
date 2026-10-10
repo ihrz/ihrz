@@ -294,6 +294,7 @@ pub fn welcomer_set(cfg: &mut serde_json::Value, field: &str, value: Option<serd
 /// arrives already resolved by the caller (`crate::lang::get` with the
 /// exact en-US fallback, the `t(key, fallback)` pattern used across the
 /// command modules). YAML is untouched.
+///
 /// One slash/prefix option rendered into a help usage line. Mirrors the
 /// `Option` rows consumed by `boldStringifyOption` / `stringifyOption`
 /// (`getArgumentOptionNameWithOptions`: choice values joined with `/`,
@@ -315,7 +316,7 @@ impl HelpOptionDoc {
     }
 }
 
-/// Mirrors `stringifyOption`: `[name]` when required, `<name>`.
+/// Mirrors `stringifyOption`: `[name]` when required, `<name>` otherwise.
 pub fn stringify_options(options: &[HelpOptionDoc]) -> String {
     options
         .iter()
