@@ -426,6 +426,16 @@ async fn punish_pub_routed(pool: &crate::db::Pool, gid: &str) -> Option<String> 
 }
 
 /// PUNISH_DATA.<gid>.<uid> leaf (raw JSON blob string).
+/// Backing parity with blockSpam.ts verified: the TS `tempTable`
+/// (`db.table("temp")` in Events/client/ready.ts) is a regular
+/// persistent table — it is listed in `tables` in
+/// core/database/index.ts, preloaded from postgres like every other
+/// table, written back by the 5-minute `syncToPostgres` tick, and
+/// the boot-time `tempTable.deleteAll()` is commented out — so flag
+/// rows survive restarts. The persistent tbl row here is parity, not
+/// a divergence; the `PUNISH_DATA.{gid}.{uid}` key shape is frozen
+/// on purpose (prod rows already use it, and the guild table already
+/// scopes by gid).
 async fn punish_data_routed(pool: &crate::db::Pool, gid: &str, user_id: u64) -> Option<String> {
     leaf_routed(pool, gid, &format!("PUNISH_DATA.{gid}.{user_id}")).await
 }
@@ -1438,13 +1448,135 @@ impl Handler {
             .await;
     }
 
+    /// True when the channel is a plain guild text channel. Cache
+    /// first, HTTP fallback; an unresolvable kind fails closed
+    /// (mirrors the blockSpam.ts GuildText early return).
+    async fn is_guild_text_channel(
+        ctx: &serenity::Context,
+        guild_id: serenity::GuildId,
+        channel_id: serenity::ChannelId,
+    ) -> bool {
+        if let Some(g) = ctx.cache.guild(guild_id) {
+            if let Some(ch) = g.channels.get(&channel_id) {
+                return ch.kind == serenity::ChannelType::Text;
+            }
+        }
+        ctx.http
+            .get_channel(channel_id)
+            .await
+            .ok()
+            .and_then(|c| c.guild())
+            .map(|g| g.kind == serenity::ChannelType::Text)
+            .unwrap_or(false)
+    }
+
+    /// Apply one punishpub sanction (ban / kick / mute + flag-row
+    /// clear). Shared by the max-flags pre-check and the
+    /// post-increment check; mirrors applySanction in blockSpam.ts.
+    async fn apply_punishpub_sanction(
+        &self,
+        ctx: &serenity::Context,
+        gid: &str,
+        guild_id: serenity::GuildId,
+        author: serenity::UserId,
+        kind: &str,
+    ) {
+        match kind {
+            "kick" => {
+                let _ = guild_id
+                    .kick_with_reason(&ctx.http, author, "Kick by PunishPub")
+                    .await;
+            }
+            "mute" => {
+                if let Ok(member) = guild_id.member(&ctx.http, author).await {
+                    let mut member = member;
+                    if let Ok(until) = serenity::Timestamp::from_unix_timestamp(
+                        std::time::SystemTime::now()
+                            .duration_since(std::time::UNIX_EPOCH)
+                            .map(|d| d.as_secs() as i64)
+                            .unwrap_or(0)
+                            + 40,
+                    ) {
+                        let _ = member
+                            .disable_communication_until_datetime(&ctx.http, until)
+                            .await;
+                    }
+                }
+                // Warn entry (mirrors the blockSpam.ts `mute` leg:
+                // `member.timeout(40000, "Timeout by PunishPUB")` +
+                // `warnMember(..., "Timeout by PunishPUB", lang)`).
+                // The serenity timeout call carries no audit-log
+                // reason, so the reason lives on this warn record.
+                let lang_code = crate::db::guild_lang(&self.pool, Some(guild_id.get())).await;
+                // Clone owned values out of the cache guards at once:
+                // the guards themselves are not Send and must not be
+                // held across the awaits below.
+                let bot_name = ctx.cache.current_user().name.clone();
+                let bot_id = ctx.cache.current_user().id.get();
+                let guild_name = ctx.cache.guild(guild_id).map(|gd| gd.name.clone());
+                // Message author for the warn record (HTTP fetch:
+                // the cache user may be missing; without it the
+                // timeout still applies but no warn row is written).
+                if let Ok(target) = ctx.http.get_user(author).await {
+                    crate::commands::moderation::warn_member_with_author(
+                        &crate::commands::moderation::WarnContext {
+                            http: &ctx.http,
+                            guild_name,
+                            author_top_roles: None,
+                            guild_roles: None,
+                            pool: &self.pool,
+                            gid,
+                            guild_id,
+                            author_name: &bot_name,
+                            target: &target,
+                            reason: "Timeout by PunishPUB",
+                            lang_code: &lang_code,
+                        },
+                        Some(bot_id),
+                    )
+                    .await;
+                }
+            }
+            _ => {
+                let _ = guild_id
+                    .ban_with_reason(&ctx.http, author, 0, "Ban by PUNISHPUB")
+                    .await;
+            }
+        }
+        // Exact-row clear of the flag (mirrors the post-sanction
+        // `table.set(`${guildId}.PUNISH_DATA.${author}`, {})` reset in
+        // blockSpam.ts, as a real delete instead of an empty-object
+        // tombstone).
+        let flag_key = format!("PUNISH_DATA.{gid}.{}", author.get());
+        let _ = tbl_del(&self.pool, gid, &flag_key).await;
+    }
+
     async fn check_punishpub(&self, ctx: &serenity::Context, gid: &str, msg: &serenity::Message) {
-        // Mirrors blockSpam.ts basic validation: webhook and bot
-        // messages (including the bot's own) never trigger punishpub.
+        // Mirrors blockSpam.ts basic validation: guild, channel and
+        // member present, GuildText channel only, and no webhook /
+        // bot / self messages (webhook and bot messages, including
+        // the bot's own, never trigger punishpub).
+        let Some(guild_id) = msg.guild_id else {
+            return;
+        };
         if msg.webhook_id.is_some() || msg.author.bot {
             return;
         }
         if ctx.cache.current_user().id == msg.author.id {
+            return;
+        }
+        // Member-present gate (blockSpam.ts returns without
+        // message.member); an HTTP fetch covers a serenity cache
+        // miss before giving up.
+        let member_present =
+            msg.member.is_some() || guild_id.member(&ctx.http, msg.author.id).await.is_ok();
+        if !member_present {
+            return;
+        }
+        // GuildText-only gate (blockSpam.ts `channel.type !==
+        // ChannelType.GuildText` return): threads, voice channels
+        // and DMs never trigger punishpub.
+        if !Self::is_guild_text_channel(ctx, guild_id, msg.channel_id).await {
             return;
         }
         let antipub_off: bool = guild_config_field_routed(&self.pool, gid, "antipub")
@@ -1494,6 +1626,42 @@ impl Handler {
                 }
             }
         }
+        // PUNISH_PUB config + current flags, loaded before the link
+        // analysis so the max-flags pre-check below runs on every
+        // message like blockSpam.ts (which reads LOG + LOGfetched
+        // right after the exemptRoles gate).
+        let cfg: Option<(Option<i64>, bool, String)> = punish_pub_routed(&self.pool, gid)
+            .await
+            .and_then(|raw| serde_json::from_str::<serde_json::Value>(&raw).ok())
+            .map(|cfg| {
+                (
+                    cfg.get("amountMax").and_then(|n| n.as_i64()),
+                    cfg.get("state").and_then(|s| s.as_str()) == Some("true"),
+                    cfg.get("punishementType")
+                        .and_then(|s| s.as_str())
+                        .unwrap_or("ban")
+                        .to_string(),
+                )
+            });
+        let stored: Option<i64> = punish_data_routed(&self.pool, gid, msg.author.id.get())
+            .await
+            .and_then(|s| {
+                serde_json::from_str::<serde_json::Value>(&s)
+                    .ok()
+                    .and_then(|v| v.get("flags").and_then(|f| f.as_i64()))
+            });
+        // Max-flags-any-message sanction (mirrors the
+        // `LOG?.amountMax === LOGfetched?.flags` pre-check in
+        // blockSpam.ts): a user already sitting at max flags is
+        // sanctioned again on ANY further message, even one with no
+        // sanctionable link. Quirk parity, kept on purpose; like TS
+        // the pipeline continues to the link analysis afterwards.
+        if let Some((max, state_on, kind)) = cfg.as_ref() {
+            if *state_on && *max == stored {
+                self.apply_punishpub_sanction(ctx, gid, guild_id, msg.author.id, kind)
+                    .await;
+            }
+        }
         let links = crate::funcs::extract_links(&msg.content);
         let mut sanction = false;
         if !links.is_empty() {
@@ -1516,15 +1684,10 @@ impl Handler {
             return;
         }
         let _ = msg.delete(&ctx.http).await;
-        let flags: i64 = punish_data_routed(&self.pool, gid, msg.author.id.get())
-            .await
-            .and_then(|s| {
-                serde_json::from_str::<serde_json::Value>(&s)
-                    .ok()
-                    .and_then(|v| v.get("flags").and_then(|f| f.as_i64()))
-            })
-            .unwrap_or(0);
-        let new_flags = flags + 1;
+        // Flag increment runs even without a PUNISH_PUB row (mirrors
+        // blockSpam.ts, which deletes + counts before consulting
+        // LOG?.amountMax / LOG?.state).
+        let new_flags = stored.unwrap_or(0) + 1;
         let flag_key = format!("PUNISH_DATA.{gid}.{}", msg.author.id.get());
         let _ = tbl_set(
             &self.pool,
@@ -1533,91 +1696,14 @@ impl Handler {
             &serde_json::json!({"flags": new_flags}).to_string(),
         )
         .await;
-        let raw = match punish_pub_routed(&self.pool, gid).await {
-            Some(raw) => raw,
-            None => return,
-        };
-        let cfg: serde_json::Value = match serde_json::from_str(&raw) {
-            Ok(cfg) => cfg,
-            Err(_) => return,
-        };
-        let max = cfg.get("amountMax").and_then(|n| n.as_i64());
-        let state_on = cfg.get("state").and_then(|s| s.as_str()) == Some("true");
-        let kind = cfg
-            .get("punishementType")
-            .and_then(|s| s.as_str())
-            .unwrap_or("ban");
-        if !(state_on && max == Some(new_flags)) {
-            return;
-        }
-        match kind {
-            "kick" => {
-                if let Some(g) = msg.guild_id {
-                    let _ = g
-                        .kick_with_reason(&ctx.http, msg.author.id, "Kick by PunishPub")
-                        .await;
-                }
-            }
-            "mute" => {
-                if let Some(g) = msg.guild_id {
-                    if let Ok(member) = g.member(&ctx.http, msg.author.id).await {
-                        let mut member = member;
-                        if let Ok(until) = serenity::Timestamp::from_unix_timestamp(
-                            std::time::SystemTime::now()
-                                .duration_since(std::time::UNIX_EPOCH)
-                                .map(|d| d.as_secs() as i64)
-                                .unwrap_or(0)
-                                + 40,
-                        ) {
-                            let _ = member
-                                .disable_communication_until_datetime(&ctx.http, until)
-                                .await;
-                        }
-                    }
-                    // Warn entry (mirrors the blockSpam.ts `mute` leg:
-                    // `member.timeout(40000, "Timeout by PunishPUB")` +
-                    // `warnMember(..., "Timeout by PunishPUB", lang)`).
-                    // The serenity timeout call carries no audit-log
-                    // reason, so the reason lives on this warn record.
-                    let lang_code = crate::db::guild_lang(&self.pool, Some(g.get())).await;
-                    // Clone owned values out of the cache guards at once:
-                    // the guards themselves are not Send and must not be
-                    // held across the awaits below.
-                    let bot_name = ctx.cache.current_user().name.clone();
-                    let bot_id = ctx.cache.current_user().id.get();
-                    let guild_name = ctx.cache.guild(g).map(|gd| gd.name.clone());
-                    crate::commands::moderation::warn_member_with_author(
-                        &crate::commands::moderation::WarnContext {
-                            http: &ctx.http,
-                            guild_name,
-                            author_top_roles: None,
-                            guild_roles: None,
-                            pool: &self.pool,
-                            gid,
-                            guild_id: g,
-                            author_name: &bot_name,
-                            target: &msg.author,
-                            reason: "Timeout by PunishPUB",
-                            lang_code: &lang_code,
-                        },
-                        Some(bot_id),
-                    )
+        // Post-increment sanction (mirrors the
+        // `LOG?.amountMax === newFlagsCount` check in blockSpam.ts).
+        if let Some((max, state_on, kind)) = cfg.as_ref() {
+            if *state_on && *max == Some(new_flags) {
+                self.apply_punishpub_sanction(ctx, gid, guild_id, msg.author.id, kind)
                     .await;
-                }
-            }
-            _ => {
-                if let Some(g) = msg.guild_id {
-                    let _ = g
-                        .ban_with_reason(&ctx.http, msg.author.id, 0, "Ban by PUNISHPUB")
-                        .await;
-                }
             }
         }
-        // Exact-row clear of the flag (mirrors the post-sanction
-        // `table.set(`${guildId}.PUNISH_DATA.${author}`, {})` reset in
-        // blockSpam.ts, as a real delete instead of an empty-object
-        // tombstone).
-        let _ = tbl_del(&self.pool, gid, &flag_key).await;
     }
 
     /// Full antispam pipeline. Mirrors the messageCreate run in
@@ -3619,6 +3705,11 @@ impl serenity::EventHandler for Handler {
         // backupGuildStructure in protection/ready.ts).
         seed_protection_snapshot(&self.pool, &guild).await;
         // Owner log embed to the guild-logs channel (email leg is SMTP-blocked).
+        // Real joins only: serenity replays guild_create for every guild at
+        // boot, and TS guildCreate.ts answers joins, not the ready burst.
+        if !matches!(_is_new, Some(true)) {
+            return;
+        }
         if let Ok(logs_ch) = crate::config::load()
             .map(|c| c.guild_logs_channel_id)
             .unwrap_or_default()
@@ -3859,12 +3950,120 @@ impl serenity::EventHandler for Handler {
         // Mirrors guildconfig/joinRole.ts + joinMessage.ts + joinDm.ts
         // + blockBot.ts + tooNewAccount.ts.
         let gid = new_member.guild_id.get().to_string();
-        // Block bots when configured.
+        // Block bots when configured (mirrors
+        // Events/guildconfig/blockBot.ts: ban the bot, derank the
+        // audit-attributed adder with simply+derank, DM the owner).
         if new_member.user.bot && block_bot_routed(&self.pool, &gid).await {
+            if !self.bot_is_admin(&ctx, new_member.guild_id).await {
+                return;
+            }
             let _ = new_member
                 .guild_id
-                .kick_with_reason(&ctx.http, new_member.user.id, "bots blocked")
+                .ban_with_reason(
+                    &ctx.http,
+                    new_member.user.id,
+                    0,
+                    "The BlockBot function is enabled!",
+                )
                 .await;
+            // Attribute the adder via the BotAdd audit entry (target-id
+            // match, 20s recency, handled-set dedup like getLogs).
+            let mut adder: Option<serenity::UserId> = None;
+            {
+                use serenity::model::guild::audit_log::{Action, MemberAction};
+                if let Ok(logs) = new_member
+                    .guild_id
+                    .audit_logs(
+                        &ctx.http,
+                        Some(Action::Member(MemberAction::BotAdd)),
+                        None,
+                        None,
+                        Some(AUDIT_LOG_FETCH_LIMIT),
+                    )
+                    .await
+                {
+                    let bot_id = ctx.cache.current_user().id.get();
+                    let now_ms = chrono::Local::now().timestamp_millis();
+                    if let Some(entry) = logs.entries.iter().find(|e| {
+                        audit_entry_relevant(
+                            e.target_id.map(|t| t.get()),
+                            e.user_id.get(),
+                            bot_id,
+                            e.id.created_at().unix_timestamp() * 1000,
+                            now_ms,
+                            Some(new_member.user.id.get()),
+                        )
+                    }) {
+                        if self
+                            .handled_audit
+                            .lock()
+                            .await
+                            .insert(entry.id.get().to_string())
+                        {
+                            adder = Some(entry.user_id);
+                        }
+                    }
+                }
+            }
+            // Owner-exempt adder (mirrors the `executorId !== ownerId`
+            // gate); anyone else is deranked.
+            let owner_id = new_member
+                .guild_id
+                .to_partial_guild(&ctx.http)
+                .await
+                .map(|g| g.owner_id)
+                .ok();
+            if let Some(exec) = adder {
+                if Some(exec) != owner_id {
+                    crate::commands::protection::protect::apply_sanction(
+                        &ctx.http,
+                        new_member.guild_id,
+                        exec,
+                        "simply+derank",
+                        "Attempt to add a Discord bot into this guild! -> Derank",
+                    )
+                    .await;
+                }
+            }
+            // Owner DM embed (mirrors the blockBot.ts
+            // protection_blockbot embed).
+            if let Some(owner) = owner_id {
+                let lang_code =
+                    crate::db::guild_lang(&self.pool, Some(new_member.guild_id.get())).await;
+                let text = |k: &str| crate::lang::get(&lang_code, k).unwrap_or_default();
+                let guild_name = ctx
+                    .cache
+                    .guild(new_member.guild_id)
+                    .map(|g| g.name.clone())
+                    .unwrap_or_default();
+                let title = text("protection_blockbot_embed_title")
+                    .replace("${member.guild.name}", &guild_name);
+                let desc = text("protection_blockbot_embed_desc");
+                let adder_text = adder
+                    .map(|a| format!("<@{a}>"))
+                    .unwrap_or_else(|| format!("`{}`", text("var_not_detected")));
+                let embed = serenity::CreateEmbed::default()
+                    .colour(0x2B2D31_u32)
+                    .title(title)
+                    .description(desc)
+                    .field(text("var_user"), adder_text, true)
+                    .field(
+                        text("var_target_bot"),
+                        format!("<@{}>", new_member.user.id.get()),
+                        true,
+                    )
+                    .timestamp(serenity::Timestamp::now())
+                    .footer(serenity::CreateEmbedFooter::new(
+                        crate::commands::botcat::bot_footer_name(
+                            bot_name_routed(&self.pool, &gid).await.as_deref(),
+                        ),
+                    ));
+                if let Ok(dm) = owner.create_dm_channel(&ctx.http).await {
+                    let _ = dm
+                        .send_message(&ctx.http, serenity::CreateMessage::new().embed(embed))
+                        .await;
+                }
+            }
             return;
         }
         // Minimum account age gate (mirrors tooNewAccount.ts: repeat-join
@@ -4202,10 +4401,8 @@ impl serenity::EventHandler for Handler {
         // Attempts, roles, and the expiry kick all mirror TS.
         if let Some(raw) = security_cfg_routed(&self.pool, &gid).await {
             if let Ok(cfg) = serde_json::from_str::<serde_json::Value>(&raw) {
-                let disabled = cfg
-                    .get("disable")
-                    .and_then(|d| d.as_bool())
-                    .unwrap_or(false);
+                let disabled =
+                    crate::commands::security::security_disabled_value(cfg.get("disable"));
                 let ch_id = cfg
                     .get("channel")
                     .and_then(|c| c.as_str())
@@ -5617,6 +5814,14 @@ impl serenity::EventHandler for Handler {
         // Discord session id. Noted always; pushed to the node only
         // while joined (channel None = leaving, nothing to forward).
         if new.user_id == ctx.cache.current_user().id {
+            // Live voice mirror for the H247 watchdog (the
+            // `guild.members.me?.voice` equivalent): noted on every
+            // own voice update, handshake-independent.
+            crate::commands::h247::session::note_live_voice(
+                guild_id.get(),
+                new.channel_id.map(|c| c.get()),
+            )
+            .await;
             let m = crate::lavalink::manager();
             let combined = m
                 .note_voice_state(
@@ -5866,6 +6071,13 @@ impl serenity::EventHandler for Handler {
                         if let Some(p) = lobby_parent {
                             builder = builder.category(p);
                         }
+                        // Category overwrites go out AT create (mirrors
+                        // `permissionOverwrites:` in the TS create call):
+                        // a post-create copy would leave a window where
+                        // the channel carries no overwrites.
+                        if !cat_overwrites.is_empty() {
+                            builder = builder.permissions(cat_overwrites);
+                        }
                         let Ok(ch) = guild_id.create_channel(&ctx.http, builder).await else {
                             let mut pending = self.temp_pending.lock().await;
                             restore_slot_release(&mut pending, &creation_key);
@@ -5885,10 +6097,6 @@ impl serenity::EventHandler for Handler {
                                         .category(serenity::ChannelId::new(cat)),
                                 )
                                 .await;
-                        }
-                        // Copy the category overwrites.
-                        for ow in &cat_overwrites {
-                            let _ = ch.id.create_permission(&ctx.http, ow.clone()).await;
                         }
                         // Position top (mirrors setPosition(0, relative)).
                         if leaf_routed(&self.pool, &gid, "VOICE_INTERFACE.voice_channel_position")
@@ -6406,17 +6614,19 @@ impl serenity::EventHandler for Handler {
                                     .await
                                     .is_err();
                                 let bot_id = ctx.cache.current_user().id;
+                                // Human tally mirrors
+                                // `members.filter((m) => !m.user.bot)`: a
+                                // voice occupant counts only when the
+                                // cache resolves them as a non-bot —
+                                // cache-unknown ids count as non-human
+                                // and bots must resolve to count.
                                 let humans = ctx.cache.guild(guild_id).map(|g| {
                                     g.voice_states
                                         .values()
                                         .filter(|v| {
                                             v.channel_id == Some(serenity::ChannelId::new(tts_vc))
                                                 && v.user_id != bot_id
-                                                && !ctx
-                                                    .cache
-                                                    .user(v.user_id)
-                                                    .map(|u| u.bot)
-                                                    .unwrap_or(false)
+                                                && ctx.cache.user(v.user_id).is_some_and(|u| !u.bot)
                                         })
                                         .count()
                                 });
@@ -6721,7 +6931,7 @@ impl serenity::EventHandler for Handler {
 
     async fn guild_role_create(&self, ctx: serenity::Context, new: serenity::Role) {
         use serenity::model::guild::audit_log::{Action, RoleAction};
-        let _ = self
+        let hit = self
             .protection_guard(
                 &ctx,
                 new.guild_id,
@@ -6730,6 +6940,15 @@ impl serenity::EventHandler for Handler {
                 Some(new.id.get()),
             )
             .await;
+        // Unauthorized role-create revert (mirrors
+        // avoidRoleCreate.ts): punish ran inside the guard, then
+        // the created role is deleted.
+        if hit.is_some() {
+            let _ = ctx
+                .http
+                .delete_role(new.guild_id, new.id, Some("Protect!"))
+                .await;
+        }
     }
 
     async fn guild_role_delete(

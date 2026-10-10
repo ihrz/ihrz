@@ -28,6 +28,13 @@ struct SessionState {
     warns: HashMap<u64, i64>,
     cooldowns: HashMap<u64, i64>,
     messengers: HashMap<u64, serenity::ShardMessenger>,
+    /// Last-known bot voice channel per guild, noted from the bot's own
+    /// gateway voice_state_update (the `guild.members.me?.voice`
+    /// equivalent). None = never observed; Some(None) = observed
+    /// outside any channel. Unlike the lavalink handshake cache this
+    /// needs no token/endpoint/session legs, so it stays readable
+    /// while the handshake is incomplete.
+    live_voice: HashMap<u64, Option<u64>>,
 }
 
 /// Max guild->messenger entries (safety cap; one entry per guild with
@@ -43,6 +50,7 @@ fn state() -> &'static tokio::sync::Mutex<SessionState> {
             warns: HashMap::new(),
             cooldowns: HashMap::new(),
             messengers: HashMap::new(),
+            live_voice: HashMap::new(),
         })
     })
 }
@@ -150,4 +158,19 @@ pub async fn messenger_for(guild_id: u64) -> Option<serenity::ShardMessenger> {
 /// Drop a guild's messenger (mirrors guild_delete cleanup).
 pub async fn prune_messenger(guild_id: u64) {
     state().lock().await.messengers.remove(&guild_id);
+}
+
+/// Note the bot's own live voice channel from a gateway
+/// voice_state_update (called from the voice arm for the bot's own
+/// user id only). This is the `guild.members.me?.voice.channelId`
+/// equivalent the H24/7 watchdog reads.
+pub async fn note_live_voice(guild_id: u64, channel_id: Option<u64>) {
+    state().lock().await.live_voice.insert(guild_id, channel_id);
+}
+
+/// Last-known bot voice channel: None when no voice update was ever
+/// observed for the guild, Some(channel) otherwise (Some(None) =
+/// observed outside any channel).
+pub async fn live_voice_channel(guild_id: u64) -> Option<Option<u64>> {
+    state().lock().await.live_voice.get(&guild_id).copied()
 }

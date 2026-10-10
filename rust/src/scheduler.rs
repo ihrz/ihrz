@@ -33,6 +33,16 @@ pub const TEMPVOICE_RECOVERY_SECS: u64 = 120;
 /// tick after boot is the ready recovery.
 pub const WIPE_QUEUE_SWEEP_SECS: u64 = 60;
 
+/// get_guilds page size used by every guild-enumerating sweep.
+pub const GUILD_PAGE_LIMIT: u64 = 200;
+
+/// True when a get_guilds page is the final one: Discord returns
+/// fewer rows than the requested limit only at the end, so the sweep
+/// stops instead of firing one more (empty, rate-limit-delayed) page.
+pub fn guild_page_is_last(page_len: usize) -> bool {
+    page_len < GUILD_PAGE_LIMIT as usize
+}
+
 /// Ended-giveaway retention, 345.6M ms (4 days). Mirrors
 /// endedGiveawaysLifetime in src/core/core.ts: rows past this age
 /// are deleted even when already ended.
@@ -987,15 +997,21 @@ pub async fn sweep_nightmode(
         .unwrap_or(0);
     let mut done = 0u64;
     let mut after: Option<GuildId> = None;
-    for _ in 0..10 {
+    // Paginate to exhaustion (no page cap): TS iterates the whole
+    // guild cache, so a capped scan would silently skip guilds.
+    loop {
         let page = match http
-            .get_guilds(after.map(GuildPagination::After), Some(200))
+            .get_guilds(after.map(GuildPagination::After), Some(GUILD_PAGE_LIMIT))
             .await
         {
             Ok(p) if !p.is_empty() => p,
             _ => break,
         };
         after = page.last().map(|g| g.id);
+        // Short page = last page (a full page may still end the list,
+        // which the next fetch reports as empty — one extra call at
+        // most, same as before).
+        let last_page = guild_page_is_last(page.len());
         for partial in &page {
             let gid = partial.id.get().to_string();
             let raw = match crate::db::kv_get(pool, &gid, "UTILS.NIGHT_MODE").await {
@@ -1072,7 +1088,7 @@ pub async fn sweep_nightmode(
             }
             done += 1;
         }
-        if after.is_none() {
+        if last_page {
             break;
         }
     }
@@ -1151,15 +1167,21 @@ pub async fn sweep_protection_backup(
 
     let mut done = 0u64;
     let mut after: Option<GuildId> = None;
-    for _ in 0..10 {
+    // Paginate to exhaustion (no page cap): TS iterates the whole
+    // guild cache, so a capped scan would silently skip guilds.
+    loop {
         let page = match http
-            .get_guilds(after.map(GuildPagination::After), Some(200))
+            .get_guilds(after.map(GuildPagination::After), Some(GUILD_PAGE_LIMIT))
             .await
         {
             Ok(p) if !p.is_empty() => p,
             _ => break,
         };
         after = page.last().map(|g| g.id);
+        // Short page = last page (a full page may still end the list,
+        // which the next fetch reports as empty — one extra call at
+        // most, same as before).
+        let last_page = guild_page_is_last(page.len());
         for partial in &page {
             let gid = partial.id.get().to_string();
             let channels = http.get_channels(partial.id).await.unwrap_or_default();
@@ -1208,7 +1230,7 @@ pub async fn sweep_protection_backup(
                 done += 1;
             }
         }
-        if after.is_none() {
+        if last_page {
             break;
         }
     }
@@ -1579,15 +1601,21 @@ pub async fn sweep_h247_watchdog(
         .unwrap_or(0);
     let mut restored = 0u64;
     let mut after: Option<GuildId> = None;
-    for _ in 0..10 {
+    // Paginate to exhaustion (no page cap): TS iterates the whole
+    // guild cache, so a capped scan would silently skip guilds.
+    loop {
         let page = match http
-            .get_guilds(after.map(GuildPagination::After), Some(200))
+            .get_guilds(after.map(GuildPagination::After), Some(GUILD_PAGE_LIMIT))
             .await
         {
             Ok(p) if !p.is_empty() => p,
             _ => break,
         };
         after = page.last().map(|g| g.id);
+        // Short page = last page (a full page may still end the list,
+        // which the next fetch reports as empty — one extra call at
+        // most, same as before).
+        let last_page = guild_page_is_last(page.len());
         for partial in &page {
             let gid_num = partial.id.get();
             let gid = gid_num.to_string();
@@ -1613,12 +1641,14 @@ pub async fn sweep_h247_watchdog(
             let Some(expected) = expected else {
                 continue;
             };
-            // Noted Discord presence (both handshake halves feed the
-            // lavalink pending cache from the event arms).
-            let noted = crate::lavalink::manager()
-                .take_pending_voice(gid_num)
-                .await
-                .and_then(|v| v.channel_id.parse::<u64>().ok());
+            // Noted Discord presence (mirrors
+            // `guild.members.me?.voice.channelId` in
+            // watchdogH247Sessions / ensureH247VoicePresence): the
+            // last-known live voice channel from the bot's own gateway
+            // updates — never the lavalink handshake cache, which also
+            // needs token/endpoint/session legs and goes blind while
+            // the handshake is incomplete.
+            let noted = session::live_voice_channel(gid_num).await.flatten();
             if noted == Some(expected) {
                 continue;
             }
@@ -1659,6 +1689,9 @@ pub async fn sweep_h247_watchdog(
             tracing::info!("scheduler: restored H247 voice for guild {gid} (channel {expected})");
             restored += 1;
         }
+        if last_page {
+            break;
+        }
     }
     restored
 }
@@ -1680,15 +1713,21 @@ pub async fn sweep_temp_voice_recovery(
     use poise::serenity_prelude::{ChannelId, GuildId, GuildPagination};
     let mut dropped = 0u64;
     let mut after: Option<GuildId> = None;
-    for _ in 0..10 {
+    // Paginate to exhaustion (no page cap): TS iterates the whole
+    // guild cache, so a capped scan would silently skip guilds.
+    loop {
         let page = match http
-            .get_guilds(after.map(GuildPagination::After), Some(200))
+            .get_guilds(after.map(GuildPagination::After), Some(GUILD_PAGE_LIMIT))
             .await
         {
             Ok(p) if !p.is_empty() => p,
             _ => break,
         };
         after = page.last().map(|g| g.id);
+        // Short page = last page (a full page may still end the list,
+        // which the next fetch reports as empty — one extra call at
+        // most, same as before).
+        let last_page = guild_page_is_last(page.len());
         for partial in &page {
             let gid = partial.id.get().to_string();
             let rows: Vec<(String, String)> =
@@ -1712,6 +1751,9 @@ pub async fn sweep_temp_voice_recovery(
                     dropped += 1;
                 }
             }
+        }
+        if last_page {
+            break;
         }
     }
     if dropped > 0 {
@@ -2442,6 +2484,14 @@ pub fn media_already_notified(
 /// (`!alreadyNotified || isValidVideo(media)`) fires on exactly the
 /// same payloads as TS; do NOT "fix" this into a deep-any scan.
 /// (No `undefined` in JSON; null covers the `value == null` leg.)
+///
+/// Call-site contract: pass the FULL response object
+/// (`{user, content, platform}`, like the TS `media`). Its first
+/// traversed value is always the scalar-only watch row, so the scan
+/// returns false on every well-formed payload and the gate reduces
+/// to `!alreadyNotified` — exactly like TS, where the same early
+/// return never reaches `content`. Never pass a content-only
+/// projection: a null inside it would force an announce TS skips.
 pub fn json_has_null(value: &serde_json::Value) -> bool {
     match value {
         serde_json::Value::Null => true,
@@ -2742,11 +2792,15 @@ pub async fn sweep_notifier(
                 None
             };
             if let Some(m) = media {
+                // Full TS response shape ({user, content, platform}):
+                // isValidVideo runs on the whole media object, whose
+                // first value is always the scalar-only watch row, so
+                // the traversal returns false and the gate below is
+                // exactly `!alreadyNotified` (kept verbatim for parity).
                 let raw = serde_json::json!({
-                    "title": m.title,
-                    "link": m.link,
-                    "author": m.author,
-                    "id": m.id,
+                    "user": {"id_or_username": watch.id_or_username, "platform": watch.platform},
+                    "platform": platform,
+                    "content": {"title": m.title, "link": m.link, "author": m.author, "id": m.id},
                 });
                 if pending_notifier_media(&notified, &watch.id_or_username, &m.id, m.pub_ms, &raw)
                     .is_some()
@@ -2804,8 +2858,11 @@ pub async fn sweep_notifier(
                         posted += 1;
                     }
                 }
+                // 5s pacing per watched user (mirrors the delay at the
+                // end of every fetchUsersMedias iteration in
+                // StreamNotifier.ts, which runs per user, not per guild).
+                tokio::time::sleep(std::time::Duration::from_secs(5)).await;
             }
-            tokio::time::sleep(std::time::Duration::from_secs(5)).await;
         }
     }
     (gids.len(), watches, posted)
@@ -3023,6 +3080,18 @@ mod tests {
     }
 
     #[test]
+    fn guild_pages_stop_on_short_page() {
+        // Fewer rows than the requested limit means the list ended:
+        // the sweep must not fire another (empty) page.
+        assert_eq!(GUILD_PAGE_LIMIT, 200);
+        assert!(guild_page_is_last(0));
+        assert!(guild_page_is_last(1));
+        assert!(guild_page_is_last(199));
+        assert!(!guild_page_is_last(200));
+        assert!(!guild_page_is_last(201));
+    }
+
+    #[test]
     fn notifier_urls_match_ts() {
         assert_eq!(
             twitch_streams_url("ninja"),
@@ -3225,6 +3294,18 @@ mod tests {
         assert!(!json_has_null(&serde_json::json!({"a": {"x": 1}})));
         assert!(pending_notifier_media(&last, "u", "v1", 50, &quirky).is_some());
         assert!(pending_notifier_media(&last, "u", "", 0, &clean).is_none());
+        // Full response shape (audit V2): the traversal runs on the
+        // whole media object, whose first reached value is the
+        // scalar-only watch row, so the scan is false and the gate is
+        // exactly `!alreadyNotified`.
+        let full = serde_json::json!({
+            "user": {"id_or_username": "u", "platform": "youtube"},
+            "platform": "youtube",
+            "content": {"title": "t", "link": "l", "author": "a", "id": "v1"},
+        });
+        assert!(!json_has_null(&full));
+        assert!(pending_notifier_media(&last, "u", "v1", 50, &full).is_none());
+        assert!(pending_notifier_media(&last, "u", "v9", 200, &full).is_some());
         // Store parse: missing key -> [], like the TS `|| []`.
         assert!(parse_notified_list(None).is_empty());
         assert!(parse_notified_list(Some("nope")).is_empty());

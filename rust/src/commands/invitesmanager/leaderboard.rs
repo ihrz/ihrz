@@ -63,14 +63,9 @@ pub async fn inv_lb(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let row_tpl = t("leaderboard_text_inline");
     let title = format!("{} • {guild_name}", t("leaderboard_default_text"));
 
-    if rows.is_empty() {
-        ctx.say(
-            crate::lang::get(&code, "invites_leaderboard_empty")
-                .unwrap_or_else(|| "No invites.".to_string()),
-        )
-        .await?;
-        return Ok(());
-    }
+    // Mirrors `!leaderboard.ts`: the embed always renders, even with zero
+    // rows (header + own-rank line, no row lines). No early bare-text
+    // return — an empty board still shows the titled embed + footer.
 
     let items_per_page = 15usize;
     let total_pages = rows.len().div_ceil(items_per_page);

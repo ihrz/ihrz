@@ -9,8 +9,8 @@
 // every primitive speakTTS needs is public — live_node_and_session,
 // rest_load (identifier-routed, so `ftts:<query>?voice=<id>` loads
 // through the node's ftts source), with_player/enqueue, snapshot,
-// rest_play, rest_set_voice/take_pending_voice (handshake replay) and
-// set_tts_suppressed. This module composes them; nothing is blocked.
+// rest_play and set_tts_suppressed. This module composes them;
+// nothing is blocked.
 //
 // Limits (documented, need lavalink.rs changes which are out of scope):
 // - The TS self-heal recreates the lavalink-client player object with
@@ -18,11 +18,10 @@
 //   in-memory GuildPlayer entry is ensured via with_player (channels
 //   set from the persisted TTS row) and the gateway OP4 join is
 //   re-emitted by the caller when no live player snapshot exists.
-// - The TS voice-handshake replay (handleH247PlayerCreated sending both
-//   raw VOICE_STATE_UPDATE + VOICE_SERVER_UPDATE packets) is covered
-//   node-side: the cached Discord handshake from take_pending_voice is
-//   pushed via rest_set_voice before play. The OP4 half goes out with
-//   the self-heal join above.
+// - No voice-handshake replay happens here (unlike the H24/7
+//   playerCreate leg, which replays the cached credentials): speakTTS
+//   itself never resends VOICE_STATE_UPDATE / VOICE_SERVER_UPDATE, so
+//   neither does this port.
 
 use std::sync::OnceLock;
 
@@ -95,11 +94,12 @@ pub async fn flowery_voice_id(locale: &str) -> Option<String> {
 }
 
 /// Percent-encode for the ftts query (mirrors the lyrics/nowplaying
-/// encoder; TS uses encodeURIComponent).
+/// encoder; TS uses encodeURIComponent, which leaves
+/// `A-Za-z0-9 -_.!~*'()` bare and escapes everything else).
 pub fn percent_encode(s: &str) -> String {
     let mut out = String::with_capacity(s.len());
     for b in s.bytes() {
-        if b.is_ascii_alphanumeric() || b"-_.~".contains(&b) {
+        if b.is_ascii_alphanumeric() || b"-_.!~*'()".contains(&b) {
             out.push(b as char);
         } else {
             out.push_str(&format!("%{b:02X}"));
@@ -140,11 +140,11 @@ pub async fn speak_tts(
         return Ok(false);
     };
     let mgr = crate::lavalink::manager();
-    // Node-side handshake replay (mirrors handleH247PlayerCreated):
-    // a freshly recreated player needs the cached Discord credentials.
-    if let Some(voice) = mgr.take_pending_voice(guild_id).await {
-        let _ = mgr.push_voice_state(guild_id, voice).await;
-    }
+    // No handshake replay here (audit V9): speakTTS never resends
+    // voice credentials — it relies on createPlayer/connect self-heal
+    // (the with_player channel re-attach below plus the caller's OP4
+    // join when no live snapshot exists). The cached handshake is
+    // replayed only by the H24/7 playerCreate leg.
     let voice_id = flowery_voice_id(locale).await;
     if voice_id.is_some() {
         tracing::debug!(
@@ -217,8 +217,9 @@ mod tests {
             ftts_identifier("hello world", Some("azure-fr")),
             "ftts:hello%20world?voice=azure-fr"
         );
-        // TS encodeURIComponent leaves -_.~ and alphanumerics bare.
+        // TS encodeURIComponent leaves A-Za-z0-9 and -_.!~*'() bare.
         assert_eq!(ftts_identifier("a-_.~z09", None), "ftts:a-_.~z09");
+        assert_eq!(ftts_identifier("a!'()*", None), "ftts:a!'()*");
         assert_eq!(
             ftts_identifier("caf\u{e9} & co", None),
             "ftts:caf%C3%A9%20%26%20co"

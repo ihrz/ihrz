@@ -1,5 +1,13 @@
 use super::*;
 
+/// Per-user stats card (text form).
+///
+/// ACCURACY NOTE (deliberate, kept): TS `!ustats.ts` renders the
+/// `userStatsPage` HTML card as a PNG via `client.func.html2png`
+/// (30-day charts, avatar, top channels). Chromium / the gateway are
+/// outside this runtime, so this port renders the same window counts
+/// (day/week/month via `msg_window_counts` / `voice_window_ms`) and the
+/// same top-3 channels as text instead of pixel-matching the card.
 #[poise::command(slash_command, prefix_command, rename = "ustats", aliases("u"))]
 pub async fn stats_user(
     ctx: Ctx<'_>,
@@ -15,6 +23,17 @@ pub async fn stats_user(
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    // Mirrors `!ustats.ts`: missing `STATS.USER.<uid>` row replies
+    // `unblacklist_user_is_not_exist` instead of rendering zeros.
+    if !stats_row_exists(&ctx.data().pool, &gid, uid).await {
+        ctx.say(
+            crate::lang::get(&code, "unblacklist_user_is_not_exist")
+                .unwrap_or_else(|| "I couldn't find the user.".to_string()),
+        )
+        .await?;
+        return Ok(());
+    }
     let s = load_stats(&ctx.data().pool, &gid, uid).await;
     let now_ms = std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
@@ -30,7 +49,6 @@ pub async fn stats_user(
         .iter()
         .map(|(ch, ms)| format!("<#{ch}> ({}m)", ms / 60_000))
         .collect();
-    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let top_text_str = if top_text.is_empty() {
         "-".to_string()
     } else {

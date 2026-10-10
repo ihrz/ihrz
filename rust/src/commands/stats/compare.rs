@@ -15,6 +15,10 @@ pub async fn stats_compare(
         crate::lang::get(&code, key).unwrap_or_else(|| fallback.to_string())
     };
     if user1.id == user2.id {
+        // DELIBERATE divergence (kept): TS `!compare.ts` has no
+        // same-user guard and would render a user-against-themselves
+        // card; this port short-circuits with `stats_compare_same_user`
+        // instead of emitting a meaningless identical-columns embed.
         ctx.say(t("stats_compare_same_user", "Compare two different users."))
             .await?;
         return Ok(());
@@ -52,7 +56,12 @@ pub async fn stats_compare(
     let (b_w_msg, b_w_vc) = row(&b, week_to);
     let (a_m_msg, a_m_vc) = row(&a, month_to);
     let (b_m_msg, b_m_vc) = row(&b, month_to);
-    let embed = serenity::CreateEmbed::default()
+    // Mirrors `!compare.ts` `.setThumbnail(guild.iconURL({ size: 512 }))`.
+    let guild_icon = ctx
+        .guild()
+        .map(|g| g.icon_url().unwrap_or_default())
+        .unwrap_or_default();
+    let mut embed = serenity::CreateEmbed::default()
         .title(t("stats_compare_title", "Compare"))
         .colour(0x5865F2_u32)
         .description(format!("{name1} vs {name2}"))
@@ -88,6 +97,9 @@ pub async fn stats_compare(
             false,
         )
         .timestamp(serenity::Timestamp::now());
+    if !guild_icon.is_empty() {
+        embed = embed.thumbnail(guild_icon);
+    }
     ctx.send(poise::CreateReply::default().embed(embed)).await?;
     Ok(())
 }

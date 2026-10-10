@@ -79,11 +79,13 @@ pub fn push_voice_log(mut log: Vec<StatsVoice>, entry: StatsVoice) -> Vec<StatsV
 }
 
 /// Message counts in the TS windows (day/week/month/all).
-/// Mirrors calculateMessageTime in userStatsUtils.ts.
+/// Mirrors calculateMessageTime in userStatsUtils.ts: the monthly window
+/// is a flat 30 days (2_592_000_000 ms), like every other stats timeout
+/// (`!ustats.ts`, `!compare.ts`, `!top-messages.ts`, `!top-voice.ts`).
 pub fn msg_window_counts(messages: &[StatsMessage], now_ms: i64) -> (u64, u64, u64, u64) {
     let day = now_ms - 86_400_000;
     let week = now_ms - 604_800_000;
-    let month = now_ms - 2_629_743_000;
+    let month = now_ms - 2_592_000_000;
     let mut daily = 0u64;
     let mut weekly = 0u64;
     let mut monthly = 0u64;
@@ -102,11 +104,12 @@ pub fn msg_window_counts(messages: &[StatsMessage], now_ms: i64) -> (u64, u64, u
 }
 
 /// Voice time in the TS windows (day/week/month/all), ms.
-/// Mirrors calculateVoiceActivity in userStatsUtils.ts.
+/// Mirrors calculateVoiceActivity in userStatsUtils.ts (monthly = flat
+/// 30 days, 2_592_000_000 ms, like `!ustats.ts`).
 pub fn voice_window_ms(voices: &[StatsVoice], now_ms: i64) -> (u64, u64, u64, u64) {
     let day = now_ms - 86_400_000;
     let week = now_ms - 604_800_000;
-    let month = now_ms - 2_629_743_000;
+    let month = now_ms - 2_592_000_000;
     let mut daily = 0u64;
     let mut weekly = 0u64;
     let mut monthly = 0u64;
@@ -185,6 +188,16 @@ pub async fn load_stats(pool: &crate::db::Pool, guild_id: &str, user_id: u64) ->
         .await
         .and_then(|v| serde_json::from_value(v).ok())
         .unwrap_or_default()
+}
+
+/// True when a `STATS.USER.<uid>` row exists (table or legacy).
+/// `load_stats` falls back to a zeroed default for missing rows, so
+/// callers that must distinguish "no row" (e.g. `!ustats.ts`, which
+/// replies `unblacklist_user_is_not_exist`) check this first.
+pub async fn stats_row_exists(pool: &crate::db::Pool, guild_id: &str, user_id: u64) -> bool {
+    table_value_or_legacy(pool, guild_id, &stats_key(user_id))
+        .await
+        .is_some()
 }
 
 /// Table-routed write for one user row (keys unchanged).
@@ -458,7 +471,7 @@ mod tests {
     #[test]
     fn windows_match_ts_user_stats_utils() {
         // now = 3_000_000_000 (~day 34). Windows: day 86.4M, week
-        // 604.8M, month 2_629_743_000.
+        // 604.8M, month 2_592_000_000 (flat 30 days, like !ustats.ts).
         let now = 3_000_000_000i64;
         let log = vec![
             msg(now - 1_000, 1),         // day+week+month

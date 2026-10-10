@@ -1263,7 +1263,15 @@ pub async fn run(cfg: Config, pool: Pool) -> anyhow::Result<()> {
             logs.force_flush().await;
         });
     }
-    let mut client = serenity::ClientBuilder::new(token, intents())
+    let mut client = serenity::ClientBuilder::new(token, intents());
+    // Application id must be known before Ready: the pre-ready app-emoji
+    // sync/refresh (`get_application_emojis`, `create_application_emoji`)
+    // fails with "Application id was expected but missing" without it.
+    // Mirrors the TS client, which logs in with the id baked in.
+    if let Ok(app_id) = cfg.client_id.trim().parse::<u64>() {
+        client = client.application_id(serenity::ApplicationId::new(app_id));
+    }
+    let mut client = client
         .cache_settings(cache_settings)
         .framework(framework)
         .event_handler(crate::events_handler::Handler::new(pool.clone(), slashlog))

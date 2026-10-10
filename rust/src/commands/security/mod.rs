@@ -92,12 +92,27 @@ pub fn check_code(expected: &str, given: &str) -> bool {
     expected == given
 }
 
-/// TS stores `disable` (inverse of enabled).
-pub fn disable_flag(enabled: bool) -> &'static str {
-    if enabled {
-        "0"
-    } else {
-        "1"
+/// TS stores `disable` (inverse of enabled) as a JSON bool
+/// (`client.db.set("<gid>.SECURITY.disable", false/true)` in
+/// `security/!config.ts`). Writers must store a bool so the join gate's
+/// `cfg.get("disable").as_bool()` leg matches; never "0"/"1" strings.
+pub fn disable_flag(enabled: bool) -> bool {
+    !enabled
+}
+
+/// Tolerant read of the `disable` leaf. Accepts JSON bool (current),
+/// number 1/0, and legacy strings "1"/"0"/"true"/"false" (pre-bool rows
+/// written as plain strings). Anything else (missing, null, other
+/// strings) reads as enabled (false), mirroring the gate's
+/// `unwrap_or(false)`.
+pub fn security_disabled_value(v: Option<&serde_json::Value>) -> bool {
+    match v {
+        Some(serde_json::Value::Bool(b)) => *b,
+        Some(serde_json::Value::Number(n)) => n.as_i64().is_some_and(|i| i != 0),
+        Some(serde_json::Value::String(s)) => {
+            matches!(s.trim().to_ascii_lowercase().as_str(), "1" | "true")
+        }
+        _ => false,
     }
 }
 
@@ -144,6 +159,8 @@ pub async fn load_security_string(
 }
 
 /// Table-routed plain-string write (keys unchanged).
+/// NOTE: not for SECURITY.disable — that leaf is a JSON bool, use
+/// [`save_security_bool`].
 pub async fn save_security_string(
     pool: &crate::db::Pool,
     guild_id: &str,
@@ -151,6 +168,29 @@ pub async fn save_security_string(
     value: &str,
 ) -> anyhow::Result<()> {
     guild_backend(pool).table(guild_id).set(key, value).await
+}
+
+/// Table-routed JSON-bool write for SECURITY.disable (keys unchanged).
+/// Stores a real bool so the join gate's `as_bool()` leg matches the TS
+/// `client.db.set("<gid>.SECURITY.disable", false/true)` rows.
+pub async fn save_security_bool(
+    pool: &crate::db::Pool,
+    guild_id: &str,
+    key: &str,
+    value: bool,
+) -> anyhow::Result<()> {
+    guild_backend(pool).table(guild_id).set(key, value).await
+}
+
+/// Tolerant read of SECURITY.disable (bool / 1 / "1" / "true" forms).
+/// The join gate in `events_handler.rs` should prefer this over a bare
+/// `as_bool()` so pre-bool string rows still disable the module.
+pub async fn load_security_disabled(pool: &crate::db::Pool, guild_id: &str) -> bool {
+    security_disabled_value(
+        table_value_or_legacy(pool, guild_id, "SECURITY.disable")
+            .await
+            .as_ref(),
+    )
 }
 
 #[cfg(test)]
@@ -168,8 +208,42 @@ mod tests {
 
     #[test]
     fn disable_flag_is_inverse_of_enabled() {
-        assert_eq!(disable_flag(true), "0");
-        assert_eq!(disable_flag(false), "1");
+        assert_eq!(disable_flag(true), false);
+        assert_eq!(disable_flag(false), true);
+    }
+
+    #[test]
+    fn disabled_read_accepts_bool_number_and_string_forms() {
+        use serde_json::{json, Value};
+        assert!(security_disabled_value(Some(&json!(true))));
+        assert!(!security_disabled_value(Some(&json!(false))));
+        assert!(security_disabled_value(Some(&json!(1))));
+        assert!(!security_disabled_value(Some(&json!(0))));
+        assert!(security_disabled_value(Some(&Value::String("1".into()))));
+        assert!(security_disabled_value(Some(&Value::String("true".into()))));
+        assert!(security_disabled_value(Some(&Value::String(
+            " True ".into()
+        ))));
+        assert!(!security_disabled_value(Some(&Value::String("0".into()))));
+        assert!(!security_disabled_value(Some(&Value::String(
+            "false".into()
+        ))));
+        assert!(!security_disabled_value(Some(&Value::String("yes".into()))));
+        assert!(!security_disabled_value(None));
+        assert!(!security_disabled_value(Some(&Value::Null)));
+    }
+
+    #[tokio::test]
+    async fn disable_roundtrip_stores_json_bool() {
+        let pool = memory_pool().await;
+        save_security_bool(&pool, "g9", "SECURITY.disable", disable_flag(false))
+            .await
+            .unwrap();
+        assert!(load_security_disabled(&pool, "g9").await);
+        save_security_bool(&pool, "g9", "SECURITY.disable", disable_flag(true))
+            .await
+            .unwrap();
+        assert!(!load_security_disabled(&pool, "g9").await);
     }
 
     async fn memory_pool() -> crate::db::Pool {

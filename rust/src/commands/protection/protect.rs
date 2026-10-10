@@ -724,6 +724,24 @@ pub async fn protect_allow_show(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let mut rows = load_allowlist(&ctx.data().pool, &gid).await;
     if rows.is_empty() {
         if let Some(owner) = guild_owner_id(&ctx).await {
+            // TS seeds the whole ALLOWLIST row
+            // (`{enable:false, list:{<owner>:{allowed:true}}}`), not
+            // just the list leaf: write the top-level enable:false
+            // flag row too (only when absent, never clobbering an
+            // existing row).
+            if crate::commands::owner::main::tbl_get_value(&ctx.data().pool, &gid, "ALLOWLIST")
+                .await
+                .is_none()
+            {
+                let _ = crate::commands::owner::main::routed_set(
+                    &ctx.data().pool,
+                    &gid,
+                    &gid,
+                    "ALLOWLIST",
+                    &format!("{{\"enable\":false,\"list\":{{\"{owner}\":{{\"allowed\":true}}}}}}"),
+                )
+                .await;
+            }
             let _ = crate::commands::owner::main::routed_set(
                 &ctx.data().pool,
                 &gid,

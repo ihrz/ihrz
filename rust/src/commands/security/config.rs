@@ -21,7 +21,7 @@ pub async fn security_config(
     let Some(gid) = guild_id_str(&ctx).await else {
         return Ok(());
     };
-    save_security_string(
+    save_security_bool(
         &ctx.data().pool,
         &gid,
         "SECURITY.disable",
