@@ -1,9 +1,11 @@
 use super::*;
+use crate::commands::shared::{embed_with_footer, footer_parts};
 
-/// Mirrors `!lyrics.ts`.
-// Lyrics via a plain text API (lyrics.ovh), never the Lavalink lyrics
-// plugin — mirrors the TS searchLyrics result shape (title + text).
-async fn fetch_lyrics_text(query: &str) -> Option<(String, String)> {
+/// Mirrors `!lyrics.ts` (Lavalink `search` + lyrics-plugin shape):
+/// track identity (title/uri/artwork/author) with the lyrics text.
+/// The text comes from the lyrics.ovh text API; track identity prefers
+/// the live Lavalink search hit and falls back to the suggest result.
+pub(crate) async fn fetch_lyrics_text(query: &str) -> Option<(String, String)> {
     let client = reqwest::Client::new();
     let suggest: serde_json::Value = client
         .get(format!(
@@ -50,24 +52,141 @@ fn percent_encode(s: &str) -> String {
     out
 }
 
+/// Track identity for the lyrics embed. Lavalink search hit first
+/// (TS `res.tracks[0].info`); suggest-result fallback when offline.
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub(crate) struct LyricsTrackMeta {
+    pub title: Option<String>,
+    pub author: Option<String>,
+    pub uri: Option<String>,
+    pub artwork: Option<String>,
+}
+
+pub(crate) async fn resolve_lyrics_meta(
+    m: &crate::lavalink::LavalinkManager,
+    gid: u64,
+    query: &str,
+) -> LyricsTrackMeta {
+    let Ok((node, _)) = m.live_node_and_session(gid).await else {
+        return LyricsTrackMeta::default();
+    };
+    let id = crate::lavalink::LavalinkManager::search_identifier(query);
+    let track = match m.rest_load(&node, &id).await {
+        Ok(lava_rs::rest::LoadResult::Track(t)) => Some(t),
+        Ok(lava_rs::rest::LoadResult::Search(v)) => v.into_iter().next(),
+        Ok(lava_rs::rest::LoadResult::Playlist(d)) => d.tracks.into_iter().next(),
+        _ => None,
+    };
+    match track {
+        Some(t) => LyricsTrackMeta {
+            title: Some(t.info.title.clone()),
+            author: Some(t.info.author.clone()),
+            uri: t.info.uri.clone(),
+            artwork: t.info.artwork_url.clone(),
+        },
+        None => LyricsTrackMeta::default(),
+    }
+}
+
+/// TS `substring(0, 1997)` + `"..."` suffix rule, char-safe
+/// (`trimmed.length === 1997` iff the source was longer).
+pub fn lyrics_embed_description(text: &str) -> String {
+    let trimmed: String = text.chars().take(1997).collect();
+    if text.chars().count() > 1997 {
+        format!("{trimmed}...")
+    } else {
+        trimmed
+    }
+}
+
 #[poise::command(slash_command, prefix_command, rename = "lyrics")]
 pub async fn m_lyrics(
     ctx: Ctx<'_>,
     #[description = "Query"] query: String,
 ) -> Result<(), anyhow::Error> {
     let code = lang_code(&ctx).await;
-    match fetch_lyrics_text(&query).await {
-        Some((title, text)) => {
-            ctx.say(format!("{title}\n{}", truncate_lyrics(&text)))
-                .await?;
-        }
-        None => {
-            ctx.say(
-                crate::lang::get(&code, "lyrics_not_found")
-                    .unwrap_or_else(|| "No lyrics found".to_string()),
-            )
-            .await?;
-        }
+    let gid_str = ctx.guild_id().map(|g| g.get().to_string());
+    let not_found = || {
+        crate::lang::get(&code, "lyrics_not_found").unwrap_or_else(|| "No lyrics found".to_string())
+    };
+    let Some((suggest_title, text)) = fetch_lyrics_text(&query).await else {
+        ctx.say(not_found()).await?;
+        return Ok(());
+    };
+    let meta = match ctx.guild_id() {
+        Some(g) => resolve_lyrics_meta(synced_mgr(&ctx).await, g.get(), &query).await,
+        None => LyricsTrackMeta::default(),
+    };
+    let title = meta.title.clone().unwrap_or(suggest_title);
+    let author = meta.author.clone().unwrap_or_else(|| {
+        crate::lang::get(&code, "lyrics_embed_author_name_unknown")
+            .unwrap_or_else(|| "Unknown author".to_string())
+    });
+    let title = if title.trim().is_empty() {
+        crate::lang::get(&code, "lyrics_embed_title_unknown")
+            .unwrap_or_else(|| "Unknown title".to_string())
+    } else {
+        title
+    };
+    let mut embed = serenity::CreateEmbed::default()
+        .title(title)
+        .url(
+            meta.uri
+                .as_deref()
+                .filter(|u| !u.is_empty())
+                .unwrap_or("https://www.ihorizon.org"),
+        )
+        .author(serenity::CreateEmbedAuthor::new(author))
+        .description(lyrics_embed_description(&text))
+        .colour(0xCD703A)
+        .timestamp(serenity::Timestamp::now());
+    if let Some(art) = meta.artwork.as_deref().filter(|u| !u.is_empty()) {
+        embed = embed.thumbnail(art);
     }
+    let reply = match &gid_str {
+        Some(g) => {
+            let (fname, fbytes) = footer_parts(&ctx, g).await;
+            embed = embed_with_footer(embed, &fname, fbytes.is_some());
+            let mut r = poise::CreateReply::default().embed(embed);
+            if let Some(bytes) = fbytes {
+                r = r.attachment(serenity::CreateAttachment::bytes(bytes, "footer_icon.png"));
+            }
+            r
+        }
+        None => poise::CreateReply::default().embed(embed),
+    };
+    ctx.send(reply).await?;
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn description_passes_short_through() {
+        assert_eq!(lyrics_embed_description("abc"), "abc");
+    }
+
+    #[test]
+    fn description_trims_long_with_ellipsis() {
+        let long = "x".repeat(3000);
+        let out = lyrics_embed_description(&long);
+        assert_eq!(out.len(), 2000);
+        assert!(out.ends_with("..."));
+        assert_eq!(&out[..1997], "x".repeat(1997).as_str());
+    }
+
+    #[test]
+    fn description_exact_1997_has_no_suffix() {
+        // TS only appends "..." when trimmed.length === 1997 came from a
+        // longer source; an exactly-1997 source renders bare.
+        let exact = "y".repeat(1997);
+        assert_eq!(lyrics_embed_description(&exact), exact);
+        let over = "y".repeat(1998);
+        assert_eq!(
+            lyrics_embed_description(&over),
+            format!("{}...", "y".repeat(1997))
+        );
+    }
 }

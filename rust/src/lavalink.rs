@@ -1877,6 +1877,22 @@ mod tests {
         assert!(entry.base_url().starts_with("https://"));
     }
 
+    #[test]
+    fn insecure_nodes_use_http() {
+        let entry = NodeEntry::new(
+            &NodeCfg {
+                id: "n".into(),
+                host: "127.0.0.1".into(),
+                port: 2333,
+                password: "pw".into(),
+                secure: false,
+            },
+            1,
+        );
+        assert!(entry.base_url().starts_with("http://"));
+        assert!(!entry.base_url().starts_with("https://"));
+    }
+
     #[tokio::test]
     async fn offline_manager_fails_before_io() {
         let m = LavalinkManager::new();

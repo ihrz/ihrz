@@ -10,6 +10,21 @@ fn py_block(n: impl std::fmt::Display) -> String {
     format!("```py\n{n}```")
 }
 
+/// Users counted for one cached guild. Mirrors the `availableGuilds`
+/// filter + reduce in botinfo.ts: unavailable guilds and guilds with no
+/// member-count data contribute 0, otherwise `memberCount ||
+/// approximateMemberCount` (NaN has no Rust equivalent).
+pub fn guild_users(member_count: u64, approximate: Option<u64>, unavailable: bool) -> u64 {
+    if unavailable {
+        return 0;
+    }
+    if member_count > 0 {
+        member_count
+    } else {
+        approximate.unwrap_or(0)
+    }
+}
+
 /// Bot info. Mirrors src/Interaction/HybridCommands/bot/botinfo.ts.
 #[poise::command(
     slash_command,
@@ -23,12 +38,16 @@ pub async fn botinfo_full(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let me = cache.current_user().name.clone();
     let guilds = cache.guild_count();
     let channels = cache.guild_channel_count();
-    // TS sums `memberCount || approximateMemberCount` per guild over
-    // all shards; here we sum the cached guild member counts.
+    // TS sums `memberCount || approximateMemberCount` per available
+    // guild over all shards; here we sum the cached guilds the same way.
     let mut users: u64 = 0;
     for gid in cache.guilds() {
         if let Some(g) = cache.guild(gid) {
-            users += g.member_count;
+            users = users.saturating_add(guild_users(
+                g.member_count,
+                g.approximate_member_count,
+                g.unavailable,
+            ));
         }
     }
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
@@ -72,4 +91,18 @@ pub async fn botinfo_full(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         );
     ctx.send(poise::CreateReply::default().embed(embed)).await?;
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn counts_mirror_ts_available_filter_and_fallback() {
+        assert_eq!(guild_users(10, Some(99), false), 10);
+        assert_eq!(guild_users(0, Some(99), false), 99);
+        assert_eq!(guild_users(0, None, false), 0);
+        assert_eq!(guild_users(10, Some(99), true), 0);
+        assert_eq!(guild_users(0, Some(99), true), 0);
+    }
 }

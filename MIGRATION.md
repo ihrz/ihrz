@@ -172,6 +172,7 @@ committed — see `.gitignore`. No push without a green
 - [x] U-ETERNAL-28 (2026-10-10: vague-26 5/5 — warn authorID, setlogs full, support/autoreact, ranks/profil, fun-ux. Lead: off-guard ticket, 3 lints, anti-exe author id. Suite 1094/0, fmt + clippy clean).
 - [x] U-ETERNAL-29 (2026-10-10: vague-27 5/5 — utils mgr (embed/dm/bringall), mod renames, love fidelity + docs, audits ticket/music + owner/misc → 15 items. Lead: doublon addrolereact retiré, window-time, registre 179. Suite 1104/0, fmt + clippy clean).
 - [x] U-ETERNAL-30 (2026-10-10: redo mod-renames (wipe tiers) — 9 fichiers, tests 9/9. Suite 1113/0, fmt + clippy clean).
+- [x] U-ETERNAL-31 (2026-10-10: vague-28 5/5 — music interactif/embeds, ticket close + lavalink, owner dual-scope, say/botinfo/confession. Lead: stash worker droppé (obsolète), 1 lint. Suite 1143/0, fmt + clippy clean).
 ## Eternal backlog (seeded 2026-10-09 by 7 read-only audits + lavalink edge audit; full reports in `~/.hermes/cache/delegation/live/deleg_55b606d3/task-{0,1,2,3,4,5,9}.log` — each item is a future unit for other models, files disjoint unless noted)
 
 ### Events (audit task-0)

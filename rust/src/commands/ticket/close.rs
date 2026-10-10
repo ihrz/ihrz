@@ -2,13 +2,20 @@ use super::*;
 use poise::serenity_prelude as serenity;
 
 /// Logs-embed description for the close flow: actor + channel slots.
-/// Mirrors CloseTicket (TS sends the transcript file only to the
-/// channel notify, never to the logs message).
+/// Mirrors CloseTicket (ticketsManager.ts sends the transcript file to
+/// BOTH the channel notify and the logs-channel message, alongside the
+/// footer attachment).
 pub fn close_log_desc(template: &str, actor_mention: &str, channel_id: u64) -> String {
     template
         .replace("${interaction.user}", actor_mention)
         .replace("${interaction.channel.id}", &channel_id.to_string())
 }
+/// Transcript attachment name for the close flow.
+/// Mirrors ticketsManager.ts filename (`{guildId}-transcript.html`).
+pub fn close_transcript_filename(gid: &str) -> String {
+    format!("{gid}-transcript.html")
+}
+
 #[poise::command(
     slash_command,
     prefix_command,
@@ -18,7 +25,7 @@ pub fn close_log_desc(template: &str, actor_mention: &str, channel_id: u64) -> S
 pub async fn ticket_close(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     // Mirrors !close.ts -> CloseTicket: disable + is-ticket guards,
     // owner overwrite revoked (View/Send/History deny), in-channel
-    // embed + transcript, logs embed. The channel and its TICKET_ALL
+    // embed + transcript, logs embed + transcript. The channel and its TICKET_ALL
     // row stay so the ticket can be reopened; nothing is deleted.
     // (close_ticket_channel below keeps the delete semantics for the
     // member-leave cleanup path, which drops rows itself.)
@@ -79,7 +86,8 @@ pub async fn ticket_close(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         .await?;
         return Ok(());
     }
-    let file_name = format!("{gid}-transcript.html");
+    let html_bytes = html.into_bytes();
+    let file_name = close_transcript_filename(&gid);
     let notify = serenity::CreateEmbed::default()
         .description(t("close_title_sourcebin"))
         .colour(0x0014A8_u32);
@@ -93,8 +101,8 @@ pub async fn ticket_close(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
                 .content(notify_content)
                 .embed(notify)
                 .attachment(serenity::CreateAttachment::bytes(
-                    html.into_bytes(),
-                    file_name,
+                    html_bytes.clone(),
+                    file_name.clone(),
                 )),
         )
         .await;
@@ -117,6 +125,9 @@ pub async fn ticket_close(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
             .footer(footer)
             .timestamp(serenity::Timestamp::now());
         let mut log_msg = serenity::CreateMessage::new().embed(embed);
+        // TS CloseTicket sends the transcript file on the logs message too
+        // (files: [attachment, footerAttachment]), transcript first.
+        log_msg = log_msg.add_file(serenity::CreateAttachment::bytes(html_bytes, file_name));
         if let Some(icon) = footer_icon {
             log_msg = log_msg.add_file(serenity::CreateAttachment::bytes(icon, "footer_icon.png"));
         }
@@ -137,5 +148,10 @@ mod tests {
             42,
         );
         assert_eq!(out, "by <@7> in 42!");
+    }
+
+    #[test]
+    fn transcript_filename_matches_ts_guild_suffix() {
+        assert_eq!(close_transcript_filename("123"), "123-transcript.html");
     }
 }

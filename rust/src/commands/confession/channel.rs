@@ -28,6 +28,45 @@ pub fn panel_store_json(channel_id: u64, message_id: u64) -> String {
     .to_string()
 }
 
+/// Unique panel-post nonce. Mirrors `SnowflakeUtil.generate().toString()`
+/// in !channel.ts (time-based, unique per post for `enforceNonce`).
+pub fn panel_nonce(channel_id: u64, now_ms: u64) -> String {
+    format!("{channel_id}-{now_ms}")
+}
+
+/// Audit entry for the panel post. Mirrors `client.func.ihorizon_logs`
+/// (best-effort, silent when the `ihorizon-logs` channel is missing).
+/// No new YAML: exact lang keys with a plain fallback.
+pub async fn post_panel_log(
+    http: &serenity::Http,
+    guild_id: serenity::GuildId,
+    lang_code: &str,
+    author_id: u64,
+    channel_id: u64,
+) {
+    let Ok(channels) = http.get_channels(guild_id).await else {
+        return;
+    };
+    let Some(ch) = channels.iter().find(|c| c.name.contains("ihorizon-logs")) else {
+        return;
+    };
+    let title = crate::lang::get(lang_code, "confession_channel_log_embed_title")
+        .unwrap_or_else(|| "Confession".to_string());
+    let desc = crate::lang::get(lang_code, "confession_channel_log_embed_desc")
+        .map(|s| {
+            s.replace("${interaction.user}", &format!("<@{author_id}>"))
+                .replace("${channel}", &format!("<#{channel_id}>"))
+        })
+        .unwrap_or_else(|| format!("<@{author_id}> set the confession channel to <#{channel_id}>"));
+    let embed = serenity::CreateEmbed::default()
+        .colour(0xbf_0b_b9)
+        .title(title)
+        .description(desc);
+    let _ = ch
+        .id
+        .send_message(http, serenity::CreateMessage::new().embed(embed))
+        .await;
+}
 /// Exact en-US fallback for `confession_channel_panel_embed_desc` (no YAML touch).
 fn panel_desc_fallback() -> String {
     "# **Anonymous Confessions**\n\nClick the button below to open the confession form. You can write what you need to confess. If you wish, you can choose to make your confession private.\nKeep in mind that confessions may not remain anonymous—server owners or anyone with access to confession logs can identify users if logging is enabled.\n\n## **Make a Confession**\n\n*Note: To make your confession private, write the corresponding option in the form.*".to_string()
@@ -98,6 +137,19 @@ pub async fn confession_channel(
     let mut message = serenity::CreateMessage::new()
         .embed(embed)
         .components(vec![row]);
+    // Unique nonce per panel post, like `enforceNonce: true, nonce` in
+    // !channel.ts (serenity Nonce has no snowflake generator, so the
+    // channel id + millis plays that time-unique role).
+    let now_ms = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|d| d.as_millis() as u64)
+        .unwrap_or(0);
+    message = message
+        .nonce(serenity::model::channel::Nonce::String(panel_nonce(
+            channel.id.get(),
+            now_ms,
+        )))
+        .enforce_nonce(true);
     if let Some(bytes) = footer_icon {
         message = message.add_file(serenity::CreateAttachment::bytes(bytes, "footer_icon.png"));
     }
@@ -112,6 +164,17 @@ pub async fn confession_channel(
         &panel_store_json(channel.id.get(), posted.id.get()),
     )
     .await?;
+    // Audit entry, like `client.func.ihorizon_logs` in !channel.ts.
+    if let Some(guild_id) = ctx.guild_id() {
+        post_panel_log(
+            ctx.http(),
+            guild_id,
+            &code,
+            ctx.author().id.get(),
+            channel.id.get(),
+        )
+        .await;
+    }
     Ok(())
 }
 
@@ -138,5 +201,13 @@ mod tests {
             super::super::panel_target(Some(&raw), None),
             (Some(11), Some(22))
         );
+    }
+
+    #[test]
+    fn panel_nonce_is_unique_per_post() {
+        let a = panel_nonce(11, 1000);
+        assert!(a.contains("11"));
+        assert_ne!(a, panel_nonce(11, 1001));
+        assert_ne!(a, panel_nonce(22, 1000));
     }
 }

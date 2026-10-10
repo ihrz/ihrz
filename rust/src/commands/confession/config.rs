@@ -23,6 +23,17 @@ pub async fn confession_config(
         return Ok(());
     };
     let pool = &ctx.data().pool;
+    // TS !config.ts writes the legacy `CONFESSION.disable` boolean; keep
+    // the namespaced `GUILD.CONFESSION.disable` ("0"/"1") too so both
+    // readers (TS legacy, Rust namespaced) agree.
+    crate::commands::owner::main::routed_set(
+        pool,
+        &gid,
+        &gid,
+        "CONFESSION.disable",
+        if enabled { "false" } else { "true" },
+    )
+    .await?;
     crate::commands::owner::main::routed_set(
         pool,
         &gid,

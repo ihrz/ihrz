@@ -1,6 +1,6 @@
 use super::*;
 
-/// Mirrors `!trackinfo.ts`.
+/// Mirrors `!trackinfo.ts` (search/current track, lyrics, Link button).
 #[poise::command(slash_command, prefix_command, rename = "trackinfo")]
 pub async fn m_trackinfo(
     ctx: Ctx<'_>,
@@ -11,16 +11,6 @@ pub async fn m_trackinfo(
         return Ok(());
     };
     let m = synced_mgr(&ctx).await;
-    // Resolve a lava track first (query search or current track), then
-    // enrich via source-detected metadata with Lavalink fallback.
-    async fn enriched_from_lava(t: &lava_rs::model::Track) -> NormalizedPreview {
-        match t.info.uri.as_deref() {
-            Some(url) => enrich_preview(url).await.unwrap_or_else(|| {
-                fallback_preview(&t.info.title, &t.info.author, t.info.uri.as_deref())
-            }),
-            None => fallback_preview(&t.info.title, &t.info.author, None),
-        }
-    }
     // Empty search never matches (TS `searchMusicQuery` with "").
     async fn no_result(ctx: &Ctx<'_>, code: &str) -> Result<(), anyhow::Error> {
         ctx.send(
@@ -36,35 +26,13 @@ pub async fn m_trackinfo(
             let id = crate::lavalink::LavalinkManager::search_identifier(&q);
             match m.rest_load(&node, &id).await {
                 Ok(lava_rs::rest::LoadResult::Track(t)) => {
-                    let p = enriched_from_lava(&t).await;
-                    let len = if t.info.length == 0 {
-                        None
-                    } else {
-                        Some(t.info.length)
-                    };
-                    ctx.send(poise::CreateReply::default().embed(preview_embed(&p, len)))
-                        .await?;
-                    return Ok(());
+                    return reply_for_lava(&ctx, &code, &t, Some(&q)).await;
                 }
                 Ok(lava_rs::rest::LoadResult::Search(v)) if !v.is_empty() => {
-                    let p = enriched_from_lava(&v[0]).await;
-                    ctx.send(
-                        poise::CreateReply::default()
-                            .embed(preview_embed(&p, Some(v[0].info.length))),
-                    )
-                    .await?;
-                    return Ok(());
+                    return reply_for_lava(&ctx, &code, &v[0], Some(&q)).await;
                 }
                 Ok(lava_rs::rest::LoadResult::Playlist(d)) if !d.tracks.is_empty() => {
-                    let p = enriched_from_lava(&d.tracks[0]).await;
-                    let mut embed = preview_embed(&p, Some(d.tracks[0].info.length));
-                    embed = embed.field(
-                        "Playlist",
-                        format!("{} ({} tracks)", d.info.name, d.tracks.len()),
-                        false,
-                    );
-                    ctx.send(poise::CreateReply::default().embed(embed)).await?;
-                    return Ok(());
+                    return reply_for_lava(&ctx, &code, &d.tracks[0], Some(&q)).await;
                 }
                 _ => {
                     return no_result(&ctx, &code).await;
@@ -74,24 +42,233 @@ pub async fn m_trackinfo(
         // Node offline: still try metadata when the query itself is a URL.
         match enrich_preview(&q).await {
             Some(p) => {
-                ctx.send(poise::CreateReply::default().embed(preview_embed(&p, None)))
-                    .await?;
+                return reply_for_preview(&ctx, &code, &p, Some(&q)).await;
             }
             None => {
                 return no_result(&ctx, &code).await;
             }
         }
-        return Ok(());
     }
     match m.snapshot(gid).await.and_then(|s| s.current) {
         Some(t) => {
             let p = preview_for_track(&t).await;
-            ctx.send(poise::CreateReply::default().embed(preview_embed(&p, Some(t.length_ms))))
-                .await?;
+            let requester = user_name_for(&ctx, Some(t.requester)).await;
+            reply_for_queued(&ctx, &code, &t, &p, &requester).await
         }
-        None => {
-            return no_result(&ctx, &code).await;
+        None => no_result(&ctx, &code).await,
+    }
+}
+
+/// Lava search-hit path: artwork/colour from the hit, enrichment for the
+/// provider image when Lavalink ships none. `query` feeds the lyrics
+/// lookup (TS `searchLyrics(String(query))`).
+async fn reply_for_lava(
+    ctx: &Ctx<'_>,
+    code: &str,
+    t: &lava_rs::model::Track,
+    query: Option<&str>,
+) -> Result<(), anyhow::Error> {
+    let p = enriched_from_lava(t).await;
+    let artwork = t
+        .info
+        .artwork_url
+        .clone()
+        .filter(|u| !u.trim().is_empty())
+        .or(p.image.clone());
+    let requester = ctx.author().name.clone();
+    reply_for_trackinfo(
+        ctx,
+        code,
+        &t.info.title,
+        &t.info.author,
+        t.info.uri.as_deref(),
+        artwork.as_deref(),
+        &requester,
+        query,
+    )
+    .await
+}
+
+/// Resolve a lava track (query search or current track), then enrich via
+/// source-detected metadata with Lavalink fallback.
+async fn enriched_from_lava(t: &lava_rs::model::Track) -> NormalizedPreview {
+    match t.info.uri.as_deref() {
+        Some(url) => enrich_preview(url).await.unwrap_or_else(|| {
+            fallback_preview(&t.info.title, &t.info.author, t.info.uri.as_deref())
+        }),
+        None => fallback_preview(&t.info.title, &t.info.author, None),
+    }
+}
+
+/// Offline URL-metadata path (no Lavalink hit).
+async fn reply_for_preview(
+    ctx: &Ctx<'_>,
+    code: &str,
+    p: &NormalizedPreview,
+    query: Option<&str>,
+) -> Result<(), anyhow::Error> {
+    let requester = ctx.author().name.clone();
+    let link = Some(p.link.as_str()).filter(|s| !s.is_empty());
+    reply_for_trackinfo(
+        ctx,
+        code,
+        &p.title,
+        p.artist.as_deref().unwrap_or(""),
+        link,
+        p.image.as_deref(),
+        &requester,
+        query,
+    )
+    .await
+}
+
+/// Current-track path (no query): lyrics over `title - author`.
+async fn reply_for_queued(
+    ctx: &Ctx<'_>,
+    code: &str,
+    t: &crate::lavalink::QueuedTrack,
+    p: &NormalizedPreview,
+    requester: &str,
+) -> Result<(), anyhow::Error> {
+    let lyrics_query = format!("{} - {}", t.title, t.author);
+    reply_for_trackinfo(
+        ctx,
+        code,
+        &t.title,
+        &t.author,
+        t.uri.as_deref(),
+        p.image.as_deref(),
+        requester,
+        Some(&lyrics_query),
+    )
+    .await
+}
+
+/// Display name for a user id: cache hit, else the invoker (TS always
+/// resolves the requester User; the id may have left the guild).
+async fn user_name_for(ctx: &Ctx<'_>, user_id: Option<u64>) -> String {
+    if let Some(id) = user_id {
+        if let Some(u) = ctx.serenity_context().cache.user(serenity::UserId::new(id)) {
+            return u.name.clone();
         }
     }
+    ctx.author().name.clone()
+}
+
+#[allow(clippy::too_many_arguments)]
+async fn reply_for_trackinfo(
+    ctx: &Ctx<'_>,
+    code: &str,
+    title: &str,
+    author: &str,
+    uri: Option<&str>,
+    artwork: Option<&str>,
+    requester: &str,
+    lyrics_query: Option<&str>,
+) -> Result<(), anyhow::Error> {
+    let link = uri.unwrap_or_default();
+    let trimmed = match lyrics_query {
+        Some(q) => super::lyrics::fetch_lyrics_text(q)
+            .await
+            .map(|(_, text)| super::lyrics::lyrics_embed_description(&text)),
+        None => None,
+    }
+    .filter(|s| !s.trim().is_empty())
+    .unwrap_or_else(|| {
+        crate::lang::get(code, "lyrics_not_found").unwrap_or_else(|| "No lyrics found".to_string())
+    });
+    let micro = emoji_markup(ctx, "Micro", "🎤").await;
+    let music_icon = emoji_markup(ctx, "Music_Icon", "🎵").await;
+    let lyrics_word =
+        crate::lang::get(code, "music_lyrics").unwrap_or_else(|| "Lyrics".to_string());
+    let requested_by =
+        crate::lang::get(code, "music_requested_by").unwrap_or_else(|| "Requested by".to_string());
+    let link_here = crate::lang::get(code, "music_link_here")
+        .unwrap_or_else(|| "Link here: [Click here]({link})".to_string());
+    let visit_here =
+        crate::lang::get(code, "music_visit_here").unwrap_or_else(|| "Visit here".to_string());
+    let colour = dominant_colour(artwork).await;
+    let mut embed = serenity::CreateEmbed::default()
+        .colour(colour)
+        .title(format!("{music_icon} {title}"))
+        .description(trackinfo_description(
+            &link_here,
+            link,
+            &micro,
+            &lyrics_word,
+            &trimmed,
+        ))
+        .footer(serenity::CreateEmbedFooter::new(trackinfo_footer(
+            author,
+            &requested_by,
+            requester,
+        )));
+    if let Some(art) = artwork.filter(|u| !u.is_empty()) {
+        embed = embed.thumbnail(art);
+    }
+    let mut reply = poise::CreateReply::default().embed(embed);
+    if !link.is_empty() {
+        let button = serenity::CreateButton::new_link(link.to_string()).label(visit_here);
+        reply = reply.components(vec![serenity::CreateActionRow::Buttons(vec![button])]);
+    }
+    ctx.send(reply).await?;
     Ok(())
+}
+
+/// TS `image_dominant_color(artworkUrl || unknown-user.png)` colour leg
+/// (`color1`); constant fallback when the fetch fails.
+async fn dominant_colour(artwork: Option<&str>) -> u32 {
+    let input = artwork
+        .filter(|u| !u.is_empty())
+        .unwrap_or("https://www.ihorizon.org/assets/img/unknown-user.png");
+    match crate::funcs::image_dominant_color(input).await {
+        Ok((c1, _)) => u32::from_str_radix(c1.trim_start_matches('#'), 16).unwrap_or(0x2B2D31),
+        Err(_) => 0x2B2D31,
+    }
+}
+
+/// TS description shape:
+/// `{music_link_here({link} -> uri)}\n# {micro} {lyrics}\n*{trimmed}*`.
+pub fn trackinfo_description(
+    link_template: &str,
+    uri: &str,
+    micro: &str,
+    lyrics_word: &str,
+    trimmed: &str,
+) -> String {
+    let link_line = link_template.replace("{link}", uri);
+    format!("{link_line}\n# {micro} {lyrics_word}\n*{trimmed}*")
+}
+
+/// TS footer shape: `{author} - {requested_by} {username}`.
+pub fn trackinfo_footer(author: &str, requested_by: &str, username: &str) -> String {
+    format!("{author} - {requested_by} {username}")
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn description_mirrors_ts_shape() {
+        let out = trackinfo_description(
+            "Link here: [Click here]({link})",
+            "https://example.com/t",
+            "MIC",
+            "Lyrics",
+            "la la",
+        );
+        assert_eq!(
+            out,
+            "Link here: [Click here](https://example.com/t)\n# MIC Lyrics\n*la la*"
+        );
+    }
+
+    #[test]
+    fn footer_mirrors_ts_shape() {
+        assert_eq!(
+            trackinfo_footer("Artist", "Requested by", "bob"),
+            "Artist - Requested by bob"
+        );
+    }
 }

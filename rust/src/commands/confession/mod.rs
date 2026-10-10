@@ -130,6 +130,25 @@ pub fn panel_target(panel_raw: Option<&str>, fallback: Option<&str>) -> (Option<
     (fallback.and_then(|s| s.parse().ok()), None)
 }
 
+/// True when a stored disable value means "disabled". Accepts the TS
+/// legacy boolean form (`CONFESSION.disable`, written by !config.ts) and
+/// the namespaced `"1"` form (`GUILD.CONFESSION.disable`).
+pub fn confession_disabled_value(raw: Option<&str>) -> bool {
+    matches!(
+        raw.map(|s| s.trim().to_ascii_lowercase()).as_deref(),
+        Some("1") | Some("true")
+    )
+}
+
+/// True when the confession module is disabled in this guild. Reads both
+/// the legacy `CONFESSION.disable` key and `GUILD.CONFESSION.disable`;
+/// either one disables, matching the TS readers.
+pub async fn is_confession_disabled(pool: &crate::db::Pool, gid: &str) -> bool {
+    let legacy = crate::db::kv_get(pool, gid, "CONFESSION.disable").await;
+    let namespaced = crate::db::kv_get(pool, gid, "GUILD.CONFESSION.disable").await;
+    confession_disabled_value(legacy.as_deref()) || confession_disabled_value(namespaced.as_deref())
+}
+
 /// Parameters for [`post_confession_log`] (keeps the arg count low).
 pub struct ConfessionLog<'a> {
     pub gid: &'a str,
@@ -218,12 +237,9 @@ pub async fn handle_confess_button(
     };
     let gid = guild_id.get().to_string();
     // Disabled module ignores panel clicks. Mirrors the disable gate in
-    // new-confession-button.ts ("1" is written by /confession config off).
-    if crate::db::kv_get(pool, &gid, "GUILD.CONFESSION.disable")
-        .await
-        .as_deref()
-        == Some("1")
-    {
+    // new-confession-button.ts; both the legacy `CONFESSION.disable`
+    // boolean and `GUILD.CONFESSION.disable` ("1") disable.
+    if is_confession_disabled(pool, &gid).await {
         return Ok(());
     }
     let lang_code = crate::db::guild_lang(pool, Some(guild_id.get())).await;
@@ -802,6 +818,18 @@ mod tests {
         assert_eq!(parse_on_off("on"), Some(true));
         assert_eq!(parse_on_off("off"), Some(false));
         assert_eq!(parse_on_off("bogus"), None);
+    }
+
+    #[test]
+    fn disable_reads_legacy_boolean_and_namespaced_one() {
+        assert!(confession_disabled_value(Some("true")));
+        assert!(confession_disabled_value(Some("TRUE")));
+        assert!(confession_disabled_value(Some("1")));
+        assert!(confession_disabled_value(Some(" 1 ")));
+        assert!(!confession_disabled_value(Some("false")));
+        assert!(!confession_disabled_value(Some("0")));
+        assert!(!confession_disabled_value(Some("bogus")));
+        assert!(!confession_disabled_value(None));
     }
 
     #[test]
