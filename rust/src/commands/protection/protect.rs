@@ -94,6 +94,107 @@ pub fn sanction_display(lang_code: &str, sanction: &str) -> String {
     crate::lang::get(lang_code, key).unwrap_or_else(|| fallback.to_string())
 }
 
+/// Guild-owner gate. Mirrors the `interaction.user.id !== guild.ownerId`
+/// checks in `!actions.ts:45`, `!show.ts:45`, `!sanction.ts:44`,
+/// `allowlist/!add.ts:50` and `allowlist/!remove.ts:50` (all five are
+/// owner-only in TS; the second add/remove guard is dead code since the
+/// owner check above it always returns first).
+pub fn is_guild_owner(author_id: u64, owner_id: u64) -> bool {
+    author_id == owner_id
+}
+
+/// Resolve the guild owner id: cached guild first, partial-guild fetch
+/// as fallback (covers uncached guilds in slash commands).
+pub async fn guild_owner_id(ctx: &Ctx<'_>) -> Option<u64> {
+    if let Some(g) = ctx.guild() {
+        return Some(g.owner_id.get());
+    }
+    let gid = ctx.guild_id()?;
+    gid.to_partial_guild(ctx.http())
+        .await
+        .ok()
+        .map(|g| g.owner_id.get())
+}
+
+/// Deny unless the invoker owns the guild, replying with the TS lang key.
+/// Returns true when the command must stop (denied or guild unknown).
+pub async fn deny_unless_owner(ctx: &Ctx<'_>, key: &str, fallback: &str) -> bool {
+    let author = ctx.author().id.get();
+    let owner = guild_owner_id(ctx).await.unwrap_or(0);
+    if is_guild_owner(author, owner) {
+        return false;
+    }
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    let msg = crate::lang::get(&code, key).unwrap_or_else(|| fallback.to_string());
+    let _ = ctx.say(msg).await;
+    true
+}
+
+/// Display value for the `${rule.toUpperCase()}` slot of
+/// `authorization_actions_rule_set`. TS `!actions.ts:77` replaces it with
+/// `allRules.join(",")` for `rule == "all"` (raw values, comma-joined);
+/// single rules render uppercased.
+pub fn rule_display(rule: &str) -> String {
+    if rule == "all" {
+        RULES.join(",")
+    } else {
+        rule.to_uppercase()
+    }
+}
+
+/// Rule rows for the show panel. Mirrors `!show.ts:79-84`: every
+/// PROTECTION.* row except SANCTION as `**RULE** -> `mode`` lines.
+pub fn protection_rules_text(rows: &[(String, String)]) -> String {
+    let mut text = String::new();
+    for (k, v) in rows {
+        let Some(name) = k.strip_prefix("PROTECTION.") else {
+            continue;
+        };
+        if name == "SANCTION" {
+            continue;
+        }
+        let mode = serde_json::from_str::<RuleState>(v)
+            .map(|r| r.effective_mode().to_string())
+            .unwrap_or_else(|_| v.clone());
+        text.push_str(&format!("**{}** -> `{mode}`\n", name.to_uppercase()));
+    }
+    text
+}
+
+/// Sanction label for the show panel. Mirrors `!show.ts:87-93`.
+pub fn show_sanction_label(lang_code: &str, sanction: Option<&str>) -> String {
+    let (key, fallback) = match sanction.unwrap_or("").trim() {
+        "simply+ban" => (
+            "authorization_configshow_simply_ban",
+            "Simply Cancel Action & Ban",
+        ),
+        "simply+derank" => (
+            "authorization_configshow_simply_unrank",
+            "Simply Cancel Action & Unrank",
+        ),
+        _ => ("authorization_configshow_simply", "Simply Cancel Action"),
+    };
+    crate::lang::get(lang_code, key).unwrap_or_else(|| fallback.to_string())
+}
+
+/// True when the allowlist key rows contain the user. Rows look like
+/// `ALLOWLIST.list.<uid>`.
+pub fn allowlist_contains(rows: &[String], user_id: u64) -> bool {
+    rows.iter()
+        .any(|k| k == &format!("ALLOWLIST.list.{user_id}"))
+}
+
+/// Mention list for the allowlist panels. Mirrors `!show.ts:61-63` and
+/// `allowlist/!show.ts:61-63` (`<@uid>` per line).
+pub fn allowlist_mentions(rows: &[String]) -> String {
+    let mut ids: Vec<&str> = rows
+        .iter()
+        .filter_map(|k| k.strip_prefix("ALLOWLIST.list."))
+        .collect();
+    ids.sort();
+    ids.iter().map(|id| format!("<@{id}>\n")).collect()
+}
+
 /// Audit action -> protection rule name. Mirrors avoid*.ts mapping.
 pub fn rule_for_event(event: &str) -> Option<&'static str> {
     match event {
@@ -136,6 +237,15 @@ pub async fn protect_rule(
     #[description = "Rule (or all/cls)"] rule: String,
     #[description = "allowlist, member or nobody"] allow: String,
 ) -> Result<(), anyhow::Error> {
+    if deny_unless_owner(
+        &ctx,
+        "authorization_actions_not_permited",
+        "Only the Owner of the server can edit the authorization rule about the protection module!",
+    )
+    .await
+    {
+        return Ok(());
+    }
     let rule = rule.trim().to_ascii_lowercase();
     if !valid_rule(&rule) {
         let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
@@ -200,7 +310,7 @@ pub async fn protect_rule(
                     "${interaction.user}",
                     &format!("<@{}>", ctx.author().id.get()),
                 )
-                .replace("${rule.toUpperCase()}", &rule.to_uppercase())
+                .replace("${rule.toUpperCase()}", &rule_display(&rule))
                 .replace("${allow}", &mode_display(&code, &mode))
             })
             .unwrap_or_else(|| format!("Rule {rule} set.")),
@@ -219,6 +329,15 @@ pub async fn protect_sanction(
     ctx: Ctx<'_>,
     #[description = "simply, simply+derank or simply+ban"] sanction: String,
 ) -> Result<(), anyhow::Error> {
+    if deny_unless_owner(
+        &ctx,
+        "authorization_sanction_not_permited",
+        "Only the owner of the server can edit the authorization rule about the protection module!",
+    )
+    .await
+    {
+        return Ok(());
+    }
     let sanction = sanction.trim().to_string();
     if !valid_sanction(&sanction) {
         let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
@@ -388,20 +507,59 @@ pub async fn load_allowlist(pool: &crate::db::Pool, gid: &str) -> Vec<String> {
     default_member_permissions = "ADMINISTRATOR"
 )]
 pub async fn protect_show(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
+    if deny_unless_owner(
+        &ctx,
+        "authorization_configshow_not_permited",
+        "Only the owner of the server can edit the authorization rule about the protection module!",
+    )
+    .await
+    {
+        return Ok(());
+    }
     let gid = ctx
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let rows = load_protection_rows(&ctx.data().pool, &gid).await;
-    ctx.say(if rows.is_empty() {
-        "No protection rules.".to_string()
-    } else {
-        rows.iter()
-            .map(|(k, v)| format!("{k}: {v}"))
-            .collect::<Vec<_>>()
-            .join("\n")
-    })
-    .await?;
+    let allow = load_allowlist(&ctx.data().pool, &gid).await;
+    // TS !show.ts:63-73: empty when no allowlist entries or no rules.
+    if protection_rules_text(&rows).trim().is_empty() || allow.is_empty() {
+        let msg = crate::lang::get(&code, "authorization_configshow_not_anything_setup")
+            .unwrap_or_else(|| {
+                "You have not set up anything in the Protection Module!".to_string()
+            });
+        ctx.say(msg).await?;
+        return Ok(());
+    }
+    let mut rules_text = protection_rules_text(&rows);
+    let sanction = rows
+        .iter()
+        .find(|(k, _)| k == "PROTECTION.SANCTION")
+        .map(|(_, v)| v.trim().trim_matches('"').to_string());
+    let okay = show_sanction_label(&code, sanction.as_deref());
+    let punish = crate::lang::get(&code, "authorization_configshow_punishement")
+        .map(|s| s.replace("${okay}", &okay))
+        .unwrap_or_else(|| format!("```Punishment: {okay}```"));
+    rules_text.push_str(&punish);
+    let author1 = crate::lang::get(&code, "authorization_configshow_embed1_author")
+        .unwrap_or_else(|| "Rule List".to_string());
+    let author2 = crate::lang::get(&code, "authorization_configshow_embed2_author")
+        .unwrap_or_else(|| "Allowlist".to_string());
+    let embed1 = serenity::CreateEmbed::default()
+        .colour(0x010101)
+        .author(serenity::CreateEmbedAuthor::new(author1))
+        .description(rules_text)
+        .timestamp(serenity::Timestamp::now());
+    let embed2 = serenity::CreateEmbed::default()
+        .colour(0x010101)
+        .author(serenity::CreateEmbedAuthor::new(author2))
+        .description(allowlist_mentions(&allow))
+        .timestamp(serenity::Timestamp::now());
+    let mut reply = poise::CreateReply::default();
+    reply.embeds.push(embed1);
+    reply.embeds.push(embed2);
+    ctx.send(reply).await?;
     Ok(())
 }
 
@@ -410,10 +568,29 @@ pub async fn protect_allow_add(
     ctx: Ctx<'_>,
     #[description = "Member"] user: poise::serenity_prelude::User,
 ) -> Result<(), anyhow::Error> {
+    if deny_unless_owner(
+        &ctx,
+        "allowlist_add_not_owner",
+        "Only the owner of the server can add/remove users in the allowlist!",
+    )
+    .await
+    {
+        return Ok(());
+    }
     let gid = ctx
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    // TS !add.ts:74-79: already allowlisted guard.
+    let existing = load_allowlist(&ctx.data().pool, &gid).await;
+    if allowlist_contains(&existing, user.id.get()) {
+        let msg = crate::lang::get(&code, "allowlist_add_already_in").unwrap_or_else(|| {
+            "The member you want to add to the allowlist is already in it!".to_string()
+        });
+        ctx.say(msg).await?;
+        return Ok(());
+    }
     crate::commands::owner::main::routed_set(
         &ctx.data().pool,
         &gid,
@@ -422,7 +599,6 @@ pub async fn protect_allow_add(
         r#"{"allowed":true}"#,
     )
     .await?;
-    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     ctx.say(
         crate::lang::get(&code, "allowlist_add_command_work")
             .map(|s| s.replace("${member.user}", &format!("<@{}>", user.id.get())))
@@ -437,10 +613,39 @@ pub async fn protect_allow_remove(
     ctx: Ctx<'_>,
     #[description = "Member"] user: poise::serenity_prelude::User,
 ) -> Result<(), anyhow::Error> {
+    if deny_unless_owner(
+        &ctx,
+        "allowlist_delete_not_owner",
+        "Only the owner of the server can add/remove users in the allowlist!",
+    )
+    .await
+    {
+        return Ok(());
+    }
     let gid = ctx
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    // TS !remove.ts:74-79: the owner can never leave the allowlist.
+    let owner = guild_owner_id(&ctx).await.unwrap_or(0);
+    if user.id.get() == owner {
+        let msg =
+            crate::lang::get(&code, "allowlist_delete_cant_remove_owner").unwrap_or_else(|| {
+                "It is not possible to remove the server owner from the allowlist!".to_string()
+            });
+        ctx.say(msg).await?;
+        return Ok(());
+    }
+    // TS !remove.ts:81-86 (`!list[id].allowed == true`): not-in guard.
+    let existing = load_allowlist(&ctx.data().pool, &gid).await;
+    if !allowlist_contains(&existing, user.id.get()) {
+        let msg = crate::lang::get(&code, "allowlist_delete_isnt_in").unwrap_or_else(|| {
+            "The member you want to remove from the allowlist isn't in it!".to_string()
+        });
+        ctx.say(msg).await?;
+        return Ok(());
+    }
     let _ = crate::commands::owner::main::routed_del(
         &ctx.data().pool,
         &gid,
@@ -448,7 +653,6 @@ pub async fn protect_allow_remove(
         &format!("ALLOWLIST.list.{}", user.id.get()),
     )
     .await?;
-    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     ctx.say(
         crate::lang::get(&code, "allowlist_delete_command_work")
             .map(|s| s.replace("${member.user}", &format!("<@{}>", user.id.get())))
@@ -464,13 +668,40 @@ pub async fn protect_allow_show(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
-    let rows = load_allowlist(&ctx.data().pool, &gid).await;
-    ctx.say(if rows.is_empty() {
-        "Allowlist empty.".to_string()
-    } else {
-        rows.join("\n")
-    })
-    .await?;
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    // TS allowlist/!show.ts:48-59: lazy-seed the owner entry on first read.
+    let mut rows = load_allowlist(&ctx.data().pool, &gid).await;
+    if rows.is_empty() {
+        if let Some(owner) = guild_owner_id(&ctx).await {
+            let _ = crate::commands::owner::main::routed_set(
+                &ctx.data().pool,
+                &gid,
+                &gid,
+                &format!("ALLOWLIST.list.{owner}"),
+                r#"{"allowed":true}"#,
+            )
+            .await;
+            rows = load_allowlist(&ctx.data().pool, &gid).await;
+        }
+    }
+    // TS allowlist/!show.ts:65-73: owner or listed members only.
+    let author = ctx.author().id.get();
+    let owner = guild_owner_id(&ctx).await.unwrap_or(0);
+    if !is_guild_owner(author, owner) && !allowlist_contains(&rows, author) {
+        let msg = crate::lang::get(&code, "allowlist_show_not_permited").unwrap_or_else(|| {
+            "You are not allowed to use this command! You need to be in the allowlist!".to_string()
+        });
+        ctx.say(msg).await?;
+        return Ok(());
+    }
+    let title = crate::lang::get(&code, "allowlist_show_embed_author")
+        .unwrap_or_else(|| "Allowlist".to_string());
+    let embed = serenity::CreateEmbed::default()
+        .colour(0x010101)
+        .author(serenity::CreateEmbedAuthor::new(title))
+        .description(allowlist_mentions(&rows))
+        .timestamp(serenity::Timestamp::now());
+    ctx.send(poise::CreateReply::default().embed(embed)).await?;
     Ok(())
 }
 
@@ -524,6 +755,57 @@ mod tests {
         assert_eq!(rule_for_event("channelDelete"), Some("deletechannel"));
         assert_eq!(rule_for_event("guildBanAdd"), Some("banmembers"));
         assert_eq!(rule_for_event("nope"), None);
+    }
+
+    #[test]
+    fn owner_gate_matches_ts_checks() {
+        assert!(is_guild_owner(7, 7));
+        assert!(!is_guild_owner(7, 8));
+    }
+
+    #[test]
+    fn rule_all_reply_joins_every_rule() {
+        let all = rule_display("all");
+        for r in RULES {
+            assert!(all.contains(r), "missing {r} in {all}");
+        }
+        assert!(!all.contains("cls"));
+        assert_eq!(rule_display("webhook"), "WEBHOOK");
+    }
+
+    #[test]
+    fn show_panel_text_matches_ts_show() {
+        let rows = vec![
+            (
+                "PROTECTION.webhook".to_string(),
+                r#"{"mode":"allowlist"}"#.to_string(),
+            ),
+            ("PROTECTION.SANCTION".to_string(), "simply".to_string()),
+        ];
+        let text = protection_rules_text(&rows);
+        assert!(text.contains("**WEBHOOK** -> `allowlist`"));
+        assert!(!text.contains("SANCTION"));
+        // Legacy rows render through the effective mode.
+        let legacy = vec![(
+            "PROTECTION.banmembers".to_string(),
+            r#"{"allow":false}"#.to_string(),
+        )];
+        assert!(protection_rules_text(&legacy).contains("**BANMEMBERS** -> `nobody`"));
+        assert!(protection_rules_text(&[]).is_empty());
+    }
+
+    #[test]
+    fn allowlist_helpers_match_ts_guards() {
+        let rows = vec![
+            "ALLOWLIST.list.7".to_string(),
+            "ALLOWLIST.list.9".to_string(),
+        ];
+        assert!(allowlist_contains(&rows, 7));
+        assert!(!allowlist_contains(&rows, 8));
+        assert!(!allowlist_contains(&[], 7));
+        let mentions = allowlist_mentions(&rows);
+        assert!(mentions.contains("<@7>"));
+        assert!(mentions.contains("<@9>"));
     }
 
     async fn memory_pool() -> crate::db::Pool {

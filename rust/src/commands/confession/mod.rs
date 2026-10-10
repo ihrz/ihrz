@@ -403,6 +403,18 @@ pub async fn handle_confess_button(
     for file in files {
         message = message.add_file(file);
     }
+    // Unique nonce per confession post. Mirrors `enforceNonce: true` +
+    // the generated nonce in new-confession-button.ts. The same
+    // timestamp doubles as the post-time cooldown/archive stamp below.
+    let post_ms = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|d| d.as_millis() as u64)
+        .unwrap_or(0);
+    message = message
+        .nonce(serenity::model::channel::Nonce::String(format!(
+            "confession-{code}-{post_ms}"
+        )))
+        .enforce_nonce(true);
     // Thread mode gets the anonymous-reply button (customId
     // `confessionres%<code>`); without a thread there is no reply
     // surface, mirroring new-confession-button.ts.
@@ -426,15 +438,32 @@ pub async fn handle_confess_button(
                 .create_thread_from_message(
                     &ctx.http,
                     posted.id,
-                    serenity::CreateThread::new(format!("{field} #{code}")),
+                    serenity::CreateThread::new(format!("{field} #{code}"))
+                        .audit_log_reason("Pic Only"),
                 )
                 .await
             {
+                // Mirrors `x.edit({ invitable: true, locked: false,
+                // archived: false })` after startThread in
+                // new-confession-button.ts.
+                let _ = ctx
+                    .http
+                    .edit_thread(
+                        thread.id,
+                        &serenity::EditThread::new()
+                            .invitable(true)
+                            .locked(false)
+                            .archived(false),
+                        None,
+                    )
+                    .await;
                 thread_id = Some(thread.id.get());
             }
         }
     }
-    let _ = crate::db::kv_set(pool, &gid, &last_key, &now.to_string()).await;
+    // Cooldown stamped at post time (mirrors the tempTable.set(Date.now())
+    // after posting in new-confession-button.ts), not at click time.
+    let _ = crate::db::kv_set(pool, &gid, &last_key, &post_ms.to_string()).await;
     // Moderation archive (mirrors GUILD.CONFESSION.ALL_CONFESSIONS).
     // code/message_id/thread_id link confessionres% replies to this post.
     // C10 compat: field names follow the TS array shape
@@ -446,11 +475,11 @@ pub async fn handle_confess_button(
         pool,
         &gid,
         &gid,
-        &format!("GUILD.CONFESSION.ALL_CONFESSIONS.{now}"),
+        &format!("GUILD.CONFESSION.ALL_CONFESSIONS.{post_ms}"),
         &serde_json::json!({
             "code": code,
             "userId": comp.user.id.get().to_string(),
-            "timestamp": now,
+            "timestamp": post_ms,
             "private": private,
             "threadChannel": thread_id.map(|t| t.to_string()),
             "messageId": posted_id.map(|m| m.to_string()),
@@ -476,9 +505,10 @@ pub async fn handle_confess_button(
     .await;
     // Panel rotation. Mirrors new-confession-button.ts: delete the old
     // panel message, repost it, rebind GUILD.CONFESSION.panel to the new
-    // ids. The old embed is reused verbatim (its bot footer only changes
-    // when the bot profile changes); the button is rebuilt from its
-    // previous label so the click flow survives. Best-effort, silent.
+    // ids. The repost keeps the old embed body but refreshes the bot
+    // footer (footerBuilder + footerAttachmentBuilder); the button is
+    // rebuilt from its previous label so the click flow survives.
+    // Best-effort, silent.
     if let Some(mid) = bound_msg {
         if let Ok(panel_msg) = serenity::ChannelId::new(target_ch)
             .message(&ctx.http, serenity::MessageId::new(mid))
@@ -509,13 +539,36 @@ pub async fn handle_confess_button(
                 });
             let _ = panel_msg.delete(&ctx.http).await;
             if let (Some(re_embed), Some(label)) = (old_embed, old_label) {
-                let repost = serenity::CreateMessage::new()
-                    .embed(serenity::CreateEmbed::from(re_embed))
+                // Fresh footer on the repost. Mirrors footerBuilder +
+                // footerAttachmentBuilder in the TS rotation repost: the
+                // old embed is not reused verbatim, the bot footer only
+                // refreshes here.
+                let footer_name = crate::db::kv_get(pool, &gid, "BOT.botName")
+                    .await
+                    .filter(|s| !s.trim().is_empty())
+                    .unwrap_or_else(|| "iHorizon".to_string());
+                let footer_icon = crate::db::kv_get(pool, &gid, "BOT.botPFP")
+                    .await
+                    .and_then(|s| crate::emojis::base64_decode(&s));
+                let mut repost = serenity::CreateMessage::new()
+                    .embed(serenity::CreateEmbed::from(re_embed).footer(
+                        serenity::CreateEmbedFooter::new(&footer_name).icon_url(
+                            if footer_icon.is_some() {
+                                "attachment://footer_icon.png".to_string()
+                            } else {
+                                String::new()
+                            },
+                        ),
+                    ))
                     .button(
                         serenity::CreateButton::new(channel::CONFESSION_PANEL_BUTTON_ID)
                             .label(label)
                             .style(serenity::ButtonStyle::Secondary),
                     );
+                if let Some(bytes) = footer_icon {
+                    repost = repost
+                        .add_file(serenity::CreateAttachment::bytes(bytes, "footer_icon.png"));
+                }
                 if let Ok(posted) = serenity::ChannelId::new(target_ch)
                     .send_message(&ctx.http, repost)
                     .await

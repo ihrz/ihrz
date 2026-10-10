@@ -149,6 +149,44 @@ pub fn clamp_volume(v: i64) -> i64 {
     v.clamp(10, 100)
 }
 
+/// H247 24/7 timing. Mirrors the constants at the top of
+/// src/core/modules/h247Manager.ts. The live rejoin/watchdog I/O
+/// stays TS-side (lavalink-client + gateway); the pure gates below
+/// keep the Rust event arm (h247_rejoin_target in
+/// commands/h247/grant.rs, wired in voice_state_update) from looping.
+pub const H247_REJOIN_DELAY_MS: i64 = 1_000;
+pub const H247_REJOIN_RETRY_MS: i64 = 2_000;
+pub const H247_REJOIN_MAX_ATTEMPTS: u32 = 3;
+pub const H247_JOIN_CONFIRM_INTERVAL_MS: i64 = 300;
+pub const H247_JOIN_CONFIRM_ATTEMPTS: u32 = 8;
+pub const H247_DISCONNECT_OBSERVE_INTERVAL_MS: i64 = 500;
+pub const H247_DISCONNECT_OBSERVE_ATTEMPTS: u32 = 10;
+pub const H247_EVENT_REJOIN_COOLDOWN_MS: i64 = 5_000;
+pub const H247_WATCHDOG_WARN_INTERVAL_MS: i64 = 30 * 60_000;
+pub const H247_NEGATIVE_CACHE_TTL_MS: i64 = 30 * 60_000;
+
+/// Event-arm rejoin gate. Mirrors h247EventRejoinCooldowns: a voice
+/// state change may trigger a rejoin only when no attempt ran in the
+/// last H247_EVENT_REJOIN_COOLDOWN_MS (no record yet means due).
+pub fn h247_event_rejoin_due(last_attempt_ms: Option<i64>, now_ms: i64) -> bool {
+    match last_attempt_ms {
+        None => true,
+        Some(last) => now_ms.saturating_sub(last) >= H247_EVENT_REJOIN_COOLDOWN_MS,
+    }
+}
+
+/// Attempts left, mirroring H247_REJOIN_MAX_ATTEMPTS.
+pub fn h247_rejoin_attempts_left(attempts: u32) -> bool {
+    attempts < H247_REJOIN_MAX_ATTEMPTS
+}
+
+/// Negative-cache validity. Mirrors h247NegativeCache: a guild
+/// resolved as "H24/7 not enabled" skips the DB read until the TTL
+/// elapses.
+pub fn h247_negative_cached(resolved_at_ms: i64, now_ms: i64) -> bool {
+    now_ms.saturating_sub(resolved_at_ms) < H247_NEGATIVE_CACHE_TTL_MS
+}
+
 /// In-memory track queue. Mirrors the Lavalink player queue surface used
 /// by musicPlay.ts (!play/skip/clear-queue/shuffle/queue): append, skip,
 /// clear, deterministic shuffle (seeded xorshift, no RNG dep).
@@ -265,6 +303,30 @@ mod tests {
         assert_eq!(clamp_volume(5), 10);
         assert_eq!(clamp_volume(50), 50);
         assert_eq!(clamp_volume(150), 100);
+    }
+
+    #[test]
+    fn h247_timing_mirrors_manager_consts() {
+        assert_eq!(H247_REJOIN_DELAY_MS, 1_000);
+        assert_eq!(H247_REJOIN_RETRY_MS, 2_000);
+        assert_eq!(H247_REJOIN_MAX_ATTEMPTS, 3);
+        assert_eq!(H247_JOIN_CONFIRM_INTERVAL_MS, 300);
+        assert_eq!(H247_JOIN_CONFIRM_ATTEMPTS, 8);
+        assert_eq!(H247_DISCONNECT_OBSERVE_INTERVAL_MS, 500);
+        assert_eq!(H247_DISCONNECT_OBSERVE_ATTEMPTS, 10);
+        assert_eq!(H247_EVENT_REJOIN_COOLDOWN_MS, 5_000);
+        assert_eq!(H247_WATCHDOG_WARN_INTERVAL_MS, 30 * 60_000);
+        assert_eq!(H247_NEGATIVE_CACHE_TTL_MS, 30 * 60_000);
+        // Rejoin gate: first event always due, then 5s cooldown.
+        assert!(h247_event_rejoin_due(None, 10_000));
+        assert!(!h247_event_rejoin_due(Some(10_000), 10_000 + 4_999));
+        assert!(h247_event_rejoin_due(Some(10_000), 10_000 + 5_000));
+        assert!(h247_rejoin_attempts_left(0));
+        assert!(h247_rejoin_attempts_left(2));
+        assert!(!h247_rejoin_attempts_left(3));
+        // Negative cache: valid inside the TTL only.
+        assert!(h247_negative_cached(0, H247_NEGATIVE_CACHE_TTL_MS - 1));
+        assert!(!h247_negative_cached(0, H247_NEGATIVE_CACHE_TTL_MS));
     }
 
     #[test]

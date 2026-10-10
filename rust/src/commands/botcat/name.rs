@@ -107,18 +107,18 @@ mod tests {
 
     #[test]
     fn utf16_length_matches_js_string_length() {
-        assert_eq!(footer_name_too_long_utf16("abc"), false);
+        assert!(!footer_name_too_long_utf16("abc"));
         // BMP text: 1 unit per char, like JS.
         assert_eq!("é".encode_utf16().count(), 1);
-        assert_eq!(footer_name_too_long_utf16(&"é".repeat(31)), false);
-        assert_eq!(footer_name_too_long_utf16(&"é".repeat(32)), true);
+        assert!(!footer_name_too_long_utf16(&"é".repeat(31)));
+        assert!(footer_name_too_long_utf16(&"é".repeat(32)));
         // Astral chars (emoji): 2 units per char, like JS — 16 emoji
         // hit the 32-unit gate while chars().count() sees only 16.
         assert_eq!("😀".encode_utf16().count(), 2);
         assert_eq!("😀".repeat(16).chars().count(), 16);
-        assert_eq!(footer_name_too_long_utf16(&"😀".repeat(15)), false);
-        assert_eq!(footer_name_too_long_utf16(&"😀".repeat(16)), true);
-        assert_eq!(footer_name_too_long_utf16(&"a".repeat(31)), false);
-        assert_eq!(footer_name_too_long_utf16(&"a".repeat(32)), true);
+        assert!(!footer_name_too_long_utf16(&"😀".repeat(15)));
+        assert!(footer_name_too_long_utf16(&"😀".repeat(16)));
+        assert!(!footer_name_too_long_utf16(&"a".repeat(31)));
+        assert!(footer_name_too_long_utf16(&"a".repeat(32)));
     }
 }

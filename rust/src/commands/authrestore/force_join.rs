@@ -9,6 +9,16 @@ pub fn should_push_progress(added_count: u64, elapsed_ms: u64) -> bool {
     elapsed_ms > 10_000 || added_count.is_multiple_of(5)
 }
 
+/// Confirm button ids for the force-join gate. TS uses bare
+/// `yes`/`no`; the Rust port prefixes them so two concurrent runs
+/// never acknowledge each other's clicks.
+pub const FORCE_JOIN_YES_ID: &str = "ar-force-join-yes";
+pub const FORCE_JOIN_NO_ID: &str = "ar-force-join-no";
+
+/// Confirm collector window. Mirrors `time: 2_240_00` (224_000 ms =
+/// 224 s) in !force-join.ts.
+pub const FORCE_JOIN_CONFIRM_TIMEOUT: std::time::Duration = std::time::Duration::from_secs(224);
+
 /// Live progress of a force-join run. Mirrors the `totalMembers` /
 /// `addedCount` pair closed over by `updateEmbed` in !force-join.ts.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -79,27 +89,79 @@ pub async fn authrestore_force_join(
     let f1 = t(&ctx, "rc_forceJoin_embed_field1", "Members found").await;
     let f2 = t(&ctx, "rc_forceJoin_embed_field2", "Members already here").await;
     let f3 = t(&ctx, "rc_forceJoin_embed_field3", "Possible join").await;
-    ctx.send(
-        poise::CreateReply::default().embed(
-            serenity::CreateEmbed::new()
-                .title(title.clone())
-                .description(desc.clone())
-                .color(2829617)
-                .field(f1, found.to_string(), true)
-                .field(f2, already.to_string(), true)
-                .field(f3, possible.to_string(), true),
-        ),
-    )
-    .await?;
-    if !crate::commands::prompt_yes_or_no(
-        &ctx,
-        desc.clone(),
-        t(&ctx, "var_confirm", "Confirm").await,
-        t(&ctx, "embed_btn_cancel", "Cancel").await,
-        true,
-    )
-    .await?
-    {
+    // Single-message confirm gate. Mirrors the !force-join.ts collector
+    // on the confirm reply (`interactionSend` + `withResponse: true`):
+    // the yes/no buttons live on the same message that later becomes
+    // the progress embed (edit-in-place). 224 s window; clicks from
+    // anyone but the invoker get the ephemeral not-for-you reply;
+    // cancel deletes the message; timeout clears the buttons.
+    let yes_label = t(&ctx, "var_confirm", "Confirm").await;
+    let no_label = t(&ctx, "embed_btn_cancel", "Cancel").await;
+    let not_for_you = t(&ctx, "help_not_for_you", "This interaction is not for you").await;
+    let confirm_handle = ctx
+        .send(
+            poise::CreateReply::default()
+                .embed(
+                    serenity::CreateEmbed::new()
+                        .title(title.clone())
+                        .description(desc.clone())
+                        .color(2829617)
+                        .field(f1, found.to_string(), true)
+                        .field(f2, already.to_string(), true)
+                        .field(f3, possible.to_string(), true),
+                )
+                .components(vec![serenity::CreateActionRow::Buttons(vec![
+                    serenity::CreateButton::new(FORCE_JOIN_YES_ID)
+                        .label(&yes_label)
+                        .style(serenity::ButtonStyle::Danger),
+                    serenity::CreateButton::new(FORCE_JOIN_NO_ID)
+                        .label(&no_label)
+                        .style(serenity::ButtonStyle::Success),
+                ])]),
+        )
+        .await?;
+    let mut msg = confirm_handle.into_message().await?;
+    let author = ctx.author().id;
+    let confirmed = loop {
+        let press = msg
+            .await_component_interaction(ctx.serenity_context().shard.clone())
+            .timeout(FORCE_JOIN_CONFIRM_TIMEOUT)
+            .filter(|i| {
+                i.data.custom_id == FORCE_JOIN_YES_ID || i.data.custom_id == FORCE_JOIN_NO_ID
+            })
+            .await;
+        let Some(press) = press else {
+            break false;
+        };
+        if press.user.id != author {
+            let _ = press
+                .create_response(
+                    ctx.http(),
+                    serenity::CreateInteractionResponse::Message(
+                        serenity::CreateInteractionResponseMessage::new()
+                            .content(not_for_you.clone())
+                            .ephemeral(true),
+                    ),
+                )
+                .await;
+            continue;
+        }
+        let yes = press.data.custom_id == FORCE_JOIN_YES_ID;
+        // Acknowledge like TS `deferUpdate()` so Discord does not flag
+        // the interaction as failed.
+        let _ = press
+            .create_response(ctx.http(), serenity::CreateInteractionResponse::Acknowledge)
+            .await;
+        if !yes {
+            let _ = msg.delete(ctx.http()).await;
+            return Ok(());
+        }
+        break true;
+    };
+    if !confirmed {
+        let _ = msg
+            .edit(ctx.http(), serenity::EditMessage::new().components(vec![]))
+            .await;
         return Ok(());
     }
     let Some(url) = gateway_endpoint(crate::funcs::GatewayMethod::ForceJoinAuthRestore) else {
@@ -136,51 +198,54 @@ pub async fn authrestore_force_join(
     let pf2 = t(&ctx, "rc_forceJoin_embed_2_field2", "Joined").await;
     let progress = ForceJoinProgress { possible, added: 0 };
     let (possible_text, joined_text) = progress_fields(&progress);
-    let progress_handle = ctx
-        .send(
-            poise::CreateReply::default().embed(
-                serenity::CreateEmbed::new()
-                    .title(title)
-                    .description(ws_start.clone())
-                    .color(2829617)
-                    .field(pf1.clone(), possible_text, true)
-                    .field(pf2.clone(), joined_text, true),
-            ),
+    // Edit the confirm message in place (mirrors `interaction.editReply`
+    // in the TS `updateEmbed` flow) instead of posting a new message.
+    let _ = msg
+        .edit(
+            ctx.http(),
+            serenity::EditMessage::new()
+                .embed(
+                    serenity::CreateEmbed::new()
+                        .title(title)
+                        .description(ws_start.clone())
+                        .color(2829617)
+                        .field(pf1.clone(), possible_text, true)
+                        .field(pf2.clone(), joined_text, true),
+                )
+                .components(vec![]),
         )
-        .await?;
+        .await;
     let token = crate::config::api_token().unwrap_or_default();
     let (_, to_join) = partition_force_join(&data.members, &present);
     let payload = forcejoin_payload(&config_guild_id, &token, &key, &guild_id, &to_join);
     match gateway_post(&url, &payload).await {
         Ok(body) => {
-            let msg = body.get("message").and_then(|m| m.as_str()).unwrap_or("");
-            match parse_forcejoin_response(msg) {
+            let gateway_msg = body.get("message").and_then(|m| m.as_str()).unwrap_or("");
+            match parse_forcejoin_response(gateway_msg) {
                 Some((_, renewed)) => {
                     let end_event = ForceJoinWsEvent::End(renewed.clone());
                     let end_desc = force_join_event_description(&end_event, "", &ws_start, &ws_end)
                         .unwrap_or_else(|| ws_end.clone());
-                    if let Ok(mut progress_msg) = progress_handle.into_message().await {
-                        let _ = progress_msg
-                            .edit(
-                                ctx.http(),
-                                serenity::EditMessage::new().embed(
-                                    serenity::CreateEmbed::new()
-                                        .title(
-                                            t(
-                                                &ctx,
-                                                "rc_forceJoin_embed_title",
-                                                "AuthRestore - Force Join",
-                                            )
-                                            .await,
+                    let _ = msg
+                        .edit(
+                            ctx.http(),
+                            serenity::EditMessage::new().embed(
+                                serenity::CreateEmbed::new()
+                                    .title(
+                                        t(
+                                            &ctx,
+                                            "rc_forceJoin_embed_title",
+                                            "AuthRestore - Force Join",
                                         )
-                                        .description(end_desc)
-                                        .color(2829617)
-                                        .field(pf1, possible.to_string(), true)
-                                        .field(pf2, to_join.len().to_string(), true),
-                                ),
-                            )
-                            .await;
-                    }
+                                        .await,
+                                    )
+                                    .description(end_desc)
+                                    .color(2829617)
+                                    .field(pf1, possible.to_string(), true)
+                                    .field(pf2, to_join.len().to_string(), true),
+                            ),
+                        )
+                        .await;
                     let guild_name = ctx
                         .guild()
                         .map(|g| g.name.clone())
@@ -332,5 +397,18 @@ mod tests {
             added: 3,
         };
         assert_eq!(progress_fields(&p), ("7".to_string(), "3".to_string()));
+    }
+
+    #[test]
+    fn confirm_gate_ids_and_window_mirror_ts_collector() {
+        // Prefixed so concurrent runs never ack each other's clicks.
+        assert_eq!(FORCE_JOIN_YES_ID, "ar-force-join-yes");
+        assert_eq!(FORCE_JOIN_NO_ID, "ar-force-join-no");
+        assert_ne!(FORCE_JOIN_YES_ID, FORCE_JOIN_NO_ID);
+        // Mirrors `time: 2_240_00` (224 s) in !force-join.ts.
+        assert_eq!(
+            FORCE_JOIN_CONFIRM_TIMEOUT,
+            std::time::Duration::from_secs(224)
+        );
     }
 }

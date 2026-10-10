@@ -422,8 +422,10 @@ mod tests {
     #[tokio::test]
     async fn table_routing_with_legacy_fallback() {
         let pool = memory_pool().await;
-        let mut cfg = AntispamConfig::default();
-        cfg.threshold = 9;
+        let cfg = AntispamConfig {
+            threshold: 9,
+            ..Default::default()
+        };
         save_antispam(&pool, "g1", &cfg).await.unwrap();
         assert_eq!(load_antispam(&pool, "g1").await.threshold, 9);
         // Table-routed rows live under `tbl:<gid>`, never as flat legacy rows.

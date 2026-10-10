@@ -1274,10 +1274,12 @@ mod tests {
 
     #[test]
     fn status_panel_fields_match_ts_names() {
-        let mut services = ServiceResults::default();
-        services.public_bot = ResponseResult {
-            up: true,
-            latency: 42,
+        let services = ServiceResults {
+            public_bot: ResponseResult {
+                up: true,
+                latency: 42,
+            },
+            ..Default::default()
         };
         let fields = status_panel_fields(&services);
         let names: Vec<&str> = fields.iter().map(|(n, _, _)| n.as_str()).collect();

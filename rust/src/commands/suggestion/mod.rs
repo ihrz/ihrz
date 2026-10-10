@@ -181,12 +181,13 @@ pub async fn save_suggest_disable(
         .await
 }
 
-/// 6-char uppercase code. Mirrors TS suggestCode generation.
+/// 12-char mixed-case code. Mirrors TS `generatePassword({ length: 12 })`
+/// (default lowercase + uppercase alphabet, no digits/symbols).
 pub fn gen_suggest_code(seed: u64) -> String {
-    const ALPHA: &[u8] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    const ALPHA: &[u8] = b"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
     let mut state = if seed == 0 { 0x9E3779B97F4A7C15 } else { seed };
-    let mut out = String::with_capacity(6);
-    for _ in 0..6 {
+    let mut out = String::with_capacity(12);
+    for _ in 0..12 {
         state ^= state << 13;
         state ^= state >> 7;
         state ^= state << 17;
@@ -256,12 +257,10 @@ mod tests {
         assert!(!load_suggest_disabled(&pool, "g9").await);
     }
     #[test]
-    fn code_is_6_upper_alnum() {
+    fn code_is_12_mixed_alpha_like_ts() {
         let c = gen_suggest_code(42);
-        assert_eq!(c.len(), 6);
-        assert!(c
-            .chars()
-            .all(|x| x.is_ascii_uppercase() || x.is_ascii_digit()));
+        assert_eq!(c.len(), 12);
+        assert!(c.chars().all(|x| x.is_ascii_alphabetic()));
         assert_eq!(suggestion_key("ABC"), "SUGGESTION.ABC");
     }
 

@@ -25,7 +25,7 @@ fn render_row(tpl: &str, rank_1based: usize, uid: u64, s: &InviteStats) -> Strin
     slash_command,
     prefix_command,
     rename = "leaderboard",
-    aliases("lb-invites", "invlb", "inviteslb")
+    aliases("lb-invites", "invlb", "inviteslb", "invites-leaderboard")
 )]
 pub async fn inv_lb(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let t0 = std::time::Instant::now();
@@ -75,6 +75,14 @@ pub async fn inv_lb(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let items_per_page = 15usize;
     let total_pages = rows.len().div_ceil(items_per_page);
     let (fname, fbytes) = crate::commands::shared::footer_parts(&ctx, &gid).await;
+    // Guild icon snapshot for the `attachment://guildIcon.png` thumbnail.
+    // Mirrors the guildIcon.png file in `!leaderboard.ts` (bytes attached
+    // so the thumbnail survives icon changes; raw URL when offline).
+    let guild_icon_bytes = if guild_icon.is_empty() {
+        None
+    } else {
+        crate::image64::image64(&guild_icon).await
+    };
 
     let mk_embed = |page: usize| {
         let start = page * items_per_page;
@@ -100,7 +108,11 @@ pub async fn inv_lb(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
             )
             .timestamp(serenity::Timestamp::now());
         if !guild_icon.is_empty() {
-            embed = embed.thumbnail(guild_icon.clone());
+            if guild_icon_bytes.is_some() {
+                embed = embed.thumbnail("attachment://guildIcon.png");
+            } else {
+                embed = embed.thumbnail(guild_icon.clone());
+            }
         }
         embed
     };
@@ -123,6 +135,9 @@ pub async fn inv_lb(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     }
     if let Some(bytes) = fbytes.clone() {
         reply = reply.attachment(serenity::CreateAttachment::bytes(bytes, "footer_icon.png"));
+    }
+    if let Some(bytes) = guild_icon_bytes.clone() {
+        reply = reply.attachment(serenity::CreateAttachment::bytes(bytes, "guildIcon.png"));
     }
     let handle = ctx.send(reply).await?;
     if total_pages <= 1 {
@@ -160,22 +175,10 @@ pub async fn inv_lb(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
             )
             .await;
     }
-    // Disable the row when the collector ends, like the TS end handler.
-    let end_row = serenity::CreateActionRow::Buttons(vec![
-        serenity::CreateButton::new("inv-lb-prev")
-            .style(serenity::ButtonStyle::Secondary)
-            .label("<<<")
-            .disabled(true),
-        serenity::CreateButton::new("inv-lb-next")
-            .style(serenity::ButtonStyle::Secondary)
-            .label(">>>")
-            .disabled(true),
-    ]);
+    // Remove the row when the collector ends, like the TS end handler
+    // (`embedMessage.edit({ components: [] })`).
     let _ = msg
-        .edit(
-            ctx.http(),
-            serenity::EditMessage::new().components(vec![end_row]),
-        )
+        .edit(ctx.http(), serenity::EditMessage::new().components(vec![]))
         .await;
     Ok(())
 }

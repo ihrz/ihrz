@@ -6087,9 +6087,12 @@ impl serenity::EventHandler for Handler {
             {
                 // Victim role-restore (mirrors avoidAdminRankWithoutConsent.ts:
                 // after punish(), the victim's roles are set back).
-                if let Ok(member) = new.guild_id.member(&ctx.http, new.user.id).await {
+                if let Ok(mut member) = new.guild_id.member(&ctx.http, new.user.id).await {
                     let _ = member
-                        .edit(&ctx.http, serenity::EditMember::new().roles(old.roles.clone()))
+                        .edit(
+                            &ctx.http,
+                            serenity::EditMember::new().roles(old.roles.clone()),
+                        )
                         .await;
                 }
             }
@@ -6109,9 +6112,12 @@ impl serenity::EventHandler for Handler {
                 .is_some()
             {
                 // Victim role-restore (mirrors avoidMemberUpdate.ts).
-                if let Ok(member) = new.guild_id.member(&ctx.http, new.user.id).await {
+                if let Ok(mut member) = new.guild_id.member(&ctx.http, new.user.id).await {
                     let _ = member
-                        .edit(&ctx.http, serenity::EditMember::new().roles(old.roles.clone()))
+                        .edit(
+                            &ctx.http,
+                            serenity::EditMember::new().roles(old.roles.clone()),
+                        )
                         .await;
                 }
             }
@@ -7442,8 +7448,8 @@ mod welcomer_tests {
 
     #[test]
     fn welcomer_accents_match_ts_constants() {
-        assert_eq!(WELCOME_ACCENT, 0x57F2_87);
-        assert_eq!(GOODBYE_ACCENT, 0xED42_45);
+        assert_eq!(WELCOME_ACCENT, 0x57_F287);
+        assert_eq!(GOODBYE_ACCENT, 0xED_4245);
         assert_eq!(WELCOME_AVATAR_NAME, "welcomer-avatar.png");
         assert_eq!(GOODBYE_AVATAR_NAME, "goodbye-avatar.png");
     }

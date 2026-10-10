@@ -910,7 +910,6 @@ pub mod love;
 pub mod morse;
 pub mod number;
 pub mod panda;
-pub mod ping;
 pub mod poll;
 pub mod question;
 pub mod rate;
@@ -953,7 +952,6 @@ pub mod main {
     pub use super::morse::*;
     pub use super::number::*;
     pub use super::panda::*;
-    pub use super::ping::*;
     pub use super::poll::*;
     pub use super::question::*;
     pub use super::rate::*;

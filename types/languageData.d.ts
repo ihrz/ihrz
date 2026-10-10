@@ -2603,6 +2603,7 @@ export interface LanguageData {
 	msg_antispam_manage_updated: string;
 	msg_antispam_manage_current: string;
 	msg_antispam_invalid_duration: string;
+	msg_antispam_invalid_choice: string;
 	msg_antispam_invalid_action: string;
 	msg_antispam_missing_role: string;
 	msg_antispam_missing_channel: string;

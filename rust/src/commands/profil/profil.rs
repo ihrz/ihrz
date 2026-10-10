@@ -89,9 +89,11 @@ mod tests {
     async fn routed_profil_roundtrip_dual_writes() {
         let pool = mem_pool().await;
         assert!(load_profil_routed(&pool, 11).await.description.is_empty());
-        let mut p = Profil::default();
-        p.description = "hi".to_string();
-        p.age = Some(21);
+        let p = Profil {
+            description: "hi".to_string(),
+            age: Some(21),
+            ..Default::default()
+        };
         save_profil_routed(&pool, 11, &p).await.unwrap();
         let back = load_profil_routed(&pool, 11).await;
         assert_eq!(back.description, "hi");

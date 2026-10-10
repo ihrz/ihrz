@@ -34,7 +34,6 @@ pub use self::banner::banner;
 pub use self::banner_server::banner_server;
 pub use self::banner_user::banner_user;
 pub use self::emojis::emojis;
-pub use self::help_here::help_here;
 pub use self::inviteinfo::inviteinfo;
 pub use self::prevnames::prevnames;
 pub use self::serverinfo::serverinfo;

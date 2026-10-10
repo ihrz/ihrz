@@ -1,6 +1,7 @@
 // iHorizon Discord Bot (https://gitlab.com/ihrz/ihrz)
 // Licensed under CC-BY-NC-SA-4.0.
-// Mirrors src/Interaction/HybridCommands/bot/* (botinfo, say, setlang, invite, links).
+// Mirrors src/Interaction/HybridCommands/bot/* (botinfo, ping, help,
+// say, setlang, invite, links).
 
 use crate::bot::{Ctx, Data};
 
@@ -36,6 +37,8 @@ pub fn uptime_str(secs: u64) -> String {
 pub fn bot_commands() -> Vec<poise::Command<Data, anyhow::Error>> {
     vec![
         botinfo::botinfo_full(),
+        ping::ping(),
+        help::help(),
         say::say(),
         setserverlang::setlang(),
         invite::invite(),
@@ -414,11 +417,13 @@ pub mod banner;
 pub mod bio;
 pub mod botinfo;
 pub mod ether;
+pub mod help;
 pub mod invite;
 pub mod iris;
 pub mod kisakay;
 pub mod link;
 pub mod name;
+pub mod ping;
 pub mod say;
 pub mod setserverlang;
 
@@ -434,6 +439,7 @@ pub mod main {
     pub use super::core::*;
     pub use super::custom::*;
     pub use super::ether::*;
+    pub use super::help::*;
     pub use super::invite::*;
     pub use super::iris::*;
     pub use super::kisakay::*;
@@ -441,6 +447,7 @@ pub mod main {
     pub use super::lore::*;
     pub use super::name::*;
     pub use super::noaimie::*;
+    pub use super::ping::*;
     pub use super::say::*;
     pub use super::setserverlang::*;
     pub use super::status::*;

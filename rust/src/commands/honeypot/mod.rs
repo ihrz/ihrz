@@ -83,7 +83,56 @@ pub async fn handle_honeypot_claim(
         tokio::time::sleep(std::time::Duration::from_millis(1500)).await;
         let trap = parse_trap_config(load_honeypot_raw(&pool_clone, &gid).await);
         let sanction = post::resolve_claim_sanction(&trap.action);
-        match sanction {
+        // Kickable/bannable pre-check (mirrors applyConfiguredAction and
+        // the discord.js kickable/bannable flags): the bot needs the
+        // Kick/BanMembers permission plus role hierarchy over the target,
+        // and the target must not own the guild. Otherwise failed.
+        let bot_id = http.get_current_user().await.map(|u| u.id).ok();
+        let guild_roles = http.get_guild_roles(guild_id).await.unwrap_or_default();
+        let bot_roles: Vec<serenity::RoleId> = match bot_id {
+            Some(id) => guild_id
+                .member(&http, id)
+                .await
+                .map(|m| m.roles)
+                .unwrap_or_default(),
+            None => Vec::new(),
+        };
+        let mut bot_perms = serenity::Permissions::empty();
+        let mut bot_top: u16 = 0;
+        for r in &guild_roles {
+            if bot_roles.contains(&r.id) {
+                bot_perms |= r.permissions;
+                bot_top = bot_top.max(r.position);
+            }
+            if r.id.get() == guild_id.get() {
+                bot_perms |= r.permissions;
+            }
+        }
+        if bot_perms.administrator() {
+            bot_perms = serenity::Permissions::all();
+        }
+        let target = guild_id.member(&http, user_id).await.ok();
+        let target_top: Option<u16> = target.as_ref().map(|m| {
+            m.roles
+                .iter()
+                .filter_map(|id| guild_roles.iter().find(|r| &r.id == id))
+                .map(|r| r.position)
+                .max()
+                .unwrap_or(0)
+        });
+        let is_owner = guild_id
+            .to_partial_guild(&http)
+            .await
+            .map(|g| g.owner_id == user_id)
+            .unwrap_or(false);
+        let manageable =
+            target.is_some() && !is_owner && target_top.map(|t| bot_top > t).unwrap_or(false);
+        let result = post::sanction_applicable(
+            sanction,
+            manageable && bot_perms.kick_members(),
+            manageable && bot_perms.ban_members(),
+        );
+        match result {
             "ban" => {
                 let _ =
                     ban_with_cleanup_window(&http, guild_id, user_id, "Honeypot triggered").await;
@@ -96,15 +145,22 @@ pub async fn handle_honeypot_claim(
         if post::should_post_claim_log(&trap.logs_channel_id) {
             if let Ok(chan_id) = trap.logs_channel_id.parse::<u64>() {
                 let chan = serenity::ChannelId::new(chan_id);
+                let code = crate::db::guild_lang(&pool_clone, Some(guild_id.get())).await;
+                let t = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
+                let action_label = t(post::claim_log_key(result));
+                let action_label = if action_label.trim().is_empty() {
+                    result.to_string()
+                } else {
+                    action_label
+                };
+                let title = t("honeypot_log_title");
+                let title = if title.trim().is_empty() {
+                    format!("Honeypot Triggered - {action_label}")
+                } else {
+                    title.replace("${action}", &action_label)
+                };
                 let _ = chan
-                    .say(
-                        &http,
-                        format!(
-                            "Honeypot claim by <@{}>: {}",
-                            user_id.get(),
-                            post::claim_log_key(sanction),
-                        ),
-                    )
+                    .say(&http, format!("<@{}>: {title}", user_id.get()))
                     .await;
             }
         }

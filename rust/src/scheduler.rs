@@ -1760,7 +1760,7 @@ mod tests {
     async fn giveaway_sweep_deletes_past_lifetime_and_dedups() {
         let p = pool().await;
         // Already-ended row past the 345.6M ms lifetime: deleted, not counted.
-        crate::db::kv_set(&p, "g", "GIVEAWAY.9", &format!("{{\"guild_id\":\"g\",\"channel_id\":\"c\",\"winner_count\":1,\"prize\":\"p\",\"hosted_by\":\"h\",\"expire_in_ms\":0,\"ended\":true,\"entries\":[],\"winners\":[\"a\"]}}")).await.unwrap();
+        crate::db::kv_set(&p, "g", "GIVEAWAY.9", "{\"guild_id\":\"g\",\"channel_id\":\"c\",\"winner_count\":1,\"prize\":\"p\",\"hosted_by\":\"h\",\"expire_in_ms\":0,\"ended\":true,\"entries\":[],\"winners\":[\"a\"]}").await.unwrap();
         // Live row with doubled entries: deduped, kept.
         crate::db::kv_set(&p, "g", "GIVEAWAY.8", r#"{"guild_id":"g","channel_id":"c","winner_count":1,"prize":"p","hosted_by":"h","expire_in_ms":9999999999999,"ended":false,"entries":["b","a","b"],"winners":[]}"#).await.unwrap();
         let n = sweep_expired_giveaways(&p, None, ENDED_GIVEAWAY_LIFETIME_MS + 1000).await;

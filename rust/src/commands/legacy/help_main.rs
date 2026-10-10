@@ -7,8 +7,9 @@ use super::*;
 // filled with the TOTAL content length) with the two select rows
 // split via `Math.ceil(categories.length / 2)`.
 //
-// Slash-name note: `help_here` owns rename `help`, so this entry
-// point registers as `help_main` (no rename collision). The rows
+// Slash-name note: `botcat::help` owns rename `help` (mirrors
+// HybridCommands/bot/help.ts), so this entry point registers as
+// `help_main` (no rename collision). The rows
 // reuse the routed browser protocol (`HELP_SELECT_PREFIX` +
 // `helpmsg_key` gate, handled by `handle_help_component`), so
 // picking a category lands on the same module page as `/h`: no new

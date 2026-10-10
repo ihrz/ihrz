@@ -8,6 +8,61 @@ pub const HONEYPOT_EMBED_COLOR: u32 = 0xD88A3D;
 /// Native ban message-deletion window for the trap sanction (2h, mirrors
 /// HONEYPOT_WINDOW_MS / deleteMessageSeconds).
 pub const HONEYPOT_BAN_DELETE_SECS: u32 = 7200;
+/// Interactive panel lifetime. Mirrors the 240s component collector in
+/// `!config.ts` (`createMessageComponentCollector({ time: 240_000 })`).
+pub const HONEYPOT_PANEL_TIMEOUT_MS: u64 = 240_000;
+/// Panel component ids. Mirror the customIds in `buildComponents` +
+/// the collector legs in `!config.ts`.
+pub const HONEYPOT_TRAP_SELECT_ID: &str = "honeypot-config-trap-channel";
+pub const HONEYPOT_LOGS_SELECT_ID: &str = "honeypot-config-logs-channel";
+pub const HONEYPOT_ACTION_SELECT_ID: &str = "honeypot-config-action";
+pub const HONEYPOT_SEND_BUTTON_ID: &str = "honeypot-config-send";
+pub const HONEYPOT_PREVIEW_BUTTON_ID: &str = "honeypot-config-preview";
+pub const HONEYPOT_TOGGLE_BUTTON_ID: &str = "honeypot-config-toggle";
+
+/// Manager gate. Mirrors `canManageHoneypot` in `!config.ts`:
+/// guild administrators pass, otherwise the protection allowlist
+/// (`ALLOWLIST.list.<uid>` = `{allowed: true}`) decides.
+pub fn can_manage_honeypot(is_admin: bool, allowlisted: bool) -> bool {
+    is_admin || allowlisted
+}
+
+/// Toggle button wiring. Mirrors the `honeypot-config-toggle` leg:
+/// an enabled trap offers Disable (danger style), otherwise Enable
+/// (success style). Returns the lang key plus danger flag.
+pub fn toggle_button(enabled: bool) -> (&'static str, bool) {
+    if enabled {
+        ("honeypot_config_button_disable", true)
+    } else {
+        ("honeypot_config_button_enable", false)
+    }
+}
+
+/// Effective admin bit for the invoker: OR of their cached roles plus
+/// @everyone (mirrors the moderation role-hierarchy resolution).
+pub async fn invoker_is_admin(ctx: Ctx<'_>) -> bool {
+    // Clone out of the cache guard first: CacheRef is not Send and must
+    // not be held across awaits.
+    let Some((guild_id, roles)) = ctx.guild().map(|g| (g.id, g.roles.clone())) else {
+        return false;
+    };
+    let author_roles = ctx
+        .author_member()
+        .await
+        .map(|m| m.roles.clone())
+        .unwrap_or_default();
+    let everyone = serenity::RoleId::new(guild_id.get());
+    let mut perms = serenity::Permissions::empty();
+    for r in &author_roles {
+        if let Some(role) = roles.get(r) {
+            perms |= role.permissions;
+        }
+    }
+    if let Some(everyone_role) = roles.get(&everyone) {
+        perms |= everyone_role.permissions;
+    }
+    perms.administrator()
+}
 
 /// Normalize a configured action to kick/ban/none. Mirrors the TS
 /// HoneypotSchema action switch (unknown values fall through to none).
@@ -236,6 +291,21 @@ pub async fn honeypot_config(
     };
     let gid = guild_id.get().to_string();
     let code = crate::db::guild_lang(&ctx.data().pool, Some(guild_id.get())).await;
+    // Manager gate (mirrors canManageHoneypot): administrators pass,
+    // otherwise the protection allowlist decides.
+    let allow_rows =
+        crate::commands::protection::protect::load_allowlist(&ctx.data().pool, &gid).await;
+    let allowlisted = crate::commands::protection::protect::allowlist_contains(
+        &allow_rows,
+        ctx.author().id.get(),
+    );
+    if !can_manage_honeypot(invoker_is_admin(ctx).await, allowlisted) {
+        let msg = crate::lang::get(&code, "honeypot_config_not_allowed").unwrap_or_else(|| {
+            "You must be an administrator or be in the allowlist to configure Honeypot.".to_string()
+        });
+        ctx.say(msg).await?;
+        return Ok(());
+    }
     let t = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
     let fb = |k: &str, fb: &str| {
         let v = t(k);
@@ -422,6 +492,37 @@ mod tests {
     }
 
     #[test]
+    fn manager_gate_mirrors_ts_allowlist_path() {
+        assert!(can_manage_honeypot(true, false));
+        assert!(can_manage_honeypot(false, true));
+        assert!(can_manage_honeypot(true, true));
+        assert!(!can_manage_honeypot(false, false));
+    }
+
+    #[test]
+    fn panel_ids_and_timeout_match_ts_collector() {
+        assert_eq!(HONEYPOT_PANEL_TIMEOUT_MS, 240_000);
+        assert_eq!(HONEYPOT_TRAP_SELECT_ID, "honeypot-config-trap-channel");
+        assert_eq!(HONEYPOT_LOGS_SELECT_ID, "honeypot-config-logs-channel");
+        assert_eq!(HONEYPOT_ACTION_SELECT_ID, "honeypot-config-action");
+        assert_eq!(HONEYPOT_SEND_BUTTON_ID, "honeypot-config-send");
+        assert_eq!(HONEYPOT_PREVIEW_BUTTON_ID, "honeypot-config-preview");
+        assert_eq!(HONEYPOT_TOGGLE_BUTTON_ID, "honeypot-config-toggle");
+    }
+
+    #[test]
+    fn toggle_button_wiring_matches_ts_leg() {
+        assert_eq!(
+            toggle_button(true),
+            ("honeypot_config_button_disable", true)
+        );
+        assert_eq!(
+            toggle_button(false),
+            ("honeypot_config_button_enable", false)
+        );
+    }
+
+    #[test]
     fn default_name_falls_back_exact() {
         assert_eq!(
             default_trap_channel_name(None),
@@ -461,7 +562,7 @@ mod tests {
             "honeypot_config_select_action_kick" => "Kick users".to_string(),
             "honeypot_config_select_action_del_messages" => "Delete messages".to_string(),
             "honeypot_config_credit_value" => "see ${url}".to_string(),
-            v => format!("{v}"),
+            v => v.to_string(),
         };
         let e = build_status_embed(&t, true, "ban", "111", "222", Some("https://x"));
         let dbg = format!("{e:?}");

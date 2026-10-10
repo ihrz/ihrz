@@ -4,7 +4,7 @@ use super::*;
     slash_command,
     prefix_command,
     rename = "reset",
-    aliases("inv-delete-all", "invreset"),
+    aliases("inv-delete-all", "invreset", "invites-reset"),
     default_member_permissions = "ADMINISTRATOR"
 )]
 pub async fn inv_reset(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {

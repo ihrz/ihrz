@@ -16,6 +16,7 @@ pub async fn setsuggest(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     slash_command,
     prefix_command,
     rename = "channel",
+    aliases("suggest-channel"),
     default_member_permissions = "ADMINISTRATOR"
 )]
 pub async fn setsuggest_channel(
@@ -61,8 +62,7 @@ pub async fn setsuggest_channel(
     ctx.say(text).await?;
 
     // Setup notice in the new channel. Mirrors the setupEmbed post in
-    // !channel.ts (footer file attachment has no Rust equivalent: kept
-    // title + description + color).
+    // !channel.ts (title + description + color + bot footer + file).
     let title = crate::commands::lang_for(
         &ctx,
         "setsuggest_channel_embed_title",
@@ -70,18 +70,20 @@ pub async fn setsuggest_channel(
     )
     .await;
     let desc = crate::commands::lang_for(&ctx, "setsuggest_channel_embed_desc", "Now, all users who are permitted to send messages here can suggest something by simply sending a message!").await;
-    let _ = channel
-        .id
-        .send_message(
-            ctx.http(),
-            serenity::CreateMessage::new().embed(
-                serenity::CreateEmbed::default()
-                    .title(title)
-                    .description(desc)
-                    .colour(0x01_01_01),
-            ),
-        )
-        .await;
+    let (fname, fbytes) = crate::commands::shared::footer_parts(&ctx, &gid).await;
+    let embed = crate::commands::shared::embed_with_footer(
+        serenity::CreateEmbed::default()
+            .title(title)
+            .description(desc)
+            .colour(0x01_01_01),
+        &fname,
+        fbytes.is_some(),
+    );
+    let mut setup = serenity::CreateMessage::new().embed(embed);
+    if let Some(bytes) = fbytes {
+        setup = setup.add_file(serenity::CreateAttachment::bytes(bytes, "footer_icon.png"));
+    }
+    let _ = channel.id.send_message(ctx.http(), setup).await;
     Ok(())
 }
 
@@ -89,6 +91,7 @@ pub async fn setsuggest_channel(
     slash_command,
     prefix_command,
     rename = "config",
+    aliases("suggest-config"),
     default_member_permissions = "ADMINISTRATOR"
 )]
 pub async fn setsuggest_config(

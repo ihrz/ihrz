@@ -82,6 +82,92 @@ pub fn rank_card_svg(username: &str, level: u64, xp: u64, avatar: Option<&str>) 
     )
 }
 
+/// AuthRestore dashboard card: registrations histogram, locale split,
+/// recent verifications.
+///
+/// Port of `src/assets/html/authRestoreGetPage.html` as driven by
+/// `src/Interaction/SlashCommands/authrestore/!get.ts`
+/// (`registrationData`/`timeLabels`, `localeData`,
+/// `recentVerifications`). NOTE: the TS dashboard renders through
+/// Chromium (`client.func.html2png`); no render backend exists here,
+/// so the same numbers are drawn as a self-contained SVG following
+/// the rank-card pattern above (no external font/network), attached
+/// as `authrestore.svg` with the text summary kept as the embed
+/// description fallback.
+///
+/// `histogram` is day label + count pairs (oldest first),
+/// `locales` is `(locale, count)` most-common-first, `recent` is
+/// `(username, date)` newest-first. All slices are capped in-card.
+pub fn authrestore_dashboard_svg(
+    total_members: usize,
+    key_used_count: i64,
+    histogram: &[(String, usize)],
+    locales: &[(String, usize)],
+    recent: &[(String, String)],
+) -> String {
+    const W: u64 = 800;
+    const BAR_AREA_X: u64 = 60;
+    const BAR_AREA_W: u64 = 680;
+    const BAR_MAX_H: u64 = 120;
+    let peak = histogram.iter().map(|(_, c)| *c).max().unwrap_or(0).max(1) as f64;
+    let n = histogram.len().max(1) as f64;
+    let slot = BAR_AREA_W as f64 / n;
+    let bar_w = (slot * 0.6).round().clamp(2.0, 22.0);
+    let mut bars = String::new();
+    for (i, (_, count)) in histogram.iter().enumerate() {
+        let h = ((*count as f64 / peak) * BAR_MAX_H as f64).round() as u64;
+        let x = (BAR_AREA_X as f64 + i as f64 * slot + (slot - bar_w) / 2.0).round() as u64;
+        bars.push_str(&format!(
+            r##"<rect x="{x}" y="{y}" width="{bw}" height="{h}" rx="2" fill="#9a5af2"/>"##,
+            x = x,
+            y = 250 - h,
+            bw = bar_w as u64,
+            h = h.max(2),
+        ));
+    }
+    let mut locale_rows = String::new();
+    if locales.is_empty() {
+        locale_rows.push_str(
+            r##"<text x="60" y="330" font-family="sans-serif" font-size="14" fill="#B9BBBE">No locales yet</text>"##,
+        );
+    } else {
+        for (i, (locale, count)) in locales.iter().take(6).enumerate() {
+            let y = 330 + (i as u64) * 22;
+            locale_rows.push_str(&format!(
+                r##"<text x="60" y="{y}" font-family="sans-serif" font-size="14" fill="#ffffff">{locale}</text><text x="380" y="{y}" text-anchor="end" font-family="sans-serif" font-size="14" fill="#B9BBBE">{count}</text>"##,
+                y = y,
+                locale = escape_xml(locale),
+                count = count,
+            ));
+        }
+    }
+    let mut recent_rows = String::new();
+    if recent.is_empty() {
+        recent_rows.push_str(
+            r##"<text x="430" y="330" font-family="sans-serif" font-size="14" fill="#B9BBBE">No verifications yet</text>"##,
+        );
+    } else {
+        for (i, (name, date)) in recent.iter().take(6).enumerate() {
+            let y = 330 + (i as u64) * 22;
+            recent_rows.push_str(&format!(
+                r##"<text x="430" y="{y}" font-family="sans-serif" font-size="14" fill="#ffffff">{name}</text><text x="740" y="{y}" text-anchor="end" font-family="sans-serif" font-size="13" fill="#B9BBBE">{date}</text>"##,
+                y = y,
+                name = escape_xml(name),
+                date = escape_xml(date),
+            ));
+        }
+    }
+    format!(
+        r##"<svg xmlns="http://www.w3.org/2000/svg" width="{W}" height="480" viewBox="0 0 {W} 480" role="img" aria-label="AuthRestore dashboard"><rect x="0" y="0" width="{W}" height="480" rx="16" fill="#36393f"/><text x="400" y="44" text-anchor="middle" font-family="sans-serif" font-size="26" font-weight="bold" fill="#ffffff">AUTHRESTORE</text><rect x="60" y="60" width="680" height="5" fill="#9a5af2"/><text x="60" y="110" font-family="sans-serif" font-size="16" fill="#B9BBBE">Total members</text><text x="60" y="140" font-family="sans-serif" font-size="28" font-weight="bold" fill="#ffffff">{total}</text><text x="430" y="110" font-family="sans-serif" font-size="16" fill="#B9BBBE">Key used</text><text x="430" y="140" font-family="sans-serif" font-size="28" font-weight="bold" fill="#ffffff">{keys}</text><text x="60" y="190" font-family="sans-serif" font-size="16" fill="#B9BBBE">Registrations (30 days)</text>{bars}<text x="60" y="290" font-family="sans-serif" font-size="16" fill="#B9BBBE">Locales</text><text x="430" y="290" font-family="sans-serif" font-size="16" fill="#B9BBBE">Recent verifications</text>{locales}{recent}</svg>"##,
+        W = W,
+        total = total_members,
+        keys = key_used_count,
+        bars = bars,
+        locales = locale_rows,
+        recent = recent_rows,
+    )
+}
+
 /// Podium card (ranks + economy): top 3 highlight + ranked list below.
 ///
 /// `entries` is expected pre-sorted (rank 1 first), `(display_name, score)`.
@@ -547,5 +633,39 @@ mod tests {
         let png = captcha_png("");
         let img = image::load_from_memory(&png).expect("decodable PNG");
         assert_eq!((img.width(), img.height()), (900, 300));
+    }
+
+    #[test]
+    fn authrestore_dashboard_carries_same_numbers_as_text() {
+        let histogram = vec![
+            ("Jan 1".to_string(), 0),
+            ("Jan 2".to_string(), 3),
+            ("Jan 3".to_string(), 7),
+        ];
+        let locales = vec![("fr".to_string(), 5), ("en-US".to_string(), 2)];
+        let recent = vec![("Ada".to_string(), "Jan 3".to_string())];
+        let svg = authrestore_dashboard_svg(7, 4, &histogram, &locales, &recent);
+        assert!(svg.starts_with("<svg"), "must start with <svg");
+        assert!(svg.contains(r#"xmlns="http://www.w3.org/2000/svg""#));
+        assert!(svg.contains("</svg>"));
+        assert!(!svg.contains("<script>"), "no raw markup leak");
+        // Totals, locale split, recent row all present.
+        assert!(svg.contains(">7<"), "total:\\n{svg}");
+        assert!(svg.contains(">4<"), "key count:\\n{svg}");
+        assert!(svg.contains("fr") && svg.contains(">5<"));
+        assert!(svg.contains("Ada"));
+        // Histogram peak bar hits the full height.
+        assert!(svg.contains(r#"height="120""#), "peak bar:\\n{svg}");
+        // XSS-safe.
+        let evil = authrestore_dashboard_svg(
+            1,
+            0,
+            &[],
+            &[],
+            &[("<b>&Co</b>".to_string(), "now".to_string())],
+        );
+        assert!(!evil.contains("<b>"));
+        assert!(evil.contains("&lt;b&gt;&amp;Co&lt;/b&gt;"));
+        assert!(evil.contains("No locales yet"));
     }
 }

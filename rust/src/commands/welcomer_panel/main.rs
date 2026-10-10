@@ -18,6 +18,36 @@ pub const BANNER_PROP_ID: &str = "welcomer-banner-prop";
 pub const BANNER_FRAME_PICK_ID: &str = "welcomer-frame-pick";
 pub const BANNER_SIZE_PICK_ID: &str = "welcomer-size-pick";
 
+/// Panel collector lifetime in seconds. Mirrors COLLECTOR_TIMEOUT =
+/// 800_000 in welcomerPanel.ts. The Rust panel is stateless (no
+/// in-memory collector), so the sent timestamp of the panel message
+/// bounds interactions instead (see welcomer_panel_expired); expired
+/// panels are re-rendered with disabled components, mirroring the TS
+/// collector `end` handler.
+pub const WELCOMER_COLLECTOR_TIMEOUT_SECS: i64 = 800;
+
+/// True when the panel message is older than the collector timeout.
+/// `sent_secs` is the panel message timestamp (unix seconds).
+pub fn welcomer_panel_expired(sent_secs: i64, now_secs: i64) -> bool {
+    now_secs.saturating_sub(sent_secs) >= WELCOMER_COLLECTOR_TIMEOUT_SECS
+}
+
+/// Disable every button/select row. Mirrors the TS collector `end`
+/// handler (`component.setDisabled(true)` on each row component).
+pub fn disable_rows(rows: Vec<serenity::CreateActionRow>) -> Vec<serenity::CreateActionRow> {
+    rows.into_iter()
+        .map(|row| match row {
+            serenity::CreateActionRow::Buttons(btns) => serenity::CreateActionRow::Buttons(
+                btns.into_iter().map(|b| b.disabled(true)).collect(),
+            ),
+            serenity::CreateActionRow::SelectMenu(menu) => {
+                serenity::CreateActionRow::SelectMenu(menu.disabled(true))
+            }
+            other => other,
+        })
+        .collect()
+}
+
 /// Defaults mirror DEFAULT_IMAGE_CONFIG in welcomerPanel.ts.
 pub const DEFAULT_BANNER_BACKGROUND: &str =
     "https://img.freepik.com/vecteurs-libre/fond-courbe-bleue_53876-113112.jpg";
@@ -924,6 +954,43 @@ async fn rerender(
         .await;
 }
 
+/// Re-render the panel with every row disabled. End-of-collector form
+/// of rerender (mirrors the TS collector `end` handler).
+async fn render_disabled(
+    ctx: &serenity::Context,
+    comp: &serenity::ComponentInteraction,
+    pool: &crate::db::Pool,
+    gid: &str,
+    lang_code: &str,
+) {
+    let section = crate::commands::guildconfig::load_guild_config(pool, gid)
+        .await
+        .get(PANEL_SECTION_FIELD)
+        .and_then(|v| v.as_str())
+        .unwrap_or("join")
+        .to_string();
+    let st = load_panel_state(
+        pool,
+        gid,
+        &section,
+        &t(lang_code, "setjoinmessage_image_default_text"),
+    )
+    .await;
+    let embed = serenity::CreateEmbed::default()
+        .colour(PANEL_ACCENT)
+        .description(panel_description(&st, lang_code));
+    let _ = comp
+        .create_response(
+            &ctx.http,
+            serenity::CreateInteractionResponse::UpdateMessage(
+                serenity::CreateInteractionResponseMessage::new()
+                    .embed(embed)
+                    .components(disable_rows(panel_rows(&st, lang_code))),
+            ),
+        )
+        .await;
+}
+
 async fn set_section(pool: &crate::db::Pool, gid: &str, section: &str) {
     let mut cfg = crate::commands::guildconfig::load_guild_config(pool, gid).await;
     crate::commands::guildconfig::welcomer_set(
@@ -996,6 +1063,17 @@ pub async fn handle_welcomer_component(
     };
     let gid = guild_id.get().to_string();
     let lang_code = crate::db::guild_lang(pool, Some(guild_id.get())).await;
+    // Collector timeout (stateless form): the panel message timestamp
+    // bounds interactions; expired panels re-render disabled, like the
+    // TS collector `end` handler.
+    let now_secs = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|d| d.as_secs() as i64)
+        .unwrap_or(0);
+    if welcomer_panel_expired(comp.message.timestamp.timestamp(), now_secs) {
+        render_disabled(ctx, comp, pool, &gid, &lang_code).await;
+        return Ok(());
+    }
     let id = comp.data.custom_id.as_str();
 
     if id == WELCOMER_SECTION_ID {
@@ -1845,6 +1923,53 @@ mod tests {
         assert_eq!(welcomer_section("join"), Some("join"));
         assert_eq!(welcomer_section("banner"), Some("banner"));
         assert_eq!(welcomer_section("nope"), None);
+    }
+
+    #[test]
+    fn collector_timeout_mirrors_ts_800s() {
+        assert_eq!(WELCOMER_COLLECTOR_TIMEOUT_SECS, 800);
+        assert!(!welcomer_panel_expired(1_000, 1_000 + 799));
+        assert!(welcomer_panel_expired(1_000, 1_000 + 800));
+        assert!(welcomer_panel_expired(1_000, 1_000 + 8_000));
+        // Clock skew (message newer than now) never expires.
+        assert!(!welcomer_panel_expired(2_000, 1_000));
+    }
+
+    #[test]
+    fn disable_rows_keeps_row_count() {
+        let st = PanelState {
+            section: "join".to_string(),
+            join_message: None,
+            leave_message: None,
+            join_dm: None,
+            join_roles: vec![],
+            join_channel: None,
+            leave_channel: None,
+            banner_state: "on".to_string(),
+            banner: BannerConfig::default(),
+            banner_picker: BannerPicker::None,
+            join_embed_id: None,
+            leave_embed_id: None,
+            join_text: true,
+            leave_text: true,
+            join_components: true,
+            leave_components: true,
+        };
+        let rows = panel_rows(&st, "en-US");
+        let n = rows.len();
+        assert!(n > 0);
+        let disabled = disable_rows(rows);
+        assert_eq!(disabled.len(), n);
+        // Serialized rows must carry the disabled flag on every
+        // button and select (mirrors setDisabled(true) on end).
+        let json = serde_json::to_value(&disabled).unwrap();
+        let arr = json.as_array().unwrap();
+        assert_eq!(arr.len(), n);
+        for row in arr {
+            for comp in row.get("components").and_then(|c| c.as_array()).unwrap() {
+                assert_eq!(comp.get("disabled"), Some(&serde_json::Value::Bool(true)));
+            }
+        }
     }
 
     #[test]

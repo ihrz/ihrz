@@ -1700,7 +1700,7 @@ mod tests {
         sqlx::query("CREATE TABLE guild_lang (guild_id TEXT PRIMARY KEY, lang TEXT NOT NULL DEFAULT 'en-US')")
             .execute(&pool).await.unwrap();
         // Seed just under the 500 XP threshold so the fixed gain levels to 1.
-        crate::commands::ranks::main::save_rank(
+        let _ = crate::commands::ranks::main::save_rank(
             &pool,
             "g",
             1,
@@ -1759,7 +1759,7 @@ mod tests {
         sqlx::query("CREATE TABLE guild_lang (guild_id TEXT PRIMARY KEY, lang TEXT NOT NULL DEFAULT 'en-US')")
             .execute(&pool).await.unwrap();
         async fn seed_near_level(pool: &crate::db::Pool) {
-            crate::commands::ranks::main::save_rank(
+            let _ = crate::commands::ranks::main::save_rank(
                 pool,
                 "g",
                 1,

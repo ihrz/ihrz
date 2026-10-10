@@ -133,6 +133,13 @@ pub async fn authrestore_get(
     )
     .await;
     let title = t(&ctx, "rc_get_mainEmbed_title", "AuthRestore General Infos").await;
+    // Shared bot footer + icon attachment. Mirrors footerBuilder /
+    // footerAttachmentBuilder in !get.ts (all three embeds carry it).
+    let gid_str = ctx
+        .guild_id()
+        .map(|g| g.get().to_string())
+        .unwrap_or_default();
+    let (footer_name, footer_icon) = crate::commands::shared::footer_parts(&ctx, &gid_str).await;
     let field_names = [
         t(&ctx, "rc_get_mainEmbed_field1_name", "Server ID").await,
         t(
@@ -153,10 +160,8 @@ pub async fn authrestore_get(
         data.config.security_code_used,
         &author_text,
     );
-    let mut main = serenity::CreateEmbed::new()
-        .title(title)
-        .color(2829617)
-        .footer(serenity::CreateEmbedFooter::new("iHorizon"));
+    let mut main = serenity::CreateEmbed::new().title(title).color(2829617);
+    main = crate::commands::shared::embed_with_footer(main, &footer_name, footer_icon.is_some());
     for ((name, value, inline), label) in fields.into_iter().zip(field_names) {
         let _ = name;
         main = main.field(label, value, inline);
@@ -167,14 +172,31 @@ pub async fn authrestore_get(
     let footer_tpl = t(&ctx, "rc_get_secondEmbed_footer", "Page ${from} / ${to}").await;
     let locale_label = t(&ctx, "rc_get_locale", "Locale").await;
     let username_label = t(&ctx, "rc_get_username", "Username").await;
-    // TS renders the Chromium dashboard image for the stats category;
-    // without a render backend the port shows the same numbers
-    // (registration histogram, locale split, recent verifications)
-    // as text (see Blocked in MIGRATION.md).
+    // Stats category: the TS dashboard renders through Chromium
+    // (`client.func.html2png` on `authRestoreGetPage.html`) — no render
+    // backend exists here, so the same numbers (registration
+    // histogram, locale split, recent verifications) are drawn as a
+    // self-contained SVG card (see `cards::authrestore_dashboard_svg`,
+    // rank-card pattern) attached as `authrestore.svg`, with the text
+    // summary kept as the embed description fallback.
     let now_ms = std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
         .map(|d| d.as_millis() as i64)
         .unwrap_or(0);
+    let (hist_labels, hist_counts) = registration_histogram(&members, now_ms);
+    let histogram: Vec<(String, usize)> = hist_labels
+        .into_iter()
+        .zip(hist_counts.into_iter())
+        .collect();
+    let locales = locale_distribution(&members);
+    let recent = recent_verifications(&members);
+    let dashboard_svg = crate::cards::authrestore_dashboard_svg(
+        members.len(),
+        data.config.security_code_used,
+        &histogram,
+        &locales,
+        &recent,
+    );
     let stats = stats_summary_text(
         &members,
         now_ms,
@@ -187,26 +209,29 @@ pub async fn authrestore_get(
         .await,
         &t(&ctx, "rc_recent_verifications", "Recent Verifications").await,
     );
-    let stats_embed = serenity::CreateEmbed::new()
-        .description(stats)
-        .color(2829617)
-        .timestamp(serenity::Timestamp::now())
-        .footer(serenity::CreateEmbedFooter::new("iHorizon"));
-    let members_embed_for = |page: usize| {
+    let stats_embed = crate::commands::shared::embed_with_footer(
         serenity::CreateEmbed::new()
-            .title(members_title.clone())
-            .description(members_page_text(
-                &members,
-                page,
-                &locale_label,
-                &username_label,
-            ))
-            .footer(serenity::CreateEmbedFooter::new(page_footer(
-                &footer_tpl,
-                page,
-                members.len(),
-            )))
-            .timestamp(serenity::Timestamp::now())
+            .description(stats)
+            .color(2829617)
+            .image("attachment://authrestore.svg")
+            .timestamp(serenity::Timestamp::now()),
+        &footer_name,
+        footer_icon.is_some(),
+    );
+    let members_embed_for = |page: usize| {
+        crate::commands::shared::embed_with_footer(
+            serenity::CreateEmbed::new()
+                .title(members_title.clone())
+                .description(members_page_text(
+                    &members,
+                    page,
+                    &locale_label,
+                    &username_label,
+                ))
+                .timestamp(serenity::Timestamp::now()),
+            &page_footer(&footer_tpl, page, members.len()),
+            footer_icon.is_some(),
+        )
     };
     let embed_for = |category: GetCategory, page: usize| match category {
         GetCategory::Main => main.clone(),
@@ -242,14 +267,20 @@ pub async fn authrestore_get(
     };
     // TS opens on the main embed; the collector below drives the
     // category / page buttons for 15 minutes, then clears them.
+    // The stats SVG and footer icon ride along from the first reply
+    // so the stats category can render its image on navigation.
     let author = ctx.author().id;
-    let handle = ctx
-        .send(
-            poise::CreateReply::default()
-                .embed(main.clone())
-                .components(rows_for(GetCategory::Main, 0)),
-        )
-        .await?;
+    let mut initial = poise::CreateReply::default()
+        .embed(main.clone())
+        .components(rows_for(GetCategory::Main, 0))
+        .attachment(serenity::CreateAttachment::bytes(
+            dashboard_svg.into_bytes(),
+            "authrestore.svg",
+        ));
+    if let Some(bytes) = footer_icon.clone() {
+        initial = initial.attachment(serenity::CreateAttachment::bytes(bytes, "footer_icon.png"));
+    }
+    let handle = ctx.send(initial).await?;
     let mut msg = handle.into_message().await?;
     let mut category = GetCategory::Main;
     let mut page = 0usize;

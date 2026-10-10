@@ -52,8 +52,13 @@ pub async fn authrestore_roles(
         .await?;
         return Ok(());
     }
-    ctx.send(
-        poise::CreateReply::default().embed(
+    // Shared bot footer + icon attachment. Mirrors footerBuilder /
+    // footerAttachmentBuilder in !roles.ts.
+    let gid_for_footer = guild_id.clone();
+    let (footer_name, footer_icon) =
+        crate::commands::shared::footer_parts(&ctx, &gid_for_footer).await;
+    let mut reply =
+        poise::CreateReply::default().embed(crate::commands::shared::embed_with_footer(
             serenity::CreateEmbed::new()
                 .title(t(&ctx, "rc_role_embed_title", "AuthRestore New Modification").await)
                 .color(2829617)
@@ -66,10 +71,13 @@ pub async fn authrestore_roles(
                     .await,
                     format!("<@&{}>", role.id.get()),
                     true,
-                )
-                .footer(serenity::CreateEmbedFooter::new("iHorizon")),
-        ),
-    )
-    .await?;
+                ),
+            &footer_name,
+            footer_icon.is_some(),
+        ));
+    if let Some(bytes) = footer_icon {
+        reply = reply.attachment(serenity::CreateAttachment::bytes(bytes, "footer_icon.png"));
+    }
+    ctx.send(reply).await?;
     Ok(())
 }

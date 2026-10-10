@@ -57,7 +57,6 @@ type Error = anyhow::Error;
 
 pub fn all() -> Vec<poise::Command<Data, Error>> {
     vec![
-        fun::games::ping(),
         fun::games::dice(),
         fun::games::coinflip(),
         fun::games::number(),
@@ -92,7 +91,6 @@ pub fn all() -> Vec<poise::Command<Data, Error>> {
         fun::social::kiss(),
         fun::social::slap(),
         fun::misc::fun_config(),
-        utils::info::help_here(),
         utils::info::avatar(),
         utils::info::userinfo(),
         utils::info::top(),
@@ -224,6 +222,8 @@ pub fn all() -> Vec<poise::Command<Data, Error>> {
         tag::main::tag(),
         owner::main::owner(),
         botcat::core::botinfo_full(),
+        botcat::core::ping(),
+        botcat::core::help(),
         botcat::status::status(),
         botcat::lore::andru(),
         botcat::lore::ether(),
@@ -369,6 +369,14 @@ pub fn defer_policy(qualified_path: &str) -> DeferPolicy {
         "ranks config",
         "ranks role-add",
         "ranks role-list",
+        // TS `authrestore` parent is thinking:true; the explicit
+        // subcommand rows below mirror its !get/!delete/!roles/
+        // !force-join.ts handlers (the parent fallback already covers
+        // them, listed here so the table stays explicit).
+        "authrestore get",
+        "authrestore delete",
+        "authrestore roles",
+        "authrestore force-join",
         // TS message-context `Play it in a voice channel`.
         "msg_play",
     ];
@@ -988,6 +996,9 @@ mod defer_policy_tests {
         assert_eq!(defer_policy("blogger add"), DeferPolicy::EPHEMERAL);
         // Non-ephemeral siblings stay public via the parent.
         assert_eq!(defer_policy("authrestore get"), DeferPolicy::PUBLIC);
+        assert_eq!(defer_policy("authrestore delete"), DeferPolicy::PUBLIC);
+        assert_eq!(defer_policy("authrestore roles"), DeferPolicy::PUBLIC);
+        assert_eq!(defer_policy("authrestore force-join"), DeferPolicy::PUBLIC);
         assert_eq!(defer_policy("lastfm status"), DeferPolicy::PUBLIC);
         assert_eq!(defer_policy("blogger list"), DeferPolicy::NONE);
     }

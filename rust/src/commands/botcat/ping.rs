@@ -1,16 +1,19 @@
-use super::*;
+use crate::bot::Ctx;
+use crate::commands::fun::{ping_average_ms, ping_net_label, render_ping_desc, PING_PROBE_HOSTS};
 
-/// Network stats embed. Mirrors bot/ping.ts.
+/// Get the bot latency!
+// Four sequential ICMP probes (google/cloudflare/discord/ihorizon)
+// rendered through the ping_embed_desc template, ping_down_msg for
+// failed probes, footer name + icon attachment. Mirrors
+// src/Interaction/HybridCommands/bot/ping.ts (category `bot`,
+// aliases speed/pong/vitesse).
 #[poise::command(
     slash_command,
     prefix_command,
-    category = "fun",
+    category = "bot",
     aliases("speed", "pong", "vitesse")
 )]
 pub async fn ping(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
-    if fun_guard(&ctx).await {
-        return Ok(());
-    }
     let down_msg = crate::commands::lang_for(&ctx, "ping_down_msg", "**DOWN**").await;
     let template = crate::commands::lang_for(
         &ctx,

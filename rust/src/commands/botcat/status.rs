@@ -209,7 +209,7 @@ mod tests {
     fn proc_start_epoch_parses_starttime_after_comm() {
         // pid (comm with spaces) state ppid ... starttime=100 at index 19.
         let mut fields = vec!["R", "1"];
-        fields.extend(std::iter::repeat("0").take(17));
+        fields.extend(std::iter::repeat_n("0", 17));
         fields.push("100");
         fields.extend(["0", "0"]);
         let stat = format!("1234 (my comm) {}", fields.join(" "));

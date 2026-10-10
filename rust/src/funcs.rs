@@ -2184,7 +2184,7 @@ mod funcs_dominant_tests {
             enc.set_color(png::ColorType::Rgb);
             enc.set_depth(png::BitDepth::Eight);
             let mut w = enc.write_header().unwrap();
-            w.write_image_data(&vec![255u8, 0, 0].repeat(16)).unwrap();
+            w.write_image_data(&[255u8, 0, 0].repeat(16)).unwrap();
         }
         let pixels = decode_png_pixels(&buf).unwrap();
         assert_eq!(pixels.len(), 16);

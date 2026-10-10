@@ -39,6 +39,14 @@ const REPLY: Moderation = Moderation {
     color: SUGGEST_REPLY_COLOR,
 };
 
+/// Ephemeral text reply. Mirrors the `flags: [1 << 6]` on every TS
+/// suggest `editReply` (all suggestion replies are ephemeral).
+async fn say_eph(ctx: &Ctx<'_>, text: String) -> Result<(), anyhow::Error> {
+    ctx.send(poise::CreateReply::default().content(text).ephemeral(true))
+        .await?;
+    Ok(())
+}
+
 /// Channel/disabled guard. Mirrors the `!baseData || channel mismatch ||
 /// disable` early return in !accept/!deny/!reply/!delete.ts.
 fn guard_channel(suggest_channel: Option<&str>, disabled: bool, current: &str) -> bool {
@@ -140,8 +148,11 @@ async fn moderate(
     let suggest_channel = load_suggest_string(pool, &gid, "SUGGEST.channel").await;
     let disabled = load_suggest_disabled(pool, &gid).await;
     if guard_channel(suggest_channel.as_deref(), disabled, &current_ch) {
-        ctx.say(bad_channel_text(&ctx, action.kind, suggest_channel.as_deref()).await)
-            .await?;
+        say_eph(
+            &ctx,
+            bad_channel_text(&ctx, action.kind, suggest_channel.as_deref()).await,
+        )
+        .await?;
         return Ok(());
     }
     let channel_id: u64 = suggest_channel
@@ -162,7 +173,7 @@ async fn moderate(
         } else {
             crate::commands::lang_for(&ctx, &key, "The suggestion is not found in my DB!").await
         };
-        ctx.say(text).await?;
+        say_eph(&ctx, text).await?;
         return Ok(());
     };
     if s.is_answered() {
@@ -170,7 +181,7 @@ async fn moderate(
         let text =
             crate::commands::lang_for(&ctx, &key, "This suggestion has already been replied to!")
                 .await;
-        ctx.say(text).await?;
+        say_eph(&ctx, text).await?;
         return Ok(());
     }
     let Ok(msg_id) = s.msg_id.parse::<u64>() else {
@@ -181,7 +192,7 @@ async fn moderate(
             "The suggestion is not found in the Discord channel!",
         )
         .await;
-        ctx.say(text).await?;
+        say_eph(&ctx, text).await?;
         return Ok(());
     };
 
@@ -199,7 +210,7 @@ async fn moderate(
                 "The suggestion is not found in the Discord channel!",
             )
             .await;
-            ctx.say(text).await?;
+            say_eph(&ctx, text).await?;
             return Ok(());
         }
     };
@@ -237,7 +248,7 @@ async fn moderate(
             "The suggestion is not found in the Discord channel!",
         )
         .await;
-        ctx.say(text).await?;
+        say_eph(&ctx, text).await?;
         return Ok(());
     }
 
@@ -247,8 +258,7 @@ async fn moderate(
 
     let key = format!("suggest_{}_command_work", action.kind);
     let text = crate::commands::lang_for(&ctx, &key, "Done.").await;
-    ctx.say(work_text(text, &gid, &current_ch, &s.msg_id))
-        .await?;
+    say_eph(&ctx, work_text(text, &gid, &current_ch, &s.msg_id)).await?;
     Ok(())
 }
 
@@ -256,6 +266,7 @@ async fn moderate(
     slash_command,
     prefix_command,
     rename = "accept",
+    aliases("sug-accept"),
     default_member_permissions = "ADMINISTRATOR"
 )]
 pub async fn suggest_accept(
@@ -270,6 +281,7 @@ pub async fn suggest_accept(
     slash_command,
     prefix_command,
     rename = "deny",
+    aliases("sug-deny"),
     default_member_permissions = "ADMINISTRATOR"
 )]
 pub async fn suggest_deny(
@@ -284,6 +296,7 @@ pub async fn suggest_deny(
     slash_command,
     prefix_command,
     rename = "reply",
+    aliases("sug-reply"),
     default_member_permissions = "ADMINISTRATOR"
 )]
 pub async fn suggest_reply(
@@ -298,6 +311,7 @@ pub async fn suggest_reply(
     slash_command,
     prefix_command,
     rename = "delete",
+    aliases("sug-delete"),
     default_member_permissions = "ADMINISTRATOR"
 )]
 pub async fn suggest_delete(
@@ -315,8 +329,11 @@ pub async fn suggest_delete(
     let suggest_channel = load_suggest_string(pool, &gid, "SUGGEST.channel").await;
     let disabled = load_suggest_disabled(pool, &gid).await;
     if guard_channel(suggest_channel.as_deref(), disabled, &current_ch) {
-        ctx.say(bad_channel_text(&ctx, "delete", suggest_channel.as_deref()).await)
-            .await?;
+        say_eph(
+            &ctx,
+            bad_channel_text(&ctx, "delete", suggest_channel.as_deref()).await,
+        )
+        .await?;
         return Ok(());
     }
     let channel_id: u64 = suggest_channel
@@ -332,28 +349,37 @@ pub async fn suggest_delete(
             "The suggestion is not found in my DB!",
         )
         .await;
-        ctx.say(text).await?;
+        say_eph(&ctx, text).await?;
         return Ok(());
     };
 
     // Mirrors !delete.ts: delete the Discord message, then the DB row.
-    if let Ok(msg_id) = s.msg_id.parse::<u64>() {
-        let channel = serenity::ChannelId::new(channel_id);
-        if let Ok(msg) = channel
-            .message(ctx.http(), serenity::MessageId::new(msg_id))
-            .await
-        {
-            let _ = msg.delete(ctx.http()).await;
-        } else {
-            let text = crate::commands::lang_for(
-                &ctx,
-                "suggest_delete_command_error",
-                "The suggestion is not found in this Discord channel!",
-            )
-            .await;
-            ctx.say(text).await?;
-            return Ok(());
-        }
+    // On fetch failure the DB row is kept (TS `.catch` only replies).
+    let Ok(msg_id) = s.msg_id.parse::<u64>() else {
+        let text = crate::commands::lang_for(
+            &ctx,
+            "suggest_delete_command_error",
+            "The suggestion is not found in this Discord channel!",
+        )
+        .await;
+        say_eph(&ctx, text).await?;
+        return Ok(());
+    };
+    let channel = serenity::ChannelId::new(channel_id);
+    if let Ok(msg) = channel
+        .message(ctx.http(), serenity::MessageId::new(msg_id))
+        .await
+    {
+        let _ = msg.delete(ctx.http()).await;
+    } else {
+        let text = crate::commands::lang_for(
+            &ctx,
+            "suggest_delete_command_error",
+            "The suggestion is not found in this Discord channel!",
+        )
+        .await;
+        say_eph(&ctx, text).await?;
+        return Ok(());
     }
     delete_suggestion(pool, &gid, code_trim).await?;
     let text = crate::commands::lang_for(
@@ -362,7 +388,7 @@ pub async fn suggest_delete(
         "You have deleted the suggestion!",
     )
     .await;
-    ctx.say(text).await?;
+    say_eph(&ctx, text).await?;
     Ok(())
 }
 

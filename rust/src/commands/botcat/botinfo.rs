@@ -52,8 +52,14 @@ pub async fn botinfo_full(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     }
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let t = |k: &str, fb: &str| crate::lang::get(&code, k).unwrap_or_else(|| fb.to_string());
+    let gid = ctx
+        .guild_id()
+        .map(|g| g.get().to_string())
+        .unwrap_or_default();
+    let (footer_name, footer_bytes) = crate::commands::utils::footer_parts(&ctx, &gid).await;
     let embed = serenity::CreateEmbed::default()
         .colour(0xF0D020)
+        .thumbnail("attachment://footer_icon.png")
         .field(
             t("botinfo_embed_fields_myname", "My Name:"),
             format!("```{me}```"),
@@ -89,7 +95,16 @@ pub async fn botinfo_full(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
             "<@171356978310938624>",
             false,
         );
-    ctx.send(poise::CreateReply::default().embed(embed)).await?;
+    let embed =
+        crate::commands::utils::embed_with_footer(embed, &footer_name, footer_bytes.is_some());
+    let mut reply = poise::CreateReply::default().embed(embed);
+    if let Some(bytes) = footer_bytes {
+        reply = reply.attachment(poise::serenity_prelude::CreateAttachment::bytes(
+            bytes,
+            "footer_icon.png",
+        ));
+    }
+    ctx.send(reply).await?;
     Ok(())
 }
 

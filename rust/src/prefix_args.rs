@@ -362,9 +362,9 @@ mod tests {
     fn caret_tracks_second_token_and_brackets() {
         let template = "${botPrefix}${fullNameCommand} ${argsString}\n${errorPosition}\n\"${wrongArgumentName}\"";
         let specs = text_specs();
-        let desc = usage_error_description(&template, "!", "ban", &specs, false, 1);
+        let desc = usage_error_description(template, "!", "ban", &specs, false, 1);
         assert!(desc.contains("\"string\""));
-        let caret_line = desc.lines().find(|l| l.contains('^')).unwrap_or_default();
+        let caret_line = desc.lines().find(|l| l.contains('^')).unwrap_or("");
         assert!(caret_line.ends_with(" ^"));
         assert!(caret_line.len() > "      ^".len());
     }

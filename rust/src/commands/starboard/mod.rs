@@ -46,6 +46,20 @@ pub fn clamp_threshold(amount: i64) -> i64 {
     amount.clamp(2, 10)
 }
 
+/// TS `!threshold.ts` quirk: only out-of-range amounts are stored.
+/// In-range amounts (2..=10) leave the stored threshold untouched while
+/// the reply still echoes the requested amount. Returns
+/// (reply_amount, stored_threshold_or_None).
+pub fn resolve_threshold_reply_and_store(amount: i64) -> (i64, Option<i64>) {
+    let clamped = clamp_threshold(amount);
+    let store = if clamped == amount {
+        None
+    } else {
+        Some(clamped)
+    };
+    (clamped, store)
+}
+
 pub fn board_key(board: &str) -> String {
     match board {
         "skullboard" => "GUILD.SKULLBOARD".to_string(),
@@ -149,6 +163,14 @@ pub fn board_emoji(board: &str) -> &'static str {
     }
 }
 
+/// App-emoji Yes markup with a static fallback. Mirrors the
+/// `${client.iHorizon_Emojis.Yes}` interpolation in board replies.
+pub async fn yes_markup(http: &serenity::Http) -> String {
+    crate::emojis::app_emoji_markup(http, "Yes")
+        .await
+        .unwrap_or_else(|| "✅".to_string())
+}
+
 pub async fn load_board(pool: &crate::db::Pool, guild_id: &str, board: &str) -> BoardConfig {
     table_value_or_legacy(pool, guild_id, &board_key(board))
         .await
@@ -179,6 +201,17 @@ mod tests {
         assert_eq!(clamp_threshold(5), 5);
         assert_eq!(clamp_threshold(10), 10);
         assert_eq!(clamp_threshold(99), 10);
+    }
+
+    #[test]
+    fn threshold_stores_only_out_of_range_like_ts() {
+        // In-range amounts echo back but leave the stored value alone.
+        assert_eq!(resolve_threshold_reply_and_store(5), (5, None));
+        assert_eq!(resolve_threshold_reply_and_store(2), (2, None));
+        assert_eq!(resolve_threshold_reply_and_store(10), (10, None));
+        // Out-of-range amounts clamp and store.
+        assert_eq!(resolve_threshold_reply_and_store(1), (2, Some(2)));
+        assert_eq!(resolve_threshold_reply_and_store(99), (10, Some(10)));
     }
 
     #[test]
