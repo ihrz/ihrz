@@ -52,7 +52,7 @@ pub async fn mod_unlock(
         .await;
     ctx.say(
         crate::lang::get(&code, "unlock_embed_message_description")
-            .unwrap_or_else(|| "Channel unlocked.".to_string()),
+            .unwrap_or_else(|| "The channel has been successfully unlocked!".to_string()),
     )
     .await?;
     post_mod_log(

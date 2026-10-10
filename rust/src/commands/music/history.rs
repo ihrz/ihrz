@@ -67,7 +67,7 @@ pub async fn m_history(
         let embed = serenity::CreateEmbed::default()
             .title(
                 crate::lang::get(&code, "history_delete_embed_title")
-                    .unwrap_or_else(|| "History Deleted".to_string()),
+                    .unwrap_or_else(|| "✅ History Deleted".to_string()),
             )
             .description(
                 crate::lang::get(&code, "history_delete_embed_desc").unwrap_or_else(|| {
@@ -158,7 +158,7 @@ pub async fn m_history(
     };
     let author_id = ctx.author().id;
     let not_for_you = crate::lang::get(&code, "help_not_for_you")
-        .unwrap_or_else(|| "This interaction is not for you.".to_string());
+        .unwrap_or_else(|| "This interaction is not for you".to_string());
     loop {
         let press = msg
             .await_component_interaction(ctx.serenity_context().shard.clone())
@@ -210,7 +210,7 @@ pub async fn m_history(
                 let confirm = serenity::CreateEmbed::default()
                     .title(
                         crate::lang::get(&code, "history_delete_embed_title")
-                            .unwrap_or_else(|| "History Deleted".to_string()),
+                            .unwrap_or_else(|| "✅ History Deleted".to_string()),
                     )
                     .description(
                         crate::lang::get(&code, "history_delete_embed_desc").unwrap_or_else(|| {

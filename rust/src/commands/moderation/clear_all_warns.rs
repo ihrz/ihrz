@@ -66,8 +66,9 @@ pub async fn mod_clear_all_warns(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     clear_all_warn_tables(&ctx.data().pool, &gid).await?;
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     ctx.say(
-        crate::lang::get(&code, "clear_allwarns_command_ok")
-            .unwrap_or_else(|| "All warns cleared.".to_string()),
+        crate::lang::get(&code, "clear_allwarns_command_ok").unwrap_or_else(|| {
+            "All the warns in this Discord server have been deleted.".to_string()
+        }),
     )
     .await?;
     Ok(())

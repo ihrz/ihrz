@@ -55,7 +55,7 @@ pub async fn stats_compare(
         .global_name
         .clone()
         .unwrap_or_else(|| user2.name.clone());
-    let msg_word = t("messages_word", "messages");
+    let msg_word = t("messages_word", "Messages");
     let row = |s: &UserStats, timeout: i64| {
         (
             msg_window_count(&s.msg_log, now_ms, timeout),
@@ -74,35 +74,35 @@ pub async fn stats_compare(
         .map(|g| g.icon_url().unwrap_or_default())
         .unwrap_or_default();
     let mut embed = serenity::CreateEmbed::default()
-        .title(t("stats_compare_title", "Compare"))
+        .title(t("stats_compare_title", "Statistics Comparison"))
         .colour(0x5865F2_u32)
         .description(format!("{name1} vs {name2}"))
         .field(
-            format!("📨 {}", t("messages_word", "messages")),
+            format!("📨 {}", t("messages_word", "Messages")),
             format!("**{name1}**: {a_m_msg} | **{name2}**: {b_m_msg}"),
             true,
         )
         .field(
-            format!("🎤 {}", t("voice_activity", "Voice activity")),
+            format!("🎤 {}", t("voice_activity", "Voice Activity")),
             format!("**{name1}**: {a_m_vc} | **{name2}**: {b_m_vc}"),
             true,
         )
         .field(
-            t("var_1d", "1d"),
+            t("var_1d", "1 day"),
             format!(
                 "**{name1}**: {a_d_msg} {msg_word}, {a_d_vc}\n**{name2}**: {b_d_msg} {msg_word}, {b_d_vc}"
             ),
             false,
         )
         .field(
-            t("var_7d", "7d"),
+            t("var_7d", "7 days"),
             format!(
                 "**{name1}**: {a_w_msg} {msg_word}, {a_w_vc}\n**{name2}**: {b_w_msg} {msg_word}, {b_w_vc}"
             ),
             false,
         )
         .field(
-            t("var_14d", "14d"),
+            t("var_14d", "14 days"),
             format!(
                 "**{name1}**: {a_m_msg} {msg_word}, {a_m_vc}\n**{name2}**: {b_m_msg} {msg_word}, {b_m_vc}"
             ),

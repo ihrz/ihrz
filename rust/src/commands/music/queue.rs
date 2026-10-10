@@ -132,7 +132,7 @@ pub async fn m_queue(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let mut index = 0usize;
     let author_id = ctx.author().id;
     let not_for_you = crate::lang::get(&code, "help_not_for_you")
-        .unwrap_or_else(|| "This interaction is not for you.".to_string());
+        .unwrap_or_else(|| "This interaction is not for you".to_string());
     loop {
         let press = msg
             .await_component_interaction(ctx.serenity_context().shard.clone())

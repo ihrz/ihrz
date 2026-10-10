@@ -49,13 +49,13 @@ pub async fn mod_mutelist(
     // Localized unit names for the remaining-time display, mirroring
     // `to_beautiful_string(remaining, lang)` in !mutelist.ts.
     let units = [
-        t("var_year", "y"),
-        t("var_mo", "mo"),
-        t("var_w", "w"),
-        t("var_d", "d"),
-        t("var_h", "h"),
-        t("var_m", "m"),
-        t("var_s", "s"),
+        t("var_year", "year(s)"),
+        t("var_mo", "month(s)"),
+        t("var_w", "week(s)"),
+        t("var_d", "day(s)"),
+        t("var_h", "hour(s)"),
+        t("var_m", "minute(s)"),
+        t("var_s", "second(s)"),
     ];
     // Page descriptions are rebuilt after the trash button clears the
     // timeouts, mirroring the TS `generatePages` refresh.

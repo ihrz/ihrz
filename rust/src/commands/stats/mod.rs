@@ -611,7 +611,8 @@ async fn top_by(
         })
         .collect();
     ctx.say(if top.is_empty() {
-        crate::lang::get(&code, "stats_no_data").unwrap_or_else(|| "No data.".to_string())
+        crate::lang::get(&code, "stats_no_data")
+            .unwrap_or_else(|| "No statistics data available for this server.".to_string())
     } else {
         top.join("\n")
     })

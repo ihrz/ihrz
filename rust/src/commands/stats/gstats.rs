@@ -58,7 +58,7 @@ pub async fn stats_guild(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
             .then(b.monthly_voice_ms.cmp(&a.monthly_voice_ms))
     });
     let msg_word =
-        crate::lang::get(&code, "messages_word").unwrap_or_else(|| "messages".to_string());
+        crate::lang::get(&code, "messages_word").unwrap_or_else(|| "Messages".to_string());
     let top_members = members
         .iter()
         .take(10)
