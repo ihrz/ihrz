@@ -1014,7 +1014,20 @@ pub async fn claim_inner(
     let boost = member_boost_f64(&shop_json, &invoker_roles(ctx).await);
     // Float math like TS `amount * getMemberBoost` (!daily.ts and sibs).
     let amount = tune.amount * boost;
-    // TS replies with the embed BEFORE adding the money.
+    // Reply/persist order differs per kind: `!weekly.ts:102-113` writes the
+    // money add + timestamp BEFORE the reply, while `!daily.ts` and
+    // `!monthly.ts` reply first and persist after. Mirror both.
+    let weekly_first = kind == "weekly";
+    if weekly_first {
+        add_money(&mut account, amount);
+        match kind {
+            "daily" => account.daily = now,
+            "weekly" => account.weekly = now,
+            "monthly" => account.monthly = now,
+            _ => account.work = now,
+        }
+        balance::save_econ_routed(pool, &gid, uid, &account).await?;
+    }
     let coin = coin_markup(ctx).await;
     let embed = poise::serenity_prelude::CreateEmbed::default()
         .author(
@@ -1031,14 +1044,16 @@ pub async fn claim_inner(
             false,
         );
     ctx.send(poise::CreateReply::default().embed(embed)).await?;
-    add_money(&mut account, amount);
-    match kind {
-        "daily" => account.daily = now,
-        "weekly" => account.weekly = now,
-        "monthly" => account.monthly = now,
-        _ => account.work = now,
+    if !weekly_first {
+        add_money(&mut account, amount);
+        match kind {
+            "daily" => account.daily = now,
+            "weekly" => account.weekly = now,
+            "monthly" => account.monthly = now,
+            _ => account.work = now,
+        }
+        balance::save_econ_routed(pool, &gid, uid, &account).await?;
     }
-    balance::save_econ_routed(pool, &gid, uid, &account).await?;
     Ok(())
 }
 

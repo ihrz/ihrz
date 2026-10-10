@@ -41,15 +41,50 @@ pub async fn derank(
     };
     // Author-hierarchy guard. Mirrors !derank.ts
     // (utils_delrole_highter_or_egal_roles_msg).
+    // U7: TS repeats `interaction.guild.ownerId !==
+    // interaction.member.user.id` twice under `&&`; the second
+    // conjunct is a redundant duplicate, so the single owner bypass
+    // below preserves TS semantics exactly.
     let guards = role_guards(&ctx, guild_id).await;
     let author_id = ctx.author().id.get();
-    let owner_id = guards.as_ref().map(|g| g.owner_id).unwrap_or(author_id);
-    let author_top = guards.as_ref().map(|g| g.author_top).unwrap_or(u16::MAX);
-    let target_top = ctx
+    // U2: role_guards is cache-only. On a guild cache-miss the guard
+    // inputs fall back to HTTP (guild roles + author member) so the
+    // hierarchy check is enforced on fresh data instead of skipped.
+    // The target member itself is always HTTP-fetched above, never
+    // cache-only.
+    let cached_roles = ctx
         .serenity_context()
         .cache
         .guild(guild_id)
-        .map(|g| role_top(&g.roles, &member.roles));
+        .map(|g| g.roles.clone());
+    let guild_roles = match cached_roles {
+        Some(r) => Some(r),
+        None => ctx
+            .http()
+            .get_guild_roles(guild_id)
+            .await
+            .ok()
+            .map(|v| v.into_iter().map(|r| (r.id, r)).collect()),
+    };
+    let owner_id = match guards.as_ref() {
+        Some(g) => g.owner_id,
+        None => guild_id
+            .to_partial_guild(ctx.http())
+            .await
+            .map(|g| g.owner_id.get())
+            .unwrap_or(author_id),
+    };
+    let mut author_top = guards.as_ref().map(|g| g.author_top).unwrap_or(u16::MAX);
+    if guards.is_none() {
+        if let Some(ref roles) = guild_roles {
+            if let Ok(author_member) = guild_id.member(ctx.http(), ctx.author().id).await {
+                author_top = role_top(roles, &author_member.roles);
+            }
+        }
+    }
+    let target_top = guild_roles
+        .as_ref()
+        .map(|roles| role_top(roles, &member.roles));
     if let Some(target_pos) = target_top {
         if author_top <= target_pos && owner_id != author_id {
             let stop = app_emoji(ctx.http(), "Stop", "⛔").await;

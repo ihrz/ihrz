@@ -55,12 +55,13 @@ pub async fn profil_birthday(
     #[description = "Birth year (1900-current year)"] year: i32,
 ) -> Result<(), anyhow::Error> {
     if !validate_birthday_ts(day, month, year) {
-        let msg = crate::commands::lang_for(
-            &ctx,
-            "msg_profil_birthday_invalid",
-            "Invalid birthday: check day/month/year (year 1900-2100).",
-        )
-        .await;
+        // Fallback cites the live cap (`1900..=current year`, like the
+        // validator), not a static year.
+        let fallback = format!(
+            "Invalid birthday: check day/month/year (year 1900-{}).",
+            current_year()
+        );
+        let msg = crate::commands::lang_for(&ctx, "msg_profil_birthday_invalid", &fallback).await;
         ctx.send(poise::CreateReply::default().content(msg).ephemeral(true))
             .await?;
         return Ok(());

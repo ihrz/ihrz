@@ -128,9 +128,15 @@ pub async fn ranks_leaderboard(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     for (uid, e) in parsed.iter().take(8) {
         // Owned snapshot first: the cache guard is not Send and must
         // drop before the avatar fetch await below.
+        // U3: the `retain` above already drops off-cache users (TS
+        // `if (!user ...) continue` parity, and it also drives the
+        // empty-board reply), so the dead `<@uid>` fallback arm is
+        // dropped: a `None` here is only a cache race and skips.
+        // (Match form, not let-else: the CacheRef guard must drop
+        // before the avatar-fetch await below — it is not Send.)
         let (name, face) = match ctx.cache().user(*uid) {
             Some(u) => (u.name.clone(), Some(u.face())),
-            None => (format!("<@{uid}>"), None),
+            None => continue,
         };
         let avatar = if podium.len() < 3 {
             match face {

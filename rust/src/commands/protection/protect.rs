@@ -210,24 +210,6 @@ pub fn allowlist_mentions(rows: &[String]) -> String {
     ids.iter().map(|id| format!("<@{id}>\n")).collect()
 }
 
-/// Audit action -> protection rule name. Mirrors avoid*.ts mapping.
-pub fn rule_for_event(event: &str) -> Option<&'static str> {
-    match event {
-        "roleCreate" => Some("createrole"),
-        "roleDelete" => Some("deleterole"),
-        "roleUpdate" => Some("updaterole"),
-        "channelCreate" => Some("createchannel"),
-        "channelUpdate" => Some("updatechannel"),
-        "channelDelete" => Some("deletechannel"),
-        "guildBanAdd" => Some("banmembers"),
-        "guildBanRemove" => Some("unbanmembers"),
-        "guildMemberRemove-kick" => Some("kickmember"),
-        "guildUpdate" => Some("updateguild"),
-        "webhooksUpdate" => Some("webhook"),
-        _ => None,
-    }
-}
-
 /// Run-less group root for the protection category.
 // TS: `SlashCommands/protection/` (`authorization.ts`, `allowlist/`,
 // `!show.ts`). Gate parity (deliberate, do not loosen): TS gates
@@ -868,14 +850,6 @@ mod tests {
         assert!(!show_sanction_label("en-US", Some("simply")).is_empty());
         assert!(!show_sanction_label("en-US", Some("simply+ban")).is_empty());
         assert!(!show_sanction_label("en-US", Some("simply+derank")).is_empty());
-    }
-
-    #[test]
-    fn event_rule_mapping() {
-        assert_eq!(rule_for_event("roleCreate"), Some("createrole"));
-        assert_eq!(rule_for_event("channelDelete"), Some("deletechannel"));
-        assert_eq!(rule_for_event("guildBanAdd"), Some("banmembers"));
-        assert_eq!(rule_for_event("nope"), None);
     }
 
     #[test]

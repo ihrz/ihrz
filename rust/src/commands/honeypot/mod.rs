@@ -63,12 +63,19 @@ pub async fn handle_honeypot_claim(
         return Ok(());
     };
     let gid = guild_id.get().to_string();
-    let enabled: bool = load_honeypot_raw(pool, &gid)
-        .await
-        .and_then(|s| serde_json::from_str::<serde_json::Value>(&s).ok())
-        .and_then(|v| v.get("enabled").and_then(|e| e.as_bool()))
-        .unwrap_or(false);
-    if !enabled {
+    let trap = parse_trap_config(load_honeypot_raw(pool, &gid).await);
+    if !trap.enabled {
+        return Ok(());
+    }
+    // Channel gate (audit S2): mirrors the
+    // `message.channelId !== config.channelId` early return in
+    // src/Events/honeypot/honeypot.ts — a claim pressed outside the trap
+    // channel is ignored, exactly like a message sent outside it. The
+    // button itself stays a deliberate extension (NOTE above); only its
+    // trigger surface matches TS now.
+    if trap.channel_id.trim().is_empty()
+        || comp.channel_id.get().to_string() != trap.channel_id.trim()
+    {
         return Ok(());
     }
     let user_id = comp.user.id;
@@ -164,6 +171,30 @@ pub async fn handle_honeypot_claim(
             manageable && bot_perms.kick_members(),
             manageable && bot_perms.ban_members(),
         );
+        // Fail-closed (audit S3): the pre-check above downgrades a
+        // configured kick/ban to `failed` when the member is unresolvable
+        // (left the guild or fetch failed) — but kick/ban by id need no
+        // `Member` object, so attempt the configured sanction and let
+        // Discord enforce hierarchy, recording the real outcome. Mirrors
+        // `run_trap_pipeline`, which sanctions by id with no pre-check.
+        let result = if result == "failed"
+            && target.is_none()
+            && (sanction == "ban" || sanction == "kick")
+        {
+            let attempted = match sanction {
+                "ban" => {
+                    ban_with_cleanup_window(&http, guild_id, user_id, "Honeypot triggered").await
+                }
+                _ => guild_id.kick(&http, user_id).await.is_ok(),
+            };
+            if attempted {
+                sanction
+            } else {
+                "failed"
+            }
+        } else {
+            result
+        };
         match result {
             "ban" => {
                 let _ =

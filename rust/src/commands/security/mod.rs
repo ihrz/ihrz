@@ -25,10 +25,10 @@ pub const SECURITY_AUDIT_REASON: &str = "[Security] Module";
 
 /// Grant a role with the security audit-log reason.
 ///
-/// DELTA: serenity 0.12 `Member::add_role` hardcodes a `None` reason, so
-/// the pass leg in `events_handler.rs` (message-collector flow) still goes
-/// through the reason-less path. Call this helper (raw `Http`, reason
-/// threaded) when that file is next touched.
+/// serenity 0.12 `Member::add_role` hardcodes a `None` reason, so the
+/// pass leg in `events_handler.rs` (`security_answer`, message-collector
+/// flow) routes through this helper (raw `Http`, reason threaded) to keep
+/// the TS `"[Security] Module"` audit reason.
 // Box-free: serenity's own Result type is large by construction.
 #[allow(clippy::result_large_err)]
 pub async fn grant_role(
@@ -41,8 +41,9 @@ pub async fn grant_role(
         .await
 }
 
-/// Strip a role with the security audit-log reason (same DELTA as
-/// [`grant_role`]: `Member::remove_role` also hardcodes `None`).
+/// Strip a role with the security audit-log reason (same reason as
+/// [`grant_role`]: `Member::remove_role` also hardcodes `None`, so the
+/// `security_answer` pass leg routes through here).
 #[allow(clippy::result_large_err)]
 pub async fn strip_role(
     http: &poise::serenity_prelude::Http,

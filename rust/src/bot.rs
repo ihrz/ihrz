@@ -1212,6 +1212,53 @@ pub fn valid_shard_override(total_shards_override: Option<u32>) -> Option<u32> {
     }
 }
 
+/// Global app-command registration with TS guild defaults (O4).
+/// Mirrors synchronizeCommands in src/core/commandsSync.ts: every entry is
+/// sent with `integration_types || [0]` + `contexts || [0]` (guild install,
+/// guild context). Poise only emits those fields when `install_context` /
+/// `interaction_context` are set on the command, so entries that leave them
+/// unset are defaulted here instead of registering bare (Discord then
+/// applies wider defaults than TS). Slash-incompatible entries are skipped
+/// exactly like `create_application_commands` (prefix-only legacy commands
+/// stay unregistered, matching TS which sends slash + application commands
+/// only — the 3-collection count mapping is noted at the BOT metas push).
+/// Per-command overrides (e.g. fun.ts `integration_types: [0, 1]`) have no
+/// Rust equivalent yet and register as guild-install.
+async fn register_globally_guild_default<U, E>(
+    http: impl AsRef<serenity::Http>,
+    commands: &[poise::Command<U, E>],
+) -> Result<(), serenity::Error> {
+    fn push<U, E>(cmd: &poise::Command<U, E>, out: &mut Vec<serenity::CreateCommand>) {
+        if let Some(mut b) = cmd.create_as_slash_command() {
+            if cmd.install_context.is_none() {
+                b = b.integration_types(vec![serenity::InstallationContext::Guild]);
+            }
+            if cmd.interaction_context.is_none() && !cmd.guild_only && !cmd.dm_only {
+                b = b.contexts(vec![serenity::InteractionContext::Guild]);
+            }
+            out.push(b);
+        }
+        if let Some(mut b) = cmd.create_as_context_menu_command() {
+            if cmd.install_context.is_none() {
+                b = b.integration_types(vec![serenity::InstallationContext::Guild]);
+            }
+            if cmd.interaction_context.is_none() && !cmd.guild_only && !cmd.dm_only {
+                b = b.contexts(vec![serenity::InteractionContext::Guild]);
+            }
+            out.push(b);
+        }
+        for sub in &cmd.subcommands {
+            push(sub, out);
+        }
+    }
+    let mut builders = Vec::with_capacity(commands.len());
+    for cmd in commands {
+        push(cmd, &mut builders);
+    }
+    serenity::Command::set_global_commands(http, builders).await?;
+    Ok(())
+}
+
 pub async fn run(cfg: Config, pool: Pool) -> anyhow::Result<()> {
     let token = crate::config::bot_token().ok_or_else(|| {
         anyhow::anyhow!("missing token: set BOT_TOKEN env or [discord] token in config.toml")
@@ -1243,7 +1290,7 @@ pub async fn run(cfg: Config, pool: Pool) -> anyhow::Result<()> {
         })
         .setup(|ctx, ready, framework| {
             Box::pin(async move {
-                poise::builtins::register_globally(ctx, &framework.options().commands).await?;
+                register_globally_guild_default(ctx, &framework.options().commands).await?;
                 tracing::info!("slash commands synced");
                 // Bot-owner table seed (mirrors refreshDatabaseModel in
                 // src/Events/client/ready.ts: config owners are written to
@@ -1259,21 +1306,25 @@ pub async fn run(cfg: Config, pool: Pool) -> anyhow::Result<()> {
                         tracing::warn!("owner seed failed for {id}: {e}");
                     }
                 }
-                // Owner prune (C11: mirrors the fetch-or-delete half of
+                // Owner prune (O5: mirrors the fetch-or-delete half of
                 // refreshDatabaseModel — stored rows whose user no longer
                 // resolves are deleted so stale owners don't accumulate).
+                // Cache-first like TS (`users.cache.get(id) || fetch(id)`):
+                // a cache hit keeps the row with no HTTP call; only a miss
+                // fetches, and only a fetch failure deletes.
                 for stored in crate::db::stored_bot_owners(&pool_fw).await {
                     let Ok(id) = stored.trim().parse::<u64>() else {
                         continue;
                     };
-                    if serenity::model::id::UserId::new(id)
-                        .to_user(&ctx.http)
-                        .await
-                        .is_err()
-                    {
-                        if let Err(e) = crate::db::remove_bot_owner(&pool_fw, id).await {
-                            tracing::warn!("owner prune failed for {id}: {e}");
-                        }
+                    let uid = serenity::model::id::UserId::new(id);
+                    if ctx.cache.user(uid).is_some() {
+                        continue;
+                    }
+                    if uid.to_user(&ctx.http).await.is_ok() {
+                        continue;
+                    }
+                    if let Err(e) = crate::db::remove_bot_owner(&pool_fw, id).await {
+                        tracing::warn!("owner prune failed for {id}: {e}");
                     }
                 }
                 // Dev commands.json dump (mirrors the `version.env ===
@@ -1371,7 +1422,15 @@ pub async fn run(cfg: Config, pool: Pool) -> anyhow::Result<()> {
                     let http = ctx.http.clone();
                     let cache = ctx.cache.clone();
                     let pool = pool_fw.clone();
-                    let shard_id = ready.shard.as_ref().map(|s| u64::from(s.id.0)).unwrap_or(0);
+                    // Effective shard (O1): live gateway id, else SHARD_ID
+                    // for multi-process layouts (config.shard_id), else 0.
+                    // Never a hardcoded 0: a worker process with SHARD_ID!=0
+                    // must not pass the main-shard gate inside
+                    // check_and_notify_release.
+                    let shard_id = match &ready.shard {
+                        Some(s) => u64::from(s.id.0),
+                        None => u64::from(cfg_fw.shard_id.unwrap_or(0)),
+                    };
                     tokio::spawn(async move {
                         let mut root = std::env::current_dir().unwrap_or_else(|_| ".".into());
                         if root.ends_with("rust") {
@@ -1472,11 +1531,9 @@ pub async fn run(cfg: Config, pool: Pool) -> anyhow::Result<()> {
         });
     }
 
-    // Release version file. Mirrors `await writeVersionFile(pkg.version)`
-    // in src/index.ts (boot, before spawning shards).
-    if let Err(e) = crate::core::release::write_version_file(env!("CARGO_PKG_VERSION")) {
-        tracing::warn!("version file write failed: {e}");
-    }
+    // No write_version_file here (O3): the single boot call lives in
+    // main.rs, mirroring src/index.ts calling it once before spawning
+    // shards.
 
     // Sharding mirrors ShardingManager in src/index.ts. TOTAL_SHARDS env
     // override (cfg.total_shards, parsed in config::load) takes priority,
@@ -1540,22 +1597,11 @@ pub async fn run(cfg: Config, pool: Pool) -> anyhow::Result<()> {
             );
         }
     }
-    // Main-shard release gate. Mirrors checkAndNotifyRelease() running on
-    // shard 0 only (client.isMainShard): in this single-process autoshard
-    // shard 0 is always local, so the gate is evaluated for shard 0 here
-    // at boot. The one-shot claim (v.old.txt rotation) lives in
-    // consume_release_note; the owner-DM fan-out is deferred to the
-    // notifier module, which must call this path only when
-    // crate::funcs::is_main_shard holds.
-    if crate::funcs::is_main_shard(0) {
-        let mut root = std::env::current_dir().unwrap_or_else(|_| ".".into());
-        if root.ends_with("rust") {
-            root.pop();
-        }
-        if let Some(version) = crate::core::release::consume_release_note(&root) {
-            tracing::info!("release {version} pending announcement (main shard)");
-        }
-    }
+    // No pre-connect release claim here (O2): the v.old.txt rotation +
+    // owner-DM fan-out both live inside check_and_notify_release (spawned
+    // in setup), behind its main-shard gate on the effective shard id.
+    // Mirrors checkAndNotifyRelease owning the whole flow in ready.ts; a
+    // pre-connect consume would rotate the claim before the guards run.
 
     tracing::info!("connecting gateway (autosharded)");
     let started = match total_shards {

@@ -3325,7 +3325,8 @@ impl serenity::EventHandler for Handler {
             ready.user.tag(),
             ready.guilds.len()
         );
-        ctx.set_activity(Some(serenity::ActivityData::custom("iHorizon")));
+        // No boot presence (O10): TS keeps the setPresence block commented
+        // out in ready.ts, so no-presence here is parity, not a gap.
         // Track-start nowplaying announcer (mirrors the trackStart send
         // in playerManager.ts). Registered once: ready fires per shard
         // and the dispatcher would otherwise post once per shard.
@@ -3463,6 +3464,14 @@ impl serenity::EventHandler for Handler {
                             }
                         }
                         let all_cmds = crate::commands::all();
+                        // Count parity (O8/O18): TS sums 3 collections
+                        // (commands.size + message_commands.size +
+                        // applicationsCommands.size) for content.commands,
+                        // and client.content.length for the join-time bio.
+                        // commands::all() merges the same three families
+                        // (slash-capable incl. legacy prefix entries +
+                        // user/message context-menu commands), so len() is
+                        // the equivalent total in both spots.
                         let mut cats = std::collections::HashSet::new();
                         for c in &all_cmds {
                             if let Some(cat) = c.category.as_deref() {
@@ -3489,14 +3498,21 @@ impl serenity::EventHandler for Handler {
                             members,
                             servers: cache.guilds().len() as u64,
                             shards: total_shards,
+                            // O7: TS pushes the live websocket average; no
+                            // serenity 0.12 equivalent at this call site, so
+                            // 0 is recorded, not measured.
                             ping_ms: 0,
                             commands: all_cmds.len(),
                             categories: cats.len(),
+                            // O6: TS stores AvailableLanguage display names;
+                            // the port keeps codes only (no name table).
                             langs: langs.clone(),
                             username: me.name.clone(),
                             tag: me.tag(),
                             user_id: me.id.get(),
                             discriminator: me.discriminator.map(|d| d.get()),
+                            // O9: TS uses displayAvatarURL png/4096; the
+                            // default CDN URL is stored instead.
                             avatar: me.avatar_url().unwrap_or_else(|| me.face()),
                             bio: prev_bio,
                             shard_id,
@@ -3558,7 +3574,14 @@ impl serenity::EventHandler for Handler {
         }
         // Drop the legacy immediate flag (migration from the old design).
         let _ = crate::db::tbl_del(&self.pool, &gid, "GUILD_DELETE_QUEUED").await;
-        // Auto-locale default (setLangByRegion).
+        // Auto-locale default (setLangByRegion, O14/O17). Verdict: set only
+        // when absent — TS overwrites unconditionally on every join, but
+        // serenity replays guild_create for cached guilds at boot (discord.js
+        // does not), so an overwrite here would clobber an operator-set
+        // language on every restart. Intentional divergence, recorded.
+        // Mapping verified 1:1 vs the guildCreate.ts switch (fr->fr-FR,
+        // en-US/en-GB->en-US, es-ES, de->de-DE, it->it-IT, ja->jp-JP,
+        // pt-BR->pt-PT, ru->ru-RU, default en-US) in locale_lang_code.
         if guild_lang_routed(&self.pool, &gid).await.is_none() {
             let _ = crate::db::tbl_set(
                 &self.pool,
@@ -3579,6 +3602,11 @@ impl serenity::EventHandler for Handler {
         )
         .await;
         // Blacklist leave: blacklisted owner -> farewell embed, then leave.
+        // Key parity (O15, guildCreate.ts `blacklist.<ownerId>.blacklisted`):
+        // intra-Rust reads/writes share bl_get/bl_set (`BLACKLIST.<uid>`
+        // under the `blacklist` table + legacy kv fallback), so the gate is
+        // self-consistent; TS bare-id row layout is not re-read here — the
+        // sibling owner module owns any cross-impl migration.
         if blacklist_reason_routed(&self.pool, guild.owner_id.get())
             .await
             .is_some()
@@ -3598,18 +3626,32 @@ impl serenity::EventHandler for Handler {
             let _ = guild.id.leave(&ctx.http).await;
             return;
         }
-        // Cache invites for join attribution (getInvites).
-        if let Ok(live) = guild.id.invites(&ctx.http).await {
-            let mut cache = self.invites.lock().await;
-            let entry = cache.entry(gid.clone()).or_default();
-            for inv in live {
-                entry.insert(
-                    inv.code.clone(),
-                    (
-                        inv.uses,
-                        inv.inviter.as_ref().map(|u| u.id.get()).unwrap_or(0),
-                    ),
-                );
+        // Cache invites for join attribution (getInvites, O16): TS skips
+        // the fetch without ViewAuditLog. guild_create streams per guild
+        // (no batch-5 sweep like the ready burst), so only the perm gate
+        // applies here. Owners bypass it; a payload without our member row
+        // keeps the best-effort fetch (403s are ignored below).
+        let bot_id = ctx.cache.current_user().id;
+        let audit_ok = if guild.owner_id == bot_id {
+            true
+        } else if let Some(me) = guild.members.get(&bot_id) {
+            guild.member_permissions(me).view_audit_log()
+        } else {
+            true
+        };
+        if audit_ok {
+            if let Ok(live) = guild.id.invites(&ctx.http).await {
+                let mut cache = self.invites.lock().await;
+                let entry = cache.entry(gid.clone()).or_default();
+                for inv in live {
+                    entry.insert(
+                        inv.code.clone(),
+                        (
+                            inv.uses,
+                            inv.inviter.as_ref().map(|u| u.id.get()).unwrap_or(0),
+                        ),
+                    );
+                }
             }
         }
         // Voice-session recovery (mirrors recoverActiveSessions, which TS
@@ -3727,18 +3769,81 @@ impl serenity::EventHandler for Handler {
         if !matches!(_is_new, Some(true)) {
             return;
         }
+        // Shared join-message chrome (O12/O13): per-guild display name +
+        // footer icon attachment like displayBotName.footerBuilder /
+        // footerAttachmentBuilder (stored bot pfp, else a snapshot of the
+        // live avatar — never a remote URL), the Wink expression thumbnail
+        // (mirrors Expressions.Wink), and the TS button app-emojis from the
+        // boot-warmed cache (missing entries leave buttons text-only).
+        async fn join_button_emoji(
+            http: &serenity::Http,
+            name: &str,
+        ) -> Option<serenity::ReactionType> {
+            let (id, full, animated) = crate::emojis::cached_emoji_entry(http, name).await?;
+            Some(serenity::ReactionType::Custom {
+                animated,
+                id: serenity::EmojiId::new(id),
+                name: Some(full),
+            })
+        }
+        const WINK_THUMB: &str =
+            "https://www.ihorizon.org/assets/img/bot/expression/ihorizon_wink.png";
+        let footer_name = crate::commands::botcat::bot_footer_name(
+            bot_name_routed(&self.pool, &gid).await.as_deref(),
+        );
+        let footer_icon: Option<Vec<u8>> = match crate::commands::botcat::footer_icon_bytes(
+            bot_pfp_routed(&self.pool, &gid).await.as_deref(),
+        ) {
+            Some(bytes) => Some(bytes),
+            None => {
+                let face = ctx.cache.current_user().face();
+                crate::commands::shared::download_bytes(&face).await
+            }
+        };
+        let emoji_crown = join_button_emoji(&ctx.http, "Crown").await;
+        let emoji_sparkles = join_button_emoji(&ctx.http, "Sparkles").await;
+        let emoji_search = join_button_emoji(&ctx.http, "Search").await;
+        let emoji_gitlab = join_button_emoji(&ctx.http, "GitLab_Logo").await;
+        let emoji_logo = join_button_emoji(&ctx.http, "Logo").await;
+        let emoji_docs = join_button_emoji(&ctx.http, "Documentation").await;
         if let Ok(logs_ch) = crate::config::load()
             .map(|c| c.guild_logs_channel_id)
             .unwrap_or_default()
             .trim()
             .parse::<u64>()
         {
+            // O11: TS ownerLogs creates a join invite, resolves the owner
+            // name and appends shard-wide totals (getShardStats); the totals
+            // here are this process's cache (single-process autoshard).
+            let invite_link = match welcome_channel(&guild) {
+                Some(ch) => ch
+                    .create_invite(&ctx.http, serenity::CreateInvite::new().max_age(0))
+                    .await
+                    .map(|i| format!("discord.gg/{}", i.code))
+                    .unwrap_or_else(|_| "None".to_string()),
+                None => "None".to_string(),
+            };
+            let owner_name = match guild.members.get(&guild.owner_id) {
+                Some(m) => m.user.name.clone(),
+                None => guild
+                    .owner_id
+                    .to_user(&ctx.http)
+                    .await
+                    .map(|u| u.name)
+                    .unwrap_or_else(|_| "Unknown".to_string()),
+            };
+            let mut total_members = 0u64;
+            for cached_id in ctx.cache.guilds() {
+                if let Some(cached) = ctx.cache.guild(cached_id) {
+                    total_members += cached.member_count;
+                }
+            }
             let vanity = guild
                 .vanity_url_code
                 .as_ref()
                 .map(|v| format!("discord.gg/{v}"))
                 .unwrap_or_else(|| "None".to_string());
-            let log_embed = serenity::CreateEmbed::default()
+            let mut log_embed = serenity::CreateEmbed::default()
                 .colour(0x00FF00_u32)
                 .description("**A new guild added iHorizon !**")
                 .field("Server Name", format!("`{}`", guild.name), true)
@@ -3753,14 +3858,40 @@ impl serenity::EventHandler for Handler {
                     format!("`{}` members", guild.member_count),
                     true,
                 )
+                .field("Invite Link", format!("`{invite_link}`"), true)
+                .field(
+                    "Server Owner",
+                    format!("({}) {owner_name}", guild.owner_id.get()),
+                    true,
+                )
                 .field("Vanity URL", format!("`{vanity}`"), true)
                 .field("Guilds total", ctx.cache.guild_count().to_string(), true)
-                .footer(serenity::CreateEmbedFooter::new("iHorizon Joined at"));
+                .field("Members total", format!("{total_members} members"), true)
+                .field("Shard", format!("#{}", ctx.shard_id.get()), true)
+                .timestamp(guild.joined_at);
+            if let Some(icon) = guild.icon_url() {
+                log_embed = log_embed.thumbnail(icon);
+            }
+            if footer_icon.is_some() {
+                log_embed = log_embed.footer(
+                    serenity::CreateEmbedFooter::new(footer_name.clone())
+                        .icon_url("attachment://footer_icon.png"),
+                );
+            } else {
+                log_embed = log_embed.footer(serenity::CreateEmbedFooter::new(footer_name.clone()));
+            }
+            let mut log_msg = serenity::CreateMessage::new().embed(log_embed);
+            if let Some(bytes) = footer_icon.clone() {
+                log_msg =
+                    log_msg.add_file(serenity::CreateAttachment::bytes(bytes, "footer_icon.png"));
+            }
             let _ = serenity::ChannelId::new(logs_ch)
-                .send_message(&ctx.http, serenity::CreateMessage::new().embed(log_embed))
+                .send_message(&ctx.http, log_msg)
                 .await;
         }
-        // Welcome message to the server (banner image pending html2png).
+        // Welcome message to the server (O13: footer icon attachment +
+        // Wink thumbnail + cached app-emoji buttons like TS; the banner
+        // image stays pending on html2png parity).
         if let Some(ch) = welcome_channel(&guild) {
             let titles = crate::lang::get_list(&lang_code, "new_guild_embed_title");
             let pick = titles
@@ -3768,36 +3899,60 @@ impl serenity::EventHandler for Handler {
                 .cloned()
                 .unwrap_or_default();
             let app_id = ctx.cache.current_user().id.get();
-            let embed = serenity::CreateEmbed::default()
+            let mut embed = serenity::CreateEmbed::default()
                 .colour(0x2134FF_u32)
                 .description(text("new_guild_embed_desc").replace("${randomMessage}", &pick))
-                .footer(serenity::CreateEmbedFooter::new("iHorizon"));
-            let row1 = serenity::CreateActionRow::Buttons(vec![
-                serenity::CreateButton::new_link(format!(
-                    "https://discord.com/api/oauth2/authorize?client_id={app_id}&permissions=8&scope=bot"
-                ))
-                .label(text("guild_create_btn_invite")),
-                serenity::CreateButton::new_link("https://www.ihorizon.org")
-                    .label(text("guild_create_btn_website")),
-                serenity::CreateButton::new_link("https://www.ihorizon.org/search")
-                    .label(text("guild_create_btn_search")),
-            ]);
-            let row2 = serenity::CreateActionRow::Buttons(vec![
-                serenity::CreateButton::new_link("https://gitlab.com/ihrz/ihrz")
-                    .label(text("guild_create_btn_repos")),
-                serenity::CreateButton::new_link("https://discord.gg/ihorizon")
-                    .label(text("guild_create_btn_support")),
-                serenity::CreateButton::new_link("https://docs.ihorizon.org")
-                    .label(text("guild_create_btn_docs")),
-            ]);
-            let _ = ch
-                .send_message(
-                    &ctx.http,
-                    serenity::CreateMessage::new()
-                        .embed(embed)
-                        .components(vec![row1, row2]),
-                )
-                .await;
+                .thumbnail(WINK_THUMB);
+            if footer_icon.is_some() {
+                embed = embed.footer(
+                    serenity::CreateEmbedFooter::new(footer_name.clone())
+                        .icon_url("attachment://footer_icon.png"),
+                );
+            } else {
+                embed = embed.footer(serenity::CreateEmbedFooter::new(footer_name.clone()));
+            }
+            let mut b_invite = serenity::CreateButton::new_link(format!(
+                "https://discord.com/api/oauth2/authorize?client_id={app_id}&permissions=8&scope=bot"
+            ))
+            .label(text("guild_create_btn_invite"));
+            if let Some(e) = emoji_crown.clone() {
+                b_invite = b_invite.emoji(e);
+            }
+            let mut b_site = serenity::CreateButton::new_link("https://www.ihorizon.org")
+                .label(text("guild_create_btn_website"));
+            if let Some(e) = emoji_sparkles.clone() {
+                b_site = b_site.emoji(e);
+            }
+            let mut b_search = serenity::CreateButton::new_link("https://www.ihorizon.org/search")
+                .label(text("guild_create_btn_search"));
+            if let Some(e) = emoji_search.clone() {
+                b_search = b_search.emoji(e);
+            }
+            let row1 = serenity::CreateActionRow::Buttons(vec![b_invite, b_site, b_search]);
+            let mut b_repos = serenity::CreateButton::new_link("https://gitlab.com/ihrz/ihrz")
+                .label(text("guild_create_btn_repos"));
+            if let Some(e) = emoji_gitlab.clone() {
+                b_repos = b_repos.emoji(e);
+            }
+            let mut b_support = serenity::CreateButton::new_link("https://discord.gg/ihorizon")
+                .label(text("guild_create_btn_support"));
+            if let Some(e) = emoji_logo.clone() {
+                b_support = b_support.emoji(e);
+            }
+            let mut b_docs = serenity::CreateButton::new_link("https://docs.ihorizon.org")
+                .label(text("guild_create_btn_docs"));
+            if let Some(e) = emoji_docs.clone() {
+                b_docs = b_docs.emoji(e);
+            }
+            let row2 = serenity::CreateActionRow::Buttons(vec![b_repos, b_support, b_docs]);
+            let mut welcome_msg = serenity::CreateMessage::new()
+                .embed(embed)
+                .components(vec![row1, row2]);
+            if let Some(bytes) = footer_icon.clone() {
+                welcome_msg = welcome_msg
+                    .add_file(serenity::CreateAttachment::bytes(bytes, "footer_icon.png"));
+            }
+            let _ = ch.send_message(&ctx.http, welcome_msg).await;
         }
         // Owner welcome DM (inviter resolved via BotAdd audit log, best effort).
         let app_id = ctx.cache.current_user().id.get();
@@ -3826,33 +3981,64 @@ impl serenity::EventHandler for Handler {
         }
         for target in dm_targets {
             if let Ok(user) = target.to_user(&ctx.http).await {
-                let embed = serenity::CreateEmbed::default()
+                // O12: TS ownerWelcomeDM sends 5 buttons (invite, website,
+                // support, docs, repos) with thumbnail + footer attachment.
+                let mut dm_embed = serenity::CreateEmbed::default()
                     .colour(0x2B2D31_u32)
                     .description(
                         text("new_guild_owner_dm_description")
                             .replace("${owner}", &user.name)
                             .replace("${guild.name}", &guild.name),
                     )
-                    .footer(serenity::CreateEmbedFooter::new("iHorizon"))
+                    .thumbnail(WINK_THUMB)
                     .timestamp(serenity::Timestamp::now());
+                if footer_icon.is_some() {
+                    dm_embed = dm_embed.footer(
+                        serenity::CreateEmbedFooter::new(footer_name.clone())
+                            .icon_url("attachment://footer_icon.png"),
+                    );
+                } else {
+                    dm_embed =
+                        dm_embed.footer(serenity::CreateEmbedFooter::new(footer_name.clone()));
+                }
+                let mut d_invite = serenity::CreateButton::new_link(format!(
+                    "https://discord.com/api/oauth2/authorize?client_id={app_id}&permissions=8&scope=bot"
+                ))
+                .label(text("guild_create_btn_invite"));
+                if let Some(e) = emoji_crown.clone() {
+                    d_invite = d_invite.emoji(e);
+                }
+                let mut d_site = serenity::CreateButton::new_link("https://www.ihorizon.org")
+                    .label(text("guild_create_btn_website"));
+                if let Some(e) = emoji_sparkles.clone() {
+                    d_site = d_site.emoji(e);
+                }
+                let mut d_support = serenity::CreateButton::new_link("https://discord.gg/ihorizon")
+                    .label(text("guild_create_btn_support"));
+                if let Some(e) = emoji_logo.clone() {
+                    d_support = d_support.emoji(e);
+                }
+                let mut d_docs = serenity::CreateButton::new_link("https://docs.ihorizon.org")
+                    .label(text("guild_create_btn_docs"));
+                if let Some(e) = emoji_docs.clone() {
+                    d_docs = d_docs.emoji(e);
+                }
+                let mut d_repos = serenity::CreateButton::new_link("https://gitlab.com/ihrz/ihrz")
+                    .label(text("guild_create_btn_repos"));
+                if let Some(e) = emoji_gitlab.clone() {
+                    d_repos = d_repos.emoji(e);
+                }
                 let row = serenity::CreateActionRow::Buttons(vec![
-                    serenity::CreateButton::new_link(format!(
-                        "https://discord.com/api/oauth2/authorize?client_id={app_id}&permissions=8&scope=bot"
-                    ))
-                    .label(text("guild_create_btn_invite")),
-                    serenity::CreateButton::new_link("https://www.ihorizon.org")
-                        .label(text("guild_create_btn_website")),
-                    serenity::CreateButton::new_link("https://discord.gg/ihorizon")
-                        .label(text("guild_create_btn_support")),
+                    d_invite, d_site, d_support, d_docs, d_repos,
                 ]);
-                let _ = user
-                    .direct_message(
-                        &ctx.http,
-                        serenity::CreateMessage::new()
-                            .embed(embed)
-                            .components(vec![row]),
-                    )
-                    .await;
+                let mut dm_msg = serenity::CreateMessage::new()
+                    .embed(dm_embed)
+                    .components(vec![row]);
+                if let Some(bytes) = footer_icon.clone() {
+                    dm_msg = dm_msg
+                        .add_file(serenity::CreateAttachment::bytes(bytes, "footer_icon.png"));
+                }
+                let _ = user.direct_message(&ctx.http, dm_msg).await;
             }
         }
         // Per-guild bot bio in the join language (setBotBioByLang).
@@ -4829,6 +5015,26 @@ impl serenity::EventHandler for Handler {
                         guild_id.get(),
                         Some(tts_vc),
                     );
+                    // U4: await the voice-ready handshake before queueing
+                    // audio (H247 8 x 300ms pattern in
+                    // h247/join.rs `confirm_h247_join`): speak_tts must
+                    // not race the OP4 join or the first chunk is lost.
+                    let bot_uid = _ctx.cache.current_user().id;
+                    for _ in 0..crate::voice::H247_JOIN_CONFIRM_ATTEMPTS {
+                        tokio::time::sleep(std::time::Duration::from_millis(
+                            crate::voice::H247_JOIN_CONFIRM_INTERVAL_MS as u64,
+                        ))
+                        .await;
+                        let parked = _ctx
+                            .cache
+                            .guild(guild_id)
+                            .and_then(|g| g.voice_states.get(&bot_uid).cloned())
+                            .and_then(|v| v.channel_id)
+                            .map(|c| c.get());
+                        if parked == Some(tts_vc) {
+                            break;
+                        }
+                    }
                 }
                 let bot_id = _ctx.cache.current_user().id.get();
                 if let Err(e) = crate::commands::tts::speak::speak_tts(
@@ -5028,11 +5234,20 @@ impl serenity::EventHandler for Handler {
             if let Some(text) = out.text {
                 match out.target {
                     crate::events::XpAnnounceTarget::ReplyInPlace => {
-                        let _ = msg.channel_id.say(&_ctx.http, text).await;
+                        // U5: trace-log announce failures (never silent).
+                        if let Err(e) = msg.channel_id.say(&_ctx.http, text).await {
+                            tracing::warn!("xp level-up announce failed in guild {gid}: {e:#}");
+                        }
                     }
                     crate::events::XpAnnounceTarget::SendToChannel(id) => {
                         if let Ok(chan) = id.parse::<u64>() {
-                            let _ = serenity::ChannelId::new(chan).say(&_ctx.http, text).await;
+                            if let Err(e) =
+                                serenity::ChannelId::new(chan).say(&_ctx.http, text).await
+                            {
+                                tracing::warn!(
+                                    "xp level-up announce failed in guild {gid} channel {chan}: {e:#}"
+                                );
+                            }
                         }
                     }
                     crate::events::XpAnnounceTarget::Suppressed => {}
@@ -5049,15 +5264,32 @@ impl serenity::EventHandler for Handler {
                     crate::commands::ranks::main::rank_role_assignment(&roles, level, &held);
                 for role_id in remove {
                     if let Ok(rid) = role_id.parse::<u64>() {
-                        let _ = member
-                            .remove_role(&_ctx.http, poise::serenity_prelude::RoleId::new(rid))
+                        // U1: audit reason mirrors onNewMessage.ts
+                        // "Removal of old rank roles" (Member::remove_role
+                        // carries no reason, so go through Http).
+                        let _ = _ctx
+                            .http
+                            .remove_member_role(
+                                guild_id,
+                                msg.author.id,
+                                poise::serenity_prelude::RoleId::new(rid),
+                                Some("Removal of old rank roles"),
+                            )
                             .await;
                     }
                 }
                 if let Some(role_id) = assign {
                     if let Ok(rid) = role_id.parse::<u64>() {
-                        let _ = member
-                            .add_role(&_ctx.http, poise::serenity_prelude::RoleId::new(rid))
+                        // U1: audit reason mirrors onNewMessage.ts
+                        // "Rank Role Assignment".
+                        let _ = _ctx
+                            .http
+                            .add_member_role(
+                                guild_id,
+                                msg.author.id,
+                                poise::serenity_prelude::RoleId::new(rid),
+                                Some("Rank Role Assignment"),
+                            )
                             .await;
                     }
                 }
