@@ -220,16 +220,63 @@ pub fn autofeur_promo(emoji_markup: &str, prefix: &str) -> String {
     )
 }
 
-/// .exe/.bat attachment guard. Mirrors antiExe.ts.
-pub fn has_blocked_exe(names: &[String]) -> bool {
-    names.iter().any(|n| {
-        let lower = n.to_ascii_lowercase();
-        lower.ends_with(".exe")
-            || lower.ends_with(".bat")
-            || lower.ends_with(".cmd")
-            || lower.ends_with(".scr")
-    })
+/// Binary attachment blocklist. Mirrors antiExe.ts `binaryExtensions`
+/// (`.ext` substring match, not ends-with). Lowercased here for the
+/// contains check, so `A.EXE` is caught too (TS is case-sensitive).
+pub const BLOCKED_EXE_EXTS: &[&str] = &[
+    "exe",
+    "msi",
+    "dmg",
+    "apk",
+    "ipa",
+    "bat",
+    "vbs",
+    "ps1",
+    "cmd",
+    "sh",
+    "bin",
+    "appimage",
+    "deb",
+    "pacman",
+    "flatpakref",
+    "zip",
+    "7z",
+    "gz",
+    "tar",
+    "rar",
+    "asar",
+];
+
+/// Single-filename check. Mirrors antiExe.ts `ilegalFile`.
+pub fn is_blocked_exe_name(name: &str) -> bool {
+    let lower = name.to_ascii_lowercase();
+    BLOCKED_EXE_EXTS
+        .iter()
+        .any(|ext| lower.contains(&format!(".{ext}")))
 }
+
+/// Attachment guard over all filenames. Mirrors the
+/// `[...message.attachments.values()].some(ilegalFile)` check.
+pub fn has_blocked_exe(names: &[String]) -> bool {
+    names.iter().any(|n| is_blocked_exe_name(n))
+}
+
+/// antiExe bypass. Mirrors the messageCreate early return in
+/// antiExe.ts: bots, webhooks, DMs, the bot itself, and members
+/// holding Administrator or ModerateMembers.
+pub fn antiexe_bypassed(
+    is_bot: bool,
+    is_webhook: bool,
+    is_dm: bool,
+    is_self: bool,
+    staff_perms: bool,
+) -> bool {
+    is_bot || is_webhook || is_dm || is_self || staff_perms
+}
+
+/// 15-minute antiExe timeout in seconds. Mirrors
+/// `client.timeCalculator.to_ms("15m")`.
+pub const ANTIEXE_TIMEOUT_SECS: i64 = 15 * 60;
 
 pub fn flag_on(raw: Option<String>) -> bool {
     matches!(
@@ -1482,10 +1529,30 @@ mod tests {
 
     #[test]
     fn exe_guard() {
+        // Full TS blocklist, substring match, case-insensitive.
+        for ext in BLOCKED_EXE_EXTS {
+            assert!(
+                is_blocked_exe_name(&format!("payload.{ext}")),
+                "missed .{ext}"
+            );
+        }
+        assert_eq!(BLOCKED_EXE_EXTS.len(), 21);
         assert!(has_blocked_exe(&["a.EXE".to_string()]));
         assert!(has_blocked_exe(&["x.bat".to_string()]));
+        assert!(has_blocked_exe(&["archive.tar.gz".to_string()]));
+        assert!(has_blocked_exe(&["setup.AppImage".to_string()]));
+        assert!(has_blocked_exe(&["a.apk".to_string(), "b.png".to_string()]));
         assert!(!has_blocked_exe(&["a.png".to_string()]));
+        assert!(!has_blocked_exe(&["notes.txt".to_string()]));
         assert!(!has_blocked_exe(&[]));
+        // Bypass matrix mirrors the TS early return.
+        assert!(antiexe_bypassed(true, false, false, false, false));
+        assert!(antiexe_bypassed(false, true, false, false, false));
+        assert!(antiexe_bypassed(false, false, true, false, false));
+        assert!(antiexe_bypassed(false, false, false, true, false));
+        assert!(antiexe_bypassed(false, false, false, false, true));
+        assert!(!antiexe_bypassed(false, false, false, false, false));
+        assert_eq!(ANTIEXE_TIMEOUT_SECS, 900);
         assert!(flag_on(Some("1".to_string())));
         assert!(flag_on(Some("true".to_string())));
         assert!(!flag_on(Some("0".to_string())));

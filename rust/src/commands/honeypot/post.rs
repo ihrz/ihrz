@@ -21,7 +21,7 @@ pub fn claim_dm_key(result: &str) -> &'static str {
     match result {
         "ban" => "honeypot_dm_action_banned",
         "kick" => "honeypot_dm_action_kicked",
-        "none" => "honeypot_log_action_none",
+        "none" => "honeypot_dm_action_none",
         _ => "honeypot_action_failed",
     }
 }
@@ -117,7 +117,7 @@ mod tests {
     fn dm_and_log_keys_cover_results() {
         assert_eq!(claim_dm_key("ban"), "honeypot_dm_action_banned");
         assert_eq!(claim_dm_key("kick"), "honeypot_dm_action_kicked");
-        assert_eq!(claim_dm_key("none"), "honeypot_log_action_none");
+        assert_eq!(claim_dm_key("none"), "honeypot_dm_action_none");
         assert_eq!(claim_dm_key("failed"), "honeypot_action_failed");
         assert_eq!(claim_log_key("ban"), "honeypot_log_action_ban");
         assert_eq!(claim_log_key("kick"), "honeypot_log_action_kick");

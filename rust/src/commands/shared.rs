@@ -14,6 +14,7 @@
 // unchanged so all existing callers keep compiling.
 
 use crate::bot::Ctx;
+use poise::serenity_prelude::{CreateActionRow, CreateButton, CreateEmbed, CreateEmbedFooter};
 
 /// Owned backend over the shared pool for guild-table routing.
 /// Every DB helper below clones the pool into one of these and reads /
@@ -283,6 +284,274 @@ pub fn welcomer_set(cfg: &mut serde_json::Value, field: &str, value: Option<serd
     }
 }
 
+/// Help embed + Top.gg vote-button helpers (U-AWESOMEEMBED).
+/// Mirrors `createAwesomeEmbed` and the TopGG trio
+/// (`shouldAdvertiseTheTopggVoteButton`, `generateTopggActionRow`,
+/// `addTopggButonToTheActualComponents` — the TS `Buton` typo lives on
+/// in that name only) in src/core/functions/method.ts.
+///
+/// User-visible strings are NOT hardcoded here: every label/template
+/// arrives already resolved by the caller (`crate::lang::get` with the
+/// exact en-US fallback, the `t(key, fallback)` pattern used across the
+/// command modules). YAML is untouched.
+/// One slash/prefix option rendered into a help usage line. Mirrors the
+/// `Option` rows consumed by `boldStringifyOption` / `stringifyOption`
+/// (`getArgumentOptionNameWithOptions`: choice values joined with `/`,
+/// else the option name).
+#[derive(Debug, Clone, Default)]
+pub struct HelpOptionDoc {
+    pub name: String,
+    pub choices: Vec<String>,
+    pub required: bool,
+}
+
+impl HelpOptionDoc {
+    pub fn display_name(&self) -> String {
+        if self.choices.is_empty() {
+            self.name.clone()
+        } else {
+            self.choices.join("/")
+        }
+    }
+}
+
+/// Mirrors `stringifyOption`: `[name]` when required, `<name>`.
+pub fn stringify_options(options: &[HelpOptionDoc]) -> String {
+    options
+        .iter()
+        .map(|o| {
+            if o.required {
+                format!("[{}]", o.display_name())
+            } else {
+                format!("<{}>", o.display_name())
+            }
+        })
+        .collect::<Vec<_>>()
+        .join(" ")
+}
+
+/// Mirrors `boldStringifyOption`: `` **[`name`]** `` / `` **`<name>`** ``.
+pub fn bold_stringify_options(options: &[HelpOptionDoc]) -> String {
+    options
+        .iter()
+        .map(|o| {
+            if o.required {
+                format!("**`[{}]`**", o.display_name())
+            } else {
+                format!("**`<{}>`**", o.display_name())
+            }
+        })
+        .collect::<Vec<_>>()
+        .join(" ")
+}
+
+/// Capitalize the command name for the help title. Mirrors
+/// `commandName.charAt(0).toUpperCase() + commandName.slice(1)`.
+pub fn capitalize_command_name(name: &str) -> String {
+    let mut chars = name.chars();
+    match chars.next() {
+        None => String::new(),
+        Some(first) => first.to_uppercase().collect::<String>() + chars.as_str(),
+    }
+}
+
+/// Resolve the permission line for the help embed. Mirrors the `perm`
+/// cascade in `createAwesomeEmbed`: the declared permission label
+/// first, then the `UTILS.PERMS.<cmd>` override — a nonzero custom
+/// level replaces it, custom roles replace it with mentions, custom
+/// users are appended with no separator (matching the TS `perm += ...`
+/// quirk). Empty means "none"; the caller substitutes its none-label.
+pub fn help_permission_text(base: &str, custom: Option<&crate::executor::CmdPerms>) -> String {
+    let mut perm = base.to_string();
+    if let Some(cp) = custom {
+        if let Some(level) = cp.level.filter(|l| *l > 0) {
+            perm = level.to_string();
+        }
+        if !cp.roles.is_empty() {
+            perm = cp
+                .roles
+                .iter()
+                .map(|r| format!("<@&{r}>"))
+                .collect::<Vec<_>>()
+                .join(", ");
+        }
+        if !cp.users.is_empty() {
+            let mentions = cp
+                .users
+                .iter()
+                .map(|u| format!("<@{u}>"))
+                .collect::<Vec<_>>()
+                .join(", ");
+            perm.push_str(&mentions);
+        }
+    }
+    perm
+}
+
+/// One subcommand row for the help embed. Mirrors the
+/// `hasSubCommand(command.options)` branch of `createAwesomeEmbed`.
+#[derive(Debug, Clone, Default)]
+pub struct HelpSubcommandDoc {
+    pub name: String,
+    pub prefix_name: Option<String>,
+    pub aliases: Vec<String>,
+    pub options: Vec<HelpOptionDoc>,
+}
+
+/// Resolved inputs for [`build_awesome_embed`]. Text is already
+/// localized by the caller; the template/label fields carry the exact
+/// en-US fallbacks (`hybridcommands_embed_help_title`,
+/// `hybridcommands_embed_help_fields_value`, `var_usage`,
+/// `var_permission`, `var_aliases`, `setjoinroles_var_none`).
+/// `description` is the caller-picked locale string (TS picks the `fr`
+/// localization when the guild lang starts with `fr-`).
+pub struct AwesomeHelpInput<'a> {
+    pub command_name: String,
+    pub prefix_name: Option<String>,
+    pub description: String,
+    pub aliases: Vec<String>,
+    pub base_permission: String,
+    pub custom_perms: Option<&'a crate::executor::CmdPerms>,
+    pub options: Vec<HelpOptionDoc>,
+    pub subcommands: Vec<HelpSubcommandDoc>,
+    pub prefix: String,
+    pub title_template: String,
+    pub fields_value_template: String,
+    pub usage_label: String,
+    pub permission_label: String,
+    pub aliases_label: String,
+    pub none_label: String,
+    pub footer_text: String,
+}
+
+/// Build the per-command help embed. Mirrors `createAwesomeEmbed`
+/// (title, `LightGrey` colour, one field per subcommand or the
+/// usage/permission/aliases fields, bot-name footer). When a footer
+/// icon attachment is available, pass the result through
+/// [`embed_with_footer`] with the same footer text afterwards.
+pub fn build_awesome_embed(input: &AwesomeHelpInput<'_>) -> CreateEmbed {
+    let raw_name = input.prefix_name.as_deref().unwrap_or(&input.command_name);
+    let mut embed = CreateEmbed::default()
+        .title(
+            input
+                .title_template
+                .replace("${commandName}", &capitalize_command_name(raw_name)),
+        )
+        .colour(0xD3_D3D3_u32) // discord.js "LightGrey"
+        .footer(CreateEmbedFooter::new(input.footer_text.clone()));
+    if !input.subcommands.is_empty() {
+        let fields: Vec<(String, String, bool)> = input
+            .subcommands
+            .iter()
+            .map(|sub| {
+                let short = sub.prefix_name.as_deref().unwrap_or(&sub.name);
+                let path = bold_stringify_options(&sub.options);
+                let aliases = if sub.aliases.is_empty() {
+                    input.none_label.clone()
+                } else {
+                    sub.aliases
+                        .iter()
+                        .map(|a| format!("`{a}`"))
+                        .collect::<Vec<_>>()
+                        .join(", ")
+                };
+                let use_line = format!("{}{} {}", input.prefix, short, path);
+                let value = input
+                    .fields_value_template
+                    .replace("${aliases}", &aliases)
+                    .replace("${use}", &use_line);
+                (format!("{}{}", input.prefix, short), value, false)
+            })
+            .collect();
+        embed = embed.fields(fields);
+    } else {
+        let path = bold_stringify_options(&input.options);
+        let usage = format!("{}{} {}", input.prefix, raw_name, path);
+        let perm = help_permission_text(&input.base_permission, input.custom_perms);
+        let perm_value = if perm.is_empty() {
+            input.none_label.clone()
+        } else {
+            perm
+        };
+        let aliases = if input.aliases.is_empty() {
+            input.none_label.clone()
+        } else {
+            input
+                .aliases
+                .iter()
+                .map(|a| format!("`{a}`"))
+                .collect::<Vec<_>>()
+                .join(", ")
+        };
+        embed = embed.fields(vec![
+            (input.usage_label.clone(), usage, false),
+            (
+                input.permission_label.clone(),
+                format!("{}: {perm_value}", input.permission_label),
+                false,
+            ),
+            (input.aliases_label.clone(), aliases, false),
+        ]);
+    }
+    embed
+}
+
+/// Twelve hours in ms. Mirrors the `twelveHours` constant in the
+/// commented-out body of `shouldAdvertiseTheTopggVoteButton`.
+pub const TOPGG_REVOTE_MS: i64 = 12 * 60 * 60 * 1000;
+
+/// Vote URL. Mirrors the `setURL` in `generateTopggActionRow`
+/// (`https://top.gg/bot/<appId>/vote`).
+pub fn topgg_vote_url(app_id: u64) -> String {
+    format!("https://top.gg/bot/{app_id}/vote")
+}
+
+/// Mirrors `shouldAdvertiseTheTopggVoteButton`. The TS body is
+/// currently stubbed to `return false` (vote tracking via `apiTable`
+/// commented out); this port keeps that behaviour.
+pub fn should_advertise_the_topgg_vote_button(_author_id: &str) -> bool {
+    false
+}
+
+/// The commented-out TS rule as a pure predicate, so the 12h re-vote
+/// window stays testable once vote tracking lands: advertise unless
+/// already notified; a missing timestamp (never voted) advertises.
+pub fn should_advertise_topgg_vote(
+    now_ms: i64,
+    last_vote_ms: Option<i64>,
+    already_notified: bool,
+) -> bool {
+    if already_notified {
+        return false;
+    }
+    match last_vote_ms {
+        None => true,
+        Some(t) => now_ms - t >= TOPGG_REVOTE_MS,
+    }
+}
+
+/// Mirrors `generateTopggActionRow`: a single link-button row, `label`
+/// resolved by the caller (en-US fallback `"Vote for iHorizon"`). The
+/// TS version also sets the TOPGG app emoji; omitted here because the
+/// emoji id is only known after the app-emoji sync — re-add via
+/// `.emoji(...)` once it is resolvable.
+pub fn generate_topgg_action_row(app_id: u64, label: &str) -> CreateActionRow {
+    CreateActionRow::Buttons(vec![
+        CreateButton::new_link(topgg_vote_url(app_id)).label(label.to_string())
+    ])
+}
+
+/// Mirrors `addTopggButonToTheActualComponents`: the vote row is
+/// appended, so empty input yields just that row.
+pub fn add_topgg_button_to_components(
+    mut current: Vec<CreateActionRow>,
+    app_id: u64,
+    label: &str,
+) -> Vec<CreateActionRow> {
+    current.push(generate_topgg_action_row(app_id, label));
+    current
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -413,5 +682,121 @@ mod tests {
         let bytes = vec![1u8, 2, 3, 4];
         let encoded = crate::emojis::base64_encode(&bytes);
         assert_eq!(footer_icon_bytes(Some(&encoded)), Some(bytes));
+    }
+
+    fn opt(name: &str, required: bool) -> HelpOptionDoc {
+        HelpOptionDoc {
+            name: name.to_string(),
+            choices: vec![],
+            required,
+        }
+    }
+
+    #[test]
+    fn option_display_name_prefers_choices() {
+        let o = HelpOptionDoc {
+            name: "mode".to_string(),
+            choices: vec!["a".to_string(), "b".to_string()],
+            required: true,
+        };
+        assert_eq!(o.display_name(), "a/b");
+        assert_eq!(opt("target", false).display_name(), "target");
+    }
+
+    #[test]
+    fn stringify_options_brackets() {
+        assert_eq!(stringify_options(&[]), "");
+        assert_eq!(
+            stringify_options(&[opt("user", true), opt("reason", false)]),
+            "[user] <reason>"
+        );
+        let o = HelpOptionDoc {
+            name: "x".to_string(),
+            choices: vec!["on".to_string(), "off".to_string()],
+            required: false,
+        };
+        assert_eq!(stringify_options(&[o]), "<on/off>");
+    }
+
+    #[test]
+    fn bold_stringify_options_matches_ts() {
+        // TS: required "**`[n]`**", optional "**`<n>`**", space-joined.
+        assert_eq!(
+            bold_stringify_options(&[opt("user", true), opt("reason", false)]),
+            "**`[user]`** **`<reason>`**"
+        );
+    }
+
+    #[test]
+    fn capitalize_command_name_first_char_only() {
+        assert_eq!(capitalize_command_name(""), "");
+        assert_eq!(capitalize_command_name("ban"), "Ban");
+        assert_eq!(capitalize_command_name("setLang"), "SetLang");
+    }
+
+    #[test]
+    fn help_permission_text_cascade() {
+        assert_eq!(help_permission_text("Manage Guild", None), "Manage Guild");
+        assert_eq!(help_permission_text("", None), "");
+        let level = crate::executor::CmdPerms {
+            level: Some(3),
+            ..Default::default()
+        };
+        assert_eq!(help_permission_text("Manage Guild", Some(&level)), "3");
+        let roles = crate::executor::CmdPerms {
+            roles: vec!["11".to_string(), "22".to_string()],
+            ..Default::default()
+        };
+        assert_eq!(help_permission_text("3", Some(&roles)), "<@&11>, <@&22>");
+        // TS appends user mentions onto the role string with no separator.
+        let both = crate::executor::CmdPerms {
+            roles: vec!["11".to_string()],
+            users: vec!["99".to_string()],
+            ..Default::default()
+        };
+        assert_eq!(help_permission_text("", Some(&both)), "<@&11><@99>");
+        let zero = crate::executor::CmdPerms {
+            level: Some(0),
+            ..Default::default()
+        };
+        assert_eq!(help_permission_text("Base", Some(&zero)), "Base");
+    }
+
+    #[test]
+    fn topgg_vote_url_shape() {
+        assert_eq!(topgg_vote_url(123), "https://top.gg/bot/123/vote");
+    }
+
+    #[test]
+    fn topgg_advertise_stub_is_false() {
+        assert!(!should_advertise_the_topgg_vote_button("anyone"));
+    }
+
+    #[test]
+    fn topgg_revotes_after_twelve_hours() {
+        assert_eq!(TOPGG_REVOTE_MS, 12 * 60 * 60 * 1000);
+        let now = 1_000_000_000_i64;
+        assert!(should_advertise_topgg_vote(now, None, false));
+        assert!(!should_advertise_topgg_vote(now, None, true));
+        assert!(!should_advertise_topgg_vote(now, Some(now - 1_000), false));
+        assert!(should_advertise_topgg_vote(
+            now,
+            Some(now - TOPGG_REVOTE_MS),
+            false
+        ));
+        assert!(!should_advertise_topgg_vote(
+            now,
+            Some(now - TOPGG_REVOTE_MS),
+            true
+        ));
+    }
+
+    #[test]
+    fn topgg_row_appends_or_seeds() {
+        let seeded = add_topgg_button_to_components(vec![], 7, "Vote");
+        assert_eq!(seeded.len(), 1);
+        let row = CreateActionRow::Buttons(vec![CreateButton::new_link("https://x").label("y")]);
+        let grown = add_topgg_button_to_components(vec![row], 7, "Vote");
+        assert_eq!(grown.len(), 2);
     }
 }

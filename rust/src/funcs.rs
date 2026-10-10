@@ -1387,26 +1387,73 @@ pub fn capitalize_first(s: &str) -> String {
 
 // ---- os meminfo ----
 
-/// Parse /proc/meminfo kB values. Mirrors getMemoryInfo shape
-/// ({MemTotal, MemFree} in kB).
-pub fn parse_meminfo(body: &str) -> (u64, u64) {
-    let mut total = 0u64;
-    let mut free = 0u64;
+/// Parsed /proc/meminfo kB triple. Mirrors the getMemoryInfo shape
+/// ({MemTotal, MemFree, MemAvailable} in kB).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default)]
+pub struct MemoryInfo {
+    pub total: u64,
+    pub free: u64,
+    pub available: u64,
+}
+
+/// Parse /proc/meminfo kB values. Mirrors the Linux branch of
+/// getMemoryInfo (generic `key: value` split, first whitespace token
+/// parsed as the kB count, missing keys stay 0 like the TS `?? 0`).
+pub fn parse_meminfo(body: &str) -> MemoryInfo {
+    let mut info = MemoryInfo::default();
     for line in body.lines() {
         let mut parts = line.split_whitespace();
         match (parts.next(), parts.next()) {
-            (Some("MemTotal:"), Some(v)) => total = v.parse().unwrap_or(0),
-            (Some("MemFree:"), Some(v)) => free = v.parse().unwrap_or(0),
+            (Some("MemTotal:"), Some(v)) => info.total = v.parse().unwrap_or(0),
+            (Some("MemFree:"), Some(v)) => info.free = v.parse().unwrap_or(0),
+            (Some("MemAvailable:"), Some(v)) => info.available = v.parse().unwrap_or(0),
             _ => {}
         }
     }
-    (total, free)
+    info
 }
 
-pub fn system_memory_kb() -> (u64, u64) {
+/// Host memory in kB. Linux-only: reads /proc/meminfo like the TS
+/// Linux branch. The TS win32 branch (powershell Win32_OperatingSystem)
+/// and the darwin branch (sysctl hw.memsize + vm_stat pages) are
+/// deliberately not ported — the bot runs on Linux — so non-Linux
+/// hosts (or unreadable meminfo) yield zeros instead of throwing
+/// like the TS darwin catch path.
+pub fn system_memory_kb() -> MemoryInfo {
     std::fs::read_to_string("/proc/meminfo")
         .map(|b| parse_meminfo(&b))
-        .unwrap_or((0, 0))
+        .unwrap_or_default()
+}
+
+// ---- helper.ts cooldown ----
+
+/// Cooldown store key. Mirrors the tempTable key in helper.ts
+/// (`COOLDOWN.<method>.<authorId>`).
+pub fn cooldown_key(method: &str, author_id: &str) -> String {
+    format!("COOLDOWN.{method}.{author_id}")
+}
+
+/// Stored cooldown timestamp for an author+method. Mirrors
+/// getCooldownTimestamp (`tempTable.get(...) || null`): a missing
+/// entry — or a falsy stored 0 — yields None.
+pub fn get_cooldown_timestamp(
+    store: &std::collections::HashMap<String, i64>,
+    author_id: &str,
+    method: &str,
+) -> Option<i64> {
+    store
+        .get(&cooldown_key(method, author_id))
+        .copied()
+        .filter(|v| *v != 0)
+}
+
+/// True while a stored cooldown is still active. Mirrors the
+/// `fetch !== null && ms - (tn - fetch) > 0` gate in cooldown().
+pub fn cooldown_active(stored: Option<i64>, cooldown_ms: i64, now_ms: i64) -> bool {
+    match stored {
+        None => false,
+        Some(fetch) => cooldown_ms - (now_ms - fetch) > 0,
+    }
 }
 
 #[cfg(test)]
@@ -1428,8 +1475,43 @@ mod funcs_part4_tests {
 
     #[test]
     fn meminfo_parses() {
-        let body = "MemTotal:        4024548 kB\nMemFree:         123456 kB\n";
-        assert_eq!(parse_meminfo(body), (4024548, 123456));
+        let body = "MemTotal:        4024548 kB\nMemFree:         123456 kB\nMemAvailable:    2345678 kB\n";
+        assert_eq!(
+            parse_meminfo(body),
+            MemoryInfo {
+                total: 4024548,
+                free: 123456,
+                available: 2345678,
+            }
+        );
+        // Missing keys stay 0, like the TS `?? 0` fallbacks.
+        assert_eq!(parse_meminfo("MemTotal:        100 kB\n").total, 100);
+        assert_eq!(parse_meminfo("MemTotal:        100 kB\n").available, 0);
+        assert_eq!(parse_meminfo(""), MemoryInfo::default());
+    }
+
+    #[test]
+    fn cooldown_timestamp_mirrors_helper_ts() {
+        use std::collections::HashMap;
+        let mut store = HashMap::new();
+        assert_eq!(cooldown_key("daily", "7"), "COOLDOWN.daily.7");
+        // Missing entry -> None (TS null).
+        assert_eq!(get_cooldown_timestamp(&store, "7", "daily"), None);
+        store.insert(cooldown_key("daily", "7"), 1000);
+        assert_eq!(get_cooldown_timestamp(&store, "7", "daily"), Some(1000));
+        // Other method / author unaffected.
+        assert_eq!(get_cooldown_timestamp(&store, "7", "work"), None);
+        assert_eq!(get_cooldown_timestamp(&store, "8", "daily"), None);
+        // Falsy stored 0 -> None (TS `fetch || null`).
+        store.insert(cooldown_key("work", "7"), 0);
+        assert_eq!(get_cooldown_timestamp(&store, "7", "work"), None);
+        // Active gate: ms - (tn - fetch) > 0.
+        assert!(cooldown_active(Some(1000), 86_400_000, 2000));
+        assert!(!cooldown_active(Some(1000), 1000, 2000));
+        // At the exact stamp the full window is still ahead (1000 > 0).
+        assert!(cooldown_active(Some(1000), 1000, 1000));
+        assert!(!cooldown_active(Some(1000), 1000, 2001));
+        assert!(!cooldown_active(None, 86_400_000, 2000));
     }
 }
 
@@ -2162,5 +2244,126 @@ mod funcs_punish_tests {
             vec!["admin".to_string(), "ban".to_string()]
         );
         assert_eq!(DANGEROUS_PERMISSION_BITS.len(), 10);
+    }
+}
+
+// ---- getOS ----
+
+/// OS display info. Mirrors getOS.ts (`{emojis, name} | null`).
+/// `emoji` is the `iHorizon_Emojis` key (Tux/Finder/Win11/Win10);
+/// callers resolve it against the runtime emoji map.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct OsInfo {
+    pub emoji: &'static str,
+    pub name: &'static str,
+}
+
+/// Current-OS info. Mirrors getOS() (None on unknown platforms).
+/// Note: std has no kernel-release API, so on Windows the build
+/// split (Win11 vs Win10) is unavailable and the generic
+/// Windows/Win10 leg is returned.
+pub fn get_os() -> Option<OsInfo> {
+    get_os_for(std::env::consts::OS, None)
+}
+
+/// Testable core. `platform` uses the Node names ("linux"/"darwin"/
+/// "win32", Rust "macos"/"windows" accepted); `release` is the
+/// Windows kernel release ("10.0.22000") for the Win11 split.
+pub fn get_os_for(platform: &str, release: Option<&str>) -> Option<OsInfo> {
+    match platform {
+        "linux" => Some(OsInfo {
+            emoji: "Tux",
+            name: "Linux",
+        }),
+        "darwin" | "macos" => Some(OsInfo {
+            emoji: "Finder",
+            name: "macOS",
+        }),
+        "win32" | "windows" => {
+            if let Some(r) = release.filter(|r| r.starts_with("10.0.")) {
+                let build = r
+                    .split('.')
+                    .nth(2)
+                    .and_then(|b| b.parse::<u32>().ok())
+                    .unwrap_or(0);
+                if build >= 22000 {
+                    return Some(OsInfo {
+                        emoji: "Win11",
+                        name: "Windows 11",
+                    });
+                }
+                return Some(OsInfo {
+                    emoji: "Win10",
+                    name: "Windows 10",
+                });
+            }
+            Some(OsInfo {
+                emoji: "Win10",
+                name: "Windows",
+            })
+        }
+        _ => None,
+    }
+}
+
+#[cfg(test)]
+mod get_os_tests {
+    use super::*;
+
+    #[test]
+    fn platforms_map_like_ts() {
+        assert_eq!(
+            get_os_for("linux", None),
+            Some(OsInfo {
+                emoji: "Tux",
+                name: "Linux",
+            })
+        );
+        assert_eq!(
+            get_os_for("darwin", None),
+            Some(OsInfo {
+                emoji: "Finder",
+                name: "macOS",
+            })
+        );
+        assert_eq!(get_os_for("freebsd", None), None);
+    }
+
+    #[test]
+    fn windows_build_split_matches_ts() {
+        assert_eq!(
+            get_os_for("win32", Some("10.0.26100")),
+            Some(OsInfo {
+                emoji: "Win11",
+                name: "Windows 11",
+            })
+        );
+        assert_eq!(
+            get_os_for("win32", Some("10.0.19045")),
+            Some(OsInfo {
+                emoji: "Win10",
+                name: "Windows 10",
+            })
+        );
+        // Non-10.0 releases and unknown releases fall back to Windows.
+        assert_eq!(
+            get_os_for("win32", Some("6.3.9600")),
+            Some(OsInfo {
+                emoji: "Win10",
+                name: "Windows",
+            })
+        );
+        assert_eq!(
+            get_os_for("win32", None),
+            Some(OsInfo {
+                emoji: "Win10",
+                name: "Windows",
+            })
+        );
+    }
+
+    #[test]
+    fn current_os_resolves() {
+        assert!(get_os().is_some());
     }
 }

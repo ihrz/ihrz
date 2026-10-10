@@ -2613,4 +2613,5 @@ export interface LanguageData {
 	msg_ignore_channels_list: string;
 	msg_ignore_channels_empty: string;
 	honeypot_claim_button_label: string;
+	topgg_vote_button_label: string;
 }

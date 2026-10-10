@@ -336,6 +336,28 @@ pub fn fallback_identifier(source: FallbackSource, title: &str, author: &str) ->
     }
 }
 
+/// Bot user id from a Discord token. Mirrors userIdFromToken in
+/// playerManager.ts (`Buffer.from(token.split(".")[0], "base64")`,
+/// None for the empty-string case). The first segment is unpadded
+/// base64, so padding is restored before decoding (no new dep: the
+/// self-contained decoder in [`crate::emojis`]).
+pub fn user_id_from_token(token: &str) -> Option<String> {
+    let first = token.split('.').next().unwrap_or("");
+    let mut compact: String = first.chars().filter(|c| !c.is_ascii_whitespace()).collect();
+    if compact.is_empty() {
+        return None;
+    }
+    let rem = compact.len() % 4;
+    if rem != 0 {
+        for _ in 0..(4 - rem) {
+            compact.push('=');
+        }
+    }
+    let bytes = crate::emojis::base64_decode(&compact)?;
+    let id = String::from_utf8_lossy(&bytes).into_owned();
+    (!id.is_empty()).then_some(id)
+}
+
 /// Outcome of a trackError/trackStuck recovery step.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum ErrorRecovery {
@@ -1729,6 +1751,26 @@ mod tests {
             LavalinkManager::search_identifier("https://music.apple.com/x"),
             "https://music.apple.com/x"
         );
+    }
+
+    #[test]
+    fn user_id_from_token_decodes_first_segment() {
+        // "123456789" -> "MTIzNDU2Nzg5" (no padding needed).
+        assert_eq!(
+            user_id_from_token("MTIzNDU2Nzg5.fake.sig"),
+            Some("123456789".to_string())
+        );
+        // "12345678" -> "MTIzNDU2Nzg=" (unpadded token form needs padding).
+        assert_eq!(
+            user_id_from_token("MTIzNDU2Nzg.fake.sig"),
+            Some("12345678".to_string())
+        );
+        // No dots: the whole token is the segment.
+        assert_eq!(user_id_from_token("OTk5"), Some("999".to_string()));
+        // Empty / undecodable segments mirror the TS `|| null`.
+        assert_eq!(user_id_from_token(""), None);
+        assert_eq!(user_id_from_token("..."), None);
+        assert_eq!(user_id_from_token("!!!.a.b"), None);
     }
 
     #[test]

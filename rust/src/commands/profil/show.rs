@@ -158,10 +158,10 @@ pub async fn profil_show(
             format!("{}{}", rank.level, t("profil_embed_fields_xplevels_value")),
             true,
         );
-    // Snapshot the avatar like image64.ts so the thumbnail survives
-    // avatar changes; fall back to the CDN URL when offline.
+    // Snapshot the avatar via the shared image64 helper so the thumbnail
+    // survives avatar changes; fall back to the CDN URL when offline.
     let face_url = target.face();
-    let face_bytes = crate::commands::botcat::download_bytes(&face_url).await;
+    let face_bytes = crate::image64::image64(&face_url).await;
     let embed = if face_bytes.is_some() {
         embed.thumbnail("attachment://avatar.png")
     } else {

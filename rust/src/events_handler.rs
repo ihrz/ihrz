@@ -3241,13 +3241,81 @@ impl serenity::EventHandler for Handler {
                     let _ = msg.reply(&_ctx.http, "feur.").await;
                 }
             }
+            // antiExe (mirrors Events/utils/antiExe.ts): webhook, self
+            // and Administrator/ModerateMembers bypass; bots and DMs
+            // already return above. On a blocked attachment: 15-min
+            // timeout when moderatable, best-effort delete, then a
+            // warnMember `[Anti-Exe]` warn. No early return — like the
+            // TS listener, processing falls through to reacts below.
             let raw = antiexe_routed(&self.pool, &gid).await;
             if crate::commands::legacy::flag_on(raw) {
-                let names: Vec<String> =
-                    msg.attachments.iter().map(|a| a.filename.clone()).collect();
-                if crate::commands::legacy::has_blocked_exe(&names) {
-                    let _ = msg.delete(&_ctx.http).await;
-                    return;
+                let staff = msg
+                    .member
+                    .as_ref()
+                    .and_then(|m| m.permissions)
+                    .map(|p| p.administrator() || p.moderate_members())
+                    .unwrap_or(false);
+                let bypassed = crate::commands::legacy::antiexe_bypassed(
+                    msg.author.bot,
+                    msg.webhook_id.is_some(),
+                    false,
+                    msg.author.id == _ctx.cache.current_user().id,
+                    staff,
+                );
+                if !bypassed {
+                    let names: Vec<String> =
+                        msg.attachments.iter().map(|a| a.filename.clone()).collect();
+                    if crate::commands::legacy::has_blocked_exe(&names) {
+                        if let Ok(member) = guild_id.member(&_ctx.http, msg.author.id).await {
+                            let mut member = member;
+                            if let Ok(until) = serenity::Timestamp::from_unix_timestamp(
+                                std::time::SystemTime::now()
+                                    .duration_since(std::time::UNIX_EPOCH)
+                                    .map(|d| d.as_secs() as i64)
+                                    .unwrap_or(0)
+                                    + crate::commands::legacy::ANTIEXE_TIMEOUT_SECS,
+                            ) {
+                                let _ = member
+                                    .disable_communication_until_datetime(&_ctx.http, until)
+                                    .await;
+                            }
+                        }
+                        let _ = msg.delete(&_ctx.http).await;
+                        let lang_code =
+                            crate::db::guild_lang(&self.pool, Some(guild_id.get())).await;
+                        let bot_id = _ctx.cache.current_user().id;
+                        let bot_name = _ctx.cache.current_user().name.clone();
+                        let (bot_roles, guild_name, guild_roles) = _ctx
+                            .cache
+                            .guild(guild_id)
+                            .map(|g| {
+                                (
+                                    g.members.get(&bot_id).map(|m| m.roles.clone()),
+                                    g.name.clone(),
+                                    g.roles
+                                        .iter()
+                                        .map(|(id, r)| (*id, (r.name.clone(), r.position)))
+                                        .collect(),
+                                )
+                            })
+                            .unwrap_or((None, "this server".to_string(), Default::default()));
+                        crate::commands::moderation::warn_member(
+                            &crate::commands::moderation::WarnContext {
+                                http: &_ctx.http,
+                                guild_name: Some(guild_name),
+                                author_top_roles: bot_roles,
+                                guild_roles: Some(guild_roles),
+                                pool: &self.pool,
+                                gid: &gid,
+                                guild_id,
+                                author_name: &bot_name,
+                                target: &msg.author,
+                                reason: "[Anti-Exe] sending binary file",
+                                lang_code: &lang_code,
+                            },
+                        )
+                        .await;
+                    }
                 }
             }
             // Custom + greeting reacts (mirrors

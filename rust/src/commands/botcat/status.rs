@@ -162,7 +162,14 @@ pub fn rustc_version() -> Option<String> {
     aliases("server")
 )]
 pub async fn status(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
-    let (total, free) = crate::funcs::system_memory_kb();
+    let mem = crate::funcs::system_memory_kb();
+    // TS bot status.ts reports used as MemTotal - MemAvailable; fall
+    // back to MemFree on kernels without MemAvailable (pre-3.14).
+    let avail = if mem.available > 0 {
+        mem.available
+    } else {
+        mem.free
+    };
     let version_value = match bot_commit_url() {
         Some(url) => format!("[{}]({url})", bot_version_label()),
         None => bot_version_label(),
@@ -178,8 +185,8 @@ pub async fn status(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
             "Memory",
             format!(
                 "{}/{}",
-                crate::funcs::nice_bytes((total - free.min(total)) as f64),
-                crate::funcs::nice_bytes(total as f64)
+                crate::funcs::nice_bytes((mem.total - avail.min(mem.total)) as f64),
+                crate::funcs::nice_bytes(mem.total as f64)
             ),
             false,
         )
