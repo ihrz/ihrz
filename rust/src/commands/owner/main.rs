@@ -904,13 +904,18 @@ async fn owner_blacklist_inner(
             let entries = bl_list(&ctx.data().pool).await;
             let Some(target) = user else {
                 if entries.is_empty() {
-                    ctx.say(
-                        lt(
-                            &code,
-                            "blacklist_no_one_blacklist",
-                            "${client.iHorizon_Emojis.No} No blacklisted users found!",
-                        )
-                        .replace("${client.iHorizon_Emojis.No}", &no),
+                    // TS sends the empty list with `flags: [1 << 6]` (ephemeral).
+                    ctx.send(
+                        poise::CreateReply::default()
+                            .content(
+                                lt(
+                                    &code,
+                                    "blacklist_no_one_blacklist",
+                                    "${client.iHorizon_Emojis.No} No blacklisted users found!",
+                                )
+                                .replace("${client.iHorizon_Emojis.No}", &no),
+                            )
+                            .ephemeral(true),
                     )
                     .await?;
                     return Ok(());
@@ -1028,13 +1033,18 @@ async fn owner_blacklist_inner(
             let entries = gbl_list(&ctx.data().pool, &gid_s).await;
             let Some(target) = user else {
                 if entries.is_empty() {
-                    ctx.say(
-                        lt(
-                            &code,
-                            "blacklist_no_one_blacklist",
-                            "${client.iHorizon_Emojis.No} No blacklisted users found!",
-                        )
-                        .replace("${client.iHorizon_Emojis.No}", &no),
+                    // TS sends the empty list with `flags: [1 << 6]` (ephemeral).
+                    ctx.send(
+                        poise::CreateReply::default()
+                            .content(
+                                lt(
+                                    &code,
+                                    "blacklist_no_one_blacklist",
+                                    "${client.iHorizon_Emojis.No} No blacklisted users found!",
+                                )
+                                .replace("${client.iHorizon_Emojis.No}", &no),
+                            )
+                            .ephemeral(true),
                     )
                     .await?;
                     return Ok(());
@@ -1410,6 +1420,11 @@ pub async fn owner_bledit(
     let full_reason = format!("iHorizon Project Blacklist - {}", new_reason.trim());
     let unknown = lt(&code, "profil_unknown", "Unknown");
     let no_reason = lt(&code, "blacklist_var_no_reason", "No reason found");
+    // Verdict: TS writes the reason leaf BEFORE the existence check
+    // (`blacklistTable.set(`${id}.reason`)` then `if (!userObj)`), so a
+    // bledit on a non-listed user still plants a partial row. Kept fixed
+    // deliberately — both legs below check existence first and write
+    // nothing for missing users.
     match scope {
         OwnerScope::Bot => {
             let Some(raw) = bl_raw(&ctx.data().pool, user.id.get()).await else {

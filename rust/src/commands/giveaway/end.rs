@@ -10,21 +10,28 @@ use super::*;
 )]
 pub async fn gw_end(
     ctx: Ctx<'_>,
+    // Option (not required): TS reads `getString("giveaway-id")` /
+    // `string(args, 0)` (both nullable, !end.ts) while the slash schema
+    // marks it required (gw.ts). A missing id fails `isValid` in TS and
+    // answers `end_not_find_giveaway` with `${gw}` replaced by null (JS
+    // renders "null"); the bare form therefore gets the localized reply
+    // instead of a poise parse error. `mid` 0 matches no board, like TS.
     #[description = "Giveaway message id"]
     #[rename = "giveaway-id"]
-    message_id: String,
+    message_id: Option<String>,
 ) -> Result<(), anyhow::Error> {
     let gid = ctx
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
-    let mid: u64 = message_id.trim().parse().unwrap_or(0);
+    let raw_id = message_id.as_deref().unwrap_or("null");
+    let mid: u64 = raw_id.trim().parse().unwrap_or(0);
     let code_early = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let t_early = |k: &str| crate::lang::get(&code_early, k).unwrap_or_default();
     // Global board read like TS GetGiveawayData (keyed by message id,
     // not by guild); persist/delete under the owning guild scope.
     let Some((home_gid, raw)) = super::gw::store_lookup(&ctx.data().pool, &gid, mid).await else {
-        ctx.say(t_early("end_not_find_giveaway").replace("${gw}", message_id.trim()))
+        ctx.say(t_early("end_not_find_giveaway").replace("${gw}", raw_id.trim()))
             .await?;
         return Ok(());
     };
@@ -54,7 +61,7 @@ pub async fn gw_end(
         ctx.say(
             crate::lang::get(&code, "end_not_find_giveaway")
                 .unwrap_or_default()
-                .replace("${gw}", message_id.trim()),
+                .replace("${gw}", raw_id.trim()),
         )
         .await?;
         return Ok(());
@@ -101,7 +108,7 @@ pub async fn gw_end(
                     .to_string()
             }),
             ctx.author().id.get(),
-            message_id.trim(),
+            raw_id.trim(),
         ),
     )
     .await;

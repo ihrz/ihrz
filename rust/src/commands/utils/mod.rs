@@ -64,7 +64,7 @@ async fn show_wlroles_list(ctx: &Ctx<'_>) -> Result<(), anyhow::Error> {
             .map(|m| {
                 m.roles
                     .iter()
-                    .filter_map(|r| g_roles_admin(&ctx, guild_id, r))
+                    .filter_map(|r| g_roles_admin(ctx, guild_id, r))
                     .any(|b| b)
             })
             .unwrap_or(false);

@@ -27,7 +27,9 @@ const MODAL_EMBED: &str = "ticket-panel-change-embed";
 const MODAL_CHANNEL_PANEL: &str = "ticket-panel-change-channel-panel";
 const MODAL_OPT_PANEL: &str = "ticket-panel-change-opt-panel";
 
-const STEP_TIMEOUT_SECS: u64 = 300;
+/// Per-step editor await. Mirrors the `time: 1_250_000 * 10` ms
+/// (~3.47h) select + button collectors in !panel.ts:366,372.
+const STEP_TIMEOUT_SECS: u64 = 12_500;
 
 /// Table-first panel load with legacy kv fallback (keys unchanged). A
 /// legacy hit promotes into the table so rows migrate lazily; pair with

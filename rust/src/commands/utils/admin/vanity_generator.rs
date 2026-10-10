@@ -19,7 +19,6 @@ pub async fn vanity_generator(
     ctx: Ctx<'_>,
     #[description = "Vanity code"] code: String,
 ) -> Result<(), anyhow::Error> {
-    let code = code;
     let invalid_tpl = crate::commands::lang_for(
         &ctx,
         "util_vanity_generator_invalid_code",

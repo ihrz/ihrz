@@ -17,6 +17,7 @@
 use chrono::TimeZone;
 use poise::serenity_prelude as serenity;
 use serde::{Deserialize, Serialize};
+#[cfg(test)]
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -242,6 +243,8 @@ pub fn parse_legacy_log(log_text: &str) -> Vec<ParsedSavedCommand> {
 
 /// Statistics over parsed commands. Mirrors getStatistics exactly,
 /// including strict-> ties (later key wins) and "" on empty input.
+/// Test-only: no production path consumes these (kept for the TS mirror).
+#[cfg(test)]
 #[derive(Debug, Clone, Serialize, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct LegacyStatistics {
@@ -254,6 +257,7 @@ pub struct LegacyStatistics {
     pub most_active_guild: String,
 }
 
+#[cfg(test)]
 pub fn legacy_statistics(commands: &[ParsedSavedCommand]) -> LegacyStatistics {
     let mut users = std::collections::HashSet::new();
     let mut guilds = std::collections::HashSet::new();

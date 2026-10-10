@@ -73,8 +73,9 @@ pub async fn tag_use(
         }
         b
     };
-    // Reply leg first (TS message.reply); channel-send fallback when no
-    // message_id was given or the fetch fails.
+    // Reply leg first (TS message.reply). TS fetches message_id and replies
+    // only when the fetch hits: a fetch miss posts NOTHING (!use.ts) —
+    // it still confirms + records stats below.
     let reply_target = match message_id.as_deref().map(str::trim) {
         Some(s) if !s.is_empty() => s
             .parse::<u64>()
@@ -83,30 +84,39 @@ pub async fn tag_use(
         _ => None,
     };
     let mut sent = false;
+    let mut fetch_missed = false;
     if let Some(target) = reply_target {
-        if ctx.channel_id().message(ctx.http(), target).await.is_ok() {
-            let builder = build().reference_message((ctx.channel_id(), target));
-            sent = ctx
-                .channel_id()
-                .send_message(ctx.http(), builder)
-                .await
-                .is_ok();
+        match ctx.channel_id().message(ctx.http(), target).await {
+            Ok(_) => {
+                let builder = build().reference_message((ctx.channel_id(), target));
+                sent = ctx
+                    .channel_id()
+                    .send_message(ctx.http(), builder)
+                    .await
+                    .is_ok();
+            }
+            Err(_) => fetch_missed = true,
         }
     }
-    if !sent {
-        ctx.channel_id().send_message(ctx.http(), build()).await?;
+    // Channel-send fallback only when no message_id was given. A fetch
+    // miss skips the post entirely (TS shape); a post-send failure is
+    // tolerated so the confirm + stats below still run (isSendable shape).
+    if !sent && !fetch_missed {
+        let _ = ctx.channel_id().send_message(ctx.http(), build()).await;
     }
-    ctx.say(
-        crate::lang::get(&code, "tag_use_command_work")
-            .map(|s| s.replace("${tag_name}", &name))
-            .unwrap_or_else(|| format!("Tag `{name}` sent.")),
-    )
-    .await?;
+    // Stats before the confirm send: a failed confirm must not lose the
+    // usage counters (TS confirms then stats; swapped deliberately).
     if let Some(entry) = store.stored_tags.get_mut(&name) {
         entry.uses += 1;
         entry.last_use_timestamp = crate::commands::context::now_ms();
         entry.last_use_by = ctx.author().id.get().to_string();
     }
     save_tags(&ctx.data().pool, &gid, &store).await?;
+    ctx.say(
+        crate::lang::get(&code, "tag_use_command_work")
+            .map(|s| s.replace("${tag_name}", &name))
+            .unwrap_or_else(|| format!("Tag `{name}` sent.")),
+    )
+    .await?;
     Ok(())
 }

@@ -25,7 +25,7 @@ pub async fn chan_hide(
     let code = crate::db::guild_lang(&ctx.data().pool, Some(guild_id.get())).await;
     let chan_snapshot: Option<poise::serenity_prelude::GuildChannel> = match &channel {
         Some(c) => Some(c.clone()),
-        None => ctx.guild_channel().await.map(|c| c.clone()),
+        None => ctx.guild_channel().await,
     };
     let Some(chan_snapshot) = chan_snapshot else {
         return Ok(());

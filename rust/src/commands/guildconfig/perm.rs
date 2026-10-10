@@ -82,7 +82,7 @@ pub async fn gc_perm_user(
         ctx.say(
             crate::lang::get(&code, "perm_set_deleted")
                 .map(|s| s.replace("${user.toString()}", &user.to_string()))
-                .unwrap_or_else(|| format!("Permission deleted for {}.", user.to_string())),
+                .unwrap_or_else(|| format!("Permission deleted for {}.", user)),
         )
         .await?;
         return Ok(());
@@ -108,7 +108,7 @@ pub async fn gc_perm_user(
                 .unwrap_or_else(|| {
                     format!(
                         "{} You cannot set a permission at or above your own level.",
-                        ctx.author().to_string()
+                        ctx.author()
                     )
                 }),
         )

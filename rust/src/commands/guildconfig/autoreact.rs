@@ -215,7 +215,7 @@ pub async fn gc_autoreact_list(
     // (`Page x of y`). Poise subcommands have no button collector, so
     // the page arrives as an argument (default 1, clamped).
     let ids = sorted_channel_ids(&map);
-    let total_pages = ((ids.len() + 4) / 5).max(1);
+    let total_pages = ids.len().div_ceil(5).max(1);
     let want = page.unwrap_or(1).max(1) as usize;
     let cur = want.min(total_pages);
     let value_tpl = crate::lang::get(&code, "autoreact_embed_autofields_value")

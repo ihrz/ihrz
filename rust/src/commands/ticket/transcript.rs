@@ -11,6 +11,16 @@ pub async fn ticket_transcript(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let pool = &ctx.data().pool;
     let lang_code = crate::db::guild_lang(pool, ctx.guild_id().map(|g| g.get())).await;
     let channel_id = ctx.channel_id();
+    // Defer up front: transcript generation walks the channel history
+    // plus a bot-avatar fetch, past the 3s interaction token. This puts
+    // the flow in the `interaction.deferred` state, so the check-DMs ack
+    // below mirrors the deferred branch of TicketTranscript
+    // (ticketsManager.ts:1524-1529, `editReply` with
+    // `guildconfig_config_save_check_dm`): poise renders the post-defer
+    // send as the follow-up carrying that same content, while the guard
+    // replies below stay public (non-ephemeral follow-ups, like their
+    // TS `interactionSend` forms).
+    ctx.defer().await?;
     // Guard order mirrors !transcript.ts: disable, then in-ticket, then
     // the guild-text check (TicketTranscript bails on non-text channels).
     if ticket_guard_disabled(&ctx, pool, &gid, &lang_code, "ticket_disabled_command").await {

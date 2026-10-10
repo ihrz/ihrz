@@ -270,11 +270,16 @@ async fn close_voice_session(
     } else {
         0
     };
-    let mut econ =
-        crate::commands::economy::balance::load_econ_routed(pool, guild_id, user_id).await;
-    econ.money += coins as f64;
-    let _ =
-        crate::commands::economy::balance::save_econ_routed(pool, guild_id, user_id, &econ).await;
+    // TS `processSessionEnd` only calls addCoins when coinsEarned > 0:
+    // a 0-coin session skips the economy read-modify-write entirely
+    // (no wallet row created, no write churn on short sessions).
+    if coins != 0 {
+        let mut econ =
+            crate::commands::economy::balance::load_econ_routed(pool, guild_id, user_id).await;
+        econ.money += coins as f64;
+        let _ = crate::commands::economy::balance::save_econ_routed(pool, guild_id, user_id, &econ)
+            .await;
+    }
     let mut stats = crate::commands::stats::main::load_stats(pool, guild_id, user_id).await;
     // Exact elapsed ms (TS stores exact start/end timestamps; the old
     // whole-minutes truncation lost up to ~59.9s per session).
@@ -1481,6 +1486,14 @@ mod tests {
         assert_eq!((minutes, coins), (101, 0));
         let econ = crate::commands::economy::balance::load_econ_routed(&pool, "g", 1).await;
         assert_eq!(econ.money, 0.0);
+        // 0-coin session skips the economy write entirely: no wallet
+        // row is created (mirrors TS only calling addCoins when
+        // coinsEarned > 0).
+        assert!(
+            crate::db::tbl_get(&pool, "g", &crate::commands::economy::econ_key(1))
+                .await
+                .is_none()
+        );
         // Exact ms accumulate (no whole-minute truncation).
         let stats = crate::commands::stats::main::load_stats(&pool, "g", 1).await;
         assert_eq!(stats.voice_ms, 6_100_000);

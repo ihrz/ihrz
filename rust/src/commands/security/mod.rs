@@ -199,8 +199,8 @@ mod tests {
 
     #[test]
     fn disable_flag_is_inverse_of_enabled() {
-        assert_eq!(disable_flag(true), false);
-        assert_eq!(disable_flag(false), true);
+        assert!(!disable_flag(true));
+        assert!(disable_flag(false));
     }
 
     #[test]

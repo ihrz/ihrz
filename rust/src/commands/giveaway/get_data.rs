@@ -13,15 +13,22 @@ use super::*;
 )]
 pub async fn gw_get_data(
     ctx: Ctx<'_>,
+    // Option (not required): TS reads `getString("giveaway-id")` /
+    // `string(args, 0)` (both nullable, !get-data.ts) while the slash
+    // schema marks it required (gw.ts). A missing id makes TS
+    // `getGiveawayData(null)` reject, answering `gw_doesnt_exit`; `mid`
+    // 0 matches no board here, same reply, instead of a poise parse
+    // error on the bare form.
     #[description = "Giveaway message id"]
     #[rename = "giveaway-id"]
-    message_id: String,
+    message_id: Option<String>,
 ) -> Result<(), anyhow::Error> {
     let gid = ctx
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
-    let mid: u64 = message_id.trim().parse().unwrap_or(0);
+    let raw_id = message_id.as_deref().unwrap_or("null");
+    let mid: u64 = raw_id.trim().parse().unwrap_or(0);
     // Global board read like TS GetGiveawayData (keyed by message id,
     // not by guild); siblings (end/reroll/list-entries) already do this.
     let raw = super::gw::store_lookup(&ctx.data().pool, &gid, mid)
@@ -47,7 +54,7 @@ pub async fn gw_get_data(
                 "${(giveawayData.entries as string[]).length}",
                 &gw.entries.len().to_string(),
             )
-            .replace("${giveawayId}", message_id.trim());
+            .replace("${giveawayId}", raw_id.trim());
             let mut embed = poise::serenity_prelude::CreateEmbed::default()
                 .colour(poise::serenity_prelude::Colour::new(GW_GETDATA_COLOR))
                 .title(t("gw_getdata_embed_title", "Giveaway Info!"))

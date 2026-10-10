@@ -22,7 +22,9 @@ pub fn pick_answer(pool: &[String], now_ms: u64) -> &str {
     &pool[(now_ms as usize) % pool.len()]
 }
 
-/// 8-ball on a message. Mirrors the "Pose a question!" message command in
+/// 8-ball on a message.
+///
+/// Mirrors the "Pose a question!" message command in
 /// MessageApplicationCommands/question.ts: short content gets
 /// `question_not_full`, otherwise an embed with the question + random answer.
 #[poise::command(context_menu_command = "Pose a question!")]

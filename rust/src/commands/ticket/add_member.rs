@@ -53,7 +53,13 @@ pub async fn ticket_add(
     if ticket_guard_in_ticket(&ctx, pool, &gid, &code, channel.id, "close_not_in_ticket").await {
         return Ok(());
     }
-    channel
+    // Single grant-failure policy, shared with remove (see
+    // remove_member.rs): TS TicketAddMember wraps the grant in a
+    // try/catch whose outer catch answers `add_command_error` and
+    // returns (ticketsManager.ts:1702-1706). A failed grant therefore
+    // replies the localized error line instead of propagating to the
+    // framework handler.
+    if channel
         .id
         .create_permission(
             &ctx.http(),
@@ -66,7 +72,16 @@ pub async fn ticket_add(
                 kind: serenity::PermissionOverwriteType::Member(user.id),
             },
         )
+        .await
+        .is_err()
+    {
+        ctx.say(
+            crate::lang::get(&code, "add_command_error")
+                .unwrap_or_else(|| "An error occurred, please try again".to_string()),
+        )
         .await?;
+        return Ok(());
+    }
     ctx.say(
         crate::lang::get(&code, "add_command_work")
             .map(|s| render_add_work(&s, &user.name))

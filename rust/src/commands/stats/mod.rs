@@ -409,10 +409,10 @@ pub fn guild_member_windows(rows: &[(u64, UserStats)], now_ms: i64) -> Vec<Membe
 /// Mirrors `!gstats.ts:125-184` (`channelStats` map) + `topThree`
 /// at :207-223 (top-3 by `dailyMessages` for text, `dailyVoice`
 /// for voice).
-pub fn guild_top_channels(
-    rows: &[(u64, UserStats)],
-    now_ms: i64,
-) -> (Vec<(u64, u64)>, Vec<(u64, u64)>) {
+/// Top-3 channel id/volume pairs, text then voice.
+pub type ChannelTops = (Vec<(u64, u64)>, Vec<(u64, u64)>);
+
+pub fn guild_top_channels(rows: &[(u64, UserStats)], now_ms: i64) -> ChannelTops {
     const DAY: i64 = 86_400_000;
     let mut text: HashMap<u64, u64> = HashMap::new();
     let mut voice: HashMap<u64, u64> = HashMap::new();

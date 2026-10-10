@@ -53,9 +53,15 @@ pub async fn ticket_remove(
     if ticket_guard_in_ticket(&ctx, pool, &gid, &code, channel.id, "remove_not_in_ticket").await {
         return Ok(());
     }
+    // Single grant-failure policy, shared with add (see add_member.rs):
+    // TS TicketRemoveMember wraps the deny in a try/catch whose outer
+    // catch answers `remove_command_error` and returns
+    // (ticketsManager.ts:1621-1626). A failed overwrite therefore
+    // replies the localized error line instead of propagating to the
+    // framework handler.
     // TS TicketRemoveMember denies (create with false flags), it does
     // not delete the overwrite.
-    channel
+    if channel
         .id
         .create_permission(
             &ctx.http(),
@@ -67,7 +73,16 @@ pub async fn ticket_remove(
                 kind: serenity::PermissionOverwriteType::Member(user.id),
             },
         )
+        .await
+        .is_err()
+    {
+        ctx.say(
+            crate::lang::get(&code, "remove_command_error")
+                .unwrap_or_else(|| "An error occurred, please try again".to_string()),
+        )
         .await?;
+        return Ok(());
+    }
     ctx.say(
         crate::lang::get(&code, "remove_command_work")
             .map(|s| render_remove_work(&s, &user.name))

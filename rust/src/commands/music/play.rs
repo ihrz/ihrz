@@ -21,25 +21,12 @@ pub async fn m_play(
         .await?;
         return Ok(());
     };
-    if (title.contains("://") || title.contains("www.")) && !crate::funcs::is_allowed_links(&title)
-    {
-        say_key(
-            &ctx,
-            &code,
-            "p_not_allowed",
-            "The link you sent is not supported by this bot. Please use authorized music streaming services such as Deezer, Spotify, Soundcloud, etc.",
-        )
-        .await?;
-        return Ok(());
-    }
+    // Guard order mirrors musicPlay.ts:788-833 exactly: not-in-voice
+    // -> H247 -> TTS cleanup -> same-voice -> empty-query ->
+    // allowed-links. Each leg returns before the next runs, so a
+    // same-channel user on an H247 guild still gets the H247 refusal.
     let m = synced_mgr(&ctx).await;
     let snap = m.snapshot(gid).await;
-    // TS only enforces same-channel once the bot is in voice.
-    if let Some(bot) = bot_voice_channel(&ctx, gid, snap.as_ref().and_then(|s| s.voice_channel)) {
-        if guard_same_voice(&ctx, &code, Some(voice), Some(bot)).await {
-            return Ok(());
-        }
-    }
     // H247 guard (mirrors musicPlay.ts:792-806): refuse play when 24/7
     // is enabled and the requester is not in the parked voice channel.
     let gid_str = gid.to_string();
@@ -61,23 +48,54 @@ pub async fn m_play(
         return Ok(());
     }
     // TTS cleanup before playing (mirrors musicPlay.ts:807-810
-    // `getTTSData`/`cleanupTTS`): a stored TTS row means the module
-    // owns the player, so run the full cleanup legs (drop player,
-    // welcome-embed delete, voice-status clear, row delete).
+    // `ttsData && ttsData.enabled` -> `cleanupTTS`): only a stored TTS
+    // row with the enabled flag runs the full cleanup legs (drop
+    // player, welcome-embed delete, voice-status clear, row delete).
+    // A disabled row is left untouched and never blocks the play.
     if let Some(tts_cfg) = crate::commands::tts::load_tts(&ctx.data().pool, &gid_str).await {
-        let h247_grant = crate::db::kv_get(&ctx.data().pool, &gid_str, "GUILD.H247")
-            .await
-            .and_then(|raw| crate::commands::h247::grant::parse_h247(&raw));
-        crate::commands::tts::leave::cleanup_tts_live(
-            ctx.http(),
-            &ctx.serenity_context().shard,
-            &ctx.data().pool,
-            gid,
-            &tts_cfg,
-            h247_grant.as_ref(),
+        if tts_cfg.enabled {
+            let h247_grant = crate::db::kv_get(&ctx.data().pool, &gid_str, "GUILD.H247")
+                .await
+                .and_then(|raw| crate::commands::h247::grant::parse_h247(&raw));
+            crate::commands::tts::leave::cleanup_tts_live(
+                ctx.http(),
+                &ctx.serenity_context().shard,
+                &ctx.data().pool,
+                gid,
+                &tts_cfg,
+                h247_grant.as_ref(),
+            )
+            .await;
+            m.set_tts_suppressed(gid, false).await;
+        }
+    }
+    // TS only enforces same-channel once the bot is in voice.
+    if let Some(bot) = bot_voice_channel(&ctx, gid, snap.as_ref().and_then(|s| s.voice_channel)) {
+        if guard_same_voice(&ctx, &code, Some(voice), Some(bot)).await {
+            return Ok(());
+        }
+    }
+    // Empty-query (mirrors the normalizedQueries.length === 0 leg):
+    // blank input answers the no-result embed, never the pipeline.
+    let query = title.trim().to_string();
+    if query.is_empty() {
+        ctx.send(poise::CreateReply::default().embed(no_result_embed(&code)))
+            .await?;
+        return Ok(());
+    }
+    // Allowed-links last (mirrors musicPlay.ts:834
+    // `normalizedQueries.some((query) => !isAllowedLinks(query))`):
+    // plain search terms carry no scheme, so `is_allowed_links` lets
+    // them through exactly like the TS hostname check.
+    if !crate::funcs::is_allowed_links(&query) {
+        say_key(
+            &ctx,
+            &code,
+            "p_not_allowed",
+            "The link you sent is not supported by this bot. Please use authorized music streaming services such as Deezer, Spotify, Soundcloud, etc.",
         )
-        .await;
-        m.set_tts_suppressed(gid, false).await;
+        .await?;
+        return Ok(());
     }
     let requester = ctx.author().id.get();
     let text_channel = ctx.channel_id().get();
@@ -115,7 +133,7 @@ pub async fn m_play(
     // `handleMusicPlay` looping `queries[]` with `currentNode` pinned
     // from the first successful search; one query pins trivially).
     let mut results = m
-        .play_queries(gid, std::slice::from_ref(&title), requester, now_ms())
+        .play_queries(gid, std::slice::from_ref(&query), requester, now_ms())
         .await;
     match results.pop() {
         Some(Ok((_pos, t, is_playlist))) => {

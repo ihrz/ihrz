@@ -11,15 +11,22 @@ use poise::serenity_prelude as serenity;
 )]
 pub async fn gw_entries(
     ctx: Ctx<'_>,
+    // Option (not required): TS reads `getString("giveaway-id")` /
+    // `string(args, 0)` (both nullable, !list-entries.ts) while the
+    // slash schema marks it required (gw.ts). A missing id fails
+    // `isValid` in TS and answers `end_not_find_giveaway` with `${gw}`
+    // replaced by null (JS renders "null"); the bare form therefore
+    // gets the localized reply instead of a poise parse error.
     #[description = "Giveaway message id"]
     #[rename = "giveaway-id"]
-    message_id: String,
+    message_id: Option<String>,
 ) -> Result<(), anyhow::Error> {
     let gid = ctx
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
-    let mid: u64 = message_id.trim().parse().unwrap_or(0);
+    let raw_id = message_id.as_deref().unwrap_or("null");
+    let mid: u64 = raw_id.trim().parse().unwrap_or(0);
     let pool = &ctx.data().pool;
     let code_early = crate::db::guild_lang(pool, ctx.guild_id().map(|g| g.get())).await;
     let t_early = |k: &str| crate::lang::get(&code_early, k).unwrap_or_default();
@@ -27,7 +34,7 @@ pub async fn gw_entries(
     // on isValid (-> end_not_find_giveaway) then isEnded
     // (-> end_command_error).
     let Some((home_gid, raw)) = super::gw::store_lookup(pool, &gid, mid).await else {
-        ctx.say(t_early("end_not_find_giveaway").replace("${gw}", message_id.trim()))
+        ctx.say(t_early("end_not_find_giveaway").replace("${gw}", raw_id.trim()))
             .await?;
         return Ok(());
     };
@@ -42,13 +49,13 @@ pub async fn gw_entries(
     let gw: Giveaway = match serde_json::from_str(&raw) {
         Ok(gw) => gw,
         Err(_) => {
-            ctx.say(t_early("end_not_find_giveaway").replace("${gw}", message_id.trim()))
+            ctx.say(t_early("end_not_find_giveaway").replace("${gw}", raw_id.trim()))
                 .await?;
             return Ok(());
         }
     };
     if !gw.is_valid {
-        ctx.say(t_early("end_not_find_giveaway").replace("${gw}", message_id.trim()))
+        ctx.say(t_early("end_not_find_giveaway").replace("${gw}", raw_id.trim()))
             .await?;
         return Ok(());
     }

@@ -51,17 +51,31 @@ pub async fn ticket_config(
         )
         .await;
     }
-    crate::commands::owner::main::routed_set(
-        &ctx.data().pool,
-        &gid,
-        &gid,
-        "GUILD.TICKET.disable",
-        // Real JSON booleans like TS (`client.db.set(key, true/false)`,
-        // sqlite driver JSON-stringifies); readers stay tolerant of the
-        // legacy `"0"`/`"1"` strings on both sides.
-        if enabled { "false" } else { "true" },
-    )
-    .await?;
+    // Enable deletes the row: legacy pre-U-ETERNAL-68 `"false"` rows
+    // migrate on read (deleted, treated as enabled — see ticket_disabled),
+    // so writers never store `"false"`. TS `set(key, false)` is natively
+    // falsy; absence is the strings-only equivalent (same verdict as
+    // guildconfig/support.rs: never write a falsy-looking string a TS
+    // truthiness check reads).
+    // Disable stores `"true"` in both stores.
+    if enabled {
+        crate::commands::owner::main::routed_del(
+            &ctx.data().pool,
+            &gid,
+            &gid,
+            "GUILD.TICKET.disable",
+        )
+        .await?;
+    } else {
+        crate::commands::owner::main::routed_set(
+            &ctx.data().pool,
+            &gid,
+            &gid,
+            "GUILD.TICKET.disable",
+            "true",
+        )
+        .await?;
+    }
     ctx.say(
         crate::lang::get(
             &code,

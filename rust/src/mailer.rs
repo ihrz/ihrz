@@ -46,23 +46,6 @@ impl MailerConfig {
         }
     }
 
-    /// Build from the loaded `Config` (env already overlaid on file).
-    /// Mirrors TS `init(false)`. Currently unwired: the live path is
-    /// [`Mailer::init_from_env`] (see `events_handler.rs`); kept for the
-    /// config-file boot path once it lands.
-    pub fn from_app_config(cfg: &crate::config::Config, bot_name: &str) -> Self {
-        Self {
-            host: cfg.smtp_host.clone(),
-            port: cfg.smtp_port,
-            secure: cfg.smtp_secure,
-            user: cfg.smtp_user.clone(),
-            pass: cfg.smtp_pass.clone(),
-            from_name: bot_name.to_string(),
-            owner: cfg.owner_mail.clone(),
-            notify_new_guild: cfg.notify_new_guild,
-        }
-    }
-
     /// Mirrors the TS guard before `createTransport`: user, pass,
     /// host, numeric port and owner must all be present.
     pub fn is_configured(&self) -> bool {

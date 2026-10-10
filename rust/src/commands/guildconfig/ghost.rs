@@ -141,7 +141,7 @@ pub async fn gc_ghost_add(
         ctx.say(
             crate::lang::get(&code, "joinghostping_add_already_set")
                 .map(|s| s.replace("${channel}", &channel.to_string()))
-                .unwrap_or_else(|| format!("{} is already watched.", channel.to_string())),
+                .unwrap_or_else(|| format!("{} is already watched.", channel)),
         )
         .await?;
         return Ok(());
@@ -219,7 +219,7 @@ pub async fn gc_ghost_remove(
         ctx.say(
             crate::lang::get(&code, "joinghostping_remove_isnt_set")
                 .map(|s| s.replace("${channel}", &channel.to_string()))
-                .unwrap_or_else(|| format!("{} is not watched.", channel.to_string())),
+                .unwrap_or_else(|| format!("{} is not watched.", channel)),
         )
         .await?;
         return Ok(());

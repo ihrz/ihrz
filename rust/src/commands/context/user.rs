@@ -33,7 +33,9 @@ pub async fn user_lookup(
     Ok(())
 }
 
-/// User love. Mirrors the "Estimate the love" user command in
+/// User love.
+///
+/// Mirrors the "Estimate the love" user command in
 /// UserApplicationCommands/love.ts (invoker + target pair, always100
 /// couples from config always score 100 like the TS `found` check).
 #[poise::command(context_menu_command = "Estimate the love")]

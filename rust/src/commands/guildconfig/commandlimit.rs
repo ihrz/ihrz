@@ -18,11 +18,11 @@ pub fn autocomplete_command_choices(paths: &[String], focused: &str) -> Vec<Stri
         .collect()
 }
 
-/// Poise autocomplete for the `command` option (TS `autocomplete: true`
-/// + `async autocomplete`). Case-sensitive substring, 25 cap, exactly
-/// like TS. NOTE: `events_handler.rs` keeps a raw Autocomplete responder
-/// arm for `commandlimit` (out of scope here) — it must skip this
-/// command now that poise answers, or Discord sees a double-ack.
+/// Poise autocomplete for the `command` option (TS autocomplete with an
+/// async handler). Case-sensitive substring, 25 cap, exactly like TS.
+/// NOTE: `events_handler.rs` keeps a raw Autocomplete responder arm for
+/// `commandlimit` (out of scope here) — it must skip this command now
+/// that poise answers, or Discord sees a double-ack.
 async fn commandlimit_command_autocomplete(_ctx: Ctx<'_>, partial: &str) -> Vec<String> {
     autocomplete_command_choices(&registered_paths(), partial)
 }

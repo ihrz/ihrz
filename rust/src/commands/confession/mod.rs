@@ -9,11 +9,15 @@
 //
 // NOTE (TS writer/reader key mismatch, kept for interop): TS !config.ts
 // writes the legacy `CONFESSION.disable` boolean, but the TS readers
-// (new-confession-button.ts, confess flow) check the namespaced
-// `GUILD.CONFESSION.disable`. Rust writes real JSON booleans to both
-// keys and treats either one as disabling. The `"false"` legacy string
-// never reads as disabled: readers only match `"1"`/`"true"`
-// (bool-or-string tolerant, both sides).
+// (new-confession-button.ts:53-58, confess flow) check the namespaced
+// `GUILD.CONFESSION.disable` with JS truthiness
+// (`if (await interaction.client.db.get(...))`). Rust writes `"true"`
+// to both keys on disable and deletes both on enable (see config.rs:
+// a surfaced `"false"` string is truthy, so storing it would wedge the
+// module off; TS `set(key, false)` is natively falsy and absence is the
+// strings-only equivalent). Either key disables. The `"false"` legacy
+// string therefore reads as disabled, like in TS; legacy `"0"` keeps
+// reading as enabled (its written intent) — deliberate, documented.
 
 use crate::bot::Ctx;
 use poise::serenity_prelude as serenity;
@@ -193,13 +197,18 @@ pub fn panel_target(panel_raw: Option<&str>, fallback: Option<&str>) -> (Option<
     (fallback.and_then(|s| s.parse().ok()), None)
 }
 
-/// True when a stored disable value means "disabled". Accepts the TS
-/// legacy boolean form (`CONFESSION.disable`, written by !config.ts) and
-/// the namespaced `"1"` form (`GUILD.CONFESSION.disable`).
+/// True when a stored disable value means "disabled". Mirrors the TS
+/// readers' JS truthiness (`if (await db.get(...))` in
+/// new-confession-button.ts:53-58): a surfaced `"false"` string is
+/// truthy, so it disables (native booleans round-trip as real bools
+/// in the TS sqlite driver, so boolean false stays falsy — only the
+/// string form disables). Accepts the TS legacy boolean form
+/// (`CONFESSION.disable`, written by !config.ts) and the namespaced
+/// form (`GUILD.CONFESSION.disable`).
 pub fn confession_disabled_value(raw: Option<&str>) -> bool {
     matches!(
         raw.map(|s| s.trim().to_ascii_lowercase()).as_deref(),
-        Some("1") | Some("true")
+        Some("1") | Some("true") | Some("false")
     )
 }
 
@@ -207,6 +216,17 @@ pub fn confession_disabled_value(raw: Option<&str>) -> bool {
 /// the legacy `CONFESSION.disable` key and `GUILD.CONFESSION.disable`;
 /// either one disables, matching the TS readers.
 pub async fn is_confession_disabled(pool: &crate::db::Pool, gid: &str) -> bool {
+    // Same legacy `"false"` migration as ticket_disabled (pre-U-ETERNAL-68
+    // writers stored it on enable): delete on read, treat as enabled.
+    for key in ["CONFESSION.disable", "GUILD.CONFESSION.disable"] {
+        if crate::db::kv_get(pool, gid, key)
+            .await
+            .as_deref()
+            .is_some_and(|v| v.trim().eq_ignore_ascii_case("false"))
+        {
+            let _ = crate::db::kv_del(pool, gid, key).await;
+        }
+    }
     let legacy = crate::db::kv_get(pool, gid, "CONFESSION.disable").await;
     let namespaced = crate::db::kv_get(pool, gid, "GUILD.CONFESSION.disable").await;
     confession_disabled_value(legacy.as_deref()) || confession_disabled_value(namespaced.as_deref())
@@ -1014,7 +1034,10 @@ mod tests {
         assert!(confession_disabled_value(Some("TRUE")));
         assert!(confession_disabled_value(Some("1")));
         assert!(confession_disabled_value(Some(" 1 ")));
-        assert!(!confession_disabled_value(Some("false")));
+        // `"false"` string reads as disabled (TS truthiness parity);
+        // enable deletes the row, so writers never store it.
+        assert!(confession_disabled_value(Some("false")));
+        assert!(confession_disabled_value(Some(" FALSE ")));
         assert!(!confession_disabled_value(Some("0")));
         assert!(!confession_disabled_value(Some("bogus")));
         assert!(!confession_disabled_value(None));

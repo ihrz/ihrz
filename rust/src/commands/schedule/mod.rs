@@ -61,10 +61,12 @@ pub fn entry_from_value(v: &serde_json::Value, fallback_code: &str) -> Option<Sc
     })
 }
 
-/// 16-char alphanumeric code. No external dependency: xorshift64 seeded
-/// from SystemTime nanos (mirrors TS generatePassword({ length: 16 })).
+/// 16-char letters-only code. Mirrors TS `generatePassword({ length: 16 })`
+/// (schedule.ts:449) with the random.ts defaults (lowercase + uppercase,
+/// numbers/symbols off): a 52-letter alphabet. No external dependency:
+/// xorshift64 seeded from SystemTime nanos.
 pub fn gen_code() -> String {
-    const ALPHABET: &[u8] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    const ALPHABET: &[u8] = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
     let nanos = std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
         .map(|d| d.as_nanos() as u64)
@@ -79,7 +81,7 @@ pub fn gen_code() -> String {
         state ^= state << 13;
         state ^= state >> 7;
         state ^= state << 17;
-        out.push(ALPHABET[(state % 62) as usize] as char);
+        out.push(ALPHABET[(state % 52) as usize] as char);
     }
     out
 }
@@ -184,11 +186,11 @@ mod tests {
     }
 
     #[test]
-    fn gen_code_is_16_alphanum() {
+    fn gen_code_is_16_letters_only() {
         for _ in 0..10 {
             let c = gen_code();
             assert_eq!(c.len(), 16);
-            assert!(c.chars().all(|ch| ch.is_ascii_alphanumeric()));
+            assert!(c.chars().all(|ch| ch.is_ascii_alphabetic()));
         }
     }
 
@@ -262,14 +264,13 @@ mod tests {
     }
 }
 
-#[allow(clippy::module_inception)]
 pub mod panel;
+#[allow(clippy::module_inception)]
 pub mod schedule;
 
 /// Old registry path (`schedule::main::*`) kept working, including the
-/// `shared` re-exports other categories use
-/// (`schedule::main::now_ms`, `schedule::main::parse_duration_ms`).
+/// `shared` re-export other categories use (`schedule::main::now_ms`).
 pub mod main {
+    pub use super::now_ms;
     pub use super::schedule::*;
-    pub use super::{now_ms, parse_duration_ms};
 }

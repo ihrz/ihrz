@@ -190,9 +190,9 @@ fn prevnames_dead_row() -> serenity::CreateActionRow {
 /// Prevnames pager size from !prevnames.ts.
 pub const PREVNAMES_PER_PAGE: usize = 5;
 
-/// Build pager pages (5 names each). The title template's
-/// `${user.username}` becomes the display name and `| Page N` is
-/// appended, mirroring the TS pages build.
+/// Build pager pages (5 names each). Verdict: matches TS — the title
+/// template's `${user.username}` becomes `user.globalName` (display
+/// name here) and `| Page N` is appended, mirroring the TS pages build.
 pub fn prevnames_pages(
     history: &[String],
     title_tpl: &str,

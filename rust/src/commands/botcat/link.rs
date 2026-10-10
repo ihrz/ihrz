@@ -1,8 +1,9 @@
 use super::*;
 use poise::serenity_prelude as serenity;
 
-/// Show all links about iHorizon. Mirrors link.ts (message content plus
-/// website/GitLab link buttons).
+/// Show all links about iHorizon.
+///
+/// Mirrors link.ts (message content plus website/GitLab link buttons).
 #[poise::command(slash_command, prefix_command, category = "bot", aliases("link"))]
 pub async fn links(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     // TS returns silently outside a guild/member/channel context.

@@ -194,7 +194,7 @@ pub async fn gw_create(
             .await?;
             return Ok(());
         }
-    } else if let Some(key) = requirement_error_key(&requirement, &req_value) {
+    } else if let Some(key) = requirement_error_key(requirement, &req_value) {
         let no = crate::emojis::app_emoji_markup(&ctx.serenity_context().http, "No")
             .await
             .unwrap_or_default();

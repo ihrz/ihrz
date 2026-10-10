@@ -118,49 +118,6 @@ pub async fn has_guild_sku(http: &std::sync::Arc<serenity::Http>, guild_id: u64)
     )
 }
 
-/// Paywall for the bare `custom` parent. Mirrors checkCustomSdkGate:
-/// non-production passes, bot owners pass, entitled guilds pass;
-/// otherwise the Boost_Gem store line + Red Pleading upsell embed
-/// goes out and the command stops.
-pub async fn custom_sdk_gate(ctx: &Ctx<'_>) -> bool {
-    if !crate::config::is_production_env() {
-        return true;
-    }
-    if crate::funcs::is_bot_owner(ctx.author().id.get(), &ctx.data().config.owners) {
-        return true;
-    }
-    let gid = ctx.guild_id().map(|g| g.get());
-    if let Some(gid) = gid {
-        if has_guild_sku(&ctx.serenity_context().http, gid).await {
-            return true;
-        }
-    }
-    let pool = &ctx.data().pool;
-    let code = crate::db::guild_lang(pool, gid).await;
-    let t = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
-    let store = "https://discord.com/discovery/applications/945202900907470899/store";
-    let content =
-        match crate::emojis::app_emoji_markup(&ctx.serenity_context().http, "Boost_Gem").await {
-            Some(markup) => format!("{markup} {store}"),
-            None => store.to_string(),
-        };
-    let mut embed = serenity::CreateEmbed::default()
-        .colour(serenity::Colour::RED)
-        .title(t("custom_sdk_only_title"))
-        .description(t("custom_sdk_only_description"));
-    let mut reply = poise::CreateReply::default().content(content);
-    if let Some(bytes) = download_bytes(&crate::funcs::expression_url("Pleading")).await {
-        embed = embed.thumbnail("attachment://pleading.png");
-        reply = reply
-            .embed(embed)
-            .attachment(serenity::CreateAttachment::bytes(bytes, "pleading.png"));
-    } else {
-        reply = reply.embed(embed);
-    }
-    let _ = ctx.send(reply).await;
-    false
-}
-
 /// Global application object URL. Mirrors the module-level
 /// fetch in retrieveMyself.ts (`GET /oauth2/applications/@me`).
 pub const APPLICATION_URL: &str = "https://discord.com/api/v10/oauth2/applications/@me";

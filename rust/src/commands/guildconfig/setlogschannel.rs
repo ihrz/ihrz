@@ -481,10 +481,11 @@ pub fn slug_channel_name(label: &str) -> String {
     for ch in label.to_lowercase().chars() {
         if ch.is_alphanumeric() {
             out.push(ch);
-        } else if ch == ' ' || ch == '_' || ch == '.' || ch == '-' || ch.is_whitespace() {
-            if !out.is_empty() && !out.ends_with('-') {
-                out.push('-');
-            }
+        } else if (ch == ' ' || ch == '_' || ch == '.' || ch == '-' || ch.is_whitespace())
+            && !out.is_empty()
+            && !out.ends_with('-')
+        {
+            out.push('-');
         }
     }
     let slug = out.trim_matches('-').to_string();
@@ -502,7 +503,7 @@ pub fn slug_channel_name(label: &str) -> String {
 /// every other type. Other spellings still normalize (`boosts` folds
 /// to `boost`, `messages` to `message`).
 pub fn log_channel_key(log_type: &str) -> String {
-    if log_type.trim().to_ascii_lowercase() == "ticket-log-channel" {
+    if log_type.trim().eq_ignore_ascii_case("ticket-log-channel") {
         return "GUILD.TICKET.logs".to_string();
     }
     let norm = normalize_log_type(log_type);

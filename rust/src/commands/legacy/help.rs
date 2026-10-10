@@ -1,6 +1,3 @@
-pub use super::help_browser::*;
-pub use super::helpall::*;
-
 // ---- /help main menu + module menus (guild language) ----
 // Mirrors src/Interaction/HybridCommands/bot/help.ts: the tip-embed main
 // menu (help_tip_embed + 2 select rows with back_to_menu +

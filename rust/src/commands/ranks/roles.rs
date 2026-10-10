@@ -76,7 +76,7 @@ pub async fn save_rank_roles_routed(
 /// `!roles.ts:84` sort (`parseInt(levelB) - parseInt(levelA)`); the
 /// caller slices 5 rows per page (`itemsPerPage`).
 pub fn sort_rank_roles_desc(roles: &mut [RankRole]) {
-    roles.sort_by(|a, b| b.level.cmp(&a.level));
+    roles.sort_by_key(|r| std::cmp::Reverse(r.level));
 }
 
 /// Role add command.

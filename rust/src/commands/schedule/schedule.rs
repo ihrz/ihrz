@@ -243,6 +243,12 @@ pub(crate) async fn guided_create(
         let _ = submit.create_followup(ctx.http(), followup).await;
         return Ok(());
     }
+    // Verdict on `"0s"`: `parse_duration_ms` (shared.rs, out of scope
+    // here) returns None for zero/negative spans, so this answers
+    // `schedule_create_not_number_time`. TS `to_ms("0s")` yields 0,
+    // which passes the NaN-only guard (schedule.ts:451) and would
+    // create an immediately-expiring schedule — kept as a deliberate
+    // divergence (a zero-delay schedule is nonsense), documented here.
     let Some(delta_ms) = parse_duration_ms(&when) else {
         followup = followup.content(
             t(
@@ -620,6 +626,10 @@ pub async fn schedule_create(
         .await?;
         return Ok(());
     }
+    // Verdict on `"0s"`: see the guided-create call site above — zero /
+    // negative spans answer `schedule_create_not_number_time` instead of
+    // creating an immediately-expiring schedule (deliberate divergence
+    // from the TS NaN-only guard, schedule.ts:451).
     let Some(delta_ms) = parse_duration_ms(&when) else {
         ctx.say(
             crate::lang::get(&lang_code, "schedule_create_not_number_time")

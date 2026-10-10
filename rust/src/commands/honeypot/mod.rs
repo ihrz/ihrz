@@ -401,7 +401,7 @@ pub fn schedule_trap(ctx: &serenity::Context, pool: &crate::db::Pool, msg: &sere
     // keep their exemption on a cache miss and role-granted staff are
     // covered by the role-perm OR.
     match staff_exempt_cached(ctx, msg) {
-        Some(true) => return,
+        Some(true) => {}
         Some(false) => schedule_trap_inner(ctx.http.clone(), pool.clone(), msg.clone()),
         None => {
             let http = ctx.http.clone();

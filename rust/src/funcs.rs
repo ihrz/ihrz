@@ -1491,7 +1491,9 @@ pub struct PasswordOptions {
 /// over crypto.randomFillSync), strict mode guaranteeing one char per
 /// enabled class (like the TS crypto.randomInt patch-up).
 /// `seed` is kept only so the existing call sites compile; it is
-/// ignored — use generate_password_seeded for deterministic tests.
+/// ignored — every call draws from OsRng, so distinct seeds do NOT
+/// yield distinct passwords. Use generate_password_seeded for
+/// deterministic tests.
 pub fn generate_password(opts: &PasswordOptions, _seed: u64) -> Result<String, &'static str> {
     let (pool, classes) = password_pool(opts)?;
     let mut out: Vec<char> = (0..opts.length)

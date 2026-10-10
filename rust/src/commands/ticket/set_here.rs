@@ -157,8 +157,23 @@ pub fn parse_reason_choice(value: &str) -> bool {
 )]
 pub async fn ticket_set_here(
     ctx: Ctx<'_>,
-    #[description = "Panel name"] name: String,
+    // Option (not required): TS reads `getString("name")`
+    // (!set-here.ts:50, nullable) and the prefix path reads
+    // `string(args, 0)` (nullable), so a bare `!ticket set-here` still
+    // reaches the type picker and creates with a null name (TS
+    // `setTitle(null)` = untitled). A required poise String would
+    // parse-error on the bare form instead.
+    #[description = "Panel name"] name: Option<String>,
     #[description = "Description"] description: Option<String>,
+    // Verdict: keep `#[channel_types("Category")]` (document, don't
+    // loosen). TS restricts the slash picker the same way
+    // (`channel_types: [GuildCategory]`, ticket.ts set-here options),
+    // while the TS prefix path (`method.channel(args, 2)`,
+    // !set-here.ts:62-66) takes any channel unchecked — and
+    // `panel_category_id` below already mirrors that looseness by
+    // storing whatever channel id it gets. Poise applies
+    // `channel_types` to slash registration like Discord does, so both
+    // paths match TS as-is.
     #[description = "Ticket category"]
     #[channel_types("Category")]
     category: Option<serenity::Channel>,
@@ -233,7 +248,7 @@ pub async fn ticket_set_here(
             pool,
             &gid,
             &code,
-            &name,
+            name.as_deref().unwrap_or_default(),
             ctx.author().id,
             ctx.channel_id(),
         )
@@ -246,7 +261,7 @@ pub async fn ticket_set_here(
             &code,
             ctx.channel_id(),
             ctx.author().id.get(),
-            &name,
+            name.as_deref().unwrap_or_default(),
             description.as_deref(),
             &category_id,
         )
@@ -274,16 +289,18 @@ async fn run_button_panel(
 ) -> anyhow::Result<()> {
     let http = sctx.http.clone();
     let (footer_name, footer_icon) = ticket_footer(&http, pool, gid).await;
-    let panel_embed = ticket_embed_footer(
-        serenity::CreateEmbed::default()
-            .title(name.to_string())
-            .colour(0x3b8f41_u32)
-            .description(description.map(str::to_string).unwrap_or_else(|| {
-                crate::lang::get(lang_code, "sethereticket_description_embed").unwrap_or_default()
-            })),
-        &footer_name,
-        footer_icon.is_some(),
-    );
+    // A missing name leaves the panel untitled, mirroring TS
+    // `setTitle(null)` (an empty title string would fail API
+    // validation, so the title is only set when non-empty).
+    let mut embed_base = serenity::CreateEmbed::default()
+        .colour(0x3b8f41_u32)
+        .description(description.map(str::to_string).unwrap_or_else(|| {
+            crate::lang::get(lang_code, "sethereticket_description_embed").unwrap_or_default()
+        }));
+    if !name.is_empty() {
+        embed_base = embed_base.title(name.to_string());
+    }
+    let panel_embed = ticket_embed_footer(embed_base, &footer_name, footer_icon.is_some());
     let button = serenity::CreateButton::new(LEGACY_OPEN_BUTTON_ID)
         .label(
             crate::lang::get(lang_code, "event_ticket_button_name")

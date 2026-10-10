@@ -506,17 +506,33 @@ async fn ticket_logs_channel(pool: &crate::db::Pool, gid: &str) -> Option<sereni
 }
 
 /// Ticket module kill-switch. Mirrors the `GUILD.TICKET.disable`
-/// guard in every ticket subcommand. Both sides now write real JSON
-/// booleans (TS `client.db.set(key, bool)`, Rust `"true"`/`"false"`);
-/// the legacy `"0"`/`"1"` strings still count, so either shape reads
-/// as disabled and `"false"` never does.
+/// guard in every ticket subcommand (`if (await client.db.get(...))`,
+/// e.g. !close.ts:51). TS reads with JS truthiness: a surfaced
+/// `"false"` string is truthy, so it counts as disabled (native
+/// booleans round-trip through the TS sqlite driver as real bools,
+/// so boolean false stays falsy — only the string form disables).
+/// The reader matches that: `"1"`/`"true"`/`"false"` (trimmed,
+/// case-insensitive) disable. Enable deletes the row (see config.rs),
+/// so writers never store the ambiguous `"false"`. Legacy `"0"` keeps
+/// reading as enabled (its written intent), even though a raw TS
+/// truthiness check would flag it — deliberate, documented.
 async fn ticket_disabled(pool: &crate::db::Pool, gid: &str) -> bool {
-    crate::db::kv_get(pool, gid, "GUILD.TICKET.disable")
-        .await
-        .is_some_and(|v| {
-            let t = v.trim();
-            t == "1" || t.eq_ignore_ascii_case("true")
-        })
+    let raw = crate::db::kv_get(pool, gid, "GUILD.TICKET.disable").await;
+    // One-time legacy migration: pre-U-ETERNAL-68 Rust writers stored the
+    // string `"false"` on enable (meant enabled); TS never produces that
+    // string (native bools). Delete it on read so old enabled-guilds don't
+    // flip to disabled; new writers never store it (enable deletes).
+    if raw
+        .as_deref()
+        .is_some_and(|v| v.trim().eq_ignore_ascii_case("false"))
+    {
+        let _ = crate::db::kv_del(pool, gid, "GUILD.TICKET.disable").await;
+        return false;
+    }
+    raw.is_some_and(|v| {
+        let t = v.trim();
+        t == "1" || t.eq_ignore_ascii_case("true")
+    })
 }
 
 /// Say a language line with a static fallback.
@@ -2383,8 +2399,10 @@ mod tests {
 
     #[tokio::test]
     async fn disable_reads_bool_or_string_both_sides() {
-        // Canonical writes are real JSON booleans; legacy `"0"`/`"1"`
-        // strings still read, and `"false"` never reads as disabled.
+        // Canonical disable writes are `"true"`/`"1"`. A legacy `"false"`
+        // string (pre-U-ETERNAL-68 writers stored it on enable) migrates on
+        // read: deleted, treated as enabled. TS never produces that string
+        // (native bools), so no TS row is affected.
         for (stored, disabled) in [
             ("true", true),
             ("TRUE", true),
@@ -2392,6 +2410,7 @@ mod tests {
             (" true ", true),
             ("false", false),
             ("FALSE", false),
+            (" false ", false),
             ("0", false),
             ("bogus", false),
         ] {
@@ -2404,6 +2423,15 @@ mod tests {
                 disabled,
                 "stored: {stored:?}"
             );
+            // Legacy migration deletes the row.
+            if stored.trim().eq_ignore_ascii_case("false") {
+                assert!(
+                    crate::db::kv_get(&pool, "g", "GUILD.TICKET.disable")
+                        .await
+                        .is_none(),
+                    "legacy false row deleted: {stored:?}"
+                );
+            }
         }
         let pool = mem_pool().await;
         assert!(!ticket_disabled(&pool, "g").await);

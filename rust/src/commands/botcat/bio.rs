@@ -1,9 +1,10 @@
 use super::*;
 
-/// TS `!bio.ts` rejects `desc.length >= 400` (UTF-16 units; char
-/// count is the closest offline equivalent, like footer_name_too_long).
+/// TS `!bio.ts` rejects `desc.length >= 400`. JS string length counts
+/// UTF-16 code units, so astral chars (emoji) count double — hence
+/// `encode_utf16().count()`, not `chars().count()`.
 pub fn bio_too_long(bio: &str) -> bool {
-    bio.chars().count() >= 400
+    bio.encode_utf16().count() >= 400
 }
 
 /// Persisted default bio for `reset`. Mirrors `!bio.ts`:
@@ -123,6 +124,13 @@ mod tests {
     fn bio_gate_matches_ts_400_limit() {
         assert!(!bio_too_long(&"a".repeat(399)));
         assert!(bio_too_long(&"a".repeat(400)));
+    }
+
+    #[test]
+    fn bio_gate_counts_utf16_units_like_js_length() {
+        // "😀" is 1 char but 2 UTF-16 units: 200 emoji hit the 400 gate.
+        assert!(!bio_too_long(&"😀".repeat(199)));
+        assert!(bio_too_long(&"😀".repeat(200)));
     }
 
     #[test]

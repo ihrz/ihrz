@@ -10,11 +10,7 @@ use super::*;
     subcommand_required
 )]
 pub async fn custom(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
-    // Paywall OFF. Mirrors commandExecutor.ts:405-406, where the
-    // checkCustomSdkGate call is commented out ("Anais disabled that
-    // paywall"), so the bare parent allows everyone and both sides
-    // agree. Subcommands stay exempt as before; custom_sdk_gate in
-    // mod.rs is kept for a future re-enable, just not called.
+    // Diverges from checkCustomSdkGate on purpose: TS has the paywall call commented out.
     Ok(())
 }
 

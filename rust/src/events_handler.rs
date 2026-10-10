@@ -175,6 +175,13 @@ pub fn staff_voice_allow() -> serenity::Permissions {
 
 /// CUSTOM_VOICE.<gid>.<uid> rows as (key, channel_id), table-first
 /// with legacy fallback (keys unchanged).
+/// Placement verdict (M5): TS owns these rows in the global `temp`
+/// table (`tempTable` in Events/client/ready.ts, voicedashboard/
+/// voiceState.ts); the guild-scope read above is the established Rust
+/// path and the temp scope is covered by load_temp_voice_channel in
+/// events.rs. Keep this dual placement as-is — do NOT move rows
+/// between tables without lead sign-off (live prod rows exist under
+/// both scopes).
 async fn custom_voice_rows_routed(pool: &crate::db::Pool, gid: &str) -> Vec<(String, String)> {
     crate::db::tbl_scan_prefix(pool, gid, "CUSTOM_VOICE.")
         .await
@@ -274,16 +281,14 @@ async fn punish_pub_routed(pool: &crate::db::Pool, gid: &str) -> Option<String> 
 }
 
 /// PUNISH_DATA.<gid>.<uid> leaf (raw JSON blob string).
-/// Backing parity with blockSpam.ts verified: the TS `tempTable`
-/// (`db.table("temp")` in Events/client/ready.ts) is a regular
-/// persistent table — it is listed in `tables` in
-/// core/database/index.ts, preloaded from postgres like every other
-/// table, written back by the 5-minute `syncToPostgres` tick, and
-/// the boot-time `tempTable.deleteAll()` is commented out — so flag
-/// rows survive restarts. The persistent tbl row here is parity, not
-/// a divergence; the `PUNISH_DATA.{gid}.{uid}` key shape is frozen
-/// on purpose (prod rows already use it, and the guild table already
-/// scopes by gid).
+/// Backing parity with blockSpam.ts re-verified against
+/// Events/client/ready.ts:88 (`tempTable = await db.table("temp")`),
+/// core/database/index.ts:43 (`"temp"` in `tables`) + :146 (5-minute
+/// `syncToPostgres` tick), and ready.ts:178 (boot-time
+/// `tempTable.deleteAll()` commented out) — so flag rows survive
+/// restarts. The persistent tbl row here is parity, not a divergence;
+/// the `PUNISH_DATA.{gid}.{uid}` key shape is frozen on purpose (prod
+/// rows already use it, and the guild table already scopes by gid).
 async fn punish_data_routed(pool: &crate::db::Pool, gid: &str, user_id: u64) -> Option<String> {
     leaf_routed(pool, gid, &format!("PUNISH_DATA.{gid}.{user_id}")).await
 }
@@ -4172,7 +4177,11 @@ impl serenity::EventHandler for Handler {
                         let inviter_id = inviter.id.get();
                         attributed = Some((inviter_id, inv.code.clone(), inviter.name.clone()));
                         entry.insert(inv.code.clone(), (inv.uses, inviter_id));
-                        // Credit: invites+1, regular+1, record BY.
+                        // BY shape mirrors joinMessage.ts recordInviterStats
+                        // (`db.set(....INVITES.BY, {inviter, invite})`): the
+                        // TS object form, so either side's leave leg reads
+                        // the inviter and the code. Legacy raw-id rows still
+                        // parse via parse_inviter_by_str.
                         let stats = crate::commands::invitesmanager::inv::load_invites(
                             &self.pool, &gid, inviter_id,
                         )
@@ -4187,11 +4196,14 @@ impl serenity::EventHandler for Handler {
                             &self.pool, &gid, inviter_id, &next,
                         )
                         .await;
-                        let _ = crate::db::tbl_set(
+                        let _ = crate::db::tbl_set_json(
                             &self.pool,
                             &gid,
                             &format!("USER.{}.INVITES.BY", new_member.user.id.get()),
-                            &inviter_id.to_string(),
+                            &serde_json::json!({
+                                "inviter": inviter_id.to_string(),
+                                "invite": inv.code,
+                            }),
                         )
                         .await;
                     }
@@ -4989,7 +5001,9 @@ impl serenity::EventHandler for Handler {
             &gid,
             msg.author.id.get(),
             msg.channel_id.get(),
-            msg.content.len() as u64,
+            // UTF-16 code units, mirroring TS `message.content.length`
+            // (JS strings count UTF-16 units, not bytes).
+            msg.content.encode_utf16().count() as u64,
             msg.timestamp.unix_timestamp() * 1000,
             crate::events::XpMessageInput {
                 command_handled,

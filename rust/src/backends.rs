@@ -2490,7 +2490,7 @@ mod tests {
         t.set("k", json!({"a": 1})).await.unwrap();
         let primary = match &b {
             Backend::Cached(c) => c.primary().clone(),
-            _ => unreachable!(),
+            _ => unreachable!("test builds Backend::Cached, never any other variant"),
         };
         // Mirror fired synchronously: primary has the row with no sync pass.
         assert_eq!(
@@ -2567,7 +2567,7 @@ mod tests {
             // Mirror fired: the primary holds the write with no sync pass.
             let primary = match &b {
                 Backend::Cached(c) => c.primary().clone(),
-                _ => unreachable!(),
+                _ => unreachable!("test builds Backend::Cached, never any other variant"),
             };
             assert_eq!(
                 primary.table(table).get::<Value>("u.name").await.unwrap(),
@@ -2579,7 +2579,7 @@ mod tests {
         let b2 = Backend::cached(Backend::memory());
         let c2 = match &b2 {
             Backend::Cached(c) => c.clone(),
-            _ => unreachable!(),
+            _ => unreachable!("test builds Backend::Cached, never any other variant"),
         };
         // Sync direction kept: primary wins on read-only tables. Note the
         // write-through mirror runs first, so the primary divergence is
@@ -2612,7 +2612,7 @@ mod tests {
         let b = Backend::cached(Backend::memory());
         let c = match &b {
             Backend::Cached(c) => c.clone(),
-            _ => unreachable!(),
+            _ => unreachable!("test builds Backend::Cached, never any other variant"),
         };
 
         // Writable table: cache wins, primary converges.

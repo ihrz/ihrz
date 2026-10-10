@@ -11,21 +11,28 @@ use poise::serenity_prelude as serenity;
 )]
 pub async fn gw_reroll(
     ctx: Ctx<'_>,
+    // Option (not required): TS reads `getString("giveaway-id")` /
+    // `string(args, 0)` (both nullable, !reroll.ts) while the slash
+    // schema marks it required (gw.ts). A missing id fails `isValid`
+    // and answers `reroll_dont_find_giveaway` with `{args}` replaced by
+    // null (JS renders "null"); the bare form therefore gets the
+    // localized reply instead of a poise parse error.
     #[description = "Giveaway message id"]
     #[rename = "giveaway-id"]
-    message_id: String,
+    message_id: Option<String>,
 ) -> Result<(), anyhow::Error> {
     let gid = ctx
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
-    let mid: u64 = message_id.trim().parse().unwrap_or(0);
+    let raw_id = message_id.as_deref().unwrap_or("null");
+    let mid: u64 = raw_id.trim().parse().unwrap_or(0);
     let code_early = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let t_early = |k: &str| crate::lang::get(&code_early, k).unwrap_or_default();
     // Global board read like TS GetGiveawayData; persist/delete under
     // the owning guild scope.
     let Some((home_gid, raw)) = super::gw::store_lookup(&ctx.data().pool, &gid, mid).await else {
-        ctx.say(t_early("reroll_dont_find_giveaway").replace("{args}", message_id.trim()))
+        ctx.say(t_early("reroll_dont_find_giveaway").replace("{args}", raw_id.trim()))
             .await?;
         return Ok(());
     };
@@ -55,7 +62,7 @@ pub async fn gw_reroll(
     // Mirrors !reroll.ts: isValid first (-> reroll_dont_find_giveaway),
     // then isEnded (-> reroll_giveaway_not_over).
     if !gw.is_valid {
-        ctx.say(t("reroll_dont_find_giveaway").replace("{args}", message_id.trim()))
+        ctx.say(t("reroll_dont_find_giveaway").replace("{args}", raw_id.trim()))
             .await?;
         return Ok(());
     }
@@ -144,7 +151,7 @@ pub async fn gw_reroll(
                     .to_string()
             }),
             ctx.author().id.get(),
-            message_id.trim(),
+            raw_id.trim(),
         ),
     )
     .await;
