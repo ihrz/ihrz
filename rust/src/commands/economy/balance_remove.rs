@@ -38,11 +38,11 @@ pub async fn eco_balance_remove(
     // economy log after.
     let invoker_id = ctx.author().id.get().to_string();
     let title =
-        crate::commands::lang_for(&ctx, "removemoney_logs_embed_title", "Money removal").await;
+        crate::commands::lang_for(&ctx, "removemoney_logs_embed_title", "Economy Logs").await;
     let desc = crate::commands::lang_for(
         &ctx,
         "removemoney_logs_embed_description",
-        "${interaction.user.id} removed ${amount} from ${user.user.id}",
+        "<@${interaction.user.id}> removed ${amount} coin from <@${user.user.id}>!",
     )
     .await
     .replace("${interaction.user.id}", &invoker_id)

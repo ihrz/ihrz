@@ -66,7 +66,7 @@ pub async fn eco_greset(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     ctx.say(
         crate::lang::get(&code, "resetallinvites_succes_on_delete")
-            .unwrap_or_else(|| "All economy reset.".to_string()),
+            .unwrap_or_else(|| "Successfully deleted!".to_string()),
     )
     .await?;
     let title = crate::commands::lang_for(

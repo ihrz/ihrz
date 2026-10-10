@@ -21,7 +21,7 @@ pub async fn eco_role_list(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     if roles.is_empty() {
         ctx.say(
             crate::lang::get(&code, "economy_role_list_no_buyable_roles")
-                .unwrap_or_else(|| "Shop is empty.".to_string()),
+                .unwrap_or_else(|| "There are no buyable roles to list.".to_string()),
         )
         .await?;
         return Ok(());
@@ -30,11 +30,11 @@ pub async fn eco_role_list(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let mut embed = poise::serenity_prelude::CreateEmbed::default()
         .title(
             crate::lang::get(&code, "economy_role_list_embed_title")
-                .unwrap_or_else(|| "Buyable Roles".to_string()),
+                .unwrap_or_else(|| "Economy System - Buyable Roles".to_string()),
         )
         .description(
             crate::lang::get(&code, "economy_role_list_embed_desc")
-                .unwrap_or_else(|| "Buyable roles.".to_string()),
+                .unwrap_or_else(|| "All buyable roles are listed below.".to_string()),
         )
         .colour(0x0097FF)
         .timestamp(poise::serenity_prelude::Timestamp::now());

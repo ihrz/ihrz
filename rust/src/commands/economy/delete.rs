@@ -25,7 +25,7 @@ pub async fn eco_role_delete(
     if roles.is_empty() {
         ctx.say(
             crate::lang::get(&code, "economy_role_add_no_role")
-                .unwrap_or_else(|| "Role not in shop.".to_string()),
+                .unwrap_or_else(|| "There are no buyable roles to delete.".to_string()),
         )
         .await?;
         return Ok(());

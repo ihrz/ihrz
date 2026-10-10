@@ -76,14 +76,14 @@ pub async fn eco_deposit(
     let embed = poise::serenity_prelude::CreateEmbed::default()
         .author(
             poise::serenity_prelude::CreateEmbedAuthor::new(
-                crate::lang::get(&code, "daily_embed_title")
-                    .unwrap_or_else(|| "Deposit".to_string()),
+                crate::lang::get(&code, "daily_embed_title").unwrap_or_else(|| "Daily".to_string()),
             )
             .icon_url(ctx.author().face()),
         )
         .colour(0xA4CB80)
         .title(
-            crate::lang::get(&code, "deposit_embed_title").unwrap_or_else(|| "Deposit".to_string()),
+            crate::lang::get(&code, "deposit_embed_title")
+                .unwrap_or_else(|| "Deposit into your bank".to_string()),
         )
         .description(
             crate::lang::get(&code, "deposit_embed_desc")

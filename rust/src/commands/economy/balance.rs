@@ -94,7 +94,7 @@ pub async fn eco_balance(
         )
         .field(
             crate::lang::get(&code, "balance_embed_fields2_name")
-                .unwrap_or_else(|| "Wallet".to_string()),
+                .unwrap_or_else(|| "In Balance".to_string()),
             format!("{}{coin}", fmt_num(a.money)),
             true,
         )

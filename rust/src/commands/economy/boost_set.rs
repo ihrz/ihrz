@@ -37,8 +37,9 @@ pub async fn eco_boost_set(
     let id = role.id.get().to_string();
     if !roles.contains_key(&id) {
         ctx.say(
-            crate::lang::get(&code, "economy_boost_role_not_found")
-                .unwrap_or_else(|| "Role not in shop.".to_string()),
+            crate::lang::get(&code, "economy_boost_role_not_found").unwrap_or_else(|| {
+                "Role not found. You must set a price for the role.".to_string()
+            }),
         )
         .await?;
         return Ok(());

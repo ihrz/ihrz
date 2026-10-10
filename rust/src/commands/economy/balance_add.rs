@@ -43,12 +43,11 @@ pub async fn eco_balance_add(
     add_money(&mut a, amount);
     balance::save_econ_routed(&ctx.data().pool, &gid, uid, &a).await?;
     let invoker_id = ctx.author().id.get().to_string();
-    let title =
-        crate::commands::lang_for(&ctx, "addmoney_logs_embed_title", "Money addition").await;
+    let title = crate::commands::lang_for(&ctx, "addmoney_logs_embed_title", "Economy Logs").await;
     let desc = crate::commands::lang_for(
         &ctx,
         "addmoney_logs_embed_description",
-        "${interaction.user.id} added ${amount.value} to ${user.user.id}",
+        "<@${interaction.user.id}> added ${amount.value} coin to <@${user.user.id}>!",
     )
     .await
     .replace("${interaction.user.id}", &invoker_id)

@@ -73,7 +73,7 @@ pub async fn eco_role_add(
         let content = crate::commands::lang_for(
             &ctx,
             "economy_role_add_prompt_dangerous",
-            "Are you sure? Dangerous permissions: ${stringDangerousPermissions}",
+            "Are you sure you want to add this role to the buyable roles?\n**Warning:** This role has dangerous permissions.\nPermissions: ${stringDangerousPermissions}",
         )
         .await
         .replace("${stringDangerousPermissions}", &listed);
@@ -84,7 +84,7 @@ pub async fn eco_role_add(
                 crate::commands::lang_for(
                     &ctx,
                     "economy_role_add_canceled",
-                    "Role not added to the shop.",
+                    "The role was not added to the buyable roles.",
                 )
                 .await,
             )
