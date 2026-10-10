@@ -224,6 +224,7 @@ committed — see `.gitignore`. No push without a green
 - [x] U-ETERNAL-73 (2026-10-10: C2-deny pure builder (`funcs_perms.rs`, 5 tests): needed_perm_text level/roles/users segments + denied_message via event_permission_wrong template, exact TS separators incl. real newlines. Delivery wiring queued on C1-send. Lead: trio on settled tree. Suite 1520/0, fmt clean, own files clippy clean; bot.rs lint still third-party owned).
 - [x] U-ETERNAL-74 (2026-10-10: E12 gate verification (`bot.rs` only): blacklist/debounce/cooldown/rate-limit/crash-report/file-log verified identical on prefix+slash; fixed gate order (blacklist after 1s debounce, TS order) + crash embed admin field names restored with emoji (`CRASH_*_FIELD` consts + guard test); lead added result_large_err allow (serenity::Error large by construction). Slash deny embed + prefix UseApplicationCommands gate queued (need Discord I/O). Lead: trio on settled tree. Suite 1524/0, fmt + clippy clean).
 - [x] U-ETERNAL-76 (2026-10-10: E1-registry + E3-owner-DM + E9-leave-fields (`events_handler.rs` only, 7 tests): global ?dm-strip + generic %-split fallback arm + global ModalSubmit early-return (per-id arms untouched); owner leave-notice/cancel DMs via guild_leave_data_clear_* keys; leave embed +New members total/+Shard fields + joinedTimestamp + footer parity. Lead: trio on settled tree. Suite 1532/0, fmt + clippy clean).
+- [x] U-ETERNAL-77 (2026-10-10: E7 snipe writer closed (`events_handler.rs` test-only +21): writer already stored TS shape via ts_snipe_json/save_snipe_routed under GUILD.SNIPE.<channel>; added round-trip test through the real reader. Lead: trio on settled tree. Suite 1533/0, fmt + clippy clean).
 ## Eternal backlog (seeded 2026-10-09 by 7 read-only audits + lavalink edge audit; full reports in `~/.hermes/cache/delegation/live/deleg_55b606d3/task-{0,1,2,3,4,5,9}.log` — each item is a future unit for other models, files disjoint unless noted)
 
 ### Events (audit task-0)
@@ -233,7 +234,7 @@ committed — see `.gitignore`. No push without a green
 - [ ] E4 welcome image/Components-V2 legs (welcomerEmbed resolve, avatar snapshot) — html2png-blocked, text path done.
 - [x] E5 leash full-fidelity — VERIFIED done (U-ETERNAL-43): array store, 30-min prune (`leash_valid`), CSV multi-sub (`leash_sub_ids`), both directions (`leash_is_dom`), wired in voice-state arm, unit-tested.
 - [x] E6 temp-voice hardening — VERIFIED done (U-ETERNAL-76 sweep: lock, emptiness sweep, maskLink, recovery + tick + test).
-- [~] E7 snipe key reunification (reader DONE in U-ETERNAL-43 — TS `GUILD.SNIPE.<channel>` first + legacy fallbacks + TS embed; writer half QUEUED: `message_delete` in `events_handler.rs` must store the TS shape `{snipe: maskLink, snipeUserInfoTag, snipeUserInfoPp, snipeTimestamp}` under the TS key).
+- [x] E7 snipe key reunification — DONE (U-ETERNAL-77: writer stores TS shape under GUILD.SNIPE.<channel>, reader first + legacy fallbacks, round-trip test).
 - [x] E8 mention-ping rank-role grant — VERIFIED done (U-ETERNAL-43): `is_bot_ping` exact-`<@id>` gate wired in message arm, unit-tested.
 - [x] E9 guild-leave log embed to guild-logs channel — DONE (U-ETERNAL-76: members-total + shard fields, joinedTimestamp, footer parity).
 - [ ] E10 captcha PNG leg (image-blocked; attempts/roles/kick done).

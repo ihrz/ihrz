@@ -9385,6 +9385,27 @@ mod restore_tests {
     }
 
     #[tokio::test]
+    async fn ts_snipe_writer_roundtrips_through_reader() {
+        // E7 writer shape at GUILD.SNIPE.<channel> resolves first via the
+        // snipe command reader (parse_ts_snipe).
+        let pool = memory_pool().await;
+        let raw = ts_snipe_json("hello", "bob", 123, "https://cdn/a.png", 1728500000000);
+        save_snipe_routed(&pool, "g1", "GUILD.SNIPE.11", &raw)
+            .await
+            .unwrap();
+        let stored = leaf_routed(&pool, "g1", "GUILD.SNIPE.11")
+            .await
+            .expect("TS snipe row must read back");
+        let v: serde_json::Value = serde_json::from_str(&stored).unwrap();
+        let snap = crate::commands::utils::info::snipe::parse_ts_snipe(&v)
+            .expect("writer output must parse via the reader");
+        assert_eq!(snap.content, "hello");
+        assert_eq!(snap.author_tag, "bob (123)");
+        assert_eq!(snap.avatar_url, "https://cdn/a.png");
+        assert_eq!(snap.timestamp_ms, 1728500000000);
+    }
+
+    #[tokio::test]
     async fn emitter_blacklist_await_snipe_routed() {
         let pool = memory_pool().await;
         // Global blacklist via the named table (dual-write, keys unchanged).
