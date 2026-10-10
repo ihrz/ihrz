@@ -30,6 +30,12 @@ pub async fn gw_entries(
             .await?;
         return Ok(());
     };
+    // TS listEntries only serves the owning guild
+    // (`interaction.guildId === fetch.guildId`, giveawaysManager.ts:614);
+    // cross-guild reads silently return.
+    if home_gid != gid {
+        return Ok(());
+    }
     // Mirrors !list-entries.ts:52-67 (missing -> end_not_find_giveaway,
     // ended -> end_command_error).
     let gw: Giveaway = match serde_json::from_str(&raw) {

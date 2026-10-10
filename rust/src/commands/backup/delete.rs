@@ -150,6 +150,9 @@ pub async fn backup_delete(
     let (title, color) = match pressed.as_ref().map(|i| i.data.custom_id.as_str()) {
         Some("backup-trash-button") => {
             super::backup::bkp_del(&ctx.data().pool, uid, backup_id.trim()).await?;
+            // Drop the shared snapshot too, like `client.backup.remove`
+            // in !delete.ts:134 (best-effort, like the TS fire-and-forget).
+            let _ = super::backup::shared_snapshot_del(&ctx.data().pool, backup_id.trim()).await;
             (
                 crate::commands::lang_for(
                     &ctx,

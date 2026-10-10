@@ -29,7 +29,10 @@ pub fn parse_yes_no(action: &str) -> Option<bool> {
 }
 
 /// Parse "3h"/"30m"/"10s" (combined segments allowed) into milliseconds.
-/// Mirrors iHorizonTimeCalculator.to_ms (src/core/functions/ms.ts).
+/// Mirrors iHorizonTimeCalculator.to_ms (src/core/functions/ms.ts),
+/// including the month/year units (mo/mois/month/months,
+/// y/yr/yrs/year/years/an/ans) and the FR day/week variants
+/// (j/jour/jours, sm/semaine/semaines).
 pub fn parse_cooldown_ms(input: &str) -> Option<u64> {
     let s: String = input.chars().filter(|c| !c.is_whitespace()).collect();
     if s.is_empty() {
@@ -56,12 +59,16 @@ pub fn parse_cooldown_ms(input: &str) -> Option<u64> {
             return None;
         }
         let mult = match s[ustart..i].to_ascii_lowercase().as_str() {
-            "ms" | "msec" | "millisecond" | "milliseconds" => 1.0,
-            "s" | "sec" | "secs" | "second" | "seconds" => 1_000.0,
+            "ms" | "msec" | "millisecond" | "milliseconds" | "milliseconde" | "millisecondes" => {
+                1.0
+            }
+            "s" | "sec" | "secs" | "second" | "seconds" | "seconde" | "secondes" => 1_000.0,
             "m" | "min" | "mins" | "minute" | "minutes" => 60_000.0,
-            "h" | "hr" | "hrs" | "hour" | "hours" => 3_600_000.0,
-            "d" | "day" | "days" => 86_400_000.0,
-            "w" | "week" | "weeks" => 604_800_000.0,
+            "h" | "hr" | "hrs" | "hour" | "hours" | "heure" | "heures" => 3_600_000.0,
+            "d" | "day" | "days" | "j" | "jour" | "jours" => 86_400_000.0,
+            "w" | "sm" | "week" | "weeks" | "semaine" | "semaines" => 604_800_000.0,
+            "mo" | "mois" | "month" | "months" => 2_592_000_000.0,
+            "y" | "yr" | "yrs" | "year" | "years" | "an" | "ans" => 31_557_600_000.0,
             _ => return None,
         };
         total += num * mult;
@@ -88,6 +95,56 @@ pub fn beautiful_duration(ms: u64) -> String {
         return format!("{}s", ms / 1_000);
     }
     format!("{ms}ms")
+}
+
+/// Multi-unit duration label with the guild language's short unit
+/// names. Mirrors timeCalculator.to_beautiful_string(ms, lang) short
+/// form (no separator): `units` is [year, month, week, day, hour,
+/// minute, second] (`var_year`, `var_mo`, `var_w`, `var_d`, `var_h`,
+/// `var_m`, `var_s`); a sub-second remainder renders as `Nms` and
+/// zero renders as `0` + the minute name, like TS.
+pub fn beautiful_duration_lang(ms: u64, units: [&str; 7]) -> String {
+    let factors = [
+        31_557_600_000u64,
+        2_592_000_000,
+        604_800_000,
+        86_400_000,
+        3_600_000,
+        60_000,
+        1_000,
+    ];
+    let mut rest = ms;
+    let mut out = String::new();
+    for (unit, factor) in units.iter().zip(factors) {
+        if rest >= factor {
+            out.push_str(&format!("{}{}", rest / factor, unit));
+            rest %= factor;
+        }
+    }
+    if rest > 0 {
+        out.push_str(&format!("{rest}ms"));
+    }
+    if out.is_empty() {
+        format!("0{}", units[5])
+    } else {
+        out
+    }
+}
+
+/// Load the seven short duration unit names for a guild language.
+/// Mirrors the `lang.var_year` / `var_mo` / ... lookups in
+/// to_beautiful_string; fallbacks are the en-US short names.
+pub fn duration_unit_names(lang_code: &str) -> [String; 7] {
+    let get = |k: &str, fb: &str| crate::lang::get(lang_code, k).unwrap_or_else(|| fb.to_string());
+    [
+        get("var_year", "y"),
+        get("var_mo", "mo"),
+        get("var_w", "w"),
+        get("var_d", "d"),
+        get("var_h", "h"),
+        get("var_m", "m"),
+        get("var_s", "s"),
+    ]
 }
 
 /// Remaining cooldown ms before next confession; 0 = allowed.
@@ -273,9 +330,22 @@ pub async fn handle_confess_button(
         .and_then(|s| s.parse().ok());
     let left = confession_cooldown_left(last, cooldown, now);
     if left > 0 {
+        let units = duration_unit_names(&lang_code);
+        let pretty = beautiful_duration_lang(
+            left,
+            [
+                units[0].as_str(),
+                units[1].as_str(),
+                units[2].as_str(),
+                units[3].as_str(),
+                units[4].as_str(),
+                units[5].as_str(),
+                units[6].as_str(),
+            ],
+        );
         let msg = crate::lang::get(&lang_code, "monthly_cooldown_error")
             .unwrap_or_default()
-            .replace("${time}", &beautiful_duration(left));
+            .replace("${time}", &pretty);
         comp.create_response(
             &ctx.http,
             serenity::CreateInteractionResponse::Message(
@@ -609,16 +679,28 @@ pub fn confession_author_parts(username: &str, target_id: u64) -> (String, Strin
 /// the confession subcommands. (2) embed-vs-text: TS sends a rich
 /// embed (author name + avatar + profile URL + mention, #010101), so
 /// the plain-text reply is upgraded to that embed shape here. The bot
-/// footer chrome is skipped (needs a poise Ctx); avatar bytes are
-/// snapshotted as an attachment per the Components V2 rule, never a
-/// raw CDN URL.
+/// footer (footerBuilder + footerAttachmentBuilder) is attached like
+/// TS; avatar bytes are snapshotted as an attachment per the
+/// Components V2 rule, never a raw CDN URL. An empty/missing id gets
+/// the TS ephemeral `❌` fallback.
 pub async fn handle_confession_author(
     ctx: &serenity::Context,
     comp: &serenity::ComponentInteraction,
+    pool: &crate::db::Pool,
 ) -> anyhow::Result<()> {
-    let Some(target) = comp.data.custom_id.split('%').nth(1) else {
+    let target = comp.data.custom_id.split('%').nth(1).unwrap_or_default();
+    if target.is_empty() {
+        comp.create_response(
+            &ctx.http,
+            serenity::CreateInteractionResponse::Message(
+                serenity::CreateInteractionResponseMessage::new()
+                    .content("❌")
+                    .ephemeral(true),
+            ),
+        )
+        .await?;
         return Ok(());
-    };
+    }
     let Ok(target_id) = target.parse::<u64>() else {
         return Ok(());
     };
@@ -641,15 +723,37 @@ pub async fn handle_confession_author(
             author = author.icon_url("attachment://user_icon.png");
         }
     }
-    let mut msg = serenity::CreateInteractionResponseMessage::new()
-        .embed(
-            serenity::CreateEmbed::default()
-                .colour(0x010101)
-                .author(author)
-                .description(mention)
-                .timestamp(serenity::Timestamp::now()),
+    // Bot footer. Mirrors footerBuilder + footerAttachmentBuilder in
+    // confessionauthor.ts (stored BOT.botName / BOT.botPFP).
+    let gid = comp
+        .guild_id
+        .map(|g| g.get().to_string())
+        .unwrap_or_default();
+    let footer_name = crate::db::kv_get(pool, &gid, "BOT.botName")
+        .await
+        .filter(|s| !s.trim().is_empty())
+        .unwrap_or_else(|| "iHorizon".to_string());
+    let footer_icon = crate::db::kv_get(pool, &gid, "BOT.botPFP")
+        .await
+        .and_then(|s| crate::emojis::base64_decode(&s));
+    let embed = serenity::CreateEmbed::default()
+        .colour(0x010101)
+        .author(author)
+        .description(mention)
+        .footer(
+            serenity::CreateEmbedFooter::new(&footer_name).icon_url(if footer_icon.is_some() {
+                "attachment://footer_icon.png".to_string()
+            } else {
+                String::new()
+            }),
         )
+        .timestamp(serenity::Timestamp::now());
+    let mut msg = serenity::CreateInteractionResponseMessage::new()
+        .embed(embed)
         .ephemeral(true);
+    if let Some(bytes) = footer_icon {
+        msg = msg.add_file(serenity::CreateAttachment::bytes(bytes, "footer_icon.png"));
+    }
     for file in files {
         msg = msg.add_file(file);
     }
@@ -775,9 +879,22 @@ pub async fn handle_confession_response(
         .and_then(|s| s.parse().ok());
     let left = confession_cooldown_left(last, cooldown, now);
     if left > 0 {
+        let units = duration_unit_names(&lang_code);
+        let pretty = beautiful_duration_lang(
+            left,
+            [
+                units[0].as_str(),
+                units[1].as_str(),
+                units[2].as_str(),
+                units[3].as_str(),
+                units[4].as_str(),
+                units[5].as_str(),
+                units[6].as_str(),
+            ],
+        );
         let msg = crate::lang::get(&lang_code, "monthly_cooldown_error")
             .unwrap_or_default()
-            .replace("${time}", &beautiful_duration(left));
+            .replace("${time}", &pretty);
         comp.create_response(
             &ctx.http,
             serenity::CreateInteractionResponse::Message(
@@ -901,6 +1018,55 @@ mod tests {
         assert_eq!(parse_cooldown_ms("0s"), None);
         assert_eq!(parse_cooldown_ms("bogus"), None);
         assert_eq!(parse_cooldown_ms(""), None);
+    }
+
+    #[test]
+    fn cooldown_parses_month_year_and_fr_units() {
+        // ms.ts factors: mo = 2_592_000_000, y = 31_557_600_000.
+        assert_eq!(parse_cooldown_ms("4mo"), Some(10_368_000_000));
+        assert_eq!(parse_cooldown_ms("1month"), Some(2_592_000_000));
+        assert_eq!(parse_cooldown_ms("2months"), Some(5_184_000_000));
+        assert_eq!(parse_cooldown_ms("1mois"), Some(2_592_000_000));
+        assert_eq!(parse_cooldown_ms("4y"), Some(126_230_400_000));
+        assert_eq!(parse_cooldown_ms("1yr"), Some(31_557_600_000));
+        assert_eq!(parse_cooldown_ms("2years"), Some(63_115_200_000));
+        assert_eq!(parse_cooldown_ms("1an"), Some(31_557_600_000));
+        assert_eq!(parse_cooldown_ms("3ans"), Some(94_672_800_000));
+        assert_eq!(parse_cooldown_ms("1sm"), Some(604_800_000));
+        assert_eq!(parse_cooldown_ms("2semaines"), Some(1_209_600_000));
+        assert_eq!(parse_cooldown_ms("1semaine"), Some(604_800_000));
+        assert_eq!(parse_cooldown_ms("1j"), Some(86_400_000));
+        assert_eq!(parse_cooldown_ms("3jours"), Some(259_200_000));
+        assert_eq!(parse_cooldown_ms("1jour"), Some(86_400_000));
+        assert_eq!(parse_cooldown_ms("2heures"), Some(7_200_000));
+        assert_eq!(parse_cooldown_ms("1millisecondes"), Some(1));
+        assert_eq!(parse_cooldown_ms("1h30m"), Some(5_400_000));
+    }
+
+    #[test]
+    fn beautiful_lang_renders_multi_unit_with_short_names() {
+        let en = ["y", "mo", "w", "d", "h", "m", "s"];
+        assert_eq!(beautiful_duration_lang(10_800_000, en), "3h");
+        assert_eq!(beautiful_duration_lang(5_400_000, en), "1h30m");
+        assert_eq!(beautiful_duration_lang(90_000, en), "1m30s");
+        assert_eq!(beautiful_duration_lang(1_500, en), "1s500ms");
+        assert_eq!(beautiful_duration_lang(0, en), "0m");
+        assert_eq!(beautiful_duration_lang(2_592_000_000, en), "1mo");
+        assert_eq!(beautiful_duration_lang(31_557_600_000, en), "1y");
+        let fr = [
+            "an(s)",
+            "mois",
+            "semaine(s)",
+            "jour(s)",
+            "heure(s)",
+            "minute(s)",
+            "seconde(s)",
+        ];
+        assert_eq!(
+            beautiful_duration_lang(5_400_000, fr),
+            "1heure(s)30minute(s)"
+        );
+        assert_eq!(beautiful_duration_lang(0, fr), "0minute(s)");
     }
 
     #[test]

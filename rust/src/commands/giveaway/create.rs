@@ -8,6 +8,18 @@ pub fn validate_winners(n: i64) -> bool {
     n > 0
 }
 
+/// Parse the raw winner input, like `getNumber` + `parseInt` in
+/// !create.ts:60-85. Unparseable input maps to 0 so the
+/// `start_is_not_valid` guard below rejects it in-handler.
+pub fn parse_winners_count(raw: &str) -> i64 {
+    raw.trim()
+        .parse::<f64>()
+        .ok()
+        .filter(|n| n.is_finite())
+        .map(|n| n as i64)
+        .unwrap_or(0)
+}
+
 /// Truncate the prize to the TS `substring(0, 256)` limit.
 pub fn truncate_prize(prize: &str) -> String {
     prize.chars().take(256).collect()
@@ -47,16 +59,18 @@ pub fn requirement_error_key(requirement: &str, value: &str) -> Option<&'static 
 )]
 pub async fn gw_create(
     ctx: Ctx<'_>,
-    #[description = "Winners"] winners: i64,
+    #[description = "Winners"] winners: String,
     #[description = "Duration (e.g. 10m, 1h, 7d)"] time: String,
-    #[description = "Requirement: none, invites, messages, roles"] requirement: Option<String>,
+    #[description = "Requirement: none, invites, messages, roles"] requirement: String,
     #[description = "Prize"] prize: String,
     #[description = "Requirement value"] requirement_value: Option<String>,
     #[description = "Embed image URL (must be an image)"] image: Option<String>,
 ) -> Result<(), anyhow::Error> {
     let pool_early = &ctx.data().pool;
     let code_early = crate::db::guild_lang(pool_early, ctx.guild_id().map(|g| g.get())).await;
-    // Mirrors !create.ts:77-85 (bad winner count -> start_is_not_valid).
+    // Mirrors !create.ts:77-85 (raw count validated in-handler:
+    // NaN / <= 0 -> start_is_not_valid).
+    let winners = parse_winners_count(&winners);
     if !validate_winners(winners) {
         ctx.say(crate::lang::get(&code_early, "start_is_not_valid").unwrap_or_default())
             .await?;
@@ -80,8 +94,8 @@ pub async fn gw_create(
         .await?;
         return Ok(());
     };
-    // Mirrors !create.ts:101-134 (requirement-value gates).
-    let requirement = requirement.unwrap_or_else(|| "none".to_string());
+    // Mirrors !create.ts:101-134 (requirement-value gates; the
+    // `requirement` option itself is required like gw.ts:163).
     let req_value = requirement_value.unwrap_or_default();
     if let Some(key) = requirement_error_key(&requirement, &req_value) {
         // Roles need a guild-cache check like
@@ -255,6 +269,20 @@ mod tests {
         assert!(!validate_winners(-3));
         assert!(validate_winners(1));
         assert!(validate_winners(20));
+    }
+
+    #[test]
+    fn winners_raw_string_parses_like_ts_number() {
+        // !create.ts:77-80 (`isNaN || parseInt <= 0` -> start_is_not_valid).
+        assert_eq!(parse_winners_count("3"), 3);
+        assert_eq!(parse_winners_count(" 2 "), 2);
+        assert_eq!(parse_winners_count("3.9"), 3);
+        assert_eq!(parse_winners_count("abc"), 0);
+        assert_eq!(parse_winners_count(""), 0);
+        assert_eq!(parse_winners_count("-2"), -2);
+        assert!(validate_winners(parse_winners_count("3")));
+        assert!(!validate_winners(parse_winners_count("abc")));
+        assert!(!validate_winners(parse_winners_count("0")));
     }
 
     #[test]

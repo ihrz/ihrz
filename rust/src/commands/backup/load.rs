@@ -93,12 +93,17 @@ pub async fn backup_load(
     // Per-user ownership. Mirrors the BACKUPS.<uid>.<id> check in
     // !load.ts:90 (strangers get backup_this_is_not_your_backup).
     // Rust kv rows stay primary; TS-created snapshots only exist in the
-    // shared `backups` table (global backupID), so fall back to that.
+    // shared `backups` table (global backupID), so the server owner (or
+    // an admin) may fall back to that shared row. Anyone else without
+    // a per-user pointer is rejected like the TS gate.
     let uid = ctx.author().id.get();
     let id = backup_id.trim();
     let raw = match super::backup::bkp_get(&ctx.data().pool, uid, id).await {
         Some(raw) => Some(raw),
-        None => ts_backups_table_get(&ctx.data().pool, id).await,
+        None if super::backup::invoker_is_owner_or_admin(&ctx).await => {
+            ts_backups_table_get(&ctx.data().pool, id).await
+        }
+        None => None,
     };
     let Some(raw) = raw else {
         let no = crate::emojis::app_emoji_markup(ctx.http(), "No")

@@ -213,6 +213,14 @@ pub fn truncate_field(s: &str) -> String {
     format!("{}...", &s[..MAX - 3])
 }
 
+/// Next per-key trap trigger count. Mirrors the nextTriggerCount
+/// increment in scheduleHoneypotTrigger: each message on the same
+/// guild.channel.user key bumps the count, and the pipeline consumes
+/// (resets) it. Pure, unit-tested.
+pub fn next_trigger_count(prev: Option<u64>) -> u64 {
+    prev.map(|n| n.saturating_add(1)).unwrap_or(1)
+}
+
 /// Debounced trap entry: at most one pipeline per
 /// guild.channel.user, 1500ms delay, latest message wins.
 /// Mirrors scheduleHoneypotTrigger/queueHoneypotTrigger.
@@ -220,6 +228,7 @@ pub fn schedule_trap(ctx: &serenity::Context, pool: &crate::db::Pool, msg: &sere
     use std::collections::HashMap;
     use std::sync::{Mutex, OnceLock};
     static SEQS: OnceLock<Mutex<HashMap<String, u64>>> = OnceLock::new();
+    static COUNTS: OnceLock<Mutex<HashMap<String, u64>>> = OnceLock::new();
     let Some(guild_id) = msg.guild_id else {
         return;
     };
@@ -249,6 +258,14 @@ pub fn schedule_trap(ctx: &serenity::Context, pool: &crate::db::Pool, msg: &sere
         guard.insert(key.clone(), n);
         n
     };
+    // Per-key trigger count (mirrors nextTriggerCount): every message on
+    // the same key bumps it; the winning pipeline run consumes it.
+    {
+        let map = COUNTS.get_or_init(|| Mutex::new(HashMap::new()));
+        let mut guard = map.lock().unwrap_or_else(|e| e.into_inner());
+        let n = next_trigger_count(guard.get(&key).copied());
+        guard.insert(key.clone(), n);
+    }
     let http = ctx.http.clone();
     let pool = pool.clone();
     let msg_id = msg.id;
@@ -262,7 +279,16 @@ pub fn schedule_trap(ctx: &serenity::Context, pool: &crate::db::Pool, msg: &sere
         if current != Some(seq) {
             return;
         }
-        if let Err(e) = run_trap_pipeline(&http, &pool, guild_id, channel_id, msg_id).await {
+        // Consume this key's trigger count like processHoneypotTrigger
+        // consumes scheduledTrigger.triggerCount.
+        let trigger_count = COUNTS
+            .get()
+            .and_then(|m| m.lock().ok())
+            .and_then(|mut g| g.remove(&key))
+            .unwrap_or(1);
+        if let Err(e) =
+            run_trap_pipeline(&http, &pool, guild_id, channel_id, msg_id, trigger_count).await
+        {
             tracing::warn!("honeypot pipeline failed: {e}");
         }
     });
@@ -277,6 +303,7 @@ pub async fn run_trap_pipeline(
     guild_id: serenity::GuildId,
     channel_id: serenity::ChannelId,
     msg_id: serenity::MessageId,
+    trigger_count: u64,
 ) -> anyhow::Result<()> {
     let gid = guild_id.get().to_string();
     let msg = channel_id.message(http, msg_id).await?;
@@ -354,18 +381,13 @@ pub async fn run_trap_pipeline(
             }
         }
     }
-    // 5. Logs channel.
+    // 5. Logs channel (mirrors sendLogs: real triggerCount, result row,
+    // first-image attachment, var_none fallbacks via build_claim_log_embed).
     if trap.logs_channel_id.trim().is_empty() {
         return Ok(());
     }
     let Ok(logs_id) = trap.logs_channel_id.trim().parse::<u64>() else {
         return Ok(());
-    };
-    let log_action = match action_result {
-        "ban" => text("honeypot_log_action_ban"),
-        "kick" => text("honeypot_log_action_kick"),
-        "none" => text("honeypot_log_action_none"),
-        _ => text("honeypot_action_failed"),
     };
     let attachments = msg
         .attachments
@@ -379,79 +401,37 @@ pub async fn run_trap_pipeline(
         .map(|s| s.name.clone())
         .collect::<Vec<_>>()
         .join("\n");
-    let message_text = if msg.content.trim().is_empty() {
-        text("honeypot_log_no_content")
-    } else {
-        msg.content.clone()
+    // First image attachment mirrors the TS setImage(firstImageAttachment)
+    // lookup (image content-type or known width).
+    let first_image = msg
+        .attachments
+        .iter()
+        .find(|a| {
+            a.content_type
+                .as_deref()
+                .map(|c| c.starts_with("image/"))
+                .unwrap_or(false)
+                || a.width.is_some()
+        })
+        .map(|a| a.url.as_str());
+    let author_mention = format!("<@{}>", msg.author.id.get());
+    let author_id = msg.author.id.get().to_string();
+    let channel_mention = format!("<#{}>", channel_id.get());
+    let log_data = post::ClaimLogData {
+        author_mention: &author_mention,
+        author_id: &author_id,
+        channel_mention: &channel_mention,
+        trigger_count,
+        deleted_count: deleted,
+        embed_count: msg.embeds.len(),
+        dm_delivered,
+        message_content: &msg.content,
+        attachment_urls: &attachments,
+        sticker_names: &stickers,
+        first_image_url: first_image,
+        action_result,
     };
-    let attachments_text = if attachments.is_empty() {
-        text("honeypot_log_no_content")
-    } else {
-        attachments
-    };
-    let stickers_text = if stickers.is_empty() {
-        text("honeypot_log_no_content")
-    } else {
-        stickers
-    };
-    let log_embed = serenity::CreateEmbed::default()
-        .colour(0xD88A3D_u32)
-        .thumbnail("https://www.ihorizon.org/assets/img/honeypot.png")
-        .title(text("honeypot_log_title").replace("${action}", &log_action))
-        .timestamp(msg.timestamp)
-        .field(
-            text("honeypot_log_field_author"),
-            truncate_field(&format!(
-                "<@{}>\n`{}`",
-                msg.author.id.get(),
-                msg.author.id.get()
-            )),
-            true,
-        )
-        .field(
-            text("honeypot_log_field_channel"),
-            format!("<#{}>", channel_id.get()),
-            true,
-        )
-        .field(
-            text("honeypot_log_field_triggered_messages"),
-            "`1`".to_string(),
-            true,
-        )
-        .field(
-            text("honeypot_log_field_deleted_messages"),
-            format!("`{deleted}`"),
-            true,
-        )
-        .field(
-            text("honeypot_log_field_embeds"),
-            format!("`{}`", msg.embeds.len()),
-            true,
-        )
-        .field(
-            text("honeypot_log_field_dm_status"),
-            if dm_delivered {
-                text("honeypot_log_dm_open")
-            } else {
-                text("honeypot_log_dm_closed")
-            },
-            true,
-        )
-        .field(
-            text("honeypot_log_field_message"),
-            truncate_field(&message_text),
-            false,
-        )
-        .field(
-            text("honeypot_log_field_attachments"),
-            truncate_field(&attachments_text),
-            false,
-        )
-        .field(
-            text("honeypot_log_field_stickers"),
-            truncate_field(&stickers_text),
-            false,
-        );
+    let log_embed = post::build_claim_log_embed(&text, &log_data);
     let _ = serenity::ChannelId::new(logs_id)
         .send_message(http, serenity::CreateMessage::new().embed(log_embed))
         .await;
@@ -487,6 +467,18 @@ pub async fn ban_with_cleanup_window(
         .is_ok()
 }
 
+/// Channel kinds swept for trap spam. Mirrors isHoneypotChannel in
+/// honeypotManager.ts (text, announcement, voice, forum, media, stage).
+/// serenity 0.12 has no Media variant, so GuildMedia (type 16) arrives
+/// as Unknown(16) and is matched by discriminant. Pure, unit-tested.
+pub fn sweepable_kind(kind: &serenity::model::channel::ChannelType) -> bool {
+    use serenity::model::channel::ChannelType as T;
+    matches!(
+        kind,
+        T::Text | T::News | T::Voice | T::Forum | T::Stage | T::Unknown(16)
+    )
+}
+
 /// Channel ids to sweep: guild text-like channels plus active threads plus
 /// archived public threads of text/announcement/forum parents. Mirrors
 /// collectChannels (fetch + fetchActiveThreads + fetchArchived public).
@@ -500,23 +492,16 @@ async fn collect_sweep_channels(
     let channels = guild_id.channels(http).await.unwrap_or_default();
     let mut parents: Vec<serenity::ChannelId> = Vec::new();
     for (id, ch) in &channels {
-        match ch.kind {
-            ChannelType::Text
-            | ChannelType::News
-            | ChannelType::Voice
-            | ChannelType::Forum
-            | ChannelType::Stage => {
-                if seen.insert(id.get()) {
-                    ids.push(*id);
-                }
-                if matches!(
-                    ch.kind,
-                    ChannelType::Text | ChannelType::News | ChannelType::Forum
-                ) {
-                    parents.push(*id);
-                }
+        if sweepable_kind(&ch.kind) {
+            if seen.insert(id.get()) {
+                ids.push(*id);
             }
-            _ => {}
+            if matches!(
+                ch.kind,
+                ChannelType::Text | ChannelType::News | ChannelType::Forum
+            ) {
+                parents.push(*id);
+            }
         }
     }
     // Active threads (never cache-only: uncached threads would keep spam).
@@ -659,6 +644,43 @@ mod tests {
             HONEYPOT_WINDOW_MS / 1000,
             post::CLAIM_BAN_DELETE_SECS as i64
         );
+    }
+
+    #[test]
+    fn trigger_count_starts_at_one_and_increments() {
+        assert_eq!(next_trigger_count(None), 1);
+        assert_eq!(next_trigger_count(Some(1)), 2);
+        assert_eq!(next_trigger_count(Some(7)), 8);
+        // Saturates instead of wrapping at the top of the range.
+        assert_eq!(next_trigger_count(Some(u64::MAX)), u64::MAX);
+    }
+
+    #[test]
+    fn sweep_covers_ts_channel_kinds_including_media() {
+        use poise::serenity_prelude::ChannelType;
+        for kind in [
+            ChannelType::Text,
+            ChannelType::News,
+            ChannelType::Voice,
+            ChannelType::Forum,
+            ChannelType::Stage,
+            // GuildMedia (16): no serenity 0.12 variant.
+            ChannelType::Unknown(16),
+        ] {
+            assert!(sweepable_kind(&kind), "swept: {kind:?}");
+        }
+        for kind in [
+            ChannelType::Category,
+            ChannelType::Private,
+            ChannelType::GroupDm,
+            ChannelType::PublicThread,
+            ChannelType::PrivateThread,
+            ChannelType::NewsThread,
+            ChannelType::Directory,
+            ChannelType::Unknown(99),
+        ] {
+            assert!(!sweepable_kind(&kind), "skipped: {kind:?}");
+        }
     }
 
     async fn memory_pool() -> crate::db::Pool {

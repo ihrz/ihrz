@@ -324,6 +324,18 @@ pub fn winners_line(winners: &[String], none_word: &str) -> String {
     }
 }
 
+/// Reroll board winners: `<@a>,<@b>`, empty when there are none.
+/// Mirrors reroll() (`winners.toString()` on the mapped array, so an
+/// empty pick stays an empty string) — unlike finish(), which falls
+/// back to `setjoinroles_var_none`.
+pub fn reroll_winners_text(winners: &[String]) -> String {
+    winners
+        .iter()
+        .map(|w| format!("<@{w}>"))
+        .collect::<Vec<_>>()
+        .join(",")
+}
+
 /// End a giveaway board: pick winners (excluding past), persist,
 /// edit the message with the ended embed + Finnish button, reply
 /// winners/cannot. Mirrors finish(). Returns false when the board
@@ -906,6 +918,23 @@ mod tests {
     #[test]
     fn empty_entries_no_winners() {
         assert!(pick_winners(&[], &[], 3, 1).is_empty());
+    }
+
+    #[test]
+    fn reroll_board_stays_empty_without_winners() {
+        // reroll() maps to `<@id>` strings and `.toString()`s the array
+        // (empty -> ""), while finish() falls back to the none-word.
+        let empty: Vec<String> = vec![];
+        assert_eq!(reroll_winners_text(&empty), "");
+        assert_eq!(
+            reroll_winners_text(&["1".to_string(), "2".to_string()]),
+            "<@1>,<@2>"
+        );
+        assert_eq!(winners_line(&empty, "None"), "None");
+        assert_eq!(
+            winners_line(&["1".to_string(), "2".to_string()], "None"),
+            "<@1>,<@2>"
+        );
     }
 
     #[test]

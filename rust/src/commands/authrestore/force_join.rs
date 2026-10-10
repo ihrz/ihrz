@@ -47,6 +47,38 @@ pub fn force_join_event_description(
     }
 }
 
+/// Fold one gateway websocket event into the run progress. Pure part
+/// of the `ws.on("message")` switch in !force-join.ts: `size` /
+/// `start` / `end` rewrite the embed description (rendered via
+/// [`force_join_event_description`]), `add` bumps the joined counter
+/// (the embed fields refresh only when [`should_push_progress`] says
+/// so). Returns the new description when the event rewrites it.
+///
+/// Live-stream note: the TS run opens a `ws` websocket to the gateway
+/// URL from `forceJoinAuthRestore` and edits the confirm message on
+/// every throttled tick. The Rust command keeps the confirmed
+/// single-message flow and applies the same renderers to the terminal
+/// `end` state (renewed private code); the intermediate `size` /
+/// `start` / `add` ticks stay deferred — the in-repo `tungstenite`
+/// client is synchronous and blocking a slash-command task on a
+/// multi-minute WS stream would trip the interaction token lifetime.
+/// The tick math itself is fully ported and unit-tested below.
+pub fn apply_force_join_tick(
+    progress: &mut ForceJoinProgress,
+    event: &ForceJoinWsEvent,
+    size_tpl: &str,
+    start_text: &str,
+    end_text: &str,
+) -> Option<String> {
+    match event {
+        ForceJoinWsEvent::Add => {
+            progress.added = progress.added.saturating_add(1);
+            None
+        }
+        other => force_join_event_description(other, size_tpl, start_text, end_text),
+    }
+}
+
 /// Field values for the progress embed. Mirrors `updateEmbed` in
 /// !force-join.ts (`rc_forceJoin_embed_2_field1` = possible join,
 /// `rc_forceJoin_embed_2_field2` = joined so far).
@@ -179,9 +211,10 @@ pub async fn authrestore_force_join(
     // Progress embed, mirroring `updateEmbed` in !force-join.ts: the
     // confirm fields give way to possible-join / joined-so-far and
     // the description tracks the start state while the gateway works.
-    // (The live websocket `size`/`add` ticks that would edit it
-    // mid-run stay deferred like the stream itself; the final `end`
-    // state below is applied through the same event renderer.)
+    // (The live websocket `size`/`start`/`add` ticks that would edit
+    // it mid-run stay deferred — see [`apply_force_join_tick`]; the
+    // final `end` state below is applied through the same event
+    // renderer.)
     let ws_start = t(
         &ctx,
         "rc_forceJoin_ws_start",
@@ -397,6 +430,60 @@ mod tests {
             added: 3,
         };
         assert_eq!(progress_fields(&p), ("7".to_string(), "3".to_string()));
+    }
+
+    #[test]
+    fn tick_fold_mirrors_ws_message_switch() {
+        let size_tpl = "# Preparing to add **${value2}** members to the guild.";
+        let start = "# Force-joining in progress...";
+        let end = "# Force-joining process completed.";
+        let mut p = ForceJoinProgress {
+            possible: 7,
+            added: 0,
+        };
+        assert_eq!(
+            apply_force_join_tick(
+                &mut p,
+                &ForceJoinWsEvent::Size("12".to_string()),
+                size_tpl,
+                start,
+                end
+            ),
+            Some("# Preparing to add **12** members to the guild.".to_string())
+        );
+        assert_eq!(p.added, 0);
+        assert_eq!(
+            apply_force_join_tick(&mut p, &ForceJoinWsEvent::Start, size_tpl, start, end),
+            Some(start.to_string())
+        );
+        // `add` bumps the counter without touching the description.
+        assert_eq!(
+            apply_force_join_tick(&mut p, &ForceJoinWsEvent::Add, size_tpl, start, end),
+            None
+        );
+        assert_eq!(p.added, 1);
+        assert_eq!(progress_fields(&p), ("7".to_string(), "1".to_string()));
+        assert!(should_push_progress(5, 0));
+        assert_eq!(
+            apply_force_join_tick(
+                &mut p,
+                &ForceJoinWsEvent::End("newcode".to_string()),
+                size_tpl,
+                start,
+                end
+            ),
+            Some(end.to_string())
+        );
+        assert_eq!(
+            apply_force_join_tick(
+                &mut p,
+                &ForceJoinWsEvent::Unknown("nope".to_string()),
+                size_tpl,
+                start,
+                end
+            ),
+            None
+        );
     }
 
     #[test]

@@ -354,6 +354,16 @@ async fn owner_entry_routed(pool: &crate::db::Pool, gid: &str, user_id: u64) -> 
     leaf_routed(pool, gid, &format!("GUILD.OWNER.{user_id}")).await
 }
 
+/// True when the executor holds an owner row. Mirrors the TS
+/// `${gid}.OWNER.${uid}` read (top-level key); the GUILD.OWNER.*
+/// shape stays as a fallback.
+async fn owner_exempt_routed(pool: &crate::db::Pool, gid: &str, user_id: u64) -> bool {
+    leaf_routed(pool, gid, &format!("OWNER.{user_id}"))
+        .await
+        .is_some()
+        || owner_entry_routed(pool, gid, user_id).await.is_some()
+}
+
 /// ALLOWLIST.list.<uid> leaf.
 async fn allowlist_entry_routed(pool: &crate::db::Pool, gid: &str, user_id: u64) -> Option<String> {
     leaf_routed(pool, gid, &format!("ALLOWLIST.list.{user_id}")).await
@@ -399,9 +409,13 @@ async fn guild_lang_routed(pool: &crate::db::Pool, gid: &str) -> Option<String> 
     leaf_routed(pool, gid, "GUILD.LANG").await
 }
 
-/// GUILD.BLOCK_BOT flag leaf, true on "1".
+/// GUILD.BLOCK_BOT flag leaf. Accepts the Rust "1" write and the TS
+/// legacy boolean ("true") / deleted-key shapes via
+/// [`crate::commands::guildconfig::blockbot::blockbot_enabled_value`].
 async fn block_bot_routed(pool: &crate::db::Pool, gid: &str) -> bool {
-    leaf_routed(pool, gid, "GUILD.BLOCK_BOT").await.as_deref() == Some("1")
+    crate::commands::guildconfig::blockbot::blockbot_enabled_value(
+        leaf_routed(pool, gid, "GUILD.BLOCK_BOT").await.as_deref(),
+    )
 }
 
 /// GUILD.BLOCK_NEW_ACCOUNT leaf (raw JSON blob string).
@@ -783,6 +797,46 @@ pub fn backup_category_for<'a>(
     category_id: &str,
 ) -> Option<&'a crate::commands::protection::backup::BackupCategory> {
     backup.categories.iter().find(|c| c.id == category_id)
+}
+
+/// True when a role-update revert would change anything. Pure gate
+/// backing revert_role_edit so identical snapshots stay audit-clean.
+/// Covers the EditRole::from_role fields (position is serde-skipped on
+/// edit, the role icon has no snapshot round-trip).
+pub fn role_revert_needed(old: &serenity::Role, new: &serenity::Role) -> bool {
+    old.name != new.name
+        || old.permissions != new.permissions
+        || old.colour != new.colour
+        || old.colours.primary_colour != new.colours.primary_colour
+        || old.colours.secondary_colour != new.colours.secondary_colour
+        || old.colours.tertiary_colour != new.colours.tertiary_colour
+        || old.hoist != new.hoist
+        || old.mentionable != new.mentionable
+        || old.unicode_emoji != new.unicode_emoji
+}
+
+/// True when a channel-update revert would change anything. Pure gate
+/// backing revert_channel_edit. Covers the TS editOptions fields
+/// (name, permission overwrites, parent, position, topic, nsfw,
+/// rate-limit, bitrate, user-limit, rtc region).
+pub fn channel_revert_needed(old: &serenity::GuildChannel, new: &serenity::GuildChannel) -> bool {
+    old.name != new.name
+        || old.permission_overwrites != new.permission_overwrites
+        || old.parent_id != new.parent_id
+        || old.position != new.position
+        || old.topic != new.topic
+        || old.nsfw != new.nsfw
+        || old.rate_limit_per_user != new.rate_limit_per_user
+        || old.bitrate != new.bitrate
+        || old.user_limit != new.user_limit
+        || old.rtc_region != new.rtc_region
+}
+
+/// Guild icon CDN URL for a snapshot hash. Animated hashes (a_*) serve
+/// gif, the rest png. Pure, unit-tested.
+pub fn guild_icon_cdn_url(guild_id: u64, hash: &serenity::ImageHash) -> String {
+    let ext = if hash.is_animated() { "gif" } else { "png" };
+    format!("https://cdn.discordapp.com/icons/{guild_id}/{hash}.{ext}")
 }
 
 /// Try to claim the per-guild restore slot. True on first claim,
@@ -1636,9 +1690,9 @@ impl Handler {
                 fmap.remove(&uid.to_string());
             }
         }
-        if cfg.remove_messages {
-            self.antispam_clear_guild(http, &gid, &users).await;
-        }
+        // TS always clears spam messages after punish (clearSpamMessages
+        // runs unconditionally in onNewMessage.ts, no removeMessages gate).
+        self.antispam_clear_guild(http, &gid, &users).await;
         let warn_ch = self.antispam_warn_ch.lock().await.remove(&gid);
         if let Some(ch) = warn_ch {
             self.antispam_warn(http, &gid, ch, &users, &cfg.punishment_type, &lang_code)
@@ -2129,11 +2183,9 @@ impl Handler {
         if !should {
             return None;
         }
-        // OWNER-table entries are derogated too (mirrors `!isOwner`).
-        if owner_entry_routed(&self.pool, &gid, exec.get())
-            .await
-            .is_some()
-        {
+        // OWNER-table entries are derogated too (mirrors `!isOwner`,
+        // reading the top-level `<gid>.OWNER.<uid>` row first).
+        if owner_exempt_routed(&self.pool, &gid, exec.get()).await {
             return None;
         }
         // TS punish(): `simply` only cancels the action (the caller's
@@ -2204,18 +2256,6 @@ impl Handler {
         false
     }
 
-    /// Resolve a snapshot parent category to a live channel id.
-    /// Returns None when the snapshot has no parent or the parent no
-    /// longer exists (then the channel is recreated top-level).
-    async fn live_parent(
-        ctx: &serenity::Context,
-        parent: Option<&str>,
-    ) -> Option<serenity::ChannelId> {
-        let pid = parent?.parse::<u64>().ok()?;
-        let id = serenity::ChannelId::new(pid);
-        ctx.http.get_channel(id).await.ok().map(|_| id)
-    }
-
     /// Clone-restore one snapshot channel: name, type, position,
     /// permission overwrites and parent. Mirrors the create-channel
     /// branch of avoidChannelDelete.ts.
@@ -2224,6 +2264,7 @@ impl Handler {
         guild_id: serenity::GuildId,
         entry: &crate::commands::protection::backup::BackupChannel,
         parent: Option<serenity::ChannelId>,
+        reason: Option<&str>,
     ) -> Option<serenity::GuildChannel> {
         let mut builder = serenity::CreateChannel::new(entry.name.clone())
             .kind(entry.kind)
@@ -2231,6 +2272,9 @@ impl Handler {
             .permissions(entry.permissions.clone());
         if let Some(parent) = parent {
             builder = builder.category(parent);
+        }
+        if let Some(reason) = reason {
+            builder = builder.audit_log_reason(reason);
         }
         guild_id.create_channel(&ctx.http, builder).await.ok()
     }
@@ -2243,6 +2287,7 @@ impl Handler {
         &self,
         ctx: &serenity::Context,
         channel: &serenity::GuildChannel,
+        executor: Option<u64>,
     ) {
         let gid = channel.guild_id.get().to_string();
         if !self.bot_is_admin(ctx, channel.guild_id).await {
@@ -2251,7 +2296,8 @@ impl Handler {
         if !self.restore_claim(&gid).await {
             return;
         }
-        self.restore_deleted_channel_inner(ctx, channel).await;
+        self.restore_deleted_channel_inner(ctx, channel, executor)
+            .await;
         self.restore_release(&gid).await;
     }
 
@@ -2259,46 +2305,119 @@ impl Handler {
         &self,
         ctx: &serenity::Context,
         channel: &serenity::GuildChannel,
+        executor: Option<u64>,
     ) {
+        use crate::commands::protection::backup as backup_mod;
         let gid = channel.guild_id.get().to_string();
-        let Some(backup) = crate::commands::protection::backup::load_backup(&self.pool, &gid).await
-        else {
+        let Some(backup) = backup_mod::load_backup(&self.pool, &gid).await else {
             return;
         };
-        let deleted_id = channel.id.get().to_string();
-        if channel.kind == serenity::ChannelType::Category {
-            let Some(cat) = backup_category_for(&backup, &deleted_id) else {
-                return;
-            };
-            let builder = serenity::CreateChannel::new(cat.name.clone())
-                .kind(serenity::ChannelType::Category)
-                .position(cat.position);
-            let Ok(new_cat) = channel.guild_id.create_channel(&ctx.http, builder).await else {
-                return;
-            };
-            let live: HashSet<String> = channel
+        let blame = executor.map(|e| e.to_string()).unwrap_or_default();
+        let cat_reason = format!("Category re-created by Protect ({blame})");
+        let chan_reason = format!("Restoration by Protect ({blame})");
+        // Live snapshot for the full sweep (mirrors the cache reads in
+        // avoidChannelDelete.ts).
+        let live = channel
+            .guild_id
+            .channels(&ctx.http)
+            .await
+            .unwrap_or_default();
+        let live_ids: HashSet<String> = live.keys().map(|id| id.get().to_string()).collect();
+        let live_parents: HashMap<String, Option<String>> = live
+            .iter()
+            .map(|(id, c)| {
+                (
+                    id.get().to_string(),
+                    c.parent_id.map(|p| p.get().to_string()),
+                )
+            })
+            .collect();
+        // Pass 1 (mirrors the categoryMap loop): every snapshot category
+        // exists afterwards; snapshot id -> live id mapping for the
+        // children pass.
+        let mut category_map: HashMap<String, serenity::ChannelId> = HashMap::new();
+        for cat in backup_mod::missing_categories(&backup, &live_ids) {
+            let still_missing = !channel
                 .guild_id
                 .channels(&ctx.http)
                 .await
-                .map(|map| map.keys().map(|id| id.get().to_string()).collect())
-                .unwrap_or_default();
-            for child in cat
-                .channels
-                .iter()
-                .filter(|c| !live.contains(&c.id) && c.id != deleted_id)
-            {
-                let _ =
-                    Self::create_snapshot_channel(ctx, channel.guild_id, child, Some(new_cat.id))
-                        .await;
+                .map(|m| m.keys().map(|id| id.get().to_string()).any(|s| s == cat.id))
+                .unwrap_or(false);
+            if !still_missing {
+                continue;
+            }
+            let builder = serenity::CreateChannel::new(cat.name.clone())
+                .kind(serenity::ChannelType::Category)
+                .position(cat.position)
+                .audit_log_reason(&cat_reason);
+            if let Ok(new_cat) = channel.guild_id.create_channel(&ctx.http, builder).await {
+                category_map.insert(cat.id.clone(), new_cat.id);
                 tokio::time::sleep(std::time::Duration::from_millis(300)).await;
             }
-            return;
         }
-        let Some(entry) = backup_channel_for(&backup, &deleted_id) else {
-            return;
-        };
-        let parent = Self::live_parent(ctx, entry.parent.as_deref()).await;
-        let _ = Self::create_snapshot_channel(ctx, channel.guild_id, entry, parent).await;
+        for cat in &backup.categories {
+            if category_map.contains_key(&cat.id) {
+                continue;
+            }
+            if let Some((id, _)) = live.iter().find(|(id, _)| id.get().to_string() == cat.id) {
+                category_map.insert(cat.id.clone(), *id);
+            }
+        }
+        // Pass 2 (mirrors the create-channel loop): missing snapshot
+        // children are recreated under their mapped category.
+        for cat in &backup.categories {
+            let Some(live_cat) = category_map.get(&cat.id) else {
+                continue;
+            };
+            for child in backup_mod::category_children_to_create(&backup, &cat.id, &live_ids) {
+                let _ = Self::create_snapshot_channel(
+                    ctx,
+                    channel.guild_id,
+                    child,
+                    Some(*live_cat),
+                    Some(&chan_reason),
+                )
+                .await;
+                tokio::time::sleep(std::time::Duration::from_millis(300)).await;
+            }
+        }
+        // Pass 3 (mirrors the setParent/setPosition loop): live channels
+        // that drifted out of their snapshot category move back.
+        for (entry, want_parent, position) in
+            backup_mod::channels_to_reparent(&backup, &live_parents)
+        {
+            let Some(live_cat) = category_map.get(&want_parent) else {
+                continue;
+            };
+            let Some(live_id) = entry.id.parse::<u64>().ok().map(serenity::ChannelId::new) else {
+                continue;
+            };
+            let Some(mut live_chan) = live.get(&live_id).cloned() else {
+                continue;
+            };
+            let builder = serenity::EditChannel::new()
+                .category(*live_cat)
+                .position(position);
+            let _ = live_chan.edit(&ctx.http, builder).await;
+            tokio::time::sleep(std::time::Duration::from_millis(300)).await;
+        }
+        // Pass 4: snapshot top-level channels with no snapshot parent that
+        // are still missing (uncategorized text channels, which the
+        // category passes never cover) recreate top-level.
+        for entry in &backup.channels {
+            if live_ids.contains(&entry.id) || entry.parent.is_some() {
+                continue;
+            }
+            let _ = Self::create_snapshot_channel(
+                ctx,
+                channel.guild_id,
+                entry,
+                None,
+                Some(&chan_reason),
+            )
+            .await;
+            tokio::time::sleep(std::time::Duration::from_millis(300)).await;
+        }
     }
 
     /// Rebuild a deleted role from the event payload (name, permissions,
@@ -2311,6 +2430,7 @@ impl Handler {
         guild_id: serenity::GuildId,
         removed_role_id: serenity::RoleId,
         removed: &Option<serenity::Role>,
+        executor: Option<u64>,
     ) {
         if !self.bot_is_admin(ctx, guild_id).await {
             return;
@@ -2318,6 +2438,7 @@ impl Handler {
         let Some(deleted) = removed else {
             return;
         };
+        let blame = executor.map(|e| e.to_string()).unwrap_or_default();
         let gid = guild_id.get().to_string();
         let backup = crate::commands::protection::backup::load_backup(&self.pool, &gid).await;
         let members: Vec<u64> = backup
@@ -2332,9 +2453,10 @@ impl Handler {
                 .collect()
             })
             .unwrap_or_default();
+        let reason = format!("Role re-create by Protect ({blame} break the rule!)");
         let builder = serenity::EditRole::from_role(deleted)
             .position(deleted.position)
-            .audit_log_reason("Role re-created by Protect");
+            .audit_log_reason(&reason);
         let Ok(new_role) = guild_id.create_role(&ctx.http, builder).await else {
             return;
         };
@@ -2345,11 +2467,67 @@ impl Handler {
         }
     }
 
+    /// Role-field revert. Mirrors avoidRoleUpdate.ts
+    /// (`newRole.edit({...oldRole, colors})`): after punish ran inside
+    /// the guard, the pre-update snapshot is written back onto the role.
+    /// Best-effort, never panics.
+    async fn revert_role_edit(
+        &self,
+        ctx: &serenity::Context,
+        new: &serenity::Role,
+        old: &serenity::Role,
+    ) {
+        if !role_revert_needed(old, new) {
+            return;
+        }
+        let builder = serenity::EditRole::from_role(old).audit_log_reason("Protect!");
+        let _ = new.guild_id.edit_role(&ctx.http, new.id, builder).await;
+    }
+
+    /// Channel-field revert. Mirrors avoidChannelUpdate.ts: after punish
+    /// ran inside the guard, the pre-update snapshot (name, permission
+    /// overwrites, parent, position, plus text topic/nsfw/rate-limit and
+    /// voice bitrate/user-limit/rtc-region) is written back in one edit.
+    /// Best-effort, never panics.
+    async fn revert_channel_edit(
+        &self,
+        ctx: &serenity::Context,
+        new: &serenity::GuildChannel,
+        old: &serenity::GuildChannel,
+    ) {
+        if !channel_revert_needed(old, new) {
+            return;
+        }
+        let mut builder = serenity::EditChannel::new()
+            .name(old.name.clone())
+            .permissions(old.permission_overwrites.clone())
+            .category(old.parent_id)
+            .position(old.position)
+            .nsfw(old.nsfw)
+            .voice_region(old.rtc_region.clone())
+            .audit_log_reason("Protect!");
+        if let Some(topic) = old.topic.clone() {
+            builder = builder.topic(topic);
+        }
+        if let Some(slowmode) = old.rate_limit_per_user {
+            builder = builder.rate_limit_per_user(slowmode);
+        }
+        if let Some(bitrate) = old.bitrate {
+            builder = builder.bitrate(bitrate);
+        }
+        if let Some(limit) = old.user_limit {
+            builder = builder.user_limit(limit);
+        }
+        let mut live = new.clone();
+        let _ = live.edit(&ctx.http, builder).await;
+    }
+
     /// Guild-field revert. Mirrors avoidGuildEdit.ts: after punish ran
     /// inside the guard, each field that drifted from the pre-update
-    /// snapshot is written back in one edit. Icon (needs fresh upload
-    /// bytes) and MFA level (no API setter) cannot be reverted and are
-    /// skipped. Best-effort, never panics.
+    /// snapshot is written back in one edit. The icon re-uploads the
+    /// snapshot CDN bytes (discord.js setIcon re-uploads too) and the
+    /// MFA level goes through its dedicated endpoint; both best-effort.
+    /// Never panics.
     async fn revert_guild_edit(
         &self,
         ctx: &serenity::Context,
@@ -2357,6 +2535,26 @@ impl Handler {
         old: &serenity::Guild,
         new: &serenity::PartialGuild,
     ) {
+        // Icon bytes up front: EditGuild::icon needs a fresh upload, and
+        // a failed download must not block the other fields.
+        let icon_changed = old.icon != new.icon;
+        let icon_attachment: Option<serenity::CreateAttachment> = if icon_changed {
+            match &old.icon {
+                Some(hash) => {
+                    let url = guild_icon_cdn_url(guild_id.get(), hash);
+                    let mut bytes: Option<Vec<u8>> = None;
+                    if let Ok(resp) = reqwest::get(&url).await {
+                        if let Ok(body) = resp.bytes().await {
+                            bytes = Some(body.to_vec());
+                        }
+                    }
+                    bytes.map(|b| serenity::CreateAttachment::bytes(b, "icon.png"))
+                }
+                None => None,
+            }
+        } else {
+            None
+        };
         let mut builder = serenity::EditGuild::new();
         let mut dirty = false;
         if old.name != new.name {
@@ -2410,8 +2608,31 @@ impl Handler {
             builder = builder.premium_progress_bar_enabled(old.premium_progress_bar_enabled);
             dirty = true;
         }
+        if icon_changed {
+            match icon_attachment.as_ref() {
+                Some(att) => {
+                    builder = builder.icon(Some(att));
+                    dirty = true;
+                }
+                // Snapshot has no icon: clear it like setIcon(null).
+                None if old.icon.is_none() => {
+                    builder = builder.delete_icon();
+                    dirty = true;
+                }
+                // Icon download failed: leave the icon alone, still
+                // revert the other fields.
+                None => {}
+            }
+        }
         if dirty {
             let _ = guild_id.edit(&ctx.http, builder).await;
+        }
+        if old.mfa_level != new.mfa_level {
+            // No EditGuild setter (mirrors setMFALevel): dedicated
+            // endpoint, best-effort like every other revert leg.
+            let _ = guild_id
+                .edit_mfa_level(&ctx.http, old.mfa_level, Some("Protect!"))
+                .await;
         }
     }
 
@@ -5734,7 +5955,7 @@ impl serenity::EventHandler for Handler {
         removed_role_data_if_available: Option<serenity::Role>,
     ) {
         use serenity::model::guild::audit_log::{Action, RoleAction};
-        let _ = self
+        let hit = self
             .protection_guard(
                 &ctx,
                 guild_id,
@@ -5743,25 +5964,29 @@ impl serenity::EventHandler for Handler {
                 Some(removed_role_id.get()),
             )
             .await;
-        // Live restore (mirrors avoidRoleDelete.ts): rebuild the role
-        // from the event payload and re-add the snapshot members.
-        self.restore_deleted_role(
-            &ctx,
-            guild_id,
-            removed_role_id,
-            &removed_role_data_if_available,
-        )
-        .await;
+        // Live restore (mirrors avoidRoleDelete.ts): punish ran inside the
+        // guard, then the role is rebuilt from the event payload with the
+        // snapshot members re-added. No hit means no restore.
+        if let Some(hit) = hit.as_ref() {
+            self.restore_deleted_role(
+                &ctx,
+                guild_id,
+                removed_role_id,
+                &removed_role_data_if_available,
+                Some(hit.executor.get()),
+            )
+            .await;
+        }
     }
 
     async fn guild_role_update(
         &self,
         ctx: serenity::Context,
-        _old_data_if_available: Option<serenity::Role>,
+        old_data_if_available: Option<serenity::Role>,
         new: serenity::Role,
     ) {
         use serenity::model::guild::audit_log::{Action, RoleAction};
-        let _ = self
+        let hit = self
             .protection_guard(
                 &ctx,
                 new.guild_id,
@@ -5770,6 +5995,13 @@ impl serenity::EventHandler for Handler {
                 Some(new.id.get()),
             )
             .await;
+        // Role-update revert (mirrors avoidRoleUpdate.ts): punish ran
+        // inside the guard, then the pre-update snapshot is written back.
+        if hit.is_some() {
+            if let Some(old) = old_data_if_available.as_ref() {
+                self.revert_role_edit(&ctx, &new, old).await;
+            }
+        }
     }
 
     async fn channel_create(&self, ctx: serenity::Context, channel: serenity::GuildChannel) {
@@ -5812,7 +6044,7 @@ impl serenity::EventHandler for Handler {
         _messages: Option<Vec<serenity::Message>>,
     ) {
         use serenity::model::guild::audit_log::{Action, ChannelAction};
-        let _ = self
+        let hit = self
             .protection_guard(
                 &ctx,
                 channel.guild_id,
@@ -5833,9 +6065,13 @@ impl serenity::EventHandler for Handler {
                 let _ = tbl_del(&self.pool, &gid, &k).await;
             }
         }
-        // Live restore (mirrors avoidChannelDelete.ts): clone-restore
-        // the deleted channel/category from the structure snapshot.
-        self.restore_deleted_channel(&ctx, &channel).await;
+        // Live restore (mirrors avoidChannelDelete.ts): punish ran inside
+        // the guard, then the snapshot sweep clone-restores the deleted
+        // channel/category. No hit means no restore.
+        if let Some(hit) = hit.as_ref() {
+            self.restore_deleted_channel(&ctx, &channel, Some(hit.executor.get()))
+                .await;
+        }
     }
 
     async fn channel_update(
@@ -5845,7 +6081,7 @@ impl serenity::EventHandler for Handler {
         new: serenity::GuildChannel,
     ) {
         use serenity::model::guild::audit_log::{Action, ChannelAction, ChannelOverwriteAction};
-        let _ = self
+        let hit = self
             .protection_guard(
                 &ctx,
                 new.guild_id,
@@ -5854,6 +6090,14 @@ impl serenity::EventHandler for Handler {
                 Some(new.id.get()),
             )
             .await;
+        // Unauthorized channel-update revert (mirrors
+        // avoidChannelUpdate.ts): punish ran inside the guard, then the
+        // pre-update snapshot is written back.
+        if hit.is_some() {
+            if let Some(prev) = old.as_ref() {
+                self.revert_channel_edit(&ctx, &new, prev).await;
+            }
+        }
         // Rich channel-update log (mirrors logs/channelUpdateLogs.ts):
         // latest ChannelUpdate + ChannelOverwriteUpdate audit entries
         // -> #010101 embed with the name/overwrite change list.
@@ -6578,7 +6822,10 @@ impl serenity::EventHandler for Handler {
             )
             .await;
         } else if id.starts_with("confession-author%") {
-            let _ = crate::commands::confession::main::handle_confession_author(&ctx, &comp).await;
+            let _ = crate::commands::confession::main::handle_confession_author(
+                &ctx, &comp, &self.pool,
+            )
+            .await;
         } else if id.starts_with(crate::commands::legacy::NEWSLETTER_TOGGLE_PREFIX) {
             let _ =
                 crate::commands::legacy::handle_newsletter_toggle(&ctx, &comp, &self.pool).await;
@@ -6833,6 +7080,83 @@ mod restore_tests {
         // A category id is not a channel entry and vice versa.
         assert!(backup_channel_for(&b, "cat1").is_none());
         assert!(backup_category_for(&b, "ch1").is_none());
+    }
+
+    #[test]
+    fn role_revert_gate_fires_on_snapshot_drift() {
+        let mut old: serenity::Role = Default::default();
+        old.name = "mods".to_string();
+        let same = old.clone();
+        assert!(!role_revert_needed(&old, &same));
+        // Each TS {...oldRole} field trips the gate.
+        let mut renamed = old.clone();
+        renamed.name = "hacked".to_string();
+        assert!(role_revert_needed(&old, &renamed));
+        let mut permed = old.clone();
+        permed.permissions = serenity::Permissions::ADMINISTRATOR;
+        assert!(role_revert_needed(&old, &permed));
+        let mut hoisted = old.clone();
+        hoisted.hoist = !old.hoist;
+        assert!(role_revert_needed(&old, &hoisted));
+        let mut mention = old.clone();
+        mention.mentionable = !old.mentionable;
+        assert!(role_revert_needed(&old, &mention));
+        let mut emoji = old.clone();
+        emoji.unicode_emoji = Some("🔥".to_string());
+        assert!(role_revert_needed(&old, &emoji));
+    }
+
+    #[test]
+    fn channel_revert_gate_covers_ts_edit_options() {
+        let mut old: serenity::GuildChannel = Default::default();
+        old.name = "general".to_string();
+        let same = old.clone();
+        assert!(!channel_revert_needed(&old, &same));
+        // Every TS editOptions field trips the gate.
+        let mut renamed = old.clone();
+        renamed.name = "hacked".to_string();
+        assert!(channel_revert_needed(&old, &renamed));
+        let mut moved_parent = old.clone();
+        moved_parent.parent_id = Some(serenity::ChannelId::new(9));
+        assert!(channel_revert_needed(&old, &moved_parent));
+        let mut moved_pos = old.clone();
+        moved_pos.position += 1;
+        assert!(channel_revert_needed(&old, &moved_pos));
+        let mut topic = old.clone();
+        topic.topic = Some("new topic".to_string());
+        assert!(channel_revert_needed(&old, &topic));
+        let mut nsfw = old.clone();
+        nsfw.nsfw = !old.nsfw;
+        assert!(channel_revert_needed(&old, &nsfw));
+        let mut slowmode = old.clone();
+        slowmode.rate_limit_per_user = Some(10);
+        assert!(channel_revert_needed(&old, &slowmode));
+        let mut bitrate = old.clone();
+        bitrate.bitrate = Some(64000);
+        assert!(channel_revert_needed(&old, &bitrate));
+        let mut limit = old.clone();
+        limit.user_limit = Some(5);
+        assert!(channel_revert_needed(&old, &limit));
+        let mut region = old.clone();
+        region.rtc_region = Some("rotterdam".to_string());
+        assert!(channel_revert_needed(&old, &region));
+    }
+
+    #[test]
+    fn guild_icon_url_picks_ext_from_animation() {
+        use std::str::FromStr;
+        let still = serenity::ImageHash::from_str("abc123def456abc123def456abc12345").unwrap();
+        assert!(!still.is_animated());
+        assert_eq!(
+            guild_icon_cdn_url(7, &still),
+            "https://cdn.discordapp.com/icons/7/abc123def456abc123def456abc12345.png"
+        );
+        let animated = serenity::ImageHash::from_str("a_abc123def456abc123def456abc12345").unwrap();
+        assert!(animated.is_animated());
+        assert_eq!(
+            guild_icon_cdn_url(7, &animated),
+            "https://cdn.discordapp.com/icons/7/a_abc123def456abc123def456abc12345.gif"
+        );
     }
 
     #[test]

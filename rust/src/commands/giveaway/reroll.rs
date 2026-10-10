@@ -76,11 +76,10 @@ pub async fn gw_reroll(
         return Ok(());
     };
     let (ended, time2) = stamp_pair(gw.expire_in_ms);
+    // Empty rerolls stay an empty string like reroll()
+    // (`winners.toString()`); only finish() uses the none-word.
     let desc = t("event_gw_ended_word")
-        .replace(
-            "${winners}",
-            &winners_line(&winners_now, &t("setjoinroles_var_none")),
-        )
+        .replace("${winners}", &reroll_winners_text(&winners_now))
         .replace("${ended}", &ended)
         .replace("${time2}", &time2)
         .replace("${hostedBy}", &gw.hosted_by)

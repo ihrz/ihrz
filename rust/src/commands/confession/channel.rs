@@ -75,6 +75,10 @@ fn panel_desc_fallback() -> String {
 /// Set the confession panel channel. Mirrors !channel.ts.
 // Stores CONFESSION.channel, confirms, then posts the panel embed + button
 // (honoring button-title) and binds GUILD.CONFESSION.panel.
+//
+// Prefix parity: the channel is optional on the message path
+// (`client.func.method.channel(...) || interaction.channel`), so it is
+// optional here too and defaults to the invoking channel.
 #[poise::command(
     slash_command,
     prefix_command,
@@ -83,21 +87,30 @@ fn panel_desc_fallback() -> String {
 )]
 pub async fn confession_channel(
     ctx: Ctx<'_>,
-    #[description = "The confession channel"]
+    #[description = "The confession channel (defaults to this channel)"]
     #[channel_types("Text")]
-    channel: serenity::GuildChannel,
+    channel: Option<serenity::GuildChannel>,
     #[description = "The button title"] button_title: Option<String>,
 ) -> Result<(), anyhow::Error> {
     let Some(gid) = ctx.guild_id().map(|g| g.get().to_string()) else {
         return Ok(());
     };
     let pool = &ctx.data().pool;
+    // Explicit channel wins; otherwise the invoking channel (TS prefix
+    // `|| interaction.channel` fallback).
+    let target_id: u64 = match &channel {
+        Some(c) => c.id.get(),
+        None => match ctx.guild_channel().await {
+            Some(c) => c.id.get(),
+            None => ctx.channel_id().get(),
+        },
+    };
     crate::commands::owner::main::routed_set(
         pool,
         &gid,
         &gid,
         "CONFESSION.channel",
-        &channel.id.get().to_string(),
+        &target_id.to_string(),
     )
     .await?;
 
@@ -105,12 +118,7 @@ pub async fn confession_channel(
 
     let code = crate::db::guild_lang(pool, ctx.guild_id().map(|g| g.get())).await;
     let msg = crate::lang::get(&code, "confession_channel_command_work")
-        .map(|s| {
-            s.replace(
-                "${channel?.toString()}",
-                &format!("<#{}>", channel.id.get()),
-            )
-        })
+        .map(|s| s.replace("${channel?.toString()}", &format!("<#{target_id}>")))
         .unwrap_or_else(|| {
             "The confession panel has been sent to ${channel?.toString()}".to_string()
         });
@@ -146,14 +154,13 @@ pub async fn confession_channel(
         .unwrap_or(0);
     message = message
         .nonce(serenity::model::channel::Nonce::String(panel_nonce(
-            channel.id.get(),
-            now_ms,
+            target_id, now_ms,
         )))
         .enforce_nonce(true);
     if let Some(bytes) = footer_icon {
         message = message.add_file(serenity::CreateAttachment::bytes(bytes, "footer_icon.png"));
     }
-    let posted = serenity::ChannelId::new(channel.id.get())
+    let posted = serenity::ChannelId::new(target_id)
         .send_message(ctx.http(), message)
         .await?;
     crate::commands::owner::main::routed_set(
@@ -161,7 +168,7 @@ pub async fn confession_channel(
         &gid,
         &gid,
         "GUILD.CONFESSION.panel",
-        &panel_store_json(channel.id.get(), posted.id.get()),
+        &panel_store_json(target_id, posted.id.get()),
     )
     .await?;
     // Audit entry, like `client.func.ihorizon_logs` in !channel.ts.
@@ -171,7 +178,7 @@ pub async fn confession_channel(
             guild_id,
             &code,
             ctx.author().id.get(),
-            channel.id.get(),
+            target_id,
         )
         .await;
     }

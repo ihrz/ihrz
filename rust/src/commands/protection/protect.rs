@@ -411,6 +411,14 @@ pub async fn derank_member(
     let Ok(member) = guild_id.member(http, user_id).await else {
         return Ok(());
     };
+    // Audit reason mirrors the TS derank `remove(role.id, reason ||
+    // "Protection")` call; Member::remove_role carries no reason, so the
+    // HTTP call is made directly.
+    let audit_reason = if reason.trim().is_empty() {
+        "Protection"
+    } else {
+        reason
+    };
     let everyone = serenity::RoleId::new(guild_id.get());
     for role_id in &member.roles {
         if *role_id == everyone {
@@ -422,7 +430,9 @@ pub async fn derank_member(
         if role.managed || role.position >= bot_top {
             continue;
         }
-        let _ = member.remove_role(http, *role_id).await;
+        let _ = http
+            .remove_member_role(guild_id, member.user.id, *role_id, Some(audit_reason))
+            .await;
     }
     Ok(())
 }

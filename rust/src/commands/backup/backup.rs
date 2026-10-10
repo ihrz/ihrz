@@ -123,7 +123,9 @@ pub async fn bot_is_guild_admin(ctx: &Ctx<'_>) -> bool {
 }
 
 /// Display summary parsed from a stored BackupInfos doc:
-/// (guild name, category count, channel count).
+/// (guild name, category count, channel count). Mirrors the
+/// `{guildName, categoryCount, channelCount}` meta written in
+/// !create.ts:82-91 (children only; `others` are never counted).
 pub fn backup_summary(raw: &str) -> Option<(String, usize, usize)> {
     let infos: BackupInfos = serde_json::from_str(raw).ok()?;
     let cats = infos.data.channels.categories.len();
@@ -133,8 +135,7 @@ pub fn backup_summary(raw: &str) -> Option<(String, usize, usize)> {
         .categories
         .iter()
         .map(|c| c.children.len())
-        .sum::<usize>()
-        + infos.data.channels.others.len();
+        .sum::<usize>();
     Some((infos.data.name, cats, chans))
 }
 
@@ -154,25 +155,49 @@ pub fn backup_field(
     (name, value)
 }
 
-/// Detail value for the backup-id view. Mirrors !delete.ts:95
-/// (backup_string_see_v).
-pub fn backup_detail_value(categories: usize, channels: usize, tpl: &str) -> String {
-    tpl.replace("${data.categoryCount}", &categories.to_string())
-        .replace("${data.channelCount}", &channels.to_string())
-}
-
 /// Page count for the 5-per-page list pager.
 pub fn page_count(total: usize) -> usize {
     total.div_ceil(BACKUPS_PER_PAGE)
+}
+
+/// Delete the shared snapshot row (`backups` table, global backupID).
+/// Mirrors `client.backup.remove(backupID)` in !delete.ts:134 (the
+/// per-user pointer delete is `bkp_del`). Callers treat a missing
+/// table/row as best-effort, like the TS fire-and-forget call.
+pub async fn shared_snapshot_del(pool: &crate::db::Pool, backup_id: &str) -> anyhow::Result<()> {
+    sqlx::query("DELETE FROM backups WHERE ID = ?")
+        .bind(backup_id)
+        .execute(pool)
+        .await
+        .map(|_| ())
+        .map_err(Into::into)
+}
+
+/// True when the invoker owns the guild or holds ADMINISTRATOR.
+/// Gates the shared-snapshot fallback in load: strangers without a
+/// per-user pointer get backup_this_is_not_your_backup (!load.ts:90).
+pub async fn invoker_is_owner_or_admin(ctx: &Ctx<'_>) -> bool {
+    let author = ctx.author().id;
+    let Some(guild) = ctx.guild() else {
+        return false;
+    };
+    if guild.owner_id == author {
+        return true;
+    }
+    guild
+        .members
+        .get(&author)
+        .map(|m| guild.member_permissions(m).administrator())
+        .unwrap_or(false)
 }
 
 #[cfg(test)]
 mod tests {
     use super::super::gen_backup_id;
     use super::{
-        backup_detail_value, backup_field, backup_owner_only, backup_summary, backup_user_key,
-        bkp_del, bkp_get, bkp_scan_user, bkp_set, page_count, user_backup_prefix, BACKUPS_PER_PAGE,
-        BACKUPS_ROOT, BACKUPS_SCOPE,
+        backup_field, backup_owner_only, backup_summary, backup_user_key, bkp_del, bkp_get,
+        bkp_scan_user, bkp_set, page_count, shared_snapshot_del, user_backup_prefix,
+        BACKUPS_PER_PAGE, BACKUPS_ROOT, BACKUPS_SCOPE,
     };
 
     async fn mem_pool() -> crate::db::Pool {
@@ -260,10 +285,18 @@ mod tests {
         );
         assert_eq!(fname, "Test Guild - (||abc123||)");
         assert_eq!(fvalue, ":placard:・`1` :hash:・`0`");
-        assert_eq!(
-            backup_detail_value(2, 3, "`${data.categoryCount}`/`${data.channelCount}`"),
-            "`2`/`3`"
+    }
+
+    #[test]
+    fn summary_counts_children_only_like_create_meta() {
+        // !create.ts:75-80 counts category children only; `others`
+        // never land in channelCount.
+        let raw = sample_snapshot().replace(
+            "\"others\":[]",
+            "\"others\":[{\"type\":2,\"name\":\"lonely\",\"permissions\":[],\"bitrate\":64000,\"userLimit\":0},{\"type\":2,\"name\":\"stray\",\"permissions\":[],\"bitrate\":64000,\"userLimit\":0}]",
         );
+        let (_, cats, chans) = backup_summary(&raw).unwrap();
+        assert_eq!((cats, chans), (1, 0));
     }
 
     #[test]
@@ -318,5 +351,30 @@ mod tests {
                 ("b-id".to_string(), "2".to_string()),
             ]
         );
+    }
+
+    #[tokio::test]
+    async fn shared_snapshot_del_removes_global_row() {
+        // Mirrors `client.backup.remove(backupID)` in !delete.ts:134.
+        let pool = mem_pool().await;
+        sqlx::query("CREATE TABLE backups (ID TEXT PRIMARY KEY, json TEXT)")
+            .execute(&pool)
+            .await
+            .unwrap();
+        sqlx::query("INSERT INTO backups (ID, json) VALUES (?, ?)")
+            .bind("gone")
+            .bind("{\"n\":1}")
+            .execute(&pool)
+            .await
+            .unwrap();
+        shared_snapshot_del(&pool, "gone").await.unwrap();
+        let left: Option<String> = sqlx::query_scalar("SELECT json FROM backups WHERE ID = ?")
+            .bind("gone")
+            .fetch_optional(&pool)
+            .await
+            .unwrap();
+        assert_eq!(left, None);
+        // Missing row is still Ok (DELETE matches nothing).
+        shared_snapshot_del(&pool, "gone").await.unwrap();
     }
 }

@@ -3,11 +3,18 @@ use super::*;
 /// List embed color. Mirrors !list.ts:123 (`#bf0bb9`).
 pub const BACKUP_LIST_COLOR: u32 = 0xbf0bb9;
 
+/// Author name with member display-name fallback. Mirrors
+/// !list.ts:117-121 (`username || displayName`).
+pub fn list_author_name(username: &str, display_name: Option<&str>) -> String {
+    if username.trim().is_empty() {
+        display_name.unwrap_or_default().to_string()
+    } else {
+        username.to_string()
+    }
+}
+
 #[poise::command(slash_command, prefix_command, rename = "list", aliases("backup-list"))]
-pub async fn backup_list(
-    ctx: Ctx<'_>,
-    #[description = "Backup id"] backup_id: Option<String>,
-) -> Result<(), anyhow::Error> {
+pub async fn backup_list(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     use poise::serenity_prelude as serenity;
     let uid = ctx.author().id.get();
     let gid = ctx
@@ -15,65 +22,32 @@ pub async fn backup_list(
         .map(|g| g.get().to_string())
         .unwrap_or_default();
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-    // Author icon snapshot, like the `user_icon.png` file in !list.ts:173-179
-    // (confession download_bytes pattern; never a raw CDN URL).
-    let mut author = serenity::CreateEmbedAuthor::new(ctx.author().name.clone())
+    // Member display-name fallback, like `username || displayName` in
+    // !list.ts:117-121. Icon stays a snapshot file (never a raw CDN
+    // URL), like the `user_icon.png` file in !list.ts:173-179
+    // (confession download_bytes pattern).
+    let member_display = ctx
+        .author_member()
+        .await
+        .map(|m| m.display_name().to_string());
+    let author_label = list_author_name(&ctx.author().name, member_display.as_deref());
+    let mut author = serenity::CreateEmbedAuthor::new(author_label.clone())
         .icon_url("attachment://user_icon.png");
     let mut author_files: Vec<serenity::CreateAttachment> = vec![];
     if let Some(url) = ctx.author().avatar_url() {
         if let Some(bytes) = crate::commands::shared::download_bytes(&url).await {
             author_files.push(serenity::CreateAttachment::bytes(bytes, "user_icon.png"));
         } else {
-            author = serenity::CreateEmbedAuthor::new(ctx.author().name.clone());
+            author = serenity::CreateEmbedAuthor::new(author_label.clone());
         }
     } else {
-        author = serenity::CreateEmbedAuthor::new(ctx.author().name.clone());
-    }
-
-    // Backup-id detail view. Mirrors the BACKUPS.<uid>.<id> gate in
-    // !list.ts:64 (strangers get backup_this_is_not_your_backup).
-    if let Some(id) = backup_id
-        .as_deref()
-        .map(str::trim)
-        .filter(|s| !s.is_empty())
-    {
-        let Some(raw) = super::backup::bkp_get(&ctx.data().pool, uid, id).await else {
-            let no = crate::emojis::app_emoji_markup(ctx.http(), "No")
-                .await
-                .unwrap_or_else(|| "❌".to_string());
-            ctx.say(
-                crate::commands::lang_for(
-                    &ctx,
-                    "backup_this_is_not_your_backup",
-                    "${client.iHorizon_Emojis.No} | This is not your backup!",
-                )
-                .await
-                .replace("${client.iHorizon_Emojis.No}", &no),
-            )
-            .await?;
-            return Ok(());
-        };
-        let (name, cats, chans) =
-            super::backup::backup_summary(&raw).unwrap_or_else(|| (id.to_string(), 0, 0));
-        let tpl = crate::lang::get(&code, "backup_string_see_v").unwrap_or_else(|| {
-            ":placard:・Categories Count: `${data.categoryCount}`\n:hash:・Channels Count: `${data.channelCount}`"
-                .to_string()
-        });
-        let embed = serenity::CreateEmbed::default()
-            .title(format!("{name} - (||{id}||)"))
-            .description(super::backup::backup_detail_value(cats, chans, &tpl))
-            .colour(serenity::Colour::new(BACKUP_LIST_COLOR))
-            .author(author.clone())
-            .timestamp(serenity::Timestamp::now());
-        let mut reply = poise::CreateReply::default().embed(embed);
-        for file in author_files.clone() {
-            reply = reply.attachment(file);
-        }
-        ctx.send(reply).await?;
-        return Ok(());
+        author = serenity::CreateEmbedAuthor::new(author_label.clone());
     }
 
     // Paginated per-user list, 5 per page (itemsPerPage in !list.ts:37).
+    // NOTE: the backup-id read in !list.ts:58-77 only gates ownership
+    // (strangers get backup_this_is_not_your_backup); it never renders
+    // a single-backup view, so there is no detail branch here either.
     let rows = super::backup::bkp_scan_user(&ctx.data().pool, uid).await;
     let tpl = crate::lang::get(&code, "backup_string_see_another_v").unwrap_or_else(|| {
         ":placard:・Categories Count: `${result.categoryCount}`\n:hash:・Channels Count: `${result.channelCount}`"
@@ -191,4 +165,18 @@ pub async fn backup_list(
         .edit(ctx.http(), serenity::EditMessage::new().components(vec![]))
         .await;
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn author_falls_back_to_display_name_like_ts() {
+        // `username || displayName` in !list.ts:117-121.
+        assert_eq!(list_author_name("Kisakay", Some("Kisa")), "Kisakay");
+        assert_eq!(list_author_name("", Some("Kisa")), "Kisa");
+        assert_eq!(list_author_name("  ", None), "");
+        assert_eq!(list_author_name("", None), "");
+    }
 }

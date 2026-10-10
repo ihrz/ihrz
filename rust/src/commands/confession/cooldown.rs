@@ -101,7 +101,22 @@ pub async fn confession_cooldown(
         &ms.to_string(),
     )
     .await?;
-    let beautiful = beautiful_duration(ms);
+    // Multi-unit echo with the guild language's short unit names, like
+    // `client.timeCalculator.to_beautiful_string(time, lang)` in
+    // !cooldown.ts.
+    let units = duration_unit_names(&code);
+    let beautiful = beautiful_duration_lang(
+        ms,
+        [
+            units[0].as_str(),
+            units[1].as_str(),
+            units[2].as_str(),
+            units[3].as_str(),
+            units[4].as_str(),
+            units[5].as_str(),
+            units[6].as_str(),
+        ],
+    );
     let mention = ctx.author().to_string();
     let reply = crate::lang::get(&code, "confession_coolodwn_command_work")
         .map(|t| render_cooldown_reply(&t, &mention, &beautiful))
