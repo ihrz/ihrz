@@ -2,6 +2,8 @@ use super::*;
 use poise::serenity_prelude as serenity;
 
 /// The role that will be removed to new member(s) when process to the Captcha verification!
+// Verdict (ADMINISTRATOR default, kept): mirrors the TS per-leg
+// `permission: Administrator` gate (`security.ts`, role-to-remove leg).
 #[poise::command(
     slash_command,
     prefix_command,

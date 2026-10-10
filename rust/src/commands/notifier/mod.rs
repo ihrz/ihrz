@@ -5,8 +5,9 @@
 //
 // TS keys: NOTIFIER.users[] {id_or_username, platform}, NOTIFIER.channelId,
 // NOTIFIER.message, NOTIFIER.lastMediaNotified. Live author validation
-// (authorExistOnPlatform) + 120s sweep in scheduler.rs; dedup helper
-// in notifier.rs.
+// (authorExistOnPlatform) + 120s sweep + media dedup
+// (media_already_notified) in scheduler.rs; entry-pair dedup helper
+// (dedup_entries) below.
 
 use crate::bot::Ctx;
 use poise::serenity_prelude as serenity;
@@ -19,10 +20,11 @@ pub struct NotifierEntry {
 }
 
 pub fn valid_platform(p: &str) -> bool {
-    matches!(
-        p.to_ascii_lowercase().as_str(),
-        "twitch" | "youtube" | "kick"
-    )
+    // TS Platform type lists kick, but authorExistOnPlatform throws
+    // "Unsupported platform" for it and the add/remove slash choices
+    // offer only youtube/twitch, so kick is rejected here. Legacy kick
+    // rows still display (author_link -> None renders plain code).
+    matches!(p.to_ascii_lowercase().as_str(), "twitch" | "youtube")
 }
 
 /// Guild-table backend for D1 routing (keys unchanged).
@@ -277,6 +279,8 @@ mod tests {
     fn platforms() {
         assert!(valid_platform("twitch"));
         assert!(valid_platform("YouTube"));
+        // Kick has no TS verify/feed path (throws "Unsupported platform").
+        assert!(!valid_platform("kick"));
         assert!(!valid_platform("nope"));
     }
 

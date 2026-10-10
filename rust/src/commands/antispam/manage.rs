@@ -18,7 +18,7 @@ pub async fn as_config(
     #[description = "mute, kick or ban"] punishment_type: Option<String>,
     #[description = "mute duration, e.g. 15m"] punish_time: Option<String>,
     #[description = "max interval between messages in ms"] max_interval: Option<i64>,
-    #[description = "messages threshold (2-20)"] threshold: Option<i64>,
+    #[description = "messages threshold"] threshold: Option<i64>,
 ) -> Result<(), anyhow::Error> {
     let gid = ctx
         .guild_id()

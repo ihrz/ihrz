@@ -66,6 +66,13 @@ pub fn roles_earned(
 /// kept (dedup checks the tail, the cap drops the oldest); no relayout
 /// beyond that. NOTE: rows written newest-first by older builds keep
 /// their order; only new pushes follow this layout.
+/// CAP VERDICT (deliberate extension, no TS counterpart): TS pushes
+/// unbounded (no slice/cap anywhere in prevnamesModule.ts,
+/// prevnamesModuleGuild.ts or core/prevnamesModule.ts). Rust caps at
+/// PREVNAMES_CAP (20) so a rename-spamming user cannot grow the row
+/// without bound; the pager only renders the tail window anyway.
+/// Verdict: keep the cap, keep 20 (matches the dual-scope merge cap in
+/// load_prevnames_dual).
 pub fn push_prevname(mut history: Vec<String>, name: &str, cap: usize) -> Vec<String> {
     let name = name.to_string();
     if history.last().map(|l| l == &name).unwrap_or(false) {

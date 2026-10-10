@@ -3,6 +3,9 @@
 // Counting-room game. Mirrors src/Events/counter/onNewMessage.ts:
 // a message only counts when its number equals the last amount + 1
 // (from a different user); anything else leaves the count to reset.
+//
+// NOTE: the live stream-notifier surface lives in commands/notifier/*
+// + scheduler.rs; this module is the counter game only.
 
 /// Strict counter check. Mirrors Events/counter/onNewMessage.ts: the
 /// message must equal last+1, else the counter resets.

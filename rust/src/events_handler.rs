@@ -16,6 +16,25 @@ use std::sync::Arc;
 /// Invite uses cache: guild -> code -> (uses, inviter).
 type InviteCache = HashMap<String, HashMap<String, (u64, u64)>>;
 
+/// One live invite snapshot for join attribution (code, uses, inviter).
+/// Pure data so concurrent joins can share one fetch.
+#[derive(Debug, Clone)]
+pub(crate) struct InviteSnap {
+    code: String,
+    uses: u64,
+    inviter_id: u64,
+    inviter_name: String,
+}
+
+/// In-flight invite-fetch dedup: guild -> shared live snapshot.
+/// Mirrors pendingInviteFetch in Events/guildconfig/joinMessage.ts
+/// (concurrent joins share one fetch; the entry is dropped ~1500ms
+/// after settle so the next burst re-fetches fresh uses). None means
+/// the Discord fetch failed (mirrors a rejected promise: no
+/// attribution, and the entry is dropped at once so the next join
+/// retries instead of reusing the miss).
+type PendingInviteFetch = HashMap<String, Arc<tokio::sync::OnceCell<Option<Vec<InviteSnap>>>>>;
+
 // tbl_* routing lives in crate::db (single home, C5); the forks that
 // lived here are deleted and call sites below use `crate::db::tbl_*`.
 
@@ -728,6 +747,9 @@ pub struct Handler {
     /// Invite uses cache per guild: code -> (uses, inviter).
     /// Mirrors invitemanager onInviteCreate/Delete tracking.
     pub invites: Arc<tokio::sync::Mutex<InviteCache>>,
+    /// In-flight invite-fetch dedup per guild. Mirrors
+    /// pendingInviteFetch in Events/guildconfig/joinMessage.ts.
+    pub invite_fetch: Arc<tokio::sync::Mutex<PendingInviteFetch>>,
     /// Guilds already owner-sealed this boot.
     /// Mirrors guildOwnerSafetySetWhenMessage already_visited.
     pub sealed: Arc<tokio::sync::Mutex<std::collections::HashSet<String>>>,
@@ -1415,6 +1437,7 @@ impl Handler {
             antispam_flush: Arc::new(tokio::sync::Mutex::new(HashSet::new())),
             antispam_warn_ch: Arc::new(tokio::sync::Mutex::new(HashMap::new())),
             invites: Arc::new(tokio::sync::Mutex::new(HashMap::new())),
+            invite_fetch: Arc::new(tokio::sync::Mutex::new(HashMap::new())),
             sealed: Arc::new(tokio::sync::Mutex::new(std::collections::HashSet::new())),
             security: Arc::new(tokio::sync::Mutex::new(HashMap::new())),
             slashlog,
@@ -3655,6 +3678,96 @@ pub async fn board_reaction_remove(
     }
 }
 
+impl Handler {
+    /// Live invite snapshot with per-guild in-flight dedup + resolve
+    /// timeout. Mirrors fetchInvitesOnce + withTimeout(resolveInvite,
+    /// INVITE_RESOLVE_TIMEOUT_MS = 1200) in
+    /// Events/guildconfig/joinMessage.ts: concurrent joins share one
+    /// Discord fetch via the `invite_fetch` map (dropped ~1500ms after
+    /// settle, like the TS post-settle delete), and a slow API never
+    /// stalls the greeting past the timeout. None on timeout or fetch
+    /// failure means unattributed (the TS resolveInvite null path);
+    /// a failure also drops the map entry at once so the next join
+    /// retries instead of reusing the miss.
+    async fn fetch_invites_dedup(
+        &self,
+        http: &std::sync::Arc<serenity::Http>,
+        guild_id: serenity::GuildId,
+    ) -> Option<Vec<InviteSnap>> {
+        const INVITE_RESOLVE_TIMEOUT_MS: u64 = 1200;
+        const INVITE_FETCH_DEDUP_KEEP_MS: u64 = 1500;
+        let gid = guild_id.get().to_string();
+        let (cell, fresh) = {
+            let mut pending = self.invite_fetch.lock().await;
+            match pending.entry(gid.clone()) {
+                std::collections::hash_map::Entry::Occupied(o) => (o.get().clone(), false),
+                std::collections::hash_map::Entry::Vacant(v) => {
+                    let cell = Arc::new(tokio::sync::OnceCell::new());
+                    v.insert(cell.clone());
+                    (cell, true)
+                }
+            }
+        };
+        if fresh {
+            let pending = self.invite_fetch.clone();
+            let cell_ref = cell.clone();
+            let gid_cleanup = gid.clone();
+            tokio::spawn(async move {
+                tokio::time::sleep(std::time::Duration::from_millis(INVITE_FETCH_DEDUP_KEEP_MS))
+                    .await;
+                let mut pending = pending.lock().await;
+                if pending
+                    .get(&gid_cleanup)
+                    .is_some_and(|cur| Arc::ptr_eq(cur, &cell_ref))
+                {
+                    pending.remove(&gid_cleanup);
+                }
+            });
+        }
+        // Outer None = resolve timeout (the entry is left: the fetch may
+        // still settle for other waiters, or the next join retries the
+        // init). Inner None = settled fetch failure (entry dropped at
+        // once, mirroring the rejected promise leaving nothing cached).
+        let settled: Option<Option<Vec<InviteSnap>>> = tokio::time::timeout(
+            std::time::Duration::from_millis(INVITE_RESOLVE_TIMEOUT_MS),
+            cell.get_or_init(|| async {
+                match guild_id.invites(http).await {
+                    Ok(live) => Some(
+                        live.into_iter()
+                            .map(|inv| InviteSnap {
+                                code: inv.code.clone(),
+                                uses: inv.uses,
+                                inviter_id: inv.inviter.as_ref().map(|u| u.id.get()).unwrap_or(0),
+                                inviter_name: inv
+                                    .inviter
+                                    .as_ref()
+                                    .map(|u| u.name.clone())
+                                    .unwrap_or_default(),
+                            })
+                            .collect(),
+                    ),
+                    Err(_) => None,
+                }
+            }),
+        )
+        .await
+        .ok()
+        .map(|opt| opt.clone());
+        match settled {
+            None => None,
+            Some(snaps) => {
+                if snaps.is_none() {
+                    let mut pending = self.invite_fetch.lock().await;
+                    if pending.get(&gid).is_some_and(|cur| Arc::ptr_eq(cur, &cell)) {
+                        pending.remove(&gid);
+                    }
+                }
+                snaps
+            }
+        }
+    }
+}
+
 #[serenity::async_trait]
 impl serenity::EventHandler for Handler {
     async fn ready(&self, ctx: serenity::Context, ready: serenity::Ready) {
@@ -4781,16 +4894,25 @@ impl serenity::EventHandler for Handler {
         // Invite attribution (mirrors joinMessage invite tracker):
         // diff live invite uses against the cache to find the inviter.
         // The winner is kept for the join message inviter slots below.
+        // The live fetch is deduplicated per guild with a 1200ms resolve
+        // timeout (mirrors fetchInvitesOnce + withTimeout in
+        // joinMessage.ts); a slow/failed fetch leaves the join
+        // unattributed, like the TS resolveInvite null path. The diff
+        // stops at the first uses increase (mirrors the TS `.find`),
+        // even when that invite carries no inviter.
         let mut attributed: Option<(u64, String, String)> = None;
-        if let Ok(live) = new_member.guild_id.invites(&ctx.http).await {
+        if let Some(live) = self
+            .fetch_invites_dedup(&ctx.http, new_member.guild_id)
+            .await
+        {
             let mut cache = self.invites.lock().await;
             let entry = cache.entry(gid.clone()).or_default();
             for inv in &live {
                 let cached = entry.get(&inv.code).map(|(u, _)| *u).unwrap_or(0);
                 if inv.uses > cached {
-                    if let Some(inviter) = inv.inviter.as_ref() {
-                        let inviter_id = inviter.id.get();
-                        attributed = Some((inviter_id, inv.code.clone(), inviter.name.clone()));
+                    if inv.inviter_id != 0 {
+                        let inviter_id = inv.inviter_id;
+                        attributed = Some((inviter_id, inv.code.clone(), inv.inviter_name.clone()));
                         entry.insert(inv.code.clone(), (inv.uses, inviter_id));
                         // BY shape mirrors joinMessage.ts recordInviterStats
                         // (`db.set(....INVITES.BY, {inviter, invite})`): the
@@ -4825,15 +4947,10 @@ impl serenity::EventHandler for Handler {
                     break;
                 }
             }
-            // Refresh cache snapshot.
+            // Refresh cache snapshot (mirrors clientInviteCache in
+            // joinMessage.ts: the whole live list is re-cached).
             for inv in &live {
-                entry.insert(
-                    inv.code.clone(),
-                    (
-                        inv.uses,
-                        inv.inviter.as_ref().map(|u| u.id.get()).unwrap_or(0),
-                    ),
-                );
+                entry.insert(inv.code.clone(), (inv.uses, inv.inviter_id));
             }
         }
         // Guild blacklist gate (mirrors blacklistFetcher.ts): the global
@@ -5025,28 +5142,29 @@ impl serenity::EventHandler for Handler {
                 rolesaver_row_routed(&self.pool, &gid, new_member.user.id.get()).await
             {
                 let roles: Vec<String> = serde_json::from_str(&raw).unwrap_or_default();
-                // TS `if (!array || array.length === 0) return`: an empty
-                // snapshot restores nothing (and must not wipe roles).
-                if roles.is_empty() {
-                    return;
+                // TS `if (!array || array.length === 0) return` only skips
+                // the restore itself: scoped here (no early return) so an
+                // empty snapshot neither wipes roles nor aborts the rest
+                // of the join pipeline below.
+                if !roles.is_empty() {
+                    let want: Vec<serenity::RoleId> = roles
+                        .iter()
+                        .filter_map(|s| s.parse::<u64>().ok())
+                        .map(serenity::RoleId::new)
+                        .collect();
+                    // Delta: no audit-log reason in serenity 0.12.
+                    for r in want.iter().filter(|r| !new_member.roles.contains(r)) {
+                        let _ = new_member.add_role(&ctx.http, *r).await;
+                    }
+                    for r in new_member
+                        .roles
+                        .iter()
+                        .filter(|r| r.get() != new_member.guild_id.get() && !want.contains(r))
+                    {
+                        let _ = new_member.remove_role(&ctx.http, *r).await;
+                    }
+                    let _ = crate::db::tbl_del(&self.pool, &gid, &key).await;
                 }
-                let want: Vec<serenity::RoleId> = roles
-                    .iter()
-                    .filter_map(|s| s.parse::<u64>().ok())
-                    .map(serenity::RoleId::new)
-                    .collect();
-                // Delta: no audit-log reason in serenity 0.12.
-                for r in want.iter().filter(|r| !new_member.roles.contains(r)) {
-                    let _ = new_member.add_role(&ctx.http, *r).await;
-                }
-                for r in new_member
-                    .roles
-                    .iter()
-                    .filter(|r| r.get() != new_member.guild_id.get() && !want.contains(r))
-                {
-                    let _ = new_member.remove_role(&ctx.http, *r).await;
-                }
-                let _ = crate::db::tbl_del(&self.pool, &gid, &key).await;
             }
         }
         // Ghost-ping watch prime (mirrors ghostPingModule.ts): send the
@@ -5942,8 +6060,11 @@ impl serenity::EventHandler for Handler {
         // Counting game. Mirrors Events/counter/onNewMessage.ts
         // (bots/webhooks/empty messages skip; wrong entries reset
         // COUNTER_DATA to zero with ✅/❌ reactions, replies and
-        // topic updates).
-        if msg.webhook_id.is_none() && !msg.content.trim().is_empty() {
+        // topic updates). The empty check is the raw `=== ""` (only a
+        // truly empty content returns early); anything else — including
+        // whitespace-only — reaches the isNumber gate below and takes
+        // the wrong-number path, exactly like TS.
+        if msg.webhook_id.is_none() && !msg.content.is_empty() {
             if let Some(counter_ch) = counter_channel_routed(&self.pool, &gid).await {
                 if counter_ch == msg.channel_id.get().to_string() {
                     let enabled = counter_config_routed(&self.pool, &gid)
@@ -5954,7 +6075,32 @@ impl serenity::EventHandler for Handler {
                         use crate::commands::newfeatures as nf;
                         let author_id = msg.author.id.get().to_string();
                         let raw = counter_data_routed(&self.pool, &gid).await;
-                        let last = nf::parse_counter_data(raw.as_deref());
+                        let mut last = nf::parse_counter_data(raw.as_deref());
+                        // LEGACY-NUMBER VERDICT: TS backports ANY JSON
+                        // number (`typeof lastNumber === "number"`), while
+                        // parse_counter_data only takes i64 — a bare float
+                        // or u64-wide row would read amount 0 and wrongly
+                        // reset the game. Re-read such rows here (fraction
+                        // truncated, u64 saturated) so legacy rows keep
+                        // counting instead of resetting.
+                        if last.amount == 0 && last.user_id.is_none() {
+                            if let Some(raw) = raw.as_deref() {
+                                if let Ok(v) = serde_json::from_str::<serde_json::Value>(raw.trim())
+                                {
+                                    if v.is_number() && v.as_i64().is_none() {
+                                        let n = v
+                                            .as_u64()
+                                            .map(|u| u.min(i64::MAX as u64) as i64)
+                                            .or_else(|| v.as_f64().map(|f| f as i64))
+                                            .unwrap_or(0);
+                                        last = nf::CounterData {
+                                            amount: n,
+                                            user_id: None,
+                                        };
+                                    }
+                                }
+                            }
+                        }
                         let code = crate::db::guild_lang(&self.pool, Some(guild_id.get())).await;
                         let text = |key: &str, fallback: &str| {
                             crate::lang::get(&code, key).unwrap_or_else(|| fallback.to_string())
@@ -6873,7 +7019,10 @@ impl serenity::EventHandler for Handler {
                 .author(serenity::CreateEmbedAuthor::new(new.author.name.clone()).icon_url(avatar))
                 .description(desc)
                 .timestamp(serenity::Timestamp::now());
-            if old.content.len() > 160 || new.content.len() > 160 {
+            // TS `.length` counts UTF-16 code units, not bytes: `.len()`
+            // would flip to the diff block too early on multibyte text.
+            if old.content.encode_utf16().count() > 160 || new.content.encode_utf16().count() > 160
+            {
                 embed = embed.field(
                     text("var_message"),
                     crate::events::message_diff(&old.content, &new.content),

@@ -7,6 +7,11 @@ use std::collections::HashMap;
 pub const EMBED_SELECT_ID: &str = "embed-select-menu";
 pub const EMBED_SAVE_CHANNEL_ID: &str = "embed-save-channel";
 /// Namespaced button ids (TS uses bare save/send/replace/cancel).
+/// BUTTON-ID VERDICT: the `embed:` prefix namespaces these against
+/// every other collector in the bot; routing strips the prefix
+/// (`handle_embed_component`) and ignores anything without it, so
+/// bare-id collisions with other modules are impossible. Kept
+/// as-is on purpose.
 pub const EMBED_BTN_PREFIX: &str = "embed:";
 
 pub fn draft_key(builder_msg_id: u64) -> String {

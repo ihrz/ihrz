@@ -912,6 +912,10 @@ async fn send_bl_pager(
             .timestamp(serenity::Timestamp::now())
     };
     let mk_row = |disabled: bool| {
+        // PAGER-ID VERDICT: bare `bl-prev`/`bl-next` ids are safe —
+        // the collector is message-scoped (`await_component_interaction`
+        // on this reply only) and invoker-gated, so concurrent pagers
+        // never cross-talk. Kept as-is on purpose.
         serenity::CreateActionRow::Buttons(vec![
             serenity::CreateButton::new("bl-prev")
                 .style(serenity::ButtonStyle::Secondary)

@@ -1,6 +1,13 @@
 use super::*;
 
 /// Anti-pub spam config (amount/type/state).
+// Mirrors punishpub.ts: `status` is `"true"`/`"false"` on slash
+// (`"on"`/`"off"` accepted as prefix aliases). The enable leg runs
+// only when status is on AND an amount is given (TS
+// `amount && action == "true"`): it validates, writes
+// `{amountMax: amount - 1, punishementType, state: "true"}`, logs
+// and confirms. Every other combination (off, or on without an
+// amount) falls to the disable leg, which deletes the row.
 #[poise::command(
     slash_command,
     prefix_command,
@@ -12,27 +19,28 @@ pub async fn punishpub(
     ctx: Ctx<'_>,
     #[description = "Flags before sanction"] amount: Option<i64>,
     #[description = "ban, kick or mute"] punishment: Option<String>,
-    #[description = "on or off"] action: Option<String>,
+    #[description = "true or false (on/off accepted on prefix)"] action: Option<String>,
 ) -> Result<(), anyhow::Error> {
     let gid = ctx
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
-    let raw = crate::db::tbl_get(&ctx.data().pool, &gid, "GUILD.PUNISH.PUNISH_PUB").await;
-    let mut cfg: serde_json::Value = raw
-        .and_then(|s| serde_json::from_str(&s).ok())
-        .unwrap_or(serde_json::json!({}));
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-    // TS validates the amount on the enable leg (`amount && action ==
-    // "true"): over 50, negative, and zero each get their own reply.
-    // (`== 0` is unreachable in TS since 0 is falsy there, but the key
-    // exists for it, so the zero reply is kept.)
-    let enabling = action
-        .as_deref()
-        .map(|a| a.trim().eq_ignore_ascii_case("on"))
-        .unwrap_or(true);
-    if let Some(a) = amount {
-        if enabling {
+    let uid = ctx.author().id.get().to_string();
+    // Slash choices send "true"/"false"; prefix users type "on"/"off".
+    let on = matches!(
+        action
+            .as_deref()
+            .map(|a| a.trim().to_ascii_lowercase())
+            .as_deref(),
+        Some("true") | Some("on")
+    );
+    // Enable leg (TS `amount && action == "true"`): amount present and
+    // status on. Amount validation mirrors TS (over 50, negative and
+    // zero each get their own reply; `== 0` is unreachable in TS
+    // since 0 is falsy there, but the key exists, so it is kept).
+    if on {
+        if let Some(a) = amount {
             if a > 50 {
                 ctx.say(
                     crate::lang::get(&code, "punishpub_too_hight_enable").unwrap_or_else(|| {
@@ -58,30 +66,51 @@ pub async fn punishpub(
                 .await?;
                 return Ok(());
             }
+            let amount_s = a.to_string();
+            // TS stores `punishementType: punishment` verbatim (possibly
+            // undefined, which JSON drops); None omits the key here so
+            // the reader default (`"ban"`) applies the same way.
+            let kind_s = punishment.as_deref().map(|s| s.trim().to_string());
+            let mut cfg = serde_json::json!({"amountMax": a - 1, "state": "true"});
+            if let Some(k) = kind_s.clone() {
+                cfg["punishementType"] = serde_json::Value::String(k);
+            }
+            crate::db::tbl_set_json(&ctx.data().pool, &gid, "GUILD.PUNISH.PUNISH_PUB", &cfg)
+                .await?;
+            let kind_tpl = kind_s.unwrap_or_else(|| "undefined".to_string());
+            let log_title =
+                crate::lang::get(&code, "punishpub_logs_embed_title").unwrap_or_default();
+            let log_desc = crate::lang::get(&code, "punishpub_logs_embed_description")
+                .unwrap_or_default()
+                .replace("${interaction.user.id}", &uid)
+                .replace("${amount}", &amount_s)
+                .replace("${punishement}", &kind_tpl);
+            crate::commands::economy::post_ihorizon_log(&ctx, &log_title, &log_desc).await;
+            let confirm = crate::lang::get(&code, "punishpub_confirmation_message_enable")
+                .unwrap_or_else(|| "Punishpub enabled.".to_string())
+                .replace("${interaction.user.id}", &uid)
+                .replace("${amount}", &amount_s)
+                .replace("${punishement}", &kind_tpl);
+            ctx.say(confirm).await?;
+            return Ok(());
         }
     }
-    if let Some(a) = amount {
-        cfg["amountMax"] = serde_json::Value::from(a.max(1) - 1);
-    }
-    if let Some(p) = punishment {
-        cfg["punishementType"] = serde_json::Value::String(p.trim().to_string());
-    }
-    if let Some(a) = action {
-        cfg["state"] = serde_json::Value::String(
-            if a.trim().eq_ignore_ascii_case("on") {
-                "true"
-            } else {
-                "false"
-            }
-            .to_string(),
-        );
-    }
-    crate::db::tbl_set_json(&ctx.data().pool, &gid, "GUILD.PUNISH.PUNISH_PUB", &cfg).await?;
+    // Disable leg (TS else branch: action off, or on without an
+    // amount). The pub reader (`punish_pub_routed` in
+    // events_handler.rs) loads exactly this `GUILD.PUNISH.PUNISH_PUB`
+    // leaf, so deleting the row turns the pipeline off.
+    crate::db::tbl_del(&ctx.data().pool, &gid, "GUILD.PUNISH.PUNISH_PUB").await?;
     ctx.say(
-        crate::lang::get(&code, "msg_punishpub_updated")
-            .unwrap_or_else(|| "Punishpub updated.".to_string()),
+        crate::lang::get(&code, "punishpub_confirmation_disable")
+            .unwrap_or_else(|| "Punishpub disabled.".to_string()),
     )
     .await?;
+    let log_title =
+        crate::lang::get(&code, "punishpub_logs_embed_title_disable").unwrap_or_default();
+    let log_desc = crate::lang::get(&code, "punishpub_logs_embed_description_disable")
+        .unwrap_or_default()
+        .replace("${interaction.user.id}", &uid);
+    crate::commands::economy::post_ihorizon_log(&ctx, &log_title, &log_desc).await;
     Ok(())
 }
 

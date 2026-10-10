@@ -2,6 +2,8 @@ use super::*;
 use poise::serenity_prelude as serenity;
 
 /// Role to give command.
+// Verdict (ADMINISTRATOR default, kept): mirrors the TS per-leg
+// `permission: Administrator` gate (`security.ts`, role-to-give leg).
 #[poise::command(
     slash_command,
     prefix_command,

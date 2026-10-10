@@ -40,25 +40,48 @@ pub fn toggle_button(enabled: bool) -> (&'static str, bool) {
 
 /// Effective admin bit for the invoker: OR of their cached roles plus
 /// @everyone (mirrors the moderation role-hierarchy resolution).
+/// Verdict (HTTP fallback kept): the cache path covers prefix and warm
+/// slash guilds; an uncached slash guild falls back to HTTP role/member
+/// fetch (same resolution as `panel_invoker_is_admin`), never a bare
+/// deny on a cold cache.
 pub async fn invoker_is_admin(ctx: Ctx<'_>) -> bool {
     // Clone out of the cache guard first: CacheRef is not Send and must
     // not be held across awaits.
-    let Some((guild_id, roles)) = ctx.guild().map(|g| (g.id, g.roles.clone())) else {
+    if let Some((guild_id, roles)) = ctx.guild().map(|g| (g.id, g.roles.clone())) {
+        let author_roles = ctx
+            .author_member()
+            .await
+            .map(|m| m.roles.clone())
+            .unwrap_or_default();
+        let everyone = serenity::RoleId::new(guild_id.get());
+        let mut perms = serenity::Permissions::empty();
+        for r in &author_roles {
+            if let Some(role) = roles.get(r) {
+                perms |= role.permissions;
+            }
+        }
+        if let Some(everyone_role) = roles.get(&everyone) {
+            perms |= everyone_role.permissions;
+        }
+        return perms.administrator();
+    }
+    let (Some(guild_id), user_id) = (ctx.guild_id(), ctx.author().id) else {
         return false;
     };
-    let author_roles = ctx
-        .author_member()
-        .await
-        .map(|m| m.roles.clone())
-        .unwrap_or_default();
+    let Ok(guild_roles) = ctx.http().get_guild_roles(guild_id).await else {
+        return false;
+    };
+    let Ok(member) = guild_id.member(ctx.http(), user_id).await else {
+        return false;
+    };
     let everyone = serenity::RoleId::new(guild_id.get());
     let mut perms = serenity::Permissions::empty();
-    for r in &author_roles {
-        if let Some(role) = roles.get(r) {
+    for r in &member.roles {
+        if let Some(role) = guild_roles.iter().find(|gr| &gr.id == r) {
             perms |= role.permissions;
         }
     }
-    if let Some(everyone_role) = roles.get(&everyone) {
+    if let Some(everyone_role) = guild_roles.iter().find(|gr| gr.id == everyone) {
         perms |= everyone_role.permissions;
     }
     perms.administrator()

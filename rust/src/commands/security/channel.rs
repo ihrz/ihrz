@@ -2,6 +2,8 @@ use super::*;
 use poise::serenity_prelude as serenity;
 
 /// Set the channel where user earn new xp level message!
+// Verdict (ADMINISTRATOR default, kept): mirrors the TS per-leg
+// `permission: Administrator` gate (`security.ts`, channel leg).
 #[poise::command(
     slash_command,
     prefix_command,

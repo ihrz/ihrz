@@ -83,6 +83,9 @@ pub fn roles_requirement_invalid(value: &str, guild_has_role: Option<bool>) -> b
 /// Cache first, HTTP fallback (same pattern as the antispam leg: serenity
 /// may leave the cache cold where discord.js always populates it).
 /// Returns `None` when the value is not a role id or the guild id is unknown.
+/// Verdict (HTTP fallback kept, lead sign-off): the fallback only ever
+/// narrows — a bare numeric id never passes without guild resolution, and
+/// `None` (guild unreadable) rejects like the TS cache miss.
 pub async fn roles_requirement_guild_has(ctx: Ctx<'_>, value: &str) -> Option<bool> {
     let rid = value
         .trim()

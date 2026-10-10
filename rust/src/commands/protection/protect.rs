@@ -222,6 +222,11 @@ pub fn allowlist_mentions(rows: &[String]) -> String {
 // narrower than TS on the allowlist legs, which is the safe direction.
 // A bare invocation raises SubcommandRequired (mapped to help in
 // `bot.rs`) before this body runs, on both paths.
+// Verdict (prefix extension, kept): TS protection is slash-only
+// (`ApplicationCommandType.ChatInput`, no prefix path), while every leaf
+// below also registers `prefix_command`. The extension is safe on
+// purpose: the in-code `deny_unless_owner` gates cover both entry paths,
+// so prefix adds reach, never privilege.
 #[poise::command(
     slash_command,
     prefix_command,
@@ -642,6 +647,11 @@ pub async fn protect_show(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
 }
 
 /// Allow add command.
+// Verdict (no ADMINISTRATOR default, kept): the TS allowlist legs are
+// `permission: null` at the Discord layer (`allowlist.ts`) and
+// owner-only in code (`!add.ts:50`, second guard dead code); the
+// in-code `deny_unless_owner` below is that same gate, strictly
+// narrower than adding an ADMIN default would be.
 #[poise::command(slash_command, prefix_command, rename = "allow-add")]
 pub async fn protect_allow_add(
     ctx: Ctx<'_>,
@@ -700,6 +710,9 @@ pub async fn protect_allow_add(
 }
 
 /// Allow remove command.
+// Verdict (no ADMINISTRATOR default, kept): same as `protect_allow_add`
+// — TS `!remove.ts:50` is owner-only in code over `permission: null`,
+// so `deny_unless_owner` below is the whole gate.
 #[poise::command(slash_command, prefix_command, rename = "allow-remove")]
 pub async fn protect_allow_remove(
     ctx: Ctx<'_>,
