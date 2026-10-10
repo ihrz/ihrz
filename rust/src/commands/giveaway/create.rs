@@ -125,12 +125,26 @@ pub fn gw_requirement_value(choice: GwRequirement) -> &'static str {
 )]
 pub async fn gw_create(
     ctx: Ctx<'_>,
+    // Option (not required): TS reads `getNumber("winner")` /
+    // `number(args, 0)` (both nullable, !create.ts) while the slash
+    // schema marks it required (gw.ts). A missing/invalid count fails
+    // the in-handler guard and answers `start_is_not_valid` instead of
+    // a poise parse error on the bare form.
     #[description = "Winners"]
     #[rename = "winner"]
-    winners: String,
+    winners: Option<String>,
     #[description = "Duration (e.g. 10m, 1h, 7d)"] time: String,
-    #[description = "Requirement: none, invites, messages, roles"] requirement: GwRequirement,
-    #[description = "Prize"] prize: String,
+    // Option (not required): TS reads `getString("requirement")` /
+    // `string(args, 2)` (both nullable, !create.ts) while the slash
+    // schema marks it required (gw.ts). Missing maps to "none" below
+    // (ADOPT, recorded): TS would store a null type which matches no
+    // requirement gate, behaving exactly like "none".
+    #[description = "Requirement: none, invites, messages, roles"] requirement: Option<
+        GwRequirement,
+    >,
+    // Option (not required): TS stores `(prize || "").substring(0,256)`
+    // (!create.ts:140), so a missing prize creates with an empty prize.
+    #[description = "Prize"] prize: Option<String>,
     #[description = "Requirement value"]
     #[rename = "requirement-value"]
     requirement_value: Option<String>,
@@ -141,8 +155,10 @@ pub async fn gw_create(
     // Mirrors !create.ts:77-85 (raw count validated in-handler:
     // NaN / <= 0 -> start_is_not_valid). Both paths carry the raw
     // string (prefix `number(args, 0)`, slash Number option), parsed
-    // here like the TS getNumber + parseInt.
-    let winners = parse_winners_count(&winners);
+    // here like the TS getNumber + parseInt. Missing (None) parses to
+    // 0 like the TS NaN path, so the guard below answers
+    // `start_is_not_valid`.
+    let winners = parse_winners_count(winners.as_deref().unwrap_or(""));
     if !validate_winners(winners) {
         ctx.say(crate::lang::get(&code_early, "start_is_not_valid").unwrap_or_default())
             .await?;
@@ -170,8 +186,10 @@ pub async fn gw_create(
     // Mirrors !create.ts:101-134 (requirement-value gates; the
     // `requirement` option itself is required like gw.ts:163).
     // Unknown words never reach this point: the GwRequirement
-    // choices reject them up front (slash UI + prefix parse).
-    let requirement = gw_requirement_value(requirement);
+    // choices reject them up front (slash UI + prefix parse). A
+    // missing requirement (None) adopts "none": the TS null type
+    // matches no gate, identical behavior.
+    let requirement = requirement.map(gw_requirement_value).unwrap_or("none");
     let req_value = requirement_value.unwrap_or_default();
     // Roles resolve against the guild like
     // `interaction.guild.roles.cache.has(value)` in !create.ts:124-134:
@@ -218,7 +236,10 @@ pub async fn gw_create(
         guild_id: gid.clone(),
         channel_id: ctx.channel_id().get().to_string(),
         winner_count: winners as u32,
-        prize: truncate_prize(&prize),
+        // TS prefix leaves prize undefined, slash marks it required;
+        // either way the stored value is `(prize || "")` sliced to 256
+        // (!create.ts:140), so None stores empty here too.
+        prize: truncate_prize(prize.as_deref().unwrap_or("")),
         hosted_by: ctx.author().id.get().to_string(),
         expire_in_ms: now + delta,
         ended: false,
@@ -226,8 +247,6 @@ pub async fn gw_create(
         winners: vec![],
         requirement: requirement.to_string(),
         requirement_value: req_value,
-        // TS prefix leaves prize undefined (`prize || ""`); slash marks
-        // it required. Either way the stored value is the 256-char slice.
         is_valid: true,
         embed_image_url: match resolve_image_source(is_prefix, image.as_deref()) {
             Some(url) if crate::funcs::is_image_url(url).await => Some(url.to_string()),

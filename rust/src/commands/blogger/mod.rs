@@ -3,8 +3,10 @@
 // Mirrors src/Interaction/SlashCommands/blogger/* + src/core/Blogger.ts
 // (config surface + live RSS validation).
 //
-// TS keys: BLOGGER.blogs[] {id, rss, channelId}, BLOGGER.enabled,
-// BLOGGER.lastArticleNotified.
+// TS stores one BLOGGER object per guild ({enabled, blogs[] {id, rss,
+// channelId}, lastArticleNotified[]}); this port splits the same JSON
+// across table-routed sub-keys (BLOGGER.blogs, BLOGGER.enabled, ...)
+// with legacy flat-row fallback.
 
 use crate::bot::Ctx;
 use poise::serenity_prelude as serenity;

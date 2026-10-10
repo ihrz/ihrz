@@ -71,14 +71,24 @@ pub fn nowplaying_progress(position_ms: u64, duration_ms: u64) -> NowProgress {
     }
 }
 
-/// TS lyrics leg trims to 1997 chars and appends `...` whenever the source
-/// reached that width (substring(0, 1997) + length check).
+/// TS lyrics leg trims to 1997 UTF-16 units and appends `...` whenever the
+/// source reached that width (substring(0, 1997) + length check). Astral
+/// chars cost 2 units and pairs are never split.
 pub fn trim_lyrics_1997(s: &str) -> String {
-    let head: String = s.chars().take(1997).collect();
-    if s.chars().count() >= 1997 {
-        format!("{head}...")
+    let mut units = 0usize;
+    let mut end = 0usize;
+    for (i, c) in s.char_indices() {
+        let w = c.len_utf16();
+        if units + w > 1997 {
+            break;
+        }
+        units += w;
+        end = i + c.len_utf8();
+    }
+    if end < s.len() || units >= 1997 {
+        format!("{}...", &s[..end])
     } else {
-        head
+        s.to_string()
     }
 }
 

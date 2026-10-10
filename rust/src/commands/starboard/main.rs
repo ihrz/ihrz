@@ -1,6 +1,8 @@
 use super::*;
 
-/// Starboard parent command. Mirrors starboard.ts (no parent aliases in TS).
+// No parent aliases in TS.
+// Mirrors the starboard.ts parent description verbatim.
+/// SubCommand group for Starboard category
 #[poise::command(
     slash_command,
     prefix_command,

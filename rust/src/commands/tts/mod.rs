@@ -459,19 +459,23 @@ fn tts_script_hit(c: char, detector: u8) -> bool {
 
 /// Locale override from the message script, mirroring
 /// detectMessageLocale (40% threshold on noise-stripped text).
+/// `cleaned.length` counts UTF-16 code units, so the threshold
+/// denominator sums `len_utf16` (astral chars cost 2); hit counts stay
+/// per-char, like the TS single-char regex matches.
 pub fn detect_message_locale(text: &str) -> Option<&'static str> {
     const LOCALES: [&str; 4] = ["ru-RU", "jp-JP", "jp-JP", "ar-EG"];
     let cleaned: Vec<char> = text.chars().filter(|c| !tts_locale_noise(*c)).collect();
     if cleaned.is_empty() {
         return None;
     }
+    let total_units: usize = cleaned.iter().map(|c| c.len_utf16()).sum();
     for (i, locale) in LOCALES.iter().enumerate() {
         let hits = cleaned
             .iter()
             .filter(|c| tts_script_hit(**c, i as u8))
             .count();
         // Float compare like TS (`matches.length >= cleaned.length * 0.4`).
-        if hits as f64 >= cleaned.len() as f64 * 0.4 {
+        if hits as f64 >= total_units as f64 * 0.4 {
             return Some(locale);
         }
     }
@@ -632,6 +636,10 @@ mod tests {
         // Below the 40% share: no override.
         assert_eq!(detect_message_locale("hello world"), None);
         assert_eq!(detect_message_locale("hello Привет world"), None);
+        // UTF-16 threshold like TS `cleaned.length`: 2 Cyrillic hits in
+        // 5 chars look like 40%, but 8 UTF-16 units (3 astral emoji
+        // cost double) drop the share to 25%.
+        assert_eq!(detect_message_locale("аб😀😀😀"), None);
         // Noise-only text: no override.
         assert_eq!(detect_message_locale("... !!  "), None);
         assert_eq!(detect_message_locale(""), None);

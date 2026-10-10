@@ -4,7 +4,7 @@ use super::{
     use_::tag_use, wlroles_create::tag_wl_create, wlroles_use::tag_wl_use,
 };
 
-/// Subcommand for tag category!
+/// Subcommand for the category of tags message
 #[poise::command(
     slash_command,
     prefix_command,

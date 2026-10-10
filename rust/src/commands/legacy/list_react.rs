@@ -26,7 +26,8 @@ pub async fn load_react_triggers(pool: &crate::db::Pool, gid: &str) -> Vec<Strin
     slash_command,
     prefix_command,
     category = "utils",
-    rename = "list-react"
+    rename = "list-react",
+    aliases("react-list", "listreact", "reactlist")
 )]
 pub async fn list_react(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let gid = ctx

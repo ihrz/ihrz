@@ -1,7 +1,7 @@
 use super::*;
 use super::{add::blogger_add, list::blogger_list, remove::blogger_remove, status::blogger_status};
 
-/// Subcommand for blogger category!
+/// Subcommand category for blogger RSS feeds!
 #[poise::command(
     slash_command,
     prefix_command,

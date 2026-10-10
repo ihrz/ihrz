@@ -1,7 +1,9 @@
 // iHorizon Discord Bot (https://gitlab.com/ihrz/ihrz)
 // Licensed under CC-BY-NC-SA-4.0.
 // User/guild stats calculators. Mirrors src/core/functions/userStatsUtils.ts
-// (8 fns) as pure offline logic over plain snapshots.
+// (8 fns) as pure offline logic over plain snapshots. The top-N
+// ordering helpers are shared with the stats commands' leaderboard
+// renderer (see commands::stats `top_by`).
 
 /// Message snapshot. Mirrors DatabaseStructure.StatsMessage.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -112,7 +114,9 @@ pub fn channel_minutes_count(channel_id: &str, voices: &[StatsVoice]) -> i64 {
         .filter(|v| v.channel_id == channel_id)
         .map(|v| v.end_timestamp - v.start_timestamp)
         .sum();
-    total / 1000 / 60
+    // TS Math.round (halves toward +inf): floor(x + 0.5), not integer
+    // truncation (90_000 ms = 1.5 min rounds to 2, trunc gives 1).
+    ((total as f64 / 1000.0 / 60.0) + 0.5).floor() as i64
 }
 
 /// Per-member aggregate for the leaderboard. Member id stands in for
@@ -243,10 +247,13 @@ mod tests {
         let msgs = vec![msg(1, "a"), msg(2, "a"), msg(3, "b")];
         assert_eq!(channel_messages_count("a", &msgs), 2);
         assert_eq!(channel_messages_count("zzz", &msgs), 0);
-        // 90_000 ms = 1.5 min -> Math.round down via integer div = 1.
+        // 90_000 ms + 30_000 ms = 120_000 ms = 2 min via Math.round.
         let voices = vec![voice(0, 90_000, "v"), voice(0, 30_000, "v")];
         assert_eq!(channel_minutes_count("v", &voices), 2);
         assert_eq!(channel_minutes_count("zzz", &voices), 0);
+        // Adversarial half-minute: Math.round(1.5) = 2, truncation = 1.
+        assert_eq!(channel_minutes_count("h", &[voice(0, 90_000, "h")]), 2);
+        assert_eq!(channel_minutes_count("q", &[voice(0, 30_000, "q")]), 1);
     }
 
     #[test]

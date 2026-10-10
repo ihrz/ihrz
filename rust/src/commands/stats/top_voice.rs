@@ -13,11 +13,12 @@ pub async fn stats_top_voice(
     #[description = "Period: daily, weekly or monthly"] period: Option<String>,
     #[description = "Rows shown (5-25)"] limit: Option<i64>,
 ) -> Result<(), anyhow::Error> {
-    top_by(
-        &ctx,
-        "voice",
-        parse_top_period(period.as_deref()),
-        clamp_top_limit(limit),
-    )
-    .await
+    // The 5..=25 clamp is prefix-only (TS clamps just the message-arg
+    // leg); the slash option passes through with a default of 10.
+    let limit = if matches!(ctx, poise::Context::Prefix(_)) {
+        clamp_top_limit(limit)
+    } else {
+        slash_top_limit(limit)
+    };
+    top_by(&ctx, "voice", parse_top_period(period.as_deref()), limit).await
 }

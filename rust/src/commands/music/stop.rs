@@ -21,37 +21,30 @@ pub async fn m_stop(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         return Ok(());
     }
     // TTS-manager early exit (TS `getTTSData`/`cleanupTTS` before the
-    // player check): row presence = enabled (see `tts_row_enabled`).
-    // H247-parked stops keep the player + voice (`rest_stop_playing`,
-    // like the main leg below); otherwise the TTS cleanup destroys the
-    // node player like TS `cleanupTTS`.
+    // player check in `!stop.ts:70-77`): only a stored row with the
+    // enabled flag cleans up (`ttsData && ttsData.enabled`, same gate
+    // as the play leg). A disabled row falls through to the music
+    // legs below. The full cleanupTTS legs run here (player destroy
+    // with the H247 park guard, welcome-embed delete, voice-status
+    // clear, row delete), never just the row delete.
     if let Some(gid_str) = ctx.guild_id().map(|g| g.get().to_string()) {
-        if crate::commands::tts::load_tts(&ctx.data().pool, &gid_str)
-            .await
-            .is_some()
-        {
-            let _ = crate::commands::tts::delete_tts(&ctx.data().pool, &gid_str).await;
-            let h247 = crate::commands::h247::load_h247(&ctx.data().pool, &gid_str).await;
-            let h247_voice = if h247.enabled {
-                h247.voice_channel_id.parse::<u64>().ok()
-            } else {
-                None
-            };
-            let parked = h247_parked_voice(
-                h247.enabled,
-                h247_voice,
-                snap.as_ref().and_then(|s| s.voice_channel),
-            );
-            m.with_player(gid, |p| p.stop(now_ms())).await;
-            if let Ok((node, session)) = m.live_node_and_session(gid).await {
-                if parked {
-                    let _ = m.rest_stop_playing(&node, &session, gid).await;
-                } else {
-                    let _ = m.rest_destroy(&node, &session, gid).await;
-                }
+        if let Some(tts_cfg) = crate::commands::tts::load_tts(&ctx.data().pool, &gid_str).await {
+            if tts_cfg.enabled {
+                let h247_grant = crate::db::kv_get(&ctx.data().pool, &gid_str, "GUILD.H247")
+                    .await
+                    .and_then(|raw| crate::commands::h247::grant::parse_h247(&raw));
+                crate::commands::tts::leave::cleanup_tts_live(
+                    ctx.http(),
+                    &ctx.serenity_context().shard,
+                    &ctx.data().pool,
+                    gid,
+                    &tts_cfg,
+                    h247_grant.as_ref(),
+                )
+                .await;
+                say_key(&ctx, &code, "stop_command_work", "Queue stopped").await?;
+                return Ok(());
             }
-            say_key(&ctx, &code, "stop_command_work", "Queue stopped").await?;
-            return Ok(());
         }
     }
     if snap.as_ref().and_then(|s| s.current.clone()).is_none() || voice.is_none() {

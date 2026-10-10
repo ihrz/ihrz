@@ -5,7 +5,7 @@ use super::{
 };
 use poise::serenity_prelude as serenity;
 
-/// Subcommand for sticky category!
+/// Manage sticky messages in text channels
 #[poise::command(
     slash_command,
     prefix_command,

@@ -11,6 +11,9 @@
 pub mod antispam;
 pub mod authrestore;
 pub mod backup;
+// Shared restore helper (pure message plan + live Discord writes), not
+// a poise command: intentionally absent from all() below. Backup leaves
+// call it via crate::commands::backup_restore::....
 pub mod backup_restore;
 pub mod blogger;
 pub mod botcat;
@@ -852,8 +855,20 @@ mod tests {
 
     #[test]
     fn all_commands_support_slash_and_prefix() {
+        // Prefix-alias delegates (R2) are prefix-only by design: TS
+        // exposes bl/unowner/unblacklist as prefix aliases, never as
+        // standalone slash commands.
+        const PREFIX_ONLY_DELEGATES: [&str; 3] = ["unowner", "bl", "unblacklist"];
         for cmd in all() {
             if cmd.context_menu_action.is_some() {
+                continue;
+            }
+            if PREFIX_ONLY_DELEGATES.contains(&cmd.name.as_str()) {
+                assert!(
+                    cmd.prefix_action.is_some(),
+                    "{} should be a prefix command",
+                    cmd.name
+                );
                 continue;
             }
             assert!(

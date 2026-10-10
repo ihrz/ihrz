@@ -6,8 +6,8 @@
 // handshake). Ported for real:
 // MUSIC_HISTORY store (buffer/embed, 30d purge), volume clamp, loop mode
 // parsing, lyrics truncation + text-API lookup, duration formatting.
-// Play/skip/stop/pause/resume/queue/clear/
-// shuffle/nowplaying/trackinfo answer from the live player state once a
+// Play/skip/stop/pause/resume/queue/clear/shuffle/loop/history/volume/
+// nowplaying/trackinfo answer from the live player state once a
 // node is configured; lyrics stays on a text API by design.
 
 use crate::bot::Ctx;
@@ -221,13 +221,23 @@ pub fn h247_parked_voice(
     enabled && h247_voice.is_some() && h247_voice == player_voice
 }
 
-/// Discord embed description limit guard (lyrics truncate at 1997 + …).
+/// Discord embed description limit guard (lyrics truncate at 1997 UTF-16
+/// units + …; never splits a char boundary).
 pub fn truncate_lyrics(s: &str) -> String {
-    if s.len() <= 1997 {
-        s.to_string()
-    } else {
-        format!("{}…", &s[..1997])
+    if s.encode_utf16().count() <= 1997 {
+        return s.to_string();
     }
+    let mut units = 0usize;
+    let mut end = 0usize;
+    for (i, c) in s.char_indices() {
+        let w = c.len_utf16();
+        if units + w > 1997 {
+            break;
+        }
+        units += w;
+        end = i + c.len_utf8();
+    }
+    format!("{}…", &s[..end])
 }
 
 /// Parse a volume argument like TS `parseInt(String(query))`:

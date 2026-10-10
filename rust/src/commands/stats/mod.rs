@@ -144,7 +144,7 @@ pub fn top_text_channels(messages: &[StatsMessage], top_n: usize) -> Vec<(u64, u
 }
 
 /// Top voice channels by accumulated ms (top 5).
-/// Mirrors getStatsLeaderboard in userStatsUtils.ts.
+/// Mirrors calculateActiveVoiceChannels in userStatsUtils.ts.
 pub fn top_voice_channels(voices: &[StatsVoice], top_n: usize) -> Vec<(u64, u64)> {
     let mut acc: HashMap<u64, u64> = HashMap::new();
     for v in voices {
@@ -448,10 +448,24 @@ pub fn parse_top_period(raw: Option<&str>) -> &'static str {
     }
 }
 
-/// Leaderboard row cap. Mirrors the TS `limit` option: default 10,
-/// prefix args clamped to 5..=25 (`Math.min(Math.max(n, 5), 25)`).
+/// Prefix-only leaderboard row cap. Mirrors the TS prefix leg in
+/// !top-messages.ts / !top-voice.ts (`Math.min(Math.max(n, 5), 25)`):
+/// default 10, clamped to 5..=25. The slash path never clamps (see
+/// `slash_top_limit`).
 pub fn clamp_top_limit(raw: Option<i64>) -> usize {
     raw.unwrap_or(10).clamp(5, 25) as usize
+}
+
+/// Slash `limit` option. Mirrors the TS slash leg
+/// (`interaction.options.getInteger("limit") || 10`): no 5..=25 clamp
+/// on the slash path. `None`/`0` read as the default 10; negatives
+/// saturate to 0 (empty page, like TS `slice(0, negative)`).
+pub fn slash_top_limit(raw: Option<i64>) -> usize {
+    match raw {
+        None | Some(0) => 10,
+        Some(n) if n < 0 => 0,
+        Some(n) => n as usize,
+    }
 }
 
 /// Window timeout (ms) for a leaderboard period. Mirrors the TS
@@ -555,13 +569,46 @@ async fn top_by(
             parsed.push((id, n, label));
         }
     }
-    // TS drops zero-activity users, sorts desc, slices to `limit`.
-    parsed.sort_by(|a, b| b.1.cmp(&a.1).then(a.0.cmp(&b.0)));
-    let top: Vec<String> = parsed
+    // TS drops zero-activity users, sorts by count desc only
+    // (`b.messages - a.messages`, stable — ties keep scan order), and
+    // slices to `limit`. Ordering delegates to stats_calc (mirrors
+    // getTopUsersByMessages / getTopUsersByVoice); labels rejoin here.
+    // Scan order is uid-ascending (see load_all_user_stats), so tied
+    // rows keep that order on both paths, like the TS stable sort.
+    let labels: HashMap<u64, String> = parsed
         .iter()
-        .take(limit)
+        .map(|(id, _, label)| (*id, label.clone()))
+        .collect();
+    let ordered_ids: Vec<u64> = if kind == "voice" {
+        crate::stats_calc::top_by_voice(
+            parsed
+                .iter()
+                .map(|(id, n, _)| (id.to_string(), *n as i64))
+                .collect(),
+            limit,
+        )
+        .into_iter()
+        .filter_map(|(id, _)| id.parse::<u64>().ok())
+        .collect()
+    } else {
+        crate::stats_calc::top_by_messages(
+            parsed
+                .iter()
+                .map(|(id, n, _)| (id.to_string(), *n))
+                .collect(),
+            limit,
+        )
+        .into_iter()
+        .filter_map(|(id, _)| id.parse::<u64>().ok())
+        .collect()
+    };
+    let top: Vec<String> = ordered_ids
+        .iter()
         .enumerate()
-        .map(|(i, (uid, _, label))| format!("{}. <@{uid}> — {label}", i + 1))
+        .map(|(i, uid)| {
+            let label = labels.get(uid).cloned().unwrap_or_default();
+            format!("{}. <@{uid}> — {label}", i + 1)
+        })
         .collect();
     ctx.say(if top.is_empty() {
         crate::lang::get(&code, "stats_no_data").unwrap_or_else(|| "No data.".to_string())
@@ -636,6 +683,13 @@ mod tests {
         assert_eq!(clamp_top_limit(Some(7)), 7);
         assert_eq!(clamp_top_limit(Some(1)), 5);
         assert_eq!(clamp_top_limit(Some(99)), 25);
+        // Slash path: default 10, no clamp (mirrors
+        // `getInteger("limit") || 10`).
+        assert_eq!(slash_top_limit(None), 10);
+        assert_eq!(slash_top_limit(Some(0)), 10);
+        assert_eq!(slash_top_limit(Some(7)), 7);
+        assert_eq!(slash_top_limit(Some(99)), 99);
+        assert_eq!(slash_top_limit(Some(-3)), 0);
         assert_eq!(top_period_timeout_ms("daily"), 86_400_000);
         assert_eq!(top_period_timeout_ms("weekly"), 604_800_000);
         assert_eq!(top_period_timeout_ms("monthly"), 2_592_000_000);

@@ -8,6 +8,7 @@ use super::*;
     slash_command,
     prefix_command,
     rename = "list",
+    aliases("tag-list"),
     default_member_permissions = "ADMINISTRATOR"
 )]
 pub async fn tag_list(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {

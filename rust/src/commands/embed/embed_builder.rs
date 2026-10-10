@@ -113,17 +113,9 @@ pub fn apply_text_action(state: &mut EmbedDraftState, action: &str, input: &str)
             }
         }
         "7" => {
-            let icon = state
-                .embed
-                .get("footer")
-                .and_then(|f| f.get("icon_url"))
-                .cloned();
-            let mut footer = serde_json::json!({"text": input});
-            if let Some(url) = icon {
-                footer["icon_url"] = url;
-            }
+            // Mirrors `setFooter({ text })`: the icon is dropped.
             if let Some(o) = obj_mut(&mut state.embed) {
-                o.insert("footer".to_string(), footer);
+                o.insert("footer".to_string(), serde_json::json!({"text": input}));
             }
         }
         "11" => {

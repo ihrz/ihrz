@@ -1,7 +1,7 @@
 use super::*;
 
-/// Get information about the TTS module!
-#[poise::command(slash_command, prefix_command, rename = "info")]
+/// Get information about a tag!
+#[poise::command(slash_command, prefix_command, rename = "info", aliases("tag-info"))]
 pub async fn tag_info(
     ctx: Ctx<'_>,
     #[description = "Tag name"] tag_name: String,
@@ -10,11 +10,11 @@ pub async fn tag_info(
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
-    let name = tag_name.trim().to_ascii_lowercase();
+    let name = tag_name.trim().to_string();
     let store = load_tags(&ctx.data().pool, &gid).await;
     let Some(e) = store.stored_tags.get(&name) else {
         ctx.say(
-            crate::commands::lang_for(&ctx, "tag_delete_dnt_exist", "Tag doesn't exist.")
+            crate::commands::lang_for(&ctx, "tag_doesnt_exist", "Tag doesn't exist.")
                 .await
                 .replace("${tag_name}", &tag_name),
         )
@@ -97,6 +97,24 @@ pub async fn tag_info(
     if let Some(url) = thumb {
         embed = embed.thumbnail(url);
     }
-    ctx.send(poise::CreateReply::default().embed(embed)).await?;
+    // Second leg: the tag's stored embed rides alongside the info embed.
+    // Mirrors !info.ts `embeds: [embed, embed2?.embedSource]`.
+    let mut reply = poise::CreateReply::default().embed(embed);
+    if crate::commands::utils::admin::embed_post::is_valid_embed_id(Some(&e.embed_id)) {
+        let stored = crate::commands::owner::main::tbl_get(
+            &ctx.data().pool,
+            "metas",
+            &crate::commands::utils::admin::embed_post::saved_embed_key(&e.embed_id),
+        )
+        .await
+        .and_then(|s| serde_json::from_str::<serde_json::Value>(&s).ok())
+        .and_then(|v| crate::commands::utils::admin::embed_post::stored_embed_source(&v).cloned());
+        if let Some(source) = stored {
+            reply = reply.embed(
+                crate::commands::utils::admin::embed_post::create_embed_from_source(&source),
+            );
+        }
+    }
+    ctx.send(reply).await?;
     Ok(())
 }

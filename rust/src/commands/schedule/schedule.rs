@@ -163,6 +163,57 @@ pub fn delete_all_confirm_row(
     ])
 }
 
+/// Author display name (`globalName || username`, schedule.ts:255).
+pub fn guided_author_name(user: &poise::serenity_prelude::User) -> String {
+    user.global_name
+        .clone()
+        .unwrap_or_else(|| user.name.clone())
+}
+
+/// Author icon + guild thumbnail snapshots for the guided embeds.
+/// Mirrors schedule.ts `displayAvatarURL({extension:"png",size:512})`
+/// author icons (__1/__2/__3/preview) and `guild.iconURL()`
+/// thumbnails (__1/preview): both go out as attachment files
+/// (`user_icon.png`, `guild_icon.png`), never raw CDN URLs (which rot
+/// to "media lost"). A failed download drops the reference instead of
+/// rendering a dangling attachment.
+pub(crate) async fn guided_identity_parts(
+    ctx: &Ctx<'_>,
+    user: &poise::serenity_prelude::User,
+) -> (String, Option<Vec<u8>>, Option<Vec<u8>>) {
+    let name = guided_author_name(user);
+    let icon = crate::commands::shared::download_bytes(&user.face()).await;
+    let thumb = match ctx.guild().and_then(|g| g.icon_url()) {
+        Some(url) => crate::commands::shared::download_bytes(&url).await,
+        None => None,
+    };
+    (name, icon, thumb)
+}
+
+/// Apply the guided author block (+ optional guild thumbnail) to an
+/// embed. Icon/thumbnail point at the `user_icon.png` /
+/// `guild_icon.png` snapshot files; callers attach the bytes they
+/// have and pass `false` for the ones they don't.
+pub(crate) fn guided_embed_identity(
+    embed: poise::serenity_prelude::CreateEmbed,
+    author_name: &str,
+    with_user_icon: bool,
+    with_guild_thumb: bool,
+) -> poise::serenity_prelude::CreateEmbed {
+    use poise::serenity_prelude as serenity;
+    let author = serenity::CreateEmbedAuthor::new(author_name.to_string());
+    let embed = embed.author(if with_user_icon {
+        author.icon_url("attachment://user_icon.png")
+    } else {
+        author
+    });
+    if with_guild_thumb {
+        embed.thumbnail("attachment://guild_icon.png")
+    } else {
+        embed
+    }
+}
+
 /// Group root for the schedule category (TS `schedule.ts`).
 // TS defines a single option-less command that always renders the
 // select-menu panel (`schedule.ts:48-66`), so a bare invocation runs
@@ -287,16 +338,33 @@ pub(crate) async fn guided_create(
         author_mention,
         &code,
     );
+    // Preview embed mirrors `executeAfterModal` (schedule.ts:399-418):
+    // author block (name + png-512 avatar snapshot) + guild-icon
+    // thumbnail, title, ```name``` ```desc``` preview, confirm field on
+    // `__0`, color #00549F + timestamp + footer.
+    let (author_name, user_icon, guild_thumb) = guided_identity_parts(ctx, ctx.author()).await;
     let embed = serenity::CreateEmbed::default()
         .title(confirm_title)
         .description(preview)
         .field(field_name, format_expiry_local(entry.expires_at_ms), true)
         .color(0x00549F)
         .timestamp(serenity::Timestamp::now());
+    let embed = guided_embed_identity(
+        embed,
+        &author_name,
+        user_icon.is_some(),
+        guild_thumb.is_some(),
+    );
     let (footer_name, footer_bytes) = crate::commands::utils::footer_parts(ctx, &gid).await;
     let embed =
         crate::commands::utils::embed_with_footer(embed, &footer_name, footer_bytes.is_some());
     followup = followup.content(content).embed(embed);
+    if let Some(bytes) = user_icon {
+        followup = followup.add_file(serenity::CreateAttachment::bytes(bytes, "user_icon.png"));
+    }
+    if let Some(bytes) = guild_thumb {
+        followup = followup.add_file(serenity::CreateAttachment::bytes(bytes, "guild_icon.png"));
+    }
     if let Some(bytes) = footer_bytes {
         followup = followup.add_file(serenity::CreateAttachment::bytes(bytes, "footer_icon.png"));
     }
@@ -344,26 +412,37 @@ pub(crate) async fn guided_delete(
     let followup = serenity::CreateInteractionResponseFollowup::new().ephemeral(true);
     if delete_entry_routed(&ctx.data().pool, &gid, user_id, code.trim()).await? {
         let (footer_name, footer_bytes) = crate::commands::utils::footer_parts(ctx, &gid).await;
-        let author_name = press
-            .user
-            .global_name
-            .clone()
-            .unwrap_or_else(|| press.user.name.clone());
+        // Delete confirm mirrors `__1` (schedule.ts:253-273): author
+        // block (name + png-512 avatar snapshot) + guild-icon
+        // thumbnail, title, color #ff0a0a + timestamp + footer.
+        let (author_name, user_icon, guild_thumb) = guided_identity_parts(ctx, &press.user).await;
         let title = t(
             "schedule_delete_title_embed",
             "Deleting a Schedule (${arg0})",
         )
         .replace("${arg0}", code.trim());
         let embed = serenity::CreateEmbed::default()
-            .author(serenity::CreateEmbedAuthor::new(author_name))
             .title(title)
             .color(0xFF0A0A)
             .timestamp(serenity::Timestamp::now());
+        let embed = guided_embed_identity(
+            embed,
+            &author_name,
+            user_icon.is_some(),
+            guild_thumb.is_some(),
+        );
         let embed =
             crate::commands::utils::embed_with_footer(embed, &footer_name, footer_bytes.is_some());
         let mut followup = followup
             .content(t("schedule_delete_confirm", "Schedule deleted!"))
             .embed(embed);
+        if let Some(bytes) = user_icon {
+            followup = followup.add_file(serenity::CreateAttachment::bytes(bytes, "user_icon.png"));
+        }
+        if let Some(bytes) = guild_thumb {
+            followup =
+                followup.add_file(serenity::CreateAttachment::bytes(bytes, "guild_icon.png"));
+        }
         if let Some(bytes) = footer_bytes {
             followup =
                 followup.add_file(serenity::CreateAttachment::bytes(bytes, "footer_icon.png"));
@@ -461,6 +540,11 @@ pub(crate) async fn guided_delete_all(
         Some(true) => {
             let _ = delete_all_entries_routed(&ctx.data().pool, &gid, user_id).await?;
             let (footer_name, footer_bytes) = crate::commands::utils::footer_parts(ctx, &gid).await;
+            // Delete-all confirm mirrors `__2` (schedule.ts:297-312):
+            // author block (name + png-512 avatar snapshot), title +
+            // description, color #ff0a0a + footer. No thumbnail: TS sets
+            // none on this leg.
+            let (author_name, user_icon, _) = guided_identity_parts(ctx, ctx.author()).await;
             let embed = serenity::CreateEmbed::default()
                 .title(t(
                     "schedule_deleteall_title_embed",
@@ -471,6 +555,7 @@ pub(crate) async fn guided_delete_all(
                     "All of your schedules have been deleted!",
                 ))
                 .color(0xFF0A0A);
+            let embed = guided_embed_identity(embed, &author_name, user_icon.is_some(), false);
             let embed = crate::commands::utils::embed_with_footer(
                 embed,
                 &footer_name,
@@ -483,11 +568,20 @@ pub(crate) async fn guided_delete_all(
                 ))
                 .embeds(vec![embed])
                 .components(vec![menu_row.clone()]);
+            let mut attachments = serenity::EditAttachments::new();
+            let mut has_files = false;
+            if let Some(bytes) = user_icon {
+                attachments =
+                    attachments.add(serenity::CreateAttachment::bytes(bytes, "user_icon.png"));
+                has_files = true;
+            }
             if let Some(bytes) = footer_bytes {
-                edit = edit.attachments(
-                    serenity::EditAttachments::new()
-                        .add(serenity::CreateAttachment::bytes(bytes, "footer_icon.png")),
-                );
+                attachments =
+                    attachments.add(serenity::CreateAttachment::bytes(bytes, "footer_icon.png"));
+                has_files = true;
+            }
+            if has_files {
+                edit = edit.attachments(attachments);
             }
             let _ = menu_msg.edit(ctx.http(), edit).await;
         }
@@ -553,19 +647,31 @@ pub(crate) async fn guided_list(
         // Uncapped like TS `__3`: one embed per 25-row chunk, up to 10
         // per message (Discord limits); overflow pages follow up so no
         // row is dropped.
+        // List embeds mirror `__3` (schedule.ts:347-361): author block
+        // (name + png-512 avatar snapshot), title, one field per row,
+        // color #60BEE0 + footer. No thumbnail: TS sets none here.
         let embeds = build_list_embeds(&entries, &list_title, &field_template);
         let (footer_name, footer_bytes) = crate::commands::utils::footer_parts(ctx, &gid).await;
+        let (author_name, user_icon, _) = guided_identity_parts(ctx, ctx.author()).await;
         let with_icon = footer_bytes.is_some();
+        let with_user_icon = user_icon.is_some();
+        let author_name = &author_name;
         update = update.content(t(
             "schedule_list_content_message",
             "Here's your schedule list!",
         ));
-        for e in embeds
-            .iter()
-            .take(SCHEDULE_LIST_EMBEDS_PER_MSG)
-            .map(|e| crate::commands::utils::embed_with_footer(e.clone(), &footer_name, with_icon))
-        {
+        for e in embeds.iter().take(SCHEDULE_LIST_EMBEDS_PER_MSG).map(|e| {
+            guided_embed_identity(
+                crate::commands::utils::embed_with_footer(e.clone(), &footer_name, with_icon),
+                author_name,
+                with_user_icon,
+                false,
+            )
+        }) {
             update = update.add_embed(e);
+        }
+        if let Some(bytes) = user_icon.clone() {
+            update = update.add_file(serenity::CreateAttachment::bytes(bytes, "user_icon.png"));
         }
         if let Some(bytes) = footer_bytes.clone() {
             update = update.add_file(serenity::CreateAttachment::bytes(bytes, "footer_icon.png"));
@@ -573,7 +679,14 @@ pub(crate) async fn guided_list(
         let overflow: Vec<serenity::CreateEmbed> = embeds
             .into_iter()
             .skip(SCHEDULE_LIST_EMBEDS_PER_MSG)
-            .map(|e| crate::commands::utils::embed_with_footer(e, &footer_name, with_icon))
+            .map(|e| {
+                guided_embed_identity(
+                    crate::commands::utils::embed_with_footer(e, &footer_name, with_icon),
+                    author_name,
+                    with_user_icon,
+                    false,
+                )
+            })
             .collect();
         let _ = press
             .create_response(
@@ -584,6 +697,10 @@ pub(crate) async fn guided_list(
         for chunk in overflow.chunks(SCHEDULE_LIST_EMBEDS_PER_MSG) {
             let mut followup =
                 serenity::CreateInteractionResponseFollowup::new().embeds(chunk.to_vec());
+            if let Some(bytes) = user_icon.clone() {
+                followup =
+                    followup.add_file(serenity::CreateAttachment::bytes(bytes, "user_icon.png"));
+            }
             if let Some(bytes) = footer_bytes.clone() {
                 followup =
                     followup.add_file(serenity::CreateAttachment::bytes(bytes, "footer_icon.png"));
@@ -1213,6 +1330,36 @@ mod tests {
         assert_ne!(GUIDED_MENU_ID, GUIDED_DELETE_MODAL_ID);
         assert_ne!(GUIDED_CREATE_MODAL_ID, GUIDED_DELETE_MODAL_ID);
         assert_ne!(GUIDED_DELETE_ALL_YES_ID, GUIDED_DELETE_ALL_NO_ID);
+    }
+
+    #[test]
+    fn guided_author_prefers_global_name_like_ts() {
+        // `user.globalName || user.username` (schedule.ts:255).
+        use poise::serenity_prelude as serenity;
+        let mut user = serenity::User::default();
+        user.name = "user".to_string();
+        user.global_name = Some("Global".to_string());
+        assert_eq!(guided_author_name(&user), "Global");
+        user.global_name = None;
+        assert_eq!(guided_author_name(&user), "user");
+    }
+
+    #[test]
+    fn guided_identity_points_at_snapshot_files() {
+        // Author icon / thumbnail must reference the attachment
+        // snapshots, never raw CDN URLs (which rot to "media lost").
+        let with_both = guided_embed_identity(serenity_embed(), "Name", true, true);
+        let debug = format!("{with_both:?}");
+        assert!(debug.contains("attachment://user_icon.png"));
+        assert!(debug.contains("attachment://guild_icon.png"));
+        let bare = guided_embed_identity(serenity_embed(), "Name", false, false);
+        let debug = format!("{bare:?}");
+        assert!(!debug.contains("attachment://user_icon.png"));
+        assert!(!debug.contains("attachment://guild_icon.png"));
+
+        fn serenity_embed() -> poise::serenity_prelude::CreateEmbed {
+            poise::serenity_prelude::CreateEmbed::default()
+        }
     }
 
     #[test]

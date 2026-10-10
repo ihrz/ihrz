@@ -94,13 +94,26 @@ pub(crate) async fn resolve_lyrics_meta(
 
 /// TS `substring(0, 1997)` + `"..."` suffix rule (`trimmed.length ===
 /// 1997`, which holds whenever the source reached that width —
-/// including an exactly-1997 source), char-safe.
+/// including an exactly-1997 source). `substring`/`.length` count
+/// UTF-16 code units, so astral-plane chars cost 2: the cut walks
+/// `char_indices` accumulating `len_utf16` and never splits a
+/// surrogate pair.
 pub fn lyrics_embed_description(text: &str) -> String {
-    let trimmed: String = text.chars().take(1997).collect();
-    if text.chars().count() >= 1997 {
+    let mut units = 0usize;
+    let mut end = 0usize;
+    for (i, c) in text.char_indices() {
+        let w = c.len_utf16();
+        if units + w > 1997 {
+            break;
+        }
+        units += w;
+        end = i + c.len_utf8();
+    }
+    let trimmed = &text[..end];
+    if text.encode_utf16().count() >= 1997 {
         format!("{trimmed}...")
     } else {
-        trimmed
+        trimmed.to_string()
     }
 }
 
@@ -199,5 +212,23 @@ mod tests {
             lyrics_embed_description(&over),
             format!("{}...", "y".repeat(1997))
         );
+    }
+
+    #[test]
+    fn description_counts_utf16_units_like_ts_substring() {
+        // Astral chars cost 2 UTF-16 units in TS `substring`/`.length`:
+        // 2000 emoji = 4000 units, cut to 1997 units = 998 whole emoji
+        // (1996 units; the 999th would not fit), plus the suffix.
+        let long = "😀".repeat(2000);
+        let out = lyrics_embed_description(&long);
+        assert!(out.ends_with("..."));
+        let body = out.strip_suffix("...").unwrap();
+        assert_eq!(body, "😀".repeat(998));
+        assert_eq!(body.encode_utf16().count(), 1996);
+        // Odd-unit boundary: 1996 ASCII + 1 emoji = 1998 units, so the
+        // suffix applies and the cut drops the emoji (1996 + 2 > 1997).
+        let mixed = format!("{}{}", "x".repeat(1996), "😀");
+        let out = lyrics_embed_description(&mixed);
+        assert_eq!(out, format!("{}...", "x".repeat(1996)));
     }
 }

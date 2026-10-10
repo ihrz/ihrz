@@ -4,7 +4,7 @@ use super::{
     roles::authrestore_roles, set::authrestore_set,
 };
 
-/// Subcommand for authrestore category!
+/// Do the same thing as authrestore with link verification button under iHorizon message
 #[poise::command(
     slash_command,
     prefix_command,

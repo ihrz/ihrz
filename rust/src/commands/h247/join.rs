@@ -134,7 +134,7 @@ async fn load_tts_presence(pool: &crate::db::Pool, guild_id: &str) -> Option<(bo
     Some((enabled, voice))
 }
 
-/// Join the voice channel and enable TTS mode!
+/// Join the voice channel and park iHorizon 24/7!
 #[poise::command(
     slash_command,
     prefix_command,

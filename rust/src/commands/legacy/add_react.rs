@@ -5,7 +5,8 @@ use super::*;
     slash_command,
     prefix_command,
     category = "utils",
-    rename = "add-react"
+    rename = "add-react",
+    aliases("react-add", "addreact", "reactadd")
 )]
 pub async fn add_react(
     ctx: Ctx<'_>,

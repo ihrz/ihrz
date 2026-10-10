@@ -43,13 +43,19 @@ pub async fn stats_guild(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         .duration_since(std::time::UNIX_EPOCH)
         .map(|d| d.as_millis() as i64)
         .unwrap_or(0);
-    // Leaderboard like `getStatsLeaderboard`: most daily messages first.
+    // Leaderboard like `getStatsLeaderboard` in userStatsUtils.ts: the
+    // full TS tiebreak chain (daily > weekly > monthly messages, then
+    // daily > weekly > monthly voice). The sort is stable and rows scan
+    // uid-ascending, so full ties keep that order like the TS sort.
     let mut members = guild_member_windows(&rows, now_ms);
     members.sort_by(|a, b| {
         b.daily_messages
             .cmp(&a.daily_messages)
+            .then(b.weekly_messages.cmp(&a.weekly_messages))
             .then(b.monthly_messages.cmp(&a.monthly_messages))
-            .then(a.user_id.cmp(&b.user_id))
+            .then(b.daily_voice_ms.cmp(&a.daily_voice_ms))
+            .then(b.weekly_voice_ms.cmp(&a.weekly_voice_ms))
+            .then(b.monthly_voice_ms.cmp(&a.monthly_voice_ms))
     });
     let msg_word =
         crate::lang::get(&code, "messages_word").unwrap_or_else(|| "messages".to_string());

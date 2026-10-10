@@ -4,7 +4,7 @@ use super::{
     see::inv_see,
 };
 
-/// Subcommand for invitesmanager category!
+/// Subcommand for invites manager category!
 #[poise::command(
     slash_command,
     prefix_command,

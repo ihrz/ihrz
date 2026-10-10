@@ -952,7 +952,7 @@ async fn owner_blacklist_inner(
             }
             let full_reason = format!(
                 "iHorizon Project Blacklist - {}",
-                reason.unwrap_or_else(|| lt(&code, "blacklist_var_no_reason", "No reason found"))
+                reason.unwrap_or_else(|| "blacklisted!".to_string())
             );
             // TS stores `{blacklisted,reason,owner,createdAt}`.
             bl_set(
@@ -1084,7 +1084,7 @@ async fn owner_blacklist_inner(
             }
             let full_reason = format!(
                 "Blacklist - {}",
-                reason.unwrap_or_else(|| lt(&code, "blacklist_var_no_reason", "No reason found"))
+                reason.unwrap_or_else(|| "blacklisted!".to_string())
             );
             gbl_set(
                 &ctx.data().pool,
@@ -1461,7 +1461,7 @@ pub async fn owner_bledit(
 // `owner::main::bl_alias()`, `owner::main::unblacklist_alias()` to the
 // command list in rust/src/commands/mod.rs (outside this module's
 // scope, so wiring is left to the integrator).
-#[poise::command(slash_command, prefix_command, category = "owner", rename = "unowner")]
+#[poise::command(prefix_command, category = "owner", rename = "unowner")]
 pub async fn unowner_alias(
     ctx: Ctx<'_>,
     #[description = "Member"] user: serenity::User,
@@ -1470,7 +1470,9 @@ pub async fn unowner_alias(
 }
 
 /// Top-level `bl` alias for `owner blacklist` (TS aliases: ["bl"]).
-#[poise::command(slash_command, prefix_command, category = "owner", rename = "bl")]
+// Prefix-only: TS exposes `bl` as a prefix alias of flat /blacklist,
+// never as its own slash command (R2).
+#[poise::command(prefix_command, category = "owner", rename = "bl")]
 pub async fn bl_alias(
     ctx: Ctx<'_>,
     #[description = "Member"] user: Option<serenity::User>,
@@ -1480,8 +1482,8 @@ pub async fn bl_alias(
 }
 
 /// Top-level `unblacklist` (+ `unbl`) alias (TS aliases: ["unbl"]).
+// Prefix-only like bl_alias (R2): no standalone /unblacklist slash in TS.
 #[poise::command(
-    slash_command,
     prefix_command,
     category = "owner",
     rename = "unblacklist",

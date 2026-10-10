@@ -5,6 +5,7 @@ use super::*;
     slash_command,
     prefix_command,
     rename = "delete",
+    aliases("tag-delete"),
     default_member_permissions = "ADMINISTRATOR"
 )]
 pub async fn tag_delete(
@@ -17,11 +18,7 @@ pub async fn tag_delete(
         .map(|g| g.get().to_string())
         .unwrap_or_default();
     let mut store = load_tags(&ctx.data().pool, &gid).await;
-    if store
-        .stored_tags
-        .remove(&tag_name.trim().to_ascii_lowercase())
-        .is_none()
-    {
+    if store.stored_tags.remove(tag_name.trim()).is_none() {
         ctx.say(
             crate::lang::get(&code, "tag_delete_dnt_exist")
                 .map(|s| s.replace("${tag_name}", &tag_name))

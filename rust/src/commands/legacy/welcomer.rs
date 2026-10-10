@@ -1,7 +1,13 @@
 use super::*;
 
 /// Welcomer config (GUILD.GUILD_CONFIG join/leave keys).
-#[poise::command(slash_command, prefix_command, category = "utils", rename = "welcomer")]
+#[poise::command(
+    slash_command,
+    prefix_command,
+    category = "utils",
+    rename = "welcomer",
+    aliases("leaver")
+)]
 pub async fn welcomer(
     ctx: Ctx<'_>,
     #[description = "Join channel"]

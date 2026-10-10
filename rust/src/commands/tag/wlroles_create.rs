@@ -12,6 +12,7 @@ use super::*;
     slash_command,
     prefix_command,
     rename = "wlroles-create",
+    aliases("tag-wlcreate"),
     default_member_permissions = "ADMINISTRATOR"
 )]
 pub async fn tag_wl_create(

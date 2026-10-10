@@ -4,7 +4,7 @@ use super::*;
 // Mirrors !use.ts order: existence check first, then the
 // Administrator-or-whitelist_use gate; post as reply when message_id
 // fetches, else channel message; confirm + bump counters afterwards.
-#[poise::command(slash_command, prefix_command, rename = "use")]
+#[poise::command(slash_command, prefix_command, rename = "use", aliases("tag-use"))]
 pub async fn tag_use(
     ctx: Ctx<'_>,
     #[description = "Tag name"] tag_name: String,
@@ -13,7 +13,7 @@ pub async fn tag_use(
 ) -> Result<(), anyhow::Error> {
     use poise::serenity_prelude::CreateMessage;
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-    let name = tag_name.trim().to_ascii_lowercase();
+    let name = tag_name.trim().to_string();
     let gid = ctx
         .guild_id()
         .map(|g| g.get().to_string())

@@ -18,7 +18,7 @@ pub async fn tag_edit(
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
-    let current = current.trim().to_ascii_lowercase();
+    let current = current.trim().to_string();
     let mut store = load_tags(&ctx.data().pool, &gid).await;
     let Some(entry) = store.stored_tags.remove(&current) else {
         ctx.say(
@@ -46,7 +46,7 @@ pub async fn tag_edit(
         .await?;
         return Ok(());
     }
-    let new = new.trim().to_ascii_lowercase();
+    let new = new.trim().to_string();
     if !valid_tag_name(&new) {
         // Restore the original on bad new name.
         store.stored_tags.insert(current.clone(), entry);

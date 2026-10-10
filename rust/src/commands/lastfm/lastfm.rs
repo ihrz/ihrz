@@ -1,7 +1,7 @@
 use super::*;
 use super::{config::lastfm_config, login::lastfm_login, status::lastfm_status};
 
-/// Subcommand for lastfm category!
+/// Connect your Last.fm account and control music scrobbling.
 #[poise::command(
     slash_command,
     prefix_command,

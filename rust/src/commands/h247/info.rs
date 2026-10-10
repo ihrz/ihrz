@@ -1,14 +1,16 @@
 use super::*;
 use poise::serenity_prelude as serenity;
 
-/// Get information about the TTS module!
+/// Get information about the H24/7 module!
 #[poise::command(slash_command, prefix_command, rename = "info", aliases("h247info"))]
 pub async fn h247_info(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
-    let gid = ctx
-        .guild_id()
-        .map(|g| g.get().to_string())
-        .unwrap_or_default();
-    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    // TS !info.ts returns silently without user/member/guild/channel;
+    // the guild leg covers it here (DM invocations carry no guild).
+    let Some(guild_id) = ctx.guild_id() else {
+        return Ok(());
+    };
+    let gid = guild_id.get().to_string();
+    let code = crate::db::guild_lang(&ctx.data().pool, Some(guild_id.get())).await;
     let t = |key: &str, fallback: &str| {
         crate::lang::get(&code, key).unwrap_or_else(|| fallback.to_string())
     };

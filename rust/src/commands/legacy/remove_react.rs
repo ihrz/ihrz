@@ -5,7 +5,8 @@ use super::*;
     slash_command,
     prefix_command,
     category = "utils",
-    rename = "remove-react"
+    rename = "remove-react",
+    aliases("react-remove", "removereact", "reactremove")
 )]
 pub async fn remove_react(
     ctx: Ctx<'_>,

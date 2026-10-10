@@ -4,7 +4,7 @@ use super::{
     remove::notifier_remove,
 };
 
-/// Subcommand for notifier category!
+/// Subcommand category for notifier!
 #[poise::command(
     slash_command,
     prefix_command,

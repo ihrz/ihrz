@@ -32,13 +32,19 @@ pub async fn ticket_unlink(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         return Ok(());
     }
     let http = ctx.serenity_context().http.clone();
-    // Change name of the ticket, like ticketChannel.setName(...).
+    // Change name of the ticket, like ticketChannel.setName(...). TS
+    // awaits it (!unlink.ts:74-76): a rename failure throws and aborts
+    // the handler (no panel edit, no DB delete, no success reply), so a
+    // failed edit returns here the same way instead of continuing.
     if let Some(gc) = ctx.guild_channel().await {
         let renamed = gc.name.replacen("ticket", "channel", 1);
-        if renamed != gc.name {
-            let _ = channel_id
+        if renamed != gc.name
+            && channel_id
                 .edit(&http, serenity::EditChannel::new().name(renamed))
-                .await;
+                .await
+                .is_err()
+        {
+            return Ok(());
         }
     }
     // Edit the panel (first) message: unlink line, embeds,

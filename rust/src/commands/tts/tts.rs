@@ -1,7 +1,7 @@
 use super::*;
 use super::{info::tts_info, join::tts_join, lang::tts_lang, leave::tts_leave};
 
-/// Subcommand for tts category!
+/// Subcommand for TTS (Text-to-Speech) category!
 #[poise::command(
     slash_command,
     prefix_command,

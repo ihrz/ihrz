@@ -915,6 +915,67 @@ pub fn leave_embed_vanity(vanity_code: Option<&str>) -> String {
     }
 }
 
+/// Expression thumbnails for guild leave / wipe DMs. Mirrors
+/// `Expressions.Sob` / `Expressions.Wink` in
+/// core/functions/randomExpression.ts.
+pub const EXPRESSION_SOB_THUMB: &str =
+    "https://www.ihorizon.org/assets/img/bot/expression/ihorizon_sob.png";
+pub const EXPRESSION_WINK_THUMB: &str =
+    "https://www.ihorizon.org/assets/img/bot/expression/ihorizon_wink.png";
+
+/// Strip the trailing DM-variant marker from a component custom id.
+/// Mirrors buttonHandler.ts:30-37 (`?dm` slice); select ids never
+/// carry it, so stripping globally is a no-op for them. Pure,
+/// unit-tested below.
+pub fn strip_dm_suffix(id: &str) -> &str {
+    id.strip_suffix("?dm").unwrap_or(id)
+}
+
+/// Prefix segment of a component custom id. Mirrors
+/// buttonHandler.ts:38 / selectMenuHandler.ts:35 (`split("%")[0]`,
+/// the client.buttons / client.selectmenu registry key). Pure,
+/// unit-tested below.
+pub fn component_prefix(id: &str) -> &str {
+    id.split('%').next().unwrap_or(id)
+}
+
+/// Discord timestamp mention. Renders the `${deleteAt}` placeholder
+/// of the guild_leave_data_clear_* templates (`F` in the embed
+/// description, `R` in the DM content). Pure, unit-tested below.
+pub fn discord_timestamp(unix_secs: i64, style: char) -> String {
+    format!("<t:{unix_secs}:{style}>")
+}
+
+/// Fill a guild_leave_data_clear_* template carrying both
+/// placeholders (`${guild.name}` + `${deleteAt}`). Pure,
+/// unit-tested below.
+pub fn render_leave_notice_text(
+    template: &str,
+    guild_name: &str,
+    delete_at_secs: i64,
+    ts_style: char,
+) -> String {
+    template
+        .replace("${guild.name}", guild_name)
+        .replace(
+            "${deleteAt}",
+            &discord_timestamp(delete_at_secs, ts_style),
+        )
+}
+
+/// Fill a guild template carrying only `${guild.name}` (the
+/// guild_leave_data_clear_cancelled_* set). Pure, unit-tested below.
+pub fn render_guild_name_text(template: &str, guild_name: &str) -> String {
+    template.replace("${guild.name}", guild_name)
+}
+
+/// Shard tag for the guild log embeds. Mirrors
+/// `#${client.shard?.ids[0]}` in removeGuildLog.ts. Pure,
+/// unit-tested below.
+pub fn shard_label(shard_id: u32) -> String {
+    format!("#{shard_id}")
+}
+
 /// Delay before a left guild's data is wiped. Mirrors
 /// GUILD_DELETE_DELAY in Events/client/deleteDatabaseDataOnGuildLeave.ts.
 pub const GUILD_WIPE_DELAY_MS: i64 = 10 * 60 * 60 * 1000;

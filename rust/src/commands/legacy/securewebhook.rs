@@ -5,7 +5,8 @@ use super::*;
     slash_command,
     prefix_command,
     category = "utils",
-    rename = "securewebhook"
+    rename = "securewebhook",
+    aliases("securehook")
 )]
 pub async fn securewebhook(
     ctx: Ctx<'_>,

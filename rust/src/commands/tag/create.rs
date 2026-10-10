@@ -3,7 +3,12 @@ use super::*;
 /// Create a tag (name + embed + optional content).
 // Mirrors !create.ts: whitelist_create gate, length>16-or-space rule,
 // duplicate guard, EMBED-table existence check before storing.
-#[poise::command(slash_command, prefix_command, rename = "create")]
+#[poise::command(
+    slash_command,
+    prefix_command,
+    rename = "create",
+    aliases("tag-create")
+)]
 pub async fn tag_create(
     ctx: Ctx<'_>,
     #[description = "Tag name"] tag_name: String,
@@ -19,7 +24,7 @@ pub async fn tag_create(
         .await?;
         return Ok(());
     }
-    let name = tag_name.trim().to_ascii_lowercase();
+    let name = tag_name.trim().to_string();
     if !valid_tag_name(&name) {
         ctx.say(
             crate::lang::get(&code, "tag_create_not_good_name").unwrap_or_else(|| {
