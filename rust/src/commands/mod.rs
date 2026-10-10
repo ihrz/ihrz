@@ -449,7 +449,6 @@ mod tests {
     #[test]
     fn registry_has_expected_commands() {
         let cmds = all();
-        let names: Vec<String> = cmds.iter().map(|c| c.name.clone()).collect();
         // Parents + flat singles + context entries (U-SLASHGROUPS: leaves
         // live nested under parents; Discord caps top-level slash at 100).
         assert_eq!(cmds.len(), 53);

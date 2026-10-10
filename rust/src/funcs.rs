@@ -162,11 +162,11 @@ pub fn beautiful_ms_in(ms: f64, lang_code: &str, long: bool) -> String {
             }
         }
     }
-    if rest >= 1.0 && rest < 1_000.0 && !long {
+    if (1.0..1_000.0).contains(&rest) && !long {
         // Leftover below one second: the TS `ms` tail entry
         // (factor 1, short "ms", never localized).
         result.push_str(&format!("{}ms", rest.floor()));
-    } else if rest >= 1.0 && rest < 1_000.0 {
+    } else if (1.0..1_000.0).contains(&rest) {
         let value = rest.floor();
         let plural = if value > 1.0 { "s" } else { "" };
         result.push_str(&format!("{value} millisecond{plural}"));

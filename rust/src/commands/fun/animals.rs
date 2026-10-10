@@ -1,3 +1,5 @@
+// Grouped-path compat shim (see parent mod.rs); no in-crate consumer by design.
+#![allow(unused_imports)]
 pub use super::cat::cat;
 pub use super::catsay::catsay;
 pub use super::dog::dog;

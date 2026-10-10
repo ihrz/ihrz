@@ -3454,7 +3454,7 @@ impl serenity::EventHandler for Handler {
                         let mut members = 0u64;
                         for gid in cache.guilds() {
                             if let Some(g) = cache.guild(gid) {
-                                members += g.member_count as u64;
+                                members += g.member_count;
                             }
                         }
                         let all_cmds = crate::commands::all();

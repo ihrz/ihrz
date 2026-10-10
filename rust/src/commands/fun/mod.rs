@@ -911,6 +911,7 @@ pub mod dolphin;
 pub mod duck;
 pub mod fox;
 pub mod frog;
+#[allow(clippy::module_inception)]
 pub mod fun;
 pub mod gay;
 pub mod grosbg;

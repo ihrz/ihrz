@@ -918,6 +918,18 @@ pub struct LavalinkManager {
     announce_pool: Mutex<Option<crate::db::Pool>>,
 }
 
+/// Bundled start-of-track params for [`LavalinkManager::lastfm_track_start`].
+#[derive(Debug, Clone)]
+pub struct LastfmTrackStart {
+    pub guild_id: u64,
+    pub artist: String,
+    pub title: String,
+    pub duration_ms: u64,
+    pub requester: u64,
+    pub now_ms: i64,
+    pub voice_channel: Option<u64>,
+}
+
 impl LavalinkManager {
     pub fn new() -> Self {
         Self {
@@ -936,7 +948,7 @@ impl LavalinkManager {
     }
 
     /// Register the DB pool for the trackStart announce leg (guild lang
-    /// + LastFM tip row). Called from music commands, which own a pool;
+    /// and LastFM tip row). Called from music commands, which own a pool;
     /// the WS-feed announce path cannot reach one otherwise.
     pub async fn set_announce_pool(&self, pool: crate::db::Pool) {
         *self.announce_pool.lock().await = Some(pool);
@@ -1078,15 +1090,15 @@ impl LavalinkManager {
             // LastFM start hook (mirrors
             // lastFMScrobbler.handleTrackStart: clear the old session,
             // open a new one for this track).
-            self.lastfm_track_start(
-                gid,
-                ev.track.info.author.clone(),
-                ev.track.info.title.clone(),
-                ev.track.info.length,
+            self.lastfm_track_start(LastfmTrackStart {
+                guild_id: gid,
+                artist: ev.track.info.author.clone(),
+                title: ev.track.info.title.clone(),
+                duration_ms: ev.track.info.length,
                 requester,
-                now_ms_wall(),
+                now_ms: now_ms_wall(),
                 voice_channel,
-            )
+            })
             .await;
         }
         self.dispatcher.lock().await.dispatch_track_start(ev).await;
@@ -1097,27 +1109,18 @@ impl LavalinkManager {
     /// `voice_channel` seeds the tracked channel (mirrors
     /// `session.voiceChannelId`); pause accumulators start empty
     /// (mirrors a fresh listener map).
-    pub async fn lastfm_track_start(
-        &self,
-        guild_id: u64,
-        artist: String,
-        title: String,
-        duration_ms: u64,
-        requester: u64,
-        now_ms: i64,
-        voice_channel: Option<u64>,
-    ) {
+    pub async fn lastfm_track_start(&self, start: LastfmTrackStart) {
         self.lastfm_sessions.lock().await.insert(
-            guild_id,
+            start.guild_id,
             LastFmSession {
-                artist,
-                title,
-                duration_ms,
-                requester,
-                started_ms: now_ms,
+                artist: start.artist,
+                title: start.title,
+                duration_ms: start.duration_ms,
+                requester: start.requester,
+                started_ms: start.now_ms,
                 paused_ms: 0,
                 pause_started_ms: None,
-                voice_channel_id: voice_channel,
+                voice_channel_id: start.voice_channel,
             },
         );
     }
@@ -2183,14 +2186,14 @@ impl LavalinkManager {
             .replace("${client.iHorizon_Emojis.LastFM_Logo}", logo)
             .replace("${client.iHorizon_Emojis.Sunglass}", glasses);
         serenity::CreateEmbed::default()
-            .colour(0xBA00_00)
+            .colour(0xBA0000)
             .description(desc)
     }
 
     /// One guild channel projected for announce fallback ordering
     /// ([`AnnounceChannel`]); `parent_id` is the category for the
     /// same-category leg.
-
+    ///
     /// Announce channel order (mirrors the TS trackStart fallback
     /// chain): stored text channel, then the voice channel itself when
     /// it takes text (text-in-voice, no perm check in TS either), then
@@ -4668,7 +4671,7 @@ mod tests {
         assert!(desc.contains("<LOGO>"), "desc: {desc}");
         assert!(desc.contains("<COOL>"), "desc: {desc}");
         assert!(!desc.contains("client.iHorizon_Emojis"), "desc: {desc}");
-        assert_eq!(json.get("color").and_then(|c| c.as_u64()), Some(0xBA00_00));
+        assert_eq!(json.get("color").and_then(|c| c.as_u64()), Some(0xBA0000));
     }
 
     #[test]
@@ -4714,18 +4717,42 @@ mod tests {
         let m = LavalinkManager::new();
         // 200s track, threshold 100s. 120s wall clock, 60s paused:
         // only 60s count, below threshold -> no scrobble.
-        m.lastfm_track_start(31, "a".into(), "t".into(), 200_000, 7, 0, Some(5))
-            .await;
+        m.lastfm_track_start(LastfmTrackStart {
+            guild_id: 31,
+            artist: "a".into(),
+            title: "t".into(),
+            duration_ms: 200_000,
+            requester: 7,
+            now_ms: 0,
+            voice_channel: Some(5),
+        })
+        .await;
         m.lastfm_note_paused(31, true, 60_000).await;
         m.lastfm_note_paused(31, false, 120_000).await;
         assert!(m.lastfm_track_end_due(31, 120_000).await.is_none());
         // Same shape without the pause: 120s count -> scrobbles.
-        m.lastfm_track_start(31, "a".into(), "t".into(), 200_000, 7, 0, Some(5))
-            .await;
+        m.lastfm_track_start(LastfmTrackStart {
+            guild_id: 31,
+            artist: "a".into(),
+            title: "t".into(),
+            duration_ms: 200_000,
+            requester: 7,
+            now_ms: 0,
+            voice_channel: Some(5),
+        })
+        .await;
         assert!(m.lastfm_track_end_due(31, 120_000).await.is_some());
         // Ongoing pause at track end counts too (never resumed).
-        m.lastfm_track_start(31, "a".into(), "t".into(), 200_000, 7, 0, Some(5))
-            .await;
+        m.lastfm_track_start(LastfmTrackStart {
+            guild_id: 31,
+            artist: "a".into(),
+            title: "t".into(),
+            duration_ms: 200_000,
+            requester: 7,
+            now_ms: 0,
+            voice_channel: Some(5),
+        })
+        .await;
         m.lastfm_note_paused(31, true, 60_000).await;
         assert!(m.lastfm_track_end_due(31, 120_000).await.is_none());
     }
@@ -4733,8 +4760,16 @@ mod tests {
     #[tokio::test]
     async fn lastfm_player_move_resyncs_voice_channel() {
         let m = LavalinkManager::new();
-        m.lastfm_track_start(32, "a".into(), "t".into(), 200_000, 7, 0, Some(5))
-            .await;
+        m.lastfm_track_start(LastfmTrackStart {
+            guild_id: 32,
+            artist: "a".into(),
+            title: "t".into(),
+            duration_ms: 200_000,
+            requester: 7,
+            now_ms: 0,
+            voice_channel: Some(5),
+        })
+        .await;
         m.lastfm_player_move(32, 9).await;
         let session = m.lastfm_sessions.lock().await;
         assert_eq!(session.get(&32).and_then(|s| s.voice_channel_id), Some(9));
@@ -4835,8 +4870,16 @@ mod tests {
             p.voice_channel = Some(1);
         })
         .await;
-        m.lastfm_track_start(43, "a".into(), "t".into(), 200_000, 7, 0, Some(1))
-            .await;
+        m.lastfm_track_start(LastfmTrackStart {
+            guild_id: 43,
+            artist: "a".into(),
+            title: "t".into(),
+            duration_ms: 200_000,
+            requester: 7,
+            now_ms: 0,
+            voice_channel: Some(1),
+        })
+        .await;
         m.note_voice_state(43, Some(9), "sess-9".to_string()).await;
         assert_eq!(m.snapshot(43).await.unwrap().voice_channel, Some(9));
         let sessions = m.lastfm_sessions.lock().await;
@@ -4857,8 +4900,16 @@ mod tests {
             p.enqueue(sample_track("a"), 0);
         })
         .await;
-        m.lastfm_track_start(44, "a".into(), "t".into(), 200_000, 7, 0, Some(5))
-            .await;
+        m.lastfm_track_start(LastfmTrackStart {
+            guild_id: 44,
+            artist: "a".into(),
+            title: "t".into(),
+            duration_ms: 200_000,
+            requester: 7,
+            now_ms: 0,
+            voice_channel: Some(5),
+        })
+        .await;
         m.handle_player_update(44, true, 60_000).await;
         assert!(m.snapshot(44).await.unwrap().paused);
         // Repeated pause is a no-op: no double-counted span.
@@ -4878,8 +4929,16 @@ mod tests {
             p.enqueue(sample_track("a"), 0);
         })
         .await;
-        m.lastfm_track_start(45, "artist".into(), "a".into(), 200_000, 7, 0, Some(5))
-            .await;
+        m.lastfm_track_start(LastfmTrackStart {
+            guild_id: 45,
+            artist: "artist".into(),
+            title: "a".into(),
+            duration_ms: 200_000,
+            requester: 7,
+            now_ms: 0,
+            voice_channel: Some(5),
+        })
+        .await;
         let ev = parse_end(&end_frame("45", "a", "replaced"));
         m.handle_track_end(ev, 150_000).await;
         assert!(m.lastfm_sessions.lock().await.get(&45).is_none());
