@@ -226,6 +226,7 @@ committed — see `.gitignore`. No push without a green
 - [x] U-ETERNAL-76 (2026-10-10: E1-registry + E3-owner-DM + E9-leave-fields (`events_handler.rs` only, 7 tests): global ?dm-strip + generic %-split fallback arm + global ModalSubmit early-return (per-id arms untouched); owner leave-notice/cancel DMs via guild_leave_data_clear_* keys; leave embed +New members total/+Shard fields + joinedTimestamp + footer parity. Lead: trio on settled tree. Suite 1532/0, fmt + clippy clean).
 - [x] U-ETERNAL-77 (2026-10-10: E7 snipe writer closed (`events_handler.rs` test-only +21): writer already stored TS shape via ts_snipe_json/save_snipe_routed under GUILD.SNIPE.<channel>; added round-trip test through the real reader. Lead: trio on settled tree. Suite 1533/0, fmt + clippy clean).
 - [x] U-ETERNAL-78 (2026-10-10: vague-67 epfm-fix11 (podium top-3, number/dice/age parse-fallbacks) + psgo-fix11 (show footers, SANCTION-only edge) + ugh-fix11 (user.id token, Unknown Blog, tonew verdict, channel liveness) + tcsb-fix11 (codes 62-pool, confessionres fallback, author nu, close/reopen verdict, cooldown verdict). Suite 1537/0, fmt + clippy clean).
+- [x] U-ETERNAL-79 (2026-10-10: I3 fallback sweep (142 divergent, 0 missing-key): 8 parallel batches B1-B8 across economy/authrestore/rolereactions/context/moderation/stats/music/utils/ranks/guildconfig/tag/ticket/voicedashboard/botcat/h247/schedule/tts/backup/confession/fun/membercount/nightmode/lavalink + lead-fixed leaderboard leftovers; all fallbacks byte-exact en-US. Lead: per-batch marker verify + local freeze commits, trio on settled tree. Suite 1537/0, fmt + clippy clean).
 ## Eternal backlog (seeded 2026-10-09 by 7 read-only audits + lavalink edge audit; full reports in `~/.hermes/cache/delegation/live/deleg_55b606d3/task-{0,1,2,3,4,5,9}.log` — each item is a future unit for other models, files disjoint unless noted)
 
 ### Events (audit task-0)
@@ -262,7 +263,7 @@ committed — see `.gitignore`. No push without a green
 ### I18N (audit task-3)
 - [x] I1 Tier-1 reply keys — VERIFIED done (U-ETERNAL-44): all families present in YAML and wired (`tempmute_unmuted_by_time` used in tempmute.rs; `backup_*` CRUD 12+ keys; `gw_getdata_*` embed keys; serverinfo/prevnames/pfps/trans/caracteres/number keys); zero unwired single-line `ctx.say` literals in music/backup/giveaway (only 2 standing-exclusion literals remain in fun: grosbg TS-hardcoded joke, 67 gif asset URL).
 - [x] I2 `help_*` metadata set — VERIFIED done (U-ETERNAL-44): 78 `help_*` keys in en-US.yml, guild-language /help via `help_main` (registered) + `help_here` carrier.
-- [ ] I3 replace 181 divergent fallbacks with exact en-US (wrong-key reuse first).
+- [x] I3 replace 181 divergent fallbacks with exact en-US — DONE (U-ETERNAL-79: enumerated 780 sites, 142 divergent fixed across 8 batches, 0 missing-key; audit over-counted, verified on disk).
 - [x] I4 placeholder/CI check — DONE in U-ETERNAL-41 (`placeholder_tokens_match_en_us_in_all_locales`: token-set + key-count parity; no CI in repo so the cargo test is the check).
 - [ ] I5 Tier-2 setup modules (welcomerPanel, antispam manage, honeypot config, setlogschannel, nightmode, birthday).
 - [ ] I6 verify-then-delete 312 zero-sender dead keys.
