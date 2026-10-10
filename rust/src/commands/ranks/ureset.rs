@@ -15,7 +15,7 @@ pub async fn ranks_ureset(
     if !crate::commands::prompt_reset_confirm(
         &ctx,
         "reset_uranks_are_you_sure",
-        "Delete all rank data for this user? This is irreversible.",
+        "**Are you really sure you want to delete all rank data?\nThis action is permanent and you cannot undo it.**\n**This action is destructive!!**",
     )
     .await?
     {
@@ -35,7 +35,7 @@ pub async fn ranks_ureset(
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     ctx.say(
         crate::lang::get(&code, "resetallinvites_succes_on_delete")
-            .unwrap_or_else(|| "Ranks reset for user.".to_string()),
+            .unwrap_or_else(|| "Successfully deleted!".to_string()),
     )
     .await?;
     Ok(())

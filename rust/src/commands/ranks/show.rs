@@ -3,8 +3,8 @@ use poise::serenity_prelude as serenity;
 
 /// Table-first rank load with legacy kv fallback (keys unchanged).
 /// A legacy hit promotes into the table so rows migrate lazily; pair
-/// with `save_rank_routed` (dual-write) so kv-only readers
-/// (`load_rank`, the XP event path) stay fresh.
+/// with `save_rank_routed` (dual-write) so legacy rows stay fresh for
+/// direct kv readers.
 pub async fn load_rank_routed(pool: &crate::db::Pool, guild_id: &str, user_id: u64) -> RankEntry {
     crate::commands::owner::main::routed_get(pool, guild_id, guild_id, &ranks_key(user_id))
         .await
@@ -52,16 +52,31 @@ pub async fn ranks_show(
         .as_ref()
         .map(|u| u.name.clone())
         .unwrap_or_else(|| ctx.author().name.clone());
-    let svg = crate::cards::rank_card_svg(&name, e.level, e.xp, xp_needed(e.level + 1), e.xptotal);
+    let need = xp_needed(e.level + 1);
+    let remaining = need.saturating_sub(e.xp);
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    // Mirror the TS !show embed text (level_embed_* keys) alongside the card.
+    let title = crate::lang::get(&code, "level_embed_title")
+        .map(|s| s.replace("${user.username}", &name))
+        .unwrap_or_else(|| format!("__**XP Level**__: `{name}`"));
+    let progress = crate::lang::get(&code, "level_embed_fields1_value")
+        .map(|s| {
+            s.replace("${currentxp}", &e.xp.to_string())
+                .replace("${xpNeeded}", &need.to_string())
+        })
+        .unwrap_or_else(|| format!("`{}/{}`", e.xp, need));
+    let level = crate::lang::get(&code, "level_embed_fields2_value")
+        .map(|s| s.replace("${level}", &e.level.to_string()))
+        .unwrap_or_else(|| format!("`{}`", e.level));
+    let desc = crate::lang::get(&code, "level_embed_description")
+        .map(|s| s.replace("${expNeededForLevelUp}", &remaining.to_string()))
+        .unwrap_or_else(|| {
+            format!("`{remaining}` **experience points needed for the next level!**")
+        });
+    let svg = crate::cards::rank_card_svg(&name, e.level, e.xp, need, e.xptotal);
     ctx.send(
         poise::CreateReply::default()
-            .content(format!(
-                "Level {} — {}/{} XP (total {})",
-                e.level,
-                e.xp,
-                xp_needed(e.level + 1),
-                e.xptotal
-            ))
+            .content(format!("{title}\n{progress} {level}\n{desc}"))
             .attachment(poise::serenity_prelude::CreateAttachment::bytes(
                 svg.into_bytes(),
                 "rank.svg",
@@ -151,7 +166,7 @@ mod tests {
             xptotal: 307,
         };
         save_rank_routed(&pool, "g", 4, &entry).await.unwrap();
-        // kv-only readers (load_rank, XP event path) stay fresh.
+        // Routed save dual-writes, so legacy rows stay fresh for direct kv readers.
         let legacy = crate::db::kv_get(&pool, "g", "RANKS.4").await.unwrap();
         assert_eq!(
             serde_json::from_str::<RankEntry>(&legacy).unwrap().xptotal,

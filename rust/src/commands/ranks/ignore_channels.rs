@@ -48,10 +48,13 @@ pub async fn ranks_ignore_add(
         &channel.id.get().to_string(),
     );
     save_ignore_routed(&ctx.data().pool, &gid, &next).await?;
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     ctx.say(if added {
-        "Channel ignored for XP."
+        crate::lang::get(&code, "msg_ignore_channel_added")
+            .unwrap_or_else(|| "Ignore channel added.".to_string())
     } else {
-        "Channel unignored."
+        crate::lang::get(&code, "msg_ignore_channel_removed")
+            .unwrap_or_else(|| "Ignore channel removed.".to_string())
     })
     .await?;
     Ok(())
@@ -71,10 +74,17 @@ pub async fn ranks_ignore_list(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let list = load_ignore_routed(&ctx.data().pool, &gid).await;
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     ctx.say(if list.is_empty() {
-        crate::lang::get(&code, "setjoinroles_var_none")
+        crate::lang::get(&code, "msg_ignore_channels_empty")
             .unwrap_or_else(|| "No ignored channels.".to_string())
     } else {
-        list.join(", ")
+        let channels = list
+            .iter()
+            .map(|id| format!("<#{id}>"))
+            .collect::<Vec<_>>()
+            .join(", ");
+        crate::lang::get(&code, "msg_ignore_channels_list")
+            .map(|s| s.replace("${channels}", &channels))
+            .unwrap_or_else(|| format!("Ignored channels: {channels}."))
     })
     .await?;
     Ok(())

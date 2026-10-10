@@ -35,9 +35,9 @@ pub async fn ranks_config(
         )
         .unwrap_or_else(|| {
             if enabled {
-                "Ranks on.".to_string()
+                "You have successfully enabled XP.".to_string()
             } else {
-                "Ranks off.".to_string()
+                "You have successfully disabled XP.".to_string()
             }
         }),
     )

@@ -58,7 +58,7 @@ pub async fn ranks_role_add(
                 s.replace("${selectedRole}", &format!("<@&{}>", role.id.get()))
                     .replace("${level}", &lvl.to_string())
             })
-            .unwrap_or_else(|| "Rank role added.".to_string()),
+            .unwrap_or_else(|| format!("Role <@&{}> added for level {}!", role.id.get(), lvl)),
     )
     .await?;
     Ok(())

@@ -33,7 +33,12 @@ pub async fn ranks_channel(
             ctx.say(
                 crate::lang::get(&code, "setxpchannels_command_work_enable")
                     .map(|s| s.replace("${argsid}", &ch.id.get().to_string()))
-                    .unwrap_or_else(|| "Ranks channel set.".to_string()),
+                    .unwrap_or_else(|| {
+                        format!(
+                            "You have successfully set the custom XP channel to <#{}>",
+                            ch.id.get()
+                        )
+                    }),
             )
             .await?;
         }
@@ -48,8 +53,9 @@ pub async fn ranks_channel(
             let code =
                 crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
             ctx.say(
-                crate::lang::get(&code, "setxpchannels_command_work_disable")
-                    .unwrap_or_else(|| "Ranks channel cleared.".to_string()),
+                crate::lang::get(&code, "setxpchannels_command_work_disable").unwrap_or_else(
+                    || "You have successfully disabled the custom XP channel!".to_string(),
+                ),
             )
             .await?;
         }
@@ -99,7 +105,12 @@ pub async fn ranks_xp_channels(
             ctx.say(
                 crate::lang::get(&code, "setxpchannels_command_work_enable")
                     .map(|s| s.replace("${argsid}", &ch.id.get().to_string()))
-                    .unwrap_or_else(|| "XP channel added.".to_string()),
+                    .unwrap_or_else(|| {
+                        format!(
+                            "You have successfully set the custom XP channel to <#{}>",
+                            ch.id.get()
+                        )
+                    }),
             )
             .await?;
         }
@@ -114,8 +125,9 @@ pub async fn ranks_xp_channels(
             let code =
                 crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
             ctx.say(
-                crate::lang::get(&code, "setxpchannels_command_work_disable")
-                    .unwrap_or_else(|| "XP channels cleared.".to_string()),
+                crate::lang::get(&code, "setxpchannels_command_work_disable").unwrap_or_else(
+                    || "You have successfully disabled the custom XP channel!".to_string(),
+                ),
             )
             .await?;
         }

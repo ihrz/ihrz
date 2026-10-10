@@ -501,6 +501,52 @@ async fn bot_pfp_routed(pool: &crate::db::Pool, gid: &str) -> Option<String> {
     leaf_routed(pool, gid, crate::commands::botcat::BOT_PFP_KEY).await
 }
 
+/// Global BLACKLIST.<uid> reason leaf, routed via the named blacklist
+/// table (legacy scope "0", keys unchanged).
+async fn blacklist_reason_routed(pool: &crate::db::Pool, user_id: u64) -> Option<String> {
+    crate::commands::owner::main::bl_get(pool, user_id).await
+}
+
+/// Per-guild BLACKLIST.<uid> marker leaf (keys unchanged).
+async fn guild_blacklist_routed(pool: &crate::db::Pool, gid: &str, user_id: u64) -> Option<String> {
+    leaf_routed(pool, gid, &format!("BLACKLIST.{user_id}")).await
+}
+
+/// EMBED_AWAIT.<uid> builder-input marker leaf (keys unchanged).
+async fn embed_await_routed(pool: &crate::db::Pool, gid: &str, user_id: u64) -> Option<String> {
+    leaf_routed(
+        pool,
+        gid,
+        &crate::commands::embed::embed_builder::await_key(user_id),
+    )
+    .await
+}
+
+/// SNIPE.<channel> snapshot leaf, table-routed (keys unchanged).
+async fn snipe_snapshot_routed(
+    pool: &crate::db::Pool,
+    gid: &str,
+    channel_id: u64,
+) -> Option<String> {
+    leaf_routed(pool, gid, &format!("SNIPE.{channel_id}")).await
+}
+
+/// SNIPE.last_deleted_id marker leaf, table-routed (keys unchanged).
+async fn snipe_last_id_routed(pool: &crate::db::Pool, gid: &str) -> Option<String> {
+    leaf_routed(pool, gid, "SNIPE.last_deleted_id").await
+}
+
+/// SNIPE write via the shared routed primitive (dual-store, keys
+/// unchanged). Mirrors the snipe command read path (routed_get).
+async fn save_snipe_routed(
+    pool: &crate::db::Pool,
+    gid: &str,
+    key: &str,
+    value: &str,
+) -> anyhow::Result<()> {
+    crate::commands::owner::main::routed_set(pool, gid, gid, key, value).await
+}
+
 /// TICKET_ALL.<user>.<channel> rows for one user, table-first with
 /// legacy fallback (keys unchanged).
 async fn ticket_user_rows_routed(pool: &crate::db::Pool, gid: &str, user_id: u64) -> Vec<String> {
@@ -1852,13 +1898,9 @@ impl serenity::EventHandler for Handler {
         )
         .await;
         // Blacklist leave: blacklisted owner -> farewell embed, then leave.
-        if tbl_get(
-            &self.pool,
-            "0",
-            &crate::commands::owner::main::blacklist_key(guild.owner_id.get()),
-        )
-        .await
-        .is_some()
+        if blacklist_reason_routed(&self.pool, guild.owner_id.get())
+            .await
+            .is_some()
         {
             let embed = serenity::CreateEmbed::default()
                 .colour(0xFF0000_u32)
@@ -2275,13 +2317,7 @@ impl serenity::EventHandler for Handler {
         }
         // Guild blacklist gate (mirrors blacklistFetcher.ts): the global
         // BLACKLIST.<uid> table carries a reason; DM it, then ban.
-        if let Some(reason) = tbl_get(
-            &self.pool,
-            "0",
-            &crate::commands::owner::main::blacklist_key(new_member.user.id.get()),
-        )
-        .await
-        {
+        if let Some(reason) = blacklist_reason_routed(&self.pool, new_member.user.id.get()).await {
             let lang_code =
                 crate::db::guild_lang(&self.pool, Some(new_member.guild_id.get())).await;
             let dm = crate::lang::get(&lang_code, "global_blacklist_msg_to_send")
@@ -2300,13 +2336,9 @@ impl serenity::EventHandler for Handler {
                 .await;
             return;
         }
-        if tbl_get(
-            &self.pool,
-            &gid,
-            &format!("BLACKLIST.{}", new_member.user.id.get()),
-        )
-        .await
-        .is_some()
+        if guild_blacklist_routed(&self.pool, &gid, new_member.user.id.get())
+            .await
+            .is_some()
         {
             let _ = new_member
                 .guild_id
@@ -2749,13 +2781,9 @@ impl serenity::EventHandler for Handler {
         // Embed-builder awaited input (mirrors the handleCollector
         // message collectors in utils !embed.ts). The input still
         // flows through normal processing below, like TS.
-        if tbl_get(
-            &self.pool,
-            &gid,
-            &crate::commands::embed::embed_builder::await_key(msg.author.id.get()),
-        )
-        .await
-        .is_some()
+        if embed_await_routed(&self.pool, &gid, msg.author.id.get())
+            .await
+            .is_some()
         {
             let guild_name = guild_id
                 .to_partial_guild(&_ctx.http)
@@ -3360,7 +3388,7 @@ impl serenity::EventHandler for Handler {
                         .to_string()
                     });
             if let Some(snap) = snap {
-                let _ = tbl_set(
+                let _ = save_snipe_routed(
                     &self.pool,
                     &gid,
                     &format!("SNIPE.{}", channel_id.get()),
@@ -3368,7 +3396,7 @@ impl serenity::EventHandler for Handler {
                 )
                 .await;
             }
-            let _ = tbl_set(
+            let _ = save_snipe_routed(
                 &self.pool,
                 &gid,
                 "SNIPE.last_deleted_id",
@@ -5695,6 +5723,76 @@ mod restore_tests {
             Some("TestBot")
         );
         assert!(bot_pfp_routed(&pool, "g1").await.is_none());
+    }
+
+    #[tokio::test]
+    async fn emitter_blacklist_await_snipe_routed() {
+        let pool = memory_pool().await;
+        // Global blacklist via the named table (dual-write, keys unchanged).
+        crate::commands::owner::main::bl_set(&pool, 8, "spam")
+            .await
+            .unwrap();
+        assert_eq!(
+            blacklist_reason_routed(&pool, 8).await.as_deref(),
+            Some("spam")
+        );
+        assert!(blacklist_reason_routed(&pool, 9).await.is_none());
+        // Legacy-only global row reads through and promotes.
+        crate::db::kv_set(&pool, "0", "BLACKLIST.9", "legacy")
+            .await
+            .unwrap();
+        assert_eq!(
+            blacklist_reason_routed(&pool, 9).await.as_deref(),
+            Some("legacy")
+        );
+        // Per-guild blacklist marker leaf.
+        crate::commands::owner::main::routed_set(&pool, "g1", "g1", "BLACKLIST.8", "1")
+            .await
+            .unwrap();
+        assert_eq!(
+            guild_blacklist_routed(&pool, "g1", 8).await.as_deref(),
+            Some("1")
+        );
+        assert!(guild_blacklist_routed(&pool, "g1", 9).await.is_none());
+        // Embed-builder await marker leaf (same key helper as the emitter).
+        crate::commands::owner::main::routed_set(
+            &pool,
+            "g1",
+            "g1",
+            &crate::commands::embed::embed_builder::await_key(8),
+            "title",
+        )
+        .await
+        .unwrap();
+        assert_eq!(
+            embed_await_routed(&pool, "g1", 8).await.as_deref(),
+            Some("title")
+        );
+        assert!(embed_await_routed(&pool, "g1", 9).await.is_none());
+        // SNIPE write path lands in both stores; the snipe command read
+        // path (routed_get) and the emitter leaves agree.
+        save_snipe_routed(&pool, "g1", "SNIPE.11", "{\"content\":\"hi\"}")
+            .await
+            .unwrap();
+        save_snipe_routed(&pool, "g1", "SNIPE.last_deleted_id", "77")
+            .await
+            .unwrap();
+        assert_eq!(
+            snipe_snapshot_routed(&pool, "g1", 11).await.as_deref(),
+            Some("{\"content\":\"hi\"}")
+        );
+        assert!(snipe_snapshot_routed(&pool, "g1", 12).await.is_none());
+        assert_eq!(
+            snipe_last_id_routed(&pool, "g1").await.as_deref(),
+            Some("77")
+        );
+        let legacy: Option<String> = sqlx::query_scalar::<_, String>(
+            "SELECT value FROM kv WHERE guild_id = 'g1' AND key_name = 'SNIPE.11'",
+        )
+        .fetch_optional(&pool)
+        .await
+        .unwrap();
+        assert_eq!(legacy, Some("{\"content\":\"hi\"}".to_string()));
     }
 
     #[tokio::test]

@@ -1260,13 +1260,14 @@ mod tests {
 
     #[tokio::test]
     async fn owner_econ_delegates_to_routed() {
+        use crate::commands::economy::balance::{load_econ_routed, save_econ_routed};
         use crate::commands::owner::main::{table_backend, tbl_get_value};
         let pool = mem_pool().await;
-        // Legacy-only row surfaces through the owner.
+        // Legacy-only row surfaces through the routed owner.
         crate::db::kv_set(&pool, "g", "USER.1.ECONOMY", r#"{"money":100,"bank":50}"#)
             .await
             .unwrap();
-        let a = load_econ(&pool, "g", 1).await;
+        let a = load_econ_routed(&pool, "g", 1).await;
         assert_eq!((a.money, a.bank), (100, 50));
         // Table-only row wins (no legacy row present).
         table_backend(&pool)
@@ -1277,15 +1278,15 @@ mod tests {
             )
             .await
             .unwrap();
-        assert_eq!(load_econ(&pool, "g", 2).await.money, 777);
-        assert_eq!(load_econ(&pool, "g", 9).await.money, 0);
-        // Owner save dual-writes: kv readers and the table stay fresh.
+        assert_eq!(load_econ_routed(&pool, "g", 2).await.money, 777);
+        assert_eq!(load_econ_routed(&pool, "g", 9).await.money, 0);
+        // Routed save dual-writes: kv readers and the table stay fresh.
         let account = EconAccount {
             money: 40,
             bank: 2,
             ..Default::default()
         };
-        save_econ(&pool, "g", 4, &account).await.unwrap();
+        save_econ_routed(&pool, "g", 4, &account).await.unwrap();
         let legacy = crate::db::kv_get(&pool, "g", "USER.4.ECONOMY")
             .await
             .unwrap();
@@ -1295,7 +1296,7 @@ mod tests {
         );
         let stored = tbl_get_value(&pool, "g", "USER.4.ECONOMY").await.unwrap();
         assert_eq!(stored.get("bank").and_then(|v| v.as_i64()), Some(2));
-        assert_eq!(load_econ(&pool, "g", 4).await.money, 40);
+        assert_eq!(load_econ_routed(&pool, "g", 4).await.money, 40);
     }
 
     #[test]

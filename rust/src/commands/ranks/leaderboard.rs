@@ -52,7 +52,7 @@ pub async fn ranks_leaderboard(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
             .map(|(uid, e)| (format!("<@{uid}>"), e.xptotal))
             .collect::<Vec<_>>(),
     );
-    let lvl_word = crate::lang::get(&code, "var_level").unwrap_or_else(|| "lvl".to_string());
+    let lvl_word = crate::lang::get(&code, "var_level").unwrap_or_else(|| "Level".to_string());
     let top: Vec<String> = parsed
         .iter()
         .take(15)
@@ -70,7 +70,7 @@ pub async fn ranks_leaderboard(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         poise::CreateReply::default()
             .content(if top.is_empty() {
                 crate::lang::get(&code, "perm_list_no_user")
-                    .unwrap_or_else(|| "No ranks.".to_string())
+                    .unwrap_or_else(|| "No user found".to_string())
             } else {
                 top.join("\n")
             })
