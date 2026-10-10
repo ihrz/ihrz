@@ -17,8 +17,6 @@ pub mod prefix_args;
 pub struct Data {
     pub pool: Pool,
     pub config: Arc<Config>,
-    pub cooldowns: std::sync::Mutex<crate::executor::Cooldowns>,
-    pub rate_limits: std::sync::Mutex<crate::executor::RateLimits>,
     /// Command file log. Mirrors the SafeJSONLogger shared by the TS
     /// message + slash handlers; the prefix leg logs here (pre-command
     /// hook), the slash leg in events_handler::log_slash_command.
@@ -34,6 +32,151 @@ pub fn now_ms() -> i64 {
 }
 
 pub type Ctx<'a> = poise::Context<'a, Data, anyhow::Error>;
+
+/// Shared cooldown/rate-limit store. Mirrors the TS `temp` table
+/// (tempTable in Events/client/ready.ts): the 1s debounce
+/// (`COOLDOWN.<uid>` slash, `COOLDOWN.msg_commands.<uid>` prefix via
+/// helper.cooldown), per-command cooldowns
+/// (`COOLDOWN.<commandPath>.<uid>` via helper.cooldown, see
+/// checkGlobalCooldown), and the COMMAND_LIMITS sliding windows
+/// (`COMMAND_LIMITS.<gid>.<path>.<uid>`). Backed by the shared sqlite
+/// kv store under the `temp` scope so every shard/process observes the
+/// same timestamps; replaces the former process-local
+/// `Mutex<Cooldowns>` / `Mutex<RateLimits>`.
+const TEMP_SCOPE: &str = "temp";
+
+/// Anti-spam debounce. Mirrors RATE_LIMIT_DEBOUNCE_MS.
+const DEBOUNCE_MS: i64 = 1000;
+
+/// Slash debounce key. Mirrors interactionCooldown
+/// (`COOLDOWN.${interaction.user.id}`).
+pub fn debounce_key(user_id: u64) -> String {
+    format!("COOLDOWN.{user_id}")
+}
+
+/// helper.cooldown key. Mirrors `COOLDOWN.${method}.${authorId}`: the
+/// prefix debounce uses method `msg_commands`, per-command cooldowns
+/// use the command path as method (see checkGlobalCooldown).
+pub fn helper_cooldown_key(method: &str, author_id: &str) -> String {
+    format!("COOLDOWN.{method}.{author_id}")
+}
+
+/// Sliding-window key. Mirrors
+/// `COMMAND_LIMITS.${gid}.${commandPath}.${uid}`.
+pub fn rate_limit_key(guild_id: u64, path: &str, user_id: u64) -> String {
+    format!("COMMAND_LIMITS.{guild_id}.{path}.{user_id}")
+}
+
+/// Remaining ms of a fixed cooldown window; 0 = allowed. Mirrors the
+/// `ms - (now - last) > 0` guard shared by interactionCooldown and
+/// helper.cooldown.
+pub fn cooldown_remaining(last: Option<i64>, window_ms: i64, now_ms: i64) -> i64 {
+    match last {
+        Some(stamp) if window_ms - (now_ms - stamp) > 0 => window_ms - (now_ms - stamp),
+        _ => 0,
+    }
+}
+
+/// Slide a COMMAND_LIMITS window to now. Mirrors checkCommandRateLimit
+/// exactly: entries with `now - t < windowMs` stay active (insertion
+/// order, so index 0 is the oldest); at `count` active attempts the
+/// caller is denied with `windowMs - (now - oldest)` left and nothing
+/// is stored, otherwise now is pushed and the window stored. Returns
+/// (attempts to store, remaining ms; 0 = allowed).
+pub fn rate_limit_step(
+    attempts: &[i64],
+    count: u32,
+    window_ms: i64,
+    now_ms: i64,
+) -> (Vec<i64>, i64) {
+    if count == 0 || window_ms <= 0 {
+        return (attempts.to_vec(), 0);
+    }
+    let mut active: Vec<i64> = attempts
+        .iter()
+        .copied()
+        .filter(|t| now_ms - *t < window_ms)
+        .collect();
+    if active.len() >= count as usize {
+        let remaining = (window_ms - (now_ms - active[0])).max(0);
+        return (active, remaining);
+    }
+    active.push(now_ms);
+    (active, 0)
+}
+
+/// Raw temp-scope timestamp. A missing entry — or a falsy stored zero —
+/// yields None, mirroring `tempTable.get(...) || null`.
+async fn temp_get_i64(pool: &Pool, key: &str) -> Option<i64> {
+    crate::db::kv_get(pool, TEMP_SCOPE, key)
+        .await
+        .and_then(|s| s.parse::<i64>().ok())
+        .filter(|&v| v != 0)
+}
+
+async fn temp_set(pool: &Pool, key: &str, value: &str) {
+    let _ = crate::db::kv_set(pool, TEMP_SCOPE, key, value).await;
+}
+
+/// Slash 1s debounce remaining; 0 = allowed and recorded. Mirrors
+/// interactionCooldown (denied runs store nothing).
+pub async fn debounce_check(pool: &Pool, user_id: u64, now_ms: i64) -> i64 {
+    let key = debounce_key(user_id);
+    let left = cooldown_remaining(temp_get_i64(pool, &key).await, DEBOUNCE_MS, now_ms);
+    if left == 0 {
+        temp_set(pool, &key, &now_ms.to_string()).await;
+    }
+    left
+}
+
+/// helper.cooldown mirror: the prefix `msg_commands` debounce and the
+/// per-command cooldowns (command path as method). Returns remaining
+/// ms; 0 = allowed and recorded.
+pub async fn helper_cooldown_check(
+    pool: &Pool,
+    author_id: &str,
+    method: &str,
+    ms: i64,
+    now_ms: i64,
+) -> i64 {
+    let key = helper_cooldown_key(method, author_id);
+    let left = cooldown_remaining(temp_get_i64(pool, &key).await, ms, now_ms);
+    if left == 0 {
+        temp_set(pool, &key, &now_ms.to_string()).await;
+    }
+    left
+}
+
+/// COMMAND_LIMITS sliding-window remaining; 0 = allowed and recorded.
+/// Denied runs store nothing, mirroring checkCommandRateLimit.
+pub async fn command_rate_limit_check(
+    pool: &Pool,
+    guild_id: u64,
+    path: &str,
+    user_id: u64,
+    count: u32,
+    window_ms: i64,
+    now_ms: i64,
+) -> i64 {
+    if count == 0 || window_ms <= 0 {
+        return 0;
+    }
+    let key = rate_limit_key(guild_id, path, user_id);
+    let stored: Vec<i64> = crate::db::kv_get(pool, TEMP_SCOPE, &key)
+        .await
+        .and_then(|s| serde_json::from_str(&s).ok())
+        .unwrap_or_default();
+    let (active, left) = rate_limit_step(&stored, count, window_ms, now_ms);
+    if left == 0 {
+        temp_set(
+            pool,
+            &key,
+            &serde_json::to_string(&active).unwrap_or_default(),
+        )
+        .await;
+    }
+    left
+}
 
 /// Global command gate. Mirrors commandExecutor.ts guards +
 /// blacklistTable + UTILS.PERMS custom levels.
@@ -115,12 +258,15 @@ fn global_check(
         // COOLDOWN.<uid> + message "msg_commands" helper cooldown):
         // denied runs get lang.Msg_cooldown and never execute.
         let code = crate::db::guild_lang(pool, ctx.guild_id().map(|g| g.get())).await;
-        let left = ctx
-            .data()
-            .cooldowns
-            .lock()
-            .map(|mut c| c.check(ctx.author().id.get(), "msg_commands", 1000, now_ms()))
-            .unwrap_or(0);
+        let uid = ctx.author().id.get();
+        let now = now_ms();
+        // Slash uses COOLDOWN.<uid> (interactionCooldown), prefix uses
+        // COOLDOWN.msg_commands.<uid> (helper.cooldown), exactly like TS.
+        let left = if matches!(ctx, poise::Context::Prefix(_)) {
+            helper_cooldown_check(pool, &uid.to_string(), "msg_commands", DEBOUNCE_MS, now).await
+        } else {
+            debounce_check(pool, uid, now).await
+        };
         if left > 0 {
             let msg = crate::lang::get(&code, "Msg_cooldown").unwrap_or_default();
             let _ = ctx
@@ -166,21 +312,16 @@ fn global_check(
                     None => false,
                 };
                 if !bypass {
-                    let left = ctx
-                        .data()
-                        .rate_limits
-                        .lock()
-                        .map(|mut r| {
-                            r.check(
-                                ctx.guild_id().map(|g| g.get()).unwrap_or(0),
-                                ctx.author().id.get(),
-                                &path,
-                                limit.count,
-                                limit.window_ms,
-                                now_ms(),
-                            )
-                        })
-                        .unwrap_or(0);
+                    let left = command_rate_limit_check(
+                        pool,
+                        ctx.guild_id().map(|g| g.get()).unwrap_or(0),
+                        &path,
+                        ctx.author().id.get(),
+                        limit.count,
+                        limit.window_ms,
+                        now_ms(),
+                    )
+                    .await;
                     if left > 0 {
                         let msg = crate::lang::get(&code, "commandlimit_rate_limited")
                             .unwrap_or_default()
@@ -285,9 +426,14 @@ async fn crash_block(ctx: Ctx<'_>, error_text: String) {
 /// Localized user-facing reply for framework-level denials.
 /// Mirrors commandExecutor.ts `replyDenied` (plain channel reply,
 /// never ephemeral) + the TS lang keys used on each denial path.
-async fn denial_reply(ctx: Ctx<'_>, key: &str, sub: Option<(&str, String)>) {
+/// `fallback` is the exact en-US string: YAML is never touched, so the
+/// denial still renders when the guild lang table misses the key.
+async fn denial_reply(ctx: Ctx<'_>, key: &str, sub: Option<(&str, String)>, fallback: &str) {
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-    let mut msg = crate::lang::get(&code, key).unwrap_or_default();
+    let mut msg = crate::lang::get(&code, key).unwrap_or_else(|| fallback.to_string());
+    if msg.is_empty() {
+        msg = fallback.to_string();
+    }
     if msg.is_empty() {
         return;
     }
@@ -295,6 +441,258 @@ async fn denial_reply(ctx: Ctx<'_>, key: &str, sub: Option<(&str, String)>) {
         msg = msg.replace(pat, &val);
     }
     let _ = ctx.send(poise::CreateReply::default().content(msg)).await;
+}
+
+/// Route a prefix parse failure to its TS lang key. Mirrors the
+/// per-command null keys (method.member/role null -> key): poise parses
+/// typed prefix params before run(), so unresolvable member/user/role/
+/// channel input surfaces as ArgumentParse here instead of inside run.
+/// Anything else (counts, bool, choices, numbers, attachments) returns
+/// None and falls through to the checkCommandArgs caret embed.
+fn argument_parse_key(error_text: &str) -> Option<(&'static str, &'static str)> {
+    if error_text.contains("Member") {
+        Some(("ban_dont_found_member", "🔍 | Cannot find this member"))
+    } else if error_text.contains("User") {
+        Some(("baninfo_user_not_found", "User not found"))
+    } else if error_text.contains("Role") {
+        Some(("addrolereact_role_not_found", "Role not found."))
+    } else if error_text.contains("Channel") {
+        Some(("stats_channel_invalid", "Invalid channel specified."))
+    } else {
+        None
+    }
+}
+
+/// Render the per-command cooldown denial. Mirrors checkGlobalCooldown
+/// (global_command_cooldown_msg with ${emoji}/${time}/${ctx.commandPath}).
+/// Pure so the template wiring is unit-testable; `remaining_ms` comes from
+/// poise's CooldownHit (target.cooldown), formatted with beautiful_ms like
+/// the rate-limit arm below.
+fn cooldown_denial_message(
+    template: &str,
+    warn_markup: &str,
+    remaining_ms: u128,
+    command_path: &str,
+) -> String {
+    template
+        .replace("${emoji}", warn_markup)
+        .replace("${time}", &crate::funcs::beautiful_ms(remaining_ms as f64))
+        .replace("${ctx.commandPath}", command_path)
+}
+
+/// Caret position for the usage-error embed. Mirrors checkCommandArgs:
+/// the failing input's position, or args length (missingIndex) when the
+/// input is absent or unknown. The caller clamps to the token line.
+fn caret_error_index(args: &[String], input: Option<&str>) -> usize {
+    match input {
+        Some(want) => args.iter().position(|a| a == want).unwrap_or(args.len()),
+        None => args.len(),
+    }
+}
+
+/// Per-command cooldown denial (target.cooldown). Mirrors
+/// checkGlobalCooldown: remaining-time reply via
+/// global_command_cooldown_msg, never silent (exact en-US fallback).
+async fn cooldown_denial(ctx: Ctx<'_>, remaining: std::time::Duration) {
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    let template = crate::lang::get(&code, "global_command_cooldown_msg").unwrap_or_else(|| {
+        "${emoji} You need to wait **${time}** between each **`${ctx.commandPath}`**".to_string()
+    });
+    let warn = crate::emojis::app_emoji_markup(ctx.http(), "Warn")
+        .await
+        .unwrap_or_else(|| "⚠️".to_string());
+    let msg = cooldown_denial_message(
+        &template,
+        &warn,
+        remaining.as_millis(),
+        &ctx.command().qualified_name,
+    );
+    if msg.is_empty() {
+        return;
+    }
+    let _ = ctx.send(poise::CreateReply::default().content(msg)).await;
+}
+
+/// Prefix usage-error embed. checkCommandArgs equivalent for the
+/// ArgumentParse cases without an entity key (counts, bool, choices,
+/// numbers, attachments): the caret description from prefix_args (same
+/// hybridcommands_args_error_embed_desc template), red like
+/// sendErrorMessage, shared bot footer with icon when available.
+async fn prefix_usage_denial(ctx: Ctx<'_>, input: Option<String>) {
+    if !matches!(ctx, poise::Context::Prefix(_)) {
+        // Slash args are Discord-validated; keep the legacy member key.
+        denial_reply(
+            ctx,
+            "ban_dont_found_member",
+            None,
+            "🔍 | Cannot find this member",
+        )
+        .await;
+        return;
+    }
+    // Poise erases param types (name/required/choices only); the label
+    // mirrors getArgumentOptionTypeWithOptions (choices joined with `/`).
+    let specs: Vec<prefix_args::ArgSpec> = ctx
+        .command()
+        .parameters
+        .iter()
+        .map(|pm| {
+            let label = if pm.choices.is_empty() {
+                pm.name.clone()
+            } else {
+                pm.choices
+                    .iter()
+                    .map(|c| c.name.clone())
+                    .collect::<Vec<_>>()
+                    .join("/")
+            };
+            prefix_args::ArgSpec::text(&pm.name, &label, pm.required, false)
+        })
+        .collect();
+    if specs.is_empty() {
+        return;
+    }
+    let pool = &ctx.data().pool;
+    let gid = ctx.guild_id().map(|g| g.get());
+    let code = crate::db::guild_lang(pool, gid).await;
+    let template = crate::lang::get(&code, "hybridcommands_args_error_embed_desc")
+        .unwrap_or_else(|| {
+            "```ts\nCommand Name: ${currentCommand.name}\n```\n```cs\n${botPrefix}${fullNameCommand} ${argsString}\n${errorPosition}\nError when sending \"${wrongArgumentName}\" argument.\n```"
+                .to_string()
+        });
+    let bot_prefix = crate::db::guild_prefix(pool, gid, &ctx.data().config.prefix).await;
+    let display = ctx.command().qualified_name.clone();
+    let args = match ctx {
+        poise::Context::Prefix(p) => prefix_args::split_args(p.args),
+        _ => vec![String::new()],
+    };
+    let tokens = prefix_args::usage_tokens(&specs, false);
+    let idx = caret_error_index(&args, input.as_deref()).min(tokens.len().saturating_sub(1));
+    let desc =
+        prefix_args::usage_error_description(&template, &bot_prefix, &display, &specs, false, idx);
+    let footer = crate::lang::get(&code, "hybridcommands_embed_footer_text")
+        .unwrap_or_else(|| {
+            "Options within [...] are required, while those within <...> are optional.\nUse the command: ${botPrefix}help [command] for more information."
+                .to_string()
+        })
+        .replace("${botPrefix}", &bot_prefix);
+    let gid_str = gid.map(|g| g.to_string()).unwrap_or_default();
+    let (_, icon) = crate::commands::shared::footer_parts(&ctx, &gid_str).await;
+    let embed = crate::commands::shared::embed_with_footer(
+        serenity::CreateEmbed::default()
+            .description(desc)
+            .colour(0xED_4245_u32),
+        &footer,
+        icon.is_some(),
+    );
+    let mut reply = poise::CreateReply::default().embed(embed);
+    if let Some(bytes) = icon {
+        reply = reply.attachment(serenity::CreateAttachment::bytes(bytes, "footer_icon.png"));
+    }
+    let _ = ctx.send(reply).await;
+}
+
+/// Option docs for the no-run help embed (parameters only; poise erases
+/// the TS display types, so the name carries the token like the usage
+/// line in prefix_usage_denial).
+fn help_options(
+    cmd: &poise::Command<Data, anyhow::Error>,
+) -> Vec<crate::commands::shared::HelpOptionDoc> {
+    cmd.parameters
+        .iter()
+        .map(|pm| crate::commands::shared::HelpOptionDoc {
+            name: pm.name.clone(),
+            choices: pm.choices.iter().map(|c| c.name.clone()).collect(),
+            required: pm.required,
+        })
+        .collect()
+}
+
+/// No-run help fallback. Mirrors runCommand's `!(target as Command)?.run`
+/// branch (prefix only): the per-command awesomeEmbed help instead of
+/// silence. Poise surfaces run-less parent commands as SubcommandRequired.
+/// (TS deletes both messages after 60s; this port leaves cleanup to the
+/// user like every other denial reply.)
+async fn no_run_help(ctx: Ctx<'_>) {
+    if !matches!(ctx, poise::Context::Prefix(_)) {
+        return;
+    }
+    let pool = &ctx.data().pool;
+    let gid = ctx.guild_id().map(|g| g.get());
+    let gid_str = gid.map(|g| g.to_string()).unwrap_or_default();
+    let code = crate::db::guild_lang(pool, gid).await;
+    let t = |key: &str, fallback: &str| {
+        crate::lang::get(&code, key).unwrap_or_else(|| fallback.to_string())
+    };
+    let cmd = ctx.command();
+    // TS picks the `fr` description when the guild lang starts with `fr-`.
+    let description = if code.starts_with("fr-") {
+        cmd.description_localizations
+            .get("fr")
+            .cloned()
+            .unwrap_or_else(|| cmd.description.clone().unwrap_or_default())
+    } else {
+        cmd.description.clone().unwrap_or_default()
+    };
+    let base_permission =
+        crate::lang::permission_names(&code, cmd.default_member_permissions.bits())
+            .unwrap_or_default();
+    let custom_perms =
+        crate::commands::guildconfig::load_cmd_perms(pool, &gid_str, &cmd.name).await;
+    let (footer_name, icon) = crate::commands::shared::footer_parts(&ctx, &gid_str).await;
+    let input = crate::commands::shared::AwesomeHelpInput {
+        command_name: cmd.name.clone(),
+        prefix_name: None,
+        description,
+        aliases: cmd.aliases.clone(),
+        base_permission,
+        custom_perms: custom_perms.as_ref(),
+        options: help_options(cmd),
+        subcommands: cmd
+            .subcommands
+            .iter()
+            .map(|s| crate::commands::shared::HelpSubcommandDoc {
+                name: s.name.clone(),
+                prefix_name: None,
+                aliases: s.aliases.clone(),
+                options: help_options(s),
+            })
+            .collect(),
+        prefix: crate::db::guild_prefix(pool, gid, &ctx.data().config.prefix).await,
+        title_template: t(
+            "hybridcommands_embed_help_title",
+            "${commandName} Help Embed",
+        ),
+        fields_value_template: t(
+            "hybridcommands_embed_help_fields_value",
+            "**Aliases:** ${aliases}\n**Use:** ${use}",
+        ),
+        usage_label: t("var_usage", "Usage"),
+        permission_label: t("var_permission", "Permission"),
+        aliases_label: t("var_aliases", "Aliases"),
+        none_label: t("setjoinroles_var_none", "None"),
+        footer_text: footer_name.clone(),
+    };
+    let embed = crate::commands::shared::embed_with_footer(
+        crate::commands::shared::build_awesome_embed(&input),
+        &footer_name,
+        icon.is_some(),
+    );
+    let mut reply = poise::CreateReply::default().embed(embed);
+    if let Some(bytes) = icon {
+        reply = reply.attachment(serenity::CreateAttachment::bytes(bytes, "footer_icon.png"));
+    }
+    let _ = ctx.send(reply).await;
+}
+
+/// Prefix parse denial router: entity failures keep their TS keys,
+/// everything else gets the checkCommandArgs caret embed.
+async fn argument_parse_denial(ctx: Ctx<'_>, error_text: String, input: Option<String>) {
+    if let Some((key, fallback)) = argument_parse_key(&error_text) {
+        denial_reply(ctx, key, None, fallback).await;
+        return;
+    }
+    prefix_usage_denial(ctx, input).await;
 }
 
 /// Framework error router. Command/CommandPanic keep the crash block;
@@ -310,21 +708,39 @@ pub async fn report_command_error(err: poise::FrameworkError<'_, Data, anyhow::E
         poise::FrameworkError::CommandPanic { ctx, payload, .. } => {
             crash_block(*ctx, format!("{payload:?}")).await;
         }
-        // Prefix arg that poise could not parse (member/role/user
-        // mention). TS resolves these via method.member/role (null ->
-        // per-command key); ban_dont_found_member is the shared key
-        // used by 6 TS commands for unresolvable member input.
-        poise::FrameworkError::ArgumentParse { ctx, .. } => {
-            denial_reply(*ctx, "ban_dont_found_member", None).await;
+        // Prefix args poise could not parse. Entity failures
+        // (member/user/role/channel) keep their TS per-command keys;
+        // counts/bool/choices/numbers fall through to the checkCommandArgs
+        // caret usage-error embed.
+        poise::FrameworkError::ArgumentParse {
+            ctx, error, input, ..
+        } => {
+            argument_parse_denial(*ctx, error.to_string(), input.clone()).await;
         }
-        // Mirrors the preExecutionCooldown denial (lang.Msg_cooldown).
-        poise::FrameworkError::CooldownHit { ctx, .. } => {
-            denial_reply(*ctx, "Msg_cooldown", None).await;
+        // Per-command cooldown (target.cooldown). Mirrors
+        // checkGlobalCooldown (global_command_cooldown_msg + remaining).
+        poise::FrameworkError::CooldownHit {
+            ctx,
+            remaining_cooldown,
+            ..
+        } => {
+            cooldown_denial(*ctx, *remaining_cooldown).await;
+        }
+        // Run-less parent invoked without a subcommand (prefix only).
+        // Mirrors runCommand's no-run awesomeEmbed help fallback.
+        poise::FrameworkError::SubcommandRequired { ctx, .. } => {
+            no_run_help(*ctx).await;
         }
         // Mirrors the bot-permission denial (!addrole.ts,
         // !delrole.ts use backup_i_dont_have_permission).
         poise::FrameworkError::MissingBotPermissions { ctx, .. } => {
-            denial_reply(*ctx, "backup_i_dont_have_permission", None).await;
+            denial_reply(
+                *ctx,
+                "backup_i_dont_have_permission",
+                None,
+                "I don't have permission `ADMINISTRATOR`",
+            )
+            .await;
         }
         // Mirrors checkNativePermission (var_dont_have_perm + perm name).
         poise::FrameworkError::MissingUserPermissions {
@@ -338,7 +754,13 @@ pub async fn report_command_error(err: poise::FrameworkError<'_, Data, anyhow::E
                 .and_then(|p| crate::lang::permission_names(&code, p.bits()))
                 .filter(|s| !s.is_empty())
                 .unwrap_or_else(|| "permission".to_string());
-            denial_reply(*ctx, "var_dont_have_perm", Some(("{perm}", perm))).await;
+            denial_reply(
+                *ctx,
+                "var_dont_have_perm",
+                Some(("{perm}", perm)),
+                "You aren't allowed to do this, you are missing the {perm} permission!",
+            )
+            .await;
         }
         poise::FrameworkError::CommandCheckFailed {
             ctx,
@@ -361,6 +783,29 @@ pub async fn report_command_error(err: poise::FrameworkError<'_, Data, anyhow::E
 /// check_permissions_and_cooldown on both as well.
 fn pre_command_hook(ctx: poise::Context<'_, Data, anyhow::Error>) -> poise::BoxFuture<'_, ()> {
     Box::pin(async move {
+        // Global slash defer. Mirrors deferIfNeeded in
+        // commandExecutor.ts: interaction sources defer when the
+        // per-command thinking/ephemeral flags say so; other sources
+        // (prefix) never defer and keep the file-log leg below.
+        // poise's defer_response no-ops when the initial response was
+        // already sent (ApplicationContext::has_sent_initial_response),
+        // which is the skip-already-deferred/replied branch; later
+        // ctx.send() calls then edit that deferred reply (the
+        // deferred/editReply branching), like TS editReply-after-defer.
+        if let poise::Context::Application(_) = ctx {
+            let policy = crate::commands::defer_policy(&ctx.command().qualified_name);
+            if policy.defer {
+                let res = if policy.ephemeral {
+                    ctx.defer_ephemeral().await
+                } else {
+                    ctx.defer().await
+                };
+                if let Err(e) = res {
+                    tracing::warn!("pre-command defer failed: {e}");
+                }
+            }
+            return;
+        }
         let poise::Context::Prefix(p) = ctx else {
             return;
         };
@@ -744,8 +1189,6 @@ pub async fn run(cfg: Config, pool: Pool) -> anyhow::Result<()> {
                 Ok(Data {
                     pool: pool_fw.clone(),
                     config: cfg_fw.clone(),
-                    cooldowns: std::sync::Mutex::new(crate::executor::Cooldowns::default()),
-                    rate_limits: std::sync::Mutex::new(crate::executor::RateLimits::default()),
                     slashlog: slashlog_fw.clone(),
                 })
             })
@@ -898,6 +1341,160 @@ mod tests {
     }
 
     #[test]
+    fn temp_keys_match_ts_layout() {
+        // interactionCooldown: `COOLDOWN.${interaction.user.id}`.
+        assert_eq!(debounce_key(123), "COOLDOWN.123");
+        // helper.cooldown: `COOLDOWN.${method}.${authorId}` (prefix
+        // debounce and per-command cooldowns alike).
+        assert_eq!(
+            helper_cooldown_key("msg_commands", "123"),
+            "COOLDOWN.msg_commands.123"
+        );
+        assert_eq!(helper_cooldown_key("ban", "123"), "COOLDOWN.ban.123");
+        // checkCommandRateLimit:
+        // `COMMAND_LIMITS.${gid}.${commandPath}.${uid}`.
+        assert_eq!(rate_limit_key(7, "ban", 123), "COMMAND_LIMITS.7.ban.123");
+        assert_eq!(
+            rate_limit_key(7, "config set", 123),
+            "COMMAND_LIMITS.7.config set.123"
+        );
+    }
+
+    #[test]
+    fn fixed_cooldown_allows_then_denies_with_exact_remaining() {
+        // Missing stamp allows (TS `last !== null` guard).
+        assert_eq!(cooldown_remaining(None, 1000, 5000), 0);
+        // Exact boundary allows: `ms - (now - last) > 0` is strict.
+        assert_eq!(cooldown_remaining(Some(4000), 1000, 5000), 0);
+        // Inside the window the exact remainder is reported.
+        assert_eq!(cooldown_remaining(Some(4500), 1000, 5000), 500);
+        assert_eq!(cooldown_remaining(Some(5000), 1000, 5000), 1000);
+        // Stale stamps allow.
+        assert_eq!(cooldown_remaining(Some(0), 1000, 5001), 0);
+        // Per-command cooldowns reuse the same guard with their own ms.
+        assert_eq!(cooldown_remaining(Some(9000), 5000, 10000), 4000);
+    }
+
+    #[test]
+    fn rate_limit_window_allows_under_count_and_records() {
+        let (active, left) = rate_limit_step(&[], 2, 60_000, 1000);
+        assert_eq!((active, left), (vec![1000], 0));
+        let (active, left) = rate_limit_step(&[1000], 2, 60_000, 2000);
+        assert_eq!((active, left), (vec![1000, 2000], 0));
+    }
+
+    #[test]
+    fn rate_limit_window_denies_at_count_with_oldest_based_remaining() {
+        // At count: denied with window - (now - oldest), nothing appended.
+        let (active, left) = rate_limit_step(&[1000, 2000], 2, 60_000, 3000);
+        assert_eq!(active, vec![1000, 2000]);
+        assert_eq!(left, 60_000 - (3000 - 1000));
+    }
+
+    #[test]
+    fn rate_limit_window_prunes_entries_outside_the_window() {
+        // Strict `now - t < windowMs`: an entry exactly window old drops.
+        let (active, left) = rate_limit_step(&[1000, 59_000], 2, 60_000, 61_000);
+        assert_eq!((active, left), (vec![59_000, 61_000], 0));
+        // A fully stale window allows fresh.
+        let (active, left) = rate_limit_step(&[1000, 2000], 2, 60_000, 70_000);
+        assert_eq!((active, left), (vec![70_000], 0));
+    }
+
+    #[test]
+    fn rate_limit_window_disabled_config_always_allows() {
+        // Mirrors the `count <= 0 || windowMs <= 0` early return.
+        assert_eq!(
+            rate_limit_step(&[1, 2, 3], 0, 60_000, 4),
+            (vec![1, 2, 3], 0)
+        );
+        assert_eq!(rate_limit_step(&[1, 2, 3], 2, 0, 4), (vec![1, 2, 3], 0));
+        assert_eq!(rate_limit_step(&[1, 2, 3], 2, -1, 4), (vec![1, 2, 3], 0));
+    }
+
+    async fn temp_pool() -> Pool {
+        // Single connection: sqlite :memory: is per-connection, and the
+        // checks run a get then a set that must observe each other.
+        use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};
+        use std::str::FromStr;
+        let opts = SqliteConnectOptions::from_str("sqlite::memory:")
+            .unwrap()
+            .create_if_missing(true);
+        let pool = SqlitePoolOptions::new()
+            .max_connections(1)
+            .connect_with(opts)
+            .await
+            .unwrap();
+        sqlx::query(
+            "CREATE TABLE kv (guild_id TEXT NOT NULL, key_name TEXT NOT NULL, value TEXT NOT NULL, PRIMARY KEY (guild_id, key_name))",
+        )
+        .execute(&pool)
+        .await
+        .unwrap();
+        pool
+    }
+
+    #[tokio::test]
+    async fn debounce_blocks_then_releases_in_shared_store() {
+        let pool = temp_pool().await;
+        assert_eq!(debounce_check(&pool, 9, 1000).await, 0);
+        assert_eq!(debounce_check(&pool, 9, 1500).await, 500);
+        // Denied runs store nothing, so the window still ends 1s after
+        // the first stamp (exact boundary allows).
+        assert_eq!(debounce_check(&pool, 9, 2000).await, 0);
+        // Prefix helper leg has its own key; slash stays separate.
+        assert_eq!(
+            helper_cooldown_check(&pool, "9", "msg_commands", 1000, 2000).await,
+            0
+        );
+        assert_eq!(
+            helper_cooldown_check(&pool, "9", "msg_commands", 1000, 2500).await,
+            500
+        );
+        // Per-command cooldowns key off the command path as method.
+        assert_eq!(
+            helper_cooldown_check(&pool, "9", "ban", 5000, 3000).await,
+            0
+        );
+        assert_eq!(
+            helper_cooldown_check(&pool, "9", "ban", 5000, 4000).await,
+            4000
+        );
+    }
+
+    #[tokio::test]
+    async fn rate_limit_window_blocks_then_releases_in_shared_store() {
+        let pool = temp_pool().await;
+        assert_eq!(
+            command_rate_limit_check(&pool, 7, "ban", 9, 2, 60_000, 1000).await,
+            0
+        );
+        assert_eq!(
+            command_rate_limit_check(&pool, 7, "ban", 9, 2, 60_000, 2000).await,
+            0
+        );
+        assert_eq!(
+            command_rate_limit_check(&pool, 7, "ban", 9, 2, 60_000, 3000).await,
+            60_000 - (3000 - 1000)
+        );
+        // Other users get their own window.
+        assert_eq!(
+            command_rate_limit_check(&pool, 7, "ban", 10, 2, 60_000, 3000).await,
+            0
+        );
+        // Past the window the oldest entry drops out and a slot frees up.
+        assert_eq!(
+            command_rate_limit_check(&pool, 7, "ban", 9, 2, 60_000, 61_000).await,
+            0
+        );
+        // Disabled config never touches the store and always allows.
+        assert_eq!(
+            command_rate_limit_check(&pool, 7, "ban", 9, 0, 60_000, 61_000).await,
+            0
+        );
+    }
+
+    #[test]
     fn crash_slash_invocation_matches_ts_command_path_field() {
         assert_eq!(slash_invocation("ban"), "/ban\n\n");
         assert_eq!(slash_invocation("config set"), "/config set\n\n");
@@ -910,6 +1507,61 @@ mod tests {
         // Both mention-prefix settings must keep the pin.
         assert!(prefix_options(true).case_insensitive_commands);
         assert!(prefix_options(false).case_insensitive_commands);
+    }
+
+    #[test]
+    fn argument_parse_routes_entity_failures_to_ts_keys() {
+        // Serenity ArgumentConvert Display strings -> per-command keys.
+        assert_eq!(
+            argument_parse_key("Member not found or unknown format").map(|(k, _)| k),
+            Some("ban_dont_found_member")
+        );
+        assert_eq!(
+            argument_parse_key("User not found or unknown format").map(|(k, _)| k),
+            Some("baninfo_user_not_found")
+        );
+        assert_eq!(
+            argument_parse_key("Role not found or unknown format").map(|(k, _)| k),
+            Some("addrolereact_role_not_found")
+        );
+        assert_eq!(
+            argument_parse_key("Channel not found or unknown format").map(|(k, _)| k),
+            Some("stats_channel_invalid")
+        );
+        // Counts / bool / choices / numbers fall through to the caret embed.
+        for other in [
+            "Too few arguments were passed",
+            "Too many arguments were passed",
+            "A required attachment is missing",
+            "You entered a non-existent choice",
+            "Expected a string like yes or no for the boolean parameter",
+            "invalid digit found in string",
+        ] {
+            assert_eq!(argument_parse_key(other), None);
+        }
+    }
+
+    #[test]
+    fn cooldown_denial_renders_ts_template() {
+        // Real en-US template: fails if the TS key/placeholders move.
+        let template = crate::lang::get("en-US", "global_command_cooldown_msg").unwrap_or_default();
+        assert!(template.contains("${emoji}"));
+        assert!(template.contains("${time}"));
+        assert!(template.contains("${ctx.commandPath}"));
+        let msg = cooldown_denial_message(&template, "WARN", 2500, "ban");
+        assert!(msg.contains("WARN"));
+        assert!(msg.contains("ban"));
+        assert!(!msg.contains("${"));
+    }
+
+    #[test]
+    fn caret_index_prefers_failed_input_then_args_len() {
+        // Mirrors checkCommandArgs: invalid arg -> its position,
+        // missing/unknown input -> args length (missingIndex).
+        let args = vec!["@u".to_string(), "bad".to_string()];
+        assert_eq!(caret_error_index(&args, Some("bad")), 1);
+        assert_eq!(caret_error_index(&args, Some("missing")), 2);
+        assert_eq!(caret_error_index(&args, None), 2);
     }
 
     #[test]

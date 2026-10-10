@@ -64,6 +64,27 @@ pub struct Config {
     pub lastfm_shared_secret: String,
     #[serde(default = "default_db_method")]
     pub db_method: String,
+    /// SMTP relay host (TS: `SMTP_HOST`). Empty = mailer disabled.
+    #[serde(default)]
+    pub smtp_host: String,
+    /// SMTP relay port (TS: `Number(SMTP_PORT)`). 0 = mailer disabled.
+    #[serde(default)]
+    pub smtp_port: u16,
+    /// Implicit TLS on connect (TS: `SMTP_SECURE === "true"`).
+    #[serde(default)]
+    pub smtp_secure: bool,
+    /// SMTP login (TS: `SMTP_USER`). Env-only, never committed.
+    #[serde(default)]
+    pub smtp_user: String,
+    /// SMTP password (TS: `SMTP_PASS`). Env-only, never committed.
+    #[serde(default)]
+    pub smtp_pass: String,
+    /// Owner inbox for bot mails (TS: `OWNER_MAIL`). Env-only.
+    #[serde(default)]
+    pub owner_mail: String,
+    /// Send join/leave mails (TS: `EMAIL_WHEN_CHANGE_GUILD === "true"`).
+    #[serde(default)]
+    pub notify_new_guild: bool,
 }
 
 fn default_prefix() -> String {
@@ -110,6 +131,13 @@ impl Default for Config {
             lastfm_api_key: String::new(),
             lastfm_shared_secret: String::new(),
             db_method: default_db_method(),
+            smtp_host: String::new(),
+            smtp_port: 0,
+            smtp_secure: false,
+            smtp_user: String::new(),
+            smtp_pass: String::new(),
+            owner_mail: String::new(),
+            notify_new_guild: false,
         }
     }
 }
@@ -251,6 +279,23 @@ pub fn load_file_into(cfg: &mut Config, path: &std::path::Path) -> anyhow::Resul
             cfg.lastfm_shared_secret = v;
         }
     }
+    if let Some(t) = table(&root, "smtp") {
+        // host/port/secure/notify only: user, pass and owner_mail stay
+        // env-only (TS reads them from env; secrets must never be
+        // committed to the file).
+        if let Some(v) = get_str(t, "host") {
+            cfg.smtp_host = v;
+        }
+        if let Some(p) = t.get("port").and_then(|v| v.as_integer()) {
+            cfg.smtp_port = p.max(0) as u16;
+        }
+        if let Some(v) = get_bool(t, "secure") {
+            cfg.smtp_secure = v;
+        }
+        if let Some(v) = get_bool(t, "notify_new_guild") {
+            cfg.notify_new_guild = v;
+        }
+    }
 
     Ok(())
 }
@@ -309,6 +354,39 @@ pub fn load() -> anyhow::Result<Config> {
         if !v.is_empty() {
             cfg.lavalink_logs_channel_id = v;
         }
+    }
+    // Mailer keys (TS Mailer.init useEnv): env wins over the file, and
+    // secrets (user/pass/owner) are env-only.
+    if let Ok(v) = std::env::var("SMTP_HOST") {
+        if !v.is_empty() {
+            cfg.smtp_host = v;
+        }
+    }
+    if let Ok(v) = std::env::var("SMTP_PORT") {
+        if let Ok(n) = v.parse::<u16>() {
+            cfg.smtp_port = n;
+        }
+    }
+    if let Ok(v) = std::env::var("SMTP_SECURE") {
+        cfg.smtp_secure = v == "1" || v.eq_ignore_ascii_case("true");
+    }
+    if let Ok(v) = std::env::var("SMTP_USER") {
+        if !v.is_empty() {
+            cfg.smtp_user = v;
+        }
+    }
+    if let Ok(v) = std::env::var("SMTP_PASS") {
+        if !v.is_empty() {
+            cfg.smtp_pass = v;
+        }
+    }
+    if let Ok(v) = std::env::var("OWNER_MAIL") {
+        if !v.is_empty() {
+            cfg.owner_mail = v;
+        }
+    }
+    if let Ok(v) = std::env::var("EMAIL_WHEN_CHANGE_GUILD") {
+        cfg.notify_new_guild = v == "1" || v.eq_ignore_ascii_case("true");
     }
 
     Ok(cfg)

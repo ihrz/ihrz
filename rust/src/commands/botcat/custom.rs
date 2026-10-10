@@ -8,12 +8,12 @@ use super::*;
     rename = "custom",
     subcommands("custom_name", "custom_avatar", "custom_banner", "custom_bio")
 )]
-pub async fn custom(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
-    // Container only (mirrors custom.ts); the paywall lives on the
-    // bare parent, subcommands are exempt like checkCustomSdkGate.
-    if !custom_sdk_gate(&ctx).await {
-        return Ok(());
-    }
+pub async fn custom(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
+    // Paywall OFF. Mirrors commandExecutor.ts:405-406, where the
+    // checkCustomSdkGate call is commented out ("Anais disabled that
+    // paywall"), so the bare parent allows everyone and both sides
+    // agree. Subcommands stay exempt as before; custom_sdk_gate in
+    // mod.rs is kept for a future re-enable, just not called.
     Ok(())
 }
 

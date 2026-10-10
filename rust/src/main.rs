@@ -30,6 +30,7 @@ mod image64;
 mod lang;
 mod lavalink;
 mod logger;
+mod mailer;
 mod metadata;
 mod modal_helper;
 mod monitor;

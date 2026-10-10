@@ -239,6 +239,153 @@ pub fn all() -> Vec<poise::Command<Data, Error>> {
     ]
 }
 
+/// Pre-command defer policy. Mirrors `deferIfNeeded` in
+/// `src/core/commandExecutor.ts`: a slash invocation defers (public
+/// "thinking..." or ephemeral) when the TS `thinking`/`ephemeral`
+/// flags say so. `defer` is the OR of the subcommand and parent flags
+/// (TS `target.thinking || command.thinking || target.ephemeral`);
+/// `ephemeral` is the subcommand flag only (TS `target.ephemeral`,
+/// falling back to the parent flag for top-level commands).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct DeferPolicy {
+    pub defer: bool,
+    pub ephemeral: bool,
+}
+
+impl DeferPolicy {
+    const NONE: DeferPolicy = DeferPolicy {
+        defer: false,
+        ephemeral: false,
+    };
+    const PUBLIC: DeferPolicy = DeferPolicy {
+        defer: true,
+        ephemeral: false,
+    };
+    const EPHEMERAL: DeferPolicy = DeferPolicy {
+        defer: true,
+        ephemeral: true,
+    };
+}
+
+/// Resolve the defer policy for a poise qualified command path
+/// (`"mod"`, `"authrestore set"`). Pure so it stays unit-testable.
+/// Lookup is exact-path first, then the top-level parent segment
+/// (mirrors the TS subcommand-overrides-parent branch); unknown
+/// paths default to no defer. Names below are the Rust-registered
+/// slash names, verified against the `rename = ...` attributes.
+pub fn defer_policy(qualified_path: &str) -> DeferPolicy {
+    /// Subcommands that defer ephemerally (TS `ephemeral: true`).
+    const EPHEMERAL_PATHS: &[&str] = &[
+        "tag use",
+        "tag info",
+        "lastfm config",
+        "lastfm login",
+        "suggest reply",
+        "suggest deny",
+        "suggest accept",
+        "suggest delete",
+        "authrestore set",
+        "blogger add",
+        "blogger remove",
+        // Flat commands whose TS fragment sets ephemeral: true.
+        "caracteres",
+        "vc",
+        "inviteinfo",
+    ];
+    /// Parents whose whole subtree defers publicly (TS top-level
+    /// `thinking: true`), plus flat commands under such parents.
+    const PUBLIC_PATHS: &[&str] = &[
+        "antispam",
+        "backup",
+        "custom",
+        "gw",
+        "h247",
+        "inv",
+        "membercount",
+        "mod",
+        "music",
+        "stats",
+        "ticket",
+        "unban-all",
+        "authrestore",
+        "automod",
+        "guildconfig",
+        "lastfm",
+        "report",
+        "protect",
+        "suggest",
+        "voice",
+        // TS `fun` parent is thinking:true but ported flat.
+        "dice",
+        "heads-tails",
+        "number",
+        "question",
+        "morse",
+        "love",
+        "poll",
+        "hack",
+        "cat",
+        "dog",
+        "rate",
+        "gay",
+        "stench",
+        "catsay",
+        "transgender",
+        "youtube",
+        "tweet",
+        "bubbles",
+        "dolphin",
+        "duck",
+        "fox",
+        "frog",
+        "panda",
+        "squirrel",
+        "67",
+        "grosbg",
+        "trans",
+        "captions",
+        "togif",
+        "hug",
+        "kiss",
+        "slap",
+        "config",
+        // TS `channel` parent is thinking:true but ported flat.
+        "renew",
+        "sync",
+        "hide",
+        "hideall",
+        "unhide",
+        "unhideall",
+        "slowmode",
+        "media-only",
+        // TS `utils`/`util` thinking:true subcommands, ported flat.
+        "massmove",
+        "massiverole",
+        "zip-emojis",
+        "zip-stickers",
+        "unzip-emojis",
+        // TS `ranks` thinking:true subcommands (`roles` maps to the
+        // ported role-add/role-list pair).
+        "ranks config",
+        "ranks role-add",
+        "ranks role-list",
+        // TS message-context `Play it in a voice channel`.
+        "msg_play",
+    ];
+    if EPHEMERAL_PATHS.contains(&qualified_path) {
+        return DeferPolicy::EPHEMERAL;
+    }
+    if PUBLIC_PATHS.contains(&qualified_path) {
+        return DeferPolicy::PUBLIC;
+    }
+    if let Some((parent, _)) = qualified_path.split_once(' ') {
+        if PUBLIC_PATHS.contains(&parent) {
+            return DeferPolicy::PUBLIC;
+        }
+    }
+    DeferPolicy::NONE
+}
+
 /// Fetch guild lang then resolve a YAML key. Mirrors:
 ///   const lang = await client.func.getLanguageData(guildId)
 pub async fn lang_for(ctx: &Ctx<'_>, key: &str, fallback: &str) -> String {
@@ -806,5 +953,57 @@ mod tests {
                 );
             }
         }
+    }
+}
+
+#[cfg(test)]
+mod defer_policy_tests {
+    use super::*;
+
+    #[test]
+    fn unknown_commands_do_not_defer() {
+        assert_eq!(defer_policy("ping"), DeferPolicy::NONE);
+        assert_eq!(defer_policy("avatar"), DeferPolicy::NONE);
+        assert_eq!(defer_policy(""), DeferPolicy::NONE);
+    }
+
+    #[test]
+    fn thinking_parents_defer_publicly_with_subcommand_fallback() {
+        // Top-level entry mirrors TS command.thinking.
+        assert_eq!(defer_policy("mod"), DeferPolicy::PUBLIC);
+        // Unlisted subcommand inherits the parent flag (TS target ||
+        // command OR branch).
+        assert_eq!(defer_policy("mod ban"), DeferPolicy::PUBLIC);
+        assert_eq!(defer_policy("music play"), DeferPolicy::PUBLIC);
+        assert_eq!(defer_policy("guildconfig setlogs"), DeferPolicy::PUBLIC);
+        assert_eq!(defer_policy("voice panel"), DeferPolicy::PUBLIC);
+    }
+
+    #[test]
+    fn ephemeral_subcommands_override_parent_to_ephemeral() {
+        // TS target.ephemeral wins over a thinking:true parent.
+        assert_eq!(defer_policy("authrestore set"), DeferPolicy::EPHEMERAL);
+        assert_eq!(defer_policy("lastfm config"), DeferPolicy::EPHEMERAL);
+        assert_eq!(defer_policy("suggest deny"), DeferPolicy::EPHEMERAL);
+        assert_eq!(defer_policy("tag use"), DeferPolicy::EPHEMERAL);
+        assert_eq!(defer_policy("blogger add"), DeferPolicy::EPHEMERAL);
+        // Non-ephemeral siblings stay public via the parent.
+        assert_eq!(defer_policy("authrestore get"), DeferPolicy::PUBLIC);
+        assert_eq!(defer_policy("lastfm status"), DeferPolicy::PUBLIC);
+        assert_eq!(defer_policy("blogger list"), DeferPolicy::NONE);
+    }
+
+    #[test]
+    fn flat_ported_subcommands_keep_ts_flags() {
+        assert_eq!(defer_policy("dice"), DeferPolicy::PUBLIC);
+        assert_eq!(defer_policy("renew"), DeferPolicy::PUBLIC);
+        assert_eq!(defer_policy("massmove"), DeferPolicy::PUBLIC);
+        assert_eq!(defer_policy("ranks config"), DeferPolicy::PUBLIC);
+        assert_eq!(defer_policy("ranks role-add"), DeferPolicy::PUBLIC);
+        assert_eq!(defer_policy("caracteres"), DeferPolicy::EPHEMERAL);
+        assert_eq!(defer_policy("vc"), DeferPolicy::EPHEMERAL);
+        assert_eq!(defer_policy("inviteinfo"), DeferPolicy::EPHEMERAL);
+        // TS thinking:false parents ported flat stay non-deferred.
+        assert_eq!(defer_policy("ranks show"), DeferPolicy::NONE);
     }
 }

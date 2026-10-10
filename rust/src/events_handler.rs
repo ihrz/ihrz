@@ -617,6 +617,9 @@ pub struct Handler {
     /// Mirrors pendingCustomVoiceCreations in
     /// Events/voicedashboard/voiceState.ts.
     pub temp_pending: Arc<tokio::sync::Mutex<HashSet<String>>>,
+    /// SMTP owner mailer. Mirrors `client.email` (core.ts:134).
+    /// Silent when SMTP env is incomplete (guarded by `connected`).
+    pub mailer: Arc<crate::mailer::Mailer>,
 }
 
 /// Pending captcha challenge for a newcomer.
@@ -875,6 +878,7 @@ impl Handler {
             slashlog,
             restoring: Arc::new(tokio::sync::Mutex::new(HashSet::new())),
             temp_pending: Arc::new(tokio::sync::Mutex::new(HashSet::new())),
+            mailer: Arc::new(crate::mailer::Mailer::init_from_env("iHorizon")),
         }
     }
 
@@ -1973,6 +1977,25 @@ impl serenity::EventHandler for Handler {
                 .register_announce(ctx.http.clone())
                 .await;
         }
+        // Owner "Bot Is Ready" mail (mirrors ready.ts:467-483, main shard
+        // only). Blocking SMTP goes through spawn_blocking; the mailer is
+        // silent when SMTP env is incomplete.
+        {
+            let mailer = self.mailer.clone();
+            let tag = ready.user.tag();
+            let shard_label = match &ready.shard {
+                Some(info) => format!("shard {}/{}", info.id.get(), info.total),
+                None => "shard 0/1".to_string(),
+            };
+            let is_main = match &ready.shard {
+                None => true,
+                Some(info) => info.id.get() == 0,
+            };
+            let date = chrono::Local::now().format("%Y-%m-%d %H:%M:%S").to_string();
+            tokio::task::spawn_blocking(move || {
+                mailer.send_ready(&tag, &date, &shard_label, is_main);
+            });
+        }
     }
 
     async fn guild_create(
@@ -1983,6 +2006,24 @@ impl serenity::EventHandler for Handler {
     ) {
         // Mirrors client/guildCreate.ts.
         let gid = guild.id.get().to_string();
+        // Owner "New Guild" mail (mirrors guildCreate.ts:441). Serenity
+        // replays guild_create for cached guilds at boot, so only a real
+        // join (`is_new`) notifies. Blocking SMTP via spawn_blocking.
+        if matches!(_is_new, Some(true)) {
+            let mailer = self.mailer.clone();
+            let name = guild.name.clone();
+            let id = guild.id.get();
+            let joined_at = guild.joined_at.format("%Y-%m-%d %H:%M:%S").to_string();
+            let shard = format!("shard {}", ctx.shard_id.get());
+            let members = guild.member_count;
+            let vanity = guild.vanity_url_code.clone().unwrap_or_default();
+            let owner = guild.owner_id.get().to_string();
+            tokio::task::spawn_blocking(move || {
+                mailer.send_join(
+                    &name, id, &joined_at, &shard, members, "", &vanity, "", &owner,
+                );
+            });
+        }
         // Cancel a pending deferred wipe from a previous leave (mirrors
         // cancelPendingGuildDataDeletion in deleteDatabaseDataOnGuildLeave.ts).
         {
@@ -2277,6 +2318,21 @@ impl serenity::EventHandler for Handler {
             .unwrap_or_default();
         let delete_at = wipe_queue_enqueue(&mut queue, &gid, &name, &owner, now);
         crate::scheduler::save_wipe_queue(&self.pool, &queue).await;
+        // Owner "Leave Guild" mail (mirrors removeGuildLog.ts:95). Only
+        // when Discord ships the full guild (boot unavailability carries
+        // no payload). Blocking SMTP via spawn_blocking.
+        if let Some(g) = full.as_ref() {
+            let mailer = self.mailer.clone();
+            let name = g.name.clone();
+            let id = g.id.get();
+            let date = chrono::Local::now().format("%Y-%m-%d %H:%M:%S").to_string();
+            let shard = format!("shard {}", ctx.shard_id.get());
+            let members = g.member_count;
+            let vanity = g.vanity_url_code.clone().unwrap_or_default();
+            tokio::task::spawn_blocking(move || {
+                mailer.send_leave(&name, id, &date, &shard, members, &vanity, "");
+            });
+        }
         // Drop the legacy immediate flag (migration from the old design).
         let _ = tbl_del(&self.pool, &gid, "GUILD_DELETE_QUEUED").await;
         // Mirrors invitemanager/onGuildLeave.ts: drop the invite cache.
