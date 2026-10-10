@@ -14,7 +14,7 @@ pub async fn eco_work(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let pool = &ctx.data().pool;
     if config::economy_disabled_routed(pool, &gid).await {
         ctx.say(
-            crate::commands::lang_for(&ctx, "economy_disable_msg", "Economy is disabled.")
+            crate::commands::lang_for(&ctx, "economy_disable_msg", "<@${interaction.user.id}>, the `Economy Module` in this guild is **disabled**. You can't use the economy module anymore!")
                 .await
                 .replace("${interaction.user.id}", &ctx.author().id.get().to_string()),
         )
@@ -31,7 +31,7 @@ pub async fn eco_work(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         let text = crate::commands::lang_for(
             &ctx,
             "economy_cooldown_error",
-            "Wait ${time} before you can execute this command again!",
+            "Wait **${time}** before you can execute this command again!",
         )
         .await
         .replace("${time}", &time);
@@ -55,18 +55,26 @@ pub async fn eco_work(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let embed = poise::serenity_prelude::CreateEmbed::default()
         .author(
             poise::serenity_prelude::CreateEmbedAuthor::new(
-                crate::commands::lang_for(&ctx, "work_embed_author", "It paid off!")
-                    .await
-                    .replace("${interaction.user.username}", &display),
+                crate::commands::lang_for(
+                    &ctx,
+                    "work_embed_author",
+                    "${interaction.user.username}, it paid off!",
+                )
+                .await
+                .replace("${interaction.user.username}", &display),
             )
             .icon_url(ctx.author().face()),
         )
         .colour(0xF1D488)
         .description(
-            crate::commands::lang_for(&ctx, "work_embed_description", "Earned ${amount}$!")
-                .await
-                .replace("${interaction.user.username}", &display)
-                .replace("${amount}", &fmt_num(amount)),
+            crate::commands::lang_for(
+                &ctx,
+                "work_embed_description",
+                "${interaction.user.username}, you've worked and earned ${amount}$!",
+            )
+            .await
+            .replace("${interaction.user.username}", &display)
+            .replace("${amount}", &fmt_num(amount)),
         );
     ctx.send(poise::CreateReply::default().embed(embed)).await?;
     add_money(&mut account, amount);

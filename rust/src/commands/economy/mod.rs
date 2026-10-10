@@ -801,9 +801,21 @@ async fn buyable_roles_embed(
     shop: &ShopMap,
 ) -> poise::serenity_prelude::CreateEmbed {
     let mut embed = poise::serenity_prelude::CreateEmbed::default()
-        .title(crate::commands::lang_for(ctx, "economy_boost_embed_title", "Buyable Roles").await)
+        .title(
+            crate::commands::lang_for(
+                ctx,
+                "economy_boost_embed_title",
+                "Economy System - Buyable Roles",
+            )
+            .await,
+        )
         .description(
-            crate::commands::lang_for(ctx, "economy_boost_embed_desc", "Buyable roles.").await,
+            crate::commands::lang_for(
+                ctx,
+                "economy_boost_embed_desc",
+                "All buyable roles are listed below.",
+            )
+            .await,
         )
         .colour(0x0097FF)
         .timestamp(poise::serenity_prelude::Timestamp::now());
@@ -869,7 +881,7 @@ pub async fn disabled_reply(ctx: &Ctx<'_>) -> Result<bool, anyhow::Error> {
         return Ok(false);
     }
     ctx.say(
-        crate::commands::lang_for(ctx, "economy_disable_msg", "Economy is disabled.")
+        crate::commands::lang_for(ctx, "economy_disable_msg", "<@${interaction.user.id}>, the `Economy Module` in this guild is **disabled**. You can't use the economy module anymore!")
             .await
             .replace("${interaction.user.id}", &ctx.author().id.get().to_string()),
     )
@@ -975,7 +987,7 @@ pub async fn claim_inner(
     let pool = &ctx.data().pool;
     if config::economy_disabled_routed(pool, &gid).await {
         let template =
-            crate::commands::lang_for(ctx, "economy_disable_msg", "Economy is disabled.").await;
+            crate::commands::lang_for(ctx, "economy_disable_msg", "<@${interaction.user.id}>, the `Economy Module` in this guild is **disabled**. You can't use the economy module anymore!").await;
         let uid = ctx.author().id.get();
         let text = if kind == "daily" {
             daily_disabled_text(&template, uid)

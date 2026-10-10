@@ -68,15 +68,14 @@ pub async fn eco_withdraw(
     let embed = poise::serenity_prelude::CreateEmbed::default()
         .author(
             poise::serenity_prelude::CreateEmbedAuthor::new(
-                crate::lang::get(&code, "daily_embed_title")
-                    .unwrap_or_else(|| "Withdraw".to_string()),
+                crate::lang::get(&code, "daily_embed_title").unwrap_or_else(|| "Daily".to_string()),
             )
             .icon_url(ctx.author().face()),
         )
         .colour(0xA4CB80)
         .title(
             crate::lang::get(&code, "withdraw_embed_title")
-                .unwrap_or_else(|| "Withdraw".to_string()),
+                .unwrap_or_else(|| "Withdraw from your bank".to_string()),
         )
         .description(
             crate::lang::get(&code, "withdraw_embed_desc")

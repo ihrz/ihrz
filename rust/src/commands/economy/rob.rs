@@ -54,7 +54,7 @@ pub async fn eco_rob(
     if a.money < ROB_MIN_MONEY {
         ctx.say(
             crate::lang::get(&code, "rob_dont_enought_error")
-                .unwrap_or_else(|| "Rob failed.".to_string()),
+                .unwrap_or_else(|| ":x: You need at least 250$ to rob somebody.".to_string()),
         )
         .await?;
         return Ok(());

@@ -170,7 +170,7 @@ pub async fn eco_shop(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         .colour(0x45F712)
         .description(
             crate::lang::get(&code, "economy_shop_embed_desc")
-                .unwrap_or_else(|| "Buy roles with your money.".to_string()),
+                .unwrap_or_else(|| "The shop permits you to buy items/roles using your money. You can view the roles available for purchase below.".to_string()),
         )
         .field(
             crate::lang::get(&code, "balance_embed_fields1_name")
@@ -180,7 +180,7 @@ pub async fn eco_shop(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         )
         .field(
             crate::lang::get(&code, "balance_embed_fields2_name")
-                .unwrap_or_else(|| "Wallet".to_string()),
+                .unwrap_or_else(|| "In Balance".to_string()),
             format!("{}{coin}", fmt_num(base.money)),
             true,
         )

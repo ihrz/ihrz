@@ -26,7 +26,7 @@ pub async fn eco_pay(
     if amount.to_string().contains('-') {
         ctx.say(
             crate::lang::get(&code, "pay_negative_number_error")
-                .unwrap_or_else(|| "Amount must be positive.".to_string()),
+                .unwrap_or_else(|| "Negative money cannot be paid.".to_string()),
         )
         .await?;
         return Ok(());
@@ -42,8 +42,9 @@ pub async fn eco_pay(
     // check and flow through to a no-op add/sub + success reply.
     if amount != 0.0 && a.money < amount {
         ctx.say(
-            crate::lang::get(&code, "pay_dont_have_enought_to_give")
-                .unwrap_or_else(|| "Not enough money.".to_string()),
+            crate::lang::get(&code, "pay_dont_have_enought_to_give").unwrap_or_else(|| {
+                "That's more money than you've got in your balance. Try again.".to_string()
+            }),
         )
         .await?;
         return Ok(());

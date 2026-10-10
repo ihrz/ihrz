@@ -109,8 +109,9 @@ pub async fn eco_set_cooldown(
     let Some(ms) = parse_cooldown_ms(&cooldown) else {
         let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
         ctx.say(
-            crate::lang::get(&code, "economy_manage_rewards_cooldown_invalid_time")
-                .unwrap_or_else(|| "Bad duration.".to_string()),
+            crate::lang::get(&code, "economy_manage_rewards_cooldown_invalid_time").unwrap_or_else(
+                || "Invalid time format. Please use a valid time format.".to_string(),
+            ),
         )
         .await?;
         return Ok(());
