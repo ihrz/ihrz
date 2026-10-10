@@ -102,8 +102,14 @@ pub fn author_link(platform: &str, id_or_username: &str) -> Option<String> {
     }
 }
 
-/// Authors embed description. Mirrors generateAuthorsEmbed: the lang
-/// prefix plus one `<platform> - [`name`](link)` row per author.
+/// Authors-embed body. Mirrors generateAuthorsEmbed in
+/// src/core/StreamNotifier.ts, except for one deliberate fix: TS keeps a
+/// single `link` binding across the loop and only assigns it for
+/// youtube/twitch, so any other platform row is accumulated as
+/// `[name](undefined)`; here each entry renders its link only when one
+/// is known (kick rows, which have no TS verify/feed path, render as
+/// plain code). Kept: the TS accumulation shape itself (base prefix +
+/// one row per entry) is not per-entry state and stays as-is.
 pub fn authors_embed_desc(prefix: &str, rows: &[(String, String, Option<String>)]) -> String {
     let mut desc = prefix.to_string();
     for (platform, name, link) in rows {

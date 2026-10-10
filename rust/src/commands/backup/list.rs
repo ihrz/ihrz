@@ -14,9 +14,43 @@ pub fn list_author_name(username: &str, display_name: Option<&str>) -> String {
 }
 
 #[poise::command(slash_command, prefix_command, rename = "list", aliases("backup-list"))]
-pub async fn backup_list(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
+pub async fn backup_list(
+    ctx: Ctx<'_>,
+    #[description = "Backup id"]
+    #[rename = "backup-id"]
+    backup_id: Option<String>,
+) -> Result<(), anyhow::Error> {
     use poise::serenity_prelude as serenity;
     let uid = ctx.author().id.get();
+    // Ownership gate for the prefix `backup list <id>` form, like the
+    // BACKUPS.<uid>.<id> check in !list.ts:58-77 (strangers get
+    // backup_this_is_not_your_backup). The id never selects a
+    // single-backup view; the list always renders below.
+    if let Some(id) = backup_id
+        .as_deref()
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+    {
+        if super::backup::bkp_get(&ctx.data().pool, uid, id)
+            .await
+            .is_none()
+        {
+            let no = crate::emojis::app_emoji_markup(ctx.http(), "No")
+                .await
+                .unwrap_or_else(|| "❌".to_string());
+            ctx.say(
+                crate::commands::lang_for(
+                    &ctx,
+                    "backup_this_is_not_your_backup",
+                    "${client.iHorizon_Emojis.No} | This is not your backup!",
+                )
+                .await
+                .replace("${client.iHorizon_Emojis.No}", &no),
+            )
+            .await?;
+            return Ok(());
+        }
+    }
     let gid = ctx
         .guild_id()
         .map(|g| g.get().to_string())

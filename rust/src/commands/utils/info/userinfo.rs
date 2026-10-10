@@ -1,7 +1,8 @@
 use super::*;
 
 /// User info. Mirrors utils !userinfo.ts (best-effort).
-// Third-party badge APIs and the gateway premium lookup are skipped.
+// Third-party donor badges (Vencord/Equicord) are ported best-effort;
+// the HorizonGateway premium lookup is skipped (see the nitro comment).
 #[poise::command(
     slash_command,
     prefix_command,
@@ -20,7 +21,7 @@ pub async fn userinfo(
     let notfound = crate::lang::get(&code, "userinfo_var_notfound")
         .unwrap_or_else(|| "`Not found`".to_string());
     // Flag badges (names, best-effort for the TS emoji badges).
-    let badges = u
+    let base_badges = u
         .public_flags
         .map(|flags| {
             flags
@@ -31,6 +32,59 @@ pub async fn userinfo(
         })
         .filter(|s| !s.is_empty())
         .unwrap_or_else(|| notfound.clone());
+    // Server badges mirror getServerBadges in !userinfo.ts. The booster
+    // line uses the cached member's boost start (`premium_since`, the
+    // serenity equivalent of holding the guild premium-subscriber role);
+    // the Crown marks the guild owner.
+    let cached_member = ctx.guild_id().and_then(|gid| {
+        ctx.serenity_context()
+            .cache
+            .guild(gid)
+            .and_then(|g| g.members.get(&u.id).cloned())
+    });
+    let is_booster = cached_member
+        .as_ref()
+        .and_then(|m| m.premium_since)
+        .is_some();
+    let is_owner = ctx
+        .guild_id()
+        .and_then(|gid| {
+            ctx.serenity_context()
+                .cache
+                .guild(gid)
+                .map(|g| g.owner_id == u.id)
+        })
+        .unwrap_or(false);
+    // Bot app badges mirror the `member.bot` App_1/App_2 append in
+    // !userinfo.ts (bot self application-flag badges need the app object,
+    // unavailable here, so only the generic app marker is used).
+    let mut extra: Vec<&str> = vec![];
+    if is_booster {
+        extra.push("Server Booster");
+    }
+    if is_owner {
+        extra.push("Crown (Server Owner)");
+    }
+    if u.bot {
+        extra.push("Bot App");
+    }
+    // Donor badges mirror getVencordDonator/getEquiboAndOthersData in
+    // !userinfo.ts: best-effort lookups with the TS 833 ms timeouts,
+    // failures silently yield nothing (like `.catch(() => null)`).
+    let uid_str = u.id.get().to_string();
+    if vencord_donator(&uid_str).await {
+        extra.push("Vencord Donator");
+    }
+    if equicord_donator(&uid_str).await {
+        extra.push("Equicord Donator");
+    }
+    let badges = if extra.is_empty() {
+        base_badges
+    } else if base_badges == notfound {
+        extra.join(", ")
+    } else {
+        format!("{base_badges}, {}", extra.join(", "))
+    };
     // Presence from cache.
     let presence = ctx.guild_id().and_then(|gid| {
         ctx.serenity_context()
@@ -63,7 +117,10 @@ pub async fn userinfo(
             }
         })
         .unwrap_or_else(|| notfound.clone());
-    // Nitro heuristic (no gateway): animated avatar -> Classic, banner -> Boost.
+    // Nitro heuristic (no gateway): animated avatar -> Classic (1),
+    // banner -> Boost (2). `premium_type` 3 (Nitro Basic) only arrives via
+    // the HorizonGateway UserInfo lookup inside GetNitro, which has no Rust
+    // equivalent, so Basic is unreachable here (documented delta).
     let animated_avatar = u
         .avatar
         .as_ref()
@@ -82,25 +139,6 @@ pub async fn userinfo(
     };
     let display = u.global_name.clone().unwrap_or_else(|| u.name.clone());
     let created = u.created_at().unix_timestamp();
-    // Booster line: mirrors getServerBadges premiumSubscriberRole check
-    // in !userinfo.ts. Serenity's cached Guild exposes no booster role
-    // id, so this is a name heuristic over the member's cached roles.
-    let is_booster = ctx.guild_id().and_then(|gid| {
-        ctx.serenity_context().cache.guild(gid).map(|g| {
-            g.members
-                .get(&u.id)
-                .map(|m| {
-                    m.roles.iter().any(|rid| {
-                        g.roles
-                            .get(rid)
-                            .map(|r| r.name.to_ascii_lowercase().contains("booster"))
-                            .unwrap_or(false)
-                    })
-                })
-                .unwrap_or(false)
-        })
-    });
-    let _ = is_booster;
     let roles = ctx
         .guild_id()
         .and_then(|gid| {
@@ -179,4 +217,72 @@ pub async fn userinfo(
     }
     ctx.send(reply).await?;
     Ok(())
+}
+
+/// Vencord donor check. Mirrors getVencordDonator in !userinfo.ts
+/// (GET badges.json with 833 ms timeout; best-effort, false on any failure).
+async fn vencord_donator(user_id: &str) -> bool {
+    let client = match reqwest::Client::builder()
+        .timeout(std::time::Duration::from_millis(833))
+        .build()
+    {
+        Ok(c) => c,
+        Err(_) => return false,
+    };
+    let data: serde_json::Value = match client
+        .get("https://badges.vencord.dev/badges.json")
+        .send()
+        .await
+    {
+        Ok(r) => match r.error_for_status() {
+            Ok(ok) => match ok.json().await {
+                Ok(v) => v,
+                Err(_) => return false,
+            },
+            Err(_) => return false,
+        },
+        Err(_) => return false,
+    };
+    data.get(user_id).is_some_and(|v| !v.is_null())
+}
+
+/// Equicord donor check. Mirrors getEquiboAndOthersData in !userinfo.ts
+/// (GET badges.equicord.org/{userId} with 833 ms timeout; true when any
+/// badge link points at the badge.equicord.org host; best-effort).
+async fn equicord_donator(user_id: &str) -> bool {
+    let client = match reqwest::Client::builder()
+        .timeout(std::time::Duration::from_millis(833))
+        .build()
+    {
+        Ok(c) => c,
+        Err(_) => return false,
+    };
+    let data: serde_json::Value = match client
+        .get(format!("https://badges.equicord.org/{user_id}"))
+        .send()
+        .await
+    {
+        Ok(r) => match r.error_for_status() {
+            Ok(ok) => match ok.json().await {
+                Ok(v) => v,
+                Err(_) => return false,
+            },
+            Err(_) => return false,
+        },
+        Err(_) => return false,
+    };
+    let Some(list) = data.get("badges").and_then(|b| b.as_array()) else {
+        return false;
+    };
+    list.iter().any(|x| {
+        x.get("badge")
+            .and_then(|b| b.as_str())
+            .is_some_and(|link| url_host(link) == Some("badge.equicord.org".to_string()))
+    })
+}
+
+/// Best-effort host part of an http(s) URL (no new dep for one comparison).
+fn url_host(link: &str) -> Option<String> {
+    let rest = link.split("://").nth(1)?;
+    Some(rest.split('/').next()?.to_ascii_lowercase())
 }

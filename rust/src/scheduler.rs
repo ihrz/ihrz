@@ -299,6 +299,14 @@ pub async fn sweep_expired_giveaways(
             )
             .await;
         }
+        // End gates (mirror giveawaysManager refresh() + end()):
+        // expired + not already ended finishes; an already-ended row
+        // is rejected here exactly like end() rejects it with
+        // "Invalid Giveaway". Cross-shard no-op is preserved by
+        // construction: TS skips guilds outside the serving shard
+        // (`!client.inShard(...)`) because every shard runs refresh();
+        // here one scheduler pass owns every guild, so there is no
+        // foreign shard to skip.
         if !gw.ended && now_ms >= gw.expire_in_ms {
             let code = crate::db::guild_lang(pool, gid.parse::<u64>().ok()).await;
             if let Some(http) = &http {
@@ -1348,9 +1356,18 @@ pub async fn sweep_idle_players(
     n
 }
 
-/// Post-destroy H24/7 rejoin. Mirrors handleH247PlayerDestroyed: skip
-/// when a player already exists, then up to 3 force re-emits (1s then
-/// 2s delays) with a connect confirm between attempts. The confirm
+/// Post-destroy H24/7 rejoin. Mirrors handleH247PlayerDestroyed.
+/// Known delta (kept per product sign-off): TS destroys the player with
+/// `disconnect=false` synchronously on the empty-queue event
+/// (handleH247PlayerIdleDestroy, h247Manager.ts:353-369), so the bot
+/// never visibly leaves; here the destroy goes through first and the
+/// rejoin is post-hoc, so a brief disconnect/rejoin can show in the
+/// client during the retry window. Closing the gap would need the
+/// synchronous pre-destroy hook lavalink.rs does not expose.
+///
+/// Retry shape: skip when a player already exists, then up to 3 force
+/// re-emits (1s then 2s delays) with a connect confirm between
+/// attempts. The confirm
 /// polls the cached Discord handshake (no guild cache is reachable
 /// from the scheduler, so the TS disconnect-observe leg is
 /// approximated: the force update is idempotent, and a handshake that
@@ -1422,6 +1439,122 @@ pub async fn confirm_h247_parked(guild_id: u64, channel_id: u64) -> bool {
         }
     }
     false
+}
+
+/// Parked-channel fetch. Mirrors fetchH247VoiceChannel in
+/// src/core/modules/h247Manager.ts (`channel.type !== GuildVoice`
+/// returns null): Some only when the channel still exists and is a
+/// plain voice channel (Stage and other kinds never restore).
+async fn h247_parked_voice_channel(
+    http: &std::sync::Arc<poise::serenity_prelude::Http>,
+    guild_id: poise::serenity_prelude::GuildId,
+    expected: u64,
+) -> Option<poise::serenity_prelude::GuildChannel> {
+    use poise::serenity_prelude::{ChannelId, ChannelType};
+    let channel = http.get_channel(ChannelId::new(expected)).await.ok()?;
+    let guild_channel = channel.guild()?;
+    if guild_channel.guild_id != guild_id || guild_channel.kind != ChannelType::Voice {
+        return None;
+    }
+    Some(guild_channel.clone())
+}
+
+/// Effective channel permissions for one member. Mirrors the
+/// discord.js `permissionsIn` aggregation joinH247VoiceChannel relies
+/// on: base union (@everyone + member roles, ADMINISTRATOR
+/// short-circuits), then @everyone / combined-role / member
+/// overwrites applied in order, with a final ADMINISTRATOR check.
+pub fn effective_channel_perms(
+    everyone_base: poise::serenity_prelude::Permissions,
+    member_role_bases: &[poise::serenity_prelude::Permissions],
+    overwrites: &[poise::serenity_prelude::PermissionOverwrite],
+    guild_id: u64,
+    member_id: u64,
+    member_roles: &[u64],
+) -> poise::serenity_prelude::Permissions {
+    use poise::serenity_prelude::{PermissionOverwriteType, Permissions, RoleId, UserId};
+    let mut perms = everyone_base;
+    for p in member_role_bases {
+        perms |= *p;
+    }
+    if perms.contains(Permissions::ADMINISTRATOR) {
+        return Permissions::all();
+    }
+    let apply = |perms: Permissions, ow: &poise::serenity_prelude::PermissionOverwrite| {
+        (perms & !ow.deny) | ow.allow
+    };
+    for ow in overwrites
+        .iter()
+        .filter(|o| o.kind == PermissionOverwriteType::Role(RoleId::new(guild_id)))
+    {
+        perms = apply(perms, ow);
+    }
+    let (mut allow, mut deny) = (Permissions::empty(), Permissions::empty());
+    for ow in overwrites.iter().filter(|o| match o.kind {
+        PermissionOverwriteType::Role(r) => member_roles.contains(&r.get()),
+        _ => false,
+    }) {
+        allow |= ow.allow;
+        deny |= ow.deny;
+    }
+    perms = (perms & !deny) | allow;
+    for ow in overwrites
+        .iter()
+        .filter(|o| o.kind == PermissionOverwriteType::Member(UserId::new(member_id)))
+    {
+        perms = apply(perms, ow);
+    }
+    if perms.contains(Permissions::ADMINISTRATOR) {
+        return Permissions::all();
+    }
+    perms
+}
+
+/// Bot Connect + Speak check for a voice channel over HTTP only (the
+/// scheduler has no guild cache). Mirrors the `permissionsIn` gate in
+/// joinH247VoiceChannel; failures (gone guild/member/roles) read as
+/// no permission, like the TS `!me` / fetch-catch legs.
+async fn h247_bot_may_join_http(
+    http: &std::sync::Arc<poise::serenity_prelude::Http>,
+    guild_id: poise::serenity_prelude::GuildId,
+    channel: &poise::serenity_prelude::GuildChannel,
+) -> bool {
+    let bot_id = match http.get_current_user().await {
+        Ok(u) => u.id,
+        Err(_) => return false,
+    };
+    let guild = match http.get_guild(guild_id).await {
+        Ok(g) => g,
+        Err(_) => return false,
+    };
+    if guild.owner_id == bot_id {
+        return true;
+    }
+    let member = match http.get_member(guild_id, bot_id).await {
+        Ok(m) => m,
+        Err(_) => return false,
+    };
+    let roles = http.get_guild_roles(guild_id).await.unwrap_or_default();
+    let perm_of = |id: u64| {
+        roles
+            .iter()
+            .find(|r| r.id.get() == id)
+            .map(|r| r.permissions)
+            .unwrap_or(poise::serenity_prelude::Permissions::empty())
+    };
+    let everyone_base = perm_of(guild_id.get());
+    let member_roles: Vec<u64> = member.roles.iter().map(|r| r.get()).collect();
+    let member_role_bases: Vec<poise::serenity_prelude::Permissions> =
+        member_roles.iter().map(|r| perm_of(*r)).collect();
+    let perms = effective_channel_perms(
+        everyone_base,
+        &member_role_bases,
+        &channel.permission_overwrites,
+        guild_id.get(),
+        bot_id.get(),
+        &member_roles,
+    );
+    crate::commands::h247::join::h247_bot_may_join(perms)
 }
 
 /// H24/7 watchdog. Mirrors watchdogH247Sessions + ensureH247VoicePresence
@@ -1497,6 +1630,30 @@ pub async fn sweep_h247_watchdog(
                 }
                 continue;
             };
+            // Channel fetch (mirrors fetchH247VoiceChannel in
+            // h247Manager.ts: a gone channel or a non-GuildVoice
+            // channel — e.g. converted to Stage — never restores).
+            let Some(voice_channel) = h247_parked_voice_channel(http, partial.id, expected).await
+            else {
+                if session::warn_due(gid_num, now).await {
+                    tracing::warn!(
+                        "H24/7 watchdog for guild {gid}: parked channel {expected} is gone or not a voice channel"
+                    );
+                }
+                continue;
+            };
+            // Permission gate (mirrors the Connect + Speak
+            // permissionsIn check in joinH247VoiceChannel): without
+            // both, the join would fail like TS, so the watchdog
+            // does not send and does not count the guild restored.
+            if !h247_bot_may_join_http(http, partial.id, &voice_channel).await {
+                if session::warn_due(gid_num, now).await {
+                    tracing::warn!(
+                        "H24/7 watchdog for guild {gid}: missing Connect/Speak in parked channel {expected}"
+                    );
+                }
+                continue;
+            }
             crate::lavalink::LavalinkManager::send_voice_state(&messenger, gid_num, Some(expected));
             session::clear_warn(gid_num).await;
             tracing::info!("scheduler: restored H247 voice for guild {gid} (channel {expected})");
@@ -1899,12 +2056,13 @@ impl NotifierCreds {
         std::env::var(key).ok().filter(|s| !s.trim().is_empty())
     }
 
-    pub fn from_env() -> Option<Self> {
-        Some(Self {
-            twitch_client_id: Self::env_non_empty("TWITCH_APPLICATION_ID")?,
-            twitch_client_secret: Self::env_non_empty("TWITCH_APPLICATION_SECRET")?,
-            youtube_api_key: Self::env_non_empty("YOUTUBE_API_KEY")?,
-        })
+    pub fn from_env() -> Self {
+        Self {
+            twitch_client_id: Self::env_non_empty("TWITCH_APPLICATION_ID").unwrap_or_default(),
+            twitch_client_secret: Self::env_non_empty("TWITCH_APPLICATION_SECRET")
+                .unwrap_or_default(),
+            youtube_api_key: Self::env_non_empty("YOUTUBE_API_KEY").unwrap_or_default(),
+        }
     }
 
     /// Independent Twitch pair. Mirrors the TS constructor holding
@@ -2013,14 +2171,20 @@ pub struct NotifierMedia {
     pub channel_id: Option<String>,
 }
 
-/// Latest-by-pubDate reduce. Mirrors getLatestMedia (ties keep the
-/// first item, like the TS `>` reduce seed).
-pub fn latest_media_by_pub(mut items: Vec<NotifierMedia>) -> Option<NotifierMedia> {
-    if items.is_empty() {
-        return None;
+/// Latest-by-pubDate reduce. Mirrors getLatestMedia in
+/// src/core/StreamNotifier.ts exactly: a strictly-greater (`>`) fold
+/// seeded with the first item, so pubDate ties keep the FIRST item.
+/// (A sort-then-last or `>=` fold would keep the last tied item and
+/// can flip which video notifies.)
+pub fn latest_media_by_pub(items: Vec<NotifierMedia>) -> Option<NotifierMedia> {
+    let mut iter = items.into_iter();
+    let mut latest = iter.next()?;
+    for item in iter {
+        if item.pub_ms > latest.pub_ms {
+            latest = item;
+        }
     }
-    items.sort_by_key(|m| m.pub_ms);
-    items.into_iter().next_back()
+    Some(latest)
 }
 
 fn rfc3339_ms(raw: &str) -> i64 {
@@ -2269,15 +2433,38 @@ pub fn media_already_notified(
     })
 }
 
-/// TS isValidVideo quirk: refresh sends when
-/// `!alreadyNotified || isValidVideo(media)`, and isValidVideo is true
-/// when any nested value is null/undefined. Ported so the gate below
-/// stays verbatim.
+/// TS isValidVideo, bug-for-bug. src/core/StreamNotifier.ts:457-468
+/// iterates `Object.values(entry)` and, on the FIRST value whose
+/// `typeof` is `"object"`, does `return this.isValidVideo(value)` —
+/// it returns immediately instead of continuing the scan, so later
+/// siblings are never examined (likewise a scalar null returns true
+/// at once). Ported verbatim so the refresh announce gate
+/// (`!alreadyNotified || isValidVideo(media)`) fires on exactly the
+/// same payloads as TS; do NOT "fix" this into a deep-any scan.
+/// (No `undefined` in JSON; null covers the `value == null` leg.)
 pub fn json_has_null(value: &serde_json::Value) -> bool {
     match value {
         serde_json::Value::Null => true,
-        serde_json::Value::Array(items) => items.iter().any(json_has_null),
-        serde_json::Value::Object(map) => map.values().any(json_has_null),
+        serde_json::Value::Object(map) => {
+            for v in map.values() {
+                if v.is_null() {
+                    return true;
+                } else if v.is_object() || v.is_array() {
+                    return json_has_null(v);
+                }
+            }
+            false
+        }
+        serde_json::Value::Array(items) => {
+            for v in items {
+                if v.is_null() {
+                    return true;
+                } else if v.is_object() || v.is_array() {
+                    return json_has_null(v);
+                }
+            }
+            false
+        }
         _ => false,
     }
 }
@@ -2468,8 +2655,9 @@ pub async fn sweep_notifier(
         }
         return (gids.len(), watches, 0);
     }
-    // One token for the whole sweep (TS ensureValidAccessToken per
-    // refresh, same net effect).
+    // One token for the whole sweep instead of TS ensureValidAccessToken
+    // per refresh: cheaper on the Twitch token endpoint by design, same
+    // net effect (a valid app token for every helix call in the pass).
     let twitch_token = match &twitch_pair {
         Some((id, secret)) => ensure_twitch_token(&web, id, secret).await,
         None => None,
@@ -2634,7 +2822,12 @@ pub async fn sweep_notifier_once(pool: &Pool) -> (usize, usize) {
             .await
             .len();
     }
-    if NotifierCreds::from_env().is_none() && watches > 0 {
+    // Partial-friendly gate (no all-or-nothing from_env): a sweep with
+    // only YouTube (or only Twitch) creds still polls that platform.
+    if NotifierCreds::twitch_pair_from_env().is_none()
+        && NotifierCreds::youtube_key_from_env().is_none()
+        && watches > 0
+    {
         tracing::debug!(
             "notifier tick: no API credentials (TWITCH_APPLICATION_ID/TWITCH_APPLICATION_SECRET/YOUTUBE_API_KEY); store-only pass over {watches} watches"
         );
@@ -2865,6 +3058,9 @@ mod tests {
             latest_media_by_pub(vec![mk("old", 10), mk("new", 20), mk("mid", 15)]).unwrap();
         assert_eq!(latest.id, "new");
         assert!(latest_media_by_pub(vec![]).is_none());
+        // pubDate tie keeps the FIRST item (TS `>` reduce, not `>=`).
+        let tied = latest_media_by_pub(vec![mk("first", 10), mk("second", 10)]).unwrap();
+        assert_eq!(tied.id, "first");
     }
 
     #[test]
@@ -2920,9 +3116,61 @@ mod tests {
     }
 
     #[test]
+    fn effective_channel_perms_mirrors_permissions_in() {
+        use poise::serenity_prelude::{PermissionOverwrite, PermissionOverwriteType, Permissions};
+        let ow =
+            |kind, allow: Permissions, deny: Permissions| PermissionOverwrite { allow, deny, kind };
+        // Plain Connect+Speak base passes the join gate.
+        let perms = effective_channel_perms(
+            Permissions::CONNECT | Permissions::SPEAK,
+            &[],
+            &[],
+            1,
+            7,
+            &[],
+        );
+        assert!(crate::commands::h247::join::h247_bot_may_join(perms));
+        // Missing Speak fails.
+        let perms = effective_channel_perms(Permissions::CONNECT, &[], &[], 1, 7, &[]);
+        assert!(!crate::commands::h247::join::h247_bot_may_join(perms));
+        // ADMINISTRATOR short-circuits without Connect/Speak.
+        let perms = effective_channel_perms(Permissions::ADMINISTRATOR, &[], &[], 1, 7, &[]);
+        assert!(crate::commands::h247::join::h247_bot_may_join(perms));
+        // @everyone overwrite denying Speak removes the grant.
+        let perms = effective_channel_perms(
+            Permissions::CONNECT | Permissions::SPEAK,
+            &[],
+            &[ow(
+                PermissionOverwriteType::Role(1.into()),
+                Permissions::empty(),
+                Permissions::SPEAK,
+            )],
+            1,
+            7,
+            &[],
+        );
+        assert!(!crate::commands::h247::join::h247_bot_may_join(perms));
+        // A member overwrite re-granting Speak restores it.
+        let perms = effective_channel_perms(
+            Permissions::CONNECT,
+            &[],
+            &[ow(
+                PermissionOverwriteType::Member(7.into()),
+                Permissions::SPEAK,
+                Permissions::empty(),
+            )],
+            1,
+            7,
+            &[],
+        );
+        assert!(crate::commands::h247::join::h247_bot_may_join(perms));
+    }
+
+    #[test]
     fn creds_split_per_platform() {
-        // from_env stays all-or-nothing; the per-platform readers are
-        // independent (one platform configured still polls).
+        // from_env is partial-friendly (missing keys read as empty, so
+        // one platform configured still polls); the per-platform
+        // readers and accessors are independent.
         let full = NotifierCreds {
             twitch_client_id: "id".into(),
             twitch_client_secret: "sec".into(),
@@ -2962,6 +3210,19 @@ mod tests {
         let quirky = serde_json::json!({"title": null});
         assert!(json_has_null(&quirky));
         assert!(!json_has_null(&clean));
+        // Bug-for-bug: the scan returns on the FIRST object prop, so a
+        // null behind an object sibling is missed, exactly like TS.
+        assert!(!json_has_null(
+            &serde_json::json!({"a": {"x": 1}, "b": null})
+        ));
+        // ...while a null reached before any object prop still hits.
+        assert!(json_has_null(
+            &serde_json::json!({"a": null, "b": {"x": 1}})
+        ));
+        // First object prop is recursed into (scalar siblings after it
+        // are never examined, like TS).
+        assert!(json_has_null(&serde_json::json!({"a": {"x": null}})));
+        assert!(!json_has_null(&serde_json::json!({"a": {"x": 1}})));
         assert!(pending_notifier_media(&last, "u", "v1", 50, &quirky).is_some());
         assert!(pending_notifier_media(&last, "u", "", 0, &clean).is_none());
         // Store parse: missing key -> [], like the TS `|| []`.

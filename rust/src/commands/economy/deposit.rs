@@ -4,7 +4,9 @@ use super::*;
 #[poise::command(slash_command, prefix_command, rename = "deposit", aliases("dep"))]
 pub async fn eco_deposit(
     ctx: Ctx<'_>,
-    #[description = "Amount or all"] amount: String,
+    #[description = "Amount or all"]
+    #[rename = "how-much"]
+    amount: String,
 ) -> Result<(), anyhow::Error> {
     if disabled_reply(&ctx).await? {
         return Ok(());
@@ -57,7 +59,9 @@ pub async fn eco_deposit(
     a.bank += n;
     balance::save_econ_routed(&ctx.data().pool, &gid, uid, &a).await?;
     let author = user_mention(uid);
-    let money = n.to_string();
+    // TS logs `Number(toDeposit)` (!deposit.ts economyLogs.deposit): the
+    // untruncated Number value, even though the stored move uses parseInt.
+    let money = fmt_num(num);
     let coin = coin_markup(&ctx).await;
     let display = if raw == "all" {
         n.to_string()

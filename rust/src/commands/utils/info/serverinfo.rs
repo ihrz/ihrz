@@ -43,18 +43,21 @@ pub async fn serverinfo(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         }
         _ => f("serverinfo_verlvl_NONE", "NONE"),
     };
-    let author = f("serverinfo_embed_author", "🚩 -> ${interaction.guild.name}")
+    let author_name = f("serverinfo_embed_author", "🚩 -> ${interaction.guild.name}")
         .replace("${interaction.guild.name}", &cached.name);
+    let mut author = poise::serenity_prelude::CreateEmbedAuthor::new(author_name);
+    // Author icon mirrors `iconURL()` in !serverinfo.ts.
+    if let Some(icon) = cached.icon_url() {
+        author = author.icon_url(icon);
+    }
     let description = f(
         "serverinfo_embed_description",
         "**Description**: ${interaction.guild.description}",
     )
     .replace(
         "${interaction.guild.description}",
-        cached
-            .description
-            .as_deref()
-            .unwrap_or("**Description**: ${interaction.guild.description}"),
+        // Mirrors `interaction.guild.description || "None"` in !serverinfo.ts.
+        cached.description.as_deref().unwrap_or("None"),
     );
     let joined_at = ctx
         .author_member()
@@ -62,27 +65,31 @@ pub async fn serverinfo(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         .and_then(|m| m.joined_at)
         .map(|t| t.to_string())
         .unwrap_or_else(|| "None".to_string());
-    let embed = poise::serenity_prelude::CreateEmbed::default()
-        .author(poise::serenity_prelude::CreateEmbedAuthor::new(author))
+    // Every TS field value is backtick-wrapped (`value` in !serverinfo.ts);
+    // the owner mention keeps its backticks too (`<@ownerId>`).
+    let tick = |v: String| format!("`{v}`");
+    let mut embed = poise::serenity_prelude::CreateEmbed::default()
+        .colour(0xC3B2A1)
+        .author(author)
         .description(description)
         .field(
             f("serverinfo_embed_fields_name", "🏷・**Name:**"),
-            cached.name,
+            tick(cached.name.clone()),
             true,
         )
         .field(
             f("serverinfo_embed_fields_members", "🧔・**Members:**"),
-            cached.member_count.to_string(),
+            tick(cached.member_count.to_string()),
             true,
         )
         .field(
             f("serverinfo_embed_fields_id", "🆔・**ID:**"),
-            guild_id.get().to_string(),
+            tick(guild_id.get().to_string()),
             true,
         )
         .field(
             f("serverinfo_embed_fields_owner", "👑・**Owner:**"),
-            format!("<@{}>", cached.owner_id.get()),
+            tick(format!("<@{}>", cached.owner_id.get())),
             true,
         )
         .field(
@@ -90,17 +97,17 @@ pub async fn serverinfo(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
                 "serverinfo_embed_fields_verlvl",
                 "🎚 ・**Verification Level:**",
             ),
-            verlvl,
+            tick(verlvl),
             true,
         )
         .field(
             f("serverinfo_embed_fields_region", "🌍・**Region:**"),
-            cached.preferred_locale.clone(),
+            tick(cached.preferred_locale.clone()),
             true,
         )
         .field(
             f("serverinfo_embed_fields_roles", "📇・**Role(s) number:**"),
-            cached.roles.len().to_string(),
+            tick(cached.roles.len().to_string()),
             true,
         )
         .field(
@@ -108,24 +115,49 @@ pub async fn serverinfo(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
                 "serverinfo_embed_fields_channels",
                 "✍・**Channel(s) number:**",
             ),
-            cached.channels.len().to_string(),
+            tick(cached.channels.len().to_string()),
             true,
         )
         .field(
             f("serverinfo_embed_fields_joinat", "🚲・**Joined at:**"),
-            joined_at,
+            tick(joined_at),
             true,
         )
         .field(
             f("serverinfo_embed_fields_createat", "⚓・**Created at:**"),
-            guild_id.created_at().to_string(),
+            tick(guild_id.created_at().to_string()),
             true,
         )
         .field(
             f("var_boosts", "Boosts"),
-            cached.premium_subscription_count.unwrap_or(0).to_string(),
+            tick(cached.premium_subscription_count.unwrap_or(0).to_string()),
             true,
-        );
-    ctx.send(poise::CreateReply::default().embed(embed)).await?;
+        )
+        .timestamp(poise::serenity_prelude::Timestamp::now());
+    let gid = guild_id.get().to_string();
+    let (footer_name, footer_bytes) = footer_parts(&ctx, &gid).await;
+    embed = embed_with_footer(embed, &footer_name, footer_bytes.is_some());
+    // Thumbnail mirrors `setThumbnail(guild.iconURL())`.
+    if let Some(icon) = cached.icon_url() {
+        embed = embed.thumbnail(icon);
+    }
+    // Banner image mirrors the TS `icons/{guildId}/{banner}.png` URL
+    // (verbatim, including the icons path quirk); skipped when the
+    // guild has no banner so no dangling image is sent.
+    if let Some(banner) = cached.banner.as_ref() {
+        embed = embed.image(format!(
+            "https://cdn.discordapp.com/icons/{}/{}.png",
+            guild_id.get(),
+            banner
+        ));
+    }
+    let mut reply = poise::CreateReply::default().embed(embed);
+    if let Some(bytes) = footer_bytes {
+        reply = reply.attachment(poise::serenity_prelude::CreateAttachment::bytes(
+            bytes,
+            "footer_icon.png",
+        ));
+    }
+    ctx.send(reply).await?;
     Ok(())
 }

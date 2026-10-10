@@ -54,6 +54,33 @@ pub fn requirement_error_key(requirement: &str, value: &str) -> Option<&'static 
     }
 }
 
+/// Fixed requirement choice. Mirrors the `choices` list on the
+/// `requirement` option in gw.ts (none/invites/messages/roles).
+/// Slash shows the TS values as the choice labels; prefix takes the
+/// same words, and anything else is rejected by poise before the
+/// handler runs (like the TtsLangChoice precedent).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
+pub enum GwRequirement {
+    #[name = "none"]
+    None,
+    #[name = "invites"]
+    Invites,
+    #[name = "messages"]
+    Messages,
+    #[name = "roles"]
+    Roles,
+}
+
+/// TS choice `value` for a requirement.
+pub fn gw_requirement_value(choice: GwRequirement) -> &'static str {
+    match choice {
+        GwRequirement::None => "none",
+        GwRequirement::Invites => "invites",
+        GwRequirement::Messages => "messages",
+        GwRequirement::Roles => "roles",
+    }
+}
+
 #[poise::command(
     slash_command,
     prefix_command,
@@ -63,19 +90,24 @@ pub fn requirement_error_key(requirement: &str, value: &str) -> Option<&'static 
 )]
 pub async fn gw_create(
     ctx: Ctx<'_>,
-    #[description = "Winners"] winners: f64,
+    #[description = "Winners"]
+    #[rename = "winner"]
+    winners: String,
     #[description = "Duration (e.g. 10m, 1h, 7d)"] time: String,
-    #[description = "Requirement: none, invites, messages, roles"] requirement: String,
+    #[description = "Requirement: none, invites, messages, roles"] requirement: GwRequirement,
     #[description = "Prize"] prize: String,
-    #[description = "Requirement value"] requirement_value: Option<String>,
+    #[description = "Requirement value"]
+    #[rename = "requirement-value"]
+    requirement_value: Option<String>,
     #[description = "Embed image URL (must be an image)"] image: Option<String>,
 ) -> Result<(), anyhow::Error> {
     let pool_early = &ctx.data().pool;
     let code_early = crate::db::guild_lang(pool_early, ctx.guild_id().map(|g| g.get())).await;
     // Mirrors !create.ts:77-85 (raw count validated in-handler:
-    // NaN / <= 0 -> start_is_not_valid). Discord delivers a Number
-    // (f64); the cast truncates like the TS parseInt.
-    let winners = winners as i64;
+    // NaN / <= 0 -> start_is_not_valid). Both paths carry the raw
+    // string (prefix `number(args, 0)`, slash Number option), parsed
+    // here like the TS getNumber + parseInt.
+    let winners = parse_winners_count(&winners);
     if !validate_winners(winners) {
         ctx.say(crate::lang::get(&code_early, "start_is_not_valid").unwrap_or_default())
             .await?;
@@ -102,6 +134,9 @@ pub async fn gw_create(
     };
     // Mirrors !create.ts:101-134 (requirement-value gates; the
     // `requirement` option itself is required like gw.ts:163).
+    // Unknown words never reach this point: the GwRequirement
+    // choices reject them up front (slash UI + prefix parse).
+    let requirement = gw_requirement_value(requirement);
     let req_value = requirement_value.unwrap_or_default();
     if let Some(key) = requirement_error_key(&requirement, &req_value) {
         // Roles need a guild-cache check like
@@ -149,7 +184,7 @@ pub async fn gw_create(
         ended: false,
         entries: vec![],
         winners: vec![],
-        requirement,
+        requirement: requirement.to_string(),
         requirement_value: req_value,
         // TS prefix leaves prize undefined (`prize || ""`); slash marks
         // it required. Either way the stored value is the 256-char slice.
@@ -313,6 +348,26 @@ mod tests {
         );
         assert_eq!(resolve_image_source(false, None), None);
         assert_eq!(resolve_image_source(false, Some("")), None);
+    }
+
+    #[test]
+    fn requirement_choices_cover_ts_values() {
+        // gw.ts choices values (unknown words rejected by poise).
+        use poise::ChoiceParameter as _;
+        assert_eq!(gw_requirement_value(GwRequirement::None), "none");
+        assert_eq!(gw_requirement_value(GwRequirement::Invites), "invites");
+        assert_eq!(gw_requirement_value(GwRequirement::Messages), "messages");
+        assert_eq!(gw_requirement_value(GwRequirement::Roles), "roles");
+        let names: Vec<String> = vec![
+            GwRequirement::None,
+            GwRequirement::Invites,
+            GwRequirement::Messages,
+            GwRequirement::Roles,
+        ]
+        .into_iter()
+        .map(|c| c.name().to_string())
+        .collect();
+        assert_eq!(names, vec!["none", "invites", "messages", "roles"]);
     }
 
     #[test]

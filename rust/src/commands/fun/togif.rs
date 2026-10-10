@@ -77,14 +77,15 @@ pub async fn togif(
     // Mirrors `createGifFromUrl`: download (15s timeout like
     // `AbortSignal.timeout(FETCH_TIMEOUT_MS)`, non-2xx rejected like
     // `if (!response.ok) throw`, 15 MiB cap), decode, clamp the
-    // long side to 512, flatten alpha on white, encode GIF.
-    // Deliberate webp denial (documented): `validImageType` allowlists webp
-    // and TS decodes it through a headless-browser canvas
-    // (`decodeWithBrowser`), but the Rust `image` crate is built with
-    // `features = ["png", "jpeg", "gif"]` only (see Cargo.toml) — no webp
-    // decoder exists in the tree — so webp sources fall into the deny reply
-    // here. Delta (documented): single-frame output vs the TS two identical
-    // frames (visually identical still).
+    // long side to 512, flatten alpha on white, encode GIF with two
+    // identical 50cs frames and loop-0 like the TS
+    // `GifFrame`/`encodeGif([frame1, frame2], { loops: 0 })` path.
+    // Deliberate webp denial (documented standing exclusion):
+    // `validImageType` allowlists webp and TS decodes it through a
+    // headless-browser canvas (`decodeWithBrowser`), but the Rust `image`
+    // crate is built with `features = ["png", "jpeg", "gif"]` only (see
+    // Cargo.toml) — no webp decoder exists in the tree — so webp sources
+    // fall into the deny reply here.
     let client = reqwest::Client::builder()
         .timeout(std::time::Duration::from_secs(TOGIF_FETCH_TIMEOUT_SECS))
         .build()
@@ -128,8 +129,19 @@ pub async fn togif(
         let (nw, nh) = togif_resize_dims(w, h);
         let resized = decoded.resize_exact(nw, nh, image::imageops::FilterType::Lanczos3);
         let flat = togif_flatten_white(&resized.to_rgba8());
+        // Two identical frames at 50cs with loop-0 (infinite), mirroring
+        // the TS `GifFrame` pair + `encodeGif([frame1, frame2], { loops: 0 })`.
+        let delay = image::Delay::from_numer_denom_ms(500, 1);
+        let rgba = image::DynamicImage::ImageRgb8(flat).to_rgba8();
+        let frame_a = image::Frame::from_parts(rgba.clone(), 0, 0, delay);
+        let frame_b = image::Frame::from_parts(rgba, 0, 0, delay);
         let mut buf = std::io::Cursor::new(Vec::new());
-        image::DynamicImage::ImageRgb8(flat).write_to(&mut buf, image::ImageFormat::Gif)?;
+        {
+            let mut encoder = image::codecs::gif::GifEncoder::new(&mut buf);
+            encoder.set_repeat(image::codecs::gif::Repeat::Infinite)?;
+            encoder.encode_frame(frame_a)?;
+            encoder.encode_frame(frame_b)?;
+        }
         Ok(buf.into_inner())
     })();
     match gif {
@@ -188,5 +200,44 @@ mod togif_tests {
             .write_to(&mut buf, image::ImageFormat::Gif)
             .expect("gif encodes");
         assert_eq!(&buf.get_ref()[0..6], b"GIF89a");
+    }
+
+    #[test]
+    fn two_frames_50cs_loop0() {
+        use image::AnimationDecoder;
+        let rgba = image::DynamicImage::ImageRgb8(image::RgbImage::from_pixel(
+            4,
+            4,
+            image::Rgb([9, 9, 9]),
+        ))
+        .to_rgba8();
+        let delay = image::Delay::from_numer_denom_ms(500, 1);
+        let mut buf = std::io::Cursor::new(Vec::new());
+        {
+            let mut encoder = image::codecs::gif::GifEncoder::new(&mut buf);
+            encoder
+                .set_repeat(image::codecs::gif::Repeat::Infinite)
+                .expect("repeat set");
+            encoder
+                .encode_frame(image::Frame::from_parts(rgba.clone(), 0, 0, delay))
+                .expect("frame 1 encodes");
+            encoder
+                .encode_frame(image::Frame::from_parts(rgba, 0, 0, delay))
+                .expect("frame 2 encodes");
+        }
+        let bytes = buf.into_inner();
+        assert_eq!(&bytes[0..6], b"GIF89a");
+        // NETSCAPE extension = loop-0 (infinite) like `{ loops: 0 }`.
+        assert!(bytes.windows(11).any(|w| w == b"NETSCAPE2.0"));
+        let decoder = image::codecs::gif::GifDecoder::new(std::io::Cursor::new(&bytes[..]))
+            .expect("gif decodes");
+        let frames: Vec<_> = decoder
+            .into_frames()
+            .collect::<Result<_, _>>()
+            .expect("frames decode");
+        assert_eq!(frames.len(), 2);
+        for f in &frames {
+            assert_eq!(f.delay().numer_denom_ms(), (500, 1));
+        }
     }
 }

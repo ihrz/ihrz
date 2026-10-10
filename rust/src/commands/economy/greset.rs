@@ -28,6 +28,15 @@ async fn clear_guild_econ(pool: &crate::db::Pool, guild_id: &str) -> anyhow::Res
 }
 
 /// Mirrors `!greset.ts`.
+///
+/// DELIBERATE KEEP (differs from `economy/!greset.ts:47-51`): TS loops
+/// `for (const entries in DbData)` over the `USER` array, so `entries`
+/// is the array INDEX (`"0"`, `"1"`, ...) and it deletes
+/// `USER.0.ECONOMY` etc. — keys that never match real user ids, leaving
+/// every real balance untouched. The Rust side performs the wipe the
+/// command promises (every `USER.<uid>.ECONOMY` doc in both stores,
+/// unrelated per-user rows like WARNS kept); mirroring the index loop
+/// would make the confirmation prompt a lie.
 #[poise::command(
     slash_command,
     prefix_command,

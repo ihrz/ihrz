@@ -1,14 +1,5 @@
 use super::*;
 
-/// Free-text reward-kind path. Mirrors `!set-money.ts:60-61`: the
-/// prefix path takes `method.string(args, 0)` verbatim with no case
-/// folding and no registry check, so the kind is stored under
-/// `ECONOMY.settings.{kind}.amount` exactly as typed (slash choices
-/// already constrain to lowercase `daily`/`weekly`/`monthly`).
-pub fn normalize_reward_kind(kind: &str) -> String {
-    kind.trim().to_string()
-}
-
 /// Mirrors `!set-money.ts`.
 #[poise::command(
     slash_command,
@@ -18,13 +9,21 @@ pub fn normalize_reward_kind(kind: &str) -> String {
 )]
 pub async fn eco_set_money(
     ctx: Ctx<'_>,
-    #[description = "daily, weekly, monthly"] kind: String,
-    #[description = "Amount"] amount: f64,
+    #[description = "daily, weekly, monthly"]
+    #[rename = "type"]
+    kind: RewardKind,
+    #[description = "Amount"]
+    #[rename = "how-much"]
+    amount: f64,
 ) -> Result<(), anyhow::Error> {
     if disabled_reply(&ctx).await? {
         return Ok(());
     }
-    let kind = normalize_reward_kind(&kind);
+    // Slash choices (`type`: daily/weekly/monthly) constrain both paths
+    // via `RewardKind` (TS prefix took the kind verbatim with no registry
+    // check — an off-list prefix kind is now rejected by poise instead of
+    // stored under `ECONOMY.settings.{kind}.amount`).
+    let kind = kind.key();
     let gid = ctx
         .guild_id()
         .map(|g| g.get().to_string())
@@ -42,7 +41,7 @@ pub async fn eco_set_money(
     ctx.say(
         crate::lang::get(&code, "economy_manage_rewards_set_money")
             .map(|s| {
-                s.replace("${type}", kind.as_str())
+                s.replace("${type}", kind)
                     .replace("${money}", &fmt_num(amount))
             })
             .unwrap_or_else(|| "Tuning updated.".to_string()),

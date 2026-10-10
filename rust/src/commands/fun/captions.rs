@@ -32,8 +32,13 @@ pub async fn captions(
         deny_no_emoji(&ctx).await;
         return Ok(());
     }
-    // GIF render (`html2png` captions template, `.meme-container`) pending;
-    // validation shape ported. Uses the shared pending template like bubbles.
+    // The GIF producer `captions()` in src/core/images.ts renders the
+    // `captions.html` template through `html2png` (headless Chromium,
+    // `.meme-container` selector): standing exclusion, no renderer exists
+    // in the Rust tree, so no GIF can be produced here. The text reply
+    // below is the placeholder surface (it reuses the shared bubbles
+    // pending template: no YAML edits allowed, so no captions-specific
+    // key may be introduced).
     let file = captions_output_name();
     ctx.say(
         crate::lang::get(&code, "fun_bubbles_pending")

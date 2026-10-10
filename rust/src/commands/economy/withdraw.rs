@@ -4,7 +4,9 @@ use super::*;
 #[poise::command(slash_command, prefix_command, rename = "withdraw")]
 pub async fn eco_withdraw(
     ctx: Ctx<'_>,
-    #[description = "Amount or all"] amount: String,
+    #[description = "Amount or all"]
+    #[rename = "how-much"]
+    amount: String,
 ) -> Result<(), anyhow::Error> {
     if disabled_reply(&ctx).await? {
         return Ok(());

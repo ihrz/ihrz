@@ -18,7 +18,9 @@ pub fn manage_owner_only(scope: Option<&str>) -> bool {
 )]
 pub async fn backup_manage(
     ctx: Ctx<'_>,
-    #[description = "owner or admin"] scope: Option<String>,
+    #[description = "owner or admin"]
+    #[rename = "only_guild_owner"]
+    scope: Option<String>,
 ) -> Result<(), anyhow::Error> {
     let gid = ctx
         .guild_id()

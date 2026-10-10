@@ -7,7 +7,7 @@
 
 use crate::bot::Ctx;
 use poise::serenity_prelude as serenity;
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 
 /// Giveaway manager config. Mirrors the GiveawayManager options in
 /// core.ts (botsCanWin is inherent: only button users enter).
@@ -222,7 +222,7 @@ pub fn stamp_pair(expire_in_ms: i64) -> (String, String) {
     (format!("<t:{secs}:R>"), format!("<t:{secs}:D>"))
 }
 
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone)]
 pub struct Giveaway {
     pub guild_id: String,
     pub channel_id: String,
@@ -249,7 +249,8 @@ pub struct Giveaway {
 // keys, a numeric `ended` enum (1 = ENDED, 2 = NOT_ENDED), an ISO
 // `expireIn` Date, a nested `requirement: { type, value }` object and
 // `winners: string[] | string`. Accept both shapes so legacy TS rows
-// and Rust rows parse into one struct; serialization stays snake_case.
+// and Rust rows parse into one struct; serialization writes the TS
+// camelCase shape (see the Serialize impl below).
 impl<'de> Deserialize<'de> for Giveaway {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
     where
@@ -346,6 +347,76 @@ impl<'de> Deserialize<'de> for Giveaway {
                 .filter(|u| !u.is_empty())
                 .map(|u| u.to_string()),
         })
+    }
+}
+
+// TS write shape. Mirrors the `db.Create({...}, response.id)` row in
+// giveawaysManager.ts create(): camelCase keys, an ISO `expireIn`
+// Date (what `new Date(ms)` serializes to), and the nested
+// `requirement: { type, value }` object. The Deserialize impl above
+// stays tolerant so legacy snake_case rows keep parsing.
+impl serde::Serialize for Giveaway {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::Serializer,
+    {
+        use serde::ser::SerializeStruct;
+        let mut s = serializer.serialize_struct("Giveaway", 11)?;
+        s.serialize_field("guildId", &self.guild_id)?;
+        s.serialize_field("channelId", &self.channel_id)?;
+        s.serialize_field("winnerCount", &self.winner_count)?;
+        s.serialize_field("prize", &self.prize)?;
+        s.serialize_field("hostedBy", &self.hosted_by)?;
+        // ISO Date like TS `new Date(...)`; out-of-range falls back
+        // to raw millis (both parse back via the reader above).
+        let expire = chrono::DateTime::from_timestamp_millis(self.expire_in_ms)
+            .map(|d| d.to_rfc3339_opts(chrono::SecondsFormat::Millis, true));
+        match &expire {
+            Some(iso) => s.serialize_field("expireIn", iso)?,
+            None => s.serialize_field("expireIn", &self.expire_in_ms)?,
+        }
+        s.serialize_field("ended", &self.ended)?;
+        s.serialize_field("entries", &self.entries)?;
+        s.serialize_field("winners", &self.winners)?;
+        s.serialize_field("isValid", &self.is_valid)?;
+        s.serialize_field("embedImageURL", &self.embed_image_url)?;
+        s.serialize_field(
+            "requirement",
+            &serde_json::json!({
+                "type": self.requirement,
+                "value": self.requirement_value,
+            }),
+        )?;
+        s.end()
+    }
+}
+
+/// Entry-gate requirement from a stored row. Accepts the TS nested
+/// `requirement: { type, value }` object (what create() writes) and
+/// the flat `requirement` + `requirement_value`/`requirementValue`
+/// strings (what the Rust port used to write). Missing shapes mean
+/// no requirement, like the TS `undefined` path.
+pub fn parse_entry_requirement(v: &serde_json::Value) -> (String, String) {
+    match v.get("requirement") {
+        Some(obj) if obj.is_object() => (
+            obj.get("type")
+                .and_then(|x| x.as_str())
+                .unwrap_or("none")
+                .to_string(),
+            obj.get("value")
+                .and_then(|x| x.as_str())
+                .unwrap_or_default()
+                .to_string(),
+        ),
+        Some(serde_json::Value::String(req)) => (
+            req.clone(),
+            v.get("requirement_value")
+                .or_else(|| v.get("requirementValue"))
+                .and_then(|x| x.as_str())
+                .unwrap_or_default()
+                .to_string(),
+        ),
+        _ => ("none".to_string(), String::new()),
     }
 }
 
@@ -675,16 +746,9 @@ pub async fn handle_giveaway_entry(
         .get("entries")
         .and_then(|e| serde_json::from_value(e.clone()).ok())
         .unwrap_or_default();
-    let requirement = v
-        .get("requirement")
-        .and_then(|r| r.as_str())
-        .unwrap_or("none")
-        .to_string();
-    let req_value = v
-        .get("requirement_value")
-        .and_then(|r| r.as_str())
-        .unwrap_or("")
-        .to_string();
+    // TS create() stores the nested `requirement: { type, value }`
+    // object; older Rust rows carry the flat strings instead.
+    let (requirement, req_value) = parse_entry_requirement(&v);
     let roles: Vec<u64> = guild_id
         .member(http, comp.user.id)
         .await
@@ -1363,5 +1427,75 @@ mod tests {
         assert!(!check_requirement(&pool, "g", 1, &[], "messages", "5").await);
         assert!(!check_requirement(&pool, "g", 1, &[7], "roles", "9").await);
         assert!(check_requirement(&pool, "g", 1, &[9], "roles", "9").await);
+    }
+
+    #[test]
+    fn writes_ts_camel_shape_and_reads_back() {
+        // G5: rows go out in the TS create() shape (camelCase keys,
+        // ISO expireIn, nested requirement) and parse back losslessly.
+        let gw = Giveaway {
+            guild_id: "g".to_string(),
+            channel_id: "c".to_string(),
+            winner_count: 2,
+            prize: "p".to_string(),
+            hosted_by: "h".to_string(),
+            expire_in_ms: 1_700_000_000_000,
+            ended: false,
+            entries: vec!["a".to_string()],
+            winners: vec![],
+            requirement: "invites".to_string(),
+            requirement_value: "5".to_string(),
+            is_valid: true,
+            embed_image_url: Some("https://x/y.png".to_string()),
+        };
+        let raw = serde_json::to_string(&gw).unwrap();
+        let v: serde_json::Value = serde_json::from_str(&raw).unwrap();
+        assert_eq!(v.get("guildId").and_then(|x| x.as_str()), Some("g"));
+        assert_eq!(v.get("channelId").and_then(|x| x.as_str()), Some("c"));
+        assert_eq!(v.get("winnerCount").and_then(|x| x.as_u64()), Some(2));
+        assert_eq!(v.get("hostedBy").and_then(|x| x.as_str()), Some("h"));
+        assert!(v.get("expireIn").and_then(|x| x.as_str()).is_some());
+        assert_eq!(v.get("isValid").and_then(|x| x.as_bool()), Some(true));
+        assert_eq!(
+            v.get("embedImageURL").and_then(|x| x.as_str()),
+            Some("https://x/y.png")
+        );
+        assert_eq!(
+            v.get("requirement"),
+            Some(&serde_json::json!({"type": "invites", "value": "5"}))
+        );
+        assert!(v.get("guild_id").is_none());
+        assert!(v.get("winner_count").is_none());
+        let back: Giveaway = serde_json::from_str(&raw).unwrap();
+        assert_eq!(back.guild_id, "g");
+        assert_eq!(back.expire_in_ms, 1_700_000_000_000);
+        assert_eq!(back.requirement, "invites");
+        assert_eq!(back.requirement_value, "5");
+    }
+
+    #[test]
+    fn entry_requirement_parses_both_shapes() {
+        // Nested TS object (what create() writes now).
+        let nested = serde_json::json!({"requirement": {"type": "roles", "value": "9"}});
+        assert_eq!(
+            parse_entry_requirement(&nested),
+            ("roles".to_string(), "9".to_string())
+        );
+        // Flat legacy strings (what the Rust port used to write).
+        let flat = serde_json::json!({"requirement": "messages", "requirement_value": "10"});
+        assert_eq!(
+            parse_entry_requirement(&flat),
+            ("messages".to_string(), "10".to_string())
+        );
+        let flat_camel = serde_json::json!({"requirement": "messages", "requirementValue": "10"});
+        assert_eq!(
+            parse_entry_requirement(&flat_camel),
+            ("messages".to_string(), "10".to_string())
+        );
+        // Missing requirement means no gate.
+        assert_eq!(
+            parse_entry_requirement(&serde_json::json!({})),
+            ("none".to_string(), String::new())
+        );
     }
 }

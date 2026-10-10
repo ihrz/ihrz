@@ -10,8 +10,12 @@ use super::*;
 )]
 pub async fn eco_balance_remove(
     ctx: Ctx<'_>,
-    #[description = "Member"] user: poise::serenity_prelude::User,
+    // Amount-first like the TS option order (`amount`, then `member`),
+    // same positional-prefix reason as `eco_balance_add`.
     #[description = "Amount"] amount: f64,
+    #[description = "Member"]
+    #[rename = "member"]
+    user: poise::serenity_prelude::User,
 ) -> Result<(), anyhow::Error> {
     if disabled_reply(&ctx).await? {
         return Ok(());

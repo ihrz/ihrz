@@ -15,7 +15,9 @@ pub fn rob_floor_ok(author_money: i64, victim_money: i64) -> bool {
 #[poise::command(slash_command, prefix_command, rename = "rob")]
 pub async fn eco_rob(
     ctx: Ctx<'_>,
-    #[description = "Member"] user: poise::serenity_prelude::User,
+    #[description = "Member"]
+    #[rename = "member"]
+    user: poise::serenity_prelude::User,
 ) -> Result<(), anyhow::Error> {
     use rand::Rng;
     // Disabled guard first, like !rob.ts.

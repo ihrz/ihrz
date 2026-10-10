@@ -14,6 +14,17 @@ pub enum H247JoinGuard {
     Ready { keep_tts_connection: bool },
 }
 
+/// Voice-only channel predicate. Mirrors fetchH247VoiceChannel in
+/// src/core/modules/h247Manager.ts (`channel.type !==
+/// ChannelType.GuildVoice` returns null): only plain voice channels
+/// are joinable — Stage channels (ChannelType::Stage) are rejected,
+/// even though they are voice-adjacent. The poise
+/// `#[channel_types("Voice")]` filter already narrows slash input;
+/// this predicate covers the prefix path and the guard unit seam.
+pub fn h247_joinable_channel(kind: &serenity::ChannelType) -> bool {
+    *kind == serenity::ChannelType::Voice
+}
+
 /// Inputs for the join guard chain. `tts` is (enabled, voice_channel_id).
 pub struct H247JoinState {
     pub channel_is_voice: bool,
@@ -172,7 +183,7 @@ pub async fn h247_join(
     let tts = load_tts_presence(&ctx.data().pool, &gid).await;
 
     match evaluate_h247_join_guards(&H247JoinState {
-        channel_is_voice: channel.kind == serenity::ChannelType::Voice,
+        channel_is_voice: h247_joinable_channel(&channel.kind),
         h247,
         target_channel: target,
         music_playing,
@@ -316,6 +327,16 @@ mod tests {
             music_playing,
             tts,
         }
+    }
+
+    #[test]
+    fn joinable_channel_is_voice_only() {
+        use super::serenity::ChannelType;
+        assert!(h247_joinable_channel(&ChannelType::Voice));
+        // Stage (and everything else TS would null out) is rejected.
+        assert!(!h247_joinable_channel(&ChannelType::Stage));
+        assert!(!h247_joinable_channel(&ChannelType::Text));
+        assert!(!h247_joinable_channel(&ChannelType::Category));
     }
 
     #[test]

@@ -42,8 +42,10 @@ pub async fn eco_work(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let shop_json = crate::commands::owner::main::routed_get(pool, &gid, &gid, shop_key())
         .await
         .unwrap_or_else(|| "{}".to_string());
-    let boost = member_boost(&shop_json, &invoker_roles(&ctx).await);
-    let amount = rand::thread_rng().gen_range(1..=1024) * boost;
+    let boost = member_boost_f64(&shop_json, &invoker_roles(&ctx).await);
+    // Float math like TS `(1..=1024) * getMemberBoost` (!work.ts);
+    // the wallet add truncates toward zero via `add_money`.
+    let amount = rand::thread_rng().gen_range(1..=1024) as f64 * boost;
     let display = ctx
         .author()
         .global_name
@@ -64,10 +66,10 @@ pub async fn eco_work(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
             crate::commands::lang_for(&ctx, "work_embed_description", "Earned ${amount}$!")
                 .await
                 .replace("${interaction.user.username}", &display)
-                .replace("${amount}", &amount.to_string()),
+                .replace("${amount}", &fmt_num(amount)),
         );
     ctx.send(poise::CreateReply::default().embed(embed)).await?;
-    account.money += amount;
+    add_money(&mut account, amount);
     account.work = now;
     balance::save_econ_routed(pool, &gid, uid, &account).await?;
     Ok(())

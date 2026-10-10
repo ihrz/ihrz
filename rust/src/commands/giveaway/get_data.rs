@@ -95,22 +95,32 @@ pub async fn gw_get_data(
                     entries_value,
                     false,
                 );
-            // Author mirrors !get-data.ts:60-66 (guild name + icon URL).
+            // Author icon is an image64 snapshot sent as guild_icon.png,
+            // never a raw CDN URL (which rots to "media lost"). Mirrors
+            // !get-data.ts:60-66 (guild name + icon) via the get-all.rs
+            // precedent (guild iconURL, bot avatar fallback).
             let guild_name = ctx
                 .guild()
                 .map(|g| g.name.clone())
                 .unwrap_or_else(|| gid.clone());
-            match ctx.guild().and_then(|g| g.icon_url()) {
-                Some(url) => {
-                    embed = embed.author(
-                        poise::serenity_prelude::CreateEmbedAuthor::new(guild_name).icon_url(url),
-                    );
-                }
-                None => {
-                    embed =
-                        embed.author(poise::serenity_prelude::CreateEmbedAuthor::new(guild_name));
-                }
-            }
+            let bot_face = ctx
+                .serenity_context()
+                .http
+                .get_current_user()
+                .await
+                .map(|u| u.face())
+                .unwrap_or_default();
+            let guild_icon = ctx.guild().and_then(|g| g.icon_url());
+            let icon_bytes = crate::image64::image64(super::get_all::guild_icon_source(
+                guild_icon.as_deref(),
+                &bot_face,
+            ))
+            .await
+            .unwrap_or_default();
+            embed = embed.author(
+                poise::serenity_prelude::CreateEmbedAuthor::new(guild_name)
+                    .icon_url("attachment://guild_icon.png"),
+            );
             if gw.ended {
                 let winners = gw
                     .winners
@@ -124,7 +134,10 @@ pub async fn gw_get_data(
                     false,
                 );
             }
-            ctx.send(poise::CreateReply::default().embed(embed)).await?;
+            ctx.send(poise::CreateReply::default().embed(embed).attachment(
+                poise::serenity_prelude::CreateAttachment::bytes(icon_bytes, "guild_icon.png"),
+            ))
+            .await?;
         }
         None => {
             ctx.say(t(

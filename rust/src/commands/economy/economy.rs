@@ -34,6 +34,12 @@ use super::{
 // commands register flat under /economy. Precedent: antispam flattens
 // its collector UI the same way. Revisit if poise is upgraded.
 //
+// ECROLE GATE (dropped, acceptable): the TS `role` SubcommandGroup carries
+// prefixName `ecrole` plus an Administrator gate over children that only
+// require ManageGuild. The flat leaf commands keep their own TS names,
+// prefix aliases and per-command permissions; the extra parent-group gate
+// and the `ecrole` group prefix path are not reproduced.
+//
 // ECO_BUY (keep-as-addition): TS has no /economy buy subcommand — buys
 // happen only through the shop select-menu collector (!shop.ts). The
 // Rust side keeps `eco_buy` (/economy buy) as a deliberate addition:

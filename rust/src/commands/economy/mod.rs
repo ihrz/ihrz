@@ -502,8 +502,8 @@ pub fn member_boost_f64(shop_json: &str, member_roles: &[u64]) -> f64 {
 }
 
 /// Member boost multiplier from shop roles, integer-truncated.
-/// Integer call sites (work amounts, voice boosts) keep this; the XP
-/// level-up coin path uses [`member_boost_f64`] so fractional boosts
+/// Only integer-display call sites keep this (the balance `Nx` field);
+/// claim/work amounts use [`member_boost_f64`] so fractional boosts
 /// (e.g. x1.5) survive the multiply like the TS number.
 pub fn member_boost(shop_json: &str, member_roles: &[u64]) -> i64 {
     (member_boost_f64(shop_json, member_roles) as i64).max(1)
@@ -853,6 +853,63 @@ impl CooldownKind {
     }
 }
 
+/// On/off switch for eco_config. Mirrors the `action` option choices in
+/// economy.ts (`Enable the module` -> `on`, `Disable the module` -> `off`).
+/// Delta (documented): Discord shows the values (`on`/`off`) as the choice
+/// labels instead of the TS display names; poise string choices carry
+/// same-name labels (same pattern as tts `TtsLangChoice`). The prefix path
+/// is constrained to the same two values (resolved via from_name): a typo
+/// is rejected by poise before this runs instead of silently no-op'ing
+/// like the TS prefix path — either way a typo can never flip the module.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
+pub enum EcoToggle {
+    #[name = "on"]
+    On,
+    #[name = "off"]
+    Off,
+}
+
+impl EcoToggle {
+    pub fn key(self) -> &'static str {
+        match self {
+            EcoToggle::On => "on",
+            EcoToggle::Off => "off",
+        }
+    }
+}
+
+/// Boost multiplier for eco_boost_set. Mirrors the `boost` option choices
+/// in economy.ts (`Default`/`x2`/.../`x5` -> `"1"`/.../`"5"`); the stored
+/// value is the parsed number like TS `parseInt`.
+/// Delta (documented): choice labels are the values (`1`-`5`), and the
+/// prefix path is constrained to the same five values (TS prefix took any
+/// `method.number`, so an off-list value like 2.5 no longer stores).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
+pub enum BoostLevel {
+    #[name = "1"]
+    X1,
+    #[name = "2"]
+    X2,
+    #[name = "3"]
+    X3,
+    #[name = "4"]
+    X4,
+    #[name = "5"]
+    X5,
+}
+
+impl BoostLevel {
+    pub fn value(self) -> f64 {
+        match self {
+            BoostLevel::X1 => 1.0,
+            BoostLevel::X2 => 2.0,
+            BoostLevel::X3 => 3.0,
+            BoostLevel::X4 => 4.0,
+            BoostLevel::X5 => 5.0,
+        }
+    }
+}
+
 /// Send the standard disabled-module reply. Returns true when the
 /// caller must stop. Mirrors the `ECONOMY.disabled === true` guard
 /// (`economy_disable_msg` + `${interaction.user.id}`) at the top of
@@ -1009,8 +1066,9 @@ pub async fn claim_inner(
     }
     let shop = shop::load_shop_routed(pool, &gid).await;
     let shop_json = serde_json::to_string(&shop).unwrap_or_else(|_| "{}".to_string());
-    let boost = member_boost(&shop_json, &invoker_roles(ctx).await);
-    let amount = tune.amount * boost as f64;
+    let boost = member_boost_f64(&shop_json, &invoker_roles(ctx).await);
+    // Float math like TS `amount * getMemberBoost` (!daily.ts and sibs).
+    let amount = tune.amount * boost;
     // TS replies with the embed BEFORE adding the money.
     let coin = coin_markup(ctx).await;
     let embed = poise::serenity_prelude::CreateEmbed::default()
@@ -1205,6 +1263,22 @@ mod tests {
         assert_eq!(CooldownKind::from_name("daily"), None);
         assert_eq!(RewardKind::Daily.key(), "daily");
         assert_eq!(CooldownKind::Rob.key(), "rob");
+    }
+
+    #[test]
+    fn toggle_and_boost_choices_match_ts() {
+        // `action` choices in economy.ts (values on/off).
+        assert_eq!(EcoToggle::from_name("on"), Some(EcoToggle::On));
+        assert_eq!(EcoToggle::from_name("off"), Some(EcoToggle::Off));
+        assert_eq!(EcoToggle::from_name("enable"), None);
+        assert_eq!(EcoToggle::On.key(), "on");
+        assert_eq!(EcoToggle::Off.key(), "off");
+        // `boost` choices in economy.ts (values "1"-"5").
+        assert_eq!(BoostLevel::from_name("1"), Some(BoostLevel::X1));
+        assert_eq!(BoostLevel::from_name("5"), Some(BoostLevel::X5));
+        assert_eq!(BoostLevel::from_name("x2"), None);
+        assert_eq!(BoostLevel::X1.value(), 1.0);
+        assert_eq!(BoostLevel::X5.value(), 5.0);
     }
 
     #[test]

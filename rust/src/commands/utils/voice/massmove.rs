@@ -38,6 +38,13 @@ pub async fn massmove(
         .unwrap_or_default();
     let mut moved = 0;
     let mut errors = 0;
+    // Loading ack first, mirroring the `Discord_Loading` send before
+    // moving in !massmove.ts (silent during long moves otherwise);
+    // edited with the final embed below.
+    let loading = crate::emojis::app_emoji_markup(ctx.http(), "Discord_Loading")
+        .await
+        .unwrap_or_else(|| "...".to_string());
+    let progress = ctx.say(loading).await?;
     for uid in members {
         if guild_id.move_member(ctx.http(), uid, to.id).await.is_ok() {
             moved += 1;
@@ -96,6 +103,6 @@ pub async fn massmove(
             "footer_icon.png",
         ));
     }
-    ctx.send(reply).await?;
+    progress.edit(ctx, reply).await?;
     Ok(())
 }

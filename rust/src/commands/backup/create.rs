@@ -22,7 +22,9 @@ pub fn save_messages_budget(save_messages: Option<&str>) -> u64 {
 )]
 pub async fn backup_create(
     ctx: Ctx<'_>,
-    #[description = "Save messages (yes/no)"] save_messages: Option<String>,
+    #[description = "Save messages (yes/no)"]
+    #[rename = "save-message"]
+    save_messages: String,
 ) -> Result<(), anyhow::Error> {
     // Defer up front: the snapshot walks message pages plus per-emoji
     // image fetches, past the 3s interaction token (backup.ts:260
@@ -56,7 +58,7 @@ pub async fn backup_create(
     };
     let opts = CreateOptions {
         backup_id: None,
-        max_messages_per_channel: Some(save_messages_budget(save_messages.as_deref())),
+        max_messages_per_channel: Some(save_messages_budget(Some(save_messages.as_str()))),
         json_save: Some(true),
         json_beautify: Some(true),
         do_not_backup: Some(vec![]),
@@ -82,6 +84,13 @@ pub async fn backup_create(
     // Per-user ownership: mirrors the BACKUPS.<uid>.<id> write in !create.ts:89.
     let uid = ctx.author().id.get();
     super::backup::bkp_set(&ctx.data().pool, uid, &id, &stored).await?;
+    // Shared snapshot row: mirrors the `backups`-table write in
+    // src/core/backup/src/index.ts:300 (row ID = backupID, `json` =
+    // bare BackupData) so TS load/delete paths see Rust-made backups.
+    // Best-effort like the TS fire-and-forget: a missing table never
+    // fails the create.
+    let _ = crate::db::ensure_backups_table(&ctx.data().pool).await;
+    let _ = crate::db::backup_set(&ctx.data().pool, &id, &json).await;
     ctx.say(
         crate::commands::lang_for(
             &ctx,

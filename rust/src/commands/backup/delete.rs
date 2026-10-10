@@ -21,7 +21,9 @@ pub const DELETE_CONFIRM_SECS: u64 = 15;
 )]
 pub async fn backup_delete(
     ctx: Ctx<'_>,
-    #[description = "Backup id"] backup_id: String,
+    #[description = "Backup id"]
+    #[rename = "backup-id"]
+    backup_id: String,
 ) -> Result<(), anyhow::Error> {
     // Ownership gate first, like the BACKUPS.<uid>.<id> check in
     // !delete.ts:59 (strangers get backup_this_is_not_your_backup).
@@ -189,21 +191,25 @@ pub async fn backup_delete(
     };
     // TS edits the same embed in place, so the outcome keeps the
     // guild/id/counts field and the original timestamp; only title
-    // and color change (!delete.ts:139-157). No fresh timestamp here.
+    // and color change (!delete.ts:139-157). Carry the confirm
+    // embed's timestamp over instead of stamping fresh.
+    let first_ts = msg.embeds.first().and_then(|e| e.timestamp);
+    let mut outcome = serenity::CreateEmbed::default()
+        .title(title)
+        .colour(serenity::Colour::new(color))
+        .field(
+            delete_field_name(&guild_name, backup_id.trim()),
+            field_value,
+            false,
+        );
+    if let Some(ts) = first_ts {
+        outcome = outcome.timestamp(ts);
+    }
     let _ = msg
         .edit(
             ctx.http(),
             serenity::EditMessage::new()
-                .embed(
-                    serenity::CreateEmbed::default()
-                        .title(title)
-                        .colour(serenity::Colour::new(color))
-                        .field(
-                            delete_field_name(&guild_name, backup_id.trim()),
-                            field_value,
-                            false,
-                        ),
-                )
+                .embed(outcome)
                 .components(vec![]),
         )
         .await;
@@ -224,7 +230,8 @@ pub fn render_delete_field(template: &str, category_count: usize, channel_count:
 }
 
 /// Snapshot stats for the confirm field, read back from the stored
-/// BackupInfos (guild name + category/channel counts). Falls back
+/// BackupInfos (guild name + category/channel counts) or the bare TS
+/// `{guildName, categoryCount, channelCount}` meta row. Falls back
 /// to the id with zero counts when the snapshot is missing or
 /// unreadable.
 pub fn delete_snapshot_stats(stored: Option<&str>) -> (String, usize, usize) {
@@ -241,6 +248,7 @@ pub fn delete_snapshot_stats(stored: Option<&str>) -> (String, usize, usize) {
                 .sum();
             (infos.data.name, cats, chans)
         })
+        .or_else(|| stored.and_then(super::backup::backup_meta))
         .unwrap_or_default();
     if parsed.0.is_empty() {
         (stored.unwrap_or_default().to_string(), 0, 0)
@@ -281,6 +289,17 @@ mod tests {
         assert_eq!(
             delete_snapshot_stats(Some("not json")),
             ("not json".to_string(), 0, 0)
+        );
+    }
+
+    #[test]
+    fn snapshot_stats_accepts_bare_ts_meta() {
+        // Per-user pointer shape from !create.ts:82-91 (no snapshot).
+        assert_eq!(
+            delete_snapshot_stats(Some(
+                r#"{"guildName":"TS Guild","categoryCount":2,"channelCount":7}"#
+            )),
+            ("TS Guild".to_string(), 2, 7)
         );
     }
 }

@@ -10,8 +10,13 @@ use super::*;
 )]
 pub async fn eco_balance_add(
     ctx: Ctx<'_>,
-    #[description = "Member"] user: poise::serenity_prelude::User,
+    // Amount-first like the TS option order (`amount`, then `member` in
+    // economy.ts): poise parses prefix args positionally, so this keeps
+    // `!balance-add <amount> <member>` aligned on both paths.
     #[description = "Amount"] amount: f64,
+    #[description = "Member"]
+    #[rename = "member"]
+    user: poise::serenity_prelude::User,
 ) -> Result<(), anyhow::Error> {
     if disabled_reply(&ctx).await? {
         return Ok(());

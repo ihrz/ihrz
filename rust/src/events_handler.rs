@@ -3360,13 +3360,17 @@ impl serenity::EventHandler for Handler {
         // lavalink registry exposes no accessor; event arms run on the
         // guild's shard, so this is always the right one).
         crate::commands::h247::session::note_messenger(guild.id.get(), ctx.shard.clone()).await;
-        // Orphan TTS sweep (offline leg of cleanupOrphanedTTS, called
-        // from ready.ts): no voice session survives a restart, so a
-        // stored TTS row is stale. guild_create replays per guild at
-        // boot, which covers both boot and late joins. The welcome
-        // embed delete + voice-status legs need live channel state and
-        // stay with the voice-state cleanup arm.
+        // Orphan TTS sweep (mirrors cleanupOrphanedTTS -> cleanupTTS in
+        // ttsManager.ts, called from ready.ts): no voice session
+        // survives a restart, so a stored TTS row is stale.
+        // guild_create replays per guild at boot, which covers both
+        // boot and late joins. The row delete alone would strand the
+        // welcome embed and the voice-channel status, so both
+        // cleanupTTS legs run here too (best-effort, like the TS
+        // `.catch(() => {})` legs). No OP4 leave is needed: nothing
+        // is connected after a restart.
         {
+            let raw = tts_raw_routed(&self.pool, &gid).await;
             let swept =
                 crate::commands::tts::sweep_orphaned_tts(&self.pool, std::slice::from_ref(&gid))
                     .await;
@@ -3374,6 +3378,24 @@ impl serenity::EventHandler for Handler {
                 crate::lavalink::manager()
                     .remove_player(guild.id.get())
                     .await;
+                if let Some(raw) = raw {
+                    if let Some((text_ch, embed_msg)) = crate::commands::tts::tts_embed_ids(&raw) {
+                        let _ = ctx
+                            .http
+                            .delete_message(
+                                serenity::ChannelId::new(text_ch),
+                                serenity::MessageId::new(embed_msg),
+                                None,
+                            )
+                            .await;
+                    }
+                    if let Ok(cfg) = serde_json::from_str::<crate::commands::tts::TtsConfig>(&raw) {
+                        if let Ok(vc) = cfg.voice_channel_id.parse::<u64>() {
+                            crate::lavalink::LavalinkManager::clear_voice_status(&ctx.http, vc)
+                                .await;
+                        }
+                    }
+                }
                 tracing::info!("guildCreate {} swept orphaned TTS row", gid);
             }
         }
@@ -4308,16 +4330,19 @@ impl serenity::EventHandler for Handler {
         // the TTS voice channel + text within the 300-char cap speaks
         // via Flowery (script-locale override -> TTS lang -> guild lang
         // -> en-US). URL-only messages are skipped, failures are
-        // silent. Serenity has no cleanContent, so raw content is used
-        // throughout (mention syntax is spoken literally).
+        // silent. `content_safe` is the cleanContent equivalent (user /
+        // role / channel mentions resolved to names instead of being
+        // spoken as raw `<@...>` / `<#...>` syntax); the URL skip stays
+        // on the raw content exactly like TS `isUrl(message.content)`.
         // Owned snapshot first: the cache guard is not Send and must
         // drop before any await.
         {
+            let speak_text = msg.content_safe(&_ctx.cache);
             let armed: Option<(u64, String)> = match tts_raw_routed(&self.pool, &gid).await {
                 Some(raw) if crate::commands::tts::tts_row_enabled(&raw) => {
                     match serde_json::from_str::<crate::commands::tts::TtsConfig>(&raw) {
                         Ok(cfg) => {
-                            let text_ok = crate::commands::tts::tts_message_text_ok(&msg.content)
+                            let text_ok = crate::commands::tts::tts_message_text_ok(&speak_text)
                                 && !crate::commands::tts::tts_is_url(&msg.content);
                             let in_text = cfg
                                 .text_channel_id
@@ -4351,7 +4376,7 @@ impl serenity::EventHandler for Handler {
                 _ => None,
             };
             if let Some((tts_vc, tts_lang)) = armed {
-                let detected = crate::commands::tts::detect_message_locale(&msg.content);
+                let detected = crate::commands::tts::detect_message_locale(&speak_text);
                 let server_lang = crate::db::guild_lang(&self.pool, Some(guild_id.get())).await;
                 let locale = crate::commands::tts::resolve_tts_locale(
                     detected,
@@ -4376,7 +4401,7 @@ impl serenity::EventHandler for Handler {
                 if let Err(e) = crate::commands::tts::speak::speak_tts(
                     &self.pool,
                     guild_id.get(),
-                    &msg.content,
+                    &speak_text,
                     &locale,
                     bot_id,
                 )

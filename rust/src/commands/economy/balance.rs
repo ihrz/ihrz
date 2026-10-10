@@ -108,7 +108,8 @@ pub async fn eco_balance(
             embed = embed.thumbnail(member.avatar_url().unwrap_or_else(|| member.user.face()));
         }
     }
-    ctx.send(poise::CreateReply::default().embed(embed)).await?;
+    // Footer like !balance.ts (footerBuilder + footerAttachmentBuilder).
+    send_with_footer(&ctx, embed).await?;
     Ok(())
 }
 

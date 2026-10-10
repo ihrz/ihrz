@@ -30,12 +30,13 @@ pub async fn economy_disabled_routed(pool: &crate::db::Pool, guild_id: &str) -> 
 )]
 pub async fn eco_config(
     ctx: Ctx<'_>,
-    #[description = "on or off"] action: String,
+    #[description = "on or off"] action: EcoToggle,
 ) -> Result<(), anyhow::Error> {
-    // Mirrors !config.ts: only the exact states "on"/"off" change anything.
-    // Any other input (typo, ...) leaves the module untouched — it must
-    // never disable the economy on a typo.
-    let state = action.trim();
+    // The `action` slash choices (on/off) constrain both paths via
+    // `EcoToggle`: a typo is rejected by poise before this runs, so the
+    // module can never be flipped by one (TS silently no-op'ed garbage
+    // instead — same safety, see `EcoToggle`).
+    let state = action.key();
     let gid = ctx
         .guild_id()
         .map(|g| g.get().to_string())
@@ -46,12 +47,15 @@ pub async fn eco_config(
     let enabled = state == "on";
     if enabled {
         if !disabled {
+            // Mirrors the early `return` in !config.ts: a no-op reply
+            // posts no economy log and no ihorizon log.
             ctx.say(
                 crate::lang::get(&code, "economy_disable_already_enable")
                     .map(|s| s.replace("${interaction.user.id}", &author_id))
                     .unwrap_or_else(|| "Economy already on.".to_string()),
             )
             .await?;
+            return Ok(());
         } else {
             // TS `db.set(..., false)`: a real boolean, not "0".
             crate::commands::owner::main::routed_set(
@@ -80,12 +84,14 @@ pub async fn eco_config(
         }
     } else if state == "off" {
         if disabled {
+            // Same early return as the already_enable no-op above.
             ctx.say(
                 crate::lang::get(&code, "economy_disable_already_disable")
                     .map(|s| s.replace("${interaction.user.id}", &author_id))
                     .unwrap_or_else(|| "Economy already off.".to_string()),
             )
             .await?;
+            return Ok(());
         } else {
             // TS `db.set(..., true)`: a real boolean, not "1".
             crate::commands::owner::main::routed_set(
@@ -113,8 +119,8 @@ pub async fn eco_config(
             .await?;
         }
     }
-    // TS posts the ihorizon log for EVERY call, including garbage
-    // states (the call sits outside the on/off branches).
+    // The ihorizon log sits outside the on/off branches in !config.ts, so
+    // every real transition logs here; no-op replies return above like TS.
     let title =
         crate::commands::lang_for(&ctx, "economy_disable_logs_embed_title", "Economy Logs").await;
     let desc = crate::commands::lang_for(

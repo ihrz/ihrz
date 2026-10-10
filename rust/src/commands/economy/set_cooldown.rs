@@ -38,15 +38,6 @@ pub async fn load_tuning_routed(pool: &crate::db::Pool, guild_id: &str, kind: &s
     }
 }
 
-/// Free-text tuning-kind path. Mirrors `!set-cooldown.ts:60-61`: the
-/// prefix path takes `method.string(args, 0)` verbatim with no case
-/// folding and no registry check, so the kind is stored under
-/// `ECONOMY.settings.{kind}.cooldown` exactly as typed (slash choices
-/// already constrain to lowercase `rob`/`work`).
-pub fn normalize_cooldown_kind(kind: &str) -> String {
-    kind.trim().to_string()
-}
-
 /// Mirrors `!set-cooldown.ts`.
 #[poise::command(
     slash_command,
@@ -56,13 +47,21 @@ pub fn normalize_cooldown_kind(kind: &str) -> String {
 )]
 pub async fn eco_set_cooldown(
     ctx: Ctx<'_>,
-    #[description = "rob, work"] kind: String,
-    #[description = "Cooldown (e.g. 10s, 1h)"] cooldown: String,
+    #[description = "rob, work"]
+    #[rename = "type"]
+    kind: CooldownKind,
+    #[description = "Cooldown (e.g. 10s, 1h)"]
+    #[rename = "time"]
+    cooldown: String,
 ) -> Result<(), anyhow::Error> {
     if disabled_reply(&ctx).await? {
         return Ok(());
     }
-    let kind = normalize_cooldown_kind(&kind);
+    // Slash choices (`type`: rob/work) constrain both paths via
+    // `CooldownKind` (TS prefix took the kind verbatim with no registry
+    // check — an off-list prefix kind is now rejected by poise instead of
+    // stored under `ECONOMY.settings.{kind}.cooldown`).
+    let kind = kind.key();
     let Some(ms) = crate::commands::schedule::main::parse_duration_ms(&cooldown) else {
         let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
         ctx.say(
@@ -91,10 +90,7 @@ pub async fn eco_set_cooldown(
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     ctx.say(
         crate::lang::get(&code, "economy_manage_rewards_cooldown_command_ok")
-            .map(|s| {
-                s.replace("${type}", kind.as_str())
-                    .replace("${stime}", &stime)
-            })
+            .map(|s| s.replace("${type}", kind).replace("${stime}", &stime))
             .unwrap_or_else(|| "Cooldown updated.".to_string()),
     )
     .await?;
@@ -114,14 +110,7 @@ pub async fn eco_set_cooldown(
 
 #[cfg(test)]
 mod tests {
-    use super::{leaf_num_routed, load_tuning_routed, normalize_cooldown_kind};
-
-    #[test]
-    fn cooldown_kind_normalises_free_text() {
-        // Mirrors `!set-cooldown.ts:60-61`: verbatim, no case folding.
-        assert_eq!(normalize_cooldown_kind(" Work "), "Work");
-        assert_eq!(normalize_cooldown_kind("daily"), "daily");
-    }
+    use super::{leaf_num_routed, load_tuning_routed};
 
     async fn mem_pool() -> crate::db::Pool {
         crate::db::memory_pool().await

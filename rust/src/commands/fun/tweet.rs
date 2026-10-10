@@ -3,8 +3,10 @@ use super::*;
 #[poise::command(slash_command, prefix_command, category = "fun", rename = "tweet")]
 pub async fn tweet(
     ctx: Ctx<'_>,
-    // Required like the TS slash option (`user`, required: true in fun.ts).
-    #[description = "Member"] user: poise::serenity_prelude::User,
+    // Optional on prefix (falls back to the invoker like the TS
+    // `|| interaction.author` path in !tweet.ts); the TS slash schema
+    // marks `user` required:true (fun.ts) so slash callers always pass it.
+    #[description = "Member"] user: Option<poise::serenity_prelude::User>,
     // `#[rest]` so prefix keeps multi-word comments like the TS
     // `longString(args, 1)` path (slash uses `getString("comment")`).
     #[description = "Comment"]
@@ -14,6 +16,7 @@ pub async fn tweet(
     if fun_guard(&ctx).await {
         return Ok(());
     }
+    let user = user.as_ref().unwrap_or_else(|| ctx.author());
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     // NOTE: `!tweet.ts` gates on `messageArgs.length < 1`, but
     // `"".split(" ")` yields `[""]`, so the gate never fires: TS accepts
@@ -23,7 +26,7 @@ pub async fn tweet(
     // truncated at 15 chars. Comment, display name and handle all go
     // through `sanitizing` like the TS `sanitizing(...)` replaces, so raw
     // mentions/markdown cannot leak into the template.
-    let display = crate::funcs::sanitizing(&tweet_display_name(&user));
+    let display = crate::funcs::sanitizing(&tweet_display_name(user));
     let handle = tweet_handle(&crate::funcs::sanitizing(&user.name));
     let comment = crate::funcs::sanitizing(&comment);
     // Four independent `rand` draws; every stat goes through the number
@@ -34,7 +37,9 @@ pub async fn tweet(
     let retweets = crate::funcs::format_number(s.retweets as f64);
     let replies = crate::funcs::format_number(s.replies as f64);
     let views = crate::funcs::format_number(s.views as f64);
-    // html2png tweet-card render pending; text shape ported.
+    // Standing exclusion: the TS card renders via `client.func.html2png`
+    // (headless Chromium, `.tweet-card` selector); no renderer exists in
+    // the Rust tree, so the text shape above is the ported surface.
     ctx.say(
         crate::lang::get(&code, "fun_tweet_pending")
             .map(|t| {

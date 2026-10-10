@@ -11,7 +11,7 @@ use super::*;
 pub async fn eco_boost_set(
     ctx: Ctx<'_>,
     #[description = "Role"] role: poise::serenity_prelude::Role,
-    #[description = "Boost (e.g. 2)"] boost: String,
+    #[description = "Boost (e.g. 2)"] boost: BoostLevel,
 ) -> Result<(), anyhow::Error> {
     if disabled_reply(&ctx).await? {
         return Ok(());
@@ -31,9 +31,9 @@ pub async fn eco_boost_set(
         .await?;
         return Ok(());
     }
-    // TS `parseInt(...)` on the boost string; the stored shape is a
-    // number (unparseable input lands on 0, like NaN would).
-    let amount = parse_ts_int(boost.trim()).unwrap_or(0) as f64;
+    // The `boost` slash choices (1-5) arrive parsed via `BoostLevel`,
+    // like TS `parseInt` on the choice value; the stored shape is a number.
+    let amount = boost.value();
     let keep_price = roles.get(&id).map(|e| e.price).unwrap_or(0.0);
     roles.insert(
         id,

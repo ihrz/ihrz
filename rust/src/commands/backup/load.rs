@@ -36,7 +36,9 @@ fn normalize_snapshot(snap: &serde_json::Value) -> Option<BackupInfos> {
 )]
 pub async fn backup_load(
     ctx: Ctx<'_>,
-    #[description = "Backup id"] backup_id: String,
+    #[description = "Backup id"]
+    #[rename = "backup-id"]
+    backup_id: String,
 ) -> Result<(), anyhow::Error> {
     // Defer up front: the restore rewrites roles/channels/emojis/bans,
     // past the 3s interaction token (backup.ts:260 `thinking: true`).
@@ -166,6 +168,10 @@ pub async fn backup_load(
         .await?;
         return Ok(());
     }
+    // G11: the `{entries}` kv-dump shape IS written by Rust
+    // (`legacy_config_backup` in backup/mod.rs, the no-guild-cache
+    // path of create), so this branch stays: it restores those dumps
+    // key by key.
     let entries = snap
         .get("entries")
         .and_then(|e| e.as_array())

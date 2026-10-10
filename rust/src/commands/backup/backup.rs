@@ -128,17 +128,32 @@ pub async fn bot_is_guild_admin(ctx: &Ctx<'_>) -> bool {
 /// (guild name, category count, channel count). Mirrors the
 /// `{guildName, categoryCount, channelCount}` meta written in
 /// !create.ts:82-91 (children only; `others` are never counted).
+/// TS per-user rows hold exactly that bare meta (the full snapshot
+/// lives in the shared `backups` table), so accept both shapes.
 pub fn backup_summary(raw: &str) -> Option<(String, usize, usize)> {
-    let infos: BackupInfos = serde_json::from_str(raw).ok()?;
-    let cats = infos.data.channels.categories.len();
-    let chans = infos
-        .data
-        .channels
-        .categories
-        .iter()
-        .map(|c| c.children.len())
-        .sum::<usize>();
-    Some((infos.data.name, cats, chans))
+    if let Ok(infos) = serde_json::from_str::<BackupInfos>(raw) {
+        let cats = infos.data.channels.categories.len();
+        let chans = infos
+            .data
+            .channels
+            .categories
+            .iter()
+            .map(|c| c.children.len())
+            .sum::<usize>();
+        return Some((infos.data.name, cats, chans));
+    }
+    backup_meta(raw)
+}
+
+/// Bare TS meta row (`{guildName, categoryCount, channelCount}` from
+/// !create.ts:82-91): the per-user pointer shape, without a snapshot.
+pub fn backup_meta(raw: &str) -> Option<(String, usize, usize)> {
+    let v: serde_json::Value = serde_json::from_str(raw).ok()?;
+    Some((
+        v.get("guildName")?.as_str()?.to_string(),
+        v.get("categoryCount")?.as_u64()? as usize,
+        v.get("channelCount")?.as_u64()? as usize,
+    ))
 }
 
 /// One list row. Mirrors !list.ts:101
@@ -192,8 +207,8 @@ pub async fn invoker_is_owner_or_admin(ctx: &Ctx<'_>) -> bool {
 mod tests {
     use super::super::gen_backup_id;
     use super::{
-        backup_field, backup_owner_only, backup_summary, backup_user_key, bkp_del, bkp_get,
-        bkp_scan_user, bkp_set, page_count, shared_snapshot_del, user_backup_prefix,
+        backup_field, backup_meta, backup_owner_only, backup_summary, backup_user_key, bkp_del,
+        bkp_get, bkp_scan_user, bkp_set, page_count, shared_snapshot_del, user_backup_prefix,
         BACKUPS_PER_PAGE, BACKUPS_ROOT, BACKUPS_SCOPE,
     };
 
@@ -278,6 +293,16 @@ mod tests {
         );
         let (_, cats, chans) = backup_summary(&raw).unwrap();
         assert_eq!((cats, chans), (1, 0));
+    }
+
+    #[test]
+    fn summary_accepts_bare_ts_meta_rows() {
+        // !create.ts:82-91 per-user pointer shape (no snapshot).
+        let meta = r#"{"guildName":"TS Guild","categoryCount":3,"channelCount":12}"#;
+        assert_eq!(backup_summary(meta), Some(("TS Guild".to_string(), 3, 12)));
+        assert_eq!(backup_meta(meta), Some(("TS Guild".to_string(), 3, 12)));
+        assert!(backup_meta("not json").is_none());
+        assert!(backup_meta(r#"{"guildName":"x"}"#).is_none());
     }
 
     #[test]
