@@ -183,6 +183,8 @@ committed — see `.gitignore`. No push without a green
 - [x] U-ETERNAL-39 (2026-10-10: vague-37 protect/social/confess/misc 4/4 — protect owner gates + rule-all + show 2-embeds + allowlist guards + honeypot panel/toggle/log + antispam presets; invites embeds #92A8D1 + raw négatifs + sug- ephemeral + 12-char codes + starboard quirk; confession audit-log/nonce/cooldown/thread/rotation + force-join single-message + dashboard SVG + DeferPolicy; ping/help → botcat + welcomer 800s + TTS choices + h247 consts. Lead: captcha expires_at pinné + code hors texte, victim role-restore, mut member, stub help_here retiré (collision help), msg_antispam_invalid_choice x10, clippy zero (backends allow, hex, asserts, format!/vec!, needless borrows). Suite 1267/0, fmt + clippy clean).
 - [x] U-ETERNAL-40 (2026-10-10: suggestion thread-flags parity — `edit_thread` invitable/locked/archived after create-from-message, mirrors `onNewMessage.ts` `.then(x => x.edit(...))`. Lead: single leftover hunk from vague-37, TS-verified. Suite 1267/0, fmt + clippy clean).
 - [x] U-ETERNAL-41 (2026-10-10: I4 placeholder-parity lock — full YAML scan (2595 keys, 787 with tokens): fixed 1 live raw-token leak (jp-JP `perm_roles_created_role` used `join('、')` while code replaces `join(', ')`, TS ships the same bug — corrected, not mirrored); 9 remaining divergences documented as intentional upstream meme/joke rewrites (fr-ME x7 incl. 1 dead key, fr-FR wakeup x1, all noop-replaces, no garbage). New `lang.rs` test `placeholder_tokens_match_en_us_in_all_locales` (token scanner, key-count parity, explicit exception list). Suite 1268/0, fmt + clippy clean).
+- [x] U-ETERNAL-42 (2026-10-10: S1 adopt-or-delete adjudicated — all 5 Rust extras ADOPTED with TS-parent evidence, backlog S1 closed, no code change. Suite 1268/0).
+- [x] U-ETERNAL-43 (2026-10-10: E7 snipe key-reunification, reader half — `snipe` command reads TS `GUILD.SNIPE.<channel>` first (`{snipe, snipeUserInfoTag, snipeUserInfoPp, snipeTimestamp}` → #474749 embed with author/avatar/timestamp, byte-identical to `!snipe.ts`), legacy `SNIPE.<channel>` `{author,content}` + `SNIPE.last_deleted_id` kept as fallbacks; pure `parse_ts_snipe`/`parse_legacy_snipe`/`render_snipe_embed` + 2 tests. Writer migration in `events_handler.rs` queued as follow-up (file hot). Suite 1273/0, fmt clean, own files clippy-zero).
 ## Eternal backlog (seeded 2026-10-09 by 7 read-only audits + lavalink edge audit; full reports in `~/.hermes/cache/delegation/live/deleg_55b606d3/task-{0,1,2,3,4,5,9}.log` — each item is a future unit for other models, files disjoint unless noted)
 
 ### Events (audit task-0)
@@ -190,10 +192,10 @@ committed — see `.gitignore`. No push without a green
 - [ ] E2 protection channel restore executors (consume BACKUP snapshots: recreate category/channel, perms/parent/position, dedup) — `events_handler.rs`.
 - [ ] E3 guild-leave 10h cancellable wipe queue + ready recovery (replaces immediate flag) — `events_handler.rs`, `scheduler.rs`.
 - [ ] E4 welcome image/Components-V2 legs (welcomerEmbed resolve, avatar snapshot) — html2png-blocked, text path done.
-- [ ] E5 leash full-fidelity (array store, 30-min expiry, multi-sub, both directions) — `events_handler.rs`.
+- [x] E5 leash full-fidelity — VERIFIED done (U-ETERNAL-43): array store, 30-min prune (`leash_valid`), CSV multi-sub (`leash_sub_ids`), both directions (`leash_is_dom`), wired in voice-state arm, unit-tested.
 - [ ] E6 temp-voice hardening (creation lock, fetch-based emptiness, maskLink names, ready recovery).
-- [ ] E7 snipe key reunification (`GUILD.SNIPE.<channel>` + maskLink; verify reader key first).
-- [ ] E8 mention-ping rank-role grant (`<@bot>` branch in message arm).
+- [~] E7 snipe key reunification (reader DONE in U-ETERNAL-43 — TS `GUILD.SNIPE.<channel>` first + legacy fallbacks + TS embed; writer half QUEUED: `message_delete` in `events_handler.rs` must store the TS shape `{snipe: maskLink, snipeUserInfoTag, snipeUserInfoPp, snipeTimestamp}` under the TS key).
+- [x] E8 mention-ping rank-role grant — VERIFIED done (U-ETERNAL-43): `is_bot_ping` exact-`<@id>` gate wired in message arm, unit-tested.
 - [ ] E9 guild-leave log embed to guild-logs channel.
 - [ ] E10 captcha PNG leg (image-blocked; attempts/roles/kick done).
 - [ ] E11 protection allowlist-mode exemptions per rule.
@@ -212,9 +214,9 @@ committed — see `.gitignore`. No push without a green
 - [ ] C9 verify-only queue: errorManager, loop-body diffs (autorenew/emojis/githubLines/giveaways/honeypot/infra/memberCount/nightMode/pfps/sticky/tempban/tempRole), colors.ts exclusion.
 
 ### Slash/context (audit task-2)
-- [ ] S1 decide fate of 5 confirmed Rust extras (`honeypot post`, `lastfm status`, `confession list`, `ghost-list`, `perm-reset`): adopt or delete.
-- [ ] S2 context-menu name alignment (`Love` vs `Estimate the love`, `Play` vs full TS names).
-- [ ] S3 automod renames (`discord-invite`, `telegram`) + voicedashboard mapping + `/allowlist` parent fate.
+- [x] S1 Rust extras fate — ADOPT all 5 (U-ETERNAL-42, verified against TS parents): `honeypot post` carries honeypotManager internals (applyConfiguredAction/window/DM/log) with 6 tests; `lastfm status` reads back config state (parent ships config/login only); `confession list` is a deliberate count-only mod tool (self-documented ADOPT in list.rs; parent ships channel/config/thread/cooldown); `ghost-list` complements join-ghostping add/remove (1 test); `perm-reset` is not an extra — it surfaces the TS `perm command` delete-action as a flat subcommand (same `perm_set_command_reset` key). All registered, collision-free, tested-or-trivial; deletion would break installs for zero parity gain.
+- [x] S2 context-menu names — VERIFIED, no delta (U-ETERNAL-42): all 5 display strings byte-identical to TS (`User Lookup`, `Estimate the love`, `Pose a question!`, `Play it in a voice channel`, `Convert to MP4`), locked by `context_menu_names_match_ts` tests in `context/user.rs` + `context/msg.rs`.
+- [x] S3 renames/mappings — VERIFIED, no delta (U-ETERNAL-42): automod leaves wired as `discord-invite` + `telegram-link`/`telegram` via `automod_toggle!` (msg_automod_toggled x10); vd `interface` subs mapped 1:1 to lobby/panel/category/name/position/staff (THIN decision); `/allowlist` parent flattened like all parents, leaves `allow-add`/`allow-remove`/`allow-show` all registered.
 
 ### I18N (audit task-3)
 - [ ] I1 Tier-1 missing reply keys (history embeds, backup CRUD, giveaway get-data/get-all, serverinfo/prevnames/pfps, caracteres/number/trans, tempmute_unmuted_by_time).
