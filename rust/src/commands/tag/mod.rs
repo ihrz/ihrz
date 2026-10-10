@@ -89,8 +89,13 @@ pub async fn save_tags(
         .await
 }
 
-/// Tag permission gate: Administrator bypass, else the user or one of
-/// their roles must be in the whitelist. Mirrors the TS guards.
+/// Tag permission gate: Administrator bypass, else one of the member's
+/// roles must be in the whitelist. Role-membership-only, mirroring TS
+/// (!use.ts whitelist_use, !create.ts whitelist_create guards, which check
+/// `roles.cache.some((role) => whitelist_*.includes(role.id))` only).
+/// Both writers store role IDs only (TS RoleSelect save leg, Rust
+/// toggle_tag_wl pushes `role.id`), and no tests or fixtures store user
+/// IDs in these lists, so there is no user-id leg.
 pub async fn tag_allowed(ctx: &Ctx<'_>, list_name: &str) -> bool {
     if let Some(member) = ctx.author_member().await {
         if member
@@ -110,10 +115,6 @@ pub async fn tag_allowed(ctx: &Ctx<'_>, list_name: &str) -> bool {
         "whitelist_use" => &store.whitelist_use,
         _ => &store.whitelist_create,
     };
-    let uid = ctx.author().id.get().to_string();
-    if list.contains(&uid) {
-        return true;
-    }
     if let Some(member) = ctx.author_member().await {
         if member
             .roles

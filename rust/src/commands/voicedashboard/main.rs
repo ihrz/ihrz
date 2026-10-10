@@ -62,6 +62,17 @@ pub async fn vd_lobby(
     #[channel_types("Voice")]
     channel: serenity::GuildChannel,
 ) -> Result<(), anyhow::Error> {
+    // Prefix native-permission gate (U-MSV-FIX14): TS `checkNativePermission`
+    // enforces the Administrator leaf on both paths; Discord covers slash,
+    // so the body gates prefix here with the same `var_dont_have_perm` denial.
+    if crate::commands::shared::deny_without_prefix_perm(
+        &ctx,
+        poise::serenity_prelude::Permissions::ADMINISTRATOR,
+    )
+    .await
+    {
+        return Ok(());
+    }
     let gid = ctx
         .guild_id()
         .map(|g| g.get().to_string())
@@ -93,6 +104,17 @@ pub async fn vd_panel(
     #[channel_types("Text")]
     channel: serenity::GuildChannel,
 ) -> Result<(), anyhow::Error> {
+    // Prefix native-permission gate (U-MSV-FIX14): TS `checkNativePermission`
+    // enforces the Administrator leaf on both paths; Discord covers slash,
+    // so the body gates prefix here with the same `var_dont_have_perm` denial.
+    if crate::commands::shared::deny_without_prefix_perm(
+        &ctx,
+        poise::serenity_prelude::Permissions::ADMINISTRATOR,
+    )
+    .await
+    {
+        return Ok(());
+    }
     ctx.defer().await?;
     let gid = ctx
         .guild_id()
@@ -175,6 +197,17 @@ pub async fn vd_category(
     #[channel_types("Category")]
     channel: serenity::GuildChannel,
 ) -> Result<(), anyhow::Error> {
+    // Prefix native-permission gate (U-MSV-FIX14): TS `checkNativePermission`
+    // enforces the Administrator leaf on both paths; Discord covers slash,
+    // so the body gates prefix here with the same `var_dont_have_perm` denial.
+    if crate::commands::shared::deny_without_prefix_perm(
+        &ctx,
+        poise::serenity_prelude::Permissions::ADMINISTRATOR,
+    )
+    .await
+    {
+        return Ok(());
+    }
     let gid = ctx
         .guild_id()
         .map(|g| g.get().to_string())
@@ -204,6 +237,17 @@ pub async fn vd_name(
     ctx: Ctx<'_>,
     #[description = "Template, e.g. {user}'s room"] template: String,
 ) -> Result<(), anyhow::Error> {
+    // Prefix native-permission gate (U-MSV-FIX14): TS `checkNativePermission`
+    // enforces the Administrator leaf on both paths; Discord covers slash,
+    // so the body gates prefix here with the same `var_dont_have_perm` denial.
+    if crate::commands::shared::deny_without_prefix_perm(
+        &ctx,
+        poise::serenity_prelude::Permissions::ADMINISTRATOR,
+    )
+    .await
+    {
+        return Ok(());
+    }
     let gid = ctx
         .guild_id()
         .map(|g| g.get().to_string())
@@ -259,6 +303,17 @@ pub async fn vd_position(
     ctx: Ctx<'_>,
     #[description = "top or bottom"] position: PositionChoice,
 ) -> Result<(), anyhow::Error> {
+    // Prefix native-permission gate (U-MSV-FIX14): TS `checkNativePermission`
+    // enforces the Administrator leaf on both paths; Discord covers slash,
+    // so the body gates prefix here with the same `var_dont_have_perm` denial.
+    if crate::commands::shared::deny_without_prefix_perm(
+        &ctx,
+        poise::serenity_prelude::Permissions::ADMINISTRATOR,
+    )
+    .await
+    {
+        return Ok(());
+    }
     let gid = ctx
         .guild_id()
         .map(|g| g.get().to_string())
@@ -315,6 +370,17 @@ pub fn staff_roles_value(ids: &[String]) -> String {
     default_member_permissions = "ADMINISTRATOR"
 )]
 pub async fn vd_staff(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
+    // Prefix native-permission gate (U-MSV-FIX14): TS `checkNativePermission`
+    // enforces the Administrator leaf on both paths; Discord covers slash,
+    // so the body gates prefix here with the same `var_dont_have_perm` denial.
+    if crate::commands::shared::deny_without_prefix_perm(
+        &ctx,
+        poise::serenity_prelude::Permissions::ADMINISTRATOR,
+    )
+    .await
+    {
+        return Ok(());
+    }
     let Some(guild_id) = ctx.guild_id() else {
         return Ok(());
     };

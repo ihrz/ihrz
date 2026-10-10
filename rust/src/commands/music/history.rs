@@ -21,11 +21,13 @@ pub fn step_history_page(current: usize, pages: usize, next: bool) -> usize {
 ///
 /// TS parity record (music.ts:179): `history` carries
 /// `permission: PermissionFlagsBits.Administrator` while every other
-/// music subcommand is `permission: null`. That declaration only gates
-/// the slash path, so slash parity comes from
-/// `default_member_permissions` below; `!history.ts` performs no
-/// runtime admin check and serves the prefix path to everyone, so this
-/// port does neither. Non-admin slash callers never reach this code.
+/// music subcommand is `permission: null`. TS `checkNativePermission`
+/// enforces the leaf on both paths; Discord enforces
+/// `default_member_permissions` on slash, so the prefix leg is gated
+/// at the top of the body via
+/// `crate::commands::shared::deny_without_prefix_perm` (same
+/// `var_dont_have_perm` denial). Non-admin slash callers never reach
+/// this code.
 ///
 /// The `page` / `clear` params are a local superset (TS `music.ts`
 /// declares no history options): they set the initial page and the
@@ -42,6 +44,17 @@ pub async fn m_history(
     #[description = "Page number"] page: Option<i64>,
     #[description = "Delete the history"] clear: Option<bool>,
 ) -> Result<(), anyhow::Error> {
+    // Prefix native-permission gate (U-MSV-FIX14): TS `checkNativePermission`
+    // enforces the Administrator leaf on both paths; Discord covers slash,
+    // so the body gates prefix here with the same `var_dont_have_perm` denial.
+    if crate::commands::shared::deny_without_prefix_perm(
+        &ctx,
+        poise::serenity_prelude::Permissions::ADMINISTRATOR,
+    )
+    .await
+    {
+        return Ok(());
+    }
     let Some(gid) = guild_id_of(&ctx) else {
         return Ok(());
     };

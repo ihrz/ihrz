@@ -580,6 +580,49 @@ pub fn assets_length(
 ) -> Option<u64> {
     table.get(asset_type).copied()
 }
+
+/// Process-local assets table. Mirrors `client.assets` filled once by
+/// assetsCalc at boot (core.ts calls it fire-and-forget, un-awaited).
+/// INTEROP STANCE: the table lives in process memory only. It is never
+/// persisted under `src/files`, and no shared-file coordination with a
+/// concurrently running TS process is attempted — each process fetches
+/// its own copy from the same URL, exactly like two TS shards each
+/// holding their own `client.assets`.
+fn assets_cache() -> &'static std::sync::Mutex<std::collections::HashMap<String, u64>> {
+    static CACHE: std::sync::OnceLock<std::sync::Mutex<std::collections::HashMap<String, u64>>> =
+        std::sync::OnceLock::new();
+    CACHE.get_or_init(|| std::sync::Mutex::new(std::collections::HashMap::new()))
+}
+
+/// Refresh the boot-wired assets table. Best-effort: a failed fetch or
+/// an unusable body keeps the previous table (fun legs fall back to
+/// their lazy first-use fetch when the table is still empty). Wired
+/// once at boot from `bot::run`; re-runnable for tests/operators.
+pub async fn refresh_assets_cache() {
+    let body = match reqwest::Client::new().get(ASSETS_LENGTHS_URL).send().await {
+        Ok(resp) => match resp.text().await {
+            Ok(text) => text,
+            Err(_) => return,
+        },
+        Err(_) => return,
+    };
+    if let Some(table) = parse_assets_lengths(&body) {
+        if !table.is_empty() {
+            *assets_cache().lock().unwrap_or_else(|e| e.into_inner()) = table;
+        }
+    }
+}
+
+/// Gif count for one asset type from the boot-wired table. None before
+/// the first successful [`refresh_assets_cache`] (callers fall back to
+/// their lazy fetch, mirroring `client.assets[type]` reads before
+/// assetsCalc resolves).
+pub fn cached_assets_length(asset_type: &str) -> Option<u64> {
+    assets_length(
+        &assets_cache().lock().unwrap_or_else(|e| e.into_inner()),
+        asset_type,
+    )
+}
 /// Shard id for a guild. Mirrors client.inShard
 /// (`(guildId >> 22n) % totalShards`).
 pub fn guild_shard(guild_id: u64, total_shards: u64) -> u64 {
@@ -1008,6 +1051,8 @@ mod tests {
         let table = parse_assets_lengths("\"kiss\":30,\"slap\":30,\"hug\":30}").unwrap();
         assert_eq!(assets_length(&table, "hug"), Some(30));
         assert_eq!(assets_length(&table, "unknown"), None);
+        // Boot-wired table starts empty offline (no network in tests).
+        assert_eq!(cached_assets_length("hug"), None);
         assert!(parse_assets_lengths("not json").is_none());
         assert!(parse_assets_lengths("[1,2]").is_none());
         // Non-integer values are skipped, integers kept.

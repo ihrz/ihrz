@@ -109,6 +109,17 @@ pub async fn notifier_message(
     ctx: Ctx<'_>,
     #[description = "Template (omit for preview, empty to reset)"] template: Option<String>,
 ) -> Result<(), anyhow::Error> {
+    // Prefix native-permission gate (U-MSV-FIX14): TS `checkNativePermission`
+    // enforces the ManageGuild leaf on both paths; Discord covers slash,
+    // so the body gates prefix here with the same `var_dont_have_perm` denial.
+    if crate::commands::shared::deny_without_prefix_perm(
+        &ctx,
+        poise::serenity_prelude::Permissions::MANAGE_GUILD,
+    )
+    .await
+    {
+        return Ok(());
+    }
     let gid = ctx
         .guild_id()
         .map(|g| g.get().to_string())

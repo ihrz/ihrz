@@ -1146,15 +1146,36 @@ pub fn bot_metas_row(input: &BotMetasInput, pushed_at_ms: i64) -> serde_json::Va
             "bio": input.bio,
         },
         "lastPushAt": pushed_at_ms,
+        // toISOString shape (UTC, millis, `Z`): `to_rfc3339()` would emit
+        // `+00:00` with no millis, diverging from the TS row.
         "lastPushAtISO": chrono::DateTime::from_timestamp_millis(pushed_at_ms)
-            .map(|dt| dt.to_rfc3339())
+            .map(|dt| dt.format("%Y-%m-%dT%H:%M:%S%.3fZ").to_string())
             .unwrap_or_default(),
         "writerShard": input.shard_id,
     })
 }
 
+/// Live app description. Mirrors
+/// `client.func.retrieveMyself.retrieveBio()` (GET
+/// `/oauth2/applications/@me` -> `description`), awaited: the TS push
+/// stores the un-awaited promise, so the row never carries the text.
+/// None when the fetch fails; the caller falls back to the previous
+/// row bio, then the live username.
+pub async fn fetch_app_bio(http: &serenity::Http) -> Option<String> {
+    http.get_current_application_info()
+        .await
+        .ok()
+        .map(|app| app.description.trim().to_string())
+        .filter(|s| !s.is_empty())
+}
+
 /// Store one BOT metas row with the TS retry budget. Best-effort:
 /// logs and returns after the final attempt, never panics.
+/// CROSS-SHARD CAVEAT: TS aggregates every shard via broadcastEval
+/// (getShardStats); this port sums the local gateway cache only. The
+/// members/servers totals are exact for the single-process autoshard
+/// layout, but in a multi-process (SHARD_ID) layout only shard 0 pushes
+/// and its row covers that process's guilds alone.
 pub async fn push_bot_metas(pool: &Pool, row: &serde_json::Value, shard_id: u64) {
     let text = row.to_string();
     for attempt in 1..=BOT_METAS_MAX_RETRIES.max(1) {
@@ -1620,6 +1641,12 @@ pub async fn run(cfg: Config, pool: Pool) -> anyhow::Result<()> {
 
     crate::scheduler::spawn(pool.clone(), client.http.clone());
 
+    // assetsCalc boot wire. Mirrors the fire-and-forget `assetsCalc(client)`
+    // in core.ts: length.json is fetched once into the process-local table
+    // (crate::funcs); fun legs fall back to their lazy fetch when the boot
+    // fetch fails, and a later refresh overwrites the same table.
+    tokio::spawn(crate::funcs::refresh_assets_cache());
+
     // App emoji sync (best-effort background, mirrors emojisManager).
     {
         let http = client.http.clone();
@@ -1677,6 +1704,10 @@ pub async fn run(cfg: Config, pool: Pool) -> anyhow::Result<()> {
     // survive the u32 parse in config::load (None); an explicit 0 is
     // rejected here with a warning instead of silently falling back to
     // the tuned count.
+    // ADOPT: an explicit non-zero override is adopted verbatim — no
+    // tuning multiplier — mirroring TS `return parsed` in
+    // getOptimalShardCount (the multiplier scales the gateway
+    // recommendation only).
     if cfg.total_shards == Some(0) {
         tracing::warn!("ignoring TOTAL_SHARDS override: must be >= 1, using gateway-tuned count");
     }
@@ -2167,7 +2198,8 @@ mod tests {
         assert_eq!(row["user"]["avatar"], "https://cdn/x.png");
         assert_eq!(row["user"]["bio"], "bio");
         assert_eq!(row["lastPushAt"], 1_700_000_000_000i64);
-        assert!(row["lastPushAtISO"].as_str().is_some_and(|s| !s.is_empty()));
+        // toISOString shape: UTC, millis, `Z` (not `+00:00`).
+        assert_eq!(row["lastPushAtISO"], "2023-11-14T22:13:20.000Z");
         assert_eq!(row["writerShard"], 0);
     }
 

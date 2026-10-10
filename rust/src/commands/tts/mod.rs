@@ -483,9 +483,23 @@ pub fn detect_message_locale(text: &str) -> Option<&'static str> {
 }
 
 /// True when the whole message is one URL, mirroring isUrl
-/// (`new URL(str)` only parses absolute URLs with a scheme + host).
+/// (`new URL(str)` — true for any absolute URL with a scheme, probed
+/// against the WHATWG parser: `mailto:x`, `hello: world` and
+/// `https:example.com` all parse, while `notaurl`, `example.com/path`
+/// and `http://` throw).
+///
+/// Rules: strip ASCII tab/CR/LF anywhere (WHATWG removes them), trim
+/// C0/space edges, require `^[A-Za-z][A-Za-z0-9+.-]*:`, then for the
+/// hierarchical schemes (http/https/ws/wss/ftp) require a non-empty
+/// whitespace-free host; every other scheme accepts any remainder
+/// (opaque path, empty included); `file` accepts everything past the
+/// scheme.
 pub fn tts_is_url(text: &str) -> bool {
-    let t = text.trim();
+    let nospace: String = text
+        .chars()
+        .filter(|c| !matches!(c, '\t' | '\n' | '\r'))
+        .collect();
+    let t = nospace.trim_matches(|c: char| c == ' ' || (c as u32) < 0x20);
     let Some(colon) = t.find(':') else {
         return false;
     };
@@ -499,11 +513,15 @@ pub fn tts_is_url(text: &str) -> bool {
         return false;
     }
     let after = &rest[1..];
-    let host = after
-        .strip_prefix("//")
-        .map(|h| h.split('/').next().unwrap_or(""))
-        .unwrap_or("");
-    !host.is_empty()
+    if ["http", "https", "ws", "wss", "ftp"].contains(&scheme.to_ascii_lowercase().as_str()) {
+        let host = after
+            .trim_start_matches(['/', '\\'])
+            .split(['/', '?', '#'])
+            .next()
+            .unwrap_or("");
+        return !host.is_empty() && !host.chars().any(|c| c.is_whitespace() || (c as u32) < 0x20);
+    }
+    true
 }
 
 /// Locale fallback chain, mirroring
@@ -650,11 +668,16 @@ mod tests {
         assert!(tts_is_url("https://example.com/foo?bar=baz"));
         assert!(tts_is_url("http://x.y"));
         assert!(tts_is_url("ftp://files.example.com/a"));
+        // Opaque-scheme URLs parse (`new URL` true): skipped like TS.
+        assert!(tts_is_url("mailto:a@b.com"));
+        assert!(tts_is_url("hello: world"));
+        assert!(tts_is_url("https:example.com"));
+        assert!(tts_is_url("HTTPS://X.Y"));
         assert!(!tts_is_url("notaurl"));
         assert!(!tts_is_url("example.com/path"));
         assert!(!tts_is_url("http://"));
+        assert!(!tts_is_url("http://?q"));
         assert!(!tts_is_url(""));
-        assert!(!tts_is_url("hello: world"));
     }
 
     #[test]

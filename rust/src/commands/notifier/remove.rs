@@ -13,6 +13,17 @@ pub async fn notifier_remove(
     #[description = "twitch or youtube"] platform: String,
     #[description = "Author id or username"] author: String,
 ) -> Result<(), anyhow::Error> {
+    // Prefix native-permission gate (U-MSV-FIX14): TS `checkNativePermission`
+    // enforces the ManageGuild leaf on both paths; Discord covers slash,
+    // so the body gates prefix here with the same `var_dont_have_perm` denial.
+    if crate::commands::shared::deny_without_prefix_perm(
+        &ctx,
+        poise::serenity_prelude::Permissions::MANAGE_GUILD,
+    )
+    .await
+    {
+        return Ok(());
+    }
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let say = |key: &str, fallback: &str| {
         crate::lang::get(&code, key).unwrap_or_else(|| fallback.to_string())

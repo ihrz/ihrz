@@ -35,6 +35,17 @@ pub(crate) struct InviteSnap {
 /// retries instead of reusing the miss).
 type PendingInviteFetch = HashMap<String, Arc<tokio::sync::OnceCell<Option<Vec<InviteSnap>>>>>;
 
+/// Invite-seed permission gate. Mirrors the ready-burst fetchInvites
+/// gate (`ManageGuild` + `ViewAuditLog`, both required: discord.js
+/// `.has([A, B])` is an AND): an invite fetch without both bits 403s
+/// the same way. The guild_create join leg applies the same pair —
+/// the TS join leg checks ViewAuditLog only, but the fetch needs both.
+/// Guild owners bypass (their fetch cannot 403 on perms); a payload
+/// without our member row keeps the best-effort fetch (403s ignored).
+pub fn invite_seed_allowed(is_owner: bool, view_audit_log: bool, manage_guild: bool) -> bool {
+    is_owner || (view_audit_log && manage_guild)
+}
+
 // tbl_* routing lives in crate::db (single home, C5); the forks that
 // lived here are deleted and call sites below use `crate::db::tbl_*`.
 
@@ -1021,6 +1032,26 @@ pub fn temp_creation_key(guild_id: &str, user_id: &str) -> String {
 /// rank-role grant/info path. Pure, unit-tested below.
 pub fn is_bot_ping(content: &str, bot_id: u64) -> bool {
     content == format!("<@{bot_id}>")
+}
+
+/// Per-user ping-bot info cooldown. Mirrors helper.cooldown(authorId,
+/// "ping_bot", 7000): true on first sight inside the 7s window expiry
+/// (send allowed, window recorded), false while the window holds (send
+/// skipped). The caller records before the UseApplicationCommands gate
+/// exactly like TS, so an ungated ping still starts the window. Pure,
+/// unit-tested below.
+pub fn ping_bot_cooldown_ok(user_id: u64, now_ms: i64) -> bool {
+    use std::collections::HashMap;
+    use std::sync::{Mutex, OnceLock};
+    static MAP: OnceLock<Mutex<HashMap<u64, i64>>> = OnceLock::new();
+    let map = MAP.get_or_init(|| Mutex::new(HashMap::new()));
+    let mut guard = map.lock().unwrap_or_else(|e| e.into_inner());
+    let next = guard.get(&user_id).copied().unwrap_or(0);
+    if now_ms < next {
+        return false;
+    }
+    guard.insert(user_id, now_ms + 7_000);
+    true
 }
 
 /// Vanity display for the guild-leave log embed. Mirrors
@@ -3333,6 +3364,23 @@ pub fn welcomer_render(
     WelcomerRender { embed, files }
 }
 
+/// Avatar snapshot URL for welcomer thumbnails. Mirrors
+/// `member.displayAvatarURL({ size: 256, extension: "png", forceStatic:
+/// true })` in welcomerMessage.ts: a downscaled static PNG (animated
+/// avatars stay png via forceStatic, never a full-size webp/gif);
+/// users without an avatar keep the default avatar URL. Pure,
+/// unit-tested below.
+pub fn welcomer_avatar_url(user: &serenity::User) -> String {
+    if let Some(hash) = &user.avatar {
+        format!(
+            "https://cdn.discordapp.com/avatars/{}/{hash}.png?size=256",
+            user.id.get()
+        )
+    } else {
+        user.default_avatar_url()
+    }
+}
+
 /// Shared welcomer sender for the join/leave sites. Snapshots the
 /// member avatar (image64 equivalent) and sends the accent-colored
 /// embed + thumbnail file (welcomerMessage.ts Components V2 path,
@@ -3345,7 +3393,7 @@ pub async fn send_welcomer_message(
     accent: u32,
     avatar_name: &str,
 ) {
-    let snapshot = crate::commands::botcat::download_bytes(&user.face()).await;
+    let snapshot = crate::commands::botcat::download_bytes(&welcomer_avatar_url(user)).await;
     let render = welcomer_render(text, accent, snapshot, avatar_name);
     let mut msg = serenity::CreateMessage::new().embed(render.embed);
     for f in render.files {
@@ -3772,11 +3820,21 @@ impl Handler {
 impl serenity::EventHandler for Handler {
     async fn ready(&self, ctx: serenity::Context, ready: serenity::Ready) {
         // Mirrors src/Events/client/ready.ts (cache warm, owner fetch).
+        // The `[Shard #id]` tag mirrors the shardCreate Ready leg in
+        // src/index.ts: serenity exposes no post-spawn hook, so each
+        // shard's ready line is the shards-spawned evidence (the spawn
+        // plan itself is logged in bot::run).
+        let ready_shard = ready.shard.as_ref().map(|s| s.id.get()).unwrap_or(0);
         tracing::info!(
-            "{} connected ({} guilds)",
+            "[Shard #{}] {} connected ({} guilds)",
+            ready_shard,
             ready.user.tag(),
             ready.guilds.len()
         );
+        // Owner-mail From name from the live username (mirrors
+        // `fromName: client.user?.username` in Mailer.init, which
+        // ready.ts runs after login). Idempotent across per-shard readys.
+        self.mailer.set_from_name(&ready.user.name);
         // No boot presence (O10): TS keeps the setPresence block commented
         // out in ready.ts, so no-presence here is parity, not a gap.
         // Track-start nowplaying announcer (mirrors the trackStart send
@@ -3876,6 +3934,9 @@ impl serenity::EventHandler for Handler {
         // BOT metas push (mirrors refreshBotData in ready.ts: boot push
         // + 45s interval, main shard only; the retry budget lives in
         // push_bot_metas). Once per process: ready fires per shard.
+        // CROSS-SHARD CAVEAT: members/servers come from this process's
+        // cache (no broadcastEval; see push_bot_metas) — exact for the
+        // single-process autoshard layout only.
         // VANITY GAP (B5): boot warms the regular-invite cache per
         // guild (guild_create replays at boot, mirroring fetchInvites),
         // but the native VanityURL uses-counter has no serenity fetch
@@ -3907,6 +3968,7 @@ impl serenity::EventHandler for Handler {
                 tracing::info!("refreshBotData interval scheduled (shard #{shard_id})");
                 let pool = self.pool.clone();
                 let cache = ctx.cache.clone();
+                let http = ctx.http.clone();
                 tokio::spawn(async move {
                     loop {
                         let me = cache.current_user().clone();
@@ -3931,11 +3993,12 @@ impl serenity::EventHandler for Handler {
                                 cats.insert(cat.to_string());
                             }
                         }
-                        // Preserve an operator-set bio across pushes:
-                        // read the previous BOT row's /user/bio first
-                        // (mirrors `metasTable.get("BOT.user.bio") ||
-                        // username` in bio.rs), falling back to the
-                        // live username when no row exists yet.
+                        // Bio mirrors retrieveMyself.retrieveBio(), awaited
+                        // at each push: the live app description wins; when
+                        // the fetch fails the previous row bio survives
+                        // (mirrors the `metasTable.get("BOT.user.bio") ||
+                        // username` read in bio.rs), then the live
+                        // username when no row exists yet.
                         let prev_bio =
                             crate::db::kv_get(&pool, crate::core::release::META_SCOPE, "BOT")
                                 .await
@@ -3945,8 +4008,11 @@ impl serenity::EventHandler for Handler {
                                         .and_then(|b| b.as_str())
                                         .map(|s| s.to_string())
                                 })
-                                .filter(|s| !s.is_empty())
-                                .unwrap_or_else(|| me.name.clone());
+                                .filter(|s| !s.is_empty());
+                        let bio = crate::bot::fetch_app_bio(&http)
+                            .await
+                            .or(prev_bio)
+                            .unwrap_or_else(|| me.name.clone());
                         let input = crate::bot::BotMetasInput {
                             members,
                             servers: cache.guilds().len() as u64,
@@ -3967,7 +4033,7 @@ impl serenity::EventHandler for Handler {
                             // O9: TS uses displayAvatarURL png/4096; the
                             // default CDN URL is stored instead.
                             avatar: me.avatar_url().unwrap_or_else(|| me.face()),
-                            bio: prev_bio,
+                            bio,
                             shard_id,
                         };
                         let now_ms = std::time::SystemTime::now()
@@ -4082,24 +4148,25 @@ impl serenity::EventHandler for Handler {
             let _ = guild.id.leave(&ctx.http).await;
             return;
         }
-        // Cache invites for join attribution (getInvites, O16): TS skips
-        // the fetch without ViewAuditLog, and the ready burst
-        // (fetchInvites) additionally requires ManageGuild — the join
-        // leg needs the same pair, since an invite fetch without both
-        // bits 403s the same way. guild_create streams per guild
-        // (no batch-5 sweep like the ready burst), so only the perm gate
-        // applies here. Owners bypass it; a payload without our member row
-        // keeps the best-effort fetch (403s are ignored below).
+        // Cache invites for join attribution (getInvites, O16): the seed
+        // runs on the boot replay too (serenity replays guild_create per
+        // cached guild; discord.js seeds the same table from the ready
+        // burst fetchInvites), so join attribution has a baseline from
+        // the first minute. The fetch gate is invite_seed_allowed below.
+        // guild_create streams per guild (no batch-5 sweep like the ready
+        // burst), so only the perm gate applies here.
         let bot_id = ctx.cache.current_user().id;
-        let audit_ok = if guild.owner_id == bot_id {
-            true
+        let (is_owner, view_audit, manage_guild) = if guild.owner_id == bot_id {
+            (true, true, true)
         } else if let Some(me) = guild.members.get(&bot_id) {
             let perms = guild.member_permissions(me);
-            perms.view_audit_log() && perms.manage_guild()
+            (false, perms.view_audit_log(), perms.manage_guild())
         } else {
-            true
+            // Payload without our member row: best-effort fetch below
+            // (403s are ignored), mirroring the TS unguarded path.
+            (true, true, true)
         };
-        if audit_ok {
+        if invite_seed_allowed(is_owner, view_audit, manage_guild) {
             if let Ok(live) = guild.id.invites(&ctx.http).await {
                 let mut cache = self.invites.lock().await;
                 let entry = cache.entry(gid.clone()).or_default();
@@ -4984,10 +5051,12 @@ impl serenity::EventHandler for Handler {
                 .await;
             return;
         }
-        // Nickname kicker (mirrors nickKicker.ts: username, displayName
-        // and globalName are all scanned; the member is DM'd the
-        // `event_nick_kicker_kick_msg` notice, then kicked with the
-        // `event_nick_kicker_kick_reason` lang reason).
+        // Nickname kicker (mirrors nickKicker.ts: the user-level
+        // username, displayName (globalName ?? username in discord.js)
+        // and globalName are all scanned — never the guild nickname;
+        // the member is DM'd the `event_nick_kicker_kick_msg` notice,
+        // then kicked with the `event_nick_kicker_kick_reason` lang
+        // reason).
         if let Some(raw) = nick_kicker_routed(&self.pool, &gid).await {
             if let Ok(cfg) = serde_json::from_str::<serde_json::Value>(&raw) {
                 let enabled = cfg
@@ -5002,7 +5071,13 @@ impl serenity::EventHandler for Handler {
                     && crate::commands::utils::nick_matches(
                         &words,
                         &new_member.user.name,
-                        Some(&new_member.nick.clone().unwrap_or_default()),
+                        Some(
+                            new_member
+                                .user
+                                .global_name
+                                .as_deref()
+                                .unwrap_or(&new_member.user.name),
+                        ),
                         new_member.user.global_name.as_deref(),
                     )
                 {
@@ -5800,48 +5875,187 @@ impl serenity::EventHandler for Handler {
         }
         // Security captcha answers (mirrors the onMemberJoin collector).
         self.security_answer(&_ctx, &msg).await;
-        // Mention-ping rank-role grant (mirrors
+        // Mention-ping rank-role grant + info (mirrors
         // Events/utils/rankRoleModule.ts): a message whose whole content
-        // is `<@{botId}>` grants the GUILD.RANK_ROLES role when the
-        // author's username/globalName contains the configured substring.
-        // No match (or already holding the role) is a silent no-op, like
-        // the TS early returns; processing then falls through below.
-        if is_bot_ping(&msg.content, _ctx.cache.current_user().id.get()) {
-            if let Ok(member) = guild_id.member(&_ctx.http, msg.author.id).await {
-                let roles_raw = rank_role_single_routed(&self.pool, &gid).await;
-                let nick_raw = rank_nicknames_routed(&self.pool, &gid).await;
-                if let (Some(roles_raw), Some(nick_raw)) = (roles_raw, nick_raw) {
-                    if let Some(role_num) = crate::commands::h247::grant::parse_role_id(&roles_raw)
-                    {
-                        let needles = crate::commands::h247::grant::rank_needles(&nick_raw);
-                        // Empty needles = no nickname gate configured
-                        // (mirrors falsy `dbGet.nicknames`): grant directly.
-                        let matched = needles.is_empty()
-                            || needles.iter().any(|n| {
-                                crate::commands::h247::grant::username_matches(
-                                    &msg.author.name,
-                                    msg.author.global_name.as_deref(),
-                                    n,
-                                )
-                            });
-                        let role_id = serenity::RoleId::new(role_num);
-                        if matched && !member.roles.contains(&role_id) {
-                            let _ = member.add_role(&_ctx.http, role_id).await;
+        // is `<@{botId}>`, sent by someone else in a guild text channel
+        // where the bot holds SendMessages + ManageRoles. With a
+        // GUILD.RANK_ROLES role configured (and present in the guild,
+        // like the TS roles.cache find), the author's username/globalName
+        // is matched — a missing nicknames row grants directly, like
+        // falsy `dbGet.nicknames` — and the grant embed carries the bot
+        // footer + attachment, sent plain to the channel. Without a
+        // configured role the info text replies instead (7s per-user
+        // cooldown + member UseApplicationCommands gate, mirroring
+        // interactionSend on a Message). Anything else is a silent
+        // no-op, like the TS early returns; processing then falls
+        // through below.
+        let bot_id = _ctx.cache.current_user().id;
+        if !msg.author.bot
+            && msg.author.id != bot_id
+            && is_bot_ping(&msg.content, bot_id.get())
+            && Self::is_guild_text_channel(&_ctx, guild_id, msg.channel_id).await
+        {
+            // Bot channel perms (mirrors the channel.permissionsFor
+            // SendMessages + ManageRoles guard): cache-computed, failing
+            // closed like the TS early return.
+            let bot_chan_ok = _ctx
+                .cache
+                .guild(guild_id)
+                .map(
+                    |g| match (g.channels.get(&msg.channel_id), g.members.get(&bot_id)) {
+                        (Some(ch), Some(me)) => {
+                            let p = g.user_permissions_in(ch, me);
+                            p.send_messages() && p.manage_roles()
+                        }
+                        _ => false,
+                    },
+                )
+                .unwrap_or(false);
+            if bot_chan_ok {
+                if let Ok(member) = guild_id.member(&_ctx.http, msg.author.id).await {
+                    let roles_raw = rank_role_single_routed(&self.pool, &gid).await;
+                    let role_num = roles_raw
+                        .as_deref()
+                        .and_then(crate::commands::h247::grant::parse_role_id)
+                        .filter(|n| {
+                            _ctx.cache
+                                .guild(guild_id)
+                                .is_some_and(|g| g.roles.contains_key(&serenity::RoleId::new(*n)))
+                        });
+                    match role_num {
+                        Some(role_num) => {
+                            let needles = rank_nicknames_routed(&self.pool, &gid)
+                                .await
+                                .map(|raw| crate::commands::h247::grant::rank_needles(&raw))
+                                .unwrap_or_default();
+                            // Empty needles = no nickname gate configured
+                            // (mirrors falsy `dbGet.nicknames`): grant
+                            // directly.
+                            let matched = needles.is_empty()
+                                || needles.iter().any(|n| {
+                                    crate::commands::h247::grant::username_matches(
+                                        &msg.author.name,
+                                        msg.author.global_name.as_deref(),
+                                        n,
+                                    )
+                                });
+                            let role_id = serenity::RoleId::new(role_num);
+                            if matched && !member.roles.contains(&role_id) {
+                                let _ = member.add_role(&_ctx.http, role_id).await;
+                                let lang_code =
+                                    crate::db::guild_lang(&self.pool, Some(guild_id.get())).await;
+                                let text = crate::lang::get(&lang_code, "event_rank_role")
+                                    .unwrap_or_default()
+                                    .replace(
+                                        "${message.author.id}",
+                                        &msg.author.id.get().to_string(),
+                                    )
+                                    .replace("${fetch.id}", &role_num.to_string());
+                                if !text.is_empty() {
+                                    let footer_name = crate::commands::botcat::bot_footer_name(
+                                        bot_name_routed(&self.pool, &gid).await.as_deref(),
+                                    );
+                                    let stored = bot_pfp_routed(&self.pool, &gid).await;
+                                    let icon = match crate::commands::botcat::footer_icon_bytes(
+                                        stored.as_deref(),
+                                    ) {
+                                        Some(bytes) => Some(bytes),
+                                        None => {
+                                            let face = _ctx.cache.current_user().face();
+                                            crate::commands::botcat::download_bytes(&face).await
+                                        }
+                                    };
+                                    let mut embed = serenity::CreateEmbed::default()
+                                        .description(text)
+                                        .timestamp(serenity::Timestamp::now());
+                                    let mut out_msg = serenity::CreateMessage::new();
+                                    if let Some(bytes) = icon {
+                                        embed = embed.footer(
+                                            serenity::CreateEmbedFooter::new(footer_name)
+                                                .icon_url("attachment://footer_icon.png"),
+                                        );
+                                        out_msg =
+                                            out_msg.add_file(serenity::CreateAttachment::bytes(
+                                                bytes,
+                                                "footer_icon.png",
+                                            ));
+                                    } else {
+                                        embed = embed
+                                            .footer(serenity::CreateEmbedFooter::new(footer_name));
+                                    }
+                                    let _ = msg
+                                        .channel_id
+                                        .send_message(&_ctx.http, out_msg.embed(embed))
+                                        .await;
+                                }
+                            }
+                        }
+                        None => {
+                            // Info leg (mirrors the `!dbGet || !dbGet.roles`
+                            // branch): prefix + mention + badge text, 1/8
+                            // prefix-change upsell, 7s per-user cooldown,
+                            // member UseApplicationCommands gate, then a
+                            // reply (interactionSend on a Message replies).
                             let lang_code =
                                 crate::db::guild_lang(&self.pool, Some(guild_id.get())).await;
-                            let text = crate::lang::get(&lang_code, "event_rank_role")
-                                .unwrap_or_default()
-                                .replace("${message.author.id}", &msg.author.id.get().to_string())
-                                .replace("${fetch.id}", &role_num.to_string());
-                            if !text.is_empty() {
-                                let embed = serenity::CreateEmbed::default().description(text);
-                                let _ = msg
-                                    .channel_id
-                                    .send_message(
-                                        &_ctx.http,
-                                        serenity::CreateMessage::new().embed(embed),
-                                    )
+                            let prefix =
+                                crate::db::guild_prefix(&self.pool, Some(guild_id.get()), "?")
                                     .await;
+                            let mut text = crate::lang::get(&lang_code, "ping_bot_show_info_msg")
+                                .unwrap_or_default()
+                                .replace("${prefix}", &prefix)
+                                .replace(
+                                    "${message.author.toString()}",
+                                    &msg.author.mention().to_string(),
+                                )
+                                .replace(
+                                    "${client.iHorizon_Emojis.Slash_Bot_Badge}",
+                                    &crate::emojis::app_emoji_markup(&_ctx.http, "Slash_Bot_Badge")
+                                        .await
+                                        .unwrap_or_default(),
+                                );
+                            if rand::random::<u8>().is_multiple_of(8) {
+                                text.push_str(
+                                    &crate::lang::get(
+                                        &lang_code,
+                                        "ping_bot_show_info_msg_about_change_prefix",
+                                    )
+                                    .unwrap_or_default()
+                                    .replace(
+                                        "${client.iHorizon_Emojis.VC_OpenChat}",
+                                        &crate::emojis::app_emoji_markup(&_ctx.http, "VC_OpenChat")
+                                            .await
+                                            .unwrap_or_default(),
+                                    ),
+                                );
+                            }
+                            // Cooldown records first: TS calls
+                            // helper.cooldown before the canUseCommands
+                            // check, so an ungated ping still starts the
+                            // window; only a fresh window + the gate sends.
+                            // The gate is channel-level on the fetched
+                            // member row (like channel.permissionsFor),
+                            // falling back to the guild-level bit when the
+                            // channel is out of cache.
+                            let now = crate::commands::context::now_ms();
+                            let fresh = ping_bot_cooldown_ok(msg.author.id.get(), now);
+                            let can_use = _ctx
+                                .cache
+                                .guild(guild_id)
+                                .and_then(|g| {
+                                    g.channels.get(&msg.channel_id).map(|ch| {
+                                        g.user_permissions_in(ch, &member)
+                                            .use_application_commands()
+                                    })
+                                })
+                                .unwrap_or_else(|| {
+                                    member
+                                        .permissions
+                                        .map(|p| p.use_application_commands())
+                                        .unwrap_or(false)
+                                });
+                            if fresh && can_use && !text.is_empty() {
+                                let _ = msg.reply(&_ctx.http, text).await;
                             }
                         }
                     }
@@ -7307,13 +7521,19 @@ impl serenity::EventHandler for Handler {
                             .map(|m| m.display_name().to_string())
                             .unwrap_or_else(|| "voice".to_string());
                         // Default title from the lang template (`{nickname}`
-                        // slot), with links masked like TS maskLink.
+                        // slot, full masked display name like TS
+                        // `maskLink(username)` — no truncation), with links
+                        // masked like TS maskLink.
                         let lang_code =
                             crate::db::guild_lang(&self.pool, Some(guild_id.get())).await;
-                        let title = crate::events::temp_channel_name_in(
-                            &crate::funcs::mask_link(&raw_display),
-                            crate::lang::get(&lang_code, "temporary_voice_channel_name").as_deref(),
-                        );
+                        let masked = crate::funcs::mask_link(&raw_display);
+                        let title =
+                            match crate::lang::get(&lang_code, "temporary_voice_channel_name")
+                                .as_deref()
+                            {
+                                Some(t) => t.replace("{nickname}", &masked),
+                                None => crate::events::temp_channel_name(&masked),
+                            };
                         // The lobby channel must still exist (mirrors `&&
                         // result_channel`); temp channels spawn under its
                         // parent (mirrors `parent: result_channel?.parentId`).
@@ -7901,19 +8121,28 @@ impl serenity::EventHandler for Handler {
                         if let Ok(tts_vc) = cfg.voice_channel_id.parse::<u64>() {
                             if crate::commands::tts::tts_voice_left(old_ch, new_ch, tts_vc) {
                                 // Memberless check mirrors isMemberlessChannel:
-                                // TS does a fresh `channel.fetch()` first and
-                                // treats a fetch failure as memberless
-                                // (deleted channel => cleanup). Same here:
-                                // the fetch doubles as the existence check.
+                                // non-voice channels never count (TS returns
+                                // false unless GuildVoice), the fetch doubles
+                                // as the existence check (a fetch failure
+                                // means deleted channel => cleanup, like the
+                                // TS catch => true).
                                 // The member count itself stays cache-based
                                 // (Discord exposes no REST voice-state list;
                                 // discord.js `channel.members` is cache data
                                 // too, so this matches TS in practice).
                                 // Missing cache guild = no blind leaves.
-                                let channel_gone = serenity::ChannelId::new(tts_vc)
+                                let fetched = serenity::ChannelId::new(tts_vc)
                                     .to_channel(&ctx.http)
                                     .await
-                                    .is_err();
+                                    .ok();
+                                let is_voice = fetched.as_ref().is_some_and(|c| {
+                                    matches!(
+                                        c,
+                                        serenity::Channel::Guild(g)
+                                        if g.kind == serenity::ChannelType::Voice
+                                    )
+                                });
+                                let channel_gone = fetched.is_none();
                                 let bot_id = ctx.cache.current_user().id;
                                 // Human tally mirrors
                                 // `members.filter((m) => !m.user.bot)`: a
@@ -7931,10 +8160,12 @@ impl serenity::EventHandler for Handler {
                                         })
                                         .count()
                                 });
-                                // Missing cache guild = no blind leaves,
-                                // but a gone channel always cleans up (TS
-                                // catch => true).
-                                if channel_gone || humans == Some(0) {
+                                // Missing cache guild = no blind leaves, a gone
+                                // channel always cleans up (TS catch =>
+                                // true), and a non-voice channel never does
+                                // (TS isMemberlessChannel false unless
+                                // GuildVoice).
+                                if channel_gone || (is_voice && humans == Some(0)) {
                                     let keep = match h247_routed(&self.pool, &gid).await {
                                         Some(hraw) => crate::commands::tts::tts_keep_voice(
                                             crate::commands::h247::grant::parse_h247(&hraw)
@@ -8507,8 +8738,22 @@ impl serenity::EventHandler for Handler {
         if changes.is_empty() {
             return;
         }
-        if changes.len() > 1024 {
-            changes = format!("{}...", &changes[..1021]);
+        // TS `changes.substring(0, 1021) + "..."` counts UTF-16 code
+        // units: cut on a char boundary at most 1021 units in (never a
+        // byte slice, which panics on multibyte text and over-truncates
+        // BMP-multibyte runs).
+        if changes.encode_utf16().count() > 1024 {
+            let mut units = 0;
+            let mut end = 0;
+            for (i, c) in changes.char_indices() {
+                let u = c.len_utf16();
+                if units + u > 1021 {
+                    break;
+                }
+                units += u;
+                end = i + c.len_utf8();
+            }
+            changes = format!("{}...", &changes[..end]);
         }
         let executor_name = e1
             .user_id
@@ -9860,6 +10105,17 @@ mod restore_tests {
     }
 
     #[test]
+    fn ping_bot_info_cooldown_is_7s_per_user() {
+        // First sight sends (window recorded), immediate re-ping skips,
+        // post-window sends again; other users are unaffected.
+        assert!(ping_bot_cooldown_ok(424_242, 1_000_000));
+        assert!(!ping_bot_cooldown_ok(424_242, 1_000_001));
+        assert!(!ping_bot_cooldown_ok(424_242, 1_006_999));
+        assert!(ping_bot_cooldown_ok(424_242, 1_007_000));
+        assert!(ping_bot_cooldown_ok(777, 1_000_001));
+    }
+
+    #[test]
     fn leave_vanity_formats_like_ts() {
         assert_eq!(leave_embed_vanity(Some("abc")), "discord.gg/abc");
         assert_eq!(leave_embed_vanity(None), "None");
@@ -10548,6 +10804,31 @@ mod welcomer_tests {
     use super::*;
 
     #[test]
+    fn welcomer_avatar_url_downscales_static_png() {
+        // Custom avatar: size=256 static png even for animated hashes
+        // (forceStatic), never the full-size webp/gif face() URL.
+        let mut user = serenity::User::default();
+        user.id = serenity::UserId::new(123);
+        user.avatar = Some(
+            "a_b2c3d4e5f60718293a4b5c6d7e8f9012"
+                .parse()
+                .expect("avatar hash"),
+        );
+        assert_eq!(
+            welcomer_avatar_url(&user),
+            "https://cdn.discordapp.com/avatars/123/a_b2c3d4e5f60718293a4b5c6d7e8f9012.png?size=256"
+        );
+        user.avatar = Some("b2c3d4e5f60718293a4b5c6d7e8f9012".parse().expect("hash"));
+        assert_eq!(
+            welcomer_avatar_url(&user),
+            "https://cdn.discordapp.com/avatars/123/b2c3d4e5f60718293a4b5c6d7e8f9012.png?size=256"
+        );
+        // No avatar: default avatar URL, like displayAvatarURL.
+        user.avatar = None;
+        assert_eq!(welcomer_avatar_url(&user), user.default_avatar_url());
+    }
+
+    #[test]
     fn welcomer_accents_match_ts_constants() {
         assert_eq!(WELCOME_ACCENT, 0x57_F287);
         assert_eq!(GOODBYE_ACCENT, 0xED_4245);
@@ -10919,5 +11200,16 @@ mod component_registry_tests {
     fn shard_label_matches_ts_shard_tag() {
         assert_eq!(shard_label(0), "#0");
         assert_eq!(shard_label(7), "#7");
+    }
+
+    #[test]
+    fn invite_seed_gate_needs_both_bits() {
+        // Ready-burst parity: ManageGuild + ViewAuditLog (discord.js
+        // .has([A, B]) is an AND); owners bypass; a missing bit denies.
+        assert!(invite_seed_allowed(true, false, false));
+        assert!(invite_seed_allowed(false, true, true));
+        assert!(!invite_seed_allowed(false, true, false));
+        assert!(!invite_seed_allowed(false, false, true));
+        assert!(!invite_seed_allowed(false, false, false));
     }
 }

@@ -142,13 +142,18 @@ pub fn should_send_guild_change(connected: bool, notify_new_guild: bool) -> bool
 
 /// SMTP mailer. Mirrors the TS `Mailer` class (nodemailer -> lettre
 /// sync `SmtpTransport`; call from async code via `spawn_blocking`).
+/// `from_name` + `signature` sit behind locks so ready() can refresh
+/// the From display name from the live bot username (mirrors
+/// `fromName: client.user?.username` in `Mailer.init`, which runs
+/// after login) while sends keep taking `&self`.
 pub struct Mailer {
     config: MailerConfig,
     transport: Option<SmtpTransport>,
     pub connected: bool,
     pub owner_mail: String,
     pub notify_new_guild: bool,
-    signature: MailSignature,
+    from_name: std::sync::RwLock<String>,
+    signature: std::sync::RwLock<MailSignature>,
 }
 
 impl Mailer {
@@ -163,10 +168,11 @@ impl Mailer {
         Self {
             owner_mail: config.owner.clone(),
             notify_new_guild: config.notify_new_guild,
+            from_name: std::sync::RwLock::new(config.from_name.clone()),
+            signature: std::sync::RwLock::new(signature),
             config,
             transport,
             connected: false,
-            signature,
         }
     }
 
@@ -201,6 +207,34 @@ impl Mailer {
         }
     }
 
+    /// Refresh the From display name from the live bot username.
+    /// Mirrors `fromName: client.user?.username` in `Mailer.init`
+    /// (ready.ts runs init after login, so the name is live there;
+    /// the construction-time fallback stays until this runs). No-op on
+    /// blank input or when unchanged, so per-shard ready() calls are
+    /// cheap; the owner signature is rebuilt with the new name.
+    pub fn set_from_name(&self, name: &str) {
+        let name = name.trim();
+        if name.is_empty() {
+            return;
+        }
+        let mut guard = self.from_name.write().unwrap_or_else(|e| e.into_inner());
+        if *guard == name {
+            return;
+        }
+        *guard = name.to_string();
+        *self.signature.write().unwrap_or_else(|e| e.into_inner()) = build_signature(name);
+    }
+
+    /// Current From display name (live username after ready(), else the
+    /// construction-time fallback).
+    pub fn from_name(&self) -> String {
+        self.from_name
+            .read()
+            .unwrap_or_else(|e| e.into_inner())
+            .clone()
+    }
+
     /// Send a mail with the owner signature appended (both legs).
     /// Mirrors `Mailer.send()`; returns false when disconnected.
     /// Blocking: call via `tokio::task::spawn_blocking`.
@@ -210,21 +244,23 @@ impl Mailer {
             _ => return false,
         };
         let normalized = normalize_newlines(text);
+        let signature = self
+            .signature
+            .read()
+            .unwrap_or_else(|e| e.into_inner())
+            .clone();
+        let from_name = self.from_name();
         let final_text = if with_signature {
-            format!("{}{}", normalized, self.signature.text)
+            format!("{}{}", normalized, signature.text)
         } else {
             normalized.clone()
         };
         let final_html = if with_signature {
-            format!(
-                "{}{}",
-                normalized.replace("\r\n", "<br>"),
-                self.signature.html
-            )
+            format!("{}{}", normalized.replace("\r\n", "<br>"), signature.html)
         } else {
             normalized.replace("\r\n", "<br>")
         };
-        let from_addr = format!("\"{}\" <{}>", self.config.from_name, self.config.user);
+        let from_addr = format!("\"{from_name}\" <{}>", self.config.user);
         let email = match Message::builder()
             .from(from_addr.parse().unwrap_or_else(|_| {
                 format!("\"{}\" <{}>", "iHorizon", self.config.user)
@@ -473,5 +509,19 @@ mod tests {
         assert!(!c.is_configured());
         assert!(!c.notify_new_guild);
         assert_eq!(c.from_name, "iHorizon");
+    }
+
+    #[test]
+    fn from_name_refreshes_from_live_username() {
+        // Mirrors fromName: client.user?.username at init-after-login.
+        let mailer = Mailer::new(configured());
+        assert_eq!(mailer.from_name(), "iHorizon");
+        mailer.set_from_name("  ");
+        assert_eq!(mailer.from_name(), "iHorizon");
+        mailer.set_from_name("iHorizonLive");
+        assert_eq!(mailer.from_name(), "iHorizonLive");
+        // Idempotent: per-shard ready() calls are cheap no-ops.
+        mailer.set_from_name("iHorizonLive");
+        assert_eq!(mailer.from_name(), "iHorizonLive");
     }
 }

@@ -18,6 +18,17 @@ pub async fn inv_remove(
     // value, exactly like TS `amount.toString()`.
     #[description = "Amount"] amount: f64,
 ) -> Result<(), anyhow::Error> {
+    // Prefix native-permission gate (U-MSV-FIX14): TS `checkNativePermission`
+    // enforces the Administrator leaf on both paths; Discord covers slash,
+    // so the body gates prefix here with the same `var_dont_have_perm` denial.
+    if crate::commands::shared::deny_without_prefix_perm(
+        &ctx,
+        poise::serenity_prelude::Permissions::ADMINISTRATOR,
+    )
+    .await
+    {
+        return Ok(());
+    }
     let gid = ctx
         .guild_id()
         .map(|g| g.get().to_string())

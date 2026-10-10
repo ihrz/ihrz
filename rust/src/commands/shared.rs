@@ -348,6 +348,72 @@ pub async fn load_all_cmd_perms(
     out
 }
 
+/// Prefix-path native-permission gate (U-MSV-FIX14). Mirrors
+/// `checkNativePermission` in src/core/commandExecutor.ts
+/// (`member.permissions.has(target.permission)` -> the
+/// `var_dont_have_perm` denial), which TS runs on BOTH dispatch paths.
+/// Discord enforces `default_member_permissions` on slash server-side,
+/// so the slash leg needs nothing here; poise applies
+/// `default_member_permissions` only to slash registration, never to
+/// prefix dispatch — every gated leaf therefore calls this first and
+/// stops when it returns true (denial already sent, same key and
+/// `{perm}` shape as the `MissingUserPermissions` router in bot.rs).
+/// No YAML changes: the denial reuses the existing `var_dont_have_perm`
+/// key with its en-US fallback.
+pub async fn deny_without_prefix_perm(
+    ctx: &Ctx<'_>,
+    want: poise::serenity_prelude::Permissions,
+) -> bool {
+    if !matches!(ctx, poise::Context::Prefix(_)) {
+        return false;
+    }
+    if prefix_perm_grants(ctx, want).await {
+        return false;
+    }
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    let perm = crate::lang::permission_names(&code, want.bits())
+        .filter(|s| !s.is_empty())
+        .unwrap_or_else(|| "permission".to_string());
+    let msg = crate::lang::get(&code, "var_dont_have_perm")
+        .unwrap_or_else(|| {
+            "You aren't allowed to do this, you are missing the {perm} permission!".to_string()
+        })
+        .replace("{perm}", &perm);
+    if !msg.is_empty() {
+        let _ = ctx.send(poise::CreateReply::default().content(msg)).await;
+    }
+    true
+}
+
+/// discord.js `permissions.has()` semantics for the gate above:
+/// ADMINISTRATOR implies every permission (serenity bitflags alone do
+/// not imply it). Pure seam for the module tests.
+pub fn has_native_perm(
+    have: poise::serenity_prelude::Permissions,
+    want: poise::serenity_prelude::Permissions,
+) -> bool {
+    have.administrator() || have.contains(want)
+}
+
+// Scoped deprecated-use allow: `Member::permissions` keeps the
+// channel-overwrite handling that `Guild::user_permissions_in` drops —
+// same reason as the allow on `is_guild_admin` in bot.rs. Re-evaluate
+// on serenity upgrade; do not broaden to the whole module.
+#[allow(deprecated)]
+async fn prefix_perm_grants(ctx: &Ctx<'_>, want: poise::serenity_prelude::Permissions) -> bool {
+    let Some(gid) = ctx.guild_id() else {
+        return false;
+    };
+    let http = &ctx.serenity_context().http;
+    let Ok(member) = gid.member(http, ctx.author().id).await else {
+        return false;
+    };
+    member
+        .permissions(&ctx.serenity_context().cache)
+        .map(|p| has_native_perm(p, want))
+        .unwrap_or(false)
+}
+
 /// Load the guild config blob. Mirrors the GUILD.GUILD_CONFIG object
 /// read by the welcomer panel and the join/leave emitters.
 pub async fn load_guild_config(pool: &crate::db::Pool, gid: &str) -> serde_json::Value {
@@ -663,6 +729,19 @@ mod tests {
         assert_eq!(BOT_NAME_KEY, "BOT.botName");
         assert_eq!(BOT_PFP_KEY, "BOT.botPFP");
         assert_eq!(perm_key("ban"), "UTILS.PERMS.ban");
+    }
+
+    #[test]
+    fn native_perm_gate_matches_discord_has_semantics() {
+        use poise::serenity_prelude::Permissions as P;
+        // ADMINISTRATOR implies everything (discord.js `has()`).
+        assert!(has_native_perm(P::ADMINISTRATOR, P::MANAGE_GUILD));
+        assert!(has_native_perm(P::ADMINISTRATOR, P::ADMINISTRATOR));
+        assert!(has_native_perm(P::MANAGE_GUILD, P::MANAGE_GUILD));
+        assert!(!has_native_perm(P::MANAGE_GUILD, P::ADMINISTRATOR));
+        assert!(!has_native_perm(P::empty(), P::ADMINISTRATOR));
+        assert!(!has_native_perm(P::CONNECT, P::SPEAK));
+        assert!(has_native_perm(P::CONNECT | P::SPEAK, P::CONNECT));
     }
 
     #[tokio::test]

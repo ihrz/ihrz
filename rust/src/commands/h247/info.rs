@@ -2,6 +2,14 @@ use super::*;
 use poise::serenity_prelude as serenity;
 
 /// Get information about the H24/7 module!
+// Deliberately ungated (U-MSV-FIX14): TS `h247.ts` leaves `info` at
+// `permission: null` while `join`/`leave` require Administrator. See
+// the gate-parity note on the `h247` parent: the parent
+// `ADMINISTRATOR` default covers `/h247 info` server-side, while
+// `!h247 info` stays open on prefix exactly like TS. Do NOT gate this
+// body — only the guild-presence early return below applies.
+// (Plain `//` comments: `///` doc lines become the slash description,
+// which poise caps at 100 chars.)
 #[poise::command(slash_command, prefix_command, rename = "info", aliases("h247info"))]
 pub async fn h247_info(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     // TS !info.ts returns silently without user/member/guild/channel;

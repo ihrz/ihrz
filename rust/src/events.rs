@@ -178,7 +178,8 @@ pub fn active_voice_session_key(user_id: u64) -> String {
 /// Mirrors onVoiceUpdate.ts
 /// (`Math.floor(durationMin / 10) * getMemberBoost(member)`): the boost
 /// is the float-preserving shop multiplier, so the product stays float
-/// like the TS number; the integer wallet truncates on credit.
+/// like the TS number all the way into the float wallet (addCoins adds
+/// the raw number; no integer truncation anywhere).
 pub fn coins_for_voice(minutes: u64, boost_mult: f64) -> f64 {
     ((minutes / 10) as f64) * boost_mult.max(1.0)
 }
@@ -273,25 +274,26 @@ async fn close_voice_session(
     guild_id: &str,
     user_id: u64,
     close: VoiceClose,
-) -> (u64, i64) {
+) -> (u64, f64) {
     let elapsed_ms = (close.now_ms - close.start).max(0) as u64;
     let minutes = elapsed_ms / 60_000;
     // TS pays only when coinsEarned > 0 AND newState.member is non-null
     // (a user who left the guild earns nothing). Stats are pushed either
-    // way, exactly like processSessionEnd. The float wallet keeps the
-    // credit exact (no integer truncation).
+    // way, exactly like processSessionEnd. The credit stays float: TS
+    // addCoins adds the raw `coinsEarned * boost` number to the wallet,
+    // so a fractional shop boost (x1.5) credits fractions too.
     let coins = if close.pay {
-        coins_for_voice(minutes, close.boost_mult) as i64
+        coins_for_voice(minutes, close.boost_mult)
     } else {
-        0
+        0.0
     };
     // TS `processSessionEnd` only calls addCoins when coinsEarned > 0:
     // a 0-coin session skips the economy read-modify-write entirely
     // (no wallet row created, no write churn on short sessions).
-    if coins != 0 {
+    if coins != 0.0 {
         let mut econ =
             crate::commands::economy::balance::load_econ_routed(pool, guild_id, user_id).await;
-        econ.money += coins as f64;
+        econ.money += coins;
         let _ = crate::commands::economy::balance::save_econ_routed(pool, guild_id, user_id, &econ)
             .await;
     }
@@ -327,14 +329,14 @@ pub async fn voice_leave(
     now_ms: i64,
     boost_mult: f64,
     pay: bool,
-) -> (u64, i64) {
+) -> (u64, f64) {
     let raw: Option<String> = load_voice_session_raw(pool, guild_id, user_id).await;
     delete_voice_session(pool, guild_id, user_id).await;
     let Some(raw) = raw else {
-        return (0, 0);
+        return (0, 0.0);
     };
     let Some((start, channel_id)) = parse_voice_session(&raw) else {
-        return (0, 0);
+        return (0, 0.0);
     };
     close_voice_session(
         pool,
@@ -361,9 +363,9 @@ pub async fn voice_switch(
     now_ms: i64,
     boost_mult: f64,
     pay: bool,
-) -> (u64, i64) {
+) -> (u64, f64) {
     let raw: Option<String> = load_voice_session_raw(pool, guild_id, user_id).await;
-    let mut out = (0, 0);
+    let mut out = (0, 0.0);
     if let Some(raw) = raw {
         if let Some((start, channel_id)) = parse_voice_session(&raw) {
             out = close_voice_session(
@@ -826,12 +828,14 @@ pub fn message_diff(old_text: &str, new_text: &str) -> String {
         let o = old_lines.get(i).copied().unwrap_or("");
         let n = new_lines.get(i).copied().unwrap_or("");
         let (to, tn) = (
-            if o.len() > MAX_LINE {
+            // TS compares `.length` (UTF-16 units); byte len would
+            // over-truncate astral-heavy lines.
+            if o.encode_utf16().count() > MAX_LINE {
                 trunc(o, diff_index(o, n))
             } else {
                 o.to_string()
             },
-            if n.len() > MAX_LINE {
+            if n.encode_utf16().count() > MAX_LINE {
                 trunc(n, diff_index(o, n))
             } else {
                 n.to_string()
@@ -1480,7 +1484,7 @@ mod tests {
         let pool = crate::db::memory_pool().await;
         voice_join(&pool, "g", 1, 9, 0).await;
         let (minutes, coins) = voice_leave(&pool, "g", 1, 6_000_000, 2.0, true).await;
-        assert_eq!((minutes, coins), (100, 20));
+        assert_eq!((minutes, coins), (100, 20.0));
         let econ = crate::commands::economy::balance::load_econ_routed(&pool, "g", 1).await;
         assert_eq!(econ.money, 20.0);
         let stats = crate::commands::stats::main::load_stats(&pool, "g", 1).await;
@@ -1489,7 +1493,17 @@ mod tests {
         assert_eq!(stats.voice_log[0].channel_id, 9);
         assert_eq!(stats.voice_log[0].end_ts, 6_000_000);
         // No session -> nothing.
-        assert_eq!(voice_leave(&pool, "g", 1, 999_999, 1.0, true).await, (0, 0));
+        assert_eq!(
+            voice_leave(&pool, "g", 1, 999_999, 1.0, true).await,
+            (0, 0.0)
+        );
+        // Fractional shop boost stays fractional (no as-i64 truncation):
+        // 30 min -> 3 coins x1.5 = 4.5 credited like the TS number.
+        voice_join(&pool, "g", 2, 9, 0).await;
+        let (_, coins) = voice_leave(&pool, "g", 2, 1_800_000, 1.5, true).await;
+        assert_eq!(coins, 4.5);
+        let econ = crate::commands::economy::balance::load_econ_routed(&pool, "g", 2).await;
+        assert_eq!(econ.money, 4.5);
     }
 
     #[tokio::test]
@@ -1499,7 +1513,7 @@ mod tests {
         // no coins, but the session still closes and stats push.
         voice_join(&pool, "g", 1, 9, 0).await;
         let (minutes, coins) = voice_leave(&pool, "g", 1, 6_100_000, 2.0, false).await;
-        assert_eq!((minutes, coins), (101, 0));
+        assert_eq!((minutes, coins), (101, 0.0));
         let econ = crate::commands::economy::balance::load_econ_routed(&pool, "g", 1).await;
         assert_eq!(econ.money, 0.0);
         // 0-coin session skips the economy write entirely: no wallet
@@ -2182,7 +2196,7 @@ mod tests {
         let pool = crate::db::memory_pool().await;
         voice_join(&pool, "g", 1, 9, 0).await;
         let (_, coins) = voice_leave(&pool, "g", 1, 6_000_000, 2.0, true).await;
-        assert_eq!(coins, 20);
+        assert_eq!(coins, 20.0);
         // Table-first reader sees the voice earnings.
         let routed = crate::commands::economy::balance::load_econ_routed(&pool, "g", 1).await;
         assert_eq!(routed.money, 20.0);

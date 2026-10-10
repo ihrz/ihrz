@@ -223,8 +223,9 @@ pub fn autofeur_promo(emoji_markup: &str, prefix: &str) -> String {
 }
 
 /// Binary attachment blocklist. Mirrors antiExe.ts `binaryExtensions`
-/// (`.ext` substring match, not ends-with). Lowercased here for the
-/// contains check, so `A.EXE` is caught too (TS is case-sensitive).
+/// exactly: case-sensitive `.ext` substring match (`str.includes`) with
+/// the TS `AppImage` capital, so `setup.AppImage` trips but `A.EXE`
+/// does not — like the TS bot in production.
 pub const BLOCKED_EXE_EXTS: &[&str] = &[
     "exe",
     "msi",
@@ -237,7 +238,7 @@ pub const BLOCKED_EXE_EXTS: &[&str] = &[
     "cmd",
     "sh",
     "bin",
-    "appimage",
+    "AppImage",
     "deb",
     "pacman",
     "flatpakref",
@@ -249,12 +250,12 @@ pub const BLOCKED_EXE_EXTS: &[&str] = &[
     "asar",
 ];
 
-/// Single-filename check. Mirrors antiExe.ts `ilegalFile`.
+/// Single-filename check. Mirrors antiExe.ts `ilegalFile`
+/// (case-sensitive substring, no lowercasing).
 pub fn is_blocked_exe_name(name: &str) -> bool {
-    let lower = name.to_ascii_lowercase();
     BLOCKED_EXE_EXTS
         .iter()
-        .any(|ext| lower.contains(&format!(".{ext}")))
+        .any(|ext| name.contains(&format!(".{ext}")))
 }
 
 /// Attachment guard over all filenames. Mirrors the
@@ -1531,7 +1532,8 @@ mod tests {
 
     #[test]
     fn exe_guard() {
-        // Full TS blocklist, substring match, case-insensitive.
+        // Full TS blocklist, case-sensitive substring match like
+        // ilegalFile (`a.EXE` passes, `x.bat` trips).
         for ext in BLOCKED_EXE_EXTS {
             assert!(
                 is_blocked_exe_name(&format!("payload.{ext}")),
@@ -1539,13 +1541,16 @@ mod tests {
             );
         }
         assert_eq!(BLOCKED_EXE_EXTS.len(), 21);
-        assert!(has_blocked_exe(&["a.EXE".to_string()]));
+        assert!(!has_blocked_exe(&["a.EXE".to_string()]));
         assert!(has_blocked_exe(&["x.bat".to_string()]));
         assert!(has_blocked_exe(&["archive.tar.gz".to_string()]));
         assert!(has_blocked_exe(&["setup.AppImage".to_string()]));
         assert!(has_blocked_exe(&["a.apk".to_string(), "b.png".to_string()]));
         assert!(!has_blocked_exe(&["a.png".to_string()]));
         assert!(!has_blocked_exe(&["notes.txt".to_string()]));
+        // Case-sensitive like TS ilegalFile: uppercase variants pass.
+        assert!(!has_blocked_exe(&["virus.EXE".to_string()]));
+        assert!(!has_blocked_exe(&["setup.appimage".to_string()]));
         assert!(!has_blocked_exe(&[]));
         // Bypass matrix mirrors the TS early return.
         assert!(antiexe_bypassed(true, false, false, false, false));

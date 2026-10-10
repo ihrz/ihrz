@@ -24,6 +24,17 @@ pub fn should_leave_voice(player_exists: bool) -> bool {
     default_member_permissions = "ADMINISTRATOR"
 )]
 pub async fn h247_leave(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
+    // Prefix native-permission gate (U-MSV-FIX14): TS `checkNativePermission`
+    // enforces the Administrator leaf on both paths; Discord covers slash,
+    // so the body gates prefix here with the same `var_dont_have_perm` denial.
+    if crate::commands::shared::deny_without_prefix_perm(
+        &ctx,
+        poise::serenity_prelude::Permissions::ADMINISTRATOR,
+    )
+    .await
+    {
+        return Ok(());
+    }
     let Some(guild_id) = ctx.guild_id() else {
         return Ok(());
     };
