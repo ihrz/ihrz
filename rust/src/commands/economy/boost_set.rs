@@ -11,7 +11,7 @@ use super::*;
 pub async fn eco_boost_set(
     ctx: Ctx<'_>,
     #[description = "Role"] role: poise::serenity_prelude::Role,
-    #[description = "Boost (e.g. 2)"] boost: BoostLevel,
+    #[description = "Boost (e.g. 2)"] boost: String,
 ) -> Result<(), anyhow::Error> {
     if disabled_reply(&ctx).await? {
         return Ok(());
@@ -31,9 +31,11 @@ pub async fn eco_boost_set(
         .await?;
         return Ok(());
     }
-    // The `boost` slash choices (1-5) arrive parsed via `BoostLevel`,
-    // like TS `parseInt` on the choice value; the stored shape is a number.
-    let amount = boost.value();
+    // The boost parses like TS on both paths (`parseInt` on the slash
+    // choice value, `method.number` on prefix) and stores raw with no
+    // 1-5 clamp: `parse_ts_int` is `parseInt` semantics (NaN -> 0).
+    // See the free-text note in mod.rs.
+    let amount = parse_ts_int(&boost).unwrap_or(0) as f64;
     let keep_price = roles.get(&id).map(|e| e.price).unwrap_or(0.0);
     roles.insert(
         id,

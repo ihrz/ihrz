@@ -44,7 +44,7 @@ pub async fn eco_work(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         .unwrap_or_else(|| "{}".to_string());
     let boost = member_boost_f64(&shop_json, &invoker_roles(&ctx).await);
     // Float math like TS `(1..=1024) * getMemberBoost` (!work.ts);
-    // the wallet add truncates toward zero via `add_money`.
+    // the wallet add keeps fractions via `add_money`.
     let amount = rand::thread_rng().gen_range(1..=1024) as f64 * boost;
     let display = ctx
         .author()

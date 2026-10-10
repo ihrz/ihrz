@@ -49,7 +49,7 @@ pub async fn eco_set_cooldown(
     ctx: Ctx<'_>,
     #[description = "rob, work"]
     #[rename = "type"]
-    kind: CooldownKind,
+    kind: String,
     #[description = "Cooldown (e.g. 10s, 1h)"]
     #[rename = "time"]
     cooldown: String,
@@ -57,11 +57,10 @@ pub async fn eco_set_cooldown(
     if disabled_reply(&ctx).await? {
         return Ok(());
     }
-    // Slash choices (`type`: rob/work) constrain both paths via
-    // `CooldownKind` (TS prefix took the kind verbatim with no registry
-    // check — an off-list prefix kind is now rejected by poise instead of
-    // stored under `ECONOMY.settings.{kind}.cooldown`).
-    let kind = kind.key();
+    // The kind travels verbatim on both paths (TS `!set-cooldown.ts`
+    // stores under `ECONOMY.settings.${type}.cooldown` with no registry
+    // check). See the free-text note in mod.rs.
+    let kind = kind.as_str();
     let Some(ms) = crate::commands::schedule::main::parse_duration_ms(&cooldown) else {
         let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
         ctx.say(

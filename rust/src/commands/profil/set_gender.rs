@@ -3,8 +3,10 @@ use super::*;
 /// Stored display value. Mirrors the `profilTable.set(..., "♀ Female" |
 /// "♂ Male" | "⚧ Non-binary")` writes in `!set-gender.ts` (slash choice
 /// values are `female` | `male` | `non-binary`, display strings hit the DB).
+/// The TS `switch` matches exactly (case-sensitive): anything else writes
+/// nothing (see `profil_gender`).
 pub fn gender_stored_value(gender: &str) -> Option<&'static str> {
-    match gender.to_ascii_lowercase().as_str() {
+    match gender {
         "female" => Some("♀ Female"),
         "male" => Some("♂ Male"),
         "non-binary" => Some("⚧ Non-binary"),
@@ -57,10 +59,12 @@ mod tests {
     }
 
     #[test]
-    fn gender_lookup_is_case_insensitive() {
-        assert_eq!(gender_stored_value("Female"), Some("♀ Female"));
-        assert_eq!(gender_stored_value("MALE"), Some("♂ Male"));
-        assert_eq!(gender_stored_value("Non-Binary"), Some("⚧ Non-binary"));
+    fn gender_lookup_is_exact_like_ts_switch() {
+        // `!set-gender.ts` switches on the raw string: case variants and
+        // display values match nothing and write nothing.
+        assert_eq!(gender_stored_value("Female"), None);
+        assert_eq!(gender_stored_value("MALE"), None);
+        assert_eq!(gender_stored_value("Non-Binary"), None);
     }
 
     #[test]

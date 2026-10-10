@@ -107,6 +107,53 @@ pub fn prevnames_key(user_id: u64) -> String {
     format!("PREVNAMES.{user_id}")
 }
 
+/// Parse one prevnames history blob: Rust JSON-string-array rows;
+/// a bare pushed string (TS single-push shape) counts as one entry.
+pub fn parse_prevnames_history(raw: &str) -> Vec<String> {
+    if let Ok(arr) = serde_json::from_str::<Vec<String>>(raw) {
+        return arr;
+    }
+    if let Ok(inner) = serde_json::from_str::<String>(raw) {
+        if inner.is_empty() {
+            return Vec::new();
+        }
+        if let Ok(arr) = serde_json::from_str::<Vec<String>>(&inner) {
+            return arr;
+        }
+        return vec![inner];
+    }
+    if raw.is_empty() {
+        Vec::new()
+    } else {
+        vec![raw.to_string()]
+    }
+}
+
+/// Merged name history across both scopes: the global "0" scope first
+/// (Rust parity for the TS global `prevnames` table, which the
+/// events_handler emitters already use), then the per-guild scope,
+/// deduped newest-first and capped. Keys unchanged.
+pub async fn load_prevnames_dual(
+    pool: &crate::db::Pool,
+    user_id: u64,
+    guild_id: &str,
+) -> Vec<String> {
+    use crate::commands::owner::main as routed;
+    let key = prevnames_key(user_id);
+    let mut merged: Vec<String> = Vec::new();
+    for scope in ["0", guild_id] {
+        if let Some(raw) = routed::routed_get(pool, scope, scope, &key).await {
+            for entry in parse_prevnames_history(&raw) {
+                if !merged.contains(&entry) {
+                    merged.push(entry);
+                }
+            }
+        }
+    }
+    merged.truncate(PREVNAMES_CAP.max(1));
+    merged
+}
+
 /// Guild-table backend for U-D6 routing (keys unchanged).
 fn guild_backend(pool: &crate::db::Pool) -> crate::backends::Backend {
     crate::backends::Backend::sqlite(pool.clone())
@@ -303,6 +350,14 @@ pub fn voice_session_key(user_id: u64) -> String {
     format!("VOICE_SESSION.{user_id}")
 }
 
+/// TS session key. Mirrors the `ACTIVE_VOICE_SESSIONS.<uid>` rows in
+/// onVoiceUpdate.ts (`getActiveSession`/`saveActiveSession`). Rust
+/// joins dual-write this key (TS object form) beside
+/// [`voice_session_key`] so either side's sessions resolve.
+pub fn active_voice_session_key(user_id: u64) -> String {
+    format!("ACTIVE_VOICE_SESSIONS.{user_id}")
+}
+
 /// Coins earned: floor(minutes / 10), multiplied by boost.
 /// Mirrors onVoiceUpdate.ts
 /// (`Math.floor(durationMin / 10) * getMemberBoost(member)`): the boost
@@ -326,18 +381,65 @@ pub async fn voice_join(
         &format!("{now_ms}:{channel_id}"),
     )
     .await;
+    // TS object form beside the Rust string form (keys unchanged):
+    // onVoiceUpdate.ts `saveActiveSession` reads
+    // ACTIVE_VOICE_SESSIONS.<uid> as {startTimestamp, channelId}.
+    let session = serde_json::json!({
+        "startTimestamp": now_ms,
+        "channelId": channel_id.to_string(),
+    });
+    let _ = tbl_set_json_dual(pool, guild_id, &active_voice_session_key(user_id), &session).await;
 }
 
-/// Parse a session value ("<start_ms>:<channel_id>"; legacy bare
-/// "<start_ms>" rows read channel 0).
+/// Parse a session value. Accepts the Rust `"<start_ms>:<channel_id>"`
+/// string (legacy bare `"<start_ms>"` rows read channel 0) and the TS
+/// `{startTimestamp, channelId}` object (`channelId` string or number,
+/// like discord.js snowflakes). Anything else is `None`.
 pub fn parse_voice_session(raw: &str) -> Option<(i64, u64)> {
-    let (start_s, chan_s) = match raw.split_once(':') {
+    let s = raw.trim();
+    if let Some(obj) = s
+        .strip_prefix('{')
+        .and_then(|_| serde_json::from_str::<serde_json::Value>(s).ok())
+        .and_then(|v| v.as_object().cloned())
+    {
+        let start: i64 = match obj.get("startTimestamp") {
+            Some(serde_json::Value::Number(n)) => n
+                .as_i64()
+                .or_else(|| n.as_u64().and_then(|u| i64::try_from(u).ok()))?,
+            Some(serde_json::Value::String(x)) => x.trim().parse().ok()?,
+            _ => return None,
+        };
+        let channel: u64 = match obj.get("channelId") {
+            Some(serde_json::Value::Number(n)) => n
+                .as_u64()
+                .or_else(|| n.as_i64().and_then(|i| u64::try_from(i).ok()))
+                .unwrap_or(0),
+            Some(serde_json::Value::String(x)) => x.trim().parse().unwrap_or(0),
+            _ => 0,
+        };
+        return Some((start, channel));
+    }
+    let (start_s, chan_s) = match s.split_once(':') {
         Some((a, b)) => (a, b),
-        None => (raw, "0"),
+        None => (s, "0"),
     };
     let start: i64 = start_s.parse().ok()?;
     let channel: u64 = chan_s.parse().unwrap_or(0);
     Some((start, channel))
+}
+
+/// Raw session read across both keys: the Rust `VOICE_SESSION.<uid>`
+/// string first, then the TS `ACTIVE_VOICE_SESSIONS.<uid>` object.
+/// Keys unchanged; either side's join resolves.
+pub async fn load_voice_session_raw(
+    pool: &crate::db::Pool,
+    guild_id: &str,
+    user_id: u64,
+) -> Option<String> {
+    if let Some(raw) = tbl_get(pool, guild_id, &voice_session_key(user_id)).await {
+        return Some(raw);
+    }
+    tbl_get(pool, guild_id, &active_voice_session_key(user_id)).await
 }
 
 /// Parameters for closing one voice leg (keeps arg counts clippy-clean).
@@ -359,8 +461,8 @@ async fn close_voice_session(
     let minutes = elapsed_ms / 60_000;
     // TS pays only when coinsEarned > 0 AND newState.member is non-null
     // (a user who left the guild earns nothing). Stats are pushed either
-    // way, exactly like processSessionEnd. The float product truncates
-    // toward zero on the integer wallet credit.
+    // way, exactly like processSessionEnd. The float wallet keeps the
+    // credit exact (no integer truncation).
     let coins = if close.pay {
         coins_for_voice(minutes, close.boost_mult) as i64
     } else {
@@ -368,7 +470,7 @@ async fn close_voice_session(
     };
     let mut econ =
         crate::commands::economy::balance::load_econ_routed(pool, guild_id, user_id).await;
-    econ.money += coins;
+    econ.money += coins as f64;
     let _ =
         crate::commands::economy::balance::save_econ_routed(pool, guild_id, user_id, &econ).await;
     let mut stats = crate::commands::stats::main::load_stats(pool, guild_id, user_id).await;
@@ -404,8 +506,8 @@ pub async fn voice_leave(
     boost_mult: f64,
     pay: bool,
 ) -> (u64, i64) {
-    let raw: Option<String> = tbl_get(pool, guild_id, &voice_session_key(user_id)).await;
-    let _ = tbl_del(pool, guild_id, &voice_session_key(user_id)).await;
+    let raw: Option<String> = load_voice_session_raw(pool, guild_id, user_id).await;
+    delete_voice_session(pool, guild_id, user_id).await;
     let Some(raw) = raw else {
         return (0, 0);
     };
@@ -438,7 +540,7 @@ pub async fn voice_switch(
     boost_mult: f64,
     pay: bool,
 ) -> (u64, i64) {
-    let raw: Option<String> = tbl_get(pool, guild_id, &voice_session_key(user_id)).await;
+    let raw: Option<String> = load_voice_session_raw(pool, guild_id, user_id).await;
     let mut out = (0, 0);
     if let Some(raw) = raw {
         if let Some((start, channel_id)) = parse_voice_session(&raw) {
@@ -461,9 +563,10 @@ pub async fn voice_switch(
     out
 }
 
-/// Delete one session row.
+/// Delete one session row (both keys: Rust string + TS object).
 pub async fn delete_voice_session(pool: &crate::db::Pool, guild_id: &str, user_id: u64) {
     let _ = tbl_del(pool, guild_id, &voice_session_key(user_id)).await;
+    let _ = tbl_del(pool, guild_id, &active_voice_session_key(user_id)).await;
 }
 
 /// Boot recovery. Mirrors recoverActiveSessions in onVoiceUpdate.ts:
@@ -477,15 +580,27 @@ pub async fn recover_voice_sessions(
     in_voice: &std::collections::HashSet<u64>,
     now_ms: i64,
 ) -> usize {
-    let rows = tbl_scan_prefix(pool, guild_id, "VOICE_SESSION.").await;
+    let mut rows = tbl_scan_prefix(pool, guild_id, "VOICE_SESSION.").await;
+    // TS-keyed sessions (ACTIVE_VOICE_SESSIONS.<uid> objects) recover too.
+    let mut ts_rows = tbl_scan_prefix(pool, guild_id, "ACTIVE_VOICE_SESSIONS.").await;
+    rows.append(&mut ts_rows);
     let mut closed = 0;
+    let mut seen = std::collections::HashSet::new();
     for (key, raw) in rows {
-        let Some(uid) = key
-            .strip_prefix("VOICE_SESSION.")
-            .and_then(|s| s.parse::<u64>().ok())
-        else {
+        let uid_str = if let Some(rest) = key.strip_prefix("VOICE_SESSION.") {
+            rest
+        } else if let Some(rest) = key.strip_prefix("ACTIVE_VOICE_SESSIONS.") {
+            rest
+        } else {
             continue;
         };
+        let Some(uid) = uid_str.parse::<u64>().ok() else {
+            continue;
+        };
+        // One close per user: joins dual-write both keys.
+        if !seen.insert(uid) {
+            continue;
+        }
         if in_voice.contains(&uid) {
             continue;
         }
@@ -516,6 +631,23 @@ pub async fn recover_voice_sessions(
 /// temp channels are deleted.
 pub fn temp_voice_key(guild_id: u64, user_id: u64) -> String {
     format!("CUSTOM_VOICE.{guild_id}.{user_id}")
+}
+
+/// Temp-voice channel id across both scopes: the per-guild scope first
+/// (established Rust read path), then the global `temp` scope (TS
+/// tempTable parity — `CUSTOM_VOICE.<gid>.<uid>` lives in the TS temp
+/// table, keyed with the guild embedded). Keys unchanged.
+pub async fn load_temp_voice_channel(
+    pool: &crate::db::Pool,
+    guild_id: u64,
+    user_id: u64,
+) -> Option<String> {
+    let key = temp_voice_key(guild_id, user_id);
+    let gid = guild_id.to_string();
+    if let Some(v) = tbl_get(pool, &gid, &key).await {
+        return Some(v);
+    }
+    crate::commands::owner::main::routed_get(pool, "temp", "temp", &key).await
 }
 
 pub fn temp_channel_name(username: &str) -> String {
@@ -1056,10 +1188,10 @@ pub async fn record_message_activity_full(
         if reward > 0.0 {
             let mut econ =
                 crate::commands::economy::balance::load_econ_routed(pool, guild_id, user_id).await;
-            // Integer wallet: TS addCoins carries the float into db.add
-            // (JS number stays fractional); the i64 wallet rounds to the
-            // nearest coin instead of truncating toward zero.
-            econ.money = econ.money.saturating_add(reward.round() as i64);
+            // Float wallet: TS addCoins carries the float into db.add
+            // (JS number stays fractional), so the reward credits exact
+            // with no rounding.
+            econ.money += reward;
             let _ =
                 crate::commands::economy::balance::save_econ_routed(pool, guild_id, user_id, &econ)
                     .await;
@@ -1427,6 +1559,61 @@ mod tests {
     }
 
     #[test]
+    fn prevnames_history_parses_array_and_bare_string() {
+        assert_eq!(
+            parse_prevnames_history(r#"["a","b"]"#),
+            vec!["a".to_string(), "b".to_string()]
+        );
+        assert_eq!(
+            parse_prevnames_history("single entry"),
+            vec!["single entry".to_string()]
+        );
+        assert!(parse_prevnames_history("").is_empty());
+    }
+
+    #[tokio::test]
+    async fn prevnames_dual_merges_global_and_guild_scopes() {
+        use crate::commands::owner::main as routed;
+        let pool = crate::db::memory_pool().await;
+        routed::routed_set(&pool, "0", "0", &prevnames_key(7), r#"["g1","shared"]"#)
+            .await
+            .unwrap();
+        routed::routed_set(&pool, "g9", "g9", &prevnames_key(7), r#"["n1","shared"]"#)
+            .await
+            .unwrap();
+        let merged = load_prevnames_dual(&pool, 7, "g9").await;
+        assert_eq!(
+            merged,
+            vec!["g1".to_string(), "shared".to_string(), "n1".to_string()]
+        );
+        assert!(load_prevnames_dual(&pool, 8, "g9").await.is_empty());
+    }
+
+    #[tokio::test]
+    async fn temp_voice_reads_guild_then_temp_scope() {
+        use crate::commands::owner::main as routed;
+        let pool = crate::db::memory_pool().await;
+        tbl_set(&pool, "5", &temp_voice_key(5, 6), "111")
+            .await
+            .unwrap();
+        routed::routed_set(&pool, "temp", "temp", &temp_voice_key(5, 6), "222")
+            .await
+            .unwrap();
+        assert_eq!(
+            load_temp_voice_channel(&pool, 5, 6).await.as_deref(),
+            Some("111")
+        );
+        tbl_del(&pool, "5", &temp_voice_key(5, 6)).await.unwrap();
+        crate::db::kv_del(&pool, "5", &temp_voice_key(5, 6))
+            .await
+            .unwrap();
+        assert_eq!(
+            load_temp_voice_channel(&pool, 5, 6).await.as_deref(),
+            Some("222")
+        );
+    }
+
+    #[test]
     fn voice_coins_and_sessions() {
         assert_eq!(coins_for_voice(10, 1.0), 1.0);
         assert_eq!(coins_for_voice(10, 3.0), 3.0);
@@ -1438,6 +1625,50 @@ mod tests {
         assert_eq!(coins_for_voice(10, 0.5), 1.0);
     }
 
+    #[test]
+    fn voice_session_parses_ts_object_and_rust_string() {
+        // Exact TS writer shape: {startTimestamp, channelId: string}.
+        assert_eq!(
+            parse_voice_session(r#"{"startTimestamp":1700000000000,"channelId":"42"}"#),
+            Some((1700000000000, 42))
+        );
+        // Numeric channelId also resolves (JSON number form).
+        assert_eq!(
+            parse_voice_session(r#"{"startTimestamp":7,"channelId":9}"#),
+            Some((7, 9))
+        );
+        // Rust shapes keep parsing.
+        assert_eq!(parse_voice_session("123:5"), Some((123, 5)));
+        assert_eq!(parse_voice_session("123"), Some((123, 0)));
+        // Foreign blobs stay None (callers treat as no session).
+        assert_eq!(parse_voice_session("{}"), None);
+        assert_eq!(parse_voice_session("nope"), None);
+        assert_eq!(active_voice_session_key(3), "ACTIVE_VOICE_SESSIONS.3");
+    }
+
+    #[tokio::test]
+    async fn voice_join_dual_writes_both_keys_and_ts_leave_resolves() {
+        let pool = crate::db::memory_pool().await;
+        voice_join(&pool, "g", 1, 9, 1000).await;
+        // Rust string form under the Rust key.
+        assert_eq!(
+            tbl_get(&pool, "g", &voice_session_key(1)).await.as_deref(),
+            Some("1000:9")
+        );
+        // TS object form under the TS key.
+        let ts_raw = tbl_get(&pool, "g", &active_voice_session_key(1))
+            .await
+            .expect("TS key dual-written");
+        assert_eq!(parse_voice_session(&ts_raw), Some((1000, 9)));
+        // TS-only session (Rust key deleted, e.g. TS join): leave resolves.
+        let _ = tbl_del(&pool, "g", &voice_session_key(1)).await;
+        let (minutes, _) = voice_leave(&pool, "g", 1, 61_000, 1.0, false).await;
+        assert_eq!(minutes, 1);
+        assert!(tbl_get(&pool, "g", &active_voice_session_key(1))
+            .await
+            .is_none());
+    }
+
     #[tokio::test]
     async fn voice_leave_credits_wallet_and_stats() {
         let pool = crate::db::memory_pool().await;
@@ -1445,7 +1676,7 @@ mod tests {
         let (minutes, coins) = voice_leave(&pool, "g", 1, 6_000_000, 2.0, true).await;
         assert_eq!((minutes, coins), (100, 20));
         let econ = crate::commands::economy::balance::load_econ_routed(&pool, "g", 1).await;
-        assert_eq!(econ.money, 20);
+        assert_eq!(econ.money, 20.0);
         let stats = crate::commands::stats::main::load_stats(&pool, "g", 1).await;
         assert_eq!(stats.voice_ms, 6_000_000);
         assert_eq!(stats.voice_log.len(), 1);
@@ -1464,7 +1695,7 @@ mod tests {
         let (minutes, coins) = voice_leave(&pool, "g", 1, 6_100_000, 2.0, false).await;
         assert_eq!((minutes, coins), (101, 0));
         let econ = crate::commands::economy::balance::load_econ_routed(&pool, "g", 1).await;
-        assert_eq!(econ.money, 0);
+        assert_eq!(econ.money, 0.0);
         // Exact ms accumulate (no whole-minute truncation).
         let stats = crate::commands::stats::main::load_stats(&pool, "g", 1).await;
         assert_eq!(stats.voice_ms, 6_100_000);
@@ -1487,7 +1718,7 @@ mod tests {
         assert!(tbl_get(&pool, "g", &voice_session_key(1)).await.is_some());
         assert!(tbl_get(&pool, "g", &voice_session_key(2)).await.is_none());
         let econ = crate::commands::economy::balance::load_econ_routed(&pool, "g", 2).await;
-        assert_eq!(econ.money, 0);
+        assert_eq!(econ.money, 0.0);
         let stats = crate::commands::stats::main::load_stats(&pool, "g", 2).await;
         assert_eq!(stats.voice_ms, 6_000_000);
         assert_eq!(stats.voice_log.len(), 1);
@@ -1884,7 +2115,7 @@ mod tests {
         assert_eq!(out.text.as_deref(), Some("GG <@1> lvl 1INFO <:chat> tail"));
         // Real shop boost: 35 x 3.
         let econ = crate::commands::economy::balance::load_econ_routed(&pool, "g", 1).await;
-        assert_eq!(econ.money, 105);
+        assert_eq!(econ.money, 105.0);
     }
 
     #[tokio::test]
@@ -2119,7 +2350,7 @@ mod tests {
         assert_eq!(coins, 20);
         // Table-first reader sees the voice earnings.
         let routed = crate::commands::economy::balance::load_econ_routed(&pool, "g", 1).await;
-        assert_eq!(routed.money, 20);
+        assert_eq!(routed.money, 20.0);
         // Legacy kv reader sees them too (dual-write, keys unchanged).
         let legacy = crate::db::kv_get(&pool, "g", &crate::commands::economy::econ_key(1))
             .await

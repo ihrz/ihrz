@@ -27,12 +27,14 @@ pub async fn eco_withdraw(
         not_integer_reply(&ctx, &code).await?;
         return Ok(());
     }
-    let n: i64 = if raw == "all" {
-        a.bank
+    let n: f64 = if raw == "all" {
+        // "all" resolves to the raw bank first, then the stored move is
+        // `parseInt` (`!withdraw.ts:92-97`): a fractional bank leaves dust.
+        a.bank.trunc()
     } else {
-        parse_ts_int(raw).unwrap_or(0)
+        parse_ts_int(raw).unwrap_or(0) as f64
     };
-    if n <= 0 {
+    if n <= 0.0 {
         not_integer_reply(&ctx, &code).await?;
         return Ok(());
     }
@@ -48,17 +50,21 @@ pub async fn eco_withdraw(
     }
     // TS mutates first, then replies with the embed (fresh bank value),
     // then posts the economy log.
+    // "all" echoes the pre-move bank (`toWithdraw` is the bank string);
+    // otherwise the raw input.
+    let display = if raw == "all" {
+        fmt_num(a.bank)
+    } else {
+        raw.to_string()
+    };
     a.bank -= n;
     a.money += n;
     balance::save_econ_routed(&ctx.data().pool, &gid, uid, &a).await?;
     let author = user_mention(uid);
-    let money = n.to_string();
+    // TS logs `Number(clean_to_withdraw)` (`!withdraw.ts:157-162`): the
+    // parseInt value as a number.
+    let money = fmt_num(n);
     let coin = coin_markup(&ctx).await;
-    let display = if raw == "all" {
-        n.to_string()
-    } else {
-        raw.to_string()
-    };
     let embed = poise::serenity_prelude::CreateEmbed::default()
         .author(
             poise::serenity_prelude::CreateEmbedAuthor::new(
@@ -79,12 +85,12 @@ pub async fn eco_withdraw(
                         .replace("${interaction.user}", &author)
                         .replace("${toWithdraw}", &display)
                 })
-                .unwrap_or_else(|| format!("Withdrew {n}.")),
+                .unwrap_or_else(|| format!("Withdrew {}.", fmt_num(n))),
         )
         .field(
             crate::lang::get(&code, "withdraw_embed_fields1_name")
                 .unwrap_or_else(|| "Bank".to_string()),
-            format!("{}{coin}", a.bank),
+            format!("{}{coin}", fmt_num(a.bank)),
             false,
         )
         .timestamp(poise::serenity_prelude::Timestamp::now());

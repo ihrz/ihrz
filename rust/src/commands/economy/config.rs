@@ -30,13 +30,13 @@ pub async fn economy_disabled_routed(pool: &crate::db::Pool, guild_id: &str) -> 
 )]
 pub async fn eco_config(
     ctx: Ctx<'_>,
-    #[description = "on or off"] action: EcoToggle,
+    #[description = "on or off"] action: String,
 ) -> Result<(), anyhow::Error> {
-    // The `action` slash choices (on/off) constrain both paths via
-    // `EcoToggle`: a typo is rejected by poise before this runs, so the
-    // module can never be flipped by one (TS silently no-op'ed garbage
-    // instead — same safety, see `EcoToggle`).
-    let state = action.key();
+    // The action travels verbatim on both paths (TS `!config.ts` reads a
+    // free string on prefix). An unknown action writes nothing and sends
+    // no reply, but still posts the ihorizon log below like the TS
+    // fall-through — see the free-text note in mod.rs.
+    let state = action.as_str();
     let gid = ctx
         .guild_id()
         .map(|g| g.get().to_string())
@@ -120,7 +120,8 @@ pub async fn eco_config(
         }
     }
     // The ihorizon log sits outside the on/off branches in !config.ts, so
-    // every real transition logs here; no-op replies return above like TS.
+    // it also fires for an unknown action (log-and-ignore: no write, no
+    // reply above); no-op replies return early like TS.
     let title =
         crate::commands::lang_for(&ctx, "economy_disable_logs_embed_title", "Economy Logs").await;
     let desc = crate::commands::lang_for(

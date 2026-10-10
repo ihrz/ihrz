@@ -2,14 +2,15 @@ use super::*;
 
 /// Set your description. Mirrors `!set-description.ts`.
 ///
-/// The TS stores the text verbatim (`profilTable.set(..., desc)`) with
-/// the prefix path defaulting an empty arg list to `"None"`
-/// (`args?.join(" ") || "None"`); an empty/blank value stores `"None"`
-/// here on both paths so the show embed never renders an empty desc.
+/// The TS stores the text verbatim (`profilTable.set(..., desc)`): the
+/// prefix path defaults a missing/empty arg list to `"None"`
+/// (`args?.join(" ") || "None"`), and anything else — including
+/// whitespace-only or padded input — stores exactly as given. Only a
+/// missing (`None`) or empty value maps to `"None"` here on both paths.
 pub fn default_description(desc: Option<String>) -> String {
-    match desc.map(|d| d.trim().to_string()).filter(|d| !d.is_empty()) {
-        Some(d) => d,
-        None => "None".to_string(),
+    match desc {
+        Some(d) if !d.is_empty() => d,
+        _ => "None".to_string(),
     }
 }
 
@@ -47,11 +48,13 @@ mod tests {
     fn empty_description_defaults_to_none_like_ts_prefix() {
         assert_eq!(default_description(None), "None");
         assert_eq!(default_description(Some("".to_string())), "None");
-        assert_eq!(default_description(Some("   ".to_string())), "None");
+        // Verbatim store: padding and whitespace-only input are kept
+        // as-is (TS `args?.join(" ") || "None"` only defaults falsy).
         assert_eq!(default_description(Some("hi".to_string())), "hi");
         assert_eq!(
             default_description(Some("  padded  ".to_string())),
-            "padded"
+            "  padded  "
         );
+        assert_eq!(default_description(Some("   ".to_string())), "   ");
     }
 }

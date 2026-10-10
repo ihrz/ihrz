@@ -172,13 +172,13 @@ pub async fn eco_shop(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         .field(
             crate::lang::get(&code, "balance_embed_fields1_name")
                 .unwrap_or_else(|| "Bank".to_string()),
-            format!("{}{coin}", base.bank),
+            format!("{}{coin}", fmt_num(base.bank)),
             true,
         )
         .field(
             crate::lang::get(&code, "balance_embed_fields2_name")
                 .unwrap_or_else(|| "Wallet".to_string()),
-            format!("{}{coin}", base.money),
+            format!("{}{coin}", fmt_num(base.money)),
             true,
         )
         .field(
@@ -399,7 +399,7 @@ async fn do_buy(
     let mut a = balance::load_econ_routed(pool, &gid, uid).await;
     // Owned-role path (!shop.ts collector): already-owned roles are
     // re-granted if missing and never charged.
-    if buy_gate(&a.owned_roles, &role_id.to_string(), a.money as f64, price) == BuyGate::Owned {
+    if buy_gate(&a.owned_roles, &role_id.to_string(), a.money, price) == BuyGate::Owned {
         if let Some(guild_id) = ctx.guild_id() {
             if let Ok(member) = guild_id.member(ctx.http(), ctx.author().id).await {
                 let role = poise::serenity_prelude::RoleId::new(role_id);
@@ -413,15 +413,16 @@ async fn do_buy(
             "You already own this role.",
         )));
     }
-    if buy_gate(&a.owned_roles, &role_id.to_string(), a.money as f64, price)
-        == BuyGate::InsufficientFunds
+    if buy_gate(&a.owned_roles, &role_id.to_string(), a.money, price) == BuyGate::InsufficientFunds
     {
         return Ok(Some(text(
             "economy_shop_not_enough_money",
             "Not enough money.",
         )));
     }
-    a.money = (a.money as f64 - price) as i64;
+    // TS `!shop.ts` subtracts the raw price (`db.sub(..., role.price)`):
+    // float money minus float price, no truncation.
+    a.money -= price;
     a.owned_roles.push(role_id.to_string());
     balance::save_econ_routed(pool, &gid, uid, &a).await?;
     if let Some(guild_id) = ctx.guild_id() {

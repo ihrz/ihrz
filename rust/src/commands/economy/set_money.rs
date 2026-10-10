@@ -11,7 +11,7 @@ pub async fn eco_set_money(
     ctx: Ctx<'_>,
     #[description = "daily, weekly, monthly"]
     #[rename = "type"]
-    kind: RewardKind,
+    kind: String,
     #[description = "Amount"]
     #[rename = "how-much"]
     amount: f64,
@@ -19,11 +19,11 @@ pub async fn eco_set_money(
     if disabled_reply(&ctx).await? {
         return Ok(());
     }
-    // Slash choices (`type`: daily/weekly/monthly) constrain both paths
-    // via `RewardKind` (TS prefix took the kind verbatim with no registry
-    // check — an off-list prefix kind is now rejected by poise instead of
-    // stored under `ECONOMY.settings.{kind}.amount`).
-    let kind = kind.key();
+    // The kind travels verbatim on both paths (TS `!set-money.ts` stores
+    // under `ECONOMY.settings.${type}.amount` with no registry check),
+    // so an off-list kind tunes that leaf too. See the free-text note
+    // in mod.rs for why this is a plain String (no slash dropdown).
+    let kind = kind.as_str();
     let gid = ctx
         .guild_id()
         .map(|g| g.get().to_string())

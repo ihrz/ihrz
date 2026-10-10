@@ -3,11 +3,11 @@ use super::*;
 /// Minimum wallet on each side to attempt a rob. Mirrors the
 /// `author < 250` / `targetuser < 250` floors in economy/!rob.ts
 /// (unset balances read as 0, so they fail the floor).
-pub const ROB_MIN_MONEY: i64 = 250;
+pub const ROB_MIN_MONEY: f64 = 250.0;
 
 /// Pure floor check, unit-testable without Discord. Both sides need
 /// 250+; `== 250` passes (TS only blocks strictly-below).
-pub fn rob_floor_ok(author_money: i64, victim_money: i64) -> bool {
+pub fn rob_floor_ok(author_money: f64, victim_money: f64) -> bool {
     author_money >= ROB_MIN_MONEY && victim_money >= ROB_MIN_MONEY
 }
 
@@ -77,7 +77,7 @@ pub async fn eco_rob(
         return Ok(());
     }
     // `Math.floor(Math.random() * 200) + 1` (1..=200).
-    let loot: i64 = rand::thread_rng().gen_range(1..=200i64);
+    let loot: f64 = rand::thread_rng().gen_range(1..=200) as f64;
     // TS replies with the embed BEFORE mutating (interactionSend,
     // then db.sub/add/set).
     let embed = poise::serenity_prelude::CreateEmbed::default()
@@ -87,7 +87,7 @@ pub async fn eco_rob(
                 .map(|s| {
                     s.replace("${interaction.user.id}", &from.to_string())
                         .replace("${user.id}", &user.id.get().to_string())
-                        .replace("${random}", &loot.to_string())
+                        .replace("${random}", &fmt_num(loot))
                 })
                 .unwrap_or_else(|| format!("Robbed {loot}.")),
         )
@@ -100,7 +100,7 @@ pub async fn eco_rob(
     balance::save_econ_routed(&ctx.data().pool, &gid, user.id.get(), &b).await?;
     let author = user_mention(from);
     let target = user_mention(user.id.get());
-    let amt = loot.to_string();
+    let amt = fmt_num(loot);
     post_economy_log(
         &ctx,
         "economy_logs_rob_title",
@@ -118,18 +118,18 @@ mod tests {
     #[test]
     fn floor_blocks_either_side_below_250() {
         // Mirrors `author < 250` / `targetuser < 250` (!rob.ts).
-        assert!(!rob_floor_ok(249, 10_000));
-        assert!(!rob_floor_ok(10_000, 249));
-        assert!(!rob_floor_ok(0, 0));
+        assert!(!rob_floor_ok(249.0, 10_000.0));
+        assert!(!rob_floor_ok(10_000.0, 249.0));
+        assert!(!rob_floor_ok(0.0, 0.0));
         // Unset balances read as 0, so they fail the floor.
-        assert!(!rob_floor_ok(0, 250));
+        assert!(!rob_floor_ok(0.0, 250.0));
     }
 
     #[test]
     fn floor_passes_at_exactly_250() {
         // TS blocks strictly-below only; 250 on both sides may rob.
-        assert!(rob_floor_ok(250, 250));
-        assert!(rob_floor_ok(251, 10_000));
+        assert!(rob_floor_ok(250.0, 250.0));
+        assert!(rob_floor_ok(251.0, 10_000.0));
     }
 
     #[test]

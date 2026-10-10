@@ -14,9 +14,9 @@ fn medal_for(rank: usize) -> &'static str {
 /// the filter is unit-testable without live Discord; the command passes
 /// the serenity user cache (`users.cache.get` in TS).
 fn filter_cached_users(
-    rows: Vec<(u64, i64, i64)>,
+    rows: Vec<(u64, f64, f64)>,
     is_cached: &dyn Fn(u64) -> bool,
-) -> Vec<(u64, i64, i64)> {
+) -> Vec<(u64, f64, f64)> {
     rows.into_iter()
         .filter(|(uid, _, _)| is_cached(*uid))
         .collect()
@@ -29,10 +29,10 @@ fn filter_cached_users(
 /// negative podium wealth. The Rust side saturates at 0 — the TS
 /// negative is a display bug (an SVG bar cannot render a negative
 /// width), not data; stored balances are untouched.
-fn podium_entries(rows: &[(u64, i64, i64)]) -> Vec<(String, u64)> {
+fn podium_entries(rows: &[(u64, f64, f64)]) -> Vec<(String, u64)> {
     rows.iter()
         .take(8)
-        .map(|(uid, total, _)| (format!("<@{uid}>"), (*total).max(0) as u64))
+        .map(|(uid, total, _)| (format!("<@{uid}>"), total.max(0.0) as u64))
         .collect()
 }
 
@@ -40,10 +40,10 @@ fn podium_entries(rows: &[(u64, i64, i64)]) -> Vec<(String, u64)> {
 /// blob rows (`USER.<id>.ECONOMY` exactly; leaf rows under a blob path
 /// must not double-count). Table values win on uid conflicts.
 /// Mirrors the D3 merged-scan precedent (schedule user_entry_texts).
-async fn board_rows(pool: &crate::db::Pool, guild_id: &str) -> Vec<(u64, i64, i64)> {
+async fn board_rows(pool: &crate::db::Pool, guild_id: &str) -> Vec<(u64, f64, f64)> {
     use crate::commands::owner::main::{legacy_scan, tbl_get_value};
     use std::collections::BTreeMap;
-    let mut merged: BTreeMap<u64, (i64, i64)> = BTreeMap::new();
+    let mut merged: BTreeMap<u64, (f64, f64)> = BTreeMap::new();
     for (k, v) in legacy_scan(pool, guild_id, "USER.").await {
         let rest = match k.strip_prefix("USER.") {
             Some(r) => r,
@@ -77,11 +77,13 @@ async fn board_rows(pool: &crate::db::Pool, guild_id: &str) -> Vec<(u64, i64, i6
             }
         }
     }
-    let mut parsed: Vec<(u64, i64, i64)> = merged
+    let mut parsed: Vec<(u64, f64, f64)> = merged
         .into_iter()
         .map(|(id, (total, bank))| (id, total, bank))
         .collect();
-    parsed.sort_by_key(|a| std::cmp::Reverse(a.1));
+    // Mirrors `!leaderboard.ts:79` (`b.totalWealth - a.totalWealth`,
+    // descending); NaN sorts last instead of sticking in place.
+    parsed.sort_by(|a, b| b.1.partial_cmp(&a.1).unwrap_or(std::cmp::Ordering::Equal));
     parsed
 }
 
@@ -129,11 +131,7 @@ pub async fn eco_leaderboard(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         .take(3)
         .enumerate()
         .map(|(i, (uid, total, _))| {
-            format!(
-                "{} <@{uid}> — **{}**",
-                medal_for(i),
-                format_num(*total as f64)
-            )
+            format!("{} <@{uid}> — **{}**", medal_for(i), format_num(*total))
         })
         .collect();
     let items_per_page = 10usize;
@@ -158,8 +156,8 @@ pub async fn eco_leaderboard(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
                     "{} **{}** ・ <@{uid}>\n  ┖ {coin} **{}** ({bank_name}) + **{}** ({money_name})",
                     medal_for(rank),
                     rank + 1,
-                    format_num(*bank as f64),
-                    format_num(money as f64),
+                    format_num(*bank),
+                    format_num(money),
                 )
             })
             .collect();
@@ -297,14 +295,14 @@ mod tests {
 
     #[test]
     fn podium_maps_mentions_and_clamps_negative_wealth() {
-        let rows = vec![(1u64, 300i64, 100i64), (2, -50, 0)];
+        let rows = vec![(1u64, 300.0f64, 100.0f64), (2, -50.0, 0.0)];
         assert_eq!(
             podium_entries(&rows),
             vec![("<@1>".to_string(), 300u64), ("<@2>".to_string(), 0u64),]
         );
         assert!(podium_entries(&[]).is_empty());
         // SVG card only takes the top 8, like the ranks board.
-        let many: Vec<(u64, i64, i64)> = (1..=10).map(|i| (i, 100, 0)).collect();
+        let many: Vec<(u64, f64, f64)> = (1..=10).map(|i| (i, 100.0, 0.0)).collect();
         assert_eq!(podium_entries(&many).len(), 8);
     }
 
@@ -317,9 +315,13 @@ mod tests {
         // Mirrors `!leaderboard.ts` (`users.cache.get(i)` +
         // `if (!user ...) continue`): rows without a cached user never
         // reach the board; survivor order is preserved.
-        let rows = vec![(1u64, 300i64, 100i64), (2, 200, 50), (3, 100, 0)];
+        let rows = vec![
+            (1u64, 300.0f64, 100.0f64),
+            (2, 200.0, 50.0),
+            (3, 100.0, 0.0),
+        ];
         let out = filter_cached_users(rows, &|uid| uid != 2);
-        assert_eq!(out, vec![(1u64, 300i64, 100i64), (3, 100, 0)]);
+        assert_eq!(out, vec![(1u64, 300.0f64, 100.0f64), (3, 100.0, 0.0)]);
         assert!(filter_cached_users(vec![], &|_| true).is_empty());
     }
 
@@ -345,7 +347,7 @@ mod tests {
             .await
             .unwrap();
         let rows = board_rows(&pool, "g").await;
-        assert_eq!(rows, vec![(1u64, 150i64, 50i64), (2, 15, 5)]);
+        assert_eq!(rows, vec![(1u64, 150.0f64, 50.0f64), (2, 15.0, 5.0)]);
         // Other guilds are isolated.
         assert!(board_rows(&pool, "other").await.is_empty());
         // Dual-written uid: table value wins over the legacy row.
@@ -353,8 +355,8 @@ mod tests {
             .await
             .unwrap();
         let rows = board_rows(&pool, "g").await;
-        assert_eq!(rows[0], (1u64, 150i64, 50i64));
-        assert_eq!(rows[1], (2u64, 15i64, 5i64));
+        assert_eq!(rows[0], (1u64, 150.0f64, 50.0f64));
+        assert_eq!(rows[1], (2u64, 15.0f64, 5.0f64));
         assert!(!legacy_scan(&pool, "g", "USER.").await.is_empty());
     }
 }

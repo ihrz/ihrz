@@ -138,7 +138,11 @@ pub async fn profil_show(
         )
         .field(
             field("profil_embed_fields_money", "Money"),
-            format!("{}{}", money.money, t("profil_embed_fields_money_value")),
+            format!(
+                "{}{}",
+                crate::commands::economy::fmt_num(money.money),
+                t("profil_embed_fields_money_value")
+            ),
             false,
         )
         .field(

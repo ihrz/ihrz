@@ -182,12 +182,15 @@ where
     d.deserialize_option(V)
 }
 
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[derive(Debug, Clone, Default, Deserialize)]
 pub struct EconAccount {
-    #[serde(default, deserialize_with = "de_i64")]
-    pub money: i64,
-    #[serde(default, deserialize_with = "de_i64")]
-    pub bank: i64,
+    /// Wallet + bank stay floats end-to-end: TS `db.add`/`db.sub` keep
+    /// JS numbers (`!balance-add.ts`, `!pay.ts`), and legacy int rows
+    /// promote via `de_f64` (`visit_i64`) instead of truncating.
+    #[serde(default, deserialize_with = "de_f64")]
+    pub money: f64,
+    #[serde(default, deserialize_with = "de_f64")]
+    pub bank: f64,
     #[serde(default, deserialize_with = "de_i64")]
     pub daily: i64,
     #[serde(default, deserialize_with = "de_i64")]
@@ -204,10 +207,29 @@ pub struct EconAccount {
     pub owned_roles: Vec<String>,
 }
 
-/// Raw float add on the integer wallet, truncating toward zero.
-/// Mirrors `db.add`/`db.sub` with a float amount over an int balance.
+/// Integer-valued floats serialize as integers so the shared-DB shape
+/// matches what TS writes (`2`, not `2.0`); real fractions keep their
+/// decimals. Same `num_json` rule as `ShopEntry`.
+impl Serialize for EconAccount {
+    fn serialize<S: serde::Serializer>(&self, s: S) -> Result<S::Ok, S::Error> {
+        use serde::ser::SerializeMap;
+        let mut m = s.serialize_map(Some(8))?;
+        m.serialize_entry("money", &num_json(self.money))?;
+        m.serialize_entry("bank", &num_json(self.bank))?;
+        m.serialize_entry("daily", &self.daily)?;
+        m.serialize_entry("weekly", &self.weekly)?;
+        m.serialize_entry("monthly", &self.monthly)?;
+        m.serialize_entry("work", &self.work)?;
+        m.serialize_entry("rob", &self.rob)?;
+        m.serialize_entry("ownedRoles", &self.owned_roles)?;
+        m.end()
+    }
+}
+
+/// Raw float add on the float wallet. Mirrors `db.add`/`db.sub` with a
+/// float amount: no truncation, fractions persist (`!balance-add.ts`).
 pub fn add_money(a: &mut EconAccount, delta: f64) {
-    a.money = (a.money as f64 + delta) as i64;
+    a.money += delta;
 }
 
 /// Per-guild claim tuning. Mirrors the
@@ -812,103 +834,24 @@ async fn send_with_footer(
     Ok(())
 }
 
-/// Reward kinds exposed by the TS registry for set-money
-/// (economy.ts: daily / weekly / monthly only).
-#[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
-pub enum RewardKind {
-    #[name = "daily"]
-    Daily,
-    #[name = "weekly"]
-    Weekly,
-    #[name = "monthly"]
-    Monthly,
-}
-
-impl RewardKind {
-    pub fn key(self) -> &'static str {
-        match self {
-            RewardKind::Daily => "daily",
-            RewardKind::Weekly => "weekly",
-            RewardKind::Monthly => "monthly",
-        }
-    }
-}
-
-/// Cooldown kinds exposed by the TS registry for set-cooldown
-/// (economy.ts: rob / work only).
-#[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
-pub enum CooldownKind {
-    #[name = "rob"]
-    Rob,
-    #[name = "work"]
-    Work,
-}
-
-impl CooldownKind {
-    pub fn key(self) -> &'static str {
-        match self {
-            CooldownKind::Rob => "rob",
-            CooldownKind::Work => "work",
-        }
-    }
-}
-
-/// On/off switch for eco_config. Mirrors the `action` option choices in
-/// economy.ts (`Enable the module` -> `on`, `Disable the module` -> `off`).
-/// Delta (documented): Discord shows the values (`on`/`off`) as the choice
-/// labels instead of the TS display names; poise string choices carry
-/// same-name labels (same pattern as tts `TtsLangChoice`). The prefix path
-/// is constrained to the same two values (resolved via from_name): a typo
-/// is rejected by poise before this runs instead of silently no-op'ing
-/// like the TS prefix path — either way a typo can never flip the module.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
-pub enum EcoToggle {
-    #[name = "on"]
-    On,
-    #[name = "off"]
-    Off,
-}
-
-impl EcoToggle {
-    pub fn key(self) -> &'static str {
-        match self {
-            EcoToggle::On => "on",
-            EcoToggle::Off => "off",
-        }
-    }
-}
-
-/// Boost multiplier for eco_boost_set. Mirrors the `boost` option choices
-/// in economy.ts (`Default`/`x2`/.../`x5` -> `"1"`/.../`"5"`); the stored
-/// value is the parsed number like TS `parseInt`.
-/// Delta (documented): choice labels are the values (`1`-`5`), and the
-/// prefix path is constrained to the same five values (TS prefix took any
-/// `method.number`, so an off-list value like 2.5 no longer stores).
-#[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
-pub enum BoostLevel {
-    #[name = "1"]
-    X1,
-    #[name = "2"]
-    X2,
-    #[name = "3"]
-    X3,
-    #[name = "4"]
-    X4,
-    #[name = "5"]
-    X5,
-}
-
-impl BoostLevel {
-    pub fn value(self) -> f64 {
-        match self {
-            BoostLevel::X1 => 1.0,
-            BoostLevel::X2 => 2.0,
-            BoostLevel::X3 => 3.0,
-            BoostLevel::X4 => 4.0,
-            BoostLevel::X5 => 5.0,
-        }
-    }
-}
+// Free-text option values for the tuning commands (`set-money` kind,
+// `set-cooldown` kind, `boost-set` boost, `config` action).
+//
+// The TS options are `String` options with slash `choices`
+// (economy.ts: `type`, `boost`, `action`) while the prefix path takes
+// the raw text verbatim (`method.string` / `method.number`) and stores
+// it with no registry check — an off-list prefix kind lands under
+// `ECONOMY.settings.{kind}.*`, and an off-list boost stores raw.
+// poise 0.6 cannot express that split in one command: `#[choices]`
+// forces an Integer option, and a `ChoiceParameter` enum rejects
+// off-list prefix input with `InvalidChoice` before the body runs
+// (a duplicate slash-only + prefix-only pair is no good either —
+// both dispatches take the first name match). So these params stay
+// plain `String` on both paths (documented delta: the slash dropdown
+// is gone, but slash accepts the same values and prefix mirrors TS
+// verbatim, including the `config` log-and-ignore for unknown
+// actions). Boost text parses with `parse_ts_int` (`parseInt`,
+// NaN -> 0) like TS `method.number`.
 
 /// Send the standard disabled-module reply. Returns true when the
 /// caller must stop. Mirrors the `ECONOMY.disabled === true` guard
@@ -1154,7 +1097,6 @@ pub mod main {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use poise::ChoiceParameter as _;
 
     #[test]
     fn boost_picks_highest_match_numeric() {
@@ -1253,32 +1195,16 @@ mod tests {
     }
 
     #[test]
-    fn reward_and_cooldown_kinds_match_registry() {
-        assert_eq!(RewardKind::from_name("daily"), Some(RewardKind::Daily));
-        assert_eq!(RewardKind::from_name("weekly"), Some(RewardKind::Weekly));
-        assert_eq!(RewardKind::from_name("monthly"), Some(RewardKind::Monthly));
-        assert_eq!(RewardKind::from_name("work"), None);
-        assert_eq!(CooldownKind::from_name("rob"), Some(CooldownKind::Rob));
-        assert_eq!(CooldownKind::from_name("work"), Some(CooldownKind::Work));
-        assert_eq!(CooldownKind::from_name("daily"), None);
-        assert_eq!(RewardKind::Daily.key(), "daily");
-        assert_eq!(CooldownKind::Rob.key(), "rob");
-    }
-
-    #[test]
-    fn toggle_and_boost_choices_match_ts() {
-        // `action` choices in economy.ts (values on/off).
-        assert_eq!(EcoToggle::from_name("on"), Some(EcoToggle::On));
-        assert_eq!(EcoToggle::from_name("off"), Some(EcoToggle::Off));
-        assert_eq!(EcoToggle::from_name("enable"), None);
-        assert_eq!(EcoToggle::On.key(), "on");
-        assert_eq!(EcoToggle::Off.key(), "off");
-        // `boost` choices in economy.ts (values "1"-"5").
-        assert_eq!(BoostLevel::from_name("1"), Some(BoostLevel::X1));
-        assert_eq!(BoostLevel::from_name("5"), Some(BoostLevel::X5));
-        assert_eq!(BoostLevel::from_name("x2"), None);
-        assert_eq!(BoostLevel::X1.value(), 1.0);
-        assert_eq!(BoostLevel::X5.value(), 5.0);
+    fn tuning_params_stay_free_text_like_ts() {
+        // The TS options are String options (`type`, `boost`, `action` in
+        // economy.ts) with slash choices, while prefix passes raw text.
+        // The Rust params are plain `String` (see the free-text note):
+        // off-list values flow through verbatim, and boost text parses
+        // with `parseInt` semantics (`method.number`, NaN -> 0).
+        assert_eq!(parse_ts_int("2"), Some(2));
+        assert_eq!(parse_ts_int("2.5"), Some(2));
+        assert_eq!(parse_ts_int("x2"), None);
+        assert_eq!(parse_ts_int("").or(Some(0)), Some(0));
     }
 
     #[test]
@@ -1358,21 +1284,60 @@ mod tests {
     fn econ_account_parses_ts_shapes() {
         let a: EconAccount =
             serde_json::from_str(r#"{"money":10.5,"bank":null,"ownedRoles":["1",2]}"#).unwrap();
-        assert_eq!(a.money, 10);
-        assert_eq!(a.bank, 0);
+        // Floats persist end-to-end (no truncation on read); legacy ints
+        // promote.
+        assert_eq!(a.money, 10.5);
+        assert_eq!(a.bank, 0.0);
         assert_eq!(a.owned_roles, vec!["1".to_string(), "2".to_string()]);
+        let b: EconAccount = serde_json::from_str(r#"{"money":100,"bank":50}"#).unwrap();
+        assert_eq!((b.money, b.bank), (100.0, 50.0));
+    }
+
+    #[test]
+    fn econ_account_serializes_int_shaped_like_ts() {
+        // Shared-DB shape: integer-valued floats write as ints.
+        let a = EconAccount {
+            money: 40.0,
+            bank: 2.0,
+            ..Default::default()
+        };
+        let v = serde_json::to_value(&a).unwrap();
+        assert_eq!(v.get("money").and_then(|x| x.as_i64()), Some(40));
+        assert_eq!(v.get("bank").and_then(|x| x.as_i64()), Some(2));
+        let f = EconAccount {
+            money: 10.5,
+            ..Default::default()
+        };
+        assert_eq!(
+            serde_json::to_value(&f)
+                .unwrap()
+                .get("money")
+                .and_then(|x| x.as_f64()),
+            Some(10.5)
+        );
     }
 
     #[test]
     fn pay_math() {
         let mut a = EconAccount {
-            money: 100,
+            money: 100.0,
             ..Default::default()
         };
         let mut b = EconAccount::default();
         add_money(&mut a, -30.0);
         add_money(&mut b, 30.0);
-        assert_eq!((a.money, b.money), (70, 30));
+        assert_eq!((a.money, b.money), (70.0, 30.0));
+    }
+
+    #[test]
+    fn add_money_keeps_fractions_like_db_add() {
+        // `db.add` with a float over a float balance: no truncation.
+        let mut a = EconAccount {
+            money: 10.5,
+            ..Default::default()
+        };
+        add_money(&mut a, 0.25);
+        assert_eq!(a.money, 10.75);
     }
 
     async fn mem_pool() -> crate::db::Pool {
@@ -1389,7 +1354,7 @@ mod tests {
             .await
             .unwrap();
         let a = load_econ_routed(&pool, "g", 1).await;
-        assert_eq!((a.money, a.bank), (100, 50));
+        assert_eq!((a.money, a.bank), (100.0, 50.0));
         // Table-only row wins (no legacy row present).
         table_backend(&pool)
             .table("g")
@@ -1399,12 +1364,12 @@ mod tests {
             )
             .await
             .unwrap();
-        assert_eq!(load_econ_routed(&pool, "g", 2).await.money, 777);
-        assert_eq!(load_econ_routed(&pool, "g", 9).await.money, 0);
+        assert_eq!(load_econ_routed(&pool, "g", 2).await.money, 777.0);
+        assert_eq!(load_econ_routed(&pool, "g", 9).await.money, 0.0);
         // Routed save dual-writes: kv readers and the table stay fresh.
         let account = EconAccount {
-            money: 40,
-            bank: 2,
+            money: 40.0,
+            bank: 2.0,
             ..Default::default()
         };
         save_econ_routed(&pool, "g", 4, &account).await.unwrap();
@@ -1413,11 +1378,11 @@ mod tests {
             .unwrap();
         assert_eq!(
             serde_json::from_str::<EconAccount>(&legacy).unwrap().money,
-            40
+            40.0
         );
         let stored = tbl_get_value(&pool, "g", "USER.4.ECONOMY").await.unwrap();
         assert_eq!(stored.get("bank").and_then(|v| v.as_i64()), Some(2));
-        assert_eq!(load_econ_routed(&pool, "g", 4).await.money, 40);
+        assert_eq!(load_econ_routed(&pool, "g", 4).await.money, 40.0);
     }
 
     #[test]

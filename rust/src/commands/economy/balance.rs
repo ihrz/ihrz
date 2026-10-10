@@ -73,6 +73,7 @@ pub async fn eco_balance(
     let total = a.money + a.bank;
     // Mirrors !balance.ts: #e3c6ff embed, "`name`'s Wallet" title,
     // wallet desc, bank / money / boost fields with Coin suffix.
+    // Balances render with `fmt_num` (JS `toString`: 10 -> "10").
     let mut embed = poise::serenity_prelude::CreateEmbed::default()
         .colour(0xE3C6FF)
         .title(format!("`{member_name}`'s Wallet"))
@@ -80,21 +81,21 @@ pub async fn eco_balance(
             crate::lang::get(&code, "balance_he_have_wallet")
                 .map(|s| {
                     s.replace("${user}", &who)
-                        .replace("${bal}", &total.to_string())
+                        .replace("${bal}", &fmt_num(total))
                         .replace("${client.iHorizon_Emojis.Wallet}", &wallet)
                 })
-                .unwrap_or_else(|| format!("Wallet: {total}")),
+                .unwrap_or_else(|| format!("Wallet: {}", fmt_num(total))),
         )
         .field(
             crate::lang::get(&code, "balance_embed_fields1_name")
                 .unwrap_or_else(|| "Bank".to_string()),
-            format!("{}{coin}", a.bank),
+            format!("{}{coin}", fmt_num(a.bank)),
             true,
         )
         .field(
             crate::lang::get(&code, "balance_embed_fields2_name")
                 .unwrap_or_else(|| "Wallet".to_string()),
-            format!("{}{coin}", a.money),
+            format!("{}{coin}", fmt_num(a.money)),
             true,
         )
         .field(
@@ -130,12 +131,12 @@ mod tests {
             .await
             .unwrap();
         let a = load_econ_routed(&pool, "g", 1).await;
-        assert_eq!((a.money, a.bank), (100, 50));
+        assert_eq!((a.money, a.bank), (100.0, 50.0));
         // Legacy hit promotes into the table handle.
         let promoted = tbl_get_value(&pool, "g", "USER.1.ECONOMY").await.unwrap();
         assert_eq!(promoted.get("money").and_then(|v| v.as_i64()), Some(100));
         // Unknown users still default.
-        assert_eq!(load_econ_routed(&pool, "g", 9).await.money, 0);
+        assert_eq!(load_econ_routed(&pool, "g", 9).await.money, 0.0);
     }
 
     #[tokio::test]
@@ -153,7 +154,7 @@ mod tests {
             )
             .await
             .unwrap();
-        assert_eq!(load_econ_routed(&pool, "g", 1).await.money, 777);
+        assert_eq!(load_econ_routed(&pool, "g", 1).await.money, 777.0);
     }
 
     #[tokio::test]
@@ -161,8 +162,8 @@ mod tests {
         use crate::commands::owner::main::tbl_get_value;
         let pool = mem_pool().await;
         let account = EconAccount {
-            money: 40,
-            bank: 2,
+            money: 40.0,
+            bank: 2.0,
             ..Default::default()
         };
         save_econ_routed(&pool, "g", 4, &account).await.unwrap();
@@ -172,11 +173,11 @@ mod tests {
             .unwrap();
         assert_eq!(
             serde_json::from_str::<EconAccount>(&legacy).unwrap().money,
-            40
+            40.0
         );
         let stored = tbl_get_value(&pool, "g", "USER.4.ECONOMY").await.unwrap();
         assert_eq!(stored.get("bank").and_then(|v| v.as_i64()), Some(2));
         // Round-trip through the routed loader.
-        assert_eq!(load_econ_routed(&pool, "g", 4).await.money, 40);
+        assert_eq!(load_econ_routed(&pool, "g", 4).await.money, 40.0);
     }
 }

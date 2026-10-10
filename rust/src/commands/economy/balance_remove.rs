@@ -64,7 +64,7 @@ pub async fn eco_balance_remove(
         .field(
             crate::lang::get(&code, "removemoney_embed_second_fields")
                 .unwrap_or_else(|| "Balance Updated".to_string()),
-            format!("{}$", a.money),
+            format!("{}$", fmt_num(a.money)),
             false,
         )
         .colour(0xBC0116)

@@ -24,7 +24,7 @@ pub async fn eco_deposit(
     // gates on cannot-abuse. The stored move uses parseInt truncation.
     let raw = amount.trim();
     let num: f64 = if raw == "all" {
-        a.money as f64
+        a.money
     } else {
         match ts_number(raw) {
             Some(v) => v,
@@ -38,12 +38,15 @@ pub async fn eco_deposit(
         not_integer_reply(&ctx, &code).await?;
         return Ok(());
     }
-    let n: i64 = if raw == "all" {
-        a.money
+    // The stored move is `parseInt` (`!deposit.ts:87-92`): "all" first
+    // resolves to the raw wallet, so a fractional balance moves truncated
+    // and leaves dust — mirrored here with `trunc`.
+    let n: f64 = if raw == "all" {
+        a.money.trunc()
     } else {
-        parse_ts_int(raw).unwrap_or(0)
+        parse_ts_int(raw).unwrap_or(0) as f64
     };
-    if num > a.money as f64 {
+    if num > a.money {
         let no = no_markup(&ctx).await;
         ctx.say(
             crate::lang::get(&code, "deposit_cannot_abuse")
@@ -63,8 +66,10 @@ pub async fn eco_deposit(
     // untruncated Number value, even though the stored move uses parseInt.
     let money = fmt_num(num);
     let coin = coin_markup(&ctx).await;
+    // "all" echoes the raw pre-move wallet (`toDeposit.toString()` where
+    // `toDeposit` is the balance number); otherwise the raw input.
     let display = if raw == "all" {
-        n.to_string()
+        fmt_num(num)
     } else {
         raw.to_string()
     };
@@ -87,12 +92,12 @@ pub async fn eco_deposit(
                         .replace("${interaction.user}", &author)
                         .replace("${toDeposit}", &display)
                 })
-                .unwrap_or_else(|| format!("Deposited {n}.")),
+                .unwrap_or_else(|| format!("Deposited {}.", fmt_num(n))),
         )
         .field(
             crate::lang::get(&code, "deposit_embed_fields1_name")
                 .unwrap_or_else(|| "Bank".to_string()),
-            format!("{}{coin}", a.bank),
+            format!("{}{coin}", fmt_num(a.bank)),
             false,
         )
         .timestamp(poise::serenity_prelude::Timestamp::now());

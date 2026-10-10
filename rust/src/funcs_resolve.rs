@@ -268,7 +268,7 @@ pub async fn sub_coins(
     guild_id: &str,
     user_id: u64,
     coins: f64,
-) -> anyhow::Result<i64> {
+) -> anyhow::Result<f64> {
     apply_coins(pool, guild_id, user_id, -coins).await
 }
 
@@ -279,7 +279,7 @@ pub async fn add_coins(
     guild_id: &str,
     user_id: u64,
     coins: f64,
-) -> anyhow::Result<i64> {
+) -> anyhow::Result<f64> {
     apply_coins(pool, guild_id, user_id, coins).await
 }
 
@@ -288,7 +288,7 @@ async fn apply_coins(
     guild_id: &str,
     user_id: u64,
     delta: f64,
-) -> anyhow::Result<i64> {
+) -> anyhow::Result<f64> {
     use crate::commands::economy::balance::{load_econ_routed, save_econ_routed};
     let mut account = load_econ_routed(pool, guild_id, user_id).await;
     crate::commands::economy::add_money(&mut account, delta);
@@ -475,14 +475,14 @@ mod tests {
         crate::db::kv_set(&pool, "g", "USER.1.ECONOMY", r#"{"money":100,"bank":0}"#)
             .await
             .unwrap();
-        // subCoins subtracts like db.sub (float delta, trunc toward zero).
-        assert_eq!(sub_coins(&pool, "g", 1, 30.0).await.unwrap(), 70);
-        assert_eq!(sub_coins(&pool, "g", 1, 2.9).await.unwrap(), 67);
+        // subCoins subtracts like db.sub (float delta, no truncation).
+        assert_eq!(sub_coins(&pool, "g", 1, 30.0).await.unwrap(), 70.0);
+        assert_eq!(sub_coins(&pool, "g", 1, 2.9).await.unwrap(), 67.1);
         // addCoins sibling adds on the same key.
-        assert_eq!(add_coins(&pool, "g", 1, 3.0).await.unwrap(), 70);
+        assert_eq!(add_coins(&pool, "g", 1, 3.0).await.unwrap(), 70.1);
         // Unknown users start at 0, like the TS missing-key path.
-        assert_eq!(sub_coins(&pool, "g", 9, 5.0).await.unwrap(), -5);
+        assert_eq!(sub_coins(&pool, "g", 9, 5.0).await.unwrap(), -5.0);
         // Routed readers see the same balance (table + legacy in sync).
-        assert_eq!(load_econ_routed(&pool, "g", 1).await.money, 70);
+        assert_eq!(load_econ_routed(&pool, "g", 1).await.money, 70.1);
     }
 }

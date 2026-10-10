@@ -34,7 +34,7 @@ pub async fn eco_pay(
     let a = balance::load_econ_routed(&ctx.data().pool, &gid, from).await;
     // TS: `if (amount && member < amount)` — falsy amounts (0) skip the
     // check and flow through to a no-op add/sub + success reply.
-    if amount != 0.0 && (a.money as f64) < amount {
+    if amount != 0.0 && a.money < amount {
         ctx.say(
             crate::lang::get(&code, "pay_dont_have_enought_to_give")
                 .unwrap_or_else(|| "Not enough money.".to_string()),

@@ -302,22 +302,9 @@ pub async fn handle_confess_button(
         return Ok(());
     }
     let lang_code = crate::db::guild_lang(pool, Some(guild_id.get())).await;
-    // Clicks must come from the bound panel message (channel + message),
-    // or at least the panel channel. Mirrors the channelId/messageId
-    // guard in new-confession-button.ts.
-    let panel_raw = crate::db::kv_get(pool, &gid, "GUILD.CONFESSION.panel").await;
-    let fallback = crate::db::kv_get(pool, &gid, "CONFESSION.channel").await;
-    let (target_ch, bound_msg) = panel_target(panel_raw.as_deref(), fallback.as_deref());
-    let Some(target_ch) = target_ch else {
-        return Ok(());
-    };
-    if let Some(mid) = bound_msg {
-        if comp.channel_id.get() != target_ch || comp.message.id.get() != mid {
-            return Ok(());
-        }
-    } else if comp.channel_id.get() != target_ch {
-        return Ok(());
-    }
+    // Cooldown is checked BEFORE the panel binding (TS order in
+    // new-confession-button.ts: cooldown reply wins over the silent
+    // panel guard, so a stale-panel click while on cooldown answers).
     let now = std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
         .map(|d| d.as_millis() as u64)
@@ -357,6 +344,22 @@ pub async fn handle_confess_button(
             ),
         )
         .await?;
+        return Ok(());
+    }
+    // Clicks must come from the bound panel message (channel + message),
+    // or at least the panel channel. Mirrors the channelId/messageId
+    // guard in new-confession-button.ts.
+    let panel_raw = crate::db::kv_get(pool, &gid, "GUILD.CONFESSION.panel").await;
+    let fallback = crate::db::kv_get(pool, &gid, "CONFESSION.channel").await;
+    let (target_ch, bound_msg) = panel_target(panel_raw.as_deref(), fallback.as_deref());
+    let Some(target_ch) = target_ch else {
+        return Ok(());
+    };
+    if let Some(mid) = bound_msg {
+        if comp.channel_id.get() != target_ch || comp.message.id.get() != mid {
+            return Ok(());
+        }
+    } else if comp.channel_id.get() != target_ch {
         return Ok(());
     }
     // Short code linking the post to confessionres% replies. Mirrors
