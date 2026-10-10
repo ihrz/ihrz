@@ -299,14 +299,15 @@ committed — see `.gitignore`. No push without a green
 - [x] U-ETERNAL-93 (2026-10-10: vague-72 msv confirms + obel-fix7 (owner denials, unblacklist delete-first, reason rest, prevnames oldest-first, nicks cache) + evts-fix6 (join gate scopé, tooNew bot, roleLimit rewrite, picOnly full, leave embed) + reg-fix3 (manage rename, docs verbatim, fconfig, vc cooldown drop, sticker/top prefix-only, list verdict). Suite 1618/0, fmt + clippy clean).
 - [x] U-ETERNAL-92 (2026-10-10: P5-RESOLVER-WIRING + P6-PREFIXNAME-AUDIT (2 workers, 9 files): poise-stays-parser decision recorded in funcs_resolve.rs header + 4 parity tests (TS quirks judged bugs, wiring refused); prefix_name_for table + wiring, perm_fallback_key compat, scope comments on h/grosbg/3 memes. Lead: workdir clippy red only on third-party uncommitted events_handler.rs hunks (result_large_err + then_some, HEAD clean) — verified green on isolated worktree of the commit. Suite 1618/0, fmt + clippy clean on commit tree).
 
-### Music edges (audit task-9)
-- [ ] M1 idle sweep consuming `destroy_due()` (120s → destroy + leave + status clear) — HIGH.
-- [ ] M2 node WS dial at ready/reconnect (track-end advance + announce live) — HIGH.
-- [ ] M3 trackError recovery (skip + fallback re-search + owner log).
-- [ ] M4 history V2 (count cap, TS-shape migration, pagination + txt + delete).
-- [ ] M5 node failover + reconnect backoff.
-- [ ] M6 stage-channel support; M7 volume hardening + push-on-play; M8 history perms alignment.
-- [ ] U-SWEEP-2 protection 60s structure backup (verify avoid* consumers first) + owner eval keep/drop security decision + Rust-only surface triage (`lastfm status`, `honeypot post`, `confession list`, `see`, `embed` scope).
+### Music edges (audit task-9; triaged U-ETERNAL-94: M1-M8 + U-SWEEP-2 all DONE, zero gaps)
+- [x] M1 idle sweep consuming `destroy_due()` (120s → destroy + leave + status clear) — DONE (U-ETERNAL-94: sweep_idle_destroy + sweep_idle_players + 120s tick + live root caller, H247 parked-keep leg; known delta: post-destroy H247 rejoin post-hoc vs TS sync, signed off).
+- [x] M2 node WS dial at ready/reconnect (track-end advance + announce live) — DONE (U-ETERNAL-94: supervisor dial/resume/pump/redial + ready-path call + track-end + announce wiring).
+- [x] M3 trackError recovery (skip + fallback re-search + owner log) — DONE (U-ETERNAL-94: handle_track_exception + owner-log ctx + WS dispatch + guild notice).
+- [x] M4 history V2 (count cap, TS-shape migration, pagination + txt + delete) — DONE (U-ETERNAL-94: 200-cap hardening superset, decode_history migration + rewrite-on-read, pagination/txt/delete/collector).
+- [x] M5 node failover + reconnect backoff — DONE (U-ETERNAL-94: guild-affine failover + fixed 50s backoff mirroring TS retryDelay/Amount).
+- [x] M6 stage-channel support; M7 volume hardening + push-on-play; M8 history perms alignment — DONE (U-ETERNAL-94: stage superset + denial, DEFAULT_VOLUME 75 clamped/persisted/pushed + autocomplete, history Administrator parity).
+- [x] U-SWEEP-2 protection 60s structure backup (verify avoid* consumers first) + owner eval keep/drop security decision + Rust-only surface triage (`lastfm status`, `honeypot post`, `confession list`, `see`, `embed` scope) — DONE (U-ETERNAL-94: 60s sweep + avoid* consumers live; eval intentionally NOT ported (JS exec, recorded); Rust-only surface adjudicated).
+- [x] U-ETERNAL-94 (2026-10-11: M-track triage sweep (M1-M8 + U-SWEEP-2, call-site verified @27496b2e5): all 9 DONE live, zero confirmed gaps. Suite untouched — read-only).
 - [x] U-HYBRID-FIX-1 crash-hardening + error-path exactness (2026-10-09: rolepanel expect + resolve ordering, sticky poison cascade, giveaway epoch fallback; bot.rs error router — ArgumentParse/Cooldown/MissingPerms localized; addrole/delrole/derank TS guard chains restored; registry/keys/storage untouched. Suite 431/0 at the time).
 - [x] U-HYBRID-FIX-2 exactness for economy/ticket/music (2026-10-09: fire-and-forget log sends, shared music guard helpers w/ TS keys + guard order on all 12 commands, NoNodes/NoMatches embeds, leaks removed, byte-identical lyrics fallback. Deferred: h247/TTS interplay, queue loop mode. Suite 477/0).
 - [x] U-NOTIFIER-FANOUT release owner-DM fan-out (2026-10-09: `core/release` module — all anti-spam guards, PDF paths w/ fallback, error classification, dedupe; notifier toggle helpers; 22 tests. Deferred: wiring into ready path (bot.rs), live-DM verify).
