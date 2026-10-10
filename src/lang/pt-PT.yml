@@ -872,6 +872,11 @@ economy_manage_rewards_cooldown_command_ok: "O tempo de cooldown para ${type} fo
 
 # /economy mange-rewards set-money
 economy_manage_rewards_set_money: "O dinheiro para ${type} foi definido com sucesso para ${money}."
+msg_economy_config_invalid: "Ação inválida: usa on ou off."
+msg_economy_set_money_invalid_type: "Tipo de recompensa inválido: escolhe daily, weekly ou monthly."
+msg_economy_set_cooldown_invalid_type: "Tipo de recompensa inválido: escolhe rob ou work."
+msg_economy_boost_invalid: "Boost inválido: escolhe um valor entre 1 e 5."
+msg_ranks_message_too_short: "Mensagem demasiado curta: o modelo de nível precisa de pelo menos 2 caracteres."
 
 # /economy role list
 economy_role_list_no_buyable_roles: "Não há cargos compráveis para mostrar."
@@ -3411,6 +3416,8 @@ msg_profil_invalid_age: "Idade inválida: deve estar entre 13 e 120."
 msg_profil_birthday_invalid: "Aniversário inválido: verifica dia/mês/ano (ano 1900-2100)."
 msg_profil_birthday_saved: "Aniversário guardado."
 msg_profil_use_subcommand: "Usa um subcomando: show, set-age, set-description, set-gender, set-pronoun, set-birthday."
+msg_profil_gender_invalid: "Género inválido: escolhe female, male ou non-binary."
+msg_profil_pronoun_invalid: "Pronome inválido: escolhe she/her, he/him, they/them, xe/xem, ze/zem ou other."
 msg_welcomer_panel_title: "Welcomer panel"
 msg_welcomer_panel_hint: "Use wc-channel / wc-embed / wc-text / wc-components to configure join and leave messages."
 msg_automod_toggled: "Automod ${kind} ${state}."

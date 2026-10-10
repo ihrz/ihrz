@@ -104,10 +104,13 @@ mod tests {
         );
         assert_eq!(config_value("ON"), None);
         assert_eq!(config_value("bogus"), None);
+        assert_eq!(config_value("Disable"), None);
+        assert_eq!(config_value(""), None);
         // No trim: TS compares with case-sensitive `==`, so padded
         // input matches nothing.
         assert_eq!(config_value(" on"), None);
         assert_eq!(config_value("off "), None);
+        assert_eq!(config_value("on\n"), None);
         // Storage encoding: booleans stay bare (never quoted), the
         // string stays raw — the same JSON value on both runtimes.
         assert_eq!(config_stored_value(&config_value("on").unwrap()), "true");

@@ -32,10 +32,12 @@ pub async fn eco_config(
     ctx: Ctx<'_>,
     #[description = "on or off"] action: String,
 ) -> Result<(), anyhow::Error> {
-    // The action travels verbatim on both paths (TS `!config.ts` reads a
-    // free string on prefix). An unknown action writes nothing and sends
-    // no reply, but still posts the ihorizon log below like the TS
-    // fall-through — see the free-text note in mod.rs.
+    // CONSTRAINED (deliberate divergence from `!config.ts`): the TS
+    // slash `choices` admit only `on` | `off`, but the prefix path reads
+    // free text and an unknown action falls through both branches while
+    // still posting the ihorizon log below. Here an unknown action posts
+    // no log, writes nothing, and replies with the invalid-action error.
+    // Matching stays case-sensitive with no trim, like TS (`===`).
     let state = action.as_str();
     let gid = ctx
         .guild_id()
@@ -43,6 +45,14 @@ pub async fn eco_config(
         .unwrap_or_default();
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let author_id = ctx.author().id.get().to_string();
+    if state != "on" && state != "off" {
+        ctx.say(
+            crate::lang::get(&code, "msg_economy_config_invalid")
+                .unwrap_or_else(|| "Invalid action: use on or off.".to_string()),
+        )
+        .await?;
+        return Ok(());
+    }
     let disabled = economy_disabled_routed(&ctx.data().pool, &gid).await;
     let enabled = state == "on";
     if enabled {
@@ -119,9 +129,8 @@ pub async fn eco_config(
             .await?;
         }
     }
-    // The ihorizon log sits outside the on/off branches in !config.ts, so
-    // it also fires for an unknown action (log-and-ignore: no write, no
-    // reply above); no-op replies return early like TS.
+    // The ihorizon log sits inside each on/off branch: an unknown action
+    // returns early above (constrained), so unlike TS it posts no log.
     let title =
         crate::commands::lang_for(&ctx, "economy_disable_logs_embed_title", "Economy Logs").await;
     let desc = crate::commands::lang_for(

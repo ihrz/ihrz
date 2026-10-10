@@ -8,7 +8,11 @@ use super::{
     transgender::transgender, tweet::tweet, youtube::youtube,
 };
 
-/// Parent group for fun commands. Mirrors TS `fun` HybridCommand.
+/// Run-less group root for fun commands. Mirrors TS `fun` HybridCommand.
+// `fun_config` is registered in the leaf list below, so the config
+// panel stays reachable via `/fun config` and `!fun config`. A bare
+// invocation raises SubcommandRequired (mapped to help in `bot.rs`)
+// before this body runs, on both paths.
 #[poise::command(
     slash_command,
     prefix_command,

@@ -239,7 +239,16 @@ async fn dm_best_effort(http: &serenity::Http, user: &serenity::User, content: S
         .await;
 }
 
-/// Subcommand for moderation category!
+/// Run-less group root for the moderation category (TS `mod.ts`).
+// 22 leaf commands live below. A bare invocation raises
+// SubcommandRequired (mapped to help in `bot.rs`) before this body
+// runs, on both paths.
+// Prefix entity limitation (accepted): `serenity::User` / `Role` leaf
+// params resolve mentions and raw IDs only on the prefix path. TS
+// `method.member`/`method.role` additionally fall back to an exact
+// username / role-name cache lookup (`method.ts:118-160,229-241`),
+// so `!mod ban SomeName` worked in TS but fails argument parsing here.
+// Slash is unaffected (Discord resolves entities server-side).
 #[poise::command(
     slash_command,
     prefix_command,

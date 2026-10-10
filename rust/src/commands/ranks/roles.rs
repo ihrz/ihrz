@@ -72,6 +72,13 @@ pub async fn save_rank_roles_routed(
     .await
 }
 
+/// Descending level order for the role-list embed. Mirrors the TS
+/// `!roles.ts:84` sort (`parseInt(levelB) - parseInt(levelA)`); the
+/// caller slices 5 rows per page (`itemsPerPage`).
+pub fn sort_rank_roles_desc(roles: &mut [RankRole]) {
+    roles.sort_by(|a, b| b.level.cmp(&a.level));
+}
+
 /// Role add command.
 #[poise::command(
     slash_command,
@@ -191,7 +198,7 @@ pub async fn ranks_role_list(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let mut roles = load_rank_roles_routed(&ctx.data().pool, &gid).await;
     // Descending like the TS embed (`!roles.ts:84`:
     // `parseInt(levelB) - parseInt(levelA)`).
-    roles.sort_by(|a, b| b.level.cmp(&a.level));
+    sort_rank_roles_desc(&mut roles);
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     if roles.is_empty() {
         ctx.say(
@@ -396,10 +403,34 @@ pub async fn ranks_role_remove(
 
 #[cfg(test)]
 mod tests {
+    use super::sort_rank_roles_desc;
     use super::{load_rank_roles_routed, remove_rank_role, save_rank_roles_routed, RankRole};
 
     async fn mem_pool() -> crate::db::Pool {
         crate::db::memory_pool().await
+    }
+
+    #[test]
+    fn role_list_sorts_desc_and_pages_five_per_page() {
+        // Seven roles: desc by level like the TS embed, sliced 5 + 2
+        // like `itemsPerPage` pagination.
+        let mut roles: Vec<RankRole> = [3u64, 30, 1, 12, 7, 25, 9]
+            .into_iter()
+            .map(|level| RankRole {
+                role_id: format!("r{level}"),
+                level,
+            })
+            .collect();
+        sort_rank_roles_desc(&mut roles);
+        let levels: Vec<u64> = roles.iter().map(|r| r.level).collect();
+        assert_eq!(levels, vec![30, 25, 12, 9, 7, 3, 1]);
+        let per_page = 5usize;
+        let total_pages = roles.len().div_ceil(per_page);
+        assert_eq!(total_pages, 2);
+        let page0: Vec<u64> = roles.iter().take(per_page).map(|r| r.level).collect();
+        let page1: Vec<u64> = roles.iter().skip(per_page).map(|r| r.level).collect();
+        assert_eq!(page0, vec![30, 25, 12, 9, 7]);
+        assert_eq!(page1, vec![3, 1]);
     }
 
     #[test]

@@ -14,7 +14,9 @@ pub async fn sticky_text(
     #[description = "Channel"]
     #[channel_types("Text")]
     channel: Option<serenity::GuildChannel>,
-    #[description = "Message"] message: String,
+    #[description = "Message"]
+    #[rest]
+    message: String,
 ) -> Result<(), anyhow::Error> {
     let gid = ctx
         .guild_id()

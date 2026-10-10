@@ -38,7 +38,23 @@ pub async fn load_tuning_routed(pool: &crate::db::Pool, guild_id: &str, kind: &s
     }
 }
 
+/// Tunable cooldown kinds. Mirrors the `!set-cooldown.ts` slash
+/// `choices` (`rob` | `work`) in `economy.ts`.
+pub const SET_COOLDOWN_KINDS: &[&str] = &["rob", "work"];
+
+/// True when the kind is one of the TS slash choice values
+/// (case-sensitive, no trim).
+pub fn validate_set_cooldown_kind(kind: &str) -> bool {
+    SET_COOLDOWN_KINDS.contains(&kind)
+}
+
 /// Mirrors `!set-cooldown.ts`.
+///
+/// CONSTRAINED (deliberate divergence): TS stores
+/// `ECONOMY.settings.${type}.cooldown` for any verbatim `type` with no
+/// registry check. Here only the two slash choice values tune a leaf;
+/// an unknown type writes nothing and replies with the invalid-type
+/// error.
 #[poise::command(
     slash_command,
     prefix_command,
@@ -57,10 +73,19 @@ pub async fn eco_set_cooldown(
     if disabled_reply(&ctx).await? {
         return Ok(());
     }
-    // The kind travels verbatim on both paths (TS `!set-cooldown.ts`
-    // stores under `ECONOMY.settings.${type}.cooldown` with no registry
-    // check). See the free-text note in mod.rs.
+    // The kind is constrained to the slash choice values (see above);
+    // only the duration still travels verbatim. Plain String (no slash
+    // dropdown) per the free-text note in mod.rs.
     let kind = kind.as_str();
+    if !validate_set_cooldown_kind(kind) {
+        let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+        ctx.say(
+            crate::lang::get(&code, "msg_economy_set_cooldown_invalid_type")
+                .unwrap_or_else(|| "Invalid reward type: choose rob or work.".to_string()),
+        )
+        .await?;
+        return Ok(());
+    }
     let Some(ms) = crate::commands::schedule::main::parse_duration_ms(&cooldown) else {
         let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
         ctx.say(
@@ -109,10 +134,20 @@ pub async fn eco_set_cooldown(
 
 #[cfg(test)]
 mod tests {
-    use super::{leaf_num_routed, load_tuning_routed};
+    use super::{leaf_num_routed, load_tuning_routed, validate_set_cooldown_kind};
 
     async fn mem_pool() -> crate::db::Pool {
         crate::db::memory_pool().await
+    }
+
+    #[test]
+    fn set_cooldown_accepts_only_slash_choice_kinds() {
+        assert!(validate_set_cooldown_kind("rob"));
+        assert!(validate_set_cooldown_kind("work"));
+        assert!(!validate_set_cooldown_kind("daily"));
+        assert!(!validate_set_cooldown_kind("Rob"));
+        assert!(!validate_set_cooldown_kind(" rob"));
+        assert!(!validate_set_cooldown_kind(""));
     }
 
     #[tokio::test]

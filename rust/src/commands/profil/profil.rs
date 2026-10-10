@@ -4,7 +4,13 @@ use super::{
     set_gender::profil_gender, set_pronoun::profil_pronoun, show::profil_show,
 };
 
-/// Parent group. Mirrors the TS `profil` HybridCommand definition.
+/// Run-less group root. Mirrors the TS `profil` HybridCommand definition.
+// A bare invocation raises SubcommandRequired (mapped to help in
+// `bot.rs`) before this body runs, on both the slash and prefix paths,
+// so the body stays empty on purpose: any reply here would be dead
+// code. Point users at the leaves instead via help
+// (`show`, `set-age`, `set-description`, `set-gender`, `set-pronoun`,
+// `set-birthday`).
 #[poise::command(
     slash_command,
     prefix_command,
@@ -20,15 +26,7 @@ use super::{
     ),
     subcommand_required
 )]
-pub async fn profil(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
-    let msg = crate::commands::lang_for(
-        &ctx,
-        "msg_profil_use_subcommand",
-        "Use a subcommand: show, set-age, set-description, set-gender, set-pronoun, set-birthday.",
-    )
-    .await;
-    ctx.send(poise::CreateReply::default().content(msg).ephemeral(true))
-        .await?;
+pub async fn profil(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())
 }
 

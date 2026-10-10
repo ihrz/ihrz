@@ -2,7 +2,10 @@ use crate::bot::Ctx;
 use poise::serenity_prelude as serenity;
 use serde::{Deserialize, Serialize};
 
-/// Rule values from authorization.ts (cls/all are pseudo-commands).
+/// Rule values from authorization.ts (`rules` array order, minus the
+/// `cls`/`all` pseudo-commands which are handled as special cases, never
+/// stored). Order matters: `rule_display("all")` joins this array like TS
+/// `allRules.join(",")`, so keep it in sync with authorization.ts.
 pub const RULES: [&str; 13] = [
     "webhook",
     "updateguild",
@@ -118,6 +121,10 @@ pub async fn guild_owner_id(ctx: &Ctx<'_>) -> Option<u64> {
 
 /// Deny unless the invoker owns the guild, replying with the TS lang key.
 /// Returns true when the command must stop (denied or guild unknown).
+/// The denial is an ephemeral interaction reply, mirroring the TS
+/// `interaction.editReply` chain in `!actions.ts`/`!sanction.ts`/`!show.ts`
+/// (poise degrades to a plain message on prefix invocations, where there
+/// is no interaction reply chain).
 pub async fn deny_unless_owner(ctx: &Ctx<'_>, key: &str, fallback: &str) -> bool {
     let author = ctx.author().id.get();
     let owner = guild_owner_id(ctx).await.unwrap_or(0);
@@ -126,7 +133,9 @@ pub async fn deny_unless_owner(ctx: &Ctx<'_>, key: &str, fallback: &str) -> bool
     }
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let msg = crate::lang::get(&code, key).unwrap_or_else(|| fallback.to_string());
-    let _ = ctx.say(msg).await;
+    let _ = ctx
+        .send(poise::CreateReply::default().content(msg).ephemeral(true))
+        .await;
     true
 }
 
@@ -216,7 +225,18 @@ pub fn rule_for_event(event: &str) -> Option<&'static str> {
     }
 }
 
-/// Subcommand for protect category!
+/// Run-less group root for the protection category.
+// TS: `SlashCommands/protection/` (`authorization.ts`, `allowlist/`,
+// `!show.ts`). Gate parity (deliberate, do not loosen): TS gates
+// per-leg through the custom executor (`commandExecutor.ts` checks each
+// option target's `permission`: Administrator on the mutating
+// `authorization` legs, `null` elsewhere) plus an in-code `ownerId`
+// check in `!show.ts:45`. The Rust side enforces server-owner-only in
+// code on every mutating leaf (`deny_unless_owner`) with an
+// `ADMINISTRATOR` Discord-layer default on `sanction`/`show` — strictly
+// narrower than TS on the allowlist legs, which is the safe direction.
+// A bare invocation raises SubcommandRequired (mapped to help in
+// `bot.rs`) before this body runs, on both paths.
 #[poise::command(
     slash_command,
     prefix_command,
@@ -420,20 +440,27 @@ pub async fn derank_member(
         .map(|r| r.position)
         .max()
         .unwrap_or(0);
-    if let Some(app) = roles.values().find(|r| r.managed) {
+    let Ok(member) = guild_id.member(http, user_id).await else {
+        return Ok(());
+    };
+    // Victim's own managed (integration/bot) role only — mirrors TS
+    // `user_roles.find((x) => x.managed)`. Never the guild-first managed
+    // role: that would strip permissions from an unrelated integration.
+    if let Some(app_id) = member
+        .roles
+        .iter()
+        .find(|id| roles.get(id).is_some_and(|r| r.managed))
+    {
         let _ = guild_id
             .edit_role(
                 http,
-                app.id,
+                *app_id,
                 serenity::EditRole::new()
                     .permissions(serenity::Permissions::VIEW_CHANNEL)
                     .audit_log_reason(reason),
             )
             .await;
     }
-    let Ok(member) = guild_id.member(http, user_id).await else {
-        return Ok(());
-    };
     // Audit reason mirrors the TS derank `remove(role.id, reason ||
     // "Protection")` call; Member::remove_role carries no reason, so the
     // HTTP call is made directly.
@@ -883,6 +910,22 @@ mod tests {
         let mentions = allowlist_mentions(&rows);
         assert!(mentions.contains("<@7>"));
         assert!(mentions.contains("<@9>"));
+    }
+
+    #[test]
+    fn rule_state_serializes_ts_shape_without_allow() {
+        // Writes must stay `{"mode":"..."}` like TS `{ mode: allow }`:
+        // the legacy `allow` field is read-only (`skip_serializing`), so a
+        // fresh write never stores a JSON bool alongside the mode.
+        let s = serde_json::to_string(&RuleState {
+            mode: "allowlist".to_string(),
+            allow: None,
+        })
+        .unwrap();
+        assert_eq!(s, r#"{"mode":"allowlist"}"#);
+        let v: serde_json::Value = serde_json::from_str(&s).unwrap();
+        assert!(v.get("allow").is_none());
+        assert!(v.get("mode").and_then(|m| m.as_str()) == Some("allowlist"));
     }
 
     async fn memory_pool() -> crate::db::Pool {

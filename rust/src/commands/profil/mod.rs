@@ -106,11 +106,12 @@ fn ser_opt_age<S: serde::Serializer>(v: &Option<f64>, s: S) -> Result<S::Ok, S::
     }
 }
 
+/// Exact gender gate. Mirrors the `!set-gender.ts` slash `choices`
+/// (`female` | `male` | `non-binary`) and the case-sensitive `switch` on
+/// the prefix path: only the exact lowercase spellings act, anything
+/// else writes nothing (see `set_gender::gender_stored_value`).
 pub fn validate_gender(gender: &str) -> bool {
-    matches!(
-        gender.to_ascii_lowercase().as_str(),
-        "female" | "male" | "non-binary"
-    )
+    matches!(gender, "female" | "male" | "non-binary")
 }
 
 fn is_leap_year(year: i32) -> bool {
@@ -202,13 +203,16 @@ mod tests {
         assert!(validate_gender("female"));
         assert!(validate_gender("male"));
         assert!(validate_gender("non-binary"));
-        assert!(validate_gender("Female"));
     }
 
     #[test]
     fn gender_rejects_unknown() {
         assert!(!validate_gender("other"));
         assert!(!validate_gender(""));
+        // Exact like the TS switch: case variants match nothing.
+        assert!(!validate_gender("Female"));
+        assert!(!validate_gender("MALE"));
+        assert!(!validate_gender("Non-Binary"));
     }
 
     #[test]

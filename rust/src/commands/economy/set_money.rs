@@ -1,6 +1,22 @@
 use super::*;
 
+/// Tunable reward kinds. Mirrors the `!set-money.ts` slash `choices`
+/// (`daily` | `weekly` | `monthly`) in `economy.ts`.
+pub const SET_MONEY_KINDS: &[&str] = &["daily", "weekly", "monthly"];
+
+/// True when the kind is one of the TS slash choice values
+/// (case-sensitive, no trim).
+pub fn validate_set_money_kind(kind: &str) -> bool {
+    SET_MONEY_KINDS.contains(&kind)
+}
+
 /// Mirrors `!set-money.ts`.
+///
+/// CONSTRAINED (deliberate divergence): TS stores
+/// `ECONOMY.settings.${type}.amount` for any verbatim `type` with no
+/// registry check. Here only the three slash choice values tune a leaf;
+/// an unknown type writes nothing and replies with the invalid-type
+/// error.
 #[poise::command(
     slash_command,
     prefix_command,
@@ -19,11 +35,17 @@ pub async fn eco_set_money(
     if disabled_reply(&ctx).await? {
         return Ok(());
     }
-    // The kind travels verbatim on both paths (TS `!set-money.ts` stores
-    // under `ECONOMY.settings.${type}.amount` with no registry check),
-    // so an off-list kind tunes that leaf too. See the free-text note
-    // in mod.rs for why this is a plain String (no slash dropdown).
     let kind = kind.as_str();
+    if !validate_set_money_kind(kind) {
+        let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+        ctx.say(
+            crate::lang::get(&code, "msg_economy_set_money_invalid_type").unwrap_or_else(|| {
+                "Invalid reward type: choose daily, weekly or monthly.".to_string()
+            }),
+        )
+        .await?;
+        return Ok(());
+    }
     let gid = ctx
         .guild_id()
         .map(|g| g.get().to_string())
@@ -59,4 +81,21 @@ pub async fn eco_set_money(
     )
     .await?;
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::validate_set_money_kind;
+
+    #[test]
+    fn set_money_accepts_only_slash_choice_kinds() {
+        assert!(validate_set_money_kind("daily"));
+        assert!(validate_set_money_kind("weekly"));
+        assert!(validate_set_money_kind("monthly"));
+        assert!(!validate_set_money_kind("work"));
+        assert!(!validate_set_money_kind("rob"));
+        assert!(!validate_set_money_kind("Daily"));
+        assert!(!validate_set_money_kind(" daily"));
+        assert!(!validate_set_money_kind(""));
+    }
 }

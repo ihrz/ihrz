@@ -680,6 +680,11 @@ export interface LanguageData {
 	economy_manage_rewards_cooldown_invalid_time: string;
 	economy_manage_rewards_cooldown_command_ok: string;
 	economy_manage_rewards_set_money: string;
+	msg_economy_config_invalid: string;
+	msg_economy_set_money_invalid_type: string;
+	msg_economy_set_cooldown_invalid_type: string;
+	msg_economy_boost_invalid: string;
+	msg_ranks_message_too_short: string;
 	economy_role_list_no_buyable_roles: string;
 	economy_role_list_embed_title: string;
 	economy_role_list_embed_desc: string;
@@ -2585,6 +2590,8 @@ export interface LanguageData {
 	msg_profil_birthday_invalid: string;
 	msg_profil_birthday_saved: string;
 	msg_profil_use_subcommand: string;
+	msg_profil_gender_invalid: string;
+	msg_profil_pronoun_invalid: string;
 	msg_welcomer_panel_title: string;
 	msg_welcomer_panel_hint: string;
 	msg_automod_toggled: string;

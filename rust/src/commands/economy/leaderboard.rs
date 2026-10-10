@@ -14,11 +14,11 @@ fn medal_for(rank: usize) -> &'static str {
 /// the filter is unit-testable without live Discord; the command passes
 /// the serenity user cache (`users.cache.get` in TS).
 fn filter_cached_users(
-    rows: Vec<(u64, f64, f64)>,
+    rows: Vec<(u64, f64, f64, f64)>,
     is_cached: &dyn Fn(u64) -> bool,
-) -> Vec<(u64, f64, f64)> {
+) -> Vec<(u64, f64, f64, f64)> {
     rows.into_iter()
-        .filter(|(uid, _, _)| is_cached(*uid))
+        .filter(|(uid, _, _, _)| is_cached(*uid))
         .collect()
 }
 
@@ -29,10 +29,10 @@ fn filter_cached_users(
 /// negative podium wealth. The Rust side saturates at 0 — the TS
 /// negative is a display bug (an SVG bar cannot render a negative
 /// width), not data; stored balances are untouched.
-fn podium_entries(rows: &[(u64, f64, f64)]) -> Vec<(String, u64)> {
+fn podium_entries(rows: &[(u64, f64, f64, f64)]) -> Vec<(String, u64)> {
     rows.iter()
         .take(8)
-        .map(|(uid, total, _)| (format!("<@{uid}>"), total.max(0.0) as u64))
+        .map(|(uid, total, _, _)| (format!("<@{uid}>"), total.max(0.0) as u64))
         .collect()
 }
 
@@ -40,10 +40,14 @@ fn podium_entries(rows: &[(u64, f64, f64)]) -> Vec<(String, u64)> {
 /// blob rows (`USER.<id>.ECONOMY` exactly; leaf rows under a blob path
 /// must not double-count). Table values win on uid conflicts.
 /// Mirrors the D3 merged-scan precedent (schedule user_entry_texts).
-async fn board_rows(pool: &crate::db::Pool, guild_id: &str) -> Vec<(u64, f64, f64)> {
+/// Rows carry `(uid, total, money, bank)`: the wallet leg is the stored
+/// `money` field like TS (`entry.money` in `!leaderboard.ts`), never
+/// recomputed as `total - bank` (float subtraction drifts on
+/// fractional balances).
+async fn board_rows(pool: &crate::db::Pool, guild_id: &str) -> Vec<(u64, f64, f64, f64)> {
     use crate::commands::owner::main::{legacy_scan, tbl_get_value};
     use std::collections::BTreeMap;
-    let mut merged: BTreeMap<u64, (f64, f64)> = BTreeMap::new();
+    let mut merged: BTreeMap<u64, (f64, f64, f64)> = BTreeMap::new();
     for (k, v) in legacy_scan(pool, guild_id, "USER.").await {
         let rest = match k.strip_prefix("USER.") {
             Some(r) => r,
@@ -60,7 +64,7 @@ async fn board_rows(pool: &crate::db::Pool, guild_id: &str) -> Vec<(u64, f64, f6
             continue;
         };
         if let Ok(a) = serde_json::from_str::<EconAccount>(&v) {
-            merged.insert(id, (a.money + a.bank, a.bank));
+            merged.insert(id, (a.money + a.bank, a.money, a.bank));
         }
     }
     if let Some(root) = tbl_get_value(pool, guild_id, "USER").await {
@@ -71,15 +75,15 @@ async fn board_rows(pool: &crate::db::Pool, guild_id: &str) -> Vec<(u64, f64, f6
                 };
                 if let Some(doc) = node.get("ECONOMY") {
                     if let Ok(a) = serde_json::from_value::<EconAccount>(doc.clone()) {
-                        merged.insert(id, (a.money + a.bank, a.bank));
+                        merged.insert(id, (a.money + a.bank, a.money, a.bank));
                     }
                 }
             }
         }
     }
-    let mut parsed: Vec<(u64, f64, f64)> = merged
+    let mut parsed: Vec<(u64, f64, f64, f64)> = merged
         .into_iter()
-        .map(|(id, (total, bank))| (id, total, bank))
+        .map(|(id, (total, money, bank))| (id, total, money, bank))
         .collect();
     // Mirrors `!leaderboard.ts:79` (`b.totalWealth - a.totalWealth`,
     // descending); NaN sorts last instead of sticking in place.
@@ -123,18 +127,14 @@ pub async fn eco_leaderboard(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         .unwrap_or_else(|| "Wallet".to_string());
     let page_word = crate::lang::get(&code, "var_page").unwrap_or_else(|| "Page".to_string());
     let title = crate::lang::get(&code, "economy_leaderboard_embed_title")
+        // TS also runs a backtick-quoted title replace when building the
+        // PNG html (`` `${interaction.guild.name}` ``) which matches
+        // nothing (no-op); the working `${...}` replace in `createEmbed`
+        // is the one mirrored here.
         .map(|s| s.replace("${interaction.guild.name}", &guild_name(&ctx)))
         .unwrap_or_else(|| "Economy leaderboard".to_string());
-    // Text podium for the top 3, mirroring the podium PNG content
-    // (username + formatted wealth).
-    let podium: Vec<String> = parsed
-        .iter()
-        .take(3)
-        .enumerate()
-        .map(|(i, (uid, total, _))| {
-            format!("{} <@{uid}> — **{}**", medal_for(i), format_num(*total))
-        })
-        .collect();
+    // Rows only on every page like TS (`createEmbed`: the podium lives in
+    // the attached card, never as embed text).
     let items_per_page = 10usize;
     let total_pages = parsed.len().div_ceil(items_per_page);
     let (fname, fbytes) = crate::commands::shared::footer_parts(&ctx, &gid).await;
@@ -150,23 +150,18 @@ pub async fn eco_leaderboard(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
             .skip(start)
             .take(items_per_page)
             .enumerate()
-            .map(|(i, (uid, total, bank))| {
+            .map(|(i, (uid, _, money, bank))| {
                 let rank = start + i;
-                let money = total - bank;
                 format!(
                     "{} **{}** ・ <@{uid}>\n  ┖ {coin} **{}** ({bank_name}) + **{}** ({money_name})",
                     medal_for(rank),
                     rank + 1,
                     format_num(*bank),
-                    format_num(money),
+                    format_num(*money),
                 )
             })
             .collect();
-        let desc = if page == 0 {
-            format!("{}\n\n{}", podium.join("\n"), lines.join("\n"))
-        } else {
-            lines.join("\n")
-        };
+        let desc = lines.join("\n");
         let footer = crate::commands::shared::footer_page_text(
             &fname,
             &page_word,
@@ -296,14 +291,14 @@ mod tests {
 
     #[test]
     fn podium_maps_mentions_and_clamps_negative_wealth() {
-        let rows = vec![(1u64, 300.0f64, 100.0f64), (2, -50.0, 0.0)];
+        let rows = vec![(1u64, 300.0f64, 200.0f64, 100.0f64), (2, -50.0, -50.0, 0.0)];
         assert_eq!(
             podium_entries(&rows),
             vec![("<@1>".to_string(), 300u64), ("<@2>".to_string(), 0u64),]
         );
         assert!(podium_entries(&[]).is_empty());
         // SVG card only takes the top 8, like the ranks board.
-        let many: Vec<(u64, f64, f64)> = (1..=10).map(|i| (i, 100.0, 0.0)).collect();
+        let many: Vec<(u64, f64, f64, f64)> = (1..=10).map(|i| (i, 100.0, 100.0, 0.0)).collect();
         assert_eq!(podium_entries(&many).len(), 8);
     }
 
@@ -317,12 +312,15 @@ mod tests {
         // `if (!user ...) continue`): rows without a cached user never
         // reach the board; survivor order is preserved.
         let rows = vec![
-            (1u64, 300.0f64, 100.0f64),
-            (2, 200.0, 50.0),
-            (3, 100.0, 0.0),
+            (1u64, 300.0f64, 200.0f64, 100.0f64),
+            (2, 200.0, 150.0, 50.0),
+            (3, 100.0, 100.0, 0.0),
         ];
         let out = filter_cached_users(rows, &|uid| uid != 2);
-        assert_eq!(out, vec![(1u64, 300.0f64, 100.0f64), (3, 100.0, 0.0)]);
+        assert_eq!(
+            out,
+            vec![(1u64, 300.0f64, 200.0f64, 100.0f64), (3, 100.0, 100.0, 0.0)]
+        );
         assert!(filter_cached_users(vec![], &|_| true).is_empty());
     }
 
@@ -348,7 +346,12 @@ mod tests {
             .await
             .unwrap();
         let rows = board_rows(&pool, "g").await;
-        assert_eq!(rows, vec![(1u64, 150.0f64, 50.0f64), (2, 15.0, 5.0)]);
+        // Rows carry (uid, total, money, bank): the wallet leg is the
+        // stored money field, never total - bank.
+        assert_eq!(
+            rows,
+            vec![(1u64, 150.0f64, 100.0f64, 50.0f64), (2, 15.0, 10.0, 5.0)]
+        );
         // Other guilds are isolated.
         assert!(board_rows(&pool, "other").await.is_empty());
         // Dual-written uid: table value wins over the legacy row.
@@ -356,8 +359,8 @@ mod tests {
             .await
             .unwrap();
         let rows = board_rows(&pool, "g").await;
-        assert_eq!(rows[0], (1u64, 150.0f64, 50.0f64));
-        assert_eq!(rows[1], (2u64, 15.0f64, 5.0f64));
+        assert_eq!(rows[0], (1u64, 150.0f64, 100.0f64, 50.0f64));
+        assert_eq!(rows[1], (2u64, 15.0f64, 10.0f64, 5.0f64));
         assert!(!legacy_scan(&pool, "g", "USER.").await.is_empty());
     }
 }

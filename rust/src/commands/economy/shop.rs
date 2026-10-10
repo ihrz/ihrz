@@ -90,6 +90,9 @@ pub fn shop_menu_options(
     shop.iter()
         .map(|(role_id, e)| {
             // Mirrors !shop.ts:129-137 (label fallback, owned marking).
+            // DELIBERATE KEEP (improvement): TS shows raw role names;
+            // here labels cap at 100 chars (the Discord select-option
+            // limit) instead of failing the whole menu send.
             let mut label = names
                 .get(role_id)
                 .cloned()

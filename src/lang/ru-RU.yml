@@ -887,6 +887,11 @@ economy_manage_rewards_cooldown_command_ok: "Задержка для ${type} у�
 
 # /economy mange-rewards set-money
 economy_manage_rewards_set_money: "Деньги для ${type} успешно установлены на ${money}."
+msg_economy_config_invalid: "Недопустимое действие: используй on или off."
+msg_economy_set_money_invalid_type: "Недопустимый тип награды: выбери daily, weekly или monthly."
+msg_economy_set_cooldown_invalid_type: "Недопустимый тип награды: выбери rob или work."
+msg_economy_boost_invalid: "Недопустимый буст: выбери значение от 1 до 5."
+msg_ranks_message_too_short: "Сообщение слишком короткое: шаблону уровня нужно минимум 2 символа."
 
 # Profil Customisation commands
 # /setprofilage, /setprofildescriptions, /profil
@@ -3411,6 +3416,8 @@ msg_profil_invalid_age: "Недопустимый возраст: от 13 до 1
 msg_profil_birthday_invalid: "Недопустимая дата рождения: проверьте день/месяц/год (год 1900-2100)."
 msg_profil_birthday_saved: "Дата рождения сохранена."
 msg_profil_use_subcommand: "Используйте подкоманду: show, set-age, set-description, set-gender, set-pronoun, set-birthday."
+msg_profil_gender_invalid: "Недопустимый пол: выбери female, male или non-binary."
+msg_profil_pronoun_invalid: "Недопустимое местоимение: выбери she/her, he/him, they/them, xe/xem, ze/zem или other."
 msg_welcomer_panel_title: "Welcomer panel"
 msg_welcomer_panel_hint: "Use wc-channel / wc-embed / wc-text / wc-components to configure join and leave messages."
 msg_automod_toggled: "Автомод ${kind} ${state}."

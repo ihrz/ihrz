@@ -138,6 +138,25 @@ pub async fn handle_honeypot_claim(
             .await
             .map(|g| g.owner_id == user_id)
             .unwrap_or(false);
+        // Staff exempt (mirrors the Administrator / ManageGuild /
+        // BanMembers / KickMembers early return in
+        // Events/honeypot/honeypot.ts): staff pressing the lure are never
+        // sanctioned, DM'd, or logged. Computed from the already-fetched
+        // member + roles (@everyone counts, Administrator grants all).
+        let mut claim_perms = serenity::Permissions::empty();
+        if let Some(m) = target.as_ref() {
+            for r in &guild_roles {
+                if m.roles.contains(&r.id) || r.id.get() == guild_id.get() {
+                    claim_perms |= r.permissions;
+                }
+            }
+        }
+        if claim_perms.administrator() {
+            claim_perms = serenity::Permissions::all();
+        }
+        if staff_exempt(claim_perms) {
+            return;
+        }
         let manageable =
             target.is_some() && !is_owner && target_top.map(|t| bot_top > t).unwrap_or(false);
         let result = post::sanction_applicable(

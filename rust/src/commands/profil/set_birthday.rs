@@ -33,6 +33,11 @@ pub fn validate_birthday_ts(day: u8, month: u8, year: i32) -> bool {
 /// `validate_birthday`, which enforces real month lengths (Feb 31 rejected,
 /// leap years honored). The `year <= current year` upper bound is kept from
 /// the TS year modal.
+///
+/// SINGLE-REPLY (documented flattening): TS answers per-field
+/// (`invalid_day` / `invalid_month` / `invalid_year` + `already_set`
+/// replies, `!set-birthday.ts:309-405`); here every invalid birthday
+/// gets the one `msg_profil_birthday_invalid` reply.
 #[poise::command(
     slash_command,
     prefix_command,

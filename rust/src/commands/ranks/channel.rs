@@ -68,6 +68,24 @@ pub async fn clear_xp_channel_routed(
     .await
 }
 
+/// Pure `on`/`off` classifier. Mirrors `ranks/!channel.ts:60,111`: the
+/// comparisons are case-sensitive (`===` for `on`, `==` for `off`) with
+/// no trim, so only the exact inputs act — `ON`, ` on`, `Off` all fall
+/// through every branch and return silently, like TS.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ChannelAction {
+    On,
+    Off,
+}
+
+pub fn channel_action_kind(action: &str) -> Option<ChannelAction> {
+    match action {
+        "on" => Some(ChannelAction::On),
+        "off" => Some(ChannelAction::Off),
+        _ => None,
+    }
+}
+
 /// Shared `on`/`off` runner. Mirrors `ranks/!channel.ts:50-146`:
 /// the slash path requires an explicit channel (`getChannel("channel")`
 /// null hits `setxpchannels_valid_channel_message`), while the prefix
@@ -96,13 +114,18 @@ async fn run_channel_action(
     let Some(action) = action else {
         return Ok(());
     };
-    let act = action.trim().to_lowercase();
-    match act.as_str() {
+    // Exact match like TS (`===` / `==`): no trim, no lowercase fold.
+    let Some(kind) = channel_action_kind(&action) else {
+        // Mirrors `ranks/!channel.ts:60-146`: only `on`/`off` do anything.
+        // Any other input falls through every branch and returns silently.
+        return Ok(());
+    };
+    match kind {
         // `on`: announce channel set. The slash
         // path requires the explicit option (TS `getChannel("channel")`
         // null errors); only the prefix path falls back to the current
         // channel (`|| interaction.channel` in `!channel.ts`).
-        "on" => {
+        ChannelAction::On => {
             let explicit = channel.as_ref().map(|c| c.id.get().to_string());
             let target = match explicit {
                 Some(id) => id,
@@ -171,7 +194,7 @@ async fn run_channel_action(
             )
             .await?;
         }
-        "off" => {
+        ChannelAction::Off => {
             let title = say(
                 "setxpchannels_logs_embed_title_disable",
                 "XP Channel Logs (disable)",
@@ -216,11 +239,6 @@ async fn run_channel_action(
             ))
             .await?;
         }
-        // Mirrors `ranks/!channel.ts:60-146`: only `on`/`off` do anything.
-        // Any other input falls through every branch and returns silently.
-        _ => {
-            return Ok(());
-        }
     }
     Ok(())
 }
@@ -248,10 +266,24 @@ pub async fn ranks_channel(
 
 #[cfg(test)]
 mod tests {
-    use super::{clear_xp_channel_routed, load_xp_channel_routed, save_xp_channel_routed};
+    use super::{channel_action_kind, clear_xp_channel_routed, load_xp_channel_routed};
+    use super::{save_xp_channel_routed, ChannelAction};
 
     async fn mem_pool() -> crate::db::Pool {
         crate::db::memory_pool().await
+    }
+
+    #[test]
+    fn channel_action_matches_exactly_like_ts() {
+        assert_eq!(channel_action_kind("on"), Some(ChannelAction::On));
+        assert_eq!(channel_action_kind("off"), Some(ChannelAction::Off));
+        // Case-sensitive, no trim: everything else falls through silently.
+        assert_eq!(channel_action_kind("ON"), None);
+        assert_eq!(channel_action_kind("Off"), None);
+        assert_eq!(channel_action_kind(" on"), None);
+        assert_eq!(channel_action_kind("off "), None);
+        assert_eq!(channel_action_kind(""), None);
+        assert_eq!(channel_action_kind("disable"), None);
     }
 
     #[tokio::test]

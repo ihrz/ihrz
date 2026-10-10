@@ -872,6 +872,11 @@ economy_manage_rewards_cooldown_command_ok: "تم تعيين وقت الانتظ
 
 # /economy mange-rewards set-money
 economy_manage_rewards_set_money: "تم تعيين المال لـ ${type} إلى ${money} بنجاح."
+msg_economy_config_invalid: "إجراء غير صالح: استخدم on أو off."
+msg_economy_set_money_invalid_type: "نوع مكافأة غير صالح: اختر daily أو weekly أو monthly."
+msg_economy_set_cooldown_invalid_type: "نوع مكافأة غير صالح: اختر rob أو work."
+msg_economy_boost_invalid: "تعزيز غير صالح: اختر قيمة بين 1 و 5."
+msg_ranks_message_too_short: "الرسالة قصيرة جدًا: يحتاج قالب المستوى حرفين على الأقل."
 
 # /economy role list
 economy_role_list_no_buyable_roles: "لا توجد رتب قابلة للشراء لعرضها."
@@ -3405,6 +3410,8 @@ msg_profil_invalid_age: "عمر غير صالح: يجب أن يكون بين 13 
 msg_profil_birthday_invalid: "تاريخ ميلاد غير صالح: تحقق من اليوم/الشهر/السنة (السنة 1900-2100)."
 msg_profil_birthday_saved: "تم حفظ تاريخ الميلاد."
 msg_profil_use_subcommand: "استخدم أمرًا فرعيًا: show أو set-age أو set-description أو set-gender أو set-pronoun أو set-birthday."
+msg_profil_gender_invalid: "جنس غير صالح: اختر female أو male أو non-binary."
+msg_profil_pronoun_invalid: "ضمير غير صالح: اختر she/her أو he/him أو they/them أو xe/xem أو ze/zem أو other."
 msg_welcomer_panel_title: "Welcomer panel"
 msg_welcomer_panel_hint: "Use wc-channel / wc-embed / wc-text / wc-components to configure join and leave messages."
 msg_automod_toggled: "الإشراف التلقائي ${kind} ${state}."

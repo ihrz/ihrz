@@ -22,7 +22,15 @@ use super::{
     },
 };
 
-/// Parent group. Mirrors the TS `utils` HybridCommand definition.
+/// Run-less group root. Mirrors the TS `utils` HybridCommand definition.
+// A bare invocation raises SubcommandRequired (mapped to help in
+// `bot.rs`) before this body runs, on both paths.
+// Prefix choice exactness (accepted): `ChoiceParameter` leaves
+// (`slowmode`'s `DurationChoice`: `0`, `5s`..`6h`) match the choice key
+// exactly on the prefix path — `!utils cooldown 5` parses but matches
+// no choice, unlike the TS prefix leg which folded through
+// `timeConversion`. Slash users get the picker, so this only affects
+// prefix discoverability.
 #[poise::command(
     slash_command,
     prefix_command,

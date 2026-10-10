@@ -263,6 +263,7 @@ mod tests {
 }
 
 #[allow(clippy::module_inception)]
+pub mod panel;
 pub mod schedule;
 
 /// Old registry path (`schedule::main::*`) kept working, including the

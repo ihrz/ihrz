@@ -1368,6 +1368,27 @@ impl Handler {
         if ch.channel_id != msg.channel_id.get() {
             return;
         }
+        // 150s expiry enforced at answer time (mirrors the collector
+        // `time: COLLECTOR_TIMEOUT_MS` end leg in onMemberJoin.ts): a stale
+        // challenge — expiry task raced or kick failed — never accepts a
+        // code again. The late answer is deleted, the member kicked, the
+        // challenge message removed.
+        if crate::commands::context::now_ms() / 1000 >= ch.expires_at {
+            let (message_id, channel_id) = (ch.message_id, ch.channel_id);
+            guard.remove(&key);
+            drop(guard);
+            let _ = msg.delete(&ctx.http).await;
+            let lang_code = crate::db::guild_lang(&self.pool, Some(guild_id.get())).await;
+            let kick_reason =
+                crate::lang::get(&lang_code, "event_security_kick_reason").unwrap_or_default();
+            if let Ok(member) = guild_id.member(&ctx.http, msg.author.id).await {
+                let _ = member.kick_with_reason(&ctx.http, &kick_reason).await;
+            }
+            let _ = serenity::ChannelId::new(channel_id)
+                .delete_message(&ctx.http, serenity::MessageId::new(message_id))
+                .await;
+            return;
+        }
         let _ = msg.delete(&ctx.http).await;
         if msg.content == ch.code {
             let (role, role2, message_id, channel_id) =
@@ -2365,6 +2386,12 @@ impl Handler {
     /// configured sanction otherwise. Returns the hit on sanction so
     /// callers can run their restore leg (channel delete, ban lift,
     /// re-ban, webhook delete, guild-field revert). Never panics.
+    /// Ordering note (audit S4): the avoid*.ts flows fetch the audit log
+    /// (`getLogs`) before the bot-perm and mode checks, while this guard
+    /// checks the rule mode and the bot gate first and only then fetches
+    /// the audit log. Same sanction outcome in every leg (a missing grant
+    /// or a non-sanctioning mode never sanctions either way); the reorder
+    /// only skips a wasted audit-log fetch.
     async fn protection_guard(
         &self,
         ctx: &serenity::Context,
@@ -2483,12 +2510,14 @@ impl Handler {
                 .map(|(id, c)| (id.get(), c.name.clone()))
                 .collect();
             if let Some(log_id) = crate::funcs::logs_channel_id(&list) {
+                // No embed title by default (audit S9): no avoid*.ts file
+                // sends a titled log embed, so the hit report carries only
+                // the sanction description.
                 let _ = serenity::ChannelId::new(log_id)
                     .send_message(
                         &ctx.http,
                         serenity::CreateMessage::new().embed(
                             serenity::CreateEmbed::default()
-                                .title("Protection")
                                 .description(format!("Sanction {sanction} applied to <@{exec}>."))
                                 .colour(0xBF0BB9),
                         ),
@@ -4064,6 +4093,10 @@ impl serenity::EventHandler for Handler {
                         .await;
                 }
             }
+            // Early return is intentional: the bot is banned above, so the
+            // rest of the join pipeline (roles, greeting, captcha) must not
+            // run for it. TS's parallel listeners race the ban; serialising
+            // the ban first is the sane order.
             return;
         }
         // Minimum account age gate (mirrors tooNewAccount.ts: repeat-join
@@ -4112,10 +4145,16 @@ impl serenity::EventHandler for Handler {
             }
         }
         // Join roles (mirrors joinRole.ts: blob joinroles string|string[],
-        // legacy GUILD.JOIN_ROLE fallback; arrays replace the member's
-        // roles like roles.set, singles add like roles.add).
+        // legacy GUILD.JOIN_ROLE fallback). Array.isArray decides the shape:
+        // a stored array (even single-element) replaces the member's roles
+        // like roles.set, a bare string adds like roles.add.
         let join_roles = crate::events::join_role_ids(&self.pool, &gid).await;
-        if join_roles.len() > 1 {
+        let join_is_array: bool = guild_config_routed(&self.pool, &gid)
+            .await
+            .get("joinroles")
+            .map(|v| v.is_array())
+            .unwrap_or(false);
+        if join_is_array && !join_roles.is_empty() {
             let keep: std::collections::HashSet<u64> = join_roles.iter().copied().collect();
             for role_id in new_member.roles.iter() {
                 if role_id.get() != new_member.guild_id.get() && !keep.contains(&role_id.get()) {
@@ -4386,8 +4425,24 @@ impl serenity::EventHandler for Handler {
                 if !allowed {
                     continue;
                 }
+                // Nonce mirrors ghostPingModule.ts `enforceNonce: true,
+                // nonce: SnowflakeUtil.generate()`: the prime ping is a real
+                // send (so watch channels toast) instantly deleted; the
+                // unique nonce keeps client-side dedup sane.
+                let nonce_ms = std::time::SystemTime::now()
+                    .duration_since(std::time::UNIX_EPOCH)
+                    .map(|d| d.as_millis() as u64)
+                    .unwrap_or(0);
+                let prime = serenity::CreateMessage::new()
+                    .content(format!("<@{}>", new_member.user.id.get()))
+                    .nonce(serenity::model::channel::Nonce::String(format!(
+                        "ghostping-{}-{}-{nonce_ms}",
+                        new_member.guild_id.get(),
+                        new_member.user.id.get()
+                    )))
+                    .enforce_nonce(true);
                 if let Ok(sent) = serenity::ChannelId::new(ch_id)
-                    .say(&ctx.http, format!("<@{}>", new_member.user.id.get()))
+                    .send_message(&ctx.http, prime)
                     .await
                 {
                     let _ = sent.delete(&ctx.http).await;
@@ -4872,24 +4927,11 @@ impl serenity::EventHandler for Handler {
                 }
             }
         }
-        // Custom automod enforcement (link/invite/telegram/mass-mention).
-        {
-            let content = &msg.content;
-            let tripped = (self.automod_on(&gid, "discord-invite").await
-                && crate::commands::guildconfig::contains_discord_invite(content))
-                || (self.automod_on(&gid, "telegram-link").await
-                    && crate::commands::guildconfig::contains_telegram_link(content))
-                || (self.automod_on(&gid, "link").await
-                    && crate::commands::guildconfig::contains_link(content))
-                || (self.automod_on(&gid, "mass-mention").await
-                    && crate::commands::guildconfig::mention_count(content) >= 5);
-            if tripped {
-                let _ = msg.delete(&_ctx.http).await;
-                return;
-            }
-        }
         // XP + stats (mirrors Events/ranks/onNewMessage.ts +
-        // Events/stats/onNewMessage.ts). STATS are recorded for every
+        // Events/stats/onNewMessage.ts). Placed above the custom-automod
+        // block on purpose: TS runs stats/ranks as independent listeners,
+        // so a deleted message still earns its activity row — the automod
+        // delete+return below must never skip it. STATS are recorded for
         // message; the XP legs gate inside `record_message_activity_full`
         // (parseMessageCommand skip, `disable`, bypassChannels). There is
         // no xpchannels earning gate in TS — the channel only routes the
@@ -5008,6 +5050,72 @@ impl serenity::EventHandler for Handler {
                             .add_role(&_ctx.http, poise::serenity_prelude::RoleId::new(rid))
                             .await;
                     }
+                }
+            }
+        }
+        // Custom automod enforcement (link/invite/telegram/mass-mention).
+        // Sits below XP + stats on purpose (see above): the delete+return
+        // never skips activity recording. The return still skips the
+        // downstream game/fun arms (counter, github-lines, honeypot) —
+        // intentional: a removed message must not drive games or unfurls.
+        {
+            let content = &msg.content;
+            let tripped = (self.automod_on(&gid, "discord-invite").await
+                && crate::commands::guildconfig::contains_discord_invite(content))
+                || (self.automod_on(&gid, "telegram-link").await
+                    && crate::commands::guildconfig::contains_telegram_link(content))
+                || (self.automod_on(&gid, "link").await
+                    && crate::commands::guildconfig::contains_link(content))
+                || (self.automod_on(&gid, "mass-mention").await
+                    && crate::commands::guildconfig::mention_count(content) >= 5);
+            if tripped {
+                // Staff + exempt-role + webhook gates (mirrors the
+                // blockSpam.ts head: Administrator/ManageGuild staff skip,
+                // native Keyword-rule exemptRoles skip; webhook messages
+                // never trigger). A skip only spares the delete —
+                // processing falls through below.
+                let mut exempt = msg.webhook_id.is_some();
+                if !exempt {
+                    exempt = msg
+                        .member
+                        .as_ref()
+                        .map(|m| {
+                            m.permissions
+                                .map(|p| p.administrator() || p.manage_guild())
+                                .unwrap_or(false)
+                        })
+                        .unwrap_or(false);
+                }
+                if !exempt {
+                    if let Ok(rules) = guild_id.automod_rules(&_ctx.http).await {
+                        if let Some(rule) = rules.iter().find(|r| {
+                            matches!(
+                                r.trigger,
+                                serenity::Trigger::Keyword { .. } | serenity::Trigger::Unknown(1)
+                            )
+                        }) {
+                            let member_roles: Vec<u64> = if let Some(m) = &msg.member {
+                                m.roles.iter().map(|r| r.get()).collect()
+                            } else {
+                                guild_id
+                                    .member(&_ctx.http, msg.author.id)
+                                    .await
+                                    .map(|m| m.roles.iter().map(|r| r.get()).collect())
+                                    .unwrap_or_default()
+                            };
+                            if rule
+                                .exempt_roles
+                                .iter()
+                                .any(|r| member_roles.contains(&r.get()))
+                            {
+                                exempt = true;
+                            }
+                        }
+                    }
+                }
+                if !exempt {
+                    let _ = msg.delete(&_ctx.http).await;
+                    return;
                 }
             }
         }

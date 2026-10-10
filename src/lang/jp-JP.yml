@@ -872,6 +872,11 @@ economy_manage_rewards_cooldown_command_ok: "${type} のクールダウンが ${
 
 # /economy mange-rewards set-money
 economy_manage_rewards_set_money: "${type} のお金が ${money} に正常に設定されました。"
+msg_economy_config_invalid: "無効なアクションです：on か off を使ってください。"
+msg_economy_set_money_invalid_type: "無効な報酬タイプです：daily、weekly、monthly のいずれかを選んでください。"
+msg_economy_set_cooldown_invalid_type: "無効な報酬タイプです：rob か work を選んでください。"
+msg_economy_boost_invalid: "無効なブーストです：1 から 5 の値を選んでください。"
+msg_ranks_message_too_short: "メッセージが短すぎます：レベルテンプレートは2文字以上必要です。"
 
 # /economy role list
 economy_role_list_no_buyable_roles: "表示できる購入可能なロールはありません。"
@@ -3411,6 +3416,8 @@ msg_profil_invalid_age: "無効な年齢です：13から120の間で入力し�
 msg_profil_birthday_invalid: "無効な誕生日です：日/月/年を確認してください（年は1900-2100）。"
 msg_profil_birthday_saved: "誕生日を保存しました。"
 msg_profil_use_subcommand: "サブコマンドを使ってください：show、set-age、set-description、set-gender、set-pronoun、set-birthday。"
+msg_profil_gender_invalid: "無効な性別です：female、male、non-binary のいずれかを選んでください。"
+msg_profil_pronoun_invalid: "無効な代名詞です：she/her、he/him、they/them、xe/xem、ze/zem、other のいずれかを選んでください。"
 msg_welcomer_panel_title: "Welcomer panel"
 msg_welcomer_panel_hint: "Use wc-channel / wc-embed / wc-text / wc-components to configure join and leave messages."
 msg_automod_toggled: "Automod ${kind} ${state}。"

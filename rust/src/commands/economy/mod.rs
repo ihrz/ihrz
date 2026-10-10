@@ -840,18 +840,20 @@ async fn send_with_footer(
 // The TS options are `String` options with slash `choices`
 // (economy.ts: `type`, `boost`, `action`) while the prefix path takes
 // the raw text verbatim (`method.string` / `method.number`) and stores
-// it with no registry check — an off-list prefix kind lands under
-// `ECONOMY.settings.{kind}.*`, and an off-list boost stores raw.
-// poise 0.6 cannot express that split in one command: `#[choices]`
-// forces an Integer option, and a `ChoiceParameter` enum rejects
-// off-list prefix input with `InvalidChoice` before the body runs
-// (a duplicate slash-only + prefix-only pair is no good either —
-// both dispatches take the first name match). So these params stay
-// plain `String` on both paths (documented delta: the slash dropdown
-// is gone, but slash accepts the same values and prefix mirrors TS
-// verbatim, including the `config` log-and-ignore for unknown
-// actions). Boost text parses with `parse_ts_int` (`parseInt`,
-// NaN -> 0) like TS `method.number`.
+// it with no registry check. poise 0.6 cannot express that split in one
+// command: `#[choices]` forces an Integer option, and a
+// `ChoiceParameter` enum rejects off-list prefix input with
+// `InvalidChoice` before the body runs (a duplicate slash-only +
+// prefix-only pair is no good either — both dispatches take the first
+// name match). So these params stay plain `String` on both paths (no
+// slash dropdown), and each body constrains to its slash choice values
+// with an invalid-value error reply instead of the TS verbatim store
+// (a deliberate divergence, documented per command):
+// `set-money` kind in daily|weekly|monthly, `set-cooldown` kind in
+// rob|work, `boost-set` boost in 1-5 (`parse_ts_int`, `parseInt`
+// semantics), `config` action in on|off (unknown actions also skip the
+// ihorizon log TS still posts). Only the `set-cooldown` duration still
+// travels verbatim.
 
 /// Send the standard disabled-module reply. Returns true when the
 /// caller must stop. Mirrors the `ECONOMY.disabled === true` guard

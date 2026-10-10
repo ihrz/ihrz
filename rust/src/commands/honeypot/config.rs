@@ -577,7 +577,8 @@ async fn panel_followup(
 
 /// Panel press router for the six `honeypot-config-*` custom ids.
 /// Stateless 240s-collector equivalent: message-age expiry renders the
-/// disabled `end` leg, the manager gate reuses `can_manage_honeypot`
+/// disabled `end` leg, the invoker guard rejects other users (even admins)
+/// like the TS `collect` check, the manager gate reuses `can_manage_honeypot`
 /// (admin bit plus the protection allowlist), then each leg mirrors its
 /// TS `collect` branch (selects persist + re-render, preview is
 /// ephemeral, send/toggle post the lure + confirm).
@@ -615,6 +616,24 @@ pub async fn handle_panel_press(
     let now = serenity::Timestamp::now().unix_timestamp();
     if panel_expired(comp.message.timestamp.unix_timestamp(), now) {
         panel_update(ctx, comp, guild_id.get(), &cfg, &t, true).await;
+        return;
+    }
+
+    // Invoker-only panel (mirrors the TS `collect` guard
+    // `i.user.id !== interaction.user.id` → ephemeral `help_not_for_you`):
+    // even another administrator must open their own panel. The opener id
+    // is the stored `createdBy`, read before any leg overwrites it.
+    let opener = cfg
+        .get("createdBy")
+        .and_then(|v| v.as_str())
+        .unwrap_or_default();
+    if !opener.is_empty() && comp.user.id.get().to_string() != opener {
+        panel_ephemeral(
+            ctx,
+            comp,
+            fb("help_not_for_you", "This interaction is not for you"),
+        )
+        .await;
         return;
     }
 

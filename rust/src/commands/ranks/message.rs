@@ -141,10 +141,15 @@ pub async fn ranks_msg(
         crate::commands::economy::post_ihorizon_log(&ctx, &title, &desc).await;
         return Ok(());
     }
-    // Modal `minLength: 2` gate (`!message.ts:145`).
+    // Modal `minLength: 2` gate (`!message.ts:145`): a non-empty template
+    // shorter than 2 chars is rejected (an empty template clears above).
     if !super::xp_message_valid(&trimmed) {
-        ctx.say("Message too short: the level-up template needs at least 2 characters.")
-            .await?;
+        ctx.say(
+            crate::lang::get(&code, "msg_ranks_message_too_short").unwrap_or_else(|| {
+                "Message too short: the level-up template needs at least 2 characters.".to_string()
+            }),
+        )
+        .await?;
         return Ok(());
     }
     let capped = truncate_xp_message(&trimmed);

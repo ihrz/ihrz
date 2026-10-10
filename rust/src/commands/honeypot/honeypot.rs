@@ -1,7 +1,20 @@
 use super::*;
 use super::{config::honeypot_config, post::honeypot_post};
 
-/// Subcommand for honeypot category!
+/// Run-less group root for the honeypot category.
+// TS `SlashCommands/honeypot/honeypot.ts` (`permission: null`): no
+// `default_member_permissions` gate here on purpose, since TS enforces
+// Administrator OR the protection allowlist in code (canManageHoneypot)
+// and a Discord-layer admin block would hide the command from
+// allowlisted non-admin managers.
+// The `config` leaf carries that same manager gate (`honeypot_config`:
+// administrators pass, otherwise the protection allowlist decides),
+// mirroring `!config.ts:55-66,327`. The `post` leaf is a deliberate
+// Rust-only extension (no TS counterpart) and currently carries no gate:
+// flag for the lead before exposing it widely, since it rewrites the
+// trap `channelId`/`messageId`.
+// A bare invocation raises SubcommandRequired (mapped to help in
+// `bot.rs`) before this body runs, on both paths.
 #[poise::command(
     slash_command,
     prefix_command,
@@ -13,10 +26,6 @@ use super::{config::honeypot_config, post::honeypot_post};
 pub async fn honeypot(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())
 }
-// NOTE: no `default_member_permissions` gate here on purpose. TS
-// honeypot.ts sets `permission: null` and enforces Administrator OR the
-// protection allowlist in code (canManageHoneypot); a Discord-layer admin
-// block would hide the command from allowlisted non-admin managers.
 
 /// Two-hour trap window. Mirrors HONEYPOT_WINDOW_MS in
 /// src/core/modules/honeypotManager.ts.
