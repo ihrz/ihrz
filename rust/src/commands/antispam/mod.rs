@@ -11,7 +11,8 @@
 // punishTime 15m. Presets (AntiSpamPreset): chill 1900 / guard 2700 /
 // extreme 3200 maxInterval.
 // The 780-line collector UI (!manage) is flattened to direct subcommands;
-// runtime detection lives in Events/antispam (pending).
+// runtime detection lives in the Handler::antispam_message event leg in
+// rust/src/events_handler.rs (mirrors Events/antispam/onNewMessage.ts).
 
 use crate::bot::Ctx;
 use serde::{Deserialize, Serialize};
@@ -161,13 +162,16 @@ impl AntispamConfig {
         true
     }
 
-    /// Per-field numeric setter mirroring the !manage modals. Threshold is
-    /// clamped like the slash config path (2-20); durations must be
-    /// positive. False for unknown keys or out-of-range values.
+    /// Per-field numeric setter mirroring the !manage modals. The TS
+    /// Threshold modal stores a raw `parseInt` with no clamp, so the
+    /// value is kept as given (negatives saturate to 0: u32 warn flags
+    /// are always `>= 0`, matching the TS `flags >= Threshold` outcome
+    /// for non-positive thresholds). Durations must be positive. False
+    /// for unknown keys or out-of-range values.
     pub fn set_number(&mut self, key: &str, value: i64) -> bool {
         match key {
             "Threshold" | "threshold" => {
-                self.threshold = value.clamp(2, 20) as u32;
+                self.threshold = value.max(0) as u32;
             }
             "maxInterval" | "max_interval_ms" | "maxinterval" => {
                 if value <= 0 {
@@ -384,10 +388,13 @@ mod tests {
         assert!(cfg.set_bool("remove_messages", false));
         assert!(!cfg.remove_messages);
         assert!(!cfg.set_bool("bogus", true));
+        // No 2-20 clamp: the TS Threshold modal stores a raw parseInt.
         assert!(cfg.set_number("Threshold", 50));
-        assert_eq!(cfg.threshold, 20);
+        assert_eq!(cfg.threshold, 50);
         assert!(cfg.set_number("threshold", 0));
-        assert_eq!(cfg.threshold, 2);
+        assert_eq!(cfg.threshold, 0);
+        assert!(cfg.set_number("threshold", -3));
+        assert_eq!(cfg.threshold, 0);
         assert!(cfg.set_number("maxInterval", 2700));
         assert_eq!(cfg.max_interval_ms, 2700);
         assert!(!cfg.set_number("maxInterval", -5));

@@ -122,8 +122,19 @@ pub async fn gc_autoreact(
     channel: serenity::GuildChannel,
     #[description = "Emoji"] emoji: String,
 ) -> Result<(), anyhow::Error> {
+    // Mirrors the TS guard (`!interaction.guild` -> silent return).
+    let Some(guild_id) = ctx.guild_id() else {
+        return Ok(());
+    };
+    let gid = guild_id.get().to_string();
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-    if !crate::funcs::is_single_emoji(&emoji) && !crate::funcs::is_discord_emoji(&emoji) {
+    // Empty input is rejected here (TS lets an empty modal string through
+    // and stores it; the strict check is intentional — an empty reaction
+    // can never fire). Length cap mirrors the TS modal `maxLength: 200`.
+    if emoji.is_empty()
+        || emoji.chars().count() > 200
+        || (!crate::funcs::is_single_emoji(&emoji) && !crate::funcs::is_discord_emoji(&emoji))
+    {
         ctx.say(
             crate::lang::get(&code, "autoreact_invalid_emoji")
                 .unwrap_or_else(|| "Invalid emoji. Please enter a valid emoji.".to_string()),
@@ -131,13 +142,11 @@ pub async fn gc_autoreact(
         .await?;
         return Ok(());
     }
-    let gid = ctx
-        .guild_id()
-        .map(|g| g.get().to_string())
-        .unwrap_or_default();
     let mut map = load_autoreact_map_routed(&ctx.data().pool, &gid).await;
-    // Mirrors the TS 25-channel cap on add.
-    if map.len() >= 25 && !map.contains_key(&channel.id.get().to_string()) {
+    // Mirrors the TS 25-channel cap on add (`currentValues.length >= 25`
+    // refuses even when the channel already has reactions — no update
+    // path exists in TS, so at-cap always denies).
+    if map.len() >= 25 {
         ctx.say(
             crate::lang::get(&code, "autoreact_max_25")
                 .unwrap_or_else(|| "Maximum of 25 autoreact configurations.".to_string()),
@@ -158,35 +167,87 @@ pub async fn gc_autoreact(
     Ok(())
 }
 
+/// One 5-per-page slice of the desc-sorted channel list (TS
+/// `itemsPerPage = 5`, `parseInt(levelB) - parseInt(levelA)` order).
+/// Pure so the paging math is unit-testable; page is 1-based.
+pub fn autoreact_list_page(ids: &[String], page: usize) -> &[String] {
+    let page = page.max(1);
+    let start = (page - 1) * 5;
+    if start >= ids.len() {
+        return &[];
+    }
+    let end = (start + 5).min(ids.len());
+    &ids[start..end]
+}
+
 #[poise::command(
     slash_command,
     prefix_command,
     rename = "autoreact-list",
     default_member_permissions = "ADMINISTRATOR"
 )]
-pub async fn gc_autoreact_list(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
-    let gid = ctx
-        .guild_id()
-        .map(|g| g.get().to_string())
-        .unwrap_or_default();
+pub async fn gc_autoreact_list(
+    ctx: Ctx<'_>,
+    #[description = "Page number"] page: Option<i64>,
+) -> Result<(), anyhow::Error> {
+    // Mirrors the TS guard (`!interaction.guild` -> silent return).
+    let Some(guild_id) = ctx.guild_id() else {
+        return Ok(());
+    };
+    let gid = guild_id.get().to_string();
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let map = load_autoreact_map_routed(&ctx.data().pool, &gid).await;
-    ctx.say(if map.is_empty() {
-        crate::lang::get(&code, "autoreact_remove_not_found")
-            .unwrap_or_else(|| "No autoreact configurations set.".to_string())
-    } else {
-        sorted_channel_ids(&map)
-            .iter()
-            .map(|id| {
-                format!(
-                    "<#{}> {}",
-                    id,
-                    map.get(id).map(|e| e.join(" ")).unwrap_or_default()
-                )
-            })
-            .collect::<Vec<_>>()
-            .join("\n")
-    })
+    let title = crate::lang::get(&code, "autoreact_embed_title")
+        .unwrap_or_else(|| "Autoreact Configuration".to_string());
+    if map.is_empty() {
+        let desc = crate::lang::get(&code, "autoreact_embed_autofields_none_value")
+            .unwrap_or_else(|| "No autoreact configurations set.".to_string());
+        let embed = serenity::CreateEmbed::default()
+            .colour(serenity::Colour::BLURPLE)
+            .title(title)
+            .description(desc);
+        ctx.send(poise::CreateReply::default().embed(embed)).await?;
+        return Ok(());
+    }
+    // TS paginates 5 per page, numeric-descending, with a footer
+    // (`Page x of y`). Poise subcommands have no button collector, so
+    // the page arrives as an argument (default 1, clamped).
+    let ids = sorted_channel_ids(&map);
+    let total_pages = ((ids.len() + 4) / 5).max(1);
+    let want = page.unwrap_or(1).max(1) as usize;
+    let cur = want.min(total_pages);
+    let value_tpl = crate::lang::get(&code, "autoreact_embed_autofields_value")
+        .unwrap_or_else(|| "Reaction: ${reaction}".to_string());
+    let unknown = crate::lang::get(&code, "var_unknown").unwrap_or_else(|| "Unknown".to_string());
+    let mut embed = serenity::CreateEmbed::default()
+        .colour(serenity::Colour::BLURPLE)
+        .title(title);
+    for id in autoreact_list_page(&ids, cur) {
+        let name = match ctx.guild() {
+            Some(g) => g
+                .channels
+                .get(&serenity::ChannelId::new(id.parse().unwrap_or(0)))
+                .map(|c| format!("<#{}>", c.id.get()))
+                .unwrap_or_else(|| unknown.clone()),
+            // Uncached guild: fall back to a raw mention (no cache read).
+            None => format!("<#{id}>"),
+        };
+        let value = value_tpl.replace(
+            "${reaction}",
+            &map.get(id).map(|e| e.join(" ")).unwrap_or_default(),
+        );
+        embed = embed.field(name, value, false);
+    }
+    let footer = crate::lang::get(&code, "autoreact_embed_footer")
+        .unwrap_or_else(|| {
+            "Page ${currentPage} of ${totalPage} • Total Ranks: ${totalReact}".to_string()
+        })
+        .replace("${currentPage}", &cur.to_string())
+        .replace("${totalPage}", &total_pages.to_string())
+        .replace("${totalReact}", &ids.len().to_string());
+    ctx.send(
+        poise::CreateReply::default().embed(embed.footer(serenity::CreateEmbedFooter::new(footer))),
+    )
     .await?;
     Ok(())
 }
@@ -201,12 +262,17 @@ pub async fn gc_autoreact_remove(
     ctx: Ctx<'_>,
     #[description = "Index (from autoreact-list, 1-based)"] index: i64,
 ) -> Result<(), anyhow::Error> {
-    let gid = ctx
-        .guild_id()
-        .map(|g| g.get().to_string())
-        .unwrap_or_default();
+    // Mirrors the TS guard (`!interaction.guild` -> silent return).
+    let Some(guild_id) = ctx.guild_id() else {
+        return Ok(());
+    };
+    let gid = guild_id.get().to_string();
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let mut map = load_autoreact_map_routed(&ctx.data().pool, &gid).await;
+    // Index-based removal is intentional: TS removes via a select menu
+    // over the same desc-sorted entries, and poise subcommands have no
+    // component collector — the 1-based index addresses the position in
+    // the `autoreact-list` page-1 view (`sorted_channel_ids` order).
     let ids = sorted_channel_ids(&map);
     let i = index as usize;
     if i == 0 || i > ids.len() {
@@ -244,10 +310,11 @@ pub async fn gc_autoreact_toggle(
     ctx: Ctx<'_>,
     #[description = "on or off"] action: String,
 ) -> Result<(), anyhow::Error> {
-    let gid = ctx
-        .guild_id()
-        .map(|g| g.get().to_string())
-        .unwrap_or_default();
+    // Mirrors the TS guard (`!interaction.guild` -> silent return).
+    let Some(guild_id) = ctx.guild_id() else {
+        return Ok(());
+    };
+    let gid = guild_id.get().to_string();
     let enabled = matches!(action.to_ascii_lowercase().as_str(), "on" | "power on");
     crate::commands::owner::main::routed_set(
         &ctx.data().pool,
@@ -313,6 +380,29 @@ mod tests {
 
     async fn memory_pool() -> crate::db::Pool {
         crate::db::memory_pool().await
+    }
+
+    #[test]
+    fn list_page_slices_five_per_desc_page() {
+        let ids: Vec<String> = (1..=7).map(|i| i.to_string()).collect();
+        assert_eq!(
+            autoreact_list_page(&ids, 1),
+            &[
+                "1".to_string(),
+                "2".to_string(),
+                "3".to_string(),
+                "4".to_string(),
+                "5".to_string()
+            ]
+        );
+        assert_eq!(
+            autoreact_list_page(&ids, 2),
+            &["6".to_string(), "7".to_string()]
+        );
+        assert!(autoreact_list_page(&ids, 3).is_empty());
+        assert_eq!(autoreact_list_page(&ids, 0).len(), 5);
+        let empty: Vec<String> = vec![];
+        assert!(autoreact_list_page(&empty, 1).is_empty());
     }
 
     #[test]

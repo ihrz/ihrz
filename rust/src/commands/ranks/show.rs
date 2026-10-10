@@ -34,6 +34,24 @@ pub async fn save_rank_routed(
     .await
 }
 
+/// Guild display name for the rank card. Mirrors `!show.ts:82,105-108`
+/// (`user.user.globalName || user.displayName` on the guild member):
+/// the member's display name (server nickname first) wins, falling back
+/// to the global name / username when the member is not resolvable.
+pub async fn rank_display_name(ctx: &Ctx<'_>, user: &serenity::User) -> String {
+    if let Some(gid) = ctx.guild_id() {
+        if let Ok(member) = gid.member(ctx.http(), user.id).await {
+            let name = member.display_name();
+            if !name.is_empty() {
+                return name.to_string();
+            }
+        }
+    }
+    user.global_name
+        .clone()
+        .unwrap_or_else(|| user.name.clone())
+}
+
 #[poise::command(
     slash_command,
     prefix_command,
@@ -61,15 +79,10 @@ pub async fn ranks_show(
     // bar and renders a negative "XP remaining" count. The Rust side
     // saturates at 0 — the TS negative is a display bug, not data.
     let remaining = need.saturating_sub(currentxp);
-    // TS display name (`!show.ts:82,105-108`): `globalName ||
-    // displayName` on the guild member.
-    // DELIBERATE KEEP on the fallback: a serenity `User` carries no guild
-    // display name (no nickname), so the username stands in — the same
-    // username fallback used by the pay reply.
-    let display = member
-        .global_name
-        .clone()
-        .unwrap_or_else(|| member.name.clone());
+    // TS display name (`!show.ts:82,105-108`): the guild member's
+    // display name (server nickname first), with the global name /
+    // username as fallback.
+    let display = rank_display_name(&ctx, member).await;
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     // Snapshot the avatar via the shared image64 helper so the card and
     // the thumbnail survive avatar changes (never a raw CDN URL).

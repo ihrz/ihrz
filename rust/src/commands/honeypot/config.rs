@@ -896,7 +896,7 @@ pub async fn honeypot_config(
         .get("messageId")
         .and_then(|v| v.as_str())
         .unwrap_or_default();
-    let prev_msg = if prev_msg.trim().is_empty() {
+    let mut prev_msg = if prev_msg.trim().is_empty() {
         None
     } else {
         Some(prev_msg.to_string())
@@ -958,6 +958,14 @@ pub async fn honeypot_config(
                 }
             }
         }
+    }
+
+    // TS trap-select leg (`if (config.channelId !== nextChannelId)
+    // config.messageId = undefined`): a changed trap channel invalidates
+    // the stored lure message id (compared after auto-create so the final
+    // id decides).
+    if trap_change_resets_message(&prev_str("channelId"), &trap_id) {
+        prev_msg = None;
     }
 
     let author_id = ctx.author().id.get().to_string();

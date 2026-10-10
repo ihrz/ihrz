@@ -18,26 +18,67 @@ pub struct BlogEntry {
     pub channel_id: String,
 }
 
-/// RSS validation: fetch feed, require XML with an rss/feed root.
-/// Mirrors blogger.validateRssFeed.
-pub fn valid_rss_body(body: &str) -> bool {
-    let t = body.trim_start();
-    (t.starts_with("<?xml") || t.starts_with("<rss") || t.starts_with("<feed"))
-        && (t.contains("<rss") || t.contains("<feed"))
+/// Discord snowflake epoch in millis. Blog ids mirror
+/// `SnowflakeUtil.generate().toString()` in !add.ts (timestamp-based,
+/// unique per add for the `(ID: ...)` display + remove lookup).
+pub const DISCORD_EPOCH_MS: u64 = 1_420_070_400_000;
+
+/// Snowflake-style blog id from unix millis. Mirrors
+/// `SnowflakeUtil.generate()` (timestamp segment with zero
+/// worker/process/increment bits).
+pub fn new_blog_id(now_ms: u64) -> String {
+    now_ms
+        .saturating_sub(DISCORD_EPOCH_MS)
+        .saturating_mul(1 << 22)
+        .to_string()
 }
 
-pub async fn fetch_rss_ok(url: &str) -> bool {
-    fetch_rss_title(url).await.is_some()
+/// Pure feed-body validity. Mirrors the rss-parser parse leg behind
+/// blogger.validateRssFeed: a body with a channel title or a parsable
+/// latest item reads as a feed (a title-less feed with items is valid);
+/// anything else is not. No literal tag scan.
+pub fn rss_body_valid(body: &str) -> bool {
+    extract_feed_title(body).is_some() || latest_rss_item(body).is_some()
+}
+
+async fn fetch_feed_body(url: &str) -> Option<String> {
+    let body = reqwest::Client::new()
+        .get(url)
+        .send()
+        .await
+        .ok()?
+        .text()
+        .await
+        .unwrap_or_default();
+    if body.trim().is_empty() {
+        None
+    } else {
+        Some(body)
+    }
+}
+
+/// Validate an RSS feed URL. Mirrors blogger.validateRssFeed: parse
+/// success reads as valid with the feed title (`None` when the feed
+/// carries no title — callers fall back to `Unknown`/`Unknown Blog`);
+/// only an unreachable URL or a body with neither a title nor a
+/// parsable latest item is invalid.
+pub async fn validate_rss_feed(url: &str) -> (bool, Option<String>) {
+    let Some(body) = fetch_feed_body(url).await else {
+        return (false, None);
+    };
+    if !rss_body_valid(&body) {
+        return (false, None);
+    }
+    (true, extract_feed_title(&body))
 }
 
 /// Feed title for success messages. Mirrors TS validation.name
 /// (`validation.name || "Unknown"`); string scan, no new dep.
+/// None when the feed is unreachable or unparsable, or when a valid
+/// feed carries no title (callers fall back to `Unknown Blog`).
 pub async fn fetch_rss_title(url: &str) -> Option<String> {
-    let body = match reqwest::Client::new().get(url).send().await {
-        Ok(r) => r.text().await.unwrap_or_default(),
-        Err(_) => return None,
-    };
-    if !valid_rss_body(&body) {
+    let body = fetch_feed_body(url).await?;
+    if !rss_body_valid(&body) {
         return None;
     }
     extract_feed_title(&body)
@@ -424,8 +465,9 @@ pub fn config_embed(code: &str, enabled: bool, total: usize) -> serenity::Create
 }
 
 /// Resolve display rows for the blogs embed: feed title (live fetch,
-/// rss URL fallback) plus channel mention ("Channel deleted" when the
-/// fetch fails, like the TS `|| "Channel deleted"` leg).
+/// "Unknown Blog" fallback like getBlogNameByRss) plus channel mention
+/// ("Channel deleted" when the fetch fails, like the TS
+/// `|| "Channel deleted"` leg).
 pub async fn blog_display_rows(
     http: &poise::serenity_prelude::Http,
     blogs: &[BlogEntry],
@@ -434,7 +476,7 @@ pub async fn blog_display_rows(
     for blog in blogs {
         let name = fetch_rss_title(&blog.rss)
             .await
-            .unwrap_or_else(|| blog.rss.clone());
+            .unwrap_or_else(|| "Unknown Blog".to_string());
         let mention = match blog.channel_id.parse::<u64>() {
             Ok(ch) => {
                 use poise::serenity_prelude::ChannelId;
@@ -627,13 +669,33 @@ mod tests {
     }
 
     #[test]
-    fn rss_validation() {
-        assert!(valid_rss_body(
-            r#"<?xml version="1.0"?><rss><channel/></rss>"#
+    fn feed_body_validity_is_parse_based() {
+        // Titled feed, no items: valid (rss-parser parses it).
+        assert!(rss_body_valid(
+            r#"<?xml version="1.0"?><rss><channel><title>My Blog</title></channel></rss>"#
         ));
-        assert!(valid_rss_body(r#"<feed xmlns="x"></feed>"#));
-        assert!(!valid_rss_body("<html></html>"));
-        assert!(!valid_rss_body(""));
+        // Title-less feed with items: valid (S9).
+        assert!(rss_body_valid(
+            "<rss><channel><item><title>T</title><link>http://x/1</link><guid>g1</guid></item></channel></rss>"
+        ));
+        assert!(!rss_body_valid("<html></html>"));
+        assert!(!rss_body_valid(""));
+        assert!(!rss_body_valid("not xml"));
+    }
+
+    #[test]
+    fn blog_ids_are_snowflake_style() {
+        // Epoch maps to zero; ids grow with time like SnowflakeUtil.
+        assert_eq!(new_blog_id(DISCORD_EPOCH_MS), "0");
+        let a = new_blog_id(1_727_863_200_000);
+        let b = new_blog_id(1_727_863_201_000);
+        assert!(a.parse::<u64>().is_ok());
+        assert!(b.parse::<u64>().unwrap() > a.parse::<u64>().unwrap());
+        // Timestamp segment round-trips through the Discord epoch shift.
+        assert_eq!(
+            a.parse::<u64>().unwrap() >> 22,
+            1_727_863_200_000 - DISCORD_EPOCH_MS
+        );
     }
 }
 

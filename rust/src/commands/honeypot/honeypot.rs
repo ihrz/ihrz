@@ -6,12 +6,15 @@ use super::{config::honeypot_config, post::honeypot_post};
     prefix_command,
     category = "honeypot",
     rename = "honeypot",
-    subcommands("honeypot_config", "honeypot_post"),
-    default_member_permissions = "ADMINISTRATOR"
+    subcommands("honeypot_config", "honeypot_post")
 )]
 pub async fn honeypot(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())
 }
+// NOTE: no `default_member_permissions` gate here on purpose. TS
+// honeypot.ts sets `permission: null` and enforces Administrator OR the
+// protection allowlist in code (canManageHoneypot); a Discord-layer admin
+// block would hide the command from allowlisted non-admin managers.
 
 /// Two-hour trap window. Mirrors HONEYPOT_WINDOW_MS in
 /// src/core/modules/honeypotManager.ts.

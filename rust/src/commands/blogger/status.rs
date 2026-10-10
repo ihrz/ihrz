@@ -1,5 +1,17 @@
 use super::*;
 
+/// Blogger power choice. Mirrors the `power` on/off choices in
+/// blogger.ts (display names `Power On` / `Power Off`).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
+pub enum BloggerPower {
+    #[name = "Power On"]
+    #[name = "on"]
+    On,
+    #[name = "Power Off"]
+    #[name = "off"]
+    Off,
+}
+
 #[poise::command(
     slash_command,
     prefix_command,
@@ -8,7 +20,7 @@ use super::*;
 )]
 pub async fn blogger_status(
     ctx: Ctx<'_>,
-    #[description = "on or off"] action: String,
+    #[description = "on or off"] power: BloggerPower,
 ) -> Result<(), anyhow::Error> {
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let say = |key: &str, fallback: &str| {
@@ -18,7 +30,8 @@ pub async fn blogger_status(
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
-    let enabled = matches!(action.to_ascii_lowercase().as_str(), "on" | "power on");
+    // TS !status.ts reads `power` (choices on/off); only On enables.
+    let enabled = matches!(power, BloggerPower::On);
     save_blog_string(
         &ctx.data().pool,
         &gid,

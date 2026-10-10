@@ -7312,15 +7312,15 @@ impl serenity::EventHandler for Handler {
 
     async fn interaction_create(&self, ctx: serenity::Context, interaction: serenity::Interaction) {
         // Autocomplete routing (mirrors slashCommandHandler.ts
-        // isAutocomplete leg: the owning command answers). Only
-        // commandlimit declares an autocomplete option (the `command`
-        // string, choices from getCommandChoices = all registered
-        // command paths incl. subcommands); other commands get an empty
-        // choice list so the interaction is still acknowledged.
-        // Poise has no autocomplete hook for gc_commandlimit (its
-        // `command` param declares no autocomplete fn), so this raw arm
-        // is the only responder — no double-ack risk.
+        // isAutocomplete leg: the owning command answers). `commandlimit`
+        // owns a poise autocomplete fn now, so the raw arm skips it
+        // (poise answers; answering here too would double-ack). Other
+        // commands get an empty choice list so the interaction is still
+        // acknowledged.
         if let serenity::Interaction::Autocomplete(auto) = &interaction {
+            if auto.data.name == "commandlimit" {
+                return;
+            }
             let focused = auto
                 .data
                 .options

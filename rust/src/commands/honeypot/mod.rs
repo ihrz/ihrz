@@ -47,7 +47,13 @@ async fn save_honeypot(
         .await
 }
 
-/// Lure claim handler: grace delay, then ban if still enabled.
+/// Lure claim handler.
+///
+/// NOTE (deliberate extension, no TS counterpart): the TS trap is
+/// message-based only (the honeypotManager pipeline). The
+/// `honeypot-claim` button posted by `honeypot_post` gives lurkers a
+/// one-tap claim, and this handler runs the same sanction -> DM ->
+/// sweep -> full-log sequence as `run_trap_pipeline` for it.
 pub async fn handle_honeypot_claim(
     ctx: &serenity::Context,
     comp: &serenity::ComponentInteraction,
@@ -66,11 +72,18 @@ pub async fn handle_honeypot_claim(
         return Ok(());
     }
     let user_id = comp.user.id;
+    let channel_id = comp.channel_id;
+    let code = crate::db::guild_lang(pool, Some(guild_id.get())).await;
+    // Never hardcoded user-visible text: new key with an exact en-US
+    // fallback (YAML owned by the lead: `honeypot_claim_checking`).
+    let checking = crate::lang::get(&code, "honeypot_claim_checking")
+        .filter(|s| !s.trim().is_empty())
+        .unwrap_or_else(|| "Checking...".to_string());
     comp.create_response(
         &ctx.http,
         serenity::CreateInteractionResponse::Message(
             serenity::CreateInteractionResponseMessage::new()
-                .content("Checking...")
+                .content(checking)
                 .ephemeral(true),
         ),
     )
@@ -142,25 +155,61 @@ pub async fn handle_honeypot_claim(
             }
             _ => {}
         }
+        let code = crate::db::guild_lang(&pool_clone, Some(guild_id.get())).await;
+        let text = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
+        // DM notify (best effort) so the claimant knows what happened;
+        // delivery is reported in the log like the message pipeline.
+        let guild_name = guild_id
+            .to_partial_guild(&http)
+            .await
+            .map(|g| g.name.clone())
+            .unwrap_or_default();
+        let dm_action = text(post::claim_dm_key(result));
+        let dm_embed = serenity::CreateEmbed::default()
+            .colour(0xD88A3D_u32)
+            .thumbnail("https://www.ihorizon.org/assets/img/honeypot.png")
+            .title(text("honeypot_dm_title"))
+            .description(
+                text("honeypot_dm_desc")
+                    .replace("${guild}", &guild_name)
+                    .replace("${action}", &dm_action),
+            );
+        let dm_delivered = user_id
+            .direct_message(&http, serenity::CreateMessage::new().embed(dm_embed))
+            .await
+            .is_ok();
+        // Attacker-message sweep, same two passes 8s apart as the message
+        // pipeline (the claim press itself carries no message).
+        let first = sweep_user_messages(&http, guild_id, user_id).await;
+        tokio::time::sleep(std::time::Duration::from_millis(8000)).await;
+        let second = sweep_user_messages(&http, guild_id, user_id).await;
+        let deleted = first + second;
+        // Full 10-field log embed, like sendLogs: a button press has no
+        // message text/attachments, so those rows render their lang
+        // fallbacks; trigger count is the single claim press.
         if post::should_post_claim_log(&trap.logs_channel_id) {
             if let Ok(chan_id) = trap.logs_channel_id.parse::<u64>() {
-                let chan = serenity::ChannelId::new(chan_id);
-                let code = crate::db::guild_lang(&pool_clone, Some(guild_id.get())).await;
-                let t = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
-                let action_label = t(post::claim_log_key(result));
-                let action_label = if action_label.trim().is_empty() {
-                    result.to_string()
-                } else {
-                    action_label
+                let author_mention = format!("<@{}>", user_id.get());
+                let author_id = user_id.get().to_string();
+                let channel_mention = format!("<#{}>", channel_id.get());
+                let empty = String::new();
+                let log_data = post::ClaimLogData {
+                    author_mention: &author_mention,
+                    author_id: &author_id,
+                    channel_mention: &channel_mention,
+                    trigger_count: 1,
+                    deleted_count: deleted,
+                    embed_count: 0,
+                    dm_delivered,
+                    message_content: &empty,
+                    attachment_urls: &empty,
+                    sticker_names: &empty,
+                    first_image_url: None,
+                    action_result: result,
                 };
-                let title = t("honeypot_log_title");
-                let title = if title.trim().is_empty() {
-                    format!("Honeypot Triggered - {action_label}")
-                } else {
-                    title.replace("${action}", &action_label)
-                };
-                let _ = chan
-                    .say(&http, format!("<@{}>: {title}", user_id.get()))
+                let log_embed = post::build_claim_log_embed(&text, &log_data);
+                let _ = serenity::ChannelId::new(chan_id)
+                    .send_message(&http, serenity::CreateMessage::new().embed(log_embed))
                     .await;
             }
         }
@@ -204,6 +253,12 @@ pub fn parse_trap_config(raw: Option<String>) -> HoneypotTrap {
     }
 }
 
+/// Staff exemption predicate. Mirrors the `message.member?.permissions.any`
+/// OR in src/Events/honeypot/honeypot.ts (Administrator, ManageGuild,
+/// BanMembers, KickMembers): any one of the four bits exempts.
+pub fn staff_exempt(perms: serenity::Permissions) -> bool {
+    perms.administrator() || perms.manage_guild() || perms.ban_members() || perms.kick_members()
+}
 /// Truncate a log field. Mirrors truncate() (1024 + ...).
 pub fn truncate_field(s: &str) -> String {
     const MAX: usize = 1024;
@@ -237,11 +292,7 @@ pub fn schedule_trap(ctx: &serenity::Context, pool: &crate::db::Pool, msg: &sere
     }
     // Staff are exempt (mirrors Events/honeypot/honeypot.ts).
     if let Some(perms) = msg.member.as_ref().and_then(|m| m.permissions) {
-        if perms.administrator()
-            || perms.manage_guild()
-            || perms.ban_members()
-            || perms.kick_members()
-        {
+        if staff_exempt(perms) {
             return;
         }
     }
@@ -644,6 +695,18 @@ mod tests {
             HONEYPOT_WINDOW_MS / 1000,
             post::CLAIM_BAN_DELETE_SECS as i64
         );
+    }
+
+    #[test]
+    fn staff_exempt_matches_ts_any_or() {
+        use poise::serenity_prelude::Permissions;
+        // Any single one of the four TS `.any()` bits exempts.
+        assert!(staff_exempt(Permissions::ADMINISTRATOR));
+        assert!(staff_exempt(Permissions::MANAGE_GUILD));
+        assert!(staff_exempt(Permissions::BAN_MEMBERS));
+        assert!(staff_exempt(Permissions::KICK_MEMBERS));
+        assert!(!staff_exempt(Permissions::empty()));
+        assert!(!staff_exempt(Permissions::SEND_MESSAGES));
     }
 
     #[test]

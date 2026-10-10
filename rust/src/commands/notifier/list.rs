@@ -12,16 +12,9 @@ pub async fn notifier_list(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
-    // Authors + configuration embeds (TS !list.ts sends
-    // generateAuthorsEmbed + generateConfigurationEmbed).
-    if load_entries(&ctx.data().pool, &gid).await.is_empty() {
-        ctx.say(
-            crate::lang::get(&code, "msg_notifier_list_empty")
-                .unwrap_or_else(|| "No notifier entries.".to_string()),
-        )
-        .await?;
-        return Ok(());
-    }
+    // Authors + configuration embeds, always both (TS !list.ts sends
+    // generateAuthorsEmbed + generateConfigurationEmbed even when the
+    // watch list is empty).
     let (authors, config) = authors_and_config_embeds(&ctx.data().pool, &gid, &code).await;
     ctx.send(poise::CreateReply::default().embed(authors).embed(config))
         .await?;

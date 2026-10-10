@@ -20,6 +20,15 @@ pub fn vd_key(field: &str) -> String {
     format!("VOICE_INTERFACE.{field}")
 }
 
+/// `Yes | ...` acknowledgement prefix. Mirrors the
+/// `${client.iHorizon_Emojis.Yes} | ...` replies in the
+/// !set-voice-channel*.ts commands (app-emoji markup, ✅ fallback).
+async fn yes_markup(http: &serenity::Http) -> String {
+    crate::emojis::app_emoji_markup(http, "Yes")
+        .await
+        .unwrap_or_else(|| "✅".to_string())
+}
+
 #[poise::command(
     slash_command,
     prefix_command,
@@ -62,12 +71,9 @@ pub async fn vd_lobby(
         &channel.id.get().to_string(),
     )
     .await?;
-    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-    ctx.say(
-        crate::lang::get(&code, "msg_voice_lobby_set")
-            .unwrap_or_else(|| "Voice lobby set.".to_string()),
-    )
-    .await?;
+    // Ack mirrors !set-voice-channel.ts (`Yes | <#id>`).
+    let yes = yes_markup(ctx.http()).await;
+    ctx.say(format!("{yes} | <#{}>", channel.id.get())).await?;
     Ok(())
 }
 
@@ -176,12 +182,9 @@ pub async fn vd_category(
         &channel.id.get().to_string(),
     )
     .await?;
-    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-    ctx.say(
-        crate::lang::get(&code, "msg_temp_channels_category_set")
-            .unwrap_or_else(|| "Temp channels category set.".to_string()),
-    )
-    .await?;
+    // Ack mirrors !set-voice-channel-catgory.ts (`Yes | <#id>`).
+    let yes = yes_markup(ctx.http()).await;
+    ctx.say(format!("{yes} | <#{}>", channel.id.get())).await?;
     Ok(())
 }
 
@@ -199,31 +202,43 @@ pub async fn vd_name(
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
+    let name = template.trim().to_string();
     crate::commands::owner::main::routed_set(
         &ctx.data().pool,
         &gid,
         &gid,
         &vd_key("voice_channel_name"),
-        template.trim(),
+        &name,
     )
     .await?;
-    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-    ctx.say(
-        crate::lang::get(&code, "msg_temp_channel_name_set")
-            .unwrap_or_else(|| "Temp channel name set.".to_string()),
-    )
-    .await?;
+    // Ack mirrors !set-voice-channel-name.ts (`Yes | <name>`).
+    let yes = yes_markup(ctx.http()).await;
+    ctx.say(format!("{yes} | {name}")).await?;
     Ok(())
 }
 
-/// Temp-channel position (top/bottom). Mirrors the position_type choices
-/// (`top` | `bottom`) in voicedashboard.ts; the reply mirrors the TS
-/// Yes-arrow acknowledgement (`Yes | ⬆` for top, `Yes | ⬇` otherwise).
-pub fn parse_position(raw: &str) -> Option<&'static str> {
-    match raw.trim().to_lowercase().as_str() {
-        "top" => Some("top"),
-        "bottom" => Some("bottom"),
-        _ => None,
+/// Voice-channel position choice. Mirrors the `position_type`
+/// top/bottom choices in voicedashboard.ts (display names `Up (TOP)`
+/// / `Down (Bottom)`): slash shows the two choices, and a bad prefix
+/// value is rejected by the framework instead of silently storing a
+/// default.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
+pub enum PositionChoice {
+    #[name = "Up (TOP)"]
+    #[name = "top"]
+    Top,
+    #[name = "Down (Bottom)"]
+    #[name = "bottom"]
+    Bottom,
+}
+
+impl PositionChoice {
+    /// Stored `VOICE_INTERFACE.voice_channel_position` value.
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::Top => "top",
+            Self::Bottom => "bottom",
+        }
     }
 }
 
@@ -235,13 +250,13 @@ pub fn parse_position(raw: &str) -> Option<&'static str> {
 )]
 pub async fn vd_position(
     ctx: Ctx<'_>,
-    #[description = "top or bottom"] position_type: String,
+    #[description = "top or bottom"] position: PositionChoice,
 ) -> Result<(), anyhow::Error> {
     let gid = ctx
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
-    let pos = parse_position(&position_type).unwrap_or("bottom");
+    let pos = position.as_str();
     crate::commands::owner::main::routed_set(
         &ctx.data().pool,
         &gid,
@@ -250,7 +265,9 @@ pub async fn vd_position(
         pos,
     )
     .await?;
-    ctx.say(format!("Yes | {}", if pos == "top" { "⬆" } else { "⬇" }))
+    // Ack mirrors !set-voice-channel-position.ts (`Yes | ⬆/⬇`).
+    let yes = yes_markup(ctx.http()).await;
+    ctx.say(format!("{yes} | {}", if pos == "top" { "⬆" } else { "⬇" }))
         .await?;
     Ok(())
 }
@@ -358,6 +375,9 @@ pub async fn vd_staff(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     // Untouched select saves the loaded array; a touched one saves the
     // latest pick (mirrors the TS collector reset + save-button write).
     let mut pending: Option<Vec<String>> = None;
+    // Saved ids survive to the end-edit so the green success state is
+    // kept (the TS end handler edits the same mutated builders).
+    let mut saved_ids: Option<Vec<String>> = None;
     // Single loop drives both collectors (role select + save button),
     // author-gated like the TS filters, 240s like the TS `time`.
     loop {
@@ -392,6 +412,18 @@ pub async fn vd_staff(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
             let raw = serde_json::to_string(&final_ids).unwrap_or_else(|_| "[]".to_string());
             crate::commands::owner::main::routed_set(pool, &gid, &gid, &vd_key("staff_role"), &raw)
                 .await?;
+            // Config log, like `client.func.ihorizon_logs` in
+            // !set-staff-role.ts (best-effort).
+            let log_title = t(
+                "setjoinroles_logs_embed_title_on_enable",
+                "Staff Role Updated",
+            );
+            let log_desc = t(
+                "setjoinroles_logs_embed_description_on_enable",
+                "Staff roles updated by ${interaction.user.id}",
+            )
+            .replace("${interaction.user.id}", &author_id.to_string());
+            crate::commands::economy::post_ihorizon_log(&ctx, &log_title, &log_desc).await;
             // Success state mirrors the TS save-button restyle
             // (Success + Yes emoji + disabled).
             let mut done = serenity::CreateButton::new(STAFF_SAVE_ID)
@@ -418,21 +450,53 @@ pub async fn vd_staff(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
                     ),
                 )
                 .await;
+            saved_ids = Some(final_ids);
             break;
         }
     }
-    // TS `end` handler disables both rows.
+    // TS `end` handler disables both rows. When the save button already
+    // confirmed, the saved ids render with the green disabled Yes
+    // button (the TS end handler edits the same mutated builders, so
+    // the success state survives); otherwise both rows just disable.
     let mut dead_menu = menu.clone();
     dead_menu = dead_menu.disabled(true);
-    let _ = msg
-        .edit(
-            ctx.http(),
-            serenity::EditMessage::new().components(vec![
-                serenity::CreateActionRow::SelectMenu(dead_menu),
-                save_row(save.disabled(true)),
-            ]),
-        )
-        .await;
+    if let Some(ids) = saved_ids {
+        let mut done = serenity::CreateButton::new(STAFF_SAVE_ID)
+            .style(serenity::ButtonStyle::Success)
+            .disabled(true);
+        if let Some((id, name, animated)) =
+            crate::emojis::cached_emoji_entry(ctx.http(), "Yes").await
+        {
+            done = done.emoji(serenity::ReactionType::Custom {
+                animated,
+                id: serenity::EmojiId::new(id),
+                name: Some(name),
+            });
+        } else {
+            done = done.emoji(serenity::ReactionType::Unicode("✅".to_string()));
+        }
+        let _ = msg
+            .edit(
+                ctx.http(),
+                serenity::EditMessage::new()
+                    .embed(mk_embed(&ids))
+                    .components(vec![
+                        serenity::CreateActionRow::SelectMenu(dead_menu),
+                        save_row(done),
+                    ]),
+            )
+            .await;
+    } else {
+        let _ = msg
+            .edit(
+                ctx.http(),
+                serenity::EditMessage::new().components(vec![
+                    serenity::CreateActionRow::SelectMenu(dead_menu),
+                    save_row(save.disabled(true)),
+                ]),
+            )
+            .await;
+    }
     Ok(())
 }
 
@@ -1952,14 +2016,22 @@ mod tests {
     }
 
     #[test]
-    fn position_parses_ts_choices_only() {
-        assert_eq!(parse_position("top"), Some("top"));
-        assert_eq!(parse_position("bottom"), Some("bottom"));
-        assert_eq!(parse_position(" Top "), Some("top"));
-        assert_eq!(parse_position("BOTTOM"), Some("bottom"));
-        assert_eq!(parse_position("up"), None);
-        assert_eq!(parse_position("down"), None);
-        assert_eq!(parse_position(""), None);
+    fn position_choice_covers_ts_choices_only() {
+        use poise::ChoiceParameter as _;
+        assert_eq!(PositionChoice::from_name("top"), Some(PositionChoice::Top));
+        assert_eq!(
+            PositionChoice::from_name("BOTTOM"),
+            Some(PositionChoice::Bottom)
+        );
+        assert_eq!(PositionChoice::from_name("up"), None);
+        assert_eq!(PositionChoice::from_name(""), None);
+        assert_eq!(PositionChoice::Top.as_str(), "top");
+        assert_eq!(PositionChoice::Bottom.as_str(), "bottom");
+        let names: Vec<_> = PositionChoice::list().into_iter().map(|c| c.name).collect();
+        assert_eq!(
+            names,
+            vec!["Up (TOP)".to_string(), "Down (Bottom)".to_string()]
+        );
     }
 
     #[test]

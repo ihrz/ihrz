@@ -277,15 +277,15 @@ fn global_check(
         // Per-command rate limits. Mirrors checkCommandRateLimit:
         // UTILS.COMMAND_LIMITS.<path> then <category> fallback, guild
         // owners bypass, denied runs get commandlimit_rate_limited.
+        // No guild (DM/uncached): no per-guild limits exist, so there is
+        // nothing to enforce — allow through like the TS executor, whose
+        // guild-scoped lookup has no row outside guilds.
+        let Some(guild_id) = ctx.guild_id() else {
+            return Ok(true);
+        };
         let path = ctx.command().qualified_name.clone();
-        let raw = crate::db::kv_get(
-            pool,
-            &ctx.guild_id()
-                .map(|g| g.get().to_string())
-                .unwrap_or_default(),
-            "UTILS.COMMAND_LIMITS",
-        )
-        .await;
+        let raw =
+            crate::db::kv_get(pool, &guild_id.get().to_string(), "UTILS.COMMAND_LIMITS").await;
         let map: std::collections::HashMap<String, crate::commands::guildconfig::CommandLimit> =
             raw.and_then(|s| serde_json::from_str(&s).ok())
                 .unwrap_or_default();
@@ -293,28 +293,23 @@ fn global_check(
         let limit = map.get(&path).or_else(|| map.get(&category)).cloned();
         if let Some(limit) = limit {
             if limit.count > 0 && limit.window_ms > 0 {
-                let bypass = match ctx.guild_id() {
-                    Some(gid) => {
-                        let owner = gid
-                            .to_partial_guild(ctx.http())
-                            .await
-                            .map(|g| g.owner_id)
-                            .unwrap_or_else(|_| ctx.author().id);
-                        owner == ctx.author().id
-                            || crate::db::kv_get(
-                                pool,
-                                &gid.get().to_string(),
-                                &format!("GUILD.OWNER.{}", ctx.author().id.get()),
-                            )
-                            .await
-                            .is_some()
-                    }
-                    None => false,
-                };
+                let owner = guild_id
+                    .to_partial_guild(ctx.http())
+                    .await
+                    .map(|g| g.owner_id)
+                    .unwrap_or_else(|_| ctx.author().id);
+                let bypass = owner == ctx.author().id
+                    || crate::db::kv_get(
+                        pool,
+                        &guild_id.get().to_string(),
+                        &format!("GUILD.OWNER.{}", ctx.author().id.get()),
+                    )
+                    .await
+                    .is_some();
                 if !bypass {
                     let left = command_rate_limit_check(
                         pool,
-                        ctx.guild_id().map(|g| g.get()).unwrap_or(0),
+                        guild_id.get(),
                         &path,
                         ctx.author().id.get(),
                         limit.count,
@@ -323,9 +318,17 @@ fn global_check(
                     )
                     .await;
                     if left > 0 {
+                        // Guild lang drives the duration units, mirroring
+                        // `to_beautiful_string(remainingTime, lang)`.
                         let msg = crate::lang::get(&code, "commandlimit_rate_limited")
                             .unwrap_or_default()
-                            .replace("${time}", &crate::funcs::beautiful_ms(left as f64));
+                            .replace(
+                                "${time}",
+                                &crate::commands::guildconfig::beautiful_ms_lang(
+                                    left as f64,
+                                    &code,
+                                ),
+                            );
                         let _ = ctx
                             .send(poise::CreateReply::default().content(msg).ephemeral(true))
                             .await;

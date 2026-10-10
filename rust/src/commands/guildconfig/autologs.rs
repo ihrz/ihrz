@@ -19,7 +19,7 @@ pub async fn gc_autologs(
         .map(|g| g.get().to_string())
         .unwrap_or_default();
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-    for t in LOG_TYPES.iter().filter(|t| **t != "all") {
+    for t in LOG_TYPES.iter() {
         crate::db::kv_set(
             &ctx.data().pool,
             &gid,
@@ -29,12 +29,7 @@ pub async fn gc_autologs(
         .await?;
     }
     let mention = format!("<#{}>", channel.id.get());
-    let types = LOG_TYPES
-        .iter()
-        .filter(|t| **t != "all")
-        .copied()
-        .collect::<Vec<_>>()
-        .join(", ");
+    let types = LOG_TYPES.join(", ");
     ctx.say(
         crate::lang::get(&code, "setlogschannel_utils_command_work")
             .map(|s| {

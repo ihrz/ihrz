@@ -18,8 +18,8 @@ pub async fn blogger_add(
     let say = |key: &str, fallback: &str| {
         crate::lang::get(&code, key).unwrap_or_else(|| fallback.to_string())
     };
-    let feed_title = fetch_rss_title(rss.trim()).await;
-    if feed_title.is_none() {
+    let (valid, feed_title) = validate_rss_feed(rss.trim()).await;
+    if !valid {
         ctx.say(say(
             "blogger_blog_add_invalid_rss",
             "The provided RSS feed is invalid or unreachable. Please check the URL and try again.",
@@ -32,22 +32,23 @@ pub async fn blogger_add(
         .map(|g| g.get().to_string())
         .unwrap_or_default();
     let mut blogs = load_blogs(&ctx.data().pool, &gid).await;
-    let id = format!(
-        "{:x}",
-        std::time::SystemTime::now()
-            .duration_since(std::time::UNIX_EPOCH)
-            .map(|d| d.as_nanos())
-            .unwrap_or(1)
-            & 0xffffff
-    );
+    // Snowflake-style id, like `SnowflakeUtil.generate()` in !add.ts.
+    let now_ms = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|d| d.as_millis() as u64)
+        .unwrap_or(DISCORD_EPOCH_MS + 1);
+    let id = new_blog_id(now_ms);
     blogs.push(BlogEntry {
         id: id.clone(),
         rss: rss.trim().to_string(),
         channel_id: channel.id.get().to_string(),
     });
-    blogs.sort_by(|a, b| a.rss.cmp(&b.rss));
-    blogs.dedup_by(|a, b| a.rss == b.rss && a.channel_id == b.channel_id);
+    // Insertion order is kept (TS pushes); dedup keeps the first
+    // occurrence of each rss+channel pair like the TS findIndex filter.
+    let mut seen = std::collections::HashSet::new();
+    blogs.retain(|b| seen.insert((b.rss.clone(), b.channel_id.clone())));
     save_blogs(&ctx.data().pool, &gid, &blogs).await?;
+    // TS `validation.name || "Unknown"`: a title-less feed still adds.
     let feed_title = feed_title.unwrap_or_else(|| "Unknown".to_string());
     let content = say(
         "blogger_blog_add_success",

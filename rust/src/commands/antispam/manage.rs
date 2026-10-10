@@ -89,7 +89,7 @@ pub async fn as_config(
         }
     }
     if let Some(t) = threshold {
-        // Threshold clamps 2-20 inside set_number (slash config path).
+        // Threshold stores raw like the TS number modal (no clamp).
         cfg.set_number("Threshold", t);
     }
     save_antispam(&ctx.data().pool, &gid, &cfg).await?;
@@ -147,12 +147,12 @@ mod tests {
 
     #[test]
     fn manage_ranges_match_ts_modal_legs() {
-        // Threshold clamps 2-20 (slash config path).
+        // Threshold is stored raw (TS parseInt, no clamp).
         let mut cfg = AntispamConfig::default();
         cfg.set_number("Threshold", 50);
-        assert_eq!(cfg.threshold, 20);
+        assert_eq!(cfg.threshold, 50);
         cfg.set_number("Threshold", 0);
-        assert_eq!(cfg.threshold, 2);
+        assert_eq!(cfg.threshold, 0);
         // Durations must be positive (TS to_ms leg rejects the rest).
         assert!(!cfg.set_number("punishTime", 0));
         assert!(!cfg.set_number("punishTime", -1));

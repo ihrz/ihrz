@@ -2,9 +2,9 @@ use super::*;
 use poise::serenity_prelude as serenity;
 
 /// Single-set log types. Mirrors the TS slash `type` choices
-/// (`boost` / `message` singular). The legacy `LOG_TYPES` in `mod.rs`
-/// still lists the plural `boosts` / `messages` auto ids; normalize
-/// below so both spellings resolve to the same key.
+/// (`boost` / `message` singular); plural spellings from the old
+/// `LOG_TYPES` copy and the TS `auto` ids (`boosts`, `ticket-log-channel`)
+/// are folded by `normalize_log_type` below.
 pub const SINGLE_LOG_TYPES: [&str; 10] = [
     "antispam",
     "boost",
@@ -109,6 +109,10 @@ pub async fn gc_setlogs(
     #[channel_types("Text")]
     channel: Option<serenity::GuildChannel>,
 ) -> Result<(), anyhow::Error> {
+    // Mirrors the TS guard (`!interaction.guild` -> silent return).
+    if ctx.guild_id().is_none() {
+        return Ok(());
+    }
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let t = log_type.trim().to_ascii_lowercase();
     if is_log_mode(&t) {
@@ -119,6 +123,10 @@ pub async fn gc_setlogs(
         }
         return Ok(());
     }
+    // TS stays silent when `type` matches neither `auto`/`off` nor the
+    // map (falls off the end despite `thinking: true`); replying
+    // `msg_bad_log_type` is intentional — silence leaves the invoker
+    // hanging on a deferred interaction.
     if !is_single_log_type(&t) {
         ctx.say(
             crate::lang::get(&code, "msg_bad_log_type")
@@ -168,10 +176,16 @@ async fn handle_single(
     }
     let label = display_name(code, canonical);
     let user_id = ctx.author().id.get();
+    // Resolve the Yes app emoji like TS (`client.iHorizon_Emojis.Yes`);
+    // plain check-mark fallback when the emoji cache is cold (no YAML).
+    let yes = crate::emojis::app_emoji_markup(ctx.http(), "Yes")
+        .await
+        .unwrap_or_else(|| "✅".to_string());
     let confirmation = render_confirmation(
         &crate::lang::get(code, "setlogschannel_confirmation_message").unwrap_or_else(|| {
             "${client.iHorizon_Emojis.Yes} | Here is now for the `${typeOfLogs}`, setup by <@${interaction.user.id}>!".to_string()
         }),
+        &yes,
         user_id,
         &label,
     );
@@ -233,10 +247,14 @@ async fn handle_auto(
             .map(|id| display_name(code, id))
             .collect::<Vec<_>>();
         let user_id = ctx.author().id.get();
+        let yes = crate::emojis::app_emoji_markup(ctx.http(), "Yes")
+            .await
+            .unwrap_or_else(|| "✅".to_string());
         let confirmation = render_confirmation(
             &crate::lang::get(code, "setlogschannel_confirmation_message").unwrap_or_else(|| {
                 "${client.iHorizon_Emojis.Yes} | Here is now for the `${typeOfLogs}`, setup by <@${interaction.user.id}>!".to_string()
             }),
+            &yes,
             user_id,
             &labels.join(","),
         );
@@ -300,6 +318,9 @@ async fn handle_auto(
     let user_id = ctx.author().id.get();
     let mut created: Vec<String> = Vec::new();
     let mut created_labels: Vec<String> = Vec::new();
+    let yes = crate::emojis::app_emoji_markup(ctx.http(), "Yes")
+        .await
+        .unwrap_or_else(|| "✅".to_string());
     for id in &missing {
         let label = display_name(code, id);
         let builder = serenity::CreateChannel::new(slug_channel_name(&label))
@@ -316,6 +337,7 @@ async fn handle_auto(
             &crate::lang::get(code, "setlogschannel_confirmation_message").unwrap_or_else(|| {
                 "${client.iHorizon_Emojis.Yes} | Here is now for the `${typeOfLogs}`, setup by <@${interaction.user.id}>!".to_string()
             }),
+            &yes,
             user_id,
             &label,
         );
@@ -410,9 +432,27 @@ async fn create_logs_category(
         .map(|c| c.id)
 }
 
-/// Post a mod-log embed to the name-contains `ihorizon-logs` channel.
-/// Mirrors `ihorizon_logs.ts` (best-effort, silent when missing).
+/// Post a mod-log embed. Mirrors `ihorizon_logs.ts` (best-effort, silent
+/// when missing): the configured moderation log channel wins when set,
+/// otherwise the name-contains `ihorizon-logs` channel.
 async fn post_mod_log(ctx: &Ctx<'_>, title: &str, description: &str) {
+    let embed = || {
+        serenity::CreateEmbed::default()
+            .colour(serenity::Colour::new(0xbf0bb9))
+            .title(title.to_string())
+            .description(description.to_string())
+    };
+    if let Some(guild_id) = ctx.guild_id() {
+        let gid = guild_id.get().to_string();
+        if let Some(target) = load_log_channel_routed(&ctx.data().pool, &gid, "moderation").await {
+            if let Ok(num) = target.parse::<u64>() {
+                let _ = serenity::ChannelId::new(num)
+                    .send_message(ctx.http(), serenity::CreateMessage::new().embed(embed()))
+                    .await;
+                return;
+            }
+        }
+    }
     let Some(guild_id) = ctx.guild_id() else {
         return;
     };
@@ -422,24 +462,26 @@ async fn post_mod_log(ctx: &Ctx<'_>, title: &str, description: &str) {
     let Some(ch) = channels.iter().find(|c| c.name.contains("ihorizon-logs")) else {
         return;
     };
-    let embed = serenity::CreateEmbed::default()
-        .colour(serenity::Colour::new(0xbf0bb9))
-        .title(title.to_string())
-        .description(description.to_string());
     let _ = ch
         .id
-        .send_message(ctx.http(), serenity::CreateMessage::new().embed(embed))
+        .send_message(ctx.http(), serenity::CreateMessage::new().embed(embed()))
         .await;
 }
 
-/// Discord channel names: lowercase, spaces/dots to dashes.
+/// Discord channel names: lowercase, separator runs collapsed to one
+/// dash. Mirrors the TS intent (auto-created channels from localized
+/// labels must be Discord-safe): spaces/underscores/dots/dashes fold
+/// to a single `-`, other punctuation is dropped, and non-ASCII
+/// letters are kept (Discord allows unicode channel names).
 pub fn slug_channel_name(label: &str) -> String {
     let mut out = String::with_capacity(label.len());
     for ch in label.to_lowercase().chars() {
-        if ch.is_ascii_alphanumeric() {
+        if ch.is_alphanumeric() {
             out.push(ch);
-        } else if ch == ' ' || ch == '_' || ch == '.' || ch == '-' && !out.ends_with('-') {
-            out.push('-');
+        } else if ch == ' ' || ch == '_' || ch == '.' || ch == '-' || ch.is_whitespace() {
+            if !out.is_empty() && !out.ends_with('-') {
+                out.push('-');
+            }
         }
     }
     let slug = out.trim_matches('-').to_string();
@@ -560,9 +602,14 @@ pub async fn clear_server_logs(pool: &crate::db::Pool, gid: &str) -> bool {
     removed
 }
 
-pub fn render_confirmation(template: &str, user_id: u64, type_label: &str) -> String {
+pub fn render_confirmation(
+    template: &str,
+    yes_markup: &str,
+    user_id: u64,
+    type_label: &str,
+) -> String {
     template
-        .replace("${client.iHorizon_Emojis.Yes}", "✅")
+        .replace("${client.iHorizon_Emojis.Yes}", yes_markup)
         .replace("${interaction.user.id}", &user_id.to_string())
         .replace("${typeOfLogs}", type_label)
 }
@@ -617,7 +664,9 @@ mod tests {
             log_channel_key("moderation"),
             "GUILD.SERVER_LOGS.moderation"
         );
-        assert_eq!(log_channel_key("all"), "GUILD.SERVER_LOGS.all");
+        // No `all` type in TS (modes are `auto`/`off`); it normalizes
+        // through untouched and matches no single type.
+        assert!(!is_single_log_type("all"));
     }
 
     #[test]
@@ -667,10 +716,11 @@ mod tests {
         assert_eq!(
             render_confirmation(
                 "${client.iHorizon_Emojis.Yes} | Here is now for the `${typeOfLogs}`, setup by <@${interaction.user.id}>!",
+                "<:Yes:123>",
                 42,
                 "Voice Logs"
             ),
-            "✅ | Here is now for the `Voice Logs`, setup by <@42>!"
+            "<:Yes:123> | Here is now for the `Voice Logs`, setup by <@42>!"
         );
         assert_eq!(
             render_work(
@@ -714,6 +764,11 @@ mod tests {
         assert_eq!(slug_channel_name("Voice Logs"), "voice-logs");
         assert_eq!(slug_channel_name("AntiSpam Logs"), "antispam-logs");
         assert_eq!(slug_channel_name("!!!"), "logs");
+        // Separator runs collapse to one dash (the old `&&`/`||`
+        // precedence bug produced doubles for spaces).
+        assert_eq!(slug_channel_name("a  b..c--d"), "a-b-c-d");
+        // Non-ASCII letters are kept (Discord allows unicode names).
+        assert_eq!(slug_channel_name("Économie Logs"), "économie-logs");
     }
 
     #[tokio::test]

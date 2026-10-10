@@ -11,7 +11,7 @@ pub async fn notifier_channel(
     ctx: Ctx<'_>,
     #[description = "Channel"]
     #[channel_types("Text", "News")]
-    channel: serenity::GuildChannel,
+    target: serenity::GuildChannel,
 ) -> Result<(), anyhow::Error> {
     let gid = ctx
         .guild_id()
@@ -23,13 +23,13 @@ pub async fn notifier_channel(
     };
     // Already-set guard (TS !channel.ts:56).
     let current = load_notifier_string(&ctx.data().pool, &gid, "NOTIFIER.channelId").await;
-    if current.as_deref() == Some(channel.id.get().to_string().as_str()) {
+    if current.as_deref() == Some(target.id.get().to_string().as_str()) {
         ctx.say(
             say(
                 "joinghostping_add_already_set",
                 "The channel ${channel} is already set!",
             )
-            .replace("${channel}", &format!("<#{}>", channel.id.get())),
+            .replace("${channel}", &format!("<#{}>", target.id.get())),
         )
         .await?;
         return Ok(());
@@ -47,14 +47,14 @@ pub async fn notifier_channel(
             "notifier_config_channel_logsEmbed_desc",
             "Notify channel updated.",
         )
-        .replace("${channel}", &format!("<#{}>", channel.id.get())),
+        .replace("${channel}", &format!("<#{}>", target.id.get())),
     )
     .await;
     save_notifier_string(
         &ctx.data().pool,
         &gid,
         "NOTIFIER.channelId",
-        &channel.id.get().to_string(),
+        &target.id.get().to_string(),
     )
     .await?;
     ctx.say(
@@ -64,7 +64,7 @@ pub async fn notifier_channel(
         )
         .replace(
             "${channel.toString()}",
-            &format!("<#{}>", channel.id.get()),
+            &format!("<#{}>", target.id.get()),
         ),
     )
     .await?;

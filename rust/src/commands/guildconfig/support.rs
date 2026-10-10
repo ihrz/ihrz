@@ -60,10 +60,11 @@ pub async fn gc_support(
     #[description = "The roles to give for our member"] roles: Option<serenity::Role>,
     #[description = "Choose the keywords wanted in the bio"] input: Option<String>,
 ) -> Result<(), anyhow::Error> {
-    let gid = ctx
-        .guild_id()
-        .map(|g| g.get().to_string())
-        .unwrap_or_default();
+    // Mirrors the TS guard (`!interaction.guild` -> silent return).
+    let Some(guild_id) = ctx.guild_id() else {
+        return Ok(());
+    };
+    let gid = guild_id.get().to_string();
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let guild_name = ctx.guild().map(|g| g.name.clone()).unwrap_or_default();
     let on = matches!(action.to_ascii_lowercase().as_str(), "on" | "power on");
@@ -77,6 +78,8 @@ pub async fn gc_support(
             .await?;
             return Ok(());
         };
+        // Rejects anything but `bio`/`tag` like the TS `!type` guard
+        // (slash choices already constrain this; the prefix path needs it).
         let kind = r#type.unwrap_or_default().to_ascii_lowercase();
         if !matches!(kind.as_str(), "bio" | "tag") {
             ctx.say(
@@ -115,6 +118,9 @@ pub async fn gc_support(
             )
             .await?;
         } else {
+            // Empty bio input is kept as-is (TS stores a null/empty input
+            // for `bio` and renders `${input}` verbatim; no extra
+            // validation exists there, so none is added here).
             ctx.say(
                 crate::lang::get(&code, "support_command_work")
                     .map(|s| {

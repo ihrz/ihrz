@@ -1048,9 +1048,10 @@ pub async fn record_message_activity_full(
         if reward > 0.0 {
             let mut econ =
                 crate::commands::economy::balance::load_econ_routed(pool, guild_id, user_id).await;
-            // Integer wallet: TS addCoins carries the float into db.add;
-            // the i64 wallet truncates toward zero on credit.
-            econ.money = econ.money.saturating_add(reward as i64);
+            // Integer wallet: TS addCoins carries the float into db.add
+            // (JS number stays fractional); the i64 wallet rounds to the
+            // nearest coin instead of truncating toward zero.
+            econ.money = econ.money.saturating_add(reward.round() as i64);
             let _ =
                 crate::commands::economy::balance::save_econ_routed(pool, guild_id, user_id, &econ)
                     .await;
@@ -1173,13 +1174,19 @@ pub async fn record_message_activity(
 /// XP gain gate. Mirrors ranks/onNewMessage.ts (`xpTurn === "disable"`
 /// from GUILD.XP_LEVELING.disable, or the channel in `bypassChannels`):
 /// true means no XP is earned. `disable_raw` is the stored disable value
-/// (None when never configured).
+/// (None when never configured). Cross-runtime the leaf may be a bare
+/// JSON boolean (`true` / `false`, what TS `client.db.set` writes) or a
+/// quoted JSON string (`"\"disable\""` kept verbatim by the legacy kv
+/// store): one layer of string quoting is decoded so both forms match.
 pub fn xp_gain_blocked(
     disable_raw: Option<&str>,
     bypass_channels: &[String],
     channel_id: &str,
 ) -> bool {
-    if disable_raw == Some("disable") {
+    let normalized = disable_raw
+        .map(crate::commands::owner::main::decode_stored_string)
+        .unwrap_or_default();
+    if normalized == "disable" {
         return true;
     }
     bypass_channels.iter().any(|c| c == channel_id)
@@ -1195,11 +1202,15 @@ pub fn xp_skip_for_command(command_handled: bool) -> bool {
 /// level-up message via `/ranks config off`, missing SendMessages
 /// permission stays silent): true means no level-up message. XP was still
 /// gained (the full-disable case is caught by xp_gain_blocked first).
+/// Bare and quoted stored forms both match (see `xp_gain_blocked`).
 pub fn xp_announce_suppressed(disable_raw: Option<&str>, can_send: bool) -> bool {
     if !can_send {
         return true;
     }
-    disable_raw == Some("false")
+    disable_raw
+        .map(crate::commands::owner::main::decode_stored_string)
+        .as_deref()
+        == Some("false")
 }
 
 /// Level-up announce routing. Mirrors onNewMessage.ts: no `xpchannels`
@@ -1636,6 +1647,15 @@ mod tests {
         assert!(!xp_announce_suppressed(Some("true"), true));
         assert!(!xp_announce_suppressed(None, true));
         assert!(!xp_announce_suppressed(Some("disable"), true));
+        // Cross-runtime: quoted JSON-string forms match the bare forms.
+        assert!(xp_gain_blocked(Some("\"disable\""), &[], "1"));
+        assert!(!xp_gain_blocked(Some("\"false\""), &[], "1"));
+        assert!(xp_announce_suppressed(Some("\"false\""), true));
+        assert!(!xp_announce_suppressed(Some("\"true\""), true));
+        // Level-up coin credit rounds to the nearest coin (52.5 -> 53),
+        // not truncation toward zero.
+        assert_eq!((52.5f64).round() as i64, 53);
+        assert_eq!((52.4f64).round() as i64, 52);
         // Routing: unset -> reply in place; set + resolvable -> send
         // there; set + missing -> silent.
         assert_eq!(

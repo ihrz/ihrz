@@ -235,7 +235,7 @@ pub async fn protect(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
 pub async fn protect_rule(
     ctx: Ctx<'_>,
     #[description = "Rule (or all/cls)"] rule: String,
-    #[description = "allowlist, member or nobody"] allow: String,
+    #[description = "allowlist, member or nobody (not needed for cls)"] allow: Option<String>,
 ) -> Result<(), anyhow::Error> {
     if deny_unless_owner(
         &ctx,
@@ -253,16 +253,13 @@ pub async fn protect_rule(
             .await?;
         return Ok(());
     }
-    let Some(mode) = normalize_mode(&allow) else {
-        let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-        ctx.say(crate::lang::get(&code, "msg_bad_rule").unwrap_or_else(|| "Bad rule.".to_string()))
-            .await?;
-        return Ok(());
-    };
     let gid = ctx
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
+    // TS `allow` is optional (`required: false` in authorization.ts) and
+    // `cls` never needs it: only the set legs require a mode, otherwise
+    // the TS fallthrough replies `close_error_command`.
     if rule == "cls" {
         // Table-routed clear: legacy prefix rows plus the guild-table subtree.
         crate::commands::owner::main::legacy_del_prefix(&ctx.data().pool, &gid, "PROTECTION.")
@@ -284,6 +281,17 @@ pub async fn protect_rule(
         .await?;
         return Ok(());
     }
+    // Set legs (`all` / single rule) require a mode; without `allow` the
+    // TS fallthrough replies `close_error_command`.
+    let Some(mode) = allow.as_deref().and_then(normalize_mode) else {
+        let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+        ctx.say(
+            crate::lang::get(&code, "close_error_command")
+                .unwrap_or_else(|| "An error occurred, please try again!".to_string()),
+        )
+        .await?;
+        return Ok(());
+    };
     let targets: Vec<String> = if rule == "all" {
         RULES.iter().map(|r| r.to_string()).collect()
     } else {
@@ -592,6 +600,18 @@ pub async fn protect_allow_add(
         .map(|g| g.get().to_string())
         .unwrap_or_default();
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    // TS !add.ts:67-72: getMember resolves to null when the user is not in
+    // the guild (unreachable member guard).
+    if let Some(guild_id) = ctx.guild_id() {
+        if guild_id.member(ctx.http(), user.id).await.is_err() {
+            let msg =
+                crate::lang::get(&code, "allowlist_add_member_unreachable").unwrap_or_else(|| {
+                    "The member you wanted to add to the allowlist is unreachable!".to_string()
+                });
+            ctx.say(msg).await?;
+            return Ok(());
+        }
+    }
     // TS !add.ts:74-79: already allowlisted guard.
     let existing = load_allowlist(&ctx.data().pool, &gid).await;
     if allowlist_contains(&existing, user.id.get()) {

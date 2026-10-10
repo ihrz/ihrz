@@ -20,6 +20,9 @@ pub use super::shared::{
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct CommandLimit {
     pub count: u32,
+    /// TS writes `windowMs` (`commandlimit.ts` payload); accept the legacy
+    /// `window_ms` spelling on read so pre-fix rows still deserialize.
+    #[serde(rename = "windowMs", alias = "window_ms")]
     pub window_ms: i64,
 }
 
@@ -40,18 +43,22 @@ pub fn parse_window_ms(s: &str) -> Option<i64> {
     }
 }
 
-pub const LOG_TYPES: [&str; 11] = [
+/// Canonical single-set log types. Aligned to the TS slash `type`
+/// choices (`setlogschannel.ts`: singular `boost` / `message`, no
+/// `all` — `auto`/`off` are modes, not types). The old 11-entry copy
+/// with plurals + `all` was phantom: keep plural-tolerant reads in
+/// `setlogschannel.rs` (`normalize_log_type`), never in this list.
+pub const LOG_TYPES: [&str; 10] = [
     "antispam",
-    "boosts",
+    "boost",
     "channel",
-    "messages",
+    "message",
     "moderation",
     "roles",
     "ticket",
     "voice",
     "confession",
     "economy",
-    "all",
 ];
 
 pub fn valid_log_type(t: &str) -> bool {
@@ -124,15 +131,39 @@ pub fn ghost_key() -> &'static str {
     "GUILD.GUILD_CONFIG.GHOST_PING.channels"
 }
 
-/// Format a limit. Mirrors formatRateLimit (count + localized window).
+/// Format a limit. Mirrors formatRateLimit (count + localized window):
+/// the window goes through `to_beautiful_string` with the guild lang's
+/// unit names (`var_year`, `var_mo`, ...), never the English-only
+/// `beautiful_ms`.
 pub fn format_limit(limit: &CommandLimit, code: &str) -> String {
     crate::lang::get(code, "commandlimit_current_value")
         .unwrap_or_default()
         .replace("${count}", &limit.count.to_string())
-        .replace(
-            "${time}",
-            &crate::funcs::beautiful_ms(limit.window_ms as f64),
-        )
+        .replace("${time}", &beautiful_ms_lang(limit.window_ms as f64, code))
+}
+
+/// Eight short duration unit names for a guild lang code. Mirrors the
+/// `shortName` lookup in `to_beautiful_string` (`var_year` ... `var_s`);
+/// English fallbacks, no YAML edits (keys already exist).
+pub fn duration_units_for(code: &str) -> [String; 8] {
+    let get = |k: &str, fb: &str| crate::lang::get(code, k).unwrap_or_else(|| fb.to_string());
+    [
+        get("var_year", "y"),
+        get("var_mo", "mo"),
+        get("var_w", "w"),
+        get("var_d", "d"),
+        get("var_h", "h"),
+        get("var_m", "m"),
+        get("var_s", "s"),
+        "ms".to_string(),
+    ]
+}
+
+/// Lang-aware duration label. Mirrors `to_beautiful_string` short form
+/// with the guild lang's units (pure over the code string so the
+/// `bot.rs` deny path can use it without a poise context).
+pub fn beautiful_ms_lang(ms: f64, code: &str) -> String {
+    crate::commands::economy::beautiful_ms_lang(ms, &duration_units_for(code))
 }
 
 /// Toggle an id in a grant list. Returns true when added.
@@ -383,9 +414,12 @@ mod tests {
     }
 
     #[test]
-    fn log_types_cover_11() {
-        assert_eq!(LOG_TYPES.len(), 11);
-        assert!(valid_log_type("all"));
+    fn log_types_cover_10() {
+        assert_eq!(LOG_TYPES.len(), 10);
+        assert!(valid_log_type("boost"));
+        assert!(valid_log_type("message"));
+        assert!(!valid_log_type("all"));
+        assert!(!valid_log_type("boosts"));
         assert!(!valid_log_type("bogus"));
     }
 

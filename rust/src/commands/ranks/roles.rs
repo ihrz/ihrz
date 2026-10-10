@@ -81,7 +81,10 @@ pub async fn save_rank_roles_routed(
 pub async fn ranks_role_add(
     ctx: Ctx<'_>,
     #[description = "Role"] role: serenity::Role,
-    #[description = "Level"] level: i64,
+    // String like the TS level modal (`!roles.ts:284-319`): prefix input
+    // keeps leading-digit `parseInt` semantics (`"12ab"` -> 12) instead
+    // of a hard integer parse failure.
+    #[description = "Level"] level: String,
 ) -> Result<(), anyhow::Error> {
     let gid = ctx
         .guild_id()
@@ -106,8 +109,9 @@ pub async fn ranks_role_add(
         return Ok(());
     }
     // Level gate (mirrors the `!roles.ts:306-319` modal parse:
-    // `parseInt`, NaN or `<= 0` rejected).
-    let Some(lvl) = super::parse_rank_level_input(&level.to_string()) else {
+    // `parseInt`, NaN or `<= 0` rejected; leading digits win on
+    // prefix input like `"12ab"`).
+    let Some(lvl) = super::parse_rank_level_input(&level) else {
         ctx.say(say(
             "ranks_config_add_invalid_level",
             "Invalid level: use a number between 1 and 9999.",
@@ -168,14 +172,14 @@ pub async fn ranks_role_add(
     Ok(())
 }
 
-/// List rank roles.
+/// List rank roles (highest level first, 5 per page).
 // The TS `roles` panel (`ranks.ts:44-60`) requires Administrator for
 // the whole panel (list included), so this leaf carries the same gate.
 #[poise::command(
     slash_command,
     prefix_command,
     rename = "role-list",
-    aliases("rroles"),
+    aliases("rroles", "ranks-roles"),
     default_member_permissions = "ADMINISTRATOR"
 )]
 pub async fn ranks_role_list(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
@@ -183,26 +187,160 @@ pub async fn ranks_role_list(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
-    let roles = load_rank_roles_routed(&ctx.data().pool, &gid).await;
+    let mut roles = load_rank_roles_routed(&ctx.data().pool, &gid).await;
+    // Descending like the TS embed (`!roles.ts:84`:
+    // `parseInt(levelB) - parseInt(levelA)`).
+    roles.sort_by(|a, b| b.level.cmp(&a.level));
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-    ctx.say(if roles.is_empty() {
-        crate::lang::get(&code, "msg_rank_roles_empty")
-            .unwrap_or_else(|| "No rank roles.".to_string())
-    } else {
-        roles
-            .iter()
-            .map(|r| {
-                crate::lang::get(&code, "msg_rank_role_row")
-                    .map(|s| {
-                        s.replace("{roleId}", &r.role_id)
-                            .replace("{level}", &r.level.to_string())
-                    })
-                    .unwrap_or_else(|| format!("<@&{}> — lvl {}", r.role_id, r.level))
+    if roles.is_empty() {
+        ctx.say(
+            crate::lang::get(&code, "msg_rank_roles_empty")
+                .unwrap_or_else(|| "No rank roles.".to_string()),
+        )
+        .await?;
+        return Ok(());
+    }
+    let row = |r: &RankRole| {
+        crate::lang::get(&code, "msg_rank_role_row")
+            .map(|s| {
+                s.replace("{roleId}", &r.role_id)
+                    .replace("{level}", &r.level.to_string())
             })
+            .unwrap_or_else(|| format!("<@&{}> — lvl {}", r.role_id, r.level))
+    };
+    let title = crate::lang::get(&code, "ranks_config_embed_title")
+        .unwrap_or_else(|| "Rank Roles Configuration".to_string());
+    let desc = crate::lang::get(&code, "ranks_config_embed_desc")
+        .unwrap_or_else(|| "Customize your server's XP-based role rewards!".to_string());
+    let not_for_you = crate::lang::get(&code, "help_not_for_you")
+        .unwrap_or_else(|| "This interaction is not for you.".to_string());
+    // 5 rows per page like the TS `itemsPerPage` (`!roles.ts:79`).
+    let per_page = 5usize;
+    let total_pages = roles.len().div_ceil(per_page).max(1);
+    let icon = ctx
+        .guild_id()
+        .and_then(|g| ctx.cache().guild(g))
+        .and_then(|g| g.icon_url());
+    let mk_embed = |page: usize| {
+        let start = page * per_page;
+        let body = roles
+            .iter()
+            .skip(start)
+            .take(per_page)
+            .map(row)
             .collect::<Vec<_>>()
-            .join("\n")
-    })
-    .await?;
+            .join("\n");
+        let footer = crate::lang::get(&code, "ranks_config_help_footer")
+            .map(|s| {
+                s.replace("${currentPage}", &(page + 1).to_string())
+                    .replace("${totalPage}", &total_pages.to_string())
+                    .replace("${totalRanks}", &roles.len().to_string())
+            })
+            .unwrap_or_else(|| {
+                format!(
+                    "Page {}/{} • Total Ranks: {}",
+                    page + 1,
+                    total_pages,
+                    roles.len()
+                )
+            });
+        let embed = serenity::CreateEmbed::default()
+            .title(title.clone())
+            .colour(0x5865F2)
+            .description(format!("{desc}\n\n{body}"))
+            .footer({
+                let mut f = serenity::CreateEmbedFooter::new(footer);
+                if let Some(url) = icon.clone() {
+                    f = f.icon_url(url);
+                }
+                f
+            })
+            .timestamp(serenity::Timestamp::now());
+        embed
+    };
+    let mk_row = |page: usize| {
+        serenity::CreateActionRow::Buttons(vec![
+            serenity::CreateButton::new("rk-roles-prev")
+                .style(serenity::ButtonStyle::Secondary)
+                .label("<<<")
+                .disabled(page == 0),
+            serenity::CreateButton::new("rk-roles-next")
+                .style(serenity::ButtonStyle::Secondary)
+                .label(">>>")
+                .disabled(page + 1 >= total_pages),
+        ])
+    };
+    let handle = ctx
+        .send(
+            poise::CreateReply::default()
+                .embed(mk_embed(0))
+                .components(vec![mk_row(0)]),
+        )
+        .await?;
+    let mut msg = handle.into_message().await?;
+    let mut page = 0usize;
+    let author_id = ctx.author().id;
+    // Mirrors the 3-minute button collector; only the invoker may turn
+    // pages (others get the ephemeral `help_not_for_you` reply like TS).
+    loop {
+        let press = msg
+            .await_component_interaction(ctx.serenity_context().shard.clone())
+            .timeout(std::time::Duration::from_secs(180))
+            .await;
+        let Some(press) = press else { break };
+        if !press.data.custom_id.starts_with("rk-roles-") {
+            continue;
+        }
+        if press.user.id != author_id {
+            let _ = press
+                .create_response(
+                    ctx.http(),
+                    serenity::CreateInteractionResponse::Message(
+                        serenity::CreateInteractionResponseMessage::new()
+                            .content(not_for_you.clone())
+                            .ephemeral(true),
+                    ),
+                )
+                .await;
+            continue;
+        }
+        match press.data.custom_id.as_str() {
+            "rk-roles-prev" => page = page.saturating_sub(1),
+            "rk-roles-next" => {
+                if page + 1 < total_pages {
+                    page += 1;
+                }
+            }
+            _ => continue,
+        }
+        let _ = press
+            .create_response(
+                ctx.http(),
+                serenity::CreateInteractionResponse::UpdateMessage(
+                    serenity::CreateInteractionResponseMessage::new()
+                        .embed(mk_embed(page))
+                        .components(vec![mk_row(page)]),
+                ),
+            )
+            .await;
+    }
+    // Disable the row when the collector ends, like the TS end handler.
+    let end_row = serenity::CreateActionRow::Buttons(vec![
+        serenity::CreateButton::new("rk-roles-prev")
+            .style(serenity::ButtonStyle::Secondary)
+            .label("<<<")
+            .disabled(true),
+        serenity::CreateButton::new("rk-roles-next")
+            .style(serenity::ButtonStyle::Secondary)
+            .label(">>>")
+            .disabled(true),
+    ]);
+    let _ = msg
+        .edit(
+            ctx.http(),
+            serenity::EditMessage::new().components(vec![end_row]),
+        )
+        .await;
     Ok(())
 }
 
@@ -223,7 +361,9 @@ pub fn remove_rank_role(roles: &mut Vec<RankRole>, level: u64) -> bool {
 )]
 pub async fn ranks_role_remove(
     ctx: Ctx<'_>,
-    #[description = "Level"] level: i64,
+    // String like the add flow: leading-digit `parseInt` semantics on
+    // prefix input (`!roles.ts:306`), invalid input hits `no_rank`.
+    #[description = "Level"] level: String,
 ) -> Result<(), anyhow::Error> {
     let gid = ctx
         .guild_id()
@@ -233,7 +373,8 @@ pub async fn ranks_role_remove(
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     // Mirrors the `remove_role` flow (`!roles.ts:373+`): nothing to
     // remove replies with `ranks_config_remove_no_rank`.
-    if !remove_rank_role(&mut roles, level.max(0) as u64) {
+    let parsed = super::parse_rank_level_input(&level).unwrap_or(0);
+    if !remove_rank_role(&mut roles, parsed) {
         ctx.say(
             crate::lang::get(&code, "ranks_config_remove_no_rank")
                 .unwrap_or_else(|| "There are no rank roles configured to remove.".to_string()),
@@ -242,7 +383,7 @@ pub async fn ranks_role_remove(
         return Ok(());
     }
     save_rank_roles_routed(&ctx.data().pool, &gid, &roles).await?;
-    let removed = level.max(0).to_string();
+    let removed = parsed.to_string();
     ctx.say(
         crate::lang::get(&code, "ranks_config_remove_command_work")
             .map(|s| s.replace("${levelToRemove}", &removed))

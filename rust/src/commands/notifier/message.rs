@@ -188,10 +188,7 @@ pub async fn notifier_message(
         let pressed = msg
             .await_component_interaction(ctx.serenity_context().shard.clone())
             .timeout(deadline - now)
-            .filter(move |i| {
-                i.user.id == author
-                    || [NOTIFY_SET_ID, NOTIFY_DEFAULT_ID].contains(&i.data.custom_id.as_str())
-            })
+            .filter(move |i| i.user.id == author)
             .await;
         let Some(pressed) = pressed else { break };
         if pressed.user.id != author {

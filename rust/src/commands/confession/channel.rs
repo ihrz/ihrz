@@ -73,10 +73,11 @@ fn panel_desc_fallback() -> String {
 }
 
 /// Set the confession panel channel. Mirrors !channel.ts.
-// Stores CONFESSION.channel, confirms, then posts the panel embed + button
-// (honoring button-title) and binds GUILD.CONFESSION.panel.
 //
-// Both options are required like the TS schema (channel + button-title).
+// The channel option is optional: slash falls back to the invoking
+// channel and prefix falls back to the parsed channel arg, then the
+// invoking channel (TS `(channel || interaction.channel)`). The
+// button title is optional with the TS `|| "+"` fallback (32 chars).
 #[poise::command(
     slash_command,
     prefix_command,
@@ -87,16 +88,22 @@ pub async fn confession_channel(
     ctx: Ctx<'_>,
     #[description = "The confession channel"]
     #[channel_types("Text")]
-    channel: serenity::GuildChannel,
+    channel: Option<serenity::GuildChannel>,
     #[description = "The button title"]
     #[rename = "button-title"]
-    button_title: String,
+    button_title: Option<String>,
 ) -> Result<(), anyhow::Error> {
     let Some(gid) = ctx.guild_id().map(|g| g.get().to_string()) else {
         return Ok(());
     };
     let pool = &ctx.data().pool;
-    let target_id: u64 = channel.id.get();
+    // TS `interaction.options.getChannel("channel")` (slash) /
+    // parsed-or-current channel (prefix); the option itself is
+    // required in the TS schema but the runtime always has the
+    // invoking channel to fall back on.
+    let target_id: u64 = channel
+        .map(|c| c.id.get())
+        .unwrap_or_else(|| ctx.channel_id().get());
     crate::commands::owner::main::routed_set(
         pool,
         &gid,
@@ -106,7 +113,7 @@ pub async fn confession_channel(
     )
     .await?;
 
-    let button_label = panel_button_label(Some(&button_title));
+    let button_label = panel_button_label(button_title.as_deref());
 
     let code = crate::db::guild_lang(pool, ctx.guild_id().map(|g| g.get())).await;
     let msg = crate::lang::get(&code, "confession_channel_command_work")

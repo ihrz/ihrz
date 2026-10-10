@@ -33,42 +33,105 @@ pub async fn save_ignore_routed(
     .await
 }
 
+/// Parse one channel token: a `<#id>` mention or a raw channel id.
+/// Returns the id on success.
+pub fn parse_ignore_channel_token(token: &str) -> Option<String> {
+    let t = token.trim().trim_start_matches("<#").trim_end_matches('>');
+    let t = t.trim();
+    if t.is_empty() || !t.chars().all(|c| c.is_ascii_digit()) {
+        return None;
+    }
+    let id: u64 = t.parse().ok()?;
+    if id == 0 {
+        return None;
+    }
+    Some(id.to_string())
+}
+
+/// Split a comma-separated channel list (`<#id>`, raw ids, commas
+/// and/or whitespace separated) into channel ids, deduplicated in
+/// first-seen order. Mirrors the TS multi channel-select panel
+/// (`!ignore-channels.ts`, `setMaxValues(25)`).
+pub fn parse_ignore_channel_list(raw: &str) -> Vec<String> {
+    let mut out = Vec::new();
+    for token in raw.split([',', ' ', '\t', '\n']) {
+        if let Some(id) = parse_ignore_channel_token(token) {
+            if !out.contains(&id) {
+                out.push(id);
+            }
+        }
+    }
+    out
+}
+
 #[poise::command(
     slash_command,
     prefix_command,
     rename = "ignore-add",
     default_member_permissions = "ADMINISTRATOR"
 )]
-// One channel per call (toggle). DELIBERATE KEEP (differs from
-// `ranks/!ignore-channels.ts:78-87,125-145`): the TS path is a multi
-// channel-select panel (`setMaxValues(25)`, save button persists the
-// whole selection); poise 0.6 registers `Vec<T>` slash params as
-// a single optional option (0-or-1 values, no multi-select parity), so the
-// flattened slash/prefix form stays single-channel — repeat per channel.
+// One channel per call (toggle), plus an optional comma-separated
+// channel list (toggle each, in order). Mirrors the TS multi
+// channel-select panel (`!ignore-channels.ts:78-87,125-145`,
+// `setMaxValues(25)`); poise 0.6 registers `Vec<T>` slash params as
+// a single optional option (0-or-1 values, no multi-select parity),
+// so extra channels ride a comma-separated string — repeat per
+// channel or pass several at once.
 pub async fn ranks_ignore_add(
     ctx: Ctx<'_>,
     #[description = "Channel"]
     #[channel_types("Text")]
     channel: serenity::GuildChannel,
+    #[description = "More channels, comma-separated"] more: Option<String>,
 ) -> Result<(), anyhow::Error> {
     let gid = ctx
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
-    let (next, added) = toggle_ignore(
-        load_ignore_routed(&ctx.data().pool, &gid).await,
-        &channel.id.get().to_string(),
-    );
-    save_ignore_routed(&ctx.data().pool, &gid, &next).await?;
+    let mut ids = vec![channel.id.get().to_string()];
+    if let Some(raw) = more.as_deref() {
+        for id in parse_ignore_channel_list(raw) {
+            if !ids.contains(&id) {
+                ids.push(id);
+            }
+        }
+    }
+    let mut list = load_ignore_routed(&ctx.data().pool, &gid).await;
+    let mut outcomes: Vec<(String, bool)> = Vec::new();
+    for id in &ids {
+        let (next, added) = toggle_ignore(list, id);
+        list = next;
+        outcomes.push((id.clone(), added));
+    }
+    save_ignore_routed(&ctx.data().pool, &gid, &list).await?;
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-    ctx.say(if added {
-        crate::lang::get(&code, "msg_ignore_channel_added")
-            .unwrap_or_else(|| "Ignore channel added.".to_string())
-    } else {
-        crate::lang::get(&code, "msg_ignore_channel_removed")
-            .unwrap_or_else(|| "Ignore channel removed.".to_string())
-    })
-    .await?;
+    if outcomes.len() == 1 {
+        let added = outcomes[0].1;
+        ctx.say(if added {
+            crate::lang::get(&code, "msg_ignore_channel_added")
+                .unwrap_or_else(|| "Ignore channel added.".to_string())
+        } else {
+            crate::lang::get(&code, "msg_ignore_channel_removed")
+                .unwrap_or_else(|| "Ignore channel removed.".to_string())
+        })
+        .await?;
+        return Ok(());
+    }
+    let lines = outcomes
+        .iter()
+        .map(|(id, added)| {
+            let word = if *added {
+                crate::lang::get(&code, "msg_ignore_channel_added")
+                    .unwrap_or_else(|| "Ignore channel added.".to_string())
+            } else {
+                crate::lang::get(&code, "msg_ignore_channel_removed")
+                    .unwrap_or_else(|| "Ignore channel removed.".to_string())
+            };
+            format!("<#{id}>: {word}")
+        })
+        .collect::<Vec<_>>()
+        .join("\n");
+    ctx.say(lines).await?;
     Ok(())
 }
 
@@ -109,10 +172,26 @@ pub async fn ranks_ignore_list(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
 
 #[cfg(test)]
 mod tests {
-    use super::{load_ignore_routed, save_ignore_routed};
+    use super::{load_ignore_routed, parse_ignore_channel_list, save_ignore_routed};
 
     async fn mem_pool() -> crate::db::Pool {
         crate::db::memory_pool().await
+    }
+
+    #[test]
+    fn comma_separated_channel_list_parses_mentions_and_ids() {
+        assert_eq!(
+            parse_ignore_channel_list("<#123>,456"),
+            vec!["123".to_string(), "456".to_string()]
+        );
+        assert_eq!(
+            parse_ignore_channel_list("  <#7> , 8 ,bogus, ,0"),
+            vec!["7".to_string(), "8".to_string()]
+        );
+        // Duplicates collapse, first-seen order kept.
+        assert_eq!(parse_ignore_channel_list("9,9,<#9>"), vec!["9".to_string()]);
+        assert!(parse_ignore_channel_list("").is_empty());
+        assert!(parse_ignore_channel_list("abc").is_empty());
     }
 
     #[tokio::test]

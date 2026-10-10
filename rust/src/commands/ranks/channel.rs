@@ -69,11 +69,12 @@ pub async fn clear_xp_channel_routed(
 }
 
 /// Shared `on`/`off` runner. Mirrors `ranks/!channel.ts:50-146`:
-/// `on` stores the channel (explicit option, else the current channel
-/// like the TS prefix fallback `|| interaction.channel`), posts the
-/// confirmation message INTO the set channel (`:89-92`), and replies in
-/// place; `off` deletes the row. Same-row / already-unset calls hit the
-/// `already_*` guards instead of writing.
+/// the slash path requires an explicit channel (`getChannel("channel")`
+/// null hits `setxpchannels_valid_channel_message`), while the prefix
+/// path falls back to the current channel (`|| interaction.channel`).
+/// `on` posts the confirmation message INTO the set channel (`:89-92`)
+/// and replies in place; `off` deletes the row. Same-row /
+/// already-unset calls hit the `already_*` guards instead of writing.
 async fn run_channel_action(
     ctx: Ctx<'_>,
     action: Option<String>,
@@ -93,19 +94,25 @@ async fn run_channel_action(
         .map(|a| a.trim().to_lowercase())
         .unwrap_or_else(|| "on".to_string());
     match act.as_str() {
-        // `on` (default when omitted): announce channel set.
+        // `on` (default when omitted): announce channel set. The slash
+        // path requires the explicit option (TS `getChannel("channel")`
+        // null errors); only the prefix path falls back to the current
+        // channel (`|| interaction.channel` in `!channel.ts`).
         "on" => {
-            let Some(target) = channel
-                .as_ref()
-                .map(|c| c.id.get().to_string())
-                .or_else(|| Some(ctx.channel_id().get().to_string()))
-            else {
-                ctx.say(say(
-                    "setxpchannels_valid_channel_message",
-                    "Please provide a valid channel.",
-                ))
-                .await?;
-                return Ok(());
+            let explicit = channel.as_ref().map(|c| c.id.get().to_string());
+            let target = match explicit {
+                Some(id) => id,
+                None if matches!(ctx, poise::Context::Prefix(_)) => {
+                    ctx.channel_id().get().to_string()
+                }
+                None => {
+                    ctx.say(say(
+                        "setxpchannels_valid_channel_message",
+                        "Please provide a valid channel.",
+                    ))
+                    .await?;
+                    return Ok(());
+                }
             };
             let title = say(
                 "setxpchannels_logs_embed_title_enable",
@@ -224,7 +231,7 @@ async fn run_channel_action(
 pub async fn ranks_channel(
     ctx: Ctx<'_>,
     #[description = "on or off"] action: Option<String>,
-    #[description = "Channel (defaults to this one)"]
+    #[description = "Channel (required on slash; current channel on prefix)"]
     #[channel_types("Text")]
     channel: Option<serenity::GuildChannel>,
 ) -> Result<(), anyhow::Error> {
@@ -236,7 +243,7 @@ pub async fn ranks_channel(
 pub async fn ranks_xp_channels(
     ctx: Ctx<'_>,
     #[description = "on or off"] action: Option<String>,
-    #[description = "Channel (defaults to this one)"]
+    #[description = "Channel (required on slash; current channel on prefix)"]
     #[channel_types("Text")]
     channel: Option<serenity::GuildChannel>,
 ) -> Result<(), anyhow::Error> {

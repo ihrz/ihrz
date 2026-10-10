@@ -2609,10 +2609,13 @@ export interface LanguageData {
 	msg_antispam_missing_channel: string;
 	msg_bypass_role_removed: string;
 	msg_bypass_roles_list: string;
+	msg_bypass_roles_cleared: string;
 	msg_bypass_roles_empty: string;
 	msg_ignore_channel_removed: string;
 	msg_ignore_channels_list: string;
+	msg_ignore_channels_cleared: string;
 	msg_ignore_channels_empty: string;
 	honeypot_claim_button_label: string;
+	honeypot_claim_checking: string;
 	topgg_vote_button_label: string;
 }

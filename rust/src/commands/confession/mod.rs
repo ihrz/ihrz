@@ -171,16 +171,11 @@ pub fn confession_cooldown_left(last_ms: Option<u64>, cooldown_ms: u64, now_ms: 
 pub fn panel_target(panel_raw: Option<&str>, fallback: Option<&str>) -> (Option<u64>, Option<u64>) {
     if let Some(raw) = panel_raw {
         if let Ok(v) = serde_json::from_str::<serde_json::Value>(raw) {
-            let ch = v
-                .get("channelId")
-                .and_then(|c| c.as_str())
-                .and_then(|s| s.parse().ok());
+            // TS writes string snowflakes; accept JSON numbers too so
+            // migrated rows resolve the same way.
+            let ch = snowflake_field(&v, "channelId");
             if ch.is_some() {
-                let msg = v
-                    .get("messageId")
-                    .and_then(|m| m.as_str())
-                    .and_then(|s| s.parse().ok());
-                return (ch, msg);
+                return (ch, snowflake_field(&v, "messageId"));
             }
         }
     }
@@ -770,28 +765,33 @@ pub fn confessionres_code(custom_id: &str) -> Option<&str> {
 }
 
 /// True when an archive doc carries this confession code.
-/// Accepts the TS array-item shape and the Rust per-row shape (both
-/// store `code` as a string).
+/// Accepts the Rust per-row shape and TS-era rows: the TS array items
+/// store `code` as a string, but migrated rows may carry it numeric,
+/// so both spellings match (stringified compare).
 pub fn confession_matches_code(entry: &serde_json::Value, code: &str) -> bool {
-    entry.get("code").and_then(|c| c.as_str()) == Some(code)
+    match entry.get("code") {
+        Some(v) if v.as_str() == Some(code) => true,
+        Some(v) => v.as_u64().map(|n| n.to_string() == code).unwrap_or(false),
+        None => false,
+    }
+}
+
+/// One snowflake-ish id out of an archive doc: TS string snowflakes,
+/// JSON numbers, or null (missing). Accepts every spelling so TS-era
+/// rows resolve the same way Rust-written ones do.
+fn snowflake_field(entry: &serde_json::Value, key: &str) -> Option<u64> {
+    entry.get(key).and_then(|v| {
+        v.as_str()
+            .and_then(|s| s.parse().ok())
+            .or_else(|| v.as_u64())
+    })
 }
 
 /// Thread channel id of an archive doc. Accepts the Rust `thread_id`
 /// (number) and the TS `threadChannel` (string snowflake, number, or
 /// null) so migrated TS archives still resolve.
 pub fn entry_thread_id(entry: &serde_json::Value) -> Option<u64> {
-    entry
-        .get("thread_id")
-        .and_then(|v| {
-            v.as_u64()
-                .or_else(|| v.as_str().and_then(|s| s.parse().ok()))
-        })
-        .or_else(|| {
-            entry.get("threadChannel").and_then(|v| {
-                v.as_u64()
-                    .or_else(|| v.as_str().and_then(|s| s.parse().ok()))
-            })
-        })
+    snowflake_field(entry, "thread_id").or_else(|| snowflake_field(entry, "threadChannel"))
 }
 
 /// Find an archived confession by code. Mirrors the ALL_CONFESSIONS
@@ -1115,6 +1115,15 @@ mod tests {
         assert!(confession_matches_code(&rust, "abc123"));
         assert!(!confession_matches_code(&ts, "nope"));
         assert!(!confession_matches_code(&serde_json::json!({}), "abc123"));
+        // TS-era numeric codes resolve the same way (stringified).
+        assert!(confession_matches_code(
+            &serde_json::json!({"code": 42}),
+            "42"
+        ));
+        assert!(!confession_matches_code(
+            &serde_json::json!({"code": 42}),
+            "43"
+        ));
     }
 
     #[test]
@@ -1174,6 +1183,11 @@ mod tests {
         assert_eq!(
             panel_target(Some(r#"{"channelId":"x"}"#), None),
             (None, None)
+        );
+        // TS-era numeric embedded ids resolve the same way.
+        assert_eq!(
+            panel_target(Some(r#"{"channelId":11,"messageId":22}"#), None),
+            (Some(11), Some(22))
         );
     }
 }

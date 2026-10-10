@@ -61,6 +61,9 @@ pub struct RawChannel {
 }
 
 impl From<&GuildChannel> for RawChannel {
+    // serenity passes the API `position` straight through (no sorted-position
+    // computation like discord.js `position`), so this IS the TS
+    // `rawPosition` used for both categories and channels in ready.ts.
     fn from(c: &GuildChannel) -> Self {
         Self {
             id: c.id.get().to_string(),
@@ -74,11 +77,22 @@ impl From<&GuildChannel> for RawChannel {
 }
 
 /// TS `channel.type === GuildText || channel.isTextBased()` approximation
-/// for top-level (non-category) channels.
+/// for top-level (non-category) channels. discord.js `isTextBased()` is
+/// `'messages' in channel`, i.e. text, announcement, voice, stage and
+/// thread channels (forum/media live under ThreadOnlyChannel with no
+/// message manager, directory/DMs never occur as guild snapshot rows).
+/// This intentionally mirrors `GuildChannel::is_text_based` in serenity
+/// 0.12, which encodes the same set.
 pub fn is_text_like(kind: ChannelType) -> bool {
     matches!(
         kind,
-        ChannelType::Text | ChannelType::News | ChannelType::Forum
+        ChannelType::Text
+            | ChannelType::News
+            | ChannelType::Voice
+            | ChannelType::Stage
+            | ChannelType::PublicThread
+            | ChannelType::PrivateThread
+            | ChannelType::NewsThread
     )
 }
 
@@ -243,7 +257,9 @@ mod tests {
                 raw("cat1", "lobby", ChannelType::Category, 0, None),
                 raw("ch1", "general", ChannelType::Text, 1, Some("cat1")),
                 raw("ch2", "top", ChannelType::Text, 0, None),
-                raw("v1", "voice", ChannelType::Voice, 2, None),
+                raw("v1", "voice", ChannelType::Voice, 2, Some("cat1")),
+                raw("f1", "forum", ChannelType::Forum, 3, None),
+                raw("t1", "thread", ChannelType::PublicThread, 4, None),
             ],
             vec![BackupRole {
                 id: "r1".to_string(),
@@ -253,17 +269,52 @@ mod tests {
     }
 
     #[test]
+    fn text_like_matches_serenity_is_text_based() {
+        // Mirrors GuildChannel::is_text_based (serenity 0.12) and the TS
+        // `GuildText || isTextBased()` snapshot gate: voice/stage/threads
+        // count, forum/media/directory do not.
+        for kind in [
+            ChannelType::Text,
+            ChannelType::News,
+            ChannelType::Voice,
+            ChannelType::Stage,
+            ChannelType::PublicThread,
+            ChannelType::PrivateThread,
+            ChannelType::NewsThread,
+        ] {
+            assert!(is_text_like(kind), "text-like: {kind:?}");
+        }
+        for kind in [
+            ChannelType::Category,
+            ChannelType::Forum,
+            ChannelType::Directory,
+            ChannelType::Private,
+            ChannelType::GroupDm,
+            ChannelType::Unknown(16),
+        ] {
+            assert!(!is_text_like(kind), "not text-like: {kind:?}");
+        }
+    }
+
+    #[test]
     fn snapshot_partitions_like_ts() {
         let b = sample();
         assert_eq!(b.categories.len(), 1);
-        assert_eq!(b.categories[0].channels.len(), 1);
+        // Category children nest regardless of kind (TS maps
+        // channel.children.cache wholesale, voice included).
+        assert_eq!(b.categories[0].channels.len(), 2);
         assert_eq!(b.categories[0].channels[0].id, "ch1");
-        // TS also lists category children top-level (separate cache entries).
+        assert_eq!(b.categories[0].channels[1].id, "v1");
+        // TS also lists category children top-level (separate cache entries
+        // passing the text gate).
         let top: Vec<&str> = b.channels.iter().map(|c| c.id.as_str()).collect();
         assert!(top.contains(&"ch1"));
         assert!(top.contains(&"ch2"));
-        // Non-text top-level channels are dropped like TS.
-        assert!(!top.contains(&"v1"));
+        // Voice/stage/thread channels are text-like like TS isTextBased.
+        assert!(top.contains(&"v1"));
+        assert!(top.contains(&"t1"));
+        // Forum/media rows are dropped like TS (not text-based).
+        assert!(!top.contains(&"f1"));
         assert_eq!(b.roles.len(), 1);
     }
 
@@ -293,8 +344,9 @@ mod tests {
         assert_eq!(missing_categories(&b, &gone).len(), 1);
 
         let to_create = category_children_to_create(&b, "cat1", &live);
-        assert_eq!(to_create.len(), 1);
+        assert_eq!(to_create.len(), 2);
         assert_eq!(to_create[0].id, "ch1");
+        assert_eq!(to_create[1].id, "v1");
 
         // ch1 live but moved out of its category -> reparent.
         let parents: HashMap<String, Option<String>> =

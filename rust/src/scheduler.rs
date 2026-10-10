@@ -805,9 +805,10 @@ pub async fn sweep_autorenew(
 /// Blogger RSS poll. Mirrors Blogger.ts 60s refresh: per guild with
 /// BLOGGER.enabled set, latest article per configured blog, skip
 /// when already notified, post the rendered message + link button
-/// (nonce + enforceNonce, like the TS channel.send) + record
-/// otherwise. 5s pacing between blogs mirrors the fetchBlogsFeeds
-/// delay.
+/// (nonce + enforceNonce, like the TS channel.send). The notified row
+/// and the posted count land only on a successful send, like the TS
+/// push inside `if (channel)`. 5s pacing between blogs mirrors the
+/// fetchBlogsFeeds delay.
 pub async fn sweep_blogger(
     pool: &Pool,
     http: &std::sync::Arc<poise::serenity_prelude::Http>,
@@ -860,9 +861,12 @@ pub async fn sweep_blogger(
                 &item.title,
                 &item.author,
                 &item.link,
-                blog_name.as_deref().unwrap_or("Unknown Blog Name"),
+                blog_name.as_deref().unwrap_or("Unknown Blog"),
                 gid,
             );
+            // TS only pushes lastArticleNotified inside `if (channel)`;
+            // the row and the posted count land only on a successful
+            // send, so a failed post is retried on the next tick.
             if let Ok(ch_num) = blog.channel_id.parse::<u64>() {
                 let nonce_ms = std::time::SystemTime::now()
                     .duration_since(std::time::UNIX_EPOCH)
@@ -875,16 +879,17 @@ pub async fn sweep_blogger(
                     ])])
                     .nonce(Nonce::String(format!("blogger-{}-{nonce_ms}", blog.id)))
                     .enforce_nonce(true);
-                let _ = ChannelId::new(ch_num).send_message(http, msg).await;
+                if ChannelId::new(ch_num).send_message(http, msg).await.is_ok() {
+                    let mut list = notified;
+                    list.push(NotifiedArticle {
+                        blog_id: blog.id.clone(),
+                        article_id: item.id.clone(),
+                        timestamp_ms: item.pub_ms,
+                    });
+                    let _ = record_notified_articles(pool, gid, &list).await;
+                    posted += 1;
+                }
             }
-            let mut list = notified;
-            list.push(NotifiedArticle {
-                blog_id: blog.id.clone(),
-                article_id: item.id.clone(),
-                timestamp_ms: item.pub_ms,
-            });
-            let _ = record_notified_articles(pool, gid, &list).await;
-            posted += 1;
             tokio::time::sleep(std::time::Duration::from_secs(5)).await;
         }
     }

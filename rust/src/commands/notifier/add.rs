@@ -33,7 +33,7 @@ pub async fn notifier_add(
     if !platform_supported(&platform) {
         ctx.say(say(
             "msg_bad_platform_twitch_youtube_kick",
-            "Bad platform (twitch, youtube, kick).",
+            "Bad platform (twitch, youtube).",
         ))
         .await?;
         return Ok(());

@@ -203,9 +203,11 @@ pub async fn honeypot_post(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let t = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
 
     // Trap lure embed (never hardcoded user-visible text) with the claim
-    // button row. The claim path must honor the configured action via
-    // resolve_claim_sanction + post to the logs channel (see
-    // should_post_claim_log), never a fixed ban.
+    // button row. NOTE (deliberate extension, no TS counterpart): the TS
+    // trap is message-based only; the Claim button gives lurkers a one-tap
+    // claim handled by `handle_honeypot_claim`, which honors the
+    // configured action via resolve_claim_sanction + posts to the logs
+    // channel (see should_post_claim_log), never a fixed ban.
     let embed = super::config::build_trap_embed(&t);
     let claim_label = crate::lang::get(&code, "honeypot_claim_button_label")
         .filter(|s| !s.trim().is_empty())

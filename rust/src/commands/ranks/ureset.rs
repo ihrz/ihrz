@@ -1,7 +1,9 @@
 use super::*;
 use poise::serenity_prelude as serenity;
 
-/// Reset one user's ranks (defaults to yourself).
+/// Reset one user's ranks (user required).
+// Mirrors `!ureset.ts` (`ranks.ts:190-205`): the slash `user` option is
+// `required: true`, so the target is mandatory (no self default).
 #[poise::command(
     slash_command,
     prefix_command,
@@ -11,7 +13,7 @@ use poise::serenity_prelude as serenity;
 )]
 pub async fn ranks_ureset(
     ctx: Ctx<'_>,
-    #[description = "Member (defaults to yourself)"] user: Option<serenity::User>,
+    #[description = "Member to reset"] user: serenity::User,
 ) -> Result<(), anyhow::Error> {
     if !crate::commands::prompt_reset_confirm(
         &ctx,
@@ -26,8 +28,7 @@ pub async fn ranks_ureset(
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
-    let target = user.as_ref().unwrap_or_else(|| ctx.author());
-    let target_id = target.id.get();
+    let target_id = user.id.get();
     let _ = super::migrated_del(
         &ctx.data().pool,
         &gid,
