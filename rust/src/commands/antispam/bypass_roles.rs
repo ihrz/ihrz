@@ -6,6 +6,7 @@ use super::*;
 // add / remove / clear / list legs.
 const KEY: &str = "GUILD.ANTISPAM.BYPASS_ROLES";
 
+/// Subcommand for bypass-roles category!
 #[poise::command(
     slash_command,
     prefix_command,
@@ -17,7 +18,8 @@ const KEY: &str = "GUILD.ANTISPAM.BYPASS_ROLES";
         "as_bypass_roles_clear",
         "as_bypass_roles_list"
     ),
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    subcommand_required
 )]
 pub async fn as_bypass_roles(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())
@@ -33,6 +35,7 @@ async fn lang_of(ctx: &Ctx<'_>) -> String {
     crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await
 }
 
+/// Add a role for a certain amount of money!
 #[poise::command(slash_command, prefix_command, rename = "add")]
 pub async fn as_bypass_roles_add(
     ctx: Ctx<'_>,
@@ -54,6 +57,7 @@ pub async fn as_bypass_roles_add(
     Ok(())
 }
 
+/// Remove Streamer/Youtuber/Twitcher
 #[poise::command(slash_command, prefix_command, rename = "remove")]
 pub async fn as_bypass_roles_remove(
     ctx: Ctx<'_>,
@@ -75,6 +79,7 @@ pub async fn as_bypass_roles_remove(
     Ok(())
 }
 
+/// Clear a amount of message in the channel !
 #[poise::command(slash_command, prefix_command, rename = "clear")]
 pub async fn as_bypass_roles_clear(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let gid = guild_id_of(&ctx).await;
@@ -90,6 +95,7 @@ pub async fn as_bypass_roles_clear(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())
 }
 
+/// List all sticky channels
 #[poise::command(slash_command, prefix_command, rename = "list")]
 pub async fn as_bypass_roles_list(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let gid = guild_id_of(&ctx).await;

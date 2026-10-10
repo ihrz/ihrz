@@ -1,5 +1,6 @@
 use super::*;
 
+/// Unhide all channels in the server from everyone
 #[poise::command(
     slash_command,
     prefix_command,

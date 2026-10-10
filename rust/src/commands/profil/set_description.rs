@@ -14,6 +14,7 @@ pub fn default_description(desc: Option<String>) -> String {
     }
 }
 
+/// Set your description on the iHorizon's Profil!
 #[poise::command(
     slash_command,
     prefix_command,

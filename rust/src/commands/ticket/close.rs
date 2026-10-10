@@ -16,6 +16,7 @@ pub fn close_transcript_filename(gid: &str) -> String {
     format!("{gid}-transcript.html")
 }
 
+/// Close a ticket!
 #[poise::command(
     slash_command,
     prefix_command,

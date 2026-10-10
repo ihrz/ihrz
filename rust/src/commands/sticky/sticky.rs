@@ -5,6 +5,7 @@ use super::{
 };
 use poise::serenity_prelude as serenity;
 
+/// Subcommand for sticky category!
 #[poise::command(
     slash_command,
     prefix_command,
@@ -17,7 +18,8 @@ use poise::serenity_prelude as serenity;
         "sticky_show",
         "sticky_list",
         "sticky_refresh"
-    )
+    ),
+    subcommand_required
 )]
 pub async fn sticky(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())

@@ -1,5 +1,6 @@
 use super::*;
 
+/// Stop a giveaway!
 #[poise::command(
     slash_command,
     prefix_command,

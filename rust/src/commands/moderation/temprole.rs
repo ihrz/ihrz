@@ -1,6 +1,7 @@
 use super::*;
 use poise::serenity_prelude as serenity;
 
+/// Give a role temporary to a server member
 #[poise::command(
     slash_command,
     prefix_command,

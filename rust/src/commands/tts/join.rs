@@ -95,6 +95,7 @@ async fn load_h247_raw(pool: &crate::db::Pool, guild_id: &str) -> Option<String>
     crate::db::kv_get(pool, guild_id, "GUILD.H247").await
 }
 
+/// Join the voice channel and enable TTS mode!
 #[poise::command(slash_command, prefix_command, rename = "join")]
 pub async fn tts_join(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {

@@ -49,7 +49,8 @@ use super::{
         "transgender",
         "tweet",
         "youtube"
-    )
+    ),
+    subcommand_required
 )]
 pub async fn fun(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())

@@ -112,6 +112,7 @@ async fn live_channel_ids(ctx: &Ctx<'_>) -> std::collections::HashSet<String> {
     }
 }
 
+/// Ghost add command.
 #[poise::command(
     slash_command,
     prefix_command,
@@ -189,6 +190,7 @@ pub async fn gc_ghost_add(
     Ok(())
 }
 
+/// Ghost remove command.
 #[poise::command(
     slash_command,
     prefix_command,
@@ -256,6 +258,7 @@ pub async fn gc_ghost_remove(
     Ok(())
 }
 
+/// Ghost list command.
 #[poise::command(
     slash_command,
     prefix_command,

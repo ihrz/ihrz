@@ -1,5 +1,6 @@
 use super::*;
 
+/// Define allowed roles for addrole & delrole command
 #[poise::command(
     slash_command,
     prefix_command,
@@ -8,7 +9,7 @@ use super::*;
     aliases("wlrole"),
     default_member_permissions = "ADMINISTRATOR"
 )]
-/// List the whitelisted roles panel. Mirrors !wlroles.ts.
+// List the whitelisted roles panel. Mirrors !wlroles.ts.
 // Embed uses `utils_wlroles_embed_title`/`desc` with the `<@&id>`
 // field (`setjoinroles_var_none` fallback); add/remove flow lives in
 // `wlroles-add`, which carries the dangerous-permission and

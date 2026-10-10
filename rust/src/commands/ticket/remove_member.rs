@@ -7,6 +7,7 @@ pub fn render_remove_work(template: &str, username: &str) -> String {
     template.replace("${member.tag}", username)
 }
 
+/// Remove a member from your ticket!
 #[poise::command(
     slash_command,
     prefix_command,

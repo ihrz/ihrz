@@ -1,5 +1,6 @@
 use super::*;
 
+/// Login command.
 #[poise::command(slash_command, prefix_command, rename = "login")]
 pub async fn lastfm_login(
     ctx: Ctx<'_>,

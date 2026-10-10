@@ -13,6 +13,7 @@ pub fn list_author_name(username: &str, display_name: Option<&str>) -> String {
     }
 }
 
+/// List all sticky channels
 #[poise::command(slash_command, prefix_command, rename = "list", aliases("backup-list"))]
 pub async fn backup_list(
     ctx: Ctx<'_>,

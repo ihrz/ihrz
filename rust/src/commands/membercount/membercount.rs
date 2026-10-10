@@ -1,6 +1,7 @@
 use super::*;
 use poise::serenity_prelude as serenity;
 
+/// Set a member count channels!
 #[poise::command(
     slash_command,
     prefix_command,

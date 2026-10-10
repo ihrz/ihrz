@@ -41,8 +41,18 @@ pub fn rss_body_valid(body: &str) -> bool {
     extract_feed_title(body).is_some() || latest_rss_item(body).is_some()
 }
 
+/// Shared HTTP client for feed fetches. One client per process
+/// (connection-pooled) instead of a fresh client per fetch.
+static SHARED_CLIENT: std::sync::OnceLock<reqwest::Client> = std::sync::OnceLock::new();
+
+/// Shared reqwest client for RSS + notifier HTTP (sweeps and author
+/// lookups share it; connection-pooled).
+pub fn shared_client() -> reqwest::Client {
+    SHARED_CLIENT.get_or_init(reqwest::Client::new).clone()
+}
+
 async fn fetch_feed_body(url: &str) -> Option<String> {
-    let body = reqwest::Client::new()
+    let body = shared_client()
         .get(url)
         .send()
         .await
@@ -76,6 +86,8 @@ pub async fn validate_rss_feed(url: &str) -> (bool, Option<String>) {
 /// (`validation.name || "Unknown"`); string scan, no new dep.
 /// None when the feed is unreachable or unparsable, or when a valid
 /// feed carries no title (callers fall back to `Unknown Blog`).
+/// Sweeps must prefer `extract_feed_title` on the already-fetched
+/// body instead of this (no second fetch).
 pub async fn fetch_rss_title(url: &str) -> Option<String> {
     let body = fetch_feed_body(url).await?;
     if !rss_body_valid(&body) {
@@ -84,7 +96,9 @@ pub async fn fetch_rss_title(url: &str) -> Option<String> {
     extract_feed_title(&body)
 }
 
-fn extract_feed_title(body: &str) -> Option<String> {
+/// Channel/feed title scan over raw XML. Pub so sweeps reuse the
+/// already-fetched body instead of refetching per blog.
+pub fn extract_feed_title(body: &str) -> Option<String> {
     let start = body.find("<title>")? + "<title>".len();
     let end = body[start..].find("</title>")? + start;
     let mut title = body[start..end].trim().to_string();
@@ -211,30 +225,76 @@ fn tag_content(item: &str, tag: &str) -> Option<String> {
     Some(item[after_open..end].trim().to_string())
 }
 
+/// Deterministic 64-bit FNV-1a hex. Stable across restarts (unlike
+/// DefaultHasher), so empty-id fallback ids still dedup.
+fn fnv1a_hex(s: &str) -> String {
+    let mut h: u64 = 0xcbf29ce484222325;
+    for b in s.as_bytes() {
+        h ^= *b as u64;
+        h = h.wrapping_mul(0x100000001b3);
+    }
+    format!("{h:016x}")
+}
+
+fn now_ms() -> i64 {
+    std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|d| d.as_millis() as i64)
+        .unwrap_or(0)
+}
+
 fn parse_one_item(item: &str) -> Option<RssItem> {
+    let title = tag_content(item, "title").unwrap_or_else(|| "No title".to_string());
+    let link = tag_content(item, "link").unwrap_or_default();
+    // Empty-id fallback: TS falls back to `""` and still announces
+    // (`guid || id || link || ""`), so dropping the item would
+    // silently miss articles. Fall back to a stable link/title hash
+    // instead, which still dedups across ticks and restarts.
     let id = tag_content(item, "guid")
         .or_else(|| tag_content(item, "id"))
         .or_else(|| tag_content(item, "link"))
-        .filter(|s| !s.is_empty())?;
+        .filter(|s| !s.is_empty())
+        .unwrap_or_else(|| {
+            let seed = if link.is_empty() {
+                title.clone()
+            } else {
+                link.clone()
+            };
+            format!("hash:{}", fnv1a_hex(&seed))
+        });
     let pub_raw = tag_content(item, "pubDate")
         .or_else(|| tag_content(item, "isoDate"))
         .or_else(|| tag_content(item, "published"))
         .or_else(|| tag_content(item, "updated"))
         .unwrap_or_default();
+    // `dc:creator` is what rss-parser maps to `creator` via the
+    // customFields in Blogger.ts; the bare `<creator>` scan never
+    // matches `<dc:creator>`, so both are tried.
     let author = tag_content(item, "creator")
+        .or_else(|| tag_content(item, "dc:creator"))
         .or_else(|| tag_content(item, "author"))
         .filter(|s| !s.is_empty())
         .unwrap_or_else(|| "Unknown".to_string());
+    // Same namespacing story for the snippet: rss-parser's `content`
+    // carries `<content:encoded>`, which the bare scan misses.
     let snippet = tag_content(item, "contentSnippet")
         .or_else(|| tag_content(item, "description"))
         .or_else(|| tag_content(item, "content"))
+        .or_else(|| tag_content(item, "content:encoded"))
         .unwrap_or_default();
+    // Dateless reads as now, mirroring
+    // `new Date(item.pubDate || item.isoDate || Date.now())`: a fresh
+    // article sorts newest instead of oldest (0).
+    let mut pub_ms = parse_pub_ms(&pub_raw);
+    if pub_ms == 0 {
+        pub_ms = now_ms();
+    }
     Some(RssItem {
         id,
-        title: tag_content(item, "title").unwrap_or_else(|| "No title".to_string()),
-        link: tag_content(item, "link").unwrap_or_default(),
+        title,
+        link,
         author,
-        pub_ms: parse_pub_ms(&pub_raw),
+        pub_ms,
         snippet,
     })
 }
@@ -372,24 +432,39 @@ pub fn already_notified(notified: &[(String, String)], blog_id: &str, article_id
 }
 
 /// BLOGGER.enabled gate. Mirrors the `if (!entry.value.enabled)
-/// continue` leg in Blogger.ts refresh: only an explicit truthy
-/// value ("1"/"true") enables the sweep.
-pub fn blogger_enabled_value(raw: Option<&str>) -> bool {
-    matches!(raw.map(str::trim), Some("1") | Some("true") | Some("TRUE"))
+/// continue` leg in Blogger.ts refresh. Strict-bool: only an actual
+/// `true`, the number 1, or the string "1"/"true" (case-insensitive)
+/// enables the sweep — anything else (missing, "0", "false", "")
+/// reads as disabled.
+pub fn blogger_enabled_value(raw: &serde_json::Value) -> bool {
+    match raw {
+        serde_json::Value::Bool(b) => *b,
+        serde_json::Value::Number(n) => n.as_i64() == Some(1),
+        serde_json::Value::String(s) => {
+            let t = s.trim();
+            t == "1" || t.eq_ignore_ascii_case("true")
+        }
+        _ => false,
+    }
 }
 
 /// Table-routed BLOGGER.enabled read with legacy fallback.
 pub async fn load_blogger_enabled(pool: &crate::db::Pool, guild_id: &str) -> bool {
-    blogger_enabled_value(
-        table_value_or_legacy(pool, guild_id, "BLOGGER.enabled")
-            .await
-            .as_ref()
-            .map(|v| match v {
-                serde_json::Value::String(s) => s.clone(),
-                other => other.to_string(),
-            })
-            .as_deref(),
-    )
+    match table_value_or_legacy(pool, guild_id, "BLOGGER.enabled").await {
+        Some(v) => blogger_enabled_value(&v),
+        None => false,
+    }
+}
+
+/// Bound for the notified-article store: the sweep keeps only the
+/// last N rows so the key cannot grow without bound.
+pub const MAX_NOTIFIED_ARTICLES: usize = 500;
+
+/// Drop oldest rows past the store cap (keeps the last N).
+pub fn truncate_notified_articles(list: &mut Vec<NotifiedArticle>) {
+    if list.len() > MAX_NOTIFIED_ARTICLES {
+        list.drain(..list.len() - MAX_NOTIFIED_ARTICLES);
+    }
 }
 
 /// Blogs embed description. Mirrors generateBlogsEmbed: the lang
@@ -633,13 +708,84 @@ mod tests {
     }
 
     #[test]
-    fn enabled_gate_needs_explicit_truthy() {
-        assert!(blogger_enabled_value(Some("1")));
-        assert!(blogger_enabled_value(Some("true")));
-        assert!(!blogger_enabled_value(Some("0")));
-        assert!(!blogger_enabled_value(Some("false")));
-        assert!(!blogger_enabled_value(None));
-        assert!(!blogger_enabled_value(Some("")));
+    fn enabled_gate_needs_strict_bool() {
+        use serde_json::json;
+        assert!(blogger_enabled_value(&json!(true)));
+        assert!(blogger_enabled_value(&json!(1)));
+        assert!(blogger_enabled_value(&json!("1")));
+        assert!(blogger_enabled_value(&json!("true")));
+        assert!(blogger_enabled_value(&json!("True")));
+        assert!(blogger_enabled_value(&json!(" TRUE ")));
+        assert!(!blogger_enabled_value(&json!(false)));
+        assert!(!blogger_enabled_value(&json!(0)));
+        assert!(!blogger_enabled_value(&json!("0")));
+        assert!(!blogger_enabled_value(&json!("false")));
+        assert!(!blogger_enabled_value(&json!("")));
+        assert!(!blogger_enabled_value(&json!(null)));
+        assert!(!blogger_enabled_value(&json!("yes")));
+    }
+
+    #[test]
+    fn empty_id_falls_back_to_link_title_hash() {
+        // No guid/id/link anywhere: the item still parses with a
+        // stable hash id instead of being dropped.
+        let a = latest_rss_item("<rss><channel><item><title>Solo</title></item></channel></rss>")
+            .unwrap();
+        let b = latest_rss_item("<rss><channel><item><title>Solo</title></item></channel></rss>")
+            .unwrap();
+        assert_eq!(a.id, b.id);
+        assert!(a.id.starts_with("hash:"));
+        // Link present but no guid/id: the link is the id.
+        let c = latest_rss_item(
+            "<rss><channel><item><title>T</title><link>http://x/1</link></item></channel></rss>",
+        )
+        .unwrap();
+        assert_eq!(c.id, "http://x/1");
+    }
+
+    #[test]
+    fn namespaced_tags_parse() {
+        let body = concat!(
+            "<rss><channel>",
+            "<item><title>N</title><link>http://x/n</link><guid>n</guid>",
+            "<pubDate>Wed, 02 Oct 2024 10:00:00 GMT</pubDate>",
+            "<dc:creator>Namespaced Ann</dc:creator>",
+            "<content:encoded><![CDATA[full body]]></content:encoded></item>",
+            "</channel></rss>",
+        );
+        let item = latest_rss_item(body).unwrap();
+        assert_eq!(item.author, "Namespaced Ann");
+        assert!(item.snippet.contains("full body"));
+    }
+
+    #[test]
+    fn dateless_items_sort_newest() {
+        // No pubDate anywhere: reads as now, so it beats a 2024 item.
+        let body = concat!(
+            "<rss><channel>",
+            "<item><title>Old</title><link>http://x/o</link><guid>o</guid>",
+            "<pubDate>Wed, 02 Oct 2024 09:00:00 GMT</pubDate></item>",
+            "<item><title>Fresh</title><link>http://x/f</link><guid>f</guid></item>",
+            "</channel></rss>",
+        );
+        let item = latest_rss_item(body).unwrap();
+        assert_eq!(item.id, "f");
+        assert!(item.pub_ms > 1_700_000_000_000);
+    }
+
+    #[test]
+    fn notified_article_store_caps() {
+        let mut list: Vec<NotifiedArticle> = (0..MAX_NOTIFIED_ARTICLES + 10)
+            .map(|i| NotifiedArticle {
+                blog_id: "b".into(),
+                article_id: format!("a{i}"),
+                timestamp_ms: i as i64,
+            })
+            .collect();
+        truncate_notified_articles(&mut list);
+        assert_eq!(list.len(), MAX_NOTIFIED_ARTICLES);
+        // Oldest rows drop; newest survive.
+        assert_eq!(list.first().unwrap().article_id, "a10");
     }
 
     #[test]

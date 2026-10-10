@@ -90,7 +90,8 @@ use super::{
         "voicemove",
         "voiceunfreeze",
         "wlvc"
-    )
+    ),
+    subcommand_required
 )]
 pub async fn utils(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())

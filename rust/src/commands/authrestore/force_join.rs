@@ -86,6 +86,7 @@ pub fn progress_fields(progress: &ForceJoinProgress) -> (String, String) {
     (progress.possible.to_string(), progress.added.to_string())
 }
 
+/// Force all members of your AuthRestore module to join the guild
 #[poise::command(
     slash_command,
     prefix_command,

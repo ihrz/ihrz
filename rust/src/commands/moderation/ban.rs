@@ -1,6 +1,7 @@
 use super::*;
 use poise::serenity_prelude as serenity;
 
+/// Ban a user!
 #[poise::command(
     slash_command,
     prefix_command,

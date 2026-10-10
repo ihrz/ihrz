@@ -1,5 +1,6 @@
 use super::*;
 
+/// List all sticky channels
 #[poise::command(
     slash_command,
     prefix_command,

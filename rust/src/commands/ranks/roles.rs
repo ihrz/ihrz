@@ -72,6 +72,7 @@ pub async fn save_rank_roles_routed(
     .await
 }
 
+/// Role add command.
 #[poise::command(
     slash_command,
     prefix_command,

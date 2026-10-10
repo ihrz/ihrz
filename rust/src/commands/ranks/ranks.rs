@@ -11,6 +11,7 @@ use super::{
     ureset::ranks_ureset,
 };
 
+/// Subcommand for ranks category!
 #[poise::command(
     slash_command,
     prefix_command,
@@ -29,7 +30,8 @@ use super::{
         "ranks_role_add",
         "ranks_role_list",
         "ranks_role_remove"
-    )
+    ),
+    subcommand_required
 )]
 pub async fn ranks(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())

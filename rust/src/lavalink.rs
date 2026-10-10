@@ -31,10 +31,11 @@ use std::sync::{Arc, OnceLock};
 use std::time::{Duration, Instant};
 
 use lava_rs::events::{
-    EventDispatcher, LavalinkEvent, TrackEndEvent, TrackEndReason, TrackEvent, TrackExceptionEvent,
-    TrackStartEvent, TrackStuckEvent,
+    EventDispatcher, LavalinkEvent, PlayerUpdatePayload, TrackEndEvent, TrackEndReason, TrackEvent,
+    TrackExceptionEvent, TrackStartEvent, TrackStuckEvent,
 };
 use lava_rs::model::{Track, VoiceState};
+use lava_rs::node::health::NodeStats;
 use lava_rs::rest::{LoadResult, Player as RestPlayer, UpdatePlayerPayload};
 use lava_rs::ws::session::ReadyPayload;
 use lava_rs::{LavalinkConfig, LavalinkError};
@@ -135,6 +136,12 @@ pub struct NodeEntry {
     pub secure: bool,
     pub lava_cfg: LavalinkConfig,
     session_id: Mutex<Option<String>>,
+    /// Latest `stats` op payload from the node WS feed (player counts,
+    /// CPU/memory load). Powers the node line of the track-error report
+    /// (mirrors the TS `## Node about` block).
+    stats: Mutex<Option<NodeStats>>,
+    /// Latest `playerUpdate.state.ping` seen on this node's feed.
+    player_ping_ms: Mutex<Option<i64>>,
 }
 
 impl NodeEntry {
@@ -151,6 +158,8 @@ impl NodeEntry {
             secure: cfg.secure,
             lava_cfg,
             session_id: Mutex::new(None),
+            stats: Mutex::new(None),
+            player_ping_ms: Mutex::new(None),
         }
     }
 
@@ -763,6 +772,10 @@ pub enum FedWs {
     Ended,
     ErrorHandled,
     StuckHandled,
+    /// `playerUpdate` op: node ping recorded for diagnostics.
+    PlayerUpdated,
+    /// `stats` op: node load recorded for diagnostics.
+    StatsUpdated,
     Ignored,
 }
 
@@ -926,6 +939,9 @@ impl LavalinkManager {
     }
 
     /// Reconcile node list with config (idempotent; preserves sessions).
+    /// Entries whose connection fields changed (host/port/password/
+    /// secure) are rebuilt so the new config actually dials; unchanged
+    /// ids keep their entry + WS session.
     pub async fn sync_nodes(&self, cfgs: &[NodeCfg], user_id: u64) {
         let mut nodes = self.nodes.write().await;
         let mut kept: Vec<Arc<NodeEntry>> = vec![];
@@ -934,10 +950,18 @@ impl LavalinkManager {
                 continue;
             }
             if let Some(existing) = nodes.iter().find(|n| n.id == cfg.id) {
-                kept.push(Arc::clone(existing));
-            } else {
-                kept.push(Arc::new(NodeEntry::new(cfg, user_id)));
+                let same = existing.lava_cfg.host == cfg.host
+                    && existing.lava_cfg.port == cfg.port
+                    && existing.lava_cfg.password == cfg.password
+                    && existing.secure == cfg.secure;
+                if same {
+                    kept.push(Arc::clone(existing));
+                    continue;
+                }
+                // Field change: fall through and rebuild (the old
+                // session belongs to the old endpoint/credentials).
             }
+            kept.push(Arc::new(NodeEntry::new(cfg, user_id)));
         }
         *nodes = kept;
     }
@@ -1028,11 +1052,20 @@ impl LavalinkManager {
 
     /// Incoming WS TrackStart: refresh current from the node payload and
     /// fan out to registered callbacks (mirrors playerManager trackStart).
+    /// The node payload carries no requester, so the previous current's
+    /// requester is preserved (lavalink-client keeps the queue track's
+    /// requester across the start event; dropping it would orphan the
+    /// LastFM tip + error-report attribution).
     pub async fn handle_track_start(&self, ev: TrackStartEvent) {
         if let Ok(gid) = ev.guild_id.parse::<u64>() {
             let mut players = self.players.lock().await;
             let p = players.entry(gid).or_insert_with(GuildPlayer::new);
-            p.current = Some(QueuedTrack::from((&ev.track, 0)));
+            let prev_requester = p.current.as_ref().map(|t| t.requester);
+            let mut next = QueuedTrack::from((&ev.track, 0));
+            if let Some(r) = prev_requester {
+                next.requester = r;
+            }
+            p.current = Some(next);
             p.idle_since_ms = None;
             p.paused = false;
             let requester = p.current.as_ref().map(|t| t.requester).unwrap_or(0);
@@ -1083,6 +1116,32 @@ impl LavalinkManager {
                 voice_channel_id: voice_channel,
             },
         );
+    }
+
+    /// PlayerUpdate pause leg (mirrors lavalink-client `playerUpdate` ->
+    /// `lastFMScrobbler.handlePlayerUpdate`, including its
+    /// `oldPlayerJson.paused === newPlayer.paused` no-op guard): only a
+    /// real flag flip touches the scrobble clock. Live pause/resume
+    /// commands and [`Self::rest_set_paused`] funnel through here so the
+    /// clock cannot drift from the node state.
+    pub async fn handle_player_update(&self, guild_id: u64, paused: bool, now_ms: i64) {
+        let changed = {
+            let mut players = self.players.lock().await;
+            match players.get_mut(&guild_id) {
+                Some(p) => {
+                    if p.paused == paused {
+                        false
+                    } else {
+                        p.paused = paused;
+                        true
+                    }
+                }
+                None => false,
+            }
+        };
+        if changed {
+            self.lastfm_note_paused(guild_id, paused, now_ms).await;
+        }
     }
 
     /// Pause/unpause accounting (mirrors `handlePlayerUpdate`: pausing
@@ -1200,16 +1259,24 @@ impl LavalinkManager {
         // LastFM scrobble hooks (mirrors playerManager.ts trackEnd ->
         // lastFMScrobbler.handleTrackEnd, and the Idle drain -> queueEnd
         // -> handleQueueEnd leg). Load-failed tracks never scrobble.
+        // Replaced ends the old listen without credit too: the node
+        // swapped the track externally, so the previous track never
+        // completed (the TS handleTrackEnd only exempts loadFailed, but
+        // scrobbling a replaced-away track would credit an unplayed
+        // listen; the new track opens a fresh session on trackStart).
         if let Ok(gid) = ev.guild_id.parse::<u64>() {
             match outcome {
                 Some(AdvanceOutcome::Idle) => {
                     self.lastfm_queue_end(gid).await;
                 }
                 Some(_) => {
-                    if !matches!(ev.reason, TrackEndReason::LoadFailed) {
-                        self.lastfm_track_end_due(gid, now_ms).await;
-                    } else {
+                    if matches!(
+                        ev.reason,
+                        TrackEndReason::LoadFailed | TrackEndReason::Replaced
+                    ) {
                         self.lastfm_queue_end(gid).await;
+                    } else {
+                        self.lastfm_track_end_due(gid, now_ms).await;
                     }
                 }
                 None => {}
@@ -1219,6 +1286,22 @@ impl LavalinkManager {
     }
 
     // ---- trackError recovery (mirrors playerManager.ts trackError) ----
+
+    /// Fallback identity for a failed track: the live current when
+    /// present, else the event track (mirrors the TS `trackError`
+    /// handler, which re-searches `y.track.info.title - author` — the
+    /// event payload — rather than the queue state, so recovery still
+    /// works when local state already drained). Pure for testability.
+    pub fn exception_fallback_parts(
+        current: Option<&QueuedTrack>,
+        ev_title: &str,
+        ev_author: &str,
+    ) -> (String, String, Option<u64>) {
+        match current {
+            Some(t) => (t.title.clone(), t.author.clone(), Some(t.requester)),
+            None => (ev_title.to_string(), ev_author.to_string(), None),
+        }
+    }
 
     /// Incoming WS TrackException: log the owner-visible diagnostics,
     /// try the TS fallback re-search branches, else keep the current
@@ -1237,18 +1320,21 @@ impl LavalinkManager {
             Ok(g) => g,
             Err(_) => return ErrorRecovery::NoPlayer,
         };
-        let failed = match self.snapshot(gid).await.and_then(|s| s.current) {
-            Some(t) => t,
-            None => return ErrorRecovery::NoPlayer,
-        };
+        let snap = self.snapshot(gid).await;
+        let had_current = snap.as_ref().and_then(|s| s.current.clone()).is_some();
+        let (failed_title, failed_author, failed_requester) = Self::exception_fallback_parts(
+            snap.as_ref().and_then(|s| s.current.as_ref()),
+            &ev.track.info.title,
+            &ev.track.info.author,
+        );
         let report = Self::track_error_report(
             &ev,
-            Some(failed.requester),
+            failed_requester,
             self.node_for_guild_hint(&ev.guild_id).await.as_deref(),
         );
         tracing::error!("lavalink trackError: {report}");
         if let Some(source) = fallback_source_for(&ev.exception.message) {
-            let query = fallback_identifier(source, &failed.title, &failed.author);
+            let query = fallback_identifier(source, &failed_title, &failed_author);
             if let Ok((node, session)) = self.live_node_and_session(gid).await {
                 match self.rest_load(&node, &query).await {
                     Ok(loaded) => {
@@ -1259,7 +1345,7 @@ impl LavalinkManager {
                             // only becomes current when the player is
                             // idle, and then playback restarts on it.
                             // Playlist hits propagate every track.
-                            let requester = failed.requester;
+                            let requester = failed_requester.unwrap_or(0);
                             let title = tracks[0].info.title.clone();
                             let encoded = tracks[0].encoded.clone();
                             let was_idle = self
@@ -1284,6 +1370,16 @@ impl LavalinkManager {
                                 })
                                 .await;
                             if was_idle {
+                                // Re-ensure voice before restarting
+                                // playback (mirrors the TS
+                                // `if (!player.connected) await
+                                // player.connect()` on the hit leg):
+                                // re-emit the OP4 join, then re-push
+                                // the cached Discord handshake.
+                                let _ = self.ensure_voice_connected(gid).await;
+                                if let Some(voice) = self.take_pending_voice(gid).await {
+                                    let _ = self.rest_set_voice(&node, &session, gid, voice).await;
+                                }
                                 let _ = self.rest_play(&node, &session, gid, &encoded, false).await;
                             }
                             self.dispatcher
@@ -1309,7 +1405,11 @@ impl LavalinkManager {
                 .await
                 .dispatch_track_exception(ev)
                 .await;
-            return ErrorRecovery::Kept;
+            return if had_current {
+                ErrorRecovery::Kept
+            } else {
+                ErrorRecovery::NoPlayer
+            };
         }
         // Unmatched exception: no-op, current is kept (mirrors the TS
         // handler falling through both message branches).
@@ -1318,7 +1418,11 @@ impl LavalinkManager {
             .await
             .dispatch_track_exception(ev)
             .await;
-        ErrorRecovery::Kept
+        if had_current {
+            ErrorRecovery::Kept
+        } else {
+            ErrorRecovery::NoPlayer
+        }
     }
 
     /// Incoming WS TrackStuck: the TS side has no stuck branch, so this
@@ -1382,17 +1486,63 @@ impl LavalinkManager {
     }
 
     /// Best-effort node hint for the diagnostics report (id/host/port/
-    /// secure of the guild-affine node, if any). Never fails.
+    /// secure of the guild-affine node, plus the live `stats` op load
+    /// and `playerUpdate` ping when the feed has seen them — mirrors
+    /// the TS `## Node about` block: connected/host/port/SSL/ping).
+    /// Never fails.
     async fn node_for_guild_hint(&self, guild_id: &str) -> Option<String> {
         let gid = guild_id.parse::<u64>().ok()?;
         let node = self.node_for(gid).await?;
-        Some(format!(
-            "{} {}:{} secure={}",
+        let connected = node.session().await.is_some();
+        let mut hint = format!(
+            "{} {}:{} secure={} connected={}",
             node.id,
             node.lava_cfg.host,
             node.lava_cfg.port,
             if node.secure { "yes" } else { "no" },
-        ))
+            if connected { "yes" } else { "no" },
+        );
+        if let Some(stats) = node.stats.lock().await.clone() {
+            hint += &format!(
+                " players={}/{} cpu={:.1}% mem={}MB",
+                stats.playing_players,
+                stats.players,
+                stats.cpu.system_load * 100.0,
+                stats.memory.used / 1024 / 1024,
+            );
+        }
+        if let Some(ping) = *node.player_ping_ms.lock().await {
+            hint += &format!(" ping={ping}ms");
+        }
+        Some(hint)
+    }
+
+    /// Record a `stats` op payload on the node entry (feeds the
+    /// track-error node hint; mirrors the TS node-about fields).
+    pub async fn note_node_stats(&self, node_id: &str, stats: NodeStats) {
+        let nodes = self.nodes.read().await;
+        if let Some(n) = nodes.iter().find(|n| n.id == node_id) {
+            *n.stats.lock().await = Some(stats);
+        }
+    }
+
+    /// Record a `playerUpdate.state.ping` sample on the node entry.
+    pub async fn note_node_ping(&self, node_id: &str, ping_ms: i64) {
+        let nodes = self.nodes.read().await;
+        if let Some(n) = nodes.iter().find(|n| n.id == node_id) {
+            *n.player_ping_ms.lock().await = Some(ping_ms);
+        }
+    }
+
+    /// Handle one decoded `playerUpdate` frame: node ping goes to the
+    /// entry for diagnostics. Pause accounting intentionally does NOT
+    /// ride here — the node frame carries no paused flag (only
+    /// time/position/connected/ping); flips flow through
+    /// [`Self::handle_player_update`] (fed by [`Self::rest_set_paused`]
+    /// on every live pause/resume, mirroring lavalink-client's
+    /// `playerUpdate` -> `handlePlayerUpdate` leg).
+    pub async fn handle_node_player_update(&self, node_id: &str, payload: &PlayerUpdatePayload) {
+        self.note_node_ping(node_id, payload.state.ping).await;
     }
 
     /// Full owner-visible diagnostics document for a failed track: a
@@ -1594,7 +1744,23 @@ impl LavalinkManager {
         let entry = pending.entry(guild_id).or_default();
         entry.channel_id = channel_id;
         entry.discord_session_id = Some(discord_session_id);
-        entry.combined()
+        let combined = entry.combined();
+        drop(pending);
+        // Player voice resync (mirrors `handlePlayerMove`: the session
+        // follows the player to the new channel). This hook only ever
+        // sees the bot's own updates (events_handler filters on the
+        // bot user id), so the channel is authoritative for the
+        // player. No entry is created for guilds without one.
+        {
+            let mut players = self.players.lock().await;
+            if let Some(p) = players.get_mut(&guild_id) {
+                p.voice_channel = channel_id;
+            }
+        }
+        if let Some(ch) = channel_id {
+            self.lastfm_player_move(guild_id, ch).await;
+        }
+        combined
     }
 
     pub async fn note_voice_server(
@@ -1673,18 +1839,30 @@ impl LavalinkManager {
 
     /// Feed one raw Lavalink node WS text frame: `ready` stores the
     /// session (feeds `set_session`, previously unwired);
+    /// `playerUpdate` records the node ping for diagnostics (pause
+    /// accounting rides on [`Self::handle_player_update`], fed by
+    /// [`Self::rest_set_paused`] — node frames carry no paused flag);
+    /// `stats` records the node load for the track-error report;
     /// track start/end reuse the state handlers + dispatcher fan-out;
     /// exception runs the bot.rs trackError wrapper when report deps
     /// are registered (else the offline recovery); stuck runs the
     /// trackError recovery (fallback re-search, then requeue, else
     /// skip) with the owner-visible log leg.
-    /// Stats/playerUpdate/closed frames are ignored.
+    /// Closed frames are ignored.
     pub async fn feed_node_ws(&self, node_id: &str, text: &str, now_ms: i64) -> FedWs {
         if let Some(ready) = ReadyPayload::parse(text) {
             self.set_session(node_id, ready.session_id.clone()).await;
             return FedWs::Session(ready.session_id);
         }
         match LavalinkEvent::parse(text) {
+            Some(LavalinkEvent::PlayerUpdate(pu)) => {
+                self.handle_node_player_update(node_id, &pu).await;
+                FedWs::PlayerUpdated
+            }
+            Some(LavalinkEvent::Stats(stats)) => {
+                self.note_node_stats(node_id, stats).await;
+                FedWs::StatsUpdated
+            }
             Some(LavalinkEvent::Event(ev)) => match *ev {
                 TrackEvent::TrackStartEvent(e) => {
                     self.handle_track_start(e).await;
@@ -1813,26 +1991,59 @@ impl LavalinkManager {
         self.exception_report.lock().await.clone()
     }
 
+    /// Shard messenger serving `guild_id` (mirrors the sendToShard
+    /// routing in playerManager.ts). None when no messenger is
+    /// registered (yet).
+    async fn shard_messenger_for(&self, guild_id: u64) -> Option<serenity::ShardMessenger> {
+        let shards = self.shards.lock().await;
+        let total = *self.total_shards.lock().await;
+        match total {
+            Some(t) if t > 0 => {
+                let sid = crate::funcs::guild_shard(guild_id, t);
+                shards.get(&sid).cloned()
+            }
+            _ => shards
+                .get(&0)
+                .cloned()
+                .or_else(|| shards.values().next().cloned()),
+        }
+    }
+
+    /// Ensure the bot is voice-connected before a fresh start (mirrors
+    /// `if (!player.connected) await player.connect()` in musicPlay.ts
+    /// and on the trackError hit legs): re-emit the OP4 join for the
+    /// stored voice channel unless the noted Discord handshake already
+    /// targets it. True when the join is (re)sent or already in place;
+    /// false when there is no voice channel or no shard messenger yet —
+    /// callers must fail loudly instead of playing to nobody.
+    pub async fn ensure_voice_connected(&self, guild_id: u64) -> bool {
+        let channel = self.snapshot(guild_id).await.and_then(|s| s.voice_channel);
+        let Some(ch) = channel else {
+            return false;
+        };
+        let already = self
+            .take_pending_voice(guild_id)
+            .await
+            .and_then(|v| v.channel_id.parse::<u64>().ok())
+            == Some(ch);
+        if already {
+            return true;
+        }
+        match self.shard_messenger_for(guild_id).await {
+            Some(m) => {
+                Self::send_voice_state(&m, guild_id, Some(ch));
+                true
+            }
+            None => false,
+        }
+    }
+
     /// OP4 leave on the shard serving `guild_id` (mirrors the
     /// sendToShard leave in the TS destroy path). False when no
     /// messenger is registered (yet) — the REST destroy + status clear
     /// still run; multi-shard fan-out per shard messenger is next.
     pub async fn leave_voice(&self, guild_id: u64) -> bool {
-        let messenger = {
-            let shards = self.shards.lock().await;
-            let total = *self.total_shards.lock().await;
-            match total {
-                Some(t) if t > 0 => {
-                    let sid = crate::funcs::guild_shard(guild_id, t);
-                    shards.get(&sid).cloned()
-                }
-                _ => shards
-                    .get(&0)
-                    .cloned()
-                    .or_else(|| shards.values().next().cloned()),
-            }
-        };
-        match messenger {
+        match self.shard_messenger_for(guild_id).await {
             Some(m) => {
                 Self::send_voice_state(&m, guild_id, None);
                 true
@@ -2280,7 +2491,13 @@ impl LavalinkManager {
             paused: Some(paused),
             ..Default::default()
         };
-        self.rest_patch(node, &endpoint, &payload).await
+        let out: RestPlayer = self.rest_patch(node, &endpoint, &payload).await?;
+        // Forward the flip to the scrobble clock (mirrors the
+        // lavalink-client `playerUpdate` -> `handlePlayerUpdate` leg;
+        // the change guard inside makes the pre-set commands idempotent).
+        self.handle_player_update(guild_id, paused, now_ms_wall())
+            .await;
+        Ok(out)
     }
 
     pub async fn rest_set_volume(
@@ -2407,6 +2624,10 @@ impl LavalinkManager {
     /// players with `disconnect = false` so the bot never visibly
     /// leaves its H24/7 channel: the parked destroy keeps voice and
     /// must not go through the OP4-leave + status-clear path below).
+    /// Parked guilds still get the node-side destroy (REST DELETE),
+    /// but their local state is kept and they are excluded from the
+    /// returned targets (no OP4-leave, no state drop). The idle clock
+    /// re-arms so the destroy does not repeat on every sweep tick.
     pub async fn sweep_idle_destroy_skipping(
         &self,
         parked_guilds: &HashSet<u64>,
@@ -2416,6 +2637,15 @@ impl LavalinkManager {
         let mut done = Vec::with_capacity(due.len());
         for t in due {
             if parked_guilds.contains(&t.guild_id) {
+                if let Ok((node, session)) = self.live_node_and_session(t.guild_id).await {
+                    let _ = self.rest_destroy(&node, &session, t.guild_id).await;
+                }
+                {
+                    let mut players = self.players.lock().await;
+                    if let Some(p) = players.get_mut(&t.guild_id) {
+                        p.idle_since_ms = Some(now_ms);
+                    }
+                }
                 continue;
             }
             if let Ok((node, session)) = self.live_node_and_session(t.guild_id).await {
@@ -2955,12 +3185,29 @@ impl LavalinkManager {
             })
             .await;
         if position == 0 {
+            // Voice-connect ensure (mirrors `if (!player.connected)
+            // await player.connect()` before `player.play()`): the
+            // play must not fire with nowhere to send audio. Loud
+            // failure (not a silent stall) so the command answers the
+            // queue-error shape.
+            if !self.ensure_voice_connected(guild_id).await {
+                return Err(MusicError::Transport(format!(
+                    "voice not connected for guild {guild_id}: no voice channel or shard messenger"
+                )));
+            }
             let snap = self.snapshot(guild_id).await;
             if let Some(current) = snap.as_ref().and_then(|s| s.current.clone()) {
                 let session = node
                     .session()
                     .await
                     .ok_or_else(|| MusicError::NoSession(node.id.clone()))?;
+                // Re-push the cached Discord handshake first (the
+                // second half of `connect()`): best-effort, since the
+                // events_handler handshake forward replays it on
+                // completion anyway.
+                if let Some(voice) = self.take_pending_voice(guild_id).await {
+                    let _ = self.rest_set_voice(node, &session, guild_id, voice).await;
+                }
                 self.rest_play(node, &session, guild_id, &current.encoded, false)
                     .await?;
                 // Re-apply the stored volume on every fresh start
@@ -4496,6 +4743,227 @@ mod tests {
         for want in ["## Client about", "123ms", "READY", "someone"] {
             assert!(report.contains(want), "report missing {want}");
         }
+    }
+
+    fn end_frame(guild: &str, title: &str, reason: &str) -> String {
+        serde_json::json!({
+            "op": "event",
+            "type": "TrackEndEvent",
+            "guildId": guild,
+            "track": track_value(title),
+            "reason": reason,
+        })
+        .to_string()
+    }
+
+    fn parse_end(text: &str) -> TrackEndEvent {
+        match LavalinkEvent::parse(text) {
+            Some(LavalinkEvent::Event(ev)) => match *ev {
+                TrackEvent::TrackEndEvent(e) => e,
+                _ => panic!("expected TrackEndEvent"),
+            },
+            _ => panic!("end frame did not parse"),
+        }
+    }
+
+    #[tokio::test]
+    async fn track_start_preserves_requester() {
+        // L1: the node payload carries no requester; the previous
+        // current's requester survives the refresh (LastFM tip +
+        // error-report attribution).
+        let m = LavalinkManager::new();
+        m.sync_nodes(&[test_node_cfg()], 9).await;
+        m.with_player(41, |p| {
+            let mut t = sample_track("hello");
+            t.requester = 42;
+            p.current = Some(t);
+        })
+        .await;
+        let out = m
+            .feed_node_ws("n1", &track_start_frame("41", "hello"), 0)
+            .await;
+        assert_eq!(out, FedWs::Started);
+        let snap = m.snapshot(41).await.unwrap();
+        assert_eq!(snap.current.as_ref().unwrap().requester, 42);
+        let sessions = m.lastfm_sessions.lock().await;
+        assert_eq!(sessions.get(&41).map(|s| s.requester), Some(42));
+    }
+
+    #[tokio::test]
+    async fn sync_nodes_rebuilds_on_field_change() {
+        // L9: same id, changed password -> rebuilt entry (old session
+        // belongs to the old credentials); identical re-sync preserves.
+        let m = LavalinkManager::new();
+        m.sync_nodes(&[test_node_cfg()], 9).await;
+        m.set_session("n1", "sess-1".to_string()).await;
+        let changed = NodeCfg {
+            password: "rotated".into(),
+            ..test_node_cfg()
+        };
+        m.sync_nodes(&[changed], 9).await;
+        assert!(m.is_live().await);
+        assert_eq!(m.node_session("n1").await, None);
+        m.set_session("n1", "sess-2".to_string()).await;
+        m.sync_nodes(&[test_node_cfg()], 9).await;
+        // Back to the original password: rebuilt again, session dropped.
+        assert_eq!(m.node_session("n1").await, None);
+        m.set_session("n1", "sess-3".to_string()).await;
+        m.sync_nodes(&[test_node_cfg()], 9).await;
+        // Identical config: entry + session preserved.
+        assert_eq!(m.node_session("n1").await, Some("sess-3".to_string()));
+    }
+
+    #[tokio::test]
+    async fn note_voice_state_resyncs_player_channel() {
+        // L3: the bot's own voice update moves the player channel (and
+        // the LastFM session); guilds without a player gain none.
+        let m = LavalinkManager::new();
+        m.with_player(43, |p| {
+            p.voice_channel = Some(1);
+        })
+        .await;
+        m.lastfm_track_start(43, "a".into(), "t".into(), 200_000, 7, 0, Some(1))
+            .await;
+        m.note_voice_state(43, Some(9), "sess-9".to_string()).await;
+        assert_eq!(m.snapshot(43).await.unwrap().voice_channel, Some(9));
+        let sessions = m.lastfm_sessions.lock().await;
+        assert_eq!(sessions.get(&43).and_then(|s| s.voice_channel_id), Some(9));
+        drop(sessions);
+        // Unknown guild: pending handshake noted, no player created.
+        m.note_voice_state(4499, Some(9), "sess-x".to_string())
+            .await;
+        assert!(m.snapshot(4499).await.is_none());
+    }
+
+    #[tokio::test]
+    async fn player_update_flips_pause_clock_once() {
+        // L4: only a real paused flip touches the scrobble clock
+        // (mirrors the oldPlayerJson.paused === newPlayer.paused guard).
+        let m = LavalinkManager::new();
+        m.with_player(44, |p| {
+            p.enqueue(sample_track("a"), 0);
+        })
+        .await;
+        m.lastfm_track_start(44, "a".into(), "t".into(), 200_000, 7, 0, Some(5))
+            .await;
+        m.handle_player_update(44, true, 60_000).await;
+        assert!(m.snapshot(44).await.unwrap().paused);
+        // Repeated pause is a no-op: no double-counted span.
+        m.handle_player_update(44, true, 70_000).await;
+        // 120s wall, 60s paused -> 60s counted < 100s threshold.
+        assert!(m.lastfm_track_end_due(44, 120_000).await.is_none());
+        // Unknown guild: no panic, nothing accounted.
+        m.handle_player_update(4498, true, 0).await;
+    }
+
+    #[tokio::test]
+    async fn replaced_end_drops_scrobble_keeps_current() {
+        // L5: a replaced-away track never completed -> session dropped
+        // with no scrobble, current kept (advance_on_end Kept).
+        let m = LavalinkManager::new();
+        m.with_player(45, |p| {
+            p.enqueue(sample_track("a"), 0);
+        })
+        .await;
+        m.lastfm_track_start(45, "artist".into(), "a".into(), 200_000, 7, 0, Some(5))
+            .await;
+        let ev = parse_end(&end_frame("45", "a", "replaced"));
+        m.handle_track_end(ev, 150_000).await;
+        assert!(m.lastfm_sessions.lock().await.get(&45).is_none());
+        // No scrobble payload survived either.
+        assert!(m.lastfm_track_end_due(45, 150_000).await.is_none());
+        assert_eq!(m.snapshot(45).await.unwrap().current.unwrap().title, "a");
+    }
+
+    #[test]
+    fn exception_fallback_prefers_current_then_event_track() {
+        // L7: recovery identity falls back to the event track when
+        // local state drained.
+        let cur = sample_track("live");
+        let (title, author, requester) =
+            LavalinkManager::exception_fallback_parts(Some(&cur), "ev-t", "ev-a");
+        assert_eq!(
+            (title.as_str(), author.as_str(), requester),
+            ("live", "artist", Some(1))
+        );
+        let (title, author, requester) =
+            LavalinkManager::exception_fallback_parts(None, "ev-t", "ev-a");
+        assert_eq!(
+            (title.as_str(), author.as_str(), requester),
+            ("ev-t", "ev-a", None)
+        );
+    }
+
+    #[tokio::test]
+    async fn feed_records_player_update_and_stats() {
+        // L4/L10: playerUpdate + stats frames feed node diagnostics.
+        let m = LavalinkManager::new();
+        m.sync_nodes(&[test_node_cfg()], 9).await;
+        let out = m
+            .feed_node_ws(
+                "n1",
+                r#"{"op":"playerUpdate","guildId":"7","state":{"time":1,"position":2,"connected":true,"ping":50}}"#,
+                0,
+            )
+            .await;
+        assert_eq!(out, FedWs::PlayerUpdated);
+        let out = m
+            .feed_node_ws(
+                "n1",
+                r#"{"op":"stats","players":2,"playingPlayers":1,"uptime":99,"memory":{"free":1,"used":2097152,"allocated":3,"reservable":4},"cpu":{"cores":2,"systemLoad":0.5,"lavalinkLoad":0.1},"frameStats":null}"#,
+                0,
+            )
+            .await;
+        assert_eq!(out, FedWs::StatsUpdated);
+        // Unknown node id: recorded nowhere, no panic.
+        let out = m
+            .feed_node_ws("nope", r#"{"op":"stats","players":0}"#, 0)
+            .await;
+        assert_eq!(out, FedWs::Ignored);
+        let hint = m.node_for_guild_hint("7").await.unwrap();
+        for want in ["connected=no", "players=1/2", "ping=50ms"] {
+            assert!(hint.contains(want), "hint missing {want}: {hint}");
+        }
+    }
+
+    #[tokio::test]
+    async fn ensure_voice_fails_loud_without_channel_or_shard() {
+        // L2: no voice channel (or no shard messenger) -> false, so
+        // the position-0 leg fails loudly instead of silent no-audio.
+        let m = LavalinkManager::new();
+        assert!(!m.ensure_voice_connected(777).await);
+        m.with_player(778, |p| {
+            p.voice_channel = Some(5);
+        })
+        .await;
+        assert!(!m.ensure_voice_connected(778).await);
+    }
+
+    #[tokio::test]
+    async fn parked_sweep_destroys_node_side_and_rearms() {
+        // L8: parked idle -> node destroy, state kept, excluded from
+        // the OP4-leave targets, idle clock re-armed.
+        let m = LavalinkManager::new();
+        m.with_player(46, |p| {
+            p.voice_channel = Some(77);
+            p.stop(1000);
+        })
+        .await;
+        let at = 1000 + EMPTY_QUEUE_DESTROY_AFTER_MS;
+        let mut parked = std::collections::HashSet::new();
+        parked.insert(46u64);
+        let done = m.sweep_idle_destroy_skipping(&parked, at).await;
+        assert!(done.is_empty());
+        assert!(m.snapshot(46).await.is_some());
+        // Re-armed: not due immediately after, due a full window later.
+        assert!(!m.snapshot(46).await.unwrap().current.is_some());
+        assert!(m.destroy_due_guilds(at).await.is_empty());
+        assert_eq!(
+            m.destroy_due_guilds(at + EMPTY_QUEUE_DESTROY_AFTER_MS)
+                .await
+                .len(),
+            1
+        );
     }
 
     #[test]

@@ -28,7 +28,8 @@ use super::{
         "ticket_rename",
         "ticket_transcript",
         "ticket_unlink"
-    )
+    ),
+    subcommand_required
 )]
 pub async fn ticket(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())

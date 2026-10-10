@@ -25,6 +25,7 @@ fn normalize_snapshot(snap: &serde_json::Value) -> Option<BackupInfos> {
     })
 }
 
+/// Load your backup to initialize!
 #[poise::command(
     slash_command,
     prefix_command,

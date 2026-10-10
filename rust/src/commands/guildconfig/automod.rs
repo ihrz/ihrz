@@ -359,6 +359,7 @@ pub async fn sync_mention_rule(
 
 macro_rules! keyword_command {
     ($fn_name:ident, $sub:literal, $kind:literal) => {
+/// Set a specific permission to use one command
         #[poise::command(
                                                     slash_command,
     prefix_command,
@@ -434,7 +435,8 @@ macro_rules! keyword_command {
         "gc_automod_discord",
         "gc_automod_telegram"
     ),
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    subcommand_required
 )]
 pub async fn gc_automod(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())

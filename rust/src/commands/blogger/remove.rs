@@ -1,5 +1,6 @@
 use super::*;
 
+/// Remove Streamer/Youtuber/Twitcher
 #[poise::command(
     slash_command,
     prefix_command,

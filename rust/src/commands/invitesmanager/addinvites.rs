@@ -1,6 +1,7 @@
 use super::*;
 use poise::serenity_prelude as serenity;
 
+/// Add invites to a user!
 #[poise::command(
     slash_command,
     prefix_command,

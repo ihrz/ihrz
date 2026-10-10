@@ -58,6 +58,7 @@ async fn deny_invalid(ctx: &Ctx<'_>, _code: &str) -> Result<(), anyhow::Error> {
     Ok(())
 }
 
+/// Transform image to gif
 #[poise::command(slash_command, prefix_command, category = "fun", rename = "togif")]
 pub async fn togif(
     ctx: Ctx<'_>,

@@ -29,6 +29,7 @@ async fn cat_down(ctx: &Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())
 }
 
+/// Get a picture of cat!
 #[poise::command(slash_command, prefix_command, category = "fun", rename = "cat")]
 pub async fn cat(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     if fun_guard(&ctx).await {

@@ -4,17 +4,11 @@
 // (Twitch/YouTube/Kick poll every 120s) + Blogger.ts (rss-parser every
 // 60s) dedup logic: only announce when the latest id differs from the
 // stored one. HTTP polling wiring is pending; dedup + embed shaping here.
-
-/// Returns the id to announce, if it differs from the stored one.
-pub fn pending_announce(last_notified: Option<&str>, latest: &str) -> Option<String> {
-    if latest.is_empty() {
-        return None;
-    }
-    match last_notified {
-        Some(last) if last == latest => None,
-        _ => Some(latest.to_string()),
-    }
-}
+//
+// Note: the live announce gate is scheduler::pending_notifier_media
+// (row match on user + media id / timestamp); the trivial
+// last-vs-latest string helper that used to live here was deleted as
+// dead code — no caller used it.
 
 /// Strict counter check. Mirrors Events/counter/onNewMessage.ts: the
 /// message must equal last+1, else the counter resets.
@@ -29,14 +23,6 @@ pub fn counter_valid(last: i64, got: i64) -> bool {
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    #[test]
-    fn dedup_announces_only_new() {
-        assert_eq!(pending_announce(None, "v12"), Some("v12".into()));
-        assert_eq!(pending_announce(Some("v11"), "v12"), Some("v12".into()));
-        assert_eq!(pending_announce(Some("v12"), "v12"), None);
-        assert_eq!(pending_announce(Some("v12"), ""), None);
-    }
 
     #[test]
     fn counter_strict_increment() {

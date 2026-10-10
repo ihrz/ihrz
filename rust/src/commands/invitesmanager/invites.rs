@@ -4,12 +4,14 @@ use super::{
     see::inv_see,
 };
 
+/// Subcommand for invitesmanager category!
 #[poise::command(
     slash_command,
     prefix_command,
     category = "invitemanager",
     rename = "inv",
-    subcommands("inv_see", "inv_add", "inv_remove", "inv_lb", "inv_reset")
+    subcommands("inv_see", "inv_add", "inv_remove", "inv_lb", "inv_reset"),
+    subcommand_required
 )]
 pub async fn inv(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())

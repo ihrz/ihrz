@@ -1,5 +1,6 @@
 use super::*;
 
+/// Permit to send custom tweet !
 #[poise::command(slash_command, prefix_command, category = "fun", rename = "tweet")]
 pub async fn tweet(
     ctx: Ctx<'_>,

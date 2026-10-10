@@ -7,7 +7,8 @@ use super::*;
     category = "starboard",
     rename = "skullboard",
     subcommands("skull_config", "skull_channel", "skull_threshold", "skull_thread"),
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    subcommand_required
 )]
 pub async fn skullboard(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())

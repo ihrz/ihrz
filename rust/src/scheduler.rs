@@ -832,11 +832,12 @@ pub async fn sweep_blogger(
     http: &std::sync::Arc<poise::serenity_prelude::Http>,
 ) -> u64 {
     use crate::commands::blogger::{
-        article_already_notified, latest_rss_item, load_blogger_enabled, NotifiedArticle,
+        article_already_notified, extract_feed_title, latest_rss_item, load_blogger_enabled,
+        truncate_notified_articles, NotifiedArticle,
     };
-    use poise::serenity_prelude::{ChannelId, CreateActionRow, CreateButton, CreateMessage, Nonce};
+    use poise::serenity_prelude::{ChannelId, CreateActionRow, CreateButton, CreateMessage};
     let gids = blogger_guild_ids(pool).await;
-    let web = reqwest::Client::new();
+    let web = crate::commands::blogger::shared_client();
     let mut posted = 0u64;
     for gid in &gids {
         // Skip if module is disabled (Blogger.ts refresh leg).
@@ -873,40 +874,52 @@ pub async fn sweep_blogger(
                 tokio::time::sleep(std::time::Duration::from_secs(5)).await;
                 continue;
             }
-            let blog_name = crate::commands::blogger::fetch_rss_title(&blog.rss).await;
+            // Title from the already-fetched body: no second fetch per
+            // blog (the old fetch_rss_title re-downloaded the feed).
+            let blog_name = extract_feed_title(&body).unwrap_or_else(|| "Unknown Blog".to_string());
             let message = render_blogger_announce(
                 &template,
                 &item.title,
                 &item.author,
                 &item.link,
-                blog_name.as_deref().unwrap_or("Unknown Blog"),
+                &blog_name,
                 gid,
             );
-            // TS only pushes lastArticleNotified inside `if (channel)`;
-            // the row and the posted count land only on a successful
-            // send, so a failed post is retried on the next tick.
+            // Record-before-send (at-most-once): the row lands before
+            // the send so a failing channel cannot retry forever. The
+            // tradeoff is a failed send skips the announce on later
+            // ticks (and a crash between record and send loses it) —
+            // documented double-post/miss risk, chosen over unbounded
+            // retries. The store cap bounds the retry surface.
+            let mut list = notified;
+            list.push(NotifiedArticle {
+                blog_id: blog.id.clone(),
+                article_id: item.id.clone(),
+                timestamp_ms: item.pub_ms,
+            });
+            truncate_notified_articles(&mut list);
+            let _ = record_notified_articles(pool, gid, &list).await;
             if let Ok(ch_num) = blog.channel_id.parse::<u64>() {
-                let nonce_ms = std::time::SystemTime::now()
-                    .duration_since(std::time::UNIX_EPOCH)
-                    .map(|d| d.as_millis())
-                    .unwrap_or(0);
                 let msg = CreateMessage::new()
                     .content(message)
                     .components(vec![CreateActionRow::Buttons(vec![
                         CreateButton::new_link(item.link.clone()).label(button_label.clone()),
                     ])])
-                    .nonce(Nonce::String(format!("blogger-{}-{nonce_ms}", blog.id)))
+                    .nonce(unique_nonce("blogger", &blog.id))
                     .enforce_nonce(true);
                 if ChannelId::new(ch_num).send_message(http, msg).await.is_ok() {
-                    let mut list = notified;
-                    list.push(NotifiedArticle {
-                        blog_id: blog.id.clone(),
-                        article_id: item.id.clone(),
-                        timestamp_ms: item.pub_ms,
-                    });
-                    let _ = record_notified_articles(pool, gid, &list).await;
                     posted += 1;
+                } else {
+                    tracing::warn!(
+                        "blogger: send failed for blog {} in guild {gid} (row already recorded, no retry)",
+                        blog.id,
+                    );
                 }
+            } else {
+                tracing::warn!(
+                    "blogger: skipping blog {} in guild {gid}: bad channel id",
+                    blog.id,
+                );
             }
             tokio::time::sleep(std::time::Duration::from_secs(5)).await;
         }
@@ -967,7 +980,10 @@ pub async fn record_notified_articles(
     gid: &str,
     list: &[crate::commands::blogger::NotifiedArticle],
 ) -> anyhow::Result<()> {
-    let raw = serde_json::to_string(list).unwrap_or_else(|_| "[]".to_string());
+    use crate::commands::blogger::truncate_notified_articles;
+    let mut capped: Vec<crate::commands::blogger::NotifiedArticle> = list.to_vec();
+    truncate_notified_articles(&mut capped);
+    let raw = serde_json::to_string(&capped).unwrap_or_else(|_| "[]".to_string());
     crate::backends::Backend::sqlite(pool.clone())
         .table(gid)
         .set("BLOGGER.lastArticleNotified", &raw)
@@ -2153,7 +2169,10 @@ fn twitch_token_slot() -> &'static tokio::sync::Mutex<(Option<String>, i64)> {
 
 /// Fetch a Twitch app access token. Mirrors getAppAccessToken
 /// (client-credentials grant, expiry recorded as Date.now() +
-/// expires_in * 1000). Returns (token, expires_at_ms).
+/// expires_in * 1000). The creds go as a form-encoded POST body, like
+/// the TS axios.post(url, {...}) body params — never as a query
+/// string (tokens in URLs leak into logs). Returns
+/// (token, expires_at_ms).
 pub async fn fetch_twitch_token(
     http: &reqwest::Client,
     client_id: &str,
@@ -2163,14 +2182,33 @@ pub async fn fetch_twitch_token(
         .duration_since(std::time::UNIX_EPOCH)
         .map(|d| d.as_millis() as i64)
         .unwrap_or(0);
-    let url = format!(
-        "{TWITCH_OAUTH_TOKEN_URL}?client_id={client_id}&client_secret={client_secret}&grant_type=client_credentials"
-    );
-    let resp = http.post(&url).send().await.ok()?;
-    let body: serde_json::Value = resp.json().await.ok()?;
+    let resp = match http
+        .post(TWITCH_OAUTH_TOKEN_URL)
+        .form(&[
+            ("client_id", client_id),
+            ("client_secret", client_secret),
+            ("grant_type", "client_credentials"),
+        ])
+        .send()
+        .await
+    {
+        Ok(r) => r,
+        Err(e) => {
+            tracing::warn!("notifier: twitch token request failed: {e}");
+            return None;
+        }
+    };
+    let body: serde_json::Value = match resp.json().await {
+        Ok(v) => v,
+        Err(e) => {
+            tracing::warn!("notifier: twitch token response unreadable: {e}");
+            return None;
+        }
+    };
     let token = body.get("access_token")?.as_str()?.to_string();
     let expires_in = body.get("expires_in")?.as_i64().unwrap_or(0);
     if token.is_empty() {
+        tracing::warn!("notifier: twitch token endpoint returned an empty access token");
         return None;
     }
     Some((token, now_ms + expires_in * 1000))
@@ -2402,7 +2440,7 @@ pub async fn check_twitch_user(
 /// "Unsupported platform" in TS -> false here). Missing creds read
 /// as false, like the TS client erroring into `{state: false}`.
 pub async fn author_exists_on_platform(platform: &str, id_or_username: &str) -> bool {
-    let http = reqwest::Client::new();
+    let http = crate::commands::blogger::shared_client();
     match platform.to_ascii_lowercase().as_str() {
         "youtube" => match NotifierCreds::youtube_key_from_env() {
             Some(key) => check_youtube_channel(&http, &key, id_or_username)
@@ -2424,7 +2462,7 @@ pub async fn author_exists_on_platform(platform: &str, id_or_username: &str) -> 
 /// Display name for an author. Mirrors getChannelNameById (YouTube
 /// channel title, Twitch login fallback, id fallback on error).
 pub async fn author_display_name(platform: &str, id_or_username: &str) -> String {
-    let http = reqwest::Client::new();
+    let http = crate::commands::blogger::shared_client();
     if platform.eq_ignore_ascii_case("youtube") {
         if let Some(key) = NotifierCreds::youtube_key_from_env() {
             if let Some(name) = check_youtube_channel(&http, &key, id_or_username).await {
@@ -2475,62 +2513,22 @@ pub fn media_already_notified(
     })
 }
 
-/// TS isValidVideo, bug-for-bug. src/core/StreamNotifier.ts:457-468
-/// iterates `Object.values(entry)` and, on the FIRST value whose
-/// `typeof` is `"object"`, does `return this.isValidVideo(value)` —
-/// it returns immediately instead of continuing the scan, so later
-/// siblings are never examined (likewise a scalar null returns true
-/// at once). Ported verbatim so the refresh announce gate
-/// (`!alreadyNotified || isValidVideo(media)`) fires on exactly the
-/// same payloads as TS; do NOT "fix" this into a deep-any scan.
-/// (No `undefined` in JSON; null covers the `value == null` leg.)
-///
-/// Call-site contract: pass the FULL response object
-/// (`{user, content, platform}`, like the TS `media`). Its first
-/// traversed value is always the scalar-only watch row, so the scan
-/// returns false on every well-formed payload and the gate reduces
-/// to `!alreadyNotified` — exactly like TS, where the same early
-/// return never reaches `content`. Never pass a content-only
-/// projection: a null inside it would force an announce TS skips.
-pub fn json_has_null(value: &serde_json::Value) -> bool {
-    match value {
-        serde_json::Value::Null => true,
-        serde_json::Value::Object(map) => {
-            for v in map.values() {
-                if v.is_null() {
-                    return true;
-                } else if v.is_object() || v.is_array() {
-                    return json_has_null(v);
-                }
-            }
-            false
-        }
-        serde_json::Value::Array(items) => {
-            for v in items {
-                if v.is_null() {
-                    return true;
-                } else if v.is_object() || v.is_array() {
-                    return json_has_null(v);
-                }
-            }
-            false
-        }
-        _ => false,
-    }
-}
-
-/// Announce gate. Returns the media id when the TS refresh would send.
+/// Announce gate. Returns the media id when the TS refresh would send:
+/// exactly `!mediaHaveAlreadyBeNotified`. The old `isValidVideo` tripwire
+/// (`|| json_has_null(raw)`) is deleted: on the full `{user, content,
+/// platform}` response shape TS scans the scalar-only watch row first
+/// and always returns false, so the gate never fires in practice —
+/// keeping it only risked re-announcing already-notified media.
 pub fn pending_notifier_media(
     last: &[NotifiedMedia],
     user_id: &str,
     media_id: &str,
     pub_ms: i64,
-    raw: &serde_json::Value,
 ) -> Option<String> {
     if media_id.is_empty() {
         return None;
     }
-    if !media_already_notified(last, user_id, media_id, pub_ms) || json_has_null(raw) {
+    if !media_already_notified(last, user_id, media_id, pub_ms) {
         Some(media_id.to_string())
     } else {
         None
@@ -2576,6 +2574,29 @@ pub async fn load_notified_media(pool: &Pool, gid: &str) -> Vec<NotifiedMedia> {
     )
 }
 
+/// Bound for the notified-media store: the sweep keeps only the last
+/// N rows so the key cannot grow without bound.
+pub const MAX_NOTIFIED_MEDIA: usize = 500;
+
+/// Drop oldest rows past the store cap (keeps the last N).
+pub fn truncate_notified_media(list: &mut Vec<NotifiedMedia>) {
+    if list.len() > MAX_NOTIFIED_MEDIA {
+        list.drain(..list.len() - MAX_NOTIFIED_MEDIA);
+    }
+}
+
+/// Unique send nonce: watch/blog id + millis + a random suffix, so two
+/// sends inside the same millisecond never share a nonce.
+fn unique_nonce(prefix: &str, key: &str) -> poise::serenity_prelude::Nonce {
+    use rand::Rng;
+    let ms = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|d| d.as_millis())
+        .unwrap_or(0);
+    let rnd: u32 = rand::thread_rng().gen();
+    poise::serenity_prelude::Nonce::String(format!("{prefix}-{key}-{ms}-{rnd:08x}"))
+}
+
 /// Store write: guild-table row plus legacy kv (routed dual-write).
 pub async fn record_notified_media(
     pool: &Pool,
@@ -2584,6 +2605,7 @@ pub async fn record_notified_media(
 ) -> anyhow::Result<()> {
     let mut list = load_notified_media(pool, gid).await;
     list = push_notified_media(list, entry.clone());
+    truncate_notified_media(&mut list);
     let raw = serde_json::to_string(&list).unwrap_or_else(|_| "[]".to_string());
     crate::backends::Backend::sqlite(pool.clone())
         .table(gid)
@@ -2685,9 +2707,9 @@ pub async fn sweep_notifier(
     http: &std::sync::Arc<poise::serenity_prelude::Http>,
 ) -> (usize, usize, u64) {
     use crate::commands::notifier::load_entries;
-    use poise::serenity_prelude::{ChannelId, CreateActionRow, CreateButton, CreateMessage, Nonce};
+    use poise::serenity_prelude::{ChannelId, CreateActionRow, CreateButton, CreateMessage};
     let gids = notifier_guild_ids(pool).await;
-    let web = reqwest::Client::new();
+    let web = crate::commands::blogger::shared_client();
     let twitch_pair = NotifierCreds::twitch_pair_from_env();
     let youtube_key = NotifierCreds::youtube_key_from_env();
     if twitch_pair.is_none() && youtube_key.is_none() {
@@ -2708,8 +2730,17 @@ pub async fn sweep_notifier(
     // One token for the whole sweep instead of TS ensureValidAccessToken
     // per refresh: cheaper on the Twitch token endpoint by design, same
     // net effect (a valid app token for every helix call in the pass).
+    // A failed refresh is loud: every twitch watch skips this sweep.
     let twitch_token = match &twitch_pair {
-        Some((id, secret)) => ensure_twitch_token(&web, id, secret).await,
+        Some((id, secret)) => match ensure_twitch_token(&web, id, secret).await {
+            Some(token) => Some(token),
+            None => {
+                tracing::warn!(
+                    "notifier: twitch token refresh failed; twitch watches skip this sweep"
+                );
+                None
+            }
+        },
         None => None,
     };
     let bot_name = http
@@ -2729,6 +2760,10 @@ pub async fn sweep_notifier(
                 .await
                 .and_then(|s| s.parse::<u64>().ok());
         let Some(channel_num) = channel_num else {
+            tracing::warn!(
+                "notifier: guild {gid} has {} watches but no notify channel; skipping",
+                entries.len(),
+            );
             watches += entries.len();
             continue;
         };
@@ -2777,32 +2812,41 @@ pub async fn sweep_notifier(
                             }
                         })
                     }
-                    None => None,
+                    None => {
+                        tracing::warn!(
+                            "notifier: skipping youtube watch {}: no YOUTUBE_API_KEY",
+                            watch.id_or_username,
+                        );
+                        None
+                    }
                 }
             } else if platform == "twitch" {
                 match (&twitch_pair, &twitch_token) {
                     (Some((id, _)), Some(token)) => {
                         fetch_twitch_stream(&web, id, token, &watch.id_or_username).await
                     }
-                    _ => None,
+                    _ => {
+                        tracing::warn!(
+                            "notifier: skipping twitch watch {}: no valid token",
+                            watch.id_or_username,
+                        );
+                        None
+                    }
                 }
             } else {
                 // No TS verify/feed path (kick throws "Unsupported
-                // platform"); the watch can never resolve.
+                // platform"): the watch can never resolve. Surfaced,
+                // never silently kept or pruned — the row stays so a
+                // future platform leg can pick it up.
+                tracing::warn!(
+                    "notifier: skipping watch {} on unsupported platform {}",
+                    watch.id_or_username,
+                    watch.platform,
+                );
                 None
             };
             if let Some(m) = media {
-                // Full TS response shape ({user, content, platform}):
-                // isValidVideo runs on the whole media object, whose
-                // first value is always the scalar-only watch row, so
-                // the traversal returns false and the gate below is
-                // exactly `!alreadyNotified` (kept verbatim for parity).
-                let raw = serde_json::json!({
-                    "user": {"id_or_username": watch.id_or_username, "platform": watch.platform},
-                    "platform": platform,
-                    "content": {"title": m.title, "link": m.link, "author": m.author, "id": m.id},
-                });
-                if pending_notifier_media(&notified, &watch.id_or_username, &m.id, m.pub_ms, &raw)
+                if pending_notifier_media(&notified, &watch.id_or_username, &m.id, m.pub_ms)
                     .is_some()
                 {
                     let artist_link = if platform == "twitch" {
@@ -2822,47 +2866,54 @@ pub async fn sweep_notifier(
                             media_url: &m.link,
                         },
                     );
-                    let nonce_ms = std::time::SystemTime::now()
-                        .duration_since(std::time::UNIX_EPOCH)
-                        .map(|d| d.as_millis())
-                        .unwrap_or(0);
+                    // Record-before-send (at-most-once): the row lands
+                    // before the send so a failing channel cannot retry
+                    // forever. The tradeoff is a failed send skips the
+                    // announce on later ticks (and a crash between
+                    // record and send loses it) — documented
+                    // double-post/miss risk, chosen over unbounded
+                    // retries. The store cap bounds the retry surface.
+                    notified.push(NotifiedMedia {
+                        user_id: watch.id_or_username.clone(),
+                        media_id: m.id.clone(),
+                        timestamp_ms: m.pub_ms,
+                    });
+                    truncate_notified_media(&mut notified);
+                    let raw_list =
+                        serde_json::to_string(&notified).unwrap_or_else(|_| "[]".to_string());
+                    let _ = crate::backends::Backend::sqlite(pool.clone())
+                        .table(gid)
+                        .set("NOTIFIER.lastMediaNotified", &raw_list)
+                        .await;
+                    let _ =
+                        crate::db::kv_set(pool, gid, "NOTIFIER.lastMediaNotified", &raw_list).await;
                     let msg = CreateMessage::new()
                         .content(message)
                         .components(vec![CreateActionRow::Buttons(vec![
                             CreateButton::new_link(m.link.clone()).label(button_label.clone()),
                         ])])
-                        .nonce(Nonce::String(format!(
-                            "notifier-{}-{nonce_ms}",
-                            watch.id_or_username
-                        )))
+                        .nonce(unique_nonce("notifier", &watch.id_or_username))
                         .enforce_nonce(true);
                     if ChannelId::new(channel_num)
                         .send_message(http, msg)
                         .await
                         .is_ok()
                     {
-                        notified.push(NotifiedMedia {
-                            user_id: watch.id_or_username.clone(),
-                            media_id: m.id.clone(),
-                            timestamp_ms: m.pub_ms,
-                        });
-                        let raw_list =
-                            serde_json::to_string(&notified).unwrap_or_else(|_| "[]".to_string());
-                        let _ = crate::backends::Backend::sqlite(pool.clone())
-                            .table(gid)
-                            .set("NOTIFIER.lastMediaNotified", &raw_list)
-                            .await;
-                        let _ =
-                            crate::db::kv_set(pool, gid, "NOTIFIER.lastMediaNotified", &raw_list)
-                                .await;
                         posted += 1;
+                    } else {
+                        tracing::warn!(
+                            "notifier: send failed for watch {} in guild {gid} (row already recorded, no retry)",
+                            watch.id_or_username,
+                        );
                     }
                 }
-                // 5s pacing per watched user (mirrors the delay at the
-                // end of every fetchUsersMedias iteration in
-                // StreamNotifier.ts, which runs per user, not per guild).
-                tokio::time::sleep(std::time::Duration::from_secs(5)).await;
             }
+            // 5s pacing per watched user, unconditional: mirrors the
+            // delay at the end of every fetchUsersMedias iteration in
+            // StreamNotifier.ts, which runs per user even when the
+            // fetch errors or the watch is skipped — quota timing stays
+            // TS-shaped on every path.
+            tokio::time::sleep(std::time::Duration::from_secs(5)).await;
         }
     }
     (gids.len(), watches, posted)
@@ -3271,41 +3322,14 @@ mod tests {
         assert!(!media_already_notified(&last, "u", "v2", 101));
         // Another user's row does not cover this user.
         assert!(!media_already_notified(&last, "other", "v1", 50));
-        // Gate mirrors the refresh send condition.
-        let clean = serde_json::json!({"title": "x"});
-        assert!(pending_notifier_media(&last, "u", "v2", 101, &clean).is_some());
-        assert!(pending_notifier_media(&last, "u", "v1", 50, &clean).is_none());
-        // isValidVideo quirk: nulls inside force the announce.
-        let quirky = serde_json::json!({"title": null});
-        assert!(json_has_null(&quirky));
-        assert!(!json_has_null(&clean));
-        // Bug-for-bug: the scan returns on the FIRST object prop, so a
-        // null behind an object sibling is missed, exactly like TS.
-        assert!(!json_has_null(
-            &serde_json::json!({"a": {"x": 1}, "b": null})
-        ));
-        // ...while a null reached before any object prop still hits.
-        assert!(json_has_null(
-            &serde_json::json!({"a": null, "b": {"x": 1}})
-        ));
-        // First object prop is recursed into (scalar siblings after it
-        // are never examined, like TS).
-        assert!(json_has_null(&serde_json::json!({"a": {"x": null}})));
-        assert!(!json_has_null(&serde_json::json!({"a": {"x": 1}})));
-        assert!(pending_notifier_media(&last, "u", "v1", 50, &quirky).is_some());
-        assert!(pending_notifier_media(&last, "u", "", 0, &clean).is_none());
-        // Full response shape (audit V2): the traversal runs on the
-        // whole media object, whose first reached value is the
-        // scalar-only watch row, so the scan is false and the gate is
-        // exactly `!alreadyNotified`.
-        let full = serde_json::json!({
-            "user": {"id_or_username": "u", "platform": "youtube"},
-            "platform": "youtube",
-            "content": {"title": "t", "link": "l", "author": "a", "id": "v1"},
-        });
-        assert!(!json_has_null(&full));
-        assert!(pending_notifier_media(&last, "u", "v1", 50, &full).is_none());
-        assert!(pending_notifier_media(&last, "u", "v9", 200, &full).is_some());
+        // Gate mirrors the refresh send condition: exactly
+        // `!alreadyNotified` (the isValidVideo tripwire is deleted).
+        assert!(pending_notifier_media(&last, "u", "v2", 101).is_some());
+        assert!(pending_notifier_media(&last, "u", "v1", 50).is_none());
+        assert!(pending_notifier_media(&last, "u", "", 0).is_none());
+        // Nulls inside the payload no longer force an announce.
+        assert!(pending_notifier_media(&last, "u", "v1", 50).is_none());
+        assert!(pending_notifier_media(&last, "u", "v9", 200).is_some());
         // Store parse: missing key -> [], like the TS `|| []`.
         assert!(parse_notified_list(None).is_empty());
         assert!(parse_notified_list(Some("nope")).is_empty());
@@ -3329,6 +3353,29 @@ mod tests {
             .await
             .unwrap();
         assert_eq!(sweep_notifier_once(&p).await, (1, 0));
+    }
+
+    #[test]
+    fn notified_media_store_caps() {
+        let mut list: Vec<NotifiedMedia> = (0..MAX_NOTIFIED_MEDIA + 10)
+            .map(|i| NotifiedMedia {
+                user_id: "u".into(),
+                media_id: format!("v{i}"),
+                timestamp_ms: i as i64,
+            })
+            .collect();
+        truncate_notified_media(&mut list);
+        assert_eq!(list.len(), MAX_NOTIFIED_MEDIA);
+        assert_eq!(list.first().unwrap().media_id, "v10");
+    }
+
+    #[test]
+    fn send_nonces_are_unique() {
+        use std::collections::HashSet;
+        let nonces: HashSet<String> = (0..50)
+            .map(|_| format!("{:?}", unique_nonce("notifier", "watch")))
+            .collect();
+        assert_eq!(nonces.len(), 50);
     }
 
     #[tokio::test]

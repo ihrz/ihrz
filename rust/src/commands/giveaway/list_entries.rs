@@ -1,6 +1,7 @@
 use super::*;
 use poise::serenity_prelude as serenity;
 
+/// List all entries in giveaway!
 #[poise::command(
     slash_command,
     prefix_command,

@@ -6,7 +6,8 @@ use super::*;
     prefix_command,
     category = "profil",
     rename = "custom",
-    subcommands("custom_name", "custom_avatar", "custom_banner", "custom_bio")
+    subcommands("custom_name", "custom_avatar", "custom_banner", "custom_bio"),
+    subcommand_required
 )]
 pub async fn custom(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     // Paywall OFF. Mirrors commandExecutor.ts:405-406, where the

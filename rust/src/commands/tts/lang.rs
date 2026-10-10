@@ -45,6 +45,7 @@ pub fn tts_lang_code(choice: TtsLangChoice) -> &'static str {
     }
 }
 
+/// Set the default TTS language for the guild!
 #[poise::command(slash_command, prefix_command, rename = "lang")]
 pub async fn tts_lang(
     ctx: Ctx<'_>,

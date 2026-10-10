@@ -8,6 +8,7 @@ pub fn transgender_output_name() -> &'static str {
 /// Embed colour. Mirrors `.setColor("#010101")` in `!transgender.ts`.
 pub const TRANSGENDER_COLOUR: u32 = 0x010101;
 
+/// all humans have rights
 #[poise::command(
     slash_command,
     prefix_command,

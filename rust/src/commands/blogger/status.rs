@@ -12,6 +12,7 @@ pub enum BloggerPower {
     Off,
 }
 
+/// Get the bot status!
 #[poise::command(
     slash_command,
     prefix_command,

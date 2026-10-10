@@ -1,5 +1,6 @@
 use super::*;
 
+/// Delete every message containing binary files
 #[poise::command(
     slash_command,
     prefix_command,

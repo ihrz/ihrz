@@ -109,6 +109,7 @@ pub fn sorted_channel_ids(map: &AutoreactMap) -> Vec<String> {
     ids
 }
 
+/// Sent specified emoji when new message in specified channel
 #[poise::command(
     slash_command,
     prefix_command,
@@ -180,6 +181,7 @@ pub fn autoreact_list_page(ids: &[String], page: usize) -> &[String] {
     &ids[start..end]
 }
 
+/// Autoreact list command.
 #[poise::command(
     slash_command,
     prefix_command,
@@ -252,6 +254,7 @@ pub async fn gc_autoreact_list(
     Ok(())
 }
 
+/// Autoreact remove command.
 #[poise::command(
     slash_command,
     prefix_command,

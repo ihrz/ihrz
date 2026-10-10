@@ -4,6 +4,7 @@ use super::{
     list_entries::gw_entries, reroll::gw_reroll,
 };
 
+/// Subcommand for giveaway category!
 #[poise::command(
     slash_command,
     prefix_command,
@@ -16,7 +17,8 @@ use super::{
         "gw_entries",
         "gw_get_data",
         "gw_get_all"
-    )
+    ),
+    subcommand_required
 )]
 pub async fn giveaway(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())

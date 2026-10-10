@@ -18,6 +18,7 @@ fn want_count(amount: u64, by_member: bool) -> usize {
     }
 }
 
+/// Clear a amount of message in the channel !
 #[poise::command(
     slash_command,
     prefix_command,

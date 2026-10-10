@@ -1,6 +1,7 @@
 use super::*;
 use poise::serenity_prelude as serenity;
 
+/// Delete a role for a certain amount of money!
 #[poise::command(
     slash_command,
     prefix_command,

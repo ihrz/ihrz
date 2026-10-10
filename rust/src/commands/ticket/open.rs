@@ -26,6 +26,7 @@ pub fn merge_reopen_overwrite(
     }
 }
 
+/// re-open a closed ticket!
 #[poise::command(slash_command, prefix_command, rename = "open")]
 pub async fn ticket_open(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     // Mirrors !open.ts -> TicketReOpen (ticketsManager.ts:1709): the

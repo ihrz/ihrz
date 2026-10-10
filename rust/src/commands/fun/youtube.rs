@@ -1,5 +1,6 @@
 use super::*;
 
+/// Permit to send custom youtube comment (real) !
 #[poise::command(slash_command, prefix_command, category = "fun", rename = "youtube")]
 pub async fn youtube(
     ctx: Ctx<'_>,

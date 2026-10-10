@@ -12,6 +12,7 @@ fn bot_can_tempmute(perms: serenity::Permissions) -> bool {
     )
 }
 
+/// Temporarily mute a user!
 #[poise::command(
     slash_command,
     prefix_command,

@@ -12,7 +12,8 @@ use super::*;
         "starboard_threshold",
         "starboard_thread"
     ),
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    subcommand_required
 )]
 pub async fn starboard(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())

@@ -1,5 +1,6 @@
 use super::*;
 
+/// Setprefix command.
 #[poise::command(
     slash_command,
     prefix_command,

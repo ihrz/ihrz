@@ -13,6 +13,7 @@ pub const DELETE_TIMESUP_COLOR: u32 = 0xce7e00;
 /// Confirm collector wait. Mirrors !delete.ts:125 (`time: 15000`).
 pub const DELETE_CONFIRM_SECS: u64 = 15;
 
+/// Delete a role for a certain amount of money!
 #[poise::command(
     slash_command,
     prefix_command,

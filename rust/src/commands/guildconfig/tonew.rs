@@ -65,6 +65,7 @@ async fn post_tonew_log(ctx: &Ctx<'_>, title: &str, description: &str) {
         .await;
 }
 
+/// Toonew command.
 #[poise::command(
     slash_command,
     prefix_command,

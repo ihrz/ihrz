@@ -27,7 +27,8 @@ use super::{
         "m_history",
         "m_lyrics",
         "m_trackinfo"
-    )
+    ),
+    subcommand_required
 )]
 pub async fn music(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())

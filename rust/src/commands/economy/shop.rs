@@ -442,6 +442,7 @@ async fn do_buy(
     ))
 }
 
+/// Buy command.
 #[poise::command(slash_command, prefix_command, rename = "buy")]
 pub async fn eco_buy(
     ctx: Ctx<'_>,

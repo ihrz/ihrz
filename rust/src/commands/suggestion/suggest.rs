@@ -1,12 +1,14 @@
 use super::*;
 use poise::serenity_prelude as serenity;
 
+/// Subcommand for suggest category!
 #[poise::command(
     slash_command,
     prefix_command,
     category = "suggestion",
     rename = "suggest",
-    subcommands("suggest_accept", "suggest_deny", "suggest_delete", "suggest_reply")
+    subcommands("suggest_accept", "suggest_deny", "suggest_delete", "suggest_reply"),
+    subcommand_required
 )]
 pub async fn suggest(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())
@@ -262,6 +264,7 @@ async fn moderate(
     Ok(())
 }
 
+/// Accept an suggestion (need admin permission)!
 #[poise::command(
     slash_command,
     prefix_command,
@@ -279,6 +282,7 @@ pub async fn suggest_accept(
     moderate(ctx, &code, &ACCEPT, reason).await
 }
 
+/// Deny an suggestion (need admin permission)!
 #[poise::command(
     slash_command,
     prefix_command,
@@ -296,6 +300,7 @@ pub async fn suggest_deny(
     moderate(ctx, &code, &DENY, reason).await
 }
 
+/// Reply to the suggestion (need admin permission)!
 #[poise::command(
     slash_command,
     prefix_command,
@@ -315,6 +320,7 @@ pub async fn suggest_reply(
     moderate(ctx, &code, &REPLY, reply).await
 }
 
+/// Delete a role for a certain amount of money!
 #[poise::command(
     slash_command,
     prefix_command,

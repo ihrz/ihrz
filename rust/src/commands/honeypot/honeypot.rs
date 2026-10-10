@@ -1,12 +1,14 @@
 use super::*;
 use super::{config::honeypot_config, post::honeypot_post};
 
+/// Subcommand for honeypot category!
 #[poise::command(
     slash_command,
     prefix_command,
     category = "honeypot",
     rename = "honeypot",
-    subcommands("honeypot_config", "honeypot_post")
+    subcommands("honeypot_config", "honeypot_post"),
+    subcommand_required
 )]
 pub async fn honeypot(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())

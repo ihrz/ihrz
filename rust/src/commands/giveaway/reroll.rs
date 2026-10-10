@@ -1,6 +1,7 @@
 use super::*;
 use poise::serenity_prelude as serenity;
 
+/// Reroll a giveaway winner(s)!
 #[poise::command(
     slash_command,
     prefix_command,

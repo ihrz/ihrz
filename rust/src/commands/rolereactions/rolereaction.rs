@@ -66,6 +66,7 @@ pub async fn lookup_reaction_role(
     None
 }
 
+/// Subcommand for rolereaction category!
 #[poise::command(
     slash_command,
     prefix_command,
@@ -73,12 +74,14 @@ pub async fn lookup_reaction_role(
     rename = "rolereaction",
     aliases("rolereact"),
     subcommands("rr_add", "rr_remove", "rolebutton", "roleselect", "addrolereact"),
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    subcommand_required
 )]
 pub async fn rolereaction(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())
 }
 
+/// Add a role for a certain amount of money!
 #[poise::command(
     slash_command,
     prefix_command,
@@ -232,6 +235,7 @@ pub async fn rr_add(
     Ok(())
 }
 
+/// Remove Streamer/Youtuber/Twitcher
 #[poise::command(
     slash_command,
     prefix_command,
@@ -520,6 +524,7 @@ pub async fn post_ihorizon_log(
         .await;
 }
 
+/// Set a roles when user react to a button with specific emoji
 #[poise::command(
     slash_command,
     prefix_command,
@@ -1093,6 +1098,7 @@ pub async fn load_roleselect(
         .unwrap_or_default()
 }
 
+/// Configure role selection for a specific message
 #[poise::command(
     slash_command,
     prefix_command,

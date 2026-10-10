@@ -29,6 +29,7 @@ async fn yes_markup(http: &serenity::Http) -> String {
         .unwrap_or_else(|| "✅".to_string())
 }
 
+/// Subcommand for voice category!
 #[poise::command(
     slash_command,
     prefix_command,
@@ -41,12 +42,14 @@ async fn yes_markup(http: &serenity::Http) -> String {
         "vd_name",
         "vd_position",
         "vd_staff"
-    )
+    ),
+    subcommand_required
 )]
 pub async fn voicedashboard(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())
 }
 
+/// Lobby command.
 #[poise::command(
     slash_command,
     prefix_command,
@@ -77,6 +80,7 @@ pub async fn vd_lobby(
     Ok(())
 }
 
+/// Making a panel for custom ticket configuration
 #[poise::command(
     slash_command,
     prefix_command,
@@ -158,6 +162,7 @@ pub async fn vd_panel(
     Ok(())
 }
 
+/// The category to sync channels to
 #[poise::command(
     slash_command,
     prefix_command,
@@ -188,6 +193,7 @@ pub async fn vd_category(
     Ok(())
 }
 
+/// Change the iHorizon name into the server
 #[poise::command(
     slash_command,
     prefix_command,
@@ -242,6 +248,7 @@ impl PositionChoice {
     }
 }
 
+/// Position command.
 #[poise::command(
     slash_command,
     prefix_command,
@@ -300,6 +307,7 @@ pub fn staff_roles_value(ids: &[String]) -> String {
         .join(", ")
 }
 
+/// Staff command.
 #[poise::command(
     slash_command,
     prefix_command,

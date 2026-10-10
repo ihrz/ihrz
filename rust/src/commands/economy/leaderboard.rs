@@ -87,6 +87,7 @@ async fn board_rows(pool: &crate::db::Pool, guild_id: &str) -> Vec<(u64, f64, f6
     parsed
 }
 
+/// Get the xp's leaderboard of the guild!
 #[poise::command(
     slash_command,
     prefix_command,

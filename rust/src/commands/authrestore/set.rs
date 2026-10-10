@@ -1,6 +1,7 @@
 use super::*;
 use poise::serenity_prelude as serenity;
 
+/// Set someting/behaviours into this guild!
 #[poise::command(
     slash_command,
     prefix_command,

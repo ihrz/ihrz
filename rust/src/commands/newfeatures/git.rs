@@ -9,7 +9,8 @@ use super::*;
     category = "newfeatures",
     rename = "git",
     subcommands("git_lines_toggle"),
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    subcommand_required
 )]
 pub async fn git_parent(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())

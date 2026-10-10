@@ -1,6 +1,7 @@
 use super::*;
 use poise::serenity_prelude as serenity;
 
+/// Give ability to speak of all users in all channels!
 #[poise::command(
     slash_command,
     prefix_command,

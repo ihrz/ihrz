@@ -16,6 +16,7 @@ pub fn captions_render_vars(image_url: &str, text: &str) -> (String, String) {
     (image_url.to_string(), text.to_string())
 }
 
+/// Add text on top of your own image
 #[poise::command(slash_command, prefix_command, category = "fun", rename = "captions")]
 pub async fn captions(
     ctx: Ctx<'_>,

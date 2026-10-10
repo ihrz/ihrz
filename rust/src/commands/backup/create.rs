@@ -13,6 +13,7 @@ pub fn save_messages_budget(save_messages: Option<&str>) -> u64 {
     }
 }
 
+/// Webhook URL or webhook code
 #[poise::command(
     slash_command,
     prefix_command,

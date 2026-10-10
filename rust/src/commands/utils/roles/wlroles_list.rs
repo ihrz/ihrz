@@ -1,5 +1,6 @@
 use super::*;
 
+/// Wlroles list command.
 #[poise::command(
     slash_command,
     prefix_command,

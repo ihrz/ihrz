@@ -4,6 +4,7 @@ use super::{
     top_messages::stats_top_messages, top_voice::stats_top_voice, ustats::stats_user,
 };
 
+/// Subcommand for stats category!
 #[poise::command(
     slash_command,
     prefix_command,
@@ -16,7 +17,8 @@ use super::{
         "stats_top_messages",
         "stats_top_voice",
         "stats_channel"
-    )
+    ),
+    subcommand_required
 )]
 pub async fn stats(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())

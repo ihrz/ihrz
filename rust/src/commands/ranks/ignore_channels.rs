@@ -64,6 +64,7 @@ pub fn parse_ignore_channel_list(raw: &str) -> Vec<String> {
     out
 }
 
+/// Ignore add command.
 #[poise::command(
     slash_command,
     prefix_command,

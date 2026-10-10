@@ -7,6 +7,7 @@ pub fn render_add_work(template: &str, username: &str) -> String {
     template.replace("${member.tag}", username)
 }
 
+/// Add a member into your ticket!
 #[poise::command(
     slash_command,
     prefix_command,

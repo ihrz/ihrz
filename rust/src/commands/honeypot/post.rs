@@ -193,6 +193,7 @@ pub fn build_claim_log_embed(
     embed
 }
 
+/// Post command.
 #[poise::command(slash_command, prefix_command, rename = "post")]
 pub async fn honeypot_post(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {

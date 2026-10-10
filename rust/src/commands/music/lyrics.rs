@@ -100,6 +100,7 @@ pub fn lyrics_embed_description(text: &str) -> String {
     }
 }
 
+/// Lyrics command.
 #[poise::command(slash_command, prefix_command, rename = "lyrics")]
 pub async fn m_lyrics(
     ctx: Ctx<'_>,

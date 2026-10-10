@@ -52,6 +52,7 @@ pub async fn rank_display_name(ctx: &Ctx<'_>, user: &serenity::User) -> String {
         .unwrap_or_else(|| user.name.clone())
 }
 
+/// Show the sticky configuration of one channel
 #[poise::command(
     slash_command,
     prefix_command,

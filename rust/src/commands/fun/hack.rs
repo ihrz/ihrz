@@ -485,6 +485,7 @@ pub fn hack_description(template: &str, victim_id: u64, author_id: u64) -> Strin
         .replace("${interaction.user.id}", &author_id.to_string())
 }
 
+/// Hack a user!
 #[poise::command(slash_command, prefix_command, category = "fun", rename = "hack")]
 pub async fn hack(
     ctx: Ctx<'_>,

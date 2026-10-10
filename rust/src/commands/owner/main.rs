@@ -555,6 +555,7 @@ fn owners_embed(title: &str, owners: &[String]) -> serenity::CreateEmbed {
         .timestamp(serenity::Timestamp::now())
 }
 
+/// Subcommand for owner category!
 #[poise::command(
     slash_command,
     prefix_command,
@@ -569,12 +570,14 @@ fn owners_embed(title: &str, owners: &[String]) -> serenity::CreateEmbed {
         "owner_unblacklist",
         "owner_blinfo",
         "owner_bledit"
-    )
+    ),
+    subcommand_required
 )]
 pub async fn owner(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())
 }
 
+/// List all sticky channels
 #[poise::command(slash_command, prefix_command, rename = "list")]
 pub async fn owner_list(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     // Merged view: config owners + persisted owner table.
@@ -590,6 +593,7 @@ pub async fn owner_list(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())
 }
 
+/// Add a role for a certain amount of money!
 #[poise::command(slash_command, prefix_command, rename = "add")]
 pub async fn owner_add(
     ctx: Ctx<'_>,
@@ -670,6 +674,7 @@ pub async fn owner_add(
     }
 }
 
+/// Remove Streamer/Youtuber/Twitcher
 #[poise::command(slash_command, prefix_command, rename = "remove")]
 pub async fn owner_remove(
     ctx: Ctx<'_>,
@@ -870,6 +875,7 @@ async fn send_bl_pager(
     Ok(())
 }
 
+/// Add a user to the blacklist!
 #[poise::command(slash_command, prefix_command, rename = "blacklist")]
 pub async fn owner_blacklist(
     ctx: Ctx<'_>,
@@ -1103,6 +1109,7 @@ async fn owner_blacklist_inner(
     }
 }
 
+/// The user you want to unblacklist (Only Owner of ihorizon)!
 #[poise::command(slash_command, prefix_command, rename = "unblacklist")]
 pub async fn owner_unblacklist(
     ctx: Ctx<'_>,
@@ -1282,6 +1289,7 @@ fn blinfo_embed(
         .timestamp(serenity::Timestamp::now())
 }
 
+/// Show informations about blacklisted user!
 #[poise::command(
     slash_command,
     prefix_command,

@@ -1,6 +1,7 @@
 use super::*;
 use poise::serenity_prelude as serenity;
 
+/// Create a beautiful embed!
 #[poise::command(
     slash_command,
     prefix_command,

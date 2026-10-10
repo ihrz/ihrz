@@ -1,5 +1,6 @@
 use super::*;
 
+/// See guild leaderboard
 #[poise::command(slash_command, prefix_command, rename = "gstats", aliases("g"))]
 pub async fn stats_guild(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let gid = ctx

@@ -4,6 +4,7 @@ use super::{
     manage::backup_manage,
 };
 
+/// Subcommand for backup category!
 #[poise::command(
     slash_command,
     prefix_command,
@@ -15,7 +16,8 @@ use super::{
         "backup_load",
         "backup_delete",
         "backup_manage"
-    )
+    ),
+    subcommand_required
 )]
 pub async fn backup(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())

@@ -5,6 +5,7 @@ use super::{
     status::status,
 };
 
+/// Subcommand for bot category!
 #[poise::command(
     slash_command,
     prefix_command,
@@ -24,7 +25,8 @@ use super::{
         "ether",
         "iris",
         "kisakay"
-    )
+    ),
+    subcommand_required
 )]
 pub async fn bot(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())

@@ -10,6 +10,7 @@ pub fn manage_owner_only(scope: Option<&str>) -> bool {
     scope == Some("owner")
 }
 
+/// Manage the backup system into this guild
 #[poise::command(
     slash_command,
     prefix_command,

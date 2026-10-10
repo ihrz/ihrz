@@ -271,6 +271,7 @@ pub fn post_change_display(member_url: Option<&str>, attachment_url: &str) -> St
 
 macro_rules! lore_cmd {
     ($fn_name:ident, $sub:literal, $key:literal, $fallback:literal) => {
+/// Lore contributor info command.
         #[poise::command(slash_command,
     prefix_command, category = "bot", rename = $sub)]
         pub async fn $fn_name(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
@@ -282,6 +283,7 @@ macro_rules! lore_cmd {
         }
     };
     ($fn_name:ident, $sub:literal, $key:literal, $fallback:literal, $($alias:literal),+) => {
+/// Lore contributor info command.
         #[poise::command(
             slash_command,
     prefix_command,

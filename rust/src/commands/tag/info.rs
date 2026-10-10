@@ -1,5 +1,6 @@
 use super::*;
 
+/// Get information about the TTS module!
 #[poise::command(slash_command, prefix_command, rename = "info")]
 pub async fn tag_info(
     ctx: Ctx<'_>,

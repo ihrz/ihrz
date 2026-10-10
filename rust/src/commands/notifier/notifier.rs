@@ -4,6 +4,7 @@ use super::{
     remove::notifier_remove,
 };
 
+/// Subcommand for notifier category!
 #[poise::command(
     slash_command,
     prefix_command,
@@ -15,7 +16,8 @@ use super::{
         "notifier_list",
         "notifier_channel",
         "notifier_message"
-    )
+    ),
+    subcommand_required
 )]
 pub async fn notifier(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())

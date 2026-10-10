@@ -1,5 +1,6 @@
 use super::*;
 
+/// Delete a role for a certain amount of money!
 #[poise::command(
     slash_command,
     prefix_command,

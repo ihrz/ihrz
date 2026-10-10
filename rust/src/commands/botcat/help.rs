@@ -75,19 +75,28 @@ impl<T, E> HelpNode for poise::Command<T, E> {
     }
 }
 
-/// Find a command by name or alias, searching top-level nodes then one
-/// level of children. Mirrors the TS
+/// Find a command by name or alias, searching top-level nodes then
+/// nested subcommands at any depth (case-insensitive). Mirrors the TS
 /// `client.commands.get(target) || client.message_commands.get(target)`
-/// lookup (exact match).
+/// lookup.
 pub fn find_help_command<'a, N: HelpNode>(nodes: &'a [N], target: &str) -> Option<&'a N> {
+    let target = target.trim();
+    fn eq(a: &str, b: &str) -> bool {
+        a.eq_ignore_ascii_case(b)
+    }
+    fn hit<N: HelpNode>(node: &N, target: &str) -> bool {
+        eq(node.node_name(), target) || node.node_aliases().iter().any(|a| eq(a, target))
+    }
     for node in nodes {
-        if node.node_name() == target || node.node_aliases().iter().any(|a| a == target) {
+        if hit(node, target) {
             return Some(node);
         }
-        for sub in node.node_children() {
-            if sub.node_name() == target || sub.node_aliases().iter().any(|a| a == target) {
+        let mut stack: Vec<&N> = node.node_children().iter().collect();
+        while let Some(sub) = stack.pop() {
+            if hit(sub, target) {
                 return Some(sub);
             }
+            stack.extend(sub.node_children().iter());
         }
     }
     None

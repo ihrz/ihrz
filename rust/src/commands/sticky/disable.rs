@@ -1,6 +1,7 @@
 use super::*;
 use poise::serenity_prelude as serenity;
 
+/// Disable a sticky message in one channel
 #[poise::command(
     slash_command,
     prefix_command,

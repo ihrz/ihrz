@@ -20,6 +20,7 @@ fn author_mention(warn: &Warn, unknown: &str) -> String {
     }
 }
 
+/// show all warns of a user
 #[poise::command(
     slash_command,
     prefix_command,

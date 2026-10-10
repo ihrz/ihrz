@@ -8,6 +8,7 @@ use super::{
     welcomer::welcomer,
 };
 
+/// Subcommand for legacy category!
 #[poise::command(
     slash_command,
     prefix_command,
@@ -33,7 +34,8 @@ use super::{
         "two_sides",
         "updates",
         "welcomer"
-    )
+    ),
+    subcommand_required
 )]
 pub async fn legacy(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())

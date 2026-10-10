@@ -1,16 +1,19 @@
 use super::*;
 
+/// Subcommand for counter category!
 #[poise::command(
     slash_command,
     prefix_command,
     category = "newfeatures",
     rename = "counter",
-    subcommands("counter_channel", "counter_config")
+    subcommands("counter_channel", "counter_config"),
+    subcommand_required
 )]
 pub async fn counter(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())
 }
 
+/// Set the channel where user earn new xp level message!
 #[poise::command(
     slash_command,
     prefix_command,
@@ -50,6 +53,7 @@ pub async fn counter_channel(
     Ok(())
 }
 
+/// Config the message when user earn new xp level message!
 #[poise::command(
     slash_command,
     prefix_command,

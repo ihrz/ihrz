@@ -239,6 +239,7 @@ async fn dm_best_effort(http: &serenity::Http, user: &serenity::User, content: S
         .await;
 }
 
+/// Subcommand for moderation category!
 #[poise::command(
     slash_command,
     prefix_command,
@@ -267,7 +268,8 @@ async fn dm_best_effort(http: &serenity::Http, user: &serenity::User, content: S
         "mod_mutelist",
         "mod_clearwarn",
         "mod_clear_all_warns"
-    )
+    ),
+    subcommand_required
 )]
 pub async fn moderation(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())

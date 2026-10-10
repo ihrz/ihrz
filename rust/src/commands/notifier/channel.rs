@@ -1,6 +1,7 @@
 use super::*;
 use poise::serenity_prelude as serenity;
 
+/// Set the channel where user earn new xp level message!
 #[poise::command(
     slash_command,
     prefix_command,

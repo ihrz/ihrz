@@ -80,6 +80,7 @@ pub fn pager_rows(
     ]
 }
 
+/// Get all informations about the AuthRestore module of the guild
 #[poise::command(
     slash_command,
     prefix_command,

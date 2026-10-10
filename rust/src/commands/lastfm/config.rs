@@ -1,5 +1,6 @@
 use super::*;
 
+/// Config the message when user earn new xp level message!
 #[poise::command(slash_command, prefix_command, rename = "config")]
 pub async fn lastfm_config(
     ctx: Ctx<'_>,

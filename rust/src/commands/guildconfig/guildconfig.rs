@@ -56,7 +56,8 @@ use super::{
         "gc_toonew",
         "gc_joindm",
         "gc_joinrole"
-    )
+    ),
+    subcommand_required
 )]
 pub async fn guildconfig(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())

@@ -1,6 +1,7 @@
 use super::*;
 use poise::serenity_prelude as serenity;
 
+/// Get information about the TTS module!
 #[poise::command(slash_command, prefix_command, rename = "info")]
 pub async fn tts_info(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let gid = ctx

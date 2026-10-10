@@ -75,7 +75,8 @@ use super::{
         "eco_set_cooldown",
         "eco_ureset",
         "eco_greset"
-    )
+    ),
+    subcommand_required
 )]
 pub async fn economy(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())

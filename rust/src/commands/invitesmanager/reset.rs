@@ -1,5 +1,6 @@
 use super::*;
 
+/// Reset profil
 #[poise::command(
     slash_command,
     prefix_command,

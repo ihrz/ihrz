@@ -4,6 +4,7 @@ use super::{
     roles::authrestore_roles, set::authrestore_set,
 };
 
+/// Subcommand for authrestore category!
 #[poise::command(
     slash_command,
     prefix_command,
@@ -15,7 +16,8 @@ use super::{
         "authrestore_get",
         "authrestore_force_join",
         "authrestore_roles"
-    )
+    ),
+    subcommand_required
 )]
 pub async fn authrestore(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())

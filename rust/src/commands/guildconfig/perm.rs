@@ -1,6 +1,7 @@
 use super::*;
 use poise::serenity_prelude as serenity;
 
+/// Perm set command.
 #[poise::command(
     slash_command,
     prefix_command,
@@ -51,6 +52,7 @@ pub fn user_perm_key(user_id: u64) -> String {
     format!("UTILS.USER_PERMS.{user_id}")
 }
 
+/// Perm user command.
 #[poise::command(
     slash_command,
     prefix_command,
@@ -132,6 +134,7 @@ pub async fn gc_perm_user(
     Ok(())
 }
 
+/// Perm list command.
 #[poise::command(
     slash_command,
     prefix_command,
@@ -170,6 +173,7 @@ pub async fn gc_perm_list(
     Ok(())
 }
 
+/// Perm reset command.
 #[poise::command(
     slash_command,
     prefix_command,

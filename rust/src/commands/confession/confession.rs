@@ -16,7 +16,8 @@ use super::{
         "confession_thread",
         "confession_cooldown",
         "confession_list"
-    )
+    ),
+    subcommand_required
 )]
 pub async fn confession(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())

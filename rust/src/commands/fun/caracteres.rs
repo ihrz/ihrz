@@ -185,6 +185,7 @@ pub fn preview_desc(preview_word: &str, converted: &str) -> String {
     format!("{preview_word}: {converted}")
 }
 
+/// Transform a string into a DarkSasuke!
 #[poise::command(slash_command, prefix_command, category = "fun", rename = "caracteres")]
 pub async fn caracteres(
     ctx: Ctx<'_>,

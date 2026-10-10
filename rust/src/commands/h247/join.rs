@@ -134,6 +134,7 @@ async fn load_tts_presence(pool: &crate::db::Pool, guild_id: &str) -> Option<(bo
     Some((enabled, voice))
 }
 
+/// Join the voice channel and enable TTS mode!
 #[poise::command(
     slash_command,
     prefix_command,

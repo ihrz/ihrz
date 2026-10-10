@@ -150,6 +150,7 @@ pub fn delete_all_confirm_row(
     ])
 }
 
+/// Subcommand for schedule category!
 #[poise::command(
     slash_command,
     prefix_command,
@@ -160,7 +161,8 @@ pub fn delete_all_confirm_row(
         "schedule_delete",
         "schedule_delete_all",
         "schedule_list"
-    )
+    ),
+    subcommand_required
 )]
 pub async fn schedule(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     use poise::serenity_prelude as serenity;
@@ -666,6 +668,7 @@ async fn guided_list(
     Ok(())
 }
 
+/// Webhook URL or webhook code
 #[poise::command(slash_command, prefix_command, rename = "create")]
 pub async fn schedule_create(
     ctx: Ctx<'_>,
@@ -751,6 +754,7 @@ pub async fn schedule_create(
     Ok(())
 }
 
+/// Delete a role for a certain amount of money!
 #[poise::command(slash_command, prefix_command, rename = "delete")]
 pub async fn schedule_delete(
     ctx: Ctx<'_>,
@@ -776,6 +780,7 @@ pub async fn schedule_delete(
     Ok(())
 }
 
+/// Delete all command.
 #[poise::command(slash_command, prefix_command, rename = "delete-all")]
 pub async fn schedule_delete_all(
     ctx: Ctx<'_>,
@@ -813,6 +818,7 @@ pub async fn schedule_delete_all(
     Ok(())
 }
 
+/// List all sticky channels
 #[poise::command(slash_command, prefix_command, rename = "list")]
 pub async fn schedule_list(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let gid = scope_guild(&ctx);

@@ -1,6 +1,7 @@
 use super::*;
 use poise::serenity_prelude as serenity;
 
+/// Repost the sticky message in one channel
 #[poise::command(
     slash_command,
     prefix_command,

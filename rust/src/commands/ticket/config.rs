@@ -11,6 +11,7 @@ pub fn parse_config_action(action: &str) -> Option<bool> {
     }
 }
 
+/// Config the message when user earn new xp level message!
 #[poise::command(
     slash_command,
     prefix_command,

@@ -21,6 +21,7 @@ fn render_row(tpl: &str, rank_1based: usize, uid: u64, s: &InviteStats) -> Strin
         .replace("${index.leaves}", &s.leaves.to_string())
 }
 
+/// Get the xp's leaderboard of the guild!
 #[poise::command(
     slash_command,
     prefix_command,

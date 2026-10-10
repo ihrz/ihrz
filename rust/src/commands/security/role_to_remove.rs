@@ -1,6 +1,7 @@
 use super::*;
 use poise::serenity_prelude as serenity;
 
+/// The role that will be removed to new member(s) when process to the Captcha verification!
 #[poise::command(
     slash_command,
     prefix_command,

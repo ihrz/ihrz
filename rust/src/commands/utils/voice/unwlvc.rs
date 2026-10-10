@@ -1,6 +1,7 @@
 use super::talk::post_util_log;
 use super::*;
 
+/// Remove a member from the frozen voice channel whitelist
 #[poise::command(
     slash_command,
     prefix_command,

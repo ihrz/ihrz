@@ -1,17 +1,20 @@
 use super::*;
 use poise::serenity_prelude as serenity;
 
+/// Subcommand for setsuggest category!
 #[poise::command(
     slash_command,
     prefix_command,
     category = "suggestion",
     rename = "setsuggest",
-    subcommands("setsuggest_channel", "setsuggest_config")
+    subcommands("setsuggest_channel", "setsuggest_config"),
+    subcommand_required
 )]
 pub async fn setsuggest(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())
 }
 
+/// Set the channel where user earn new xp level message!
 #[poise::command(
     slash_command,
     prefix_command,
@@ -87,6 +90,7 @@ pub async fn setsuggest_channel(
     Ok(())
 }
 
+/// Config the message when user earn new xp level message!
 #[poise::command(
     slash_command,
     prefix_command,

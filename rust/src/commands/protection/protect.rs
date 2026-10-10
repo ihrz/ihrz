@@ -216,6 +216,7 @@ pub fn rule_for_event(event: &str) -> Option<&'static str> {
     }
 }
 
+/// Subcommand for protect category!
 #[poise::command(
     slash_command,
     prefix_command,
@@ -228,12 +229,14 @@ pub fn rule_for_event(event: &str) -> Option<&'static str> {
         "protect_allow_add",
         "protect_allow_remove",
         "protect_allow_show"
-    )
+    ),
+    subcommand_required
 )]
 pub async fn protect(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())
 }
 
+/// Whats is the rule to configure?
 #[poise::command(slash_command, prefix_command, rename = "rule")]
 pub async fn protect_rule(
     ctx: Ctx<'_>,
@@ -330,6 +333,7 @@ pub async fn protect_rule(
     Ok(())
 }
 
+/// Sanction command.
 #[poise::command(
     slash_command,
     prefix_command,
@@ -539,6 +543,7 @@ pub async fn load_allowlist(pool: &crate::db::Pool, gid: &str) -> Vec<String> {
     rows
 }
 
+/// Show the sticky configuration of one channel
 #[poise::command(
     slash_command,
     prefix_command,
@@ -602,6 +607,7 @@ pub async fn protect_show(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())
 }
 
+/// Allow add command.
 #[poise::command(slash_command, prefix_command, rename = "allow-add")]
 pub async fn protect_allow_add(
     ctx: Ctx<'_>,
@@ -659,6 +665,7 @@ pub async fn protect_allow_add(
     Ok(())
 }
 
+/// Allow remove command.
 #[poise::command(slash_command, prefix_command, rename = "allow-remove")]
 pub async fn protect_allow_remove(
     ctx: Ctx<'_>,
@@ -713,6 +720,7 @@ pub async fn protect_allow_remove(
     Ok(())
 }
 
+/// Allow show command.
 #[poise::command(slash_command, prefix_command, rename = "allow-show")]
 pub async fn protect_allow_show(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let gid = ctx

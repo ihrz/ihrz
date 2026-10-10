@@ -1,5 +1,6 @@
 use super::*;
 
+/// Roles whitelist for creating tags
 #[poise::command(
     slash_command,
     prefix_command,

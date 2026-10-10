@@ -16,6 +16,7 @@ pub fn should_leave_voice(player_exists: bool) -> bool {
     !player_exists
 }
 
+/// Leave the voice channel and disable TTS mode!
 #[poise::command(
     slash_command,
     prefix_command,

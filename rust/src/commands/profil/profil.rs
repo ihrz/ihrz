@@ -17,7 +17,8 @@ use super::{
         "profil_gender",
         "profil_pronoun",
         "profil_birthday"
-    )
+    ),
+    subcommand_required
 )]
 pub async fn profil(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let msg = crate::commands::lang_for(

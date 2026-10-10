@@ -46,6 +46,7 @@ fn guild_has_tags(ctx: &Ctx<'_>) -> bool {
     }
 }
 
+/// Give a roles when guild's member have something about your server on them bio!
 #[poise::command(
     slash_command,
     prefix_command,

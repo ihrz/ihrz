@@ -95,6 +95,7 @@ pub fn display_name(code: &str, auto_id: &str) -> String {
         .unwrap_or_else(|| auto_display_fallback(auto_id).to_string())
 }
 
+/// Set a logs channel for Audits Logs!
 #[poise::command(
     slash_command,
     prefix_command,

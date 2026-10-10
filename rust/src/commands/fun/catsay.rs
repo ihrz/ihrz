@@ -25,6 +25,7 @@ async fn catsay_down(ctx: &Ctx<'_>, code: &str) -> Result<(), anyhow::Error> {
     .await?;
     Ok(())
 }
+/// Cat say (insert text here)
 #[poise::command(slash_command, prefix_command, category = "fun", rename = "catsay")]
 pub async fn catsay(
     ctx: Ctx<'_>,

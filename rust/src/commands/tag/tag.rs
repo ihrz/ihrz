@@ -4,6 +4,7 @@ use super::{
     use_::tag_use, wlroles_create::tag_wl_create, wlroles_use::tag_wl_use,
 };
 
+/// Subcommand for tag category!
 #[poise::command(
     slash_command,
     prefix_command,
@@ -18,7 +19,8 @@ use super::{
         "tag_info",
         "tag_wl_use",
         "tag_wl_create"
-    )
+    ),
+    subcommand_required
 )]
 pub async fn tag(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())

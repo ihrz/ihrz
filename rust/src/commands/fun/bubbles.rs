@@ -1,5 +1,6 @@
 use super::*;
 
+/// Add bubble on top of your own image
 #[poise::command(slash_command, prefix_command, category = "fun", rename = "bubbles")]
 pub async fn bubbles(
     ctx: Ctx<'_>,
