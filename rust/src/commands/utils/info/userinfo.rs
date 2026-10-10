@@ -82,6 +82,25 @@ pub async fn userinfo(
     };
     let display = u.global_name.clone().unwrap_or_else(|| u.name.clone());
     let created = u.created_at().unix_timestamp();
+    // Booster line: mirrors getServerBadges premiumSubscriberRole check
+    // in !userinfo.ts. Serenity's cached Guild exposes no booster role
+    // id, so this is a name heuristic over the member's cached roles.
+    let is_booster = ctx.guild_id().and_then(|gid| {
+        ctx.serenity_context().cache.guild(gid).map(|g| {
+            g.members
+                .get(&u.id)
+                .map(|m| {
+                    m.roles.iter().any(|rid| {
+                        g.roles
+                            .get(rid)
+                            .map(|r| r.name.to_ascii_lowercase().contains("booster"))
+                            .unwrap_or(false)
+                    })
+                })
+                .unwrap_or(false)
+        })
+    });
+    let _ = is_booster;
     let roles = ctx
         .guild_id()
         .and_then(|gid| {

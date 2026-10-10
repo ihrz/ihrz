@@ -47,13 +47,18 @@ pub async fn dice(
 }
 
 /// Prefix counts. Mirrors the uncapped TS loop: no upper clamp here
-/// (slash-only caps come from the command attributes). Lower bounds only
-/// keep the conversion safe: negative counts roll nothing (the TS loop
-/// body never runs), faces floor at 1.
+/// (slash-only caps come from the command attributes). Like the TS
+/// `|| 1` / `|| 6` fallbacks, a 0 count means "not provided" and falls
+/// back to the defaults. Lower bounds only keep the conversion safe:
+/// negative counts roll nothing (the TS loop body never runs), faces
+/// floor at 1.
 pub fn dice_counts(number: Option<i64>, faces: Option<i64>) -> (usize, u32) {
     (
-        number.unwrap_or(1).max(0) as usize,
-        faces.unwrap_or(6).clamp(1, u32::MAX as i64) as u32,
+        number.filter(|&n| n != 0).unwrap_or(1).max(0) as usize,
+        faces
+            .filter(|&f| f != 0)
+            .unwrap_or(6)
+            .clamp(1, u32::MAX as i64) as u32,
     )
 }
 
@@ -66,8 +71,9 @@ mod dice_tests {
         // Slash-only caps live in the attributes; prefix values pass through.
         assert_eq!(dice_counts(Some(99), Some(100)), (99, 100));
         assert_eq!(dice_counts(None, None), (1, 6));
+        // Like the TS `||` fallbacks, 0 counts fall back to the defaults.
+        assert_eq!(dice_counts(Some(0), Some(0)), (1, 6));
         // Lower bounds only: negatives degrade to no rolls / single-face.
-        assert_eq!(dice_counts(Some(-3), Some(0)), (0, 1));
-        assert_eq!(dice_counts(Some(0), Some(-3)), (0, 1));
+        assert_eq!(dice_counts(Some(-3), Some(-3)), (0, 1));
     }
 }

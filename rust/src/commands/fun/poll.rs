@@ -74,6 +74,7 @@ pub async fn poll(
                 "poll_embed_fields_choice",
                 ":white_check_mark: **Yes**\n:x: **No**",
             ),
+            // TS omits `inline` here; explicit `false` renders identically.
             false,
         )
         .image(POLL_IMAGE_URL)

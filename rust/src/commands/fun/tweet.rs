@@ -3,8 +3,13 @@ use super::*;
 #[poise::command(slash_command, prefix_command, category = "fun", rename = "tweet")]
 pub async fn tweet(
     ctx: Ctx<'_>,
-    #[description = "Member"] user: Option<poise::serenity_prelude::User>,
-    #[description = "Comment"] comment: String,
+    // Required like the TS slash option (`user`, required: true in fun.ts).
+    #[description = "Member"] user: poise::serenity_prelude::User,
+    // `#[rest]` so prefix keeps multi-word comments like the TS
+    // `longString(args, 1)` path (slash uses `getString("comment")`).
+    #[description = "Comment"]
+    #[rest]
+    comment: String,
 ) -> Result<(), anyhow::Error> {
     if fun_guard(&ctx).await {
         return Ok(());
@@ -13,16 +18,22 @@ pub async fn tweet(
     // NOTE: `!tweet.ts` gates on `messageArgs.length < 1`, but
     // `"".split(" ")` yields `[""]`, so the gate never fires: TS accepts
     // whitespace-only comments and so do we (no `has_comment` gate).
-    // Mirrors `user.globalName || user.displayName || user.username`
-    // (target user, defaulting to the invoker) and `@${user.username}`.
-    let u = user.unwrap_or_else(|| ctx.author().clone());
-    let display = truncate_display_name(u.display_name());
-    let handle = tweet_handle(&u.name);
-    let now = std::time::SystemTime::now()
-        .duration_since(std::time::UNIX_EPOCH)
-        .map(|d| d.as_millis() as u64)
-        .unwrap_or(1);
-    let s = tweet_stats(now);
+    // Display preference mirrors `user.globalName || user.displayName ||
+    // user.username` (serenity `display_name()` is global-name-or-username),
+    // truncated at 15 chars. Comment, display name and handle all go
+    // through `sanitizing` like the TS `sanitizing(...)` replaces, so raw
+    // mentions/markdown cannot leak into the template.
+    let display = crate::funcs::sanitizing(&tweet_display_name(&user));
+    let handle = tweet_handle(&crate::funcs::sanitizing(&user.name));
+    let comment = crate::funcs::sanitizing(&comment);
+    // Four independent `rand` draws; every stat goes through the number
+    // beautifier like the TS `{likes}`/`{retweets}`/`{replies}`/`{views}`
+    // replaces (`client.func.numberBeautifuer`).
+    let s = tweet_stats();
+    let likes = crate::funcs::format_number(s.likes as f64);
+    let retweets = crate::funcs::format_number(s.retweets as f64);
+    let replies = crate::funcs::format_number(s.replies as f64);
+    let views = crate::funcs::format_number(s.views as f64);
     // html2png tweet-card render pending; text shape ported.
     ctx.say(
         crate::lang::get(&code, "fun_tweet_pending")
@@ -30,15 +41,14 @@ pub async fn tweet(
                 t.replace("${display}", &display)
                     .replace("${handle}", &handle)
                     .replace("${comment}", &comment)
-                    .replace("${likes}", &s.likes.to_string())
-                    .replace("${retweets}", &s.retweets.to_string())
-                    .replace("${replies}", &s.replies.to_string())
-                    .replace("${views}", &s.views.to_string())
+                    .replace("${likes}", &likes)
+                    .replace("${retweets}", &retweets)
+                    .replace("${replies}", &replies)
+                    .replace("${views}", &views)
             })
             .unwrap_or_else(|| {
                 format!(
-                    "{display} {handle}: {comment} ({} likes, {} RTs, {} replies, {} views, render pending)",
-                    s.likes, s.retweets, s.replies, s.views
+                    "{display} {handle}: {comment} ({likes} likes, {retweets} RTs, {replies} replies, {views} views, render pending)"
                 )
             }),
     )

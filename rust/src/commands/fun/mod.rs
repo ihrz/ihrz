@@ -104,11 +104,13 @@ pub fn coin_flip_random() -> bool {
     rand::thread_rng().gen_bool(0.5)
 }
 
-/// Random number in [min, max]. Mirrors !number.ts.
-pub fn roll_range(now_ms: u64, min: i64, max: i64) -> i64 {
+/// Random number in [min, max]. Mirrors !number.ts
+/// (`Math.floor(Math.random() * (max - min + 1)) + min`): one independent
+/// `rand` draw per call, swapping when min > max like the TS guard.
+pub fn roll_range(min: i64, max: i64) -> i64 {
+    use rand::Rng;
     let (lo, hi) = if min <= max { (min, max) } else { (max, min) };
-    let span = (hi - lo + 1) as u64;
-    lo + (now_ms % span) as i64
+    rand::thread_rng().gen_range(lo..=hi)
 }
 
 /// 8-ball answer pick. Mirrors !question.ts answer pool.
@@ -188,18 +190,6 @@ fn now_ms_sys() -> u64 {
         .duration_since(std::time::UNIX_EPOCH)
         .map(|d| d.as_millis() as u64)
         .unwrap_or(1)
-}
-
-/// Animal image API endpoints. Mirrors fun animal commands
-/// (api.animality.xyz, random-d.uk, edgecats.net, cataas.com).
-pub fn animal_api_url(kind: &str) -> Option<&'static str> {
-    match kind {
-        "fox" | "frog" | "panda" | "dolphin" => None, // built dynamically below
-        "dog" => Some("https://random-d.uk/api/v2/random"),
-        "cat" => Some("https://edgecats.net/random"),
-        "catsay" => Some("https://cataas.com/cat/says/"),
-        _ => None,
-    }
 }
 
 pub fn animality_url(kind: &str) -> String {
@@ -441,8 +431,12 @@ mod tests {
     fn coin_and_range_helpers() {
         assert_eq!(coin_flip(0), "heads");
         assert_eq!(coin_flip(1), "tails");
-        assert_eq!(roll_range(5, 1, 10), 6);
-        assert_eq!(roll_range(5, 10, 1), 6);
+        // Random draws stay inside the swapped bounds.
+        for _ in 0..50 {
+            assert!((1..=10).contains(&roll_range(1, 10)));
+            assert!((1..=10).contains(&roll_range(10, 1)));
+            assert_eq!(roll_range(7, 7), 7);
+        }
         assert!(EIGHTBALL.contains(&eightball(3)));
     }
 
@@ -465,10 +459,8 @@ mod tests {
 
     #[test]
     fn animal_endpoints_and_hack() {
-        assert_eq!(
-            animal_api_url("dog"),
-            Some("https://random-d.uk/api/v2/random")
-        );
+        // Dog/cat endpoints live in their own modules (`dog.rs` dog.ceo,
+        // `cat.rs` edgecats); only the shared animality helper stays here.
         assert_eq!(animality_url("fox"), "https://api.animality.xyz/all/fox");
         assert_eq!(hack_lines("x").len(), 4);
     }
@@ -479,15 +471,6 @@ mod tests {
 /// Mirrors the thecatapi search call in !catsay.ts.
 pub fn catsay_search_url() -> &'static str {
     "https://api.thecatapi.com/v1/images/search?mime_types=jpg,png"
-}
-
-/// Parse random-d.uk JSON ({"url": ...}).
-pub fn parse_dog_json(raw: &str) -> Option<String> {
-    serde_json::from_str::<serde_json::Value>(raw)
-        .ok()?
-        .get("url")?
-        .as_str()
-        .map(|s| s.to_string())
 }
 
 /// Parse thecatapi JSON ([{"url": ...}]).
@@ -565,17 +548,32 @@ pub fn youtube_display_name(global_name: Option<&str>, username: &str) -> String
     truncate_display_name(global_name.unwrap_or(username))
 }
 
-/// Mirrors `Math.floor(Math.random() * (90_000 - 1 + 1)) + 1` in !youtube.ts.
-pub fn youtube_likes(now_ms: u64) -> u64 {
-    (now_ms % 90_000) + 1
+/// Display name for !tweet.ts: `user.globalName || user.displayName ||
+/// user.username`, truncated at 15 chars. Serenity `display_name()` already
+/// prefers the global name over the username, so it covers the middle and
+/// last links of the TS chain.
+pub fn tweet_display_name(user: &poise::serenity_prelude::User) -> String {
+    truncate_display_name(
+        user.global_name
+            .as_deref()
+            .unwrap_or_else(|| user.display_name()),
+    )
+}
+
+/// Mirrors `Math.floor(Math.random() * (90_000 - 1 + 1)) + 1` in !youtube.ts:
+/// one independent `rand` draw per call.
+pub fn youtube_likes() -> u64 {
+    use rand::Rng;
+    rand::thread_rng().gen_range(1..=90_000)
 }
 
 /// NOTE: `!youtube.ts` / `!tweet.ts` gate on `messageArgs.length < 1`,
 /// but `"".split(" ")` yields `[""]`, so the gate never fires and TS
 /// accepts whitespace-only comments. There is intentionally no
 /// non-empty comment guard here (parity: accept what TS accepts).
-/// Deterministic tweet stats. Mirrors the Math.random ranges in !tweet.ts:
-/// likes 1..=90_000, retweets 1..=50_000, replies 1..=10_000, views 1000..=500_000.
+/// Random tweet stats. Mirrors the four independent `Math.random` draws in
+/// !tweet.ts: likes 1..=90_000, retweets 1..=50_000, replies 1..=10_000,
+/// views 1000..=500_000.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct TweetStats {
     pub likes: u64,
@@ -584,12 +582,14 @@ pub struct TweetStats {
     pub views: u64,
 }
 
-pub fn tweet_stats(now_ms: u64) -> TweetStats {
+pub fn tweet_stats() -> TweetStats {
+    use rand::Rng;
+    let mut rng = rand::thread_rng();
     TweetStats {
-        likes: (now_ms % 90_000) + 1,
-        retweets: ((now_ms / 7) % 50_000) + 1,
-        replies: ((now_ms / 13) % 10_000) + 1,
-        views: ((now_ms / 29) % (500_000 - 1_000 + 1)) + 1_000,
+        likes: rng.gen_range(1..=90_000),
+        retweets: rng.gen_range(1..=50_000),
+        replies: rng.gen_range(1..=10_000),
+        views: rng.gen_range(1_000..=500_000),
     }
 }
 
@@ -627,11 +627,6 @@ mod fun_extra_tests {
     #[test]
     fn animal_json_parsers() {
         assert_eq!(
-            parse_dog_json(r#"{"id":1,"url":"https://x/d.png"}"#).as_deref(),
-            Some("https://x/d.png")
-        );
-        assert_eq!(parse_dog_json("nope"), None);
-        assert_eq!(
             parse_cat_json(r#"[{"url":"https://x/c.jpg"}]"#).as_deref(),
             Some("https://x/c.jpg")
         );
@@ -654,18 +649,14 @@ mod fun_extra_tests {
     #[test]
     fn youtube_helpers() {
         assert_eq!(truncate_display_name(&"a".repeat(20)).chars().count(), 15);
-        assert_eq!(youtube_likes(0), 1);
-        assert_eq!(youtube_likes(90_000), 1);
+        // Independent `rand` draws stay in 1..=90_000.
+        for _ in 0..50 {
+            assert!((1..=90_000).contains(&youtube_likes()));
+        }
         // `{likes}` goes through numberBeautifuer (K/M/B/T, 1 decimal).
-        assert_eq!(crate::funcs::format_number(youtube_likes(0) as f64), "1");
-        assert_eq!(
-            crate::funcs::format_number(youtube_likes(1500) as f64),
-            "1.5K"
-        );
-        assert_eq!(
-            crate::funcs::format_number(youtube_likes(89_999) as f64),
-            "90.0K"
-        );
+        assert_eq!(crate::funcs::format_number(1.0), "1");
+        assert_eq!(crate::funcs::format_number(1500.0), "1.5K");
+        assert_eq!(crate::funcs::format_number(89_999.0), "90.0K");
         // `user.globalName || user.username`, truncated at 15 chars.
         assert_eq!(youtube_display_name(Some("Bo"), "bobby"), "Bo");
         assert_eq!(youtube_display_name(None, "bobby"), "bobby");
@@ -677,11 +668,14 @@ mod fun_extra_tests {
 
     #[test]
     fn tweet_helpers() {
-        let s = tweet_stats(0);
-        assert_eq!(s.likes, 1);
-        assert_eq!(s.views, 1_000);
-        assert!((1..=90_000).contains(&tweet_stats(123456).likes));
-        assert!((1_000..=500_000).contains(&tweet_stats(123456).views));
+        // Four independent `rand` draws stay in the TS ranges.
+        for _ in 0..50 {
+            let s = tweet_stats();
+            assert!((1..=90_000).contains(&s.likes));
+            assert!((1..=50_000).contains(&s.retweets));
+            assert!((1..=10_000).contains(&s.replies));
+            assert!((1_000..=500_000).contains(&s.views));
+        }
         assert_eq!(tweet_handle("bob"), "@bob");
     }
 
@@ -784,8 +778,8 @@ pub fn random_colour() -> poise::serenity_prelude::Colour {
 /// Deny reply when the fun category is off.
 /// Mirrors the `fun_category_disable` guards.
 /// NOTE: several fun commands (`!bubbles`, `!number`, `!gay`, `!trans`,
-/// `!stench`) have no disabled-category check in TS, so they must NOT
-/// call this guard (parity: no deny where TS has none).
+/// `!stench`, `!captions`, `!togif`) have no disabled-category check in TS,
+/// so they must NOT call this guard (parity: no deny where TS has none).
 pub async fn fun_guard(ctx: &Ctx<'_>) -> bool {
     if fun_enabled(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await {
         return false;
@@ -867,6 +861,8 @@ pub async fn animal_pic(
 
 /// Shared percent-of-a-user reply. Mirrors !gay.ts / !stench.ts
 /// (random 0..100, `${user}` + `${random}` replacements).
+/// The target stays optional like the TS `user` option (required: false):
+/// no target means the invoker rates themselves (author fallback, kept).
 pub async fn percent_user(
     ctx: &Ctx<'_>,
     user: Option<poise::serenity_prelude::User>,

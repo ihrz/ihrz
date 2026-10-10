@@ -148,6 +148,20 @@ async fn fetch_lyrics_text(query: &str) -> Option<(String, String)> {
     Some((format!("{artist} - {title}"), text.to_string()))
 }
 
+/// App-emoji button glyph with a Unicode fallback (backup
+/// `delete.rs:102-108` pattern): custom emoji id when synced, plain
+/// glyph when the table is cold.
+async fn button_emoji(ctx: &Ctx<'_>, name: &str, fallback: &str) -> serenity::ReactionType {
+    match crate::emojis::cached_emoji_entry(ctx.http(), name).await {
+        Some((id, full_name, animated)) => serenity::ReactionType::Custom {
+            animated,
+            id: serenity::EmojiId::new(id),
+            name: Some(full_name),
+        },
+        None => serenity::ReactionType::Unicode(fallback.to_string()),
+    }
+}
+
 /// Mirrors `!nowplaying.ts` (live card + collector, see below).
 // Live progress card refreshed every 5.9s plus a requester-gated button
 // collector (`pause` / `stop` / `lyrics`). Position is tracked locally
@@ -236,22 +250,22 @@ pub async fn m_nowplaying(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         requester_id,
         &prog,
     );
-    let stop_label =
-        crate::lang::get(&code, "nowplaying_stop_label").unwrap_or_else(|| "Stop".to_string());
-    let pause_label =
-        crate::lang::get(&code, "nowplaying_pause_label").unwrap_or_else(|| "Pause".to_string());
-    let lyrics_label =
-        crate::lang::get(&code, "nowplaying_lyrics_label").unwrap_or_else(|| "Lyrics".to_string());
+    // Emoji-only buttons mirroring `!nowplaying.ts:58-76`: customIds
+    // `stop` / `pause` / `lyrics` with the Music_Stop / Pause / Paper
+    // app emojis, no labels.
+    let stop_emoji = button_emoji(&ctx, "Music_Stop", "⏹️").await;
+    let pause_emoji = button_emoji(&ctx, "Pause", "⏸️").await;
+    let lyrics_emoji = button_emoji(&ctx, "Paper", "📝").await;
     let mk_row = || {
         serenity::CreateActionRow::Buttons(vec![
-            serenity::CreateButton::new("np-stop")
-                .label(stop_label.clone())
+            serenity::CreateButton::new("stop")
+                .emoji(stop_emoji.clone())
                 .style(serenity::ButtonStyle::Secondary),
-            serenity::CreateButton::new("np-pause")
-                .label(pause_label.clone())
+            serenity::CreateButton::new("pause")
+                .emoji(pause_emoji.clone())
                 .style(serenity::ButtonStyle::Secondary),
-            serenity::CreateButton::new("np-lyrics")
-                .label(lyrics_label.clone())
+            serenity::CreateButton::new("lyrics")
+                .emoji(lyrics_emoji.clone())
                 .style(serenity::ButtonStyle::Secondary),
         ])
     };
@@ -309,10 +323,11 @@ pub async fn m_nowplaying(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
             }
             continue;
         };
-        if !press.data.custom_id.starts_with("np-") {
+        if !matches!(press.data.custom_id.as_str(), "stop" | "pause" | "lyrics") {
             continue;
         }
-        // Requester gate (TS compares against the track requester).
+        // Requester gate (TS compares against the track requester and
+        // answers the `No` emoji, ephemeral, to anyone else).
         if press.user.id.get() != requester_id {
             let _ = press
                 .create_response(
@@ -327,7 +342,7 @@ pub async fn m_nowplaying(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
             continue;
         }
         match press.data.custom_id.as_str() {
-            "np-pause" => {
+            "pause" => {
                 paused = !paused;
                 // Freeze/unfreeze the clock on the pause offset.
                 if paused {
@@ -376,7 +391,7 @@ pub async fn m_nowplaying(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
                     .unwrap_or_else(|| format!("{invoker_mention} **{fallback}**"));
                 let _ = ctx.say(text).await;
             }
-            "np-stop" => {
+            "stop" => {
                 let snap = m.snapshot(gid).await;
                 if snap.as_ref().and_then(|s| s.current.clone()).is_none() {
                     let text = crate::lang::get(&code, "nowplaying_no_queue")
@@ -425,7 +440,7 @@ pub async fn m_nowplaying(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
                 let _ = ctx.say(text).await;
                 break;
             }
-            "np-lyrics" => {
+            "lyrics" => {
                 let query = format!("{} - {}", track.title, track.author);
                 let response = match fetch_lyrics_text(&query).await {
                     Some((_, body)) => {

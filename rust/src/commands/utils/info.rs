@@ -18,7 +18,6 @@ pub mod banner;
 pub mod banner_server;
 pub mod banner_user;
 pub mod emojis;
-pub mod help_here;
 pub mod inviteinfo;
 pub mod prevnames;
 pub mod serverinfo;
@@ -51,7 +50,6 @@ pub mod main {
     pub use super::banner_server::*;
     pub use super::banner_user::*;
     pub use super::emojis::*;
-    pub use super::help_here::*;
     pub use super::inviteinfo::*;
     pub use super::prevnames::*;
     pub use super::serverinfo::*;

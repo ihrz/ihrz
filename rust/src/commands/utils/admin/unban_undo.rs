@@ -1,11 +1,13 @@
 use super::*;
 
 /// Re-ban the members unbanned by unban-all. Mirrors unbanall !undo.ts.
+// TS subcommand `undo` under `unban-all`.
 #[poise::command(
     slash_command,
     prefix_command,
     category = "utils",
     rename = "unban-undo",
+    aliases("unbanall-undo", "unban-all-undo"),
     default_member_permissions = "ADMINISTRATOR"
 )]
 pub async fn unban_undo(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {

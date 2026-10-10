@@ -55,7 +55,14 @@ pub async fn m_stop(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         }
     }
     if snap.as_ref().and_then(|s| s.current.clone()).is_none() || voice.is_none() {
-        say_key(&ctx, &code, "stop_nothing_playing", "nothing playing").await?;
+        // Mirrors `!stop.ts:79` (`!player || !player.playing ||
+        // !voiceChannel`): no snapshot means no player, no current track
+        // means nothing playing. Answered ephemeral like the TS
+        // interaction path.
+        let text = crate::lang::get(&code, "stop_nothing_playing")
+            .unwrap_or_else(|| "nothing playing".to_string());
+        ctx.send(poise::CreateReply::default().content(text).ephemeral(true))
+            .await?;
         return Ok(());
     }
     m.with_player(gid, |p| p.stop(now_ms())).await;

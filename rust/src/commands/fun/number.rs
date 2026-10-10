@@ -8,10 +8,10 @@ pub async fn number(
     #[description = "Max"] max: Option<i64>,
 ) -> Result<(), anyhow::Error> {
     // No disabled-category check in `!number.ts`: no fun_guard here.
-    // TS defaults (0/100); roll_range swaps when min > max, like the
-    // TS `[min, max] = [max, min]` guard.
+    // TS defaults (0/100); swap when min > max, like the
+    // TS `[min, max] = [max, min]` guard. One `rand` draw per call.
     let (min, max) = (min.unwrap_or(0), max.unwrap_or(100));
-    let random = roll_range(now_ms_sys(), min, max);
+    let random = roll_range(min, max);
     let (lo, hi) = if min <= max { (min, max) } else { (max, min) };
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let f = |k: &str, fb: &str| crate::lang::get(&code, k).unwrap_or_else(|| fb.to_string());

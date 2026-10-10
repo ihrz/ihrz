@@ -40,8 +40,12 @@ pub async fn m_pause(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     if let Ok((node, session)) = m.live_node_and_session(gid).await {
         let _ = m.rest_set_paused(&node, &session, gid, true).await;
     }
-    // Reply follows the resulting flag, mirroring `!pause.ts:91-94`
-    // (`player.paused ? pause_var_paused : pause_var_err`).
+    // Reply follows the resulting local flag, mirroring `!pause.ts:91-94`
+    // (`player.paused ? pause_var_paused : pause_var_err`). The local
+    // write always lands, so the err arm is unreachable off-transport:
+    // a failed Lavalink REST leg cannot flip the snapshot back, which
+    // is why this port always acks (kept intentionally; the REST call
+    // above is fire-and-forget like the TS `player.pause()`).
     let paused = m.snapshot(gid).await.map(|s| s.paused).unwrap_or(false);
     say_key(
         &ctx,

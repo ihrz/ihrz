@@ -1,6 +1,9 @@
 use super::*;
 
 /// Hide a channel from a role. Mirrors chanel !hide.ts.
+// TS always hides the current channel; the optional `channel` param is
+// a Rust extension defaulting to current. Unmanageable channels count
+// as permission errors (per-channel `manageable` gate).
 #[poise::command(
     slash_command,
     prefix_command,
@@ -20,13 +23,25 @@ pub async fn chan_hide(
         return Ok(());
     };
     let code = crate::db::guild_lang(&ctx.data().pool, Some(guild_id.get())).await;
-    let ch_id = match &channel {
-        Some(c) => c.id,
-        None => match ctx.guild_channel().await {
-            Some(c) => c.id,
-            None => return Ok(()),
-        },
+    let chan_snapshot: Option<poise::serenity_prelude::GuildChannel> = match &channel {
+        Some(c) => Some(c.clone()),
+        None => ctx.guild_channel().await.map(|c| c.clone()),
     };
+    let Some(chan_snapshot) = chan_snapshot else {
+        return Ok(());
+    };
+    let ch_id = chan_snapshot.id;
+    // Per-channel `manageable` gate (covers hierarchy/ownership beyond
+    // the bot-union ManageChannels check): unmanageable -> permission
+    // error reply, like the TS `!channel.manageable` early return.
+    if !channel_manageable(&ctx, guild_id, ch_id) {
+        ctx.say(
+            crate::lang::get(&code, "renew_dont_have_permission")
+                .unwrap_or_else(|| ":x: **Can't** `Don't have permission!`".to_string()),
+        )
+        .await?;
+        return Ok(());
+    }
     let role_id = role
         .as_ref()
         .map(|r| r.id.get())

@@ -5,19 +5,21 @@ use super::*;
 pub const VANITY_TABLE: &str = "vanity";
 
 /// Claim a custom vanity URL for this guild.
+// TS decl: `code` required + 24h command cooldown (utils.ts).
 #[poise::command(
     slash_command,
     prefix_command,
     category = "utils",
     rename = "vanity-generator",
     aliases("vanity", "vanity-gen", "customvanity"),
-    default_member_permissions = "MANAGE_GUILD"
+    default_member_permissions = "MANAGE_GUILD",
+    user_cooldown = 86400
 )]
 pub async fn vanity_generator(
     ctx: Ctx<'_>,
-    #[description = "Vanity code"] code: Option<String>,
+    #[description = "Vanity code"] code: String,
 ) -> Result<(), anyhow::Error> {
-    let code = code.unwrap_or_default();
+    let code = code;
     let invalid_tpl = crate::commands::lang_for(
         &ctx,
         "util_vanity_generator_invalid_code",

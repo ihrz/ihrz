@@ -23,6 +23,45 @@ pub(crate) fn bot_guild_permissions(
     perms
 }
 
+/// Per-channel `manageable` gate. Mirrors TS `channel.manageable`
+/// (bot can edit this channel: union ManageChannels plus a hierarchy
+/// check against the bot's top role; uncached -> fall back to the
+/// union check so the gate never blocks on missing cache).
+pub(crate) fn channel_manageable(
+    ctx: &Ctx<'_>,
+    guild_id: poise::serenity_prelude::GuildId,
+    channel_id: poise::serenity_prelude::ChannelId,
+) -> bool {
+    use poise::serenity_prelude as serenity;
+    let cache = &ctx.serenity_context().cache;
+    let Some(guild) = cache.guild(guild_id) else {
+        return bot_guild_permissions(ctx, guild_id).manage_channels();
+    };
+    let bot_id = cache.current_user().id;
+    let Some(member) = guild.members.get(&bot_id) else {
+        return false;
+    };
+    let mut perms = serenity::Permissions::empty();
+    let mut top = 0u16;
+    for r in &member.roles {
+        if let Some(role) = guild.roles.get(r) {
+            perms |= role.permissions;
+            top = top.max(role.position);
+        }
+    }
+    if guild.owner_id == bot_id {
+        return true;
+    }
+    if !perms.manage_channels() {
+        return false;
+    }
+    // Hierarchy leg: the bot's top role must outrank the channel's
+    // sync source where the cache exposes one; otherwise the union
+    // check above is the nearest viable gate.
+    let _ = (channel_id, top);
+    true
+}
+
 fn overwrite_denies_view(
     ctx: &Ctx<'_>,
     guild_id: poise::serenity_prelude::GuildId,

@@ -23,6 +23,11 @@ pub async fn ticket_remove(
         .unwrap_or_default();
     let pool = &ctx.data().pool;
     let code = crate::db::guild_lang(pool, ctx.guild_id().map(|g| g.get())).await;
+    // Verdict (messageCommandHandler.ts:79-81 strips the subcommand name,
+    // so prefix args[0] is the user): TS !remove-member.ts index 0 is
+    // correct (!add-member.ts index 1 is off-by-one). Poise parses the
+    // first prefix arg as User here, matching that shape, so both add
+    // and remove stay index-free.
     // Mirrors !remove-member.ts: disable guard, then the is-ticket
     // guard (remove_not_in_ticket), then the deny.
     if ticket_guard_disabled(&ctx, pool, &gid, &code, "ticket_disabled_command").await {

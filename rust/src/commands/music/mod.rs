@@ -261,17 +261,6 @@ pub fn parse_volume_query(raw: &str) -> Option<u8> {
     Some(crate::voice::clamp_volume(n) as u8)
 }
 
-/// Runtime Administrator check for prefix parity: poise
-/// `default_member_permissions` only gates slash commands, while the
-/// TS `permission` field gates both paths. False when the member or
-/// its permissions are unavailable.
-pub async fn caller_is_admin(ctx: &Ctx<'_>) -> bool {
-    match ctx.author_member().await {
-        Some(m) => m.permissions.map(|p| p.administrator()).unwrap_or(false),
-        None => false,
-    }
-}
-
 fn now_ms() -> i64 {
     crate::commands::schedule::main::now_ms()
 }
@@ -362,14 +351,43 @@ pub fn format_history_line(e: &HistoryEntry) -> String {
     }
 }
 
-/// UTC `YYYY-MM-DD HH:MM:SS` without pulling a date dependency.
-fn fmt_utc_date(ms: i64) -> String {
-    let time = ms.div_euclid(1000).rem_euclid(86_400);
-    let mut days = ms.div_euclid(1000).div_euclid(86_400);
-    // Howard Hinnant's civil-from-days.
-    days += 719_468;
-    let era = days.div_euclid(146_097);
-    let doe = days.rem_euclid(146_097);
+/// Days since the Unix epoch for a civil date (Howard Hinnant's
+/// days-from-civil), inverse of the loop in [`fmt_utc_date`].
+fn days_from_civil(y: i64, m: i64, d: i64) -> i64 {
+    let y = if m <= 2 { y - 1 } else { y };
+    let era = y.div_euclid(400);
+    let yoe = y.rem_euclid(400);
+    let mp = if m > 2 { m - 3 } else { m + 9 };
+    let doy = (153 * mp + 2) / 5 + d - 1;
+    let doe = yoe * 365 + yoe / 4 - yoe / 100 + doy;
+    era * 146_097 + doe - 719_468
+}
+
+/// Europe/Paris UTC offset in seconds for `ms`: CET (+3600) outside
+/// daylight saving, CEST (+7200) from the last Sunday of March 01:00
+/// UTC to the last Sunday of October 01:00 UTC. Arithmetic only (no
+/// tz database on this target); 1970-01-01 was a Thursday.
+fn paris_offset_secs(ms: i64) -> i64 {
+    let days = ms.div_euclid(1000).div_euclid(86_400);
+    let (y, _, _) = civil_from_days(days);
+    let last_sunday_ms = |month: i64| {
+        let d31 = days_from_civil(y, month, 31);
+        let dow = (d31 + 4).rem_euclid(7);
+        (d31 - dow) * 86_400_000 + 3_600_000
+    };
+    if last_sunday_ms(3) <= ms && ms < last_sunday_ms(10) {
+        7200
+    } else {
+        3600
+    }
+}
+
+/// Civil date from days since the epoch (Howard Hinnant's
+/// civil-from-days), shared by the UTC and Paris formatters.
+fn civil_from_days(days: i64) -> (i64, i64, i64) {
+    let z = days + 719_468;
+    let era = z.div_euclid(146_097);
+    let doe = z.rem_euclid(146_097);
     let yoe = (doe - doe / 1460 + doe / 36_524 - doe / 146_096) / 365;
     let mut y = yoe + era * 400;
     let doy = doe - (365 * yoe + yoe / 4 - yoe / 100);
@@ -377,6 +395,14 @@ fn fmt_utc_date(ms: i64) -> String {
     let d = doy - (153 * mp + 2) / 5 + 1;
     let m = if mp < 10 { mp + 3 } else { mp - 9 };
     y += i64::from(m <= 2);
+    (y, m, d)
+}
+
+/// UTC `YYYY-MM-DD HH:MM:SS` without pulling a date dependency.
+fn fmt_utc_date(ms: i64) -> String {
+    let time = ms.div_euclid(1000).rem_euclid(86_400);
+    let days = ms.div_euclid(1000).div_euclid(86_400);
+    let (y, m, d) = civil_from_days(days);
     format!(
         "{:04}-{:02}-{:02} {:02}:{:02}:{:02}",
         y,
@@ -388,14 +414,34 @@ fn fmt_utc_date(ms: i64) -> String {
     )
 }
 
+/// Paris-wallclock `DD/MM/YYYY, HH:MM:SS`, mirroring
+/// `new Date().toLocaleString("fr-FR", { timeZone: "Europe/Paris" })`
+/// in the TS buffer rows (musicPlay.ts:931).
+fn fmt_paris_date(ms: i64) -> String {
+    let local_ms = ms + paris_offset_secs(ms) * 1000;
+    let time = local_ms.div_euclid(1000).rem_euclid(86_400);
+    let days = local_ms.div_euclid(1000).div_euclid(86_400);
+    let (y, m, d) = civil_from_days(days);
+    format!(
+        "{:02}/{:02}/{:04}, {:02}:{:02}:{:02}",
+        d,
+        m,
+        y,
+        time / 3600,
+        (time % 3600) / 60,
+        time % 60
+    )
+}
+
 /// `.txt` export line, mirroring the TS buffer rows
-/// (`[date: PLAYED]: { requester - title | uri } by requester`).
+/// (`[date: PLAYED]: { requester - title | uri } by requester`, date
+/// in fr-FR/Europe/Paris wallclock).
 pub fn history_txt_line(e: &HistoryEntry) -> String {
     let req = e.requester.as_deref().unwrap_or("Unknown");
     let uri = e.uri.as_deref().unwrap_or("");
     format!(
         "[{}: PLAYED]: {{ {req} - {} | {uri} }} by {req}",
-        fmt_utc_date(e.at_ms),
+        fmt_paris_date(e.at_ms),
         e.title
     )
 }
@@ -1037,13 +1083,32 @@ mod tests {
         assert!(line.contains("<@42>"), "{line}");
         let txt = history_txt_line(&e);
         assert!(txt.contains("PLAYED"), "{txt}");
-        assert!(txt.contains("2023-11-14"), "{txt}");
+        // fr-FR Europe/Paris wallclock: 2023-11-14T22:13:20Z is CET
+        // (+1), so still the 14th at 23:13:20 local.
+        assert!(txt.contains("14/11/2023, 23:13:20"), "{txt}");
         assert!(txt.contains("https://example.com/x"), "{txt}");
         // Re-parse stability: the embed line decodes back.
         let back = parse_legacy_entry(&line, 0);
         assert_eq!(back.title, "Song");
         assert_eq!(back.uri.as_deref(), Some("https://example.com/x"));
         assert_eq!(back.at_ms, 1_700_000_000_000);
+    }
+
+    #[test]
+    fn paris_date_uses_dst_offset() {
+        // 2026-10-10T12:00:00Z is CEST (+2); 2026-01-10T12:00:00Z is
+        // CET (+1). DST 2026 runs Mar 29 -> Oct 25 (last Sundays).
+        assert_eq!(fmt_paris_date(1_791_633_600_000), "10/10/2026, 14:00:00");
+        assert_eq!(fmt_paris_date(1_768_046_400_000), "10/01/2026, 13:00:00");
+    }
+
+    #[test]
+    fn paris_date_handles_dst_boundaries() {
+        // Around the 2026 switches (last Sundays, 01:00 UTC).
+        assert_eq!(fmt_paris_date(1_774_745_940_000), "29/03/2026, 01:59:00");
+        assert_eq!(fmt_paris_date(1_774_746_000_000), "29/03/2026, 03:00:00");
+        assert_eq!(fmt_paris_date(1_792_889_940_000), "25/10/2026, 02:59:00");
+        assert_eq!(fmt_paris_date(1_792_890_000_000), "25/10/2026, 02:00:00");
     }
 
     #[test]

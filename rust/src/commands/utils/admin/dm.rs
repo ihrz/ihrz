@@ -1,6 +1,6 @@
 use super::*;
 
-/// DM a member. Mirrors utils !dm.ts.
+/// DM a member. Mirrors utils !dm.ts (param order private, user, message).
 // The `private` option is a Yes/No slash choice; "yes" hides the author.
 // (Including the TS quirk where the success reply is sent before the
 // failure reply when the DM fails.)
@@ -13,9 +13,9 @@ use super::*;
 )]
 pub async fn dm(
     ctx: Ctx<'_>,
+    #[description = "Private (yes to hide the author button)"] private: PrivateChoice,
     #[description = "Member"] user: poise::serenity_prelude::User,
     #[description = "Message"] message: String,
-    #[description = "Private (yes to hide the author button)"] private: PrivateChoice,
 ) -> Result<(), anyhow::Error> {
     use poise::serenity_prelude as serenity;
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;

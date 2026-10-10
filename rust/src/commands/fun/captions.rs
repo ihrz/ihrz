@@ -22,9 +22,8 @@ pub async fn captions(
     #[description = "Image"] image: poise::serenity_prelude::Attachment,
     #[description = "Your captions"] query: String,
 ) -> Result<(), anyhow::Error> {
-    if fun_guard(&ctx).await {
-        return Ok(());
-    }
+    // No disabled-category check in `!captions.ts`: no fun_guard here
+    // (parity: no deny where TS has none).
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     // Mirrors `client.func.validImageType(image.contentType)` in `!captions.ts`
     // (exact allowlist: png/jpeg/jpg/gif/webp); the deny is the `No`

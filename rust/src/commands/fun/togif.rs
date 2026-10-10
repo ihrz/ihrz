@@ -16,6 +16,10 @@ pub const TOGIF_MAX_GIF_SIDE: u32 = 512;
 pub const TOGIF_FRAME_DELAY_CS: u16 = 50;
 pub const TOGIF_LOOPS: u16 = 0;
 
+/// Download timeout. Mirrors `FETCH_TIMEOUT_MS` (15s) in `!togif.ts`
+/// (`AbortSignal.timeout`).
+pub const TOGIF_FETCH_TIMEOUT_SECS: u64 = 15;
+
 /// Resize rule. Mirrors the Jimp branch in `!togif.ts`: when the long side
 /// exceeds 512, scale down on the longer side, preserving aspect ratio.
 pub fn togif_resize_dims(width: u32, height: u32) -> (u32, u32) {
@@ -59,11 +63,10 @@ pub async fn togif(
     ctx: Ctx<'_>,
     #[description = "Image file"] image: poise::serenity_prelude::Attachment,
 ) -> Result<(), anyhow::Error> {
-    // Guard's typing is DM-compatible: no guild/member requirement.
-    // Mirrors the `if (!client.user || !interaction.channel) return` guard.
-    if fun_guard(&ctx).await {
-        return Ok(());
-    }
+    // No disabled-category check in `!togif.ts`: no fun_guard here
+    // (parity: no deny where TS has none). The TS
+    // `if (!client.user || !interaction.channel) return` guard needs no
+    // port: poise only runs commands with a client user and a channel.
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     // Mirrors `client.func.validImageType(image.contentType)` (exact
     // allowlist incl. webp/gif).
@@ -71,7 +74,9 @@ pub async fn togif(
         deny_invalid(&ctx, &code).await?;
         return Ok(());
     }
-    // Mirrors `createGifFromUrl`: download (15 MiB cap), decode, clamp the
+    // Mirrors `createGifFromUrl`: download (15s timeout like
+    // `AbortSignal.timeout(FETCH_TIMEOUT_MS)`, non-2xx rejected like
+    // `if (!response.ok) throw`, 15 MiB cap), decode, clamp the
     // long side to 512, flatten alpha on white, encode GIF.
     // Deliberate webp denial (documented): `validImageType` allowlists webp
     // and TS decodes it through a headless-browser canvas
@@ -80,15 +85,32 @@ pub async fn togif(
     // decoder exists in the tree — so webp sources fall into the deny reply
     // here. Delta (documented): single-frame output vs the TS two identical
     // frames (visually identical still).
-    let bytes = match reqwest::Client::new().get(&image.url).send().await {
-        Ok(resp) => match resp.bytes().await {
-            Ok(b) => b.to_vec(),
-            Err(_) => {
+    let client = reqwest::Client::builder()
+        .timeout(std::time::Duration::from_secs(TOGIF_FETCH_TIMEOUT_SECS))
+        .build()
+        .unwrap_or_else(|_| reqwest::Client::new());
+    let bytes = match client.get(&image.url).send().await {
+        Ok(resp) => match resp.error_for_status() {
+            Ok(ok) => match ok.bytes().await {
+                Ok(b) => b.to_vec(),
+                Err(error) => {
+                    // Mirrors `logger.err` in the `!togif.ts` catch path.
+                    tracing::error!("togif download body failed for {}: {error}", image.url);
+                    deny_invalid(&ctx, &code).await?;
+                    return Ok(());
+                }
+            },
+            Err(error) => {
+                // Mirrors `logger.err` in the `!togif.ts` catch path
+                // (`Image download failed (HTTP ...)`).
+                tracing::error!("togif download failed for {}: {error}", image.url);
                 deny_invalid(&ctx, &code).await?;
                 return Ok(());
             }
         },
-        Err(_) => {
+        Err(error) => {
+            // Mirrors `logger.err` in the `!togif.ts` catch path.
+            tracing::error!("togif download failed for {}: {error}", image.url);
             deny_invalid(&ctx, &code).await?;
             return Ok(());
         }
@@ -117,7 +139,9 @@ pub async fn togif(
             ))
             .await?;
         }
-        Err(_) => {
+        Err(error) => {
+            // Mirrors `logger.err` in the `!togif.ts` catch path.
+            tracing::error!("togif conversion failed for {}: {error}", image.url);
             deny_invalid(&ctx, &code).await?;
         }
     }
@@ -135,6 +159,7 @@ mod togif_tests {
         assert_eq!(TOGIF_MAX_GIF_SIDE, 512);
         assert_eq!(TOGIF_FRAME_DELAY_CS, 50);
         assert_eq!(TOGIF_LOOPS, 0);
+        assert_eq!(TOGIF_FETCH_TIMEOUT_SECS, 15);
     }
 
     #[test]

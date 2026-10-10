@@ -60,6 +60,7 @@ pub async fn question(
                 ":grey_exclamation:__**Answer:**__",
             ),
             answer,
+            // TS omits `inline` here; explicit `false` renders identically.
             false,
         )
         .timestamp(poise::serenity_prelude::Timestamp::now());

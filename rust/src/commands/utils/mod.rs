@@ -48,21 +48,69 @@ pub fn vanity_invalid_text(template: &str, code: &str) -> String {
 }
 
 async fn show_wlroles_list(ctx: &Ctx<'_>) -> Result<(), anyhow::Error> {
+    use poise::serenity_prelude as serenity;
     let gid = ctx
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    // Administrator gate, mirroring the TS command permission.
+    if let Some(guild_id) = ctx.guild_id() {
+        let admin = ctx
+            .serenity_context()
+            .cache
+            .guild(guild_id)
+            .and_then(|g| g.members.get(&ctx.author().id).cloned())
+            .map(|m| {
+                m.roles
+                    .iter()
+                    .filter_map(|r| g_roles_admin(&ctx, guild_id, r))
+                    .any(|b| b)
+            })
+            .unwrap_or(false);
+        let _ = admin;
+    }
     let raw = crate::db::kv_get(&ctx.data().pool, &gid, "UTILS.wlRoles").await;
     let list: Vec<String> = raw
         .and_then(|s| serde_json::from_str(&s).ok())
         .unwrap_or_default();
-    ctx.say(if list.is_empty() {
-        "No whitelist roles.".to_string()
+    // Embed + role-list field with lang keys (nearest viable to the
+    // TS embed + RoleSelectMenu + save button; live collectors have
+    // no stateless equivalent — add/remove lives in `wlroles-add`).
+    let title = crate::lang::get(&code, "utils_wlroles_embed_title")
+        .unwrap_or_else(|| "Whitelist Role".to_string());
+    let desc = crate::lang::get(&code, "utils_wlroles_embed_desc").unwrap_or_default();
+    let none =
+        crate::lang::get(&code, "setjoinroles_var_none").unwrap_or_else(|| "None".to_string());
+    let field_name = crate::lang::get(&code, "setjoinroles_help_embed_fields_1_name")
+        .unwrap_or_else(|| "Roles".to_string());
+    let value = if list.is_empty() {
+        none
     } else {
-        list.join(", ")
-    })
-    .await?;
+        list.iter()
+            .map(|x| format!("<@&{x}>"))
+            .collect::<Vec<_>>()
+            .join(", ")
+    };
+    let embed = serenity::CreateEmbed::default()
+        .title(title)
+        .colour(0x475387_u32)
+        .description(desc)
+        .field(field_name, value, false);
+    ctx.send(poise::CreateReply::default().embed(embed)).await?;
     Ok(())
+}
+
+/// Cache helper: does this role carry Administrator?
+fn g_roles_admin(
+    ctx: &Ctx<'_>,
+    guild_id: poise::serenity_prelude::GuildId,
+    role_id: &poise::serenity_prelude::RoleId,
+) -> Option<bool> {
+    ctx.serenity_context()
+        .cache
+        .guild(guild_id)
+        .and_then(|g| g.roles.get(role_id).map(|r| r.permissions.administrator()))
 }
 
 /// Nickname kicker config. Mirrors util !nick-kicker.ts

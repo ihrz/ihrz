@@ -11,10 +11,8 @@ pub async fn ticket_transcript(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let pool = &ctx.data().pool;
     let lang_code = crate::db::guild_lang(pool, ctx.guild_id().map(|g| g.get())).await;
     let channel_id = ctx.channel_id();
-    // TS TicketTranscript bails unless the channel is guild text.
-    if !is_guild_text_channel(ctx.http(), channel_id).await {
-        return Ok(());
-    }
+    // Guard order mirrors !transcript.ts: disable, then in-ticket, then
+    // the guild-text check (TicketTranscript bails on non-text channels).
     if ticket_guard_disabled(&ctx, pool, &gid, &lang_code, "ticket_disabled_command").await {
         return Ok(());
     }
@@ -28,6 +26,9 @@ pub async fn ticket_transcript(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     )
     .await
     {
+        return Ok(());
+    }
+    if !is_guild_text_channel(ctx.http(), channel_id).await {
         return Ok(());
     }
     let t = |k: &str| crate::lang::get(&lang_code, k).unwrap_or_default();

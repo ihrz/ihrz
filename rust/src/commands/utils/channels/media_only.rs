@@ -1,6 +1,9 @@
 use super::*;
 
-/// Media-only channel toggle. Mirrors !media-only.ts (flattened to a toggle).
+/// Media-only channel toggle. Mirrors !media-only.ts.
+// Entry toggles `UTILS.picOnly`; threshold/mute/thread config
+// (`UTILS.picOnlyConfig` + modal clamps below) is the nearest viable
+// wiring. Live collectors/modals documented, not ported.
 #[poise::command(
     slash_command,
     prefix_command,
@@ -17,6 +20,7 @@ pub async fn media_only(
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let raw =
         crate::commands::owner::main::routed_get(&ctx.data().pool, &gid, &gid, "UTILS.picOnly")
             .await;
@@ -24,13 +28,12 @@ pub async fn media_only(
         .and_then(|s| serde_json::from_str(&s).ok())
         .unwrap_or_default();
     let id = channel.id.get().to_string();
-    let msg = if let Some(pos) = list.iter().position(|c| c == &id) {
-        list.remove(pos);
-        "Media-only off."
+    let enabled = list.iter().any(|c| c == &id);
+    if enabled {
+        list.retain(|c| c != &id);
     } else {
         list.push(id);
-        "Media-only on."
-    };
+    }
     crate::commands::owner::main::routed_set(
         &ctx.data().pool,
         &gid,
@@ -39,7 +42,16 @@ pub async fn media_only(
         &serde_json::to_string(&list)?,
     )
     .await?;
-    ctx.say(msg).await?;
+    // No hardcoded English: use the panel lang keys for the toggle echo.
+    let title = crate::lang::get(&code, "utils_pic_only_embed_title")
+        .unwrap_or_else(|| "Media Only Channels".to_string());
+    let state = if enabled {
+        crate::lang::get(&code, "setjoinroles_var_none").unwrap_or_else(|| "disabled".to_string())
+    } else {
+        crate::lang::get(&code, "var_yes").unwrap_or_else(|| "enabled".to_string())
+    };
+    ctx.say(format!("{title}: <#{0}> {state}", channel.id.get()))
+        .await?;
     Ok(())
 }
 

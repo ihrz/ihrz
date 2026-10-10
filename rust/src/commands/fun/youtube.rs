@@ -3,8 +3,13 @@ use super::*;
 #[poise::command(slash_command, prefix_command, category = "fun", rename = "youtube")]
 pub async fn youtube(
     ctx: Ctx<'_>,
-    #[description = "Member"] user: Option<poise::serenity_prelude::User>,
-    #[description = "Comment"] comment: String,
+    // Required like the TS slash option (`user`, required: true in fun.ts).
+    #[description = "Member"] user: poise::serenity_prelude::User,
+    // `#[rest]` so prefix keeps multi-word comments like the TS
+    // `longString(args, 1)` path (slash uses `getString("comment")`).
+    #[description = "Comment"]
+    #[rest]
+    comment: String,
 ) -> Result<(), anyhow::Error> {
     if fun_guard(&ctx).await {
         return Ok(());
@@ -13,15 +18,10 @@ pub async fn youtube(
     // NOTE: `!youtube.ts` gates on `messageArgs.length < 1`, but
     // `"".split(" ")` yields `[""]`, so the gate never fires: TS accepts
     // whitespace-only comments and so do we (no `has_comment` gate).
-    // Mirrors `user.globalName || user.username` (target user, defaulting
-    // to the invoker), truncated at 15 chars.
-    let u = user.unwrap_or_else(|| ctx.author().clone());
-    let display = youtube_display_name(u.global_name.as_deref(), &u.name);
-    let now = std::time::SystemTime::now()
-        .duration_since(std::time::UNIX_EPOCH)
-        .map(|d| d.as_millis() as u64)
-        .unwrap_or(1);
-    let likes = crate::funcs::format_number(youtube_likes(now) as f64);
+    // Mirrors `user.globalName || user.username` (required target user),
+    // truncated at 15 chars.
+    let display = youtube_display_name(user.global_name.as_deref(), &user.name);
+    let likes = crate::funcs::format_number(youtube_likes() as f64);
     // html2png comment-card render pending; text shape ported. Likes go
     // through the number beautifier like `{likes}` in `!youtube.ts`
     // (`client.func.numberBeautifuer`).

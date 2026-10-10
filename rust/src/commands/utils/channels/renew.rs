@@ -45,7 +45,11 @@ pub async fn renew(
         .guild(guild_id)
         .and_then(|g| g.system_channel_id)
         == Some(old_id);
-    // Clone field-for-field like `channel.clone({...})` in !renew.ts.
+    // Clone field-for-field like `channel.clone({...})` in !renew.ts,
+    // plus voice/forum builder equivalents where serenity exposes them
+    // (bitrate, user limit, rtc region, auto-archive, tags; forum topic
+    // meta rides on topic). Fields with no CreateChannel slot are
+    // documented here, not silently dropped.
     let mut builder = serenity::CreateChannel::new(ch.name.clone())
         .kind(ch.kind)
         .permissions(ch.permission_overwrites.clone())
@@ -59,6 +63,21 @@ pub async fn renew(
     }
     if let Some(secs) = ch.rate_limit_per_user {
         builder = builder.rate_limit_per_user(secs);
+    }
+    if let Some(bitrate) = ch.bitrate {
+        builder = builder.bitrate(bitrate);
+    }
+    if let Some(limit) = ch.user_limit {
+        builder = builder.user_limit(limit);
+    }
+    if let Some(rtc) = ch.rtc_region.clone() {
+        builder = builder.rtc_region(rtc);
+    }
+    if let Some(archive) = ch.default_auto_archive_duration {
+        builder = builder.default_auto_archive_duration(archive);
+    }
+    if !ch.available_tags.is_empty() {
+        builder = builder.available_tags(ch.available_tags.clone());
     }
     let author = ctx.author().id;
     let reason = format!("Channel re-create by {author} ({})", author.get());

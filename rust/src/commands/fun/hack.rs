@@ -488,7 +488,11 @@ pub fn hack_description(template: &str, victim_id: u64, author_id: u64) -> Strin
 #[poise::command(slash_command, prefix_command, category = "fun", rename = "hack")]
 pub async fn hack(
     ctx: Ctx<'_>,
-    #[description = "Member"] user: Option<poise::serenity_prelude::User>,
+    // Required like the TS slash option (`user`, required: true in fun.ts).
+    // Delta (documented): the TS prefix path falls back to the invoker
+    // (`|| interaction.author`), but a required slash option cannot express
+    // that, so prefix must mention a target too.
+    #[description = "Member"] user: poise::serenity_prelude::User,
 ) -> Result<(), anyhow::Error> {
     if fun_guard(&ctx).await {
         return Ok(());
@@ -496,10 +500,7 @@ pub async fn hack(
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let f = |k: &str, fb: &str| crate::lang::get(&code, k).unwrap_or_else(|| fb.to_string());
     let profile = hack_profile(&mut rand::thread_rng());
-    // Mirrors the prefix `|| interaction.author` fallback in `!hack.ts`
-    // (slash without a target falls back the same way instead of throwing
-    // on a null victim).
-    let victim = user.as_ref().unwrap_or_else(|| ctx.author());
+    let victim = &user;
     let embed = poise::serenity_prelude::CreateEmbed::default()
         .colour(0x800000u32)
         .description(hack_description(

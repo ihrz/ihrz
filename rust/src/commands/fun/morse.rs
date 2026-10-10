@@ -58,7 +58,9 @@ pub fn morse_convert(input: &str) -> String {
 #[poise::command(slash_command, prefix_command, category = "fun", rename = "morse")]
 pub async fn morse(
     ctx: Ctx<'_>,
-    #[description = "Text or morse code"] text: String,
+    // Named `input` like the TS slash option (`getString("input")`,
+    // required: true in fun.ts).
+    #[description = "Text or morse code"] input: String,
 ) -> Result<(), anyhow::Error> {
     if fun_guard(&ctx).await {
         return Ok(());
@@ -67,7 +69,7 @@ pub async fn morse(
     // the morse output must never ping (see !rate.ts for the same shape).
     ctx.send(
         poise::CreateReply::default()
-            .content(format!("```{}```", morse_convert(&text)))
+            .content(format!("```{}```", morse_convert(&input)))
             .allowed_mentions(
                 poise::serenity_prelude::CreateAllowedMentions::new()
                     .all_users(false)

@@ -188,16 +188,19 @@ pub fn preview_desc(preview_word: &str, converted: &str) -> String {
 #[poise::command(slash_command, prefix_command, category = "fun", rename = "caracteres")]
 pub async fn caracteres(
     ctx: Ctx<'_>,
+    // Named `nickname` like the TS slash option (`getString("nickname")`,
+    // required: true in fun.ts). Optional here so prefix can show the
+    // provide-text prompt instead of a parse error.
     #[description = "Text to transform"]
     #[rest]
-    text: Option<String>,
+    nickname: Option<String>,
 ) -> Result<(), anyhow::Error> {
     if fun_guard(&ctx).await {
         return Ok(());
     }
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let f = |k: &str, fb: &str| crate::lang::get(&code, k).unwrap_or_else(|| fb.to_string());
-    let Some(input) = text.filter(|s| !s.is_empty()) else {
+    let Some(input) = nickname.filter(|s| !s.is_empty()) else {
         ctx.say(f(
             "fun_caracteres_command_ok",
             "Please provide a text to transform!",

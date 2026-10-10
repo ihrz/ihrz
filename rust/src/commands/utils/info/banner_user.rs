@@ -1,6 +1,7 @@
 use super::*;
 
 /// Show a member's banner. Mirrors utils banner !user.ts.
+// Animated `a_` hashes use gif (see `user_banner_url`).
 #[poise::command(
     slash_command,
     prefix_command,

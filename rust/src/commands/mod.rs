@@ -356,7 +356,7 @@ pub fn defer_policy(qualified_path: &str) -> DeferPolicy {
         "hideall",
         "unhide",
         "unhideall",
-        "slowmode",
+        "cooldown",
         "media-only",
         // TS `utils`/`util` thinking:true subcommands, ported flat.
         "massmove",
@@ -644,7 +644,7 @@ mod tests {
             "67",
             "setmentionrole",
             "autorenew",
-            "slowmode",
+            "cooldown",
             "sticker",
             "freeze",
             "unfreeze",

@@ -6,15 +6,19 @@ use super::*;
 // clamped level actually applied (TS echoes the raw query, so
 // `!volume 500` would claim 500% while playing 100).
 //
-// Recorded option-surface superset (no behavior change): the TS slash
-// definition (`music.ts:294-300`) restricts `level` to the fixed
-// VOLUMES choices, while the prefix path parses free text — this
-// command parses free text on both paths, like the prefix leg.
+// The slash autocomplete surfaces the fixed VOLUMES list from
+// `music.ts:30-43` (12 levels). Suggestions only (Discord autocomplete,
+// not hard choices — poise inline `#[choices]` literals only fit `&str`
+// params, which prefix parsing rejects): both paths stay free text,
+// like the TS prefix leg.
+//
 /// Set the playback volume (10-100).
 #[poise::command(slash_command, prefix_command, rename = "volume")]
 pub async fn m_volume(
     ctx: Ctx<'_>,
-    #[description = "10-100"] level: String,
+    #[description = "10-100"]
+    #[autocomplete = "volume_autocomplete"]
+    level: String,
 ) -> Result<(), anyhow::Error> {
     let Some(gid) = guild_id_of(&ctx) else {
         return Ok(());
@@ -55,4 +59,21 @@ pub async fn m_volume(
         .unwrap_or_else(|| format!("Volume set to `{v}`%"));
     ctx.say(msg).await?;
     Ok(())
+}
+
+/// Slash autocomplete for `level`: the fixed VOLUMES levels from
+/// `music.ts:30-43`, filtered by the typed prefix. Values match the TS
+/// choice values (`10`, ...); free text still parses via
+/// [`parse_volume_query`].
+async fn volume_autocomplete<'a>(
+    _ctx: Ctx<'a>,
+    partial: &'a str,
+) -> impl Iterator<Item = String> + 'a {
+    const VOLUMES: [&str; 12] = [
+        "10", "20", "30", "35", "45", "55", "60", "70", "80", "90", "95", "100",
+    ];
+    VOLUMES
+        .into_iter()
+        .filter(move |v| v.starts_with(partial))
+        .map(|v| v.to_string())
 }

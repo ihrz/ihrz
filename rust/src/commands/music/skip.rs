@@ -70,6 +70,10 @@ pub async fn m_skip(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
                 // Queue drained: stop playback without destroying the
                 // node player (mirrors `!skip.ts:103`
                 // `player.stopPlaying()`, not `destroy()`).
+                // The reply names the pre-skip title; TS reads
+                // `player.queue.current` after the skip here
+                // (`!skip.ts:119-124`), which is empty once drained.
+                // Kept intentionally: naming the track just skipped.
                 if let Err(e) = m.rest_stop_playing(&node, &session, gid).await {
                     ctx.say(player_error_text(&code, &e.to_string())).await?;
                     return Ok(());

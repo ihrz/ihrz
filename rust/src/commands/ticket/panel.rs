@@ -1841,6 +1841,10 @@ async fn run_send_flow(
 /// Post a V2 opener message for a saved panel and record the
 /// `GUILD.TICKET_PANEL.<sentMsgId>` marker. Mirrors sendEmbed
 /// (!panel.ts:750): related-embed attach, select menu, marker write.
+/// Classic embed + select menu on purpose: serenity 0.12 has no Container
+/// / Components-V2 builders, and the posted opener TS builds is itself a
+/// plain embed with a string-select row, so the save/preview/send flow
+/// keeps that shape instead of the in-editor V2 chrome.
 async fn post_ticket_panel_message(
     ctx: &Ctx<'_>,
     pool: &crate::db::Pool,

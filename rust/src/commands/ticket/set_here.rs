@@ -21,8 +21,12 @@ const CATEGORY_PROMPT_ID: &str = "ticket-sethere-category-for-type";
 const REASON_PICK_ID: &str = "ticket-sethere-reason";
 
 const TYPE_TIMEOUT_SECS: u64 = 240;
-const BUILDER_TIMEOUT_SECS: u64 = 300;
-const PROMPT_TIMEOUT_SECS: u64 = 300;
+/// Builder button/select collectors. TS ticketsManager.ts:225,234
+/// (`time: 2_240_000` ms).
+const BUILDER_TIMEOUT_SECS: u64 = 2240;
+/// Category + reason prompts. TS ticketsManager.ts:498,540
+/// (`time: 30399999` ms, ~8.44h).
+const PROMPT_TIMEOUT_SECS: u64 = 30399;
 
 // ---- Pure builder pieces (offline-testable, mirror TS exactly) ----
 
@@ -308,24 +312,27 @@ async fn run_button_panel(
         ),
     )
     .await?;
-    post_ticket_creation_log(&http, pool, gid, lang_code, channel_id).await;
+    post_ticket_creation_log(&http, pool, gid, lang_code, channel_id, name).await;
     Ok(())
 }
 
 /// onCreation logs embed + footer file (CreateButtonPanel:125).
+/// TS template fill: `${data.name}` is the panel name and
+/// `${interaction}` the channel mention (`interaction.channel.toString()`).
 async fn post_ticket_creation_log(
     http: &std::sync::Arc<serenity::Http>,
     pool: &crate::db::Pool,
     gid: &str,
     lang_code: &str,
     channel_id: serenity::ChannelId,
+    panel_name: &str,
 ) {
     let t = |k: &str| crate::lang::get(lang_code, k).unwrap_or_default();
     let Some(logs) = ticket_logs_channel(pool, gid).await else {
         return;
     };
     let desc = t("event_ticket_logsChannel_onCreation_embed_desc")
-        .replace("${data.name}", &channel_id.get().to_string())
+        .replace("${data.name}", panel_name)
         .replace("${interaction}", &format!("<#{channel_id}>"));
     let (log_name, log_icon) = ticket_footer(http, pool, gid).await;
     let embed = ticket_embed_footer(
@@ -674,7 +681,7 @@ async fn run_builder_save(
                 .suppress_embeds(true),
         )
         .await;
-    post_ticket_creation_log(&http, pool, gid, lang_code, msg.channel_id).await;
+    post_ticket_creation_log(&http, pool, gid, lang_code, msg.channel_id, panel_name).await;
     Ok(true)
 }
 

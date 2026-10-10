@@ -19,14 +19,18 @@ pub fn step_history_page(current: usize, pages: usize, next: bool) -> usize {
 /// Mirrors `!history.ts`: 30d TTL purge on read, 10/page embed,
 /// `.txt` export, delete action.
 ///
-/// TS parity record (music.ts): `history` carries
+/// TS parity record (music.ts:179): `history` carries
 /// `permission: PermissionFlagsBits.Administrator` while every other
-/// music subcommand is `permission: null`. Slash parity comes from
-/// `default_member_permissions` below; prefix commands bypass
-/// Discord's gate, so non-admins are refused again at runtime.
+/// music subcommand is `permission: null`. That declaration only gates
+/// the slash path, so slash parity comes from
+/// `default_member_permissions` below; `!history.ts` performs no
+/// runtime admin check and serves the prefix path to everyone, so this
+/// port does neither. Non-admin slash callers never reach this code.
 ///
-/// The `page` / `clear` params set the initial page and the wipe path;
-/// previous/next/delete buttons drive an invoker-only collector on top.
+/// The `page` / `clear` params are a local superset (TS `music.ts`
+/// declares no history options): they set the initial page and the
+/// wipe path; previous/next/delete buttons drive an invoker-only
+/// collector on top.
 #[poise::command(
     slash_command,
     prefix_command,
@@ -42,16 +46,6 @@ pub async fn m_history(
         return Ok(());
     };
     let code = lang_code(&ctx).await;
-    if !caller_is_admin(&ctx).await {
-        say_key(
-            &ctx,
-            &code,
-            "music_history_no_permission",
-            "You need the Administrator permission to view the music history.",
-        )
-        .await?;
-        return Ok(());
-    };
     let key = gid.to_string();
     let now = now_ms();
     let raw = crate::db::kv_get(&ctx.data().pool, &key, HISTORY_KEY).await;

@@ -1288,6 +1288,12 @@ pub fn render_already_opened(template: &str, channel_id: &str) -> String {
     template.replace("${channelId}", channel_id)
 }
 
+// Slot-fill note: TS uses first-only `String.replace` for these ticket
+// templates (regex /g only for `${member.tag}` and
+// `${interaction.channel}`), while Rust `str::replace` fills every
+// occurrence. That is equivalent: no shipped template in any
+// `src/lang/*.yml` repeats the same slot twice (verified), so first-only
+// and fill-all produce identical output.
 pub fn render_when_created(template: &str, user_mention: &str, channel_id: &str) -> String {
     template
         .replace("${interaction.user}", user_mention)

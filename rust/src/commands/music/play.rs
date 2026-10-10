@@ -161,15 +161,16 @@ pub async fn m_play(
             };
             let mut embed = serenity::CreateEmbed::default()
                 .description(format!("**{}**{platform_line}", t.title))
-                .colour(0x00FF00)
+                // TS `SUCCESS_EMBED_COLOR` (#00cc1a, musicPlay.ts:76).
+                .colour(0x00CC1A)
                 .timestamp(serenity::Timestamp::now())
                 .footer(serenity::CreateEmbedFooter::new(format!(
                     "{duration}{}",
                     fmt_track_duration(t.length_ms)
                 )));
-            if let Some(uri) = t.uri.as_deref() {
-                embed = embed.url(uri);
-            }
+            // No `.url()`: the TS success embed carries no URL (the link
+            // lives in the description via `platformLabel`, mirrored in
+            // `platform_line` above).
             if let Some(art) = t.artwork.as_deref().filter(|u| !u.is_empty()) {
                 embed = embed.thumbnail(art);
             }
@@ -212,7 +213,8 @@ pub async fn m_play(
                         })
                         .unwrap_or_else(|| format!("{} added to the queue!", t.title));
                     let embed = serenity::CreateEmbed::default()
-                        .colour(0x00FF00)
+                        // TS `QUEUE_ADD_EMBED_COLOR` (2829617, musicPlay.ts:77).
+                        .colour(0x2B2D31)
                         .description(desc);
                     let _ = serenity::ChannelId::new(text)
                         .send_message(ctx.http(), serenity::CreateMessage::new().embed(embed))

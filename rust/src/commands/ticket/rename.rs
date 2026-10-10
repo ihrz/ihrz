@@ -10,7 +10,11 @@ use poise::serenity_prelude as serenity;
 )]
 pub async fn ticket_rename(
     ctx: Ctx<'_>,
-    #[description = "New name"] name: String,
+    // Rest-of-line like TS `longString(args, 0)`: multi-word panel names
+    // survive prefix parsing (same `#[rest]` pattern as fun/caracteres).
+    #[description = "New name"]
+    #[rest]
+    name: String,
 ) -> Result<(), anyhow::Error> {
     // Mirrors !rename.ts guards (disable + delete_not_in_ticket) and
     // the rename error reply.

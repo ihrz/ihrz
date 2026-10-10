@@ -1,10 +1,17 @@
 use super::*;
 
 /// Post, repost, or copy an embed. Mirrors the !embed.ts EmbedManager.
+// The full interactive builder lives at `embed_builder` (top-level
+// `embed`, same TS source); this stays `embed-post` so the flat
+// registry keeps one `embed` (TS namespaces them under /utils vs
+// the builder entry, poise registers both flat).
 // Create from title + description (saved under a new id), repost of a
 // saved embed id, or copy of an embed from a message URL/ID. The
 // interactive select-menu/button collectors have no stateless equivalent,
 // so create/copy/save are direct command branches instead.
+// UT5 scope note: the full interactive EmbedManager builder flow
+// (field-by-field modal editing) is intentionally out of scope;
+// create/repost/copy branches above are the accepted surface.
 #[poise::command(
     slash_command,
     prefix_command,

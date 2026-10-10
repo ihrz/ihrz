@@ -1,9 +1,11 @@
 use super::*;
 use poise::serenity_prelude as serenity;
 
-/// Localized short duration like TS `to_beautiful_string(ms, lang)`:
-/// localized unit names concatenated without separator, zero falls
-/// back to `0` + the minute name. `units` is
+/// Localized short duration like TS `to_beautiful_string(ms, lang)`
+/// (short form, `src/core/functions/ms.ts`): localized unit names
+/// concatenated without separator, zero falls back to `0` + the minute
+/// name, and any sub-second remainder renders as `{n}ms` (TS ms unit,
+/// factor 1, shortName always `ms`). `units` is
 /// [year, month, week, day, hour, minute, second] (`var_year`,
 /// `var_mo`, `var_w`, `var_d`, `var_h`, `var_m`, `var_s`).
 pub fn beautiful_duration(ms: i64, units: [&str; 7]) -> String {
@@ -222,6 +224,19 @@ mod tests {
         assert_eq!(beautiful_duration(3_600_000, en()), "1hour(s)");
         assert_eq!(beautiful_duration(90_000, en()), "1minute(s)30second(s)");
         assert_eq!(beautiful_duration(500, en()), "500ms");
+    }
+
+    #[test]
+    fn duration_ms_shapes_match_ts_ms_unit() {
+        // TS ms unit (factor 1): sub-second values render bare, and a
+        // leftover under one second trails the larger units.
+        assert_eq!(beautiful_duration(999, en()), "999ms");
+        assert_eq!(beautiful_duration(1_000, en()), "1second(s)");
+        assert_eq!(beautiful_duration(1_001, en()), "1second(s)1ms");
+        assert_eq!(
+            beautiful_duration(61_500, en()),
+            "1minute(s)1second(s)500ms"
+        );
     }
 
     #[test]

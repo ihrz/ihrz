@@ -1,11 +1,13 @@
 use super::*;
 
 /// Unban everyone, storing the list for undo. Mirrors unbanall !all.ts.
+// TS decl: command `unban-all` (prefix `unbanall`), alias `massunban`.
 #[poise::command(
     slash_command,
     prefix_command,
     category = "utils",
     rename = "unban-all",
+    aliases("unbanall", "massunban"),
     default_member_permissions = "ADMINISTRATOR"
 )]
 pub async fn unban_all(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {

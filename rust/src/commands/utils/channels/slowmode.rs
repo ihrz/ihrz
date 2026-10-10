@@ -57,17 +57,19 @@ pub fn duration_seconds(choice: DurationChoice) -> u16 {
     }
 }
 
-/// Slowmode. Mirrors util cooldown (!cooldown.ts) + unslowmode bridge.
+/// Slowmode. Mirrors util cooldown (!cooldown.ts).
+// Canonical slash name is `cooldown` (TS util/util.ts); `slowmode`
+// stays as a prefix/slash alias. Unslowmode via the `0` choice.
 #[poise::command(
     slash_command,
     prefix_command,
     category = "utils",
-    rename = "slowmode",
-    aliases("unslowmode", "setcooldown", "coldown", "slow")
+    rename = "cooldown",
+    aliases("slowmode", "unslowmode", "setcooldown", "coldown", "slow")
 )]
 pub async fn slowmode(
     ctx: Ctx<'_>,
-    #[description = "Duration"] duration: Option<DurationChoice>,
+    #[description = "Duration"] duration: DurationChoice,
     #[description = "Channel, defaults to current"] channel: Option<
         poise::serenity_prelude::GuildChannel,
     >,
@@ -94,7 +96,7 @@ pub async fn slowmode(
         .await?;
         return Ok(());
     }
-    let secs = duration.map(duration_seconds).unwrap_or(0);
+    let secs = duration_seconds(duration);
     let ch_id = match &channel {
         Some(c) => c.id,
         None => match ctx.guild_channel().await {

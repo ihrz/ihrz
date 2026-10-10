@@ -45,7 +45,16 @@ pub async fn m_queue(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     // Upcoming-only lines, mirroring `!queue.ts:84-87`
     // (`**${++idx})** [${title}](${uri})` over `player.queue.tracks`).
     // No Now-playing head, no author/tag suffixes.
+    // Nullish-vs-empty split mirrors `!queue.ts:77-95`: a missing queue
+    // state (`!player.queue.tracks`) answers `queue_no_queue`, while a
+    // present but drained list answers `queue_empty_queue`. The local
+    // snapshot always carries a `Vec`, so the nullish arm is the
+    // no-current-track-nothing-queued state.
     let queue = s.queue;
+    if queue.is_empty() && s.current.is_none() {
+        say_key(&ctx, &code, "queue_no_queue", "There is no queue").await?;
+        return Ok(());
+    }
     if queue.is_empty() {
         say_key(
             &ctx,
@@ -63,7 +72,6 @@ pub async fn m_queue(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         .collect();
     let pages = queue_pages(&lines);
     let total_pages = pages.len().max(1);
-    let total_tracks = queue.len();
     let title =
         crate::lang::get(&code, "queue_embed_title").unwrap_or_else(|| "Tracks Queue".to_string());
     let empty_desc = crate::lang::get(&code, "queue_embed_description_empty")
@@ -89,16 +97,13 @@ pub async fn m_queue(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
                 ),
             ))
     };
-    // Footer pagination also names the queue size, mirroring the
-    // `queue_embed_footer_text` shape ("Page {index} | Total {track}").
-    let mk_footer_count = |idx: usize| {
-        crate::lang::get(&code, "queue_embed_footer_text")
-            .map(|s| {
-                s.replace("{index}", &((idx + 1).to_string()))
-                    .replace("{track}", &total_tracks.to_string())
-            })
-            .unwrap_or_else(|| format!("Page {} | Total {total_tracks} tracks", idx + 1))
-    };
+    // Single page: no buttons, no collector (TS returns early with the
+    // plain paged embed, `!queue.ts:150-154`).
+    if total_pages == 1 {
+        ctx.send(poise::CreateReply::default().embed(mk_embed(0)))
+            .await?;
+        return Ok(());
+    }
     let mk_row = |idx: usize| {
         serenity::CreateActionRow::Buttons(vec![
             serenity::CreateButton::new("queue_previous")
@@ -114,12 +119,6 @@ pub async fn m_queue(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
                 .style(serenity::ButtonStyle::Danger),
         ])
     };
-    // Single page: no buttons, no collector (TS returns early).
-    if total_pages == 1 {
-        let embed = mk_embed(0).footer(serenity::CreateEmbedFooter::new(mk_footer_count(0)));
-        ctx.send(poise::CreateReply::default().embed(embed)).await?;
-        return Ok(());
-    }
     let handle = ctx
         .send(
             poise::CreateReply::default()

@@ -21,6 +21,8 @@ pub async fn transgender(
     if fun_guard(&ctx).await {
         return Ok(());
     }
+    // The TS `user` option is optional (required: false): no target means
+    // the invoker (author fallback, kept like the TS prefix path).
     let u = user.unwrap_or_else(|| ctx.author().clone());
     // Mirrors `displayAvatarURL({ extension: "png", size: 1024 })` in
     // `!transgender.ts` (forced PNG, not the webp `face()` URL).

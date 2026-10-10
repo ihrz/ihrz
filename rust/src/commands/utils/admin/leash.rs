@@ -80,7 +80,8 @@ pub async fn leash(
             crate::commands::lang_for(&ctx, "util_leash_confirm_message", "Leash anyway?")
                 .await
                 .replace("${client.iHorizon_Emojis.No}", &no)
-                .replace("${client.iHorizon_Emojis.Warning_Icon}", &warn);
+                .replace("${client.iHorizon_Emojis.Warning_Icon}", &warn)
+                .replace("${client.iHorizon_Emojis.Yes}", &yes_mark_opt(&ctx).await);
         let yes = crate::commands::lang_for(&ctx, "var_yes", "Yes").await;
         let no = crate::commands::lang_for(&ctx, "var_no", "No").await;
         if !crate::commands::prompt_yes_or_no(&ctx, content, yes, no, false).await? {
@@ -130,6 +131,15 @@ pub async fn leash(
 /// or the invoker IS (`!isInVoiceChannel(user) || isInVoiceChannel(me)`).
 pub fn needs_leash_confirm(target_in_vc: bool, invoker_in_vc: bool) -> bool {
     !target_in_vc || invoker_in_vc
+}
+
+/// Yes-markup fill for the confirm template. Mirrors the TS third
+/// `.replace("${client.iHorizon_Emojis.Yes}", ...)` on
+/// `util_leash_confirm_message`.
+async fn yes_mark_opt(ctx: &Ctx<'_>) -> String {
+    crate::emojis::app_emoji_markup(&ctx.serenity_context().http, "Yes")
+        .await
+        .unwrap_or_else(|| "✅".to_string())
 }
 
 #[cfg(test)]
