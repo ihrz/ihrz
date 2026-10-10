@@ -111,7 +111,7 @@ pub fn tts_row_enabled(raw: &str) -> bool {
 /// H24/7 parks the bot in the TTS channel, stop playback but skip the
 /// OP4 voice leave so the bot never visibly disconnects.
 pub fn tts_keep_voice(
-    h247: Option<&crate::commands::ranks::grant::H247Config>,
+    h247: Option<&crate::commands::h247::grant::H247Config>,
     tts_voice: u64,
 ) -> bool {
     h247.map(|h| h.enabled && h.voice_channel_id == tts_voice)
@@ -321,7 +321,7 @@ mod tests {
 
     #[test]
     fn keep_voice_parks_h247() {
-        use crate::commands::ranks::grant::H247Config;
+        use crate::commands::h247::grant::H247Config;
         let parked = H247Config {
             enabled: true,
             voice_channel_id: 10,

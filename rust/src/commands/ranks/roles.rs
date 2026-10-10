@@ -1,27 +1,72 @@
 use super::*;
 use poise::serenity_prelude as serenity;
 
-/// Table-first rank-role load with legacy kv fallback (keys unchanged).
-/// A legacy hit promotes into the table so rows migrate lazily; pair
+/// Rank-role load with legacy key/shape fallback: the new TS map key
+/// (`GUILD.XP_LEVELING.ranksRoles`) wins, the legacy vec key
+/// (`GUILD.RANKS.roles`) reads back and promotes into the map shape.
+/// A legacy hit promotes into the new key so rows migrate lazily; pair
 /// with `save_rank_roles_routed` (dual-write) so kv-only readers stay fresh.
 pub async fn load_rank_roles_routed(pool: &crate::db::Pool, guild_id: &str) -> Vec<RankRole> {
-    crate::commands::owner::main::routed_get(pool, guild_id, guild_id, "GUILD.RANKS.roles")
-        .await
-        .and_then(|s| serde_json::from_str(&s).ok())
-        .unwrap_or_default()
+    use crate::commands::owner::main::{routed_get, routed_set};
+    if let Some(raw) = routed_get(pool, guild_id, guild_id, super::GUILD_ROLES_NEW).await {
+        if let Ok(v) = serde_json::from_str::<serde_json::Value>(&raw) {
+            let roles = super::rank_roles_from_value(&v);
+            // Normalize legacy-shaped rows parked under the new key.
+            if !matches!(v, serde_json::Value::Object(_)) && !roles.is_empty() {
+                let _ = routed_set(
+                    pool,
+                    guild_id,
+                    guild_id,
+                    super::GUILD_ROLES_NEW,
+                    &serde_json::to_string(&super::rank_roles_to_map(&roles)).unwrap_or_default(),
+                )
+                .await;
+            }
+            if !roles.is_empty() || matches!(v, serde_json::Value::Object(_)) {
+                return roles;
+            }
+        }
+    }
+    if let Some(raw) = routed_get(pool, guild_id, guild_id, super::GUILD_ROLES_OLD).await {
+        if let Ok(v) = serde_json::from_str::<serde_json::Value>(&raw) {
+            let roles = super::rank_roles_from_value(&v);
+            if !roles.is_empty() {
+                let _ = routed_set(
+                    pool,
+                    guild_id,
+                    guild_id,
+                    super::GUILD_ROLES_NEW,
+                    &serde_json::to_string(&super::rank_roles_to_map(&roles)).unwrap_or_default(),
+                )
+                .await;
+                return roles;
+            }
+        }
+    }
+    Vec::new()
 }
 
-/// Table-first rank-role store with legacy kv dual-write (keys unchanged).
+/// Rank-role store: TS map shape on the new key, legacy vec shape on
+/// the old key, so both readers stay fresh while rows migrate.
 pub async fn save_rank_roles_routed(
     pool: &crate::db::Pool,
     guild_id: &str,
     roles: &[RankRole],
 ) -> anyhow::Result<()> {
-    crate::commands::owner::main::routed_set(
+    use crate::commands::owner::main::routed_set;
+    routed_set(
         pool,
         guild_id,
         guild_id,
-        "GUILD.RANKS.roles",
+        super::GUILD_ROLES_NEW,
+        &serde_json::to_string(&super::rank_roles_to_map(roles))?,
+    )
+    .await?;
+    routed_set(
+        pool,
+        guild_id,
+        guild_id,
+        super::GUILD_ROLES_OLD,
         &serde_json::to_string(roles)?,
     )
     .await
@@ -118,8 +163,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn legacy_row_reads_and_promotes_to_table() {
-        use crate::commands::owner::main::tbl_get_value;
+    async fn legacy_vec_reads_and_promotes_to_map() {
         let pool = mem_pool().await;
         crate::db::kv_set(
             &pool,
@@ -136,15 +180,41 @@ mod tests {
                 level: 5
             }]
         );
-        assert!(tbl_get_value(&pool, "g", "GUILD.RANKS.roles")
-            .await
-            .is_some());
+        // Promoted into the TS map shape on the new key.
+        assert_eq!(
+            crate::db::kv_get(&pool, "g", "GUILD.XP_LEVELING.ranksRoles")
+                .await
+                .as_deref(),
+            Some(r#"{"5":"7"}"#)
+        );
         assert!(load_rank_roles_routed(&pool, "g9").await.is_empty());
     }
 
     #[tokio::test]
-    async fn save_dual_writes_table_and_legacy() {
-        use crate::commands::owner::main::tbl_get_value;
+    async fn new_map_wins_over_legacy_vec() {
+        let pool = mem_pool().await;
+        crate::db::kv_set(
+            &pool,
+            "g",
+            "GUILD.RANKS.roles",
+            r#"[{"role_id":"7","level":5}]"#,
+        )
+        .await
+        .unwrap();
+        crate::db::kv_set(&pool, "g", "GUILD.XP_LEVELING.ranksRoles", r#"{"9":"8"}"#)
+            .await
+            .unwrap();
+        assert_eq!(
+            load_rank_roles_routed(&pool, "g").await,
+            vec![RankRole {
+                role_id: "8".to_string(),
+                level: 9
+            }]
+        );
+    }
+
+    #[tokio::test]
+    async fn save_dual_writes_map_and_legacy_vec() {
         let pool = mem_pool().await;
         save_rank_roles_routed(
             &pool,
@@ -157,13 +227,16 @@ mod tests {
         .await
         .unwrap();
         assert_eq!(
+            crate::db::kv_get(&pool, "g", "GUILD.XP_LEVELING.ranksRoles")
+                .await
+                .as_deref(),
+            Some(r#"{"5":"7"}"#)
+        );
+        assert_eq!(
             crate::db::kv_get(&pool, "g", "GUILD.RANKS.roles")
                 .await
                 .as_deref(),
             Some(r#"[{"role_id":"7","level":5}]"#)
         );
-        assert!(tbl_get_value(&pool, "g", "GUILD.RANKS.roles")
-            .await
-            .is_some());
     }
 }

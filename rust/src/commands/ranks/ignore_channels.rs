@@ -1,27 +1,33 @@
 use super::*;
 use poise::serenity_prelude as serenity;
 
-/// Table-first ignore-list load with legacy kv fallback (keys unchanged).
-/// A legacy hit promotes into the table so rows migrate lazily; pair
+/// Table-first ignore-list load with legacy key fallback
+/// (`GUILD.XP_LEVELING.bypassChannels`, legacy `GUILD.RANKS.ignoreChannels`).
+/// A legacy hit promotes into the new key so rows migrate lazily; pair
 /// with `save_ignore_routed` (dual-write) so kv-only readers stay fresh.
 pub async fn load_ignore_routed(pool: &crate::db::Pool, guild_id: &str) -> Vec<String> {
-    crate::commands::owner::main::routed_get(pool, guild_id, guild_id, "GUILD.RANKS.ignoreChannels")
-        .await
-        .and_then(|s| serde_json::from_str(&s).ok())
-        .unwrap_or_default()
+    super::migrated_get(
+        pool,
+        guild_id,
+        super::GUILD_BYPASS_NEW,
+        &[super::GUILD_BYPASS_OLD],
+    )
+    .await
+    .and_then(|s| serde_json::from_str(&s).ok())
+    .unwrap_or_default()
 }
 
-/// Table-first ignore-list store with legacy kv dual-write (keys unchanged).
+/// Ignore-list store on the new key with legacy dual-write (keys migrated).
 pub async fn save_ignore_routed(
     pool: &crate::db::Pool,
     guild_id: &str,
     list: &[String],
 ) -> anyhow::Result<()> {
-    crate::commands::owner::main::routed_set(
+    super::migrated_set(
         pool,
         guild_id,
-        guild_id,
-        "GUILD.RANKS.ignoreChannels",
+        super::GUILD_BYPASS_NEW,
+        &[super::GUILD_BYPASS_OLD],
         &serde_json::to_string(list)?,
     )
     .await
@@ -115,34 +121,49 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn legacy_row_reads_and_promotes_to_table() {
-        use crate::commands::owner::main::tbl_get_value;
+    async fn legacy_key_reads_and_promotes_to_new_key() {
         let pool = mem_pool().await;
         crate::db::kv_set(&pool, "g", "GUILD.RANKS.ignoreChannels", r#"["7"]"#)
             .await
             .unwrap();
         assert_eq!(load_ignore_routed(&pool, "g").await, vec!["7".to_string()]);
-        assert!(tbl_get_value(&pool, "g", "GUILD.RANKS.ignoreChannels")
-            .await
-            .is_some());
+        assert!(
+            crate::db::kv_get(&pool, "g", "GUILD.XP_LEVELING.bypassChannels")
+                .await
+                .is_some()
+        );
         assert!(load_ignore_routed(&pool, "g9").await.is_empty());
     }
 
     #[tokio::test]
-    async fn save_dual_writes_table_and_legacy() {
-        use crate::commands::owner::main::tbl_get_value;
+    async fn new_key_wins_over_legacy_on_conflict() {
+        let pool = mem_pool().await;
+        crate::db::kv_set(&pool, "g", "GUILD.RANKS.ignoreChannels", r#"["7"]"#)
+            .await
+            .unwrap();
+        crate::db::kv_set(&pool, "g", "GUILD.XP_LEVELING.bypassChannels", r#"["8"]"#)
+            .await
+            .unwrap();
+        assert_eq!(load_ignore_routed(&pool, "g").await, vec!["8".to_string()]);
+    }
+
+    #[tokio::test]
+    async fn save_dual_writes_new_and_legacy_keys() {
         let pool = mem_pool().await;
         save_ignore_routed(&pool, "g", &["7".to_string()])
             .await
             .unwrap();
+        assert_eq!(
+            crate::db::kv_get(&pool, "g", "GUILD.XP_LEVELING.bypassChannels")
+                .await
+                .as_deref(),
+            Some(r#"["7"]"#)
+        );
         assert_eq!(
             crate::db::kv_get(&pool, "g", "GUILD.RANKS.ignoreChannels")
                 .await
                 .as_deref(),
             Some(r#"["7"]"#)
         );
-        assert!(tbl_get_value(&pool, "g", "GUILD.RANKS.ignoreChannels")
-            .await
-            .is_some());
     }
 }

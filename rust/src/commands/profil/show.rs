@@ -20,8 +20,12 @@ pub async fn profil_show(
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
-    let money =
-        crate::commands::economy::main::load_econ(&ctx.data().pool, &gid, target.id.get()).await;
+    let money = crate::commands::economy::balance::load_econ_routed(
+        &ctx.data().pool,
+        &gid,
+        target.id.get(),
+    )
+    .await;
     let rank =
         crate::commands::ranks::main::load_rank(&ctx.data().pool, &gid, target.id.get()).await;
 

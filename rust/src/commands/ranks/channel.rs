@@ -1,6 +1,72 @@
 use super::*;
 use poise::serenity_prelude as serenity;
 
+/// XP channel load with legacy key fallback (`GUILD.XP_LEVELING.xpchannels`,
+/// legacy `GUILD.RANKS.channel` single / `GUILD.RANKS.xpChannels` list).
+/// A legacy list contributes its first entry; a legacy hit promotes the
+/// single id into the new key so rows migrate lazily.
+pub async fn load_xp_channel_routed(pool: &crate::db::Pool, guild_id: &str) -> Option<String> {
+    let raw = super::migrated_get(
+        pool,
+        guild_id,
+        super::GUILD_XPCHANNEL_NEW,
+        &[
+            super::GUILD_XPCHANNEL_OLD_SINGLE,
+            super::GUILD_XPCHANNEL_OLD_LIST,
+        ],
+    )
+    .await?;
+    if let Ok(list) = serde_json::from_str::<Vec<String>>(&raw) {
+        return list.into_iter().next();
+    }
+    let id = crate::commands::owner::main::decode_stored_string(&raw);
+    if id.is_empty() {
+        return None;
+    }
+    Some(id)
+}
+
+/// XP channel store: single id on the new key (TS shape) plus the legacy
+/// single key and a single-entry legacy list, so old readers stay fresh.
+pub async fn save_xp_channel_routed(
+    pool: &crate::db::Pool,
+    guild_id: &str,
+    channel_id: &str,
+) -> anyhow::Result<()> {
+    super::migrated_set(
+        pool,
+        guild_id,
+        super::GUILD_XPCHANNEL_NEW,
+        &[super::GUILD_XPCHANNEL_OLD_SINGLE],
+        channel_id,
+    )
+    .await?;
+    crate::commands::owner::main::routed_set(
+        pool,
+        guild_id,
+        guild_id,
+        super::GUILD_XPCHANNEL_OLD_LIST,
+        &serde_json::to_string(&[channel_id])?,
+    )
+    .await
+}
+
+/// XP channel clear across the new key and every legacy key.
+pub async fn clear_xp_channel_routed(
+    pool: &crate::db::Pool,
+    guild_id: &str,
+) -> anyhow::Result<bool> {
+    super::migrated_del(
+        pool,
+        guild_id,
+        super::GUILD_XPCHANNEL_NEW,
+        &[
+            super::GUILD_XPCHANNEL_OLD_SINGLE,
+            super::GUILD_XPCHANNEL_OLD_LIST,
+        ],
+    )
+    .await
+}
 #[poise::command(
     slash_command,
     prefix_command,
@@ -20,14 +86,7 @@ pub async fn ranks_channel(
         .unwrap_or_default();
     match channel {
         Some(ch) => {
-            crate::commands::owner::main::routed_set(
-                &ctx.data().pool,
-                &gid,
-                &gid,
-                "GUILD.RANKS.channel",
-                &ch.id.get().to_string(),
-            )
-            .await?;
+            save_xp_channel_routed(&ctx.data().pool, &gid, &ch.id.get().to_string()).await?;
             let code =
                 crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
             ctx.say(
@@ -43,13 +102,7 @@ pub async fn ranks_channel(
             .await?;
         }
         None => {
-            crate::commands::owner::main::routed_del(
-                &ctx.data().pool,
-                &gid,
-                &gid,
-                "GUILD.RANKS.channel",
-            )
-            .await?;
+            clear_xp_channel_routed(&ctx.data().pool, &gid).await?;
             let code =
                 crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
             ctx.say(
@@ -63,8 +116,7 @@ pub async fn ranks_channel(
     Ok(())
 }
 
-/// XP allowlist channels. Only these channels grant XP when non-empty.
-/// Complements the ignore list.
+/// XP channel (TS single-string shape). Setting overwrites; omit to clear.
 #[poise::command(slash_command, prefix_command, rename = "xp-channels")]
 pub async fn ranks_xp_channels(
     ctx: Ctx<'_>,
@@ -78,28 +130,7 @@ pub async fn ranks_xp_channels(
         .unwrap_or_default();
     match channel {
         Some(ch) => {
-            let raw = crate::commands::owner::main::routed_get(
-                &ctx.data().pool,
-                &gid,
-                &gid,
-                "GUILD.RANKS.xpChannels",
-            )
-            .await;
-            let mut list: Vec<String> = raw
-                .and_then(|s| serde_json::from_str(&s).ok())
-                .unwrap_or_default();
-            let id = ch.id.get().to_string();
-            if !list.contains(&id) {
-                list.push(id);
-                crate::commands::owner::main::routed_set(
-                    &ctx.data().pool,
-                    &gid,
-                    &gid,
-                    "GUILD.RANKS.xpChannels",
-                    &serde_json::to_string(&list)?,
-                )
-                .await?;
-            }
+            save_xp_channel_routed(&ctx.data().pool, &gid, &ch.id.get().to_string()).await?;
             let code =
                 crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
             ctx.say(
@@ -115,13 +146,7 @@ pub async fn ranks_xp_channels(
             .await?;
         }
         None => {
-            let _ = crate::commands::owner::main::routed_del(
-                &ctx.data().pool,
-                &gid,
-                &gid,
-                "GUILD.RANKS.xpChannels",
-            )
-            .await;
+            let _ = clear_xp_channel_routed(&ctx.data().pool, &gid).await;
             let code =
                 crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
             ctx.say(
@@ -133,4 +158,96 @@ pub async fn ranks_xp_channels(
         }
     }
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{clear_xp_channel_routed, load_xp_channel_routed, save_xp_channel_routed};
+
+    async fn mem_pool() -> crate::db::Pool {
+        use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};
+        use std::str::FromStr;
+        let opts = SqliteConnectOptions::from_str("sqlite::memory:")
+            .unwrap()
+            .create_if_missing(true);
+        let pool = SqlitePoolOptions::new()
+            .max_connections(1)
+            .connect_with(opts)
+            .await
+            .unwrap();
+        sqlx::query(
+            "CREATE TABLE kv (guild_id TEXT NOT NULL, key_name TEXT NOT NULL, value TEXT NOT NULL, PRIMARY KEY (guild_id, key_name))",
+        )
+        .execute(&pool)
+        .await
+        .unwrap();
+        pool
+    }
+
+    #[tokio::test]
+    async fn legacy_single_reads_and_promotes() {
+        let pool = mem_pool().await;
+        crate::db::kv_set(&pool, "g", "GUILD.RANKS.channel", "42")
+            .await
+            .unwrap();
+        assert_eq!(
+            load_xp_channel_routed(&pool, "g").await.as_deref(),
+            Some("42")
+        );
+        assert_eq!(
+            crate::db::kv_get(&pool, "g", "GUILD.XP_LEVELING.xpchannels")
+                .await
+                .as_deref(),
+            Some("42")
+        );
+        assert_eq!(load_xp_channel_routed(&pool, "g9").await, None);
+    }
+
+    #[tokio::test]
+    async fn legacy_list_contributes_first_entry() {
+        let pool = mem_pool().await;
+        crate::db::kv_set(&pool, "g", "GUILD.RANKS.xpChannels", r#"["7","8"]"#)
+            .await
+            .unwrap();
+        assert_eq!(
+            load_xp_channel_routed(&pool, "g").await.as_deref(),
+            Some("7")
+        );
+    }
+
+    #[tokio::test]
+    async fn new_key_wins_over_legacy() {
+        let pool = mem_pool().await;
+        crate::db::kv_set(&pool, "g", "GUILD.RANKS.channel", "42")
+            .await
+            .unwrap();
+        crate::db::kv_set(&pool, "g", "GUILD.XP_LEVELING.xpchannels", "99")
+            .await
+            .unwrap();
+        assert_eq!(
+            load_xp_channel_routed(&pool, "g").await.as_deref(),
+            Some("99")
+        );
+    }
+
+    #[tokio::test]
+    async fn save_and_clear_cover_all_keys() {
+        let pool = mem_pool().await;
+        save_xp_channel_routed(&pool, "g", "42").await.unwrap();
+        assert_eq!(
+            crate::db::kv_get(&pool, "g", "GUILD.XP_LEVELING.xpchannels")
+                .await
+                .as_deref(),
+            Some("42")
+        );
+        assert_eq!(
+            crate::db::kv_get(&pool, "g", "GUILD.RANKS.channel")
+                .await
+                .as_deref(),
+            Some("42")
+        );
+        assert!(clear_xp_channel_routed(&pool, "g").await.unwrap());
+        assert_eq!(load_xp_channel_routed(&pool, "g").await, None);
+        assert!(!clear_xp_channel_routed(&pool, "g").await.unwrap());
+    }
 }

@@ -143,6 +143,7 @@ mod tests {
     }
 }
 
+pub mod grant;
 #[allow(clippy::module_inception)]
 pub mod h247;
 pub mod info;

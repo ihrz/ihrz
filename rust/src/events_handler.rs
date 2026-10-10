@@ -2842,14 +2842,14 @@ impl serenity::EventHandler for Handler {
                 let roles_raw = rank_role_single_routed(&self.pool, &gid).await;
                 let nick_raw = rank_nicknames_routed(&self.pool, &gid).await;
                 if let (Some(roles_raw), Some(nick_raw)) = (roles_raw, nick_raw) {
-                    if let Some(role_num) = crate::commands::ranks::grant::parse_role_id(&roles_raw)
+                    if let Some(role_num) = crate::commands::h247::grant::parse_role_id(&roles_raw)
                     {
-                        let needles = crate::commands::ranks::grant::rank_needles(&nick_raw);
+                        let needles = crate::commands::h247::grant::rank_needles(&nick_raw);
                         // Empty needles = no nickname gate configured
                         // (mirrors falsy `dbGet.nicknames`): grant directly.
                         let matched = needles.is_empty()
                             || needles.iter().any(|n| {
-                                crate::commands::ranks::grant::username_matches(
+                                crate::commands::h247::grant::username_matches(
                                     &msg.author.name,
                                     msg.author.global_name.as_deref(),
                                     n,
@@ -3619,14 +3619,14 @@ impl serenity::EventHandler for Handler {
         // voluntary /h247 leave deletes GUILD.H247 first, so this
         // resolves to a no-op then. Rejoin goes out as a gateway OP4
         // voice-state update (send_voice_state), like sendH247VoiceStateUpdate.
-        if crate::commands::ranks::grant::h247_voice_broken(
+        if crate::commands::h247::grant::h247_voice_broken(
             new.user_id == ctx.cache.current_user().id,
             old.as_ref().and_then(|o| o.channel_id).map(|c| c.get()),
             new.channel_id.map(|c| c.get()),
         ) {
             if let Some(raw) = h247_routed(&self.pool, &gid).await {
-                let target = crate::commands::ranks::grant::h247_rejoin_target(
-                    crate::commands::ranks::grant::parse_h247(&raw).as_ref(),
+                let target = crate::commands::h247::grant::h247_rejoin_target(
+                    crate::commands::h247::grant::parse_h247(&raw).as_ref(),
                     new.channel_id.map(|c| c.get()),
                 );
                 if let Some(ch) = target {
@@ -3987,7 +3987,7 @@ impl serenity::EventHandler for Handler {
                                 if humans == Some(0) {
                                     let keep = match h247_routed(&self.pool, &gid).await {
                                         Some(hraw) => crate::commands::tts::tts_keep_voice(
-                                            crate::commands::ranks::grant::parse_h247(&hraw)
+                                            crate::commands::h247::grant::parse_h247(&hraw)
                                                 .as_ref(),
                                             tts_vc,
                                         ),
@@ -4191,7 +4191,7 @@ impl serenity::EventHandler for Handler {
         // change, grant or remove the GUILD.RANK_ROLES role based on
         // whether the new names contain the configured substring.
         // Reuses the GUILD.RANK_ROLES.roles / .nicknames keys (no new keys).
-        if !crate::commands::ranks::grant::names_changed(
+        if !crate::commands::h247::grant::names_changed(
             old.as_ref().map(|o| o.name.as_str()),
             old.as_ref().map(|o| o.global_name.as_deref()),
             &new.name,
@@ -4219,13 +4219,13 @@ impl serenity::EventHandler for Handler {
             let (Some(roles_raw), Some(nick_raw)) = (roles_raw, nick_raw) else {
                 continue;
             };
-            let Some(role_num) = crate::commands::ranks::grant::parse_role_id(&roles_raw) else {
+            let Some(role_num) = crate::commands::h247::grant::parse_role_id(&roles_raw) else {
                 continue;
             };
-            let matched = crate::commands::ranks::grant::rank_needles(&nick_raw)
+            let matched = crate::commands::h247::grant::rank_needles(&nick_raw)
                 .iter()
                 .any(|n| {
-                    crate::commands::ranks::grant::username_matches(
+                    crate::commands::h247::grant::username_matches(
                         &new.name,
                         new.global_name.as_deref(),
                         n,
@@ -4235,17 +4235,17 @@ impl serenity::EventHandler for Handler {
                 continue;
             };
             let role_id = serenity::RoleId::new(role_num);
-            match crate::commands::ranks::grant::grant_decision(
+            match crate::commands::h247::grant::grant_decision(
                 member.roles.contains(&role_id),
                 matched,
             ) {
-                crate::commands::ranks::grant::RankGrant::Grant => {
+                crate::commands::h247::grant::RankGrant::Grant => {
                     let _ = member.add_role(&ctx.http, role_id).await;
                 }
-                crate::commands::ranks::grant::RankGrant::Remove => {
+                crate::commands::h247::grant::RankGrant::Remove => {
                     let _ = member.remove_role(&ctx.http, role_id).await;
                 }
-                crate::commands::ranks::grant::RankGrant::Keep => {}
+                crate::commands::h247::grant::RankGrant::Keep => {}
             }
         }
     }

@@ -2,10 +2,14 @@
 // Licensed under CC-BY-NC-SA-4.0.
 // Mirrors src/Interaction/HybridCommands/ranks/*.
 //
-// TS keys: GUILD.RANKS {disable, xpChannels, ignoreChannels[], roles[],
-// message}, USER.<uid>.RANKS {level, xp, xptotal, message}.
+// TS keys: GUILD.XP_LEVELING {disable, xpchannels, bypassChannels[],
+// message, ranksRoles{}}, USER.<uid>.XP_LEVELING {level, xp, xptotal}.
 // XP engine (message counting) lives in events; card/podHTML->PNG render
 // pending (see PORT_INVENTORY.md).
+//
+// Legacy Rust keys (GUILD.RANKS.*, RANKS.<uid>) still read back and
+// promote into the XP_LEVELING keys on load; saves dual-write both so
+// kv-only readers (events_handler, leaderboard) stay fresh.
 
 use crate::bot::Ctx;
 use serde::{Deserialize, Serialize};
@@ -20,13 +24,99 @@ pub struct RankEntry {
     pub xptotal: u64,
 }
 
-pub fn ranks_key(user_id: u64) -> String {
+/// Canonical TS guild keys (DbGuildXpLeveling).
+pub const GUILD_DISABLE_NEW: &str = "GUILD.XP_LEVELING.disable";
+pub const GUILD_XPCHANNEL_NEW: &str = "GUILD.XP_LEVELING.xpchannels";
+pub const GUILD_BYPASS_NEW: &str = "GUILD.XP_LEVELING.bypassChannels";
+pub const GUILD_MESSAGE_NEW: &str = "GUILD.XP_LEVELING.message";
+pub const GUILD_ROLES_NEW: &str = "GUILD.XP_LEVELING.ranksRoles";
+/// Legacy Rust guild keys (pre-TS-parity). Read back as fallback.
+pub const GUILD_DISABLE_OLD: &str = "GUILD.RANKS.disable";
+pub const GUILD_XPCHANNEL_OLD_SINGLE: &str = "GUILD.RANKS.channel";
+pub const GUILD_XPCHANNEL_OLD_LIST: &str = "GUILD.RANKS.xpChannels";
+pub const GUILD_BYPASS_OLD: &str = "GUILD.RANKS.ignoreChannels";
+pub const GUILD_MESSAGE_OLD: &str = "GUILD.RANKS.message";
+pub const GUILD_ROLES_OLD: &str = "GUILD.RANKS.roles";
+
+/// Canonical TS user key (XpLevelingUserSchema).
+pub fn user_key_new(user_id: u64) -> String {
+    format!("USER.{user_id}.XP_LEVELING")
+}
+
+/// Legacy Rust user key. Read back as fallback.
+pub fn user_key_old(user_id: u64) -> String {
     format!("RANKS.{user_id}")
 }
 
-/// XP needed for next level. Mirrors TS level curve (level * 100).
+pub fn ranks_key(user_id: u64) -> String {
+    user_key_new(user_id)
+}
+
+/// Routed read with old-key fallback: the new (TS-parity) key wins, a
+/// legacy hit promotes into the new key so rows migrate lazily.
+pub async fn migrated_get(
+    pool: &crate::db::Pool,
+    guild_id: &str,
+    new_key: &str,
+    old_keys: &[&str],
+) -> Option<String> {
+    use crate::commands::owner::main::{routed_get, routed_set};
+    if let Some(v) = routed_get(pool, guild_id, guild_id, new_key).await {
+        return Some(v);
+    }
+    for old in old_keys {
+        if let Some(v) = routed_get(pool, guild_id, guild_id, old).await {
+            let _ = routed_set(pool, guild_id, guild_id, new_key, &v).await;
+            return Some(v);
+        }
+    }
+    None
+}
+
+/// Routed write to the new key plus every legacy key (same bytes), so
+/// old-key readers stay fresh while rows migrate.
+pub async fn migrated_set(
+    pool: &crate::db::Pool,
+    guild_id: &str,
+    new_key: &str,
+    old_keys: &[&str],
+    value: &str,
+) -> anyhow::Result<()> {
+    use crate::commands::owner::main::routed_set;
+    routed_set(pool, guild_id, guild_id, new_key, value).await?;
+    for old in old_keys {
+        routed_set(pool, guild_id, guild_id, old, value).await?;
+    }
+    Ok(())
+}
+
+/// Routed delete across the new key and every legacy key. Returns true
+/// when a row existed in either store under any of the keys.
+pub async fn migrated_del(
+    pool: &crate::db::Pool,
+    guild_id: &str,
+    new_key: &str,
+    old_keys: &[&str],
+) -> anyhow::Result<bool> {
+    use crate::commands::owner::main::routed_del;
+    let mut had = routed_del(pool, guild_id, guild_id, new_key).await?;
+    for old in old_keys {
+        if routed_del(pool, guild_id, guild_id, old).await? {
+            had = true;
+        }
+    }
+    Ok(had)
+}
+
+/// XP needed for next level. Mirrors TS level curve (level * 500).
 pub fn xp_needed(level: u64) -> u64 {
-    level.saturating_mul(100).max(100)
+    level.saturating_mul(500).max(500)
+}
+
+/// Coins rewarded on level-up. Mirrors ranks/onNewMessage.ts:
+/// `randomNumber * memberBoost` credited via addCoins.
+pub fn coins_for_levelup(xp_gain: u64, boost_mult: i64) -> i64 {
+    (xp_gain as i64).saturating_mul(boost_mult.max(1))
 }
 
 /// Apply XP, leveling up while threshold crossed. Returns (new_entry, leveled).
@@ -58,7 +148,7 @@ pub async fn save_rank(
 }
 
 /// Ignore-list helpers. Mirrors !ignore-channels.ts
-/// (GUILD.RANKS.ignoreChannels[]).
+/// (GUILD.XP_LEVELING.bypassChannels[], legacy GUILD.RANKS.ignoreChannels[]).
 pub fn toggle_ignore(mut list: Vec<String>, channel_id: &str) -> (Vec<String>, bool) {
     if let Some(pos) = list.iter().position(|c| c == channel_id) {
         list.remove(pos);
@@ -70,29 +160,64 @@ pub fn toggle_ignore(mut list: Vec<String>, channel_id: &str) -> (Vec<String>, b
 }
 
 async fn load_ignore(pool: &crate::db::Pool, guild_id: &str) -> Vec<String> {
-    crate::db::kv_get(pool, guild_id, "GUILD.RANKS.ignoreChannels")
-        .await
-        .and_then(|s| serde_json::from_str(&s).ok())
-        .unwrap_or_default()
+    ignore_channels::load_ignore_routed(pool, guild_id).await
 }
 
-/// Level-role rewards. Mirrors !roles.ts (GUILD.RANKS.roles[]).
+/// Level-role rewards. Mirrors !roles.ts
+/// (GUILD.XP_LEVELING.ranksRoles{}, legacy GUILD.RANKS.roles[]).
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct RankRole {
     pub role_id: String,
     pub level: u64,
 }
 
+/// Vec form (legacy) -> TS map form (`{ "<level>": "<roleId>" }`).
+pub fn rank_roles_to_map(roles: &[RankRole]) -> serde_json::Map<String, serde_json::Value> {
+    let mut map = serde_json::Map::new();
+    for r in roles {
+        map.insert(
+            r.level.to_string(),
+            serde_json::Value::String(r.role_id.clone()),
+        );
+    }
+    map
+}
+
+/// TS map form -> vec form. Unknown levels are skipped; numbers coerce.
+pub fn rank_roles_from_map(map: &serde_json::Map<String, serde_json::Value>) -> Vec<RankRole> {
+    let mut out = Vec::new();
+    for (level, role) in map {
+        let Ok(level) = level.parse::<u64>() else {
+            continue;
+        };
+        let role_id = match role {
+            serde_json::Value::String(s) => s.clone(),
+            other => other.to_string().trim_matches('"').to_string(),
+        };
+        out.push(RankRole { role_id, level });
+    }
+    out.sort_by_key(|r| r.level);
+    out
+}
+
+/// Dual-shape parse: TS map (`ranksRoles`) or legacy vec (`roles[]`).
+pub fn rank_roles_from_value(v: &serde_json::Value) -> Vec<RankRole> {
+    match v {
+        serde_json::Value::Object(map) => rank_roles_from_map(map),
+        serde_json::Value::Array(arr) => arr
+            .iter()
+            .filter_map(|e| serde_json::from_value(e.clone()).ok())
+            .collect(),
+        _ => Vec::new(),
+    }
+}
+
 async fn load_rank_roles(pool: &crate::db::Pool, guild_id: &str) -> Vec<RankRole> {
-    crate::db::kv_get(pool, guild_id, "GUILD.RANKS.roles")
-        .await
-        .and_then(|s| serde_json::from_str(&s).ok())
-        .unwrap_or_default()
+    roles::load_rank_roles_routed(pool, guild_id).await
 }
 
 pub mod channel;
 pub mod config;
-pub mod grant;
 pub mod greset;
 pub mod ignore_channels;
 pub mod leaderboard;
@@ -108,7 +233,6 @@ pub mod ureset;
 pub mod main {
     pub use super::channel::*;
     pub use super::config::*;
-    pub use super::grant::*;
     pub use super::greset::*;
     pub use super::ignore_channels::*;
     pub use super::leaderboard::*;
@@ -125,19 +249,27 @@ mod tests {
     use super::*;
 
     #[test]
-    fn xp_curve_starts_at_100() {
-        assert_eq!(xp_needed(0), 100);
-        assert_eq!(xp_needed(1), 100);
-        assert_eq!(xp_needed(5), 500);
+    fn xp_curve_starts_at_500() {
+        assert_eq!(xp_needed(0), 500);
+        assert_eq!(xp_needed(1), 500);
+        assert_eq!(xp_needed(2), 1000);
+        assert_eq!(xp_needed(5), 2500);
+    }
+
+    #[test]
+    fn levelup_reward_scales_with_boost() {
+        assert_eq!(coins_for_levelup(35, 1), 35);
+        assert_eq!(coins_for_levelup(37, 3), 111);
+        assert_eq!(coins_for_levelup(36, 0), 36);
     }
 
     #[test]
     fn apply_xp_levels_up() {
-        let (e, leveled) = apply_xp(RankEntry::default(), 150);
+        let (e, leveled) = apply_xp(RankEntry::default(), 550);
         assert!(leveled);
         assert_eq!(e.level, 1);
         assert_eq!(e.xp, 50);
-        assert_eq!(e.xptotal, 150);
+        assert_eq!(e.xptotal, 550);
     }
 
     #[test]
@@ -145,6 +277,47 @@ mod tests {
         let (e, leveled) = apply_xp(RankEntry::default(), 50);
         assert!(!leveled);
         assert_eq!(e.level, 0);
+    }
+
+    #[test]
+    fn rank_roles_map_roundtrip() {
+        let roles = vec![
+            RankRole {
+                role_id: "7".to_string(),
+                level: 5,
+            },
+            RankRole {
+                role_id: "9".to_string(),
+                level: 2,
+            },
+        ];
+        let map = rank_roles_to_map(&roles);
+        assert_eq!(map.get("5").and_then(|v| v.as_str()), Some("7"));
+        assert_eq!(
+            rank_roles_from_map(&map),
+            vec![
+                RankRole {
+                    role_id: "9".to_string(),
+                    level: 2
+                },
+                RankRole {
+                    role_id: "7".to_string(),
+                    level: 5
+                },
+            ]
+        );
+    }
+
+    #[test]
+    fn rank_roles_from_legacy_vec() {
+        let v = serde_json::json!([{"role_id": "7", "level": 5}]);
+        assert_eq!(
+            rank_roles_from_value(&v),
+            vec![RankRole {
+                role_id: "7".to_string(),
+                level: 5
+            }]
+        );
     }
 
     async fn mem_pool() -> crate::db::Pool {
@@ -168,10 +341,9 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn owner_load_rank_delegates_to_routed() {
-        use crate::commands::owner::main::table_backend;
+    async fn owner_load_rank_prefers_new_key() {
         let pool = mem_pool().await;
-        // Legacy-only row surfaces through the owner.
+        // Legacy-only row surfaces through the owner and promotes.
         crate::db::kv_set(
             &pool,
             "g",
@@ -181,16 +353,57 @@ mod tests {
         .await
         .unwrap();
         assert_eq!(load_rank(&pool, "g", 1).await.level, 2);
-        // Table-only row wins (no legacy row present).
-        table_backend(&pool)
-            .table("g")
-            .set(
-                "RANKS.2",
-                serde_json::json!({"level": 5, "xp": 1, "xptotal": 501}),
-            )
+        assert!(crate::db::kv_get(&pool, "g", "USER.1.XP_LEVELING")
             .await
-            .unwrap();
+            .is_some());
+        // New-key row wins over the legacy row on conflict.
+        migrated_set(
+            &pool,
+            "g",
+            &user_key_new(2),
+            &[&user_key_old(2)],
+            r#"{"level":5,"xp":1,"xptotal":501}"#,
+        )
+        .await
+        .unwrap();
+        crate::db::kv_set(
+            &pool,
+            "g",
+            "RANKS.2",
+            r#"{"level":9,"xp":0,"xptotal":9000}"#,
+        )
+        .await
+        .unwrap();
         assert_eq!(load_rank(&pool, "g", 2).await.level, 5);
         assert_eq!(load_rank(&pool, "g", 9).await.level, 0);
+    }
+
+    #[tokio::test]
+    async fn migrated_set_dual_writes_old_and_new() {
+        let pool = mem_pool().await;
+        migrated_set(&pool, "g", GUILD_MESSAGE_NEW, &[GUILD_MESSAGE_OLD], "gg")
+            .await
+            .unwrap();
+        assert_eq!(
+            crate::db::kv_get(&pool, "g", GUILD_MESSAGE_NEW)
+                .await
+                .as_deref(),
+            Some("gg")
+        );
+        assert_eq!(
+            crate::db::kv_get(&pool, "g", GUILD_MESSAGE_OLD)
+                .await
+                .as_deref(),
+            Some("gg")
+        );
+        assert!(
+            migrated_del(&pool, "g", GUILD_MESSAGE_NEW, &[GUILD_MESSAGE_OLD])
+                .await
+                .unwrap()
+        );
+        assert_eq!(
+            migrated_get(&pool, "g", GUILD_MESSAGE_NEW, &[GUILD_MESSAGE_OLD]).await,
+            None
+        );
     }
 }

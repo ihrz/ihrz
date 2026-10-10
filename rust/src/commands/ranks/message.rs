@@ -22,11 +22,11 @@ pub async fn ranks_msg(
         .filter(|t| !t.is_empty())
     {
         Some(t) => {
-            crate::commands::owner::main::routed_set(
+            super::migrated_set(
                 &ctx.data().pool,
                 &gid,
-                &gid,
-                "GUILD.RANKS.message",
+                super::GUILD_MESSAGE_NEW,
+                &[super::GUILD_MESSAGE_OLD],
                 &t,
             )
             .await?;
@@ -37,11 +37,11 @@ pub async fn ranks_msg(
             .await?;
         }
         None => {
-            crate::commands::owner::main::routed_del(
+            super::migrated_del(
                 &ctx.data().pool,
                 &gid,
-                &gid,
-                "GUILD.RANKS.message",
+                super::GUILD_MESSAGE_NEW,
+                &[super::GUILD_MESSAGE_OLD],
             )
             .await?;
             ctx.say(
@@ -78,37 +78,70 @@ mod tests {
 
     #[tokio::test]
     async fn message_key_roundtrips_through_both_stores() {
-        use crate::commands::owner::main::{routed_del, routed_get, routed_set};
+        use super::{GUILD_MESSAGE_NEW, GUILD_MESSAGE_OLD};
+        use crate::commands::ranks::{migrated_del, migrated_get, migrated_set};
         let pool = mem_pool().await;
         assert_eq!(
-            routed_get(&pool, "g", "g", "GUILD.RANKS.message").await,
+            migrated_get(&pool, "g", GUILD_MESSAGE_NEW, &[GUILD_MESSAGE_OLD]).await,
             None
         );
-        routed_set(&pool, "g", "g", "GUILD.RANKS.message", "gg {user}")
-            .await
-            .unwrap();
+        migrated_set(
+            &pool,
+            "g",
+            GUILD_MESSAGE_NEW,
+            &[GUILD_MESSAGE_OLD],
+            "gg {user}",
+        )
+        .await
+        .unwrap();
         assert_eq!(
-            routed_get(&pool, "g", "g", "GUILD.RANKS.message")
+            migrated_get(&pool, "g", GUILD_MESSAGE_NEW, &[GUILD_MESSAGE_OLD])
                 .await
                 .as_deref(),
             Some("gg {user}")
         );
         // Locked legacy readers still see the write.
         assert_eq!(
-            crate::db::kv_get(&pool, "g", "GUILD.RANKS.message")
+            crate::db::kv_get(&pool, "g", GUILD_MESSAGE_OLD)
                 .await
                 .as_deref(),
             Some("gg {user}")
         );
-        assert!(routed_del(&pool, "g", "g", "GUILD.RANKS.message")
-            .await
-            .unwrap());
+        assert!(
+            migrated_del(&pool, "g", GUILD_MESSAGE_NEW, &[GUILD_MESSAGE_OLD])
+                .await
+                .unwrap()
+        );
         assert_eq!(
-            routed_get(&pool, "g", "g", "GUILD.RANKS.message").await,
+            migrated_get(&pool, "g", GUILD_MESSAGE_NEW, &[GUILD_MESSAGE_OLD]).await,
             None
         );
-        assert!(!routed_del(&pool, "g", "g", "GUILD.RANKS.message")
+        assert!(
+            !migrated_del(&pool, "g", GUILD_MESSAGE_NEW, &[GUILD_MESSAGE_OLD])
+                .await
+                .unwrap()
+        );
+    }
+
+    #[tokio::test]
+    async fn legacy_message_key_reads_and_promotes() {
+        use super::{GUILD_MESSAGE_NEW, GUILD_MESSAGE_OLD};
+        use crate::commands::ranks::migrated_get;
+        let pool = mem_pool().await;
+        crate::db::kv_set(&pool, "g", GUILD_MESSAGE_OLD, "hi {user}")
             .await
-            .unwrap());
+            .unwrap();
+        assert_eq!(
+            migrated_get(&pool, "g", GUILD_MESSAGE_NEW, &[GUILD_MESSAGE_OLD])
+                .await
+                .as_deref(),
+            Some("hi {user}")
+        );
+        assert_eq!(
+            crate::db::kv_get(&pool, "g", GUILD_MESSAGE_NEW)
+                .await
+                .as_deref(),
+            Some("hi {user}")
+        );
     }
 }

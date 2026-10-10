@@ -57,9 +57,9 @@ pub fn protection_decision(
     }
 }
 
-/// XP curve helper. Mirrors rank level-up checks (level * 100 XP).
+/// XP curve helper. Mirrors rank level-up checks (level * 500 XP).
 pub fn xp_for_next_level(level: u64) -> u64 {
-    level.saturating_mul(100)
+    level.saturating_mul(500)
 }
 
 /// XP ignore check. Mirrors !ignore-channels.ts runtime gate.
@@ -654,9 +654,14 @@ pub async fn join_dm_template(pool: &crate::db::Pool, gid: &str) -> Option<Strin
     Some(tpl)
 }
 
-/// Record one message: +1 STATS message, +10 RANKS XP (level-ups applied).
-/// Mirrors Events/stats/onNewMessage.ts + ranks/onNewMessage.ts.
-/// Returns (new_level, leveled_up).
+/// Record one message: +1 STATS message, +35..=37 RANKS XP
+/// (level-ups applied, coins credited on level-up).
+/// Mirrors Events/stats/onNewMessage.ts + ranks/onNewMessage.ts
+/// (`Math.floor(Math.random() * 3) + 35`, threshold `level * 500`,
+/// `addCoins(member, randomNumber * memberBoost)`).
+/// Member boost is unavailable at this layer, so the credit uses the
+/// base gain (boost 1); the Discord handler applies the real shop
+/// boost when it has member roles.
 pub fn channel_stats_key(channel_id: u64) -> String {
     format!("STATS.CHANNEL.{channel_id}")
 }
@@ -825,9 +830,24 @@ pub async fn record_message_activity(
     .await;
 
     let entry = crate::commands::ranks::main::load_rank(pool, guild_id, user_id).await;
-    let (next, leveled) = crate::commands::ranks::main::apply_xp(entry, 10);
+    // TS: Math.floor(Math.random() * 3) + 35.
+    let xp_gain: u64 = rand::Rng::gen_range(&mut rand::thread_rng(), 35..=37);
+    let (next, leveled) = crate::commands::ranks::main::apply_xp(entry, xp_gain);
     let level = next.level;
     let _ = crate::commands::ranks::main::save_rank(pool, guild_id, user_id, &next).await;
+    if leveled {
+        // TS: addCoins(member, randomNumber * memberBoost). Boost needs
+        // member roles (handler layer); credit the base gain here.
+        let reward = crate::commands::ranks::main::coins_for_levelup(xp_gain, 1);
+        if reward > 0 {
+            let mut econ =
+                crate::commands::economy::balance::load_econ_routed(pool, guild_id, user_id).await;
+            econ.money = econ.money.saturating_add(reward);
+            let _ =
+                crate::commands::economy::balance::save_econ_routed(pool, guild_id, user_id, &econ)
+                    .await;
+        }
+    }
     (level, leveled)
 }
 
@@ -873,10 +893,10 @@ mod tests {
     }
 
     #[test]
-    fn xp_curve_is_linear_100_per_level() {
+    fn xp_curve_is_linear_500_per_level() {
         assert_eq!(xp_for_next_level(0), 0);
-        assert_eq!(xp_for_next_level(1), 100);
-        assert_eq!(xp_for_next_level(5), 500);
+        assert_eq!(xp_for_next_level(1), 500);
+        assert_eq!(xp_for_next_level(5), 2500);
     }
 
     #[test]
@@ -959,7 +979,7 @@ mod tests {
         voice_join(&pool, "g", 1, 9, 0).await;
         let (minutes, coins) = voice_leave(&pool, "g", 1, 6_000_000, 2, true).await;
         assert_eq!((minutes, coins), (100, 20));
-        let econ = crate::commands::economy::main::load_econ(&pool, "g", 1).await;
+        let econ = crate::commands::economy::balance::load_econ_routed(&pool, "g", 1).await;
         assert_eq!(econ.money, 20);
         let stats = crate::commands::stats::main::load_stats(&pool, "g", 1).await;
         assert_eq!(stats.voice_ms, 6_000_000);
@@ -989,7 +1009,7 @@ mod tests {
         voice_join(&pool, "g", 1, 9, 0).await;
         let (minutes, coins) = voice_leave(&pool, "g", 1, 6_100_000, 2, false).await;
         assert_eq!((minutes, coins), (101, 0));
-        let econ = crate::commands::economy::main::load_econ(&pool, "g", 1).await;
+        let econ = crate::commands::economy::balance::load_econ_routed(&pool, "g", 1).await;
         assert_eq!(econ.money, 0);
         // Exact ms accumulate (no whole-minute truncation).
         let stats = crate::commands::stats::main::load_stats(&pool, "g", 1).await;
@@ -1023,7 +1043,7 @@ mod tests {
         );
         assert!(tbl_get(&pool, "g", &voice_session_key(1)).await.is_some());
         assert!(tbl_get(&pool, "g", &voice_session_key(2)).await.is_none());
-        let econ = crate::commands::economy::main::load_econ(&pool, "g", 2).await;
+        let econ = crate::commands::economy::balance::load_econ_routed(&pool, "g", 2).await;
         assert_eq!(econ.money, 0);
         let stats = crate::commands::stats::main::load_stats(&pool, "g", 2).await;
         assert_eq!(stats.voice_ms, 6_000_000);
@@ -1199,22 +1219,37 @@ mod tests {
             .execute(&pool).await.unwrap();
         let (level, leveled) = record_message_activity(&pool, "g", 1, 7, 5, 1_000).await;
         assert_eq!((level, leveled), (0, false));
+        // Each message grants 35..=37 XP (TS: floor(random*3)+35).
+        let rank = crate::commands::ranks::main::load_rank(&pool, "g", 1).await;
+        assert!((35..=37).contains(&rank.xp), "xp={}", rank.xp);
+        assert_eq!(rank.xptotal, rank.xp);
         let s = crate::commands::stats::main::load_stats(&pool, "g", 1).await;
         assert_eq!(s.messages, 1);
         assert_eq!(s.msg_log.len(), 1);
         assert_eq!(s.msg_log[0].channel_id, 7);
         assert_eq!(s.msg_log[0].content_len, 5);
+        // ~14 messages x ~36 XP cross the 500 XP threshold to level 1;
+        // loop until the level-up fires (bounded, deterministic outcome).
         let mut last = (0, false);
-        for _ in 0..9 {
+        for _ in 0..40 {
             last = record_message_activity(&pool, "g", 1, 7, 5, 1_000).await;
+            if last.1 {
+                break;
+            }
         }
+        assert_eq!(last, (1, true));
         let chan: u64 = tbl_get(&pool, "g", &channel_stats_key(7))
             .await
             .and_then(|v| v.parse().ok())
             .unwrap_or(0);
-        assert_eq!(chan, 10);
-        // 10 messages x 10 XP = 100 XP = level 1 (curve: level*100).
-        assert_eq!(last, (1, true));
+        assert!(chan >= 2, "chan={chan}");
+        // Level-up credits 35..=37 coins (base gain, boost 1).
+        let econ = crate::commands::economy::balance::load_econ_routed(&pool, "g", 1).await;
+        assert!(
+            (35..=37).contains(&(econ.money as u64)),
+            "money={}",
+            econ.money
+        );
     }
 
     #[tokio::test]

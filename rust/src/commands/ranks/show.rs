@@ -1,29 +1,34 @@
 use super::*;
 use poise::serenity_prelude as serenity;
 
-/// Table-first rank load with legacy kv fallback (keys unchanged).
-/// A legacy hit promotes into the table so rows migrate lazily; pair
+/// Table-first rank load with legacy key fallback
+/// (`USER.<uid>.XP_LEVELING`, legacy `RANKS.<uid>`).
+/// A legacy hit promotes into the new key so rows migrate lazily; pair
 /// with `save_rank_routed` (dual-write) so legacy rows stay fresh for
 /// direct kv readers.
 pub async fn load_rank_routed(pool: &crate::db::Pool, guild_id: &str, user_id: u64) -> RankEntry {
-    crate::commands::owner::main::routed_get(pool, guild_id, guild_id, &ranks_key(user_id))
+    let new_key = super::user_key_new(user_id);
+    let old_key = super::user_key_old(user_id);
+    super::migrated_get(pool, guild_id, &new_key, &[&old_key])
         .await
         .and_then(|s| serde_json::from_str(&s).ok())
         .unwrap_or_default()
 }
 
-/// Table-first rank store with legacy kv dual-write (keys unchanged).
+/// Rank store on the new key with legacy kv dual-write (keys migrated).
 pub async fn save_rank_routed(
     pool: &crate::db::Pool,
     guild_id: &str,
     user_id: u64,
     entry: &RankEntry,
 ) -> anyhow::Result<()> {
-    crate::commands::owner::main::routed_set(
+    let new_key = super::user_key_new(user_id);
+    let old_key = super::user_key_old(user_id);
+    super::migrated_set(
         pool,
         guild_id,
-        guild_id,
-        &ranks_key(user_id),
+        &new_key,
+        &[&old_key],
         &serde_json::to_string(entry)?,
     )
     .await
@@ -112,8 +117,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn legacy_row_reads_and_promotes_to_table() {
-        use crate::commands::owner::main::tbl_get_value;
+    async fn legacy_key_reads_and_promotes_to_new_key() {
         let pool = mem_pool().await;
         crate::db::kv_set(
             &pool,
@@ -125,16 +129,20 @@ mod tests {
         .unwrap();
         let e = load_rank_routed(&pool, "g", 1).await;
         assert_eq!((e.level, e.xp, e.xptotal), (2, 10, 210));
-        // Legacy hit promotes into the table handle.
-        let promoted = tbl_get_value(&pool, "g", "RANKS.1").await.unwrap();
-        assert_eq!(promoted.get("level").and_then(|v| v.as_u64()), Some(2));
+        // Legacy hit promotes into the new TS-parity key.
+        let promoted = crate::db::kv_get(&pool, "g", "USER.1.XP_LEVELING")
+            .await
+            .unwrap();
+        assert_eq!(
+            serde_json::from_str::<RankEntry>(&promoted).unwrap().level,
+            2
+        );
         // Unknown users still default.
         assert_eq!(load_rank_routed(&pool, "g", 9).await.level, 0);
     }
 
     #[tokio::test]
-    async fn table_wins_over_legacy_on_conflict() {
-        use crate::commands::owner::main::table_backend;
+    async fn new_key_wins_over_legacy_on_conflict() {
         let pool = mem_pool().await;
         crate::db::kv_set(
             &pool,
@@ -144,21 +152,20 @@ mod tests {
         )
         .await
         .unwrap();
-        table_backend(&pool)
-            .table("g")
-            .set(
-                "RANKS.1",
-                serde_json::json!({"level": 1, "xp": 5, "xptotal": 105}),
-            )
-            .await
-            .unwrap();
+        crate::db::kv_set(
+            &pool,
+            "g",
+            "USER.1.XP_LEVELING",
+            r#"{"level":1,"xp":5,"xptotal":105}"#,
+        )
+        .await
+        .unwrap();
         let e = load_rank_routed(&pool, "g", 1).await;
         assert_eq!((e.level, e.xp, e.xptotal), (1, 5, 105));
     }
 
     #[tokio::test]
-    async fn save_dual_writes_table_and_legacy() {
-        use crate::commands::owner::main::tbl_get_value;
+    async fn save_dual_writes_new_and_legacy_keys() {
         let pool = mem_pool().await;
         let entry = RankEntry {
             level: 3,
@@ -172,8 +179,10 @@ mod tests {
             serde_json::from_str::<RankEntry>(&legacy).unwrap().xptotal,
             307
         );
-        let stored = tbl_get_value(&pool, "g", "RANKS.4").await.unwrap();
-        assert_eq!(stored.get("level").and_then(|v| v.as_u64()), Some(3));
+        let stored = crate::db::kv_get(&pool, "g", "USER.4.XP_LEVELING")
+            .await
+            .unwrap();
+        assert_eq!(serde_json::from_str::<RankEntry>(&stored).unwrap().level, 3);
         // Round-trip through the routed loader.
         assert_eq!(load_rank_routed(&pool, "g", 4).await.xptotal, 307);
     }

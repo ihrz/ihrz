@@ -145,7 +145,7 @@ pub async fn tts_join(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     // Guard 5: H24/7 park mismatch.
     let h247 = load_h247_raw(&ctx.data().pool, &gid)
         .await
-        .and_then(|raw| crate::commands::ranks::grant::parse_h247(&raw))
+        .and_then(|raw| crate::commands::h247::grant::parse_h247(&raw))
         .map(|h| (h.enabled, h.voice_channel_id));
 
     match evaluate_join_guards(&JoinState {
