@@ -4283,6 +4283,20 @@ impl serenity::EventHandler for Handler {
                                     )
                                     .await
                                 {
+                                    // Mirrors `x.edit({ invitable: true, locked: false,
+                                    // archived: false })` after startThread in
+                                    // Events/suggestion/onNewMessage.ts.
+                                    let _ = _ctx
+                                        .http
+                                        .edit_thread(
+                                            thread.id,
+                                            &serenity::EditThread::new()
+                                                .invitable(true)
+                                                .locked(false)
+                                                .archived(false),
+                                            None,
+                                        )
+                                        .await;
                                     for vote in ["Yes", "No"] {
                                         let reaction = match crate::emojis::cached_emoji_entry(
                                             &_ctx.http, vote,
