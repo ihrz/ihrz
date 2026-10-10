@@ -185,9 +185,6 @@ fn global_check(
 ) -> poise::BoxFuture<'_, Result<bool, anyhow::Error>> {
     Box::pin(async move {
         let pool = &ctx.data().pool;
-        if crate::db::is_blacklisted(pool, ctx.author().id.get()).await {
-            return Ok(false);
-        }
         let name = ctx.command().name.clone();
         // Slash-command usage log (mirrors slashCommandLogger.ts).
         if let Some(gid) = ctx.guild_id() {
@@ -274,6 +271,14 @@ fn global_check(
                 .await;
             return Ok(false);
         }
+        // Blacklist gate after the 1s debounce, mirroring the TS handler
+        // order (preExecutionCooldown runs before the blacklistTable read
+        // on both the slash and prefix paths). Denied runs stay silent:
+        // the slash deny embed is queued (needs blacklistPictureInEmbed
+        // Discord I/O inside the check).
+        if crate::db::is_blacklisted(pool, ctx.author().id.get()).await {
+            return Ok(false);
+        }
         // Per-command rate limits. Mirrors checkCommandRateLimit:
         // UTILS.COMMAND_LIMITS.<path> then <category> fallback, guild
         // owners bypass, denied runs get commandlimit_rate_limited.
@@ -350,7 +355,13 @@ fn admin_flag(admin: bool) -> &'static str {
     }
 }
 
-/// Full slash invocation. Mirrors TS `/${commandPath}\n\n`.
+/// Crash-report admin field names. Mirror the exact TS literals in
+/// handleExecutionError. The emoji prefixes are user-visible strings,
+/// not code decoration.
+const CRASH_BOT_ADMIN_FIELD: &str = "🛡️ Bot Admin";
+const CRASH_USER_ADMIN_FIELD: &str = "📝 User Admin";
+
+/// Full slash invocation. Mirrors TS commandPath field.
 fn slash_invocation(path: &str) -> String {
     format!("/{path}\n\n")
 }
@@ -412,12 +423,12 @@ async fn crash_block(ctx: Ctx<'_>, error_text: String) {
         .description(error_block)
         .timestamp(serenity::Timestamp::now())
         .field(
-            "Bot Admin",
+            CRASH_BOT_ADMIN_FIELD,
             admin_flag(is_guild_admin(ctx, bot_id).await),
             false,
         )
         .field(
-            "User Admin",
+            CRASH_USER_ADMIN_FIELD,
             admin_flag(is_guild_admin(ctx, ctx.author().id).await),
             false,
         )
@@ -1224,6 +1235,7 @@ pub fn valid_shard_override(total_shards_override: Option<u32>) -> Option<u32> {
 /// only — the 3-collection count mapping is noted at the BOT metas push).
 /// Per-command overrides (e.g. fun.ts `integration_types: [0, 1]`) have no
 /// Rust equivalent yet and register as guild-install.
+#[allow(clippy::result_large_err)] // serenity::Error is large by construction; boxing buys nothing here.
 async fn register_globally_guild_default<U, E>(
     http: impl AsRef<serenity::Http>,
     commands: &[poise::Command<U, E>],
@@ -1636,6 +1648,13 @@ mod tests {
     fn crash_admin_flag_maps_bool_to_yes_no() {
         assert_eq!(admin_flag(true), "yes");
         assert_eq!(admin_flag(false), "no");
+    }
+
+    #[test]
+    fn crash_admin_field_names_match_ts_handle_execution_error() {
+        // commandExecutor.ts handleExecutionError field literals.
+        assert_eq!(CRASH_BOT_ADMIN_FIELD, "🛡️ Bot Admin");
+        assert_eq!(CRASH_USER_ADMIN_FIELD, "📝 User Admin");
     }
 
     #[test]
