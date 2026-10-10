@@ -21,7 +21,7 @@ pub async fn gc_perm_set(
         .await
         .unwrap_or_default();
     perms.level = Some(level.clamp(0, 9) as u8);
-    crate::db::kv_set(
+    crate::db::tbl_set(
         &ctx.data().pool,
         &gid,
         &perm_key(command.trim()),
@@ -78,7 +78,7 @@ pub async fn gc_perm_user(
     let level = level.clamp(0, 9);
     // `perm === "0"` deletes the row (TS `db.delete`).
     if level == 0 {
-        let _ = crate::db::kv_del(pool, &gid, &user_perm_key(user.id.get())).await;
+        let _ = crate::db::tbl_del(pool, &gid, &user_perm_key(user.id.get())).await;
         ctx.say(
             crate::lang::get(&code, "perm_set_deleted")
                 .map(|s| s.replace("${user.toString()}", &user.to_string()))
@@ -88,7 +88,7 @@ pub async fn gc_perm_user(
         return Ok(());
     }
     // Escalation guard (non-owners cannot grant at/above their own level).
-    let caller_level: i64 = crate::db::kv_get(pool, &gid, &user_perm_key(ctx.author().id.get()))
+    let caller_level: i64 = crate::db::tbl_get(pool, &gid, &user_perm_key(ctx.author().id.get()))
         .await
         .and_then(|s| s.trim().parse().ok())
         .unwrap_or(0);
@@ -115,7 +115,7 @@ pub async fn gc_perm_user(
         .await?;
         return Ok(());
     }
-    crate::db::kv_set(
+    crate::db::tbl_set(
         pool,
         &gid,
         &user_perm_key(user.id.get()),
@@ -188,7 +188,7 @@ pub async fn gc_perm_reset(
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
-    crate::db::kv_del(&ctx.data().pool, &gid, &perm_key(command.trim())).await?;
+    crate::db::tbl_del(&ctx.data().pool, &gid, &perm_key(command.trim())).await?;
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     ctx.say(
         crate::lang::get(&code, "perm_set_command_reset")
@@ -267,7 +267,7 @@ pub async fn gc_perm_change(
         _ => t("var_subcommand_group"),
     };
     if !has_perm_requirements(&perms) {
-        crate::db::kv_del(pool, &gid, &perm_key(&command)).await?;
+        crate::db::tbl_del(pool, &gid, &perm_key(&command)).await?;
         ctx.say(format!(
             "{kind}: {command}\n {}",
             t("perm_set_command_reset")
@@ -279,7 +279,7 @@ pub async fn gc_perm_change(
         } else {
             changes.join("\n")
         };
-        crate::db::kv_set(
+        crate::db::tbl_set(
             pool,
             &gid,
             &perm_key(&command),
@@ -321,7 +321,7 @@ pub async fn gc_perm_delete(
         ctx.say(t("perm_command_delete_dont_exist")).await?;
         return Ok(());
     }
-    crate::db::kv_del(pool, &gid, &perm_key(&cmd)).await?;
+    crate::db::tbl_del(pool, &gid, &perm_key(&cmd)).await?;
     ctx.say(t("perm_command_delete_command_deleted").replace("${commands}", &cmd))
         .await?;
     Ok(())
@@ -422,7 +422,7 @@ pub async fn gc_perm_delete_all(
         let level = p.clamp(0, 9) as u8;
         for (cmd, perms) in &entries {
             if perms.level.unwrap_or(0) == level && level > 0 {
-                crate::db::kv_del(pool, &gid, &perm_key(cmd)).await?;
+                crate::db::tbl_del(pool, &gid, &perm_key(cmd)).await?;
                 changes.push(format!("- {cmd} ({}: {level})\n", t("var_level")));
             }
         }
@@ -433,9 +433,9 @@ pub async fn gc_perm_delete_all(
                 let mut next = perms.clone();
                 next.roles.retain(|r| r != &id);
                 if !has_perm_requirements(&next) {
-                    crate::db::kv_del(pool, &gid, &perm_key(cmd)).await?;
+                    crate::db::tbl_del(pool, &gid, &perm_key(cmd)).await?;
                 } else {
-                    crate::db::kv_set(
+                    crate::db::tbl_set(
                         pool,
                         &gid,
                         &perm_key(cmd),
@@ -453,9 +453,9 @@ pub async fn gc_perm_delete_all(
                 let mut next = perms.clone();
                 next.users.retain(|u| u != &id);
                 if !has_perm_requirements(&next) {
-                    crate::db::kv_del(pool, &gid, &perm_key(cmd)).await?;
+                    crate::db::tbl_del(pool, &gid, &perm_key(cmd)).await?;
                 } else {
-                    crate::db::kv_set(
+                    crate::db::tbl_set(
                         pool,
                         &gid,
                         &perm_key(cmd),
@@ -533,7 +533,7 @@ pub async fn gc_perm_roles_create(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
             map.insert(key, role.id.get().to_string());
             created.push(name);
         }
-        crate::db::kv_set(pool, &gid, "UTILS.roles", &serde_json::to_string(&map)?).await?;
+        crate::db::tbl_set(pool, &gid, "UTILS.roles", &serde_json::to_string(&map)?).await?;
         Ok(if created.is_empty() {
             crate::lang::get(&code, "perm_roles_already_upate").unwrap_or_default()
         } else {
@@ -596,7 +596,7 @@ pub async fn gc_perm_roles_edit(
     }
     let mut map = load_perm_roles(pool, &gid).await;
     map.insert(level.to_string(), role.id.get().to_string());
-    crate::db::kv_set(
+    crate::db::tbl_set(
         pool,
         &gid,
         "UTILS.roles",
@@ -611,4 +611,78 @@ pub async fn gc_perm_roles_edit(
     )
     .await?;
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    async fn memory_pool() -> crate::db::Pool {
+        crate::db::memory_pool().await
+    }
+
+    #[tokio::test]
+    async fn cmd_perm_row_dual_writes_table_and_legacy() {
+        let pool = memory_pool().await;
+        let key = perm_key("ban");
+        let body = serde_json::json!({"users": [], "roles": [], "level": 3}).to_string();
+        crate::db::tbl_set(&pool, "g1", &key, &body).await.unwrap();
+        // Table-first read serves the row.
+        assert_eq!(
+            crate::db::tbl_get(&pool, "g1", &key).await.as_deref(),
+            Some(body.as_str())
+        );
+        // Legacy flat row stays fresh for unmigrated kv readers.
+        assert_eq!(
+            crate::db::kv_get(&pool, "g1", &key).await.as_deref(),
+            Some(body.as_str())
+        );
+        // Shared loader decodes the routed row.
+        let loaded = load_cmd_perms(&pool, "g1", "ban").await.unwrap();
+        assert_eq!(loaded.level, Some(3));
+        // Delete clears both stores.
+        crate::db::tbl_del(&pool, "g1", &key).await.unwrap();
+        assert!(crate::db::tbl_get(&pool, "g1", &key).await.is_none());
+        assert!(crate::db::kv_get(&pool, "g1", &key).await.is_none());
+        assert!(load_cmd_perms(&pool, "g1", "ban").await.is_none());
+    }
+
+    #[tokio::test]
+    async fn user_perm_level_read_falls_back_to_legacy_only_row() {
+        let pool = memory_pool().await;
+        let key = user_perm_key(7);
+        crate::db::kv_set(&pool, "g1", &key, "4").await.unwrap();
+        let level: i64 = crate::db::tbl_get(&pool, "g1", &key)
+            .await
+            .and_then(|s| s.trim().parse().ok())
+            .unwrap_or(0);
+        assert_eq!(level, 4);
+    }
+
+    #[tokio::test]
+    async fn perm_roles_routed_read_covers_table_and_legacy() {
+        let pool = memory_pool().await;
+        let body = serde_json::json!({"1": "11"}).to_string();
+        crate::db::tbl_set(&pool, "g1", "UTILS.roles", &body)
+            .await
+            .unwrap();
+        assert_eq!(
+            load_perm_roles(&pool, "g1")
+                .await
+                .get("1")
+                .map(String::as_str),
+            Some("11")
+        );
+        // Legacy-only row (pre-migration write) still loads.
+        crate::db::kv_set(&pool, "g2", "UTILS.roles", &body)
+            .await
+            .unwrap();
+        assert_eq!(
+            load_perm_roles(&pool, "g2")
+                .await
+                .get("1")
+                .map(String::as_str),
+            Some("11")
+        );
+    }
 }

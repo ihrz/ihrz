@@ -119,7 +119,7 @@ pub fn mention_count(text: &str) -> usize {
 }
 
 pub async fn load_ghost(pool: &crate::db::Pool, guild_id: &str) -> Vec<String> {
-    crate::db::kv_get(pool, guild_id, ghost_key())
+    crate::db::tbl_get(pool, guild_id, ghost_key())
         .await
         .and_then(|s| serde_json::from_str(&s).ok())
         .unwrap_or_default()
@@ -250,7 +250,7 @@ pub async fn load_perm_roles(
     pool: &crate::db::Pool,
     gid: &str,
 ) -> std::collections::HashMap<String, String> {
-    crate::db::kv_get(pool, gid, "UTILS.roles")
+    crate::db::tbl_get(pool, gid, "UTILS.roles")
         .await
         .and_then(|s| serde_json::from_str(&s).ok())
         .unwrap_or_default()
@@ -296,18 +296,26 @@ pub async fn dump_guild_rows(
 }
 
 /// Replace all kv rows of a guild from a JSON map (encrypted restore).
+/// Dual-write: the legacy flat rows are replaced and each entry is also
+/// routed into the guild table (keys unchanged), so table-first readers
+/// see the restored state; the guild table is wiped first so stale
+/// table-only rows cannot resurface after the legacy wipe.
 pub async fn restore_guild_rows(
     pool: &crate::db::Pool,
     gid: &str,
     map: &serde_json::Map<String, serde_json::Value>,
 ) -> anyhow::Result<()> {
     crate::db::kv_del_guild(pool, gid).await?;
+    let _ = crate::backends::Backend::sqlite(pool.clone())
+        .table(gid)
+        .delete_all()
+        .await;
     for (k, v) in map {
         let s = match v {
             serde_json::Value::String(s) => s.clone(),
             _ => v.to_string(),
         };
-        crate::db::kv_set(pool, gid, k, &s).await?;
+        crate::db::tbl_set(pool, gid, k, &s).await?;
     }
     Ok(())
 }
@@ -562,5 +570,86 @@ mod tests {
             vec!["a".to_string(), "c".to_string()]
         );
         assert!(autoreact_for_channel(&list, "9").is_empty());
+    }
+
+    async fn memory_pool() -> crate::db::Pool {
+        crate::db::memory_pool().await
+    }
+
+    #[tokio::test]
+    async fn ghost_and_perm_roles_reads_fall_back_to_legacy() {
+        let pool = memory_pool().await;
+        // Legacy-only rows (pre-migration writes) stay readable.
+        crate::db::kv_set(&pool, "g1", ghost_key(), r#"["11","22"]"#)
+            .await
+            .unwrap();
+        assert_eq!(load_ghost(&pool, "g1").await, vec!["11", "22"]);
+        crate::db::kv_set(&pool, "g1", "UTILS.roles", r#"{"1":"11"}"#)
+            .await
+            .unwrap();
+        assert_eq!(
+            load_perm_roles(&pool, "g1")
+                .await
+                .get("1")
+                .map(String::as_str),
+            Some("11")
+        );
+        // Table-first writes serve both readers.
+        crate::db::tbl_set(&pool, "g1", ghost_key(), r#"["33"]"#)
+            .await
+            .unwrap();
+        assert_eq!(load_ghost(&pool, "g1").await, vec!["33"]);
+        crate::db::tbl_set(&pool, "g1", "UTILS.roles", r#"{"2":"22"}"#)
+            .await
+            .unwrap();
+        assert_eq!(
+            load_perm_roles(&pool, "g1")
+                .await
+                .get("2")
+                .map(String::as_str),
+            Some("22")
+        );
+    }
+
+    #[tokio::test]
+    async fn restore_replaces_both_stores() {
+        let pool = memory_pool().await;
+        // Seed both stores with stale state, including a table-only row
+        // the legacy wipe alone would leave behind.
+        crate::db::kv_set(&pool, "g1", "GUILD.BLOCK_BOT", "1")
+            .await
+            .unwrap();
+        crate::db::tbl_set(&pool, "g1", "GUILD.AUTOMOD.spam", "1")
+            .await
+            .unwrap();
+        let mut map = serde_json::Map::new();
+        map.insert(
+            "GUILD.BLOCK_BOT".to_string(),
+            serde_json::Value::String("0".to_string()),
+        );
+        restore_guild_rows(&pool, "g1", &map).await.unwrap();
+        // Restored entry is visible table-first and legacy-side.
+        assert_eq!(
+            crate::db::tbl_get(&pool, "g1", "GUILD.BLOCK_BOT")
+                .await
+                .as_deref(),
+            Some("0")
+        );
+        assert_eq!(
+            crate::db::kv_get(&pool, "g1", "GUILD.BLOCK_BOT")
+                .await
+                .as_deref(),
+            Some("0")
+        );
+        // Stale rows are gone from both stores.
+        assert!(crate::db::tbl_get(&pool, "g1", "GUILD.AUTOMOD.spam")
+            .await
+            .is_none());
+        assert!(crate::db::kv_get(&pool, "g1", "GUILD.AUTOMOD.spam")
+            .await
+            .is_none());
+        // Dump round-trips the restored map (flat "0" parses as JSON number).
+        let dumped = dump_guild_rows(&pool, "g1").await;
+        assert_eq!(dumped.get("GUILD.BLOCK_BOT"), Some(&serde_json::json!(0)));
     }
 }

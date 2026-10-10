@@ -98,7 +98,7 @@ pub async fn gc_toonew(
         return Ok(());
     };
     if age.trim().eq_ignore_ascii_case("off") {
-        let _ = crate::db::kv_del(pool, &gid, "GUILD.BLOCK_NEW_ACCOUNT").await;
+        let _ = crate::db::tbl_del(pool, &gid, "GUILD.BLOCK_NEW_ACCOUNT").await;
         // Audit entry, like `client.func.ihorizon_logs` in
         // !too-new-account.ts (off branch).
         let title = crate::lang::get(&code, "too_new_account_logEmbed_title")
@@ -126,7 +126,7 @@ pub async fn gc_toonew(
         return Ok(());
     };
     let max_join = tonew_max_join(maximum_join);
-    crate::db::kv_set(
+    crate::db::tbl_set(
         pool,
         &gid,
         "GUILD.BLOCK_NEW_ACCOUNT",
@@ -217,6 +217,56 @@ mod tests {
         assert_eq!(
             out,
             "<@7> enabled it. At least 7d old in MyGuild; ban after `3` joins.\n-# <:sparkles:1> ban after **`3`** joins."
+        );
+    }
+
+    async fn memory_pool() -> crate::db::Pool {
+        crate::db::memory_pool().await
+    }
+
+    #[tokio::test]
+    async fn block_new_account_dual_writes_table_and_legacy() {
+        let pool = memory_pool().await;
+        let body = serde_json::json!({"state": true, "req": 7, "maxJoin": 3}).to_string();
+        crate::db::tbl_set(&pool, "g1", "GUILD.BLOCK_NEW_ACCOUNT", &body)
+            .await
+            .unwrap();
+        assert_eq!(
+            crate::db::tbl_get(&pool, "g1", "GUILD.BLOCK_NEW_ACCOUNT")
+                .await
+                .as_deref(),
+            Some(body.as_str())
+        );
+        // Legacy flat row stays fresh for unmigrated kv readers.
+        assert_eq!(
+            crate::db::kv_get(&pool, "g1", "GUILD.BLOCK_NEW_ACCOUNT")
+                .await
+                .as_deref(),
+            Some(body.as_str())
+        );
+        crate::db::tbl_del(&pool, "g1", "GUILD.BLOCK_NEW_ACCOUNT")
+            .await
+            .unwrap();
+        assert!(crate::db::tbl_get(&pool, "g1", "GUILD.BLOCK_NEW_ACCOUNT")
+            .await
+            .is_none());
+        assert!(crate::db::kv_get(&pool, "g1", "GUILD.BLOCK_NEW_ACCOUNT")
+            .await
+            .is_none());
+    }
+
+    #[tokio::test]
+    async fn block_new_account_read_falls_back_to_legacy_only_row() {
+        let pool = memory_pool().await;
+        let body = serde_json::json!({"state": true, "req": 7}).to_string();
+        crate::db::kv_set(&pool, "g1", "GUILD.BLOCK_NEW_ACCOUNT", &body)
+            .await
+            .unwrap();
+        assert_eq!(
+            crate::db::tbl_get(&pool, "g1", "GUILD.BLOCK_NEW_ACCOUNT")
+                .await
+                .as_deref(),
+            Some(body.as_str())
         );
     }
 }

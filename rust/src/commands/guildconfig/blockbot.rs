@@ -85,7 +85,7 @@ pub async fn gc_blockbot(
                 format!("{author_mention} (The owner of the server) __enabled__ `BlockBot`. Now bots **can't** be added to this guild!")
             });
         post_blockbot_log(&ctx, &title, &desc).await;
-        crate::db::kv_set(pool, &gid, "GUILD.BLOCK_BOT", "1").await?;
+        crate::db::tbl_set(pool, &gid, "GUILD.BLOCK_BOT", "1").await?;
     } else {
         let title = crate::lang::get(&code, "blockbot_logs_disable_commmand_work")
             .unwrap_or_else(|| "BlockBot Log".to_string());
@@ -97,7 +97,7 @@ pub async fn gc_blockbot(
         post_blockbot_log(&ctx, &title, &desc).await;
         // TS deletes the key on disable; the reader treats a missing
         // key as disabled.
-        let _ = crate::db::kv_del(pool, &gid, "GUILD.BLOCK_BOT").await;
+        let _ = crate::db::tbl_del(pool, &gid, "GUILD.BLOCK_BOT").await;
     }
     ctx.say(if enabled {
         crate::lang::get(&code, "blockbot_command_work_on_enable").unwrap_or_else(|| {
@@ -132,5 +132,44 @@ mod tests {
         assert!(!blockbot_enabled_value(Some("false")));
         assert!(!blockbot_enabled_value(Some("bogus")));
         assert!(!blockbot_enabled_value(Some("")));
+    }
+
+    async fn memory_pool() -> crate::db::Pool {
+        crate::db::memory_pool().await
+    }
+
+    #[tokio::test]
+    async fn block_bot_flag_dual_writes_table_and_legacy() {
+        let pool = memory_pool().await;
+        crate::db::tbl_set(&pool, "g1", "GUILD.BLOCK_BOT", "1")
+            .await
+            .unwrap();
+        let raw = crate::db::tbl_get(&pool, "g1", "GUILD.BLOCK_BOT").await;
+        assert!(blockbot_enabled_value(raw.as_deref()));
+        // Legacy flat row stays fresh for unmigrated kv readers.
+        assert_eq!(
+            crate::db::kv_get(&pool, "g1", "GUILD.BLOCK_BOT")
+                .await
+                .as_deref(),
+            Some("1")
+        );
+        crate::db::tbl_del(&pool, "g1", "GUILD.BLOCK_BOT")
+            .await
+            .unwrap();
+        let raw = crate::db::tbl_get(&pool, "g1", "GUILD.BLOCK_BOT").await;
+        assert!(!blockbot_enabled_value(raw.as_deref()));
+        assert!(crate::db::kv_get(&pool, "g1", "GUILD.BLOCK_BOT")
+            .await
+            .is_none());
+    }
+
+    #[tokio::test]
+    async fn block_bot_read_falls_back_to_legacy_only_row() {
+        let pool = memory_pool().await;
+        crate::db::kv_set(&pool, "g1", "GUILD.BLOCK_BOT", "1")
+            .await
+            .unwrap();
+        let raw = crate::db::tbl_get(&pool, "g1", "GUILD.BLOCK_BOT").await;
+        assert!(blockbot_enabled_value(raw.as_deref()));
     }
 }

@@ -389,20 +389,20 @@ macro_rules! keyword_command {
                 )
                 .await;
             }
-            crate::db::kv_set(pool, &gid, &automod_key($kind), if enabled { "1" } else { "0" }).await?;
+            crate::db::tbl_set(pool, &gid, &automod_key($kind), if enabled { "1" } else { "0" }).await?;
             if enabled {
                 if let Some(v) = automod_media_on_value($kind) {
-                    crate::db::kv_set(pool, &gid, "GUILD.GUILD_CONFIG.media", v).await?;
+                    crate::db::tbl_set(pool, &gid, "GUILD.GUILD_CONFIG.media", v).await?;
                 }
                 if automod_manages_antipub($kind) {
-                    crate::db::kv_set(pool, &gid, "GUILD.GUILD_CONFIG.antipub", "on").await?;
+                    crate::db::tbl_set(pool, &gid, "GUILD.GUILD_CONFIG.antipub", "on").await?;
                 }
             } else {
                 if automod_media_on_value($kind).is_some() {
-                    let _ = crate::db::kv_del(pool, &gid, "GUILD.GUILD_CONFIG.media").await;
+                    let _ = crate::db::tbl_del(pool, &gid, "GUILD.GUILD_CONFIG.media").await;
                 }
                 if automod_manages_antipub($kind) {
-                    crate::db::kv_set(pool, &gid, "GUILD.GUILD_CONFIG.antipub", "off").await?;
+                    crate::db::tbl_set(pool, &gid, "GUILD.GUILD_CONFIG.antipub", "off").await?;
                 }
             }
             let state = if enabled { "on" } else { "off" };
@@ -476,14 +476,14 @@ pub async fn gc_automod_spam(
         )
         .await;
     }
-    crate::db::kv_set(
+    crate::db::tbl_set(
         pool,
         &gid,
         "GUILD.GUILD_CONFIG.spam",
         if enabled { "on" } else { "off" },
     )
     .await?;
-    crate::db::kv_set(
+    crate::db::tbl_set(
         pool,
         &gid,
         &automod_key("spam"),
@@ -557,14 +557,14 @@ pub async fn gc_automod_mass(
         ctx.say(format!("Error 404. {detail}")).await?;
         return Ok(());
     }
-    crate::db::kv_set(
+    crate::db::tbl_set(
         pool,
         &gid,
         "GUILD.GUILD_CONFIG.mass_mention",
         if enabled { "on" } else { "off" },
     )
     .await?;
-    crate::db::kv_set(
+    crate::db::tbl_set(
         pool,
         &gid,
         &automod_key("mass-mention"),
@@ -744,5 +744,55 @@ mod tests {
         assert!(automod_manages_antipub("link"));
         assert!(!automod_manages_antipub("discord-invite"));
         assert!(!automod_manages_antipub("telegram"));
+    }
+
+    async fn memory_pool() -> crate::db::Pool {
+        crate::db::memory_pool().await
+    }
+
+    #[tokio::test]
+    async fn automod_flags_dual_write_table_and_legacy() {
+        let pool = memory_pool().await;
+        let key = automod_key("spam");
+        crate::db::tbl_set(&pool, "g1", &key, "1").await.unwrap();
+        assert_eq!(
+            crate::db::tbl_get(&pool, "g1", &key).await.as_deref(),
+            Some("1")
+        );
+        // Legacy flat row stays fresh for unmigrated kv readers.
+        assert_eq!(
+            crate::db::kv_get(&pool, "g1", &key).await.as_deref(),
+            Some("1")
+        );
+        // Guild-config leaf beside the flag dual-writes too.
+        crate::db::tbl_set(&pool, "g1", "GUILD.GUILD_CONFIG.spam", "on")
+            .await
+            .unwrap();
+        assert_eq!(
+            crate::db::tbl_get(&pool, "g1", "GUILD.GUILD_CONFIG.spam")
+                .await
+                .as_deref(),
+            Some("on")
+        );
+        assert_eq!(
+            crate::db::kv_get(&pool, "g1", "GUILD.GUILD_CONFIG.spam")
+                .await
+                .as_deref(),
+            Some("on")
+        );
+        crate::db::tbl_del(&pool, "g1", &key).await.unwrap();
+        assert!(crate::db::tbl_get(&pool, "g1", &key).await.is_none());
+        assert!(crate::db::kv_get(&pool, "g1", &key).await.is_none());
+    }
+
+    #[tokio::test]
+    async fn automod_flag_read_falls_back_to_legacy_only_row() {
+        let pool = memory_pool().await;
+        let key = automod_key("link");
+        crate::db::kv_set(&pool, "g1", &key, "1").await.unwrap();
+        assert_eq!(
+            crate::db::tbl_get(&pool, "g1", &key).await.as_deref(),
+            Some("1")
+        );
     }
 }
