@@ -89,12 +89,16 @@ async fn run_channel_action(
         crate::lang::get(&code, key).unwrap_or_else(|| fallback.to_string())
     };
     let author_id = ctx.author().id.get().to_string();
-    let act = action
-        .as_deref()
-        .map(|a| a.trim().to_lowercase())
-        .unwrap_or_else(|| "on".to_string());
+    // Mirrors `ranks/!channel.ts:60-146`: only an explicit `on`/`off`
+    // acts. The slash `action` option is `required: true`, so a
+    // missing action only happens on prefix — and TS leaves a bare
+    // call (no `type`) silent, with no default-on.
+    let Some(action) = action else {
+        return Ok(());
+    };
+    let act = action.trim().to_lowercase();
     match act.as_str() {
-        // `on` (default when omitted): announce channel set. The slash
+        // `on`: announce channel set. The slash
         // path requires the explicit option (TS `getChannel("channel")`
         // null errors); only the prefix path falls back to the current
         // channel (`|| interaction.channel` in `!channel.ts`).
@@ -221,6 +225,10 @@ async fn run_channel_action(
     Ok(())
 }
 
+/// XP announce channel (set/clear).
+// Mirrors `ranks/!channel.ts` (`channel` with prefixName
+// `ranks-channel`, aliases `rchannel`): setting overwrites, `off`
+// clears. There is no `xp-channels` command in TS.
 #[poise::command(
     slash_command,
     prefix_command,
@@ -229,18 +237,6 @@ async fn run_channel_action(
     default_member_permissions = "ADMINISTRATOR"
 )]
 pub async fn ranks_channel(
-    ctx: Ctx<'_>,
-    #[description = "on or off"] action: Option<String>,
-    #[description = "Channel (required on slash; current channel on prefix)"]
-    #[channel_types("Text")]
-    channel: Option<serenity::GuildChannel>,
-) -> Result<(), anyhow::Error> {
-    run_channel_action(ctx, action, channel).await
-}
-
-/// XP channel (TS single-string shape). Setting overwrites; omit to clear.
-#[poise::command(slash_command, prefix_command, rename = "xp-channels")]
-pub async fn ranks_xp_channels(
     ctx: Ctx<'_>,
     #[description = "on or off"] action: Option<String>,
     #[description = "Channel (required on slash; current channel on prefix)"]

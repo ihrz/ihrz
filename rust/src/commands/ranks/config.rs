@@ -9,7 +9,7 @@ use super::*;
 /// `"disable"` (nothing is gained — see `xp_gain_blocked`).
 /// Unknown input does nothing, like TS.
 pub fn config_value(action: &str) -> Option<serde_json::Value> {
-    match action.trim() {
+    match action {
         "on" => Some(serde_json::Value::Bool(true)),
         "off" => Some(serde_json::Value::Bool(false)),
         "disable" => Some(serde_json::Value::String("disable".to_string())),
@@ -104,6 +104,10 @@ mod tests {
         );
         assert_eq!(config_value("ON"), None);
         assert_eq!(config_value("bogus"), None);
+        // No trim: TS compares with case-sensitive `==`, so padded
+        // input matches nothing.
+        assert_eq!(config_value(" on"), None);
+        assert_eq!(config_value("off "), None);
         // Storage encoding: booleans stay bare (never quoted), the
         // string stays raw — the same JSON value on both runtimes.
         assert_eq!(config_stored_value(&config_value("on").unwrap()), "true");

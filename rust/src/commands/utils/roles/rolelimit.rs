@@ -12,7 +12,9 @@ use super::*;
 pub async fn rolelimit(
     ctx: Ctx<'_>,
     #[description = "Role"] role: poise::serenity_prelude::Role,
-    #[description = "Max members (0 to clear)"] limit: Option<i64>,
+    #[description = "Max members (0 to clear)"]
+    #[rename = "members-limit"]
+    limit: Option<i64>,
 ) -> Result<(), anyhow::Error> {
     let gid = ctx
         .guild_id()

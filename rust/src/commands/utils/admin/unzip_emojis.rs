@@ -11,7 +11,9 @@ use super::*;
 )]
 pub async fn unzip_emojis(
     ctx: Ctx<'_>,
-    #[description = "Zip file"] attachment: poise::serenity_prelude::Attachment,
+    #[description = "Zip file"]
+    #[rename = "zip_file"]
+    attachment: poise::serenity_prelude::Attachment,
 ) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {
         return Ok(());

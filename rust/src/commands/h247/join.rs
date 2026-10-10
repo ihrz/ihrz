@@ -175,10 +175,13 @@ pub async fn h247_join(
         None
     };
     // Live music state (lavalink legs stay caller-side; snapshot is local).
+    // Paused counts as playing: lavalink-client `pause()` sets
+    // `paused = true` while keeping `playing = true`, so the TS
+    // `player?.playing` guard refuses while paused too.
     let snapshot = crate::lavalink::manager().snapshot(guild_id.get()).await;
     let music_playing = snapshot
         .as_ref()
-        .map(|p| p.current.is_some() && !p.paused)
+        .map(|p| p.current.is_some())
         .unwrap_or(false);
     let tts = load_tts_presence(&ctx.data().pool, &gid).await;
 

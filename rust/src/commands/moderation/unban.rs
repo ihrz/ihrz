@@ -18,7 +18,9 @@ fn ban_matches_want(ban_user_id: serenity::UserId, want: &str) -> bool {
 )]
 pub async fn mod_unban(
     ctx: Ctx<'_>,
-    #[description = "User id"] user_id: String,
+    #[description = "User id"]
+    #[rename = "userid"]
+    user_id: String,
     #[description = "Reason"] reason: Option<String>,
 ) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {

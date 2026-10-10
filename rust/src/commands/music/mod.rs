@@ -280,7 +280,9 @@ fn voice_channel_of(ctx: &Ctx<'_>) -> Option<u64> {
 }
 
 /// Sync manager nodes from config on every call (idempotent; sessions
-/// preserved) and hand back the process-wide manager.
+/// preserved) and hand back the process-wide manager. Also registers
+/// the DB pool for the trackStart announce leg (guild lang + LastFM
+/// tip row), which the WS-feed path cannot reach otherwise.
 async fn synced_mgr(ctx: &Ctx<'_>) -> &'static crate::lavalink::LavalinkManager {
     let m = crate::lavalink::manager();
     let cfgs: Vec<crate::lavalink::NodeCfg> = ctx
@@ -292,6 +294,7 @@ async fn synced_mgr(ctx: &Ctx<'_>) -> &'static crate::lavalink::LavalinkManager 
         .collect();
     let user_id = ctx.serenity_context().cache.current_user().id.get();
     m.sync_nodes(&cfgs, user_id).await;
+    m.set_announce_pool(ctx.data().pool.clone()).await;
     m
 }
 

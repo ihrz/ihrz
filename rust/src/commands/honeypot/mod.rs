@@ -49,8 +49,8 @@ async fn save_honeypot(
 
 /// Lure claim handler.
 ///
-/// NOTE (deliberate extension, no TS counterpart): the TS trap is
-/// message-based only (the honeypotManager pipeline). The
+/// NOTE (deliberate extension, no TS counterpart, audit P12 kept): the
+/// TS trap is message-based only (the honeypotManager pipeline). The
 /// `honeypot-claim` button posted by `honeypot_post` gives lurkers a
 /// one-tap claim, and this handler runs the same sanction -> DM ->
 /// sweep -> full-log sequence as `run_trap_pipeline` for it.
@@ -274,6 +274,19 @@ pub fn truncate_field(s: &str) -> String {
 /// (resets) it. Pure, unit-tested.
 pub fn next_trigger_count(prev: Option<u64>) -> u64 {
     prev.map(|n| n.saturating_add(1)).unwrap_or(1)
+}
+
+/// Pre-spawn gate for the trap. Mirrors the
+/// `!config?.enabled || !config.channelId || message.channelId !==
+/// config.channelId` early return in src/Events/honeypot/honeypot.ts:
+/// checked BEFORE schedule_trap spawns anything (audit P8), not after
+/// the 1500ms debounce like the in-pipeline re-check in
+/// run_trap_pipeline.
+pub async fn trap_spawn_allowed(pool: &crate::db::Pool, guild_id: &str, channel_id: u64) -> bool {
+    let trap = parse_trap_config(load_honeypot_raw(pool, guild_id).await);
+    trap.enabled
+        && !trap.channel_id.trim().is_empty()
+        && trap.channel_id.trim() == channel_id.to_string()
 }
 
 /// Debounced trap entry: at most one pipeline per

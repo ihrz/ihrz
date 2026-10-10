@@ -178,7 +178,10 @@ pub fn show_sanction_label(lang_code: &str, sanction: Option<&str>) -> String {
 }
 
 /// True when the allowlist key rows contain the user. Rows look like
-/// `ALLOWLIST.list.<uid>`.
+/// `ALLOWLIST.list.<uid>`. Exact-match on purpose (audit P14 kept):
+/// TS `allowlist/!show.ts` gates with `!text.includes(user.id)`, where
+/// id "12" substring-matches "<@123>"; the exact key comparison here
+/// is the intended hardening, not a divergence.
 pub fn allowlist_contains(rows: &[String], user_id: u64) -> bool {
     rows.iter()
         .any(|k| k == &format!("ALLOWLIST.list.{user_id}"))
@@ -393,18 +396,26 @@ pub async fn derank_member(
     reason: &str,
 ) -> anyhow::Result<()> {
     let roles = guild_id.roles(http).await?;
-    let bot_top: u16 = match http.get_current_user().await.ok() {
-        Some(bot) => match guild_id.member(http, bot.id).await {
-            Ok(m) => roles
-                .values()
-                .filter(|r| m.roles.contains(&r.id))
-                .map(|r| r.position)
-                .max()
-                .unwrap_or(u16::MAX),
-            Err(_) => u16::MAX,
-        },
-        None => u16::MAX,
+    // Fail-closed on unknown bot top role (audit P4): TS reads
+    // `me.roles.highest.position`, which throws when the bot member is
+    // unresolvable (nothing is removed then). Mirrored here by removing
+    // nothing instead of falling back to u16::MAX (fail-open, which
+    // would strip every role).
+    let bot_id = http.get_current_user().await.map(|u| u.id).ok();
+    let Some(bot_id) = bot_id else {
+        return Ok(());
     };
+    let Ok(bot_member) = guild_id.member(http, bot_id).await else {
+        return Ok(());
+    };
+    // A role-less bot sits at @everyone (position 0) like the TS
+    // `highest` fallback; only a truly unknown member (above) aborts.
+    let bot_top: u16 = roles
+        .values()
+        .filter(|r| bot_member.roles.contains(&r.id))
+        .map(|r| r.position)
+        .max()
+        .unwrap_or(0);
     if let Some(app) = roles.values().find(|r| r.managed) {
         let _ = guild_id
             .edit_role(
@@ -450,6 +461,10 @@ pub async fn derank_member(
 /// (done by the caller's restore leg), `simply+derank` deranks,
 /// `simply+ban` bans with a derank fallback when the ban fails.
 /// Unknown values no-op like the TS `default` branch.
+/// Audit reasons mirror TS exactly (audit P5/P6): the derank legs log
+/// "Protection" (`remove(role.id, reason || "Protection")` with the
+/// avoid*.ts flows passing no reason); the ban leg logs
+/// `reason || "Protect!"`.
 pub async fn apply_sanction(
     http: &std::sync::Arc<serenity::Http>,
     guild_id: serenity::GuildId,
@@ -459,15 +474,21 @@ pub async fn apply_sanction(
 ) {
     match sanction.trim() {
         "simply+derank" => {
-            let _ = derank_member(http, guild_id, user_id, reason).await;
+            let _ = derank_member(http, guild_id, user_id, "Protection").await;
         }
-        "simply+ban"
+        "simply+ban" => {
+            let ban_reason = if reason.trim().is_empty() {
+                "Protect!"
+            } else {
+                reason
+            };
             if guild_id
-                .ban_with_reason(http, user_id, 0, reason)
+                .ban_with_reason(http, user_id, 0, ban_reason)
                 .await
-                .is_err() =>
-        {
-            let _ = derank_member(http, guild_id, user_id, reason).await;
+                .is_err()
+            {
+                let _ = derank_member(http, guild_id, user_id, "Protection").await;
+            }
         }
         _ => {}
     }

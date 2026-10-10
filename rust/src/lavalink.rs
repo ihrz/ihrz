@@ -730,7 +730,11 @@ pub fn is_similar_thresholds(
 }
 
 /// A loaded search hit counts when it carries a titled first track
-/// (mirrors `responseExist`).
+/// (mirrors `responseExist`: `tracks.length > 0 &&
+/// !!tracks[0].info.title`). The title check is INTENTIONAL: untitled
+/// placeholder rows must not count as a match, so callers fall through
+/// to the no-match path exactly like the TS `searchQueryOnNode`
+/// Deezer/SoundCloud legs.
 pub fn response_exists(tracks: &[Track]) -> bool {
     tracks
         .first()
@@ -760,6 +764,15 @@ pub enum FedWs {
     ErrorHandled,
     StuckHandled,
     Ignored,
+}
+
+/// One guild channel projected for announce fallback ordering.
+/// `parent_id` is the category for the same-category leg.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct AnnounceChannel {
+    pub id: u64,
+    pub kind: serenity::ChannelType,
+    pub parent_id: Option<u64>,
 }
 
 /// Guild whose player aged out of its empty queue (mirrors the
@@ -880,6 +893,12 @@ pub struct LavalinkManager {
     /// track start/end/queue-end hooks; the HTTP scrobble POST itself
     /// stays with the live caller (needs per-user session keys).
     lastfm_sessions: Mutex<HashMap<u64, LastFmSession>>,
+    /// DB pool for the trackStart announce leg (guild lang + LastFM tip
+    /// row). Registered from music commands via [`LavalinkManager::set_announce_pool`]
+    /// (the WS-feed announce path has no command context to read it
+    /// from); None until the first music command runs, in which case
+    /// the announce falls back to `en-US` with no tip, like before.
+    announce_pool: Mutex<Option<crate::db::Pool>>,
 }
 
 impl LavalinkManager {
@@ -895,7 +914,15 @@ impl LavalinkManager {
             exception_report: Mutex::new(None),
             tts_suppressed: Mutex::new(HashSet::new()),
             lastfm_sessions: Mutex::new(HashMap::new()),
+            announce_pool: Mutex::new(None),
         }
+    }
+
+    /// Register the DB pool for the trackStart announce leg (guild lang
+    /// + LastFM tip row). Called from music commands, which own a pool;
+    /// the WS-feed announce path cannot reach one otherwise.
+    pub async fn set_announce_pool(&self, pool: crate::db::Pool) {
+        *self.announce_pool.lock().await = Some(pool);
     }
 
     /// Reconcile node list with config (idempotent; preserves sessions).
@@ -1009,6 +1036,7 @@ impl LavalinkManager {
             p.idle_since_ms = None;
             p.paused = false;
             let requester = p.current.as_ref().map(|t| t.requester).unwrap_or(0);
+            let voice_channel = p.voice_channel;
             drop(players);
             // LastFM start hook (mirrors
             // lastFMScrobbler.handleTrackStart: clear the old session,
@@ -1020,6 +1048,7 @@ impl LavalinkManager {
                 ev.track.info.length,
                 requester,
                 now_ms_wall(),
+                voice_channel,
             )
             .await;
         }
@@ -1028,6 +1057,9 @@ impl LavalinkManager {
 
     /// Open (replacing any stale) LastFM session for a starting track
     /// (mirrors `handleTrackStart` clearing + setting guildSessions).
+    /// `voice_channel` seeds the tracked channel (mirrors
+    /// `session.voiceChannelId`); pause accumulators start empty
+    /// (mirrors a fresh listener map).
     pub async fn lastfm_track_start(
         &self,
         guild_id: u64,
@@ -1036,6 +1068,7 @@ impl LavalinkManager {
         duration_ms: u64,
         requester: u64,
         now_ms: i64,
+        voice_channel: Option<u64>,
     ) {
         self.lastfm_sessions.lock().await.insert(
             guild_id,
@@ -1045,17 +1078,56 @@ impl LavalinkManager {
                 duration_ms,
                 requester,
                 started_ms: now_ms,
+                paused_ms: 0,
+                pause_started_ms: None,
+                voice_channel_id: voice_channel,
             },
         );
+    }
+
+    /// Pause/unpause accounting (mirrors `handlePlayerUpdate`: pausing
+    /// freezes every listener's elapsed clock, resuming banks the
+    /// paused span and reschedules). No session yet means nothing to
+    /// account (e.g. pause raced a queue drain).
+    pub async fn lastfm_note_paused(&self, guild_id: u64, paused: bool, now_ms: i64) {
+        let mut sessions = self.lastfm_sessions.lock().await;
+        let Some(session) = sessions.get_mut(&guild_id) else {
+            return;
+        };
+        if paused {
+            if session.pause_started_ms.is_none() {
+                session.pause_started_ms = Some(now_ms);
+            }
+        } else if let Some(started) = session.pause_started_ms.take() {
+            session.paused_ms += (now_ms - started).max(0) as u64;
+        }
+    }
+
+    /// Player voice move (mirrors `handlePlayerMove`: the session
+    /// follows the player to the new channel). Listener re-sync
+    /// against the channel's members stays with the live caller, like
+    /// the rest of the member sync (per-user session keys live behind
+    /// `LASTFM.<uid>` rows the manager cannot reach).
+    pub async fn lastfm_player_move(&self, guild_id: u64, new_voice_channel: u64) {
+        if let Some(session) = self.lastfm_sessions.lock().await.get_mut(&guild_id) {
+            session.voice_channel_id = Some(new_voice_channel);
+        }
     }
 
     /// Close the session at track end, returning the scrobble payload
     /// when the listen counts (mirrors `handleTrackEnd` +
     /// `tryScrobbleListener`; load-failed tracks are dropped by the
-    /// caller before reaching here).
+    /// caller before reaching here). Paused spans never count toward
+    /// the threshold (mirrors `getElapsedListeningMs` subtracting
+    /// `pausedDurationMs` + any ongoing pause).
     pub async fn lastfm_track_end_due(&self, guild_id: u64, now_ms: i64) -> Option<ScrobbleDue> {
         let session = self.lastfm_sessions.lock().await.remove(&guild_id)?;
-        let played_ms = (now_ms - session.started_ms).max(0) as u64;
+        let mut paused_ms = session.paused_ms;
+        if let Some(started) = session.pause_started_ms {
+            paused_ms += (now_ms - started).max(0) as u64;
+        }
+        let played_ms = (now_ms - session.started_ms).max(0) as u64
+            - paused_ms.min((now_ms - session.started_ms).max(0) as u64);
         if should_scrobble(session.duration_ms, played_ms) {
             Some(ScrobbleDue {
                 artist: session.artist,
@@ -1151,14 +1223,15 @@ impl LavalinkManager {
     /// Incoming WS TrackException: log the owner-visible diagnostics,
     /// try the TS fallback re-search branches, else keep the current
     /// track untouched when the exception matches no branch (the TS
-    /// handler has no fallback for those and does nothing). The live
-    /// re-search + requeue legs are best-effort: with no live
-    /// node/session the state still advances past the failure so the
-    /// offline path stays unit-testable.
+    /// handler has no fallback for those and does nothing). A matched
+    /// branch that misses (no live node/session, failed load, empty
+    /// result) also keeps the current with no skip: the TS handler
+    /// only acts on a non-empty fallback hit, so the player stalls on
+    /// the errored track until the user skips.
     pub async fn handle_track_exception(
         &self,
         ev: TrackExceptionEvent,
-        now_ms: i64,
+        _now_ms: i64,
     ) -> ErrorRecovery {
         let gid = match ev.guild_id.parse::<u64>() {
             Ok(g) => g,
@@ -1226,13 +1299,17 @@ impl LavalinkManager {
                     }
                 }
             }
-            let outcome = self.skip_to_next(gid, now_ms).await;
+            // Fallback-branch miss (no live node/session, failed load,
+            // or empty result): keep the failed current, no skip. The
+            // TS handler only acts on a non-empty fallback hit and
+            // otherwise does nothing, so the player stalls on the
+            // errored track until the user skips.
             self.dispatcher
                 .lock()
                 .await
                 .dispatch_track_exception(ev)
                 .await;
-            return outcome;
+            return ErrorRecovery::Kept;
         }
         // Unmatched exception: no-op, current is kept (mirrors the TS
         // handler falling through both message branches).
@@ -1865,14 +1942,99 @@ impl LavalinkManager {
         embed
     }
 
+    /// 1/3 roll gate for the LastFM tip embed (mirrors
+    /// `Math.random() < 1 / 3`). Pure so tests don't roll dice.
+    pub fn lastfm_tip_due(roll: f64) -> bool {
+        roll < 1.0 / 3.0
+    }
+
+    /// LastFM tip embed (mirrors the `even_mp_playerStart_tip` leg
+    /// sent ahead of the main trackStart embed when the requester has
+    /// no LastFM row).
+    pub fn lastfm_tip_embed(lang_code: &str, logo: &str, glasses: &str) -> serenity::CreateEmbed {
+        let desc = crate::lang::get(lang_code, "even_mp_playerStart_tip")
+            .unwrap_or_else(|| {
+                "> ${client.iHorizon_Emojis.LastFM_Logo} Did you know that you can scrobble your music with `/lastfm` on iHorizon? ${client.iHorizon_Emojis.Sunglass}".to_string()
+            })
+            .replace("${client.iHorizon_Emojis.LastFM_Logo}", logo)
+            .replace("${client.iHorizon_Emojis.Sunglass}", glasses);
+        serenity::CreateEmbed::default()
+            .colour(0xBA00_00)
+            .description(desc)
+    }
+
+    /// One guild channel projected for announce fallback ordering
+    /// ([`AnnounceChannel`]); `parent_id` is the category for the
+    /// same-category leg.
+
+    /// Announce channel order (mirrors the TS trackStart fallback
+    /// chain): stored text channel, then the voice channel itself when
+    /// it takes text (text-in-voice, no perm check in TS either), then
+    /// same-category text channels, then any guild text channel. Pure
+    /// so the chain stays unit-testable; the live leg try-sends in
+    /// this order and treats a failed send (including missing
+    /// SendMessages) as "try the next", which reproduces the outcome
+    /// of the TS `permissionsFor(...).has("SendMessages")` gates
+    /// without a guild cache on this path.
+    pub fn announce_channel_order(
+        stored: Option<u64>,
+        voice: Option<u64>,
+        channels: &[AnnounceChannel],
+    ) -> Vec<u64> {
+        fn textable(kind: serenity::ChannelType) -> bool {
+            matches!(
+                kind,
+                serenity::ChannelType::Text
+                    | serenity::ChannelType::News
+                    | serenity::ChannelType::Voice
+            )
+        }
+        let mut order: Vec<u64> = Vec::new();
+        let mut push = |id: u64| {
+            if !order.contains(&id) {
+                order.push(id);
+            }
+        };
+        if let Some(id) = stored {
+            push(id);
+        }
+        let voice_parent = voice.and_then(|v| {
+            channels
+                .iter()
+                .find(|c| c.id == v)
+                .and_then(|c| c.parent_id)
+        });
+        if let Some(v) = voice {
+            if channels.iter().any(|c| c.id == v && textable(c.kind)) {
+                push(v);
+            }
+        }
+        if let Some(parent) = voice_parent {
+            for c in channels {
+                if c.parent_id == Some(parent) && textable(c.kind) {
+                    push(c.id);
+                }
+            }
+        }
+        for c in channels {
+            if textable(c.kind) {
+                push(c.id);
+            }
+        }
+        order
+    }
+
     /// Post the trackStart announce for the current track (mirrors the
     /// trackStart handler in playerManager.ts):
     ///
     ///   - TTS early-return while the guild is TTS-suppressed;
-    ///   - rich `event_mp_playerStart` embed with artwork;
-    ///   - channel fallback when the stored text channel is gone (voice
-    ///     channel, then any guild text channel, mirroring the TS
-    ///     fallback chain);
+    ///   - guild language for both embeds (mirrors `getLanguageData`;
+    ///     `en-US` until a music command registers the pool);
+    ///   - LastFM tip embed ahead of the main one on a 1/3 roll when
+    ///     the requester has no `LASTFM.<uid>` row;
+    ///   - channel fallback chain (stored text channel, voice channel
+    ///     itself, same-category text, any guild text);
+    ///   - silent destroy when nowhere can take the announce;
     ///   - `:musical_note: title - author` voice status.
     ///
     /// Runs after handle_track_start on the WS feed path.
@@ -1885,11 +2047,16 @@ impl LavalinkManager {
         let Some(cur) = s.current.as_ref() else {
             return;
         };
+        let pool = self.announce_pool.lock().await.clone();
+        let lang_code = match &pool {
+            Some(p) => crate::db::guild_lang(p, Some(guild_id)).await,
+            None => "en-US".to_string(),
+        };
         let icon = crate::emojis::app_emoji_markup(http, "Music_Icon")
             .await
             .unwrap_or_else(|| "🎵".to_string());
-        let embed = Self::track_start_embed(
-            "en-US",
+        let main = Self::track_start_embed(
+            &lang_code,
             &cur.title,
             &cur.author,
             cur.uri.as_deref(),
@@ -1897,40 +2064,69 @@ impl LavalinkManager {
             s.voice_channel.unwrap_or(0),
             &icon,
         );
-        if let Some(vc) = s.voice_channel {
-            let _ = Self::set_voice_status(http, vc, &Self::nowplaying_text(cur)).await;
-        }
-        // Primary leg: the stored text channel.
-        if let Some(ch) = s.text_channel {
-            if serenity::ChannelId::new(ch)
-                .send_message(http, serenity::CreateMessage::new().embed(embed.clone()))
-                .await
-                .is_ok()
-            {
-                return;
-            }
-        }
-        // Fallback leg (mirrors the TS deleted-channel fallback):
-        // first text channel of the guild, then remember it.
-        if let Ok(channels) = http.get_channels(serenity::GuildId::new(guild_id)).await {
-            if let Some(fallback) = channels
-                .iter()
-                .find(|c| c.kind == serenity::ChannelType::Text)
-            {
-                let id = fallback.id.get();
-                if fallback
-                    .id
-                    .send_message(http, serenity::CreateMessage::new().embed(embed))
-                    .await
-                    .is_ok()
-                {
-                    self.with_player(guild_id, |p| {
-                        p.text_channel = Some(id);
-                    })
-                    .await;
+        let mut embeds = vec![main];
+        // LastFM tip leg (mirrors `Math.random() < 1 / 3 &&
+        // !isLastFmConfig`): the tip embed goes first.
+        if Self::lastfm_tip_due(rand::random::<f64>()) {
+            if let Some(p) = &pool {
+                let row = crate::db::kv_get(p, "0", &format!("LASTFM.{}", cur.requester)).await;
+                if row.is_none() {
+                    let logo = crate::emojis::app_emoji_markup(http, "LastFM_Logo")
+                        .await
+                        .unwrap_or_else(|| "🎶".to_string());
+                    let glasses = crate::emojis::app_emoji_markup(http, "Sunglass")
+                        .await
+                        .unwrap_or_else(|| "😎".to_string());
+                    embeds.insert(0, Self::lastfm_tip_embed(&lang_code, &logo, &glasses));
                 }
             }
         }
+        if let Some(vc) = s.voice_channel {
+            let _ = Self::set_voice_status(http, vc, &Self::nowplaying_text(cur)).await;
+        }
+        // Channel fallback chain (mirrors the TS deleted-channel
+        // fallback): try-sends in fallback order, remembering the
+        // winner like `player.textChannelId = fallback.id`.
+        let mut order = vec![];
+        if let Some(ch) = s.text_channel {
+            order.push(ch);
+        }
+        if let Ok(channels) = http.get_channels(serenity::GuildId::new(guild_id)).await {
+            let listed: Vec<AnnounceChannel> = channels
+                .iter()
+                .map(|c| AnnounceChannel {
+                    id: c.id.get(),
+                    kind: c.kind,
+                    parent_id: c.parent_id.map(|p| p.get()),
+                })
+                .collect();
+            for id in Self::announce_channel_order(None, s.voice_channel, &listed) {
+                if !order.contains(&id) {
+                    order.push(id);
+                }
+            }
+        }
+        for id in order {
+            let msg = serenity::CreateMessage::new().embeds(embeds.clone());
+            if serenity::ChannelId::new(id)
+                .send_message(http, msg)
+                .await
+                .is_ok()
+            {
+                self.with_player(guild_id, |p| {
+                    p.text_channel = Some(id);
+                })
+                .await;
+                return;
+            }
+        }
+        // Nowhere to send — destroy the player silently (mirrors the
+        // TS `player.destroy()` with no fallback channel).
+        let _ = self.remove_player(guild_id).await;
+        if let Ok((node, session)) = self.live_node_and_session(guild_id).await {
+            let _ = self.rest_destroy(&node, &session, guild_id).await;
+        }
+        let _ = self.leave_voice(guild_id).await;
     }
 
     /// Register the dispatcher-level nowplaying announcer: every node
@@ -2917,6 +3113,14 @@ pub struct LastFmSession {
     pub duration_ms: u64,
     pub requester: u64,
     pub started_ms: i64,
+    /// Accumulated paused time (mirrors `pausedDurationMs`).
+    pub paused_ms: u64,
+    /// Ongoing pause start, if currently paused (mirrors
+    /// `pausedStartedAt`).
+    pub pause_started_ms: Option<i64>,
+    /// Tracked voice channel (mirrors `session.voiceChannelId`,
+    /// re-synced on `playerMove` via `lastfm_player_move`).
+    pub voice_channel_id: Option<u64>,
 }
 
 /// Track ready to scrobble once the live caller attaches the user's
@@ -2946,9 +3150,11 @@ pub fn should_scrobble(duration_ms: u64, played_ms: u64) -> bool {
 
 // ---- node WS supervisors (ready dial + reconnect) ----
 
-/// Retry schedule: 5s doubling to 50s (mirrors TS retryDelay 50_000),
-/// infinite retries (mirrors retryAmount Infinity).
-const NODE_WS_FIRST_BACKOFF: Duration = Duration::from_secs(5);
+/// Retry schedule: fixed 50s between attempts (mirrors the TS
+/// `retryDelay: 50_000`), infinite retries (mirrors `retryAmount:
+/// Infinity`). The first redial already waits the full 50s like TS;
+/// the doubling helper below only enforces the same 50s ceiling.
+const NODE_WS_FIRST_BACKOFF: Duration = Duration::from_secs(50);
 const NODE_WS_MAX_BACKOFF: Duration = Duration::from_secs(50);
 /// A connection living longer than this resets the backoff.
 const NODE_WS_STABLE_FOR: Duration = Duration::from_secs(60);
@@ -3017,7 +3223,9 @@ pub fn spawn_node_ws(cfg: NodeCfg, user_id: u64) {
                 backoff = NODE_WS_FIRST_BACKOFF;
             }
             // Sleep the current wait, then step it up for the next
-            // drop (first redial waits 5s, doubling to the 50s cap).
+            // drop (every redial waits 50s, mirroring the TS
+            // `retryDelay: 50_000`; retries are unbounded like
+            // `retryAmount: Infinity`).
             tokio::time::sleep(backoff).await;
             backoff = next_backoff(backoff);
         }
@@ -3548,7 +3756,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn exception_skips_failed_track_offline() {
+    async fn exception_fallback_miss_keeps_current_offline() {
         let m = LavalinkManager::new();
         m.with_player(22, |p| {
             p.enqueue(sample_track("a"), 0);
@@ -3556,18 +3764,17 @@ mod tests {
         })
         .await;
         // Fallback-branch message, but with no live node the re-search
-        // leg is skipped and state still advances past the failure.
+        // leg cannot run: the failed current is kept with no skip
+        // (mirrors the TS handler, which only acts on a non-empty
+        // fallback hit and otherwise stalls).
         let ev = parse_exception(&exception_frame(
             "22",
             "a",
             "Something broke when playing the track.",
         ));
-        assert_eq!(
-            m.handle_track_exception(ev, 100).await,
-            ErrorRecovery::Advanced
-        );
+        assert_eq!(m.handle_track_exception(ev, 100).await, ErrorRecovery::Kept);
         let snap = m.snapshot(22).await.unwrap();
-        assert_eq!(snap.current.as_ref().unwrap().title, "b");
+        assert_eq!(snap.current.as_ref().unwrap().title, "a");
     }
 
     #[tokio::test]
@@ -3627,7 +3834,8 @@ mod tests {
             "a"
         );
         // Matched fallback branch, but with no live session the
-        // re-search leg is skipped and state still advances.
+        // re-search leg cannot run: the failed current is kept, no
+        // skip (mirrors the TS stall on a fallback miss).
         let out = m
             .feed_node_ws(
                 "n1",
@@ -3644,11 +3852,20 @@ mod tests {
                 .as_ref()
                 .unwrap()
                 .title,
+            "a"
+        );
+        let out = m.feed_node_ws("n1", &stuck_frame("25", "a"), 200).await;
+        assert_eq!(out, FedWs::StuckHandled);
+        assert_eq!(
+            m.snapshot(25)
+                .await
+                .unwrap()
+                .current
+                .as_ref()
+                .unwrap()
+                .title,
             "b"
         );
-        let out = m.feed_node_ws("n1", &stuck_frame("25", "b"), 200).await;
-        assert_eq!(out, FedWs::StuckHandled);
-        assert!(m.snapshot(25).await.unwrap().current.is_none());
     }
 
     #[tokio::test]
@@ -3695,7 +3912,7 @@ mod tests {
             .await;
         assert_eq!(out, FedWs::ErrorHandled);
         let snap = gm.snapshot(gid).await.unwrap();
-        assert_eq!(snap.current.as_ref().unwrap().title, "b");
+        assert_eq!(snap.current.as_ref().unwrap().title, "a");
         gm.remove_player(gid).await;
     }
 
@@ -3855,15 +4072,11 @@ mod tests {
     }
 
     #[test]
-    fn backoff_doubles_and_caps_at_50s() {
-        assert_eq!(
-            next_backoff(Duration::from_secs(5)),
-            Duration::from_secs(10)
-        );
-        assert_eq!(
-            next_backoff(Duration::from_secs(25)),
-            Duration::from_secs(50)
-        );
+    fn reconnect_schedule_is_fixed_50s_like_ts() {
+        // TS `retryDelay: 50_000` is a fixed wait, not a ramp: the
+        // first redial already waits the full 50s.
+        assert_eq!(NODE_WS_FIRST_BACKOFF, Duration::from_secs(50));
+        assert_eq!(NODE_WS_MAX_BACKOFF, Duration::from_secs(50));
         assert_eq!(
             next_backoff(Duration::from_secs(50)),
             Duration::from_secs(50)
@@ -4174,6 +4387,97 @@ mod tests {
                 .and_then(|u| u.as_str()),
             Some("https://example.test/art.png")
         );
+    }
+
+    #[test]
+    fn lastfm_tip_due_matches_one_third_roll() {
+        assert!(LavalinkManager::lastfm_tip_due(0.0));
+        assert!(LavalinkManager::lastfm_tip_due(0.33));
+        assert!(!LavalinkManager::lastfm_tip_due(1.0 / 3.0));
+        assert!(!LavalinkManager::lastfm_tip_due(0.9));
+    }
+
+    #[test]
+    fn lastfm_tip_embed_renders_template_and_color() {
+        let e = LavalinkManager::lastfm_tip_embed("xx-UNKNOWN", "<LOGO>", "<COOL>");
+        let json = serde_json::to_value(&e).unwrap();
+        let desc = json
+            .get("description")
+            .and_then(|d| d.as_str())
+            .unwrap_or("");
+        assert!(desc.contains("<LOGO>"), "desc: {desc}");
+        assert!(desc.contains("<COOL>"), "desc: {desc}");
+        assert!(!desc.contains("client.iHorizon_Emojis"), "desc: {desc}");
+        assert_eq!(json.get("color").and_then(|c| c.as_u64()), Some(0xBA00_00));
+    }
+
+    #[test]
+    fn announce_channel_order_mirrors_ts_fallback_chain() {
+        use super::serenity::ChannelType as T;
+        let ch = |id: u64, kind: T, parent: Option<u64>| AnnounceChannel {
+            id,
+            kind,
+            parent_id: parent,
+        };
+        let channels = vec![
+            ch(10, T::Voice, Some(1)), // player voice channel
+            ch(11, T::Text, Some(1)),  // same-category text
+            ch(12, T::Text, Some(2)),  // other category
+            ch(13, T::Category, None), // never sendable
+        ];
+        // Stored, then voice itself, then same-category, then any.
+        assert_eq!(
+            LavalinkManager::announce_channel_order(Some(12), Some(10), &channels),
+            vec![12, 10, 11]
+        );
+        // No stored channel: voice first.
+        assert_eq!(
+            LavalinkManager::announce_channel_order(None, Some(10), &channels),
+            vec![10, 11, 12]
+        );
+        // Voice channel unknown to the listing: siblings unresolvable,
+        // but the listed voice channel still counts as a text-based
+        // last resort (TS `isTextBased()` includes voice channels).
+        assert_eq!(
+            LavalinkManager::announce_channel_order(None, Some(99), &channels),
+            vec![10, 11, 12]
+        );
+        // Nothing sendable: empty (caller destroys silently).
+        assert_eq!(
+            LavalinkManager::announce_channel_order(None, None, &[ch(13, T::Category, None)]),
+            Vec::<u64>::new()
+        );
+    }
+
+    #[tokio::test]
+    async fn lastfm_pause_time_excluded_from_scrobble() {
+        let m = LavalinkManager::new();
+        // 200s track, threshold 100s. 120s wall clock, 60s paused:
+        // only 60s count, below threshold -> no scrobble.
+        m.lastfm_track_start(31, "a".into(), "t".into(), 200_000, 7, 0, Some(5))
+            .await;
+        m.lastfm_note_paused(31, true, 60_000).await;
+        m.lastfm_note_paused(31, false, 120_000).await;
+        assert!(m.lastfm_track_end_due(31, 120_000).await.is_none());
+        // Same shape without the pause: 120s count -> scrobbles.
+        m.lastfm_track_start(31, "a".into(), "t".into(), 200_000, 7, 0, Some(5))
+            .await;
+        assert!(m.lastfm_track_end_due(31, 120_000).await.is_some());
+        // Ongoing pause at track end counts too (never resumed).
+        m.lastfm_track_start(31, "a".into(), "t".into(), 200_000, 7, 0, Some(5))
+            .await;
+        m.lastfm_note_paused(31, true, 60_000).await;
+        assert!(m.lastfm_track_end_due(31, 120_000).await.is_none());
+    }
+
+    #[tokio::test]
+    async fn lastfm_player_move_resyncs_voice_channel() {
+        let m = LavalinkManager::new();
+        m.lastfm_track_start(32, "a".into(), "t".into(), 200_000, 7, 0, Some(5))
+            .await;
+        m.lastfm_player_move(32, 9).await;
+        let session = m.lastfm_sessions.lock().await;
+        assert_eq!(session.get(&32).and_then(|s| s.voice_channel_id), Some(9));
     }
 
     #[test]

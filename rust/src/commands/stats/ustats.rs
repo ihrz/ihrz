@@ -3,7 +3,9 @@ use super::*;
 #[poise::command(slash_command, prefix_command, rename = "ustats", aliases("u"))]
 pub async fn stats_user(
     ctx: Ctx<'_>,
-    #[description = "Member"] user: Option<poise::serenity_prelude::User>,
+    #[description = "Member"]
+    #[rename = "member"]
+    user: Option<poise::serenity_prelude::User>,
 ) -> Result<(), anyhow::Error> {
     let uid = user
         .as_ref()

@@ -7,8 +7,16 @@
 // spotify/apple/amazon/tidal-metadata forks, Flowery TTS (ftts source),
 // H247 24/7 parking. Rust equivalents: lavalink-rs, yt-dlp, rspotify,
 // reqwest (Flowery/lyrics). This module hosts the pure parts: source
-// routing, proximity choice, anti-conflict guards, volume/threshold
+// routing, proximity choice, volume/threshold
 // clamps. Network/audio wiring comes later.
+//
+// NOTE: there is intentionally no shared audio-conflict guard here.
+// TS `handleMusicPlay` enforces its guards inline at the play call
+// site (H247-parked refusal, TTS cleanup-and-proceed, same-voice
+// refusal), and the h247/TTS joins carry their own guard chains
+// (commands/h247/join.rs, commands/tts/join.rs). A central
+// refuse-style guard would mis-model the TS TTS leg, which cleans up
+// and proceeds instead of refusing.
 
 /// Music source providers mirrored from musicPlay.ts routing.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -116,35 +124,10 @@ pub fn soundcloud_beats_deezer(deezer_score: f64, soundcloud_score: f64) -> bool
     soundcloud_score > deezer_score
 }
 
-/// Anti-conflict guard. Mirrors handleMusicPlay + tts/!join.ts + h247/!join.ts:
-/// music is refused when the user is not in the H247 channel or when the
-/// bot is busy elsewhere; TTS takes over an idle player.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum AudioConflict {
-    Ok,
-    H247Refused,
-    BusyElsewhere,
-    TtsActive,
-}
-
-pub fn music_guard(
-    h247_enabled: bool,
-    user_in_h247_channel: bool,
-    bot_busy_elsewhere: bool,
-    tts_active: bool,
-) -> AudioConflict {
-    if h247_enabled && !user_in_h247_channel {
-        AudioConflict::H247Refused
-    } else if bot_busy_elsewhere {
-        AudioConflict::BusyElsewhere
-    } else if tts_active {
-        AudioConflict::TtsActive
-    } else {
-        AudioConflict::Ok
-    }
-}
-
-/// Volume clamp 10..=100 mirroring !volume.ts choices.
+/// Volume clamp 10..=100 mirroring the `VOLUMES` slash choices in
+/// music.ts (`10`..`100`). The clamp is INTENTIONAL: out-of-range
+/// prefix input is folded into the offered range instead of reaching
+/// the node unchecked.
 pub fn clamp_volume(v: i64) -> i64 {
     v.clamp(10, 100)
 }
@@ -308,23 +291,6 @@ mod tests {
         assert!(!soundcloud_beats_deezer(0.8, 0.8));
         assert!(soundcloud_beats_deezer(0.8, 0.9));
         assert!(!soundcloud_beats_deezer(0.9, 0.8));
-    }
-
-    #[test]
-    fn guard_priority_h247_then_busy_then_tts() {
-        assert_eq!(
-            music_guard(true, false, false, false),
-            AudioConflict::H247Refused
-        );
-        assert_eq!(
-            music_guard(false, true, true, false),
-            AudioConflict::BusyElsewhere
-        );
-        assert_eq!(
-            music_guard(false, true, false, true),
-            AudioConflict::TtsActive
-        );
-        assert_eq!(music_guard(false, true, false, false), AudioConflict::Ok);
     }
 
     #[test]

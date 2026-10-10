@@ -73,7 +73,7 @@ async fn post_tonew_log(ctx: &Ctx<'_>, title: &str, description: &str) {
 )]
 pub async fn gc_toonew(
     ctx: Ctx<'_>,
-    #[description = "Minimum age (e.g. 7d) or off"] age: String,
+    #[description = "Minimum age (e.g. 7d) or off"] age: Option<String>,
     #[description = "Joins before ban (default 3)"] maximum_join: Option<i64>,
 ) -> Result<(), anyhow::Error> {
     let gid = ctx
@@ -83,6 +83,19 @@ pub async fn gc_toonew(
     let pool = &ctx.data().pool;
     let code = crate::db::guild_lang(pool, ctx.guild_id().map(|g| g.get())).await;
     let author_mention = format!("<@{}>", ctx.author().id.get());
+    // Mirrors `if (!maximumDate)` in !too-new-account.ts: the age is
+    // optional, and enabling without a date hits the
+    // `dont_specified_time` leg instead of parsing.
+    let Some(age) = age else {
+        ctx.say(
+            crate::lang::get(&code, "too_new_account_dont_specified_time_on_enable")
+                .unwrap_or_else(|| {
+                    "You did not specify a time. To enable this module, a minimum account age is required!".to_string()
+                }),
+        )
+        .await?;
+        return Ok(());
+    };
     if age.trim().eq_ignore_ascii_case("off") {
         let _ = crate::db::kv_del(pool, &gid, "GUILD.BLOCK_NEW_ACCOUNT").await;
         // Audit entry, like `client.func.ihorizon_logs` in

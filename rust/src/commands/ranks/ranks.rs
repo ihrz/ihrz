@@ -1,6 +1,6 @@
 use super::*;
 use super::{
-    channel::{ranks_channel, ranks_xp_channels},
+    channel::ranks_channel,
     config::ranks_config,
     greset::ranks_greset,
     ignore_channels::{ranks_ignore_add, ranks_ignore_list},
@@ -28,8 +28,7 @@ use super::{
         "ranks_msg",
         "ranks_role_add",
         "ranks_role_list",
-        "ranks_role_remove",
-        "ranks_xp_channels"
+        "ranks_role_remove"
     )
 )]
 pub async fn ranks(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {

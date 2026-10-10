@@ -1,5 +1,15 @@
 use super::*;
 
+/// Show mode for the vc list. Mirrors the `show-mode` option choices
+/// in utils.ts (`Large`/`Short`, values `large`/`short`).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
+pub enum VcShowMode {
+    #[name = "Large"]
+    Large,
+    #[name = "Short"]
+    Short,
+}
+
 /// Server voice statistics.
 #[poise::command(
     slash_command,
@@ -10,13 +20,15 @@ use super::*;
 )]
 pub async fn vc_list(
     ctx: Ctx<'_>,
-    #[description = "Display mode: short or large"] mode: Option<String>,
+    #[description = "Display mode: short or large"]
+    #[rename = "show-mode"]
+    mode: Option<VcShowMode>,
 ) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {
         return Ok(());
     };
     let http = ctx.serenity_context().http.clone();
-    let is_large = mode.as_deref().unwrap_or("short") == "large";
+    let is_large = matches!(mode, Some(VcShowMode::Large));
     // TS fetches members when the cache is empty. The cache guard
     // is scoped so no !Send guard crosses an await.
     let snapshot = {

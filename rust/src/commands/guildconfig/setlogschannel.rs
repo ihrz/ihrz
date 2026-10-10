@@ -222,7 +222,9 @@ async fn handle_single(
 /// `auto` mode. With a channel: point every log at it (TS fast path).
 /// Without: bulk-create the missing log channels under a `LOGS`
 /// category (TS slow path), skipping channels that already exist.
-async fn handle_auto(
+/// Shared with the prefix-only `autologs` preset (`autologs.rs`),
+/// which delegates here with no channel like TS.
+pub(crate) async fn handle_auto(
     ctx: &Ctx<'_>,
     code: &str,
     channel: Option<serenity::GuildChannel>,

@@ -1,9 +1,12 @@
 use super::*;
 use poise::serenity_prelude as serenity;
 
-/// Reset one user's ranks (user required).
-// Mirrors `!ureset.ts` (`ranks.ts:190-205`): the slash `user` option is
-// `required: true`, so the target is mandatory (no self default).
+/// Reset one user's ranks.
+// Mirrors `!ureset.ts` (`ranks.ts:190-205`): the slash `user` option
+// is `required: true`, so a missing target on slash errors out; the
+// prefix path falls back to the invoker
+// (`client.func.method.member(...) || interaction.member`), so a
+// bare prefix call resets self.
 #[poise::command(
     slash_command,
     prefix_command,
@@ -13,8 +16,20 @@ use poise::serenity_prelude as serenity;
 )]
 pub async fn ranks_ureset(
     ctx: Ctx<'_>,
-    #[description = "Member to reset"] user: serenity::User,
+    #[description = "Member to reset (defaults to self on prefix)"] user: Option<serenity::User>,
 ) -> Result<(), anyhow::Error> {
+    let target_id = match user {
+        Some(u) => u.id.get(),
+        // Prefix-only self default, like TS `|| interaction.member`.
+        None if matches!(ctx, poise::Context::Prefix(_)) => ctx.author().id.get(),
+        // Slash keeps the TS `required: true` user option: without a
+        // target there is nothing to reset.
+        None => {
+            ctx.say("Please specify the user whose ranks data should be reset.")
+                .await?;
+            return Ok(());
+        }
+    };
     if !crate::commands::prompt_reset_confirm(
         &ctx,
         "reset_uranks_are_you_sure",
@@ -28,7 +43,6 @@ pub async fn ranks_ureset(
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
-    let target_id = user.id.get();
     let _ = super::migrated_del(
         &ctx.data().pool,
         &gid,

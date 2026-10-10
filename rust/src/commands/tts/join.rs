@@ -144,10 +144,12 @@ pub async fn tts_join(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         .as_ref()
         .map(|p| p.voice_channel.is_some())
         .unwrap_or(false);
-    // Guard 4: live music state (current track, unpaused).
+    // Guard 4: live music state (any current track; paused counts as
+    // playing because lavalink-client `pause()` keeps `playing = true`,
+    // so the TS `musicPlayer.playing` guard refuses while paused too).
     let music_playing = player_snapshot
         .as_ref()
-        .map(|p| p.current.is_some() && !p.paused)
+        .map(|p| p.current.is_some())
         .unwrap_or(false);
     // Guard 5: H24/7 park mismatch.
     let h247 = load_h247_raw(&ctx.data().pool, &gid)

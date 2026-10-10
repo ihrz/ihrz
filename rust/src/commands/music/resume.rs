@@ -33,6 +33,9 @@ pub async fn m_resume(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         return Ok(());
     }
     m.with_player(gid, |p| p.paused = false).await;
+    // Scrobble clock: resuming banks the paused span (mirrors
+    // lastFMScrobbler.handlePlayerUpdate).
+    m.lastfm_note_paused(gid, false, now_ms()).await;
     if let Ok((node, session)) = m.live_node_and_session(gid).await {
         let _ = m.rest_set_paused(&node, &session, gid, false).await;
     }

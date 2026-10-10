@@ -63,7 +63,9 @@ pub struct RawChannel {
 impl From<&GuildChannel> for RawChannel {
     // serenity passes the API `position` straight through (no sorted-position
     // computation like discord.js `position`), so this IS the TS
-    // `rawPosition` used for both categories and channels in ready.ts.
+    // `rawPosition` used for children and top-level channels in ready.ts.
+    // Category rows get the discord.js sorted `position` computed in
+    // build_backup (audit P7); RawChannel keeps the raw value only.
     fn from(c: &GuildChannel) -> Self {
         Self {
             id: c.id.get().to_string(),
@@ -112,17 +114,37 @@ fn to_backup_channel(raw: &RawChannel) -> BackupChannel {
 /// text-based guild channel is also listed top-level (TS pushes category
 /// children into `backup.channels` as well since they appear separately in
 /// `guild.channels.cache`).
+/// Positions mirror TS exactly (audit P7): a category stores the
+/// discord.js sorted `position` (index among categories ordered by raw
+/// position, then id); category children and top-level channels store
+/// the API `rawPosition`.
 pub fn build_backup(channels: &[RawChannel], roles: Vec<BackupRole>) -> GuildBackup {
     let mut backup = GuildBackup {
         categories: Vec::new(),
         channels: Vec::new(),
         roles,
     };
+    // discord.js category `position`: rank among same-kind channels by
+    // (rawPosition, id). Computed here since serenity only carries the
+    // API position.
+    let mut cat_order: Vec<&RawChannel> = channels
+        .iter()
+        .filter(|c| c.kind == ChannelType::Category)
+        .collect();
+    cat_order.sort_by(|a, b| a.position.cmp(&b.position).then_with(|| a.id.cmp(&b.id)));
+    let sorted_pos: std::collections::HashMap<&str, u16> = cat_order
+        .iter()
+        .enumerate()
+        .map(|(i, c)| (c.id.as_str(), i as u16))
+        .collect();
     for raw in channels.iter().filter(|c| c.kind == ChannelType::Category) {
         backup.categories.push(BackupCategory {
             id: raw.id.clone(),
             name: raw.name.clone(),
-            position: raw.position,
+            position: sorted_pos
+                .get(raw.id.as_str())
+                .copied()
+                .unwrap_or(raw.position),
             channels: channels
                 .iter()
                 .filter(|c| c.parent.as_deref() == Some(raw.id.as_str()))
@@ -367,6 +389,31 @@ mod tests {
         .into_iter()
         .collect();
         assert!(channels_to_reparent(&b, &ok).is_empty());
+    }
+
+    #[test]
+    fn categories_carry_sorted_position_channels_carry_raw() {
+        // Audit P7: TS stores discord.js `position` (sorted rank) on the
+        // category but `rawPosition` on children/top-level channels.
+        let b = build_backup(
+            &[
+                raw("catB", "b", ChannelType::Category, 1, None),
+                raw("catA", "a", ChannelType::Category, 9, None),
+                raw("ch1", "general", ChannelType::Text, 7, Some("catA")),
+                raw("ch2", "top", ChannelType::Text, 3, None),
+            ],
+            Vec::new(),
+        );
+        let pos = |id: &str| b.categories.iter().find(|c| c.id == id).map(|c| c.position);
+        // Sorted by (raw, id): catB(raw 1) -> 0, catA(raw 9) -> 1.
+        assert_eq!(pos("catB"), Some(0));
+        assert_eq!(pos("catA"), Some(1));
+        // Children and top-level rows keep the raw API position.
+        let child = &b.categories[1].channels[0];
+        assert_eq!(child.id, "ch1");
+        assert_eq!(child.position, 7);
+        let top = b.channels.iter().find(|c| c.id == "ch2").unwrap();
+        assert_eq!(top.position, 3);
     }
 
     #[test]

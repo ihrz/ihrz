@@ -1,45 +1,21 @@
 use super::*;
-use poise::serenity_prelude as serenity;
 
-/// Point every server log at one channel. Mirrors autologs preset.
+/// Bulk-create every server log channel (autologs preset).
+// Mirrors `MessageCommands/guildconfig/autologs.ts:45-52`: the
+// prefix-only `autologs` command takes no channel and delegates to
+// the setlogs `auto` slow path (a `LOGS` category plus one per-type
+// channel), so this runs `handle_auto` with no channel. The ticket
+// entry lands on the special `GUILD.TICKET.logs` key via
+// `auto_db_key`, like TS `setlogschannel.ts:353-358`.
 #[poise::command(
     slash_command,
     prefix_command,
     rename = "autologs",
+    aliases("presetlogs", "presetlog", "autolog"),
     default_member_permissions = "ADMINISTRATOR"
 )]
-pub async fn gc_autologs(
-    ctx: Ctx<'_>,
-    #[description = "Channel"]
-    #[channel_types("Text")]
-    channel: serenity::GuildChannel,
-) -> Result<(), anyhow::Error> {
-    let gid = ctx
-        .guild_id()
-        .map(|g| g.get().to_string())
-        .unwrap_or_default();
+pub async fn gc_autologs(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-    for t in LOG_TYPES.iter() {
-        crate::db::kv_set(
-            &ctx.data().pool,
-            &gid,
-            &format!("GUILD.SERVER_LOGS.{t}"),
-            &channel.id.get().to_string(),
-        )
-        .await?;
-    }
-    let mention = format!("<#{}>", channel.id.get());
-    let types = LOG_TYPES.join(", ");
-    ctx.say(
-        crate::lang::get(&code, "setlogschannel_utils_command_work")
-            .map(|s| {
-                s.replace("${argsid.id}", &mention)
-                    .replace("${typeOfLogs}", &types)
-            })
-            .unwrap_or_else(|| {
-                "You have successfully set up the `${typeOfLogs}` in ${argsid.id}!".to_string()
-            }),
-    )
-    .await?;
+    super::setlogschannel::handle_auto(&ctx, &code, None).await?;
     Ok(())
 }

@@ -389,6 +389,37 @@ async fn derogated_routed(pool: &crate::db::Pool, gid: &str, user_id: u64) -> bo
         .unwrap_or(false)
 }
 
+/// Rebuild + persist the protection structure snapshot for one guild.
+/// Shared by the guild_create seed and the 60s refresh sweep (audit
+/// P1). Mirrors backupGuildStructure in protection/ready.ts.
+async fn seed_protection_snapshot(pool: &crate::db::Pool, guild: &serenity::Guild) {
+    use crate::commands::protection::backup::{BackupRole, RawChannel};
+    let raws: Vec<RawChannel> = guild.channels.values().map(RawChannel::from).collect();
+    let roles: Vec<BackupRole> = guild
+        .roles
+        .keys()
+        .map(|id| {
+            let members: Vec<String> = guild
+                .members
+                .values()
+                .filter(|m| m.roles.contains(id))
+                .map(|m| m.user.id.get().to_string())
+                .collect();
+            BackupRole {
+                id: id.get().to_string(),
+                members,
+            }
+        })
+        .collect();
+    let backup = crate::commands::protection::backup::build_backup(&raws, roles);
+    let _ = crate::commands::protection::backup::save_backup(
+        pool,
+        &guild.id.get().to_string(),
+        &backup,
+    )
+    .await;
+}
+
 /// GUILD.PUNISH.PUNISH_PUB leaf (raw JSON blob string).
 async fn punish_pub_routed(pool: &crate::db::Pool, gid: &str) -> Option<String> {
     leaf_routed(pool, gid, "GUILD.PUNISH.PUNISH_PUB").await
@@ -1614,11 +1645,29 @@ impl Handler {
         // the TS `BYPASS_CHANNELS.includes(parentId)` check).
         let bypass_roles: Vec<String> = antispam_bypass_roles_routed(&self.pool, &gid).await;
         let bypass_channels: Vec<String> = antispam_bypass_channels_routed(&self.pool, &gid).await;
-        let member_roles: Vec<String> = msg
+        // Victim member via HTTP on Member cache miss (audit P3):
+        // discord.js always populates `message.member`, but serenity may
+        // leave it empty — without the fetch, bypass-role holders and
+        // administrators would lose their exemptions on a miss.
+        let http_member: Option<serenity::Member> = if msg.member.is_none() {
+            guild_id.member(&ctx.http, msg.author.id).await.ok()
+        } else {
+            None
+        };
+        let eff_roles: Vec<serenity::RoleId> = msg
             .member
             .as_ref()
-            .map(|m| m.roles.iter().map(|r| r.get().to_string()).collect())
+            .map(|m| m.roles.clone())
+            .or_else(|| http_member.as_ref().map(|m| m.roles.clone()))
             .unwrap_or_default();
+        let eff_admin_bit: bool = msg
+            .member
+            .as_ref()
+            .and_then(|m| m.permissions)
+            .or_else(|| http_member.as_ref().and_then(|m| m.permissions))
+            .map(|p| p.administrator())
+            .unwrap_or(false);
+        let member_roles: Vec<String> = eff_roles.iter().map(|r| r.get().to_string()).collect();
         let parent = Self::antispam_parent_id(ctx, guild_id, msg.channel_id).await;
         let bypass = bypass_channels.contains(&msg.channel_id.get().to_string())
             || parent
@@ -1626,26 +1675,21 @@ impl Handler {
                 .unwrap_or(false)
             || member_roles.iter().any(|r| bypass_roles.contains(r));
         // Owner + Administrator snapshots (cache-only, no await while
-        // the guard lives).
+        // the guard lives; the victim Member above already covers the
+        // author-admin bit on cache miss).
         let (owner_id, author_admin) = match ctx.cache.guild(guild_id) {
             Some(g) => {
                 let owner = g.owner_id.get();
-                let admin = msg
-                    .member
-                    .as_ref()
-                    .map(|m| {
-                        m.permissions.map(|p| p.administrator()).unwrap_or(false)
-                            || m.roles.iter().any(|r| {
-                                g.roles
-                                    .get(r)
-                                    .map(|role| role.permissions.administrator())
-                                    .unwrap_or(false)
-                            })
-                    })
-                    .unwrap_or(false);
+                let admin = eff_admin_bit
+                    || eff_roles.iter().any(|r| {
+                        g.roles
+                            .get(r)
+                            .map(|role| role.permissions.administrator())
+                            .unwrap_or(false)
+                    });
                 (owner, admin)
             }
-            None => (0, false),
+            None => (0, eff_admin_bit),
         };
         let gate = AntispamGate {
             bot_admin,
@@ -1761,6 +1805,8 @@ impl Handler {
                     break;
                 }
                 tokio::time::sleep(std::time::Duration::from_millis(
+                    // Clamp kept on purpose (audit P10): the re-armed
+                    // sleep never overshoots the deadline nor spins at 0.
                     (deadline - now).clamp(1, 1000) as u64,
                 ))
                 .await;
@@ -1901,6 +1947,8 @@ impl Handler {
                     return;
                 }
                 let mut member = member;
+                // Clamp kept on purpose (audit P11): Discord timeouts
+                // reject >28 days, and 0 would mean "no timeout".
                 let secs = (cfg.punish_time_ms / 1000).clamp(1, 28 * 24 * 60 * 60);
                 let now_secs = std::time::SystemTime::now()
                     .duration_since(std::time::UNIX_EPOCH)
@@ -2242,12 +2290,21 @@ impl Handler {
         use crate::commands::protection::protect as protect_cmd;
         let gid = guild_id.get().to_string();
         // TS rule vocabulary: only `allowlist` / `nobody` modes sanction;
-        // `member` (and absent rows) leave everyone alone.
+        // `member` (and absent rows) leave everyone alone. Strict on
+        // purpose (audit P9 kept): TS checks `if (data.<rule>)` then the
+        // inner mode, so a `member`-mode rule never sanctions either —
+        // same outcome, no divergence.
         let mode: String = protection_rule_routed(&self.pool, &gid, rule)
             .await
             .map(|r| r.effective_mode().to_string())
             .unwrap_or_else(|| "member".to_string());
         if mode != "allowlist" && mode != "nobody" {
+            return None;
+        }
+        // Per-rule bot-permission gate (audit P2) before attribution:
+        // without the grant the bot can neither read the audit log nor
+        // revert, so no one is sanctioned.
+        if !self.protection_bot_gate(ctx, guild_id, rule).await {
             return None;
         }
         // Attribution (mirrors getLogs in Events/protection/ready.ts):
@@ -2314,6 +2371,17 @@ impl Handler {
         if owner_exempt_routed(&self.pool, &gid, exec.get()).await {
             return None;
         }
+        // Unban-first-then-punish (audit P6): avoidBanMember.ts lifts the
+        // victim's ban BEFORE punish() runs on the executor. The victim
+        // is the audit target, already in hand; placed after the
+        // exemption checks so only sanctioned flows unban.
+        if rule == "banmembers" {
+            if let Some(victim) = target_id {
+                let _ = guild_id
+                    .unban(&ctx.http, serenity::UserId::new(victim))
+                    .await;
+            }
+        }
         // TS punish(): `simply` only cancels the action (the caller's
         // restore leg); the +derank / +ban suffixes add the sanction.
         let sanction: String = protection_sanction_routed(&self.pool, &gid)
@@ -2321,6 +2389,8 @@ impl Handler {
             .unwrap_or_else(|| "simply".to_string());
         protect_cmd::apply_sanction(&ctx.http, guild_id, exec, &sanction, "Protect!").await;
         // Mirrors ihorizon_logs.ts: report to the ihorizon-logs channel.
+        // Kept on purpose (audit P13): the extra confirmation embed is
+        // wanted even though no avoid*.ts file sends one itself.
         if let Ok(channels) = guild_id.channels(&ctx.http).await {
             let list: Vec<(u64, String)> = channels
                 .iter()
@@ -2362,6 +2432,20 @@ impl Handler {
     /// Bot administrator gate. Mirrors the members.me Administrator
     /// check at the top of avoidChannelDelete.ts / avoidRoleDelete.ts.
     async fn bot_is_admin(&self, ctx: &serenity::Context, guild_id: serenity::GuildId) -> bool {
+        self.bot_effective_perms(ctx, guild_id)
+            .await
+            .administrator()
+    }
+
+    /// Effective guild-level permissions of the bot. Cache first, HTTP
+    /// member fetch on cache miss (mirrors the `members.me` resolution
+    /// in the avoid*.ts guards). Empty when unresolvable (fail-closed:
+    /// gates deny, never allow).
+    async fn bot_effective_perms(
+        &self,
+        ctx: &serenity::Context,
+        guild_id: serenity::GuildId,
+    ) -> serenity::Permissions {
         let bot = ctx.cache.current_user().id;
         // Snapshot out of the cache without holding the !Send guard
         // across an await.
@@ -2370,16 +2454,52 @@ impl Handler {
             .guild(guild_id)
             .and_then(|g| g.members.get(&bot).cloned().map(|m| (g.clone(), m)));
         if let Some((guild, member)) = cached {
-            return guild.member_permissions(&member).administrator();
+            return guild.member_permissions(&member);
         }
         // Cache miss: fetch our member row, then compute against the
         // cached roles.
         if let Ok(member) = guild_id.member(&ctx.http, bot).await {
             if let Some(guild) = ctx.cache.guild(guild_id).map(|g| g.clone()) {
-                return guild.member_permissions(&member).administrator();
+                return guild.member_permissions(&member);
             }
         }
-        false
+        serenity::Permissions::empty()
+    }
+
+    /// ViewAuditLog + ManageGuild gate. Mirrors the attribution perm
+    /// checks in avoidBanMember.ts / avoidUnbanMember.ts / the inner
+    /// avoidKickMember.ts check (`permissions.has([ViewAuditLog,
+    /// ManageGuild])` requires both bits).
+    async fn bot_can_audit(&self, ctx: &serenity::Context, guild_id: serenity::GuildId) -> bool {
+        let perms = self.bot_effective_perms(ctx, guild_id).await;
+        perms.view_audit_log() && perms.manage_guild()
+    }
+
+    /// Per-rule bot-permission gate (audit P2). Mirrors the `members.me`
+    /// early returns at the top of each Events/protection/avoid*.ts
+    /// file, evaluated BEFORE audit-log attribution like the
+    /// channel/role/guild/webhook/kick legs. The ban/unban
+    /// ViewAuditLog+ManageGuild checks sit after getLogs in TS; they run
+    /// up-front here instead so a missing grant never sanctions.
+    /// `updatemember` / `add_admin_roles` carry no bot gate in TS, so
+    /// they stay gateless on purpose.
+    async fn protection_bot_gate(
+        &self,
+        ctx: &serenity::Context,
+        guild_id: serenity::GuildId,
+        rule: &str,
+    ) -> bool {
+        match rule {
+            "webhook" | "updateguild" | "createchannel" | "updatechannel" | "deletechannel"
+            | "createrole" | "deleterole" | "updaterole" => self.bot_is_admin(ctx, guild_id).await,
+            "kickmember" => {
+                // avoidKickMember.ts: outer Administrator gate plus the
+                // ViewAuditLog+ManageGuild attribution gate.
+                self.bot_is_admin(ctx, guild_id).await && self.bot_can_audit(ctx, guild_id).await
+            }
+            "banmembers" | "unbanmembers" => self.bot_can_audit(ctx, guild_id).await,
+            _ => true,
+        }
     }
 
     /// Clone-restore one snapshot channel: name, type, position,
@@ -3248,6 +3368,35 @@ impl serenity::EventHandler for Handler {
                 crate::commands::tts::speak::prefetch_flowery_voices().await;
             });
         }
+        // Protection snapshot refresh (mirrors the 60s setInterval in
+        // Events/protection/ready.ts, audit P1): re-seed the structure
+        // snapshot so delete-restore knows channels/roles created after
+        // boot. Guilds with a restore in flight are skipped (mirrors
+        // isRaiding). Once per process: ready fires per shard.
+        static SNAPSHOT_ONCE: std::sync::OnceLock<()> = std::sync::OnceLock::new();
+        if SNAPSHOT_ONCE.set(()).is_ok() {
+            let cache = ctx.cache.clone();
+            let pool = self.pool.clone();
+            let restoring = self.restoring.clone();
+            tokio::spawn(async move {
+                loop {
+                    tokio::time::sleep(std::time::Duration::from_secs(60)).await;
+                    // Snapshot the cached guilds first; guards drop
+                    // before any await below.
+                    let guilds: Vec<serenity::Guild> = cache
+                        .guilds()
+                        .into_iter()
+                        .filter_map(|id| cache.guild(id).map(|g| g.clone()))
+                        .collect();
+                    for guild in &guilds {
+                        if restoring.lock().await.contains(&guild.id.get().to_string()) {
+                            continue;
+                        }
+                        seed_protection_snapshot(&pool, guild).await;
+                    }
+                }
+            });
+        }
         // Owner "Bot Is Ready" mail (mirrors ready.ts:467-483, main shard
         // only). Blocking SMTP goes through spawn_blocking; the mailer is
         // silent when SMTP env is incomplete.
@@ -3468,29 +3617,7 @@ impl serenity::EventHandler for Handler {
         // Seed the protection structure snapshot so delete-restore
         // works before the first 60s sweep (mirrors
         // backupGuildStructure in protection/ready.ts).
-        {
-            use crate::commands::protection::backup::{BackupRole, RawChannel};
-            let raws: Vec<RawChannel> = guild.channels.values().map(RawChannel::from).collect();
-            let roles: Vec<BackupRole> = guild
-                .roles
-                .keys()
-                .map(|id| {
-                    let members: Vec<String> = guild
-                        .members
-                        .values()
-                        .filter(|m| m.roles.contains(id))
-                        .map(|m| m.user.id.get().to_string())
-                        .collect();
-                    BackupRole {
-                        id: id.get().to_string(),
-                        members,
-                    }
-                })
-                .collect();
-            let backup = crate::commands::protection::backup::build_backup(&raws, roles);
-            let _ =
-                crate::commands::protection::backup::save_backup(&self.pool, &gid, &backup).await;
-        }
+        seed_protection_snapshot(&self.pool, &guild).await;
         // Owner log embed to the guild-logs channel (email leg is SMTP-blocked).
         if let Ok(logs_ch) = crate::config::load()
             .map(|c| c.guild_logs_channel_id)
@@ -5223,8 +5350,20 @@ impl serenity::EventHandler for Handler {
         }
         self.check_punishpub(&_ctx, &gid, &msg).await;
         // Honeypot trap trigger (debounced two-pass pipeline).
-        // Mirrors honeypotManager scheduleHoneypotTrigger.
-        crate::commands::honeypot::main::schedule_trap(&_ctx, &self.pool, &msg);
+        // Mirrors honeypotManager scheduleHoneypotTrigger plus the
+        // enabled/channel early return in Events/honeypot/honeypot.ts
+        // (audit P8): nothing spawns while disabled or on channel
+        // mismatch — the in-pipeline re-check stays as the second gate
+        // for config changes during the debounce delay.
+        if crate::commands::honeypot::main::trap_spawn_allowed(
+            &self.pool,
+            &gid,
+            msg.channel_id.get(),
+        )
+        .await
+        {
+            crate::commands::honeypot::main::schedule_trap(&_ctx, &self.pool, &msg);
+        }
     }
 
     async fn message_delete(
@@ -6178,14 +6317,20 @@ impl serenity::EventHandler for Handler {
         // stopMusicOnEmptyVoiceChannel.ts, whose TS body is commented
         // out: bot alone in its music voice channel -> stop + OP4
         // leave + destroy the node player + notify the stored text
-        // channel with event_mp_emptyChannel). Skipped for the bot's
-        // own updates (it just joined/moved; humans may follow) and
-        // when the cache guild is unavailable (no blind leaves).
+        // channel with event_mp_emptyChannel). DISABLED by default
+        // (audit M6): the entire TS handler body is commented-out dead
+        // code, so production never stops on empty voice. Flip to true
+        // only if the TS handler is ever re-enabled. Skipped for the
+        // bot's own updates (it just joined/moved; humans may follow)
+        // and when the cache guild is unavailable (no blind leaves).
+        // NOTE: this arm lives on even while disabled so the mirror
+        // stays one flag away from the TS shape.
+        const MUSIC_EMPTY_STOP_ENABLED: bool = false;
         {
             let m = crate::lavalink::manager();
             let snap = m.snapshot(guild_id.get()).await;
             let bot_id = ctx.cache.current_user().id;
-            if new.user_id != bot_id {
+            if MUSIC_EMPTY_STOP_ENABLED && new.user_id != bot_id {
                 if let Some(s) = snap {
                     if let (Some(vc), true) = (s.voice_channel, s.current.is_some()) {
                         let occupants = ctx
@@ -6851,7 +6996,7 @@ impl serenity::EventHandler for Handler {
         banned_user: serenity::User,
     ) {
         use serenity::model::guild::audit_log::{Action, MemberAction};
-        let hit = self
+        let _ = self
             .protection_guard(
                 &ctx,
                 guild_id,
@@ -6860,11 +7005,9 @@ impl serenity::EventHandler for Handler {
                 Some(banned_user.id.get()),
             )
             .await;
-        // Unauthorized-ban reversal (mirrors avoidBanMember.ts):
-        // punish ran inside the guard, then the ban is lifted.
-        if hit.is_some() {
-            let _ = guild_id.unban(&ctx.http, banned_user.id).await;
-        }
+        // Unauthorized-ban reversal (mirrors avoidBanMember.ts) runs
+        // inside the guard: the victim's ban is lifted BEFORE the
+        // executor is punished (unban-first-then-punish).
         // Rich audit embed (mirrors logs/addBanLogs.ts).
         self.mod_audit_log(
             &ctx,

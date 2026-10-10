@@ -48,7 +48,9 @@ pub fn tts_lang_code(choice: TtsLangChoice) -> &'static str {
 #[poise::command(slash_command, prefix_command, rename = "lang")]
 pub async fn tts_lang(
     ctx: Ctx<'_>,
-    #[description = "TTS language"] lang: TtsLangChoice,
+    #[description = "TTS language"]
+    #[rename = "language"]
+    lang: TtsLangChoice,
 ) -> Result<(), anyhow::Error> {
     let code = tts_lang_code(lang);
     let gid = ctx

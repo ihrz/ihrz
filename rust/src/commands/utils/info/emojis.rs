@@ -12,7 +12,9 @@ use super::*;
 )]
 pub async fn emojis(
     ctx: Ctx<'_>,
-    #[description = "Text containing <:name:id> emojis"] text: String,
+    #[description = "Text containing <:name:id> emojis"]
+    #[rename = "emojis"]
+    text: String,
 ) -> Result<(), anyhow::Error> {
     use poise::serenity_prelude as serenity;
     let Some(guild_id) = ctx.guild_id() else {

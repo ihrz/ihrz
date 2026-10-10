@@ -6,8 +6,12 @@ use super::*;
 #[poise::command(slash_command, prefix_command, rename = "edit")]
 pub async fn tag_edit(
     ctx: Ctx<'_>,
-    #[description = "Current name"] current: String,
-    #[description = "New name"] new: String,
+    #[description = "Current name"]
+    #[rename = "current_tag_name"]
+    current: String,
+    #[description = "New name"]
+    #[rename = "new_tag_name"]
+    new: String,
 ) -> Result<(), anyhow::Error> {
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let gid = ctx

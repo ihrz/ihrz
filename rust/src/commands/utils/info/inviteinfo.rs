@@ -10,7 +10,9 @@ use super::*;
 )]
 pub async fn inviteinfo(
     ctx: Ctx<'_>,
-    #[description = "Invite code or URL"] invite: String,
+    #[description = "Invite code or URL"]
+    #[rename = "discord_invite"]
+    invite: String,
 ) -> Result<(), anyhow::Error> {
     use poise::serenity_prelude as serenity;
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;

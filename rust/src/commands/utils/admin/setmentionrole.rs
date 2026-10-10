@@ -12,8 +12,12 @@ use super::*;
 pub async fn setmentionrole(
     ctx: Ctx<'_>,
     #[description = "on or off"] action: String,
-    #[description = "Role"] role: Option<poise::serenity_prelude::Role>,
-    #[description = "Nickname part"] part: Option<String>,
+    #[description = "Role"]
+    #[rename = "roles"]
+    role: Option<poise::serenity_prelude::Role>,
+    #[description = "Nickname part"]
+    #[rename = "part-of-nickname"]
+    part: Option<String>,
 ) -> Result<(), anyhow::Error> {
     let gid = ctx
         .guild_id()
