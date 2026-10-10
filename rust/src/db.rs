@@ -95,6 +95,151 @@ pub async fn kv_del(pool: &Pool, guild_id: &str, key: &str) -> anyhow::Result<()
     Ok(())
 }
 
+/// All `(key, value)` rows for one guild. Driver-only scan primitive —
+/// callers must use this (or `kv_scan_prefix`) instead of raw SQL.
+pub async fn kv_scan(pool: &Pool, guild_id: &str) -> Vec<(String, String)> {
+    sqlx::query_as::<_, (String, String)>("SELECT key_name, value FROM kv WHERE guild_id = ?")
+        .bind(guild_id)
+        .fetch_all(pool)
+        .await
+        .unwrap_or_default()
+}
+
+/// `(key, value)` rows under `prefix` for one guild (SQL LIKE, `%`/`_`
+/// in the prefix are escaped).
+pub async fn kv_scan_prefix(pool: &Pool, guild_id: &str, prefix: &str) -> Vec<(String, String)> {
+    let pat = format!(
+        "{}%",
+        prefix
+            .replace('\\', "\\\\")
+            .replace('%', "\\%")
+            .replace('_', "\\_")
+    );
+    sqlx::query_as::<_, (String, String)>(
+        "SELECT key_name, value FROM kv WHERE guild_id = ? AND key_name LIKE ? ESCAPE '\\'",
+    )
+    .bind(guild_id)
+    .bind(pat)
+    .fetch_all(pool)
+    .await
+    .unwrap_or_default()
+}
+
+/// Delete every row under `prefix` for one guild.
+pub async fn kv_del_prefix(pool: &Pool, guild_id: &str, prefix: &str) -> anyhow::Result<()> {
+    let pat = format!(
+        "{}%",
+        prefix
+            .replace('\\', "\\\\")
+            .replace('%', "\\%")
+            .replace('_', "\\_")
+    );
+    sqlx::query("DELETE FROM kv WHERE guild_id = ? AND key_name LIKE ? ESCAPE '\\'")
+        .bind(guild_id)
+        .bind(pat)
+        .execute(pool)
+        .await?;
+    Ok(())
+}
+
+/// Cross-guild `(guild_id, key, value)` scan. Driver-only primitive for
+/// sweeps (authrestore, giveaway boards) — never raw SQL at call sites.
+pub async fn kv_scan_all(pool: &Pool) -> Vec<(String, String, String)> {
+    sqlx::query_as::<_, (String, String, String)>("SELECT guild_id, key_name, value FROM kv")
+        .fetch_all(pool)
+        .await
+        .unwrap_or_default()
+}
+
+/// Delete every row of one guild (leave-cleanup / wipe paths).
+pub async fn kv_del_guild(pool: &Pool, guild_id: &str) -> anyhow::Result<()> {
+    sqlx::query("DELETE FROM kv WHERE guild_id = ?")
+        .bind(guild_id)
+        .execute(pool)
+        .await?;
+    Ok(())
+}
+
+/// TS `backups`-table read by global backup ID. Missing table/row -> None.
+pub async fn backup_get(pool: &Pool, backup_id: &str) -> Option<String> {
+    sqlx::query_scalar::<_, String>("SELECT json FROM backups WHERE ID = ?")
+        .bind(backup_id)
+        .fetch_optional(pool)
+        .await
+        .ok()
+        .flatten()
+}
+
+/// Delete a TS `backups`-table row by global backup ID (best-effort).
+pub async fn backup_del(pool: &Pool, backup_id: &str) -> anyhow::Result<()> {
+    sqlx::query("DELETE FROM backups WHERE ID = ?")
+        .bind(backup_id)
+        .execute(pool)
+        .await?;
+    Ok(())
+}
+
+/// Write a TS `backups`-table row (ID = backupID, `json` = bare
+/// BackupData). Missing table -> error (callers/tests create it via
+/// `ensure_backups_table`).
+pub async fn backup_set(pool: &Pool, backup_id: &str, json: &str) -> anyhow::Result<()> {
+    sqlx::query(
+        "INSERT INTO backups (ID, json) VALUES (?, ?)
+         ON CONFLICT (ID) DO UPDATE SET json = excluded.json",
+    )
+    .bind(backup_id)
+    .bind(json)
+    .execute(pool)
+    .await?;
+    Ok(())
+}
+
+/// Create the TS `backups` table when missing (tests + first use).
+pub async fn ensure_backups_table(pool: &Pool) -> anyhow::Result<()> {
+    sqlx::query("CREATE TABLE IF NOT EXISTS backups (ID TEXT PRIMARY KEY, json TEXT)")
+        .execute(pool)
+        .await?;
+    Ok(())
+}
+
+/// Drop a guild's language row.
+pub async fn clear_guild_lang(pool: &Pool, guild_id: &str) -> anyhow::Result<()> {
+    sqlx::query("DELETE FROM guild_lang WHERE guild_id = ?")
+        .bind(guild_id)
+        .execute(pool)
+        .await?;
+    Ok(())
+}
+
+/// In-memory pool with driver tables created. Test-only shared helper —
+/// test modules must use this instead of hand-rolled `CREATE TABLE` SQL.
+#[cfg(test)]
+pub async fn memory_pool() -> Pool {
+    use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};
+    use std::str::FromStr;
+    let opts = SqliteConnectOptions::from_str("sqlite::memory:")
+        .unwrap()
+        .create_if_missing(true);
+    let pool = SqlitePoolOptions::new()
+        .max_connections(1)
+        .connect_with(opts)
+        .await
+        .unwrap();
+    sqlx::query(
+        "CREATE TABLE kv (guild_id TEXT NOT NULL, key_name TEXT NOT NULL, value TEXT NOT NULL, PRIMARY KEY (guild_id, key_name))",
+    )
+    .execute(&pool)
+    .await
+    .unwrap();
+    sqlx::query(
+        "CREATE TABLE guild_lang (guild_id TEXT PRIMARY KEY, lang TEXT NOT NULL DEFAULT 'en-US')",
+    )
+    .execute(&pool)
+    .await
+    .unwrap();
+    pool
+}
+
 pub async fn guild_prefix(pool: &Pool, guild_id: Option<u64>, default: &str) -> String {
     let Some(gid) = guild_id else {
         return default.to_string();
@@ -271,31 +416,9 @@ pub async fn guild_lang(pool: &Pool, guild_id: Option<u64>) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};
-    use std::str::FromStr;
 
     async fn memory_pool() -> Pool {
-        let opts = SqliteConnectOptions::from_str("sqlite::memory:")
-            .unwrap()
-            .create_if_missing(true);
-        let pool = SqlitePoolOptions::new()
-            .max_connections(1)
-            .connect_with(opts)
-            .await
-            .unwrap();
-        sqlx::query(
-            "CREATE TABLE kv (guild_id TEXT NOT NULL, key_name TEXT NOT NULL, value TEXT NOT NULL, PRIMARY KEY (guild_id, key_name))",
-        )
-        .execute(&pool)
-        .await
-        .unwrap();
-        sqlx::query(
-            "CREATE TABLE guild_lang (guild_id TEXT PRIMARY KEY, lang TEXT NOT NULL DEFAULT 'en-US')",
-        )
-        .execute(&pool)
-        .await
-        .unwrap();
-        pool
+        crate::db::memory_pool().await
     }
 
     #[tokio::test]
@@ -315,6 +438,19 @@ mod tests {
         kv_set(&pool, "g2", "k", "v2").await.unwrap();
         assert_eq!(kv_get(&pool, "g1", "k").await.as_deref(), Some("v1"));
         assert_eq!(kv_get(&pool, "g2", "k").await.as_deref(), Some("v2"));
+    }
+
+    #[tokio::test]
+    async fn backups_table_roundtrip_upsert_and_del() {
+        let pool = memory_pool().await;
+        ensure_backups_table(&pool).await.unwrap();
+        assert_eq!(backup_get(&pool, "b1").await, None);
+        backup_set(&pool, "b1", "{\"v\":1}").await.unwrap();
+        assert_eq!(backup_get(&pool, "b1").await.as_deref(), Some("{\"v\":1}"));
+        backup_set(&pool, "b1", "{\"v\":2}").await.unwrap();
+        assert_eq!(backup_get(&pool, "b1").await.as_deref(), Some("{\"v\":2}"));
+        backup_del(&pool, "b1").await.unwrap();
+        assert_eq!(backup_get(&pool, "b1").await, None);
     }
 
     #[tokio::test]

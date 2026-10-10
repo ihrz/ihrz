@@ -109,13 +109,7 @@ pub async fn load_all_stickies(pool: &crate::db::Pool, guild_id: &str) -> Vec<St
             }
         }
     }
-    let rows: Vec<(String, String)> = sqlx::query_as::<_, (String, String)>(
-        "SELECT key_name, value FROM kv WHERE guild_id = ? AND key_name LIKE 'STICKY.%'",
-    )
-    .bind(guild_id)
-    .fetch_all(pool)
-    .await
-    .unwrap_or_default();
+    let rows: Vec<(String, String)> = crate::db::kv_scan_prefix(pool, guild_id, "STICKY.").await;
     for (k, v) in &rows {
         let Some(id) = k.strip_prefix("STICKY.") else {
             continue;
@@ -419,19 +413,7 @@ mod tests {
     }
 
     async fn memory_pool() -> crate::db::Pool {
-        use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};
-        use std::str::FromStr;
-        let opts = SqliteConnectOptions::from_str("sqlite::memory:").unwrap();
-        let pool = SqlitePoolOptions::new()
-            .max_connections(1)
-            .connect_with(opts)
-            .await
-            .unwrap();
-        sqlx::query("CREATE TABLE kv (guild_id TEXT NOT NULL, key_name TEXT NOT NULL, value TEXT NOT NULL, PRIMARY KEY (guild_id, key_name))")
-            .execute(&pool)
-            .await
-            .unwrap();
-        pool
+        crate::db::memory_pool().await
     }
 
     fn sticky_cfg(channel: &str, content: &str) -> StickyConfig {
@@ -459,12 +441,7 @@ mod tests {
             Some("hi")
         );
         // Table-routed rows live under `tbl:<gid>`, never as flat legacy rows.
-        let legacy: Option<String> = sqlx::query_scalar::<_, String>(
-            "SELECT value FROM kv WHERE guild_id = 'g1' AND key_name = 'STICKY.11'",
-        )
-        .fetch_optional(&pool)
-        .await
-        .unwrap();
+        let legacy: Option<String> = crate::db::kv_get(&pool, "g1", "STICKY.11").await;
         assert_eq!(legacy, None);
         // Legacy rows still read (single + union scan).
         crate::db::kv_set(

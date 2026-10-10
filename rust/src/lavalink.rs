@@ -404,26 +404,131 @@ pub enum ErrorRecovery {
     Idle,
     /// No player state for the guild (nothing to recover).
     NoPlayer,
+    /// Exception matched no fallback branch: current kept, no skip
+    /// (mirrors the TS `trackError` handler, which only acts on its
+    /// two message branches and otherwise does nothing).
+    Kept,
 }
 
-/// Flatten a load result to its playable tracks (first-track and
-/// playlist legs mirror `play_query`; empty/error legs are dropped
-/// here — the caller falls through to the skip path).
-fn load_tracks_flat(loaded: LoadResult) -> Vec<Track> {
+/// Split a load result into (tracks, is_playlist), masking titles.
+///
+/// Search/track legs expose only the first hit (TS `handleMusicPlay`
+/// enqueues `res.tracks[0]` unless `loadType === "playlist"`);
+/// playlists propagate every track. Empty/error legs are empty here
+/// so callers fall through to the no-match path (a node `error`
+/// load answers the no-result embed, never a 422 reply).
+fn split_loaded(loaded: LoadResult) -> (Vec<Track>, bool) {
     match loaded {
-        LoadResult::Track(t) => vec![t],
-        LoadResult::Playlist(data) => data.tracks,
-        LoadResult::Search(v) => v.into_iter().take(1).collect(),
-        LoadResult::Empty | LoadResult::Error(_) => vec![],
+        LoadResult::Track(t) => (mask_tracks(vec![t]), false),
+        LoadResult::Playlist(data) => (mask_tracks(data.tracks), true),
+        LoadResult::Search(v) => (mask_tracks(v.into_iter().take(1).collect()), false),
+        LoadResult::Empty | LoadResult::Error(_) => (vec![], false),
     }
+}
+
+/// Deezer identifier for a bare cleaned title (mirrors
+/// `handleYoutube`'s `{ query: itemName, source: "deezer" }` leg).
+pub fn deezer_title_identifier(title: &str) -> String {
+    format!("dzsearch:{}", title.trim())
+}
+
+/// Single first-hit load for the concurrent fan-out. None on any
+/// failure (transport, REST status, parse, empty/error load): the
+/// per-track catch, mirroring the TS `catch { return undefined }`.
+async fn load_first_hit(
+    http: &reqwest::Client,
+    base_url: &str,
+    password: &str,
+    identifier: &str,
+) -> Option<Track> {
+    let res = http
+        .get(format!(
+            "{base_url}/v4/loadtracks?identifier={}",
+            urlencoding(identifier)
+        ))
+        .header("Authorization", password)
+        .send()
+        .await
+        .ok()?;
+    if !res.status().is_success() {
+        return None;
+    }
+    let loaded: LoadResult = res.json().await.ok()?;
+    split_loaded(loaded).0.into_iter().next()
+}
+
+/// YouTube title lookup for the title-to-deezer fallback (mirrors the
+/// youtubei.js title fetch in `handleYoutube`). Keyless oEmbed; None
+/// on any failure so the caller falls through to no-matches.
+async fn youtube_oembed_title(http: &reqwest::Client, url: &str) -> Option<(String, String)> {
+    let endpoint = format!(
+        "https://www.youtube.com/oembed?url={}&format=json",
+        urlencoding(url)
+    );
+    let res = http.get(endpoint).send().await.ok()?;
+    if !res.status().is_success() {
+        return None;
+    }
+    let body: serde_json::Value = res.json().await.ok()?;
+    let title = body.get("title")?.as_str()?;
+    if title.trim().is_empty() {
+        return None;
+    }
+    let author = body
+        .get("author_name")
+        .and_then(|a| a.as_str())
+        .unwrap_or("")
+        .to_string();
+    Some((title.to_string(), author))
 }
 
 // ---- search pipeline (mirrors searchQueryOnNode in musicPlay.ts) ----
 
-/// True when the query parses as a URL (mirrors `isUrlQuery`).
+/// True when the query already carries a `source:` search prefix
+/// (lavalink-client `transformQuery` extracts these before routing, so
+/// they pass through instead of stacking a second prefix).
+fn has_search_prefix(query: &str) -> bool {
+    let q = query.trim();
+    let Some(colon) = q.find(':') else {
+        return false;
+    };
+    let (scheme, rest) = q.split_at(colon);
+    if scheme.is_empty() || rest.len() <= 1 {
+        return false;
+    }
+    let mut chars = scheme.chars();
+    match chars.next() {
+        Some(c) if c.is_ascii_alphabetic() => {}
+        _ => return false,
+    }
+    chars.all(|c| c.is_ascii_alphanumeric() || c == '+' || c == '-' || c == '.')
+}
+
+/// True when the query parses as a URL (mirrors `isUrlQuery`: the TS
+/// side runs `new URL(query)`, which accepts any scheme, not just
+/// http(s) — e.g. `spotify:track:…` counts as a URL, while opaque
+/// paths with whitespace do not).
 pub fn is_url_query(query: &str) -> bool {
     let q = query.trim();
-    q.starts_with("http://") || q.starts_with("https://")
+    let Some(colon) = q.find(':') else {
+        return false;
+    };
+    let (scheme, rest) = q.split_at(colon);
+    let rest = &rest[1..];
+    if scheme.is_empty() || rest.is_empty() {
+        return false;
+    }
+    // Opaque-path URLs carry no whitespace (`new URL("title: test")`
+    // throws, `new URL("title:test")` parses).
+    if rest.chars().any(char::is_whitespace) {
+        return false;
+    }
+    let mut chars = scheme.chars();
+    match chars.next() {
+        Some(c) if c.is_ascii_alphabetic() => {}
+        _ => return false,
+    }
+    chars.all(|c| c.is_ascii_alphanumeric() || c == '+' || c == '-' || c == '.')
 }
 
 fn url_host(query: &str) -> Option<String> {
@@ -1044,10 +1149,12 @@ impl LavalinkManager {
     // ---- trackError recovery (mirrors playerManager.ts trackError) ----
 
     /// Incoming WS TrackException: log the owner-visible diagnostics,
-    /// try the TS fallback re-search branches, else skip to the next
-    /// queued track (or idle). The live re-search + requeue legs are
-    /// best-effort: with no live node/session the state still advances
-    /// so the offline path stays unit-testable.
+    /// try the TS fallback re-search branches, else keep the current
+    /// track untouched when the exception matches no branch (the TS
+    /// handler has no fallback for those and does nothing). The live
+    /// re-search + requeue legs are best-effort: with no live
+    /// node/session the state still advances past the failure so the
+    /// offline path stays unit-testable.
     pub async fn handle_track_exception(
         &self,
         ev: TrackExceptionEvent,
@@ -1072,21 +1179,40 @@ impl LavalinkManager {
             if let Ok((node, session)) = self.live_node_and_session(gid).await {
                 match self.rest_load(&node, &query).await {
                     Ok(loaded) => {
-                        let mut tracks = load_tracks_flat(loaded);
+                        let (tracks, _) = split_loaded(loaded);
                         if !tracks.is_empty() {
+                            // Append behind current, never preempt it
+                            // (mirrors `player.queue.add(...)`): the hit
+                            // only becomes current when the player is
+                            // idle, and then playback restarts on it.
+                            // Playlist hits propagate every track.
                             let requester = failed.requester;
-                            let first = QueuedTrack::from((&tracks.remove(0), requester));
-                            let title = first.title.clone();
-                            let encoded = first.encoded.clone();
-                            self.with_player(gid, |p| {
-                                p.current = Some(first);
-                                for t in tracks.drain(..) {
-                                    p.queue.push_back(QueuedTrack::from((&t, requester)));
-                                }
-                                p.idle_since_ms = None;
-                            })
-                            .await;
-                            let _ = self.rest_play(&node, &session, gid, &encoded, false).await;
+                            let title = tracks[0].info.title.clone();
+                            let encoded = tracks[0].encoded.clone();
+                            let was_idle = self
+                                .with_player(gid, |p| {
+                                    let idle = p.current.is_none();
+                                    if idle {
+                                        let mut hits = tracks.into_iter();
+                                        if let Some(first) = hits.next() {
+                                            p.current =
+                                                Some(QueuedTrack::from((&first, requester)));
+                                        }
+                                        for t in hits {
+                                            p.queue.push_back(QueuedTrack::from((&t, requester)));
+                                        }
+                                        p.idle_since_ms = None;
+                                    } else {
+                                        for t in tracks {
+                                            p.queue.push_back(QueuedTrack::from((&t, requester)));
+                                        }
+                                    }
+                                    idle
+                                })
+                                .await;
+                            if was_idle {
+                                let _ = self.rest_play(&node, &session, gid, &encoded, false).await;
+                            }
                             self.dispatcher
                                 .lock()
                                 .await
@@ -1100,14 +1226,22 @@ impl LavalinkManager {
                     }
                 }
             }
+            let outcome = self.skip_to_next(gid, now_ms).await;
+            self.dispatcher
+                .lock()
+                .await
+                .dispatch_track_exception(ev)
+                .await;
+            return outcome;
         }
-        let outcome = self.skip_to_next(gid, now_ms).await;
+        // Unmatched exception: no-op, current is kept (mirrors the TS
+        // handler falling through both message branches).
         self.dispatcher
             .lock()
             .await
             .dispatch_track_exception(ev)
             .await;
-        outcome
+        ErrorRecovery::Kept
     }
 
     /// Incoming WS TrackStuck: the TS side has no stuck branch, so this
@@ -1845,9 +1979,11 @@ impl LavalinkManager {
 
     /// Plain URLs pass through for server-side LavaSrc resolution
     /// (Spotify/Apple/Deezer/Tidal/YouTube); bare text gets ytsearch:.
+    /// Already-prefixed queries (`ytsearch:…`, …) carry a `source:`
+    /// prefix and pass through instead of stacking a second one.
     pub fn search_identifier(query: &str) -> String {
         let q = query.trim();
-        if q.contains("://") {
+        if has_search_prefix(q) {
             q.to_string()
         } else {
             format!("ytsearch:{q}")
@@ -2062,10 +2198,30 @@ impl LavalinkManager {
     /// player (best-effort; skipped with no live node/session so the
     /// offline path still drops state) and drop the player. Returns the
     /// destroyed targets so the caller can OP4-leave + clear status.
+    /// H24/7-parked guilds are never swept here (their idle destroy
+    /// keeps voice via the no-disconnect path); pass their ids through
+    /// [`Self::sweep_idle_destroy_skipping`].
     pub async fn sweep_idle_destroy(&self, now_ms: i64) -> Vec<IdleDestroyTarget> {
+        self.sweep_idle_destroy_skipping(&HashSet::new(), now_ms)
+            .await
+    }
+
+    /// [`Self::sweep_idle_destroy`] skipping H24/7-parked guilds
+    /// (mirrors `handleH247PlayerIdleDestroy`, which destroys parked
+    /// players with `disconnect = false` so the bot never visibly
+    /// leaves its H24/7 channel: the parked destroy keeps voice and
+    /// must not go through the OP4-leave + status-clear path below).
+    pub async fn sweep_idle_destroy_skipping(
+        &self,
+        parked_guilds: &HashSet<u64>,
+        now_ms: i64,
+    ) -> Vec<IdleDestroyTarget> {
         let due = self.destroy_due_guilds(now_ms).await;
         let mut done = Vec::with_capacity(due.len());
         for t in due {
+            if parked_guilds.contains(&t.guild_id) {
+                continue;
+            }
             if let Ok((node, session)) = self.live_node_and_session(t.guild_id).await {
                 let _ = self.rest_destroy(&node, &session, t.guild_id).await;
             }
@@ -2073,6 +2229,26 @@ impl LavalinkManager {
             done.push(t);
         }
         done
+    }
+
+    // ---- H24/7 player legs (mirrors h247Manager.ts event handlers) ----
+
+    /// Create leg (mirrors `handleH247PlayerCreated`, which replays the
+    /// cached voice handshake on `playerCreate`): hand back the cached
+    /// Discord voice state for the guild, if any, so the caller can
+    /// push it to the (re)created node player via
+    /// [`Self::push_voice_state`]. None means no parked session.
+    pub async fn h247_on_player_created(&self, guild_id: u64) -> Option<VoiceState> {
+        self.take_pending_voice(guild_id).await
+    }
+
+    /// Destroy leg (mirrors `handleH247PlayerDestroyed`, which rejoins
+    /// the parked channel after a `playerDestroy`): true when the
+    /// caller must restore the voice presence (H24/7 enabled with a
+    /// parked channel). The Discord-side rejoin itself stays
+    /// caller-side; this is the pure rejoin decision.
+    pub fn h247_rejoin_after_destroy(enabled: bool, parked_voice: Option<u64>) -> bool {
+        enabled && parked_voice.is_some()
     }
 
     // ---- high-level flows used by music/ commands ----
@@ -2091,50 +2267,113 @@ impl LavalinkManager {
         Err(MusicError::NoSession(first.id.clone()))
     }
 
-    /// Load one identifier on the live node (failover order). Thin
-    /// wrapper so the search pipeline reads like the TS
-    /// `node.search(...)` legs.
-    async fn load_on_live_node(
+    /// Load one identifier on one pinned node. The loads are
+    /// sessionless (`/v4/loadtracks`), so pinning only fixes which
+    /// node answers — the multi-query batch and the per-node failover
+    /// both build on this.
+    async fn load_on_node(
         &self,
-        guild_id: u64,
+        node: &NodeEntry,
         identifier: &str,
     ) -> Result<LoadResult, MusicError> {
-        let (node, _) = self.live_node_and_session(guild_id).await?;
-        self.rest_load(&node, identifier).await
+        self.rest_load(node, identifier).await
     }
 
-    /// First-hit tracks for one `artist title` text query (deezer leg
-    /// only; the caller decides playlist vs single).
-    async fn deezer_first_hit(&self, guild_id: u64, artist: &str, title: &str) -> Option<Track> {
+    /// Direct URL load split into (tracks, is_playlist) on one node;
+    /// transport/REST failures and empty/error loads are empty (the
+    /// caller falls through to the next leg or no-matches).
+    async fn load_url_tracks_on(&self, node: &NodeEntry, url: &str) -> (Vec<Track>, bool) {
+        match self.load_on_node(node, url).await {
+            Ok(loaded) => split_loaded(loaded),
+            Err(_) => (vec![], false),
+        }
+    }
+
+    /// First-hit track for one `artist title` deezer query on the
+    /// pinned node (None on miss or transport failure: the per-track
+    /// catch, mirroring the TS `catch { return undefined }`).
+    async fn deezer_first_hit_on(
+        &self,
+        node: &NodeEntry,
+        artist: &str,
+        title: &str,
+    ) -> Option<Track> {
         let identifier = format!("dzsearch:{} {}", artist.trim(), title.trim());
-        match self.load_on_live_node(guild_id, &identifier).await {
-            Ok(loaded) => load_tracks_flat(loaded).into_iter().next(),
+        match self.load_on_node(node, &identifier).await {
+            Ok(loaded) => split_loaded(loaded).0.into_iter().next(),
             Err(_) => None,
         }
+    }
+
+    /// Concurrent deezer fan-out for album/playlist metadata (mirrors
+    /// the TS `Promise.all(tracks.map(...))` with its per-track
+    /// try/catch): one in-flight load per `(artist, title)` pair,
+    /// failures drop that track, survivors keep input order.
+    async fn deezer_fan_out_queries(
+        &self,
+        node: &NodeEntry,
+        queries: &[(String, String)],
+    ) -> Vec<Track> {
+        if queries.is_empty() {
+            return vec![];
+        }
+        let http = self.http.clone();
+        let base = node.base_url();
+        let password = node.lava_cfg.password.clone();
+        let mut set = tokio::task::JoinSet::new();
+        for (idx, (artist, title)) in queries.iter().enumerate().take(100) {
+            let http = http.clone();
+            let base = base.clone();
+            let password = password.clone();
+            let identifier = format!("dzsearch:{} {}", artist.trim(), title.trim());
+            set.spawn(async move {
+                let hit = load_first_hit(&http, &base, &password, &identifier).await;
+                (idx, hit)
+            });
+        }
+        let mut ordered: Vec<(usize, Track)> = Vec::new();
+        while let Some(res) = set.join_next().await {
+            // Per-track catch: transport/parse/join failures drop the track.
+            if let Ok((idx, Some(hit))) = res {
+                ordered.push((idx, hit));
+            }
+        }
+        ordered.sort_by_key(|(idx, _)| *idx);
+        mask_tracks(ordered.into_iter().map(|(_, t)| t).collect())
     }
 
     /// Bare-text search with the deezer-vs-soundcloud proximity legs
     /// (mirrors the non-URL tail of `searchQueryOnNode`): deezer first,
     /// soundcloud fallback when deezer misses or looks dissimilar, and
-    /// the similarity-score pick when both hit.
+    /// the similarity-score pick when both hit. Single-hit results
+    /// only (TS enqueues `res.tracks[0]` for non-playlists).
     pub async fn search_text_tracks(
         &self,
         guild_id: u64,
         query: &str,
     ) -> Result<Vec<Track>, MusicError> {
-        let deezer = match self
-            .load_on_live_node(guild_id, &format!("dzsearch:{query}"))
-            .await
-        {
-            Ok(loaded) => load_tracks_flat(loaded),
+        for node in self.nodes_in_failover_order(guild_id).await {
+            match self.search_text_tracks_on(&node, query).await {
+                Ok(tracks) if response_exists(&tracks) => return Ok(tracks),
+                _ => continue,
+            }
+        }
+        Err(MusicError::NoMatches)
+    }
+
+    /// [`Self::search_text_tracks`] on one pinned node.
+    async fn search_text_tracks_on(
+        &self,
+        node: &NodeEntry,
+        query: &str,
+    ) -> Result<Vec<Track>, MusicError> {
+        let deezer = match self.load_on_node(node, &format!("dzsearch:{query}")).await {
+            Ok(loaded) => split_loaded(loaded).0,
             Err(_) => vec![],
         };
         if !response_exists(&deezer) {
-            let sc = match self
-                .load_on_live_node(guild_id, &format!("scsearch:{query}"))
-                .await
-            {
-                Ok(loaded) => load_tracks_flat(loaded),
+            let sc = match self.load_on_node(node, &format!("scsearch:{query}")).await {
+                Ok(loaded) => split_loaded(loaded).0,
                 Err(_) => vec![],
             };
             if response_exists(&sc) {
@@ -2146,11 +2385,8 @@ impl LavalinkManager {
         if is_similar(query, &first.info.title, &first.info.author) {
             return Ok(deezer);
         }
-        let sc = match self
-            .load_on_live_node(guild_id, &format!("scsearch:{query}"))
-            .await
-        {
-            Ok(loaded) => load_tracks_flat(loaded),
+        let sc = match self.load_on_node(node, &format!("scsearch:{query}")).await {
+            Ok(loaded) => split_loaded(loaded).0,
             Err(_) => vec![],
         };
         if !response_exists(&sc) {
@@ -2172,88 +2408,155 @@ impl LavalinkManager {
         }
     }
 
-    /// Resolve one play query to node tracks + a playlist flag. Mirrors
-    /// `searchQueryOnNode`: Spotify/Apple/Amazon/Tidal URLs resolve via
-    /// the metadata ports and re-search on deezer (albums/playlists fan
-    /// out to 100 per-track deezer hits, like TS); YouTube URLs are
-    /// sanitized and loaded direct (the TS youtubei.js title lookup has
-    /// no Rust equivalent); other URLs load direct; bare text goes
-    /// through [`Self::search_text_tracks`]. Every returned title runs
-    /// through [`mask_link`].
+    /// Generic-URL search with the deezer-then-soundcloud legs (mirrors
+    /// the `isUrlQuery` branch of `searchQueryOnNode`). lavalink-client
+    /// sends the raw URL for `http(s)` queries whatever the source, so
+    /// both legs are direct URL loads resolved server-side; the
+    /// deezer-vs-soundcloud proximity pick is kept structurally.
+    async fn search_url_tracks_on(
+        &self,
+        node: &NodeEntry,
+        url: &str,
+    ) -> Result<(Vec<Track>, bool), MusicError> {
+        let (deezer, deezer_playlist) = self.load_url_tracks_on(node, url).await;
+        if !response_exists(&deezer) {
+            let (sc, sc_playlist) = self.load_url_tracks_on(node, url).await;
+            if response_exists(&sc) {
+                return Ok((sc, sc_playlist));
+            }
+            return Err(MusicError::NoMatches);
+        }
+        let first = &deezer[0];
+        if is_similar(url, &first.info.title, &first.info.author) {
+            return Ok((deezer, deezer_playlist));
+        }
+        let (sc, sc_playlist) = self.load_url_tracks_on(node, url).await;
+        if !response_exists(&sc) {
+            return Ok((deezer, deezer_playlist));
+        }
+        let deezer_score = proximity_similarity(
+            url,
+            &build_track_label(&first.info.title, &first.info.author),
+        );
+        let sc_first = &sc[0];
+        let sc_score = proximity_similarity(
+            url,
+            &build_track_label(&sc_first.info.title, &sc_first.info.author),
+        );
+        if sc_score > deezer_score {
+            Ok((sc, sc_playlist))
+        } else {
+            Ok((deezer, deezer_playlist))
+        }
+    }
+
+    /// Resolve one play query to node tracks + a playlist flag, with
+    /// per-node failover (mirrors `searchMusicQuery`, which tries every
+    /// connected node and keeps the first hit): the first node in
+    /// failover order with a titled hit wins, otherwise NoMatches.
+    /// Every returned title runs through [`mask_link`].
     pub async fn resolve_query_tracks(
         &self,
         guild_id: u64,
         query: &str,
     ) -> Result<(Vec<Track>, bool), MusicError> {
+        let ordered = self.nodes_in_failover_order(guild_id).await;
+        if ordered.is_empty() {
+            return Err(MusicError::NoNodes);
+        }
+        for node in &ordered {
+            match self.resolve_on(node, query).await {
+                Ok((tracks, is_playlist)) if response_exists(&tracks) => {
+                    return Ok((tracks, is_playlist));
+                }
+                _ => continue,
+            }
+        }
+        Err(MusicError::NoMatches)
+    }
+
+    /// [`Self::resolve_query_tracks`] on one pinned node. Mirrors
+    /// `searchQueryOnNode`: Spotify/Apple/Amazon/Tidal URLs resolve via
+    /// the metadata ports and re-search on deezer (albums/playlists fan
+    /// out to per-track deezer hits, like TS); YouTube URLs load direct
+    /// with a title-to-deezer fallback (mirrors `handleYoutube`); other
+    /// URLs run the deezer/soundcloud legs; bare text goes through
+    /// [`Self::search_text_tracks_on`].
+    async fn resolve_on(
+        &self,
+        node: &NodeEntry,
+        query: &str,
+    ) -> Result<(Vec<Track>, bool), MusicError> {
         let query = query.trim();
         if is_spotify_url(query) {
-            return self.resolve_spotify(guild_id, query).await;
+            return self.resolve_spotify_on(node, query).await;
         }
         if is_apple_music_url(query) {
-            if let Some(res) = self.resolve_apple(guild_id, query).await? {
+            if let Some(res) = self.resolve_apple_on(node, query).await? {
                 return Ok(res);
             }
             return Err(MusicError::NoMatches);
         }
         if is_amazon_music_url(query) {
-            if let Some(res) = self.resolve_amazon(guild_id, query).await? {
+            if let Some(res) = self.resolve_amazon_on(node, query).await? {
                 return Ok(res);
             }
             return Err(MusicError::NoMatches);
         }
         if is_tidal_url(query) {
-            if let Some(res) = self.resolve_tidal(guild_id, query).await? {
+            if let Some(res) = self.resolve_tidal_on(node, query).await? {
                 return Ok(res);
             }
             return Err(MusicError::NoMatches);
         }
         if is_youtube_url(query) {
-            let clean = sanitize_youtube_url(query);
-            match self.load_on_live_node(guild_id, &clean).await {
-                Ok(LoadResult::Playlist(data)) => {
-                    return Ok((mask_tracks(data.tracks), true));
-                }
-                Ok(loaded) => {
-                    let tracks = mask_tracks(load_tracks_flat(loaded));
-                    if response_exists(&tracks) {
-                        return Ok((tracks, false));
-                    }
-                }
-                Err(_) => {}
-            }
-            return Err(MusicError::NoMatches);
+            return self.resolve_youtube_on(node, query).await;
         }
         if is_url_query(query) {
-            // Generic URL: LavaSrc resolves the URL itself, so deezer
-            // and soundcloud legs would return the same tracks — one
-            // direct load is equivalent.
-            match self.load_on_live_node(guild_id, query).await {
-                Ok(LoadResult::Playlist(data)) => {
-                    return Ok((mask_tracks(data.tracks), true));
-                }
-                Ok(LoadResult::Error(e)) => {
-                    return Err(MusicError::Rest(422, e.message));
-                }
-                Ok(loaded) => {
-                    let tracks = mask_tracks(load_tracks_flat(loaded));
-                    if response_exists(&tracks) {
-                        return Ok((tracks, false));
-                    }
-                }
-                Err(_) => {}
-            }
-            return Err(MusicError::NoMatches);
+            return self.search_url_tracks_on(node, query).await;
         }
-        let tracks = mask_tracks(self.search_text_tracks(guild_id, query).await?);
+        let tracks = self.search_text_tracks_on(node, query).await?;
         if !response_exists(&tracks) {
             return Err(MusicError::NoMatches);
         }
         Ok((tracks, false))
     }
 
-    async fn resolve_spotify(
+    /// YouTube URL leg: sanitized direct load first, then the
+    /// title-to-deezer fallback (mirrors `handleYoutube`, which looks
+    /// the video title up and re-searches it on deezer; the keyless
+    /// oEmbed endpoint stands in for youtubei.js here, stripped of
+    /// `(…)`/`[…]` extras like `removeParenthesesContent`).
+    async fn resolve_youtube_on(
         &self,
-        guild_id: u64,
+        node: &NodeEntry,
+        query: &str,
+    ) -> Result<(Vec<Track>, bool), MusicError> {
+        let clean = sanitize_youtube_url(query);
+        let (tracks, is_playlist) = self.load_url_tracks_on(node, &clean).await;
+        if response_exists(&tracks) {
+            return Ok((tracks, is_playlist));
+        }
+        if let Some((title, _)) = youtube_oembed_title(&self.http, &clean).await {
+            let name = remove_parentheses_content(&title);
+            if !name.is_empty() {
+                if let Ok(loaded) = self
+                    .load_on_node(node, &deezer_title_identifier(&name))
+                    .await
+                {
+                    let (hits, _) = split_loaded(loaded);
+                    if response_exists(&hits) {
+                        return Ok((hits, false));
+                    }
+                }
+            }
+        }
+        Err(MusicError::NoMatches)
+    }
+
+    async fn resolve_spotify_on(
+        &self,
+        node: &NodeEntry,
         url: &str,
     ) -> Result<(Vec<Track>, bool), MusicError> {
         let details = crate::metadata::spotify::get_details(url)
@@ -2262,28 +2565,27 @@ impl LavalinkManager {
         if details.tracks.len() == 1 {
             let t = &details.tracks[0];
             let artist = t.artist.clone().unwrap_or_default();
-            match self.deezer_first_hit(guild_id, &artist, &t.name).await {
+            match self.deezer_first_hit_on(node, &artist, &t.name).await {
                 Some(hit) => Ok((mask_tracks(vec![hit]), false)),
                 None => Err(MusicError::NoMatches),
             }
         } else {
-            let mut found = Vec::new();
-            for t in details.tracks.iter().take(100) {
-                let artist = t.artist.clone().unwrap_or_default();
-                if let Some(hit) = self.deezer_first_hit(guild_id, &artist, &t.name).await {
-                    found.push(hit);
-                }
-            }
+            let queries: Vec<(String, String)> = details
+                .tracks
+                .iter()
+                .map(|t| (t.artist.clone().unwrap_or_default(), t.name.clone()))
+                .collect();
+            let found = self.deezer_fan_out_queries(node, &queries).await;
             if found.is_empty() {
                 return Err(MusicError::NoMatches);
             }
-            Ok((mask_tracks(found), true))
+            Ok((found, true))
         }
     }
 
-    async fn resolve_apple(
+    async fn resolve_apple_on(
         &self,
-        guild_id: u64,
+        node: &NodeEntry,
         url: &str,
     ) -> Result<Option<(Vec<Track>, bool)>, MusicError> {
         let res = crate::metadata::apple_music::search(url)
@@ -2295,47 +2597,43 @@ impl LavalinkManager {
         match res {
             crate::metadata::apple_music::AppleResult::Song(t) => {
                 match self
-                    .deezer_first_hit(guild_id, &t.artist.name, &t.title)
+                    .deezer_first_hit_on(node, &t.artist.name, &t.title)
                     .await
                 {
                     Some(hit) => Ok(Some((mask_tracks(vec![hit]), false))),
                     None => Ok(None),
                 }
             }
-            crate::metadata::apple_music::AppleResult::Album(a) => Ok(Some((
-                self.deezer_fan_out(guild_id, &a.tracks).await?,
-                true,
-            ))),
-            crate::metadata::apple_music::AppleResult::Playlist(p) => Ok(Some((
-                self.deezer_fan_out(guild_id, &p.tracks).await?,
-                true,
-            ))),
-        }
-    }
-
-    async fn deezer_fan_out(
-        &self,
-        guild_id: u64,
-        tracks: &[crate::metadata::apple_music::Track],
-    ) -> Result<Vec<Track>, MusicError> {
-        let mut found = Vec::new();
-        for t in tracks.iter().take(100) {
-            if let Some(hit) = self
-                .deezer_first_hit(guild_id, &t.artist.name, &t.title)
-                .await
-            {
-                found.push(hit);
+            crate::metadata::apple_music::AppleResult::Album(a) => {
+                let queries: Vec<(String, String)> = a
+                    .tracks
+                    .iter()
+                    .map(|t| (t.artist.name.clone(), t.title.clone()))
+                    .collect();
+                let found = self.deezer_fan_out_queries(node, &queries).await;
+                if found.is_empty() {
+                    return Err(MusicError::NoMatches);
+                }
+                Ok(Some((found, true)))
+            }
+            crate::metadata::apple_music::AppleResult::Playlist(p) => {
+                let queries: Vec<(String, String)> = p
+                    .tracks
+                    .iter()
+                    .map(|t| (t.artist.name.clone(), t.title.clone()))
+                    .collect();
+                let found = self.deezer_fan_out_queries(node, &queries).await;
+                if found.is_empty() {
+                    return Err(MusicError::NoMatches);
+                }
+                Ok(Some((found, true)))
             }
         }
-        if found.is_empty() {
-            return Err(MusicError::NoMatches);
-        }
-        Ok(mask_tracks(found))
     }
 
-    async fn resolve_tidal(
+    async fn resolve_tidal_on(
         &self,
-        guild_id: u64,
+        node: &NodeEntry,
         url: &str,
     ) -> Result<Option<(Vec<Track>, bool)>, MusicError> {
         let res = crate::metadata::tidal::search(url)
@@ -2344,47 +2642,43 @@ impl LavalinkManager {
         match res {
             crate::metadata::tidal::TidalResult::Song(t) => {
                 match self
-                    .deezer_first_hit(guild_id, &t.artist.name, &t.title)
+                    .deezer_first_hit_on(node, &t.artist.name, &t.title)
                     .await
                 {
                     Some(hit) => Ok(Some((mask_tracks(vec![hit]), false))),
                     None => Ok(None),
                 }
             }
-            crate::metadata::tidal::TidalResult::Album(a) => Ok(Some((
-                self.deezer_fan_out_tidal(guild_id, &a.tracks).await?,
-                true,
-            ))),
-            crate::metadata::tidal::TidalResult::Playlist(p) => Ok(Some((
-                self.deezer_fan_out_tidal(guild_id, &p.tracks).await?,
-                true,
-            ))),
-        }
-    }
-
-    async fn deezer_fan_out_tidal(
-        &self,
-        guild_id: u64,
-        tracks: &[crate::metadata::tidal::Track],
-    ) -> Result<Vec<Track>, MusicError> {
-        let mut found = Vec::new();
-        for t in tracks.iter().take(100) {
-            if let Some(hit) = self
-                .deezer_first_hit(guild_id, &t.artist.name, &t.title)
-                .await
-            {
-                found.push(hit);
+            crate::metadata::tidal::TidalResult::Album(a) => {
+                let queries: Vec<(String, String)> = a
+                    .tracks
+                    .iter()
+                    .map(|t| (t.artist.name.clone(), t.title.clone()))
+                    .collect();
+                let found = self.deezer_fan_out_queries(node, &queries).await;
+                if found.is_empty() {
+                    return Err(MusicError::NoMatches);
+                }
+                Ok(Some((found, true)))
+            }
+            crate::metadata::tidal::TidalResult::Playlist(p) => {
+                let queries: Vec<(String, String)> = p
+                    .tracks
+                    .iter()
+                    .map(|t| (t.artist.name.clone(), t.title.clone()))
+                    .collect();
+                let found = self.deezer_fan_out_queries(node, &queries).await;
+                if found.is_empty() {
+                    return Err(MusicError::NoMatches);
+                }
+                Ok(Some((found, true)))
             }
         }
-        if found.is_empty() {
-            return Err(MusicError::NoMatches);
-        }
-        Ok(mask_tracks(found))
     }
 
-    async fn resolve_amazon(
+    async fn resolve_amazon_on(
         &self,
-        guild_id: u64,
+        node: &NodeEntry,
         url: &str,
     ) -> Result<Option<(Vec<Track>, bool)>, MusicError> {
         let domain = url_host(url).unwrap_or_else(|| "music.amazon.com".to_string());
@@ -2394,68 +2688,72 @@ impl LavalinkManager {
         match res {
             crate::metadata::amazon_music::AmazonResult::Song(t) => {
                 match self
-                    .deezer_first_hit(guild_id, &t.artist.name, &t.title)
+                    .deezer_first_hit_on(node, &t.artist.name, &t.title)
                     .await
                 {
                     Some(hit) => Ok(Some((mask_tracks(vec![hit]), false))),
                     None => Ok(None),
                 }
             }
-            crate::metadata::amazon_music::AmazonResult::Album(a) => Ok(Some((
-                self.deezer_fan_out_amazon(guild_id, &a.tracks).await?,
-                true,
-            ))),
-            crate::metadata::amazon_music::AmazonResult::Playlist(p) => Ok(Some((
-                self.deezer_fan_out_amazon(guild_id, &p.tracks).await?,
-                true,
-            ))),
-        }
-    }
-
-    async fn deezer_fan_out_amazon(
-        &self,
-        guild_id: u64,
-        tracks: &[crate::metadata::amazon_music::Track],
-    ) -> Result<Vec<Track>, MusicError> {
-        let mut found = Vec::new();
-        for t in tracks.iter().take(100) {
-            if let Some(hit) = self
-                .deezer_first_hit(guild_id, &t.artist.name, &t.title)
-                .await
-            {
-                found.push(hit);
+            crate::metadata::amazon_music::AmazonResult::Album(a) => {
+                let queries: Vec<(String, String)> = a
+                    .tracks
+                    .iter()
+                    .map(|t| (t.artist.name.clone(), t.title.clone()))
+                    .collect();
+                let found = self.deezer_fan_out_queries(node, &queries).await;
+                if found.is_empty() {
+                    return Err(MusicError::NoMatches);
+                }
+                Ok(Some((found, true)))
+            }
+            crate::metadata::amazon_music::AmazonResult::Playlist(p) => {
+                let queries: Vec<(String, String)> = p
+                    .tracks
+                    .iter()
+                    .map(|t| (t.artist.name.clone(), t.title.clone()))
+                    .collect();
+                let found = self.deezer_fan_out_queries(node, &queries).await;
+                if found.is_empty() {
+                    return Err(MusicError::NoMatches);
+                }
+                Ok(Some((found, true)))
             }
         }
-        if found.is_empty() {
-            return Err(MusicError::NoMatches);
-        }
-        Ok(mask_tracks(found))
     }
 
-    /// Resolve + enqueue. Returns (position, first track, is_playlist):
-    /// position 0 means it started playing immediately.
-    pub async fn play_query(
+    /// Enqueue already-resolved tracks on the pinned node + start
+    /// playback when the first track went straight to current
+    /// (position 0). Playlist results enqueue every track; single
+    /// results enqueue only the first hit (mirrors
+    /// `player.queue.add(loadType === "playlist" ? tracks : tracks[0])`).
+    async fn enqueue_resolved(
         &self,
+        node: &NodeEntry,
         guild_id: u64,
-        query: &str,
+        tracks: Vec<Track>,
+        is_playlist: bool,
         requester: u64,
         now_ms: i64,
     ) -> Result<(usize, QueuedTrack, bool), MusicError> {
-        // Fail fast with no live node (keeps the offline NoNodes unit
-        // test green) before any metadata fetch.
-        self.live_node_and_session(guild_id).await?;
-        let (mut tracks, is_playlist) = self.resolve_query_tracks(guild_id, query).await?;
-        if tracks.is_empty() {
+        if !response_exists(&tracks) {
             return Err(MusicError::NoMatches);
         }
         let first = QueuedTrack::from((&tracks[0], requester));
-        let title = first.clone();
+        let shown = first.clone();
+        let rest: Vec<Track> = if is_playlist {
+            tracks.into_iter().skip(1).collect()
+        } else {
+            vec![]
+        };
         let position = self
             .with_player(guild_id, |p| {
                 let mut pos = p.enqueue(first, now_ms);
-                for t in tracks.drain(1..) {
-                    p.queue.push_back(QueuedTrack::from((&t, requester)));
-                    pos = p.queue.len();
+                if is_playlist {
+                    for t in rest {
+                        p.queue.push_back(QueuedTrack::from((&t, requester)));
+                        pos = p.queue.len();
+                    }
                 }
                 pos
             })
@@ -2463,22 +2761,139 @@ impl LavalinkManager {
         if position == 0 {
             let snap = self.snapshot(guild_id).await;
             if let Some(current) = snap.as_ref().and_then(|s| s.current.clone()) {
-                let (node, session) = self.live_node_and_session(guild_id).await?;
-                let out = self
-                    .rest_play(&node, &session, guild_id, &current.encoded, false)
-                    .await;
+                let session = node
+                    .session()
+                    .await
+                    .ok_or_else(|| MusicError::NoSession(node.id.clone()))?;
+                self.rest_play(node, &session, guild_id, &current.encoded, false)
+                    .await?;
                 // Re-apply the stored volume on every fresh start
                 // (mirrors musicPlay.ts `player.setVolume(player.customVolume
                 // || DEFAULT_VOLUME)` after createPlayer): the node
                 // player is new, so it would otherwise play at 100.
                 let volume = snap.map(|s| s.volume).unwrap_or(DEFAULT_VOLUME);
-                let _ = self
-                    .rest_set_volume(&node, &session, guild_id, volume)
-                    .await;
-                out?;
+                let _ = self.rest_set_volume(node, &session, guild_id, volume).await;
             }
         }
-        Ok((position, title, is_playlist))
+        Ok((position, shown, is_playlist))
+    }
+
+    /// Resolve + enqueue. Returns (position, first track, is_playlist):
+    /// position 0 means it started playing immediately. The first node
+    /// in failover order with a hit wins (mirrors `searchMusicQuery`
+    /// keeping the first successful node).
+    pub async fn play_query(
+        &self,
+        guild_id: u64,
+        query: &str,
+        requester: u64,
+        now_ms: i64,
+    ) -> Result<(usize, QueuedTrack, bool), MusicError> {
+        let ordered = self.nodes_in_failover_order(guild_id).await;
+        if ordered.is_empty() {
+            return Err(MusicError::NoNodes);
+        }
+        for node in &ordered {
+            match self.resolve_on(node, query).await {
+                Ok((tracks, is_playlist)) if response_exists(&tracks) => {
+                    return self
+                        .enqueue_resolved(node, guild_id, tracks, is_playlist, requester, now_ms)
+                        .await;
+                }
+                _ => continue,
+            }
+        }
+        Err(MusicError::NoMatches)
+    }
+
+    /// Multi-query batch on one pinned node (mirrors `handleMusicPlay`
+    /// looping `queries[]` with `currentNode` pinned from the first
+    /// successful search): the first query walks the failover order
+    /// and pins its winning node; every later query resolves on that
+    /// node only. A failed query aborts the batch (TS answers the
+    /// no-result embed and returns), keeping the results so far.
+    pub async fn play_queries(
+        &self,
+        guild_id: u64,
+        queries: &[String],
+        requester: u64,
+        now_ms: i64,
+    ) -> Vec<Result<(usize, QueuedTrack, bool), MusicError>> {
+        let normalized: Vec<String> = queries
+            .iter()
+            .map(|q| q.trim().to_string())
+            .filter(|q| !q.is_empty())
+            .collect();
+        let mut out = Vec::with_capacity(normalized.len());
+        let mut pinned: Option<Arc<NodeEntry>> = None;
+        for query in &normalized {
+            if let Some(node) = pinned.clone() {
+                match self.resolve_on(&node, query).await {
+                    Ok((tracks, is_playlist)) if response_exists(&tracks) => {
+                        match self
+                            .enqueue_resolved(
+                                &node,
+                                guild_id,
+                                tracks,
+                                is_playlist,
+                                requester,
+                                now_ms,
+                            )
+                            .await
+                        {
+                            Ok(hit) => out.push(Ok(hit)),
+                            Err(e) => {
+                                out.push(Err(e));
+                                break;
+                            }
+                        }
+                    }
+                    _ => {
+                        out.push(Err(MusicError::NoMatches));
+                        break;
+                    }
+                }
+                continue;
+            }
+            // First query: failover until a resolve hits, pin the winner.
+            let mut hit: Option<(Arc<NodeEntry>, Vec<Track>, bool)> = None;
+            for candidate in self.nodes_in_failover_order(guild_id).await {
+                match self.resolve_on(&candidate, query).await {
+                    Ok((tracks, is_playlist)) if response_exists(&tracks) => {
+                        hit = Some((candidate, tracks, is_playlist));
+                        break;
+                    }
+                    _ => continue,
+                }
+            }
+            match hit {
+                Some((node, tracks, is_playlist)) => {
+                    match self
+                        .enqueue_resolved(&node, guild_id, tracks, is_playlist, requester, now_ms)
+                        .await
+                    {
+                        Ok(res) => {
+                            pinned = Some(node);
+                            out.push(Ok(res));
+                        }
+                        Err(e) => {
+                            out.push(Err(e));
+                            break;
+                        }
+                    }
+                }
+                None => {
+                    let empty = self.nodes_in_failover_order(guild_id).await.is_empty();
+                    out.push(Err(if empty {
+                        MusicError::NoNodes
+                    } else {
+                        MusicError::NoMatches
+                    }));
+                    break;
+                }
+            }
+        }
+        out
     }
 }
 
@@ -2687,6 +3102,24 @@ mod tests {
         assert_eq!(
             LavalinkManager::search_identifier("https://music.apple.com/x"),
             "https://music.apple.com/x"
+        );
+        // Already-prefixed queries carry a scheme and pass through
+        // instead of stacking a second prefix.
+        assert_eq!(
+            LavalinkManager::search_identifier("ytsearch:never gonna give you up"),
+            "ytsearch:never gonna give you up"
+        );
+        assert_eq!(
+            LavalinkManager::search_identifier("dzsearch:daft punk"),
+            "dzsearch:daft punk"
+        );
+        assert_eq!(
+            LavalinkManager::search_identifier("spsearch:daft punk"),
+            "spsearch:daft punk"
+        );
+        assert_eq!(
+            LavalinkManager::search_identifier("dzsearch:never gonna give you up"),
+            "dzsearch:never gonna give you up"
         );
     }
 
@@ -3138,16 +3571,18 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn exception_on_last_track_idles() {
+    async fn exception_unmatched_keeps_current() {
         let m = LavalinkManager::new();
         m.with_player(23, |p| {
             p.enqueue(sample_track("solo"), 0);
         })
         .await;
+        // Unmatched exception message: no-op, current is kept (mirrors
+        // the TS handler falling through both message branches).
         let ev = parse_exception(&exception_frame("23", "solo", "other failure"));
-        assert_eq!(m.handle_track_exception(ev, 100).await, ErrorRecovery::Idle);
+        assert_eq!(m.handle_track_exception(ev, 100).await, ErrorRecovery::Kept);
         let snap = m.snapshot(23).await.unwrap();
-        assert!(snap.current.is_none());
+        assert_eq!(snap.current.as_ref().unwrap().title, "solo");
     }
 
     #[tokio::test]
@@ -3176,8 +3611,29 @@ mod tests {
             p.enqueue(sample_track("b"), 0);
         })
         .await;
+        // Unmatched exception: no-op, current is kept.
         let out = m
             .feed_node_ws("n1", &exception_frame("25", "a", "boom"), 100)
+            .await;
+        assert_eq!(out, FedWs::ErrorHandled);
+        assert_eq!(
+            m.snapshot(25)
+                .await
+                .unwrap()
+                .current
+                .as_ref()
+                .unwrap()
+                .title,
+            "a"
+        );
+        // Matched fallback branch, but with no live session the
+        // re-search leg is skipped and state still advances.
+        let out = m
+            .feed_node_ws(
+                "n1",
+                &exception_frame("25", "a", "Something broke when playing the track."),
+                150,
+            )
             .await;
         assert_eq!(out, FedWs::ErrorHandled);
         assert_eq!(
@@ -3231,7 +3687,11 @@ mod tests {
         .await;
         let gid_str = gid.to_string();
         let out = m
-            .feed_node_ws("n1", &exception_frame(&gid_str, "a", "boom"), 100)
+            .feed_node_ws(
+                "n1",
+                &exception_frame(&gid_str, "a", "Something broke when playing the track."),
+                100,
+            )
             .await;
         assert_eq!(out, FedWs::ErrorHandled);
         let snap = gm.snapshot(gid).await.unwrap();
@@ -3342,6 +3802,56 @@ mod tests {
             .sweep_idle_destroy(1000 + EMPTY_QUEUE_DESTROY_AFTER_MS)
             .await
             .is_empty());
+    }
+
+    #[tokio::test]
+    async fn sweep_idle_destroy_skips_parked_guilds() {
+        let m = LavalinkManager::new();
+        for gid in [31u64, 32u64] {
+            m.with_player(gid, |p| {
+                p.voice_channel = Some(77);
+                p.stop(1000);
+            })
+            .await;
+        }
+        let at = 1000 + EMPTY_QUEUE_DESTROY_AFTER_MS;
+        // Parked guild 31 keeps its state (no-disconnect idle path);
+        // guild 32 is destroyed as usual.
+        let mut parked = std::collections::HashSet::new();
+        parked.insert(31u64);
+        let done = m.sweep_idle_destroy_skipping(&parked, at).await;
+        assert_eq!(done.len(), 1);
+        assert_eq!(done[0].guild_id, 32);
+        assert!(m.snapshot(31).await.is_some());
+        assert!(m.snapshot(32).await.is_none());
+    }
+
+    #[test]
+    fn h247_rejoin_after_destroy_needs_enabled_parked() {
+        assert!(LavalinkManager::h247_rejoin_after_destroy(true, Some(7)));
+        assert!(!LavalinkManager::h247_rejoin_after_destroy(true, None));
+        assert!(!LavalinkManager::h247_rejoin_after_destroy(false, Some(7)));
+        assert!(!LavalinkManager::h247_rejoin_after_destroy(false, None));
+    }
+
+    #[tokio::test]
+    async fn play_queries_offline_reports_per_query() {
+        let m = LavalinkManager::new();
+        // Empty/blank batches resolve to nothing (TS answers no-result).
+        assert!(m.play_queries(1, &[], 2, 0).await.is_empty());
+        assert!(m
+            .play_queries(1, &["   ".to_string()], 2, 0)
+            .await
+            .is_empty());
+        // No nodes: the first query aborts the batch with NoNodes.
+        let out = m
+            .play_queries(1, &["a".to_string(), "b".to_string()], 2, 0)
+            .await;
+        assert_eq!(out.len(), 1);
+        assert_eq!(
+            out.into_iter().next().unwrap().unwrap_err(),
+            MusicError::NoNodes
+        );
     }
 
     #[test]
@@ -3455,6 +3965,76 @@ mod tests {
         assert!(is_tidal_url("https://tidal.com/browse/track/1"));
         assert!(!is_url_query("never gonna give you up"));
         assert!(is_url_query("https://example.test/x"));
+        // Any-scheme detection (mirrors `new URL(query)`): non-http
+        // schemes count as URLs; opaque paths carry no whitespace.
+        assert!(is_url_query("spotify:track:abc123"));
+        assert!(is_url_query("https://example.test/x"));
+        assert!(!is_url_query("never gonna give you up"));
+        assert!(!is_url_query("dzsearch:never gonna give you up"));
+        assert!(!is_url_query("12:34"));
+        assert!(!is_url_query("title: test"));
+        assert!(!is_url_query("just:"));
+        assert!(is_url_query("  https://example.test/x  "));
+    }
+
+    #[test]
+    fn deezer_title_identifier_prefixes_cleaned_title() {
+        assert_eq!(
+            deezer_title_identifier("  Never Gonna Give You Up  "),
+            "dzsearch:Never Gonna Give You Up"
+        );
+    }
+
+    fn lava_test_track(title: &str) -> Track {
+        Track {
+            encoded: format!("enc-{title}"),
+            info: lava_rs::model::TrackInfo {
+                identifier: "id".to_string(),
+                is_seekable: true,
+                author: "artist".to_string(),
+                length: 180_000,
+                is_stream: false,
+                position: 0,
+                title: title.to_string(),
+                uri: Some(format!("https://example.test/{title}")),
+                artwork_url: None,
+                isrc: None,
+                source_name: "youtube".to_string(),
+            },
+            plugin_info: None,
+        }
+    }
+
+    #[test]
+    fn split_loaded_singles_first_and_propagates_playlists() {
+        // Search legs expose only the first hit.
+        let (tracks, playlist) = split_loaded(LoadResult::Search(vec![
+            lava_test_track("a"),
+            lava_test_track("b"),
+        ]));
+        assert!(!playlist);
+        assert_eq!(tracks.len(), 1);
+        assert_eq!(tracks[0].info.title, "a");
+        // Single track leg.
+        let (tracks, playlist) = split_loaded(LoadResult::Track(lava_test_track("solo")));
+        assert!(!playlist);
+        assert_eq!(tracks.len(), 1);
+        // Playlist legs propagate every track.
+        let (tracks, playlist) = split_loaded(LoadResult::Playlist(
+            serde_json::from_value(serde_json::json!({
+                "info": { "name": "list", "selectedTrack": 0 },
+                "tracks": [
+                    { "encoded": "enc-a", "info": { "identifier": "id", "isSeekable": true, "author": "artist", "length": 180000, "isStream": false, "position": 0, "title": "a", "sourceName": "youtube" } },
+                    { "encoded": "enc-b", "info": { "identifier": "id", "isSeekable": true, "author": "artist", "length": 180000, "isStream": false, "position": 0, "title": "b", "sourceName": "youtube" } }
+                ]
+            }))
+            .unwrap(),
+        ));
+        assert!(playlist);
+        assert_eq!(tracks.len(), 2);
+        // Empty/error legs are empty (callers fall to no-matches).
+        let (tracks, _) = split_loaded(LoadResult::Empty);
+        assert!(tracks.is_empty());
     }
 
     #[test]

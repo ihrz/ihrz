@@ -828,12 +828,7 @@ pub fn parse_status_panel_entry(raw: &str) -> Option<StatusPanelTarget> {
 /// Malformed rows are skipped; entries are never deleted here
 /// (TS keeps them on missing-message and retries next minute).
 pub async fn load_status_panels(pool: &crate::db::Pool) -> Vec<StatusPanelTarget> {
-    let rows: Vec<(String, String)> = sqlx::query_as::<_, (String, String)>(
-        "SELECT key_name, value FROM kv WHERE guild_id = '0' AND key_name LIKE 'MISC.statusEmbed.%'",
-    )
-    .fetch_all(pool)
-    .await
-    .unwrap_or_default();
+    let rows = crate::db::kv_scan_prefix(pool, META_SCOPE, STATUS_PANEL_PREFIX).await;
     rows.iter()
         .filter_map(|(_, value)| parse_status_panel_entry(value))
         .collect()
@@ -1308,23 +1303,7 @@ mod tests {
     }
 
     async fn panel_pool() -> crate::db::Pool {
-        use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};
-        use std::str::FromStr;
-        let opts = SqliteConnectOptions::from_str("sqlite::memory:").unwrap();
-        let pool = SqlitePoolOptions::new()
-            .max_connections(1)
-            .connect_with(opts)
-            .await
-            .unwrap();
-        sqlx::query("CREATE TABLE kv (guild_id TEXT NOT NULL, key_name TEXT NOT NULL, value TEXT NOT NULL, PRIMARY KEY (guild_id, key_name))")
-            .execute(&pool)
-            .await
-            .unwrap();
-        sqlx::query("CREATE TABLE guild_lang (guild_id TEXT PRIMARY KEY, lang TEXT NOT NULL DEFAULT 'en-US')")
-            .execute(&pool)
-            .await
-            .unwrap();
-        pool
+        crate::db::memory_pool().await
     }
 
     #[tokio::test]

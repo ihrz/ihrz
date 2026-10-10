@@ -1409,18 +1409,7 @@ mod tests {
 
     #[tokio::test]
     async fn voice_leave_credits_wallet_and_stats() {
-        use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};
-        use std::str::FromStr;
-        let opts = SqliteConnectOptions::from_str("sqlite::memory:").unwrap();
-        let pool = SqlitePoolOptions::new()
-            .max_connections(1)
-            .connect_with(opts)
-            .await
-            .unwrap();
-        sqlx::query("CREATE TABLE kv (guild_id TEXT NOT NULL, key_name TEXT NOT NULL, value TEXT NOT NULL, PRIMARY KEY (guild_id, key_name))")
-            .execute(&pool).await.unwrap();
-        sqlx::query("CREATE TABLE guild_lang (guild_id TEXT PRIMARY KEY, lang TEXT NOT NULL DEFAULT 'en-US')")
-            .execute(&pool).await.unwrap();
+        let pool = crate::db::memory_pool().await;
         voice_join(&pool, "g", 1, 9, 0).await;
         let (minutes, coins) = voice_leave(&pool, "g", 1, 6_000_000, 2.0, true).await;
         assert_eq!((minutes, coins), (100, 20));
@@ -1437,18 +1426,7 @@ mod tests {
 
     #[tokio::test]
     async fn voice_leave_member_gate_and_exact_ms() {
-        use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};
-        use std::str::FromStr;
-        let opts = SqliteConnectOptions::from_str("sqlite::memory:").unwrap();
-        let pool = SqlitePoolOptions::new()
-            .max_connections(1)
-            .connect_with(opts)
-            .await
-            .unwrap();
-        sqlx::query("CREATE TABLE kv (guild_id TEXT NOT NULL, key_name TEXT NOT NULL, value TEXT NOT NULL, PRIMARY KEY (guild_id, key_name))")
-            .execute(&pool).await.unwrap();
-        sqlx::query("CREATE TABLE guild_lang (guild_id TEXT PRIMARY KEY, lang TEXT NOT NULL DEFAULT 'en-US')")
-            .execute(&pool).await.unwrap();
+        let pool = crate::db::memory_pool().await;
         // pay=false (user left the guild, TS newState.member null):
         // no coins, but the session still closes and stats push.
         voice_join(&pool, "g", 1, 9, 0).await;
@@ -1466,18 +1444,7 @@ mod tests {
 
     #[tokio::test]
     async fn recover_voice_sessions_closes_absentees_unpaid() {
-        use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};
-        use std::str::FromStr;
-        let opts = SqliteConnectOptions::from_str("sqlite::memory:").unwrap();
-        let pool = SqlitePoolOptions::new()
-            .max_connections(1)
-            .connect_with(opts)
-            .await
-            .unwrap();
-        sqlx::query("CREATE TABLE kv (guild_id TEXT NOT NULL, key_name TEXT NOT NULL, value TEXT NOT NULL, PRIMARY KEY (guild_id, key_name))")
-            .execute(&pool).await.unwrap();
-        sqlx::query("CREATE TABLE guild_lang (guild_id TEXT PRIMARY KEY, lang TEXT NOT NULL DEFAULT 'en-US')")
-            .execute(&pool).await.unwrap();
+        let pool = crate::db::memory_pool().await;
         // User 1 still in voice (kept), user 2 gone (closed, unpaid).
         voice_join(&pool, "g", 1, 9, 0).await;
         voice_join(&pool, "g", 2, 9, 0).await;
@@ -1611,16 +1578,7 @@ mod tests {
 
     #[tokio::test]
     async fn join_keys_read_blob_then_legacy() {
-        use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};
-        use std::str::FromStr;
-        let opts = SqliteConnectOptions::from_str("sqlite::memory:").unwrap();
-        let pool = SqlitePoolOptions::new()
-            .max_connections(1)
-            .connect_with(opts)
-            .await
-            .unwrap();
-        sqlx::query("CREATE TABLE kv (guild_id TEXT NOT NULL, key_name TEXT NOT NULL, value TEXT NOT NULL, PRIMARY KEY (guild_id, key_name))")
-            .execute(&pool).await.unwrap();
+        let pool = crate::db::memory_pool().await;
         // Empty -> nothing from either source.
         assert!(join_role_ids(&pool, "g").await.is_empty());
         assert!(join_dm_template(&pool, "g").await.is_none());
@@ -1773,18 +1731,7 @@ mod tests {
 
     #[tokio::test]
     async fn xp_full_gates_mirror_ts() {
-        use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};
-        use std::str::FromStr;
-        let opts = SqliteConnectOptions::from_str("sqlite::memory:").unwrap();
-        let pool = SqlitePoolOptions::new()
-            .max_connections(1)
-            .connect_with(opts)
-            .await
-            .unwrap();
-        sqlx::query("CREATE TABLE kv (guild_id TEXT NOT NULL, key_name TEXT NOT NULL, value TEXT NOT NULL, PRIMARY KEY (guild_id, key_name))")
-            .execute(&pool).await.unwrap();
-        sqlx::query("CREATE TABLE guild_lang (guild_id TEXT PRIMARY KEY, lang TEXT NOT NULL DEFAULT 'en-US')")
-            .execute(&pool).await.unwrap();
+        let pool = crate::db::memory_pool().await;
         // parseMessageCommand early-return: stats recorded, no XP.
         let out = record_message_activity_full(
             &pool,
@@ -1853,18 +1800,7 @@ mod tests {
 
     #[tokio::test]
     async fn xp_full_levelup_announce_hint_and_boosted_coins() {
-        use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};
-        use std::str::FromStr;
-        let opts = SqliteConnectOptions::from_str("sqlite::memory:").unwrap();
-        let pool = SqlitePoolOptions::new()
-            .max_connections(1)
-            .connect_with(opts)
-            .await
-            .unwrap();
-        sqlx::query("CREATE TABLE kv (guild_id TEXT NOT NULL, key_name TEXT NOT NULL, value TEXT NOT NULL, PRIMARY KEY (guild_id, key_name))")
-            .execute(&pool).await.unwrap();
-        sqlx::query("CREATE TABLE guild_lang (guild_id TEXT PRIMARY KEY, lang TEXT NOT NULL DEFAULT 'en-US')")
-            .execute(&pool).await.unwrap();
+        let pool = crate::db::memory_pool().await;
         // Seed just over the 500 XP stale threshold so the fixed gain
         // levels stored level 0 -> 1 (TS compares the PRE-add xp).
         let _ = crate::commands::ranks::main::save_rank(
@@ -1913,18 +1849,7 @@ mod tests {
 
     #[tokio::test]
     async fn xp_full_announce_routing_and_permission_gate() {
-        use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};
-        use std::str::FromStr;
-        let opts = SqliteConnectOptions::from_str("sqlite::memory:").unwrap();
-        let pool = SqlitePoolOptions::new()
-            .max_connections(1)
-            .connect_with(opts)
-            .await
-            .unwrap();
-        sqlx::query("CREATE TABLE kv (guild_id TEXT NOT NULL, key_name TEXT NOT NULL, value TEXT NOT NULL, PRIMARY KEY (guild_id, key_name))")
-            .execute(&pool).await.unwrap();
-        sqlx::query("CREATE TABLE guild_lang (guild_id TEXT PRIMARY KEY, lang TEXT NOT NULL DEFAULT 'en-US')")
-            .execute(&pool).await.unwrap();
+        let pool = crate::db::memory_pool().await;
         async fn seed_near_level(pool: &crate::db::Pool) {
             let _ = crate::commands::ranks::main::save_rank(
                 pool,
@@ -2056,18 +1981,7 @@ mod tests {
 
     #[tokio::test]
     async fn record_message_increments_stats_and_xp() {
-        use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};
-        use std::str::FromStr;
-        let opts = SqliteConnectOptions::from_str("sqlite::memory:").unwrap();
-        let pool = SqlitePoolOptions::new()
-            .max_connections(1)
-            .connect_with(opts)
-            .await
-            .unwrap();
-        sqlx::query("CREATE TABLE kv (guild_id TEXT NOT NULL, key_name TEXT NOT NULL, value TEXT NOT NULL, PRIMARY KEY (guild_id, key_name))")
-            .execute(&pool).await.unwrap();
-        sqlx::query("CREATE TABLE guild_lang (guild_id TEXT PRIMARY KEY, lang TEXT NOT NULL DEFAULT 'en-US')")
-            .execute(&pool).await.unwrap();
+        let pool = crate::db::memory_pool().await;
         let (level, leveled) = record_message_activity(&pool, "g", 1, 7, 5, 1_000).await;
         assert_eq!((level, leveled), (0, false));
         // Each message grants 35..=37 XP (TS: floor(random*3)+35).
@@ -2105,27 +2019,11 @@ mod tests {
 
     #[tokio::test]
     async fn table_routing_with_legacy_fallback() {
-        use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};
-        use std::str::FromStr;
-        let opts = SqliteConnectOptions::from_str("sqlite::memory:").unwrap();
-        let pool = SqlitePoolOptions::new()
-            .max_connections(1)
-            .connect_with(opts)
-            .await
-            .unwrap();
-        sqlx::query("CREATE TABLE kv (guild_id TEXT NOT NULL, key_name TEXT NOT NULL, value TEXT NOT NULL, PRIMARY KEY (guild_id, key_name))")
-            .execute(&pool).await.unwrap();
-        sqlx::query("CREATE TABLE guild_lang (guild_id TEXT PRIMARY KEY, lang TEXT NOT NULL DEFAULT 'en-US')")
-            .execute(&pool).await.unwrap();
+        let pool = crate::db::memory_pool().await;
         // Table-routed writes land under `tbl:<gid>`, never as flat rows.
         tbl_set(&pool, "g1", "GUILD.JOIN_ROLE", "7").await.unwrap();
         assert_eq!(join_role_ids(&pool, "g1").await, vec![7]);
-        let legacy: Option<String> = sqlx::query_scalar::<_, String>(
-            "SELECT value FROM kv WHERE guild_id = 'g1' AND key_name = 'GUILD.JOIN_ROLE'",
-        )
-        .fetch_optional(&pool)
-        .await
-        .unwrap();
+        let legacy: Option<String> = crate::db::kv_get(&pool, "g1", "GUILD.JOIN_ROLE").await;
         assert_eq!(legacy, None);
         // Legacy rows still read, table wins on conflicts.
         crate::db::kv_set(&pool, "g2", "GUILD.JOIN_ROLE", "9")
@@ -2175,18 +2073,7 @@ mod tests {
 
     #[tokio::test]
     async fn voice_leave_econ_dual_write_visible_to_both_readers() {
-        use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};
-        use std::str::FromStr;
-        let opts = SqliteConnectOptions::from_str("sqlite::memory:").unwrap();
-        let pool = SqlitePoolOptions::new()
-            .max_connections(1)
-            .connect_with(opts)
-            .await
-            .unwrap();
-        sqlx::query("CREATE TABLE kv (guild_id TEXT NOT NULL, key_name TEXT NOT NULL, value TEXT NOT NULL, PRIMARY KEY (guild_id, key_name))")
-            .execute(&pool).await.unwrap();
-        sqlx::query("CREATE TABLE guild_lang (guild_id TEXT PRIMARY KEY, lang TEXT NOT NULL DEFAULT 'en-US')")
-            .execute(&pool).await.unwrap();
+        let pool = crate::db::memory_pool().await;
         voice_join(&pool, "g", 1, 9, 0).await;
         let (_, coins) = voice_leave(&pool, "g", 1, 6_000_000, 2.0, true).await;
         assert_eq!(coins, 20);

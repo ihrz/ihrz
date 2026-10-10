@@ -26,12 +26,27 @@ pub async fn notifier_add(
     #[description = "twitch or youtube"] platform: String,
     #[description = "Author id or username"] author: String,
 ) -> Result<(), anyhow::Error> {
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    let say = |key: &str, fallback: &str| {
+        crate::lang::get(&code, key).unwrap_or_else(|| fallback.to_string())
+    };
     if !platform_supported(&platform) {
-        let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-        ctx.say(
-            crate::lang::get(&code, "msg_bad_platform_twitch_youtube_kick")
-                .unwrap_or_else(|| "Bad platform (twitch, youtube, kick).".to_string()),
-        )
+        ctx.say(say(
+            "msg_bad_platform_twitch_youtube_kick",
+            "Bad platform (twitch, youtube, kick).",
+        ))
+        .await?;
+        return Ok(());
+    }
+    let platform = platform.to_ascii_lowercase();
+    let author = author.trim().to_string();
+    // Live platform check (TS authorExistOnPlatform in !add.ts). Like
+    // the TS client, missing creds read as "doesn't exist".
+    if !crate::scheduler::author_exists_on_platform(&platform, &author).await {
+        ctx.say(say(
+            "notifier_author_add_author_doesnt_exist",
+            "Author doesn't exist. Please verify the ID.",
+        ))
         .await?;
         return Ok(());
     }
@@ -40,20 +55,15 @@ pub async fn notifier_add(
         .map(|g| g.get().to_string())
         .unwrap_or_default();
     let mut entries = load_entries(&ctx.data().pool, &gid).await;
-    let entry = NotifierEntry {
-        id_or_username: author.trim().to_string(),
-        platform: platform.to_ascii_lowercase(),
-    };
-    if !entries.contains(&entry) {
-        entries.push(entry);
-        save_entries(&ctx.data().pool, &gid, &entries).await?;
-    }
-    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-    ctx.say(
-        crate::lang::get(&code, "msg_notifier_entry_added")
-            .unwrap_or_else(|| "Notifier entry added.".to_string()),
-    )
-    .await?;
+    entries.push(NotifierEntry {
+        id_or_username: author,
+        platform,
+    });
+    dedup_entries(&mut entries);
+    save_entries(&ctx.data().pool, &gid, &entries).await?;
+    let (authors, config) = authors_and_config_embeds(&ctx.data().pool, &gid, &code).await;
+    ctx.send(poise::CreateReply::default().embed(authors).embed(config))
+        .await?;
     Ok(())
 }
 

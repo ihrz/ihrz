@@ -13,10 +13,19 @@ pub async fn m_pause(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     }
     let m = synced_mgr(&ctx).await;
     let snap = m.snapshot(gid).await;
-    // No pre-refusal: pausing always runs (even when already paused)
-    // and the reply follows the resulting flag, mirroring `!pause.ts`
-    // (`player.pause()` then `player.paused ? pause_var_paused :
-    // pause_var_err`).
+    // Refuse exactly like `!pause.ts:67` (`!player || !player.playing
+    // || !voiceChannel`): nothing current (or nobody in voice) answers
+    // the nothing-playing line before the same-voice gate.
+    if snap.as_ref().and_then(|s| s.current.clone()).is_none() || voice.is_none() {
+        say_key(
+            &ctx,
+            &code,
+            "pause_nothing_playing",
+            "There is nothing playing",
+        )
+        .await?;
+        return Ok(());
+    }
     if guard_same_voice(
         &ctx,
         &code,
@@ -31,9 +40,9 @@ pub async fn m_pause(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     if let Ok((node, session)) = m.live_node_and_session(gid).await {
         let _ = m.rest_set_paused(&node, &session, gid, true).await;
     }
-    let snap2 = m.snapshot(gid).await;
-    let paused = snap2.as_ref().and_then(|s| s.current.clone()).is_some()
-        && snap2.map(|s| s.paused).unwrap_or(true);
+    // Reply follows the resulting flag, mirroring `!pause.ts:91-94`
+    // (`player.paused ? pause_var_paused : pause_var_err`).
+    let paused = m.snapshot(gid).await.map(|s| s.paused).unwrap_or(false);
     say_key(
         &ctx,
         &code,

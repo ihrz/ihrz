@@ -329,17 +329,7 @@ mod tests {
 
     #[tokio::test]
     async fn backup_roundtrips_through_kv() {
-        use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};
-        use std::str::FromStr;
-        let pool = SqlitePoolOptions::new()
-            .max_connections(1)
-            .connect_with(SqliteConnectOptions::from_str("sqlite::memory:").unwrap())
-            .await
-            .unwrap();
-        sqlx::query("CREATE TABLE kv (guild_id TEXT NOT NULL, key_name TEXT NOT NULL, value TEXT NOT NULL, PRIMARY KEY (guild_id, key_name))")
-            .execute(&pool)
-            .await
-            .unwrap();
+        let pool = crate::db::memory_pool().await;
         let b = sample();
         save_backup(&pool, "g1", &b).await.unwrap();
         assert_eq!(load_backup(&pool, "g1").await, Some(b));

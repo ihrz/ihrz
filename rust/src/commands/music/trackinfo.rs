@@ -22,21 +22,20 @@ pub async fn m_trackinfo(
         Ok(())
     }
     if let Some(q) = title {
-        if let Ok((node, _)) = m.live_node_and_session(gid).await {
-            let id = crate::lavalink::LavalinkManager::search_identifier(&q);
-            match m.rest_load(&node, &id).await {
-                Ok(lava_rs::rest::LoadResult::Track(t)) => {
-                    return reply_for_lava(&ctx, &code, &t, Some(&q)).await;
-                }
-                Ok(lava_rs::rest::LoadResult::Search(v)) if !v.is_empty() => {
-                    return reply_for_lava(&ctx, &code, &v[0], Some(&q)).await;
-                }
-                Ok(lava_rs::rest::LoadResult::Playlist(d)) if !d.tracks.is_empty() => {
-                    return reply_for_lava(&ctx, &code, &d.tracks[0], Some(&q)).await;
-                }
-                _ => {
-                    return no_result(&ctx, &code).await;
-                }
+        // Full resolve pipeline (mirrors `!trackinfo.ts:61-65`
+        // `searchMusicQuery(query || "")`): every source leg applies,
+        // and any resolve failure answers the no-result embed like TS
+        // (`!res || res.tracks.length <= 0`).
+        match m.resolve_query_tracks(gid, &q).await {
+            Ok((tracks, _)) if !tracks.is_empty() => {
+                return reply_for_lava(&ctx, &code, &tracks[0], Some(&q)).await;
+            }
+            Ok(_) => {
+                return no_result(&ctx, &code).await;
+            }
+            Err(crate::lavalink::MusicError::NoNodes) => {}
+            Err(_) => {
+                return no_result(&ctx, &code).await;
             }
         }
         // Node offline: still try metadata when the query itself is a URL.

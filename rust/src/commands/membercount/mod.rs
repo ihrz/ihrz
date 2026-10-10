@@ -91,10 +91,7 @@ pub async fn load_mcount(pool: &crate::db::Pool, guild_id: &str, slot: &str) -> 
 pub async fn delete_all_mcount(pool: &crate::db::Pool, guild_id: &str) -> anyhow::Result<()> {
     let backend = guild_backend(pool);
     let _ = backend.table(guild_id).delete("GUILD.MCOUNT").await;
-    sqlx::query("DELETE FROM kv WHERE guild_id = ? AND key_name LIKE 'GUILD.MCOUNT.%'")
-        .bind(guild_id)
-        .execute(pool)
-        .await?;
+    crate::db::kv_del_prefix(pool, guild_id, "GUILD.MCOUNT.").await?;
     Ok(())
 }
 
@@ -196,19 +193,7 @@ mod tests {
     }
 
     async fn memory_pool() -> crate::db::Pool {
-        use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};
-        use std::str::FromStr;
-        let opts = SqliteConnectOptions::from_str("sqlite::memory:").unwrap();
-        let pool = SqlitePoolOptions::new()
-            .max_connections(1)
-            .connect_with(opts)
-            .await
-            .unwrap();
-        sqlx::query("CREATE TABLE kv (guild_id TEXT NOT NULL, key_name TEXT NOT NULL, value TEXT NOT NULL, PRIMARY KEY (guild_id, key_name))")
-            .execute(&pool)
-            .await
-            .unwrap();
-        pool
+        crate::db::memory_pool().await
     }
 
     #[tokio::test]
@@ -219,12 +204,7 @@ mod tests {
             .unwrap();
         assert!(load_mcount(&pool, "g1", "member").await.is_some());
         // Table-routed rows live under `tbl:<gid>`, never as flat legacy rows.
-        let legacy: Option<String> = sqlx::query_scalar::<_, String>(
-            "SELECT value FROM kv WHERE guild_id = 'g1' AND key_name = 'GUILD.MCOUNT.member'",
-        )
-        .fetch_optional(&pool)
-        .await
-        .unwrap();
+        let legacy = crate::db::kv_get(&pool, "g1", &mcount_key("member")).await;
         assert_eq!(legacy, None);
         // Legacy rows still read.
         crate::db::kv_set(&pool, "g2", &mcount_key("bot"), r#"{"enable":true}"#)

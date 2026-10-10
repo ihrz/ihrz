@@ -97,11 +97,7 @@ pub async fn gc_blockbot(
         post_blockbot_log(&ctx, &title, &desc).await;
         // TS deletes the key on disable; the reader treats a missing
         // key as disabled.
-        let _ = sqlx::query("DELETE FROM kv WHERE guild_id = ? AND key_name = ?")
-            .bind(&gid)
-            .bind("GUILD.BLOCK_BOT")
-            .execute(pool)
-            .await;
+        let _ = crate::db::kv_del(pool, &gid, "GUILD.BLOCK_BOT").await;
     }
     ctx.say(if enabled {
         crate::lang::get(&code, "blockbot_command_work_on_enable").unwrap_or_else(|| {

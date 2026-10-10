@@ -152,12 +152,11 @@ pub async fn sweep_expired_schedules(
     http: Option<std::sync::Arc<poise::serenity_prelude::Http>>,
     now_ms: i64,
 ) -> u64 {
-    let rows: Vec<(String, String, String)> = sqlx::query_as::<_, (String, String, String)>(
-        "SELECT guild_id, key_name, value FROM kv WHERE key_name LIKE 'SCHEDULE.%'",
-    )
-    .fetch_all(pool)
-    .await
-    .unwrap_or_default();
+    let rows: Vec<(String, String, String)> = crate::db::kv_scan_all(pool)
+        .await
+        .into_iter()
+        .filter(|(_, key, _)| key.starts_with("SCHEDULE."))
+        .collect();
 
     let mut removed = 0u64;
     for (gid, key, raw) in rows {
@@ -184,14 +183,7 @@ pub async fn sweep_expired_schedules(
         if let Some(http) = &http {
             notify_schedule_expiry(pool, http, &gid, user_id, &entry).await;
         }
-        if sqlx::query("DELETE FROM kv WHERE guild_id = ? AND key_name = ?")
-            .bind(&gid)
-            .bind(&key)
-            .execute(pool)
-            .await
-            .map(|r| r.rows_affected() > 0)
-            .unwrap_or(false)
-        {
+        if crate::db::kv_del(pool, &gid, &key).await.is_ok() {
             removed += 1;
         }
     }
@@ -270,12 +262,12 @@ pub async fn sweep_expired_giveaways(
     http: Option<std::sync::Arc<poise::serenity_prelude::Http>>,
     now_ms: i64,
 ) -> u64 {
-    let rows: Vec<(String, String)> = sqlx::query_as::<_, (String, String)>(
-        "SELECT guild_id, key_name FROM kv WHERE key_name LIKE 'GIVEAWAY.%'",
-    )
-    .fetch_all(pool)
-    .await
-    .unwrap_or_default();
+    let rows: Vec<(String, String)> = crate::db::kv_scan_all(pool)
+        .await
+        .into_iter()
+        .filter(|(_, key, _)| key.starts_with("GIVEAWAY."))
+        .map(|(gid, key, _)| (gid, key))
+        .collect();
 
     let mut ended = 0u64;
     for (gid, key) in rows {
@@ -366,12 +358,14 @@ pub async fn sweep_temp_expiry(
     http: Option<std::sync::Arc<poise::serenity_prelude::Http>>,
     now_ms: i64,
 ) -> (u64, u64) {
-    let rows: Vec<(String, String)> = sqlx::query_as::<_, (String, String)>(
-        "SELECT guild_id, key_name FROM kv WHERE key_name LIKE 'GUILD.TEMPROLE.%' OR key_name LIKE 'GUILD.TEMPBAN.%'",
-    )
-    .fetch_all(pool)
-    .await
-    .unwrap_or_default();
+    let rows: Vec<(String, String)> = crate::db::kv_scan_all(pool)
+        .await
+        .into_iter()
+        .filter(|(_, key, _)| {
+            key.starts_with("GUILD.TEMPROLE.") || key.starts_with("GUILD.TEMPBAN.")
+        })
+        .map(|(gid, key, _)| (gid, key))
+        .collect();
 
     let (mut roles, mut unbans) = (0u64, 0u64);
     for (gid, key) in rows {
@@ -403,11 +397,7 @@ pub async fn sweep_temp_expiry(
                     .await
                     .is_err()
                 {
-                    let _ = sqlx::query("DELETE FROM kv WHERE guild_id = ? AND key_name = ?")
-                        .bind(&gid)
-                        .bind(&key)
-                        .execute(pool)
-                        .await;
+                    let _ = crate::db::kv_del(pool, &gid, &key).await;
                     roles += 1;
                     continue;
                 }
@@ -430,11 +420,7 @@ pub async fn sweep_temp_expiry(
             }
             unbans += 1;
         }
-        let _ = sqlx::query("DELETE FROM kv WHERE guild_id = ? AND key_name = ?")
-            .bind(&gid)
-            .bind(&key)
-            .execute(pool)
-            .await;
+        let _ = crate::db::kv_del(pool, &gid, &key).await;
     }
     (roles, unbans)
 }
@@ -490,12 +476,11 @@ pub async fn sweep_membercount(
 
     // slot configs keyed by (gid, slot); table rows win over legacy.
     let mut slots: HashMap<(String, String), serde_json::Value> = HashMap::new();
-    let legacy: Vec<(String, String, String)> = sqlx::query_as::<_, (String, String, String)>(
-        "SELECT guild_id, key_name, value FROM kv WHERE key_name LIKE 'GUILD.MCOUNT.%'",
-    )
-    .fetch_all(pool)
-    .await
-    .unwrap_or_default();
+    let legacy: Vec<(String, String, String)> = crate::db::kv_scan_all(pool)
+        .await
+        .into_iter()
+        .filter(|(_, key, _)| key.starts_with("GUILD.MCOUNT."))
+        .collect();
     for (gid, key, raw) in legacy {
         if mcount_table_guild_id(&gid).is_some() {
             continue;
@@ -510,12 +495,12 @@ pub async fn sweep_membercount(
             slots.entry((gid, slot.to_string())).or_insert(cfg);
         }
     }
-    let table_roots: Vec<(String, String)> = sqlx::query_as::<_, (String, String)>(
-        "SELECT guild_id, value FROM kv WHERE guild_id LIKE 'tbl:%' AND key_name = 'GUILD'",
-    )
-    .fetch_all(pool)
-    .await
-    .unwrap_or_default();
+    let table_roots: Vec<(String, String)> = crate::db::kv_scan_all(pool)
+        .await
+        .into_iter()
+        .filter(|(gid, key, _)| gid.starts_with("tbl:") && key == "GUILD")
+        .map(|(gid, _, value)| (gid, value))
+        .collect();
     for (row_gid, raw) in table_roots {
         let Some(gid) = mcount_table_guild_id(&row_gid) else {
             continue;
@@ -590,13 +575,11 @@ pub async fn sweep_pfps(pool: &Pool, http: &std::sync::Arc<poise::serenity_prelu
     use poise::serenity_prelude::{
         ChannelId, CreateActionRow, CreateButton, CreateEmbed, CreateMessage, GuildId,
     };
-    let rows: Vec<(String, String, String)> =
-        sqlx::query_as::<_, (String, String, String)>(
-            "SELECT guild_id, key_name, value FROM kv WHERE key_name = 'PFPS.channel' OR key_name = 'PFPS.disable'",
-        )
-        .fetch_all(pool)
+    let rows: Vec<(String, String, String)> = crate::db::kv_scan_all(pool)
         .await
-        .unwrap_or_default();
+        .into_iter()
+        .filter(|(_, key, _)| key == "PFPS.channel" || key == "PFPS.disable")
+        .collect();
     let mut channels: std::collections::HashMap<String, String> = Default::default();
     let mut disabled: std::collections::HashSet<String> = Default::default();
     for (gid, key, value) in rows {
@@ -709,12 +692,11 @@ pub async fn sweep_autorenew(
     now_ms: i64,
 ) -> u64 {
     use poise::serenity_prelude::{ChannelId, CreateChannel, CreateMessage, GuildId};
-    let rows: Vec<(String, String, String)> = sqlx::query_as::<_, (String, String, String)>(
-        "SELECT guild_id, key_name, value FROM kv WHERE key_name LIKE 'UTILS.renew_channel.%'",
-    )
-    .fetch_all(pool)
-    .await
-    .unwrap_or_default();
+    let rows: Vec<(String, String, String)> = crate::db::kv_scan_all(pool)
+        .await
+        .into_iter()
+        .filter(|(_, key, _)| key.starts_with("UTILS.renew_channel."))
+        .collect();
     let mut done = 0u64;
     for (gid, key, raw) in rows {
         let Ok(v) = serde_json::from_str::<serde_json::Value>(&raw) else {
@@ -743,11 +725,7 @@ pub async fn sweep_autorenew(
                 continue;
             }
             let Ok(channel) = http.get_channel(ChannelId::new(ch_id)).await else {
-                let _ = sqlx::query("DELETE FROM kv WHERE guild_id = ? AND key_name = ?")
-                    .bind(&gid)
-                    .bind(&key)
-                    .execute(pool)
-                    .await;
+                let _ = crate::db::kv_del(pool, &gid, &key).await;
                 continue;
             };
             let Some(guild_ch) = channel.guild() else {
@@ -769,11 +747,7 @@ pub async fn sweep_autorenew(
             continue;
         }
         let Ok(channel) = http.get_channel(ChannelId::new(ch_id)).await else {
-            let _ = sqlx::query("DELETE FROM kv WHERE guild_id = ? AND key_name = ?")
-                .bind(&gid)
-                .bind(&key)
-                .execute(pool)
-                .await;
+            let _ = crate::db::kv_del(pool, &gid, &key).await;
             continue;
         };
         let Some(guild_ch) = channel.guild() else {
@@ -812,11 +786,7 @@ pub async fn sweep_autorenew(
             &serde_json::json!({"timestamp": now_ms, "maxTime": max}).to_string(),
         )
         .await;
-        let _ = sqlx::query("DELETE FROM kv WHERE guild_id = ? AND key_name = ?")
-            .bind(&gid)
-            .bind(&key)
-            .execute(pool)
-            .await;
+        let _ = crate::db::kv_del(pool, &gid, &key).await;
         let _ = ChannelId::new(ch_id).delete(http).await;
         // Renewed notice in the replacement (mirrors the post-clone
         // newChannel.send(event_autorenew_channel_renewed)).
@@ -831,60 +801,155 @@ pub async fn sweep_autorenew(
     done
 }
 
-/// Blogger RSS poll. Mirrors Blogger.ts 60s refresh: latest article per
-/// configured blog, skip when already notified, post + record otherwise.
+/// Blogger RSS poll. Mirrors Blogger.ts 60s refresh: per guild with
+/// BLOGGER.enabled set, latest article per configured blog, skip
+/// when already notified, post the rendered message + link button
+/// (nonce + enforceNonce, like the TS channel.send) + record
+/// otherwise. 5s pacing between blogs mirrors the fetchBlogsFeeds
+/// delay.
 pub async fn sweep_blogger(
     pool: &Pool,
     http: &std::sync::Arc<poise::serenity_prelude::Http>,
 ) -> u64 {
-    use poise::serenity_prelude::ChannelId;
-    let rows: Vec<(String, String)> = sqlx::query_as::<_, (String, String)>(
-        "SELECT guild_id, value FROM kv WHERE key_name = 'BLOGGER.blogs'",
-    )
-    .fetch_all(pool)
-    .await
-    .unwrap_or_default();
+    use crate::commands::blogger::{
+        article_already_notified, latest_rss_item, load_blogger_enabled, NotifiedArticle,
+    };
+    use poise::serenity_prelude::{ChannelId, CreateActionRow, CreateButton, CreateMessage, Nonce};
+    let gids = blogger_guild_ids(pool).await;
+    let web = reqwest::Client::new();
     let mut posted = 0u64;
-    for (gid, raw) in rows {
-        let blogs: Vec<crate::commands::blogger::main::BlogEntry> =
-            serde_json::from_str(&raw).unwrap_or_default();
-        for blog in blogs {
-            let body = match reqwest::Client::new().get(&blog.rss).send().await {
+    for gid in &gids {
+        // Skip if module is disabled (Blogger.ts refresh leg).
+        if !load_blogger_enabled(pool, gid).await {
+            continue;
+        }
+        let blogs = crate::commands::blogger::load_blogs(pool, gid).await;
+        if blogs.is_empty() {
+            continue;
+        }
+        let code = crate::db::guild_lang(pool, gid.parse::<u64>().ok()).await;
+        let say = |key: &str, fallback: &str| {
+            crate::lang::get(&code, key).unwrap_or_else(|| fallback.to_string())
+        };
+        let template = say(
+            "blogger_on_new_article_default_message",
+            "New article published!\n**{articleTitle}** by {articleAuthor}\n{articleLink}",
+        );
+        let button_label = say("blogger_read_article", "Read Article");
+        for blog in &blogs {
+            let body = match web.get(&blog.rss).send().await {
                 Ok(r) => r.text().await.unwrap_or_default(),
-                Err(_) => continue,
+                Err(_) => {
+                    tokio::time::sleep(std::time::Duration::from_secs(5)).await;
+                    continue;
+                }
             };
-            let Some(item) = crate::commands::blogger::main::latest_rss_item(&body) else {
+            let Some(item) = latest_rss_item(&body) else {
+                tokio::time::sleep(std::time::Duration::from_secs(5)).await;
                 continue;
             };
-            let notified_raw = crate::db::kv_get(pool, &gid, "BLOGGER.lastArticleNotified").await;
-            let mut notified: Vec<(String, String)> = notified_raw
-                .and_then(|s| serde_json::from_str(&s).ok())
-                .unwrap_or_default();
-            if crate::commands::blogger::main::already_notified(&notified, &blog.id, &item.id) {
+            let notified = load_notified_articles(pool, gid).await;
+            if article_already_notified(&notified, &blog.id, &item.id, item.pub_ms) {
+                tokio::time::sleep(std::time::Duration::from_secs(5)).await;
                 continue;
             }
+            let blog_name = crate::commands::blogger::fetch_rss_title(&blog.rss).await;
+            let message = render_blogger_announce(
+                &template,
+                &item.title,
+                &item.author,
+                &item.link,
+                blog_name.as_deref().unwrap_or("Unknown Blog Name"),
+                gid,
+            );
             if let Ok(ch_num) = blog.channel_id.parse::<u64>() {
-                let _ = ChannelId::new(ch_num)
-                    .send_message(
-                        http,
-                        poise::serenity_prelude::CreateMessage::new()
-                            .content(format!("**{}**\n{}", item.title, item.link)),
-                    )
-                    .await;
+                let nonce_ms = std::time::SystemTime::now()
+                    .duration_since(std::time::UNIX_EPOCH)
+                    .map(|d| d.as_millis())
+                    .unwrap_or(0);
+                let msg = CreateMessage::new()
+                    .content(message)
+                    .components(vec![CreateActionRow::Buttons(vec![
+                        CreateButton::new_link(item.link.clone()).label(button_label.clone()),
+                    ])])
+                    .nonce(Nonce::String(format!("blogger-{}-{nonce_ms}", blog.id)))
+                    .enforce_nonce(true);
+                let _ = ChannelId::new(ch_num).send_message(http, msg).await;
             }
-            notified.push((blog.id.clone(), item.id));
-            let _ = crate::db::kv_set(
-                pool,
-                &gid,
-                "BLOGGER.lastArticleNotified",
-                &serde_json::to_string(&notified).unwrap_or_default(),
-            )
-            .await;
+            let mut list = notified;
+            list.push(NotifiedArticle {
+                blog_id: blog.id.clone(),
+                article_id: item.id.clone(),
+                timestamp_ms: item.pub_ms,
+            });
+            let _ = record_notified_articles(pool, gid, &list).await;
             posted += 1;
             tokio::time::sleep(std::time::Duration::from_secs(5)).await;
         }
     }
     posted
+}
+
+/// Guild ids with a BLOGGER.blogs config (legacy rows + table roots).
+async fn blogger_guild_ids(pool: &Pool) -> Vec<String> {
+    let mut ids: HashSet<String> = HashSet::new();
+    for (gid, _, _) in crate::db::kv_scan_all(pool)
+        .await
+        .into_iter()
+        .filter(|(_, key, _)| key == "BLOGGER.blogs")
+    {
+        match gid.strip_prefix("tbl:") {
+            Some(real) => {
+                ids.insert(real.to_string());
+            }
+            None => {
+                ids.insert(gid);
+            }
+        }
+    }
+    ids.into_iter().collect()
+}
+
+/// Store read for BLOGGER.lastArticleNotified: guild-table row
+/// first, legacy kv fallback.
+pub async fn load_notified_articles(
+    pool: &Pool,
+    gid: &str,
+) -> Vec<crate::commands::blogger::NotifiedArticle> {
+    use crate::commands::blogger::parse_notified_articles;
+    let backend = crate::backends::Backend::sqlite(pool.clone());
+    if let Ok(Some(value)) = backend
+        .table(gid)
+        .get::<serde_json::Value>("BLOGGER.lastArticleNotified")
+        .await
+    {
+        let raw = match &value {
+            serde_json::Value::String(s) => s.clone(),
+            _ => value.to_string(),
+        };
+        return parse_notified_articles(Some(&raw));
+    }
+    parse_notified_articles(
+        crate::db::kv_get(pool, gid, "BLOGGER.lastArticleNotified")
+            .await
+            .as_deref(),
+    )
+}
+
+/// Store write for BLOGGER.lastArticleNotified: guild-table row plus
+/// legacy kv (routed dual-write).
+pub async fn record_notified_articles(
+    pool: &Pool,
+    gid: &str,
+    list: &[crate::commands::blogger::NotifiedArticle],
+) -> anyhow::Result<()> {
+    let raw = serde_json::to_string(list).unwrap_or_else(|_| "[]".to_string());
+    crate::backends::Backend::sqlite(pool.clone())
+        .table(gid)
+        .set("BLOGGER.lastArticleNotified", &raw)
+        .await?;
+    crate::db::kv_set(pool, gid, "BLOGGER.lastArticleNotified", &raw).await?;
+    Ok(())
 }
 
 /// Nightmode tick. Mirrors nightModeManager 60s refresh: per-guild
@@ -1169,14 +1234,8 @@ pub async fn save_wipe_queue(pool: &Pool, queue: &HashMap<String, PendingGuildDe
 /// Delete one guild's rows. Mirrors client.db.delete(guildId) in
 /// clearGuildData (kv rows plus the Rust-side lang row).
 async fn wipe_guild_data(pool: &Pool, guild_id: &str) {
-    let _ = sqlx::query("DELETE FROM kv WHERE guild_id = ?")
-        .bind(guild_id)
-        .execute(pool)
-        .await;
-    let _ = sqlx::query("DELETE FROM guild_lang WHERE guild_id = ?")
-        .bind(guild_id)
-        .execute(pool)
-        .await;
+    let _ = crate::db::kv_del_guild(pool, guild_id).await;
+    let _ = crate::db::clear_guild_lang(pool, guild_id).await;
 }
 
 /// Sweep due deferred guild wipes. Loads the global wipe queue,
@@ -1213,28 +1272,23 @@ pub async fn sweep_guild_wipe_queue(pool: &Pool, now_ms: i64, present: &HashSet<
 /// legacy `GUILD.H247` kv row; parses with the grant decoder (enabled
 /// + voiceChannelId string shape).
 pub async fn h247_parked_channel(pool: &Pool, gid: &str) -> Option<u64> {
-    let table_root: Option<u64> = sqlx::query_scalar::<_, String>(
-        "SELECT value FROM kv WHERE guild_id = ? AND key_name = 'GUILD'",
-    )
-    .bind(format!("tbl:{gid}"))
-    .fetch_optional(pool)
-    .await
-    .unwrap_or_default()
-    .and_then(|raw| {
-        let root: serde_json::Value = serde_json::from_str(&raw).ok()?;
-        let root_ref = match &root {
-            serde_json::Value::String(s) => serde_json::from_str(s).ok()?,
-            v => v.clone(),
-        };
-        let h247 = root_ref.get("H247")?;
-        let text = match h247 {
-            serde_json::Value::String(s) => serde_json::from_str::<serde_json::Value>(s)
-                .map(|v| v.to_string())
-                .unwrap_or_else(|_| s.clone()),
-            v => v.to_string(),
-        };
-        crate::commands::h247::grant::parse_h247(&text).map(|c| c.voice_channel_id)
-    });
+    let table_root: Option<u64> = crate::db::kv_get(pool, &format!("tbl:{gid}"), "GUILD")
+        .await
+        .and_then(|raw| {
+            let root: serde_json::Value = serde_json::from_str(&raw).ok()?;
+            let root_ref = match &root {
+                serde_json::Value::String(s) => serde_json::from_str(s).ok()?,
+                v => v.clone(),
+            };
+            let h247 = root_ref.get("H247")?;
+            let text = match h247 {
+                serde_json::Value::String(s) => serde_json::from_str::<serde_json::Value>(s)
+                    .map(|v| v.to_string())
+                    .unwrap_or_else(|_| s.clone()),
+                v => v.to_string(),
+            };
+            crate::commands::h247::grant::parse_h247(&text).map(|c| c.voice_channel_id)
+        });
     if table_root.is_some() {
         return table_root;
     }
@@ -1474,13 +1528,8 @@ pub async fn sweep_temp_voice_recovery(
         after = page.last().map(|g| g.id);
         for partial in &page {
             let gid = partial.id.get().to_string();
-            let rows: Vec<(String, String)> = sqlx::query_as::<_, (String, String)>(
-                "SELECT key_name, value FROM kv WHERE guild_id = ? AND key_name LIKE 'CUSTOM_VOICE.%'",
-            )
-            .bind(&gid)
-            .fetch_all(pool)
-            .await
-            .unwrap_or_default();
+            let rows: Vec<(String, String)> =
+                crate::db::kv_scan_prefix(pool, &gid, "CUSTOM_VOICE.").await;
             for (key, raw) in rows {
                 // Strip JSON quoting from string-taking writers.
                 let text = raw.trim().trim_matches('"').to_string();
@@ -1760,19 +1809,19 @@ pub fn spawn(pool: Pool, http: std::sync::Arc<poise::serenity_prelude::Http>) {
         });
     }
 
-    // StreamNotifier poll (timing mirrors the 120s refresh in
-    // core/StreamNotifier.ts; store + dedup above, live fetch blocked
-    // on API creds — see the section note).
+    // StreamNotifier poll (mirrors the 120s refresh in
+    // core/StreamNotifier.ts: per-watch fetch + gate + send).
     {
         let pool = pool.clone();
+        let http = http.clone();
         tokio::spawn(async move {
             let mut t = tokio::time::interval(Duration::from_secs(NOTIFIER_SECS));
             loop {
                 t.tick().await;
-                let (guilds, watches) = sweep_notifier_once(&pool).await;
+                let (guilds, watches, posted) = sweep_notifier(&pool, &http).await;
                 if watches > 0 {
                     tracing::debug!(
-                        "scheduler tick: notifier ({guilds} guilds, {watches} watches)"
+                        "scheduler tick: notifier ({guilds} guilds, {watches} watches, {posted} posted)"
                     );
                 }
             }
@@ -1788,16 +1837,12 @@ pub fn spawn(pool: Pool, http: std::sync::Arc<poise::serenity_prelude::Http>) {
 // {userId, mediaId, timestamp} row and sends the rendered message +
 // link button.
 //
-// Status: poll skeleton with store. Ported for real: the 120s tick,
-// NOTIFIER.users config surface (commands/notifier), the
-// already-notified store below and the notifier.rs announce dedup.
-// Blocked on live I/O: no TWITCH_APPLICATION_ID / TWITCH_APPLICATION_SECRET /
-// YOUTUBE_API_KEY reaches this binary (config.rs carries no notifier
-// creds), and sending needs a Discord channel handle the scheduler
-// does not hold. With creds, the per-watch fetch is: Twitch Helix
-// /streams?user_login (bearer from the client-credentials token call)
-// or YouTube search.list order=date + the getLatestMedia latest-item
-// reduce, then the announce gate below.
+// Status: live. The 120s tick runs sweep_notifier (per-watch fetch
+// + gate + send); sweep_notifier_once stays as the store-only seam
+// for tests. Platform creds are independent: Twitch watches need
+// TWITCH_APPLICATION_ID/SECRET (client-credentials token, cached
+// with expiry), YouTube watches need YOUTUBE_API_KEY. Guilds whose
+// watches lack that platform's creds keep the store-only pass.
 
 /// Twitch Helix streams endpoint. Mirrors checkTwitchStream.
 pub const TWITCH_HELIX_STREAMS: &str = "https://api.twitch.tv/helix/streams";
@@ -1855,19 +1900,354 @@ impl NotifierCreds {
             youtube_api_key: Self::env_non_empty("YOUTUBE_API_KEY")?,
         })
     }
+
+    /// Independent Twitch pair. Mirrors the TS constructor holding
+    /// each key separately: a guild watching only YouTube does not
+    /// need Twitch creds and vice versa.
+    pub fn twitch_pair_from_env() -> Option<(String, String)> {
+        Some((
+            Self::env_non_empty("TWITCH_APPLICATION_ID")?,
+            Self::env_non_empty("TWITCH_APPLICATION_SECRET")?,
+        ))
+    }
+
+    /// Independent YouTube key (same all-or-nothing split).
+    pub fn youtube_key_from_env() -> Option<String> {
+        Self::env_non_empty("YOUTUBE_API_KEY")
+    }
+
+    pub fn twitch_pair(&self) -> Option<(String, String)> {
+        if self.twitch_client_id.trim().is_empty() || self.twitch_client_secret.trim().is_empty() {
+            None
+        } else {
+            Some((
+                self.twitch_client_id.clone(),
+                self.twitch_client_secret.clone(),
+            ))
+        }
+    }
+
+    pub fn youtube_key(&self) -> Option<String> {
+        if self.youtube_api_key.trim().is_empty() {
+            None
+        } else {
+            Some(self.youtube_api_key.clone())
+        }
+    }
+}
+
+/// Cached Twitch app token. Mirrors twitchAccessToken +
+/// twitchAccessTokenExpireIn in StreamNotifier.ts.
+static TWITCH_TOKEN: std::sync::OnceLock<tokio::sync::Mutex<(Option<String>, i64)>> =
+    std::sync::OnceLock::new();
+
+fn twitch_token_slot() -> &'static tokio::sync::Mutex<(Option<String>, i64)> {
+    TWITCH_TOKEN.get_or_init(|| tokio::sync::Mutex::new((None, 0)))
+}
+
+/// Fetch a Twitch app access token. Mirrors getAppAccessToken
+/// (client-credentials grant, expiry recorded as Date.now() +
+/// expires_in * 1000). Returns (token, expires_at_ms).
+pub async fn fetch_twitch_token(
+    http: &reqwest::Client,
+    client_id: &str,
+    client_secret: &str,
+) -> Option<(String, i64)> {
+    let now_ms = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|d| d.as_millis() as i64)
+        .unwrap_or(0);
+    let url = format!(
+        "{TWITCH_OAUTH_TOKEN_URL}?client_id={client_id}&client_secret={client_secret}&grant_type=client_credentials"
+    );
+    let resp = http.post(&url).send().await.ok()?;
+    let body: serde_json::Value = resp.json().await.ok()?;
+    let token = body.get("access_token")?.as_str()?.to_string();
+    let expires_in = body.get("expires_in")?.as_i64().unwrap_or(0);
+    if token.is_empty() {
+        return None;
+    }
+    Some((token, now_ms + expires_in * 1000))
+}
+
+/// Cached token, refreshed when missing or expired. Mirrors
+/// ensureValidAccessToken (`Date.now() >= expireIn` refreshes, with
+/// a 60s safety margin so a token dying mid-sweep still works).
+pub async fn ensure_twitch_token(
+    http: &reqwest::Client,
+    client_id: &str,
+    client_secret: &str,
+) -> Option<String> {
+    let now_ms = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|d| d.as_millis() as i64)
+        .unwrap_or(0);
+    {
+        let slot = twitch_token_slot().lock().await;
+        if let (Some(token), expires_at) = slot.clone() {
+            if now_ms + 60_000 < expires_at {
+                return Some(token);
+            }
+        }
+    }
+    let (token, expires_at) = fetch_twitch_token(http, client_id, client_secret).await?;
+    *twitch_token_slot().lock().await = (Some(token.clone()), expires_at);
+    Some(token)
+}
+
+/// Latest fetched media for one watch. Mirrors YoutubeRssResponse /
+/// TwitchResponse (channel_id carries the YouTube ownership leg).
+#[derive(Debug, Clone)]
+pub struct NotifierMedia {
+    pub title: String,
+    pub link: String,
+    pub pub_ms: i64,
+    pub author: String,
+    pub id: String,
+    pub channel_id: Option<String>,
+}
+
+/// Latest-by-pubDate reduce. Mirrors getLatestMedia (ties keep the
+/// first item, like the TS `>` reduce seed).
+pub fn latest_media_by_pub(mut items: Vec<NotifierMedia>) -> Option<NotifierMedia> {
+    if items.is_empty() {
+        return None;
+    }
+    items.sort_by_key(|m| m.pub_ms);
+    items.into_iter().next_back()
+}
+
+fn rfc3339_ms(raw: &str) -> i64 {
+    crate::commands::blogger::parse_pub_ms(raw)
+}
+
+/// Fetch the latest YouTube videos for a channel. Mirrors
+/// getLatestYouTubeVideos: search.list order=date maxResults=5 with
+/// the snippet.channelId ownership filter (foreign uploads are
+/// dropped, like the TS `.filter`).
+pub async fn fetch_youtube_videos(
+    http: &reqwest::Client,
+    api_key: &str,
+    channel_id: &str,
+) -> Vec<NotifierMedia> {
+    let url = youtube_search_url(channel_id, api_key);
+    let resp = match http.get(&url).send().await {
+        Ok(r) => r,
+        Err(e) => {
+            tracing::warn!("notifier: youtube fetch failed for {channel_id}: {e}");
+            return Vec::new();
+        }
+    };
+    let body: serde_json::Value = match resp.json().await {
+        Ok(v) => v,
+        Err(_) => return Vec::new(),
+    };
+    if body.get("error").is_some() {
+        return Vec::new();
+    }
+    let mut out = Vec::new();
+    let items = body
+        .get("items")
+        .and_then(|v| v.as_array())
+        .cloned()
+        .unwrap_or_default();
+    for item in items {
+        let snippet_channel = item
+            .get("snippet")
+            .and_then(|s| s.get("channelId"))
+            .and_then(|v| v.as_str())
+            .unwrap_or("");
+        // Ownership filter (TS `.filter(item.snippet.channelId ===
+        // channelId)`): foreign uploads never notify.
+        if snippet_channel != channel_id {
+            continue;
+        }
+        let video_id = item
+            .get("id")
+            .and_then(|v| v.get("videoId"))
+            .and_then(|v| v.as_str())
+            .unwrap_or("");
+        if video_id.is_empty() {
+            continue;
+        }
+        let snippet = item.get("snippet");
+        let published = snippet
+            .and_then(|s| s.get("publishedAt"))
+            .and_then(|v| v.as_str())
+            .unwrap_or("");
+        out.push(NotifierMedia {
+            title: snippet
+                .and_then(|s| s.get("title"))
+                .and_then(|v| v.as_str())
+                .unwrap_or("")
+                .to_string(),
+            link: youtube_video_url(video_id),
+            pub_ms: rfc3339_ms(published),
+            author: snippet
+                .and_then(|s| s.get("channelTitle"))
+                .and_then(|v| v.as_str())
+                .unwrap_or("")
+                .to_string(),
+            id: video_id.to_string(),
+            channel_id: Some(snippet_channel.to_string()),
+        });
+    }
+    out
+}
+
+/// Fetch a live Twitch stream. Mirrors checkTwitchStream
+/// (helix/streams?user_login, null when offline).
+pub async fn fetch_twitch_stream(
+    http: &reqwest::Client,
+    client_id: &str,
+    token: &str,
+    user_login: &str,
+) -> Option<NotifierMedia> {
+    let resp = http
+        .get(twitch_streams_url(user_login))
+        .header("Client-ID", client_id)
+        .header("Authorization", format!("Bearer {token}"))
+        .send()
+        .await
+        .ok()?;
+    let body: serde_json::Value = resp.json().await.ok()?;
+    let first = body.get("data")?.as_array()?.first()?.clone();
+    let started = first
+        .get("started_at")
+        .and_then(|v| v.as_str())
+        .unwrap_or("");
+    Some(NotifierMedia {
+        title: first
+            .get("title")
+            .and_then(|v| v.as_str())
+            .unwrap_or("")
+            .to_string(),
+        link: twitch_profile_url(user_login),
+        pub_ms: rfc3339_ms(started),
+        author: first
+            .get("user_name")
+            .and_then(|v| v.as_str())
+            .unwrap_or("")
+            .to_string(),
+        id: first
+            .get("id")
+            .and_then(|v| v.as_str())
+            .unwrap_or("")
+            .to_string(),
+        channel_id: None,
+    })
+}
+
+/// YouTube channel check. Mirrors checkYouTubeChannelExists
+/// ({state, name}).
+pub async fn check_youtube_channel(
+    http: &reqwest::Client,
+    api_key: &str,
+    channel_id: &str,
+) -> Option<String> {
+    let url = format!(
+        "https://www.googleapis.com/youtube/v3/channels?part=snippet&id={channel_id}&key={api_key}"
+    );
+    let resp = http.get(&url).send().await.ok()?;
+    let body: serde_json::Value = resp.json().await.ok()?;
+    let first = body.get("items")?.as_array()?.first()?.clone();
+    let title = first.get("snippet")?.get("title")?.as_str()?.to_string();
+    if title.is_empty() {
+        None
+    } else {
+        Some(title)
+    }
+}
+
+/// Twitch user check. Mirrors checkTwitchUserExists (state only; the
+/// TS name leg is undefined so callers fall back to the login).
+pub async fn check_twitch_user(
+    http: &reqwest::Client,
+    client_id: &str,
+    token: &str,
+    user_login: &str,
+) -> bool {
+    let url = format!("https://api.twitch.tv/helix/users?login={user_login}");
+    let resp = match http
+        .get(&url)
+        .header("Client-ID", client_id)
+        .header("Authorization", format!("Bearer {token}"))
+        .send()
+        .await
+    {
+        Ok(r) => r,
+        Err(_) => return false,
+    };
+    resp.json::<serde_json::Value>()
+        .await
+        .ok()
+        .and_then(|body| body.get("data")?.as_array().map(|a| !a.is_empty()))
+        .unwrap_or(false)
+}
+
+/// Author check on the platform. Mirrors authorExistOnPlatform
+/// (youtube/twitch verified live, anything else throws
+/// "Unsupported platform" in TS -> false here). Missing creds read
+/// as false, like the TS client erroring into `{state: false}`.
+pub async fn author_exists_on_platform(platform: &str, id_or_username: &str) -> bool {
+    let http = reqwest::Client::new();
+    match platform.to_ascii_lowercase().as_str() {
+        "youtube" => match NotifierCreds::youtube_key_from_env() {
+            Some(key) => check_youtube_channel(&http, &key, id_or_username)
+                .await
+                .is_some(),
+            None => false,
+        },
+        "twitch" => match NotifierCreds::twitch_pair_from_env() {
+            Some((id, secret)) => match ensure_twitch_token(&http, &id, &secret).await {
+                Some(token) => check_twitch_user(&http, &id, &token, id_or_username).await,
+                None => false,
+            },
+            None => false,
+        },
+        _ => false,
+    }
+}
+
+/// Display name for an author. Mirrors getChannelNameById (YouTube
+/// channel title, Twitch login fallback, id fallback on error).
+pub async fn author_display_name(platform: &str, id_or_username: &str) -> String {
+    let http = reqwest::Client::new();
+    if platform.eq_ignore_ascii_case("youtube") {
+        if let Some(key) = NotifierCreds::youtube_key_from_env() {
+            if let Some(name) = check_youtube_channel(&http, &key, id_or_username).await {
+                return name;
+            }
+        }
+    }
+    id_or_username.to_string()
 }
 
 /// One NOTIFIER.lastMediaNotified row. Serde keys match the TS push
 /// ({userId, mediaId, timestamp}); timestamp_ms carries the same
-/// instant as unix millis for the >= comparison.
+/// instant as unix millis for the >= comparison. The TS writer
+/// stores an ISO string, so both numbers and date strings parse.
 #[derive(Debug, Clone, PartialEq, serde::Serialize, serde::Deserialize)]
 pub struct NotifiedMedia {
     #[serde(rename = "userId")]
     pub user_id: String,
     #[serde(rename = "mediaId")]
     pub media_id: String,
-    #[serde(rename = "timestamp")]
+    #[serde(rename = "timestamp", deserialize_with = "de_timestamp_ms")]
     pub timestamp_ms: i64,
+}
+
+fn de_timestamp_ms<'de, D>(d: D) -> Result<i64, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    use serde::Deserialize;
+    let v = serde_json::Value::deserialize(d)?;
+    match v {
+        serde_json::Value::Number(n) => Ok(n.as_i64().unwrap_or(0)),
+        serde_json::Value::String(s) => Ok(crate::commands::blogger::parse_pub_ms(&s)),
+        _ => Ok(0),
+    }
 }
 
 /// Already-notified check. Mirrors mediaHaveAlreadyBeNotified: same
@@ -1973,31 +2353,273 @@ pub async fn record_notified_media(
 /// Guild ids with a NOTIFIER.users config (legacy rows + table roots).
 async fn notifier_guild_ids(pool: &Pool) -> Vec<String> {
     let mut ids: HashSet<String> = HashSet::new();
-    let legacy: Vec<String> = sqlx::query_scalar(
-        "SELECT DISTINCT guild_id FROM kv WHERE key_name = 'NOTIFIER.users' AND guild_id NOT LIKE 'tbl:%'",
-    )
-    .fetch_all(pool)
-    .await
-    .unwrap_or_default();
-    ids.extend(legacy);
-    let roots: Vec<String> = sqlx::query_scalar(
-        "SELECT DISTINCT guild_id FROM kv WHERE guild_id LIKE 'tbl:%' AND key_name = 'NOTIFIER.users'",
-    )
-    .fetch_all(pool)
-    .await
-    .unwrap_or_default();
-    for row in roots {
-        if let Some(gid) = row.strip_prefix("tbl:") {
-            ids.insert(gid.to_string());
+    for (gid, _, _) in crate::db::kv_scan_all(pool)
+        .await
+        .into_iter()
+        .filter(|(_, key, _)| key == "NOTIFIER.users")
+    {
+        match gid.strip_prefix("tbl:") {
+            Some(real) => {
+                ids.insert(real.to_string());
+            }
+            None => {
+                ids.insert(gid);
+            }
         }
     }
     ids.into_iter().collect()
 }
 
+/// Announce template slots. Mirrors generateCustomMessagePreview:
+/// member/guild slots resolve from the sweep context, notifier slots
+/// from the fetched media, blogger slots keep their TS literal
+/// defaults (and vice versa for the blogger render).
+pub struct NotifierSlots<'a> {
+    pub member_username: &'a str,
+    pub member_mention: &'a str,
+    pub member_count: u64,
+    pub guild_name: &'a str,
+    pub artist_author: &'a str,
+    pub artist_link: &'a str,
+    pub media_url: &'a str,
+}
+
+/// Render a notifier announce template. Mirrors
+/// generateCustomMessagePreview for the StreamNotifier.refresh call
+/// (notifier slots resolved, blogger slots default).
+pub fn render_notifier_announce(template: &str, s: &NotifierSlots<'_>) -> String {
+    template
+        .replace("{memberUsername}", s.member_username)
+        .replace("{memberMention}", s.member_mention)
+        .replace("{memberCount}", &s.member_count.to_string())
+        .replace("{guildName}", s.guild_name)
+        .replace("{artistAuthor}", s.artist_author)
+        .replace("{artistLink}", s.artist_link)
+        .replace("{mediaURL}", s.media_url)
+        .replace("{articleTitle}", "Unknow Article")
+        .replace("{articleAuthor}", "Unknown Author")
+        .replace("{articleLink}", "Unknown Link")
+        .replace("{blogName}", "Unknown Blog Name")
+}
+
+/// Render a blogger announce template. Mirrors
+/// generateCustomMessagePreview for the BloggerNotifier.refresh call
+/// (blogger slots resolved, notifier slots default).
+#[allow(clippy::too_many_arguments)]
+pub fn render_blogger_announce(
+    template: &str,
+    article_title: &str,
+    article_author: &str,
+    article_link: &str,
+    blog_name: &str,
+    guild_name: &str,
+) -> String {
+    template
+        .replace("{memberUsername}", "iHorizon")
+        .replace("{memberMention}", "iHorizon")
+        .replace("{memberCount}", "0")
+        .replace("{guildName}", guild_name)
+        .replace("{artistAuthor}", "Ninja")
+        .replace("{artistLink}", "https://twitch.tv/Ninja")
+        .replace("{mediaURL}", "https://twitch.tv/Ninja/media")
+        .replace("{articleTitle}", article_title)
+        .replace("{articleAuthor}", article_author)
+        .replace("{articleLink}", article_link)
+        .replace("{blogName}", blog_name)
+}
+
+/// One 120s live pass over every configured guild. Mirrors
+/// StreamNotifier.refresh: per watch fetch the latest media (YouTube
+/// search or Twitch Helix, gated on that platform's creds only),
+/// skip mediaHaveAlreadyBeNotified rows, push the new
+/// {userId, mediaId, timestamp} row and send the rendered message +
+/// link button (nonce + enforceNonce). 5s pacing between watches
+/// mirrors the fetchUsersMedias delay (it runs even when a watch
+/// errors or has no creds, so quota timing stays TS-shaped).
+/// Returns (guilds, watches, posted).
+pub async fn sweep_notifier(
+    pool: &Pool,
+    http: &std::sync::Arc<poise::serenity_prelude::Http>,
+) -> (usize, usize, u64) {
+    use crate::commands::notifier::load_entries;
+    use poise::serenity_prelude::{ChannelId, CreateActionRow, CreateButton, CreateMessage, Nonce};
+    let gids = notifier_guild_ids(pool).await;
+    let web = reqwest::Client::new();
+    let twitch_pair = NotifierCreds::twitch_pair_from_env();
+    let youtube_key = NotifierCreds::youtube_key_from_env();
+    if twitch_pair.is_none() && youtube_key.is_none() {
+        let watches = {
+            let mut n = 0usize;
+            for gid in &gids {
+                n += load_entries(pool, gid).await.len();
+            }
+            n
+        };
+        if watches > 0 {
+            tracing::debug!(
+                "notifier tick: no API credentials (TWITCH_APPLICATION_ID/TWITCH_APPLICATION_SECRET/YOUTUBE_API_KEY); store-only pass over {watches} watches"
+            );
+        }
+        return (gids.len(), watches, 0);
+    }
+    // One token for the whole sweep (TS ensureValidAccessToken per
+    // refresh, same net effect).
+    let twitch_token = match &twitch_pair {
+        Some((id, secret)) => ensure_twitch_token(&web, id, secret).await,
+        None => None,
+    };
+    let bot_name = http
+        .get_current_user()
+        .await
+        .map(|u| u.name.clone())
+        .unwrap_or_else(|_| "iHorizon".to_string());
+    let mut watches = 0usize;
+    let mut posted = 0u64;
+    for gid in &gids {
+        let entries = load_entries(pool, gid).await;
+        if entries.is_empty() {
+            continue;
+        }
+        let channel_num =
+            crate::commands::notifier::load_notifier_string(pool, gid, "NOTIFIER.channelId")
+                .await
+                .and_then(|s| s.parse::<u64>().ok());
+        let Some(channel_num) = channel_num else {
+            watches += entries.len();
+            continue;
+        };
+        let code = crate::db::guild_lang(pool, gid.parse::<u64>().ok()).await;
+        let say = |key: &str, fallback: &str| {
+            crate::lang::get(&code, key).unwrap_or_else(|| fallback.to_string())
+        };
+        let template =
+            crate::commands::notifier::load_notifier_string(pool, gid, "NOTIFIER.message")
+                .await
+                .filter(|s| !s.trim().is_empty())
+                .unwrap_or_else(|| {
+                    say(
+                        "notifier_on_new_media_default_message",
+                        "@everyone has published a new video",
+                    )
+                });
+        let button_label = say("notifier_on_new_media_default_button_label", "Check out!");
+        let (guild_name, member_count) = match gid.parse::<u64>() {
+            Ok(n) => match http.get_guild(n.into()).await {
+                Ok(g) => (g.name.clone(), g.approximate_member_count.unwrap_or(0)),
+                Err(_) => (String::new(), 0),
+            },
+            Err(_) => (String::new(), 0),
+        };
+        let mut notified = load_notified_media(pool, gid).await;
+        for watch in &entries {
+            watches += 1;
+            let platform = watch.platform.to_ascii_lowercase();
+            let media: Option<NotifierMedia> = if platform == "youtube" {
+                match &youtube_key {
+                    Some(key) => {
+                        let videos = fetch_youtube_videos(&web, key, &watch.id_or_username).await;
+                        latest_media_by_pub(videos).and_then(|m| {
+                            // Ownership leg (TS fetchUsersMedias: latest
+                            // must belong to the watched channel).
+                            if m.channel_id.as_deref() == Some(watch.id_or_username.as_str()) {
+                                Some(m)
+                            } else {
+                                tracing::warn!(
+                                    "notifier: video {} does not belong to channel {}, skipping notification",
+                                    m.id,
+                                    watch.id_or_username
+                                );
+                                None
+                            }
+                        })
+                    }
+                    None => None,
+                }
+            } else if platform == "twitch" {
+                match (&twitch_pair, &twitch_token) {
+                    (Some((id, _)), Some(token)) => {
+                        fetch_twitch_stream(&web, id, token, &watch.id_or_username).await
+                    }
+                    _ => None,
+                }
+            } else {
+                // No TS verify/feed path (kick throws "Unsupported
+                // platform"); the watch can never resolve.
+                None
+            };
+            if let Some(m) = media {
+                let raw = serde_json::json!({
+                    "title": m.title,
+                    "link": m.link,
+                    "author": m.author,
+                    "id": m.id,
+                });
+                if pending_notifier_media(&notified, &watch.id_or_username, &m.id, m.pub_ms, &raw)
+                    .is_some()
+                {
+                    let artist_link = if platform == "twitch" {
+                        twitch_profile_url(&watch.id_or_username)
+                    } else {
+                        youtube_channel_url(&watch.id_or_username)
+                    };
+                    let message = render_notifier_announce(
+                        &template,
+                        &NotifierSlots {
+                            member_username: &bot_name,
+                            member_mention: &bot_name,
+                            member_count,
+                            guild_name: &guild_name,
+                            artist_author: &m.author,
+                            artist_link: &artist_link,
+                            media_url: &m.link,
+                        },
+                    );
+                    let nonce_ms = std::time::SystemTime::now()
+                        .duration_since(std::time::UNIX_EPOCH)
+                        .map(|d| d.as_millis())
+                        .unwrap_or(0);
+                    let msg = CreateMessage::new()
+                        .content(message)
+                        .components(vec![CreateActionRow::Buttons(vec![
+                            CreateButton::new_link(m.link.clone()).label(button_label.clone()),
+                        ])])
+                        .nonce(Nonce::String(format!(
+                            "notifier-{}-{nonce_ms}",
+                            watch.id_or_username
+                        )))
+                        .enforce_nonce(true);
+                    if ChannelId::new(channel_num)
+                        .send_message(http, msg)
+                        .await
+                        .is_ok()
+                    {
+                        notified.push(NotifiedMedia {
+                            user_id: watch.id_or_username.clone(),
+                            media_id: m.id.clone(),
+                            timestamp_ms: m.pub_ms,
+                        });
+                        let raw_list =
+                            serde_json::to_string(&notified).unwrap_or_else(|_| "[]".to_string());
+                        let _ = crate::backends::Backend::sqlite(pool.clone())
+                            .table(gid)
+                            .set("NOTIFIER.lastMediaNotified", &raw_list)
+                            .await;
+                        let _ =
+                            crate::db::kv_set(pool, gid, "NOTIFIER.lastMediaNotified", &raw_list)
+                                .await;
+                        posted += 1;
+                    }
+                }
+            }
+            tokio::time::sleep(std::time::Duration::from_secs(5)).await;
+        }
+    }
+    (gids.len(), watches, posted)
+}
+
 /// One 120s pass over every configured guild. Returns
-/// (guilds, watches). The live per-watch fetch + Discord send stay
-/// unwired (see the section note); the pass exercises config load +
-/// store so the wiring has a seam.
+/// (guilds, watches). Store-only seam kept for tests; the live tick
+/// uses sweep_notifier.
 pub async fn sweep_notifier_once(pool: &Pool) -> (usize, usize) {
     let gids = notifier_guild_ids(pool).await;
     let mut watches = 0usize;
@@ -2017,21 +2639,9 @@ pub async fn sweep_notifier_once(pool: &Pool) -> (usize, usize) {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};
-    use std::str::FromStr;
 
     async fn pool() -> Pool {
-        let opts = SqliteConnectOptions::from_str("sqlite::memory:").unwrap();
-        let p = SqlitePoolOptions::new()
-            .max_connections(1)
-            .connect_with(opts)
-            .await
-            .unwrap();
-        sqlx::query("CREATE TABLE kv (guild_id TEXT NOT NULL, key_name TEXT NOT NULL, value TEXT NOT NULL, PRIMARY KEY (guild_id, key_name))")
-            .execute(&p).await.unwrap();
-        sqlx::query("CREATE TABLE guild_lang (guild_id TEXT PRIMARY KEY, lang TEXT NOT NULL DEFAULT 'en-US')")
-            .execute(&p).await.unwrap();
-        p
+        crate::db::memory_pool().await
     }
 
     #[tokio::test]
@@ -2232,6 +2842,95 @@ mod tests {
             youtube_channel_url("chan"),
             "https://youtube.com/channel/chan"
         );
+    }
+
+    #[test]
+    fn latest_media_reduce_picks_newest_pubdate() {
+        let mk = |id: &str, pub_ms: i64| NotifierMedia {
+            title: id.to_string(),
+            link: format!("http://x/{id}"),
+            pub_ms,
+            author: "a".to_string(),
+            id: id.to_string(),
+            channel_id: None,
+        };
+        // Out-of-order input: newest pubDate wins.
+        let latest =
+            latest_media_by_pub(vec![mk("old", 10), mk("new", 20), mk("mid", 15)]).unwrap();
+        assert_eq!(latest.id, "new");
+        assert!(latest_media_by_pub(vec![]).is_none());
+    }
+
+    #[test]
+    fn announce_renders_mirror_ts_slots() {
+        let slots = NotifierSlots {
+            member_username: "bot",
+            member_mention: "<@1>",
+            member_count: 42,
+            guild_name: "G",
+            artist_author: "Ninja",
+            artist_link: "https://twitch.tv/ninja",
+            media_url: "https://www.youtube.com/watch?v=v1",
+        };
+        let out = render_notifier_announce(
+            "{artistAuthor} {artistLink} {mediaURL} {guildName} {memberCount} {articleTitle}",
+            &slots,
+        );
+        assert_eq!(
+            out,
+            "Ninja https://twitch.tv/ninja https://www.youtube.com/watch?v=v1 G 42 Unknow Article"
+        );
+        let bout = render_blogger_announce(
+            "{articleTitle} by {articleAuthor} {articleLink} {blogName} {mediaURL}",
+            "T",
+            "A",
+            "http://x/a",
+            "Blog",
+            "G",
+        );
+        assert_eq!(bout, "T by A http://x/a Blog https://twitch.tv/Ninja/media");
+    }
+
+    #[test]
+    fn notified_store_parses_ts_iso_strings() {
+        // TS writer shape ({userId, mediaId, ISO timestamp}).
+        let rows = parse_notified_list(Some(
+            r#"[{"userId":"u","mediaId":"v1","timestamp":"2024-10-02T10:00:00Z"}]"#,
+        ));
+        assert_eq!(rows.len(), 1);
+        assert!(rows[0].timestamp_ms > 0);
+        assert!(media_already_notified(
+            &rows,
+            "u",
+            "zzz",
+            rows[0].timestamp_ms
+        ));
+        assert!(!media_already_notified(
+            &rows,
+            "u",
+            "zzz",
+            rows[0].timestamp_ms + 1
+        ));
+    }
+
+    #[test]
+    fn creds_split_per_platform() {
+        // from_env stays all-or-nothing; the per-platform readers are
+        // independent (one platform configured still polls).
+        let full = NotifierCreds {
+            twitch_client_id: "id".into(),
+            twitch_client_secret: "sec".into(),
+            youtube_api_key: "".into(),
+        };
+        assert!(full.twitch_pair().is_some());
+        assert!(full.youtube_key().is_none());
+        let yt_only = NotifierCreds {
+            twitch_client_id: "".into(),
+            twitch_client_secret: "".into(),
+            youtube_api_key: "k".into(),
+        };
+        assert!(yt_only.twitch_pair().is_none());
+        assert_eq!(yt_only.youtube_key().as_deref(), Some("k"));
     }
 
     #[test]

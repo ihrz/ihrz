@@ -574,12 +574,7 @@ pub fn gen_backup_id() -> String {
 /// Legacy config-only snapshot (kv dump) when no cached guild is
 /// available. Kept so create still works outside the cache path.
 async fn legacy_config_backup(ctx: &Ctx<'_>, gid: &str) -> Result<(), anyhow::Error> {
-    let rows: Vec<(String, String)> =
-        sqlx::query_as::<_, (String, String)>("SELECT key_name, value FROM kv WHERE guild_id = ?")
-            .bind(gid)
-            .fetch_all(&ctx.data().pool)
-            .await
-            .unwrap_or_default();
+    let rows: Vec<(String, String)> = crate::db::kv_scan(&ctx.data().pool, gid).await;
     let id = gen_backup_id();
     let snap = serde_json::json!({
         "guild": gid,

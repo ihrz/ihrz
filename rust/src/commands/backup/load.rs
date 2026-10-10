@@ -7,12 +7,7 @@ use super::*;
 /// channelCount}` pointers (!create.ts:89). Snapshots created by TS therefore
 /// have no Rust kv row. Missing table / missing row -> None (never an error).
 async fn ts_backups_table_get(pool: &crate::db::Pool, backup_id: &str) -> Option<String> {
-    sqlx::query_scalar::<_, String>("SELECT json FROM backups WHERE ID = ?")
-        .bind(backup_id)
-        .fetch_optional(pool)
-        .await
-        .ok()
-        .flatten()
+    crate::db::backup_get(pool, backup_id).await
 }
 
 /// One snapshot shape for the restore path below. Rust kv rows store
@@ -264,23 +259,7 @@ mod tests {
     }
 
     async fn mem_pool() -> crate::db::Pool {
-        use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};
-        use std::str::FromStr;
-        let opts = SqliteConnectOptions::from_str("sqlite::memory:")
-            .unwrap()
-            .create_if_missing(true);
-        let pool = SqlitePoolOptions::new()
-            .max_connections(1)
-            .connect_with(opts)
-            .await
-            .unwrap();
-        sqlx::query(
-            "CREATE TABLE kv (guild_id TEXT NOT NULL, key_name TEXT NOT NULL, value TEXT NOT NULL, PRIMARY KEY (guild_id, key_name))",
-        )
-        .execute(&pool)
-        .await
-        .unwrap();
-        pool
+        crate::db::memory_pool().await
     }
 
     #[test]
@@ -332,23 +311,15 @@ mod tests {
 
     #[tokio::test]
     async fn ts_table_row_reads_by_global_id() {
+        // Seed-then-read through the driver: backup_set writes the TS
+        // `backups` row, backup_get reads it back by global ID.
         let pool = mem_pool().await;
-        sqlx::query("CREATE TABLE backups (ID TEXT PRIMARY KEY, json TEXT)")
-            .execute(&pool)
+        crate::db::ensure_backups_table(&pool).await.unwrap();
+        crate::db::backup_set(&pool, "snowflake19", &ts_backup_data("snowflake19"))
             .await
             .unwrap();
-        let body = ts_backup_data("snowflake19");
-        sqlx::query("INSERT INTO backups (ID, json) VALUES (?, ?)")
-            .bind("snowflake19")
-            .bind(&body)
-            .execute(&pool)
-            .await
-            .unwrap();
-        // Global read, no uid involved (mirrors backupsTable.get(backupID)).
-        assert_eq!(
-            ts_backups_table_get(&pool, "snowflake19").await.as_deref(),
-            Some(body.as_str())
-        );
+        let raw = ts_backups_table_get(&pool, "snowflake19").await;
+        assert_eq!(raw.as_deref(), Some(ts_backup_data("snowflake19").as_str()));
         assert_eq!(ts_backups_table_get(&pool, "other-id").await, None);
     }
 
@@ -356,17 +327,11 @@ mod tests {
     async fn kv_stays_primary_over_ts_table() {
         // Resolution order used by backup_load: kv first, TS table fallback.
         let pool = mem_pool().await;
-        sqlx::query("CREATE TABLE backups (ID TEXT PRIMARY KEY, json TEXT)")
-            .execute(&pool)
-            .await
-            .unwrap();
-        sqlx::query("INSERT INTO backups (ID, json) VALUES (?, ?)")
-            .bind("both")
-            .bind(ts_backup_data("both"))
-            .execute(&pool)
-            .await
-            .unwrap();
         super::super::backup::bkp_set(&pool, 7, "both", "{\"kv\":true}")
+            .await
+            .unwrap();
+        crate::db::ensure_backups_table(&pool).await.unwrap();
+        crate::db::backup_set(&pool, "both", "{\"ts\":true}")
             .await
             .unwrap();
         let raw = match super::super::backup::bkp_get(&pool, 7, "both").await {
@@ -374,11 +339,11 @@ mod tests {
             None => ts_backups_table_get(&pool, "both").await,
         };
         assert_eq!(raw.as_deref(), Some("{\"kv\":true}"));
-        // No kv row -> TS row surfaces.
+        // No kv row and no TS row -> fallback surfaces None.
         let raw = match super::super::backup::bkp_get(&pool, 8, "both").await {
             Some(raw) => Some(raw),
             None => ts_backups_table_get(&pool, "both").await,
         };
-        assert!(raw.is_some_and(|r| r.contains("TS Guild")));
+        assert_eq!(raw, None);
     }
 }

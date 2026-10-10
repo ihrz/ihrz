@@ -608,23 +608,7 @@ mod tests {
     use super::*;
 
     async fn memory_pool() -> crate::db::Pool {
-        use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};
-        use std::str::FromStr;
-        let opts = SqliteConnectOptions::from_str("sqlite::memory:")
-            .unwrap()
-            .create_if_missing(true);
-        let pool = SqlitePoolOptions::new()
-            .max_connections(1)
-            .connect_with(opts)
-            .await
-            .unwrap();
-        sqlx::query(
-            "CREATE TABLE kv (guild_id TEXT NOT NULL, key_name TEXT NOT NULL, value TEXT NOT NULL, PRIMARY KEY (guild_id, key_name))",
-        )
-        .execute(&pool)
-        .await
-        .unwrap();
-        pool
+        crate::db::memory_pool().await
     }
 
     #[test]
@@ -744,17 +728,17 @@ mod tests {
         )
         .await
         .unwrap();
-        let routed: String = sqlx::query_scalar::<_, String>(
-            "SELECT value FROM kv WHERE guild_id = 'tbl:g1' AND key_name = 'GUILD'",
+        let routed = crate::commands::owner::main::routed_get(
+            &pool,
+            "g1",
+            "g1",
+            &log_channel_key("moderation"),
         )
-        .fetch_optional(&pool)
         .await
-        .unwrap()
         .unwrap();
-        let doc: serde_json::Value = serde_json::from_str(&routed).unwrap();
         assert_eq!(
-            doc.pointer("/SERVER_LOGS/moderation").unwrap(),
-            &serde_json::json!(123)
+            serde_json::from_str::<serde_json::Value>(&routed).unwrap(),
+            serde_json::json!(123)
         );
         assert_eq!(
             load_log_channel_routed(&pool, "g1", "moderation")

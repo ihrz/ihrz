@@ -111,42 +111,6 @@ pub fn mention_count(text: &str) -> usize {
     text.matches("<@").count() + text.matches("<@&").count()
 }
 
-macro_rules! automod_toggle {
-    ($fn_name:ident, $sub:literal, $kind:literal) => {
-        #[poise::command(slash_command, prefix_command, rename = $sub, default_member_permissions = "ADMINISTRATOR")]
-        pub async fn $fn_name(
-            ctx: Ctx<'_>,
-            #[description = "on or off"] action: String,
-        ) -> Result<(), anyhow::Error> {
-            let gid = ctx
-                .guild_id()
-                .map(|g| g.get().to_string())
-                .unwrap_or_default();
-            let enabled = matches!(action.to_ascii_lowercase().as_str(), "on" | "power on");
-            crate::db::kv_set(
-                &ctx.data().pool,
-                &gid,
-                &automod_key($kind),
-                if enabled { "1" } else { "0" },
-            )
-            .await?;
-            let state = if enabled { "on" } else { "off" };
-            ctx.say(
-                crate::commands::lang_for(
-                    &ctx,
-                    "msg_automod_toggled",
-                    &format!("Automod {kind} {state}.", kind = $kind),
-                )
-                .await
-                .replace("{kind}", $kind)
-                .replace("{state}", state),
-            )
-            .await?;
-            Ok(())
-        }
-    };
-}
-
 pub async fn load_ghost(pool: &crate::db::Pool, guild_id: &str) -> Vec<String> {
     crate::db::kv_get(pool, guild_id, ghost_key())
         .await
@@ -290,12 +254,7 @@ pub async fn dump_guild_rows(
     pool: &crate::db::Pool,
     gid: &str,
 ) -> serde_json::Map<String, serde_json::Value> {
-    let rows: Vec<(String, String)> =
-        sqlx::query_as::<_, (String, String)>("SELECT key_name, value FROM kv WHERE guild_id = ?")
-            .bind(gid)
-            .fetch_all(pool)
-            .await
-            .unwrap_or_default();
+    let rows = crate::db::kv_scan(pool, gid).await;
     let mut map = serde_json::Map::new();
     for (k, v) in rows {
         let value: serde_json::Value =
@@ -311,10 +270,7 @@ pub async fn restore_guild_rows(
     gid: &str,
     map: &serde_json::Map<String, serde_json::Value>,
 ) -> anyhow::Result<()> {
-    sqlx::query("DELETE FROM kv WHERE guild_id = ?")
-        .bind(gid)
-        .execute(pool)
-        .await?;
+    crate::db::kv_del_guild(pool, gid).await?;
     for (k, v) in map {
         let s = match v {
             serde_json::Value::String(s) => s.clone(),

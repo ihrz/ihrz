@@ -125,12 +125,10 @@ pub async fn delete_entry(
     user_id: u64,
     code: &str,
 ) -> anyhow::Result<bool> {
-    let res = sqlx::query("DELETE FROM kv WHERE guild_id = ? AND key_name = ?")
-        .bind(guild_id)
-        .bind(schedule_key(user_id, code))
-        .execute(pool)
-        .await?;
-    Ok(res.rows_affected() > 0)
+    let key = schedule_key(user_id, code);
+    let existed = crate::db::kv_get(pool, guild_id, &key).await.is_some();
+    crate::db::kv_del(pool, guild_id, &key).await?;
+    Ok(existed)
 }
 
 pub async fn list_entries(
@@ -138,15 +136,8 @@ pub async fn list_entries(
     guild_id: &str,
     user_id: u64,
 ) -> Vec<ScheduleEntry> {
-    let like = format!("{}%", schedule_prefix(user_id));
-    let rows: Vec<(String, String)> = sqlx::query_as::<_, (String, String)>(
-        "SELECT key_name, value FROM kv WHERE guild_id = ? AND key_name LIKE ?",
-    )
-    .bind(guild_id)
-    .bind(like)
-    .fetch_all(pool)
-    .await
-    .unwrap_or_default();
+    let rows: Vec<(String, String)> =
+        crate::db::kv_scan_prefix(pool, guild_id, &schedule_prefix(user_id)).await;
     let mut out: Vec<ScheduleEntry> = rows
         .iter()
         .filter_map(|(key, s)| {
@@ -164,13 +155,12 @@ pub async fn delete_all_entries(
     guild_id: &str,
     user_id: u64,
 ) -> anyhow::Result<u64> {
-    let like = format!("{}%", schedule_prefix(user_id));
-    let res = sqlx::query("DELETE FROM kv WHERE guild_id = ? AND key_name LIKE ?")
-        .bind(guild_id)
-        .bind(like)
-        .execute(pool)
-        .await?;
-    Ok(res.rows_affected())
+    let prefix = schedule_prefix(user_id);
+    let n = crate::db::kv_scan_prefix(pool, guild_id, &prefix)
+        .await
+        .len() as u64;
+    crate::db::kv_del_prefix(pool, guild_id, &prefix).await?;
+    Ok(n)
 }
 
 #[cfg(test)]

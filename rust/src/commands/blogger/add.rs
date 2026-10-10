@@ -14,13 +14,16 @@ pub async fn blogger_add(
     #[channel_types("Text")]
     channel: serenity::GuildChannel,
 ) -> Result<(), anyhow::Error> {
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    let say = |key: &str, fallback: &str| {
+        crate::lang::get(&code, key).unwrap_or_else(|| fallback.to_string())
+    };
     let feed_title = fetch_rss_title(rss.trim()).await;
     if feed_title.is_none() {
-        let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-        ctx.say(
-            crate::lang::get(&code, "blogger_blog_add_invalid_rss")
-                .unwrap_or_else(|| "❌ The provided RSS feed is invalid or unreachable. Please check the URL and try again.".to_string()),
-        )
+        ctx.say(say(
+            "blogger_blog_add_invalid_rss",
+            "The provided RSS feed is invalid or unreachable. Please check the URL and try again.",
+        ))
         .await?;
         return Ok(());
     }
@@ -46,15 +49,20 @@ pub async fn blogger_add(
     blogs.dedup_by(|a, b| a.rss == b.rss && a.channel_id == b.channel_id);
     save_blogs(&ctx.data().pool, &gid, &blogs).await?;
     let feed_title = feed_title.unwrap_or_else(|| "Unknown".to_string());
-    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-    ctx.say(
-        crate::lang::get(&code, "blogger_blog_add_success")
-            .map(|s| {
-                s.replace("${channel.toString()}", &format!("<#{}>", channel.id.get()))
-                    .replace("${blogId}", &id)
-                    .replace("${validation.name}", &feed_title)
-            })
-            .unwrap_or_else(|| "✅ RSS feed **${validation.name}** has been added! Notifications will be sent to ${channel.toString()} (ID: `${blogId}`)".to_string()),
+    let content = say(
+        "blogger_blog_add_success",
+        "RSS feed **${validation.name}** has been added! Notifications will be sent to ${channel.toString()} (ID: `${blogId}`)",
+    )
+    .replace("${channel.toString()}", &format!("<#{}>", channel.id.get()))
+    .replace("${blogId}", &id)
+    .replace("${validation.name}", &feed_title);
+    // Success content + blogs embed (TS !add.ts sends the
+    // generateBlogsEmbed alongside).
+    let rows = blog_display_rows(ctx.http(), &blogs).await;
+    ctx.send(
+        poise::CreateReply::default()
+            .content(content)
+            .embed(blogs_embed(&code, &rows)),
     )
     .await?;
     Ok(())

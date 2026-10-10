@@ -219,13 +219,8 @@ pub async fn load_all_user_stats(pool: &crate::db::Pool, guild_id: &str) -> Vec<
             }
         }
     }
-    let rows: Vec<(String, String)> = sqlx::query_as::<_, (String, String)>(
-        "SELECT key_name, value FROM kv WHERE guild_id = ? AND key_name LIKE 'STATS.USER.%'",
-    )
-    .bind(guild_id)
-    .fetch_all(pool)
-    .await
-    .unwrap_or_default();
+    let rows: Vec<(String, String)> =
+        crate::db::kv_scan_prefix(pool, guild_id, "STATS.USER.").await;
     for (k, v) in &rows {
         let Some(id) = k.strip_prefix("STATS.USER.") else {
             continue;
@@ -290,13 +285,8 @@ pub async fn load_all_channel_counts(pool: &crate::db::Pool, guild_id: &str) -> 
             }
         }
     }
-    let rows: Vec<(String, String)> = sqlx::query_as::<_, (String, String)>(
-        "SELECT key_name, value FROM kv WHERE guild_id = ? AND key_name LIKE 'STATS.CHANNEL.%'",
-    )
-    .bind(guild_id)
-    .fetch_all(pool)
-    .await
-    .unwrap_or_default();
+    let rows: Vec<(String, String)> =
+        crate::db::kv_scan_prefix(pool, guild_id, "STATS.CHANNEL.").await;
     for (k, v) in &rows {
         let Some(id) = k.strip_prefix("STATS.CHANNEL.") else {
             continue;
@@ -431,19 +421,7 @@ mod tests {
     }
 
     async fn memory_pool() -> crate::db::Pool {
-        use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};
-        use std::str::FromStr;
-        let opts = SqliteConnectOptions::from_str("sqlite::memory:").unwrap();
-        let pool = SqlitePoolOptions::new()
-            .max_connections(1)
-            .connect_with(opts)
-            .await
-            .unwrap();
-        sqlx::query("CREATE TABLE kv (guild_id TEXT NOT NULL, key_name TEXT NOT NULL, value TEXT NOT NULL, PRIMARY KEY (guild_id, key_name))")
-            .execute(&pool)
-            .await
-            .unwrap();
-        pool
+        crate::db::memory_pool().await
     }
 
     #[tokio::test]
@@ -462,12 +440,7 @@ mod tests {
         .unwrap();
         assert_eq!(load_stats(&pool, "g1", 7).await.messages, 3);
         // Table-routed rows live under `tbl:<gid>`, never as flat legacy rows.
-        let legacy: Option<String> = sqlx::query_scalar::<_, String>(
-            "SELECT value FROM kv WHERE guild_id = 'g1' AND key_name = 'STATS.USER.7'",
-        )
-        .fetch_optional(&pool)
-        .await
-        .unwrap();
+        let legacy: Option<String> = crate::db::kv_get(&pool, "g1", "STATS.USER.7").await;
         assert_eq!(legacy, None);
         // Legacy rows still read (single + union scans).
         crate::db::kv_set(&pool, "g1", &stats_key(9), r#"{"messages":5}"#)

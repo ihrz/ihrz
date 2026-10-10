@@ -1,6 +1,12 @@
 use super::*;
 
 /// Mirrors `!loop.ts` (off/track/queue via `setRepeatMode`).
+///
+/// Recorded option-surface superset (no behavior change): the TS slash
+/// definition (`music.ts:97-118`) only offers `off`/`track` choices,
+/// while the prefix path forwards any string to `setRepeatMode` — so
+/// `queue` works there like it does here. Accepting
+/// off/track/queue on both paths is the intentional union.
 #[poise::command(slash_command, prefix_command, rename = "loop")]
 pub async fn m_loop(
     ctx: Ctx<'_>,

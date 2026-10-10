@@ -84,11 +84,7 @@ pub async fn gc_toonew(
     let code = crate::db::guild_lang(pool, ctx.guild_id().map(|g| g.get())).await;
     let author_mention = format!("<@{}>", ctx.author().id.get());
     if age.trim().eq_ignore_ascii_case("off") {
-        let _ = sqlx::query("DELETE FROM kv WHERE guild_id = ? AND key_name = ?")
-            .bind(&gid)
-            .bind("GUILD.BLOCK_NEW_ACCOUNT")
-            .execute(pool)
-            .await;
+        let _ = crate::db::kv_del(pool, &gid, "GUILD.BLOCK_NEW_ACCOUNT").await;
         // Audit entry, like `client.func.ihorizon_logs` in
         // !too-new-account.ts (off branch).
         let title = crate::lang::get(&code, "too_new_account_logEmbed_title")

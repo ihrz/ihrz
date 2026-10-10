@@ -654,14 +654,11 @@ async fn live_flat_ticket(
     user_id: u64,
 ) -> Option<String> {
     let prefix = format!("TICKET_ALL.{user_id}.");
-    let keys: Vec<String> = sqlx::query_scalar::<_, String>(
-        "SELECT key_name FROM kv WHERE guild_id = ? AND key_name LIKE 'TICKET_ALL.' || ? || '.%'",
-    )
-    .bind(gid)
-    .bind(user_id.to_string())
-    .fetch_all(pool)
-    .await
-    .unwrap_or_default();
+    let keys: Vec<String> = crate::db::kv_scan_prefix(pool, gid, &prefix)
+        .await
+        .into_iter()
+        .map(|(k, _)| k)
+        .collect();
     for key in keys {
         let ch = key.strip_prefix(&prefix).unwrap_or("");
         if ch.is_empty() || ch.contains('.') {
@@ -2370,23 +2367,7 @@ mod tests {
     }
 
     async fn mem_pool() -> crate::db::Pool {
-        use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};
-        use std::str::FromStr;
-        let opts = SqliteConnectOptions::from_str("sqlite::memory:")
-            .unwrap()
-            .create_if_missing(true);
-        let pool = SqlitePoolOptions::new()
-            .max_connections(1)
-            .connect_with(opts)
-            .await
-            .unwrap();
-        sqlx::query(
-            "CREATE TABLE kv (guild_id TEXT NOT NULL, key_name TEXT NOT NULL, value TEXT NOT NULL, PRIMARY KEY (guild_id, key_name))",
-        )
-        .execute(&pool)
-        .await
-        .unwrap();
-        pool
+        crate::db::memory_pool().await
     }
 
     #[tokio::test]

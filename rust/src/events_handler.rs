@@ -1403,6 +1403,14 @@ impl Handler {
     }
 
     async fn check_punishpub(&self, ctx: &serenity::Context, gid: &str, msg: &serenity::Message) {
+        // Mirrors blockSpam.ts basic validation: webhook and bot
+        // messages (including the bot's own) never trigger punishpub.
+        if msg.webhook_id.is_some() || msg.author.bot {
+            return;
+        }
+        if ctx.cache.current_user().id == msg.author.id {
+            return;
+        }
         let antipub_off: bool = guild_config_field_routed(&self.pool, gid, "antipub")
             .await
             .and_then(|s| serde_json::from_str::<serde_json::Value>(&s).ok())
@@ -1419,6 +1427,36 @@ impl Handler {
             .unwrap_or(false);
         if antipub_off || is_staff {
             return;
+        }
+        // Mirrors the blockSpam.ts native Keyword rule + exemptRoles
+        // gate: roles exempted on Discord's rule skip the kv sanction
+        // pipeline too. Best-effort: a failed fetch sanctions as before.
+        if let Some(guild_id) = msg.guild_id {
+            if let Ok(rules) = guild_id.automod_rules(&ctx.http).await {
+                if let Some(rule) = rules.iter().find(|r| {
+                    matches!(
+                        r.trigger,
+                        serenity::Trigger::Keyword { .. } | serenity::Trigger::Unknown(1)
+                    )
+                }) {
+                    let member_roles: Vec<u64> = if let Some(m) = &msg.member {
+                        m.roles.iter().map(|r| r.get()).collect()
+                    } else {
+                        guild_id
+                            .member(&ctx.http, msg.author.id)
+                            .await
+                            .map(|m| m.roles.iter().map(|r| r.get()).collect())
+                            .unwrap_or_default()
+                    };
+                    if rule
+                        .exempt_roles
+                        .iter()
+                        .any(|r| member_roles.contains(&r.get()))
+                    {
+                        return;
+                    }
+                }
+            }
         }
         let links = crate::funcs::extract_links(&msg.content);
         let mut sanction = false;
@@ -5054,6 +5092,24 @@ impl serenity::EventHandler for Handler {
                                 }
                             }
                             if let Ok(sent) = msg.channel_id.say(&_ctx.http, out).await {
+                                // Suppress the source message embeds (mirrors
+                                // handleMessage's `botMsg && msg.deletable`
+                                // suppressEmbeds leg, 100ms delay).
+                                // Best-effort: ignored without Manage
+                                // Messages, like the TS catch.
+                                let suppress_http = _ctx.http.clone();
+                                let suppress_channel = msg.channel_id;
+                                let suppress_id = msg.id;
+                                tokio::spawn(async move {
+                                    tokio::time::sleep(std::time::Duration::from_millis(100)).await;
+                                    let _ = suppress_channel
+                                        .edit_message(
+                                            &suppress_http,
+                                            suppress_id,
+                                            serenity::EditMessage::new().suppress_embeds(true),
+                                        )
+                                        .await;
+                                });
                                 // Author-only trash delete (15s, like the TS
                                 // reaction collector); spawned so the event
                                 // handler never blocks.
@@ -7787,19 +7843,7 @@ mod restore_tests {
     }
 
     async fn memory_pool() -> crate::db::Pool {
-        use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};
-        use std::str::FromStr;
-        let opts = SqliteConnectOptions::from_str("sqlite::memory:").unwrap();
-        let pool = SqlitePoolOptions::new()
-            .max_connections(1)
-            .connect_with(opts)
-            .await
-            .unwrap();
-        sqlx::query("CREATE TABLE kv (guild_id TEXT NOT NULL, key_name TEXT NOT NULL, value TEXT NOT NULL, PRIMARY KEY (guild_id, key_name))")
-            .execute(&pool)
-            .await
-            .unwrap();
-        pool
+        crate::db::memory_pool().await
     }
 
     #[tokio::test]
@@ -8260,12 +8304,7 @@ mod restore_tests {
             snipe_last_id_routed(&pool, "g1").await.as_deref(),
             Some("77")
         );
-        let legacy: Option<String> = sqlx::query_scalar::<_, String>(
-            "SELECT value FROM kv WHERE guild_id = 'g1' AND key_name = 'SNIPE.11'",
-        )
-        .fetch_optional(&pool)
-        .await
-        .unwrap();
+        let legacy: Option<String> = crate::db::kv_get(&pool, "g1", "SNIPE.11").await;
         assert_eq!(legacy, Some("{\"content\":\"hi\"}".to_string()));
     }
 
@@ -8279,12 +8318,7 @@ mod restore_tests {
             tbl_get(&pool, "g1", "GUILD.SUPPORT").await.as_deref(),
             Some("on")
         );
-        let legacy: Option<String> = sqlx::query_scalar::<_, String>(
-            "SELECT value FROM kv WHERE guild_id = 'g1' AND key_name = 'GUILD.SUPPORT'",
-        )
-        .fetch_optional(&pool)
-        .await
-        .unwrap();
+        let legacy: Option<String> = crate::db::kv_get(&pool, "g1", "GUILD.SUPPORT").await;
         assert_eq!(legacy, Some("on".to_string()));
         // Legacy rows still read, table wins on conflicts.
         crate::db::kv_set(&pool, "g2", "GUILD.SUPPORT", "off")

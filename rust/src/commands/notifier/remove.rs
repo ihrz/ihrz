@@ -8,29 +8,36 @@ use super::*;
 )]
 pub async fn notifier_remove(
     ctx: Ctx<'_>,
+    #[description = "twitch or youtube"] platform: String,
     #[description = "Author id or username"] author: String,
 ) -> Result<(), anyhow::Error> {
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    let say = |key: &str, fallback: &str| {
+        crate::lang::get(&code, key).unwrap_or_else(|| fallback.to_string())
+    };
     let gid = ctx
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
-    let mut entries = load_entries(&ctx.data().pool, &gid).await;
-    let before = entries.len();
-    entries.retain(|e| e.id_or_username != author.trim());
-    if entries.len() == before {
-        let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-        ctx.say(
-            crate::lang::get(&code, "msg_not_found").unwrap_or_else(|| "Not found.".to_string()),
-        )
+    let author = author.trim();
+    let entries = load_entries(&ctx.data().pool, &gid).await;
+    // Platform-scoped lookup (TS authorExist + remove filter match
+    // platform AND id_or_username).
+    if !entry_exists(&entries, &platform, author) {
+        ctx.say(say(
+            "notifier_author_add_author_doesnt_exist",
+            "Author doesn't exist. Please verify the ID.",
+        ))
         .await?;
         return Ok(());
     }
-    save_entries(&ctx.data().pool, &gid, &entries).await?;
-    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-    ctx.say(
-        crate::lang::get(&code, "msg_notifier_entry_removed")
-            .unwrap_or_else(|| "Notifier entry removed.".to_string()),
-    )
-    .await?;
+    let kept: Vec<NotifierEntry> = entries
+        .into_iter()
+        .filter(|e| !(e.platform.eq_ignore_ascii_case(&platform) && e.id_or_username == author))
+        .collect();
+    save_entries(&ctx.data().pool, &gid, &kept).await?;
+    let (authors, config) = authors_and_config_embeds(&ctx.data().pool, &gid, &code).await;
+    ctx.send(poise::CreateReply::default().embed(authors).embed(config))
+        .await?;
     Ok(())
 }

@@ -184,13 +184,18 @@ pub async fn gc_show(
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
-    let rows: Vec<(String, String)> = sqlx::query_as::<_, (String, String)>(
-        "SELECT key_name, value FROM kv WHERE guild_id = ? AND (key_name LIKE 'GUILD.%' OR key_name LIKE 'UTILS.%' OR key_name LIKE 'COUNTER.%' OR key_name LIKE 'PFPS%' OR key_name LIKE 'SECURITY%' OR key_name LIKE 'VOICE%')",
-    )
-    .bind(&gid)
-    .fetch_all(&ctx.data().pool)
-    .await
-    .unwrap_or_default();
+    let rows: Vec<(String, String)> = crate::db::kv_scan(&ctx.data().pool, &gid)
+        .await
+        .into_iter()
+        .filter(|(k, _)| {
+            k.starts_with("GUILD.")
+                || k.starts_with("UTILS.")
+                || k.starts_with("COUNTER.")
+                || k.starts_with("PFPS")
+                || k.starts_with("SECURITY")
+                || k.starts_with("VOICE")
+        })
+        .collect();
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     if rows.is_empty() {
         ctx.say(

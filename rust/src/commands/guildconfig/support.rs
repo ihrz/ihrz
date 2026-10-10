@@ -154,23 +154,7 @@ mod tests {
     use super::*;
 
     async fn memory_pool() -> crate::db::Pool {
-        use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};
-        use std::str::FromStr;
-        let opts = SqliteConnectOptions::from_str("sqlite::memory:")
-            .unwrap()
-            .create_if_missing(true);
-        let pool = SqlitePoolOptions::new()
-            .max_connections(1)
-            .connect_with(opts)
-            .await
-            .unwrap();
-        sqlx::query(
-            "CREATE TABLE kv (guild_id TEXT NOT NULL, key_name TEXT NOT NULL, value TEXT NOT NULL, PRIMARY KEY (guild_id, key_name))",
-        )
-        .execute(&pool)
-        .await
-        .unwrap();
-        pool
+        crate::db::memory_pool().await
     }
 
     #[test]
@@ -209,29 +193,15 @@ mod tests {
         crate::commands::owner::main::routed_set(&pool, "g1", "g1", "GUILD.SUPPORT", &config)
             .await
             .unwrap();
-        let routed: String = sqlx::query_scalar::<_, String>(
-            "SELECT value FROM kv WHERE guild_id = 'tbl:g1' AND key_name = 'GUILD'",
-        )
-        .fetch_optional(&pool)
-        .await
-        .unwrap()
-        .unwrap();
+        let routed = crate::commands::owner::main::routed_get(&pool, "g1", "g1", "GUILD.SUPPORT")
+            .await
+            .unwrap();
         let doc: serde_json::Value = serde_json::from_str(&routed).unwrap();
-        assert_eq!(
-            doc.pointer("/SUPPORT/rolesId").unwrap(),
-            &serde_json::json!("9")
-        );
-        assert_eq!(
-            doc.pointer("/SUPPORT/type").unwrap(),
-            &serde_json::json!("bio")
-        );
-        let legacy: String = sqlx::query_scalar::<_, String>(
-            "SELECT value FROM kv WHERE guild_id = 'g1' AND key_name = 'GUILD.SUPPORT'",
-        )
-        .fetch_optional(&pool)
-        .await
-        .unwrap()
-        .unwrap();
+        assert_eq!(doc.pointer("/rolesId").unwrap(), &serde_json::json!("9"));
+        assert_eq!(doc.pointer("/type").unwrap(), &serde_json::json!("bio"));
+        let legacy = crate::db::kv_get(&pool, "g1", "GUILD.SUPPORT")
+            .await
+            .unwrap();
         assert_eq!(
             serde_json::from_str::<serde_json::Value>(&legacy).unwrap(),
             serde_json::from_str::<serde_json::Value>(&config).unwrap()
@@ -251,12 +221,7 @@ mod tests {
         crate::commands::owner::main::routed_del(&pool, "g1", "g1", "GUILD.SUPPORT")
             .await
             .unwrap();
-        let legacy: Option<String> = sqlx::query_scalar::<_, String>(
-            "SELECT value FROM kv WHERE guild_id = 'g1' AND key_name = 'GUILD.SUPPORT'",
-        )
-        .fetch_optional(&pool)
-        .await
-        .unwrap();
+        let legacy = crate::db::kv_get(&pool, "g1", "GUILD.SUPPORT").await;
         assert_eq!(legacy, None);
         assert!(!support_enabled_routed(&pool, "g1").await);
     }

@@ -231,11 +231,7 @@ pub async fn post_confession_log(
         return false;
     };
     let Ok(ch_id) = ch.parse::<u64>() else {
-        let _ = sqlx::query("DELETE FROM kv WHERE guild_id = ? AND key_name = ?")
-            .bind(gid)
-            .bind(log_key)
-            .execute(pool)
-            .await;
+        let _ = crate::db::kv_del(pool, gid, log_key).await;
         return false;
     };
     let title = crate::lang::get(log.lang_code, log.title_key).unwrap_or_default();
@@ -261,11 +257,7 @@ pub async fn post_confession_log(
         .await
         .is_err()
     {
-        let _ = sqlx::query("DELETE FROM kv WHERE guild_id = ? AND key_name = ?")
-            .bind(gid)
-            .bind(log_key)
-            .execute(pool)
-            .await;
+        let _ = crate::db::kv_del(pool, gid, log_key).await;
     }
     true
 }
@@ -1143,19 +1135,7 @@ mod tests {
     }
 
     async fn memory_pool() -> crate::db::Pool {
-        use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};
-        use std::str::FromStr;
-        let opts = SqliteConnectOptions::from_str("sqlite::memory:").unwrap();
-        let pool = SqlitePoolOptions::new()
-            .max_connections(1)
-            .connect_with(opts)
-            .await
-            .unwrap();
-        sqlx::query("CREATE TABLE kv (guild_id TEXT NOT NULL, key_name TEXT NOT NULL, value TEXT NOT NULL, PRIMARY KEY (guild_id, key_name))")
-            .execute(&pool)
-            .await
-            .unwrap();
-        pool
+        crate::db::memory_pool().await
     }
 
     #[tokio::test]

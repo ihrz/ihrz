@@ -209,6 +209,18 @@ pub fn h247_refuses(enabled: bool, h247_voice: Option<u64>, member_voice: Option
     enabled && member_voice != h247_voice
 }
 
+/// H247-parked stop decision (mirrors the
+/// `handleH247PlayerIdleDestroy` channel-match guard): the stop keeps
+/// the player + voice connection (never destroys) when 24/7 is enabled
+/// and parked on the player's voice channel.
+pub fn h247_parked_voice(
+    enabled: bool,
+    h247_voice: Option<u64>,
+    player_voice: Option<u64>,
+) -> bool {
+    enabled && h247_voice.is_some() && h247_voice == player_voice
+}
+
 /// Discord embed description limit guard (lyrics truncate at 1997 + …).
 pub fn truncate_lyrics(s: &str) -> String {
     if s.len() <= 1997 {
@@ -320,11 +332,12 @@ async fn record_history_full(
     }
 }
 
-/// Newest-first page (`page` is 0-based, `HISTORY_PAGE_SIZE` entries).
+/// Oldest-first page (`page` is 0-based, `HISTORY_PAGE_SIZE` entries),
+/// mirroring `!history.ts` (`history.embed.slice(i, i + usersPerPage)`
+/// over the append-ordered store).
 pub fn history_page(entries: &[HistoryEntry], page: usize) -> Vec<&HistoryEntry> {
     entries
         .iter()
-        .rev()
         .skip(page.saturating_mul(HISTORY_PAGE_SIZE))
         .take(HISTORY_PAGE_SIZE)
         .collect()
@@ -387,11 +400,10 @@ pub fn history_txt_line(e: &HistoryEntry) -> String {
     )
 }
 
-/// Full `.txt` export (newest first, like the TS `buffer` join).
+/// Full `.txt` export (oldest first, like the TS `buffer` join).
 pub fn history_export_txt(entries: &[HistoryEntry]) -> String {
     entries
         .iter()
-        .rev()
         .map(history_txt_line)
         .collect::<Vec<_>>()
         .join("\n")
@@ -988,7 +1000,7 @@ mod tests {
     }
 
     #[test]
-    fn history_pages_newest_first() {
+    fn history_pages_oldest_first() {
         let entries: Vec<HistoryEntry> = (0..25)
             .map(|i| HistoryEntry::new(&format!("t{i:02}"), None, None, 1000 + i))
             .collect();
@@ -998,14 +1010,15 @@ mod tests {
             .map(|e| e.title.clone())
             .collect();
         assert_eq!(p0.len(), 10);
-        assert_eq!(p0[0], "t24");
-        assert_eq!(p0[9], "t15");
+        assert_eq!(p0[0], "t00");
+        assert_eq!(p0[9], "t09");
         let p2: Vec<String> = history_page(&entries, 2)
             .iter()
             .map(|e| e.title.clone())
             .collect();
         assert_eq!(p2.len(), 5);
-        assert_eq!(p2[4], "t00");
+        assert_eq!(p2[0], "t20");
+        assert_eq!(p2[4], "t24");
         assert!(history_page(&entries, 3).is_empty());
     }
 
@@ -1085,6 +1098,15 @@ mod tests {
         assert!(!h247_refuses(true, Some(7), Some(7)));
         assert!(!h247_refuses(false, Some(7), Some(8)));
         assert!(!h247_refuses(false, None, None));
+    }
+
+    #[test]
+    fn h247_parked_voice_matches_idle_destroy_guard() {
+        assert!(h247_parked_voice(true, Some(7), Some(7)));
+        assert!(!h247_parked_voice(true, Some(7), Some(8)));
+        assert!(!h247_parked_voice(true, Some(7), None));
+        assert!(!h247_parked_voice(true, None, None));
+        assert!(!h247_parked_voice(false, Some(7), Some(7)));
     }
 
     #[test]
@@ -1273,6 +1295,7 @@ mod tests {
             ErrorRecovery::Advanced,
             ErrorRecovery::Idle,
             ErrorRecovery::NoPlayer,
+            ErrorRecovery::Kept,
         ] {
             assert_eq!(track_error_notice(&other), None);
         }

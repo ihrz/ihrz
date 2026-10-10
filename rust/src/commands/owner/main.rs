@@ -171,15 +171,7 @@ pub async fn legacy_scan(
     scope: &str,
     prefix: &str,
 ) -> Vec<(String, String)> {
-    let like = format!("{prefix}%");
-    sqlx::query_as::<_, (String, String)>(
-        "SELECT key_name, value FROM kv WHERE guild_id = ? AND key_name LIKE ?",
-    )
-    .bind(scope)
-    .bind(like)
-    .fetch_all(pool)
-    .await
-    .unwrap_or_default()
+    crate::db::kv_scan_prefix(pool, scope, prefix).await
 }
 
 /// Legacy kv prefix delete for one scope.
@@ -188,13 +180,7 @@ pub async fn legacy_del_prefix(
     scope: &str,
     prefix: &str,
 ) -> anyhow::Result<()> {
-    let like = format!("{prefix}%");
-    sqlx::query("DELETE FROM kv WHERE guild_id = ? AND key_name LIKE ?")
-        .bind(scope)
-        .bind(like)
-        .execute(pool)
-        .await?;
-    Ok(())
+    crate::db::kv_del_prefix(pool, scope, prefix).await
 }
 
 /// Named `blacklist` table handle. Legacy scope "0" and
@@ -1422,23 +1408,7 @@ mod tests {
     use super::*;
 
     async fn mem_pool() -> crate::db::Pool {
-        use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};
-        use std::str::FromStr;
-        let opts = SqliteConnectOptions::from_str("sqlite::memory:")
-            .unwrap()
-            .create_if_missing(true);
-        let pool = SqlitePoolOptions::new()
-            .max_connections(1)
-            .connect_with(opts)
-            .await
-            .unwrap();
-        sqlx::query(
-            "CREATE TABLE kv (guild_id TEXT NOT NULL, key_name TEXT NOT NULL, value TEXT NOT NULL, PRIMARY KEY (guild_id, key_name))",
-        )
-        .execute(&pool)
-        .await
-        .unwrap();
-        pool
+        crate::db::memory_pool().await
     }
 
     #[test]

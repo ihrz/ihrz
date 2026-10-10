@@ -312,23 +312,7 @@ mod tests {
     use super::*;
 
     async fn memory_pool() -> crate::db::Pool {
-        use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};
-        use std::str::FromStr;
-        let opts = SqliteConnectOptions::from_str("sqlite::memory:")
-            .unwrap()
-            .create_if_missing(true);
-        let pool = SqlitePoolOptions::new()
-            .max_connections(1)
-            .connect_with(opts)
-            .await
-            .unwrap();
-        sqlx::query(
-            "CREATE TABLE kv (guild_id TEXT NOT NULL, key_name TEXT NOT NULL, value TEXT NOT NULL, PRIMARY KEY (guild_id, key_name))",
-        )
-        .execute(&pool)
-        .await
-        .unwrap();
-        pool
+        crate::db::memory_pool().await
     }
 
     #[test]
@@ -350,25 +334,14 @@ mod tests {
         let mut map: AutoreactMap = BTreeMap::new();
         map.insert("1".to_string(), vec!["a".to_string(), "c".to_string()]);
         save_autoreact_map_routed(&pool, "g1", &map).await.unwrap();
-        let routed: String = sqlx::query_scalar::<_, String>(
-            "SELECT value FROM kv WHERE guild_id = 'tbl:g1' AND key_name = 'GUILD'",
-        )
-        .fetch_optional(&pool)
-        .await
-        .unwrap()
-        .unwrap();
+        let routed = crate::commands::owner::main::routed_get(&pool, "g1", "g1", "GUILD.AUTOREACT")
+            .await
+            .unwrap();
         let doc: serde_json::Value = serde_json::from_str(&routed).unwrap();
-        assert_eq!(
-            doc.pointer("/AUTOREACT/1").unwrap(),
-            &serde_json::json!(["a", "c"])
-        );
-        let legacy: String = sqlx::query_scalar::<_, String>(
-            "SELECT value FROM kv WHERE guild_id = 'g1' AND key_name = 'GUILD.AUTOREACT'",
-        )
-        .fetch_optional(&pool)
-        .await
-        .unwrap()
-        .unwrap();
+        assert_eq!(doc.pointer("/1").unwrap(), &serde_json::json!(["a", "c"]));
+        let legacy = crate::db::kv_get(&pool, "g1", "GUILD.AUTOREACT")
+            .await
+            .unwrap();
         assert_eq!(
             serde_json::from_str::<serde_json::Value>(&legacy).unwrap(),
             serde_json::json!({"1": ["a", "c"]})
@@ -412,13 +385,9 @@ mod tests {
             vec!["b".to_string(), "d".to_string()]
         );
         // Migration persisted the map shape back over the legacy row.
-        let legacy: String = sqlx::query_scalar::<_, String>(
-            "SELECT value FROM kv WHERE guild_id = 'g1' AND key_name = 'GUILD.AUTOREACT'",
-        )
-        .fetch_optional(&pool)
-        .await
-        .unwrap()
-        .unwrap();
+        let legacy = crate::db::kv_get(&pool, "g1", "GUILD.AUTOREACT")
+            .await
+            .unwrap();
         assert_eq!(
             serde_json::from_str::<serde_json::Value>(&legacy).unwrap(),
             serde_json::json!({"2": ["b", "d"]})
@@ -437,12 +406,7 @@ mod tests {
             vec!["z".to_string()]
         );
         // Phantom key is never written anymore.
-        let phantom: Option<String> = sqlx::query_scalar::<_, String>(
-            "SELECT value FROM kv WHERE guild_id = 'g1' AND key_name = 'GUILD.AUTOREACT.enabled'",
-        )
-        .fetch_optional(&pool)
-        .await
-        .unwrap();
+        let phantom = crate::db::kv_get(&pool, "g1", "GUILD.AUTOREACT.enabled").await;
         assert_eq!(phantom, None);
     }
 }

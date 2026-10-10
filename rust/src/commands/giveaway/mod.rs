@@ -1013,18 +1013,7 @@ mod tests {
 
     #[tokio::test]
     async fn requirement_gates() {
-        use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};
-        use std::str::FromStr;
-        let opts = SqliteConnectOptions::from_str("sqlite::memory:").unwrap();
-        let pool = SqlitePoolOptions::new()
-            .max_connections(1)
-            .connect_with(opts)
-            .await
-            .unwrap();
-        sqlx::query("CREATE TABLE kv (guild_id TEXT NOT NULL, key_name TEXT NOT NULL, value TEXT NOT NULL, PRIMARY KEY (guild_id, key_name))")
-            .execute(&pool).await.unwrap();
-        sqlx::query("CREATE TABLE guild_lang (guild_id TEXT PRIMARY KEY, lang TEXT NOT NULL DEFAULT 'en-US')")
-            .execute(&pool).await.unwrap();
+        let pool = crate::db::memory_pool().await;
         assert!(check_requirement(&pool, "g", 1, &[], "none", "").await);
         assert!(!check_requirement(&pool, "g", 1, &[], "invites", "5").await);
         assert!(!check_requirement(&pool, "g", 1, &[], "messages", "5").await);

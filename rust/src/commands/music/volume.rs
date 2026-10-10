@@ -5,6 +5,11 @@ use super::*;
 // input is refused instead of storing NaN, and the reply shows the
 // clamped level actually applied (TS echoes the raw query, so
 // `!volume 500` would claim 500% while playing 100).
+//
+// Recorded option-surface superset (no behavior change): the TS slash
+// definition (`music.ts:294-300`) restricts `level` to the fixed
+// VOLUMES choices, while the prefix path parses free text — this
+// command parses free text on both paths, like the prefix leg.
 /// Set the playback volume (10-100).
 #[poise::command(slash_command, prefix_command, rename = "volume")]
 pub async fn m_volume(

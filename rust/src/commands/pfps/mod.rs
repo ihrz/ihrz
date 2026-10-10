@@ -64,19 +64,7 @@ mod tests {
     }
 
     async fn memory_pool() -> crate::db::Pool {
-        use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};
-        use std::str::FromStr;
-        let opts = SqliteConnectOptions::from_str("sqlite::memory:").unwrap();
-        let pool = SqlitePoolOptions::new()
-            .max_connections(1)
-            .connect_with(opts)
-            .await
-            .unwrap();
-        sqlx::query("CREATE TABLE kv (guild_id TEXT NOT NULL, key_name TEXT NOT NULL, value TEXT NOT NULL, PRIMARY KEY (guild_id, key_name))")
-            .execute(&pool)
-            .await
-            .unwrap();
-        pool
+        crate::db::memory_pool().await
     }
 
     #[tokio::test]
@@ -92,12 +80,7 @@ mod tests {
             Some("8")
         );
         // Table-routed rows live under `tbl:<gid>`, never as flat legacy rows.
-        let legacy: Option<String> = sqlx::query_scalar::<_, String>(
-            "SELECT value FROM kv WHERE guild_id = 'g1' AND key_name = 'PFPS.channel'",
-        )
-        .fetch_optional(&pool)
-        .await
-        .unwrap();
+        let legacy: Option<String> = crate::db::kv_get(&pool, "g1", "PFPS.channel").await;
         assert_eq!(legacy, None);
         // Legacy rows still read, table wins over legacy.
         crate::db::kv_set(&pool, "g2", "PFPS.disable", "1")

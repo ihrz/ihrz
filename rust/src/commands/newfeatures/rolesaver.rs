@@ -80,10 +80,6 @@ pub async fn rolesaver(
         reply = reply.attachment(serenity::CreateAttachment::bytes(bytes, "footer_icon.png"));
     }
     ctx.send(reply).await?;
-    let _ = sqlx::query("DELETE FROM kv WHERE guild_id = ? AND key_name = ?")
-        .bind(&gid)
-        .bind("GUILD.GUILD_CONFIG.rolesaver")
-        .execute(&ctx.data().pool)
-        .await;
+    let _ = crate::db::kv_del(&ctx.data().pool, &gid, "GUILD.GUILD_CONFIG.rolesaver").await;
     Ok(())
 }

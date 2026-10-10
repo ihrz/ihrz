@@ -265,18 +265,7 @@ mod tests {
 
     #[tokio::test]
     async fn board_roundtrip_json() {
-        use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};
-        use std::str::FromStr;
-        let opts = SqliteConnectOptions::from_str("sqlite::memory:").unwrap();
-        let pool = SqlitePoolOptions::new()
-            .max_connections(1)
-            .connect_with(opts)
-            .await
-            .unwrap();
-        sqlx::query("CREATE TABLE kv (guild_id TEXT NOT NULL, key_name TEXT NOT NULL, value TEXT NOT NULL, PRIMARY KEY (guild_id, key_name))")
-            .execute(&pool).await.unwrap();
-        sqlx::query("CREATE TABLE guild_lang (guild_id TEXT PRIMARY KEY, lang TEXT NOT NULL DEFAULT 'en-US')")
-            .execute(&pool).await.unwrap();
+        let pool = crate::db::memory_pool().await;
         let mut cfg = load_board(&pool, "g", "starboard").await;
         assert_eq!(cfg.threshold, 2);
         cfg.threshold = clamp_threshold(99);
@@ -287,16 +276,7 @@ mod tests {
 
     #[tokio::test]
     async fn table_routing_with_legacy_fallback() {
-        use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};
-        use std::str::FromStr;
-        let opts = SqliteConnectOptions::from_str("sqlite::memory:").unwrap();
-        let pool = SqlitePoolOptions::new()
-            .max_connections(1)
-            .connect_with(opts)
-            .await
-            .unwrap();
-        sqlx::query("CREATE TABLE kv (guild_id TEXT NOT NULL, key_name TEXT NOT NULL, value TEXT NOT NULL, PRIMARY KEY (guild_id, key_name))")
-            .execute(&pool).await.unwrap();
+        let pool = crate::db::memory_pool().await;
         let cfg = BoardConfig {
             channel: "5".into(),
             create_thread: false,
@@ -305,20 +285,9 @@ mod tests {
         };
         save_board(&pool, "g1", "starboard", &cfg).await.unwrap();
         // Table-routed rows live under `tbl:<gid>`, never as flat legacy rows.
-        let legacy: Option<String> = sqlx::query_scalar::<_, String>(
-            "SELECT value FROM kv WHERE guild_id = 'g1' AND key_name = 'GUILD.STARBOARD'",
-        )
-        .fetch_optional(&pool)
-        .await
-        .unwrap();
+        let legacy: Option<String> = crate::db::kv_get(&pool, "g1", "GUILD.STARBOARD").await;
         assert_eq!(legacy, None);
-        let routed: String = sqlx::query_scalar::<_, String>(
-            "SELECT value FROM kv WHERE guild_id = 'tbl:g1' AND key_name = 'GUILD'",
-        )
-        .fetch_optional(&pool)
-        .await
-        .unwrap()
-        .unwrap();
+        let routed: String = crate::db::kv_get(&pool, "tbl:g1", "GUILD").await.unwrap();
         assert!(routed.contains("STARBOARD"));
         // Legacy rows still read, table wins over legacy.
         crate::db::kv_set(

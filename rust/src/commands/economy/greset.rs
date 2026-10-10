@@ -5,10 +5,13 @@ use super::*;
 /// per-user rows (WARNS), so only the ECONOMY subtree is removed.
 async fn clear_guild_econ(pool: &crate::db::Pool, guild_id: &str) -> anyhow::Result<()> {
     use crate::commands::owner::main::{tbl_del, tbl_get_value};
-    sqlx::query("DELETE FROM kv WHERE guild_id = ? AND key_name LIKE 'USER.%.ECONOMY%'")
-        .bind(guild_id)
-        .execute(pool)
-        .await?;
+    // LIKE `USER.%.ECONOMY%` has a middle wildcard: scan the `USER.` rows
+    // via the driver and delete the ECONOMY-subtree hits.
+    for (k, _) in crate::db::kv_scan_prefix(pool, guild_id, "USER.").await {
+        if k.contains(".ECONOMY") {
+            crate::db::kv_del(pool, guild_id, &k).await?;
+        }
+    }
     if let Some(root) = tbl_get_value(pool, guild_id, "USER").await {
         if let Some(obj) = root.as_object() {
             let uids: Vec<String> = obj
@@ -78,23 +81,7 @@ mod tests {
     use super::clear_guild_econ;
 
     async fn mem_pool() -> crate::db::Pool {
-        use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};
-        use std::str::FromStr;
-        let opts = SqliteConnectOptions::from_str("sqlite::memory:")
-            .unwrap()
-            .create_if_missing(true);
-        let pool = SqlitePoolOptions::new()
-            .max_connections(1)
-            .connect_with(opts)
-            .await
-            .unwrap();
-        sqlx::query(
-            "CREATE TABLE kv (guild_id TEXT NOT NULL, key_name TEXT NOT NULL, value TEXT NOT NULL, PRIMARY KEY (guild_id, key_name))",
-        )
-        .execute(&pool)
-        .await
-        .unwrap();
-        pool
+        crate::db::memory_pool().await
     }
 
     #[tokio::test]

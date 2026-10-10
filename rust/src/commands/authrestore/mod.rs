@@ -474,11 +474,11 @@ pub fn parse_authrestore_row(raw: &str) -> Option<GuildAuthRestore> {
 /// Load every locally stored authrestore config. Mirrors
 /// `authRestoreTable.all()` from `Events/client/ready.ts`.
 pub async fn load_authrestore_entries(pool: &crate::db::Pool) -> Vec<(String, GuildAuthRestore)> {
-    let rows: Vec<(String, String)> =
-        sqlx::query_as::<_, (String, String)>("SELECT guild_id, value FROM kv")
-            .fetch_all(pool)
-            .await
-            .unwrap_or_default();
+    let rows: Vec<(String, String)> = crate::db::kv_scan_all(pool)
+        .await
+        .into_iter()
+        .map(|(gid, _, value)| (gid, value))
+        .collect();
     rows.into_iter()
         .filter_map(|(gid, raw)| parse_authrestore_row(&raw).map(|data| (gid, data)))
         .collect()
@@ -748,10 +748,11 @@ async fn t(ctx: &Ctx<'_>, key: &str, fallback: &str) -> String {
 /// `authRestoreTable.get("saved_users")` (the `SavedMembersAuthRestore`
 /// array lives in the same table as the guild configs).
 pub async fn load_saved_members(pool: &crate::db::Pool) -> Vec<Oauth2Member> {
-    let rows: Vec<String> = sqlx::query_scalar::<_, String>("SELECT value FROM kv")
-        .fetch_all(pool)
+    let rows: Vec<String> = crate::db::kv_scan_all(pool)
         .await
-        .unwrap_or_default();
+        .into_iter()
+        .map(|(_, _, v)| v)
+        .collect();
     let mut out = vec![];
     for raw in rows {
         if let Ok(list) = serde_json::from_str::<Vec<Oauth2Member>>(&raw) {

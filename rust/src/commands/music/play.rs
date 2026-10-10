@@ -111,8 +111,14 @@ pub async fn m_play(
         p.text_channel = Some(text_channel);
     })
     .await;
-    match m.play_query(gid, &title, requester, now_ms()).await {
-        Ok((pos, t, is_playlist)) => {
+    // Single-query batch through the pinned-node pipeline (mirrors
+    // `handleMusicPlay` looping `queries[]` with `currentNode` pinned
+    // from the first successful search; one query pins trivially).
+    let mut results = m
+        .play_queries(gid, std::slice::from_ref(&title), requester, now_ms())
+        .await;
+    match results.pop() {
+        Some(Ok((pos, t, is_playlist))) => {
             // Rich entry (mirrors musicPlay.ts buffer/embed rows:
             // requester - resolved title | uri by requester).
             let requester_tag = format!("<@{requester}>");
@@ -214,13 +220,16 @@ pub async fn m_play(
                 }
             }
         }
-        Err(crate::lavalink::MusicError::NoMatches) | Err(crate::lavalink::MusicError::NoNodes) => {
-            // TS `searchMusicQuery` returns {} with no nodes/tracks,
-            // and the handler answers the no-result embed.
+        Some(Err(crate::lavalink::MusicError::NoMatches))
+        | Some(Err(crate::lavalink::MusicError::NoNodes))
+        | None => {
+            // TS `searchMusicQuery` returns {} with no nodes/tracks
+            // (and `handleMusicPlay` on empty queries), and the handler
+            // answers the no-result embed.
             ctx.send(poise::CreateReply::default().embed(no_result_embed(&code)))
                 .await?;
         }
-        Err(e) => {
+        Some(Err(e)) => {
             // Fallible resolve/start legs beyond no-matches (no
             // session, REST/transport failure): answer the queue-error
             // shape instead of dropping into the generic handler with

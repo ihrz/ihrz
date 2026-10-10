@@ -557,23 +557,7 @@ mod tests {
     use super::*;
 
     async fn memory_pool() -> crate::db::Pool {
-        use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};
-        use std::str::FromStr;
-        let opts = SqliteConnectOptions::from_str("sqlite::memory:")
-            .unwrap()
-            .create_if_missing(true);
-        let pool = SqlitePoolOptions::new()
-            .max_connections(1)
-            .connect_with(opts)
-            .await
-            .unwrap();
-        sqlx::query(
-            "CREATE TABLE kv (guild_id TEXT NOT NULL, key_name TEXT NOT NULL, value TEXT NOT NULL, PRIMARY KEY (guild_id, key_name))",
-        )
-        .execute(&pool)
-        .await
-        .unwrap();
-        pool
+        crate::db::memory_pool().await
     }
 
     #[test]
@@ -601,20 +585,9 @@ mod tests {
         save_guild_config(&pool, "g1", &cfg).await.unwrap();
         // Table-routed rows live under the `tbl:<guild>` scope with the
         // dotted root as key_name, never as a flat legacy (guild, key) row.
-        let legacy: Option<String> = sqlx::query_scalar::<_, String>(
-            "SELECT value FROM kv WHERE guild_id = 'g1' AND key_name = 'GUILD.GUILD_CONFIG'",
-        )
-        .fetch_optional(&pool)
-        .await
-        .unwrap();
+        let legacy: Option<String> = crate::db::kv_get(&pool, "g1", "GUILD.GUILD_CONFIG").await;
         assert_eq!(legacy, None);
-        let routed: String = sqlx::query_scalar::<_, String>(
-            "SELECT value FROM kv WHERE guild_id = 'tbl:g1' AND key_name = 'GUILD'",
-        )
-        .fetch_optional(&pool)
-        .await
-        .unwrap()
-        .unwrap();
+        let routed: String = crate::db::kv_get(&pool, "tbl:g1", "GUILD").await.unwrap();
         assert_eq!(
             serde_json::from_str::<serde_json::Value>(&routed).unwrap(),
             serde_json::json!({"GUILD_CONFIG": {"join": true}})

@@ -92,11 +92,11 @@ pub async fn load_authrestore_entries_routed(
             out.push((gid, data));
         }
     }
-    let rows: Vec<(String, String)> =
-        sqlx::query_as::<_, (String, String)>("SELECT guild_id, value FROM kv")
-            .fetch_all(pool)
-            .await
-            .unwrap_or_default();
+    let rows: Vec<(String, String)> = crate::db::kv_scan_all(pool)
+        .await
+        .into_iter()
+        .map(|(gid, _, value)| (gid, value))
+        .collect();
     for (gid, raw) in rows {
         if seen.contains(&gid) {
             continue;
@@ -123,10 +123,11 @@ pub async fn load_saved_members_routed(pool: &crate::db::Pool) -> Vec<Oauth2Memb
             }
         }
     }
-    let rows: Vec<String> = sqlx::query_scalar::<_, String>("SELECT value FROM kv")
-        .fetch_all(pool)
+    let rows: Vec<String> = crate::db::kv_scan_all(pool)
         .await
-        .unwrap_or_default();
+        .into_iter()
+        .map(|(_, _, v)| v)
+        .collect();
     for raw in rows {
         if let Ok(list) = serde_json::from_str::<Vec<Oauth2Member>>(&raw) {
             for m in list {
@@ -144,23 +145,7 @@ mod tests {
     use super::*;
 
     async fn mem_pool() -> crate::db::Pool {
-        use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};
-        use std::str::FromStr;
-        let opts = SqliteConnectOptions::from_str("sqlite::memory:")
-            .unwrap()
-            .create_if_missing(true);
-        let pool = SqlitePoolOptions::new()
-            .max_connections(1)
-            .connect_with(opts)
-            .await
-            .unwrap();
-        sqlx::query(
-            "CREATE TABLE kv (guild_id TEXT NOT NULL, key_name TEXT NOT NULL, value TEXT NOT NULL, PRIMARY KEY (guild_id, key_name))",
-        )
-        .execute(&pool)
-        .await
-        .unwrap();
-        pool
+        crate::db::memory_pool().await
     }
 
     fn sample_blob(secret: &str) -> GuildAuthRestore {

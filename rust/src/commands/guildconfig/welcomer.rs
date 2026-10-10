@@ -340,23 +340,7 @@ mod tests {
     use super::*;
 
     async fn memory_pool() -> crate::db::Pool {
-        use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};
-        use std::str::FromStr;
-        let opts = SqliteConnectOptions::from_str("sqlite::memory:")
-            .unwrap()
-            .create_if_missing(true);
-        let pool = SqlitePoolOptions::new()
-            .max_connections(1)
-            .connect_with(opts)
-            .await
-            .unwrap();
-        sqlx::query(
-            "CREATE TABLE kv (guild_id TEXT NOT NULL, key_name TEXT NOT NULL, value TEXT NOT NULL, PRIMARY KEY (guild_id, key_name))",
-        )
-        .execute(&pool)
-        .await
-        .unwrap();
-        pool
+        crate::db::memory_pool().await
     }
 
     #[tokio::test]
@@ -366,25 +350,18 @@ mod tests {
         save_guild_config_routed(&pool, "g1", &cfg).await.unwrap();
         assert_eq!(load_guild_config(&pool, "g1").await, cfg);
         // Table handle holds the blob under the GUILD root.
-        let routed: String = sqlx::query_scalar::<_, String>(
-            "SELECT value FROM kv WHERE guild_id = 'tbl:g1' AND key_name = 'GUILD'",
-        )
-        .fetch_optional(&pool)
-        .await
-        .unwrap()
-        .unwrap();
+        let routed =
+            crate::commands::owner::main::routed_get(&pool, "g1", "g1", "GUILD.GUILD_CONFIG")
+                .await
+                .unwrap();
         assert_eq!(
             serde_json::from_str::<serde_json::Value>(&routed).unwrap(),
-            serde_json::json!({"GUILD_CONFIG": {"join": "11", "joinroles": "22"}})
+            serde_json::json!({"join": "11", "joinroles": "22"})
         );
         // Legacy flat row stays fresh for unmigrated readers.
-        let legacy: String = sqlx::query_scalar::<_, String>(
-            "SELECT value FROM kv WHERE guild_id = 'g1' AND key_name = 'GUILD.GUILD_CONFIG'",
-        )
-        .fetch_optional(&pool)
-        .await
-        .unwrap()
-        .unwrap();
+        let legacy = crate::db::kv_get(&pool, "g1", "GUILD.GUILD_CONFIG")
+            .await
+            .unwrap();
         assert_eq!(
             serde_json::from_str::<serde_json::Value>(&legacy).unwrap(),
             cfg

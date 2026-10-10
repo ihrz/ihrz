@@ -76,11 +76,7 @@ pub async fn gc_perm_user(
     let level = level.clamp(0, 9);
     // `perm === "0"` deletes the row (TS `db.delete`).
     if level == 0 {
-        let _ = sqlx::query("DELETE FROM kv WHERE guild_id = ? AND key_name = ?")
-            .bind(&gid)
-            .bind(user_perm_key(user.id.get()))
-            .execute(pool)
-            .await;
+        let _ = crate::db::kv_del(pool, &gid, &user_perm_key(user.id.get())).await;
         ctx.say(
             crate::lang::get(&code, "perm_set_deleted")
                 .map(|s| s.replace("${user.toString()}", &user.to_string()))
@@ -188,11 +184,7 @@ pub async fn gc_perm_reset(
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
-    sqlx::query("DELETE FROM kv WHERE guild_id = ? AND key_name = ?")
-        .bind(&gid)
-        .bind(perm_key(command.trim()))
-        .execute(&ctx.data().pool)
-        .await?;
+    crate::db::kv_del(&ctx.data().pool, &gid, &perm_key(command.trim())).await?;
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     ctx.say(
         crate::lang::get(&code, "perm_set_command_reset")
@@ -271,11 +263,7 @@ pub async fn gc_perm_change(
         _ => t("var_subcommand_group"),
     };
     if !has_perm_requirements(&perms) {
-        sqlx::query("DELETE FROM kv WHERE guild_id = ? AND key_name = ?")
-            .bind(&gid)
-            .bind(perm_key(&command))
-            .execute(pool)
-            .await?;
+        crate::db::kv_del(pool, &gid, &perm_key(&command)).await?;
         ctx.say(format!(
             "{kind}: {command}\n {}",
             t("perm_set_command_reset")
@@ -329,11 +317,7 @@ pub async fn gc_perm_delete(
         ctx.say(t("perm_command_delete_dont_exist")).await?;
         return Ok(());
     }
-    sqlx::query("DELETE FROM kv WHERE guild_id = ? AND key_name = ?")
-        .bind(&gid)
-        .bind(perm_key(&cmd))
-        .execute(pool)
-        .await?;
+    crate::db::kv_del(pool, &gid, &perm_key(&cmd)).await?;
     ctx.say(t("perm_command_delete_command_deleted").replace("${commands}", &cmd))
         .await?;
     Ok(())
@@ -434,11 +418,7 @@ pub async fn gc_perm_delete_all(
         let level = p.clamp(0, 9) as u8;
         for (cmd, perms) in &entries {
             if perms.level.unwrap_or(0) == level && level > 0 {
-                sqlx::query("DELETE FROM kv WHERE guild_id = ? AND key_name = ?")
-                    .bind(&gid)
-                    .bind(perm_key(cmd))
-                    .execute(pool)
-                    .await?;
+                crate::db::kv_del(pool, &gid, &perm_key(cmd)).await?;
                 changes.push(format!("- {cmd} ({}: {level})\n", t("var_level")));
             }
         }
@@ -449,11 +429,7 @@ pub async fn gc_perm_delete_all(
                 let mut next = perms.clone();
                 next.roles.retain(|r| r != &id);
                 if !has_perm_requirements(&next) {
-                    sqlx::query("DELETE FROM kv WHERE guild_id = ? AND key_name = ?")
-                        .bind(&gid)
-                        .bind(perm_key(cmd))
-                        .execute(pool)
-                        .await?;
+                    crate::db::kv_del(pool, &gid, &perm_key(cmd)).await?;
                 } else {
                     crate::db::kv_set(
                         pool,
@@ -473,11 +449,7 @@ pub async fn gc_perm_delete_all(
                 let mut next = perms.clone();
                 next.users.retain(|u| u != &id);
                 if !has_perm_requirements(&next) {
-                    sqlx::query("DELETE FROM kv WHERE guild_id = ? AND key_name = ?")
-                        .bind(&gid)
-                        .bind(perm_key(cmd))
-                        .execute(pool)
-                        .await?;
+                    crate::db::kv_del(pool, &gid, &perm_key(cmd)).await?;
                 } else {
                     crate::db::kv_set(
                         pool,

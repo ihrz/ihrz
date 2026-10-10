@@ -11,6 +11,31 @@ pub fn format_clock_secs(secs: u64) -> String {
     format!("{:02}:{:02}", secs / 60, secs % 60)
 }
 
+/// Effective playback position: wall-clock elapsed minus time spent
+/// paused (mirrors `player.position`, which freezes while paused),
+/// capped at the track duration. Streams (`duration_ms == 0`, unknown
+/// length) are uncapped.
+pub fn nowplaying_position_ms(elapsed_ms: u64, paused_ms: u64, duration_ms: u64) -> u64 {
+    let pos = elapsed_ms.saturating_sub(paused_ms);
+    if duration_ms == 0 {
+        pos
+    } else {
+        pos.min(duration_ms)
+    }
+}
+
+/// Collector lifetime left (mirrors the TS collector
+/// `time: duration - player.position`): remaining track time, or the
+/// remaining stream cap for streams.
+pub fn nowplaying_remaining_ms(elapsed_ms: u64, paused_ms: u64, duration_ms: u64) -> u64 {
+    let total = if duration_ms == 0 {
+        STREAM_COLLECTOR_CAP_MS
+    } else {
+        duration_ms
+    };
+    total.saturating_sub(nowplaying_position_ms(elapsed_ms, paused_ms, total))
+}
+
 /// Progress readout, mirroring TS `generateProgressBar` math (floor to
 /// seconds, 17-wide bar, pointer after the elapsed dashes).
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -184,13 +209,24 @@ pub async fn m_nowplaying(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let requester_id = track.requester;
     let track_id = track.encoded.clone();
     let duration_ms = track.length_ms;
-    let collect_for_ms = if duration_ms > 0 {
-        duration_ms
-    } else {
-        STREAM_COLLECTOR_CAP_MS
-    };
     let started = Instant::now();
     let mut paused = s.paused;
+    // Pause-offset clock (mirrors `player.position`, which freezes
+    // while paused): `paused_ms` accumulates closed pause spans, and
+    // `pause_began` marks the open one. Every tick renders
+    // `wall - paused_total` via `nowplaying_position_ms`, and the loop
+    // ends on `nowplaying_remaining_ms` (TS `duration - position`).
+    let mut paused_ms: u64 = 0;
+    let mut pause_began: Option<Instant> = None;
+    // Wall clock plus the open pause span, for one tick.
+    let tick_ms =
+        |started: &Instant, paused_ms: u64, pause_began: &Option<Instant>| -> (u64, u64) {
+            let wall = started.elapsed().as_millis() as u64;
+            let open = pause_began
+                .map(|b| b.elapsed().as_millis() as u64)
+                .unwrap_or(0);
+            (wall, paused_ms.saturating_add(open))
+        };
 
     let prog = nowplaying_progress(0, duration_ms);
     let embed = nowplaying_embed(
@@ -247,15 +283,15 @@ pub async fn m_nowplaying(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
             .await;
         let Some(press) = press else {
             // 5.9s refresh tick: re-render while the same track plays.
-            if started.elapsed().as_millis() as u64 >= collect_for_ms {
+            let (wall, paused_total) = tick_ms(&started, paused_ms, &pause_began);
+            if nowplaying_remaining_ms(wall, paused_total, duration_ms) == 0 {
                 break;
             }
             let current_now = m.snapshot(gid).await.and_then(|s| s.current);
             match current_now {
                 Some(t) if t.encoded == track_id => {
                     if !paused {
-                        let elapsed = started.elapsed().as_millis() as u64;
-                        let pos = elapsed.min(duration_ms.max(elapsed));
+                        let pos = nowplaying_position_ms(wall, paused_total, duration_ms);
                         let prog = nowplaying_progress(pos, duration_ms);
                         let fresh = nowplaying_embed(
                             &t.title,
@@ -293,12 +329,21 @@ pub async fn m_nowplaying(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         match press.data.custom_id.as_str() {
             "np-pause" => {
                 paused = !paused;
+                // Freeze/unfreeze the clock on the pause offset.
+                if paused {
+                    pause_began = Some(Instant::now());
+                } else if let Some(began) = pause_began.take() {
+                    paused_ms = paused_ms.saturating_add(began.elapsed().as_millis() as u64);
+                }
                 m.with_player(gid, |p| p.paused = paused).await;
                 if let Ok((node, session)) = m.live_node_and_session(gid).await {
                     let _ = m.rest_set_paused(&node, &session, gid, paused).await;
                 }
-                let elapsed = started.elapsed().as_millis() as u64;
-                let prog = nowplaying_progress(elapsed.min(duration_ms.max(elapsed)), duration_ms);
+                let (wall, paused_total) = tick_ms(&started, paused_ms, &pause_began);
+                let prog = nowplaying_progress(
+                    nowplaying_position_ms(wall, paused_total, duration_ms),
+                    duration_ms,
+                );
                 let fresh = nowplaying_embed(
                     &track.title,
                     &track.author,
@@ -352,8 +397,11 @@ pub async fn m_nowplaying(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
                 if let Ok((node, session)) = m.live_node_and_session(gid).await {
                     let _ = m.rest_destroy(&node, &session, gid).await;
                 }
-                let elapsed = started.elapsed().as_millis() as u64;
-                let prog = nowplaying_progress(elapsed.min(duration_ms.max(elapsed)), duration_ms);
+                let (wall, paused_total) = tick_ms(&started, paused_ms, &pause_began);
+                let prog = nowplaying_progress(
+                    nowplaying_position_ms(wall, paused_total, duration_ms),
+                    duration_ms,
+                );
                 let fresh = nowplaying_embed(
                     &track.title,
                     &track.author,
@@ -411,7 +459,8 @@ pub async fn m_nowplaying(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
             }
             _ => continue,
         }
-        if started.elapsed().as_millis() as u64 >= collect_for_ms {
+        let (wall, paused_total) = tick_ms(&started, paused_ms, &pause_began);
+        if nowplaying_remaining_ms(wall, paused_total, duration_ms) == 0 {
             break;
         }
         if m.snapshot(gid)
@@ -432,7 +481,10 @@ pub async fn m_nowplaying(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
 
 #[cfg(test)]
 mod tests {
-    use super::{format_clock_secs, nowplaying_progress, trim_lyrics_1997};
+    use super::{
+        format_clock_secs, nowplaying_position_ms, nowplaying_progress, nowplaying_remaining_ms,
+        trim_lyrics_1997, STREAM_COLLECTOR_CAP_MS,
+    };
 
     #[test]
     fn clock_pads_like_ts_format_time() {
@@ -475,5 +527,32 @@ mod tests {
         let t = trim_lyrics_1997(&long);
         assert!(t.ends_with("..."));
         assert_eq!(t.chars().count(), 2000);
+    }
+
+    #[test]
+    fn position_freezes_while_paused_and_caps_at_duration() {
+        assert_eq!(nowplaying_position_ms(10_000, 0, 180_000), 10_000);
+        // Paused spans are subtracted (mirrors player.position).
+        assert_eq!(nowplaying_position_ms(10_000, 4_000, 180_000), 6_000);
+        assert_eq!(nowplaying_position_ms(3_000, 5_000, 180_000), 0);
+        // Capped at the track duration; streams are uncapped.
+        assert_eq!(nowplaying_position_ms(300_000, 0, 180_000), 180_000);
+        assert_eq!(nowplaying_position_ms(300_000, 0, 0), 300_000);
+        assert_eq!(nowplaying_position_ms(300_000, 50_000, 0), 250_000);
+    }
+
+    #[test]
+    fn remaining_is_duration_minus_elapsed() {
+        assert_eq!(nowplaying_remaining_ms(0, 0, 180_000), 180_000);
+        assert_eq!(nowplaying_remaining_ms(90_000, 0, 180_000), 90_000);
+        // Paused time does not consume the collector lifetime.
+        assert_eq!(nowplaying_remaining_ms(90_000, 30_000, 180_000), 120_000);
+        assert_eq!(nowplaying_remaining_ms(200_000, 0, 180_000), 0);
+        // Streams count down the collector cap instead.
+        assert_eq!(nowplaying_remaining_ms(0, 0, 0), STREAM_COLLECTOR_CAP_MS);
+        assert_eq!(
+            nowplaying_remaining_ms(100_000, 20_000, 0),
+            STREAM_COLLECTOR_CAP_MS - 80_000
+        );
     }
 }

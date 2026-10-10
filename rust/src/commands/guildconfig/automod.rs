@@ -13,9 +13,9 @@ use poise::serenity_prelude as serenity;
 /// all exist in serenity 0.12.5, so the TS Keyword rules port 1:1.
 ///
 /// Remainder: `!spam.ts` (Spam trigger) and `!mass-mention.ts`
-/// (MentionSpam trigger) stay kv-only custom detectors (see the
-/// `automod_toggle!` commands below); their native presets are
-/// available in serenity but out of scope for this item.
+/// (MentionSpam trigger) sync their native presets below
+/// (`sync_spam_rule` / `sync_mention_rule`); the kv flags stay as
+/// the local toggle state beside the legacy `GUILD_CONFIG` keys.
 ///
 /// Block-message text TS puts in the rule action metadata.
 pub const AUTOMOD_BLOCK_MESSAGE: &str = "This message was prevented by iHorizon";
@@ -111,6 +111,58 @@ pub fn automod_allow(kind: &str) -> &'static [&'static str] {
     }
 }
 
+/// Native Spam rule name (`!spam.ts` create/edit `name`).
+pub const SPAM_RULE_NAME: &str = "Block spam by iHorizon";
+
+/// Native mass-mention rule name (`!mass-mention.ts`).
+pub const MASS_RULE_NAME: &str = "Block mass-mention spam by iHorizon";
+
+/// Default `max-mention-allowed` (`!mass-mention.ts`
+/// `getNumber(...) || 3`). Discord caps the limit at 50.
+pub const DEFAULT_MAX_MENTION: u8 = 3;
+pub const MAX_MENTION_LIMIT: u8 = 50;
+
+/// Clamp a `max-mention-allowed` value to Discord's 1-50 range,
+/// falling back to 3 like the TS `|| 3`. Pure for testability.
+pub fn clamp_mention_limit(n: i64) -> u8 {
+    if (1..=MAX_MENTION_LIMIT as i64).contains(&n) {
+        n as u8
+    } else {
+        DEFAULT_MAX_MENTION
+    }
+}
+
+/// Spam trigger (`!spam.ts` `triggerType: 3`). Pure for testability.
+pub fn spam_trigger() -> serenity::Trigger {
+    serenity::Trigger::Spam
+}
+
+/// MentionSpam trigger with the configured total-mention limit
+/// (`!mass-mention.ts` `triggerType: 5`, `mentionTotalLimit`).
+/// Pure for testability.
+pub fn mass_trigger(limit: u8) -> serenity::Trigger {
+    serenity::Trigger::MentionSpam {
+        mention_total_limit: limit,
+    }
+}
+
+/// Media side-effect value stored on enable per Keyword kind:
+/// `!link.ts` stores false, `!discord_invite_link.ts` stores true,
+/// `!telegram_link.ts` has none. `None` kinds own no media row
+/// (nothing to delete on disable either). Pure for testability.
+pub fn automod_media_on_value(kind: &str) -> Option<&'static str> {
+    match kind {
+        "link" => Some("false"),
+        "discord-invite" => Some("true"),
+        _ => None,
+    }
+}
+
+/// Only `!link.ts` manages the antipub leaf. Pure for testability.
+pub fn automod_manages_antipub(kind: &str) -> bool {
+    kind == "link"
+}
+
 /// Keyword trigger for a kind. Pure for testability.
 pub fn automod_trigger(kind: &str) -> serenity::Trigger {
     serenity::Trigger::Keyword {
@@ -194,6 +246,117 @@ pub async fn sync_keyword_rule(
     res.is_ok()
 }
 
+/// Find the native Spam-rule slot (`!spam.ts` lookup by
+/// `triggerType: Spam`). Pure for testability.
+pub fn find_spam_rule(rules: &[serenity::automod::Rule]) -> Option<&serenity::automod::Rule> {
+    rules.iter().find(|r| {
+        matches!(
+            r.trigger,
+            serenity::Trigger::Spam | serenity::Trigger::Unknown(3)
+        )
+    })
+}
+
+/// Find the native MentionSpam-rule slot (`!mass-mention.ts` lookup
+/// by `triggerType: MentionSpam`). Pure for testability.
+pub fn find_mention_rule(rules: &[serenity::automod::Rule]) -> Option<&serenity::automod::Rule> {
+    rules.iter().find(|r| {
+        matches!(
+            r.trigger,
+            serenity::Trigger::MentionSpam { .. } | serenity::Trigger::Unknown(5)
+        )
+    })
+}
+
+/// Create-or-edit a preset (non-Keyword) native rule and
+/// enable/disable it. Best-effort false on Discord errors.
+async fn sync_preset_rule(
+    serenity_ctx: &serenity::Context,
+    guild_id: serenity::GuildId,
+    name: &str,
+    trigger: serenity::Trigger,
+    enabled: bool,
+    log_channel: Option<serenity::ChannelId>,
+    existing: Option<serenity::RuleId>,
+) -> bool {
+    let builder = serenity::EditAutoModRule::new()
+        .name(name)
+        .event_type(serenity::automod::EventType::MessageSend)
+        .trigger(trigger)
+        .actions(automod_actions(log_channel.map(|c| c.get())))
+        .enabled(enabled);
+    // Serenity routes a `None` rule id to create and `Some` to edit.
+    let res = match existing {
+        Some(id) => guild_id
+            .edit_automod_rule(serenity_ctx, id, builder)
+            .await
+            .map(|_| ()),
+        None => {
+            if enabled {
+                guild_id
+                    .create_automod_rule(serenity_ctx, builder)
+                    .await
+                    .map(|_| ())
+            } else {
+                Ok(())
+            }
+        }
+    };
+    res.is_ok()
+}
+
+/// Create-or-edit the native Spam rule and enable/disable it.
+/// Mirrors `!spam.ts`. Best-effort false on Discord errors.
+pub async fn sync_spam_rule(
+    serenity_ctx: &serenity::Context,
+    guild_id: serenity::GuildId,
+    enabled: bool,
+    log_channel: Option<serenity::ChannelId>,
+) -> bool {
+    let rules = match guild_id.automod_rules(serenity_ctx).await {
+        Ok(r) => r,
+        Err(_) => return false,
+    };
+    let existing = find_spam_rule(&rules).map(|r| r.id);
+    sync_preset_rule(
+        serenity_ctx,
+        guild_id,
+        SPAM_RULE_NAME,
+        spam_trigger(),
+        enabled,
+        log_channel,
+        existing,
+    )
+    .await
+}
+
+/// Create-or-edit the native MentionSpam rule (with the configured
+/// mention limit) and enable/disable it. Mirrors `!mass-mention.ts`.
+/// Best-effort false on Discord errors (caller replies error404).
+pub async fn sync_mention_rule(
+    serenity_ctx: &serenity::Context,
+    guild_id: serenity::GuildId,
+    limit: u8,
+    enabled: bool,
+    log_channel: Option<serenity::ChannelId>,
+) -> bool {
+    let rules = match guild_id.automod_rules(serenity_ctx).await {
+        Ok(r) => r,
+        Err(_) => return false,
+    };
+    let existing = find_mention_rule(&rules).map(|r| r.id);
+    sync_preset_rule(
+        serenity_ctx,
+        guild_id,
+        MASS_RULE_NAME,
+        mass_trigger(limit),
+        enabled,
+        log_channel,
+        existing,
+    )
+    .await
+}
+
 macro_rules! keyword_command {
     ($fn_name:ident, $sub:literal, $kind:literal) => {
         #[poise::command(
@@ -225,20 +388,19 @@ macro_rules! keyword_command {
                 )
                 .await;
             }
+            crate::db::kv_set(pool, &gid, &automod_key($kind), if enabled { "1" } else { "0" }).await?;
             if enabled {
-                crate::db::kv_set(pool, &gid, "GUILD.GUILD_CONFIG.media", "false").await?;
-                crate::db::kv_set(pool, &gid, &automod_key($kind), "1").await?;
-                if $kind == "link" {
+                if let Some(v) = automod_media_on_value($kind) {
+                    crate::db::kv_set(pool, &gid, "GUILD.GUILD_CONFIG.media", v).await?;
+                }
+                if automod_manages_antipub($kind) {
                     crate::db::kv_set(pool, &gid, "GUILD.GUILD_CONFIG.antipub", "on").await?;
                 }
             } else {
-                let _ = sqlx::query("DELETE FROM kv WHERE guild_id = ? AND key_name = ?")
-                    .bind(&gid)
-                    .bind("GUILD.GUILD_CONFIG.media")
-                    .execute(pool)
-                    .await;
-                crate::db::kv_set(pool, &gid, &automod_key($kind), "0").await?;
-                if $kind == "link" {
+                if automod_media_on_value($kind).is_some() {
+                    let _ = crate::db::kv_del(pool, &gid, "GUILD.GUILD_CONFIG.media").await;
+                }
+                if automod_manages_antipub($kind) {
                     crate::db::kv_set(pool, &gid, "GUILD.GUILD_CONFIG.antipub", "off").await?;
                 }
             }
@@ -279,9 +441,147 @@ pub async fn gc_automod(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
 
 keyword_command!(gc_automod_link, "link", "link");
 
-automod_toggle!(gc_automod_spam, "spam", "spam");
+/// Spam toggle with native rule sync (mirrors `!spam.ts`).
+// The Block (+ optional logs-channel Alert) Spam rule named
+// "Block spam by iHorizon" is created/edited, then the legacy
+// `GUILD_CONFIG.spam` leaf is dual-written beside the AUTOMOD flag.
+#[poise::command(
+    slash_command,
+    prefix_command,
+    rename = "spam",
+    default_member_permissions = "ADMINISTRATOR"
+)]
+pub async fn gc_automod_spam(
+    ctx: Ctx<'_>,
+    #[description = "on or off"] action: String,
+    #[description = "Logs channel"]
+    #[channel_types("Text")]
+    logs_channel: Option<serenity::GuildChannel>,
+) -> Result<(), anyhow::Error> {
+    let gid = ctx
+        .guild_id()
+        .map(|g| g.get().to_string())
+        .unwrap_or_default();
+    let enabled = matches!(action.to_ascii_lowercase().as_str(), "on" | "power on");
+    let pool = &ctx.data().pool;
+    if let Some(guild_id) = ctx.guild_id() {
+        sync_spam_rule(
+            ctx.serenity_context(),
+            guild_id,
+            enabled,
+            logs_channel.as_ref().map(|c| c.id),
+        )
+        .await;
+    }
+    crate::db::kv_set(
+        pool,
+        &gid,
+        "GUILD.GUILD_CONFIG.spam",
+        if enabled { "on" } else { "off" },
+    )
+    .await?;
+    crate::db::kv_set(
+        pool,
+        &gid,
+        &automod_key("spam"),
+        if enabled { "1" } else { "0" },
+    )
+    .await?;
+    let state = if enabled { "on" } else { "off" };
+    ctx.say(
+        crate::commands::lang_for(
+            &ctx,
+            "msg_automod_toggled",
+            &format!("Automod spam {state}."),
+        )
+        .await
+        .replace("{kind}", "spam")
+        .replace("{state}", state),
+    )
+    .await?;
+    Ok(())
+}
 
-automod_toggle!(gc_automod_mass, "mass-mention", "mass-mention");
+/// Mass-mention toggle with native rule sync (mirrors `!mass-mention.ts`).
+// The MentionSpam rule (with the `max-mention-allowed` limit,
+// default 3) is created/edited with the Block (+ optional
+// logs-channel Alert) actions, then the legacy
+// `GUILD_CONFIG.mass_mention` leaf is dual-written. A failed sync
+// replies the error404 string (Discord rejects the rule while its
+// own MentionSpam preset stays enabled) without touching kv state.
+#[poise::command(
+    slash_command,
+    prefix_command,
+    rename = "mass-mention",
+    default_member_permissions = "ADMINISTRATOR"
+)]
+pub async fn gc_automod_mass(
+    ctx: Ctx<'_>,
+    #[description = "on or off"] action: String,
+    #[description = "Max mentions allowed"]
+    #[rename = "max-mention-allowed"]
+    max_mention: Option<i64>,
+    #[description = "Logs channel"]
+    #[channel_types("Text")]
+    logs_channel: Option<serenity::GuildChannel>,
+) -> Result<(), anyhow::Error> {
+    let gid = ctx
+        .guild_id()
+        .map(|g| g.get().to_string())
+        .unwrap_or_default();
+    let enabled = matches!(action.to_ascii_lowercase().as_str(), "on" | "power on");
+    let limit = clamp_mention_limit(max_mention.unwrap_or(DEFAULT_MAX_MENTION as i64));
+    let pool = &ctx.data().pool;
+    let synced = if let Some(guild_id) = ctx.guild_id() {
+        sync_mention_rule(
+            ctx.serenity_context(),
+            guild_id,
+            limit,
+            enabled,
+            logs_channel.as_ref().map(|c| c.id),
+        )
+        .await
+    } else {
+        false
+    };
+    if enabled && !synced {
+        let detail = crate::commands::lang_for(
+            &ctx,
+            "automod_block_massmention_command_error404",
+            "Did you leave Block Mention Spam enabled (enabled by default by Discord) in AutoMod settings? It is most likely the cause of this error: please disable it, then run the command again.",
+        )
+        .await;
+        ctx.say(format!("Error 404. {detail}")).await?;
+        return Ok(());
+    }
+    crate::db::kv_set(
+        pool,
+        &gid,
+        "GUILD.GUILD_CONFIG.mass_mention",
+        if enabled { "on" } else { "off" },
+    )
+    .await?;
+    crate::db::kv_set(
+        pool,
+        &gid,
+        &automod_key("mass-mention"),
+        if enabled { "1" } else { "0" },
+    )
+    .await?;
+    let state = if enabled { "on" } else { "off" };
+    ctx.say(
+        crate::commands::lang_for(
+            &ctx,
+            "msg_automod_toggled",
+            &format!("Automod mass-mention {state}."),
+        )
+        .await
+        .replace("{kind}", "mass-mention")
+        .replace("{state}", state),
+    )
+    .await?;
+    Ok(())
+}
 
 keyword_command!(gc_automod_discord, "discord-invite", "discord-invite");
 
@@ -352,5 +652,94 @@ mod tests {
             automod_rule_name("link"),
             "Block advertissement message by iHorizon"
         );
+        assert_eq!(SPAM_RULE_NAME, "Block spam by iHorizon");
+        assert_eq!(MASS_RULE_NAME, "Block mass-mention spam by iHorizon");
+    }
+
+    // `Rule` is non-exhaustive: build test fixtures through its
+    // Discord JSON shape (trigger_type + trigger_metadata).
+    fn test_rule(trigger_type: u8, metadata: serde_json::Value) -> serenity::automod::Rule {
+        serde_json::from_value(serde_json::json!({
+            "id": "1",
+            "guild_id": "1",
+            "name": "r",
+            "creator_id": "1",
+            "event_type": 1,
+            "trigger_type": trigger_type,
+            "trigger_metadata": metadata,
+            "actions": [],
+            "enabled": true,
+            "exempt_roles": [],
+            "exempt_channels": []
+        }))
+        .expect("test rule must deserialize")
+    }
+
+    #[test]
+    fn spam_and_mention_triggers_match_ts_slots() {
+        assert!(matches!(spam_trigger(), serenity::Trigger::Spam));
+        match mass_trigger(7) {
+            serenity::Trigger::MentionSpam {
+                mention_total_limit,
+            } => assert_eq!(mention_total_limit, 7),
+            _ => panic!("mass must build a MentionSpam trigger"),
+        }
+    }
+
+    #[test]
+    fn mention_limit_defaults_to_3_and_caps_at_50() {
+        assert_eq!(clamp_mention_limit(3), 3);
+        assert_eq!(clamp_mention_limit(10), 10);
+        assert_eq!(clamp_mention_limit(50), 50);
+        assert_eq!(clamp_mention_limit(0), DEFAULT_MAX_MENTION);
+        assert_eq!(clamp_mention_limit(-1), DEFAULT_MAX_MENTION);
+        assert_eq!(clamp_mention_limit(51), DEFAULT_MAX_MENTION);
+    }
+
+    #[test]
+    fn preset_rule_finders_match_trigger_slots() {
+        let rules = vec![
+            test_rule(3, serde_json::json!({})),
+            test_rule(5, serde_json::json!({ "mention_total_limit": 3 })),
+            test_rule(
+                1,
+                serde_json::json!({
+                    "keyword_filter": [],
+                    "regex_patterns": ["x"],
+                    "allow_list": []
+                }),
+            ),
+        ];
+        assert!(matches!(
+            find_spam_rule(&rules).map(|r| &r.trigger),
+            Some(serenity::Trigger::Spam)
+        ));
+        match find_mention_rule(&rules).map(|r| &r.trigger) {
+            Some(serenity::Trigger::MentionSpam {
+                mention_total_limit,
+            }) => assert_eq!(*mention_total_limit, 3),
+            _ => panic!("mention finder must hit the MentionSpam slot"),
+        }
+        // Absent slots yield None (disable path skips Discord).
+        let empty = vec![test_rule(
+            1,
+            serde_json::json!({
+                "keyword_filter": [],
+                "regex_patterns": ["x"],
+                "allow_list": []
+            }),
+        )];
+        assert!(find_spam_rule(&empty).is_none());
+        assert!(find_mention_rule(&empty).is_none());
+    }
+
+    #[test]
+    fn keyword_side_effects_match_ts() {
+        assert_eq!(automod_media_on_value("link"), Some("false"));
+        assert_eq!(automod_media_on_value("discord-invite"), Some("true"));
+        assert_eq!(automod_media_on_value("telegram"), None);
+        assert!(automod_manages_antipub("link"));
+        assert!(!automod_manages_antipub("discord-invite"));
+        assert!(!automod_manages_antipub("telegram"));
     }
 }

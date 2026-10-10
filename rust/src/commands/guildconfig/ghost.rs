@@ -295,23 +295,7 @@ mod tests {
     use super::*;
 
     async fn memory_pool() -> crate::db::Pool {
-        use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};
-        use std::str::FromStr;
-        let opts = SqliteConnectOptions::from_str("sqlite::memory:")
-            .unwrap()
-            .create_if_missing(true);
-        let pool = SqlitePoolOptions::new()
-            .max_connections(1)
-            .connect_with(opts)
-            .await
-            .unwrap();
-        sqlx::query(
-            "CREATE TABLE kv (guild_id TEXT NOT NULL, key_name TEXT NOT NULL, value TEXT NOT NULL, PRIMARY KEY (guild_id, key_name))",
-        )
-        .execute(&pool)
-        .await
-        .unwrap();
-        pool
+        crate::db::memory_pool().await
     }
 
     #[test]
@@ -367,26 +351,15 @@ mod tests {
         .await
         .unwrap();
         // Table handle holds the dotted key under the GUILD root.
-        let routed: String = sqlx::query_scalar::<_, String>(
-            "SELECT value FROM kv WHERE guild_id = 'tbl:g1' AND key_name = 'GUILD'",
-        )
-        .fetch_optional(&pool)
-        .await
-        .unwrap()
-        .unwrap();
-        let doc: serde_json::Value = serde_json::from_str(&routed).unwrap();
+        let routed = crate::commands::owner::main::routed_get(&pool, "g1", "g1", ghost_key())
+            .await
+            .unwrap();
         assert_eq!(
-            doc.pointer("/GUILD_CONFIG/GHOST_PING/channels").unwrap(),
-            &serde_json::json!(["11", "22"])
+            serde_json::from_str::<serde_json::Value>(&routed).unwrap(),
+            serde_json::json!(["11", "22"])
         );
         // Legacy flat row stays fresh for unmigrated readers.
-        let legacy: String = sqlx::query_scalar::<_, String>(
-            "SELECT value FROM kv WHERE guild_id = 'g1' AND key_name = 'GUILD.GUILD_CONFIG.GHOST_PING.channels'",
-        )
-        .fetch_optional(&pool)
-        .await
-        .unwrap()
-        .unwrap();
+        let legacy = crate::db::kv_get(&pool, "g1", ghost_key()).await.unwrap();
         assert_eq!(
             serde_json::from_str::<serde_json::Value>(&legacy).unwrap(),
             serde_json::json!(["11", "22"])

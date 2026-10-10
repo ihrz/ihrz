@@ -82,9 +82,17 @@ pub async fn m_skip(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
             }
         }
     } else {
+        // Offline (no live node/session): reply with the post-advance
+        // title like the live leg (`!skip.ts:119-123` reads
+        // `player.queue.current` after the skip), falling back to the
+        // skipped title when the queue drained.
+        let after = m.snapshot(gid).await.and_then(|s| s.current);
+        let title = after
+            .map(|t| t.title)
+            .unwrap_or_else(|| skipped_title.clone());
         let msg = crate::lang::get(&code, "skip_command_work")
-            .map(|s| s.replace("{queue}", &skipped_title))
-            .unwrap_or_else(|| format!("Skipped {skipped_title}"));
+            .map(|s| s.replace("{queue}", &title))
+            .unwrap_or_else(|| format!("Skipped {title}"));
         ctx.say(msg).await?;
     }
     // TS also announces the skip in the player's text channel when it

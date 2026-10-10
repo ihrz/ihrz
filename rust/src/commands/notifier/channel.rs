@@ -17,6 +17,39 @@ pub async fn notifier_channel(
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    let say = |key: &str, fallback: &str| {
+        crate::lang::get(&code, key).unwrap_or_else(|| fallback.to_string())
+    };
+    // Already-set guard (TS !channel.ts:56).
+    let current = load_notifier_string(&ctx.data().pool, &gid, "NOTIFIER.channelId").await;
+    if current.as_deref() == Some(channel.id.get().to_string().as_str()) {
+        ctx.say(
+            say(
+                "joinghostping_add_already_set",
+                "The channel ${channel} is already set!",
+            )
+            .replace("${channel}", &format!("<#{}>", channel.id.get())),
+        )
+        .await?;
+        return Ok(());
+    }
+    // Config log (TS ihorizon_logs leg; best-effort like the other
+    // config setters).
+    let title = say(
+        "notifier_config_channel_logsEmbed_title",
+        "Notifier Channel Module",
+    );
+    crate::commands::economy::post_ihorizon_log(
+        &ctx,
+        &title,
+        &say(
+            "notifier_config_channel_logsEmbed_desc",
+            "Notify channel updated.",
+        )
+        .replace("${channel}", &format!("<#{}>", channel.id.get())),
+    )
+    .await;
     save_notifier_string(
         &ctx.data().pool,
         &gid,
@@ -24,11 +57,15 @@ pub async fn notifier_channel(
         &channel.id.get().to_string(),
     )
     .await?;
-    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     ctx.say(
-        crate::lang::get(&code, "notifier_config_message_command_ok")
-            .map(|s| s.replace("${channel.toString()}", &format!("<#{}>", channel.id.get())))
-            .unwrap_or_else(|| "Now, when a streamer or YouTuber publishes a video, I will send a message in ${channel.toString()}".to_string()),
+        say(
+            "notifier_config_message_command_ok",
+            "Now, when a streamer or YouTuber publishes a video, I will send a message in ${channel.toString()}",
+        )
+        .replace(
+            "${channel.toString()}",
+            &format!("<#{}>", channel.id.get()),
+        ),
     )
     .await?;
     Ok(())
