@@ -239,7 +239,7 @@ committed — see `.gitignore`. No push without a green
 - [ ] C1 method.ts prefix-resolver battery → `funcs_resolve.rs` (P0 for prefix parity).
 - [ ] C2 permissonsCalculator full gate + adversarial authz tests (P0).
 - [ ] C3 ticketsManager 2177-line fn-by-fn delta (XL — split by lifecycle).
-- [ ] C4 userStatsUtils 8 fns → pure `stats_calc` module.
+- [x] C4 userStatsUtils 8 fns → pure `stats_calc` module — VERIFIED done (U-ETERNAL-70: 9 pure fns cover all portable TS fns; `getChannelName` correctly excluded, needs live Guild).
 - [ ] C5 ownerHelper table merge + add/remove (DB-backed).
 - [ ] C6 musicPlay URL matchers + durations (offline); handlers behind lavalink-creds gate.
 - [ ] C7 shard_helper cross-shard lookup design (no serenity broadcastEval).
