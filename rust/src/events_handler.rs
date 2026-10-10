@@ -617,6 +617,26 @@ async fn save_snipe_routed(
     crate::commands::owner::main::routed_set(pool, gid, gid, key, value).await
 }
 
+/// TS snipe snapshot JSON. Mirrors Events/utils/snipeModule.ts verbatim:
+/// `{snipe, snipeUserInfoTag, snipeUserInfoPp, snipeTimestamp}` with the
+/// content masked via maskLink (`Hidden Link` on any URL-ish input).
+/// Pure, unit-tested below.
+pub fn ts_snipe_json(
+    raw_content: &str,
+    author_name: &str,
+    author_id: u64,
+    avatar_url: &str,
+    timestamp_ms: i64,
+) -> String {
+    serde_json::json!({
+        "snipe": crate::funcs::mask_link(raw_content),
+        "snipeUserInfoTag": format!("{author_name} ({author_id})"),
+        "snipeUserInfoPp": avatar_url,
+        "snipeTimestamp": timestamp_ms,
+    })
+    .to_string()
+}
+
 /// TICKET_ALL.<user>.<channel> rows for one user, table-first with
 /// legacy fallback (keys unchanged).
 async fn ticket_user_rows_routed(pool: &crate::db::Pool, gid: &str, user_id: u64) -> Vec<String> {
@@ -4615,27 +4635,51 @@ impl serenity::EventHandler for Handler {
         deleted_message_id: serenity::MessageId,
         guild_id: Option<serenity::GuildId>,
     ) {
-        // Mirrors utils/snipeModule.ts: keep last deleted id per guild.
-        // Full content needs cache; we store the id marker only.
+        // Mirrors Events/utils/snipeModule.ts: snapshot the deleted
+        // message from cache (the bot's own messages and empty
+        // contents are skipped, links masked via maskLink).
         if let Some(gid) = guild_id {
             let gid = gid.get().to_string();
             // Full content from the message cache (mirrors snipeModule.ts).
-            let snap: Option<String> =
-                ctx.cache
-                    .message(channel_id, deleted_message_id)
-                    .map(|cached| {
+            // Owned snapshot first: the cache guard is not Send and
+            // must drop before any await.
+            let bot_id = ctx.cache.current_user().id.get();
+            let snap: Option<(String, String)> = ctx
+                .cache
+                .message(channel_id, deleted_message_id)
+                .filter(|cached| cached.author.id.get() != bot_id && !cached.content.is_empty())
+                .map(|cached| {
+                    (
                         serde_json::json!({
                             "author": cached.author.tag(),
                             "content": cached.content.clone(),
                         })
-                        .to_string()
-                    });
-            if let Some(snap) = snap {
+                        .to_string(),
+                        ts_snipe_json(
+                            &cached.content,
+                            &cached.author.name,
+                            cached.author.id.get(),
+                            &cached.author.avatar_url().unwrap_or_default(),
+                            cached.timestamp.unix_timestamp() * 1000,
+                        ),
+                    )
+                });
+            if let Some((legacy, ts_snap)) = snap {
+                // TS shape at GUILD.SNIPE.<channel> (snipeModule.ts
+                // verbatim); the legacy SNIPE.<channel> row stays as
+                // fallback for old readers.
+                let _ = save_snipe_routed(
+                    &self.pool,
+                    &gid,
+                    &format!("GUILD.SNIPE.{}", channel_id.get()),
+                    &ts_snap,
+                )
+                .await;
                 let _ = save_snipe_routed(
                     &self.pool,
                     &gid,
                     &format!("SNIPE.{}", channel_id.get()),
-                    &snap,
+                    &legacy,
                 )
                 .await;
             }
@@ -7259,6 +7303,30 @@ mod restore_tests {
             Some("TestBot")
         );
         assert!(bot_pfp_routed(&pool, "g1").await.is_none());
+    }
+
+    #[test]
+    fn ts_snipe_json_matches_ts_writer_shape() {
+        // Plain content passes through; keys mirror snipeModule.ts.
+        let raw = ts_snipe_json("hello", "bob", 123, "https://cdn/a.png", 1728500000000);
+        let v: serde_json::Value = serde_json::from_str(&raw).unwrap();
+        assert_eq!(v.get("snipe").and_then(|s| s.as_str()), Some("hello"));
+        assert_eq!(
+            v.get("snipeUserInfoTag").and_then(|s| s.as_str()),
+            Some("bob (123)")
+        );
+        assert_eq!(
+            v.get("snipeUserInfoPp").and_then(|s| s.as_str()),
+            Some("https://cdn/a.png")
+        );
+        assert_eq!(
+            v.get("snipeTimestamp").and_then(|n| n.as_i64()),
+            Some(1728500000000)
+        );
+        // maskLink behavior: any URL-ish input becomes `Hidden Link`.
+        let masked = ts_snipe_json("see https://x.y", "bob", 123, "https://cdn/a.png", 1);
+        let v: serde_json::Value = serde_json::from_str(&masked).unwrap();
+        assert_eq!(v.get("snipe").and_then(|s| s.as_str()), Some("Hidden Link"));
     }
 
     #[tokio::test]
