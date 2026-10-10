@@ -54,6 +54,14 @@ pub async fn ticket_close(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     }
     let t = |k: &str| crate::lang::get(&lang_code, k).unwrap_or_default();
     let entries = delete::ticket_entries_routed(pool, &gid).await;
+    // Uncached-owner verdict (documented keep): TS CloseTicket resolves
+    // the owner via `members.cache.get(author)` with NO fetch fallback,
+    // so an uncached owner (or one who left) makes `member?.user`
+    // undefined and the overwrite create throws into
+    // `close_command_error`. Rust revokes by UserId directly with no
+    // member fetch, so close still succeeds for left/uncached owners.
+    // Kept intentionally: the overwrite is addressable by id, and
+    // failing a valid close on cache state would be a regression.
     let Some(author_id) = ticket_owner_id(&entries, &channel_id.get().to_string()) else {
         ctx.say(
             crate::lang::get(&lang_code, "close_command_error")

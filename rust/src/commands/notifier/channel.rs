@@ -36,7 +36,12 @@ pub async fn notifier_channel(
         return Ok(());
     }
     // Config log (TS ihorizon_logs leg; best-effort like the other
-    // config setters).
+    // config setters). TS replaces `${interaction.user.id}` with the
+    // member mention, but the YAML template already wraps the token in
+    // `<@...>` (`<@${interaction.user.id}> ...`), so the raw id is
+    // inserted here: a mention string would double-wrap into
+    // `<@<@id>>`, exactly the malformed text TS renders today.
+    let author_id = ctx.author().id.get().to_string();
     let title = say(
         "notifier_config_channel_logsEmbed_title",
         "Notifier Channel Module",
@@ -48,6 +53,7 @@ pub async fn notifier_channel(
             "notifier_config_channel_logsEmbed_desc",
             "Notify channel updated.",
         )
+        .replace("${interaction.user.id}", &author_id)
         .replace("${channel}", &format!("<#{}>", target.id.get())),
     )
     .await;

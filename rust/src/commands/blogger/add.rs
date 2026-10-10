@@ -60,8 +60,12 @@ pub async fn blogger_add(
     let mut seen = std::collections::HashSet::new();
     blogs.retain(|b| seen.insert((b.rss.clone(), b.channel_id.clone())));
     save_blogs(&ctx.data().pool, &gid, &blogs).await?;
-    // TS `validation.name || "Unknown"`: a title-less feed still adds.
-    let feed_title = feed_title.unwrap_or_else(|| "Unknown".to_string());
+    // TS validateRssFeed already falls back to `feed.title || "Unknown Blog"`,
+    // so `validation.name` is always defined on the valid leg and the
+    // `|| "Unknown"` in !add.ts is dead. The Rust validator returns None
+    // for a title-less feed instead, so fall back to "Unknown Blog" here —
+    // the effective TS text, shared with getBlogNameByRss.
+    let feed_title = feed_title.unwrap_or_else(|| "Unknown Blog".to_string());
     let content = say(
         "blogger_blog_add_success",
         "RSS feed **${validation.name}** has been added! Notifications will be sent to ${channel.toString()} (ID: `${blogId}`)",

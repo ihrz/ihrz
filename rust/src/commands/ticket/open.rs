@@ -48,6 +48,14 @@ pub async fn ticket_open(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     }
     let t = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
     let entries = delete::ticket_entries_routed(pool, &gid).await;
+    // Uncached-owner verdict (documented keep): TS TicketReOpen resolves
+    // the owner via `members.cache.get(author)` with NO fetch fallback,
+    // so an uncached owner (or one who left) makes `member?.user.id`
+    // undefined and the edit throws into `open_command_error`. Rust
+    // re-grants by UserId directly with no member fetch, so reopen
+    // still succeeds for left/uncached owners. Kept intentionally:
+    // the overwrite is addressable by id, and failing a valid reopen
+    // on cache state would be a regression.
     let Some(author_id) = ticket_owner_id(&entries, &channel_id.get().to_string()) else {
         ctx.say(
             crate::lang::get(&code, "open_command_error")

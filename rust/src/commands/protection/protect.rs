@@ -579,8 +579,13 @@ pub async fn protect_show(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let rows = load_protection_rows(&ctx.data().pool, &gid).await;
     let allow = load_allowlist(&ctx.data().pool, &gid).await;
-    // TS !show.ts:63-73: empty when no allowlist entries or no rules.
-    if protection_rules_text(&rows).trim().is_empty() || allow.is_empty() {
+    // TS !show.ts:63-73 guards on the raw stores (`Object.keys(list).length
+    // === 0 || Object.keys(protection).length === 0`): a SANCTION-only row
+    // still counts as "something set up", so it renders a
+    // punishment-line-only first embed. Never gate on the filtered
+    // `protection_rules_text` (which skips SANCTION) — that would wrongly
+    // answer `not_anything_setup` where TS shows the punishment line.
+    if rows.is_empty() || allow.is_empty() {
         let msg = crate::lang::get(&code, "authorization_configshow_not_anything_setup")
             .unwrap_or_else(|| {
                 "You have not set up anything in the Protection Module!".to_string()
@@ -612,9 +617,19 @@ pub async fn protect_show(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         .author(serenity::CreateEmbedAuthor::new(author2))
         .description(allowlist_mentions(&allow))
         .timestamp(serenity::Timestamp::now());
+    // Shared footer + icon attachment, mirroring `footerBuilder` /
+    // `footerAttachmentBuilder` (+ `setTimestamp`) in `!show.ts:99-128`
+    // (same `send_blinfo_embed` pattern as `owner/main.rs`).
+    let (footer_name, footer_bytes) = crate::commands::shared::footer_parts(&ctx, &gid).await;
+    let with_icon = footer_bytes.is_some();
+    let embed1 = crate::commands::shared::embed_with_footer(embed1, &footer_name, with_icon);
+    let embed2 = crate::commands::shared::embed_with_footer(embed2, &footer_name, with_icon);
     let mut reply = poise::CreateReply::default();
     reply.embeds.push(embed1);
     reply.embeds.push(embed2);
+    if let Some(bytes) = footer_bytes {
+        reply = reply.attachment(serenity::CreateAttachment::bytes(bytes, "footer_icon.png"));
+    }
     ctx.send(reply).await?;
     Ok(())
 }
@@ -790,7 +805,18 @@ pub async fn protect_allow_show(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         .author(serenity::CreateEmbedAuthor::new(title))
         .description(allowlist_mentions(&rows))
         .timestamp(serenity::Timestamp::now());
-    ctx.send(poise::CreateReply::default().embed(embed)).await?;
+    // Shared footer + icon attachment, mirroring `footerBuilder` /
+    // `footerAttachmentBuilder` (+ `setTimestamp`) in
+    // `allowlist/!show.ts:75-93` (same `send_blinfo_embed` pattern as
+    // `owner/main.rs`).
+    let (footer_name, footer_bytes) = crate::commands::shared::footer_parts(&ctx, &gid).await;
+    let embed =
+        crate::commands::shared::embed_with_footer(embed, &footer_name, footer_bytes.is_some());
+    let mut reply = poise::CreateReply::default().embed(embed);
+    if let Some(bytes) = footer_bytes {
+        reply = reply.attachment(serenity::CreateAttachment::bytes(bytes, "footer_icon.png"));
+    }
+    ctx.send(reply).await?;
     Ok(())
 }
 

@@ -145,8 +145,31 @@ pub fn authors_embed(
         .colour(serenity::Colour::new(2829617))
 }
 
+/// Notify-channel field value. Mirrors
+/// `${channel?.id ? channel.toString() : lang.setjoinroles_var_none}` in
+/// generateConfigurationEmbed: TS `guild.channels.fetch(id).catch(() => null)`
+/// treats a missing/deleted channel as unset. This helper is pure (no
+/// Http), so it applies the offline half of that liveness check — a
+/// missing, blank, or non-snowflake id falls back to
+/// `setjoinroles_var_none` instead of rendering a dead `<#...>` mention.
+/// (A well-formed id whose channel was since deleted still renders; the
+/// live fetch lives with the API callers.)
+pub fn config_channel_value(code: &str, channel_id: Option<&str>) -> String {
+    let say = |key: &str, fallback: &str| {
+        crate::lang::get(code, key).unwrap_or_else(|| fallback.to_string())
+    };
+    let live = channel_id
+        .map(str::trim)
+        .filter(|s| !s.is_empty())
+        .filter(|s| s.parse::<u64>().map(|n| n != 0).unwrap_or(false));
+    match live {
+        Some(id) => format!("<#{id}>"),
+        None => say("setjoinroles_var_none", "None"),
+    }
+}
+
 /// Configuration embed. Mirrors generateConfigurationEmbed: notify
-/// channel field (`<#id>` or setjoinroles_var_none) + notify message
+/// channel field (config_channel_value) + notify message
 /// field (stored template or notifier_on_new_media_default_message).
 pub fn config_embed(
     code: &str,
@@ -156,10 +179,7 @@ pub fn config_embed(
     let say = |key: &str, fallback: &str| {
         crate::lang::get(code, key).unwrap_or_else(|| fallback.to_string())
     };
-    let channel_value = match channel_id.filter(|s| !s.is_empty()) {
-        Some(id) => format!("<#{id}>"),
-        None => say("setjoinroles_var_none", "None"),
-    };
+    let channel_value = config_channel_value(code, channel_id);
     let message_value = match message.filter(|s| !s.is_empty()) {
         Some(t) => t.to_string(),
         None => say(
@@ -283,6 +303,18 @@ mod tests {
             authors_embed_desc("list:\n", &rows),
             "list:\ntwitch - [`Ninja`](https://twitch.tv/ninja)\n"
         );
+    }
+
+    #[test]
+    fn config_channel_value_liveness() {
+        assert_eq!(config_channel_value("en-US", Some("123")), "<#123>");
+        // Missing, empty, or blank ids fall back to the none text.
+        assert_eq!(config_channel_value("en-US", None), "None");
+        assert_eq!(config_channel_value("en-US", Some("")), "None");
+        assert_eq!(config_channel_value("en-US", Some("   ")), "None");
+        // Non-snowflake rows (never fetchable) render as unset, not `<#...>`.
+        assert_eq!(config_channel_value("en-US", Some("abc")), "None");
+        assert_eq!(config_channel_value("en-US", Some("0")), "None");
     }
 
     #[test]

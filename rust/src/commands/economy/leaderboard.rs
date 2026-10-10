@@ -22,8 +22,10 @@ fn filter_cached_users(
         .collect()
 }
 
-/// Top-8 podium rows for the SVG card: mention + non-negative wealth.
+/// Top-3 podium rows for the SVG card: mention + non-negative wealth.
 /// Pure so the mapping is unit-testable without Discord.
+/// Mirrors the `{1,2,3_username}` / `{1,2,3_wealth}` slots of the
+/// `podiumEconomyModule` card in `economy/!leaderboard.ts:111-125`.
 /// DELIBERATE KEEP (differs from `economy/!leaderboard.ts:81-86`): TS
 /// sums `(bank || 0) + (money || 0)` raw, so a debted account renders a
 /// negative podium wealth. The Rust side saturates at 0 — the TS
@@ -31,7 +33,7 @@ fn filter_cached_users(
 /// width), not data; stored balances are untouched.
 fn podium_entries(rows: &[(u64, f64, f64, f64)]) -> Vec<(String, u64)> {
     rows.iter()
-        .take(8)
+        .take(3)
         .map(|(uid, total, _, _)| (format!("<@{uid}>"), total.max(0.0) as u64))
         .collect()
 }
@@ -297,9 +299,9 @@ mod tests {
             vec![("<@1>".to_string(), 300u64), ("<@2>".to_string(), 0u64),]
         );
         assert!(podium_entries(&[]).is_empty());
-        // SVG card only takes the top 8, like the ranks board.
+        // SVG card only takes the top 3, like the TS podium card.
         let many: Vec<(u64, f64, f64, f64)> = (1..=10).map(|i| (i, 100.0, 100.0, 0.0)).collect();
-        assert_eq!(podium_entries(&many).len(), 8);
+        assert_eq!(podium_entries(&many).len(), 3);
     }
 
     async fn mem_pool() -> crate::db::Pool {

@@ -1,9 +1,11 @@
 use super::*;
 
 /// Dice roll. Mirrors !dice.ts.
-// Slash caps live in the `#[min]`/`#[max]` attributes (and the `to(7)` /
-// `to(12)` choices in fun.ts); prefix input is unbounded like the TS
-// `for (let i = 0; i < number; i++)` loop, which applies no cap.
+// Slash caps live in the `choices: to(7)` / `to(12)` lists in fun.ts;
+// prefix input is unbounded like the TS `for (let i = 0; i < number; i++)`
+// loop, which applies no cap. Both paths take free-text params parsed
+// manually below so non-numeric prefix input falls back (TS
+// `method.number(...) || default`) instead of raising a framework error.
 #[poise::command(
     slash_command,
     prefix_command,
@@ -13,14 +15,8 @@ use super::*;
 )]
 pub async fn dice(
     ctx: Ctx<'_>,
-    #[description = "Number of dice (1-7)"]
-    #[min = 1]
-    #[max = 7]
-    number: Option<i64>,
-    #[description = "Faces per die (1-12)"]
-    #[min = 1]
-    #[max = 12]
-    faces: Option<i64>,
+    #[description = "Number of dice (1-7)"] number: Option<String>,
+    #[description = "Faces per die (1-12)"] faces: Option<String>,
 ) -> Result<(), anyhow::Error> {
     // No fun guard: `!dice.ts` (33-70) has no `GUILD.FUN.states` check,
     // so the roll runs even with fun disabled.
@@ -45,19 +41,34 @@ pub async fn dice(
     Ok(())
 }
 
+/// Parse one count the TS way: `method.number` yields 0 for missing or
+/// non-numeric input (parseInt NaN -> 0), and the `|| 1` / `|| 6`
+/// fallbacks in `!dice.ts` then apply to 0 as well.
+fn parse_count(raw: Option<String>, default: i64) -> i64 {
+    let n = raw
+        .as_deref()
+        .unwrap_or("")
+        .trim()
+        .parse::<f64>()
+        .map(|f| f as i64)
+        .unwrap_or(0);
+    if n == 0 {
+        default
+    } else {
+        n
+    }
+}
+
 /// Prefix counts. Mirrors the uncapped TS loop: no upper clamp here
-/// (slash-only caps come from the command attributes). Like the TS
-/// `|| 1` / `|| 6` fallbacks, a 0 count means "not provided" and falls
-/// back to the defaults. Lower bounds only keep the conversion safe:
-/// negative counts roll nothing (the TS loop body never runs), faces
-/// floor at 1.
-pub fn dice_counts(number: Option<i64>, faces: Option<i64>) -> (usize, u32) {
+/// (slash-only caps come from the `to(7)` / `to(12)` choice lists in
+/// fun.ts). Like the TS `|| 1` / `|| 6` fallbacks, a 0 count means "not
+/// provided" and falls back to the defaults. Lower bounds only keep the
+/// conversion safe: negative counts roll nothing (the TS loop body never
+/// runs), faces floor at 1.
+pub fn dice_counts(number: Option<String>, faces: Option<String>) -> (usize, u32) {
     (
-        number.filter(|&n| n != 0).unwrap_or(1).max(0) as usize,
-        faces
-            .filter(|&f| f != 0)
-            .unwrap_or(6)
-            .clamp(1, u32::MAX as i64) as u32,
+        parse_count(number, 1).max(0) as usize,
+        parse_count(faces, 6).clamp(1, u32::MAX as i64) as u32,
     )
 }
 
@@ -67,12 +78,26 @@ mod dice_tests {
 
     #[test]
     fn prefix_counts_uncapped_like_ts() {
-        // Slash-only caps live in the attributes; prefix values pass through.
-        assert_eq!(dice_counts(Some(99), Some(100)), (99, 100));
+        // Slash-only caps live in the fun.ts choice lists; values pass through.
+        assert_eq!(
+            dice_counts(Some("99".to_string()), Some("100".to_string())),
+            (99, 100)
+        );
         assert_eq!(dice_counts(None, None), (1, 6));
         // Like the TS `||` fallbacks, 0 counts fall back to the defaults.
-        assert_eq!(dice_counts(Some(0), Some(0)), (1, 6));
+        assert_eq!(
+            dice_counts(Some("0".to_string()), Some("0".to_string())),
+            (1, 6)
+        );
+        // Non-numeric prefix input falls back instead of erroring.
+        assert_eq!(
+            dice_counts(Some("abc".to_string()), Some(String::new())),
+            (1, 6)
+        );
         // Lower bounds only: negatives degrade to no rolls / single-face.
-        assert_eq!(dice_counts(Some(-3), Some(-3)), (0, 1));
+        assert_eq!(
+            dice_counts(Some("-3".to_string()), Some("-3".to_string())),
+            (0, 1)
+        );
     }
 }

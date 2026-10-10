@@ -150,9 +150,12 @@ pub async fn gc_toonew(
         ],
     );
     // Audit entry, like `client.func.ihorizon_logs` in
-    // !too-new-account.ts (on branch). Note TS passes `beautifulTime`
-    // for `${interaction.guild?.name}` too; the real guild name is
-    // used here instead.
+    // !too-new-account.ts (on branch). VERDICT — keep the real guild
+    // name: TS fills `${interaction.guild?.name}` with
+    // `beautifulTime.toString()` (duration text where the guild name
+    // belongs), an obvious copy-paste slip repeated in the reply leg
+    // below. Mirroring it would render e.g. "in 7 days" where the
+    // server name belongs, so both legs substitute the guild name.
     let title = crate::lang::get(&code, "too_new_account_logEmbed_title")
         .unwrap_or_else(|| "TooNewAccount Module".to_string());
     let audit = crate::lang::get(&code, "too_new_account_logEmbed_desc_on_enable")

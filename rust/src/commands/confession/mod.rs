@@ -383,14 +383,17 @@ pub async fn handle_confess_button(
         return Ok(());
     }
     // Short code linking the post to confessionres% replies. Mirrors
-    // generatePassword({ length: 6, numbers: true, lowercase: true }).
+    // generatePassword({ length: 6, numbers: true, lowercase: true }):
+    // `uppercase` defaults to true in random.ts, so the TS pool is
+    // lowercase + UPPERCASE + digits (62 chars); keep uppercase: true
+    // here to match it.
     let code = crate::funcs::generate_password(
         &crate::funcs::PasswordOptions {
             length: 6,
             numbers: true,
             symbols: false,
             lowercase: true,
-            uppercase: false,
+            uppercase: true,
             exclude_similar: false,
             exclude: String::new(),
             strict: false,
@@ -685,12 +688,14 @@ pub async fn handle_confess_button(
 
 /// Author name, profile URL, and mention for the reveal embed.
 /// Pure part of [`handle_confession_author`] (runtime data only, no
-/// YAML): username + profile link + `<@id>` mention.
+/// YAML): username + profile link + bare `<@id>` mention, mirroring
+/// confessionauthor.ts `.setDescription(`<@${id}>`)` (no "Author: "
+/// prefix).
 pub fn confession_author_parts(username: &str, target_id: u64) -> (String, String, String) {
     (
         username.to_string(),
         format!("https://discordapp.com/users/{target_id}"),
-        format!("Author: <@{target_id}>"),
+        format!("<@{target_id}>"),
     )
 }
 
@@ -830,6 +835,13 @@ fn snowflake_field(entry: &serde_json::Value, key: &str) -> Option<u64> {
 /// null) so migrated TS archives still resolve.
 pub fn entry_thread_id(entry: &serde_json::Value) -> Option<u64> {
     snowflake_field(entry, "thread_id").or_else(|| snowflake_field(entry, "threadChannel"))
+}
+
+/// Original post message id of an archive doc (TS `messageId`, string
+/// snowflake / number / null). Used for the confessionres thread
+/// fallback below.
+pub fn entry_message_id(entry: &serde_json::Value) -> Option<u64> {
+    snowflake_field(entry, "messageId")
 }
 
 /// Find an archived confession by code. Mirrors the ALL_CONFESSIONS
@@ -977,10 +989,38 @@ pub async fn handle_confession_response(
         .colour(2829617)
         .description(format!("`{text}`"))
         .timestamp(serenity::Timestamp::now());
+    // Reply routing mirrors confessionres.ts: TS fetches the original
+    // post (`interaction.channel.messages.fetch(messageId)`) and sends
+    // to `message.thread`. Prefer the archived thread id (direct send,
+    // works even when the click arrives from another channel); fall
+    // back to the messageId fetch -> parent thread when the thread id
+    // is missing (thread off at post time) or the direct send fails
+    // (thread deleted). Silent when neither resolves, like TS.
+    let mut sent = false;
     if let Some(thread_id) = entry_thread_id(&entry) {
-        let _ = serenity::ChannelId::new(thread_id)
-            .send_message(&ctx.http, serenity::CreateMessage::new().embed(embed))
-            .await;
+        sent = serenity::ChannelId::new(thread_id)
+            .send_message(
+                &ctx.http,
+                serenity::CreateMessage::new().embed(embed.clone()),
+            )
+            .await
+            .is_ok();
+    }
+    if !sent {
+        if let Some(msg_id) = entry_message_id(&entry) {
+            if let Ok(parent) = comp
+                .channel_id
+                .message(&ctx.http, serenity::MessageId::new(msg_id))
+                .await
+            {
+                if let Some(thread) = parent.thread {
+                    let _ = thread
+                        .id
+                        .send_message(&ctx.http, serenity::CreateMessage::new().embed(embed))
+                        .await;
+                }
+            }
+        }
     }
     post_confession_log(
         &ctx.http,
@@ -1141,7 +1181,7 @@ mod tests {
         let (name, url, mention) = confession_author_parts("kisakay", 123);
         assert_eq!(name, "kisakay");
         assert_eq!(url, "https://discordapp.com/users/123");
-        assert_eq!(mention, "Author: <@123>");
+        assert_eq!(mention, "<@123>");
     }
 
     #[test]
@@ -1193,6 +1233,23 @@ mod tests {
             None
         );
         assert_eq!(entry_thread_id(&serde_json::json!({})), None);
+    }
+
+    #[test]
+    fn message_id_reads_ts_string_and_number() {
+        assert_eq!(
+            entry_message_id(&serde_json::json!({"messageId": "9"})),
+            Some(9)
+        );
+        assert_eq!(
+            entry_message_id(&serde_json::json!({"messageId": 10})),
+            Some(10)
+        );
+        assert_eq!(
+            entry_message_id(&serde_json::json!({"messageId": null})),
+            None
+        );
+        assert_eq!(entry_message_id(&serde_json::json!({})), None);
     }
 
     async fn memory_pool() -> crate::db::Pool {
