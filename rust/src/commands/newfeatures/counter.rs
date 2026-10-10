@@ -37,7 +37,7 @@ pub async fn counter_channel(
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
-    crate::db::kv_set(
+    crate::db::tbl_set(
         &ctx.data().pool,
         &gid,
         "COUNTER.channel",
@@ -45,7 +45,7 @@ pub async fn counter_channel(
     )
     .await?;
     // Setting the channel enables the module (TS `config: "on"`).
-    crate::db::kv_set(&ctx.data().pool, &gid, "COUNTER.config", "on").await?;
+    crate::db::tbl_set(&ctx.data().pool, &gid, "COUNTER.config", "on").await?;
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let author = format!("<@{}>", ctx.author().id.get());
     let embed = serenity::CreateEmbed::default()
@@ -106,7 +106,7 @@ pub async fn counter_config(
         .map(|g| g.get().to_string())
         .unwrap_or_default();
     let enabled = matches!(action.to_ascii_lowercase().as_str(), "on" | "power on");
-    crate::db::kv_set(
+    crate::db::tbl_set(
         &ctx.data().pool,
         &gid,
         "COUNTER.config",
@@ -126,4 +126,47 @@ pub async fn counter_config(
     })
     .await?;
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    async fn mem_pool() -> crate::db::Pool {
+        crate::db::memory_pool().await
+    }
+
+    #[tokio::test]
+    async fn counter_config_dual_writes_table_and_legacy() {
+        let pool = mem_pool().await;
+        crate::db::tbl_set(&pool, "g", "COUNTER.config", "on")
+            .await
+            .unwrap();
+        // Table-first read hits.
+        assert_eq!(
+            crate::db::tbl_get(&pool, "g", "COUNTER.config")
+                .await
+                .as_deref(),
+            Some("on")
+        );
+        // Legacy kv row stays fresh for unmigrated readers.
+        assert_eq!(
+            crate::db::kv_get(&pool, "g", "COUNTER.config")
+                .await
+                .as_deref(),
+            Some("on")
+        );
+    }
+
+    #[tokio::test]
+    async fn counter_config_reads_legacy_only_row() {
+        let pool = mem_pool().await;
+        crate::db::kv_set(&pool, "g", "COUNTER.channel", "123")
+            .await
+            .unwrap();
+        assert_eq!(
+            crate::db::tbl_get(&pool, "g", "COUNTER.channel")
+                .await
+                .as_deref(),
+            Some("123")
+        );
+    }
 }

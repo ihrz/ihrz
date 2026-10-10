@@ -18,7 +18,7 @@ pub async fn punishpub(
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
-    let raw = crate::db::kv_get(&ctx.data().pool, &gid, "GUILD.PUNISH.PUNISH_PUB").await;
+    let raw = crate::db::tbl_get(&ctx.data().pool, &gid, "GUILD.PUNISH.PUNISH_PUB").await;
     let mut cfg: serde_json::Value = raw
         .and_then(|s| serde_json::from_str(&s).ok())
         .unwrap_or(serde_json::json!({}));
@@ -76,17 +76,58 @@ pub async fn punishpub(
             .to_string(),
         );
     }
-    crate::db::kv_set(
-        &ctx.data().pool,
-        &gid,
-        "GUILD.PUNISH.PUNISH_PUB",
-        &cfg.to_string(),
-    )
-    .await?;
+    crate::db::tbl_set_json(&ctx.data().pool, &gid, "GUILD.PUNISH.PUNISH_PUB", &cfg).await?;
     ctx.say(
         crate::lang::get(&code, "msg_punishpub_updated")
             .unwrap_or_else(|| "Punishpub updated.".to_string()),
     )
     .await?;
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    async fn mem_pool() -> crate::db::Pool {
+        crate::db::memory_pool().await
+    }
+
+    #[tokio::test]
+    async fn punishpub_blob_reads_legacy_only_row() {
+        let pool = mem_pool().await;
+        crate::db::kv_set(
+            &pool,
+            "g",
+            "GUILD.PUNISH.PUNISH_PUB",
+            r#"{"amountMax":4,"punishementType":"mute","state":"true"}"#,
+        )
+        .await
+        .unwrap();
+        let raw = crate::db::tbl_get(&pool, "g", "GUILD.PUNISH.PUNISH_PUB")
+            .await
+            .expect("legacy row");
+        let cfg: serde_json::Value = serde_json::from_str(&raw).unwrap();
+        assert_eq!(cfg["amountMax"], 4);
+        assert_eq!(cfg["state"], "true");
+    }
+
+    #[tokio::test]
+    async fn punishpub_blob_dual_writes_table_and_legacy() {
+        let pool = mem_pool().await;
+        let cfg = serde_json::json!({"amountMax": 4, "punishementType": "mute", "state": "true"});
+        crate::db::tbl_set_json(&pool, "g", "GUILD.PUNISH.PUNISH_PUB", &cfg)
+            .await
+            .unwrap();
+        // Legacy kv row keeps the JSON text.
+        let raw = crate::db::kv_get(&pool, "g", "GUILD.PUNISH.PUNISH_PUB")
+            .await
+            .expect("legacy row");
+        let back: serde_json::Value = serde_json::from_str(&raw).unwrap();
+        assert_eq!(back["amountMax"], 4);
+        // Table-first read hits.
+        let via_table = crate::db::tbl_get(&pool, "g", "GUILD.PUNISH.PUNISH_PUB")
+            .await
+            .expect("table row");
+        let tv: serde_json::Value = serde_json::from_str(&via_table).unwrap();
+        assert_eq!(tv["punishementType"], "mute");
+    }
 }

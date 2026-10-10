@@ -21,7 +21,7 @@ pub async fn report(
         .duration_since(std::time::UNIX_EPOCH)
         .map(|d| d.as_millis() as i64)
         .unwrap_or(0);
-    let last: i64 = crate::db::kv_get(
+    let last: i64 = crate::db::tbl_get(
         &ctx.data().pool,
         &gid,
         &format!("USER.{uid}.REPORT.cooldown"),
@@ -86,7 +86,7 @@ pub async fn report(
                 .await;
         }
     }
-    crate::db::kv_set(
+    crate::db::tbl_set(
         &ctx.data().pool,
         &gid,
         &format!("USER.{uid}.REPORT.cooldown"),
@@ -100,4 +100,52 @@ pub async fn report(
     )
     .await?;
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    async fn mem_pool() -> crate::db::Pool {
+        crate::db::memory_pool().await
+    }
+
+    #[tokio::test]
+    async fn report_cooldown_roundtrip() {
+        let pool = mem_pool().await;
+        let key = "USER.9.REPORT.cooldown";
+        assert_eq!(crate::db::tbl_get(&pool, "g", key).await, None);
+        crate::db::tbl_set(&pool, "g", key, "12345").await.unwrap();
+        assert_eq!(
+            crate::db::tbl_get(&pool, "g", key).await.as_deref(),
+            Some("12345")
+        );
+        // Legacy kv row stays fresh.
+        assert_eq!(
+            crate::db::kv_get(&pool, "g", key).await.as_deref(),
+            Some("12345")
+        );
+    }
+
+    #[tokio::test]
+    async fn report_cooldown_reads_legacy_only_row() {
+        let pool = mem_pool().await;
+        let key = "USER.9.REPORT.cooldown";
+        crate::db::kv_set(&pool, "g", key, "777").await.unwrap();
+        let last: i64 = crate::db::tbl_get(&pool, "g", key)
+            .await
+            .and_then(|s| s.parse().ok())
+            .unwrap_or(0);
+        assert_eq!(last, 777);
+    }
+
+    #[tokio::test]
+    async fn report_cooldowns_are_per_user() {
+        let pool = mem_pool().await;
+        crate::db::tbl_set(&pool, "g", "USER.1.REPORT.cooldown", "5")
+            .await
+            .unwrap();
+        assert_eq!(
+            crate::db::tbl_get(&pool, "g", "USER.2.REPORT.cooldown").await,
+            None
+        );
+    }
 }

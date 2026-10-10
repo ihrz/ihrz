@@ -113,17 +113,41 @@ pub async fn save_panel(
     panel_id: &str,
     panel: &TicketPanel,
 ) -> anyhow::Result<()> {
-    crate::db::kv_set(
-        pool,
-        guild_id,
-        &panel_key(panel_id),
-        &serde_json::to_string(panel)?,
-    )
-    .await
+    // Table-first dual-write (keys unchanged): table is primary, legacy
+    // kv stays fresh for kv-only readers. Never drop the legacy read
+    // path (`load_panel_routed` falls back to kv).
+    panel::save_panel_routed(pool, guild_id, panel_id, panel).await
 }
 
 pub fn panel_key(panel_id: &str) -> String {
     format!("GUILD.TICKET_PANEL.{panel_id}")
+}
+
+/// Table-first keyed read (keys unchanged) with legacy kv fallback.
+/// Thin wrapper over `routed_get` (table `gid`, legacy scope `gid`);
+/// a legacy hit promotes into the table so rows migrate lazily.
+/// Mirrors `shared.rs table_value_or_legacy` and the backup precedent
+/// (`bkp_get` prefers the table, kv is the legacy fallback).
+pub(crate) async fn ticket_get_routed(
+    pool: &crate::db::Pool,
+    gid: &str,
+    key: &str,
+) -> Option<String> {
+    crate::commands::owner::main::routed_get(pool, gid, gid, key).await
+}
+
+/// Table-first `EMBED.<id>` -> `embedSource` lookup with legacy kv
+/// fallback (keys unchanged). Returns the `embedSource` doc, not the
+/// whole row.
+pub(crate) async fn embed_source_routed(
+    pool: &crate::db::Pool,
+    gid: &str,
+    embed_id: &str,
+) -> Option<serde_json::Value> {
+    ticket_get_routed(pool, gid, &format!("EMBED.{}", embed_id.trim()))
+        .await
+        .and_then(|s| serde_json::from_str(&s).ok())
+        .and_then(|v: serde_json::Value| v.get("embedSource").cloned())
 }
 
 /// onAddMember / onRemoveMember logs embed + footer file + timestamp.
@@ -499,7 +523,8 @@ pub async fn channel_transcript_html(
 }
 
 async fn ticket_logs_channel(pool: &crate::db::Pool, gid: &str) -> Option<serenity::ChannelId> {
-    crate::db::kv_get(pool, gid, "GUILD.TICKET.logs")
+    // Table-first with legacy kv fallback (keys unchanged).
+    ticket_get_routed(pool, gid, "GUILD.TICKET.logs")
         .await
         .and_then(|s| s.parse::<u64>().ok())
         .map(serenity::ChannelId::new)
@@ -517,7 +542,8 @@ async fn ticket_logs_channel(pool: &crate::db::Pool, gid: &str) -> Option<sereni
 /// reading as enabled (its written intent), even though a raw TS
 /// truthiness check would flag it — deliberate, documented.
 async fn ticket_disabled(pool: &crate::db::Pool, gid: &str) -> bool {
-    let raw = crate::db::kv_get(pool, gid, "GUILD.TICKET.disable").await;
+    // Table-first with legacy kv fallback (keys unchanged).
+    let raw = ticket_get_routed(pool, gid, "GUILD.TICKET.disable").await;
     // One-time legacy migration: pre-U-ETERNAL-68 Rust writers stored the
     // string `"false"` on enable (meant enabled); TS never produces that
     // string (native bools). Delete it on read so old enabled-guilds don't
@@ -526,7 +552,8 @@ async fn ticket_disabled(pool: &crate::db::Pool, gid: &str) -> bool {
         .as_deref()
         .is_some_and(|v| v.trim().eq_ignore_ascii_case("false"))
     {
-        let _ = crate::db::kv_del(pool, gid, "GUILD.TICKET.disable").await;
+        let _ =
+            crate::commands::owner::main::routed_del(pool, gid, gid, "GUILD.TICKET.disable").await;
         return false;
     }
     raw.is_some_and(|v| {
@@ -1363,9 +1390,10 @@ async fn ticket_footer(
     pool: &crate::db::Pool,
     gid: &str,
 ) -> (String, Option<Vec<u8>>) {
-    let stored_name = crate::db::kv_get(pool, gid, crate::commands::botcat::BOT_NAME_KEY).await;
+    // Table-first with legacy kv fallback (keys unchanged).
+    let stored_name = ticket_get_routed(pool, gid, crate::commands::botcat::BOT_NAME_KEY).await;
     let name = crate::commands::botcat::bot_footer_name(stored_name.as_deref());
-    let stored_pfp = crate::db::kv_get(pool, gid, crate::commands::botcat::BOT_PFP_KEY).await;
+    let stored_pfp = ticket_get_routed(pool, gid, crate::commands::botcat::BOT_PFP_KEY).await;
     let mut icon = crate::commands::botcat::footer_icon_bytes(stored_pfp.as_deref());
     if icon.is_none() {
         if let Ok(me) = http.get_current_user().await {
@@ -2123,11 +2151,8 @@ pub async fn handle_v2_ticket_open(
     let mut opener: Vec<serenity::CreateEmbed> = vec![];
     let mut with_file = false;
     if let Some(embed_id) = panel_embed_id {
-        let stored: Option<serde_json::Value> =
-            crate::db::kv_get(pool, &gid, &format!("EMBED.{embed_id}"))
-                .await
-                .and_then(|s| serde_json::from_str(&s).ok())
-                .and_then(|v: serde_json::Value| v.get("embedSource").cloned());
+        // Table-first with legacy kv fallback (keys unchanged).
+        let stored: Option<serde_json::Value> = embed_source_routed(pool, &gid, &embed_id).await;
         let previewed = stored.map(|src| {
             preview_embed_source(&EmbedPreview {
                 template: &src.to_string(),
@@ -2739,5 +2764,140 @@ mod tests {
                 .unwrap(),
             "55"
         );
+    }
+
+    #[tokio::test]
+    async fn save_panel_wrapper_dual_writes_both_stores() {
+        // D5-TICKET mod.rs:116 — `save_panel` dual-writes (table +
+        // legacy kv, keys unchanged); the routed load reads it back.
+        use crate::commands::owner::main::tbl_get_value;
+        let pool = mem_pool().await;
+        let panel = TicketPanel {
+            name: "Help".into(),
+            ..Default::default()
+        };
+        save_panel(&pool, "g", "d5", &panel).await.unwrap();
+        let raw = crate::db::kv_get(&pool, "g", &panel_key("d5"))
+            .await
+            .expect("legacy row");
+        assert_eq!(
+            serde_json::from_str::<TicketPanel>(&raw).unwrap().name,
+            "Help"
+        );
+        assert!(tbl_get_value(&pool, "g", &panel_key("d5")).await.is_some());
+        assert_eq!(load_panel(&pool, "g", "d5").await.name, "Help");
+    }
+
+    #[tokio::test]
+    async fn logs_channel_table_first_with_legacy_fallback() {
+        // D5-TICKET mod.rs:502 — table wins on conflict, legacy-only
+        // rows still surface (never dropped).
+        use crate::commands::owner::main::routed_set;
+        let pool = mem_pool().await;
+        crate::db::kv_set(&pool, "g", "GUILD.TICKET.logs", "111")
+            .await
+            .unwrap();
+        assert_eq!(
+            ticket_logs_channel(&pool, "g").await.map(|c| c.get()),
+            Some(111)
+        );
+        routed_set(&pool, "g", "g", "GUILD.TICKET.logs", "222")
+            .await
+            .unwrap();
+        assert_eq!(
+            ticket_logs_channel(&pool, "g").await.map(|c| c.get()),
+            Some(222)
+        );
+        assert!(ticket_logs_channel(&pool, "other").await.is_none());
+    }
+
+    #[tokio::test]
+    async fn disabled_table_row_disables_and_false_clears_both() {
+        // D5-TICKET mod.rs:520,529 — table-first read; the legacy
+        // `"false"` migration clears both stores via routed_del.
+        use crate::commands::owner::main::{routed_set, tbl_get_value};
+        let pool = mem_pool().await;
+        routed_set(&pool, "g", "g", "GUILD.TICKET.disable", "true")
+            .await
+            .unwrap();
+        assert!(ticket_disabled(&pool, "g").await);
+        let pool = mem_pool().await;
+        crate::db::kv_set(&pool, "g", "GUILD.TICKET.disable", "false")
+            .await
+            .unwrap();
+        assert!(!ticket_disabled(&pool, "g").await);
+        assert_eq!(
+            crate::db::kv_get(&pool, "g", "GUILD.TICKET.disable").await,
+            None
+        );
+        assert!(tbl_get_value(&pool, "g", "GUILD.TICKET.disable")
+            .await
+            .is_none());
+    }
+
+    #[tokio::test]
+    async fn footer_keys_table_first_with_legacy_fallback() {
+        // D5-TICKET mod.rs:1366,1368 — BOT.botName / BOT.botPFP read
+        // table-first, legacy kv fallback (keys unchanged).
+        use crate::commands::owner::main::routed_set;
+        let pool = mem_pool().await;
+        crate::db::kv_set(
+            &pool,
+            "g",
+            crate::commands::botcat::BOT_NAME_KEY,
+            "LegacyName",
+        )
+        .await
+        .unwrap();
+        assert_eq!(
+            ticket_get_routed(&pool, "g", crate::commands::botcat::BOT_NAME_KEY)
+                .await
+                .as_deref(),
+            Some("LegacyName")
+        );
+        routed_set(
+            &pool,
+            "g",
+            "g",
+            crate::commands::botcat::BOT_NAME_KEY,
+            "TableName",
+        )
+        .await
+        .unwrap();
+        assert_eq!(
+            ticket_get_routed(&pool, "g", crate::commands::botcat::BOT_NAME_KEY)
+                .await
+                .as_deref(),
+            Some("TableName")
+        );
+        assert_eq!(
+            ticket_get_routed(&pool, "g", crate::commands::botcat::BOT_PFP_KEY).await,
+            None
+        );
+    }
+
+    #[tokio::test]
+    async fn embed_source_table_wins_with_legacy_fallback() {
+        // D5-TICKET mod.rs:2127 — `EMBED.<id>` embedSource reads
+        // table-first, legacy kv fallback (keys unchanged).
+        use crate::commands::owner::main::routed_set;
+        let pool = mem_pool().await;
+        let legacy = serde_json::json!({"embedSource": {"title": "legacy"}}).to_string();
+        crate::db::kv_set(&pool, "g", "EMBED.e1", &legacy)
+            .await
+            .unwrap();
+        assert_eq!(
+            embed_source_routed(&pool, "g", "e1").await,
+            Some(serde_json::json!({"title": "legacy"}))
+        );
+        let table = serde_json::json!({"embedSource": {"title": "table"}}).to_string();
+        routed_set(&pool, "g", "g", "EMBED.e1", &table)
+            .await
+            .unwrap();
+        assert_eq!(
+            embed_source_routed(&pool, "g", "e1").await,
+            Some(serde_json::json!({"title": "table"}))
+        );
+        assert_eq!(embed_source_routed(&pool, "g", "missing").await, None);
     }
 }

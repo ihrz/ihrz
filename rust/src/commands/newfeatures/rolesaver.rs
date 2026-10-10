@@ -67,7 +67,7 @@ pub async fn rolesaver(
             reply = reply.attachment(serenity::CreateAttachment::bytes(bytes, "footer_icon.png"));
         }
         ctx.send(reply).await?;
-        crate::db::kv_set(
+        crate::db::tbl_set_json(
             &ctx.data().pool,
             &gid,
             "GUILD.GUILD_CONFIG.rolesaver",
@@ -75,8 +75,7 @@ pub async fn rolesaver(
                 "enable": true,
                 "timeout": "None",
                 "admin": settings,
-            })
-            .to_string(),
+            }),
         )
         .await?;
         return Ok(());
@@ -105,6 +104,57 @@ pub async fn rolesaver(
         reply = reply.attachment(serenity::CreateAttachment::bytes(bytes, "footer_icon.png"));
     }
     ctx.send(reply).await?;
-    let _ = crate::db::kv_del(&ctx.data().pool, &gid, "GUILD.GUILD_CONFIG.rolesaver").await;
+    let _ = crate::db::tbl_del(&ctx.data().pool, &gid, "GUILD.GUILD_CONFIG.rolesaver").await;
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    async fn mem_pool() -> crate::db::Pool {
+        crate::db::memory_pool().await
+    }
+
+    #[tokio::test]
+    async fn rolesaver_on_off_roundtrip_through_loader() {
+        let pool = mem_pool().await;
+        // Off leg starts disabled (no rows).
+        assert!(!super::super::load_rolesaver_cfg(&pool, "g").await.enabled);
+        // On leg: structured dual write.
+        crate::db::tbl_set_json(
+            &pool,
+            "g",
+            "GUILD.GUILD_CONFIG.rolesaver",
+            &serde_json::json!({"enable": true, "timeout": "None", "admin": "yes"}),
+        )
+        .await
+        .unwrap();
+        let cfg = super::super::load_rolesaver_cfg(&pool, "g").await;
+        assert!(cfg.enabled);
+        assert!(!cfg.skip_admin);
+        // Off leg: routed delete clears both stores.
+        crate::db::tbl_del(&pool, "g", "GUILD.GUILD_CONFIG.rolesaver")
+            .await
+            .unwrap();
+        assert!(!super::super::load_rolesaver_cfg(&pool, "g").await.enabled);
+        assert_eq!(
+            crate::db::kv_get(&pool, "g", "GUILD.GUILD_CONFIG.rolesaver").await,
+            None
+        );
+    }
+
+    #[tokio::test]
+    async fn rolesaver_admin_no_skips_admin() {
+        let pool = mem_pool().await;
+        crate::db::tbl_set_json(
+            &pool,
+            "g",
+            "GUILD.GUILD_CONFIG.rolesaver",
+            &serde_json::json!({"enable": true, "timeout": "None", "admin": "no"}),
+        )
+        .await
+        .unwrap();
+        let cfg = super::super::load_rolesaver_cfg(&pool, "g").await;
+        assert!(cfg.enabled);
+        assert!(cfg.skip_admin);
+    }
 }

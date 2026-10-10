@@ -160,7 +160,7 @@ fn truthy(v: &serde_json::Value) -> bool {
 }
 
 pub async fn load_rolesaver_cfg(pool: &crate::db::Pool, guild_id: &str) -> RolesaverCfg {
-    if let Some(raw) = crate::db::kv_get(pool, guild_id, "GUILD.GUILD_CONFIG.rolesaver").await {
+    if let Some(raw) = crate::db::tbl_get(pool, guild_id, "GUILD.GUILD_CONFIG.rolesaver").await {
         if let Ok(v) = serde_json::from_str::<serde_json::Value>(&raw) {
             return RolesaverCfg {
                 enabled: v.get("enable").map(truthy).unwrap_or(false),
@@ -175,7 +175,7 @@ pub async fn load_rolesaver_cfg(pool: &crate::db::Pool, guild_id: &str) -> Roles
 }
 
 pub async fn rolesaver_enabled(pool: &crate::db::Pool, guild_id: &str) -> bool {
-    crate::db::kv_get(pool, guild_id, "GUILD.GUILD_CONFIG.rolesaver.enable")
+    crate::db::tbl_get(pool, guild_id, "GUILD.GUILD_CONFIG.rolesaver.enable")
         .await
         .map(|v| v == "1")
         .unwrap_or(false)
@@ -274,6 +274,60 @@ mod tests {
         let json: serde_json::Value = serde_json::from_str(&counter_data_json(&reset)).unwrap();
         assert_eq!(json["amount"], 0);
         assert!(json["userId"].is_null());
+    }
+
+    async fn mem_pool() -> crate::db::Pool {
+        crate::db::memory_pool().await
+    }
+
+    #[tokio::test]
+    async fn rolesaver_cfg_reads_legacy_blob() {
+        let pool = mem_pool().await;
+        crate::db::kv_set(
+            &pool,
+            "g",
+            "GUILD.GUILD_CONFIG.rolesaver",
+            r#"{"enable":true,"timeout":"None","admin":"no"}"#,
+        )
+        .await
+        .unwrap();
+        let cfg = load_rolesaver_cfg(&pool, "g").await;
+        assert!(cfg.enabled);
+        assert!(cfg.skip_admin);
+    }
+
+    #[tokio::test]
+    async fn rolesaver_cfg_prefers_table_blob() {
+        let pool = mem_pool().await;
+        crate::db::kv_set(
+            &pool,
+            "g",
+            "GUILD.GUILD_CONFIG.rolesaver",
+            r#"{"enable":false,"timeout":"None","admin":"yes"}"#,
+        )
+        .await
+        .unwrap();
+        crate::db::tbl_set_json(
+            &pool,
+            "g",
+            "GUILD.GUILD_CONFIG.rolesaver",
+            &serde_json::json!({"enable": true, "timeout": "None", "admin": "no"}),
+        )
+        .await
+        .unwrap();
+        let cfg = load_rolesaver_cfg(&pool, "g").await;
+        assert!(cfg.enabled);
+        assert!(cfg.skip_admin);
+    }
+
+    #[tokio::test]
+    async fn rolesaver_enabled_falls_back_to_legacy_flat_row() {
+        let pool = mem_pool().await;
+        assert!(!rolesaver_enabled(&pool, "g").await);
+        crate::db::kv_set(&pool, "g", "GUILD.GUILD_CONFIG.rolesaver.enable", "1")
+            .await
+            .unwrap();
+        assert!(rolesaver_enabled(&pool, "g").await);
     }
 }
 

@@ -78,7 +78,7 @@ async fn is_guild_owner(ctx: Ctx<'_>) -> bool {
 
 /// Load the full blob (defaults = TS fallback literal), never reset it.
 async fn load_cfg(pool: &crate::db::Pool, gid: &str) -> NightmodeConfig {
-    crate::db::kv_get(pool, gid, "UTILS.NIGHT_MODE")
+    crate::db::tbl_get(pool, gid, "UTILS.NIGHT_MODE")
         .await
         .and_then(|s| serde_json::from_str(&s).ok())
         .unwrap_or(NightmodeConfig {
@@ -96,7 +96,7 @@ async fn persist_cfg(
     gid: &str,
     cfg: &NightmodeConfig,
 ) -> Result<(), anyhow::Error> {
-    crate::db::kv_set(pool, gid, "UTILS.NIGHT_MODE", &serde_json::to_string(cfg)?).await?;
+    crate::db::tbl_set_json(pool, gid, "UTILS.NIGHT_MODE", cfg).await?;
     Ok(())
 }
 
@@ -1013,14 +1013,15 @@ pub fn utc_timezone_name(offset_hours: i8) -> Option<&'static str> {
 #[cfg(test)]
 mod tests {
     use super::{
-        apply_panel_choice, basics_check, basics_warning_keys, panel_choice_of, panel_expired,
-        parse_time_input, status_dot, time_beautifuer, time_beautifuer_with_minutes,
-        utc_offset_label, utc_options, utc_timezone_name, wants_panel, wl_bots_field,
-        NightmodeConfig, PanelChoice, NIGHTMODE_EMBED_COLOR, NIGHTMODE_HOURS_END_ID,
-        NIGHTMODE_HOURS_MODAL_ID, NIGHTMODE_HOURS_START_ID, NIGHTMODE_MAIN_SELECT_ID,
-        NIGHTMODE_PANEL_TIMEOUT_SECS, NIGHTMODE_SAVE_BUTTON_ID, NIGHTMODE_TZ_SELECT_ID,
-        NIGHTMODE_VALUE_DERANK, NIGHTMODE_VALUE_ENABLE, NIGHTMODE_VALUE_HOURS,
-        NIGHTMODE_VALUE_NOTIFY, NIGHTMODE_VALUE_TIMEZONE, NIGHTMODE_WL_SELECT_ID,
+        apply_panel_choice, basics_check, basics_warning_keys, load_cfg, panel_choice_of,
+        panel_expired, parse_time_input, persist_cfg, status_dot, time_beautifuer,
+        time_beautifuer_with_minutes, utc_offset_label, utc_options, utc_timezone_name,
+        wants_panel, wl_bots_field, NightmodeConfig, PanelChoice, NIGHTMODE_EMBED_COLOR,
+        NIGHTMODE_HOURS_END_ID, NIGHTMODE_HOURS_MODAL_ID, NIGHTMODE_HOURS_START_ID,
+        NIGHTMODE_MAIN_SELECT_ID, NIGHTMODE_PANEL_TIMEOUT_SECS, NIGHTMODE_SAVE_BUTTON_ID,
+        NIGHTMODE_TZ_SELECT_ID, NIGHTMODE_VALUE_DERANK, NIGHTMODE_VALUE_ENABLE,
+        NIGHTMODE_VALUE_HOURS, NIGHTMODE_VALUE_NOTIFY, NIGHTMODE_VALUE_TIMEZONE,
+        NIGHTMODE_WL_SELECT_ID,
     };
 
     #[test]
@@ -1220,5 +1221,53 @@ mod tests {
         assert_eq!(opts.last(), Some(&(14, "Pacific/Kiritimati")));
         assert!(opts.iter().all(|(o, _)| *o != 8));
         assert!(opts.iter().any(|(o, n)| *o == 1 && *n == "Europe/Paris"));
+    }
+
+    async fn mem_pool() -> crate::db::Pool {
+        crate::db::memory_pool().await
+    }
+
+    #[tokio::test]
+    async fn cfg_loads_legacy_only_blob() {
+        let pool = mem_pool().await;
+        crate::db::kv_set(
+            &pool,
+            "g",
+            "UTILS.NIGHT_MODE",
+            r#"{"enabled":true,"notify":false,"time":[22,30,6,15],"wlBots":[],"derankBot":true,"utc":-5}"#,
+        )
+        .await
+        .unwrap();
+        let cfg = load_cfg(&pool, "g").await;
+        assert!(cfg.enabled);
+        assert!(!cfg.notify);
+        assert_eq!(cfg.time, [22, 30, 6, 15]);
+        assert_eq!(cfg.utc, -5);
+    }
+
+    #[tokio::test]
+    async fn persist_dual_writes_table_and_legacy() {
+        let pool = mem_pool().await;
+        let cfg = NightmodeConfig {
+            enabled: true,
+            notify: false,
+            time: [22, 30, 6, 15],
+            wl_bots: vec!["7".to_string()],
+            derank_bot: false,
+            utc: -5,
+        };
+        persist_cfg(&pool, "g", &cfg).await.unwrap();
+        // Legacy kv row stays fresh for unmigrated readers.
+        let raw = crate::db::kv_get(&pool, "g", "UTILS.NIGHT_MODE")
+            .await
+            .expect("legacy row");
+        let back: NightmodeConfig = serde_json::from_str(&raw).unwrap();
+        assert!(back.enabled);
+        assert_eq!(back.wl_bots, vec!["7".to_string()]);
+        // Table-first load hits the table row.
+        let loaded = load_cfg(&pool, "g").await;
+        assert!(loaded.enabled);
+        assert!(!loaded.derank_bot);
+        assert_eq!(loaded.time, [22, 30, 6, 15]);
     }
 }

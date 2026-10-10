@@ -218,17 +218,18 @@ pub fn confession_disabled_value(raw: Option<&str>) -> bool {
 pub async fn is_confession_disabled(pool: &crate::db::Pool, gid: &str) -> bool {
     // Same legacy `"false"` migration as ticket_disabled (pre-U-ETERNAL-68
     // writers stored it on enable): delete on read, treat as enabled.
+    use crate::commands::owner::main as routed;
     for key in ["CONFESSION.disable", "GUILD.CONFESSION.disable"] {
-        if crate::db::kv_get(pool, gid, key)
+        if routed::routed_get(pool, gid, gid, key)
             .await
             .as_deref()
             .is_some_and(|v| v.trim().eq_ignore_ascii_case("false"))
         {
-            let _ = crate::db::kv_del(pool, gid, key).await;
+            let _ = routed::routed_del(pool, gid, gid, key).await;
         }
     }
-    let legacy = crate::db::kv_get(pool, gid, "CONFESSION.disable").await;
-    let namespaced = crate::db::kv_get(pool, gid, "GUILD.CONFESSION.disable").await;
+    let legacy = routed::routed_get(pool, gid, gid, "CONFESSION.disable").await;
+    let namespaced = routed::routed_get(pool, gid, gid, "GUILD.CONFESSION.disable").await;
     confession_disabled_value(legacy.as_deref()) || confession_disabled_value(namespaced.as_deref())
 }
 
@@ -253,11 +254,11 @@ pub async fn post_confession_log(
 ) -> bool {
     let log_key = "GUILD.SERVER_LOGS.confession";
     let gid = log.gid;
-    let Some(ch) = crate::db::kv_get(pool, gid, log_key).await else {
+    let Some(ch) = crate::commands::owner::main::routed_get(pool, gid, gid, log_key).await else {
         return false;
     };
     let Ok(ch_id) = ch.parse::<u64>() else {
-        let _ = crate::db::kv_del(pool, gid, log_key).await;
+        let _ = crate::commands::owner::main::routed_del(pool, gid, gid, log_key).await;
         return false;
     };
     let title = crate::lang::get(log.lang_code, log.title_key).unwrap_or_default();
@@ -283,7 +284,7 @@ pub async fn post_confession_log(
         .await
         .is_err()
     {
-        let _ = crate::db::kv_del(pool, gid, log_key).await;
+        let _ = crate::commands::owner::main::routed_del(pool, gid, gid, log_key).await;
     }
     true
 }
@@ -329,12 +330,13 @@ pub async fn handle_confess_button(
         .duration_since(std::time::UNIX_EPOCH)
         .map(|d| d.as_millis() as u64)
         .unwrap_or(0);
-    let cooldown: u64 = crate::db::kv_get(pool, &gid, "GUILD.CONFESSION.cooldown")
-        .await
-        .and_then(|s| s.parse().ok())
-        .unwrap_or(300_000);
+    let cooldown: u64 =
+        crate::commands::owner::main::routed_get(pool, &gid, &gid, "GUILD.CONFESSION.cooldown")
+            .await
+            .and_then(|s| s.parse().ok())
+            .unwrap_or(300_000);
     let last_key = format!("CONFESSION_LAST.{}", comp.user.id.get());
-    let last: Option<u64> = crate::db::kv_get(pool, &gid, &last_key)
+    let last: Option<u64> = crate::commands::owner::main::routed_get(pool, &gid, &gid, &last_key)
         .await
         .and_then(|s| s.parse().ok());
     let left = confession_cooldown_left(last, cooldown, now);
@@ -369,8 +371,10 @@ pub async fn handle_confess_button(
     // Clicks must come from the bound panel message (channel + message),
     // or at least the panel channel. Mirrors the channelId/messageId
     // guard in new-confession-button.ts.
-    let panel_raw = crate::db::kv_get(pool, &gid, "GUILD.CONFESSION.panel").await;
-    let fallback = crate::db::kv_get(pool, &gid, "CONFESSION.channel").await;
+    let panel_raw =
+        crate::commands::owner::main::routed_get(pool, &gid, &gid, "GUILD.CONFESSION.panel").await;
+    let fallback =
+        crate::commands::owner::main::routed_get(pool, &gid, &gid, "CONFESSION.channel").await;
     let (target_ch, bound_msg) = panel_target(panel_raw.as_deref(), fallback.as_deref());
     let Some(target_ch) = target_ch else {
         return Ok(());
@@ -464,10 +468,11 @@ pub async fn handle_confess_button(
     let _ = submit
         .create_response(ctx, serenity::CreateInteractionResponse::Acknowledge)
         .await;
-    let thread_on = crate::db::kv_get(pool, &gid, "GUILD.CONFESSION.thread")
-        .await
-        .map(|v| v == "yes")
-        .unwrap_or(false);
+    let thread_on =
+        crate::commands::owner::main::routed_get(pool, &gid, &gid, "GUILD.CONFESSION.thread")
+            .await
+            .map(|v| v == "yes")
+            .unwrap_or(false);
     // Public embed title mirrors `### <field> #<code>` in
     // new-confession-button.ts.
     let field = crate::lang::get(&lang_code, "help_confession_fields").unwrap_or_default();
@@ -561,7 +566,9 @@ pub async fn handle_confess_button(
     }
     // Cooldown stamped at post time (mirrors the tempTable.set(Date.now())
     // after posting in new-confession-button.ts), not at click time.
-    let _ = crate::db::kv_set(pool, &gid, &last_key, &post_ms.to_string()).await;
+    let _ =
+        crate::commands::owner::main::routed_set(pool, &gid, &gid, &last_key, &post_ms.to_string())
+            .await;
     // Moderation archive (mirrors GUILD.CONFESSION.ALL_CONFESSIONS).
     // code/message_id/thread_id link confessionres% replies to this post.
     // C10 compat: field names follow the TS array shape
@@ -641,13 +648,15 @@ pub async fn handle_confess_button(
                 // footerAttachmentBuilder in the TS rotation repost: the
                 // old embed is not reused verbatim, the bot footer only
                 // refreshes here.
-                let footer_name = crate::db::kv_get(pool, &gid, "BOT.botName")
-                    .await
-                    .filter(|s| !s.trim().is_empty())
-                    .unwrap_or_else(|| "iHorizon".to_string());
-                let footer_icon = crate::db::kv_get(pool, &gid, "BOT.botPFP")
-                    .await
-                    .and_then(|s| crate::emojis::base64_decode(&s));
+                let footer_name =
+                    crate::commands::owner::main::routed_get(pool, &gid, &gid, "BOT.botName")
+                        .await
+                        .filter(|s| !s.trim().is_empty())
+                        .unwrap_or_else(|| "iHorizon".to_string());
+                let footer_icon =
+                    crate::commands::owner::main::routed_get(pool, &gid, &gid, "BOT.botPFP")
+                        .await
+                        .and_then(|s| crate::emojis::base64_decode(&s));
                 let mut repost = serenity::CreateMessage::new()
                     .embed(serenity::CreateEmbed::from(re_embed).footer(
                         serenity::CreateEmbedFooter::new(&footer_name).icon_url(
@@ -759,11 +768,11 @@ pub async fn handle_confession_author(
         .guild_id
         .map(|g| g.get().to_string())
         .unwrap_or_default();
-    let footer_name = crate::db::kv_get(pool, &gid, "BOT.botName")
+    let footer_name = crate::commands::owner::main::routed_get(pool, &gid, &gid, "BOT.botName")
         .await
         .filter(|s| !s.trim().is_empty())
         .unwrap_or_else(|| "iHorizon".to_string());
-    let footer_icon = crate::db::kv_get(pool, &gid, "BOT.botPFP")
+    let footer_icon = crate::commands::owner::main::routed_get(pool, &gid, &gid, "BOT.botPFP")
         .await
         .and_then(|s| crate::emojis::base64_decode(&s));
     let embed = serenity::CreateEmbed::default()
@@ -911,12 +920,13 @@ pub async fn handle_confession_response(
         .duration_since(std::time::UNIX_EPOCH)
         .map(|d| d.as_millis() as u64)
         .unwrap_or(0);
-    let cooldown: u64 = crate::db::kv_get(pool, &gid, "GUILD.CONFESSION.cooldown")
-        .await
-        .and_then(|s| s.parse().ok())
-        .unwrap_or(300_000);
+    let cooldown: u64 =
+        crate::commands::owner::main::routed_get(pool, &gid, &gid, "GUILD.CONFESSION.cooldown")
+            .await
+            .and_then(|s| s.parse().ok())
+            .unwrap_or(300_000);
     let last_key = format!("CONFESSION_LAST.{}", comp.user.id.get());
-    let last: Option<u64> = crate::db::kv_get(pool, &gid, &last_key)
+    let last: Option<u64> = crate::commands::owner::main::routed_get(pool, &gid, &gid, &last_key)
         .await
         .and_then(|s| s.parse().ok());
     let left = confession_cooldown_left(last, cooldown, now);
@@ -1278,6 +1288,169 @@ mod tests {
         let found = find_confession_by_code(&pool, "g", "tscode").await.unwrap();
         assert_eq!(entry_thread_id(&found), Some(123));
         assert!(find_confession_by_code(&pool, "g", "missing")
+            .await
+            .is_none());
+    }
+
+    #[tokio::test]
+    async fn disabled_reads_legacy_and_table_rows() {
+        use crate::commands::owner::main as routed;
+        // Legacy kv row (pre-migration writer): table-first read falls back.
+        let pool = memory_pool().await;
+        crate::db::kv_set(&pool, "g", "CONFESSION.disable", "true")
+            .await
+            .unwrap();
+        assert!(is_confession_disabled(&pool, "g").await);
+        // Table-only row (migrated writer): legacy read kept, table wins.
+        let pool = memory_pool().await;
+        routed::tbl_set(&pool, "g", "GUILD.CONFESSION.disable", "true")
+            .await
+            .unwrap();
+        assert!(is_confession_disabled(&pool, "g").await);
+        // Neither key: enabled.
+        let pool = memory_pool().await;
+        assert!(!is_confession_disabled(&pool, "g").await);
+    }
+
+    #[tokio::test]
+    async fn disabled_false_row_migrates_away_as_enabled() {
+        use crate::commands::owner::main as routed;
+        let pool = memory_pool().await;
+        crate::db::kv_set(&pool, "g", "GUILD.CONFESSION.disable", "false")
+            .await
+            .unwrap();
+        assert!(!is_confession_disabled(&pool, "g").await);
+        assert!(crate::db::kv_get(&pool, "g", "GUILD.CONFESSION.disable")
+            .await
+            .is_none());
+        assert!(routed::tbl_get(&pool, "g", "GUILD.CONFESSION.disable")
+            .await
+            .is_none());
+    }
+
+    #[tokio::test]
+    async fn routed_cooldown_and_last_roundtrip() {
+        use crate::commands::owner::main as routed;
+        let pool = memory_pool().await;
+        // Legacy-seeded rows stay visible through the table-first reads.
+        crate::db::kv_set(&pool, "g", "GUILD.CONFESSION.cooldown", "60000")
+            .await
+            .unwrap();
+        crate::db::kv_set(&pool, "g", "CONFESSION_LAST.42", "1000")
+            .await
+            .unwrap();
+        let cooldown: u64 = routed::routed_get(&pool, "g", "g", "GUILD.CONFESSION.cooldown")
+            .await
+            .and_then(|s| s.parse().ok())
+            .unwrap();
+        assert_eq!(cooldown, 60_000);
+        let last: Option<u64> = routed::routed_get(&pool, "g", "g", "CONFESSION_LAST.42")
+            .await
+            .and_then(|s| s.parse().ok());
+        assert_eq!(last, Some(1000));
+        // Dual-write on save: both the table walk and the legacy scan see it.
+        routed::routed_set(&pool, "g", "g", "CONFESSION_LAST.42", "2000")
+            .await
+            .unwrap();
+        assert_eq!(
+            crate::db::kv_get(&pool, "g", "CONFESSION_LAST.42")
+                .await
+                .as_deref(),
+            Some("2000")
+        );
+        assert_eq!(
+            routed::tbl_get(&pool, "g", "CONFESSION_LAST.42")
+                .await
+                .as_deref(),
+            Some("2000")
+        );
+    }
+
+    #[tokio::test]
+    async fn routed_panel_prefers_json_with_channel_fallback() {
+        use crate::commands::owner::main as routed;
+        let pool = memory_pool().await;
+        routed::routed_set(
+            &pool,
+            "g",
+            "g",
+            "GUILD.CONFESSION.panel",
+            r#"{"channelId":"11","messageId":"22"}"#,
+        )
+        .await
+        .unwrap();
+        routed::routed_set(&pool, "g", "g", "CONFESSION.channel", "99")
+            .await
+            .unwrap();
+        let panel_raw = routed::routed_get(&pool, "g", "g", "GUILD.CONFESSION.panel").await;
+        let fallback = routed::routed_get(&pool, "g", "g", "CONFESSION.channel").await;
+        assert_eq!(
+            panel_target(panel_raw.as_deref(), fallback.as_deref()),
+            (Some(11), Some(22))
+        );
+        // Panel deleted from both stores: fallback channel resolves alone.
+        routed::routed_del(&pool, "g", "g", "GUILD.CONFESSION.panel")
+            .await
+            .unwrap();
+        let panel_raw = routed::routed_get(&pool, "g", "g", "GUILD.CONFESSION.panel").await;
+        let fallback = routed::routed_get(&pool, "g", "g", "CONFESSION.channel").await;
+        assert_eq!(
+            panel_target(panel_raw.as_deref(), fallback.as_deref()),
+            (Some(99), None)
+        );
+    }
+
+    #[tokio::test]
+    async fn routed_thread_flag_and_log_channel() {
+        use crate::commands::owner::main as routed;
+        let pool = memory_pool().await;
+        routed::routed_set(&pool, "g", "g", "GUILD.CONFESSION.thread", "yes")
+            .await
+            .unwrap();
+        assert_eq!(
+            routed::routed_get(&pool, "g", "g", "GUILD.CONFESSION.thread")
+                .await
+                .as_deref(),
+            Some("yes")
+        );
+        routed::routed_set(&pool, "g", "g", "GUILD.SERVER_LOGS.confession", "123")
+            .await
+            .unwrap();
+        assert_eq!(
+            routed::routed_get(&pool, "g", "g", "GUILD.SERVER_LOGS.confession")
+                .await
+                .as_deref(),
+            Some("123")
+        );
+        // Dead-channel delete clears both stores.
+        routed::routed_del(&pool, "g", "g", "GUILD.SERVER_LOGS.confession")
+            .await
+            .unwrap();
+        assert!(
+            crate::db::kv_get(&pool, "g", "GUILD.SERVER_LOGS.confession")
+                .await
+                .is_none()
+        );
+        assert!(routed::tbl_get(&pool, "g", "GUILD.SERVER_LOGS.confession")
+            .await
+            .is_none());
+    }
+
+    #[tokio::test]
+    async fn routed_bot_footer_keys() {
+        use crate::commands::owner::main as routed;
+        let pool = memory_pool().await;
+        // Legacy footer rows stay visible through the table-first reads.
+        crate::db::kv_set(&pool, "g", "BOT.botName", "TestBot")
+            .await
+            .unwrap();
+        assert_eq!(
+            routed::routed_get(&pool, "g", "g", "BOT.botName")
+                .await
+                .as_deref(),
+            Some("TestBot")
+        );
+        assert!(routed::routed_get(&pool, "g", "g", "BOT.botPFP")
             .await
             .is_none());
     }

@@ -968,11 +968,8 @@ async fn pick_category(
 }
 
 async fn embed_exists(pool: &crate::db::Pool, gid: &str, embed_id: &str) -> bool {
-    let row: Option<String> =
-        crate::db::kv_get(pool, gid, &format!("EMBED.{}", embed_id.trim())).await;
-    row.and_then(|s| serde_json::from_str::<serde_json::Value>(&s).ok())
-        .and_then(|v| v.get("embedSource").cloned())
-        .is_some()
+    // Table-first with legacy kv fallback (keys unchanged).
+    embed_source_routed(pool, gid, embed_id).await.is_some()
 }
 
 /// One editor step. Returns true when the panel mutated (saved flag
@@ -1658,14 +1655,8 @@ async fn run_preview(
     let related: Option<serde_json::Value> = if panel.related_embed_id.trim().is_empty() {
         None
     } else {
-        crate::db::kv_get(
-            pool,
-            gid,
-            &format!("EMBED.{}", panel.related_embed_id.trim()),
-        )
-        .await
-        .and_then(|s| serde_json::from_str(&s).ok())
-        .and_then(|v: serde_json::Value| v.get("embedSource").cloned())
+        // Table-first with legacy kv fallback (keys unchanged).
+        embed_source_routed(pool, gid, &panel.related_embed_id).await
     };
     let Some(source) = related else {
         ephemeral(sctx, pick, t("ticket_panel_related_embed_dont_exist")).await;
@@ -1777,14 +1768,9 @@ async fn run_send_flow(
         ephemeral(sctx, &chan_pick, t("ticket_panel_channel_error")).await;
         return Ok(false);
     }
-    let related: Option<serde_json::Value> = crate::db::kv_get(
-        pool,
-        gid,
-        &format!("EMBED.{}", panel.related_embed_id.trim()),
-    )
-    .await
-    .and_then(|s| serde_json::from_str(&s).ok())
-    .and_then(|v: serde_json::Value| v.get("embedSource").cloned());
+    // Table-first with legacy kv fallback (keys unchanged).
+    let related: Option<serde_json::Value> =
+        embed_source_routed(pool, gid, &panel.related_embed_id).await;
     let Some(source) = related else {
         ephemeral(sctx, &chan_pick, t("ticket_panel_related_embed_dont_exist")).await;
         return Ok(false);
@@ -1865,14 +1851,9 @@ async fn post_ticket_panel_message(
     let http = ctx.serenity_context().http.clone();
     let mut embed: Option<serenity::CreateEmbed> = None;
     if !panel.related_embed_id.trim().is_empty() {
-        let stored: Option<serde_json::Value> = crate::db::kv_get(
-            pool,
-            gid,
-            &format!("EMBED.{}", panel.related_embed_id.trim()),
-        )
-        .await
-        .and_then(|s| serde_json::from_str(&s).ok())
-        .and_then(|v: serde_json::Value| v.get("embedSource").cloned());
+        // Table-first with legacy kv fallback (keys unchanged).
+        let stored: Option<serde_json::Value> =
+            embed_source_routed(pool, gid, &panel.related_embed_id).await;
         embed = stored.as_ref().and_then(create_embed_from_value);
     }
     let embed = embed.unwrap_or_else(|| {
@@ -2261,5 +2242,37 @@ mod tests {
             ),
             "PANELCODE1"
         );
+    }
+
+    #[tokio::test]
+    async fn embed_source_routed_legacy_fallback_and_table_wins() {
+        // D5-TICKET panel.rs:972,1661,1780,1868 — every `EMBED.<id>`
+        // read goes through `embed_source_routed` (table-first, legacy
+        // kv fallback, keys unchanged).
+        use crate::commands::owner::main::routed_set;
+        let pool = mem_pool().await;
+        assert!(!embed_exists(&pool, "g", "e9").await);
+        let legacy = serde_json::json!({"embedSource": {"title": "legacy"}}).to_string();
+        crate::db::kv_set(&pool, "g", "EMBED.e9", &legacy)
+            .await
+            .unwrap();
+        assert!(embed_exists(&pool, "g", "e9").await);
+        assert_eq!(
+            super::embed_source_routed(&pool, "g", "e9").await,
+            Some(serde_json::json!({"title": "legacy"}))
+        );
+        let table = serde_json::json!({"embedSource": {"title": "table"}}).to_string();
+        routed_set(&pool, "g", "g", "EMBED.e9", &table)
+            .await
+            .unwrap();
+        assert_eq!(
+            super::embed_source_routed(&pool, "g", "e9").await,
+            Some(serde_json::json!({"title": "table"}))
+        );
+        // Row without an embedSource leaf reads as missing.
+        crate::db::kv_set(&pool, "g", "EMBED.e0", r#"{"other":1}"#)
+            .await
+            .unwrap();
+        assert!(!embed_exists(&pool, "g", "e0").await);
     }
 }

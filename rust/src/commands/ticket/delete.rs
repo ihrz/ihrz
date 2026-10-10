@@ -63,9 +63,13 @@ pub async fn ticket_del_user_routed(pool: &crate::db::Pool, gid: &str, user_key:
         &format!("TICKET_ALL.{user_key}."),
     )
     .await;
-    let _ = crate::db::kv_del(pool, gid, &format!("TICKET_ALL.{user_key}")).await;
+    // Keyed routed delete (no starts_with scan): clears the nested
+    // `TICKET_ALL.<user>` row in both stores, table-first with legacy
+    // fallback. Flat `TICKET_ALL.<user>.<channel>` rows above are wiped
+    // via the legacy prefix (no table prefix-scan surface exists).
     let _ =
-        crate::commands::owner::main::tbl_del(pool, gid, &format!("TICKET_ALL.{user_key}")).await;
+        crate::commands::owner::main::routed_del(pool, gid, gid, &format!("TICKET_ALL.{user_key}"))
+            .await;
 }
 
 /// Delete this ticket channel (TicketDelete pipeline).
@@ -234,5 +238,30 @@ mod tests {
         ticket_del_user_routed(&pool, "g", "5").await;
         assert_eq!(crate::db::kv_get(&pool, "g", "TICKET_ALL.5.6").await, None);
         assert!(tbl_get_value(&pool, "g", "TICKET_ALL.5").await.is_none());
+    }
+
+    #[tokio::test]
+    async fn del_user_keyed_routed_clears_table_only_row() {
+        // D5-TICKET delete.rs:66 — keyed `routed_del` (no starts_with
+        // scan) clears a table-only nested row; legacy fallback never
+        // dropped (legacy-only row below also clears).
+        use crate::commands::owner::main::{table_backend, tbl_get_value};
+        let pool = mem_pool().await;
+        table_backend(&pool)
+            .table("g")
+            .set(
+                "TICKET_ALL.9",
+                serde_json::json!({"10": {"channel": "10", "author": "9"}}),
+            )
+            .await
+            .unwrap();
+        ticket_del_user_routed(&pool, "g", "9").await;
+        assert!(tbl_get_value(&pool, "g", "TICKET_ALL.9").await.is_none());
+        assert_eq!(crate::db::kv_get(&pool, "g", "TICKET_ALL.9").await, None);
+        crate::db::kv_set(&pool, "g", "TICKET_ALL.8", r#"{"7":{}}"#)
+            .await
+            .unwrap();
+        ticket_del_user_routed(&pool, "g", "8").await;
+        assert_eq!(crate::db::kv_get(&pool, "g", "TICKET_ALL.8").await, None);
     }
 }
