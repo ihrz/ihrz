@@ -20,6 +20,7 @@ pub async fn nickrole(
     let pool = &ctx.data().pool;
     let code = crate::db::guild_lang(pool, Some(guild_id.get())).await;
     let t = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
+    // Lower the query once here; the matcher compares raw fields.
     let part = nickname.to_lowercase();
     let add = !matches!(
         action.to_ascii_lowercase().as_str(),
@@ -111,12 +112,17 @@ pub async fn nickrole(
 }
 
 /// Case-insensitive substring match over nickname, global name and
-/// username. Mirrors the TS globalName/nickname filter.
-pub fn nick_matches_part(nick: &str, global_name: &str, username: &str, part: &str) -> bool {
-    let part = part.to_lowercase();
-    nick.to_lowercase().contains(&part)
-        || global_name.to_lowercase().contains(&part)
-        || username.to_lowercase().contains(&part)
+/// username. The caller lowers the query once; the fields are matched
+/// raw here. Mirrors the TS globalName/nickname filter.
+pub fn nick_matches_part(
+    nick: &str,
+    global_name: &str,
+    username: &str,
+    lowered_part: &str,
+) -> bool {
+    nick.to_lowercase().contains(lowered_part)
+        || global_name.to_lowercase().contains(lowered_part)
+        || username.to_lowercase().contains(lowered_part)
 }
 
 /// Fill the `${membersToProcess.length}` progress template.
@@ -154,6 +160,15 @@ mod tests {
         assert!(nick_matches_part("", "", "CoolUser", "cool"));
         assert!(!nick_matches_part("Bob", "Rob", "bob", "cool"));
         assert!(!nick_matches_part("", "", "", "x"));
+    }
+
+    #[test]
+    fn raw_query_matches_without_caller_lowering() {
+        // Caller lowers once; the matcher compares the raw fields.
+        let query = "COOL".to_lowercase();
+        assert!(nick_matches_part("coolkid", "", "user", &query));
+        assert!(nick_matches_part("", "MyCoolName", "user", &query));
+        assert!(!nick_matches_part("bob", "rob", "bob", &query));
     }
 
     #[test]

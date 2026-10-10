@@ -1,8 +1,12 @@
 use super::*;
+use poise::serenity_prelude as serenity;
 
 /// Named table mirroring TS `prevnamesTable`. Scope "0" and
 /// `PREVNAMES.<uid>` keys are unchanged from the legacy kv layout.
 pub const PREVNAMES_TABLE: &str = "prevnames";
+
+/// Collector lifetime from !prevnames.ts (`60_000 * 15`).
+pub const PREVNAMES_COLLECTOR_SECS: u64 = 60 * 15;
 
 /// Previous names. Mirrors utils !prevnames.ts (tracked in user_update).
 #[poise::command(
@@ -20,40 +24,167 @@ pub async fn prevnames(
     // Named `prevnames` table first, legacy kv fallback (the writer in
     // events.rs still targets kv): scope "0", `PREVNAMES.<uid>` keys
     // unchanged, fallback hits promoted lazily.
+    let key = crate::events::prevnames_key(target.id.get());
     let raw = crate::commands::owner::main::routed_get(
         &ctx.data().pool,
         PREVNAMES_TABLE,
         crate::commands::owner::main::GLOBAL_SCOPE,
-        &crate::events::prevnames_key(target.id.get()),
+        &key,
     )
     .await;
     let history: Vec<String> = raw
         .and_then(|s| serde_json::from_str(&s).ok())
         .unwrap_or_default();
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    let t = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
     if history.is_empty() {
-        ctx.say(
-            crate::lang::get(&code, "prevnames_undetected")
-                .unwrap_or_else(|| "No data found!".to_string()),
-        )
-        .await?;
+        ctx.say(t("prevnames_undetected")).await?;
         return Ok(());
     }
-    // Mirrors the paged embed title in !prevnames.ts:78
-    // (first page; full pagination is a later pass).
     let display = target
         .global_name
         .clone()
         .unwrap_or_else(|| target.name.clone());
-    let title_tpl = crate::lang::get(&code, "prevnames_embed_title")
-        .unwrap_or_else(|| "List of all ${user.username}'s nicknames".to_string());
-    let pages = prevnames_pages(&history, &title_tpl, &display);
-    let (title, desc) = pages.into_iter().next().unwrap_or_default();
-    let embed = poise::serenity_prelude::CreateEmbed::default()
-        .title(title)
-        .description(desc);
-    ctx.send(poise::CreateReply::default().embed(embed)).await?;
+    let pages = prevnames_pages(&history, &t("prevnames_embed_title"), &display);
+    let total = pages.len();
+    let page_word = crate::lang::get(&code, "var_page").unwrap_or_else(|| "Page".to_string());
+    let gid = ctx
+        .guild_id()
+        .map(|g| g.get().to_string())
+        .unwrap_or_default();
+    let (footer_name, footer_bytes) = footer_parts(&ctx, &gid).await;
+    let footer_icon = footer_bytes.is_some();
+    let mk_embed = |cur: usize| {
+        let (title, desc) = pages[cur].clone();
+        serenity::CreateEmbed::default()
+            .colour(serenity::Colour::from_rgb(0x01, 0x01, 0x01))
+            .title(title)
+            .description(desc)
+            .footer(
+                serenity::CreateEmbedFooter::new(crate::commands::shared::footer_page_text(
+                    &footer_name,
+                    &page_word,
+                    (cur + 1) as u64,
+                    total as u64,
+                ))
+                .icon_url(if footer_icon {
+                    "attachment://footer_icon.png".to_string()
+                } else {
+                    String::new()
+                }),
+            )
+            .timestamp(serenity::Timestamp::now())
+    };
+    let mk_row = || {
+        serenity::CreateActionRow::Buttons(vec![
+            serenity::CreateButton::new("previousPage")
+                .label("<<<")
+                .style(serenity::ButtonStyle::Secondary),
+            serenity::CreateButton::new("nextPage")
+                .label(">>>")
+                .style(serenity::ButtonStyle::Secondary),
+            serenity::CreateButton::new("trash-prevnames-embed")
+                .label("🗑️")
+                .style(serenity::ButtonStyle::Danger),
+        ])
+    };
+    let mut reply = poise::CreateReply::default()
+        .embed(mk_embed(0))
+        .components(vec![mk_row()]);
+    if let Some(bytes) = footer_bytes {
+        reply = reply.attachment(serenity::CreateAttachment::bytes(bytes, "footer_icon.png"));
+    }
+    let handle = ctx.send(reply).await?;
+    let mut msg = handle.into_message().await?;
+    let author = ctx.author().id;
+    let target_id = target.id;
+    let mut cur = 0usize;
+    loop {
+        let press = msg
+            .await_component_interaction(ctx.serenity_context().shard.clone())
+            .timeout(std::time::Duration::from_secs(PREVNAMES_COLLECTOR_SECS))
+            .await;
+        let Some(press) = press else { break };
+        if press.user.id != author {
+            // TS defers then ignores foreign presses.
+            let _ = press
+                .create_response(ctx.http(), serenity::CreateInteractionResponse::Acknowledge)
+                .await;
+            continue;
+        }
+        match press.data.custom_id.as_str() {
+            "previousPage" => {
+                cur = (cur + total - 1) % total;
+            }
+            "nextPage" => {
+                cur = (cur + 1) % total;
+            }
+            "trash-prevnames-embed" => {
+                if author == target_id && can_erase_prevnames(author.get(), target_id.get()) {
+                    let _ = crate::commands::owner::main::routed_del(
+                        &ctx.data().pool,
+                        PREVNAMES_TABLE,
+                        crate::commands::owner::main::GLOBAL_SCOPE,
+                        &key,
+                    )
+                    .await;
+                    let _ = press
+                        .create_response(
+                            ctx.http(),
+                            serenity::CreateInteractionResponse::Acknowledge,
+                        )
+                        .await;
+                    let _ = msg
+                        .edit(
+                            ctx.http(),
+                            serenity::EditMessage::new()
+                                .content(t("prevnames_data_erased"))
+                                .suppress_embeds(true)
+                                .components(vec![]),
+                        )
+                        .await;
+                    return Ok(());
+                }
+                // Not the owner: fall through and re-render, like TS.
+            }
+            _ => continue,
+        }
+        let _ = press
+            .create_response(
+                ctx.http(),
+                serenity::CreateInteractionResponse::UpdateMessage(
+                    serenity::CreateInteractionResponseMessage::new()
+                        .embed(mk_embed(cur))
+                        .components(vec![mk_row()]),
+                ),
+            )
+            .await;
+    }
+    let _ = msg
+        .edit(
+            ctx.http(),
+            serenity::EditMessage::new().components(vec![prevnames_dead_row()]),
+        )
+        .await;
     Ok(())
+}
+
+/// Disabled navigation row for the timeout cleanup.
+fn prevnames_dead_row() -> serenity::CreateActionRow {
+    let btn = |id: &str, label: &str| {
+        serenity::CreateButton::new(id)
+            .label(label)
+            .style(serenity::ButtonStyle::Secondary)
+            .disabled(true)
+    };
+    serenity::CreateActionRow::Buttons(vec![
+        btn("previousPage", "<<<"),
+        btn("nextPage", ">>>"),
+        serenity::CreateButton::new("trash-prevnames-embed")
+            .label("🗑️")
+            .style(serenity::ButtonStyle::Danger)
+            .disabled(true),
+    ])
 }
 
 /// Prevnames pager size from !prevnames.ts.
@@ -133,6 +264,11 @@ mod tests {
         assert_eq!(pages[1].1, "name5");
         assert!(can_erase_prevnames(7, 7));
         assert!(!can_erase_prevnames(7, 8));
+    }
+
+    #[test]
+    fn collector_window_is_900s() {
+        assert_eq!(super::PREVNAMES_COLLECTOR_SECS, 900);
     }
 
     #[tokio::test]
