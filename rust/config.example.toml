@@ -70,6 +70,10 @@ secure = false
 
 [api]
 horizon_gateway_local = "http://127.0.0.1:31981"
+# Public gateway (TS config.api.HorizonGateway): html2png, monitoring,
+# authrestore OAuth links, userinfo/vanity, webhooks. Env HORIZON_GATEWAY
+# wins over this value.
+horizon_gateway = "http://127.0.0.1:31981"
 client_id = ""
 # api_token: intentionally absent — export HORIZON_API_TOKEN in the environment.
 
@@ -89,6 +93,23 @@ url = "sqlite:./src/files/db.sqlite?mode=rwc"
 # Optional second database (TS `database.mySQL[1]`, `client.db2` side).
 # Empty = no secondary. Real secret via DATABASE_URL_SECONDARY env.
 secondary_url = ""
+# TS `database.mySQL[]` parts. [0] = primary postgres, [1] = secondary.
+# Full URL strings (url / DATABASE_URL) win over parts. Passwords prefer
+# env in real deployments — never commit real secrets to a tracked file.
+# [[database.mysql]]
+# host = "localhost"
+# port = 5432
+# database = "mydb"
+# user = "myuser"
+# password = "changeme"
+# TS `database.horizon_db` parts. When set, the horizondb endpoint is
+# composed as ws://host:port (login/password auth); otherwise `url`
+# above is recorded verbatim.
+# [database.horizon_db]
+# host = "127.0.0.1"
+# port = 8080
+# login = "admin"
+# password = "changeme"
 
 [lastfm]
 # Optional; required only for the Last.fm scrobbler module.

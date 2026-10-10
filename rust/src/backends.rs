@@ -636,7 +636,9 @@ fn pg_like_pattern(prefix: &str) -> String {
 
 /// Resolve the postgres connection string: a `postgres://` /
 /// `postgresql://` `database_url` wins, otherwise `DATABASE_URL` from the
-/// environment. Anything else is an error (no live server to default to).
+/// environment, otherwise the composed `database.mySQL[0]` parts (TS
+/// `src/core/database/index.ts`). Anything else is an error (no live
+/// server to default to).
 fn postgres_url(cfg: &Config) -> anyhow::Result<String> {
     if cfg.database_url.starts_with("postgres://") || cfg.database_url.starts_with("postgresql://")
     {
@@ -644,9 +646,12 @@ fn postgres_url(cfg: &Config) -> anyhow::Result<String> {
     }
     match std::env::var("DATABASE_URL") {
         Ok(url) if !url.trim().is_empty() => Ok(url),
-        _ => anyhow::bail!(
-            "postgres backend requires a connection string: set database_url to a postgres:// URL or export DATABASE_URL"
-        ),
+        _ => match cfg.mysql_connection_string(0) {
+            Some(url) => Ok(url),
+            None => anyhow::bail!(
+                "postgres backend requires a connection string: set database_url to a postgres:// URL, export DATABASE_URL, or fill [[database.mysql]]"
+            ),
+        },
     }
 }
 
@@ -990,9 +995,13 @@ impl Backend {
                 Ok(Self::Cached(cached))
             }
             "horizondb" | "horizon" | "ihrzdb" => {
-                // Offline mock: database_url is recorded as the endpoint and
-                // never dialed, so this arm cannot fail on I/O.
-                Ok(Self::horizondb_mock(cfg.database_url.clone()))
+                // Offline mock: endpoint recorded, never dialed, so this
+                // arm cannot fail on I/O. `database.horizon_db` parts win
+                // (TS `ws://host:port`); otherwise database_url verbatim.
+                let endpoint = cfg
+                    .horizondb_endpoint()
+                    .unwrap_or_else(|| cfg.database_url.clone());
+                Ok(Self::horizondb_mock(endpoint))
             }
             _ => {
                 let pool = crate::db::init(cfg).await?;
@@ -1011,9 +1020,16 @@ impl Backend {
     pub async fn secondary_from_config(cfg: &Config) -> anyhow::Result<Option<Self>> {
         let url = cfg.database_url_secondary.clone().unwrap_or_default();
         let url = url.trim().to_string();
-        if url.is_empty() {
-            return Ok(None);
-        }
+        // TS `database.mySQL[1]` (bi-separated second postgres): when no
+        // explicit secondary URL is set, compose it from parts.
+        let url = if url.is_empty() {
+            match cfg.mysql_connection_string(1) {
+                Some(composed) => composed,
+                None => return Ok(None),
+            }
+        } else {
+            url
+        };
         if url.starts_with("postgres://") || url.starts_with("postgresql://") {
             return Ok(Some(Self::postgres_connect(&url).await?));
         }

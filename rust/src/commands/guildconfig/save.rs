@@ -24,7 +24,7 @@ pub async fn gc_config_save(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     .await?;
     let token = crate::config::api_token().unwrap_or_default();
     if crate::config::is_gateway_env() {
-        if let (Some(base), Some(_)) = (crate::config::gateway_base(), Some(())) {
+        if let (Some(base), Some(_)) = (ctx.data().config.gateway_public(), Some(())) {
             if let Ok(link) =
                 crate::funcs::gateway_url(&base, crate::funcs::GatewayMethod::ServerBackup)
             {

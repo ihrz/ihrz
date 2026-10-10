@@ -20,6 +20,40 @@ pub struct LavalinkNode {
     pub secure: bool,
 }
 
+/// One `database.mySQL[]` entry (TS `src/files/config.ts`).
+/// `[0]` builds the primary postgres connection string, `[1]` the
+/// bi-separated secondary (`client.db2`).
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct MysqlParts {
+    #[serde(default)]
+    pub host: String,
+    #[serde(default)]
+    pub port: u16,
+    #[serde(default)]
+    pub database: String,
+    #[serde(default)]
+    pub user: String,
+    /// Password stays env-preferred in real deployments; the TS shape is
+    /// `postgres://user:password@host:port/database`.
+    #[serde(default)]
+    pub password: String,
+}
+
+/// `database.horizon_db` (TS `src/files/config.ts` + required check in
+/// `src/core/database/index.ts`). The URL is always
+/// `ws://host:port` + login/password auth.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct HorizonDbParts {
+    #[serde(default)]
+    pub host: String,
+    #[serde(default)]
+    pub port: u16,
+    #[serde(default)]
+    pub login: String,
+    #[serde(default)]
+    pub password: String,
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Config {
     #[serde(default = "default_prefix")]
@@ -56,6 +90,11 @@ pub struct Config {
     pub lavalink_nodes: Vec<LavalinkNode>,
     #[serde(default)]
     pub gateway_local: String,
+    /// Public HorizonGateway base URL (TS: `config.api.HorizonGateway`,
+    /// e.g. `https://gateway.ihorizon.org`). File value; env
+    /// `HORIZON_GATEWAY` wins via [`Config::gateway_public`].
+    #[serde(default)]
+    pub gateway: String,
     #[serde(default)]
     pub client_id: String,
     #[serde(default)]
@@ -64,6 +103,16 @@ pub struct Config {
     pub lastfm_shared_secret: String,
     #[serde(default = "default_db_method")]
     pub db_method: String,
+    /// `database.mySQL[]` parts. `[0]` = primary postgres, `[1]` =
+    /// bi-separated secondary. Full URL strings (`database.url` /
+    /// `DATABASE_URL`) win over parts.
+    #[serde(default)]
+    pub mysql: Vec<MysqlParts>,
+    /// `database.horizon_db` parts. When `host` is set and
+    /// `db_method` is horizondb, the endpoint is composed as
+    /// `ws://host:port`; otherwise `database.url` is recorded verbatim.
+    #[serde(default)]
+    pub horizon_db: Option<HorizonDbParts>,
     /// SMTP relay host (TS: `SMTP_HOST`). Empty = mailer disabled.
     #[serde(default)]
     pub smtp_host: String,
@@ -127,10 +176,13 @@ impl Default for Config {
             always100: vec![],
             lavalink_nodes: vec![],
             gateway_local: String::new(),
+            gateway: String::new(),
             client_id: String::new(),
             lastfm_api_key: String::new(),
             lastfm_shared_secret: String::new(),
             db_method: default_db_method(),
+            mysql: vec![],
+            horizon_db: None,
             smtp_host: String::new(),
             smtp_port: 0,
             smtp_secure: false,
@@ -252,6 +304,9 @@ pub fn load_file_into(cfg: &mut Config, path: &std::path::Path) -> anyhow::Resul
         }
     }
     if let Some(t) = table(&root, "api") {
+        if let Some(v) = get_str(t, "horizon_gateway") {
+            cfg.gateway = v;
+        }
         if let Some(v) = get_str(t, "horizon_gateway_local") {
             cfg.gateway_local = v;
         }
@@ -269,6 +324,31 @@ pub fn load_file_into(cfg: &mut Config, path: &std::path::Path) -> anyhow::Resul
         // Second database URL (TS `database.mySQL[1]`). Empty = None.
         if let Some(v) = get_str(t, "secondary_url") {
             cfg.database_url_secondary = if v.trim().is_empty() { None } else { Some(v) };
+        }
+        // `[[database.mysql]]` parts (TS `database.mySQL[]`).
+        if let Some(arr) = t.get("mysql").and_then(|v| v.as_array()) {
+            let mut parts = vec![];
+            for item in arr {
+                if let Some(mt) = item.as_table() {
+                    parts.push(MysqlParts {
+                        host: get_str(mt, "host").unwrap_or_default(),
+                        port: item.get("port").and_then(|v| v.as_integer()).unwrap_or(0) as u16,
+                        database: get_str(mt, "database").unwrap_or_default(),
+                        user: get_str(mt, "user").unwrap_or_default(),
+                        password: get_str(mt, "password").unwrap_or_default(),
+                    });
+                }
+            }
+            cfg.mysql = parts;
+        }
+        // `[database.horizon_db]` parts (TS `database.horizon_db`).
+        if let Some(ht) = t.get("horizon_db").and_then(|v| v.as_table()) {
+            cfg.horizon_db = Some(HorizonDbParts {
+                host: get_str(ht, "host").unwrap_or_default(),
+                port: ht.get("port").and_then(|v| v.as_integer()).unwrap_or(0) as u16,
+                login: get_str(ht, "login").unwrap_or_default(),
+                password: get_str(ht, "password").unwrap_or_default(),
+            });
         }
     }
     if let Some(t) = table(&root, "lastfm") {
@@ -423,6 +503,52 @@ pub fn gateway_base() -> Option<String> {
         .filter(|s| !s.is_empty())
 }
 
+impl Config {
+    /// Public HorizonGateway base URL. Mirrors
+    /// `client.config.api.HorizonGateway`: env `HORIZON_GATEWAY` wins,
+    /// otherwise the `[api] horizon_gateway` file value.
+    pub fn gateway_public(&self) -> Option<String> {
+        std::env::var("HORIZON_GATEWAY")
+            .ok()
+            .filter(|s| !s.trim().is_empty())
+            .or_else(|| {
+                let v = self.gateway.trim().to_string();
+                if v.is_empty() {
+                    None
+                } else {
+                    Some(v)
+                }
+            })
+    }
+
+    /// Compose a postgres connection string from `database.mySQL[]`
+    /// parts at `idx` (TS: `` `postgres://${user}:${password}@${host}:${port}/${database}` ``).
+    /// `None` when the entry is missing or has no host.
+    pub fn mysql_connection_string(&self, idx: usize) -> Option<String> {
+        self.mysql.get(idx).and_then(|m| {
+            if m.host.trim().is_empty() {
+                return None;
+            }
+            Some(format!(
+                "postgres://{}:{}@{}:{}/{}",
+                m.user, m.password, m.host, m.port, m.database
+            ))
+        })
+    }
+
+    /// HorizonDB endpoint from `database.horizon_db` parts (TS:
+    /// `` `ws://${host}:${port}` ``). `None` when unset, so callers keep
+    /// the `database.url` verbatim behavior.
+    pub fn horizondb_endpoint(&self) -> Option<String> {
+        self.horizon_db.as_ref().and_then(|h| {
+            if h.host.trim().is_empty() {
+                return None;
+            }
+            Some(format!("ws://{}:{}", h.host, h.port))
+        })
+    }
+}
+
 /// True on production/dev deployments. Mirrors the
 /// `client.version.env === "production" || === "dev"` branch (which
 /// reads the git branch); overridable via BOT_ENV.
@@ -545,8 +671,8 @@ mod tests {
              [core]\ndev_mode = false\nreport_channel_id = \"999\"\n\
              [owners]\nusers = [\"111\", \"222\"]\n\
              [command]\nalways100 = [\"1x2\"]\n\
-             [database]\nmethod = \"sqlite\"\nurl = \"sqlite:/tmp/x.db\"\n\
-             [api]\nhorizon_gateway_local = \"http://127.0.0.1:31981\"\nclient_id = \"123\"\n\
+             [database]\nmethod = \"sqlite\"\nurl = \"sqlite:/tmp/x.db\"\n[[database.mysql]]\nhost = \"db.example.com\"\nport = 5432\ndatabase = \"mydb\"\nuser = \"myuser\"\npassword = \"s3cret\"\n[database.horizon_db]\nhost = \"hdb.example.com\"\nport = 8081\nlogin = \"admin\"\npassword = \"pw\"\n\
+             [api]\nhorizon_gateway = \"https://gateway.example.org\"\nhorizon_gateway_local = \"http://127.0.0.1:31981\"\nclient_id = \"123\"\n
              [lavalink]\n[[lavalink.nodes]]\nid = \"n0\"\nhost = \"lava.example.com\"\nport = 2333\nsecure = true\nauthorization = \"pw\"\n",
         );
         let mut cfg = Config::default();
@@ -562,10 +688,43 @@ mod tests {
         assert_eq!(cfg.always100, vec!["1x2".to_string()]);
         assert_eq!(cfg.database_url, "sqlite:/tmp/x.db");
         assert_eq!(cfg.gateway_local, "http://127.0.0.1:31981");
+        assert_eq!(cfg.gateway, "https://gateway.example.org");
         assert_eq!(cfg.client_id, "123");
         assert_eq!(cfg.lavalink_nodes.len(), 1);
         assert_eq!(cfg.lavalink_nodes[0].port, 2333);
         assert!(cfg.lavalink_nodes[0].secure);
+        assert_eq!(cfg.mysql.len(), 1);
+        assert_eq!(
+            cfg.mysql_connection_string(0).as_deref(),
+            Some("postgres://myuser:s3cret@db.example.com:5432/mydb")
+        );
+        assert_eq!(cfg.mysql_connection_string(1), None);
+        assert_eq!(
+            cfg.horizondb_endpoint().as_deref(),
+            Some("ws://hdb.example.com:8081")
+        );
+        assert_eq!(
+            cfg.horizon_db.as_ref().map(|h| h.login.as_str()),
+            Some("admin")
+        );
+    }
+
+    #[test]
+    fn gateway_public_prefers_env_over_file() {
+        let _guard = ENV_LOCK.lock().unwrap();
+        let mut cfg = Config::default();
+        assert_eq!(cfg.gateway_public(), None);
+        cfg.gateway = "https://gateway.example.org".to_string();
+        assert_eq!(
+            cfg.gateway_public().as_deref(),
+            Some("https://gateway.example.org")
+        );
+        std::env::set_var("HORIZON_GATEWAY", "https://env.example.org");
+        assert_eq!(
+            cfg.gateway_public().as_deref(),
+            Some("https://env.example.org")
+        );
+        std::env::remove_var("HORIZON_GATEWAY");
     }
 
     #[test]

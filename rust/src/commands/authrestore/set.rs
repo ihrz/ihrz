@@ -113,7 +113,7 @@ pub async fn authrestore_set(
         }
     };
     // Public base for the OAuth link (HorizonGateway, not Internal).
-    let base = crate::config::gateway_base().unwrap_or_default();
+    let base = ctx.data().config.gateway_public().unwrap_or_default();
     let link = verify_link(&bot_id.get().to_string(), &base, &guild_id);
     if let Err(e) = channel_id
         .edit_message(
