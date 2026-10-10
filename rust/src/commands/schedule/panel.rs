@@ -51,7 +51,10 @@ pub(crate) async fn run_schedule_panel(ctx: Ctx<'_>) -> Result<(), anyhow::Error
         .await?;
     let mut msg = handle.into_message().await?;
     // Menu collector, author-gated like the TS filter
-    // (`time: 420_000`).
+    // (`time: 420_000`). Single-process note: the collector binds this
+    // process's shard handle, and the port runs unsharded, so there is
+    // no cross-shard routing gap to cover here (unlike the sharded TS
+    // bot, where a collector only sees its own shard's events).
     let deadline =
         std::time::Instant::now() + std::time::Duration::from_secs(GUIDED_MENU_TIMEOUT_SECS);
     loop {

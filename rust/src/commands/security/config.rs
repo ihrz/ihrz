@@ -1,6 +1,6 @@
 use super::*;
 
-/// Config the message when user earn new xp level message!
+/// Disable or enable the Security Module feature!
 // Verdict (ADMINISTRATOR default, kept): mirrors the TS per-leg
 // `permission: Administrator` gate (`security.ts`, config leg).
 #[poise::command(

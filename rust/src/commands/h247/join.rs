@@ -147,6 +147,14 @@ pub async fn h247_join(
     // (`voiceChannel(interaction, args!, 0)` may resolve null). A missing
     // or non-voice channel replies `h247_join_invalid_channel`; slash
     // callers must still pass it (TS declares the option `required: true`).
+    // PREFIX NARROWING: TS `voiceChannel` also fuzzy-matches the raw arg
+    // against voice-channel names (`similarity(arg, name) >= 0.6` over
+    // GuildVoice + Stage). Poise parses this `GuildChannel` arg from a
+    // mention/ID only, so a bare channel name never resolves here — that
+    // fuzzy-name leg is narrowed, not ported. The algorithm itself lives
+    // on as `crate::funcs_resolve::resolve_voice_channel` (mention/ID
+    // first, then the same `>= 0.6` fuzzy-name fallback) for any future
+    // prefix-string wiring.
     #[description = "The voice channel where iHorizon will stay!"]
     #[rename = "channel"]
     #[channel_types("Voice")]

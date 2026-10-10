@@ -1,7 +1,7 @@
 use super::*;
 use poise::serenity_prelude as serenity;
 
-/// Set the channel where user earn new xp level message!
+/// Channel where are been the verification process for new member(s)!
 // Verdict (ADMINISTRATOR default, kept): mirrors the TS per-leg
 // `permission: Administrator` gate (`security.ts`, channel leg).
 #[poise::command(

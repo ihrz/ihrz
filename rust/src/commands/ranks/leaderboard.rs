@@ -122,35 +122,24 @@ pub async fn ranks_leaderboard(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     };
     // Top-3 podium data (mirrors the `podiumRanksModule.html` slots):
     // username, guild-lang level label, beautified XP
-    // (`formatNumber`), and an embedded avatar snapshot (never a raw
-    // CDN URL). Only the top 3 hit the network; rows below reuse text.
+    // (`formatNumber`). No avatar-image leg: the SVG card renders the
+    // initial-circle fallback for every slot, like the economy podium
+    // (mention + wealth only, no per-user network fetch).
     let mut podium: Vec<crate::cards::PodiumRankEntry> = Vec::new();
     for (uid, e) in parsed.iter().take(8) {
-        // Owned snapshot first: the cache guard is not Send and must
-        // drop before the avatar fetch await below.
         // U3: the `retain` above already drops off-cache users (TS
         // `if (!user ...) continue` parity, and it also drives the
         // empty-board reply), so the dead `<@uid>` fallback arm is
         // dropped: a `None` here is only a cache race and skips.
-        // (Match form, not let-else: the CacheRef guard must drop
-        // before the avatar-fetch await below — it is not Send.)
-        let (name, face) = match ctx.cache().user(*uid) {
-            Some(u) => (u.name.clone(), Some(u.face())),
-            None => continue,
+        let Some(user) = ctx.cache().user(*uid) else {
+            continue;
         };
-        let avatar = if podium.len() < 3 {
-            match face {
-                Some(url) => crate::image64::image64_data_url(&url, "image/png").await,
-                None => None,
-            }
-        } else {
-            None
-        };
+        let name = user.name.clone();
         podium.push(crate::cards::PodiumRankEntry {
             name,
             level_label: lvl_label(e.level),
             xp_text: super::beautify_number(e.xptotal),
-            avatar,
+            avatar: None,
         });
     }
     let svg = crate::cards::podium_ranks_svg(&title, &podium);

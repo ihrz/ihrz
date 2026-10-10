@@ -5248,12 +5248,23 @@ impl serenity::EventHandler for Handler {
                         if let Ok(sent) = serenity::ChannelId::new(ch_id)
                             .send_message(
                                 &ctx.http,
-                                serenity::CreateMessage::new().content(content).add_file(
-                                    serenity::CreateAttachment::bytes(
+                                serenity::CreateMessage::new()
+                                    .content(content)
+                                    .add_file(serenity::CreateAttachment::bytes(
                                         crate::cards::captcha_png(&code),
                                         "captcha.png",
-                                    ),
-                                ),
+                                    ))
+                                    // Nonce mirrors onMemberJoin.ts
+                                    // (`enforceNonce: true, nonce:
+                                    // SnowflakeUtil.generate()`), same pattern as
+                                    // the ghost-ping prime above: a unique nonce
+                                    // keeps client-side dedup sane.
+                                    .nonce(serenity::model::channel::Nonce::String(format!(
+                                        "captcha-{}-{}-{expires}",
+                                        new_member.guild_id.get(),
+                                        new_member.user.id.get()
+                                    )))
+                                    .enforce_nonce(true),
                             )
                             .await
                         {

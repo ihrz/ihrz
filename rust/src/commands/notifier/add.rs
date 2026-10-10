@@ -63,10 +63,8 @@ pub async fn notifier_add(
     });
     // Exact dedup, mirroring the TS JSON-stringify uniqueness filter in
     // !add.ts (`JSON.stringify(t) === JSON.stringify(value)`): the
-    // (platform, author) pair compares verbatim, no lowercase fold.
-    // (The shared `dedup_entries` helper in mod.rs folds platform case
-    // and is out of scope here; the slash `platform` choice casing
-    // passes through untouched either way.)
+    // (platform, author) pair compares verbatim, no lowercase fold
+    // (same as the shared `dedup_entries` helper in mod.rs).
     {
         let mut seen = std::collections::HashSet::new();
         entries.retain(|e| seen.insert((e.platform.clone(), e.id_or_username.clone())));

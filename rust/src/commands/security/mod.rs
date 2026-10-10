@@ -9,11 +9,15 @@
 
 use crate::bot::Ctx;
 
-/// "on" => enabled=true, "off" => enabled=false.
+/// "on" => enabled=true, "off" => enabled=false. Exact match like the
+/// TS `action === "on"` / `=== "off"` legs (`security/!config.ts`,
+/// `pfps/!config.ts`); slash choice values are already only on/off, and
+/// the support.rs precedent (`action == "on"`) takes the same stance —
+/// no case-fold, no extra spellings ("power on", "enable", ...).
 pub fn parse_on_off(action: &str) -> Option<bool> {
-    match action.to_ascii_lowercase().as_str() {
-        "on" | "power on" | "enable" => Some(true),
-        "off" | "power off" | "disable" => Some(false),
+    match action {
+        "on" => Some(true),
+        "off" => Some(false),
         _ => None,
     }
 }
@@ -193,8 +197,12 @@ mod tests {
     fn on_off_parses_ts_choices() {
         assert_eq!(parse_on_off("on"), Some(true));
         assert_eq!(parse_on_off("off"), Some(false));
-        assert_eq!(parse_on_off("Power On"), Some(true));
-        assert_eq!(parse_on_off("Power Off"), Some(false));
+        // Exact like TS `===`: no case-fold, no extra spellings.
+        assert_eq!(parse_on_off("Power On"), None);
+        assert_eq!(parse_on_off("Power Off"), None);
+        assert_eq!(parse_on_off("ON"), None);
+        assert_eq!(parse_on_off("enable"), None);
+        assert_eq!(parse_on_off("disable"), None);
         assert_eq!(parse_on_off("bogus"), None);
     }
 

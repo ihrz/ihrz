@@ -222,10 +222,12 @@ pub fn entry_exists(entries: &[NotifierEntry], platform: &str, author: &str) -> 
 }
 
 /// Dedup helper. Mirrors the JSON-stringify uniqueness filter in
-/// !add.ts (platform + id pair).
+/// !add.ts (`JSON.stringify(t) === JSON.stringify(value)`): the
+/// (platform, id) pair compares verbatim — exact, case-sensitive,
+/// no lowercase fold.
 pub fn dedup_entries(entries: &mut Vec<NotifierEntry>) {
     let mut seen = std::collections::HashSet::new();
-    entries.retain(|e| seen.insert((e.platform.to_ascii_lowercase(), e.id_or_username.clone())));
+    entries.retain(|e| seen.insert((e.platform.clone(), e.id_or_username.clone())));
 }
 
 /// Delete a plain-string notifier key from both stores. Mirrors
@@ -339,12 +341,13 @@ mod tests {
     }
 
     #[test]
-    fn dedup_keeps_first_per_platform_pair() {
+    fn dedup_is_exact_on_both_fields() {
         let mut entries = vec![
             NotifierEntry {
                 id_or_username: "a".into(),
                 platform: "twitch".into(),
             },
+            // TS `===`: platform casing matters, so this row is kept.
             NotifierEntry {
                 id_or_username: "a".into(),
                 platform: "Twitch".into(),
@@ -353,9 +356,15 @@ mod tests {
                 id_or_username: "a".into(),
                 platform: "youtube".into(),
             },
+            // Verbatim repeat of the first row: dropped.
+            NotifierEntry {
+                id_or_username: "a".into(),
+                platform: "twitch".into(),
+            },
         ];
         dedup_entries(&mut entries);
-        assert_eq!(entries.len(), 2);
+        assert_eq!(entries.len(), 3);
+        assert_eq!(entries.iter().filter(|e| e.platform == "twitch").count(), 1);
     }
 
     async fn memory_pool() -> crate::db::Pool {

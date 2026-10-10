@@ -103,7 +103,9 @@ pub async fn ticket_close(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let notify_content = crate::lang::get(&lang_code, "close_command_work_notify_channel")
         .unwrap_or_else(|| "The ticket was successfully closed!".to_string());
     // Single notify: TS CloseTicket answers once via interactionSend
-    // (content + embed + transcript file).
+    // (content + embed + transcript file). Verdict KEEP: `ctx.send`
+    // (content + embed + transcript attachment) mirrors that call, and
+    // `ctx.say` stays for the guard/error legs — no change.
     let _ = ctx
         .send(
             poise::CreateReply::default()

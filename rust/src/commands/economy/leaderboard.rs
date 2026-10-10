@@ -22,21 +22,11 @@ fn filter_cached_users(
         .collect()
 }
 
-/// Top-3 podium rows for the SVG card: mention + non-negative wealth.
-/// Pure so the mapping is unit-testable without Discord.
-/// Mirrors the `{1,2,3_username}` / `{1,2,3_wealth}` slots of the
-/// `podiumEconomyModule` card in `economy/!leaderboard.ts:111-125`.
-/// DELIBERATE KEEP (differs from `economy/!leaderboard.ts:81-86`): TS
-/// sums `(bank || 0) + (money || 0)` raw, so a debted account renders a
-/// negative podium wealth. The Rust side saturates at 0 — the TS
-/// negative is a display bug (an SVG bar cannot render a negative
-/// width), not data; stored balances are untouched.
-fn podium_entries(rows: &[(u64, f64, f64, f64)]) -> Vec<(String, u64)> {
-    rows.iter()
-        .take(3)
-        .map(|(uid, total, _, _)| (format!("<@{uid}>"), total.max(0.0) as u64))
-        .collect()
-}
+// NOTE: no podium card is attached. TS renders `podiumEconomyModule`
+// to PNG via Chromium/html2png (`economy/!leaderboard.ts:187-195`);
+// Chromium rendering is unavailable in this port, and Discord cannot
+// render SVG, so both the file attach and the `.image()` leg are
+// dropped — the board is text-only (embed description).
 
 /// Routed board scan: table `USER` root walked first, then legacy-only
 /// blob rows (`USER.<id>.ECONOMY` exactly; leaf rows under a blob path
@@ -136,15 +126,11 @@ pub async fn eco_leaderboard(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         .map(|s| s.replace("${interaction.guild.name}", &guild_name(&ctx)))
         .unwrap_or_else(|| "Economy leaderboard".to_string());
     // Rows only on every page like TS (`createEmbed`: the podium lives in
-    // the attached card, never as embed text).
+    // the attached PNG card, never as embed text). No card is attached
+    // here (see NOTE above): text-only board.
     let items_per_page = 10usize;
     let total_pages = parsed.len().div_ceil(items_per_page);
     let (fname, fbytes) = crate::commands::shared::footer_parts(&ctx, &gid).await;
-    // Podium card mirroring the `podiumEconomyModule` PNG content (top
-    // usernames + wealth). Chromium/html2png rendering is unavailable, so
-    // the self-contained SVG from cards.rs is attached instead of rendering
-    // PNG — same pattern as the ranks leaderboard. No PNG render attempted.
-    let svg = crate::cards::podium_svg_with_unit(&podium_entries(&parsed), "coins");
     let mk_embed = |page: usize| {
         let start = page * items_per_page;
         let lines: Vec<String> = parsed
@@ -174,7 +160,6 @@ pub async fn eco_leaderboard(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
             .title(title.clone())
             .colour(0xFFD700)
             .description(desc)
-            .image("attachment://podium.svg")
             .footer(
                 serenity::CreateEmbedFooter::new(footer).icon_url(if fbytes.is_some() {
                     "attachment://footer_icon.png".to_string()
@@ -210,11 +195,7 @@ pub async fn eco_leaderboard(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     };
     let mut reply = poise::CreateReply::default()
         .embed(mk_embed(0))
-        .components(vec![mk_row(0)])
-        .attachment(serenity::CreateAttachment::bytes(
-            svg.into_bytes(),
-            "podium.svg",
-        ));
+        .components(vec![mk_row(0)]);
     if let Some(bytes) = fbytes.clone() {
         reply = reply.attachment(serenity::CreateAttachment::bytes(bytes, "footer_icon.png"));
     }
@@ -289,20 +270,6 @@ pub async fn eco_leaderboard(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
 mod tests {
     use super::board_rows;
     use super::filter_cached_users;
-    use super::podium_entries;
-
-    #[test]
-    fn podium_maps_mentions_and_clamps_negative_wealth() {
-        let rows = vec![(1u64, 300.0f64, 200.0f64, 100.0f64), (2, -50.0, -50.0, 0.0)];
-        assert_eq!(
-            podium_entries(&rows),
-            vec![("<@1>".to_string(), 300u64), ("<@2>".to_string(), 0u64),]
-        );
-        assert!(podium_entries(&[]).is_empty());
-        // SVG card only takes the top 3, like the TS podium card.
-        let many: Vec<(u64, f64, f64, f64)> = (1..=10).map(|i| (i, 100.0, 100.0, 0.0)).collect();
-        assert_eq!(podium_entries(&many).len(), 3);
-    }
 
     async fn mem_pool() -> crate::db::Pool {
         crate::db::memory_pool().await

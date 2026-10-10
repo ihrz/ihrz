@@ -118,16 +118,17 @@ pub const SPAM_RULE_NAME: &str = "Block spam by iHorizon";
 pub const MASS_RULE_NAME: &str = "Block mass-mention spam by iHorizon";
 
 /// Default `max-mention-allowed` (`!mass-mention.ts`
-/// `getNumber(...) || 3`). Passed straight through to Discord like the
-/// TS `mentionTotalLimit: max_mention` (no clamp).
+/// `getNumber(...) || 3`). Clamped to `u8` range like the Discord
+/// `mentionTotalLimit` slot (no `as u8` wrap on large values).
 pub const DEFAULT_MAX_MENTION: u8 = 3;
 
 /// Resolve the `max-mention-allowed` option the way TS does:
-/// `getNumber(...) || 3` — absent or zero falls back to 3, any other
-/// value passes through untouched. Pure for testability.
+/// `getNumber(...) || 3` — absent, zero, or negative falls back to 3;
+/// positive values pass through, clamped to 255 (the `u8` ceiling, no
+/// wrap). Pure for testability.
 pub fn mention_limit(max_mention: Option<i64>) -> u8 {
     match max_mention {
-        Some(n) if n != 0 => n as u8,
+        Some(n) if n > 0 => n.min(u8::MAX as i64) as u8,
         _ => DEFAULT_MAX_MENTION,
     }
 }
@@ -691,15 +692,19 @@ mod tests {
 
     #[test]
     fn mention_limit_passthrough_with_fallback_3() {
-        // `|| 3`: absent or zero falls back to 3, everything else
-        // passes straight through (no clamp).
+        // `|| 3`: absent, zero, or negative falls back to 3; positives
+        // pass through, clamped to the u8 ceiling (no wrap).
         assert_eq!(mention_limit(None), 3);
         assert_eq!(mention_limit(Some(0)), DEFAULT_MAX_MENTION);
+        assert_eq!(mention_limit(Some(-1)), DEFAULT_MAX_MENTION);
+        assert_eq!(mention_limit(Some(i64::MIN)), DEFAULT_MAX_MENTION);
         assert_eq!(mention_limit(Some(3)), 3);
         assert_eq!(mention_limit(Some(10)), 10);
         assert_eq!(mention_limit(Some(50)), 50);
         assert_eq!(mention_limit(Some(51)), 51);
-        assert_eq!(mention_limit(Some(-1)), 255);
+        assert_eq!(mention_limit(Some(255)), 255);
+        assert_eq!(mention_limit(Some(256)), 255);
+        assert_eq!(mention_limit(Some(1000)), 255);
     }
 
     #[test]

@@ -10,13 +10,14 @@ pub fn validate_winners(n: i64) -> bool {
 
 /// Map a winner count to the stored count. Mirrors `getNumber("winner")`
 /// (slash Number, gw.ts) + `number(args, 0)` (prefix) with the
-/// `isNaN || parseInt(...) <= 0` guard in !create.ts:77-85:
-/// non-finite or non-positive input maps to 0 so the
-/// `start_is_not_valid` guard below rejects it in-handler. Fractions
-/// ceil (2.5 -> 3, kept) so the stored u32 count covers the requested
-/// winners.
+/// `isNaN || parseInt(...) <= 0` guard in !create.ts:77-85: validity is
+/// judged on the truncated value (parseInt semantics, so 0.5 -> 0 ->
+/// `start_is_not_valid`), while a valid fractional count ceils to the
+/// stored u32 so it covers the request (2.5 -> 3, kept). Non-finite
+/// input maps to 0 so the `start_is_not_valid` guard below rejects it
+/// in-handler.
 pub fn winners_from_number(n: f64) -> i64 {
-    if !n.is_finite() || n <= 0.0 {
+    if !n.is_finite() || n.trunc() <= 0.0 {
         0
     } else {
         n.ceil() as i64
@@ -112,6 +113,13 @@ pub async fn roles_requirement_guild_has(ctx: Ctx<'_>, value: &str) -> Option<bo
 /// as the stored requirement values, so renaming labels alone would either
 /// break the stored `requirement.type` shape or require hardcoded
 /// user-visible strings.
+///
+/// The handler itself takes a plain String (not this enum): the TS
+/// prefix path (`string(args, 2)`, !create.ts:67) stores whatever word
+/// was typed, and the gates only match invites/messages/roles, so any
+/// other value behaves exactly like "none". `normalize_requirement`
+/// below folds those unknown words to "none" instead of rejecting them
+/// up front like a choices enum would on prefix.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
 pub enum GwRequirement {
     #[name = "none"]
@@ -131,6 +139,19 @@ pub fn gw_requirement_value(choice: GwRequirement) -> &'static str {
         GwRequirement::Invites => "invites",
         GwRequirement::Messages => "messages",
         GwRequirement::Roles => "roles",
+    }
+}
+
+/// Normalize a raw requirement word to the stored `requirement.type`.
+/// Mirrors !create.ts:102-134: only invites/messages/roles arm a gate,
+/// so a missing value (None) or any unknown word (TS stores it verbatim)
+/// behaves like "none" and maps to it here.
+pub fn normalize_requirement(raw: Option<&str>) -> &'static str {
+    match raw {
+        Some("invites") => "invites",
+        Some("messages") => "messages",
+        Some("roles") => "roles",
+        _ => "none",
     }
 }
 
@@ -154,14 +175,15 @@ pub async fn gw_create(
     #[rename = "winner"]
     winners: Option<f64>,
     #[description = "Duration (e.g. 10m, 1h, 7d)"] time: String,
-    // Option (not required): TS reads `getString("requirement")` /
-    // `string(args, 2)` (both nullable, !create.ts) while the slash
-    // schema marks it required (gw.ts). Missing maps to "none" below
-    // (ADOPT, recorded): TS would store a null type which matches no
-    // requirement gate, behaving exactly like "none".
-    #[description = "Requirement: none, invites, messages, roles"] requirement: Option<
-        GwRequirement,
-    >,
+    // Option<String> (not required, no choices): TS reads
+    // `getString("requirement")` / `string(args, 2)` (both nullable,
+    // !create.ts) while the slash schema marks it required (gw.ts).
+    // Slash-Option is deliberate (same pattern as `winners` above): a
+    // missing/invalid word must reach the in-handler gates, and the
+    // prefix path accepts any word. Unknown words map to "none" below
+    // (recorded): TS stores them verbatim, but no gate matches them,
+    // so they behave exactly like "none".
+    #[description = "Requirement: none, invites, messages, roles"] requirement: Option<String>,
     // Option (not required): TS stores `(prize || "").substring(0,256)`
     // (!create.ts:140), so a missing prize creates with an empty prize.
     #[description = "Prize"] prize: Option<String>,
@@ -203,13 +225,11 @@ pub async fn gw_create(
         .await?;
         return Ok(());
     };
-    // Mirrors !create.ts:101-134 (requirement-value gates; the
-    // `requirement` option itself is required like gw.ts:163).
-    // Unknown words never reach this point: the GwRequirement
-    // choices reject them up front (slash UI + prefix parse). A
-    // missing requirement (None) adopts "none": the TS null type
-    // matches no gate, identical behavior.
-    let requirement = requirement.map(gw_requirement_value).unwrap_or("none");
+    // Mirrors !create.ts:101-134 (requirement-value gates). The raw word
+    // normalizes through `normalize_requirement`: missing or unknown
+    // maps to "none" (TS stores the word verbatim, but no gate matches
+    // it, identical behavior).
+    let requirement = normalize_requirement(requirement.as_deref());
     let req_value = requirement_value.unwrap_or_default();
     // Roles resolve against the guild like
     // `interaction.guild.roles.cache.has(value)` in !create.ts:124-134:
@@ -393,28 +413,35 @@ mod tests {
 
     #[test]
     fn winners_number_maps_like_ts_get_number() {
-        // Slash Number (f64) through the same guard: fractions ceil kept,
-        // non-finite / non-positive map to 0 for `start_is_not_valid`.
+        // Slash Number (f64) through the same guard: validity on the
+        // truncated value (parseInt semantics: 0.5 -> 0 -> invalid),
+        // valid fractions ceil kept (2.5 -> 3); non-finite maps to 0
+        // for `start_is_not_valid`.
         assert_eq!(winners_from_number(3.0), 3);
         assert_eq!(winners_from_number(2.5), 3);
         assert_eq!(winners_from_number(3.9), 4);
+        assert_eq!(winners_from_number(0.5), 0);
+        assert_eq!(winners_from_number(0.9), 0);
         assert_eq!(winners_from_number(0.0), 0);
         assert_eq!(winners_from_number(-2.0), 0);
         assert_eq!(winners_from_number(f64::NAN), 0);
         assert_eq!(winners_from_number(f64::INFINITY), 0);
         assert!(validate_winners(winners_from_number(2.5)));
+        assert!(!validate_winners(winners_from_number(0.5)));
         assert!(!validate_winners(winners_from_number(f64::NAN)));
     }
 
     #[test]
     fn winners_raw_string_parses_like_ts_number() {
         // !create.ts:77-80 (`isNaN || parseInt <= 0` -> start_is_not_valid).
-        // Fractions ceil (2.5 -> 3) so the stored u32 covers the request;
+        // Sub-unit counts reject (parseInt("0.5") == 0); valid fractions
+        // ceil (2.5 -> 3, kept) so the stored u32 covers the request;
         // anything else unusable maps to 0 for the guard.
         assert_eq!(parse_winners_count("3"), 3);
         assert_eq!(parse_winners_count(" 2 "), 2);
         assert_eq!(parse_winners_count("2.5"), 3);
         assert_eq!(parse_winners_count("3.9"), 4);
+        assert_eq!(parse_winners_count("0.5"), 0);
         assert_eq!(parse_winners_count("abc"), 0);
         assert_eq!(parse_winners_count(""), 0);
         assert_eq!(parse_winners_count("0"), 0);
@@ -423,6 +450,7 @@ mod tests {
         assert_eq!(parse_winners_count("inf"), 0);
         assert!(validate_winners(parse_winners_count("3")));
         assert!(validate_winners(parse_winners_count("2.5")));
+        assert!(!validate_winners(parse_winners_count("0.5")));
         assert!(!validate_winners(parse_winners_count("abc")));
         assert!(!validate_winners(parse_winners_count("0")));
         assert!(!validate_winners(parse_winners_count("-2")));
@@ -490,6 +518,21 @@ mod tests {
         );
         assert_eq!(requirement_error_key("roles", "123"), None);
         assert_eq!(requirement_error_key("none", ""), None);
+    }
+
+    #[test]
+    fn requirement_unknown_maps_none_like_ts() {
+        // !create.ts stores any prefix word verbatim, but only
+        // invites/messages/roles arm a gate, so unknown words (and a
+        // missing value) behave like "none".
+        assert_eq!(normalize_requirement(None), "none");
+        assert_eq!(normalize_requirement(Some("none")), "none");
+        assert_eq!(normalize_requirement(Some("invites")), "invites");
+        assert_eq!(normalize_requirement(Some("messages")), "messages");
+        assert_eq!(normalize_requirement(Some("roles")), "roles");
+        assert_eq!(normalize_requirement(Some("garbage")), "none");
+        assert_eq!(normalize_requirement(Some("")), "none");
+        assert_eq!(normalize_requirement(Some("Invites")), "none");
     }
 
     #[test]

@@ -1574,14 +1574,18 @@ pub async fn owner_bledit(
 }
 
 /// Top-level old spellings (unowner / bl / unblacklist).
-// TS exposes these as standalone commands; the Rust parent nests them
-// under `owner ...`, so bare `!unowner` / `!bl` no longer resolve.
-// Thin delegates restoring the old surface (forward to the bodies).
+// TS exposes unowner and unblacklist as standalone hybrid commands
+// (ApplicationCommandType.ChatInput in unowner.ts /
+// unblacklist.ts); the Rust parent nests their bodies under
+// `owner ...`, so these thin delegates restore the old surface
+// (forward to the bodies). `bl` stays prefix-only: TS exposes it
+// solely as a prefix alias (aliases: ["bl"] on flat /blacklist),
+// never as its own slash command.
 // Registration note: add `owner::main::unowner_alias()`,
 // `owner::main::bl_alias()`, `owner::main::unblacklist_alias()` to the
 // command list in rust/src/commands/mod.rs (outside this module's
 // scope, so wiring is left to the integrator).
-#[poise::command(prefix_command, category = "owner", rename = "unowner")]
+#[poise::command(slash_command, prefix_command, category = "owner", rename = "unowner")]
 pub async fn unowner_alias(
     ctx: Ctx<'_>,
     #[description = "Member"] user: serenity::User,
@@ -1604,9 +1608,12 @@ pub async fn bl_alias(
     owner_blacklist_inner(ctx, user, reason).await
 }
 
-/// Top-level `unblacklist` (+ `unbl`) alias (TS aliases: ["unbl"]).
-// Prefix-only like bl_alias (R2): no standalone /unblacklist slash in TS.
+/// Top-level `unblacklist` (+ `unbl`) alias (TS aliases: [`"unbl"`]).
+// Hybrid like unowner_alias: TS `unblacklist.ts` is a standalone
+// hybrid command (`ApplicationCommandType.ChatInput`), so the delegate
+// keeps both slash and prefix paths.
 #[poise::command(
+    slash_command,
     prefix_command,
     category = "owner",
     rename = "unblacklist",

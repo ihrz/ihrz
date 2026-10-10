@@ -862,9 +862,12 @@ mod tests {
 
     #[test]
     fn all_commands_support_slash_and_prefix() {
-        // Prefix-alias delegates (R2) are prefix-only by design: TS
-        // exposes bl/unowner/unblacklist as prefix aliases, never as
-        // standalone slash commands.
+        // Prefix-alias delegates: TS exposes `bl` solely as a prefix
+        // alias (aliases: ["bl"] on flat /blacklist, never its own
+        // slash command), while `unowner` and `unblacklist` are
+        // standalone hybrid commands (ChatInput) with restored slash
+        // legs. The exemption stays valid either way: it only asserts
+        // the prefix leg and skips the slash assertion for these names.
         const PREFIX_ONLY_DELEGATES: [&str; 3] = ["unowner", "bl", "unblacklist"];
         // MessageCommand ports are prefix-only by design: TS registers
         // sticker/top under MessageCommands, never as slash commands.

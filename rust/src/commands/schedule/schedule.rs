@@ -219,7 +219,7 @@ pub(crate) fn guided_embed_identity(
 // select-menu panel (`schedule.ts:48-66`), so a bare invocation runs
 // the panel here too: without `subcommand_required` poise falls
 // through to this body when no leaf is given, on both the slash and
-// prefix paths. The leaves stay for direct access
+// prefix paths. The leaves stay for direct access (ADOPT, recorded)
 // (`/schedule list`, `!schedule delete …`).
 #[poise::command(
     slash_command,

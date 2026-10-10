@@ -1,9 +1,10 @@
 use super::*;
 
 /// Media-only channel toggle. Mirrors !media-only.ts.
-// Entry toggles `UTILS.picOnly`; threshold/mute/thread config
-// (`UTILS.picOnlyConfig` + modal clamps below) is the nearest viable
-// wiring. Live collectors/modals documented, not ported.
+// Entry toggles `UTILS.picOnly`. The threshold/mute/thread config
+// surface (`UTILS.picOnlyConfig` panel: collectors, modals, clamps)
+// is documented, not ported — the live enforcement fallbacks live in
+// events_handler.rs (`PICONLY_DEFAULT_*` below).
 #[poise::command(
     slash_command,
     prefix_command,
@@ -55,86 +56,11 @@ pub async fn media_only(
     Ok(())
 }
 
-/// Media-only panel config math. Mirrors !media-only.ts
-/// (`UTILS.picOnlyConfig` defaults + modal clamps).
+/// Media-only panel config defaults. Mirrors !media-only.ts
+/// (`UTILS.picOnlyConfig` fallbacks: threshold 3, muteTime 600000).
+/// These feed the live enforcement in events_handler.rs. The TS panel
+/// helpers (modal clamps, thread toggle, channel-list rendering) have
+/// no config surface here and are deleted, not kept as dead code.
 pub const PICONLY_DEFAULT_THRESHOLD: i64 = 3;
 /// Default mute time in ms (10 minutes, the TS `|| 600000` fallback).
 pub const PICONLY_DEFAULT_MUTE_MS: i64 = 600_000;
-/// Mute times above 15 days reset to the default (`1296000000 < t`).
-pub const PICONLY_MAX_MUTE_MS: i64 = 1_296_000_000;
-/// Thresholds above 15 reset to the default (`15 < threshold`).
-pub const PICONLY_MAX_THRESHOLD: i64 = 15;
-
-/// Clamp a modal mute time: over-limit values fall back to the default.
-pub fn clamp_pic_mute_time(ms: i64) -> i64 {
-    if PICONLY_MAX_MUTE_MS < ms {
-        PICONLY_DEFAULT_MUTE_MS
-    } else {
-        ms
-    }
-}
-
-/// Clamp a modal threshold: over-limit values fall back to the default.
-pub fn clamp_pic_threshold(threshold: i64) -> i64 {
-    if PICONLY_MAX_THRESHOLD < threshold {
-        PICONLY_DEFAULT_THRESHOLD
-    } else {
-        threshold
-    }
-}
-
-/// Toggle the `createThread` yes/no flag.
-pub fn toggle_pic_thread(current: &str) -> &'static str {
-    if current == "no" {
-        "yes"
-    } else {
-        "no"
-    }
-}
-
-/// Render the channel list field (`<#id>` joins, `none` fallback).
-pub fn pic_channels_field(channels: &[String], none: &str) -> String {
-    if channels.is_empty() {
-        none.to_string()
-    } else {
-        channels
-            .iter()
-            .map(|c| format!("<#{c}>"))
-            .collect::<Vec<_>>()
-            .join(", ")
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn mute_time_clamp_mirrors_ts() {
-        assert_eq!(clamp_pic_mute_time(600_000), 600_000);
-        assert_eq!(clamp_pic_mute_time(1_296_000_000), 1_296_000_000);
-        assert_eq!(clamp_pic_mute_time(1_296_000_001), PICONLY_DEFAULT_MUTE_MS);
-    }
-
-    #[test]
-    fn threshold_clamp_mirrors_ts() {
-        assert_eq!(clamp_pic_threshold(3), 3);
-        assert_eq!(clamp_pic_threshold(15), 15);
-        assert_eq!(clamp_pic_threshold(16), PICONLY_DEFAULT_THRESHOLD);
-    }
-
-    #[test]
-    fn thread_toggle_flips() {
-        assert_eq!(toggle_pic_thread("yes"), "no");
-        assert_eq!(toggle_pic_thread("no"), "yes");
-    }
-
-    #[test]
-    fn channels_field_renders() {
-        assert_eq!(pic_channels_field(&[], "None"), "None");
-        assert_eq!(
-            pic_channels_field(&["1".to_string(), "2".to_string()], "None"),
-            "<#1>, <#2>"
-        );
-    }
-}

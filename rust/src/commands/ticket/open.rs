@@ -87,20 +87,26 @@ pub async fn ticket_open(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     if channel_id
         .create_permission(&http, merge_reopen_overwrite(author_id, allow, deny))
         .await
-        .is_err()
+        .is_ok()
     {
+        ctx.say(t("open_command_work").replace(
+            "${interaction.channel}",
+            &format!("<#{}>", channel_id.get()),
+        ))
+        .await?;
+    } else {
         ctx.say(
             crate::lang::get(&code, "open_command_error")
                 .unwrap_or_else(|| "An error occurred, please try again!".to_string()),
         )
         .await?;
-        return Ok(());
     }
-    ctx.say(t("open_command_work").replace(
-        "${interaction.channel}",
-        &format!("<#{}>", channel_id.get()),
-    ))
-    .await?;
+    // The onReopen log runs regardless of the edit outcome: in TS the
+    // user reply hangs off the unawaited `.then(...)` on
+    // `permissionOverwrites.edit` (ticketsManager.ts:1734), so execution
+    // falls straight through to the logs block while the edit is still
+    // in flight. Awaiting the edit first is the kept divergence (the
+    // reply must reflect its result), but the log is never gated on it.
     post_ticket_reopen_log(&http, pool, &gid, &code, channel_id, ctx.author().id.get()).await;
     Ok(())
 }
