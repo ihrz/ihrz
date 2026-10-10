@@ -185,6 +185,7 @@ committed — see `.gitignore`. No push without a green
 - [x] U-ETERNAL-41 (2026-10-10: I4 placeholder-parity lock — full YAML scan (2595 keys, 787 with tokens): fixed 1 live raw-token leak (jp-JP `perm_roles_created_role` used `join('、')` while code replaces `join(', ')`, TS ships the same bug — corrected, not mirrored); 9 remaining divergences documented as intentional upstream meme/joke rewrites (fr-ME x7 incl. 1 dead key, fr-FR wakeup x1, all noop-replaces, no garbage). New `lang.rs` test `placeholder_tokens_match_en_us_in_all_locales` (token scanner, key-count parity, explicit exception list). Suite 1268/0, fmt + clippy clean).
 - [x] U-ETERNAL-42 (2026-10-10: S1 adopt-or-delete adjudicated — all 5 Rust extras ADOPTED with TS-parent evidence, backlog S1 closed, no code change. Suite 1268/0).
 - [x] U-ETERNAL-43 (2026-10-10: E7 snipe key-reunification, reader half — `snipe` command reads TS `GUILD.SNIPE.<channel>` first (`{snipe, snipeUserInfoTag, snipeUserInfoPp, snipeTimestamp}` → #474749 embed with author/avatar/timestamp, byte-identical to `!snipe.ts`), legacy `SNIPE.<channel>` `{author,content}` + `SNIPE.last_deleted_id` kept as fallbacks; pure `parse_ts_snipe`/`parse_legacy_snipe`/`render_snipe_embed` + 2 tests. Writer migration in `events_handler.rs` queued as follow-up (file hot). Suite 1273/0, fmt clean, own files clippy-zero).
+- [x] U-ETERNAL-44 (2026-10-10: backlog triage — I1/I2/I4/S2/S3/E5/E8 closed as verified-done with call-site evidence, no code change. Suite 1273/0).
 ## Eternal backlog (seeded 2026-10-09 by 7 read-only audits + lavalink edge audit; full reports in `~/.hermes/cache/delegation/live/deleg_55b606d3/task-{0,1,2,3,4,5,9}.log` — each item is a future unit for other models, files disjoint unless noted)
 
 ### Events (audit task-0)
@@ -219,10 +220,10 @@ committed — see `.gitignore`. No push without a green
 - [x] S3 renames/mappings — VERIFIED, no delta (U-ETERNAL-42): automod leaves wired as `discord-invite` + `telegram-link`/`telegram` via `automod_toggle!` (msg_automod_toggled x10); vd `interface` subs mapped 1:1 to lobby/panel/category/name/position/staff (THIN decision); `/allowlist` parent flattened like all parents, leaves `allow-add`/`allow-remove`/`allow-show` all registered.
 
 ### I18N (audit task-3)
-- [ ] I1 Tier-1 missing reply keys (history embeds, backup CRUD, giveaway get-data/get-all, serverinfo/prevnames/pfps, caracteres/number/trans, tempmute_unmuted_by_time).
-- [ ] I2 `help_*` 24-key metadata set for guild-language /help.
+- [x] I1 Tier-1 reply keys — VERIFIED done (U-ETERNAL-44): all families present in YAML and wired (`tempmute_unmuted_by_time` used in tempmute.rs; `backup_*` CRUD 12+ keys; `gw_getdata_*` embed keys; serverinfo/prevnames/pfps/trans/caracteres/number keys); zero unwired single-line `ctx.say` literals in music/backup/giveaway (only 2 standing-exclusion literals remain in fun: grosbg TS-hardcoded joke, 67 gif asset URL).
+- [x] I2 `help_*` metadata set — VERIFIED done (U-ETERNAL-44): 78 `help_*` keys in en-US.yml, guild-language /help via `help_main` (registered) + `help_here` carrier.
 - [ ] I3 replace 181 divergent fallbacks with exact en-US (wrong-key reuse first).
-- [ ] I4 CI placeholder check (fallbacks keep `{token}`/`${…}`) + `check:i18n` key-coverage script.
+- [x] I4 placeholder/CI check — DONE in U-ETERNAL-41 (`placeholder_tokens_match_en_us_in_all_locales`: token-set + key-count parity; no CI in repo so the cargo test is the check).
 - [ ] I5 Tier-2 setup modules (welcomerPanel, antispam manage, honeypot config, setlogschannel, nightmode, birthday).
 - [ ] I6 verify-then-delete 312 zero-sender dead keys.
 
