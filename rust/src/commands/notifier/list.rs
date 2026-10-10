@@ -5,6 +5,7 @@ use super::*;
     slash_command,
     prefix_command,
     rename = "list",
+    aliases("author-list"),
     default_member_permissions = "MANAGE_GUILD"
 )]
 pub async fn notifier_list(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {

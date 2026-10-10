@@ -759,8 +759,11 @@ async fn owner_remove_inner(ctx: Ctx<'_>, user: serenity::User) -> Result<(), an
     }
 }
 
-/// Guilds eligible for a cross-guild sweep. Mirrors the TS
-/// `memberCount <= 500` shard filter (single-process: local cache).
+/// Guilds eligible for the blacklist ban sweep. Mirrors the TS
+/// `broadcastBanAcrossShards` filter in
+/// `HybridCommands/owner/blacklist.ts` (`memberCount <= 500` only —
+/// no permission gate there; failures surface per-guild try/catch).
+/// Single-process: local cache instead of `broadcastEval`.
 fn sweep_targets(ctx: &Ctx<'_>) -> Vec<serenity::GuildId> {
     let cache = &ctx.serenity_context().cache;
     cache
@@ -770,6 +773,48 @@ fn sweep_targets(ctx: &Ctx<'_>) -> Vec<serenity::GuildId> {
             cache
                 .guild(*gid)
                 .map(|g| g.member_count <= SWEEP_MAX_MEMBERS)
+                .unwrap_or(false)
+        })
+        .collect()
+}
+
+/// Cached bot BanMembers check for one guild: union of the bot's
+/// role permissions plus @everyone (Administrator implies all).
+/// Mirrors `g.members.me?.permissions.has("BanMembers")` in
+/// `broadcastUnbanAcrossShards`
+/// (`HybridCommands/owner/unblacklist.ts`).
+fn bot_can_ban(guild: &serenity::Guild, bot_id: serenity::UserId) -> bool {
+    let Some(member) = guild.members.get(&bot_id) else {
+        return false;
+    };
+    let mut perms = serenity::Permissions::empty();
+    for role_id in &member.roles {
+        if let Some(role) = guild.roles.get(role_id) {
+            perms |= role.permissions;
+        }
+    }
+    if let Some(everyone) = guild.roles.get(&serenity::RoleId::new(guild.id.get())) {
+        perms |= everyone.permissions;
+    }
+    if perms.administrator() {
+        return true;
+    }
+    perms.ban_members()
+}
+
+/// Guilds eligible for the unblacklist unban sweep. Same size cap as
+/// `sweep_targets` plus the TS BanMembers gate (unblacklist.ts only —
+/// the blacklist ban sweep has none).
+fn sweep_unban_targets(ctx: &Ctx<'_>) -> Vec<serenity::GuildId> {
+    let sctx = ctx.serenity_context();
+    let bot_id = sctx.cache.current_user().id;
+    sctx.cache
+        .guilds()
+        .into_iter()
+        .filter(|gid| {
+            sctx.cache
+                .guild(*gid)
+                .map(|g| g.member_count <= SWEEP_MAX_MEMBERS && bot_can_ban(&g, bot_id))
                 .unwrap_or(false)
         })
         .collect()
@@ -800,9 +845,11 @@ async fn sweep_ban(ctx: &Ctx<'_>, user_id: u64, reason: &str) -> (usize, usize) 
 }
 
 /// Unban one user across cached guilds, batched like `sweep_ban`.
-/// Mirrors `broadcastUnbanAcrossShards`. Returns (unbanned, total).
+/// Mirrors `broadcastUnbanAcrossShards` (unblacklist.ts): same size
+/// cap plus the BanMembers gate (see `sweep_unban_targets`).
+/// Returns (unbanned, total).
 async fn sweep_unban(ctx: &Ctx<'_>, user_id: u64) -> (usize, usize) {
-    let targets = sweep_targets(ctx);
+    let targets = sweep_unban_targets(ctx);
     let total = targets.len();
     let mut ok = 0usize;
     let chunks = targets.chunks(SWEEP_BATCH).len();

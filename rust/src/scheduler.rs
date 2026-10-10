@@ -6,7 +6,7 @@
 // Implemented for real: expired SCHEDULE entries, expired giveaways,
 // temp roles/bans, membercount refresh (5min), pfps poster (45s),
 // auto-renew, Blogger poll (60s), nightmode (60s), protection
-// structure backup (60s), idle player destroy (60s). The only remaining
+// structure backup (60s), idle player destroy (120s). The only remaining
 // skeleton is the 120s StreamNotifier tick, blocked on the
 // Twitch/YouTube/Kick live APIs (see Blocked in MIGRATION.md).
 
@@ -21,7 +21,11 @@ pub const MEMBERCOUNT_SECS: u64 = 300;
 pub const NIGHTMODE_SECS: u64 = 60;
 pub const NOTIFIER_SECS: u64 = 120;
 pub const PROTECTION_BACKUP_SECS: u64 = 60;
-pub const IDLE_SWEEP_SECS: u64 = 60;
+/// Idle-player sweep period. Equals onEmptyQueue.destroyAfterMs (120s)
+/// in playerManager.ts: the sweep only observes destroy-due players
+/// (`destroy_due` gates on the same window), so a shorter period just
+/// re-scans idle players that cannot be destroyed yet.
+pub const IDLE_SWEEP_SECS: u64 = 120;
 /// H24/7 watchdog interval. Mirrors `setInterval(watchdogH247Sessions,
 /// 60_000)` in src/Events/client/ready.ts.
 pub const H247_WATCHDOG_SECS: u64 = 60;
@@ -1435,9 +1439,13 @@ pub async fn save_wipe_queue(pool: &Pool, queue: &HashMap<String, PendingGuildDe
 }
 
 /// Delete one guild's rows. Mirrors client.db.delete(guildId) in
-/// clearGuildData (kv rows plus the Rust-side lang row).
+/// clearGuildData: every kv row in the guild scope, the table-routed
+/// `tbl:<gid>` scope (same guild, Rust-side routing), plus the
+/// Rust-side lang row (already covered by the scope delete; kept as a
+/// targeted compat clear).
 async fn wipe_guild_data(pool: &Pool, guild_id: &str) {
     let _ = crate::db::kv_del_guild(pool, guild_id).await;
+    let _ = crate::db::kv_del_guild(pool, &format!("tbl:{guild_id}")).await;
     let _ = crate::db::clear_guild_lang(pool, guild_id).await;
 }
 

@@ -123,6 +123,11 @@ fn percent_encode(s: &str) -> String {
 
 /// Local lyrics lookup (lyrics.ovh suggest + body), same shape as the
 /// lyrics command — kept here because that module owns its helper.
+/// Lyrics source verdict (kept): plain ovh text stays; the Lavalink
+/// lyrics-plugin transport (`search` + `lyrics.get(track)` in
+/// searchLyrics.ts) is excluded on this button leg, which has no live
+/// node session to reuse and must not open a plugin round-trip per
+/// press — the stateless HTTP lookup is enough for an ephemeral card.
 async fn fetch_lyrics_text(query: &str) -> Option<(String, String)> {
     let client = reqwest::Client::new();
     let suggest: serde_json::Value = client

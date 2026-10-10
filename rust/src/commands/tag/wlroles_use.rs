@@ -8,6 +8,8 @@ use super::*;
 // which has no poise prefix/slash dispatch equivalent. This keeps
 // the single-role toggle leg (present -> removed, absent -> added,
 // whole-list rewrite on save) against `whitelist_use`.
+// Verdict (kept): single-role toggle only; the multi-select panel in
+// `HybridCommands/tag/!wlroles-use.ts` is intentionally unported.
 #[poise::command(
     slash_command,
     prefix_command,

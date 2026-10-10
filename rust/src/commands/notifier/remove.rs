@@ -5,6 +5,7 @@ use super::*;
     slash_command,
     prefix_command,
     rename = "remove",
+    aliases("author-remove"),
     default_member_permissions = "MANAGE_GUILD"
 )]
 pub async fn notifier_remove(

@@ -11,13 +11,7 @@ pub async fn lastfm_config(
         .map(|g| g.get().to_string())
         .unwrap_or_default();
     let enabled = matches!(action.to_ascii_lowercase().as_str(), "on" | "power on");
-    crate::db::kv_set(
-        &ctx.data().pool,
-        &gid,
-        "GUILD.LASTFM",
-        if enabled { "1" } else { "0" },
-    )
-    .await?;
+    crate::commands::lastfm::save_guild_lastfm(&ctx.data().pool, &gid, enabled).await?;
     ctx.say(if enabled {
         "Last.fm on."
     } else {

@@ -143,9 +143,14 @@ async fn load_tts_presence(pool: &crate::db::Pool, guild_id: &str) -> Option<(bo
 )]
 pub async fn h247_join(
     ctx: Ctx<'_>,
-    #[description = "Voice channel to park in"]
+    // Optional so the prefix leg can miss the channel, like TS `!join.ts`
+    // (`voiceChannel(interaction, args!, 0)` may resolve null). A missing
+    // or non-voice channel replies `h247_join_invalid_channel`; slash
+    // callers must still pass it (TS declares the option `required: true`).
+    #[description = "The voice channel where iHorizon will stay!"]
+    #[rename = "channel"]
     #[channel_types("Voice")]
-    channel: serenity::GuildChannel,
+    channel: Option<serenity::GuildChannel>,
 ) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {
         return Ok(());
@@ -162,6 +167,16 @@ pub async fn h247_join(
         crate::lang::get(&code, key)
             .map(|s| s.replace("${client.iHorizon_Emojis.No}", &no))
             .unwrap_or_else(|| fallback.to_string())
+    };
+
+    // Mirrors `!join.ts:45-54` (`if (!channel || channel.type !== GuildVoice)`).
+    let Some(channel) = channel else {
+        ctx.say(refuse(
+            "h247_join_invalid_channel",
+            "Please provide a valid voice channel!",
+        ))
+        .await?;
+        return Ok(());
     };
 
     let target = channel.id.get();

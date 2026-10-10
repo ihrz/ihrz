@@ -12,6 +12,9 @@ pub fn should_push_progress(added_count: u64, elapsed_ms: u64) -> bool {
 /// Confirm button ids for the force-join gate. TS uses bare
 /// `yes`/`no`; the Rust port prefixes them so two concurrent runs
 /// never acknowledge each other's clicks.
+/// Verdict (kept): namespaced ids are deliberate (shared component
+/// router); the confirm gate + 224 s window mirrors
+/// `SlashCommands/authrestore/!force-join.ts` (`time: 2_240_00`).
 pub const FORCE_JOIN_YES_ID: &str = "ar-force-join-yes";
 pub const FORCE_JOIN_NO_ID: &str = "ar-force-join-no";
 

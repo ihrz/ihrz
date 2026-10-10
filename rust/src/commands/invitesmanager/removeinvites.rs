@@ -12,7 +12,11 @@ use poise::serenity_prelude as serenity;
 pub async fn inv_remove(
     ctx: Ctx<'_>,
     #[description = "Member"] user: poise::serenity_prelude::User,
-    #[description = "Amount"] amount: i64,
+    // f64 mirrors the TS `ApplicationCommandOptionType.Number` (`getNumber`).
+    // Invite totals stay i64, so the fractional part truncates toward zero
+    // (`as i64`, like JS `Math.trunc`); the reply echoes the raw slash
+    // value, exactly like TS `amount.toString()`.
+    #[description = "Amount"] amount: f64,
 ) -> Result<(), anyhow::Error> {
     let gid = ctx
         .guild_id()
@@ -21,7 +25,7 @@ pub async fn inv_remove(
     let uid = user.id.get();
     let cur = load_invites(&ctx.data().pool, &gid, uid).await;
     // Mirrors TS `db.sub` with no clamp: negative amounts are allowed.
-    let next = remove_invites(&cur, amount);
+    let next = remove_invites(&cur, amount as i64);
     save_invites(&ctx.data().pool, &gid, uid, &next).await?;
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let desc = crate::lang::get(&code, "removeinvites_confirmation_embed_description")

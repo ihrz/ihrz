@@ -4,6 +4,10 @@ use poise::serenity_prelude as serenity;
 // Component ids for the `get` pager. TS uses bare
 // `next`/`previous`/`pnext`/`pprevious`; the Rust port prefixes them
 // so two concurrent pagers never acknowledge each other's clicks.
+// Verdict (kept): namespaced ids are deliberate (shared component
+// router); the step mapping + category-1 gating mirrors
+// `SlashCommands/authrestore/!get.ts` (15-minute collector there;
+// here the four ids above are the only armed components).
 const ID_PREV_PAGE: &str = "ar-get-pprevious";
 const ID_NEXT_PAGE: &str = "ar-get-pnext";
 const ID_PREV_CAT: &str = "ar-get-previous";

@@ -32,10 +32,10 @@ pub fn resolve_tts_lang(raw: Option<&str>) -> String {
 }
 
 /// Set the default TTS language for the guild!
-#[poise::command(slash_command, prefix_command, rename = "lang")]
+#[poise::command(slash_command, prefix_command, rename = "lang", aliases("ttslang"))]
 pub async fn tts_lang(
     ctx: Ctx<'_>,
-    #[description = "TTS language"]
+    #[description = "The TTS language to use!"]
     #[rename = "language"]
     #[autocomplete = "tts_lang_autocomplete"]
     lang: Option<String>,

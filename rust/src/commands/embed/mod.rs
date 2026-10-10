@@ -13,6 +13,8 @@
 // (embed:save/...) because bare "save"/"send" are unsafe in the shared
 // component router; the select + channel-select ids stay TS-verbatim.
 //
-// TS keys: EMBED.<id> {embedOwner, embedSource}.
+// TS keys: EMBED.<id> {embedOwner, embedSource} in the bot-global
+// metas table (Events/client/ready.ts `metasTable`), legacy kv scope
+// "0" — see embed_builder::EMBED_METAS_TABLE.
 
 pub mod embed_builder;

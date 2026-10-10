@@ -5,11 +5,12 @@ use crate::commands::shared::{
 use crate::commands::utils::{embed_with_footer, footer_parts};
 
 /// Fill the help_tip_embed template. Mirrors the TS replaceAll chain in
-/// help.ts (username, Pin, category count, slash count, Crown, both
-/// owners, VC_Region, Slash_Bot_Badge). Delta (documented): the TS
-/// `${client.content.filter(...).length}` placeholder receives the full
-/// command count (the TS code passes `client.content.length` there), so
-/// `slash_total` is the total registered commands, like TS.
+/// `HybridCommands/bot/help.ts` (username, Pin, category count, slash
+/// count, Crown, both owners, VC_Region, Slash_Bot_Badge).
+/// Verdict (kept): the TS `${client.content.filter(...).length}`
+/// placeholder receives the full command count there (the TS passes
+/// `client.content.length`, help.ts:133-134), so `slash_total` is the
+/// total registered commands, like TS.
 #[allow(clippy::too_many_arguments)]
 pub fn render_help_tip(
     template: &str,
@@ -40,8 +41,9 @@ pub fn render_help_tip(
 
 /// Category rollup for the overview counts. Mirrors the TS category
 /// loop (commands grouped by category, categories sorted by name).
-/// Poise has no localized category names, so sorting is by the raw
-/// category key (TS sorts by the localized placeholder instead).
+/// Verdict (kept): poise has no localized category names, so sorting
+/// is by the raw category key (TS sorts by the localized placeholder
+/// instead) — counts per category match regardless of order.
 pub fn help_category_counts<'a>(
     categories: impl Iterator<Item = Option<&'a str>>,
 ) -> Vec<(String, usize)> {

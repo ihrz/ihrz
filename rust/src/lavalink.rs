@@ -2296,7 +2296,7 @@ impl LavalinkManager {
         // !isLastFmConfig`): the tip embed goes first.
         if Self::lastfm_tip_due(rand::random::<f64>()) {
             if let Some(p) = &pool {
-                let row = crate::db::kv_get(p, "0", &format!("LASTFM.{}", cur.requester)).await;
+                let row = crate::commands::lastfm::lastfm_username(p, cur.requester).await;
                 if row.is_none() {
                     let logo = crate::emojis::app_emoji_markup(http, "LastFM_Logo")
                         .await

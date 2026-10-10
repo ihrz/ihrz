@@ -42,7 +42,7 @@ pub async fn sticky_embed(
     } else {
         embed_id.trim().to_string()
     };
-    if load_embed_source(&ctx.data().pool, &gid, embed_id.trim())
+    if load_embed_source(&ctx.data().pool, embed_id.trim())
         .await
         .is_none()
     {

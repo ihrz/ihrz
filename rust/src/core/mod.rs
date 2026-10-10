@@ -32,9 +32,15 @@ pub mod release {
         p
     }
 
-    /// One-shot release gate. Mirrors checkAndNotifyRelease() claim-before-send:
-    /// returns the version to announce when v.txt advanced past v.old.txt,
-    /// rotating v.old.txt forward so shard 0 announces exactly once.
+    /// One-shot release gate (offline helper, NOT the live driver).
+    /// Returns the version to announce when v.txt advanced past v.old.txt,
+    /// rotating v.old.txt forward so a caller announces exactly once.
+    /// Dead in the live path by design: check_and_notify_release() reads
+    /// v.txt/v.old.txt directly (no rotation) so an interrupted fan-out
+    /// resumes instead of losing the claim — rotating here before the DMs
+    /// complete would break the TS resume-unfinished-run path
+    /// (releaseNotifier.ts:322-340). Retained for one-shot callers and
+    /// the unit tests below; do not wire it into the live driver.
     pub fn consume_release_note(root: &std::path::Path) -> Option<String> {
         let v = root.join("v.txt");
         let v_old = root.join("v.old.txt");
@@ -81,6 +87,8 @@ pub mod release {
         pub owner_id: String,
     }
 
+    /// Per-owner DM outcome. Mirrors the TS `DmOutcome` string union
+    /// (`"sent" | "blocked" | "transient"`) from classifyDmError().
     #[derive(Debug, Clone, Copy, PartialEq, Eq)]
     pub enum DmOutcome {
         Sent,
@@ -567,21 +575,45 @@ pub mod release {
         snap
     }
 
-    /// Send one owner DM with optional PDF attachment. Missing PDF =
-    /// text-only DM (graceful fallback). Errors are classified, never
-    /// raised. Mirrors sendDm().
+    /// Send one owner DM with the unsubscribe button + optional PDF
+    /// attachment. Missing PDF = text-only DM (graceful fallback).
+    /// Errors are classified, never raised. Mirrors sendDm():
+    /// the `{owner}` template slot gets the live `user.username`
+    /// (resolved here via to_user, so callers pass a username->body
+    /// builder, never the raw owner id), and every DM carries the
+    /// `newsletter-toggle%<guildId>?dm` Danger button labelled with
+    /// the existing `newsletter_btn_unsubscribe` YAML key (handled by
+    /// the newsletter-toggle component, which reads/writes the
+    /// bot-scope `newsletter_bl` map — same key TS uses). A user
+    /// fetch failure classifies like a send failure (unknown-user is
+    /// blocked, network/5xx transient).
     pub async fn send_owner_dm(
         http: &std::sync::Arc<poise::serenity_prelude::Http>,
         owner_id: u64,
-        body: &str,
+        guild_id: &str,
+        unsubscribe_label: &str,
+        body_for_username: impl FnOnce(&str) -> String,
         pdf: Option<&PdfFile>,
     ) -> DmResult {
-        use poise::serenity_prelude::{CreateAttachment, CreateMessage, UserId};
+        use poise::serenity_prelude::{
+            ButtonStyle, CreateActionRow, CreateAttachment, CreateButton, CreateMessage, UserId,
+        };
+        let username = match UserId::new(owner_id).to_user(http).await {
+            Ok(u) => u.name,
+            Err(e) => return classify_serenity_error(&e),
+        };
         let dm = match UserId::new(owner_id).create_dm_channel(http).await {
             Ok(c) => c,
             Err(e) => return classify_serenity_error(&e),
         };
-        let mut msg = CreateMessage::new().content(body);
+        let row = CreateActionRow::Buttons(vec![CreateButton::new(format!(
+            "newsletter-toggle%{guild_id}?dm"
+        ))
+        .style(ButtonStyle::Danger)
+        .label(unsubscribe_label)]);
+        let mut msg = CreateMessage::new()
+            .content(body_for_username(&username))
+            .components(vec![row]);
         if let Some(pdf) = pdf {
             msg = msg.add_file(CreateAttachment::bytes(pdf.data.clone(), pdf.name.clone()));
         }
@@ -608,13 +640,17 @@ pub mod release {
 
     /// Owner-DM release fan-out. Main-shard only: any other shard id
     /// returns immediately. Caller supplies the guild->owner rows (all
-    /// shards in TS via broadcastEval; single-process autoshard here),
-    /// the git remote for the release URL, and a per-locale
-    /// newsletter_dm_body template resolver (existing YAML key, never
-    /// hardcoded; mirrors sendDm reading lang.newsletter_dm_body via
-    /// getOwnerLang per owner). Preserves every TS anti-spam guard: main-shard
-    /// gate, in-process re-entrance guard, claim-before-send,
-    /// distributed lock + heartbeat, blacklist, circuit-breaker,
+    /// shards in TS via broadcastEval; this process's gateway cache
+    /// only here — single-process autoshard, so owner enumeration,
+    /// BOT metas counts and scheduler sweeps are all in-shard views,
+    /// never the fleet-wide totals TS computes; do not treat them as
+    /// global in a multi-process layout), the git remote for the
+    /// release URL, and a per-locale newsletter_dm_body template
+    /// resolver (existing YAML key, never hardcoded; mirrors sendDm
+    /// reading lang.newsletter_dm_body via getOwnerLang per owner).
+    /// Preserves every TS anti-spam guard: main-shard gate, in-process
+    /// re-entrance guard, claim-before-send, distributed lock +
+    /// heartbeat (with progress spread), blacklist, circuit-breaker,
     /// stagger + batch pacing.
     pub async fn check_and_notify_release(
         pool: &crate::db::Pool,
@@ -709,13 +745,24 @@ pub mod release {
         {
             return FanoutSummary::default();
         }
-        // Heartbeat: hold the lock while sending.
+        // Heartbeat: hold the lock while sending. Progress counters ride
+        // alongside (mirrors the TS `...progress` spread on every beat:
+        // sent/failed/skipped/transient), so a takeover after a crash
+        // sees how far the dead holder got.
         let stop = std::sync::Arc::new(std::sync::atomic::AtomicBool::new(false));
+        let hb_sent = std::sync::Arc::new(std::sync::atomic::AtomicU64::new(0));
+        let hb_failed = std::sync::Arc::new(std::sync::atomic::AtomicU64::new(0));
+        let hb_skipped = std::sync::Arc::new(std::sync::atomic::AtomicU64::new(skipped));
+        let hb_transient = std::sync::Arc::new(std::sync::atomic::AtomicU64::new(0));
         let hb = {
             let pool = pool.clone();
             let lkey = lkey.clone();
             let pid = pid.clone();
             let stop = stop.clone();
+            let hb_sent = hb_sent.clone();
+            let hb_failed = hb_failed.clone();
+            let hb_skipped = hb_skipped.clone();
+            let hb_transient = hb_transient.clone();
             tokio::spawn(async move {
                 let mut iv =
                     tokio::time::interval(std::time::Duration::from_millis(LOCK_HEARTBEAT_MS));
@@ -728,6 +775,10 @@ pub mod release {
                     if let Some(mut l) = load_lock(raw) {
                         if l.owner.as_deref() == Some(&pid) && !l.finished {
                             l.updated_at = Some(now_ms());
+                            l.sent = hb_sent.load(std::sync::atomic::Ordering::SeqCst);
+                            l.failed = hb_failed.load(std::sync::atomic::Ordering::SeqCst);
+                            l.skipped = hb_skipped.load(std::sync::atomic::Ordering::SeqCst);
+                            l.transient = hb_transient.load(std::sync::atomic::Ordering::SeqCst);
                             let _ = crate::db::kv_set(
                                 &pool,
                                 META_SCOPE,
@@ -762,6 +813,7 @@ pub mod release {
                     .and_then(|raw| serde_json::from_str::<HashMap<String, bool>>(&raw).ok())
                     .is_some_and(|m| m.get(owner).copied().unwrap_or(false));
                 if unsub {
+                    hb_skipped.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
                     continue;
                 }
                 // Re-check claim/fail right before claiming (resume race).
@@ -787,16 +839,38 @@ pub mod release {
                 let guild_id = guild_by_owner.get(owner).cloned().unwrap_or_default();
                 let lang_code = crate::db::guild_lang(pool, guild_id.parse().ok()).await;
                 let pdf = pick_pdf(&pdfs, &lang_code);
-                let body =
-                    dm_body_for_owner(dm_body_template_for, &lang_code, owner, &current, &url);
-                let result = send_owner_dm(http, owner_id, &body, pdf).await;
+                // Username (not the owner id) fills `{owner}`, mirroring
+                // sendDm's `user.username`; the button label reuses the
+                // existing `newsletter_btn_unsubscribe` YAML key (no new
+                // keys, never hardcoded).
+                let unsubscribe_label = crate::lang::get(&lang_code, "newsletter_btn_unsubscribe")
+                    .unwrap_or_else(|| "Unsubscribe from newsletter".to_string());
+                let result = send_owner_dm(
+                    http,
+                    owner_id,
+                    &guild_id,
+                    &unsubscribe_label,
+                    |username| {
+                        dm_body_for_owner(
+                            dm_body_template_for,
+                            &lang_code,
+                            username,
+                            &current,
+                            &url,
+                        )
+                    },
+                    pdf,
+                )
+                .await;
                 match result.outcome {
                     DmOutcome::Sent => {
                         sent += 1;
+                        hb_sent.store(sent, std::sync::atomic::Ordering::SeqCst);
                         run.consecutive_transient = 0;
                     }
                     DmOutcome::Blocked => {
                         blocked += 1;
+                        hb_failed.store(blocked, std::sync::atomic::Ordering::SeqCst);
                         run.consecutive_transient = 0;
                         let _ = meta_set(
                             pool,
@@ -807,6 +881,7 @@ pub mod release {
                     }
                     DmOutcome::Transient => {
                         transient += 1;
+                        hb_transient.store(transient, std::sync::atomic::Ordering::SeqCst);
                         run.consecutive_transient += 1;
                         let _ = meta_del(pool, &claim_key(&current, owner)).await;
                         tracing::warn!(

@@ -6,10 +6,9 @@ pub async fn lastfm_login(
     ctx: Ctx<'_>,
     #[description = "Last.fm username"] username: String,
 ) -> Result<(), anyhow::Error> {
-    crate::db::kv_set(
+    crate::commands::lastfm::save_lastfm_username(
         &ctx.data().pool,
-        "0",
-        &lastfm_key(ctx.author().id.get()),
+        ctx.author().id.get(),
         username.trim(),
     )
     .await?;

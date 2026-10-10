@@ -5,6 +5,7 @@ use super::*;
     slash_command,
     prefix_command,
     rename = "remove",
+    aliases("blog-remove"),
     default_member_permissions = "MANAGE_GUILD"
 )]
 pub async fn blogger_remove(

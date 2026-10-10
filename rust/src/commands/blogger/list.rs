@@ -5,6 +5,7 @@ use super::*;
     slash_command,
     prefix_command,
     rename = "list",
+    aliases("blog-list"),
     default_member_permissions = "MANAGE_GUILD"
 )]
 pub async fn blogger_list(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {

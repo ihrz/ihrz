@@ -3841,7 +3841,10 @@ impl serenity::EventHandler for Handler {
             return;
         }
         // Cache invites for join attribution (getInvites, O16): TS skips
-        // the fetch without ViewAuditLog. guild_create streams per guild
+        // the fetch without ViewAuditLog, and the ready burst
+        // (fetchInvites) additionally requires ManageGuild — the join
+        // leg needs the same pair, since an invite fetch without both
+        // bits 403s the same way. guild_create streams per guild
         // (no batch-5 sweep like the ready burst), so only the perm gate
         // applies here. Owners bypass it; a payload without our member row
         // keeps the best-effort fetch (403s are ignored below).
@@ -3849,7 +3852,8 @@ impl serenity::EventHandler for Handler {
         let audit_ok = if guild.owner_id == bot_id {
             true
         } else if let Some(me) = guild.members.get(&bot_id) {
-            guild.member_permissions(me).view_audit_log()
+            let perms = guild.member_permissions(me);
+            perms.view_audit_log() && perms.manage_guild()
         } else {
             true
         };
@@ -8404,14 +8408,32 @@ impl serenity::EventHandler for Handler {
         let Some(guild_id) = creation.guild_id else {
             return;
         };
-        let mut cache = self.invites.lock().await;
-        cache.entry(guild_id.get().to_string()).or_default().insert(
-            creation.code.clone(),
-            (
-                creation.uses,
-                creation.inviter.as_ref().map(|u| u.id.get()).unwrap_or(0),
-            ),
-        );
+        let gid = guild_id.get().to_string();
+        let inviter_id = creation.inviter.as_ref().map(|u| u.id.get()).unwrap_or(0);
+        {
+            let mut cache = self.invites.lock().await;
+            cache
+                .entry(gid.clone())
+                .or_default()
+                .insert(creation.code.clone(), (creation.uses, inviter_id));
+        }
+        // Zero-row seed (mirrors the `if (!check)` leg in
+        // onInviteCreate.ts: a fresh `USER.<inviter>.INVITES`
+        // {regular: 0, bonus: 0, leaves: 0, invites: 0} row so later
+        // increments read zeros, not missing). Existing rows are never
+        // touched; skipped with no inviter.
+        if inviter_id != 0 {
+            let key = crate::commands::invitesmanager::inv::invites_key(inviter_id);
+            if leaf_routed(&self.pool, &gid, &key).await.is_none() {
+                let _ = crate::commands::invitesmanager::inv::save_invites(
+                    &self.pool,
+                    &gid,
+                    inviter_id,
+                    &crate::commands::invitesmanager::inv::InviteStats::default(),
+                )
+                .await;
+            }
+        }
     }
 
     async fn invite_delete(&self, _ctx: serenity::Context, deletion: serenity::InviteDeleteEvent) {

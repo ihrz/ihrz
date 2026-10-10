@@ -20,6 +20,7 @@ pub fn platform_supported(p: &str) -> bool {
     slash_command,
     prefix_command,
     rename = "add",
+    aliases("author-add"),
     default_member_permissions = "MANAGE_GUILD"
 )]
 pub async fn notifier_add(

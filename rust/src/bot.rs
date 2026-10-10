@@ -1321,28 +1321,42 @@ pub async fn run(cfg: Config, pool: Pool) -> anyhow::Result<()> {
                 // Owner prune (O5: mirrors the fetch-or-delete half of
                 // refreshDatabaseModel — stored rows whose user no longer
                 // resolves are deleted so stale owners don't accumulate).
+                // Fire-and-forget: per-owner HTTP fetches must never block
+                // setup/dispatch, so this runs spawned on cloned handles.
                 // Cache-first like TS (`users.cache.get(id) || fetch(id)`):
                 // a cache hit keeps the row with no HTTP call; only a miss
                 // fetches, and only a fetch failure deletes.
-                for stored in crate::db::stored_bot_owners(&pool_fw).await {
-                    let Ok(id) = stored.trim().parse::<u64>() else {
-                        continue;
-                    };
-                    let uid = serenity::model::id::UserId::new(id);
-                    if ctx.cache.user(uid).is_some() {
-                        continue;
-                    }
-                    if uid.to_user(&ctx.http).await.is_ok() {
-                        continue;
-                    }
-                    if let Err(e) = crate::db::remove_bot_owner(&pool_fw, id).await {
-                        tracing::warn!("owner prune failed for {id}: {e}");
-                    }
+                {
+                    let pool = pool_fw.clone();
+                    let http = ctx.http.clone();
+                    let cache = ctx.cache.clone();
+                    tokio::spawn(async move {
+                        for stored in crate::db::stored_bot_owners(&pool).await {
+                            let Ok(id) = stored.trim().parse::<u64>() else {
+                                continue;
+                            };
+                            let uid = serenity::model::id::UserId::new(id);
+                            if cache.user(uid).is_some() {
+                                continue;
+                            }
+                            if uid.to_user(&http).await.is_ok() {
+                                continue;
+                            }
+                            if let Err(e) = crate::db::remove_bot_owner(&pool, id).await {
+                                tracing::warn!("owner prune failed for {id}: {e}");
+                            }
+                        }
+                    });
                 }
                 // Dev commands.json dump (mirrors the `version.env ===
                 // "dev"` branch in ready.ts writing
                 // src/files/commands.json with perm-stripped options).
-                // Debug builds only; best-effort, never fails boot.
+                // Env-gating divergence (verdict): TS gates on the runtime
+                // `client.version.env === "dev"` flag, so a prod binary can
+                // still dump when forced into dev env; here the dump is
+                // compiled out via `#[cfg(debug_assertions)]` instead —
+                // release binaries never write, even with dev config.
+                // Best-effort, never fails boot.
                 #[cfg(debug_assertions)]
                 {
                     let mut root =
@@ -1356,6 +1370,15 @@ pub async fn run(cfg: Config, pool: Pool) -> anyhow::Result<()> {
                         // so the option docs are rebuilt field-by-field;
                         // strip_perm_props runs over the result to mirror
                         // the TS dump exactly (no-op when no custom keys).
+                        // `prefix_name` has no Rust equivalent (the help leg
+                        // likewise passes prefix_name: None; aliases below
+                        // carry the prefix triggers instead), so it dumps
+                        // as null. `thinking`/`ephemeral` mirror the TS
+                        // flags via defer_policy on the qualified path
+                        // (poise's native `ephemeral` bit means something
+                        // else and is not mixed in).
+                        let policy =
+                            crate::commands::defer_policy(&cmd.qualified_name);
                         let mut options = serde_json::Value::Array(
                             cmd.parameters
                                 .iter()
@@ -1374,12 +1397,15 @@ pub async fn run(cfg: Config, pool: Pool) -> anyhow::Result<()> {
                         strip_perm_props(&mut options);
                         entries.push(serde_json::json!({
                             "name": cmd.name,
+                            "prefix_name": serde_json::Value::Null,
                             "name_translated": cmd.name_localizations,
                             "description": cmd.description,
                             "description_translated": cmd.description_localizations,
                             "category": cmd.category,
                             "options": options,
                             "aliases": cmd.aliases,
+                            "thinking": policy.defer,
+                            "ephemeral": policy.ephemeral,
                         }));
                     }
                     let path = root.join("src").join("files").join("commands.json");
@@ -1615,7 +1641,20 @@ pub async fn run(cfg: Config, pool: Pool) -> anyhow::Result<()> {
     // Mirrors checkAndNotifyRelease owning the whole flow in ready.ts; a
     // pre-connect consume would rotate the claim before the guards run.
 
-    tracing::info!("connecting gateway (autosharded)");
+    // Shard lifecycle logs (mirrors the ShardingManager `shardCreate`
+    // legs in src/index.ts: spawning / ready / disconnect /
+    // reconnecting / death / error). Serenity 0.12 exposes no
+    // per-shard spawn hooks on the autosharded Client — per-shard
+    // ready/disconnect lines therefore live in the event dispatcher
+    // (ready logs its tag + guild count) — so boot logs the spawn plan
+    // here: shard totals plus the pacing actually applied. Documented
+    // gap (no serenity equivalent): the spawn delay 5500 / timeout
+    // 30000 and respawn:true — shards connect sequentially and
+    // dropped shards auto-reconnect/resume via the ShardManager.
+    match total_shards {
+        Some(n) => tracing::info!("spawning {n} shards (autosharded)"),
+        None => tracing::info!("connecting gateway (autosharded)"),
+    }
     let started = match total_shards {
         Some(n) => client.start_shards(n).await,
         None => client.start_autosharded().await,
@@ -1623,7 +1662,13 @@ pub async fn run(cfg: Config, pool: Pool) -> anyhow::Result<()> {
     match started {
         Ok(()) => Ok(()),
         Err(e) => {
-            // Mirrors core.ts login(): self-heal disallowed intents, else exit.
+            // Mirrors core.ts login(): self-heal disallowed intents.
+            // Exit divergence (verdict, deliberate): TS calls
+            // process.exit(0) after a successful intent self-heal
+            // (plus a 2s delay) and process.exit(1) when the heal
+            // fails; library code here must not exit the process, so
+            // both legs return Err to main (nonzero exit) instead —
+            // restart after a heal stays operator-side.
             let msg = e.to_string();
             if msg.contains("disallowed intents") {
                 if let Some(token) = crate::config::bot_token() {

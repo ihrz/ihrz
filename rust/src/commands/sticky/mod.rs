@@ -5,7 +5,8 @@
 //
 // TS keys: <guild>.STICKY.<channelId> StickyChannelConfig
 // ({channelId, content, embedId, lastMessageId, enabled});
-// EMBED.<id> lookup for the embed variant.
+// EMBED.<id> is bot-global (metasTable, see
+// embed::embed_builder::load_stored_embed) — never guild-scoped.
 
 use crate::bot::Ctx;
 use once_cell::sync::Lazy;
@@ -218,12 +219,14 @@ fn refresh_result(status: StickyStatus) -> StickyRefresh {
     }
 }
 
-async fn load_embed_source(
-    pool: &crate::db::Pool,
-    gid: &str,
-    embed_id: &str,
-) -> Option<serde_json::Value> {
-    table_value_or_legacy(pool, gid, &format!("EMBED.{embed_id}"))
+/// Stored-embed source for the sticky embed variant. `EMBED.<id>`
+/// rows are bot-global (metasTable in Events/client/ready.ts), so this
+/// reads the global metas store — not the guild table — via
+/// `embed::embed_builder::load_stored_embed`, then projects
+/// `embedSource` like the TS `embedData?.embedSource` lookup in
+/// `HybridCommands/sticky/!embed.ts`.
+async fn load_embed_source(pool: &crate::db::Pool, embed_id: &str) -> Option<serde_json::Value> {
+    crate::commands::embed::embed_builder::load_stored_embed(pool, embed_id)
         .await?
         .get("embedSource")
         .cloned()
@@ -263,7 +266,7 @@ pub async fn refresh_sticky(
         has = true;
     }
     if let Some(eid) = cfg.embed_id.as_deref() {
-        let Some(src) = load_embed_source(pool, gid, eid).await else {
+        let Some(src) = load_embed_source(pool, eid).await else {
             return refresh_result(StickyStatus::MissingEmbed);
         };
         msg = msg.embed(crate::commands::embed::embed_builder::build_embed(&src));

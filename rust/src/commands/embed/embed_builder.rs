@@ -17,6 +17,43 @@ pub fn await_key(user_id: u64) -> String {
     format!("EMBED_AWAIT.{user_id}")
 }
 
+/// Bot-global metas table holding stored embeds. TS keeps `EMBED.<id>`
+/// rows in `metasTable` (`db.table("metas")` in Events/client/ready.ts,
+/// bot-global); the legacy kv half lives under scope `"0"`
+/// (see `owner::main::GLOBAL_SCOPE`). Drafts (`EMBED_DRAFT.*`) and
+/// input waits (`EMBED_AWAIT.*`) stay guild-routed — only `EMBED.<id>`
+/// is global.
+pub const EMBED_METAS_TABLE: &str = "metas";
+
+/// Global stored-embed read. Returns the parsed `EMBED.<id>` record
+/// (`{embedOwner, embedSource}`), from the metas table handle first
+/// with legacy `("0", key)` fallback.
+pub async fn load_stored_embed(
+    pool: &crate::db::Pool,
+    embed_id: &str,
+) -> Option<serde_json::Value> {
+    let raw = crate::commands::owner::main::routed_get(
+        pool,
+        EMBED_METAS_TABLE,
+        crate::commands::owner::main::GLOBAL_SCOPE,
+        &format!("EMBED.{embed_id}"),
+    )
+    .await?;
+    serde_json::from_str(&raw).ok()
+}
+
+/// Global stored-embed write (dual-write: legacy kv + metas handle).
+pub async fn save_stored_embed(pool: &crate::db::Pool, embed_id: &str, record: &serde_json::Value) {
+    let _ = crate::commands::owner::main::routed_set(
+        pool,
+        EMBED_METAS_TABLE,
+        crate::commands::owner::main::GLOBAL_SCOPE,
+        &format!("EMBED.{embed_id}"),
+        &record.to_string(),
+    )
+    .await;
+}
+
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct DraftFile {
     pub name: String,
@@ -865,14 +902,9 @@ async fn handle_save(
     let mut overwrite: Option<String> = None;
     if let Some(arg) = state.saved_id.as_deref() {
         if crate::funcs::is_valid_embed_id(arg) {
-            if let Some(raw) =
-                crate::commands::owner::main::routed_get(pool, gid, gid, &format!("EMBED.{arg}"))
-                    .await
-            {
-                if let Ok(v) = serde_json::from_str::<serde_json::Value>(&raw) {
-                    if v.get("embedOwner").and_then(|o| o.as_str()) == Some(uid.as_str()) {
-                        overwrite = Some(arg.to_string());
-                    }
+            if let Some(v) = load_stored_embed(pool, arg).await {
+                if v.get("embedOwner").and_then(|o| o.as_str()) == Some(uid.as_str()) {
+                    overwrite = Some(arg.to_string());
                 }
             }
         }
@@ -897,16 +929,13 @@ async fn handle_save(
             crate::funcs::generate_password(&opts, seed).unwrap_or_else(|_| format!("{seed:016}"))
         }
     };
-    let _ = crate::commands::owner::main::routed_set(
+    save_stored_embed(
         pool,
-        gid,
-        gid,
-        &format!("EMBED.{embed_id}"),
+        &embed_id,
         &serde_json::json!({
             "embedOwner": uid,
             "embedSource": state.embed,
-        })
-        .to_string(),
+        }),
     )
     .await;
     drop_draft(pool, gid, builder).await;
@@ -1026,14 +1055,9 @@ pub async fn embed_builder(
     if let Some(arg) = id.as_deref() {
         if crate::funcs::is_valid_embed_id(arg) {
             saved_id = Some(arg.to_string());
-            if let Some(raw) =
-                crate::commands::owner::main::routed_get(pool, &gid, &gid, &format!("EMBED.{arg}"))
-                    .await
-            {
-                if let Ok(v) = serde_json::from_str::<serde_json::Value>(&raw) {
-                    if let Some(src) = v.get("embedSource").cloned() {
-                        embed = src;
-                    }
+            if let Some(v) = load_stored_embed(pool, arg).await {
+                if let Some(src) = v.get("embedSource").cloned() {
+                    embed = src;
                 }
             }
         }

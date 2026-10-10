@@ -7,12 +7,29 @@ use poise::serenity_prelude as serenity;
 #[poise::command(slash_command, prefix_command, rename = "compare", aliases("cmp"))]
 pub async fn stats_compare(
     ctx: Ctx<'_>,
-    #[description = "First user"] user1: poise::serenity_prelude::User,
-    #[description = "Second user"] user2: poise::serenity_prelude::User,
+    // Optional on both paths so the prefix leg can miss a user, like TS
+    // `!compare.ts` (`args` with < 2 mentions). A missing user replies
+    // `stats_compare_invalid_users`; slash callers must still pass both
+    // (TS declares both options `required: true`).
+    #[description = "First user to compare"]
+    #[rename = "user1"]
+    user1: Option<poise::serenity_prelude::User>,
+    #[description = "Second user to compare"]
+    #[rename = "user2"]
+    user2: Option<poise::serenity_prelude::User>,
 ) -> Result<(), anyhow::Error> {
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let t = |key: &str, fallback: &str| {
         crate::lang::get(&code, key).unwrap_or_else(|| fallback.to_string())
+    };
+    // Mirrors `!compare.ts:71-75` (`if (!user1Id || !user2Id)`).
+    let (Some(user1), Some(user2)) = (user1, user2) else {
+        ctx.say(t(
+            "stats_compare_invalid_users",
+            "Please provide two valid users to compare.",
+        ))
+        .await?;
+        return Ok(());
     };
     if user1.id == user2.id {
         // DELIBERATE divergence (kept): TS `!compare.ts` has no

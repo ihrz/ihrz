@@ -4,6 +4,10 @@ use super::*;
 // Mirrors !list.ts per-tag embeds (tagHelper shape + stored embed).
 // Nearest-viable pager: no component-dispatch hook here, so pages go
 // out chunked (10 embeds max) with a Page x/y line, no buttons.
+// Verdict (kept): the TS first/previous/next/last button row + 5-min
+// collector + `embed_interaction_not_for_you` gate in
+// `HybridCommands/tag/!list.ts` has no stateless equivalent here;
+// content (per-tag embeds, same order) matches.
 #[poise::command(
     slash_command,
     prefix_command,
