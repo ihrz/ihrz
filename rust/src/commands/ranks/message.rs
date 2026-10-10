@@ -10,8 +10,21 @@ pub const MSG_DEFAULT_ID: &str = "xpMessage-default-message";
 /// Cap a level-up template at 1010 chars. Mirrors the TS modal
 /// `maxLength: 1010` (`!message.ts:144`) and the
 /// `xpMessage?.substring(0, 1010)` read guard (`!message.ts:63`).
+/// JS `substring` counts UTF-16 code units, so a non-BMP char (one
+/// surrogate pair, e.g. an emoji) costs 2. The cut stays on a char
+/// boundary — Rust strings cannot hold the lone surrogates a JS
+/// split-pair would produce.
 pub fn truncate_xp_message(template: &str) -> String {
-    template.chars().take(1010).collect()
+    let mut units = 0usize;
+    let mut end = 0usize;
+    for (i, c) in template.char_indices() {
+        units += c.len_utf16();
+        if units > 1010 {
+            break;
+        }
+        end = i + c.len_utf8();
+    }
+    template[..end].to_string()
 }
 
 /// Preview one template the way the level-up announce renders it:
@@ -187,6 +200,22 @@ mod tests {
         assert_eq!(truncate_xp_message("hi"), "hi");
         let wide = "é".repeat(2000);
         assert_eq!(truncate_xp_message(&wide).chars().count(), 1010);
+    }
+
+    #[test]
+    fn truncation_counts_utf16_units_like_js_substring() {
+        // Non-BMP chars cost 2 UTF-16 units each (one surrogate pair),
+        // so 505 emoji fill the 1010-unit budget exactly.
+        let emoji = "😀".repeat(2000);
+        let capped = truncate_xp_message(&emoji);
+        assert_eq!(capped.chars().count(), 505);
+        assert_eq!(capped.encode_utf16().count(), 1010);
+        // Mixed BMP/non-BMP: 'a' costs 1 unit, '😀' costs 2.
+        let mixed = format!("{}{}", "a".repeat(1008), "😀".repeat(10));
+        let capped = truncate_xp_message(&mixed);
+        assert_eq!(capped.encode_utf16().count(), 1010);
+        assert_eq!(capped.chars().count(), 1009);
+        assert!(capped.ends_with('😀'));
     }
 
     async fn mem_pool() -> crate::db::Pool {

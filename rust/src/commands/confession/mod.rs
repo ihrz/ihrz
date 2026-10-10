@@ -163,15 +163,18 @@ pub fn duration_unit_names(lang_code: &str) -> [String; 7] {
 }
 
 /// Remaining cooldown ms before next confession; 0 = allowed.
-/// Mirrors per-user last-confession check in the confess submit flow.
 ///
-/// C3 decision: per-guild persistent `CONFESSION_LAST.<userId>` under the
-/// guild scope, NOT the TS global volatile `tempTable`
-/// (`CONFESSION_COOLDOWN.<userId>` shared across guilds, lost on
-/// restart). Cross-guild blocking is a TS bug (confessing in guild A
-/// must not block guild B); per-guild matches the per-guild
-/// `GUILD.CONFESSION.cooldown` config, and persistence survives
-/// restarts. Both the confess and reply flows share the key, like TS.
+/// Global per-user last-confession stamp, mirroring the TS global
+/// volatile `tempTable` (`CONFESSION_COOLDOWN.<userId>` in the `temp`
+/// table, shared across guilds, in new-confession-button.ts and
+/// confessionres.ts). Stored under the `temp` table with the global
+/// `"0"` scope, so confessing in guild A blocks guild B like TS.
+/// Persistence delta: the Rust row survives restarts while a fresh TS
+/// temp table starts empty, so a restart keeps the cooldown where TS
+/// would clear it — negligible for a minute-scale cooldown.
+/// Orphaned per-guild `CONFESSION_LAST.<userId>` rows written by the
+/// old scope are never read; harmless. Both the confess and reply
+/// flows share the key, like TS.
 pub fn confession_cooldown_left(last_ms: Option<u64>, cooldown_ms: u64, now_ms: u64) -> u64 {
     match last_ms {
         None => 0,
@@ -336,9 +339,16 @@ pub async fn handle_confess_button(
             .and_then(|s| s.parse().ok())
             .unwrap_or(300_000);
     let last_key = format!("CONFESSION_LAST.{}", comp.user.id.get());
-    let last: Option<u64> = crate::commands::owner::main::routed_get(pool, &gid, &gid, &last_key)
-        .await
-        .and_then(|s| s.parse().ok());
+    // Global scope (temp table, "0"): mirrors the TS global tempTable
+    // cooldown shared across guilds.
+    let last: Option<u64> = crate::commands::owner::main::routed_get(
+        pool,
+        "temp",
+        crate::commands::owner::main::GLOBAL_SCOPE,
+        &last_key,
+    )
+    .await
+    .and_then(|s| s.parse().ok());
     let left = confession_cooldown_left(last, cooldown, now);
     if left > 0 {
         let units = duration_unit_names(&lang_code);
@@ -565,10 +575,16 @@ pub async fn handle_confess_button(
         }
     }
     // Cooldown stamped at post time (mirrors the tempTable.set(Date.now())
-    // after posting in new-confession-button.ts), not at click time.
-    let _ =
-        crate::commands::owner::main::routed_set(pool, &gid, &gid, &last_key, &post_ms.to_string())
-            .await;
+    // after posting in new-confession-button.ts), not at click time:
+    // global temp-table scope like the TS global cooldown.
+    let _ = crate::commands::owner::main::routed_set(
+        pool,
+        "temp",
+        crate::commands::owner::main::GLOBAL_SCOPE,
+        &last_key,
+        &post_ms.to_string(),
+    )
+    .await;
     // Moderation archive (mirrors GUILD.CONFESSION.ALL_CONFESSIONS).
     // code/message_id/thread_id link confessionres% replies to this post.
     // C10 compat: field names follow the TS array shape
@@ -925,9 +941,16 @@ pub async fn handle_confession_response(
             .and_then(|s| s.parse().ok())
             .unwrap_or(300_000);
     let last_key = format!("CONFESSION_LAST.{}", comp.user.id.get());
-    let last: Option<u64> = crate::commands::owner::main::routed_get(pool, &gid, &gid, &last_key)
-        .await
-        .and_then(|s| s.parse().ok());
+    // Global scope (temp table, "0"): mirrors the TS global tempTable
+    // cooldown shared across guilds.
+    let last: Option<u64> = crate::commands::owner::main::routed_get(
+        pool,
+        "temp",
+        crate::commands::owner::main::GLOBAL_SCOPE,
+        &last_key,
+    )
+    .await
+    .and_then(|s| s.parse().ok());
     let left = confession_cooldown_left(last, cooldown, now);
     if left > 0 {
         let units = duration_unit_names(&lang_code);

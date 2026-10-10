@@ -1,7 +1,8 @@
 use super::*;
 
-/// Mirrors `!deposit.ts`.
+/// Deposit coins into your bank!
 #[poise::command(slash_command, prefix_command, rename = "deposit", aliases("dep"))]
+// Mirrors `!deposit.ts`.
 pub async fn eco_deposit(
     ctx: Ctx<'_>,
     #[description = "Amount or all"]

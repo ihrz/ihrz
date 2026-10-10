@@ -1,7 +1,8 @@
 use super::*;
 
-/// Mirrors `!withdraw.ts`.
+/// Withdraw coins from your bank!
 #[poise::command(slash_command, prefix_command, rename = "withdraw")]
+// Mirrors `!withdraw.ts`.
 pub async fn eco_withdraw(
     ctx: Ctx<'_>,
     #[description = "Amount or all"]

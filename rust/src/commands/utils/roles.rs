@@ -58,6 +58,7 @@ async fn app_emoji(http: &serenity::Http, name: &str, fallback: &str) -> String 
 }
 
 pub mod addrole;
+pub mod addrolereact;
 pub mod admin_roles;
 pub mod delrole;
 pub mod derank;
@@ -70,6 +71,7 @@ pub mod wlroles_add;
 pub mod wlroles_list;
 
 pub use self::addrole::addrole;
+pub use self::addrolereact::addrolereact;
 pub use self::admin_roles::admin_roles;
 pub use self::delrole::delrole;
 pub use self::derank::derank;
@@ -84,6 +86,7 @@ pub use self::wlroles_list::wlroles_list;
 #[allow(unused_imports)]
 pub mod main {
     pub use super::addrole::*;
+    pub use super::addrolereact::*;
     pub use super::admin_roles::*;
     pub use super::delrole::*;
     pub use super::derank::*;

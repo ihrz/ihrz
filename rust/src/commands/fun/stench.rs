@@ -1,6 +1,6 @@
 use super::*;
 
-/// Stench rate. Mirrors fun !stench.ts.
+/// Measure a member's stench rate!
 #[poise::command(
     slash_command,
     prefix_command,
@@ -8,6 +8,7 @@ use super::*;
     rename = "stench",
     aliases("odeur", "odeurs", "puanteurs", "puanteur", "arf", "pue")
 )]
+// Mirrors fun !stench.ts.
 pub async fn stench(
     ctx: Ctx<'_>,
     #[description = "Member"] user: Option<poise::serenity_prelude::User>,

@@ -1,6 +1,6 @@
 use super::*;
 
-/// 8-ball command. Mirrors !question.ts: 3-word gate then a 2-field Q&A embed.
+/// Ask the magic 8-ball a question!
 #[poise::command(
     slash_command,
     prefix_command,
@@ -8,6 +8,7 @@ use super::*;
     rename = "question",
     aliases("8ball")
 )]
+// Mirrors !question.ts: 3-word gate then a 2-field Q&A embed.
 pub async fn question(
     ctx: Ctx<'_>,
     // `Option` mirrors `longString(args, 0)` returning null on an empty

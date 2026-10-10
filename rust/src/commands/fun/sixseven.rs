@@ -1,7 +1,8 @@
 use super::*;
 
-/// 67 meme. Mirrors fun !67.ts (fixed GIF URL).
+/// Post the 67 meme!
 #[poise::command(slash_command, prefix_command, category = "fun", rename = "67")]
+// Mirrors fun !67.ts (fixed GIF URL).
 pub async fn sixseven(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     if fun_guard(&ctx).await {
         return Ok(());

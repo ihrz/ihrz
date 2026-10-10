@@ -22,8 +22,9 @@ fn parse_bound(raw: Option<String>, default: i64) -> i64 {
     }
 }
 
-/// Random number command. Mirrors fun !number.ts.
+/// Roll a random number!
 #[poise::command(slash_command, prefix_command, category = "fun", rename = "number")]
+// Mirrors fun !number.ts.
 pub async fn number(
     ctx: Ctx<'_>,
     #[description = "Min"] min: Option<String>,

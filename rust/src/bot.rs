@@ -856,8 +856,9 @@ pub async fn report_command_error(err: poise::FrameworkError<'_, Data, anyhow::E
 fn pre_command_hook(ctx: poise::Context<'_, Data, anyhow::Error>) -> poise::BoxFuture<'_, ()> {
     Box::pin(async move {
         // Global slash defer. Mirrors deferIfNeeded in
-        // commandExecutor.ts: interaction sources defer when the
-        // per-command thinking/ephemeral flags say so; other sources
+        // commandExecutor.ts: interaction sources defer when the TS
+        // `thinking`/`ephemeral` command flags say so (resolved via
+        // defer_policy on the qualified path); other sources
         // (prefix) never defer and keep the file-log leg below.
         // poise's defer_response no-ops when the initial response was
         // already sent (ApplicationContext::has_sent_initial_response),
@@ -1639,7 +1640,7 @@ pub async fn run(cfg: Config, pool: Pool) -> anyhow::Result<()> {
         .event_handler(crate::events_handler::Handler::new(pool.clone(), slashlog))
         .await?;
 
-    crate::scheduler::spawn(pool.clone(), client.http.clone());
+    crate::scheduler::spawn(pool.clone(), client.http.clone(), client.cache.clone());
 
     // assetsCalc boot wire. Mirrors the fire-and-forget `assetsCalc(client)`
     // in core.ts: length.json is fetched once into the process-local table

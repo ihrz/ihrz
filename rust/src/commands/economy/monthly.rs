@@ -1,13 +1,13 @@
 use super::*;
 
-/// Mirrors `!monthly.ts`.
-/// Claim monthly reward. Mirrors economy !monthly.ts.
+/// Claim your monthly reward!
 #[poise::command(
     slash_command,
     prefix_command,
     category = "economy",
     rename = "monthly"
 )]
+// Mirrors economy !monthly.ts.
 pub async fn eco_monthly(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     claim_inner(
         &ctx,

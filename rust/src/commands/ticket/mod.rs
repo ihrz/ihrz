@@ -1480,9 +1480,11 @@ pub async fn record_open_ticket(
 }
 
 /// Create a `ticket-<user>` text channel with the TS overwrite pair
-/// (everyone deny view/send/history, opener full allow).
-/// Delta: TS also lockPermissions() (parent sync); the explicit
-/// overwrites above are the effective state.
+/// (everyone deny view/send/history, opener full allow). Mirrors
+/// CreateChannel in ticketsManager.ts: the channel is created under
+/// the category, then `lockPermissions()` syncs the category
+/// overwrites, then the explicit everyone/member overwrites are
+/// edited on top (explicit entries win on conflict).
 pub async fn create_ticket_channel(
     guild_id: serenity::GuildId,
     http: &std::sync::Arc<serenity::Http>,
@@ -1513,11 +1515,26 @@ pub async fn create_ticket_channel(
     ];
     let mut builder = serenity::CreateChannel::new(format!("ticket-{username}"))
         .kind(serenity::ChannelType::Text)
-        .permissions(overwrites);
+        .permissions(overwrites.clone());
     if let Some(cat) = parent {
         builder = builder.category(cat);
     }
-    Ok(guild_id.create_channel(http, builder).await?)
+    let channel = guild_id.create_channel(http, builder).await?;
+    // lockPermissions() sync (ticketsManager.ts `if (category)` leg):
+    // copy the category overwrites first, then re-apply the explicit
+    // pair so they win, like the TS overwrite edits after the sync.
+    // Best-effort: an unreadable category keeps the created state.
+    if let Some(cat) = parent {
+        if let Ok(serenity::Channel::Guild(cat_gc)) = http.get_channel(cat).await {
+            let mut synced = cat_gc.permission_overwrites;
+            synced.extend(overwrites);
+            let _ = channel
+                .id
+                .edit(http, serenity::EditChannel::new().permissions(synced))
+                .await;
+        }
+    }
+    Ok(channel)
 }
 
 /// Creation log to `GUILD.TICKET.logs` (#008000 + timestamp + footer

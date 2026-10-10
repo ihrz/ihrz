@@ -1,7 +1,8 @@
 use super::*;
 
-/// Dolphin picture. Mirrors fun !dolphin.ts (animality).
+/// Get a picture of dolphin!
 #[poise::command(slash_command, prefix_command, category = "fun", rename = "dolphin")]
+// Mirrors fun !dolphin.ts (animality).
 pub async fn dolphin(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     // Single deny: the disabled-category check lives in `animal_pic`.
     animal_pic(

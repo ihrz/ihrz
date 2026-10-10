@@ -123,7 +123,11 @@ pub fn schedule_expiry_stamp(expires_at_ms: i64) -> String {
 }
 
 /// Expiry embed body: date + triple-backtick title + triple-backtick
-/// description, mirroring the `desc +=` lines in `refreshSchedule`.
+/// description, built fresh per entry. TS `refreshSchedule` instead
+/// accumulates one shared `desc` across ALL expired entries (`let desc`
+/// declared once outside the loops, never reset), so later embeds
+/// repeat earlier entries; the port deliberately sends a per-entry
+/// body rather than replaying that accumulation.
 pub fn schedule_expiry_desc(entry: &crate::commands::schedule::ScheduleEntry) -> String {
     format!(
         "{stamp}```{title}``````{desc}```",
@@ -157,18 +161,22 @@ pub fn honeypot_second_pass_due(first_pass_ms: i64, now_ms: i64) -> bool {
 /// per expired entry build the `#<code> Schedule has been expired!`
 /// embed (date + title + desc, nerd thumbnail, iHorizon footer with
 /// icon attachment, timestamp) addressed to the schedule owner, send
-/// it best-effort (DM-closed users just skip, like the TS
-/// `.catch(() => {})`), then delete the row. The sweep union-scans
+/// it cache-gated and best-effort (only a cached user is DMed, like
+/// the TS `client.users.cache.get(id)` + `member?.send(...)`; an
+/// uncached user is silently skipped, and send failures are dropped
+/// like the TS `.catch(() => {})`), then delete the row. The sweep union-scans
 /// every store: legacy kv rows in all guild scopes, per-guild table
 /// `SCHEDULE` roots, and the global TS `schedule` table (compat read
 /// via `crate::db::schedule_all`, like the `backups`-table
 /// precedent). Writes stay per-guild; only the sweep reads globally.
 /// Each expired entry notifies once no matter how many stores hold it.
-/// With `http: None` (tests) only keys are deleted. Returns unique
+/// With `http: None` (tests) only keys are deleted; with `cache: None`
+/// the DM is skipped too (no fetch fallback). Returns unique
 /// expired entries removed.
 pub async fn sweep_expired_schedules(
     pool: &Pool,
     http: Option<std::sync::Arc<poise::serenity_prelude::Http>>,
+    cache: Option<std::sync::Arc<poise::serenity_prelude::Cache>>,
     now_ms: i64,
 ) -> u64 {
     /// One store holding a schedule entry.
@@ -284,7 +292,7 @@ pub async fn sweep_expired_schedules(
             continue;
         }
         if let Some(http) = &http {
-            notify_schedule_expiry(pool, http, scope, *user_id, entry).await;
+            notify_schedule_expiry(pool, http, cache.clone(), scope, *user_id, entry).await;
         }
         let mut ok = false;
         for store in stores {
@@ -354,21 +362,32 @@ pub async fn sweep_expired_schedules(
     removed
 }
 
-/// DM one schedule-expiry embed. Best-effort: any failure is dropped
-/// (mirrors the TS `.catch(() => {})`); the caller deletes the row
-/// either way.
+/// DM one schedule-expiry embed. Cache-gated and best-effort: the
+/// recipient must already be in the user cache (mirrors the TS
+/// `client.users.cache.get(id)` + `member?.send(...)` — no fetch
+/// fallback, an uncached user is silently skipped) and any failure is
+/// dropped (mirrors the TS `.catch(() => {})`); the caller deletes the
+/// row either way.
 async fn notify_schedule_expiry(
     pool: &Pool,
     http: &std::sync::Arc<poise::serenity_prelude::Http>,
+    cache: Option<std::sync::Arc<poise::serenity_prelude::Cache>>,
     guild_id: &str,
     user_id: u64,
     entry: &crate::commands::schedule::ScheduleEntry,
 ) {
-    use poise::serenity_prelude::{CreateAttachment, CreateEmbed, CreateMessage, UserId};
-    let user = match UserId::new(user_id).to_user(http).await {
-        Ok(user) => user,
-        Err(_) => return,
+    use poise::serenity_prelude::{
+        CreateAttachment, CreateEmbed, CreateMessage, Mentionable, UserId,
     };
+    let uid = UserId::new(user_id);
+    // Cache-only gate: no `to_user` fetch fallback. A `None` cache
+    // (tests only — production `spawn` shares the gateway cache) skips
+    // the DM like a TS cold cache; the expired row is still deleted.
+    // (Boolean only: the cache guard is not Send across awaits.)
+    let cached = cache.as_ref().is_some_and(|c| c.user(uid).is_some());
+    if !cached {
+        return;
+    }
     let name = crate::commands::shared::bot_footer_name(
         crate::db::kv_get(pool, guild_id, crate::commands::shared::BOT_NAME_KEY)
             .await
@@ -403,10 +422,12 @@ async fn notify_schedule_expiry(
         } else {
             poise::serenity_prelude::CreateEmbedFooter::new(name)
         });
-    let Ok(dm) = user.create_dm_channel(http).await else {
+    let Ok(dm) = uid.create_dm_channel(http).await else {
         return;
     };
-    let mut msg = CreateMessage::new().content(user.to_string()).embed(embed);
+    let mut msg = CreateMessage::new()
+        .content(uid.mention().to_string())
+        .embed(embed);
     if let Some(bytes) = icon {
         msg = msg.add_file(CreateAttachment::bytes(bytes, "footer_icon.png"));
     }
@@ -2057,11 +2078,16 @@ pub async fn sweep_stats_trim(pool: &Pool, now_ms: i64) -> u64 {
     trimmed
 }
 
-pub fn spawn(pool: Pool, http: std::sync::Arc<poise::serenity_prelude::Http>) {
+pub fn spawn(
+    pool: Pool,
+    http: std::sync::Arc<poise::serenity_prelude::Http>,
+    cache: std::sync::Arc<poise::serenity_prelude::Cache>,
+) {
     // Schedule expiry (real).
     {
         let pool = pool.clone();
         let http = http.clone();
+        let cache = cache.clone();
         tokio::spawn(async move {
             let mut t = tokio::time::interval(Duration::from_secs(SCHEDULE_SWEEP_SECS));
             loop {
@@ -2070,7 +2096,12 @@ pub fn spawn(pool: Pool, http: std::sync::Arc<poise::serenity_prelude::Http>) {
                     .duration_since(std::time::UNIX_EPOCH)
                     .map(|d| d.as_millis() as i64)
                     .unwrap_or(0);
-                let n = sweep_expired_schedules(&pool, Some(http.clone()), now).await;
+                // Cache handle shared with the gateway client: warm by the
+                // time sweeps fire, so expiry DMs resolve like TS warm
+                // cache; uncached users are still silently skipped.
+                let n =
+                    sweep_expired_schedules(&pool, Some(http.clone()), Some(cache.clone()), now)
+                        .await;
                 if n > 0 {
                     tracing::info!("scheduler: swept {n} expired schedules");
                 }
@@ -3269,7 +3300,7 @@ mod tests {
         .await
         .unwrap();
         crate::db::kv_set(&p, "g", "OTHER.key", "v").await.unwrap();
-        let n = sweep_expired_schedules(&p, None, 200).await;
+        let n = sweep_expired_schedules(&p, None, None, 200).await;
         assert_eq!(n, 1);
         assert!(crate::db::kv_get(&p, "g", "SCHEDULE.1.old").await.is_none());
         assert!(crate::db::kv_get(&p, "g", "SCHEDULE.1.new").await.is_some());
@@ -3282,7 +3313,7 @@ mod tests {
         crate::db::kv_set(&p, "g", "SCHEDULE.1.bad", "not-json")
             .await
             .unwrap();
-        let n = sweep_expired_schedules(&p, None, i64::MAX).await;
+        let n = sweep_expired_schedules(&p, None, None, i64::MAX).await;
         assert_eq!(n, 0);
     }
 
@@ -3397,7 +3428,7 @@ mod tests {
         )
         .await
         .unwrap();
-        let n = sweep_expired_schedules(&p, None, 200).await;
+        let n = sweep_expired_schedules(&p, None, None, 200).await;
         assert_eq!(n, 1);
         assert!(crate::db::kv_get(&p, "g", "SCHEDULE.42.LEGACYCODE1234")
             .await
@@ -3422,7 +3453,7 @@ mod tests {
         )
         .await
         .unwrap();
-        let n = sweep_expired_schedules(&p, None, 200).await;
+        let n = sweep_expired_schedules(&p, None, None, 200).await;
         assert_eq!(n, 1);
         assert!(crate::db::kv_get(&p, "g", "SCHEDULE.7.DUALCODE12345678")
             .await
@@ -3451,7 +3482,7 @@ mod tests {
         )
         .await
         .unwrap();
-        let n = sweep_expired_schedules(&p, None, 200).await;
+        let n = sweep_expired_schedules(&p, None, None, 200).await;
         assert_eq!(n, 1);
         assert!(crate::db::schedule_all(&p).await.is_empty());
     }
@@ -3467,7 +3498,7 @@ mod tests {
         )
         .await
         .unwrap();
-        let n = sweep_expired_schedules(&p, None, 200).await;
+        let n = sweep_expired_schedules(&p, None, None, 200).await;
         assert_eq!(n, 1);
         let rows = crate::db::schedule_all(&p).await;
         assert_eq!(rows.len(), 1);

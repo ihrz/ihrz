@@ -11,8 +11,9 @@ pub fn rob_floor_ok(author_money: f64, victim_money: f64) -> bool {
     author_money >= ROB_MIN_MONEY && victim_money >= ROB_MIN_MONEY
 }
 
-/// Mirrors `!rob.ts`.
+/// Rob coins from another member!
 #[poise::command(slash_command, prefix_command, rename = "rob")]
+// Mirrors `!rob.ts`.
 pub async fn eco_rob(
     ctx: Ctx<'_>,
     #[description = "Member"]

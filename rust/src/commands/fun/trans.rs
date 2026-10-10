@@ -1,7 +1,8 @@
 use super::*;
 
-/// Trans percent joke. Mirrors !trans.ts (random 0-99, fun_trans_command_ok).
+/// Measure a member's trans rate!
 #[poise::command(slash_command, prefix_command, category = "fun", rename = "trans")]
+// Mirrors !trans.ts (random 0-99, fun_trans_command_ok).
 pub async fn trans(
     ctx: Ctx<'_>,
     #[description = "Member"] user: Option<poise::serenity_prelude::User>,

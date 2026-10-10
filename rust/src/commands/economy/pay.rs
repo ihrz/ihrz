@@ -1,7 +1,8 @@
 use super::*;
 
-/// Mirrors `!pay.ts`.
+/// Pay coins to another member!
 #[poise::command(slash_command, prefix_command, rename = "pay")]
+// Mirrors `!pay.ts`.
 pub async fn eco_pay(
     ctx: Ctx<'_>,
     // Amount-first like the TS option order (`amount`, then `member` in

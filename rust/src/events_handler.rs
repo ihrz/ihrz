@@ -3800,7 +3800,7 @@ impl Handler {
         )
         .await
         .ok()
-        .map(|opt| opt.clone());
+        .cloned();
         match settled {
             None => None,
             Some(snaps) => {

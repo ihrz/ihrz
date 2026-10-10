@@ -32,9 +32,7 @@ pub fn app_reaction(
     )
 }
 
-/// Poll command. Mirrors !poll.ts.
-// ADMINISTRATOR permission comes from fun.ts; Yes/No reacts use the app
-// emojis only (no unicode fallback, like TS).
+/// Create a poll!
 #[poise::command(
     slash_command,
     prefix_command,
@@ -42,6 +40,9 @@ pub fn app_reaction(
     rename = "poll",
     default_member_permissions = "ADMINISTRATOR"
 )]
+// Mirrors !poll.ts.
+// ADMINISTRATOR permission comes from fun.ts; Yes/No reacts use the app
+// emojis only (no unicode fallback, like TS).
 pub async fn poll(
     ctx: Ctx<'_>,
     #[description = "Poll message"]

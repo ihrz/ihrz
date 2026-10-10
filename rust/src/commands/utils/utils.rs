@@ -13,8 +13,8 @@ use super::{
         userinfo, whereis,
     },
     roles::{
-        addrole, admin_roles, delrole, derank, massiverole, nickrole, role_members, rolelimit,
-        wlroles, wlroles_add, wlroles_list,
+        addrole, addrolereact, admin_roles, delrole, derank, massiverole, nickrole, role_members,
+        rolelimit, wlroles, wlroles_add, wlroles_list,
     },
     voice::{
         bringall, massmove, renewvc, talk, untalk, unwlvc, vc_list, vkick, voicefreeze, voicemove,
@@ -58,6 +58,7 @@ use super::{
         "slowmode",
         "syncchan",
         "addrole",
+        "addrolereact",
         "admin_roles",
         "delrole",
         "derank",

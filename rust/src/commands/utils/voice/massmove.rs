@@ -30,6 +30,23 @@ pub async fn massmove(
     let Some(to) = to else {
         return Ok(());
     };
+    // Voice-only parity (`!massmove.ts:52-57`): the TS filter reads
+    // `x.type === (ChannelType.GuildVoice || ChannelType.GuildStageVoice)`,
+    // and the `||` collapses to GuildVoice (first truthy enum member),
+    // so Stage channels never match — the no-`from` sweep below only
+    // touches members sitting in Voice-kind channels.
+    let voice_ids: Vec<poise::serenity_prelude::ChannelId> = ctx
+        .serenity_context()
+        .cache
+        .guild(guild_id)
+        .map(|g| {
+            g.channels
+                .values()
+                .filter(|c| c.kind == poise::serenity_prelude::ChannelType::Voice)
+                .map(|c| c.id)
+                .collect()
+        })
+        .unwrap_or_default();
     let members: Vec<poise::serenity_prelude::UserId> = ctx
         .serenity_context()
         .cache
@@ -39,7 +56,10 @@ pub async fn massmove(
                 .iter()
                 .filter(|(_, v)| match &from {
                     Some(f) => v.channel_id == Some(f.id),
-                    None => v.channel_id.is_some(),
+                    None => match v.channel_id {
+                        Some(id) => voice_ids.contains(&id),
+                        None => false,
+                    },
                 })
                 .map(|(uid, _)| *uid)
                 .collect()

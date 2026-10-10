@@ -54,8 +54,9 @@ pub fn morse_convert(input: &str) -> String {
     }
 }
 
-/// Morse command. Mirrors !morse.ts (code-fenced reply).
+/// Translate between text and morse code!
 #[poise::command(slash_command, prefix_command, category = "fun", rename = "morse")]
+// Mirrors !morse.ts (code-fenced reply).
 pub async fn morse(
     ctx: Ctx<'_>,
     // Named `input` like the TS slash option (`getString("input")`,

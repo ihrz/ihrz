@@ -1,8 +1,8 @@
 use super::*;
 
-/// Mirrors `!weekly.ts`.
-/// Claim weekly reward. Mirrors economy !weekly.ts.
+/// Claim your weekly reward!
 #[poise::command(slash_command, prefix_command, category = "economy", rename = "weekly")]
+// Mirrors economy !weekly.ts.
 pub async fn eco_weekly(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     claim_inner(
         &ctx,

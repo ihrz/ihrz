@@ -1,7 +1,8 @@
 use super::*;
 
-/// Squirrel picture. Mirrors fun !squirrel.ts (animality).
+/// Get a picture of squirrel!
 #[poise::command(slash_command, prefix_command, category = "fun", rename = "squirrel")]
+// Mirrors fun !squirrel.ts (animality).
 pub async fn squirrel(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     // Single deny: the disabled-category check lives in `animal_pic`.
     animal_pic(

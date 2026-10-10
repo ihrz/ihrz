@@ -91,7 +91,7 @@ pub const PREVNAMES_CAP: usize = 20;
 /// Dated prevnames entry. Mirrors prevnamesModule.ts /
 /// prevnamesModuleGuild.ts (`time(date, "d")` renders `<t:unix:d>`):
 /// `<t:unix:d> - [username|globalName|nickname:guild] oldValue`.
-/// The stored value is always the OLD name, never the new one.
+/// The stored value is the OLD name, not the new one.
 pub fn prevname_entry(unix_secs: i64, kind: &str, old_value: &str) -> String {
     format!("<t:{unix_secs}:d> - [{kind}] {old_value}")
 }
@@ -924,7 +924,7 @@ fn parse_xp_channel(raw: &str) -> Option<String> {
 }
 
 /// Full XP message path. Mirrors Events/ranks/onNewMessage.ts end to
-/// end through the pure helpers: STATS always recorded, then the
+/// end through the pure helpers: STATS recorded, then the
 /// xp_skip_for_command / xp_gain_blocked gates, the RNG gain, real
 /// memberBoost coins via xp_levelup_coins, then the
 /// xp_announce_suppressed / xp_announce_target routing with
@@ -1136,7 +1136,7 @@ pub async fn record_message_activity(
 /// XP gain gate. Mirrors ranks/onNewMessage.ts (`xpTurn === "disable"`
 /// from GUILD.XP_LEVELING.disable, or the channel in `bypassChannels`):
 /// true means no XP is earned. `disable_raw` is the stored disable value
-/// (None when never configured). Cross-runtime the leaf may be a bare
+/// (None when unconfigured). Cross-runtime the leaf may be a bare
 /// JSON boolean (`true` / `false`, what TS `client.db.set` writes) or a
 /// quoted JSON string (`"\"disable\""` kept verbatim by the legacy kv
 /// store): one layer of string quoting is decoded so both forms match.

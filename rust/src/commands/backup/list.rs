@@ -24,12 +24,15 @@ pub fn list_gate_id(backup_id: Option<&str>) -> Option<&str> {
 #[poise::command(slash_command, prefix_command, rename = "list", aliases("backup-list"))]
 pub async fn backup_list(
     ctx: Ctx<'_>,
-    // Option (not required): TS reads `getString("backup-id")` /
-    // `string(args, 0)` (both nullable, !list.ts:58-62) while the list
-    // leaf registers no slash option (backup.ts), so this only ever
-    // fills on the prefix path. A given-but-unowned id answers
-    // `backup_this_is_not_your_backup` like !list.ts:64-77; the id
-    // never selects a detail view (TS always renders the full list).
+    // Verdict: keep the `backup-id` Option param (document, don't
+    // remove). TS reads `getString("backup-id")` / `string(args, 0)`
+    // (both nullable, !list.ts:58-62) while the list leaf registers no
+    // slash option (backup.ts), so on slash it is always None and only
+    // ever fills on the prefix path — poise cannot hide a per-path
+    // param, so the option stays visible on slash too. A
+    // given-but-unowned id answers `backup_this_is_not_your_backup`
+    // like !list.ts:64-77; the id never selects a detail view (TS
+    // always renders the full list).
     #[description = "Backup id (ownership check only)"]
     #[rename = "backup-id"]
     backup_id: Option<String>,

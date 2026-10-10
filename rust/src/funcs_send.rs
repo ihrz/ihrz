@@ -125,6 +125,7 @@ pub struct AwesomeEmbed {
     pub footer_text: String,
 }
 
+/// One subcommand entry (name + aliases) for the hasSubCommand branch.
 pub struct SubCommandInfo {
     pub name: String,
     pub aliases: Vec<String>,

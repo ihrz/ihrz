@@ -1,7 +1,8 @@
 use super::*;
 
-/// Gay rate. Mirrors fun !gay.ts.
+/// Measure a member's gay rate!
 #[poise::command(slash_command, prefix_command, category = "fun", rename = "gay")]
+// Mirrors fun !gay.ts.
 pub async fn gay(
     ctx: Ctx<'_>,
     #[description = "Member"] user: Option<poise::serenity_prelude::User>,

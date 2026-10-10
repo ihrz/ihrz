@@ -136,7 +136,7 @@ pub async fn post_inv_log(
 /// (`arr.sort((a, b) => b.invites - a.invites)`): no uid tiebreak,
 /// ties keep input order (stable sort).
 pub fn sort_leaderboard(mut rows: Vec<(u64, InviteStats)>) -> Vec<(u64, InviteStats)> {
-    rows.sort_by(|a, b| b.1.invites.cmp(&a.1.invites));
+    rows.sort_by_key(|a| std::cmp::Reverse(a.1.invites));
     rows
 }
 

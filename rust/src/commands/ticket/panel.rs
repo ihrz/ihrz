@@ -874,7 +874,11 @@ async fn pick_option_index(
 /// callers can show a modal on it for the add path. The placeholder
 /// differs per flow: `ticket_panel_change_option_select_placeholder`
 /// for changeOption/changeForm (!panel.ts:1321,1491) but `var_action`
-/// for the per-option form select (!panel.ts:874).
+/// for the per-option form select (!panel.ts:874). Eight contextual params
+// mirror the TS collector flow one-to-one; bundling them into a struct
+// would churn every call site for no behavior gain, so the lint is
+// allowed here instead.
+#[allow(clippy::too_many_arguments)]
 async fn pick_add_or_remove(
     sctx: &serenity::Context,
     msg: &mut serenity::Message,

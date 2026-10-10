@@ -448,7 +448,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn link_check_mirrors_helper() {
+    fn link_check() {
         assert!(is_valid_embed_link("https://x.y/z"));
         assert!(is_valid_embed_link("http://x.y"));
         assert!(!is_valid_embed_link("attachment://image.png"));
@@ -456,7 +456,7 @@ mod tests {
     }
 
     #[test]
-    fn color_check_mirrors_helper() {
+    fn color_check() {
         assert!(is_valid_embed_color("#fff"));
         assert!(is_valid_embed_color("#475387"));
         assert!(is_valid_embed_color("#ABC"));
@@ -466,7 +466,7 @@ mod tests {
     }
 
     #[test]
-    fn embed_id_check_mirrors_helper() {
+    fn embed_id_check() {
         assert!(!is_valid_embed_id(None));
         assert!(!is_valid_embed_id(Some("")));
         assert!(is_valid_embed_id(Some("abc123")));

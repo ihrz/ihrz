@@ -14,8 +14,9 @@ pub fn parse_dog_ceo_json(raw: &str) -> Option<String> {
         .map(|s| s.to_string())
 }
 
-/// Dog command. Mirrors !dog.ts (dog.ceo fetch, message field).
+/// Get a picture of dog!
 #[poise::command(slash_command, prefix_command, category = "fun", rename = "dog")]
+// Mirrors !dog.ts (dog.ceo fetch, message field).
 pub async fn dog(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     if fun_guard(&ctx).await {
         return Ok(());

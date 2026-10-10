@@ -10,8 +10,9 @@ use super::*;
 // `SNIPE.<channel>` `{author, content}` shape plus a
 // `SNIPE.last_deleted_id` marker, which misses rows the TS writer owns.
 // Interop wins, so the TS key is read first and the legacy shapes stay
-// as fallbacks (the writer migration in `events_handler.rs` is the
-// follow-up; until it lands, fresh Rust rows still resolve here).
+// as fallbacks (the writer migration in `events_handler.rs` has landed:
+// fresh deletes dual-write the TS shape at `GUILD.SNIPE.<channel>` and
+// the legacy row, so the fallbacks below only serve pre-migration rows).
 /// Show the last deleted message in this channel.
 #[poise::command(
     slash_command,

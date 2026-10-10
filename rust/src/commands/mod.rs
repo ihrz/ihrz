@@ -547,6 +547,7 @@ mod tests {
             "where",
             "serverpic",
             "addrole",
+            "addrolereact",
             "delrole",
             "embed-post",
             "massmove",

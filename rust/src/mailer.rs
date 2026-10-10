@@ -228,6 +228,10 @@ impl Mailer {
 
     /// Current From display name (live username after ready(), else the
     /// construction-time fallback).
+    // Named `from_name` to match the TS `fromName` mailer field and its
+    // call sites (`send()`, ready leg); renaming would churn callers for
+    // no behavior gain, so the `from_*` self-convention lint is allowed.
+    #[allow(clippy::wrong_self_convention)]
     pub fn from_name(&self) -> String {
         self.from_name
             .read()
