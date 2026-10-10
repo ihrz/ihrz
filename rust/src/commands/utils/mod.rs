@@ -83,7 +83,7 @@ async fn show_wlroles_list(ctx: &Ctx<'_>) -> Result<(), anyhow::Error> {
     let none =
         crate::lang::get(&code, "setjoinroles_var_none").unwrap_or_else(|| "None".to_string());
     let field_name = crate::lang::get(&code, "setjoinroles_help_embed_fields_1_name")
-        .unwrap_or_else(|| "Roles".to_string());
+        .unwrap_or_else(|| "All registered roles".to_string());
     let value = if list.is_empty() {
         none
     } else {

@@ -17,8 +17,11 @@ pub async fn banner_user(
     let token = crate::config::bot_token().unwrap_or_default();
     let hash = fetch_user_banner_hash(&token, u.id.get()).await;
     let Some(hash) = hash else {
-        ctx.say(crate::commands::lang_for(&ctx, "banner_user_no_banner", "No banner.").await)
-            .await?;
+        ctx.say(
+            crate::commands::lang_for(&ctx, "banner_user_no_banner", "This user has no banner.")
+                .await,
+        )
+        .await?;
         return Ok(());
     };
     let gid = ctx
@@ -29,9 +32,13 @@ pub async fn banner_user(
     let embed = poise::serenity_prelude::CreateEmbed::default()
         .colour(0xC4AFED)
         .title(
-            crate::commands::lang_for(&ctx, "banner_user_embed", "${user?.username}")
-                .await
-                .replace("${user?.username}", &u.name),
+            crate::commands::lang_for(
+                &ctx,
+                "banner_user_embed",
+                "**This is ${user?.username}'s banner!**",
+            )
+            .await
+            .replace("${user?.username}", &u.name),
         )
         .image(user_banner_url(u.id.get(), &hash));
     let embed = embed_with_footer(embed, &footer_name, footer_bytes.is_some());

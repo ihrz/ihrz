@@ -89,7 +89,7 @@ pub async fn gc_support(
         if kind.is_empty() {
             ctx.say(
                 crate::lang::get(&code, "support_command_not_type").unwrap_or_else(|| {
-                    ":x: | You did not specify the type of support!".to_string()
+                    ":x: | You did not specify the type of support you want in the user profile (bio = the bio, e.g. server link; tag = the server’s Discord tag)!".to_string()
                 }),
             )
             .await?;

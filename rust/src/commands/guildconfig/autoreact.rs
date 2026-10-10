@@ -149,8 +149,9 @@ pub async fn gc_autoreact(
     // path exists in TS, so at-cap always denies).
     if map.len() >= 25 {
         ctx.say(
-            crate::lang::get(&code, "autoreact_max_25")
-                .unwrap_or_else(|| "Maximum of 25 autoreact configurations.".to_string()),
+            crate::lang::get(&code, "autoreact_max_25").unwrap_or_else(|| {
+                "Maximum of 25 autoreact configurations can be set.".to_string()
+            }),
         )
         .await?;
         return Ok(());
@@ -203,7 +204,7 @@ pub async fn gc_autoreact_list(
         .unwrap_or_else(|| "Autoreact Configuration".to_string());
     if map.is_empty() {
         let desc = crate::lang::get(&code, "autoreact_embed_autofields_none_value")
-            .unwrap_or_else(|| "No autoreact configurations set.".to_string());
+            .unwrap_or_else(|| "No autoreact configuration set.".to_string());
         let embed = serenity::CreateEmbed::default()
             .colour(serenity::Colour::BLURPLE)
             .title(title)

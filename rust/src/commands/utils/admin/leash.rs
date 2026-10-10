@@ -54,8 +54,9 @@ pub async fn leash(
         .any(|p| p.get("sub").and_then(|s| s.as_str()) == Some(sub.as_str()))
     {
         ctx.say(
-            crate::lang::get(&code, "util_leah_already_owned")
-                .unwrap_or_else(|| "Already leashed.".to_string()),
+            crate::lang::get(&code, "util_leah_already_owned").unwrap_or_else(|| {
+                "You little rascal, you already own these little wonders :smirk:".to_string()
+            }),
         )
         .await?;
         return Ok(());
@@ -77,7 +78,7 @@ pub async fn leash(
             .await
             .unwrap_or_else(|| "⚠️".to_string());
         let content =
-            crate::commands::lang_for(&ctx, "util_leash_confirm_message", "Leash anyway?")
+            crate::commands::lang_for(&ctx, "util_leash_confirm_message", "${client.iHorizon_Emojis.No} | The member you want to leash isn't in a voice channel!\n${client.iHorizon_Emojis.Warning_Icon} | Are you sure you want to proceed with this action?")
                 .await
                 .replace("${client.iHorizon_Emojis.No}", &no)
                 .replace("${client.iHorizon_Emojis.Warning_Icon}", &warn)
@@ -92,7 +93,7 @@ pub async fn leash(
                 crate::commands::lang_for(
                     &ctx,
                     "util_leash_canceled_leash",
-                    "Leash configurations canceled.",
+                    "${client.iHorizon_Emojis.Yes} | Leash configurations canceled",
                 )
                 .await
                 .replace("${client.iHorizon_Emojis.Yes}", &yes_mark),

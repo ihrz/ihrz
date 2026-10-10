@@ -98,13 +98,13 @@ pub async fn ranks_show(
     // TS pairs the fields cross-wise: fields1_name carries the LEVEL
     // value (fields2_value), fields2_name carries the XP value
     // (fields1_value).
-    let level_name =
-        crate::lang::get(&code, "level_embed_fields1_name").unwrap_or_else(|| "Level".to_string());
+    let level_name = crate::lang::get(&code, "level_embed_fields1_name")
+        .unwrap_or_else(|| ":arrow_up:・__Levels:__".to_string());
     let level_value = crate::lang::get(&code, "level_embed_fields2_value")
         .map(|s| s.replace("${level}", &level.to_string()))
         .unwrap_or_else(|| format!("`{level}`"));
     let xp_name = crate::lang::get(&code, "level_embed_fields2_name")
-        .unwrap_or_else(|| "Experience".to_string());
+        .unwrap_or_else(|| ":money_with_wings:・__Experience:__".to_string());
     let xp_value = crate::lang::get(&code, "level_embed_fields1_value")
         .map(|s| {
             s.replace("${currentxp}", &currentxp.to_string())

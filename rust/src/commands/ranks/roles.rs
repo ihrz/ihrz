@@ -217,11 +217,11 @@ pub async fn ranks_role_list(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
             .unwrap_or_else(|| format!("<@&{}> — lvl {}", r.role_id, r.level))
     };
     let title = crate::lang::get(&code, "ranks_config_embed_title")
-        .unwrap_or_else(|| "Rank Roles Configuration".to_string());
+        .unwrap_or_else(|| "🏆 Rank Roles Configuration".to_string());
     let desc = crate::lang::get(&code, "ranks_config_embed_desc")
         .unwrap_or_else(|| "Customize your server's XP-based role rewards!".to_string());
     let not_for_you = crate::lang::get(&code, "help_not_for_you")
-        .unwrap_or_else(|| "This interaction is not for you.".to_string());
+        .unwrap_or_else(|| "This interaction is not for you".to_string());
     // 5 rows per page like the TS `itemsPerPage` (`!roles.ts:79`).
     let per_page = 5usize;
     let total_pages = roles.len().div_ceil(per_page).max(1);

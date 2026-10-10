@@ -64,7 +64,7 @@ pub async fn ranks_ureset(
     // Audit log (mirrors `!ureset.ts:81-89`).
     let author_id = ctx.author().id.get();
     let title = crate::lang::get(&code, "resetallinvites_logs_embed_title")
-        .unwrap_or_else(|| "Reset Logs".to_string());
+        .unwrap_or_else(|| "Invite Manager Logs (DANGEROUS ACTION)".to_string());
     let desc = crate::lang::get(&code, "reset_uranks_logs_embed_desc")
         .map(|s| {
             s.replace(

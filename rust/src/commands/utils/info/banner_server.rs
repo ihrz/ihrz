@@ -15,14 +15,24 @@ pub async fn banner_server(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let gid = guild_id.get().to_string();
     let banner_url = ctx.guild().as_ref().and_then(|g| g.banner_url());
     let Some(banner_url) = banner_url else {
-        ctx.say(crate::commands::lang_for(&ctx, "banner_guild_no_banner", "No banner.").await)
-            .await?;
+        ctx.say(
+            crate::commands::lang_for(&ctx, "banner_guild_no_banner", "The server has no banner.")
+                .await,
+        )
+        .await?;
         return Ok(());
     };
     let (footer_name, footer_bytes) = footer_parts(&ctx, &gid).await;
     let embed = poise::serenity_prelude::CreateEmbed::default()
         .colour(0xC4AFED)
-        .title(crate::commands::lang_for(&ctx, "banner_guild_embed", "Server banner").await)
+        .title(
+            crate::commands::lang_for(
+                &ctx,
+                "banner_guild_embed",
+                "**This is the server's banner!**",
+            )
+            .await,
+        )
         .image(banner_url);
     let embed = embed_with_footer(embed, &footer_name, footer_bytes.is_some());
     let mut reply = poise::CreateReply::default().embed(embed);

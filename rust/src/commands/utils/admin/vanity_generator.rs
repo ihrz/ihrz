@@ -22,7 +22,7 @@ pub async fn vanity_generator(
     let invalid_tpl = crate::commands::lang_for(
         &ctx,
         "util_vanity_generator_invalid_code",
-        "The URL Vanity code `${VanityCode}` is invalid.",
+        "The URL Vanity code `${VanityCode}` is invalid. The string should be alphanumeric and can include hyphens between words. The maximum length is 32 characters. Hyphens cannot be at the beginning or end of the string.",
     )
     .await;
     let claimed = crate::commands::lang_for(

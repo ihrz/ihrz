@@ -46,9 +46,9 @@ pub async fn media_only(
     let title = crate::lang::get(&code, "utils_pic_only_embed_title")
         .unwrap_or_else(|| "Media Only Channels".to_string());
     let state = if enabled {
-        crate::lang::get(&code, "setjoinroles_var_none").unwrap_or_else(|| "disabled".to_string())
+        crate::lang::get(&code, "setjoinroles_var_none").unwrap_or_else(|| "None".to_string())
     } else {
-        crate::lang::get(&code, "var_yes").unwrap_or_else(|| "enabled".to_string())
+        crate::lang::get(&code, "var_yes").unwrap_or_else(|| "Yes".to_string())
     };
     ctx.say(format!("{title}: <#{0}> {state}", channel.id.get()))
         .await?;

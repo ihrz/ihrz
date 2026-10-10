@@ -149,7 +149,7 @@ fn bot_can_manage_channel(
 /// `!channel.deletable` early return and the catch-all error path.
 async fn send_renew_denied(ctx: &Ctx<'_>, code: &str) {
     let msg = crate::lang::get(code, "renew_dont_have_permission")
-        .unwrap_or_else(|| "Can't `Don't have permission!`".to_string());
+        .unwrap_or_else(|| ":x: **Can't** `Don't have permission!`".to_string());
     let _ = ctx
         .send(poise::CreateReply::default().content(msg).ephemeral(true))
         .await;

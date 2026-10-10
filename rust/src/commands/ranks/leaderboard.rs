@@ -112,9 +112,9 @@ pub async fn ranks_leaderboard(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let lvl_word = crate::lang::get(&code, "var_level").unwrap_or_else(|| "Level".to_string());
     let page_word = crate::lang::get(&code, "var_page").unwrap_or_else(|| "Page".to_string());
     let title = crate::lang::get(&code, "ranks_leaderboard_embed_title")
-        .unwrap_or_else(|| "Ranks leaderboard".to_string());
+        .unwrap_or_else(|| "🏆 Server Leaderboard of Legends".to_string());
     let not_for_you = crate::lang::get(&code, "help_not_for_you")
-        .unwrap_or_else(|| "This interaction is not for you.".to_string());
+        .unwrap_or_else(|| "This interaction is not for you".to_string());
     let lvl_label = |level: u64| {
         crate::lang::get(&code, "ranks_config_var_level")
             .map(|s| s.replace("{level}", &level.to_string()))
