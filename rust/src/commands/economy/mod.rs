@@ -264,12 +264,6 @@ fn parse_leaf_num(s: &str) -> Option<f64> {
     t.trim_matches('"').trim().parse::<f64>().ok()
 }
 
-async fn leaf_num(pool: &crate::db::Pool, guild_id: &str, key: &str) -> Option<f64> {
-    crate::db::kv_get(pool, guild_id, key)
-        .await
-        .and_then(|s| parse_leaf_num(&s))
-}
-
 /// Legacy-blob fallback for servers tuned by the older Rust shape
 /// (`ECONOMY.settings.<kind>` holding `{amount, cooldown_ms}`).
 fn blob_tuning(raw: &str, kind: &str) -> Option<ClaimTuning> {
@@ -289,28 +283,6 @@ fn blob_tuning(raw: &str, kind: &str) -> Option<ClaimTuning> {
         amount,
         cooldown_ms: cooldown,
     })
-}
-
-pub async fn load_tuning(pool: &crate::db::Pool, guild_id: &str, kind: &str) -> ClaimTuning {
-    let def = default_tuning(kind);
-    // Leaf-first, then legacy blob, then default (a stored 0 stays 0,
-    // mirroring the TS `??` fallback which only applies to null).
-    let legacy = crate::db::kv_get(pool, guild_id, &format!("ECONOMY.settings.{kind}"))
-        .await
-        .and_then(|s| blob_tuning(&s, kind));
-    let amount = leaf_num(pool, guild_id, &format!("ECONOMY.settings.{kind}.amount"))
-        .await
-        .or_else(|| legacy.as_ref().map(|t| t.amount))
-        .unwrap_or(def.amount);
-    let cooldown_ms = leaf_num(pool, guild_id, &format!("ECONOMY.settings.{kind}.cooldown"))
-        .await
-        .map(|f| f as i64)
-        .or_else(|| legacy.map(|t| t.cooldown_ms))
-        .unwrap_or(def.cooldown_ms);
-    ClaimTuning {
-        amount,
-        cooldown_ms,
-    }
 }
 
 pub fn econ_key(user_id: u64) -> String {
@@ -356,65 +328,6 @@ pub type ShopMap = BTreeMap<String, ShopEntry>;
 
 pub fn shop_key() -> &'static str {
     "ECONOMY.buyableRoles"
-}
-
-/// Load the shop object map. Accepts the TS map shape plus the legacy
-/// Rust Vec shape (`[{role_id, price, boost}]`) for old rows.
-pub async fn load_shop(pool: &crate::db::Pool, guild_id: &str) -> ShopMap {
-    let Some(raw) = crate::db::kv_get(pool, guild_id, shop_key()).await else {
-        return BTreeMap::new();
-    };
-    if let Ok(map) = serde_json::from_str::<ShopMap>(&raw) {
-        return map;
-    }
-    // Legacy Vec shape fallback.
-    fn entry_nums(entry: &serde_json::Value) -> (f64, Option<f64>) {
-        let price = entry
-            .get("price")
-            .and_then(|p| p.as_f64().or_else(|| p.as_i64().map(|i| i as f64)))
-            .unwrap_or(0.0);
-        let boost = entry.get("boost").and_then(|b| {
-            b.as_f64().or_else(|| {
-                b.as_i64().map(|i| i as f64).or_else(|| {
-                    b.as_str().and_then(|s| {
-                        let t = s.trim().trim_start_matches('x').trim();
-                        if t.is_empty() {
-                            None
-                        } else {
-                            t.parse::<f64>().ok()
-                        }
-                    })
-                })
-            })
-        });
-        (price, boost)
-    }
-    fn entry_id(entry: &serde_json::Value) -> Option<String> {
-        entry
-            .get("role_id")
-            .and_then(|r| {
-                r.as_str().map(|s| s.to_string()).or_else(|| {
-                    r.as_u64()
-                        .map(|n| n.to_string())
-                        .or_else(|| r.as_i64().map(|n| n.to_string()))
-                })
-            })
-            .filter(|s| !s.is_empty())
-    }
-    let mut out = BTreeMap::new();
-    if let Ok(vec) = serde_json::from_str::<Vec<serde_json::Value>>(&raw) {
-        for entry in vec {
-            if let Some(role_id) = entry_id(&entry) {
-                let (price, boost) = entry_nums(&entry);
-                out.insert(role_id, ShopEntry { price, boost });
-            }
-        }
-    }
-    out
-}
-
-async fn save_shop(pool: &crate::db::Pool, guild_id: &str, roles: &ShopMap) -> anyhow::Result<()> {
-    crate::db::kv_set(pool, guild_id, shop_key(), &serde_json::to_string(roles)?).await
 }
 
 /// ms remaining before `last + cooldown` given now; 0 = ready.
@@ -493,19 +406,11 @@ pub fn member_boost(shop_json: &str, member_roles: &[u64]) -> i64 {
     (best as i64).max(1)
 }
 
+/// Kept until the last `main::load_econ` callers (profil/show.rs,
+/// events.rs tests) are repointed to `balance::load_econ_routed`.
+/// Routed owner: table-first with legacy fallback (see balance.rs).
 pub async fn load_econ(pool: &crate::db::Pool, guild_id: &str, user_id: u64) -> EconAccount {
-    // Routed owner: table-first with legacy fallback (see balance.rs).
     balance::load_econ_routed(pool, guild_id, user_id).await
-}
-
-pub async fn save_econ(
-    pool: &crate::db::Pool,
-    guild_id: &str,
-    user_id: u64,
-    a: &EconAccount,
-) -> anyhow::Result<()> {
-    // Routed owner: dual-write so kv-only readers stay fresh.
-    balance::save_econ_routed(pool, guild_id, user_id, a).await
 }
 
 /// JS-like number display: integral floats render without decimals
@@ -849,22 +754,6 @@ impl CooldownKind {
             CooldownKind::Rob => "rob",
             CooldownKind::Work => "work",
         }
-    }
-}
-
-/// Whether the economy module is off. Mirrors the
-/// `ECONOMY.disabled === true` guard (a real boolean; the legacy Rust
-/// "1" shape is still accepted).
-pub async fn economy_disabled(pool: &crate::db::Pool, guild_id: &str) -> bool {
-    match crate::db::kv_get(pool, guild_id, "ECONOMY.disabled").await {
-        Some(v) => {
-            let t = v.trim();
-            if let Ok(b) = serde_json::from_str::<bool>(t) {
-                return b;
-            }
-            t == "1" || t.eq_ignore_ascii_case("true")
-        }
-        None => false,
     }
 }
 
@@ -1297,6 +1186,8 @@ mod tests {
         let stored = tbl_get_value(&pool, "g", "USER.4.ECONOMY").await.unwrap();
         assert_eq!(stored.get("bank").and_then(|v| v.as_i64()), Some(2));
         assert_eq!(load_econ_routed(&pool, "g", 4).await.money, 40);
+        // The kept `load_econ` owner delegates to the same routed store.
+        assert_eq!(load_econ(&pool, "g", 4).await.money, 40);
     }
 
     #[test]

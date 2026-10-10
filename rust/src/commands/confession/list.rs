@@ -23,16 +23,16 @@ pub async fn load_archived_keys(pool: &crate::db::Pool, gid: &str) -> Vec<String
     rows
 }
 
-/// List archived confessions (mods). Mirrors ALL_CONFESSIONS store read.
+/// List archived confessions (mods). Reads the ALL_CONFESSIONS store.
 ///
-/// Decision note (leaf-fit): count-only reply via
-/// `msg_archived_confessions` ("{} archived confessions."). No TS
-/// list subcommand exists (confession.ts only ships
-/// channel/config/thread/cooldown); per-item pagination, code lookup
-/// output, and private-content redaction need the mod.rs archive
-/// surface (`find_confession_by_code` compat + reveal flow) and are
-/// recorded as LEFT — this leaf intentionally stays count-only so a
-/// mod cannot page private confession bodies from here.
+/// Decision (ADOPT, count-only): no TS list subcommand exists
+/// (confession.ts only ships channel/config/thread/cooldown), so this
+/// is a Rust-only mod tool. It stays count-only via the existing
+/// `msg_archived_confessions` ("{} archived confessions.") key:
+/// per-item pagination, code lookup output, and private-content
+/// redaction would need the mod.rs archive surface
+/// (`find_confession_by_code` compat + reveal flow), and a mod must
+/// not page private confession bodies out of this leaf.
 #[poise::command(
     slash_command,
     prefix_command,

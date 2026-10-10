@@ -894,14 +894,24 @@ impl Handler {
                 (ch.role, ch.role2, ch.message_id, ch.channel_id);
             guard.remove(&key);
             drop(guard);
-            if let Ok(member) = guild_id.member(&ctx.http, msg.author.id).await {
+            if guild_id.member(&ctx.http, msg.author.id).await.is_ok() {
                 if let Some(r) = role {
-                    let _ = member.add_role(&ctx.http, serenity::RoleId::new(r)).await;
+                    let _ = crate::commands::security::grant_role(
+                        &ctx.http,
+                        guild_id,
+                        msg.author.id,
+                        serenity::RoleId::new(r),
+                    )
+                    .await;
                 }
                 if let Some(r) = role2 {
-                    let _ = member
-                        .remove_role(&ctx.http, serenity::RoleId::new(r))
-                        .await;
+                    let _ = crate::commands::security::strip_role(
+                        &ctx.http,
+                        guild_id,
+                        msg.author.id,
+                        serenity::RoleId::new(r),
+                    )
+                    .await;
                 }
             }
             let _ = serenity::ChannelId::new(channel_id)

@@ -92,6 +92,14 @@ pub fn beautiful_duration(ms: u64) -> String {
 
 /// Remaining cooldown ms before next confession; 0 = allowed.
 /// Mirrors per-user last-confession check in the confess submit flow.
+///
+/// C3 decision: per-guild persistent `CONFESSION_LAST.<userId>` under the
+/// guild scope, NOT the TS global volatile `tempTable`
+/// (`CONFESSION_COOLDOWN.<userId>` shared across guilds, lost on
+/// restart). Cross-guild blocking is a TS bug (confessing in guild A
+/// must not block guild B); per-guild matches the per-guild
+/// `GUILD.CONFESSION.cooldown` config, and persistence survives
+/// restarts. Both the confess and reply flows share the key, like TS.
 pub fn confession_cooldown_left(last_ms: Option<u64>, cooldown_ms: u64, now_ms: u64) -> u64 {
     match last_ms {
         None => 0,
@@ -413,18 +421,24 @@ pub async fn handle_confess_button(
     let _ = crate::db::kv_set(pool, &gid, &last_key, &now.to_string()).await;
     // Moderation archive (mirrors GUILD.CONFESSION.ALL_CONFESSIONS).
     // code/message_id/thread_id link confessionres% replies to this post.
-    let _ = crate::db::kv_set(
+    // C10 compat: field names follow the TS array shape
+    // (code/userId/timestamp/private/threadChannel/messageId); ids are
+    // strings like discord.js snowflakes. `content` is a Rust-only extra
+    // (TS stores no body). Dual-written via routed_set so both the
+    // table walk and the legacy kv scan see the row.
+    let _ = crate::commands::owner::main::routed_set(
         pool,
+        &gid,
         &gid,
         &format!("GUILD.CONFESSION.ALL_CONFESSIONS.{now}"),
         &serde_json::json!({
-            "author": comp.user.id.get().to_string(),
-            "content": text.trim(),
-            "at": now,
             "code": code,
-            "message_id": posted_id,
-            "thread_id": thread_id,
+            "userId": comp.user.id.get().to_string(),
+            "timestamp": now,
             "private": private,
+            "threadChannel": thread_id.map(|t| t.to_string()),
+            "messageId": posted_id.map(|m| m.to_string()),
+            "content": text.trim(),
         })
         .to_string(),
     )
@@ -505,8 +519,30 @@ pub async fn handle_confess_button(
     Ok(())
 }
 
+/// Author name, profile URL, and mention for the reveal embed.
+/// Pure part of [`handle_confession_author`] (runtime data only, no
+/// YAML): username + profile link + `<@id>` mention.
+pub fn confession_author_parts(username: &str, target_id: u64) -> (String, String, String) {
+    (
+        username.to_string(),
+        format!("https://discordapp.com/users/{target_id}"),
+        format!("Author: <@{target_id}>"),
+    )
+}
+
 /// Author reveal button (mod-only). Mirrors confessionauthor.ts
 /// (customId `confession-author%<userId>`).
+///
+/// C4 adjudication: (1) admin gate KEPT — TS has no permission check
+/// at all, so anyone clicking the log button learns the author's
+/// identity; the Rust gate (administrator only, silent deny) is an
+/// intentional security hardening, matching the ADMINISTRATOR gates on
+/// the confession subcommands. (2) embed-vs-text: TS sends a rich
+/// embed (author name + avatar + profile URL + mention, #010101), so
+/// the plain-text reply is upgraded to that embed shape here. The bot
+/// footer chrome is skipped (needs a poise Ctx); avatar bytes are
+/// snapshotted as an attachment per the Components V2 rule, never a
+/// raw CDN URL.
 pub async fn handle_confession_author(
     ctx: &serenity::Context,
     comp: &serenity::ComponentInteraction,
@@ -524,15 +560,32 @@ pub async fn handle_confession_author(
     if !is_admin {
         return Ok(());
     }
-    comp.create_response(
-        &ctx.http,
-        serenity::CreateInteractionResponse::Message(
-            serenity::CreateInteractionResponseMessage::new()
-                .content(format!("Author: <@{target_id}>"))
-                .ephemeral(true),
-        ),
-    )
-    .await?;
+    let Ok(user) = serenity::UserId::new(target_id).to_user(&ctx.http).await else {
+        return Ok(());
+    };
+    let (name, profile_url, mention) = confession_author_parts(&user.name, target_id);
+    let mut author = serenity::CreateEmbedAuthor::new(name).url(profile_url);
+    let mut files: Vec<serenity::CreateAttachment> = Vec::new();
+    if let Some(url) = user.avatar_url() {
+        if let Some(bytes) = crate::commands::shared::download_bytes(&url).await {
+            files.push(serenity::CreateAttachment::bytes(bytes, "user_icon.png"));
+            author = author.icon_url("attachment://user_icon.png");
+        }
+    }
+    let mut msg = serenity::CreateInteractionResponseMessage::new()
+        .embed(
+            serenity::CreateEmbed::default()
+                .colour(0x010101)
+                .author(author)
+                .description(mention)
+                .timestamp(serenity::Timestamp::now()),
+        )
+        .ephemeral(true);
+    for file in files {
+        msg = msg.add_file(file);
+    }
+    comp.create_response(&ctx.http, serenity::CreateInteractionResponse::Message(msg))
+        .await?;
     Ok(())
 }
 
@@ -551,27 +604,67 @@ pub fn confessionres_code(custom_id: &str) -> Option<&str> {
     }
 }
 
+/// True when an archive doc carries this confession code.
+/// Accepts the TS array-item shape and the Rust per-row shape (both
+/// store `code` as a string).
+pub fn confession_matches_code(entry: &serde_json::Value, code: &str) -> bool {
+    entry.get("code").and_then(|c| c.as_str()) == Some(code)
+}
+
+/// Thread channel id of an archive doc. Accepts the Rust `thread_id`
+/// (number) and the TS `threadChannel` (string snowflake, number, or
+/// null) so migrated TS archives still resolve.
+pub fn entry_thread_id(entry: &serde_json::Value) -> Option<u64> {
+    entry
+        .get("thread_id")
+        .and_then(|v| {
+            v.as_u64()
+                .or_else(|| v.as_str().and_then(|s| s.parse().ok()))
+        })
+        .or_else(|| {
+            entry.get("threadChannel").and_then(|v| {
+                v.as_u64()
+                    .or_else(|| v.as_str().and_then(|s| s.parse().ok()))
+            })
+        })
+}
+
 /// Find an archived confession by code. Mirrors the ALL_CONFESSIONS
-/// array find in confessionres.ts; the Rust archive is one kv row per
-/// confession (`GUILD.CONFESSION.ALL_CONFESSIONS.<ts>`).
+/// array find in confessionres.ts.
+///
+/// C10 compat: the Rust archive is one row per confession
+/// (`GUILD.CONFESSION.ALL_CONFESSIONS.<ts>`) while TS pushes into an
+/// array at `GUILD.CONFESSION.ALL_CONFESSIONS`. Read both halves like
+/// `list::load_archived_keys` does (table walk incl. a migrated
+/// TS-array doc, plus the legacy kv scan) instead of kv-only, and
+/// match both field-name variants via [`confession_matches_code`].
 pub async fn find_confession_by_code(
     pool: &crate::db::Pool,
     gid: &str,
     code: &str,
 ) -> Option<serde_json::Value> {
-    let keys: Vec<String> = sqlx::query_scalar::<_, String>(
-        "SELECT key_name FROM kv WHERE guild_id = ? AND key_name LIKE 'GUILD.CONFESSION.ALL_CONFESSIONS.%'",
-    )
-    .bind(gid)
-    .fetch_all(pool)
-    .await
-    .unwrap_or_default();
-    for key in keys {
-        if let Some(raw) = crate::db::kv_get(pool, gid, &key).await {
-            if let Ok(v) = serde_json::from_str::<serde_json::Value>(&raw) {
-                if v.get("code").and_then(|c| c.as_str()) == Some(code) {
-                    return Some(v);
+    use crate::commands::owner::main as routed;
+    if let Some(root) = routed::tbl_get_value(pool, gid, "GUILD").await {
+        if let Some(all) = routed::walk_path(&root, &["CONFESSION", "ALL_CONFESSIONS"]) {
+            if let Some(obj) = all.as_object() {
+                for v in obj.values() {
+                    if confession_matches_code(v, code) {
+                        return Some(v.clone());
+                    }
                 }
+            } else if let Some(arr) = all.as_array() {
+                for v in arr {
+                    if confession_matches_code(v, code) {
+                        return Some(v.clone());
+                    }
+                }
+            }
+        }
+    }
+    for (_, value) in routed::legacy_scan(pool, gid, "GUILD.CONFESSION.ALL_CONFESSIONS.").await {
+        if let Ok(v) = serde_json::from_str::<serde_json::Value>(&value) {
+            if confession_matches_code(&v, code) {
+                return Some(v);
             }
         }
     }
@@ -668,7 +761,7 @@ pub async fn handle_confession_response(
         .colour(2829617)
         .description(format!("`{text}`"))
         .timestamp(serenity::Timestamp::now());
-    if let Some(thread_id) = entry.get("thread_id").and_then(|t| t.as_u64()) {
+    if let Some(thread_id) = entry_thread_id(&entry) {
         let _ = serenity::ChannelId::new(thread_id)
             .send_message(&ctx.http, serenity::CreateMessage::new().embed(embed))
             .await;
@@ -750,6 +843,98 @@ mod tests {
         assert_eq!(confessionres_code("confessionres%abc123"), Some("abc123"));
         assert_eq!(confessionres_code("confessionres%"), None);
         assert_eq!(confessionres_code("other%x"), None);
+    }
+
+    #[test]
+    fn author_parts_carry_ts_reveal_shape() {
+        let (name, url, mention) = confession_author_parts("kisakay", 123);
+        assert_eq!(name, "kisakay");
+        assert_eq!(url, "https://discordapp.com/users/123");
+        assert_eq!(mention, "Author: <@123>");
+    }
+
+    #[test]
+    fn archive_code_matches_ts_and_rust_shapes() {
+        let ts = serde_json::json!({
+            "code": "abc123",
+            "userId": "7",
+            "timestamp": 1,
+            "private": true,
+            "threadChannel": null,
+            "messageId": "9",
+        });
+        let rust = serde_json::json!({
+            "code": "abc123",
+            "userId": "7",
+            "timestamp": 1,
+            "private": true,
+            "threadChannel": "10",
+            "messageId": "9",
+            "content": "hi",
+        });
+        assert!(confession_matches_code(&ts, "abc123"));
+        assert!(confession_matches_code(&rust, "abc123"));
+        assert!(!confession_matches_code(&ts, "nope"));
+        assert!(!confession_matches_code(&serde_json::json!({}), "abc123"));
+    }
+
+    #[test]
+    fn thread_id_reads_ts_string_and_rust_number() {
+        assert_eq!(
+            entry_thread_id(&serde_json::json!({"threadChannel": "123"})),
+            Some(123)
+        );
+        assert_eq!(
+            entry_thread_id(&serde_json::json!({"thread_id": 456})),
+            Some(456)
+        );
+        assert_eq!(
+            entry_thread_id(&serde_json::json!({"threadChannel": null})),
+            None
+        );
+        assert_eq!(entry_thread_id(&serde_json::json!({})), None);
+    }
+
+    async fn memory_pool() -> crate::db::Pool {
+        use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};
+        use std::str::FromStr;
+        let opts = SqliteConnectOptions::from_str("sqlite::memory:").unwrap();
+        let pool = SqlitePoolOptions::new()
+            .max_connections(1)
+            .connect_with(opts)
+            .await
+            .unwrap();
+        sqlx::query("CREATE TABLE kv (guild_id TEXT NOT NULL, key_name TEXT NOT NULL, value TEXT NOT NULL, PRIMARY KEY (guild_id, key_name))")
+            .execute(&pool)
+            .await
+            .unwrap();
+        pool
+    }
+
+    #[tokio::test]
+    async fn find_by_code_reads_legacy_ts_shape() {
+        let pool = memory_pool().await;
+        crate::db::kv_set(
+            &pool,
+            "g",
+            "GUILD.CONFESSION.ALL_CONFESSIONS.1",
+            &serde_json::json!({
+                "code": "tscode",
+                "userId": "7",
+                "timestamp": 1,
+                "private": true,
+                "threadChannel": "123",
+                "messageId": "9",
+            })
+            .to_string(),
+        )
+        .await
+        .unwrap();
+        let found = find_confession_by_code(&pool, "g", "tscode").await.unwrap();
+        assert_eq!(entry_thread_id(&found), Some(123));
+        assert!(find_confession_by_code(&pool, "g", "missing")
+            .await
+            .is_none());
     }
 
     #[test]
