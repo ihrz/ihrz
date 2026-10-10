@@ -1,6 +1,12 @@
 use super::*;
 
 /// two-sides meme generator (alias meme2). Mirrors @two-sides.ts.
+// SCOPE (prefix-only vs dual): the TS source declares
+// `type: "PREFIX_IHORIZON_COMMAND"` (prefix-only intent). This port
+// keeps dual registration (slash + prefix) like every other legacy
+// @-command: narrowing one command alone would fragment the registry,
+// so prefix-only narrowing is deferred to a port-wide legacy-scope
+// pass. Do not flip this registration without that pass.
 #[poise::command(
     slash_command,
     prefix_command,

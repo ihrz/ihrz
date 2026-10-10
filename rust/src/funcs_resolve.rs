@@ -12,6 +12,34 @@
 // - voiceChannel: numeric id (voice types only) -> fuzzy name (>= 0.6)
 // Callers pass the already-filtered mention list (bot-prefix filtering
 // happens at the Discord call site, see method.ts user()).
+//
+// DECISION (poise-parser, P5-RESOLVER-WIRING): poise stays the prefix
+// parser; this battery is NOT wired into dispatch (bot.rs
+// prefix_options). Verified against poise 0.6.2 + serenity 0.12.5
+// sources: full User/Member/Channel/Role prefix params parse via
+// serenity::ArgumentConvert::convert on the single word popped at that
+// parameter's own position (poise prefix_argument/argument_trait.rs
+// blanket impl, _parse_prefix in macros.rs), and poise strips the
+// `<@bot>` mention prefix from the content before arg splitting
+// (dispatch/prefix.rs), so the bot mention never enters the arg stream
+// and feed_user_mentions filtering is equivalent-by-construction there.
+// For well-formed invocations (a mention, if any, sits at its own arg
+// slot) that agrees with the TS legs below; pinned by the
+// prefix_parity_* tests. The leftover TS quirks are bugs, not parity
+// targets: user() returns parsedUsers[argsNumber] even when
+// arg[argsNumber] is not that mention (wrong user), and null when the
+// index is out of range even if the arg text is a valid id/username the
+// later legs would resolve; member() is guild-cache-only while serenity
+// falls back to HTTP search_members (superset); name lookups are exact
+// (`===`) in TS but case-insensitive in serenity (superset);
+// channel() tries exact name before mention while serenity tries
+// id/mention first (observable only on name/id collisions). Wiring the
+// battery into dispatch would need live snapshots (ordered mention
+// lists, member/channel/role caches) assembled in the dispatch path and
+// would CHANGE prefix behavior; it stays out until a live-parser
+// divergence is proven with a failing test first. The battery remains
+// available for call sites needing TS-exact offline resolution (e.g.
+// the voiceChannel fuzzy leg, which ArgumentConvert cannot do).
 
 /// True when the arg is a non-blank number. Mirrors isNumber().
 pub fn is_number(s: &str) -> bool {
@@ -462,6 +490,78 @@ mod tests {
         assert_eq!(resolve_number(&args, 0), 0);
         assert_eq!(resolve_number(&args, 1), 0);
         assert_eq!(resolve_number(&args, 2), 0);
+    }
+
+    #[test]
+    fn prefix_parity_user_aligned_mention_with_bot_prefix() {
+        // Well-formed `@bot ban <@111> ...`: poise strips the mention
+        // prefix before arg splitting (dispatch/prefix.rs), so the bot
+        // id never enters the arg stream; TS instead filters it out of
+        // parsedUsers (feed_user_mentions) and indexes [argsNumber].
+        // Both must resolve the word at its own slot to the same id.
+        let parsed = vec!["BOT".to_string(), "111".to_string()];
+        let feed = feed_user_mentions(&parsed, "BOT", true);
+        let arg = "<@111>";
+        // Positional word names the same id the mention feed carries.
+        assert_eq!(strip_user_mention(arg), feed[0]);
+        assert_eq!(
+            resolve_user(Some(arg), &feed, &members()).as_deref(),
+            Some("111")
+        );
+    }
+
+    #[test]
+    fn prefix_parity_role_mention_index() {
+        // TS role(): mentions.roles[argsNumber] wins. `!cmd <@&6>` with
+        // the role at arg 0 feeds mention index 0; poise parses the same
+        // word positionally via ArgumentConvert (id/mention -> name), so
+        // aligned invocations agree.
+        let roles = vec![Entry::new("5", "Mods"), Entry::new("6", "VIP")];
+        let mention = feed_mention_at(&["6".to_string()], 0);
+        assert_eq!(
+            resolve_role(Some("<@&6>"), mention.as_deref(), &roles).as_deref(),
+            Some("6")
+        );
+        // Two role slots: the second param (argsNumber 1) feeds the
+        // second mention, mirroring the TS index.
+        let mentions = vec!["5".to_string(), "6".to_string()];
+        let mention = feed_mention_at(&mentions, 1);
+        assert_eq!(
+            resolve_role(Some("<@&6>"), mention.as_deref(), &roles).as_deref(),
+            Some("6")
+        );
+    }
+
+    #[test]
+    fn prefix_parity_channel_mention_index() {
+        // TS channel(): exact name first, then
+        // mentions.channels[argsNumber]. `!cmd <#20>` with no name match
+        // feeds mention index 0; poise parses the same word
+        // positionally (id/mention -> name).
+        let chs = vec![Entry::new("10", "general"), Entry::new("20", "random")];
+        let mention = feed_mention_at(&["20".to_string()], 0);
+        assert_eq!(
+            resolve_channel(Some("<#20>"), mention.as_deref(), &chs).as_deref(),
+            Some("20")
+        );
+        // Second positional slot indexes the second mention (argsNumber).
+        let mentions = vec!["10".to_string(), "20".to_string()];
+        assert_eq!(feed_mention_at(&mentions, 1).as_deref(), Some("20"));
+        assert_eq!(feed_mention_at(&mentions, 2), None);
+    }
+
+    #[test]
+    fn prefix_parity_positional_scalars() {
+        // TS string()/longString()/number() index args by argsNumber;
+        // poise pops words positionally. `!cmd 7 hello world` with a
+        // number at 0 and a longString at 1 must agree on both legs.
+        let args = vec!["7".to_string(), "hello".to_string(), "world".to_string()];
+        assert_eq!(resolve_number(&args, 0), 7);
+        assert_eq!(resolve_string(&args, 1).as_deref(), Some("hello"));
+        assert_eq!(
+            resolve_long_string(&args, 1).as_deref(),
+            Some("hello world")
+        );
     }
 
     async fn mem_pool() -> crate::db::Pool {

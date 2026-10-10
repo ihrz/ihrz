@@ -166,10 +166,98 @@ pub fn embed_with_footer(
     )
 }
 
+/// Prefix-display name lookup. Mirrors the `prefixName || name` display
+/// picks in TS `createAwesomeEmbed` (method.ts:327,354) and
+/// `sendErrorMessage` (method.ts:666,686): `prefixName` is display-only
+/// there (prefix dispatch matches `name`/aliases), so this table exists
+/// only for usage/help lines. Keyed by the Rust slash qualified path
+/// (`parent leaf`, e.g. `ranks show`); an entry exists only where the
+/// matching TS top-level hybrid option defines a `prefixName` that
+/// differs from its slash name. No entry (None) means "show the slash
+/// name", which covers top-level commands (no real top-level hybrid
+/// command defines `prefixName`), identity pairs (`talk`, `shop`,
+/// `addrole`), and port-restructured leaves with no TS counterpart
+/// (`role-add`, `ignore-add`, `unban-all`, `custom`/`starboard` rows).
+pub fn prefix_name_for(qualified: &str) -> Option<&'static str> {
+    match qualified {
+        "antispam bypass-roles" => Some("antispam-bypass-roles"),
+        "antispam ignore-channels" => Some("antispam-ignore-channels"),
+        "backup create" => Some("backup-create"),
+        "backup list" => Some("backup-list"),
+        "backup load" => Some("backup-load"),
+        "backup delete" => Some("backup-delete"),
+        "backup manage" => Some("backup-manager"),
+        "confession channel" => Some("confess-channel"),
+        "confession config" => Some("confess-config"),
+        "confession cooldown" => Some("confess-cooldown"),
+        "confession thread" => Some("confthread"),
+        "counter channel" => Some("counter-channel"),
+        "counter config" => Some("counter-config"),
+        "economy balance-add" => Some("addmoney"),
+        "economy balance-remove" => Some("removemoney"),
+        "economy boost-set" => Some("economy-boost-set"),
+        "economy config" => Some("ecconfig"),
+        "economy greset" => Some("economy-greset"),
+        "economy leaderboard" => Some("economy-leaderboard"),
+        "economy ureset" => Some("economy-ureset"),
+        "fun config" => Some("fconfig"),
+        "gw create" => Some("gw-create"),
+        "gw end" => Some("gw-end"),
+        "h247 info" => Some("h247info"),
+        "inv leaderboard" => Some("invites-leaderboard"),
+        "inv reset" => Some("invites-reset"),
+        "pfps channel" => Some("pfps-channel"),
+        "pfps config" => Some("pfps-config"),
+        "ranks channel" => Some("ranks-channel"),
+        "ranks config" => Some("rconfig"),
+        "ranks greset" => Some("ranks-greset"),
+        "ranks leaderboard" => Some("ranks-leaderboard"),
+        "ranks message" => Some("ranks-message"),
+        "ranks show" => Some("ranks-show"),
+        "ranks ureset" => Some("ranks-ureset"),
+        "security channel" => Some("security-channel"),
+        "security config" => Some("security-config"),
+        "sticky disable" => Some("sticky-disable"),
+        "sticky embed" => Some("sticky-embed"),
+        "sticky list" => Some("sticky-list"),
+        "sticky refresh" => Some("sticky-refresh"),
+        "sticky show" => Some("sticky-show"),
+        "sticky text" => Some("sticky-text"),
+        "tag create" => Some("tag-create"),
+        "tag delete" => Some("tag-delete"),
+        "tag info" => Some("tag-info"),
+        "tag list" => Some("tag-list"),
+        "tag use" => Some("tag-use"),
+        "tag wlroles-create" => Some("tag-wlcreate"),
+        "tag wlroles-use" => Some("tag-wluse"),
+        "ticket config" => Some("ticket-config"),
+        "ticket delete" => Some("ticket-delete"),
+        "tts info" => Some("ttsinfo"),
+        "tts join" => Some("ttsjoin"),
+        "tts lang" => Some("ttslang"),
+        "tts leave" => Some("ttsleave"),
+        "utils banner server" => Some("banner-server"),
+        "utils banner user" => Some("banner-user"),
+        _ => None,
+    }
+}
+
 /// Custom per-command permissions. Mirrors perm/!command.ts
 /// (UTILS.PERMS.<command> {users, roles, level}).
 pub fn perm_key(command: &str) -> String {
     format!("UTILS.PERMS.{command}")
+}
+
+/// Legacy UTILS.PERMS alias for a renamed command. The Rust port
+/// renamed the TS `prefix` command to `setprefix`
+/// (MessageCommands/bot/@prefix.ts `name: "prefix"`, aliases
+/// `setprefix`/`changeprefix`); rows stored under the old key must keep
+/// resolving, mirroring the TS `UTILS.PERMS.prefix` lookup.
+pub fn perm_fallback_key(command: &str) -> Option<&'static str> {
+    match command {
+        "setprefix" => Some("prefix"),
+        _ => None,
+    }
 }
 
 pub async fn load_cmd_perms(
@@ -179,9 +267,18 @@ pub async fn load_cmd_perms(
 ) -> Option<crate::executor::CmdPerms> {
     let backend = guild_backend(pool);
     let table = backend.table(guild_id);
-    let raw: serde_json::Value =
-        table_value_or_legacy(&table, pool, guild_id, &perm_key(command)).await?;
-    parse_cmd_perms_value(&raw)
+    if let Some(raw) = table_value_or_legacy(&table, pool, guild_id, &perm_key(command)).await {
+        return parse_cmd_perms_value(&raw);
+    }
+    // Renamed-command compat: rows stored under the pre-rename key
+    // (e.g. UTILS.PERMS.prefix for `setprefix`) keep resolving. The
+    // primary key wins when both exist.
+    if let Some(legacy) = perm_fallback_key(command) {
+        if let Some(raw) = table_value_or_legacy(&table, pool, guild_id, &perm_key(legacy)).await {
+            return parse_cmd_perms_value(&raw);
+        }
+    }
+    None
 }
 
 /// Decode one `UTILS.PERMS.<command>` value. Mirrors the read branches
@@ -619,6 +716,60 @@ mod tests {
         assert_eq!(kick.level, Some(2));
         assert!(load_cmd_perms(&pool, "g1", "missing").await.is_none());
         assert!(load_cmd_perms(&pool, "g2", "ban").await.is_none());
+    }
+
+    #[test]
+    fn prefix_name_lookup_matches_ts_prefix_names() {
+        // Spot checks against the TS HybridCommands ground truth
+        // (`prefixName` on top-level subcommand options).
+        assert_eq!(prefix_name_for("ranks show"), Some("ranks-show"));
+        assert_eq!(prefix_name_for("ranks config"), Some("rconfig"));
+        assert_eq!(prefix_name_for("tts join"), Some("ttsjoin"));
+        assert_eq!(prefix_name_for("economy balance-add"), Some("addmoney"));
+        assert_eq!(prefix_name_for("utils banner user"), Some("banner-user"));
+        assert_eq!(prefix_name_for("backup manage"), Some("backup-manager"));
+        assert_eq!(prefix_name_for("tag wlroles-use"), Some("tag-wluse"));
+        // No real top-level hybrid command defines prefixName.
+        assert_eq!(prefix_name_for("ranks"), None);
+        assert_eq!(prefix_name_for("setprefix"), None);
+        // Port-restructured leaves have no TS counterpart row.
+        assert_eq!(prefix_name_for("ranks role-add"), None);
+        assert_eq!(prefix_name_for("ranks ignore-add"), None);
+        assert_eq!(prefix_name_for("economy role-add"), None);
+        // Identity pairs (prefixName == slash name) need no entry.
+        assert_eq!(prefix_name_for("util talk"), None);
+        assert_eq!(prefix_name_for("economy shop"), None);
+        assert_eq!(prefix_name_for("utils addrole"), None);
+        // Unknown paths stay silent.
+        assert_eq!(prefix_name_for("nope missing"), None);
+        assert_eq!(prefix_name_for(""), None);
+    }
+
+    #[tokio::test]
+    async fn setprefix_perms_fall_back_to_legacy_prefix_key() {
+        let pool = memory_pool().await;
+        let backend = guild_backend(&pool);
+        // Stored under the old TS key (`UTILS.PERMS.prefix`), resolved
+        // through the Rust rename (`setprefix`).
+        backend
+            .table("g1")
+            .set(&perm_key("prefix"), serde_json::json!({"level": 4}))
+            .await
+            .unwrap();
+        let got = load_cmd_perms(&pool, "g1", "setprefix").await.unwrap();
+        assert_eq!(got.level, Some(4));
+        // The primary key wins when both rows exist.
+        backend
+            .table("g1")
+            .set(&perm_key("setprefix"), serde_json::json!({"level": 7}))
+            .await
+            .unwrap();
+        let got = load_cmd_perms(&pool, "g1", "setprefix").await.unwrap();
+        assert_eq!(got.level, Some(7));
+        // Unrelated commands get no fallback.
+        assert!(load_cmd_perms(&pool, "g1", "ban").await.is_none());
+        assert_eq!(perm_fallback_key("setprefix"), Some("prefix"));
+        assert_eq!(perm_fallback_key("ban"), None);
     }
 
     #[tokio::test]

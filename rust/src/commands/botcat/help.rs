@@ -1,6 +1,6 @@
 use crate::bot::{Ctx, Data};
 use crate::commands::shared::{
-    build_awesome_embed, AwesomeHelpInput, HelpOptionDoc, HelpSubcommandDoc,
+    build_awesome_embed, prefix_name_for, AwesomeHelpInput, HelpOptionDoc, HelpSubcommandDoc,
 };
 use crate::commands::utils::{embed_with_footer, footer_parts};
 
@@ -219,7 +219,7 @@ pub async fn help(
                 crate::commands::guildconfig::load_cmd_perms(pool, &gid_str, &found.name).await;
             let input = AwesomeHelpInput {
                 command_name: found.name.clone(),
-                prefix_name: None,
+                prefix_name: prefix_name_for(&found.qualified_name).map(str::to_string),
                 description,
                 aliases: found.aliases.clone(),
                 base_permission,
@@ -230,7 +230,7 @@ pub async fn help(
                     .iter()
                     .map(|s| HelpSubcommandDoc {
                         name: s.name.clone(),
-                        prefix_name: None,
+                        prefix_name: prefix_name_for(&s.qualified_name).map(str::to_string),
                         aliases: s.aliases.clone(),
                         options: help_options(s),
                     })

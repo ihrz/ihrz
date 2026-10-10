@@ -624,7 +624,14 @@ async fn prefix_usage_denial(ctx: Ctx<'_>, input: Option<String>) {
                 .to_string()
         });
     let bot_prefix = crate::db::guild_prefix(pool, gid, &ctx.data().config.prefix).await;
-    let display = ctx.command().qualified_name.clone();
+    // Display name mirrors sendErrorMessage's `prefixName || name`
+    // (method.ts:666,686): the invoked target's leaf prefix name when
+    // TS defines one, else the slash leaf name. The qualified path is
+    // only the lookup key, never displayed.
+    let invoked = ctx.command();
+    let display = crate::commands::shared::prefix_name_for(&invoked.qualified_name)
+        .map(str::to_string)
+        .unwrap_or_else(|| invoked.name.clone());
     let args = match ctx {
         poise::Context::Prefix(p) => prefix_args::split_args(p.args),
         _ => vec![String::new()],
@@ -705,7 +712,8 @@ async fn no_run_help(ctx: Ctx<'_>) {
     let (footer_name, icon) = crate::commands::shared::footer_parts(&ctx, &gid_str).await;
     let input = crate::commands::shared::AwesomeHelpInput {
         command_name: cmd.name.clone(),
-        prefix_name: None,
+        prefix_name: crate::commands::shared::prefix_name_for(&cmd.qualified_name)
+            .map(str::to_string),
         description,
         aliases: cmd.aliases.clone(),
         base_permission,
@@ -716,7 +724,8 @@ async fn no_run_help(ctx: Ctx<'_>) {
             .iter()
             .map(|s| crate::commands::shared::HelpSubcommandDoc {
                 name: s.name.clone(),
-                prefix_name: None,
+                prefix_name: crate::commands::shared::prefix_name_for(&s.qualified_name)
+                    .map(str::to_string),
                 aliases: s.aliases.clone(),
                 options: help_options(s),
             })
@@ -1415,15 +1424,19 @@ pub async fn run(cfg: Config, pool: Pool) -> anyhow::Result<()> {
                         // so the option docs are rebuilt field-by-field;
                         // strip_perm_props runs over the result to mirror
                         // the TS dump exactly (no-op when no custom keys).
-                        // `prefix_name` has no Rust equivalent (the help leg
-                        // likewise passes prefix_name: None; aliases below
-                        // carry the prefix triggers instead), so it dumps
-                        // as null. `thinking`/`ephemeral` mirror the TS
+                        // `prefix_name` comes from the same display lookup
+                        // as the help legs; it is null here because no
+                        // top-level hybrid command defines a TS
+                        // `prefixName` (ready.ts dumps `x.prefixName`,
+                        // always undefined in practice). `thinking` /
+                        // `ephemeral` mirror the TS
                         // flags via defer_policy on the qualified path
                         // (poise's native `ephemeral` bit means something
                         // else and is not mixed in).
                         let policy =
                             crate::commands::defer_policy(&cmd.qualified_name);
+                        let prefix_name =
+                            crate::commands::shared::prefix_name_for(&cmd.qualified_name);
                         let mut options = serde_json::Value::Array(
                             cmd.parameters
                                 .iter()
@@ -1442,7 +1455,9 @@ pub async fn run(cfg: Config, pool: Pool) -> anyhow::Result<()> {
                         strip_perm_props(&mut options);
                         entries.push(serde_json::json!({
                             "name": cmd.name,
-                            "prefix_name": serde_json::Value::Null,
+                            "prefix_name": prefix_name
+                                .map(|s| serde_json::Value::String(s.to_string()))
+                                .unwrap_or(serde_json::Value::Null),
                             "name_translated": cmd.name_localizations,
                             "description": cmd.description,
                             "description_translated": cmd.description_localizations,

@@ -1,6 +1,12 @@
 use super::*;
 
 /// The `h` category browser. Mirrors MessageCommands/bot @h.ts.
+// SCOPE (prefix-only vs dual): the TS source declares
+// `type: "PREFIX_IHORIZON_COMMAND"` (prefix-only intent, name `h`).
+// This port keeps dual registration (slash + prefix) like every other
+// legacy @-command: narrowing one command alone would fragment the
+// registry, so prefix-only narrowing is deferred to a port-wide
+// legacy-scope pass. Do not flip this registration without that pass.
 #[poise::command(slash_command, prefix_command, category = "bot", rename = "h")]
 pub async fn help_browser(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {
