@@ -275,12 +275,13 @@ committed — see `.gitignore`. No push without a green
 ### DB call-sites (audit task-4: 423 legacy lines, 0 migrated; triaged U-ETERNAL-83: D1+D6 DONE, rest PARTIAL/TODO with 12 confirmed gap items below)
 - [x] D1 shared leaf helpers first (`shared.rs`, key-helper fns) — DONE (U-ETERNAL-83: table-routed loaders + dual-write tbl_* primitives + table_value_or_legacy fallback by design).
 - [~] D2 small categories batch → guild tables — PARTIAL (gaps: D2-SMALL live kv readers in membercount/h247/sticky/suggestion/tts/notifier/pfps/tag/starboard/stats/blogger/invitesmanager/honeypot/antispam/botcat/music-history/utils).
-- [~] D3 named tables — PARTIAL (authrestore/prevnames/blacklist readers DONE; gaps: D3-BACKUP backup*.rs→backup_get/set/del, D3-GIVEAWAY mod.rs 7 sites→gw.rs, D3-SCHEDULE-PROFIL schedule/mod.rs 5 + profil/mod.rs 2).
-- [~] D4 economy/ranks/moderation (+`add`/`sub` math) — PARTIAL (ranks DONE, economy near-done; gaps: D4-ECON-MOD ECONOMY_LOG_KEY read, greset/ureset prefix deletes, warns load/save + clear-all scan).
+- [~] D3 named tables — PARTIAL (authrestore/prevnames/blacklist readers DONE; D3-BACKUP/D3-SCHEDULE-PROFIL DONE in U-ETERNAL-84; remaining gap: D3-GIVEAWAY mod.rs 7 sites→gw.rs).
+- [~] D4 economy/ranks/moderation (+`add`/`sub` math) — PARTIAL (ranks DONE, D4-ECON-MOD DONE in U-ETERNAL-84: log-key read, greset/ureset, warns routed + clear-all).
 - [~] D5 confession/guildconfig/protection/utils/rolereactions/embed/ticket/legacy/voicedashboard/newfeatures — PARTIAL (protection/rolereactions/embed/voicedashboard/guildconfig-subset DONE; gaps: D5-CONFESSION 19, D5-GUILDCONFIG perm 15+automod 9+tonew/blockbot/welcomer/mod, D5-TICKET 12, D5-LEGACY 8, D5-NEWFEATURES 15; no starts_with scan in live ticket code).
 - [x] D6 `events.rs`, then `events_handler.rs` (85 sites) — DONE live (U-ETERNAL-83: events.rs live 0, 63 *_routed loaders + 292 uses; only GUILD.LANG by-design + BOT bio for D7 remain).
 - [ ] D7 decide routing for `LASTFM.*` + `newsletter_bl` (no TS named table), then `core/mod.rs`, `db.rs`, `monitor.rs` — TODO (gaps: D7-LASTFM LASTFM.<uid>/GUILD.LASTFM, D7-METAS newsletter_bl + meta_*/monitor/scheduler-sweeps/bot-temp/funcs_perms/funcs/lang).
 - [x] U-ETERNAL-83 (2026-10-10: D-track triage sweep (D1-D7, live-vs-test kv_* classification @f18fe6672): D1+D6 DONE, D2/D3/D4/D5 PARTIAL, D7 TODO; 12 confirmed gap items recorded above. Suite untouched — read-only).
+- [x] U-ETERNAL-84 (2026-10-10: D3-BACKUP + D3-SCHEDULE-PROFIL + D4-ECON-MOD (3 workers, 13 files): backups table primary w/ kv fallback (bkp_get/set/del/owns), schedule legacy fns delegate to *_routed (+expired-shape parse fix), profil scope-"0" delegates to user_profil table, ECONOMY_LOG_KEY routed read, greset/ureset dual-store clears, warns load/save routed + clear-all table-first; legacy fallbacks kept everywhere. Lead: doc-comment + needless-borrow clippy fixes. Suite 1561/0, fmt + clippy clean).
 
 ### Prefix (audit task-5)
 - [ ] P1 unify prefix DB key (`BOT.prefix` vs `GUILD.PREFIX`) + migrate existing guilds.
