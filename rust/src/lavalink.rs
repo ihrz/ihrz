@@ -1781,6 +1781,15 @@ impl LavalinkManager {
         pending.get(&guild_id).and_then(|p| p.combined())
     }
 
+    /// Drop the cached Discord voice handshake for a guild. Mirrors the
+    /// h247VoiceSessions.delete leg of deleteH247Data in
+    /// src/core/modules/h247Manager.ts: after a voluntary /h247 leave
+    /// no stale token/endpoint/session may survive to feed a future
+    /// player handshake.
+    pub async fn drop_pending_voice(&self, guild_id: u64) {
+        self.pending_voice.lock().await.remove(&guild_id);
+    }
+
     /// Push a completed Discord voice handshake to the guild node
     /// (mirrors the update_player voice forward fed by raw.ts).
     pub async fn push_voice_state(

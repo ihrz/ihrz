@@ -16,6 +16,7 @@ pub fn parse_config_action(action: &str) -> Option<bool> {
     slash_command,
     prefix_command,
     rename = "config",
+    aliases("ticket-config"),
     default_member_permissions = "ADMINISTRATOR"
 )]
 pub async fn ticket_config(

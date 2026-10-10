@@ -78,6 +78,7 @@ async fn post_cooldown_log(ctx: &Ctx<'_>, title: &str, description: &str) {
     slash_command,
     prefix_command,
     rename = "cooldown",
+    aliases("confess-cooldown"),
     default_member_permissions = "ADMINISTRATOR"
 )]
 pub async fn confession_cooldown(

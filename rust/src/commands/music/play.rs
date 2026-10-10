@@ -118,7 +118,7 @@ pub async fn m_play(
         .play_queries(gid, std::slice::from_ref(&title), requester, now_ms())
         .await;
     match results.pop() {
-        Some(Ok((pos, t, is_playlist))) => {
+        Some(Ok((_pos, t, is_playlist))) => {
             // Rich entry (mirrors musicPlay.ts buffer/embed rows:
             // requester - resolved title | uri by requester).
             let requester_tag = format!("<@{requester}>");
@@ -195,14 +195,15 @@ pub async fn m_play(
                         .await;
                 });
             }
-            // Queued (not first): announce in the player's text
-            // channel when it differs (TS `sendQueueAddMessage`).
-            if pos > 0
-                && text_channel
-                    != snap
-                        .as_ref()
-                        .and_then(|s| s.text_channel)
-                        .unwrap_or(text_channel)
+            // Queued: echo in the player's text channel when it differs
+            // from the interaction channel (TS `sendQueueAddMessage`
+            // gates purely on the channel mismatch, for every added
+            // track — no position check).
+            if text_channel
+                != snap
+                    .as_ref()
+                    .and_then(|s| s.text_channel)
+                    .unwrap_or(text_channel)
             {
                 if let Some(text) = snap.as_ref().and_then(|s| s.text_channel) {
                     let icon = emoji_markup(&ctx, "Music_Icon", "🎵").await;

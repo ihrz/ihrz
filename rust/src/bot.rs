@@ -873,6 +873,16 @@ fn dynamic_prefix(
 /// which manages its own idempotency, so no per-send nonce is set.
 fn intents() -> serenity::GatewayIntents {
     // Mirrors the explicit GatewayIntentBits list in src/core/bot.ts.
+    // PRESENCE INTENT, CONFIRMED (B7): GuildPresences here is the
+    // privileged presence intent (dashboard toggle required, same as
+    // TS); the bot configures no activity presence at boot —
+    // ready.ts quotesPresence() returns immediately (disabled) and
+    // ready() sets a static custom "iHorizon" activity instead.
+    // PHONE PRESENCE, NOT PORTABLE: core.ts sets the identify
+    // browser to "Discord Android" when discord.phonePresence is
+    // true; serenity 0.12 exposes no identify-properties override,
+    // so the flag is parsed (config.phone_presence) but has no
+    // gateway effect.
     serenity::GatewayIntents::GUILDS
         | serenity::GatewayIntents::GUILD_MEMBERS
         | serenity::GatewayIntents::GUILD_MODERATION
@@ -1004,6 +1014,92 @@ pub fn collect_users_names(
         map.insert(id, (username, global_name));
     }
     map
+}
+
+/// BOT metas push interval. Mirrors `setInterval(refreshBotData,
+/// 45_000)` in ready.ts (main shard only).
+pub const BOT_METAS_PUSH_SECS: u64 = 45;
+
+/// refreshBotData retry budget. Mirrors MAX_RETRIES = 12 /
+/// RETRY_MS = 5_000 in ready.ts (broadcastEval throws
+/// ShardingInProcess while shards spawn). The Rust push fails on
+/// the kv write instead, but keeps the same budget so a slow store
+/// at boot does not drop the row.
+pub const BOT_METAS_MAX_RETRIES: u32 = 12;
+pub const BOT_METAS_RETRY_MS: u64 = 5_000;
+
+/// Live inputs for one BOT metas row. Mirrors the
+/// `metasTable.set("BOT", { info, content, user, lastPushAt,
+/// lastPushAtISO, writerShard })` shape in refreshBotData
+/// (ready.ts). `ping_ms` is 0 at this call site: serenity exposes
+/// per-shard latency via the ShardManager, which ready() does not
+/// hold, so no equivalent of
+/// `infrastructureMonitoring.getAverageWebsocketPing()` exists here.
+pub struct BotMetasInput {
+    pub members: u64,
+    pub servers: u64,
+    pub shards: u64,
+    pub ping_ms: u64,
+    pub commands: usize,
+    pub categories: usize,
+    pub langs: Vec<String>,
+    pub username: String,
+    pub tag: String,
+    pub user_id: u64,
+    pub discriminator: Option<u16>,
+    pub avatar: String,
+    pub bio: String,
+    pub shard_id: u64,
+}
+
+/// Build the BOT metas row. Pure so the key layout is
+/// offline-testable; the caller stores it under the bot-scope kv
+/// key `BOT` (metasTable equivalent, guild "0").
+pub fn bot_metas_row(input: &BotMetasInput, pushed_at_ms: i64) -> serde_json::Value {
+    serde_json::json!({
+        "info": {
+            "members": input.members,
+            "servers": input.servers,
+            "shards": input.shards,
+            "ping": input.ping_ms,
+        },
+        "content": {
+            "commands": input.commands,
+            "category": input.categories,
+            "langs": input.langs,
+        },
+        "user": {
+            "username": input.username,
+            "tag": input.tag,
+            "id": input.user_id.to_string(),
+            "discriminator": input.discriminator,
+            "avatar": input.avatar,
+            "bio": input.bio,
+        },
+        "lastPushAt": pushed_at_ms,
+        "lastPushAtISO": chrono::DateTime::from_timestamp_millis(pushed_at_ms)
+            .map(|dt| dt.to_rfc3339())
+            .unwrap_or_default(),
+        "writerShard": input.shard_id,
+    })
+}
+
+/// Store one BOT metas row with the TS retry budget. Best-effort:
+/// logs and returns after the final attempt, never panics.
+pub async fn push_bot_metas(pool: &Pool, row: &serde_json::Value, shard_id: u64) {
+    let text = row.to_string();
+    for attempt in 1..=BOT_METAS_MAX_RETRIES.max(1) {
+        match crate::db::kv_set(pool, crate::core::release::META_SCOPE, "BOT", &text).await {
+            Ok(()) => return,
+            Err(e) => {
+                if attempt >= BOT_METAS_MAX_RETRIES.max(1) {
+                    tracing::warn!("refreshBotData failed (shard #{shard_id}): {e}");
+                    return;
+                }
+                tokio::time::sleep(std::time::Duration::from_millis(BOT_METAS_RETRY_MS)).await;
+            }
+        }
+    }
 }
 
 /// Prefix dispatch options. Mirrors the TS prefix path
@@ -1145,6 +1241,73 @@ pub async fn run(cfg: Config, pool: Pool) -> anyhow::Result<()> {
             Box::pin(async move {
                 poise::builtins::register_globally(ctx, &framework.options().commands).await?;
                 tracing::info!("slash commands synced");
+                // Bot-owner table seed (mirrors refreshDatabaseModel in
+                // src/Events/client/ready.ts: config owners are written to
+                // ownerTable at boot). Numeric-only like the isNumber gate
+                // in core.ts; persisted rows merge with config via
+                // db::bot_owner_ids (mirrors ownerHelper.getBotOwner).
+                for owner in cfg_fw.owners.iter() {
+                    let id: u64 = match owner.trim().parse() {
+                        Ok(id) if id != 0 => id,
+                        _ => continue,
+                    };
+                    if let Err(e) = crate::db::add_bot_owner(&pool_fw, id).await {
+                        tracing::warn!("owner seed failed for {id}: {e}");
+                    }
+                }
+                // Dev commands.json dump (mirrors the `version.env ===
+                // "dev"` branch in ready.ts writing
+                // src/files/commands.json with perm-stripped options).
+                // Debug builds only; best-effort, never fails boot.
+                #[cfg(debug_assertions)]
+                {
+                    let mut root =
+                        std::env::current_dir().unwrap_or_else(|_| ".".into());
+                    if root.ends_with("rust") {
+                        root.pop();
+                    }
+                    let mut entries = Vec::new();
+                    for cmd in framework.options().commands.iter() {
+                        // Poise parameters carry fn pointers (no Serialize),
+                        // so the option docs are rebuilt field-by-field;
+                        // strip_perm_props runs over the result to mirror
+                        // the TS dump exactly (no-op when no custom keys).
+                        let mut options = serde_json::Value::Array(
+                            cmd.parameters
+                                .iter()
+                                .map(|p| {
+                                    serde_json::json!({
+                                        "name": p.name,
+                                        "name_localizations": p.name_localizations,
+                                        "description": p.description,
+                                        "description_localizations": p.description_localizations,
+                                        "required": p.required,
+                                        "choices": p.choices.iter().map(|c| &c.name).collect::<Vec<_>>(),
+                                    })
+                                })
+                                .collect(),
+                        );
+                        strip_perm_props(&mut options);
+                        entries.push(serde_json::json!({
+                            "name": cmd.name,
+                            "name_translated": cmd.name_localizations,
+                            "description": cmd.description,
+                            "description_translated": cmd.description_localizations,
+                            "category": cmd.category,
+                            "options": options,
+                            "aliases": cmd.aliases,
+                        }));
+                    }
+                    let path = root.join("src").join("files").join("commands.json");
+                    match serde_json::to_string_pretty(&entries) {
+                        Ok(text) => {
+                            if let Err(e) = std::fs::write(&path, text) {
+                                tracing::warn!("commands.json dump failed: {e}");
+                            }
+                        }
+                        Err(e) => tracing::warn!("commands.json dump failed: {e}"),
+                    }
+                }
                 // Lavalink nodes: sync from config, register this
                 // shard's messenger for OP4 leave, and dial each node
                 // WS (mirrors playerManager.ts init + nodeManager
@@ -1708,6 +1871,80 @@ mod tests {
             shard_presence_name(3, 0),
             "Shards #3 | 0 Servers | www.ihorizon.org"
         );
+    }
+
+    #[test]
+    fn intents_cover_every_ts_gateway_intent_bit() {
+        // Locks parity with the explicit GatewayIntentBits list in
+        // src/core/bot.ts (21 bits). Any new TS intent must be added
+        // to intents() above, or this test names the drift.
+        let got = intents();
+        use poise::serenity_prelude::GatewayIntents as G;
+        for want in [
+            G::GUILDS,
+            G::GUILD_MEMBERS,
+            G::GUILD_MODERATION,
+            G::GUILD_EMOJIS_AND_STICKERS,
+            G::GUILD_INTEGRATIONS,
+            G::GUILD_WEBHOOKS,
+            G::GUILD_INVITES,
+            G::GUILD_VOICE_STATES,
+            G::GUILD_PRESENCES,
+            G::GUILD_MESSAGES,
+            G::GUILD_MESSAGE_REACTIONS,
+            G::GUILD_MESSAGE_TYPING,
+            G::DIRECT_MESSAGES,
+            G::DIRECT_MESSAGE_REACTIONS,
+            G::DIRECT_MESSAGE_TYPING,
+            G::MESSAGE_CONTENT,
+            G::GUILD_SCHEDULED_EVENTS,
+            G::AUTO_MODERATION_CONFIGURATION,
+            G::AUTO_MODERATION_EXECUTION,
+            G::GUILD_MESSAGE_POLLS,
+            G::DIRECT_MESSAGE_POLLS,
+        ] {
+            assert!(got.contains(want), "missing intent bit: {want:?}");
+        }
+    }
+
+    #[test]
+    fn bot_metas_row_mirrors_ts_refresh_bot_data_keys() {
+        // Key layout must match metasTable.set("BOT", ...) in ready.ts:
+        // info{ members, servers, shards, ping },
+        // content{ commands, category, langs },
+        // user{ username, tag, id, discriminator, avatar, bio },
+        // lastPushAt, lastPushAtISO, writerShard.
+        let input = BotMetasInput {
+            members: 10,
+            servers: 2,
+            shards: 1,
+            ping_ms: 0,
+            commands: 5,
+            categories: 3,
+            langs: vec!["English".to_string()],
+            username: "bot".to_string(),
+            tag: "bot#0".to_string(),
+            user_id: 7,
+            discriminator: None,
+            avatar: "https://cdn/x.png".to_string(),
+            bio: "bio".to_string(),
+            shard_id: 0,
+        };
+        let row = bot_metas_row(&input, 1_700_000_000_000);
+        assert_eq!(row["info"]["members"], 10);
+        assert_eq!(row["info"]["servers"], 2);
+        assert_eq!(row["info"]["shards"], 1);
+        assert_eq!(row["content"]["commands"], 5);
+        assert_eq!(row["content"]["category"], 3);
+        assert_eq!(row["content"]["langs"][0], "English");
+        assert_eq!(row["user"]["username"], "bot");
+        assert_eq!(row["user"]["tag"], "bot#0");
+        assert_eq!(row["user"]["id"], "7");
+        assert_eq!(row["user"]["avatar"], "https://cdn/x.png");
+        assert_eq!(row["user"]["bio"], "bio");
+        assert_eq!(row["lastPushAt"], 1_700_000_000_000i64);
+        assert!(row["lastPushAtISO"].as_str().is_some_and(|s| !s.is_empty()));
+        assert_eq!(row["writerShard"], 0);
     }
 
     #[test]

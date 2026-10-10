@@ -202,6 +202,50 @@ pub async fn ensure_backups_table(pool: &Pool) -> anyhow::Result<()> {
     Ok(())
 }
 
+/// TS `schedule`-table scan (global, keyed by user ID). Rows hold
+/// `{code: {title, description, expired}}` via `scheduleTable.set(`
+/// `` `${user.id}.${scheduleCode}` `` `, ...)` in schedule.ts.
+/// Missing table -> empty (never an error). Precedent: the
+/// `ts_backups_table_get` compat read over the TS `backups` table.
+pub async fn schedule_all(pool: &Pool) -> Vec<(String, String)> {
+    sqlx::query_as::<_, (String, String)>("SELECT ID, json FROM schedule")
+        .fetch_all(pool)
+        .await
+        .unwrap_or_default()
+}
+
+/// Write one TS `schedule`-table row (sweep expiry cleanup only;
+/// schedule writes stay per-guild). Missing table -> error
+/// (callers/tests create it via `ensure_schedule_table`).
+pub async fn schedule_set(pool: &Pool, user_id: &str, json: &str) -> anyhow::Result<()> {
+    sqlx::query(
+        "INSERT INTO schedule (ID, json) VALUES (?, ?)
+         ON CONFLICT (ID) DO UPDATE SET json = excluded.json",
+    )
+    .bind(user_id)
+    .bind(json)
+    .execute(pool)
+    .await?;
+    Ok(())
+}
+
+/// Delete one TS `schedule`-table row by user ID (best-effort).
+pub async fn schedule_del(pool: &Pool, user_id: &str) -> anyhow::Result<()> {
+    sqlx::query("DELETE FROM schedule WHERE ID = ?")
+        .bind(user_id)
+        .execute(pool)
+        .await?;
+    Ok(())
+}
+
+/// Create the TS `schedule` table when missing (tests + first sweep).
+pub async fn ensure_schedule_table(pool: &Pool) -> anyhow::Result<()> {
+    sqlx::query("CREATE TABLE IF NOT EXISTS schedule (ID TEXT PRIMARY KEY, json TEXT)")
+        .execute(pool)
+        .await?;
+    Ok(())
+}
+
 /// Drop a guild's language row.
 pub async fn clear_guild_lang(pool: &Pool, guild_id: &str) -> anyhow::Result<()> {
     sqlx::query("DELETE FROM guild_lang WHERE guild_id = ?")
@@ -451,6 +495,32 @@ mod tests {
         assert_eq!(backup_get(&pool, "b1").await.as_deref(), Some("{\"v\":2}"));
         backup_del(&pool, "b1").await.unwrap();
         assert_eq!(backup_get(&pool, "b1").await, None);
+    }
+
+    #[tokio::test]
+    async fn schedule_table_scan_empty_without_table() {
+        // Missing TS `schedule` table reads as empty, never an error.
+        let pool = memory_pool().await;
+        assert!(schedule_all(&pool).await.is_empty());
+    }
+
+    #[tokio::test]
+    async fn schedule_table_roundtrip_upsert_and_del() {
+        let pool = memory_pool().await;
+        ensure_schedule_table(&pool).await.unwrap();
+        assert!(schedule_all(&pool).await.is_empty());
+        schedule_set(&pool, "9", "{\"A\":{\"title\":\"t\"}}")
+            .await
+            .unwrap();
+        let rows = schedule_all(&pool).await;
+        assert_eq!(rows.len(), 1);
+        assert_eq!(rows[0].0.as_str(), "9");
+        schedule_set(&pool, "9", "{\"A\":{\"title\":\"t2\"}}")
+            .await
+            .unwrap();
+        assert_eq!(schedule_all(&pool).await.len(), 1);
+        schedule_del(&pool, "9").await.unwrap();
+        assert!(schedule_all(&pool).await.is_empty());
     }
 
     #[tokio::test]

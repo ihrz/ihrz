@@ -80,7 +80,10 @@ pub fn render_ping_desc(
 }
 
 /// Roll `count` dice with `faces` faces (1-based each).
-/// Pure helper behind the dice command.
+/// Pure helper behind the dice command. Mirrors
+/// `Math.floor(Math.random() * faces) + 1` in !dice.ts: one uniform draw
+/// per die over `1..=faces` (floor, never round — a 0 face cannot occur),
+/// with faces floored at 1 via `.max(1)` like the `|| 6` fallback path.
 pub fn roll_dice_set(count: usize, faces: u32) -> Vec<u32> {
     use rand::Rng;
     let mut rng = rand::thread_rng();

@@ -116,4 +116,22 @@ mod morse_tests {
         assert_eq!(morse_convert("A!B"), ".-  -...");
         assert_eq!(morse_convert(".- ...... -..."), "AB");
     }
+
+    #[test]
+    fn tables_match_ts_byte_for_byte() {
+        // Byte parity with the `alpha` / `morse` arrays in !morse.ts: 37
+        // entries each (leading space encodes as `/`).
+        let alpha = morse_alpha();
+        let table = morse_table();
+        assert_eq!(alpha.len(), 37);
+        assert_eq!(table.len(), 37);
+        assert_eq!(
+            alpha.iter().collect::<String>(),
+            " ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
+        );
+        assert_eq!(
+            table.join(","),
+            "/,.-,-...,-.-.,-..,.,..-.,--.,....,..,.---,-.-,.-..,--,-.,---,.--.,--.-,.-.,...,-,..-,...-,.--,-..-,-.--,--..,.----,..---,...--,....-,.....,-....,--...,---..,----.,-----"
+        );
+    }
 }

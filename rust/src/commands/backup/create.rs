@@ -25,7 +25,7 @@ pub async fn backup_create(
     ctx: Ctx<'_>,
     #[description = "Save messages (yes/no)"]
     #[rename = "save-message"]
-    save_messages: String,
+    save_messages: Option<String>,
 ) -> Result<(), anyhow::Error> {
     // Defer up front: the snapshot walks message pages plus per-emoji
     // image fetches, past the 3s interaction token (backup.ts:260
@@ -59,7 +59,7 @@ pub async fn backup_create(
     };
     let opts = CreateOptions {
         backup_id: None,
-        max_messages_per_channel: Some(save_messages_budget(Some(save_messages.as_str()))),
+        max_messages_per_channel: Some(save_messages_budget(save_messages.as_deref())),
         json_save: Some(true),
         json_beautify: Some(true),
         do_not_backup: Some(vec![]),

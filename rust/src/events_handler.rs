@@ -3514,7 +3514,8 @@ impl serenity::EventHandler for Handler {
         }
         // Owner "Bot Is Ready" mail (mirrors ready.ts:467-483, main shard
         // only). Blocking SMTP goes through spawn_blocking; the mailer is
-        // silent when SMTP env is incomplete.
+        // silent when SMTP env is incomplete, and the skip is traced
+        // below (silent-but-logged, never fails boot).
         {
             let mailer = self.mailer.clone();
             let tag = ready.user.tag();
@@ -3528,8 +3529,134 @@ impl serenity::EventHandler for Handler {
             };
             let date = chrono::Local::now().format("%Y-%m-%d %H:%M:%S").to_string();
             tokio::task::spawn_blocking(move || {
-                mailer.send_ready(&tag, &date, &shard_label, is_main);
+                if !mailer.send_ready(&tag, &date, &shard_label, is_main) {
+                    tracing::debug!("ready mail skipped (SMTP unconfigured or non-main shard)");
+                }
             });
+        }
+        // Username warm map (mirrors the usersNamesMap loop at the end
+        // of ready.ts: `usersNamesMap.set(id, { username, globalName })`
+        // over every cached guild member). The Rust prevnames path is
+        // DB-backed and reads the serenity `old` payload on
+        // user_update, so no live consumer needs the map; the call
+        // keeps the helper wired to the gateway cache like TS.
+        {
+            let entries: Vec<(u64, String, Option<String>)> = ctx
+                .cache
+                .guilds()
+                .into_iter()
+                .filter_map(|id| ctx.cache.guild(id))
+                .flat_map(|g| {
+                    g.members
+                        .iter()
+                        .map(|(uid, m)| {
+                            (uid.get(), m.user.name.clone(), m.user.global_name.clone())
+                        })
+                        .collect::<Vec<_>>()
+                })
+                .collect();
+            let warmed = crate::bot::collect_users_names(entries);
+            tracing::debug!("ready: warmed {} username rows", warmed.len());
+        }
+        // BOT metas push (mirrors refreshBotData in ready.ts: boot push
+        // + 45s interval, main shard only; the retry budget lives in
+        // push_bot_metas). Once per process: ready fires per shard.
+        // VANITY GAP (B5): boot warms the regular-invite cache per
+        // guild (guild_create replays at boot, mirroring fetchInvites),
+        // but the native VanityURL uses-counter has no serenity fetch
+        // equivalent here, so the join-time vanity-uses attribution in
+        // joinMessage.ts (vanityInvites uses diff) is not mirrored.
+        // Custom-vanity attribution via api.VANITY is covered at join
+        // time instead (see custom_vanity_code at the join leg).
+        static BOT_METAS_ONCE: std::sync::OnceLock<()> = std::sync::OnceLock::new();
+        {
+            let shard_id = match &ready.shard {
+                Some(info) => info.id.get() as u64,
+                None => 0,
+            };
+            let total_shards = match &ready.shard {
+                Some(info) => info.total as u64,
+                None => 1,
+            };
+            // Langs mirror AvailableLanguage names in TS; the port has
+            // codes only (no name table), so codes are stored with the
+            // row instead. Not user-visible from this row.
+            let langs = [
+                "ar-EG", "de-DE", "en-US", "es-ES", "fr-FR", "fr-ME", "it-IT", "jp-JP", "pt-PT",
+                "ru-RU",
+            ]
+            .into_iter()
+            .map(|s| s.to_string())
+            .collect::<Vec<_>>();
+            if shard_id == 0 && BOT_METAS_ONCE.set(()).is_ok() {
+                tracing::info!("refreshBotData interval scheduled (shard #{shard_id})");
+                let pool = self.pool.clone();
+                let cache = ctx.cache.clone();
+                tokio::spawn(async move {
+                    loop {
+                        let me = cache.current_user().clone();
+                        let mut members = 0u64;
+                        for gid in cache.guilds() {
+                            if let Some(g) = cache.guild(gid) {
+                                members += g.member_count as u64;
+                            }
+                        }
+                        let all_cmds = crate::commands::all();
+                        let mut cats = std::collections::HashSet::new();
+                        for c in &all_cmds {
+                            if let Some(cat) = c.category.as_deref() {
+                                cats.insert(cat.to_string());
+                            }
+                        }
+                        // Preserve an operator-set bio across pushes:
+                        // read the previous BOT row's /user/bio first
+                        // (mirrors `metasTable.get("BOT.user.bio") ||
+                        // username` in bio.rs), falling back to the
+                        // live username when no row exists yet.
+                        let prev_bio =
+                            crate::db::kv_get(&pool, crate::core::release::META_SCOPE, "BOT")
+                                .await
+                                .and_then(|s| serde_json::from_str::<serde_json::Value>(&s).ok())
+                                .and_then(|v| {
+                                    v.pointer("/user/bio")
+                                        .and_then(|b| b.as_str())
+                                        .map(|s| s.to_string())
+                                })
+                                .filter(|s| !s.is_empty())
+                                .unwrap_or_else(|| me.name.clone());
+                        let input = crate::bot::BotMetasInput {
+                            members,
+                            servers: cache.guilds().len() as u64,
+                            shards: total_shards,
+                            ping_ms: 0,
+                            commands: all_cmds.len(),
+                            categories: cats.len(),
+                            langs: langs.clone(),
+                            username: me.name.clone(),
+                            tag: me.tag(),
+                            user_id: me.id.get(),
+                            discriminator: me.discriminator.map(|d| d.get()),
+                            avatar: me.avatar_url().unwrap_or_else(|| me.face()),
+                            bio: prev_bio,
+                            shard_id,
+                        };
+                        let now_ms = std::time::SystemTime::now()
+                            .duration_since(std::time::UNIX_EPOCH)
+                            .map(|d| d.as_millis() as i64)
+                            .unwrap_or(0);
+                        crate::bot::push_bot_metas(
+                            &pool,
+                            &crate::bot::bot_metas_row(&input, now_ms),
+                            shard_id,
+                        )
+                        .await;
+                        tokio::time::sleep(std::time::Duration::from_secs(
+                            crate::bot::BOT_METAS_PUSH_SECS,
+                        ))
+                        .await;
+                    }
+                });
+            }
         }
     }
 
@@ -5977,12 +6104,38 @@ impl serenity::EventHandler for Handler {
                     new.channel_id.map(|c| c.get()),
                 );
                 if let Some(ch) = target {
-                    crate::lavalink::LavalinkManager::send_voice_state(
-                        &ctx.shard,
-                        guild_id.get(),
-                        Some(ch),
-                    );
-                    tracing::info!("h247 rejoin {} -> {}", gid, ch);
+                    // Channel + permission gate (mirrors
+                    // fetchH247VoiceChannel + the Connect/Speak
+                    // permissionsIn check in joinH247VoiceChannel): the
+                    // parked channel must still exist as a voice channel
+                    // and still grant the bot both. Unresolvable cache
+                    // state skips the rejoin like the TS `!me` /
+                    // fetch-catch legs (the 60s watchdog covers it over
+                    // HTTP). The cache guard is not Send and drops
+                    // before the OP4 send.
+                    let bot_id = ctx.cache.current_user().id;
+                    let may_join = ctx
+                        .cache
+                        .guild(guild_id)
+                        .and_then(|g| {
+                            let channel = g.channels.get(&serenity::ChannelId::new(ch))?;
+                            if !crate::commands::h247::join::h247_joinable_channel(&channel.kind) {
+                                return None;
+                            }
+                            let me = g.members.get(&bot_id)?.clone();
+                            Some(crate::commands::h247::join::h247_bot_may_join(
+                                g.user_permissions_in(channel, &me),
+                            ))
+                        })
+                        .unwrap_or(false);
+                    if may_join {
+                        crate::lavalink::LavalinkManager::send_voice_state(
+                            &ctx.shard,
+                            guild_id.get(),
+                            Some(ch),
+                        );
+                        tracing::info!("h247 rejoin {} -> {}", gid, ch);
+                    }
                 }
             }
         }
@@ -6775,6 +6928,13 @@ impl serenity::EventHandler for Handler {
                                             let _ = message.delete(&ctx.http).await;
                                         }
                                     }
+                                    // Voice-status leg of cleanupTTS in
+                                    // ttsManager.ts: the stale TTS status
+                                    // must not linger on the channel.
+                                    crate::lavalink::LavalinkManager::clear_voice_status(
+                                        &ctx.http, tts_vc,
+                                    )
+                                    .await;
                                     let _ = tbl_del(&self.pool, &gid, "GUILD.TTS").await;
                                     tracing::info!("tts cleanup {} channel {}", gid, tts_vc);
                                 }

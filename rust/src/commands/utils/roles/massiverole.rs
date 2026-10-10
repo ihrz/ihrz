@@ -31,7 +31,13 @@ pub async fn massiverole(
         ctx.say(t("massiverole_too_much_member")).await?;
         return Ok(());
     }
-    let add = is_add_action(&action);
+    // TS parity (!massiverole.ts:73,181): only `add` / `sub` run a branch.
+    // Any other action leaves just the loading ack in TS, so here it is
+    // a silent return with no members touched.
+    let add = match mass_action(&action) {
+        Some(add) => add,
+        None => return Ok(()),
+    };
     let members = guild_id
         .members(ctx.http(), None, None)
         .await
@@ -54,25 +60,21 @@ pub async fn massiverole(
     let progress = ctx.say(fill_progress(&progress_tpl, targets.len())).await?;
     let http = ctx.http();
     let role_id = role.id;
-    let reason = if add {
-        "[Massrole] Module"
-    } else {
-        "[MassiveRole] Command"
-    };
+    // Audit reasons verbatim from !massiverole.ts (`member.roles.add(role,
+    // "[Massrole] Module")` / `.remove(role, "[MassiveRole] Command")`).
+    let reason = mass_audit_reason(add);
     let result =
         crate::funcs::process_batch_full(&targets, 10, 150, None::<fn(usize, usize)>, |uid| {
             async move {
-                let Ok(member) = guild_id.member(&http, uid).await else {
-                    return false;
-                };
+                // Http role endpoints carry the audit reason (like
+                // rolepanel.rs); the Member add/remove helpers take none.
                 let out = if add {
-                    member.add_role(&http, role_id).await
+                    http.add_member_role(guild_id, uid, role_id, Some(reason))
+                        .await
                 } else {
-                    member.remove_role(&http, role_id).await
+                    http.remove_member_role(guild_id, uid, role_id, Some(reason))
+                        .await
                 };
-                // Audit reason parity is best-effort: serenity role
-                // add/remove helpers take no reason parameter.
-                let _ = reason;
                 out.is_ok()
             }
         })
@@ -112,12 +114,27 @@ pub async fn massiverole(
     Ok(())
 }
 
-/// TS add branch runs for anything but sub/remove/del/off.
-pub fn is_add_action(action: &str) -> bool {
-    !matches!(
-        action.to_ascii_lowercase().as_str(),
-        "sub" | "remove" | "del" | "off"
-    )
+/// Parse the action option. Mirrors the `action === "add"` / `action ===
+/// "sub"` branches in !massiverole.ts (the slash choices only ever send
+/// those two values): `Some(true)` adds, `Some(false)` removes, and any
+/// other input is `None` — the caller returns silently with no members
+/// touched, like TS leaving just the loading ack. Case-insensitive so
+/// prefix `ADD` / `SUB` still work.
+pub fn mass_action(action: &str) -> Option<bool> {
+    match action.to_ascii_lowercase().as_str() {
+        "add" => Some(true),
+        "sub" => Some(false),
+        _ => None,
+    }
+}
+
+/// Audit reason per branch, verbatim from !massiverole.ts.
+pub fn mass_audit_reason(add: bool) -> &'static str {
+    if add {
+        "[Massrole] Module"
+    } else {
+        "[MassiveRole] Command"
+    }
 }
 
 /// Fill the `${membersToProcess.length}` progress template.
@@ -148,13 +165,23 @@ mod tests {
 
     #[test]
     fn action_parses_like_ts() {
-        assert!(is_add_action("add"));
-        assert!(is_add_action("ADD"));
-        assert!(is_add_action("whatever"));
-        assert!(!is_add_action("sub"));
-        assert!(!is_add_action("remove"));
-        assert!(!is_add_action("del"));
-        assert!(!is_add_action("off"));
+        assert_eq!(mass_action("add"), Some(true));
+        assert_eq!(mass_action("ADD"), Some(true));
+        assert_eq!(mass_action("sub"), Some(false));
+        assert_eq!(mass_action("SUB"), Some(false));
+        // Unknown actions run no branch in TS (!massiverole.ts:73,181):
+        // silent return, no members touched (a typo must never mass-add).
+        assert_eq!(mass_action("whatever"), None);
+        assert_eq!(mass_action("remove"), None);
+        assert_eq!(mass_action("del"), None);
+        assert_eq!(mass_action("off"), None);
+        assert_eq!(mass_action(""), None);
+    }
+
+    #[test]
+    fn audit_reasons_match_ts_verbatim() {
+        assert_eq!(mass_audit_reason(true), "[Massrole] Module");
+        assert_eq!(mass_audit_reason(false), "[MassiveRole] Command");
     }
 
     #[test]

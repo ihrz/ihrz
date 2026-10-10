@@ -43,6 +43,7 @@ pub async fn post_config_log(
     slash_command,
     prefix_command,
     rename = "config",
+    aliases("confess-config"),
     default_member_permissions = "ADMINISTRATOR"
 )]
 pub async fn confession_config(

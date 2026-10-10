@@ -15,43 +15,9 @@ pub fn list_author_name(username: &str, display_name: Option<&str>) -> String {
 
 /// List all sticky channels
 #[poise::command(slash_command, prefix_command, rename = "list", aliases("backup-list"))]
-pub async fn backup_list(
-    ctx: Ctx<'_>,
-    #[description = "Backup id"]
-    #[rename = "backup-id"]
-    backup_id: Option<String>,
-) -> Result<(), anyhow::Error> {
+pub async fn backup_list(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     use poise::serenity_prelude as serenity;
     let uid = ctx.author().id.get();
-    // Ownership gate for the prefix `backup list <id>` form, like the
-    // BACKUPS.<uid>.<id> check in !list.ts:58-77 (strangers get
-    // backup_this_is_not_your_backup). The id never selects a
-    // single-backup view; the list always renders below.
-    if let Some(id) = backup_id
-        .as_deref()
-        .map(str::trim)
-        .filter(|s| !s.is_empty())
-    {
-        if super::backup::bkp_get(&ctx.data().pool, uid, id)
-            .await
-            .is_none()
-        {
-            let no = crate::emojis::app_emoji_markup(ctx.http(), "No")
-                .await
-                .unwrap_or_else(|| "❌".to_string());
-            ctx.say(
-                crate::commands::lang_for(
-                    &ctx,
-                    "backup_this_is_not_your_backup",
-                    "${client.iHorizon_Emojis.No} | This is not your backup!",
-                )
-                .await
-                .replace("${client.iHorizon_Emojis.No}", &no),
-            )
-            .await?;
-            return Ok(());
-        }
-    }
     let gid = ctx
         .guild_id()
         .map(|g| g.get().to_string())
@@ -83,9 +49,10 @@ pub async fn backup_list(
     }
 
     // Paginated per-user list, 5 per page (itemsPerPage in !list.ts:37).
-    // NOTE: the backup-id read in !list.ts:58-77 only gates ownership
-    // (strangers get backup_this_is_not_your_backup); it never renders
-    // a single-backup view, so there is no detail branch here either.
+    // NOTE: the list subcommand registers no backup-id option in
+    // backup.ts, so the port registers none either (!list.ts:58-77 only
+    // gates ownership on the prefix path; it never renders a
+    // single-backup view, so there is no detail branch here either).
     let rows = super::backup::bkp_scan_user(&ctx.data().pool, uid).await;
     let tpl = crate::lang::get(&code, "backup_string_see_another_v").unwrap_or_else(|| {
         ":placard:・Categories Count: `${result.categoryCount}`\n:hash:・Channels Count: `${result.channelCount}`"

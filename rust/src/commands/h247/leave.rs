@@ -48,6 +48,14 @@ pub async fn h247_leave(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
 
     let outcome: anyhow::Result<()> = async {
         delete_h247(&ctx.data().pool, &gid).await?;
+        // In-memory state mirrors deleteH247Data in
+        // src/core/modules/h247Manager.ts: drop the parked session
+        // mirror and the cached voice-handshake credentials so a later
+        // player cannot complete a handshake with stale legs.
+        crate::commands::h247::session::clear_guild(guild_id.get()).await;
+        crate::lavalink::manager()
+            .drop_pending_voice(guild_id.get())
+            .await;
         // Leave voice only when no music player remains (TS guard).
         let player_exists = crate::lavalink::manager()
             .snapshot(guild_id.get())

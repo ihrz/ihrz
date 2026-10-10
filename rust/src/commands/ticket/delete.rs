@@ -69,7 +69,12 @@ pub async fn ticket_del_user_routed(pool: &crate::db::Pool, gid: &str, user_key:
 }
 
 /// Delete this ticket channel (TicketDelete pipeline).
-#[poise::command(slash_command, prefix_command, rename = "delete", aliases("tdelete"))]
+#[poise::command(
+    slash_command,
+    prefix_command,
+    rename = "delete",
+    aliases("tdelete", "ticket-delete")
+)]
 pub async fn ticket_delete(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     // Mirrors !delete.ts guards (disable + delete_not_in_ticket).
     let gid = ctx

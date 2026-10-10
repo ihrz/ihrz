@@ -8,6 +8,7 @@ use super::*;
     slash_command,
     prefix_command,
     rename = "thread",
+    aliases("confthread"),
     default_member_permissions = "ADMINISTRATOR"
 )]
 pub async fn confession_thread(

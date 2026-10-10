@@ -90,6 +90,7 @@ fn panel_desc_fallback() -> String {
     slash_command,
     prefix_command,
     rename = "channel",
+    aliases("confess-channel"),
     default_member_permissions = "ADMINISTRATOR"
 )]
 pub async fn confession_channel(

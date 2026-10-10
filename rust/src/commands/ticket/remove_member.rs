@@ -16,7 +16,7 @@ pub fn render_remove_work(template: &str, username: &str) -> String {
 )]
 pub async fn ticket_remove(
     ctx: Ctx<'_>,
-    #[description = "Member"] user: serenity::User,
+    #[description = "Member"] user: Option<serenity::User>,
 ) -> Result<(), anyhow::Error> {
     let gid = ctx
         .guild_id()
@@ -30,12 +30,23 @@ pub async fn ticket_remove(
     // first prefix arg as User here, matching that shape, so both add
     // and remove stay index-free.
     // Order mirrors !remove-member.ts (resolve-then-guard): poise
-    // resolves the required `user` during parsing, before the body
-    // runs, so resolution precedes the disable guard below, then the
-    // is-ticket guard (remove_not_in_ticket), then the deny.
+    // parses the first prefix arg as User here, matching the TS
+    // `method.user(args, 0)` shape. `user` stays Option so the prefix
+    // path can answer remove_command_error on unresolvable input
+    // instead of throwing like TS (`method.user(...)!`).
     if ticket_guard_disabled(&ctx, pool, &gid, &code, "ticket_disabled_command").await {
         return Ok(());
     }
+    // Unresolvable prefix input parses to None (TS method.user null ->
+    // throw): answer remove_command_error instead of denying nothing.
+    let Some(user) = user else {
+        ctx.say(
+            crate::lang::get(&code, "remove_command_error")
+                .unwrap_or_else(|| "An error occurred, please try again".to_string()),
+        )
+        .await?;
+        return Ok(());
+    };
     let Some(channel) = ctx.guild_channel().await else {
         return Ok(());
     };

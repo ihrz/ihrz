@@ -50,7 +50,11 @@ pub async fn mod_unmute(
         ctx.say(t("unmute_not_muted")).await?;
         return Ok(());
     }
-    // Fire-and-forget like the TS un-awaited disableCommunicationUntil.
+    // Null-vs-now parity: TS clears the timeout via
+    // `disableCommunicationUntil(Date.now())` (!unmute.ts) while serenity's
+    // `enable_communication` clears it to null; both read back as unmuted
+    // (`isCommunicationDisabled()` is false for a null or past expiry).
+    // Fire-and-forget like the TS un-awaited call.
     let _ = member.enable_communication(ctx.http()).await;
     ctx.say(t("unmute_command_work").replace("${tomute.id}", &user.id.get().to_string()))
         .await?;

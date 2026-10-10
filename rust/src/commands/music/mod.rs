@@ -230,11 +230,6 @@ pub fn truncate_lyrics(s: &str) -> String {
     }
 }
 
-pub fn fmt_duration(ms: u64) -> String {
-    let s = ms / 1000;
-    format!("{}:{:02}", s / 60, s % 60)
-}
-
 /// Parse a volume argument like TS `parseInt(String(query))`:
 /// leading-integer parse, non-numeric (NaN) -> None, then the
 /// 10..=100 clamp. Pure and offline-testable.
@@ -855,14 +850,15 @@ pub fn spotify_banner_svg(title: &str, artist: Option<&str>, state: &str) -> Str
 }
 
 /// Rich embed from a normalized preview; Lavalink duration appended when
-/// known. Thumbnail only when the provider gave an image.
+/// known, in `HH:MM:SS` like `buildTrackDuration` in musicPlay.ts.
+/// Thumbnail only when the provider gave an image.
 fn preview_embed(p: &NormalizedPreview, length_ms: Option<u64>) -> serenity::CreateEmbed {
     let mut desc = p
         .artist
         .clone()
         .unwrap_or_else(|| "Unknown artist".to_string());
     if let Some(ms) = length_ms {
-        desc.push_str(&format!(" • [{}]", fmt_duration(ms)));
+        desc.push_str(&format!(" • [{}]", fmt_track_duration(ms)));
     }
     if let Some(d) = p.date.as_deref().filter(|d| !d.is_empty()) {
         desc.push_str(&format!(" • {d}"));
@@ -1126,13 +1122,6 @@ mod tests {
         assert_eq!(truncate_lyrics("abc"), "abc");
         let long = "x".repeat(3000);
         assert_eq!(truncate_lyrics(&long).len(), 2000);
-    }
-
-    #[test]
-    fn duration_formats() {
-        assert_eq!(fmt_duration(0), "0:00");
-        assert_eq!(fmt_duration(65_000), "1:05");
-        assert_eq!(fmt_duration(3_600_000), "60:00");
     }
 
     #[test]

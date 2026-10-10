@@ -484,14 +484,17 @@ pub fn tts_is_url(text: &str) -> bool {
 
 /// Locale fallback chain, mirroring
 /// `detectedLocale || ttsData.lang || serverLocale || "en-US"`.
+/// JS `||` treats empty strings as missing, so blank legs fall
+/// through instead of pinning an empty locale.
 pub fn resolve_tts_locale(
     detected: Option<&str>,
     tts_lang: Option<&str>,
     server_lang: Option<&str>,
 ) -> String {
     detected
-        .or(tts_lang)
-        .or(server_lang)
+        .filter(|s| !s.trim().is_empty())
+        .or_else(|| tts_lang.filter(|s| !s.trim().is_empty()))
+        .or_else(|| server_lang.filter(|s| !s.trim().is_empty()))
         .unwrap_or("en-US")
         .to_string()
 }
@@ -637,6 +640,13 @@ mod tests {
         );
         assert_eq!(resolve_tts_locale(None, None, Some("de-DE")), "de-DE");
         assert_eq!(resolve_tts_locale(None, None, None), "en-US");
+        // Empty legs fall through like JS `||` (empty lang -> None).
+        assert_eq!(
+            resolve_tts_locale(Some(""), Some("fr-FR"), Some("de-DE")),
+            "fr-FR"
+        );
+        assert_eq!(resolve_tts_locale(Some(""), Some(""), Some("")), "en-US");
+        assert_eq!(resolve_tts_locale(None, Some("  "), Some("de-DE")), "de-DE");
         assert_eq!(sanitize_tts_text("  hello \t\n  world  "), "hello world");
         assert_eq!(sanitize_tts_text("   "), "");
     }

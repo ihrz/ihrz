@@ -849,7 +849,8 @@ pub fn expiry_at_ms(now_ms: i64, delta_ms: i64) -> i64 {
 // `SCHEDULE.<uid>.<code>` unchanged. Dotted keys nest under the
 // `SCHEDULE` root (`{uid: {code: json}}`), so per-user loops walk the
 // root and merge legacy kv rows. The expiry sweeper in scheduler.rs
-// still reads kv directly (locked file): dual-write keeps it fresh.
+// union-scans kv rows, per-guild table roots, and the TS `schedule`
+// table: dual-write keeps them fresh.
 use crate::commands::owner::main::{
     legacy_del_prefix, legacy_scan, routed_del, routed_get, routed_set, table_backend,
     tbl_get_value, walk_path,

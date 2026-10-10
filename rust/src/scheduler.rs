@@ -148,27 +148,47 @@ pub fn honeypot_second_pass_due(first_pass_ms: i64, now_ms: i64) -> bool {
     now_ms - first_pass_ms >= HONEYPOT_SECOND_PASS_DELAY_MS
 }
 
-/// Delete expired SCHEDULE.* entries across all guilds, DMing each
+/// Delete expired SCHEDULE.* entries across all guild scopes, DMing each
 /// owner the expiry embed first. Mirrors ready.ts `refreshSchedule`:
 /// per expired entry build the `#<code> Schedule has been expired!`
 /// embed (date + title + desc, nerd thumbnail, iHorizon footer with
 /// icon attachment, timestamp) addressed to the schedule owner, send
 /// it best-effort (DM-closed users just skip, like the TS
-/// `.catch(() => {})`), then delete the row. With `http: None`
-/// (tests) only keys are deleted. Returns rows removed.
+/// `.catch(() => {})`), then delete the row. The sweep union-scans
+/// every store: legacy kv rows in all guild scopes, per-guild table
+/// `SCHEDULE` roots, and the global TS `schedule` table (compat read
+/// via `crate::db::schedule_all`, like the `backups`-table
+/// precedent). Writes stay per-guild; only the sweep reads globally.
+/// Each expired entry notifies once no matter how many stores hold it.
+/// With `http: None` (tests) only keys are deleted. Returns unique
+/// expired entries removed.
 pub async fn sweep_expired_schedules(
     pool: &Pool,
     http: Option<std::sync::Arc<poise::serenity_prelude::Http>>,
     now_ms: i64,
 ) -> u64 {
-    let rows: Vec<(String, String, String)> = crate::db::kv_scan_all(pool)
-        .await
-        .into_iter()
-        .filter(|(_, key, _)| key.starts_with("SCHEDULE."))
-        .collect();
+    /// One store holding a schedule entry.
+    enum Store {
+        /// Legacy kv row: (guild scope, full key).
+        Kv(String, String),
+        /// Per-guild table `SCHEDULE` root (guild scope).
+        Table(String),
+        /// Global TS `schedule`-table row (user ID).
+        Ts(String),
+    }
 
-    let mut removed = 0u64;
-    for (gid, key, raw) in rows {
+    type Key = (String, u64, String);
+    let mut union: HashMap<Key, (crate::commands::schedule::ScheduleEntry, Vec<Store>)> =
+        HashMap::new();
+    // Guild scopes holding per-guild table rows (`tbl:<gid>` backend
+    // scopes plus every real kv scope).
+    let mut scopes: HashSet<String> = HashSet::new();
+    for (gid, key, raw) in crate::db::kv_scan_all(pool).await {
+        if let Some(table) = gid.strip_prefix("tbl:") {
+            scopes.insert(table.to_string());
+            continue;
+        }
+        scopes.insert(gid.clone());
         let rest = match key.strip_prefix("SCHEDULE.") {
             Some(rest) => rest,
             None => continue,
@@ -186,14 +206,145 @@ pub async fn sweep_expired_schedules(
         let Some(entry) = crate::commands::schedule::entry_from_value(&v, code) else {
             continue;
         };
+        union
+            .entry((gid.clone(), user_id, code.to_string()))
+            .or_insert_with(|| (entry, Vec::new()))
+            .1
+            .push(Store::Kv(gid, key));
+    }
+    // Per-guild table roots: `{uid: {code: entry}}` under `SCHEDULE`.
+    // Leaves accept both shapes (table docs nest objects, legacy rows
+    // nest pre-encoded strings).
+    for gid in &scopes {
+        let Some(root) = crate::commands::owner::main::tbl_get_value(pool, gid, "SCHEDULE").await
+        else {
+            continue;
+        };
+        let Some(users) = root.as_object() else {
+            continue;
+        };
+        for (uid_str, node) in users {
+            let Ok(user_id) = uid_str.parse::<u64>() else {
+                continue;
+            };
+            let Some(codes) = node.as_object() else {
+                continue;
+            };
+            for (code, leaf) in codes {
+                let value: Option<serde_json::Value> = match leaf {
+                    serde_json::Value::String(s) => serde_json::from_str(s).ok(),
+                    other => Some(other.clone()),
+                };
+                let Some(v) = value else { continue };
+                let Some(entry) = crate::commands::schedule::entry_from_value(&v, code) else {
+                    continue;
+                };
+                union
+                    .entry((gid.clone(), user_id, code.clone()))
+                    .or_insert_with(|| (entry, Vec::new()))
+                    .1
+                    .push(Store::Table(gid.clone()));
+            }
+        }
+    }
+    // Global TS `schedule` table: `{code: {title, description,
+    // expired}}` rows keyed by user ID (no guild scope).
+    for (uid_str, raw) in crate::db::schedule_all(pool).await {
+        let Ok(user_id) = uid_str.parse::<u64>() else {
+            continue;
+        };
+        let Ok(obj) = serde_json::from_str::<serde_json::Value>(&raw) else {
+            continue;
+        };
+        let Some(codes) = obj.as_object() else {
+            continue;
+        };
+        for (code, v) in codes {
+            let Some(entry) = crate::commands::schedule::entry_from_value(v, code) else {
+                continue;
+            };
+            union
+                .entry((String::new(), user_id, code.clone()))
+                .or_insert_with(|| (entry, Vec::new()))
+                .1
+                .push(Store::Ts(uid_str.clone()));
+        }
+    }
+
+    let mut removed = 0u64;
+    // Expired TS codes, grouped per user row for one
+    // read-modify-write each.
+    let mut ts_expired: HashMap<String, Vec<String>> = HashMap::new();
+    for ((scope, user_id, code), (entry, stores)) in &union {
         if now_ms < entry.expires_at_ms {
             continue;
         }
         if let Some(http) = &http {
-            notify_schedule_expiry(pool, http, &gid, user_id, &entry).await;
+            notify_schedule_expiry(pool, http, scope, *user_id, entry).await;
         }
-        if crate::db::kv_del(pool, &gid, &key).await.is_ok() {
+        let mut ok = false;
+        for store in stores {
+            match store {
+                Store::Kv(gid, key) => {
+                    if crate::db::kv_del(pool, gid, key).await.is_ok() {
+                        ok = true;
+                    }
+                }
+                Store::Table(gid) => {
+                    let path = format!("SCHEDULE.{user_id}.{code}");
+                    if crate::commands::owner::main::tbl_del(pool, gid, &path)
+                        .await
+                        .unwrap_or(false)
+                    {
+                        ok = true;
+                    }
+                }
+                Store::Ts(uid) => {
+                    ts_expired
+                        .entry(uid.clone())
+                        .or_default()
+                        .push(code.clone());
+                }
+            }
+        }
+        if ok {
             removed += 1;
+        }
+    }
+    if !ts_expired.is_empty() {
+        let mut rows: HashMap<String, String> = HashMap::new();
+        for (uid, raw) in crate::db::schedule_all(pool).await {
+            rows.insert(uid, raw);
+        }
+        for (uid, codes) in &ts_expired {
+            let Some(raw) = rows.get(uid) else {
+                continue;
+            };
+            let Ok(mut obj) = serde_json::from_str::<serde_json::Value>(raw) else {
+                continue;
+            };
+            let Some(map) = obj.as_object_mut() else {
+                continue;
+            };
+            let mut hit = 0u64;
+            for code in codes {
+                if map.remove(code).is_some() {
+                    hit += 1;
+                }
+            }
+            if hit == 0 {
+                continue;
+            }
+            let done = if map.is_empty() {
+                crate::db::schedule_del(pool, uid).await.is_ok()
+            } else {
+                crate::db::schedule_set(pool, uid, &obj.to_string())
+                    .await
+                    .is_ok()
+            };
+            if done {
+                removed += hit;
+            }
         }
     }
     removed
@@ -1778,6 +1929,126 @@ pub async fn sweep_temp_voice_recovery(
     dropped
 }
 
+/// 30-day stats retention. Mirrors `retentionInMillis = 30 * 24 * 60
+/// * 60 * 1000` in the ready.ts statsRefresher.
+pub const STATS_RETENTION_MS: i64 = 30 * 24 * 60 * 60 * 1000;
+
+/// Stats trim interval. TS runs statsRefresher once at boot; the port
+/// runs it as a daily sweep instead so long-lived processes trim
+/// without restarts.
+pub const STATS_TRIM_SECS: u64 = 24 * 60 * 60;
+
+/// Drop message/voice history entries older than the 30-day window
+/// (`sent_ts` / `end_ts`, mirrors the sentTimestamp/endTimestamp
+/// filters in statsRefresher). Mutates in place; returns true when
+/// anything was dropped so the caller writes back only changed rows
+/// (mirrors the TS kept.length !== length write-back guard).
+pub fn trim_user_stats(stats: &mut crate::commands::stats::UserStats, now_ms: i64) -> bool {
+    let before = stats.msg_log.len() + stats.voice_log.len();
+    stats
+        .msg_log
+        .retain(|m| now_ms - m.sent_ts <= STATS_RETENTION_MS);
+    stats
+        .voice_log
+        .retain(|v| now_ms - v.end_ts <= STATS_RETENTION_MS);
+    stats.msg_log.len() + stats.voice_log.len() != before
+}
+
+/// Stats history trim sweep. Mirrors statsRefresher/trimGuildStats in
+/// ready.ts: every `STATS.USER.<uid>` row keeps only messages/voices
+/// inside the 30-day window. Both backends are trimmed in place
+/// (legacy flat kv rows via kv_set, guild-table `STATS` roots via the
+/// table route); rows that lost nothing are never rewritten.
+/// Returns trimmed user rows. One failing guild never aborts the rest.
+pub async fn sweep_stats_trim(pool: &Pool, now_ms: i64) -> u64 {
+    let mut trimmed = 0u64;
+    // Legacy flat rows: (gid, `STATS.USER.<uid>`).
+    let flat: Vec<(String, String, String)> = crate::db::kv_scan_all(pool)
+        .await
+        .into_iter()
+        .filter(|(gid, key, _)| !gid.starts_with("tbl:") && key.starts_with("STATS.USER."))
+        .collect();
+    for (gid, key, raw) in flat {
+        let rest = key.strip_prefix("STATS.USER.").unwrap_or("");
+        if rest.is_empty() || rest.contains('.') {
+            continue;
+        }
+        let Ok(mut stats) = serde_json::from_str::<crate::commands::stats::UserStats>(&raw) else {
+            continue;
+        };
+        if !trim_user_stats(&mut stats, now_ms) {
+            continue;
+        }
+        match serde_json::to_string(&stats) {
+            Ok(text) => {
+                if crate::db::kv_set(pool, &gid, &key, &text).await.is_ok() {
+                    trimmed += 1;
+                }
+            }
+            Err(e) => tracing::warn!("scheduler: stats trim encode failed for {gid}/{key}: {e}"),
+        }
+    }
+    // Guild-table `STATS` roots (`tbl:<gid>` scope, key `STATS` with a
+    // `USER` map). Table values may be doubly-encoded (string of JSON,
+    // like the membercount sweep); the write-back keeps the encoding.
+    let roots: Vec<(String, String)> = crate::db::kv_scan_all(pool)
+        .await
+        .into_iter()
+        .filter(|(gid, key, _)| gid.starts_with("tbl:") && key == "STATS")
+        .map(|(gid, _, value)| (gid, value))
+        .collect();
+    for (row_gid, raw) in roots {
+        let Some(gid) = row_gid.strip_prefix("tbl:") else {
+            continue;
+        };
+        let (mut root, encoded): (serde_json::Value, bool) =
+            match serde_json::from_str::<serde_json::Value>(&raw) {
+                Ok(serde_json::Value::String(inner)) => {
+                    match serde_json::from_str::<serde_json::Value>(&inner) {
+                        Ok(v) => (v, true),
+                        Err(_) => continue,
+                    }
+                }
+                Ok(v) => (v, false),
+                Err(_) => continue,
+            };
+        let Some(users) = root.get_mut("USER").and_then(|u| u.as_object_mut()) else {
+            continue;
+        };
+        let mut changed = false;
+        for (_, v) in users.iter_mut() {
+            let Ok(mut stats) =
+                serde_json::from_value::<crate::commands::stats::UserStats>(v.clone())
+            else {
+                continue;
+            };
+            if trim_user_stats(&mut stats, now_ms) {
+                *v = serde_json::to_value(&stats).unwrap_or_default();
+                trimmed += 1;
+                changed = true;
+            }
+        }
+        if !changed {
+            continue;
+        }
+        let text = if encoded {
+            serde_json::to_string(&root.to_string()).unwrap_or_default()
+        } else {
+            root.to_string()
+        };
+        if crate::db::kv_set(pool, &row_gid, "STATS", &text)
+            .await
+            .is_err()
+        {
+            tracing::warn!("scheduler: stats trim write-back failed for {gid}");
+        }
+    }
+    if trimmed > 0 {
+        tracing::info!("scheduler: trimmed stats history for {trimmed} users");
+    }
+    trimmed
+}
+
 pub fn spawn(pool: Pool, http: std::sync::Arc<poise::serenity_prelude::Http>) {
     // Schedule expiry (real).
     {
@@ -2045,6 +2316,25 @@ pub fn spawn(pool: Pool, http: std::sync::Arc<poise::serenity_prelude::Http>) {
                         "scheduler tick: notifier ({guilds} guilds, {watches} watches, {posted} posted)"
                     );
                 }
+            }
+        });
+    }
+
+    // Stats history trim (real, mirrors statsRefresher in ready.ts:
+    // drop STATS.USER message/voice entries older than 30 days).
+    // TS runs it once at boot; here it is a daily sweep so
+    // long-lived processes trim without restarts.
+    {
+        let pool = pool.clone();
+        tokio::spawn(async move {
+            let mut t = tokio::time::interval(Duration::from_secs(STATS_TRIM_SECS));
+            loop {
+                t.tick().await;
+                let now = std::time::SystemTime::now()
+                    .duration_since(std::time::UNIX_EPOCH)
+                    .map(|d| d.as_millis() as i64)
+                    .unwrap_or(0);
+                sweep_stats_trim(&pool, now).await;
             }
         });
     }
@@ -2988,6 +3278,105 @@ mod tests {
         assert_eq!(n, 0);
     }
 
+    #[test]
+    fn stats_trim_drops_only_entries_past_30d() {
+        use crate::commands::stats::{StatsMessage, StatsVoice, UserStats};
+        let now = 1_700_000_000_000i64;
+        let mut s = UserStats {
+            messages: 0,
+            voice_ms: 0,
+            msg_log: vec![
+                StatsMessage {
+                    sent_ts: now - STATS_RETENTION_MS,
+                    content_len: 1,
+                    channel_id: 1,
+                },
+                StatsMessage {
+                    sent_ts: now - STATS_RETENTION_MS - 1,
+                    content_len: 1,
+                    channel_id: 1,
+                },
+            ],
+            voice_log: vec![
+                StatsVoice {
+                    start_ts: 0,
+                    end_ts: now - 1,
+                    channel_id: 1,
+                },
+                StatsVoice {
+                    start_ts: 0,
+                    end_ts: now - STATS_RETENTION_MS - 1,
+                    channel_id: 1,
+                },
+            ],
+        };
+        // Boundary (exactly 30d) is kept, like the TS `<=` filter.
+        assert!(trim_user_stats(&mut s, now));
+        assert_eq!(s.msg_log.len(), 1);
+        assert_eq!(s.voice_log.len(), 1);
+        // Nothing stale left: no change reported.
+        assert!(!trim_user_stats(&mut s, now));
+        // Empty logs never report a change.
+        let mut empty = UserStats::default();
+        assert!(!trim_user_stats(&mut empty, now));
+    }
+
+    #[tokio::test]
+    async fn stats_sweep_trims_flat_rows_and_skips_fresh() {
+        use crate::commands::stats::{StatsMessage, UserStats};
+        let p = pool().await;
+        let now = 1_700_000_000_000i64;
+        let stale = UserStats {
+            messages: 0,
+            voice_ms: 0,
+            msg_log: vec![StatsMessage {
+                sent_ts: now - STATS_RETENTION_MS - 1,
+                content_len: 1,
+                channel_id: 1,
+            }],
+            voice_log: vec![],
+        };
+        let fresh = UserStats {
+            messages: 0,
+            voice_ms: 0,
+            msg_log: vec![StatsMessage {
+                sent_ts: now,
+                content_len: 1,
+                channel_id: 1,
+            }],
+            voice_log: vec![],
+        };
+        crate::db::kv_set(
+            &p,
+            "g1",
+            "STATS.USER.1",
+            &serde_json::to_string(&stale).unwrap(),
+        )
+        .await
+        .unwrap();
+        crate::db::kv_set(
+            &p,
+            "g1",
+            "STATS.USER.2",
+            &serde_json::to_string(&fresh).unwrap(),
+        )
+        .await
+        .unwrap();
+        crate::db::kv_set(&p, "g1", "STATS.USER.bad", "not-json")
+            .await
+            .unwrap();
+        assert_eq!(sweep_stats_trim(&p, now).await, 1);
+        let back: UserStats =
+            serde_json::from_str(&crate::db::kv_get(&p, "g1", "STATS.USER.1").await.unwrap())
+                .unwrap();
+        assert!(back.msg_log.is_empty());
+        // Fresh row rewritten never: still present with its entry.
+        let kept: UserStats =
+            serde_json::from_str(&crate::db::kv_get(&p, "g1", "STATS.USER.2").await.unwrap())
+                .unwrap();
+        assert_eq!(kept.msg_log.len(), 1);
+    }
+
     #[tokio::test]
     async fn sweep_removes_legacy_expired_shape() {
         // TS writer row: {title, description, expired}, code from key.
@@ -3005,6 +3394,78 @@ mod tests {
         assert!(crate::db::kv_get(&p, "g", "SCHEDULE.42.LEGACYCODE1234")
             .await
             .is_none());
+    }
+
+    #[tokio::test]
+    async fn sweep_dedups_dual_written_table_and_kv_rows() {
+        // Same entry in kv and the per-guild table root: one notify,
+        // both stores cleared, counted once.
+        let p = pool().await;
+        crate::commands::schedule::schedule::save_entry_routed(
+            &p,
+            "g",
+            &crate::commands::schedule::ScheduleEntry {
+                code: "DUALCODE12345678".to_string(),
+                title: "t".to_string(),
+                description: "a description".to_string(),
+                expires_at_ms: 100,
+            },
+            7,
+        )
+        .await
+        .unwrap();
+        let n = sweep_expired_schedules(&p, None, 200).await;
+        assert_eq!(n, 1);
+        assert!(crate::db::kv_get(&p, "g", "SCHEDULE.7.DUALCODE12345678")
+            .await
+            .is_none());
+        // The nested code is unset (empty parent objects may persist,
+        // like `delete_all_entries_routed` leaves an empty root row).
+        assert!(crate::commands::owner::main::tbl_get_value(
+            &p,
+            "g",
+            "SCHEDULE.7.DUALCODE12345678"
+        )
+        .await
+        .is_none());
+    }
+
+    #[tokio::test]
+    async fn sweep_expires_ts_schedule_table_rows() {
+        // TS writer shape: global `schedule` table, `{code: {title,
+        // description, expired}}` per user row.
+        let p = pool().await;
+        crate::db::ensure_schedule_table(&p).await.unwrap();
+        crate::db::schedule_set(
+            &p,
+            "9",
+            r#"{"TSCODE1234567890":{"title":"t","description":"a description","expired":100}}"#,
+        )
+        .await
+        .unwrap();
+        let n = sweep_expired_schedules(&p, None, 200).await;
+        assert_eq!(n, 1);
+        assert!(crate::db::schedule_all(&p).await.is_empty());
+    }
+
+    #[tokio::test]
+    async fn sweep_keeps_fresh_ts_rows_and_other_codes() {
+        let p = pool().await;
+        crate::db::ensure_schedule_table(&p).await.unwrap();
+        crate::db::schedule_set(
+            &p,
+            "9",
+            r#"{"OLDCODE1234567890":{"title":"t","description":"a description","expired":100},"FRESHCODE12345678":{"title":"t","description":"a description","expired":9999999999999}}"#,
+        )
+        .await
+        .unwrap();
+        let n = sweep_expired_schedules(&p, None, 200).await;
+        assert_eq!(n, 1);
+        let rows = crate::db::schedule_all(&p).await;
+        assert_eq!(rows.len(), 1);
+        let v: serde_json::Value = serde_json::from_str(&rows[0].1).unwrap();
+        assert!(v.get("OLDCODE1234567890").is_none());
+        assert!(v.get("FRESHCODE12345678").is_some());
     }
 
     #[test]
