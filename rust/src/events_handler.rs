@@ -6596,6 +6596,15 @@ impl serenity::EventHandler for Handler {
         } else if id == crate::commands::honeypot::main::HONEYPOT_CUSTOM_ID {
             let _ = crate::commands::honeypot::main::handle_honeypot_claim(&ctx, &comp, &self.pool)
                 .await;
+        } else if id == crate::commands::honeypot::main::HONEYPOT_TRAP_SELECT_ID
+            || id == crate::commands::honeypot::main::HONEYPOT_LOGS_SELECT_ID
+            || id == crate::commands::honeypot::main::HONEYPOT_ACTION_SELECT_ID
+            || id == crate::commands::honeypot::main::HONEYPOT_SEND_BUTTON_ID
+            || id == crate::commands::honeypot::main::HONEYPOT_PREVIEW_BUTTON_ID
+            || id == crate::commands::honeypot::main::HONEYPOT_TOGGLE_BUTTON_ID
+        {
+            // Honeypot config panel (stateless 240s-collector equivalent).
+            crate::commands::honeypot::main::handle_panel_press(&ctx, &comp, &self.pool).await;
         } else if id == crate::commands::ticket::main::TICKET_EMBED_DELETE {
             let _ =
                 crate::commands::ticket::main::handle_ticket_embed_delete(&ctx, &comp, &self.pool)

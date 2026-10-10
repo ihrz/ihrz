@@ -273,6 +273,570 @@ async fn send_trap_lure(
         .map(|m| m.id.get())
 }
 
+/// 4-row interactive panel. Mirrors `buildComponents` in `!config.ts`:
+/// trap channel select, logs channel select, action string select, then
+/// the send/preview/toggle button row. `disabled` renders the collector
+/// `end` leg (every row disabled once the 240s lifetime lapses).
+pub fn build_panel_components(
+    t: &(dyn Fn(&str) -> String + Send + Sync),
+    enabled: bool,
+    action: &str,
+    disabled: bool,
+) -> Vec<serenity::CreateActionRow> {
+    let ph = |k: &str, fb: &str| {
+        let v = t(k);
+        if v.trim().is_empty() {
+            fb.to_string()
+        } else {
+            v
+        }
+    };
+    let channel_menu = |id: &'static str, key: &str, fb: &str| {
+        serenity::CreateSelectMenu::new(
+            id,
+            serenity::CreateSelectMenuKind::Channel {
+                channel_types: Some(vec![serenity::ChannelType::Text]),
+                default_channels: None,
+            },
+        )
+        .placeholder(ph(key, fb))
+        .min_values(1)
+        .max_values(1)
+        .disabled(disabled)
+    };
+    let opt = |value: &str, key: &str, fb: &str| {
+        serenity::CreateSelectMenuOption::new(ph(key, fb), value.to_string())
+            .default_selection(action == value)
+    };
+    let action_menu = serenity::CreateSelectMenu::new(
+        HONEYPOT_ACTION_SELECT_ID,
+        serenity::CreateSelectMenuKind::String {
+            options: vec![
+                opt("kick", "honeypot_config_select_action_kick", "Kick users"),
+                opt("ban", "honeypot_config_select_action_ban", "Ban users"),
+                opt(
+                    "none",
+                    "honeypot_config_select_action_none",
+                    "Delete messages only",
+                ),
+            ],
+        },
+    )
+    .placeholder(ph(
+        "honeypot_config_select_action_placeholder",
+        "Select the action to apply",
+    ))
+    .disabled(disabled);
+    let (toggle_key, danger) = toggle_button(enabled);
+    let toggle_label = ph(
+        toggle_key,
+        if enabled {
+            "Disable Honeypot"
+        } else {
+            "Enable Honeypot"
+        },
+    );
+    vec![
+        serenity::CreateActionRow::SelectMenu(channel_menu(
+            HONEYPOT_TRAP_SELECT_ID,
+            "honeypot_config_select_trap_placeholder",
+            "Select the trap channel",
+        )),
+        serenity::CreateActionRow::SelectMenu(channel_menu(
+            HONEYPOT_LOGS_SELECT_ID,
+            "honeypot_config_select_logs_placeholder",
+            "Select the logs channel",
+        )),
+        serenity::CreateActionRow::SelectMenu(action_menu),
+        serenity::CreateActionRow::Buttons(vec![
+            serenity::CreateButton::new(HONEYPOT_SEND_BUTTON_ID)
+                .style(serenity::ButtonStyle::Primary)
+                .label(ph("honeypot_config_button_send", "Send Embed"))
+                .disabled(disabled),
+            serenity::CreateButton::new(HONEYPOT_PREVIEW_BUTTON_ID)
+                .style(serenity::ButtonStyle::Secondary)
+                .label(ph("honeypot_config_button_preview", "Preview"))
+                .disabled(disabled),
+            serenity::CreateButton::new(HONEYPOT_TOGGLE_BUTTON_ID)
+                .style(if danger {
+                    serenity::ButtonStyle::Danger
+                } else {
+                    serenity::ButtonStyle::Success
+                })
+                .label(toggle_label)
+                .disabled(disabled),
+        ]),
+    ]
+}
+
+/// Stateless 240s collector gate. Mirrors
+/// `createMessageComponentCollector({ time: 240_000 })` plus the `end`
+/// leg that disables the panel: presses older than the panel lifetime
+/// only re-render the disabled panel, never mutate state.
+pub fn panel_expired(posted_unix_secs: i64, now_unix_secs: i64) -> bool {
+    (now_unix_secs - posted_unix_secs) * 1000 >= HONEYPOT_PANEL_TIMEOUT_MS as i64
+}
+
+/// Trap-channel change rule. Mirrors
+/// `if (config.channelId !== nextChannelId) config.messageId = undefined`.
+pub fn trap_change_resets_message(old_trap_id: &str, next_trap_id: &str) -> bool {
+    old_trap_id.trim() != next_trap_id.trim()
+}
+
+/// serenity-Context twin of `ensure_trap_channel_id` for the panel legs
+/// (same rule: reuse the stored text channel, else create `default_name`
+/// at position 0).
+// Edition 2021: no let-chains, hence the matches! guard.
+async fn ensure_trap_channel_http(
+    http: &std::sync::Arc<serenity::Http>,
+    guild_id: serenity::GuildId,
+    stored_id: &str,
+    default_name: &str,
+) -> Option<String> {
+    if !stored_id.trim().is_empty() {
+        if let Ok(n) = stored_id.trim().parse::<u64>() {
+            let is_text = matches!(
+                serenity::ChannelId::new(n).to_channel(http).await,
+                Ok(serenity::Channel::Guild(ref g))
+                    if g.kind == serenity::ChannelType::Text
+            );
+            if is_text {
+                return Some(stored_id.trim().to_string());
+            }
+        }
+    }
+    let builder = serenity::CreateChannel::new(default_name).kind(serenity::ChannelType::Text);
+    let created = guild_id.create_channel(http, builder).await.ok()?;
+    let _ = created
+        .id
+        .edit(http, serenity::EditChannel::new().position(0))
+        .await;
+    Some(created.id.get().to_string())
+}
+
+/// serenity-Context twin of `send_trap_lure`: delete the previous lure,
+/// post a fresh trap embed, return the new message id.
+async fn post_trap_lure_http(
+    http: &std::sync::Arc<serenity::Http>,
+    trap_channel_id: u64,
+    prev_message_id: Option<u64>,
+    t: &(dyn Fn(&str) -> String + Send + Sync),
+) -> Option<u64> {
+    let channel_id = serenity::ChannelId::new(trap_channel_id);
+    if let Some(mid) = prev_message_id {
+        let _ = channel_id
+            .delete_message(http, serenity::MessageId::new(mid))
+            .await;
+    }
+    channel_id
+        .send_message(
+            http,
+            serenity::CreateMessage::new().embed(build_trap_embed(t)),
+        )
+        .await
+        .ok()
+        .map(|m| m.id.get())
+}
+
+/// Ensure the trap channel then post the lure. Mirrors `sendTrapEmbed`
+/// (auto-create included); returns `(trap_id, message_id)`.
+async fn ensure_and_post_lure(
+    ctx: &serenity::Context,
+    guild_id: serenity::GuildId,
+    trap_id: &str,
+    prev_message_id: Option<u64>,
+    default_name: &str,
+    custom_desc: Option<&str>,
+    t: &(dyn Fn(&str) -> String + Send + Sync),
+) -> Option<(u64, u64)> {
+    let ensured = ensure_trap_channel_http(&ctx.http, guild_id, trap_id, default_name).await?;
+    let trap_n: u64 = ensured.parse().ok()?;
+    // Custom lure message overrides the default embed description,
+    // like the slash-config path.
+    let t2 = |k: &str| {
+        if k == "honeypot_trap_embed_desc" {
+            if let Some(m) = custom_desc {
+                if !m.trim().is_empty() {
+                    return m.to_string();
+                }
+            }
+        }
+        t(k)
+    };
+    let mid = post_trap_lure_http(&ctx.http, trap_n, prev_message_id, &t2).await?;
+    Some((trap_n, mid))
+}
+
+/// Effective admin bit for a panel press. serenity-Context twin of
+/// `invoker_is_admin` (same role-hierarchy OR including @everyone).
+async fn panel_invoker_is_admin(
+    ctx: &serenity::Context,
+    guild_id: serenity::GuildId,
+    user_id: serenity::UserId,
+) -> bool {
+    let Ok(guild_roles) = ctx.http.get_guild_roles(guild_id).await else {
+        return false;
+    };
+    let Ok(member) = guild_id.member(&ctx.http, user_id).await else {
+        return false;
+    };
+    let everyone = serenity::RoleId::new(guild_id.get());
+    let mut perms = serenity::Permissions::empty();
+    for r in &member.roles {
+        if let Some(role) = guild_roles.iter().find(|gr| &gr.id == r) {
+            perms |= role.permissions;
+        }
+    }
+    if let Some(everyone_role) = guild_roles.iter().find(|gr| gr.id == everyone) {
+        perms |= everyone_role.permissions;
+    }
+    perms.administrator()
+}
+
+/// Ephemeral panel reply (TS `i.reply` with the ephemeral flag).
+async fn panel_ephemeral(
+    ctx: &serenity::Context,
+    comp: &serenity::ComponentInteraction,
+    content: String,
+) {
+    let _ = comp
+        .create_response(
+            &ctx.http,
+            serenity::CreateInteractionResponse::Message(
+                serenity::CreateInteractionResponseMessage::new()
+                    .content(content)
+                    .ephemeral(true),
+            ),
+        )
+        .await;
+}
+
+/// Re-render the panel in place (TS `renderPanel`: status embed plus the
+/// 4-row components). `disabled` renders the collector `end` leg.
+async fn panel_update(
+    ctx: &serenity::Context,
+    comp: &serenity::ComponentInteraction,
+    guild_id: u64,
+    cfg: &serde_json::Value,
+    t: &(dyn Fn(&str) -> String + Send + Sync),
+    disabled: bool,
+) {
+    let enabled = cfg
+        .get("enabled")
+        .and_then(|v| v.as_bool())
+        .unwrap_or(false);
+    let action = parse_honeypot_action(cfg.get("action").and_then(|v| v.as_str()));
+    let trap = cfg
+        .get("channelId")
+        .and_then(|v| v.as_str())
+        .unwrap_or_default();
+    let logs = cfg
+        .get("logsChannelId")
+        .and_then(|v| v.as_str())
+        .unwrap_or_default();
+    let msg_url: Option<String> = (|| {
+        let trap_n: u64 = trap.trim().parse().ok()?;
+        let mid: u64 = cfg
+            .get("messageId")
+            .and_then(|v| v.as_str())?
+            .trim()
+            .parse()
+            .ok()?;
+        Some(crate::funcs::message_url(guild_id, trap_n, mid))
+    })();
+    let embed = build_status_embed(t, enabled, action, trap, logs, msg_url.as_deref());
+    let rows = build_panel_components(t, enabled, action, disabled);
+    let _ = comp
+        .create_response(
+            &ctx.http,
+            serenity::CreateInteractionResponse::UpdateMessage(
+                serenity::CreateInteractionResponseMessage::new()
+                    .embed(embed)
+                    .components(rows),
+            ),
+        )
+        .await;
+}
+
+/// Ephemeral follow-up after a panel re-render (TS legs that call
+/// `renderPanel()` and then `i.reply`, e.g. send/toggle confirmations).
+async fn panel_followup(
+    ctx: &serenity::Context,
+    comp: &serenity::ComponentInteraction,
+    content: String,
+) {
+    let _ = comp
+        .create_followup(
+            &ctx.http,
+            serenity::CreateInteractionResponseFollowup::new()
+                .content(content)
+                .ephemeral(true),
+        )
+        .await;
+}
+
+/// Panel press router for the six `honeypot-config-*` custom ids.
+/// Stateless 240s-collector equivalent: message-age expiry renders the
+/// disabled `end` leg, the manager gate reuses `can_manage_honeypot`
+/// (admin bit plus the protection allowlist), then each leg mirrors its
+/// TS `collect` branch (selects persist + re-render, preview is
+/// ephemeral, send/toggle post the lure + confirm).
+pub async fn handle_panel_press(
+    ctx: &serenity::Context,
+    comp: &serenity::ComponentInteraction,
+    pool: &crate::db::Pool,
+) {
+    let Some(guild_id) = comp.guild_id else {
+        return;
+    };
+    let gid = guild_id.get().to_string();
+    let code = crate::db::guild_lang(pool, Some(guild_id.get())).await;
+    let t = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
+    let fb = |k: &str, fb: &str| {
+        let v = t(k);
+        if v.trim().is_empty() {
+            fb.to_string()
+        } else {
+            v
+        }
+    };
+
+    let mut cfg: serde_json::Value = load_honeypot_raw(pool, &gid)
+        .await
+        .and_then(|s| serde_json::from_str(&s).ok())
+        .unwrap_or(serde_json::json!({
+            "enabled": false,
+            "action": "none",
+            "createdBy": comp.user.id.get().to_string(),
+            "lastTriggeredAt": 0,
+        }));
+
+    // Collector `end` leg: expired panels only re-render disabled.
+    let now = serenity::Timestamp::now().unix_timestamp();
+    if panel_expired(comp.message.timestamp.unix_timestamp(), now) {
+        panel_update(ctx, comp, guild_id.get(), &cfg, &t, true).await;
+        return;
+    }
+
+    // Manager gate (mirrors canManageHoneypot): administrators pass,
+    // otherwise the protection allowlist decides.
+    let allow_rows = crate::commands::protection::protect::load_allowlist(pool, &gid).await;
+    let allowlisted =
+        crate::commands::protection::protect::allowlist_contains(&allow_rows, comp.user.id.get());
+    if !can_manage_honeypot(
+        panel_invoker_is_admin(ctx, guild_id, comp.user.id).await,
+        allowlisted,
+    ) {
+        panel_ephemeral(
+            ctx,
+            comp,
+            fb(
+                "honeypot_config_not_allowed",
+                "You must be an administrator or be in the allowlist to configure Honeypot.",
+            ),
+        )
+        .await;
+        return;
+    }
+
+    let id = comp.data.custom_id.as_str();
+    if id == HONEYPOT_TRAP_SELECT_ID || id == HONEYPOT_LOGS_SELECT_ID {
+        let next: Option<String> = match &comp.data.kind {
+            serenity::ComponentInteractionDataKind::ChannelSelect { values } => {
+                values.first().map(|c| c.get().to_string())
+            }
+            _ => None,
+        };
+        let Some(next) = next else { return };
+        if id == HONEYPOT_TRAP_SELECT_ID {
+            let old = cfg
+                .get("channelId")
+                .and_then(|v| v.as_str())
+                .unwrap_or_default()
+                .to_string();
+            if trap_change_resets_message(&old, &next) {
+                if let Some(obj) = cfg.as_object_mut() {
+                    obj.remove("messageId");
+                }
+            }
+            cfg["channelId"] = serde_json::json!(next);
+        } else {
+            cfg["logsChannelId"] = serde_json::json!(next);
+        }
+        cfg["createdBy"] = serde_json::json!(comp.user.id.get().to_string());
+        let _ = save_honeypot(pool, &gid, &cfg).await;
+        panel_update(ctx, comp, guild_id.get(), &cfg, &t, false).await;
+        return;
+    }
+
+    if id == HONEYPOT_ACTION_SELECT_ID {
+        let next = match &comp.data.kind {
+            serenity::ComponentInteractionDataKind::StringSelect { values } => {
+                values.first().cloned().unwrap_or_default()
+            }
+            _ => return,
+        };
+        cfg["action"] = serde_json::json!(parse_honeypot_action(Some(&next)));
+        cfg["createdBy"] = serde_json::json!(comp.user.id.get().to_string());
+        let _ = save_honeypot(pool, &gid, &cfg).await;
+        panel_update(ctx, comp, guild_id.get(), &cfg, &t, false).await;
+        return;
+    }
+
+    if id == HONEYPOT_PREVIEW_BUTTON_ID {
+        let _ = comp
+            .create_response(
+                &ctx.http,
+                serenity::CreateInteractionResponse::Message(
+                    serenity::CreateInteractionResponseMessage::new()
+                        .embed(build_trap_embed(&t))
+                        .ephemeral(true),
+                ),
+            )
+            .await;
+        return;
+    }
+
+    if id == HONEYPOT_SEND_BUTTON_ID {
+        let trap = cfg
+            .get("channelId")
+            .and_then(|v| v.as_str())
+            .unwrap_or_default()
+            .to_string();
+        let prev_mid = cfg
+            .get("messageId")
+            .and_then(|v| v.as_str())
+            .and_then(|s| s.parse::<u64>().ok());
+        let custom = cfg
+            .get("message")
+            .and_then(|v| v.as_str())
+            .map(|s| s.to_string());
+        let def =
+            default_trap_channel_name(crate::lang::get(&code, "honeypot_default_channel_name"));
+        match ensure_and_post_lure(ctx, guild_id, &trap, prev_mid, &def, custom.as_deref(), &t)
+            .await
+        {
+            Some((trap_n, mid)) => {
+                cfg["channelId"] = serde_json::json!(trap_n.to_string());
+                cfg["messageId"] = serde_json::json!(mid.to_string());
+                cfg["createdBy"] = serde_json::json!(comp.user.id.get().to_string());
+                let _ = save_honeypot(pool, &gid, &cfg).await;
+                panel_update(ctx, comp, guild_id.get(), &cfg, &t, false).await;
+                panel_followup(
+                    ctx,
+                    comp,
+                    fb(
+                        "honeypot_config_send_success",
+                        "The Honeypot embed has been sent in ${channel}.",
+                    )
+                    .replace("${channel}", &format!("<#{trap_n}>")),
+                )
+                .await;
+            }
+            None => {
+                panel_ephemeral(
+                    ctx,
+                    comp,
+                    fb(
+                        "honeypot_config_generic_error",
+                        "An error occurred while updating Honeypot.",
+                    ),
+                )
+                .await;
+            }
+        }
+        return;
+    }
+
+    if id == HONEYPOT_TOGGLE_BUTTON_ID {
+        let enabled = cfg
+            .get("enabled")
+            .and_then(|v| v.as_bool())
+            .unwrap_or(false);
+        if enabled {
+            cfg["enabled"] = serde_json::json!(false);
+            cfg["createdBy"] = serde_json::json!(comp.user.id.get().to_string());
+            let _ = save_honeypot(pool, &gid, &cfg).await;
+            panel_update(ctx, comp, guild_id.get(), &cfg, &t, false).await;
+            panel_followup(
+                ctx,
+                comp,
+                fb(
+                    "honeypot_config_disable_success",
+                    "Honeypot is now disabled.",
+                ),
+            )
+            .await;
+            return;
+        }
+        let logs = cfg
+            .get("logsChannelId")
+            .and_then(|v| v.as_str())
+            .unwrap_or_default()
+            .to_string();
+        if !honeypot_enable_allowed(&logs) {
+            panel_ephemeral(
+                ctx,
+                comp,
+                fb(
+                    "honeypot_config_missing_logs_channel",
+                    "You must configure a logs channel before enabling Honeypot.",
+                ),
+            )
+            .await;
+            return;
+        }
+        let trap = cfg
+            .get("channelId")
+            .and_then(|v| v.as_str())
+            .unwrap_or_default()
+            .to_string();
+        let prev_mid = cfg
+            .get("messageId")
+            .and_then(|v| v.as_str())
+            .and_then(|s| s.parse::<u64>().ok());
+        let custom = cfg
+            .get("message")
+            .and_then(|v| v.as_str())
+            .map(|s| s.to_string());
+        let def =
+            default_trap_channel_name(crate::lang::get(&code, "honeypot_default_channel_name"));
+        match ensure_and_post_lure(ctx, guild_id, &trap, prev_mid, &def, custom.as_deref(), &t)
+            .await
+        {
+            Some((trap_n, mid)) => {
+                cfg["enabled"] = serde_json::json!(true);
+                cfg["channelId"] = serde_json::json!(trap_n.to_string());
+                cfg["messageId"] = serde_json::json!(mid.to_string());
+                cfg["createdBy"] = serde_json::json!(comp.user.id.get().to_string());
+                let _ = save_honeypot(pool, &gid, &cfg).await;
+                panel_update(ctx, comp, guild_id.get(), &cfg, &t, false).await;
+                panel_followup(
+                    ctx,
+                    comp,
+                    fb(
+                        "honeypot_config_enable_success",
+                        "Honeypot is now enabled in ${channel}.",
+                    )
+                    .replace("${channel}", &format!("<#{trap_n}>")),
+                )
+                .await;
+            }
+            None => {
+                panel_ephemeral(
+                    ctx,
+                    comp,
+                    fb(
+                        "honeypot_config_generic_error",
+                        "An error occurred while updating Honeypot.",
+                    ),
+                )
+                .await;
+            }
+        }
+    }
+}
+
 #[poise::command(slash_command, prefix_command, rename = "config")]
 pub async fn honeypot_config(
     ctx: Ctx<'_>,
@@ -465,8 +1029,15 @@ pub async fn honeypot_config(
         &logs_id,
         message_url.as_deref(),
     );
-    ctx.send(poise::CreateReply::default().embed(status))
-        .await?;
+    // Live 4-row panel: the reply stays interactive for 240s via the
+    // `honeypot-config-*` arms in events_handler.rs (stateless collector
+    // equivalent of the TS `createMessageComponentCollector`).
+    ctx.send(
+        poise::CreateReply::default()
+            .embed(status)
+            .components(build_panel_components(&t, enabling, &action, false)),
+    )
+    .await?;
     Ok(())
 }
 
@@ -520,6 +1091,63 @@ mod tests {
             toggle_button(false),
             ("honeypot_config_button_enable", false)
         );
+    }
+
+    #[test]
+    fn panel_expiry_matches_240s_collector() {
+        assert!(!panel_expired(1000, 1000));
+        assert!(!panel_expired(1000, 1000 + 239));
+        assert!(panel_expired(1000, 1000 + 240));
+        assert!(panel_expired(1000, 1000 + 10_000));
+        // Clock skew never expires the panel.
+        assert!(!panel_expired(2000, 1000));
+    }
+
+    #[test]
+    fn trap_change_resets_message_id_like_ts() {
+        assert!(!trap_change_resets_message("111", "111"));
+        assert!(!trap_change_resets_message("", ""));
+        assert!(!trap_change_resets_message(" 111 ", "111"));
+        assert!(trap_change_resets_message("111", "222"));
+        assert!(trap_change_resets_message("", "222"));
+        assert!(trap_change_resets_message("111", ""));
+    }
+
+    #[test]
+    fn panel_builds_four_rows_with_ts_ids() {
+        let t = |k: &str| match k {
+            "honeypot_config_button_enable" => "Enable Honeypot".to_string(),
+            "honeypot_config_button_disable" => "Disable Honeypot".to_string(),
+            v => v.to_string(),
+        };
+        let rows = build_panel_components(&t, false, "none", false);
+        assert_eq!(rows.len(), 4);
+        let dbg = format!("{rows:?}");
+        for id in [
+            HONEYPOT_TRAP_SELECT_ID,
+            HONEYPOT_LOGS_SELECT_ID,
+            HONEYPOT_ACTION_SELECT_ID,
+            HONEYPOT_SEND_BUTTON_ID,
+            HONEYPOT_PREVIEW_BUTTON_ID,
+            HONEYPOT_TOGGLE_BUTTON_ID,
+        ] {
+            assert!(dbg.contains(id), "missing {id}");
+        }
+        assert!(dbg.contains("Enable Honeypot"));
+        assert!(dbg.contains("Success"));
+        // Action options carry the kick/ban/none values.
+        assert!(dbg.contains("kick"));
+        assert!(dbg.contains("ban"));
+        assert!(dbg.contains("none"));
+        // Enabled trap offers Disable in danger style.
+        let rows_on = build_panel_components(&t, true, "ban", false);
+        let dbg_on = format!("{rows_on:?}");
+        assert!(dbg_on.contains("Disable Honeypot"));
+        assert!(dbg_on.contains("Danger"));
+        // Collector end leg: every row disabled.
+        let rows_end = build_panel_components(&t, true, "ban", true);
+        let dbg_end = format!("{rows_end:?}");
+        assert!(dbg_end.contains("disabled: true"));
     }
 
     #[test]
