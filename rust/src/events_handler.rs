@@ -4947,9 +4947,39 @@ impl serenity::EventHandler for Handler {
                         }
                     }
                 }
-                // Lobby spawn (mirrors voicedashboard): temp channel + move.
+                // Lobby spawn (mirrors voicedashboard/voiceState.ts).
                 if let Some(lobby) = voice_lobby_routed(&self.pool, &gid).await {
                     if lobby == new_ch.get().to_string() {
+                        let own_key =
+                            crate::events::temp_voice_key(guild_id.get(), new.user_id.get());
+                        // Owned-channel redirect (voiceState.ts:131-136): the
+                        // joiner already owns a live temp channel → move them
+                        // back into it and stop. A stale row (gone /
+                        // non-voice channel) is dropped like the TS
+                        // `channelDb && !ownedChannel` cleanup.
+                        if let Some(own_raw) = tbl_get(&self.pool, &gid, &own_key).await {
+                            let stale = match own_raw.trim().parse::<u64>() {
+                                Ok(own_num) if own_num != 0 => {
+                                    let own_ch = serenity::ChannelId::new(own_num);
+                                    if crate::commands::voicedashboard::main::fetch_voice_channel(
+                                        &ctx.http, own_ch,
+                                    )
+                                    .await
+                                    .is_some()
+                                    {
+                                        let _ = guild_id
+                                            .move_member(&ctx.http, new.user_id, own_ch)
+                                            .await;
+                                        return;
+                                    }
+                                    true
+                                }
+                                _ => true,
+                            };
+                            if stale {
+                                let _ = tbl_del(&self.pool, &gid, &own_key).await;
+                            }
+                        }
                         // Pending-creation lock (mirrors
                         // pendingCustomVoiceCreations): Discord may emit
                         // several updates for one hub join while creation is
@@ -4962,94 +4992,196 @@ impl serenity::EventHandler for Handler {
                                 return;
                             }
                         }
-                        let raw_name = new
+                        // Display name (mirrors `displayName || nickname`).
+                        let raw_display = new
                             .member
                             .as_ref()
-                            .map(|m| m.user.name.clone())
+                            .map(|m| m.display_name().to_string())
                             .unwrap_or_else(|| "voice".to_string());
-                        // Mask links in display names (mirrors maskLink).
-                        let name = crate::funcs::mask_link(&raw_name);
-                        // Name template (VOICE_INTERFACE.voice_channel_name,
-                        // {user} placeholder) or default.
-                        let tpl = voice_name_tpl_routed(&self.pool, &gid).await;
-                        let title = match tpl {
-                            Some(t) => t.replace("{user}", &name),
-                            None => {
-                                let lang_code =
-                                    crate::db::guild_lang(&self.pool, Some(guild_id.get())).await;
-                                crate::events::temp_channel_name_in(
-                                    &name,
-                                    crate::lang::get(&lang_code, "temporary_voice_channel_name")
-                                        .as_deref(),
-                                )
+                        // Default title from the lang template (`{nickname}`
+                        // slot), with links masked like TS maskLink.
+                        let lang_code =
+                            crate::db::guild_lang(&self.pool, Some(guild_id.get())).await;
+                        let title = crate::events::temp_channel_name_in(
+                            &crate::funcs::mask_link(&raw_display),
+                            crate::lang::get(&lang_code, "temporary_voice_channel_name").as_deref(),
+                        );
+                        // The lobby channel must still exist (mirrors `&&
+                        // result_channel`); temp channels spawn under its
+                        // parent (mirrors `parent: result_channel?.parentId`).
+                        let lobby_num: u64 = match lobby.parse() {
+                            Ok(n) => n,
+                            Err(_) => {
+                                let mut pending = self.temp_pending.lock().await;
+                                restore_slot_release(&mut pending, &creation_key);
+                                return;
                             }
                         };
-                        let builder =
-                            serenity::CreateChannel::new(title).kind(serenity::ChannelType::Voice);
-                        if let Ok(ch) = guild_id.create_channel(&ctx.http, builder).await {
-                            let _ = guild_id.move_member(&ctx.http, new.user_id, ch.id).await;
-                            // Staff overwrites (mirrors voiceState.ts:273):
-                            // VOICE_INTERFACE.staff_role is one role id
-                            // (legacy string) or a JSON array; every listed
-                            // role gets join + moderate rights, like TS.
-                            // Roles missing from the guild cache are skipped
-                            // (mirrors the roles.cache.get guard).
-                            if let Some(staff_raw) =
-                                leaf_routed(&self.pool, &gid, "VOICE_INTERFACE.staff_role").await
-                            {
-                                let staff =
-                                    crate::commands::voicedashboard::main::parse_staff_roles(Some(
-                                        &staff_raw,
-                                    ));
-                                // Resolve ids up front: the cache guard is
-                                // not Send and must not be held across awaits.
-                                let staff_ids: Vec<u64> = {
-                                    let cached = ctx.cache.guild(guild_id);
-                                    staff
-                                        .iter()
-                                        .filter_map(|r| r.parse::<u64>().ok())
-                                        .filter(|rid| {
-                                            cached.as_ref().is_none_or(|g| {
-                                                g.roles.contains_key(&serenity::RoleId::new(*rid))
-                                            })
-                                        })
-                                        .collect()
-                                };
-                                for role_id in staff_ids {
-                                    let _ = ch
-                                        .id
-                                        .create_permission(
-                                            &ctx.http,
-                                            serenity::PermissionOverwrite {
-                                                allow: staff_voice_allow(),
-                                                deny: serenity::Permissions::empty(),
-                                                kind: serenity::PermissionOverwriteType::Role(
-                                                    serenity::RoleId::new(role_id),
-                                                ),
-                                            },
-                                        )
-                                        .await;
-                                }
+                        let lobby_parent = match ctx
+                            .http
+                            .get_channel(serenity::ChannelId::new(lobby_num))
+                            .await
+                            .ok()
+                        {
+                            Some(serenity::Channel::Guild(g)) => g.parent_id,
+                            _ => {
+                                let mut pending = self.temp_pending.lock().await;
+                                restore_slot_release(&mut pending, &creation_key);
+                                return;
                             }
-                            let _ = tbl_set(
-                                &self.pool,
-                                &gid,
-                                &crate::events::temp_voice_key(guild_id.get(), new.user_id.get()),
-                                &ch.id.get().to_string(),
-                            )
-                            .await;
-                            // Dashboard panel (mirrors voicedashboard interface).
+                        };
+                        // Category override + its overwrites to copy (mirrors
+                        // PotentialCategory / `permissionOverwrites:` from the
+                        // category channel).
+                        let category_num: Option<u64> =
+                            leaf_routed(&self.pool, &gid, "VOICE_INTERFACE.voice_channel_category")
+                                .await
+                                .and_then(|s| s.trim().parse().ok());
+                        let cat_overwrites: Vec<serenity::PermissionOverwrite> = match category_num
+                        {
+                            Some(cat) => ctx
+                                .http
+                                .get_channel(serenity::ChannelId::new(cat))
+                                .await
+                                .ok()
+                                .and_then(|c| match c {
+                                    serenity::Channel::Guild(g) => Some(g.permission_overwrites),
+                                    _ => None,
+                                })
+                                .unwrap_or_default(),
+                            None => Vec::new(),
+                        };
+                        let mut builder =
+                            serenity::CreateChannel::new(title).kind(serenity::ChannelType::Voice);
+                        if let Some(p) = lobby_parent {
+                            builder = builder.category(p);
+                        }
+                        let Ok(ch) = guild_id.create_channel(&ctx.http, builder).await else {
+                            let mut pending = self.temp_pending.lock().await;
+                            restore_slot_release(&mut pending, &creation_key);
+                            return;
+                        };
+                        // Track the row before any follow-up edit (mirrors
+                        // tempTable.set right after create): a failed move
+                        // below rolls back exactly this row.
+                        let _ = tbl_set(&self.pool, &gid, &own_key, &ch.id.get().to_string()).await;
+                        // Category move (mirrors setParent(PotentialCategory)).
+                        if let Some(cat) = category_num {
                             let _ = ch
-                                .send_message(
+                                .id
+                                .edit(
                                     &ctx.http,
-                                    serenity::CreateMessage::new()
-                                        .content("Manage your channel:")
-                                        .components(
-                                            crate::commands::voicedashboard::main::tempvoice_buttons(),
-                                        ),
+                                    serenity::EditChannel::new()
+                                        .category(serenity::ChannelId::new(cat)),
                                 )
                                 .await;
                         }
+                        // Copy the category overwrites.
+                        for ow in &cat_overwrites {
+                            let _ = ch.id.create_permission(&ctx.http, ow.clone()).await;
+                        }
+                        // Position top (mirrors setPosition(0, relative)).
+                        if leaf_routed(&self.pool, &gid, "VOICE_INTERFACE.voice_channel_position")
+                            .await
+                            .as_deref()
+                            == Some("top")
+                        {
+                            let _ = ch
+                                .id
+                                .edit(&ctx.http, serenity::EditChannel::new().position(0))
+                                .await;
+                        }
+                        // Name template (`{Username}` slot or append
+                        // fallback, raw display name like TS).
+                        if let Some(tpl) = voice_name_tpl_routed(&self.pool, &gid).await {
+                            let renamed = crate::commands::voicedashboard::main::render_temp_name(
+                                &tpl,
+                                &raw_display,
+                            );
+                            let _ = ch
+                                .id
+                                .edit(&ctx.http, serenity::EditChannel::new().name(renamed))
+                                .await;
+                        }
+                        // Move with rollback (mirrors the setChannel
+                        // then/catch): on failure the channel is deleted
+                        // and the tracked row dropped while it points at it.
+                        if guild_id
+                            .move_member(&ctx.http, new.user_id, ch.id)
+                            .await
+                            .is_err()
+                        {
+                            let _ = ch.id.delete(&ctx.http).await;
+                            if let Some(cur) = tbl_get(&self.pool, &gid, &own_key).await {
+                                if cur.trim() == ch.id.get().to_string() {
+                                    let _ = tbl_del(&self.pool, &gid, &own_key).await;
+                                }
+                            }
+                            {
+                                let mut pending = self.temp_pending.lock().await;
+                                restore_slot_release(&mut pending, &creation_key);
+                            }
+                            return;
+                        }
+                        // Owner full allow set (mirrors the propriétaire
+                        // edit after the move).
+                        let _ = ch
+                            .id
+                            .create_permission(
+                                &ctx.http,
+                                serenity::PermissionOverwrite {
+                                    allow: crate::commands::voicedashboard::main::owner_voice_allow(
+                                    ),
+                                    deny: serenity::Permissions::empty(),
+                                    kind: serenity::PermissionOverwriteType::Member(new.user_id),
+                                },
+                            )
+                            .await;
+                        // Staff overwrites (mirrors voiceState.ts:273):
+                        // VOICE_INTERFACE.staff_role is one role id
+                        // (legacy string) or a JSON array; every listed
+                        // role gets join + moderate rights, like TS.
+                        // Roles missing from the guild cache are skipped
+                        // (mirrors the roles.cache.get guard).
+                        if let Some(staff_raw) =
+                            leaf_routed(&self.pool, &gid, "VOICE_INTERFACE.staff_role").await
+                        {
+                            let staff = crate::commands::voicedashboard::main::parse_staff_roles(
+                                Some(&staff_raw),
+                            );
+                            // Resolve ids up front: the cache guard is
+                            // not Send and must not be held across awaits.
+                            let staff_ids: Vec<u64> = {
+                                let cached = ctx.cache.guild(guild_id);
+                                staff
+                                    .iter()
+                                    .filter_map(|r| r.parse::<u64>().ok())
+                                    .filter(|rid| {
+                                        cached.as_ref().is_none_or(|g| {
+                                            g.roles.contains_key(&serenity::RoleId::new(*rid))
+                                        })
+                                    })
+                                    .collect()
+                            };
+                            for role_id in staff_ids {
+                                let _ = ch
+                                    .id
+                                    .create_permission(
+                                        &ctx.http,
+                                        serenity::PermissionOverwrite {
+                                            allow: staff_voice_allow(),
+                                            deny: serenity::Permissions::empty(),
+                                            kind: serenity::PermissionOverwriteType::Role(
+                                                serenity::RoleId::new(role_id),
+                                            ),
+                                        },
+                                    )
+                                    .await;
+                            }
+                        }
+                        // No spawn message: TS voiceState.ts sends nothing
+                        // into the new channel (the dashboard panel is the
+                        // only UI).
                         // Release the creation lock (mirrors the finally
                         // delete in voiceState.ts).
                         {
@@ -5120,45 +5252,40 @@ impl serenity::EventHandler for Handler {
                 }
             }
         }
-        // Sweep emptied temp channels for this guild (mirrors the
-        // cleanup legs of voicedashboard/voiceState.ts). Malformed rows
-        // are dropped like the TS `typeof channelId !== "string"` guard;
-        // channels gone from cache are deleted best-effort and dropped
-        // like the TS `!channel` guard; emptiness is decided from fresh
-        // voice-state membership (mirrors isMemberlessChannel, where a
-        // fetch failure counts as empty — here a missing cache guild
-        // counts as empty once the channel itself is confirmed gone).
-        let rows: Vec<(String, String)> = custom_voice_rows_routed(&self.pool, &gid).await;
-        for (key, ch_id) in rows {
-            let Ok(ch_num) = ch_id.trim().parse::<u64>() else {
-                let _ = tbl_del(&self.pool, &gid, &key).await;
-                continue;
-            };
-            if ch_num == 0 {
-                let _ = tbl_del(&self.pool, &gid, &key).await;
-                continue;
-            }
-            // The cache guard is scoped and dropped before any await
-            // (CacheRef is not Send).
-            let (channel_gone, occupied) = match ctx.cache.guild(guild_id) {
-                Some(g) => {
-                    let gone = !g.channels.keys().any(|c| c.get() == ch_num);
-                    let occ = g
-                        .voice_states
-                        .values()
-                        .any(|v| v.channel_id == Some(serenity::ChannelId::new(ch_num)));
-                    (gone, occ)
+        // Same-channel early return (mirrors `newState.channelId ===
+        // oldState.channelId → return`): no join/leave/move happened,
+        // so the temp-voice sweep below does not apply.
+        if old.as_ref().and_then(|o| o.channel_id) != new.channel_id {
+            if let Some(old_ch) = old.as_ref().and_then(|o| o.channel_id) {
+                // Event-tied sweep (mirrors the cleanup legs of
+                // voicedashboard/voiceState.ts): only rows pointing at
+                // the abandoned channel are examined — the mover's own
+                // row (`oldState.channelId === channelDb`) and any
+                // other owner's row matching it. The channel is fetched
+                // from the API (mirrors guild.channels.fetch, not the
+                // cache): a gone channel drops its rows (mirrors
+                // `!channel`), an emptied one is deleted then dropped
+                // (mirrors isMemberlessChannel, whose fetch failure
+                // counts as empty).
+                let old_s = old_ch.get().to_string();
+                let tied: Vec<(String, String)> = custom_voice_rows_routed(&self.pool, &gid)
+                    .await
+                    .into_iter()
+                    .filter(|(_, c)| c.trim() == old_s)
+                    .collect();
+                if !tied.is_empty() {
+                    use crate::commands::voicedashboard::main as vd;
+                    if vd::fetch_voice_channel(&ctx.http, old_ch).await.is_none() {
+                        for (key, _) in &tied {
+                            let _ = tbl_del(&self.pool, &gid, key).await;
+                        }
+                    } else if vd::voice_occupants(&ctx, guild_id, old_ch) == 0 {
+                        let _ = old_ch.delete(&ctx.http).await;
+                        for (key, _) in &tied {
+                            let _ = tbl_del(&self.pool, &gid, key).await;
+                        }
+                    }
                 }
-                None => (false, true),
-            };
-            if channel_gone {
-                // Channel already gone (mirrors `!channel`): drop the key.
-                let _ = tbl_del(&self.pool, &gid, &key).await;
-                continue;
-            }
-            if !occupied {
-                let _ = serenity::ChannelId::new(ch_num).delete(&ctx.http).await;
-                let _ = tbl_del(&self.pool, &gid, &key).await;
             }
         }
         // Music empty-channel guard (mirrors

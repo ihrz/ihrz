@@ -129,14 +129,17 @@ pub async fn vd_panel(
     // Post into the target channel (TS `targetedChannel.send`), then
     // acknowledge with `Yes | <message url>` like the TS editReply.
     let sent = channel.id.send_message(ctx.http(), post).await?;
-    crate::commands::owner::main::routed_set(
-        pool,
-        &gid,
-        &gid,
-        &vd_key("interface"),
-        &channel.id.get().to_string(),
-    )
-    .await?;
+    // Persist the `{channelId, messageId}` object like
+    // !set-text-channel.ts (`VOICE_INTERFACE.interface`); buttons read
+    // it back via parse_interface_channel with legacy bare-string
+    // read-compat.
+    let iface_raw = serde_json::json!({
+        "channelId": channel.id.get().to_string(),
+        "messageId": sent.id.get().to_string(),
+    })
+    .to_string();
+    crate::commands::owner::main::routed_set(pool, &gid, &gid, &vd_key("interface"), &iface_raw)
+        .await?;
     let yes = crate::emojis::app_emoji_markup(ctx.http(), "Yes")
         .await
         .unwrap_or_else(|| "✅".to_string());
@@ -440,9 +443,141 @@ pub fn is_temp_owner(entries: &[(String, String)], channel_id: &str, user_id: &s
         .any(|(uid, ch)| ch == channel_id && uid == user_id)
 }
 
-/// Parse a voice user limit (0-99).
-pub fn parse_limit(raw: &str) -> Option<u8> {
-    raw.trim().parse::<u8>().ok()
+/// Presser's live voice channel from gateway state. Mirrors
+/// `member.voice.channel` in the temporary_voice_* buttons: every
+/// button operates on the voice channel the presser is sitting in,
+/// never on the text channel hosting the interaction.
+pub fn presser_voice(
+    ctx: &serenity::Context,
+    guild_id: serenity::GuildId,
+    user_id: serenity::UserId,
+) -> Option<serenity::ChannelId> {
+    ctx.cache
+        .guild(guild_id)
+        .and_then(|g| g.voice_states.get(&user_id).and_then(|v| v.channel_id))
+}
+
+/// Live member count of a voice channel from gateway state. Mirrors
+/// the `members.size` checks in the claim/transfer buttons.
+pub fn voice_occupants(
+    ctx: &serenity::Context,
+    guild_id: serenity::GuildId,
+    channel: serenity::ChannelId,
+) -> usize {
+    ctx.cache.guild(guild_id).map_or(0, |g| {
+        g.voice_states
+            .values()
+            .filter(|v| v.channel_id == Some(channel))
+            .count()
+    })
+}
+
+/// Fetch a guild voice channel from the API (not cache-only).
+/// Non-voice channels map to None, mirroring the TS
+/// `ownedChannel.type !== GuildVoice → null` guard.
+pub async fn fetch_voice_channel(
+    http: &std::sync::Arc<serenity::Http>,
+    id: serenity::ChannelId,
+) -> Option<serenity::GuildChannel> {
+    match http.get_channel(id).await.ok()? {
+        serenity::Channel::Guild(g) if g.kind == serenity::ChannelType::Voice => Some(g),
+        _ => None,
+    }
+}
+
+/// Parse a stored `VOICE_INTERFACE.interface` value. Current shape is
+/// the `{channelId, messageId}` object posted by vd_panel; a bare
+/// channel-id string is the legacy shape (read-compat).
+pub fn parse_interface_channel(raw: &str) -> Option<String> {
+    let t = raw.trim();
+    if t.is_empty() {
+        return None;
+    }
+    match serde_json::from_str::<serde_json::Value>(t) {
+        Ok(v) => match &v {
+            serde_json::Value::Object(m) => m
+                .get("channelId")
+                .and_then(|c| c.as_str())
+                .map(str::trim)
+                .filter(|s| !s.is_empty())
+                .map(str::to_string),
+            serde_json::Value::String(s) => {
+                let s = s.trim();
+                if s.is_empty() {
+                    None
+                } else {
+                    Some(s.to_string())
+                }
+            }
+            // Legacy bare id (`123`) parses as a JSON number.
+            serde_json::Value::Number(n) => Some(n.to_string()),
+            _ => None,
+        },
+        // Not JSON at all: legacy plain id string.
+        Err(_) => Some(t.to_string()),
+    }
+}
+
+/// Stored panel text-channel id (`VOICE_INTERFACE.interface`),
+/// object shape with legacy string compat. Backs the
+/// `result.interface?.channelId !== interaction.channelId` guard in
+/// the temporary_voice_* buttons.
+pub async fn interface_channel_id(pool: &crate::db::Pool, gid: &str) -> Option<String> {
+    let raw =
+        crate::commands::owner::main::routed_get(pool, gid, gid, &vd_key("interface")).await?;
+    parse_interface_channel(&raw)
+}
+
+/// Owner row for one user: the channel recorded at
+/// `CUSTOM_VOICE.<gid>.<uid>`. Mirrors the TS `getChannelId` /
+/// `getChannelOwner` lookups (`!== targetedChannel?.id → deferUpdate`).
+pub fn owned_channel_id(temps: &[(String, String)], user_id: &str) -> Option<String> {
+    temps
+        .iter()
+        .find(|(uid, _)| uid == user_id)
+        .map(|(_, ch)| ch.clone())
+}
+
+/// Full allow set for a temp-channel owner. Mirrors the
+/// permissionOverwrites.edit block applied after the move in
+/// Events/voicedashboard/voiceState.ts and in the claim/transfer
+/// buttons (view + voice + chat rights, no moderation rights —
+/// unlike the staff set).
+pub fn owner_voice_allow() -> serenity::Permissions {
+    use serenity::Permissions as P;
+    P::VIEW_CHANNEL
+        | P::CONNECT
+        | P::STREAM
+        | P::SPEAK
+        | P::SEND_MESSAGES
+        | P::USE_APPLICATION_COMMANDS
+        | P::ATTACH_FILES
+        | P::ADD_REACTIONS
+}
+
+/// Temp-channel rename from the `VOICE_INTERFACE.voice_channel_name`
+/// template. `{Username}` is replaced, otherwise the name is
+/// appended (`template + " " + username`). Mirrors the spawn /
+/// claim / transfer renames in TS.
+pub fn render_temp_name(template: &str, username: &str) -> String {
+    if template.contains("{Username}") {
+        template.replace("{Username}", username)
+    } else {
+        format!("{template} {username}")
+    }
+}
+
+/// Parse a voice user limit. Mirrors `parseInt` + the
+/// `if (!userLimit)` reject in temporary_voice_limit_button.ts: 0
+/// and non-numbers are rejected, with no upper clamp (Discord
+/// enforces its own cap server-side).
+pub fn parse_limit(raw: &str) -> Option<u32> {
+    let n: u32 = raw.trim().parse().ok()?;
+    if n == 0 {
+        None
+    } else {
+        Some(n)
+    }
 }
 
 pub const TEMPVOICE_PREFIX: &str = "tempvoice:";
@@ -456,6 +591,11 @@ pub const TEMPVOICE_TRUST_SELECT: &str = "tempvoice:trust-select";
 pub const TEMPVOICE_UNTRUST_SELECT: &str = "tempvoice:untrust-select";
 pub const TEMPVOICE_PRIVACY_SELECT: &str = "tempvoice:privacy-select";
 pub const TEMPVOICE_REGION_SELECT: &str = "tempvoice:region-select";
+/// User-select menu posted by the transfer button. Mirrors the
+/// `temporary_voice_transfer_selectmenue` collector in
+/// temporary_voice_transfer_button.ts (note the TS id typo, kept
+/// distinct here like the other tempvoice: ids).
+pub const TEMPVOICE_TRANSFER_SELECT: &str = "tempvoice:transfer-select";
 
 /// Voice region options. Mirrors the starter menu in
 /// temporary_voice_region_button.ts (label, value).
@@ -581,18 +721,65 @@ async fn with_panel_emoji(
     }
 }
 
+/// One live dashboard button (Secondary, VC_* emoji when warm).
+async fn live_panel_button(
+    http: &serenity::Http,
+    action: &str,
+    label: &str,
+    emoji_name: &str,
+) -> serenity::CreateButton {
+    with_panel_emoji(
+        http,
+        serenity::CreateButton::new(format!("{TEMPVOICE_PREFIX}{action}"))
+            .label(label)
+            .style(serenity::ButtonStyle::Secondary),
+        emoji_name,
+    )
+    .await
+}
+
+/// One disabled row-3 spacer (Empty emoji when warm, invisible label
+/// otherwise so the button stays valid on a cold emoji cache).
+async fn spacer_panel_button(http: &serenity::Http, n: u8) -> serenity::CreateButton {
+    with_panel_emoji(
+        http,
+        serenity::CreateButton::new(format!("{TEMPVOICE_PREFIX}disable-{n}"))
+            .label(" ")
+            .style(serenity::ButtonStyle::Secondary)
+            .disabled(true),
+        "Empty",
+    )
+    .await
+}
+
 /// Dashboard buttons with VC_* emoji labels. Posted by vd_panel;
-/// mirrors the emoji-only TS panel buttons (labels kept as fallback).
+/// mirrors the `buttonRows` in !set-text-channel.ts: every button is
+/// Secondary, row 3 holds the delete button centered between four
+/// disabled Empty-emoji spacers.
 pub async fn panel_buttons(http: &serenity::Http) -> Vec<serenity::CreateActionRow> {
-    let mut rows = vec![];
-    for chunk in PANEL_BUTTONS.chunks(5) {
-        let mut buttons = vec![];
-        for (action, label, emoji_name) in chunk {
-            buttons.push(with_panel_emoji(http, panel_button(action, label), emoji_name).await);
-        }
-        rows.push(serenity::CreateActionRow::Buttons(buttons));
-    }
-    rows
+    vec![
+        serenity::CreateActionRow::Buttons(vec![
+            live_panel_button(http, "limit", "Limit", "VC_Limit").await,
+            live_panel_button(http, "name", "Name", "VC_Name").await,
+            live_panel_button(http, "claim", "Claim", "VC_Claim").await,
+            live_panel_button(http, "privacy", "Privacy", "VC_Privacy").await,
+            live_panel_button(http, "region", "Region", "VC_Region").await,
+        ]),
+        serenity::CreateActionRow::Buttons(vec![
+            live_panel_button(http, "trust", "Trust", "VC_Trust").await,
+            live_panel_button(http, "block", "Block", "VC_Block").await,
+            live_panel_button(http, "transfer", "Transfer", "VC_Transfer").await,
+            live_panel_button(http, "unblock", "Unblock", "VC_Unblock").await,
+            live_panel_button(http, "untrust", "Untrust", "VC_Untrust").await,
+        ]),
+        serenity::CreateActionRow::Buttons(vec![
+            spacer_panel_button(http, 1).await,
+            spacer_panel_button(http, 2).await,
+            live_panel_button(http, "delete", "Delete", "VC_Delete").await,
+            spacer_panel_button(http, 3).await,
+            spacer_panel_button(http, 4).await,
+        ]),
+    ]
 }
 
 pub fn tempvoice_buttons() -> Vec<serenity::CreateActionRow> {
@@ -741,6 +928,89 @@ pub async fn load_temps(pool: &crate::db::Pool, guild_id: &str) -> Vec<(String, 
     rows
 }
 
+/// `deferUpdate` equivalent for ignored temp-voice presses (wrong
+/// channel, not in voice, not the owner). Best-effort, never fails.
+async fn ack_press(ctx: &serenity::Context, comp: &serenity::ComponentInteraction) {
+    let _ = comp
+        .create_response(&ctx.http, serenity::CreateInteractionResponse::Acknowledge)
+        .await;
+}
+
+/// Rename a temp channel for a new owner: the configured
+/// `VOICE_INTERFACE.voice_channel_name` template (`{Username}` slot
+/// or append fallback), else the lang `temporary_voice_channel_name`
+/// default (`{nickname}` slot). Mirrors the claim/transfer renames.
+async fn rename_for(
+    pool: &crate::db::Pool,
+    gid: &str,
+    lang_code: &str,
+    http: &std::sync::Arc<serenity::Http>,
+    target: serenity::ChannelId,
+    username: &str,
+) {
+    let tpl =
+        crate::commands::owner::main::routed_get(pool, gid, gid, &vd_key("voice_channel_name"))
+            .await
+            .map(|s| s.trim().to_string())
+            .filter(|s| !s.is_empty());
+    let name = match tpl {
+        Some(t) => render_temp_name(&t, username),
+        None => {
+            let def = crate::lang::get(lang_code, "temporary_voice_channel_name");
+            crate::events::temp_channel_name_in(username, def.as_deref())
+        }
+    };
+    let _ = target
+        .edit(http, serenity::EditChannel::new().name(name))
+        .await;
+}
+
+/// New/old-owner receipt embed. Mirrors the claim/transfer replies
+/// (`temporary_voice_title_embec` + new/old member fields + banner).
+async fn claim_transfer_embed(
+    lang_code: &str,
+    pool: &crate::db::Pool,
+    gid: &str,
+    new_mention: &str,
+    old_mention: &str,
+) -> serenity::CreateEmbed {
+    serenity::CreateEmbed::default()
+        .description(crate::lang::get(lang_code, "temporary_voice_title_embec").unwrap_or_default())
+        .colour(2829617)
+        .image(crate::funcs::guild_banner_url(pool, gid).await)
+        .field(
+            crate::lang::get(lang_code, "temporary_voice_new_member").unwrap_or_default(),
+            new_mention.to_string(),
+            false,
+        )
+        .field(
+            crate::lang::get(lang_code, "temporary_voice_old_member").unwrap_or_default(),
+            old_mention.to_string(),
+            false,
+        )
+}
+
+/// Single-field receipt embed for the name/limit renames. Mirrors
+/// the TS replies (`temporary_voice_title_embec` + new-name /
+/// new-userlimit field with the VC_* emoji + banner).
+async fn receipt_embed(
+    lang_code: &str,
+    pool: &crate::db::Pool,
+    gid: &str,
+    field_key: &str,
+    field_value: String,
+) -> serenity::CreateEmbed {
+    serenity::CreateEmbed::default()
+        .description(crate::lang::get(lang_code, "temporary_voice_title_embec").unwrap_or_default())
+        .colour(2829617)
+        .image(crate::funcs::guild_banner_url(pool, gid).await)
+        .field(
+            crate::lang::get(lang_code, field_key).unwrap_or_default(),
+            field_value,
+            true,
+        )
+}
+
 /// Dashboard button handler. Called from events_handler interaction_create.
 pub async fn handle_tempvoice_button(
     ctx: &serenity::Context,
@@ -757,50 +1027,131 @@ pub async fn handle_tempvoice_button(
         return Ok(());
     };
     let gid = guild_id.get().to_string();
-    let channel_id = comp.channel_id.get().to_string();
     let user_id = comp.user.id.get().to_string();
     let lang_code = crate::db::guild_lang(pool, Some(guild_id.get())).await;
+    // Interface-channel guard (mirrors `result.interface?.channelId !==
+    // interaction.channelId → deferUpdate` in every temporary_voice_*
+    // button): presses from any other text channel are ignored.
+    let panel_ch = interface_channel_id(pool, &gid).await;
+    if panel_ch.as_deref() != Some(comp.channel_id.get().to_string().as_str()) {
+        ack_press(ctx, comp).await;
+        return Ok(());
+    }
+    // Button target: the presser's live voice channel (mirrors
+    // `member.voice.channel`), never the interaction text channel.
+    // Ownership below is the presser's own row matching that channel
+    // (mirrors `getChannelOwner !== targetedChannel?.id → deferUpdate`).
+    let Some(target) = presser_voice(ctx, guild_id, comp.user.id) else {
+        ack_press(ctx, comp).await;
+        return Ok(());
+    };
+    let target_s = target.get().to_string();
     let temps = load_temps(pool, &gid).await;
-    let owned = is_temp_owner(&temps, &channel_id, &user_id);
-    let ch = serenity::ChannelId::new(comp.channel_id.get());
+    let owned = owned_channel_id(&temps, &user_id).as_deref() == Some(target_s.as_str());
     match action {
         "claim" => {
-            // Take ownership when the recorded owner left the channel.
-            let owner_inside = temps.iter().any(|(uid, ch_id)| {
-                ch_id == &channel_id
-                    && uid
-                        .parse::<u64>()
-                        .ok()
-                        .map(|n| {
-                            ctx.cache
-                                .guild(guild_id)
-                                .map(|g| {
-                                    g.voice_states
-                                        .get(&poise::serenity_prelude::UserId::new(n))
-                                        .and_then(|v| v.channel_id)
-                                        .map(|c| c.get().to_string())
-                                        == Some(ch_id.clone())
-                                })
-                                .unwrap_or(false)
-                        })
-                        .unwrap_or(false)
-            });
-            if owner_inside {
+            // Full claim flow (mirrors temporary_voice_claim_button.ts):
+            // the presser's channel must be a temp channel whose
+            // recorded owner has left it; the claimer must sit in voice.
+            let Some(prev_uid) = temps
+                .iter()
+                .find(|(_, ch)| *ch == target_s)
+                .map(|(u, _)| u.clone())
+            else {
+                ack_press(ctx, comp).await;
+                return Ok(());
+            };
+            let Ok(prev_num) = prev_uid.parse::<u64>() else {
+                ack_press(ctx, comp).await;
+                return Ok(());
+            };
+            // Previous owner still inside their channel: nothing to claim.
+            if presser_voice(ctx, guild_id, serenity::UserId::new(prev_num)) == Some(target) {
+                ack_press(ctx, comp).await;
                 return Ok(());
             }
+            // The claimer's own prior channel: refuse while it is still
+            // occupied, otherwise delete it and drop the row (mirrors
+            // the existingOwnedChannel leg).
+            if let Some(prior) = owned_channel_id(&temps, &user_id) {
+                if prior != target_s {
+                    if let Ok(prior_num) = prior.parse::<u64>() {
+                        let prior_ch = serenity::ChannelId::new(prior_num);
+                        if fetch_voice_channel(&ctx.http, prior_ch).await.is_some()
+                            && voice_occupants(ctx, guild_id, prior_ch) > 0
+                        {
+                            ack_press(ctx, comp).await;
+                            return Ok(());
+                        }
+                        let _ = prior_ch.delete(&ctx.http).await;
+                    }
+                    let _ = crate::commands::owner::main::routed_del(
+                        pool,
+                        &gid,
+                        &gid,
+                        &format!("CUSTOM_VOICE.{gid}.{user_id}"),
+                    )
+                    .await;
+                }
+            }
+            // Move the DB key from the previous owner to the claimer.
+            let _ = crate::commands::owner::main::routed_del(
+                pool,
+                &gid,
+                &gid,
+                &format!("CUSTOM_VOICE.{gid}.{prev_uid}"),
+            )
+            .await;
             let _ = crate::commands::owner::main::routed_set(
                 pool,
                 &gid,
                 &gid,
                 &crate::events::temp_voice_key(guild_id.get(), comp.user.id.get()),
-                &channel_id,
+                &target_s,
+            )
+            .await;
+            // Rename for the new owner (`displayName || username`).
+            rename_for(
+                pool,
+                &gid,
+                &lang_code,
+                &ctx.http,
+                target,
+                comp.user.display_name(),
+            )
+            .await;
+            // Swap overwrites: the previous owner loses theirs, the
+            // claimer gets the full owner set.
+            let _ = target
+                .delete_permission(
+                    &ctx.http,
+                    serenity::PermissionOverwriteType::Member(serenity::UserId::new(prev_num)),
+                )
+                .await;
+            let _ = target
+                .create_permission(
+                    &ctx.http,
+                    serenity::PermissionOverwrite {
+                        allow: owner_voice_allow(),
+                        deny: serenity::Permissions::empty(),
+                        kind: serenity::PermissionOverwriteType::Member(comp.user.id),
+                    },
+                )
+                .await;
+            // Claim receipt (mirrors the TS new/old-owner embed).
+            let embed = claim_transfer_embed(
+                &lang_code,
+                pool,
+                &gid,
+                &format!("<@{}>", comp.user.id.get()),
+                &format!("<@{prev_uid}>"),
             )
             .await;
             comp.create_response(
                 &ctx.http,
                 serenity::CreateInteractionResponse::Message(
                     serenity::CreateInteractionResponseMessage::new()
-                        .content("Channel claimed.")
+                        .embed(embed)
                         .ephemeral(true),
                 ),
             )
@@ -808,9 +1159,10 @@ pub async fn handle_tempvoice_button(
         }
         "delete" => {
             if !owned {
+                ack_press(ctx, comp).await;
                 return Ok(());
             }
-            let _ = ch.delete(&ctx.http).await;
+            let _ = target.delete(&ctx.http).await;
             let _ = crate::commands::owner::main::routed_del(
                 pool,
                 &gid,
@@ -818,12 +1170,29 @@ pub async fn handle_tempvoice_button(
                 &format!("CUSTOM_VOICE.{gid}.{user_id}"),
             )
             .await;
+            let embed = serenity::CreateEmbed::default()
+                .description(
+                    crate::lang::get(&lang_code, "temporary_voice_delete_button_desc_embed")
+                        .unwrap_or_default(),
+                )
+                .colour(2829617)
+                .image(crate::funcs::guild_banner_url(pool, &gid).await);
+            comp.create_response(
+                &ctx.http,
+                serenity::CreateInteractionResponse::Message(
+                    serenity::CreateInteractionResponseMessage::new()
+                        .embed(embed)
+                        .ephemeral(true),
+                ),
+            )
+            .await?;
         }
         "privacy" => {
             // Privacy menu with the 6 TS options (lock/unlock,
             // invisible/visible, closechat/openchat). Mirrors
             // temporary_voice_privacy_button.ts.
             if !owned {
+                ack_press(ctx, comp).await;
                 return Ok(());
             }
             let opt = |label_key: &str, desc_key: &str, value: &str| {
@@ -887,6 +1256,7 @@ pub async fn handle_tempvoice_button(
             // Region menu with the 14 TS options. Mirrors
             // temporary_voice_region_button.ts (owner gate + menu).
             if !owned {
+                ack_press(ctx, comp).await;
                 return Ok(());
             }
             let options: Vec<serenity::CreateSelectMenuOption> = VOICE_REGIONS
@@ -919,6 +1289,7 @@ pub async fn handle_tempvoice_button(
             // whose added members get the same deny set while removed ones
             // are cleared, like the block collector).
             if !owned {
+                ack_press(ctx, comp).await;
                 return Ok(());
             }
             let (custom_id, placeholder_key, placeholder_fb) = if action == "block" {
@@ -961,6 +1332,7 @@ pub async fn handle_tempvoice_button(
             // untrust removes them. Mirrors
             // temporary_voice_trust_button.ts (+ untrust variant).
             if !owned {
+                ack_press(ctx, comp).await;
                 return Ok(());
             }
             let custom_id = if action == "trust" {
@@ -991,79 +1363,72 @@ pub async fn handle_tempvoice_button(
             .await?;
         }
         "transfer" => {
-            // Hand ownership to a user id (mirrors transfer button).
+            // Member picker for the new owner (mirrors the
+            // `temporary_voice_transfer_selectmenue` user-select menu;
+            // the follow-up runs in handle_tempvoice_select).
             if !owned {
+                ack_press(ctx, comp).await;
                 return Ok(());
             }
-            let mut modal_opts =
-                crate::modal_helper::ModalOptions::new("New owner", "tempvoice-transfer");
-            modal_opts
-                .fields
-                .push(crate::modal_helper::ModalField::Text(
-                    crate::modal_helper::TextField {
-                        custom_id: "value".to_string(),
-                        label: "User ID".to_string(),
-                        placeholder: Some("123456789".to_string()),
-                        style: crate::modal_helper::TextStyle::Short,
-                        required: true,
-                        max_length: Some(24),
-                        min_length: Some(1),
-                        value: None,
-                    },
-                ));
-            let modal = crate::modal_helper::build_modal(&modal_opts)
-                .map_err(|_| anyhow::anyhow!("unsupported modal field"))?;
-            comp.create_response(&ctx.http, serenity::CreateInteractionResponse::Modal(modal))
-                .await?;
-            let Some(submit) =
-                crate::commands::await_modal_submit(ctx, comp, "tempvoice-transfer").await
-            else {
-                return Ok(());
-            };
-            let value = crate::modal_helper::text_value(&submit, "value");
-            let Ok(new_owner) = value.trim().parse::<u64>() else {
-                return Ok(());
-            };
-            let _ = crate::commands::owner::main::routed_del(
-                pool,
-                &gid,
-                &gid,
-                &format!("CUSTOM_VOICE.{gid}.{user_id}"),
+            let menu = serenity::CreateSelectMenu::new(
+                TEMPVOICE_TRANSFER_SELECT,
+                serenity::CreateSelectMenuKind::User {
+                    default_users: None,
+                },
             )
-            .await;
-            let _ = crate::commands::owner::main::routed_set(
-                pool,
-                &gid,
-                &gid,
-                &crate::events::temp_voice_key(guild_id.get(), new_owner),
-                &channel_id,
+            .placeholder(
+                crate::lang::get(&lang_code, "temporary_voice_transfer_menu_placeholder")
+                    .unwrap_or_default(),
             )
-            .await;
-            let _ = submit
-                .create_response(ctx, serenity::CreateInteractionResponse::Acknowledge)
-                .await;
+            .min_values(1)
+            .max_values(1);
+            comp.create_response(
+                &ctx.http,
+                serenity::CreateInteractionResponse::Message(
+                    serenity::CreateInteractionResponseMessage::new()
+                        .components(vec![serenity::CreateActionRow::SelectMenu(menu)])
+                        .ephemeral(true),
+                ),
+            )
+            .await?;
         }
         "name" | "limit" => {
             if !owned {
+                ack_press(ctx, comp).await;
                 return Ok(());
             }
-            let (modal_id, label, placeholder) = if action == "name" {
-                ("tempvoice-name", "New channel name", "My room")
+            // TS modal bounds: name 2-20, limit 1-20; title/label from
+            // lang (no hardcoded strings).
+            let (modal_id, label_key, max_len, min_len) = if action == "name" {
+                (
+                    "tempvoice-name",
+                    "temporary_voice_name_button_menu_label",
+                    20,
+                    2,
+                )
             } else {
-                ("tempvoice-limit", "User limit (0-99)", "0")
+                (
+                    "tempvoice-limit",
+                    "temporary_voice_limit_button_menu_label",
+                    20,
+                    1,
+                )
             };
-            let mut modal_opts = crate::modal_helper::ModalOptions::new(label, modal_id);
+            let modal_title =
+                crate::lang::get(&lang_code, "temporary_voice_modal_title").unwrap_or_default();
+            let modal_label = crate::lang::get(&lang_code, label_key).unwrap_or_default();
+            let mut modal_opts = crate::modal_helper::ModalOptions::new(&modal_title, modal_id);
             modal_opts
                 .fields
                 .push(crate::modal_helper::ModalField::Text(
                     crate::modal_helper::TextField {
                         custom_id: "value".to_string(),
-                        label: label.to_string(),
-                        placeholder: Some(placeholder.to_string()),
+                        label: modal_label,
+                        placeholder: None,
                         style: crate::modal_helper::TextStyle::Short,
                         required: true,
-                        max_length: Some(32),
-                        min_length: Some(1),
+                        max_length: Some(max_len),
+                        min_length: Some(min_len),
                         value: None,
                     },
                 ));
@@ -1075,22 +1440,69 @@ pub async fn handle_tempvoice_button(
             else {
                 return Ok(());
             };
+            let reply = |embed: serenity::CreateEmbed| {
+                serenity::CreateInteractionResponse::Message(
+                    serenity::CreateInteractionResponseMessage::new()
+                        .embed(embed)
+                        .ephemeral(true),
+                )
+            };
             let value = crate::modal_helper::text_value(&submit, "value");
             if action == "name" {
-                let _ = ch
-                    .edit(&ctx.http, serenity::EditChannel::new().name(value.trim()))
-                    .await;
-            } else if let Some(limit) = parse_limit(&value) {
-                let _ = ch
+                let raw = value.clone();
+                let _ = target
                     .edit(
                         &ctx.http,
-                        serenity::EditChannel::new().user_limit(limit as u32),
+                        serenity::EditChannel::new().name(crate::funcs::mask_link(raw.trim())),
+                    )
+                    .await;
+                let emoji = crate::emojis::app_emoji_markup(&ctx.http, "VC_Name")
+                    .await
+                    .unwrap_or_default();
+                let embed = receipt_embed(
+                    &lang_code,
+                    pool,
+                    &gid,
+                    "temporary_voice_new_name",
+                    format!("{emoji} **{}**", raw.trim()),
+                )
+                .await;
+                let _ = submit.create_response(ctx, reply(embed)).await;
+            } else if let Some(limit) = parse_limit(&value) {
+                let _ = target
+                    .edit(&ctx.http, serenity::EditChannel::new().user_limit(limit))
+                    .await;
+                let emoji = crate::emojis::app_emoji_markup(&ctx.http, "VC_Limit")
+                    .await
+                    .unwrap_or_default();
+                let embed = receipt_embed(
+                    &lang_code,
+                    pool,
+                    &gid,
+                    "temporary_voice_new_userlimit",
+                    format!("{emoji} **{}**", value.trim()),
+                )
+                .await;
+                let _ = submit.create_response(ctx, reply(embed)).await;
+            } else {
+                // `if (!userLimit)` reject (0 / not a number), like TS.
+                let tpl = crate::lang::get(&lang_code, "temporary_voice_limit_button_not_integer")
+                    .unwrap_or_default();
+                let no = crate::emojis::app_emoji_markup(&ctx.http, "No")
+                    .await
+                    .unwrap_or_default();
+                let content = tpl.replace("${interaction.client.iHorizon_Emojis.No}", &no);
+                let _ = submit
+                    .create_response(
+                        ctx,
+                        serenity::CreateInteractionResponse::Message(
+                            serenity::CreateInteractionResponseMessage::new()
+                                .content(content)
+                                .ephemeral(true),
+                        ),
                     )
                     .await;
             }
-            let _ = submit
-                .create_response(ctx, serenity::CreateInteractionResponse::Acknowledge)
-                .await;
         }
         _ => {}
     }
@@ -1112,13 +1524,19 @@ pub async fn handle_tempvoice_select(
     let gid = guild_id.get().to_string();
     let lang_code = crate::db::guild_lang(pool, Some(guild_id.get())).await;
     let self_id = comp.user.id.get().to_string();
-    let voice_id = comp.channel_id;
+    // Select target: the presser's live voice channel (mirrors
+    // `member.voice.channel`), never the interaction text channel.
+    // Ownership is the presser's own row matching that channel.
+    let Some(voice_id) = presser_voice(ctx, guild_id, comp.user.id) else {
+        ack_press(ctx, comp).await;
+        return Ok(());
+    };
     let temps = load_temps(pool, &gid).await;
-    if !is_temp_owner(&temps, &voice_id.get().to_string(), &self_id) {
-        comp.create_response(&ctx.http, serenity::CreateInteractionResponse::Acknowledge)
-            .await?;
+    if owned_channel_id(&temps, &self_id).as_deref() != Some(voice_id.get().to_string().as_str()) {
+        ack_press(ctx, comp).await;
         return Ok(());
     }
+    let target_s = voice_id.get().to_string();
     let current: Vec<String> = match voice_id.to_channel(&ctx.http).await {
         Ok(serenity::Channel::Guild(gc)) => gc
             .permission_overwrites
@@ -1310,13 +1728,7 @@ pub async fn handle_tempvoice_select(
             if !VOICE_REGIONS.iter().any(|(_, v)| *v == value) {
                 return Ok(());
             }
-            let target = temps
-                .iter()
-                .find(|(uid, _)| *uid == self_id)
-                .map(|(_, ch)| ch.clone())
-                .and_then(|c| c.parse::<u64>().ok())
-                .map(serenity::ChannelId::new)
-                .unwrap_or(voice_id);
+            let target = voice_id;
             let _ = target
                 .edit(
                     &ctx.http,
@@ -1347,6 +1759,115 @@ pub async fn handle_tempvoice_select(
             )
             .await?;
         }
+        TEMPVOICE_TRANSFER_SELECT => {
+            // New-owner picker follow-up (mirrors the
+            // `temporary_voice_transfer_selectmenue` collector): the
+            // picked member must sit in the owner's channel; their own
+            // prior channel is refused while occupied, else deleted;
+            // then the DB key moves, the channel is renamed and the
+            // overwrites swap from the old owner to the new one.
+            let new_owner: Option<u64> = match &comp.data.kind {
+                serenity::ComponentInteractionDataKind::UserSelect { values } => {
+                    values.first().map(|u| u.get())
+                }
+                _ => None,
+            };
+            let Some(new_owner) = new_owner else {
+                ack_press(ctx, comp).await;
+                return Ok(());
+            };
+            if presser_voice(ctx, guild_id, serenity::UserId::new(new_owner)) != Some(voice_id) {
+                ack_press(ctx, comp).await;
+                return Ok(());
+            }
+            let new_owner_s = new_owner.to_string();
+            if let Some(prior) = owned_channel_id(&temps, &new_owner_s) {
+                if prior != target_s {
+                    if let Ok(prior_num) = prior.parse::<u64>() {
+                        let prior_ch = serenity::ChannelId::new(prior_num);
+                        if fetch_voice_channel(&ctx.http, prior_ch).await.is_some()
+                            && voice_occupants(ctx, guild_id, prior_ch) > 0
+                        {
+                            ack_press(ctx, comp).await;
+                            return Ok(());
+                        }
+                        let _ = prior_ch.delete(&ctx.http).await;
+                    }
+                    let _ = crate::commands::owner::main::routed_del(
+                        pool,
+                        &gid,
+                        &gid,
+                        &format!("CUSTOM_VOICE.{gid}.{new_owner_s}"),
+                    )
+                    .await;
+                }
+            }
+            // Move the DB key from the old owner to the new one.
+            let _ = crate::commands::owner::main::routed_del(
+                pool,
+                &gid,
+                &gid,
+                &format!("CUSTOM_VOICE.{gid}.{self_id}"),
+            )
+            .await;
+            let _ = crate::commands::owner::main::routed_set(
+                pool,
+                &gid,
+                &gid,
+                &crate::events::temp_voice_key(guild_id.get(), new_owner),
+                &target_s,
+            )
+            .await;
+            // Rename for the new owner (`displayName || username`).
+            if let Ok(user) = serenity::UserId::new(new_owner).to_user(&ctx.http).await {
+                rename_for(
+                    pool,
+                    &gid,
+                    &lang_code,
+                    &ctx.http,
+                    voice_id,
+                    user.display_name(),
+                )
+                .await;
+            }
+            // Swap overwrites: the old owner loses theirs, the new
+            // owner gets the full owner set.
+            let _ = voice_id
+                .delete_permission(
+                    &ctx.http,
+                    serenity::PermissionOverwriteType::Member(comp.user.id),
+                )
+                .await;
+            let _ = voice_id
+                .create_permission(
+                    &ctx.http,
+                    serenity::PermissionOverwrite {
+                        allow: owner_voice_allow(),
+                        deny: serenity::Permissions::empty(),
+                        kind: serenity::PermissionOverwriteType::Member(serenity::UserId::new(
+                            new_owner,
+                        )),
+                    },
+                )
+                .await;
+            let embed = claim_transfer_embed(
+                &lang_code,
+                pool,
+                &gid,
+                &format!("<@{new_owner}>"),
+                &format!("<@{}>", comp.user.id.get()),
+            )
+            .await;
+            comp.create_response(
+                &ctx.http,
+                serenity::CreateInteractionResponse::Message(
+                    serenity::CreateInteractionResponseMessage::new()
+                        .embed(embed)
+                        .ephemeral(true),
+                ),
+            )
+            .await?;
+        }
         _ => {}
     }
     Ok(())
@@ -1361,9 +1882,54 @@ mod tests {
         let entries = vec![("1".to_string(), "9".to_string())];
         assert!(is_temp_owner(&entries, "9", "1"));
         assert!(!is_temp_owner(&entries, "9", "2"));
+        assert_eq!(owned_channel_id(&entries, "1").as_deref(), Some("9"));
+        assert_eq!(owned_channel_id(&entries, "2"), None);
         assert_eq!(parse_limit("5"), Some(5));
-        assert_eq!(parse_limit("500"), None);
+        // No upper clamp (TS parseInt); 0 and non-numbers reject.
+        assert_eq!(parse_limit("500"), Some(500));
+        assert_eq!(parse_limit("0"), None);
         assert_eq!(parse_limit("x"), None);
+    }
+
+    #[test]
+    fn temp_name_renders_username_slot_or_appends() {
+        assert_eq!(render_temp_name("{Username}'s room", "Ada"), "Ada's room");
+        assert_eq!(render_temp_name("Lounge", "Ada"), "Lounge Ada");
+        assert_eq!(render_temp_name("{user}", "Ada"), "{user} Ada");
+    }
+
+    #[test]
+    fn interface_channel_parses_object_and_legacy_string() {
+        assert_eq!(
+            parse_interface_channel(r#"{"channelId":"12","messageId":"34"}"#).as_deref(),
+            Some("12")
+        );
+        assert_eq!(parse_interface_channel("  12  ").as_deref(), Some("12"));
+        assert_eq!(parse_interface_channel(r#""12""#).as_deref(), Some("12"));
+        assert_eq!(parse_interface_channel(""), None);
+        assert_eq!(parse_interface_channel("{}"), None);
+        assert_eq!(parse_interface_channel(r#"{"channelId":""}"#), None);
+    }
+
+    #[test]
+    fn owner_allow_covers_ts_owner_set() {
+        type P = super::serenity::Permissions;
+        let allow = owner_voice_allow();
+        for flag in [
+            P::VIEW_CHANNEL,
+            P::CONNECT,
+            P::STREAM,
+            P::SPEAK,
+            P::SEND_MESSAGES,
+            P::USE_APPLICATION_COMMANDS,
+            P::ATTACH_FILES,
+            P::ADD_REACTIONS,
+        ] {
+            assert!(allow.contains(flag));
+        }
+        // No moderation rights (unlike the staff set).
+        assert!(!allow.contains(P::MUTE_MEMBERS));
+        assert!(!allow.contains(P::KICK_MEMBERS));
     }
 
     #[test]
@@ -1517,6 +2083,16 @@ mod tests {
     fn panel_buttons_cover_all_ts_actions() {
         // 11 actions incl. unblock, unique, chunked 5/5/1 like TS rows.
         assert_eq!(PANEL_BUTTONS.len(), 11);
+        // Declaration order mirrors the TS buttonRows (row1 limit →
+        // region, row2 trust → untrust, row3 delete).
+        let order: Vec<&str> = PANEL_BUTTONS.iter().map(|(a, _, _)| *a).collect();
+        assert_eq!(
+            order,
+            vec![
+                "limit", "name", "claim", "privacy", "region", "trust", "block", "transfer",
+                "unblock", "untrust", "delete"
+            ]
+        );
         let mut actions: Vec<&str> = PANEL_BUTTONS.iter().map(|(a, _, _)| *a).collect();
         actions.sort_unstable();
         let mut deduped = actions.clone();
