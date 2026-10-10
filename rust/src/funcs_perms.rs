@@ -153,6 +153,58 @@ pub fn check_permission(snap: &GateSnapshot) -> bool {
         || snap.is_owner
 }
 
+/// Build the `neededPerm` segment of the permission-denial reply.
+/// Pure mirror of sendErrorMessage() in
+/// src/core/functions/permissonsCalculator.ts:236-269 (no Discord delivery).
+/// Labels reuse the existing `var_roles` / `var_member` YAML keys with the
+/// exact en-US fallbacks ("Roles" / "Members"); separators match TS exactly:
+/// level as `` `{level}` \n ``, roles joined with `", "`, users joined with
+/// `", "` and prefixed with `" / "` only when roles are also listed, each
+/// line trailing `" \n"`. `None` mirrors the null-permissionData branch
+/// (`"**`Discord Permission`**"`).
+pub fn needed_perm_text(lang_code: &str, perm: Option<&CommandPerm>) -> String {
+    let Some(p) = perm else {
+        return "**`Discord Permission`**".to_string();
+    };
+    let mut out = String::new();
+    if p.level.unwrap_or(0) > 0 {
+        out.push_str(&format!("`{}` \n", p.level.unwrap_or(0)));
+    }
+    if !p.roles.is_empty() {
+        let roles_label =
+            crate::lang::get(lang_code, "var_roles").unwrap_or_else(|| "Roles".to_string());
+        let mentions: Vec<String> = p.roles.iter().map(|x| format!("<@&{x}>")).collect();
+        out.push_str(&format!("{}: {} \n", roles_label, mentions.join(", ")));
+    }
+    if !p.users.is_empty() {
+        let member_label =
+            crate::lang::get(lang_code, "var_member").unwrap_or_else(|| "Members".to_string());
+        let prefix = if !p.roles.is_empty() { " / " } else { "" };
+        let mentions: Vec<String> = p.users.iter().map(|x| format!("<@{x}>")).collect();
+        out.push_str(&format!(
+            "{}: {}{} \n",
+            member_label,
+            prefix,
+            mentions.join(", ")
+        ));
+    }
+    out
+}
+
+/// Full denial content. Mirrors the interactionSend `content` in
+/// sendErrorMessage(): the existing `event_permission_wrong` template with
+/// `${interaction.member?.user.toString()}` -> member mention and
+/// `${neededPerm}` -> [`needed_perm_text`]. Exact en-US fallback when the
+/// guild lang table misses the key.
+pub fn denied_message(lang_code: &str, member_mention: &str, perm: Option<&CommandPerm>) -> String {
+    let template = crate::lang::get(lang_code, "event_permission_wrong").unwrap_or_else(|| {
+        "${interaction.member?.user.toString()}, you are not allowed to use this command! You need this permission: ${neededPerm}".to_string()
+    });
+    template
+        .replace("${interaction.member?.user.toString()}", member_mention)
+        .replace("${neededPerm}", &needed_perm_text(lang_code, perm))
+}
+
 /// Owner-list flag via the existing kv store.
 /// TS key `${guildId}.OWNER.${memberId}.owner` === true.
 pub async fn is_owner(pool: &crate::db::Pool, guild_id: &str, member_id: &str) -> bool {
@@ -382,6 +434,61 @@ mod tests {
         let mut s = base.clone();
         s.is_owner = true;
         assert!(check_permission(&s)); // owner
+    }
+
+    #[test]
+    fn denied_level_only_matches_ts() {
+        // TS: neededPerm += `\`${level}\` \n` (backtick, space, real newline).
+        let p = full(&[], &[], Some(3));
+        assert_eq!(needed_perm_text("en-US", Some(&p)), "`3` \n");
+        assert_eq!(
+            denied_message("en-US", "<@123>", Some(&p)),
+            "<@123>, you are not allowed to use this command! You need this permission: `3` \n"
+        );
+    }
+
+    #[test]
+    fn denied_role_list_matches_ts() {
+        // TS: `${lang.var_roles}: ${roles.map(<@&x>).join(", ")} \n`.
+        let p = full(&[], &["r1", "r2"], None);
+        assert_eq!(
+            needed_perm_text("en-US", Some(&p)),
+            "Roles: <@&r1>, <@&r2> \n"
+        );
+    }
+
+    #[test]
+    fn denied_user_list_matches_ts() {
+        // TS: no " / " prefix when there are no roles.
+        let p = full(&["u1", "u2"], &[], None);
+        assert_eq!(
+            needed_perm_text("en-US", Some(&p)),
+            "Members: <@u1>, <@u2> \n"
+        );
+    }
+
+    #[test]
+    fn denied_combined_matches_ts() {
+        // TS: level line, then roles line, then member line with " / " prefix.
+        let p = full(&["u7"], &["r1"], Some(4));
+        assert_eq!(
+            needed_perm_text("en-US", Some(&p)),
+            "`4` \nRoles: <@&r1> \nMembers:  / <@u7> \n"
+        );
+        assert_eq!(
+            denied_message("en-US", "<@123>", Some(&p)),
+            "<@123>, you are not allowed to use this command! You need this permission: `4` \nRoles: <@&r1> \nMembers:  / <@u7> \n"
+        );
+    }
+
+    #[test]
+    fn denied_null_perm_matches_ts_fallback() {
+        // TS null-permissionData branch: "**`Discord Permission`**".
+        assert_eq!(needed_perm_text("en-US", None), "**`Discord Permission`**");
+        assert_eq!(
+            denied_message("en-US", "<@123>", None),
+            "<@123>, you are not allowed to use this command! You need this permission: **`Discord Permission`**"
+        );
     }
 
     #[test]
