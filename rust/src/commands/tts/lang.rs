@@ -1,47 +1,32 @@
 use super::*;
 
-/// Fixed TTS language choice. Mirrors the `choices` list on the
-/// `language` option in tts.ts (9 locales). Delta (documented):
-/// Discord shows the locale codes (`en-US`, ...) as the choice labels
-/// instead of the TS display names (`English`, ...); poise 0.6 inline
-/// `#[choices]` only supports same-name values for strings, so the
-/// enum form carries the codes. Prefix usage takes the same codes
-/// (resolved via from_name); anything else is rejected by poise
-/// before this runs, so the old invalid-lang branch is gone.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
-pub enum TtsLangChoice {
-    #[name = "en-US"]
-    English,
-    #[name = "fr-FR"]
-    French,
-    #[name = "de-DE"]
-    German,
-    #[name = "es-ES"]
-    Spanish,
-    #[name = "it-IT"]
-    Italian,
-    #[name = "jp-JP"]
-    Japanese,
-    #[name = "pt-PT"]
-    Portuguese,
-    #[name = "ru-RU"]
-    Russian,
-    #[name = "ar-EG"]
-    Arabic,
+/// Autocomplete for the TTS language: the 9 locale codes from the
+/// `choices` list on the `language` option in tts.ts. Suggestions only
+/// (like the volume autocomplete): both paths stay free text, like the
+/// TS prefix leg (`!lang.ts`: `args?.[0] || "en-US"`, stored verbatim
+/// with no validation).
+async fn tts_lang_autocomplete<'a>(
+    _ctx: Ctx<'a>,
+    partial: &'a str,
+) -> impl Iterator<Item = String> + 'a {
+    TTS_LANGS
+        .into_iter()
+        .filter(move |v| v.starts_with(partial))
+        .map(|v| v.to_string())
 }
 
-/// Locale code for a choice (the TS choice `value`).
-pub fn tts_lang_code(choice: TtsLangChoice) -> &'static str {
-    match choice {
-        TtsLangChoice::English => "en-US",
-        TtsLangChoice::French => "fr-FR",
-        TtsLangChoice::German => "de-DE",
-        TtsLangChoice::Spanish => "es-ES",
-        TtsLangChoice::Italian => "it-IT",
-        TtsLangChoice::Japanese => "jp-JP",
-        TtsLangChoice::Portuguese => "pt-PT",
-        TtsLangChoice::Russian => "ru-RU",
-        TtsLangChoice::Arabic => "ar-EG",
+/// Default TTS language, mirroring `!lang.ts` (`args?.[0] || "en-US"`).
+pub const DEFAULT_TTS_LANG: &str = "en-US";
+
+/// Resolve the raw language argument like `!lang.ts`: a missing/blank
+/// argument reads as `en-US`, anything else is stored verbatim — no
+/// parse-time reject on the prefix path (poise `ChoiceParameter` would
+/// refuse unknown prefix input before this runs, which the TS prefix
+/// leg never does).
+pub fn resolve_tts_lang(raw: Option<&str>) -> String {
+    match raw.map(str::trim).filter(|s| !s.is_empty()) {
+        Some(s) => s.to_string(),
+        None => DEFAULT_TTS_LANG.to_string(),
     }
 }
 
@@ -51,9 +36,10 @@ pub async fn tts_lang(
     ctx: Ctx<'_>,
     #[description = "TTS language"]
     #[rename = "language"]
-    lang: TtsLangChoice,
+    #[autocomplete = "tts_lang_autocomplete"]
+    lang: Option<String>,
 ) -> Result<(), anyhow::Error> {
-    let code = tts_lang_code(lang);
+    let code = resolve_tts_lang(lang.as_deref());
     let gid = ctx
         .guild_id()
         .map(|g| g.get().to_string())
@@ -73,7 +59,7 @@ pub async fn tts_lang(
         return Ok(());
     }
     let mut cfg = load_tts(&ctx.data().pool, &gid).await.unwrap_or_default();
-    cfg.lang = code.to_string();
+    cfg.lang = code.clone();
     save_tts(&ctx.data().pool, &gid, &cfg).await?;
     let yes = crate::emojis::app_emoji_markup(&ctx.serenity_context().http, "Yes")
         .await
@@ -82,7 +68,7 @@ pub async fn tts_lang(
         crate::lang::get(&lang_code, "tts_lang_set")
             .map(|s| {
                 s.replace("${client.iHorizon_Emojis.Yes}", &yes)
-                    .replace("${language}", code)
+                    .replace("${language}", &code)
             })
             .unwrap_or_else(|| format!("TTS lang set to {code}.")),
     )
@@ -90,36 +76,33 @@ pub async fn tts_lang(
     Ok(())
 }
 
-// Fixed slash choices mirror the `choices` list in tts.ts (9 locales);
-// the runtime parse above stays as the backstop for prefix usage.
-
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
-    fn fixed_choices_cover_all_tts_langs() {
-        use poise::ChoiceParameter as _;
+    fn missing_or_blank_lang_defaults_to_en_us() {
+        assert_eq!(resolve_tts_lang(None), "en-US");
+        assert_eq!(resolve_tts_lang(Some("")), "en-US");
+        assert_eq!(resolve_tts_lang(Some("   ")), "en-US");
+    }
+
+    #[test]
+    fn prefix_free_text_is_stored_verbatim() {
+        // TS `!lang.ts` stores the prefix arg without validation.
+        assert_eq!(resolve_tts_lang(Some("fr-FR")), "fr-FR");
+        assert_eq!(resolve_tts_lang(Some("xx-YY")), "xx-YY");
+        assert_eq!(resolve_tts_lang(Some("  de-DE  ")), "de-DE");
+    }
+
+    #[test]
+    fn autocomplete_suggests_all_ts_choice_values() {
+        // Every TS choice value in tts.ts is a known lang and parses.
         assert_eq!(TTS_LANGS.len(), 9);
-        let all = [
-            TtsLangChoice::English,
-            TtsLangChoice::French,
-            TtsLangChoice::German,
-            TtsLangChoice::Spanish,
-            TtsLangChoice::Italian,
-            TtsLangChoice::Japanese,
-            TtsLangChoice::Portuguese,
-            TtsLangChoice::Russian,
-            TtsLangChoice::Arabic,
-        ];
-        // Every TS choice value is reachable and parses.
-        for choice in all {
-            let code = tts_lang_code(choice);
-            assert!(TTS_LANGS.contains(&code));
+        for code in TTS_LANGS {
             assert_eq!(parse_tts_lang(code), Some(code));
-            assert_eq!(TtsLangChoice::from_name(code), Some(choice));
+            assert_eq!(resolve_tts_lang(Some(code)), code);
         }
-        assert_eq!(TtsLangChoice::list().len(), 9);
-        assert_eq!(TtsLangChoice::from_name("xx-YY"), None);
+        assert_eq!(parse_tts_lang("xx-YY"), None);
     }
 }

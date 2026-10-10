@@ -58,7 +58,7 @@ pub fn requirement_error_key(requirement: &str, value: &str) -> Option<&'static 
 /// `requirement` option in gw.ts (none/invites/messages/roles).
 /// Slash shows the TS values as the choice labels; prefix takes the
 /// same words, and anything else is rejected by poise before the
-/// handler runs (like the TtsLangChoice precedent).
+/// handler runs (prefix takes the same words).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
 pub enum GwRequirement {
     #[name = "none"]

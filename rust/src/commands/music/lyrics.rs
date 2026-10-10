@@ -1,10 +1,14 @@
 use super::*;
 use crate::commands::shared::{embed_with_footer, footer_parts};
 
-/// Mirrors `!lyrics.ts` (Lavalink `search` + lyrics-plugin shape):
-/// track identity (title/uri/artwork/author) with the lyrics text.
-/// The text comes from the lyrics.ovh text API; track identity prefers
-/// the live Lavalink search hit and falls back to the suggest result.
+/// Backend divergence (documented, E1): TS `searchLyrics.ts:25-60`
+/// resolves lyrics through the Lavalink node (`search` + the
+/// lyrics-plugin `lyrics.get(track)`, synced lyrics, `null` when none).
+/// This port fetches plain (unsynced) lyrics text from the lyrics.ovh
+/// API instead — no lyrics-plugin round-trip — and uses the live
+/// Lavalink search hit only for track identity (title/uri/artwork/
+/// author, see `resolve_lyrics_meta`). `None` here covers both TS
+/// null legs (no suggest hit, empty text).
 pub(crate) async fn fetch_lyrics_text(query: &str) -> Option<(String, String)> {
     let client = reqwest::Client::new();
     let suggest: serde_json::Value = client

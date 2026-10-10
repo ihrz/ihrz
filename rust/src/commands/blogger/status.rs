@@ -31,15 +31,17 @@ pub async fn blogger_status(
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
-    // TS !status.ts reads `power` (choices on/off); only On enables.
+    // TS `!status.ts` reads `power` (choices on/off); only On enables.
     let enabled = matches!(power, BloggerPower::On);
-    save_blog_string(
-        &ctx.data().pool,
-        &gid,
-        "BLOGGER.enabled",
-        if enabled { "1" } else { "0" },
-    )
-    .await?;
+    // TS `!status.ts` writes a real boolean
+    // (`client.db.set(key, enabled)`); the TS reader (`Blogger.ts`
+    // refresh: `if (!entry.value.enabled) continue`) uses JS truthiness,
+    // where the string "0" is truthy — so a "0"/"1" string write could
+    // never disable the module. Store a JSON boolean like TS.
+    crate::backends::Backend::sqlite(ctx.data().pool.clone())
+        .table(&gid)
+        .set("BLOGGER.enabled", enabled)
+        .await?;
     // Lang status line + configuration embed (TS !status.ts sends
     // blogger_config_status_enabled/disabled + generateConfigurationEmbed).
     let content = if enabled {

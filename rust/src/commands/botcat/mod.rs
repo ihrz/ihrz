@@ -272,18 +272,27 @@ pub fn post_change_display(member_url: Option<&str>, attachment_url: &str) -> St
 macro_rules! lore_cmd {
     ($fn_name:ident, $sub:literal, $key:literal, $fallback:literal) => {
 /// Lore contributor info command.
+// Mirrors the TS Guard's Typing (returns silently outside guild
+// context) and the `${client.iHorizon_Emojis.Sparkles}` substitution
+// in ether.ts / kisakay.ts (no-op for messages without it).
         #[poise::command(slash_command,
     prefix_command, category = "bot", rename = $sub)]
         pub async fn $fn_name(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
+            if ctx.guild_id().is_none() {
+                return Ok(());
+            }
             let code =
                 crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-            ctx.say(crate::lang::get(&code, $key).unwrap_or_else(|| $fallback.to_string()))
-                .await?;
+            let raw = crate::lang::get(&code, $key).unwrap_or_else(|| $fallback.to_string());
+            ctx.say(with_sparkles(ctx.http(), &raw).await).await?;
             Ok(())
         }
     };
     ($fn_name:ident, $sub:literal, $key:literal, $fallback:literal, $($alias:literal),+) => {
 /// Lore contributor info command.
+// Mirrors the TS Guard's Typing (returns silently outside guild
+// context) and the `${client.iHorizon_Emojis.Sparkles}` substitution
+// in ether.ts / kisakay.ts (no-op for messages without it).
         #[poise::command(
             slash_command,
     prefix_command,
@@ -292,13 +301,27 @@ macro_rules! lore_cmd {
             aliases($($alias),*)
         )]
         pub async fn $fn_name(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
+            if ctx.guild_id().is_none() {
+                return Ok(());
+            }
             let code =
                 crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-            ctx.say(crate::lang::get(&code, $key).unwrap_or_else(|| $fallback.to_string()))
-                .await?;
+            let raw = crate::lang::get(&code, $key).unwrap_or_else(|| $fallback.to_string());
+            ctx.say(with_sparkles(ctx.http(), &raw).await).await?;
             Ok(())
         }
     };
+}
+
+/// Replace the `${client.iHorizon_Emojis.Sparkles}` template token with
+/// the live app-emoji markup. Mirrors the `.replace()` in ether.ts /
+/// kisakay.ts; falls back to the plain sparkles glyph when the app
+/// emoji is unavailable.
+pub async fn with_sparkles(http: &serenity::Http, text: &str) -> String {
+    let emoji = crate::emojis::app_emoji_markup(http, "Sparkles")
+        .await
+        .unwrap_or_else(|| "✨".to_string());
+    text.replace("${client.iHorizon_Emojis.Sparkles}", &emoji)
 }
 
 #[cfg(test)]

@@ -148,6 +148,10 @@ pub async fn backup_list(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         // Deliberate keep: TS steps the page without bounds
         // (!list.ts:192-203, prev on page 0 renders an empty slice);
         // the port clamps so the pager never shows a blank page.
+        // S8: TS updates on every press (!list.ts:192-203, no filter),
+        // so unknown buttons get an ack-and-ignore here instead of a
+        // bare `continue`, which would leave the press unanswered
+        // ("interaction failed").
         match press.data.custom_id.as_str() {
             "backup-list-prev" => page = page.saturating_sub(1),
             "backup-list-next" => {
@@ -155,7 +159,12 @@ pub async fn backup_list(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
                     page += 1;
                 }
             }
-            _ => continue,
+            _ => {
+                let _ = press
+                    .create_response(ctx.http(), serenity::CreateInteractionResponse::Acknowledge)
+                    .await;
+                continue;
+            }
         }
         let _ = press
             .create_response(

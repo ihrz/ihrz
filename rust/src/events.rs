@@ -8,34 +8,12 @@
 // punish decisions, XP/level math. All Discord I/O stays in the handler; only
 // pure logic lives here so it stays unit-testable.
 
-/// Server-log categories mirroring {guild}.GUILD.SERVER_LOGS.* keys.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub enum LogCategory {
-    Message,
-    Channel,
-    Roles,
-    Boost,
-    Voice,
-    Moderation,
-    Command,
-}
-
-/// Route a Discord audit event to its log category + DB key suffix.
-/// Mirrors src/Events/logs/*.ts reading SERVER_LOGS.<suffix>.
-pub fn route_log(event: &str) -> Option<(LogCategory, &'static str)> {
-    match event {
-        "messageDelete" | "messageUpdate" => Some((LogCategory::Message, "message")),
-        "channelCreate" | "channelUpdate" => Some((LogCategory::Channel, "channel")),
-        "guildMemberUpdate-roles" => Some((LogCategory::Roles, "roles")),
-        "guildMemberUpdate-boost" => Some((LogCategory::Boost, "boosts")),
-        "voiceStateUpdate" => Some((LogCategory::Voice, "voice")),
-        "guildBanAdd" | "guildBanRemove" | "guildMemberRemove-kick" => {
-            Some((LogCategory::Moderation, "moderation"))
-        }
-        "interactionCreate-command" => Some((LogCategory::Command, "command")),
-        _ => None,
-    }
-}
+// NOTE (E3): live log-channel sends route through
+// `commands::guildconfig::setlogschannel::load_log_channel_routed`
+// at each handler call site (events_handler.rs). The earlier
+// `route_log`/`LogCategory` table duplicated that routing without
+// being called, so it was removed: one truth (the handler call
+// sites), no shadow table.
 
 /// Protection punish decision. Mirrors src/Events/protection/avoid*.ts:
 /// whitelist/owner bypass, otherwise punish the audit-log executor.
@@ -892,10 +870,6 @@ pub async fn join_dm_template(pool: &crate::db::Pool, gid: &str) -> Option<Strin
 /// Member boost is unavailable at this layer, so the credit uses the
 /// base gain (boost 1); the Discord handler applies the real shop
 /// boost when it has member roles.
-pub fn channel_stats_key(channel_id: u64) -> String {
-    format!("STATS.CHANNEL.{channel_id}")
-}
-
 /// One permission-overwrite entry in plain data form (mirrors the
 /// discord.js PermissionOverwrite cache rows consumed by getDiff in
 /// Events/logs/channelUpdateLogs.ts). Serenity mapping happens at
@@ -1117,9 +1091,9 @@ pub async fn record_message_activity_full(
     now_ms: i64,
     input: XpMessageInput<'_>,
 ) -> XpMessageOutcome {
-    // STATS always (mirrors Events/stats/onNewMessage.ts).
-    let chan_key = channel_stats_key(channel_id);
-    let _ = tbl_add(pool, guild_id, &chan_key, 1.0).await;
+    // STATS always (mirrors Events/stats/onNewMessage.ts: per-user rows
+    // only — TS has no per-channel counter writer; channel-stats
+    // aggregates from USER msg_log/voice_log instead).
     let mut stats = crate::commands::stats::main::load_stats(pool, guild_id, user_id).await;
     stats.messages += 1;
     stats.msg_log = crate::commands::stats::main::push_msg_log(
@@ -1447,23 +1421,6 @@ pub fn xp_levelup_coins(xp_gain: u64, shop_json: &str, member_roles: &[u64]) -> 
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    #[test]
-    fn log_routing_mirrors_ts_keys() {
-        assert_eq!(
-            route_log("messageDelete"),
-            Some((LogCategory::Message, "message"))
-        );
-        assert_eq!(
-            route_log("channelCreate"),
-            Some((LogCategory::Channel, "channel"))
-        );
-        assert_eq!(
-            route_log("guildBanAdd"),
-            Some((LogCategory::Moderation, "moderation"))
-        );
-        assert_eq!(route_log("unknown-event"), None);
-    }
 
     #[test]
     fn protection_bypasses_owner_allowlist_and_bots() {
@@ -2274,11 +2231,7 @@ mod tests {
             }
         }
         assert_eq!(last, (1, true));
-        let chan: u64 = tbl_get(&pool, "g", &channel_stats_key(7))
-            .await
-            .and_then(|v| v.parse().ok())
-            .unwrap_or(0);
-        assert!(chan >= 2, "chan={chan}");
+        // Per-channel stats aggregate from USER msg_log (no STATS.CHANNEL writer).
         // Level-up credits 35..=37 coins (base gain, boost 1).
         let econ = crate::commands::economy::balance::load_econ_routed(&pool, "g", 1).await;
         assert!(
@@ -2325,12 +2278,12 @@ mod tests {
         assert!(keys.contains(&voice_session_key(1).as_str()));
         assert!(keys.contains(&voice_session_key(3).as_str()));
         // Counters add with legacy seeding and read back as integers.
-        crate::db::kv_set(&pool, "g1", &channel_stats_key(7), "4")
+        crate::db::kv_set(&pool, "g1", "COUNTER.hits", "4")
             .await
             .unwrap();
-        assert_eq!(tbl_add(&pool, "g1", &channel_stats_key(7), 1.0).await, 5.0);
+        assert_eq!(tbl_add(&pool, "g1", "COUNTER.hits", 1.0).await, 5.0);
         assert_eq!(
-            tbl_get(&pool, "g1", &channel_stats_key(7)).await.as_deref(),
+            tbl_get(&pool, "g1", "COUNTER.hits").await.as_deref(),
             Some("5")
         );
         // Delete clears both stores.

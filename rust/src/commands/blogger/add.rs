@@ -45,7 +45,15 @@ pub async fn blogger_add(
         channel_id: channel.id.get().to_string(),
     });
     // Insertion order is kept (TS pushes); dedup keeps the first
-    // occurrence of each rss+channel pair like the TS findIndex filter.
+    // occurrence of each rss+channel pair like the TS findIndex filter
+    // (`!add.ts`: `t.rss === value.rss && t.channelId === value.channelId`).
+    // Deliberate parity wart, documented: on a re-add of an existing
+    // pair the stored entry keeps the FIRST (old) id while the success
+    // message below echoes the NEW blogId — exactly like TS, so the
+    // echoed id of a dupe re-add is not removable via `!remove`.
+    // (Full-object dedup would allow dupes, each removable by its own
+    // id; TS does not do that, so neither do we.) The trim() on rss is
+    // a benign normalization on top (TS validates/stores the raw arg).
     let mut seen = std::collections::HashSet::new();
     blogs.retain(|b| seen.insert((b.rss.clone(), b.channel_id.clone())));
     save_blogs(&ctx.data().pool, &gid, &blogs).await?;

@@ -260,65 +260,181 @@ pub async fn load_all_user_stats(pool: &crate::db::Pool, guild_id: &str) -> Vec<
     out
 }
 
-/// One channel message counter: table first (number or numeric string),
-/// then the legacy plain-number row.
-pub async fn load_channel_count(pool: &crate::db::Pool, guild_id: &str, channel_id: u64) -> u64 {
-    if let Some(v) = table_value_or_legacy(
-        pool,
-        guild_id,
-        &crate::events::channel_stats_key(channel_id),
-    )
-    .await
-    {
-        match v {
-            serde_json::Value::Number(n) => return n.as_u64().unwrap_or(0),
-            serde_json::Value::String(s) => return s.parse().unwrap_or(0),
-            _ => return 0,
-        }
-    }
-    0
+/// Per-channel aggregate computed from `STATS.USER` rows. Mirrors
+/// `!channel-stats.ts:98-155`: messages/voices are filtered by
+/// `channelId` across every user, windows use sentTimestamp (messages)
+/// / endTimestamp (voices), and active users are those with at least
+/// one row in the channel. There is no `STATS.CHANNEL` writer in TS
+/// (see `Events/stats/onNewMessage.ts`, USER rows only), so the
+/// per-channel counters some ports kept are dropped here.
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub struct ChannelAggregate {
+    pub daily_messages: u64,
+    pub weekly_messages: u64,
+    pub monthly_messages: u64,
+    pub total_messages: u64,
+    pub daily_voice_ms: u64,
+    pub weekly_voice_ms: u64,
+    pub monthly_voice_ms: u64,
+    pub total_voice_ms: u64,
+    pub active_users: u64,
+    /// Top message users (uid, count), desc, top 5.
+    pub top_message_users: Vec<(u64, u64)>,
+    /// Top voice users (uid, ms), desc, top 5.
+    pub top_voice_users: Vec<(u64, u64)>,
 }
 
-/// Every channel counter: guild-table `STATS.CHANNEL` subtree first,
-/// legacy `STATS.CHANNEL.%` rows filling gaps (table wins).
-pub async fn load_all_channel_counts(pool: &crate::db::Pool, guild_id: &str) -> Vec<(String, u64)> {
-    let mut by_channel: HashMap<String, u64> = HashMap::new();
-    let backend = guild_backend(pool);
-    if let Ok(Some(root)) = backend
-        .table(guild_id)
-        .get::<serde_json::Value>("STATS")
-        .await
-    {
-        if let Some(channels) = root.get("CHANNEL").and_then(|c| c.as_object()) {
-            for (id, v) in channels {
-                if id.is_empty() || id.contains('.') {
-                    continue;
+/// Aggregate one channel from all user rows. Mirrors
+/// `!channel-stats.ts:105-190` (top-5 slices at :173-187).
+pub fn aggregate_channel(
+    rows: &[(u64, UserStats)],
+    channel_id: u64,
+    now_ms: i64,
+) -> ChannelAggregate {
+    const DAY: i64 = 86_400_000;
+    const WEEK: i64 = 604_800_000;
+    const MONTH: i64 = 2_592_000_000;
+    let mut out = ChannelAggregate::default();
+    let mut per_user_msg: Vec<(u64, u64)> = Vec::new();
+    let mut per_user_vc: Vec<(u64, u64)> = Vec::new();
+    for (uid, s) in rows {
+        let msgs: Vec<&StatsMessage> = s
+            .msg_log
+            .iter()
+            .filter(|m| m.channel_id == channel_id)
+            .collect();
+        let voices: Vec<&StatsVoice> = s
+            .voice_log
+            .iter()
+            .filter(|v| v.channel_id == channel_id)
+            .collect();
+        if msgs.is_empty() && voices.is_empty() {
+            continue;
+        }
+        out.active_users += 1;
+        out.total_messages += msgs.len() as u64;
+        per_user_msg.push((*uid, msgs.len() as u64));
+        let mut user_vc_total = 0u64;
+        for m in &msgs {
+            if now_ms - m.sent_ts <= DAY {
+                out.daily_messages += 1;
+            }
+            if now_ms - m.sent_ts <= WEEK {
+                out.weekly_messages += 1;
+            }
+            if now_ms - m.sent_ts <= MONTH {
+                out.monthly_messages += 1;
+            }
+        }
+        for v in &voices {
+            let dur = (v.end_ts - v.start_ts).max(0) as u64;
+            user_vc_total += dur;
+            out.total_voice_ms += dur;
+            if now_ms - v.end_ts <= DAY {
+                out.daily_voice_ms += dur;
+            }
+            if now_ms - v.end_ts <= WEEK {
+                out.weekly_voice_ms += dur;
+            }
+            if now_ms - v.end_ts <= MONTH {
+                out.monthly_voice_ms += dur;
+            }
+        }
+        per_user_vc.push((*uid, user_vc_total));
+    }
+    per_user_msg.sort_by(|a, b| b.1.cmp(&a.1).then(a.0.cmp(&b.0)));
+    per_user_vc.sort_by(|a, b| b.1.cmp(&a.1).then(a.0.cmp(&b.0)));
+    per_user_msg.truncate(5);
+    per_user_vc.truncate(5);
+    out.top_message_users = per_user_msg;
+    out.top_voice_users = per_user_vc;
+    out
+}
+
+/// Per-member day/week/month windows for the guild leaderboard.
+/// Mirrors `!gstats.ts:97-205` (monthly = flat 30 days).
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub struct MemberWindows {
+    pub user_id: u64,
+    pub daily_messages: u64,
+    pub weekly_messages: u64,
+    pub monthly_messages: u64,
+    pub daily_voice_ms: u64,
+    pub weekly_voice_ms: u64,
+    pub monthly_voice_ms: u64,
+}
+
+/// Per-member windows over every user row. Mirrors
+/// `!gstats.ts:114-195` (message windows keyed on sentTimestamp,
+/// voice windows on endTimestamp).
+pub fn guild_member_windows(rows: &[(u64, UserStats)], now_ms: i64) -> Vec<MemberWindows> {
+    const DAY: i64 = 86_400_000;
+    const WEEK: i64 = 604_800_000;
+    const MONTH: i64 = 2_592_000_000;
+    rows.iter()
+        .map(|(uid, s)| {
+            let mut w = MemberWindows {
+                user_id: *uid,
+                ..Default::default()
+            };
+            for m in &s.msg_log {
+                if now_ms - m.sent_ts <= DAY {
+                    w.daily_messages += 1;
                 }
-                let n = match v {
-                    serde_json::Value::Number(n) => n.as_u64().unwrap_or(0),
-                    serde_json::Value::String(s) => s.parse().unwrap_or(0),
-                    _ => continue,
-                };
-                by_channel.insert(id.clone(), n);
+                if now_ms - m.sent_ts <= WEEK {
+                    w.weekly_messages += 1;
+                }
+                if now_ms - m.sent_ts <= MONTH {
+                    w.monthly_messages += 1;
+                }
+            }
+            for v in &s.voice_log {
+                let dur = (v.end_ts - v.start_ts).max(0) as u64;
+                if now_ms - v.end_ts <= DAY {
+                    w.daily_voice_ms += dur;
+                }
+                if now_ms - v.end_ts <= WEEK {
+                    w.weekly_voice_ms += dur;
+                }
+                if now_ms - v.end_ts <= MONTH {
+                    w.monthly_voice_ms += dur;
+                }
+            }
+            w
+        })
+        .collect()
+}
+
+/// Top-3 channels by daily volume, built from the same USER rows.
+/// Mirrors `!gstats.ts:125-184` (`channelStats` map) + `topThree`
+/// at :207-223 (top-3 by `dailyMessages` for text, `dailyVoice`
+/// for voice).
+pub fn guild_top_channels(
+    rows: &[(u64, UserStats)],
+    now_ms: i64,
+) -> (Vec<(u64, u64)>, Vec<(u64, u64)>) {
+    const DAY: i64 = 86_400_000;
+    let mut text: HashMap<u64, u64> = HashMap::new();
+    let mut voice: HashMap<u64, u64> = HashMap::new();
+    for (_, s) in rows {
+        for m in &s.msg_log {
+            if now_ms - m.sent_ts <= DAY {
+                *text.entry(m.channel_id).or_insert(0) += 1;
+            }
+        }
+        for v in &s.voice_log {
+            if now_ms - v.end_ts <= DAY {
+                *voice.entry(v.channel_id).or_insert(0) += (v.end_ts - v.start_ts).max(0) as u64;
             }
         }
     }
-    let rows: Vec<(String, String)> =
-        crate::db::kv_scan_prefix(pool, guild_id, "STATS.CHANNEL.").await;
-    for (k, v) in &rows {
-        let Some(id) = k.strip_prefix("STATS.CHANNEL.") else {
-            continue;
-        };
-        if id.is_empty() || id.contains('.') || by_channel.contains_key(id) {
-            continue;
-        }
-        if let Ok(n) = v.parse::<u64>() {
-            by_channel.insert(id.to_string(), n);
-        }
-    }
-    let mut out: Vec<(String, u64)> = by_channel.into_iter().collect();
-    out.sort_by(|a, b| b.1.cmp(&a.1).then(a.0.cmp(&b.0)));
-    out
+    let mut text: Vec<(u64, u64)> = text.into_iter().collect();
+    text.sort_by(|a, b| b.1.cmp(&a.1).then(a.0.cmp(&b.0)));
+    text.truncate(3);
+    let mut voice: Vec<(u64, u64)> = voice.into_iter().collect();
+    voice.sort_by(|a, b| b.1.cmp(&a.1).then(a.0.cmp(&b.0)));
+    voice.truncate(3);
+    (text, voice)
 }
 
 /// Leaderboard period. Mirrors the `period` option in !top-messages.ts
@@ -625,13 +741,69 @@ mod tests {
             .await
             .unwrap();
         assert_eq!(load_stats(&pool, "g1", 7).await.messages, 3);
-        // Channel counters: legacy plain-number rows still read.
-        crate::db::kv_set(&pool, "g1", "STATS.CHANNEL.11", "42")
-            .await
-            .unwrap();
-        assert_eq!(load_channel_count(&pool, "g1", 11).await, 42);
-        let counts = load_all_channel_counts(&pool, "g1").await;
-        assert_eq!(counts, vec![("11".to_string(), 42)]);
+    }
+
+    #[test]
+    fn channel_aggregate_filters_by_channel_like_ts() {
+        // now = 3_000_000_000. User 1: two recent + one stale message in
+        // channel 9, plus a voice session; user 2: rows in channel 10
+        // only (must not leak into the channel-9 aggregate).
+        let now = 3_000_000_000i64;
+        let u1 = UserStats {
+            msg_log: vec![
+                msg(now - 1_000, 9),
+                msg(now - 100_000_000, 9),
+                msg(now - 2_700_000_000, 9),
+            ],
+            voice_log: vec![StatsVoice {
+                start_ts: now - 2_000,
+                end_ts: now - 1_000,
+                channel_id: 9,
+            }],
+            ..Default::default()
+        };
+        let u2 = UserStats {
+            msg_log: vec![msg(now - 1_000, 10)],
+            ..Default::default()
+        };
+        let agg = aggregate_channel(&[(1, u1), (2, u2)], 9, now);
+        assert_eq!(agg.total_messages, 3);
+        assert_eq!(agg.daily_messages, 1);
+        assert_eq!(agg.weekly_messages, 2);
+        assert_eq!(agg.monthly_messages, 2);
+        assert_eq!(agg.total_voice_ms, 1_000);
+        assert_eq!(agg.daily_voice_ms, 1_000);
+        assert_eq!(agg.active_users, 1);
+        assert_eq!(agg.top_message_users, vec![(1, 3)]);
+        assert_eq!(agg.top_voice_users, vec![(1, 1_000)]);
+        // Unknown channel: zeros, no users.
+        let empty = aggregate_channel(&[(1, UserStats::default())], 42, now);
+        assert_eq!(empty, ChannelAggregate::default());
+    }
+
+    #[test]
+    fn guild_windows_and_top_channels_match_gstats_ts() {
+        let now = 3_000_000_000i64;
+        let u1 = UserStats {
+            msg_log: vec![msg(now - 1_000, 9), msg(now - 700_000_000, 10)],
+            voice_log: vec![StatsVoice {
+                start_ts: now - 2_000,
+                end_ts: now - 1_000,
+                channel_id: 7,
+            }],
+            ..Default::default()
+        };
+        let rows = vec![(1u64, u1)];
+        let members = guild_member_windows(&rows, now);
+        assert_eq!(members.len(), 1);
+        assert_eq!(members[0].daily_messages, 1);
+        assert_eq!(members[0].weekly_messages, 1);
+        assert_eq!(members[0].monthly_messages, 2);
+        assert_eq!(members[0].daily_voice_ms, 1_000);
+        let (text, voice) = guild_top_channels(&rows, now);
+        // Only day-window rows rank (mirrors topThree on daily keys).
+        assert_eq!(text, vec![(9, 1)]);
+        assert_eq!(voice, vec![(7, 1_000)]);
     }
 }
 

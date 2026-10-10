@@ -27,6 +27,18 @@ pub async fn stats_compare(
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
+    // Mirrors `!compare.ts:90-94`: either `STATS.USER.<uid>` row absent
+    // replies `stats_compare_no_data` instead of rendering zeros.
+    if !stats_row_exists(&ctx.data().pool, &gid, user1.id.get()).await
+        || !stats_row_exists(&ctx.data().pool, &gid, user2.id.get()).await
+    {
+        ctx.say(t(
+            "stats_compare_no_data",
+            "One or both users don't have statistics data.",
+        ))
+        .await?;
+        return Ok(());
+    }
     let a = load_stats(&ctx.data().pool, &gid, user1.id.get()).await;
     let b = load_stats(&ctx.data().pool, &gid, user2.id.get()).await;
     let now_ms = std::time::SystemTime::now()

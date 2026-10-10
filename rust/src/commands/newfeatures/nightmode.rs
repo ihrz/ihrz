@@ -3,7 +3,8 @@ use super::*;
 /// Nightmode quick toggle (guild owner only).
 // The TS panel (enable/notify/hours/derank/timezone selects + bot
 // whitelist, 30 min collectors) has no dispatch hook here; this keeps
-// the owner gate and on/off + hour args while preserving the full blob.
+// the owner gate and on/off + hour args while preserving the full blob
+// (including minutes, notify, derank, utc, wl_bots — never reset).
 #[poise::command(
     slash_command,
     prefix_command,
@@ -70,7 +71,8 @@ pub async fn nightmode(
             return Ok(());
         }
         cfg.time[0] = s as u8;
-        cfg.time[1] = 0;
+        // Minutes are preserved (O5): the args only carry hours, and
+        // zeroing time[1] here would wipe panel-set minutes.
     }
     if let Some(e) = end {
         if !valid_hour(e) {
@@ -86,7 +88,7 @@ pub async fn nightmode(
             return Ok(());
         }
         cfg.time[2] = e as u8;
-        cfg.time[3] = 0;
+        // Minutes are preserved (O5): see above.
     }
     crate::db::kv_set(
         &ctx.data().pool,

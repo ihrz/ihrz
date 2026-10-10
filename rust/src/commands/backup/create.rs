@@ -13,6 +13,22 @@ pub fn save_messages_budget(save_messages: Option<&str>) -> u64 {
     }
 }
 
+/// Resolve the save-message option to a message budget, or `None` when
+/// the caller must reply usage instead (S5). TS declares
+/// `save-message` `required: true` on the slash schema
+/// (backup.ts:99), so an omitted slash arg is a usage error; the
+/// prefix path tolerates a missing word (`string(args, 0)` undefined
+/// in !create.ts:50 falls into the 0 leg). The `Option` is kept so the
+/// prefix path stays parseable; slash callers check `is_prefix` via
+/// `matches!(ctx, poise::Context::Prefix(_))` like `bot.rs`.
+pub fn save_messages_or_usage(save_messages: Option<&str>, is_prefix: bool) -> Option<u64> {
+    match (save_messages, is_prefix) {
+        (Some(s), _) => Some(save_messages_budget(Some(s))),
+        (None, true) => Some(0),
+        (None, false) => None,
+    }
+}
+
 /// Webhook URL or webhook code
 #[poise::command(
     slash_command,
@@ -57,9 +73,27 @@ pub async fn backup_create(
     let Some(guild) = guild else {
         return legacy_config_backup(&ctx, &gid).await;
     };
+    // Slash schema parity (S5): `save-message` is `required: true`
+    // (backup.ts:99), so an omitted slash arg replies usage. New YAML
+    // key `backup_create_usage_save_message` (reported, not added: no
+    // YAML edits in this pass); the English fallback carries the text.
+    // Prefix bare (`!backup create`) keeps the TS 0-message leg.
+    let is_prefix = matches!(ctx, poise::Context::Prefix(_));
+    let Some(budget) = save_messages_or_usage(save_messages.as_deref(), is_prefix) else {
+        ctx.say(
+            crate::commands::lang_for(
+                &ctx,
+                "backup_create_usage_save_message",
+                "Usage: `/backup create save-message:<yes|no>` — pass `yes` to save up to 100 messages per channel, `no` otherwise.",
+            )
+            .await,
+        )
+        .await?;
+        return Ok(());
+    };
     let opts = CreateOptions {
         backup_id: None,
-        max_messages_per_channel: Some(save_messages_budget(save_messages.as_deref())),
+        max_messages_per_channel: Some(budget),
         json_save: Some(true),
         json_beautify: Some(true),
         do_not_backup: Some(vec![]),
@@ -169,6 +203,17 @@ mod tests {
         assert_eq!(save_messages_budget(Some("no")), 0);
         assert_eq!(save_messages_budget(Some("YES")), 0);
         assert_eq!(save_messages_budget(None), 0);
+    }
+
+    #[test]
+    fn missing_arg_is_usage_on_slash_and_zero_on_prefix() {
+        // S5: slash schema is required (backup.ts:99), prefix tolerates
+        // the missing word (!create.ts:50 undefined -> 0 leg).
+        assert_eq!(save_messages_or_usage(Some("yes"), false), Some(100));
+        assert_eq!(save_messages_or_usage(Some("no"), false), Some(0));
+        assert_eq!(save_messages_or_usage(Some("YES"), true), Some(0));
+        assert_eq!(save_messages_or_usage(None, true), Some(0));
+        assert_eq!(save_messages_or_usage(None, false), None);
     }
 
     #[test]

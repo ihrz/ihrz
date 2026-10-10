@@ -395,6 +395,12 @@ pub async fn ticket_panel(
     }
     let t = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
     let key = panel_id.as_deref().map(str::trim).unwrap_or_default();
+    // Intentional fresh-default leg (kept, no behavior change): TS
+    // `!panel.ts:117-155` reads `GUILD.TICKET_PANEL.<panel_id>` and, when
+    // the row is missing (empty panel_id -> `...TICKET_PANEL.null`),
+    // falls through to `baseData` fresh defaults (minted panelCode,
+    // empty optionFields, pingUser/userSelectPanel/deleteButton/
+    // transcriptButton true). `TicketPanel::default()` is that leg.
     let mut panel = if key.is_empty() {
         TicketPanel::default()
     } else {

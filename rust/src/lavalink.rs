@@ -188,6 +188,10 @@ pub struct QueuedTrack {
     pub source: String,
     /// Cover art for the play/trackStart embeds (mirrors
     /// `track.info.artworkUrl`; None when the node omits it).
+    /// Accepted end-to-end with no filtering: `track_start_embed`
+    /// renders it as the embed image and the lyrics command renders it
+    /// as the embed thumbnail; empty strings are treated as absent at
+    /// each render site.
     pub artwork: Option<String>,
     pub requester: u64,
 }

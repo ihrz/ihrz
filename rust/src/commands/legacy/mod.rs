@@ -2,8 +2,10 @@
 // Licensed under CC-BY-NC-SA-4.0.
 // Legacy MessageCommands surface (prefix heritage, exposed as hybrid).
 // Bridges (@prefix/autologs/unslowmode/welcomer) already exist as native
-// commands; only unique logic lives here. Meme mergers (meme1/2/3) need
-// image/video processing — pending.
+// commands; only unique logic lives here. The kdenlive meme mergers
+// (meme1/2/3: @rap-vs-reality, @two-sides, @kawaeine) are implemented
+// below (fr-only gate, 90s media_manipulation cooldown, kdenlive
+// template render, mp4 reply + temp cleanup).
 //
 // TS keys: UTILS.autoFeur, UTILS.antiExe, GUILD.REACT_MSG.<trigger>,
 // GUILD.WELCOME {channel, message}.

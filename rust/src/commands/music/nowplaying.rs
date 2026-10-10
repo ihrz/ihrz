@@ -197,18 +197,12 @@ pub async fn m_nowplaying(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         .await?;
         return Ok(());
     };
-    // Mirrors `!nowplaying.ts:82` (`!player || !player.playing`): a
-    // paused player refuses like nothing playing.
-    if s.paused {
-        say_key(
-            &ctx,
-            &code,
-            "nowplaying_no_queue",
-            "There is nothing playing",
-        )
-        .await?;
-        return Ok(());
-    }
+    // `!nowplaying.ts:82` gates on `!player.playing` only, and
+    // lavalink-client keeps `playing == true` while paused: `pause()`
+    // sets just `paused = true` (dist/index.js), and server
+    // `playerUpdate` ops only touch position/ping — never `playing`
+    // (only track start/end/stuck/error flip it). So the TS card
+    // renders when paused; no `s.paused` refusal here.
     if voice.is_none() {
         say_key(
             &ctx,
@@ -231,7 +225,10 @@ pub async fn m_nowplaying(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     // `wall - paused_total` via `nowplaying_position_ms`, and the loop
     // ends on `nowplaying_remaining_ms` (TS `duration - position`).
     let mut paused_ms: u64 = 0;
-    let mut pause_began: Option<Instant> = None;
+    // Entering while already paused (card renders when paused, see the
+    // gate above): the open pause span starts now so the position clock
+    // stays frozen like `player.position`.
+    let mut pause_began: Option<Instant> = if paused { Some(started) } else { None };
     // Wall clock plus the open pause span, for one tick.
     let tick_ms =
         |started: &Instant, paused_ms: u64, pause_began: &Option<Instant>| -> (u64, u64) {

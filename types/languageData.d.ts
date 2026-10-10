@@ -1535,6 +1535,7 @@ export interface LanguageData {
 	backup_error_when_fetch_backup_on_load: string;
 	backup_this_is_not_your_backup: string;
 	backup_backup_doesnt_exist: string;
+	backup_create_usage_save_message: string;
 	backup_string_see_v: string;
 	backup_all_of_your_backup: string;
 	backup_string_see_another_v: string;
@@ -1964,6 +1965,8 @@ export interface LanguageData {
 	stats_compare_title: string;
 	stats_compare_invalid_users: string;
 	stats_compare_no_data: string;
+	stats_channel_stats_text: string;
+	stats_gstats_detail_text: string;
 	channel_stats_title: string;
 	stats_channel_invalid: string;
 	top_active_users_title: string;

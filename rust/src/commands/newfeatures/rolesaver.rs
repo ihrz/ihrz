@@ -1,5 +1,22 @@
 use super::*;
 
+// Settings constraint (O6): the TS option offers `yes`/`no` choices
+// (optional, absent -> `"None"`). Poise slash choices can't express
+// the absent leg on one parameter, so free-text input outside the
+// `yes`/`no` domain (prefix path, or any client bypassing choices)
+// is coerced to `"None"`, keeping stored values in the TS domain
+// {`yes`, `no`, `None`}.
+/// Constrain a raw `settings` value to the TS choice domain.
+/// `yes`/`no` (case-insensitive) pass through; anything else —
+/// including absent — becomes `"None"`, mirroring
+/// `getString("settings") || "None"` for the unconstrained path.
+pub fn norm_rolesaver_settings(raw: Option<&str>) -> String {
+    match raw.map(|s| s.trim().to_ascii_lowercase()) {
+        Some(s) if s == "yes" => "yes".to_string(),
+        Some(s) if s == "no" => "no".to_string(),
+        _ => "None".to_string(),
+    }
+}
 /// Rolesaver on/off switch (blob shape + embeds like
 /// SlashCommands/newfeatures/rolesaver.ts).
 #[poise::command(
@@ -24,7 +41,7 @@ pub async fn rolesaver(
     let mut embed = serenity::CreateEmbed::default().colour(serenity::Colour::new(0x3725a4));
     let mut reply = poise::CreateReply::default();
     if matches!(action.to_ascii_lowercase().as_str(), "on" | "power on") {
-        let settings = settings.as_deref().unwrap_or("None");
+        let settings = norm_rolesaver_settings(settings.as_deref());
         let embed = serenity::CreateEmbed::default()
             .colour(serenity::Colour::new(0x3725a4))
             .title(t("rolesaver_embed_title"))

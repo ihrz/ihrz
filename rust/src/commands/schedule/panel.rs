@@ -1,17 +1,21 @@
 use super::schedule::{
     guided_choice_of, guided_create, guided_delete, guided_delete_all, guided_list, guided_menu,
-    GuidedChoice, GUIDED_MENU_ID, GUIDED_MENU_TIMEOUT_SECS,
+    is_guided_menu_id, GuidedChoice, GUIDED_MENU_TIMEOUT_SECS,
 };
 use super::*;
 
 /// Guided schedule panel (TS `schedule.ts` parity).
-// This leaf holds the select-menu flow that used to live in the
-// `schedule` parent body: the parent carries `subcommand_required`,
-// so a bare `!schedule` raises SubcommandRequired (mapped to help in
-// `bot.rs`) and the parent body never runs. Reach the panel via
-// `/schedule panel` or `!schedule panel`.
+// Shared by the `schedule` parent body (bare `/schedule` / `!schedule`,
+// S1) and the `panel` leaf (`/schedule panel`, `!schedule panel`).
 #[poise::command(slash_command, prefix_command, rename = "panel")]
 pub async fn schedule_panel(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
+    run_schedule_panel(ctx).await
+}
+
+/// Panel flow: select menu (create / delete / delete-all / list),
+/// author-gated like the TS collector filter (`schedule.ts:115-119`,
+/// `time: 420_000`), disabled when the collector ends.
+pub(crate) async fn run_schedule_panel(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     use poise::serenity_prelude as serenity;
     let pool = ctx.data().pool.clone();
     let lang_code = crate::db::guild_lang(&pool, ctx.guild_id().map(|g| g.get())).await;
@@ -62,7 +66,9 @@ pub async fn schedule_panel(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         else {
             break;
         };
-        if press.data.custom_id != GUIDED_MENU_ID {
+        // Route both our namespaced menus and in-flight TS menus
+        // (`customId: "starter"`, schedule.ts:77).
+        if !is_guided_menu_id(&press.data.custom_id) {
             continue;
         }
         if press.user.id != author {

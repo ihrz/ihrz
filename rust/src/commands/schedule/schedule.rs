@@ -4,7 +4,19 @@ use super::*;
 /// Guided panel (TS `schedule.ts` parity, layered over the subcommands).
 /// Menu collector `time: 420_000`, delete / delete-all / when prompts
 /// `time: 120_000`; the menu is disabled when the collector ends.
+/// Guided panel menu id for new menus. TS `schedule.ts:77` uses the bare
+/// `"starter"`; the port namespaces its own menus so concurrent categories
+/// never collide on one custom id.
 pub const GUIDED_MENU_ID: &str = "schedule_starter";
+/// Legacy TS menu id (`schedule.ts:77` `.setCustomId("starter")`).
+/// Accepted alongside `GUIDED_MENU_ID` so select menus sent by the TS
+/// bot still route while both bots run (S2 compat).
+pub const GUIDED_MENU_ID_LEGACY: &str = "starter";
+
+/// True for either menu id we route (namespaced or legacy TS).
+pub fn is_guided_menu_id(id: &str) -> bool {
+    id == GUIDED_MENU_ID || id == GUIDED_MENU_ID_LEGACY
+}
 pub const GUIDED_MENU_TIMEOUT_SECS: u64 = 420;
 pub const GUIDED_PROMPT_TIMEOUT_SECS: u64 = 120;
 pub const GUIDED_CREATE_MODAL_ID: &str = "schedule_create_modal";
@@ -151,11 +163,13 @@ pub fn delete_all_confirm_row(
     ])
 }
 
-/// Run-less group root for the schedule category (TS `schedule.ts`).
-// A bare invocation raises SubcommandRequired (mapped to help in
-// `bot.rs`) before this body runs, on both the slash and prefix paths,
-// so the body stays empty on purpose. The guided select-menu panel
-// (the old body) moved to the `panel` leaf (`schedule_panel`).
+/// Group root for the schedule category (TS `schedule.ts`).
+// TS defines a single option-less command that always renders the
+// select-menu panel (`schedule.ts:48-66`), so a bare invocation runs
+// the panel here too: without `subcommand_required` poise falls
+// through to this body when no leaf is given, on both the slash and
+// prefix paths. The leaves stay for direct access
+// (`/schedule list`, `!schedule delete …`).
 #[poise::command(
     slash_command,
     prefix_command,
@@ -167,11 +181,10 @@ pub fn delete_all_confirm_row(
         "schedule_delete_all",
         "schedule_list",
         "schedule_panel"
-    ),
-    subcommand_required
+    )
 )]
-pub async fn schedule(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
-    Ok(())
+pub async fn schedule(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
+    super::panel::run_schedule_panel(ctx).await
 }
 
 /// Guided create: modal (name/desc/when) then the same validation +
@@ -531,32 +544,47 @@ pub(crate) async fn guided_list(
             "schedule_list_fields_embed",
             "**Ends at**: ${date}```${title}``````${description}```\n",
         );
-        let mut embed = serenity::CreateEmbed::default()
-            .title(list_title)
-            .color(0x60BEE0);
-        for e in entries.iter().take(SCHEDULE_LIST_CAP) {
-            embed = embed.field(
-                format!("#{}", e.code),
-                render_schedule_field(
-                    &field_template,
-                    &e.title,
-                    &e.description,
-                    &format_expiry_local(e.expires_at_ms),
-                ),
-                false,
-            );
-        }
+        // Uncapped like TS `__3`: one embed per 25-row chunk, up to 10
+        // per message (Discord limits); overflow pages follow up so no
+        // row is dropped.
+        let embeds = build_list_embeds(&entries, &list_title, &field_template);
         let (footer_name, footer_bytes) = crate::commands::utils::footer_parts(ctx, &gid).await;
-        let embed =
-            crate::commands::utils::embed_with_footer(embed, &footer_name, footer_bytes.is_some());
+        let with_icon = footer_bytes.is_some();
         update = update.content(t(
             "schedule_list_content_message",
             "Here's your schedule list!",
         ));
-        update = update.embed(embed);
-        if let Some(bytes) = footer_bytes {
+        for e in embeds
+            .iter()
+            .take(SCHEDULE_LIST_EMBEDS_PER_MSG)
+            .map(|e| crate::commands::utils::embed_with_footer(e.clone(), &footer_name, with_icon))
+        {
+            update = update.add_embed(e);
+        }
+        if let Some(bytes) = footer_bytes.clone() {
             update = update.add_file(serenity::CreateAttachment::bytes(bytes, "footer_icon.png"));
         }
+        let overflow: Vec<serenity::CreateEmbed> = embeds
+            .into_iter()
+            .skip(SCHEDULE_LIST_EMBEDS_PER_MSG)
+            .map(|e| crate::commands::utils::embed_with_footer(e, &footer_name, with_icon))
+            .collect();
+        let _ = press
+            .create_response(
+                ctx.http(),
+                serenity::CreateInteractionResponse::UpdateMessage(update),
+            )
+            .await;
+        for chunk in overflow.chunks(SCHEDULE_LIST_EMBEDS_PER_MSG) {
+            let mut followup =
+                serenity::CreateInteractionResponseFollowup::new().embeds(chunk.to_vec());
+            if let Some(bytes) = footer_bytes.clone() {
+                followup =
+                    followup.add_file(serenity::CreateAttachment::bytes(bytes, "footer_icon.png"));
+            }
+            let _ = press.create_followup(ctx.http(), followup).await;
+        }
+        return Ok(());
     }
     let _ = press
         .create_response(
@@ -738,43 +766,46 @@ pub async fn schedule_list(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     // (`${date...}` / `${fetched[i]?.title}` / `${fetched[i]?.description}`).
     let field_template = crate::lang::get(&lang_code, "schedule_list_fields_embed")
         .unwrap_or_else(|| "**Ends at**: ${date}```${title}``````${description}```\n".to_string());
-    // SCOPE + CAP DECISION (recorded): TS reads the global `schedule`
+    // SCOPE DECISION (recorded): TS reads the global `schedule`
     // table keyed `${userId}.${code}` (see ready.ts `scheduleTable`), so a
     // schedule created in one guild is visible/deletable from any other.
     // The Rust port deliberately scopes rows per guild table
     // (`scope_guild`, DMs fall back to "global") so guild data stays
     // isolated like every other routed category. Sort-by-expiry is also
-    // deliberate (TS iterates insertion order). The 25-field cap is a
-    // Discord limit (embeds hold at most 25 fields); TS has no cap and
-    // would fail to send once a user owns 26+ schedules.
-    let mut embed = poise::serenity_prelude::CreateEmbed::default()
-        .title(list_title)
-        .color(0x60BEE0);
-    for e in entries.iter().take(SCHEDULE_LIST_CAP) {
-        embed = embed.field(
-            format!("#{}", e.code),
-            render_schedule_field(
-                &field_template,
-                &e.title,
-                &e.description,
-                &format_expiry_local(e.expires_at_ms),
-            ),
-            false,
-        );
-    }
+    // deliberate (TS iterates insertion order). The list itself is
+    // uncapped like TS `__3` (S3): entries chunk into 25-field embeds
+    // (Discord field limit), up to 10 embeds per message (Discord
+    // message limit); overflow pages go out as channel follow-ups.
+    let embeds = build_list_embeds(&entries, &list_title, &field_template);
     let (footer_name, footer_bytes) = crate::commands::utils::footer_parts(&ctx, &gid).await;
-    let embed =
-        crate::commands::utils::embed_with_footer(embed, &footer_name, footer_bytes.is_some());
+    let with_icon = footer_bytes.is_some();
     let content = crate::lang::get(&lang_code, "schedule_list_content_message")
         .unwrap_or_else(|| "Here's your schedule list!".to_string());
-    let mut reply = poise::CreateReply::default().content(content).embed(embed);
-    if let Some(bytes) = footer_bytes {
-        reply = reply.attachment(poise::serenity_prelude::CreateAttachment::bytes(
-            bytes,
-            "footer_icon.png",
-        ));
+    for (i, chunk) in embeds.chunks(SCHEDULE_LIST_EMBEDS_PER_MSG).enumerate() {
+        let chunk: Vec<poise::serenity_prelude::CreateEmbed> = chunk
+            .iter()
+            .map(|e| crate::commands::utils::embed_with_footer(e.clone(), &footer_name, with_icon))
+            .collect();
+        let file = footer_bytes.clone().map(|bytes| {
+            poise::serenity_prelude::CreateAttachment::bytes(bytes, "footer_icon.png")
+        });
+        if i == 0 {
+            let mut reply = poise::CreateReply::default().content(content.clone());
+            for e in chunk {
+                reply = reply.embed(e);
+            }
+            if let Some(file) = file {
+                reply = reply.attachment(file);
+            }
+            ctx.send(reply).await?;
+        } else {
+            let mut msg = poise::serenity_prelude::CreateMessage::new().embeds(chunk);
+            if let Some(file) = file {
+                msg = msg.add_file(file);
+            }
+            let _ = ctx.channel_id().send_message(ctx.http(), msg).await;
+        }
     }
-    ctx.send(reply).await?;
     Ok(())
 }
 
@@ -784,8 +815,43 @@ pub fn is_delete_all_confirmed(s: &str) -> bool {
     matches!(s.trim().to_lowercase().as_str(), "y" | "yes")
 }
 
-/// Discord embeds hold at most 25 fields; the list is truncated there.
-pub const SCHEDULE_LIST_CAP: usize = 25;
+/// Discord embeds hold at most 25 fields, and a message at most 10
+/// embeds. TS lists every schedule uncapped (`schedule.ts` `__3`, one
+/// field per row), so the port chunks into 25-field embeds instead of
+/// dropping rows past 25.
+pub const SCHEDULE_LIST_FIELDS: usize = 25;
+pub const SCHEDULE_LIST_EMBEDS_PER_MSG: usize = 10;
+
+/// One embed per 25-row chunk, in the caller's order. Pure (no footer):
+/// callers apply `embed_with_footer` and split across messages at
+/// `SCHEDULE_LIST_EMBEDS_PER_MSG`.
+pub fn build_list_embeds(
+    entries: &[ScheduleEntry],
+    title: &str,
+    field_template: &str,
+) -> Vec<poise::serenity_prelude::CreateEmbed> {
+    entries
+        .chunks(SCHEDULE_LIST_FIELDS)
+        .map(|chunk| {
+            let mut embed = poise::serenity_prelude::CreateEmbed::default()
+                .title(title.to_string())
+                .color(0x60BEE0);
+            for e in chunk {
+                embed = embed.field(
+                    format!("#{}", e.code),
+                    render_schedule_field(
+                        field_template,
+                        &e.title,
+                        &e.description,
+                        &format_expiry_local(e.expires_at_ms),
+                    ),
+                    false,
+                );
+            }
+            embed
+        })
+        .collect()
+}
 
 /// Format an expiry timestamp like TS `format(date, "YYYY/MM/DD HH:mm:ss")`
 /// (server-local time). Out-of-range values degrade to the raw millis.
@@ -1186,8 +1252,34 @@ mod tests {
     }
 
     #[test]
-    fn list_cap_is_discord_field_limit() {
-        assert_eq!(SCHEDULE_LIST_CAP, 25);
+    fn guided_menu_id_routes_legacy_ts_starter() {
+        // New menus carry the namespaced id; in-flight TS menus
+        // (`customId: "starter"`, schedule.ts:77) still route.
+        assert!(is_guided_menu_id(GUIDED_MENU_ID));
+        assert!(is_guided_menu_id(GUIDED_MENU_ID_LEGACY));
+        assert_eq!(GUIDED_MENU_ID_LEGACY, "starter");
+        assert_ne!(GUIDED_MENU_ID, GUIDED_MENU_ID_LEGACY);
+        assert!(!is_guided_menu_id(""));
+        assert!(!is_guided_menu_id("other"));
+    }
+
+    #[test]
+    fn list_embeds_chunk_at_discord_field_limit() {
+        // 25 fields per embed, 10 embeds per message (Discord limits).
+        assert_eq!(SCHEDULE_LIST_FIELDS, 25);
+        assert_eq!(SCHEDULE_LIST_EMBEDS_PER_MSG, 10);
+        // 26 rows list all (S3, TS `__3` uncapped): two embeds, the
+        // 26th row lands on the second page instead of being dropped.
+        let entries: Vec<ScheduleEntry> = (0..26)
+            .map(|i| sample(&format!("C{i:02}"), i as i64))
+            .collect();
+        let embeds = build_list_embeds(&entries, "T", "tpl");
+        assert_eq!(embeds.len(), 2);
+        let first = format!("{:?}", embeds[0]);
+        let second = format!("{:?}", embeds[1]);
+        assert_eq!(first.matches("#C").count(), 25);
+        assert_eq!(second.matches("#C").count(), 1);
+        assert!(build_list_embeds(&[], "T", "tpl").is_empty());
     }
 
     #[test]

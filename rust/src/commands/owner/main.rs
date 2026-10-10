@@ -448,6 +448,10 @@ pub async fn gbl_del(pool: &crate::db::Pool, guild_id: &str, user_id: u64) -> an
 
 /// Merge table-handle rows with legacy kv rows for one blacklist scope.
 /// Table wins on conflict; sorted by numeric uid for stable pages.
+/// Order note (O8, cosmetic): TS renders insertion order while this
+/// keeps numeric-uid order, so page contents can differ in sequence
+/// but never in membership. Numeric order is kept deliberately for
+/// stable pagination across merged stores.
 fn merge_bl_rows(
     table_rows: Vec<(String, String)>,
     legacy_rows: Vec<(String, String)>,
@@ -1267,6 +1271,9 @@ async fn owner_unblacklist_inner(ctx: Ctx<'_>, user: serenity::User) -> Result<(
 }
 
 /// Blacklist info embed. Mirrors the TS embed description.
+/// Footer + attachment are applied by the caller (`send_blinfo_embed`)
+/// mirroring `footerBuilder`/`footerAttachmentBuilder` + `setTimestamp`
+/// in blinfo.ts / bledit.ts (O7).
 fn blinfo_embed(
     user: &serenity::User,
     entry: &BlEntry,
@@ -1287,6 +1294,34 @@ fn blinfo_embed(
             entry.owner.as_deref().unwrap_or(unknown),
         ))
         .timestamp(serenity::Timestamp::now())
+}
+
+/// Send a blacklist info embed with the shared footer + icon
+/// attachment. Mirrors the TS `setFooter(await footerBuilder(..))` +
+/// `files: [await footerAttachmentBuilder(..)]` legs.
+async fn send_blinfo_embed(
+    ctx: &Ctx<'_>,
+    user: &serenity::User,
+    entry: &BlEntry,
+    unknown: &str,
+    no_reason: &str,
+) -> Result<(), anyhow::Error> {
+    let gid = ctx
+        .guild_id()
+        .map(|g| g.get().to_string())
+        .unwrap_or_else(|| "0".to_string());
+    let (footer_name, footer_bytes) = crate::commands::shared::footer_parts(ctx, &gid).await;
+    let embed = crate::commands::shared::embed_with_footer(
+        blinfo_embed(user, entry, unknown, no_reason),
+        &footer_name,
+        footer_bytes.is_some(),
+    );
+    let mut reply = poise::CreateReply::default().embed(embed);
+    if let Some(bytes) = footer_bytes {
+        reply = reply.attachment(serenity::CreateAttachment::bytes(bytes, "footer_icon.png"));
+    }
+    ctx.send(reply).await?;
+    Ok(())
 }
 
 /// Show informations about blacklisted user!
@@ -1323,13 +1358,7 @@ pub async fn owner_blinfo(
                 ctx.say(denied).await?;
                 return Ok(());
             };
-            ctx.send(poise::CreateReply::default().embed(blinfo_embed(
-                &user,
-                &parse_bl_entry(&raw),
-                &unknown,
-                &no_reason,
-            )))
-            .await?;
+            send_blinfo_embed(&ctx, &user, &parse_bl_entry(&raw), &unknown, &no_reason).await?;
             Ok(())
         }
         OwnerScope::Guild => {
@@ -1345,13 +1374,7 @@ pub async fn owner_blinfo(
                 ctx.say(denied).await?;
                 return Ok(());
             };
-            ctx.send(poise::CreateReply::default().embed(blinfo_embed(
-                &user,
-                &parse_bl_entry(&raw),
-                &unknown,
-                &no_reason,
-            )))
-            .await?;
+            send_blinfo_embed(&ctx, &user, &parse_bl_entry(&raw), &unknown, &no_reason).await?;
             Ok(())
         }
     }
@@ -1395,13 +1418,7 @@ pub async fn owner_bledit(
             };
             let updated = bl_entry_with_reason(&raw, &full_reason);
             bl_set(&ctx.data().pool, user.id.get(), &updated).await?;
-            ctx.send(poise::CreateReply::default().embed(blinfo_embed(
-                &user,
-                &parse_bl_entry(&updated),
-                &unknown,
-                &no_reason,
-            )))
-            .await?;
+            send_blinfo_embed(&ctx, &user, &parse_bl_entry(&updated), &unknown, &no_reason).await?;
             Ok(())
         }
         OwnerScope::Guild => {
@@ -1415,13 +1432,7 @@ pub async fn owner_bledit(
             };
             let updated = bl_entry_with_reason(&raw, &full_reason);
             gbl_set(&ctx.data().pool, &gid_s, user.id.get(), &updated).await?;
-            ctx.send(poise::CreateReply::default().embed(blinfo_embed(
-                &user,
-                &parse_bl_entry(&updated),
-                &unknown,
-                &no_reason,
-            )))
-            .await?;
+            send_blinfo_embed(&ctx, &user, &parse_bl_entry(&updated), &unknown, &no_reason).await?;
             Ok(())
         }
     }
