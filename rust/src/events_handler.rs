@@ -1591,6 +1591,68 @@ pub fn board_send(render: BoardRender) -> serenity::CreateMessage {
     msg
 }
 
+/// Accent colors mirror joinMessage.ts / leaveMessage.ts
+/// (WELCOME_ACCENT_COLOR / GOODBYE_ACCENT_COLOR). Serenity 0.12 has
+/// no Components V2 Container/Thumbnail, so the closest equivalent
+/// is a colored embed with the avatar snapshot as an attached
+/// thumbnail file.
+pub const WELCOME_ACCENT: u32 = 0x57_F287;
+pub const GOODBYE_ACCENT: u32 = 0xED_4245;
+pub const WELCOME_AVATAR_NAME: &str = "welcomer-avatar.png";
+pub const GOODBYE_AVATAR_NAME: &str = "goodbye-avatar.png";
+
+/// One rendered welcomer message: text embed + avatar snapshot upload.
+pub struct WelcomerRender {
+    pub embed: serenity::CreateEmbed,
+    pub files: Vec<serenity::CreateAttachment>,
+}
+
+/// Pure welcomer payload build. Mirrors welcomerMessage.ts without
+/// the Components V2 layer: accent-colored embed carrying the
+/// rendered text plus the avatar snapshot as `attachment://`
+/// thumbnail (never a raw CDN URL, so the image survives avatar
+/// changes). No snapshot bytes means no thumbnail, no CDN fallback.
+pub fn welcomer_render(
+    text: &str,
+    accent: u32,
+    avatar_bytes: Option<Vec<u8>>,
+    avatar_name: &str,
+) -> WelcomerRender {
+    let mut embed = serenity::CreateEmbed::default()
+        .colour(serenity::Colour::new(accent))
+        .description(text.to_string());
+    let mut files = Vec::new();
+    if let Some(bytes) = avatar_bytes {
+        embed = embed.thumbnail(format!("attachment://{avatar_name}"));
+        files.push(serenity::CreateAttachment::bytes(
+            bytes,
+            avatar_name.to_string(),
+        ));
+    }
+    WelcomerRender { embed, files }
+}
+
+/// Shared welcomer sender for the join/leave sites. Snapshots the
+/// member avatar (image64 equivalent) and sends the accent-colored
+/// embed + thumbnail file (welcomerMessage.ts Components V2 path,
+/// serenity 0.12 equivalent).
+pub async fn send_welcomer_message(
+    http: &serenity::Http,
+    channel_id: serenity::ChannelId,
+    user: &serenity::User,
+    text: &str,
+    accent: u32,
+    avatar_name: &str,
+) {
+    let snapshot = crate::commands::botcat::download_bytes(&user.face()).await;
+    let render = welcomer_render(text, accent, snapshot, avatar_name);
+    let mut msg = serenity::CreateMessage::new().embed(render.embed);
+    for f in render.files {
+        msg = msg.add_file(f);
+    }
+    let _ = channel_id.send_message(http, msg).await;
+}
+
 /// Render one board message. Mirrors the embed build shared by all
 /// four starboard/skullboard files: board color, author tag +
 /// avatar snapshot (TS uses the raw CDN URL; bytes are attached so
@@ -2447,7 +2509,9 @@ impl serenity::EventHandler for Handler {
                 )
                 .await;
         }
-        // Welcome message (text template; image variant pending html2png).
+        // Welcome message via the shared welcomer sender (mirrors
+        // joinMessage.ts sendWelcome -> welcomerMessage.ts: rendered
+        // template + avatar snapshot thumbnail + welcome accent).
         {
             let cfg = guild_config_routed(&self.pool, &gid).await;
             if let (Some(ch), Some(tpl)) = (
@@ -2493,7 +2557,15 @@ impl serenity::EventHandler for Handler {
                         &inv_name,
                         &inv_mention,
                     );
-                    let _ = serenity::ChannelId::new(ch_id).say(&ctx.http, text).await;
+                    send_welcomer_message(
+                        &ctx.http,
+                        serenity::ChannelId::new(ch_id),
+                        &new_member.user,
+                        &text,
+                        WELCOME_ACCENT,
+                        WELCOME_AVATAR_NAME,
+                    )
+                    .await;
                 }
             }
         }
@@ -2702,7 +2774,9 @@ impl serenity::EventHandler for Handler {
             let _ = crate::commands::invitesmanager::inv::save_invites(&self.pool, &gid, by, &next)
                 .await;
         }
-        // Leave message (mirrors leaveMessage.ts text path).
+        // Leave message via the shared welcomer sender (mirrors
+        // leaveMessage.ts sendGoodbye -> welcomerMessage.ts: rendered
+        // template + avatar snapshot thumbnail + goodbye accent).
         let gid = guild_id.get().to_string();
         {
             let cfg = guild_config_routed(&self.pool, &gid).await;
@@ -2712,7 +2786,15 @@ impl serenity::EventHandler for Handler {
             ) {
                 if let Ok(ch_id) = ch.parse::<u64>() {
                     let text = crate::events::render_welcome(tpl, &user.tag(), "this server", 0);
-                    let _ = serenity::ChannelId::new(ch_id).say(&ctx.http, text).await;
+                    send_welcomer_message(
+                        &ctx.http,
+                        serenity::ChannelId::new(ch_id),
+                        &user,
+                        &text,
+                        GOODBYE_ACCENT,
+                        GOODBYE_AVATAR_NAME,
+                    )
+                    .await;
                 }
             }
         }
@@ -6014,5 +6096,44 @@ mod restore_tests {
         // Single deletes clear both stores.
         tbl_del(&pool, "g2", "GUILD.SUPPORT").await.unwrap();
         assert!(tbl_get(&pool, "g2", "GUILD.SUPPORT").await.is_none());
+    }
+}
+
+#[cfg(test)]
+mod welcomer_tests {
+    use super::*;
+
+    #[test]
+    fn welcomer_accents_match_ts_constants() {
+        assert_eq!(WELCOME_ACCENT, 0x57F2_87);
+        assert_eq!(GOODBYE_ACCENT, 0xED42_45);
+        assert_eq!(WELCOME_AVATAR_NAME, "welcomer-avatar.png");
+        assert_eq!(GOODBYE_AVATAR_NAME, "goodbye-avatar.png");
+    }
+
+    #[test]
+    fn welcomer_render_with_snapshot_attaches_thumbnail_file() {
+        let render = welcomer_render(
+            "Welcome <@1>!",
+            WELCOME_ACCENT,
+            Some(vec![1, 2, 3]),
+            WELCOME_AVATAR_NAME,
+        );
+        assert_eq!(render.files.len(), 1);
+        let debug = format!("{:?}", render.embed);
+        assert!(debug.contains("Welcome <@1>!"), "{debug}");
+        assert!(
+            debug.contains("attachment://welcomer-avatar.png"),
+            "{debug}"
+        );
+    }
+
+    #[test]
+    fn welcomer_render_without_snapshot_sends_text_only() {
+        let render = welcomer_render("Bye.", GOODBYE_ACCENT, None, GOODBYE_AVATAR_NAME);
+        assert!(render.files.is_empty());
+        let debug = format!("{:?}", render.embed);
+        assert!(debug.contains("Bye."), "{debug}");
+        assert!(!debug.contains("attachment://"), "{debug}");
     }
 }

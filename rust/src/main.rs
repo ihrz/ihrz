@@ -31,6 +31,7 @@ mod lang;
 mod lavalink;
 mod logger;
 mod metadata;
+mod modal_helper;
 mod monitor;
 mod notifier;
 mod scheduler;

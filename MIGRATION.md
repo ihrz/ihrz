@@ -165,6 +165,7 @@ committed — see `.gitignore`. No push without a green
 - [x] U-ETERNAL-21 (2026-10-10: vague-19 4/4 — load_econ supprimé (migration tables TERMINÉE), ranks scan + leaves XP_LEVELING, XP announce helpers + gates, econ groups flat actés + gates prouvées. Suite 981/0, fmt + clippy clean).
 - [x] U-ETERNAL-22 (2026-10-10: vague-20 3/3 — XP full wiré au handler (announce routée, boost réel, SendMessages), audits utils-moderation + core → 10 items (antiExe, meminfo, welcomer, html2png, modals, TopGG, economy logs). Suite 985/0, fmt + clippy clean).
 - [x] U-ETERNAL-23 (2026-10-10: vague-21 5/5 — antiExe 21 extensions + bypass/timeout/warn, meminfo triple + cooldown-ts + sub/add-coins, image64 partagé, awesomeEmbed + TopGG, honeypot DM fix + userIdFromToken + getOS. Lead: topgg_vote_button_label x10 + 1 lint. Suite 1002/0, fmt + clippy clean).
+- [x] U-ETERNAL-24 (2026-10-10: vague-22 4/4 — welcomer V2 sender, modal_helper partagé, honeypot trigger manager, audit boot → 10 items (mailer, captcha, defer, cooldowns, executor, crash, perm-i18n). Lead: 1 lint hex. Suite 1020/0, fmt + clippy clean).
 ## Eternal backlog (seeded 2026-10-09 by 7 read-only audits + lavalink edge audit; full reports in `~/.hermes/cache/delegation/live/deleg_55b606d3/task-{0,1,2,3,4,5,9}.log` — each item is a future unit for other models, files disjoint unless noted)
 
 ### Events (audit task-0)

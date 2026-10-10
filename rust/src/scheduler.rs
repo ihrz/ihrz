@@ -120,6 +120,19 @@ pub fn schedule_expiry_title(code: &str) -> String {
     format!("#{code} Schedule has been expired!")
 }
 
+/// Honeypot second-sweep delay (8s). Mirrors
+/// HONEYPOT_SECOND_PASS_DELAY_MS in src/core/modules/honeypotManager.ts.
+/// The trap itself is event-driven (messageCreate -> debounced pipeline
+/// in crate::commands::honeypot), so the scheduler owns no interval here:
+/// this hook only specs when the second cleanup pass is due.
+pub const HONEYPOT_SECOND_PASS_DELAY_MS: i64 = 8000;
+
+/// Second-pass due check: first cleanup pass ran at `first_pass_ms`,
+/// the safety-net sweep fires 8s later.
+pub fn honeypot_second_pass_due(first_pass_ms: i64, now_ms: i64) -> bool {
+    now_ms - first_pass_ms >= HONEYPOT_SECOND_PASS_DELAY_MS
+}
+
 /// Delete expired SCHEDULE.* entries across all guilds, DMing each
 /// owner the expiry embed first. Mirrors ready.ts `refreshSchedule`:
 /// per expired entry build the `#<code> Schedule has been expired!`
@@ -1656,6 +1669,14 @@ mod tests {
         let mut e = vec!["b".to_string(), "a".to_string(), "b".to_string()];
         dedup_entries(&mut e);
         assert_eq!(e, vec!["a".to_string(), "b".to_string()]);
+    }
+
+    #[test]
+    fn honeypot_second_pass_due_after_8s() {
+        assert_eq!(HONEYPOT_SECOND_PASS_DELAY_MS, 8000);
+        assert!(!honeypot_second_pass_due(100_000, 100_000 + 7999));
+        assert!(honeypot_second_pass_due(100_000, 100_000 + 8000));
+        assert!(honeypot_second_pass_due(100_000, 100_000 + 8001));
     }
 
     #[tokio::test]
