@@ -6,6 +6,18 @@ use poise::serenity_prelude as serenity;
 /// messages.fetch rate limit).
 const FETCH_DELAY_MS: u64 = 350;
 
+/// Delete target count. Mirrors !clear.ts: the plain path caps at 100
+/// (`Math.min(amount, 100)`), the member-filtered path passes an
+/// uncapped `targetAmount` (`Math.max(amount, 1)`).
+fn want_count(amount: u64, by_member: bool) -> usize {
+    let want = amount.saturating_add(1).max(1) as usize;
+    if by_member {
+        want
+    } else {
+        want.min(100)
+    }
+}
+
 #[poise::command(
     slash_command,
     prefix_command,
@@ -21,8 +33,9 @@ pub async fn mod_clear(
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let t = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
     let channel_id = ctx.channel_id();
-    // TS adds +1 to cover the invoking message, capped at 100.
-    let want = amount.saturating_add(1).clamp(1, 100) as usize;
+    // TS adds +1 to cover the invoking message; only the plain path
+    // caps at 100, the member-filtered path is uncapped (targetAmount).
+    let want = want_count(amount, member.is_some());
     let cutoff = crate::bot::now_ms() - BULK_DELETE_MAX_AGE_MS;
     let mut collected: Vec<serenity::Message> = vec![];
     // Member filter scans back through history like findMessagesByAuthor.
@@ -118,6 +131,15 @@ pub async fn mod_clear(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn want_count_matches_ts_paths() {
+        // Plain path caps at 100; member path has no 100-cap.
+        assert_eq!(want_count(5, false), 6);
+        assert_eq!(want_count(200, false), 100);
+        assert_eq!(want_count(200, true), 201);
+        assert_eq!(want_count(0, true), 1);
+    }
 
     #[test]
     fn fetch_pacing_matches_ts() {

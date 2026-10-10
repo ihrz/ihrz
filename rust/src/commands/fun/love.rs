@@ -48,18 +48,6 @@ pub fn love_roll(a: u64, b: u64, always100: &[String]) -> u64 {
     rand::Rng::gen_range(&mut rand::thread_rng(), 0..=100)
 }
 
-/// Display-name pick for the love description. Mirrors the sibling
-/// fun-card pattern (`!youtube.ts`, `!tweet.ts`): `user.globalName ||
-/// user.username`, truncated at 15 chars.
-pub fn love_display_name_str(global_name: Option<&str>, username: &str) -> String {
-    global_name.unwrap_or(username).chars().take(15).collect()
-}
-
-/// [`love_display_name_str`] over a Discord user.
-pub fn love_display_name(user: &poise::serenity_prelude::User) -> String {
-    love_display_name_str(user.global_name.as_deref(), &user.name)
-}
-
 /// One love tile side. Mirrors the 400x400 `love.html` tiles.
 pub const LOVE_TILE: u32 = 400;
 /// Gap between tiles. Mirrors `gap: 20px` in `love.html`.
@@ -157,9 +145,11 @@ pub async fn love(
     // `image`-crate stand-in for the `love.html` html2png render).
     // Avatar download failure degrades to the text embed, like the TS
     // catch path that replies with `love_command_error`.
+    // Mirrors `displayAvatarURL({ extension: "png", size: 512 })`
+    // (forced PNG, not the webp `face()` URL).
     let (avatar1, avatar2) = (
-        crate::commands::shared::download_bytes(&u1.face()).await,
-        crate::commands::shared::download_bytes(&u2.face()).await,
+        crate::commands::shared::download_bytes(&avatar_png_url(&u1, 512)).await,
+        crate::commands::shared::download_bytes(&avatar_png_url(&u2, 512)).await,
     );
     let heart = crate::commands::shared::download_bytes(love_heart_url()).await;
     let png = match (avatar1, avatar2) {
@@ -179,8 +169,9 @@ pub async fn love(
                 "**${user1.username}** + **${user2.username}** = __${randomNumber}%__ of love 💗"
                     .to_string()
             }),
-            &love_display_name(&u1),
-            &love_display_name(&u2),
+            // Mirrors `!love.ts`: plain `user.username`, not the global name.
+            &u1.name,
+            &u2.name,
             score,
         ));
     if png.is_some() {
@@ -259,20 +250,6 @@ mod love_tests {
         for _ in 0..50 {
             assert!(love_roll(7, 9, &[]) <= 100);
         }
-    }
-
-    #[test]
-    fn display_name_prefers_global_and_truncates_at_15() {
-        assert_eq!(love_display_name_str(Some("Bo"), "bobby"), "Bo");
-        assert_eq!(love_display_name_str(None, "bobby"), "bobby");
-        assert_eq!(
-            love_display_name_str(None, "abcdefghijklmnopqrstuvwxyz"),
-            "abcdefghijklmno"
-        );
-        assert_eq!(
-            love_display_name_str(Some("0123456789abcdef"), "fallback"),
-            "0123456789abcde"
-        );
     }
 
     fn test_tile(color: [u8; 4]) -> Vec<u8> {

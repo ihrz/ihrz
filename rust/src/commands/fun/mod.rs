@@ -297,7 +297,7 @@ pub fn social_embed_desc(
 
 async fn social_gif(
     ctx: &Ctx<'_>,
-    target: &poise::serenity_prelude::User,
+    target: Option<&poise::serenity_prelude::User>,
     kind: &str,
     title_key: &str,
     title_fallback: &str,
@@ -307,6 +307,9 @@ async fn social_gif(
     if fun_guard(ctx).await {
         return Ok(());
     }
+    // Mirrors the TS prefix fallback (`|| interaction.author`): no target
+    // means the invoker hugs/kisses/slaps themselves.
+    let target = target.cloned().unwrap_or_else(|| ctx.author().clone());
     let counts = asset_counts().await;
     let url =
         crate::funcs::assets_url(kind, counts.get(kind).copied().unwrap_or(0), rand::random());
@@ -535,6 +538,20 @@ pub fn transgender_url(avatar_url: &str) -> String {
     )
 }
 
+/// Avatar URL with forced PNG extension and size. Mirrors
+/// `user.displayAvatarURL({ extension: "png", size })` in the fun canvas
+/// commands (!transgender.ts: 1024, !love.ts: 512); users without a
+/// custom avatar fall back to the default avatar URL.
+pub fn avatar_png_url(user: &poise::serenity_prelude::User, size: u32) -> String {
+    match &user.avatar {
+        Some(hash) => format!(
+            "https://cdn.discordapp.com/avatars/{}/{hash}.png?size={size}",
+            user.id.get()
+        ),
+        None => user.default_avatar_url(),
+    }
+}
+
 // ---- youtube + tweet shared (!youtube.ts / !tweet.ts) ----
 
 /// Mirrors `username.substring(0, 15)` in !youtube.ts and !tweet.ts.
@@ -542,16 +559,21 @@ pub fn truncate_display_name(s: &str) -> String {
     s.chars().take(15).collect()
 }
 
+/// Display name for !youtube.ts: `user.globalName || user.username`,
+/// truncated at 15 chars.
+pub fn youtube_display_name(global_name: Option<&str>, username: &str) -> String {
+    truncate_display_name(global_name.unwrap_or(username))
+}
+
 /// Mirrors `Math.floor(Math.random() * (90_000 - 1 + 1)) + 1` in !youtube.ts.
 pub fn youtube_likes(now_ms: u64) -> u64 {
     (now_ms % 90_000) + 1
 }
 
-/// Mirrors the non-empty comment guard in !youtube.ts / !tweet.ts.
-pub fn has_comment(entry: &str) -> bool {
-    !entry.trim().is_empty()
-}
-
+/// NOTE: `!youtube.ts` / `!tweet.ts` gate on `messageArgs.length < 1`,
+/// but `"".split(" ")` yields `[""]`, so the gate never fires and TS
+/// accepts whitespace-only comments. There is intentionally no
+/// non-empty comment guard here (parity: accept what TS accepts).
 /// Deterministic tweet stats. Mirrors the Math.random ranges in !tweet.ts:
 /// likes 1..=90_000, retweets 1..=50_000, replies 1..=10_000, views 1000..=500_000.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -577,15 +599,15 @@ pub fn tweet_handle(username: &str) -> String {
 }
 
 // ---- bubbles (!bubbles.ts: bubbles(url) html2png GIF) ----
+// NOTE (item 4): no GIF renderer exists in Rust (same block as
+// webp/togif), so `bubbles.gif` cannot be rendered; validation mirrors
+// `client.func.validImageType` exactly via
+// `crate::funcs::is_valid_image_type` (png/jpeg/jpg/gif/webp,
+// case-insensitive) and the pending reply reuses `fun_bubbles_pending`.
 
 /// Mirrors the attachment filename in !bubbles.ts.
 pub fn bubbles_output_name() -> &'static str {
     "bubbles.gif"
-}
-
-/// Mirrors `client.func.validImageType(contentType)` guard in !bubbles.ts.
-pub fn bubbles_valid_content_type(ct: Option<&str>) -> bool {
-    matches!(ct, Some(c) if c.starts_with("image/"))
 }
 
 #[cfg(test)]
@@ -634,8 +656,13 @@ mod fun_extra_tests {
         assert_eq!(truncate_display_name(&"a".repeat(20)).chars().count(), 15);
         assert_eq!(youtube_likes(0), 1);
         assert_eq!(youtube_likes(90_000), 1);
-        assert!(!has_comment("   "));
-        assert!(has_comment("hi"));
+        // `user.globalName || user.username`, truncated at 15 chars.
+        assert_eq!(youtube_display_name(Some("Bo"), "bobby"), "Bo");
+        assert_eq!(youtube_display_name(None, "bobby"), "bobby");
+        assert_eq!(
+            youtube_display_name(None, "abcdefghijklmnopqrstuvwxyz"),
+            "abcdefghijklmno"
+        );
     }
 
     #[test]
@@ -651,9 +678,12 @@ mod fun_extra_tests {
     #[test]
     fn bubbles_helpers() {
         assert_eq!(bubbles_output_name(), "bubbles.gif");
-        assert!(bubbles_valid_content_type(Some("image/png")));
-        assert!(!bubbles_valid_content_type(Some("text/plain")));
-        assert!(!bubbles_valid_content_type(None));
+        // Exact validImageType allowlist (png/jpeg/jpg/gif/webp).
+        assert!(crate::funcs::is_valid_image_type(Some("image/png")));
+        assert!(crate::funcs::is_valid_image_type(Some("image/WEBP")));
+        assert!(!crate::funcs::is_valid_image_type(Some("image/svg+xml")));
+        assert!(!crate::funcs::is_valid_image_type(Some("text/plain")));
+        assert!(!crate::funcs::is_valid_image_type(None));
     }
 }
 
@@ -760,6 +790,9 @@ pub fn random_colour() -> poise::serenity_prelude::Colour {
 
 /// Deny reply when the fun category is off.
 /// Mirrors the `fun_category_disable` guards.
+/// NOTE: several fun commands (`!bubbles`, `!number`, `!gay`, `!trans`,
+/// `!stench`) have no disabled-category check in TS, so they must NOT
+/// call this guard (parity: no deny where TS has none).
 pub async fn fun_guard(ctx: &Ctx<'_>) -> bool {
     if fun_enabled(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await {
         return false;

@@ -177,6 +177,7 @@ committed — see `.gitignore`. No push without a green
 - [x] U-ETERNAL-33 (2026-10-10: vague-30 7/7 — vd panel + staff, bk/gw, honey/antispam, invites, mcount/suggest, h247/tts, protect/suggest-intake. Lead: BY-legacy, 4 lints. Suite 1180/0, fmt + clippy clean).
 - [x] U-ETERNAL-34 (2026-10-10: vague-31 6/6 — bk TS-table compat, vd legacy buttons + staff overwrites, protect attribution + restore legs, antispam runtime full, captcha raster PNG + banner props, schedule guided. Lead: captcha leg → captcha_png + code hors texte, captcha_svg supprimé, AntispamPunish/AntispamLog structs, 5 lints. Suite 1214/0, fmt + clippy clean).
 - [x] U-ETERNAL-35 (2026-10-10: vague-33 music 12/12 (search pipeline, vol 75, loop queue, trackStart riche, scrobbler, onDisconnect) + lead (wiring disconnect, tempmute assert, msg_use_off_track x10, 4 lints). Fun/econ/mod wipés par tiers → redo dispatché. Suite 1230/0, fmt + clippy clean).
+- [x] U-ETERNAL-36 (2026-10-10: redo fun 15/15 + econ 8/8 + mod 5/5 (wipe tiers ré-appliqués depuis transcripts). Lead: 1 lint doc. Suite 1237/0, fmt + clippy clean).
 ## Eternal backlog (seeded 2026-10-09 by 7 read-only audits + lavalink edge audit; full reports in `~/.hermes/cache/delegation/live/deleg_55b606d3/task-{0,1,2,3,4,5,9}.log` — each item is a future unit for other models, files disjoint unless noted)
 
 ### Events (audit task-0)

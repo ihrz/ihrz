@@ -38,6 +38,14 @@ pub async fn load_tuning_routed(pool: &crate::db::Pool, guild_id: &str, kind: &s
     }
 }
 
+/// Free-text tuning-kind path. Mirrors `!set-cooldown.ts:60-61`: the
+/// prefix path takes `method.string(args, 0)` verbatim with no
+/// registry check, so any kind string is accepted and normalised for
+/// the `ECONOMY.settings.{kind}.cooldown` leaf key.
+pub fn normalize_cooldown_kind(kind: &str) -> String {
+    kind.trim().to_ascii_lowercase()
+}
+
 /// Mirrors `!set-cooldown.ts`.
 #[poise::command(
     slash_command,
@@ -47,12 +55,13 @@ pub async fn load_tuning_routed(pool: &crate::db::Pool, guild_id: &str, kind: &s
 )]
 pub async fn eco_set_cooldown(
     ctx: Ctx<'_>,
-    #[description = "rob, work"] kind: CooldownKind,
+    #[description = "rob, work"] kind: String,
     #[description = "Cooldown (e.g. 10s, 1h)"] cooldown: String,
 ) -> Result<(), anyhow::Error> {
     if disabled_reply(&ctx).await? {
         return Ok(());
     }
+    let kind = normalize_cooldown_kind(&kind);
     let Some(ms) = crate::commands::schedule::main::parse_duration_ms(&cooldown) else {
         let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
         ctx.say(
@@ -70,7 +79,7 @@ pub async fn eco_set_cooldown(
         &ctx.data().pool,
         &gid,
         &gid,
-        &format!("ECONOMY.settings.{}.cooldown", kind.key()),
+        &format!("ECONOMY.settings.{kind}.cooldown"),
         &serde_json::to_string(&ms)?,
     )
     .await?;
@@ -81,13 +90,16 @@ pub async fn eco_set_cooldown(
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     ctx.say(
         crate::lang::get(&code, "economy_manage_rewards_cooldown_command_ok")
-            .map(|s| s.replace("${type}", kind.key()).replace("${stime}", &stime))
+            .map(|s| {
+                s.replace("${type}", kind.as_str())
+                    .replace("${stime}", &stime)
+            })
             .unwrap_or_else(|| "Cooldown updated.".to_string()),
     )
     .await?;
     let author = user_mention(ctx.author().id.get());
     // TS logs the type uppercased.
-    let kind_s = kind.key().to_uppercase();
+    let kind_s = kind.to_uppercase();
     let time_s = stime;
     post_economy_log(
         &ctx,
@@ -101,7 +113,13 @@ pub async fn eco_set_cooldown(
 
 #[cfg(test)]
 mod tests {
-    use super::{leaf_num_routed, load_tuning_routed};
+    use super::{leaf_num_routed, load_tuning_routed, normalize_cooldown_kind};
+
+    #[test]
+    fn cooldown_kind_normalises_free_text() {
+        assert_eq!(normalize_cooldown_kind(" Work "), "work");
+        assert_eq!(normalize_cooldown_kind("DAILY"), "daily");
+    }
 
     async fn mem_pool() -> crate::db::Pool {
         use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};

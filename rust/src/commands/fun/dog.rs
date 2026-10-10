@@ -21,8 +21,19 @@ pub async fn dog(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         return Ok(());
     }
     let text = match http_client().get(dog_api_url()).send().await {
-        Ok(r) => r.text().await.unwrap_or_default(),
-        Err(_) => String::new(),
+        Ok(r) => match r.text().await {
+            Ok(t) => t,
+            Err(error) => {
+                // Mirrors `logger.err(err)` in the `!dog.ts` catch path.
+                tracing::error!("dog image body failed: {error}");
+                String::new()
+            }
+        },
+        Err(error) => {
+            // Mirrors `logger.err(err)` in the `!dog.ts` catch path.
+            tracing::error!("dog image fetch failed: {error}");
+            String::new()
+        }
     };
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     match parse_dog_ceo_json(&text) {

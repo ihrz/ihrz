@@ -6,7 +6,7 @@ use super::{
     ignore_channels::{ranks_ignore_add, ranks_ignore_list},
     leaderboard::ranks_leaderboard,
     message::ranks_msg,
-    roles::{ranks_role_add, ranks_role_list},
+    roles::{ranks_role_add, ranks_role_list, ranks_role_remove},
     show::ranks_show,
     ureset::ranks_ureset,
 };
@@ -28,6 +28,7 @@ use super::{
         "ranks_msg",
         "ranks_role_add",
         "ranks_role_list",
+        "ranks_role_remove",
         "ranks_xp_channels"
     )
 )]

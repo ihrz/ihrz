@@ -1,17 +1,17 @@
 use super::*;
 
-/// Kiss command.
+/// Kiss command. Mirrors fun !kiss.ts.
+// Target defaults to the invoker on prefix (`|| interaction.author`);
+// single deny lives in `social_gif` (see below).
 #[poise::command(slash_command, prefix_command, category = "fun", rename = "kiss")]
 pub async fn kiss(
     ctx: Ctx<'_>,
-    #[description = "Member"] user: poise::serenity_prelude::User,
+    #[description = "Member"] user: Option<poise::serenity_prelude::User>,
 ) -> Result<(), anyhow::Error> {
-    if fun_guard(&ctx).await {
-        return Ok(());
-    }
+    // Single deny: the disabled-category check lives in `social_gif`.
     social_gif(
         &ctx,
-        &user,
+        user.as_ref(),
         "kiss",
         "kiss_embed_description",
         "<@${interaction.user.id}> gives a kiss to <@${kiss.id}> 💏",

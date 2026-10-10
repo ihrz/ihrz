@@ -1,17 +1,17 @@
 use super::*;
 
-/// Hug command.
+/// Hug command. Mirrors fun !hug.ts.
+// Target defaults to the invoker on prefix (`|| interaction.author`);
+// single deny lives in `social_gif` (see below).
 #[poise::command(slash_command, prefix_command, category = "fun", rename = "hug")]
 pub async fn hug(
     ctx: Ctx<'_>,
-    #[description = "Member"] user: poise::serenity_prelude::User,
+    #[description = "Member"] user: Option<poise::serenity_prelude::User>,
 ) -> Result<(), anyhow::Error> {
-    if fun_guard(&ctx).await {
-        return Ok(());
-    }
+    // Single deny: the disabled-category check lives in `social_gif`.
     social_gif(
         &ctx,
-        &user,
+        user.as_ref(),
         "hug",
         "hug_embed_title",
         "<@${interaction.user.id}> gives a hug to <@${hug.id}> ❤️",

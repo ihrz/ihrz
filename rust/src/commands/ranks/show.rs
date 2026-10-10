@@ -95,9 +95,16 @@ pub async fn ranks_show(
             format!("`{remaining}` **experience points needed for the next level!**")
         });
     let svg = crate::cards::rank_card_svg(&display, level, currentxp, avatar_data.as_deref());
+    // Mirrors `!show.ts:66-67`: the embed colour is the avatar's
+    // dominant colour, with a constant fallback when offline.
+    let colour = crate::funcs::image_dominant_color(&face_url)
+        .await
+        .ok()
+        .and_then(|(c1, _)| u32::from_str_radix(c1.trim_start_matches('#'), 16).ok())
+        .unwrap_or(0x9A5AF2);
     let mut embed = serenity::CreateEmbed::default()
         .title(title)
-        .colour(0x9A5AF2)
+        .colour(colour)
         .description(desc)
         .field(level_name, level_value, true)
         .field(xp_name, xp_value, true)

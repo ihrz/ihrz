@@ -1,6 +1,8 @@
 use super::*;
 
-/// Enable/disable fun commands. Mirrors fun !config.ts (GUILD.FUN.states).
+/// Enable/disable fun commands. Mirrors fun !config.ts.
+// The raw action string is stored under `GUILD.FUN.states`; anything but
+// `"off"` counts as enabled (`action === "off" ? var_disabled : var_enabled`).
 #[poise::command(
     slash_command,
     prefix_command,
@@ -16,25 +18,26 @@ pub async fn fun_config(
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
-    let enabled = matches!(action.to_ascii_lowercase().as_str(), "on" | "power on");
+    // Mirrors `await client.db.set(..., action)`: the raw action is stored.
     crate::backends::Backend::sqlite(ctx.data().pool.clone())
         .table(&gid)
-        .set("GUILD.FUN.states", if enabled { "1" } else { "0" })
+        .set("GUILD.FUN.states", action.as_str())
         .await?;
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    // Mirrors `action === "off" ? lang.var_disabled : lang.var_enabled`.
     let action_type = crate::lang::get(
         &code,
-        if enabled {
-            "var_enabled"
-        } else {
+        if action == "off" {
             "var_disabled"
+        } else {
+            "var_enabled"
         },
     )
     .unwrap_or_else(|| {
-        if enabled {
-            "Enabled".to_string()
-        } else {
+        if action == "off" {
             "Disabled".to_string()
+        } else {
+            "Enabled".to_string()
         }
     });
     ctx.say(

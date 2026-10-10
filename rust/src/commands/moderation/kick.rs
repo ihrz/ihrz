@@ -81,15 +81,24 @@ pub async fn mod_kick(
             .await?;
         return Ok(());
     }
-    ctx.say(
-        crate::lang::get(&code, "kick_command_work")
-            .map(|s| {
-                s.replace("${member.user}", &member.to_string())
-                    .replace("${interaction.user}", &ctx.author().to_string())
-            })
-            .unwrap_or_else(|| format!("Kicked {}", member.tag())),
-    )
-    .await?;
+    // Success embed mirrors !kick.ts:137-169 (title + member/author/reason
+    // fields + branded footer), not the legacy plain-text key.
+    let gid = guild_id.get().to_string();
+    let (footer_name, footer_bytes) = crate::commands::utils::footer_parts(&ctx, &gid).await;
+    let embed = crate::commands::utils::embed_with_footer(
+        serenity::CreateEmbed::default()
+            .title(t("setjoinroles_var_perm_kick_members"))
+            .field(t("var_member"), member.to_string(), true)
+            .field(t("var_author"), ctx.author().to_string(), true)
+            .field(t("var_reason"), reason, true),
+        &footer_name,
+        footer_bytes.is_some(),
+    );
+    let mut reply = poise::CreateReply::default().embed(embed);
+    if let Some(bytes) = footer_bytes {
+        reply = reply.attachment(serenity::CreateAttachment::bytes(bytes, "footer_icon.png"));
+    }
+    ctx.send(reply).await?;
     post_mod_log(
         ctx.http(),
         guild_id,

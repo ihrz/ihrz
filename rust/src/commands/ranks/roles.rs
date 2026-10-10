@@ -138,9 +138,55 @@ pub async fn ranks_role_list(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())
 }
 
+/// Pure remove helper: drop the entry at `level`. Returns true when
+/// something was removed. Unit-testable without Discord.
+pub fn remove_rank_role(roles: &mut Vec<RankRole>, level: u64) -> bool {
+    let before = roles.len();
+    roles.retain(|r| r.level != level);
+    roles.len() != before
+}
+
+/// Remove the rank role set for a level.
+#[poise::command(
+    slash_command,
+    prefix_command,
+    rename = "role-remove",
+    default_member_permissions = "ADMINISTRATOR"
+)]
+pub async fn ranks_role_remove(
+    ctx: Ctx<'_>,
+    #[description = "Level"] level: i64,
+) -> Result<(), anyhow::Error> {
+    let gid = ctx
+        .guild_id()
+        .map(|g| g.get().to_string())
+        .unwrap_or_default();
+    let mut roles = load_rank_roles_routed(&ctx.data().pool, &gid).await;
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    // Mirrors the `remove_role` flow (`!roles.ts:373+`): nothing to
+    // remove replies with `ranks_config_remove_no_rank`.
+    if !remove_rank_role(&mut roles, level.max(0) as u64) {
+        ctx.say(
+            crate::lang::get(&code, "ranks_config_remove_no_rank")
+                .unwrap_or_else(|| "There are no rank roles configured to remove.".to_string()),
+        )
+        .await?;
+        return Ok(());
+    }
+    save_rank_roles_routed(&ctx.data().pool, &gid, &roles).await?;
+    let removed = level.max(0).to_string();
+    ctx.say(
+        crate::lang::get(&code, "ranks_config_remove_command_work")
+            .map(|s| s.replace("${levelToRemove}", &removed))
+            .unwrap_or_else(|| format!("Role for level {removed} has been removed!")),
+    )
+    .await?;
+    Ok(())
+}
+
 #[cfg(test)]
 mod tests {
-    use super::{load_rank_roles_routed, save_rank_roles_routed, RankRole};
+    use super::{load_rank_roles_routed, remove_rank_role, save_rank_roles_routed, RankRole};
 
     async fn mem_pool() -> crate::db::Pool {
         use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};
@@ -160,6 +206,24 @@ mod tests {
         .await
         .unwrap();
         pool
+    }
+
+    #[test]
+    fn remove_drops_level_entry() {
+        let mut roles = vec![
+            RankRole {
+                role_id: "7".to_string(),
+                level: 5,
+            },
+            RankRole {
+                role_id: "8".to_string(),
+                level: 9,
+            },
+        ];
+        assert!(remove_rank_role(&mut roles, 5));
+        assert_eq!(roles.len(), 1);
+        assert_eq!(roles[0].level, 9);
+        assert!(!remove_rank_role(&mut roles, 5));
     }
 
     #[tokio::test]

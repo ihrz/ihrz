@@ -16,7 +16,7 @@ fn bot_can_tempmute(perms: serenity::Permissions) -> bool {
     slash_command,
     prefix_command,
     rename = "tempmute",
-    aliases("timeout", "mute"),
+    aliases("mute"),
     default_member_permissions = "MODERATE_MEMBERS"
 )]
 pub async fn mod_timeout(
@@ -236,6 +236,13 @@ mod tests {
         ));
         assert!(!bot_can_tempmute(serenity::Permissions::MODERATE_MEMBERS));
         assert!(!bot_can_tempmute(serenity::Permissions::empty()));
+    }
+
+    #[test]
+    fn prefix_aliases_match_ts() {
+        // TS mod.ts tempmute aliases: ["mute"] only (no "timeout").
+        let cmd = mod_timeout();
+        assert_eq!(cmd.aliases, vec!["mute".to_string()]);
     }
 
     #[test]

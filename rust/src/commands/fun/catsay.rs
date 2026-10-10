@@ -30,10 +30,8 @@ pub async fn catsay(
     ctx: Ctx<'_>,
     #[description = "Text (max 70 chars)"] text: Option<String>,
 ) -> Result<(), anyhow::Error> {
-    if fun_guard(&ctx).await {
-        return Ok(());
-    }
-    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    // Mirrors `!catsay.ts`: the thecatapi search runs BEFORE the
+    // disabled-category check.
     // Mirrors the thecatapi search call in `!catsay.ts`
     // (`mime_types=jpg,png`).
     let cat_url = match reqwest::Client::new().get(catsay_search_url()).send().await {
@@ -43,6 +41,10 @@ pub async fn catsay(
         },
         Err(_) => None,
     };
+    if fun_guard(&ctx).await {
+        return Ok(());
+    }
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let Some(cat_url) = cat_url else {
         catsay_down(&ctx, &code).await?;
         return Ok(());
@@ -52,17 +54,29 @@ pub async fn catsay(
     let (_img_var, _text_var) = catsay_render_vars(&cat_url, &text);
     // Speech-bubble render (`html2png` catsay template, `.meme-container`)
     // pending; the fetched thecatapi image is sent directly with the text
-    // as the description so no input is lost.
-    ctx.send(
-        poise::CreateReply::default().embed(
-            poise::serenity_prelude::CreateEmbed::default()
-                .colour(0x010101)
-                .description(&text)
-                .image(cat_url)
-                .timestamp(poise::serenity_prelude::Timestamp::now()),
-        ),
-    )
-    .await?;
+    // as the description so no input is lost. Footer mirrors TS.
+    let gid = ctx
+        .guild_id()
+        .map(|g| g.get().to_string())
+        .unwrap_or_default();
+    let (fname, fbytes) = crate::commands::shared::footer_parts(&ctx, &gid).await;
+    let embed = crate::commands::shared::embed_with_footer(
+        poise::serenity_prelude::CreateEmbed::default()
+            .colour(0x010101)
+            .description(&text)
+            .image(cat_url)
+            .timestamp(poise::serenity_prelude::Timestamp::now()),
+        &fname,
+        fbytes.is_some(),
+    );
+    let mut reply = poise::CreateReply::default().embed(embed);
+    if let Some(bytes) = fbytes {
+        reply = reply.attachment(poise::serenity_prelude::CreateAttachment::bytes(
+            bytes,
+            "footer_icon.png",
+        ));
+    }
+    ctx.send(reply).await?;
     Ok(())
 }
 

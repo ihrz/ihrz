@@ -17,6 +17,21 @@ pub fn birthday_discord_timestamp(day: u8, month: u8, year: i32) -> Option<i64> 
     }
 }
 
+/// fr-ME easter egg (`profil/!show.ts:70-77`): hardcoded TS display
+/// overrides, not YAML keys.
+pub fn fr_me_gender(gender: &str, lang_code: &str) -> String {
+    if lang_code == "fr-ME" {
+        match gender {
+            "♀ Female" => "une grosse teuch".to_string(),
+            "♂ Male" => "une belle bite wAllah".to_string(),
+            "⚧ Non-binary" => "jsp".to_string(),
+            _ => gender.to_string(),
+        }
+    } else {
+        gender.to_string()
+    }
+}
+
 /// See the iHorizon profil of a member. Mirrors `!show.ts`.
 #[poise::command(
     slash_command,
@@ -118,7 +133,10 @@ pub async fn profil_show(
         )
         .field(
             field("profil_embed_fields_gender", "Gender"),
-            p.gender.clone().unwrap_or_else(|| unknown.clone()),
+            fr_me_gender(
+                &p.gender.clone().unwrap_or_else(|| unknown.clone()),
+                &lang_code,
+            ),
             false,
         )
         .field(
@@ -161,8 +179,17 @@ pub async fn profil_show(
 
 #[cfg(test)]
 mod tests {
-    use super::birthday_discord_timestamp;
+    use super::{birthday_discord_timestamp, fr_me_gender};
     use chrono::{Datelike, Local, TimeZone};
+
+    #[test]
+    fn fr_me_easter_egg_overrides_stored_gender() {
+        assert_eq!(fr_me_gender("♀ Female", "fr-ME"), "une grosse teuch");
+        assert_eq!(fr_me_gender("♂ Male", "fr-ME"), "une belle bite wAllah");
+        assert_eq!(fr_me_gender("⚧ Non-binary", "fr-ME"), "jsp");
+        assert_eq!(fr_me_gender("♀ Female", "en-US"), "♀ Female");
+        assert_eq!(fr_me_gender("Unknown", "fr-ME"), "Unknown");
+    }
 
     #[test]
     fn birthday_renders_this_year_month_day() {

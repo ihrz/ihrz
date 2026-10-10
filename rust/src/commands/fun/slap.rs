@@ -1,17 +1,17 @@
 use super::*;
 
-/// Slap command.
+/// Slap command. Mirrors fun !slap.ts.
+// Target defaults to the invoker on prefix (`|| interaction.author`);
+// single deny lives in `social_gif` (see below).
 #[poise::command(slash_command, prefix_command, category = "fun", rename = "slap")]
 pub async fn slap(
     ctx: Ctx<'_>,
-    #[description = "Member"] user: poise::serenity_prelude::User,
+    #[description = "Member"] user: Option<poise::serenity_prelude::User>,
 ) -> Result<(), anyhow::Error> {
-    if fun_guard(&ctx).await {
-        return Ok(());
-    }
+    // Single deny: the disabled-category check lives in `social_gif`.
     social_gif(
         &ctx,
-        &user,
+        user.as_ref(),
         "slap",
         "slap_embed_description",
         "<@${interaction.user.id}> slaps <@${slap.id}> 😓",

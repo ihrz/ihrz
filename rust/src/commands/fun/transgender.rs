@@ -14,7 +14,9 @@ pub async fn transgender(
         return Ok(());
     }
     let u = user.unwrap_or_else(|| ctx.author().clone());
-    let avatar = u.face();
+    // Mirrors `displayAvatarURL({ extension: "png", size: 1024 })` in
+    // `!transgender.ts` (forced PNG, not the webp `face()` URL).
+    let avatar = avatar_png_url(&u, 1024);
     // Canvas fetch pending; URL shape ported.
     ctx.say(transgender_url(&avatar)).await?;
     Ok(())

@@ -6,9 +6,7 @@ pub async fn gay(
     ctx: Ctx<'_>,
     #[description = "Member"] user: Option<poise::serenity_prelude::User>,
 ) -> Result<(), anyhow::Error> {
-    if fun_guard(&ctx).await {
-        return Ok(());
-    }
+    // No disabled-category check in `!gay.ts`: no fun_guard here.
     percent_user(
         &ctx,
         user,

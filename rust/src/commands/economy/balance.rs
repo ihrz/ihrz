@@ -55,12 +55,12 @@ pub async fn eco_balance(
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let coin = coin_markup(&ctx).await;
     let wallet = wallet_markup(&ctx).await;
-    let member_name = user.as_ref().map(|u| u.name.clone()).unwrap_or_else(|| {
-        ctx.author()
-            .global_name
-            .clone()
-            .unwrap_or_else(|| ctx.author().name.clone())
-    });
+    // Mirrors `!balance.ts:84`: the title always uses the username,
+    // never the global display name.
+    let member_name = user
+        .as_ref()
+        .map(|u| u.name.clone())
+        .unwrap_or_else(|| ctx.author().name.clone());
     let who = user
         .as_ref()
         .map(|u| u.to_string())

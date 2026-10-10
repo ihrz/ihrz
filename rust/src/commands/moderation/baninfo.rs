@@ -7,6 +7,21 @@ fn display_name<'a>(global_name: Option<&'a str>, name: &'a str) -> &'a str {
     global_name.filter(|s| !s.is_empty()).unwrap_or(name)
 }
 
+/// Description layout mirrors !baninfo.ts: emoji labels plus a relative
+/// `<t:...:R>` timestamp (discord.js `time()` defaults to relative).
+fn render_description(
+    date_label: &str,
+    by_label: &str,
+    reason_label: &str,
+    when: i64,
+    executor: &str,
+    reason: &str,
+) -> String {
+    format!(
+        "> 🕒 **{date_label}:** <t:{when}:R>\n> 👤 **{by_label}:** {executor}\n> 📝 **{reason_label}:** {reason}"
+    )
+}
+
 /// Show ban info for a user.
 #[poise::command(
     slash_command,
@@ -61,12 +76,13 @@ pub async fn mod_baninfo(
     let embed = serenity::CreateEmbed::default()
         .title(format!("{}: {name}", t("baninfo_ban_info")))
         .colour(serenity::Colour::from_rgb(79, 219, 18))
-        .description(format!(
-            "> **{}:** <t:{when}:F>\n> **{}:** {executor}\n> **{}:** {}",
-            t("var_ban_date"),
-            t("var_banned_by"),
-            t("var_reason"),
-            ban.reason.unwrap_or_else(|| t("blacklist_var_no_reason")),
+        .description(render_description(
+            &t("var_ban_date"),
+            &t("var_banned_by"),
+            &t("var_reason"),
+            when,
+            &executor,
+            &ban.reason.unwrap_or_else(|| t("blacklist_var_no_reason")),
         ))
         // `face()` keeps the animated (gif) avatar when there is one,
         // like `displayAvatarURL({ forceStatic: false })`.
@@ -78,6 +94,21 @@ pub async fn mod_baninfo(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn description_uses_relative_time_and_emoji_labels() {
+        let d = render_description(
+            "Ban date",
+            "Banned by",
+            "Reason",
+            1_700_000_000,
+            "mod#1",
+            "spam",
+        );
+        assert!(d.contains("> 🕒 **Ban date:** <t:1700000000:R>"));
+        assert!(d.contains("> 👤 **Banned by:** mod#1"));
+        assert!(d.contains("> 📝 **Reason:** spam"));
+    }
 
     #[test]
     fn display_name_prefers_global_name() {

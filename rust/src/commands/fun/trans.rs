@@ -6,9 +6,7 @@ pub async fn trans(
     ctx: Ctx<'_>,
     #[description = "Member"] user: Option<poise::serenity_prelude::User>,
 ) -> Result<(), anyhow::Error> {
-    if fun_guard(&ctx).await {
-        return Ok(());
-    }
+    // No disabled-category check in `!trans.ts`: no fun_guard here.
     percent_user(
         &ctx,
         user,
