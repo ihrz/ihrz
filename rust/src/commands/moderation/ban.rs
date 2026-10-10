@@ -10,7 +10,7 @@ use poise::serenity_prelude as serenity;
 )]
 pub async fn mod_ban(
     ctx: Ctx<'_>,
-    #[description = "Member"] user: serenity::User,
+    #[description = "Member"] member: serenity::User,
     #[description = "Reason"] reason: Option<String>,
 ) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {
@@ -31,12 +31,12 @@ pub async fn mod_ban(
             return Ok(());
         }
     }
-    if user.id == ctx.author().id {
+    if member.id == ctx.author().id {
         ctx.say(t("ban_try_to_ban_yourself").replace("${client.iHorizon_Emojis.No}", &no))
             .await?;
         return Ok(());
     }
-    if let Some(target_pos) = target_top(&ctx, guild_id, user.id).await {
+    if let Some(target_pos) = target_top(&ctx, guild_id, member.id).await {
         let guards = guards.as_ref();
         let author_top = guards.map(|g| g.author_top).unwrap_or(u16::MAX);
         let author_id = ctx.author().id.get();
@@ -64,7 +64,7 @@ pub async fn mod_ban(
         .unwrap_or_default();
     dm_best_effort(
         ctx.http(),
-        &user,
+        &member,
         t("ban_message_to_the_banned_member")
             .replace("${interaction.guild.name}", &guild_name)
             .replace("${reason}", &reason),
@@ -78,7 +78,7 @@ pub async fn mod_ban(
         .unwrap_or_else(|| ctx.author().name.clone());
     let audit = format!("Banned by: {by} | Reason: {reason}");
     if guild_id
-        .ban_with_reason(ctx.http(), user.id, 0, &audit)
+        .ban_with_reason(ctx.http(), member.id, 0, &audit)
         .await
         .is_err()
     {
@@ -90,10 +90,10 @@ pub async fn mod_ban(
     ctx.say(
         crate::lang::get(&code, "ban_command_work")
             .map(|s| {
-                s.replace("${member.user.id}", &user.id.get().to_string())
+                s.replace("${member.user.id}", &member.id.get().to_string())
                     .replace("${interaction.member.id}", &author_id)
             })
-            .unwrap_or_else(|| format!("Banned {} ({reason})", user.tag())),
+            .unwrap_or_else(|| format!("Banned {} ({reason})", member.tag())),
     )
     .await?;
     post_mod_log(
@@ -101,9 +101,22 @@ pub async fn mod_ban(
         guild_id,
         t("ban_logs_embed_title"),
         t("ban_logs_embed_description")
-            .replace("${member.user.id}", &user.id.get().to_string())
+            .replace("${member.user.id}", &member.id.get().to_string())
             .replace("${interaction.member.id}", &author_id),
     )
     .await;
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn slash_option_names_match_ts() {
+        // TS mod.ts ban options: member, reason.
+        let cmd = mod_ban();
+        let names: Vec<&str> = cmd.parameters.iter().map(|p| p.name.as_str()).collect();
+        assert_eq!(names, vec!["member", "reason"]);
+    }
 }

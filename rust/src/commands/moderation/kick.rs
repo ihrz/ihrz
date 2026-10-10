@@ -9,7 +9,7 @@ use poise::serenity_prelude as serenity;
 )]
 pub async fn mod_kick(
     ctx: Ctx<'_>,
-    #[description = "Member"] user: serenity::User,
+    #[description = "Member"] member: serenity::User,
     #[description = "Reason"] reason: Option<String>,
 ) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {
@@ -29,17 +29,17 @@ pub async fn mod_kick(
             return Ok(());
         }
     }
-    if user.id == ctx.author().id {
+    if member.id == ctx.author().id {
         ctx.say(t("kick_attempt_kick_your_self").replace("${client.iHorizon_Emojis.No}", &no))
             .await?;
         return Ok(());
     }
-    let member = guild_id.member(ctx.http(), user.id).await.ok();
-    let Some(member) = member else {
+    let guild_member = guild_id.member(ctx.http(), member.id).await.ok();
+    let Some(guild_member) = guild_member else {
         ctx.say(t("ban_dont_found_member")).await?;
         return Ok(());
     };
-    if let Some(target_pos) = target_top(&ctx, guild_id, user.id).await {
+    if let Some(target_pos) = target_top(&ctx, guild_id, member.id).await {
         let author_top = guards.as_ref().map(|g| g.author_top).unwrap_or(u16::MAX);
         let author_id = ctx.author().id.get();
         let owner = guards.as_ref().map(|g| g.owner_id).unwrap_or(author_id);
@@ -59,7 +59,7 @@ pub async fn mod_kick(
         .guild(guild_id)
         .map(|g| g.name.clone())
         .unwrap_or_default();
-    let _ = member
+    let _ = guild_member
         .user
         .clone()
         .direct_message(
@@ -73,7 +73,7 @@ pub async fn mod_kick(
         .await;
     let audit = format!("Kicked by: {} | Reason: {reason}", ctx.author().name);
     if guild_id
-        .kick_with_reason(ctx.http(), user.id, &audit)
+        .kick_with_reason(ctx.http(), member.id, &audit)
         .await
         .is_err()
     {
@@ -84,10 +84,10 @@ pub async fn mod_kick(
     ctx.say(
         crate::lang::get(&code, "kick_command_work")
             .map(|s| {
-                s.replace("${member.user}", &user.to_string())
+                s.replace("${member.user}", &member.to_string())
                     .replace("${interaction.user}", &ctx.author().to_string())
             })
-            .unwrap_or_else(|| format!("Kicked {}", user.tag())),
+            .unwrap_or_else(|| format!("Kicked {}", member.tag())),
     )
     .await?;
     post_mod_log(
@@ -95,9 +95,22 @@ pub async fn mod_kick(
         guild_id,
         t("kick_logs_embed_title"),
         t("kick_logs_embed_description")
-            .replace("${member.user}", &user.to_string())
+            .replace("${member.user}", &member.to_string())
             .replace("${interaction.user.id}", &ctx.author().id.get().to_string()),
     )
     .await;
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn slash_option_names_match_ts() {
+        // TS mod.ts kick options: member, reason.
+        let cmd = mod_kick();
+        let names: Vec<&str> = cmd.parameters.iter().map(|p| p.name.as_str()).collect();
+        assert_eq!(names, vec!["member", "reason"]);
+    }
 }

@@ -85,4 +85,12 @@ mod tests {
         assert_eq!(display_name(None, "user"), "user");
         assert_eq!(display_name(Some(""), "user"), "user");
     }
+
+    #[test]
+    fn slash_option_names_match_ts() {
+        // TS mod.ts baninfo option: user (User type, already the case).
+        let cmd = mod_baninfo();
+        let names: Vec<&str> = cmd.parameters.iter().map(|p| p.name.as_str()).collect();
+        assert_eq!(names, vec!["user"]);
+    }
 }

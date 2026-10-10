@@ -22,7 +22,7 @@ fn bot_can_tempmute(perms: serenity::Permissions) -> bool {
 pub async fn mod_timeout(
     ctx: Ctx<'_>,
     #[description = "Member"] user: serenity::User,
-    #[description = "Duration (e.g. 10m, 1h, 7d)"] duration: String,
+    #[description = "Duration (e.g. 10m, 1h, 7d)"] time: String,
     #[description = "Reason"] reason: Option<String>,
 ) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {
@@ -31,7 +31,7 @@ pub async fn mod_timeout(
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let t = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
     // Human durations like TS timeCalculator; invalid -> invalid-time text.
-    let mut ms = crate::funcs::time_ms(&duration) as i64;
+    let mut ms = crate::funcs::time_ms(&time) as i64;
     if ms <= 0 {
         ctx.say(t("too_new_account_invalid_time_on_enable")).await?;
         return Ok(());
@@ -236,5 +236,13 @@ mod tests {
         ));
         assert!(!bot_can_tempmute(serenity::Permissions::MODERATE_MEMBERS));
         assert!(!bot_can_tempmute(serenity::Permissions::empty()));
+    }
+
+    #[test]
+    fn slash_option_names_match_ts() {
+        // TS mod.ts tempmute options: user, time, reason.
+        let cmd = mod_timeout();
+        let names: Vec<&str> = cmd.parameters.iter().map(|p| p.name.as_str()).collect();
+        assert_eq!(names, vec!["user", "time", "reason"]);
     }
 }

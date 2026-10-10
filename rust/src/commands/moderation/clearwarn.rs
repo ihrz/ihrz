@@ -11,20 +11,20 @@ use poise::serenity_prelude as serenity;
 )]
 pub async fn mod_clearwarn(
     ctx: Ctx<'_>,
-    #[description = "Member"] user: serenity::User,
+    #[description = "Member"] member: serenity::User,
 ) -> Result<(), anyhow::Error> {
     let gid = ctx
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-    let warns = load_warns(&ctx.data().pool, &gid, user.id.get()).await;
+    let warns = load_warns(&ctx.data().pool, &gid, member.id.get()).await;
     // TS (!clearwarn.ts): no warns -> warnlist_no_data reply, no delete.
     if warns.is_empty() {
         let no = emoji(&ctx, "No", "❌").await;
         ctx.say(
             crate::lang::get(&code, "warnlist_no_data")
-                .map(|s| render_no_warns(&s, &no, &user.to_string()))
+                .map(|s| render_no_warns(&s, &no, &member.to_string()))
                 .unwrap_or_else(|| "No warns.".to_string()),
         )
         .await?;
@@ -35,7 +35,7 @@ pub async fn mod_clearwarn(
         &ctx.data().pool,
         &gid,
         &gid,
-        &warns_key(user.id.get()),
+        &warns_key(member.id.get()),
     )
     .await;
     let yes = crate::emojis::app_emoji_markup(&ctx.serenity_context().http, "Yes")
@@ -45,7 +45,7 @@ pub async fn mod_clearwarn(
         crate::lang::get(&code, "clearwarn_command_ok")
             .map(|s| {
                 s.replace("${client.iHorizon_Emojis.Yes}", &yes)
-                    .replace("${member?.toString()}", &format!("<@{}>", user.id.get()))
+                    .replace("${member?.toString()}", &format!("<@{}>", member.id.get()))
                     .replace("${allWarns.length}", &warn_count.to_string())
                     .replace(
                         "${interaction.member.toString()}",
@@ -86,5 +86,13 @@ mod tests {
             s.contains("${member?.toString()}"),
             "key must keep member placeholder"
         );
+    }
+
+    #[test]
+    fn slash_option_names_match_ts() {
+        // TS mod.ts clearwarn option: member.
+        let cmd = mod_clearwarn();
+        let names: Vec<&str> = cmd.parameters.iter().map(|p| p.name.as_str()).collect();
+        assert_eq!(names, vec!["member"]);
     }
 }

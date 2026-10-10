@@ -20,14 +20,14 @@ fn author_mention(warn: &Warn, unknown: &str) -> String {
 )]
 pub async fn mod_warnlist(
     ctx: Ctx<'_>,
-    #[description = "Member"] user: serenity::User,
+    #[description = "Member"] member: serenity::User,
     #[description = "Page"] page: Option<i64>,
 ) -> Result<(), anyhow::Error> {
     let gid = ctx
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
-    let warns = load_warns(&ctx.data().pool, &gid, user.id.get()).await;
+    let warns = load_warns(&ctx.data().pool, &gid, member.id.get()).await;
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let t = |k: &str, fb: &str| crate::lang::get(&code, k).unwrap_or_else(|| fb.to_string());
     if warns.is_empty() {
@@ -36,7 +36,7 @@ pub async fn mod_warnlist(
             crate::lang::get(&code, "warnlist_no_data")
                 .map(|s| {
                     s.replace("${client.iHorizon_Emojis.No}", &no)
-                        .replace("${member?.toString()}", &user.to_string())
+                        .replace("${member?.toString()}", &member.to_string())
                 })
                 .unwrap_or_else(|| "No warns.".to_string()),
         )
@@ -45,10 +45,10 @@ pub async fn mod_warnlist(
     }
     let not_for_you = t("help_not_for_you", "This interaction is not for you");
     let page_word = t("var_page", "Page");
-    let name = user
+    let name = member
         .global_name
         .clone()
-        .unwrap_or_else(|| user.name.clone());
+        .unwrap_or_else(|| member.name.clone());
     let unknown = t("var_unknown", "Unknown");
     // One (title, description) pair per page, like the TS `pages` array.
     let pages: Vec<(String, String)> = warns
@@ -173,5 +173,14 @@ mod tests {
     fn author_mention_falls_back_for_legacy_rows() {
         assert_eq!(author_mention(&warn_with(None), "Unknown"), "Unknown");
         assert_eq!(author_mention(&warn_with(Some("")), "Unknown"), "Unknown");
+    }
+
+    #[test]
+    fn slash_option_names_match_ts() {
+        // TS mod.ts warnlist option: member (`page` is a Rust-side
+        // pagination extra with no TS counterpart).
+        let cmd = mod_warnlist();
+        let names: Vec<&str> = cmd.parameters.iter().map(|p| p.name.as_str()).collect();
+        assert_eq!(names[0], "member");
     }
 }

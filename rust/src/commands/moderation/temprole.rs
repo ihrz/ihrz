@@ -10,9 +10,9 @@ use poise::serenity_prelude as serenity;
 )]
 pub async fn mod_temprole(
     ctx: Ctx<'_>,
-    #[description = "Member"] user: serenity::User,
+    #[description = "Member"] member: serenity::User,
     #[description = "Role"] role: serenity::Role,
-    #[description = "Duration (e.g. 10m, 1h, 7d)"] duration: String,
+    #[description = "Duration (e.g. 10m, 1h, 7d)"] time: String,
     #[description = "Reason"] reason: Option<String>,
 ) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {
@@ -20,7 +20,7 @@ pub async fn mod_temprole(
     };
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let t = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
-    let mut ms = crate::funcs::time_ms(&duration) as i64;
+    let mut ms = crate::funcs::time_ms(&time) as i64;
     if ms <= 0 {
         ctx.say(t("too_new_account_invalid_time_on_enable")).await?;
         return Ok(());
@@ -45,8 +45,8 @@ pub async fn mod_temprole(
             return Ok(());
         }
     }
-    let member = guild_id.member(ctx.http(), user.id).await.ok();
-    let Some(member) = member else {
+    let guild_member = guild_id.member(ctx.http(), member.id).await.ok();
+    let Some(guild_member) = guild_member else {
         ctx.say(t("ban_dont_found_member")).await?;
         return Ok(());
     };
@@ -55,12 +55,12 @@ pub async fn mod_temprole(
         .as_ref()
         .map(|g| (g.bot_top, g.owner_id))
         .unwrap_or((u16::MAX, author_id));
-    if let Some(target_pos) = target_top(&ctx, guild_id, user.id).await {
+    if let Some(target_pos) = target_top(&ctx, guild_id, member.id).await {
         if target_pos >= bot_top && owner != author_id {
             ctx.say(
                 t("temprole_tomute_highest_role_or_same")
                     .replace("${client.iHorizon_Emojis.No}", &no)
-                    .replace("${tomute.toString()}", &user.to_string()),
+                    .replace("${tomute.toString()}", &member.to_string()),
             )
             .await?;
             return Ok(());
@@ -73,12 +73,12 @@ pub async fn mod_temprole(
         return Ok(());
     }
     let gid = guild_id.get().to_string();
-    let already = member.roles.contains(&role.id)
+    let already = guild_member.roles.contains(&role.id)
         || crate::commands::owner::main::routed_get(
             &ctx.data().pool,
             &gid,
             &gid,
-            &temprole_key(user.id.get(), role.id.get()),
+            &temprole_key(member.id.get(), role.id.get()),
         )
         .await
         .is_some();
@@ -86,18 +86,18 @@ pub async fn mod_temprole(
         ctx.say(t("temprole_already_has_role")).await?;
         return Ok(());
     }
-    member.add_role(ctx.http(), role.id).await?;
+    guild_member.add_role(ctx.http(), role.id).await?;
     let exp = crate::commands::shared::now_ms() + ms;
     crate::commands::owner::main::routed_set(
         &ctx.data().pool,
         &gid,
         &gid,
-        &temprole_key(user.id.get(), role.id.get()),
+        &temprole_key(member.id.get(), role.id.get()),
         &serde_json::json!({"expires_at_ms": exp}).to_string(),
     )
     .await?;
     let mut content = t("temprole_command_work")
-        .replace("${tomute.id}", &user.id.get().to_string())
+        .replace("${tomute.id}", &member.id.get().to_string())
         .replace("${ms(ms(mutetime))}", &pretty)
         .replace("${reason}", &reason_s);
     if overflow {
@@ -111,10 +111,23 @@ pub async fn mod_temprole(
         t("temprole_logs_embed_title"),
         t("temprole_logs_embed_description")
             .replace("${interaction.user.id}", &ctx.author().id.get().to_string())
-            .replace("${tomute.id}", &user.id.get().to_string())
+            .replace("${tomute.id}", &member.id.get().to_string())
             .replace("${ms(ms(mutetime))}", &pretty)
             .replace("${reason}", &reason_s),
     )
     .await;
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn slash_option_names_match_ts() {
+        // TS mod.ts temprole options: member, role, time, reason.
+        let cmd = mod_temprole();
+        let names: Vec<&str> = cmd.parameters.iter().map(|p| p.name.as_str()).collect();
+        assert_eq!(names, vec!["member", "role", "time", "reason"]);
+    }
 }

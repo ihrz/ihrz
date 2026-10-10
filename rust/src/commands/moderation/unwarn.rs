@@ -9,14 +9,16 @@ use poise::serenity_prelude as serenity;
 )]
 pub async fn mod_unwarn(
     ctx: Ctx<'_>,
-    #[description = "Member"] user: serenity::User,
-    #[description = "Warn id"] warn_id: String,
+    #[description = "Member"] member: serenity::User,
+    #[description = "Warn id"]
+    #[rename = "warn-id"]
+    warn_id: String,
 ) -> Result<(), anyhow::Error> {
     let gid = ctx
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
-    let uid = user.id.get();
+    let uid = member.id.get();
     let warns = load_warns(&ctx.data().pool, &gid, uid).await;
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let t = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
@@ -26,7 +28,7 @@ pub async fn mod_unwarn(
         ctx.say(
             t("unwarn_cannot_found")
                 .replace("${client.iHorizon_Emojis.No}", &no)
-                .replace("${member?.toString()}", &user.to_string()),
+                .replace("${member?.toString()}", &member.to_string()),
         )
         .await?;
         return Ok(());
@@ -41,7 +43,7 @@ pub async fn mod_unwarn(
             crate::lang::get(&code, "unwarn_command_ok")
                 .map(|s| {
                     s.replace("${client.iHorizon_Emojis.Yes}", &yes)
-                        .replace("${member?.toString()}", &user.to_string())
+                        .replace("${member?.toString()}", &member.to_string())
                 })
                 .unwrap_or_else(|| "Warn removed.".to_string()),
         )
@@ -56,7 +58,7 @@ pub async fn mod_unwarn(
                         "${interaction.member.toString()}",
                         &ctx.author().to_string(),
                     )
-                    .replace("${member?.toString()}", &user.to_string()),
+                    .replace("${member?.toString()}", &member.to_string()),
             )
             .await;
         }
@@ -73,4 +75,17 @@ pub async fn mod_unwarn(
         .await?;
     }
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn slash_option_names_match_ts() {
+        // TS mod.ts unwarn options: member, warn-id.
+        let cmd = mod_unwarn();
+        let names: Vec<&str> = cmd.parameters.iter().map(|p| p.name.as_str()).collect();
+        assert_eq!(names, vec!["member", "warn-id"]);
+    }
 }

@@ -9,14 +9,14 @@ use poise::serenity_prelude as serenity;
 )]
 pub async fn mod_warn(
     ctx: Ctx<'_>,
-    #[description = "Member"] user: serenity::User,
+    #[description = "Member"] member: serenity::User,
     #[description = "Reason"] reason: String,
 ) -> Result<(), anyhow::Error> {
     let gid = ctx
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
-    let uid = user.id.get();
+    let uid = member.id.get();
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let t = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
     let (id, total) = if let Some(guild_id) = ctx.guild_id() {
@@ -49,7 +49,7 @@ pub async fn mod_warn(
                 gid: &gid,
                 guild_id,
                 author_name: &ctx.author().name,
-                target: &user,
+                target: &member,
                 reason: &reason,
                 lang_code: &lang_code,
             },
@@ -81,11 +81,11 @@ pub async fn mod_warn(
         crate::lang::get(&code, "warn_command_work")
             .map(|s| {
                 s.replace("${client.iHorizon_Emojis.Yes}", &yes)
-                    .replace("${member?.toString()}", &user.to_string())
+                    .replace("${member?.toString()}", &member.to_string())
                     .replace("${reason}", &reason)
                     .replace("${warnId}", &id)
             })
-            .unwrap_or_else(|| format!("Warned {} (id {id}, total {total})", user.tag())),
+            .unwrap_or_else(|| format!("Warned {} (id {id}, total {total})", member.tag())),
     )
     .await?;
     if let Some(guild_id) = ctx.guild_id() {
@@ -98,10 +98,23 @@ pub async fn mod_warn(
                     "${interaction.member.toString()}",
                     &ctx.author().to_string(),
                 )
-                .replace("${member?.toString()}", &user.to_string())
+                .replace("${member?.toString()}", &member.to_string())
                 .replace("${reason}", &reason),
         )
         .await;
     }
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn slash_option_names_match_ts() {
+        // TS mod.ts warn options: member, reason.
+        let cmd = mod_warn();
+        let names: Vec<&str> = cmd.parameters.iter().map(|p| p.name.as_str()).collect();
+        assert_eq!(names, vec!["member", "reason"]);
+    }
 }
