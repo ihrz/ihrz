@@ -1,5 +1,15 @@
 use super::*;
 
+/// Max buyable roles per guild. Mirrors
+/// `Object.keys(roleData).length >= 20` in economy/!add.ts (blocks at
+/// 20 keys even when updating an existing entry).
+pub const MAX_BUYABLE_ROLES: usize = 20;
+
+/// Pure cap check, unit-testable without Discord.
+pub fn shop_at_cap(role_count: usize) -> bool {
+    role_count >= MAX_BUYABLE_ROLES
+}
+
 /// Shop role add. Mirrors `!add.ts`.
 #[poise::command(
     slash_command,
@@ -81,7 +91,7 @@ pub async fn eco_role_add(
     }
     // TS blocks at >= 20 keys even for updates, and stores the raw
     // amount (negatives allowed).
-    if roles.len() >= 20 {
+    if shop_at_cap(roles.len()) {
         ctx.say(
             crate::commands::lang_for(
                 &ctx,
@@ -114,4 +124,19 @@ pub async fn eco_role_add(
     )
     .await?;
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn cap_blocks_at_20_even_for_updates() {
+        // Mirrors `Object.keys(roleData).length >= 20` (!add.ts).
+        assert_eq!(MAX_BUYABLE_ROLES, 20);
+        assert!(!shop_at_cap(0));
+        assert!(!shop_at_cap(19));
+        assert!(shop_at_cap(20));
+        assert!(shop_at_cap(21));
+    }
 }

@@ -334,6 +334,27 @@ pub async fn eco_shop(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())
 }
 
+/// Pure purchase gate. Mirrors the !shop.ts collector order:
+/// already-owned first (restore + no charge), then the funds check
+/// (`baseData.money < role.price`). Exact price passes (only
+/// strictly-below is rejected).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum BuyGate {
+    Owned,
+    InsufficientFunds,
+    Ok,
+}
+
+pub fn buy_gate(owned_roles: &[String], role_id: &str, money: f64, price: f64) -> BuyGate {
+    if owned_roles.iter().any(|r| r == role_id) {
+        return BuyGate::Owned;
+    }
+    if money < price {
+        return BuyGate::InsufficientFunds;
+    }
+    BuyGate::Ok
+}
+
 /// Shared purchase core for /economy buy (and the shop flow): returns
 /// the reply text after performing the TS collector steps
 /// (already-owned restore, funds check, money + ownedRoles writes,
@@ -362,7 +383,7 @@ async fn do_buy(
     let mut a = balance::load_econ_routed(pool, &gid, uid).await;
     // Owned-role path (!shop.ts collector): already-owned roles are
     // re-granted if missing and never charged.
-    if a.owned_roles.iter().any(|r| r == &role_id.to_string()) {
+    if buy_gate(&a.owned_roles, &role_id.to_string(), a.money as f64, price) == BuyGate::Owned {
         if let Some(guild_id) = ctx.guild_id() {
             if let Ok(member) = guild_id.member(ctx.http(), ctx.author().id).await {
                 let role = poise::serenity_prelude::RoleId::new(role_id);
@@ -376,7 +397,9 @@ async fn do_buy(
             "You already own this role.",
         )));
     }
-    if (a.money as f64) < price {
+    if buy_gate(&a.owned_roles, &role_id.to_string(), a.money as f64, price)
+        == BuyGate::InsufficientFunds
+    {
         return Ok(Some(text(
             "economy_shop_not_enough_money",
             "Not enough money.",
@@ -490,6 +513,20 @@ mod tests {
             "Unknown Role",
         );
         assert!(rows.is_empty());
+    }
+
+    #[test]
+    fn buy_gate_owned_first_then_funds() {
+        // Mirrors the !shop.ts collector order: owned restores without
+        // charge even when funds are short; funds gate is strict <.
+        let owned = vec!["111".to_string()];
+        assert_eq!(buy_gate(&owned, "111", 0.0, 500.0), BuyGate::Owned);
+        assert_eq!(
+            buy_gate(&[], "111", 499.0, 500.0),
+            BuyGate::InsufficientFunds
+        );
+        assert_eq!(buy_gate(&[], "111", 500.0, 500.0), BuyGate::Ok);
+        assert_eq!(buy_gate(&[], "111", 501.0, 500.0), BuyGate::Ok);
     }
 
     async fn mem_pool() -> crate::db::Pool {

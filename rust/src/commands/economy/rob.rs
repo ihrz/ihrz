@@ -1,5 +1,16 @@
 use super::*;
 
+/// Minimum wallet on each side to attempt a rob. Mirrors the
+/// `author < 250` / `targetuser < 250` floors in economy/!rob.ts
+/// (unset balances read as 0, so they fail the floor).
+pub const ROB_MIN_MONEY: i64 = 250;
+
+/// Pure floor check, unit-testable without Discord. Both sides need
+/// 250+; `== 250` passes (TS only blocks strictly-below).
+pub fn rob_floor_ok(author_money: i64, victim_money: i64) -> bool {
+    author_money >= ROB_MIN_MONEY && victim_money >= ROB_MIN_MONEY
+}
+
 /// Mirrors `!rob.ts`.
 #[poise::command(slash_command, prefix_command, rename = "rob")]
 pub async fn eco_rob(
@@ -38,7 +49,7 @@ pub async fn eco_rob(
     let mut b = balance::load_econ_routed(&ctx.data().pool, &gid, user.id.get()).await;
     // Both sides need 250+ (`author < 250`, `targetuser < 250`); unset
     // balances read as 0 (never the string "null" — kept correct).
-    if a.money < 250 {
+    if a.money < ROB_MIN_MONEY {
         ctx.say(
             crate::lang::get(&code, "rob_dont_enought_error")
                 .unwrap_or_else(|| "Rob failed.".to_string()),
@@ -46,7 +57,7 @@ pub async fn eco_rob(
         .await?;
         return Ok(());
     }
-    if b.money < 250 {
+    if b.money < ROB_MIN_MONEY {
         let target_name = user
             .global_name
             .clone()
@@ -92,4 +103,36 @@ pub async fn eco_rob(
     )
     .await?;
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn floor_blocks_either_side_below_250() {
+        // Mirrors `author < 250` / `targetuser < 250` (!rob.ts).
+        assert!(!rob_floor_ok(249, 10_000));
+        assert!(!rob_floor_ok(10_000, 249));
+        assert!(!rob_floor_ok(0, 0));
+        // Unset balances read as 0, so they fail the floor.
+        assert!(!rob_floor_ok(0, 250));
+    }
+
+    #[test]
+    fn floor_passes_at_exactly_250() {
+        // TS blocks strictly-below only; 250 on both sides may rob.
+        assert!(rob_floor_ok(250, 250));
+        assert!(rob_floor_ok(251, 10_000));
+    }
+
+    #[test]
+    fn loot_range_is_1_to_200_inclusive() {
+        // `Math.floor(Math.random() * 200) + 1` — the gen_range below
+        // must stay 1..=200.
+        for _ in 0..1_000 {
+            let loot: i64 = rand::Rng::gen_range(&mut rand::thread_rng(), 1..=200i64);
+            assert!((1..=200).contains(&loot));
+        }
+    }
 }

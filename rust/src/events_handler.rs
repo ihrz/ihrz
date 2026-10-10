@@ -199,17 +199,46 @@ async fn rank_nicknames_routed(pool: &crate::db::Pool, gid: &str) -> Option<Stri
     leaf_routed(pool, gid, "GUILD.RANK_ROLES.nicknames").await
 }
 
-/// GUILD.RANKS.xpChannels leaf.
+/// GUILD.XP_LEVELING.xpchannels leaf (legacy GUILD.RANKS.channel single /
+/// GUILD.RANKS.xpChannels list promote into the new key).
 async fn ranks_xp_channels_routed(pool: &crate::db::Pool, gid: &str) -> Vec<String> {
-    leaf_routed(pool, gid, "GUILD.RANKS.xpChannels")
-        .await
-        .and_then(|s| serde_json::from_str(&s).ok())
-        .unwrap_or_default()
+    let raw = crate::commands::ranks::migrated_get(
+        pool,
+        gid,
+        crate::commands::ranks::GUILD_XPCHANNEL_NEW,
+        &[
+            crate::commands::ranks::GUILD_XPCHANNEL_OLD_SINGLE,
+            crate::commands::ranks::GUILD_XPCHANNEL_OLD_LIST,
+        ],
+    )
+    .await;
+    match raw {
+        None => Vec::new(),
+        Some(s) => {
+            if let Ok(list) = serde_json::from_str::<Vec<String>>(&s) {
+                list
+            } else {
+                let id = crate::commands::owner::main::decode_stored_string(&s);
+                if id.is_empty() {
+                    Vec::new()
+                } else {
+                    vec![id]
+                }
+            }
+        }
+    }
 }
 
-/// GUILD.RANKS.message leaf (level-up template).
+/// GUILD.XP_LEVELING.message leaf (level-up template, legacy
+/// GUILD.RANKS.message promotes into the new key).
 async fn ranks_message_routed(pool: &crate::db::Pool, gid: &str) -> Option<String> {
-    leaf_routed(pool, gid, "GUILD.RANKS.message").await
+    crate::commands::ranks::migrated_get(
+        pool,
+        gid,
+        crate::commands::ranks::GUILD_MESSAGE_NEW,
+        &[crate::commands::ranks::GUILD_MESSAGE_OLD],
+    )
+    .await
 }
 
 /// COUNTER.channel leaf.

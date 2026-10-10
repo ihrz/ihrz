@@ -406,13 +406,6 @@ pub fn member_boost(shop_json: &str, member_roles: &[u64]) -> i64 {
     (best as i64).max(1)
 }
 
-/// Kept until the last `main::load_econ` callers (profil/show.rs,
-/// events.rs tests) are repointed to `balance::load_econ_routed`.
-/// Routed owner: table-first with legacy fallback (see balance.rs).
-pub async fn load_econ(pool: &crate::db::Pool, guild_id: &str, user_id: u64) -> EconAccount {
-    balance::load_econ_routed(pool, guild_id, user_id).await
-}
-
 /// JS-like number display: integral floats render without decimals
 /// (`(10).toString() === "10"`), others render as-is.
 pub fn fmt_num(v: f64) -> String {
@@ -1186,8 +1179,6 @@ mod tests {
         let stored = tbl_get_value(&pool, "g", "USER.4.ECONOMY").await.unwrap();
         assert_eq!(stored.get("bank").and_then(|v| v.as_i64()), Some(2));
         assert_eq!(load_econ_routed(&pool, "g", 4).await.money, 40);
-        // The kept `load_econ` owner delegates to the same routed store.
-        assert_eq!(load_econ(&pool, "g", 4).await.money, 40);
     }
 
     #[test]

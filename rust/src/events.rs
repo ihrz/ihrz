@@ -851,6 +851,126 @@ pub async fn record_message_activity(
     (level, leveled)
 }
 
+/// XP gain gate. Mirrors ranks/onNewMessage.ts (`xpTurn === "disable"`
+/// from GUILD.XP_LEVELING.disable, or the channel in `bypassChannels`):
+/// true means no XP is earned. `disable_raw` is the stored disable value
+/// (None when never configured).
+pub fn xp_gain_blocked(
+    disable_raw: Option<&str>,
+    bypass_channels: &[String],
+    channel_id: &str,
+) -> bool {
+    if disable_raw == Some("disable") {
+        return true;
+    }
+    bypass_channels.iter().any(|c| c == channel_id)
+}
+
+/// parseMessageCommand early-return. Mirrors onNewMessage.ts: a message
+/// consumed as a prefix command never earns XP.
+pub fn xp_skip_for_command(command_handled: bool) -> bool {
+    command_handled
+}
+
+/// Announce gate. Mirrors onNewMessage.ts (`xpTurn === false` silences the
+/// level-up message via `/ranks config off`, missing SendMessages
+/// permission stays silent): true means no level-up message. XP was still
+/// gained (the full-disable case is caught by xp_gain_blocked first).
+pub fn xp_announce_suppressed(disable_raw: Option<&str>, can_send: bool) -> bool {
+    if !can_send {
+        return true;
+    }
+    disable_raw == Some("false")
+}
+
+/// Level-up announce routing. Mirrors onNewMessage.ts: no `xpchannels`
+/// set -> reply in place (`channelSend`); set with a resolvable channel
+/// -> send there; set but unresolvable -> stay silent.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum XpAnnounceTarget {
+    ReplyInPlace,
+    SendToChannel(String),
+    Suppressed,
+}
+
+pub fn xp_announce_target(xp_channel: Option<&str>, channel_exists: bool) -> XpAnnounceTarget {
+    match xp_channel.map(str::trim).filter(|s| !s.is_empty()) {
+        None => XpAnnounceTarget::ReplyInPlace,
+        Some(id) if channel_exists => XpAnnounceTarget::SendToChannel(id.to_string()),
+        Some(_) => XpAnnounceTarget::Suppressed,
+    }
+}
+
+/// Exact en-US fallbacks for the XP announce path (src/lang/en-US.yml).
+/// The handler resolves the guild lang first; these apply when the lookup
+/// misses, so YAML stays untouched.
+pub const XP_EARN_FALLBACK: &str =
+    "**GG**, {memberMention} you have leveled up! (Level: **{xpLevel}**)";
+pub const XP_ADDITIONAL_INFO_FALLBACK: &str = "\n-# ${client.iHorizon_Emojis.VC_OpenChat} Do you find this message annoying? You can disable this message by disabling the leveling system with the `/ranks config` command.";
+
+/// Level-up message render. Mirrors generateCustomMessagePreview in
+/// core/functions/method.ts for the ranks call (user/guild/ranks slots
+/// resolved; inviter/notifier/blogger slots keep their TS literal
+/// defaults). Date slots ({createdAt}, {accountCreationTimestamp}) need
+/// the discord user object and are left for the handler.
+pub fn render_xp_announce(
+    template: &str,
+    member_username: &str,
+    member_mention: &str,
+    member_count: u64,
+    guild_name: &str,
+    new_level: u64,
+) -> String {
+    template
+        .replace("{memberUsername}", member_username)
+        .replace("{memberMention}", member_mention)
+        .replace("{memberCount}", &member_count.to_string())
+        .replace("{guildName}", guild_name)
+        .replace("{xpLevel}", &new_level.to_string())
+        .replace("{inviterUsername}", "unknow_user")
+        .replace("{inviterMention}", "@unknow_user")
+        .replace("{invitesCount}", "1337")
+        .replace("{artistAuthor}", "Ninja")
+        .replace("{artistLink}", "https://twitch.tv/Ninja")
+        .replace("{mediaURL}", "https://twitch.tv/Ninja/media")
+        .replace("{articleTitle}", "Unknow Article")
+        .replace("{articleAuthor}", "Unknown Author")
+        .replace("{articleLink}", "Unknown Link")
+        .replace("{blogName}", "Unknown Blog Name")
+}
+
+/// New-user hint. Mirrors onNewMessage.ts: on the first level-up
+/// (newLevel === 1) the additional-info line (emoji slot filled) is
+/// appended on a 1/2 roll (`Math.random() < 0.5`; `roll` is the
+/// handler's draw so this stays deterministic in tests).
+pub fn xp_new_user_hint(
+    msg: &str,
+    new_level: u64,
+    roll: f64,
+    additional_info: &str,
+    emoji_markup: &str,
+) -> String {
+    if new_level == 1 && roll < 0.5 {
+        format!(
+            "{msg}{}",
+            additional_info.replace("${client.iHorizon_Emojis.VC_OpenChat}", emoji_markup)
+        )
+    } else {
+        msg.to_string()
+    }
+}
+
+/// Real level-up coin credit. Mirrors onNewMessage.ts
+/// `addCoins(member, randomNumber * getMemberBoost(member))`: the shop
+/// boost rolls through economy member_boost (missing shop/roles fall
+/// back to 1, same as TS).
+pub fn xp_levelup_coins(xp_gain: u64, shop_json: &str, member_roles: &[u64]) -> i64 {
+    crate::commands::ranks::main::coins_for_levelup(
+        xp_gain,
+        crate::commands::economy::main::member_boost(shop_json, member_roles),
+    )
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -1153,6 +1273,102 @@ mod tests {
         .unwrap();
         assert_eq!(join_role_ids(&pool, "g").await, vec![1, 2]);
         assert_eq!(join_dm_template(&pool, "g").await.as_deref(), Some("yo"));
+    }
+
+    #[test]
+    fn xp_gain_and_announce_gates_mirror_ts() {
+        // Gain gate: full disable or bypassed channel blocks XP.
+        assert!(xp_gain_blocked(Some("disable"), &[], "1"));
+        assert!(xp_gain_blocked(Some("disable"), &["1".to_string()], "2"));
+        assert!(xp_gain_blocked(None, &["1".to_string()], "1"));
+        assert!(!xp_gain_blocked(None, &[], "1"));
+        assert!(!xp_gain_blocked(None, &["2".to_string()], "1"));
+        // Silenced mode ("off") still gains XP: only the announce is cut.
+        assert!(!xp_gain_blocked(Some("false"), &[], "1"));
+        assert!(!xp_gain_blocked(Some("true"), &[], "1"));
+        // parseMessageCommand early-return: handled commands earn nothing.
+        assert!(xp_skip_for_command(true));
+        assert!(!xp_skip_for_command(false));
+        // Announce gate: silenced mode or missing SendMessages stays silent.
+        assert!(xp_announce_suppressed(Some("false"), true));
+        assert!(xp_announce_suppressed(Some("true"), false));
+        assert!(xp_announce_suppressed(None, false));
+        assert!(!xp_announce_suppressed(Some("true"), true));
+        assert!(!xp_announce_suppressed(None, true));
+        assert!(!xp_announce_suppressed(Some("disable"), true));
+        // Routing: unset -> reply in place; set + resolvable -> send
+        // there; set + missing -> silent.
+        assert_eq!(
+            xp_announce_target(None, false),
+            XpAnnounceTarget::ReplyInPlace
+        );
+        assert_eq!(
+            xp_announce_target(Some(""), true),
+            XpAnnounceTarget::ReplyInPlace
+        );
+        assert_eq!(
+            xp_announce_target(Some("99"), true),
+            XpAnnounceTarget::SendToChannel("99".to_string())
+        );
+        assert_eq!(
+            xp_announce_target(Some("99"), false),
+            XpAnnounceTarget::Suppressed
+        );
+    }
+
+    #[test]
+    fn xp_announce_render_matches_ts_preview() {
+        // en-US fallback renders mention + level.
+        assert_eq!(
+            render_xp_announce(XP_EARN_FALLBACK, "bob", "<@9>", 42, "G", 3),
+            "**GG**, <@9> you have leveled up! (Level: **3**)"
+        );
+        // Member/guild slots resolve, missing-context slots keep TS defaults.
+        let out = render_xp_announce(
+            "Hi {memberUsername} {memberMention} #{memberCount} in {guildName} lvl {xpLevel} by {inviterUsername} ({inviterMention} x{invitesCount}) ft {artistAuthor} {articleTitle} {blogName}",
+            "bob",
+            "<@9>",
+            42,
+            "G",
+            2,
+        );
+        assert_eq!(
+            out,
+            "Hi bob <@9> #42 in G lvl 2 by unknow_user (@unknow_user x1337) ft Ninja Unknow Article Unknown Blog Name"
+        );
+    }
+
+    #[test]
+    fn xp_new_user_hint_only_first_level_on_hit_roll() {
+        let base = "Level up!";
+        // Level 1 + winning roll appends the info line with emoji filled.
+        assert_eq!(
+            xp_new_user_hint(base, 1, 0.2, XP_ADDITIONAL_INFO_FALLBACK, "<:chat>"),
+            "Level up!\n-# <:chat> Do you find this message annoying? You can disable this message by disabling the leveling system with the `/ranks config` command."
+        );
+        // Losing roll, higher level, or boundary roll stay silent.
+        assert_eq!(
+            xp_new_user_hint(base, 1, 0.9, XP_ADDITIONAL_INFO_FALLBACK, "<:chat>"),
+            base
+        );
+        assert_eq!(
+            xp_new_user_hint(base, 2, 0.1, XP_ADDITIONAL_INFO_FALLBACK, "<:chat>"),
+            base
+        );
+        assert_eq!(
+            xp_new_user_hint(base, 1, 0.5, XP_ADDITIONAL_INFO_FALLBACK, "<:chat>"),
+            base
+        );
+    }
+
+    #[test]
+    fn xp_levelup_coins_use_shop_boost() {
+        let shop = r#"{"2":{"boost":3},"5":{"boost":2}}"#;
+        assert_eq!(xp_levelup_coins(35, shop, &[2]), 105);
+        assert_eq!(xp_levelup_coins(35, shop, &[5]), 70);
+        // No matching role or broken shop falls back to boost 1.
+        assert_eq!(xp_levelup_coins(35, shop, &[9]), 35);
+        assert_eq!(xp_levelup_coins(35, "nope", &[2]), 35);
     }
 
     #[test]

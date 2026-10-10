@@ -25,6 +25,21 @@ use super::{
 };
 
 /// Parent group. Mirrors the TS `economy` HybridCommand definition.
+// (src/Interaction/HybridCommands/economy/economy.ts).
+//
+// FLAT DECISION (R4/R6): TS registers two SubcommandGroups under
+// /economy — `role` (add/delete/list) and `manage-rewards`
+// (set-money/set-cooldown). poise 0.6 has no SubcommandGroup support
+// (no group construct in poise/poise_macros 0.6.2), so all 23 leaf
+// commands register flat under /economy. Precedent: antispam flattens
+// its collector UI the same way. Revisit if poise is upgraded.
+//
+// ECO_BUY (keep-as-addition): TS has no /economy buy subcommand — buys
+// happen only through the shop select-menu collector (!shop.ts). The
+// Rust side keeps `eco_buy` (/economy buy) as a deliberate addition:
+// it reuses the shared `do_buy` core (owned-restore, funds check,
+// money + ownedRoles writes, role grant), so parity of the purchase
+// gates is tested in one place.
 #[poise::command(
     slash_command,
     prefix_command,
