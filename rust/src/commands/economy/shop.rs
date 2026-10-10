@@ -359,6 +359,15 @@ pub fn buy_gate(owned_roles: &[String], role_id: &str, money: f64, price: f64) -
 /// the reply text after performing the TS collector steps
 /// (already-owned restore, funds check, money + ownedRoles writes,
 /// role grant). Replies are ephemeral, like the TS collector replies.
+///
+/// Deliberate divergences from `!shop.ts` (no behavior change intended
+/// beyond these): the TS collector pushes `role.roleId` onto its
+/// in-memory `baseData.ownedRoles` AND writes a spread copy
+/// (`[...ownedRoles, roleId]`) per collect, so repeated buys in one
+/// session duplicate the entry; here each pick re-reads fresh DB state
+/// and pushes exactly once. And `eco_buy` exposes the same core as a
+/// standalone `/economy buy` command, while TS only sells through the
+/// shop select-menu collector.
 async fn do_buy(
     ctx: &Ctx<'_>,
     role_id: u64,

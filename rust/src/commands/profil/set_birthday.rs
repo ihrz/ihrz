@@ -18,6 +18,14 @@ pub fn validate_birthday_ts(day: u8, month: u8, year: i32) -> bool {
 }
 
 /// Set your birthday. Mirrors `!set-birthday.ts` (modal flow flattened to args).
+///
+/// Deliberate divergences from the TS (no behavior change intended
+/// beyond these): TS collects day/month/year through separate
+/// button+modal rounds and validates the day modal as a bare `1..=31`
+/// range, so Feb 31 passes; here the three slash args are validated
+/// together by `validate_birthday`, which enforces real month lengths
+/// (Feb 31 rejected, leap years honored). The `year <= current year`
+/// upper bound is kept from the TS year modal.
 #[poise::command(
     slash_command,
     prefix_command,

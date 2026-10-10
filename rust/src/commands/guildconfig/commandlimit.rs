@@ -17,7 +17,9 @@ pub async fn gc_commandlimit(
     #[description = "set, reset or list"] action: String,
     #[description = "Command name"] command: Option<String>,
     #[description = "Max uses"] count: Option<i64>,
-    #[description = "Window (e.g. 10s, 1m, 1h)"] window: Option<String>,
+    #[description = "Window (e.g. 10s, 1m, 1h)"]
+    #[rename = "window-time"]
+    window: Option<String>,
 ) -> Result<(), anyhow::Error> {
     let gid = ctx
         .guild_id()

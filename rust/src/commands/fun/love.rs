@@ -48,6 +48,66 @@ pub fn love_roll(a: u64, b: u64, always100: &[String]) -> u64 {
     rand::Rng::gen_range(&mut rand::thread_rng(), 0..=100)
 }
 
+/// Display-name pick for the love description. Mirrors the sibling
+/// fun-card pattern (`!youtube.ts`, `!tweet.ts`): `user.globalName ||
+/// user.username`, truncated at 15 chars.
+pub fn love_display_name_str(global_name: Option<&str>, username: &str) -> String {
+    global_name.unwrap_or(username).chars().take(15).collect()
+}
+
+/// [`love_display_name_str`] over a Discord user.
+pub fn love_display_name(user: &poise::serenity_prelude::User) -> String {
+    love_display_name_str(user.global_name.as_deref(), &user.name)
+}
+
+/// One love tile side. Mirrors the 400x400 `love.html` tiles.
+pub const LOVE_TILE: u32 = 400;
+/// Gap between tiles. Mirrors `gap: 20px` in `love.html`.
+pub const LOVE_GAP: u32 = 20;
+
+/// Build the `love.png` composite (avatar | heart | avatar) with the
+/// `image` crate: there is no Chromium/html2png in Rust, so the
+/// `love.html` render becomes a 1240x400 tile strip. Returns `None`
+/// when an avatar blob does not decode; a missing heart falls back to
+/// a pink disc so the strip keeps its TS shape.
+pub fn love_composite_png(avatar1: &[u8], avatar2: &[u8], heart: Option<&[u8]>) -> Option<Vec<u8>> {
+    use image::GenericImage;
+    fn tile(bytes: &[u8]) -> Option<image::RgbaImage> {
+        let img = image::load_from_memory(bytes).ok()?;
+        Some(
+            img.resize_exact(LOVE_TILE, LOVE_TILE, image::imageops::FilterType::Triangle)
+                .to_rgba8(),
+        )
+    }
+    let left = tile(avatar1)?;
+    let right = tile(avatar2)?;
+    let mid: image::RgbaImage = match heart.and_then(tile) {
+        Some(h) => h,
+        None => {
+            let mut disc = image::RgbaImage::new(LOVE_TILE, LOVE_TILE);
+            let (c, r) = (LOVE_TILE as f32 / 2.0, LOVE_TILE as f32 / 2.0);
+            for (x, y, px) in disc.enumerate_pixels_mut() {
+                let (dx, dy) = (x as f32 - c, y as f32 - c);
+                if dx * dx + dy * dy <= r * r {
+                    *px = image::Rgba([255, 192, 203, 255]);
+                }
+            }
+            disc
+        }
+    };
+    let mut canvas = image::RgbaImage::new(LOVE_TILE * 3 + LOVE_GAP * 2, LOVE_TILE);
+    canvas.copy_from(&left, 0, 0).ok()?;
+    canvas.copy_from(&mid, LOVE_TILE + LOVE_GAP, 0).ok()?;
+    canvas
+        .copy_from(&right, (LOVE_TILE + LOVE_GAP) * 2, 0)
+        .ok()?;
+    let mut out = std::io::Cursor::new(Vec::new());
+    image::DynamicImage::ImageRgba8(canvas)
+        .write_to(&mut out, image::ImageFormat::Png)
+        .ok()?;
+    Some(out.into_inner())
+}
+
 /// Fill `love_embed_description`. Mirrors the three TS replaces:
 /// `${user1.username}`, `${user2.username}`, `${randomNumber}`.
 pub fn love_description(template: &str, user1: &str, user2: &str, score: u64) -> String {
@@ -89,12 +149,29 @@ pub async fn love(
     let u2 = user2
         .or_else(|| random_guild_user(&ctx))
         .unwrap_or_else(|| ctx.author().clone());
-    let score = love_roll(u1.id.get(), u2.id.get(), &[]);
-    let (_x, _y, _z) = love_render_vars(&u1.face(), &u2.face());
-    // Image render (`html2png` love template, `.love-container`,
-    // `love.png`) pending; the embed shape (pink, title, description,
-    // timestamp) is ported.
-    let embed = poise::serenity_prelude::CreateEmbed::default()
+    // Forced couples come from the shared config like the TS
+    // `client.config.command.always100` read (see the `user_love`
+    // context command for the same wiring).
+    let score = love_roll(u1.id.get(), u2.id.get(), &ctx.data().config.always100);
+    // Composite `love.png` (avatar | heart | avatar tile strip, the
+    // `image`-crate stand-in for the `love.html` html2png render).
+    // Avatar download failure degrades to the text embed, like the TS
+    // catch path that replies with `love_command_error`.
+    let (avatar1, avatar2) = (
+        crate::commands::shared::download_bytes(&u1.face()).await,
+        crate::commands::shared::download_bytes(&u2.face()).await,
+    );
+    let heart = crate::commands::shared::download_bytes(love_heart_url()).await;
+    let png = match (avatar1, avatar2) {
+        (Some(a1), Some(a2)) => love_composite_png(&a1, &a2, heart.as_deref()),
+        _ => None,
+    };
+    let gid = ctx
+        .guild_id()
+        .map(|g| g.get().to_string())
+        .unwrap_or_default();
+    let (fname, fbytes) = crate::commands::shared::footer_parts(&ctx, &gid).await;
+    let mut embed = poise::serenity_prelude::CreateEmbed::default()
         .colour(0xFFC0CB)
         .title("💕")
         .description(love_description(
@@ -102,12 +179,28 @@ pub async fn love(
                 "**${user1.username}** + **${user2.username}** = __${randomNumber}%__ of love 💗"
                     .to_string()
             }),
-            &u1.name,
-            &u2.name,
+            &love_display_name(&u1),
+            &love_display_name(&u2),
             score,
-        ))
+        ));
+    if png.is_some() {
+        embed = embed.image("attachment://love.png");
+    }
+    embed = crate::commands::shared::embed_with_footer(embed, &fname, fbytes.is_some())
         .timestamp(poise::serenity_prelude::Timestamp::now());
-    if let Err(error) = ctx.send(poise::CreateReply::default().embed(embed)).await {
+    let mut reply = poise::CreateReply::default().embed(embed);
+    if let Some(bytes) = png {
+        reply = reply.attachment(poise::serenity_prelude::CreateAttachment::bytes(
+            bytes, "love.png",
+        ));
+    }
+    if let Some(bytes) = fbytes {
+        reply = reply.attachment(poise::serenity_prelude::CreateAttachment::bytes(
+            bytes,
+            "footer_icon.png",
+        ));
+    }
+    if let Err(error) = ctx.send(reply).await {
         tracing::warn!("love reply failed: {error}");
         ctx.say(
             crate::lang::get(&code, "love_command_error").unwrap_or_else(|| {
@@ -166,5 +259,55 @@ mod love_tests {
         for _ in 0..50 {
             assert!(love_roll(7, 9, &[]) <= 100);
         }
+    }
+
+    #[test]
+    fn display_name_prefers_global_and_truncates_at_15() {
+        assert_eq!(love_display_name_str(Some("Bo"), "bobby"), "Bo");
+        assert_eq!(love_display_name_str(None, "bobby"), "bobby");
+        assert_eq!(
+            love_display_name_str(None, "abcdefghijklmnopqrstuvwxyz"),
+            "abcdefghijklmno"
+        );
+        assert_eq!(
+            love_display_name_str(Some("0123456789abcdef"), "fallback"),
+            "0123456789abcde"
+        );
+    }
+
+    fn test_tile(color: [u8; 4]) -> Vec<u8> {
+        let img = image::RgbaImage::from_pixel(8, 8, image::Rgba(color));
+        let mut out = std::io::Cursor::new(Vec::new());
+        image::DynamicImage::ImageRgba8(img)
+            .write_to(&mut out, image::ImageFormat::Png)
+            .unwrap();
+        out.into_inner()
+    }
+
+    #[test]
+    fn composite_is_1240x400_png() {
+        let a1 = test_tile([255, 0, 0, 255]);
+        let a2 = test_tile([0, 0, 255, 255]);
+        let png = love_composite_png(&a1, &a2, None).expect("composite");
+        assert_eq!(&png[1..4], b"PNG");
+        let img = image::load_from_memory(&png).expect("decode");
+        assert_eq!(
+            (img.width(), img.height()),
+            (LOVE_TILE * 3 + LOVE_GAP * 2, LOVE_TILE)
+        );
+        // Left tile keeps the first avatar color, right tile the second.
+        let rgba = img.to_rgba8();
+        assert_eq!(rgba.get_pixel(0, 0).0, [255, 0, 0, 255]);
+        assert_eq!(
+            rgba.get_pixel(LOVE_TILE * 3 + LOVE_GAP * 2 - 1, 0).0,
+            [0, 0, 255, 255]
+        );
+    }
+
+    #[test]
+    fn composite_rejects_bad_avatars() {
+        let good = test_tile([255, 0, 0, 255]);
+        assert!(love_composite_png(b"not an image", &good, None).is_none());
+        assert!(love_composite_png(&good, b"not an image", None).is_none());
     }
 }
