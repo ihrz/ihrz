@@ -2,9 +2,15 @@
 // Licensed under CC-BY-NC-SA-4.0.
 // Mirrors src/Interaction/HybridCommands/stats/*.
 //
-// TS keys: <guild>.STATS (guild aggregates), <guild>.STATS.USER.<uid>
-// {messages[], voices[]} histories + aggregate counters. Window
-// calculators + ustats periods/top-channels ported (text form).
+// TS keys: <guild>.STATS.USER.<uid> rows shaped like
+// DatabaseStructure.UserStats: `{messages[]?, voices[]?}` histories
+// with camelCase records (sentTimestamp/contentLength/channelId,
+// startTimestamp/endTimestamp) and string channel ids. TS stores no
+// aggregate counters (totals read via `messages.length`, voice time
+// summed from sessions). Rust rows add `{messages, voice_ms,
+// msg_log[], voice_log[]}`; loaders accept both shapes (see
+// `UserStats` deserialization). Window calculators + ustats
+// periods/top-channels ported (text form).
 //
 // PNG note (kept, intentional): the TS top-messages/top-voice/
 // channel-stats cards render HTML via client.func.html2png (puppeteer
@@ -16,29 +22,76 @@ use crate::bot::Ctx;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-/// One message record. Mirrors DatabaseStructure.StatsMessage.
+/// Channel id accepting the TS string form or a number, like the
+/// `ACTIVE_VOICE_SESSIONS.<uid>` `{startTimestamp, channelId}` object
+/// in Events/stats/onVoiceUpdate.ts (discord.js snowflakes serialize
+/// as strings). Lenient: unparsable reads as 0 so one bad record
+/// never zeroes the whole user row.
+fn de_string_or_u64<'de, D>(deserializer: D) -> Result<u64, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    struct ChannelVisitor;
+    impl<'de> serde::de::Visitor<'de> for ChannelVisitor {
+        type Value = u64;
+        fn expecting(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+            f.write_str("a channel id as a number or a numeric string")
+        }
+        fn visit_u64<E: serde::de::Error>(self, v: u64) -> Result<u64, E> {
+            Ok(v)
+        }
+        fn visit_i64<E: serde::de::Error>(self, v: i64) -> Result<u64, E> {
+            Ok(u64::try_from(v).unwrap_or(0))
+        }
+        fn visit_str<E: serde::de::Error>(self, v: &str) -> Result<u64, E> {
+            Ok(v.trim().parse::<u64>().unwrap_or(0))
+        }
+        fn visit_string<E: serde::de::Error>(self, v: String) -> Result<u64, E> {
+            self.visit_str(&v)
+        }
+    }
+    deserializer.deserialize_any(ChannelVisitor)
+}
+
+/// One message record. Mirrors DatabaseStructure.StatsMessage
+/// (`sentTimestamp`/`contentLength`/`channelId`, string ids).
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct StatsMessage {
-    #[serde(default)]
+    #[serde(default, alias = "sentTimestamp")]
     pub sent_ts: i64,
-    #[serde(default)]
+    #[serde(default, alias = "contentLength")]
     pub content_len: u64,
-    #[serde(default)]
+    #[serde(default, alias = "channelId", deserialize_with = "de_string_or_u64")]
     pub channel_id: u64,
 }
 
-/// One closed voice session. Mirrors DatabaseStructure.StatsVoice.
+/// One closed voice session. Mirrors DatabaseStructure.StatsVoice
+/// (`startTimestamp`/`endTimestamp`/`channelId`, string ids).
 #[derive(Debug, Clone, Default, Serialize, Deserialize)]
 pub struct StatsVoice {
-    #[serde(default)]
+    #[serde(default, alias = "startTimestamp")]
     pub start_ts: i64,
-    #[serde(default)]
+    #[serde(default, alias = "endTimestamp")]
     pub end_ts: i64,
-    #[serde(default)]
+    #[serde(default, alias = "channelId", deserialize_with = "de_string_or_u64")]
     pub channel_id: u64,
 }
 
-#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+/// Lenient u64 counter: TS never writes these keys, but legacy rows
+/// may hold numbers, numeric strings, or floats.
+fn counter_from_value(v: &serde_json::Value) -> Option<u64> {
+    match v {
+        serde_json::Value::Number(n) => n.as_u64().or_else(|| {
+            n.as_i64()
+                .and_then(|i| u64::try_from(i).ok())
+                .or_else(|| n.as_f64().filter(|f| *f >= 0.0).map(|f| f as u64))
+        }),
+        serde_json::Value::String(s) => s.trim().parse::<u64>().ok(),
+        _ => None,
+    }
+}
+
+#[derive(Debug, Clone, Default, Serialize)]
 pub struct UserStats {
     #[serde(default)]
     pub messages: u64,
@@ -52,6 +105,75 @@ pub struct UserStats {
     /// Closed voice sessions for window + top-channel stats.
     #[serde(default)]
     pub voice_log: Vec<StatsVoice>,
+}
+
+/// Accepts both row shapes for the same key: the Rust
+/// `{messages: u64, voice_ms, msg_log[], voice_log[]}` row and the TS
+/// DatabaseStructure.UserStats `{messages[]?, voices[]?}` row
+/// (camelCase records, string channel ids, no counters). Mixed rows
+/// merge both logs; explicit numeric counters win, otherwise
+/// `messages` falls back to the merged log length (like
+/// `res.messages?.length || 0` in `!ustats.ts`) and `voice_ms` to the
+/// summed session durations.
+impl<'de> Deserialize<'de> for UserStats {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>,
+    {
+        #[derive(Deserialize, Default)]
+        struct RawUserStats {
+            #[serde(default)]
+            messages: Option<serde_json::Value>,
+            #[serde(default)]
+            voices: Option<serde_json::Value>,
+            #[serde(default)]
+            voice_ms: Option<serde_json::Value>,
+            #[serde(default)]
+            msg_log: Vec<StatsMessage>,
+            #[serde(default)]
+            voice_log: Vec<StatsVoice>,
+        }
+        let raw = RawUserStats::deserialize(deserializer)?;
+        let mut msg_log = raw.msg_log;
+        let mut voice_log = raw.voice_log;
+        let mut messages = None;
+        if let Some(v) = raw.messages.as_ref() {
+            match v {
+                serde_json::Value::Array(items) => {
+                    for item in items {
+                        if let Ok(m) = serde_json::from_value::<StatsMessage>(item.clone()) {
+                            msg_log.push(m);
+                        }
+                    }
+                }
+                other => messages = counter_from_value(other),
+            }
+        }
+        if let Some(serde_json::Value::Array(items)) = raw.voices.as_ref() {
+            for item in items {
+                if let Ok(vc) = serde_json::from_value::<StatsVoice>(item.clone()) {
+                    voice_log.push(vc);
+                }
+            }
+        }
+        let messages = messages.unwrap_or(msg_log.len() as u64);
+        let voice_ms = raw
+            .voice_ms
+            .as_ref()
+            .and_then(counter_from_value)
+            .unwrap_or_else(|| {
+                voice_log
+                    .iter()
+                    .map(|v| (v.end_ts - v.start_ts).max(0) as u64)
+                    .sum()
+            });
+        Ok(UserStats {
+            messages,
+            voice_ms,
+            msg_log,
+            voice_log,
+        })
+    }
 }
 
 /// Caps for the history logs (TS is unbounded; kv rows are not).
@@ -183,6 +305,10 @@ async fn table_value_or_legacy(
         .or(Some(serde_json::Value::String(s)))
 }
 
+/// One user row. Accepts the Rust `{messages, voice_ms, msg_log,
+/// voice_log}` shape and the TS DatabaseStructure.UserStats
+/// `{messages[]?, voices[]?}` shape (camelCase records, string
+/// channel ids, counters derived); see `UserStats` deserialization.
 pub async fn load_stats(pool: &crate::db::Pool, guild_id: &str, user_id: u64) -> UserStats {
     table_value_or_legacy(pool, guild_id, &stats_key(user_id))
         .await
@@ -214,7 +340,9 @@ pub async fn save_stats(
 }
 
 /// Every tracked user row: guild-table `STATS.USER` subtree first,
-/// legacy `STATS.USER.%` rows filling gaps (table wins).
+/// legacy `STATS.USER.%` rows filling gaps (table wins). Each row
+/// parses via the tolerant `UserStats` deserialization, so TS-shaped
+/// `{messages[]?, voices[]?}` rows count alongside Rust rows.
 pub async fn load_all_user_stats(pool: &crate::db::Pool, guild_id: &str) -> Vec<(u64, UserStats)> {
     let mut by_user: HashMap<u64, UserStats> = HashMap::new();
     let backend = guild_backend(pool);
@@ -630,6 +758,51 @@ mod tests {
             content_len: 10,
             channel_id: ch,
         }
+    }
+
+    #[test]
+    fn ts_camelcase_rows_parse_with_string_channel_ids() {
+        // Exact TS DatabaseStructure shapes (onNewMessage.ts:39,
+        // onVoiceUpdate.ts processSessionEnd): camelCase keys, string
+        // channel ids, no aggregate counters.
+        let v: serde_json::Value = serde_json::json!({
+            "messages": [
+                {"sentTimestamp": 1_000, "contentLength": 5, "channelId": "123"},
+                {"sentTimestamp": 2_000, "contentLength": 7, "channelId": 456}
+            ],
+            "voices": [
+                {"startTimestamp": 1_000, "endTimestamp": 61_000, "channelId": "123"}
+            ]
+        });
+        let s: UserStats = serde_json::from_value(v).unwrap();
+        assert_eq!(s.messages, 2);
+        assert_eq!(s.msg_log.len(), 2);
+        assert_eq!(s.msg_log[0].channel_id, 123);
+        assert_eq!(s.msg_log[0].sent_ts, 1_000);
+        assert_eq!(s.msg_log[0].content_len, 5);
+        assert_eq!(s.msg_log[1].channel_id, 456);
+        assert_eq!(s.voice_log.len(), 1);
+        assert_eq!(s.voice_log[0].channel_id, 123);
+        assert_eq!(s.voice_ms, 60_000);
+    }
+
+    #[test]
+    fn rust_counters_win_over_derived_lengths() {
+        // Mixed split-brain row: explicit Rust counters beat the
+        // array-derived fallbacks, logs merge both legs.
+        let v: serde_json::Value = serde_json::json!({
+            "messages": 10,
+            "voice_ms": 999_000,
+            "msg_log": [{"sent_ts": 1, "content_len": 2, "channel_id": 9}],
+            "voices": [
+                {"startTimestamp": 1_000, "endTimestamp": 2_000, "channelId": "9"}
+            ]
+        });
+        let s: UserStats = serde_json::from_value(v).unwrap();
+        assert_eq!(s.messages, 10);
+        assert_eq!(s.voice_ms, 999_000);
+        assert_eq!(s.msg_log.len(), 1);
+        assert_eq!(s.voice_log.len(), 1);
     }
 
     #[test]

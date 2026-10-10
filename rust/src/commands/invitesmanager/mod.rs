@@ -132,9 +132,11 @@ pub async fn post_inv_log(
         .await;
 }
 
-/// Sort desc by invites, stable by user id asc. Mirrors leaderboard tri.
+/// Sort desc by invites. Mirrors `!leaderboard.ts`
+/// (`arr.sort((a, b) => b.invites - a.invites)`): no uid tiebreak,
+/// ties keep input order (stable sort).
 pub fn sort_leaderboard(mut rows: Vec<(u64, InviteStats)>) -> Vec<(u64, InviteStats)> {
-    rows.sort_by(|a, b| b.1.invites.cmp(&a.1.invites).then(a.0.cmp(&b.0)));
+    rows.sort_by(|a, b| b.1.invites.cmp(&a.1.invites));
     rows
 }
 
@@ -296,7 +298,9 @@ mod tests {
     }
 
     #[test]
-    fn leaderboard_sorts_desc_then_id() {
+    fn leaderboard_sorts_desc_like_ts() {
+        // Mirrors `arr.sort((a, b) => b.invites - a.invites)`: desc by
+        // invites, no uid tiebreak, ties keep input order.
         let rows = vec![
             (
                 2,
@@ -322,8 +326,8 @@ mod tests {
         ];
         let sorted = sort_leaderboard(rows);
         assert_eq!(sorted[0].0, 3);
-        assert_eq!(sorted[1].0, 1);
-        assert_eq!(sorted[2].0, 2);
+        assert_eq!(sorted[1].0, 2);
+        assert_eq!(sorted[2].0, 1);
     }
 
     async fn memory_pool() -> crate::db::Pool {

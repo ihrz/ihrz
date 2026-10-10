@@ -276,7 +276,8 @@ pub const BANNER_URL_TEMPLATE: &str =
     "https://www.ihorizon.org/assets/img/banner/ihrz_{countryCode}.png";
 
 /// Banner image URL for a guild language code. Mirrors bannerGenerator
-/// (the TS `|| "en-US"` fallback is applied by guild_banner_url).
+/// (`BANNER_URL` with `{countryCode}` replaced; the TS `|| "en-US"`
+/// fallback is applied by guild_banner_url, not here).
 pub fn banner_url(lang_code: &str) -> String {
     BANNER_URL_TEMPLATE.replace("{countryCode}", lang_code)
 }

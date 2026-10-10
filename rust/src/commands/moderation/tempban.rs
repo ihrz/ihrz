@@ -43,7 +43,19 @@ pub async fn mod_tempban(
         ms = YEAR_MAX_MS;
         overflow = true;
     }
-    let reason_s = reason.clone().unwrap_or_else(|| t("var_no_set"));
+    // Reply/log display mirrors !tempban.ts (`reason || lang.var_no_set`).
+    let reason_s = reason
+        .as_deref()
+        .filter(|s| !s.is_empty())
+        .map(|s| s.to_string())
+        .unwrap_or_else(|| t("var_no_set"));
+    // Audit + stored default mirrors tempbanManager.addban
+    // (`reason || "No reason provided"`): the Discord audit reason and
+    // the DB row never carry the `var_no_set` display fallback.
+    let audit_reason: &str = reason
+        .as_deref()
+        .filter(|s| !s.is_empty())
+        .unwrap_or("No reason provided");
     let no = emoji(&ctx, "No", "❌").await;
     let vc = emoji(&ctx, "VC_OpenChat", "💬").await;
     let guards = guard_data(&ctx, guild_id).await;
@@ -95,13 +107,11 @@ pub async fn mod_tempban(
         return Ok(());
     }
     // Audit reason mirrors tempbanManager.addban
-    // (src/core/modules/tempbanManager.ts): the raw reason text, and
-    // nothing when omitted (`reason || undefined` in !tempban.ts:153-158)
-    // — never the `var_no_set` display fallback, which is reply-only.
-    let ban_res = match reason.as_deref() {
-        Some(r) => guild_id.ban_with_reason(ctx.http(), user.id, 0, r).await,
-        None => guild_id.ban(ctx.http(), user.id, 0).await,
-    };
+    // (src/core/modules/tempbanManager.ts): always a reason string,
+    // defaulting to "No reason provided" when omitted.
+    let ban_res = guild_id
+        .ban_with_reason(ctx.http(), user.id, 0, audit_reason)
+        .await;
     if ban_res.is_err() {
         ctx.say(t("tempban_i_dont_have_permission").replace("${client.iHorizon_Emojis.No}", &no))
             .await?;
@@ -113,7 +123,7 @@ pub async fn mod_tempban(
         &gid,
         &gid,
         &tempban_key(user.id.get()),
-        &serde_json::json!({"expires_at_ms": exp, "reason": reason_s}).to_string(),
+        &serde_json::json!({"expires_at_ms": exp, "reason": audit_reason}).to_string(),
     )
     .await?;
     // Beautified duration in the reply, like TS to_beautiful_string.

@@ -3,7 +3,8 @@ use super::*;
 // Snipe read. Mirrors utils !snipe.ts: the snapshot lives at
 // `GUILD.SNIPE.<channel>` as `{snipe, snipeUserInfoTag, snipeUserInfoPp,
 // snipeTimestamp}` and renders as a #474749 embed (author tag + avatar,
-// description, creation timestamp).
+// description, creation timestamp). Read path only; the writer leg lives
+// in `events_handler.rs`.
 //
 // Key-reunification note (E7): the early Rust port wrote/parsed its own
 // `SNIPE.<channel>` `{author, content}` shape plus a

@@ -172,7 +172,8 @@ pub fn parse_legacy_timestamp(raw: &str) -> Option<i64> {
 
 /// Parse one legacy text-log line:
 /// `[timestamp] "guild" #channel: user: command`.
-/// Mirrors parseLine (channelId is always "0" there).
+/// Mirrors parseLine (channelId is always "0" there: that "0" marker is
+/// kept verbatim, never resolved to a real channel).
 pub fn parse_legacy_line(line: &str) -> Option<ParsedSavedCommand> {
     let line = line.trim();
     let rest = line.strip_prefix('[')?;

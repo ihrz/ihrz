@@ -61,10 +61,11 @@ pub fn roles_earned(
 
 /// Bounded name-history push. Mirrors prevnamesModule.ts (userUpdate +
 /// guildMemberUpdate): TS `prevnamesTable.push` appends, so storage is
-/// oldest-first and the pager displays oldest-first too. Cap and
-/// consecutive-dedup are kept (dedup checks the tail, the cap drops the
-/// oldest); no relayout beyond that. NOTE: rows written newest-first by
-/// older builds keep their order; only new pushes follow this layout.
+/// oldest-first and the pager displays oldest-first too (no relayout:
+/// the pager reads storage order as-is). Cap and consecutive-dedup are
+/// kept (dedup checks the tail, the cap drops the oldest); no relayout
+/// beyond that. NOTE: rows written newest-first by older builds keep
+/// their order; only new pushes follow this layout.
 pub fn push_prevname(mut history: Vec<String>, name: &str, cap: usize) -> Vec<String> {
     let name = name.to_string();
     if history.last().map(|l| l == &name).unwrap_or(false) {

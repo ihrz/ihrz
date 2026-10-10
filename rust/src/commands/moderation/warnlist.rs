@@ -82,6 +82,9 @@ pub async fn mod_warnlist(
                     .replace("${x.id}", &w.id)
                     .replace(
                         "${format(x.timestamp, 'DD/MM/YYYY')}",
+                        // VERDICT (UTC, kept deliberately): the TS `format`
+                        // helper reads local-time getters while this port
+                        // formats UTC; warn dates stay UTC here by design.
                         &escape_warn_field(&crate::funcs::format_date(w.at / 1000, "DD/MM/YYYY")),
                     )
                     .replace("${x.authorID}", &escape_warn_field(&author_mention(w, &unknown)))

@@ -9,6 +9,7 @@ use super::*;
 // option is required). The invoker fallback still documented inside
 // `social_gif` is unreachable defensive cover; single deny lives there
 // too (see below).
+/// Slap a member with a social GIF embed. Mirrors fun !slap.ts.
 #[poise::command(slash_command, prefix_command, category = "fun", rename = "slap")]
 pub async fn slap(
     ctx: Ctx<'_>,

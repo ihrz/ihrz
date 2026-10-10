@@ -7,8 +7,9 @@ fn display_name<'a>(global_name: Option<&'a str>, name: &'a str) -> &'a str {
     global_name.filter(|s| !s.is_empty()).unwrap_or(name)
 }
 
-/// Description layout mirrors !baninfo.ts: emoji labels plus a relative
-/// `<t:...:R>` timestamp (discord.js `time()` defaults to relative).
+/// Description layout mirrors !baninfo.ts: emoji labels plus a short
+/// datetime `<t:...>` timestamp (discord.js `time()` with no style
+/// defaults to ShortDateTime).
 fn render_description(
     date_label: &str,
     by_label: &str,
@@ -18,7 +19,7 @@ fn render_description(
     reason: &str,
 ) -> String {
     format!(
-        "> 🕒 **{date_label}:** <t:{when}:R>\n> 👤 **{by_label}:** {executor}\n> 📝 **{reason_label}:** {reason}"
+        "> 🕒 **{date_label}:** <t:{when}>\n> 👤 **{by_label}:** {executor}\n> 📝 **{reason_label}:** {reason}"
     )
 }
 
@@ -113,7 +114,7 @@ mod tests {
             "mod#1",
             "spam",
         );
-        assert!(d.contains("> 🕒 **Ban date:** <t:1700000000:R>"));
+        assert!(d.contains("> 🕒 **Ban date:** <t:1700000000>"));
         assert!(d.contains("> 👤 **Banned by:** mod#1"));
         assert!(d.contains("> 📝 **Reason:** spam"));
     }

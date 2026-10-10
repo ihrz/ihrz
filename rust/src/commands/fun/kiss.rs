@@ -7,6 +7,7 @@ use super::*;
 // intentionally dropped. The invoker fallback still documented inside
 // `social_gif` is unreachable defensive cover; single deny lives there
 // too (see below).
+/// Kiss a member with a social GIF embed. Mirrors fun !kiss.ts.
 #[poise::command(slash_command, prefix_command, category = "fun", rename = "kiss")]
 pub async fn kiss(
     ctx: Ctx<'_>,

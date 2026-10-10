@@ -873,10 +873,15 @@ pub async fn animal_pic(
     Ok(())
 }
 
-/// Shared percent-of-a-user reply. Mirrors !gay.ts / !stench.ts
+/// Shared percent-of-a-user reply. Mirrors !gay.ts / !stench.ts / !trans.ts
 /// (random 0..100, `${user}` + `${random}` replacements).
-/// The target stays optional like the TS `user` option (required: false):
-/// no target means the invoker rates themselves (author fallback, kept).
+/// The target stays optional like the TS `user` option (required: false).
+/// VERDICT (slash-empty, kept deliberately): on slash TS renders an
+/// empty mention when the option is omitted
+/// (`user?.toString() || ""`), while prefix falls back to the invoker
+/// (`... || interaction.member!`). This port always rates the invoker
+/// when no target is given on either path, so a bare slash call still
+/// produces a mention instead of an empty `${user}` slot.
 pub async fn percent_user(
     ctx: &Ctx<'_>,
     user: Option<poise::serenity_prelude::User>,

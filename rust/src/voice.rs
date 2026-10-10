@@ -16,7 +16,8 @@
 // refusal), and the h247/TTS joins carry their own guard chains
 // (commands/h247/join.rs, commands/tts/join.rs). A central
 // refuse-style guard would mis-model the TS TTS leg, which cleans up
-// and proceeds instead of refusing.
+// and proceeds instead of refusing. Conflict verdicts live at those
+// call sites; do not add one here.
 
 /// Music source providers mirrored from musicPlay.ts routing.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

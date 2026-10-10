@@ -1,6 +1,6 @@
 use super::*;
 
-/// Remove Streamer/Youtuber/Twitcher
+/// Remove a blog RSS feed
 #[poise::command(
     slash_command,
     prefix_command,

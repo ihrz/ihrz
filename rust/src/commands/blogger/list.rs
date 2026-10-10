@@ -1,6 +1,6 @@
 use super::*;
 
-/// List all sticky channels
+/// Show all configured blog RSS feeds
 #[poise::command(
     slash_command,
     prefix_command,

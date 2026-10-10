@@ -3338,6 +3338,7 @@ pub async fn send_welcomer_message(
 /// (plus the text content when enabled); without one the text falls
 /// back to the accent-colored snapshot embed above. Returns the send
 /// result so the caller can run the TS default-template fallback leg.
+#[allow(clippy::result_large_err)]
 pub async fn send_leave_message(
     http: &serenity::Http,
     channel_id: serenity::ChannelId,
@@ -5386,7 +5387,7 @@ impl serenity::EventHandler for Handler {
                             &ctx.http,
                             channel_id,
                             &user,
-                            text_enabled.then(|| fallback),
+                            text_enabled.then_some(fallback),
                             None,
                         )
                         .await;

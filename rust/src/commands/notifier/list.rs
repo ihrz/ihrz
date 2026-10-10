@@ -1,6 +1,6 @@
 use super::*;
 
-/// List all sticky channels
+/// Show Streamer/Youtuber/Twitcher
 #[poise::command(
     slash_command,
     prefix_command,

@@ -1,14 +1,8 @@
 // iHorizon Discord Bot (https://gitlab.com/ihrz/ihrz)
 // Licensed under CC-BY-NC-SA-4.0.
-// Stream + article notifiers. Mirrors src/core/StreamNotifier.ts
-// (Twitch/YouTube/Kick poll every 120s) + Blogger.ts (rss-parser every
-// 60s) dedup logic: only announce when the latest id differs from the
-// stored one. HTTP polling wiring is pending; dedup + embed shaping here.
-//
-// Note: the live announce gate is scheduler::pending_notifier_media
-// (row match on user + media id / timestamp); the trivial
-// last-vs-latest string helper that used to live here was deleted as
-// dead code — no caller used it.
+// Counting-room game. Mirrors src/Events/counter/onNewMessage.ts:
+// a message only counts when its number equals the last amount + 1
+// (from a different user); anything else leaves the count to reset.
 
 /// Strict counter check. Mirrors Events/counter/onNewMessage.ts: the
 /// message must equal last+1, else the counter resets.

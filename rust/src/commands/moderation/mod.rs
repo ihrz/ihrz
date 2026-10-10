@@ -431,7 +431,7 @@ pub async fn warn_member_with_author(
                 .replace("${warnObject.reason}", w.reason)
                 .replace("${author.user.username}", w.author_name)
                 .replace("${author.roles.highest.name}", &top_role)
-                .replace("${time}", &format!("<t:{}:R>", at / 1000)),
+                .replace("${time}", &format!("<t:{}>", at / 1000)),
         );
     let row = serenity::CreateActionRow::Buttons(vec![serenity::CreateButton::new(format!(
         "guild-id-{}",

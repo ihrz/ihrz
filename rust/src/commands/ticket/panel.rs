@@ -429,9 +429,22 @@ pub async fn ticket_panel(
         .await?;
     let mut msg = handle.into_message().await?;
     let sctx = ctx.serenity_context().clone();
+    // Slash-only tutorial follow-up (!panel.ts:356-360): ephemeral
+    // youtu.be link once the editor is up. Prefix has no follow-up leg.
+    if let poise::Context::Application(app_ctx) = ctx {
+        let _ = app_ctx
+            .interaction
+            .create_followup(
+                ctx.http(),
+                serenity::CreateInteractionResponseFollowup::new()
+                    .content("https://youtu.be/TehLPQ_WCwQ")
+                    .ephemeral(true),
+            )
+            .await;
+    }
 
     loop {
-        let Some(pick) = next_pick(&msg, &sctx, author).await else {
+        let Some(pick) = next_pick(&msg, &sctx, author, &t("help_not_for_you")).await else {
             break;
         };
         if pick.data.custom_id == EDITOR_SEND_ID {
@@ -545,11 +558,28 @@ async fn next_pick(
     msg: &serenity::Message,
     sctx: &serenity::Context,
     author: serenity::UserId,
+    not_for_you: &str,
 ) -> Option<serenity::ComponentInteraction> {
-    msg.await_component_interaction(sctx.shard.clone())
-        .author_id(author)
-        .timeout(Duration::from_secs(STEP_TIMEOUT_SECS))
-        .await
+    // Mirrors the TS collectors' `i.user.id !== invoker` guard
+    // (!panel.ts:378,390,834,909,...): stranger presses get an
+    // ephemeral `help_not_for_you` reply and the wait continues for
+    // the invoker instead of silently dropping the press.
+    let deadline = std::time::Instant::now() + Duration::from_secs(STEP_TIMEOUT_SECS);
+    loop {
+        let remaining = deadline.saturating_duration_since(std::time::Instant::now());
+        if remaining.is_zero() {
+            return None;
+        }
+        let pick = msg
+            .await_component_interaction(sctx.shard.clone())
+            .timeout(remaining)
+            .await?;
+        if pick.user.id != author {
+            ephemeral(sctx, &pick, not_for_you.to_string()).await;
+            continue;
+        }
+        return Some(pick);
+    }
 }
 
 fn editor_rows(t: &(dyn Fn(&str) -> String + Send + Sync)) -> Vec<serenity::CreateActionRow> {
@@ -777,7 +807,9 @@ async fn ephemeral(
 }
 
 /// Pick one option index via an in-place string select. Mirrors
-/// selectOption (customId + prompt + single collect).
+/// selectOption (customId + prompt + single collect): with no options
+/// the editor shows `ticket_panel_remove_option_empty` and the step
+/// ends (!panel.ts:783-798), like the TS null return.
 async fn pick_option_index(
     sctx: &serenity::Context,
     msg: &mut serenity::Message,
@@ -787,6 +819,12 @@ async fn pick_option_index(
     prompt_key: &str,
 ) -> Option<(usize, serenity::ComponentInteraction)> {
     if panel.config.option_fields.is_empty() {
+        let _ = msg
+            .edit(
+                &sctx.http,
+                serenity::EditMessage::new().content(t("ticket_panel_remove_option_empty")),
+            )
+            .await;
         return None;
     }
     let options = panel
@@ -814,7 +852,7 @@ async fn pick_option_index(
                 .components(vec![serenity::CreateActionRow::SelectMenu(menu)]),
         )
         .await;
-    let pick = next_pick(msg, sctx, author).await?;
+    let pick = next_pick(msg, sctx, author, &t("help_not_for_you")).await?;
     if pick.data.custom_id != OPT_PICK_ID {
         return None;
     }
@@ -833,13 +871,17 @@ async fn pick_option_index(
 
 /// Add/remove submenu. Mirrors the changeOption/changeForm selects.
 /// Returns (is_add, live_sub_pick): the sub-pick is unacknowledged so
-/// callers can show a modal on it for the add path.
+/// callers can show a modal on it for the add path. The placeholder
+/// differs per flow: `ticket_panel_change_option_select_placeholder`
+/// for changeOption/changeForm (!panel.ts:1321,1491) but `var_action`
+/// for the per-option form select (!panel.ts:874).
 async fn pick_add_or_remove(
     sctx: &serenity::Context,
     msg: &mut serenity::Message,
     author: serenity::UserId,
     t: &(dyn Fn(&str) -> String + Send + Sync),
     prompt: String,
+    placeholder_key: &str,
     add_label_key: &str,
     remove_label_key: &str,
 ) -> Option<(bool, serenity::ComponentInteraction)> {
@@ -851,7 +893,7 @@ async fn pick_add_or_remove(
         ADD_REMOVE_ID,
         serenity::CreateSelectMenuKind::String { options },
     )
-    .placeholder(t("ticket_panel_change_option_select_placeholder"));
+    .placeholder(t(placeholder_key));
     let _ = msg
         .edit(
             &sctx.http,
@@ -860,7 +902,7 @@ async fn pick_add_or_remove(
                 .components(vec![serenity::CreateActionRow::SelectMenu(menu)]),
         )
         .await;
-    let pick = next_pick(msg, sctx, author).await?;
+    let pick = next_pick(msg, sctx, author, &t("help_not_for_you")).await?;
     if pick.data.custom_id != ADD_REMOVE_ID {
         return None;
     }
@@ -911,7 +953,7 @@ async fn pick_roles(
                 .components(vec![serenity::CreateActionRow::SelectMenu(menu)]),
         )
         .await;
-    let pick = next_pick(msg, sctx, author).await?;
+    let pick = next_pick(msg, sctx, author, &t("help_not_for_you")).await?;
     if pick.data.custom_id != ROLE_PICK_ID {
         return None;
     }
@@ -951,7 +993,7 @@ async fn pick_category(
                 .components(vec![serenity::CreateActionRow::SelectMenu(menu)]),
         )
         .await;
-    let pick = next_pick(msg, sctx, author).await?;
+    let pick = next_pick(msg, sctx, author, &t("help_not_for_you")).await?;
     if pick.data.custom_id != CATEGORY_PICK_ID {
         return None;
     }
@@ -1106,6 +1148,7 @@ async fn run_editor_step(
                 author,
                 t,
                 t("ticket_panel_change_option_interaction_content"),
+                "ticket_panel_change_option_select_placeholder",
                 "ticket_panel_change_option_select_1_label",
                 "ticket_panel_change_option_select_2_label",
             )
@@ -1322,6 +1365,7 @@ async fn run_panel_form_step(
         author,
         t,
         t("ticket_panel_change_form_interaction_content"),
+        "ticket_panel_change_option_select_placeholder",
         "ticket_panel_change_form_select_placeholder_1",
         "ticket_panel_change_form_select_placeholder_2",
     )
@@ -1351,6 +1395,14 @@ async fn run_panel_form_step(
         .create_response(&sctx.http, serenity::CreateInteractionResponse::Acknowledge)
         .await;
     if panel.config.form.is_empty() {
+        // Mirrors removeForm's empty leg (!panel.ts:1597-1611): the
+        // editor shows `ticket_panel_remove_option_empty`.
+        let _ = msg
+            .edit(
+                &sctx.http,
+                serenity::EditMessage::new().content(t("ticket_panel_remove_option_empty")),
+            )
+            .await;
         return Ok(false);
     }
     let options = panel
@@ -1378,7 +1430,7 @@ async fn run_panel_form_step(
                 .components(vec![serenity::CreateActionRow::SelectMenu(menu)]),
         )
         .await;
-    let Some(rm) = next_pick(msg, sctx, author).await else {
+    let Some(rm) = next_pick(msg, sctx, author, &t("help_not_for_you")).await else {
         return Ok(false);
     };
     let idx: Option<usize> = match &rm.data.kind {
@@ -1430,6 +1482,7 @@ async fn run_option_form_step(
         t,
         t("ticket_panel_manage_form_title")
             .replace("${option.name}", &panel.config.option_fields[idx].name),
+        "var_action",
         "ticket_panel_add_a_question",
         "ticket_panel_remove_a_question",
     )
@@ -1455,12 +1508,17 @@ async fn run_option_form_step(
         panel.config.option_fields[idx].form = target;
         return Ok(added);
     }
+    if panel.config.option_fields[idx].form.is_empty() {
+        // Mirrors changeTicketFormsOptions' remove leg (!panel.ts:963-971):
+        // nothing to delete answers `ticket_panel_no_question_to_delete`
+        // ephemeral instead of ending silently. Replies before any ack so
+        // the token is still live, like the TS reply-before-deferUpdate.
+        ephemeral(sctx, &sub, t("ticket_panel_no_question_to_delete")).await;
+        return Ok(false);
+    }
     let _ = sub
         .create_response(&sctx.http, serenity::CreateInteractionResponse::Acknowledge)
         .await;
-    if panel.config.option_fields[idx].form.is_empty() {
-        return Ok(false);
-    }
     let options = panel.config.option_fields[idx]
         .form
         .iter()
@@ -1485,7 +1543,7 @@ async fn run_option_form_step(
                 .components(vec![serenity::CreateActionRow::SelectMenu(menu)]),
         )
         .await;
-    let Some(rm) = next_pick(msg, sctx, author).await else {
+    let Some(rm) = next_pick(msg, sctx, author, &t("help_not_for_you")).await else {
         return Ok(false);
     };
     let rm_idx: Option<usize> = match &rm.data.kind {
@@ -1596,15 +1654,29 @@ async fn run_form_add_modal(
     } else {
         t(title_key)
     };
+    // Per-option form modal (!panel.ts:924-946): title
+    // `ticket_panel_add_a_question`, second field
+    // `roleselect_modal2_label`. The panel-level modal keeps
+    // `ticket_panel_add_form_modal_title` + field2 label (!panel.ts:1555).
+    let modal_title = if modal_id == MODAL_FORM_OPT_ADD {
+        t("ticket_panel_add_a_question")
+    } else {
+        t("ticket_panel_add_form_modal_title")
+    };
+    let placeholder_label = if modal_id == MODAL_FORM_OPT_ADD {
+        t("roleselect_modal2_label")
+    } else {
+        t("ticket_panel_add_form_modal_field2_label")
+    };
     let Some(submit) = show_modal(
         sctx,
         sub_pick,
         modal_id,
-        t("ticket_panel_add_form_modal_title"),
+        modal_title,
         vec![
             (title_label, "title".to_string(), true, 1, 128),
             (
-                t("ticket_panel_add_form_modal_field2_label"),
+                placeholder_label,
                 "placeholder".to_string(),
                 false,
                 0,
@@ -1751,7 +1823,7 @@ async fn run_send_flow(
                 .components(vec![serenity::CreateActionRow::SelectMenu(menu)]),
         )
         .await;
-    let Some(chan_pick) = next_pick(msg, sctx, pick.user.id).await else {
+    let Some(chan_pick) = next_pick(msg, sctx, pick.user.id, &t("help_not_for_you")).await else {
         return Ok(false);
     };
     if chan_pick.data.custom_id != CHANNEL_SEND_PICK_ID {

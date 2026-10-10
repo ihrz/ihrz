@@ -195,23 +195,33 @@ pub async fn mod_timeout(
         .await;
     }
     // Unmute notice. Mirrors the setTimeout in !tempmute.ts:186-197, which
-    // checks the CAPTURED `tomute` object (`isCommunicationDisabled()` on
-    // the stale snapshot, never a re-fetch): at expiry the stamped until
-    // has passed (and the pre-mute gate already ruled out an active
-    // timeout), so the check is practically never true and the notice
-    // practically never posts. Mirrored here, not "fixed" with a fresh
-    // fetch — the stale `until` below plays the captured object.
+    // checks `tomute.isCommunicationDisabled()` at expiry. The captured
+    // discord.js member reflects live gateway state, so re-check the live
+    // timeout here (fresh member fetch) before announcing instead of
+    // trusting the stamped `until` below.
     const NO_WARN_WINDOW_MS: i64 = 604_800_000;
     if ms <= NO_WARN_WINDOW_MS && ms > 0 {
         let http = ctx.serenity_context().http.clone();
         let channel_id = ctx.channel_id();
         let lang_code_task = code.clone();
         let user_id = user.id;
+        let guild_id_task = guild_id;
         let stale_until_ms = until.unix_timestamp() * 1000;
         let wait = ms as u64;
         tokio::spawn(async move {
             tokio::time::sleep(std::time::Duration::from_millis(wait)).await;
-            if stale_until_ms > crate::bot::now_ms() {
+            // Live re-check before announce: the timeout may have been
+            // extended (still muted -> announce) or lifted early
+            // (no longer muted -> stay silent). A failed fetch falls back
+            // to the stamped expiry comparison.
+            let still_muted = match http.get_member(guild_id_task, user_id).await {
+                Ok(m) => m
+                    .communication_disabled_until
+                    .map(|t| t.unix_timestamp() * 1000 > crate::bot::now_ms())
+                    .unwrap_or(false),
+                Err(_) => stale_until_ms > crate::bot::now_ms(),
+            };
+            if still_muted {
                 let text = crate::lang::get(&lang_code_task, "tempmute_unmuted_by_time")
                     .map(|s| s.replace("${tomute.id}", &user_id.get().to_string()))
                     .unwrap_or_else(|| format!("<@{}> has been unmuted!", user_id.get()));

@@ -1,6 +1,6 @@
 use super::*;
 
-/// Reset profil
+/// Delete all data of InviteManager in the guild
 #[poise::command(
     slash_command,
     prefix_command,

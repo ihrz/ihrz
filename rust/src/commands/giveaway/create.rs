@@ -8,20 +8,28 @@ pub fn validate_winners(n: i64) -> bool {
     n > 0
 }
 
-/// Parse the raw winner input, like `getNumber` + `parseInt` in
-/// !create.ts:60-85. The slash schema types `winner` as Number (gw.ts),
-/// so fractional input (2.5) reaches the handler as a float; TS
-/// `parseInt("2.5")` truncates to 2 for the guard but stores the raw
-/// float as `winnerCount` (create() passes it through). Ceiling instead
-/// (2.5 -> 3) so the stored u32 count covers the requested winners;
-/// unparseable, non-finite or non-positive input maps to 0 so the
-/// `start_is_not_valid` guard below rejects it in-handler.
+/// Map a winner count to the stored count. Mirrors `getNumber("winner")`
+/// (slash Number, gw.ts) + `number(args, 0)` (prefix) with the
+/// `isNaN || parseInt(...) <= 0` guard in !create.ts:77-85:
+/// non-finite or non-positive input maps to 0 so the
+/// `start_is_not_valid` guard below rejects it in-handler. Fractions
+/// ceil (2.5 -> 3, kept) so the stored u32 count covers the requested
+/// winners.
+pub fn winners_from_number(n: f64) -> i64 {
+    if !n.is_finite() || n <= 0.0 {
+        0
+    } else {
+        n.ceil() as i64
+    }
+}
+
+/// Parse the raw prefix winner word, like `number(args, 0)` in
+/// !create.ts:60-85, through the same Number guard above.
 pub fn parse_winners_count(raw: &str) -> i64 {
     raw.trim()
         .parse::<f64>()
         .ok()
-        .filter(|n| n.is_finite() && *n > 0.0)
-        .map(|n| n.ceil() as i64)
+        .map(winners_from_number)
         .unwrap_or(0)
 }
 
@@ -135,12 +143,13 @@ pub async fn gw_create(
     ctx: Ctx<'_>,
     // Option (not required): TS reads `getNumber("winner")` /
     // `number(args, 0)` (both nullable, !create.ts) while the slash
-    // schema marks it required (gw.ts). A missing/invalid count fails
-    // the in-handler guard and answers `start_is_not_valid` instead of
-    // a poise parse error on the bare form.
+    // schema marks it required (gw.ts). Poise types it as f64 so the
+    // slash path carries a true Number like gw.ts; a missing/invalid
+    // count fails the in-handler guard and answers `start_is_not_valid`
+    // instead of a poise parse error on the bare form.
     #[description = "Winners"]
     #[rename = "winner"]
-    winners: Option<String>,
+    winners: Option<f64>,
     #[description = "Duration (e.g. 10m, 1h, 7d)"] time: String,
     // Option (not required): TS reads `getString("requirement")` /
     // `string(args, 2)` (both nullable, !create.ts) while the slash
@@ -162,11 +171,11 @@ pub async fn gw_create(
     let code_early = crate::db::guild_lang(pool_early, ctx.guild_id().map(|g| g.get())).await;
     // Mirrors !create.ts:77-85 (raw count validated in-handler:
     // NaN / <= 0 -> start_is_not_valid). Both paths carry the raw
-    // string (prefix `number(args, 0)`, slash Number option), parsed
-    // here like the TS getNumber + parseInt. Missing (None) parses to
-    // 0 like the TS NaN path, so the guard below answers
-    // `start_is_not_valid`.
-    let winners = parse_winners_count(winners.as_deref().unwrap_or(""));
+    // Number (slash f64 option, prefix word parsed as f64), mapped
+    // here through the TS getNumber + parseInt guard with ceil kept.
+    // Missing (None) maps to 0 like the TS NaN path, so the guard
+    // below answers `start_is_not_valid`.
+    let winners = winners.map(winners_from_number).unwrap_or(0);
     if !validate_winners(winners) {
         ctx.say(crate::lang::get(&code_early, "start_is_not_valid").unwrap_or_default())
             .await?;
@@ -377,6 +386,21 @@ mod tests {
         assert!(!validate_winners(-3));
         assert!(validate_winners(1));
         assert!(validate_winners(20));
+    }
+
+    #[test]
+    fn winners_number_maps_like_ts_get_number() {
+        // Slash Number (f64) through the same guard: fractions ceil kept,
+        // non-finite / non-positive map to 0 for `start_is_not_valid`.
+        assert_eq!(winners_from_number(3.0), 3);
+        assert_eq!(winners_from_number(2.5), 3);
+        assert_eq!(winners_from_number(3.9), 4);
+        assert_eq!(winners_from_number(0.0), 0);
+        assert_eq!(winners_from_number(-2.0), 0);
+        assert_eq!(winners_from_number(f64::NAN), 0);
+        assert_eq!(winners_from_number(f64::INFINITY), 0);
+        assert!(validate_winners(winners_from_number(2.5)));
+        assert!(!validate_winners(winners_from_number(f64::NAN)));
     }
 
     #[test]

@@ -15,7 +15,7 @@ pub fn platform_supported(p: &str) -> bool {
     super::valid_platform(p) && !p.eq_ignore_ascii_case("kick")
 }
 
-/// Add a role for a certain amount of money!
+/// Add Streamer/Youtuber/Twitcher
 #[poise::command(
     slash_command,
     prefix_command,

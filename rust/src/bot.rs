@@ -411,7 +411,7 @@ fn slash_invocation(path: &str) -> String {
 /// Guild-wide Administrator check (owner counts, like TS
 /// `permissions.has(Administrator)`). Missing guild/member/cache data
 /// falls back to false, mirroring the TS optional chaining.
-// Scoped allow: covers only the deprecated `Member::permissions(&cache)`
+// Scoped deprecated-use allow: covers only the `Member::permissions`
 // call below (serenity suggests `Guild::user_permissions_in`, which drops
 // overwrite handling — do not migrate blindly). Re-evaluate on serenity
 // upgrade; do not broaden to the whole module.

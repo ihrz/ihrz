@@ -1,7 +1,7 @@
 use super::*;
 use poise::serenity_prelude as serenity;
 
-/// Add a role for a certain amount of money!
+/// Add a blog RSS feed
 #[poise::command(
     slash_command,
     prefix_command,
