@@ -211,11 +211,12 @@ pub fn config_embed(
         )
 }
 
-/// Entry lookup. Mirrors authorExist (platform + id match).
+/// Entry lookup. Mirrors authorExist (exact platform + id match,
+/// `===` on both fields).
 pub fn entry_exists(entries: &[NotifierEntry], platform: &str, author: &str) -> bool {
     entries
         .iter()
-        .any(|e| e.platform.eq_ignore_ascii_case(platform) && e.id_or_username == author)
+        .any(|e| e.platform == platform && e.id_or_username == author)
 }
 
 /// Dedup helper. Mirrors the JSON-stringify uniqueness filter in
@@ -318,16 +319,19 @@ mod tests {
     }
 
     #[test]
-    fn entry_lookup_is_platform_scoped() {
+    fn entry_lookup_is_exact_on_both_fields() {
         let entries = vec![NotifierEntry {
             id_or_username: "ninja".into(),
             platform: "twitch".into(),
         }];
         assert!(entry_exists(&entries, "twitch", "ninja"));
-        assert!(entry_exists(&entries, "TWITCH", "ninja"));
+        // TS `===`: platform casing matters.
+        assert!(!entry_exists(&entries, "TWITCH", "ninja"));
         // Same author on another platform is a different watch.
         assert!(!entry_exists(&entries, "youtube", "ninja"));
         assert!(!entry_exists(&entries, "twitch", "other"));
+        // Surrounding whitespace is significant (no trim).
+        assert!(!entry_exists(&entries, "twitch", " ninja"));
     }
 
     #[test]

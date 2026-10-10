@@ -541,6 +541,9 @@ pub async fn load_protection_rows(pool: &crate::db::Pool, gid: &str) -> Vec<(Str
 
 /// All ALLOWLIST.list.* key names: guild-table subtree first, legacy
 /// kv rows filling gaps. Mirrors the ticket TICKET_ALL prefix scan.
+/// Verdict (kept, nested on purpose): the `ALLOWLIST.list.<uid>` nesting
+/// mirrors the TS `${gid}.ALLOWLIST.list.${uid}` rows verbatim — keep it
+/// nested and deliberate, never flattened to a bare uid set.
 pub async fn load_allowlist(pool: &crate::db::Pool, gid: &str) -> Vec<String> {
     use crate::commands::owner::main as routed;
     let mut ids = std::collections::HashSet::new();

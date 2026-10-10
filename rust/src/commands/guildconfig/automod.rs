@@ -118,17 +118,17 @@ pub const SPAM_RULE_NAME: &str = "Block spam by iHorizon";
 pub const MASS_RULE_NAME: &str = "Block mass-mention spam by iHorizon";
 
 /// Default `max-mention-allowed` (`!mass-mention.ts`
-/// `getNumber(...) || 3`). Discord caps the limit at 50.
+/// `getNumber(...) || 3`). Passed straight through to Discord like the
+/// TS `mentionTotalLimit: max_mention` (no clamp).
 pub const DEFAULT_MAX_MENTION: u8 = 3;
-pub const MAX_MENTION_LIMIT: u8 = 50;
 
-/// Clamp a `max-mention-allowed` value to Discord's 1-50 range,
-/// falling back to 3 like the TS `|| 3`. Pure for testability.
-pub fn clamp_mention_limit(n: i64) -> u8 {
-    if (1..=MAX_MENTION_LIMIT as i64).contains(&n) {
-        n as u8
-    } else {
-        DEFAULT_MAX_MENTION
+/// Resolve the `max-mention-allowed` option the way TS does:
+/// `getNumber(...) || 3` — absent or zero falls back to 3, any other
+/// value passes through untouched. Pure for testability.
+pub fn mention_limit(max_mention: Option<i64>) -> u8 {
+    match max_mention {
+        Some(n) if n != 0 => n as u8,
+        _ => DEFAULT_MAX_MENTION,
     }
 }
 
@@ -533,7 +533,7 @@ pub async fn gc_automod_mass(
         .map(|g| g.get().to_string())
         .unwrap_or_default();
     let enabled = matches!(action.to_ascii_lowercase().as_str(), "on" | "power on");
-    let limit = clamp_mention_limit(max_mention.unwrap_or(DEFAULT_MAX_MENTION as i64));
+    let limit = mention_limit(max_mention);
     let pool = &ctx.data().pool;
     let synced = if let Some(guild_id) = ctx.guild_id() {
         sync_mention_rule(
@@ -690,13 +690,16 @@ mod tests {
     }
 
     #[test]
-    fn mention_limit_defaults_to_3_and_caps_at_50() {
-        assert_eq!(clamp_mention_limit(3), 3);
-        assert_eq!(clamp_mention_limit(10), 10);
-        assert_eq!(clamp_mention_limit(50), 50);
-        assert_eq!(clamp_mention_limit(0), DEFAULT_MAX_MENTION);
-        assert_eq!(clamp_mention_limit(-1), DEFAULT_MAX_MENTION);
-        assert_eq!(clamp_mention_limit(51), DEFAULT_MAX_MENTION);
+    fn mention_limit_passthrough_with_fallback_3() {
+        // `|| 3`: absent or zero falls back to 3, everything else
+        // passes straight through (no clamp).
+        assert_eq!(mention_limit(None), 3);
+        assert_eq!(mention_limit(Some(0)), DEFAULT_MAX_MENTION);
+        assert_eq!(mention_limit(Some(3)), 3);
+        assert_eq!(mention_limit(Some(10)), 10);
+        assert_eq!(mention_limit(Some(50)), 50);
+        assert_eq!(mention_limit(Some(51)), 51);
+        assert_eq!(mention_limit(Some(-1)), 255);
     }
 
     #[test]

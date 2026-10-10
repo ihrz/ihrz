@@ -2156,9 +2156,7 @@ impl Handler {
                     .ban_with_reason(http, serenity::UserId::new(user_id), 0, "Spamming!")
                     .await;
             }
-            _ => {
-                // "kick" and unknown values fall through to kick, like
-                // the TS switch (mute / ban / kick arms).
+            "kick" => {
                 if !bot_perms.kick_members() {
                     return;
                 }
@@ -2169,6 +2167,10 @@ impl Handler {
                     .kick_with_reason(http, serenity::UserId::new(user_id), "Spamming!")
                     .await;
             }
+            // No default arm in the TS switch (onNewMessage.ts punish
+            // branch): an unknown punishment type is a no-op. Verdict
+            // (kept): never fall through to kick here.
+            _ => {}
         }
     }
 
@@ -2504,10 +2506,11 @@ impl Handler {
         }
         // Mode enforcement mirrors avoid*.ts: `allowlist` sanctions
         // anyone without an allowlist entry; `nobody` sanctions anyone
-        // but the guild owner. Verdict (kept): the allowlist lookup runs
-        // only in `allowlist` mode, exactly like the TS
-        // `if (data.<rule>.mode === "allowlist")` branch — no cross-mode
-        // allowlist exemption exists in either path.
+        // but the guild owner. Verdict (kept, nested on purpose): the
+        // allowlist lookup stays nested inside the `allowlist` arm only,
+        // exactly like the TS `if (data.<rule>.mode === "allowlist")`
+        // branch — no cross-mode allowlist exemption exists in either
+        // path, so keep it nested and deliberate.
         let should = match mode.as_str() {
             "allowlist" => allowlist_entry_routed(&self.pool, &gid, exec.get())
                 .await
@@ -8135,12 +8138,15 @@ impl serenity::EventHandler for Handler {
                 .is_some()
             {
                 // Victim role-restore (mirrors avoidAdminRankWithoutConsent.ts:
-                // after punish(), the victim's roles are set back).
+                // after punish(), the victim's roles are set back, with the
+                // verbatim TS audit reason).
                 if let Ok(mut member) = new.guild_id.member(&ctx.http, new.user.id).await {
                     let _ = member
                         .edit(
                             &ctx.http,
-                            serenity::EditMember::new().roles(old.roles.clone()),
+                            serenity::EditMember::new()
+                                .roles(old.roles.clone())
+                                .audit_log_reason("[Protection] AntiRaid (try to gave admin role)"),
                         )
                         .await;
                 }
@@ -8160,12 +8166,15 @@ impl serenity::EventHandler for Handler {
                 .await
                 .is_some()
             {
-                // Victim role-restore (mirrors avoidMemberUpdate.ts).
+                // Victim role-restore (mirrors avoidMemberUpdate.ts, with the
+                // verbatim TS audit reason).
                 if let Ok(mut member) = new.guild_id.member(&ctx.http, new.user.id).await {
                     let _ = member
                         .edit(
                             &ctx.http,
-                            serenity::EditMember::new().roles(old.roles.clone()),
+                            serenity::EditMember::new()
+                                .roles(old.roles.clone())
+                                .audit_log_reason("[Protection] AntiRaid"),
                         )
                         .await;
                 }

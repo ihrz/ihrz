@@ -21,11 +21,12 @@ pub async fn notifier_remove(
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
-    let author = author.trim();
+    // `author` compared verbatim (no trim: TS `===` on the raw
+    // option value).
     let entries = load_entries(&ctx.data().pool, &gid).await;
     // Platform-scoped lookup (TS authorExist + remove filter match
-    // platform AND id_or_username).
-    if !entry_exists(&entries, &platform, author) {
+    // platform AND id_or_username with `===` on both).
+    if !entry_exists(&entries, &platform, &author) {
         ctx.say(say(
             "notifier_author_add_author_doesnt_exist",
             "Author doesn't exist. Please verify the ID.",
@@ -35,7 +36,7 @@ pub async fn notifier_remove(
     }
     let kept: Vec<NotifierEntry> = entries
         .into_iter()
-        .filter(|e| !(e.platform.eq_ignore_ascii_case(&platform) && e.id_or_username == author))
+        .filter(|e| !(e.platform == platform && e.id_or_username == author))
         .collect();
     save_entries(&ctx.data().pool, &gid, &kept).await?;
     let (authors, config) = authors_and_config_embeds(&ctx.data().pool, &gid, &code).await;

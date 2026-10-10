@@ -144,17 +144,32 @@ pub async fn mod_rolepanel(
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let t = |k: &str, fb: &str| crate::lang::get(&code, k).unwrap_or_else(|| fb.to_string());
     let author_id = ctx.author().id.get();
-    // Target member (TS resolveTargetMember in !rolepanel.ts): the slash
-    // `member` option is type User, optional (mod.ts:858-872), with
-    // Discord-side validation and a user picker. An omitted option, an
-    // unknown user, or a user outside the guild all resolve to the
-    // author (`getMember("member") || interaction.member`).
-    let want = member.map(|u| u.id).unwrap_or_else(|| ctx.author().id);
-    let target = match guild_id.member(ctx.http(), want).await.ok() {
-        Some(m) => m,
+    // Target member (TS resolveTargetMember in !rolepanel.ts): no arg
+    // (bare prefix call, or an omitted slash option) resolves to the
+    // author; a provided user is fetched from the guild, and a failed
+    // lookup answers `ban_dont_found_member` with no author fallback
+    // (the prefix `method.member` null path). Slash delta (documented):
+    // TS fell back to the author for a stale user picker
+    // (`getMember("member") || interaction.member`), while here a
+    // provided-but-unknown user is a not-found reply on both paths so
+    // the panel never silently retargets the author.
+    let target = match member {
         None => match ctx.author_member().await {
             Some(m) => m.into_owned(),
             None => return Ok(()),
+        },
+        Some(user) => match guild_id.member(ctx.http(), user.id).await.ok() {
+            Some(m) => m,
+            None => {
+                reply_member_not_found(
+                    &ctx,
+                    &code,
+                    "ban_dont_found_member",
+                    "🔍 | Cannot find this member",
+                )
+                .await?;
+                return Ok(());
+            }
         },
     };
     let target_id = target.user.id;

@@ -516,10 +516,10 @@ pub fn truncate_prefix(raw: &str) -> String {
 }
 
 /// Cap check for a new prefix. Mirrors `if (prefix.length >= 5)` in
-/// !prefix.ts (char count is the closest offline equivalent of the
-/// UTF-16 `.length`; 4 chars max).
+/// !prefix.ts: JS `.length` counts UTF-16 code units, so astral
+/// characters (surrogate pairs) count 2 here too. 4 units max.
 pub fn prefix_too_long(prefix: &str) -> bool {
-    prefix.chars().count() >= 5
+    prefix.encode_utf16().count() >= 5
 }
 
 // ---- ownerHelper (kv-backed tables) ----
@@ -787,6 +787,9 @@ mod tests {
         assert!(prefix_too_long("12345"));
         assert!(!prefix_too_long("1234"));
         assert!(!prefix_too_long("!"));
+        // JS `.length` counts UTF-16 units: an astral char is 2 units.
+        assert!(!prefix_too_long("😀😀"));
+        assert!(prefix_too_long("😀😀😀"));
         assert_eq!(truncate_prefix("! extra words"), "!");
         assert_eq!(truncate_prefix("!"), "!");
         assert_eq!(truncate_prefix(""), "");

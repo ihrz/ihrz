@@ -452,6 +452,26 @@ pub async fn warn_member_with_author(
     (id, total)
 }
 
+/// Prefix member-not-found reply shared by ban/warn/baninfo/rolepanel.
+/// Mirrors the TS `if (!member)` / `if (!user)` guards (!ban.ts,
+/// !warn.ts, !baninfo.ts, !rolepanel.ts `resolveTargetMember` null):
+/// poise yields `None` for a missing prefix entity arg, so the command
+/// replies with the same TS lang key instead of running. Slash options
+/// stay required in Discord, so `None` on slash means the same lookup
+/// failed and gets the same reply.
+pub async fn reply_member_not_found(
+    ctx: &Ctx<'_>,
+    lang_code: &str,
+    key: &str,
+    fallback: &str,
+) -> anyhow::Result<()> {
+    let text = crate::lang::get(lang_code, key).unwrap_or_else(|| fallback.to_string());
+    if !text.is_empty() {
+        ctx.say(text).await?;
+    }
+    Ok(())
+}
+
 /// Pure helper: parse "rolepanel:<role_id>".
 pub fn parse_rolepanel_custom_id(custom_id: &str) -> Option<serenity::RoleId> {
     custom_id

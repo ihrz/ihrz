@@ -178,6 +178,41 @@ pub async fn command_rate_limit_check(
     left
 }
 
+/// Pure leg of the prefix channel gate (unit-tested). Mirrors
+/// messageCommandHandler.ts
+/// `channel.permissionsFor(member)?.has(UseApplicationCommands)`:
+/// only a positively resolved permission set carrying the flag
+/// allows; a missing member or unreadable permissions denies.
+fn prefix_channel_gate_allows(resolved: Option<serenity::Permissions>) -> bool {
+    resolved.is_some_and(|p| p.use_application_commands())
+}
+
+/// Live leg: resolve the prefix author's channel permissions from
+/// cache. Anything unresolvable (no member, no cached
+/// guild/channel) denies, mirroring the TS optional chaining
+/// (`member ?? fetch` null, `permissionsFor?.` null -> silent
+/// return). DMs carry no channel permission set, so they fall
+/// through to the existing no-guild allow below like every other
+/// gate.
+async fn prefix_member_may_use_commands(ctx: Ctx<'_>) -> bool {
+    let Some(guild_id) = ctx.guild_id() else {
+        return true;
+    };
+    let channel_id = ctx.channel_id();
+    let Some(member) = ctx.author_member().await else {
+        return false;
+    };
+    let resolved = ctx
+        .serenity_context()
+        .cache
+        .guild(guild_id)
+        .and_then(|guild| {
+            let channel = guild.channels.get(&channel_id)?;
+            Some(guild.user_permissions_in(channel, &member))
+        });
+    prefix_channel_gate_allows(resolved)
+}
+
 /// Global command gate. Mirrors commandExecutor.ts guards +
 /// blacklistTable + UTILS.PERMS custom levels.
 fn global_check(
@@ -277,6 +312,13 @@ fn global_check(
         // the slash deny embed is queued (needs blacklistPictureInEmbed
         // Discord I/O inside the check).
         if crate::db::is_blacklisted(pool, ctx.author().id.get()).await {
+            return Ok(false);
+        }
+        // Channel UseApplicationCommands gate, prefix runs only.
+        // Mirrors messageCommandHandler.ts: a member lacking the
+        // channel permission (or no resolvable member) is silently
+        // dropped — no reply, just return.
+        if matches!(ctx, poise::Context::Prefix(_)) && !prefix_member_may_use_commands(ctx).await {
             return Ok(false);
         }
         // Per-command rate limits. Mirrors checkCommandRateLimit:
@@ -549,7 +591,9 @@ async fn prefix_usage_denial(ctx: Ctx<'_>, input: Option<String>) {
         return;
     }
     // Poise erases param types (name/required/choices only); the label
-    // mirrors getArgumentOptionTypeWithOptions (choices joined with `/`).
+    // mirrors getArgumentOptionTypeWithOptions (choices joined with `/`),
+    // and the channel allowlist mirrors ArgumentBrief.channelType so the
+    // prefix gate sees the same isValidArgument inputs as TS.
     let specs: Vec<prefix_args::ArgSpec> = ctx
         .command()
         .parameters
@@ -565,6 +609,7 @@ async fn prefix_usage_denial(ctx: Ctx<'_>, input: Option<String>) {
                     .join("/")
             };
             prefix_args::ArgSpec::text(&pm.name, &label, pm.required, false)
+                .with_channel_types(pm.channel_types.clone())
         })
         .collect();
     if specs.is_empty() {
@@ -1772,6 +1817,39 @@ mod tests {
         );
         assert_eq!(rate_limit_step(&[1, 2, 3], 2, 0, 4), (vec![1, 2, 3], 0));
         assert_eq!(rate_limit_step(&[1, 2, 3], 2, -1, 4), (vec![1, 2, 3], 0));
+    }
+
+    #[test]
+    fn prefix_channel_gate_needs_use_application_commands() {
+        use super::serenity::Permissions;
+        // TS parity (messageCommandHandler.ts): a resolved set
+        // carrying the flag allows, alone or combined.
+        assert!(prefix_channel_gate_allows(Some(
+            Permissions::USE_APPLICATION_COMMANDS
+        )));
+        assert!(prefix_channel_gate_allows(Some(
+            Permissions::SEND_MESSAGES | Permissions::USE_APPLICATION_COMMANDS
+        )));
+        // Without the flag the prefix run is silently denied.
+        assert!(!prefix_channel_gate_allows(Some(
+            Permissions::SEND_MESSAGES
+        )));
+        assert!(!prefix_channel_gate_allows(Some(Permissions::empty())));
+        // Missing member / unreadable permissions (TS `?.` null) deny.
+        assert!(!prefix_channel_gate_allows(None));
+    }
+
+    #[test]
+    fn prefix_channel_gate_leaves_other_gates_untouched() {
+        // The gate is a pure allow/deny on the resolved permission
+        // set: debounce and rate-limit policy still decide on their
+        // own (covered by their tests above), and the live leg only
+        // runs for Prefix contexts inside global_check.
+        assert!(prefix_channel_gate_allows(Some(
+            serenity::Permissions::USE_APPLICATION_COMMANDS
+        )));
+        assert_eq!(cooldown_remaining(None, 1000, 5000), 0);
+        assert_eq!(rate_limit_step(&[1, 2, 3], 2, 0, 4), (vec![1, 2, 3], 0));
     }
 
     async fn temp_pool() -> Pool {

@@ -11,7 +11,10 @@ use poise::serenity_prelude as serenity;
 )]
 pub async fn mod_ban(
     ctx: Ctx<'_>,
-    #[description = "Member"] member: serenity::User,
+    // Optional here (TS `method.user` can return null on prefix), but
+    // the slash option stays effectively required: a missing entity is
+    // answered with the TS `ban_dont_found_member` reply below.
+    #[description = "Member"] member: Option<serenity::User>,
     #[description = "Reason"] reason: Option<String>,
 ) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {
@@ -19,6 +22,17 @@ pub async fn mod_ban(
     };
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let t = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
+    let Some(member) = member else {
+        // Mirrors `if (!member)` in !ban.ts.
+        reply_member_not_found(
+            &ctx,
+            &code,
+            "ban_dont_found_member",
+            "🔍 | Cannot find this member",
+        )
+        .await?;
+        return Ok(());
+    };
     // TS defaults to the guild punishPub text, never empty.
     let reason = reason.unwrap_or_else(|| t("guildprofil_not_set_punishPub"));
     let no = emoji(&ctx, "No", "❌").await;

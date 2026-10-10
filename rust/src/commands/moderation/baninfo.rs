@@ -31,13 +31,21 @@ fn render_description(
 )]
 pub async fn mod_baninfo(
     ctx: Ctx<'_>,
-    #[description = "User"] user: serenity::User,
+    // Optional here (TS `method.user` can return null on prefix), but
+    // the slash option stays effectively required: a missing entity is
+    // answered with the TS `baninfo_user_not_found` reply below.
+    #[description = "User"] user: Option<serenity::User>,
 ) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {
         return Ok(());
     };
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let t = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
+    let Some(user) = user else {
+        // Mirrors `if (!user)` in !baninfo.ts.
+        reply_member_not_found(&ctx, &code, "baninfo_user_not_found", "User not found").await?;
+        return Ok(());
+    };
     let uid = user.id.get();
     let ban = guild_id.get_ban(ctx.http(), user.id).await.unwrap_or(None);
     let Some(ban) = ban else {

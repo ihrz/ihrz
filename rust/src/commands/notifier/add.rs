@@ -40,8 +40,8 @@ pub async fn notifier_add(
         .await?;
         return Ok(());
     }
-    let platform = platform.to_ascii_lowercase();
-    let author = author.trim().to_string();
+    // Platform + author stored verbatim (TS pushes
+    // `{ id_or_username: author, platform }` untouched).
     // Live platform check (TS authorExistOnPlatform in !add.ts). Like
     // the TS client, missing creds read as "doesn't exist".
     if !crate::scheduler::author_exists_on_platform(&platform, &author).await {

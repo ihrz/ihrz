@@ -1,11 +1,12 @@
 // iHorizon Discord Bot (https://gitlab.com/ihrz/ihrz)
 // Licensed under CC-BY-NC-SA-4.0.
 // Mirrors src/Interaction/SlashCommands/honeypot/* (config) +
-// honeypotManager lure trigger (simplified single-pass).
+// honeypotManager lure trigger (two-pass trap window).
 //
 // TS keys: GUILD.HONEYPOT {enabled, channelId}. TS runs two passes
-// (1500ms + 8000ms) in a 2h window; the Rust port bans on lure claim
-// after a 2s grace delay. Custom_id: honeypot-claim.
+// (1500ms + 8000ms) in a 2h window; the Rust port honors the
+// configured action on lure claim after a 1500ms grace delay, with two
+// cleanup sweeps 8s apart. Custom_id: honeypot-claim.
 
 use crate::bot::Ctx;
 use poise::serenity_prelude as serenity;

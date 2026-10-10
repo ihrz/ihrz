@@ -779,14 +779,13 @@ pub async fn handle_confession_author(
         .colour(0x010101)
         .author(author)
         .description(mention)
-        .footer(
-            serenity::CreateEmbedFooter::new(&footer_name).icon_url(if footer_icon.is_some() {
+        .footer(serenity::CreateEmbedFooter::new(&footer_name).icon_url(
+            if footer_icon.is_some() {
                 "attachment://footer_icon.png".to_string()
             } else {
                 String::new()
-            }),
-        )
-        .timestamp(serenity::Timestamp::now());
+            },
+        ));
     let mut msg = serenity::CreateInteractionResponseMessage::new()
         .embed(embed)
         .ephemeral(true);

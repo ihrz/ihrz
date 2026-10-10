@@ -456,10 +456,10 @@ pub async fn sweep_expired_giveaways(
         dedup_entries(&mut clean);
         if clean != gw.entries {
             gw.entries = clean;
-            let _ = crate::db::kv_set(
+            let _ = crate::commands::giveaway::gw::store_set(
                 pool,
                 &gid,
-                &key,
+                mid,
                 &serde_json::to_string(&gw).unwrap_or_default(),
             )
             .await;
@@ -489,7 +489,7 @@ pub async fn sweep_expired_giveaways(
                 )
                 .await;
                 if !lived {
-                    let _ = crate::db::kv_del(pool, &gid, &key).await;
+                    let _ = crate::commands::giveaway::gw::store_del(pool, &gid, mid).await;
                     continue;
                 }
             } else {
@@ -501,10 +501,10 @@ pub async fn sweep_expired_giveaways(
                 );
                 gw.winners = winners;
                 gw.ended = true;
-                let _ = crate::db::kv_set(
+                let _ = crate::commands::giveaway::gw::store_set(
                     pool,
                     &gid,
-                    &key,
+                    mid,
                     &serde_json::to_string(&gw).unwrap_or_default(),
                 )
                 .await;
@@ -516,7 +516,7 @@ pub async fn sweep_expired_giveaways(
         // board still gets its winners notice before the row is
         // deleted, even when already ended.
         if giveaway_lifetime_due(gw.expire_in_ms, now_ms) {
-            let _ = crate::db::kv_del(pool, &gid, &key).await;
+            let _ = crate::commands::giveaway::gw::store_del(pool, &gid, mid).await;
         }
     }
     ended

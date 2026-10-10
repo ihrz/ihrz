@@ -95,9 +95,12 @@ pub async fn roles_requirement_guild_has(ctx: Ctx<'_>, value: &str) -> Option<bo
 
 /// Fixed requirement choice. Mirrors the `choices` list on the
 /// `requirement` option in gw.ts (none/invites/messages/roles).
-/// Slash shows the TS values as the choice labels; prefix takes the
-/// same words, and anything else is rejected by poise before the
-/// handler runs (prefix takes the same words).
+/// Verdict: choice labels stay TS-verbatim (none/invites/messages/roles)
+/// with values unchanged. Friendly localized labels would need new YAML
+/// keys (no YAML edits in this pass) and poise ChoiceParameter names double
+/// as the stored requirement values, so renaming labels alone would either
+/// break the stored `requirement.type` shape or require hardcoded
+/// user-visible strings.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
 pub enum GwRequirement {
     #[name = "none"]

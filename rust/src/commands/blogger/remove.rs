@@ -22,7 +22,7 @@ pub async fn blogger_remove(
         .unwrap_or_default();
     let mut blogs = load_blogs(&ctx.data().pool, &gid).await;
     let before = blogs.len();
-    blogs.retain(|b| b.id != id.trim());
+    blogs.retain(|b| b.id != id);
     if blogs.len() == before {
         ctx.say(say(
             "blogger_blog_remove_not_found",
@@ -36,7 +36,7 @@ pub async fn blogger_remove(
         "blogger_blog_remove_success",
         "RSS feed with ID `${blogId}` has been removed.",
     )
-    .replace("${blogId}", id.trim());
+    .replace("${blogId}", &id);
     // Success content + blogs embed (TS !remove.ts sends the
     // generateBlogsEmbed alongside).
     let rows = blog_display_rows(ctx.http(), &blogs).await;

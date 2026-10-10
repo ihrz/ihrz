@@ -690,10 +690,10 @@ pub async fn finish_giveaway(
     let t = |k: &str| crate::lang::get(lang_code, k).unwrap_or_default();
     gw.winners = pick_winners(&gw.entries, &gw.winners, gw.winner_count as usize, seed);
     gw.ended = true;
-    let _ = crate::db::kv_set(
+    let _ = gw::store_set(
         pool,
         gid,
-        &giveaway_key(mid),
+        mid,
         &serde_json::to_string(&gw).unwrap_or_default(),
     )
     .await;
@@ -876,7 +876,7 @@ pub async fn handle_giveaway_entry(
     if let Some(obj) = v.as_object_mut() {
         obj.insert("entries".into(), serde_json::json!(entries));
     }
-    let _ = crate::db::kv_set(pool, &gid, &giveaway_key(mid), &v.to_string()).await;
+    let _ = gw::store_set(pool, &gid, mid, &v.to_string()).await;
     // Live count edit (deferUpdate + message.edit in TS, one
     // UpdateMessage response here).
     let words = t("event_gw_entries_words");
@@ -957,7 +957,7 @@ pub async fn handle_giveaway_leave(
         if let Some(obj) = v.as_object_mut() {
             obj.insert("entries".into(), serde_json::json!(entries.clone()));
         }
-        let _ = crate::db::kv_set(pool, &gid, &giveaway_key(mid), &v.to_string()).await;
+        let _ = gw::store_set(pool, &gid, mid, &v.to_string()).await;
     }
     // Board count edit (best-effort fetch of the board message).
     if let Ok(channel) = comp.channel_id.to_channel(http).await {

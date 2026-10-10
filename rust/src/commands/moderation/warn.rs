@@ -10,15 +10,29 @@ use poise::serenity_prelude as serenity;
 )]
 pub async fn mod_warn(
     ctx: Ctx<'_>,
-    #[description = "Member"] member: serenity::User,
+    // Optional here (TS `method.member` can return null on prefix), but
+    // the slash option stays effectively required: a missing entity is
+    // answered with the TS `ban_dont_found_member` reply below.
+    #[description = "Member"] member: Option<serenity::User>,
     #[description = "Reason"] reason: String,
 ) -> Result<(), anyhow::Error> {
     let gid = ctx
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
-    let uid = member.id.get();
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    let Some(member) = member else {
+        // Mirrors `if (!member)` in !warn.ts.
+        reply_member_not_found(
+            &ctx,
+            &code,
+            "ban_dont_found_member",
+            "🔍 | Cannot find this member",
+        )
+        .await?;
+        return Ok(());
+    };
+    let uid = member.id.get();
     let t = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
     let (id, total) = if let Some(guild_id) = ctx.guild_id() {
         let pool = &ctx.data().pool;
@@ -113,9 +127,13 @@ mod tests {
 
     #[test]
     fn slash_option_names_match_ts() {
-        // TS mod.ts warn options: member, reason.
+        // TS mod.ts warn options: member, reason. Poise lists required
+        // slash options first, so `reason` (still required) precedes
+        // `member` (optional so prefix can hit the TS not-found reply);
+        // prefix parsing still takes member first like TS
+        // `method.member(args, 0)`.
         let cmd = mod_warn();
         let names: Vec<&str> = cmd.parameters.iter().map(|p| p.name.as_str()).collect();
-        assert_eq!(names, vec!["member", "reason"]);
+        assert_eq!(names, vec!["reason", "member"]);
     }
 }

@@ -7,10 +7,17 @@
 //
 // Pure string policy only: no Discord I/O, no DB. Callers fetch the
 // `hybridcommands_args_error_embed_desc` template via crate::lang::get
-// (same TS key) and pass it to usage_error_description. Type-shape
-// validation (user/role/channel/number/choices) stays with poise's
-// typed params: parse failures surface as ArgumentParse, already routed
-// to ban_dont_found_member in the error router.
+// (same TS key) and pass it to usage_error_description. Most type-shape
+// validation (user/role/number) stays with poise's typed params: parse
+// failures surface as ArgumentParse, already routed to the caret embed
+// by the error router. The two validations poise drops on the prefix
+// path are pinned here instead: choices membership (String params carry
+// no parse-time choice check) and the channel-type allowlist (poise
+// documents `channel_types` as slash-only, prefix unaffected) — both
+// mirroring isValidArgument, both denying via PrefixArgsError so the
+// existing caret embed renders them.
+
+use poise::serenity_prelude as serenity;
 
 /// One command option. Mirrors ArgumentBrief in method.ts: text options
 /// go to expectedArgs, attachment options to the separate attachmentArgs
@@ -29,6 +36,11 @@ pub struct ArgSpec {
     /// True for string options without choices (type 3 && !choices):
     /// the last one absorbs the whole tail (longString).
     pub long_string: bool,
+    /// Allowed Discord channel kinds for `type_label == "channel"`.
+    /// Mirrors ArgumentBrief.channelType (option.channel_types); None
+    /// means no allowlist (TS `!optArgs`), so any resolved channel
+    /// passes. Poise leaves this slash-only, hence the prefix gate.
+    pub channel_types: Option<Vec<serenity::ChannelType>>,
 }
 
 impl ArgSpec {
@@ -39,6 +51,7 @@ impl ArgSpec {
             required,
             attachment: false,
             long_string,
+            channel_types: None,
         }
     }
 
@@ -49,7 +62,16 @@ impl ArgSpec {
             required,
             attachment: true,
             long_string: false,
+            channel_types: None,
         }
+    }
+
+    /// Attach the channel-type allowlist (poise `CommandParameter::
+    /// channel_types`). Builder so existing `text()` call sites stay
+    /// untouched when no allowlist applies.
+    pub fn with_channel_types(mut self, allowed: Option<Vec<serenity::ChannelType>>) -> Self {
+        self.channel_types = allowed;
+        self
     }
 }
 
@@ -135,13 +157,42 @@ pub fn missing_attachment_option(specs: &[ArgSpec], has_attachments: bool) -> Op
     specs.iter().position(|s| s.attachment && s.required)
 }
 
+/// Choices membership. Mirrors the isValidArgument `type.includes("/")`
+/// leg (`type.split("/").includes(arg)`): a slash-joined label (built
+/// by getArgumentOptionTypeWithOptions) only accepts exact members.
+/// Non-choice labels pass here; their shape stays with poise's parse.
+pub fn is_valid_choice(type_label: &str, value: &str) -> bool {
+    if type_label.contains('/') {
+        type_label.split('/').any(|c| c == value)
+    } else {
+        true
+    }
+}
+
+/// Channel-type allowlist. Mirrors the isValidArgument channel leg
+/// (`!optArgs || optArgs.includes(channel.type)`): no allowlist passes;
+/// otherwise the resolved kind must be listed.
+pub fn is_allowed_channel_type(
+    allowed: Option<&[serenity::ChannelType]>,
+    actual: serenity::ChannelType,
+) -> bool {
+    allowed.map(|list| list.contains(&actual)).unwrap_or(true)
+}
+
 /// Full prefix validation in TS order: required-count, longString tail
-/// merge (mutates args), per-arg required presence, attachment gate.
-/// Ok holds the merged tail; Err carries the caret position.
+/// merge (mutates args), per-arg required presence + choices membership
+/// + channel-type allowlist, attachment gate.
+///
+/// `channel_kind_of` resolves a raw channel arg (mention/id) to its Discord kind via the
+/// caller (guild cache); unresolvable input (plain names) defers to
+/// poise's typed parse, whose ArgumentParse failure routes to the same
+/// caret embed. Ok holds the merged tail; Err carries the caret
+/// position.
 pub fn check_prefix_args(
     args: &mut Vec<String>,
     specs: &[ArgSpec],
     has_attachments: bool,
+    channel_kind_of: &dyn Fn(&str) -> Option<serenity::ChannelType>,
 ) -> Result<(), PrefixArgsError> {
     if is_missing_text_args(args, specs) {
         return Err(PrefixArgsError {
@@ -164,6 +215,23 @@ pub fn check_prefix_args(
                 option_index: *orig_idx,
                 display_index: display_position(specs, *orig_idx),
             });
+        }
+        let value = &args[pos];
+        if !is_valid_choice(&spec.type_label, value) {
+            return Err(PrefixArgsError {
+                option_index: *orig_idx,
+                display_index: display_position(specs, *orig_idx),
+            });
+        }
+        if spec.type_label == "channel" {
+            if let Some(kind) = channel_kind_of(value) {
+                if !is_allowed_channel_type(spec.channel_types.as_deref(), kind) {
+                    return Err(PrefixArgsError {
+                        option_index: *orig_idx,
+                        display_index: display_position(specs, *orig_idx),
+                    });
+                }
+            }
         }
     }
     if let Some(orig_idx) = missing_attachment_option(specs, has_attachments) {
@@ -317,13 +385,14 @@ mod tests {
     #[test]
     fn check_flows_in_ts_order() {
         let specs = text_specs();
+        let no_channel = &|_: &str| None;
         // Missing required text arg.
         let mut args: Vec<String> = vec![];
-        let err = check_prefix_args(&mut args, &specs, true).unwrap_err();
+        let err = check_prefix_args(&mut args, &specs, true, no_channel).unwrap_err();
         assert_eq!(err.display_index, 0);
         // Tail merges on success.
         let mut args = vec!["@u".to_string(), "a".to_string(), "b".to_string()];
-        assert!(check_prefix_args(&mut args, &specs, true).is_ok());
+        assert!(check_prefix_args(&mut args, &specs, true, no_channel).is_ok());
         assert_eq!(args, vec!["@u", "a b"]);
         // Required attachment without upload denies.
         let with_att = vec![
@@ -331,12 +400,73 @@ mod tests {
             ArgSpec::attachment("proof", true),
         ];
         let mut args = vec!["@u".to_string()];
-        let err = check_prefix_args(&mut args, &with_att, false).unwrap_err();
+        let err = check_prefix_args(&mut args, &with_att, false, no_channel).unwrap_err();
         assert_eq!(err.option_index, 1);
         assert_eq!(err.display_index, 1);
         // Same invocation with an upload passes.
         let mut args = vec!["@u".to_string()];
-        assert!(check_prefix_args(&mut args, &with_att, true).is_ok());
+        assert!(check_prefix_args(&mut args, &with_att, true, no_channel).is_ok());
+    }
+
+    #[test]
+    fn invalid_choice_denies_at_caret() {
+        // Mirrors isValidArgument `type.split("/").includes(arg)`: the
+        // Err feeds the existing caret embed (display_index positions
+        // the `^` under the choice token, no new user string).
+        let specs = vec![ArgSpec::text("mode", "on/off", true, false)];
+        let no_channel = &|_: &str| None;
+        let mut args = vec!["maybe".to_string()];
+        let err = check_prefix_args(&mut args, &specs, true, no_channel).unwrap_err();
+        assert_eq!(err.option_index, 0);
+        assert_eq!(err.display_index, 0);
+        let template =
+            crate::lang::get("en-US", "hybridcommands_args_error_embed_desc").unwrap_or_default();
+        let desc = usage_error_description(&template, "!", "cfg", &specs, false, err.display_index);
+        assert!(desc.contains("!cfg [on/off]"));
+        assert!(desc.contains('^'));
+        assert!(desc.contains("Error when sending \"on/off\" argument."));
+        // Exact members pass.
+        for good in ["on", "off"] {
+            let mut args = vec![good.to_string()];
+            assert!(check_prefix_args(&mut args, &specs, true, no_channel).is_ok());
+        }
+    }
+
+    #[test]
+    fn wrong_channel_type_denies_at_caret() {
+        // Mirrors isValidArgument `!optArgs || optArgs.includes(channel
+        // .type)`: a resolved Voice channel against a Text allowlist
+        // denies at the caret, like the TS sendErrorMessage leg.
+        let specs = vec![ArgSpec::text("target", "channel", true, false)
+            .with_channel_types(Some(vec![serenity::ChannelType::Text]))];
+        let voice = &|_: &str| Some(serenity::ChannelType::Voice);
+        let mut args = vec!["<#123>".to_string()];
+        let err = check_prefix_args(&mut args, &specs, true, voice).unwrap_err();
+        assert_eq!(err.option_index, 0);
+        assert_eq!(err.display_index, 0);
+        let template =
+            crate::lang::get("en-US", "hybridcommands_args_error_embed_desc").unwrap_or_default();
+        let desc =
+            usage_error_description(&template, "!", "move", &specs, false, err.display_index);
+        assert!(desc.contains('^'));
+    }
+
+    #[test]
+    fn valid_choice_and_channel_pass() {
+        // Allowed kind, absent allowlist (TS `!optArgs`), and
+        // unresolvable names (deferred to poise's typed parse, whose
+        // ArgumentParse failure routes to the same caret embed).
+        let text_only: Vec<ArgSpec> = vec![ArgSpec::text("target", "channel", true, false)
+            .with_channel_types(Some(vec![serenity::ChannelType::Text]))];
+        let text_kind = &|_: &str| Some(serenity::ChannelType::Text);
+        let mut args = vec!["<#123>".to_string()];
+        assert!(check_prefix_args(&mut args, &text_only, true, text_kind).is_ok());
+        let open: Vec<ArgSpec> = vec![ArgSpec::text("target", "channel", true, false)];
+        let voice = &|_: &str| Some(serenity::ChannelType::Voice);
+        let mut args = vec!["<#123>".to_string()];
+        assert!(check_prefix_args(&mut args, &open, true, voice).is_ok());
+        let mut args = vec!["general".to_string()];
+        assert!(check_prefix_args(&mut args, &text_only, true, &|_: &str| None).is_ok());
     }
 
     #[test]
