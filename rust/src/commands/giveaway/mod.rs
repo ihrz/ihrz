@@ -30,6 +30,25 @@ pub fn gw_entries_page_id(message_id: u64, page: usize) -> String {
     format!("{GW_ENTRIES_PAGE_PREFIX}{message_id}:{page}")
 }
 
+/// Pager id carrying the viewing invoker, so presses stay scoped to
+/// the user who opened the list (TS filters the collector by member
+/// id). Legacy two-part ids still parse via parse_gw_entries_page.
+pub fn gw_entries_page_id_for(message_id: u64, page: usize, invoker: u64) -> String {
+    format!("{GW_ENTRIES_PAGE_PREFIX}{message_id}:{page}:{invoker}")
+}
+
+/// Parse a pager id back into (board, page, invoker). Accepts both
+/// the legacy `gw-entries:<mid>:<page>` and the invoker-carrying
+/// `gw-entries:<mid>:<page>:<invoker>` shapes.
+pub fn parse_gw_entries_page_id(id: &str) -> Option<(u64, usize, Option<u64>)> {
+    let rest = id.strip_prefix(GW_ENTRIES_PAGE_PREFIX)?;
+    let mut parts = rest.split(':');
+    let mid = parts.next()?.parse::<u64>().ok()?;
+    let page = parts.next()?.parse::<usize>().ok()?;
+    let invoker = parts.next().and_then(|s| s.parse::<u64>().ok());
+    Some((mid, page, invoker))
+}
+
 /// Split entries into (title, description) pages of
 /// GW_ENTRIES_PER_PAGE `N. <@id>` lines. Mirrors listEntries paging.
 pub fn entries_pages(title: &str, entries: &[String]) -> Vec<(String, String)> {
@@ -108,6 +127,11 @@ pub struct Giveaway {
     pub requirement: String,
     #[serde(default)]
     pub requirement_value: String,
+    /// Stored validity flag. Mirrors `isValid: true` written by
+    /// create() in giveawaysManager.ts:166 and read by
+    /// !get-data.ts:104-109. Old rows without the flag count as valid.
+    #[serde(default = "default_true")]
+    pub is_valid: bool,
     /// Validated embed image URL (mirrors create embedImageURL via
     /// mediaManipulation.isImageUrl; display rework pending).
     #[serde(default)]
@@ -116,6 +140,10 @@ pub struct Giveaway {
 
 fn default_req() -> String {
     "none".to_string()
+}
+
+fn default_true() -> bool {
+    true
 }
 
 /// Requirement gate. Mirrors the entry checks in giveawaysManager.
@@ -640,23 +668,47 @@ pub async fn handle_giveaway_list(
     send_entries_page(http, pool, comp, mid, &entries, 0).await;
 }
 
+/// Entries-page render context. Bundles the eight arguments
+/// `render_entries_page` needs so the function keeps a single
+/// parameter (clippy `too_many_arguments`).
+pub struct EntriesPage<'a, F: Fn(&str) -> String> {
+    pub http: &'a std::sync::Arc<serenity::Http>,
+    pub pool: &'a crate::db::Pool,
+    pub gid: &'a str,
+    pub t: F,
+    pub mid: u64,
+    pub entries: &'a [String],
+    pub page: usize,
+    pub invoker: Option<u64>,
+}
+
 /// Pure entries-page render shared by the list button, the pager
-/// and the `list-entries` slash subcommand.
-pub async fn render_entries_page(
-    http: &std::sync::Arc<serenity::Http>,
-    pool: &crate::db::Pool,
-    gid: &str,
-    t: impl Fn(&str) -> String,
-    mid: u64,
-    entries: &[String],
-    page: usize,
-) -> Option<(serenity::CreateEmbed, Vec<serenity::CreateActionRow>)> {
+/// and the `list-entries` slash subcommand. Returns the footer icon
+/// bytes alongside so callers can upload `footer_icon.png` (the embed
+/// footer points at the attachment, never a remote URL).
+pub async fn render_entries_page<F: Fn(&str) -> String>(
+    p: EntriesPage<'_, F>,
+) -> Option<(
+    serenity::CreateEmbed,
+    Vec<serenity::CreateActionRow>,
+    Option<Vec<u8>>,
+)> {
+    let EntriesPage {
+        http,
+        pool,
+        gid,
+        t,
+        mid,
+        entries,
+        page,
+        invoker,
+    } = p;
     let pages = entries_pages(&t("event_gw_entries_button_title"), entries);
     if pages.is_empty() {
         return None;
     }
     let page = page.min(pages.len() - 1);
-    let (footer_name, _) = giveaway_footer(pool, http, gid).await;
+    let (footer_name, icon) = giveaway_footer(pool, http, gid).await;
     let footer = format!(
         "{} • {} {}/{}",
         footer_name,
@@ -672,9 +724,9 @@ pub async fn render_entries_page(
         .timestamp(unix_ts(crate::commands::schedule::main::now_ms() / 1000));
     let mut components = vec![];
     if pages.len() > 1 {
-        components.push(entries_pager_row(mid, page, pages.len()));
+        components.push(entries_pager_row(mid, page, pages.len(), invoker));
     }
-    Some((embed, components))
+    Some((embed, components, icon))
 }
 
 /// Ephemeral entries page render shared by the list button, the
@@ -693,25 +745,37 @@ pub async fn send_entries_page(
     let gid = guild_id.get().to_string();
     let code = crate::db::guild_lang(pool, Some(guild_id.get())).await;
     let t = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
-    let Some((embed, components)) =
-        render_entries_page(http, pool, &gid, t, mid, entries, page).await
+    let invoker = Some(comp.user.id.get());
+    let Some((embed, components, icon)) = render_entries_page(EntriesPage {
+        http,
+        pool,
+        gid: &gid,
+        t,
+        mid,
+        entries,
+        page,
+        invoker,
+    })
+    .await
     else {
         return;
     };
+    let mut msg = serenity::CreateInteractionResponseMessage::new()
+        .embed(embed)
+        .components(components)
+        .ephemeral(true);
+    if let Some(bytes) = icon {
+        msg = msg.add_file(serenity::CreateAttachment::bytes(bytes, "footer_icon.png"));
+    }
     let _ = comp
-        .create_response(
-            http,
-            serenity::CreateInteractionResponse::Message(
-                serenity::CreateInteractionResponseMessage::new()
-                    .embed(embed)
-                    .components(components)
-                    .ephemeral(true),
-            ),
-        )
+        .create_response(http, serenity::CreateInteractionResponse::Message(msg))
         .await;
 }
 
-/// Entries pager press (`gw-entries:<mid>:<page>`).
+/// Entries pager press (`gw-entries:<mid>:<page>[:<invoker>]`).
+/// Wrap-around paging like listEntries; presses carry the viewing
+/// invoker in the button id (the 15-min TS collector filtered by
+/// member id instead).
 pub async fn handle_giveaway_entries_page(
     http: &std::sync::Arc<serenity::Http>,
     pool: &crate::db::Pool,
@@ -739,8 +803,10 @@ pub async fn handle_giveaway_entries_page(
     if pages.is_empty() {
         return;
     }
-    let page = page.min(pages.len() - 1);
-    let (footer_name, _) = giveaway_footer(pool, http, &gid).await;
+    // Wrap-around like the TS previousPage/nextPage collector.
+    let page = page % pages.len();
+    let invoker = Some(comp.user.id.get());
+    let (footer_name, icon) = giveaway_footer(pool, http, &gid).await;
     let embed = serenity::CreateEmbed::default()
         .colour(serenity::Colour::new(GW_COLOR))
         .title(pages[page].0.clone())
@@ -756,33 +822,48 @@ pub async fn handle_giveaway_entries_page(
             .icon_url("attachment://footer_icon.png"),
         )
         .timestamp(unix_ts(crate::commands::schedule::main::now_ms() / 1000));
+    let mut msg = serenity::CreateInteractionResponseMessage::new()
+        .embed(embed)
+        .components(vec![entries_pager_row(mid, page, pages.len(), invoker)]);
+    if let Some(bytes) = icon {
+        msg = msg.add_file(serenity::CreateAttachment::bytes(bytes, "footer_icon.png"));
+    }
     let _ = comp
         .create_response(
             http,
-            serenity::CreateInteractionResponse::UpdateMessage(
-                serenity::CreateInteractionResponseMessage::new()
-                    .embed(embed)
-                    .components(vec![entries_pager_row(mid, page, pages.len())]),
-            ),
+            serenity::CreateInteractionResponse::UpdateMessage(msg),
         )
         .await;
 }
 
 /// Pager row for the entries list. Page rides in the button ids
-/// (stateless; the 15-min TS collector has no equivalent).
-pub fn entries_pager_row(message_id: u64, page: usize, pages: usize) -> serenity::CreateActionRow {
+/// (stateless; the 15-min TS collector has no equivalent). Wrap-around
+/// like listEntries; the viewing invoker rides along when known.
+pub fn entries_pager_row(
+    message_id: u64,
+    page: usize,
+    pages: usize,
+    invoker: Option<u64>,
+) -> serenity::CreateActionRow {
+    let id = |p: usize| match invoker {
+        Some(uid) => gw_entries_page_id_for(message_id, p, uid),
+        None => gw_entries_page_id(message_id, p),
+    };
+    let prev = if page == 0 {
+        pages.saturating_sub(1)
+    } else {
+        page - 1
+    };
+    let next = (page + 1) % pages;
     serenity::CreateActionRow::Buttons(vec![
-        serenity::CreateButton::new(gw_entries_page_id(message_id, page.saturating_sub(1)))
+        serenity::CreateButton::new(id(prev))
             .label("<<<")
             .style(serenity::ButtonStyle::Secondary)
-            .disabled(page == 0),
-        serenity::CreateButton::new(gw_entries_page_id(
-            message_id,
-            (page + 1).min(pages.saturating_sub(1)),
-        ))
-        .label(">>>")
-        .style(serenity::ButtonStyle::Secondary)
-        .disabled(page + 1 >= pages),
+            .disabled(pages <= 1),
+        serenity::CreateButton::new(id(next))
+            .label(">>>")
+            .style(serenity::ButtonStyle::Secondary)
+            .disabled(pages <= 1),
     ])
 }
 
@@ -841,6 +922,38 @@ mod tests {
         assert_eq!(GW_END_COLOR, 0x2f3136);
         assert_eq!(GW_REACTION, "🎉");
         assert_eq!(gw_entries_page_id(9, 2), "gw-entries:9:2");
+        // Invoker-carrying ids parse back; legacy ids parse with no invoker.
+        assert_eq!(
+            parse_gw_entries_page_id("gw-entries:9:2:42"),
+            Some((9, 2, Some(42)))
+        );
+        assert_eq!(
+            parse_gw_entries_page_id("gw-entries:9:2"),
+            Some((9, 2, None))
+        );
+        assert_eq!(gw_entries_page_id_for(9, 2, 42), "gw-entries:9:2:42");
+        // Stored rows default to valid like TS `isValid: true`.
+        let raw = serde_json::to_string(&Giveaway {
+            guild_id: "g".into(),
+            channel_id: "c".into(),
+            winner_count: 1,
+            prize: "p".into(),
+            hosted_by: "h".into(),
+            expire_in_ms: 1,
+            ended: false,
+            entries: vec![],
+            winners: vec![],
+            requirement: "none".into(),
+            requirement_value: String::new(),
+            is_valid: true,
+            embed_image_url: None,
+        })
+        .unwrap();
+        let back: Giveaway = serde_json::from_str(&raw).unwrap();
+        assert!(back.is_valid);
+        let legacy = raw.replace(",\"is_valid\":true", "");
+        let migrated: Giveaway = serde_json::from_str(&legacy).unwrap();
+        assert!(migrated.is_valid);
         let (r, d) = stamp_pair(1_700_000_000_000);
         assert_eq!(r, "<t:1700000000:R>");
         assert_eq!(d, "<t:1700000000:D>");

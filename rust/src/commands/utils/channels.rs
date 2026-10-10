@@ -1,5 +1,28 @@
 use super::*;
 
+/// Union of the bot's role permissions from the guild cache.
+/// Mirrors the derogation.rs snapshot; empty when uncached.
+pub(crate) fn bot_guild_permissions(
+    ctx: &Ctx<'_>,
+    guild_id: poise::serenity_prelude::GuildId,
+) -> poise::serenity_prelude::Permissions {
+    let bot_id = ctx.serenity_context().cache.current_user().id;
+    let cached = ctx.serenity_context().cache.guild(guild_id);
+    let Some(guild) = cached else {
+        return poise::serenity_prelude::Permissions::empty();
+    };
+    let Some(member) = guild.members.get(&bot_id).cloned() else {
+        return poise::serenity_prelude::Permissions::empty();
+    };
+    let mut perms = poise::serenity_prelude::Permissions::empty();
+    for r in &member.roles {
+        if let Some(role) = guild.roles.get(r) {
+            perms |= role.permissions;
+        }
+    }
+    perms
+}
+
 fn overwrite_denies_view(
     ctx: &Ctx<'_>,
     guild_id: poise::serenity_prelude::GuildId,

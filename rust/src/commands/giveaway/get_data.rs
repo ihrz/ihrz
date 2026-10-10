@@ -8,6 +8,7 @@ use super::*;
     slash_command,
     prefix_command,
     rename = "get-data",
+    aliases("get"),
     default_member_permissions = "MANAGE_MESSAGES"
 )]
 pub async fn gw_get_data(
@@ -29,9 +30,10 @@ pub async fn gw_get_data(
             // Mirrors the EmbedBuilder field order in !get-data.ts:68-133.
             let yes = t("gw_getdata_yes", "`Yes`");
             let no = t("gw_getdata_no", "`No`");
-            let ended = if gw.ended { &yes } else { &no };
-            // isValid comes from the TS manager; a stored giveaway found
-            // in our own table counts as valid.
+            let ended = if gw.ended { yes.clone() } else { no.clone() };
+            // isValid comes from the stored row (TS writes isValid: true
+            // at create); a found row counts as valid.
+            let valid = if gw.is_valid { yes.clone() } else { no.clone() };
             let expire_s = gw.expire_in_ms.div_euclid(1000);
             let entries_value = t(
                 "gw_getdata_embed_fields_value_entriesAmount",
@@ -41,7 +43,7 @@ pub async fn gw_get_data(
                 "${(giveawayData.entries as string[]).length}",
                 &gw.entries.len().to_string(),
             )
-            .replace("${giveawayId}", &mid.to_string());
+            .replace("${giveawayId}", message_id.trim());
             let mut embed = poise::serenity_prelude::CreateEmbed::default()
                 .colour(poise::serenity_prelude::Colour::new(GW_GETDATA_COLOR))
                 .title(t("gw_getdata_embed_title", "Giveaway Info!"))
@@ -73,14 +75,10 @@ pub async fn gw_get_data(
                     format!("<@{}>", gw.hosted_by),
                     true,
                 )
-                .field(
-                    t("gw_getdata_embed_fields_isEnded", "Ended?"),
-                    ended.to_string(),
-                    true,
-                )
+                .field(t("gw_getdata_embed_fields_isEnded", "Ended?"), ended, true)
                 .field(
                     t("gw_getdata_embed_fields_isValid", "Is Valid?"),
-                    yes.clone(),
+                    valid,
                     true,
                 )
                 .field(

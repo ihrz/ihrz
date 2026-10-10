@@ -804,6 +804,18 @@ pub struct TicketCloseSpec<'a> {
     pub colour: u32,
 }
 
+/// Attachment send order for the leave-cleanup logs message: footer icon
+/// first, transcript second. Mirrors deleteTicketOnLeave.ts
+/// `files: [footerAttachment, transcript]`.
+pub fn close_log_filenames(have_footer_icon: bool, transcript_name: &str) -> Vec<String> {
+    let mut out = Vec::new();
+    if have_footer_icon {
+        out.push("footer_icon.png".to_string());
+    }
+    out.push(transcript_name.to_string());
+    out
+}
+
 pub async fn close_ticket_channel(
     http: &std::sync::Arc<serenity::Http>,
     pool: &crate::db::Pool,
@@ -815,23 +827,27 @@ pub async fn close_ticket_channel(
     for (from, to) in spec.replacements {
         desc = desc.replace(from, to);
     }
-    let embed = serenity::CreateEmbed::default()
-        .colour(spec.colour)
-        .title(text(spec.title_key))
-        .description(desc)
-        .timestamp(serenity::Timestamp::now());
+    let (footer_name, footer_icon) = ticket_footer(http, pool, spec.gid).await;
+    let embed = ticket_embed_footer(
+        serenity::CreateEmbed::default()
+            .colour(spec.colour)
+            .title(text(spec.title_key))
+            .description(desc)
+            .timestamp(serenity::Timestamp::now()),
+        &footer_name,
+        footer_icon.is_some(),
+    );
     if let Some(logs) = ticket_logs_channel(pool, spec.gid).await {
-        let _ = logs
-            .send_message(
-                http,
-                serenity::CreateMessage::new().embed(embed).add_file(
-                    serenity::CreateAttachment::bytes(
-                        html.into_bytes(),
-                        format!("{}-transcript.html", spec.gid),
-                    ),
-                ),
-            )
-            .await;
+        let file_name = format!("{}-transcript.html", spec.gid);
+        let mut log_msg = serenity::CreateMessage::new().embed(embed);
+        if let Some(icon) = footer_icon {
+            log_msg = log_msg.add_file(serenity::CreateAttachment::bytes(icon, "footer_icon.png"));
+        }
+        log_msg = log_msg.add_file(serenity::CreateAttachment::bytes(
+            html.into_bytes(),
+            file_name,
+        ));
+        let _ = logs.send_message(http, log_msg).await;
     }
     let _ = spec.channel_id.delete(http).await;
     Ok(())
@@ -2277,6 +2293,21 @@ mod tests {
     #[test]
     fn panel_key_shape() {
         assert_eq!(panel_key("XYZ"), "GUILD.TICKET_PANEL.XYZ");
+    }
+
+    #[test]
+    fn close_log_files_footer_first_then_transcript() {
+        assert_eq!(
+            close_log_filenames(true, "1-transcript.html"),
+            vec![
+                "footer_icon.png".to_string(),
+                "1-transcript.html".to_string()
+            ]
+        );
+        assert_eq!(
+            close_log_filenames(false, "1-transcript.html"),
+            vec!["1-transcript.html".to_string()]
+        );
     }
 
     #[test]

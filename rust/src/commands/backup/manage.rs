@@ -1,7 +1,12 @@
 use super::*;
 
 /// Restrict backups to guild owner. Mirrors !manage.ts (onlyOwner).
-#[poise::command(slash_command, prefix_command, rename = "manage")]
+#[poise::command(
+    slash_command,
+    prefix_command,
+    rename = "manage",
+    aliases("backup-manager")
+)]
 pub async fn backup_manage(
     ctx: Ctx<'_>,
     #[description = "owner or admin"] scope: String,

@@ -13,7 +13,12 @@ pub const DELETE_TIMESUP_COLOR: u32 = 0xce7e00;
 /// Confirm collector wait. Mirrors !delete.ts:125 (`time: 15000`).
 pub const DELETE_CONFIRM_SECS: u64 = 15;
 
-#[poise::command(slash_command, prefix_command, rename = "delete")]
+#[poise::command(
+    slash_command,
+    prefix_command,
+    rename = "delete",
+    aliases("backup-delete")
+)]
 pub async fn backup_delete(
     ctx: Ctx<'_>,
     #[description = "Backup id"] backup_id: String,
@@ -81,7 +86,7 @@ pub async fn backup_delete(
         .timestamp(serenity::Timestamp::now())
         .field(
             delete_field_name(&guild_name, backup_id.trim()),
-            field_value,
+            field_value.clone(),
             false,
         );
     // Destructive delete needs an explicit yes. Mirrors the
@@ -91,6 +96,16 @@ pub async fn backup_delete(
     let yes_label =
         crate::commands::lang_for(&ctx, "backup_confirm_button", "Yes, delete this backup").await;
     let no_label = crate::commands::lang_for(&ctx, "backup_cancel_button", "Cancel Action").await;
+    // Cancel carries the Warning_Icon custom emoji like !delete.ts:106-110
+    // (rolepanel cached_emoji_entry pattern, ⚠️ fallback).
+    let cancel_emoji = match crate::emojis::cached_emoji_entry(ctx.http(), "Warning_Icon").await {
+        Some((id, name, _)) => serenity::ReactionType::Custom {
+            animated: false,
+            id: serenity::EmojiId::new(id),
+            name: Some(name),
+        },
+        None => serenity::ReactionType::Unicode("⚠️".to_string()),
+    };
     let row = serenity::CreateActionRow::Buttons(vec![
         serenity::CreateButton::new("backup-trash-button")
             .style(serenity::ButtonStyle::Danger)
@@ -98,6 +113,7 @@ pub async fn backup_delete(
             .label(&yes_label),
         serenity::CreateButton::new("backup-cancel-button")
             .style(serenity::ButtonStyle::Primary)
+            .emoji(cancel_emoji)
             .label(&no_label),
     ]);
     let handle = ctx
@@ -168,6 +184,9 @@ pub async fn backup_delete(
             DELETE_TIMESUP_COLOR,
         ),
     };
+    // TS edits the same embed in place, so the outcome keeps the
+    // guild/id/counts field and the timestamp; only title and color
+    // change (!delete.ts:139-157).
     let _ = msg
         .edit(
             ctx.http(),
@@ -175,7 +194,13 @@ pub async fn backup_delete(
                 .embed(
                     serenity::CreateEmbed::default()
                         .title(title)
-                        .colour(serenity::Colour::new(color)),
+                        .colour(serenity::Colour::new(color))
+                        .timestamp(serenity::Timestamp::now())
+                        .field(
+                            delete_field_name(&guild_name, backup_id.trim()),
+                            field_value,
+                            false,
+                        ),
                 )
                 .components(vec![]),
         )

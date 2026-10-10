@@ -1,6 +1,14 @@
 use super::*;
 use poise::serenity_prelude as serenity;
 
+/// Embed description for the logs-channel confirm: actor + channel slots.
+/// Mirrors !log-channel.ts:76-101 (green embed + footer + footer attachment).
+pub fn logchannel_desc(template: &str, user_mention: &str, channel_mention: &str) -> String {
+    template
+        .replace("${interaction.user}", user_mention)
+        .replace("${channel}", channel_mention)
+}
+
 /// Ticket logs channel. Mirrors !log-channel.ts (used by close transcript).
 #[poise::command(
     slash_command,
@@ -24,6 +32,7 @@ pub async fn ticket_log_channel(
     if ticket_guard_disabled(&ctx, pool, &gid, &code, "ticket_disabled_command").await {
         return Ok(());
     }
+    let http = ctx.serenity_context().http.clone();
     crate::commands::owner::main::routed_set(
         &ctx.data().pool,
         &gid,
@@ -32,23 +41,43 @@ pub async fn ticket_log_channel(
         &channel.id.get().to_string(),
     )
     .await?;
-    ctx.say(
-        crate::lang::get(&code, "ticket_logchannel_embed_desc")
-            .map(|s| {
-                s.replace(
-                    "${interaction.user}",
-                    &format!("<@{}>", ctx.author().id.get()),
-                )
-                .replace("${channel}", &format!("<#{}>", channel.id.get()))
-            })
+    let desc = logchannel_desc(
+        &crate::lang::get(&code, "ticket_logchannel_embed_desc")
             .unwrap_or_else(|| "Ticket logs channel set.".to_string()),
-    )
-    .await?;
+        &format!("<@{}>", ctx.author().id.get()),
+        &format!("<#{}>", channel.id.get()),
+    );
+    let (footer_name, footer_icon) = ticket_footer(&http, pool, &gid).await;
+    let embed = ticket_embed_footer(
+        serenity::CreateEmbed::default()
+            .colour(0x008000_u32)
+            .title(
+                crate::lang::get(&code, "ticket_logchannel_embed_title")
+                    .unwrap_or_else(|| "Ticket Logs Channel".to_string()),
+            )
+            .description(desc)
+            .timestamp(serenity::Timestamp::now()),
+        &footer_name,
+        footer_icon.is_some(),
+    );
+    let mut reply = poise::CreateReply::default().embed(embed);
+    if let Some(icon) = footer_icon {
+        reply = reply.attachment(serenity::CreateAttachment::bytes(icon, "footer_icon.png"));
+    }
+    ctx.send(reply).await?;
     Ok(())
 }
 
 #[cfg(test)]
 mod tests {
+    use super::*;
+
+    #[test]
+    fn desc_fills_actor_and_channel() {
+        let out = logchannel_desc("${interaction.user} -> ${channel}!", "<@7>", "<#9>");
+        assert_eq!(out, "<@7> -> <#9>!");
+    }
+
     async fn mem_pool() -> crate::db::Pool {
         use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};
         use std::str::FromStr;

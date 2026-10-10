@@ -1,9 +1,11 @@
 use super::*;
+use poise::serenity_prelude as serenity;
 
 #[poise::command(
     slash_command,
     prefix_command,
     rename = "list-entries",
+    aliases("list"),
     default_member_permissions = "MANAGE_MESSAGES"
 )]
 pub async fn gw_entries(
@@ -17,10 +19,13 @@ pub async fn gw_entries(
         .map(|g| g.get().to_string())
         .unwrap_or_default();
     let mid: u64 = message_id.trim().parse().unwrap_or(0);
-    let raw = super::gw::store_get(&ctx.data().pool, &gid, mid).await;
-    let code_early = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    let pool = &ctx.data().pool;
+    let code_early = crate::db::guild_lang(pool, ctx.guild_id().map(|g| g.get())).await;
     let t_early = |k: &str| crate::lang::get(&code_early, k).unwrap_or_default();
-    let Some(raw) = raw else {
+    // Global board read like TS GetGiveawayData; !list-entries.ts gates
+    // on isValid (-> end_not_find_giveaway) then isEnded
+    // (-> end_command_error).
+    let Some((home_gid, raw)) = super::gw::store_lookup(pool, &gid, mid).await else {
         ctx.say(t_early("end_not_find_giveaway").replace("${gw}", message_id.trim()))
             .await?;
         return Ok(());
@@ -35,6 +40,11 @@ pub async fn gw_entries(
             return Ok(());
         }
     };
+    if !gw.is_valid {
+        ctx.say(t_early("end_not_find_giveaway").replace("${gw}", message_id.trim()))
+            .await?;
+        return Ok(());
+    }
     if gw.ended {
         ctx.say(t_early("end_command_error")).await?;
         return Ok(());
@@ -50,18 +60,31 @@ pub async fn gw_entries(
         return Ok(());
     }
     let http = ctx.serenity_context().http.clone();
-    let Some((embed, components)) =
-        render_entries_page(&http, &ctx.data().pool, &gid, t_early, mid, &entries, 0).await
+    let invoker = Some(ctx.author().id.get());
+    let t = |k: &str| crate::lang::get(&code_early, k).unwrap_or_default();
+    let Some((embed, components, icon)) =
+        crate::commands::giveaway::render_entries_page(crate::commands::giveaway::EntriesPage {
+            http: &http,
+            pool,
+            gid: &home_gid,
+            t,
+            mid,
+            entries: &entries,
+            page: 0,
+            invoker,
+        })
+        .await
     else {
         return Ok(());
     };
-    ctx.send(
-        poise::CreateReply::default()
-            .embed(embed)
-            .components(components)
-            .ephemeral(true),
-    )
-    .await?;
+    let mut reply = poise::CreateReply::default()
+        .embed(embed)
+        .components(components)
+        .ephemeral(true);
+    if let Some(bytes) = icon {
+        reply = reply.attachment(serenity::CreateAttachment::bytes(bytes, "footer_icon.png"));
+    }
+    ctx.send(reply).await?;
     Ok(())
 }
 
@@ -83,11 +106,13 @@ mod tests {
             winners: vec![],
             requirement: "none".into(),
             requirement_value: String::new(),
+            is_valid: true,
             embed_image_url: None,
         };
         let raw = serde_json::to_string(&live).unwrap();
         let parsed: Giveaway = serde_json::from_str(&raw).unwrap();
         assert!(!parsed.ended);
+        assert!(parsed.is_valid);
         let mut ended = live;
         ended.ended = true;
         assert!(ended.ended);

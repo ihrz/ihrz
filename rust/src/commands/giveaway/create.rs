@@ -42,7 +42,7 @@ pub fn requirement_error_key(requirement: &str, value: &str) -> Option<&'static 
     slash_command,
     prefix_command,
     rename = "create",
-    aliases("gstart", "gcreate"),
+    aliases("gstart", "gcreate", "gw-create"),
     default_member_permissions = "MANAGE_MESSAGES"
 )]
 pub async fn gw_create(
@@ -62,6 +62,24 @@ pub async fn gw_create(
             .await?;
         return Ok(());
     }
+    // Mirrors !create.ts:87-99 (bad duration -> start_time_not_valid,
+    // checked before the requirement gates like the TS order
+    // winners -> duration -> requirement).
+    let delta = crate::commands::schedule::main::parse_duration_ms(&time);
+    let Some(delta) = delta else {
+        ctx.say(
+            crate::lang::get(&code_early, "start_time_not_valid")
+                .map(|s| {
+                    s.replace(
+                        "${interaction.user}",
+                        &format!("<@{}>", ctx.author().id.get()),
+                    )
+                })
+                .unwrap_or_else(|| "${interaction.user}, the giveaway duration you specified is invalid, please try again!".to_string()),
+        )
+        .await?;
+        return Ok(());
+    };
     // Mirrors !create.ts:101-134 (requirement-value gates).
     let requirement = requirement.unwrap_or_else(|| "none".to_string());
     let req_value = requirement_value.unwrap_or_default();
@@ -93,22 +111,6 @@ pub async fn gw_create(
             return Ok(());
         }
     }
-    let delta = crate::commands::schedule::main::parse_duration_ms(&time);
-    let Some(delta) = delta else {
-        let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-        ctx.say(
-            crate::lang::get(&code, "start_time_not_valid")
-                .map(|s| {
-                    s.replace(
-                        "${interaction.user}",
-                        &format!("<@{}>", ctx.author().id.get()),
-                    )
-                })
-                .unwrap_or_else(|| "${interaction.user}, the giveaway duration you specified is invalid, please try again!".to_string()),
-        )
-        .await?;
-        return Ok(());
-    };
     let gid = ctx
         .guild_id()
         .map(|g| g.get().to_string())
@@ -129,6 +131,9 @@ pub async fn gw_create(
         winners: vec![],
         requirement,
         requirement_value: req_value,
+        // TS prefix leaves prize undefined (`prize || ""`); slash marks
+        // it required. Either way the stored value is the 256-char slice.
+        is_valid: true,
         embed_image_url: match resolve_image_source(is_prefix, image.as_deref()) {
             Some(url) if crate::funcs::is_image_url(url).await => Some(url.to_string()),
             _ => None,

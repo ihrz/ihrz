@@ -1,6 +1,9 @@
 use super::*;
 
-#[poise::command(slash_command, prefix_command, rename = "list")]
+/// List embed color. Mirrors !list.ts:123 (`#bf0bb9`).
+pub const BACKUP_LIST_COLOR: u32 = 0xbf0bb9;
+
+#[poise::command(slash_command, prefix_command, rename = "list", aliases("backup-list"))]
 pub async fn backup_list(
     ctx: Ctx<'_>,
     #[description = "Backup id"] backup_id: Option<String>,
@@ -12,6 +15,20 @@ pub async fn backup_list(
         .map(|g| g.get().to_string())
         .unwrap_or_default();
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    // Author icon snapshot, like the `user_icon.png` file in !list.ts:173-179
+    // (confession download_bytes pattern; never a raw CDN URL).
+    let mut author = serenity::CreateEmbedAuthor::new(ctx.author().name.clone())
+        .icon_url("attachment://user_icon.png");
+    let mut author_files: Vec<serenity::CreateAttachment> = vec![];
+    if let Some(url) = ctx.author().avatar_url() {
+        if let Some(bytes) = crate::commands::shared::download_bytes(&url).await {
+            author_files.push(serenity::CreateAttachment::bytes(bytes, "user_icon.png"));
+        } else {
+            author = serenity::CreateEmbedAuthor::new(ctx.author().name.clone());
+        }
+    } else {
+        author = serenity::CreateEmbedAuthor::new(ctx.author().name.clone());
+    }
 
     // Backup-id detail view. Mirrors the BACKUPS.<uid>.<id> gate in
     // !list.ts:64 (strangers get backup_this_is_not_your_backup).
@@ -45,9 +62,14 @@ pub async fn backup_list(
         let embed = serenity::CreateEmbed::default()
             .title(format!("{name} - (||{id}||)"))
             .description(super::backup::backup_detail_value(cats, chans, &tpl))
-            .author(serenity::CreateEmbedAuthor::new(ctx.author().name.clone()))
+            .colour(serenity::Colour::new(BACKUP_LIST_COLOR))
+            .author(author.clone())
             .timestamp(serenity::Timestamp::now());
-        ctx.send(poise::CreateReply::default().embed(embed)).await?;
+        let mut reply = poise::CreateReply::default().embed(embed);
+        for file in author_files.clone() {
+            reply = reply.attachment(file);
+        }
+        ctx.send(reply).await?;
         return Ok(());
     }
 
@@ -76,7 +98,6 @@ pub async fn backup_list(
     let total_pages = super::backup::page_count(fields.len());
     let (fname, fbytes) = crate::commands::shared::footer_parts(&ctx, &gid).await;
     let page_word = crate::lang::get(&code, "var_page").unwrap_or_else(|| "Page".to_string());
-    let author = ctx.author().name.clone();
     let mk_embed = |page: usize| {
         let footer = crate::commands::shared::footer_page_text(
             &fname,
@@ -90,7 +111,8 @@ pub async fn backup_list(
         );
         let mut embed = serenity::CreateEmbed::default()
             .description(head.clone())
-            .author(serenity::CreateEmbedAuthor::new(author.clone()))
+            .colour(serenity::Colour::new(BACKUP_LIST_COLOR))
+            .author(author.clone())
             .footer(
                 serenity::CreateEmbedFooter::new(footer).icon_url(if fbytes.is_some() {
                     "attachment://footer_icon.png".to_string()
@@ -126,6 +148,10 @@ pub async fn backup_list(
         .components(vec![mk_row(0)]);
     if let Some(bytes) = fbytes.clone() {
         reply = reply.attachment(serenity::CreateAttachment::bytes(bytes, "footer_icon.png"));
+    }
+    // Mirrors the `user_icon.png` file in !list.ts:171-179.
+    for file in author_files {
+        reply = reply.attachment(file);
     }
     let handle = ctx.send(reply).await?;
     if fields.is_empty() {

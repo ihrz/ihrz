@@ -34,7 +34,7 @@ fn normalize_snapshot(snap: &serde_json::Value) -> Option<BackupInfos> {
     slash_command,
     prefix_command,
     rename = "load",
-    aliases("restore"),
+    aliases("restore", "backup-load"),
     default_member_permissions = "ADMINISTRATOR"
 )]
 pub async fn backup_load(
@@ -177,9 +177,25 @@ pub async fn backup_load(
                 &opts,
             )
             .await;
-            ctx.say(format!(
-                "Restored {roles} roles, {channels} channels, {emojis} emojis, {bans} bans."
-            ))
+            // TS !load.ts sends no dedicated success string (the
+            // restore only reports counts upstream); reuse the closest
+            // existing key instead of hardcoding.
+            let code =
+                crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+            ctx.say(
+                crate::lang::get(&code, "msg_restored_keys")
+                    .map(|s| {
+                        s.replace("{roles}", &roles.to_string())
+                            .replace("{channels}", &channels.to_string())
+                            .replace("{emojis}", &emojis.to_string())
+                            .replace("{bans}", &bans.to_string())
+                    })
+                    .unwrap_or_else(|| {
+                        format!(
+                            "Restored {roles} roles, {channels} channels, {emojis} emojis, {bans} bans."
+                        )
+                    }),
+            )
             .await?;
             return Ok(());
         }

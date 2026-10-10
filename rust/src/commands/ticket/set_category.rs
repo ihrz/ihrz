@@ -1,6 +1,15 @@
 use super::*;
 use poise::serenity_prelude as serenity;
 
+/// Embed description for the set-category confirm: category + actor slots.
+/// Mirrors !set-category.ts:84-107 (cyan embed + footer + footer
+/// attachment file, no title).
+pub fn setcategory_desc(template: &str, category_name: &str, author_id: u64) -> String {
+    template
+        .replace("${category.name}", category_name)
+        .replace("${interaction.user.id}", &author_id.to_string())
+}
+
 /// Default ticket category. Mirrors !set-category.ts.
 #[poise::command(
     slash_command,
@@ -56,20 +65,42 @@ pub async fn ticket_set_category(
         &cat_id.get().to_string(),
     )
     .await?;
-    ctx.say(
-        crate::lang::get(&code, "setticketcategory_command_work")
-            .map(|s| {
-                s.replace("${category.name}", &cat_name)
-                    .replace("${interaction.user.id}", &ctx.author().id.get().to_string())
-            })
+    let desc = setcategory_desc(
+        &crate::lang::get(&code, "setticketcategory_command_work")
             .unwrap_or_else(|| "Ticket category set.".to_string()),
-    )
-    .await?;
+        &cat_name,
+        ctx.author().id.get(),
+    );
+    let (footer_name, footer_icon) = ticket_footer(&http, pool, &gid).await;
+    let embed = ticket_embed_footer(
+        serenity::CreateEmbed::default()
+            .colour(0x00FFFF_u32)
+            .description(desc),
+        &footer_name,
+        footer_icon.is_some(),
+    );
+    let mut reply = poise::CreateReply::default().embed(embed);
+    if let Some(icon) = footer_icon {
+        reply = reply.attachment(serenity::CreateAttachment::bytes(icon, "footer_icon.png"));
+    }
+    ctx.send(reply).await?;
     Ok(())
 }
 
 #[cfg(test)]
 mod tests {
+    use super::*;
+
+    #[test]
+    fn desc_fills_category_and_actor() {
+        let out = setcategory_desc(
+            "<@${interaction.user.id}> -> `${category.name}`!",
+            "Help",
+            7,
+        );
+        assert_eq!(out, "<@7> -> `Help`!");
+    }
+
     async fn mem_pool() -> crate::db::Pool {
         use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};
         use std::str::FromStr;

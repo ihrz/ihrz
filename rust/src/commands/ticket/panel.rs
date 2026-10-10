@@ -1,6 +1,5 @@
 use super::*;
 use poise::serenity_prelude as serenity;
-use std::sync::Arc;
 use std::time::Duration;
 
 // ---- V2 panel editor ids (TS !panel.ts customIds) ----
@@ -443,7 +442,16 @@ pub async fn ticket_panel(
                 saved = true;
                 break;
             }
-            refresh_editor(&sctx.http, &mut msg, &t, &panel, &panel_code, saved).await;
+            refresh_editor(
+                &sctx,
+                ctx.guild_id(),
+                &mut msg,
+                &t,
+                &panel,
+                &panel_code,
+                saved,
+            )
+            .await;
             continue;
         }
         if pick.data.custom_id != EDITOR_SELECT_ID {
@@ -474,20 +482,36 @@ pub async fn ticket_panel(
                 {
                     saved = false;
                 }
-                refresh_editor(&sctx.http, &mut msg, &t, &panel, &panel_code, saved).await;
+                refresh_editor(
+                    &sctx,
+                    ctx.guild_id(),
+                    &mut msg,
+                    &t,
+                    &panel,
+                    &panel_code,
+                    saved,
+                )
+                .await;
             }
         }
     }
 
     if saved {
-        let _ = msg
-            .edit(
-                &sctx.http,
-                serenity::EditMessage::new()
-                    .embed(editor_embed(&t, &panel, &panel_code, true))
-                    .components(vec![]),
-            )
-            .await;
+        // Mirrors save() (!panel.ts): the saved embed edit carries the
+        // overflow .txt (replacing stale attachments).
+        let mut edit = serenity::EditMessage::new()
+            .embed(editor_embed(&t, &panel, &panel_code, true))
+            .components(vec![]);
+        let mut attachments = serenity::EditAttachments::new();
+        if let Some((filename, bytes)) =
+            options_overflow_file(&t, &panel_code, &panel.config.option_fields, &|r| {
+                cached_role_name(&sctx, ctx.guild_id(), r)
+            })
+        {
+            attachments = attachments.add(serenity::CreateAttachment::bytes(bytes, filename));
+        }
+        edit = edit.attachments(attachments);
+        let _ = msg.edit(&sctx.http, edit).await;
         let done = t("ticket_panel_successfully_saved");
         let _ = ctx
             .say(if done.is_empty() {
@@ -656,22 +680,31 @@ fn editor_embed(
     embed
 }
 
+/// Editor refresh: re-render the embed + steps and re-attach the
+/// overflow .txt (replacing stale attachments). Mirrors
+/// refreshPanelMessage (!panel.ts: `attachments: [], files: [...]`).
 async fn refresh_editor(
-    http: &Arc<serenity::Http>,
+    sctx: &serenity::Context,
+    guild_id: Option<serenity::GuildId>,
     msg: &mut serenity::Message,
     t: &(dyn Fn(&str) -> String + Send + Sync),
     panel: &TicketPanel,
     panel_code: &str,
     saved: bool,
 ) {
-    let _ = msg
-        .edit(
-            http,
-            serenity::EditMessage::new()
-                .embed(editor_embed(t, panel, panel_code, saved))
-                .components(editor_rows(t)),
-        )
-        .await;
+    let mut edit = serenity::EditMessage::new()
+        .embed(editor_embed(t, panel, panel_code, saved))
+        .components(editor_rows(t));
+    let mut attachments = serenity::EditAttachments::new();
+    if let Some((filename, bytes)) =
+        options_overflow_file(t, panel_code, &panel.config.option_fields, &|r| {
+            cached_role_name(sctx, guild_id, r)
+        })
+    {
+        attachments = attachments.add(serenity::CreateAttachment::bytes(bytes, filename));
+    }
+    edit = edit.attachments(attachments);
+    let _ = msg.edit(&sctx.http, edit).await;
 }
 
 async fn show_modal(
@@ -1864,9 +1897,19 @@ async fn post_ticket_panel_message(
     } else {
         panel.placeholder.clone()
     });
-    let msg = serenity::CreateMessage::new()
+    // Mirrors buildPanelMessage (!panel.ts): the overflow .txt rides with
+    // the posted opener when options exceed the field caps.
+    let mut msg = serenity::CreateMessage::new()
         .embed(embed)
         .components(vec![serenity::CreateActionRow::SelectMenu(menu)]);
+    let sctx = ctx.serenity_context();
+    if let Some((filename, bytes)) =
+        options_overflow_file(&t, panel_code, &panel.config.option_fields, &|r| {
+            cached_role_name(sctx, ctx.guild_id(), r)
+        })
+    {
+        msg = msg.add_file(serenity::CreateAttachment::bytes(bytes, filename));
+    }
     if let Ok(sent) = ctx.channel_id().send_message(&http, msg).await {
         let (marker_key, marker_val) = marker_pair(sent.id.get(), panel_code);
         let _ = crate::commands::owner::main::routed_set(pool, gid, gid, &marker_key, &marker_val)

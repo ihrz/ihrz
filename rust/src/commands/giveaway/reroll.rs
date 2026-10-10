@@ -19,10 +19,11 @@ pub async fn gw_reroll(
         .map(|g| g.get().to_string())
         .unwrap_or_default();
     let mid: u64 = message_id.trim().parse().unwrap_or(0);
-    let raw = super::gw::store_get(&ctx.data().pool, &gid, mid).await;
     let code_early = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let t_early = |k: &str| crate::lang::get(&code_early, k).unwrap_or_default();
-    let Some(raw) = raw else {
+    // Global board read like TS GetGiveawayData; persist/delete under
+    // the owning guild scope.
+    let Some((home_gid, raw)) = super::gw::store_lookup(&ctx.data().pool, &gid, mid).await else {
         ctx.say(t_early("reroll_dont_find_giveaway").replace("{args}", message_id.trim()))
             .await?;
         return Ok(());
@@ -39,6 +40,7 @@ pub async fn gw_reroll(
         winners: vec![],
         requirement: "none".to_string(),
         requirement_value: String::new(),
+        is_valid: true,
         embed_image_url: None,
     });
     let seed = std::time::SystemTime::now()
@@ -62,7 +64,7 @@ pub async fn gw_reroll(
         seed,
     );
     let winners_now = gw.winners.clone();
-    let _ = super::gw::store_set(pool, &gid, mid, &serde_json::to_string(&gw)?).await;
+    let _ = super::gw::store_set(pool, &home_gid, mid, &serde_json::to_string(&gw)?).await;
     let http = &ctx.serenity_context().http;
     let Ok(channel) = gw.channel_id.parse::<u64>() else {
         return Ok(());
@@ -70,7 +72,7 @@ pub async fn gw_reroll(
     let channel = serenity::ChannelId::new(channel);
     let Ok(message) = channel.message(http, serenity::MessageId::new(mid)).await else {
         // Board message gone: drop the row like the TS fetch catch.
-        let _ = super::gw::store_del(pool, &gid, mid).await;
+        let _ = super::gw::store_del(pool, &home_gid, mid).await;
         return Ok(());
     };
     let (ended, time2) = stamp_pair(gw.expire_in_ms);
@@ -83,7 +85,7 @@ pub async fn gw_reroll(
         .replace("${time2}", &time2)
         .replace("${hostedBy}", &gw.hosted_by)
         .replace("${entries}", &gw.entries.len().to_string());
-    let (footer_name, footer_icon) = giveaway_footer(pool, http, &gid).await;
+    let (footer_name, footer_icon) = giveaway_footer(pool, http, &home_gid).await;
     let embed = ended_board_shell(
         &gw.prize,
         desc,

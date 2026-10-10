@@ -42,7 +42,14 @@ pub async fn ticket_transcript(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
             crate::transcript::insert_favicon(&html, &avatar)
         }
     };
-    ctx.say(t("guildconfig_config_save_check_dm")).await?;
+    // Mirrors TicketTranscript (ticketsManager.ts): ephemeral "check your
+    // DMs" ack, then the transcript is DM'd to the caller.
+    ctx.send(
+        poise::CreateReply::default()
+            .content(t("guildconfig_config_save_check_dm"))
+            .ephemeral(true),
+    )
+    .await?;
     let embed = serenity::CreateEmbed::default()
         .description(t("close_title_sourcebin"))
         .colour(0x0014A8_u32);
@@ -59,7 +66,14 @@ pub async fn ticket_transcript(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     )
     .await;
     if !sent {
-        ctx.say(t("ticket_transcript_failed_to_send")).await?;
+        // TS catch(() => interaction.followUp({ ephemeral })) — in poise
+        // the second send becomes the follow-up.
+        ctx.send(
+            poise::CreateReply::default()
+                .content(t("ticket_transcript_failed_to_send"))
+                .ephemeral(true),
+        )
+        .await?;
     }
     Ok(())
 }

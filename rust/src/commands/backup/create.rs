@@ -5,7 +5,7 @@ use poise::serenity_prelude as serenity;
     slash_command,
     prefix_command,
     rename = "create",
-    aliases("bcreate"),
+    aliases("bcreate", "backup-create"),
     default_member_permissions = "ADMINISTRATOR"
 )]
 pub async fn backup_create(

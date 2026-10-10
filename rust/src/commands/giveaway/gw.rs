@@ -42,6 +42,24 @@ pub async fn store_get(pool: &crate::db::Pool, gid: &str, mid: u64) -> Option<St
     routed_get(pool, gid, gid, &giveaway_key(mid)).await
 }
 
+/// Global board read by message id. Mirrors TS `GetGiveawayData`,
+/// which is keyed by message id alone (not per guild): try the
+/// invoker guild scope first, then scan every scope for the board.
+/// Returns the owning guild id with the row.
+pub async fn store_lookup(pool: &crate::db::Pool, gid: &str, mid: u64) -> Option<(String, String)> {
+    if let Some(raw) = routed_get(pool, gid, gid, &giveaway_key(mid)).await {
+        return Some((gid.to_string(), raw));
+    }
+    let key = giveaway_key(mid);
+    let rows: Vec<(String, String)> =
+        sqlx::query_as::<_, (String, String)>("SELECT guild_id, value FROM kv WHERE key_name = ?")
+            .bind(&key)
+            .fetch_all(pool)
+            .await
+            .unwrap_or_default();
+    rows.into_iter().next()
+}
+
 pub async fn store_set(
     pool: &crate::db::Pool,
     gid: &str,
