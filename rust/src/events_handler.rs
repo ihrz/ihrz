@@ -4825,6 +4825,16 @@ impl serenity::EventHandler for Handler {
                 if let Some(voice) = combined {
                     let _ = m.push_voice_state(guild_id.get(), voice).await;
                 }
+            } else if crate::lavalink::LavalinkManager::should_destroy_on_disconnect(None) {
+                // onDisconnect.destroyPlayer leg (playerManager.ts:65):
+                // the bot left every channel — drop the guild player
+                // state + REST-destroy the node player + LastFM
+                // queue-end, then clear the voice status.
+                if let Some(target) = m.on_voice_disconnect(guild_id.get()).await {
+                    if let Some(vc) = target.voice_channel {
+                        crate::lavalink::LavalinkManager::clear_voice_status(&ctx.http, vc).await;
+                    }
+                }
             }
         }
         // H247 24/7 rejoin guard (mirrors Events/h247/voiceState.ts +

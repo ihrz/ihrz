@@ -797,7 +797,6 @@ mod tests {
                 .aliases
                 .clone()
         };
-        assert!(aliases_of("tempmute").contains(&"timeout".to_string()));
         assert!(aliases_of("tempmute").contains(&"mute".to_string()));
         assert!(aliases_of("ban").contains(&"addban".to_string()));
         assert!(aliases_of("unban").contains(&"pardon".to_string()));

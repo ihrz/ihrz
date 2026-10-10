@@ -39,7 +39,8 @@ pub async fn m_skip(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         .await?;
         return Ok(());
     }
-    // Push the next track (or destroy the node player when drained).
+    // Push the next track (or stop playback, keeping the node player,
+    // when drained).
     // The state advance mirrors the lavalink recovery skip legs, so
     // the reply carries the outcome in recovery terms: any
     // guild-visible notice from track_error_notice rides along, and a
@@ -66,7 +67,10 @@ pub async fn m_skip(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
                 ctx.say(with_notice(msg, &recovery)).await?;
             }
             None => {
-                if let Err(e) = m.rest_destroy(&node, &session, gid).await {
+                // Queue drained: stop playback without destroying the
+                // node player (mirrors `!skip.ts:103`
+                // `player.stopPlaying()`, not `destroy()`).
+                if let Err(e) = m.rest_stop_playing(&node, &session, gid).await {
                     ctx.say(player_error_text(&code, &e.to_string())).await?;
                     return Ok(());
                 }

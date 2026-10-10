@@ -158,12 +158,15 @@ pub fn decode_history(raw: &str, now_ms: i64) -> (Vec<HistoryEntry>, bool) {
 pub enum LoopMode {
     Off,
     Track,
+    /// Mirrors lavalink-client `setRepeatMode("queue")`.
+    Queue,
 }
 
 pub fn parse_loop(s: &str) -> Option<LoopMode> {
     match s.to_ascii_lowercase().as_str() {
         "off" => Some(LoopMode::Off),
         "track" => Some(LoopMode::Track),
+        "queue" => Some(LoopMode::Queue),
         _ => None,
     }
 }
@@ -173,8 +176,43 @@ impl From<LoopMode> for crate::lavalink::LoopMode {
         match m {
             LoopMode::Off => crate::lavalink::LoopMode::Off,
             LoopMode::Track => crate::lavalink::LoopMode::Track,
+            LoopMode::Queue => crate::lavalink::LoopMode::Queue,
         }
     }
+}
+
+/// Queue glyph for the loop reply (mirrors `!loop.ts`: track -> 🔂,
+/// anything else -> ▶).
+pub fn loop_glyph(mode: &str) -> &'static str {
+    if mode.eq_ignore_ascii_case("track") {
+        "🔂"
+    } else {
+        "▶"
+    }
+}
+
+/// `HH:MM:SS` duration (mirrors `buildTrackDuration` in musicPlay.ts).
+pub fn fmt_track_duration(total_ms: u64) -> String {
+    let total_sec = total_ms / 1000;
+    format!(
+        "{:02}:{:02}:{:02}",
+        total_sec / 3600,
+        (total_sec % 3600) / 60,
+        total_sec % 60
+    )
+}
+
+/// Pause gate (mirrors `!pause.ts`: pausing needs a live track that is
+/// not already paused).
+pub fn can_pause(has_current: bool, paused: bool) -> bool {
+    has_current && !paused
+}
+
+/// H247 play guard (mirrors the `getH247Data` leg in
+/// `handleMusicPlay`): refuse when 24/7 is enabled and the requester
+/// is not in the parked voice channel.
+pub fn h247_refuses(enabled: bool, h247_voice: Option<u64>, member_voice: Option<u64>) -> bool {
+    enabled && member_voice != h247_voice
 }
 
 /// Discord embed description limit guard (lyrics truncate at 1997 + …).
@@ -1009,7 +1047,7 @@ mod tests {
     fn loop_parses() {
         assert_eq!(parse_loop("off"), Some(LoopMode::Off));
         assert_eq!(parse_loop("track"), Some(LoopMode::Track));
-        assert_eq!(parse_loop("queue"), None);
+        assert_eq!(parse_loop("queue"), Some(LoopMode::Queue));
     }
 
     #[test]
@@ -1024,6 +1062,46 @@ mod tests {
         assert_eq!(fmt_duration(0), "0:00");
         assert_eq!(fmt_duration(65_000), "1:05");
         assert_eq!(fmt_duration(3_600_000), "60:00");
+    }
+
+    #[test]
+    fn track_duration_formats_hh_mm_ss() {
+        assert_eq!(fmt_track_duration(0), "00:00:00");
+        assert_eq!(fmt_track_duration(65_000), "00:01:05");
+        assert_eq!(fmt_track_duration(3_600_000), "01:00:00");
+        assert_eq!(fmt_track_duration(3_726_000), "01:02:06");
+    }
+
+    #[test]
+    fn loop_parses_queue_and_glyphs() {
+        assert_eq!(parse_loop("queue"), Some(LoopMode::Queue));
+        assert_eq!(parse_loop("QUEUE"), Some(LoopMode::Queue));
+        assert_eq!(parse_loop("track"), Some(LoopMode::Track));
+        assert_eq!(parse_loop("off"), Some(LoopMode::Off));
+        assert_eq!(parse_loop("all"), None);
+        assert_eq!(loop_glyph("track"), "🔂");
+        assert_eq!(loop_glyph("queue"), "▶");
+        assert_eq!(loop_glyph("off"), "▶");
+        assert_eq!(
+            crate::lavalink::LoopMode::from(LoopMode::Queue),
+            crate::lavalink::LoopMode::Queue
+        );
+    }
+
+    #[test]
+    fn pause_gate_needs_live_unpaused_track() {
+        assert!(can_pause(true, false));
+        assert!(!can_pause(false, false));
+        assert!(!can_pause(true, true));
+    }
+
+    #[test]
+    fn h247_guard_matches_ts_leg() {
+        assert!(h247_refuses(true, Some(7), Some(8)));
+        assert!(h247_refuses(true, Some(7), None));
+        assert!(!h247_refuses(true, Some(7), Some(7)));
+        assert!(!h247_refuses(false, Some(7), Some(8)));
+        assert!(!h247_refuses(false, None, None));
     }
 
     #[test]
@@ -1177,6 +1255,7 @@ mod tests {
             uri: Some("https://www.youtube.com/watch?v=abc".to_string()),
             length_ms: 65_000,
             source: "youtube".to_string(),
+            artwork: None,
             requester: 1,
         };
         let p = fallback_preview_for(&t);

@@ -1,10 +1,10 @@
 use super::*;
 
-/// Mirrors `!loop.ts`.
+/// Mirrors `!loop.ts` (off/track/queue via `setRepeatMode`).
 #[poise::command(slash_command, prefix_command, rename = "loop")]
 pub async fn m_loop(
     ctx: Ctx<'_>,
-    #[description = "off or track"] mode: String,
+    #[description = "off, track or queue"] mode: String,
 ) -> Result<(), anyhow::Error> {
     let code = lang_code(&ctx).await;
     let Some(gid) = guild_id_of(&ctx) else {
@@ -34,11 +34,7 @@ pub async fn m_loop(
     let live_mode: crate::lavalink::LoopMode = m.into();
     mgr.with_player(gid, |p| p.loop_mode = Some(live_mode))
         .await;
-    let glyph = if mode.eq_ignore_ascii_case("track") {
-        "🔂"
-    } else {
-        "▶"
-    };
+    let glyph = loop_glyph(&mode);
     let msg = crate::lang::get(&code, "loop_command_work")
         .map(|s| s.replace("{mode}", glyph))
         .unwrap_or_else(|| format!("{glyph} | Updated loop mode"));

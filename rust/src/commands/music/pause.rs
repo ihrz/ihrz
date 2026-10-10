@@ -13,7 +13,11 @@ pub async fn m_pause(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     }
     let m = synced_mgr(&ctx).await;
     let snap = m.snapshot(gid).await;
-    if snap.as_ref().and_then(|s| s.current.clone()).is_none() {
+    // Pause needs a live, unpaused track (mirrors `!pause.ts:60`
+    // `!player || !player.playing`).
+    let has_current = snap.as_ref().and_then(|s| s.current.clone()).is_some();
+    let paused = snap.as_ref().map(|s| s.paused).unwrap_or(false);
+    if !can_pause(has_current, paused) {
         say_key(
             &ctx,
             &code,

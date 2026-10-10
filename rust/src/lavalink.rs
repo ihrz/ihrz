@@ -25,7 +25,7 @@
 // MusicError::NoNodes before any I/O; queue/loop/volume/pause state
 // stays usable so commands remain unit-testable without a node.
 
-use std::collections::{HashMap, VecDeque};
+use std::collections::{HashMap, HashSet, VecDeque};
 use std::fmt;
 use std::sync::{Arc, OnceLock};
 use std::time::{Duration, Instant};
@@ -43,6 +43,11 @@ use tokio::sync::{Mutex, RwLock};
 
 /// Mirrors onEmptyQueue.destroyAfterMs in playerManager.ts.
 pub const EMPTY_QUEUE_DESTROY_AFTER_MS: i64 = 120_000;
+
+/// Default node volume applied on every fresh start. Mirrors
+/// `DEFAULT_VOLUME = 75` in musicPlay.ts (`player.setVolume(
+/// player.customVolume || DEFAULT_VOLUME)` after createPlayer).
+pub const DEFAULT_VOLUME: u8 = 75;
 
 /// Client-Name header sent on the node WS handshake (mirrors the
 /// lavalink-client default; lava-rs connect_to_node sends its own).
@@ -74,6 +79,10 @@ impl From<&crate::config::LavalinkNode> for NodeCfg {
 pub enum LoopMode {
     Off,
     Track,
+    /// Mirrors lavalink-client `setRepeatMode("queue")`: a finished
+    /// track rejoins the back of the queue (`!loop.ts` accepts
+    /// off/track/queue).
+    Queue,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -168,6 +177,9 @@ pub struct QueuedTrack {
     pub uri: Option<String>,
     pub length_ms: u64,
     pub source: String,
+    /// Cover art for the play/trackStart embeds (mirrors
+    /// `track.info.artworkUrl`; None when the node omits it).
+    pub artwork: Option<String>,
     pub requester: u64,
 }
 
@@ -180,6 +192,7 @@ impl From<(&Track, u64)> for QueuedTrack {
             uri: t.info.uri.clone(),
             length_ms: t.info.length,
             source: t.info.source_name.clone(),
+            artwork: t.info.artwork_url.clone(),
             requester,
         }
     }
@@ -201,7 +214,7 @@ pub struct GuildPlayer {
 impl GuildPlayer {
     pub fn new() -> Self {
         Self {
-            volume: 100,
+            volume: DEFAULT_VOLUME,
             loop_mode: Some(LoopMode::Off),
             ..Default::default()
         }
@@ -266,7 +279,9 @@ impl GuildPlayer {
         v
     }
 
-    /// Track-end state advance. Loop-track replays on Finished; Replaced
+    /// Track-end state advance. Loop-track replays on Finished; loop-queue
+    /// rejoins the finished track at the back and pops the next one
+    /// (mirrors lavalink-client `setRepeatMode("queue")`); Replaced
     /// keeps current (node swapped it externally); anything else pops the
     /// next queued track or goes idle (TS onEmptyQueue path).
     pub fn advance_on_end(&mut self, reason: &TrackEndReason, now_ms: i64) -> AdvanceOutcome {
@@ -274,6 +289,19 @@ impl GuildPlayer {
             TrackEndReason::Replaced => AdvanceOutcome::Kept,
             TrackEndReason::Finished if self.loop_mode() == LoopMode::Track => {
                 AdvanceOutcome::Replay
+            }
+            TrackEndReason::Finished if self.loop_mode() == LoopMode::Queue => {
+                if let Some(done) = self.current.clone() {
+                    self.queue.push_back(done);
+                }
+                self.current = self.queue.pop_front();
+                if self.current.is_some() {
+                    AdvanceOutcome::Next
+                } else {
+                    self.paused = false;
+                    self.idle_since_ms = Some(now_ms);
+                    AdvanceOutcome::Idle
+                }
             }
             _ => {
                 self.current = self.queue.pop_front();
@@ -304,6 +332,13 @@ pub enum AdvanceOutcome {
     Idle,
     Kept,
 }
+
+/// One track-end step: the advance decision plus the optional
+/// (node, session, encoded track) to push to Lavalink.
+pub type AdvanceStep = (
+    Option<AdvanceOutcome>,
+    Option<(Arc<NodeEntry>, String, String)>,
+);
 
 /// Fallback re-search source for a failed track (mirrors the two
 /// `player.node.search` branches in the TS `trackError` handler:
@@ -380,6 +415,233 @@ fn load_tracks_flat(loaded: LoadResult) -> Vec<Track> {
         LoadResult::Playlist(data) => data.tracks,
         LoadResult::Search(v) => v.into_iter().take(1).collect(),
         LoadResult::Empty | LoadResult::Error(_) => vec![],
+    }
+}
+
+// ---- search pipeline (mirrors searchQueryOnNode in musicPlay.ts) ----
+
+/// True when the query parses as a URL (mirrors `isUrlQuery`).
+pub fn is_url_query(query: &str) -> bool {
+    let q = query.trim();
+    q.starts_with("http://") || q.starts_with("https://")
+}
+
+fn url_host(query: &str) -> Option<String> {
+    let rest = query
+        .trim()
+        .strip_prefix("https://")
+        .or_else(|| query.trim().strip_prefix("http://"))?;
+    let host = rest.split('/').next().unwrap_or("").to_ascii_lowercase();
+    (!host.is_empty()).then_some(host)
+}
+
+/// Mirrors `isSpotifyURL` (host contains "spotify").
+pub fn is_spotify_url(query: &str) -> bool {
+    url_host(query).is_some_and(|h| h.contains("spotify"))
+}
+
+/// Mirrors `isYoutubeURL` (host contains "youtu").
+pub fn is_youtube_url(query: &str) -> bool {
+    url_host(query).is_some_and(|h| h.contains("youtu"))
+}
+
+/// Mirrors `isAppleMusicURL` (host contains "apple.com").
+pub fn is_apple_music_url(query: &str) -> bool {
+    url_host(query).is_some_and(|h| h.contains("apple.com"))
+}
+
+/// Mirrors `isAmazonMusicURL` (host contains "amazon").
+pub fn is_amazon_music_url(query: &str) -> bool {
+    url_host(query).is_some_and(|h| h.contains("amazon"))
+}
+
+/// Mirrors `isTidalURL` (host contains "tidal").
+pub fn is_tidal_url(query: &str) -> bool {
+    url_host(query).is_some_and(|h| h.contains("tidal"))
+}
+
+/// Strip `(…)` / `[…]` groups (mirrors `removeParenthesesContent`:
+/// YouTube titles carry `(Prod. …)` extras Deezer/Spotify don't).
+pub fn remove_parentheses_content(text: &str) -> String {
+    let mut out = String::with_capacity(text.len());
+    let mut depth: usize = 0;
+    for ch in text.chars() {
+        match ch {
+            '(' | '[' => depth += 1,
+            ')' | ']' => {
+                depth = depth.saturating_sub(1);
+            }
+            _ => {
+                if depth == 0 {
+                    out.push(ch);
+                }
+            }
+        }
+    }
+    out.split_whitespace().collect::<Vec<_>>().join(" ")
+}
+
+/// Drop YouTube tracking/playlist params (mirrors `sanitizeYoutubeUrl`).
+/// Non-YouTube inputs pass through untouched.
+pub fn sanitize_youtube_url(input: &str) -> String {
+    let host = match url_host(input) {
+        Some(h) => h,
+        None => return input.to_string(),
+    };
+    let is_yt = [
+        "youtube.com",
+        "www.youtube.com",
+        "youtu.be",
+        "music.youtube.com",
+    ]
+    .iter()
+    .any(|h| host == *h || host.ends_with(&format!(".{h}")));
+    if !is_yt {
+        return input.to_string();
+    }
+    const DROP: &[&str] = &[
+        "si",
+        "t",
+        "list",
+        "index",
+        "start_radio",
+        "pp",
+        "feature",
+        "embeds_referring_euri",
+        "source_ve_path",
+        "app",
+    ];
+    let (base, query) = match input.split_once('?') {
+        Some((b, q)) => (b, q),
+        None => return input.to_string(),
+    };
+    let kept: Vec<&str> = query
+        .split('&')
+        .filter(|pair| {
+            let key = pair.split('=').next().unwrap_or("");
+            !DROP.contains(&key)
+        })
+        .collect();
+    if kept.is_empty() {
+        base.to_string()
+    } else {
+        format!("{base}?{}", kept.join("&"))
+    }
+}
+
+/// Mask raw links in track titles (mirrors `maskLink`: any title
+/// carrying a URL-ish token becomes `Hidden Link`).
+pub fn mask_link(input: &str) -> String {
+    const BLACKLIST: &[&str] = &["http://", "https://", "discordapp", ".com", ".gg"];
+    if BLACKLIST.iter().any(|b| input.contains(b)) {
+        return "Hidden Link".to_string();
+    }
+    input.to_string()
+}
+
+/// Apply [`mask_link`] to every loaded track title in place (mirrors
+/// the `res.tracks.forEach(track => track.info.title =
+/// maskLink(...))` leg in `handleMusicPlay`).
+pub fn mask_tracks(mut tracks: Vec<Track>) -> Vec<Track> {
+    for t in &mut tracks {
+        t.info.title = mask_link(&t.info.title);
+    }
+    tracks
+}
+
+/// Levenshtein distance (mirrors `music_proximity.levenshtein`).
+pub fn levenshtein(a: &str, b: &str) -> usize {
+    let a: Vec<char> = a.chars().collect();
+    let b: Vec<char> = b.chars().collect();
+    let mut prev: Vec<usize> = (0..=b.len()).collect();
+    for i in 1..=a.len() {
+        let mut cur = vec![i; b.len() + 1];
+        for j in 1..=b.len() {
+            let cost = usize::from(a[i - 1] != b[j - 1]);
+            cur[j] = (prev[j] + 1).min(cur[j - 1] + 1).min(prev[j - 1] + cost);
+        }
+        prev = cur;
+    }
+    prev[b.len()]
+}
+
+/// Similarity score in 0..=1 (mirrors `music_proximity.similarity`).
+pub fn proximity_similarity(a: &str, b: &str) -> f64 {
+    let dist = levenshtein(&a.to_lowercase(), &b.to_lowercase()) as f64;
+    let max_len = a.chars().count().max(b.chars().count()) as f64;
+    if max_len == 0.0 {
+        1.0
+    } else {
+        1.0 - dist / max_len
+    }
+}
+
+/// `title + author` label compared against queries (mirrors
+/// `buildTrackLabel`).
+pub fn build_track_label(title: &str, author: &str) -> String {
+    format!("{} {}", title.trim(), author.trim())
+        .trim()
+        .to_string()
+}
+
+/// Word-level fuzzy match (mirrors `music_proximity.isSimilar` with
+/// its default 0.5 / 0.7 thresholds): every query word needs a
+/// track word scoring >= word_threshold, and the share of matched
+/// words must reach threshold.
+pub fn is_similar(query: &str, title: &str, author: &str) -> bool {
+    is_similar_thresholds(query, title, author, 0.5, 0.7)
+}
+
+pub fn is_similar_thresholds(
+    query: &str,
+    title: &str,
+    author: &str,
+    threshold: f64,
+    word_threshold: f64,
+) -> bool {
+    let query_words: Vec<String> = query
+        .to_lowercase()
+        .split_whitespace()
+        .map(str::to_string)
+        .collect();
+    if query_words.is_empty() {
+        return false;
+    }
+    let track_words: Vec<String> = format!("{} {}", author.to_lowercase(), title.to_lowercase())
+        .split_whitespace()
+        .map(str::to_string)
+        .collect();
+    let mut matched = 0usize;
+    for qw in &query_words {
+        let best = track_words
+            .iter()
+            .map(|tw| proximity_similarity(qw, tw))
+            .fold(0.0f64, f64::max);
+        if best >= word_threshold {
+            matched += 1;
+        }
+    }
+    matched as f64 / query_words.len() as f64 >= threshold
+}
+
+/// A loaded search hit counts when it carries a titled first track
+/// (mirrors `responseExist`).
+pub fn response_exists(tracks: &[Track]) -> bool {
+    tracks
+        .first()
+        .is_some_and(|t| !t.info.title.trim().is_empty())
+}
+
+/// Provider tag for the play reply (mirrors `platformLabel`:
+/// Deezer / SoundCloud source lines, None otherwise).
+pub fn platform_source_tag(uri: Option<&str>) -> Option<&'static str> {
+    let url = uri?;
+    if url.contains("deezer") {
+        Some("Deezer")
+    } else if url.contains("soundcloud") {
+        Some("SoundCloud")
+    } else {
+        None
     }
 }
 
@@ -503,6 +765,16 @@ pub struct LavalinkManager {
     /// TrackException arm runs the bot.rs wrapper; when unset (tests,
     /// pre-ready) it falls back to the offline recovery.
     exception_report: Mutex<Option<ExceptionReportCtx>>,
+    /// Guilds whose trackStart announce is suppressed while TTS owns
+    /// the player (mirrors the `getTTSData` early-return in the TS
+    /// `trackStart` handler). Set when a play/TTS cleanup runs, read
+    /// by [`LavalinkManager::announce_track_start`].
+    tts_suppressed: Mutex<HashSet<u64>>,
+    /// In-memory LastFM playback sessions per guild (mirrors the TS
+    /// `guildSessions` map in lastFMScrobblerManager.ts). Fed by the
+    /// track start/end/queue-end hooks; the HTTP scrobble POST itself
+    /// stays with the live caller (needs per-user session keys).
+    lastfm_sessions: Mutex<HashMap<u64, LastFmSession>>,
 }
 
 impl LavalinkManager {
@@ -516,6 +788,8 @@ impl LavalinkManager {
             shards: Mutex::new(HashMap::new()),
             total_shards: Mutex::new(None),
             exception_report: Mutex::new(None),
+            tts_suppressed: Mutex::new(HashSet::new()),
+            lastfm_sessions: Mutex::new(HashMap::new()),
         }
     }
 
@@ -629,40 +903,140 @@ impl LavalinkManager {
             p.current = Some(QueuedTrack::from((&ev.track, 0)));
             p.idle_since_ms = None;
             p.paused = false;
+            let requester = p.current.as_ref().map(|t| t.requester).unwrap_or(0);
+            drop(players);
+            // LastFM start hook (mirrors
+            // lastFMScrobbler.handleTrackStart: clear the old session,
+            // open a new one for this track).
+            self.lastfm_track_start(
+                gid,
+                ev.track.info.author.clone(),
+                ev.track.info.title.clone(),
+                ev.track.info.length,
+                requester,
+                now_ms_wall(),
+            )
+            .await;
         }
         self.dispatcher.lock().await.dispatch_track_start(ev).await;
     }
 
+    /// Open (replacing any stale) LastFM session for a starting track
+    /// (mirrors `handleTrackStart` clearing + setting guildSessions).
+    pub async fn lastfm_track_start(
+        &self,
+        guild_id: u64,
+        artist: String,
+        title: String,
+        duration_ms: u64,
+        requester: u64,
+        now_ms: i64,
+    ) {
+        self.lastfm_sessions.lock().await.insert(
+            guild_id,
+            LastFmSession {
+                artist,
+                title,
+                duration_ms,
+                requester,
+                started_ms: now_ms,
+            },
+        );
+    }
+
+    /// Close the session at track end, returning the scrobble payload
+    /// when the listen counts (mirrors `handleTrackEnd` +
+    /// `tryScrobbleListener`; load-failed tracks are dropped by the
+    /// caller before reaching here).
+    pub async fn lastfm_track_end_due(&self, guild_id: u64, now_ms: i64) -> Option<ScrobbleDue> {
+        let session = self.lastfm_sessions.lock().await.remove(&guild_id)?;
+        let played_ms = (now_ms - session.started_ms).max(0) as u64;
+        if should_scrobble(session.duration_ms, played_ms) {
+            Some(ScrobbleDue {
+                artist: session.artist,
+                title: session.title,
+                duration_ms: session.duration_ms,
+                requester: session.requester,
+                started_ms: session.started_ms,
+            })
+        } else {
+            None
+        }
+    }
+
+    /// Drop the session with no scrobble (mirrors `handleQueueEnd` ->
+    /// clearGuildSession).
+    pub async fn lastfm_queue_end(&self, guild_id: u64) {
+        self.lastfm_sessions.lock().await.remove(&guild_id);
+    }
+
+    /// Mark a guild as TTS-owned so the next trackStart announce is
+    /// skipped (mirrors the `getTTSData` early-return). Cleared when a
+    /// play/TTS cleanup runs.
+    pub async fn set_tts_suppressed(&self, guild_id: u64, suppressed: bool) {
+        let mut set = self.tts_suppressed.lock().await;
+        if suppressed {
+            set.insert(guild_id);
+        } else {
+            set.remove(&guild_id);
+        }
+    }
+
+    async fn is_tts_suppressed(&self, guild_id: u64) -> bool {
+        self.tts_suppressed.lock().await.contains(&guild_id)
+    }
+
     /// Incoming WS TrackEnd: advance state per reason, fan out, and when
-    /// live push the next track to the node (queue auto-advance).
+    /// live push the next track to the node (queue auto-advance). A
+    /// loop-track Replay re-pushes the same encoded track (without this
+    /// the node would go idle and the loop would never replay).
     pub async fn handle_track_end(&self, ev: TrackEndEvent, now_ms: i64) {
-        let next_encoded: Option<(Arc<NodeEntry>, String, String)> = {
+        let (outcome, next_encoded): AdvanceStep = {
             let gid = ev.guild_id.parse::<u64>().ok();
             let mut players = self.players.lock().await;
             if let Some(gid) = gid {
                 if let Some(p) = players.get_mut(&gid) {
-                    match p.advance_on_end(&ev.reason, now_ms) {
-                        AdvanceOutcome::Next => {
+                    let adv = p.advance_on_end(&ev.reason, now_ms);
+                    match adv {
+                        AdvanceOutcome::Next | AdvanceOutcome::Replay => {
                             let enc = p.current.as_ref().map(|t| t.encoded.clone());
                             drop(players);
                             let live = self.live_node_and_session(gid).await.ok();
                             match (live, enc) {
-                                (Some((n, s)), Some(e)) => Some((n, s, e)),
-                                _ => None,
+                                (Some((n, s)), Some(e)) => (Some(adv), Some((n, s, e))),
+                                _ => (Some(adv), None),
                             }
                         }
-                        _ => None,
+                        other => (Some(other), None),
                     }
                 } else {
-                    None
+                    (None, None)
                 }
             } else {
-                None
+                (None, None)
             }
         };
         if let Some((node, session, encoded)) = next_encoded {
             let gid = ev.guild_id.parse::<u64>().unwrap_or(0);
             let _ = self.rest_play(&node, &session, gid, &encoded, false).await;
+        }
+        // LastFM scrobble hooks (mirrors playerManager.ts trackEnd ->
+        // lastFMScrobbler.handleTrackEnd, and the Idle drain -> queueEnd
+        // -> handleQueueEnd leg). Load-failed tracks never scrobble.
+        if let Ok(gid) = ev.guild_id.parse::<u64>() {
+            match outcome {
+                Some(AdvanceOutcome::Idle) => {
+                    self.lastfm_queue_end(gid).await;
+                }
+                Some(_) => {
+                    if !matches!(ev.reason, TrackEndReason::LoadFailed) {
+                        self.lastfm_track_end_due(gid, now_ms).await;
+                    } else {
+                        self.lastfm_queue_end(gid).await;
+                    }
+                }
+                None => {}
+            }
         }
         self.dispatcher.lock().await.dispatch_track_end(ev).await;
     }
@@ -813,15 +1187,28 @@ impl LavalinkManager {
     /// Full owner-visible diagnostics document for a failed track: a
     /// one-line summary (kept in the tracing log) followed by the
     /// markdown body posted to the lavalink error channel. Mirrors the
-    /// TS `trackError` error_log fields: guild, requester,
-    /// title/author/uri/encoded, source, stream flag, exception
-    /// message/severity/cause, node hint. Live-only client stats (WS
-    /// ping/status, heartbeat) have no Rust equivalent yet and are
-    /// omitted.
+    /// TS `trackError` error_log fields: client ping/status, guild,
+    /// requester, title/author/uri/encoded, source, stream flag,
+    /// exception message/severity/cause, node hint.
     pub fn track_error_report(
         ev: &TrackExceptionEvent,
         requester: Option<u64>,
         node_hint: Option<&str>,
+    ) -> String {
+        Self::track_error_report_with_client_stats(ev, requester, None, node_hint, None, None)
+    }
+
+    /// [`Self::track_error_report`] plus the live client stats (WS
+    /// ping/status, mirroring the TS `## Client about` block) and the
+    /// requester's global username when the caller knows it. Pass None
+    /// for stats the caller cannot observe; they render as `-`.
+    pub fn track_error_report_with_client_stats(
+        ev: &TrackExceptionEvent,
+        requester: Option<u64>,
+        requester_name: Option<&str>,
+        node_hint: Option<&str>,
+        ws_ping_ms: Option<u64>,
+        ws_status: Option<&str>,
     ) -> String {
         let requester_tag = requester
             .map(|r| format!("<@{r}>"))
@@ -830,6 +1217,9 @@ impl LavalinkManager {
             .duration_since(std::time::UNIX_EPOCH)
             .map(|d| d.as_millis())
             .unwrap_or(0);
+        let ping = ws_ping_ms
+            .map(|p| format!("{p}ms"))
+            .unwrap_or_else(|| "-".to_string());
         format!(
             "trackError guild={} requester={} track={} - {} uri={} encoded={} source={} error={} node={}\n\
              \n\
@@ -841,10 +1231,16 @@ impl LavalinkManager {
              \n\
              # Debug Info\n\
              \n\
+             ## Client about\n\
+             Client:\n\
+             \u{20} * WS ping: `{ping}`\n\
+             \u{20} * WS status: `{}`\n\
+             \n\
              ## Guild about\n\
              Guild:\n\
              \u{20} * Guild ID: `{}`\n\
              \u{20} * requester User ID: `{}`\n\
+             \u{20} * requester global username: `{}`\n\
              \n\
              ## Track about\n\
              Track:\n\
@@ -872,18 +1268,16 @@ impl LavalinkManager {
             ev.track.info.source_name,
             ev.exception.message,
             node_hint.unwrap_or("-"),
+            ws_status.unwrap_or("-"),
             ev.guild_id,
             requester_tag,
+            requester_name.unwrap_or("-"),
             ev.track.info.title,
             ev.track.info.author,
             ev.track.info.uri.as_deref().unwrap_or("-"),
             ev.track.encoded,
             ev.track.info.source_name,
-            if ev.track.info.is_stream {
-                "yes"
-            } else {
-                "no"
-            },
+            if ev.track.info.is_stream { "yes" } else { "no" },
             ev.exception.message,
             ev.exception.severity,
             ev.exception.cause,
@@ -975,7 +1369,9 @@ impl LavalinkManager {
             .await;
     }
 
-    // ---- voice handshake (mirrors raw.ts) ----
+    // ---- LastFM scrobble hooks (mirrors lastFMScrobblerManager.ts) ----
+    // Session types + threshold fns live at module level
+    // (`LastFmSession`, `scrobble_threshold_ms`, `should_scrobble`).
 
     pub async fn note_voice_state(
         &self,
@@ -1234,6 +1630,28 @@ impl LavalinkManager {
         }
     }
 
+    /// True when the bot's own voice update left every channel, i.e.
+    /// the `onDisconnect.destroyPlayer` leg applies (mirrors
+    /// `playerOptions.onDisconnect.destroyPlayer: true`).
+    pub fn should_destroy_on_disconnect(bot_channel: Option<u64>) -> bool {
+        bot_channel.is_none()
+    }
+
+    /// Voice-disconnect cleanup (mirrors `onDisconnect.destroyPlayer:
+    /// true` in playerManager.ts): drop the guild player state and
+    /// REST-destroy the node player (best-effort, skipped offline).
+    /// Returns the destroy target so the caller can OP4-leave + clear
+    /// the voice status. Wire point: the bot's own voice_state_update
+    /// with `channel_id == None` in events_handler.rs.
+    pub async fn on_voice_disconnect(&self, guild_id: u64) -> Option<IdleDestroyTarget> {
+        let target = self.remove_player(guild_id).await;
+        self.lastfm_queue_end(guild_id).await;
+        if let Ok((node, session)) = self.live_node_and_session(guild_id).await {
+            let _ = self.rest_destroy(&node, &session, guild_id).await;
+        }
+        target
+    }
+
     /// Clear a voice channel's status (mirrors
     /// changeVoiceChannelStatus(voiceChannelId, "") on queueEnd in
     /// playerManager.ts). Best-effort; false on any HTTP failure.
@@ -1241,6 +1659,23 @@ impl LavalinkManager {
         http.edit_voice_status(
             serenity::ChannelId::new(voice_channel_id),
             &serde_json::json!({ "status": "" }),
+            None,
+        )
+        .await
+        .is_ok()
+    }
+
+    /// Set a voice channel's status line (mirrors
+    /// changeVoiceChannelStatus(voiceChannelId, `:musical_note: title -
+    /// author`) on trackStart in playerManager.ts). Best-effort.
+    pub async fn set_voice_status(
+        http: &serenity::Http,
+        voice_channel_id: u64,
+        text: &str,
+    ) -> bool {
+        http.edit_voice_status(
+            serenity::ChannelId::new(voice_channel_id),
+            &serde_json::json!({ "status": text }),
             None,
         )
         .await
@@ -1263,24 +1698,110 @@ impl LavalinkManager {
         player.current.is_some() && occupants <= 1
     }
 
-    /// Post the nowplaying line for the current track when a text
-    /// channel is stored (mirrors the trackStart send in
-    /// playerManager.ts; the rich banner embed stays deferred).
+    /// Rich trackStart embed (mirrors the playerManager.ts trackStart
+    /// send: `event_mp_playerStart` description + artwork image; the TS
+    /// html2png banner has no Rust equivalent, so the node artwork is
+    /// used directly). Pure and offline-testable; `lang_code` falls
+    /// back to the embedded English template when the key is missing.
+    pub fn track_start_embed(
+        lang_code: &str,
+        title: &str,
+        author: &str,
+        uri: Option<&str>,
+        artwork: Option<&str>,
+        voice_channel_id: u64,
+        music_icon: &str,
+    ) -> serenity::CreateEmbed {
+        let desc = crate::lang::get(lang_code, "event_mp_playerStart")
+            .unwrap_or_else(|| {
+                "🎵 - Now playing [`${track.title}`](${url}) in **${queue.channel.name}**..."
+                    .to_string()
+            })
+            .replace("${client.iHorizon_Emojis.Music_Icon}", music_icon)
+            .replace("${track.title}", title)
+            .replace("${queue.channel.name}", &format!("<#{voice_channel_id}>"))
+            .replace("${url}", uri.unwrap_or(""));
+        let _ = author;
+        let mut embed = serenity::CreateEmbed::default()
+            .colour(0x2B2D31)
+            .description(desc);
+        if let Some(art) = artwork.filter(|u| !u.is_empty()) {
+            embed = embed.image(art);
+        }
+        embed
+    }
+
+    /// Post the trackStart announce for the current track (mirrors the
+    /// trackStart handler in playerManager.ts):
+    ///
+    ///   - TTS early-return while the guild is TTS-suppressed;
+    ///   - rich `event_mp_playerStart` embed with artwork;
+    ///   - channel fallback when the stored text channel is gone (voice
+    ///     channel, then any guild text channel, mirroring the TS
+    ///     fallback chain);
+    ///   - `:musical_note: title - author` voice status.
+    ///
     /// Runs after handle_track_start on the WS feed path.
     pub async fn announce_track_start(&self, http: &serenity::Http, guild_id: u64) {
+        if self.is_tts_suppressed(guild_id).await {
+            return;
+        }
         let snap = self.snapshot(guild_id).await;
         let Some(s) = snap else { return };
-        let (Some(ch), Some(cur)) = (s.text_channel, s.current.as_ref()) else {
+        let Some(cur) = s.current.as_ref() else {
             return;
         };
-        let _ = serenity::ChannelId::new(ch)
-            .say(http, Self::nowplaying_text(cur))
-            .await;
+        let icon = crate::emojis::app_emoji_markup(http, "Music_Icon")
+            .await
+            .unwrap_or_else(|| "🎵".to_string());
+        let embed = Self::track_start_embed(
+            "en-US",
+            &cur.title,
+            &cur.author,
+            cur.uri.as_deref(),
+            cur.artwork.as_deref(),
+            s.voice_channel.unwrap_or(0),
+            &icon,
+        );
+        if let Some(vc) = s.voice_channel {
+            let _ = Self::set_voice_status(http, vc, &Self::nowplaying_text(cur)).await;
+        }
+        // Primary leg: the stored text channel.
+        if let Some(ch) = s.text_channel {
+            if serenity::ChannelId::new(ch)
+                .send_message(http, serenity::CreateMessage::new().embed(embed.clone()))
+                .await
+                .is_ok()
+            {
+                return;
+            }
+        }
+        // Fallback leg (mirrors the TS deleted-channel fallback):
+        // first text channel of the guild, then remember it.
+        if let Ok(channels) = http.get_channels(serenity::GuildId::new(guild_id)).await {
+            if let Some(fallback) = channels
+                .iter()
+                .find(|c| c.kind == serenity::ChannelType::Text)
+            {
+                let id = fallback.id.get();
+                if fallback
+                    .id
+                    .send_message(http, serenity::CreateMessage::new().embed(embed))
+                    .await
+                    .is_ok()
+                {
+                    self.with_player(guild_id, |p| {
+                        p.text_channel = Some(id);
+                    })
+                    .await;
+                }
+            }
+        }
     }
 
     /// Register the dispatcher-level nowplaying announcer: every node
-    /// TrackStart posts to the stored text channel. Call once on
-    /// ready with the live Http handle.
+    /// TrackStart posts the rich announce to the stored text channel.
+    /// Call once on ready with the live Http handle.
     pub async fn register_announce(&self, http: Arc<serenity::Http>) {
         self.dispatcher
             .lock()
@@ -1291,14 +1812,7 @@ impl LavalinkManager {
                     let Ok(gid) = ev.guild_id.parse::<u64>() else {
                         return;
                     };
-                    let snap = manager().snapshot(gid).await;
-                    let Some(s) = snap else { return };
-                    let (Some(ch), Some(cur)) = (s.text_channel, s.current.as_ref()) else {
-                        return;
-                    };
-                    let _ = serenity::ChannelId::new(ch)
-                        .say(&http, LavalinkManager::nowplaying_text(cur))
-                        .await;
+                    manager().announce_track_start(&http, gid).await;
                 }
             });
     }
@@ -1438,6 +1952,35 @@ impl LavalinkManager {
         self.rest_delete(node, &endpoint).await
     }
 
+    /// Stop playback without destroying the node player (mirrors
+    /// lavalink-client `player.stopPlaying()`: PATCH with an explicit
+    /// null track, keeping the player + voice connection alive).
+    /// `UpdatePlayerPayload` skips None fields, so this goes out as a
+    /// raw `{"encodedTrack": null}` PATCH.
+    pub async fn rest_stop_playing(
+        &self,
+        node: &NodeEntry,
+        session: &str,
+        guild_id: u64,
+    ) -> Result<(), MusicError> {
+        let res = self
+            .http
+            .patch(format!(
+                "{}/v4/sessions/{session}/players/{guild_id}?noReplace=false",
+                node.base_url()
+            ))
+            .header("Authorization", &node.lava_cfg.password)
+            .json(&serde_json::json!({ "encodedTrack": null }))
+            .send()
+            .await?;
+        let status = res.status();
+        if !status.is_success() {
+            let body = res.text().await.unwrap_or_default();
+            return Err(MusicError::Rest(status.as_u16(), body));
+        }
+        Ok(())
+    }
+
     /// Push the Discord voice handshake (token/endpoint/session) to
     /// the node player (mirrors the voice forward in raw.ts).
     pub async fn rest_set_voice(
@@ -1524,33 +2067,360 @@ impl LavalinkManager {
         Err(MusicError::NoSession(first.id.clone()))
     }
 
-    /// Resolve + enqueue. Returns (position, track title): position 0
-    /// means it started playing immediately.
+    /// Load one identifier on the live node (failover order). Thin
+    /// wrapper so the search pipeline reads like the TS
+    /// `node.search(...)` legs.
+    async fn load_on_live_node(
+        &self,
+        guild_id: u64,
+        identifier: &str,
+    ) -> Result<LoadResult, MusicError> {
+        let (node, _) = self.live_node_and_session(guild_id).await?;
+        self.rest_load(&node, identifier).await
+    }
+
+    /// First-hit tracks for one `artist title` text query (deezer leg
+    /// only; the caller decides playlist vs single).
+    async fn deezer_first_hit(&self, guild_id: u64, artist: &str, title: &str) -> Option<Track> {
+        let identifier = format!("dzsearch:{} {}", artist.trim(), title.trim());
+        match self.load_on_live_node(guild_id, &identifier).await {
+            Ok(loaded) => load_tracks_flat(loaded).into_iter().next(),
+            Err(_) => None,
+        }
+    }
+
+    /// Bare-text search with the deezer-vs-soundcloud proximity legs
+    /// (mirrors the non-URL tail of `searchQueryOnNode`): deezer first,
+    /// soundcloud fallback when deezer misses or looks dissimilar, and
+    /// the similarity-score pick when both hit.
+    pub async fn search_text_tracks(
+        &self,
+        guild_id: u64,
+        query: &str,
+    ) -> Result<Vec<Track>, MusicError> {
+        let deezer = match self
+            .load_on_live_node(guild_id, &format!("dzsearch:{query}"))
+            .await
+        {
+            Ok(loaded) => load_tracks_flat(loaded),
+            Err(_) => vec![],
+        };
+        if !response_exists(&deezer) {
+            let sc = match self
+                .load_on_live_node(guild_id, &format!("scsearch:{query}"))
+                .await
+            {
+                Ok(loaded) => load_tracks_flat(loaded),
+                Err(_) => vec![],
+            };
+            if response_exists(&sc) {
+                return Ok(sc);
+            }
+            return Err(MusicError::NoMatches);
+        }
+        let first = &deezer[0];
+        if is_similar(query, &first.info.title, &first.info.author) {
+            return Ok(deezer);
+        }
+        let sc = match self
+            .load_on_live_node(guild_id, &format!("scsearch:{query}"))
+            .await
+        {
+            Ok(loaded) => load_tracks_flat(loaded),
+            Err(_) => vec![],
+        };
+        if !response_exists(&sc) {
+            return Ok(deezer);
+        }
+        let deezer_score = proximity_similarity(
+            query,
+            &build_track_label(&first.info.title, &first.info.author),
+        );
+        let sc_first = &sc[0];
+        let sc_score = proximity_similarity(
+            query,
+            &build_track_label(&sc_first.info.title, &sc_first.info.author),
+        );
+        if sc_score > deezer_score {
+            Ok(sc)
+        } else {
+            Ok(deezer)
+        }
+    }
+
+    /// Resolve one play query to node tracks + a playlist flag. Mirrors
+    /// `searchQueryOnNode`: Spotify/Apple/Amazon/Tidal URLs resolve via
+    /// the metadata ports and re-search on deezer (albums/playlists fan
+    /// out to 100 per-track deezer hits, like TS); YouTube URLs are
+    /// sanitized and loaded direct (the TS youtubei.js title lookup has
+    /// no Rust equivalent); other URLs load direct; bare text goes
+    /// through [`Self::search_text_tracks`]. Every returned title runs
+    /// through [`mask_link`].
+    pub async fn resolve_query_tracks(
+        &self,
+        guild_id: u64,
+        query: &str,
+    ) -> Result<(Vec<Track>, bool), MusicError> {
+        let query = query.trim();
+        if is_spotify_url(query) {
+            return self.resolve_spotify(guild_id, query).await;
+        }
+        if is_apple_music_url(query) {
+            if let Some(res) = self.resolve_apple(guild_id, query).await? {
+                return Ok(res);
+            }
+            return Err(MusicError::NoMatches);
+        }
+        if is_amazon_music_url(query) {
+            if let Some(res) = self.resolve_amazon(guild_id, query).await? {
+                return Ok(res);
+            }
+            return Err(MusicError::NoMatches);
+        }
+        if is_tidal_url(query) {
+            if let Some(res) = self.resolve_tidal(guild_id, query).await? {
+                return Ok(res);
+            }
+            return Err(MusicError::NoMatches);
+        }
+        if is_youtube_url(query) {
+            let clean = sanitize_youtube_url(query);
+            match self.load_on_live_node(guild_id, &clean).await {
+                Ok(LoadResult::Playlist(data)) => {
+                    return Ok((mask_tracks(data.tracks), true));
+                }
+                Ok(loaded) => {
+                    let tracks = mask_tracks(load_tracks_flat(loaded));
+                    if response_exists(&tracks) {
+                        return Ok((tracks, false));
+                    }
+                }
+                Err(_) => {}
+            }
+            return Err(MusicError::NoMatches);
+        }
+        if is_url_query(query) {
+            // Generic URL: LavaSrc resolves the URL itself, so deezer
+            // and soundcloud legs would return the same tracks — one
+            // direct load is equivalent.
+            match self.load_on_live_node(guild_id, query).await {
+                Ok(LoadResult::Playlist(data)) => {
+                    return Ok((mask_tracks(data.tracks), true));
+                }
+                Ok(LoadResult::Error(e)) => {
+                    return Err(MusicError::Rest(422, e.message));
+                }
+                Ok(loaded) => {
+                    let tracks = mask_tracks(load_tracks_flat(loaded));
+                    if response_exists(&tracks) {
+                        return Ok((tracks, false));
+                    }
+                }
+                Err(_) => {}
+            }
+            return Err(MusicError::NoMatches);
+        }
+        let tracks = mask_tracks(self.search_text_tracks(guild_id, query).await?);
+        if !response_exists(&tracks) {
+            return Err(MusicError::NoMatches);
+        }
+        Ok((tracks, false))
+    }
+
+    async fn resolve_spotify(
+        &self,
+        guild_id: u64,
+        url: &str,
+    ) -> Result<(Vec<Track>, bool), MusicError> {
+        let details = crate::metadata::spotify::get_details(url)
+            .await
+            .map_err(|e| MusicError::Transport(e.to_string()))?;
+        if details.tracks.len() == 1 {
+            let t = &details.tracks[0];
+            let artist = t.artist.clone().unwrap_or_default();
+            match self.deezer_first_hit(guild_id, &artist, &t.name).await {
+                Some(hit) => Ok((mask_tracks(vec![hit]), false)),
+                None => Err(MusicError::NoMatches),
+            }
+        } else {
+            let mut found = Vec::new();
+            for t in details.tracks.iter().take(100) {
+                let artist = t.artist.clone().unwrap_or_default();
+                if let Some(hit) = self.deezer_first_hit(guild_id, &artist, &t.name).await {
+                    found.push(hit);
+                }
+            }
+            if found.is_empty() {
+                return Err(MusicError::NoMatches);
+            }
+            Ok((mask_tracks(found), true))
+        }
+    }
+
+    async fn resolve_apple(
+        &self,
+        guild_id: u64,
+        url: &str,
+    ) -> Result<Option<(Vec<Track>, bool)>, MusicError> {
+        let res = crate::metadata::apple_music::search(url)
+            .await
+            .map_err(|e| MusicError::Transport(e.to_string()))?;
+        let Some(res) = res else {
+            return Ok(None);
+        };
+        match res {
+            crate::metadata::apple_music::AppleResult::Song(t) => {
+                match self
+                    .deezer_first_hit(guild_id, &t.artist.name, &t.title)
+                    .await
+                {
+                    Some(hit) => Ok(Some((mask_tracks(vec![hit]), false))),
+                    None => Ok(None),
+                }
+            }
+            crate::metadata::apple_music::AppleResult::Album(a) => Ok(Some((
+                self.deezer_fan_out(guild_id, &a.tracks).await?,
+                true,
+            ))),
+            crate::metadata::apple_music::AppleResult::Playlist(p) => Ok(Some((
+                self.deezer_fan_out(guild_id, &p.tracks).await?,
+                true,
+            ))),
+        }
+    }
+
+    async fn deezer_fan_out(
+        &self,
+        guild_id: u64,
+        tracks: &[crate::metadata::apple_music::Track],
+    ) -> Result<Vec<Track>, MusicError> {
+        let mut found = Vec::new();
+        for t in tracks.iter().take(100) {
+            if let Some(hit) = self
+                .deezer_first_hit(guild_id, &t.artist.name, &t.title)
+                .await
+            {
+                found.push(hit);
+            }
+        }
+        if found.is_empty() {
+            return Err(MusicError::NoMatches);
+        }
+        Ok(mask_tracks(found))
+    }
+
+    async fn resolve_tidal(
+        &self,
+        guild_id: u64,
+        url: &str,
+    ) -> Result<Option<(Vec<Track>, bool)>, MusicError> {
+        let res = crate::metadata::tidal::search(url)
+            .await
+            .map_err(|e| MusicError::Transport(e.to_string()))?;
+        match res {
+            crate::metadata::tidal::TidalResult::Song(t) => {
+                match self
+                    .deezer_first_hit(guild_id, &t.artist.name, &t.title)
+                    .await
+                {
+                    Some(hit) => Ok(Some((mask_tracks(vec![hit]), false))),
+                    None => Ok(None),
+                }
+            }
+            crate::metadata::tidal::TidalResult::Album(a) => Ok(Some((
+                self.deezer_fan_out_tidal(guild_id, &a.tracks).await?,
+                true,
+            ))),
+            crate::metadata::tidal::TidalResult::Playlist(p) => Ok(Some((
+                self.deezer_fan_out_tidal(guild_id, &p.tracks).await?,
+                true,
+            ))),
+        }
+    }
+
+    async fn deezer_fan_out_tidal(
+        &self,
+        guild_id: u64,
+        tracks: &[crate::metadata::tidal::Track],
+    ) -> Result<Vec<Track>, MusicError> {
+        let mut found = Vec::new();
+        for t in tracks.iter().take(100) {
+            if let Some(hit) = self
+                .deezer_first_hit(guild_id, &t.artist.name, &t.title)
+                .await
+            {
+                found.push(hit);
+            }
+        }
+        if found.is_empty() {
+            return Err(MusicError::NoMatches);
+        }
+        Ok(mask_tracks(found))
+    }
+
+    async fn resolve_amazon(
+        &self,
+        guild_id: u64,
+        url: &str,
+    ) -> Result<Option<(Vec<Track>, bool)>, MusicError> {
+        let domain = url_host(url).unwrap_or_else(|| "music.amazon.com".to_string());
+        let res = crate::metadata::amazon_music::search(url, &domain)
+            .await
+            .map_err(|e| MusicError::Transport(e.to_string()))?;
+        match res {
+            crate::metadata::amazon_music::AmazonResult::Song(t) => {
+                match self
+                    .deezer_first_hit(guild_id, &t.artist.name, &t.title)
+                    .await
+                {
+                    Some(hit) => Ok(Some((mask_tracks(vec![hit]), false))),
+                    None => Ok(None),
+                }
+            }
+            crate::metadata::amazon_music::AmazonResult::Album(a) => Ok(Some((
+                self.deezer_fan_out_amazon(guild_id, &a.tracks).await?,
+                true,
+            ))),
+            crate::metadata::amazon_music::AmazonResult::Playlist(p) => Ok(Some((
+                self.deezer_fan_out_amazon(guild_id, &p.tracks).await?,
+                true,
+            ))),
+        }
+    }
+
+    async fn deezer_fan_out_amazon(
+        &self,
+        guild_id: u64,
+        tracks: &[crate::metadata::amazon_music::Track],
+    ) -> Result<Vec<Track>, MusicError> {
+        let mut found = Vec::new();
+        for t in tracks.iter().take(100) {
+            if let Some(hit) = self
+                .deezer_first_hit(guild_id, &t.artist.name, &t.title)
+                .await
+            {
+                found.push(hit);
+            }
+        }
+        if found.is_empty() {
+            return Err(MusicError::NoMatches);
+        }
+        Ok(mask_tracks(found))
+    }
+
+    /// Resolve + enqueue. Returns (position, first track, is_playlist):
+    /// position 0 means it started playing immediately.
     pub async fn play_query(
         &self,
         guild_id: u64,
         query: &str,
         requester: u64,
         now_ms: i64,
-    ) -> Result<(usize, QueuedTrack), MusicError> {
-        let (node, session) = self.live_node_and_session(guild_id).await?;
-        let loaded = self
-            .rest_load(&node, &Self::search_identifier(query))
-            .await?;
-        let mut tracks: Vec<Track> = match loaded {
-            LoadResult::Track(t) => vec![t],
-            LoadResult::Playlist(data) => data.tracks,
-            LoadResult::Search(mut v) => {
-                if v.is_empty() {
-                    return Err(MusicError::NoMatches);
-                }
-                vec![v.remove(0)]
-            }
-            LoadResult::Empty => return Err(MusicError::NoMatches),
-            LoadResult::Error(e) => {
-                return Err(MusicError::Rest(422, e.message));
-            }
-        };
+    ) -> Result<(usize, QueuedTrack, bool), MusicError> {
+        // Fail fast with no live node (keeps the offline NoNodes unit
+        // test green) before any metadata fetch.
+        self.live_node_and_session(guild_id).await?;
+        let (mut tracks, is_playlist) = self.resolve_query_tracks(guild_id, query).await?;
         if tracks.is_empty() {
             return Err(MusicError::NoMatches);
         }
@@ -1569,6 +2439,7 @@ impl LavalinkManager {
         if position == 0 {
             let snap = self.snapshot(guild_id).await;
             if let Some(current) = snap.as_ref().and_then(|s| s.current.clone()) {
+                let (node, session) = self.live_node_and_session(guild_id).await?;
                 let out = self
                     .rest_play(&node, &session, guild_id, &current.encoded, false)
                     .await;
@@ -1576,14 +2447,14 @@ impl LavalinkManager {
                 // (mirrors musicPlay.ts `player.setVolume(player.customVolume
                 // || DEFAULT_VOLUME)` after createPlayer): the node
                 // player is new, so it would otherwise play at 100.
-                let volume = snap.map(|s| s.volume).unwrap_or(100);
+                let volume = snap.map(|s| s.volume).unwrap_or(DEFAULT_VOLUME);
                 let _ = self
                     .rest_set_volume(&node, &session, guild_id, volume)
                     .await;
                 out?;
             }
         }
-        Ok((position, title))
+        Ok((position, title, is_playlist))
     }
 }
 
@@ -1591,6 +2462,47 @@ impl Default for LavalinkManager {
     fn default() -> Self {
         Self::new()
     }
+}
+
+// ---- LastFM scrobble hooks (mirrors lastFMScrobblerManager.ts) ----
+
+/// In-memory LastFM playback session for one guild (mirrors the TS
+/// `LastFMGuildPlaybackSession`: the track that started + when).
+/// Listener sync (voice members with a LastFM login) and the signed
+/// HTTP scrobble POST stay with the live caller: per-user session
+/// keys live behind `LASTFM.<uid>` rows the manager cannot reach.
+#[derive(Debug, Clone)]
+pub struct LastFmSession {
+    pub artist: String,
+    pub title: String,
+    pub duration_ms: u64,
+    pub requester: u64,
+    pub started_ms: i64,
+}
+
+/// Track ready to scrobble once the live caller attaches the user's
+/// session key (mirrors `tryScrobbleListener`).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ScrobbleDue {
+    pub artist: String,
+    pub title: String,
+    pub duration_ms: u64,
+    pub requester: u64,
+    pub started_ms: i64,
+}
+
+/// Scrobble threshold: half the track or 4 minutes, whichever is
+/// shorter (Last.fm "played half / 4min" rule, mirrors the TS
+/// thresholdMs computation).
+pub fn scrobble_threshold_ms(duration_ms: u64) -> u64 {
+    (duration_ms / 2).min(4 * 60 * 1000)
+}
+
+/// True when a finished listen counts (played past the threshold and
+/// the track is long enough to matter; mirrors the TS scrobble
+/// gate, streams with unknown length never count).
+pub fn should_scrobble(duration_ms: u64, played_ms: u64) -> bool {
+    duration_ms >= 30_000 && played_ms >= scrobble_threshold_ms(duration_ms)
 }
 
 // ---- node WS supervisors (ready dial + reconnect) ----
@@ -1733,6 +2645,7 @@ mod tests {
             uri: None,
             length_ms: 180_000,
             source: "youtube".into(),
+            artwork: None,
             requester: 1,
         }
     }
@@ -2117,6 +3030,9 @@ mod tests {
             "n1 h:1 secure=no",
             // Full markdown body (TS error_log mirror).
             "lavalink-client \"trackError\" event",
+            "## Client about",
+            "WS ping",
+            "WS status",
             "## Guild about",
             "## Track about",
             "## Error",
@@ -2502,5 +3418,181 @@ mod tests {
         let m = LavalinkManager::new();
         assert!(!m.leave_voice(123).await);
         assert!(m.remove_player(123).await.is_none());
+    }
+
+    #[test]
+    fn url_classifiers_match_ts_hosts() {
+        assert!(is_spotify_url("https://open.spotify.com/track/x"));
+        assert!(!is_spotify_url("https://www.deezer.com/track/1"));
+        assert!(is_youtube_url("https://www.youtube.com/watch?v=x"));
+        assert!(is_youtube_url("https://youtu.be/x"));
+        assert!(is_apple_music_url("https://music.apple.com/us/song/x"));
+        assert!(is_amazon_music_url("https://music.amazon.fr/track/x"));
+        assert!(is_tidal_url("https://tidal.com/browse/track/1"));
+        assert!(!is_url_query("never gonna give you up"));
+        assert!(is_url_query("https://example.test/x"));
+    }
+
+    #[test]
+    fn parentheses_content_stripped_like_ts() {
+        assert_eq!(
+            remove_parentheses_content("Song (Prod. X) [Remix] Title"),
+            "Song Title"
+        );
+        assert_eq!(remove_parentheses_content("  spaced   out  "), "spaced out");
+    }
+
+    #[test]
+    fn youtube_sanitize_drops_tracking_params() {
+        assert_eq!(
+            sanitize_youtube_url("https://www.youtube.com/watch?v=abc&si=zzz&list=LL"),
+            "https://www.youtube.com/watch?v=abc"
+        );
+        assert_eq!(
+            sanitize_youtube_url("https://youtu.be/abc?si=zzz"),
+            "https://youtu.be/abc"
+        );
+        assert_eq!(
+            sanitize_youtube_url("https://www.deezer.com/track/1?foo=bar"),
+            "https://www.deezer.com/track/1?foo=bar"
+        );
+        assert_eq!(sanitize_youtube_url("plain query"), "plain query");
+    }
+
+    #[test]
+    fn mask_link_hides_url_titles() {
+        assert_eq!(mask_link("cool song"), "cool song");
+        assert_eq!(mask_link("x https://evil.test"), "Hidden Link");
+        assert_eq!(mask_link("join .gg/abc"), "Hidden Link");
+        assert_eq!(mask_link("a.com song"), "Hidden Link");
+    }
+
+    #[test]
+    fn proximity_matches_ts_thresholds() {
+        assert_eq!(levenshtein("kitten", "sitting"), 3);
+        assert!((proximity_similarity("abc", "abc") - 1.0).abs() < 1e-9);
+        assert_eq!(proximity_similarity("", ""), 1.0);
+        assert!(is_similar(
+            "never gonna give you up",
+            "Never Gonna Give You Up",
+            "Rick Astley"
+        ));
+        assert!(!is_similar(
+            "totally different words xyz",
+            "Never Gonna Give You Up",
+            "Rick Astley"
+        ));
+        assert_eq!(build_track_label("Title", "Author"), "Title Author");
+    }
+
+    #[test]
+    fn platform_tag_covers_deezer_and_soundcloud() {
+        assert_eq!(
+            platform_source_tag(Some("https://www.deezer.com/track/1")),
+            Some("Deezer")
+        );
+        assert_eq!(
+            platform_source_tag(Some("https://soundcloud.com/a/b")),
+            Some("SoundCloud")
+        );
+        assert_eq!(platform_source_tag(Some("https://youtu.be/x")), None);
+        assert_eq!(platform_source_tag(None), None);
+    }
+
+    #[test]
+    fn queue_loop_requeues_finished_track() {
+        let mut p = GuildPlayer::new();
+        p.loop_mode = Some(LoopMode::Queue);
+        p.current = Some(sample_track("a"));
+        p.queue.push_back(sample_track("b"));
+        assert_eq!(
+            p.advance_on_end(&TrackEndReason::Finished, 1),
+            AdvanceOutcome::Next
+        );
+        assert_eq!(p.current.as_ref().unwrap().title, "b");
+        assert_eq!(p.queue.len(), 1);
+        assert_eq!(p.queue[0].title, "a");
+        // Single-track queue loops onto itself.
+        p.queue.clear();
+        p.current = Some(sample_track("solo"));
+        assert_eq!(
+            p.advance_on_end(&TrackEndReason::Finished, 2),
+            AdvanceOutcome::Next
+        );
+        assert_eq!(p.current.as_ref().unwrap().title, "solo");
+    }
+
+    #[test]
+    fn track_loop_replays_without_advancing() {
+        let mut p = GuildPlayer::new();
+        p.loop_mode = Some(LoopMode::Track);
+        p.current = Some(sample_track("a"));
+        p.queue.push_back(sample_track("b"));
+        assert_eq!(
+            p.advance_on_end(&TrackEndReason::Finished, 1),
+            AdvanceOutcome::Replay
+        );
+        assert_eq!(p.current.as_ref().unwrap().title, "a");
+        assert_eq!(p.queue.len(), 1);
+    }
+
+    #[test]
+    fn scrobble_gate_matches_lastfm_rule() {
+        assert_eq!(scrobble_threshold_ms(200_000), 100_000);
+        assert_eq!(scrobble_threshold_ms(600_000), 240_000);
+        assert!(should_scrobble(200_000, 100_000));
+        assert!(!should_scrobble(200_000, 99_999));
+        assert!(!should_scrobble(20_000, 20_000));
+        assert!(!should_scrobble(0, 0));
+    }
+
+    #[test]
+    fn track_start_embed_uses_artwork_and_template() {
+        let e = LavalinkManager::track_start_embed(
+            "xx-UNKNOWN",
+            "Title",
+            "Author",
+            Some("https://example.test/t"),
+            Some("https://example.test/art.png"),
+            99,
+            "🎵",
+        );
+        let json = serde_json::to_value(&e).unwrap();
+        let desc = json
+            .get("description")
+            .and_then(|d| d.as_str())
+            .unwrap_or("");
+        assert!(desc.contains("Title"), "desc: {desc}");
+        assert!(desc.contains("<#99>"), "desc: {desc}");
+        assert_eq!(
+            json.get("image")
+                .and_then(|i| i.get("url"))
+                .and_then(|u| u.as_str()),
+            Some("https://example.test/art.png")
+        );
+    }
+
+    #[test]
+    fn disconnect_gate_and_report_stats() {
+        assert!(LavalinkManager::should_destroy_on_disconnect(None));
+        assert!(!LavalinkManager::should_destroy_on_disconnect(Some(5)));
+        let ev = parse_exception(&exception_frame("7", "hello", "boom"));
+        let report = LavalinkManager::track_error_report_with_client_stats(
+            &ev,
+            Some(42),
+            Some("someone"),
+            Some("n1"),
+            Some(123),
+            Some("READY"),
+        );
+        for want in ["## Client about", "123ms", "READY", "someone"] {
+            assert!(report.contains(want), "report missing {want}");
+        }
+    }
+
+    #[test]
+    fn default_volume_is_75() {
+        assert_eq!(DEFAULT_VOLUME, 75);
+        assert_eq!(GuildPlayer::new().volume, 75);
     }
 }

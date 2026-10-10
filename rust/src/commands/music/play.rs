@@ -40,6 +40,45 @@ pub async fn m_play(
             return Ok(());
         }
     }
+    // H247 guard (mirrors musicPlay.ts:792-806): refuse play when 24/7
+    // is enabled and the requester is not in the parked voice channel.
+    let gid_str = gid.to_string();
+    let h247 = crate::commands::h247::load_h247(&ctx.data().pool, &gid_str).await;
+    let h247_voice = if h247.enabled {
+        h247.voice_channel_id.parse::<u64>().ok()
+    } else {
+        None
+    };
+    if h247_refuses(h247.enabled, h247_voice, Some(voice)) {
+        let no = emoji_markup(&ctx, "No", "❌").await;
+        let msg = crate::lang::get(&code, "h247_play_refused")
+            .map(|s| s.replace("${client.iHorizon_Emojis.No}", &no))
+            .unwrap_or_else(|| {
+                "The H24/7 module is active on this server. Join the H24/7 voice channel to play music!"
+                    .to_string()
+            });
+        ctx.say(msg).await?;
+        return Ok(());
+    }
+    // TTS cleanup before playing (mirrors musicPlay.ts:807-810
+    // `getTTSData`/`cleanupTTS`): a stored TTS row means the module
+    // owns the player, so run the full cleanup legs (drop player,
+    // welcome-embed delete, voice-status clear, row delete).
+    if let Some(tts_cfg) = crate::commands::tts::load_tts(&ctx.data().pool, &gid_str).await {
+        let h247_grant = crate::db::kv_get(&ctx.data().pool, &gid_str, "GUILD.H247")
+            .await
+            .and_then(|raw| crate::commands::h247::grant::parse_h247(&raw));
+        crate::commands::tts::leave::cleanup_tts_live(
+            ctx.http(),
+            &ctx.serenity_context().shard,
+            &ctx.data().pool,
+            gid,
+            &tts_cfg,
+            h247_grant.as_ref(),
+        )
+        .await;
+        m.set_tts_suppressed(gid, false).await;
+    }
     let requester = ctx.author().id.get();
     let text_channel = ctx.channel_id().get();
     // Stage channels join suppressed (audience): ask for speaker, and
@@ -73,7 +112,7 @@ pub async fn m_play(
     })
     .await;
     match m.play_query(gid, &title, requester, now_ms()).await {
-        Ok((pos, t)) => {
+        Ok((pos, t, is_playlist)) => {
             // Rich entry (mirrors musicPlay.ts buffer/embed rows:
             // requester - resolved title | uri by requester).
             let requester_tag = format!("<@{requester}>");
@@ -86,27 +125,69 @@ pub async fn m_play(
             )
             .await;
             let timer = emoji_markup(&ctx, "Timer", "⏱️").await;
+            let result = if is_playlist { "playlist" } else { "track" };
             let content = crate::lang::get(&code, "p_loading_message")
                 .map(|s| {
                     s.replace("${client.iHorizon_Emojis.Timer}", &timer)
-                        .replace("{result}", "track")
+                        .replace("{result}", result)
                 })
-                .unwrap_or_else(|| format!("Loading: **{}**!", t.title));
+                .unwrap_or_else(|| format!("Loading: **{result}**!"));
             let duration =
                 crate::lang::get(&code, "p_duration").unwrap_or_else(|| "Duration: ".to_string());
+            // Platform source line (mirrors `platformLabel`: Deezer /
+            // SoundCloud attribution under the title).
+            let platform_line = match crate::lavalink::platform_source_tag(t.uri.as_deref()) {
+                Some(tag) => {
+                    let emoji_name = if tag == "Deezer" {
+                        "Deezer"
+                    } else {
+                        "SoundCloud"
+                    };
+                    let icon = emoji_markup(&ctx, emoji_name, "🎵").await;
+                    let source_word = crate::lang::get(&code, "var_source")
+                        .unwrap_or_else(|| "Music from: ".to_string());
+                    match t.uri.as_deref() {
+                        Some(url) => format!("\n-# {icon} [{source_word}{tag}]({url})"),
+                        None => String::new(),
+                    }
+                }
+                None => String::new(),
+            };
             let mut embed = serenity::CreateEmbed::default()
-                .description(format!("**{}**", t.title))
+                .description(format!("**{}**{platform_line}", t.title))
                 .colour(0x00FF00)
                 .timestamp(serenity::Timestamp::now())
                 .footer(serenity::CreateEmbedFooter::new(format!(
                     "{duration}{}",
-                    fmt_duration(t.length_ms)
+                    fmt_track_duration(t.length_ms)
                 )));
             if let Some(uri) = t.uri.as_deref() {
                 embed = embed.url(uri);
             }
-            ctx.send(poise::CreateReply::default().content(content).embed(embed))
+            if let Some(art) = t.artwork.as_deref().filter(|u| !u.is_empty()) {
+                embed = embed.thumbnail(art);
+            }
+            let reply = ctx
+                .send(poise::CreateReply::default().content(content).embed(embed))
                 .await?;
+            // Auto-clear the loading line after 3s (mirrors
+            // `deleteAfterMs = 3000`: content nulled, embed kept).
+            // Best-effort: failures (deleted message, 403) are ignored.
+            if let Ok(msg) = reply.into_message().await {
+                let http = ctx.serenity_context().http.clone();
+                let (channel_id, message_id) = (msg.channel_id, msg.id);
+                tokio::spawn(async move {
+                    tokio::time::sleep(std::time::Duration::from_secs(3)).await;
+                    let _ = http
+                        .edit_message(
+                            channel_id,
+                            message_id,
+                            &serenity::EditMessage::new().content(""),
+                            Vec::new(),
+                        )
+                        .await;
+                });
+            }
             // Queued (not first): announce in the player's text
             // channel when it differs (TS `sendQueueAddMessage`).
             if pos > 0
