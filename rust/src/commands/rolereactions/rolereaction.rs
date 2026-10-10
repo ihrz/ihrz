@@ -110,7 +110,7 @@ pub async fn rr_add(
                         crate::commands::lang_for(
                             &ctx,
                             "reactionroles_embed_message_description_added",
-                            "How to use?",
+                            "__How to use?__\n/rolesreaction add `<message id>` `<reaction>` `<rolesid>`\n/rolesreaction remove `<message id>` `<reaction>`\n/rolesreaction list `<message id>`",
                         )
                         .await,
                     ),
@@ -136,7 +136,7 @@ pub async fn rr_add(
     let dont_found = crate::commands::lang_for(
         &ctx,
         "reactionroles_dont_message_found",
-        "I can't retrieve the message!",
+        "I can't retrieve the message with your current message ID, or the emoji you selected is not on a server where I am!",
     )
     .await;
     let (Ok(ch), Ok(mid)) = (
@@ -172,7 +172,7 @@ pub async fn rr_add(
             crate::commands::lang_for(
                 &ctx,
                 "reactionroles_invalid_emote_format_added",
-                "You can't send me a CUSTOM_EMOJI in format!",
+                "${client.iHorizon_Emojis.No} | You can't send me a `CUSTOM_EMOJI` in format `<::xxx>`! I only need its ID!",
             )
             .await
             .replace("${client.iHorizon_Emojis.No}", &no),
@@ -207,7 +207,7 @@ pub async fn rr_add(
         &crate::commands::lang_for(
             &ctx,
             "reactionroles_logs_embed_description_added",
-            "<@${interaction.user.id}> set a reaction role",
+            "<@${interaction.user.id}> set a reaction role: Message: `${messagei}` | Reaction: `${reaction}` | Role: ${role}",
         )
         .await
         .replace("${interaction.user.id}", &uid)
@@ -338,7 +338,7 @@ pub async fn rr_remove(
         &crate::commands::lang_for(
             &ctx,
             "reactionroles_logs_embed_description_remove",
-            "removed",
+            "<@${interaction.user.id}> deleted a reaction role: Message: `${messagei}` | Reaction: `${reaction}`",
         )
         .await
         .replace("${interaction.user.id}", &uid)
@@ -617,7 +617,7 @@ async fn rolebutton_add(
             crate::commands::lang_for(
                 ctx,
                 "buttonreaction_message_other_user_error",
-                "I can't modify the components of another user's message.",
+                "I can't modify the components of another user's message. You need to choose a message sent by myself. Tip: Do `/utils embed` to create your own beautiful embed!",
             )
             .await,
         )
@@ -649,7 +649,7 @@ async fn rolebutton_add(
             crate::commands::lang_for(
                 ctx,
                 "buttonreaction_dont_message_found",
-                "Can't add this button, the roles seem to be already set!",
+                "Can't add this button, the roles seem to be already set in one of the existing buttons!",
             )
             .await,
         )
@@ -664,7 +664,7 @@ async fn rolebutton_add(
             crate::commands::lang_for(
                 ctx,
                 "reactionroles_invalid_emote_format_added",
-                "You can't send me a CUSTOM_EMOJI in format!",
+                "${client.iHorizon_Emojis.No} | You can't send me a `CUSTOM_EMOJI` in format `<::xxx>`! I only need its ID!",
             )
             .await
             .replace("${client.iHorizon_Emojis.No}", &no),
@@ -699,7 +699,7 @@ async fn rolebutton_add(
         &crate::commands::lang_for(
             ctx,
             "buttonreaction_logs_embed_description_added",
-            "<@${interaction.user.id}> set a reaction with button",
+            "<@${interaction.user.id}> set a reaction with button: Message: `${messagei}` | Reaction: `${reaction}` | Role: ${role}",
         )
         .await
         .replace("${interaction.user.id}", &uid)
@@ -774,7 +774,7 @@ async fn rolebutton_remove(
             crate::commands::lang_for(
                 ctx,
                 "buttonreaction_message_other_user_error",
-                "I can't modify the components of another user's message.",
+                "I can't modify the components of another user's message. You need to choose a message sent by myself. Tip: Do `/utils embed` to create your own beautiful embed!",
             )
             .await,
         )
@@ -831,7 +831,7 @@ async fn rolebutton_remove(
         &crate::commands::lang_for(
             ctx,
             "reactionroles_logs_embed_description_remove",
-            "removed",
+            "<@${interaction.user.id}> deleted a reaction role: Message: `${messagei}` | Reaction: `${reaction}`",
         )
         .await
         .replace("${interaction.user.id}", &uid)
@@ -1122,7 +1122,7 @@ pub async fn roleselect(
             crate::commands::lang_for(
                 &ctx,
                 "roleselect_invalid_message_id",
-                "Invalid message ID provided.",
+                "Invalid message ID provided. Please provide a valid message ID.",
             )
             .await,
         )
@@ -1165,7 +1165,7 @@ pub async fn roleselect(
             crate::commands::lang_for(
                 &ctx,
                 "buttonreaction_message_other_user_error",
-                "I can't modify the components of another user's message.",
+                "I can't modify the components of another user's message. You need to choose a message sent by myself. Tip: Do `/utils embed` to create your own beautiful embed!",
             )
             .await,
         )

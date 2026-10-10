@@ -207,7 +207,7 @@ pub async fn msg_convert_mp4(
                     crate::commands::lang_for(
                         &ctx,
                         "media_gen_cooldown",
-                        "Wait between media generations.",
+                        "You need to wait `1 minute & 30 seconds` between media generations!",
                     )
                     .await,
                 )
@@ -218,9 +218,16 @@ pub async fn msg_convert_mp4(
     }
     let Some(att) = msg.attachments.first() else {
         let embed = CreateEmbed::default()
-            .title(crate::commands::lang_for(&ctx, "global_error", "Error").await)
+            .title(crate::commands::lang_for(&ctx, "global_error", "❌ Error").await)
             .colour(0xFF0000)
-            .description(crate::commands::lang_for(&ctx, "global_not_atc", "No attachment.").await)
+            .description(
+                crate::commands::lang_for(
+                    &ctx,
+                    "global_not_atc",
+                    "The selected message does not contain an attachment.",
+                )
+                .await,
+            )
             .timestamp(poise::serenity_prelude::Timestamp::now());
         ctx.send(CreateReply::default().embed(embed).ephemeral(true))
             .await?;
@@ -231,7 +238,12 @@ pub async fn msg_convert_mp4(
             .title("Error")
             .colour(0xFF0000)
             .description(
-                crate::commands::lang_for(&ctx, "global_not_valid_atc", "Not audio.").await,
+                crate::commands::lang_for(
+                    &ctx,
+                    "global_not_valid_atc",
+                    "The selected attachment is not a valid audio file.",
+                )
+                .await,
             )
             .timestamp(poise::serenity_prelude::Timestamp::now());
         ctx.send(CreateReply::default().embed(embed).ephemeral(true))
@@ -249,13 +261,13 @@ pub async fn msg_convert_mp4(
             let mb = mp4_bytes.len() as f64 / (1024.0 * 1024.0);
             if mb > 25.0 {
                 let embed = CreateEmbed::default()
-                    .title(crate::commands::lang_for(&ctx, "global_error", "Error").await)
+                    .title(crate::commands::lang_for(&ctx, "global_error", "❌ Error").await)
                     .colour(0xFF0000)
                     .description(
                         crate::commands::lang_for(
                             &ctx,
                             "global_too_heavy_file",
-                            "Too large (${fileSizeMB.toFixed(2)} MB).",
+                            "The generated MP4 file is too large (${fileSizeMB.toFixed(2)} MB). The Discord limit is 25 MB.",
                         )
                         .await
                         .replace("${fileSizeMB.toFixed(2)}", &format!("{mb:.2}")),
@@ -266,13 +278,13 @@ pub async fn msg_convert_mp4(
                     .await?;
             } else {
                 let embed = CreateEmbed::default()
-                    .title(crate::commands::lang_for(&ctx, "global_convert_ok", "Converted").await)
+                    .title(crate::commands::lang_for(&ctx, "global_convert_ok", "✅ Conversion successful").await)
                     .colour(0x00FF00)
                     .description(
                         crate::commands::lang_for(
                             &ctx,
                             "global_convert_ok_desc",
-                            "Converted (${fileSizeMB.toFixed(2)} MB).",
+                            "Your audio file has been converted to MP4 (${fileSizeMB.toFixed(2)} MB).",
                         )
                         .await
                         .replace("${fileSizeMB.toFixed(2)}", &format!("{mb:.2}")),
