@@ -696,6 +696,10 @@ pub struct SecurityChallenge {
     pub role: Option<u64>,
     pub role2: Option<u64>,
     pub joined_at: Option<i64>,
+    /// Absolute expiry (unix secs) pinned at challenge issue, mirrored
+    /// in the `<t:…:R>` stamp. Wrong attempts reuse it (TS keeps one
+    /// `expiresAt`); the sweep task owns the actual kick.
+    pub expires_at: i64,
 }
 
 /// Key for the pending-challenge map.
@@ -1243,11 +1247,11 @@ impl Handler {
             return;
         }
         ch.attempts_left -= 1;
-        let (left, code, message_id, channel_id) = (
+        let (left, message_id, channel_id, expires_at) = (
             ch.attempts_left,
-            ch.code.clone(),
             ch.message_id,
             ch.channel_id,
+            ch.expires_at,
         );
         drop(guard);
         let lang_code = crate::db::guild_lang(&self.pool, Some(guild_id.get())).await;
@@ -1255,14 +1259,14 @@ impl Handler {
         let emoji = crate::emojis::app_emoji_markup(&ctx.http, "Schedule")
             .await
             .unwrap_or_default();
+        // The code lives only in the captcha.png image, never in text;
+        // the timestamp reuses the pinned issue-time expiry (TS keeps
+        // one `expiresAt`).
         let content = format!(
-            "{}\n\n`{code}`\n\n{}\n-# {}",
+            "{}\n\n{}\n-# {}",
             text("event_security").replace("${member}", &format!("<@{}>", msg.author.id.get())),
             text("event_security_expiry")
-                .replace(
-                    "${timestamp}",
-                    &format!("<t:{}:R>", crate::commands::context::now_ms() / 1000 + 150)
-                )
+                .replace("${timestamp}", &format!("<t:{expires_at}:R>"))
                 .replace("${attempts}", &left.to_string())
                 .replace("{emoji}", &emoji),
             text("event_security_footer"),
@@ -3644,6 +3648,7 @@ impl serenity::EventHandler for Handler {
                                     role,
                                     role2,
                                     joined_at,
+                                    expires_at: expires,
                                 },
                             );
                             // Expiry sweep (mirrors the collector "end" leg).
@@ -6069,7 +6074,7 @@ impl serenity::EventHandler for Handler {
         let before = admin_roles(&old);
         if admin_roles(&new).iter().any(|r| !before.contains(r)) {
             use serenity::model::guild::audit_log::{Action, MemberAction};
-            let _ = self
+            if self
                 .protection_guard(
                     &ctx,
                     new.guild_id,
@@ -6077,12 +6082,22 @@ impl serenity::EventHandler for Handler {
                     "add_admin_roles",
                     Some(new.user.id.get()),
                 )
-                .await;
+                .await
+                .is_some()
+            {
+                // Victim role-restore (mirrors avoidAdminRankWithoutConsent.ts:
+                // after punish(), the victim's roles are set back).
+                if let Ok(member) = new.guild_id.member(&ctx.http, new.user.id).await {
+                    let _ = member
+                        .edit(&ctx.http, serenity::EditMember::new().roles(old.roles.clone()))
+                        .await;
+                }
+            }
         }
         // Any role add/remove (mirrors avoidMemberUpdate.ts).
         if old.roles != new.roles {
             use serenity::model::guild::audit_log::{Action, MemberAction};
-            let _ = self
+            if self
                 .protection_guard(
                     &ctx,
                     new.guild_id,
@@ -6090,7 +6105,16 @@ impl serenity::EventHandler for Handler {
                     "updatemember",
                     Some(new.user.id.get()),
                 )
-                .await;
+                .await
+                .is_some()
+            {
+                // Victim role-restore (mirrors avoidMemberUpdate.ts).
+                if let Ok(member) = new.guild_id.member(&ctx.http, new.user.id).await {
+                    let _ = member
+                        .edit(&ctx.http, serenity::EditMember::new().roles(old.roles.clone()))
+                        .await;
+                }
+            }
         }
         // Rich role log (mirrors logs/rolesLogs.ts): latest
         // MemberRoleUpdate audit entry for the target -> #010101
