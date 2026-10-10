@@ -1,6 +1,6 @@
 use super::*;
 
-/// Enable/disable fun commands. Mirrors fun !config.ts.
+/// Disable the fun category. Mirrors fun !config.ts.
 // The raw action string is stored under `GUILD.FUN.states`; anything but
 // `"off"` counts as enabled (`action === "off" ? var_disabled : var_enabled`).
 #[poise::command(
@@ -8,6 +8,7 @@ use super::*;
     prefix_command,
     category = "fun",
     rename = "config",
+    aliases("fconfig"),
     default_member_permissions = "ADMINISTRATOR"
 )]
 pub async fn fun_config(

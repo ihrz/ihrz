@@ -1,7 +1,7 @@
 use super::*;
 use poise::serenity_prelude as serenity;
 
-/// Post the ticket transcript to the caller via DM.
+/// Get the transript of a ticket message!
 #[poise::command(slash_command, prefix_command, rename = "transcript")]
 pub async fn ticket_transcript(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let gid = ctx

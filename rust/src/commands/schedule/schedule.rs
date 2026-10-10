@@ -214,7 +214,7 @@ pub(crate) fn guided_embed_identity(
     }
 }
 
-/// Group root for the schedule category (TS `schedule.ts`).
+/// Manager for schedule category! (TS `schedule.ts`).
 // TS defines a single option-less command that always renders the
 // select-menu panel (`schedule.ts:48-66`), so a bare invocation runs
 // the panel here too: without `subcommand_required` poise falls
@@ -718,7 +718,7 @@ pub(crate) async fn guided_list(
     Ok(())
 }
 
-/// Webhook URL or webhook code
+/// Create a schedule
 #[poise::command(slash_command, prefix_command, rename = "create")]
 pub async fn schedule_create(
     ctx: Ctx<'_>,
@@ -808,7 +808,7 @@ pub async fn schedule_create(
     Ok(())
 }
 
-/// Delete a role for a certain amount of money!
+/// Delete a schedule
 #[poise::command(slash_command, prefix_command, rename = "delete")]
 pub async fn schedule_delete(
     ctx: Ctx<'_>,
@@ -834,7 +834,7 @@ pub async fn schedule_delete(
     Ok(())
 }
 
-/// Delete all command.
+/// Delete all schedules
 #[poise::command(slash_command, prefix_command, rename = "delete-all")]
 pub async fn schedule_delete_all(
     ctx: Ctx<'_>,
@@ -872,7 +872,7 @@ pub async fn schedule_delete_all(
     Ok(())
 }
 
-/// List all sticky channels
+/// List schedules
 #[poise::command(slash_command, prefix_command, rename = "list")]
 pub async fn schedule_list(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let gid = scope_guild(&ctx);

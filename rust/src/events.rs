@@ -60,14 +60,21 @@ pub fn roles_earned(
 }
 
 /// Bounded name-history push. Mirrors prevnamesModule.ts (userUpdate +
-/// guildMemberUpdate): newest first, capped, dedup consecutive.
+/// guildMemberUpdate): TS `prevnamesTable.push` appends, so storage is
+/// oldest-first and the pager displays oldest-first too. Cap and
+/// consecutive-dedup are kept (dedup checks the tail, the cap drops the
+/// oldest); no relayout beyond that. NOTE: rows written newest-first by
+/// older builds keep their order; only new pushes follow this layout.
 pub fn push_prevname(mut history: Vec<String>, name: &str, cap: usize) -> Vec<String> {
     let name = name.to_string();
-    if history.first().map(|f| f == &name).unwrap_or(false) {
+    if history.last().map(|l| l == &name).unwrap_or(false) {
         return history;
     }
-    history.insert(0, name);
-    history.truncate(cap.max(1));
+    history.push(name);
+    let cap = cap.max(1);
+    if history.len() > cap {
+        history.drain(..history.len() - cap);
+    }
     history
 }
 
@@ -110,7 +117,7 @@ pub fn parse_prevnames_history(raw: &str) -> Vec<String> {
 /// Merged name history across both scopes: the global "0" scope first
 /// (Rust parity for the TS global `prevnames` table, which the
 /// events_handler emitters already use), then the per-guild scope,
-/// deduped newest-first and capped. Keys unchanged.
+/// deduped oldest-first (TS push order) and capped. Keys unchanged.
 pub async fn load_prevnames_dual(
     pool: &crate::db::Pool,
     user_id: u64,
@@ -1304,7 +1311,8 @@ mod tests {
         let h = push_prevname(h, "b", 3);
         let h = push_prevname(h, "c", 3);
         let h = push_prevname(h, "d", 3);
-        assert_eq!(h, vec!["d".to_string(), "c".to_string(), "b".to_string()]);
+        // Oldest-first (TS push order): the cap drops the oldest.
+        assert_eq!(h, vec!["b".to_string(), "c".to_string(), "d".to_string()]);
     }
 
     #[test]

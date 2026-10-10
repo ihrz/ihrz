@@ -29,7 +29,7 @@ pub fn save_messages_or_usage(save_messages: Option<&str>, is_prefix: bool) -> O
     }
 }
 
-/// Webhook URL or webhook code
+/// Create a backup!
 #[poise::command(
     slash_command,
     prefix_command,

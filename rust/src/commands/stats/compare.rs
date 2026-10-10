@@ -1,7 +1,7 @@
 use super::*;
 use poise::serenity_prelude as serenity;
 
-/// Compare two members side by side (no winner).
+/// Compare statistics between multiple users
 // Mirrors stats compare: monthly counts + beautiful voice, daily/weekly/
 // monthly rows. The earlier Rust "winner" line was invented (TS has none).
 #[poise::command(slash_command, prefix_command, rename = "compare", aliases("cmp"))]

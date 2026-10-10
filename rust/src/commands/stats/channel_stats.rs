@@ -1,23 +1,25 @@
 use super::*;
 
-/// Channel stats aggregated from `STATS.USER` rows (text form).
-///
-/// Mirrors `!channel-stats.ts:49-91`: the optional `channel` option
-/// falls back to the invoking channel (`interaction.channel`), never
-/// to a top-10 list. Counts come from filtering every user's
-/// `messages`/`voices` by `channelId` (`aggregate_channel`), not from
-/// `STATS.CHANNEL` counters (TS has no such writer; see
-/// `Events/stats/onNewMessage.ts`).
-///
-/// ACCURACY NOTE (deliberate, kept): TS renders the `channelStatsPage`
-/// HTML card as a PNG via `client.func.html2png` (Chromium/gateway are
-/// outside this runtime), so this port renders the same windows
-/// (day/week/month/total), active-user count and top-5 users as text.
-///
-/// New YAML keys (not added; code fallbacks render until then):
-/// `stats_channel_stats_text` (${channel}, ${d_msg}, ${w_msg},
-/// ${m_msg}, ${total_msg}, ${d_vc}, ${w_vc}, ${m_vc}, ${total_vc},
-/// ${active}, ${top_msg}, ${top_vc}).
+/// See statistics for a specific channel
+//
+// Channel stats aggregated from `STATS.USER` rows (text form).
+//
+// Mirrors `!channel-stats.ts:49-91`: the optional `channel` option
+// falls back to the invoking channel (`interaction.channel`), never
+// to a top-10 list. Counts come from filtering every user's
+// `messages`/`voices` by `channelId` (`aggregate_channel`), not from
+// `STATS.CHANNEL` counters (TS has no such writer; see
+// `Events/stats/onNewMessage.ts`).
+//
+// ACCURACY NOTE (deliberate, kept): TS renders the `channelStatsPage`
+// HTML card as a PNG via `client.func.html2png` (Chromium/gateway are
+// outside this runtime), so this port renders the same windows
+// (day/week/month/total), active-user count and top-5 users as text.
+//
+// New YAML keys (not added; code fallbacks render until then):
+// `stats_channel_stats_text` (${channel}, ${d_msg}, ${w_msg},
+// ${m_msg}, ${total_msg}, ${d_vc}, ${w_vc}, ${m_vc}, ${total_vc},
+// ${active}, ${top_msg}, ${top_vc}).
 #[poise::command(
     slash_command,
     prefix_command,

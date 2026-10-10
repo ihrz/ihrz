@@ -55,7 +55,7 @@ pub async fn rank_display_name(ctx: &Ctx<'_>, user: &serenity::User) -> String {
     user.name.clone()
 }
 
-/// Show the sticky configuration of one channel
+/// Get the user's xp level!
 #[poise::command(
     slash_command,
     prefix_command,

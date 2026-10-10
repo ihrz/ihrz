@@ -20,7 +20,7 @@ pub fn list_gate_id(backup_id: Option<&str>) -> Option<&str> {
     backup_id.map(str::trim).filter(|s| !s.is_empty())
 }
 
-/// List all sticky channels
+/// List your backup(s)!
 #[poise::command(slash_command, prefix_command, rename = "list", aliases("backup-list"))]
 pub async fn backup_list(
     ctx: Ctx<'_>,

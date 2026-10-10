@@ -1,7 +1,8 @@
 use super::*;
 
-/// Steal a stock sticker by id. Mirrors sticker.ts (PNG best-effort).
-#[poise::command(slash_command, prefix_command, category = "utils", rename = "sticker")]
+/// Add a sticker from the replied message. Mirrors sticker.ts (PNG best-effort).
+// Prefix-only: TS registers sticker as a MessageCommand, never as slash.
+#[poise::command(prefix_command, category = "utils", rename = "sticker")]
 pub async fn sticker(
     ctx: Ctx<'_>,
     #[description = "Sticker id"] sticker_id: String,

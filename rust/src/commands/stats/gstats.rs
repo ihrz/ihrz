@@ -1,22 +1,24 @@
 use super::*;
 
-/// Guild leaderboard (text form).
-///
-/// Mirrors `!gstats.ts:91-223`: per-member day/week/month message and
-/// voice windows over every `STATS.USER` row, leaderboard sorted by
-/// daily messages (`getStatsLeaderboard`), top-3 text channels by
-/// daily messages and top-3 voice channels by daily voice
-/// (`topThree`). Totals still use the aggregate counters so the
-/// header matches `stats_gstats_text`.
-///
-/// ACCURACY NOTE (deliberate, kept): TS renders the
-/// `guildStatsLeaderboard` HTML card as a PNG via
-/// `client.func.html2png` (Chromium/gateway are outside this
-/// runtime), so this port renders the same data as text.
-///
-/// New YAML keys (not added; code fallbacks render until then):
-/// `stats_gstats_detail_text` (${top_members}, ${top_text},
-/// ${top_vc}).
+/// See guild leaderboard
+//
+// Guild leaderboard (text form).
+//
+// Mirrors `!gstats.ts:91-223`: per-member day/week/month message and
+// voice windows over every `STATS.USER` row, leaderboard sorted by
+// daily messages (`getStatsLeaderboard`), top-3 text channels by
+// daily messages and top-3 voice channels by daily voice
+// (`topThree`). Totals still use the aggregate counters so the
+// header matches `stats_gstats_text`.
+//
+// ACCURACY NOTE (deliberate, kept): TS renders the
+// `guildStatsLeaderboard` HTML card as a PNG via
+// `client.func.html2png` (Chromium/gateway are outside this
+// runtime), so this port renders the same data as text.
+//
+// New YAML keys (not added; code fallbacks render until then):
+// `stats_gstats_detail_text` (${top_members}, ${top_text},
+// ${top_vc}).
 #[poise::command(slash_command, prefix_command, rename = "gstats", aliases("g"))]
 pub async fn stats_guild(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let gid = ctx

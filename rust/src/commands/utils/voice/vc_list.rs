@@ -10,15 +10,14 @@ pub enum VcShowMode {
     Short,
 }
 
-/// Server voice statistics.
-// TS decl (utils.ts `vc`): permission ManageGuild.
+/// Get the voice states of the guild!
+// TS decl (utils.ts `vc`): permission ManageGuild, no cooldown.
 #[poise::command(
     slash_command,
     prefix_command,
     category = "utils",
     rename = "vc",
-    default_member_permissions = "MANAGE_GUILD",
-    user_cooldown = 86400
+    default_member_permissions = "MANAGE_GUILD"
 )]
 pub async fn vc_list(
     ctx: Ctx<'_>,

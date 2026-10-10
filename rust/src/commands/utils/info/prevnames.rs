@@ -194,6 +194,10 @@ pub const PREVNAMES_PER_PAGE: usize = 5;
 /// Build pager pages (5 names each). Verdict: matches TS — the title
 /// template's `${user.username}` becomes `user.globalName` (display
 /// name here) and `| Page N` is appended, mirroring the TS pages build.
+/// Order verdict: the history is oldest-first (TS `prevnamesTable.push`
+/// order, kept by `events::push_prevname`), and pages preserve that
+/// order, so page 1 holds the oldest names exactly like the TS display.
+/// Cap + consecutive-dedup live in the store; the pager only chunks.
 pub fn prevnames_pages(
     history: &[String],
     title_tpl: &str,

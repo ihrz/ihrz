@@ -1,10 +1,10 @@
 use super::*;
 
-/// Config the message when user earn new xp level message!
+/// Manage the antispam module
 #[poise::command(
     slash_command,
     prefix_command,
-    rename = "config",
+    rename = "manage",
     aliases("mng", "antimng"),
     default_member_permissions = "ADMINISTRATOR"
 )]

@@ -1,9 +1,10 @@
 use super::*;
 
-/// First message link.
+/// Get the link of the first message in the channel.
 // Mirrors MessageCommands utils top.ts (oldest message via
 // after:"0", link reply or no-message text).
-#[poise::command(slash_command, prefix_command, category = "utils", rename = "top")]
+// Prefix-only: TS registers top as a MessageCommand, never as slash.
+#[poise::command(prefix_command, category = "utils", rename = "top")]
 pub async fn top(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {
         return Ok(());

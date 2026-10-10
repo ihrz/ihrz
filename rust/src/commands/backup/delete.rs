@@ -29,7 +29,7 @@ pub fn delete_id_or_missing(id: Option<&str>) -> Option<String> {
     }
 }
 
-/// Delete a role for a certain amount of money!
+/// Delete your backup from the list
 #[poise::command(
     slash_command,
     prefix_command,

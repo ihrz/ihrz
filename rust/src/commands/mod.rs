@@ -866,11 +866,28 @@ mod tests {
         // exposes bl/unowner/unblacklist as prefix aliases, never as
         // standalone slash commands.
         const PREFIX_ONLY_DELEGATES: [&str; 3] = ["unowner", "bl", "unblacklist"];
-        for cmd in all() {
+        // MessageCommand ports are prefix-only by design: TS registers
+        // sticker/top under MessageCommands, never as slash commands.
+        const PREFIX_ONLY_MESSAGE_COMMANDS: [&str; 2] = ["sticker", "top"];
+        fn flatten<'a>(
+            cmds: &'a [poise::Command<super::Data, super::Error>],
+            out: &mut Vec<&'a poise::Command<super::Data, super::Error>>,
+        ) {
+            for c in cmds {
+                out.push(c);
+                flatten(&c.subcommands, out);
+            }
+        }
+        let cmds = all();
+        let mut flat = vec![];
+        flatten(&cmds, &mut flat);
+        for cmd in flat {
             if cmd.context_menu_action.is_some() {
                 continue;
             }
-            if PREFIX_ONLY_DELEGATES.contains(&cmd.name.as_str()) {
+            if PREFIX_ONLY_DELEGATES.contains(&cmd.name.as_str())
+                || PREFIX_ONLY_MESSAGE_COMMANDS.contains(&cmd.name.as_str())
+            {
                 assert!(
                     cmd.prefix_action.is_some(),
                     "{} should be a prefix command",

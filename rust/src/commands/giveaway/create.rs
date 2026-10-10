@@ -123,7 +123,7 @@ pub fn gw_requirement_value(choice: GwRequirement) -> &'static str {
     }
 }
 
-/// Webhook URL or webhook code
+/// Start a giveaway!
 #[poise::command(
     slash_command,
     prefix_command,

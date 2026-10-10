@@ -57,15 +57,15 @@ pub fn duration_seconds(choice: DurationChoice) -> u16 {
     }
 }
 
-/// Slowmode. Mirrors util cooldown (!cooldown.ts).
+/// Set a cooldown in the current channel. Mirrors util cooldown (!cooldown.ts).
 // Canonical slash name is `cooldown` (TS util/util.ts); `slowmode`
-// stays as a prefix/slash alias. Unslowmode via the `0` choice.
+// stays as a prefix/slash alias. Disable via the `0` choice.
 #[poise::command(
     slash_command,
     prefix_command,
     category = "utils",
     rename = "cooldown",
-    aliases("slowmode", "unslowmode", "setcooldown", "coldown", "slow")
+    aliases("slowmode", "setcooldown", "coldown", "slow")
 )]
 pub async fn slowmode(
     ctx: Ctx<'_>,

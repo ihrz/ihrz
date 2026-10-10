@@ -6,7 +6,7 @@ use super::*;
 // add / remove / clear / list legs.
 const KEY: &str = "GUILD.ANTISPAM.BYPASS_ROLES";
 
-/// Subcommand for bypass-roles category!
+/// All of the roles wich bypass the antispam
 #[poise::command(
     slash_command,
     prefix_command,
@@ -35,7 +35,7 @@ async fn lang_of(ctx: &Ctx<'_>) -> String {
     crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await
 }
 
-/// Add a role for a certain amount of money!
+/// Add a bypass role
 #[poise::command(slash_command, prefix_command, rename = "add")]
 pub async fn as_bypass_roles_add(
     ctx: Ctx<'_>,
@@ -57,7 +57,7 @@ pub async fn as_bypass_roles_add(
     Ok(())
 }
 
-/// Remove Streamer/Youtuber/Twitcher
+/// Remove a bypass role
 #[poise::command(slash_command, prefix_command, rename = "remove")]
 pub async fn as_bypass_roles_remove(
     ctx: Ctx<'_>,
@@ -79,7 +79,7 @@ pub async fn as_bypass_roles_remove(
     Ok(())
 }
 
-/// Clear a amount of message in the channel !
+/// Clear the bypass roles
 #[poise::command(slash_command, prefix_command, rename = "clear")]
 pub async fn as_bypass_roles_clear(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let gid = guild_id_of(&ctx).await;
@@ -95,7 +95,7 @@ pub async fn as_bypass_roles_clear(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())
 }
 
-/// List all sticky channels
+/// List the bypass roles
 #[poise::command(slash_command, prefix_command, rename = "list")]
 pub async fn as_bypass_roles_list(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let gid = guild_id_of(&ctx).await;

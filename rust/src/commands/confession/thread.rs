@@ -1,6 +1,6 @@
 use super::*;
 
-/// Toggle the discussion thread under each confession. Mirrors !thread.ts.
+/// Create an thread upside the confession ?
 // The raw action string is stored as-is (prefix defaults to `"0s"`
 // when missing, like `string(args!, 0) || "0s"`); only the exact
 // `"yes"` replies enabled, everything else replies disabled.

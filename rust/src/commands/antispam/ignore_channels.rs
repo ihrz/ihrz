@@ -13,7 +13,7 @@ const KEY: &str = "GUILD.ANTISPAM.BYPASS_CHANNELS";
 /// ignore-channels select minus GuildMedia (inexpressible, see above).
 pub const IGNORE_CHANNEL_TYPES: [&str; 5] = ["Forum", "Text", "Category", "Stage", "Voice"];
 
-/// Subcommand for ignore-channels category!
+/// Ignore this channels in the AntiSpam Module
 #[poise::command(
     slash_command,
     prefix_command,
@@ -42,7 +42,7 @@ async fn lang_of(ctx: &Ctx<'_>) -> String {
     crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await
 }
 
-/// Add a role for a certain amount of money!
+/// Add an ignored channel
 #[poise::command(slash_command, prefix_command, rename = "add")]
 pub async fn as_ignore_channels_add(
     ctx: Ctx<'_>,
@@ -66,7 +66,7 @@ pub async fn as_ignore_channels_add(
     Ok(())
 }
 
-/// Remove Streamer/Youtuber/Twitcher
+/// Remove an ignored channel
 #[poise::command(slash_command, prefix_command, rename = "remove")]
 pub async fn as_ignore_channels_remove(
     ctx: Ctx<'_>,
@@ -90,7 +90,7 @@ pub async fn as_ignore_channels_remove(
     Ok(())
 }
 
-/// Clear a amount of message in the channel !
+/// Clear the ignored channels
 #[poise::command(slash_command, prefix_command, rename = "clear")]
 pub async fn as_ignore_channels_clear(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let gid = guild_id_of(&ctx).await;
@@ -106,7 +106,7 @@ pub async fn as_ignore_channels_clear(ctx: Ctx<'_>) -> Result<(), anyhow::Error>
     Ok(())
 }
 
-/// List all sticky channels
+/// List the ignored channels
 #[poise::command(slash_command, prefix_command, rename = "list")]
 pub async fn as_ignore_channels_list(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let gid = guild_id_of(&ctx).await;

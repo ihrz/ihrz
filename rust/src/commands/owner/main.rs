@@ -440,10 +440,12 @@ pub async fn gbl_set(
     routed_set(pool, guild_id, guild_id, &blacklist_key(user_id), value).await
 }
 
-/// Guild-scoped blacklist delete (both stores).
-pub async fn gbl_del(pool: &crate::db::Pool, guild_id: &str, user_id: u64) -> anyhow::Result<()> {
-    let _ = routed_del(pool, guild_id, guild_id, &blacklist_key(user_id)).await;
-    Ok(())
+/// Guild-scoped blacklist delete (both stores). Returns true when a row
+/// existed in either store, mirroring `client.db.delete` returning the
+/// previous value (which the TS unblacklist guild leg uses as its
+/// existence check).
+pub async fn gbl_del(pool: &crate::db::Pool, guild_id: &str, user_id: u64) -> anyhow::Result<bool> {
+    routed_del(pool, guild_id, guild_id, &blacklist_key(user_id)).await
 }
 
 /// Merge table-handle rows with legacy kv rows for one blacklist scope.
@@ -607,7 +609,15 @@ pub async fn owner_add(
     #[description = "Member"] user: Option<serenity::User>,
 ) -> Result<(), anyhow::Error> {
     let code = lang_code(&ctx).await;
+    // Neither bot nor guild owner: answer the TS `owner_not_owner`
+    // denial instead of going silent.
     let Some(scope) = owner_scope(&ctx).await else {
+        ctx.say(lt(
+            &code,
+            "owner_not_owner",
+            "You are not an owner of the iHorizon Project. You can't use this command.",
+        ))
+        .await?;
         return Ok(());
     };
     match scope {
@@ -712,7 +722,15 @@ pub async fn owner_remove(
 
 async fn owner_remove_inner(ctx: Ctx<'_>, user: serenity::User) -> Result<(), anyhow::Error> {
     let code = lang_code(&ctx).await;
+    // Neither bot nor guild owner: answer the TS `unowner_not_owner`
+    // denial instead of going silent.
     let Some(scope) = owner_scope(&ctx).await else {
+        ctx.say(lt(
+            &code,
+            "unowner_not_owner",
+            "You are not an owner of the iHorizon Project. You can't use this command.",
+        ))
+        .await?;
         return Ok(());
     };
     let done = lt(
@@ -954,7 +972,12 @@ async fn send_bl_pager(
 pub async fn owner_blacklist(
     ctx: Ctx<'_>,
     #[description = "Member"] user: Option<serenity::User>,
-    #[description = "Reason"] reason: Option<String>,
+    // Rest-of-line like TS `longString(args, 1)`: multi-word reasons
+    // survive prefix parsing (same `#[rest]` pattern as fun/catsay).
+    // Slash use is unaffected (`#[rest]` is prefix-only).
+    #[description = "Reason"]
+    #[rest]
+    reason: Option<String>,
 ) -> Result<(), anyhow::Error> {
     owner_blacklist_inner(ctx, user, reason).await
 }
@@ -965,7 +988,15 @@ async fn owner_blacklist_inner(
     reason: Option<String>,
 ) -> Result<(), anyhow::Error> {
     let code = lang_code(&ctx).await;
+    // Neither bot nor guild owner: answer the TS `blacklist_not_owner`
+    // denial instead of going silent.
     let Some(scope) = owner_scope(&ctx).await else {
+        ctx.say(lt(
+            &code,
+            "blacklist_not_owner",
+            "You are not an owner of the iHorizon Project. You can't use this command.",
+        ))
+        .await?;
         return Ok(());
     };
     let no = no_emoji(&ctx).await;
@@ -1207,7 +1238,15 @@ pub async fn owner_unblacklist(
 
 async fn owner_unblacklist_inner(ctx: Ctx<'_>, user: serenity::User) -> Result<(), anyhow::Error> {
     let code = lang_code(&ctx).await;
+    // Neither bot nor guild owner: answer the TS `unblacklist_not_owner`
+    // denial instead of going silent.
     let Some(scope) = owner_scope(&ctx).await else {
+        ctx.say(lt(
+            &code,
+            "unblacklist_not_owner",
+            "You are not an owner of the iHorizon Project. You can't use this command.",
+        ))
+        .await?;
         return Ok(());
     };
     let no = no_emoji(&ctx).await;
@@ -1306,10 +1345,10 @@ async fn owner_unblacklist_inner(ctx: Ctx<'_>, user: serenity::User) -> Result<(
                 return Ok(());
             };
             let gid_s = gid.get().to_string();
-            if gbl_raw(&ctx.data().pool, &gid_s, user.id.get())
-                .await
-                .is_none()
-            {
+            // TS deletes before fetching (`client.db.delete(...)` doubles
+            // as the existence check), so the row is already gone when the
+            // later user fetch fails. Mirror that delete-first order here.
+            if !gbl_del(&ctx.data().pool, &gid_s, user.id.get()).await? {
                 ctx.say(not_listed).await?;
                 return Ok(());
             }
@@ -1326,7 +1365,8 @@ async fn owner_unblacklist_inner(ctx: Ctx<'_>, user: serenity::User) -> Result<(
                 .await?;
                 return Ok(());
             }
-            gbl_del(&ctx.data().pool, &gid_s, user.id.get()).await?;
+            // Row already deleted above (delete-first); TS's second delete
+            // here is a no-op.
             if gid.unban(ctx.http(), user.id).await.is_ok() {
                 ctx.say(
                     lt(
@@ -1473,7 +1513,10 @@ pub async fn owner_blinfo(
 pub async fn owner_bledit(
     ctx: Ctx<'_>,
     #[description = "Member"] user: serenity::User,
-    #[description = "The new reason"] new_reason: String,
+    // Rest-of-line like TS `longString(args, 1)` (see owner_blacklist).
+    #[description = "The new reason"]
+    #[rest]
+    new_reason: String,
 ) -> Result<(), anyhow::Error> {
     let code = lang_code(&ctx).await;
     let Some(scope) = owner_scope(&ctx).await else {
@@ -1549,7 +1592,10 @@ pub async fn unowner_alias(
 pub async fn bl_alias(
     ctx: Ctx<'_>,
     #[description = "Member"] user: Option<serenity::User>,
-    #[description = "Reason"] reason: Option<String>,
+    // Rest-of-line like TS `longString(args, 1)` (see owner_blacklist).
+    #[description = "Reason"]
+    #[rest]
+    reason: Option<String>,
 ) -> Result<(), anyhow::Error> {
     owner_blacklist_inner(ctx, user, reason).await
 }
@@ -1786,7 +1832,9 @@ mod tests {
         assert_eq!(bl_get(&pool, 7).await.as_deref(), Some("spam"));
         let grows = gbl_list(&pool, "g1").await;
         assert_eq!(grows.len(), 1);
-        gbl_del(&pool, "g1", 7).await.unwrap();
+        // Delete-first reports existence (unblacklist guild-leg parity).
+        assert!(gbl_del(&pool, "g1", 7).await.unwrap());
+        assert!(!gbl_del(&pool, "g1", 7).await.unwrap());
         assert_eq!(gbl_get(&pool, "g1", 7).await, None);
         bl_del(&pool, 7).await.unwrap();
     }
