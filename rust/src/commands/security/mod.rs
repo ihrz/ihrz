@@ -58,15 +58,30 @@ pub async fn strip_role(
 /// `event_security_kick_reason`, and the Rust paths already use
 /// `kick_with_reason` with that same string.
 /// Exact TS alphabet (captcha.ts, 7 chars, no J).
+pub const CAPTCHA_ALPHABET: &[u8] = b"ABCDEFGHIKLMNOPQRSTUVWXYZ0123456789";
+
+/// Live captcha code: CSPRNG via `OsRng`, mirroring TS
+/// `crypto.randomInt` in `src/core/captcha.ts`. This is the only
+/// live path; the seeded helper below is `#[cfg(test)]`.
+pub fn security_code() -> String {
+    use rand::{rngs::OsRng, Rng};
+    let mut rng = OsRng;
+    (0..7)
+        .map(|_| CAPTCHA_ALPHABET[rng.gen_range(0..CAPTCHA_ALPHABET.len())] as char)
+        .collect()
+}
+
+/// Deterministic helper for shape tests only (xorshift, NOT a CSPRNG).
+/// Never used outside `#[cfg(test)]`.
+#[cfg(test)]
 pub fn captcha_code(seed: u64) -> String {
-    const ALPHA: &[u8] = b"ABCDEFGHIKLMNOPQRSTUVWXYZ0123456789";
     let mut state = if seed == 0 { 0x9E3779B97F4A7C15 } else { seed };
     let mut out = String::with_capacity(7);
     for _ in 0..7 {
         state ^= state << 13;
         state ^= state >> 7;
         state ^= state << 17;
-        out.push(ALPHA[(state % ALPHA.len() as u64) as usize] as char);
+        out.push(CAPTCHA_ALPHABET[(state % CAPTCHA_ALPHABET.len() as u64) as usize] as char);
     }
     out
 }
@@ -233,6 +248,21 @@ mod tests {
     }
 
     #[test]
+    fn live_security_code_shape_and_varies() {
+        for _ in 0..16 {
+            let c = security_code();
+            assert_eq!(c.len(), 7);
+            assert!(c
+                .chars()
+                .all(|x| CAPTCHA_ALPHABET.iter().any(|&a| a as char == x)));
+            assert!(!c.contains('J'));
+        }
+        // CSPRNG draws vary across batches (flaky only at 35^-112 odds).
+        let batch: std::collections::HashSet<String> = (0..16).map(|_| security_code()).collect();
+        assert!(batch.len() > 1);
+    }
+
+    #[test]
     fn audit_reason_matches_ts() {
         assert_eq!(SECURITY_AUDIT_REASON, "[Security] Module");
     }
@@ -250,9 +280,11 @@ pub mod security;
 /// used by pfps + guildconfig).
 #[allow(unused_imports)]
 pub mod main {
+    #[cfg(test)]
+    pub use super::captcha_code;
     pub use super::security::*;
     pub use super::{
-        captcha_code, check_code, disable_flag, grant_role, guild_id_str, parse_on_off, strip_role,
-        SECURITY_AUDIT_REASON,
+        check_code, disable_flag, grant_role, guild_id_str, parse_on_off, security_code,
+        strip_role, CAPTCHA_ALPHABET, SECURITY_AUDIT_REASON,
     };
 }

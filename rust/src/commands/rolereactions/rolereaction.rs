@@ -1371,17 +1371,6 @@ async fn save_draft(pool: &crate::db::Pool, gid: &str, config_msg: u64, draft: &
     .await;
 }
 
-fn modal_field(submit: &serenity::ModalInteraction, field_id: &str) -> String {
-    for row in &submit.data.components {
-        if let Some(serenity::ActionRowComponent::InputText(input)) = row.components.first() {
-            if input.custom_id == field_id {
-                return input.value.clone().unwrap_or_default();
-            }
-        }
-    }
-    String::new()
-}
-
 /// Builder main-menu presses (add/remove/placeholder/save/cancel
 /// with the invoker gate). Mirrors the TS collector legs.
 pub async fn handle_roleselect_main(
@@ -1421,42 +1410,44 @@ pub async fn handle_roleselect_main(
     let roles_snapshot = ctx.cache.guild(guild_id).map(|g| g.roles.clone());
     match value.as_str() {
         "add" => {
-            let modal =
-                serenity::CreateModal::new(ROLESELECT_ADD_MODAL, t("roleselect_modal1_title"))
-                    .components(vec![
-                        serenity::CreateActionRow::InputText(
-                            serenity::CreateInputText::new(
-                                serenity::InputTextStyle::Short,
-                                t("roleselect_modal1_fields1_label"),
-                                "case_emoji",
-                            )
-                            .placeholder(t("roleselect_modal1_fields1_placeholder"))
-                            .required(false)
-                            .min_length(1)
-                            .max_length(120),
-                        ),
-                        serenity::CreateActionRow::InputText(
-                            serenity::CreateInputText::new(
-                                serenity::InputTextStyle::Short,
-                                t("roleselect_modal1_fields2_label"),
-                                "case_title",
-                            )
-                            .placeholder(t("roleselect_modal1_fields2_placeholder"))
-                            .required(true)
-                            .min_length(4)
-                            .max_length(50),
-                        ),
-                        serenity::CreateActionRow::InputText(
-                            serenity::CreateInputText::new(
-                                serenity::InputTextStyle::Paragraph,
-                                t("roleselect_modal1_fields3_label"),
-                                "case_desc",
-                            )
-                            .placeholder(t("roleselect_modal1_fields3_placeholder"))
-                            .required(false)
-                            .max_length(120),
-                        ),
-                    ]);
+            let mut modal_opts = crate::modal_helper::ModalOptions::new(
+                &t("roleselect_modal1_title"),
+                ROLESELECT_ADD_MODAL,
+            );
+            modal_opts.fields.extend([
+                crate::modal_helper::ModalField::Text(crate::modal_helper::TextField {
+                    custom_id: "case_emoji".to_string(),
+                    label: t("roleselect_modal1_fields1_label"),
+                    placeholder: Some(t("roleselect_modal1_fields1_placeholder")),
+                    style: crate::modal_helper::TextStyle::Short,
+                    required: false,
+                    max_length: Some(120),
+                    min_length: Some(1),
+                    value: None,
+                }),
+                crate::modal_helper::ModalField::Text(crate::modal_helper::TextField {
+                    custom_id: "case_title".to_string(),
+                    label: t("roleselect_modal1_fields2_label"),
+                    placeholder: Some(t("roleselect_modal1_fields2_placeholder")),
+                    style: crate::modal_helper::TextStyle::Short,
+                    required: true,
+                    max_length: Some(50),
+                    min_length: Some(4),
+                    value: None,
+                }),
+                crate::modal_helper::ModalField::Text(crate::modal_helper::TextField {
+                    custom_id: "case_desc".to_string(),
+                    label: t("roleselect_modal1_fields3_label"),
+                    placeholder: Some(t("roleselect_modal1_fields3_placeholder")),
+                    style: crate::modal_helper::TextStyle::Paragraph,
+                    required: false,
+                    max_length: Some(120),
+                    min_length: Some(0),
+                    value: None,
+                }),
+            ]);
+            let modal = crate::modal_helper::build_modal(&modal_opts)
+                .map_err(|_| anyhow::anyhow!("unsupported modal field"))?;
             comp.create_response(&http, serenity::CreateInteractionResponse::Modal(modal))
                 .await?;
             let Some(submit) =
@@ -1464,9 +1455,15 @@ pub async fn handle_roleselect_main(
             else {
                 return Ok(());
             };
-            let emoji = modal_field(&submit, "case_emoji").trim().to_string();
-            let label = modal_field(&submit, "case_title").trim().to_string();
-            let desc = modal_field(&submit, "case_desc").trim().to_string();
+            let emoji = crate::modal_helper::text_value(&submit, "case_emoji")
+                .trim()
+                .to_string();
+            let label = crate::modal_helper::text_value(&submit, "case_title")
+                .trim()
+                .to_string();
+            let desc = crate::modal_helper::text_value(&submit, "case_desc")
+                .trim()
+                .to_string();
             draft.pending = Some(RoleSelectPending { emoji, label, desc });
             save_draft(pool, &gid, config_msg, &draft).await;
             // Ephemeral role picker (the 60s RoleSelect wait,
@@ -1559,21 +1556,26 @@ pub async fn handle_roleselect_main(
             .await?;
         }
         "placeholder" => {
-            let modal = serenity::CreateModal::new(
+            let mut modal_opts = crate::modal_helper::ModalOptions::new(
+                &t("roleselect_modal2_title"),
                 ROLESELECT_PLACEHOLDER_MODAL,
-                t("roleselect_modal2_title"),
-            )
-            .components(vec![serenity::CreateActionRow::InputText(
-                serenity::CreateInputText::new(
-                    serenity::InputTextStyle::Short,
-                    t("roleselect_modal2_label"),
-                    "placeholder",
-                )
-                .placeholder(t("roleselect_modal2_placeholder"))
-                .required(true)
-                .min_length(8)
-                .max_length(50),
-            )]);
+            );
+            modal_opts
+                .fields
+                .push(crate::modal_helper::ModalField::Text(
+                    crate::modal_helper::TextField {
+                        custom_id: "placeholder".to_string(),
+                        label: t("roleselect_modal2_label"),
+                        placeholder: Some(t("roleselect_modal2_placeholder")),
+                        style: crate::modal_helper::TextStyle::Short,
+                        required: true,
+                        max_length: Some(50),
+                        min_length: Some(8),
+                        value: None,
+                    },
+                ));
+            let modal = crate::modal_helper::build_modal(&modal_opts)
+                .map_err(|_| anyhow::anyhow!("unsupported modal field"))?;
             comp.create_response(&http, serenity::CreateInteractionResponse::Modal(modal))
                 .await?;
             let Some(submit) =
@@ -1581,7 +1583,9 @@ pub async fn handle_roleselect_main(
             else {
                 return Ok(());
             };
-            draft.placeholder = modal_field(&submit, "placeholder").trim().to_string();
+            draft.placeholder = crate::modal_helper::text_value(&submit, "placeholder")
+                .trim()
+                .to_string();
             save_draft(pool, &gid, config_msg, &draft).await;
             refresh_config(
                 &http,

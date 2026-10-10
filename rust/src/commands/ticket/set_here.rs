@@ -464,25 +464,16 @@ fn select_menu(panel_name: &str, cases: &[LegacySelection]) -> serenity::CreateS
     .placeholder(panel_name.to_string())
 }
 
-fn modal_value(submit: &serenity::ModalInteraction, field_id: &str) -> String {
-    for row in &submit.data.components {
-        if let Some(serenity::ActionRowComponent::InputText(input)) = row.components.first() {
-            if input.custom_id == field_id {
-                return input.value.clone().unwrap_or_default();
-            }
-        }
-    }
-    String::new()
-}
-
 async fn show_builder_modal(
     sctx: &serenity::Context,
     pick: &serenity::ComponentInteraction,
     modal_id: &str,
     title: String,
-    fields: Vec<serenity::CreateActionRow>,
+    fields: Vec<crate::modal_helper::ModalField>,
 ) -> Option<serenity::ModalInteraction> {
-    let modal = serenity::CreateModal::new(modal_id, title).components(fields);
+    let mut opts = crate::modal_helper::ModalOptions::new(&title, modal_id);
+    opts.fields = fields;
+    let modal = crate::modal_helper::build_modal(&opts).ok()?;
     if pick
         .create_response(
             &sctx.http,
@@ -506,28 +497,26 @@ async fn run_builder_add(
     cases: &mut Vec<LegacySelection>,
 ) -> bool {
     let fields = vec![
-        serenity::CreateActionRow::InputText(
-            serenity::CreateInputText::new(
-                serenity::InputTextStyle::Short,
-                t("sethereticket_modal_1_fields_1_label"),
-                "case_name",
-            )
-            .placeholder(t("sethereticket_modal_1_fields_1_placeholder"))
-            .required(true)
-            .min_length(2)
-            .max_length(150),
-        ),
-        serenity::CreateActionRow::InputText(
-            serenity::CreateInputText::new(
-                serenity::InputTextStyle::Short,
-                t("sethereticket_modal_1_fields_2_label"),
-                "case_emoji",
-            )
-            .placeholder(t("sethereticket_modal_1_fields_2_placeholder"))
-            .required(false)
-            .min_length(1)
-            .max_length(50),
-        ),
+        crate::modal_helper::ModalField::Text(crate::modal_helper::TextField {
+            custom_id: "case_name".to_string(),
+            label: t("sethereticket_modal_1_fields_1_label"),
+            placeholder: Some(t("sethereticket_modal_1_fields_1_placeholder")),
+            style: crate::modal_helper::TextStyle::Short,
+            required: true,
+            max_length: Some(150),
+            min_length: Some(2),
+            value: None,
+        }),
+        crate::modal_helper::ModalField::Text(crate::modal_helper::TextField {
+            custom_id: "case_emoji".to_string(),
+            label: t("sethereticket_modal_1_fields_2_label"),
+            placeholder: Some(t("sethereticket_modal_1_fields_2_placeholder")),
+            style: crate::modal_helper::TextStyle::Short,
+            required: false,
+            max_length: Some(50),
+            min_length: Some(1),
+            value: None,
+        }),
     ];
     let Some(submit) = show_builder_modal(
         sctx,
@@ -543,11 +532,15 @@ async fn run_builder_add(
     let _ = submit
         .create_response(&sctx.http, serenity::CreateInteractionResponse::Acknowledge)
         .await;
-    let name = modal_value(&submit, "case_name");
+    let name = crate::modal_helper::text_value(&submit, "case_name");
     if name.trim().is_empty() {
         return false;
     }
-    select_case_add(cases, name, modal_value(&submit, "case_emoji"));
+    select_case_add(
+        cases,
+        name,
+        crate::modal_helper::text_value(&submit, "case_emoji"),
+    );
     true
 }
 
@@ -570,28 +563,26 @@ async fn run_builder_save(
     let t = |k: &str| crate::lang::get(lang_code, k).unwrap_or_default();
     // TS swaps placeholder/label on the desc field; mirrored as-is.
     let fields = vec![
-        serenity::CreateActionRow::InputText(
-            serenity::CreateInputText::new(
-                serenity::InputTextStyle::Short,
-                t("sethereticket_modal_2_fields_1_title"),
-                "embed_title",
-            )
-            .placeholder(t("sethereticket_modal_2_fields_1_placeholder"))
-            .required(true)
-            .min_length(2)
-            .max_length(24),
-        ),
-        serenity::CreateActionRow::InputText(
-            serenity::CreateInputText::new(
-                serenity::InputTextStyle::Short,
-                t("sethereticket_modal_2_fields_2_placeholder"),
-                "embed_desc",
-            )
-            .placeholder(t("sethereticket_modal_2_fields_2_title"))
-            .required(false)
-            .min_length(12)
-            .max_length(500),
-        ),
+        crate::modal_helper::ModalField::Text(crate::modal_helper::TextField {
+            custom_id: "embed_title".to_string(),
+            label: t("sethereticket_modal_2_fields_1_title"),
+            placeholder: Some(t("sethereticket_modal_2_fields_1_placeholder")),
+            style: crate::modal_helper::TextStyle::Short,
+            required: true,
+            max_length: Some(24),
+            min_length: Some(2),
+            value: None,
+        }),
+        crate::modal_helper::ModalField::Text(crate::modal_helper::TextField {
+            custom_id: "embed_desc".to_string(),
+            label: t("sethereticket_modal_2_fields_2_placeholder"),
+            placeholder: Some(t("sethereticket_modal_2_fields_2_title")),
+            style: crate::modal_helper::TextStyle::Short,
+            required: false,
+            max_length: Some(500),
+            min_length: Some(12),
+            value: None,
+        }),
     ];
     let Some(submit) = show_builder_modal(
         sctx,
@@ -607,11 +598,11 @@ async fn run_builder_save(
     let _ = submit
         .create_response(&sctx.http, serenity::CreateInteractionResponse::Acknowledge)
         .await;
-    let title = modal_value(&submit, "embed_title");
+    let title = crate::modal_helper::text_value(&submit, "embed_title");
     if title.trim().is_empty() {
         return Ok(false);
     }
-    let mut desc = modal_value(&submit, "embed_desc");
+    let mut desc = crate::modal_helper::text_value(&submit, "embed_desc");
     if desc.trim().is_empty() {
         desc =
             t("sethereticket_description_embed").replace("${user.username}", &author.to_string());

@@ -92,6 +92,154 @@ pub fn get(code: &str, key: &str) -> Option<String> {
     })
 }
 
+/// Discord permission bit value -> (YAML lang key, exact en-US fallback).
+/// Mirrors PERMISSION_MAPPING in
+/// src/core/functions/permissonsCalculator.ts: the map keys are the
+/// decimal bit values, the names are the YAML keys resolved via
+/// `lang[perm.name]` in formatPermissionName (src/core/commandExecutor.ts).
+/// Reuses the existing `perm_*_name` YAML keys (never hardcoded user
+/// strings); the en-US literal is the final fallback only, matching the
+/// TS `lang[p.name] || p.name` chain. SET_VOICE_CHANNEL_STATUS (1 << 48)
+/// has no TS mapping entry and stays unmapped here as well.
+const PERMISSION_NAMES: &[(u64, &str, &str)] = &[
+    (1, "perm_createinstantinvite_name", "Create Instant Invite"),
+    (2, "perm_kickmembers_name", "Kick Members"),
+    (4, "perm_banmembers_name", "Ban Members"),
+    (8, "perm_administrator_name", "Administrator"),
+    (16, "perm_managechannels_name", "Manage Channels"),
+    (32, "perm_manageguild_name", "Manage Server"),
+    (64, "perm_addreactions_name", "Add Reactions"),
+    (128, "perm_viewauditlog_name", "View Audit Log"),
+    (256, "perm_priorityspeaker_name", "Priority Speaker"),
+    (512, "perm_stream_name", "Stream"),
+    (1024, "perm_viewchannel_name", "View Channel"),
+    (2048, "perm_sendmessages_name", "Send Messages"),
+    (4096, "perm_sendttsmessages_name", "Send TTS Messages"),
+    (8192, "perm_managemessages_name", "Manage Messages"),
+    (16384, "perm_embedlinks_name", "Embed Links"),
+    (32768, "perm_attachfiles_name", "Attach Files"),
+    (
+        65536,
+        "perm_readmessagehistory_name",
+        "Read Message History",
+    ),
+    (131072, "perm_mentioneveryone_name", "Mention Everyone"),
+    (262144, "perm_useexternalemojis_name", "Use External Emojis"),
+    (
+        524288,
+        "perm_viewguildinsights_name",
+        "View Server Insights",
+    ),
+    (1048576, "perm_connect_name", "Connect"),
+    (2097152, "perm_speak_name", "Speak"),
+    (4194304, "perm_mutemembers_name", "Mute Members"),
+    (8388608, "perm_deafenmembers_name", "Deafen Members"),
+    (16777216, "perm_movemembers_name", "Move Members"),
+    (33554432, "perm_usevad_name", "Use Voice Activity"),
+    (67108864, "perm_changenickname_name", "Change Nickname"),
+    (134217728, "perm_managenicknames_name", "Manage Nicknames"),
+    (268435456, "perm_manageroles_name", "Manage Roles"),
+    (536870912, "perm_managewebhooks_name", "Manage Webhooks"),
+    (
+        1073741824,
+        "perm_manageemojisandstickers_name",
+        "Manage Emojis and Stickers",
+    ),
+    (
+        2147483648,
+        "perm_useapplicationcommands_name",
+        "Use Application Commands",
+    ),
+    (4294967296, "perm_requesttospeak_name", "Request to Speak"),
+    (8589934592, "perm_manageevents_name", "Manage Events"),
+    (17179869184, "perm_managethreads_name", "Manage Threads"),
+    (
+        34359738368,
+        "perm_createpublicthreads_name",
+        "Create Public Threads",
+    ),
+    (
+        68719476736,
+        "perm_createprivatethreads_name",
+        "Create Private Threads",
+    ),
+    (
+        137438953472,
+        "perm_useexternalstickers_name",
+        "Use External Stickers",
+    ),
+    (
+        274877906944,
+        "perm_sendmessagesinthreads_name",
+        "Send Messages in Threads",
+    ),
+    (
+        549755813888,
+        "perm_useembeddedactivities_name",
+        "Use Embedded Activities",
+    ),
+    (
+        1099511627776,
+        "perm_moderatemembers_name",
+        "Moderate Members",
+    ),
+    (
+        2199023255552,
+        "perm_viewcreatormonetizationanalytics_name",
+        "View Creator Monetization Analytics",
+    ),
+    (4398046511104, "perm_usesoundboard_name", "Use Soundboard"),
+    (
+        8796093022208,
+        "perm_createguildexpressions_name",
+        "Create Server Expressions",
+    ),
+    (17592186044416, "perm_createevents_name", "Create Events"),
+    (
+        35184372088832,
+        "perm_useexternalsounds_name",
+        "Use External Sounds",
+    ),
+    (
+        70368744177664,
+        "perm_sendvoicemessages_name",
+        "Send Voice Messages",
+    ),
+    (562949953421312, "perm_sendpolls_name", "Send Polls"),
+    (
+        1125899906842624,
+        "perm_useexternalapps_name",
+        "Use External Apps",
+    ),
+];
+
+/// Single-bit lookup into the permission table.
+pub fn permission_name_key(bits: u64) -> Option<(&'static str, &'static str)> {
+    PERMISSION_NAMES
+        .iter()
+        .find(|(v, _, _)| *v == bits)
+        .map(|(_, key, fallback)| (*key, *fallback))
+}
+
+/// Localized display names for a combined permission bitmask.
+/// Mirrors formatPermissionName in src/core/commandExecutor.ts: every
+/// known set bit resolves through the guild lang table with the exact
+/// en-US string as the final fallback; unknown bits are skipped (TS
+/// filters nulls). Returns None when no bit maps, so the caller falls
+/// back to a generic noun; otherwise names joined with ", ".
+pub fn permission_names(code: &str, missing_bits: u64) -> Option<String> {
+    let names: Vec<String> = PERMISSION_NAMES
+        .iter()
+        .filter(|(v, _, _)| missing_bits & v != 0)
+        .map(|(_, key, fallback)| get(code, key).unwrap_or_else(|| fallback.to_string()))
+        .collect();
+    if names.is_empty() {
+        None
+    } else {
+        Some(names.join(", "))
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -210,6 +358,60 @@ mod tests {
         assert_ne!(
             get("jp-JP", "msg_loading").as_deref(),
             get("en-US", "msg_loading").as_deref()
+        );
+    }
+
+    #[test]
+    fn perm_table_keys_match_en_us_fallbacks() {
+        // Every table entry must reuse an existing YAML key whose en-US
+        // value equals the compiled fallback (locks the TS parity).
+        for (bits, key, fallback) in super::PERMISSION_NAMES {
+            assert_eq!(
+                get("en-US", key).as_deref(),
+                Some(*fallback),
+                "bit {bits} key {key} drifted from en-US.yml"
+            );
+        }
+    }
+
+    #[test]
+    fn perm_names_resolve_en_us() {
+        assert_eq!(
+            permission_names("en-US", 8).as_deref(),
+            Some("Administrator")
+        );
+        // Combined bits join with ", " like the TS array branch.
+        assert_eq!(
+            permission_names("en-US", 4 | 8).as_deref(),
+            Some("Ban Members, Administrator")
+        );
+    }
+
+    #[test]
+    fn perm_names_are_localized_not_english() {
+        assert_eq!(
+            permission_names("fr-FR", 8).as_deref(),
+            Some("Administrateur")
+        );
+        assert_eq!(
+            permission_names("fr-FR", 2048).as_deref(),
+            Some("Envoyer des messages")
+        );
+    }
+
+    #[test]
+    fn perm_names_unknown_bits_yield_none() {
+        // 1 << 48 (SET_VOICE_CHANNEL_STATUS) has no TS mapping entry.
+        assert_eq!(permission_names("en-US", 1 << 48), None);
+        assert_eq!(permission_names("en-US", 0), None);
+        assert_eq!(permission_name_key(1 << 48), None);
+    }
+
+    #[test]
+    fn perm_names_skips_unknown_bits_keeps_known() {
+        assert_eq!(
+            permission_names("en-US", 8 | (1 << 48)).as_deref(),
+            Some("Administrator")
         );
     }
 }

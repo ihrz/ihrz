@@ -196,32 +196,65 @@ fn global_check(
         Ok(true)
     })
 }
+/// Pure crash-report helpers (unit-tested below). Mirror the TS
+/// handleExecutionError admin flags (`yes`/`no`, missing -> `no`).
+fn admin_flag(admin: bool) -> &'static str {
+    if admin {
+        "yes"
+    } else {
+        "no"
+    }
+}
+
+/// Full slash invocation. Mirrors TS `/${commandPath}\n\n`.
+fn slash_invocation(path: &str) -> String {
+    format!("/{path}\n\n")
+}
+
+/// Guild-wide Administrator check (owner counts, like TS
+/// `permissions.has(Administrator)`). Missing guild/member/cache data
+/// falls back to false, mirroring the TS optional chaining.
+#[allow(deprecated)]
+async fn is_guild_admin(ctx: Ctx<'_>, user_id: serenity::UserId) -> bool {
+    let Some(gid) = ctx.guild_id() else {
+        return false;
+    };
+    let http = &ctx.serenity_context().http;
+    let Ok(member) = gid.member(http, user_id).await else {
+        return false;
+    };
+    member
+        .permissions(&ctx.serenity_context().cache)
+        .map(|p| p.administrator())
+        .unwrap_or(false)
+}
+
 /// Crash reporter. Mirrors handleExecutionError in commandExecutor.ts:
-/// the user gets the error block + /report suggestion, and a report
-/// embed goes to config.core.reportChannelID.
+/// only the slash leg gets a user-facing reply (plain, non-ephemeral),
+/// and a report embed (timestamp + Bot/User-Admin + full invocation)
+/// goes to config.core.reportChannelID.
 async fn crash_block(ctx: Ctx<'_>, error_text: String) {
     let is_prefix = matches!(ctx, poise::Context::Prefix(_));
-    let invocation = match ctx {
-        poise::Context::Prefix(p) => p.msg.content.clone(),
-        _ => format!("/{}", ctx.command().qualified_name),
-    };
     let target_name = ctx.command().name.clone();
     let error_block = format!(
         "```TS\nMessage: The command ran into a problem!\nCommand Name: {target_name}\nError: {error_text}```\n"
     );
-    let _ = ctx
-        .send(
-            poise::CreateReply::default()
-                .content(format!(
-                    "{error_block}**Let me suggest you to report this issue with `/report`.**"
-                ))
-                .ephemeral(true),
-        )
-        .await;
+    if !is_prefix {
+        let _ = ctx
+            .send(poise::CreateReply::default().content(format!(
+                "{error_block}**Let me suggest you to report this issue with `/report`.**"
+            )))
+            .await;
+    }
     let channel_id: u64 = ctx.data().config.report_channel_id.parse().unwrap_or(0);
     if channel_id == 0 {
         return;
     }
+    let bot_id = ctx.serenity_context().cache.current_user().id;
+    let invocation = match ctx {
+        poise::Context::Prefix(p) => p.msg.content.clone(),
+        _ => slash_invocation(&ctx.command().qualified_name),
+    };
     let embed = serenity::CreateEmbed::default()
         .title(if is_prefix {
             "MSG_CMD_CRASH_NOT_HANDLE"
@@ -229,7 +262,17 @@ async fn crash_block(ctx: Ctx<'_>, error_text: String) {
             "SLASH_CMD_CRASH_NOT_HANDLE"
         })
         .description(error_block)
-        .field("User", ctx.author().tag(), false)
+        .timestamp(serenity::Timestamp::now())
+        .field(
+            "Bot Admin",
+            admin_flag(is_guild_admin(ctx, bot_id).await),
+            false,
+        )
+        .field(
+            "User Admin",
+            admin_flag(is_guild_admin(ctx, ctx.author().id).await),
+            false,
+        )
         .field("** **", invocation, false);
     let _ = serenity::ChannelId::new(channel_id)
         .send_message(
@@ -289,8 +332,11 @@ pub async fn report_command_error(err: poise::FrameworkError<'_, Data, anyhow::E
             missing_permissions,
             ..
         } => {
+            let code =
+                crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
             let perm = missing_permissions
-                .map(|p| p.to_string())
+                .and_then(|p| crate::lang::permission_names(&code, p.bits()))
+                .filter(|s| !s.is_empty())
                 .unwrap_or_else(|| "permission".to_string());
             denial_reply(*ctx, "var_dont_have_perm", Some(("{perm}", perm))).await;
         }
@@ -844,6 +890,18 @@ mod tests {
     use std::sync::Mutex;
 
     static ENV_LOCK: Mutex<()> = Mutex::new(());
+
+    #[test]
+    fn crash_admin_flag_maps_bool_to_yes_no() {
+        assert_eq!(admin_flag(true), "yes");
+        assert_eq!(admin_flag(false), "no");
+    }
+
+    #[test]
+    fn crash_slash_invocation_matches_ts_command_path_field() {
+        assert_eq!(slash_invocation("ban"), "/ban\n\n");
+        assert_eq!(slash_invocation("config set"), "/config set\n\n");
+    }
 
     #[test]
     fn prefix_dispatch_is_case_insensitive_like_ts() {

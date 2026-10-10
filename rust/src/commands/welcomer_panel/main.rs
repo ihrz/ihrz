@@ -538,17 +538,6 @@ async fn set_section(pool: &crate::db::Pool, gid: &str, section: &str) {
     let _ = crate::commands::guildconfig::save_guild_config(pool, gid, &cfg).await;
 }
 
-fn modal_input(submit: &serenity::ModalInteraction, input_id: &str) -> String {
-    for row in &submit.data.components {
-        if let Some(serenity::ActionRowComponent::InputText(input)) = row.components.first() {
-            if input.custom_id == input_id {
-                return input.value.clone().unwrap_or_default();
-            }
-        }
-    }
-    String::new()
-}
-
 async fn ephemeral(
     ctx: &serenity::Context,
     comp: &serenity::ComponentInteraction,
@@ -600,9 +589,8 @@ pub async fn handle_welcomer_component(
         let join = kind == "join";
         let modal_id = format!("welcomer-{kind}-modal");
         let input_id = format!("welcomer-{kind}-input");
-        let modal = serenity::CreateModal::new(
-            modal_id.clone(),
-            t(
+        let mut modal_opts = crate::modal_helper::ModalOptions::new(
+            &t(
                 &lang_code,
                 if join {
                     "setjoinmessage_awaiting_response"
@@ -610,30 +598,37 @@ pub async fn handle_welcomer_component(
                     "setleavemessage_awaiting_response"
                 },
             ),
-        )
-        .components(vec![serenity::CreateActionRow::InputText(
-            serenity::CreateInputText::new(
-                serenity::InputTextStyle::Paragraph,
-                t(
-                    &lang_code,
-                    if join {
-                        "guildprofil_embed_fields_joinmessage"
-                    } else {
-                        "guildprofil_embed_fields_leavemessage"
-                    },
-                ),
-                input_id.clone(),
-            )
-            .min_length(2)
-            .max_length(1010)
-            .required(true),
-        )]);
+            &modal_id,
+        );
+        modal_opts
+            .fields
+            .push(crate::modal_helper::ModalField::Text(
+                crate::modal_helper::TextField {
+                    custom_id: input_id.clone(),
+                    label: t(
+                        &lang_code,
+                        if join {
+                            "guildprofil_embed_fields_joinmessage"
+                        } else {
+                            "guildprofil_embed_fields_leavemessage"
+                        },
+                    ),
+                    placeholder: None,
+                    style: crate::modal_helper::TextStyle::Paragraph,
+                    required: true,
+                    max_length: Some(1010),
+                    min_length: Some(2),
+                    value: None,
+                },
+            ));
+        let modal = crate::modal_helper::build_modal(&modal_opts)
+            .map_err(|_| anyhow::anyhow!("unsupported modal field"))?;
         comp.create_response(&ctx.http, serenity::CreateInteractionResponse::Modal(modal))
             .await?;
         let Some(submit) = crate::commands::await_modal_submit(ctx, comp, &modal_id).await else {
             return Ok(());
         };
-        let text = modal_input(&submit, &input_id);
+        let text = crate::modal_helper::text_value(&submit, &input_id);
         if text.len() < 2 {
             return Ok(());
         }
@@ -721,26 +716,34 @@ pub async fn handle_welcomer_component(
         let kind = if join { "join" } else { "leave" };
         let modal_id = format!("welcomer-{kind}-embed-modal");
         let input_id = format!("welcomer-{kind}-embed-input");
-        let modal = serenity::CreateModal::new(
-            modal_id.clone(),
-            t(&lang_code, "welcomer_embed_modal_title"),
-        )
-        .components(vec![serenity::CreateActionRow::InputText(
-            serenity::CreateInputText::new(
-                serenity::InputTextStyle::Short,
-                t(&lang_code, "welcomer_embed_modal_label"),
-                input_id.clone(),
-            )
-            .min_length(1)
-            .max_length(64)
-            .required(true),
-        )]);
+        let mut modal_opts = crate::modal_helper::ModalOptions::new(
+            &t(&lang_code, "welcomer_embed_modal_title"),
+            &modal_id,
+        );
+        modal_opts
+            .fields
+            .push(crate::modal_helper::ModalField::Text(
+                crate::modal_helper::TextField {
+                    custom_id: input_id.clone(),
+                    label: t(&lang_code, "welcomer_embed_modal_label"),
+                    placeholder: None,
+                    style: crate::modal_helper::TextStyle::Short,
+                    required: true,
+                    max_length: Some(64),
+                    min_length: Some(1),
+                    value: None,
+                },
+            ));
+        let modal = crate::modal_helper::build_modal(&modal_opts)
+            .map_err(|_| anyhow::anyhow!("unsupported modal field"))?;
         comp.create_response(&ctx.http, serenity::CreateInteractionResponse::Modal(modal))
             .await?;
         let Some(submit) = crate::commands::await_modal_submit(ctx, comp, &modal_id).await else {
             return Ok(());
         };
-        let embed_id = modal_input(&submit, &input_id).trim().to_string();
+        let embed_id = crate::modal_helper::text_value(&submit, &input_id)
+            .trim()
+            .to_string();
         if crate::db::kv_get(pool, &gid, &format!("EMBED.{embed_id}"))
             .await
             .is_none()
@@ -819,20 +822,26 @@ pub async fn handle_welcomer_component(
 
     // Join-DM set/reset (modal 2..1010, like askForDm/resetDm).
     if id == "welcomer-dm-set" {
-        let modal = serenity::CreateModal::new(
+        let mut modal_opts = crate::modal_helper::ModalOptions::new(
+            &t(&lang_code, "setjoindm_awaiting_response"),
             "welcomer-dm-modal",
-            t(&lang_code, "setjoindm_awaiting_response"),
-        )
-        .components(vec![serenity::CreateActionRow::InputText(
-            serenity::CreateInputText::new(
-                serenity::InputTextStyle::Paragraph,
-                t(&lang_code, "guildprofil_embed_fields_joinDmMessage"),
-                "welcomer-dm-input",
-            )
-            .min_length(2)
-            .max_length(1010)
-            .required(true),
-        )]);
+        );
+        modal_opts
+            .fields
+            .push(crate::modal_helper::ModalField::Text(
+                crate::modal_helper::TextField {
+                    custom_id: "welcomer-dm-input".to_string(),
+                    label: t(&lang_code, "guildprofil_embed_fields_joinDmMessage"),
+                    placeholder: None,
+                    style: crate::modal_helper::TextStyle::Paragraph,
+                    required: true,
+                    max_length: Some(1010),
+                    min_length: Some(2),
+                    value: None,
+                },
+            ));
+        let modal = crate::modal_helper::build_modal(&modal_opts)
+            .map_err(|_| anyhow::anyhow!("unsupported modal field"))?;
         comp.create_response(&ctx.http, serenity::CreateInteractionResponse::Modal(modal))
             .await?;
         let Some(submit) =
@@ -840,7 +849,7 @@ pub async fn handle_welcomer_component(
         else {
             return Ok(());
         };
-        let text = modal_input(&submit, "welcomer-dm-input");
+        let text = crate::modal_helper::text_value(&submit, "welcomer-dm-input");
         if text.len() < 2 {
             return Ok(());
         }

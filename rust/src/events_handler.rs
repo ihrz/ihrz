@@ -640,14 +640,30 @@ pub fn security_key(guild_id: u64, user_id: u64) -> String {
 /// Events/security/onMemberJoin.ts (no J, 7 chars).
 pub const SECURITY_CODE_ALPHABET: &str = "ABCDEFGHIKLMNOPQRSTUVWXYZ0123456789";
 
-/// Generate a 7-char captcha code.
+/// Generate a 7-char captcha code. Single live path delegates to the
+/// security module's CSPRNG (`OsRng`, mirroring TS `crypto.randomInt`);
+/// no seeded / `thread_rng` fallback exists on the live path.
 pub fn security_code() -> String {
-    use rand::Rng;
-    let mut rng = rand::thread_rng();
-    let alpha: Vec<char> = SECURITY_CODE_ALPHABET.chars().collect();
-    (0..7)
-        .map(|_| alpha[rng.gen_range(0..alpha.len())])
-        .collect()
+    crate::commands::security::security_code()
+}
+
+/// Captcha image challenge as a self-contained SVG (cards.rs pattern:
+/// no chromium, no html2png, no external font/image/network).
+///
+/// Decision: TS sends `captcha.png` (html2png of `captcha.html`) as the
+/// challenge. No SVG/PNG rasterizer exists in the Rust tree, and PNG
+/// bytes must never be faked, so the join leg attaches this SVG
+/// (`captcha.svg`, same `CreateAttachment::bytes` shape as the rank
+/// cards) with the code kept in the message text as the readable
+/// fallback. Layout mirrors `captcha.html`: parchment `#d6d2c8`
+/// container, dark `#1c130a` code text, fixed distortion strokes.
+/// The retry leg only edits text (like TS), so the image stays put.
+pub fn captcha_svg(code: &str) -> String {
+    let safe = crate::cards::escape_xml(code);
+    format!(
+        r##"<svg xmlns="http://www.w3.org/2000/svg" width="900" height="300" viewBox="0 0 900 300" role="img" aria-label="Captcha challenge"><rect x="0" y="0" width="900" height="300" rx="3" fill="#d6d2c8"/><text x="450" y="185" text-anchor="middle" font-family="serif" font-size="76" letter-spacing="12" fill="#1c130a">{safe}</text><g stroke="#1c130a" fill="none"><line x1="18" y1="210" x2="252" y2="45" stroke-width="4" opacity="0.7"/><line x1="9" y1="120" x2="243" y2="240" stroke-width="3.5" opacity="0.6"/><line x1="54" y1="60" x2="216" y2="255" stroke-width="3" opacity="0.5"/><path d="M 243 264 Q 540 15 891 144" stroke-width="3.5" opacity="0.55"/></g></svg>"##,
+        safe = safe,
+    )
 }
 
 /// Welcome target: system channel, else the lowest-position text
@@ -2612,8 +2628,11 @@ impl serenity::EventHandler for Handler {
             }
         }
         // Security captcha challenge (mirrors security/onMemberJoin.ts).
-        // The png render is html2png-blocked, so the code goes out as
-        // text; attempts, roles, and the expiry kick all mirror TS.
+        // Image decision: TS attaches html2png `captcha.png`; no PNG
+        // rasterizer exists in Rust, so attach the self-contained
+        // `captcha_svg` (`captcha.svg`, cards.rs pattern) and keep the
+        // code in text as the readable fallback. Attempts, roles, and
+        // the expiry kick all mirror TS.
         if let Some(raw) = security_cfg_routed(&self.pool, &gid).await {
             if let Ok(cfg) = serde_json::from_str::<serde_json::Value>(&raw) {
                 let disabled = cfg
@@ -2648,7 +2667,12 @@ impl serenity::EventHandler for Handler {
                         if let Ok(sent) = serenity::ChannelId::new(ch_id)
                             .send_message(
                                 &ctx.http,
-                                serenity::CreateMessage::new().content(content),
+                                serenity::CreateMessage::new().content(content).add_file(
+                                    serenity::CreateAttachment::bytes(
+                                        captcha_svg(&code).into_bytes(),
+                                        "captcha.svg",
+                                    ),
+                                ),
                             )
                             .await
                         {
@@ -6135,5 +6159,42 @@ mod welcomer_tests {
         let debug = format!("{:?}", render.embed);
         assert!(debug.contains("Bye."), "{debug}");
         assert!(!debug.contains("attachment://"), "{debug}");
+    }
+}
+
+#[cfg(test)]
+mod security_tests {
+    use super::*;
+
+    #[test]
+    fn security_code_is_csprng_shaped_like_ts() {
+        for _ in 0..16 {
+            let c = security_code();
+            assert_eq!(c.len(), 7);
+            assert!(c.chars().all(|x| SECURITY_CODE_ALPHABET.contains(x)));
+            assert!(!c.contains('J'));
+        }
+        let batch: std::collections::HashSet<String> = (0..16).map(|_| security_code()).collect();
+        assert!(batch.len() > 1);
+    }
+
+    #[test]
+    fn captcha_svg_is_self_contained_and_embeds_code() {
+        let svg = captcha_svg("ABC123K");
+        assert!(svg.starts_with("<svg"), "{svg}");
+        assert!(svg.contains("ABC123K"), "{svg}");
+        assert!(svg.contains("#d6d2c8"), "{svg}");
+        assert!(svg.contains("#1c130a"), "{svg}");
+        // Self-contained: no external refs (the xmlns namespace URI is
+        // mandatory and never fetched over the network).
+        assert!(!svg.contains("<image"), "{svg}");
+        assert!(!svg.contains("xlink:href"), "{svg}");
+    }
+
+    #[test]
+    fn captcha_svg_escapes_code() {
+        let svg = captcha_svg("A&C<K>");
+        assert!(!svg.contains("A&C<K>"), "{svg}");
+        assert!(svg.contains("A&amp;C&lt;K&gt;"), "{svg}");
     }
 }

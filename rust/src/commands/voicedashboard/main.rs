@@ -678,19 +678,24 @@ pub async fn handle_tempvoice_button(
             if !owned {
                 return Ok(());
             }
-            let modal =
-                serenity::CreateModal::new("tempvoice-transfer", "New owner").components(vec![
-                    serenity::CreateActionRow::InputText(
-                        serenity::CreateInputText::new(
-                            serenity::InputTextStyle::Short,
-                            "User ID",
-                            "value",
-                        )
-                        .placeholder("123456789")
-                        .min_length(1)
-                        .max_length(24),
-                    ),
-                ]);
+            let mut modal_opts =
+                crate::modal_helper::ModalOptions::new("New owner", "tempvoice-transfer");
+            modal_opts
+                .fields
+                .push(crate::modal_helper::ModalField::Text(
+                    crate::modal_helper::TextField {
+                        custom_id: "value".to_string(),
+                        label: "User ID".to_string(),
+                        placeholder: Some("123456789".to_string()),
+                        style: crate::modal_helper::TextStyle::Short,
+                        required: true,
+                        max_length: Some(24),
+                        min_length: Some(1),
+                        value: None,
+                    },
+                ));
+            let modal = crate::modal_helper::build_modal(&modal_opts)
+                .map_err(|_| anyhow::anyhow!("unsupported modal field"))?;
             comp.create_response(&ctx.http, serenity::CreateInteractionResponse::Modal(modal))
                 .await?;
             let Some(submit) =
@@ -698,15 +703,7 @@ pub async fn handle_tempvoice_button(
             else {
                 return Ok(());
             };
-            let mut value = String::new();
-            for row in &submit.data.components {
-                if let Some(serenity::ActionRowComponent::InputText(input)) = row.components.first()
-                {
-                    if input.custom_id == "value" {
-                        value = input.value.clone().unwrap_or_default();
-                    }
-                }
-            }
+            let value = crate::modal_helper::text_value(&submit, "value");
             let Ok(new_owner) = value.trim().parse::<u64>() else {
                 return Ok(());
             };
@@ -738,29 +735,30 @@ pub async fn handle_tempvoice_button(
             } else {
                 ("tempvoice-limit", "User limit (0-99)", "0")
             };
-            let modal = serenity::CreateModal::new(modal_id, label).components(vec![
-                serenity::CreateActionRow::InputText(
-                    serenity::CreateInputText::new(serenity::InputTextStyle::Short, label, "value")
-                        .placeholder(placeholder)
-                        .min_length(1)
-                        .max_length(32),
-                ),
-            ]);
+            let mut modal_opts = crate::modal_helper::ModalOptions::new(label, modal_id);
+            modal_opts
+                .fields
+                .push(crate::modal_helper::ModalField::Text(
+                    crate::modal_helper::TextField {
+                        custom_id: "value".to_string(),
+                        label: label.to_string(),
+                        placeholder: Some(placeholder.to_string()),
+                        style: crate::modal_helper::TextStyle::Short,
+                        required: true,
+                        max_length: Some(32),
+                        min_length: Some(1),
+                        value: None,
+                    },
+                ));
+            let modal = crate::modal_helper::build_modal(&modal_opts)
+                .map_err(|_| anyhow::anyhow!("unsupported modal field"))?;
             comp.create_response(&ctx.http, serenity::CreateInteractionResponse::Modal(modal))
                 .await?;
             let Some(submit) = crate::commands::await_modal_submit(ctx, comp, modal_id).await
             else {
                 return Ok(());
             };
-            let mut value = String::new();
-            for row in &submit.data.components {
-                if let Some(serenity::ActionRowComponent::InputText(input)) = row.components.first()
-                {
-                    if input.custom_id == "value" {
-                        value = input.value.clone().unwrap_or_default();
-                    }
-                }
-            }
+            let value = crate::modal_helper::text_value(&submit, "value");
             if action == "name" {
                 let _ = ch
                     .edit(&ctx.http, serenity::EditChannel::new().name(value.trim()))

@@ -674,17 +674,6 @@ async fn refresh_editor(
         .await;
 }
 
-fn modal_field(submit: &serenity::ModalInteraction, field_id: &str) -> String {
-    for row in &submit.data.components {
-        if let Some(serenity::ActionRowComponent::InputText(input)) = row.components.first() {
-            if input.custom_id == field_id {
-                return input.value.clone().unwrap_or_default();
-            }
-        }
-    }
-    String::new()
-}
-
 async fn show_modal(
     sctx: &serenity::Context,
     pick: &serenity::ComponentInteraction,
@@ -693,18 +682,23 @@ async fn show_modal(
     fields: Vec<(String, String, bool, u16, u16)>,
 ) -> Option<serenity::ModalInteraction> {
     // (label, custom_id, required, min, max)
-    let rows = fields
+    let mut opts = crate::modal_helper::ModalOptions::new(&title, modal_id);
+    opts.fields = fields
         .into_iter()
         .map(|(label, custom_id, required, min, max)| {
-            serenity::CreateActionRow::InputText(
-                serenity::CreateInputText::new(serenity::InputTextStyle::Short, label, custom_id)
-                    .required(required)
-                    .min_length(min)
-                    .max_length(max),
-            )
+            crate::modal_helper::ModalField::Text(crate::modal_helper::TextField {
+                custom_id,
+                label,
+                placeholder: None,
+                style: crate::modal_helper::TextStyle::Short,
+                required,
+                max_length: Some(max),
+                min_length: Some(min),
+                value: None,
+            })
         })
         .collect();
-    let modal = serenity::CreateModal::new(modal_id, title).components(rows);
+    let modal = crate::modal_helper::build_modal(&opts).ok()?;
     if pick
         .create_response(
             &sctx.http,
@@ -973,7 +967,9 @@ async fn run_editor_step(
             else {
                 return Ok(false);
             };
-            let id = modal_field(&submit, "embed_id").trim().to_string();
+            let id = crate::modal_helper::text_value(&submit, "embed_id")
+                .trim()
+                .to_string();
             if !embed_exists(pool, gid, &id).await {
                 ack_modal(sctx, &submit).await;
                 ephemeral(sctx, pick, t("ticket_panel_change_embed_dont_exist")).await;
@@ -1012,7 +1008,9 @@ async fn run_editor_step(
             else {
                 return Ok(false);
             };
-            panel.placeholder = modal_field(&submit, "placeholder").trim().to_string();
+            panel.placeholder = crate::modal_helper::text_value(&submit, "placeholder")
+                .trim()
+                .to_string();
             ack_modal(sctx, &submit).await;
             Ok(true)
         }
@@ -1132,7 +1130,9 @@ async fn run_editor_step(
             else {
                 return Ok(false);
             };
-            let id = modal_field(&submit, "embed_id").trim().to_string();
+            let id = crate::modal_helper::text_value(&submit, "embed_id")
+                .trim()
+                .to_string();
             if !embed_exists(pool, gid, &id).await {
                 ack_modal(sctx, &submit).await;
                 ephemeral(sctx, pick, t("ticket_panel_change_embed_dont_exist")).await;
@@ -1207,7 +1207,9 @@ async fn run_editor_step(
             else {
                 return Ok(false);
             };
-            let id = modal_field(&submit, "embed_id").trim().to_string();
+            let id = crate::modal_helper::text_value(&submit, "embed_id")
+                .trim()
+                .to_string();
             if !embed_exists(pool, gid, &id).await {
                 ack_modal(sctx, &submit).await;
                 ephemeral(sctx, &opt_pick, t("ticket_panel_change_embed_dont_exist")).await;
@@ -1510,13 +1512,17 @@ async fn run_option_add_modal(
     else {
         return false;
     };
-    let name = modal_field(&submit, "name").trim().to_string();
+    let name = crate::modal_helper::text_value(&submit, "name")
+        .trim()
+        .to_string();
     if name.is_empty() {
         ack_modal(sctx, &submit).await;
         return false;
     }
-    let desc = modal_field(&submit, "desc").trim().to_string();
-    let emoji = sanitize_option_emoji(&modal_field(&submit, "emoji"));
+    let desc = crate::modal_helper::text_value(&submit, "desc")
+        .trim()
+        .to_string();
+    let emoji = sanitize_option_emoji(&crate::modal_helper::text_value(&submit, "emoji"));
     let known: Vec<String> = panel
         .config
         .option_fields
@@ -1576,12 +1582,16 @@ async fn run_form_add_modal(
     else {
         return false;
     };
-    let qtitle = modal_field(&submit, "title").trim().to_string();
+    let qtitle = crate::modal_helper::text_value(&submit, "title")
+        .trim()
+        .to_string();
     if qtitle.is_empty() {
         ack_modal(sctx, &submit).await;
         return false;
     }
-    let qplaceholder = modal_field(&submit, "placeholder").trim().to_string();
+    let qplaceholder = crate::modal_helper::text_value(&submit, "placeholder")
+        .trim()
+        .to_string();
     let id = target.len() as u32;
     target.push(TicketForm {
         question_id: id,
