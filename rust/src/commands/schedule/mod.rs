@@ -32,6 +32,35 @@ pub fn is_expired(entry: &ScheduleEntry, now_ms: i64) -> bool {
     now_ms >= entry.expires_at_ms
 }
 
+/// SCHED-KEY-COMPAT: the TS writer (`scheduleTable.set` in
+/// schedule.ts `__0`, read by `refreshSchedule` in ready.ts) stores
+/// `{title, description, expired}`, while this port writes
+/// `ScheduleEntry {code, title, description, expires_at_ms}`.
+/// Read both shapes, write one (`expires_at_ms`).
+pub fn expiry_ms_of(v: &serde_json::Value) -> Option<i64> {
+    v.get("expires_at_ms")
+        .and_then(|n| n.as_i64())
+        .or_else(|| v.get("expired").and_then(|n| n.as_i64()))
+}
+
+/// Parse either shape into a `ScheduleEntry`. `fallback_code` (the key
+/// suffix) fills `code` for legacy `{expired}` rows that carry none.
+pub fn entry_from_value(v: &serde_json::Value, fallback_code: &str) -> Option<ScheduleEntry> {
+    if let Ok(e) = serde_json::from_value::<ScheduleEntry>(v.clone()) {
+        return Some(e);
+    }
+    Some(ScheduleEntry {
+        code: v
+            .get("code")
+            .and_then(|c| c.as_str())
+            .map(|s| s.to_string())
+            .unwrap_or_else(|| fallback_code.to_string()),
+        title: v.get("title")?.as_str()?.to_string(),
+        description: v.get("description")?.as_str()?.to_string(),
+        expires_at_ms: expiry_ms_of(v)?,
+    })
+}
+
 /// 16-char alphanumeric code. No external dependency: xorshift64 seeded
 /// from SystemTime nanos (mirrors TS generatePassword({ length: 16 })).
 pub fn gen_code() -> String {
@@ -76,7 +105,8 @@ pub async fn load_entry(
     code: &str,
 ) -> Option<ScheduleEntry> {
     let raw = crate::db::kv_get(pool, guild_id, &schedule_key(user_id, code)).await?;
-    serde_json::from_str(&raw).ok()
+    let v: serde_json::Value = serde_json::from_str(&raw).ok()?;
+    entry_from_value(&v, code)
 }
 
 pub async fn save_entry(
@@ -109,8 +139,8 @@ pub async fn list_entries(
     user_id: u64,
 ) -> Vec<ScheduleEntry> {
     let like = format!("{}%", schedule_prefix(user_id));
-    let rows: Vec<String> = sqlx::query_scalar::<_, String>(
-        "SELECT value FROM kv WHERE guild_id = ? AND key_name LIKE ?",
+    let rows: Vec<(String, String)> = sqlx::query_as::<_, (String, String)>(
+        "SELECT key_name, value FROM kv WHERE guild_id = ? AND key_name LIKE ?",
     )
     .bind(guild_id)
     .bind(like)
@@ -119,7 +149,11 @@ pub async fn list_entries(
     .unwrap_or_default();
     let mut out: Vec<ScheduleEntry> = rows
         .iter()
-        .filter_map(|s| serde_json::from_str(s).ok())
+        .filter_map(|(key, s)| {
+            let v: serde_json::Value = serde_json::from_str(s).ok()?;
+            let code = key.rsplit('.').next().unwrap_or("");
+            entry_from_value(&v, code)
+        })
         .collect();
     out.sort_by_key(|e| e.expires_at_ms);
     out
@@ -215,6 +249,26 @@ mod tests {
         let s = serde_json::to_string(&e).unwrap();
         let back: ScheduleEntry = serde_json::from_str(&s).unwrap();
         assert_eq!(e, back);
+    }
+
+    #[test]
+    fn compat_reads_legacy_expired_shape() {
+        // TS writer shape: {title, description, expired}, no code.
+        let v: serde_json::Value =
+            serde_json::from_str(r#"{"title":"t","description":"a description","expired":777}"#)
+                .unwrap();
+        let e = entry_from_value(&v, "LEGACYCODE").unwrap();
+        assert_eq!(e.code, "LEGACYCODE");
+        assert_eq!(e.expires_at_ms, 777);
+        assert!(is_expired(&e, 777));
+        // New shape wins when both keys are present.
+        let v2: serde_json::Value = serde_json::from_str(
+            r#"{"code":"C","title":"t","description":"d","expires_at_ms":5,"expired":9}"#,
+        )
+        .unwrap();
+        assert_eq!(entry_from_value(&v2, "X").unwrap().expires_at_ms, 5);
+        assert_eq!(expiry_ms_of(&v), Some(777));
+        assert_eq!(expiry_ms_of(&serde_json::json!({})), None);
     }
 }
 

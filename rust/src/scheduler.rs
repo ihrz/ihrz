@@ -95,39 +95,147 @@ pub fn giveaway_lifetime_due(expire_in_ms: i64, now_ms: i64) -> bool {
     now_ms - expire_in_ms >= ENDED_GIVEAWAY_LIFETIME_MS
 }
 
-/// Delete expired SCHEDULE.* entries across all guilds.
-/// Returns number of rows removed.
-pub async fn sweep_expired_schedules(pool: &Pool, now_ms: i64) -> u64 {
-    let rows: Vec<(String, String)> = sqlx::query_as::<_, (String, String)>(
-        "SELECT guild_id, key_name FROM kv WHERE key_name LIKE 'SCHEDULE.%'",
+/// Expiry date line, mirroring TS `format(date, "YYYY/MM/DD HH:mm:ss")`
+/// in ready.ts `refreshSchedule` (chrono is already a dependency).
+pub fn schedule_expiry_stamp(expires_at_ms: i64) -> String {
+    chrono::DateTime::from_timestamp_millis(expires_at_ms)
+        .map(|d| d.format("%Y/%m/%d %H:%M:%S").to_string())
+        .unwrap_or_default()
+}
+
+/// Expiry embed body: date + triple-backtick title + triple-backtick
+/// description, mirroring the `desc +=` lines in `refreshSchedule`.
+pub fn schedule_expiry_desc(entry: &crate::commands::schedule::ScheduleEntry) -> String {
+    format!(
+        "{stamp}```{title}``````{desc}```",
+        stamp = schedule_expiry_stamp(entry.expires_at_ms),
+        title = entry.title,
+        desc = entry.description,
+    )
+}
+
+/// Expiry embed title: `#<code> Schedule has been expired!`
+/// (exact en-US fallback, no YAML touch).
+pub fn schedule_expiry_title(code: &str) -> String {
+    format!("#{code} Schedule has been expired!")
+}
+
+/// Delete expired SCHEDULE.* entries across all guilds, DMing each
+/// owner the expiry embed first. Mirrors ready.ts `refreshSchedule`:
+/// per expired entry build the `#<code> Schedule has been expired!`
+/// embed (date + title + desc, nerd thumbnail, iHorizon footer with
+/// icon attachment, timestamp) addressed to the schedule owner, send
+/// it best-effort (DM-closed users just skip, like the TS
+/// `.catch(() => {})`), then delete the row. With `http: None`
+/// (tests) only keys are deleted. Returns rows removed.
+pub async fn sweep_expired_schedules(
+    pool: &Pool,
+    http: Option<std::sync::Arc<poise::serenity_prelude::Http>>,
+    now_ms: i64,
+) -> u64 {
+    let rows: Vec<(String, String, String)> = sqlx::query_as::<_, (String, String, String)>(
+        "SELECT guild_id, key_name, value FROM kv WHERE key_name LIKE 'SCHEDULE.%'",
     )
     .fetch_all(pool)
     .await
     .unwrap_or_default();
 
     let mut removed = 0u64;
-    for (gid, key) in rows {
-        let expired = match crate::db::kv_get(pool, &gid, &key).await {
-            Some(raw) => serde_json::from_str::<serde_json::Value>(&raw)
-                .ok()
-                .and_then(|v| v.get("expires_at_ms").and_then(|n| n.as_i64()))
-                .map(|exp| now_ms >= exp)
-                .unwrap_or(false),
-            None => false,
+    for (gid, key, raw) in rows {
+        let rest = match key.strip_prefix("SCHEDULE.") {
+            Some(rest) => rest,
+            None => continue,
         };
-        if expired
-            && sqlx::query("DELETE FROM kv WHERE guild_id = ? AND key_name = ?")
-                .bind(&gid)
-                .bind(&key)
-                .execute(pool)
-                .await
-                .map(|r| r.rows_affected() > 0)
-                .unwrap_or(false)
+        let (user_part, code) = match rest.rsplit_once('.') {
+            Some(pair) => pair,
+            None => continue,
+        };
+        let Ok(user_id) = user_part.parse::<u64>() else {
+            continue;
+        };
+        let Ok(v) = serde_json::from_str::<serde_json::Value>(&raw) else {
+            continue;
+        };
+        let Some(entry) = crate::commands::schedule::entry_from_value(&v, code) else {
+            continue;
+        };
+        if now_ms < entry.expires_at_ms {
+            continue;
+        }
+        if let Some(http) = &http {
+            notify_schedule_expiry(pool, http, &gid, user_id, &entry).await;
+        }
+        if sqlx::query("DELETE FROM kv WHERE guild_id = ? AND key_name = ?")
+            .bind(&gid)
+            .bind(&key)
+            .execute(pool)
+            .await
+            .map(|r| r.rows_affected() > 0)
+            .unwrap_or(false)
         {
             removed += 1;
         }
     }
     removed
+}
+
+/// DM one schedule-expiry embed. Best-effort: any failure is dropped
+/// (mirrors the TS `.catch(() => {})`); the caller deletes the row
+/// either way.
+async fn notify_schedule_expiry(
+    pool: &Pool,
+    http: &std::sync::Arc<poise::serenity_prelude::Http>,
+    guild_id: &str,
+    user_id: u64,
+    entry: &crate::commands::schedule::ScheduleEntry,
+) {
+    use poise::serenity_prelude::{CreateAttachment, CreateEmbed, CreateMessage, UserId};
+    let user = match UserId::new(user_id).to_user(http).await {
+        Ok(user) => user,
+        Err(_) => return,
+    };
+    let name = crate::commands::shared::bot_footer_name(
+        crate::db::kv_get(pool, guild_id, crate::commands::shared::BOT_NAME_KEY)
+            .await
+            .as_deref(),
+    );
+    let stored = crate::db::kv_get(pool, guild_id, crate::commands::shared::BOT_PFP_KEY).await;
+    let icon: Option<Vec<u8>> = match crate::commands::shared::footer_icon_bytes(stored.as_deref())
+    {
+        Some(bytes) => Some(bytes),
+        None => {
+            let face = http
+                .get_current_user()
+                .await
+                .map(|u| u.face())
+                .unwrap_or_default();
+            if face.is_empty() {
+                None
+            } else {
+                crate::commands::shared::download_bytes(&face).await
+            }
+        }
+    };
+    let embed = CreateEmbed::default()
+        .colour(poise::serenity_prelude::Colour::new(0x56a0d3))
+        .title(schedule_expiry_title(&entry.code))
+        .description(schedule_expiry_desc(entry))
+        .thumbnail(crate::funcs::expression_url("Nerd"))
+        .timestamp(poise::serenity_prelude::Timestamp::now())
+        .footer(if icon.is_some() {
+            poise::serenity_prelude::CreateEmbedFooter::new(name)
+                .icon_url("attachment://footer_icon.png")
+        } else {
+            poise::serenity_prelude::CreateEmbedFooter::new(name)
+        });
+    let Ok(dm) = user.create_dm_channel(http).await else {
+        return;
+    };
+    let mut msg = CreateMessage::new().content(user.to_string()).embed(embed);
+    if let Some(bytes) = icon {
+        msg = msg.add_file(CreateAttachment::bytes(bytes, "footer_icon.png"));
+    }
+    let _ = dm.send_message(http, msg).await;
 }
 
 /// Seconds between giveaway expiry sweeps (mirrors the 15s refresh loop).
@@ -1051,6 +1159,7 @@ pub fn spawn(pool: Pool, http: std::sync::Arc<poise::serenity_prelude::Http>) {
     // Schedule expiry (real).
     {
         let pool = pool.clone();
+        let http = http.clone();
         tokio::spawn(async move {
             let mut t = tokio::time::interval(Duration::from_secs(SCHEDULE_SWEEP_SECS));
             loop {
@@ -1059,7 +1168,7 @@ pub fn spawn(pool: Pool, http: std::sync::Arc<poise::serenity_prelude::Http>) {
                     .duration_since(std::time::UNIX_EPOCH)
                     .map(|d| d.as_millis() as i64)
                     .unwrap_or(0);
-                let n = sweep_expired_schedules(&pool, now).await;
+                let n = sweep_expired_schedules(&pool, Some(http.clone()), now).await;
                 if n > 0 {
                     tracing::info!("scheduler: swept {n} expired schedules");
                 }
@@ -1318,7 +1427,7 @@ mod tests {
         .await
         .unwrap();
         crate::db::kv_set(&p, "g", "OTHER.key", "v").await.unwrap();
-        let n = sweep_expired_schedules(&p, 200).await;
+        let n = sweep_expired_schedules(&p, None, 200).await;
         assert_eq!(n, 1);
         assert!(crate::db::kv_get(&p, "g", "SCHEDULE.1.old").await.is_none());
         assert!(crate::db::kv_get(&p, "g", "SCHEDULE.1.new").await.is_some());
@@ -1331,8 +1440,46 @@ mod tests {
         crate::db::kv_set(&p, "g", "SCHEDULE.1.bad", "not-json")
             .await
             .unwrap();
-        let n = sweep_expired_schedules(&p, i64::MAX).await;
+        let n = sweep_expired_schedules(&p, None, i64::MAX).await;
         assert_eq!(n, 0);
+    }
+
+    #[tokio::test]
+    async fn sweep_removes_legacy_expired_shape() {
+        // TS writer row: {title, description, expired}, code from key.
+        let p = pool().await;
+        crate::db::kv_set(
+            &p,
+            "g",
+            "SCHEDULE.42.LEGACYCODE1234",
+            r#"{"title":"t","description":"a description","expired":100}"#,
+        )
+        .await
+        .unwrap();
+        let n = sweep_expired_schedules(&p, None, 200).await;
+        assert_eq!(n, 1);
+        assert!(crate::db::kv_get(&p, "g", "SCHEDULE.42.LEGACYCODE1234")
+            .await
+            .is_none());
+    }
+
+    #[test]
+    fn schedule_expiry_embed_shapes_match_ts() {
+        assert_eq!(
+            schedule_expiry_title("ABC123"),
+            "#ABC123 Schedule has been expired!"
+        );
+        let e = crate::commands::schedule::ScheduleEntry {
+            code: "ABC123".to_string(),
+            title: "t".to_string(),
+            description: "d".to_string(),
+            expires_at_ms: 0,
+        };
+        assert_eq!(schedule_expiry_stamp(0), "1970/01/01 00:00:00");
+        assert_eq!(
+            schedule_expiry_desc(&e),
+            "1970/01/01 00:00:00```t``````d```"
+        );
     }
 
     #[tokio::test]

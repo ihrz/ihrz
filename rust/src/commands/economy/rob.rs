@@ -16,7 +16,7 @@ pub async fn eco_rob(
         .map(|g| g.get().to_string())
         .unwrap_or_default();
     // TS default `?? 3000000` for ECONOMY.settings.rob.cooldown.
-    let tune = load_tuning(&ctx.data().pool, &gid, "rob").await;
+    let tune = set_cooldown::load_tuning_routed(&ctx.data().pool, &gid, "rob").await;
     let from = ctx.author().id.get();
     let mut a = balance::load_econ_routed(&ctx.data().pool, &gid, from).await;
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;

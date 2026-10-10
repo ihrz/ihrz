@@ -186,6 +186,16 @@ pub async fn post_confession_log(
     true
 }
 
+/// Parse the `confess-private` modal field. Mirrors the TS
+/// `case_private` checkbox (default true): empty/yes-like stays
+/// anonymous, only an explicit no-like answer takes the public path.
+pub fn parse_confession_private(raw: Option<&str>) -> bool {
+    matches!(
+        raw.map(|s| s.trim().to_ascii_lowercase()).as_deref(),
+        None | Some("") | Some("yes") | Some("y") | Some("true") | Some("oui") | Some("o")
+    )
+}
+
 /// Anonymous confession modal flow for `new-confession-button`.
 /// Mirrors the TS panel modal chain: show modal -> cooldown gate ->
 /// anonymous post in the panel channel. Manual implementation following
@@ -279,6 +289,11 @@ pub async fn handle_confess_button(
         "confession_module_modal_components1_placeholder",
     )
     .unwrap_or_default();
+    // Privacy toggle. Mirrors the `case_private` checkbox (default true)
+    // in new-confession-button.ts; native modals have no checkbox, so a
+    // short yes/no field carries it (empty = private like the TS default).
+    let private_label = crate::lang::get(&lang_code, "confession_module_modal_components2_label")
+        .unwrap_or_else(|| "Is this private?".to_string());
     let modal = serenity::CreateModal::new("confess-modal", title).components(vec![
         serenity::CreateActionRow::InputText(
             serenity::CreateInputText::new(
@@ -290,6 +305,16 @@ pub async fn handle_confess_button(
             .min_length(2)
             .max_length(2500),
         ),
+        serenity::CreateActionRow::InputText(
+            serenity::CreateInputText::new(
+                serenity::InputTextStyle::Short,
+                private_label,
+                "confess-private",
+            )
+            .placeholder("yes")
+            .min_length(1)
+            .max_length(3),
+        ),
     ]);
     comp.create_response(&ctx.http, serenity::CreateInteractionResponse::Modal(modal))
         .await?;
@@ -297,13 +322,19 @@ pub async fn handle_confess_button(
         return Ok(());
     };
     let mut text = String::new();
+    let mut private_raw: Option<String> = None;
     for row in &submit.data.components {
         if let Some(serenity::ActionRowComponent::InputText(input)) = row.components.first() {
             if input.custom_id == "confess-text" {
                 text = input.value.clone().unwrap_or_default();
+            } else if input.custom_id == "confess-private" {
+                private_raw = input.value.clone();
             }
         }
     }
+    // `case_private` default true: empty/yes-like stays anonymous, only
+    // an explicit no-like answer takes the public path (avatar footer).
+    let private = parse_confession_private(private_raw.as_deref());
     text = crate::funcs::mask_link(&text);
     if text.len() < 2 {
         return Ok(());
@@ -318,12 +349,36 @@ pub async fn handle_confess_button(
     // Public embed title mirrors `### <field> #<code>` in
     // new-confession-button.ts.
     let field = crate::lang::get(&lang_code, "help_confession_fields").unwrap_or_default();
-    let mut message = serenity::CreateMessage::new().embed(
-        serenity::CreateEmbed::default()
-            .description(format!("### {field} #{code}\n\n`{text}`"))
-            .colour(2829617)
-            .timestamp(serenity::Timestamp::now()),
-    );
+    let mut embed = serenity::CreateEmbed::default()
+        .description(format!("### {field} #{code}\n\n`{text}`"))
+        .colour(2829617)
+        .timestamp(serenity::Timestamp::now());
+    // Public path (checkbox off): author avatar attachment + name footer.
+    // Mirrors the `!view` branch (user_icon.png, globalName||username).
+    let mut files: Vec<serenity::CreateAttachment> = Vec::new();
+    if !private {
+        let name = comp
+            .user
+            .global_name
+            .clone()
+            .unwrap_or_else(|| comp.user.name.clone());
+        if let Some(url) = comp.user.avatar_url() {
+            if let Some(bytes) = crate::commands::shared::download_bytes(&url).await {
+                files.push(serenity::CreateAttachment::bytes(bytes, "user_icon.png"));
+                embed = embed.footer(
+                    serenity::CreateEmbedFooter::new(name).icon_url("attachment://user_icon.png"),
+                );
+            } else {
+                embed = embed.footer(serenity::CreateEmbedFooter::new(name));
+            }
+        } else {
+            embed = embed.footer(serenity::CreateEmbedFooter::new(name));
+        }
+    }
+    let mut message = serenity::CreateMessage::new().embed(embed);
+    for file in files {
+        message = message.add_file(file);
+    }
     // Thread mode gets the anonymous-reply button (customId
     // `confessionres%<code>`); without a thread there is no reply
     // surface, mirroring new-confession-button.ts.
@@ -369,6 +424,7 @@ pub async fn handle_confess_button(
             "code": code,
             "message_id": posted_id,
             "thread_id": thread_id,
+            "private": private,
         })
         .to_string(),
     )
@@ -388,6 +444,64 @@ pub async fn handle_confess_button(
         },
     )
     .await;
+    // Panel rotation. Mirrors new-confession-button.ts: delete the old
+    // panel message, repost it, rebind GUILD.CONFESSION.panel to the new
+    // ids. The old embed is reused verbatim (its bot footer only changes
+    // when the bot profile changes); the button is rebuilt from its
+    // previous label so the click flow survives. Best-effort, silent.
+    if let Some(mid) = bound_msg {
+        if let Ok(panel_msg) = serenity::ChannelId::new(target_ch)
+            .message(&ctx.http, serenity::MessageId::new(mid))
+            .await
+        {
+            let old_embed = panel_msg.embeds.first().cloned();
+            // The received row shape is navigated as JSON (established
+            // rolereactions precedent): find our button id, keep its label.
+            let old_label = serde_json::to_value(&panel_msg.components)
+                .ok()
+                .and_then(|v| v.as_array().cloned())
+                .unwrap_or_default()
+                .iter()
+                .flat_map(|row| {
+                    row.get("components")
+                        .and_then(|c| c.as_array())
+                        .cloned()
+                        .unwrap_or_default()
+                })
+                .find(|c| {
+                    c.get("custom_id").and_then(|id| id.as_str())
+                        == Some(channel::CONFESSION_PANEL_BUTTON_ID)
+                })
+                .and_then(|c| {
+                    c.get("label")
+                        .and_then(|l| l.as_str())
+                        .map(|s| s.to_string())
+                });
+            let _ = panel_msg.delete(&ctx.http).await;
+            if let (Some(re_embed), Some(label)) = (old_embed, old_label) {
+                let repost = serenity::CreateMessage::new()
+                    .embed(serenity::CreateEmbed::from(re_embed))
+                    .button(
+                        serenity::CreateButton::new(channel::CONFESSION_PANEL_BUTTON_ID)
+                            .label(label)
+                            .style(serenity::ButtonStyle::Secondary),
+                    );
+                if let Ok(posted) = serenity::ChannelId::new(target_ch)
+                    .send_message(&ctx.http, repost)
+                    .await
+                {
+                    let _ = crate::commands::owner::main::routed_set(
+                        pool,
+                        &gid,
+                        &gid,
+                        "GUILD.CONFESSION.panel",
+                        &channel::panel_store_json(target_ch, posted.id.get()),
+                    )
+                    .await;
+                }
+            }
+        }
+    }
     Ok(())
 }
 
@@ -580,6 +694,17 @@ mod tests {
     use super::*;
 
     #[test]
+    fn private_defaults_to_anonymous_like_ts_checkbox() {
+        assert!(parse_confession_private(None));
+        assert!(parse_confession_private(Some("")));
+        assert!(parse_confession_private(Some("yes")));
+        assert!(parse_confession_private(Some(" YES ")));
+        assert!(!parse_confession_private(Some("no")));
+        assert!(!parse_confession_private(Some("Non")));
+        assert!(!parse_confession_private(Some("bogus")));
+    }
+
+    #[test]
     fn on_off_parses_config_choices() {
         assert_eq!(parse_on_off("on"), Some(true));
         assert_eq!(parse_on_off("off"), Some(false));
@@ -653,11 +778,11 @@ pub mod thread;
 #[allow(clippy::module_inception)]
 #[allow(unused_imports)]
 pub mod main {
-    pub use super::channel::*;
     pub use super::confession::*;
     pub use super::config::*;
     pub use super::cooldown::*;
     pub use super::list::*;
     pub use super::thread::*;
     pub use super::*;
+    pub use channel::*;
 }

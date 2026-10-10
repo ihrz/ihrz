@@ -15,7 +15,7 @@ pub async fn eco_role_list(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
-    let roles = load_shop(&ctx.data().pool, &gid).await;
+    let roles = shop::load_shop_routed(&ctx.data().pool, &gid).await;
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     if roles.is_empty() {
         ctx.say(

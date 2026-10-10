@@ -159,6 +159,7 @@ committed — see `.gitignore`. No push without a green
 - [x] U-ETERNAL-15 (2026-10-10: vague-14 3/5 landés — authrestore pager + force-join progress, emitters-3 (30 loaders), verify vagues 8-13 (4 zones confirmées) ; voice + sched-create wipés avant commit. Lead: panel-code charset lowercase:true + test. Suite 942/0, fmt + clippy clean).
 - [x] U-ETERNAL-16 (2026-10-10: vague-14b — voice + sched-create re-appliqués et poussés aussitôt. Suite 948/0, fmt + clippy clean).
 - [x] U-ETERNAL-17 (2026-10-10: vague-15 4/4 — econ test repointé (owners encore live, à migrer), emitters-4 blacklist/await/snipe, ranks replies exactes, audit batch-4 → 10 items. Suite 949/0, fmt + clippy clean).
+- [x] U-ETERNAL-18 (2026-10-10: vague-16 4/4 — econ callers migrés, sched expiry DM + key compat, confession cooldown + author, security reasons + captcha. Lead: confession privacy field + panel rotate + archive private + 2 lints. Suite 956/0, fmt + clippy clean).
 ## Eternal backlog (seeded 2026-10-09 by 7 read-only audits + lavalink edge audit; full reports in `~/.hermes/cache/delegation/live/deleg_55b606d3/task-{0,1,2,3,4,5,9}.log` — each item is a future unit for other models, files disjoint unless noted)
 
 ### Events (audit task-0)

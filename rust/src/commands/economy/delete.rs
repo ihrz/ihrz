@@ -18,7 +18,7 @@ pub async fn eco_role_delete(
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
-    let mut roles = load_shop(&ctx.data().pool, &gid).await;
+    let mut roles = shop::load_shop_routed(&ctx.data().pool, &gid).await;
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let id = role.id.get().to_string();
     if roles.is_empty() {
@@ -32,7 +32,7 @@ pub async fn eco_role_delete(
     // TS deletes unconditionally (missing ids included), then saves,
     // replies with the buyable-roles embed, and logs.
     roles.remove(&id);
-    save_shop(&ctx.data().pool, &gid, &roles).await?;
+    shop::save_shop_routed(&ctx.data().pool, &gid, &roles).await?;
     send_with_footer(&ctx, buyable_roles_embed(&ctx, &roles).await).await?;
     let author = user_mention(ctx.author().id.get());
     let role_m = role_mention(role.id.get());

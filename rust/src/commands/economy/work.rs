@@ -12,7 +12,7 @@ pub async fn eco_work(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     };
     let gid = guild_id.get().to_string();
     let pool = &ctx.data().pool;
-    if economy_disabled(pool, &gid).await {
+    if config::economy_disabled_routed(pool, &gid).await {
         ctx.say(
             crate::commands::lang_for(&ctx, "economy_disable_msg", "Economy is disabled.")
                 .await
@@ -21,7 +21,7 @@ pub async fn eco_work(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         .await?;
         return Ok(());
     }
-    let tune = load_tuning(pool, &gid, "work").await;
+    let tune = set_cooldown::load_tuning_routed(pool, &gid, "work").await;
     let uid = ctx.author().id.get();
     let mut account = balance::load_econ_routed(pool, &gid, uid).await;
     let now = now_ms();

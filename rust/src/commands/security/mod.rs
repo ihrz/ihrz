@@ -18,21 +18,45 @@ pub fn parse_on_off(action: &str) -> Option<bool> {
     }
 }
 
-/// Captcha code: 5 chars from unambiguous alphabet (no 0/O/1/l).
-/// Mirrors Events/security/onMemberJoin.ts image captcha.
-pub fn gen_captcha(seed: u64) -> String {
-    const ALPHA: &[u8] = b"ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789";
-    let mut state = if seed == 0 { 0x9E3779B97F4A7C15 } else { seed };
-    let mut out = String::with_capacity(5);
-    for _ in 0..5 {
-        state ^= state << 13;
-        state ^= state >> 7;
-        state ^= state << 17;
-        out.push(ALPHA[(state % ALPHA.len() as u64) as usize] as char);
-    }
-    out
+/// Audit-log reason for every security enforcement call.
+/// Mirrors Events/security/onMemberJoin.ts (`"[Security] Module"` passed
+/// to `roles.add` / `roles.remove`).
+pub const SECURITY_AUDIT_REASON: &str = "[Security] Module";
+
+/// Grant a role with the security audit-log reason.
+///
+/// DELTA: serenity 0.12 `Member::add_role` hardcodes a `None` reason, so
+/// the pass leg in `events_handler.rs` (message-collector flow) still goes
+/// through the reason-less path. Call this helper (raw `Http`, reason
+/// threaded) when that file is next touched.
+// Box-free: serenity's own Result type is large by construction.
+#[allow(clippy::result_large_err)]
+pub async fn grant_role(
+    http: &poise::serenity_prelude::Http,
+    guild_id: poise::serenity_prelude::GuildId,
+    user_id: poise::serenity_prelude::UserId,
+    role_id: poise::serenity_prelude::RoleId,
+) -> poise::serenity_prelude::Result<()> {
+    http.add_member_role(guild_id, user_id, role_id, Some(SECURITY_AUDIT_REASON))
+        .await
 }
 
+/// Strip a role with the security audit-log reason (same DELTA as
+/// [`grant_role`]: `Member::remove_role` also hardcodes `None`).
+#[allow(clippy::result_large_err)]
+pub async fn strip_role(
+    http: &poise::serenity_prelude::Http,
+    guild_id: poise::serenity_prelude::GuildId,
+    user_id: poise::serenity_prelude::UserId,
+    role_id: poise::serenity_prelude::RoleId,
+) -> poise::serenity_prelude::Result<()> {
+    http.remove_member_role(guild_id, user_id, role_id, Some(SECURITY_AUDIT_REASON))
+        .await
+}
+
+/// Kick leg needs no helper: TS kicks with the localized
+/// `event_security_kick_reason`, and the Rust paths already use
+/// `kick_with_reason` with that same string.
 /// Exact TS alphabet (captcha.ts, 7 chars, no J).
 pub fn captcha_code(seed: u64) -> String {
     const ALPHA: &[u8] = b"ABCDEFGHIKLMNOPQRSTUVWXYZ0123456789";
@@ -47,8 +71,10 @@ pub fn captcha_code(seed: u64) -> String {
     out
 }
 
-pub fn verify_captcha(expected: &str, given: &str) -> bool {
-    expected.eq_ignore_ascii_case(given.trim())
+/// Exact TS check: the collector compares with `===`, so only an exact
+/// match passes (no trim, no case folding).
+pub fn check_code(expected: &str, given: &str) -> bool {
+    expected == given
 }
 
 /// TS stores `disable` (inverse of enabled).
@@ -189,6 +215,14 @@ mod tests {
     }
 
     #[test]
+    fn captcha_check_is_exact_like_ts_strict_equality() {
+        assert!(check_code("ABC123K", "ABC123K"));
+        assert!(!check_code("ABC123K", "abc123k"));
+        assert!(!check_code("ABC123K", " ABC123K "));
+        assert!(!check_code("ABC123K", ""));
+    }
+
+    #[test]
     fn captcha_exact_shape() {
         let c = captcha_code(99);
         assert_eq!(c.len(), 7);
@@ -199,12 +233,8 @@ mod tests {
     }
 
     #[test]
-    fn captcha_roundtrip_case_insensitive() {
-        let code = gen_captcha(12345);
-        assert_eq!(code.len(), 5);
-        assert!(verify_captcha(&code, &code.to_ascii_lowercase()));
-        assert!(!verify_captcha(&code, "zzzzz"));
-        assert!(!verify_captcha(&code, ""));
+    fn audit_reason_matches_ts() {
+        assert_eq!(SECURITY_AUDIT_REASON, "[Security] Module");
     }
 }
 
@@ -222,6 +252,7 @@ pub mod security;
 pub mod main {
     pub use super::security::*;
     pub use super::{
-        captcha_code, disable_flag, gen_captcha, guild_id_str, parse_on_off, verify_captcha,
+        captcha_code, check_code, disable_flag, grant_role, guild_id_str, parse_on_off, strip_role,
+        SECURITY_AUDIT_REASON,
     };
 }

@@ -17,7 +17,7 @@ pub async fn eco_role_add(
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
-    let mut roles = load_shop(&ctx.data().pool, &gid).await;
+    let mut roles = shop::load_shop_routed(&ctx.data().pool, &gid).await;
     let id = role.id.get().to_string();
     // Warn before selling a role with dangerous permissions. Mirrors
     // the roleDangerousPermissions promptYesOrNo gate in economy/!add.ts
@@ -100,7 +100,7 @@ pub async fn eco_role_add(
             boost: roles.get(&id).and_then(|e| e.boost),
         },
     );
-    save_shop(&ctx.data().pool, &gid, &roles).await?;
+    shop::save_shop_routed(&ctx.data().pool, &gid, &roles).await?;
     // TS replies with the buyable-roles embed, then posts the log.
     send_with_footer(&ctx, buyable_roles_embed(&ctx, &roles).await).await?;
     let author = user_mention(ctx.author().id.get());
