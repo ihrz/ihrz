@@ -872,12 +872,12 @@ async fn handle_select(s: &SelectCtx<'_>) {
     let pool = s.pool;
     let gid = s.gid;
     let comp = s.comp;
-    // Input actions wait for the next author message.
+    // Input actions wait for the next author message. The ephemeral
+    // prompt IS the first (and only) initial response, mirroring
+    // handleCollector's `i.reply` in !embed.ts:205-232 — a prior
+    // Acknowledge would consume the single response slot and Discord
+    // would reject the prompt, leaving the user with no next step.
     if prompt_key(s.value).is_some() {
-        // Ack the select so it stops spinning, then prompt.
-        let _ = comp
-            .create_response(http, serenity::CreateInteractionResponse::Acknowledge)
-            .await;
         start_await(http, pool, gid, comp, s.builder, s.channel, s.value).await;
         return;
     }
