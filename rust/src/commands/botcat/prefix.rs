@@ -2,7 +2,6 @@ use crate::bot::Ctx;
 
 /// Change the bot prefix on the guild.
 #[poise::command(
-    slash_command,
     prefix_command,
     category = "bot",
     rename = "prefix",

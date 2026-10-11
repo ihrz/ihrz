@@ -144,7 +144,7 @@ pub async fn eco_shop(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     // open with the same reason string ("[Economy Shop] Role was not
     // given to the user."), because silently keeping paid roles
     // ungranted is the worse behaviour. Purchases themselves go through
-    // /economy buy.
+    // the `do_buy` core below (same steps as the TS shop collector).
     if let Some(guild_id) = ctx.guild_id() {
         if let Ok(member) = guild_id.member(ctx.http(), ctx.author().id).await {
             for role_id in &base.owned_roles {
@@ -373,7 +373,7 @@ pub fn buy_gate(owned_roles: &[String], role_id: &str, money: f64, price: f64) -
     BuyGate::Ok
 }
 
-/// Shared purchase core for /economy buy (and the shop flow): returns
+/// Shared purchase core for the shop flow: returns
 /// the reply text after performing the TS collector steps
 /// (already-owned restore, funds check, money + ownedRoles writes,
 /// role grant). Replies are ephemeral, like the TS collector replies.
@@ -383,9 +383,9 @@ pub fn buy_gate(owned_roles: &[String], role_id: &str, money: f64, price: f64) -
 /// in-memory `baseData.ownedRoles` AND writes a spread copy
 /// (`[...ownedRoles, roleId]`) per collect, so repeated buys in one
 /// session duplicate the entry; here each pick re-reads fresh DB state
-/// and pushes exactly once. And `eco_buy` exposes the same core as a
-/// standalone `/economy buy` command, while TS only sells through the
-/// shop select-menu collector.
+/// and pushes exactly once. TS has no standalone `/economy buy`
+/// subcommand (selling happens only through the shop select-menu
+/// collector), so none is registered here either.
 async fn do_buy(
     ctx: &Ctx<'_>,
     role_id: u64,
@@ -453,22 +453,8 @@ async fn do_buy(
     ))
 }
 
-/// Buy command.
-#[poise::command(slash_command, prefix_command, rename = "buy")]
-pub async fn eco_buy(
-    ctx: Ctx<'_>,
-    #[description = "Role to buy"] role: poise::serenity_prelude::Role,
-) -> Result<(), anyhow::Error> {
-    if disabled_reply(&ctx).await? {
-        return Ok(());
-    }
-    if let Some(reply) = do_buy(&ctx, role.id.get(), &role.name).await? {
-        ctx.send(poise::CreateReply::default().content(reply).ephemeral(true))
-            .await?;
-    }
-    Ok(())
-}
-
+/// Shop display + interactive buy flow. Mirrors `shop.ts`; the shared
+/// `do_buy` core above stays the single tested purchase path.
 #[cfg(test)]
 mod tests {
     use super::*;

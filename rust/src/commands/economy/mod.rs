@@ -1517,7 +1517,7 @@ mod localization_tests {
     fn loc_role_add() {
         // TS economy/economy.ts (`role/add`)
         let cmds = crate::commands::all();
-        let cmd = find_path(&cmds, &["economy", "role-add"]);
+        let cmd = find_path(&cmds, &["economy", "role", "add"]);
         assert_eq!(
             cmd.description_localizations.get("fr").map(String::as_str),
             Some("Ajouter un rôle pour un certain montant d'argent")

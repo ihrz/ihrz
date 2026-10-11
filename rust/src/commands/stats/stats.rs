@@ -5,6 +5,9 @@ use super::{
 };
 
 /// Subcommand for stats category!
+// TS order (`stats.ts:39-330`): ustats, gstats, top-messages,
+// top-voice, compare, channel-stats (`reset` is commented out at
+// stats.ts:330-352, not registered).
 #[poise::command(
     slash_command,
     prefix_command,
@@ -12,10 +15,10 @@ use super::{
     rename = "stats",
     subcommands(
         "stats_user",
-        "stats_compare",
         "stats_guild",
         "stats_top_messages",
         "stats_top_voice",
+        "stats_compare",
         "stats_channel"
     ),
     subcommand_required,

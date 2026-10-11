@@ -524,7 +524,6 @@ pub mod andru;
 pub mod avatar;
 pub mod banner;
 pub mod bio;
-pub mod bot;
 pub mod botinfo;
 pub mod ether;
 pub mod help;
@@ -546,7 +545,6 @@ pub mod main {
     pub use super::avatar::*;
     pub use super::banner::*;
     pub use super::bio::*;
-    pub use super::bot::*;
     pub use super::botinfo::*;
     pub use super::core::*;
     pub use super::custom::*;

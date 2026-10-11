@@ -79,11 +79,16 @@ pub fn sort_rank_roles_desc(roles: &mut [RankRole]) {
     roles.sort_by_key(|r| std::cmp::Reverse(r.level));
 }
 
-/// Role add command.
+/// Rank roles panel (`roles`).
+// TS `ranks.ts:44-61`: the single `roles` sub — Administrator-gated
+// panel showing the rank roles (highest level first, 5 per page like
+// `!roles.ts:79-97`). Management (add/remove) is component-driven in
+// TS (`!roles.ts` selects + modals), not separate slash subs.
 #[poise::command(
     slash_command,
     prefix_command,
-    rename = "role-add",
+    rename = "roles",
+    aliases("rroles", "ranks-roles"),
     default_member_permissions = "ADMINISTRATOR",
     description_localized(
         "fr",
@@ -93,111 +98,7 @@ pub fn sort_rank_roles_desc(roles: &mut [RankRole]) {
     description_localized("ru", "Когда пользователь получает уровень ранга, выдать роль!"),
     description_localized("es-ES", "Cuando el usuario gana un nivel de rango, darle un rol!")
 )]
-pub async fn ranks_role_add(
-    ctx: Ctx<'_>,
-    #[description = "Role"] role: serenity::Role,
-    // String like the TS level modal (`!roles.ts:284-319`): prefix input
-    // keeps leading-digit `parseInt` semantics (`"12ab"` -> 12) instead
-    // of a hard integer parse failure.
-    #[description = "Level"] level: String,
-) -> Result<(), anyhow::Error> {
-    let gid = ctx
-        .guild_id()
-        .map(|g| g.get().to_string())
-        .unwrap_or_default();
-    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-    let say = |key: &str, fallback: &str| {
-        crate::lang::get(&code, key).unwrap_or_else(|| fallback.to_string())
-    };
-    let id = role.id.get().to_string();
-    let roles = load_rank_roles_routed(&ctx.data().pool, &gid).await;
-    // Cap gate first: mirrors `!roles.ts:227-237` — the 25-role check runs
-    // before the role picker and the level modal parse (`:303-319`), so a
-    // full roster reports `ranks_config_add_max_roles` even for a level
-    // input that would otherwise fail validation.
-    if super::rank_roles_at_cap(&roles) {
-        ctx.say(say(
-            "ranks_config_add_max_roles",
-            "You've reached the maximum number of rank roles (25).",
-        ))
-        .await?;
-        return Ok(());
-    }
-    // Level gate (mirrors the `!roles.ts:306-319` modal parse:
-    // `parseInt`, NaN or `<= 0` rejected; leading digits win on
-    // prefix input like `"12ab"`).
-    let Some(lvl) = super::parse_rank_level_input(&level) else {
-        ctx.say(say(
-            "ranks_config_add_invalid_level",
-            "Invalid level: use a number between 1 and 9999.",
-        ))
-        .await?;
-        return Ok(());
-    };
-    // Duplicate role (mirrors `!roles.ts:321-335`).
-    if super::is_duplicate_rank_role(&roles, &id) {
-        ctx.say(
-            say(
-                "ranks_config_add_invalid_role",
-                "Role <@&id> is already a rank reward.",
-            )
-            .replace("{role}", &format!("<@&{id}>")),
-        )
-        .await?;
-        return Ok(());
-    }
-    let mut roles = roles;
-    // Map-key overwrite: mirrors `!roles.ts:338`
-    // (`ranksConfig.ranksRoles[level] = selectedRole.id`) — assigning an
-    // already-used level replaces its role instead of stacking a second
-    // entry on the same level.
-    roles.retain(|r| r.level != lvl);
-    roles.push(RankRole {
-        role_id: id.clone(),
-        level: lvl,
-    });
-    save_rank_roles_routed(&ctx.data().pool, &gid, &roles).await?;
-    ctx.say(
-        say(
-            "ranks_config_add_command_work",
-            "Role <@&r> added for level L!",
-        )
-        .replace("${selectedRole}", &format!("<@&{}>", role.id.get()))
-        .replace("${level}", &lvl.to_string()),
-    )
-    .await?;
-    // Dangerous-permission warning (mirrors `!roles.ts:357-368`).
-    let held = super::dangerous_role_perm_names(role.permissions.bits());
-    if !held.is_empty() {
-        let joined = held.join("\n");
-        ctx.send(
-            poise::CreateReply::default()
-                .content(
-                    say(
-                        "ranks_config_add_command_warn",
-                        "Warning: <@&r> holds dangerous permissions:\nP",
-                    )
-                    .replace("${selectedRole}", &format!("<@&{}>", role.id.get()))
-                    .replace("${_}", &joined),
-                )
-                .ephemeral(true),
-        )
-        .await?;
-    }
-    Ok(())
-}
-
-/// List rank roles (highest level first, 5 per page).
-// The TS `roles` panel (`ranks.ts:44-60`) requires Administrator for
-// the whole panel (list included), so this leaf carries the same gate.
-#[poise::command(
-    slash_command,
-    prefix_command,
-    rename = "role-list",
-    aliases("rroles", "ranks-roles"),
-    default_member_permissions = "ADMINISTRATOR"
-)]
-pub async fn ranks_role_list(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
+pub async fn ranks_roles(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let gid = ctx
         .guild_id()
         .map(|g| g.get().to_string())
@@ -365,47 +266,6 @@ pub fn remove_rank_role(roles: &mut Vec<RankRole>, level: u64) -> bool {
     let before = roles.len();
     roles.retain(|r| r.level != level);
     roles.len() != before
-}
-
-/// Remove the rank role set for a level.
-#[poise::command(
-    slash_command,
-    prefix_command,
-    rename = "role-remove",
-    default_member_permissions = "ADMINISTRATOR"
-)]
-pub async fn ranks_role_remove(
-    ctx: Ctx<'_>,
-    // String like the add flow: leading-digit `parseInt` semantics on
-    // prefix input (`!roles.ts:306`), invalid input hits `no_rank`.
-    #[description = "Level"] level: String,
-) -> Result<(), anyhow::Error> {
-    let gid = ctx
-        .guild_id()
-        .map(|g| g.get().to_string())
-        .unwrap_or_default();
-    let mut roles = load_rank_roles_routed(&ctx.data().pool, &gid).await;
-    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-    // Mirrors the `remove_role` flow (`!roles.ts:373+`): nothing to
-    // remove replies with `ranks_config_remove_no_rank`.
-    let parsed = super::parse_rank_level_input(&level).unwrap_or(0);
-    if !remove_rank_role(&mut roles, parsed) {
-        ctx.say(
-            crate::lang::get(&code, "ranks_config_remove_no_rank")
-                .unwrap_or_else(|| "There are no rank roles configured to remove.".to_string()),
-        )
-        .await?;
-        return Ok(());
-    }
-    save_rank_roles_routed(&ctx.data().pool, &gid, &roles).await?;
-    let removed = parsed.to_string();
-    ctx.say(
-        crate::lang::get(&code, "ranks_config_remove_command_work")
-            .map(|s| s.replace("${levelToRemove}", &removed))
-            .unwrap_or_else(|| format!("Role for level {removed} has been removed!")),
-    )
-    .await?;
-    Ok(())
 }
 
 #[cfg(test)]

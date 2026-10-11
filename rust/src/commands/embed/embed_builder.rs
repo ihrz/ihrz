@@ -1037,7 +1037,6 @@ async fn handle_channel_pick(
 
 /// Builder entry. Mirrors subCommand.run (optional saved id preload).
 #[poise::command(
-    slash_command,
     prefix_command,
     category = "utils",
     rename = "embed",

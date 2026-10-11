@@ -190,7 +190,7 @@ pub fn embed_with_footer(
 /// name", which covers top-level commands (no real top-level hybrid
 /// command defines `prefixName`), identity pairs (`talk`, `shop`,
 /// `addrole`), and port-restructured leaves with no TS counterpart
-/// (`role-add`, `ignore-add`, `unban-all`, `custom`/`starboard` rows).
+/// (`unban-all`, `custom`/`starboard` rows).
 pub fn prefix_name_for(qualified: &str) -> Option<&'static str> {
     match qualified {
         "antispam bypass-roles" => Some("antispam-bypass-roles"),
@@ -212,6 +212,10 @@ pub fn prefix_name_for(qualified: &str) -> Option<&'static str> {
         "economy config" => Some("ecconfig"),
         "economy greset" => Some("economy-greset"),
         "economy leaderboard" => Some("economy-leaderboard"),
+        "economy role" => Some("ecrole"),
+        "economy role add" => Some("economy-role-add"),
+        "economy role delete" => Some("economy-role-delete"),
+        "economy role list" => Some("economy-role-list"),
         "economy ureset" => Some("economy-ureset"),
         "fun config" => Some("fconfig"),
         "gw create" => Some("gw-create"),
@@ -224,8 +228,10 @@ pub fn prefix_name_for(qualified: &str) -> Option<&'static str> {
         "ranks channel" => Some("ranks-channel"),
         "ranks config" => Some("rconfig"),
         "ranks greset" => Some("ranks-greset"),
+        "ranks ignore-channels" => Some("ranks-ignore-channels"),
         "ranks leaderboard" => Some("ranks-leaderboard"),
         "ranks message" => Some("ranks-message"),
+        "ranks roles" => Some("ranks-roles"),
         "ranks show" => Some("ranks-show"),
         "ranks ureset" => Some("ranks-ureset"),
         "security channel" => Some("security-channel"),
@@ -821,12 +827,34 @@ mod tests {
         assert_eq!(prefix_name_for("utils banner user"), Some("banner-user"));
         assert_eq!(prefix_name_for("backup manage"), Some("backup-manager"));
         assert_eq!(prefix_name_for("tag wlroles-use"), Some("tag-wluse"));
+        assert_eq!(prefix_name_for("ranks roles"), Some("ranks-roles"));
+        assert_eq!(
+            prefix_name_for("ranks ignore-channels"),
+            Some("ranks-ignore-channels")
+        );
         // No real top-level hybrid command defines prefixName.
         assert_eq!(prefix_name_for("ranks"), None);
         assert_eq!(prefix_name_for("setprefix"), None);
-        // Port-restructured leaves have no TS counterpart row.
+        // Old flat paths are gone (leaves live under their groups).
         assert_eq!(prefix_name_for("ranks role-add"), None);
         assert_eq!(prefix_name_for("ranks ignore-add"), None);
+        // Nested economy groups mirror the TS SubcommandGroups
+        // (`role` + `manage-rewards` in economy.ts); the leaves keep
+        // their TS prefixNames.
+        assert_eq!(prefix_name_for("economy role"), Some("ecrole"));
+        assert_eq!(
+            prefix_name_for("economy role add"),
+            Some("economy-role-add")
+        );
+        assert_eq!(
+            prefix_name_for("economy role delete"),
+            Some("economy-role-delete")
+        );
+        assert_eq!(
+            prefix_name_for("economy role list"),
+            Some("economy-role-list")
+        );
+        // Old flat path is gone (leaves live under the `role` group).
         assert_eq!(prefix_name_for("economy role-add"), None);
         // Identity pairs (prefixName == slash name) need no entry.
         assert_eq!(prefix_name_for("util talk"), None);

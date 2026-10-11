@@ -333,8 +333,6 @@ mod tests {
 
 pub mod counter;
 pub mod git;
-#[allow(clippy::module_inception)]
-pub mod newfeatures;
 pub mod nightmode;
 pub mod punishpub;
 pub mod report;

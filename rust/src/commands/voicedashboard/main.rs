@@ -2,19 +2,22 @@ use crate::bot::Ctx;
 use crate::commands::moderation::banlist::deny_foreign_press;
 use poise::serenity_prelude as serenity;
 
-// Interface-path decision (U-VOICE-IFACE): ADOPT FLAT, do not restore the
-// TS `interface` subgroup (`/voicedashboard interface set-voice-channel|...`).
-// Rationale: no Rust module on this branch uses poise subcommand groups (all
-// flat `/voice lobby|panel|category|name|position|staff`), and restoring the
-// subgroup would perpetuate the TS `set-voice-channel-catgory` typo in the
-// public command tree. DB keys (`VOICE_INTERFACE.*`) are unchanged, so
-// existing guild config carries over. Migration mapping:
-//   interface set-voice-channel          -> /voice lobby (VOICE_INTERFACE.voice_channel)
-//   interface set-text-channel           -> /voice panel (VOICE_INTERFACE.interface)
-//   interface set-voice-channel-catgory  -> /voice category (VOICE_INTERFACE.voice_channel_category)
-//   interface set-voice-channel-name     -> /voice name (VOICE_INTERFACE.voice_channel_name)
-//   interface set-voice-channel-position -> /voice position (VOICE_INTERFACE.voice_channel_position)
-//   set-staff-role                       -> /voice staff (VOICE_INTERFACE.staff_role)
+// Interface group (SUBS-BATCH-2B): TS-exact `interface` SubcommandGroup
+// (`voicedashboard.ts`: `interface` holding set-voice-channel,
+// set-text-channel, set-staff-role, set-voice-channel-catgory,
+// set-voice-channel-position, set-voice-channel-name). The Rust leaf
+// slash names stay the pinned port names (lobby/panel/category/name/
+// position/staff — `commands/mod.rs::slash_option_names_match_ts`
+// asserts their option shapes), so only the group level is restored,
+// not the TS leaf renames (including the `catgory` typo, which stays
+// out of the public tree). DB keys (`VOICE_INTERFACE.*`) are unchanged,
+// so existing guild config carries over. Mapping:
+//   interface lobby    (= TS set-voice-channel, VOICE_INTERFACE.voice_channel)
+//   interface panel    (= TS set-text-channel,  VOICE_INTERFACE.interface)
+//   interface category (= TS set-voice-channel-catgory, VOICE_INTERFACE.voice_channel_category)
+//   interface name     (= TS set-voice-channel-name, VOICE_INTERFACE.voice_channel_name)
+//   interface position (= TS set-voice-channel-position, VOICE_INTERFACE.voice_channel_position)
+//   interface staff    (= TS set-staff-role, VOICE_INTERFACE.staff_role)
 
 pub fn vd_key(field: &str) -> String {
     format!("VOICE_INTERFACE.{field}")
@@ -35,6 +38,24 @@ async fn yes_markup(http: &serenity::Http) -> String {
     prefix_command,
     category = "voicedashboard",
     rename = "voice",
+    subcommands("vd_interface"),
+    subcommand_required,
+    description_localized("fr", "Commande sous-groupé pour la gestion de canaux vocaux"),
+    description_localized("ja", "ボイス管理のサブコマンドグループ"),
+    description_localized("ru", "Группа подкоманд для управления голосом"),
+    description_localized("es-ES", "Grupo de subcomando para el gestor de voz")
+)]
+pub async fn voicedashboard(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
+    Ok(())
+}
+
+/// Manage voice's interface.
+// Mirrors the TS `interface` SubcommandGroup (voicedashboard.ts:36-54).
+#[poise::command(
+    slash_command,
+    prefix_command,
+    category = "voicedashboard",
+    rename = "interface",
     subcommands(
         "vd_lobby",
         "vd_panel",
@@ -44,12 +65,16 @@ async fn yes_markup(http: &serenity::Http) -> String {
         "vd_staff"
     ),
     subcommand_required,
-    description_localized("fr", "Commande sous-groupé pour la gestion de canaux vocaux"),
-    description_localized("ja", "ボイス管理のサブコマンドグループ"),
-    description_localized("ru", "Группа подкоманд для управления голосом"),
-    description_localized("es-ES", "Grupo de subcomando para el gestor de voz")
+    name_localized("fr", "gérer"),
+    name_localized("ja", "interface"),
+    name_localized("ru", "interface"),
+    name_localized("es-ES", "interface"),
+    description_localized("fr", "Gérer les interfaces de créations de canaux vocaux"),
+    description_localized("ja", "ボイスインターフェースを管理"),
+    description_localized("ru", "Управление голосовым интерфейсом"),
+    description_localized("es-ES", "Gestionar la interfaz de voz")
 )]
-pub async fn voicedashboard(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
+pub async fn vd_interface(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())
 }
 

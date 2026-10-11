@@ -4,7 +4,7 @@ use super::*;
 #[poise::command(
     slash_command,
     prefix_command,
-    rename = "role-list",
+    rename = "list",
     aliases("economy-role-list"),
     default_member_permissions = "MANAGE_GUILD",
     description_localized("fr", "Liste de tous les rôles que vous pouvez acheter"),

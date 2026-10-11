@@ -6,6 +6,9 @@ use super::{
 };
 
 /// Run-less group root. Mirrors the TS `music` HybridCommand definition.
+// TS order (`music.ts:64-419`): loop, lyrics, history, clear-queue,
+// nowplaying, pause, play, volume, trackinfo, queue, resume, shuffle,
+// skip, stop (`volume` is a real TS sub at music.ts:270, kept).
 // Prefix alias parity: TS `music.ts:244` puts `p` on the `play`
 // subcommand (not the group); the Rust `m_play` leaf keeps
 // `aliases("p")`, so `!music p <title>` resolves exactly like TS.
@@ -19,20 +22,20 @@ use super::{
     rename = "music",
     aliases("m"),
     subcommands(
-        "m_play",
-        "m_skip",
-        "m_stop",
-        "m_pause",
-        "m_resume",
-        "m_queue",
-        "m_clear",
-        "m_shuffle",
         "m_loop",
-        "m_volume",
-        "m_nowplaying",
-        "m_history",
         "m_lyrics",
-        "m_trackinfo"
+        "m_history",
+        "m_clear",
+        "m_nowplaying",
+        "m_pause",
+        "m_play",
+        "m_volume",
+        "m_trackinfo",
+        "m_queue",
+        "m_resume",
+        "m_shuffle",
+        "m_skip",
+        "m_stop"
     ),
     subcommand_required,
     name_localized("fr", "musique"),

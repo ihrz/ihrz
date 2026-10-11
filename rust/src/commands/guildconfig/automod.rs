@@ -455,19 +455,17 @@ macro_rules! keyword_command {
     };
 }
 
-/// Automod subgroup. Mirrors the TS automod subcommand group.
+/// Automod parent.
+// Mirrors the TS `automod` command (automod.ts:31-41): its only
+// top-level option is the `block` SubcommandGroup below, which holds
+// the five toggles (discord_invite_link, telegram_link, link,
+// spam, mass-mention).
 #[poise::command(
     slash_command,
     prefix_command,
     category = "guildconfig",
     rename = "automod",
-    subcommands(
-        "gc_automod_link",
-        "gc_automod_spam",
-        "gc_automod_mass",
-        "gc_automod_discord",
-        "gc_automod_telegram"
-    ),
+    subcommands("gc_automod_block"),
     default_member_permissions = "ADMINISTRATOR",
     subcommand_required,
     description_localized(
@@ -479,6 +477,36 @@ macro_rules! keyword_command {
     description_localized("es-ES", "Subcomando para la categoría automod!")
 )]
 pub async fn gc_automod(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
+    Ok(())
+}
+
+/// Block/Protect someting/behaviours into this guild!
+// Mirrors the TS `block` SubcommandGroup (automod.ts:44-54, `someting`
+// typo kept verbatim). A nested poise command with subcommands renders
+// as a SubcommandGroup on Discord, so the five toggles sit at
+// `/automod block <toggle>` exactly like TS.
+#[poise::command(
+    slash_command,
+    prefix_command,
+    category = "guildconfig",
+    rename = "block",
+    subcommands(
+        "gc_automod_link",
+        "gc_automod_spam",
+        "gc_automod_mass",
+        "gc_automod_discord",
+        "gc_automod_telegram"
+    ),
+    subcommand_required,
+    description_localized(
+        "fr",
+        "Bloquer/Protéger certains comportements/comportements dans ce serveur"
+    ),
+    description_localized("ja", "このサーバー内の何か/行動をブロック/保護！"),
+    description_localized("ru", "Заблокировать/защитить что-либо на этом сервере!"),
+    description_localized("es-ES", "Bloquear/Proteger algo/comportamientos en este servidor!")
+)]
+pub async fn gc_automod_block(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())
 }
 

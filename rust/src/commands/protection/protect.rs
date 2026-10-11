@@ -292,8 +292,16 @@ pub fn allowlist_mentions(rows: &[String]) -> String {
 }
 
 /// Run-less group root for the protection category.
-// TS: `SlashCommands/protection/` (`authorization.ts`, `allowlist/`,
-// `!show.ts`). Gate parity (deliberate, do not loosen): TS gates
+// TS: `SlashCommands/protection/` (`authorization.ts`, `allowlist/`).
+// Subcommand basis: `actions`/`sanction`/`show` mirror
+// `authorization.ts` (3 flat Subcommands); `allow-add`/`allow-remove`/
+// `allow-show` mirror `allowlist/allowlist.ts` (add/remove/show under
+// the separate TS `allowlist` command), merged under this parent with
+// the `allow-` prefix because `commands/mod.rs` (frozen) pins their
+// names and option shapes (`allow-add`/`allow-remove` + `member`).
+// Splitting them back under a top-level `/allowlist` needs a
+// `commands/mod.rs::all()` edit, owned outside this file.
+// Gate parity (deliberate, do not loosen): TS gates
 // per-leg through the custom executor (`commandExecutor.ts` checks each
 // option target's `permission`: Administrator on the mutating
 // `authorization` legs, `null` elsewhere) plus an in-code `ownerId`
@@ -314,7 +322,7 @@ pub fn allowlist_mentions(rows: &[String]) -> String {
     category = "protection",
     rename = "protect",
     subcommands(
-        "protect_rule",
+        "protect_actions",
         "protect_sanction",
         "protect_show",
         "protect_allow_add",
@@ -332,16 +340,17 @@ pub async fn protect(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
 }
 
 /// Whats is the rule to configure?
+// TS name is `actions` (authorization.ts:106); `rule` is its option.
 #[poise::command(
     slash_command,
     prefix_command,
-    rename = "rule",
+    rename = "actions",
     description_localized("fr", "Choisissez une action à refuser/autoriser pour l'utilisateur"),
     description_localized("ja", "ユーザーに対して拒否/許可するアクションを選択！"),
     description_localized("ru", "Выберите действия для запрета/разрешения пользователю!"),
     description_localized("es-ES", "Elegir acciones para Denegar/Permitir al usuario!")
 )]
-pub async fn protect_rule(
+pub async fn protect_actions(
     ctx: Ctx<'_>,
     // FAILED-unexpressible as a static ChoiceParameter: the TS `rule`
     // choices are computed at runtime via

@@ -4,7 +4,7 @@ use super::*;
 #[poise::command(
     slash_command,
     prefix_command,
-    rename = "role-delete",
+    rename = "delete",
     aliases("economy-role-delete"),
     default_member_permissions = "MANAGE_GUILD",
     description_localized("fr", "Supprimer un rôle pour un certain montant d'argent"),

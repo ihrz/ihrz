@@ -866,7 +866,7 @@ pub fn panel_rows(st: &PanelState, lang_code: &str) -> Vec<serenity::CreateActio
 }
 
 /// Panel entry. Mirrors !welcomer.ts (opens the panel on join section).
-#[poise::command(slash_command, prefix_command, rename = "welcomer-panel")]
+#[poise::command(prefix_command, rename = "welcomer-panel")]
 pub async fn welcomer_panel(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {
         return Ok(());

@@ -5,21 +5,55 @@ use super::{
 };
 
 /// Subcommand category for notifier!
+// TS-exact top-level set (`notifier.ts` options): the `author`
+// SubcommandGroup (add, remove, list) plus the `config`
+// SubcommandGroup (channel, message).
 #[poise::command(
     slash_command,
     prefix_command,
     category = "notifier",
     rename = "notifier",
-    subcommands(
-        "notifier_add",
-        "notifier_remove",
-        "notifier_list",
-        "notifier_channel",
-        "notifier_message"
-    ),
+    subcommands("notifier_author", "notifier_config"),
     subcommand_required
 )]
 pub async fn notifier(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
+    Ok(())
+}
+
+/// Streamer/Youtuber/Twitcher manipulation.
+// Mirrors the TS `author` SubcommandGroup (notifier.ts:44-55,
+// `twticherm` typo kept verbatim).
+#[poise::command(
+    slash_command,
+    prefix_command,
+    category = "notifier",
+    rename = "author",
+    subcommands("notifier_add", "notifier_remove", "notifier_list"),
+    subcommand_required,
+    description_localized("fr", "Manipulation pour les streamer, youtubeur, twticherm vidéaste"),
+    description_localized("ja", "ストリーマー/YouTuber/Twitcherの操作"),
+    description_localized("ru", "Управление стримерами/YouTube/Twitch"),
+    description_localized("es-ES", "Manipulación de Streamer/Youtuber/Twitcher")
+)]
+pub async fn notifier_author(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
+    Ok(())
+}
+
+/// Configuration for the Notifier Module.
+// Mirrors the TS `config` SubcommandGroup (notifier.ts:232-301).
+#[poise::command(
+    slash_command,
+    prefix_command,
+    category = "notifier",
+    rename = "config",
+    subcommands("notifier_channel", "notifier_message"),
+    subcommand_required,
+    description_localized("fr", "La configuration pour le module de Notifier"),
+    description_localized("ja", "Notifierモジュールの設定"),
+    description_localized("ru", "Настройка модуля Notifier"),
+    description_localized("es-ES", "Configuración para el módulo Notifier")
+)]
+pub async fn notifier_config(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())
 }
 

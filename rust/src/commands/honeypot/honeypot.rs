@@ -1,5 +1,5 @@
+use super::config::honeypot_config;
 use super::*;
-use super::{config::honeypot_config, post::honeypot_post};
 
 /// Run-less group root for the honeypot category.
 // TS `SlashCommands/honeypot/honeypot.ts` (`permission: null`): no
@@ -9,10 +9,10 @@ use super::{config::honeypot_config, post::honeypot_post};
 // allowlisted non-admin managers.
 // The `config` leaf carries that same manager gate (`honeypot_config`:
 // administrators pass, otherwise the protection allowlist decides),
-// mirroring `!config.ts:55-66,327`. The `post` leaf is a deliberate
-// Rust-only extension (no TS counterpart) and currently carries no gate:
-// flag for the lead before exposing it widely, since it rewrites the
-// trap `channelId`/`messageId`.
+// mirroring `!config.ts:55-66,327`. TS-exact set: `config` only
+// (honeypot.ts:40-56). `post.rs` keeps the lure-post + claim-log
+// builders (used by the trap pipeline), but `honeypot_post` is no
+// longer registered as a slash subcommand.
 // A bare invocation raises SubcommandRequired (mapped to help in
 // `bot.rs`) before this body runs, on both paths.
 #[poise::command(
@@ -20,7 +20,7 @@ use super::{config::honeypot_config, post::honeypot_post};
     prefix_command,
     category = "honeypot",
     rename = "honeypot",
-    subcommands("honeypot_config", "honeypot_post"),
+    subcommands("honeypot_config"),
     subcommand_required
 )]
 pub async fn honeypot(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {

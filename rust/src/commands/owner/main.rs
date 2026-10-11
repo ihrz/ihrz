@@ -1010,6 +1010,7 @@ async fn send_bl_pager(
     prefix_command,
     category = "owner",
     rename = "blacklist",
+    aliases("bl"),
     description_localized("fr", "Ajoutez un utilisateur à la liste noir"),
     description_localized("ja", "ユーザーをブラックリストに追加！"),
     description_localized("ru", "Добавить пользователя в черный список!"),
@@ -1697,14 +1698,13 @@ pub async fn bledit(
     }
 }
 
-/// Top-level old spellings (unowner / bl).
+/// Top-level old spelling (unowner).
 // FLATTEN-B2: blacklist, unblacklist, blinfo, bledit and eval are
 // top-level slash commands now (exact TS names, registered in
-// crate::commands::all()). Only `unowner` and `bl` remain thin
-// delegates restoring the old surface (forward to the bodies).
-// `bl` stays prefix-only: TS exposes it solely as a prefix alias
-// (aliases: ["bl"] on flat /blacklist), never as its own slash
-// command.
+// crate::commands::all()). Only `unowner` remains a thin delegate
+// restoring the old surface (forwards to the body). `bl` lives as
+// a prefix alias (aliases: ["bl"] on flat /blacklist), never as its
+// own slash command (A1).
 #[poise::command(
     slash_command,
     prefix_command,
@@ -1742,21 +1742,6 @@ pub async fn unowner_alias(
     user: serenity::User,
 ) -> Result<(), anyhow::Error> {
     owner_remove_inner(ctx, user).await
-}
-
-/// Top-level `bl` alias for `blacklist` (TS aliases: ["bl"]).
-// Prefix-only: TS exposes `bl` as a prefix alias of flat /blacklist,
-// never as its own slash command (R2).
-#[poise::command(prefix_command, category = "owner", rename = "bl")]
-pub async fn bl_alias(
-    ctx: Ctx<'_>,
-    #[description = "Member"] user: Option<serenity::User>,
-    // Rest-of-line like TS `longString(args, 1)` (see blacklist).
-    #[description = "Reason"]
-    #[rest]
-    reason: Option<String>,
-) -> Result<(), anyhow::Error> {
-    blacklist_inner(ctx, user, reason).await
 }
 
 /// Run Javascript program (only for developers)!

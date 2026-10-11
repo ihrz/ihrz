@@ -1,10 +1,12 @@
 use super::*;
 
-/// Post, repost, or copy an embed. Mirrors the !embed.ts EmbedManager.
-// The full interactive builder lives at `embed_builder` (top-level
-// `embed`, same TS source); this stays `embed-post` so the flat
-// registry keeps one `embed` (TS namespaces them under /utils vs
-// the builder entry, poise registers both flat).
+/// Post, repost, or copy an embed. Mirrors the !embed.ts EmbedManager
+// (the TS `embed` subcommand of HybridCommands/utils/utils.ts:850,
+// permission ManageMessages, optional saved `id` preload).
+// The interactive builder at `embed_builder` is a separate top-level
+// registration under a different parent, so sharing the TS-exact leaf
+// name here causes no slash conflict (Discord namespaces options per
+// parent); the prefix-collision gate excludes subcommand leaves.
 // Create from title + description (saved under a new id), repost of a
 // saved embed id, or copy of an embed from a message URL/ID. The
 // interactive select-menu/button collectors have no stateless equivalent,
@@ -16,7 +18,7 @@ use super::*;
     slash_command,
     prefix_command,
     category = "utils",
-    rename = "embed-post",
+    rename = "embed",
     default_member_permissions = "MANAGE_MESSAGES",
     description_localized("fr", "Créez un magnifique embed"),
     description_localized("ja", "美しい埋め込みを作成！"),

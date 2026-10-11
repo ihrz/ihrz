@@ -33,12 +33,13 @@ impl SetsuggestAction {
 }
 
 /// Subcommand for setsuggest category!
+// TS order (`setsuggest.ts:42-141`): config, channel.
 #[poise::command(
     slash_command,
     prefix_command,
     category = "suggestion",
     rename = "setsuggest",
-    subcommands("setsuggest_channel", "setsuggest_config"),
+    subcommands("setsuggest_config", "setsuggest_channel"),
     subcommand_required
 )]
 pub async fn setsuggest(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {

@@ -1,5 +1,4 @@
 use super::*;
-use poise::serenity_prelude as serenity;
 
 /// Table-first ignore-list load with legacy key fallback
 /// (`GUILD.XP_LEVELING.bypassChannels`, legacy `GUILD.RANKS.ignoreChannels`).
@@ -64,11 +63,16 @@ pub fn parse_ignore_channel_list(raw: &str) -> Vec<String> {
     out
 }
 
-/// Ignore add command.
+/// Ignore-channels panel (`ignore-channels`).
+// TS `ranks.ts:333-348`: the single `ignore-channels` sub —
+// Administrator-gated panel listing the channels the Ranks module
+// skips (`!ignore-channels.ts:60-76`). Management (toggle via channel
+// select) is component-driven in TS, not a separate slash sub.
 #[poise::command(
     slash_command,
     prefix_command,
-    rename = "ignore-add",
+    rename = "ignore-channels",
+    aliases("ignore", "ranks-ignore-channels"),
     default_member_permissions = "ADMINISTRATOR",
     description_localized(
         "fr",
@@ -78,83 +82,7 @@ pub fn parse_ignore_channel_list(raw: &str) -> Vec<String> {
     description_localized("ru", "Игнорировать эти каналы в модуле рангов"),
     description_localized("es-ES", "Ignorar estos canales en el módulo de Rangos")
 )]
-// One channel per call (toggle), plus an optional comma-separated
-// channel list (toggle each, in order). Mirrors the TS multi
-// channel-select panel (`!ignore-channels.ts:78-87,125-145`,
-// `setMaxValues(25)`); poise 0.6 registers `Vec<T>` slash params as
-// a single optional option (0-or-1 values, no multi-select parity),
-// so extra channels ride a comma-separated string — repeat per
-// channel or pass several at once.
-pub async fn ranks_ignore_add(
-    ctx: Ctx<'_>,
-    #[description = "Channel"]
-    #[channel_types("Text")]
-    channel: serenity::GuildChannel,
-    #[description = "More channels, comma-separated"] more: Option<String>,
-) -> Result<(), anyhow::Error> {
-    let gid = ctx
-        .guild_id()
-        .map(|g| g.get().to_string())
-        .unwrap_or_default();
-    let mut ids = vec![channel.id.get().to_string()];
-    if let Some(raw) = more.as_deref() {
-        for id in parse_ignore_channel_list(raw) {
-            if !ids.contains(&id) {
-                ids.push(id);
-            }
-        }
-    }
-    let mut list = load_ignore_routed(&ctx.data().pool, &gid).await;
-    let mut outcomes: Vec<(String, bool)> = Vec::new();
-    for id in &ids {
-        let (next, added) = toggle_ignore(list, id);
-        list = next;
-        outcomes.push((id.clone(), added));
-    }
-    save_ignore_routed(&ctx.data().pool, &gid, &list).await?;
-    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-    if outcomes.len() == 1 {
-        let added = outcomes[0].1;
-        ctx.say(if added {
-            crate::lang::get(&code, "msg_ignore_channel_added")
-                .unwrap_or_else(|| "Ignore channel added.".to_string())
-        } else {
-            crate::lang::get(&code, "msg_ignore_channel_removed")
-                .unwrap_or_else(|| "Ignore channel removed.".to_string())
-        })
-        .await?;
-        return Ok(());
-    }
-    let lines = outcomes
-        .iter()
-        .map(|(id, added)| {
-            let word = if *added {
-                crate::lang::get(&code, "msg_ignore_channel_added")
-                    .unwrap_or_else(|| "Ignore channel added.".to_string())
-            } else {
-                crate::lang::get(&code, "msg_ignore_channel_removed")
-                    .unwrap_or_else(|| "Ignore channel removed.".to_string())
-            };
-            format!("<#{id}>: {word}")
-        })
-        .collect::<Vec<_>>()
-        .join("\n");
-    ctx.say(lines).await?;
-    Ok(())
-}
-
-/// List ignored channels.
-// The TS `ignore-channels` panel (`ranks.ts:333-348`) requires
-// Administrator for the whole panel (view included), so this leaf
-// carries the same gate.
-#[poise::command(
-    slash_command,
-    prefix_command,
-    rename = "ignore-list",
-    aliases("ignore", "ranks-ignore-channels"),
-    default_member_permissions = "ADMINISTRATOR"
-)]
-pub async fn ranks_ignore_list(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
+pub async fn ranks_ignore_channels(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let gid = ctx
         .guild_id()
         .map(|g| g.get().to_string())
@@ -184,6 +112,19 @@ mod tests {
 
     async fn mem_pool() -> crate::db::Pool {
         crate::db::memory_pool().await
+    }
+
+    #[test]
+    fn toggle_adds_then_removes_channel() {
+        // `toggle_ignore` (super) backs the TS multi channel-select
+        // panel (`!ignore-channels.ts:78-87`): unknown ids append
+        // (added=true), known ids drop (added=false).
+        let (next, added) = super::toggle_ignore(Vec::new(), "123");
+        assert!(added);
+        assert_eq!(next, vec!["123".to_string()]);
+        let (next, added) = super::toggle_ignore(next, "123");
+        assert!(!added);
+        assert!(next.is_empty());
     }
 
     #[test]

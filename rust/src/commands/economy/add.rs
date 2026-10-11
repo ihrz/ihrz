@@ -14,7 +14,7 @@ pub fn shop_at_cap(role_count: usize) -> bool {
 #[poise::command(
     slash_command,
     prefix_command,
-    rename = "role-add",
+    rename = "add",
     aliases("economy-role-add"),
     default_member_permissions = "MANAGE_GUILD",
     description_localized("fr", "Ajouter un rôle pour un certain montant d'argent"),

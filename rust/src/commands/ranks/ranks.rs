@@ -1,35 +1,28 @@
 use super::*;
 use super::{
-    channel::ranks_channel,
-    config::ranks_config,
-    greset::ranks_greset,
-    ignore_channels::{ranks_ignore_add, ranks_ignore_list},
-    leaderboard::ranks_leaderboard,
-    message::ranks_msg,
-    roles::{ranks_role_add, ranks_role_list, ranks_role_remove},
-    show::ranks_show,
-    ureset::ranks_ureset,
+    channel::ranks_channel, config::ranks_config, greset::ranks_greset,
+    ignore_channels::ranks_ignore_channels, leaderboard::ranks_leaderboard, message::ranks_msg,
+    roles::ranks_roles, show::ranks_show, ureset::ranks_ureset,
 };
 
 /// Subcommand for ranks category!
+// TS order (`ranks.ts:42-372`): roles, config, show, ureset, greset,
+// channel, leaderboard, ignore-channels, message.
 #[poise::command(
     slash_command,
     prefix_command,
     category = "ranks",
     rename = "ranks",
     subcommands(
-        "ranks_show",
-        "ranks_leaderboard",
+        "ranks_roles",
         "ranks_config",
-        "ranks_channel",
+        "ranks_show",
         "ranks_ureset",
         "ranks_greset",
-        "ranks_ignore_add",
-        "ranks_ignore_list",
-        "ranks_msg",
-        "ranks_role_add",
-        "ranks_role_list",
-        "ranks_role_remove"
+        "ranks_channel",
+        "ranks_leaderboard",
+        "ranks_ignore_channels",
+        "ranks_msg"
     ),
     subcommand_required,
     description_localized("fr", "Commande sous-groupé pour la catégorie de niveau (message)"),

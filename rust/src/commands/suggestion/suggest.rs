@@ -2,12 +2,13 @@ use super::*;
 use poise::serenity_prelude as serenity;
 
 /// Subcommand for suggest category!
+// TS order (`suggest.ts:41-272`): reply, deny, accept, delete.
 #[poise::command(
     slash_command,
     prefix_command,
     category = "suggestion",
     rename = "suggest",
-    subcommands("suggest_accept", "suggest_deny", "suggest_delete", "suggest_reply"),
+    subcommands("suggest_reply", "suggest_deny", "suggest_accept", "suggest_delete"),
     subcommand_required
 )]
 pub async fn suggest(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {

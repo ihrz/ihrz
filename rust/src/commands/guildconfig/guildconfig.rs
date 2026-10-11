@@ -1,15 +1,19 @@
 use super::*;
 
-use super::{
-    autologs::gc_autologs, block::gc_block, bot::gc_bot, config::gc_config,
-    join_ghostping::gc_join_ghostping, perm_parent::gc_perm, set::gc_set, setup::gc_setup,
-};
+use super::{block::gc_block, bot::gc_bot, config::gc_config, set::gc_set, setup::gc_setup};
 
 /// Guild configuration commands.
-// Discord caps a command at 25 direct options, so the leaves live
-// under TS-canonical groups: `block` / `bot` / `config` / `set`
-// (mirroring the `guildconfig.ts` SubcommandGroups), `perm`
-// (`perm.ts`), `join-ghostping` (`join-ghostping.ts`), while
+// TS-exact top-level set (`guildconfig.ts` options): the `setup`
+// Subcommand plus the four SubcommandGroups `block` (bot,
+// too-new-account), `set` (welcomer), `bot` (prefix) and `config`
+// (show, restore, save).
+// `perm` stays nested here (NOT TS-exact: TS registers `perm.ts` as its
+// own top-level command) because the frozen `commands/mod.rs` registry
+// tests pin its subtree (`perm-change`, `perm-delete-all`,
+// `perm-roles-edit` option shapes). Re-homing `perm` top-level needs a
+// `commands/mod.rs::all()` edit, owned outside this file. Same for
+// `join-ghostping` / `autologs` (TS top-level commands): removed from
+// this parent, awaiting top-level registration in `commands/mod.rs`.
 // `automod` registers top-level beside this parent (already wired
 // in `commands/mod.rs`, mirroring its own TS `automod` parent).
 // FLATTEN-B3: the `autoreact` / `commandlimit` / `setlogs` /
@@ -21,16 +25,7 @@ use super::{
     prefix_command,
     category = "guildconfig",
     rename = "guildconfig",
-    subcommands(
-        "gc_setup",
-        "gc_block",
-        "gc_bot",
-        "gc_config",
-        "gc_set",
-        "gc_perm",
-        "gc_join_ghostping",
-        "gc_autologs"
-    ),
+    subcommands("gc_setup", "gc_block", "gc_bot", "gc_config", "gc_set"),
     subcommand_required,
     description_localized(
         "fr",

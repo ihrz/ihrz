@@ -85,6 +85,7 @@ pub fn all() -> Vec<poise::Command<Data, Error>> {
         embed::embed_builder::embed_builder(),
         moderation::main::moderation(),
         protection::protect::protect(),
+        protection::allowlist::allowlist(),
         security::main::security(),
         antispam::main::antispam(),
         authrestore::main::authrestore(),
@@ -93,12 +94,12 @@ pub fn all() -> Vec<poise::Command<Data, Error>> {
         // FLATTEN-B3: ex-guildconfig leaves, top-level like their TS
         // commands (`HybridCommands/guildconfig/*`).
         guildconfig::autoreact::gc_autoreact(),
-        guildconfig::autoreact::gc_autoreact_list(),
-        guildconfig::autoreact::gc_autoreact_remove(),
-        guildconfig::autoreact::gc_autoreact_toggle(),
         guildconfig::commandlimit::gc_commandlimit(),
         guildconfig::setlogschannel::gc_setlogs(),
         guildconfig::support::gc_support(),
+        guildconfig::join_ghostping::gc_join_ghostping(),
+        guildconfig::perm_parent::gc_perm(),
+        guildconfig::autologs::gc_autologs(),
         welcomer_panel::main::welcomer_panel(),
         economy::main::economy(),
         ranks::main::ranks(),
@@ -120,7 +121,9 @@ pub fn all() -> Vec<poise::Command<Data, Error>> {
         voicedashboard::main::voicedashboard(),
         suggestion::setsuggest::setsuggest(),
         suggestion::suggest::suggest(),
-        newfeatures::newfeatures::newfeatures(),
+        newfeatures::punishpub::punishpub(),
+        newfeatures::report::report(),
+        newfeatures::rolesaver::rolesaver(),
         newfeatures::nightmode::nightmode(),
         newfeatures::counter::counter(),
         newfeatures::git::git_parent(),
@@ -140,13 +143,11 @@ pub fn all() -> Vec<poise::Command<Data, Error>> {
         tag::main::tag(),
         owner::main::owner(),
         owner::main::unowner_alias(),
-        owner::main::bl_alias(),
         owner::main::blacklist(),
         owner::main::unblacklist(),
         owner::main::blinfo(),
         owner::main::bledit(),
         owner::main::eval(),
-        botcat::bot::bot(),
         botcat::andru::andru(),
         botcat::botinfo::botinfo_full(),
         botcat::ether::ether(),
@@ -238,8 +239,8 @@ pub fn defer_policy(qualified_path: &str) -> DeferPolicy {
         "suggest accept",
         "suggest delete",
         "authrestore set",
-        "blogger add",
-        "blogger remove",
+        "blogger blog add",
+        "blogger blog remove",
         // Flat commands whose TS fragment sets ephemeral: true.
         "caracteres",
         "vc",
@@ -267,9 +268,6 @@ pub fn defer_policy(qualified_path: &str) -> DeferPolicy {
         // FLATTEN-B3: ex-guildconfig leaves, TS thinking:true, ported
         // flat top-level (`support` is thinking:false, so no entry).
         "autoreact",
-        "autoreact-list",
-        "autoreact-remove",
-        "autoreact-toggle",
         "commandlimit",
         "setlogs",
         "report",
@@ -325,11 +323,10 @@ pub fn defer_policy(qualified_path: &str) -> DeferPolicy {
         "zip-emojis",
         "zip-stickers",
         "unzip-emojis",
-        // TS `ranks` thinking:true subcommands (`roles` maps to the
-        // ported role-add/role-list pair).
+        // TS `ranks` thinking:true subcommands.
         "ranks config",
-        "ranks role-add",
-        "ranks role-list",
+        "ranks roles",
+        "ranks ignore-channels",
         // TS `authrestore` parent is thinking:true; the explicit
         // subcommand rows below mirror its !get/!delete/!roles/
         // !force-join.ts handlers (the parent fallback already covers
@@ -543,7 +540,7 @@ mod tests {
         // / owner / guildconfig / newfeatures / rolereactions leaves now
         // top-level like production) + context entries + split-off utils
         // parents. Discord caps top-level slash at 100.
-        assert_eq!(cmds.len(), 87);
+        assert_eq!(cmds.len(), 88);
         // Every nested leaf keeps working through its parent.
         fn flatten<'a>(
             cmds: &'a [poise::Command<super::Data, super::Error>],
@@ -559,26 +556,16 @@ mod tests {
         let flat_names: Vec<String> = flat.iter().map(|c| c.name.clone()).collect();
         // FLATTEN-B3: ex-guildconfig leaves register top-level.
         let top_names: Vec<String> = cmds.iter().map(|c| c.name.clone()).collect();
-        for expected in [
-            "autoreact",
-            "autoreact-list",
-            "autoreact-remove",
-            "autoreact-toggle",
-            "commandlimit",
-            "setlogs",
-            "support",
-        ] {
+        for expected in ["autoreact", "commandlimit", "setlogs", "support"] {
             assert!(
                 top_names.contains(&expected.to_string()),
                 "missing top-level {expected}"
             );
         }
         for expected in [
-            "bot",
             "fun",
             "utils",
             "legacy",
-            "newfeatures",
             "dice",
             "ban",
             "play",
@@ -659,7 +646,7 @@ mod tests {
             "addrole",
             "addrolereact",
             "delrole",
-            "embed-post",
+            "embed",
             "massmove",
             "dm",
             "leash",
@@ -834,10 +821,8 @@ mod tests {
         assert!(find("antiexe")
             .default_member_permissions
             .contains(Permissions::ADMINISTRATOR));
-        // @toggle-react.ts: permission ManageGuildExpressions.
-        assert!(find("autoreact-toggle")
-            .default_member_permissions
-            .contains(Permissions::MANAGE_GUILD_EXPRESSIONS));
+        // (autoreact sub-leaves were removed as invented tops; the
+        // parent keeps its ADMINISTRATOR gate.)
         // mod.ts per-subcommand gates (were all ADMINISTRATOR via parent).
         assert!(find("ban")
             .default_member_permissions
@@ -890,11 +875,17 @@ mod tests {
         assert!(find("balance-add")
             .default_member_permissions
             .contains(Permissions::ADMINISTRATOR));
-        // role-add exists under ranks (ADMINISTRATOR) and economy
-        // (MANAGE_GUILD per TS); assert the loosened one exists.
-        assert!(flat.iter().filter(|c| c.name == "role-add").any(|c| c
-            .default_member_permissions
-            .contains(Permissions::MANAGE_GUILD)));
+        // role-add used to exist under ranks (ADMINISTRATOR) and economy
+        // (MANAGE_GUILD per TS); both were renamed to TS-exact leaves,
+        // so assert the loosened one at its TS group path.
+        assert!(all()
+            .iter()
+            .find(|c| c.name == "economy")
+            .and_then(|e| e.subcommands.iter().find(|c| c.name == "role"))
+            .and_then(|r| r.subcommands.iter().find(|c| c.name == "add"))
+            .is_some_and(|c| c
+                .default_member_permissions
+                .contains(Permissions::MANAGE_GUILD)));
         assert!(find("open").default_member_permissions.is_empty());
         assert!(find("add-member")
             .default_member_permissions
@@ -912,8 +903,9 @@ mod tests {
         assert!(has_alias("ustats", "u"));
         assert!(has_alias("channel-stats", "chstats"));
         assert!(has_alias("play", "p"));
-        // `bl` is a top-level delegate now (was an alias of `blacklist`).
-        assert!(flat.iter().any(|c| c.name == "bl"));
+        // `bl` is a prefix alias of flat /blacklist, never its own
+        // slash command (A1 extras-removal).
+        assert!(has_alias("blacklist", "bl"));
         assert!(has_alias("kisakay", "anaïs"));
         // U-GATES2-UTILS representative gates.
         assert!(find("derank")
@@ -1096,7 +1088,8 @@ mod tests {
             ("setprefix", &["name"]),
             ("config-restore", &["backup-to-load"]),
             ("clear", &["number", "member"]),
-            ("role-add", &["role", "amount"]),
+            // TS economy group `role`: leaf `add` (was flat `role-add`).
+            ("add", &["role", "amount"]),
             ("autorenew", &["channel", "time"]),
             ("dm", &["private", "member", "message"]),
             ("vkick", &["member"]),
@@ -1163,19 +1156,24 @@ mod tests {
         // command (ChatInput) with a restored slash leg. `unblacklist`
         // used to be exempt here too, but FLATTEN-B2 made it a real
         // top-level hybrid so it now asserts both legs like the rest.
-        const PREFIX_ONLY_DELEGATES: [&str; 2] = ["unowner", "bl"];
+        const PREFIX_ONLY_DELEGATES: [&str; 1] = ["unowner"];
         // MessageCommand ports are prefix-only by design: TS registers
         // sticker/top/unslowmode under MessageCommands, never as slash.
         const PREFIX_ONLY_MESSAGE_COMMANDS: [&str; 3] = ["sticker", "top", "unslowmode"];
         // LEGACY-SLASH-STRIP: every other PREFIX_IHORIZON_COMMAND port
         // (MessageCommands/*, never slash-registered in TS, never
-        // length-validated) is prefix-only too. help_main and welcomer
+        // length-validated) is prefix-only too, plus the !welcomer.ts
+        // panel entry (prefix-only in TS) and the `legacy` organizer
+        // parent (its TS sources are flat MessageCommands, never a
+        // slash parent). help_main and welcomer
         // stay dual: their TS sources are HybridCommands/bot/help.ts and
         // the ChatInput welcomer.ts respectively.
-        const PREFIX_ONLY_LEGACY_STRIP: [&str; 19] = [
+        const PREFIX_ONLY_LEGACY_STRIP: [&str; 23] = [
             "add-react",
             "antiexe",
+            "autologs",
             "autorespond",
+            "embed",
             "fexini",
             "helpall",
             "h",
@@ -1191,7 +1189,9 @@ mod tests {
             "two-sides",
             "updates",
             "grosbg",
-            "autologs",
+            "welcomer-panel",
+            "legacy",
+            "prefix",
         ];
         // Rust-only splits of a TS subcommand (wlroles add/list): kept
         // prefix-only so the parent's slash surface matches TS exactly.
@@ -1308,9 +1308,6 @@ mod defer_policy_tests {
         // FLATTEN-B3: flat ex-guildconfig leaves keep TS thinking flags
         // (support.ts is thinking:false, so no defer like TS).
         assert_eq!(defer_policy("autoreact"), DeferPolicy::PUBLIC);
-        assert_eq!(defer_policy("autoreact-list"), DeferPolicy::PUBLIC);
-        assert_eq!(defer_policy("autoreact-remove"), DeferPolicy::PUBLIC);
-        assert_eq!(defer_policy("autoreact-toggle"), DeferPolicy::PUBLIC);
         assert_eq!(defer_policy("commandlimit"), DeferPolicy::PUBLIC);
         assert_eq!(defer_policy("setlogs"), DeferPolicy::PUBLIC);
         assert_eq!(defer_policy("support"), DeferPolicy::NONE);
@@ -1323,14 +1320,14 @@ mod defer_policy_tests {
         assert_eq!(defer_policy("lastfm config"), DeferPolicy::EPHEMERAL);
         assert_eq!(defer_policy("suggest deny"), DeferPolicy::EPHEMERAL);
         assert_eq!(defer_policy("tag use"), DeferPolicy::EPHEMERAL);
-        assert_eq!(defer_policy("blogger add"), DeferPolicy::EPHEMERAL);
+        assert_eq!(defer_policy("blogger blog add"), DeferPolicy::EPHEMERAL);
         // Non-ephemeral siblings stay public via the parent.
         assert_eq!(defer_policy("authrestore get"), DeferPolicy::PUBLIC);
         assert_eq!(defer_policy("authrestore delete"), DeferPolicy::PUBLIC);
         assert_eq!(defer_policy("authrestore roles"), DeferPolicy::PUBLIC);
         assert_eq!(defer_policy("authrestore force-join"), DeferPolicy::PUBLIC);
         assert_eq!(defer_policy("lastfm status"), DeferPolicy::PUBLIC);
-        assert_eq!(defer_policy("blogger list"), DeferPolicy::NONE);
+        assert_eq!(defer_policy("blogger blog list"), DeferPolicy::NONE);
     }
 
     #[test]
@@ -1342,7 +1339,7 @@ mod defer_policy_tests {
         assert_eq!(defer_policy("massmove"), DeferPolicy::PUBLIC);
         assert_eq!(defer_policy("utils massmove"), DeferPolicy::PUBLIC);
         assert_eq!(defer_policy("ranks config"), DeferPolicy::PUBLIC);
-        assert_eq!(defer_policy("ranks role-add"), DeferPolicy::PUBLIC);
+        assert_eq!(defer_policy("ranks roles"), DeferPolicy::PUBLIC);
         assert_eq!(defer_policy("caracteres"), DeferPolicy::EPHEMERAL);
         assert_eq!(defer_policy("fun caracteres"), DeferPolicy::EPHEMERAL);
         assert_eq!(defer_policy("vc"), DeferPolicy::EPHEMERAL);

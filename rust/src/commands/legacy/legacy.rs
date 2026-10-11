@@ -10,7 +10,6 @@ use super::{
 
 /// Subcommand for legacy category!
 #[poise::command(
-    slash_command,
     prefix_command,
     category = "legacy",
     rename = "legacy",
