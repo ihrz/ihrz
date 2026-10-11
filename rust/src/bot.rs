@@ -1303,6 +1303,13 @@ pub fn valid_shard_override(total_shards_override: Option<u32>) -> Option<u32> {
     }
 }
 
+/// Grace period between signalling shard shutdown and forcing process
+/// exit on Ctrl-C/SIGTERM. Pure so the value is offline-testable; the
+/// live wait + exit stay caller-side in run().
+pub fn shutdown_grace_period() -> std::time::Duration {
+    std::time::Duration::from_secs(5)
+}
+
 /// Global app-command registration with TS guild defaults (O4).
 /// Mirrors synchronizeCommands in src/core/commandsSync.ts: every entry is
 /// sent with `integration_types || [0]` + `contexts || [0]` (guild install,
@@ -1605,12 +1612,34 @@ pub async fn run(cfg: Config, pool: Pool) -> anyhow::Result<()> {
     // eviction is therefore documented as not portable, not approximated
     // with a no-op ticker.
     cache_settings.time_to_live = std::time::Duration::from_secs(60 * 60 * 8);
-    // Slash-command file log (mirrors loggerX in slashCommandLogger.ts).
-    // Created at the top of run() and shared with Data for the prefix
-    // leg; the shutdown flush below drains both legs' entries.
-    // Mirrors the SIGINT/SIGTERM flush in slashCommandLogger.ts.
+    let mut client = serenity::ClientBuilder::new(token, intents());
+    // Application id must be known before Ready: the pre-ready app-emoji
+    // sync/refresh (`get_application_emojis`, `create_application_emoji`)
+    // fails with "Application id was expected but missing" without it.
+    // Mirrors the TS client, which logs in with the id baked in.
+    if let Ok(app_id) = cfg.client_id.trim().parse::<u64>() {
+        client = client.application_id(serenity::ApplicationId::new(app_id));
+    }
+    let mut client = client
+        .cache_settings(cache_settings)
+        .framework(framework)
+        .event_handler(crate::events_handler::Handler::new(
+            pool.clone(),
+            slashlog.clone(),
+        ))
+        .await?;
+
+    // Shutdown hook (mirrors loggerX in slashCommandLogger.ts plus the
+    // SIGINT/SIGTERM flush there): Ctrl-C/SIGTERM flushes the
+    // slash-command file log, then stops the shards via the ShardManager
+    // so the process disconnects instead of hanging connected. Must live
+    // after the client build: the shard manager clone comes from the
+    // built client. A wedged gateway that never returns from start falls
+    // back to process exit after the grace period (shutdown code, not
+    // library error handling, so exit here is deliberate).
     {
         let logs = slashlog.clone();
+        let shard_manager = client.shard_manager.clone();
         tokio::spawn(async move {
             #[cfg(unix)]
             {
@@ -1628,21 +1657,11 @@ pub async fn run(cfg: Config, pool: Pool) -> anyhow::Result<()> {
             }
             tracing::info!("flushing command logs before shutdown...");
             logs.force_flush().await;
+            shard_manager.shutdown_all().await;
+            tokio::time::sleep(shutdown_grace_period()).await;
+            std::process::exit(0);
         });
     }
-    let mut client = serenity::ClientBuilder::new(token, intents());
-    // Application id must be known before Ready: the pre-ready app-emoji
-    // sync/refresh (`get_application_emojis`, `create_application_emoji`)
-    // fails with "Application id was expected but missing" without it.
-    // Mirrors the TS client, which logs in with the id baked in.
-    if let Ok(app_id) = cfg.client_id.trim().parse::<u64>() {
-        client = client.application_id(serenity::ApplicationId::new(app_id));
-    }
-    let mut client = client
-        .cache_settings(cache_settings)
-        .framework(framework)
-        .event_handler(crate::events_handler::Handler::new(pool.clone(), slashlog))
-        .await?;
 
     crate::scheduler::spawn(pool.clone(), client.http.clone(), client.cache.clone());
 
@@ -1796,6 +1815,15 @@ mod tests {
         // commandExecutor.ts handleExecutionError field literals.
         assert_eq!(CRASH_BOT_ADMIN_FIELD, "🛡️ Bot Admin");
         assert_eq!(CRASH_USER_ADMIN_FIELD, "📝 User Admin");
+    }
+
+    #[test]
+    fn shutdown_grace_period_is_short_nonzero() {
+        // The Ctrl-C/SIGTERM fallback exit must fire quickly but never
+        // be zero (zero would skip the wedged-gateway grace entirely).
+        let grace = shutdown_grace_period();
+        assert_eq!(grace, std::time::Duration::from_secs(5));
+        assert!(grace > std::time::Duration::ZERO);
     }
 
     #[test]

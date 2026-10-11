@@ -105,28 +105,34 @@ pub fn resolved_value_string(value: &serenity::ResolvedValue<'_>) -> Option<Stri
     }
 }
 
-/// Split resolved options into (subcommand path, leaf options).
-/// Mirrors the _subcommand/getSubcommandGroup/getSubcommand block:
-/// "group sub", "sub", or "" with the hoisted leaf options.
+/// Split resolved options into (command path, leaf options).
+/// Mirrors the _subcommand/getSubcommandGroup/getSubcommand block,
+/// plus the base command name (TS `/${subCmd}` drops it, logging a
+/// bare `/` for top-level leaf commands such as /help): "help",
+/// "parent sub", or "parent group sub" with the hoisted leaf options.
 pub fn split_command_options<'a>(
+    base: &str,
     opts: &'a [serenity::ResolvedOption<'a>],
 ) -> (String, Vec<(String, String)>) {
-    let mut sub = String::new();
+    let mut sub = base.to_string();
     let mut leaves: &[serenity::ResolvedOption<'a>] = opts;
     if let Some(first) = opts.first() {
         match &first.value {
             serenity::ResolvedValue::SubCommandGroup(inner) => {
                 if let Some(sub_cmd) = inner.first() {
-                    sub = format!("{} {}", first.name, sub_cmd.name);
+                    sub = format!("{base} {} {}", first.name, sub_cmd.name);
                     if let serenity::ResolvedValue::SubCommand(leaf_opts) = &sub_cmd.value {
                         leaves = leaf_opts;
                     } else {
                         leaves = inner;
                     }
+                } else {
+                    sub = format!("{base} {}", first.name);
+                    leaves = inner;
                 }
             }
             serenity::ResolvedValue::SubCommand(inner) => {
-                sub = first.name.to_string();
+                sub = format!("{base} {}", first.name);
                 leaves = inner;
             }
             _ => {}
@@ -501,6 +507,72 @@ mod tests {
         assert_eq!(
             format_logged_command("g kick", &[("reason".to_string(), "spam".to_string())]),
             "/g kick reason:\"spam\""
+        );
+    }
+
+    fn command_data_from_json(value: serde_json::Value) -> serenity::CommandData {
+        serde_json::from_value(value).expect("test command data deserializes")
+    }
+
+    #[test]
+    fn split_threads_base_name_top_level_leaf() {
+        // /help with no options at all logs "/help", not "/".
+        let data = command_data_from_json(serde_json::json!({
+            "id": "1", "name": "help", "type": 1,
+        }));
+        let (sub, opts) = split_command_options(&data.name, &data.options());
+        assert_eq!(sub, "help");
+        assert!(opts.is_empty());
+        assert_eq!(format_logged_command(&sub, &opts), "/help");
+        // /help with leaf options keeps the base name and renders them.
+        let data = command_data_from_json(serde_json::json!({
+            "id": "1", "name": "help", "type": 1,
+            "options": [{"name": "query", "type": 3, "value": "ping"}],
+        }));
+        let (sub, opts) = split_command_options(&data.name, &data.options());
+        assert_eq!(sub, "help");
+        assert_eq!(opts, vec![("query".to_string(), "ping".to_string())]);
+        assert_eq!(format_logged_command(&sub, &opts), "/help query:\"ping\"");
+    }
+
+    #[test]
+    fn split_threads_base_name_nested_subcommand() {
+        // /parent sub with a leaf option logs "/parent sub ...".
+        let data = command_data_from_json(serde_json::json!({
+            "id": "1", "name": "parent", "type": 1,
+            "options": [{
+                "name": "sub", "type": 1,
+                "options": [{"name": "reason", "type": 3, "value": "spam"}],
+            }],
+        }));
+        let (sub, opts) = split_command_options(&data.name, &data.options());
+        assert_eq!(sub, "parent sub");
+        assert_eq!(opts, vec![("reason".to_string(), "spam".to_string())]);
+        assert_eq!(
+            format_logged_command(&sub, &opts),
+            "/parent sub reason:\"spam\""
+        );
+    }
+
+    #[test]
+    fn split_threads_base_name_subcommand_group() {
+        // /parent group kick keeps the full path and hoists leaf options.
+        let data = command_data_from_json(serde_json::json!({
+            "id": "1", "name": "parent", "type": 1,
+            "options": [{
+                "name": "group", "type": 2,
+                "options": [{
+                    "name": "kick", "type": 1,
+                    "options": [{"name": "user", "type": 4, "value": 123}],
+                }],
+            }],
+        }));
+        let (sub, opts) = split_command_options(&data.name, &data.options());
+        assert_eq!(sub, "parent group kick");
+        assert_eq!(opts, vec![("user".to_string(), "123".to_string())]);
+        assert_eq!(
+            format_logged_command(&sub, &opts),
+            "/parent group kick user:\"123\""
         );
     }
 

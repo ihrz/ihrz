@@ -37,14 +37,27 @@ pub const TEMPVOICE_RECOVERY_SECS: u64 = 120;
 /// tick after boot is the ready recovery.
 pub const WIPE_QUEUE_SWEEP_SECS: u64 = 60;
 
-/// get_guilds page size used by every guild-enumerating sweep.
-pub const GUILD_PAGE_LIMIT: u64 = 200;
+/// Snapshot guild ids from the gateway cache. Every guild-enumerating
+/// sweep iterates this instead of GET users/@me/guilds REST
+/// pagination: the TS source iterates the in-memory guild cache, and
+/// four phase-aligned 60s REST sweeps 429-collide on the shared
+/// Limit-1 bucket. Zero REST calls per enumeration. (The old
+/// GUILD_PAGE_LIMIT / guild_page_is_last pagination helpers were
+/// removed with the REST legs; short-page semantics no longer apply.)
+pub fn snapshot_guild_ids(
+    cache: &poise::serenity_prelude::Cache,
+) -> Vec<poise::serenity_prelude::GuildId> {
+    ordered_guild_ids(cache.guilds())
+}
 
-/// True when a get_guilds page is the final one: Discord returns
-/// fewer rows than the requested limit only at the end, so the sweep
-/// stops instead of firing one more (empty, rate-limit-delayed) page.
-pub fn guild_page_is_last(page_len: usize) -> bool {
-    page_len < GUILD_PAGE_LIMIT as usize
+/// Deterministic order for a guild-id snapshot: sorted, deduped.
+/// Split out so unit tests cover the ordering without a gateway.
+pub fn ordered_guild_ids(
+    mut ids: Vec<poise::serenity_prelude::GuildId>,
+) -> Vec<poise::serenity_prelude::GuildId> {
+    ids.sort_unstable();
+    ids.dedup();
+    ids
 }
 
 /// Ended-giveaway retention, 345.6M ms (4 days). Mirrors
@@ -1315,10 +1328,10 @@ pub async fn record_notified_articles(
 pub async fn sweep_nightmode(
     pool: &Pool,
     http: &std::sync::Arc<poise::serenity_prelude::Http>,
+    cache: &std::sync::Arc<poise::serenity_prelude::Cache>,
 ) -> u64 {
     use poise::serenity_prelude::{
-        ChannelType, GuildId, GuildPagination, PermissionOverwrite, PermissionOverwriteType,
-        Permissions, RoleId,
+        ChannelType, PermissionOverwrite, PermissionOverwriteType, Permissions, RoleId,
     };
     /// TS state key (UTILS.NIGHT_MODE.last_state, "started" | "ended").
     const LAST_STATE_KEY: &str = "UTILS.NIGHT_MODE.last_state";
@@ -1327,105 +1340,87 @@ pub async fn sweep_nightmode(
         .map(|d| d.as_secs() as i64)
         .unwrap_or(0);
     let mut done = 0u64;
-    let mut after: Option<GuildId> = None;
-    // Paginate to exhaustion (no page cap): TS iterates the whole
-    // guild cache, so a capped scan would silently skip guilds.
-    loop {
-        let page = match http
-            .get_guilds(after.map(GuildPagination::After), Some(GUILD_PAGE_LIMIT))
-            .await
-        {
-            Ok(p) if !p.is_empty() => p,
-            _ => break,
+    // Cache enumeration (no REST): TS iterates the in-memory guild
+    // cache, so the sweep snapshots cache.guilds() once — zero
+    // users/@me/guilds calls, no 429 collision between ticks.
+    for guild_id in snapshot_guild_ids(cache) {
+        let gid = guild_id.get().to_string();
+        // Table-first with legacy fallback (keys unchanged, like the
+        // nightmode command module).
+        let raw = match crate::db::tbl_get(pool, &gid, "UTILS.NIGHT_MODE").await {
+            Some(raw) => raw,
+            None => continue,
         };
-        after = page.last().map(|g| g.id);
-        // Short page = last page (a full page may still end the list,
-        // which the next fetch reports as empty — one extra call at
-        // most, same as before).
-        let last_page = guild_page_is_last(page.len());
-        for partial in &page {
-            let gid = partial.id.get().to_string();
-            // Table-first with legacy fallback (keys unchanged, like the
-            // nightmode command module).
-            let raw = match crate::db::tbl_get(pool, &gid, "UTILS.NIGHT_MODE").await {
-                Some(raw) => raw,
-                None => continue,
-            };
-            let Ok(cfg) = serde_json::from_str::<serde_json::Value>(&raw) else {
-                continue;
-            };
-            if !cfg
-                .get("enabled")
-                .and_then(|e| e.as_bool())
-                .unwrap_or(false)
-            {
-                continue;
-            }
-            // TS time shape: [startHour, startMinute, endHour, endMinute].
-            let time: Vec<i64> = cfg
-                .get("time")
-                .and_then(|t| t.as_array())
-                .map(|a| a.iter().filter_map(|n| n.as_i64()).collect())
-                .unwrap_or_default();
-            if time.len() != 4 {
-                continue;
-            }
-            let utc = cfg.get("utc").and_then(|u| u.as_i64()).unwrap_or(0);
-            let notify = cfg.get("notify").and_then(|n| n.as_bool()).unwrap_or(false);
-            let now_min = guild_now_minutes(now_secs, utc);
-            let night =
-                night_window_started(time[0] * 60 + time[1], time[2] * 60 + time[3], now_min);
-            let want = if night { "started" } else { "ended" };
-            // Table-first with legacy fallback (keys unchanged).
-            let current = crate::db::tbl_get(pool, &gid, LAST_STATE_KEY).await;
-            if current.as_deref() == Some(want) {
-                continue;
-            }
-            let channels = http.get_channels(partial.id).await.unwrap_or_default();
-            let everyone = RoleId::new(partial.id.get());
-            for ch in channels.iter().filter(|c| c.kind == ChannelType::Text) {
-                if night {
-                    let _ = ch
-                        .id
-                        .create_permission(
-                            http,
-                            PermissionOverwrite {
-                                allow: Permissions::empty(),
-                                deny: Permissions::SEND_MESSAGES,
-                                kind: PermissionOverwriteType::Role(everyone),
-                            },
-                        )
-                        .await;
-                } else {
-                    let _ = ch
-                        .id
-                        .delete_permission(http, PermissionOverwriteType::Role(everyone))
-                        .await;
-                }
-            }
-            // Table-first dual-write (keys unchanged).
-            let _ = crate::db::tbl_set(pool, &gid, LAST_STATE_KEY, want).await;
-            // Owner notify (mirrors Notify_Server_Owner on transition).
-            if notify {
-                let code = crate::db::guild_lang(pool, partial.id.get().into()).await;
-                notify_nightmode_owner(
-                    http,
-                    partial.id,
-                    &code,
-                    night,
-                    &format!(
-                        "{:02}:{:02}-{:02}:{:02}",
-                        time[0], time[1], time[2], time[3]
-                    ),
-                    utc,
-                )
-                .await;
-            }
-            done += 1;
+        let Ok(cfg) = serde_json::from_str::<serde_json::Value>(&raw) else {
+            continue;
+        };
+        if !cfg
+            .get("enabled")
+            .and_then(|e| e.as_bool())
+            .unwrap_or(false)
+        {
+            continue;
         }
-        if last_page {
-            break;
+        // TS time shape: [startHour, startMinute, endHour, endMinute].
+        let time: Vec<i64> = cfg
+            .get("time")
+            .and_then(|t| t.as_array())
+            .map(|a| a.iter().filter_map(|n| n.as_i64()).collect())
+            .unwrap_or_default();
+        if time.len() != 4 {
+            continue;
         }
+        let utc = cfg.get("utc").and_then(|u| u.as_i64()).unwrap_or(0);
+        let notify = cfg.get("notify").and_then(|n| n.as_bool()).unwrap_or(false);
+        let now_min = guild_now_minutes(now_secs, utc);
+        let night = night_window_started(time[0] * 60 + time[1], time[2] * 60 + time[3], now_min);
+        let want = if night { "started" } else { "ended" };
+        // Table-first with legacy fallback (keys unchanged).
+        let current = crate::db::tbl_get(pool, &gid, LAST_STATE_KEY).await;
+        if current.as_deref() == Some(want) {
+            continue;
+        }
+        let channels = http.get_channels(guild_id).await.unwrap_or_default();
+        let everyone = RoleId::new(guild_id.get());
+        for ch in channels.iter().filter(|c| c.kind == ChannelType::Text) {
+            if night {
+                let _ = ch
+                    .id
+                    .create_permission(
+                        http,
+                        PermissionOverwrite {
+                            allow: Permissions::empty(),
+                            deny: Permissions::SEND_MESSAGES,
+                            kind: PermissionOverwriteType::Role(everyone),
+                        },
+                    )
+                    .await;
+            } else {
+                let _ = ch
+                    .id
+                    .delete_permission(http, PermissionOverwriteType::Role(everyone))
+                    .await;
+            }
+        }
+        // Table-first dual-write (keys unchanged).
+        let _ = crate::db::tbl_set(pool, &gid, LAST_STATE_KEY, want).await;
+        // Owner notify (mirrors Notify_Server_Owner on transition).
+        if notify {
+            let code = crate::db::guild_lang(pool, guild_id.get().into()).await;
+            notify_nightmode_owner(
+                http,
+                guild_id,
+                &code,
+                night,
+                &format!(
+                    "{:02}:{:02}-{:02}:{:02}",
+                    time[0], time[1], time[2], time[3]
+                ),
+                utc,
+            )
+            .await;
+        }
+        done += 1;
     }
     done
 }
@@ -1492,81 +1487,65 @@ async fn notify_nightmode_owner(
 pub async fn sweep_protection_backup(
     pool: &Pool,
     http: &std::sync::Arc<poise::serenity_prelude::Http>,
+    cache: &std::sync::Arc<poise::serenity_prelude::Cache>,
 ) -> u64 {
     use crate::commands::protection::backup::{build_backup, save_backup, BackupRole, RawChannel};
-    use poise::serenity_prelude::{GuildId, GuildPagination, RoleId};
+    use poise::serenity_prelude::RoleId;
     use std::collections::HashMap;
 
     /// Member pages fetched per guild (1000 members each).
     const MAX_MEMBER_PAGES: usize = 5;
 
     let mut done = 0u64;
-    let mut after: Option<GuildId> = None;
-    // Paginate to exhaustion (no page cap): TS iterates the whole
-    // guild cache, so a capped scan would silently skip guilds.
-    loop {
-        let page = match http
-            .get_guilds(after.map(GuildPagination::After), Some(GUILD_PAGE_LIMIT))
-            .await
-        {
-            Ok(p) if !p.is_empty() => p,
-            _ => break,
+    // Cache enumeration (no REST): TS iterates the in-memory guild
+    // cache, so the sweep snapshots cache.guilds() once — zero
+    // users/@me/guilds calls, no 429 collision between ticks.
+    for guild_id in snapshot_guild_ids(cache) {
+        let gid = guild_id.get().to_string();
+        let channels = http.get_channels(guild_id).await.unwrap_or_default();
+        let guild = match http.get_guild(guild_id).await {
+            Ok(g) => g,
+            Err(_) => continue,
         };
-        after = page.last().map(|g| g.id);
-        // Short page = last page (a full page may still end the list,
-        // which the next fetch reports as empty — one extra call at
-        // most, same as before).
-        let last_page = guild_page_is_last(page.len());
-        for partial in &page {
-            let gid = partial.id.get().to_string();
-            let channels = http.get_channels(partial.id).await.unwrap_or_default();
-            let guild = match http.get_guild(partial.id).await {
-                Ok(g) => g,
-                Err(_) => continue,
-            };
-            if channels.is_empty() && guild.roles.is_empty() {
-                continue;
-            }
-            // Best-effort role -> member ids (TS role.members cache).
-            let mut members_of: HashMap<RoleId, Vec<String>> = HashMap::new();
-            let mut cursor: Option<u64> = None;
-            for _ in 0..MAX_MEMBER_PAGES {
-                let members = http
-                    .get_guild_members(partial.id, Some(1000), cursor)
-                    .await
-                    .unwrap_or_default();
-                if members.is_empty() {
-                    break;
-                }
-                cursor = members.last().map(|m| m.user.id.get());
-                for m in &members {
-                    let uid = m.user.id.get().to_string();
-                    for role in &m.roles {
-                        members_of.entry(*role).or_default().push(uid.clone());
-                    }
-                }
-                if members.len() < 1000 {
-                    break;
-                }
-            }
-            let raws: Vec<RawChannel> = channels.iter().map(RawChannel::from).collect();
-            let roles: Vec<BackupRole> = guild
-                .roles
-                .keys()
-                .map(|id| BackupRole {
-                    id: id.get().to_string(),
-                    members: members_of.remove(id).unwrap_or_default(),
-                })
-                .collect();
-            if save_backup(pool, &gid, &build_backup(&raws, roles))
+        if channels.is_empty() && guild.roles.is_empty() {
+            continue;
+        }
+        // Best-effort role -> member ids (TS role.members cache).
+        let mut members_of: HashMap<RoleId, Vec<String>> = HashMap::new();
+        let mut cursor: Option<u64> = None;
+        for _ in 0..MAX_MEMBER_PAGES {
+            let members = http
+                .get_guild_members(guild_id, Some(1000), cursor)
                 .await
-                .is_ok()
-            {
-                done += 1;
+                .unwrap_or_default();
+            if members.is_empty() {
+                break;
+            }
+            cursor = members.last().map(|m| m.user.id.get());
+            for m in &members {
+                let uid = m.user.id.get().to_string();
+                for role in &m.roles {
+                    members_of.entry(*role).or_default().push(uid.clone());
+                }
+            }
+            if members.len() < 1000 {
+                break;
             }
         }
-        if last_page {
-            break;
+        let raws: Vec<RawChannel> = channels.iter().map(RawChannel::from).collect();
+        let roles: Vec<BackupRole> = guild
+            .roles
+            .keys()
+            .map(|id| BackupRole {
+                id: id.get().to_string(),
+                members: members_of.remove(id).unwrap_or_default(),
+            })
+            .collect();
+        if save_backup(pool, &gid, &build_backup(&raws, roles))
+            .await
+            .is_ok()
+        {
+            done += 1;
         }
     }
     done
@@ -1934,106 +1913,88 @@ async fn h247_bot_may_join_http(
 pub async fn sweep_h247_watchdog(
     pool: &Pool,
     http: &std::sync::Arc<poise::serenity_prelude::Http>,
+    cache: &std::sync::Arc<poise::serenity_prelude::Cache>,
 ) -> u64 {
     use crate::commands::h247::session;
-    use poise::serenity_prelude::{GuildId, GuildPagination};
     let now = std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
         .map(|d| d.as_millis() as i64)
         .unwrap_or(0);
     let mut restored = 0u64;
-    let mut after: Option<GuildId> = None;
-    // Paginate to exhaustion (no page cap): TS iterates the whole
-    // guild cache, so a capped scan would silently skip guilds.
-    loop {
-        let page = match http
-            .get_guilds(after.map(GuildPagination::After), Some(GUILD_PAGE_LIMIT))
-            .await
-        {
-            Ok(p) if !p.is_empty() => p,
-            _ => break,
-        };
-        after = page.last().map(|g| g.id);
-        // Short page = last page (a full page may still end the list,
-        // which the next fetch reports as empty — one extra call at
-        // most, same as before).
-        let last_page = guild_page_is_last(page.len());
-        for partial in &page {
-            let gid_num = partial.id.get();
-            let gid = gid_num.to_string();
-            // Expected channel: session mirror first, DB on miss.
-            let expected = match session::parked_channel(gid_num).await {
-                Some(ch) => Some(ch),
-                None => {
-                    if session::negative_hit(gid_num, now).await {
+    // Cache enumeration (no REST): TS iterates the in-memory guild
+    // cache, so the sweep snapshots cache.guilds() once — zero
+    // users/@me/guilds calls, no 429 collision between ticks.
+    for guild_id in snapshot_guild_ids(cache) {
+        let gid_num = guild_id.get();
+        let gid = gid_num.to_string();
+        // Expected channel: session mirror first, DB on miss.
+        let expected = match session::parked_channel(gid_num).await {
+            Some(ch) => Some(ch),
+            None => {
+                if session::negative_hit(gid_num, now).await {
+                    continue;
+                }
+                match h247_parked_channel(pool, &gid).await {
+                    Some(ch) => {
+                        session::prime_session(gid_num, ch).await;
+                        Some(ch)
+                    }
+                    None => {
+                        session::note_negative(gid_num, now).await;
                         continue;
                     }
-                    match h247_parked_channel(pool, &gid).await {
-                        Some(ch) => {
-                            session::prime_session(gid_num, ch).await;
-                            Some(ch)
-                        }
-                        None => {
-                            session::note_negative(gid_num, now).await;
-                            continue;
-                        }
-                    }
                 }
-            };
-            let Some(expected) = expected else {
-                continue;
-            };
-            // Noted Discord presence (mirrors
-            // `guild.members.me?.voice.channelId` in
-            // watchdogH247Sessions / ensureH247VoicePresence): the
-            // last-known live voice channel from the bot's own gateway
-            // updates — never the lavalink handshake cache, which also
-            // needs token/endpoint/session legs and goes blind while
-            // the handshake is incomplete.
-            let noted = session::live_voice_channel(gid_num).await.flatten();
-            if noted == Some(expected) {
-                continue;
             }
-            let Some(messenger) = session::messenger_for(gid_num).await else {
-                if session::warn_due(gid_num, now).await {
-                    tracing::warn!(
+        };
+        let Some(expected) = expected else {
+            continue;
+        };
+        // Noted Discord presence (mirrors
+        // `guild.members.me?.voice.channelId` in
+        // watchdogH247Sessions / ensureH247VoicePresence): the
+        // last-known live voice channel from the bot's own gateway
+        // updates — never the lavalink handshake cache, which also
+        // needs token/endpoint/session legs and goes blind while
+        // the handshake is incomplete.
+        let noted = session::live_voice_channel(gid_num).await.flatten();
+        if noted == Some(expected) {
+            continue;
+        }
+        let Some(messenger) = session::messenger_for(gid_num).await else {
+            if session::warn_due(gid_num, now).await {
+                tracing::warn!(
                         "H24/7 watchdog for guild {gid}: not in parked channel {expected}, no serving shard noted yet"
                     );
-                }
-                continue;
-            };
-            // Channel fetch (mirrors fetchH247VoiceChannel in
-            // h247Manager.ts: a gone channel or a non-GuildVoice
-            // channel — e.g. converted to Stage — never restores).
-            let Some(voice_channel) = h247_parked_voice_channel(http, partial.id, expected).await
-            else {
-                if session::warn_due(gid_num, now).await {
-                    tracing::warn!(
+            }
+            continue;
+        };
+        // Channel fetch (mirrors fetchH247VoiceChannel in
+        // h247Manager.ts: a gone channel or a non-GuildVoice
+        // channel — e.g. converted to Stage — never restores).
+        let Some(voice_channel) = h247_parked_voice_channel(http, guild_id, expected).await else {
+            if session::warn_due(gid_num, now).await {
+                tracing::warn!(
                         "H24/7 watchdog for guild {gid}: parked channel {expected} is gone or not a voice channel"
                     );
-                }
-                continue;
-            };
-            // Permission gate (mirrors the Connect + Speak
-            // permissionsIn check in joinH247VoiceChannel): without
-            // both, the join would fail like TS, so the watchdog
-            // does not send and does not count the guild restored.
-            if !h247_bot_may_join_http(http, partial.id, &voice_channel).await {
-                if session::warn_due(gid_num, now).await {
-                    tracing::warn!(
+            }
+            continue;
+        };
+        // Permission gate (mirrors the Connect + Speak
+        // permissionsIn check in joinH247VoiceChannel): without
+        // both, the join would fail like TS, so the watchdog
+        // does not send and does not count the guild restored.
+        if !h247_bot_may_join_http(http, guild_id, &voice_channel).await {
+            if session::warn_due(gid_num, now).await {
+                tracing::warn!(
                         "H24/7 watchdog for guild {gid}: missing Connect/Speak in parked channel {expected}"
                     );
-                }
-                continue;
             }
-            crate::lavalink::LavalinkManager::send_voice_state(&messenger, gid_num, Some(expected));
-            session::clear_warn(gid_num).await;
-            tracing::info!("scheduler: restored H247 voice for guild {gid} (channel {expected})");
-            restored += 1;
+            continue;
         }
-        if last_page {
-            break;
-        }
+        crate::lavalink::LavalinkManager::send_voice_state(&messenger, gid_num, Some(expected));
+        session::clear_warn(gid_num).await;
+        tracing::info!("scheduler: restored H247 voice for guild {gid} (channel {expected})");
+        restored += 1;
     }
     restored
 }
@@ -2080,52 +2041,36 @@ pub async fn temp_voice_rows(pool: &Pool, gid: &str) -> Vec<(String, String)> {
 pub async fn sweep_temp_voice_recovery(
     pool: &Pool,
     http: &std::sync::Arc<poise::serenity_prelude::Http>,
+    cache: &std::sync::Arc<poise::serenity_prelude::Cache>,
 ) -> u64 {
-    use poise::serenity_prelude::{ChannelId, GuildId, GuildPagination};
+    use poise::serenity_prelude::ChannelId;
     let mut dropped = 0u64;
-    let mut after: Option<GuildId> = None;
-    // Paginate to exhaustion (no page cap): TS iterates the whole
-    // guild cache, so a capped scan would silently skip guilds.
-    loop {
-        let page = match http
-            .get_guilds(after.map(GuildPagination::After), Some(GUILD_PAGE_LIMIT))
-            .await
-        {
-            Ok(p) if !p.is_empty() => p,
-            _ => break,
-        };
-        after = page.last().map(|g| g.id);
-        // Short page = last page (a full page may still end the list,
-        // which the next fetch reports as empty — one extra call at
-        // most, same as before).
-        let last_page = guild_page_is_last(page.len());
-        for partial in &page {
-            let gid = partial.id.get().to_string();
-            // Table-first union rows (table wins per user, keys unchanged).
-            let rows = temp_voice_rows(pool, &gid).await;
-            for (key, raw) in rows {
-                // Strip JSON quoting from string-taking writers.
-                let text = raw.trim().trim_matches('"').to_string();
-                let Ok(ch_num) = text.parse::<u64>() else {
-                    let _ = crate::db::tbl_del(pool, &gid, &key).await;
-                    dropped += 1;
-                    continue;
-                };
-                if ch_num == 0 {
-                    let _ = crate::db::tbl_del(pool, &gid, &key).await;
-                    dropped += 1;
-                    continue;
-                }
-                // Channel gone (deleted externally): drop the row like TS
-                // (both stores, keys unchanged).
-                if http.get_channel(ChannelId::new(ch_num)).await.is_err() {
-                    let _ = crate::db::tbl_del(pool, &gid, &key).await;
-                    dropped += 1;
-                }
+    // Cache enumeration (no REST): TS iterates the in-memory guild
+    // cache, so the sweep snapshots cache.guilds() once — zero
+    // users/@me/guilds calls, no 429 collision between ticks.
+    for guild_id in snapshot_guild_ids(cache) {
+        let gid = guild_id.get().to_string();
+        // Table-first union rows (table wins per user, keys unchanged).
+        let rows = temp_voice_rows(pool, &gid).await;
+        for (key, raw) in rows {
+            // Strip JSON quoting from string-taking writers.
+            let text = raw.trim().trim_matches('"').to_string();
+            let Ok(ch_num) = text.parse::<u64>() else {
+                let _ = crate::db::tbl_del(pool, &gid, &key).await;
+                dropped += 1;
+                continue;
+            };
+            if ch_num == 0 {
+                let _ = crate::db::tbl_del(pool, &gid, &key).await;
+                dropped += 1;
+                continue;
             }
-        }
-        if last_page {
-            break;
+            // Channel gone (deleted externally): drop the row like TS
+            // (both stores, keys unchanged).
+            if http.get_channel(ChannelId::new(ch_num)).await.is_err() {
+                let _ = crate::db::tbl_del(pool, &gid, &key).await;
+                dropped += 1;
+            }
         }
     }
     if dropped > 0 {
@@ -2414,11 +2359,12 @@ pub fn spawn(
     {
         let pool = pool.clone();
         let http = http.clone();
+        let cache = cache.clone();
         tokio::spawn(async move {
             let mut t = tokio::time::interval(Duration::from_secs(NIGHTMODE_SECS));
             loop {
                 t.tick().await;
-                sweep_nightmode(&pool, &http).await;
+                sweep_nightmode(&pool, &http, &cache).await;
             }
         });
     }
@@ -2427,11 +2373,12 @@ pub fn spawn(
     {
         let pool = pool.clone();
         let http = http.clone();
+        let cache = cache.clone();
         tokio::spawn(async move {
             let mut t = tokio::time::interval(Duration::from_secs(PROTECTION_BACKUP_SECS));
             loop {
                 t.tick().await;
-                let n = sweep_protection_backup(&pool, &http).await;
+                let n = sweep_protection_backup(&pool, &http, &cache).await;
                 if n > 0 {
                     tracing::info!("scheduler: backed up {n} guild structures");
                 }
@@ -2464,11 +2411,12 @@ pub fn spawn(
     {
         let pool = pool.clone();
         let http = http.clone();
+        let cache = cache.clone();
         tokio::spawn(async move {
             let mut t = tokio::time::interval(Duration::from_secs(H247_WATCHDOG_SECS));
             loop {
                 t.tick().await;
-                let n = sweep_h247_watchdog(&pool, &http).await;
+                let n = sweep_h247_watchdog(&pool, &http, &cache).await;
                 if n > 0 {
                     tracing::info!("scheduler: watchdog restored {n} H247 sessions");
                 }
@@ -2482,11 +2430,12 @@ pub fn spawn(
     {
         let pool = pool.clone();
         let http = http.clone();
+        let cache = cache.clone();
         tokio::spawn(async move {
             let mut t = tokio::time::interval(Duration::from_secs(TEMPVOICE_RECOVERY_SECS));
             loop {
                 t.tick().await;
-                sweep_temp_voice_recovery(&pool, &http).await;
+                sweep_temp_voice_recovery(&pool, &http, &cache).await;
             }
         });
     }
@@ -3807,15 +3756,19 @@ mod tests {
     }
 
     #[test]
-    fn guild_pages_stop_on_short_page() {
-        // Fewer rows than the requested limit means the list ended:
-        // the sweep must not fire another (empty) page.
-        assert_eq!(GUILD_PAGE_LIMIT, 200);
-        assert!(guild_page_is_last(0));
-        assert!(guild_page_is_last(1));
-        assert!(guild_page_is_last(199));
-        assert!(!guild_page_is_last(200));
-        assert!(!guild_page_is_last(201));
+    fn guild_enumeration_uses_cache_snapshot() {
+        // REST pagination is gone: sweeps iterate a sorted, deduped
+        // snapshot of cache.guilds() (zero users/@me/guilds calls),
+        // so there is no short-page/exhaustion logic left to test.
+        use poise::serenity_prelude::GuildId;
+        assert!(ordered_guild_ids(Vec::new()).is_empty());
+        let ids = vec![GuildId::new(5), GuildId::new(2), GuildId::new(5)];
+        assert_eq!(
+            ordered_guild_ids(ids),
+            vec![GuildId::new(2), GuildId::new(5)]
+        );
+        let cache = poise::serenity_prelude::Cache::default();
+        assert!(snapshot_guild_ids(&cache).is_empty());
     }
 
     #[test]
@@ -4462,5 +4415,11 @@ mod tests {
         assert_eq!(seven.1, "222");
         assert!(rows.iter().any(|(k, _)| k == "CUSTOM_VOICE.v1.8"));
         assert!(rows.iter().any(|(k, _)| k == "CUSTOM_VOICE.v1.9"));
+    }
+
+    #[test]
+    fn snapshot_guild_ids_empty_cache_is_empty() {
+        let cache = poise::serenity_prelude::Cache::default();
+        assert!(snapshot_guild_ids(&cache).is_empty());
     }
 }

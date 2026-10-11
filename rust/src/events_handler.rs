@@ -1505,7 +1505,8 @@ impl Handler {
             .ok()
             .and_then(|c| c.guild().map(|g| g.name.clone()))
             .unwrap_or_else(|| "unknown".to_string());
-        let (sub, opts) = crate::slashlog::split_command_options(&cmd.data.options());
+        let (sub, opts) =
+            crate::slashlog::split_command_options(&cmd.data.name, &cmd.data.options());
         let entry = crate::slashlog::ParsedSavedCommand {
             guild_name,
             guild_id: Some(guild_id.get().to_string()),
