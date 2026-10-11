@@ -1,6 +1,68 @@
 use super::*;
 use poise::serenity_prelude as serenity;
 
+/// Support action choice. Mirrors the `action` option `choices` in
+/// support.ts:70-89: slash shows the localized display names, the
+/// handler maps each variant back to the TS `value`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
+pub enum SupportAction {
+    #[name = "Power On"]
+    #[name_localized("fr", "Activer")]
+    #[name_localized("ja", "power_on")]
+    #[name_localized("ru", "power_on")]
+    #[name_localized("es-ES", "power_on")]
+    #[name = "on"]
+    On,
+    #[name = "Power Off"]
+    #[name_localized("fr", "Désactiver")]
+    #[name_localized("ja", "power_off")]
+    #[name_localized("ru", "power_off")]
+    #[name_localized("es-ES", "power_off")]
+    #[name = "off"]
+    Off,
+}
+
+impl SupportAction {
+    /// TS `value` compared (`action == "on"`).
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::On => "on",
+            Self::Off => "off",
+        }
+    }
+}
+
+/// Support type choice. Mirrors the `type` option `choices` in
+/// support.ts:107-130: slash shows the localized display names, the
+/// handler maps each variant back to the TS `value`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
+pub enum SupportKind {
+    #[name = "Something in the bio"]
+    #[name_localized("fr", "Quelques choses dans la bio")]
+    #[name_localized("ja", "something_in_the_bio")]
+    #[name_localized("ru", "something_in_the_bio")]
+    #[name_localized("es-ES", "something_in_the_bio")]
+    #[name = "bio"]
+    Bio,
+    #[name = "The guild tag (Boost perks)"]
+    #[name_localized("fr", "Le tag du serveur sur sont profil (Activable via des boosts)")]
+    #[name_localized("ja", "the_guild_tag_boost_perks")]
+    #[name_localized("ru", "the_guild_tag_boost_perks")]
+    #[name_localized("es-ES", "the_guild_tag_boost_perks")]
+    #[name = "tag"]
+    Tag,
+}
+
+impl SupportKind {
+    /// TS `value` stored in the support blob (`type`).
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::Bio => "bio",
+            Self::Tag => "tag",
+        }
+    }
+}
+
 /// Build the TS-shaped support blob (`{rolesId, state, type, input}`).
 /// Mirrors `support.ts` on-path: `input` is forced to null for `tag`.
 pub fn build_support_config(roles_id: &str, kind: &str, input: Option<&str>) -> serde_json::Value {
@@ -65,8 +127,8 @@ fn guild_has_tags(ctx: &Ctx<'_>) -> bool {
 )]
 pub async fn gc_support(
     ctx: Ctx<'_>,
-    #[description = "on or off"] action: String,
-    #[description = "bio or tag"] r#type: Option<String>,
+    #[description = "on or off"] action: SupportAction,
+    #[description = "bio or tag"] r#type: Option<SupportKind>,
     #[description = "The roles to give for our member"] roles: Option<serenity::Role>,
     #[description = "Choose the keywords wanted in the bio"] input: Option<String>,
 ) -> Result<(), anyhow::Error> {
@@ -80,6 +142,7 @@ pub async fn gc_support(
     // Mirrors `support.ts` (`if (action == "on")`): the match is exact.
     // Anything else (including `power on` or case variants) disables
     // via row DELETE below — no case-fold, no extra spellings.
+    let action = action.as_str();
     let on = action == "on";
 
     if on {
@@ -94,7 +157,7 @@ pub async fn gc_support(
         // Missing/empty type answers `support_command_not_type` like
         // the TS `if (!type)` guard; a present type is stored verbatim
         // (`type: type || "tag"`) — no bio/tag allowlist rejection.
-        let kind = r#type.unwrap_or_default();
+        let kind = r#type.map(|k| k.as_str()).unwrap_or_default();
         if kind.is_empty() {
             ctx.say(
                 crate::lang::get(&code, "support_command_not_type").unwrap_or_else(|| {
@@ -172,6 +235,57 @@ pub async fn support_enabled_routed(pool: &crate::db::Pool, gid: &str) -> bool {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn support_choices_mirror_ts_names_values_and_locales() {
+        use poise::ChoiceParameter as _;
+        let names: Vec<_> = SupportAction::list().into_iter().map(|c| c.name).collect();
+        assert_eq!(names, vec!["Power On".to_string(), "Power Off".to_string()]);
+        assert_eq!(SupportAction::On.as_str(), "on");
+        assert_eq!(SupportAction::Off.as_str(), "off");
+        assert_eq!(SupportAction::from_name("on"), Some(SupportAction::On));
+        assert_eq!(
+            SupportAction::from_name("POWER OFF"),
+            Some(SupportAction::Off)
+        );
+        assert_eq!(SupportAction::from_name("maybe"), None);
+        assert_eq!(SupportAction::from_index(1), Some(SupportAction::Off));
+        let kinds: Vec<_> = SupportKind::list().into_iter().map(|c| c.name).collect();
+        assert_eq!(
+            kinds,
+            vec![
+                "Something in the bio".to_string(),
+                "The guild tag (Boost perks)".to_string()
+            ]
+        );
+        assert_eq!(SupportKind::Bio.as_str(), "bio");
+        assert_eq!(SupportKind::Tag.as_str(), "tag");
+        assert_eq!(SupportKind::from_name("tag"), Some(SupportKind::Tag));
+        assert_eq!(
+            SupportKind::from_name("SOMETHING IN THE BIO"),
+            Some(SupportKind::Bio)
+        );
+        assert_eq!(SupportKind::from_name("other"), None);
+        assert_eq!(SupportKind::from_index(0), Some(SupportKind::Bio));
+        let list = SupportAction::list();
+        assert_eq!(
+            list[0].localizations.get("fr").map(String::as_str),
+            Some("Activer")
+        );
+        let kinds = SupportKind::list();
+        assert_eq!(
+            kinds[0].localizations.get("fr").map(String::as_str),
+            Some("Quelques choses dans la bio")
+        );
+        assert_eq!(
+            kinds[1].localizations.get("fr").map(String::as_str),
+            Some("Le tag du serveur sur sont profil (Activable via des boosts)")
+        );
+        assert_eq!(
+            SupportKind::Tag.localized_name("ja"),
+            Some("the_guild_tag_boost_perks")
+        );
+    }
 
     async fn memory_pool() -> crate::db::Pool {
         crate::db::memory_pool().await
