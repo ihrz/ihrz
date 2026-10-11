@@ -1,5 +1,37 @@
 use super::*;
 
+/// Setmentionrole action choice. Mirrors the `action` option `choices`
+/// in utils.ts:449-469 (note `Power Off` first): slash shows the
+/// localized display names, the handler maps each variant back to the
+/// TS `value`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
+pub enum SetmentionAction {
+    #[name = "Power Off"]
+    #[name_localized("fr", "Désactiver")]
+    #[name_localized("ja", "power_off")]
+    #[name_localized("ru", "power_off")]
+    #[name_localized("es-ES", "power_off")]
+    #[name = "off"]
+    Off,
+    #[name = "Power On"]
+    #[name_localized("fr", "Activer")]
+    #[name_localized("ja", "power_on")]
+    #[name_localized("ru", "power_on")]
+    #[name_localized("es-ES", "power_on")]
+    #[name = "on"]
+    On,
+}
+
+impl SetmentionAction {
+    /// TS `value` (`off` / `on`).
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::Off => "off",
+            Self::On => "on",
+        }
+    }
+}
+
 /// Nickname-role rule (GUILD.RANK_ROLES.nicknames).
 #[poise::command(
     slash_command,
@@ -20,7 +52,7 @@ pub async fn setmentionrole(
     #[description_localized("ru", "Что вы хотите сделать?")]
     #[description_localized("es-ES", "Que quieres hacer?")]
     #[description = "on or off"]
-    action: String,
+    action: SetmentionAction,
     #[description_localized("fr", "Les rôles spécifiques à donner")]
     #[description_localized("ja", "付与する特定のロール！")]
     #[description_localized("ru", "Конкретные роли для выдачи!")]
@@ -46,6 +78,7 @@ pub async fn setmentionrole(
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
+    let action = action.as_str();
     if action.trim().eq_ignore_ascii_case("off") {
         for key in [
             "GUILD.RANK_ROLES",
@@ -181,6 +214,40 @@ pub fn fill_work_with_nicknames(template: &str, role_id: u64, nicknames: &str) -
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn setmention_action_choices_mirror_ts_names_values_and_locales() {
+        use poise::ChoiceParameter as _;
+        // TS order: off first, then on.
+        let names: Vec<_> = SetmentionAction::list()
+            .into_iter()
+            .map(|c| c.name)
+            .collect();
+        assert_eq!(names, vec!["Power Off".to_string(), "Power On".to_string()]);
+        assert_eq!(SetmentionAction::Off.as_str(), "off");
+        assert_eq!(SetmentionAction::On.as_str(), "on");
+        assert_eq!(
+            SetmentionAction::from_name("off"),
+            Some(SetmentionAction::Off)
+        );
+        assert_eq!(
+            SetmentionAction::from_name("POWER ON"),
+            Some(SetmentionAction::On)
+        );
+        assert_eq!(SetmentionAction::from_name("bogus"), None);
+        assert_eq!(SetmentionAction::from_index(0), Some(SetmentionAction::Off));
+        assert_eq!(SetmentionAction::from_index(1), Some(SetmentionAction::On));
+        let list = SetmentionAction::list();
+        assert_eq!(
+            list[0].localizations.get("fr").map(String::as_str),
+            Some("Désactiver")
+        );
+        assert_eq!(
+            list[1].localizations.get("fr").map(String::as_str),
+            Some("Activer")
+        );
+        assert_eq!(SetmentionAction::On.localized_name("ja"), Some("power_on"));
+    }
 
     #[test]
     fn already_guard_compares_plain_id() {

@@ -576,6 +576,46 @@ pub fn parse_top_period(raw: Option<&str>) -> &'static str {
     }
 }
 
+/// Top period choice. Mirrors the `period` option `choices` in
+/// stats.ts:117-147 (top-messages) and stats.ts:197-227 (top-voice):
+/// slash shows the localized display names, the handler maps each
+/// variant back to the TS `value` read by [`parse_top_period`].
+#[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
+pub enum TopPeriod {
+    #[name = "Daily"]
+    #[name_localized("fr", "Quotidien")]
+    #[name_localized("ja", "daily")]
+    #[name_localized("ru", "daily")]
+    #[name_localized("es-ES", "daily")]
+    #[name = "daily"]
+    Daily,
+    #[name = "Weekly"]
+    #[name_localized("fr", "Hebdomadaire")]
+    #[name_localized("ja", "weekly")]
+    #[name_localized("ru", "weekly")]
+    #[name_localized("es-ES", "weekly")]
+    #[name = "weekly"]
+    Weekly,
+    #[name = "Monthly"]
+    #[name_localized("fr", "Mensuel")]
+    #[name_localized("ja", "monthly")]
+    #[name_localized("ru", "monthly")]
+    #[name_localized("es-ES", "monthly")]
+    #[name = "monthly"]
+    Monthly,
+}
+
+impl TopPeriod {
+    /// TS `value` read by [`parse_top_period`].
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::Daily => "daily",
+            Self::Weekly => "weekly",
+            Self::Monthly => "monthly",
+        }
+    }
+}
+
 /// Prefix-only leaderboard row cap. Mirrors the TS prefix leg in
 /// !top-messages.ts / !top-voice.ts (`Math.min(Math.max(n, 5), 25)`):
 /// default 10, clamped to 5..=25. The slash path never clamps (see
@@ -751,6 +791,39 @@ async fn top_by(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn top_period_choices_mirror_ts_names_values_and_locales() {
+        use poise::ChoiceParameter as _;
+        let names: Vec<_> = TopPeriod::list().into_iter().map(|c| c.name).collect();
+        assert_eq!(names, vec!["Daily", "Weekly", "Monthly"]);
+        assert_eq!(TopPeriod::Daily.as_str(), "daily");
+        assert_eq!(TopPeriod::Weekly.as_str(), "weekly");
+        assert_eq!(TopPeriod::Monthly.as_str(), "monthly");
+        assert_eq!(TopPeriod::from_name("daily"), Some(TopPeriod::Daily));
+        assert_eq!(TopPeriod::from_name("WEEKLY"), Some(TopPeriod::Weekly));
+        assert_eq!(TopPeriod::from_name("yearly"), None);
+        assert_eq!(TopPeriod::from_index(0), Some(TopPeriod::Daily));
+        assert_eq!(TopPeriod::from_index(2), Some(TopPeriod::Monthly));
+        assert_eq!(TopPeriod::from_index(3), None);
+        // Values feed parse_top_period unchanged.
+        assert_eq!(parse_top_period(Some(TopPeriod::Daily.as_str())), "daily");
+        assert_eq!(parse_top_period(None), "monthly");
+        let list = TopPeriod::list();
+        assert_eq!(
+            list[0].localizations.get("fr").map(String::as_str),
+            Some("Quotidien")
+        );
+        assert_eq!(
+            list[1].localizations.get("fr").map(String::as_str),
+            Some("Hebdomadaire")
+        );
+        assert_eq!(
+            list[2].localizations.get("fr").map(String::as_str),
+            Some("Mensuel")
+        );
+        assert_eq!(TopPeriod::Weekly.localized_name("ja"), Some("weekly"));
+    }
 
     fn msg(ts: i64, ch: u64) -> StatsMessage {
         StatsMessage {

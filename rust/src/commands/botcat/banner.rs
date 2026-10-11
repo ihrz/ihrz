@@ -1,5 +1,36 @@
 use super::*;
 
+/// Banner action choice. Mirrors the `action` option `choices` in
+/// custom.ts:217-232: slash shows the localized display names, the
+/// handler maps each variant back to the TS `value`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
+pub enum CustomBannerAction {
+    #[name = "Default Bot Banner"]
+    #[name_localized("fr", "Reprendre la bannière par défaut du bot")]
+    #[name_localized("ja", "ボットのデフォルトバナーに戻す")]
+    #[name_localized("ru", "Восстановить баннер бота по умолчанию")]
+    #[name_localized("es-ES", "Restablecer el banner predeterminado del bot")]
+    #[name = "reset"]
+    Reset,
+    #[name = "Set one"]
+    #[name_localized("fr", "Définir une bannière")]
+    #[name_localized("ja", "バナーを設定")]
+    #[name_localized("ru", "Задать баннер")]
+    #[name_localized("es-ES", "Establecer un banner")]
+    #[name = "set"]
+    Set,
+}
+
+impl CustomBannerAction {
+    /// TS `value` (`reset` / `set`).
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::Reset => "reset",
+            Self::Set => "set",
+        }
+    }
+}
+
 /// Set or reset the per-guild bot banner.
 // Mirrors HybridCommands/bot/custom/!banner.ts (no DB key; set/reset
 // PATCH a `data:image/jpeg;base64,...` data URI, reset restores the
@@ -22,7 +53,7 @@ pub async fn custom_banner(
     #[description_localized("ja", "何をしたいですか？")]
     #[description_localized("ru", "Что вы хотите сделать?")]
     #[description_localized("es-ES", "¿Qué quieres hacer?")]
-    action: String,
+    action: CustomBannerAction,
     #[description = "New banner image"]
     #[description_localized("fr", "La bannière du bot")]
     #[description_localized("ja", "バナー")]
@@ -30,6 +61,7 @@ pub async fn custom_banner(
     #[description_localized("es-ES", "El banner")]
     banner: Option<serenity::Attachment>,
 ) -> Result<(), anyhow::Error> {
+    let action = action.as_str();
     let Some(guild_id) = ctx.guild_id() else {
         let glang = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
         ctx.say(
@@ -138,4 +170,54 @@ pub async fn custom_banner(
     )
     .await?;
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn banner_action_choices_mirror_ts_names_values_and_locales() {
+        use poise::ChoiceParameter as _;
+        let names: Vec<_> = CustomBannerAction::list()
+            .into_iter()
+            .map(|c| c.name)
+            .collect();
+        assert_eq!(
+            names,
+            vec!["Default Bot Banner".to_string(), "Set one".to_string()]
+        );
+        assert_eq!(CustomBannerAction::Reset.as_str(), "reset");
+        assert_eq!(CustomBannerAction::Set.as_str(), "set");
+        assert_eq!(
+            CustomBannerAction::from_name("reset"),
+            Some(CustomBannerAction::Reset)
+        );
+        assert_eq!(
+            CustomBannerAction::from_name("SET"),
+            Some(CustomBannerAction::Set)
+        );
+        assert_eq!(CustomBannerAction::from_name("other"), None);
+        assert_eq!(
+            CustomBannerAction::from_index(0),
+            Some(CustomBannerAction::Reset)
+        );
+        assert_eq!(
+            CustomBannerAction::from_index(1),
+            Some(CustomBannerAction::Set)
+        );
+        let list = CustomBannerAction::list();
+        assert_eq!(
+            list[0].localizations.get("fr").map(String::as_str),
+            Some("Reprendre la bannière par défaut du bot")
+        );
+        assert_eq!(
+            list[1].localizations.get("fr").map(String::as_str),
+            Some("Définir une bannière")
+        );
+        assert_eq!(
+            list[1].localizations.get("es-ES").map(String::as_str),
+            Some("Establecer un banner")
+        );
+    }
 }

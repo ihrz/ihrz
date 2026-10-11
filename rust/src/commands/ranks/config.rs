@@ -1,5 +1,48 @@
 use super::*;
 
+/// Config action choice. Mirrors the `action` option `choices` in
+/// ranks.ts:90-121: slash shows the localized display names, the
+/// handler maps each variant back to the TS `value` read by
+/// `config_value`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
+pub enum RanksConfigAction {
+    #[name = "Power On the module (send message when user earn xp level)"]
+    #[name_localized(
+        "fr",
+        "Activer le module (envoyer un message lorsque l'utilisateur gagne un niveau XP)"
+    )]
+    #[name_localized("ja", "power_on_the_module_send_message")]
+    #[name_localized("ru", "power_on_the_module_send_message")]
+    #[name_localized("es-ES", "power_on_the_module_send_message")]
+    #[name = "on"]
+    On,
+    #[name = "Power Off the module (don't send any message but user still earn xp level)"]
+    #[name_localized("fr", "Désactiver le module (ne pas envoyer de message mais l'utilisateur gagne toujours un niveau XP)")]
+    #[name_localized("ja", "power_off_the_module_don_t_send_")]
+    #[name_localized("ru", "power_off_the_module_don_t_send_")]
+    #[name_localized("es-ES", "power_off_the_module_don_t_send_")]
+    #[name = "off"]
+    Off,
+    #[name = "Disable the module (don't send any message and user don't earn xp level)"]
+    #[name_localized("fr", "Désactiver le module (ne pas envoyer de message et l'utilisateur ne gagne pas de niveau XP)")]
+    #[name_localized("ja", "disable_the_module_don_t_send_an")]
+    #[name_localized("ru", "disable_the_module_don_t_send_an")]
+    #[name_localized("es-ES", "disable_the_module_don_t_send_an")]
+    #[name = "disable"]
+    Disable,
+}
+
+impl RanksConfigAction {
+    /// TS `value` read by `config_value`.
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::On => "on",
+            Self::Off => "off",
+            Self::Disable => "disable",
+        }
+    }
+}
+
 /// Third disable state. Mirrors `ranks/!config.ts:50,69,88`: the prefix
 /// path compares with case-sensitive `==`, so only the exact inputs
 /// `on` / `off` / `disable` act — `ON` or `OFF` do nothing in TS.
@@ -52,13 +95,13 @@ pub async fn ranks_config(
     #[description_localized("ru", "Что вы хотите сделать?")]
     #[description_localized("es-ES", "Que quieres hacer?")]
     #[description = "on, off or disable"]
-    action: String,
+    action: RanksConfigAction,
 ) -> Result<(), anyhow::Error> {
     let gid = ctx
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
-    let Some(value) = config_value(&action) else {
+    let Some(value) = config_value(action.as_str()) else {
         return Ok(());
     };
     super::migrated_set(
@@ -105,7 +148,61 @@ pub async fn ranks_config(
 
 #[cfg(test)]
 mod tests {
+    use super::RanksConfigAction;
     use super::{config_stored_value, config_value};
+
+    #[test]
+    fn ranks_config_action_choices_mirror_ts_names_values_and_locales() {
+        use poise::ChoiceParameter as _;
+        let names: Vec<_> = RanksConfigAction::list()
+            .into_iter()
+            .map(|c| c.name)
+            .collect();
+        assert_eq!(
+            names,
+            vec![
+                "Power On the module (send message when user earn xp level)",
+                "Power Off the module (don't send any message but user still earn xp level)",
+                "Disable the module (don't send any message and user don't earn xp level)",
+            ]
+        );
+        assert_eq!(RanksConfigAction::On.as_str(), "on");
+        assert_eq!(RanksConfigAction::Off.as_str(), "off");
+        assert_eq!(RanksConfigAction::Disable.as_str(), "disable");
+        assert_eq!(
+            RanksConfigAction::from_name("disable"),
+            Some(RanksConfigAction::Disable)
+        );
+        assert_eq!(
+            RanksConfigAction::from_name(
+                "POWER OFF THE MODULE (DON'T SEND ANY MESSAGE BUT USER STILL EARN XP LEVEL)"
+            ),
+            Some(RanksConfigAction::Off)
+        );
+        assert_eq!(RanksConfigAction::from_name("bogus"), None);
+        assert_eq!(
+            RanksConfigAction::from_index(0),
+            Some(RanksConfigAction::On)
+        );
+        assert_eq!(
+            RanksConfigAction::from_index(2),
+            Some(RanksConfigAction::Disable)
+        );
+        assert_eq!(RanksConfigAction::from_index(3), None);
+        let list = RanksConfigAction::list();
+        assert_eq!(
+            list[0].localizations.get("fr").map(String::as_str),
+            Some("Activer le module (envoyer un message lorsque l'utilisateur gagne un niveau XP)")
+        );
+        assert_eq!(
+            list[2].localizations.get("fr").map(String::as_str),
+            Some("Désactiver le module (ne pas envoyer de message et l'utilisateur ne gagne pas de niveau XP)")
+        );
+        assert_eq!(
+            list[1].localizations.get("ja").map(String::as_str),
+            Some("power_off_the_module_don_t_send_")
+        );
+    }
 
     #[test]
     fn config_writes_native_json_booleans() {

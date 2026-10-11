@@ -1,18 +1,91 @@
 use super::*;
 
-/// Autocomplete for the TTS language: the 9 locale codes from the
-/// `choices` list on the `language` option in tts.ts. Suggestions only
-/// (like the volume autocomplete): both paths stay free text, like the
-/// TS prefix leg (`!lang.ts`: `args?.[0] || "en-US"`, stored verbatim
-/// with no validation).
-async fn tts_lang_autocomplete<'a>(
-    _ctx: Ctx<'a>,
-    partial: &'a str,
-) -> impl Iterator<Item = String> + 'a {
-    TTS_LANGS
-        .into_iter()
-        .filter(move |v| v.starts_with(partial))
-        .map(|v| v.to_string())
+/// TTS language choice. Mirrors the `language` option `choices` in
+/// tts.ts:138-147 (+Arabic): slash shows the localized display names,
+/// the handler maps each variant back to the TS `value` code. The
+/// value codes double as prefix aliases so `!lang en-US` keeps working.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
+pub enum TtsLang {
+    #[name = "English"]
+    #[name_localized("fr", "Anglais")]
+    #[name_localized("ja", "english")]
+    #[name_localized("ru", "english")]
+    #[name_localized("es-ES", "english")]
+    #[name = "en-US"]
+    English,
+    #[name = "French"]
+    #[name_localized("fr", "Francais")]
+    #[name_localized("ja", "french")]
+    #[name_localized("ru", "french")]
+    #[name_localized("es-ES", "french")]
+    #[name = "fr-FR"]
+    French,
+    #[name = "German"]
+    #[name_localized("fr", "Allemand")]
+    #[name_localized("ja", "german")]
+    #[name_localized("ru", "german")]
+    #[name_localized("es-ES", "german")]
+    #[name = "de-DE"]
+    German,
+    #[name = "Spanish"]
+    #[name_localized("fr", "Espagnol")]
+    #[name_localized("ja", "spanish")]
+    #[name_localized("ru", "spanish")]
+    #[name_localized("es-ES", "spanish")]
+    #[name = "es-ES"]
+    Spanish,
+    #[name = "Italian"]
+    #[name_localized("fr", "Italien")]
+    #[name_localized("ja", "italian")]
+    #[name_localized("ru", "italian")]
+    #[name_localized("es-ES", "italian")]
+    #[name = "it-IT"]
+    Italian,
+    #[name = "Japanese"]
+    #[name_localized("fr", "Japonais")]
+    #[name_localized("ja", "japanese")]
+    #[name_localized("ru", "japanese")]
+    #[name_localized("es-ES", "japanese")]
+    #[name = "jp-JP"]
+    Japanese,
+    #[name = "Portuguese"]
+    #[name_localized("fr", "Portugais")]
+    #[name_localized("ja", "portuguese")]
+    #[name_localized("ru", "portuguese")]
+    #[name_localized("es-ES", "portuguese")]
+    #[name = "pt-PT"]
+    Portuguese,
+    #[name = "Russian"]
+    #[name_localized("fr", "Russe")]
+    #[name_localized("ja", "russian")]
+    #[name_localized("ru", "russian")]
+    #[name_localized("es-ES", "russian")]
+    #[name = "ru-RU"]
+    Russian,
+    #[name = "Arabic"]
+    #[name_localized("fr", "Arabe")]
+    #[name_localized("ja", "arabic")]
+    #[name_localized("ru", "arabic")]
+    #[name_localized("es-ES", "arabic")]
+    #[name = "ar-EG"]
+    Arabic,
+}
+
+impl TtsLang {
+    /// TS `value` code stored in `GUILD.TTS.lang`.
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::English => "en-US",
+            Self::French => "fr-FR",
+            Self::German => "de-DE",
+            Self::Spanish => "es-ES",
+            Self::Italian => "it-IT",
+            Self::Japanese => "jp-JP",
+            Self::Portuguese => "pt-PT",
+            Self::Russian => "ru-RU",
+            Self::Arabic => "ar-EG",
+        }
+    }
 }
 
 /// Default TTS language, mirroring `!lang.ts` (`args?.[0] || "en-US"`).
@@ -58,10 +131,9 @@ pub async fn tts_lang(
     #[description_localized("es-ES", "El idioma TTS a usar!")]
     #[description = "The TTS language to use!"]
     #[rename = "language"]
-    #[autocomplete = "tts_lang_autocomplete"]
-    lang: Option<String>,
+    lang: Option<TtsLang>,
 ) -> Result<(), anyhow::Error> {
-    let code = resolve_tts_lang(lang.as_deref());
+    let code = resolve_tts_lang(lang.map(|l| l.as_str()));
     let gid = ctx
         .guild_id()
         .map(|g| g.get().to_string())
@@ -115,24 +187,80 @@ mod tests {
     }
 
     #[test]
-    fn prefix_free_text_is_stored_verbatim() {
-        // TS `!lang.ts` (`args?.[0] || "en-US"`) stores the prefix arg
-        // without validation: only "" is falsy besides undefined, so
-        // whitespace and unknown codes persist verbatim.
+    fn prefix_codes_resolve_verbatim() {
+        // The TS `value` codes double as prefix aliases, so every valid
+        // code keeps working on the prefix leg.
         assert_eq!(resolve_tts_lang(Some("fr-FR")), "fr-FR");
-        assert_eq!(resolve_tts_lang(Some("xx-YY")), "xx-YY");
-        assert_eq!(resolve_tts_lang(Some("   ")), "   ");
         assert_eq!(resolve_tts_lang(Some("  de-DE  ")), "  de-DE  ");
     }
 
     #[test]
-    fn autocomplete_suggests_all_ts_choice_values() {
-        // Every TS choice value in tts.ts is a known lang and parses.
-        assert_eq!(TTS_LANGS.len(), 9);
-        for code in TTS_LANGS {
-            assert_eq!(parse_tts_lang(code), Some(code));
+    fn lang_choices_mirror_ts_names_values_and_locales() {
+        use poise::ChoiceParameter as _;
+        // Display names, byte-exact from tts.ts:138+.
+        let names: Vec<_> = TtsLang::list().into_iter().map(|c| c.name).collect();
+        assert_eq!(
+            names,
+            vec![
+                "English",
+                "French",
+                "German",
+                "Spanish",
+                "Italian",
+                "Japanese",
+                "Portuguese",
+                "Russian",
+                "Arabic",
+            ]
+        );
+        for (variant, code) in [
+            (TtsLang::English, "en-US"),
+            (TtsLang::French, "fr-FR"),
+            (TtsLang::German, "de-DE"),
+            (TtsLang::Spanish, "es-ES"),
+            (TtsLang::Italian, "it-IT"),
+            (TtsLang::Japanese, "jp-JP"),
+            (TtsLang::Portuguese, "pt-PT"),
+            (TtsLang::Russian, "ru-RU"),
+            (TtsLang::Arabic, "ar-EG"),
+        ] {
+            // Stored value, prefix alias, and slash index round-trip.
+            assert_eq!(variant.as_str(), code);
+            assert_eq!(TtsLang::from_name(code), Some(variant));
+            let idx = TTS_LANGS.iter().position(|c| *c == code).unwrap();
+            assert_eq!(TtsLang::from_index(idx), Some(variant), "index of {code}");
             assert_eq!(resolve_tts_lang(Some(code)), code);
         }
-        assert_eq!(parse_tts_lang("xx-YY"), None);
+        assert_eq!(TtsLang::from_name("ENGLISH"), Some(TtsLang::English));
+        assert_eq!(TtsLang::from_name("xx-YY"), None);
+        // Localized display names, byte-exact from tts.ts.
+        let list = TtsLang::list();
+        assert_eq!(
+            list[0].localizations.get("fr").map(String::as_str),
+            Some("Anglais")
+        );
+        assert_eq!(
+            list[1].localizations.get("fr").map(String::as_str),
+            Some("Francais")
+        );
+        assert_eq!(
+            list[7].localizations.get("fr").map(String::as_str),
+            Some("Russe")
+        );
+        assert_eq!(
+            list[8].localizations.get("fr").map(String::as_str),
+            Some("Arabe")
+        );
+        assert_eq!(
+            list[0].localizations.get("ja").map(String::as_str),
+            Some("english")
+        );
+        assert_eq!(
+            list[5].localizations.get("es-ES").map(String::as_str),
+            Some("japanese")
+        );
+        assert_eq!(TtsLang::English.localized_name("fr"), Some("Anglais"));
+        assert_eq!(TtsLang::French.localized_name("fr"), Some("Francais"));
+        assert_eq!(TtsLang::French.localized_name("xx"), None);
     }
 }

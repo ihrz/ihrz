@@ -1,5 +1,45 @@
 use super::*;
 
+/// Gender choice. Mirrors the `gender` option `choices` in
+/// profil.ts:198-227: slash shows the localized display names, the
+/// handler maps each variant back to the TS `value`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
+pub enum ProfilGender {
+    #[name = "♀ Female"]
+    #[name_localized("fr", "♀ Féminin")]
+    #[name_localized("ja", "female")]
+    #[name_localized("ru", "female")]
+    #[name_localized("es-ES", "female")]
+    #[name = "female"]
+    Female,
+    #[name = "♂ Male"]
+    #[name_localized("fr", "♂ Masculin")]
+    #[name_localized("ja", "male")]
+    #[name_localized("ru", "male")]
+    #[name_localized("es-ES", "male")]
+    #[name = "male"]
+    Male,
+    #[name = "⚧ Non-binary"]
+    #[name_localized("fr", "⚧ Non-binaire")]
+    #[name_localized("ja", "non-binary")]
+    #[name_localized("ru", "non-binary")]
+    #[name_localized("es-ES", "non-binary")]
+    #[name = "non-binary"]
+    NonBinary,
+}
+
+impl ProfilGender {
+    /// TS `value` validated by `validate_gender` and stored via
+    /// `gender_stored_value`.
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::Female => "female",
+            Self::Male => "male",
+            Self::NonBinary => "non-binary",
+        }
+    }
+}
+
 /// Stored display value. Mirrors the `profilTable.set(..., "♀ Female" |
 /// "♂ Male" | "⚧ Non-binary")` writes in `!set-gender.ts` (slash choice
 /// values are `female` | `male` | `non-binary`, display strings hit the DB).
@@ -44,9 +84,10 @@ pub async fn profil_gender(
     #[description_localized("ja", "最も合う性別")]
     #[description_localized("ru", "Пол, который вам подходит")]
     #[description_localized("es-ES", "Género que más te queda")]
-    gender: String,
+    gender: ProfilGender,
 ) -> Result<(), anyhow::Error> {
-    if !super::validate_gender(&gender) {
+    let gender = gender.as_str();
+    if !super::validate_gender(gender) {
         let msg = crate::commands::lang_for(
             &ctx,
             "msg_profil_gender_invalid",
@@ -57,7 +98,7 @@ pub async fn profil_gender(
             .await?;
         return Ok(());
     }
-    if let Some(stored) = gender_stored_value(&gender) {
+    if let Some(stored) = gender_stored_value(gender) {
         let user_id = ctx.author().id.get();
         let mut p = super::profil::load_profil_routed(&ctx.data().pool, user_id).await;
         p.gender = Some(stored.to_string());
@@ -77,6 +118,43 @@ pub async fn profil_gender(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn gender_choices_mirror_ts_names_values_and_locales() {
+        use poise::ChoiceParameter as _;
+        let names: Vec<_> = ProfilGender::list().into_iter().map(|c| c.name).collect();
+        assert_eq!(names, vec!["♀ Female", "♂ Male", "⚧ Non-binary"]);
+        assert_eq!(ProfilGender::Female.as_str(), "female");
+        assert_eq!(ProfilGender::Male.as_str(), "male");
+        assert_eq!(ProfilGender::NonBinary.as_str(), "non-binary");
+        assert_eq!(
+            ProfilGender::from_name("female"),
+            Some(ProfilGender::Female)
+        );
+        assert_eq!(ProfilGender::from_name("♂ MALE"), Some(ProfilGender::Male));
+        assert_eq!(
+            ProfilGender::from_name("non-binary"),
+            Some(ProfilGender::NonBinary)
+        );
+        assert_eq!(ProfilGender::from_name("other"), None);
+        assert_eq!(ProfilGender::from_index(0), Some(ProfilGender::Female));
+        assert_eq!(ProfilGender::from_index(2), Some(ProfilGender::NonBinary));
+        assert_eq!(ProfilGender::from_index(3), None);
+        let list = ProfilGender::list();
+        assert_eq!(
+            list[0].localizations.get("fr").map(String::as_str),
+            Some("♀ Féminin")
+        );
+        assert_eq!(
+            list[1].localizations.get("fr").map(String::as_str),
+            Some("♂ Masculin")
+        );
+        assert_eq!(
+            list[2].localizations.get("fr").map(String::as_str),
+            Some("⚧ Non-binaire")
+        );
+        assert_eq!(ProfilGender::Female.localized_name("ja"), Some("female"));
+    }
 
     #[test]
     fn gender_stores_ts_display_values() {

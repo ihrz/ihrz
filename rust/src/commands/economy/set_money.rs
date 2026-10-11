@@ -1,5 +1,44 @@
 use super::*;
 
+/// Set-money reward-kind choice. Mirrors the `type` option `choices`
+/// in economy.ts:734-769: slash shows the localized display names,
+/// the handler maps each variant back to the TS `value`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
+pub enum SetMoneyKind {
+    #[name = "Daily"]
+    #[name_localized("fr", "Quotidien")]
+    #[name_localized("ja", "daily")]
+    #[name_localized("ru", "daily")]
+    #[name_localized("es-ES", "daily")]
+    #[name = "daily"]
+    Daily,
+    #[name = "Weekly"]
+    #[name_localized("fr", "Hebdomadaire")]
+    #[name_localized("ja", "weekly")]
+    #[name_localized("ru", "weekly")]
+    #[name_localized("es-ES", "weekly")]
+    #[name = "weekly"]
+    Weekly,
+    #[name = "Monthly"]
+    #[name_localized("fr", "Mensuel")]
+    #[name_localized("ja", "monthly")]
+    #[name_localized("ru", "monthly")]
+    #[name_localized("es-ES", "monthly")]
+    #[name = "monthly"]
+    Monthly,
+}
+
+impl SetMoneyKind {
+    /// TS `value` used in `ECONOMY.settings.{kind}.amount`.
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::Daily => "daily",
+            Self::Weekly => "weekly",
+            Self::Monthly => "monthly",
+        }
+    }
+}
+
 /// Tunable reward kinds. Mirrors the `!set-money.ts` slash `choices`
 /// (`daily` | `weekly` | `monthly`) in `economy.ts`.
 pub const SET_MONEY_KINDS: &[&str] = &["daily", "weekly", "monthly"];
@@ -35,7 +74,7 @@ pub async fn eco_set_money(
     #[description_localized("es-ES", "El tipo de recompensa que quieres establecer")]
     #[description = "daily, weekly, monthly"]
     #[rename = "type"]
-    kind: String,
+    kind: SetMoneyKind,
     #[description_localized("fr", "Combien d'argent vous souhaitez définir")]
     #[description_localized("ja", "設定したい金額")]
     #[description_localized("ru", "Сколько денег вы хотите установить")]
@@ -98,6 +137,39 @@ pub async fn eco_set_money(
 #[cfg(test)]
 mod tests {
     use super::validate_set_money_kind;
+    use super::SetMoneyKind;
+
+    #[test]
+    fn set_money_kind_choices_mirror_ts_names_values_and_locales() {
+        use poise::ChoiceParameter as _;
+        let names: Vec<_> = SetMoneyKind::list().into_iter().map(|c| c.name).collect();
+        assert_eq!(names, vec!["Daily", "Weekly", "Monthly"]);
+        assert_eq!(SetMoneyKind::Daily.as_str(), "daily");
+        assert_eq!(SetMoneyKind::Monthly.as_str(), "monthly");
+        assert_eq!(
+            SetMoneyKind::from_name("weekly"),
+            Some(SetMoneyKind::Weekly)
+        );
+        assert_eq!(
+            SetMoneyKind::from_name("MONTHLY"),
+            Some(SetMoneyKind::Monthly)
+        );
+        assert_eq!(SetMoneyKind::from_name("yearly"), None);
+        assert_eq!(SetMoneyKind::from_index(2), Some(SetMoneyKind::Monthly));
+        let list = SetMoneyKind::list();
+        assert_eq!(
+            list[0].localizations.get("fr").map(String::as_str),
+            Some("Quotidien")
+        );
+        assert_eq!(
+            list[1].localizations.get("fr").map(String::as_str),
+            Some("Hebdomadaire")
+        );
+        assert_eq!(
+            list[2].localizations.get("fr").map(String::as_str),
+            Some("Mensuel")
+        );
+    }
 
     #[test]
     fn set_money_accepts_only_slash_choice_kinds() {

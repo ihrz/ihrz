@@ -72,10 +72,42 @@ pub async fn clear_xp_channel_routed(
 /// comparisons are case-sensitive (`===` for `on`, `==` for `off`) with
 /// no trim, so only the exact inputs act — `ON`, ` on`, `Off` all fall
 /// through every branch and return silently, like TS.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+///
+/// Also the slash `action` dropdown. Mirrors the `action` option
+/// `choices` in ranks.ts:260-281: slash shows the localized display
+/// names, the handler maps each variant back to the TS `value`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
 pub enum ChannelAction {
-    On,
+    #[name = "Remove the module (send xp message on the user's message channel)"]
+    #[name_localized(
+        "fr",
+        "Supprimer le module (envoyer un message XP sur le canal du message de l'utilisateur)"
+    )]
+    #[name_localized("ja", "remove_the_module_send_xp_messag")]
+    #[name_localized("ru", "remove_the_module_send_xp_messag")]
+    #[name_localized("es-ES", "remove_the_module_send_xp_messag")]
+    #[name = "off"]
     Off,
+    #[name = "Power on the module (send xp message on a specific channel)"]
+    #[name_localized(
+        "fr",
+        "Activer le module (envoyer un message XP sur un canal spécifique)"
+    )]
+    #[name_localized("ja", "power_on_the_module_send_xp_mess")]
+    #[name_localized("ru", "power_on_the_module_send_xp_mess")]
+    #[name_localized("es-ES", "power_on_the_module_send_xp_mess")]
+    #[name = "on"]
+    On,
+}
+
+impl ChannelAction {
+    /// TS `value` (`off` / `on`).
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::Off => "off",
+            Self::On => "on",
+        }
+    }
 }
 
 pub fn channel_action_kind(action: &str) -> Option<ChannelAction> {
@@ -95,7 +127,7 @@ pub fn channel_action_kind(action: &str) -> Option<ChannelAction> {
 /// already-unset calls hit the `already_*` guards instead of writing.
 async fn run_channel_action(
     ctx: Ctx<'_>,
-    action: Option<String>,
+    action: Option<ChannelAction>,
     channel: Option<serenity::GuildChannel>,
 ) -> Result<(), anyhow::Error> {
     let gid = ctx
@@ -124,12 +156,10 @@ async fn run_channel_action(
         }
         return Ok(());
     };
-    // Exact match like TS (`===` / `==`): no trim, no lowercase fold.
-    let Some(kind) = channel_action_kind(&action) else {
-        // Mirrors `ranks/!channel.ts:60-146`: only `on`/`off` do anything.
-        // Any other input falls through every branch and returns silently.
-        return Ok(());
-    };
+    // Exact values like TS (`===` / `==`): the dropdown constrains
+    // both paths to `on` / `off`, so anything else is already rejected
+    // by the framework. Only `on`/`off` act.
+    let kind = action;
     match kind {
         // `on`: announce channel set. The slash
         // path requires the explicit option (TS `getChannel("channel")`
@@ -285,7 +315,7 @@ pub async fn ranks_channel(
     #[description_localized("ru", "Что вы хотите сделать?")]
     #[description_localized("es-ES", "Que quieres hacer?")]
     #[description = "on or off"]
-    action: Option<String>,
+    action: Option<ChannelAction>,
     #[description_localized("fr", "Le canal spécifique pour le message XP")]
     #[description_localized("ja", "XPメッセージ用の特定チャンネル！")]
     #[description_localized("ru", "Конкретный канал для сообщений XP!")]
@@ -317,6 +347,44 @@ mod tests {
         assert_eq!(channel_action_kind("off "), None);
         assert_eq!(channel_action_kind(""), None);
         assert_eq!(channel_action_kind("disable"), None);
+    }
+
+    #[test]
+    fn channel_action_choices_mirror_ts_names_values_and_locales() {
+        use poise::ChoiceParameter as _;
+        // TS order: off first, then on.
+        let names: Vec<_> = ChannelAction::list().into_iter().map(|c| c.name).collect();
+        assert_eq!(
+            names,
+            vec![
+                "Remove the module (send xp message on the user's message channel)",
+                "Power on the module (send xp message on a specific channel)",
+            ]
+        );
+        assert_eq!(ChannelAction::Off.as_str(), "off");
+        assert_eq!(ChannelAction::On.as_str(), "on");
+        assert_eq!(ChannelAction::from_name("off"), Some(ChannelAction::Off));
+        assert_eq!(ChannelAction::from_name("ON"), Some(ChannelAction::On));
+        assert_eq!(ChannelAction::from_name("bogus"), None);
+        assert_eq!(ChannelAction::from_index(0), Some(ChannelAction::Off));
+        assert_eq!(ChannelAction::from_index(1), Some(ChannelAction::On));
+        let list = ChannelAction::list();
+        assert_eq!(
+            list[0].localizations.get("fr").map(String::as_str),
+            Some("Supprimer le module (envoyer un message XP sur le canal du message de l'utilisateur)")
+        );
+        assert_eq!(
+            list[1].localizations.get("fr").map(String::as_str),
+            Some("Activer le module (envoyer un message XP sur un canal spécifique)")
+        );
+        assert_eq!(
+            list[0].localizations.get("ja").map(String::as_str),
+            Some("remove_the_module_send_xp_messag")
+        );
+        assert_eq!(
+            ChannelAction::On.localized_name("fr"),
+            Some("Activer le module (envoyer un message XP sur un canal spécifique)")
+        );
     }
 
     #[tokio::test]

@@ -1,12 +1,20 @@
 use super::*;
 
 /// Show mode for the vc list. Mirrors the `show-mode` option choices
-/// in utils.ts (`Large`/`Short`, values `large`/`short`).
+/// in utils.ts:101-116 (`Large`/`Short`, values `large`/`short`).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
 pub enum VcShowMode {
     #[name = "Large"]
+    #[name_localized("fr", "Complet")]
+    #[name_localized("ja", "large")]
+    #[name_localized("ru", "large")]
+    #[name_localized("es-ES", "large")]
     Large,
     #[name = "Short"]
+    #[name_localized("fr", "Court")]
+    #[name_localized("ja", "short")]
+    #[name_localized("ru", "short")]
+    #[name_localized("es-ES", "short")]
     Short,
 }
 
@@ -154,4 +162,31 @@ pub async fn vc_list(
             .await?;
     }
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn vc_show_mode_choices_mirror_ts_names_and_locales() {
+        use poise::ChoiceParameter as _;
+        let names: Vec<_> = VcShowMode::list().into_iter().map(|c| c.name).collect();
+        assert_eq!(names, vec!["Large".to_string(), "Short".to_string()]);
+        assert_eq!(VcShowMode::from_name("large"), Some(VcShowMode::Large));
+        assert_eq!(VcShowMode::from_name("SHORT"), Some(VcShowMode::Short));
+        assert_eq!(VcShowMode::from_name("bogus"), None);
+        assert_eq!(VcShowMode::from_index(0), Some(VcShowMode::Large));
+        assert_eq!(VcShowMode::from_index(1), Some(VcShowMode::Short));
+        let list = VcShowMode::list();
+        assert_eq!(
+            list[0].localizations.get("fr").map(String::as_str),
+            Some("Complet")
+        );
+        assert_eq!(
+            list[1].localizations.get("fr").map(String::as_str),
+            Some("Court")
+        );
+        assert_eq!(VcShowMode::Large.localized_name("ja"), Some("large"));
+    }
 }

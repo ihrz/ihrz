@@ -1,5 +1,69 @@
 use super::*;
 
+/// Pronoun choice. Mirrors the `pronoun` option `choices` in
+/// profil.ts:271-330: slash shows the localized display names, the
+/// handler maps each variant back to the TS `value`. Hyphenated values
+/// double as prefix aliases (the display form uses slashes).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
+pub enum ProfilPronoun {
+    #[name = "she/her"]
+    #[name_localized("fr", "elle/elle")]
+    #[name_localized("ja", "she_her")]
+    #[name_localized("ru", "she_her")]
+    #[name_localized("es-ES", "she_her")]
+    #[name = "she-her"]
+    SheHer,
+    #[name = "he/him"]
+    #[name_localized("fr", "il/il")]
+    #[name_localized("ja", "he_him")]
+    #[name_localized("ru", "he_him")]
+    #[name_localized("es-ES", "he_him")]
+    #[name = "he-him"]
+    HeHim,
+    #[name = "they/them"]
+    #[name_localized("fr", "ils/ils")]
+    #[name_localized("ja", "they_them")]
+    #[name_localized("ru", "they_them")]
+    #[name_localized("es-ES", "they_them")]
+    #[name = "they-them"]
+    TheyThem,
+    #[name = "xe/xem"]
+    #[name_localized("fr", "xe/xe")]
+    #[name_localized("ja", "xe_xem")]
+    #[name_localized("ru", "xe_xem")]
+    #[name_localized("es-ES", "xe_xem")]
+    #[name = "xe-xem"]
+    XeXem,
+    #[name = "ze/zem"]
+    #[name_localized("fr", "ze/ze")]
+    #[name_localized("ja", "ze_zem")]
+    #[name_localized("ru", "ze_zem")]
+    #[name_localized("es-ES", "ze_zem")]
+    #[name = "ze-zem"]
+    ZeZem,
+    #[name = "other (say my name)"]
+    #[name_localized("fr", "autre (dire mon nom)")]
+    #[name_localized("ja", "other_say_my_name")]
+    #[name_localized("ru", "other_say_my_name")]
+    #[name_localized("es-ES", "other_say_my_name")]
+    #[name = "other"]
+    Other,
+}
+
+impl ProfilPronoun {
+    /// TS `value` (canonical hyphenated form).
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::SheHer => "she-her",
+            Self::HeHim => "he-him",
+            Self::TheyThem => "they-them",
+            Self::XeXem => "xe-xem",
+            Self::ZeZem => "ze-zem",
+            Self::Other => "other",
+        }
+    }
+}
+
 /// Display form. Mirrors `pronoun.replace("-","/")` in `!show.ts:136`:
 /// a plain-string (non-regex) replace converts the FIRST hyphen only, so
 /// `she-her` shows as `she/her` while a verbatim `she/her` is unchanged.
@@ -62,9 +126,9 @@ pub async fn profil_pronoun(
     #[description_localized("ja", "最も合う代名詞")]
     #[description_localized("ru", "Местоимение, которое вам подходит")]
     #[description_localized("es-ES", "Pronombre que más te queda")]
-    pronoun: String,
+    pronoun: ProfilPronoun,
 ) -> Result<(), anyhow::Error> {
-    let normalized = normalize_pronoun(&pronoun);
+    let normalized = normalize_pronoun(pronoun.as_str());
     if !validate_pronoun(&normalized) {
         let msg = crate::commands::lang_for(
             &ctx,
@@ -94,6 +158,59 @@ pub async fn profil_pronoun(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn pronoun_choices_mirror_ts_names_values_and_locales() {
+        use poise::ChoiceParameter as _;
+        let names: Vec<_> = ProfilPronoun::list().into_iter().map(|c| c.name).collect();
+        assert_eq!(
+            names,
+            vec![
+                "she/her",
+                "he/him",
+                "they/them",
+                "xe/xem",
+                "ze/zem",
+                "other (say my name)"
+            ]
+        );
+        assert_eq!(ProfilPronoun::SheHer.as_str(), "she-her");
+        assert_eq!(ProfilPronoun::Other.as_str(), "other");
+        assert_eq!(
+            ProfilPronoun::from_name("she/her"),
+            Some(ProfilPronoun::SheHer)
+        );
+        assert_eq!(
+            ProfilPronoun::from_name("she-her"),
+            Some(ProfilPronoun::SheHer)
+        );
+        assert_eq!(
+            ProfilPronoun::from_name("THEY/THEM"),
+            Some(ProfilPronoun::TheyThem)
+        );
+        assert_eq!(
+            ProfilPronoun::from_name("other"),
+            Some(ProfilPronoun::Other)
+        );
+        assert_eq!(ProfilPronoun::from_name("it"), None);
+        assert_eq!(ProfilPronoun::from_index(0), Some(ProfilPronoun::SheHer));
+        assert_eq!(ProfilPronoun::from_index(5), Some(ProfilPronoun::Other));
+        assert_eq!(ProfilPronoun::from_index(6), None);
+        let list = ProfilPronoun::list();
+        assert_eq!(
+            list[0].localizations.get("fr").map(String::as_str),
+            Some("elle/elle")
+        );
+        assert_eq!(
+            list[5].localizations.get("fr").map(String::as_str),
+            Some("autre (dire mon nom)")
+        );
+        assert_eq!(
+            list[2].localizations.get("ja").map(String::as_str),
+            Some("they_them")
+        );
+        assert_eq!(ProfilPronoun::XeXem.localized_name("fr"), Some("xe/xe"));
+    }
 
     #[test]
     fn pronoun_displays_slash_form() {

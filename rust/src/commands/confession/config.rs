@@ -1,6 +1,37 @@
 use super::*;
 use poise::serenity_prelude as serenity;
 
+/// Config action choice. Mirrors the `action` option `choices` in
+/// confession.ts:122-138: slash shows the localized display names,
+/// the handler maps each variant back to the TS `value`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
+pub enum ConfessionConfigAction {
+    #[name = "Power On"]
+    #[name_localized("fr", "Activer")]
+    #[name_localized("ja", "power_on")]
+    #[name_localized("ru", "power_on")]
+    #[name_localized("es-ES", "power_on")]
+    #[name = "on"]
+    On,
+    #[name = "Power Off"]
+    #[name_localized("fr", "Désactiver")]
+    #[name_localized("ja", "power_off")]
+    #[name_localized("ru", "power_off")]
+    #[name_localized("es-ES", "power_off")]
+    #[name = "off"]
+    Off,
+}
+
+impl ConfessionConfigAction {
+    /// TS `value` parsed by `parse_on_off`.
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::On => "on",
+            Self::Off => "off",
+        }
+    }
+}
+
 /// Audit entry for enable/disable. Mirrors `client.func.ihorizon_logs`
 /// in !config.ts (called on both `on` and `off`; the off branch keeps
 /// the TS quirk of reusing the on-enable title). Best-effort, silent
@@ -52,11 +83,12 @@ pub async fn post_config_log(
 )]
 pub async fn confession_config(
     ctx: Ctx<'_>,
-    #[description = "on or off"] action: String,
+    #[description = "on or off"] action: ConfessionConfigAction,
 ) -> Result<(), anyhow::Error> {
     // Unknown actions are a silent no-op, mirroring !config.ts (its
     // if/else-if simply falls through with no reply).
-    let Some(enabled) = parse_on_off(&action) else {
+    let action = action.as_str();
+    let Some(enabled) = parse_on_off(action) else {
         return Ok(());
     };
     let Some(gid) = ctx.guild_id().map(|g| g.get().to_string()) else {
@@ -102,6 +134,54 @@ pub async fn confession_config(
 
 #[cfg(test)]
 mod tests {
+    use super::ConfessionConfigAction;
+
+    #[test]
+    fn config_action_choices_mirror_ts_names_values_and_locales() {
+        use poise::ChoiceParameter as _;
+        let names: Vec<_> = ConfessionConfigAction::list()
+            .into_iter()
+            .map(|c| c.name)
+            .collect();
+        assert_eq!(names, vec!["Power On".to_string(), "Power Off".to_string()]);
+        assert_eq!(ConfessionConfigAction::On.as_str(), "on");
+        assert_eq!(ConfessionConfigAction::Off.as_str(), "off");
+        assert_eq!(
+            ConfessionConfigAction::from_name("on"),
+            Some(ConfessionConfigAction::On)
+        );
+        assert_eq!(
+            ConfessionConfigAction::from_name("POWER OFF"),
+            Some(ConfessionConfigAction::Off)
+        );
+        assert_eq!(ConfessionConfigAction::from_name("maybe"), None);
+        assert_eq!(
+            ConfessionConfigAction::from_index(0),
+            Some(ConfessionConfigAction::On)
+        );
+        assert_eq!(
+            ConfessionConfigAction::from_index(1),
+            Some(ConfessionConfigAction::Off)
+        );
+        let list = ConfessionConfigAction::list();
+        assert_eq!(
+            list[0].localizations.get("fr").map(String::as_str),
+            Some("Activer")
+        );
+        assert_eq!(
+            list[1].localizations.get("fr").map(String::as_str),
+            Some("Désactiver")
+        );
+        assert_eq!(
+            list[0].localizations.get("ja").map(String::as_str),
+            Some("power_on")
+        );
+        assert_eq!(
+            list[1].localizations.get("es-ES").map(String::as_str),
+            Some("power_off")
+        );
+    }
+
     #[test]
     fn confession_config_registers_description_localizations() {
         let cmd = super::confession_config();

@@ -1,5 +1,37 @@
 use super::*;
 
+/// Backup scope choice. Mirrors the `only_guild_owner` option
+/// `choices` in backup.ts:132-153: slash shows the localized display
+/// names, the handler maps each variant back to the TS `value`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
+pub enum BackupScopeChoice {
+    #[name = "Only owner"]
+    #[name_localized("fr", "Seulement le propriétaire")]
+    #[name_localized("ja", "only_owner")]
+    #[name_localized("ru", "only_owner")]
+    #[name_localized("es-ES", "only_owner")]
+    #[name = "owner"]
+    Owner,
+    #[name = "All admin(s)"]
+    #[name_localized("fr", "Tous les administrateurs")]
+    #[name_localized("ja", "all_admin_s")]
+    #[name_localized("ru", "all_admin_s")]
+    #[name_localized("es-ES", "all_admin_s")]
+    #[name = "admin"]
+    Admin,
+}
+
+impl BackupScopeChoice {
+    /// TS `value` compared in `!manage.ts:61`
+    /// (`only_guild_owner == "owner"`).
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::Owner => "owner",
+            Self::Admin => "admin",
+        }
+    }
+}
+
 /// Restrict backups to guild owner. Mirrors !manage.ts (onlyOwner).
 /// SCOPE VERDICT (S7, deliberate diverge, documented): TS reads the
 /// scope word at `args[1]` — the SECOND word (`string(args, 1)` in
@@ -46,7 +78,7 @@ pub async fn backup_manage(
     #[description_localized("es-ES", "Hacer que el sistema de copias de seguridad solo funcione para el propietario del servidor")]
     #[description = "owner or admin"]
     #[rename = "only_guild_owner"]
-    scope: Option<String>,
+    scope: Option<BackupScopeChoice>,
 ) -> Result<(), anyhow::Error> {
     let gid = ctx
         .guild_id()
@@ -69,7 +101,7 @@ pub async fn backup_manage(
         .await?;
         return Ok(());
     }
-    let owner_only = manage_owner_only(scope.as_deref());
+    let owner_only = manage_owner_only(scope.map(|s| s.as_str()));
     // Dual-write (table handle primary, legacy kv row kept fresh),
     // mirroring the `bkp_set` routed pattern.
     super::backup::backup_only_owner_set(&ctx.data().pool, &gid, owner_only).await?;
@@ -105,6 +137,60 @@ pub async fn backup_manage(
 #[cfg(test)]
 mod tests {
     use super::manage_owner_only;
+    use super::BackupScopeChoice;
+
+    #[test]
+    fn scope_choices_mirror_ts_names_values_and_locales() {
+        use poise::ChoiceParameter as _;
+        let names: Vec<_> = BackupScopeChoice::list()
+            .into_iter()
+            .map(|c| c.name)
+            .collect();
+        assert_eq!(
+            names,
+            vec!["Only owner".to_string(), "All admin(s)".to_string()]
+        );
+        assert_eq!(BackupScopeChoice::Owner.as_str(), "owner");
+        assert_eq!(BackupScopeChoice::Admin.as_str(), "admin");
+        assert_eq!(
+            BackupScopeChoice::from_name("owner"),
+            Some(BackupScopeChoice::Owner)
+        );
+        assert_eq!(
+            BackupScopeChoice::from_name("ALL ADMIN(S)"),
+            Some(BackupScopeChoice::Admin)
+        );
+        assert_eq!(BackupScopeChoice::from_name("everyone"), None);
+        assert_eq!(
+            BackupScopeChoice::from_index(0),
+            Some(BackupScopeChoice::Owner)
+        );
+        assert_eq!(
+            BackupScopeChoice::from_index(1),
+            Some(BackupScopeChoice::Admin)
+        );
+        let list = BackupScopeChoice::list();
+        assert_eq!(
+            list[0].localizations.get("fr").map(String::as_str),
+            Some("Seulement le propriétaire")
+        );
+        assert_eq!(
+            list[1].localizations.get("fr").map(String::as_str),
+            Some("Tous les administrateurs")
+        );
+        assert_eq!(
+            list[0].localizations.get("ja").map(String::as_str),
+            Some("only_owner")
+        );
+        assert_eq!(
+            list[1].localizations.get("es-ES").map(String::as_str),
+            Some("all_admin_s")
+        );
+        assert_eq!(
+            BackupScopeChoice::Owner.localized_name("fr"),
+            Some("Seulement le propriétaire")
+        );
+    }
 
     #[test]
     fn scope_matches_ts_branches() {

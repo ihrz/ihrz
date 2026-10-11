@@ -1,5 +1,68 @@
 use super::*;
 
+/// Skullboard config action choice. Mirrors the `action` option
+/// `choices` in skullboard.ts:73-89: slash shows the localized display
+/// names, the handler maps each variant back to the TS `value`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
+pub enum SkullConfigAction {
+    #[name = "Power On"]
+    #[name_localized("fr", "Activer")]
+    #[name_localized("ja", "power_on")]
+    #[name_localized("ru", "power_on")]
+    #[name_localized("es-ES", "power_on")]
+    #[name = "on"]
+    On,
+    #[name = "Power Off"]
+    #[name_localized("fr", "Désactiver")]
+    #[name_localized("ja", "power_off")]
+    #[name_localized("ru", "power_off")]
+    #[name_localized("es-ES", "power_off")]
+    #[name = "off"]
+    Off,
+}
+
+impl SkullConfigAction {
+    /// TS `value` (`on` / `off`).
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::On => "on",
+            Self::Off => "off",
+        }
+    }
+}
+
+/// Skullboard thread action choice. Mirrors the `action` option
+/// `choices` in skullboard.ts:211-231 (straight apostrophe in `Don't
+/// create thread`): slash shows the localized display names, the
+/// handler maps each variant back to the TS `value`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
+pub enum SkullThreadAction {
+    #[name = "Create thread"]
+    #[name_localized("fr", "Créer un fil")]
+    #[name_localized("ja", "create_thread")]
+    #[name_localized("ru", "create_thread")]
+    #[name_localized("es-ES", "create_thread")]
+    #[name = "yes"]
+    Yes,
+    #[name = "Don't create thread"]
+    #[name_localized("fr", "Ne pas créer un fil")]
+    #[name_localized("ja", "don_t_create_thread")]
+    #[name_localized("ru", "don_t_create_thread")]
+    #[name_localized("es-ES", "don_t_create_thread")]
+    #[name = "no"]
+    No,
+}
+
+impl SkullThreadAction {
+    /// TS `value` (`yes` / `no`).
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::Yes => "yes",
+            Self::No => "no",
+        }
+    }
+}
+
 /// Skullboard parent command. Mirrors skullboard.ts (no parent aliases in TS).
 #[poise::command(
     slash_command,
@@ -24,9 +87,9 @@ pub async fn skullboard(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
 )]
 pub async fn skull_config(
     ctx: Ctx<'_>,
-    #[description = "on or off"] action: String,
+    #[description = "on or off"] action: SkullConfigAction,
 ) -> Result<(), anyhow::Error> {
-    let enabled = matches!(action.to_ascii_lowercase().as_str(), "on" | "power on");
+    let enabled = matches!(action, SkullConfigAction::On);
     let Some(gid) = ctx.guild_id().map(|g| g.get().to_string()) else {
         return Ok(());
     };
@@ -132,9 +195,9 @@ pub async fn skull_threshold(
 )]
 pub async fn skull_thread(
     ctx: Ctx<'_>,
-    #[description = "yes or no"] action: String,
+    #[description = "yes or no"] action: SkullThreadAction,
 ) -> Result<(), anyhow::Error> {
-    let create = matches!(action.to_ascii_lowercase().as_str(), "yes" | "on");
+    let create = matches!(action, SkullThreadAction::Yes);
     let Some(gid) = ctx.guild_id().map(|g| g.get().to_string()) else {
         return Ok(());
     };
@@ -168,4 +231,69 @@ pub async fn skull_thread(
     .replace("${amount}", &cfg.threshold.to_string());
     ctx.say(text).await?;
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn skullboard_choices_mirror_ts_names_values_and_locales() {
+        use poise::ChoiceParameter as _;
+        let names: Vec<_> = SkullConfigAction::list()
+            .into_iter()
+            .map(|c| c.name)
+            .collect();
+        assert_eq!(names, vec!["Power On".to_string(), "Power Off".to_string()]);
+        assert_eq!(SkullConfigAction::On.as_str(), "on");
+        assert_eq!(SkullConfigAction::Off.as_str(), "off");
+        assert_eq!(
+            SkullConfigAction::from_name("on"),
+            Some(SkullConfigAction::On)
+        );
+        assert_eq!(SkullConfigAction::from_name("bogus"), None);
+        assert_eq!(
+            SkullConfigAction::from_index(1),
+            Some(SkullConfigAction::Off)
+        );
+        let threads: Vec<_> = SkullThreadAction::list()
+            .into_iter()
+            .map(|c| c.name)
+            .collect();
+        assert_eq!(
+            threads,
+            vec![
+                "Create thread".to_string(),
+                "Don't create thread".to_string()
+            ]
+        );
+        assert_eq!(SkullThreadAction::Yes.as_str(), "yes");
+        assert_eq!(SkullThreadAction::No.as_str(), "no");
+        assert_eq!(
+            SkullThreadAction::from_name("no"),
+            Some(SkullThreadAction::No)
+        );
+        assert_eq!(
+            SkullThreadAction::from_name("CREATE THREAD"),
+            Some(SkullThreadAction::Yes)
+        );
+        assert_eq!(
+            SkullThreadAction::from_index(0),
+            Some(SkullThreadAction::Yes)
+        );
+        let list = SkullConfigAction::list();
+        assert_eq!(
+            list[0].localizations.get("fr").map(String::as_str),
+            Some("Activer")
+        );
+        let threads = SkullThreadAction::list();
+        assert_eq!(
+            threads[1].localizations.get("fr").map(String::as_str),
+            Some("Ne pas créer un fil")
+        );
+        assert_eq!(
+            SkullThreadAction::Yes.localized_name("ru"),
+            Some("create_thread")
+        );
+    }
 }

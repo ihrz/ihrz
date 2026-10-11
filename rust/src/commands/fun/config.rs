@@ -1,5 +1,36 @@
 use super::*;
 
+/// Config action choice. Mirrors the `action` option `choices` in
+/// fun.ts:1293-1318: slash shows the localized display names, the
+/// handler maps each variant back to the TS `value`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
+pub enum FunConfigAction {
+    #[name = "Power On"]
+    #[name_localized("fr", "Activer")]
+    #[name_localized("ja", "power_on")]
+    #[name_localized("ru", "power_on")]
+    #[name_localized("es-ES", "power_on")]
+    #[name = "on"]
+    On,
+    #[name = "Power Off"]
+    #[name_localized("fr", "Désactiver")]
+    #[name_localized("ja", "power_off")]
+    #[name_localized("ru", "power_off")]
+    #[name_localized("es-ES", "power_off")]
+    #[name = "off"]
+    Off,
+}
+
+impl FunConfigAction {
+    /// TS `value` stored under `GUILD.FUN.states`.
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::On => "on",
+            Self::Off => "off",
+        }
+    }
+}
+
 /// Disable the fun category. Mirrors fun !config.ts.
 // The raw action string is stored under `GUILD.FUN.states`; anything but
 // `"off"` counts as enabled (`action === "off" ? var_disabled : var_enabled`).
@@ -22,8 +53,9 @@ pub async fn fun_config(
     #[description_localized("ru", "Что вы хотите сделать?")]
     #[description_localized("es-ES", "Que quieres hacer?")]
     #[description = "on or off"]
-    action: String,
+    action: FunConfigAction,
 ) -> Result<(), anyhow::Error> {
+    let action = action.as_str();
     let gid = ctx
         .guild_id()
         .map(|g| g.get().to_string())
@@ -31,7 +63,7 @@ pub async fn fun_config(
     // Mirrors `await client.db.set(..., action)`: the raw action is stored.
     crate::backends::Backend::sqlite(ctx.data().pool.clone())
         .table(&gid)
-        .set("GUILD.FUN.states", action.as_str())
+        .set("GUILD.FUN.states", action)
         .await?;
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     // Mirrors `action === "off" ? lang.var_disabled : lang.var_enabled`.
@@ -64,4 +96,39 @@ pub async fn fun_config(
     )
     .await?;
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn fun_config_action_choices_mirror_ts_names_values_and_locales() {
+        use poise::ChoiceParameter as _;
+        let names: Vec<_> = FunConfigAction::list()
+            .into_iter()
+            .map(|c| c.name)
+            .collect();
+        assert_eq!(names, vec!["Power On".to_string(), "Power Off".to_string()]);
+        assert_eq!(FunConfigAction::On.as_str(), "on");
+        assert_eq!(FunConfigAction::Off.as_str(), "off");
+        assert_eq!(FunConfigAction::from_name("on"), Some(FunConfigAction::On));
+        assert_eq!(
+            FunConfigAction::from_name("POWER OFF"),
+            Some(FunConfigAction::Off)
+        );
+        assert_eq!(FunConfigAction::from_name("maybe"), None);
+        assert_eq!(FunConfigAction::from_index(0), Some(FunConfigAction::On));
+        assert_eq!(FunConfigAction::from_index(1), Some(FunConfigAction::Off));
+        let list = FunConfigAction::list();
+        assert_eq!(
+            list[0].localizations.get("fr").map(String::as_str),
+            Some("Activer")
+        );
+        assert_eq!(
+            list[1].localizations.get("fr").map(String::as_str),
+            Some("Désactiver")
+        );
+        assert_eq!(FunConfigAction::On.localized_name("fr"), Some("Activer"));
+    }
 }

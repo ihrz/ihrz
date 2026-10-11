@@ -1,6 +1,35 @@
 use super::*;
 use poise::serenity_prelude as serenity;
 
+/// Save-message choice. Mirrors the `save-message` option `choices`
+/// in backup.ts:77-94: slash shows the localized display names, the
+/// handler maps each variant back to the TS `value`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
+pub enum SaveMessagesChoice {
+    #[name = "Yes"]
+    #[name_localized("fr", "Oui")]
+    #[name_localized("ja", "yes")]
+    #[name_localized("ru", "yes")]
+    #[name_localized("es-ES", "yes")]
+    Yes,
+    #[name = "No"]
+    #[name_localized("fr", "Non")]
+    #[name_localized("ja", "no")]
+    #[name_localized("ru", "no")]
+    #[name_localized("es-ES", "no")]
+    No,
+}
+
+impl SaveMessagesChoice {
+    /// TS `value` compared in `!create.ts:70` (`svMsg === "yes"`).
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::Yes => "yes",
+            Self::No => "no",
+        }
+    }
+}
+
 /// Save-messages budget. Mirrors !create.ts:70
 /// (`svMsg === "yes" ? 100 : 0`): exact `"yes"` match, and a missing
 /// prefix arg (None, no poise parse error) falls into the 0 leg like
@@ -53,7 +82,7 @@ pub async fn backup_create(
     #[description_localized("es-ES", "Quieres guardar los mensajes?")]
     #[description = "Save messages (yes/no)"]
     #[rename = "save-message"]
-    save_messages: Option<String>,
+    save_messages: Option<SaveMessagesChoice>,
 ) -> Result<(), anyhow::Error> {
     // Defer up front: the snapshot walks message pages plus per-emoji
     // image fetches, past the 3s interaction token (backup.ts:260
@@ -91,7 +120,7 @@ pub async fn backup_create(
     // YAML edits in this pass); the English fallback carries the text.
     // Prefix bare (`!backup create`) keeps the TS 0-message leg.
     let is_prefix = matches!(ctx, poise::Context::Prefix(_));
-    let Some(budget) = save_messages_or_usage(save_messages.as_deref(), is_prefix) else {
+    let Some(budget) = save_messages_or_usage(save_messages.map(|m| m.as_str()), is_prefix) else {
         ctx.say(
             crate::commands::lang_for(
                 &ctx,
@@ -226,6 +255,55 @@ mod tests {
         assert_eq!(save_messages_or_usage(Some("YES"), true), Some(0));
         assert_eq!(save_messages_or_usage(None, true), Some(0));
         assert_eq!(save_messages_or_usage(None, false), None);
+    }
+
+    #[test]
+    fn save_message_choices_mirror_ts_names_values_and_locales() {
+        use poise::ChoiceParameter as _;
+        let names: Vec<_> = SaveMessagesChoice::list()
+            .into_iter()
+            .map(|c| c.name)
+            .collect();
+        assert_eq!(names, vec!["Yes".to_string(), "No".to_string()]);
+        assert_eq!(SaveMessagesChoice::Yes.as_str(), "yes");
+        assert_eq!(SaveMessagesChoice::No.as_str(), "no");
+        assert_eq!(
+            SaveMessagesChoice::from_name("yes"),
+            Some(SaveMessagesChoice::Yes)
+        );
+        assert_eq!(
+            SaveMessagesChoice::from_name("NO"),
+            Some(SaveMessagesChoice::No)
+        );
+        assert_eq!(SaveMessagesChoice::from_name("maybe"), None);
+        assert_eq!(
+            SaveMessagesChoice::from_index(0),
+            Some(SaveMessagesChoice::Yes)
+        );
+        assert_eq!(
+            SaveMessagesChoice::from_index(1),
+            Some(SaveMessagesChoice::No)
+        );
+        assert_eq!(SaveMessagesChoice::from_index(2), None);
+        let list = SaveMessagesChoice::list();
+        assert_eq!(
+            list[0].localizations.get("fr").map(String::as_str),
+            Some("Oui")
+        );
+        assert_eq!(
+            list[1].localizations.get("fr").map(String::as_str),
+            Some("Non")
+        );
+        assert_eq!(
+            list[0].localizations.get("ja").map(String::as_str),
+            Some("yes")
+        );
+        assert_eq!(
+            list[1].localizations.get("es-ES").map(String::as_str),
+            Some("no")
+        );
+        assert_eq!(SaveMessagesChoice::Yes.localized_name("fr"), Some("Oui"));
+        assert_eq!(SaveMessagesChoice::No.localized_name("ru"), Some("no"));
     }
 
     #[test]

@@ -5,6 +5,42 @@ use poise::serenity_prelude as serenity;
 // HybridCommands/guildconfig/commandlimit.ts (Admin-only, YAML replies,
 // #11304c sorted list embed; storage stays the monolith
 // UTILS.COMMAND_LIMITS map since Rust kv has no nested paths).
+/// Command-limit action choice. Mirrors the `action` option `choices`
+/// in commandlimit.ts:146-181: slash shows the localized display
+/// names, the handler maps each variant back to the TS `value`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
+pub enum CommandLimitAction {
+    #[name = "Set"]
+    #[name_localized("fr", "Définir")]
+    #[name_localized("ja", "set")]
+    #[name_localized("ru", "set")]
+    #[name_localized("es-ES", "set")]
+    Set,
+    #[name = "Reset"]
+    #[name_localized("fr", "Réinitialiser")]
+    #[name_localized("ja", "reset")]
+    #[name_localized("ru", "reset")]
+    #[name_localized("es-ES", "reset")]
+    Reset,
+    #[name = "List"]
+    #[name_localized("fr", "Lister")]
+    #[name_localized("ja", "list")]
+    #[name_localized("ru", "list")]
+    #[name_localized("es-ES", "list")]
+    List,
+}
+
+impl CommandLimitAction {
+    /// TS `value` (`set` / `reset` / `list`).
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::Set => "set",
+            Self::Reset => "reset",
+            Self::List => "list",
+        }
+    }
+}
+
 /// Case-sensitive substring-or-prefix filter for the `command`
 /// autocomplete, first 25. Mirrors `commandlimit.ts` autocomplete
 /// (`choice.includes(value) || choice.startsWith(value)`, slice 25).
@@ -41,7 +77,7 @@ async fn commandlimit_command_autocomplete(_ctx: Ctx<'_>, partial: &str) -> Vec<
 )]
 pub async fn gc_commandlimit(
     ctx: Ctx<'_>,
-    #[description = "set, reset or list"] action: String,
+    #[description = "set, reset or list"] action: CommandLimitAction,
     #[description = "Command name"]
     #[autocomplete = "commandlimit_command_autocomplete"]
     command: Option<String>,
@@ -61,8 +97,12 @@ pub async fn gc_commandlimit(
     let t = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
     let raw = load_command_limits_routed(pool, &gid).await;
     let mut map: HashMap<String, CommandLimit> = raw;
-    // Exact match like TS (`action === "list"`): case variants fall
-    // through to the set path and fail validation, exactly like TS.
+    // The dropdown constrains slash input to the TS choices; prefix
+    // words resolve case-insensitively through the choice names, so
+    // `list`/`LIST` both reach the list leg below (TS `===` would send
+    // case variants down the set path — accepted divergence, the value
+    // mapping itself stays exact).
+    let action = action.as_str();
     if action == "list" {
         if map.is_empty() {
             ctx.say(t("commandlimit_list_empty")).await?;
@@ -166,6 +206,55 @@ pub async fn load_command_limits_routed(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn commandlimit_action_choices_mirror_ts_names_values_and_locales() {
+        use poise::ChoiceParameter as _;
+        let names: Vec<_> = CommandLimitAction::list()
+            .into_iter()
+            .map(|c| c.name)
+            .collect();
+        assert_eq!(names, vec!["Set", "Reset", "List"]);
+        assert_eq!(CommandLimitAction::Set.as_str(), "set");
+        assert_eq!(CommandLimitAction::Reset.as_str(), "reset");
+        assert_eq!(CommandLimitAction::List.as_str(), "list");
+        assert_eq!(
+            CommandLimitAction::from_name("set"),
+            Some(CommandLimitAction::Set)
+        );
+        assert_eq!(
+            CommandLimitAction::from_name("RESET"),
+            Some(CommandLimitAction::Reset)
+        );
+        assert_eq!(
+            CommandLimitAction::from_name("LIST"),
+            Some(CommandLimitAction::List)
+        );
+        assert_eq!(CommandLimitAction::from_name("bogus"), None);
+        assert_eq!(
+            CommandLimitAction::from_index(0),
+            Some(CommandLimitAction::Set)
+        );
+        assert_eq!(
+            CommandLimitAction::from_index(2),
+            Some(CommandLimitAction::List)
+        );
+        assert_eq!(CommandLimitAction::from_index(3), None);
+        let list = CommandLimitAction::list();
+        assert_eq!(
+            list[0].localizations.get("fr").map(String::as_str),
+            Some("Définir")
+        );
+        assert_eq!(
+            list[1].localizations.get("fr").map(String::as_str),
+            Some("Réinitialiser")
+        );
+        assert_eq!(
+            list[2].localizations.get("fr").map(String::as_str),
+            Some("Lister")
+        );
+        assert_eq!(CommandLimitAction::Set.localized_name("ja"), Some("set"));
+    }
 
     async fn memory_pool() -> crate::db::Pool {
         crate::db::memory_pool().await

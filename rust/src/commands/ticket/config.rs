@@ -1,5 +1,37 @@
 use super::*;
 
+/// Ticket config action choice. Mirrors the `action` option `choices`
+/// in ticket.ts:185-204: slash shows the localized display names, the
+/// handler maps each variant back to the TS `value` read by
+/// `parse_config_action`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
+pub enum TicketConfigAction {
+    #[name = "Remove the module"]
+    #[name_localized("fr", "Supprimer le module")]
+    #[name_localized("ja", "remove_the_module")]
+    #[name_localized("ru", "remove_the_module")]
+    #[name_localized("es-ES", "remove_the_module")]
+    #[name = "off"]
+    Off,
+    #[name = "Power on the module"]
+    #[name_localized("fr", "Activer le module")]
+    #[name_localized("ja", "power_on_the_module")]
+    #[name_localized("ru", "power_on_the_module")]
+    #[name_localized("es-ES", "power_on_the_module")]
+    #[name = "on"]
+    On,
+}
+
+impl TicketConfigAction {
+    /// TS `value` read by `parse_config_action`.
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::Off => "off",
+            Self::On => "on",
+        }
+    }
+}
+
 /// Parse the config action. Mirrors !config.ts:50/68 — only the exact
 /// `on` / `off` values act (slash choices lock to those); anything else
 /// is a silent no-op, never a disable.
@@ -25,13 +57,13 @@ pub fn parse_config_action(action: &str) -> Option<bool> {
 )]
 pub async fn ticket_config(
     ctx: Ctx<'_>,
-    #[description = "on or off"] action: String,
+    #[description = "on or off"] action: TicketConfigAction,
 ) -> Result<(), anyhow::Error> {
     let gid = ctx
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
-    let Some(enabled) = parse_config_action(&action) else {
+    let Some(enabled) = parse_config_action(action.as_str()) else {
         return Ok(());
     };
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
@@ -104,6 +136,56 @@ pub async fn ticket_config(
 #[cfg(test)]
 mod tests {
     use super::parse_config_action;
+    use super::TicketConfigAction;
+
+    #[test]
+    fn ticket_config_action_choices_mirror_ts_names_values_and_locales() {
+        use poise::ChoiceParameter as _;
+        // TS order: off first, then on.
+        let names: Vec<_> = TicketConfigAction::list()
+            .into_iter()
+            .map(|c| c.name)
+            .collect();
+        assert_eq!(
+            names,
+            vec![
+                "Remove the module".to_string(),
+                "Power on the module".to_string()
+            ]
+        );
+        assert_eq!(TicketConfigAction::Off.as_str(), "off");
+        assert_eq!(TicketConfigAction::On.as_str(), "on");
+        assert_eq!(
+            TicketConfigAction::from_name("off"),
+            Some(TicketConfigAction::Off)
+        );
+        assert_eq!(
+            TicketConfigAction::from_name("POWER ON THE MODULE"),
+            Some(TicketConfigAction::On)
+        );
+        assert_eq!(TicketConfigAction::from_name("bogus"), None);
+        assert_eq!(
+            TicketConfigAction::from_index(0),
+            Some(TicketConfigAction::Off)
+        );
+        assert_eq!(
+            TicketConfigAction::from_index(1),
+            Some(TicketConfigAction::On)
+        );
+        let list = TicketConfigAction::list();
+        assert_eq!(
+            list[0].localizations.get("fr").map(String::as_str),
+            Some("Supprimer le module")
+        );
+        assert_eq!(
+            list[1].localizations.get("fr").map(String::as_str),
+            Some("Activer le module")
+        );
+        assert_eq!(
+            TicketConfigAction::On.localized_name("ja"),
+            Some("power_on_the_module")
+        );
+    }
     async fn mem_pool() -> crate::db::Pool {
         crate::db::memory_pool().await
     }

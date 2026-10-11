@@ -277,16 +277,24 @@ pub async fn vd_name(
 }
 
 /// Voice-channel position choice. Mirrors the `position_type`
-/// top/bottom choices in voicedashboard.ts (display names `Up (TOP)`
-/// / `Down (Bottom)`): slash shows the two choices, and a bad prefix
-/// value is rejected by the framework instead of silently storing a
-/// default.
+/// top/bottom choices in voicedashboard.ts:198-219 (display names `Up
+/// (TOP)` / `Down (Bottom)`, localized per locale): slash shows the
+/// two choices, and a bad prefix value is rejected by the framework
+/// instead of silently storing a default.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
 pub enum PositionChoice {
     #[name = "Up (TOP)"]
+    #[name_localized("fr", "En haut")]
+    #[name_localized("ja", "up_top")]
+    #[name_localized("ru", "up_top")]
+    #[name_localized("es-ES", "up_top")]
     #[name = "top"]
     Top,
     #[name = "Down (Bottom)"]
+    #[name_localized("fr", "En bas")]
+    #[name_localized("ja", "down_bottom")]
+    #[name_localized("ru", "down_bottom")]
+    #[name_localized("es-ES", "down_bottom")]
     #[name = "bottom"]
     Bottom,
 }
@@ -2121,6 +2129,25 @@ mod tests {
             names,
             vec!["Up (TOP)".to_string(), "Down (Bottom)".to_string()]
         );
+        // Localized display names, byte-exact from voicedashboard.ts:198+.
+        let list = PositionChoice::list();
+        assert_eq!(
+            list[0].localizations.get("fr").map(String::as_str),
+            Some("En haut")
+        );
+        assert_eq!(
+            list[1].localizations.get("fr").map(String::as_str),
+            Some("En bas")
+        );
+        assert_eq!(
+            list[0].localizations.get("ja").map(String::as_str),
+            Some("up_top")
+        );
+        assert_eq!(
+            list[1].localizations.get("es-ES").map(String::as_str),
+            Some("down_bottom")
+        );
+        assert_eq!(PositionChoice::Top.localized_name("fr"), Some("En haut"));
     }
 
     #[test]

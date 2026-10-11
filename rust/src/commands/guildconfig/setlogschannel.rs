@@ -1,6 +1,117 @@
 use super::*;
 use poise::serenity_prelude as serenity;
 
+/// Log-type choice. Mirrors the `type` option `choices` in
+/// setlogschannel.ts:64-213: slash shows the localized display names,
+/// the handler maps each variant back to the TS `value`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
+pub enum SetLogsKind {
+    #[name = "Setup all channels"]
+    #[name_localized("fr", "Configurer tous les canaux")]
+    #[name_localized("ja", "setup_all_channels")]
+    #[name_localized("ru", "setup_all_channels")]
+    #[name_localized("es-ES", "setup_all_channels")]
+    #[name = "auto"]
+    Auto,
+    #[name = "Delete all settings"]
+    #[name_localized("fr", "Supprimer toutes les configurations")]
+    #[name_localized("ja", "delete_all_settings")]
+    #[name_localized("ru", "delete_all_settings")]
+    #[name_localized("es-ES", "delete_all_settings")]
+    #[name = "off"]
+    Off,
+    #[name = "AntiSpam Logs"]
+    #[name_localized("fr", "Logs AntiSpam")]
+    #[name_localized("ja", "antispam_logs")]
+    #[name_localized("ru", "antispam_logs")]
+    #[name_localized("es-ES", "antispam_logs")]
+    #[name = "antispam"]
+    Antispam,
+    #[name = "Boost Logs"]
+    #[name_localized("fr", "Logs Boost")]
+    #[name_localized("ja", "boost_logs")]
+    #[name_localized("ru", "boost_logs")]
+    #[name_localized("es-ES", "boost_logs")]
+    #[name = "boost"]
+    Boost,
+    #[name = "Channel Logs"]
+    #[name_localized("fr", "Logs Canal")]
+    #[name_localized("ja", "channel_logs")]
+    #[name_localized("ru", "channel_logs")]
+    #[name_localized("es-ES", "channel_logs")]
+    #[name = "channel"]
+    Channel,
+    #[name = "Messages Logs"]
+    #[name_localized("fr", "Logs Messages")]
+    #[name_localized("ja", "messages_logs")]
+    #[name_localized("ru", "messages_logs")]
+    #[name_localized("es-ES", "messages_logs")]
+    #[name = "message"]
+    Message,
+    #[name = "Moderation Logs"]
+    #[name_localized("fr", "Logs Modération")]
+    #[name_localized("ja", "moderation_logs")]
+    #[name_localized("ru", "moderation_logs")]
+    #[name_localized("es-ES", "moderation_logs")]
+    #[name = "moderation"]
+    Moderation,
+    #[name = "Roles Logs"]
+    #[name_localized("fr", "Logs Rôles")]
+    #[name_localized("ja", "roles_logs")]
+    #[name_localized("ru", "roles_logs")]
+    #[name_localized("es-ES", "roles_logs")]
+    #[name = "roles"]
+    Roles,
+    #[name = "Ticket Logs"]
+    #[name_localized("fr", "Logs Ticket")]
+    #[name_localized("ja", "ticket_logs")]
+    #[name_localized("ru", "ticket_logs")]
+    #[name_localized("es-ES", "ticket_logs")]
+    #[name = "ticket"]
+    Ticket,
+    #[name = "Voice Logs"]
+    #[name_localized("fr", "Logs Voice")]
+    #[name_localized("ja", "voice_logs")]
+    #[name_localized("ru", "voice_logs")]
+    #[name_localized("es-ES", "voice_logs")]
+    #[name = "voice"]
+    Voice,
+    #[name = "Confession Logs"]
+    #[name_localized("fr", "Logs Confession")]
+    #[name_localized("ja", "confession_logs")]
+    #[name_localized("ru", "confession_logs")]
+    #[name_localized("es-ES", "confession_logs")]
+    #[name = "confession"]
+    Confession,
+    #[name = "Economy Logs"]
+    #[name_localized("fr", "Logs d'économie")]
+    #[name_localized("ja", "economy_logs")]
+    #[name_localized("ru", "economy_logs")]
+    #[name_localized("es-ES", "economy_logs")]
+    #[name = "economy"]
+    Economy,
+}
+
+impl SetLogsKind {
+    /// TS `value` routed through `normalize_log_type` downstream.
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::Auto => "auto",
+            Self::Off => "off",
+            Self::Antispam => "antispam",
+            Self::Boost => "boost",
+            Self::Channel => "channel",
+            Self::Message => "message",
+            Self::Moderation => "moderation",
+            Self::Roles => "roles",
+            Self::Ticket => "ticket",
+            Self::Voice => "voice",
+            Self::Confession => "confession",
+            Self::Economy => "economy",
+        }
+    }
+}
+
 /// Single-set log types. Mirrors the TS slash `type` choices
 /// (`boost` / `message` singular); plural spellings from the old
 /// `LOG_TYPES` copy and the TS `auto` ids (`boosts`, `ticket-log-channel`)
@@ -116,7 +227,7 @@ pub async fn gc_setlogs(
     // TS HybridCommands/guildconfig/setlogschannel.ts registers "type".
     #[description = "Log type"]
     #[rename = "type"]
-    log_type: String,
+    log_type: SetLogsKind,
     #[description = "Channel"]
     #[channel_types("Text")]
     channel: Option<serenity::GuildChannel>,
@@ -126,7 +237,7 @@ pub async fn gc_setlogs(
         return Ok(());
     }
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-    let t = log_type.trim().to_ascii_lowercase();
+    let t = log_type.as_str().to_string();
     if is_log_mode(&t) {
         if t == "auto" {
             handle_auto(&ctx, &code, channel).await?;
@@ -673,6 +784,93 @@ pub fn render_disable_log(template: &str, user_id: u64) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn setlogs_kind_choices_mirror_ts_names_values_and_locales() {
+        use poise::ChoiceParameter as _;
+        let names: Vec<_> = SetLogsKind::list().into_iter().map(|c| c.name).collect();
+        assert_eq!(
+            names,
+            vec![
+                "Setup all channels",
+                "Delete all settings",
+                "AntiSpam Logs",
+                "Boost Logs",
+                "Channel Logs",
+                "Messages Logs",
+                "Moderation Logs",
+                "Roles Logs",
+                "Ticket Logs",
+                "Voice Logs",
+                "Confession Logs",
+                "Economy Logs",
+            ]
+        );
+        let values: Vec<_> = [
+            SetLogsKind::Auto,
+            SetLogsKind::Off,
+            SetLogsKind::Antispam,
+            SetLogsKind::Boost,
+            SetLogsKind::Channel,
+            SetLogsKind::Message,
+            SetLogsKind::Moderation,
+            SetLogsKind::Roles,
+            SetLogsKind::Ticket,
+            SetLogsKind::Voice,
+            SetLogsKind::Confession,
+            SetLogsKind::Economy,
+        ]
+        .into_iter()
+        .map(|k| k.as_str())
+        .collect();
+        assert_eq!(
+            values,
+            vec![
+                "auto",
+                "off",
+                "antispam",
+                "boost",
+                "channel",
+                "message",
+                "moderation",
+                "roles",
+                "ticket",
+                "voice",
+                "confession",
+                "economy",
+            ]
+        );
+        assert_eq!(SetLogsKind::from_name("auto"), Some(SetLogsKind::Auto));
+        assert_eq!(
+            SetLogsKind::from_name("VOICE LOGS"),
+            Some(SetLogsKind::Voice)
+        );
+        assert_eq!(SetLogsKind::from_name("bogus"), None);
+        assert_eq!(SetLogsKind::from_index(0), Some(SetLogsKind::Auto));
+        assert_eq!(SetLogsKind::from_index(11), Some(SetLogsKind::Economy));
+        assert_eq!(SetLogsKind::from_index(12), None);
+        let list = SetLogsKind::list();
+        assert_eq!(
+            list[0].localizations.get("fr").map(String::as_str),
+            Some("Configurer tous les canaux")
+        );
+        assert_eq!(
+            list[6].localizations.get("fr").map(String::as_str),
+            Some("Logs Modération")
+        );
+        assert_eq!(
+            list[11].localizations.get("fr").map(String::as_str),
+            Some("Logs d'économie")
+        );
+        assert_eq!(
+            list[2].localizations.get("ja").map(String::as_str),
+            Some("antispam_logs")
+        );
+        assert_eq!(
+            SetLogsKind::Economy.localized_name("fr"),
+            Some("Logs d'économie")
+        );
+    }
 
     async fn memory_pool() -> crate::db::Pool {
         crate::db::memory_pool().await

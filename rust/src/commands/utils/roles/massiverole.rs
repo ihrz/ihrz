@@ -1,5 +1,37 @@
 use super::*;
 
+/// Massiverole action choice. Mirrors the `action` option `choices` in
+/// utils.ts:746-765: slash shows the localized display names, the
+/// handler maps each variant back to the TS `value` (`add` / `sub`)
+/// read by `mass_action`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
+pub enum MassiveroleAction {
+    #[name = "Add"]
+    #[name_localized("fr", "Ajouter")]
+    #[name_localized("ja", "add")]
+    #[name_localized("ru", "add")]
+    #[name_localized("es-ES", "add")]
+    #[name = "add"]
+    Add,
+    #[name = "Remove"]
+    #[name_localized("fr", "Supprimer")]
+    #[name_localized("ja", "remove")]
+    #[name_localized("ru", "remove")]
+    #[name_localized("es-ES", "remove")]
+    #[name = "sub"]
+    Remove,
+}
+
+impl MassiveroleAction {
+    /// TS `value` read by `mass_action`.
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::Add => "add",
+            Self::Remove => "sub",
+        }
+    }
+}
+
 /// Add/remove a role for every member. Mirrors !massiverole.ts.
 #[poise::command(
     slash_command,
@@ -21,7 +53,7 @@ pub async fn massiverole(
     #[description_localized("ru", "Что вы хотите сделать?")]
     #[description_localized("es-ES", "Que quieres hacer?")]
     #[description = "add or sub"]
-    action: String,
+    action: MassiveroleAction,
     #[description_localized("fr", "Le rôle spécifié que vous souhaitez ajouter")]
     #[description_localized("ja", "追加したい指定ロール")]
     #[description_localized("ru", "Указанная роль для добавления")]
@@ -49,7 +81,7 @@ pub async fn massiverole(
     // TS parity (!massiverole.ts:73,181): only `add` / `sub` run a branch.
     // Any other action leaves just the loading ack in TS, so here it is
     // a silent return with no members touched.
-    let add = match mass_action(&action) {
+    let add = match mass_action(action.as_str()) {
         Some(add) => add,
         None => return Ok(()),
     };
@@ -176,6 +208,54 @@ pub fn fill_work(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn massiverole_action_choices_mirror_ts_names_values_and_locales() {
+        use poise::ChoiceParameter as _;
+        let names: Vec<_> = MassiveroleAction::list()
+            .into_iter()
+            .map(|c| c.name)
+            .collect();
+        assert_eq!(names, vec!["Add".to_string(), "Remove".to_string()]);
+        assert_eq!(MassiveroleAction::Add.as_str(), "add");
+        assert_eq!(MassiveroleAction::Remove.as_str(), "sub");
+        assert_eq!(
+            MassiveroleAction::from_name("add"),
+            Some(MassiveroleAction::Add)
+        );
+        assert_eq!(
+            MassiveroleAction::from_name("SUB"),
+            Some(MassiveroleAction::Remove)
+        );
+        assert_eq!(
+            MassiveroleAction::from_name("REMOVE"),
+            Some(MassiveroleAction::Remove)
+        );
+        assert_eq!(MassiveroleAction::from_name("bogus"), None);
+        assert_eq!(
+            MassiveroleAction::from_index(0),
+            Some(MassiveroleAction::Add)
+        );
+        assert_eq!(
+            MassiveroleAction::from_index(1),
+            Some(MassiveroleAction::Remove)
+        );
+        assert_eq!(mass_action(MassiveroleAction::Add.as_str()), Some(true));
+        assert_eq!(mass_action(MassiveroleAction::Remove.as_str()), Some(false));
+        let list = MassiveroleAction::list();
+        assert_eq!(
+            list[0].localizations.get("fr").map(String::as_str),
+            Some("Ajouter")
+        );
+        assert_eq!(
+            list[1].localizations.get("fr").map(String::as_str),
+            Some("Supprimer")
+        );
+        assert_eq!(
+            MassiveroleAction::Remove.localized_name("ja"),
+            Some("remove")
+        );
+    }
 
     #[test]
     fn action_parses_like_ts() {

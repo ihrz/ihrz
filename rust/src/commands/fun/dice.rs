@@ -1,5 +1,187 @@
 use super::*;
 
+/// Dice-count choice. Mirrors the `choices: to(7)` list on the
+/// `number` option in fun.ts:1005: slash shows `Amount: i` (fr
+/// `Nombre: i`), the handler maps each variant back to the TS
+/// `value` (`"${i}"`).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
+pub enum DiceNumber {
+    #[name = "Amount: 1"]
+    #[name_localized("fr", "Nombre: 1")]
+    #[name_localized("ja", "amount_i")]
+    #[name_localized("ru", "amount_i")]
+    #[name_localized("es-ES", "amount_i")]
+    #[name = "1"]
+    N1,
+    #[name = "Amount: 2"]
+    #[name_localized("fr", "Nombre: 2")]
+    #[name_localized("ja", "amount_i")]
+    #[name_localized("ru", "amount_i")]
+    #[name_localized("es-ES", "amount_i")]
+    #[name = "2"]
+    N2,
+    #[name = "Amount: 3"]
+    #[name_localized("fr", "Nombre: 3")]
+    #[name_localized("ja", "amount_i")]
+    #[name_localized("ru", "amount_i")]
+    #[name_localized("es-ES", "amount_i")]
+    #[name = "3"]
+    N3,
+    #[name = "Amount: 4"]
+    #[name_localized("fr", "Nombre: 4")]
+    #[name_localized("ja", "amount_i")]
+    #[name_localized("ru", "amount_i")]
+    #[name_localized("es-ES", "amount_i")]
+    #[name = "4"]
+    N4,
+    #[name = "Amount: 5"]
+    #[name_localized("fr", "Nombre: 5")]
+    #[name_localized("ja", "amount_i")]
+    #[name_localized("ru", "amount_i")]
+    #[name_localized("es-ES", "amount_i")]
+    #[name = "5"]
+    N5,
+    #[name = "Amount: 6"]
+    #[name_localized("fr", "Nombre: 6")]
+    #[name_localized("ja", "amount_i")]
+    #[name_localized("ru", "amount_i")]
+    #[name_localized("es-ES", "amount_i")]
+    #[name = "6"]
+    N6,
+    #[name = "Amount: 7"]
+    #[name_localized("fr", "Nombre: 7")]
+    #[name_localized("ja", "amount_i")]
+    #[name_localized("ru", "amount_i")]
+    #[name_localized("es-ES", "amount_i")]
+    #[name = "7"]
+    N7,
+}
+
+impl DiceNumber {
+    /// TS `value` (`"${i}"`).
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::N1 => "1",
+            Self::N2 => "2",
+            Self::N3 => "3",
+            Self::N4 => "4",
+            Self::N5 => "5",
+            Self::N6 => "6",
+            Self::N7 => "7",
+        }
+    }
+}
+
+/// Dice-faces choice. Mirrors the `choices: to(12)` list on the
+/// `faces` option in fun.ts:1027, same shape as [`DiceNumber`].
+#[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
+pub enum DiceFaces {
+    #[name = "Amount: 1"]
+    #[name_localized("fr", "Nombre: 1")]
+    #[name_localized("ja", "amount_i")]
+    #[name_localized("ru", "amount_i")]
+    #[name_localized("es-ES", "amount_i")]
+    #[name = "1"]
+    F1,
+    #[name = "Amount: 2"]
+    #[name_localized("fr", "Nombre: 2")]
+    #[name_localized("ja", "amount_i")]
+    #[name_localized("ru", "amount_i")]
+    #[name_localized("es-ES", "amount_i")]
+    #[name = "2"]
+    F2,
+    #[name = "Amount: 3"]
+    #[name_localized("fr", "Nombre: 3")]
+    #[name_localized("ja", "amount_i")]
+    #[name_localized("ru", "amount_i")]
+    #[name_localized("es-ES", "amount_i")]
+    #[name = "3"]
+    F3,
+    #[name = "Amount: 4"]
+    #[name_localized("fr", "Nombre: 4")]
+    #[name_localized("ja", "amount_i")]
+    #[name_localized("ru", "amount_i")]
+    #[name_localized("es-ES", "amount_i")]
+    #[name = "4"]
+    F4,
+    #[name = "Amount: 5"]
+    #[name_localized("fr", "Nombre: 5")]
+    #[name_localized("ja", "amount_i")]
+    #[name_localized("ru", "amount_i")]
+    #[name_localized("es-ES", "amount_i")]
+    #[name = "5"]
+    F5,
+    #[name = "Amount: 6"]
+    #[name_localized("fr", "Nombre: 6")]
+    #[name_localized("ja", "amount_i")]
+    #[name_localized("ru", "amount_i")]
+    #[name_localized("es-ES", "amount_i")]
+    #[name = "6"]
+    F6,
+    #[name = "Amount: 7"]
+    #[name_localized("fr", "Nombre: 7")]
+    #[name_localized("ja", "amount_i")]
+    #[name_localized("ru", "amount_i")]
+    #[name_localized("es-ES", "amount_i")]
+    #[name = "7"]
+    F7,
+    #[name = "Amount: 8"]
+    #[name_localized("fr", "Nombre: 8")]
+    #[name_localized("ja", "amount_i")]
+    #[name_localized("ru", "amount_i")]
+    #[name_localized("es-ES", "amount_i")]
+    #[name = "8"]
+    F8,
+    #[name = "Amount: 9"]
+    #[name_localized("fr", "Nombre: 9")]
+    #[name_localized("ja", "amount_i")]
+    #[name_localized("ru", "amount_i")]
+    #[name_localized("es-ES", "amount_i")]
+    #[name = "9"]
+    F9,
+    #[name = "Amount: 10"]
+    #[name_localized("fr", "Nombre: 10")]
+    #[name_localized("ja", "amount_i")]
+    #[name_localized("ru", "amount_i")]
+    #[name_localized("es-ES", "amount_i")]
+    #[name = "10"]
+    F10,
+    #[name = "Amount: 11"]
+    #[name_localized("fr", "Nombre: 11")]
+    #[name_localized("ja", "amount_i")]
+    #[name_localized("ru", "amount_i")]
+    #[name_localized("es-ES", "amount_i")]
+    #[name = "11"]
+    F11,
+    #[name = "Amount: 12"]
+    #[name_localized("fr", "Nombre: 12")]
+    #[name_localized("ja", "amount_i")]
+    #[name_localized("ru", "amount_i")]
+    #[name_localized("es-ES", "amount_i")]
+    #[name = "12"]
+    F12,
+}
+
+impl DiceFaces {
+    /// TS `value` (`"${i}"`).
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::F1 => "1",
+            Self::F2 => "2",
+            Self::F3 => "3",
+            Self::F4 => "4",
+            Self::F5 => "5",
+            Self::F6 => "6",
+            Self::F7 => "7",
+            Self::F8 => "8",
+            Self::F9 => "9",
+            Self::F10 => "10",
+            Self::F11 => "11",
+            Self::F12 => "12",
+        }
+    }
+}
+
 /// Roll dice!
 #[poise::command(
     slash_command,
@@ -17,11 +199,12 @@ use super::*;
     description_localized("es-ES", "Hacer una tirada de dado")
 )]
 // Mirrors !dice.ts.
-// Slash caps mirror the `choices: to(7)` / `to(12)` lists in fun.ts;
-// prefix input is unbounded like the TS `for (let i = 0; i < number; i++)`
-// loop, which applies no cap. Both paths take free-text params parsed
-// manually below so non-numeric prefix input falls back (TS
-// `method.number(...) || default`) instead of raising a framework error.
+// Slash dropdowns mirror the `choices: to(7)` / `to(12)` lists in
+// fun.ts; prefix accepts the choice names and value aliases
+// (`Amount: 3`, `3`), while anything else still falls back through
+// `dice_counts` (TS `method.number(...) || default`) — except unknown
+// words now raise a framework parse error instead of falling back.
+// Both paths map back to the TS `"${i}"` values below.
 pub async fn dice(
     ctx: Ctx<'_>,
     #[name_localized("fr", "nombre")]
@@ -33,7 +216,7 @@ pub async fn dice(
     #[description_localized("ru", "Количество костей")]
     #[description_localized("es-ES", "Número de dados a lanzar")]
     #[description = "Number of dice to roll"]
-    number: Option<String>,
+    number: Option<DiceNumber>,
     #[name_localized("fr", "faces")]
     #[name_localized("ja", "faces")]
     #[name_localized("ru", "faces")]
@@ -43,12 +226,16 @@ pub async fn dice(
     #[description_localized("ru", "Количество граней кости")]
     #[description_localized("es-ES", "Número de caras del dado")]
     #[description = "Number of faces on the dice"]
-    faces: Option<String>,
+    faces: Option<DiceFaces>,
 ) -> Result<(), anyhow::Error> {
     // No fun guard: `!dice.ts` (33-70) has no `GUILD.FUN.states` check,
     // so the roll runs even with fun disabled.
     let is_slash = matches!(ctx, poise::Context::Application(_));
-    let (number, faces) = dice_counts(number, faces, is_slash);
+    let (number, faces) = dice_counts(
+        number.map(|n| n.as_str().to_string()),
+        faces.map(|f| f.as_str().to_string()),
+        is_slash,
+    );
     // Roll safely from the raw display values: a negative count rolls
     // nothing (the TS loop body never runs) and faces floor at 1 for the
     // draw only — the embed below still shows the raw TS-style values.
@@ -109,6 +296,56 @@ pub fn dice_counts(number: Option<String>, faces: Option<String>, is_slash: bool
 #[cfg(test)]
 mod dice_tests {
     use super::*;
+
+    #[test]
+    fn dice_choice_enums_mirror_ts_to_lists() {
+        use poise::ChoiceParameter as _;
+        // `to(7)`: 7 variants, `Amount: i` names, `"${i}"` values.
+        let names: Vec<_> = DiceNumber::list().into_iter().map(|c| c.name).collect();
+        assert_eq!(names.len(), 7);
+        assert_eq!(names[0], "Amount: 1");
+        assert_eq!(names[6], "Amount: 7");
+        assert_eq!(DiceNumber::N3.as_str(), "3");
+        assert_eq!(DiceNumber::from_name("Amount: 4"), Some(DiceNumber::N4));
+        assert_eq!(DiceNumber::from_name("7"), Some(DiceNumber::N7));
+        assert_eq!(DiceNumber::from_name("8"), None);
+        assert_eq!(DiceNumber::from_index(0), Some(DiceNumber::N1));
+        assert_eq!(DiceNumber::from_index(7), None);
+        // `to(12)`: 12 variants.
+        let names: Vec<_> = DiceFaces::list().into_iter().map(|c| c.name).collect();
+        assert_eq!(names.len(), 12);
+        assert_eq!(names[11], "Amount: 12");
+        assert_eq!(DiceFaces::F12.as_str(), "12");
+        assert_eq!(DiceFaces::from_name("12"), Some(DiceFaces::F12));
+        assert_eq!(DiceFaces::from_name("13"), None);
+        assert_eq!(DiceFaces::from_index(11), Some(DiceFaces::F12));
+        assert_eq!(DiceFaces::from_index(12), None);
+        // Locales, byte-exact from fun.ts `to()`.
+        let list = DiceNumber::list();
+        assert_eq!(
+            list[0].localizations.get("fr").map(String::as_str),
+            Some("Nombre: 1")
+        );
+        assert_eq!(
+            list[6].localizations.get("fr").map(String::as_str),
+            Some("Nombre: 7")
+        );
+        assert_eq!(
+            list[0].localizations.get("ja").map(String::as_str),
+            Some("amount_i")
+        );
+        assert_eq!(
+            list[0].localizations.get("es-ES").map(String::as_str),
+            Some("amount_i")
+        );
+        let faces = DiceFaces::list();
+        assert_eq!(
+            faces[11].localizations.get("fr").map(String::as_str),
+            Some("Nombre: 12")
+        );
+        assert_eq!(DiceNumber::N1.localized_name("fr"), Some("Nombre: 1"));
+        assert_eq!(DiceFaces::F12.localized_name("ru"), Some("amount_i"));
+    }
 
     #[test]
     fn prefix_counts_uncapped_like_ts() {

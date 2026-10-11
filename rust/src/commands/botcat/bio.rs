@@ -24,6 +24,37 @@ pub fn default_bio(meta_bot_json: Option<&str>, username: &str) -> String {
         .filter(|s| !s.is_empty())
         .unwrap_or_else(|| username.to_string())
 }
+
+/// Bio action choice. Mirrors the `action` option `choices` in
+/// custom.ts:291-306: slash shows the localized display names, the
+/// handler maps each variant back to the TS `value`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
+pub enum CustomBioAction {
+    #[name = "Default Bot Description"]
+    #[name_localized("fr", "Reprendre la description par défaut du bot")]
+    #[name_localized("ja", "ボットのデフォルトの説明に戻す")]
+    #[name_localized("ru", "Восстановить описание бота по умолчанию")]
+    #[name_localized("es-ES", "Restablecer la descripción predeterminada del bot")]
+    #[name = "reset"]
+    Reset,
+    #[name = "Set one"]
+    #[name_localized("fr", "Définir une description")]
+    #[name_localized("ja", "説明を設定")]
+    #[name_localized("ru", "Задать описание")]
+    #[name_localized("es-ES", "Establecer una descripción")]
+    #[name = "set"]
+    Set,
+}
+
+impl CustomBioAction {
+    /// TS `value` (`reset` / `set`).
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::Reset => "reset",
+            Self::Set => "set",
+        }
+    }
+}
 /// Set or reset the per-guild bot bio.
 // 400-char gate (like `!bio.ts`), then the 190-char/2-line sanitize
 // from customProfileHelper.
@@ -45,7 +76,7 @@ pub async fn custom_bio(
     #[description_localized("ja", "何をしたいですか？")]
     #[description_localized("ru", "Что вы хотите сделать?")]
     #[description_localized("es-ES", "¿Qué quieres hacer?")]
-    action: String,
+    action: CustomBioAction,
     #[description = "New bio"]
     #[description_localized("fr", "La bio du bot")]
     #[description_localized("ja", "説明")]
@@ -53,6 +84,7 @@ pub async fn custom_bio(
     #[description_localized("es-ES", "La descripción")]
     bio: Option<String>,
 ) -> Result<(), anyhow::Error> {
+    let action = action.as_str();
     let Some(guild_id) = ctx.guild_id() else {
         let glang = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
         ctx.say(
@@ -159,6 +191,45 @@ mod tests {
         assert_eq!(default_bio(Some("{}"), "Bot"), "Bot");
         assert_eq!(default_bio(Some(r#"{"user":{"bio":""}}"#), "Bot"), "Bot");
         assert_eq!(default_bio(Some("bogus"), "Bot"), "Bot");
+    }
+
+    #[test]
+    fn bio_action_choices_mirror_ts_names_values_and_locales() {
+        use poise::ChoiceParameter as _;
+        let names: Vec<_> = CustomBioAction::list()
+            .into_iter()
+            .map(|c| c.name)
+            .collect();
+        assert_eq!(
+            names,
+            vec!["Default Bot Description".to_string(), "Set one".to_string()]
+        );
+        assert_eq!(CustomBioAction::Reset.as_str(), "reset");
+        assert_eq!(CustomBioAction::Set.as_str(), "set");
+        assert_eq!(
+            CustomBioAction::from_name("reset"),
+            Some(CustomBioAction::Reset)
+        );
+        assert_eq!(
+            CustomBioAction::from_name("SET"),
+            Some(CustomBioAction::Set)
+        );
+        assert_eq!(CustomBioAction::from_name("other"), None);
+        assert_eq!(CustomBioAction::from_index(0), Some(CustomBioAction::Reset));
+        assert_eq!(CustomBioAction::from_index(1), Some(CustomBioAction::Set));
+        let list = CustomBioAction::list();
+        assert_eq!(
+            list[0].localizations.get("fr").map(String::as_str),
+            Some("Reprendre la description par défaut du bot")
+        );
+        assert_eq!(
+            list[1].localizations.get("fr").map(String::as_str),
+            Some("Définir une description")
+        );
+        assert_eq!(
+            list[1].localizations.get("es-ES").map(String::as_str),
+            Some("Establecer una descripción")
+        );
     }
 
     #[tokio::test]

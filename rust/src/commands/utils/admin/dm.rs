@@ -104,12 +104,21 @@ pub async fn dm(
 }
 
 /// Yes/No slash choice for the DM `private` option.
-/// Mirrors the TS `private` option choices (`yes` / `no`).
+/// Mirrors the TS `private` option choices in utils.ts:319-336
+/// (`Yes` / `No`, values `yes` / `no`).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
 pub enum PrivateChoice {
     #[name = "Yes"]
+    #[name_localized("fr", "Oui")]
+    #[name_localized("ja", "yes")]
+    #[name_localized("ru", "yes")]
+    #[name_localized("es-ES", "yes")]
     Yes,
     #[name = "No"]
+    #[name_localized("fr", "Non")]
+    #[name_localized("ja", "no")]
+    #[name_localized("ru", "no")]
+    #[name_localized("es-ES", "no")]
     No,
 }
 
@@ -131,5 +140,19 @@ mod tests {
         assert!(!is_private_choice(PrivateChoice::No));
         assert_eq!(PrivateChoice::from_name("Yes"), Some(PrivateChoice::Yes));
         assert_eq!(PrivateChoice::from_name("No"), Some(PrivateChoice::No));
+        assert_eq!(PrivateChoice::from_name("bogus"), None);
+        assert_eq!(PrivateChoice::from_index(0), Some(PrivateChoice::Yes));
+        assert_eq!(PrivateChoice::from_index(1), Some(PrivateChoice::No));
+        // Localized display names, byte-exact from utils.ts:319+.
+        let list = PrivateChoice::list();
+        assert_eq!(
+            list[0].localizations.get("fr").map(String::as_str),
+            Some("Oui")
+        );
+        assert_eq!(
+            list[1].localizations.get("fr").map(String::as_str),
+            Some("Non")
+        );
+        assert_eq!(PrivateChoice::Yes.localized_name("ja"), Some("yes"));
     }
 }

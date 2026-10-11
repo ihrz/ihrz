@@ -10,6 +10,37 @@ pub fn footer_name_too_long_utf16(name: &str) -> bool {
     name.encode_utf16().count() >= 32
 }
 
+/// Name action choice. Mirrors the `action` option `choices` in
+/// custom.ts:67-82: slash shows the localized display names, the
+/// handler maps each variant back to the TS `value`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
+pub enum CustomNameAction {
+    #[name = "Default Bot Name"]
+    #[name_localized("fr", "Reprendre le nom par défaut du bot")]
+    #[name_localized("ja", "ボットのデフォルトの名前に戻す")]
+    #[name_localized("ru", "Восстановить имя бота по умолчанию")]
+    #[name_localized("es-ES", "Restablecer el nombre predeterminado del bot")]
+    #[name = "reset"]
+    Reset,
+    #[name = "Set one"]
+    #[name_localized("fr", "Définir un nom")]
+    #[name_localized("ja", "名前を設定")]
+    #[name_localized("ru", "Задать имя")]
+    #[name_localized("es-ES", "Establecer un nombre")]
+    #[name = "set"]
+    Set,
+}
+
+impl CustomNameAction {
+    /// TS `value` (`reset` / `set`).
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::Reset => "reset",
+            Self::Set => "set",
+        }
+    }
+}
+
 /// Set or reset the per-guild bot nickname.
 #[poise::command(
     slash_command,
@@ -29,7 +60,7 @@ pub async fn custom_name(
     #[description_localized("ja", "何をしたいですか？")]
     #[description_localized("ru", "Что вы хотите сделать?")]
     #[description_localized("es-ES", "¿Qué quieres hacer?")]
-    action: String,
+    action: CustomNameAction,
     #[description = "New bot name"]
     #[description_localized("fr", "Le nom du bot")]
     #[description_localized("ja", "名前")]
@@ -37,6 +68,7 @@ pub async fn custom_name(
     #[description_localized("es-ES", "El nombre")]
     name: Option<String>,
 ) -> Result<(), anyhow::Error> {
+    let action = action.as_str();
     let Some(guild_id) = ctx.guild_id() else {
         let glang = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
         ctx.say(
@@ -120,6 +152,52 @@ pub async fn custom_name(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn name_action_choices_mirror_ts_names_values_and_locales() {
+        use poise::ChoiceParameter as _;
+        let names: Vec<_> = CustomNameAction::list()
+            .into_iter()
+            .map(|c| c.name)
+            .collect();
+        assert_eq!(
+            names,
+            vec!["Default Bot Name".to_string(), "Set one".to_string()]
+        );
+        assert_eq!(CustomNameAction::Reset.as_str(), "reset");
+        assert_eq!(CustomNameAction::Set.as_str(), "set");
+        assert_eq!(
+            CustomNameAction::from_name("reset"),
+            Some(CustomNameAction::Reset)
+        );
+        assert_eq!(
+            CustomNameAction::from_name("SET"),
+            Some(CustomNameAction::Set)
+        );
+        assert_eq!(CustomNameAction::from_name("other"), None);
+        assert_eq!(
+            CustomNameAction::from_index(0),
+            Some(CustomNameAction::Reset)
+        );
+        assert_eq!(CustomNameAction::from_index(1), Some(CustomNameAction::Set));
+        let list = CustomNameAction::list();
+        assert_eq!(
+            list[0].localizations.get("fr").map(String::as_str),
+            Some("Reprendre le nom par défaut du bot")
+        );
+        assert_eq!(
+            list[1].localizations.get("fr").map(String::as_str),
+            Some("Définir un nom")
+        );
+        assert_eq!(
+            list[0].localizations.get("ja").map(String::as_str),
+            Some("ボットのデフォルトの名前に戻す")
+        );
+        assert_eq!(
+            list[1].localizations.get("es-ES").map(String::as_str),
+            Some("Establecer un nombre")
+        );
+    }
 
     #[test]
     fn utf16_length_matches_js_string_length() {

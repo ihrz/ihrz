@@ -58,6 +58,37 @@ pub fn parse_cooldown_ms(raw: &str) -> Option<i64> {
     Some(v)
 }
 
+/// Set-cooldown action-kind choice. Mirrors the `type` option
+/// `choices` in economy.ts:810-829: slash shows the localized display
+/// names, the handler maps each variant back to the TS `value`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
+pub enum SetCooldownKind {
+    #[name = "Rob"]
+    #[name_localized("fr", "Voler")]
+    #[name_localized("ja", "rob")]
+    #[name_localized("ru", "rob")]
+    #[name_localized("es-ES", "rob")]
+    #[name = "rob"]
+    Rob,
+    #[name = "Work"]
+    #[name_localized("fr", "Travailler")]
+    #[name_localized("ja", "work")]
+    #[name_localized("ru", "work")]
+    #[name_localized("es-ES", "work")]
+    #[name = "work"]
+    Work,
+}
+
+impl SetCooldownKind {
+    /// TS `value` used in `ECONOMY.settings.{kind}.cooldown`.
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::Rob => "rob",
+            Self::Work => "work",
+        }
+    }
+}
+
 /// Tunable cooldown kinds. Mirrors the `!set-cooldown.ts` slash
 /// `choices` (`rob` | `work`) in `economy.ts`.
 pub const SET_COOLDOWN_KINDS: &[&str] = &["rob", "work"];
@@ -93,7 +124,7 @@ pub async fn eco_set_cooldown(
     #[description_localized("es-ES", "Las acciones que deseas definir")]
     #[description = "rob, work"]
     #[rename = "type"]
-    kind: String,
+    kind: SetCooldownKind,
     #[description_localized("fr", "Le temps que vous souhaitez définir")]
     #[description_localized("ja", "設定したい時間")]
     #[description_localized("ru", "Время, которое вы хотите установить")]
@@ -169,7 +200,41 @@ pub async fn eco_set_cooldown(
 mod tests {
     use super::{
         leaf_num_routed, load_tuning_routed, parse_cooldown_ms, validate_set_cooldown_kind,
+        SetCooldownKind,
     };
+
+    #[test]
+    fn set_cooldown_kind_choices_mirror_ts_names_values_and_locales() {
+        use poise::ChoiceParameter as _;
+        let names: Vec<_> = SetCooldownKind::list()
+            .into_iter()
+            .map(|c| c.name)
+            .collect();
+        assert_eq!(names, vec!["Rob", "Work"]);
+        assert_eq!(SetCooldownKind::Rob.as_str(), "rob");
+        assert_eq!(SetCooldownKind::Work.as_str(), "work");
+        assert_eq!(
+            SetCooldownKind::from_name("rob"),
+            Some(SetCooldownKind::Rob)
+        );
+        assert_eq!(
+            SetCooldownKind::from_name("WORK"),
+            Some(SetCooldownKind::Work)
+        );
+        assert_eq!(SetCooldownKind::from_name("daily"), None);
+        assert_eq!(SetCooldownKind::from_index(0), Some(SetCooldownKind::Rob));
+        assert_eq!(SetCooldownKind::from_index(1), Some(SetCooldownKind::Work));
+        let list = SetCooldownKind::list();
+        assert_eq!(
+            list[0].localizations.get("fr").map(String::as_str),
+            Some("Voler")
+        );
+        assert_eq!(
+            list[1].localizations.get("fr").map(String::as_str),
+            Some("Travailler")
+        );
+        assert_eq!(SetCooldownKind::Rob.localized_name("fr"), Some("Voler"));
+    }
 
     async fn mem_pool() -> crate::db::Pool {
         crate::db::memory_pool().await

@@ -106,28 +106,37 @@ pub async fn roles_requirement_guild_has(ctx: Ctx<'_>, value: &str) -> Option<bo
 }
 
 /// Fixed requirement choice. Mirrors the `choices` list on the
-/// `requirement` option in gw.ts (none/invites/messages/roles).
-/// Verdict: choice labels stay TS-verbatim (none/invites/messages/roles)
-/// with values unchanged. Friendly localized labels would need new YAML
-/// keys (no YAML edits in this pass) and poise ChoiceParameter names double
-/// as the stored requirement values, so renaming labels alone would either
-/// break the stored `requirement.type` shape or require hardcoded
-/// user-visible strings.
-///
-/// The handler itself takes a plain String (not this enum): the TS
-/// prefix path (`string(args, 2)`, !create.ts:67) stores whatever word
-/// was typed, and the gates only match invites/messages/roles, so any
-/// other value behaves exactly like "none". `normalize_requirement`
-/// below folds those unknown words to "none" instead of rejecting them
-/// up front like a choices enum would on prefix.
+/// `requirement` option in gw.ts:119-174: slash shows the localized
+/// display names, `gw_requirement_value` maps each variant back to the
+/// TS `value` stored as `requirement.type`.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
 pub enum GwRequirement {
+    #[name = "None"]
+    #[name_localized("fr", "Aucun")]
+    #[name_localized("ja", "none")]
+    #[name_localized("ru", "none")]
+    #[name_localized("es-ES", "none")]
     #[name = "none"]
     None,
+    #[name = "Need Specific invitations amount"]
+    #[name_localized("fr", "Besoin d'un nombre spécifique d'invitations")]
+    #[name_localized("ja", "need_specific_invitations_amount")]
+    #[name_localized("ru", "need_specific_invitations_amount")]
+    #[name_localized("es-ES", "need_specific_invitations_amount")]
     #[name = "invites"]
     Invites,
+    #[name = "Need specific messages number"]
+    #[name_localized("fr", "Besoin d'un nombre spécifique de messages")]
+    #[name_localized("ja", "need_specific_messages_number")]
+    #[name_localized("ru", "need_specific_messages_number")]
+    #[name_localized("es-ES", "need_specific_messages_number")]
     #[name = "messages"]
     Messages,
+    #[name = "Need specific roles"]
+    #[name_localized("fr", "Besoin de rôles spécifiques")]
+    #[name_localized("ja", "need_specific_roles")]
+    #[name_localized("ru", "need_specific_roles")]
+    #[name_localized("es-ES", "need_specific_roles")]
     #[name = "roles"]
     Roles,
 }
@@ -200,20 +209,18 @@ pub async fn gw_create(
     #[description_localized("es-ES", "La duración del sorteo")]
     #[description = "Duration (e.g. 10m, 1h, 7d)"]
     time: String,
-    // Option<String> (not required, no choices): TS reads
-    // `getString("requirement")` / `string(args, 2)` (both nullable,
-    // !create.ts) while the slash schema marks it required (gw.ts).
-    // Slash-Option is deliberate (same pattern as `winners` above): a
-    // missing/invalid word must reach the in-handler gates, and the
-    // prefix path accepts any word. Unknown words map to "none" below
-    // (recorded): TS stores them verbatim, but no gate matches them,
-    // so they behave exactly like "none".
+    // Option (not required): TS reads `getString("requirement")` /
+    // `string(args, 2)` (both nullable, !create.ts) while the slash
+    // schema marks it required (gw.ts). Slash-Option is deliberate (same
+    // pattern as `winners` above): a missing word must reach the
+    // in-handler gates. The dropdown constrains slash input to the TS
+    // choices; a missing value maps to "none" below like before.
     #[description_localized("fr", "Le prérequis pour rentrer dans le giveaways")]
     #[description_localized("ja", "ギブアウェイ参加要件")]
     #[description_localized("ru", "Требование для участия в розыгрыше")]
     #[description_localized("es-ES", "El requisito para entrar en el sorteo")]
     #[description = "Requirement: none, invites, messages, roles"]
-    requirement: Option<String>,
+    requirement: Option<GwRequirement>,
     // Option (not required): TS stores `(prize || "").substring(0,256)`
     // (!create.ts:140), so a missing prize creates with an empty prize.
     #[name_localized("fr", "prix")]
@@ -273,11 +280,10 @@ pub async fn gw_create(
         .await?;
         return Ok(());
     };
-    // Mirrors !create.ts:101-134 (requirement-value gates). The raw word
-    // normalizes through `normalize_requirement`: missing or unknown
-    // maps to "none" (TS stores the word verbatim, but no gate matches
-    // it, identical behavior).
-    let requirement = normalize_requirement(requirement.as_deref());
+    // Mirrors !create.ts:101-134 (requirement-value gates). The choice
+    // maps back to the TS value, then normalizes (missing folds to
+    // "none" like before).
+    let requirement = normalize_requirement(requirement.map(gw_requirement_value));
     let req_value = requirement_value.unwrap_or_default();
     // Roles resolve against the guild like
     // `interaction.guild.roles.cache.has(value)` in !create.ts:124-134:
@@ -530,7 +536,7 @@ mod tests {
 
     #[test]
     fn requirement_choices_cover_ts_values() {
-        // gw.ts choices values (unknown words rejected by poise).
+        // gw.ts:119+ choice names, values and localizations.
         use poise::ChoiceParameter as _;
         assert_eq!(gw_requirement_value(GwRequirement::None), "none");
         assert_eq!(gw_requirement_value(GwRequirement::Invites), "invites");
@@ -545,7 +551,44 @@ mod tests {
         .into_iter()
         .map(|c| c.name().to_string())
         .collect();
-        assert_eq!(names, vec!["none", "invites", "messages", "roles"]);
+        assert_eq!(
+            names,
+            vec![
+                "None",
+                "Need Specific invitations amount",
+                "Need specific messages number",
+                "Need specific roles",
+            ]
+        );
+        assert_eq!(
+            GwRequirement::from_name("invites"),
+            Some(GwRequirement::Invites)
+        );
+        assert_eq!(
+            GwRequirement::from_name("NEED SPECIFIC ROLES"),
+            Some(GwRequirement::Roles)
+        );
+        assert_eq!(GwRequirement::from_name("bogus"), None);
+        assert_eq!(GwRequirement::from_index(0), Some(GwRequirement::None));
+        assert_eq!(GwRequirement::from_index(3), Some(GwRequirement::Roles));
+        let list = GwRequirement::list();
+        assert_eq!(
+            list[0].localizations.get("fr").map(String::as_str),
+            Some("Aucun")
+        );
+        assert_eq!(
+            list[1].localizations.get("fr").map(String::as_str),
+            Some("Besoin d'un nombre spécifique d'invitations")
+        );
+        assert_eq!(
+            list[2].localizations.get("ja").map(String::as_str),
+            Some("need_specific_messages_number")
+        );
+        assert_eq!(
+            list[3].localizations.get("es-ES").map(String::as_str),
+            Some("need_specific_roles")
+        );
+        assert_eq!(GwRequirement::None.localized_name("fr"), Some("Aucun"));
     }
 
     #[test]

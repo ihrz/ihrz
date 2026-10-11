@@ -1,5 +1,36 @@
 use super::*;
 
+/// Avatar action choice. Mirrors the `action` option `choices` in
+/// custom.ts:142-157: slash shows the localized display names, the
+/// handler maps each variant back to the TS `value`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
+pub enum CustomAvatarAction {
+    #[name = "Default Bot Avatar"]
+    #[name_localized("fr", "Reprendre l'avatar par défaut du bot")]
+    #[name_localized("ja", "ボットのデフォルトアバターに戻す")]
+    #[name_localized("ru", "Восстановить аватар бота по умолчанию")]
+    #[name_localized("es-ES", "Restablecer el avatar predeterminado del bot")]
+    #[name = "reset"]
+    Reset,
+    #[name = "Set one"]
+    #[name_localized("fr", "Définir un avatar")]
+    #[name_localized("ja", "アバターを設定")]
+    #[name_localized("ru", "Задать аватар")]
+    #[name_localized("es-ES", "Establecer un avatar")]
+    #[name = "set"]
+    Set,
+}
+
+impl CustomAvatarAction {
+    /// TS `value` (`reset` / `set`).
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::Reset => "reset",
+            Self::Set => "set",
+        }
+    }
+}
+
 /// Set or reset the per-guild bot avatar.
 #[poise::command(
     slash_command,
@@ -19,7 +50,7 @@ pub async fn custom_avatar(
     #[description_localized("ja", "何をしたいですか？")]
     #[description_localized("ru", "Что вы хотите сделать?")]
     #[description_localized("es-ES", "¿Qué quieres hacer?")]
-    action: String,
+    action: CustomAvatarAction,
     #[description = "New avatar image"]
     #[description_localized("fr", "L'avatar du bot")]
     #[description_localized("ja", "アバター")]
@@ -27,6 +58,7 @@ pub async fn custom_avatar(
     #[description_localized("es-ES", "El avatar")]
     avatar: Option<serenity::Attachment>,
 ) -> Result<(), anyhow::Error> {
+    let action = action.as_str();
     let Some(guild_id) = ctx.guild_id() else {
         let glang = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
         ctx.say(
@@ -142,4 +174,54 @@ pub async fn custom_avatar(
     )
     .await?;
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn avatar_action_choices_mirror_ts_names_values_and_locales() {
+        use poise::ChoiceParameter as _;
+        let names: Vec<_> = CustomAvatarAction::list()
+            .into_iter()
+            .map(|c| c.name)
+            .collect();
+        assert_eq!(
+            names,
+            vec!["Default Bot Avatar".to_string(), "Set one".to_string()]
+        );
+        assert_eq!(CustomAvatarAction::Reset.as_str(), "reset");
+        assert_eq!(CustomAvatarAction::Set.as_str(), "set");
+        assert_eq!(
+            CustomAvatarAction::from_name("reset"),
+            Some(CustomAvatarAction::Reset)
+        );
+        assert_eq!(
+            CustomAvatarAction::from_name("SET"),
+            Some(CustomAvatarAction::Set)
+        );
+        assert_eq!(CustomAvatarAction::from_name("other"), None);
+        assert_eq!(
+            CustomAvatarAction::from_index(0),
+            Some(CustomAvatarAction::Reset)
+        );
+        assert_eq!(
+            CustomAvatarAction::from_index(1),
+            Some(CustomAvatarAction::Set)
+        );
+        let list = CustomAvatarAction::list();
+        assert_eq!(
+            list[0].localizations.get("fr").map(String::as_str),
+            Some("Reprendre l'avatar par défaut du bot")
+        );
+        assert_eq!(
+            list[1].localizations.get("fr").map(String::as_str),
+            Some("Définir un avatar")
+        );
+        assert_eq!(
+            list[0].localizations.get("es-ES").map(String::as_str),
+            Some("Restablecer el avatar predeterminado del bot")
+        );
+    }
 }

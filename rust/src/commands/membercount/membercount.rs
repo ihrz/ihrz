@@ -1,6 +1,38 @@
 use super::*;
 use poise::serenity_prelude as serenity;
 
+/// Membercount action choice. Mirrors the `action` option `choices` in
+/// membercount.ts:65-85 (note the lowercase `Power on` / `Power off`
+/// labels): slash shows the localized display names, the handler maps
+/// each variant back to the TS `value`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
+pub enum MembercountAction {
+    #[name = "Power on"]
+    #[name_localized("fr", "Activer")]
+    #[name_localized("ja", "power_on")]
+    #[name_localized("ru", "power_on")]
+    #[name_localized("es-ES", "power_on")]
+    #[name = "on"]
+    On,
+    #[name = "Power off"]
+    #[name_localized("fr", "Désactiver")]
+    #[name_localized("ja", "power_off")]
+    #[name_localized("ru", "power_off")]
+    #[name_localized("es-ES", "power_off")]
+    #[name = "off"]
+    Off,
+}
+
+impl MembercountAction {
+    /// TS `value` parsed by `parse_on_off`.
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::On => "on",
+            Self::Off => "off",
+        }
+    }
+}
+
 /// Set a member count channels!
 #[poise::command(
     slash_command,
@@ -11,14 +43,14 @@ use poise::serenity_prelude as serenity;
 )]
 pub async fn membercount(
     ctx: Ctx<'_>,
-    #[description = "Power on / Power off"] action: String,
+    #[description = "Power on / Power off"] action: MembercountAction,
     #[description = "Voice channel used as counter"]
     #[channel_types("Voice")]
     channel: serenity::GuildChannel,
     #[description = "{MemberCount}, {RolesCount}, {ChannelCount}, {BoostCount}, {BotCount}, {VoiceCount}, {OnlineCount}"]
     name: Option<String>,
 ) -> Result<(), anyhow::Error> {
-    let Some(enabled) = parse_on_off(&action) else {
+    let Some(enabled) = parse_on_off(action.as_str()) else {
         send_mcount_help(&ctx).await?;
         return Ok(());
     };
@@ -227,6 +259,44 @@ pub fn render_mcount_log_desc(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn membercount_action_choices_mirror_ts_names_values_and_locales() {
+        use poise::ChoiceParameter as _;
+        let names: Vec<_> = MembercountAction::list()
+            .into_iter()
+            .map(|c| c.name)
+            .collect();
+        assert_eq!(names, vec!["Power on".to_string(), "Power off".to_string()]);
+        assert_eq!(MembercountAction::On.as_str(), "on");
+        assert_eq!(MembercountAction::Off.as_str(), "off");
+        assert_eq!(
+            MembercountAction::from_name("on"),
+            Some(MembercountAction::On)
+        );
+        assert_eq!(
+            MembercountAction::from_name("POWER OFF"),
+            Some(MembercountAction::Off)
+        );
+        assert_eq!(MembercountAction::from_name("maybe"), None);
+        assert_eq!(
+            MembercountAction::from_index(0),
+            Some(MembercountAction::On)
+        );
+        assert_eq!(
+            MembercountAction::from_index(1),
+            Some(MembercountAction::Off)
+        );
+        let list = MembercountAction::list();
+        assert_eq!(
+            list[0].localizations.get("fr").map(String::as_str),
+            Some("Activer")
+        );
+        assert_eq!(
+            MembercountAction::Off.localized_name("fr"),
+            Some("Désactiver")
+        );
+    }
 
     #[test]
     fn log_desc_fills_ts_tokens() {

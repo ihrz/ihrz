@@ -1,5 +1,68 @@
 use super::*;
 
+/// Rolesaver action choice. Mirrors the `action` option `choices` in
+/// rolesaver.ts:59-76: slash shows the localized display names, the
+/// handler maps each variant back to the TS `value`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
+pub enum RolesaverAction {
+    #[name = "Power On"]
+    #[name_localized("fr", "Activer")]
+    #[name_localized("ja", "power_on")]
+    #[name_localized("ru", "power_on")]
+    #[name_localized("es-ES", "power_on")]
+    #[name = "on"]
+    On,
+    #[name = "Power Off"]
+    #[name_localized("fr", "Désactiver")]
+    #[name_localized("ja", "power_off")]
+    #[name_localized("ru", "power_off")]
+    #[name_localized("es-ES", "power_off")]
+    #[name = "off"]
+    Off,
+}
+
+impl RolesaverAction {
+    /// TS `value` (`on` / `off`).
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::On => "on",
+            Self::Off => "off",
+        }
+    }
+}
+
+/// Rolesaver settings choice. Mirrors the `settings` option `choices`
+/// in rolesaver.ts:97-114: slash shows the localized display names,
+/// the handler maps each variant back to the TS `value` read by
+/// `norm_rolesaver_settings`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
+pub enum RolesaverSettings {
+    #[name = "Yes"]
+    #[name_localized("fr", "Oui")]
+    #[name_localized("ja", "yes")]
+    #[name_localized("ru", "yes")]
+    #[name_localized("es-ES", "yes")]
+    #[name = "yes"]
+    Yes,
+    #[name = "No"]
+    #[name_localized("fr", "Non")]
+    #[name_localized("ja", "no")]
+    #[name_localized("ru", "no")]
+    #[name_localized("es-ES", "no")]
+    #[name = "no"]
+    No,
+}
+
+impl RolesaverSettings {
+    /// TS `value` read by `norm_rolesaver_settings`.
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::Yes => "yes",
+            Self::No => "no",
+        }
+    }
+}
+
 // Settings constraint (O6): the TS option offers `yes`/`no` choices
 // (optional, absent -> `"None"`). Poise slash choices can't express
 // the absent leg on one parameter, so free-text input outside the
@@ -38,8 +101,8 @@ pub fn norm_rolesaver_settings(raw: Option<&str>) -> String {
 )]
 pub async fn rolesaver(
     ctx: Ctx<'_>,
-    #[description = "on or off"] action: String,
-    #[description = "Restore admin roles: yes or no"] settings: Option<String>,
+    #[description = "on or off"] action: RolesaverAction,
+    #[description = "Restore admin roles: yes or no"] settings: Option<RolesaverSettings>,
 ) -> Result<(), anyhow::Error> {
     let gid = ctx
         .guild_id()
@@ -53,8 +116,9 @@ pub async fn rolesaver(
     // TS switches on exact `action === "on"` / `=== "off"` (slash
     // choices); any other value silently does nothing — no embed, no
     // store write.
+    let action = action.as_str();
     if action == "on" {
-        let settings = norm_rolesaver_settings(settings.as_deref());
+        let settings = norm_rolesaver_settings(settings.map(|s| s.as_str()));
         let embed = serenity::CreateEmbed::default()
             .colour(serenity::Colour::new(0x3725a4))
             .title(t("rolesaver_embed_title"))
@@ -120,6 +184,68 @@ pub async fn rolesaver(
 
 #[cfg(test)]
 mod tests {
+    use super::RolesaverSettings;
+    use super::{norm_rolesaver_settings, RolesaverAction};
+
+    #[test]
+    fn rolesaver_choices_mirror_ts_names_values_and_locales() {
+        use poise::ChoiceParameter as _;
+        let names: Vec<_> = RolesaverAction::list()
+            .into_iter()
+            .map(|c| c.name)
+            .collect();
+        assert_eq!(names, vec!["Power On".to_string(), "Power Off".to_string()]);
+        assert_eq!(RolesaverAction::On.as_str(), "on");
+        assert_eq!(RolesaverAction::Off.as_str(), "off");
+        assert_eq!(RolesaverAction::from_name("on"), Some(RolesaverAction::On));
+        assert_eq!(
+            RolesaverAction::from_name("POWER OFF"),
+            Some(RolesaverAction::Off)
+        );
+        assert_eq!(RolesaverAction::from_name("bogus"), None);
+        assert_eq!(RolesaverAction::from_index(0), Some(RolesaverAction::On));
+        assert_eq!(RolesaverAction::from_index(1), Some(RolesaverAction::Off));
+        let settings: Vec<_> = RolesaverSettings::list()
+            .into_iter()
+            .map(|c| c.name)
+            .collect();
+        assert_eq!(settings, vec!["Yes".to_string(), "No".to_string()]);
+        assert_eq!(RolesaverSettings::Yes.as_str(), "yes");
+        assert_eq!(RolesaverSettings::No.as_str(), "no");
+        assert_eq!(
+            RolesaverSettings::from_name("yes"),
+            Some(RolesaverSettings::Yes)
+        );
+        assert_eq!(
+            RolesaverSettings::from_name("NO"),
+            Some(RolesaverSettings::No)
+        );
+        assert_eq!(RolesaverSettings::from_name("bogus"), None);
+        assert_eq!(
+            RolesaverSettings::from_index(1),
+            Some(RolesaverSettings::No)
+        );
+        // Values still feed norm_rolesaver_settings (absent -> "None").
+        assert_eq!(
+            norm_rolesaver_settings(Some(RolesaverSettings::Yes.as_str())),
+            "yes"
+        );
+        assert_eq!(norm_rolesaver_settings(None), "None");
+        let list = RolesaverAction::list();
+        assert_eq!(
+            list[0].localizations.get("fr").map(String::as_str),
+            Some("Activer")
+        );
+        let settings = RolesaverSettings::list();
+        assert_eq!(
+            settings[0].localizations.get("fr").map(String::as_str),
+            Some("Oui")
+        );
+        assert_eq!(
+            settings[1].localizations.get("fr").map(String::as_str),
+            Some("Non")
+        );
+    }
     async fn mem_pool() -> crate::db::Pool {
         crate::db::memory_pool().await
     }

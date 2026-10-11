@@ -1,5 +1,37 @@
 use super::*;
 
+/// Nickrole action choice. Mirrors the `action` option `choices` in
+/// utils.ts:596-613: slash shows the localized display names, the
+/// handler maps each variant back to the TS `value` (`add` / `sub`)
+/// read by `nick_action`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
+pub enum NickroleAction {
+    #[name = "Add"]
+    #[name_localized("fr", "Ajouter")]
+    #[name_localized("ja", "add")]
+    #[name_localized("ru", "add")]
+    #[name_localized("es-ES", "add")]
+    #[name = "add"]
+    Add,
+    #[name = "Remove"]
+    #[name_localized("fr", "Supprimer")]
+    #[name_localized("ja", "remove")]
+    #[name_localized("ru", "remove")]
+    #[name_localized("es-ES", "remove")]
+    #[name = "sub"]
+    Remove,
+}
+
+impl NickroleAction {
+    /// TS `value` read by `nick_action`.
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::Add => "add",
+            Self::Remove => "sub",
+        }
+    }
+}
+
 /// Mass-assign a role by nickname match. Mirrors !nickrole.ts.
 #[poise::command(
     slash_command,
@@ -19,7 +51,7 @@ pub async fn nickrole(
     #[description_localized("ru", "Действие, которое вы хотите выполнить")]
     #[description_localized("es-ES", "La acción que quieres realizar")]
     #[description = "add or sub"]
-    action: String,
+    action: NickroleAction,
     #[description_localized("fr", "La partie incluant dans le pseudo")]
     #[description_localized("ja", "ニックネームに含める部分")]
     #[description_localized("ru", "Часть, включаемая в никнейм")]
@@ -44,7 +76,7 @@ pub async fn nickrole(
     // TS !nickrole.ts compares `action_1 === "add"` / `=== "sub"` with
     // no case fold and no catch-all: any other action silently returns
     // with no members touched.
-    let add = match nick_action(&action) {
+    let add = match nick_action(action.as_str()) {
         Some(add) => add,
         None => return Ok(()),
     };
@@ -182,6 +214,40 @@ pub fn fill_work(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn nickrole_action_choices_mirror_ts_names_values_and_locales() {
+        use poise::ChoiceParameter as _;
+        let names: Vec<_> = NickroleAction::list().into_iter().map(|c| c.name).collect();
+        assert_eq!(names, vec!["Add".to_string(), "Remove".to_string()]);
+        assert_eq!(NickroleAction::Add.as_str(), "add");
+        assert_eq!(NickroleAction::Remove.as_str(), "sub");
+        assert_eq!(NickroleAction::from_name("add"), Some(NickroleAction::Add));
+        assert_eq!(
+            NickroleAction::from_name("SUB"),
+            Some(NickroleAction::Remove)
+        );
+        assert_eq!(
+            NickroleAction::from_name("REMOVE"),
+            Some(NickroleAction::Remove)
+        );
+        assert_eq!(NickroleAction::from_name("bogus"), None);
+        assert_eq!(NickroleAction::from_index(0), Some(NickroleAction::Add));
+        assert_eq!(NickroleAction::from_index(1), Some(NickroleAction::Remove));
+        // Values still feed nick_action.
+        assert_eq!(nick_action(NickroleAction::Add.as_str()), Some(true));
+        assert_eq!(nick_action(NickroleAction::Remove.as_str()), Some(false));
+        let list = NickroleAction::list();
+        assert_eq!(
+            list[0].localizations.get("fr").map(String::as_str),
+            Some("Ajouter")
+        );
+        assert_eq!(
+            list[1].localizations.get("fr").map(String::as_str),
+            Some("Supprimer")
+        );
+        assert_eq!(NickroleAction::Remove.localized_name("ja"), Some("remove"));
+    }
 
     #[test]
     fn action_parses_exact_like_ts() {

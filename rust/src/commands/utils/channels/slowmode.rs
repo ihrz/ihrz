@@ -1,37 +1,109 @@
 use super::*;
 
 /// Fixed slowmode durations. Mirrors the `duration` option choices in
-/// utils/util/util.ts (`None`, `5 seconds`, ..., `6 hours`) combined
-/// with the `timeConversion` table in util !cooldown.ts: the choice
-/// label is the conversion key (`0`, `5s`, ..., `6h`).
+/// utils/util/util.ts:294-407 (`None`, `5 seconds`, ..., `6 hours`)
+/// combined with the `timeConversion` table in util !cooldown.ts: the
+/// slash label is the display name (`None`, `5 seconds`, ...), the
+/// handler maps each variant back to the TS `value` (`0`, `5s`, ...,
+/// `6h`), which doubles as the prefix alias.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
 pub enum DurationChoice {
+    #[name = "None"]
+    #[name_localized("fr", "Aucun")]
+    #[name_localized("ja", "none")]
+    #[name_localized("ru", "none")]
+    #[name_localized("es-ES", "none")]
     #[name = "0"]
     Off,
+    #[name = "5 seconds"]
+    #[name_localized("fr", "5 secondes")]
+    #[name_localized("ja", "5_seconds")]
+    #[name_localized("ru", "5_seconds")]
+    #[name_localized("es-ES", "5_seconds")]
     #[name = "5s"]
     S5,
+    #[name = "10 seconds"]
+    #[name_localized("fr", "10 secondes")]
+    #[name_localized("ja", "10_seconds")]
+    #[name_localized("ru", "10_seconds")]
+    #[name_localized("es-ES", "10_seconds")]
     #[name = "10s"]
     S10,
+    #[name = "15 seconds"]
+    #[name_localized("fr", "15 secondes")]
+    #[name_localized("ja", "15_seconds")]
+    #[name_localized("ru", "15_seconds")]
+    #[name_localized("es-ES", "15_seconds")]
     #[name = "15s"]
     S15,
+    #[name = "30 seconds"]
+    #[name_localized("fr", "30 secondes")]
+    #[name_localized("ja", "30_seconds")]
+    #[name_localized("ru", "30_seconds")]
+    #[name_localized("es-ES", "30_seconds")]
     #[name = "30s"]
     S30,
+    #[name = "1 minute"]
+    #[name_localized("fr", "1 minute")]
+    #[name_localized("ja", "1_minute")]
+    #[name_localized("ru", "1_minute")]
+    #[name_localized("es-ES", "1_minute")]
     #[name = "1m"]
     M1,
+    #[name = "2 minutes"]
+    #[name_localized("fr", "2 minutes")]
+    #[name_localized("ja", "2_minutes")]
+    #[name_localized("ru", "2_minutes")]
+    #[name_localized("es-ES", "2_minutes")]
     #[name = "2m"]
     M2,
+    #[name = "5 minutes"]
+    #[name_localized("fr", "5 minutes")]
+    #[name_localized("ja", "5_minutes")]
+    #[name_localized("ru", "5_minutes")]
+    #[name_localized("es-ES", "5_minutes")]
     #[name = "5m"]
     M5,
+    #[name = "10 minutes"]
+    #[name_localized("fr", "10 minutes")]
+    #[name_localized("ja", "10_minutes")]
+    #[name_localized("ru", "10_minutes")]
+    #[name_localized("es-ES", "10_minutes")]
     #[name = "10m"]
     M10,
+    #[name = "15 minutes"]
+    #[name_localized("fr", "15 minutes")]
+    #[name_localized("ja", "15_minutes")]
+    #[name_localized("ru", "15_minutes")]
+    #[name_localized("es-ES", "15_minutes")]
     #[name = "15m"]
     M15,
+    #[name = "30 minutes"]
+    #[name_localized("fr", "30 minutes")]
+    #[name_localized("ja", "30_minutes")]
+    #[name_localized("ru", "30_minutes")]
+    #[name_localized("es-ES", "30_minutes")]
     #[name = "30m"]
     M30,
+    #[name = "1 hour"]
+    #[name_localized("fr", "1 heure")]
+    #[name_localized("ja", "1_hour")]
+    #[name_localized("ru", "1_hour")]
+    #[name_localized("es-ES", "1_hour")]
     #[name = "1h"]
     H1,
+    #[name = "2 hours"]
+    #[name_localized("fr", "2 heures")]
+    #[name_localized("ja", "2_hours")]
+    #[name_localized("ru", "2_hours")]
+    #[name_localized("es-ES", "2_hours")]
     #[name = "2h"]
     H2,
+    #[name = "6 hours"]
+    #[name_localized("fr", "6 heures")]
+    #[name_localized("ja", "6_hours")]
+    #[name_localized("ru", "6_hours")]
+    #[name_localized("es-ES", "6_hours")]
     #[name = "6h"]
     H6,
 }
@@ -179,8 +251,69 @@ mod tests {
     }
 
     #[test]
+    fn duration_choice_names_and_locales_mirror_ts() {
+        // Display names, byte-exact from util.ts:294+.
+        let names: Vec<_> = DurationChoice::list().into_iter().map(|c| c.name).collect();
+        assert_eq!(
+            names,
+            vec![
+                "None",
+                "5 seconds",
+                "10 seconds",
+                "15 seconds",
+                "30 seconds",
+                "1 minute",
+                "2 minutes",
+                "5 minutes",
+                "10 minutes",
+                "15 minutes",
+                "30 minutes",
+                "1 hour",
+                "2 hours",
+                "6 hours",
+            ]
+        );
+        // Display names parse too (main names), values stay aliases.
+        assert_eq!(DurationChoice::from_name("None"), Some(DurationChoice::Off));
+        assert_eq!(
+            DurationChoice::from_name("5 minutes"),
+            Some(DurationChoice::M5)
+        );
+        assert_eq!(
+            DurationChoice::from_name("6 HOURS"),
+            Some(DurationChoice::H6)
+        );
+        assert_eq!(DurationChoice::from_index(0), Some(DurationChoice::Off));
+        assert_eq!(DurationChoice::from_index(13), Some(DurationChoice::H6));
+        assert_eq!(DurationChoice::from_index(14), None);
+        let list = DurationChoice::list();
+        assert_eq!(
+            list[0].localizations.get("fr").map(String::as_str),
+            Some("Aucun")
+        );
+        assert_eq!(
+            list[1].localizations.get("fr").map(String::as_str),
+            Some("5 secondes")
+        );
+        assert_eq!(
+            list[11].localizations.get("fr").map(String::as_str),
+            Some("1 heure")
+        );
+        assert_eq!(
+            list[13].localizations.get("fr").map(String::as_str),
+            Some("6 heures")
+        );
+        assert_eq!(
+            list[5].localizations.get("ja").map(String::as_str),
+            Some("1_minute")
+        );
+        assert_eq!(DurationChoice::Off.localized_name("fr"), Some("Aucun"));
+        assert_eq!(DurationChoice::H2.localized_name("es-ES"), Some("2_hours"));
+    }
+
+    #[test]
     fn duration_choice_rejects_unknown_label() {
-        assert_eq!(DurationChoice::from_name("5 minutes"), None);
+        assert_eq!(DurationChoice::from_name("5 min"), None);
         assert_eq!(DurationChoice::from_name(""), None);
     }
 }

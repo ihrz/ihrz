@@ -1,5 +1,36 @@
 use super::*;
 
+/// Security config action choice. Mirrors the `action` option
+/// `choices` in security.ts:124-140: slash shows the localized display
+/// names, the handler maps each variant back to the TS `value`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
+pub enum SecurityConfigAction {
+    #[name = "Power On"]
+    #[name_localized("fr", "Activer")]
+    #[name_localized("ja", "power_on")]
+    #[name_localized("ru", "power_on")]
+    #[name_localized("es-ES", "power_on")]
+    #[name = "on"]
+    On,
+    #[name = "Power Off"]
+    #[name_localized("fr", "Désactiver")]
+    #[name_localized("ja", "power_off")]
+    #[name_localized("ru", "power_off")]
+    #[name_localized("es-ES", "power_off")]
+    #[name = "off"]
+    Off,
+}
+
+impl SecurityConfigAction {
+    /// TS `value` parsed by `parse_on_off`.
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::On => "on",
+            Self::Off => "off",
+        }
+    }
+}
+
 /// Disable or enable the Security Module feature!
 // Verdict (ADMINISTRATOR default, kept): mirrors the TS per-leg
 // `permission: Administrator` gate (`security.ts`, config leg).
@@ -22,9 +53,9 @@ use super::*;
 )]
 pub async fn security_config(
     ctx: Ctx<'_>,
-    #[description = "on or off"] action: String,
+    #[description = "on or off"] action: SecurityConfigAction,
 ) -> Result<(), anyhow::Error> {
-    let Some(enabled) = parse_on_off(&action) else {
+    let Some(enabled) = parse_on_off(action.as_str()) else {
         let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
         ctx.say(
             crate::lang::get(&code, "msg_use_on_off").unwrap_or_else(|| "Use on/off.".to_string()),
@@ -53,4 +84,47 @@ pub async fn security_config(
         .unwrap_or_else(|| key.to_string());
     ctx.say(msg).await?;
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn security_action_choices_mirror_ts_names_values_and_locales() {
+        use poise::ChoiceParameter as _;
+        let names: Vec<_> = SecurityConfigAction::list()
+            .into_iter()
+            .map(|c| c.name)
+            .collect();
+        assert_eq!(names, vec!["Power On".to_string(), "Power Off".to_string()]);
+        assert_eq!(SecurityConfigAction::On.as_str(), "on");
+        assert_eq!(SecurityConfigAction::Off.as_str(), "off");
+        assert_eq!(
+            SecurityConfigAction::from_name("on"),
+            Some(SecurityConfigAction::On)
+        );
+        assert_eq!(
+            SecurityConfigAction::from_name("POWER OFF"),
+            Some(SecurityConfigAction::Off)
+        );
+        assert_eq!(SecurityConfigAction::from_name("maybe"), None);
+        assert_eq!(
+            SecurityConfigAction::from_index(0),
+            Some(SecurityConfigAction::On)
+        );
+        assert_eq!(
+            SecurityConfigAction::from_index(1),
+            Some(SecurityConfigAction::Off)
+        );
+        let list = SecurityConfigAction::list();
+        assert_eq!(
+            list[0].localizations.get("fr").map(String::as_str),
+            Some("Activer")
+        );
+        assert_eq!(
+            SecurityConfigAction::Off.localized_name("fr"),
+            Some("Désactiver")
+        );
+    }
 }

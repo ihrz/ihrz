@@ -1,6 +1,38 @@
 use crate::bot::Ctx;
 use poise::serenity_prelude as serenity;
 
+/// Rolebutton value choice. Mirrors the `value` option `choices` in
+/// rolebutton.ts:66-89: slash shows the localized display names, the
+/// handler dispatches on the variant (same add/remove arms as the old
+/// lowercased match).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
+pub enum RolebuttonValue {
+    #[name = "Add another"]
+    #[name_localized("fr", "Ajouter un autre")]
+    #[name_localized("ja", "add_another")]
+    #[name_localized("ru", "add_another")]
+    #[name_localized("es-ES", "add_another")]
+    #[name = "add"]
+    Add,
+    #[name = "Remove one"]
+    #[name_localized("fr", "Supprimer un")]
+    #[name_localized("ja", "remove_one")]
+    #[name_localized("ru", "remove_one")]
+    #[name_localized("es-ES", "remove_one")]
+    #[name = "remove"]
+    Remove,
+}
+
+impl RolebuttonValue {
+    /// TS `value` (`add` / `remove`).
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::Add => "add",
+            Self::Remove => "remove",
+        }
+    }
+}
+
 /// Role id from a reaction-role row: TS `{rolesID}` object, falling
 /// back to legacy bare-id rows written by the old stub.
 pub fn parse_reaction_role(raw: &str) -> Option<u64> {
@@ -561,7 +593,7 @@ pub async fn post_ihorizon_log(
 )]
 pub async fn rolebutton(
     ctx: Ctx<'_>,
-    #[description = "add or remove"] value: String,
+    #[description = "add or remove"] value: RolebuttonValue,
     // TS HybridCommands/rolereactions/rolebutton.ts registers "channel".
     #[description = "Channel id"]
     #[rename = "channel"]
@@ -573,14 +605,13 @@ pub async fn rolebutton(
     let Some(guild_id) = ctx.guild_id() else {
         return Ok(());
     };
-    match value.trim().to_ascii_lowercase().as_str() {
-        "add" => {
+    match value {
+        RolebuttonValue::Add => {
             rolebutton_add(&ctx, guild_id, &channel_id, &message_id, reaction, role).await?;
         }
-        "remove" => {
+        RolebuttonValue::Remove => {
             rolebutton_remove(&ctx, guild_id, &channel_id, &message_id, reaction).await?;
         }
-        _ => {}
     }
     Ok(())
 }
@@ -1899,6 +1930,52 @@ pub async fn handle_roleselect_grant(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn rolebutton_value_choices_mirror_ts_names_values_and_locales() {
+        use poise::ChoiceParameter as _;
+        let names: Vec<_> = RolebuttonValue::list()
+            .into_iter()
+            .map(|c| c.name)
+            .collect();
+        assert_eq!(
+            names,
+            vec!["Add another".to_string(), "Remove one".to_string()]
+        );
+        assert_eq!(RolebuttonValue::Add.as_str(), "add");
+        assert_eq!(RolebuttonValue::Remove.as_str(), "remove");
+        assert_eq!(
+            RolebuttonValue::from_name("add"),
+            Some(RolebuttonValue::Add)
+        );
+        assert_eq!(
+            RolebuttonValue::from_name("REMOVE ONE"),
+            Some(RolebuttonValue::Remove)
+        );
+        assert_eq!(RolebuttonValue::from_name("bogus"), None);
+        assert_eq!(RolebuttonValue::from_index(0), Some(RolebuttonValue::Add));
+        assert_eq!(
+            RolebuttonValue::from_index(1),
+            Some(RolebuttonValue::Remove)
+        );
+        let list = RolebuttonValue::list();
+        assert_eq!(
+            list[0].localizations.get("fr").map(String::as_str),
+            Some("Ajouter un autre")
+        );
+        assert_eq!(
+            list[1].localizations.get("fr").map(String::as_str),
+            Some("Supprimer un")
+        );
+        assert_eq!(
+            list[0].localizations.get("ja").map(String::as_str),
+            Some("add_another")
+        );
+        assert_eq!(
+            RolebuttonValue::Remove.localized_name("es-ES"),
+            Some("remove_one")
+        );
+    }
 
     #[test]
     fn parses_role_values() {

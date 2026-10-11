@@ -1,6 +1,38 @@
 use super::*;
 use poise::serenity_prelude as serenity;
 
+/// Automod on/off action choice. Mirrors the `action` option `choices`
+/// in automod.ts:83, 156, 229, 301, 374 (one per subcommand: link,
+/// spam, mass-mention, discord, telegram): slash shows the localized
+/// display names, the handler maps each variant back to the TS `value`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
+pub enum AutomodAction {
+    #[name = "Power On"]
+    #[name_localized("fr", "Activer")]
+    #[name_localized("ja", "power_on")]
+    #[name_localized("ru", "power_on")]
+    #[name_localized("es-ES", "power_on")]
+    #[name = "on"]
+    On,
+    #[name = "Power Off"]
+    #[name_localized("fr", "Désactiver")]
+    #[name_localized("ja", "power_off")]
+    #[name_localized("ru", "power_off")]
+    #[name_localized("es-ES", "power_off")]
+    #[name = "off"]
+    Off,
+}
+
+impl AutomodAction {
+    /// TS `value` (`on` / `off`).
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::On => "on",
+            Self::Off => "off",
+        }
+    }
+}
+
 /// Native AutoMod Keyword sync. Mirrors
 /// `SlashCommands/guildconfig/automod/!link.ts`,
 /// `!discord_invite_link.ts` and `!telegram_link.ts`.
@@ -369,7 +401,7 @@ macro_rules! keyword_command {
                                                 )]
         pub async fn $fn_name(
             ctx: Ctx<'_>,
-            #[description = "on or off"] action: String,
+            #[description = "on or off"] action: AutomodAction,
             #[description = "Logs channel"]
             #[channel_types("Text")]
             logs_channel: Option<serenity::GuildChannel>,
@@ -378,7 +410,7 @@ macro_rules! keyword_command {
                 .guild_id()
                 .map(|g| g.get().to_string())
                 .unwrap_or_default();
-            let enabled = matches!(action.to_ascii_lowercase().as_str(), "on" | "power on");
+            let enabled = matches!(action, AutomodAction::On);
             let pool = &ctx.data().pool;
             if let Some(guild_id) = ctx.guild_id() {
                 sync_keyword_rule(
@@ -469,7 +501,7 @@ keyword_command!(
 )]
 pub async fn gc_automod_spam(
     ctx: Ctx<'_>,
-    #[description = "on or off"] action: String,
+    #[description = "on or off"] action: AutomodAction,
     #[description = "Logs channel"]
     #[channel_types("Text")]
     // TS SlashCommands/guildconfig/automod/!spam.ts registers "logs-channel".
@@ -480,7 +512,7 @@ pub async fn gc_automod_spam(
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
-    let enabled = matches!(action.to_ascii_lowercase().as_str(), "on" | "power on");
+    let enabled = matches!(action, AutomodAction::On);
     let pool = &ctx.data().pool;
     if let Some(guild_id) = ctx.guild_id() {
         sync_spam_rule(
@@ -536,7 +568,7 @@ pub async fn gc_automod_spam(
 )]
 pub async fn gc_automod_mass(
     ctx: Ctx<'_>,
-    #[description = "on or off"] action: String,
+    #[description = "on or off"] action: AutomodAction,
     #[description = "Max mentions allowed"]
     #[rename = "max-mention-allowed"]
     max_mention: Option<i64>,
@@ -550,7 +582,7 @@ pub async fn gc_automod_mass(
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
-    let enabled = matches!(action.to_ascii_lowercase().as_str(), "on" | "power on");
+    let enabled = matches!(action, AutomodAction::On);
     let limit = mention_limit(max_mention);
     let pool = &ctx.data().pool;
     let synced = if let Some(guild_id) = ctx.guild_id() {
@@ -621,6 +653,33 @@ keyword_command!(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn automod_action_choices_mirror_ts_names_values_and_locales() {
+        use poise::ChoiceParameter as _;
+        let names: Vec<_> = AutomodAction::list().into_iter().map(|c| c.name).collect();
+        assert_eq!(names, vec!["Power On".to_string(), "Power Off".to_string()]);
+        assert_eq!(AutomodAction::On.as_str(), "on");
+        assert_eq!(AutomodAction::Off.as_str(), "off");
+        assert_eq!(AutomodAction::from_name("on"), Some(AutomodAction::On));
+        assert_eq!(
+            AutomodAction::from_name("POWER OFF"),
+            Some(AutomodAction::Off)
+        );
+        assert_eq!(AutomodAction::from_name("bogus"), None);
+        assert_eq!(AutomodAction::from_index(0), Some(AutomodAction::On));
+        assert_eq!(AutomodAction::from_index(1), Some(AutomodAction::Off));
+        let list = AutomodAction::list();
+        assert_eq!(
+            list[0].localizations.get("fr").map(String::as_str),
+            Some("Activer")
+        );
+        assert_eq!(
+            list[1].localizations.get("fr").map(String::as_str),
+            Some("Désactiver")
+        );
+        assert_eq!(AutomodAction::On.localized_name("ja"), Some("power_on"));
+    }
 
     #[test]
     fn keyword_triggers_carry_ts_patterns_and_allowlist() {

@@ -1,5 +1,36 @@
 use super::*;
 
+/// Counter config action choice. Mirrors the `action` option `choices`
+/// in counter.ts:106-122: slash shows the localized display names, the
+/// handler maps each variant back to the TS `value`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
+pub enum CounterConfigAction {
+    #[name = "Power On"]
+    #[name_localized("fr", "Activer")]
+    #[name_localized("ja", "power_on")]
+    #[name_localized("ru", "power_on")]
+    #[name_localized("es-ES", "power_on")]
+    #[name = "on"]
+    On,
+    #[name = "Power Off"]
+    #[name_localized("fr", "Désactiver")]
+    #[name_localized("ja", "power_off")]
+    #[name_localized("ru", "power_off")]
+    #[name_localized("es-ES", "power_off")]
+    #[name = "off"]
+    Off,
+}
+
+impl CounterConfigAction {
+    /// TS `value` stored in `COUNTER.config`.
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::On => "on",
+            Self::Off => "off",
+        }
+    }
+}
+
 /// Subcommand for counter category!
 #[poise::command(
     slash_command,
@@ -111,13 +142,13 @@ pub async fn counter_channel(
 )]
 pub async fn counter_config(
     ctx: Ctx<'_>,
-    #[description = "on or off"] action: String,
+    #[description = "on or off"] action: CounterConfigAction,
 ) -> Result<(), anyhow::Error> {
     let gid = ctx
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
-    let enabled = matches!(action.to_ascii_lowercase().as_str(), "on" | "power on");
+    let enabled = matches!(action, CounterConfigAction::On);
     crate::db::tbl_set(
         &ctx.data().pool,
         &gid,
@@ -142,6 +173,49 @@ pub async fn counter_config(
 
 #[cfg(test)]
 mod tests {
+    use super::CounterConfigAction;
+
+    #[test]
+    fn counter_action_choices_mirror_ts_names_values_and_locales() {
+        use poise::ChoiceParameter as _;
+        let names: Vec<_> = CounterConfigAction::list()
+            .into_iter()
+            .map(|c| c.name)
+            .collect();
+        assert_eq!(names, vec!["Power On".to_string(), "Power Off".to_string()]);
+        assert_eq!(CounterConfigAction::On.as_str(), "on");
+        assert_eq!(CounterConfigAction::Off.as_str(), "off");
+        assert_eq!(
+            CounterConfigAction::from_name("on"),
+            Some(CounterConfigAction::On)
+        );
+        assert_eq!(
+            CounterConfigAction::from_name("POWER ON"),
+            Some(CounterConfigAction::On)
+        );
+        assert_eq!(
+            CounterConfigAction::from_name("off"),
+            Some(CounterConfigAction::Off)
+        );
+        assert_eq!(CounterConfigAction::from_name("maybe"), None);
+        assert_eq!(
+            CounterConfigAction::from_index(0),
+            Some(CounterConfigAction::On)
+        );
+        assert_eq!(
+            CounterConfigAction::from_index(1),
+            Some(CounterConfigAction::Off)
+        );
+        let list = CounterConfigAction::list();
+        assert_eq!(
+            list[0].localizations.get("fr").map(String::as_str),
+            Some("Activer")
+        );
+        assert_eq!(
+            CounterConfigAction::Off.localized_name("fr"),
+            Some("Désactiver")
+        );
+    }
     async fn mem_pool() -> crate::db::Pool {
         crate::db::memory_pool().await
     }

@@ -20,6 +20,37 @@ pub async fn economy_disabled_routed(pool: &crate::db::Pool, guild_id: &str) -> 
     }
 }
 
+/// Config action choice. Mirrors the `action` option `choices` in
+/// economy.ts:214-229: slash shows the localized display names, the
+/// handler maps each variant back to the TS `value`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
+pub enum EcoConfigAction {
+    #[name = "Enable the module"]
+    #[name_localized("fr", "Activer")]
+    #[name_localized("ja", "enable_the_module")]
+    #[name_localized("ru", "enable_the_module")]
+    #[name_localized("es-ES", "enable_the_module")]
+    #[name = "on"]
+    On,
+    #[name = "Disable the module"]
+    #[name_localized("fr", "Désactiver")]
+    #[name_localized("ja", "disable_the_module")]
+    #[name_localized("ru", "disable_the_module")]
+    #[name_localized("es-ES", "disable_the_module")]
+    #[name = "off"]
+    Off,
+}
+
+impl EcoConfigAction {
+    /// TS `value` (`on` / `off`).
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::On => "on",
+            Self::Off => "off",
+        }
+    }
+}
+
 /// Mirrors `!config.ts`.
 #[poise::command(
     slash_command,
@@ -39,7 +70,7 @@ pub async fn eco_config(
     #[description_localized("ru", "Что вы хотите сделать?")]
     #[description_localized("es-ES", "Que quieres hacer?")]
     #[description = "on or off"]
-    action: String,
+    action: EcoConfigAction,
 ) -> Result<(), anyhow::Error> {
     // CONSTRAINED (deliberate divergence from `!config.ts`): the TS
     // slash `choices` admit only `on` | `off`, but the prefix path reads
@@ -156,6 +187,50 @@ pub async fn eco_config(
 
 #[cfg(test)]
 mod tests {
+    use super::EcoConfigAction;
+
+    #[test]
+    fn eco_config_action_choices_mirror_ts_names_values_and_locales() {
+        use poise::ChoiceParameter as _;
+        let names: Vec<_> = EcoConfigAction::list()
+            .into_iter()
+            .map(|c| c.name)
+            .collect();
+        assert_eq!(
+            names,
+            vec![
+                "Enable the module".to_string(),
+                "Disable the module".to_string()
+            ]
+        );
+        assert_eq!(EcoConfigAction::On.as_str(), "on");
+        assert_eq!(EcoConfigAction::Off.as_str(), "off");
+        assert_eq!(EcoConfigAction::from_name("on"), Some(EcoConfigAction::On));
+        assert_eq!(
+            EcoConfigAction::from_name("DISABLE THE MODULE"),
+            Some(EcoConfigAction::Off)
+        );
+        assert_eq!(EcoConfigAction::from_name("maybe"), None);
+        assert_eq!(EcoConfigAction::from_index(0), Some(EcoConfigAction::On));
+        assert_eq!(EcoConfigAction::from_index(1), Some(EcoConfigAction::Off));
+        let list = EcoConfigAction::list();
+        assert_eq!(
+            list[0].localizations.get("fr").map(String::as_str),
+            Some("Activer")
+        );
+        assert_eq!(
+            list[1].localizations.get("fr").map(String::as_str),
+            Some("Désactiver")
+        );
+        assert_eq!(
+            list[0].localizations.get("ja").map(String::as_str),
+            Some("enable_the_module")
+        );
+        assert_eq!(
+            list[1].localizations.get("es-ES").map(String::as_str),
+            Some("disable_the_module")
+        );
+    }
     async fn mem_pool() -> crate::db::Pool {
         crate::db::memory_pool().await
     }

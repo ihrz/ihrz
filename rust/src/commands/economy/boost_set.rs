@@ -1,5 +1,60 @@
 use super::*;
 
+/// Boost choice. Mirrors the `boost` option `choices` in
+/// economy.ts:637-693: slash shows the localized display names, the
+/// handler maps each variant back to the TS `value`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
+pub enum EcoBoostChoice {
+    #[name = "Default"]
+    #[name_localized("fr", "Défaut")]
+    #[name_localized("ja", "default")]
+    #[name_localized("ru", "default")]
+    #[name_localized("es-ES", "default")]
+    #[name = "1"]
+    Default,
+    #[name = "x2"]
+    #[name_localized("fr", "x2")]
+    #[name_localized("ja", "x2")]
+    #[name_localized("ru", "x2")]
+    #[name_localized("es-ES", "x2")]
+    #[name = "2"]
+    X2,
+    #[name = "x3"]
+    #[name_localized("fr", "x3")]
+    #[name_localized("ja", "x3")]
+    #[name_localized("ru", "x3")]
+    #[name_localized("es-ES", "x3")]
+    #[name = "3"]
+    X3,
+    #[name = "x4"]
+    #[name_localized("fr", "x4")]
+    #[name_localized("ja", "x4")]
+    #[name_localized("ru", "x4")]
+    #[name_localized("es-ES", "x4")]
+    #[name = "4"]
+    X4,
+    #[name = "x5"]
+    #[name_localized("fr", "x5")]
+    #[name_localized("ja", "x5")]
+    #[name_localized("ru", "x5")]
+    #[name_localized("es-ES", "x5")]
+    #[name = "5"]
+    X5,
+}
+
+impl EcoBoostChoice {
+    /// TS `value` parsed by `validate_boost` (`parseInt` semantics).
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::Default => "1",
+            Self::X2 => "2",
+            Self::X3 => "3",
+            Self::X4 => "4",
+            Self::X5 => "5",
+        }
+    }
+}
+
 /// Boost multiplier gate. Mirrors the `!boost-set.ts` slash `choices`
 /// (`Default`/`x2`…`x5` over values `"1"`…`"5"`) in `economy.ts`:
 /// `parseInt` semantics on the raw text, accepted only inside 1-5.
@@ -37,7 +92,7 @@ pub async fn eco_boost_set(
     #[description_localized("ru", "Бонус, который вы хотите добавить")]
     #[description_localized("es-ES", "El impulso que quieres añadir")]
     #[description = "Boost (e.g. 2)"]
-    boost: String,
+    boost: EcoBoostChoice,
 ) -> Result<(), anyhow::Error> {
     if disabled_reply(&ctx).await? {
         return Ok(());
@@ -62,7 +117,7 @@ pub async fn eco_boost_set(
     // choice value, `method.number` on prefix) but is constrained to the
     // 1-5 slash choice range (see above): anything else replies with the
     // invalid-boost error and writes nothing.
-    let Some(amount) = validate_boost(&boost) else {
+    let Some(amount) = validate_boost(boost.as_str()) else {
         ctx.say(
             crate::lang::get(&code, "msg_economy_boost_invalid")
                 .unwrap_or_else(|| "Invalid boost: choose a value between 1 and 5.".to_string()),
@@ -96,6 +151,38 @@ pub async fn eco_boost_set(
 
 #[cfg(test)]
 mod tests {
+    use super::EcoBoostChoice;
+
+    #[test]
+    fn boost_choices_mirror_ts_names_values_and_locales() {
+        use poise::ChoiceParameter as _;
+        let names: Vec<_> = EcoBoostChoice::list().into_iter().map(|c| c.name).collect();
+        assert_eq!(names, vec!["Default", "x2", "x3", "x4", "x5"]);
+        assert_eq!(EcoBoostChoice::Default.as_str(), "1");
+        assert_eq!(EcoBoostChoice::X5.as_str(), "5");
+        assert_eq!(EcoBoostChoice::from_name("x3"), Some(EcoBoostChoice::X3));
+        assert_eq!(
+            EcoBoostChoice::from_name("DEFAULT"),
+            Some(EcoBoostChoice::Default)
+        );
+        assert_eq!(
+            EcoBoostChoice::from_name("1"),
+            Some(EcoBoostChoice::Default)
+        );
+        assert_eq!(EcoBoostChoice::from_name("x9"), None);
+        assert_eq!(EcoBoostChoice::from_index(0), Some(EcoBoostChoice::Default));
+        assert_eq!(EcoBoostChoice::from_index(4), Some(EcoBoostChoice::X5));
+        assert_eq!(EcoBoostChoice::from_index(5), None);
+        let list = EcoBoostChoice::list();
+        assert_eq!(
+            list[0].localizations.get("fr").map(String::as_str),
+            Some("Défaut")
+        );
+        assert_eq!(
+            list[2].localizations.get("ru").map(String::as_str),
+            Some("x3")
+        );
+    }
     use super::validate_boost;
 
     #[test]

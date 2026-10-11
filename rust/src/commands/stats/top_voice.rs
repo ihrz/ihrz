@@ -19,7 +19,7 @@ pub async fn stats_top_voice(
     #[description_localized("ru", "Период (ежедневно, еженедельно, ежемесячно)")]
     #[description_localized("es-ES", "Período de tiempo (diario, semanal, mensual)")]
     #[description = "Period: daily, weekly or monthly"]
-    period: Option<String>,
+    period: Option<super::TopPeriod>,
     #[description_localized("fr", "Nombre d'utilisateurs à afficher (par défaut: 10, max: 25)")]
     #[description_localized("ja", "表示するユーザー数（デフォルト: 10, 最大: 25）")]
     #[description_localized(
@@ -37,5 +37,11 @@ pub async fn stats_top_voice(
     } else {
         slash_top_limit(limit)
     };
-    top_by(&ctx, "voice", parse_top_period(period.as_deref()), limit).await
+    top_by(
+        &ctx,
+        "voice",
+        parse_top_period(period.map(|p| p.as_str())),
+        limit,
+    )
+    .await
 }

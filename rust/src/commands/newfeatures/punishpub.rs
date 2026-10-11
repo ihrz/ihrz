@@ -1,5 +1,78 @@
 use super::*;
 
+/// Punishpub status choice. Mirrors the `status` option `choices` in
+/// punishpub.ts:58-75: slash shows `ON` / `OFF` (localized), the
+/// handler maps each variant back to the TS `value` (`true` /
+/// `false`), which doubles as the prefix alias (`on`/`off` match the
+/// display names case-insensitively).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
+pub enum PunishpubStatus {
+    #[name = "ON"]
+    #[name_localized("fr", "Activer")]
+    #[name_localized("ja", "on")]
+    #[name_localized("ru", "on")]
+    #[name_localized("es-ES", "on")]
+    #[name = "true"]
+    On,
+    #[name = "OFF"]
+    #[name_localized("fr", "Désactiver")]
+    #[name_localized("ja", "off")]
+    #[name_localized("ru", "off")]
+    #[name_localized("es-ES", "off")]
+    #[name = "false"]
+    Off,
+}
+
+impl PunishpubStatus {
+    /// TS `value` (`true` / `false`).
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::On => "true",
+            Self::Off => "false",
+        }
+    }
+}
+
+/// Punishpub punishment choice. Mirrors the `punishement` option
+/// `choices` in punishpub.ts:111-141 (TS-side typo kept): slash shows
+/// the localized display names, the handler stores the TS `value`
+/// verbatim.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
+pub enum PunishpubKind {
+    #[name = "BAN"]
+    #[name_localized("fr", "Bannir")]
+    #[name_localized("ja", "ban")]
+    #[name_localized("ru", "ban")]
+    #[name_localized("es-ES", "ban")]
+    #[name = "ban"]
+    Ban,
+    #[name = "KICK"]
+    #[name_localized("fr", "Expulser")]
+    #[name_localized("ja", "kick")]
+    #[name_localized("ru", "kick")]
+    #[name_localized("es-ES", "kick")]
+    #[name = "kick"]
+    Kick,
+    #[name = "MUTE"]
+    #[name_localized("fr", "Muter")]
+    #[name_localized("ja", "mute")]
+    #[name_localized("ru", "mute")]
+    #[name_localized("es-ES", "mute")]
+    #[name = "mute"]
+    Mute,
+}
+
+impl PunishpubKind {
+    /// TS `value` stored as `punishementType`.
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::Ban => "ban",
+            Self::Kick => "kick",
+            Self::Mute => "mute",
+        }
+    }
+}
+
 /// Anti-pub spam config (amount/type/state).
 // Mirrors punishpub.ts: `status` is `"true"`/`"false"` on slash
 // (`"on"`/`"off"` accepted as prefix aliases). The enable leg runs
@@ -25,11 +98,11 @@ pub async fn punishpub(
     // TS SlashCommands/newfeatures/punishpub.ts registers "punishement" (TS-side typo, kept for parity).
     #[description = "ban, kick or mute"]
     #[rename = "punishement"]
-    punishment: Option<String>,
+    punishment: Option<PunishpubKind>,
     // TS registers the on/off toggle as "status".
     #[description = "true or false (on/off accepted on prefix)"]
     #[rename = "status"]
-    action: Option<String>,
+    action: Option<PunishpubStatus>,
 ) -> Result<(), anyhow::Error> {
     let gid = ctx
         .guild_id()
@@ -37,14 +110,9 @@ pub async fn punishpub(
         .unwrap_or_default();
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let uid = ctx.author().id.get().to_string();
-    // Slash choices send "true"/"false"; prefix users type "on"/"off".
-    let on = matches!(
-        action
-            .as_deref()
-            .map(|a| a.trim().to_ascii_lowercase())
-            .as_deref(),
-        Some("true") | Some("on")
-    );
+    // Slash choices send "true"/"false"; prefix on/off match the
+    // display names, so the mapped value is already canonical.
+    let on = matches!(action.map(|a| a.as_str()), Some("true"));
     // Enable leg (TS `amount && action == "true"`): amount present and
     // status on. Amount validation mirrors TS (over 50, negative and
     // zero each get their own reply; `== 0` is unreachable in TS
@@ -80,7 +148,7 @@ pub async fn punishpub(
             // TS stores `punishementType: punishment` verbatim (possibly
             // undefined, which JSON drops); None omits the key here so
             // the reader default (`"ban"`) applies the same way.
-            let kind_s = punishment.as_deref().map(|s| s.trim().to_string());
+            let kind_s = punishment.map(|k| k.as_str().to_string());
             let mut cfg = serde_json::json!({"amountMax": a - 1, "state": "true"});
             if let Some(k) = kind_s.clone() {
                 cfg["punishementType"] = serde_json::Value::String(k);
@@ -126,6 +194,71 @@ pub async fn punishpub(
 
 #[cfg(test)]
 mod tests {
+    use super::PunishpubKind;
+    use super::PunishpubStatus;
+
+    #[test]
+    fn punishpub_choices_mirror_ts_names_values_and_locales() {
+        use poise::ChoiceParameter as _;
+        let names: Vec<_> = PunishpubStatus::list()
+            .into_iter()
+            .map(|c| c.name)
+            .collect();
+        assert_eq!(names, vec!["ON".to_string(), "OFF".to_string()]);
+        assert_eq!(PunishpubStatus::On.as_str(), "true");
+        assert_eq!(PunishpubStatus::Off.as_str(), "false");
+        assert_eq!(PunishpubStatus::from_name("ON"), Some(PunishpubStatus::On));
+        assert_eq!(
+            PunishpubStatus::from_name("off"),
+            Some(PunishpubStatus::Off)
+        );
+        assert_eq!(
+            PunishpubStatus::from_name("true"),
+            Some(PunishpubStatus::On)
+        );
+        assert_eq!(
+            PunishpubStatus::from_name("false"),
+            Some(PunishpubStatus::Off)
+        );
+        assert_eq!(PunishpubStatus::from_name("bogus"), None);
+        assert_eq!(PunishpubStatus::from_index(0), Some(PunishpubStatus::On));
+        assert_eq!(PunishpubStatus::from_index(1), Some(PunishpubStatus::Off));
+        let kinds: Vec<_> = PunishpubKind::list().into_iter().map(|c| c.name).collect();
+        assert_eq!(
+            kinds,
+            vec!["BAN".to_string(), "KICK".to_string(), "MUTE".to_string()]
+        );
+        assert_eq!(PunishpubKind::Ban.as_str(), "ban");
+        assert_eq!(PunishpubKind::Kick.as_str(), "kick");
+        assert_eq!(PunishpubKind::Mute.as_str(), "mute");
+        assert_eq!(PunishpubKind::from_name("BAN"), Some(PunishpubKind::Ban));
+        assert_eq!(PunishpubKind::from_name("mute"), Some(PunishpubKind::Mute));
+        assert_eq!(PunishpubKind::from_name("jail"), None);
+        assert_eq!(PunishpubKind::from_index(2), Some(PunishpubKind::Mute));
+        let list = PunishpubStatus::list();
+        assert_eq!(
+            list[0].localizations.get("fr").map(String::as_str),
+            Some("Activer")
+        );
+        assert_eq!(
+            list[1].localizations.get("fr").map(String::as_str),
+            Some("Désactiver")
+        );
+        let kinds = PunishpubKind::list();
+        assert_eq!(
+            kinds[0].localizations.get("fr").map(String::as_str),
+            Some("Bannir")
+        );
+        assert_eq!(
+            kinds[1].localizations.get("fr").map(String::as_str),
+            Some("Expulser")
+        );
+        assert_eq!(
+            kinds[2].localizations.get("fr").map(String::as_str),
+            Some("Muter")
+        );
+        assert_eq!(PunishpubKind::Mute.localized_name("ja"), Some("mute"));
+    }
     async fn mem_pool() -> crate::db::Pool {
         crate::db::memory_pool().await
     }
