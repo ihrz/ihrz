@@ -560,11 +560,11 @@ pub async fn giveaway_footer(
     guild_id: &str,
 ) -> (String, Option<Vec<u8>>) {
     let name = crate::commands::botcat::bot_footer_name(
-        crate::db::kv_get(pool, guild_id, crate::commands::botcat::BOT_NAME_KEY)
+        crate::db::tbl_get(pool, guild_id, crate::commands::botcat::BOT_NAME_KEY)
             .await
             .as_deref(),
     );
-    let stored = crate::db::kv_get(pool, guild_id, crate::commands::botcat::BOT_PFP_KEY).await;
+    let stored = crate::db::tbl_get(pool, guild_id, crate::commands::botcat::BOT_PFP_KEY).await;
     match crate::commands::botcat::footer_icon_bytes(stored.as_deref()) {
         Some(bytes) => (name, Some(bytes)),
         None => {
@@ -774,13 +774,14 @@ pub fn restyle_board_embed(embed: &serenity::Embed, desc: String) -> serenity::C
     out
 }
 
-/// Load a giveaway row by board message id.
+/// Load a giveaway row by board message id (table-first via
+/// `gw::store_get`, legacy kv fallback; mirrors TS `GetGiveawayData`).
 pub async fn load_giveaway(
     pool: &crate::db::Pool,
     gid: &str,
     mid: u64,
 ) -> Option<serde_json::Value> {
-    crate::db::kv_get(pool, gid, &giveaway_key(mid))
+    gw::store_get(pool, gid, mid)
         .await
         .and_then(|s| serde_json::from_str(&s).ok())
 }

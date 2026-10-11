@@ -35,7 +35,7 @@ pub async fn custom_name(
     let gid = guild_id.get().to_string();
     let pool = &ctx.data().pool;
     if action.trim().eq_ignore_ascii_case("reset") {
-        crate::db::kv_del(pool, &gid, BOT_NAME_KEY).await?;
+        crate::db::tbl_del(pool, &gid, BOT_NAME_KEY).await?;
         // TS replies first, then restores the display name (banner.rs
         // follows the same reply-then-patch order for its reset).
         let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
@@ -75,7 +75,7 @@ pub async fn custom_name(
         .await?;
         return Ok(());
     }
-    crate::db::kv_set(pool, &gid, BOT_NAME_KEY, &name).await?;
+    crate::db::tbl_set(pool, &gid, BOT_NAME_KEY, &name).await?;
     if let Some(token) = crate::config::bot_token() {
         patch_guild_me(&token, guild_id.get(), serde_json::json!({ "nick": name })).await;
     }
@@ -122,5 +122,38 @@ mod tests {
         assert!(footer_name_too_long_utf16(&"😀".repeat(16)));
         assert!(!footer_name_too_long_utf16(&"a".repeat(31)));
         assert!(footer_name_too_long_utf16(&"a".repeat(32)));
+    }
+
+    #[tokio::test]
+    async fn bot_name_store_is_dual_write_with_legacy_fallback() {
+        let pool = crate::db::memory_pool().await;
+        // Table-routed write stays visible to legacy kv readers.
+        crate::db::tbl_set(&pool, "g", BOT_NAME_KEY, "Bob")
+            .await
+            .unwrap();
+        assert_eq!(
+            crate::db::tbl_get(&pool, "g", BOT_NAME_KEY)
+                .await
+                .as_deref(),
+            Some("Bob")
+        );
+        assert_eq!(
+            crate::db::kv_get(&pool, "g", BOT_NAME_KEY).await.as_deref(),
+            Some("Bob")
+        );
+        // Legacy-only row (pre-migration name) still reads table-first.
+        crate::db::kv_set(&pool, "h", BOT_NAME_KEY, "Legacy")
+            .await
+            .unwrap();
+        assert_eq!(
+            crate::db::tbl_get(&pool, "h", BOT_NAME_KEY)
+                .await
+                .as_deref(),
+            Some("Legacy")
+        );
+        // Delete clears both stores.
+        crate::db::tbl_del(&pool, "g", BOT_NAME_KEY).await.unwrap();
+        assert!(crate::db::tbl_get(&pool, "g", BOT_NAME_KEY).await.is_none());
+        assert!(crate::db::kv_get(&pool, "g", BOT_NAME_KEY).await.is_none());
     }
 }

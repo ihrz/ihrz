@@ -70,7 +70,7 @@ async fn show_wlroles_list(ctx: &Ctx<'_>) -> Result<(), anyhow::Error> {
             .unwrap_or(false);
         let _ = admin;
     }
-    let raw = crate::db::kv_get(&ctx.data().pool, &gid, "UTILS.wlRoles").await;
+    let raw = crate::db::tbl_get(&ctx.data().pool, &gid, "UTILS.wlRoles").await;
     let list: Vec<String> = raw
         .and_then(|s| serde_json::from_str(&s).ok())
         .unwrap_or_default();

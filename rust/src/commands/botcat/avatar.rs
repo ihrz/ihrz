@@ -26,7 +26,7 @@ pub async fn custom_avatar(
     let pool = &ctx.data().pool;
     let token = crate::config::bot_token();
     if action.trim().eq_ignore_ascii_case("reset") {
-        crate::db::kv_del(pool, &gid, BOT_PFP_KEY).await?;
+        crate::db::tbl_del(pool, &gid, BOT_PFP_KEY).await?;
         // TS replies first, then restores the *current global* avatar
         // (`client.user.avatarURL()`), like banner.rs does for the
         // banner. `face()` is only the fallback when the bot has no
@@ -96,7 +96,7 @@ pub async fn custom_avatar(
         )
         .await;
     }
-    crate::db::kv_set(pool, &gid, BOT_PFP_KEY, &b64).await?;
+    crate::db::tbl_set(pool, &gid, BOT_PFP_KEY, &b64).await?;
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let yes = crate::emojis::app_emoji_markup(&ctx.serenity_context().http, "Yes")
         .await

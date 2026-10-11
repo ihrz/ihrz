@@ -61,7 +61,7 @@ pub async fn m_history(
     let code = lang_code(&ctx).await;
     let key = gid.to_string();
     let now = now_ms();
-    let raw = crate::db::kv_get(&ctx.data().pool, &key, HISTORY_KEY).await;
+    let raw = crate::db::tbl_get(&ctx.data().pool, &key, HISTORY_KEY).await;
     let (list, was_legacy) = raw
         .as_deref()
         .map(|s| decode_history(s, now))
@@ -71,12 +71,12 @@ pub async fn m_history(
     // Persist TTL purges and the one-time TS `{embed, buffer}` migration.
     if raw.is_some() && (was_legacy || list.len() != total) {
         if let Ok(json) = serde_json::to_string(&list) {
-            let _ = crate::db::kv_set(&ctx.data().pool, &key, HISTORY_KEY, &json).await;
+            let _ = crate::db::tbl_set(&ctx.data().pool, &key, HISTORY_KEY, &json).await;
         }
     }
 
     if clear == Some(true) {
-        let _ = crate::db::kv_del(&ctx.data().pool, &key, HISTORY_KEY).await;
+        let _ = crate::db::tbl_del(&ctx.data().pool, &key, HISTORY_KEY).await;
         let embed = serenity::CreateEmbed::default()
             .title(
                 crate::lang::get(&code, "history_delete_embed_title")
@@ -219,7 +219,7 @@ pub async fn m_history(
                     .await;
             }
             "deleteHistory" => {
-                let _ = crate::db::kv_del(&ctx.data().pool, &key, HISTORY_KEY).await;
+                let _ = crate::db::tbl_del(&ctx.data().pool, &key, HISTORY_KEY).await;
                 let confirm = serenity::CreateEmbed::default()
                     .title(
                         crate::lang::get(&code, "history_delete_embed_title")
@@ -279,5 +279,32 @@ mod tests {
         assert_eq!(step_history_page(0, 1, true), 0);
         assert_eq!(step_history_page(0, 1, false), 0);
         assert_eq!(step_history_page(0, 0, true), 0);
+    }
+
+    #[tokio::test]
+    async fn history_store_is_table_first_with_legacy_fallback() {
+        let pool = crate::db::memory_pool().await;
+        let key = super::super::HISTORY_KEY;
+        // Table-routed write stays visible to legacy kv readers.
+        crate::db::tbl_set(&pool, "g", key, r#"[]"#).await.unwrap();
+        assert_eq!(
+            crate::db::tbl_get(&pool, "g", key).await.as_deref(),
+            Some("[]")
+        );
+        assert_eq!(
+            crate::db::kv_get(&pool, "g", key).await.as_deref(),
+            Some("[]")
+        );
+        // Legacy-only row (pre-migration history) still reads table-first.
+        crate::db::kv_set(&pool, "h", key, r#"[]"#).await.unwrap();
+        assert_eq!(
+            crate::db::tbl_get(&pool, "h", key).await.as_deref(),
+            Some("[]")
+        );
+        assert!(crate::db::tbl_get(&pool, "g", "NOPE").await.is_none());
+        // Delete clears both stores.
+        crate::db::tbl_del(&pool, "g", key).await.unwrap();
+        assert!(crate::db::tbl_get(&pool, "g", key).await.is_none());
+        assert!(crate::db::kv_get(&pool, "g", key).await.is_none());
     }
 }
