@@ -115,8 +115,25 @@ pub fn all() -> Vec<poise::Command<Data, Error>> {
         owner::main::owner(),
         owner::main::unowner_alias(),
         owner::main::bl_alias(),
-        owner::main::unblacklist_alias(),
+        owner::main::blacklist(),
+        owner::main::unblacklist(),
+        owner::main::blinfo(),
+        owner::main::bledit(),
+        owner::main::eval(),
         botcat::bot::bot(),
+        botcat::andru::andru(),
+        botcat::botinfo::botinfo_full(),
+        botcat::ether::ether(),
+        botcat::help::help(),
+        botcat::invite::invite(),
+        botcat::iris::iris(),
+        botcat::kisakay::kisakay(),
+        botcat::link::links(),
+        botcat::noaimie::noaimie(),
+        botcat::ping::ping(),
+        botcat::say::say(),
+        botcat::setserverlang::setlang(),
+        botcat::status::status(),
         botcat::custom::custom(),
         botcat::prefix::prefix_top(),
         stats::main::stats(),
@@ -462,7 +479,7 @@ mod tests {
         // Parents + flat singles + context entries + split-off utils
         // parents (U-SLASHGROUPS: leaves live nested under parents;
         // Discord caps top-level slash at 100).
-        assert_eq!(cmds.len(), 60);
+        assert_eq!(cmds.len(), 77);
         // Every nested leaf keeps working through its parent.
         fn flatten<'a>(
             cmds: &'a [poise::Command<super::Data, super::Error>],
@@ -504,6 +521,11 @@ mod tests {
             "counter",
             "git",
             "owner",
+            "blacklist",
+            "unblacklist",
+            "blinfo",
+            "bledit",
+            "eval",
             "rolereaction",
             "pfps",
             "starboard",
@@ -873,11 +895,11 @@ mod tests {
     fn all_commands_support_slash_and_prefix() {
         // Prefix-alias delegates: TS exposes `bl` solely as a prefix
         // alias (aliases: ["bl"] on flat /blacklist, never its own
-        // slash command), while `unowner` and `unblacklist` are
-        // standalone hybrid commands (ChatInput) with restored slash
-        // legs. The exemption stays valid either way: it only asserts
-        // the prefix leg and skips the slash assertion for these names.
-        const PREFIX_ONLY_DELEGATES: [&str; 3] = ["unowner", "bl", "unblacklist"];
+        // slash command), while `unowner` is a standalone hybrid
+        // command (ChatInput) with a restored slash leg. `unblacklist`
+        // used to be exempt here too, but FLATTEN-B2 made it a real
+        // top-level hybrid so it now asserts both legs like the rest.
+        const PREFIX_ONLY_DELEGATES: [&str; 2] = ["unowner", "bl"];
         // MessageCommand ports are prefix-only by design: TS registers
         // sticker/top/unslowmode under MessageCommands, never as slash.
         const PREFIX_ONLY_MESSAGE_COMMANDS: [&str; 3] = ["sticker", "top", "unslowmode"];
@@ -1070,7 +1092,7 @@ mod defer_policy_tests {
                     let is_sub = o
                         .get("type")
                         .and_then(|t| t.as_u64())
-                        .map_or(false, |t| t <= 2);
+                        .is_some_and(|t| t <= 2);
                     let req = o.get("required").and_then(|r| r.as_bool()).unwrap_or(false);
                     if !is_sub {
                         if req && seen_optional {

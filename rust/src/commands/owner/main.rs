@@ -571,15 +571,7 @@ fn owners_embed(title: &str, owners: &[String], footer_name: &str) -> serenity::
     category = "owner",
     rename = "owner",
     aliases("addowner", "owneradd", "owners", "ownerlist"),
-    subcommands(
-        "owner_list",
-        "owner_add",
-        "owner_remove",
-        "owner_blacklist",
-        "owner_unblacklist",
-        "owner_blinfo",
-        "owner_bledit"
-    ),
+    subcommands("owner_list", "owner_add", "owner_remove"),
     subcommand_required
 )]
 pub async fn owner(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
@@ -972,8 +964,15 @@ async fn send_bl_pager(
 }
 
 /// Add a user to the blacklist!
-#[poise::command(slash_command, prefix_command, rename = "blacklist")]
-pub async fn owner_blacklist(
+// FLATTEN-B2: top-level slash command (TS `blacklist.ts`, flat
+// /blacklist with aliases ["bl"]); no longer nested under `owner`.
+#[poise::command(
+    slash_command,
+    prefix_command,
+    category = "owner",
+    rename = "blacklist"
+)]
+pub async fn blacklist(
     ctx: Ctx<'_>,
     #[description = "Member"] user: Option<serenity::User>,
     // Rest-of-line like TS `longString(args, 1)`: multi-word reasons
@@ -983,10 +982,10 @@ pub async fn owner_blacklist(
     #[rest]
     reason: Option<String>,
 ) -> Result<(), anyhow::Error> {
-    owner_blacklist_inner(ctx, user, reason).await
+    blacklist_inner(ctx, user, reason).await
 }
 
-async fn owner_blacklist_inner(
+async fn blacklist_inner(
     ctx: Ctx<'_>,
     user: Option<serenity::User>,
     reason: Option<String>,
@@ -1232,15 +1231,24 @@ async fn owner_blacklist_inner(
 }
 
 /// The user you want to unblacklist (Only Owner of ihorizon)!
-#[poise::command(slash_command, prefix_command, rename = "unblacklist")]
-pub async fn owner_unblacklist(
+// FLATTEN-B2: top-level slash command (TS `unblacklist.ts`, flat
+// /unblacklist with aliases ["unbl"], standalone hybrid); no longer
+// nested under `owner`. Replaces `unblacklist_alias`.
+#[poise::command(
+    slash_command,
+    prefix_command,
+    category = "owner",
+    rename = "unblacklist",
+    aliases("unbl")
+)]
+pub async fn unblacklist(
     ctx: Ctx<'_>,
     #[description = "Member"] user: serenity::User,
 ) -> Result<(), anyhow::Error> {
-    owner_unblacklist_inner(ctx, user).await
+    unblacklist_inner(ctx, user).await
 }
 
-async fn owner_unblacklist_inner(ctx: Ctx<'_>, user: serenity::User) -> Result<(), anyhow::Error> {
+async fn unblacklist_inner(ctx: Ctx<'_>, user: serenity::User) -> Result<(), anyhow::Error> {
     let code = lang_code(&ctx).await;
     // Neither bot nor guild owner: answer the TS `unblacklist_not_owner`
     // denial instead of going silent.
@@ -1452,13 +1460,16 @@ async fn send_blinfo_embed(
 }
 
 /// Show informations about blacklisted user!
+// FLATTEN-B2: top-level slash command (TS `blinfo.ts`, flat
+// /blinfo); no longer nested under `owner`.
 #[poise::command(
     slash_command,
     prefix_command,
+    category = "owner",
     rename = "blinfo",
     aliases("blacklistinfo", "lookbl", "blook")
 )]
-pub async fn owner_blinfo(
+pub async fn blinfo(
     ctx: Ctx<'_>,
     #[description = "Member"] user: serenity::User,
 ) -> Result<(), anyhow::Error> {
@@ -1508,16 +1519,19 @@ pub async fn owner_blinfo(
 }
 
 /// Edit a blacklist reason. Mirrors !bledit.ts.
+// FLATTEN-B2: top-level slash command (TS `bledit.ts`, flat
+// /bledit); no longer nested under `owner`.
 #[poise::command(
     slash_command,
     prefix_command,
+    category = "owner",
     rename = "bledit",
     aliases("blacklistedit", "editbl")
 )]
-pub async fn owner_bledit(
+pub async fn bledit(
     ctx: Ctx<'_>,
     #[description = "Member"] user: serenity::User,
-    // Rest-of-line like TS `longString(args, 1)` (see owner_blacklist).
+    // Rest-of-line like TS `longString(args, 1)` (see blacklist).
     #[description = "The new reason"]
     #[rest]
     new_reason: String,
@@ -1573,18 +1587,14 @@ pub async fn owner_bledit(
     }
 }
 
-/// Top-level old spellings (unowner / bl / unblacklist).
-// TS exposes unowner and unblacklist as standalone hybrid commands
-// (ApplicationCommandType.ChatInput in unowner.ts /
-// unblacklist.ts); the Rust parent nests their bodies under
-// `owner ...`, so these thin delegates restore the old surface
-// (forward to the bodies). `bl` stays prefix-only: TS exposes it
-// solely as a prefix alias (aliases: ["bl"] on flat /blacklist),
-// never as its own slash command.
-// Registration note: add `owner::main::unowner_alias()`,
-// `owner::main::bl_alias()`, `owner::main::unblacklist_alias()` to the
-// command list in rust/src/commands/mod.rs (outside this module's
-// scope, so wiring is left to the integrator).
+/// Top-level old spellings (unowner / bl).
+// FLATTEN-B2: blacklist, unblacklist, blinfo, bledit and eval are
+// top-level slash commands now (exact TS names, registered in
+// crate::commands::all()). Only `unowner` and `bl` remain thin
+// delegates restoring the old surface (forward to the bodies).
+// `bl` stays prefix-only: TS exposes it solely as a prefix alias
+// (aliases: ["bl"] on flat /blacklist), never as its own slash
+// command.
 #[poise::command(slash_command, prefix_command, category = "owner", rename = "unowner")]
 pub async fn unowner_alias(
     ctx: Ctx<'_>,
@@ -1593,37 +1603,53 @@ pub async fn unowner_alias(
     owner_remove_inner(ctx, user).await
 }
 
-/// Top-level `bl` alias for `owner blacklist` (TS aliases: ["bl"]).
+/// Top-level `bl` alias for `blacklist` (TS aliases: ["bl"]).
 // Prefix-only: TS exposes `bl` as a prefix alias of flat /blacklist,
 // never as its own slash command (R2).
 #[poise::command(prefix_command, category = "owner", rename = "bl")]
 pub async fn bl_alias(
     ctx: Ctx<'_>,
     #[description = "Member"] user: Option<serenity::User>,
-    // Rest-of-line like TS `longString(args, 1)` (see owner_blacklist).
+    // Rest-of-line like TS `longString(args, 1)` (see blacklist).
     #[description = "Reason"]
     #[rest]
     reason: Option<String>,
 ) -> Result<(), anyhow::Error> {
-    owner_blacklist_inner(ctx, user, reason).await
+    blacklist_inner(ctx, user, reason).await
 }
 
-/// Top-level `unblacklist` (+ `unbl`) alias (TS aliases: [`"unbl"`]).
-// Hybrid like unowner_alias: TS `unblacklist.ts` is a standalone
-// hybrid command (`ApplicationCommandType.ChatInput`), so the delegate
-// keeps both slash and prefix paths.
-#[poise::command(
-    slash_command,
-    prefix_command,
-    category = "owner",
-    rename = "unblacklist",
-    aliases("unbl")
-)]
-pub async fn unblacklist_alias(
+/// Run Javascript program (only for developers)!
+// FLATTEN-B2: top-level slash command (TS `eval.ts`, flat /eval
+// with a required `code` string option, standalone hybrid). Perm
+// gate kept identical: `isBotDev` (config owners list), ephemeral
+// `No` for non-devs. Execution leg is a deliberate refusal:
+// arbitrary JS execution (`new Function`) has no Rust equivalent
+// (documented exclusion in ops/rust-migration/inventory.md).
+#[poise::command(slash_command, prefix_command, category = "owner", rename = "eval")]
+pub async fn eval(
     ctx: Ctx<'_>,
-    #[description = "Member"] user: serenity::User,
+    // Rest-of-line like TS `args?.join(" ")` (see blacklist).
+    #[description = "javascript code"]
+    #[rest]
+    code: String,
 ) -> Result<(), anyhow::Error> {
-    owner_unblacklist_inner(ctx, user).await
+    if !is_bot_dev(&ctx.data().config.owners, ctx.author().id.get()) {
+        ctx.send(
+            poise::CreateReply::default()
+                .content(no_emoji(&ctx).await)
+                .ephemeral(true),
+        )
+        .await?;
+        return Ok(());
+    }
+    let _ = code;
+    ctx.send(
+        poise::CreateReply::default()
+            .content("Eval is not available in this build.")
+            .ephemeral(true),
+    )
+    .await?;
+    Ok(())
 }
 
 #[cfg(test)]

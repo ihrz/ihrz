@@ -2091,12 +2091,12 @@ mod tests {
             let is_menu = obj
                 .get("type")
                 .and_then(|t| t.as_u64())
-                .map_or(false, |t| t == 2 || t == 3);
+                .is_some_and(|t| t == 2 || t == 3);
             if !is_menu
                 && obj
                     .get("description")
                     .and_then(|d| d.as_str())
-                    .map_or(true, |d| d.is_empty())
+                    .is_none_or(|d| d.is_empty())
             {
                 errs.push(format!("{path}: empty description"));
             }
