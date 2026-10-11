@@ -176,6 +176,10 @@ pub async fn command_rate_limit_check(
             &serde_json::to_string(&active).unwrap_or_default(),
         )
         .await;
+    } else {
+        tracing::warn!(
+            "deny gate=command_rate_limit user={user_id} command={path} remaining_ms={left}"
+        );
     }
     left
 }
@@ -247,6 +251,11 @@ fn global_check(
             && name != "config"
             && !crate::commands::fun::fun_enabled(pool, ctx.guild_id().map(|g| g.get())).await
         {
+            tracing::warn!(
+                "deny gate=fun user={} command={}",
+                ctx.author().id.get(),
+                ctx.command().qualified_name
+            );
             return Ok(false);
         }
         if let Some(perms) = crate::commands::guildconfig::load_cmd_perms(
@@ -286,6 +295,11 @@ fn global_check(
                 user_level,
                 &perms,
             ) {
+                tracing::warn!(
+                    "deny gate=custom-perms user={} command={}",
+                    ctx.author().id.get(),
+                    ctx.command().qualified_name
+                );
                 return Ok(false);
             }
         }
@@ -303,6 +317,10 @@ fn global_check(
             debounce_check(pool, uid, now).await
         };
         if left > 0 {
+            tracing::warn!(
+                "deny gate=debounce user={uid} command={} remaining_ms={left}",
+                ctx.command().qualified_name
+            );
             let msg = crate::lang::get(&code, "Msg_cooldown").unwrap_or_default();
             let _ = ctx
                 .send(poise::CreateReply::default().content(msg).ephemeral(true))
@@ -315,6 +333,11 @@ fn global_check(
         // the slash deny embed is queued (needs blacklistPictureInEmbed
         // Discord I/O inside the check).
         if crate::db::is_blacklisted(pool, ctx.author().id.get()).await {
+            tracing::warn!(
+                "deny gate=blacklist user={} command={}",
+                ctx.author().id.get(),
+                ctx.command().qualified_name
+            );
             return Ok(false);
         }
         // Channel UseApplicationCommands gate, prefix runs only.
@@ -322,6 +345,11 @@ fn global_check(
         // channel permission (or no resolvable member) is silently
         // dropped — no reply, just return.
         if matches!(ctx, poise::Context::Prefix(_)) && !prefix_member_may_use_commands(ctx).await {
+            tracing::warn!(
+                "deny gate=use_app user={} command={}",
+                ctx.author().id.get(),
+                ctx.command().qualified_name
+            );
             return Ok(false);
         }
         // Per-command rate limits. Mirrors checkCommandRateLimit:
@@ -369,6 +397,10 @@ fn global_check(
                     )
                     .await;
                     if left > 0 {
+                        tracing::warn!(
+                            "deny gate=rate-limit user={} command={path} remaining_ms={left}",
+                            ctx.author().id.get(),
+                        );
                         // Guild lang drives the duration units, mirroring
                         // `to_beautiful_string(remainingTime, lang)`.
                         let msg = crate::lang::get(&code, "commandlimit_rate_limited")
