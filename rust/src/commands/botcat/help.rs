@@ -8,9 +8,9 @@ use crate::commands::utils::{embed_with_footer, footer_parts};
 /// `HybridCommands/bot/help.ts` (username, Pin, category count, slash
 /// count, Crown, both owners, VC_Region, Slash_Bot_Badge).
 /// Verdict (kept): the TS `${client.content.filter(...).length}`
-/// placeholder receives the full command count there (the TS passes
+/// placeholder receives the full content length there (the TS passes
 /// `client.content.length`, help.ts:133-134), so `slash_total` is the
-/// total registered commands, like TS.
+/// leaf count from `content_leaf_count`, like TS.
 #[allow(clippy::too_many_arguments)]
 pub fn render_help_tip(
     template: &str,
@@ -318,7 +318,7 @@ pub async fn help(
             &owner1,
             &owner2,
             cats.len(),
-            commands.len(),
+            crate::commands::content_leaf_count(commands),
         );
         let embed = embed_with_footer(
             poise::serenity_prelude::CreateEmbed::default()

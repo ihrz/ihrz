@@ -3980,14 +3980,12 @@ impl serenity::EventHandler for Handler {
                             }
                         }
                         let all_cmds = crate::commands::all();
-                        // Count parity (O8/O18): TS sums 3 collections
-                        // (commands.size + message_commands.size +
-                        // applicationsCommands.size) for content.commands,
-                        // and client.content.length for the join-time bio.
-                        // commands::all() merges the same three families
-                        // (slash-capable incl. legacy prefix entries +
-                        // user/message context-menu commands), so len() is
-                        // the equivalent total in both spots.
+                        // Count parity: TS `client.content.length` counts
+                        // one entry per subcommand leaf plus one per flat
+                        // command (messageCmd 0/1/2 alike), never the
+                        // parents themselves and never the context-menu
+                        // collection; `content_leaf_count` mirrors that.
+                        // The join-time bio below uses the same count.
                         let mut cats = std::collections::HashSet::new();
                         for c in &all_cmds {
                             if let Some(cat) = c.category.as_deref() {
@@ -4022,7 +4020,7 @@ impl serenity::EventHandler for Handler {
                             // serenity 0.12 equivalent at this call site, so
                             // 0 is recorded, not measured.
                             ping_ms: 0,
-                            commands: all_cmds.len(),
+                            commands: crate::commands::content_leaf_count(&all_cmds),
                             categories: cats.len(),
                             // O6: TS stores AvailableLanguage display names;
                             // the port keeps codes only (no name table).
@@ -4571,7 +4569,7 @@ impl serenity::EventHandler for Handler {
         }
         // Per-guild bot bio in the join language (setBotBioByLang).
         if let Some(bio_tpl) = crate::lang::get(&lang_code, "bot_server_bio") {
-            let command_count = crate::commands::all().len();
+            let command_count = crate::commands::content_leaf_count(&crate::commands::all());
             let bio = crate::commands::botcat::sanitize_bio(
                 &bio_tpl.replace("{count}", &command_count.to_string()),
             );

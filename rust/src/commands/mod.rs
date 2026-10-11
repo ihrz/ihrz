@@ -166,6 +166,32 @@ pub fn all() -> Vec<poise::Command<Data, Error>> {
     ]
 }
 
+/// Leaf count mirroring `client.content.length` in production.
+/// `loadHybridCommands.ts` pushes one entry per subcommand leaf
+/// (`processOptions` recursion, `messageCmd: 2`), one per flat command
+/// without subcommands (`messageCmd: 2`), one per SlashCommands entry
+/// (`messageCmd: 0`) and one per message command (`messageCmd: 1`);
+/// parents with subcommands are NOT themselves counted and context-menu
+/// entries (`applicationsCommands`) are a separate collection. So: skip
+/// context-menu nodes (poise 0.6 marks them via
+/// `context_menu_action: Option<...>`), recurse into subcommands to the
+/// leaves, and count every childless node as 1 (prefix-only leaves count
+/// like TS `messageCmd: 1`; slash/prefix legs are irrelevant here).
+pub fn content_leaf_count(commands: &[poise::Command<Data, Error>]) -> usize {
+    commands
+        .iter()
+        .map(|c| {
+            if c.context_menu_action.is_some() {
+                0
+            } else if c.subcommands.is_empty() {
+                1
+            } else {
+                content_leaf_count(&c.subcommands)
+            }
+        })
+        .sum()
+}
+
 /// Pre-command defer policy. Mirrors `deferIfNeeded` in
 /// `src/core/commandExecutor.ts`: a slash invocation defers (public
 /// "thinking..." or ephemeral) when the TS `thinking`/`ephemeral`
@@ -934,6 +960,88 @@ mod tests {
             Permissions::MANAGE_GUILD_EXPRESSIONS
         ));
         assert!(has_gate("list-react", Permissions::ADD_REACTIONS));
+    }
+
+    #[test]
+    fn content_leaf_count_mirrors_ts_content_length() {
+        type Cmd = poise::Command<super::Data, super::Error>;
+        fn leaf(name: &str) -> Cmd {
+            poise::Command {
+                name: name.to_string(),
+                ..Default::default()
+            }
+        }
+        fn dummy_user_ctx(
+            _: poise::ApplicationContext<'_, super::Data, super::Error>,
+            _: poise::serenity_prelude::User,
+        ) -> poise::BoxFuture<'_, Result<(), poise::FrameworkError<'_, super::Data, super::Error>>>
+        {
+            Box::pin(async { Ok(()) })
+        }
+        // Flat childless node counts 1 (TS messageCmd 2 flat push).
+        assert_eq!(super::content_leaf_count(&[leaf("ping")]), 1);
+        // Parent with subcommands counts its leaves, not itself.
+        let parent = Cmd {
+            name: "mod".to_string(),
+            subcommands: vec![leaf("ban"), leaf("kick")],
+            ..Default::default()
+        };
+        assert_eq!(super::content_leaf_count(&[parent]), 2);
+        // Group nesting recurses to leaves at any depth.
+        let nested = Cmd {
+            name: "p".to_string(),
+            subcommands: vec![
+                leaf("a"),
+                Cmd {
+                    name: "g".to_string(),
+                    subcommands: vec![leaf("b"), leaf("c")],
+                    ..Default::default()
+                },
+            ],
+            ..Default::default()
+        };
+        assert_eq!(super::content_leaf_count(&[nested]), 3);
+        // Context-menu entries are a separate collection: skipped.
+        let ctx_cmd = Cmd {
+            name: "user_lookup".to_string(),
+            context_menu_action: Some(poise::ContextMenuCommandAction::User(dummy_user_ctx)),
+            ..Default::default()
+        };
+        assert_eq!(super::content_leaf_count(&[ctx_cmd]), 0);
+        // Prefix-only leaves count like TS messageCmd 1: slash/prefix
+        // legs are irrelevant, so a bare childless node counts 1.
+        let prefix_only = Cmd {
+            name: "sticker".to_string(),
+            prefix_action: None,
+            slash_action: None,
+            ..Default::default()
+        };
+        assert_eq!(super::content_leaf_count(&[prefix_only]), 1);
+        assert_eq!(
+            super::content_leaf_count(&[leaf("a"), leaf("b"), leaf("c")]),
+            3
+        );
+    }
+
+    #[test]
+    fn content_leaf_count_registry_excludes_context_menu() {
+        let cmds = all();
+        let leaves = super::content_leaf_count(&cmds);
+        // Parents expand to their leaves, so the leaf total exceeds the
+        // top-level count; the context-menu entries contribute nothing.
+        assert!(leaves > cmds.len());
+        let ctx_skipped = cmds
+            .iter()
+            .filter(|c| c.context_menu_action.is_some())
+            .count();
+        assert!(ctx_skipped > 0);
+        // Leaves over the non-context top-level nodes equal the full
+        // total, proving context-menu entries contribute nothing.
+        let mut manual = 0usize;
+        for c in cmds.iter().filter(|c| c.context_menu_action.is_none()) {
+            manual += super::content_leaf_count(std::slice::from_ref(c));
+        }
+        assert_eq!(manual, leaves);
     }
 
     #[test]

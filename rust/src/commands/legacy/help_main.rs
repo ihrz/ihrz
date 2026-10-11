@@ -76,7 +76,7 @@ pub async fn help_main(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         &code,
         &bot_name,
         cats.len(),
-        owned.len(),
+        crate::commands::content_leaf_count(&all),
         owner1,
         owner2,
         &pin,
