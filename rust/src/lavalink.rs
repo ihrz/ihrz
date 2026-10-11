@@ -829,6 +829,13 @@ pub fn node_ws_url(cfg: &NodeCfg) -> String {
 /// Node WS handshake request. Headers mirror lava-rs
 /// `connect_to_node` (Authorization + User-Id + Client-Name, Session-Id
 /// for resume); the URL is [`node_ws_url`] so secure nodes dial wss.
+///
+/// The RFC 6455 handshake headers (Host / Connection / Upgrade /
+/// Sec-WebSocket-Version / Sec-WebSocket-Key) are set explicitly:
+/// tungstenite 0.21's `generate_request` (used by `connect` on a
+/// prebuilt `Request`) REQUIRES them present and fails with
+/// `InvalidHeader(sec-websocket-key)` otherwise — it does not add
+/// them for caller-built requests.
 pub fn node_ws_request(
     cfg: &NodeCfg,
     user_id: u64,
@@ -836,10 +843,23 @@ pub fn node_ws_request(
 ) -> Result<tungstenite::handshake::client::Request, MusicError> {
     use tungstenite::http::header::HeaderValue;
     let hv = |v: &str| HeaderValue::from_str(v).map_err(|e| MusicError::Transport(e.to_string()));
+    let host = if (cfg.secure && cfg.port == 443) || (!cfg.secure && cfg.port == 80) {
+        cfg.host.clone()
+    } else {
+        format!("{}:{}", cfg.host, cfg.port)
+    };
     let mut builder = tungstenite::http::Request::builder()
         .method("GET")
         .uri(node_ws_url(cfg))
         .version(tungstenite::http::Version::HTTP_11)
+        .header("Host", hv(&host)?)
+        .header("Connection", hv("Upgrade")?)
+        .header("Upgrade", hv("websocket")?)
+        .header("Sec-WebSocket-Version", hv("13")?)
+        .header(
+            "Sec-WebSocket-Key",
+            hv(&tungstenite::handshake::client::generate_key())?,
+        )
         .header("Authorization", hv(&cfg.password)?)
         .header("User-Id", hv(&user_id.to_string())?)
         .header("Client-Name", hv(LAVALINK_CLIENT_NAME)?);
@@ -4243,6 +4263,23 @@ mod tests {
         assert!(h.get("session-id").is_none());
         let resumed = node_ws_request(&cfg, 42, Some("sess-9")).unwrap();
         assert_eq!(resumed.headers().get("session-id").unwrap(), "sess-9");
+    }
+
+    #[test]
+    fn node_ws_request_carries_rfc6455_handshake_headers() {
+        // tungstenite 0.21 `connect` on a caller-built Request does not add
+        // the handshake headers itself: a request missing Sec-WebSocket-Key
+        // fails with `InvalidHeader(sec-websocket-key)` before any byte is
+        // sent (this was the node1 drop loop).
+        let cfg = test_node_cfg();
+        let h = node_ws_request(&cfg, 7, None).unwrap();
+        let h = h.headers();
+        assert_eq!(h.get("connection").unwrap(), "Upgrade");
+        assert_eq!(h.get("upgrade").unwrap(), "websocket");
+        assert_eq!(h.get("sec-websocket-version").unwrap(), "13");
+        let key = h.get("sec-websocket-key").unwrap().to_str().unwrap();
+        assert_eq!(key.len(), 24, "base64 of 16 random bytes");
+        assert!(!h.get("host").unwrap().is_empty());
     }
 
     #[tokio::test]
