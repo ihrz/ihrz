@@ -58,6 +58,20 @@ use crate::bot::{Ctx, Data};
 
 type Error = anyhow::Error;
 
+/// Flat command registry, mirroring production (`src/Interaction/HybridCommands/*`
+/// are flat files, one command per file).
+///
+/// FLATTEN (B1-B4): the ex-`bot` (13) / ex-`owner` (5) / ex-`guildconfig` (7)
+/// leaves plus `nightmode` / `rolebutton` / `roleselect` register top-level
+/// here instead of nested under a parent, so the root holds ~87 top-level
+/// entries (Discord caps global slash commands at 100).
+/// The U-SLASHGROUPS-era `!parent leaf` prefix paths (`!bot help`,
+/// `!owner blacklist`, `!guildconfig autoreact`, ...) are dead by design:
+/// production never had them. Prefix back-compat comes only from the
+/// TS-listed aliases carried on each leaf (no invented aliases); the
+/// single deliberate delta is `bl`, kept as a prefix-only delegate of
+/// flat /blacklist (TS exposes it solely as a prefix alias, never as
+/// its own slash command).
 pub fn all() -> Vec<poise::Command<Data, Error>> {
     vec![
         fun::fun::fun(),
@@ -312,9 +326,12 @@ pub fn defer_policy(qualified_path: &str) -> DeferPolicy {
             return DeferPolicy::PUBLIC;
         }
     }
-    // U-SLASHGROUPS: leaves moved under parents (`fun dice`), but the
-    // tables still list flat leaf names — match the leaf segment too so
-    // per-leaf TS thinking flags survive regrouping.
+    // FLATTEN: the registry root is flat like production (TS
+    // HybridCommands are flat files; `all()` holds ~87 top-level
+    // entries, under Discord's 100-command cap). The tables list leaf
+    // names flat — match the leaf segment too so per-leaf TS thinking
+    // flags resolve for flat invocations (`dice`) and the remaining
+    // nested parents (`fun dice`, `mod ban`) alike.
     if let Some(leaf) = qualified_path.rsplit(' ').next() {
         if EPHEMERAL_PATHS.contains(&leaf) {
             return DeferPolicy::EPHEMERAL;
@@ -496,9 +513,10 @@ mod tests {
     #[test]
     fn registry_has_expected_commands() {
         let cmds = all();
-        // Parents + flat singles + context entries + split-off utils
-        // parents (U-SLASHGROUPS: leaves live nested under parents;
-        // Discord caps top-level slash at 100).
+        // Remaining parents + hoisted flat leaves (FLATTEN B1-B4: ex-bot
+        // / owner / guildconfig / newfeatures / rolereactions leaves now
+        // top-level like production) + context entries + split-off utils
+        // parents. Discord caps top-level slash at 100.
         assert_eq!(cmds.len(), 87);
         // Every nested leaf keeps working through its parent.
         fn flatten<'a>(
@@ -747,8 +765,9 @@ mod tests {
                 "missing {expected}"
             );
         }
-        // Discord caps top-level slash commands at 100: only parents and
-        // flat singles may carry a slash action (U-SLASHGROUPS).
+        // Discord caps top-level slash commands at 100: the root is flat
+        // like production (FLATTEN), so every top-level entry — remaining
+        // parents and hoisted leaves alike — carries its own slash action.
         let slash_top: Vec<&String> = cmds
             .iter()
             .filter(|c| c.slash_action.is_some())
