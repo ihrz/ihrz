@@ -1049,6 +1049,16 @@ async fn ephemeral(
         .await;
 }
 
+/// EMBED.{id} existence via the shared embed store reader
+/// (table-first, legacy kv fallback), mirroring the ticket panel
+/// `embed_exists` precedent: a row without an `embedSource` leaf
+/// reads as missing.
+async fn welcomer_embed_exists(pool: &crate::db::Pool, gid: &str, embed_id: &str) -> bool {
+    crate::commands::ticket::embed_source_routed(pool, gid, embed_id)
+        .await
+        .is_some()
+}
+
 /// Component dispatch. Mirrors the panel collector (section switch,
 /// message/embed/dm modals + resets, toggles, channel + role picks,
 /// dangerous-role confirm, banner reset/toggle + 6 banner prop editors
@@ -1250,10 +1260,7 @@ pub async fn handle_welcomer_component(
         let embed_id = crate::modal_helper::text_value(&submit, &input_id)
             .trim()
             .to_string();
-        if crate::db::kv_get(pool, &gid, &format!("EMBED.{embed_id}"))
-            .await
-            .is_none()
-        {
+        if !welcomer_embed_exists(pool, &gid, &embed_id).await {
             let _ = submit
                 .create_response(
                     ctx,
@@ -1923,6 +1930,33 @@ mod tests {
         assert_eq!(welcomer_section("join"), Some("join"));
         assert_eq!(welcomer_section("banner"), Some("banner"));
         assert_eq!(welcomer_section("nope"), None);
+    }
+
+    #[tokio::test]
+    async fn embed_existence_routes_through_embed_store() {
+        // R8: the join/leave embed-id check reads through the shared
+        // embed store (table-first, legacy kv fallback, keys
+        // unchanged), mirroring the ticket panel `embed_exists`
+        // precedent.
+        let pool = crate::db::memory_pool().await;
+        assert!(!welcomer_embed_exists(&pool, "g", "e1").await);
+        // Legacy-only kv row still reads.
+        let legacy = serde_json::json!({"embedSource": {"title": "legacy"}}).to_string();
+        crate::db::kv_set(&pool, "g", "EMBED.e1", &legacy)
+            .await
+            .unwrap();
+        assert!(welcomer_embed_exists(&pool, "g", "e1").await);
+        // Table row wins when both stores hold the id.
+        let table = serde_json::json!({"embedSource": {"title": "table"}}).to_string();
+        crate::commands::owner::main::routed_set(&pool, "g", "g", "EMBED.e1", &table)
+            .await
+            .unwrap();
+        assert!(welcomer_embed_exists(&pool, "g", "e1").await);
+        // Row without an embedSource leaf reads as missing.
+        crate::db::kv_set(&pool, "g", "EMBED.e0", r#"{"other":1}"#)
+            .await
+            .unwrap();
+        assert!(!welcomer_embed_exists(&pool, "g", "e0").await);
     }
 
     #[test]

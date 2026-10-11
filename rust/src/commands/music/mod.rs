@@ -221,6 +221,49 @@ pub fn h247_parked_voice(
     enabled && h247_voice.is_some() && h247_voice == player_voice
 }
 
+/// TTS-cleanup H247 grant from an already-loaded routed config.
+/// `load_h247` stores the channel as a string; an enabled config
+/// with an unparsable channel maps to None (same as the raw
+/// `parse_h247` leg it replaces).
+pub fn h247_tts_grant(
+    cfg: &crate::commands::h247::H247Config,
+) -> Option<crate::commands::h247::grant::H247Config> {
+    if !cfg.enabled {
+        return None;
+    }
+    let voice_channel_id = cfg.voice_channel_id.parse::<u64>().ok()?;
+    Some(crate::commands::h247::grant::H247Config {
+        enabled: true,
+        voice_channel_id,
+    })
+}
+
+/// Parked-channel grant constructor: a parked channel implies an
+/// enabled H247 (the grant decoder only yields enabled rows).
+pub fn parked_h247_grant(channel: Option<u64>) -> Option<crate::commands::h247::grant::H247Config> {
+    channel.map(
+        |voice_channel_id| crate::commands::h247::grant::H247Config {
+            enabled: true,
+            voice_channel_id,
+        },
+    )
+}
+
+/// Routed H247 grant for the TTS cleanup legs (keys/scopes
+/// unchanged): table-first `load_h247`, then the scheduler parked
+/// leg, which also parses TS-shaped (`voiceChannelId`) rows the
+/// struct loader skips, from the table GUILD root + legacy row.
+pub async fn load_h247_tts_grant(
+    pool: &crate::db::Pool,
+    gid: &str,
+) -> Option<crate::commands::h247::grant::H247Config> {
+    let cfg = crate::commands::h247::load_h247(pool, gid).await;
+    if let Some(g) = h247_tts_grant(&cfg) {
+        return Some(g);
+    }
+    parked_h247_grant(crate::scheduler::h247_parked_channel(pool, gid).await)
+}
+
 /// Discord embed description limit guard (lyrics truncate at 1997 UTF-16
 /// units + …; never splits a char boundary).
 pub fn truncate_lyrics(s: &str) -> String {
@@ -309,6 +352,11 @@ async fn record_history(pool: &crate::db::Pool, gid: u64, title: &str) {
 
 /// Rich write path (requester + URI), fed by the play command with the
 /// resolved track fields (mirrors the musicPlay.ts buffer/embed rows).
+///
+/// Table-first read with legacy flat-row fallback + dual-write save
+/// (keys/scopes unchanged), mirroring the `m_history` routed legs
+/// (U-104): `tbl_get` keeps pre-migration kv rows readable and
+/// `tbl_set` keeps unmigrated kv readers fresh.
 async fn record_history_full(
     pool: &crate::db::Pool,
     gid: u64,
@@ -318,14 +366,14 @@ async fn record_history_full(
 ) {
     let key = gid.to_string();
     let now = now_ms();
-    let raw = crate::db::kv_get(pool, &key, HISTORY_KEY).await;
+    let raw = crate::db::tbl_get(pool, &key, HISTORY_KEY).await;
     let mut hist: Vec<HistoryEntry> = raw
         .as_deref()
         .map(|s| decode_history(s, now).0)
         .unwrap_or_default();
     hist = push_history(hist, HistoryEntry::new(title, uri, requester, now), now);
     if let Ok(json) = serde_json::to_string(&hist) {
-        let _ = crate::db::kv_set(pool, &key, HISTORY_KEY, &json).await;
+        let _ = crate::db::tbl_set(pool, &key, HISTORY_KEY, &json).await;
     }
 }
 
@@ -1174,6 +1222,105 @@ mod tests {
         assert!(!h247_parked_voice(true, Some(7), None));
         assert!(!h247_parked_voice(true, None, None));
         assert!(!h247_parked_voice(false, Some(7), Some(7)));
+    }
+
+    #[tokio::test]
+    async fn history_write_path_is_table_first_with_legacy_fallback() {
+        let pool = crate::db::memory_pool().await;
+        // Dual-write save: visible table-first and to legacy kv readers.
+        record_history_full(
+            &pool,
+            42,
+            "Song",
+            Some("https://example.com/x"),
+            Some("<@1>"),
+        )
+        .await;
+        let via_table = crate::db::tbl_get(&pool, "42", HISTORY_KEY).await;
+        let via_legacy = crate::db::kv_get(&pool, "42", HISTORY_KEY).await;
+        assert!(via_table.as_deref().is_some_and(|s| s.contains("Song")));
+        assert!(via_legacy.as_deref().is_some_and(|s| s.contains("Song")));
+        // Legacy-only row (pre-migration history) is picked up and kept.
+        let old = serde_json::json!([{"title": "Old", "at_ms": now_ms() - 1000}]).to_string();
+        crate::db::kv_set(&pool, "43", HISTORY_KEY, &old)
+            .await
+            .unwrap();
+        record_history_full(&pool, 43, "New", None, None).await;
+        let merged = crate::db::tbl_get(&pool, "43", HISTORY_KEY).await.unwrap();
+        assert!(merged.contains("Old"), "{merged}");
+        assert!(merged.contains("New"), "{merged}");
+    }
+
+    #[test]
+    fn h247_tts_grant_maps_routed_config() {
+        let grant = h247_tts_grant(&crate::commands::h247::H247Config {
+            enabled: true,
+            voice_channel_id: "77".into(),
+        });
+        assert_eq!(grant.map(|g| g.voice_channel_id), Some(77));
+        assert!(h247_tts_grant(&crate::commands::h247::H247Config {
+            enabled: false,
+            voice_channel_id: "77".into(),
+        })
+        .is_none());
+        assert!(h247_tts_grant(&crate::commands::h247::H247Config {
+            enabled: true,
+            voice_channel_id: String::new(),
+        })
+        .is_none());
+        assert_eq!(
+            parked_h247_grant(Some(5)).map(|g| g.voice_channel_id),
+            Some(5)
+        );
+        assert!(parked_h247_grant(None).is_none());
+    }
+
+    #[tokio::test]
+    async fn h247_tts_grant_loads_table_then_legacy_shapes() {
+        let pool = crate::db::memory_pool().await;
+        // Rust-shaped table row (snake_case channel).
+        crate::commands::h247::save_h247(
+            &pool,
+            "g1",
+            &crate::commands::h247::H247Config {
+                enabled: true,
+                voice_channel_id: "11".into(),
+            },
+        )
+        .await
+        .unwrap();
+        assert_eq!(
+            load_h247_tts_grant(&pool, "g1")
+                .await
+                .map(|g| g.voice_channel_id),
+            Some(11)
+        );
+        // TS-shaped legacy row (camelCase channel) via the parked fallback.
+        crate::db::kv_set(
+            &pool,
+            "g2",
+            "GUILD.H247",
+            r#"{"enabled":true,"voiceChannelId":"22"}"#,
+        )
+        .await
+        .unwrap();
+        assert_eq!(
+            load_h247_tts_grant(&pool, "g2")
+                .await
+                .map(|g| g.voice_channel_id),
+            Some(22)
+        );
+        // Disabled / missing rows grant nothing.
+        crate::db::kv_set(
+            &pool,
+            "g3",
+            "GUILD.H247",
+            r#"{"enabled":false,"voiceChannelId":"33"}"#,
+        )
+        .await
+        .unwrap();
+        assert!(load_h247_tts_grant(&pool, "g3").await.is_none());
+        assert!(load_h247_tts_grant(&pool, "g-missing").await.is_none());
     }
 
     #[test]

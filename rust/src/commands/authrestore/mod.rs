@@ -473,15 +473,11 @@ pub fn parse_authrestore_row(raw: &str) -> Option<GuildAuthRestore> {
 
 /// Load every locally stored authrestore config. Mirrors
 /// `authRestoreTable.all()` from `Events/client/ready.ts`.
+/// Table-first union via the routed variant (global `authrestore`
+/// table, then the legacy full-kv parse-scan); kept here so the old
+/// registry path stays working.
 pub async fn load_authrestore_entries(pool: &crate::db::Pool) -> Vec<(String, GuildAuthRestore)> {
-    let rows: Vec<(String, String)> = crate::db::kv_scan_all(pool)
-        .await
-        .into_iter()
-        .map(|(gid, _, value)| (gid, value))
-        .collect();
-    rows.into_iter()
-        .filter_map(|(gid, raw)| parse_authrestore_row(&raw).map(|data| (gid, data)))
-        .collect()
+    authrestore::load_authrestore_entries_routed(pool).await
 }
 
 /// `MM/DD/YYYY HH:mm` stamp. Mirrors `format(date,
@@ -747,19 +743,11 @@ async fn t(ctx: &Ctx<'_>, key: &str, fallback: &str) -> String {
 /// Load every locally stored verified member. Mirrors
 /// `authRestoreTable.get("saved_users")` (the `SavedMembersAuthRestore`
 /// array lives in the same table as the guild configs).
+/// Table-first union via the routed variant (named `saved_users` row,
+/// then the legacy full-kv parse-scan, deduped by member id); kept
+/// here so the old registry path stays working.
 pub async fn load_saved_members(pool: &crate::db::Pool) -> Vec<Oauth2Member> {
-    let rows: Vec<String> = crate::db::kv_scan_all(pool)
-        .await
-        .into_iter()
-        .map(|(_, _, v)| v)
-        .collect();
-    let mut out = vec![];
-    for raw in rows {
-        if let Ok(list) = serde_json::from_str::<Vec<Oauth2Member>>(&raw) {
-            out.extend(list);
-        }
-    }
-    out
+    authrestore::load_saved_members_routed(pool).await
 }
 
 /// Ephemeral `rc_key_doesnt_exist` reply. Mirrors the miss path in
@@ -1069,5 +1057,76 @@ mod tests {
             parse_forcejoin_response("u%t%extra").unwrap(),
             ("u".to_string(), "t".to_string())
         );
+    }
+
+    async fn mem_pool() -> crate::db::Pool {
+        crate::db::memory_pool().await
+    }
+
+    #[tokio::test]
+    async fn entries_loader_has_table_leg() {
+        let pool = mem_pool().await;
+        // Legacy gateway-written blob anywhere in kv.
+        let (_, legacy) = sample_guild("legacy-guild", "S-legacy");
+        crate::db::kv_set(
+            &pool,
+            "legacy-guild",
+            "whatever",
+            &serde_json::to_string(&legacy).unwrap(),
+        )
+        .await
+        .unwrap();
+        // Table blob (TS-exact layout: keyed by guild id).
+        let (_, named) = sample_guild("named-guild", "S-named");
+        authrestore::save_authrestore_blob(&pool, "named-guild", &named)
+            .await
+            .unwrap();
+        // Conflict: table row wins over the legacy row for the same guild.
+        let (_, stale) = sample_guild("named-guild", "S-stale");
+        crate::db::kv_set(
+            &pool,
+            "named-guild",
+            "stale-key",
+            &serde_json::to_string(&stale).unwrap(),
+        )
+        .await
+        .unwrap();
+        let entries = load_authrestore_entries(&pool).await;
+        assert!(find_guild_by_secret(&entries, "S-legacy").is_some());
+        let (id, data) = find_guild_by_secret(&entries, "S-named").unwrap();
+        assert_eq!(id, "named-guild");
+        assert_eq!(data.config.security_code, "S-named");
+        assert!(find_guild_by_secret(&entries, "S-stale").is_none());
+    }
+
+    #[tokio::test]
+    async fn saved_members_loader_has_table_leg() {
+        let pool = mem_pool().await;
+        let m1 = sample_member("u1", 1, "en-US");
+        let mut m2 = sample_member("u2", 2, "fr");
+        m2.token = "tok2".to_string();
+        // Legacy kv list.
+        crate::db::kv_set(
+            &pool,
+            "x",
+            "y",
+            &serde_json::to_string(&vec![m1.clone()]).unwrap(),
+        )
+        .await
+        .unwrap();
+        // Named table row merges in, deduped by member id.
+        crate::commands::owner::main::routed_set(
+            &pool,
+            authrestore::AUTHRESTORE_TABLE,
+            "0",
+            authrestore::SAVED_USERS_KEY,
+            &serde_json::to_string(&vec![m1.clone(), m2.clone()]).unwrap(),
+        )
+        .await
+        .unwrap();
+        let all = load_saved_members(&pool).await;
+        assert_eq!(all.len(), 2);
+        assert!(all.iter().any(|m| m.id == "u1"));
+        assert!(all.iter().any(|m| m.id == "u2"));
     }
 }

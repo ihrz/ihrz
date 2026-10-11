@@ -1181,19 +1181,14 @@ async fn update_admin_page(
 ) {
     let code = crate::db::guild_lang(pool, comp.guild_id.map(|g| g.get())).await;
     let t = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
-    let name = crate::commands::shared::bot_footer_name(
-        crate::db::kv_get(pool, gid, crate::commands::shared::BOT_NAME_KEY)
-            .await
-            .as_deref(),
-    );
+    let (name, icon_bytes) = crate::commands::shared::footer_parts_pool(pool, gid).await;
     let footer_text = crate::commands::shared::footer_page_text(
         &name,
         &t("var_page"),
         (page + 1) as u64,
         pages.len() as u64,
     );
-    let stored = crate::db::kv_get(pool, gid, crate::commands::shared::BOT_PFP_KEY).await;
-    let with_icon = crate::commands::shared::footer_icon_bytes(stored.as_deref()).is_some();
+    let with_icon = icon_bytes.is_some();
     let embed = serenity::CreateEmbed::default()
         .colour(serenity::Colour::from_rgb(1, 1, 1))
         .title(pages[page].0.clone())

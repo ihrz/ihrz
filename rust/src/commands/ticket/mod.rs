@@ -701,14 +701,10 @@ async fn live_flat_ticket(
     gid: &str,
     user_id: u64,
 ) -> Option<String> {
-    let prefix = format!("TICKET_ALL.{user_id}.");
-    let keys: Vec<String> = crate::db::kv_scan_prefix(pool, gid, &prefix)
-        .await
-        .into_iter()
-        .map(|(k, _)| k)
-        .collect();
-    for key in keys {
-        let ch = key.strip_prefix(&prefix).unwrap_or("");
+    for key in flat_ticket_keys(pool, gid, user_id).await {
+        let ch = key
+            .strip_prefix(&format!("TICKET_ALL.{user_id}."))
+            .unwrap_or("");
         if ch.is_empty() || ch.contains('.') {
             continue;
         }
@@ -725,6 +721,24 @@ async fn live_flat_ticket(
         let _ = crate::commands::owner::main::routed_del(pool, gid, gid, &key).await;
     }
     None
+}
+
+/// Flat `TICKET_ALL.<user>.<channel>` keys for one user across both
+/// stores: the table `TICKET_ALL` root expanded first, legacy kv rows
+/// filling gaps (table wins on key conflicts, mirroring
+/// `delete::ticket_entries_routed` and the ranks/economy board
+/// precedent). Nested `TICKET_ALL.<uid>` objects never match the
+/// per-user prefix and stay on the `live_open_ticket` path.
+async fn flat_ticket_keys(pool: &crate::db::Pool, gid: &str, user_id: u64) -> Vec<String> {
+    let prefix = format!("TICKET_ALL.{user_id}.");
+    let mut keys: Vec<String> = delete::ticket_entries_routed(pool, gid)
+        .await
+        .into_iter()
+        .map(|(k, _)| k)
+        .filter(|k| k.starts_with(&prefix))
+        .collect();
+    keys.sort();
+    keys
 }
 
 /// One-ticket-per-user gate across both store shapes (stale rows are
@@ -2504,6 +2518,46 @@ mod tests {
         assert!(entries.contains(&("TICKET_ALL.3.4".to_string(), "open".to_string())));
         assert!(entries.contains(&("TICKET_ALL.1.2".to_string(), "closed".to_string())));
         assert!(load_ticket_entries(&pool, "other").await.is_empty());
+    }
+
+    #[tokio::test]
+    async fn flat_ticket_keys_union_table_and_legacy() {
+        use crate::commands::owner::main::table_backend;
+        let pool = mem_pool().await;
+        // Legacy-only flat row surfaces.
+        crate::db::kv_set(&pool, "g", "TICKET_ALL.7.100", "open")
+            .await
+            .unwrap();
+        // Table-only flat row merges in (the kv-scan-only reader missed these).
+        table_backend(&pool)
+            .table("g")
+            .set("TICKET_ALL.7.200", serde_json::json!("open"))
+            .await
+            .unwrap();
+        // Other users and guilds stay out.
+        crate::db::kv_set(&pool, "g", "TICKET_ALL.8.300", "open")
+            .await
+            .unwrap();
+        crate::db::kv_set(&pool, "other", "TICKET_ALL.7.400", "open")
+            .await
+            .unwrap();
+        // Nested `TICKET_ALL.<uid>` objects stay on the open-ticket path.
+        crate::db::kv_set(&pool, "g", "TICKET_ALL.7", r#"{"100":{"author":"7"}}"#)
+            .await
+            .unwrap();
+        assert_eq!(
+            flat_ticket_keys(&pool, "g", 7).await,
+            vec![
+                "TICKET_ALL.7.100".to_string(),
+                "TICKET_ALL.7.200".to_string()
+            ]
+        );
+        assert_eq!(
+            flat_ticket_keys(&pool, "g", 8).await,
+            vec!["TICKET_ALL.8.300".to_string()]
+        );
+        assert!(flat_ticket_keys(&pool, "g", 9).await.is_empty());
+        assert!(flat_ticket_keys(&pool, "other", 8).await.is_empty());
     }
 
     #[tokio::test]

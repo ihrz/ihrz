@@ -54,9 +54,15 @@ pub async fn m_play(
     // A disabled row is left untouched and never blocks the play.
     if let Some(tts_cfg) = crate::commands::tts::load_tts(&ctx.data().pool, &gid_str).await {
         if tts_cfg.enabled {
-            let h247_grant = crate::db::kv_get(&ctx.data().pool, &gid_str, "GUILD.H247")
-                .await
-                .and_then(|raw| crate::commands::h247::grant::parse_h247(&raw));
+            // Routed H247 grant (table-first load, scheduler parked
+            // fallback for TS-shaped rows); reuses the guard's config
+            // before hitting the store again.
+            let h247_grant = match h247_tts_grant(&h247) {
+                Some(g) => Some(g),
+                None => parked_h247_grant(
+                    crate::scheduler::h247_parked_channel(&ctx.data().pool, &gid_str).await,
+                ),
+            };
             crate::commands::tts::leave::cleanup_tts_live(
                 ctx.http(),
                 &ctx.serenity_context().shard,

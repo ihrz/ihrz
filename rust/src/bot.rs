@@ -226,7 +226,11 @@ fn global_check(
         // Slash-command usage log (mirrors slashCommandLogger.ts).
         if let Some(gid) = ctx.guild_id() {
             let gid = gid.get().to_string();
-            if let Some(ch) = crate::db::kv_get(pool, &gid, "GUILD.SERVER_LOGS.command").await {
+            if let Some(ch) = crate::commands::guildconfig::setlogschannel::load_log_channel_routed(
+                pool, &gid, "command",
+            )
+            .await
+            {
                 if let Ok(ch_id) = ch.parse::<u64>() {
                     let _ = poise::serenity_prelude::ChannelId::new(ch_id)
                         .say(
@@ -263,8 +267,9 @@ fn global_check(
                 .guild_id()
                 .map(|g| g.get().to_string())
                 .unwrap_or_default();
-            let user_level: u8 = crate::db::kv_get(
+            let user_level: u8 = crate::commands::owner::main::routed_get(
                 pool,
+                &gid,
                 &gid,
                 &format!("UTILS.USER_PERMS.{}", ctx.author().id.get()),
             )
@@ -273,11 +278,7 @@ fn global_check(
             .unwrap_or(0);
             // Role-hierarchy level (Perm 1-9 roles). Mirrors
             // checkRoleHierarchy: the effective level is the max.
-            let roles_map: std::collections::HashMap<String, String> =
-                crate::db::kv_get(pool, &gid, "UTILS.roles")
-                    .await
-                    .and_then(|s| serde_json::from_str(&s).ok())
-                    .unwrap_or_default();
+            let roles_map = crate::commands::guildconfig::load_perm_roles(pool, &gid).await;
             let user_level = user_level.max(crate::executor::role_level(&member_roles, &roles_map));
             if !crate::executor::check_cmd_access(
                 ctx.author().id.get(),
@@ -333,11 +334,11 @@ fn global_check(
             return Ok(true);
         };
         let path = ctx.command().qualified_name.clone();
-        let raw =
-            crate::db::kv_get(pool, &guild_id.get().to_string(), "UTILS.COMMAND_LIMITS").await;
-        let map: std::collections::HashMap<String, crate::commands::guildconfig::CommandLimit> =
-            raw.and_then(|s| serde_json::from_str(&s).ok())
-                .unwrap_or_default();
+        let map = crate::commands::guildconfig::commandlimit::load_command_limits_routed(
+            pool,
+            &guild_id.get().to_string(),
+        )
+        .await;
         let category = path.split(' ').next().unwrap_or(&path).to_string();
         let limit = map.get(&path).or_else(|| map.get(&category)).cloned();
         if let Some(limit) = limit {
@@ -348,8 +349,9 @@ fn global_check(
                     .map(|g| g.owner_id)
                     .unwrap_or_else(|_| ctx.author().id);
                 let bypass = owner == ctx.author().id
-                    || crate::db::kv_get(
+                    || crate::commands::owner::main::routed_get(
                         pool,
+                        &guild_id.get().to_string(),
                         &guild_id.get().to_string(),
                         &format!("GUILD.OWNER.{}", ctx.author().id.get()),
                     )
@@ -2051,6 +2053,173 @@ mod tests {
         assert_eq!(
             command_rate_limit_check(&pool, 7, "ban", 9, 2, 60_000, 3000).await,
             60_000 - (3000 - 1000)
+        );
+    }
+
+    #[tokio::test]
+    async fn global_check_server_log_read_is_routed() {
+        // global_check logs slash usage to GUILD.SERVER_LOGS.command via
+        // the setlogschannel routed reader (table-first, legacy fallback).
+        let pool = temp_pool().await;
+        crate::db::kv_set(&pool, "g1", "GUILD.SERVER_LOGS.command", "123")
+            .await
+            .unwrap();
+        assert_eq!(
+            crate::commands::guildconfig::setlogschannel::load_log_channel_routed(
+                &pool, "g1", "command"
+            )
+            .await
+            .as_deref(),
+            Some("123")
+        );
+        assert_eq!(
+            crate::commands::guildconfig::setlogschannel::load_log_channel_routed(
+                &pool, "g1", "command"
+            )
+            .await
+            .and_then(|s| s.parse::<u64>().ok()),
+            Some(123)
+        );
+        // Table row wins over the legacy row (keys unchanged).
+        crate::db::tbl_set(&pool, "g1", "GUILD.SERVER_LOGS.command", "456")
+            .await
+            .unwrap();
+        assert_eq!(
+            crate::commands::guildconfig::setlogschannel::load_log_channel_routed(
+                &pool, "g1", "command"
+            )
+            .await
+            .as_deref(),
+            Some("456")
+        );
+        assert!(
+            crate::commands::guildconfig::setlogschannel::load_log_channel_routed(
+                &pool, "g9", "command"
+            )
+            .await
+            .is_none()
+        );
+    }
+
+    #[tokio::test]
+    async fn global_check_user_perm_read_is_routed() {
+        // global_check gates on UTILS.USER_PERMS.<uid> via routed_get
+        // (helpall.rs precedent): legacy-only rows resolve, table wins.
+        let pool = temp_pool().await;
+        crate::db::kv_set(&pool, "g1", "UTILS.USER_PERMS.42", "5")
+            .await
+            .unwrap();
+        let level: u8 =
+            crate::commands::owner::main::routed_get(&pool, "g1", "g1", "UTILS.USER_PERMS.42")
+                .await
+                .and_then(|s| s.parse().ok())
+                .unwrap_or(0);
+        assert_eq!(level, 5);
+        crate::db::tbl_set(&pool, "g1", "UTILS.USER_PERMS.42", "7")
+            .await
+            .unwrap();
+        let level: u8 =
+            crate::commands::owner::main::routed_get(&pool, "g1", "g1", "UTILS.USER_PERMS.42")
+                .await
+                .and_then(|s| s.parse().ok())
+                .unwrap_or(0);
+        assert_eq!(level, 7);
+        // Missing row stays level 0 like the old kv fallback.
+        let missing: u8 =
+            crate::commands::owner::main::routed_get(&pool, "g1", "g1", "UTILS.USER_PERMS.43")
+                .await
+                .and_then(|s| s.parse().ok())
+                .unwrap_or(0);
+        assert_eq!(missing, 0);
+    }
+
+    #[tokio::test]
+    async fn global_check_roles_map_read_is_routed() {
+        // global_check feeds UTILS.roles into role_level via the
+        // guildconfig named reader (table-first, legacy fallback).
+        let pool = temp_pool().await;
+        crate::db::kv_set(&pool, "g1", "UTILS.roles", r#"{"3":"r3"}"#)
+            .await
+            .unwrap();
+        let roles = crate::commands::guildconfig::load_perm_roles(&pool, "g1").await;
+        assert_eq!(roles.get("3").map(String::as_str), Some("r3"));
+        assert_eq!(crate::executor::role_level(&[7], &roles), 0);
+        crate::db::tbl_set(&pool, "g1", "UTILS.roles", r#"{"5":"r5"}"#)
+            .await
+            .unwrap();
+        let roles = crate::commands::guildconfig::load_perm_roles(&pool, "g1").await;
+        assert_eq!(roles.get("5").map(String::as_str), Some("r5"));
+        assert!(!roles.contains_key("3"));
+        assert!(crate::commands::guildconfig::load_perm_roles(&pool, "g9")
+            .await
+            .is_empty());
+    }
+
+    #[tokio::test]
+    async fn global_check_command_limits_read_is_routed() {
+        // global_check enforces UTILS.COMMAND_LIMITS via the commandlimit
+        // routed loader (table-first, legacy fallback, same map shape).
+        let pool = temp_pool().await;
+        crate::db::kv_set(
+            &pool,
+            "g1",
+            "UTILS.COMMAND_LIMITS",
+            &serde_json::json!({"ban": {"count": 2, "windowMs": 60_000}}).to_string(),
+        )
+        .await
+        .unwrap();
+        let map =
+            crate::commands::guildconfig::commandlimit::load_command_limits_routed(&pool, "g1")
+                .await;
+        assert_eq!(map["ban"].count, 2);
+        assert_eq!(map["ban"].window_ms, 60_000);
+        crate::db::tbl_set(
+            &pool,
+            "g1",
+            "UTILS.COMMAND_LIMITS",
+            &serde_json::json!({"kick": {"count": 1, "windowMs": 10_000}}).to_string(),
+        )
+        .await
+        .unwrap();
+        let map =
+            crate::commands::guildconfig::commandlimit::load_command_limits_routed(&pool, "g1")
+                .await;
+        assert_eq!(map["kick"].count, 1);
+        assert!(!map.contains_key("ban"));
+        assert!(
+            crate::commands::guildconfig::commandlimit::load_command_limits_routed(&pool, "g9")
+                .await
+                .is_empty()
+        );
+    }
+
+    #[tokio::test]
+    async fn global_check_owner_bypass_read_is_routed() {
+        // global_check bypasses rate limits on GUILD.OWNER.<uid> via
+        // routed_get existence (helpall.rs precedent): legacy-only rows
+        // exempt, missing rows do not.
+        let pool = temp_pool().await;
+        crate::db::kv_set(&pool, "g1", "GUILD.OWNER.42", "1")
+            .await
+            .unwrap();
+        assert!(
+            crate::commands::owner::main::routed_get(&pool, "g1", "g1", "GUILD.OWNER.42")
+                .await
+                .is_some()
+        );
+        assert!(
+            crate::commands::owner::main::routed_get(&pool, "g1", "g1", "GUILD.OWNER.43")
+                .await
+                .is_none()
+        );
+        // Table row alone also exempts (pre-migration dual state).
+        crate::db::tbl_set(&pool, "g2", "GUILD.OWNER.44", "1")
+            .await
+            .unwrap();
+        assert!(
+            crate::commands::owner::main::routed_get(&pool, "g2", "g2", "GUILD.OWNER.44")
+                .await
+                .is_some()
         );
     }
 

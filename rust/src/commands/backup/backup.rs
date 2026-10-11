@@ -127,10 +127,29 @@ pub fn backup_owner_only(raw: Option<&str>) -> bool {
     }
 }
 
-/// Guild's onlyOwner flag (GUILD.BACKUP.onlyOwner).
+/// Guild's onlyOwner flag (GUILD.BACKUP.onlyOwner). Table-first read
+/// with legacy kv fallback (keys unchanged): writers dual-store via
+/// `backup_only_owner_set`, pre-table rows stay readable.
 pub async fn backup_only_owner(pool: &crate::db::Pool, gid: &str) -> bool {
-    let raw = crate::db::kv_get(pool, gid, "GUILD.BACKUP.onlyOwner").await;
+    let raw = crate::db::tbl_get(pool, gid, "GUILD.BACKUP.onlyOwner").await;
     backup_owner_only(raw.as_deref())
+}
+
+/// Dual-write save for the onlyOwner flag (mirrors the `bkp_set`
+/// routed pattern): the table handle is primary, the legacy kv row
+/// keeps unmigrated kv readers fresh. Keys unchanged ("1"/"0").
+pub async fn backup_only_owner_set(
+    pool: &crate::db::Pool,
+    gid: &str,
+    owner_only: bool,
+) -> anyhow::Result<()> {
+    crate::db::tbl_set(
+        pool,
+        gid,
+        "GUILD.BACKUP.onlyOwner",
+        if owner_only { "1" } else { "0" },
+    )
+    .await
 }
 
 /// Bot Administrator gate. Mirrors the members.me check in !load.ts:73.
@@ -229,9 +248,9 @@ pub async fn invoker_is_owner_or_admin(ctx: &Ctx<'_>) -> bool {
 mod tests {
     use super::super::gen_backup_id;
     use super::{
-        backup_field, backup_meta, backup_owner_only, backup_summary, backup_user_key, bkp_del,
-        bkp_get, bkp_owns, bkp_scan_user, bkp_set, page_count, user_backup_prefix,
-        BACKUPS_PER_PAGE, BACKUPS_ROOT, BACKUPS_SCOPE,
+        backup_field, backup_meta, backup_only_owner, backup_only_owner_set, backup_owner_only,
+        backup_summary, backup_user_key, bkp_del, bkp_get, bkp_owns, bkp_scan_user, bkp_set,
+        page_count, user_backup_prefix, BACKUPS_PER_PAGE, BACKUPS_ROOT, BACKUPS_SCOPE,
     };
 
     async fn mem_pool() -> crate::db::Pool {
@@ -441,6 +460,38 @@ mod tests {
         // Second delete of the same missing row is equally harmless.
         bkp_del(&pool, 7, "gone").await.unwrap();
         assert_eq!(bkp_get(&pool, 7, "gone").await, None);
+    }
+
+    #[tokio::test]
+    async fn only_owner_flag_reads_table_first_with_legacy_fallback() {
+        // R4: GUILD.BACKUP.onlyOwner is table-first with legacy kv
+        // fallback (keys unchanged); writers dual-store via
+        // `backup_only_owner_set` (the `bkp_set` routed pattern).
+        let pool = mem_pool().await;
+        // Unset (undefined in TS !manage.ts) is owner-only.
+        assert!(backup_only_owner(&pool, "g").await);
+        // Legacy-only kv row (pre-table write) still reads.
+        crate::db::kv_set(&pool, "g", "GUILD.BACKUP.onlyOwner", "0")
+            .await
+            .unwrap();
+        assert!(!backup_only_owner(&pool, "g").await);
+        // Dual-write persists both stores, keys unchanged.
+        backup_only_owner_set(&pool, "g", true).await.unwrap();
+        assert_eq!(
+            crate::db::kv_get(&pool, "g", "GUILD.BACKUP.onlyOwner")
+                .await
+                .as_deref(),
+            Some("1")
+        );
+        assert!(backup_only_owner(&pool, "g").await);
+        // Table row wins when stores diverge (routed writers touch
+        // the table; a stale kv row never downgrades the read).
+        crate::db::kv_set(&pool, "g", "GUILD.BACKUP.onlyOwner", "0")
+            .await
+            .unwrap();
+        assert!(backup_only_owner(&pool, "g").await);
+        backup_only_owner_set(&pool, "g", false).await.unwrap();
+        assert!(!backup_only_owner(&pool, "g").await);
     }
 
     #[tokio::test]

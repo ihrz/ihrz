@@ -56,13 +56,9 @@ pub async fn backup_manage(
         return Ok(());
     }
     let owner_only = manage_owner_only(scope.as_deref());
-    crate::db::kv_set(
-        &ctx.data().pool,
-        &gid,
-        "GUILD.BACKUP.onlyOwner",
-        if owner_only { "1" } else { "0" },
-    )
-    .await?;
+    // Dual-write (table handle primary, legacy kv row kept fresh),
+    // mirroring the `bkp_set` routed pattern.
+    super::backup::backup_only_owner_set(&ctx.data().pool, &gid, owner_only).await?;
     // Mirrors the allowed_user_string switch in !manage.ts:72
     // (backup_manage_owner / backup_manage_admin).
     let allowed = crate::commands::lang_for(
@@ -104,5 +100,20 @@ mod tests {
         assert!(!manage_owner_only(Some("OWNER")));
         assert!(!manage_owner_only(Some("whatever")));
         assert!(!manage_owner_only(None));
+    }
+
+    #[tokio::test]
+    async fn manage_save_roundtrips_through_routed_flag() {
+        // R4: the manage save path dual-writes via
+        // `backup_only_owner_set`, so the routed read observes it.
+        let pool = crate::db::memory_pool().await;
+        super::backup::backup_only_owner_set(&pool, "g", manage_owner_only(Some("owner")))
+            .await
+            .unwrap();
+        assert!(super::backup::backup_only_owner(&pool, "g").await);
+        super::backup::backup_only_owner_set(&pool, "g", manage_owner_only(Some("admin")))
+            .await
+            .unwrap();
+        assert!(!super::backup::backup_only_owner(&pool, "g").await);
     }
 }

@@ -124,27 +124,40 @@ pub async fn download_bytes(url: &str) -> Option<Vec<u8>> {
         .map(|b| b.to_vec())
 }
 
+/// Footer text plus optional footer_icon.png bytes, pool-only variant
+/// for non-Ctx paths (component handlers). Same table-first read as
+/// `footer_parts` via `table_value_or_legacy` (stored BOT.botPFP
+/// base64 wins); no bot-avatar network fallback (no cache access, so
+/// a missing stored icon resolves to `None` like the legacy
+/// component path).
+pub async fn footer_parts_pool(
+    pool: &crate::db::Pool,
+    guild_id: &str,
+) -> (String, Option<Vec<u8>>) {
+    let backend = guild_backend(pool);
+    let table = backend.table(guild_id);
+    let name = bot_footer_name(
+        table_value_or_legacy(&table, pool, guild_id, BOT_NAME_KEY)
+            .await
+            .as_ref()
+            .and_then(|v| v.as_str()),
+    );
+    let stored: Option<String> = table_value_or_legacy(&table, pool, guild_id, BOT_PFP_KEY)
+        .await
+        .as_ref()
+        .and_then(|v| v.as_str())
+        .map(|s| s.to_string());
+    (name, footer_icon_bytes(stored.as_deref()))
+}
+
 /// Footer text plus optional footer_icon.png bytes.
 /// Mirrors displayBotName footerBuilder/footerAttachmentBuilder
 /// (stored BOT.botPFP base64 wins, else a bot avatar snapshot;
 // TS attaches the avatar URL, we attach its bytes so the icon renders).
 pub async fn footer_parts(ctx: &Ctx<'_>, guild_id: &str) -> (String, Option<Vec<u8>>) {
-    let backend = guild_backend(&ctx.data().pool);
-    let table = backend.table(guild_id);
-    let name = bot_footer_name(
-        table_value_or_legacy(&table, &ctx.data().pool, guild_id, BOT_NAME_KEY)
-            .await
-            .as_ref()
-            .and_then(|v| v.as_str()),
-    );
-    let stored: Option<String> =
-        table_value_or_legacy(&table, &ctx.data().pool, guild_id, BOT_PFP_KEY)
-            .await
-            .as_ref()
-            .and_then(|v| v.as_str())
-            .map(|s| s.to_string());
-    if let Some(bytes) = footer_icon_bytes(stored.as_deref()) {
-        return (name, Some(bytes));
+    let (name, stored_bytes) = footer_parts_pool(&ctx.data().pool, guild_id).await;
+    if stored_bytes.is_some() {
+        return (name, stored_bytes);
     }
     let face = ctx.serenity_context().cache.current_user().face();
     let bytes = download_bytes(&face).await;
@@ -886,6 +899,44 @@ mod tests {
         let bytes = vec![1u8, 2, 3, 4];
         let encoded = crate::emojis::base64_encode(&bytes);
         assert_eq!(footer_icon_bytes(Some(&encoded)), Some(bytes));
+    }
+
+    #[tokio::test]
+    async fn footer_parts_pool_table_wins_over_legacy() {
+        let pool = memory_pool().await;
+        // Empty store falls back to the default name with no icon.
+        assert_eq!(
+            footer_parts_pool(&pool, "g0").await,
+            ("iHorizon".to_string(), None)
+        );
+        // Legacy-only rows resolve (kv fallback leg).
+        crate::db::kv_set(&pool, "g1", BOT_NAME_KEY, "LegacyName")
+            .await
+            .unwrap();
+        let icon = crate::emojis::base64_encode(&[9u8, 8, 7]);
+        crate::db::kv_set(&pool, "g1", BOT_PFP_KEY, &icon)
+            .await
+            .unwrap();
+        assert_eq!(
+            footer_parts_pool(&pool, "g1").await,
+            ("LegacyName".to_string(), Some(vec![9u8, 8, 7]))
+        );
+        // Table rows win on conflict (cutover helper semantics).
+        let backend = guild_backend(&pool);
+        backend
+            .table("g1")
+            .set(BOT_NAME_KEY, serde_json::json!("TableName"))
+            .await
+            .unwrap();
+        assert_eq!(
+            footer_parts_pool(&pool, "g1").await.0,
+            "TableName".to_string()
+        );
+        // Other guilds are isolated.
+        assert_eq!(
+            footer_parts_pool(&pool, "g2").await,
+            ("iHorizon".to_string(), None)
+        );
     }
 
     fn opt(name: &str, required: bool) -> HelpOptionDoc {

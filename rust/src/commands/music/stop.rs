@@ -30,9 +30,9 @@ pub async fn m_stop(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     if let Some(gid_str) = ctx.guild_id().map(|g| g.get().to_string()) {
         if let Some(tts_cfg) = crate::commands::tts::load_tts(&ctx.data().pool, &gid_str).await {
             if tts_cfg.enabled {
-                let h247_grant = crate::db::kv_get(&ctx.data().pool, &gid_str, "GUILD.H247")
-                    .await
-                    .and_then(|raw| crate::commands::h247::grant::parse_h247(&raw));
+                // Routed H247 grant (table-first load, scheduler parked
+                // fallback for TS-shaped rows), keys/scopes unchanged.
+                let h247_grant = load_h247_tts_grant(&ctx.data().pool, &gid_str).await;
                 crate::commands::tts::leave::cleanup_tts_live(
                     ctx.http(),
                     &ctx.serenity_context().shard,
