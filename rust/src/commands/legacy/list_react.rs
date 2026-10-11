@@ -23,7 +23,6 @@ pub async fn load_react_triggers(pool: &crate::db::Pool, gid: &str) -> Vec<Strin
 
 /// Show all specific messages saved to be react
 #[poise::command(
-    slash_command,
     prefix_command,
     category = "utils",
     rename = "list-react",

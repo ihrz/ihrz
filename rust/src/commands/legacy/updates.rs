@@ -23,7 +23,6 @@ use poise::serenity_prelude as serenity;
 // "Get the latest iHorizon updates and changelog!".
 /// Show the latest iHorizon updates and changelog.
 #[poise::command(
-    slash_command,
     prefix_command,
     category = "utils",
     rename = "updates",

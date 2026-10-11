@@ -2,7 +2,6 @@ use super::*;
 
 /// Add reaction by iHorizon when user send message
 #[poise::command(
-    slash_command,
     prefix_command,
     category = "utils",
     rename = "add-react",

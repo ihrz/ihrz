@@ -2,7 +2,6 @@ use super::*;
 
 /// Partner ad (fr-only). Mirrors MessageCommands/misc/@fexini.ts.
 #[poise::command(
-    slash_command,
     prefix_command,
     category = "bot",
     rename = "fexini",

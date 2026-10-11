@@ -8,7 +8,6 @@ use super::*;
 /// `Events/client/ready.ts` exposes as `apiTable`). Unknown actions
 /// stay silent like the TS if/else chain.
 #[poise::command(
-    slash_command,
     prefix_command,
     category = "utils",
     rename = "securewebhook",

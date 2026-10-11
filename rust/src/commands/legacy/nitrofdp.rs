@@ -2,7 +2,6 @@ use super::*;
 
 /// Fake nitro gift codes file (fr guilds). Mirrors nitrofdp.ts.
 #[poise::command(
-    slash_command,
     prefix_command,
     category = "utils",
     rename = "nitrofdp",

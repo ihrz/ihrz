@@ -4,7 +4,6 @@ use super::*;
 ///
 /// TS gates on `isBotOwner`, replying `blacklist_not_owner` otherwise.
 #[poise::command(
-    slash_command,
     prefix_command,
     category = "utils",
     rename = "langstats",

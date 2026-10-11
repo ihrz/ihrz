@@ -5,7 +5,6 @@ use super::*;
 /// TS gates the run on `isBotOwner` (`else return`) — mirrored here
 /// before any status read.
 #[poise::command(
-    slash_command,
     prefix_command,
     category = "utils",
     rename = "status-embed",

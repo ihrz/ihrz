@@ -2,7 +2,6 @@ use super::*;
 
 /// List perm-gated commands you may use.
 #[poise::command(
-    slash_command,
     prefix_command,
     category = "bot",
     rename = "helpall",

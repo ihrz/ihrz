@@ -6,7 +6,6 @@ use super::*;
 /// stored `UTILS.antiExe` flips between `"on"` and `"off"` (never
 /// `"1"`/`"0"`) and the reply is the `[Anti-Bin]` line.
 #[poise::command(
-    slash_command,
     prefix_command,
     category = "guildconfig",
     rename = "antiexe",

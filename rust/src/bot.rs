@@ -2249,22 +2249,24 @@ mod tests {
         );
 
         // Legacy leaves ride under the `legacy` parent
-        // (Interaction/MessageCommands/*).
+        // (Interaction/MessageCommands/*). LEGACY-SLASH-STRIP made the
+        // PREFIX_IHORIZON_COMMAND ports prefix-only: they keep their
+        // dump entry (prefix help) but carry no slash param options.
         let legacy = top(entries, "legacy");
         assert_eq!(
-            loc(
-                &opt(opt(legacy, "nitrofdp"), "amount")["description_localizations"],
-                "fr"
-            ),
-            "nombre de nitro"
+            loc(&opt(legacy, "nitrofdp")["description_localizations"], "fr"),
+            "sans commentaires"
         );
         assert_eq!(
             loc(
-                &opt(opt(legacy, "securewebhook"), "input")["description_localizations"],
-                "ru"
+                &opt(legacy, "securewebhook")["description_localizations"],
+                "fr"
             ),
-            "URL вебхука или код вебхука"
+            "Sécuriser une webhook à travers un PROXY iHorizon"
         );
+        assert!(opt(legacy, "nitrofdp").get("options").is_none());
+        assert!(opt(legacy, "securewebhook").get("options").is_none());
+        // Slash legs under the same parent are unaffected.
         assert_eq!(
             loc(&opt(legacy, "welcomer")["description_localizations"], "ja"),
             "ウェルカマーモジュールを設定！"

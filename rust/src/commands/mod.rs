@@ -1059,6 +1059,32 @@ mod tests {
         // MessageCommand ports are prefix-only by design: TS registers
         // sticker/top/unslowmode under MessageCommands, never as slash.
         const PREFIX_ONLY_MESSAGE_COMMANDS: [&str; 3] = ["sticker", "top", "unslowmode"];
+        // LEGACY-SLASH-STRIP: every other PREFIX_IHORIZON_COMMAND port
+        // (MessageCommands/*, never slash-registered in TS, never
+        // length-validated) is prefix-only too. help_main and welcomer
+        // stay dual: their TS sources are HybridCommands/bot/help.ts and
+        // the ChatInput welcomer.ts respectively.
+        const PREFIX_ONLY_LEGACY_STRIP: [&str; 19] = [
+            "add-react",
+            "antiexe",
+            "autorespond",
+            "fexini",
+            "helpall",
+            "h",
+            "kawaeine",
+            "langstats",
+            "list-react",
+            "nitrofdp",
+            "rap-vs-reality",
+            "remove-react",
+            "securewebhook",
+            "shardinfo",
+            "status-embed",
+            "two-sides",
+            "updates",
+            "grosbg",
+            "autologs",
+        ];
         // Rust-only splits of a TS subcommand (wlroles add/list): kept
         // prefix-only so the parent's slash surface matches TS exactly.
         const PREFIX_ONLY_SPLITS: [&str; 2] = ["wlroles-add", "wlroles-list"];
@@ -1081,6 +1107,7 @@ mod tests {
             if PREFIX_ONLY_DELEGATES.contains(&cmd.name.as_str())
                 || PREFIX_ONLY_MESSAGE_COMMANDS.contains(&cmd.name.as_str())
                 || PREFIX_ONLY_SPLITS.contains(&cmd.name.as_str())
+                || PREFIX_ONLY_LEGACY_STRIP.contains(&cmd.name.as_str())
             {
                 assert!(
                     cmd.prefix_action.is_some(),
@@ -1235,6 +1262,37 @@ mod defer_policy_tests {
                     }
                 })
         }
+        fn check_localizations(v: &serde_json::Value, path: &str, errs: &mut Vec<String>) {
+            // Discord caps every localized description at 100 chars and
+            // every localized name at 32 chars — the whole batch is
+            // rejected when a single entry overflows (prefix-only ports
+            // never faced this cap in TS, hence the offline guard).
+            if let Some(map) = v
+                .get("description_localizations")
+                .and_then(|m| m.as_object())
+            {
+                for (locale, desc) in map {
+                    let s = desc.as_str().unwrap_or("");
+                    let n = s.chars().count();
+                    if !(1..=100).contains(&n) {
+                        errs.push(format!(
+                            "{path}: bad description_localizations[{locale}] len {n}: {s:?}"
+                        ));
+                    }
+                }
+            }
+            if let Some(map) = v.get("name_localizations").and_then(|m| m.as_object()) {
+                for (locale, name) in map {
+                    let s = name.as_str().unwrap_or("");
+                    let n = s.chars().count();
+                    if !(1..=32).contains(&n) {
+                        errs.push(format!(
+                            "{path}: bad name_localizations[{locale}] len {n}: {s:?}"
+                        ));
+                    }
+                }
+            }
+        }
         fn check_option(v: &serde_json::Value, path: &str, errs: &mut Vec<String>) {
             let name = v.get("name").and_then(|n| n.as_str()).unwrap_or("");
             if !valid_name(name) {
@@ -1278,6 +1336,7 @@ mod defer_policy_tests {
                     errs.push(format!("{path}/{name}: {} choices > 25", choices.len()));
                 }
             }
+            check_localizations(v, &format!("{path}/{name}"), errs);
         }
         let mut errs: Vec<String> = vec![];
         let mut top_names: Vec<(u64, String)> = vec![];
@@ -1290,6 +1349,7 @@ mod defer_policy_tests {
             .flatten()
             {
                 let v = serde_json::to_value(&built).expect("command serializes");
+                check_localizations(&v, "top-level", &mut errs);
                 let name = v
                     .get("name")
                     .and_then(|n| n.as_str())

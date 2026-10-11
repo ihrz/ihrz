@@ -6,7 +6,6 @@ use super::*;
 /// owners) and stays silent otherwise — mirrored here before the
 /// cache read.
 #[poise::command(
-    slash_command,
     prefix_command,
     category = "utils",
     rename = "shardinfo",

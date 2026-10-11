@@ -8,7 +8,6 @@ use super::*;
 // entry lands on the special `GUILD.TICKET.logs` key via
 // `auto_db_key`, like TS `setlogschannel.ts:353-358`.
 #[poise::command(
-    slash_command,
     prefix_command,
     rename = "autologs",
     aliases("presetlogs", "presetlog", "autolog"),

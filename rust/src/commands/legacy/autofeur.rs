@@ -2,7 +2,6 @@ use super::*;
 
 /// Auto-response toggle (fr-ME only). Mirrors autofeur.ts.
 #[poise::command(
-    slash_command,
     prefix_command,
     category = "guildconfig",
     rename = "autorespond",
