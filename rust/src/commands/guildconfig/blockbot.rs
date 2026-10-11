@@ -1,5 +1,36 @@
 use super::*;
 
+/// Block-bot action choice. Mirrors the `action` option `choices` in
+/// guildconfig.ts:99-120 (`block` -> `bot`): slash shows the localized
+/// display names, the handler maps each variant back to the TS `value`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
+pub enum BlockbotAction {
+    #[name = "Power On"]
+    #[name_localized("fr", "Activer")]
+    #[name_localized("ja", "power_on")]
+    #[name_localized("ru", "power_on")]
+    #[name_localized("es-ES", "power_on")]
+    #[name = "on"]
+    On,
+    #[name = "Power Off"]
+    #[name_localized("fr", "Désactiver")]
+    #[name_localized("ja", "power_off")]
+    #[name_localized("ru", "power_off")]
+    #[name_localized("es-ES", "power_off")]
+    #[name = "off"]
+    Off,
+}
+
+impl BlockbotAction {
+    /// TS `value` (`on` / `off`).
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::On => "on",
+            Self::Off => "off",
+        }
+    }
+}
+
 /// True when a stored GUILD.BLOCK_BOT value means "enabled". Accepts
 /// the Rust `"1"` form and the TS legacy boolean form (`db.set(...,
 /// true)` serializes to `"true"`); a deleted key (`None`) and any
@@ -53,7 +84,12 @@ async fn post_blockbot_log(ctx: &Ctx<'_>, title: &str, description: &str) {
 )]
 pub async fn gc_blockbot(
     ctx: Ctx<'_>,
-    #[description = "on or off"] action: String,
+    #[description_localized("fr", "Que veux-tu faire?")]
+    #[description_localized("ja", "何をしたいですか？")]
+    #[description_localized("ru", "Что вы хотите сделать?")]
+    #[description_localized("es-ES", "Que quieres hacer?")]
+    #[description = "What you want to do?"]
+    action: BlockbotAction,
 ) -> Result<(), anyhow::Error> {
     let gid = ctx
         .guild_id()
@@ -75,6 +111,7 @@ pub async fn gc_blockbot(
         return Ok(());
     }
     let author_mention = ctx.author().to_string();
+    let action = action.as_str();
     let enabled = matches!(action.to_ascii_lowercase().as_str(), "on" | "power on");
     if enabled {
         let title = crate::lang::get(&code, "blockbot_logs_enable_title")
@@ -117,6 +154,32 @@ pub async fn gc_blockbot(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use poise::ChoiceParameter as _;
+
+    #[test]
+    fn blockbot_action_choices_mirror_ts_names_values_and_locales() {
+        let names: Vec<_> = BlockbotAction::list().into_iter().map(|c| c.name).collect();
+        assert_eq!(names, vec!["Power On", "Power Off"]);
+        assert_eq!(BlockbotAction::On.as_str(), "on");
+        assert_eq!(BlockbotAction::Off.as_str(), "off");
+        assert_eq!(BlockbotAction::from_name("on"), Some(BlockbotAction::On));
+        assert_eq!(
+            BlockbotAction::from_name("POWER OFF"),
+            Some(BlockbotAction::Off)
+        );
+        assert_eq!(BlockbotAction::from_name("bogus"), None);
+        assert_eq!(BlockbotAction::from_index(0), Some(BlockbotAction::On));
+        assert_eq!(BlockbotAction::from_index(1), Some(BlockbotAction::Off));
+        let list = BlockbotAction::list();
+        assert_eq!(
+            list[0].localizations.get("fr").map(String::as_str),
+            Some("Activer")
+        );
+        assert_eq!(
+            list[1].localizations.get("fr").map(String::as_str),
+            Some("Désactiver")
+        );
+    }
 
     #[test]
     fn reader_accepts_rust_one_and_ts_boolean_shapes() {

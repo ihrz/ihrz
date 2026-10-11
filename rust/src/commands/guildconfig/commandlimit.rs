@@ -56,6 +56,10 @@ pub fn autocomplete_command_choices(paths: &[String], focused: &str) -> Vec<Stri
 
 /// Poise autocomplete for the `command` option (TS autocomplete with an
 /// async handler). Case-sensitive substring, 25 cap, exactly like TS.
+/// FAILED-unexpressible as a static ChoiceParameter: the list is built
+/// at runtime from the live command registry (`getCommandChoices(client)`
+/// walking `client.commands`, commandlimit.ts:38-60/341-360), so it can
+/// only be an autocomplete handler, never a fixed enum.
 /// NOTE: `events_handler.rs` keeps a raw Autocomplete responder arm for
 /// `commandlimit` (out of scope here) — it must skip this command now
 /// that poise answers, or Discord sees a double-ack.

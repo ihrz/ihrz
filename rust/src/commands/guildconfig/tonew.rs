@@ -1,5 +1,43 @@
 use super::*;
 
+/// Too-new-account action choice. Mirrors the `action` option `choices`
+/// in guildconfig.ts:162-183 (`block` -> `too-new-account`): slash shows
+/// the localized display names, the handler maps each variant back to
+/// the TS `value`.
+///
+/// NOTE: the command keeps the merged `minimum-date` free-form param
+/// (`None` -> dont_specified_time, `"off"` -> disable, else the enable
+/// age) instead of a separate required `action` param, so the prefix
+/// path (`!toonew 7d` / `!toonew off`) keeps working. This enum pins
+/// the TS slash contract and its `value` mapping.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
+pub enum TooNewAction {
+    #[name = "Power On"]
+    #[name_localized("fr", "Activer")]
+    #[name_localized("ja", "power_on")]
+    #[name_localized("ru", "power_on")]
+    #[name_localized("es-ES", "power_on")]
+    #[name = "on"]
+    On,
+    #[name = "Power Off"]
+    #[name_localized("fr", "Désactiver")]
+    #[name_localized("ja", "power_off")]
+    #[name_localized("ru", "power_off")]
+    #[name_localized("es-ES", "power_off")]
+    #[name = "off"]
+    Off,
+}
+
+impl TooNewAction {
+    /// TS `value` (`on` / `off`).
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::On => "on",
+            Self::Off => "off",
+        }
+    }
+}
+
 /// Default `maximum-join` when the option is omitted. Mirrors
 /// `interaction.options.getNumber("maximum-join") || 3` in
 /// !too-new-account.ts.
@@ -198,6 +236,32 @@ pub async fn gc_toonew(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use poise::ChoiceParameter as _;
+
+    #[test]
+    fn toonew_action_choices_mirror_ts_names_values_and_locales() {
+        let names: Vec<_> = TooNewAction::list().into_iter().map(|c| c.name).collect();
+        assert_eq!(names, vec!["Power On", "Power Off"]);
+        assert_eq!(TooNewAction::On.as_str(), "on");
+        assert_eq!(TooNewAction::Off.as_str(), "off");
+        assert_eq!(TooNewAction::from_name("on"), Some(TooNewAction::On));
+        assert_eq!(
+            TooNewAction::from_name("POWER OFF"),
+            Some(TooNewAction::Off)
+        );
+        assert_eq!(TooNewAction::from_name("bogus"), None);
+        assert_eq!(TooNewAction::from_index(0), Some(TooNewAction::On));
+        assert_eq!(TooNewAction::from_index(1), Some(TooNewAction::Off));
+        let list = TooNewAction::list();
+        assert_eq!(
+            list[0].localizations.get("fr").map(String::as_str),
+            Some("Activer")
+        );
+        assert_eq!(
+            list[1].localizations.get("fr").map(String::as_str),
+            Some("Désactiver")
+        );
+    }
 
     #[test]
     fn max_join_defaults_to_three() {

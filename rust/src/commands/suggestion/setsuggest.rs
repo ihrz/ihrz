@@ -1,6 +1,37 @@
 use super::*;
 use poise::serenity_prelude as serenity;
 
+/// Setsuggest config action choice. Mirrors the `action` option `choices`
+/// in setsuggest.ts:71-92 (`config`): slash shows the localized display
+/// names, the handler maps each variant back to the TS `value`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
+pub enum SetsuggestAction {
+    #[name = "Power On the Suggestion Module"]
+    #[name_localized("fr", "Activer le module de suggestion")]
+    #[name_localized("ja", "power_on_the_suggestion_module")]
+    #[name_localized("ru", "power_on_the_suggestion_module")]
+    #[name_localized("es-ES", "power_on_the_suggestion_module")]
+    #[name = "on"]
+    On,
+    #[name = "Power Off the Suggestion Module"]
+    #[name_localized("fr", "Désactiver le module de suggestion")]
+    #[name_localized("ja", "power_off_the_suggestion_module")]
+    #[name_localized("ru", "power_off_the_suggestion_module")]
+    #[name_localized("es-ES", "power_off_the_suggestion_module")]
+    #[name = "off"]
+    Off,
+}
+
+impl SetsuggestAction {
+    /// TS `value` (`on` / `off`).
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::On => "on",
+            Self::Off => "off",
+        }
+    }
+}
+
 /// Subcommand for setsuggest category!
 #[poise::command(
     slash_command,
@@ -100,8 +131,14 @@ pub async fn setsuggest_channel(
 )]
 pub async fn setsuggest_config(
     ctx: Ctx<'_>,
-    #[description = "on or off"] action: String,
+    #[description_localized("fr", "Que veux-tu faire ?")]
+    #[description_localized("ja", "何をしたいですか？")]
+    #[description_localized("ru", "Что вы хотите сделать?")]
+    #[description_localized("es-ES", "Que quieres hacer?")]
+    #[description = "What you want to do ?"]
+    action: SetsuggestAction,
 ) -> Result<(), anyhow::Error> {
+    let action = action.as_str();
     let gid = ctx
         .guild_id()
         .map(|g| g.get().to_string())
@@ -132,4 +169,47 @@ pub async fn setsuggest_config(
     .replace("${interaction.user}", &ctx.author().to_string());
     ctx.say(text).await?;
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use poise::ChoiceParameter as _;
+
+    #[test]
+    fn setsuggest_action_choices_mirror_ts_names_values_and_locales() {
+        let names: Vec<_> = SetsuggestAction::list()
+            .into_iter()
+            .map(|c| c.name)
+            .collect();
+        assert_eq!(
+            names,
+            vec![
+                "Power On the Suggestion Module",
+                "Power Off the Suggestion Module"
+            ]
+        );
+        assert_eq!(SetsuggestAction::On.as_str(), "on");
+        assert_eq!(SetsuggestAction::Off.as_str(), "off");
+        assert_eq!(
+            SetsuggestAction::from_name("on"),
+            Some(SetsuggestAction::On)
+        );
+        assert_eq!(
+            SetsuggestAction::from_name("POWER OFF THE SUGGESTION MODULE"),
+            Some(SetsuggestAction::Off)
+        );
+        assert_eq!(SetsuggestAction::from_name("bogus"), None);
+        assert_eq!(SetsuggestAction::from_index(0), Some(SetsuggestAction::On));
+        assert_eq!(SetsuggestAction::from_index(1), Some(SetsuggestAction::Off));
+        let list = SetsuggestAction::list();
+        assert_eq!(
+            list[0].localizations.get("fr").map(String::as_str),
+            Some("Activer le module de suggestion")
+        );
+        assert_eq!(
+            list[1].localizations.get("fr").map(String::as_str),
+            Some("Désactiver le module de suggestion")
+        );
+    }
 }

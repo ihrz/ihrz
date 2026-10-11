@@ -27,6 +27,40 @@ pub fn valid_platform(p: &str) -> bool {
     matches!(p.to_ascii_lowercase().as_str(), "twitch" | "youtube")
 }
 
+/// Notifier platform choice. Mirrors the `platform` option `choices`
+/// in notifier.ts:86-107 (`author` -> `add`) and notifier.ts:163-184
+/// (`author` -> `remove`): slash shows the localized display names,
+/// the handler maps each variant back to the TS `value`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
+pub enum NotifierPlatform {
+    #[name = "Youtube"]
+    #[name_localized("fr", "Youtube")]
+    #[name_localized("ja", "youtube")]
+    #[name_localized("ru", "youtube")]
+    #[name_localized("es-ES", "youtube")]
+    #[name = "youtube"]
+    Youtube,
+    #[name = "Twitch"]
+    #[name_localized("fr", "Twitch")]
+    #[name_localized("ja", "twitch")]
+    #[name_localized("ru", "twitch")]
+    #[name_localized("es-ES", "twitch")]
+    #[name = "twitch"]
+    Twitch,
+}
+
+impl NotifierPlatform {
+    /// TS `value` (`youtube` / `twitch`), stored verbatim in
+    /// `NOTIFIER.users[]` like the TS `{ id_or_username, platform }`
+    /// push.
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::Youtube => "youtube",
+            Self::Twitch => "twitch",
+        }
+    }
+}
+
 /// Guild-table backend for D1 routing (keys unchanged).
 fn guild_backend(pool: &crate::db::Pool) -> crate::backends::Backend {
     crate::backends::Backend::sqlite(pool.clone())
@@ -276,6 +310,44 @@ pub async fn authors_and_config_embeds(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use poise::ChoiceParameter as _;
+
+    #[test]
+    fn platform_choice_mirrors_ts_names_values_and_locales() {
+        let names: Vec<_> = NotifierPlatform::list()
+            .into_iter()
+            .map(|c| c.name)
+            .collect();
+        assert_eq!(names, vec!["Youtube", "Twitch"]);
+        assert_eq!(NotifierPlatform::Youtube.as_str(), "youtube");
+        assert_eq!(NotifierPlatform::Twitch.as_str(), "twitch");
+        assert_eq!(
+            NotifierPlatform::from_name("youtube"),
+            Some(NotifierPlatform::Youtube)
+        );
+        assert_eq!(
+            NotifierPlatform::from_name("TWITCH"),
+            Some(NotifierPlatform::Twitch)
+        );
+        assert_eq!(NotifierPlatform::from_name("kick"), None);
+        assert_eq!(
+            NotifierPlatform::from_index(1),
+            Some(NotifierPlatform::Twitch)
+        );
+        let list = NotifierPlatform::list();
+        assert_eq!(
+            list[0].localizations.get("fr").map(String::as_str),
+            Some("Youtube")
+        );
+        assert_eq!(
+            list[1].localizations.get("fr").map(String::as_str),
+            Some("Twitch")
+        );
+        // Choice values stay inside the supported-platform gate.
+        for p in [NotifierPlatform::Youtube, NotifierPlatform::Twitch] {
+            assert!(valid_platform(p.as_str()));
+        }
+    }
 
     #[test]
     fn platforms() {

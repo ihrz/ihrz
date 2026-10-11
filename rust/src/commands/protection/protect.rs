@@ -97,6 +97,87 @@ pub fn sanction_display(lang_code: &str, sanction: &str) -> String {
     crate::lang::get(lang_code, key).unwrap_or_else(|| fallback.to_string())
 }
 
+/// Allow-mode choice. Mirrors the `allow` option `choices` in
+/// authorization.ts:152-184 (`actions`): slash shows the localized
+/// display names, the handler maps each variant back to the TS `value`.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
+pub enum ProtectAllow {
+    #[name = "Only the allowlist"]
+    #[name_localized("fr", "Seulement la liste d'autorisation")]
+    #[name_localized("ja", "only_the_allowlist")]
+    #[name_localized("ru", "only_the_allowlist")]
+    #[name_localized("es-ES", "only_the_allowlist")]
+    #[name = "allowlist"]
+    Allowlist,
+    #[name = "All of member"]
+    #[name_localized("fr", "Tous les membres")]
+    #[name_localized("ja", "all_of_member")]
+    #[name_localized("ru", "all_of_member")]
+    #[name_localized("es-ES", "all_of_member")]
+    #[name = "member"]
+    Member,
+    #[name = "Nobody (except guild owner)"]
+    #[name_localized("fr", "Personne (sauf le propriétaire du serveur)")]
+    #[name_localized("ja", "nobody_except_guild_owner")]
+    #[name_localized("ru", "nobody_except_guild_owner")]
+    #[name_localized("es-ES", "nobody_except_guild_owner")]
+    #[name = "nobody"]
+    Nobody,
+}
+
+impl ProtectAllow {
+    /// TS `value` (`allowlist` / `member` / `nobody`), fed into
+    /// [`normalize_mode`] like the raw TS option.
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::Allowlist => "allowlist",
+            Self::Member => "member",
+            Self::Nobody => "nobody",
+        }
+    }
+}
+
+/// Sanction choice. Mirrors the `choose` option `choices` in
+/// authorization.ts:217-251 (`sanction`): slash shows the localized
+/// display names, the handler maps each variant back to the TS `value`
+/// (French labels kept byte-exact, including the TS wording).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
+pub enum ProtectSanction {
+    #[name = "Simply Cancel Actions"]
+    #[name_localized("fr", "Simplemente annuler les actions")]
+    #[name_localized("ja", "simply_cancel_actions")]
+    #[name_localized("ru", "simply_cancel_actions")]
+    #[name_localized("es-ES", "simply_cancel_actions")]
+    #[name = "simply"]
+    Simply,
+    #[name = "Simply Cancel Actions + Derank"]
+    #[name_localized("fr", "Simplemente annuler les actions + déséléver")]
+    #[name_localized("ja", "simply_cancel_actions_derank")]
+    #[name_localized("ru", "simply_cancel_actions_derank")]
+    #[name_localized("es-ES", "simply_cancel_actions_derank")]
+    #[name = "simply+derank"]
+    SimplyDerank,
+    #[name = "Simply Cancel Actions + Ban"]
+    #[name_localized("fr", "Simplemente annuler les actions + bannir")]
+    #[name_localized("ja", "simply_cancel_actions_ban")]
+    #[name_localized("ru", "simply_cancel_actions_ban")]
+    #[name_localized("es-ES", "simply_cancel_actions_ban")]
+    #[name = "simply+ban"]
+    SimplyBan,
+}
+
+impl ProtectSanction {
+    /// TS `value` (`simply` / `simply+derank` / `simply+ban`), stored
+    /// verbatim in `PROTECTION.SANCTION` like `!sanction.ts`.
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::Simply => "simply",
+            Self::SimplyDerank => "simply+derank",
+            Self::SimplyBan => "simply+ban",
+        }
+    }
+}
+
 /// Guild-owner gate. Mirrors the `interaction.user.id !== guild.ownerId`
 /// checks in `!actions.ts:45`, `!show.ts:45`, `!sanction.ts:44`,
 /// `allowlist/!add.ts:50` and `allowlist/!remove.ts:50` (all five are
@@ -262,8 +343,18 @@ pub async fn protect(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
 )]
 pub async fn protect_rule(
     ctx: Ctx<'_>,
+    // FAILED-unexpressible as a static ChoiceParameter: the TS `rule`
+    // choices are computed at runtime via
+    // `Object.entries(rules).map(...)` (authorization.ts:131) over the
+    // `rules` array (including the `cls`/`all` pseudo-entries), so the
+    // free-form String + `valid_rule` gate stays.
     #[description = "Rule (or all/cls)"] rule: String,
-    #[description = "allowlist, member or nobody (not needed for cls)"] allow: Option<String>,
+    #[description_localized("fr", "Les règles sont contournables pour qui ?")]
+    #[description_localized("ja", "ルールをバイパスできるのは誰？")]
+    #[description_localized("ru", "Для кого правила обходятся?")]
+    #[description_localized("es-ES", "Las reglas son evitables para quién?")]
+    #[description = "The rule are bypassable for who?"]
+    allow: Option<ProtectAllow>,
 ) -> Result<(), anyhow::Error> {
     if deny_unless_owner(
         &ctx,
@@ -315,7 +406,7 @@ pub async fn protect_rule(
     // as `{mode}`, while the guards only ever match `allowlist`/`nobody`
     // — so a junk mode never sanctions there either. Rejecting it here
     // keeps the same no-sanction outcome without persisting junk rows.
-    let Some(mode) = allow.as_deref().and_then(normalize_mode) else {
+    let Some(mode) = allow.map(ProtectAllow::as_str).and_then(normalize_mode) else {
         let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
         ctx.say(
             crate::lang::get(&code, "close_error_command")
@@ -373,9 +464,13 @@ pub async fn protect_rule(
 pub async fn protect_sanction(
     ctx: Ctx<'_>,
     // TS SlashCommands/protection/!sanction.ts reads getString("choose").
-    #[description = "simply, simply+derank or simply+ban"]
+    #[description_localized("fr", "Quelle est donc la sanction ?")]
+    #[description_localized("ja", "どの制裁ですか？")]
+    #[description_localized("ru", "Какая санкция?")]
+    #[description_localized("es-ES", "Cual es la sanción entonces?")]
+    #[description = "Whats is the sanction then?"]
     #[rename = "choose"]
-    sanction: String,
+    sanction: ProtectSanction,
 ) -> Result<(), anyhow::Error> {
     if deny_unless_owner(
         &ctx,
@@ -386,7 +481,7 @@ pub async fn protect_sanction(
     {
         return Ok(());
     }
-    let sanction = sanction.trim().to_string();
+    let sanction = sanction.as_str().to_string();
     if !valid_sanction(&sanction) {
         let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
         ctx.say(crate::lang::get(&code, "msg_bad_rule").unwrap_or_else(|| "Bad rule.".to_string()))
@@ -896,6 +991,104 @@ pub async fn protect_allow_show(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use poise::ChoiceParameter as _;
+
+    #[test]
+    fn protect_allow_choices_mirror_ts_names_values_and_locales() {
+        let names: Vec<_> = ProtectAllow::list().into_iter().map(|c| c.name).collect();
+        assert_eq!(
+            names,
+            vec![
+                "Only the allowlist",
+                "All of member",
+                "Nobody (except guild owner)"
+            ]
+        );
+        assert_eq!(ProtectAllow::Allowlist.as_str(), "allowlist");
+        assert_eq!(ProtectAllow::Member.as_str(), "member");
+        assert_eq!(ProtectAllow::Nobody.as_str(), "nobody");
+        assert_eq!(
+            ProtectAllow::from_name("allowlist"),
+            Some(ProtectAllow::Allowlist)
+        );
+        assert_eq!(
+            ProtectAllow::from_name("ALL OF MEMBER"),
+            Some(ProtectAllow::Member)
+        );
+        assert_eq!(ProtectAllow::from_name("bogus"), None);
+        assert_eq!(ProtectAllow::from_index(2), Some(ProtectAllow::Nobody));
+        let list = ProtectAllow::list();
+        assert_eq!(
+            list[0].localizations.get("fr").map(String::as_str),
+            Some("Seulement la liste d'autorisation")
+        );
+        assert_eq!(
+            list[2].localizations.get("fr").map(String::as_str),
+            Some("Personne (sauf le propriétaire du serveur)")
+        );
+        // Choice values stay inside the mode vocabulary + normalizer.
+        for m in [
+            ProtectAllow::Allowlist,
+            ProtectAllow::Member,
+            ProtectAllow::Nobody,
+        ] {
+            assert!(valid_mode(m.as_str()));
+            assert_eq!(normalize_mode(m.as_str()).as_deref(), Some(m.as_str()));
+        }
+    }
+
+    #[test]
+    fn protect_sanction_choices_mirror_ts_names_values_and_locales() {
+        let names: Vec<_> = ProtectSanction::list()
+            .into_iter()
+            .map(|c| c.name)
+            .collect();
+        assert_eq!(
+            names,
+            vec![
+                "Simply Cancel Actions",
+                "Simply Cancel Actions + Derank",
+                "Simply Cancel Actions + Ban"
+            ]
+        );
+        assert_eq!(ProtectSanction::Simply.as_str(), "simply");
+        assert_eq!(ProtectSanction::SimplyDerank.as_str(), "simply+derank");
+        assert_eq!(ProtectSanction::SimplyBan.as_str(), "simply+ban");
+        assert_eq!(
+            ProtectSanction::from_name("simply"),
+            Some(ProtectSanction::Simply)
+        );
+        assert_eq!(
+            ProtectSanction::from_name("SIMPLY+DERANK"),
+            Some(ProtectSanction::SimplyDerank)
+        );
+        assert_eq!(ProtectSanction::from_name("bogus"), None);
+        assert_eq!(
+            ProtectSanction::from_index(2),
+            Some(ProtectSanction::SimplyBan)
+        );
+        let list = ProtectSanction::list();
+        assert_eq!(
+            list[0].localizations.get("fr").map(String::as_str),
+            Some("Simplemente annuler les actions")
+        );
+        assert_eq!(
+            list[1].localizations.get("fr").map(String::as_str),
+            Some("Simplemente annuler les actions + déséléver")
+        );
+        assert_eq!(
+            list[2].localizations.get("fr").map(String::as_str),
+            Some("Simplemente annuler les actions + bannir")
+        );
+        // Choice values stay inside the stored sanction vocabulary.
+        for s in [
+            ProtectSanction::Simply,
+            ProtectSanction::SimplyDerank,
+            ProtectSanction::SimplyBan,
+        ] {
+            assert!(valid_sanction(s.as_str()));
+        }
+    }
 
     #[test]
     fn mode_vocab_matches_ts_actions() {

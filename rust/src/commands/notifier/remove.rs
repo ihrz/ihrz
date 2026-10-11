@@ -10,9 +10,15 @@ use super::*;
 )]
 pub async fn notifier_remove(
     ctx: Ctx<'_>,
-    #[description = "twitch or youtube"] platform: String,
+    #[description_localized("fr", "La plateforme du Streamer/Youtuber/Twitcher")]
+    #[description_localized("ja", "ストリーマー/YouTuber/Twitcherのプラットフォーム")]
+    #[description_localized("ru", "Платформа стримера/YouTube/Twitch")]
+    #[description_localized("es-ES", "La plataforma del Streamer/Youtuber/Twitcher")]
+    #[description = "The Streamer/Youtuber/Twitcher platform"]
+    platform: super::NotifierPlatform,
     #[description = "Author id or username"] author: String,
 ) -> Result<(), anyhow::Error> {
+    let platform = platform.as_str().to_string();
     // Prefix native-permission gate (U-MSV-FIX14): TS `checkNativePermission`
     // enforces the ManageGuild leaf on both paths; Discord covers slash,
     // so the body gates prefix here with the same `var_dont_have_perm` denial.

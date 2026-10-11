@@ -1,6 +1,13 @@
 use super::*;
 use poise::serenity_prelude as serenity;
 
+// FAILED-unexpressible as a static ChoiceParameter: the TS `permission`
+// choices (`permissionLevel`, perm.ts:42-61/113/224/317) are computed at
+// runtime by spreading the `permissionsRole` array (`...permissionsRole.map(...)`)
+// with a `.filter(x => x.value !== "0")` variant, and the `command`
+// option (perm.ts:362-393) is built from the live `client.commands`
+// registry. Both stay free-form here (numeric level 0-9 / command path).
+
 /// Perm set command.
 #[poise::command(
     slash_command,
