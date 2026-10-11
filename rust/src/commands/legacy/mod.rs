@@ -1223,6 +1223,148 @@ async fn ctx_data_help_select(ctx: &Ctx<'_>) -> String {
     crate::lang::get(&code, "help_select_menu").unwrap_or_default()
 }
 
+/// Route /help overview selects (help-menu-1/2, stateless recompute).
+/// Mirrors handleCategorySelect in HybridCommands/bot/help.ts: `back`
+/// re-edits the overview (tip embed + banner + rows); a numeric value
+/// is the index into the name-sorted categories and renders that
+/// category's page with the overview rows attached (TS keeps menuRows
+/// plus button pagination — buttons have no stateless equivalent here,
+/// so the page shows the first 25 rows with a `+N more` tail).
+/// Anything else edits an unreachable notice. The author gate lives in
+/// `handle_help_component` (same help_not_for_you rule as TS).
+async fn handle_help_overview_component(
+    http: &serenity::Http,
+    pool: &crate::db::Pool,
+    comp: &serenity::ComponentInteraction,
+) {
+    let Some(guild_id) = comp.guild_id else {
+        return;
+    };
+    let gid = guild_id.get().to_string();
+    let prefix = crate::db::guild_prefix(pool, Some(guild_id.get()), ".").await;
+    let code = crate::db::guild_lang(pool, Some(guild_id.get())).await;
+    let t = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
+    let all = crate::commands::all();
+    let owned: Vec<(String, String, String)> = all
+        .iter()
+        .map(|c| {
+            (
+                c.category.clone().unwrap_or_default(),
+                c.name.clone(),
+                c.description.clone().unwrap_or_default(),
+            )
+        })
+        .collect();
+    let reg_refs: Vec<(&str, &str, &str)> = owned
+        .iter()
+        .map(|(a, b, c)| (a.as_str(), b.as_str(), c.as_str()))
+        .collect();
+    let table: Vec<(&str, &str, &str, &str, u32)> = HELP_CATEGORIES.to_vec();
+    let mut cats = collect_help_cats(&reg_refs, &table, &|k| t(k), &prefix);
+    help::sort_help_cats_by_name(&mut cats);
+    if cats.is_empty() {
+        return;
+    }
+    let value = match &comp.data.kind {
+        serenity::ComponentInteractionDataKind::StringSelect { values } => {
+            values.first().cloned().unwrap_or_default()
+        }
+        _ => String::new(),
+    };
+    let rows = help_main::build_help_overview_rows(http, &code, &cats).await;
+    let overview_update = |embed: serenity::CreateEmbed| {
+        serenity::CreateInteractionResponse::UpdateMessage(
+            serenity::CreateInteractionResponseMessage::new()
+                .embed(embed)
+                .components(rows.clone()),
+        )
+    };
+    match help::parse_help_overview_pick(&value) {
+        help::HelpOverviewPick::Back => {
+            let bot_name = http
+                .get_current_user()
+                .await
+                .map(|u| u.name.clone())
+                .unwrap_or_else(|_| "iHorizon".to_string());
+            // Application owner mirrors config.owner.ownerid1; the
+            // second owner has no stateless source, so it renders empty
+            // (same accepted quirk as the initial-run branch).
+            let owner1 = http
+                .get_current_application_info()
+                .await
+                .ok()
+                .and_then(|i| i.owner)
+                .map(|u| u.id.to_string())
+                .unwrap_or_default();
+            let pin = crate::emojis::app_emoji_markup(http, "Pin")
+                .await
+                .unwrap_or_default();
+            let badge = crate::emojis::app_emoji_markup(http, "Slash_Bot_Badge")
+                .await
+                .unwrap_or_default();
+            let crown = crate::emojis::app_emoji_markup(http, "Crown")
+                .await
+                .unwrap_or_default();
+            let region = crate::emojis::app_emoji_markup(http, "VC_Region")
+                .await
+                .unwrap_or_default();
+            let desc = help::help_tip_embed(
+                &code,
+                &bot_name,
+                cats.len(),
+                crate::commands::content_leaf_count(&all),
+                &owner1,
+                "",
+                &pin,
+                &badge,
+                &crown,
+                &region,
+            );
+            let banner = crate::funcs::guild_banner_url(pool, &gid).await;
+            let embed = serenity::CreateEmbed::default()
+                .description(desc)
+                .colour(serenity::Colour::from_rgb(0x00, 0x1e, 0xff))
+                .footer(serenity::CreateEmbedFooter::new(format!(
+                    "© iHorizon {}",
+                    chrono_year()
+                )))
+                .image(banner);
+            let _ = comp.create_response(http, overview_update(embed)).await;
+        }
+        help::HelpOverviewPick::Category(index) if index < cats.len() => {
+            let show = &cats[index];
+            let markup = crate::emojis::app_emoji_markup(http, &show.emoji_name)
+                .await
+                .unwrap_or_default();
+            let page =
+                help::help_overview_category_page(&markup, &show.title, &show.desc, &show.fields);
+            let mut embed = serenity::CreateEmbed::default()
+                .title(page.title)
+                .description(page.description)
+                .colour(serenity::Colour::new(show.color))
+                .footer(serenity::CreateEmbedFooter::new(format!(
+                    "© iHorizon {}",
+                    chrono_year()
+                )));
+            for (n, v) in page.fields {
+                embed = embed.field(n, v, false);
+            }
+            let _ = comp.create_response(http, overview_update(embed)).await;
+        }
+        _ => {
+            let _ = comp
+                .create_response(
+                    http,
+                    serenity::CreateInteractionResponse::UpdateMessage(
+                        serenity::CreateInteractionResponseMessage::new()
+                            .content(t("var_unreachable_command")),
+                    ),
+                )
+                .await;
+        }
+    }
+}
+
 /// Route help browser selects + pager buttons (stateless recompute).
 pub async fn handle_help_component(
     http: &serenity::Http,
@@ -1253,6 +1395,12 @@ pub async fn handle_help_component(
         return;
     }
     let id = comp.data.custom_id.as_str();
+    // /help overview selects (help-menu-1/2): index values + back
+    // navigation, mirroring handleCategorySelect in help.ts.
+    if help::is_help_overview_select(id) {
+        handle_help_overview_component(http, pool, comp).await;
+        return;
+    }
     // Current page rides in the select/button ids (stateless).
     let page: usize;
     let mut selected: Option<String> = None;

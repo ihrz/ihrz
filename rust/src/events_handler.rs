@@ -9802,6 +9802,7 @@ impl serenity::EventHandler for Handler {
         } else if id.starts_with(crate::commands::legacy::HELP_SELECT_PREFIX)
             || id.starts_with(crate::commands::legacy::HELP_PREV_ID)
             || id.starts_with(crate::commands::legacy::HELP_NEXT_ID)
+            || crate::commands::legacy::help::is_help_overview_select(id)
         {
             crate::commands::legacy::handle_help_component(&ctx.http, &self.pool, &comp).await;
         } else {

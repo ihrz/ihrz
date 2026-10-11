@@ -179,10 +179,12 @@ async fn render_help_category(
 // CATEGORY name renders that category's command list (nearest viable
 // to the TS category select menu). Mirrors
 // src/Interaction/HybridCommands/bot/help.ts (category `bot`,
-// optional `command-name` option). Delta: the interactive category
-// select menus + button pagination (840s collector, disable-on-end)
-// have no component-dispatch hook in this port, so the overview and
-// category views are static (no buttons, no collectors).
+// optional `command-name` option). Delta: the per-category button
+// pagination (first/previous/next/last, 840s collector, disable-on-end)
+// has no stateless component-dispatch equivalent, so category pages
+// render the first 25 rows with a `+N more` tail instead of buttons.
+// The overview selects (`help-menu-1` / `help-menu-2`, back + index
+// values) route through `handle_help_component`.
 #[poise::command(
     slash_command,
     prefix_command,
@@ -323,15 +325,18 @@ pub async fn help(
         let embed = embed_with_footer(
             poise::serenity_prelude::CreateEmbed::default()
                 .colour(0x001EFF_u32)
-                .description(desc),
+                .description(desc)
+                .image(crate::funcs::guild_banner_url(pool, &gid_str).await),
             &footer_name,
             with_icon,
         );
         reply = reply
             .embed(embed)
             .content(format!("> {search}  **https://www.ihorizon.org/search/**"));
-        // Same two category select rows as `help_main` (same custom-id
-        // protocol, routed by `handle_help_component`).
+        // TS-parity overview rows: name-sorted categories, verbatim
+        // `help-menu-1` / `help-menu-2` ids, back first, per-category
+        // index values + emoji + command counts. Routed by
+        // `handle_help_component` on the overview path.
         let all = crate::commands::all();
         let owned: Vec<(String, String, String)> = all
             .iter()
@@ -350,21 +355,18 @@ pub async fn help(
         let table: Vec<(&str, &str, &str, &str, u32)> =
             crate::commands::legacy::HELP_CATEGORIES.to_vec();
         let prefix = crate::db::guild_prefix(pool, gid, &ctx.data().config.prefix).await;
-        let cats = crate::commands::legacy::collect_help_cats(
+        let mut cats = crate::commands::legacy::collect_help_cats(
             &reg_refs,
             &table,
             &|k| crate::lang::get(&code, k).unwrap_or_default(),
             &prefix,
         );
+        crate::commands::legacy::help::sort_help_cats_by_name(&mut cats);
         if !cats.is_empty() {
-            let (first, second) =
-                crate::commands::legacy::help_main::help_main_row_bounds(cats.len());
-            let rows = crate::commands::legacy::help_main::build_help_main_rows(
+            let rows = crate::commands::legacy::help_main::build_help_overview_rows(
                 ctx.http(),
                 &code,
                 &cats,
-                first,
-                second,
             )
             .await;
             if !rows.is_empty() {
@@ -474,7 +476,7 @@ mod tests {
     }
 
     #[test]
-    fn overview_select_protocol_routes_and_gates() {
+    fn main_menu_browser_protocol_routes_and_gates() {
         use crate::commands::legacy::help_main::{help_main_row_bounds, help_main_select_ids};
         use crate::commands::legacy::{help_cat_key, helpmsg_key, HELP_SELECT_PREFIX};
         // Rows cover all categories exactly once.
@@ -493,5 +495,65 @@ mod tests {
         // Author gate key is per-message.
         assert_eq!(helpmsg_key(7), "HELPMSG.7");
         assert_ne!(helpmsg_key(7), helpmsg_key(8));
+    }
+
+    #[test]
+    fn overview_matches_ts_parity() {
+        use crate::commands::legacy::help::{
+            help_overview_options, is_help_overview_select, parse_help_overview_pick,
+            sort_help_cats_by_name, HelpOverviewPick,
+        };
+        use crate::commands::legacy::help_main::help_overview_select_ids;
+        use crate::commands::legacy::HelpBrowserCat;
+        // Verbatim TS custom ids, routed on the overview path.
+        let (first, second) = help_overview_select_ids();
+        assert_eq!(
+            (first.as_str(), second.as_str()),
+            ("help-menu-1", "help-menu-2")
+        );
+        assert!(is_help_overview_select(&first));
+        assert!(is_help_overview_select(&second));
+        // Name-sorted categories with back first and global index values.
+        let mut cats = vec![
+            HelpBrowserCat {
+                name: "utils".to_string(),
+                title: "Utils".to_string(),
+                desc: String::new(),
+                color: 0,
+                emoji_name: "Utils".to_string(),
+                fields: vec![("`a`".to_string(), "d".to_string())],
+            },
+            HelpBrowserCat {
+                name: "bot".to_string(),
+                title: "Bot".to_string(),
+                desc: String::new(),
+                color: 0,
+                emoji_name: "ECBDD_Badge".to_string(),
+                fields: vec![("`b`".to_string(), "d".to_string())],
+            },
+        ];
+        sort_help_cats_by_name(&mut cats);
+        assert_eq!(cats[0].title, "Bot");
+        let opts = help_overview_options("en-US", &cats, 0..2);
+        assert_eq!(opts[0].value, "back");
+        assert_eq!(
+            opts.iter().map(|o| o.value.clone()).collect::<Vec<_>>(),
+            vec!["back".to_string(), "0".to_string(), "1".to_string()]
+        );
+        // Index values route to categories, back re-opens the overview.
+        assert!(matches!(
+            parse_help_overview_pick("0"),
+            HelpOverviewPick::Category(0)
+        ));
+        assert!(matches!(
+            parse_help_overview_pick("back"),
+            HelpOverviewPick::Back
+        ));
+        assert!(matches!(
+            parse_help_overview_pick("nope"),
+            HelpOverviewPick::Unknown
+        ));
+        // Banner image derives from the guild lang (bannerGenerator).
+        assert!(crate::funcs::banner_url("en-US").ends_with("ihrz_en-US.png"));
     }
 }

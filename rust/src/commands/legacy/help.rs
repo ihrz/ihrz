@@ -52,6 +52,118 @@ pub fn help_menus_split(total: usize) -> usize {
     total.div_ceil(2).max(1)
 }
 
+/// /help overview select protocol. Mirrors HybridCommands/bot/help.ts:455-489:
+/// two selects with verbatim custom ids `help-menu-1` / `help-menu-2`, a
+/// leading back option (value `back`), then one option per category sorted
+/// by name whose value is the category INDEX (`index.to_string()`).
+/// Separate from the `h`-browser protocol (`HELP_SELECT_PREFIX` +
+/// title-derived keys): the handler routes these ids to the overview
+/// path (index picks + back navigation).
+pub const HELP_OVERVIEW_SELECT_1: &str = "help-menu-1";
+pub const HELP_OVERVIEW_SELECT_2: &str = "help-menu-2";
+pub const HELP_OVERVIEW_BACK_VALUE: &str = "back";
+
+/// True for the two /help overview select ids.
+pub fn is_help_overview_select(id: &str) -> bool {
+    id == HELP_OVERVIEW_SELECT_1 || id == HELP_OVERVIEW_SELECT_2
+}
+
+/// Parsed overview select value: `back` re-opens the overview, a number
+/// is the index into the name-sorted category list, anything else is
+/// unreachable (TS `parseInt` NaN branch).
+pub enum HelpOverviewPick {
+    Back,
+    Category(usize),
+    Unknown,
+}
+
+pub fn parse_help_overview_pick(value: &str) -> HelpOverviewPick {
+    if value == HELP_OVERVIEW_BACK_VALUE {
+        HelpOverviewPick::Back
+    } else if let Ok(index) = value.parse::<usize>() {
+        HelpOverviewPick::Category(index)
+    } else {
+        HelpOverviewPick::Unknown
+    }
+}
+
+/// Sort browser categories by display name. Mirrors
+/// `categories.sort((a, b) => a.name.localeCompare(b.name))` (byte order
+/// instead of locale collation; `title` is the localized placeholder,
+/// i.e. the TS `name`).
+pub fn sort_help_cats_by_name(cats: &mut [super::HelpBrowserCat]) {
+    cats.sort_by(|a, b| a.title.cmp(&b.title));
+}
+
+/// One overview select option (pure part of the row builder).
+pub struct HelpOverviewOption {
+    pub label: String,
+    pub description: String,
+    pub value: String,
+    pub emoji_name: String,
+}
+
+/// Overview options for one row slice: back first, then the categories in
+/// the slice with GLOBAL indices as values (TS `index.to_string()` keeps
+/// incrementing across both menus) and per-category command-count
+/// descriptions (`help_select_menu_fields_desc`).
+pub fn help_overview_options(
+    code: &str,
+    cats: &[super::HelpBrowserCat],
+    range: std::ops::Range<usize>,
+) -> Vec<HelpOverviewOption> {
+    let mut out = Vec::new();
+    let (back_label, back_desc) = help_back_option(code);
+    out.push(HelpOverviewOption {
+        label: back_label,
+        description: back_desc,
+        value: HELP_OVERVIEW_BACK_VALUE.to_string(),
+        emoji_name: "Home".to_string(),
+    });
+    for (index, cat) in cats.iter().enumerate().filter(|(i, _)| range.contains(i)) {
+        out.push(HelpOverviewOption {
+            label: cat.title.clone(),
+            description: help_option_desc(code, cat.fields.len()),
+            value: index.to_string(),
+            emoji_name: cat.emoji_name.clone(),
+        });
+    }
+    out
+}
+
+/// Rendered overview category page (pure part of the index-pick path).
+/// Mirrors the TS select branch title (`emoji・name`), description, and
+/// the 25-field cap with a `+N more` tail (TS paginates with buttons;
+/// no button-pagination hook exists in this port, so the tail stands in).
+pub struct OverviewCategoryPage {
+    pub title: String,
+    pub description: String,
+    pub fields: Vec<(String, String)>,
+}
+
+pub fn help_overview_category_page(
+    emoji_markup: &str,
+    title: &str,
+    desc: &str,
+    fields: &[(String, String)],
+) -> OverviewCategoryPage {
+    let title = if emoji_markup.is_empty() {
+        title.to_string()
+    } else {
+        format!("{emoji_markup}・{title}")
+    };
+    let overflow = fields.len().saturating_sub(25);
+    let mut description = desc.to_string();
+    if overflow > 0 {
+        description.push_str(&format!("\n... +{overflow} more"));
+    }
+    OverviewCategoryPage {
+        title,
+        description,
+        fields: fields.iter().take(25).cloned().collect(),
+    }
+}
+
 /// Tip-embed description (help_tip_embed + replaceAll chain).
 /// Mirrors handleCategorySelect back-branch + main menu (help.ts:111-164,
 /// 497-541), including the TS quirk that the slash-command token is
@@ -388,5 +500,114 @@ mod tests {
         assert_eq!(help_menus_split(26), 13);
         assert_eq!(help_menus_split(1), 1);
         assert_eq!(help_module_title("E", "Bot"), "E・Bot");
+    }
+
+    #[test]
+    fn overview_select_ids_match_ts_custom_ids() {
+        assert_eq!(HELP_OVERVIEW_SELECT_1, "help-menu-1");
+        assert_eq!(HELP_OVERVIEW_SELECT_2, "help-menu-2");
+        assert_eq!(HELP_OVERVIEW_BACK_VALUE, "back");
+        assert!(is_help_overview_select("help-menu-1"));
+        assert!(is_help_overview_select("help-menu-2"));
+        assert!(!is_help_overview_select("help_category_select_0"));
+        assert!(!is_help_overview_select(""));
+    }
+
+    #[test]
+    fn overview_pick_routes_back_index_and_unknown() {
+        assert!(matches!(
+            parse_help_overview_pick("back"),
+            HelpOverviewPick::Back
+        ));
+        assert!(matches!(
+            parse_help_overview_pick("0"),
+            HelpOverviewPick::Category(0)
+        ));
+        assert!(matches!(
+            parse_help_overview_pick("17"),
+            HelpOverviewPick::Category(17)
+        ));
+        // TS parseInt NaN / negative branch: unreachable.
+        assert!(matches!(
+            parse_help_overview_pick("some_category"),
+            HelpOverviewPick::Unknown
+        ));
+        assert!(matches!(
+            parse_help_overview_pick("-1"),
+            HelpOverviewPick::Unknown
+        ));
+        assert!(matches!(
+            parse_help_overview_pick(""),
+            HelpOverviewPick::Unknown
+        ));
+    }
+
+    fn sample_cat(title: &str, fields: usize) -> super::super::HelpBrowserCat {
+        super::super::HelpBrowserCat {
+            name: title.to_lowercase(),
+            title: title.to_string(),
+            desc: format!("{title} desc"),
+            color: 0x001eff,
+            emoji_name: "E".to_string(),
+            fields: (0..fields)
+                .map(|i| (format!("`cmd{i}`"), "d".to_string()))
+                .collect(),
+        }
+    }
+
+    #[test]
+    fn overview_options_back_first_sorted_index_values() {
+        let mut cats = vec![
+            sample_cat("Utils", 3),
+            sample_cat("Bot", 12),
+            sample_cat("Fun", 1),
+        ];
+        super::sort_help_cats_by_name(&mut cats);
+        assert_eq!(
+            cats.iter().map(|c| c.title.as_str()).collect::<Vec<_>>(),
+            vec!["Bot", "Fun", "Utils"]
+        );
+        // First row slice: back + global index values with count descs.
+        let opts = super::help_overview_options("en-US", &cats, 0..2);
+        assert_eq!(opts.len(), 3);
+        assert_eq!(opts[0].value, "back");
+        assert_eq!(opts[0].label, "Main menu");
+        assert_eq!(opts[0].emoji_name, "Home");
+        assert_eq!(opts[1].value, "0");
+        assert_eq!(opts[1].label, "Bot");
+        assert_eq!(opts[1].description, "12 Commands");
+        assert_eq!(opts[2].value, "1");
+        // Second row slice keeps the GLOBAL index (TS keeps incrementing).
+        let rest = super::help_overview_options("en-US", &cats, 2..3);
+        assert_eq!(rest.len(), 2);
+        assert_eq!(rest[0].value, "back");
+        assert_eq!(rest[1].value, "2");
+        assert_eq!(rest[1].label, "Utils");
+    }
+
+    #[test]
+    fn overview_category_page_caps_fields_with_tail() {
+        let fields: Vec<(String, String)> = (0..30)
+            .map(|i| (format!("n{i}"), format!("v{i}")))
+            .collect();
+        let page = super::help_overview_category_page("EMOJI", "Bot", "desc", &fields);
+        assert_eq!(page.title, "EMOJI・Bot");
+        assert_eq!(page.fields.len(), 25);
+        assert!(page.description.contains("... +5 more"));
+        // No emoji markup: bare title, no tail when under the cap.
+        let small = super::help_overview_category_page("", "Bot", "desc", &fields[..3]);
+        assert_eq!(small.title, "Bot");
+        assert_eq!(small.description, "desc");
+    }
+
+    #[test]
+    fn overview_banner_derives_from_guild_lang() {
+        // The overview embed image is bannerGenerator(guildId): the
+        // BANNER_URL template with the guild lang code.
+        assert_eq!(
+            crate::funcs::banner_url("fr-FR"),
+            "https://www.ihorizon.org/assets/img/banner/ihrz_fr-FR.png"
+        );
+        assert!(crate::funcs::banner_url("en-US").ends_with("ihrz_en-US.png"));
     }
 }

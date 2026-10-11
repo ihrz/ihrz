@@ -115,6 +115,56 @@ pub fn help_main_row_bounds(total: usize) -> (std::ops::Range<usize>, std::ops::
     (0..per, per..total)
 }
 
+/// Custom ids for the two /help overview select rows. Verbatim TS ids
+/// (`help-menu-1` / `help-menu-2`); routed by `handle_help_component`
+/// to the overview path (index values + back navigation), NOT the
+/// `h`-browser page protocol.
+pub fn help_overview_select_ids() -> (String, String) {
+    (
+        super::help::HELP_OVERVIEW_SELECT_1.to_string(),
+        super::help::HELP_OVERVIEW_SELECT_2.to_string(),
+    )
+}
+
+/// Build the two /help overview select rows. Mirrors help.ts:455-489:
+/// each row carries back first, then its slice of the NAME-SORTED
+/// categories with global index values, per-category emoji, and
+/// command-count descriptions. `cats` must already be name-sorted
+/// (see `super::help::sort_help_cats_by_name`); the split reuses the
+/// same `Math.ceil(len / 2)` bounds as the browser rows.
+pub async fn build_help_overview_rows(
+    http: &serenity::Http,
+    code: &str,
+    cats: &[HelpBrowserCat],
+) -> Vec<serenity::CreateActionRow> {
+    let (first, second) = help_main_row_bounds(cats.len());
+    let (first_id, second_id) = help_overview_select_ids();
+    let mut rows = Vec::new();
+    for (bounds, custom_id) in [(first, first_id), (second, second_id)] {
+        let mut options = Vec::new();
+        for o in super::help::help_overview_options(code, cats, bounds) {
+            let mut opt =
+                serenity::CreateSelectMenuOption::new(o.label, o.value).description(o.description);
+            if let Some((id, name, _animated)) =
+                crate::emojis::cached_emoji_entry(http, &o.emoji_name).await
+            {
+                opt = opt.emoji(serenity::ReactionType::Custom {
+                    animated: false,
+                    id: serenity::EmojiId::new(id),
+                    name: Some(name),
+                });
+            }
+            options.push(opt);
+        }
+        let select = serenity::CreateSelectMenu::new(
+            custom_id,
+            serenity::CreateSelectMenuKind::String { options },
+        )
+        .placeholder(super::help::help_select_placeholder(code));
+        rows.push(serenity::CreateActionRow::SelectMenu(select));
+    }
+    rows
+}
 /// Custom ids for the two main-menu category select rows.
 /// Same page on both rows; the suffix only keeps the custom id
 /// unique. The router falls back to page 0 when the suffix after
@@ -126,9 +176,8 @@ pub fn help_main_select_ids() -> (String, String) {
     )
 }
 
-/// Build the two category select rows for a main-menu overview.
-/// Shared by `help_main` and `botcat::help` so picks route
-/// identically through `handle_help_component`.
+/// Build the two category select rows for the `help_main` browser menu
+/// (routed through `handle_help_component` on the title-key protocol).
 pub async fn build_help_main_rows(
     http: &serenity::Http,
     code: &str,
@@ -210,5 +259,21 @@ mod tests {
                 .unwrap_or(0),
             0
         );
+    }
+
+    #[test]
+    fn overview_select_ids_are_ts_parity() {
+        // Verbatim TS custom ids, on their own protocol (never the
+        // browser prefix, so the router can tell them apart).
+        let (first, second) = help_overview_select_ids();
+        assert_eq!(first, "help-menu-1");
+        assert_eq!(second, "help-menu-2");
+        assert_ne!(first, second);
+        assert!(!first.starts_with(HELP_SELECT_PREFIX));
+        assert!(!second.starts_with(HELP_SELECT_PREFIX));
+        assert!(super::super::help::is_help_overview_select(&first));
+        assert!(super::super::help::is_help_overview_select(&second));
+        // Same ceil(len / 2) split as the TS overview menus.
+        assert_eq!(help_main_row_bounds(26), (0..13, 13..26));
     }
 }
