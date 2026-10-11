@@ -923,6 +923,7 @@ pub mod frog;
 pub mod fun;
 pub mod gay;
 pub mod grosbg;
+pub mod groups;
 pub mod hack;
 pub mod heads_tails;
 pub mod hug;
@@ -964,6 +965,7 @@ pub mod main {
     pub use super::games::*;
     pub use super::gay::*;
     pub use super::grosbg::*;
+    pub use super::groups::*;
     pub use super::hack::*;
     pub use super::heads_tails::*;
     pub use super::hug::*;

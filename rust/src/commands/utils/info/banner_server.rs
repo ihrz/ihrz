@@ -5,8 +5,8 @@ use super::*;
     slash_command,
     prefix_command,
     category = "utils",
-    rename = "banner-server",
-    aliases("serverbanner")
+    rename = "server",
+    aliases("banner-server", "serverbanner")
 )]
 pub async fn banner_server(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {

@@ -845,6 +845,12 @@ pub async fn report_command_error(err: poise::FrameworkError<'_, Data, anyhow::E
         } => {
             crash_block(*ctx, error.to_string()).await;
         }
+        // Setup failures (e.g. Discord rejecting the slash registration
+        // payload) otherwise surface only as "poise setup error" with no
+        // detail — log the inner error so the next boot shows the cause.
+        poise::FrameworkError::Setup { ref error, .. } => {
+            tracing::error!("slash setup failed: {error:#}");
+        }
         _ => {}
     }
 }
@@ -1344,6 +1350,13 @@ async fn register_globally_guild_default<U, E>(
     commands: &[poise::Command<U, E>],
 ) -> Result<(), serenity::Error> {
     fn push<U, E>(cmd: &poise::Command<U, E>, out: &mut Vec<serenity::CreateCommand>) {
+        // Top-level entries only. Poise already embeds nested subcommands
+        // as options inside their parent's payload; pushing leaves again
+        // here duplicates them at top level and blows past Discord's
+        // bulk-overwrite caps (100 global commands, 130 pre-parse array
+        // check -> BASE_TYPE_MAX_LENGTH "Must be 130 or fewer in
+        // length", which rejects the ENTIRE batch, so no slash command
+        // registers and every invocation answers "did not respond").
         if let Some(mut b) = cmd.create_as_slash_command() {
             if cmd.install_context.is_none() {
                 b = b.integration_types(vec![serenity::InstallationContext::Guild]);
@@ -1361,9 +1374,6 @@ async fn register_globally_guild_default<U, E>(
                 b = b.contexts(vec![serenity::InteractionContext::Guild]);
             }
             out.push(b);
-        }
-        for sub in &cmd.subcommands {
-            push(sub, out);
         }
     }
     let mut builders = Vec::with_capacity(commands.len());

@@ -1,25 +1,37 @@
 use super::*;
 
 use super::{
-    autologs::gc_autologs, automod::gc_automod, autoreact::gc_autoreact,
-    autoreact::gc_autoreact_list, autoreact::gc_autoreact_remove, autoreact::gc_autoreact_toggle,
-    blockbot::gc_blockbot, commandlimit::gc_commandlimit, ghost::gc_ghost_add,
-    ghost::gc_ghost_list, ghost::gc_ghost_remove, joindm::gc_joindm, joinrole::gc_joinrole,
-    perm::gc_perm_change, perm::gc_perm_delete, perm::gc_perm_delete_all, perm::gc_perm_list,
-    perm::gc_perm_list_all, perm::gc_perm_reset, perm::gc_perm_roles_create,
-    perm::gc_perm_roles_edit, perm::gc_perm_set, perm::gc_perm_user, prefix::gc_prefix,
-    restore::gc_config_restore, save::gc_config_save, setlogschannel::gc_setlogs, setup::gc_setup,
-    show::gc_show, support::gc_support, tonew::gc_toonew, welcomer::gc_wc_channel,
-    welcomer::gc_wc_components, welcomer::gc_wc_embed, welcomer::gc_wc_panel, welcomer::gc_wc_text,
+    autologs::gc_autologs, autoreact::gc_autoreact, autoreact::gc_autoreact_list,
+    autoreact::gc_autoreact_remove, autoreact::gc_autoreact_toggle, block::gc_block, bot::gc_bot,
+    commandlimit::gc_commandlimit, config::gc_config, join_ghostping::gc_join_ghostping,
+    perm_parent::gc_perm, set::gc_set, setlogschannel::gc_setlogs, setup::gc_setup,
+    support::gc_support,
 };
 
-/// Parent group. Mirrors the TS `guildconfig` SlashCommand definition.
+/// Guild configuration commands.
+// Discord caps a command at 25 direct options, so the leaves live
+// under TS-canonical groups: `block` / `bot` / `config` / `set`
+// (mirroring the `guildconfig.ts` SubcommandGroups), `perm`
+// (`perm.ts`), `join-ghostping` (`join-ghostping.ts`), while
+// `automod` registers top-level beside this parent (already wired
+// in `commands/mod.rs`, mirroring its own TS `automod` parent).
+// The `autoreact` / `commandlimit` / `setlogs` / `support` leaves
+// stay direct: TS defines each as its own top-level command
+// (`HybridCommands/guildconfig/*`), so the lead can promote them
+// out of here without touching the leaves.
 #[poise::command(
     slash_command,
     prefix_command,
     category = "guildconfig",
     rename = "guildconfig",
     subcommands(
+        "gc_setup",
+        "gc_block",
+        "gc_bot",
+        "gc_config",
+        "gc_set",
+        "gc_perm",
+        "gc_join_ghostping",
         "gc_commandlimit",
         "gc_setlogs",
         "gc_support",
@@ -27,35 +39,7 @@ use super::{
         "gc_autoreact_list",
         "gc_autoreact_remove",
         "gc_autoreact_toggle",
-        "gc_prefix",
-        "gc_ghost_add",
-        "gc_ghost_remove",
-        "gc_ghost_list",
-        "gc_perm_set",
-        "gc_perm_user",
-        "gc_perm_list",
-        "gc_perm_reset",
-        "gc_perm_change",
-        "gc_perm_delete",
-        "gc_perm_list_all",
-        "gc_perm_delete_all",
-        "gc_wc_channel",
-        "gc_wc_embed",
-        "gc_wc_text",
-        "gc_wc_components",
-        "gc_wc_panel",
-        "gc_config_save",
-        "gc_config_restore",
-        "gc_perm_roles_create",
-        "gc_perm_roles_edit",
-        "gc_show",
-        "gc_autologs",
-        "gc_setup",
-        "gc_automod",
-        "gc_blockbot",
-        "gc_toonew",
-        "gc_joindm",
-        "gc_joinrole"
+        "gc_autologs"
     ),
     subcommand_required
 )]

@@ -6,7 +6,7 @@ use super::*;
     slash_command,
     prefix_command,
     category = "utils",
-    rename = "unban-undo",
+    rename = "undo",
     aliases("unbanall-undo", "unban-all-undo"),
     default_member_permissions = "ADMINISTRATOR"
 )]

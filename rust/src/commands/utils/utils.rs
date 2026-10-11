@@ -1,28 +1,17 @@
 use super::*;
 use super::{
     admin::{
-        admin_users, allbots, allwebhooks, autorenew, derogation, dm, embed_post, leash,
-        nickkicker, setmentionrole, unban_all, unban_undo, unleash, unzip_emojis, vanity_generator,
-        wakeup, zip_emojis, zip_stickers,
+        admin_users, allbots, dm, embed_post, leash, setmentionrole, unleash, vanity_generator,
+        zip_emojis,
     },
-    channels::{
-        chan_hide, chan_hideall, chan_unhide, chan_unhideall, media_only, renew, slowmode, syncchan,
-    },
-    info::{
-        avatar, banner, emojis, inviteinfo, prevnames, serverinfo, serverpic, snipe, sticker, top,
-        userinfo, whereis,
-    },
-    roles::{
-        addrole, addrolereact, admin_roles, delrole, derank, massiverole, nickrole, role_members,
-        rolelimit, wlroles, wlroles_add, wlroles_list,
-    },
-    voice::{
-        bringall, massmove, renewvc, talk, untalk, unwlvc, vc_list, vkick, voicefreeze, voicemove,
-        voiceunfreeze, wlvc,
-    },
+    channels::{media_only, renew},
+    info::{avatar, emojis, prevnames, serverinfo, snipe, sticker, top, userinfo},
+    roles::{addrole, delrole, derank, massiverole, nickrole, wlroles, wlroles_add, wlroles_list},
+    voice::{massmove, vc_list},
 };
 
-/// Run-less group root. Mirrors the TS `utils` HybridCommand definition.
+/// Run-less group root. Mirrors the TS `utils` command.
+// (src/Interaction/HybridCommands/utils/utils.ts, exactly 25 subcommands).
 // A bare invocation raises SubcommandRequired (mapped to help in
 // `bot.rs`) before this body runs, on both paths.
 // Prefix choice exactness (accepted): `ChoiceParameter` leaves
@@ -38,67 +27,38 @@ use super::{
     rename = "utils",
     subcommands(
         "avatar",
-        "banner",
-        "emojis",
-        "inviteinfo",
-        "prevnames",
-        "serverinfo",
-        "serverpic",
-        "snipe",
-        "sticker",
-        "top",
+        "vc_list",
+        "vanity_generator",
         "userinfo",
-        "whereis",
-        "chan_hide",
-        "chan_hideall",
-        "chan_unhide",
-        "chan_unhideall",
-        "media_only",
-        "renew",
-        "slowmode",
-        "syncchan",
-        "addrole",
-        "addrolereact",
-        "admin_roles",
-        "delrole",
-        "derank",
-        "massiverole",
-        "nickrole",
-        "role_members",
-        "rolelimit",
+        "snipe",
+        "leash",
+        "unleash",
+        "dm",
         "wlroles",
-        "wlroles_add",
-        "wlroles_list",
+        "media_only",
+        "setmentionrole",
+        "renew",
+        "prevnames",
+        "nickrole",
+        "massmove",
+        "massiverole",
+        "serverinfo",
+        "emojis",
+        "embed_post",
+        "derank",
         "admin_users",
         "allbots",
-        "allwebhooks",
-        "autorenew",
-        "derogation",
-        "dm",
-        "embed_post",
-        "leash",
-        "nickkicker",
-        "setmentionrole",
-        "unban_all",
-        "unban_undo",
-        "unleash",
-        "unzip_emojis",
-        "vanity_generator",
-        "wakeup",
+        "addrole",
+        "delrole",
         "zip_emojis",
-        "zip_stickers",
-        "bringall",
-        "massmove",
-        "renewvc",
-        "talk",
-        "untalk",
-        "unwlvc",
-        "vc_list",
-        "vkick",
-        "voicefreeze",
-        "voicemove",
-        "voiceunfreeze",
-        "wlvc"
+        // Prefix-only message-command ports (no slash leg, so they do
+        // not count toward Discord's 25 slash options).
+        "sticker",
+        "top",
+        // Rust-only splits of the TS `wlroles` subcommand (prefix-only
+        // helpers; TS has no such slash subs).
+        "wlroles_add",
+        "wlroles_list"
     ),
     subcommand_required
 )]

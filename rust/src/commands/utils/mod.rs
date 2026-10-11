@@ -1372,9 +1372,13 @@ mod banner_tests {
 }
 
 pub mod admin;
+pub mod channel;
 pub mod channels;
 pub mod info;
 pub mod roles;
+pub mod unbanall;
+pub mod util;
 #[allow(clippy::module_inception)]
 pub mod utils;
+pub mod utilss;
 pub mod voice;

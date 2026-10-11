@@ -98,7 +98,6 @@ async fn post_wlroles_log(ctx: &Ctx<'_>, guild_id: poise::serenity_prelude::Guil
 // Vec would add prefix-variadic without slash multi-select parity —
 // repeat the call per role like the TS multi-select does in one panel.
 #[poise::command(
-    slash_command,
     prefix_command,
     category = "utils",
     rename = "wlroles-add",

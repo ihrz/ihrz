@@ -6,8 +6,8 @@ use super::*;
     slash_command,
     prefix_command,
     category = "utils",
-    rename = "banner-user",
-    aliases("userbanner", "ubanner")
+    rename = "user",
+    aliases("banner-user", "userbanner", "ubanner")
 )]
 pub async fn banner_user(
     ctx: Ctx<'_>,

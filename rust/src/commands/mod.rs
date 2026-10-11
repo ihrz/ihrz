@@ -62,6 +62,11 @@ pub fn all() -> Vec<poise::Command<Data, Error>> {
     vec![
         fun::fun::fun(),
         utils::utils::utils(),
+        utils::util::util(),
+        utils::channel::channel(),
+        utils::unbanall::unbanall(),
+        utils::utilss::utilss(),
+        utils::info::banner::banner(),
         embed::embed_builder::embed_builder(),
         moderation::main::moderation(),
         protection::protect::protect(),
@@ -452,9 +457,10 @@ mod tests {
     #[test]
     fn registry_has_expected_commands() {
         let cmds = all();
-        // Parents + flat singles + context entries (U-SLASHGROUPS: leaves
-        // live nested under parents; Discord caps top-level slash at 100).
-        assert_eq!(cmds.len(), 53);
+        // Parents + flat singles + context entries + split-off utils
+        // parents (U-SLASHGROUPS: leaves live nested under parents;
+        // Discord caps top-level slash at 100).
+        assert_eq!(cmds.len(), 58);
         // Every nested leaf keeps working through its parent.
         fn flatten<'a>(
             cmds: &'a [poise::Command<super::Data, super::Error>],
@@ -593,7 +599,7 @@ mod tests {
             "unhideall",
             "unhide",
             "unban-all",
-            "unban-undo",
+            "undo",
             "wlroles-add",
             "wlroles-list",
             "wlroles",
@@ -873,6 +879,9 @@ mod tests {
         // MessageCommand ports are prefix-only by design: TS registers
         // sticker/top under MessageCommands, never as slash commands.
         const PREFIX_ONLY_MESSAGE_COMMANDS: [&str; 2] = ["sticker", "top"];
+        // Rust-only splits of a TS subcommand (wlroles add/list): kept
+        // prefix-only so the parent's slash surface matches TS exactly.
+        const PREFIX_ONLY_SPLITS: [&str; 2] = ["wlroles-add", "wlroles-list"];
         fn flatten<'a>(
             cmds: &'a [poise::Command<super::Data, super::Error>],
             out: &mut Vec<&'a poise::Command<super::Data, super::Error>>,
@@ -891,6 +900,7 @@ mod tests {
             }
             if PREFIX_ONLY_DELEGATES.contains(&cmd.name.as_str())
                 || PREFIX_ONLY_MESSAGE_COMMANDS.contains(&cmd.name.as_str())
+                || PREFIX_ONLY_SPLITS.contains(&cmd.name.as_str())
             {
                 assert!(
                     cmd.prefix_action.is_some(),
@@ -1017,5 +1027,135 @@ mod defer_policy_tests {
         assert_eq!(defer_policy("utils inviteinfo"), DeferPolicy::EPHEMERAL);
         // TS thinking:false parents ported flat stay non-deferred.
         assert_eq!(defer_policy("ranks show"), DeferPolicy::NONE);
+    }
+
+    /// Offline mirror of the setup-time slash registration in bot.rs
+    /// (`push` + `set_global_commands`): every built payload must pass
+    /// Discord constraints, otherwise setup fails with `poise setup
+    /// error` and every slash command answers "did not respond".
+    #[test]
+    fn slash_registration_payload_passes_discord_constraints() {
+        fn valid_name(s: &str) -> bool {
+            let n = s.chars().count();
+            (1..=32).contains(&n)
+                && s.chars().all(|c| {
+                    c == '-' || c == '_' || c.is_ascii_lowercase() || c.is_ascii_digit() || {
+                        // Non-ASCII letters allowed by Discord; case-fold
+                        // check keeps it simple (no uppercase anywhere).
+                        c.is_alphabetic() && c.to_lowercase().next() == Some(c)
+                    }
+                })
+        }
+        fn check_option(v: &serde_json::Value, path: &str, errs: &mut Vec<String>) {
+            let name = v.get("name").and_then(|n| n.as_str()).unwrap_or("");
+            if !valid_name(name) {
+                errs.push(format!("{path}: bad option name {name:?}"));
+            }
+            let desc = v.get("description").and_then(|d| d.as_str()).unwrap_or("");
+            let dn = desc.chars().count();
+            if !(1..=100).contains(&dn) {
+                errs.push(format!("{path}/{name}: bad option description len {dn}"));
+            }
+            if let Some(opts) = v.get("options").and_then(|o| o.as_array()) {
+                if opts.len() > 25 {
+                    errs.push(format!("{path}/{name}: {} options > 25", opts.len()));
+                }
+                // Discord rejects required options placed after an
+                // optional one (applies to leaf params, not to
+                // subcommand/group listings which carry no `required`).
+                let mut seen_optional = false;
+                for o in opts {
+                    let is_sub = o
+                        .get("type")
+                        .and_then(|t| t.as_u64())
+                        .map_or(false, |t| t <= 2);
+                    let req = o.get("required").and_then(|r| r.as_bool()).unwrap_or(false);
+                    if !is_sub {
+                        if req && seen_optional {
+                            errs.push(format!(
+                                "{path}/{name}: required option after optional: {:?}",
+                                o.get("name").and_then(|n| n.as_str()).unwrap_or("")
+                            ));
+                        }
+                        if !req {
+                            seen_optional = true;
+                        }
+                    }
+                    check_option(o, &format!("{path}/{name}"), errs);
+                }
+            }
+            if let Some(choices) = v.get("choices").and_then(|c| c.as_array()) {
+                if choices.len() > 25 {
+                    errs.push(format!("{path}/{name}: {} choices > 25", choices.len()));
+                }
+            }
+        }
+        let mut errs: Vec<String> = vec![];
+        let mut top_names: Vec<(u64, String)> = vec![];
+        for cmd in all() {
+            for built in [
+                cmd.create_as_slash_command(),
+                cmd.create_as_context_menu_command(),
+            ]
+            .into_iter()
+            .flatten()
+            {
+                let v = serde_json::to_value(&built).expect("command serializes");
+                let name = v
+                    .get("name")
+                    .and_then(|n| n.as_str())
+                    .unwrap_or("")
+                    .to_string();
+                let kind = v.get("type").and_then(|t| t.as_u64()).unwrap_or(1);
+                // Context-menu entries (user/message, kind 2/3) allow
+                // spaces/uppercase and carry no description; only
+                // chat-input (kind 1) faces the strict charset + desc.
+                if kind == 1 {
+                    if !valid_name(&name) {
+                        errs.push(format!("top-level: bad command name {name:?}"));
+                    }
+                    let desc = v.get("description").and_then(|d| d.as_str()).unwrap_or("");
+                    let dn = desc.chars().count();
+                    if !(1..=100).contains(&dn) {
+                        errs.push(format!("{name}: bad description len {dn}: {desc:?}"));
+                    }
+                }
+                top_names.push((kind, name.clone()));
+                if let Some(opts) = v.get("options").and_then(|o| o.as_array()) {
+                    if opts.len() > 25 {
+                        errs.push(format!("{name}: {} options > 25", opts.len()));
+                    }
+                    if kind == 1 && !cmd.subcommands.is_empty() && opts.is_empty() {
+                        errs.push(format!("{name}: parent with subcommands built no options"));
+                    }
+                    for o in opts {
+                        check_option(o, &name, &mut errs);
+                    }
+                } else if !cmd.subcommands.is_empty() {
+                    errs.push(format!(
+                        "{name}: parent with subcommands built no options array"
+                    ));
+                }
+            }
+        }
+        top_names.sort();
+        for w in top_names.windows(2) {
+            if w[0] == w[1] {
+                errs.push(format!("duplicate top-level command {:?}", w[0]));
+            }
+        }
+        assert!(
+            errs.is_empty(),
+            "slash payload invalid:\n{}",
+            errs.join("\n")
+        );
+        // Mirrors bot.rs push(): only top-level entries ship, so the
+        // bulk array must stay under Discord's 100 global commands
+        // (and the 130 pre-parse check — see the push() comment).
+        assert!(
+            top_names.len() <= 100,
+            "too many top-level slash payloads: {}",
+            top_names.len()
+        );
     }
 }
