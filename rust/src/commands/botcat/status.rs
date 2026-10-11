@@ -225,7 +225,9 @@ pub async fn status(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     };
     // Emoji field names mirror status.ts (`${emojis} OS`,
     // `${Logo} Bot Version`, `${Bun} Bun Version`); the toolchain row
-    // reports rustc (documented port mapping on rustc_version()).
+    // reports rustc (documented port mapping on rustc_version()) with
+    // the Rust logo, falling back to Bun until the `iHorizon_Rust`
+    // app emoji is synced (`bun run check:emoji`).
     let http = &ctx.serenity_context().http;
     let os_name = super::os_emoji_name();
     let os_emoji = match os_name {
@@ -233,7 +235,10 @@ pub async fn status(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         None => None,
     };
     let logo = crate::emojis::app_emoji_markup(http, "Logo").await;
-    let bun = crate::emojis::app_emoji_markup(http, "Bun").await;
+    let mut rust_logo = crate::emojis::app_emoji_markup(http, "Rust").await;
+    if rust_logo.is_none() {
+        rust_logo = crate::emojis::app_emoji_markup(http, "Bun").await;
+    }
     let mut embed = serenity::CreateEmbed::default()
         .colour(0x82CDA8)
         .field(
@@ -264,7 +269,7 @@ pub async fn status(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         );
     if let Some(rustc) = rustc_version() {
         embed = embed.field(
-            super::prefixed_field_name(bun.as_deref(), "Rust Version"),
+            super::prefixed_field_name(rust_logo.as_deref(), "Rust Version"),
             rustc,
             false,
         );
