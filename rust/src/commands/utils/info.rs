@@ -29,7 +29,6 @@ pub mod userinfo;
 pub mod whereis;
 
 pub use self::avatar::avatar;
-pub use self::banner::banner;
 pub use self::banner_server::banner_server;
 pub use self::banner_user::banner_user;
 pub use self::emojis::emojis;

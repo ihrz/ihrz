@@ -65,6 +65,7 @@ pub fn all() -> Vec<poise::Command<Data, Error>> {
         utils::util::util(),
         utils::channel::channel(),
         utils::unbanall::unbanall(),
+        utils::unslowmode::unslowmode(),
         utils::utilss::utilss(),
         utils::info::banner::banner(),
         embed::embed_builder::embed_builder(),
@@ -117,6 +118,7 @@ pub fn all() -> Vec<poise::Command<Data, Error>> {
         owner::main::unblacklist_alias(),
         botcat::bot::bot(),
         botcat::custom::custom(),
+        botcat::prefix::prefix_top(),
         stats::main::stats(),
     ]
 }
@@ -460,7 +462,7 @@ mod tests {
         // Parents + flat singles + context entries + split-off utils
         // parents (U-SLASHGROUPS: leaves live nested under parents;
         // Discord caps top-level slash at 100).
-        assert_eq!(cmds.len(), 58);
+        assert_eq!(cmds.len(), 60);
         // Every nested leaf keeps working through its parent.
         fn flatten<'a>(
             cmds: &'a [poise::Command<super::Data, super::Error>],
@@ -877,8 +879,8 @@ mod tests {
         // the prefix leg and skips the slash assertion for these names.
         const PREFIX_ONLY_DELEGATES: [&str; 3] = ["unowner", "bl", "unblacklist"];
         // MessageCommand ports are prefix-only by design: TS registers
-        // sticker/top under MessageCommands, never as slash commands.
-        const PREFIX_ONLY_MESSAGE_COMMANDS: [&str; 2] = ["sticker", "top"];
+        // sticker/top/unslowmode under MessageCommands, never as slash.
+        const PREFIX_ONLY_MESSAGE_COMMANDS: [&str; 3] = ["sticker", "top", "unslowmode"];
         // Rust-only splits of a TS subcommand (wlroles add/list): kept
         // prefix-only so the parent's slash surface matches TS exactly.
         const PREFIX_ONLY_SPLITS: [&str; 2] = ["wlroles-add", "wlroles-list"];

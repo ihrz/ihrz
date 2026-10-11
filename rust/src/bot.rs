@@ -1047,6 +1047,247 @@ pub fn collect_guild_owners(cache: &serenity::Cache) -> Vec<crate::core::release
     rows
 }
 
+/// Dev commands.json entry builder (pure, offline-testable). Mirrors the
+/// `version.env === "dev"` dump in src/Events/client/ready.ts writing
+/// src/files/commands.json via JSON.stringify(mapped, null, 4):
+/// top-level entries carry the mapper's keys in mapper order (name,
+/// prefix_name, name_translated, description, description_translated,
+/// category, options, aliases, thinking, ephemeral); nested options mirror
+/// the raw discord.js option objects (name, name_localizations,
+/// description, description_localizations, type, options?, commandFullName,
+/// plus aliases/prefixName only when set — JSON.stringify drops
+/// undefined); leaf params mirror discord.js param objects (name,
+/// description, description_localizations, required, type, then choices /
+/// channel_types / min+max when present). Indentation is 4 spaces, like
+/// JSON.stringify(x, null, 4) — serde_json pretty defaults to 2, so the
+/// setup writer uses PrettyFormatter::with_indent (see write_commands_dump).
+pub fn build_commands_dump(commands: &[poise::Command<Data, anyhow::Error>]) -> serde_json::Value {
+    use serde_json::{Map, Value};
+
+    /// Reorder a serialized slash param to discord.js key order, dropping
+    /// absent-by-construction keys (nulls, `required: false`, empty
+    /// localization maps — JSON.stringify drops undefined).
+    fn param_value(v: Value) -> Value {
+        let mut map = match v {
+            Value::Object(m) => m,
+            other => return other,
+        };
+        // discord.js key order; JSON.stringify drops undefined.
+        let mut out = Map::new();
+        for key in [
+            "name",
+            "name_localizations",
+            "description",
+            "description_localizations",
+            "required",
+            "type",
+            "choices",
+            "channel_types",
+            "min_value",
+            "max_value",
+            "min_length",
+            "max_length",
+            "autocomplete",
+        ] {
+            if let Some(val) = map.remove(key) {
+                if val.is_null() {
+                    continue;
+                }
+                if key == "required" && val == Value::Bool(false) {
+                    continue;
+                }
+                // Serenity emits empty vecs / false flags TS never sets
+                // (JSON.stringify drops undefined, not empties — the TS
+                // sources simply omit them).
+                if key == "autocomplete" && val == Value::Bool(false) {
+                    continue;
+                }
+                if (key == "choices" || key == "channel_types" || key == "options")
+                    && val == Value::Array(vec![])
+                {
+                    continue;
+                }
+                if (key == "name_localizations" || key == "description_localizations")
+                    && val == Value::Object(Map::new())
+                {
+                    continue;
+                }
+                out.insert(key.to_string(), val);
+            }
+        }
+        for (k, val) in map {
+            if !val.is_null() {
+                out.insert(k, val);
+            }
+        }
+        Value::Object(out)
+    }
+
+    /// Recursive discord.js-shaped option for a nested poise command:
+    /// leaf (type 1) carries params, group (type 2) carries children.
+    /// All nested subcommands are included regardless of slash_action
+    /// (the TS dump walks the raw x.options the same way).
+    fn sub_value(cmd: &poise::Command<Data, anyhow::Error>) -> Value {
+        let mut map = Map::new();
+        map.insert("name".to_string(), Value::String(cmd.name.clone()));
+        if !cmd.name_localizations.is_empty() {
+            map.insert(
+                "name_localizations".to_string(),
+                serde_json::to_value(&cmd.name_localizations).unwrap_or(Value::Null),
+            );
+        }
+        map.insert(
+            "description".to_string(),
+            Value::String(cmd.description.clone().unwrap_or_default()),
+        );
+        if !cmd.description_localizations.is_empty() {
+            map.insert(
+                "description_localizations".to_string(),
+                serde_json::to_value(&cmd.description_localizations).unwrap_or(Value::Null),
+            );
+        }
+        map.insert(
+            "type".to_string(),
+            Value::from(if cmd.subcommands.is_empty() { 1 } else { 2 }),
+        );
+        if cmd.subcommands.is_empty() {
+            let params: Vec<Value> = cmd
+                .parameters
+                .iter()
+                .filter_map(|p| p.create_as_slash_command_option())
+                .filter_map(|b| serde_json::to_value(&b).ok())
+                .map(param_value)
+                .collect();
+            if !params.is_empty() {
+                map.insert("options".to_string(), Value::Array(params));
+            }
+        } else {
+            map.insert(
+                "options".to_string(),
+                Value::Array(cmd.subcommands.iter().map(sub_value).collect()),
+            );
+        }
+        map.insert(
+            "commandFullName".to_string(),
+            Value::String(cmd.qualified_name.clone()),
+        );
+        if !cmd.aliases.is_empty() {
+            map.insert(
+                "aliases".to_string(),
+                serde_json::to_value(&cmd.aliases).unwrap_or(Value::Null),
+            );
+        }
+        if let Some(prefix) = crate::commands::shared::prefix_name_for(&cmd.qualified_name) {
+            map.insert("prefixName".to_string(), Value::String(prefix.to_string()));
+        }
+        Value::Object(map)
+    }
+
+    let entries: Vec<Value> = commands
+        .iter()
+        .map(|cmd| {
+            let policy = crate::commands::defer_policy(&cmd.qualified_name);
+            let prefix_name = crate::commands::shared::prefix_name_for(&cmd.qualified_name);
+            // Context-menu entries register under their menu display name
+            // (context_menu_name, e.g. "User Lookup") with kind 2/3 and no
+            // description — like the TS User/MessageApplicationCommands
+            // defs. Chat-input keeps kind 1 with no `type` key (default).
+            let menu_kind: Option<u64> = match &cmd.context_menu_action {
+                Some(poise::ContextMenuCommandAction::User(_)) => Some(2),
+                Some(poise::ContextMenuCommandAction::Message(_)) => Some(3),
+                _ => None,
+            };
+            let is_menu = cmd.slash_action.is_none() && menu_kind.is_some();
+            let disp_name = if is_menu {
+                cmd.context_menu_name
+                    .clone()
+                    .unwrap_or_else(|| cmd.name.clone())
+            } else {
+                cmd.name.clone()
+            };
+            let options = if cmd.subcommands.is_empty() {
+                let params: Vec<Value> = cmd
+                    .parameters
+                    .iter()
+                    .filter_map(|p| p.create_as_slash_command_option())
+                    .filter_map(|b| serde_json::to_value(&b).ok())
+                    .map(param_value)
+                    .collect();
+                Value::Array(params)
+            } else {
+                Value::Array(cmd.subcommands.iter().map(sub_value).collect())
+            };
+            let mut map = Map::new();
+            map.insert("name".to_string(), Value::String(disp_name));
+            if let Some(kind) = menu_kind {
+                // Context menus register no description (Discord requires
+                // it empty); the kind disambiguates user (2)/message (3).
+                map.insert("type".to_string(), Value::from(kind));
+                map.insert("description".to_string(), Value::String(String::new()));
+            }
+            map.insert(
+                "prefix_name".to_string(),
+                prefix_name
+                    .map(|s| Value::String(s.to_string()))
+                    .unwrap_or(Value::Null),
+            );
+            map.insert(
+                "name_translated".to_string(),
+                serde_json::to_value(&cmd.name_localizations).unwrap_or(Value::Null),
+            );
+            map.insert(
+                "description".to_string(),
+                Value::String(if is_menu {
+                    String::new()
+                } else {
+                    cmd.description.clone().unwrap_or_default()
+                }),
+            );
+            map.insert(
+                "description_translated".to_string(),
+                serde_json::to_value(&cmd.description_localizations).unwrap_or(Value::Null),
+            );
+            map.insert(
+                "category".to_string(),
+                cmd.category
+                    .clone()
+                    .map(Value::String)
+                    .unwrap_or(Value::Null),
+            );
+            map.insert("options".to_string(), options);
+            map.insert(
+                "aliases".to_string(),
+                serde_json::to_value(&cmd.aliases).unwrap_or(Value::Null),
+            );
+            map.insert("thinking".to_string(), Value::Bool(policy.defer));
+            map.insert("ephemeral".to_string(), Value::Bool(policy.ephemeral));
+            Value::Object(map)
+        })
+        .collect();
+    Value::Array(entries)
+}
+
+/// Write the dev commands.json dump with TS-style 4-space indentation
+/// (JSON.stringify(mapped, null, 4)). Best-effort, never fails boot.
+pub fn write_commands_dump(path: &std::path::Path, entries: &serde_json::Value) {
+    use serde::Serialize;
+    use serde_json::ser::{PrettyFormatter, Serializer};
+    let mut buf = Vec::new();
+    let mut ser = Serializer::with_formatter(&mut buf, PrettyFormatter::with_indent(b"    "));
+    if entries.serialize(&mut ser).is_err() {
+        tracing::warn!("commands.json dump failed: serialize error");
+        return;
+    }
+    match String::from_utf8(buf) {
+        Ok(text) => {
+            if let Err(e) = std::fs::write(path, text) {
+                tracing::warn!("commands.json dump failed: {e}");
+            }
+        }
+        Err(e) => tracing::warn!("commands.json dump failed: {e}"),
+    }
+}
+
 /// Strip custom `perm`/`permission` props from a command payload.
 /// Mirrors removePermissionProperties in src/core/commandsSync.ts (used
 /// for the REST PUT body and the dev commands.json dump): arrays are
@@ -1463,13 +1704,15 @@ pub async fn run(cfg: Config, pool: Pool) -> anyhow::Result<()> {
                 }
                 // Dev commands.json dump (mirrors the `version.env ===
                 // "dev"` branch in ready.ts writing
-                // src/files/commands.json with perm-stripped options).
-                // Env-gating divergence (verdict): TS gates on the runtime
-                // `client.version.env === "dev"` flag, so a prod binary can
-                // still dump when forced into dev env; here the dump is
-                // compiled out via `#[cfg(debug_assertions)]` instead —
-                // release binaries never write, even with dev config.
-                // Best-effort, never fails boot.
+                // src/files/commands.json via JSON.stringify(mapped, null,
+                // 4)). Nested options included recursively; entry shape via
+                // build_commands_dump, 4-space indent via
+                // write_commands_dump. Env-gating divergence (verdict): TS
+                // gates on the runtime `client.version.env === "dev"` flag,
+                // so a prod binary can still dump when forced into dev env;
+                // here the dump is compiled out via `#[cfg(debug_assertions)]`
+                // instead — release binaries never write, even with dev
+                // config. Best-effort, never fails boot.
                 #[cfg(debug_assertions)]
                 {
                     let mut root =
@@ -1477,65 +1720,10 @@ pub async fn run(cfg: Config, pool: Pool) -> anyhow::Result<()> {
                     if root.ends_with("rust") {
                         root.pop();
                     }
-                    let mut entries = Vec::new();
-                    for cmd in framework.options().commands.iter() {
-                        // Poise parameters carry fn pointers (no Serialize),
-                        // so the option docs are rebuilt field-by-field;
-                        // strip_perm_props runs over the result to mirror
-                        // the TS dump exactly (no-op when no custom keys).
-                        // `prefix_name` comes from the same display lookup
-                        // as the help legs; it is null here because no
-                        // top-level hybrid command defines a TS
-                        // `prefixName` (ready.ts dumps `x.prefixName`,
-                        // always undefined in practice). `thinking` /
-                        // `ephemeral` mirror the TS
-                        // flags via defer_policy on the qualified path
-                        // (poise's native `ephemeral` bit means something
-                        // else and is not mixed in).
-                        let policy =
-                            crate::commands::defer_policy(&cmd.qualified_name);
-                        let prefix_name =
-                            crate::commands::shared::prefix_name_for(&cmd.qualified_name);
-                        let mut options = serde_json::Value::Array(
-                            cmd.parameters
-                                .iter()
-                                .map(|p| {
-                                    serde_json::json!({
-                                        "name": p.name,
-                                        "name_localizations": p.name_localizations,
-                                        "description": p.description,
-                                        "description_localizations": p.description_localizations,
-                                        "required": p.required,
-                                        "choices": p.choices.iter().map(|c| &c.name).collect::<Vec<_>>(),
-                                    })
-                                })
-                                .collect(),
-                        );
-                        strip_perm_props(&mut options);
-                        entries.push(serde_json::json!({
-                            "name": cmd.name,
-                            "prefix_name": prefix_name
-                                .map(|s| serde_json::Value::String(s.to_string()))
-                                .unwrap_or(serde_json::Value::Null),
-                            "name_translated": cmd.name_localizations,
-                            "description": cmd.description,
-                            "description_translated": cmd.description_localizations,
-                            "category": cmd.category,
-                            "options": options,
-                            "aliases": cmd.aliases,
-                            "thinking": policy.defer,
-                            "ephemeral": policy.ephemeral,
-                        }));
-                    }
+                    let entries =
+                        crate::bot::build_commands_dump(&framework.options().commands);
                     let path = root.join("src").join("files").join("commands.json");
-                    match serde_json::to_string_pretty(&entries) {
-                        Ok(text) => {
-                            if let Err(e) = std::fs::write(&path, text) {
-                                tracing::warn!("commands.json dump failed: {e}");
-                            }
-                        }
-                        Err(e) => tracing::warn!("commands.json dump failed: {e}"),
-                    }
+                    crate::bot::write_commands_dump(&path, &entries);
                 }
                 // Lavalink nodes: sync from config, register this
                 // shard's messenger for OP4 leave, and dial each node
@@ -1850,6 +2038,98 @@ mod tests {
         let grace = shutdown_grace_period();
         assert_eq!(grace, std::time::Duration::from_secs(5));
         assert!(grace > std::time::Duration::ZERO);
+    }
+
+    /// commands.json dump shape (mirrors ready.ts JSON.stringify(mapped,
+    /// null, 4)): top-level mapper keys in order, nested discord.js option
+    /// shape with type + commandFullName, no empty descriptions.
+    #[test]
+    fn commands_dump_mirrors_ts_shape() {
+        let mut cmds = crate::commands::all();
+        poise::set_qualified_names(&mut cmds);
+        let dump = super::build_commands_dump(&cmds);
+        let entries = dump.as_array().expect("dump is an array");
+        assert_eq!(entries.len(), cmds.len());
+        fn check(entry: &serde_json::Value, path: &str, top: bool, errs: &mut Vec<String>) {
+            let obj = entry.as_object().expect("entry is an object");
+            if top {
+                for key in [
+                    "name",
+                    "prefix_name",
+                    "name_translated",
+                    "description",
+                    "description_translated",
+                    "category",
+                    "options",
+                    "aliases",
+                    "thinking",
+                    "ephemeral",
+                ] {
+                    if !obj.contains_key(key) {
+                        errs.push(format!("{path}: missing top key {key}"));
+                    }
+                }
+            } else {
+                // Subcommands/groups (type 1/2) carry commandFullName;
+                // leaf params (type 3+) mirror raw discord.js params.
+                let kind = obj.get("type").and_then(|t| t.as_u64()).unwrap_or(0);
+                for key in ["name", "description", "type"] {
+                    if !obj.contains_key(key) {
+                        errs.push(format!("{path}: missing option key {key}"));
+                    }
+                }
+                if kind <= 2 && !obj.contains_key("commandFullName") {
+                    errs.push(format!("{path}: missing option key commandFullName"));
+                }
+                if obj.get("type").and_then(|t| t.as_u64()) == Some(2)
+                    && obj.get("options").is_none()
+                {
+                    errs.push(format!("{path}: group without options"));
+                }
+            }
+            // Context-menu tops (type 2/3) register no description.
+            let is_menu = obj
+                .get("type")
+                .and_then(|t| t.as_u64())
+                .map_or(false, |t| t == 2 || t == 3);
+            if !is_menu
+                && obj
+                    .get("description")
+                    .and_then(|d| d.as_str())
+                    .map_or(true, |d| d.is_empty())
+            {
+                errs.push(format!("{path}: empty description"));
+            }
+            if let Some(opts) = obj.get("options").and_then(|o| o.as_array()) {
+                for o in opts {
+                    let name = o.get("name").and_then(|n| n.as_str()).unwrap_or("?");
+                    check(o, &format!("{path} {name}"), false, errs);
+                }
+            }
+        }
+        let mut errs = vec![];
+        for e in entries {
+            let name = e.get("name").and_then(|n| n.as_str()).unwrap_or("?");
+            check(e, name, true, &mut errs);
+        }
+        assert!(errs.is_empty(), "dump shape:\n{}", errs.join("\n"));
+    }
+
+    /// One-off dev utility: regenerate src/files/commands.json from the
+    /// registry (same builder + 4-space indent as the boot dump).
+    /// Ignored by default; run explicitly, then diff the file.
+    #[test]
+    #[ignore]
+    fn regen_commands_json_dump() {
+        let mut cmds = crate::commands::all();
+        poise::set_qualified_names(&mut cmds);
+        let entries = super::build_commands_dump(&cmds);
+        let mut root = std::env::current_dir().expect("cwd");
+        if root.ends_with("rust") {
+            root.pop();
+        }
+        let path = root.join("src").join("files").join("commands.json");
+        super::write_commands_dump(&path, &entries);
     }
 
     #[test]

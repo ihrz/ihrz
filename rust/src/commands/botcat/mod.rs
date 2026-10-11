@@ -477,6 +477,7 @@ pub mod kisakay;
 pub mod link;
 pub mod name;
 pub mod ping;
+pub mod prefix;
 pub mod say;
 pub mod setserverlang;
 

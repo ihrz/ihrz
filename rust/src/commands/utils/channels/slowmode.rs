@@ -74,6 +74,18 @@ pub async fn slowmode(
         poise::serenity_prelude::GuildChannel,
     >,
 ) -> Result<(), anyhow::Error> {
+    let secs = duration_seconds(duration);
+    apply_slowmode(ctx, secs, channel.map(|c| c.id)).await
+}
+
+/// Shared slowmode edit. Mirrors !cooldown.ts (unslowmode.ts delegates
+/// with `0`): bot ManageChannels gate, current-channel default, edit +
+/// ok reply.
+pub async fn apply_slowmode(
+    ctx: Ctx<'_>,
+    secs: u16,
+    channel_id: Option<poise::serenity_prelude::ChannelId>,
+) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {
         return Ok(());
     };
@@ -96,9 +108,8 @@ pub async fn slowmode(
         .await?;
         return Ok(());
     }
-    let secs = duration_seconds(duration);
-    let ch_id = match &channel {
-        Some(c) => c.id,
+    let ch_id = match channel_id {
+        Some(id) => id,
         None => match ctx.guild_channel().await {
             Some(c) => c.id,
             None => return Ok(()),

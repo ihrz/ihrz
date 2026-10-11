@@ -359,8 +359,8 @@ pub async fn sync_mention_rule(
 }
 
 macro_rules! keyword_command {
-    ($fn_name:ident, $sub:literal, $kind:literal) => {
-/// Set a specific permission to use one command
+    ($fn_name:ident, $sub:literal, $kind:literal, $desc:literal) => {
+#[doc = $desc]
         #[poise::command(
                                                     slash_command,
     prefix_command,
@@ -443,9 +443,14 @@ pub async fn gc_automod(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())
 }
 
-keyword_command!(gc_automod_link, "link", "link");
+keyword_command!(
+    gc_automod_link,
+    "link",
+    "link",
+    "Allow/Unallow the user to send links into them messages!"
+);
 
-/// Spam toggle with native rule sync (mirrors `!spam.ts`).
+/// Block the spam message in this server!
 // The Block (+ optional logs-channel Alert) Spam rule named
 // "Block spam by iHorizon" is created/edited, then the legacy
 // `GUILD_CONFIG.spam` leaf is dual-written beside the AUTOMOD flag.
@@ -506,13 +511,14 @@ pub async fn gc_automod_spam(
     Ok(())
 }
 
-/// Mass-mention toggle with native rule sync (mirrors `!mass-mention.ts`).
+// Mass-mention toggle with native rule sync (mirrors `!mass-mention.ts`).
 // The MentionSpam rule (with the `max-mention-allowed` limit,
 // default 3) is created/edited with the Block (+ optional
 // logs-channel Alert) actions, then the legacy
 // `GUILD_CONFIG.mass_mention` leaf is dual-written. A failed sync
 // replies the error404 string (Discord rejects the rule while its
 // own MentionSpam preset stays enabled) without touching kv state.
+/// Block the spam which have mass-mention in this message!
 #[poise::command(
     slash_command,
     prefix_command,
@@ -587,9 +593,19 @@ pub async fn gc_automod_mass(
     Ok(())
 }
 
-keyword_command!(gc_automod_discord, "discord-invite", "discord-invite");
+keyword_command!(
+    gc_automod_discord,
+    "discord_invite_link",
+    "discord-invite",
+    "Allow/Unallow the user to send a server invites into them messages!"
+);
 
-keyword_command!(gc_automod_telegram, "telegram-link", "telegram");
+keyword_command!(
+    gc_automod_telegram,
+    "telegram_link",
+    "telegram",
+    "Allow/Unallow the user to send Telegram links into them messages!"
+);
 
 #[cfg(test)]
 mod tests {

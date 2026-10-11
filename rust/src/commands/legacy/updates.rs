@@ -19,6 +19,9 @@ use poise::serenity_prelude as serenity;
 // The 10-minute button-disable collector is skipped too: component
 // routing here is stateless, the toggle stays live like the other
 // persistent buttons.
+// Changelog display. Mirrors MessageCommands/bot/@updates.ts:
+// "Get the latest iHorizon updates and changelog!".
+/// Show the latest iHorizon updates and changelog.
 #[poise::command(
     slash_command,
     prefix_command,

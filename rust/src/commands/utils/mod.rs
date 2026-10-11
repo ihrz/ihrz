@@ -1377,6 +1377,7 @@ pub mod channels;
 pub mod info;
 pub mod roles;
 pub mod unbanall;
+pub mod unslowmode;
 pub mod util;
 #[allow(clippy::module_inception)]
 pub mod utils;

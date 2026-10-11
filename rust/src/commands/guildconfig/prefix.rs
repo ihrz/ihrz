@@ -1,17 +1,8 @@
 use super::*;
 
-/// Setprefix command.
-#[poise::command(
-    slash_command,
-    prefix_command,
-    rename = "setprefix",
-    aliases("prefix", "changeprefix"),
-    default_member_permissions = "ADMINISTRATOR"
-)]
-pub async fn gc_prefix(
-    ctx: Ctx<'_>,
-    #[description = "New prefix (max 4 chars) or 'mention' to revert (slash only)"] prefix: String,
-) -> Result<(), anyhow::Error> {
+/// Shared prefix-change run. Mirrors !prefix.ts (used by the nested
+/// `setprefix` leaf and the top-level @prefix.ts wrapper alike).
+pub async fn run_prefix_change(ctx: Ctx<'_>, prefix: String) -> Result<(), anyhow::Error> {
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let gid = ctx
         .guild_id()
@@ -72,4 +63,18 @@ pub async fn gc_prefix(
     )
     .await?;
     Ok(())
+}
+
+/// Setprefix command.
+#[poise::command(
+    slash_command,
+    prefix_command,
+    rename = "setprefix",
+    default_member_permissions = "ADMINISTRATOR"
+)]
+pub async fn gc_prefix(
+    ctx: Ctx<'_>,
+    #[description = "New prefix (max 4 chars) or 'mention' to revert (slash only)"] prefix: String,
+) -> Result<(), anyhow::Error> {
+    run_prefix_change(ctx, prefix).await
 }
