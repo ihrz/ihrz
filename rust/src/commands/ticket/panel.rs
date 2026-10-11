@@ -1065,6 +1065,20 @@ async fn run_editor_step(
             }
             panel.related_embed_id = id;
             ack_modal(sctx, &submit).await;
+            // Mirrors the change_embed2 leg in !panel.ts: an ephemeral
+            // variables tip follows the modal submit (same pattern as
+            // the change_ticket_channel_panel arm below).
+            let tip = t("ticket_panel_tip_about_variable1");
+            if !tip.is_empty() {
+                let _ = submit
+                    .create_followup(
+                        &sctx.http,
+                        serenity::CreateInteractionResponseFollowup::new()
+                            .content(tip)
+                            .ephemeral(true),
+                    )
+                    .await;
+            }
             Ok(true)
         }
         "change_role" => {
