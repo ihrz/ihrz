@@ -7,10 +7,27 @@ use super::*;
 /// while the prefix path forwards any string to `setRepeatMode` — so
 /// `queue` works there like it does here. Accepting
 /// off/track/queue on both paths is the intentional union.
-#[poise::command(slash_command, prefix_command, rename = "loop")]
+#[poise::command(
+    slash_command,
+    prefix_command,
+    rename = "loop",
+    name_localized("fr", "boucle"),
+    name_localized("ja", "loop"),
+    name_localized("ru", "loop"),
+    name_localized("es-ES", "loop"),
+    description_localized("fr", "Changer l'état de la boucle sur le serveur"),
+    description_localized("ja", "サーバーのループモードを設定！"),
+    description_localized("ru", "Установить режим повтора на сервере!"),
+    description_localized("es-ES", "Establecer el modo de bucle del servidor!")
+)]
 pub async fn m_loop(
     ctx: Ctx<'_>,
-    #[description = "off, track or queue"] mode: String,
+    #[description_localized("fr", "Status de la boucle")]
+    #[description_localized("ja", "ループタイプ")]
+    #[description_localized("ru", "Тип повтора")]
+    #[description_localized("es-ES", "Tipo de bucle")]
+    #[description = "off, track or queue"]
+    mode: String,
 ) -> Result<(), anyhow::Error> {
     let code = lang_code(&ctx).await;
     let Some(gid) = guild_id_of(&ctx) else {

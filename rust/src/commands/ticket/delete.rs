@@ -77,7 +77,11 @@ pub async fn ticket_del_user_routed(pool: &crate::db::Pool, gid: &str, user_key:
     slash_command,
     prefix_command,
     rename = "delete",
-    aliases("tdelete", "ticket-delete")
+    aliases("tdelete", "ticket-delete"),
+    description_localized("fr", "Supprimer un ticket"),
+    description_localized("ja", "iHorizonチケットを削除！"),
+    description_localized("ru", "Удалить тикет iHorizon!"),
+    description_localized("es-ES", "Eliminar un ticket de iHorizon!")
 )]
 pub async fn ticket_delete(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     // Mirrors !delete.ts guards (disable + delete_not_in_ticket).

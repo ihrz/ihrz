@@ -6,7 +6,15 @@ use super::*;
     prefix_command,
     rename = "end",
     aliases("gstop", "gbreak", "gw-end"),
-    default_member_permissions = "MANAGE_MESSAGES"
+    default_member_permissions = "MANAGE_MESSAGES",
+    name_localized("fr", "finnir"),
+    name_localized("ja", "end"),
+    name_localized("ru", "end"),
+    name_localized("es-ES", "end"),
+    description_localized("fr", "Arrêter un giveaway"),
+    description_localized("ja", "ギブアウェイを停止！"),
+    description_localized("ru", "Остановить розыгрыш!"),
+    description_localized("es-ES", "Detener un sorteo!")
 )]
 pub async fn gw_end(
     ctx: Ctx<'_>,
@@ -16,6 +24,16 @@ pub async fn gw_end(
     // answers `end_not_find_giveaway` with `${gw}` replaced by null (JS
     // renders "null"); the bare form therefore gets the localized reply
     // instead of a poise parse error. `mid` 0 matches no board, like TS.
+    #[description_localized(
+        "fr",
+        "L'identifiant du cadeau (est l'identifiant du message du giveaway)"
+    )]
+    #[description_localized("ja", "ギブアウェイID（埋め込みギブアウェイのメッセージID）")]
+    #[description_localized("ru", "ID розыгрыша (это ID сообщения эмбеда розыгрыша)")]
+    #[description_localized(
+        "es-ES",
+        "El ID del sorteo (es el ID del mensaje del embed del sorteo)"
+    )]
     #[description = "Giveaway message id"]
     #[rename = "giveaway-id"]
     message_id: Option<String>,

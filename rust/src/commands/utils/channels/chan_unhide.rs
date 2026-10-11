@@ -7,14 +7,23 @@ use super::*;
     category = "utils",
     rename = "unhide",
     aliases("démasquer", "demasquer"),
-    default_member_permissions = "MANAGE_CHANNELS"
+    default_member_permissions = "MANAGE_CHANNELS",
+    description_localized("fr", "Démasquer le salon actuel pour everyone"),
+    description_localized("ja", "現在のチャンネルを全員に表示"),
+    description_localized("ru", "Показать текущий канал всем"),
+    description_localized("es-ES", "Mostrar el canal actual a todos")
 )]
 pub async fn chan_unhide(
     ctx: Ctx<'_>,
     #[description = "Channel, defaults to current"] channel: Option<
         poise::serenity_prelude::GuildChannel,
     >,
-    #[description = "Role, defaults to @everyone"] role: Option<poise::serenity_prelude::Role>,
+    #[description_localized("fr", "Le rôle que tu veux démasquer dans le salon")]
+    #[description_localized("ja", "チャンネルで表示したいロール")]
+    #[description_localized("ru", "роль, которую нужно показать в канале")]
+    #[description_localized("es-ES", "el rol que quieres mostrar en el canal")]
+    #[description = "Role, defaults to @everyone"]
+    role: Option<poise::serenity_prelude::Role>,
 ) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {
         return Ok(());

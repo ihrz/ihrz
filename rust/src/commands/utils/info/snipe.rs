@@ -19,7 +19,11 @@ use super::*;
     prefix_command,
     category = "utils",
     rename = "snipe",
-    aliases("s", "snp")
+    aliases("s", "snp"),
+    description_localized("fr", "Obtenez le dernier message supprimé sur ce cannal"),
+    description_localized("ja", "このチャンネルで最後に削除されたメッセージを取得！"),
+    description_localized("ru", "Получить последнее удаленное сообщение в канале!"),
+    description_localized("es-ES", "Obtener el último mensaje eliminado en este canal!")
 )]
 pub async fn snipe(
     ctx: Ctx<'_>,

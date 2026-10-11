@@ -91,7 +91,11 @@ fn panel_desc_fallback() -> String {
     prefix_command,
     rename = "channel",
     aliases("confess-channel"),
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    description_localized("fr", "Définir le canal du module confession"),
+    description_localized("ja", "告白モジュールのチャンネルを設定！"),
+    description_localized("ru", "Установить канал модуля признаний!"),
+    description_localized("es-ES", "Establecer el canal del módulo de confesiones!")
 )]
 pub async fn confession_channel(
     ctx: Ctx<'_>,

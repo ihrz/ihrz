@@ -275,6 +275,63 @@ macro_rules! lore_cmd {
             Ok(())
         }
     };
+    // Localized lore command (no aliases). The four literals are the
+    // TS description_localizations (fr, ja, ru, es-ES), e.g.
+    // andru.ts:37-40.
+    ($fn_name:ident, $sub:literal, $key:literal, $fallback:literal, [$fr:literal, $ja:literal, $ru:literal, $es:literal]) => {
+/// Lore contributor info command.
+// Mirrors the TS Guard's Typing (returns silently outside guild
+// context) and the `${client.iHorizon_Emojis.Sparkles}` substitution
+// in ether.ts / kisakay.ts (no-op for messages without it).
+        #[poise::command(
+            slash_command,
+    prefix_command,
+            category = "bot",
+            rename = $sub,
+            description_localized("fr", $fr),
+            description_localized("ja", $ja),
+            description_localized("ru", $ru),
+            description_localized("es-ES", $es)
+        )]
+        pub async fn $fn_name(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
+            if ctx.guild_id().is_none() {
+                return Ok(());
+            }
+            let code =
+                crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+            let raw = crate::lang::get(&code, $key).unwrap_or_else(|| $fallback.to_string());
+            ctx.say(with_sparkles(ctx.http(), &raw).await).await?;
+            Ok(())
+        }
+    };
+    // Localized lore command with aliases (kisakay.ts:36-41).
+    ($fn_name:ident, $sub:literal, $key:literal, $fallback:literal, [$fr:literal, $ja:literal, $ru:literal, $es:literal], $($alias:literal),+) => {
+/// Lore contributor info command.
+// Mirrors the TS Guard's Typing (returns silently outside guild
+// context) and the `${client.iHorizon_Emojis.Sparkles}` substitution
+// in ether.ts / kisakay.ts (no-op for messages without it).
+        #[poise::command(
+            slash_command,
+    prefix_command,
+            category = "bot",
+            rename = $sub,
+            aliases($($alias),*),
+            description_localized("fr", $fr),
+            description_localized("ja", $ja),
+            description_localized("ru", $ru),
+            description_localized("es-ES", $es)
+        )]
+        pub async fn $fn_name(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
+            if ctx.guild_id().is_none() {
+                return Ok(());
+            }
+            let code =
+                crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+            let raw = crate::lang::get(&code, $key).unwrap_or_else(|| $fallback.to_string());
+            ctx.say(with_sparkles(ctx.http(), &raw).await).await?;
+            Ok(())
+        }
+    };
 }
 
 /// Replace the `${client.iHorizon_Emojis.Sparkles}` template token with

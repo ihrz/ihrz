@@ -2,7 +2,15 @@ use super::*;
 use poise::serenity_prelude as serenity;
 
 /// Get the transript of a ticket message!
-#[poise::command(slash_command, prefix_command, rename = "transcript")]
+#[poise::command(
+    slash_command,
+    prefix_command,
+    rename = "transcript",
+    description_localized("fr", "Obtenir la transcription d'un message de ticket"),
+    description_localized("ja", "チケットメッセージのトランスクリプトを取得！"),
+    description_localized("ru", "Получить транскрипт тикета!"),
+    description_localized("es-ES", "Obtener la transcripción de un mensaje de ticket!")
+)]
 pub async fn ticket_transcript(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let gid = ctx
         .guild_id()

@@ -55,7 +55,16 @@ pub fn morse_convert(input: &str) -> String {
 }
 
 /// Translate between text and morse code!
-#[poise::command(slash_command, prefix_command, category = "fun", rename = "morse")]
+#[poise::command(
+    slash_command,
+    prefix_command,
+    category = "fun",
+    rename = "morse",
+    description_localized("fr", "Transformer une chaîne en Morse"),
+    description_localized("ja", "文字列をモールス信号に変換！"),
+    description_localized("ru", "Преобразовать строку в азбуку Морзе!"),
+    description_localized("es-ES", "Transformar una cadena en Morse!")
+)]
 // Mirrors !morse.ts (code-fenced reply).
 pub async fn morse(
     ctx: Ctx<'_>,
@@ -63,6 +72,10 @@ pub async fn morse(
     // required: true in fun.ts). `#[rest]` mirrors the prefix
     // `longString(args, 0)` (whole tail); `Option` mirrors its `|| null`
     // empty case, answered with the TS checkCommandArgs usage embed.
+    #[description_localized("fr", "Entrez votre entrée pour crypter/décrypter en morse")]
+    #[description_localized("ja", "モールス信号で暗号化/復号化する入力を入力")]
+    #[description_localized("ru", "Введите текст для шифрования/дешифрования азбукой Морзе")]
+    #[description_localized("es-ES", "Ingresa tu entrada para encriptar/desencriptar en morse")]
     #[description = "Text or morse code"]
     #[rest]
     input: Option<String>,

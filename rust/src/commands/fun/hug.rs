@@ -8,10 +8,28 @@ use super::*;
 // `social_gif` is unreachable defensive cover; single deny lives there
 // too (see below).
 /// Hug a member with a social GIF embed. Mirrors fun !hug.ts.
-#[poise::command(slash_command, prefix_command, category = "fun", rename = "hug")]
+#[poise::command(
+    slash_command,
+    prefix_command,
+    category = "fun",
+    rename = "hug",
+    name_localized("fr", "calin"),
+    name_localized("ja", "hug"),
+    name_localized("ru", "hug"),
+    name_localized("es-ES", "hug"),
+    description_localized("fr", "Faire un calin d'un utilisateur"),
+    description_localized("ja", "ユーザーをハグ！"),
+    description_localized("ru", "Обнять пользователя!"),
+    description_localized("es-ES", "Abrazar a un usuario!")
+)]
 pub async fn hug(
     ctx: Ctx<'_>,
-    #[description = "Member"] user: poise::serenity_prelude::User,
+    #[description_localized("fr", "L'utilisateur que vous souhaitez faire un calin")]
+    #[description_localized("ja", "ハグしたいユーザー")]
+    #[description_localized("ru", "Пользователь, которого вы хотите обнять")]
+    #[description_localized("es-ES", "El usuario que quieres abrazar")]
+    #[description = "Member"]
+    user: poise::serenity_prelude::User,
 ) -> Result<(), anyhow::Error> {
     // Single deny: the disabled-category check lives in `social_gif`.
     social_gif(

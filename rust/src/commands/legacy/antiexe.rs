@@ -10,6 +10,13 @@ use super::*;
     prefix_command,
     category = "guildconfig",
     rename = "antiexe",
+    description_localized(
+        "fr",
+        "Supprimer systématiquement tout les messages contenant des binaires éxécutable"
+    ),
+    description_localized("ja", "バイナリファイルを含む全てのメッセージを削除"),
+    description_localized("ru", "Удалить все сообщения с бинарными файлами"),
+    description_localized("es-ES", "Eliminar cada mensaje que contenga archivos binarios"),
     default_member_permissions = "ADMINISTRATOR"
 )]
 pub async fn antiexe(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {

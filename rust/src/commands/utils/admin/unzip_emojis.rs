@@ -7,10 +7,18 @@ use super::*;
     category = "utils",
     rename = "unzip-emojis",
     aliases("unzipemojis", "unzip1"),
-    default_member_permissions = "MANAGE_GUILD_EXPRESSIONS"
+    default_member_permissions = "MANAGE_GUILD_EXPRESSIONS",
+    description_localized("fr", "Recreer tout les emojis depuis un fichier zip"),
+    description_localized("ja", "ZIPファイルから全絵文字を再作成"),
+    description_localized("ru", "Воссоздать все эмодзи из ZIP-файла"),
+    description_localized("es-ES", "Recrear todos los emojis desde un archivo zip")
 )]
 pub async fn unzip_emojis(
     ctx: Ctx<'_>,
+    #[description_localized("fr", "Le fichier zip pour recréer les emojis")]
+    #[description_localized("ja", "絵文字を再作成するZIPファイル")]
+    #[description_localized("ru", "ZIP-файл для воссоздания эмодзи")]
+    #[description_localized("es-ES", "El archivo zip para recrear emojis")]
     #[description = "Zip file"]
     #[rename = "zip_file"]
     attachment: poise::serenity_prelude::Attachment,

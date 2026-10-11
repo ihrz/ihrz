@@ -12,10 +12,18 @@ use super::*;
     prefix_command,
     category = "fun",
     rename = "rate",
-    aliases("note")
+    aliases("note"),
+    description_localized("fr", "Affiche au combien tu pue"),
+    description_localized("ja", "指定された対象を評価します"),
+    description_localized("ru", "Позволь оценить указанный предмет"),
+    description_localized("es-ES", "Déjame calificar el tema indicado")
 )]
 pub async fn rate(
     ctx: Ctx<'_>,
+    #[description_localized("fr", "la chose")]
+    #[description_localized("ja", "もの")]
+    #[description_localized("ru", "вещи")]
+    #[description_localized("es-ES", "las cosas")]
     #[description = "Thing to rate"]
     #[rest]
     the_things: Option<String>,

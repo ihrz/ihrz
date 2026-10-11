@@ -7,14 +7,41 @@ use poise::serenity_prelude as serenity;
     prefix_command,
     rename = "temprole",
     aliases("addtemprole", "temporaryrole", "temproles"),
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    description_localized(
+        "fr",
+        "Donner un rôle temporairement à un membre de votre serveur discord"
+    ),
+    description_localized("ja", "サーバーメンバーに一時的にロールを付与"),
+    description_localized("ru", "Временно выдать роль участнику сервера"),
+    description_localized("es-ES", "Dar un rol temporal a un miembro del servidor")
 )]
 pub async fn mod_temprole(
     ctx: Ctx<'_>,
-    #[description = "Member"] member: serenity::User,
-    #[description = "Role"] role: serenity::Role,
-    #[description = "Duration (e.g. 10m, 1h, 7d)"] time: String,
-    #[description = "Reason"] reason: Option<String>,
+    #[description_localized("fr", "Le membre qui recevras le rôle")]
+    #[description_localized("ja", "ロールを追加したいメンバー")]
+    #[description_localized("ru", "Участник, которому добавить роль")]
+    #[description_localized("es-ES", "El miembro al que quieres añadir el rol")]
+    #[description = "Member"]
+    member: serenity::User,
+    #[description_localized("fr", "Le rôle que recevras le membre")]
+    #[description_localized("ja", "メンバーに追加したいロール")]
+    #[description_localized("ru", "Роль для добавления участнику")]
+    #[description_localized("es-ES", "El rol que quieres añadir al miembro")]
+    #[description = "Role"]
+    role: serenity::Role,
+    #[description_localized("fr", "Le temps que le membre auras ce rôle")]
+    #[description_localized("ja", "メンバーがロールを保持する時間")]
+    #[description_localized("ru", "Время, на которое участник получит роль")]
+    #[description_localized("es-ES", "El tiempo que el miembro mantendrá el rol")]
+    #[description = "Duration (e.g. 10m, 1h, 7d)"]
+    time: String,
+    #[description_localized("fr", "La raison de l'ajout du rôle")]
+    #[description_localized("ja", "このロールを追加した理由")]
+    #[description_localized("ru", "Причина добавления этой роли")]
+    #[description_localized("es-ES", "La razón por la que añadiste este rol")]
+    #[description = "Reason"]
+    reason: Option<String>,
 ) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {
         return Ok(());

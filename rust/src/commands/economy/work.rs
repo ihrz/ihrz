@@ -4,7 +4,16 @@ use super::*;
 /// Work for a random payout.
 // Mirrors economy !work.ts (1..=1024 times boost, ephemeral
 // cooldown reply, gold embed, reply BEFORE the money add).
-#[poise::command(slash_command, prefix_command, category = "economy", rename = "work")]
+#[poise::command(
+    slash_command,
+    prefix_command,
+    category = "economy",
+    rename = "work",
+    description_localized("fr", "Réclamez une récompense de travail"),
+    description_localized("ja", "仕事の報酬を獲得！"),
+    description_localized("ru", "Получить награду за работу!"),
+    description_localized("es-ES", "Reclamar una recompensa de trabajo!")
+)]
 pub async fn eco_work(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     use rand::Rng;
     let Some(guild_id) = ctx.guild_id() else {

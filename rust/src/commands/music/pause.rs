@@ -1,7 +1,15 @@
 use super::*;
 
 /// Mirrors `!pause.ts`.
-#[poise::command(slash_command, prefix_command, rename = "pause")]
+#[poise::command(
+    slash_command,
+    prefix_command,
+    rename = "pause",
+    description_localized("fr", "Mettre en pause la musique actuelle"),
+    description_localized("ja", "現在再生中の曲を一時停止！"),
+    description_localized("ru", "Поставить текущую песню на паузу!"),
+    description_localized("es-ES", "Pausar la canción actual!")
+)]
 pub async fn m_pause(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let Some(gid) = guild_id_of(&ctx) else {
         return Ok(());

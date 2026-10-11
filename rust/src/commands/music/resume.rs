@@ -1,7 +1,20 @@
 use super::*;
 
 /// Mirrors `!resume.ts`.
-#[poise::command(slash_command, prefix_command, rename = "resume", aliases("unpause"))]
+#[poise::command(
+    slash_command,
+    prefix_command,
+    rename = "resume",
+    aliases("unpause"),
+    name_localized("fr", "reprendre"),
+    name_localized("ja", "resume"),
+    name_localized("ru", "resume"),
+    name_localized("es-ES", "resume"),
+    description_localized("fr", "Reprendre la chanson en cours de lecture"),
+    description_localized("ja", "現在再生中の曲を再開！"),
+    description_localized("ru", "Возобновить текущую песню!"),
+    description_localized("es-ES", "Reanudar la canción actual!")
+)]
 pub async fn m_resume(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let Some(gid) = guild_id_of(&ctx) else {
         return Ok(());

@@ -10,7 +10,11 @@ use super::*;
     rename = "git",
     subcommands("git_lines_toggle"),
     default_member_permissions = "ADMINISTRATOR",
-    subcommand_required
+    subcommand_required,
+    description_localized("fr", "⭐️ (VRAIMENT UHQ) Git Lines"),
+    description_localized("ja", "⭐️ (VERY UHQ) Git Lines"),
+    description_localized("ru", "⭐️ (VERY UHQ) Git Lines"),
+    description_localized("es-ES", "⭐️ (VERY UHQ) Git Lines")
 )]
 pub async fn git_parent(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())
@@ -23,7 +27,11 @@ pub async fn git_parent(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     slash_command,
     prefix_command,
     rename = "lines",
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    description_localized("fr", "Configurer les modules Git Lines"),
+    description_localized("ja", "Git Linesモジュールを設定"),
+    description_localized("ru", "Настроить модули Git Lines"),
+    description_localized("es-ES", "Configurar los módulos de Git Lines")
 )]
 pub async fn git_lines_toggle(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let gid = ctx
@@ -97,6 +105,28 @@ mod tests {
                 .await
                 .as_deref(),
             Some("0")
+        );
+    }
+    #[test]
+    fn git_lines_registers_description_localizations() {
+        let cmd = super::git_lines_toggle();
+        assert_eq!(
+            cmd.description_localizations.get("fr").map(String::as_str),
+            Some("Configurer les modules Git Lines")
+        );
+        assert_eq!(
+            cmd.description_localizations.get("ja").map(String::as_str),
+            Some("Git Linesモジュールを設定")
+        );
+        assert_eq!(
+            cmd.description_localizations.get("ru").map(String::as_str),
+            Some("Настроить модули Git Lines")
+        );
+        assert_eq!(
+            cmd.description_localizations
+                .get("es-ES")
+                .map(String::as_str),
+            Some("Configurar los módulos de Git Lines")
         );
     }
 }

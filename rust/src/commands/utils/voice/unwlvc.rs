@@ -8,11 +8,26 @@ use super::*;
     category = "utils",
     rename = "unwlvc",
     aliases("removevcwl"),
-    default_member_permissions = "MOVE_MEMBERS"
+    default_member_permissions = "MOVE_MEMBERS",
+    description_localized("fr", "Retirer un membre de la whitelist du salon vocal gelé"),
+    description_localized("ja", "凍結ボイスチャンネルのホワイトリストからメンバーを削除"),
+    description_localized(
+        "ru",
+        "Удалить участника из белого списка замороженного голосового канала"
+    ),
+    description_localized(
+        "es-ES",
+        "Eliminar a un miembro de la lista blanca del canal de voz congelado"
+    )
 )]
 pub async fn unwlvc(
     ctx: Ctx<'_>,
-    #[description = "Member to remove"] member: Option<poise::serenity_prelude::User>,
+    #[description_localized("fr", "Le membre que vous voulez retirer")]
+    #[description_localized("ja", "削除したいメンバー")]
+    #[description_localized("ru", "Участник для удаления")]
+    #[description_localized("es-ES", "El miembro que quieres eliminar")]
+    #[description = "Member to remove"]
+    member: Option<poise::serenity_prelude::User>,
 ) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {
         return Ok(());

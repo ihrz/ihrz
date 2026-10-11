@@ -6,11 +6,23 @@ use poise::serenity_prelude as serenity;
     slash_command,
     prefix_command,
     rename = "unlock",
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    description_localized(
+        "fr",
+        "Donner la possibilité de parler de tous les utilisateurs dans ce texte"
+    ),
+    description_localized("ja", "このテキスト内の全ユーザーに発言権限を付与！"),
+    description_localized("ru", "Дать возможность говорить всем в этом текстовом канале!"),
+    description_localized("es-ES", "Dar capacidad de hablar a todos los usuarios en este texto!")
 )]
 pub async fn mod_unlock(
     ctx: Ctx<'_>,
-    #[description = "Role to unlock (default @everyone)"] role: Option<serenity::Role>,
+    #[description_localized("fr", "le rôle")]
+    #[description_localized("ja", "ロール")]
+    #[description_localized("ru", "Роль")]
+    #[description_localized("es-ES", "El rol")]
+    #[description = "Role to unlock (default @everyone)"]
+    role: Option<serenity::Role>,
 ) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {
         return Ok(());

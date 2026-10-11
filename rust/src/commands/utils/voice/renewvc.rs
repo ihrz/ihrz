@@ -7,7 +7,20 @@ use super::*;
     category = "utils",
     rename = "renewvc",
     aliases("rvc"),
-    default_member_permissions = "MANAGE_CHANNELS"
+    default_member_permissions = "MANAGE_CHANNELS",
+    description_localized(
+        "fr",
+        "Définir la région vocale de votre salon vocal actuel en automatique"
+    ),
+    description_localized("ja", "現在のボイスチャンネルのボイスリージョンを自動に設定"),
+    description_localized(
+        "ru",
+        "Установить голосовой регион текущего голосового канала на автоматический"
+    ),
+    description_localized(
+        "es-ES",
+        "Establecer la región de voz de tu canal de voz actual en automático"
+    )
 )]
 pub async fn renewvc(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {

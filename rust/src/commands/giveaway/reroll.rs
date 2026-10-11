@@ -7,7 +7,15 @@ use poise::serenity_prelude as serenity;
     prefix_command,
     rename = "reroll",
     aliases("re"),
-    default_member_permissions = "MANAGE_GUILD"
+    default_member_permissions = "MANAGE_GUILD",
+    name_localized("fr", "relancer"),
+    name_localized("ja", "reroll"),
+    name_localized("ru", "reroll"),
+    name_localized("es-ES", "reroll"),
+    description_localized("fr", "Relancez un ou plusieurs gagnants"),
+    description_localized("ja", "ギブアウェイの当選者を再抽選！"),
+    description_localized("ru", "Перевыбрать победителя(ей) розыгрыша!"),
+    description_localized("es-ES", "Volver a sortear ganador(es) del sorteo!")
 )]
 pub async fn gw_reroll(
     ctx: Ctx<'_>,
@@ -17,6 +25,16 @@ pub async fn gw_reroll(
     // and answers `reroll_dont_find_giveaway` with `{args}` replaced by
     // null (JS renders "null"); the bare form therefore gets the
     // localized reply instead of a poise parse error.
+    #[description_localized(
+        "fr",
+        "L'identifiant du cadeau (est l'identifiant du message du giveaway)"
+    )]
+    #[description_localized("ja", "ギブアウェイID（埋め込みギブアウェイのメッセージID）")]
+    #[description_localized("ru", "ID розыгрыша (это ID сообщения эмбеда розыгрыша)")]
+    #[description_localized(
+        "es-ES",
+        "El ID del sorteo (es el ID del mensaje del embed del sorteo)"
+    )]
     #[description = "Giveaway message id"]
     #[rename = "giveaway-id"]
     message_id: Option<String>,

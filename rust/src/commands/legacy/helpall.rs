@@ -6,6 +6,10 @@ use super::*;
     prefix_command,
     category = "bot",
     rename = "helpall",
+    description_localized("fr", "Affiche toutes les commandes hybrides que tu peux utiliser"),
+    description_localized("ja", "使用可能なハイブリッドコマンドをすべて表示"),
+    description_localized("ru", "Показать все гибридные команды, доступные вам"),
+    description_localized("es-ES", "Muestra todos los comandos híbridos que puedes usar"),
     aliases("help-all")
 )]
 pub async fn helpall(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {

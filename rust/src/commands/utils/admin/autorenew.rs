@@ -6,14 +6,27 @@ use super::*;
     prefix_command,
     category = "utils",
     rename = "autorenew",
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    description_localized("fr", "Renouveller automatiquement un salon"),
+    description_localized("ja", "チャンネルを自動的にX回更新"),
+    description_localized("ru", "Автоматически обновлять канал X раз"),
+    description_localized("es-ES", "Renovar automáticamente un canal X veces")
 )]
 pub async fn autorenew(
     ctx: Ctx<'_>,
+    #[description_localized("fr", "Le salon qui ce renouveleras x temps")]
+    #[description_localized("ja", "X回ごとに更新するチャンネル")]
+    #[description_localized("ru", "Канал для обновления каждые X раз")]
+    #[description_localized("es-ES", "El canal a renovar cada X veces")]
     #[description = "Channel"]
     #[channel_types("Text", "Voice")]
     channel: poise::serenity_prelude::GuildChannel,
-    #[description = "Every (e.g. 1h, 7d) or off"] every: String,
+    #[description_localized("fr", "Le temps x")]
+    #[description_localized("ja", "X回")]
+    #[description_localized("ru", "X раз")]
+    #[description_localized("es-ES", "Las X veces")]
+    #[description = "Every (e.g. 1h, 7d) or off"]
+    every: String,
 ) -> Result<(), anyhow::Error> {
     let gid = ctx
         .guild_id()

@@ -24,7 +24,17 @@ pub fn norm_rolesaver_settings(raw: Option<&str>) -> String {
     prefix_command,
     category = "newfeatures",
     rename = "rolesaver",
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    description_localized(
+        "fr",
+        "Ré-attribuer les anciens rôles lorsque l'utilisateur rejoint le serveur"
+    ),
+    description_localized("ja", "ユーザーが再参加した時に以前のロールを再付与！"),
+    description_localized("ru", "Вернуть старые роли при повторном входе!"),
+    description_localized(
+        "es-ES",
+        "Volver a dar roles antiguos cuando el usuario se reúne al servidor!"
+    )
 )]
 pub async fn rolesaver(
     ctx: Ctx<'_>,

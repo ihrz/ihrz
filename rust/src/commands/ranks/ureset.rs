@@ -12,11 +12,20 @@ use poise::serenity_prelude as serenity;
     prefix_command,
     rename = "ureset",
     aliases("ranks-ureset"),
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    description_localized("fr", "Supprimer les données de rang d'un utilisateur"),
+    description_localized("ja", "ユーザーのランクレベルをリセット"),
+    description_localized("ru", "Сбросить уровень ранга пользователя"),
+    description_localized("es-ES", "Restablecer el nivel de rango de un usuario")
 )]
 pub async fn ranks_ureset(
     ctx: Ctx<'_>,
-    #[description = "Member to reset (defaults to self on prefix)"] user: Option<serenity::User>,
+    #[description_localized("fr", "L'utilisateur que vous voulez supprimer du module de rangs.")]
+    #[description_localized("ja", "ランクデータをリセットしたいユーザー")]
+    #[description_localized("ru", "Пользователь, чьи данные рангов нужно сбросить")]
+    #[description_localized("es-ES", "El usuario al que quieres restablecer los datos de rango")]
+    #[description = "Member to reset (defaults to self on prefix)"]
+    user: Option<serenity::User>,
 ) -> Result<(), anyhow::Error> {
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let target_id = match user {

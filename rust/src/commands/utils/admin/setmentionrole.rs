@@ -7,14 +7,37 @@ use super::*;
     category = "utils",
     rename = "setmentionrole",
     aliases("setrank", "setranks", "rankset"),
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    description_localized("fr", "Donner un rôle spécifique à l'utilisateur qui me ping"),
+    description_localized("ja", "ピンしたユーザーに特定のロールを付与！"),
+    description_localized("ru", "Дать определенную роль тому, кто меня упомянет!"),
+    description_localized("es-ES", "Dar un rol específico al usuario que me mencione!")
 )]
 pub async fn setmentionrole(
     ctx: Ctx<'_>,
-    #[description = "on or off"] action: String,
+    #[description_localized("fr", "Que veux-tu faire?")]
+    #[description_localized("ja", "何をしたいですか？")]
+    #[description_localized("ru", "Что вы хотите сделать?")]
+    #[description_localized("es-ES", "Que quieres hacer?")]
+    #[description = "on or off"]
+    action: String,
+    #[description_localized("fr", "Les rôles spécifiques à donner")]
+    #[description_localized("ja", "付与する特定のロール！")]
+    #[description_localized("ru", "Конкретные роли для выдачи!")]
+    #[description_localized("es-ES", "Los roles específicos a dar!")]
     #[description = "Role"]
     #[rename = "roles"]
     role: Option<poise::serenity_prelude::Role>,
+    #[description_localized(
+        "fr",
+        "The part of the nickname you want the person to have in their nickname"
+    )]
+    #[description_localized("ja", "相手のニックネームに含めたい部分")]
+    #[description_localized("ru", "Часть ника, которую вы хотите видеть в нике человека")]
+    #[description_localized(
+        "es-ES",
+        "La parte del apodo que deseas que la persona tenga en su apodo"
+    )]
     #[description = "Nickname part"]
     #[rename = "part-of-nickname"]
     part: Option<String>,

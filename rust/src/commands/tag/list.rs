@@ -13,7 +13,11 @@ use super::*;
     prefix_command,
     rename = "list",
     aliases("tag-list"),
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    description_localized("fr", "Lister tous les tags"),
+    description_localized("ja", "全タグを一覧表示"),
+    description_localized("ru", "Показать все теги"),
+    description_localized("es-ES", "Listar todas las etiquetas")
 )]
 pub async fn tag_list(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     use poise::serenity_prelude::CreateEmbed;

@@ -1,7 +1,16 @@
 use super::*;
 
 /// Partner ad (fr-only). Mirrors MessageCommands/misc/@fexini.ts.
-#[poise::command(slash_command, prefix_command, category = "bot", rename = "fexini")]
+#[poise::command(
+    slash_command,
+    prefix_command,
+    category = "bot",
+    rename = "fexini",
+    description_localized("fr", "voir la pub de notre meilleur partenaire <3"),
+    description_localized("ja", "最高のパートナーを表示"),
+    description_localized("ru", "Показать нашего лучшего партнера"),
+    description_localized("es-ES", "Mostrar nuestro mejor socio")
+)]
 pub async fn fexini(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let locale = ctx
         .guild()

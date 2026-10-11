@@ -6,13 +6,20 @@ use super::*;
     prefix_command,
     category = "utils",
     rename = "derank",
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    description_localized("fr", "Supprimer tous les rôles d'un membre"),
+    description_localized("ja", "メンバーの全ロールを削除"),
+    description_localized("ru", "Удалить все роли у участников"),
+    description_localized("es-ES", "Eliminar todos los roles de los miembros")
 )]
 pub async fn derank(
     ctx: Ctx<'_>,
-    #[description = "Member (defaults to self on prefix)"] user: Option<
-        poise::serenity_prelude::User,
-    >,
+    #[description_localized("fr", "l'utilisateur")]
+    #[description_localized("ja", "ユーザー")]
+    #[description_localized("ru", "Пользователь")]
+    #[description_localized("es-ES", "El usuario")]
+    #[description = "Member (defaults to self on prefix)"]
+    user: Option<poise::serenity_prelude::User>,
 ) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {
         return Ok(());

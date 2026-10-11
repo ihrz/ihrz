@@ -6,12 +6,26 @@ use super::*;
     prefix_command,
     category = "utils",
     rename = "addrole",
-    default_member_permissions = "MANAGE_ROLES"
+    default_member_permissions = "MANAGE_ROLES",
+    description_localized("fr", "Ajouter un rôle à un utilisateur"),
+    description_localized("ja", "ユーザーにロールを追加"),
+    description_localized("ru", "Добавить роль пользователю"),
+    description_localized("es-ES", "Añadir rol al usuario")
 )]
 pub async fn addrole(
     ctx: Ctx<'_>,
-    #[description = "Member"] user: poise::serenity_prelude::User,
-    #[description = "Role"] role: poise::serenity_prelude::Role,
+    #[description_localized("fr", "L'utilisateur que vous voulez ajouter le rôle")]
+    #[description_localized("ja", "ロールを追加したいユーザー")]
+    #[description_localized("ru", "Пользователь, которому нужно добавить роль")]
+    #[description_localized("es-ES", "El usuario al que quieres añadir rol")]
+    #[description = "Member"]
+    user: poise::serenity_prelude::User,
+    #[description_localized("fr", "Le role que vous voulez ajouter a l'utilisateur")]
+    #[description_localized("ja", "ユーザーに追加したいロール")]
+    #[description_localized("ru", "Роль для добавления пользователю")]
+    #[description_localized("es-ES", "El rol que quieres añadir al usuario")]
+    #[description = "Role"]
+    role: poise::serenity_prelude::Role,
 ) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {
         return Ok(());

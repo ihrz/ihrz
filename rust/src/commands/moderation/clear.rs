@@ -24,12 +24,26 @@ fn want_count(amount: u64, by_member: bool) -> usize {
     prefix_command,
     rename = "clear",
     aliases("cls"),
-    default_member_permissions = "MANAGE_MESSAGES"
+    default_member_permissions = "MANAGE_MESSAGES",
+    description_localized("fr", "Effacer une quantité de message dans le cannal"),
+    description_localized("ja", "チャンネル内のメッセージを一括削除！"),
+    description_localized("ru", "Очистить количество сообщений в канале!"),
+    description_localized("es-ES", "Limpiar una cantidad de mensajes en el canal!")
 )]
 pub async fn mod_clear(
     ctx: Ctx<'_>,
-    #[description = "Amount (1-100)"] amount: u64,
-    #[description = "Only this member's messages"] member: Option<serenity::User>,
+    #[description_localized("fr", "Le nombre de messages que vous souhaitez supprimer")]
+    #[description_localized("ja", "削除したいメッセージ数！")]
+    #[description_localized("ru", "Количество сообщений для удаления!")]
+    #[description_localized("es-ES", "El número de mensajes que quieres eliminar!")]
+    #[description = "Amount (1-100)"]
+    amount: u64,
+    #[description_localized("fr", "Le membre dont vous souhaitez supprimer les messages")]
+    #[description_localized("ja", "メッセージを削除したいメンバー")]
+    #[description_localized("ru", "Участник, чьи сообщения удалить")]
+    #[description_localized("es-ES", "El miembro del que quieres eliminar el mensaje")]
+    #[description = "Only this member's messages"]
+    member: Option<serenity::User>,
 ) -> Result<(), anyhow::Error> {
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let t = |k: &str| crate::lang::get(&code, k).unwrap_or_default();

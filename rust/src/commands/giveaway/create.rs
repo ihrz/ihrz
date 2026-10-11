@@ -161,7 +161,15 @@ pub fn normalize_requirement(raw: Option<&str>) -> &'static str {
     prefix_command,
     rename = "create",
     aliases("gstart", "gcreate", "gw-create"),
-    default_member_permissions = "MANAGE_MESSAGES"
+    default_member_permissions = "MANAGE_MESSAGES",
+    name_localized("fr", "créer"),
+    name_localized("ja", "create"),
+    name_localized("ru", "create"),
+    name_localized("es-ES", "create"),
+    description_localized("fr", "Commencer un giveaway"),
+    description_localized("ja", "ギブアウェイを開始！"),
+    description_localized("ru", "Начать розыгрыш!"),
+    description_localized("es-ES", "Iniciar un sorteo!")
 )]
 pub async fn gw_create(
     ctx: Ctx<'_>,
@@ -171,10 +179,27 @@ pub async fn gw_create(
     // slash path carries a true Number like gw.ts; a missing/invalid
     // count fails the in-handler guard and answers `start_is_not_valid`
     // instead of a poise parse error on the bare form.
+    #[name_localized("fr", "gagnants")]
+    #[name_localized("ja", "winner")]
+    #[name_localized("ru", "winner")]
+    #[name_localized("es-ES", "winner")]
+    #[description_localized("fr", "Nombre de gagnants pour les cadeaux")]
+    #[description_localized("ja", "ギブアウェイの当選者数")]
+    #[description_localized("ru", "Количество победителей розыгрыша")]
+    #[description_localized("es-ES", "Número de ganadores del sorteo")]
     #[description = "Winners"]
     #[rename = "winner"]
     winners: Option<f64>,
-    #[description = "Duration (e.g. 10m, 1h, 7d)"] time: String,
+    #[name_localized("fr", "temps")]
+    #[name_localized("ja", "time")]
+    #[name_localized("ru", "time")]
+    #[name_localized("es-ES", "time")]
+    #[description_localized("fr", "La durée des cadeaux")]
+    #[description_localized("ja", "ギブアウェイの開催時間")]
+    #[description_localized("ru", "Длительность розыгрыша")]
+    #[description_localized("es-ES", "La duración del sorteo")]
+    #[description = "Duration (e.g. 10m, 1h, 7d)"]
+    time: String,
     // Option<String> (not required, no choices): TS reads
     // `getString("requirement")` / `string(args, 2)` (both nullable,
     // !create.ts) while the slash schema marks it required (gw.ts).
@@ -183,14 +208,37 @@ pub async fn gw_create(
     // prefix path accepts any word. Unknown words map to "none" below
     // (recorded): TS stores them verbatim, but no gate matches them,
     // so they behave exactly like "none".
-    #[description = "Requirement: none, invites, messages, roles"] requirement: Option<String>,
+    #[description_localized("fr", "Le prérequis pour rentrer dans le giveaways")]
+    #[description_localized("ja", "ギブアウェイ参加要件")]
+    #[description_localized("ru", "Требование для участия в розыгрыше")]
+    #[description_localized("es-ES", "El requisito para entrar en el sorteo")]
+    #[description = "Requirement: none, invites, messages, roles"]
+    requirement: Option<String>,
     // Option (not required): TS stores `(prize || "").substring(0,256)`
     // (!create.ts:140), so a missing prize creates with an empty prize.
-    #[description = "Prize"] prize: Option<String>,
+    #[name_localized("fr", "prix")]
+    #[name_localized("ja", "prize")]
+    #[name_localized("ru", "prize")]
+    #[name_localized("es-ES", "prize")]
+    #[description_localized("fr", "Le prix du giveaway")]
+    #[description_localized("ja", "ギブアウェイの賞品")]
+    #[description_localized("ru", "Приз розыгрыша")]
+    #[description_localized("es-ES", "El premio del sorteo")]
+    #[description = "Prize"]
+    prize: Option<String>,
+    #[description_localized("fr", "La valeur du prérequis pour entrer dans le giveaway")]
+    #[description_localized("ja", "要件の値")]
+    #[description_localized("ru", "Значение требования")]
+    #[description_localized("es-ES", "El valor del requisito")]
     #[description = "Requirement value"]
     #[rename = "requirement-value"]
     requirement_value: Option<String>,
-    #[description = "Embed image URL (must be an image)"] image: Option<String>,
+    #[description_localized("fr", "le lien d'une image qui seras inclu dans l'embed du giveaway")]
+    #[description_localized("ja", "ギブアウェイの埋め込みに表示される画像")]
+    #[description_localized("ru", "Изображение в эмбеде розыгрыша")]
+    #[description_localized("es-ES", "Imagen mostrada en el embed del sorteo")]
+    #[description = "Embed image URL (must be an image)"]
+    image: Option<String>,
 ) -> Result<(), anyhow::Error> {
     let pool_early = &ctx.data().pool;
     let code_early = crate::db::guild_lang(pool_early, ctx.guild_id().map(|g| g.get())).await;

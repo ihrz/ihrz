@@ -7,7 +7,17 @@ use super::*;
     slash_command,
     prefix_command,
     category = "utils",
-    rename = "langstats"
+    rename = "langstats",
+    description_localized(
+        "fr",
+        "Obtenir des informations sur l'utilisation des langues à travers tout les serveur discord du bot iHorizon"
+    ),
+    description_localized("ja", "iHorizon Discord Botの言語統計を取得"),
+    description_localized("ru", "Получить статистику языков в iHorizon"),
+    description_localized(
+        "es-ES",
+        "Obtener estadísticas sobre el idioma en el Bot de Discord iHorizon"
+    )
 )]
 pub async fn langstats(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let owners = crate::db::bot_owner_ids(&ctx.data().pool, &ctx.data().config.owners).await;

@@ -776,3 +776,193 @@ mod tests {
         assert_eq!(back.data.guild_id, "7");
     }
 }
+
+#[cfg(test)]
+mod localization_tests {
+
+    type LocCmd = poise::Command<crate::commands::Data, crate::commands::Error>;
+
+    fn find_path<'a>(cmds: &'a [LocCmd], path: &[&str]) -> &'a LocCmd {
+        let cmd = cmds
+            .iter()
+            .find(|c| c.name == path[0])
+            .unwrap_or_else(|| panic!("command {} missing", path.join(" ")));
+        if path.len() == 1 {
+            cmd
+        } else {
+            find_path(&cmd.subcommands, &path[1..])
+        }
+    }
+
+    #[test]
+    fn loc_backup() {
+        // TS backup/backup.ts (`backup`)
+        let cmds = crate::commands::all();
+        let cmd = find_path(&cmds, &["backup"]);
+        assert_eq!(
+            cmd.description_localizations.get("fr").map(String::as_str),
+            Some("Commande sous-groupé pour la catégorie backup")
+        );
+        assert_eq!(
+            cmd.description_localizations.get("ja").map(String::as_str),
+            Some("バックアップカテゴリのサブコマンド！")
+        );
+        assert_eq!(cmd.description_localizations.len(), 4);
+    }
+
+    #[test]
+    fn loc_create() {
+        // TS backup/backup.ts (`create`)
+        let cmds = crate::commands::all();
+        let cmd = find_path(&cmds, &["backup", "create"]);
+        assert_eq!(
+            cmd.description_localizations.get("fr").map(String::as_str),
+            Some("Créer une backup")
+        );
+        assert_eq!(
+            cmd.description_localizations.get("ja").map(String::as_str),
+            Some("バックアップを作成！")
+        );
+        assert_eq!(cmd.description_localizations.len(), 4);
+        assert_eq!(
+            cmd.name_localizations.get("fr").map(String::as_str),
+            Some("créer")
+        );
+        assert_eq!(
+            cmd.name_localizations.get("ja").map(String::as_str),
+            Some("create")
+        );
+        assert_eq!(cmd.name_localizations.len(), 4);
+        let prm = cmd
+            .parameters
+            .iter()
+            .find(|x| x.name == "save-message")
+            .expect("param save-message");
+        assert_eq!(
+            prm.description_localizations.get("fr").map(String::as_str),
+            Some("Voulez-vous sauvegarder des message(s) ?")
+        );
+        assert_eq!(
+            prm.description_localizations.get("ja").map(String::as_str),
+            Some("メッセージを保存しますか？")
+        );
+    }
+
+    #[test]
+    fn loc_list() {
+        // TS backup/backup.ts (`list`)
+        let cmds = crate::commands::all();
+        let cmd = find_path(&cmds, &["backup", "list"]);
+        assert_eq!(
+            cmd.description_localizations.get("fr").map(String::as_str),
+            Some("Listé toute vos backup(s)")
+        );
+        assert_eq!(
+            cmd.description_localizations.get("ja").map(String::as_str),
+            Some("バックアップを一覧表示！")
+        );
+        assert_eq!(cmd.description_localizations.len(), 4);
+        assert_eq!(
+            cmd.name_localizations.get("fr").map(String::as_str),
+            Some("listé")
+        );
+        assert_eq!(
+            cmd.name_localizations.get("ja").map(String::as_str),
+            Some("list")
+        );
+        assert_eq!(cmd.name_localizations.len(), 4);
+    }
+
+    #[test]
+    fn loc_load() {
+        // TS backup/backup.ts (`load`)
+        let cmds = crate::commands::all();
+        let cmd = find_path(&cmds, &["backup", "load"]);
+        assert_eq!(
+            cmd.description_localizations.get("fr").map(String::as_str),
+            Some("Charger une de vos backup(s)")
+        );
+        assert_eq!(
+            cmd.description_localizations.get("ja").map(String::as_str),
+            Some("バックアップを読み込んで初期化！")
+        );
+        assert_eq!(cmd.description_localizations.len(), 4);
+        assert_eq!(
+            cmd.name_localizations.get("fr").map(String::as_str),
+            Some("chargé")
+        );
+        assert_eq!(
+            cmd.name_localizations.get("ja").map(String::as_str),
+            Some("load")
+        );
+        assert_eq!(cmd.name_localizations.len(), 4);
+        let prm = cmd
+            .parameters
+            .iter()
+            .find(|x| x.name == "backup-id")
+            .expect("param backup-id");
+        assert_eq!(
+            prm.description_localizations.get("fr").map(String::as_str),
+            Some("Quelle est l'identifiant de la backup ?")
+        );
+        assert_eq!(
+            prm.description_localizations.get("ja").map(String::as_str),
+            Some("バックアップIDは？")
+        );
+    }
+
+    #[test]
+    fn loc_delete() {
+        // TS backup/backup.ts (`delete`)
+        let cmds = crate::commands::all();
+        let cmd = find_path(&cmds, &["backup", "delete"]);
+        assert_eq!(
+            cmd.description_localizations.get("fr").map(String::as_str),
+            Some("Supprimer une backup de la liste")
+        );
+        assert_eq!(
+            cmd.description_localizations.get("ja").map(String::as_str),
+            Some("リストからバックアップを削除")
+        );
+        assert_eq!(cmd.description_localizations.len(), 4);
+        let prm = cmd
+            .parameters
+            .iter()
+            .find(|x| x.name == "backup-id")
+            .expect("param backup-id");
+        assert_eq!(
+            prm.description_localizations.get("fr").map(String::as_str),
+            Some("L'identifiant de la backup que vous voulez supprimer de la liste")
+        );
+        assert_eq!(
+            prm.description_localizations.get("ja").map(String::as_str),
+            Some("リストから削除したいバックアップのID")
+        );
+    }
+
+    #[test]
+    fn loc_manage() {
+        // TS backup/backup.ts (`manage`)
+        let cmds = crate::commands::all();
+        let cmd = find_path(&cmds, &["backup", "manage"]);
+        assert_eq!(
+            cmd.description_localizations.get("fr").map(String::as_str),
+            Some("Gérer le système de backup sur le serveur")
+        );
+        assert_eq!(
+            cmd.description_localizations.get("ja").map(String::as_str),
+            Some("このサーバーのバックアップシステムを管理")
+        );
+        assert_eq!(cmd.description_localizations.len(), 4);
+        let prm = cmd
+            .parameters
+            .iter()
+            .find(|x| x.name == "only_guild_owner")
+            .expect("param only_guild_owner");
+        assert_eq!(prm.description_localizations.get("fr").map(String::as_str), Some("Faire fonctionner le système de backup uniquement pour le propriétaire du serveur discord."));
+        assert_eq!(
+            prm.description_localizations.get("ja").map(String::as_str),
+            Some("バックアップシステムをサーバーオーナーのみに制限")
+        );
+    }
+}

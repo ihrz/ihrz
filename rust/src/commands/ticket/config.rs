@@ -17,7 +17,11 @@ pub fn parse_config_action(action: &str) -> Option<bool> {
     prefix_command,
     rename = "config",
     aliases("ticket-config"),
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    description_localized("fr", "Désactiver les commande de ticket au seins du serveur"),
+    description_localized("ja", "サーバーでチケットコマンドを無効化！"),
+    description_localized("ru", "Отключить команды тикетов на сервере!"),
+    description_localized("es-ES", "Deshabilitar los comandos de ticket en un servidor!")
 )]
 pub async fn ticket_config(
     ctx: Ctx<'_>,

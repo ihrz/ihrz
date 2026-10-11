@@ -186,12 +186,29 @@ pub fn preview_desc(preview_word: &str, converted: &str) -> String {
 }
 
 /// Transform a string into a DarkSasuke!
-#[poise::command(slash_command, prefix_command, category = "fun", rename = "caracteres")]
+#[poise::command(
+    slash_command,
+    prefix_command,
+    category = "fun",
+    rename = "caracteres",
+    name_localized("fr", "caractères"),
+    name_localized("ja", "caracteres"),
+    name_localized("ru", "caracteres"),
+    name_localized("es-ES", "caracteres"),
+    description_localized("fr", "Transformez une chaîne de caractères en DarkSasuke"),
+    description_localized("ja", "文字列をDarkSasukeに変換！"),
+    description_localized("ru", "Преобразовать строку в DarkSasuke!"),
+    description_localized("es-ES", "Transformar una cadena en DarkSasuke!")
+)]
 pub async fn caracteres(
     ctx: Ctx<'_>,
     // Named `nickname` like the TS slash option (`getString("nickname")`,
     // required: true in fun.ts). Optional here so prefix can show the
     // provide-text prompt instead of a parse error.
+    #[description_localized("fr", "ton surnom cool à transformer")]
+    #[description_localized("ja", "変換したいクールなニックネーム！")]
+    #[description_localized("ru", "ваш крутой ник для преобразования!")]
+    #[description_localized("es-ES", "tu apodo genial para transformar!")]
     #[description = "Text to transform"]
     #[rest]
     nickname: Option<String>,

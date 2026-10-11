@@ -379,7 +379,11 @@ fn cached_role_name(
     slash_command,
     prefix_command,
     rename = "panel",
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    description_localized("fr", "Créer un panel pour customiser le système de ticket"),
+    description_localized("ja", "カスタムチケット設定用パネルを作成"),
+    description_localized("ru", "Создание панели для настройки тикетов"),
+    description_localized("es-ES", "Crear un panel para configuración de tickets personalizada")
 )]
 pub async fn ticket_panel(
     ctx: Ctx<'_>,

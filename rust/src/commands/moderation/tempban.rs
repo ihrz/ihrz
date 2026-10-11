@@ -7,13 +7,32 @@ use poise::serenity_prelude as serenity;
     prefix_command,
     rename = "tempban",
     aliases("tban", "temporaryban"),
-    default_member_permissions = "BAN_MEMBERS"
+    default_member_permissions = "BAN_MEMBERS",
+    description_localized("fr", "Bannir temporairement un utilisateur du serveur"),
+    description_localized("ja", "ユーザーをサーバーから一時的にバン"),
+    description_localized("ru", "Временно забанить пользователя на сервере"),
+    description_localized("es-ES", "Banear temporalmente a un usuario del servidor")
 )]
 pub async fn mod_tempban(
     ctx: Ctx<'_>,
-    #[description = "Member"] user: serenity::User,
-    #[description = "Duration (e.g. 10m, 1h, 7d)"] duration: String,
-    #[description = "Reason"] reason: Option<String>,
+    #[description_localized("fr", "L'utilisateur que vous voulez bannir temporairement")]
+    #[description_localized("ja", "一時的にバンしたいユーザー")]
+    #[description_localized("ru", "Пользователь для временного бана")]
+    #[description_localized("es-ES", "El usuario que quieres banear temporalmente")]
+    #[description = "Member"]
+    user: serenity::User,
+    #[description_localized("fr", "La durée du bannissement (ex: 1h, 3j, 1s)")]
+    #[description_localized("ja", "バン期間（例: 1h, 3d, 1w）")]
+    #[description_localized("ru", "Длительность бана (напр., 1ч, 3д, 1н)")]
+    #[description_localized("es-ES", "La duración del baneo (ej., 1h, 3d, 1s)")]
+    #[description = "Duration (e.g. 10m, 1h, 7d)"]
+    duration: String,
+    #[description_localized("fr", "La raison du bannissement")]
+    #[description_localized("ja", "バンの理由")]
+    #[description_localized("ru", "Причина бана")]
+    #[description_localized("es-ES", "La razón del baneo")]
+    #[description = "Reason"]
+    reason: Option<String>,
 ) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {
         return Ok(());

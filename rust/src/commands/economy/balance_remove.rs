@@ -6,7 +6,11 @@ use super::*;
     prefix_command,
     rename = "balance-remove",
     aliases("removemoney"),
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    description_localized("fr", "Retirer de l'argent à un utilisateur"),
+    description_localized("ja", "ユーザーからお金を削除！"),
+    description_localized("ru", "Убрать деньги у пользователя!"),
+    description_localized("es-ES", "Quitar dinero a un usuario!")
 )]
 pub async fn eco_balance_remove(
     ctx: Ctx<'_>,
@@ -16,7 +20,16 @@ pub async fn eco_balance_remove(
     // and `member` at index 0 (`!balance-remove.ts:67-72`), but the
     // member resolver scans the whole arg string, so the shared index
     // is not load-bearing. Slash order kept positionally.
-    #[description = "Amount"] amount: f64,
+    #[description_localized("fr", "montant de $ que vous souhaitez ajouter")]
+    #[description_localized("ja", "追加したい金額")]
+    #[description_localized("ru", "сумма для добавления")]
+    #[description_localized("es-ES", "cantidad de $ que quieres añadir")]
+    #[description = "Amount"]
+    amount: f64,
+    #[description_localized("fr", "le membre auquel vous souhaitez ajouter de l'argent")]
+    #[description_localized("ja", "お金を追加したいメンバー")]
+    #[description_localized("ru", "участник, которому добавить деньги")]
+    #[description_localized("es-ES", "el miembro al que quieres añadir dinero")]
     #[description = "Member"]
     #[rename = "member"]
     user: poise::serenity_prelude::User,

@@ -486,14 +486,32 @@ pub fn hack_description(template: &str, victim_id: u64, author_id: u64) -> Strin
 }
 
 /// Hack a user!
-#[poise::command(slash_command, prefix_command, category = "fun", rename = "hack")]
+#[poise::command(
+    slash_command,
+    prefix_command,
+    category = "fun",
+    rename = "hack",
+    name_localized("fr", "piratage"),
+    name_localized("ja", "hack"),
+    name_localized("ru", "hack"),
+    name_localized("es-ES", "hack"),
+    description_localized("fr", "Pirater un discordiens"),
+    description_localized("ja", "ユーザーをハッキング！"),
+    description_localized("ru", "Взломать пользователя!"),
+    description_localized("es-ES", "Hackear a un usuario!")
+)]
 pub async fn hack(
     ctx: Ctx<'_>,
     // Required like the TS slash option (`user`, required: true in fun.ts).
     // Delta (documented): the TS prefix path falls back to the invoker
     // (`|| interaction.author`), but a required slash option cannot express
     // that, so prefix must mention a target too.
-    #[description = "Member"] user: poise::serenity_prelude::User,
+    #[description_localized("fr", "L'utilisateur que vous souhaitez pirater")]
+    #[description_localized("ja", "ハッキングしたいユーザー")]
+    #[description_localized("ru", "Пользователь, которого вы хотите взломать")]
+    #[description_localized("es-ES", "El usuario que quieres hackear")]
+    #[description = "Member"]
+    user: poise::serenity_prelude::User,
 ) -> Result<(), anyhow::Error> {
     if fun_guard(&ctx).await {
         return Ok(());

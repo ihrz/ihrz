@@ -21,7 +21,15 @@ use super::{info::h247_info, join::h247_join, leave::h247_leave};
     rename = "h247",
     subcommands("h247_join", "h247_leave", "h247_info"),
     default_member_permissions = "ADMINISTRATOR",
-    subcommand_required
+    subcommand_required,
+    name_localized("fr", "h247"),
+    name_localized("ja", "h247"),
+    name_localized("ru", "h247"),
+    name_localized("es-ES", "h247"),
+    description_localized("fr", "Garder iHorizon connecté 24/7 dans un salon vocal!"),
+    description_localized("ja", "iHorizonをボイスチャンネルに24時間365日接続させ続けます！"),
+    description_localized("ru", "Держите iHorizon на связи 24/7 в голосовом канале!"),
+    description_localized("es-ES", "¡Mantén a iHorizon conectado 24/7 en un canal de voz!")
 )]
 pub async fn h247(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())

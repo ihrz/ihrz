@@ -6,11 +6,20 @@ use super::*;
     prefix_command,
     rename = "role-delete",
     aliases("economy-role-delete"),
-    default_member_permissions = "MANAGE_GUILD"
+    default_member_permissions = "MANAGE_GUILD",
+    description_localized("fr", "Supprimer un rôle pour un certain montant d'argent"),
+    description_localized("ja", "特定の金額でロールを削除！"),
+    description_localized("ru", "Удалить роль за определенную сумму!"),
+    description_localized("es-ES", "Eliminar un rol por una cierta cantidad de dinero!")
 )]
 pub async fn eco_role_delete(
     ctx: Ctx<'_>,
-    #[description = "Role"] role: poise::serenity_prelude::Role,
+    #[description_localized("fr", "Le rôle que vous souhaitez supprimer")]
+    #[description_localized("ja", "削除したいロール")]
+    #[description_localized("ru", "Роль, которую вы хотите удалить")]
+    #[description_localized("es-ES", "El rol que quieres eliminar")]
+    #[description = "Role"]
+    role: poise::serenity_prelude::Role,
 ) -> Result<(), anyhow::Error> {
     if disabled_reply(&ctx).await? {
         return Ok(());

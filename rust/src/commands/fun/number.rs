@@ -23,12 +23,43 @@ fn parse_bound(raw: Option<String>, default: i64) -> i64 {
 }
 
 /// Roll a random number!
-#[poise::command(slash_command, prefix_command, category = "fun", rename = "number")]
+#[poise::command(
+    slash_command,
+    prefix_command,
+    category = "fun",
+    rename = "number",
+    name_localized("fr", "nombre"),
+    name_localized("ja", "number"),
+    name_localized("ru", "number"),
+    name_localized("es-ES", "number"),
+    description_localized("fr", "Génère un nombre aléatoire entre deux valeurs"),
+    description_localized("ja", "2つの値の間のランダムな数字を生成"),
+    description_localized("ru", "Сгенерировать случайное число между двумя значениями"),
+    description_localized("es-ES", "Generar un número aleatorio entre dos valores")
+)]
 // Mirrors fun !number.ts.
 pub async fn number(
     ctx: Ctx<'_>,
-    #[description = "Min"] min: Option<String>,
-    #[description = "Max"] max: Option<String>,
+    #[name_localized("fr", "minimum")]
+    #[name_localized("ja", "min")]
+    #[name_localized("ru", "min")]
+    #[name_localized("es-ES", "min")]
+    #[description_localized("fr", "Valeur minimale")]
+    #[description_localized("ja", "最小値")]
+    #[description_localized("ru", "Минимальное значение")]
+    #[description_localized("es-ES", "Valor mínimo")]
+    #[description = "Min"]
+    min: Option<String>,
+    #[name_localized("fr", "maximum")]
+    #[name_localized("ja", "max")]
+    #[name_localized("ru", "max")]
+    #[name_localized("es-ES", "max")]
+    #[description_localized("fr", "Valeur maximale")]
+    #[description_localized("ja", "最大値")]
+    #[description_localized("ru", "Максимальное значение")]
+    #[description_localized("es-ES", "Valor máximo")]
+    #[description = "Max"]
+    max: Option<String>,
 ) -> Result<(), anyhow::Error> {
     // No disabled-category check in `!number.ts`: no fun_guard here.
     // TS defaults are `||`-based on both paths (slash `getNumber(...)`

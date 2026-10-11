@@ -49,7 +49,17 @@ fn preview_block(
     prefix_command,
     rename = "message",
     aliases("msg", "ranks-message"),
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    description_localized(
+        "fr",
+        "Définir un message personalisé quand un membre gagne un niveaus"
+    ),
+    description_localized("ja", "ユーザーがレベルアップした時のカスタムメッセージを設定"),
+    description_localized("ru", "Установить сообщение при повышении уровня"),
+    description_localized(
+        "es-ES",
+        "Establecer un mensaje personalizado cuando el usuario gana nivel"
+    )
 )]
 pub async fn ranks_msg(
     ctx: Ctx<'_>,

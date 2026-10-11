@@ -16,12 +16,26 @@ pub fn footer_name_too_long_utf16(name: &str) -> bool {
     prefix_command,
     rename = "name",
     aliases("botname", "setname", "setbotname"),
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    description_localized("fr", "Définir le nom du bot sur le serveur"),
+    description_localized("ja", "サーバーのiHorizonの名前を変更"),
+    description_localized("ru", "Изменить имя iHorizon на сервере"),
+    description_localized("es-ES", "Cambiar el nombre de iHorizon en el servidor")
 )]
 pub async fn custom_name(
     ctx: Ctx<'_>,
-    #[description = "set or reset"] action: String,
-    #[description = "New bot name"] name: Option<String>,
+    #[description = "set or reset"]
+    #[description_localized("fr", "Que voulez-vous faire ?")]
+    #[description_localized("ja", "何をしたいですか？")]
+    #[description_localized("ru", "Что вы хотите сделать?")]
+    #[description_localized("es-ES", "¿Qué quieres hacer?")]
+    action: String,
+    #[description = "New bot name"]
+    #[description_localized("fr", "Le nom du bot")]
+    #[description_localized("ja", "名前")]
+    #[description_localized("ru", "Имя")]
+    #[description_localized("es-ES", "El nombre")]
+    name: Option<String>,
 ) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {
         let glang = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;

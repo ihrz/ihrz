@@ -1,10 +1,24 @@
 use super::*;
 
 /// Add bubble on top of your own image
-#[poise::command(slash_command, prefix_command, category = "fun", rename = "bubbles")]
+#[poise::command(
+    slash_command,
+    prefix_command,
+    category = "fun",
+    rename = "bubbles",
+    description_localized("fr", "ajouter une bulle au dessus de votre image"),
+    description_localized("ja", "自分の画像の上に吹き出しを追加"),
+    description_localized("ru", "Добавить пузырек поверх вашего изображения"),
+    description_localized("es-ES", "Añadir burbuja encima de tu propia imagen")
+)]
 pub async fn bubbles(
     ctx: Ctx<'_>,
-    #[description = "Image"] image: poise::serenity_prelude::Attachment,
+    #[description_localized("fr", "fichier image")]
+    #[description_localized("ja", "画像ファイル")]
+    #[description_localized("ru", "файл изображения")]
+    #[description_localized("es-ES", "archivo de imagen")]
+    #[description = "Image"]
+    image: poise::serenity_prelude::Attachment,
 ) -> Result<(), anyhow::Error> {
     // No disabled-category check in `!bubbles.ts`: no fun_guard here.
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;

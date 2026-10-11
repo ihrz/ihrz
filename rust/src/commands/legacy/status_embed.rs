@@ -8,7 +8,11 @@ use super::*;
     slash_command,
     prefix_command,
     category = "utils",
-    rename = "status-embed"
+    rename = "status-embed",
+    description_localized("fr", "Créer un embed par rapport à iHorizon"),
+    description_localized("ja", "iHorizonのステータス埋め込みを作成"),
+    description_localized("ru", "Создать эмбед статуса iHorizon"),
+    description_localized("es-ES", "Hacer un embed de estado sobre iHorizon")
 )]
 pub async fn status_embed(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let owners = crate::db::bot_owner_ids(&ctx.data().pool, &ctx.data().config.owners).await;

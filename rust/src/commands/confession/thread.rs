@@ -9,7 +9,11 @@ use super::*;
     prefix_command,
     rename = "thread",
     aliases("confthread"),
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    description_localized("fr", "Créer un fil de discussion en dessous de la confession ?"),
+    description_localized("ja", "告白の上にスレッドを作成しますか？"),
+    description_localized("ru", "Создать ветку над признанием?"),
+    description_localized("es-ES", "Crear un hilo encima de la confesión?")
 )]
 pub async fn confession_thread(
     ctx: Ctx<'_>,

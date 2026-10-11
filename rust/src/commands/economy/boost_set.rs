@@ -18,12 +18,26 @@ pub fn validate_boost(raw: &str) -> Option<f64> {
     prefix_command,
     rename = "boost-set",
     aliases("economy-boost-set"),
-    default_member_permissions = "MANAGE_GUILD"
+    default_member_permissions = "MANAGE_GUILD",
+    description_localized("fr", "Définir un boost d'argent pour un certain rôle"),
+    description_localized("ja", "特定のロールにマネーブーストを設定！"),
+    description_localized("ru", "Установить денежный бонус для роли!"),
+    description_localized("es-ES", "Establecer un impulso de dinero para un cierto rol!")
 )]
 pub async fn eco_boost_set(
     ctx: Ctx<'_>,
-    #[description = "Role"] role: poise::serenity_prelude::Role,
-    #[description = "Boost (e.g. 2)"] boost: String,
+    #[description_localized("fr", "Le rôle que vous souhaitez modifier le boost")]
+    #[description_localized("ja", "ブーストを変更したいロール")]
+    #[description_localized("ru", "Роль, для которой изменить бонус")]
+    #[description_localized("es-ES", "El rol para el que quieres modificar el impulso")]
+    #[description = "Role"]
+    role: poise::serenity_prelude::Role,
+    #[description_localized("fr", "Le boost que vous souhaitez ajouter")]
+    #[description_localized("ja", "追加したいブースト")]
+    #[description_localized("ru", "Бонус, который вы хотите добавить")]
+    #[description_localized("es-ES", "El impulso que quieres añadir")]
+    #[description = "Boost (e.g. 2)"]
+    boost: String,
 ) -> Result<(), anyhow::Error> {
     if disabled_reply(&ctx).await? {
         return Ok(());

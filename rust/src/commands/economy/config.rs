@@ -26,11 +26,20 @@ pub async fn economy_disabled_routed(pool: &crate::db::Pool, guild_id: &str) -> 
     prefix_command,
     rename = "config",
     aliases("ecconfig"),
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    description_localized("fr", "Désactiver entièrement le module d'économie sur un serveur"),
+    description_localized("ja", "サーバーの経済モジュールを無効化"),
+    description_localized("ru", "Отключить экономический модуль на сервере"),
+    description_localized("es-ES", "Deshabilitar el módulo de economía en tu servidor")
 )]
 pub async fn eco_config(
     ctx: Ctx<'_>,
-    #[description = "on or off"] action: String,
+    #[description_localized("fr", "Que voulez-vous faire ?")]
+    #[description_localized("ja", "何をしたいですか？")]
+    #[description_localized("ru", "Что вы хотите сделать?")]
+    #[description_localized("es-ES", "Que quieres hacer?")]
+    #[description = "on or off"]
+    action: String,
 ) -> Result<(), anyhow::Error> {
     // CONSTRAINED (deliberate divergence from `!config.ts`): the TS
     // slash `choices` admit only `on` | `off`, but the prefix path reads

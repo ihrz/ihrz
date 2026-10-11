@@ -8,7 +8,11 @@ use super::*;
     category = "utils",
     rename = "untalk",
     aliases("unmutetalk"),
-    default_member_permissions = "MUTE_MEMBERS"
+    default_member_permissions = "MUTE_MEMBERS",
+    description_localized("fr", "Désactiver le mode talk et démute tout le monde"),
+    description_localized("ja", "トークモードを無効化して全員のミュートを解除"),
+    description_localized("ru", "Отключить режим разговора и размутить всех"),
+    description_localized("es-ES", "Deshabilitar el modo de conversación y desilenciar a todos")
 )]
 pub async fn untalk(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {

@@ -22,11 +22,24 @@ fn parse_age(raw: Option<String>) -> f64 {
     prefix_command,
     rename = "set-age",
     aliases("age"),
-    category = "profil"
+    category = "profil",
+    name_localized("fr", "définir-âge"),
+    name_localized("ja", "set-age"),
+    name_localized("ru", "set-age"),
+    name_localized("es-ES", "set-age"),
+    description_localized("fr", "Définissez votre âge sur le profil iHorizon"),
+    description_localized("ja", "iHorizonプロフィールに年齢を設定！"),
+    description_localized("ru", "Установить возраст в профиле iHorizon!"),
+    description_localized("es-ES", "Establecer tu edad en el perfil de iHorizon!")
 )]
 pub async fn profil_age(
     ctx: Ctx<'_>,
-    #[description = "Your age on the iHorizon profil"] age: Option<String>,
+    #[description = "Your age on the iHorizon profil"]
+    #[description_localized("fr", "Votre âge sur votre profil iHorizon")]
+    #[description_localized("ja", "iHorizonプロフィールの年齢")]
+    #[description_localized("ru", "Ваш возраст в профиле iHorizon")]
+    #[description_localized("es-ES", "Tu edad en el perfil de iHorizon")]
+    age: Option<String>,
 ) -> Result<(), anyhow::Error> {
     let age = parse_age(age);
     let user_id = ctx.author().id.get();

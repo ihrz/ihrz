@@ -17,13 +17,25 @@ use super::*;
     prefix_command,
     category = "utils",
     rename = "embed-post",
-    default_member_permissions = "MANAGE_MESSAGES"
+    default_member_permissions = "MANAGE_MESSAGES",
+    description_localized("fr", "Créez un magnifique embed"),
+    description_localized("ja", "美しい埋め込みを作成！"),
+    description_localized("ru", "Создать красивый эмбед!"),
+    description_localized("es-ES", "Crear un embed hermoso!")
 )]
 pub async fn embed_post(
     ctx: Ctx<'_>,
     #[description = "Title (for a new embed)"] title: Option<String>,
     #[description = "Description (for a new embed)"] description: Option<String>,
-    #[description = "Saved embed ID to repost"] id: Option<String>,
+    #[description_localized(
+        "fr",
+        "Si vous disposez d'un identifiant d'un embed précèdement enregistrer"
+    )]
+    #[description_localized("ja", "埋め込みのIDがある場合！")]
+    #[description_localized("ru", "Если у вас есть ID эмбеда!")]
+    #[description_localized("es-ES", "Si tienes un ID de embed!")]
+    #[description = "Saved embed ID to repost"]
+    id: Option<String>,
     #[description = "Message URL or ID to copy an embed from"] copy_from: Option<String>,
 ) -> Result<(), anyhow::Error> {
     use poise::serenity_prelude::{ChannelId, MessageId};

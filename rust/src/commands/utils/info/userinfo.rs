@@ -8,11 +8,20 @@ use super::*;
     prefix_command,
     category = "utils",
     rename = "userinfo",
-    aliases("ui")
+    aliases("ui"),
+    description_localized("fr", "Obtenir des informations sur un utilisateur"),
+    description_localized("ja", "ユーザーの情報を取得！"),
+    description_localized("ru", "Получить информацию о пользователе!"),
+    description_localized("es-ES", "Obtener información sobre un usuario!")
 )]
 pub async fn userinfo(
     ctx: Ctx<'_>,
-    #[description = "Member"] user: Option<poise::serenity_prelude::User>,
+    #[description_localized("fr", "utilisateur que vous souhaitez rechercher")]
+    #[description_localized("ja", "検索したいユーザー")]
+    #[description_localized("ru", "пользователь для поиска")]
+    #[description_localized("es-ES", "usuario que quieres buscar")]
+    #[description = "Member"]
+    user: Option<poise::serenity_prelude::User>,
 ) -> Result<(), anyhow::Error> {
     use poise::serenity_prelude as serenity;
     let u = user.as_ref().unwrap_or_else(|| ctx.author());

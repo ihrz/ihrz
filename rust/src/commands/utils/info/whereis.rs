@@ -7,11 +7,20 @@ use super::*;
     category = "utils",
     rename = "where",
     aliases("whereis"),
-    default_member_permissions = "MODERATE_MEMBERS"
+    default_member_permissions = "MODERATE_MEMBERS",
+    description_localized("fr", "Envoie le salon vocal où est le membre."),
+    description_localized("ja", "メンバーがいるチャンネルを送信"),
+    description_localized("ru", "Отправить канал, где находится участник"),
+    description_localized("es-ES", "Enviar el canal donde está el miembro")
 )]
 pub async fn whereis(
     ctx: Ctx<'_>,
-    #[description = "Member"] user: poise::serenity_prelude::User,
+    #[description_localized("fr", "le membre que vous souhaitez vérifier")]
+    #[description_localized("ja", "確認したいメンバー")]
+    #[description_localized("ru", "Участник для проверки")]
+    #[description_localized("es-ES", "El miembro que quieres comprobar")]
+    #[description = "Member"]
+    user: poise::serenity_prelude::User,
 ) -> Result<(), anyhow::Error> {
     use poise::serenity_prelude as serenity;
     let Some(guild_id) = ctx.guild_id() else {

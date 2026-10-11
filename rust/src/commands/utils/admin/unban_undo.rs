@@ -8,7 +8,15 @@ use super::*;
     category = "utils",
     rename = "undo",
     aliases("unbanall-undo", "unban-all-undo"),
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    name_localized("fr", "annuler"),
+    name_localized("ja", "undo"),
+    name_localized("ru", "undo"),
+    name_localized("es-ES", "undo"),
+    description_localized("fr", "Annuler le dé-bannissement de tout les membres"),
+    description_localized("ja", "全メンバーの一斉バン解除を取り消し"),
+    description_localized("ru", "Отменить разбан всех участников"),
+    description_localized("es-ES", "Deshacer el desbaneo masivo de todos los miembros")
 )]
 pub async fn unban_undo(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {

@@ -13,9 +13,21 @@ use super::*;
 // like the TS prefix leg.
 //
 /// Set the playback volume (10-100).
-#[poise::command(slash_command, prefix_command, rename = "volume")]
+#[poise::command(
+    slash_command,
+    prefix_command,
+    rename = "volume",
+    description_localized("fr", "changer le son du player sur le serveur"),
+    description_localized("ja", "サーバーのプレイヤーの音量を変更"),
+    description_localized("ru", "изменить громкость плеера на сервере"),
+    description_localized("es-ES", "cambiar el volumen del reproductor en el servidor")
+)]
 pub async fn m_volume(
     ctx: Ctx<'_>,
+    #[description_localized("fr", "le niveau du son")]
+    #[description_localized("ja", "音楽レベル")]
+    #[description_localized("ru", "уровень музыки")]
+    #[description_localized("es-ES", "el nivel de música")]
     #[description = "10-100"]
     #[autocomplete = "volume_autocomplete"]
     level: String,

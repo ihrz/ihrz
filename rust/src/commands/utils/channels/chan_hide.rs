@@ -10,14 +10,23 @@ use super::*;
     category = "utils",
     rename = "hide",
     aliases("masquer"),
-    default_member_permissions = "MANAGE_CHANNELS"
+    default_member_permissions = "MANAGE_CHANNELS",
+    description_localized("fr", "Masquer le salon actuel pour everyone"),
+    description_localized("ja", "現在のチャンネルを全員から非表示"),
+    description_localized("ru", "Скрыть текущий канал от всех"),
+    description_localized("es-ES", "Ocultar el canal actual de todos")
 )]
 pub async fn chan_hide(
     ctx: Ctx<'_>,
     #[description = "Channel, defaults to current"] channel: Option<
         poise::serenity_prelude::GuildChannel,
     >,
-    #[description = "Role, defaults to @everyone"] role: Option<poise::serenity_prelude::Role>,
+    #[description_localized("fr", "Le rôle que tu veux masquer dans le salon")]
+    #[description_localized("ja", "チャンネルで非表示にしたいロール")]
+    #[description_localized("ru", "роль, которую нужно скрыть в канале")]
+    #[description_localized("es-ES", "el rol que quieres ocultar en el canal")]
+    #[description = "Role, defaults to @everyone"]
+    role: Option<poise::serenity_prelude::Role>,
 ) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {
         return Ok(());

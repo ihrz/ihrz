@@ -8,9 +8,22 @@ use super::*;
 /// outside this runtime, so this port renders the same window counts
 /// (day/week/month via `msg_window_counts` / `voice_window_ms`) and the
 /// same top-3 channels as text instead of pixel-matching the card.
-#[poise::command(slash_command, prefix_command, rename = "ustats", aliases("u"))]
+#[poise::command(
+    slash_command,
+    prefix_command,
+    rename = "ustats",
+    aliases("u"),
+    description_localized("fr", "Regarder un profil"),
+    description_localized("ja", "プロフィールを表示"),
+    description_localized("ru", "Посмотреть профиль"),
+    description_localized("es-ES", "Ver perfil")
+)]
 pub async fn stats_user(
     ctx: Ctx<'_>,
+    #[description_localized("fr", "L'utilisateur que vous souhaiter")]
+    #[description_localized("ja", "対象のメンバー")]
+    #[description_localized("ru", "Желаемый участник")]
+    #[description_localized("es-ES", "El miembro que deseas")]
     #[description = "Member"]
     #[rename = "member"]
     user: Option<poise::serenity_prelude::User>,

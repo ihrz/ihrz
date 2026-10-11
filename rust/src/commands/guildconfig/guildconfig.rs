@@ -31,7 +31,14 @@ use super::{
         "gc_join_ghostping",
         "gc_autologs"
     ),
-    subcommand_required
+    subcommand_required,
+    description_localized(
+        "fr",
+        "Commande sous-groupé pour la catégorie de configuration du serveur"
+    ),
+    description_localized("ja", "サーバー設定カテゴリのサブコマンド！"),
+    description_localized("ru", "Подкоманда для категории настройки сервера!"),
+    description_localized("es-ES", "Subcomando para la categoría de configuración del servidor!")
 )]
 pub async fn guildconfig(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())

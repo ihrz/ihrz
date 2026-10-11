@@ -21,13 +21,25 @@ pub fn validate_set_money_kind(kind: &str) -> bool {
     slash_command,
     prefix_command,
     rename = "set-money",
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    description_localized("fr", "Gérer combien d'argent vous pouvez obtenir quotidiennement, hebdomadairement et mensuellement"),
+    description_localized("ja", "デイリー、ウィークリー、マンスリーで獲得できる金額を管理！"),
+    description_localized("ru", "Управлять количеством денег, получаемых ежедневно, еженедельно и ежемесячно!"),
+    description_localized("es-ES", "Gestionar cuánto dinero puedes obtener de diario, semanal y mensual!"),
 )]
 pub async fn eco_set_money(
     ctx: Ctx<'_>,
+    #[description_localized("fr", "Le type de récompense que vous souhaitez définir")]
+    #[description_localized("ja", "設定したい報酬の種類")]
+    #[description_localized("ru", "Тип награды, которую вы хотите установить")]
+    #[description_localized("es-ES", "El tipo de recompensa que quieres establecer")]
     #[description = "daily, weekly, monthly"]
     #[rename = "type"]
     kind: String,
+    #[description_localized("fr", "Combien d'argent vous souhaitez définir")]
+    #[description_localized("ja", "設定したい金額")]
+    #[description_localized("ru", "Сколько денег вы хотите установить")]
+    #[description_localized("es-ES", "Cuánto dinero quieres establecer")]
     #[description = "Amount"]
     #[rename = "how-much"]
     amount: f64,

@@ -7,7 +7,14 @@ use super::*;
     category = "utils",
     rename = "zip-stickers",
     aliases("zipstickers", "zip2"),
-    default_member_permissions = "MANAGE_GUILD_EXPRESSIONS"
+    default_member_permissions = "MANAGE_GUILD_EXPRESSIONS",
+    description_localized(
+        "fr",
+        "Créer un fichier zip contenant absolument tout les stickers du serveur"
+    ),
+    description_localized("ja", "サーバーの全スタンプを含むZIPファイルを作成！"),
+    description_localized("ru", "Создать ZIP-файлы со всеми стикерами сервера!"),
+    description_localized("es-ES", "Crear archivos zip con todos los stickers del servidor!")
 )]
 pub async fn zip_stickers(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {

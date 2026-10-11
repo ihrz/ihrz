@@ -34,11 +34,26 @@ pub async fn save_econ_routed(
     slash_command,
     prefix_command,
     rename = "balance",
-    aliases("wallet", "coins", "bal")
+    aliases("wallet", "coins", "bal"),
+    description_localized("fr", "Obtenir le solde d'un utilisateur"),
+    description_localized("ja", "ユーザーの残高を取得！"),
+    description_localized("ru", "Получить баланс пользователя!"),
+    description_localized("es-ES", "Obtener el saldo de un usuario!")
 )]
 pub async fn eco_balance(
     ctx: Ctx<'_>,
-    #[description = "Member"] user: Option<poise::serenity_prelude::User>,
+    #[description_localized("fr", "Ciblez un utilisateur pour voir son solde actuel")]
+    #[description_localized("ja", "残高を確認するユーザーを指定（空白で自分）")]
+    #[description_localized(
+        "ru",
+        "Укажите пользователя для просмотра баланса или оставьте пустым для себя"
+    )]
+    #[description_localized(
+        "es-ES",
+        "Selecciona un usuario para ver su saldo actual o déjalo en blanco para ti"
+    )]
+    #[description = "Member"]
+    user: Option<poise::serenity_prelude::User>,
 ) -> Result<(), anyhow::Error> {
     if disabled_reply(&ctx).await? {
         return Ok(());

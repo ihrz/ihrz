@@ -1,15 +1,36 @@
 use super::*;
 
 /// Permit to send custom youtube comment (real) !
-#[poise::command(slash_command, prefix_command, category = "fun", rename = "youtube")]
+#[poise::command(
+    slash_command,
+    prefix_command,
+    category = "fun",
+    rename = "youtube",
+    description_localized("fr", "Permis d'envoyer un commentaire YouTube personnalisé (réel)"),
+    description_localized("ja", "カスタムYouTubeコメントを送信可能に（実際のコメント）！"),
+    description_localized(
+        "ru",
+        "Разрешить отправку пользовательского комментария YouTube (настоящего)!"
+    ),
+    description_localized("es-ES", "Permitir enviar comentario personalizado de YouTube (real)!")
+)]
 pub async fn youtube(
     ctx: Ctx<'_>,
     // Optional on prefix (falls back to the invoker like the TS
     // `|| interaction.author` path in !youtube.ts); the TS slash schema
     // marks `user` required:true (fun.ts) so slash callers always pass it.
-    #[description = "Member"] user: Option<poise::serenity_prelude::User>,
+    #[description_localized("fr", "L'utilisateur")]
+    #[description_localized("ja", "ユーザー")]
+    #[description_localized("ru", "Пользователь")]
+    #[description_localized("es-ES", "El usuario")]
+    #[description = "Member"]
+    user: Option<poise::serenity_prelude::User>,
     // `#[rest]` so prefix keeps multi-word comments like the TS
     // `longString(args, 1)` path (slash uses `getString("comment")`).
+    #[description_localized("fr", "Le commentaire")]
+    #[description_localized("ja", "コメント")]
+    #[description_localized("ru", "Комментарий")]
+    #[description_localized("es-ES", "El comentario")]
     #[description = "Comment"]
     #[rest]
     comment: String,

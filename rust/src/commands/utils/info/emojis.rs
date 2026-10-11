@@ -8,10 +8,18 @@ use super::*;
     category = "utils",
     rename = "emojis",
     aliases("addemoji", "create", "addemojis", "emoji", "emote"),
-    default_member_permissions = "MANAGE_GUILD_EXPRESSIONS"
+    default_member_permissions = "MANAGE_GUILD_EXPRESSIONS",
+    description_localized("fr", "Ajoutez facilement des emojis à votre serveur"),
+    description_localized("ja", "サーバーに絵文字を簡単に追加"),
+    description_localized("ru", "Легко добавить эмодзи на сервер"),
+    description_localized("es-ES", "Añadir emojis a tu servidor fácilmente")
 )]
 pub async fn emojis(
     ctx: Ctx<'_>,
+    #[description_localized("fr", "C'est quoi cette emoji alors ?")]
+    #[description_localized("ja", "どの絵文字ですか？")]
+    #[description_localized("ru", "Какой эмодзи?")]
+    #[description_localized("es-ES", "Cual es el emoji entonces?")]
     #[description = "Text containing <:name:id> emojis"]
     #[rename = "emojis"]
     text: String,

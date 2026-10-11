@@ -17,11 +17,30 @@ pub fn captions_render_vars(image_url: &str, text: &str) -> (String, String) {
 }
 
 /// Add text on top of your own image
-#[poise::command(slash_command, prefix_command, category = "fun", rename = "captions")]
+#[poise::command(
+    slash_command,
+    prefix_command,
+    category = "fun",
+    rename = "captions",
+    description_localized("fr", "ajouter du texte au dessus de votre image"),
+    description_localized("ja", "自分の画像の上にテキストを追加"),
+    description_localized("ru", "Добавить текст поверх вашего изображения"),
+    description_localized("es-ES", "Añadir texto encima de tu propia imagen")
+)]
 pub async fn captions(
     ctx: Ctx<'_>,
-    #[description = "Image"] image: poise::serenity_prelude::Attachment,
-    #[description = "Your captions"] query: String,
+    #[description_localized("fr", "fichier image")]
+    #[description_localized("ja", "画像ファイル")]
+    #[description_localized("ru", "файл изображения")]
+    #[description_localized("es-ES", "archivo de imagen")]
+    #[description = "Image"]
+    image: poise::serenity_prelude::Attachment,
+    #[description_localized("fr", "votre texte")]
+    #[description_localized("ja", "あなたの字幕")]
+    #[description_localized("ru", "ваши подписи")]
+    #[description_localized("es-ES", "tus subtítulos")]
+    #[description = "Your captions"]
+    query: String,
 ) -> Result<(), anyhow::Error> {
     // No disabled-category check in `!captions.ts`: no fun_guard here
     // (parity: no deny where TS has none).

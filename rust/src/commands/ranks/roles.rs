@@ -84,7 +84,14 @@ pub fn sort_rank_roles_desc(roles: &mut [RankRole]) {
     slash_command,
     prefix_command,
     rename = "role-add",
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    description_localized(
+        "fr",
+        "Lorsque l'utilisateur atteint un niveau de rang, attribuez-lui un rôle !"
+    ),
+    description_localized("ja", "ユーザーがランクレベルを獲得したらロールを付与！"),
+    description_localized("ru", "Когда пользователь получает уровень ранга, выдать роль!"),
+    description_localized("es-ES", "Cuando el usuario gana un nivel de rango, darle un rol!")
 )]
 pub async fn ranks_role_add(
     ctx: Ctx<'_>,

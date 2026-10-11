@@ -12,7 +12,11 @@ const TRASH_ID: &str = "mod-mutelist-trash";
     prefix_command,
     rename = "mutelist",
     aliases("allmute", "allmutes", "alltimeout", "alltimeouts"),
-    default_member_permissions = "MODERATE_MEMBERS"
+    default_member_permissions = "MODERATE_MEMBERS",
+    description_localized("fr", "Affiche une liste des gens mise en sourdine"),
+    description_localized("ja", "ミュートされた全メンバーのリストを表示"),
+    description_localized("ru", "Показать список замученных участников"),
+    description_localized("es-ES", "Mostrar una lista con todos los miembros silenciados")
 )]
 pub async fn mod_mutelist(
     ctx: Ctx<'_>,

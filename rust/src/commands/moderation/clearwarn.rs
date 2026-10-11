@@ -7,11 +7,20 @@ use poise::serenity_prelude as serenity;
     prefix_command,
     rename = "clearwarn",
     aliases("clearwarn", "clearwarns", "clearsanctions", "clearsanction"),
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    description_localized("fr", "effacer tout les avertissement d'un utilisateur"),
+    description_localized("ja", "ユーザーの全警告をクリア"),
+    description_localized("ru", "очистить все предупреждения пользователя"),
+    description_localized("es-ES", "limpiar todas las advertencias de un usuario")
 )]
 pub async fn mod_clearwarn(
     ctx: Ctx<'_>,
-    #[description = "Member"] member: serenity::User,
+    #[description_localized("fr", "le membre que vous voulez effacer les avertissements")]
+    #[description_localized("ja", "クリアしたいメンバー")]
+    #[description_localized("ru", "Участник для очистки")]
+    #[description_localized("es-ES", "El miembro que quieres limpiar")]
+    #[description = "Member"]
+    member: serenity::User,
 ) -> Result<(), anyhow::Error> {
     let gid = ctx
         .guild_id()

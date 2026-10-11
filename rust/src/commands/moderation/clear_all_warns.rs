@@ -46,7 +46,17 @@ async fn clear_all_warn_tables(pool: &crate::db::Pool, guild_id: &str) -> anyhow
         "clearsanctionsall",
         "clearsanctionall"
     ),
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    description_localized(
+        "fr",
+        "effacer tout les avertissement de tous les utilisateurs du serveur"
+    ),
+    description_localized("ja", "サーバー全体の全ユーザーの警告をクリア"),
+    description_localized("ru", "очистить все предупреждения всех пользователей"),
+    description_localized(
+        "es-ES",
+        "limpiar todas las advertencias de todos los usuarios del servidor"
+    )
 )]
 pub async fn mod_clear_all_warns(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     // Decline/timeout reply lives in the shared helper, mirroring the

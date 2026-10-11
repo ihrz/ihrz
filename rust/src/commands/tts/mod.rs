@@ -841,3 +841,92 @@ pub mod tts;
 pub mod main {
     pub use super::tts::*;
 }
+
+#[cfg(test)]
+mod localization_tests {
+
+    type LocCmd = poise::Command<crate::commands::Data, crate::commands::Error>;
+
+    fn find_path<'a>(cmds: &'a [LocCmd], path: &[&str]) -> &'a LocCmd {
+        let cmd = cmds
+            .iter()
+            .find(|c| c.name == path[0])
+            .unwrap_or_else(|| panic!("command {} missing", path.join(" ")));
+        if path.len() == 1 {
+            cmd
+        } else {
+            find_path(&cmd.subcommands, &path[1..])
+        }
+    }
+
+    #[test]
+    fn loc_tts() {
+        // TS tts/tts.ts (`tts`)
+        let cmds = crate::commands::all();
+        let cmd = find_path(&cmds, &["tts"]);
+        assert_eq!(
+            cmd.description_localizations.get("fr").map(String::as_str),
+            Some("Commande sous-groupé pour la catégorie TTS (Text-to-Speech)")
+        );
+        assert_eq!(
+            cmd.description_localizations.get("ja").map(String::as_str),
+            Some("TTS（テキスト読み上げ）カテゴリのサブコマンド！")
+        );
+        assert_eq!(cmd.description_localizations.len(), 4);
+        assert_eq!(
+            cmd.name_localizations.get("fr").map(String::as_str),
+            Some("tts")
+        );
+        assert_eq!(
+            cmd.name_localizations.get("ja").map(String::as_str),
+            Some("tts")
+        );
+        assert_eq!(cmd.name_localizations.len(), 4);
+    }
+
+    #[test]
+    fn loc_lang() {
+        // TS tts/tts.ts (`lang`)
+        let cmds = crate::commands::all();
+        let cmd = find_path(&cmds, &["tts", "lang"]);
+        assert_eq!(
+            cmd.description_localizations.get("fr").map(String::as_str),
+            Some("Définir la langue TTS par défaut du serveur")
+        );
+        assert_eq!(
+            cmd.description_localizations.get("ja").map(String::as_str),
+            Some("サーバーのデフォルトTTS言語を設定！")
+        );
+        assert_eq!(cmd.description_localizations.len(), 4);
+        assert_eq!(
+            cmd.name_localizations.get("fr").map(String::as_str),
+            Some("langue")
+        );
+        assert_eq!(
+            cmd.name_localizations.get("ja").map(String::as_str),
+            Some("lang")
+        );
+        assert_eq!(cmd.name_localizations.len(), 4);
+        let prm = cmd
+            .parameters
+            .iter()
+            .find(|x| x.name == "language")
+            .expect("param language");
+        assert_eq!(
+            prm.description_localizations.get("fr").map(String::as_str),
+            Some("La langue TTS à utiliser")
+        );
+        assert_eq!(
+            prm.description_localizations.get("ja").map(String::as_str),
+            Some("使用するTTS言語！")
+        );
+        assert_eq!(
+            prm.name_localizations.get("fr").map(String::as_str),
+            Some("langue")
+        );
+        assert_eq!(
+            prm.name_localizations.get("ja").map(String::as_str),
+            Some("language")
+        );
+    }
+}

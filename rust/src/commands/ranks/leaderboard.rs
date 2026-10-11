@@ -88,7 +88,15 @@ async fn board_rows(pool: &crate::db::Pool, guild_id: &str) -> Vec<(u64, RankEnt
     slash_command,
     prefix_command,
     rename = "leaderboard",
-    aliases("rankslb", "ranks-leaderboard")
+    aliases("rankslb", "ranks-leaderboard"),
+    name_localized("fr", "classement"),
+    name_localized("ja", "leaderboard"),
+    name_localized("ru", "leaderboard"),
+    name_localized("es-ES", "leaderboard"),
+    description_localized("fr", "Obtenez le classement XP du serveur"),
+    description_localized("ja", "サーバーのXPランキングを取得！"),
+    description_localized("ru", "Получить таблицу лидеров по XP!"),
+    description_localized("es-ES", "Obtener la tabla de clasificación de XP del servidor!")
 )]
 pub async fn ranks_leaderboard(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     use poise::serenity_prelude as serenity;

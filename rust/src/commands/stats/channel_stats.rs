@@ -24,11 +24,20 @@ use super::*;
     slash_command,
     prefix_command,
     rename = "channel-stats",
-    aliases("cstats", "chstats")
+    aliases("cstats", "chstats"),
+    description_localized("fr", "Voir les statistiques d'un canal spécifique"),
+    description_localized("ja", "特定のチャンネルの統計を表示"),
+    description_localized("ru", "Посмотреть статистику канала"),
+    description_localized("es-ES", "Ver estadísticas de un canal específico")
 )]
 pub async fn stats_channel(
     ctx: Ctx<'_>,
-    #[description = "Channel"] channel: Option<poise::serenity_prelude::GuildChannel>,
+    #[description_localized("fr", "Le canal à analyser")]
+    #[description_localized("ja", "分析するチャンネル")]
+    #[description_localized("ru", "Канал для анализа")]
+    #[description_localized("es-ES", "El canal a analizar")]
+    #[description = "Channel"]
+    channel: Option<poise::serenity_prelude::GuildChannel>,
 ) -> Result<(), anyhow::Error> {
     let gid = ctx
         .guild_id()

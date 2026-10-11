@@ -240,3 +240,179 @@ pub mod main {
     pub use super::wlroles_use::*;
     pub use super::*;
 }
+
+#[cfg(test)]
+mod localization_tests {
+
+    type LocCmd = poise::Command<crate::commands::Data, crate::commands::Error>;
+
+    fn find_path<'a>(cmds: &'a [LocCmd], path: &[&str]) -> &'a LocCmd {
+        let cmd = cmds
+            .iter()
+            .find(|c| c.name == path[0])
+            .unwrap_or_else(|| panic!("command {} missing", path.join(" ")));
+        if path.len() == 1 {
+            cmd
+        } else {
+            find_path(&cmd.subcommands, &path[1..])
+        }
+    }
+
+    #[test]
+    fn loc_tag() {
+        // TS tag/tag.ts (`tag`)
+        let cmds = crate::commands::all();
+        let cmd = find_path(&cmds, &["tag"]);
+        assert_eq!(
+            cmd.description_localizations.get("fr").map(String::as_str),
+            Some("Sous-commande pour la catégorie de message de tags")
+        );
+        assert_eq!(
+            cmd.description_localizations.get("ja").map(String::as_str),
+            Some("タグメッセージカテゴリのサブコマンド")
+        );
+        assert_eq!(cmd.description_localizations.len(), 4);
+    }
+
+    #[test]
+    fn loc_create() {
+        // TS tag/tag.ts (`create`)
+        let cmds = crate::commands::all();
+        let cmd = find_path(&cmds, &["tag", "create"]);
+        assert_eq!(
+            cmd.description_localizations.get("fr").map(String::as_str),
+            Some("Créer un tag")
+        );
+        assert_eq!(
+            cmd.description_localizations.get("ja").map(String::as_str),
+            Some("タグを作成")
+        );
+        assert_eq!(cmd.description_localizations.len(), 4);
+        let prm = cmd
+            .parameters
+            .iter()
+            .find(|x| x.name == "tag_name")
+            .expect("param tag_name");
+        assert_eq!(
+            prm.description_localizations.get("fr").map(String::as_str),
+            Some("Nom du tag")
+        );
+        assert_eq!(
+            prm.description_localizations.get("ja").map(String::as_str),
+            Some("タグの名前")
+        );
+        let prm = cmd
+            .parameters
+            .iter()
+            .find(|x| x.name == "embed_id")
+            .expect("param embed_id");
+        assert_eq!(
+            prm.description_localizations.get("fr").map(String::as_str),
+            Some("ID de l'embed")
+        );
+        assert_eq!(
+            prm.description_localizations.get("ja").map(String::as_str),
+            Some("埋め込みのID")
+        );
+    }
+
+    #[test]
+    fn loc_delete() {
+        // TS tag/tag.ts (`delete`)
+        let cmds = crate::commands::all();
+        let cmd = find_path(&cmds, &["tag", "delete"]);
+        assert_eq!(
+            cmd.description_localizations.get("fr").map(String::as_str),
+            Some("Supprimer un tag")
+        );
+        assert_eq!(
+            cmd.description_localizations.get("ja").map(String::as_str),
+            Some("タグを削除")
+        );
+        assert_eq!(cmd.description_localizations.len(), 4);
+        let prm = cmd
+            .parameters
+            .iter()
+            .find(|x| x.name == "tag_name")
+            .expect("param tag_name");
+        assert_eq!(
+            prm.description_localizations.get("fr").map(String::as_str),
+            Some("Nom du tag")
+        );
+        assert_eq!(
+            prm.description_localizations.get("ja").map(String::as_str),
+            Some("タグの名前")
+        );
+    }
+
+    #[test]
+    fn loc_edit() {
+        // TS tag/tag.ts (`edit`)
+        let cmds = crate::commands::all();
+        let cmd = find_path(&cmds, &["tag", "edit"]);
+        assert_eq!(
+            cmd.description_localizations.get("fr").map(String::as_str),
+            Some("Modifier un tag")
+        );
+        assert_eq!(
+            cmd.description_localizations.get("ja").map(String::as_str),
+            Some("タグを編集")
+        );
+        assert_eq!(cmd.description_localizations.len(), 4);
+        let prm = cmd
+            .parameters
+            .iter()
+            .find(|x| x.name == "current_tag_name")
+            .expect("param current_tag_name");
+        assert_eq!(
+            prm.description_localizations.get("fr").map(String::as_str),
+            Some("Le nom actuel du tag")
+        );
+        assert_eq!(
+            prm.description_localizations.get("ja").map(String::as_str),
+            Some("現在のタグ名")
+        );
+        let prm = cmd
+            .parameters
+            .iter()
+            .find(|x| x.name == "new_tag_name")
+            .expect("param new_tag_name");
+        assert_eq!(
+            prm.description_localizations.get("fr").map(String::as_str),
+            Some("Le nouveau nom du tag")
+        );
+        assert_eq!(
+            prm.description_localizations.get("ja").map(String::as_str),
+            Some("新しいタグ名")
+        );
+    }
+
+    #[test]
+    fn loc_info() {
+        // TS tag/tag.ts (`info`)
+        let cmds = crate::commands::all();
+        let cmd = find_path(&cmds, &["tag", "info"]);
+        assert_eq!(
+            cmd.description_localizations.get("fr").map(String::as_str),
+            Some("Info d'un tag")
+        );
+        assert_eq!(
+            cmd.description_localizations.get("ja").map(String::as_str),
+            Some("タグの情報")
+        );
+        assert_eq!(cmd.description_localizations.len(), 4);
+        let prm = cmd
+            .parameters
+            .iter()
+            .find(|x| x.name == "tag_name")
+            .expect("param tag_name");
+        assert_eq!(
+            prm.description_localizations.get("fr").map(String::as_str),
+            Some("Nom du tag")
+        );
+        assert_eq!(
+            prm.description_localizations.get("ja").map(String::as_str),
+            Some("タグの名前")
+        );
+    }
+}

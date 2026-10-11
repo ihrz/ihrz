@@ -1,7 +1,16 @@
 use super::*;
 
 /// Mirrors `!skip.ts`.
-#[poise::command(slash_command, prefix_command, rename = "skip", aliases("next"))]
+#[poise::command(
+    slash_command,
+    prefix_command,
+    rename = "skip",
+    aliases("next"),
+    description_localized("fr", "Passer la chanson en cours de lecture"),
+    description_localized("ja", "現在再生中の曲をスキップ！"),
+    description_localized("ru", "Пропустить текущую песню!"),
+    description_localized("es-ES", "Saltar la canción actual!")
+)]
 pub async fn m_skip(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let Some(gid) = guild_id_of(&ctx) else {
         return Ok(());

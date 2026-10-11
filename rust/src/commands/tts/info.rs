@@ -2,7 +2,16 @@ use super::*;
 use poise::serenity_prelude as serenity;
 
 /// Get information about the TTS module!
-#[poise::command(slash_command, prefix_command, rename = "info", aliases("ttsinfo"))]
+#[poise::command(
+    slash_command,
+    prefix_command,
+    rename = "info",
+    aliases("ttsinfo"),
+    description_localized("fr", "Obtenir des informations sur le module TTS"),
+    description_localized("ja", "TTSモジュールの情報を取得！"),
+    description_localized("ru", "Получить информацию о модуле TTS!"),
+    description_localized("es-ES", "Obtener información sobre el módulo TTS!")
+)]
 pub async fn tts_info(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let gid = ctx
         .guild_id()

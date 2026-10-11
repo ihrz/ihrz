@@ -13,7 +13,15 @@ pub fn queue_pages(lines: &[String]) -> Vec<Vec<String>> {
 /// Mirrors `!queue.ts` (paged embeds + buttons, see below).
 // 10-per-page embeds with previous/next/close buttons, an invoker-only
 // 5-minute collector, and footer pagination.
-#[poise::command(slash_command, prefix_command, rename = "queue")]
+#[poise::command(
+    slash_command,
+    prefix_command,
+    rename = "queue",
+    description_localized("fr", "Obtenir la file d'attente des musique sur le serveur!"),
+    description_localized("ja", "キューを取得！"),
+    description_localized("ru", "Получить очередь!"),
+    description_localized("es-ES", "Obtener la cola!")
+)]
 pub async fn m_queue(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let Some(gid) = guild_id_of(&ctx) else {
         return Ok(());

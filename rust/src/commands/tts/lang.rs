@@ -32,9 +32,30 @@ pub fn resolve_tts_lang(raw: Option<&str>) -> String {
 }
 
 /// Set the default TTS language for the guild!
-#[poise::command(slash_command, prefix_command, rename = "lang", aliases("ttslang"))]
+#[poise::command(
+    slash_command,
+    prefix_command,
+    rename = "lang",
+    aliases("ttslang"),
+    name_localized("fr", "langue"),
+    name_localized("ja", "lang"),
+    name_localized("ru", "lang"),
+    name_localized("es-ES", "lang"),
+    description_localized("fr", "Définir la langue TTS par défaut du serveur"),
+    description_localized("ja", "サーバーのデフォルトTTS言語を設定！"),
+    description_localized("ru", "Установить язык TTS по умолчанию!"),
+    description_localized("es-ES", "Establecer el idioma TTS predeterminado para el servidor!")
+)]
 pub async fn tts_lang(
     ctx: Ctx<'_>,
+    #[name_localized("fr", "langue")]
+    #[name_localized("ja", "language")]
+    #[name_localized("ru", "language")]
+    #[name_localized("es-ES", "language")]
+    #[description_localized("fr", "La langue TTS à utiliser")]
+    #[description_localized("ja", "使用するTTS言語！")]
+    #[description_localized("ru", "Язык TTS для использования!")]
+    #[description_localized("es-ES", "El idioma TTS a usar!")]
     #[description = "The TTS language to use!"]
     #[rename = "language"]
     #[autocomplete = "tts_lang_autocomplete"]

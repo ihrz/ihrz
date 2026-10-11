@@ -12,12 +12,26 @@ use super::*;
     prefix_command,
     category = "utils",
     rename = "securewebhook",
-    aliases("securehook")
+    aliases("securehook"),
+    description_localized("fr", "Sécuriser une webhook à travers un PROXY iHorizon"),
+    description_localized("ja", "Webhookを保護"),
+    description_localized("ru", "Защитить вебхук"),
+    description_localized("es-ES", "Asegurar webhook")
 )]
 pub async fn securewebhook(
     ctx: Ctx<'_>,
-    #[description = "create, delete or list"] action: String,
-    #[description = "Webhook URL or webhook code"] input: Option<String>,
+    #[description = "create, delete or list"]
+    #[description_localized("fr", "Action à faire")]
+    #[description_localized("ja", "実行するアクション")]
+    #[description_localized("ru", "Выполняемое действие")]
+    #[description_localized("es-ES", "Acción a realizar")]
+    action: String,
+    #[description = "Webhook URL or webhook code"]
+    #[description_localized("fr", "URL de la Webhook ou code de la Webhook")]
+    #[description_localized("ja", "WebhookのURLまたはWebhookコード")]
+    #[description_localized("ru", "URL вебхука или код вебхука")]
+    #[description_localized("es-ES", "URL del webhook o código del webhook")]
+    input: Option<String>,
 ) -> Result<(), anyhow::Error> {
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let t = |k: &str| crate::lang::get(&code, k).unwrap_or_default();

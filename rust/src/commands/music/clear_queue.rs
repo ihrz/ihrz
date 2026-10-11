@@ -5,7 +5,11 @@ use super::*;
     slash_command,
     prefix_command,
     rename = "clear-queue",
-    aliases("clearqueue")
+    aliases("clearqueue"),
+    description_localized("fr", "Vider la file d'attente musicale de ce serveur"),
+    description_localized("ja", "このサーバーの音楽キューをクリア！"),
+    description_localized("ru", "Очистить музыкальную очередь на сервере!"),
+    description_localized("es-ES", "Limpiar la cola de música en este servidor!")
 )]
 pub async fn m_clear(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let Some(gid) = guild_id_of(&ctx) else {

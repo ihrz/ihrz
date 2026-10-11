@@ -58,7 +58,17 @@ pub fn remind_field_value(channel_link: &str, time: &str, message_id: Option<u64
     slash_command,
     prefix_command,
     rename = "remind",
-    default_member_permissions = "MANAGE_CHANNELS"
+    default_member_permissions = "MANAGE_CHANNELS",
+    description_localized(
+        "fr",
+        "Rappelez au propriétaire du ticket qu'il n'a pas répondu depuis un certain temps !"
+    ),
+    description_localized("ja", "チケット所有者がしばらく応答していないことを通知！"),
+    description_localized("ru", "Напомнить владельцу тикета, что он давно не отвечал!"),
+    description_localized(
+        "es-ES",
+        "Recordar al propietario del ticket que no ha respondido desde hace tiempo!"
+    )
 )]
 pub async fn ticket_remind(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     // Mirrors !remind.ts guards (disable + delete_not_in_ticket; TS

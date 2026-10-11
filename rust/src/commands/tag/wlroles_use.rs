@@ -15,7 +15,11 @@ use super::*;
     prefix_command,
     rename = "wlroles-use",
     aliases("tag-wluse"),
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    description_localized("fr", "Rôles whitelist pour utiliser les tags"),
+    description_localized("ja", "タグ使用用のホワイトリストロール"),
+    description_localized("ru", "Белый список ролей для использования тегов"),
+    description_localized("es-ES", "Roles de lista blanca para usar etiquetas")
 )]
 pub async fn tag_wl_use(
     ctx: Ctx<'_>,

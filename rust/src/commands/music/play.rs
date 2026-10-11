@@ -1,10 +1,30 @@
 use super::*;
 
 /// Mirrors `!play.ts` + `handleMusicPlay`.
-#[poise::command(slash_command, prefix_command, rename = "play", aliases("p"))]
+#[poise::command(
+    slash_command,
+    prefix_command,
+    rename = "play",
+    aliases("p"),
+    description_localized("fr", "Jouer une musique!"),
+    description_localized("ja", "曲を再生！"),
+    description_localized("ru", "Воспроизвести песню!"),
+    description_localized("es-ES", "Reproducir una canción!")
+)]
 pub async fn m_play(
     ctx: Ctx<'_>,
-    #[description = "Title or URL"] title: String,
+    #[description_localized(
+        "fr",
+        "Titre de la musique que vous souhaitez (vous pouvez mettre une URL si vous le voulez)"
+    )]
+    #[description_localized("ja", "希望するトラックタイトル（URLでも可）")]
+    #[description_localized("ru", "Название трека (можно указать URL)")]
+    #[description_localized(
+        "es-ES",
+        "El título de la pista que deseas (puedes poner URL como quieras)"
+    )]
+    #[description = "Title or URL"]
+    title: String,
 ) -> Result<(), anyhow::Error> {
     let code = lang_code(&ctx).await;
     let Some(gid) = guild_id_of(&ctx) else {

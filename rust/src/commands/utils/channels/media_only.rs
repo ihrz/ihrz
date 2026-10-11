@@ -11,7 +11,23 @@ use super::*;
     category = "utils",
     rename = "media-only",
     aliases("piconly", "mediaonly"),
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    description_localized(
+        "fr",
+        "Définir des canaux pour l'envoi d'images/videos uniquement (bloquer d'autres contenus)"
+    ),
+    description_localized(
+        "ja",
+        "画像/動画のみ送信可能なチャンネルを定義（他のコンテンツをブロック）"
+    ),
+    description_localized(
+        "ru",
+        "Определить каналы только для картинок/видео (блокировать другое содержимое)"
+    ),
+    description_localized(
+        "es-ES",
+        "Definir canales solo para enviar imágenes/videos (bloquear otro contenido)"
+    )
 )]
 pub async fn media_only(
     ctx: Ctx<'_>,

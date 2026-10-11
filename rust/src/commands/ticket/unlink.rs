@@ -6,7 +6,14 @@ use poise::serenity_prelude as serenity;
     slash_command,
     prefix_command,
     rename = "unlink",
-    default_member_permissions = "MANAGE_CHANNELS"
+    default_member_permissions = "MANAGE_CHANNELS",
+    description_localized(
+        "fr",
+        "Transforme le salon de ticket en salon classique auprès du bot."
+    ),
+    description_localized("ja", "チケットのリンクを解除！"),
+    description_localized("ru", "Отвязать тикет!"),
+    description_localized("es-ES", "Desvincular un ticket!")
 )]
 pub async fn ticket_unlink(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let gid = ctx

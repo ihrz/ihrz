@@ -4,12 +4,36 @@ use super::*;
 // Mirrors !use.ts order: existence check first, then the
 // Administrator-or-whitelist_use gate; post as reply when message_id
 // fetches, else channel message; confirm + bump counters afterwards.
-#[poise::command(slash_command, prefix_command, rename = "use", aliases("tag-use"))]
+#[poise::command(
+    slash_command,
+    prefix_command,
+    rename = "use",
+    aliases("tag-use"),
+    description_localized("fr", "Utiliser un tag"),
+    description_localized("ja", "タグを使用"),
+    description_localized("ru", "Использовать тег"),
+    description_localized("es-ES", "Usar una etiqueta")
+)]
 pub async fn tag_use(
     ctx: Ctx<'_>,
-    #[description = "Tag name"] tag_name: String,
-    #[description = "Member to mention"] mention: Option<poise::serenity_prelude::User>,
-    #[description = "Message id to reply to"] message_id: Option<String>,
+    #[description_localized("fr", "Nom du tag")]
+    #[description_localized("ja", "タグの名前")]
+    #[description_localized("ru", "Название тега")]
+    #[description_localized("es-ES", "Nombre de la etiqueta")]
+    #[description = "Tag name"]
+    tag_name: String,
+    #[description_localized("fr", "Mentionner l'utilisateur")]
+    #[description_localized("ja", "ユーザーにメンション")]
+    #[description_localized("ru", "Упомянуть пользователя")]
+    #[description_localized("es-ES", "Mencionar al usuario")]
+    #[description = "Member to mention"]
+    mention: Option<poise::serenity_prelude::User>,
+    #[description_localized("fr", "ID du message pour répondre")]
+    #[description_localized("ja", "返信するメッセージのID")]
+    #[description_localized("ru", "ID сообщения для ответа")]
+    #[description_localized("es-ES", "ID del mensaje para responder")]
+    #[description = "Message id to reply to"]
+    message_id: Option<String>,
 ) -> Result<(), anyhow::Error> {
     use poise::serenity_prelude::CreateMessage;
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;

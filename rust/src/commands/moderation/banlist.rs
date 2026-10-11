@@ -64,7 +64,11 @@ pub(crate) async fn deny_foreign_press(
     prefix_command,
     rename = "banlist",
     aliases("bans", "listban", "listbans", "banlists"),
-    default_member_permissions = "MANAGE_GUILD"
+    default_member_permissions = "MANAGE_GUILD",
+    description_localized("fr", "Affiche une liste des gens bannis"),
+    description_localized("ja", "バンされた全メンバーのリストを表示"),
+    description_localized("ru", "Показать список забаненных участников"),
+    description_localized("es-ES", "Mostrar una lista con todos los miembros baneados")
 )]
 pub async fn mod_banlist(
     ctx: Ctx<'_>,

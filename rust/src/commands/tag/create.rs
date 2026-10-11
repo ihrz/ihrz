@@ -7,13 +7,32 @@ use super::*;
     slash_command,
     prefix_command,
     rename = "create",
-    aliases("tag-create")
+    aliases("tag-create"),
+    description_localized("fr", "Créer un tag"),
+    description_localized("ja", "タグを作成"),
+    description_localized("ru", "Создать тег"),
+    description_localized("es-ES", "Crear una etiqueta")
 )]
 pub async fn tag_create(
     ctx: Ctx<'_>,
-    #[description = "Tag name"] tag_name: String,
-    #[description = "Embed id"] embed_id: String,
-    #[description = "Message content"] message_content: Option<String>,
+    #[description_localized("fr", "Nom du tag")]
+    #[description_localized("ja", "タグの名前")]
+    #[description_localized("ru", "Название тега")]
+    #[description_localized("es-ES", "Nombre de la etiqueta")]
+    #[description = "Tag name"]
+    tag_name: String,
+    #[description_localized("fr", "ID de l'embed")]
+    #[description_localized("ja", "埋め込みのID")]
+    #[description_localized("ru", "ID эмбеда")]
+    #[description_localized("es-ES", "ID del embed")]
+    #[description = "Embed id"]
+    embed_id: String,
+    #[description_localized("fr", "le message qui acompagneras l'embed")]
+    #[description_localized("ja", "埋め込み付きメッセージ")]
+    #[description_localized("ru", "Сообщение с эмбедом")]
+    #[description_localized("es-ES", "Mensaje con el embed")]
+    #[description = "Message content"]
+    message_content: Option<String>,
 ) -> Result<(), anyhow::Error> {
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     if !tag_allowed(&ctx, "whitelist_create").await {

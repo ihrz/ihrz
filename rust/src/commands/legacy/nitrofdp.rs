@@ -1,10 +1,24 @@
 use super::*;
 
 /// Fake nitro gift codes file (fr guilds). Mirrors nitrofdp.ts.
-#[poise::command(slash_command, prefix_command, category = "utils", rename = "nitrofdp")]
+#[poise::command(
+    slash_command,
+    prefix_command,
+    category = "utils",
+    rename = "nitrofdp",
+    description_localized("fr", "sans commentaires"),
+    description_localized("ja", "コメントなし"),
+    description_localized("ru", "без комментария"),
+    description_localized("es-ES", "sin comentario")
+)]
 pub async fn nitrofdp(
     ctx: Ctx<'_>,
-    #[description = "Amount of nitro"] amount: Option<i64>,
+    #[description = "Amount of nitro"]
+    #[description_localized("fr", "nombre de nitro")]
+    #[description_localized("ja", "Nitroの数")]
+    #[description_localized("ru", "количество nitro")]
+    #[description_localized("es-ES", "cantidad de nitro")]
+    amount: Option<i64>,
 ) -> Result<(), anyhow::Error> {
     let is_fr = ctx
         .guild()

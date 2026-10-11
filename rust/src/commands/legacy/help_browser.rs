@@ -7,7 +7,16 @@ use super::*;
 // legacy @-command: narrowing one command alone would fragment the
 // registry, so prefix-only narrowing is deferred to a port-wide
 // legacy-scope pass. Do not flip this registration without that pass.
-#[poise::command(slash_command, prefix_command, category = "bot", rename = "h")]
+#[poise::command(
+    slash_command,
+    prefix_command,
+    category = "bot",
+    rename = "h",
+    description_localized("fr", "Un menu de help tah les matrixé"),
+    description_localized("ja", "OGユーザー向けヘルプメニュー（笑）"),
+    description_localized("ru", "меню помощи для OG пользователей"),
+    description_localized("es-ES", "menú de ayuda para usuario OG lol")
+)]
 pub async fn help_browser(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {
         return Ok(());

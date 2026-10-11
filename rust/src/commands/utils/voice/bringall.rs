@@ -8,13 +8,31 @@ use super::*;
     prefix_command,
     category = "utils",
     rename = "bringall",
-    default_member_permissions = "MOVE_MEMBERS"
+    default_member_permissions = "MOVE_MEMBERS",
+    description_localized("fr", "Distribue aléatoirement les membres d'un salon vocal dans tous les salons d'une catégorie"),
+    description_localized("ja", "ボイスチャンネルのメンバーをカテゴリ内の全ボイスチャンネルにランダムに分散"),
+    description_localized("ru", "Случайно распределить участников из голосового канала по всем каналам в категории"),
+    description_localized("es-ES", "Distribuir aleatoriamente miembros de un canal de voz a todos los canales de voz en una categoría"),
 )]
 pub async fn bringall(
     ctx: Ctx<'_>,
+    #[description_localized("fr", "Le salon vocal source depuis lequel déplacer les membres")]
+    #[description_localized("ja", "メンバーを移動する元のボイスチャンネル")]
+    #[description_localized("ru", "Исходный голосовой канал для перемещения участников")]
+    #[description_localized("es-ES", "El canal de voz de origen para mover miembros")]
     #[description = "Source voice channel to move members from"]
     #[channel_types("Voice")]
     from: poise::serenity_prelude::GuildChannel,
+    #[description_localized(
+        "fr",
+        "La catégorie contenant les salons vocaux où distribuer les membres"
+    )]
+    #[description_localized("ja", "メンバーを分散するボイスチャンネルを含むカテゴリ")]
+    #[description_localized("ru", "Категория с голосовыми каналами для распределения участников")]
+    #[description_localized(
+        "es-ES",
+        "La categoría que contiene los canales de voz a los que distribuir miembros"
+    )]
     #[description = "Category with voice channels to distribute members to"]
     #[channel_types("Category")]
     category: poise::serenity_prelude::GuildChannel,

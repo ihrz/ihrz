@@ -44,7 +44,14 @@ async fn clear_guild_econ(pool: &crate::db::Pool, guild_id: &str) -> anyhow::Res
     prefix_command,
     rename = "greset",
     aliases("economy-greset"),
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    description_localized("fr", "Supprimer les données économique de tout les utilisateur"),
+    description_localized("ja", "サーバー内の全ユーザーの経済残高をリセット"),
+    description_localized("ru", "Сбросить баланс всех пользователей на сервере"),
+    description_localized(
+        "es-ES",
+        "Restablecer el saldo de economía de todos los usuarios del servidor"
+    )
 )]
 pub async fn eco_greset(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     // NOTE: !greset.ts has no disabled gate — none here either.

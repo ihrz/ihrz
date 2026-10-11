@@ -262,11 +262,34 @@ async fn run_channel_action(
     prefix_command,
     rename = "channel",
     aliases("rchannel", "ranks-channel"),
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    name_localized("fr", "définir-cannal"),
+    name_localized("ja", "channel"),
+    name_localized("ru", "channel"),
+    name_localized("es-ES", "channel"),
+    description_localized(
+        "fr",
+        "Définir le canal sur lequel l'utilisateur gagne un nouveau message de niveau XP"
+    ),
+    description_localized("ja", "ユーザーが新しいXPレベルメッセージを獲得するチャンネルを設定！"),
+    description_localized("ru", "Установить канал для сообщений о новом уровне XP!"),
+    description_localized(
+        "es-ES",
+        "Establecer el canal donde el usuario recibe el mensaje de nuevo nivel de XP!"
+    )
 )]
 pub async fn ranks_channel(
     ctx: Ctx<'_>,
-    #[description = "on or off"] action: Option<String>,
+    #[description_localized("fr", "Que voulez-vous faire ?")]
+    #[description_localized("ja", "何をしたいですか？")]
+    #[description_localized("ru", "Что вы хотите сделать?")]
+    #[description_localized("es-ES", "Que quieres hacer?")]
+    #[description = "on or off"]
+    action: Option<String>,
+    #[description_localized("fr", "Le canal spécifique pour le message XP")]
+    #[description_localized("ja", "XPメッセージ用の特定チャンネル！")]
+    #[description_localized("ru", "Конкретный канал для сообщений XP!")]
+    #[description_localized("es-ES", "El canal específico para mensajes de XP!")]
     #[description = "Channel (required on slash; current channel on prefix)"]
     #[channel_types("Text")]
     channel: Option<serenity::GuildChannel>,

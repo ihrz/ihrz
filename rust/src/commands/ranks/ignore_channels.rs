@@ -69,7 +69,14 @@ pub fn parse_ignore_channel_list(raw: &str) -> Vec<String> {
     slash_command,
     prefix_command,
     rename = "ignore-add",
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    description_localized(
+        "fr",
+        "Ignorer des salons afin que le module de Rangs ne l'ai prennent pas en compte"
+    ),
+    description_localized("ja", "ランクモジュールでこのチャンネルを無視"),
+    description_localized("ru", "Игнорировать эти каналы в модуле рангов"),
+    description_localized("es-ES", "Ignorar estos canales en el módulo de Rangos")
 )]
 // One channel per call (toggle), plus an optional comma-separated
 // channel list (toggle each, in order). Mirrors the TS multi

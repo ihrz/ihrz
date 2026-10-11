@@ -19,7 +19,16 @@ use super::*;
 // New YAML keys (not added; code fallbacks render until then):
 // `stats_gstats_detail_text` (${top_members}, ${top_text},
 // ${top_vc}).
-#[poise::command(slash_command, prefix_command, rename = "gstats", aliases("g"))]
+#[poise::command(
+    slash_command,
+    prefix_command,
+    rename = "gstats",
+    aliases("g"),
+    description_localized("fr", "Regarder le classement du serveur"),
+    description_localized("ja", "サーバーランキングを表示"),
+    description_localized("ru", "Показать таблицу лидеров сервера"),
+    description_localized("es-ES", "Ver tabla de clasificación del servidor")
+)]
 pub async fn stats_guild(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let gid = ctx
         .guild_id()

@@ -6,12 +6,26 @@ use poise::serenity_prelude as serenity;
     slash_command,
     prefix_command,
     rename = "kick",
-    default_member_permissions = "KICK_MEMBERS"
+    default_member_permissions = "KICK_MEMBERS",
+    description_localized("fr", "Expulser un utilisateur"),
+    description_localized("ja", "ユーザーをキック！"),
+    description_localized("ru", "Кикнуть пользователя!"),
+    description_localized("es-ES", "Expulsar a un usuario!")
 )]
 pub async fn mod_kick(
     ctx: Ctx<'_>,
-    #[description = "Member"] member: serenity::User,
-    #[description = "Reason"] reason: Option<String>,
+    #[description_localized("fr", "le membre que vous voulez expulser")]
+    #[description_localized("ja", "キックしたいメンバー")]
+    #[description_localized("ru", "участник для кика")]
+    #[description_localized("es-ES", "el miembro que quieres expulsar")]
+    #[description = "Member"]
+    member: serenity::User,
+    #[description_localized("fr", "la raison du kick")]
+    #[description_localized("ja", "キックの理由")]
+    #[description_localized("ru", "причина кика")]
+    #[description_localized("es-ES", "la razón de la expulsión")]
+    #[description = "Reason"]
+    reason: Option<String>,
 ) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {
         return Ok(());

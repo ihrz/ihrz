@@ -13,7 +13,11 @@ use super::*;
     prefix_command,
     category = "newfeatures",
     rename = "punishpub",
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    description_localized("fr", "Punir l'utilisateur lorsqu'il envoie trop de publicité"),
+    description_localized("ja", "広告を送りすぎたユーザーを罰する！"),
+    description_localized("ru", "Наказать пользователя за чрезмерную рекламу!"),
+    description_localized("es-ES", "Castigar al usuario cuando envía demasiada publicidad!")
 )]
 pub async fn punishpub(
     ctx: Ctx<'_>,
@@ -158,5 +162,27 @@ mod tests {
             .expect("table row");
         let tv: serde_json::Value = serde_json::from_str(&via_table).unwrap();
         assert_eq!(tv["punishementType"], "mute");
+    }
+    #[test]
+    fn punishpub_registers_description_localizations() {
+        let cmd = super::punishpub();
+        assert_eq!(
+            cmd.description_localizations.get("fr").map(String::as_str),
+            Some("Punir l'utilisateur lorsqu'il envoie trop de publicité")
+        );
+        assert_eq!(
+            cmd.description_localizations.get("ja").map(String::as_str),
+            Some("広告を送りすぎたユーザーを罰する！")
+        );
+        assert_eq!(
+            cmd.description_localizations.get("ru").map(String::as_str),
+            Some("Наказать пользователя за чрезмерную рекламу!")
+        );
+        assert_eq!(
+            cmd.description_localizations
+                .get("es-ES")
+                .map(String::as_str),
+            Some("Castigar al usuario cuando envía demasiada publicidad!")
+        );
     }
 }

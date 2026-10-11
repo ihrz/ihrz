@@ -6,6 +6,10 @@ use super::*;
     prefix_command,
     category = "utils",
     rename = "welcomer",
+    description_localized("fr", "Définir le module welcomer"),
+    description_localized("ja", "ウェルカマーモジュールを設定！"),
+    description_localized("ru", "Настроить модуль приветствия!"),
+    description_localized("es-ES", "Establecer el módulo de bienvenida!"),
     aliases("leaver")
 )]
 pub async fn welcomer(

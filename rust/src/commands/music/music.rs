@@ -34,7 +34,15 @@ use super::{
         "m_lyrics",
         "m_trackinfo"
     ),
-    subcommand_required
+    subcommand_required,
+    name_localized("fr", "musique"),
+    name_localized("ja", "music"),
+    name_localized("ru", "music"),
+    name_localized("es-ES", "music"),
+    description_localized("fr", "Commande sous-groupé pour la catégorie de musique"),
+    description_localized("ja", "音楽カテゴリのサブコマンド！"),
+    description_localized("ru", "Подкоманда для категории музыки!"),
+    description_localized("es-ES", "Subcomando para la categoría de música!")
 )]
 pub async fn music(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())

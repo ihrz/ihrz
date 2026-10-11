@@ -15,7 +15,11 @@ use super::*;
     prefix_command,
     rename = "wlroles-create",
     aliases("tag-wlcreate"),
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    description_localized("fr", "Rôles whitelist pour créer des tags"),
+    description_localized("ja", "タグ作成用のホワイトリストロール"),
+    description_localized("ru", "Белый список ролей для создания тегов"),
+    description_localized("es-ES", "Roles de lista blanca para crear etiquetas")
 )]
 pub async fn tag_wl_create(
     ctx: Ctx<'_>,

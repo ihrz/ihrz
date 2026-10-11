@@ -24,11 +24,23 @@ pub fn default_description(desc: Option<String>) -> String {
     prefix_command,
     rename = "set-description",
     aliases("desc", "description"),
-    category = "profil"
+    category = "profil",
+    name_localized("fr", "définir-description"),
+    name_localized("ja", "set-description"),
+    name_localized("ru", "set-description"),
+    name_localized("es-ES", "set-description"),
+    description_localized("fr", "Définissez votre description sur le profil iHorizon"),
+    description_localized("ja", "iHorizonプロフィールに説明を設定！"),
+    description_localized("ru", "Установить описание в профиле iHorizon!"),
+    description_localized("es-ES", "Establecer tu descripción en el perfil de iHorizon!")
 )]
 pub async fn profil_description(
     ctx: Ctx<'_>,
     #[description = "Your description on the iHorizon profil"]
+    #[description_localized("fr", "La description sur votre profil")]
+    #[description_localized("ja", "iHorizonプロフィールの説明")]
+    #[description_localized("ru", "Ваше описание в профиле iHorizon")]
+    #[description_localized("es-ES", "Tu descripción en el perfil de iHorizon")]
     #[rest]
     description: Option<String>,
 ) -> Result<(), anyhow::Error> {

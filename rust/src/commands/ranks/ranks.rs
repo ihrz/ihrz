@@ -31,7 +31,11 @@ use super::{
         "ranks_role_list",
         "ranks_role_remove"
     ),
-    subcommand_required
+    subcommand_required,
+    description_localized("fr", "Commande sous-groupé pour la catégorie de niveau (message)"),
+    description_localized("ja", "ランクカテゴリのサブコマンド！"),
+    description_localized("ru", "Подкоманда для категории рангов!"),
+    description_localized("es-ES", "Subcomando para la categoría de rangos!")
 )]
 pub async fn ranks(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())

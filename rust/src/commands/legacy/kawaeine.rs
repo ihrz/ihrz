@@ -12,11 +12,20 @@ use super::*;
     prefix_command,
     category = "misc",
     rename = "kawaeine",
-    aliases("meme3")
+    aliases("meme3"),
+    description_localized("fr", "kawaeine meme generator"),
+    description_localized("ja", "kawaeine ミームジェネレーター"),
+    description_localized("ru", "генератор мема kawaeine"),
+    description_localized("es-ES", "generador de meme kawaeine")
 )]
 pub async fn kawaeine(
     ctx: Ctx<'_>,
-    #[description = "Image URL (or attach one)"] image1: Option<String>,
+    #[description = "Image URL (or attach one)"]
+    #[description_localized("fr", "le screen qui te fait dire que ça va mal")]
+    #[description_localized("ja", "before 側が最低")]
+    #[description_localized("ru", "before отстой")]
+    #[description_localized("es-ES", "el before apesta")]
+    image1: Option<String>,
 ) -> Result<(), anyhow::Error> {
     let (first_att, _) = prefix_attachment_urls(&ctx);
     let url = image1.or(first_att);

@@ -27,7 +27,11 @@ use super::perm::{
         "gc_perm_roles_create",
         "gc_perm_roles_edit"
     ),
-    subcommand_required
+    subcommand_required,
+    description_localized("fr", "Commande sous-groupé pour les permission de commande"),
+    description_localized("ja", "コマンド権限のサブコマンド！"),
+    description_localized("ru", "Подкоманда для разрешений команд!"),
+    description_localized("es-ES", "Subcomando para permisos de comando!")
 )]
 pub async fn gc_perm(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())

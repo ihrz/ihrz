@@ -26,12 +26,29 @@ async fn catsay_down(ctx: &Ctx<'_>, code: &str) -> Result<(), anyhow::Error> {
     Ok(())
 }
 /// Cat say (insert text here)
-#[poise::command(slash_command, prefix_command, category = "fun", rename = "catsay")]
+#[poise::command(
+    slash_command,
+    prefix_command,
+    category = "fun",
+    rename = "catsay",
+    name_localized("fr", "le-chat-à-dis"),
+    name_localized("ja", "catsay"),
+    name_localized("ru", "catsay"),
+    name_localized("es-ES", "catsay"),
+    description_localized("fr", "le chat à dit (insérer le texte ici)"),
+    description_localized("ja", "猫が言う（ここにテキストを入力）"),
+    description_localized("ru", "Кот говорит (вставьте текст)"),
+    description_localized("es-ES", "El gato dice (insertar texto aquí)")
+)]
 pub async fn catsay(
     ctx: Ctx<'_>,
     // `#[rest]` mirrors the prefix `longString(args, 0)` (whole tail,
     // was single-word before); `Option` mirrors its `|| null` empty
     // case, answered with the TS checkCommandArgs usage embed.
+    #[description_localized("fr", "Le chat dit...")]
+    #[description_localized("ja", "猫が言う...")]
+    #[description_localized("ru", "Кот говорит...")]
+    #[description_localized("es-ES", "El gato dice...")]
     #[description = "Text (max 70 chars)"]
     #[rest]
     text: Option<String>,

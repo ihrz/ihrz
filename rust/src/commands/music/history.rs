@@ -37,7 +37,21 @@ pub fn step_history_page(current: usize, pages: usize, next: bool) -> usize {
     slash_command,
     prefix_command,
     rename = "history",
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    name_localized("fr", "historique"),
+    name_localized("ja", "history"),
+    name_localized("ru", "history"),
+    name_localized("es-ES", "history"),
+    description_localized(
+        "fr",
+        "Voir toute les musique joué dans un ordre chronologique sur le serveur"
+    ),
+    description_localized("ja", "このサーバーで再生された全音楽の履歴を表示！"),
+    description_localized("ru", "Посмотреть историю всей музыки, воспроизведенной на сервере!"),
+    description_localized(
+        "es-ES",
+        "Ver el historial de toda la música reproducida en este servidor!"
+    )
 )]
 pub async fn m_history(
     ctx: Ctx<'_>,

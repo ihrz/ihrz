@@ -1545,3 +1545,214 @@ mod tests {
         assert_eq!(queue_line(4, "V", Some("")), "**4)** V");
     }
 }
+
+#[cfg(test)]
+mod localization_tests {
+
+    type LocCmd = poise::Command<crate::commands::Data, crate::commands::Error>;
+
+    fn find_path<'a>(cmds: &'a [LocCmd], path: &[&str]) -> &'a LocCmd {
+        let cmd = cmds
+            .iter()
+            .find(|c| c.name == path[0])
+            .unwrap_or_else(|| panic!("command {} missing", path.join(" ")));
+        if path.len() == 1 {
+            cmd
+        } else {
+            find_path(&cmd.subcommands, &path[1..])
+        }
+    }
+
+    #[test]
+    fn loc_music() {
+        // TS music/music.ts (`music`)
+        let cmds = crate::commands::all();
+        let cmd = find_path(&cmds, &["music"]);
+        assert_eq!(
+            cmd.description_localizations.get("fr").map(String::as_str),
+            Some("Commande sous-groupé pour la catégorie de musique")
+        );
+        assert_eq!(
+            cmd.description_localizations.get("ja").map(String::as_str),
+            Some("音楽カテゴリのサブコマンド！")
+        );
+        assert_eq!(cmd.description_localizations.len(), 4);
+        assert_eq!(
+            cmd.name_localizations.get("fr").map(String::as_str),
+            Some("musique")
+        );
+        assert_eq!(
+            cmd.name_localizations.get("ja").map(String::as_str),
+            Some("music")
+        );
+        assert_eq!(cmd.name_localizations.len(), 4);
+    }
+
+    #[test]
+    fn loc_history() {
+        // TS music/music.ts (`history`)
+        let cmds = crate::commands::all();
+        let cmd = find_path(&cmds, &["music", "history"]);
+        assert_eq!(
+            cmd.description_localizations.get("fr").map(String::as_str),
+            Some("Voir toute les musique joué dans un ordre chronologique sur le serveur")
+        );
+        assert_eq!(
+            cmd.description_localizations.get("ja").map(String::as_str),
+            Some("このサーバーで再生された全音楽の履歴を表示！")
+        );
+        assert_eq!(cmd.description_localizations.len(), 4);
+        assert_eq!(
+            cmd.name_localizations.get("fr").map(String::as_str),
+            Some("historique")
+        );
+        assert_eq!(
+            cmd.name_localizations.get("ja").map(String::as_str),
+            Some("history")
+        );
+        assert_eq!(cmd.name_localizations.len(), 4);
+    }
+
+    #[test]
+    fn loc_loop() {
+        // TS music/music.ts (`loop`)
+        let cmds = crate::commands::all();
+        let cmd = find_path(&cmds, &["music", "loop"]);
+        assert_eq!(
+            cmd.description_localizations.get("fr").map(String::as_str),
+            Some("Changer l'état de la boucle sur le serveur")
+        );
+        assert_eq!(
+            cmd.description_localizations.get("ja").map(String::as_str),
+            Some("サーバーのループモードを設定！")
+        );
+        assert_eq!(cmd.description_localizations.len(), 4);
+        assert_eq!(
+            cmd.name_localizations.get("fr").map(String::as_str),
+            Some("boucle")
+        );
+        assert_eq!(
+            cmd.name_localizations.get("ja").map(String::as_str),
+            Some("loop")
+        );
+        assert_eq!(cmd.name_localizations.len(), 4);
+        let prm = cmd
+            .parameters
+            .iter()
+            .find(|x| x.name == "mode")
+            .expect("param mode");
+        assert_eq!(
+            prm.description_localizations.get("fr").map(String::as_str),
+            Some("Status de la boucle")
+        );
+        assert_eq!(
+            prm.description_localizations.get("ja").map(String::as_str),
+            Some("ループタイプ")
+        );
+    }
+
+    #[test]
+    fn loc_nowplaying() {
+        // TS music/music.ts (`nowplaying`)
+        let cmds = crate::commands::all();
+        let cmd = find_path(&cmds, &["music", "nowplaying"]);
+        assert_eq!(
+            cmd.description_localizations.get("fr").map(String::as_str),
+            Some("Obtenir la chanson en cours de lecture")
+        );
+        assert_eq!(
+            cmd.description_localizations.get("ja").map(String::as_str),
+            Some("現在再生中の曲を取得！")
+        );
+        assert_eq!(cmd.description_localizations.len(), 4);
+        assert_eq!(
+            cmd.name_localizations.get("fr").map(String::as_str),
+            Some("en-lecture")
+        );
+        assert_eq!(
+            cmd.name_localizations.get("ja").map(String::as_str),
+            Some("nowplaying")
+        );
+        assert_eq!(cmd.name_localizations.len(), 4);
+    }
+
+    #[test]
+    fn loc_resume() {
+        // TS music/music.ts (`resume`)
+        let cmds = crate::commands::all();
+        let cmd = find_path(&cmds, &["music", "resume"]);
+        assert_eq!(
+            cmd.description_localizations.get("fr").map(String::as_str),
+            Some("Reprendre la chanson en cours de lecture")
+        );
+        assert_eq!(
+            cmd.description_localizations.get("ja").map(String::as_str),
+            Some("現在再生中の曲を再開！")
+        );
+        assert_eq!(cmd.description_localizations.len(), 4);
+        assert_eq!(
+            cmd.name_localizations.get("fr").map(String::as_str),
+            Some("reprendre")
+        );
+        assert_eq!(
+            cmd.name_localizations.get("ja").map(String::as_str),
+            Some("resume")
+        );
+        assert_eq!(cmd.name_localizations.len(), 4);
+    }
+
+    #[test]
+    fn loc_lyrics() {
+        // TS music/music.ts (`lyrics`)
+        let cmds = crate::commands::all();
+        let cmd = find_path(&cmds, &["music", "lyrics"]);
+        assert_eq!(
+            cmd.description_localizations.get("fr").map(String::as_str),
+            Some("Trouver les lyrics d'un titre")
+        );
+        assert_eq!(
+            cmd.description_localizations.get("ja").map(String::as_str),
+            Some("曲の歌詞を検索！")
+        );
+        assert_eq!(cmd.description_localizations.len(), 4);
+        let prm = cmd
+            .parameters
+            .iter()
+            .find(|x| x.name == "query")
+            .expect("param query");
+        assert_eq!(
+            prm.description_localizations.get("fr").map(String::as_str),
+            Some("Titre de la musique que vous souhaitez")
+        );
+        assert_eq!(
+            prm.description_localizations.get("ja").map(String::as_str),
+            Some("希望するトラックのタイトル")
+        );
+    }
+
+    #[test]
+    fn loc_play() {
+        // TS music/music.ts (`play`)
+        let cmds = crate::commands::all();
+        let cmd = find_path(&cmds, &["music", "play"]);
+        assert_eq!(
+            cmd.description_localizations.get("fr").map(String::as_str),
+            Some("Jouer une musique!")
+        );
+        assert_eq!(
+            cmd.description_localizations.get("ja").map(String::as_str),
+            Some("曲を再生！")
+        );
+        assert_eq!(cmd.description_localizations.len(), 4);
+        let prm = cmd
+            .parameters
+            .iter()
+            .find(|x| x.name == "title")
+            .expect("param title");
+        assert_eq!(prm.description_localizations.get("fr").map(String::as_str), Some("Titre de la musique que vous souhaitez (vous pouvez mettre une URL si vous le voulez)"));
+        assert_eq!(
+            prm.description_localizations.get("ja").map(String::as_str),
+            Some("希望するトラックタイトル（URLでも可）")
+        );
+    }
+}

@@ -1,7 +1,15 @@
 use super::*;
 
 /// Mirrors `!stop.ts`.
-#[poise::command(slash_command, prefix_command, rename = "stop")]
+#[poise::command(
+    slash_command,
+    prefix_command,
+    rename = "stop",
+    description_localized("fr", "Couper la musique"),
+    description_localized("ja", "現在再生中の曲を停止！"),
+    description_localized("ru", "Остановить текущую песню!"),
+    description_localized("es-ES", "Detener la canción actual!")
+)]
 pub async fn m_stop(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let Some(gid) = guild_id_of(&ctx) else {
         return Ok(());

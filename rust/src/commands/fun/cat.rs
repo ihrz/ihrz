@@ -30,7 +30,20 @@ async fn cat_down(ctx: &Ctx<'_>) -> Result<(), anyhow::Error> {
 }
 
 /// Get a picture of cat!
-#[poise::command(slash_command, prefix_command, category = "fun", rename = "cat")]
+#[poise::command(
+    slash_command,
+    prefix_command,
+    category = "fun",
+    rename = "cat",
+    name_localized("fr", "chat"),
+    name_localized("ja", "cat"),
+    name_localized("ru", "cat"),
+    name_localized("es-ES", "cat"),
+    description_localized("fr", "Obtenez une photo du chat"),
+    description_localized("ja", "猫の画像を取得！"),
+    description_localized("ru", "Получить картинку кота!"),
+    description_localized("es-ES", "Obtener una imagen de un gato!")
+)]
 pub async fn cat(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     if fun_guard(&ctx).await {
         return Ok(());

@@ -8,7 +8,11 @@ use super::*;
     category = "utils",
     rename = "freeze",
     aliases("voicefreeze", "vcfreeze"),
-    default_member_permissions = "MOVE_MEMBERS"
+    default_member_permissions = "MOVE_MEMBERS",
+    description_localized("fr", "Geler l'accès à votre salon vocal actuel"),
+    description_localized("ja", "現在のボイスチャンネルへのアクセスを凍結"),
+    description_localized("ru", "Заморозить доступ к текущему голосовому каналу"),
+    description_localized("es-ES", "Congelar el acceso a tu canal de voz actual")
 )]
 pub async fn voicefreeze(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {

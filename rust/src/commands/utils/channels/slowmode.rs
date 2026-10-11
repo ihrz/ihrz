@@ -65,11 +65,24 @@ pub fn duration_seconds(choice: DurationChoice) -> u16 {
     prefix_command,
     category = "utils",
     rename = "cooldown",
-    aliases("slowmode", "setcooldown", "coldown", "slow")
+    aliases("slowmode", "setcooldown", "coldown", "slow"),
+    description_localized("fr", "Mettre un coodlown dans le salon actuel"),
+    description_localized("ja", "現在のチャンネルにクールダウンを設定"),
+    description_localized("ru", "Установить задержку в текущем канале"),
+    description_localized("es-ES", "Establecer un enfriamiento en el canal actual")
 )]
 pub async fn slowmode(
     ctx: Ctx<'_>,
-    #[description = "Duration"] duration: DurationChoice,
+    #[name_localized("fr", "durée")]
+    #[name_localized("ja", "duration")]
+    #[name_localized("ru", "duration")]
+    #[name_localized("es-ES", "duration")]
+    #[description_localized("fr", "La durée du slow mode")]
+    #[description_localized("ja", "低速モードの時間")]
+    #[description_localized("ru", "Длительность замедленного режима")]
+    #[description_localized("es-ES", "La duración del modo lento")]
+    #[description = "Duration"]
+    duration: DurationChoice,
     #[description = "Channel, defaults to current"] channel: Option<
         poise::serenity_prelude::GuildChannel,
     >,

@@ -6,12 +6,26 @@ use super::*;
     prefix_command,
     rename = "avatar",
     aliases("botavatar", "setpic", "setavatar", "setpp"),
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    description_localized("fr", "Définir la photo de profil du bot sur votre serveur discord"),
+    description_localized("ja", "サーバーのiHorizonアバターを変更"),
+    description_localized("ru", "Изменить аватар iHorizon на сервере"),
+    description_localized("es-ES", "Cambiar el avatar de iHorizon en tu servidor")
 )]
 pub async fn custom_avatar(
     ctx: Ctx<'_>,
-    #[description = "set or reset"] action: String,
-    #[description = "New avatar image"] avatar: Option<serenity::Attachment>,
+    #[description = "set or reset"]
+    #[description_localized("fr", "Que voulez-vous faire ?")]
+    #[description_localized("ja", "何をしたいですか？")]
+    #[description_localized("ru", "Что вы хотите сделать?")]
+    #[description_localized("es-ES", "¿Qué quieres hacer?")]
+    action: String,
+    #[description = "New avatar image"]
+    #[description_localized("fr", "L'avatar du bot")]
+    #[description_localized("ja", "アバター")]
+    #[description_localized("ru", "Аватар")]
+    #[description_localized("es-ES", "El avatar")]
+    avatar: Option<serenity::Attachment>,
 ) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {
         let glang = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;

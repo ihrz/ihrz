@@ -22,7 +22,14 @@ pub fn setcategory_desc(template: &str, category_name: &str, author_id: u64) -> 
     slash_command,
     prefix_command,
     rename = "set-category",
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    description_localized(
+        "fr",
+        "Définir la catégorie dans laquelle les ticket doivent être créés"
+    ),
+    description_localized("ja", "チケットが作成されるカテゴリを設定！"),
+    description_localized("ru", "Установить категорию для создания тикетов!"),
+    description_localized("es-ES", "Establecer la categoría donde se crean los tickets!")
 )]
 pub async fn ticket_set_category(
     ctx: Ctx<'_>,

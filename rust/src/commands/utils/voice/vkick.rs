@@ -7,11 +7,20 @@ use super::*;
     prefix_command,
     category = "utils",
     rename = "vkick",
-    default_member_permissions = "MODERATE_MEMBERS"
+    default_member_permissions = "MODERATE_MEMBERS",
+    description_localized("fr", "Déconnecter un membre d'un salon vocal"),
+    description_localized("ja", "メンバーをボイスチャンネルから切断"),
+    description_localized("ru", "Отключить участника от голосового канала"),
+    description_localized("es-ES", "Desconectar a un miembro de un canal de voz")
 )]
 pub async fn vkick(
     ctx: Ctx<'_>,
-    #[description = "Member"] user: poise::serenity_prelude::User,
+    #[description_localized("fr", "Le membre que vous voulez déconnecter")]
+    #[description_localized("ja", "切断したいメンバー")]
+    #[description_localized("ru", "Участник для отключения")]
+    #[description_localized("es-ES", "El miembro que quieres desconectar")]
+    #[description = "Member"]
+    user: poise::serenity_prelude::User,
 ) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {
         return Ok(());

@@ -88,7 +88,11 @@ async fn board_rows(pool: &crate::db::Pool, guild_id: &str) -> Vec<(u64, f64, f6
     slash_command,
     prefix_command,
     rename = "leaderboard",
-    aliases("eclb", "eco-lb", "economy-lb", "economy-leaderboard")
+    aliases("eclb", "eco-lb", "economy-lb", "economy-leaderboard"),
+    description_localized("fr", "Obtenez le classement du solde des utilisateurs du serveur"),
+    description_localized("ja", "サーバーのユーザー残高ランキングを取得！"),
+    description_localized("ru", "Получить таблицу лидеров по балансу!"),
+    description_localized("es-ES", "Obtener la tabla de clasificación de saldos del servidor!")
 )]
 pub async fn eco_leaderboard(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     use poise::serenity_prelude as serenity;

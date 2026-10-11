@@ -6,7 +6,17 @@ use super::*;
     slash_command,
     prefix_command,
     category = "newfeatures",
-    rename = "report"
+    rename = "report",
+    description_localized(
+        "fr",
+        "Signaler un bug, une erreur, une faute d'orthographe au développeur d'iHorizon"
+    ),
+    description_localized("ja", "バグ、エラー、スペルミスをiHorizonの開発者に報告！"),
+    description_localized("ru", "Сообщить об ошибке разработчикам iHorizon!"),
+    description_localized(
+        "es-ES",
+        "Reportar un bug, error o falta de ortografía a los desarrolladores de iHorizon!"
+    )
 )]
 pub async fn report(
     ctx: Ctx<'_>,

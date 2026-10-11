@@ -7,15 +7,29 @@ use poise::serenity_prelude as serenity;
     prefix_command,
     rename = "ban",
     aliases("addban", "createban"),
-    default_member_permissions = "BAN_MEMBERS"
+    default_member_permissions = "BAN_MEMBERS",
+    description_localized("fr", "Bannir un utilisateur"),
+    description_localized("ja", "ユーザーをバン！"),
+    description_localized("ru", "Забанить пользователя!"),
+    description_localized("es-ES", "Banear a un usuario!")
 )]
 pub async fn mod_ban(
     ctx: Ctx<'_>,
     // Optional here (TS `method.user` can return null on prefix), but
     // the slash option stays effectively required: a missing entity is
     // answered with the TS `ban_dont_found_member` reply below.
-    #[description = "Member"] member: Option<serenity::User>,
-    #[description = "Reason"] reason: Option<String>,
+    #[description_localized("fr", "le membre que vous souhaitez bannir")]
+    #[description_localized("ja", "バンしたいメンバー")]
+    #[description_localized("ru", "участник для бана")]
+    #[description_localized("es-ES", "el miembro que quieres banear")]
+    #[description = "Member"]
+    member: Option<serenity::User>,
+    #[description_localized("fr", "la raison du ban")]
+    #[description_localized("ja", "バンの理由")]
+    #[description_localized("ru", "причина бана")]
+    #[description_localized("es-ES", "la razón del baneo")]
+    #[description = "Reason"]
+    reason: Option<String>,
 ) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {
         return Ok(());

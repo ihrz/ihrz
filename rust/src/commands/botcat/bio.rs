@@ -32,12 +32,26 @@ pub fn default_bio(meta_bot_json: Option<&str>, username: &str) -> String {
     prefix_command,
     rename = "bio",
     aliases("botbio", "setbotbio", "setbio"),
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    description_localized("fr", "Définir la bio de profil du bot sur votre serveur discord"),
+    description_localized("ja", "サーバーのiHorizonの自己紹介を変更"),
+    description_localized("ru", "Изменить описание iHorizon на сервере"),
+    description_localized("es-ES", "Cambiar la biografía de iHorizon en tu servidor")
 )]
 pub async fn custom_bio(
     ctx: Ctx<'_>,
-    #[description = "set or reset"] action: String,
-    #[description = "New bio"] bio: Option<String>,
+    #[description = "set or reset"]
+    #[description_localized("fr", "Que voulez-vous faire ?")]
+    #[description_localized("ja", "何をしたいですか？")]
+    #[description_localized("ru", "Что вы хотите сделать?")]
+    #[description_localized("es-ES", "¿Qué quieres hacer?")]
+    action: String,
+    #[description = "New bio"]
+    #[description_localized("fr", "La bio du bot")]
+    #[description_localized("ja", "説明")]
+    #[description_localized("ru", "Описание")]
+    #[description_localized("es-ES", "La descripción")]
+    bio: Option<String>,
 ) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {
         let glang = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;

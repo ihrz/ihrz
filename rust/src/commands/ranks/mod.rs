@@ -723,3 +723,211 @@ mod tests {
         );
     }
 }
+
+#[cfg(test)]
+mod localization_tests {
+
+    type LocCmd = poise::Command<crate::commands::Data, crate::commands::Error>;
+
+    fn find_path<'a>(cmds: &'a [LocCmd], path: &[&str]) -> &'a LocCmd {
+        let cmd = cmds
+            .iter()
+            .find(|c| c.name == path[0])
+            .unwrap_or_else(|| panic!("command {} missing", path.join(" ")));
+        if path.len() == 1 {
+            cmd
+        } else {
+            find_path(&cmd.subcommands, &path[1..])
+        }
+    }
+
+    #[test]
+    fn loc_ranks() {
+        // TS ranks/ranks.ts (`ranks`)
+        let cmds = crate::commands::all();
+        let cmd = find_path(&cmds, &["ranks"]);
+        assert_eq!(
+            cmd.description_localizations.get("fr").map(String::as_str),
+            Some("Commande sous-groupé pour la catégorie de niveau (message)")
+        );
+        assert_eq!(
+            cmd.description_localizations.get("ja").map(String::as_str),
+            Some("ランクカテゴリのサブコマンド！")
+        );
+        assert_eq!(cmd.description_localizations.len(), 4);
+    }
+
+    #[test]
+    fn loc_channel() {
+        // TS ranks/ranks.ts (`channel`)
+        let cmds = crate::commands::all();
+        let cmd = find_path(&cmds, &["ranks", "channel"]);
+        assert_eq!(
+            cmd.description_localizations.get("fr").map(String::as_str),
+            Some("Définir le canal sur lequel l'utilisateur gagne un nouveau message de niveau XP")
+        );
+        assert_eq!(
+            cmd.description_localizations.get("ja").map(String::as_str),
+            Some("ユーザーが新しいXPレベルメッセージを獲得するチャンネルを設定！")
+        );
+        assert_eq!(cmd.description_localizations.len(), 4);
+        assert_eq!(
+            cmd.name_localizations.get("fr").map(String::as_str),
+            Some("définir-cannal")
+        );
+        assert_eq!(
+            cmd.name_localizations.get("ja").map(String::as_str),
+            Some("channel")
+        );
+        assert_eq!(cmd.name_localizations.len(), 4);
+        let prm = cmd
+            .parameters
+            .iter()
+            .find(|x| x.name == "action")
+            .expect("param action");
+        assert_eq!(
+            prm.description_localizations.get("fr").map(String::as_str),
+            Some("Que voulez-vous faire ?")
+        );
+        assert_eq!(
+            prm.description_localizations.get("ja").map(String::as_str),
+            Some("何をしたいですか？")
+        );
+        let prm = cmd
+            .parameters
+            .iter()
+            .find(|x| x.name == "channel")
+            .expect("param channel");
+        assert_eq!(
+            prm.description_localizations.get("fr").map(String::as_str),
+            Some("Le canal spécifique pour le message XP")
+        );
+        assert_eq!(
+            prm.description_localizations.get("ja").map(String::as_str),
+            Some("XPメッセージ用の特定チャンネル！")
+        );
+    }
+
+    #[test]
+    fn loc_leaderboard() {
+        // TS ranks/ranks.ts (`leaderboard`)
+        let cmds = crate::commands::all();
+        let cmd = find_path(&cmds, &["ranks", "leaderboard"]);
+        assert_eq!(
+            cmd.description_localizations.get("fr").map(String::as_str),
+            Some("Obtenez le classement XP du serveur")
+        );
+        assert_eq!(
+            cmd.description_localizations.get("ja").map(String::as_str),
+            Some("サーバーのXPランキングを取得！")
+        );
+        assert_eq!(cmd.description_localizations.len(), 4);
+        assert_eq!(
+            cmd.name_localizations.get("fr").map(String::as_str),
+            Some("classement")
+        );
+        assert_eq!(
+            cmd.name_localizations.get("ja").map(String::as_str),
+            Some("leaderboard")
+        );
+        assert_eq!(cmd.name_localizations.len(), 4);
+    }
+
+    #[test]
+    fn loc_show() {
+        // TS ranks/ranks.ts (`show`)
+        let cmds = crate::commands::all();
+        let cmd = find_path(&cmds, &["ranks", "show"]);
+        assert_eq!(
+            cmd.description_localizations.get("fr").map(String::as_str),
+            Some("Obtenez le niveau XP de l'utilisateur")
+        );
+        assert_eq!(
+            cmd.description_localizations.get("ja").map(String::as_str),
+            Some("ユーザーのXPレベルを取得！")
+        );
+        assert_eq!(cmd.description_localizations.len(), 4);
+        assert_eq!(
+            cmd.name_localizations.get("fr").map(String::as_str),
+            Some("afficher")
+        );
+        assert_eq!(
+            cmd.name_localizations.get("ja").map(String::as_str),
+            Some("show")
+        );
+        assert_eq!(cmd.name_localizations.len(), 4);
+        let prm = cmd
+            .parameters
+            .iter()
+            .find(|x| x.name == "user")
+            .expect("param user");
+        assert_eq!(
+            prm.description_localizations.get("fr").map(String::as_str),
+            Some("L'utilisateur que vous souhaitez rechercher.")
+        );
+        assert_eq!(
+            prm.description_localizations.get("ja").map(String::as_str),
+            Some("検索したいユーザー（空白で自分の統計を表示）")
+        );
+    }
+
+    #[test]
+    fn loc_config() {
+        // TS ranks/ranks.ts (`config`)
+        let cmds = crate::commands::all();
+        let cmd = find_path(&cmds, &["ranks", "config"]);
+        assert_eq!(
+            cmd.description_localizations.get("fr").map(String::as_str),
+            Some(
+                "Configurer le message lorsque l'utilisateur gagne un nouveau message de niveau XP"
+            )
+        );
+        assert_eq!(
+            cmd.description_localizations.get("ja").map(String::as_str),
+            Some("ユーザーが新しいXPレベルを獲得した時のメッセージを設定！")
+        );
+        assert_eq!(cmd.description_localizations.len(), 4);
+        let prm = cmd
+            .parameters
+            .iter()
+            .find(|x| x.name == "action")
+            .expect("param action");
+        assert_eq!(
+            prm.description_localizations.get("fr").map(String::as_str),
+            Some("Que voulez-vous faire ?")
+        );
+        assert_eq!(
+            prm.description_localizations.get("ja").map(String::as_str),
+            Some("何をしたいですか？")
+        );
+    }
+
+    #[test]
+    fn loc_ureset() {
+        // TS ranks/ranks.ts (`ureset`)
+        let cmds = crate::commands::all();
+        let cmd = find_path(&cmds, &["ranks", "ureset"]);
+        assert_eq!(
+            cmd.description_localizations.get("fr").map(String::as_str),
+            Some("Supprimer les données de rang d'un utilisateur")
+        );
+        assert_eq!(
+            cmd.description_localizations.get("ja").map(String::as_str),
+            Some("ユーザーのランクレベルをリセット")
+        );
+        assert_eq!(cmd.description_localizations.len(), 4);
+        let prm = cmd
+            .parameters
+            .iter()
+            .find(|x| x.name == "user")
+            .expect("param user");
+        assert_eq!(
+            prm.description_localizations.get("fr").map(String::as_str),
+            Some("L'utilisateur que vous voulez supprimer du module de rangs.")
+        );
+        assert_eq!(
+            prm.description_localizations.get("ja").map(String::as_str),
+            Some("ランクデータをリセットしたいユーザー")
+        );
+    }
+}

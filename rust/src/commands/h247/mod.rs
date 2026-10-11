@@ -127,3 +127,117 @@ pub mod session;
 pub mod main {
     pub use super::h247::*;
 }
+
+#[cfg(test)]
+mod localization_tests {
+
+    type LocCmd = poise::Command<crate::commands::Data, crate::commands::Error>;
+
+    fn find_path<'a>(cmds: &'a [LocCmd], path: &[&str]) -> &'a LocCmd {
+        let cmd = cmds
+            .iter()
+            .find(|c| c.name == path[0])
+            .unwrap_or_else(|| panic!("command {} missing", path.join(" ")));
+        if path.len() == 1 {
+            cmd
+        } else {
+            find_path(&cmd.subcommands, &path[1..])
+        }
+    }
+
+    #[test]
+    fn loc_h247() {
+        // TS h247/h247.ts (`h247`)
+        let cmds = crate::commands::all();
+        let cmd = find_path(&cmds, &["h247"]);
+        assert_eq!(
+            cmd.description_localizations.get("fr").map(String::as_str),
+            Some("Garder iHorizon connecté 24/7 dans un salon vocal!")
+        );
+        assert_eq!(
+            cmd.description_localizations.get("ja").map(String::as_str),
+            Some("iHorizonをボイスチャンネルに24時間365日接続させ続けます！")
+        );
+        assert_eq!(cmd.description_localizations.len(), 4);
+        assert_eq!(
+            cmd.name_localizations.get("fr").map(String::as_str),
+            Some("h247")
+        );
+        assert_eq!(
+            cmd.name_localizations.get("ja").map(String::as_str),
+            Some("h247")
+        );
+        assert_eq!(cmd.name_localizations.len(), 4);
+    }
+
+    #[test]
+    fn loc_join() {
+        // TS h247/h247.ts (`join`)
+        let cmds = crate::commands::all();
+        let cmd = find_path(&cmds, &["h247", "join"]);
+        assert_eq!(
+            cmd.description_localizations.get("fr").map(String::as_str),
+            Some("Garer iHorizon 24/7 dans un salon vocal!")
+        );
+        assert_eq!(
+            cmd.description_localizations.get("ja").map(String::as_str),
+            Some("iHorizonをボイスチャンネルに常駐させます！")
+        );
+        assert_eq!(cmd.description_localizations.len(), 4);
+        assert_eq!(
+            cmd.name_localizations.get("fr").map(String::as_str),
+            Some("rejoindre")
+        );
+        assert_eq!(
+            cmd.name_localizations.get("ja").map(String::as_str),
+            Some("join")
+        );
+        assert_eq!(cmd.name_localizations.len(), 4);
+        let prm = cmd
+            .parameters
+            .iter()
+            .find(|x| x.name == "channel")
+            .expect("param channel");
+        assert_eq!(
+            prm.description_localizations.get("fr").map(String::as_str),
+            Some("Le salon vocal où iHorizon restera!")
+        );
+        assert_eq!(
+            prm.description_localizations.get("ja").map(String::as_str),
+            Some("iHorizonが常駐するボイスチャンネル！")
+        );
+        assert_eq!(
+            prm.name_localizations.get("fr").map(String::as_str),
+            Some("salon")
+        );
+        assert_eq!(
+            prm.name_localizations.get("ja").map(String::as_str),
+            Some("channel")
+        );
+    }
+
+    #[test]
+    fn loc_leave() {
+        // TS h247/h247.ts (`leave`)
+        let cmds = crate::commands::all();
+        let cmd = find_path(&cmds, &["h247", "leave"]);
+        assert_eq!(
+            cmd.description_localizations.get("fr").map(String::as_str),
+            Some("Désactiver la connexion 24/7 sur ce serveur!")
+        );
+        assert_eq!(
+            cmd.description_localizations.get("ja").map(String::as_str),
+            Some("このサーバーの24時間接続を無効化します！")
+        );
+        assert_eq!(cmd.description_localizations.len(), 4);
+        assert_eq!(
+            cmd.name_localizations.get("fr").map(String::as_str),
+            Some("quitter")
+        );
+        assert_eq!(
+            cmd.name_localizations.get("ja").map(String::as_str),
+            Some("leave")
+        );
+        assert_eq!(cmd.name_localizations.len(), 4);
+    }
+}

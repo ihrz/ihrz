@@ -7,11 +7,20 @@ use poise::serenity_prelude as serenity;
     prefix_command,
     rename = "unmute",
     aliases("untempmute", "untimeout", "demute"),
-    default_member_permissions = "MODERATE_MEMBERS"
+    default_member_permissions = "MODERATE_MEMBERS",
+    description_localized("fr", "Demute un utilisateur !"),
+    description_localized("ja", "ユーザーのミュートを解除！"),
+    description_localized("ru", "Размутить пользователя!"),
+    description_localized("es-ES", "Desilenciar a un usuario!")
 )]
 pub async fn mod_unmute(
     ctx: Ctx<'_>,
-    #[description = "Member"] user: serenity::User,
+    #[description_localized("fr", "L'utilisateur que vous souhaitez unmuted")]
+    #[description_localized("ja", "ミュート解除したいユーザー")]
+    #[description_localized("ru", "Пользователь для размута")]
+    #[description_localized("es-ES", "El usuario que quieres desilenciar")]
+    #[description = "Member"]
+    user: serenity::User,
 ) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {
         return Ok(());

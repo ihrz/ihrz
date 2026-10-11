@@ -6,12 +6,26 @@ use super::*;
     prefix_command,
     category = "utils",
     rename = "delrole",
-    default_member_permissions = "MANAGE_ROLES"
+    default_member_permissions = "MANAGE_ROLES",
+    description_localized("fr", "Enlever un rôle à un utilisateur"),
+    description_localized("ja", "ユーザーからロールを削除"),
+    description_localized("ru", "Удалить роль у пользователя"),
+    description_localized("es-ES", "Quitar rol al usuario")
 )]
 pub async fn delrole(
     ctx: Ctx<'_>,
-    #[description = "Member"] user: poise::serenity_prelude::User,
-    #[description = "Role"] role: poise::serenity_prelude::Role,
+    #[description_localized("fr", "L'utilisateur que vous voulez enlever le rôle")]
+    #[description_localized("ja", "ロールを削除したいユーザー")]
+    #[description_localized("ru", "Пользователь, у которого нужно удалить роль")]
+    #[description_localized("es-ES", "El usuario al que quieres quitar el rol")]
+    #[description = "Member"]
+    user: poise::serenity_prelude::User,
+    #[description_localized("fr", "Le role que vous voulez enlever a l'utilisateur")]
+    #[description_localized("ja", "ユーザーから削除したいロール")]
+    #[description_localized("ru", "Роль, которую нужно убрать у пользователя")]
+    #[description_localized("es-ES", "El rol que quieres quitar al usuario")]
+    #[description = "Role"]
+    role: poise::serenity_prelude::Role,
 ) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {
         return Ok(());

@@ -6,11 +6,26 @@ use poise::serenity_prelude as serenity;
     slash_command,
     prefix_command,
     rename = "lock",
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    description_localized(
+        "fr",
+        "Supprimer la possibilité de parler de tous les utilisateurs de ce channel"
+    ),
+    description_localized("ja", "このテキストチャンネルで全ユーザーの発言権限を削除！"),
+    description_localized("ru", "Убрать возможность говорить у всех в этом текстовом канале!"),
+    description_localized(
+        "es-ES",
+        "Quitar la capacidad de hablar a todos los usuarios en este canal de texto!"
+    )
 )]
 pub async fn mod_lock(
     ctx: Ctx<'_>,
-    #[description = "Role to lock (default @everyone)"] role: Option<serenity::Role>,
+    #[description_localized("fr", "le rôle")]
+    #[description_localized("ja", "ロール")]
+    #[description_localized("ru", "Роль")]
+    #[description_localized("es-ES", "El rol")]
+    #[description = "Role to lock (default @everyone)"]
+    role: Option<serenity::Role>,
 ) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {
         return Ok(());

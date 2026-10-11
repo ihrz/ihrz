@@ -2115,6 +2115,162 @@ mod tests {
         assert!(errs.is_empty(), "dump shape:\n{}", errs.join("\n"));
     }
 
+    /// LOCALIZATION-1: sampled TS description/name localizations reach
+    /// the registry and the commands.json dump byte-exact (fr/ja/ru/es-ES).
+    #[test]
+    fn commands_dump_carries_ts_localizations() {
+        let mut cmds = crate::commands::all();
+        poise::set_qualified_names(&mut cmds);
+        let dump = super::build_commands_dump(&cmds);
+        let entries = dump.as_array().expect("dump is an array");
+        fn top<'a>(entries: &'a [serde_json::Value], name: &str) -> &'a serde_json::Value {
+            entries
+                .iter()
+                .find(|e| e.get("name").and_then(|n| n.as_str()) == Some(name))
+                .unwrap_or_else(|| panic!("missing top-level command {name}"))
+        }
+        fn desc_tr(entry: &serde_json::Value) -> &serde_json::Map<String, serde_json::Value> {
+            entry
+                .get("description_translated")
+                .and_then(|v| v.as_object())
+                .expect("description_translated map")
+        }
+        fn opt<'a>(entry: &'a serde_json::Value, name: &str) -> &'a serde_json::Value {
+            entry
+                .get("options")
+                .and_then(|o| o.as_array())
+                .expect("options array")
+                .iter()
+                .find(|o| o.get("name").and_then(|n| n.as_str()) == Some(name))
+                .unwrap_or_else(|| panic!("missing option {name}"))
+        }
+        // Localized string out of a localizations map (missing -> "").
+        fn loc<'a>(map: &'a serde_json::Value, locale: &str) -> &'a str {
+            map.get(locale).and_then(|v| v.as_str()).unwrap_or("")
+        }
+
+        // botcat leaves (HybridCommands/bot/*.ts).
+        assert_eq!(
+            desc_tr(top(entries, "ping"))
+                .get("fr")
+                .and_then(|v| v.as_str()),
+            Some("Obtenir la latence du bot")
+        );
+        assert_eq!(
+            desc_tr(top(entries, "help"))
+                .get("es-ES")
+                .and_then(|v| v.as_str()),
+            Some("Obtener una lista de todos los comandos!")
+        );
+        // Poise derives the slash option name from the `command_name`
+        // ident (TS registers "command-name"); localizations attach the
+        // same way regardless.
+        let cmd_name = opt(top(entries, "help"), "command_name");
+        assert_eq!(
+            loc(&cmd_name["description_localizations"], "fr"),
+            "La commandes sur laquelle vous voulez des info"
+        );
+        let content = opt(top(entries, "say"), "content");
+        assert_eq!(loc(&content["name_localizations"], "fr"), "contenu");
+        assert_eq!(
+            loc(&content["description_localizations"], "ja"),
+            "ボットに何を言わせたいですか！"
+        );
+        assert_eq!(
+            top(entries, "setlang")["name_translated"]["fr"].as_str(),
+            Some("setlangue")
+        );
+        assert_eq!(
+            desc_tr(top(entries, "andru"))
+                .get("ru")
+                .and_then(|v| v.as_str()),
+            Some("Получить ненужную информацию об участнике andru")
+        );
+        assert_eq!(
+            desc_tr(top(entries, "setlang"))
+                .get("fr")
+                .and_then(|v| v.as_str()),
+            Some("Choisir la langue du bot discord !")
+        );
+
+        // Custom leaves (HybridCommands/bot/custom/custom.ts subgroups).
+        let name = opt(top(entries, "custom"), "name");
+        assert_eq!(
+            loc(&name["description_localizations"], "es-ES"),
+            "Cambiar el nombre de iHorizon en el servidor"
+        );
+        let action = opt(name, "action");
+        assert_eq!(
+            loc(&action["description_localizations"], "fr"),
+            "Que voulez-vous faire ?"
+        );
+
+        // Profil subcommands (HybridCommands/profil/profil.ts).
+        let show = opt(top(entries, "profil"), "show");
+        assert_eq!(loc(&show["name_localizations"], "fr"), "afficher");
+        assert_eq!(
+            loc(&show["description_localizations"], "ru"),
+            "Посмотреть профиль iHorizon участника!"
+        );
+        let age = opt(top(entries, "profil"), "set-age");
+        assert_eq!(loc(&age["name_localizations"], "fr"), "définir-âge");
+        assert_eq!(
+            loc(&opt(age, "age")["description_localizations"], "es-ES"),
+            "Tu edad en el perfil de iHorizon"
+        );
+
+        // Owner (HybridCommands/owner/*.ts).
+        assert_eq!(
+            desc_tr(top(entries, "blacklist"))
+                .get("fr")
+                .and_then(|v| v.as_str()),
+            Some("Ajoutez un utilisateur à la liste noir")
+        );
+        assert_eq!(
+            loc(
+                &opt(top(entries, "blacklist"), "reason")["description_localizations"],
+                "es-ES"
+            ),
+            "La razón por la que quieres poner en lista negra a este miembro"
+        );
+        assert_eq!(
+            loc(
+                &opt(top(entries, "unblacklist"), "user")["description_localizations"],
+                "ja"
+            ),
+            "ブラックリストから解除したいユーザー（iHorizonオーナーのみ）"
+        );
+        assert_eq!(
+            loc(
+                &opt(top(entries, "eval"), "code")["description_localizations"],
+                "ru"
+            ),
+            "код JavaScript"
+        );
+
+        // Legacy leaves ride under the `legacy` parent
+        // (Interaction/MessageCommands/*).
+        let legacy = top(entries, "legacy");
+        assert_eq!(
+            loc(
+                &opt(opt(legacy, "nitrofdp"), "amount")["description_localizations"],
+                "fr"
+            ),
+            "nombre de nitro"
+        );
+        assert_eq!(
+            loc(
+                &opt(opt(legacy, "securewebhook"), "input")["description_localizations"],
+                "ru"
+            ),
+            "URL вебхука или код вебхука"
+        );
+        assert_eq!(
+            loc(&opt(legacy, "welcomer")["description_localizations"], "ja"),
+            "ウェルカマーモジュールを設定！"
+        );
+    }
+
     /// One-off dev utility: regenerate src/files/commands.json from the
     /// registry (same builder + 4-space indent as the boot dump).
     /// Ignored by default; run explicitly, then diff the file.

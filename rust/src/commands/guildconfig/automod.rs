@@ -437,7 +437,14 @@ macro_rules! keyword_command {
         "gc_automod_telegram"
     ),
     default_member_permissions = "ADMINISTRATOR",
-    subcommand_required
+    subcommand_required,
+    description_localized(
+        "fr",
+        "Commande sous-groupé pour la catégorie de protection via l'automod"
+    ),
+    description_localized("ja", "オートモデレーションカテゴリのサブコマンド！"),
+    description_localized("ru", "Подкоманда для категории автомода!"),
+    description_localized("es-ES", "Subcomando para la categoría automod!")
 )]
 pub async fn gc_automod(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())

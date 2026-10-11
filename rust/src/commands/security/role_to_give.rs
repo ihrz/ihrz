@@ -8,7 +8,15 @@ use poise::serenity_prelude as serenity;
     slash_command,
     prefix_command,
     rename = "role-to-give",
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    name_localized("fr", "role-à-donner"),
+    name_localized("ja", "role-to-give"),
+    name_localized("ru", "role-to-give"),
+    name_localized("es-ES", "role-to-give"),
+    description_localized("fr", "Le rôle qui sera attribué aux nouveaux membre(s) lors du processus de vérification Captcha"),
+    description_localized("ja", "キャプチャ認証時に新規メンバーに付与されるロール！"),
+    description_localized("ru", "Роль, которая будет выдана новым участникам при прохождении капчи!"),
+    description_localized("es-ES", "El rol que se dará a los nuevos miembros cuando pasen la verificación Captcha!"),
 )]
 pub async fn security_give(
     ctx: Ctx<'_>,

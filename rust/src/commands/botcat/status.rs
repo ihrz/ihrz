@@ -198,7 +198,11 @@ pub fn rustc_version() -> Option<String> {
     prefix_command,
     category = "bot",
     rename = "status",
-    aliases("server")
+    aliases("server"),
+    description_localized("fr", "Obtenez le statut du bot !"),
+    description_localized("ja", "ボットのステータスを取得！"),
+    description_localized("ru", "Получить статус бота!"),
+    description_localized("es-ES", "Obtener el estado del bot!")
 )]
 pub async fn status(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     // Guard's Typing: status.ts returns silently outside a guild

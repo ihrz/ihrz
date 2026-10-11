@@ -1,10 +1,24 @@
 use super::*;
 
 /// Get information about a tag!
-#[poise::command(slash_command, prefix_command, rename = "info", aliases("tag-info"))]
+#[poise::command(
+    slash_command,
+    prefix_command,
+    rename = "info",
+    aliases("tag-info"),
+    description_localized("fr", "Info d'un tag"),
+    description_localized("ja", "タグの情報"),
+    description_localized("ru", "Информация о теге"),
+    description_localized("es-ES", "Información de una etiqueta")
+)]
 pub async fn tag_info(
     ctx: Ctx<'_>,
-    #[description = "Tag name"] tag_name: String,
+    #[description_localized("fr", "Nom du tag")]
+    #[description_localized("ja", "タグの名前")]
+    #[description_localized("ru", "Название тега")]
+    #[description_localized("es-ES", "Nombre de la etiqueta")]
+    #[description = "Tag name"]
+    tag_name: String,
 ) -> Result<(), anyhow::Error> {
     let gid = ctx
         .guild_id()

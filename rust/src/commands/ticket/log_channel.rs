@@ -14,7 +14,17 @@ pub fn logchannel_desc(template: &str, user_mention: &str, channel_mention: &str
     slash_command,
     prefix_command,
     rename = "log-channel",
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    description_localized(
+        "fr",
+        "Définir un canal sur lequel iHorizon a envoyé des journaux sur les tickets"
+    ),
+    description_localized("ja", "iHorizonがチケットに関するログを送信するチャンネルを設定！"),
+    description_localized("ru", "Установить канал для логов iHorizon о тикетах!"),
+    description_localized(
+        "es-ES",
+        "Establecer un canal donde iHorizon envíe registros sobre tickets!"
+    )
 )]
 pub async fn ticket_log_channel(
     ctx: Ctx<'_>,

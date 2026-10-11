@@ -1,10 +1,23 @@
 use super::*;
 
 /// Deposit coins into your bank!
-#[poise::command(slash_command, prefix_command, rename = "deposit", aliases("dep"))]
+#[poise::command(
+    slash_command,
+    prefix_command,
+    rename = "deposit",
+    aliases("dep"),
+    description_localized("fr", "Déposez des pièces dans votre banque"),
+    description_localized("ja", "銀行にコインを預ける！"),
+    description_localized("ru", "Положить монеты в банк!"),
+    description_localized("es-ES", "Depositar monedas en tu banco!")
+)]
 // Mirrors `!deposit.ts`.
 pub async fn eco_deposit(
     ctx: Ctx<'_>,
+    #[description_localized("fr", "Combien de pièces vous souhaitez déposer dans votre banque")]
+    #[description_localized("ja", "銀行にいくら預けますか？")]
+    #[description_localized("ru", "Сколько монет вы хотите положить в банк?")]
+    #[description_localized("es-ES", "Cuántas monedas quieres depositar en tu banco?")]
     #[description = "Amount or all"]
     #[rename = "how-much"]
     amount: String,

@@ -6,11 +6,20 @@ use super::*;
     prefix_command,
     rename = "delete",
     aliases("tag-delete"),
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    description_localized("fr", "Supprimer un tag"),
+    description_localized("ja", "タグを削除"),
+    description_localized("ru", "Удалить тег"),
+    description_localized("es-ES", "Eliminar una etiqueta")
 )]
 pub async fn tag_delete(
     ctx: Ctx<'_>,
-    #[description = "Tag name"] tag_name: String,
+    #[description_localized("fr", "Nom du tag")]
+    #[description_localized("ja", "タグの名前")]
+    #[description_localized("ru", "Название тега")]
+    #[description_localized("es-ES", "Nombre de la etiqueta")]
+    #[description = "Tag name"]
+    tag_name: String,
 ) -> Result<(), anyhow::Error> {
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let gid = ctx

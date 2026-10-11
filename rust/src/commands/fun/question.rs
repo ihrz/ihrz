@@ -6,7 +6,11 @@ use super::*;
     prefix_command,
     category = "fun",
     rename = "question",
-    aliases("8ball")
+    aliases("8ball"),
+    description_localized("fr", "Poser une question au bot"),
+    description_localized("ja", "ボットに質問する！"),
+    description_localized("ru", "Задать вопрос боту!"),
+    description_localized("es-ES", "Hacer una pregunta al bot!")
 )]
 // Mirrors !question.ts: 3-word gate then a 2-field Q&A embed.
 pub async fn question(
@@ -15,6 +19,10 @@ pub async fn question(
     // prefix tail (slash stays effectively required: TS `required: true`
     // in fun.ts). A missing input replays the TS checkCommandArgs
     // usage embed below instead of the question gate.
+    #[description_localized("fr", "La question que vous souhaitez poser au bot")]
+    #[description_localized("ja", "ボットに与えたい質問")]
+    #[description_localized("ru", "Вопрос, который вы хотите задать боту")]
+    #[description_localized("es-ES", "La pregunta que quieres dar al bot")]
     #[description = "Your question"]
     #[rest]
     question: Option<String>,

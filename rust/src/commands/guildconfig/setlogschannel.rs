@@ -102,7 +102,14 @@ pub fn display_name(code: &str, auto_id: &str) -> String {
     category = "guildconfig",
     rename = "setlogs",
     aliases("logs", "setlog"),
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    description_localized("fr", "Définir des canaux de journaux pour les journaux d'audit"),
+    description_localized("ja", "監査ログ用のログチャンネルを設定！"),
+    description_localized("ru", "Установить канал для аудита!"),
+    description_localized(
+        "es-ES",
+        "Establecer un canal de registros para los registros de auditoría!"
+    )
 )]
 pub async fn gc_setlogs(
     ctx: Ctx<'_>,

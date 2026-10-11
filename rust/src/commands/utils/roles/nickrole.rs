@@ -6,13 +6,32 @@ use super::*;
     prefix_command,
     category = "utils",
     rename = "nickrole",
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    description_localized("fr", "Donnez un rôle à tous les utilisateurs qui ont un caractère spécifique dans leur nom d'utilisateur"),
+    description_localized("ja", "ユーザー名に特定の文字を含む全ユーザーにロールを付与！"),
+    description_localized("ru", "Выдать роли всем пользователям с указанными символами в имени!"),
+    description_localized("es-ES", "Dar roles a todos los usuarios que tengan un carácter específico en su nombre de usuario!"),
 )]
 pub async fn nickrole(
     ctx: Ctx<'_>,
-    #[description = "add or sub"] action: String,
-    #[description = "Nickname part"] nickname: String,
-    #[description = "Role"] role: poise::serenity_prelude::Role,
+    #[description_localized("fr", "L'action que vous souhaitez faire")]
+    #[description_localized("ja", "実行したいアクション")]
+    #[description_localized("ru", "Действие, которое вы хотите выполнить")]
+    #[description_localized("es-ES", "La acción que quieres realizar")]
+    #[description = "add or sub"]
+    action: String,
+    #[description_localized("fr", "La partie incluant dans le pseudo")]
+    #[description_localized("ja", "ニックネームに含める部分")]
+    #[description_localized("ru", "Часть, включаемая в никнейм")]
+    #[description_localized("es-ES", "La parte a incluir en el apodo")]
+    #[description = "Nickname part"]
+    nickname: String,
+    #[description_localized("fr", "Le rôle que vous souhaitez donner")]
+    #[description_localized("ja", "付与したいロール")]
+    #[description_localized("ru", "Роль, которую вы хотите выдать")]
+    #[description_localized("es-ES", "El rol que quieres dar")]
+    #[description = "Role"]
+    role: poise::serenity_prelude::Role,
 ) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {
         return Ok(());

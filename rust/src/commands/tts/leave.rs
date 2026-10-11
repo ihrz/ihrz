@@ -73,7 +73,16 @@ pub async fn cleanup_tts_live(
 }
 
 /// Leave the voice channel and disable TTS mode!
-#[poise::command(slash_command, prefix_command, rename = "leave", aliases("ttsleave"))]
+#[poise::command(
+    slash_command,
+    prefix_command,
+    rename = "leave",
+    aliases("ttsleave"),
+    description_localized("fr", "Quitter le salon vocal et désactiver le mode TTS"),
+    description_localized("ja", "ボイスチャンネルから退出してTTSモードを無効化！"),
+    description_localized("ru", "Выйти из голосового канала и отключить TTS!"),
+    description_localized("es-ES", "Salir del canal de voz y deshabilitar el modo TTS!")
+)]
 pub async fn tts_leave(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {
         return Ok(());

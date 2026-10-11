@@ -10,7 +10,16 @@ use poise::serenity_prelude as serenity;
 // body — only the guild-presence early return below applies.
 // (Plain `//` comments: `///` doc lines become the slash description,
 // which poise caps at 100 chars.)
-#[poise::command(slash_command, prefix_command, rename = "info", aliases("h247info"))]
+#[poise::command(
+    slash_command,
+    prefix_command,
+    rename = "info",
+    aliases("h247info"),
+    description_localized("fr", "Obtenir des informations sur le module H24/7"),
+    description_localized("ja", "H24/7モジュールの情報を取得！"),
+    description_localized("ru", "Получить информацию о модуле H24/7!"),
+    description_localized("es-ES", "Obtener información sobre el módulo H24/7!")
+)]
 pub async fn h247_info(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     // TS !info.ts returns silently without user/member/guild/channel;
     // the guild leg covers it here (DM invocations carry no guild).

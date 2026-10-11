@@ -27,6 +27,16 @@ use poise::serenity_prelude as serenity;
     prefix_command,
     category = "utils",
     rename = "updates",
+    description_localized(
+        "fr",
+        "Obtenez les dernières mises à jour et le changelog d'iHorizon !"
+    ),
+    description_localized("ja", "iHorizonの最新アップデートとチェンジログを取得！"),
+    description_localized("ru", "Получить последние обновления и список изменений iHorizon!"),
+    description_localized(
+        "es-ES",
+        "Obtén las últimas actualizaciones y el changelog de iHorizon!"
+    ),
     aliases("changelog", "update", "changes")
 )]
 pub async fn updates(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {

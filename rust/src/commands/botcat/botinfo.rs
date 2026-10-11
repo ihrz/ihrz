@@ -31,7 +31,11 @@ pub fn guild_users(member_count: u64, approximate: Option<u64>, unavailable: boo
     prefix_command,
     category = "bot",
     rename = "botinfo",
-    aliases("bi")
+    aliases("bi"),
+    description_localized("fr", "Obtenir les informations supplémentaire par rapport au bot."),
+    description_localized("ja", "ボットの情報を取得！"),
+    description_localized("ru", "Получить информацию о боте!"),
+    description_localized("es-ES", "Obtener información sobre el bot!")
 )]
 pub async fn botinfo_full(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let cache = ctx.cache();

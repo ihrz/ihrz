@@ -27,6 +27,16 @@ pub async fn load_react_triggers(pool: &crate::db::Pool, gid: &str) -> Vec<Strin
     prefix_command,
     category = "utils",
     rename = "list-react",
+    description_localized(
+        "fr",
+        "Afficher tous les messages spécifiques enregistrés pour être réagis"
+    ),
+    description_localized("ja", "リアクション用に保存された全特定メッセージを表示"),
+    description_localized("ru", "Показать сохраненные сообщения для реакций"),
+    description_localized(
+        "es-ES",
+        "Mostrar todos los mensajes específicos guardados para reaccionar"
+    ),
     aliases("react-list", "listreact", "reactlist"),
     // @list-react.ts: permission AddReactions.
     default_member_permissions = "ADD_REACTIONS"

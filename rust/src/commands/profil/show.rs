@@ -60,11 +60,24 @@ pub fn age_display(age: Option<f64>, unknown: &str) -> String {
     prefix_command,
     rename = "show",
     aliases("me", "prof"),
-    category = "profil"
+    category = "profil",
+    name_localized("fr", "afficher"),
+    name_localized("ja", "show"),
+    name_localized("ru", "show"),
+    name_localized("es-ES", "show"),
+    description_localized("fr", "Voir le profil iHorizon du membre"),
+    description_localized("ja", "メンバーのiHorizonプロフィールを表示！"),
+    description_localized("ru", "Посмотреть профиль iHorizon участника!"),
+    description_localized("es-ES", "Ver el perfil de iHorizon del miembro!")
 )]
 pub async fn profil_show(
     ctx: Ctx<'_>,
-    #[description = "The user you want to lookup"] user: Option<serenity::User>,
+    #[description = "The user you want to lookup"]
+    #[description_localized("fr", "L'utilisateur que vous souhaitez rechercher")]
+    #[description_localized("ja", "検索したいユーザー")]
+    #[description_localized("ru", "Пользователь для поиска")]
+    #[description_localized("es-ES", "El usuario que quieres buscar")]
+    user: Option<serenity::User>,
 ) -> Result<(), anyhow::Error> {
     let target = user.as_ref().unwrap_or_else(|| ctx.author());
     let lang_code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;

@@ -25,7 +25,11 @@ use super::{
         "gc_joindm",
         "gc_joinrole"
     ),
-    subcommand_required
+    subcommand_required,
+    description_localized("fr", "Définir quelque chose/comportements dans ce serveur"),
+    description_localized("ja", "このサーバー内の何か/行動を設定！"),
+    description_localized("ru", "Установить что-либо на этом сервере!"),
+    description_localized("es-ES", "Establecer algo/comportamientos en este servidor!")
 )]
 pub async fn gc_set(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())

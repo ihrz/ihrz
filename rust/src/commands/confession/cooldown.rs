@@ -79,7 +79,11 @@ async fn post_cooldown_log(ctx: &Ctx<'_>, title: &str, description: &str) {
     prefix_command,
     rename = "cooldown",
     aliases("confess-cooldown"),
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    description_localized("fr", "Changer le cooldown entre les confession"),
+    description_localized("ja", "告白間のクールダウンを変更！"),
+    description_localized("ru", "Изменить задержку между признаниями!"),
+    description_localized("es-ES", "Cambiar el enfriamiento entre confesiones!")
 )]
 pub async fn confession_cooldown(
     ctx: Ctx<'_>,

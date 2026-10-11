@@ -6,7 +6,11 @@ use super::*;
     prefix_command,
     category = "utils",
     rename = "serverinfo",
-    aliases("si", "gi")
+    aliases("si", "gi"),
+    description_localized("fr", "Obtenir des informations sur le serveur"),
+    description_localized("ja", "サーバーの情報を取得！"),
+    description_localized("ru", "Получить информацию о сервере!"),
+    description_localized("es-ES", "Obtener información sobre el servidor!")
 )]
 pub async fn serverinfo(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {

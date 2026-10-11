@@ -14,14 +14,27 @@ fn ban_matches_want(ban_user_id: serenity::UserId, want: &str) -> bool {
     prefix_command,
     rename = "unban",
     aliases("delban", "removeban", "deban", "pardon"),
-    default_member_permissions = "BAN_MEMBERS"
+    default_member_permissions = "BAN_MEMBERS",
+    description_localized("fr", "Annuler le bannissement d'un utilisateur"),
+    description_localized("ja", "ユーザーのバンを解除！"),
+    description_localized("ru", "Разбанить пользователя!"),
+    description_localized("es-ES", "Desbanear a un usuario!")
 )]
 pub async fn mod_unban(
     ctx: Ctx<'_>,
+    #[description_localized("fr", "L'identifiant de l'utilisateur que vous souhaitez débannir")]
+    #[description_localized("ja", "バン解除したいユーザーのID！")]
+    #[description_localized("ru", "ID пользователя для разбана!")]
+    #[description_localized("es-ES", "El ID del usuario que quieres desbanear!")]
     #[description = "User id"]
     #[rename = "userid"]
     user_id: String,
-    #[description = "Reason"] reason: Option<String>,
+    #[description_localized("fr", "La raison du bannissement de cet utilisateur")]
+    #[description_localized("ja", "このユーザーのバン解除の理由。")]
+    #[description_localized("ru", "Причина разбана этого пользователя.")]
+    #[description_localized("es-ES", "La razón para desbanear a este usuario.")]
+    #[description = "Reason"]
+    reason: Option<String>,
 ) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {
         return Ok(());

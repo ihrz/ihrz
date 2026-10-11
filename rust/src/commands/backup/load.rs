@@ -30,10 +30,22 @@ fn normalize_snapshot(snap: &serde_json::Value) -> Option<BackupInfos> {
     // No "restore" alias: TS only registers the backup-load prefix
     // name (backup.ts prefixName), so the port keeps backup-load alone.
     aliases("backup-load"),
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    name_localized("fr", "chargé"),
+    name_localized("ja", "load"),
+    name_localized("ru", "load"),
+    name_localized("es-ES", "load"),
+    description_localized("fr", "Charger une de vos backup(s)"),
+    description_localized("ja", "バックアップを読み込んで初期化！"),
+    description_localized("ru", "Загрузить резервную копию для инициализации!"),
+    description_localized("es-ES", "Cargar tu copia de seguridad para inicializar!"),
 )]
 pub async fn backup_load(
     ctx: Ctx<'_>,
+    #[description_localized("fr", "Quelle est l'identifiant de la backup ?")]
+    #[description_localized("ja", "バックアップIDは？")]
+    #[description_localized("ru", "Какой ID резервной копии?")]
+    #[description_localized("es-ES", "Cual es el ID de la copia de seguridad?")]
     #[description = "Backup id"]
     #[rename = "backup-id"]
     backup_id: String,

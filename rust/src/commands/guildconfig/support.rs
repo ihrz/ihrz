@@ -53,7 +53,15 @@ fn guild_has_tags(ctx: &Ctx<'_>) -> bool {
     category = "guildconfig",
     rename = "support",
     aliases("soutien"),
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    name_localized("fr", "soutien"),
+    name_localized("ja", "support"),
+    name_localized("ru", "support"),
+    name_localized("es-ES", "support"),
+    description_localized("fr", "Donnez un rôle lorsque les membres de la guilde ont quelque chose sur votre serveur dans leur bio"),
+    description_localized("ja", "サーバーメンバーの自己紹介にサーバーに関する情報がある場合にロールを付与！"),
+    description_localized("ru", "Выдать роли, если у участника в описании есть информация о сервере!"),
+    description_localized("es-ES", "Dar roles cuando el miembro del servidor tiene algo sobre tu servidor en su biografía!"),
 )]
 pub async fn gc_support(
     ctx: Ctx<'_>,
@@ -255,5 +263,35 @@ mod tests {
         .await
         .unwrap();
         assert!(support_enabled_routed(&pool, "g2").await);
+    }
+    #[test]
+    fn support_registers_name_and_description_localizations() {
+        let cmd = super::gc_support();
+        assert_eq!(
+            cmd.name_localizations.get("fr").map(String::as_str),
+            Some("soutien")
+        );
+        assert_eq!(
+            cmd.name_localizations.get("ja").map(String::as_str),
+            Some("support")
+        );
+        assert_eq!(
+            cmd.name_localizations.get("ru").map(String::as_str),
+            Some("support")
+        );
+        assert_eq!(
+            cmd.name_localizations.get("es-ES").map(String::as_str),
+            Some("support")
+        );
+        assert_eq!(cmd.description_localizations.get("fr").map(String::as_str), Some("Donnez un rôle lorsque les membres de la guilde ont quelque chose sur votre serveur dans leur bio"));
+        assert_eq!(
+            cmd.description_localizations.get("ja").map(String::as_str),
+            Some("サーバーメンバーの自己紹介にサーバーに関する情報がある場合にロールを付与！")
+        );
+        assert_eq!(
+            cmd.description_localizations.get("ru").map(String::as_str),
+            Some("Выдать роли, если у участника в описании есть информация о сервере!")
+        );
+        assert_eq!(cmd.description_localizations.get("es-ES").map(String::as_str), Some("Dar roles cuando el miembro del servidor tiene algo sobre tu servidor en su biografía!"));
     }
 }

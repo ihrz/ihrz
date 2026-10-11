@@ -26,11 +26,20 @@ fn author_mention(warn: &Warn, unknown: &str) -> String {
     prefix_command,
     rename = "warnlist",
     aliases("warns", "listwarns", "listwarn", "warnslist", "sanctions"),
-    default_member_permissions = "MODERATE_MEMBERS"
+    default_member_permissions = "MODERATE_MEMBERS",
+    description_localized("fr", "afficher tout les avertissement d'un utilisateur"),
+    description_localized("ja", "ユーザーの全警告を表示"),
+    description_localized("ru", "показать все предупреждения пользователя"),
+    description_localized("es-ES", "mostrar todas las advertencias de un usuario")
 )]
 pub async fn mod_warnlist(
     ctx: Ctx<'_>,
-    #[description = "Member"] member: serenity::User,
+    #[description_localized("fr", "le membre que vous shouaiter vérifier")]
+    #[description_localized("ja", "検索したいメンバー")]
+    #[description_localized("ru", "Участник для поиска")]
+    #[description_localized("es-ES", "El miembro que quieres buscar")]
+    #[description = "Member"]
+    member: serenity::User,
     #[description = "Page"] page: Option<i64>,
 ) -> Result<(), anyhow::Error> {
     let gid = ctx

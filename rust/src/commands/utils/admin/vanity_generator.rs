@@ -13,11 +13,20 @@ pub const VANITY_TABLE: &str = "vanity";
     rename = "vanity-generator",
     aliases("vanity", "vanity-gen", "customvanity"),
     default_member_permissions = "MANAGE_GUILD",
-    user_cooldown = 86400
+    user_cooldown = 86400,
+    description_localized("fr", "Créer votre propre URL vanity sous le format discord.wf"),
+    description_localized("ja", "discord.wf形式で自分のバニティURLを取得！"),
+    description_localized("ru", "Получить вашу персональную ссылку в формате discord.wf!"),
+    description_localized("es-ES", "Obtener tu propia URL de vanidad en formato discord.wf!")
 )]
 pub async fn vanity_generator(
     ctx: Ctx<'_>,
-    #[description = "Vanity code"] code: String,
+    #[description_localized("fr", "Le code du Vanity")]
+    #[description_localized("ja", "バニティURLコード")]
+    #[description_localized("ru", "Код персональной ссылки")]
+    #[description_localized("es-ES", "Código de URL de vanidad")]
+    #[description = "Vanity code"]
+    code: String,
 ) -> Result<(), anyhow::Error> {
     let invalid_tpl = crate::commands::lang_for(
         &ctx,

@@ -18,13 +18,35 @@ fn bot_can_tempmute(perms: serenity::Permissions) -> bool {
     prefix_command,
     rename = "tempmute",
     aliases("mute"),
-    default_member_permissions = "MODERATE_MEMBERS"
+    default_member_permissions = "MODERATE_MEMBERS",
+    description_localized(
+        "fr",
+        "Couper temporairement la possibilité d'envoyer des message pour un utilisateur"
+    ),
+    description_localized("ja", "ユーザーを一時的にミュート！"),
+    description_localized("ru", "Временно замутить пользователя!"),
+    description_localized("es-ES", "Silenciar temporalmente a un usuario!")
 )]
 pub async fn mod_timeout(
     ctx: Ctx<'_>,
-    #[description = "Member"] user: serenity::User,
-    #[description = "Duration (e.g. 10m, 1h, 7d)"] time: String,
-    #[description = "Reason"] reason: Option<String>,
+    #[description_localized("fr", "L'utilisateur que vous souhaitez dé-mute textuellement")]
+    #[description_localized("ja", "ミュート解除したいユーザー")]
+    #[description_localized("ru", "Пользователь для размута")]
+    #[description_localized("es-ES", "El usuario que quieres desilenciar")]
+    #[description = "Member"]
+    user: serenity::User,
+    #[description_localized("fr", "la durée du tempmute de l'utilisateur")]
+    #[description_localized("ja", "ユーザーの一時的ミュート期間")]
+    #[description_localized("ru", "длительность временного мута")]
+    #[description_localized("es-ES", "la duración del silencio temporal")]
+    #[description = "Duration (e.g. 10m, 1h, 7d)"]
+    time: String,
+    #[description_localized("fr", "la raison du tempmute")]
+    #[description_localized("ja", "一時的ミュートの理由")]
+    #[description_localized("ru", "причина временного мута")]
+    #[description_localized("es-ES", "la razón del silencio temporal")]
+    #[description = "Reason"]
+    reason: Option<String>,
 ) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {
         return Ok(());

@@ -9,11 +9,20 @@ use super::*;
     category = "fun",
     rename = "config",
     aliases("fconfig"),
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    description_localized("fr", "Désactiver la catégorie fun"),
+    description_localized("ja", "Funカテゴリを無効化"),
+    description_localized("ru", "Отключить категорию развлечений"),
+    description_localized("es-ES", "Deshabilitar la categoría de diversión")
 )]
 pub async fn fun_config(
     ctx: Ctx<'_>,
-    #[description = "on or off"] action: String,
+    #[description_localized("fr", "Que voulez-vous faire ?")]
+    #[description_localized("ja", "何をしたいですか？")]
+    #[description_localized("ru", "Что вы хотите сделать?")]
+    #[description_localized("es-ES", "Que quieres hacer?")]
+    #[description = "on or off"]
+    action: String,
 ) -> Result<(), anyhow::Error> {
     let gid = ctx
         .guild_id()

@@ -285,7 +285,11 @@ async fn dm_best_effort(http: &serenity::Http, user: &serenity::User, content: S
         "mod_clearwarn",
         "mod_clear_all_warns"
     ),
-    subcommand_required
+    subcommand_required,
+    description_localized("fr", "Commande sous-groupé pour la catégorie de modération"),
+    description_localized("ja", "モデレーションカテゴリのサブコマンド！"),
+    description_localized("ru", "Подкоманда для категории модерации!"),
+    description_localized("es-ES", "Subcomando para la categoría de moderación!")
 )]
 pub async fn moderation(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())
@@ -923,6 +927,182 @@ mod tests {
         assert_eq!(
             warn_top_role_name(&Some(vec![]), &map),
             "everyone".to_string()
+        );
+    }
+}
+
+#[cfg(test)]
+mod localization_tests {
+
+    type LocCmd = poise::Command<crate::commands::Data, crate::commands::Error>;
+
+    fn find_path<'a>(cmds: &'a [LocCmd], path: &[&str]) -> &'a LocCmd {
+        let cmd = cmds
+            .iter()
+            .find(|c| c.name == path[0])
+            .unwrap_or_else(|| panic!("command {} missing", path.join(" ")));
+        if path.len() == 1 {
+            cmd
+        } else {
+            find_path(&cmd.subcommands, &path[1..])
+        }
+    }
+
+    #[test]
+    fn loc_mod() {
+        // TS moderation/mod.ts (`mod`)
+        let cmds = crate::commands::all();
+        let cmd = find_path(&cmds, &["mod"]);
+        assert_eq!(
+            cmd.description_localizations.get("fr").map(String::as_str),
+            Some("Commande sous-groupé pour la catégorie de modération")
+        );
+        assert_eq!(
+            cmd.description_localizations.get("ja").map(String::as_str),
+            Some("モデレーションカテゴリのサブコマンド！")
+        );
+        assert_eq!(cmd.description_localizations.len(), 4);
+    }
+
+    #[test]
+    fn loc_ban() {
+        // TS moderation/mod.ts (`ban`)
+        let cmds = crate::commands::all();
+        let cmd = find_path(&cmds, &["mod", "ban"]);
+        assert_eq!(
+            cmd.description_localizations.get("fr").map(String::as_str),
+            Some("Bannir un utilisateur")
+        );
+        assert_eq!(
+            cmd.description_localizations.get("ja").map(String::as_str),
+            Some("ユーザーをバン！")
+        );
+        assert_eq!(cmd.description_localizations.len(), 4);
+        let prm = cmd
+            .parameters
+            .iter()
+            .find(|x| x.name == "member")
+            .expect("param member");
+        assert_eq!(
+            prm.description_localizations.get("fr").map(String::as_str),
+            Some("le membre que vous souhaitez bannir")
+        );
+        assert_eq!(
+            prm.description_localizations.get("ja").map(String::as_str),
+            Some("バンしたいメンバー")
+        );
+        let prm = cmd
+            .parameters
+            .iter()
+            .find(|x| x.name == "reason")
+            .expect("param reason");
+        assert_eq!(
+            prm.description_localizations.get("fr").map(String::as_str),
+            Some("la raison du ban")
+        );
+        assert_eq!(
+            prm.description_localizations.get("ja").map(String::as_str),
+            Some("バンの理由")
+        );
+    }
+
+    #[test]
+    fn loc_baninfo() {
+        // TS moderation/mod.ts (`baninfo`)
+        let cmds = crate::commands::all();
+        let cmd = find_path(&cmds, &["mod", "baninfo"]);
+        assert_eq!(
+            cmd.description_localizations.get("fr").map(String::as_str),
+            Some("Vérifier si l'utilisateur est bannis du serveur et pourquoi")
+        );
+        assert_eq!(
+            cmd.description_localizations.get("ja").map(String::as_str),
+            Some("ユーザーがバンされているかとその理由を確認")
+        );
+        assert_eq!(cmd.description_localizations.len(), 4);
+        let prm = cmd
+            .parameters
+            .iter()
+            .find(|x| x.name == "user")
+            .expect("param user");
+        assert_eq!(
+            prm.description_localizations.get("fr").map(String::as_str),
+            Some("le membre que vous souhaitez vérifier")
+        );
+        assert_eq!(
+            prm.description_localizations.get("ja").map(String::as_str),
+            Some("確認したいメンバー")
+        );
+    }
+
+    #[test]
+    fn loc_clear() {
+        // TS moderation/mod.ts (`clear`)
+        let cmds = crate::commands::all();
+        let cmd = find_path(&cmds, &["mod", "clear"]);
+        assert_eq!(
+            cmd.description_localizations.get("fr").map(String::as_str),
+            Some("Effacer une quantité de message dans le cannal")
+        );
+        assert_eq!(
+            cmd.description_localizations.get("ja").map(String::as_str),
+            Some("チャンネル内のメッセージを一括削除！")
+        );
+        assert_eq!(cmd.description_localizations.len(), 4);
+        let prm = cmd
+            .parameters
+            .iter()
+            .find(|x| x.name == "member")
+            .expect("param member");
+        assert_eq!(
+            prm.description_localizations.get("fr").map(String::as_str),
+            Some("Le membre dont vous souhaitez supprimer les messages")
+        );
+        assert_eq!(
+            prm.description_localizations.get("ja").map(String::as_str),
+            Some("メッセージを削除したいメンバー")
+        );
+        let prm = cmd
+            .parameters
+            .iter()
+            .find(|x| x.name == "amount")
+            .expect("param amount");
+        assert_eq!(
+            prm.description_localizations.get("fr").map(String::as_str),
+            Some("Le nombre de messages que vous souhaitez supprimer")
+        );
+        assert_eq!(
+            prm.description_localizations.get("ja").map(String::as_str),
+            Some("削除したいメッセージ数！")
+        );
+    }
+
+    #[test]
+    fn loc_clearwarn() {
+        // TS moderation/mod.ts (`clearwarn`)
+        let cmds = crate::commands::all();
+        let cmd = find_path(&cmds, &["mod", "clearwarn"]);
+        assert_eq!(
+            cmd.description_localizations.get("fr").map(String::as_str),
+            Some("effacer tout les avertissement d'un utilisateur")
+        );
+        assert_eq!(
+            cmd.description_localizations.get("ja").map(String::as_str),
+            Some("ユーザーの全警告をクリア")
+        );
+        assert_eq!(cmd.description_localizations.len(), 4);
+        let prm = cmd
+            .parameters
+            .iter()
+            .find(|x| x.name == "member")
+            .expect("param member");
+        assert_eq!(
+            prm.description_localizations.get("fr").map(String::as_str),
+            Some("le membre que vous voulez effacer les avertissements")
+        );
+        assert_eq!(
+            prm.description_localizations.get("ja").map(String::as_str),
+            Some("クリアしたいメンバー")
         );
     }
 }

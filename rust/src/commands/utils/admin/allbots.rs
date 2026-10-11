@@ -14,7 +14,11 @@ pub const ALLBOTS_PER_PAGE: usize = 5;
     category = "utils",
     rename = "allbots",
     aliases("allb", "bots"),
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    description_localized("fr", "Obtenez la liste de tous les bot de la guilde"),
+    description_localized("ja", "サーバー内の全ボットのリストを取得"),
+    description_localized("ru", "Получить список всех ботов на сервере"),
+    description_localized("es-ES", "Obtener la lista de todos los bots en el servidor")
 )]
 pub async fn allbots(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {

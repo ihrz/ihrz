@@ -6,6 +6,19 @@ use super::*;
     prefix_command,
     category = "utils",
     rename = "remove-react",
+    description_localized(
+        "fr",
+        "Supprimer une réaction d'iHorizon lorsque l'utilisateur envoie un message spécifiqe"
+    ),
+    description_localized(
+        "ja",
+        "ユーザーがメッセージを送信した時のiHorizonのリアクションを削除"
+    ),
+    description_localized("ru", "Удалить реакцию iHorizon при отправке сообщения"),
+    description_localized(
+        "es-ES",
+        "Eliminar reacción de iHorizon cuando el usuario envía un mensaje"
+    ),
     aliases("react-remove", "removereact", "reactremove"),
     // @remove-react.ts: permission ManageGuildExpressions.
     default_member_permissions = "MANAGE_GUILD_EXPRESSIONS"

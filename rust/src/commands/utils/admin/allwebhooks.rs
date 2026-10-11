@@ -7,7 +7,11 @@ use super::*;
     category = "utils",
     rename = "allwebhooks",
     aliases("webhooks", "webhook"),
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    description_localized("fr", "Afficher toute les webhooks enregistrer sur le serveur"),
+    description_localized("ja", "サーバーに登録された全Webhookを一覧表示"),
+    description_localized("ru", "Показать все вебхуки на сервере"),
+    description_localized("es-ES", "Listar todos los webhooks registrados en el servidor")
 )]
 pub async fn allwebhooks(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {

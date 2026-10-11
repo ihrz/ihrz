@@ -7,7 +7,18 @@ use super::*;
     slash_command,
     prefix_command,
     rename = "config",
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    name_localized("fr", "statut"),
+    name_localized("ja", "config"),
+    name_localized("ru", "config"),
+    name_localized("es-ES", "config"),
+    description_localized("fr", "Désactiver ou activer la fonctionnalité du module de sécurité"),
+    description_localized("ja", "セキュリティモジュール機能を無効化または有効化！"),
+    description_localized("ru", "Отключить или включить модуль безопасности!"),
+    description_localized(
+        "es-ES",
+        "Deshabilitar o habilitar la función del módulo de seguridad!"
+    )
 )]
 pub async fn security_config(
     ctx: Ctx<'_>,

@@ -7,12 +7,32 @@ use super::*;
     prefix_command,
     category = "utils",
     rename = "addrolereact",
-    default_member_permissions = "MANAGE_ROLES"
+    default_member_permissions = "MANAGE_ROLES",
+    description_localized(
+        "fr",
+        "Ajouter un rôle à tous les utilisateurs qui ont réagi à un message spécifique"
+    ),
+    description_localized("ja", "特定のメッセージにリアクションした全ユーザーにロールを追加"),
+    description_localized("ru", "Добавить роль всем, кто отреагировал на сообщение"),
+    description_localized(
+        "es-ES",
+        "Añadir un rol a todos los usuarios que reaccionaron a un mensaje específico"
+    )
 )]
 pub async fn addrolereact(
     ctx: Ctx<'_>,
-    #[description = "Message id"] message_id: String,
-    #[description = "Role"] role: serenity::Role,
+    #[description_localized("fr", "L'ID du message dont on veut vérifier les réactions")]
+    #[description_localized("ja", "リアクションを確認するメッセージのID")]
+    #[description_localized("ru", "ID сообщения для проверки реакций")]
+    #[description_localized("es-ES", "El ID del mensaje para comprobar las reacciones")]
+    #[description = "Message id"]
+    message_id: String,
+    #[description_localized("fr", "Le rôle à ajouter aux utilisateurs")]
+    #[description_localized("ja", "ユーザーに追加するロール")]
+    #[description_localized("ru", "Роль для добавления пользователям")]
+    #[description_localized("es-ES", "El rol a añadir a los usuarios")]
+    #[description = "Role"]
+    role: serenity::Role,
 ) -> Result<(), anyhow::Error> {
     if let Err(e) = addrolereact_inner(&ctx, &message_id, &role).await {
         // Catch-all. Mirrors the TS try/catch -> addrolereact_error.

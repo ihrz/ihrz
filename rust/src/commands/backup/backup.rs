@@ -17,7 +17,11 @@ use super::{
         "backup_delete",
         "backup_manage"
     ),
-    subcommand_required
+    subcommand_required,
+    description_localized("fr", "Commande sous-groupé pour la catégorie backup"),
+    description_localized("ja", "バックアップカテゴリのサブコマンド！"),
+    description_localized("ru", "Подкоманда для категории резервного копирования!"),
+    description_localized("es-ES", "Subcomando para la categoría de copias de seguridad!")
 )]
 pub async fn backup(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())

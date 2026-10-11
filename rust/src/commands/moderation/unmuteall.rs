@@ -7,7 +7,11 @@ use poise::serenity_prelude as serenity;
     prefix_command,
     rename = "unmuteall",
     aliases("unmute-all", "untimeoutall", "untimeout-all", "demuteall"),
-    default_member_permissions = "MODERATE_MEMBERS"
+    default_member_permissions = "MODERATE_MEMBERS",
+    description_localized("fr", "Demute tous les membres mute textuellement"),
+    description_localized("ja", "全ミュートメンバーのミュートを解除！"),
+    description_localized("ru", "Размутить всех замученных участников!"),
+    description_localized("es-ES", "Desilenciar a todos los miembros silenciados!")
 )]
 pub async fn mod_unmuteall(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {

@@ -8,7 +8,11 @@ use poise::serenity_prelude as serenity;
     slash_command,
     prefix_command,
     category = "bot",
-    aliases("inviteme", "oauth")
+    aliases("inviteme", "oauth"),
+    description_localized("fr", "Obtenir le lien d'invitations du bot iHorizon"),
+    description_localized("ja", "ボットの招待リンクを取得！"),
+    description_localized("ru", "Получить ссылку приглашения бота!"),
+    description_localized("es-ES", "Obtener el enlace de invitación del bot!")
 )]
 pub async fn invite(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;

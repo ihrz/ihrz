@@ -21,7 +21,15 @@ pub fn should_leave_voice(player_exists: bool) -> bool {
     slash_command,
     prefix_command,
     rename = "leave",
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    name_localized("fr", "quitter"),
+    name_localized("ja", "leave"),
+    name_localized("ru", "leave"),
+    name_localized("es-ES", "leave"),
+    description_localized("fr", "Désactiver la connexion 24/7 sur ce serveur!"),
+    description_localized("ja", "このサーバーの24時間接続を無効化します！"),
+    description_localized("ru", "Отключить подключение 24/7 на этом сервере!"),
+    description_localized("es-ES", "¡Desactivar la conexión 24/7 en este servidor!")
 )]
 pub async fn h247_leave(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     // Prefix native-permission gate (U-MSV-FIX14): TS `checkNativePermission`

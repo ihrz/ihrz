@@ -9,7 +9,18 @@ use super::*;
     prefix_command,
     rename = "get-data",
     aliases("get"),
-    default_member_permissions = "MANAGE_MESSAGES"
+    default_member_permissions = "MANAGE_MESSAGES",
+    name_localized("fr", "get-data"),
+    name_localized("ja", "get-data"),
+    name_localized("ru", "get-data"),
+    name_localized("es-ES", "get-data"),
+    description_localized(
+        "fr",
+        "Obtenir des informations à propos d'un giveaways! (Format JSON)"
+    ),
+    description_localized("ja", "ギブアウェイの情報を取得（JSONデータ）"),
+    description_localized("ru", "Получить информацию о розыгрыше (JSON)"),
+    description_localized("es-ES", "Obtener información sobre un sorteo (cuerpo JSON)")
 )]
 pub async fn gw_get_data(
     ctx: Ctx<'_>,
@@ -19,6 +30,10 @@ pub async fn gw_get_data(
     // `getGiveawayData(null)` reject, answering `gw_doesnt_exit`; `mid`
     // 0 matches no board here, same reply, instead of a poise parse
     // error on the bare form.
+    #[description_localized("fr", "L'identifiant du giveaways")]
+    #[description_localized("ja", "ギブアウェイのID")]
+    #[description_localized("ru", "ID розыгрыша")]
+    #[description_localized("es-ES", "ID del sorteo")]
     #[description = "Giveaway message id"]
     #[rename = "giveaway-id"]
     message_id: Option<String>,

@@ -990,3 +990,285 @@ pub mod main {
     pub use super::youtube::*;
     pub use super::*;
 }
+
+#[cfg(test)]
+mod localization_tests {
+
+    type LocCmd = poise::Command<crate::commands::Data, crate::commands::Error>;
+
+    fn find_path<'a>(cmds: &'a [LocCmd], path: &[&str]) -> &'a LocCmd {
+        let cmd = cmds
+            .iter()
+            .find(|c| c.name == path[0])
+            .unwrap_or_else(|| panic!("command {} missing", path.join(" ")));
+        if path.len() == 1 {
+            cmd
+        } else {
+            find_path(&cmd.subcommands, &path[1..])
+        }
+    }
+
+    #[test]
+    fn loc_fun() {
+        // TS fun/fun.ts (`fun`)
+        let cmds = crate::commands::all();
+        let cmd = find_path(&cmds, &["fun"]);
+        assert_eq!(
+            cmd.description_localizations.get("fr").map(String::as_str),
+            Some("Commande sous-groupé pour la catégorie d'amusement")
+        );
+        assert_eq!(
+            cmd.description_localizations.get("ja").map(String::as_str),
+            Some("Funカテゴリのサブコマンド！")
+        );
+        assert_eq!(cmd.description_localizations.len(), 4);
+        assert_eq!(
+            cmd.name_localizations.get("fr").map(String::as_str),
+            Some("fun")
+        );
+        assert_eq!(
+            cmd.name_localizations.get("ja").map(String::as_str),
+            Some("fun")
+        );
+        assert_eq!(cmd.name_localizations.len(), 4);
+    }
+
+    #[test]
+    fn loc_caracteres() {
+        // TS fun/fun.ts (`style/caracteres`)
+        let cmds = crate::commands::all();
+        let cmd = find_path(&cmds, &["fun", "style", "caracteres"]);
+        assert_eq!(
+            cmd.description_localizations.get("fr").map(String::as_str),
+            Some("Transformez une chaîne de caractères en DarkSasuke")
+        );
+        assert_eq!(
+            cmd.description_localizations.get("ja").map(String::as_str),
+            Some("文字列をDarkSasukeに変換！")
+        );
+        assert_eq!(cmd.description_localizations.len(), 4);
+        assert_eq!(
+            cmd.name_localizations.get("fr").map(String::as_str),
+            Some("caractères")
+        );
+        assert_eq!(
+            cmd.name_localizations.get("ja").map(String::as_str),
+            Some("caracteres")
+        );
+        assert_eq!(cmd.name_localizations.len(), 4);
+        let prm = cmd
+            .parameters
+            .iter()
+            .find(|x| x.name == "nickname")
+            .expect("param nickname");
+        assert_eq!(
+            prm.description_localizations.get("fr").map(String::as_str),
+            Some("ton surnom cool à transformer")
+        );
+        assert_eq!(
+            prm.description_localizations.get("ja").map(String::as_str),
+            Some("変換したいクールなニックネーム！")
+        );
+    }
+
+    #[test]
+    fn loc_cat() {
+        // TS fun/fun.ts (`animals/cat`)
+        let cmds = crate::commands::all();
+        let cmd = find_path(&cmds, &["fun", "animals", "cat"]);
+        assert_eq!(
+            cmd.description_localizations.get("fr").map(String::as_str),
+            Some("Obtenez une photo du chat")
+        );
+        assert_eq!(
+            cmd.description_localizations.get("ja").map(String::as_str),
+            Some("猫の画像を取得！")
+        );
+        assert_eq!(cmd.description_localizations.len(), 4);
+        assert_eq!(
+            cmd.name_localizations.get("fr").map(String::as_str),
+            Some("chat")
+        );
+        assert_eq!(
+            cmd.name_localizations.get("ja").map(String::as_str),
+            Some("cat")
+        );
+        assert_eq!(cmd.name_localizations.len(), 4);
+    }
+
+    #[test]
+    fn loc_catsay() {
+        // TS fun/fun.ts (`image/catsay`)
+        let cmds = crate::commands::all();
+        let cmd = find_path(&cmds, &["fun", "image", "catsay"]);
+        assert_eq!(
+            cmd.description_localizations.get("fr").map(String::as_str),
+            Some("le chat à dit (insérer le texte ici)")
+        );
+        assert_eq!(
+            cmd.description_localizations.get("ja").map(String::as_str),
+            Some("猫が言う（ここにテキストを入力）")
+        );
+        assert_eq!(cmd.description_localizations.len(), 4);
+        assert_eq!(
+            cmd.name_localizations.get("fr").map(String::as_str),
+            Some("le-chat-à-dis")
+        );
+        assert_eq!(
+            cmd.name_localizations.get("ja").map(String::as_str),
+            Some("catsay")
+        );
+        assert_eq!(cmd.name_localizations.len(), 4);
+        let prm = cmd
+            .parameters
+            .iter()
+            .find(|x| x.name == "text")
+            .expect("param text");
+        assert_eq!(
+            prm.description_localizations.get("fr").map(String::as_str),
+            Some("Le chat dit...")
+        );
+        assert_eq!(
+            prm.description_localizations.get("ja").map(String::as_str),
+            Some("猫が言う...")
+        );
+    }
+
+    #[test]
+    fn loc_dice() {
+        // TS fun/fun.ts (`random/dice`)
+        let cmds = crate::commands::all();
+        let cmd = find_path(&cmds, &["fun", "random", "dice"]);
+        assert_eq!(
+            cmd.description_localizations.get("fr").map(String::as_str),
+            Some("Lance un ou plusieurs dés")
+        );
+        assert_eq!(
+            cmd.description_localizations.get("ja").map(String::as_str),
+            Some("サイコロを振る")
+        );
+        assert_eq!(cmd.description_localizations.len(), 4);
+        assert_eq!(
+            cmd.name_localizations.get("fr").map(String::as_str),
+            Some("dé")
+        );
+        assert_eq!(
+            cmd.name_localizations.get("ja").map(String::as_str),
+            Some("dice")
+        );
+        assert_eq!(cmd.name_localizations.len(), 4);
+        let prm = cmd
+            .parameters
+            .iter()
+            .find(|x| x.name == "number")
+            .expect("param number");
+        assert_eq!(
+            prm.description_localizations.get("fr").map(String::as_str),
+            Some("Nombre de dés à lancer")
+        );
+        assert_eq!(
+            prm.description_localizations.get("ja").map(String::as_str),
+            Some("振るサイコロの数")
+        );
+        assert_eq!(
+            prm.name_localizations.get("fr").map(String::as_str),
+            Some("nombre")
+        );
+        assert_eq!(
+            prm.name_localizations.get("ja").map(String::as_str),
+            Some("number")
+        );
+        let prm = cmd
+            .parameters
+            .iter()
+            .find(|x| x.name == "faces")
+            .expect("param faces");
+        assert_eq!(
+            prm.description_localizations.get("fr").map(String::as_str),
+            Some("Nombre de faces sur le(s) dé(s)")
+        );
+        assert_eq!(
+            prm.description_localizations.get("ja").map(String::as_str),
+            Some("サイコロの面の数")
+        );
+        assert_eq!(
+            prm.name_localizations.get("fr").map(String::as_str),
+            Some("faces")
+        );
+        assert_eq!(
+            prm.name_localizations.get("ja").map(String::as_str),
+            Some("faces")
+        );
+    }
+
+    #[test]
+    fn loc_bubbles() {
+        // TS fun/fun.ts (`image/bubbles`)
+        let cmds = crate::commands::all();
+        let cmd = find_path(&cmds, &["fun", "image", "bubbles"]);
+        assert_eq!(
+            cmd.description_localizations.get("fr").map(String::as_str),
+            Some("ajouter une bulle au dessus de votre image")
+        );
+        assert_eq!(
+            cmd.description_localizations.get("ja").map(String::as_str),
+            Some("自分の画像の上に吹き出しを追加")
+        );
+        assert_eq!(cmd.description_localizations.len(), 4);
+        let prm = cmd
+            .parameters
+            .iter()
+            .find(|x| x.name == "image")
+            .expect("param image");
+        assert_eq!(
+            prm.description_localizations.get("fr").map(String::as_str),
+            Some("fichier image")
+        );
+        assert_eq!(
+            prm.description_localizations.get("ja").map(String::as_str),
+            Some("画像ファイル")
+        );
+    }
+
+    #[test]
+    fn loc_captions() {
+        // TS fun/fun.ts (`image/captions`)
+        let cmds = crate::commands::all();
+        let cmd = find_path(&cmds, &["fun", "image", "captions"]);
+        assert_eq!(
+            cmd.description_localizations.get("fr").map(String::as_str),
+            Some("ajouter du texte au dessus de votre image")
+        );
+        assert_eq!(
+            cmd.description_localizations.get("ja").map(String::as_str),
+            Some("自分の画像の上にテキストを追加")
+        );
+        assert_eq!(cmd.description_localizations.len(), 4);
+        let prm = cmd
+            .parameters
+            .iter()
+            .find(|x| x.name == "image")
+            .expect("param image");
+        assert_eq!(
+            prm.description_localizations.get("fr").map(String::as_str),
+            Some("fichier image")
+        );
+        assert_eq!(
+            prm.description_localizations.get("ja").map(String::as_str),
+            Some("画像ファイル")
+        );
+        let prm = cmd
+            .parameters
+            .iter()
+            .find(|x| x.name == "query")
+            .expect("param query");
+        assert_eq!(
+            prm.description_localizations.get("fr").map(String::as_str),
+            Some("votre texte")
+        );
+        assert_eq!(
+            prm.description_localizations.get("ja").map(String::as_str),
+            Some("あなたの字幕")
+        );
+    }
+}

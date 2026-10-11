@@ -17,7 +17,11 @@ use super::{
         "confession_cooldown",
         "confession_list"
     ),
-    subcommand_required
+    subcommand_required,
+    description_localized("fr", "Commande sous-groupé pour le module de confession"),
+    description_localized("ja", "告白カテゴリのサブコマンド！"),
+    description_localized("ru", "Подкоманда для категории признаний!"),
+    description_localized("es-ES", "Subcomando para la categoría de confesiones!")
 )]
 pub async fn confession(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())

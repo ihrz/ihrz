@@ -43,7 +43,11 @@ async fn yes_markup(http: &serenity::Http) -> String {
         "vd_position",
         "vd_staff"
     ),
-    subcommand_required
+    subcommand_required,
+    description_localized("fr", "Commande sous-groupé pour la gestion de canaux vocaux"),
+    description_localized("ja", "ボイス管理のサブコマンドグループ"),
+    description_localized("ru", "Группа подкоманд для управления голосом"),
+    description_localized("es-ES", "Grupo de subcomando para el gestor de voz")
 )]
 pub async fn voicedashboard(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())
@@ -2316,6 +2320,28 @@ mod tests {
         assert_eq!(
             load_temps(&pool, "g").await,
             vec![("7".to_string(), "222".to_string())]
+        );
+    }
+    #[test]
+    fn voice_registers_description_localizations() {
+        let cmd = super::voicedashboard();
+        assert_eq!(
+            cmd.description_localizations.get("fr").map(String::as_str),
+            Some("Commande sous-groupé pour la gestion de canaux vocaux")
+        );
+        assert_eq!(
+            cmd.description_localizations.get("ja").map(String::as_str),
+            Some("ボイス管理のサブコマンドグループ")
+        );
+        assert_eq!(
+            cmd.description_localizations.get("ru").map(String::as_str),
+            Some("Группа подкоманд для управления голосом")
+        );
+        assert_eq!(
+            cmd.description_localizations
+                .get("es-ES")
+                .map(String::as_str),
+            Some("Grupo de subcomando para el gestor de voz")
         );
     }
 }

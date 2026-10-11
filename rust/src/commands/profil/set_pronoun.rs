@@ -45,11 +45,24 @@ pub fn validate_pronoun(normalized: &str) -> bool {
     prefix_command,
     rename = "set-pronoun",
     aliases("pronoun", "pronom"),
-    category = "profil"
+    category = "profil",
+    name_localized("fr", "définir-pronom"),
+    name_localized("ja", "set-pronoun"),
+    name_localized("ru", "set-pronoun"),
+    name_localized("es-ES", "set-pronoun"),
+    description_localized("fr", "Définissez votre pronom sur le profil iHorizon"),
+    description_localized("ja", "iHorizonプロフィールに代名詞を設定！"),
+    description_localized("ru", "Установить местоимение в профиле iHorizon!"),
+    description_localized("es-ES", "Establecer tu pronombre en el perfil de iHorizon!")
 )]
 pub async fn profil_pronoun(
     ctx: Ctx<'_>,
-    #[description = "Pronoun (she/her, he/him, they/them, xe/xem, ze/zem, other)"] pronoun: String,
+    #[description = "Pronoun (she/her, he/him, they/them, xe/xem, ze/zem, other)"]
+    #[description_localized("fr", "Le pronom qui vous correspond le plus")]
+    #[description_localized("ja", "最も合う代名詞")]
+    #[description_localized("ru", "Местоимение, которое вам подходит")]
+    #[description_localized("es-ES", "Pronombre que más te queda")]
+    pronoun: String,
 ) -> Result<(), anyhow::Error> {
     let normalized = normalize_pronoun(&pronoun);
     if !validate_pronoun(&normalized) {

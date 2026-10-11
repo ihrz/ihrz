@@ -6,11 +6,24 @@ use poise::serenity_prelude as serenity;
     slash_command,
     prefix_command,
     rename = "unwarn",
-    default_member_permissions = "MODERATE_MEMBERS"
+    default_member_permissions = "MODERATE_MEMBERS",
+    description_localized("fr", "supprimer un avertissement d'un utilisateur"),
+    description_localized("ja", "ユーザーの警告を解除"),
+    description_localized("ru", "снять предупреждение"),
+    description_localized("es-ES", "quitar advertencia")
 )]
 pub async fn mod_unwarn(
     ctx: Ctx<'_>,
-    #[description = "Member"] member: serenity::User,
+    #[description_localized("fr", "le membre que vous voulez enlever sont signalement")]
+    #[description_localized("ja", "警告を解除したいメンバー")]
+    #[description_localized("ru", "Участник для снятия предупреждения")]
+    #[description_localized("es-ES", "El miembro al que quieres quitar la advertencia")]
+    #[description = "Member"]
+    member: serenity::User,
+    #[description_localized("fr", "l'identifiant du warn")]
+    #[description_localized("ja", "警告ID")]
+    #[description_localized("ru", "ID предупреждения")]
+    #[description_localized("es-ES", "El ID de la advertencia")]
     #[description = "Warn id"]
     #[rename = "warn-id"]
     warn_id: String,

@@ -40,7 +40,15 @@ use super::{
     prefix_command,
     category = "fun",
     rename = "animals",
-    subcommands("cat", "dog", "duck", "panda", "fox", "dolphin", "frog", "squirrel")
+    subcommands("cat", "dog", "duck", "panda", "fox", "dolphin", "frog", "squirrel"),
+    name_localized("fr", "animaux"),
+    name_localized("ja", "animals"),
+    name_localized("ru", "animals"),
+    name_localized("es-ES", "animals"),
+    description_localized("fr", "commande liée au animaux"),
+    description_localized("ja", "動物関連のFunコマンド"),
+    description_localized("ru", "Развлекательные команды с животными"),
+    description_localized("es-ES", "Comandos divertidos relacionados con animales")
 )]
 pub async fn fun_animals(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())
@@ -60,7 +68,11 @@ pub async fn fun_animals(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         "youtube",
         "tweet",
         "transgender"
-    )
+    ),
+    description_localized("fr", "Commande lié à des manipulation d'image"),
+    description_localized("ja", "画像関連のFunコマンド"),
+    description_localized("ru", "Развлекательные команды с изображениями"),
+    description_localized("es-ES", "Comandos divertidos relacionados con imágenes")
 )]
 pub async fn fun_image(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())
@@ -72,7 +84,11 @@ pub async fn fun_image(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     prefix_command,
     category = "fun",
     rename = "interaction",
-    subcommands("sixseven", "hack", "kiss", "love", "poll", "question", "slap", "hug")
+    subcommands("sixseven", "hack", "kiss", "love", "poll", "question", "slap", "hug"),
+    description_localized("fr", "Interaction entre utilisateurs"),
+    description_localized("ja", "ユーザー間の交流"),
+    description_localized("ru", "Взаимодействие между пользователями"),
+    description_localized("es-ES", "Interacción entre usuarios")
 )]
 pub async fn fun_interaction(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())
@@ -84,7 +100,11 @@ pub async fn fun_interaction(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     prefix_command,
     category = "fun",
     rename = "style",
-    subcommands("caracteres", "morse")
+    subcommands("caracteres", "morse"),
+    description_localized("fr", "Commandes fun à propos de la stylisation du texte"),
+    description_localized("ja", "テキストスタイル関連のFunコマンド"),
+    description_localized("ru", "Развлекательные команды со стилями текста"),
+    description_localized("es-ES", "Comandos divertidos relacionados con estilos de texto")
 )]
 pub async fn fun_style(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())
@@ -96,7 +116,15 @@ pub async fn fun_style(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     prefix_command,
     category = "fun",
     rename = "random",
-    subcommands("dice", "coinflip", "number", "gay", "rate", "trans", "stench")
+    subcommands("dice", "coinflip", "number", "gay", "rate", "trans", "stench"),
+    name_localized("fr", "hasard"),
+    name_localized("ja", "random"),
+    name_localized("ru", "random"),
+    name_localized("es-ES", "random"),
+    description_localized("fr", "Commande liée au hasard"),
+    description_localized("ja", "運（確率）関連のFunコマンド"),
+    description_localized("ru", "Развлекательные команды, связанные с удачей"),
+    description_localized("es-ES", "Comandos divertidos relacionados con la suerte (azar)")
 )]
 pub async fn fun_random(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())

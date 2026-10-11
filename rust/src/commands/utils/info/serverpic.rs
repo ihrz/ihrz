@@ -6,7 +6,11 @@ use super::*;
     prefix_command,
     category = "utils",
     rename = "serverpic",
-    default_member_permissions = "MODERATE_MEMBERS"
+    default_member_permissions = "MODERATE_MEMBERS",
+    description_localized("fr", "Envoie le logo du serveur"),
+    description_localized("ja", "サーバー画像を送信"),
+    description_localized("ru", "Отправить изображение сервера"),
+    description_localized("es-ES", "Enviar la imagen del servidor")
 )]
 pub async fn serverpic(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     use poise::serenity_prelude as serenity;

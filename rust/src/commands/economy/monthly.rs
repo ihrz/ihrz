@@ -5,7 +5,11 @@ use super::*;
     slash_command,
     prefix_command,
     category = "economy",
-    rename = "monthly"
+    rename = "monthly",
+    description_localized("fr", "Réclamez une récompense mensuelle"),
+    description_localized("ja", "マンスリー報酬を獲得！"),
+    description_localized("ru", "Получить ежемесячную награду!"),
+    description_localized("es-ES", "Reclamar una recompensa mensual!")
 )]
 // Mirrors economy !monthly.ts.
 pub async fn eco_monthly(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {

@@ -6,7 +6,15 @@ use super::*;
     prefix_command,
     category = "fun",
     rename = "dice",
-    aliases("dé")
+    aliases("dé"),
+    name_localized("fr", "dé"),
+    name_localized("ja", "dice"),
+    name_localized("ru", "dice"),
+    name_localized("es-ES", "dice"),
+    description_localized("fr", "Lance un ou plusieurs dés"),
+    description_localized("ja", "サイコロを振る"),
+    description_localized("ru", "Бросить кости"),
+    description_localized("es-ES", "Hacer una tirada de dado")
 )]
 // Mirrors !dice.ts.
 // Slash caps mirror the `choices: to(7)` / `to(12)` lists in fun.ts;
@@ -16,8 +24,26 @@ use super::*;
 // `method.number(...) || default`) instead of raising a framework error.
 pub async fn dice(
     ctx: Ctx<'_>,
-    #[description = "Number of dice to roll"] number: Option<String>,
-    #[description = "Number of faces on the dice"] faces: Option<String>,
+    #[name_localized("fr", "nombre")]
+    #[name_localized("ja", "number")]
+    #[name_localized("ru", "number")]
+    #[name_localized("es-ES", "number")]
+    #[description_localized("fr", "Nombre de dés à lancer")]
+    #[description_localized("ja", "振るサイコロの数")]
+    #[description_localized("ru", "Количество костей")]
+    #[description_localized("es-ES", "Número de dados a lanzar")]
+    #[description = "Number of dice to roll"]
+    number: Option<String>,
+    #[name_localized("fr", "faces")]
+    #[name_localized("ja", "faces")]
+    #[name_localized("ru", "faces")]
+    #[name_localized("es-ES", "faces")]
+    #[description_localized("fr", "Nombre de faces sur le(s) dé(s)")]
+    #[description_localized("ja", "サイコロの面の数")]
+    #[description_localized("ru", "Количество граней кости")]
+    #[description_localized("es-ES", "Número de caras del dado")]
+    #[description = "Number of faces on the dice"]
+    faces: Option<String>,
 ) -> Result<(), anyhow::Error> {
     // No fun guard: `!dice.ts` (33-70) has no `GUILD.FUN.states` check,
     // so the roll runs even with fun disabled.

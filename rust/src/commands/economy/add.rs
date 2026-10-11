@@ -16,12 +16,26 @@ pub fn shop_at_cap(role_count: usize) -> bool {
     prefix_command,
     rename = "role-add",
     aliases("economy-role-add"),
-    default_member_permissions = "MANAGE_GUILD"
+    default_member_permissions = "MANAGE_GUILD",
+    description_localized("fr", "Ajouter un rôle pour un certain montant d'argent"),
+    description_localized("ja", "特定の金額でロールを追加！"),
+    description_localized("ru", "Добавить роль за определенную сумму!"),
+    description_localized("es-ES", "Añadir un rol por una cierta cantidad de dinero!")
 )]
 pub async fn eco_role_add(
     ctx: Ctx<'_>,
-    #[description = "Role"] role: poise::serenity_prelude::Role,
-    #[description = "Price"] price: f64,
+    #[description_localized("fr", "Le rôle que vous souhaitez ajouter")]
+    #[description_localized("ja", "追加したいロール")]
+    #[description_localized("ru", "Роль, которую вы хотите добавить")]
+    #[description_localized("es-ES", "El rol que quieres añadir")]
+    #[description = "Role"]
+    role: poise::serenity_prelude::Role,
+    #[description_localized("fr", "Le montant d'argent que vous souhaitez ajouter")]
+    #[description_localized("ja", "追加したい金額")]
+    #[description_localized("ru", "Сумма денег для добавления")]
+    #[description_localized("es-ES", "La cantidad de dinero que quieres añadir")]
+    #[description = "Price"]
+    price: f64,
 ) -> Result<(), anyhow::Error> {
     // NOTE: !add.ts has no disabled gate — none here either.
     let gid = ctx

@@ -572,7 +572,20 @@ fn owners_embed(title: &str, owners: &[String], footer_name: &str) -> serenity::
     rename = "owner",
     aliases("addowner", "owneradd", "owners", "ownerlist"),
     subcommands("owner_list", "owner_add", "owner_remove"),
-    subcommand_required
+    subcommand_required,
+    description_localized(
+        "fr",
+        "Ajoutez un membre dans la liste des propriétaire de iHorizon. (Seulement pour les dev)"
+    ),
+    description_localized("ja", "ユーザーをオーナーリストに追加（一般メンバーは使用不可）！"),
+    description_localized(
+        "ru",
+        "Добавить пользователя в список владельцев (не для обычных участников)!"
+    ),
+    description_localized(
+        "es-ES",
+        "Añadir usuario a la lista de propietarios (no puede ser usado por miembros normales)!"
+    )
 )]
 pub async fn owner(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())
@@ -598,7 +611,21 @@ pub async fn owner_list(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
 #[poise::command(slash_command, prefix_command, rename = "add")]
 pub async fn owner_add(
     ctx: Ctx<'_>,
-    #[description = "Member"] user: Option<serenity::User>,
+    #[description = "Member"]
+    #[description_localized(
+        "fr",
+        "Le membre que vous souhaitez rendre propriétaire des projets iHorizon"
+    )]
+    #[description_localized("ja", "iHorizonプロジェクトのオーナーにしたいメンバー")]
+    #[description_localized(
+        "ru",
+        "Участник, которого вы хотите сделать владельцем проектов iHorizon"
+    )]
+    #[description_localized(
+        "es-ES",
+        "El miembro que quieres hacer propietario de los proyectos iHorizon"
+    )]
+    user: Option<serenity::User>,
 ) -> Result<(), anyhow::Error> {
     let code = lang_code(&ctx).await;
     // Neither bot nor guild owner: answer the TS `owner_not_owner`
@@ -707,7 +734,15 @@ pub async fn owner_add(
 #[poise::command(slash_command, prefix_command, rename = "remove")]
 pub async fn owner_remove(
     ctx: Ctx<'_>,
-    #[description = "Member"] user: serenity::User,
+    #[description = "Member"]
+    #[description_localized(
+        "fr",
+        "Le membre que vous souhaitez supprimer de la liste des propriétaires"
+    )]
+    #[description_localized("ja", "オーナーリストから削除したいメンバー")]
+    #[description_localized("ru", "Участник для удаления из списка владельцев")]
+    #[description_localized("es-ES", "El miembro que quiere eliminar de la lista de propietarios")]
+    user: serenity::User,
 ) -> Result<(), anyhow::Error> {
     owner_remove_inner(ctx, user).await
 }
@@ -970,15 +1005,34 @@ async fn send_bl_pager(
     slash_command,
     prefix_command,
     category = "owner",
-    rename = "blacklist"
+    rename = "blacklist",
+    description_localized("fr", "Ajoutez un utilisateur à la liste noir"),
+    description_localized("ja", "ユーザーをブラックリストに追加！"),
+    description_localized("ru", "Добавить пользователя в черный список!"),
+    description_localized("es-ES", "Añadir un usuario a la lista negra!")
 )]
 pub async fn blacklist(
     ctx: Ctx<'_>,
-    #[description = "Member"] user: Option<serenity::User>,
+    #[description = "Member"]
+    #[description_localized("fr", "L'utilisateur que vous voulez blacklist")]
+    #[description_localized("ja", "ブラックリストに入れたいユーザー...")]
+    #[description_localized("ru", "Пользователь, которого вы хотите добавить в черный список...")]
+    #[description_localized("es-ES", "El usuario que quieres poner en lista negra...")]
+    user: Option<serenity::User>,
     // Rest-of-line like TS `longString(args, 1)`: multi-word reasons
     // survive prefix parsing (same `#[rest]` pattern as fun/catsay).
     // Slash use is unaffected (`#[rest]` is prefix-only).
     #[description = "Reason"]
+    #[description_localized(
+        "fr",
+        "La raison de pourquoi vous voulez le mettre dans la liste-noire"
+    )]
+    #[description_localized("ja", "このメンバーをブラックリストに入れる理由")]
+    #[description_localized("ru", "Причина добавления в черный список")]
+    #[description_localized(
+        "es-ES",
+        "La razón por la que quieres poner en lista negra a este miembro"
+    )]
     #[rest]
     reason: Option<String>,
 ) -> Result<(), anyhow::Error> {
@@ -1239,11 +1293,38 @@ async fn blacklist_inner(
     prefix_command,
     category = "owner",
     rename = "unblacklist",
-    aliases("unbl")
+    aliases("unbl"),
+    description_localized(
+        "fr",
+        "Enlever un utilisateur de la liste noir.(Seulement pour les dev)"
+    ),
+    description_localized("ja", "ブラックリストから解除したいユーザー（iHorizonオーナーのみ）！"),
+    description_localized(
+        "ru",
+        "Пользователь для удаления из черного списка (Только владелец iHorizon)!"
+    ),
+    description_localized(
+        "es-ES",
+        "El usuario que quieres quitar de la lista negra (Solo propietario de iHorizon)!"
+    )
 )]
 pub async fn unblacklist(
     ctx: Ctx<'_>,
-    #[description = "Member"] user: serenity::User,
+    #[description = "Member"]
+    #[description_localized(
+        "fr",
+        "L'utilisateur que vous souhaitez supprimer de la liste noire (uniquement propriétaire d'ihorizon)"
+    )]
+    #[description_localized("ja", "ブラックリストから解除したいユーザー（iHorizonオーナーのみ）")]
+    #[description_localized(
+        "ru",
+        "Пользователь для удаления из черного списка (Только владелец iHorizon)"
+    )]
+    #[description_localized(
+        "es-ES",
+        "El usuario que quieres quitar de la lista negra (Solo propietario de iHorizon)"
+    )]
+    user: serenity::User,
 ) -> Result<(), anyhow::Error> {
     unblacklist_inner(ctx, user).await
 }
@@ -1467,11 +1548,20 @@ async fn send_blinfo_embed(
     prefix_command,
     category = "owner",
     rename = "blinfo",
-    aliases("blacklistinfo", "lookbl", "blook")
+    aliases("blacklistinfo", "lookbl", "blook"),
+    description_localized("fr", "Afficher des informations sur un utilisateur blacklisté"),
+    description_localized("ja", "ブラックリストユーザーの情報を表示！"),
+    description_localized("ru", "Показать информацию о пользователе в черном списке!"),
+    description_localized("es-ES", "Mostrar información sobre el usuario en la lista negra!")
 )]
 pub async fn blinfo(
     ctx: Ctx<'_>,
-    #[description = "Member"] user: serenity::User,
+    #[description = "Member"]
+    #[description_localized("fr", "L'utilisateur que vous voulez obtenir ces informations de bl")]
+    #[description_localized("ja", "確認したいユーザー...")]
+    #[description_localized("ru", "Пользователь, которого вы хотите посмотреть...")]
+    #[description_localized("es-ES", "El usuario que quieres mirar...")]
+    user: serenity::User,
 ) -> Result<(), anyhow::Error> {
     let code = lang_code(&ctx).await;
     let Some(scope) = owner_scope(&ctx).await else {
@@ -1526,13 +1616,29 @@ pub async fn blinfo(
     prefix_command,
     category = "owner",
     rename = "bledit",
-    aliases("blacklistedit", "editbl")
+    aliases("blacklistedit", "editbl"),
+    description_localized("fr", "modifier la raison d'un blacklist"),
+    description_localized("ja", "ブラックリスト理由を編集"),
+    description_localized("ru", "изменить причину черного списка"),
+    description_localized("es-ES", "editar razón de lista negra")
 )]
 pub async fn bledit(
     ctx: Ctx<'_>,
-    #[description = "Member"] user: serenity::User,
+    #[description = "Member"]
+    #[description_localized(
+        "fr",
+        "L'utilisateur que vous souhaitez modifier la raison de sont blacklist"
+    )]
+    #[description_localized("ja", "理由を編集したいユーザー")]
+    #[description_localized("ru", "Пользователь, для которого нужно изменить причину")]
+    #[description_localized("es-ES", "El usuario del que quieres editar la razón")]
+    user: serenity::User,
     // Rest-of-line like TS `longString(args, 1)` (see blacklist).
     #[description = "The new reason"]
+    #[description_localized("fr", "la nouvelle raison")]
+    #[description_localized("ja", "新しい理由")]
+    #[description_localized("ru", "новая причина")]
+    #[description_localized("es-ES", "la nueva razón")]
     #[rest]
     new_reason: String,
 ) -> Result<(), anyhow::Error> {
@@ -1595,10 +1701,39 @@ pub async fn bledit(
 // `bl` stays prefix-only: TS exposes it solely as a prefix alias
 // (aliases: ["bl"] on flat /blacklist), never as its own slash
 // command.
-#[poise::command(slash_command, prefix_command, category = "owner", rename = "unowner")]
+#[poise::command(
+    slash_command,
+    prefix_command,
+    category = "owner",
+    rename = "unowner",
+    description_localized(
+        "fr",
+        "Le membre que vous souhaitez supprimer de la liste des propriétaires (uniquement pour les dev)"
+    ),
+    description_localized(
+        "ja",
+        "オーナーリストから削除したいメンバー（iHorizonオーナーのみ）！"
+    ),
+    description_localized(
+        "ru",
+        "Участник для удаления из списка владельцев (Только владелец iHorizon)!"
+    ),
+    description_localized(
+        "es-ES",
+        "El miembro que quiere eliminar de la lista de propietarios (Solo propietario de iHorizon)!"
+    )
+)]
 pub async fn unowner_alias(
     ctx: Ctx<'_>,
-    #[description = "Member"] user: serenity::User,
+    #[description = "Member"]
+    #[description_localized(
+        "fr",
+        "Le membre que vous souhaitez supprimer de la liste des propriétaires"
+    )]
+    #[description_localized("ja", "オーナーリストから削除したいメンバー")]
+    #[description_localized("ru", "Участник для удаления из списка владельцев")]
+    #[description_localized("es-ES", "El miembro que quiere eliminar de la lista de propietarios")]
+    user: serenity::User,
 ) -> Result<(), anyhow::Error> {
     owner_remove_inner(ctx, user).await
 }
@@ -1625,11 +1760,24 @@ pub async fn bl_alias(
 // `No` for non-devs. Execution leg is a deliberate refusal:
 // arbitrary JS execution (`new Function`) has no Rust equivalent
 // (documented exclusion in ops/rust-migration/inventory.md).
-#[poise::command(slash_command, prefix_command, category = "owner", rename = "eval")]
+#[poise::command(
+    slash_command,
+    prefix_command,
+    category = "owner",
+    rename = "eval",
+    description_localized("fr", "Executer du code JavaScript (Seulement pour les dev du bot)."),
+    description_localized("ja", "JavaScriptプログラムを実行（開発者のみ）！"),
+    description_localized("ru", "Запустить программу JavaScript (только для разработчиков)!"),
+    description_localized("es-ES", "Ejecutar programa Javascript (solo para desarrolladores)!")
+)]
 pub async fn eval(
     ctx: Ctx<'_>,
     // Rest-of-line like TS `args?.join(" ")` (see blacklist).
     #[description = "javascript code"]
+    #[description_localized("fr", "JS Code")]
+    #[description_localized("ja", "JavaScriptコード")]
+    #[description_localized("ru", "код JavaScript")]
+    #[description_localized("es-ES", "código JavaScript")]
     #[rest]
     code: String,
 ) -> Result<(), anyhow::Error> {

@@ -21,7 +21,11 @@ pub fn close_transcript_filename(gid: &str) -> String {
     slash_command,
     prefix_command,
     rename = "close",
-    default_member_permissions = "MANAGE_CHANNELS"
+    default_member_permissions = "MANAGE_CHANNELS",
+    description_localized("fr", "Fermer un ticket"),
+    description_localized("ja", "チケットを閉じる！"),
+    description_localized("ru", "Закрыть тикет!"),
+    description_localized("es-ES", "Cerrar un ticket!")
 )]
 pub async fn ticket_close(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     // Mirrors !close.ts -> CloseTicket: disable + is-ticket guards,

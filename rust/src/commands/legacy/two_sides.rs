@@ -12,12 +12,26 @@ use super::*;
     prefix_command,
     category = "misc",
     rename = "two-sides",
-    aliases("meme2")
+    aliases("meme2"),
+    description_localized("fr", "i have two sides meme generator"),
+    description_localized("ja", "i have two sides ミームジェネレーター"),
+    description_localized("ru", "генератор мема i have two sides"),
+    description_localized("es-ES", "generador de meme i have two sides")
 )]
 pub async fn two_sides(
     ctx: Ctx<'_>,
-    #[description = "First image URL (or attach)"] image1: Option<String>,
-    #[description = "Second image URL (or attach)"] image2: Option<String>,
+    #[description = "First image URL (or attach)"]
+    #[description_localized("fr", "le screen avant qu'il ce fasse défon")]
+    #[description_localized("ja", "before 側が最低")]
+    #[description_localized("ru", "before отстой")]
+    #[description_localized("es-ES", "el before apesta")]
+    image1: Option<String>,
+    #[description = "Second image URL (or attach)"]
+    #[description_localized("fr", "le screen après qu'il ce soit défoncé")]
+    #[description_localized("ja", "after 側が最低")]
+    #[description_localized("ru", "after отстой")]
+    #[description_localized("es-ES", "el after apesta")]
+    image2: Option<String>,
 ) -> Result<(), anyhow::Error> {
     let (first_att, last_att) = prefix_attachment_urls(&ctx);
     let url1 = image1.or(first_att);

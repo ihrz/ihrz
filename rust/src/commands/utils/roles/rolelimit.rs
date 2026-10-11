@@ -7,11 +7,24 @@ use super::*;
     category = "utils",
     rename = "rolelimit",
     aliases("limitrole", "limitoles", "roleslimit"),
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    description_localized("fr", "Limiter le nombre de membres qui peuvent ce partager un rôle."),
+    description_localized("ja", "同じロールのメンバー数を制限"),
+    description_localized("ru", "Ограничить количество участников с одной ролью"),
+    description_localized("es-ES", "Limitar el número de miembros en el mismo rol")
 )]
 pub async fn rolelimit(
     ctx: Ctx<'_>,
-    #[description = "Role"] role: poise::serenity_prelude::Role,
+    #[description_localized("fr", "Le rôle que tu shouaite gérer.")]
+    #[description_localized("ja", "管理したいロール")]
+    #[description_localized("ru", "Роль, которой вы хотите управлять")]
+    #[description_localized("es-ES", "El rol que quieres gestionar")]
+    #[description = "Role"]
+    role: poise::serenity_prelude::Role,
+    #[description_localized("fr", "Le nombre maximum de membre qui auront le rôle en même temps.")]
+    #[description_localized("ja", "同じロールに許可する最大メンバー数")]
+    #[description_localized("ru", "Максимум участников с одинаковой ролью")]
+    #[description_localized("es-ES", "El máximo de miembros que deseas en el mismo rol")]
     #[description = "Max members (0 to clear)"]
     #[rename = "members-limit"]
     limit: Option<i64>,

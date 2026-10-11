@@ -27,7 +27,15 @@ pub fn merge_reopen_overwrite(
 }
 
 /// re-open a closed ticket!
-#[poise::command(slash_command, prefix_command, rename = "open")]
+#[poise::command(
+    slash_command,
+    prefix_command,
+    rename = "open",
+    description_localized("fr", "Re-ouvrir un ticket fermet"),
+    description_localized("ja", "閉じたチケットを再オープン！"),
+    description_localized("ru", "переоткрыть закрытый тикет!"),
+    description_localized("es-ES", "reabrir un ticket cerrado!")
+)]
 pub async fn ticket_open(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     // Mirrors !open.ts -> TicketReOpen (ticketsManager.ts:1709): the
     // command only runs inside a ticket channel, where it re-grants
@@ -178,5 +186,27 @@ mod tests {
         assert!(out.allow.contains(serenity::Permissions::MANAGE_CHANNELS));
         assert!(out.allow.contains(reopen_grant()));
         assert!(out.deny.is_empty());
+    }
+    #[test]
+    fn open_registers_description_localizations() {
+        let cmd = super::ticket_open();
+        assert_eq!(
+            cmd.description_localizations.get("fr").map(String::as_str),
+            Some("Re-ouvrir un ticket fermet")
+        );
+        assert_eq!(
+            cmd.description_localizations.get("ja").map(String::as_str),
+            Some("閉じたチケットを再オープン！")
+        );
+        assert_eq!(
+            cmd.description_localizations.get("ru").map(String::as_str),
+            Some("переоткрыть закрытый тикет!")
+        );
+        assert_eq!(
+            cmd.description_localizations
+                .get("es-ES")
+                .map(String::as_str),
+            Some("reabrir un ticket cerrado!")
+        );
     }
 }

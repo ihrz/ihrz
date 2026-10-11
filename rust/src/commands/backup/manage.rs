@@ -26,10 +26,24 @@ pub fn manage_owner_only(scope: Option<&str>) -> bool {
     slash_command,
     prefix_command,
     rename = "manage",
-    aliases("backup-manager")
+    aliases("backup-manager"),
+    description_localized("fr", "Gérer le système de backup sur le serveur"),
+    description_localized("ja", "このサーバーのバックアップシステムを管理"),
+    description_localized("ru", "Управление системой резервного копирования"),
+    description_localized(
+        "es-ES",
+        "Gestionar el sistema de copias de seguridad en este servidor"
+    )
 )]
 pub async fn backup_manage(
     ctx: Ctx<'_>,
+    #[description_localized("fr", "Faire fonctionner le système de backup uniquement pour le propriétaire du serveur discord.")]
+    #[description_localized("ja", "バックアップシステムをサーバーオーナーのみに制限")]
+    #[description_localized(
+        "ru",
+        "Сделать систему резервного копирования доступной только владельцу сервера"
+    )]
+    #[description_localized("es-ES", "Hacer que el sistema de copias de seguridad solo funcione para el propietario del servidor")]
     #[description = "owner or admin"]
     #[rename = "only_guild_owner"]
     scope: Option<String>,

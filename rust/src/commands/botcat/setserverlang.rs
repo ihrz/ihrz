@@ -177,7 +177,15 @@ async fn apply_language(
     category = "bot",
     rename = "setlang",
     aliases("setsrvlang", "lang"),
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    name_localized("fr", "setlangue"),
+    name_localized("ja", "setlang"),
+    name_localized("ru", "setlang"),
+    name_localized("es-ES", "setlang"),
+    description_localized("fr", "Choisir la langue du bot discord !"),
+    description_localized("ja", "サーバーの言語を設定！"),
+    description_localized("ru", "Установить язык сервера!"),
+    description_localized("es-ES", "Establecer el idioma del servidor!")
 )]
 pub async fn setlang(
     ctx: Ctx<'_>,

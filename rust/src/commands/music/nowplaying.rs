@@ -183,7 +183,19 @@ async fn button_emoji(ctx: &Ctx<'_>, name: &str, fallback: &str) -> serenity::Re
 // from command time (no live Lavalink position in the snapshot); the loop
 // ends when the track changes, its time is up, or the collector times
 // out, and the buttons are stripped on end like TS.
-#[poise::command(slash_command, prefix_command, rename = "nowplaying")]
+#[poise::command(
+    slash_command,
+    prefix_command,
+    rename = "nowplaying",
+    name_localized("fr", "en-lecture"),
+    name_localized("ja", "nowplaying"),
+    name_localized("ru", "nowplaying"),
+    name_localized("es-ES", "nowplaying"),
+    description_localized("fr", "Obtenir la chanson en cours de lecture"),
+    description_localized("ja", "現在再生中の曲を取得！"),
+    description_localized("ru", "Получить текущую песню!"),
+    description_localized("es-ES", "Obtener la canción actual!")
+)]
 pub async fn m_nowplaying(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let Some(gid) = guild_id_of(&ctx) else {
         return Ok(());

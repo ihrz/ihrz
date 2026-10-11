@@ -8,7 +8,11 @@ use super::*;
     category = "utils",
     rename = "derogation",
     aliases("dero", "alldero"),
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    description_localized("fr", "Créer un rôle de dérogation fake admin géré par iHorizon"),
+    description_localized("ja", "iHorizonが管理する偽管理者ロールを作成"),
+    description_localized("ru", "Создать роль фейк-админа, управляемую iHorizon"),
+    description_localized("es-ES", "Crear un rol de falso administrador gestionado por iHorizon")
 )]
 pub async fn derogation(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {

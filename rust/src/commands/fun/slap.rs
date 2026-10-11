@@ -10,10 +10,28 @@ use super::*;
 // `social_gif` is unreachable defensive cover; single deny lives there
 // too (see below).
 /// Slap a member with a social GIF embed. Mirrors fun !slap.ts.
-#[poise::command(slash_command, prefix_command, category = "fun", rename = "slap")]
+#[poise::command(
+    slash_command,
+    prefix_command,
+    category = "fun",
+    rename = "slap",
+    name_localized("fr", "giflé"),
+    name_localized("ja", "slap"),
+    name_localized("ru", "slap"),
+    name_localized("es-ES", "slap"),
+    description_localized("fr", "Gifler un utilisateur"),
+    description_localized("ja", "ユーザーを平手打ち！"),
+    description_localized("ru", "Дать пощечину пользователю!"),
+    description_localized("es-ES", "Abofetear a un usuario!")
+)]
 pub async fn slap(
     ctx: Ctx<'_>,
-    #[description = "Member"] user: poise::serenity_prelude::User,
+    #[description_localized("fr", "L'utilisateur que vous voulez gifler")]
+    #[description_localized("ja", "平手打ちしたいユーザー")]
+    #[description_localized("ru", "Пользователь, которому вы хотите дать пощечину")]
+    #[description_localized("es-ES", "El usuario que quieres abofetear")]
+    #[description = "Member"]
+    user: poise::serenity_prelude::User,
 ) -> Result<(), anyhow::Error> {
     // Single deny: the disabled-category check lives in `social_gif`.
     social_gif(

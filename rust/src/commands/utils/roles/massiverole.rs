@@ -8,12 +8,26 @@ use super::*;
     rename = "massiverole",
     aliases("massrole", "massroles"),
     default_member_permissions = "ADMINISTRATOR",
-    user_cooldown = 300
+    user_cooldown = 300,
+    description_localized("fr", "Ajouter/Supprimer des rôles pour tout le monde sur le serveur"),
+    description_localized("ja", "サーバー内の全員にロールを追加/削除"),
+    description_localized("ru", "Добавить/удалить роли всем на сервере"),
+    description_localized("es-ES", "Añadir/Quitar roles a todos en el servidor")
 )]
 pub async fn massiverole(
     ctx: Ctx<'_>,
-    #[description = "add or sub"] action: String,
-    #[description = "Role"] role: poise::serenity_prelude::Role,
+    #[description_localized("fr", "Que veux-tu faire?")]
+    #[description_localized("ja", "何をしたいですか？")]
+    #[description_localized("ru", "Что вы хотите сделать?")]
+    #[description_localized("es-ES", "Que quieres hacer?")]
+    #[description = "add or sub"]
+    action: String,
+    #[description_localized("fr", "Le rôle spécifié que vous souhaitez ajouter")]
+    #[description_localized("ja", "追加したい指定ロール")]
+    #[description_localized("ru", "Указанная роль для добавления")]
+    #[description_localized("es-ES", "El rol especificado que quieres añadir")]
+    #[description = "Role"]
+    role: poise::serenity_prelude::Role,
 ) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {
         return Ok(());

@@ -44,7 +44,11 @@ pub async fn post_config_log(
     prefix_command,
     rename = "config",
     aliases("confess-config"),
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    description_localized("fr", "Activer ou désactiver le module"),
+    description_localized("ja", "告白モジュールを有効化または無効化！"),
+    description_localized("ru", "Включить или отключить модуль признаний!"),
+    description_localized("es-ES", "Habilitar o Deshabilitar el módulo de confesiones!")
 )]
 pub async fn confession_config(
     ctx: Ctx<'_>,
@@ -94,4 +98,30 @@ pub async fn confession_config(
         post_config_log(ctx.http(), guild_id, &code, ctx.author().id.get(), enabled).await;
     }
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn confession_config_registers_description_localizations() {
+        let cmd = super::confession_config();
+        assert_eq!(
+            cmd.description_localizations.get("fr").map(String::as_str),
+            Some("Activer ou désactiver le module")
+        );
+        assert_eq!(
+            cmd.description_localizations.get("ja").map(String::as_str),
+            Some("告白モジュールを有効化または無効化！")
+        );
+        assert_eq!(
+            cmd.description_localizations.get("ru").map(String::as_str),
+            Some("Включить или отключить модуль признаний!")
+        );
+        assert_eq!(
+            cmd.description_localizations
+                .get("es-ES")
+                .map(String::as_str),
+            Some("Habilitar o Deshabilitar el módulo de confesiones!")
+        );
+    }
 }

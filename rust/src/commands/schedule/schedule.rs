@@ -232,7 +232,14 @@ pub(crate) fn guided_embed_identity(
         "schedule_delete_all",
         "schedule_list",
         "schedule_panel"
-    )
+    ),
+    description_localized(
+        "fr",
+        "Commande sous-groupé pour la catégorie de message pré-programmer"
+    ),
+    description_localized("ja", "スケジュールカテゴリの管理！"),
+    description_localized("ru", "Управление категорией расписания!"),
+    description_localized("es-ES", "Gestor para la categoría de horarios!")
 )]
 pub async fn schedule(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     super::panel::run_schedule_panel(ctx).await

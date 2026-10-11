@@ -6,7 +6,11 @@ use poise::serenity_prelude as serenity;
     slash_command,
     prefix_command,
     rename = "setup",
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    description_localized("fr", "Configurer le canal de journaux sur le bot"),
+    description_localized("ja", "ボットのログチャンネルを設定！"),
+    description_localized("ru", "Настроить канал логов бота!"),
+    description_localized("es-ES", "Configurar el canal de registros sobre el bot!")
 )]
 pub async fn gc_setup(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {

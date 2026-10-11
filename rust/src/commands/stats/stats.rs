@@ -18,7 +18,14 @@ use super::{
         "stats_top_voice",
         "stats_channel"
     ),
-    subcommand_required
+    subcommand_required,
+    description_localized(
+        "fr",
+        "Commande sous-groupé pour la catégorie des statistique des utilisateurs!"
+    ),
+    description_localized("ja", "統計カテゴリのサブコマンド！"),
+    description_localized("ru", "Подкоманда для категории статистики!"),
+    description_localized("es-ES", "Subcomando para la categoría de estadísticas!")
 )]
 pub async fn stats(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())

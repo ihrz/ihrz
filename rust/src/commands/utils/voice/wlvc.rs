@@ -8,11 +8,20 @@ use super::*;
     category = "utils",
     rename = "wlvc",
     aliases("allowvc"),
-    default_member_permissions = "MOVE_MEMBERS"
+    default_member_permissions = "MOVE_MEMBERS",
+    description_localized("fr", "Autoriser un membre à rejoindre le salon vocal gelé"),
+    description_localized("ja", "凍結されたボイスチャンネルへの参加を許可"),
+    description_localized("ru", "Разрешить участнику войти в замороженный голосовой канал"),
+    description_localized("es-ES", "Permitir a un miembro unirse al canal de voz congelado")
 )]
 pub async fn wlvc(
     ctx: Ctx<'_>,
-    #[description = "Allowed member"] member: Option<poise::serenity_prelude::User>,
+    #[description_localized("fr", "Le membre que vous voulez autoriser")]
+    #[description_localized("ja", "許可したいメンバー")]
+    #[description_localized("ru", "Участник, которого вы хотите разрешить")]
+    #[description_localized("es-ES", "El miembro que quieres permitir")]
+    #[description = "Allowed member"]
+    member: Option<poise::serenity_prelude::User>,
 ) -> Result<(), anyhow::Error> {
     let gid = ctx
         .guild_id()

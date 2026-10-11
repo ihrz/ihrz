@@ -6,7 +6,11 @@ use super::*;
     prefix_command,
     category = "utils",
     rename = "server",
-    aliases("banner-server", "serverbanner")
+    aliases("banner-server", "serverbanner"),
+    description_localized("fr", "Récupérer la bannière du serveur"),
+    description_localized("ja", "サーバーのバナーを取得！"),
+    description_localized("ru", "Получить баннер сервера!"),
+    description_localized("es-ES", "Obtener el banner del servidor!")
 )]
 pub async fn banner_server(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {

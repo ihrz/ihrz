@@ -33,7 +33,11 @@ async fn commandlimit_command_autocomplete(_ctx: Ctx<'_>, partial: &str) -> Vec<
     prefix_command,
     category = "guildconfig",
     rename = "commandlimit",
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    description_localized("fr", "Gérer les limites de commandes"),
+    description_localized("ja", "コマンドのレート制限を管理"),
+    description_localized("ru", "Управление лимитами команд"),
+    description_localized("es-ES", "Gestionar límites de velocidad de comandos")
 )]
 pub async fn gc_commandlimit(
     ctx: Ctx<'_>,

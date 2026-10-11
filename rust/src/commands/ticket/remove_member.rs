@@ -12,7 +12,11 @@ pub fn render_remove_work(template: &str, username: &str) -> String {
     slash_command,
     prefix_command,
     rename = "remove-member",
-    default_member_permissions = "MANAGE_CHANNELS"
+    default_member_permissions = "MANAGE_CHANNELS",
+    description_localized("fr", "Enlever un membre d'un ticket"),
+    description_localized("ja", "チケットからメンバーを削除！"),
+    description_localized("ru", "Удалить участника из тикета!"),
+    description_localized("es-ES", "Eliminar a un miembro de tu ticket!")
 )]
 pub async fn ticket_remove(
     ctx: Ctx<'_>,

@@ -15,7 +15,20 @@ pub fn parse_dog_ceo_json(raw: &str) -> Option<String> {
 }
 
 /// Get a picture of dog!
-#[poise::command(slash_command, prefix_command, category = "fun", rename = "dog")]
+#[poise::command(
+    slash_command,
+    prefix_command,
+    category = "fun",
+    rename = "dog",
+    name_localized("fr", "chien"),
+    name_localized("ja", "dog"),
+    name_localized("ru", "dog"),
+    name_localized("es-ES", "dog"),
+    description_localized("fr", "Obtenez une photo du chien"),
+    description_localized("ja", "犬の画像を取得！"),
+    description_localized("ru", "Получить картинку собаки!"),
+    description_localized("es-ES", "Obtener una imagen de un perro!")
+)]
 // Mirrors !dog.ts (dog.ceo fetch, message field).
 pub async fn dog(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     if fun_guard(&ctx).await {

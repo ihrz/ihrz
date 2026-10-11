@@ -13,11 +13,24 @@ pub const TRANSGENDER_COLOUR: u32 = 0x010101;
     slash_command,
     prefix_command,
     category = "fun",
-    rename = "transgender"
+    rename = "transgender",
+    name_localized("fr", "transgenre"),
+    name_localized("ja", "transgender"),
+    name_localized("ru", "transgender"),
+    name_localized("es-ES", "transgender"),
+    description_localized("fr", "tous les humains ont des droits"),
+    description_localized("ja", "全ての人間には権利がある"),
+    description_localized("ru", "все люди имеют права"),
+    description_localized("es-ES", "todos los humanos tienen derechos")
 )]
 pub async fn transgender(
     ctx: Ctx<'_>,
-    #[description = "Member"] user: Option<poise::serenity_prelude::User>,
+    #[description_localized("fr", "l'utilisateur")]
+    #[description_localized("ja", "ユーザー")]
+    #[description_localized("ru", "пользователь")]
+    #[description_localized("es-ES", "el usuario")]
+    #[description = "Member"]
+    user: Option<poise::serenity_prelude::User>,
 ) -> Result<(), anyhow::Error> {
     if fun_guard(&ctx).await {
         return Ok(());

@@ -17,10 +17,18 @@ pub enum VcShowMode {
     prefix_command,
     category = "utils",
     rename = "vc",
-    default_member_permissions = "MANAGE_GUILD"
+    default_member_permissions = "MANAGE_GUILD",
+    description_localized("fr", "Obtenez les états des vocaux du serveur"),
+    description_localized("ja", "サーバーのボイス状態を取得！"),
+    description_localized("ru", "Получить состояния голосовых каналов!"),
+    description_localized("es-ES", "Obtener los estados de voz del servidor!")
 )]
 pub async fn vc_list(
     ctx: Ctx<'_>,
+    #[description_localized("fr", "Mode d'affichage (complet, court)")]
+    #[description_localized("ja", "表示モード（大、簡易）")]
+    #[description_localized("ru", "Режим отображения (большой, краткий)")]
+    #[description_localized("es-ES", "Modo de visualización (grande, breve)")]
     #[description = "Display mode: short or large"]
     #[rename = "show-mode"]
     mode: Option<VcShowMode>,

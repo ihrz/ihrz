@@ -7,7 +7,11 @@ use super::*;
     category = "newfeatures",
     rename = "counter",
     subcommands("counter_channel", "counter_config"),
-    subcommand_required
+    subcommand_required,
+    description_localized("fr", "Compter les nombres dans un salon"),
+    description_localized("ja", "チャンネル内でカウント"),
+    description_localized("ru", "Считать число в канале"),
+    description_localized("es-ES", "Contar número en un canal")
 )]
 pub async fn counter(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())
@@ -25,7 +29,11 @@ pub async fn counter(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     slash_command,
     prefix_command,
     rename = "channel",
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    description_localized("fr", "Définir le canal du module counter"),
+    description_localized("ja", "カウンターモジュールのチャンネルを設定！"),
+    description_localized("ru", "Установить канал модуля счетчика!"),
+    description_localized("es-ES", "Establecer el canal del módulo contador!")
 )]
 pub async fn counter_channel(
     ctx: Ctx<'_>,
@@ -95,7 +103,11 @@ pub async fn counter_channel(
     slash_command,
     prefix_command,
     rename = "config",
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    description_localized("fr", "Activer ou désactiver le module compteur"),
+    description_localized("ja", "カウンターモジュールを有効化または無効化！"),
+    description_localized("ru", "Включить или отключить модуль счетчика!"),
+    description_localized("es-ES", "Habilitar o Deshabilitar el módulo contador!")
 )]
 pub async fn counter_config(
     ctx: Ctx<'_>,
@@ -167,6 +179,28 @@ mod tests {
                 .await
                 .as_deref(),
             Some("123")
+        );
+    }
+    #[test]
+    fn counter_channel_registers_description_localizations() {
+        let cmd = super::counter_channel();
+        assert_eq!(
+            cmd.description_localizations.get("fr").map(String::as_str),
+            Some("Définir le canal du module counter")
+        );
+        assert_eq!(
+            cmd.description_localizations.get("ja").map(String::as_str),
+            Some("カウンターモジュールのチャンネルを設定！")
+        );
+        assert_eq!(
+            cmd.description_localizations.get("ru").map(String::as_str),
+            Some("Установить канал модуля счетчика!")
+        );
+        assert_eq!(
+            cmd.description_localizations
+                .get("es-ES")
+                .map(String::as_str),
+            Some("Establecer el canal del módulo contador!")
         );
     }
 }

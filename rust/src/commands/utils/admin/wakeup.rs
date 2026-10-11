@@ -14,11 +14,29 @@ pub const WAKEUP_STEP_MS: u64 = 300;
     category = "utils",
     rename = "wakeup",
     aliases("wake"),
-    default_member_permissions = "MOVE_MEMBERS"
+    default_member_permissions = "MOVE_MEMBERS",
+    description_localized(
+        "fr",
+        "Réveiller un utilisateur avec un déplacement massif aléatoire dans les salons vocaux"
+    ),
+    description_localized("ja", "ボイスチャンネルでランダムに大量移動してユーザーを起こす"),
+    description_localized(
+        "ru",
+        "Разбудить пользователя массовым случайным перемещением по голосовому каналу"
+    ),
+    description_localized(
+        "es-ES",
+        "Despertar a un usuario moviéndolo masivamente de forma aleatoria en el canal de voz"
+    )
 )]
 pub async fn wakeup(
     ctx: Ctx<'_>,
-    #[description = "Member"] user: poise::serenity_prelude::User,
+    #[description_localized("fr", "Le membre à réveiller")]
+    #[description_localized("ja", "起こすメンバー")]
+    #[description_localized("ru", "Участник, которого нужно разбудить")]
+    #[description_localized("es-ES", "El miembro a despertar")]
+    #[description = "Member"]
+    user: poise::serenity_prelude::User,
 ) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {
         return Ok(());

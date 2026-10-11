@@ -121,11 +121,49 @@ fn random_guild_user(ctx: &Ctx<'_>) -> Option<poise::serenity_prelude::User> {
 }
 
 /// Love command.
-#[poise::command(slash_command, prefix_command, category = "fun", rename = "love")]
+#[poise::command(
+    slash_command,
+    prefix_command,
+    category = "fun",
+    rename = "love",
+    name_localized("fr", "amour"),
+    name_localized("ja", "love"),
+    name_localized("ru", "love"),
+    name_localized("es-ES", "love"),
+    description_localized("fr", "Montrez votre compatibilité amoureuse avec l'utilisateur"),
+    description_localized("ja", "ユーザーとの恋愛相性を表示！"),
+    description_localized("ru", "Показать совместимость в любви с пользователем!"),
+    description_localized("es-ES", "Mostrar tu compatibilidad amorosa con el usuario!")
+)]
 pub async fn love(
     ctx: Ctx<'_>,
-    #[description = "First user"] user1: Option<poise::serenity_prelude::User>,
-    #[description = "Second user"] user2: Option<poise::serenity_prelude::User>,
+    #[description_localized(
+        "fr",
+        "L'utilisateur avec qui vous souhaitez connaître votre compatibilité amoureuse"
+    )]
+    #[description_localized("ja", "恋愛相性を知りたいユーザー")]
+    #[description_localized("ru", "Пользователь для проверки совместимости в любви")]
+    #[description_localized(
+        "es-ES",
+        "El usuario con quien quieres conocer tu compatibilidad amorosa"
+    )]
+    #[description = "First user"]
+    user1: Option<poise::serenity_prelude::User>,
+    #[description_localized(
+        "fr",
+        "L'utilisateur avec qui vous voulez connaître la compatibilité amoureuse"
+    )]
+    #[description_localized("ja", "恋愛相性を知りたい相手のユーザー")]
+    #[description_localized(
+        "ru",
+        "Пользователь, с которым вы хотите узнать совместимость в любви"
+    )]
+    #[description_localized(
+        "es-ES",
+        "El usuario con quien quieres saber la compatibilidad amorosa"
+    )]
+    #[description = "Second user"]
+    user2: Option<poise::serenity_prelude::User>,
 ) -> Result<(), anyhow::Error> {
     if fun_guard(&ctx).await {
         return Ok(());

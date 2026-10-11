@@ -132,11 +132,20 @@ fn build_apply_message(
     prefix_command,
     category = "moderation",
     rename = "rolepanel",
-    default_member_permissions = "MANAGE_ROLES"
+    default_member_permissions = "MANAGE_ROLES",
+    description_localized("fr", "Donner des rôles sélectionnés à un membre via un panel"),
+    description_localized("ja", "パネルを通じて選択したロールをメンバーに付与"),
+    description_localized("ru", "Выдать выбранные роли участнику через панель"),
+    description_localized("es-ES", "Dar roles seleccionados a un miembro a través de un panel")
 )]
 pub async fn mod_rolepanel(
     ctx: Ctx<'_>,
-    #[description = "Member the panel is for (default yourself)"] member: Option<serenity::User>,
+    #[description_localized("fr", "Le membre qui recevra les rôles")]
+    #[description_localized("ja", "ロールを受け取るメンバー")]
+    #[description_localized("ru", "Участник, который получит роли")]
+    #[description_localized("es-ES", "El miembro que recibirá los roles")]
+    #[description = "Member the panel is for (default yourself)"]
+    member: Option<serenity::User>,
 ) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {
         return Ok(());

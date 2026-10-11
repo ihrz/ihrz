@@ -111,7 +111,15 @@ pub fn shop_menu_options(
 }
 
 /// Shop display + interactive buy flow. Mirrors `shop.ts`.
-#[poise::command(slash_command, prefix_command, rename = "shop")]
+#[poise::command(
+    slash_command,
+    prefix_command,
+    rename = "shop",
+    description_localized("fr", "Obtenez le magasin du serveur"),
+    description_localized("ja", "サーバーのショップを取得！"),
+    description_localized("ru", "Получить магазин сервера!"),
+    description_localized("es-ES", "Obtener la tienda del servidor!")
+)]
 pub async fn eco_shop(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     use poise::serenity_prelude as serenity;
     if disabled_reply(&ctx).await? {

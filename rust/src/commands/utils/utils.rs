@@ -60,7 +60,11 @@ use super::{
         "wlroles_add",
         "wlroles_list"
     ),
-    subcommand_required
+    subcommand_required,
+    description_localized("fr", "Commande sous groupé pour la catégorie utilitaire"),
+    description_localized("ja", "ユーティリティコマンドのサブコマンドカテゴリ"),
+    description_localized("ru", "Категория подкоманд для утилит"),
+    description_localized("es-ES", "Categoría de subcomando para comandos de utilidad"),
 )]
 pub async fn utils(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())

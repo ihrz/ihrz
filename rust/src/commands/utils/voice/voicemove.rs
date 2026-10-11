@@ -7,11 +7,24 @@ use super::*;
     category = "utils",
     rename = "move",
     aliases("déplacer", "deplacer", "switch"),
-    default_member_permissions = "MOVE_MEMBERS"
+    default_member_permissions = "MOVE_MEMBERS",
+    description_localized("fr", "Déplacer un membre d'un salon vocal"),
+    description_localized("ja", "ユーザーをボイスチャンネルから移動。"),
+    description_localized("ru", "Переместить пользователя из голосового канала."),
+    description_localized("es-ES", "Mover a un usuario de un canal de voz.")
 )]
 pub async fn voicemove(
     ctx: Ctx<'_>,
-    #[description = "Member"] user: poise::serenity_prelude::User,
+    #[description_localized("fr", "Le membre que vous voulez déplacer")]
+    #[description_localized("ja", "移動したいメンバー")]
+    #[description_localized("ru", "Участник для перемещения")]
+    #[description_localized("es-ES", "El miembro que quieres mover")]
+    #[description = "Member"]
+    user: poise::serenity_prelude::User,
+    #[description_localized("fr", "Le salon vocal que tu veux.")]
+    #[description_localized("ja", "希望するチャンネル")]
+    #[description_localized("ru", "Желаемый канал")]
+    #[description_localized("es-ES", "El canal que deseas")]
     #[description = "To channel"]
     #[channel_types("Voice")]
     to: poise::serenity_prelude::GuildChannel,

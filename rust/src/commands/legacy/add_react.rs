@@ -7,6 +7,19 @@ use super::*;
     category = "utils",
     rename = "add-react",
     aliases("react-add", "addreact", "reactadd"),
+    description_localized(
+        "fr",
+        "Ajouter une réaction d'iHorizon lorsque l'utilisateur envoie un message spécifiqe"
+    ),
+    description_localized(
+        "ja",
+        "ユーザーがメッセージを送信したらiHorizonがリアクションを追加"
+    ),
+    description_localized("ru", "Добавить реакцию iHorizon при отправке сообщения"),
+    description_localized(
+        "es-ES",
+        "Añadir reacción de iHorizon cuando el usuario envía un mensaje"
+    ),
     // @add-react.ts: permission ManageGuildExpressions.
     default_member_permissions = "MANAGE_GUILD_EXPRESSIONS"
 )]

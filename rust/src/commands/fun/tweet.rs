@@ -1,15 +1,33 @@
 use super::*;
 
 /// Permit to send custom tweet !
-#[poise::command(slash_command, prefix_command, category = "fun", rename = "tweet")]
+#[poise::command(
+    slash_command,
+    prefix_command,
+    category = "fun",
+    rename = "tweet",
+    description_localized("fr", "Permis d'envoyer un tweet personnalisé"),
+    description_localized("ja", "カスタムツイートを送信可能に！"),
+    description_localized("ru", "Разрешить отправку пользовательского твита!"),
+    description_localized("es-ES", "Permitir enviar tweet personalizado!")
+)]
 pub async fn tweet(
     ctx: Ctx<'_>,
     // Optional on prefix (falls back to the invoker like the TS
     // `|| interaction.author` path in !tweet.ts); the TS slash schema
     // marks `user` required:true (fun.ts) so slash callers always pass it.
-    #[description = "Member"] user: Option<poise::serenity_prelude::User>,
+    #[description_localized("fr", "L'utilisateur")]
+    #[description_localized("ja", "ユーザー")]
+    #[description_localized("ru", "Пользователь")]
+    #[description_localized("es-ES", "El usuario")]
+    #[description = "Member"]
+    user: Option<poise::serenity_prelude::User>,
     // `#[rest]` so prefix keeps multi-word comments like the TS
     // `longString(args, 1)` path (slash uses `getString("comment")`).
+    #[description_localized("fr", "Le commentaire")]
+    #[description_localized("ja", "コメント")]
+    #[description_localized("ru", "Комментарий")]
+    #[description_localized("es-ES", "El comentario")]
     #[description = "Comment"]
     #[rest]
     comment: String,

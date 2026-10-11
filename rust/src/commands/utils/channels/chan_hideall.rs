@@ -7,11 +7,23 @@ use super::*;
     category = "utils",
     rename = "hideall",
     aliases("masquer-tout"),
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    description_localized("fr", "Masquer tous les salons du serveur pour everyone"),
+    description_localized("ja", "サーバー内の全チャンネルを全員から非表示"),
+    description_localized("ru", "Скрыть все каналы от всех на сервере"),
+    description_localized("es-ES", "Ocultar todos los canales del servidor a todos")
 )]
 pub async fn chan_hideall(
     ctx: Ctx<'_>,
-    #[description = "Role, defaults to @everyone"] role: Option<poise::serenity_prelude::Role>,
+    #[description_localized("fr", "Le rôle que tu veux masquer dans tout les salons du serveur")]
+    #[description_localized("ja", "全サーバーチャンネルで非表示にしたいロール")]
+    #[description_localized("ru", "роль, которую нужно скрыть во всех каналах сервера")]
+    #[description_localized(
+        "es-ES",
+        "el rol que quieres ocultar en todos los canales del servidor"
+    )]
+    #[description = "Role, defaults to @everyone"]
+    role: Option<poise::serenity_prelude::Role>,
 ) -> Result<(), anyhow::Error> {
     let role_id = role
         .as_ref()

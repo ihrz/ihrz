@@ -33,11 +33,26 @@ pub fn config_stored_value(value: &serde_json::Value) -> String {
     prefix_command,
     rename = "config",
     aliases("rconfig"),
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    description_localized(
+        "fr",
+        "Configurer le message lorsque l'utilisateur gagne un nouveau message de niveau XP"
+    ),
+    description_localized("ja", "ユーザーが新しいXPレベルを獲得した時のメッセージを設定！"),
+    description_localized("ru", "Настроить сообщение при получении нового уровня XP!"),
+    description_localized(
+        "es-ES",
+        "Configurar el mensaje cuando el usuario gana un nuevo nivel de XP!"
+    )
 )]
 pub async fn ranks_config(
     ctx: Ctx<'_>,
-    #[description = "on, off or disable"] action: String,
+    #[description_localized("fr", "Que voulez-vous faire ?")]
+    #[description_localized("ja", "何をしたいですか？")]
+    #[description_localized("ru", "Что вы хотите сделать?")]
+    #[description_localized("es-ES", "Que quieres hacer?")]
+    #[description = "on, off or disable"]
+    action: String,
 ) -> Result<(), anyhow::Error> {
     let gid = ctx
         .guild_id()

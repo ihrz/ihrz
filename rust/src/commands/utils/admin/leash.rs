@@ -6,11 +6,20 @@ use super::*;
     prefix_command,
     category = "utils",
     rename = "leash",
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    description_localized("fr", "Mettre en laisse un utilisateur sur le serveur"),
+    description_localized("ja", "サーバー内のメンバーをリードでつなぐ"),
+    description_localized("ru", "Привязать участника на сервере"),
+    description_localized("es-ES", "Atar a un miembro en el servidor")
 )]
 pub async fn leash(
     ctx: Ctx<'_>,
-    #[description = "Member to leash"] member: poise::serenity_prelude::User,
+    #[description_localized("fr", "utilisateur que vous souhaitez mettre en laisse")]
+    #[description_localized("ja", "リードでつなぎたいメンバー")]
+    #[description_localized("ru", "участник для привязки")]
+    #[description_localized("es-ES", "miembro que quieres atar")]
+    #[description = "Member to leash"]
+    member: poise::serenity_prelude::User,
 ) -> Result<(), anyhow::Error> {
     let gid = ctx
         .guild_id()

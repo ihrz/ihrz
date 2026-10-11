@@ -12,10 +12,22 @@ pub fn rob_floor_ok(author_money: f64, victim_money: f64) -> bool {
 }
 
 /// Rob coins from another member!
-#[poise::command(slash_command, prefix_command, rename = "rob")]
+#[poise::command(
+    slash_command,
+    prefix_command,
+    rename = "rob",
+    description_localized("fr", "Volé de l'argent d'un utilisateur"),
+    description_localized("ja", "ユーザーから奪う！"),
+    description_localized("ru", "Ограбить пользователя!"),
+    description_localized("es-ES", "Robar a un usuario!")
+)]
 // Mirrors `!rob.ts`.
 pub async fn eco_rob(
     ctx: Ctx<'_>,
+    #[description_localized("fr", "le membre à qui tu veux voler de l'argent")]
+    #[description_localized("ja", "お金を奪いたいメンバー")]
+    #[description_localized("ru", "участник, у которого вы хотите украсть деньги")]
+    #[description_localized("es-ES", "el miembro al que quieres robar dinero")]
     #[description = "Member"]
     #[rename = "member"]
     user: poise::serenity_prelude::User,

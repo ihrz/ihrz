@@ -60,11 +60,30 @@ pub async fn rank_display_name(ctx: &Ctx<'_>, user: &serenity::User) -> String {
     slash_command,
     prefix_command,
     rename = "show",
-    aliases("rsee", "look", "level", "ranks-show")
+    aliases("rsee", "look", "level", "ranks-show"),
+    name_localized("fr", "afficher"),
+    name_localized("ja", "show"),
+    name_localized("ru", "show"),
+    name_localized("es-ES", "show"),
+    description_localized("fr", "Obtenez le niveau XP de l'utilisateur"),
+    description_localized("ja", "ユーザーのXPレベルを取得！"),
+    description_localized("ru", "Получить уровень XP пользователя!"),
+    description_localized("es-ES", "Obtener el nivel de XP del usuario!")
 )]
 pub async fn ranks_show(
     ctx: Ctx<'_>,
-    #[description = "Member"] user: Option<serenity::User>,
+    #[description_localized("fr", "L'utilisateur que vous souhaitez rechercher.")]
+    #[description_localized("ja", "検索したいユーザー（空白で自分の統計を表示）")]
+    #[description_localized(
+        "ru",
+        "Пользователь для поиска, оставьте пустым для показа своей статистики"
+    )]
+    #[description_localized(
+        "es-ES",
+        "El usuario que quieres buscar, déjalo en blanco si quieres mostrar tus estadísticas"
+    )]
+    #[description = "Member"]
+    user: Option<serenity::User>,
 ) -> Result<(), anyhow::Error> {
     let member = user.as_ref().unwrap_or_else(|| ctx.author());
     let uid = member.id.get();

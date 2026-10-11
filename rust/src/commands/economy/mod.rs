@@ -1470,3 +1470,201 @@ mod tests {
         assert_eq!(out, "5 {coin}");
     }
 }
+
+#[cfg(test)]
+mod localization_tests {
+
+    type LocCmd = poise::Command<crate::commands::Data, crate::commands::Error>;
+
+    fn find_path<'a>(cmds: &'a [LocCmd], path: &[&str]) -> &'a LocCmd {
+        let cmd = cmds
+            .iter()
+            .find(|c| c.name == path[0])
+            .unwrap_or_else(|| panic!("command {} missing", path.join(" ")));
+        if path.len() == 1 {
+            cmd
+        } else {
+            find_path(&cmd.subcommands, &path[1..])
+        }
+    }
+
+    #[test]
+    fn loc_economy() {
+        // TS economy/economy.ts (`economy`)
+        let cmds = crate::commands::all();
+        let cmd = find_path(&cmds, &["economy"]);
+        assert_eq!(
+            cmd.description_localizations.get("fr").map(String::as_str),
+            Some("Commande sous-groupé pour la catégorie d'économie")
+        );
+        assert_eq!(
+            cmd.description_localizations.get("ja").map(String::as_str),
+            Some("経済カテゴリのサブコマンド！")
+        );
+        assert_eq!(cmd.description_localizations.len(), 4);
+        assert_eq!(
+            cmd.name_localizations.get("fr").map(String::as_str),
+            Some("économie")
+        );
+        assert_eq!(
+            cmd.name_localizations.get("ja").map(String::as_str),
+            Some("economy")
+        );
+        assert_eq!(cmd.name_localizations.len(), 4);
+    }
+
+    #[test]
+    fn loc_role_add() {
+        // TS economy/economy.ts (`role/add`)
+        let cmds = crate::commands::all();
+        let cmd = find_path(&cmds, &["economy", "role-add"]);
+        assert_eq!(
+            cmd.description_localizations.get("fr").map(String::as_str),
+            Some("Ajouter un rôle pour un certain montant d'argent")
+        );
+        assert_eq!(
+            cmd.description_localizations.get("ja").map(String::as_str),
+            Some("特定の金額でロールを追加！")
+        );
+        assert_eq!(cmd.description_localizations.len(), 4);
+        let prm = cmd
+            .parameters
+            .iter()
+            .find(|x| x.name == "role")
+            .expect("param role");
+        assert_eq!(
+            prm.description_localizations.get("fr").map(String::as_str),
+            Some("Le rôle que vous souhaitez ajouter")
+        );
+        assert_eq!(
+            prm.description_localizations.get("ja").map(String::as_str),
+            Some("追加したいロール")
+        );
+        let prm = cmd
+            .parameters
+            .iter()
+            .find(|x| x.name == "price")
+            .expect("param price");
+        assert_eq!(
+            prm.description_localizations.get("fr").map(String::as_str),
+            Some("Le montant d'argent que vous souhaitez ajouter")
+        );
+        assert_eq!(
+            prm.description_localizations.get("ja").map(String::as_str),
+            Some("追加したい金額")
+        );
+    }
+
+    #[test]
+    fn loc_balance() {
+        // TS economy/economy.ts (`balance`)
+        let cmds = crate::commands::all();
+        let cmd = find_path(&cmds, &["economy", "balance"]);
+        assert_eq!(
+            cmd.description_localizations.get("fr").map(String::as_str),
+            Some("Obtenir le solde d'un utilisateur")
+        );
+        assert_eq!(
+            cmd.description_localizations.get("ja").map(String::as_str),
+            Some("ユーザーの残高を取得！")
+        );
+        assert_eq!(cmd.description_localizations.len(), 4);
+        let prm = cmd
+            .parameters
+            .iter()
+            .find(|x| x.name == "user")
+            .expect("param user");
+        assert_eq!(
+            prm.description_localizations.get("fr").map(String::as_str),
+            Some("Ciblez un utilisateur pour voir son solde actuel")
+        );
+        assert_eq!(
+            prm.description_localizations.get("ja").map(String::as_str),
+            Some("残高を確認するユーザーを指定（空白で自分）")
+        );
+    }
+
+    #[test]
+    fn loc_balance_add() {
+        // TS economy/economy.ts (`balance-add`)
+        let cmds = crate::commands::all();
+        let cmd = find_path(&cmds, &["economy", "balance-add"]);
+        assert_eq!(
+            cmd.description_localizations.get("fr").map(String::as_str),
+            Some("Ajoutez de l'argent à un utilisateur")
+        );
+        assert_eq!(
+            cmd.description_localizations.get("ja").map(String::as_str),
+            Some("ユーザーにお金を追加！")
+        );
+        assert_eq!(cmd.description_localizations.len(), 4);
+        let prm = cmd
+            .parameters
+            .iter()
+            .find(|x| x.name == "amount")
+            .expect("param amount");
+        assert_eq!(
+            prm.description_localizations.get("fr").map(String::as_str),
+            Some("Le montant d'argent que vous souhaitez ajouter")
+        );
+        assert_eq!(
+            prm.description_localizations.get("ja").map(String::as_str),
+            Some("追加したい金額")
+        );
+        let prm = cmd
+            .parameters
+            .iter()
+            .find(|x| x.name == "member")
+            .expect("param member");
+        assert_eq!(
+            prm.description_localizations.get("fr").map(String::as_str),
+            Some("Le membre à qui vous souhaitez ajouter de l'argent")
+        );
+        assert_eq!(
+            prm.description_localizations.get("ja").map(String::as_str),
+            Some("お金を追加したいメンバー")
+        );
+    }
+
+    #[test]
+    fn loc_balance_remove() {
+        // TS economy/economy.ts (`balance-remove`)
+        let cmds = crate::commands::all();
+        let cmd = find_path(&cmds, &["economy", "balance-remove"]);
+        assert_eq!(
+            cmd.description_localizations.get("fr").map(String::as_str),
+            Some("Retirer de l'argent à un utilisateur")
+        );
+        assert_eq!(
+            cmd.description_localizations.get("ja").map(String::as_str),
+            Some("ユーザーからお金を削除！")
+        );
+        assert_eq!(cmd.description_localizations.len(), 4);
+        let prm = cmd
+            .parameters
+            .iter()
+            .find(|x| x.name == "amount")
+            .expect("param amount");
+        assert_eq!(
+            prm.description_localizations.get("fr").map(String::as_str),
+            Some("montant de $ que vous souhaitez ajouter")
+        );
+        assert_eq!(
+            prm.description_localizations.get("ja").map(String::as_str),
+            Some("追加したい金額")
+        );
+        let prm = cmd
+            .parameters
+            .iter()
+            .find(|x| x.name == "member")
+            .expect("param member");
+        assert_eq!(
+            prm.description_localizations.get("fr").map(String::as_str),
+            Some("le membre auquel vous souhaitez ajouter de l'argent")
+        );
+        assert_eq!(
+            prm.description_localizations.get("ja").map(String::as_str),
+            Some("お金を追加したいメンバー")
+        );
+    }
+}

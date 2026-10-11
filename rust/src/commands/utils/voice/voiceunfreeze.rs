@@ -8,7 +8,11 @@ use super::*;
     category = "utils",
     rename = "unfreeze",
     aliases("defreeze"),
-    default_member_permissions = "MOVE_MEMBERS"
+    default_member_permissions = "MOVE_MEMBERS",
+    description_localized("fr", "Retirer le gel vocal actif"),
+    description_localized("ja", "アクティブなボイス凍結を解除"),
+    description_localized("ru", "Снять активную заморозку голосового канала"),
+    description_localized("es-ES", "Eliminar la congelación de voz activa")
 )]
 pub async fn voiceunfreeze(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {

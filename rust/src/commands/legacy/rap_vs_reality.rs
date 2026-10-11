@@ -12,12 +12,26 @@ use super::*;
     prefix_command,
     category = "misc",
     rename = "rap-vs-reality",
-    aliases("meme1")
+    aliases("meme1"),
+    description_localized("fr", "rap vs reality meme generator"),
+    description_localized("ja", "rap vs reality ミームジェネレーター"),
+    description_localized("ru", "генератор мема rap vs reality"),
+    description_localized("es-ES", "generador de meme rap vs reality")
 )]
 pub async fn rap_vs_reality(
     ctx: Ctx<'_>,
-    #[description = "First image URL (or attach)"] image1: Option<String>,
-    #[description = "Second image URL (or attach)"] image2: Option<String>,
+    #[description = "First image URL (or attach)"]
+    #[description_localized("fr", "le screen avant qu'il ce fasse défon")]
+    #[description_localized("ja", "before 側が最低")]
+    #[description_localized("ru", "before отстой")]
+    #[description_localized("es-ES", "el before apesta")]
+    image1: Option<String>,
+    #[description = "Second image URL (or attach)"]
+    #[description_localized("fr", "le screen après qu'il ce soit défoncé")]
+    #[description_localized("ja", "after 側が最低")]
+    #[description_localized("ru", "after отстой")]
+    #[description_localized("es-ES", "el after apesta")]
+    image2: Option<String>,
 ) -> Result<(), anyhow::Error> {
     let (first_att, last_att) = prefix_attachment_urls(&ctx);
     let url1 = image1.or(first_att);

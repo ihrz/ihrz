@@ -3,12 +3,28 @@ use super::*;
 /// Rename a tag (admin or creator only).
 // Mirrors !edit.ts, except the TS fall-through rename after the perm
 // deny is NOT copied: this port returns after the deny (TS bug).
-#[poise::command(slash_command, prefix_command, rename = "edit")]
+#[poise::command(
+    slash_command,
+    prefix_command,
+    rename = "edit",
+    description_localized("fr", "Modifier un tag"),
+    description_localized("ja", "タグを編集"),
+    description_localized("ru", "Редактировать тег"),
+    description_localized("es-ES", "Editar una etiqueta")
+)]
 pub async fn tag_edit(
     ctx: Ctx<'_>,
+    #[description_localized("fr", "Le nom actuel du tag")]
+    #[description_localized("ja", "現在のタグ名")]
+    #[description_localized("ru", "Текущее название тега")]
+    #[description_localized("es-ES", "El nombre actual de la etiqueta")]
     #[description = "Current name"]
     #[rename = "current_tag_name"]
     current: String,
+    #[description_localized("fr", "Le nouveau nom du tag")]
+    #[description_localized("ja", "新しいタグ名")]
+    #[description_localized("ru", "Новое название тега")]
+    #[description_localized("es-ES", "El nuevo nombre de la etiqueta")]
     #[description = "New name"]
     #[rename = "new_tag_name"]
     new: String,

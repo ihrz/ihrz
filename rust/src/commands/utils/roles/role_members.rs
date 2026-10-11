@@ -7,11 +7,26 @@ use super::*;
     category = "utils",
     rename = "role-members",
     aliases("rolemembers", "rolemember"),
-    default_member_permissions = "MANAGE_ROLES"
+    default_member_permissions = "MANAGE_ROLES",
+    description_localized(
+        "fr",
+        "Afficher tout les membres d'un serveur qui possèdent le même rôle"
+    ),
+    description_localized("ja", "同じロールを持つ全サーバーメンバーを表示"),
+    description_localized("ru", "Показать участников с одинаковыми ролями"),
+    description_localized(
+        "es-ES",
+        "Ver todos los miembros del servidor que tienen los mismos roles"
+    )
 )]
 pub async fn role_members(
     ctx: Ctx<'_>,
-    #[description = "Role"] role: poise::serenity_prelude::Role,
+    #[description_localized("fr", "Le rôle que vous voulez vérifier")]
+    #[description_localized("ja", "確認したいロール")]
+    #[description_localized("ru", "Роль для проверки")]
+    #[description_localized("es-ES", "El rol que quieres comprobar")]
+    #[description = "Role"]
+    role: poise::serenity_prelude::Role,
 ) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {
         return Ok(());

@@ -1057,3 +1057,192 @@ pub mod main {
     pub use super::ustats::*;
     pub use super::*;
 }
+
+#[cfg(test)]
+mod localization_tests {
+
+    type LocCmd = poise::Command<crate::commands::Data, crate::commands::Error>;
+
+    fn find_path<'a>(cmds: &'a [LocCmd], path: &[&str]) -> &'a LocCmd {
+        let cmd = cmds
+            .iter()
+            .find(|c| c.name == path[0])
+            .unwrap_or_else(|| panic!("command {} missing", path.join(" ")));
+        if path.len() == 1 {
+            cmd
+        } else {
+            find_path(&cmd.subcommands, &path[1..])
+        }
+    }
+
+    #[test]
+    fn loc_stats() {
+        // TS stats/stats.ts (`stats`)
+        let cmds = crate::commands::all();
+        let cmd = find_path(&cmds, &["stats"]);
+        assert_eq!(
+            cmd.description_localizations.get("fr").map(String::as_str),
+            Some("Commande sous-groupé pour la catégorie des statistique des utilisateurs!")
+        );
+        assert_eq!(
+            cmd.description_localizations.get("ja").map(String::as_str),
+            Some("統計カテゴリのサブコマンド！")
+        );
+        assert_eq!(cmd.description_localizations.len(), 4);
+    }
+
+    #[test]
+    fn loc_channel_stats() {
+        // TS stats/stats.ts (`channel-stats`)
+        let cmds = crate::commands::all();
+        let cmd = find_path(&cmds, &["stats", "channel-stats"]);
+        assert_eq!(
+            cmd.description_localizations.get("fr").map(String::as_str),
+            Some("Voir les statistiques d'un canal spécifique")
+        );
+        assert_eq!(
+            cmd.description_localizations.get("ja").map(String::as_str),
+            Some("特定のチャンネルの統計を表示")
+        );
+        assert_eq!(cmd.description_localizations.len(), 4);
+        let prm = cmd
+            .parameters
+            .iter()
+            .find(|x| x.name == "channel")
+            .expect("param channel");
+        assert_eq!(
+            prm.description_localizations.get("fr").map(String::as_str),
+            Some("Le canal à analyser")
+        );
+        assert_eq!(
+            prm.description_localizations.get("ja").map(String::as_str),
+            Some("分析するチャンネル")
+        );
+    }
+
+    #[test]
+    fn loc_compare() {
+        // TS stats/stats.ts (`compare`)
+        let cmds = crate::commands::all();
+        let cmd = find_path(&cmds, &["stats", "compare"]);
+        assert_eq!(
+            cmd.description_localizations.get("fr").map(String::as_str),
+            Some("Comparer les statistiques entre plusieurs utilisateurs")
+        );
+        assert_eq!(
+            cmd.description_localizations.get("ja").map(String::as_str),
+            Some("複数ユーザー間の統計を比較")
+        );
+        assert_eq!(cmd.description_localizations.len(), 4);
+        let prm = cmd
+            .parameters
+            .iter()
+            .find(|x| x.name == "user1")
+            .expect("param user1");
+        assert_eq!(
+            prm.description_localizations.get("fr").map(String::as_str),
+            Some("Premier utilisateur à comparer")
+        );
+        assert_eq!(
+            prm.description_localizations.get("ja").map(String::as_str),
+            Some("比較する1人目のユーザー")
+        );
+        let prm = cmd
+            .parameters
+            .iter()
+            .find(|x| x.name == "user2")
+            .expect("param user2");
+        assert_eq!(
+            prm.description_localizations.get("fr").map(String::as_str),
+            Some("Deuxième utilisateur à comparer")
+        );
+        assert_eq!(
+            prm.description_localizations.get("ja").map(String::as_str),
+            Some("比較する2人目のユーザー")
+        );
+    }
+
+    #[test]
+    fn loc_top_messages() {
+        // TS stats/stats.ts (`top-messages`)
+        let cmds = crate::commands::all();
+        let cmd = find_path(&cmds, &["stats", "top-messages"]);
+        assert_eq!(
+            cmd.description_localizations.get("fr").map(String::as_str),
+            Some("Voir le top des utilisateurs par messages")
+        );
+        assert_eq!(
+            cmd.description_localizations.get("ja").map(String::as_str),
+            Some("メッセージ数トップユーザーを表示")
+        );
+        assert_eq!(cmd.description_localizations.len(), 4);
+        let prm = cmd
+            .parameters
+            .iter()
+            .find(|x| x.name == "period")
+            .expect("param period");
+        assert_eq!(
+            prm.description_localizations.get("fr").map(String::as_str),
+            Some("Période (quotidien, hebdomadaire, mensuel)")
+        );
+        assert_eq!(
+            prm.description_localizations.get("ja").map(String::as_str),
+            Some("期間（デイリー、ウィークリー、マンスリー）")
+        );
+        let prm = cmd
+            .parameters
+            .iter()
+            .find(|x| x.name == "limit")
+            .expect("param limit");
+        assert_eq!(
+            prm.description_localizations.get("fr").map(String::as_str),
+            Some("Nombre d'utilisateurs à afficher (par défaut: 10, max: 25)")
+        );
+        assert_eq!(
+            prm.description_localizations.get("ja").map(String::as_str),
+            Some("表示するユーザー数（デフォルト: 10, 最大: 25）")
+        );
+    }
+
+    #[test]
+    fn loc_top_voice() {
+        // TS stats/stats.ts (`top-voice`)
+        let cmds = crate::commands::all();
+        let cmd = find_path(&cmds, &["stats", "top-voice"]);
+        assert_eq!(
+            cmd.description_localizations.get("fr").map(String::as_str),
+            Some("Voir le top des utilisateurs par activité vocale")
+        );
+        assert_eq!(
+            cmd.description_localizations.get("ja").map(String::as_str),
+            Some("ボイスアクティビティトップユーザーを表示")
+        );
+        assert_eq!(cmd.description_localizations.len(), 4);
+        let prm = cmd
+            .parameters
+            .iter()
+            .find(|x| x.name == "period")
+            .expect("param period");
+        assert_eq!(
+            prm.description_localizations.get("fr").map(String::as_str),
+            Some("Période (quotidien, hebdomadaire, mensuel)")
+        );
+        assert_eq!(
+            prm.description_localizations.get("ja").map(String::as_str),
+            Some("期間（デイリー、ウィークリー、マンスリー）")
+        );
+        let prm = cmd
+            .parameters
+            .iter()
+            .find(|x| x.name == "limit")
+            .expect("param limit");
+        assert_eq!(
+            prm.description_localizations.get("fr").map(String::as_str),
+            Some("Nombre d'utilisateurs à afficher (par défaut: 10, max: 25)")
+        );
+        assert_eq!(
+            prm.description_localizations.get("ja").map(String::as_str),
+            Some("表示するユーザー数（デフォルト: 10, 最大: 25）")
+        );
+    }
+}

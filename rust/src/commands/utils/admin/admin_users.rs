@@ -11,7 +11,11 @@ pub const ADMIN_USERS_COLLECTOR_SECS: u64 = 160;
     category = "utils",
     rename = "admin-users",
     aliases("alladmin", "allperms", "alladmins", "adminusers"),
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    description_localized("fr", "Obtenez la liste de tous les membres de la guilde disposant d'autorisations d'administrateur"),
+    description_localized("ja", "管理者権限を持つ全サーバーメンバーのリストを取得"),
+    description_localized("ru", "Получить список всех участников с правами администратора"),
+    description_localized("es-ES", "Obtener la lista de todos los miembros del servidor que tienen permisos de administrador"),
 )]
 pub async fn admin_users(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {

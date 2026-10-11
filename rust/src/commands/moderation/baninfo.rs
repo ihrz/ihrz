@@ -28,14 +28,23 @@ fn render_description(
     slash_command,
     prefix_command,
     rename = "baninfo",
-    default_member_permissions = "BAN_MEMBERS"
+    default_member_permissions = "BAN_MEMBERS",
+    description_localized("fr", "Vérifier si l'utilisateur est bannis du serveur et pourquoi"),
+    description_localized("ja", "ユーザーがバンされているかとその理由を確認"),
+    description_localized("ru", "Проверить, забанен ли пользователь и почему"),
+    description_localized("es-ES", "Comprobar si el usuario está baneado y por qué")
 )]
 pub async fn mod_baninfo(
     ctx: Ctx<'_>,
     // Optional here (TS `method.user` can return null on prefix), but
     // the slash option stays effectively required: a missing entity is
     // answered with the TS `baninfo_user_not_found` reply below.
-    #[description = "User"] user: Option<serenity::User>,
+    #[description_localized("fr", "le membre que vous souhaitez vérifier")]
+    #[description_localized("ja", "確認したいメンバー")]
+    #[description_localized("ru", "участник для проверки")]
+    #[description_localized("es-ES", "el miembro que quieres comprobar")]
+    #[description = "User"]
+    user: Option<serenity::User>,
 ) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {
         return Ok(());

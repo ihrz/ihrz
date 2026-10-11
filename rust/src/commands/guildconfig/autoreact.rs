@@ -115,7 +115,17 @@ pub fn sorted_channel_ids(map: &AutoreactMap) -> Vec<String> {
     prefix_command,
     category = "guildconfig",
     rename = "autoreact",
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    description_localized(
+        "fr",
+        "Envoyer un emoji spécifié lorsqu'un nouveau message est envoyé dans un canal spécifié"
+    ),
+    description_localized("ja", "指定チャンネルの新規メッセージに指定絵文字を送信"),
+    description_localized("ru", "Отправить эмодзи при новом сообщении в канале"),
+    description_localized(
+        "es-ES",
+        "Enviar emoji especificado cuando haya nuevo mensaje en el canal especificado"
+    )
 )]
 pub async fn gc_autoreact(
     ctx: Ctx<'_>,

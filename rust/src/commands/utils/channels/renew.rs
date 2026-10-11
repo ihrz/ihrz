@@ -12,7 +12,20 @@ use super::*;
     category = "utils",
     rename = "renew",
     aliases("r", "rnw"),
-    default_member_permissions = "MANAGE_CHANNELS"
+    default_member_permissions = "MANAGE_CHANNELS",
+    description_localized(
+        "fr",
+        "Recréation d'un canal (autorisation de clonage et toutes les configurations)"
+    ),
+    description_localized("ja", "チャンネルを再作成（権限と全設定をクローン）。nuke相当"),
+    description_localized(
+        "ru",
+        "Пересоздать канал (клонирование прав и всех настроек). Аналог nuke"
+    ),
+    description_localized(
+        "es-ES",
+        "Recrear un canal (clonando permisos y todas las configuraciones). Equivalente a nuke"
+    )
 )]
 pub async fn renew(
     ctx: Ctx<'_>,

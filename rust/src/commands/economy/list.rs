@@ -6,7 +6,11 @@ use super::*;
     prefix_command,
     rename = "role-list",
     aliases("economy-role-list"),
-    default_member_permissions = "MANAGE_GUILD"
+    default_member_permissions = "MANAGE_GUILD",
+    description_localized("fr", "Liste de tous les rôles que vous pouvez acheter"),
+    description_localized("ja", "購入可能な全ロールを一覧表示！"),
+    description_localized("ru", "Показать все роли, которые можно купить!"),
+    description_localized("es-ES", "Listar todos los roles que puedes comprar!")
 )]
 pub async fn eco_role_list(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     if disabled_reply(&ctx).await? {

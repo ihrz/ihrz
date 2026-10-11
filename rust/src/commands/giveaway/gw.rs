@@ -18,7 +18,11 @@ use super::{
         "gw_get_data",
         "gw_get_all"
     ),
-    subcommand_required
+    subcommand_required,
+    description_localized("fr", "Commande sous-groupé pour la catégorie de giveaway"),
+    description_localized("ja", "ギブアウェイカテゴリのサブコマンド！"),
+    description_localized("ru", "Подкоманда для категории розыгрышей!"),
+    description_localized("es-ES", "Subcomando para la categoría de sorteos!")
 )]
 pub async fn giveaway(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())

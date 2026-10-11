@@ -59,10 +59,24 @@ async fn deny_invalid(ctx: &Ctx<'_>, _code: &str) -> Result<(), anyhow::Error> {
 }
 
 /// Transform image to gif
-#[poise::command(slash_command, prefix_command, category = "fun", rename = "togif")]
+#[poise::command(
+    slash_command,
+    prefix_command,
+    category = "fun",
+    rename = "togif",
+    description_localized("fr", "Transformer une image vers un gif"),
+    description_localized("ja", "画像をGIFに変換"),
+    description_localized("ru", "Преобразовать изображение в GIF"),
+    description_localized("es-ES", "Transformar imagen a gif")
+)]
 pub async fn togif(
     ctx: Ctx<'_>,
-    #[description = "Image file"] image: poise::serenity_prelude::Attachment,
+    #[description_localized("fr", "fichier image")]
+    #[description_localized("ja", "画像ファイル")]
+    #[description_localized("ru", "файл изображения")]
+    #[description_localized("es-ES", "archivo de imagen")]
+    #[description = "Image file"]
+    image: poise::serenity_prelude::Attachment,
 ) -> Result<(), anyhow::Error> {
     // No disabled-category check in `!togif.ts`: no fun_guard here
     // (parity: no deny where TS has none). The TS

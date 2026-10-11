@@ -11,7 +11,11 @@ use crate::commands::fun::{ping_average_ms, ping_net_label, render_ping_desc, PI
     slash_command,
     prefix_command,
     category = "bot",
-    aliases("speed", "pong", "vitesse")
+    aliases("speed", "pong", "vitesse"),
+    description_localized("fr", "Obtenir la latence du bot"),
+    description_localized("ja", "ボットのレイテンシを取得！"),
+    description_localized("ru", "Получить задержку бота!"),
+    description_localized("es-ES", "Obtener la latencia del bot!")
 )]
 pub async fn ping(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let down_msg = crate::commands::lang_for(&ctx, "ping_down_msg", "**DOWN**").await;

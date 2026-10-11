@@ -6,12 +6,29 @@ use super::*;
     slash_command,
     prefix_command,
     rename = "top-voice",
-    aliases("tv", "topv")
+    aliases("tv", "topv"),
+    description_localized("fr", "Voir le top des utilisateurs par activité vocale"),
+    description_localized("ja", "ボイスアクティビティトップユーザーを表示"),
+    description_localized("ru", "Показать топ пользователей по голосовой активности"),
+    description_localized("es-ES", "Ver usuarios top por actividad de voz")
 )]
 pub async fn stats_top_voice(
     ctx: Ctx<'_>,
-    #[description = "Period: daily, weekly or monthly"] period: Option<String>,
-    #[description = "Rows shown (5-25)"] limit: Option<i64>,
+    #[description_localized("fr", "Période (quotidien, hebdomadaire, mensuel)")]
+    #[description_localized("ja", "期間（デイリー、ウィークリー、マンスリー）")]
+    #[description_localized("ru", "Период (ежедневно, еженедельно, ежемесячно)")]
+    #[description_localized("es-ES", "Período de tiempo (diario, semanal, mensual)")]
+    #[description = "Period: daily, weekly or monthly"]
+    period: Option<String>,
+    #[description_localized("fr", "Nombre d'utilisateurs à afficher (par défaut: 10, max: 25)")]
+    #[description_localized("ja", "表示するユーザー数（デフォルト: 10, 最大: 25）")]
+    #[description_localized(
+        "ru",
+        "Количество пользователей для отображения (по умолчанию: 10, макс: 25)"
+    )]
+    #[description_localized("es-ES", "Número de usuarios a mostrar (predeterminado: 10, máx: 25)")]
+    #[description = "Rows shown (5-25)"]
+    limit: Option<i64>,
 ) -> Result<(), anyhow::Error> {
     // The 5..=25 clamp is prefix-only (TS clamps just the message-arg
     // leg); the slash option passes through with a default of 10.

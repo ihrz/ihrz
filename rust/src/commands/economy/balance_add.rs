@@ -6,14 +6,27 @@ use super::*;
     prefix_command,
     rename = "balance-add",
     aliases("addmoney"),
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    description_localized("fr", "Ajoutez de l'argent à un utilisateur"),
+    description_localized("ja", "ユーザーにお金を追加！"),
+    description_localized("ru", "Добавить деньги пользователю!"),
+    description_localized("es-ES", "Añadir dinero a un usuario!")
 )]
 pub async fn eco_balance_add(
     ctx: Ctx<'_>,
     // Amount-first like the TS option order (`amount`, then `member` in
     // economy.ts): poise parses prefix args positionally, so this keeps
     // `!balance-add <amount> <member>` aligned on both paths.
-    #[description = "Amount"] amount: f64,
+    #[description_localized("fr", "Le montant d'argent que vous souhaitez ajouter")]
+    #[description_localized("ja", "追加したい金額")]
+    #[description_localized("ru", "Сумма денег для добавления")]
+    #[description_localized("es-ES", "La cantidad de dinero que quieres añadir")]
+    #[description = "Amount"]
+    amount: f64,
+    #[description_localized("fr", "Le membre à qui vous souhaitez ajouter de l'argent")]
+    #[description_localized("ja", "お金を追加したいメンバー")]
+    #[description_localized("ru", "Участник, которому добавить деньги")]
+    #[description_localized("es-ES", "El miembro al que quieres añadir dinero")]
     #[description = "Member"]
     #[rename = "member"]
     user: poise::serenity_prelude::User,

@@ -25,7 +25,15 @@ use crate::bot::Ctx;
         "fun_config",
         "grosbg"
     ),
-    subcommand_required
+    subcommand_required,
+    name_localized("fr", "fun"),
+    name_localized("ja", "fun"),
+    name_localized("ru", "fun"),
+    name_localized("es-ES", "fun"),
+    description_localized("fr", "Commande sous-groupé pour la catégorie d'amusement"),
+    description_localized("ja", "Funカテゴリのサブコマンド！"),
+    description_localized("ru", "Подкоманда для категории развлечений!"),
+    description_localized("es-ES", "Subcomando para la categoría de diversión!")
 )]
 pub async fn fun(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())

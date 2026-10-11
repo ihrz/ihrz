@@ -14,11 +14,26 @@ pub const PREVNAMES_COLLECTOR_SECS: u64 = 60 * 15;
     prefix_command,
     category = "utils",
     rename = "prevnames",
-    aliases("pvnames", "pvname", "prevname")
+    aliases("pvnames", "pvname", "prevname"),
+    description_localized(
+        "fr",
+        "Recherchez un utilisateur Discord et voyez ces noms d'utilisateur précédent"
+    ),
+    description_localized("ja", "Discordユーザーを検索し、以前のユーザー名を確認！"),
+    description_localized("ru", "Найти пользователя Discord и посмотреть его предыдущие имена!"),
+    description_localized(
+        "es-ES",
+        "Buscar un usuario de Discord y ver su nombre de usuario anterior!"
+    )
 )]
 pub async fn prevnames(
     ctx: Ctx<'_>,
-    #[description = "Member"] user: Option<poise::serenity_prelude::User>,
+    #[description_localized("fr", "user you want to see this previous username")]
+    #[description_localized("ja", "検索したいユーザー")]
+    #[description_localized("ru", "Пользователь, которого вы хотите найти")]
+    #[description_localized("es-ES", "El usuario que quieres buscar")]
+    #[description = "Member"]
+    user: Option<poise::serenity_prelude::User>,
 ) -> Result<(), anyhow::Error> {
     let target = user.unwrap_or_else(|| ctx.author().clone());
     // Named `prevnames` table first, legacy kv fallback (the writer in

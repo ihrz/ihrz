@@ -118,10 +118,23 @@ pub fn lyrics_embed_description(text: &str) -> String {
 }
 
 /// Lyrics command.
-#[poise::command(slash_command, prefix_command, rename = "lyrics")]
+#[poise::command(
+    slash_command,
+    prefix_command,
+    rename = "lyrics",
+    description_localized("fr", "Trouver les lyrics d'un titre"),
+    description_localized("ja", "曲の歌詞を検索！"),
+    description_localized("ru", "Найти текст песни!"),
+    description_localized("es-ES", "Encontrar la letra de una canción!")
+)]
 pub async fn m_lyrics(
     ctx: Ctx<'_>,
-    #[description = "Query"] query: String,
+    #[description_localized("fr", "Titre de la musique que vous souhaitez")]
+    #[description_localized("ja", "希望するトラックのタイトル")]
+    #[description_localized("ru", "Название желаемого трека")]
+    #[description_localized("es-ES", "El título de la pista que deseas")]
+    #[description = "Query"]
+    query: String,
 ) -> Result<(), anyhow::Error> {
     let code = lang_code(&ctx).await;
     let gid_str = ctx.guild_id().map(|g| g.get().to_string());

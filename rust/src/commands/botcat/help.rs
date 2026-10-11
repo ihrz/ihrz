@@ -183,10 +183,24 @@ async fn render_help_category(
 // select menus + button pagination (840s collector, disable-on-end)
 // have no component-dispatch hook in this port, so the overview and
 // category views are static (no buttons, no collectors).
-#[poise::command(slash_command, prefix_command, category = "bot", rename = "help")]
+#[poise::command(
+    slash_command,
+    prefix_command,
+    category = "bot",
+    rename = "help",
+    description_localized("fr", "Obtenir la liste de toute les commandes"),
+    description_localized("ja", "全コマンドのリストを取得！"),
+    description_localized("ru", "Получить список всех команд!"),
+    description_localized("es-ES", "Obtener una lista de todos los comandos!")
+)]
 pub async fn help(
     ctx: Ctx<'_>,
-    #[description = "The command name you want information"] command_name: Option<String>,
+    #[description = "The command name you want information"]
+    #[description_localized("fr", "La commandes sur laquelle vous voulez des info")]
+    #[description_localized("ja", "情報が欲しいコマンド名")]
+    #[description_localized("ru", "Имя команды, о которой нужна информация")]
+    #[description_localized("es-ES", "El nombre del comando del que quieres información")]
+    command_name: Option<String>,
 ) -> Result<(), anyhow::Error> {
     let pool = &ctx.data().pool;
     let gid = ctx.guild_id().map(|g| g.get());

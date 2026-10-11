@@ -8,7 +8,24 @@ use poise::serenity_prelude as serenity;
     slash_command,
     prefix_command,
     rename = "role-to-remove",
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    name_localized("fr", "role-à-enlever"),
+    name_localized("ja", "role-to-remove"),
+    name_localized("ru", "role-to-remove"),
+    name_localized("es-ES", "role-to-remove"),
+    description_localized(
+        "fr",
+        "Le rôle qui sera enlevé aux nouveaux membre(s) lors du processus de vérification Captcha"
+    ),
+    description_localized("ja", "キャプチャ認証時に新規メンバーから削除されるロール！"),
+    description_localized(
+        "ru",
+        "Роль, которая будет снята с новых участников при прохождении капчи!"
+    ),
+    description_localized(
+        "es-ES",
+        "El rol que se quitará a los nuevos miembros cuando pasen la verificación Captcha!"
+    )
 )]
 pub async fn security_remove(
     ctx: Ctx<'_>,

@@ -21,7 +21,20 @@ pub fn list_gate_id(backup_id: Option<&str>) -> Option<&str> {
 }
 
 /// List your backup(s)!
-#[poise::command(slash_command, prefix_command, rename = "list", aliases("backup-list"))]
+#[poise::command(
+    slash_command,
+    prefix_command,
+    rename = "list",
+    aliases("backup-list"),
+    name_localized("fr", "listé"),
+    name_localized("ja", "list"),
+    name_localized("ru", "list"),
+    name_localized("es-ES", "list"),
+    description_localized("fr", "Listé toute vos backup(s)"),
+    description_localized("ja", "バックアップを一覧表示！"),
+    description_localized("ru", "Показать ваши резервные копии!"),
+    description_localized("es-ES", "Listar tus copias de seguridad!")
+)]
 pub async fn backup_list(
     ctx: Ctx<'_>,
     // Verdict: keep the `backup-id` Option param (document, don't

@@ -6,15 +6,29 @@ use poise::serenity_prelude as serenity;
     slash_command,
     prefix_command,
     rename = "warn",
-    default_member_permissions = "MODERATE_MEMBERS"
+    default_member_permissions = "MODERATE_MEMBERS",
+    description_localized("fr", "avertir un utilisateur"),
+    description_localized("ja", "ユーザーを警告"),
+    description_localized("ru", "предупредить пользователя"),
+    description_localized("es-ES", "advertir a un usuario")
 )]
 pub async fn mod_warn(
     ctx: Ctx<'_>,
     // Optional here (TS `method.member` can return null on prefix), but
     // the slash option stays effectively required: a missing entity is
     // answered with the TS `ban_dont_found_member` reply below.
-    #[description = "Member"] member: Option<serenity::User>,
-    #[description = "Reason"] reason: String,
+    #[description_localized("fr", "le membre que vous voulez signaler")]
+    #[description_localized("ja", "警告したいメンバー")]
+    #[description_localized("ru", "Участник для предупреждения")]
+    #[description_localized("es-ES", "El miembro al que quieres advertir")]
+    #[description = "Member"]
+    member: Option<serenity::User>,
+    #[description_localized("fr", "La raison du warn")]
+    #[description_localized("ja", "このメンバーを警告する理由")]
+    #[description_localized("ru", "Причина предупреждения этого участника")]
+    #[description_localized("es-ES", "La razón por la que quieres advertir a este miembro")]
+    #[description = "Reason"]
+    reason: String,
 ) -> Result<(), anyhow::Error> {
     let gid = ctx
         .guild_id()

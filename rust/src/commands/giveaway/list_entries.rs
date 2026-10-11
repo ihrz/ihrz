@@ -7,7 +7,15 @@ use poise::serenity_prelude as serenity;
     prefix_command,
     rename = "list-entries",
     aliases("list"),
-    default_member_permissions = "MANAGE_MESSAGES"
+    default_member_permissions = "MANAGE_MESSAGES",
+    name_localized("fr", "afficher-les-participant"),
+    name_localized("ja", "list-entries"),
+    name_localized("ru", "list-entries"),
+    name_localized("es-ES", "list-entries"),
+    description_localized("fr", "Répertorier toutes les entrées dans le giveaway"),
+    description_localized("ja", "ギブアウェイの全エントリーを一覧表示！"),
+    description_localized("ru", "Показать всех участников розыгрыша!"),
+    description_localized("es-ES", "Listar todas las entradas en el sorteo!")
 )]
 pub async fn gw_entries(
     ctx: Ctx<'_>,
@@ -17,6 +25,16 @@ pub async fn gw_entries(
     // `isValid` in TS and answers `end_not_find_giveaway` with `${gw}`
     // replaced by null (JS renders "null"); the bare form therefore
     // gets the localized reply instead of a poise parse error.
+    #[description_localized(
+        "fr",
+        "L'identifiant du cadeau (est l'identifiant du message du giveaway)"
+    )]
+    #[description_localized("ja", "ギブアウェイID（埋め込みギブアウェイのメッセージID）")]
+    #[description_localized("ru", "ID розыгрыша (это ID сообщения эмбеда розыгрыша)")]
+    #[description_localized(
+        "es-ES",
+        "El ID del sorteo (es el ID del mensaje del embed del sorteo)"
+    )]
     #[description = "Giveaway message id"]
     #[rename = "giveaway-id"]
     message_id: Option<String>,

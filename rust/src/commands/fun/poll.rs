@@ -38,13 +38,25 @@ pub fn app_reaction(
     prefix_command,
     category = "fun",
     rename = "poll",
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    name_localized("fr", "sondage"),
+    name_localized("ja", "poll"),
+    name_localized("ru", "poll"),
+    name_localized("es-ES", "poll"),
+    description_localized("fr", "Créer un sondage"),
+    description_localized("ja", "投票を作成！"),
+    description_localized("ru", "Создать опрос!"),
+    description_localized("es-ES", "Crear una encuesta!")
 )]
 // Mirrors !poll.ts.
 // ADMINISTRATOR permission comes from fun.ts; Yes/No reacts use the app
 // emojis only (no unicode fallback, like TS).
 pub async fn poll(
     ctx: Ctx<'_>,
+    #[description_localized("fr", "Le message affiché sur le sondage")]
+    #[description_localized("ja", "アンケートに表示されるメッセージ")]
+    #[description_localized("ru", "Сообщение, отображаемое в опросе")]
+    #[description_localized("es-ES", "El mensaje mostrado en la encuesta")]
     #[description = "Poll message"]
     #[rest]
     message: String,

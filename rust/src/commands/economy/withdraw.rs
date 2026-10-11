@@ -1,10 +1,22 @@
 use super::*;
 
 /// Withdraw coins from your bank!
-#[poise::command(slash_command, prefix_command, rename = "withdraw")]
+#[poise::command(
+    slash_command,
+    prefix_command,
+    rename = "withdraw",
+    description_localized("fr", "Retirer des pièces de votre banque"),
+    description_localized("ja", "銀行からコインを引き出す！"),
+    description_localized("ru", "Снять монеты из банка!"),
+    description_localized("es-ES", "Retirar monedas de tu banco!")
+)]
 // Mirrors `!withdraw.ts`.
 pub async fn eco_withdraw(
     ctx: Ctx<'_>,
+    #[description_localized("fr", "Combien de pièces vous souhaitez retirer de votre banque")]
+    #[description_localized("ja", "銀行からいくら引き出しますか？")]
+    #[description_localized("ru", "Сколько монет вы хотите снять из банка?")]
+    #[description_localized("es-ES", "Cuántas monedas quieres retirar de tu banco?")]
     #[description = "Amount or all"]
     #[rename = "how-much"]
     amount: String,

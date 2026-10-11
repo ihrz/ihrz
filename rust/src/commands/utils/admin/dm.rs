@@ -10,13 +10,36 @@ use super::*;
     category = "utils",
     rename = "dm",
     default_member_permissions = "ADMINISTRATOR",
-    user_cooldown = 120
+    user_cooldown = 120,
+    name_localized("fr", "mp"),
+    name_localized("ja", "dm"),
+    name_localized("ru", "dm"),
+    name_localized("es-ES", "dm"),
+    description_localized("fr", "Envoyer un message privée à un utilisateur"),
+    description_localized("ja", "ユーザー1にプライベートメッセージを送信"),
+    description_localized("ru", "Отправить личное сообщение пользователю1"),
+    description_localized("es-ES", "Enviar un mensaje privado al usuario1")
 )]
 pub async fn dm(
     ctx: Ctx<'_>,
-    #[description = "Private (yes to hide the author button)"] private: PrivateChoice,
-    #[description = "Member"] user: poise::serenity_prelude::User,
-    #[description = "Message"] message: String,
+    #[description_localized("fr", "l'autheur est-t'il anonyme ?")]
+    #[description_localized("ja", "非公開ですか？")]
+    #[description_localized("ru", "приватный?")]
+    #[description_localized("es-ES", "es privado?")]
+    #[description = "Private (yes to hide the author button)"]
+    private: PrivateChoice,
+    #[description_localized("fr", "l'autheur que vous voulez")]
+    #[description_localized("ja", "対象のメンバー")]
+    #[description_localized("ru", "желаемый участник")]
+    #[description_localized("es-ES", "el miembro que deseas")]
+    #[description = "Member"]
+    user: poise::serenity_prelude::User,
+    #[description_localized("fr", "le message")]
+    #[description_localized("ja", "プライベートメッセージ")]
+    #[description_localized("ru", "приватное сообщение")]
+    #[description_localized("es-ES", "el mensaje privado")]
+    #[description = "Message"]
+    message: String,
 ) -> Result<(), anyhow::Error> {
     use poise::serenity_prelude as serenity;
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;

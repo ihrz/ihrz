@@ -9,7 +9,11 @@ use super::*;
     slash_command,
     prefix_command,
     category = "utils",
-    rename = "shardinfo"
+    rename = "shardinfo",
+    description_localized("fr", "..."),
+    description_localized("ja", "..."),
+    description_localized("ru", "..."),
+    description_localized("es-ES", "...")
 )]
 pub async fn shardinfo(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let owners = crate::db::bot_owner_ids(&ctx.data().pool, &ctx.data().config.owners).await;

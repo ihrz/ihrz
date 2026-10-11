@@ -75,7 +75,17 @@ pub async fn lookup_reaction_role(
     aliases("rolereact"),
     subcommands("rr_add", "rr_remove"),
     default_member_permissions = "ADMINISTRATOR",
-    subcommand_required
+    subcommand_required,
+    description_localized(
+        "fr",
+        "Définir des rôles lorsque l'utilisateur réagit à un message avec des emoji spécifiques"
+    ),
+    description_localized("ja", "特定の絵文字でメッセージにリアクションした時にロールを設定"),
+    description_localized("ru", "Установить роли при реакции на сообщение с эмодзи"),
+    description_localized(
+        "es-ES",
+        "Establecer roles cuando el usuario reacciona a un mensaje con emoji específico"
+    )
 )]
 pub async fn rolereaction(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())
@@ -531,7 +541,17 @@ pub async fn post_ihorizon_log(
     category = "rolereactions",
     rename = "rolebutton",
     aliases("btnreact"),
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    description_localized(
+        "fr",
+        "Définir des rôles lorsque l'utilisateur réagit à un message avec un boutton spécifique"
+    ),
+    description_localized("ja", "特定の絵文字でボタンにリアクションした時にロールを設定"),
+    description_localized("ru", "Установить роли при реакции на кнопку с эмодзи"),
+    description_localized(
+        "es-ES",
+        "Establecer roles cuando el usuario reacciona a un botón con emoji específico"
+    )
 )]
 pub async fn rolebutton(
     ctx: Ctx<'_>,
@@ -1105,7 +1125,11 @@ pub async fn load_roleselect(
     category = "rolereactions",
     rename = "roleselect",
     aliases("selectreact"),
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    description_localized("fr", "Configurer la sélection de rôles pour un message spécifique"),
+    description_localized("ja", "特定のメッセージのロール選択を設定"),
+    description_localized("ru", "Настроить выбор ролей для сообщения"),
+    description_localized("es-ES", "Configurar la selección de roles para un mensaje específico")
 )]
 pub async fn roleselect(
     ctx: Ctx<'_>,
@@ -2065,5 +2089,24 @@ mod tests {
         let rows = load_button_rows(&pool, "g", 11).await;
         assert_eq!(rows.len(), 1);
         assert_eq!(rows[0].1.roles_id, "7");
+    }
+    #[test]
+    fn rolereaction_registers_description_localizations() {
+        let cmd = super::rolereaction();
+        assert_eq!(cmd.description_localizations.get("fr").map(String::as_str), Some("Définir des rôles lorsque l'utilisateur réagit à un message avec des emoji spécifiques"));
+        assert_eq!(
+            cmd.description_localizations.get("ja").map(String::as_str),
+            Some("特定の絵文字でメッセージにリアクションした時にロールを設定")
+        );
+        assert_eq!(
+            cmd.description_localizations.get("ru").map(String::as_str),
+            Some("Установить роли при реакции на сообщение с эмодзи")
+        );
+        assert_eq!(
+            cmd.description_localizations
+                .get("es-ES")
+                .map(String::as_str),
+            Some("Establecer roles cuando el usuario reacciona a un mensaje con emoji específico")
+        );
     }
 }

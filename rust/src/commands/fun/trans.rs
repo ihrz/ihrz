@@ -1,11 +1,25 @@
 use super::*;
 
 /// Measure a member's trans rate!
-#[poise::command(slash_command, prefix_command, category = "fun", rename = "trans")]
+#[poise::command(
+    slash_command,
+    prefix_command,
+    category = "fun",
+    rename = "trans",
+    description_localized("fr", "Affiche au combien tu es trans"),
+    description_localized("ja", "あなたのトランス度を表示"),
+    description_localized("ru", "Показать, насколько вы транс"),
+    description_localized("es-ES", "Mostrar qué tan trans eres")
+)]
 // Mirrors !trans.ts (random 0-99, fun_trans_command_ok).
 pub async fn trans(
     ctx: Ctx<'_>,
-    #[description = "Member"] user: Option<poise::serenity_prelude::User>,
+    #[description_localized("fr", "l'user")]
+    #[description_localized("ja", "ユーザー")]
+    #[description_localized("ru", "пользователь")]
+    #[description_localized("es-ES", "el usuario")]
+    #[description = "Member"]
+    user: Option<poise::serenity_prelude::User>,
 ) -> Result<(), anyhow::Error> {
     // No disabled-category check in `!trans.ts`: no fun_guard here.
     percent_user(

@@ -1,7 +1,15 @@
 use super::*;
 
 /// Pay coins to another member!
-#[poise::command(slash_command, prefix_command, rename = "pay")]
+#[poise::command(
+    slash_command,
+    prefix_command,
+    rename = "pay",
+    description_localized("fr", "Payer à un utilisateur un certain montant"),
+    description_localized("ja", "ユーザーに特定の金額を支払う！"),
+    description_localized("ru", "Заплатить пользователю определенную сумму!"),
+    description_localized("es-ES", "Pagar a un usuario una cierta cantidad!")
+)]
 // Mirrors `!pay.ts`.
 pub async fn eco_pay(
     ctx: Ctx<'_>,
@@ -14,7 +22,16 @@ pub async fn eco_pay(
     // scans the whole arg string for a mention/id, so the index is not
     // load-bearing. Keeping the slash order positionally is the sane
     // mapping, not a divergence.
-    #[description = "Amount"] amount: f64,
+    #[description_localized("fr", "Le montant d’argent que vous souhaitez lui donner")]
+    #[description_localized("ja", "寄付したい金額")]
+    #[description_localized("ru", "Сумма денег, которую вы хотите пожертвовать")]
+    #[description_localized("es-ES", "La cantidad de dinero que quieres donarles")]
+    #[description = "Amount"]
+    amount: f64,
+    #[description_localized("fr", "Le membre à qui vous souhaitez donner de l'argent")]
+    #[description_localized("ja", "お金を寄付したいメンバー")]
+    #[description_localized("ru", "Участник, которому пожертвовать деньги")]
+    #[description_localized("es-ES", "El miembro al que quieres donar el dinero")]
     #[description = "Member"]
     #[rename = "member"]
     user: poise::serenity_prelude::User,

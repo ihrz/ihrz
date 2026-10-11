@@ -7,7 +7,17 @@ use super::*;
     category = "utils",
     rename = "nick-kicker",
     aliases("nickkick", "nk"),
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    description_localized(
+        "fr",
+        "Expulse un utilisateur si son surnom contient un mot spécifique"
+    ),
+    description_localized("ja", "ニックネームに特定の単語が含まれているユーザーをキック"),
+    description_localized("ru", "Кикнуть пользователя, если его ник содержит определенное слово"),
+    description_localized(
+        "es-ES",
+        "Expulsar a un usuario si su apodo contiene una palabra específica"
+    )
 )]
 pub async fn nickkicker(
     ctx: Ctx<'_>,

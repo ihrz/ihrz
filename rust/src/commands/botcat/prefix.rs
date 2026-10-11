@@ -7,7 +7,11 @@ use crate::bot::Ctx;
     category = "bot",
     rename = "prefix",
     aliases("setprefix", "changeprefix"),
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    description_localized("fr", "Changer le préfixe du bot sur le serveur"),
+    description_localized("ja", "サーバーのボットプレフィックスを変更"),
+    description_localized("ru", "Изменить префикс бота на сервере"),
+    description_localized("es-ES", "Cambiar el prefijo del bot en el servidor")
 )]
 // Thin top-level wrapper over the !prefix.ts run (see
 // MessageCommands/bot/@prefix.ts): same ADMIN gate + aliases as the

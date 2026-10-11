@@ -153,7 +153,14 @@ pub fn parse_reason_choice(value: &str) -> bool {
     slash_command,
     prefix_command,
     rename = "set-here",
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    description_localized(
+        "fr",
+        "Créer un embed pour permettre à l'utilisateur de créer un ticket"
+    ),
+    description_localized("ja", "ユーザーがチケットを作成できるようにする埋め込みを作成！"),
+    description_localized("ru", "Создать эмбед для возможности создания тикетов!"),
+    description_localized("es-ES", "Crear un embed para permitir al usuario crear un ticket!")
 )]
 pub async fn ticket_set_here(
     ctx: Ctx<'_>,

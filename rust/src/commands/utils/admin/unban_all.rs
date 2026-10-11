@@ -8,7 +8,11 @@ use super::*;
     category = "utils",
     rename = "all",
     aliases("unbanall", "massunban"),
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    description_localized("fr", "Débannir toute les personnes bannis du serveur"),
+    description_localized("ja", "サーバーの全メンバーのバンを解除"),
+    description_localized("ru", "Разбанить всех участников сервера"),
+    description_localized("es-ES", "Desbanear a todos los miembros del servidor")
 )]
 pub async fn unban_all(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {

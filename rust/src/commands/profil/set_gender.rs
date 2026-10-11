@@ -27,11 +27,24 @@ pub fn gender_stored_value(gender: &str) -> Option<&'static str> {
     prefix_command,
     rename = "set-gender",
     aliases("gender"),
-    category = "profil"
+    category = "profil",
+    name_localized("fr", "définir-genre"),
+    name_localized("ja", "set-gender"),
+    name_localized("ru", "set-gender"),
+    name_localized("es-ES", "set-gender"),
+    description_localized("fr", "Définissez votre genre sur le profil iHorizon"),
+    description_localized("ja", "iHorizonプロフィールに性別を設定！"),
+    description_localized("ru", "Установить пол в профиле iHorizon!"),
+    description_localized("es-ES", "Establecer tu género en el perfil de iHorizon!")
 )]
 pub async fn profil_gender(
     ctx: Ctx<'_>,
-    #[description = "Gender that fits you the most (female, male, non-binary)"] gender: String,
+    #[description = "Gender that fits you the most (female, male, non-binary)"]
+    #[description_localized("fr", "Le genre qui vous correspond le plus")]
+    #[description_localized("ja", "最も合う性別")]
+    #[description_localized("ru", "Пол, который вам подходит")]
+    #[description_localized("es-ES", "Género que más te queda")]
+    gender: String,
 ) -> Result<(), anyhow::Error> {
     if !super::validate_gender(&gender) {
         let msg = crate::commands::lang_for(

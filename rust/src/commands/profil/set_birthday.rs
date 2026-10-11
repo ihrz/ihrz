@@ -46,7 +46,15 @@ pub fn validate_birthday_ts(day: u8, month: u8, year: i32) -> bool {
     prefix_command,
     rename = "set-birthday",
     aliases("birthday", "anniversaire"),
-    category = "profil"
+    category = "profil",
+    name_localized("fr", "définir-anniversaire"),
+    name_localized("ja", "set-birthday"),
+    name_localized("ru", "set-birthday"),
+    name_localized("es-ES", "set-birthday"),
+    description_localized("fr", "Définissez votre anniversaire sur le profil iHorizon"),
+    description_localized("ja", "iHorizonプロフィールに誕生日を設定！"),
+    description_localized("ru", "Установить день рождения в профиле iHorizon!"),
+    description_localized("es-ES", "Establecer tu cumpleaños en el perfil de iHorizon!")
 )]
 pub async fn profil_birthday(
     ctx: Ctx<'_>,

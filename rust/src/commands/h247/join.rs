@@ -139,7 +139,15 @@ async fn load_tts_presence(pool: &crate::db::Pool, guild_id: &str) -> Option<(bo
     slash_command,
     prefix_command,
     rename = "join",
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    name_localized("fr", "rejoindre"),
+    name_localized("ja", "join"),
+    name_localized("ru", "join"),
+    name_localized("es-ES", "join"),
+    description_localized("fr", "Garer iHorizon 24/7 dans un salon vocal!"),
+    description_localized("ja", "iHorizonをボイスチャンネルに常駐させます！"),
+    description_localized("ru", "Оставить iHorizon 24/7 в голосовом канале!"),
+    description_localized("es-ES", "¡Estacionar a iHorizon 24/7 en un canal de voz!")
 )]
 pub async fn h247_join(
     ctx: Ctx<'_>,
@@ -155,6 +163,14 @@ pub async fn h247_join(
     // on as `crate::funcs_resolve::resolve_voice_channel` (mention/ID
     // first, then the same `>= 0.6` fuzzy-name fallback) for any future
     // prefix-string wiring.
+    #[name_localized("fr", "salon")]
+    #[name_localized("ja", "channel")]
+    #[name_localized("ru", "channel")]
+    #[name_localized("es-ES", "canal")]
+    #[description_localized("fr", "Le salon vocal où iHorizon restera!")]
+    #[description_localized("ja", "iHorizonが常駐するボイスチャンネル！")]
+    #[description_localized("ru", "Голосовой канал, где останется iHorizon!")]
+    #[description_localized("es-ES", "¡El canal de voz donde se quedará iHorizon!")]
     #[description = "The voice channel where iHorizon will stay!"]
     #[rename = "channel"]
     #[channel_types("Voice")]

@@ -79,13 +79,25 @@ pub fn validate_set_cooldown_kind(kind: &str) -> bool {
     slash_command,
     prefix_command,
     rename = "set-cooldown",
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    description_localized("fr", "Gérer le temps de recharge des actions"),
+    description_localized("ja", "アクションのクールダウンを管理！"),
+    description_localized("ru", "Управление задержкой действий!"),
+    description_localized("es-ES", "Gestionar el enfriamiento de las acciones!")
 )]
 pub async fn eco_set_cooldown(
     ctx: Ctx<'_>,
+    #[description_localized("fr", "Les actions que vous souhaitez définir")]
+    #[description_localized("ja", "設定したいアクション")]
+    #[description_localized("ru", "Действия, которые вы хотите определить")]
+    #[description_localized("es-ES", "Las acciones que deseas definir")]
     #[description = "rob, work"]
     #[rename = "type"]
     kind: String,
+    #[description_localized("fr", "Le temps que vous souhaitez définir")]
+    #[description_localized("ja", "設定したい時間")]
+    #[description_localized("ru", "Время, которое вы хотите установить")]
+    #[description_localized("es-ES", "El tiempo que quieres establecer")]
     #[description = "Cooldown (e.g. 10s, 1h)"]
     #[rename = "time"]
     cooldown: String,

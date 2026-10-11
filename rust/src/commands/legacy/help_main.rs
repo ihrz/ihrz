@@ -14,7 +14,15 @@ use super::*;
 // `helpmsg_key` gate, handled by `handle_help_component`), so
 // picking a category lands on the same module page as `/h`: no new
 // custom ids, no events_handler change.
-#[poise::command(slash_command, prefix_command, category = "bot")]
+#[poise::command(
+    slash_command,
+    prefix_command,
+    category = "bot",
+    description_localized("fr", "..."),
+    description_localized("ja", "..."),
+    description_localized("ru", "..."),
+    description_localized("es-ES", "...")
+)]
 pub async fn help_main(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {
         return Ok(());

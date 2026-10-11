@@ -4,16 +4,33 @@ use poise::serenity_prelude as serenity;
 /// Compare statistics between multiple users
 // Mirrors stats compare: monthly counts + beautiful voice, daily/weekly/
 // monthly rows. The earlier Rust "winner" line was invented (TS has none).
-#[poise::command(slash_command, prefix_command, rename = "compare", aliases("cmp"))]
+#[poise::command(
+    slash_command,
+    prefix_command,
+    rename = "compare",
+    aliases("cmp"),
+    description_localized("fr", "Comparer les statistiques entre plusieurs utilisateurs"),
+    description_localized("ja", "複数ユーザー間の統計を比較"),
+    description_localized("ru", "Сравнить статистику нескольких пользователей"),
+    description_localized("es-ES", "Comparar estadísticas entre múltiples usuarios")
+)]
 pub async fn stats_compare(
     ctx: Ctx<'_>,
     // Optional on both paths so the prefix leg can miss a user, like TS
     // `!compare.ts` (`args` with < 2 mentions). A missing user replies
     // `stats_compare_invalid_users`; slash callers must still pass both
     // (TS declares both options `required: true`).
+    #[description_localized("fr", "Premier utilisateur à comparer")]
+    #[description_localized("ja", "比較する1人目のユーザー")]
+    #[description_localized("ru", "Первый пользователь для сравнения")]
+    #[description_localized("es-ES", "Primer usuario a comparar")]
     #[description = "First user to compare"]
     #[rename = "user1"]
     user1: Option<poise::serenity_prelude::User>,
+    #[description_localized("fr", "Deuxième utilisateur à comparer")]
+    #[description_localized("ja", "比較する2人目のユーザー")]
+    #[description_localized("ru", "Второй пользователь для сравнения")]
+    #[description_localized("es-ES", "Segundo usuario a comparar")]
     #[description = "Second user to compare"]
     #[rename = "user2"]
     user2: Option<poise::serenity_prelude::User>,

@@ -12,7 +12,11 @@ pub fn render_add_work(template: &str, username: &str) -> String {
     slash_command,
     prefix_command,
     rename = "add-member",
-    default_member_permissions = "MANAGE_CHANNELS"
+    default_member_permissions = "MANAGE_CHANNELS",
+    description_localized("fr", "Ajoutez un membre dans votre ticket"),
+    description_localized("ja", "チケットにメンバーを追加！"),
+    description_localized("ru", "Добавить участника в тикет!"),
+    description_localized("es-ES", "Añadir un miembro a tu ticket!")
 )]
 pub async fn ticket_add(
     ctx: Ctx<'_>,

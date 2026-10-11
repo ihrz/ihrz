@@ -311,3 +311,37 @@ pub mod main {
     pub use super::now_ms;
     pub use super::schedule::*;
 }
+
+#[cfg(test)]
+mod localization_tests {
+
+    type LocCmd = poise::Command<crate::commands::Data, crate::commands::Error>;
+
+    fn find_path<'a>(cmds: &'a [LocCmd], path: &[&str]) -> &'a LocCmd {
+        let cmd = cmds
+            .iter()
+            .find(|c| c.name == path[0])
+            .unwrap_or_else(|| panic!("command {} missing", path.join(" ")));
+        if path.len() == 1 {
+            cmd
+        } else {
+            find_path(&cmd.subcommands, &path[1..])
+        }
+    }
+
+    #[test]
+    fn loc_schedule() {
+        // TS schedule/schedule.ts (`schedule`)
+        let cmds = crate::commands::all();
+        let cmd = find_path(&cmds, &["schedule"]);
+        assert_eq!(
+            cmd.description_localizations.get("fr").map(String::as_str),
+            Some("Commande sous-groupé pour la catégorie de message pré-programmer")
+        );
+        assert_eq!(
+            cmd.description_localizations.get("ja").map(String::as_str),
+            Some("スケジュールカテゴリの管理！")
+        );
+        assert_eq!(cmd.description_localizations.len(), 4);
+    }
+}

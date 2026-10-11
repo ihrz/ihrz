@@ -96,7 +96,16 @@ async fn load_h247_raw(pool: &crate::db::Pool, guild_id: &str) -> Option<String>
 }
 
 /// Join the voice channel and enable TTS mode!
-#[poise::command(slash_command, prefix_command, rename = "join", aliases("ttsjoin"))]
+#[poise::command(
+    slash_command,
+    prefix_command,
+    rename = "join",
+    aliases("ttsjoin"),
+    description_localized("fr", "Rejoindre le salon vocal et activer le mode TTS"),
+    description_localized("ja", "ボイスチャンネルに参加してTTSモードを有効化！"),
+    description_localized("ru", "Войти в голосовой канал и включить TTS!"),
+    description_localized("es-ES", "Unirse al canal de voz y habilitar el modo TTS!")
+)]
 pub async fn tts_join(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {
         return Ok(());

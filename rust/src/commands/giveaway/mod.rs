@@ -1622,3 +1622,278 @@ mod tests {
         );
     }
 }
+
+#[cfg(test)]
+mod localization_tests {
+
+    type LocCmd = poise::Command<crate::commands::Data, crate::commands::Error>;
+
+    fn find_path<'a>(cmds: &'a [LocCmd], path: &[&str]) -> &'a LocCmd {
+        let cmd = cmds
+            .iter()
+            .find(|c| c.name == path[0])
+            .unwrap_or_else(|| panic!("command {} missing", path.join(" ")));
+        if path.len() == 1 {
+            cmd
+        } else {
+            find_path(&cmd.subcommands, &path[1..])
+        }
+    }
+
+    #[test]
+    fn loc_gw() {
+        // TS giveaway/gw.ts (`gw`)
+        let cmds = crate::commands::all();
+        let cmd = find_path(&cmds, &["gw"]);
+        assert_eq!(
+            cmd.description_localizations.get("fr").map(String::as_str),
+            Some("Commande sous-groupé pour la catégorie de giveaway")
+        );
+        assert_eq!(
+            cmd.description_localizations.get("ja").map(String::as_str),
+            Some("ギブアウェイカテゴリのサブコマンド！")
+        );
+        assert_eq!(cmd.description_localizations.len(), 4);
+    }
+
+    #[test]
+    fn loc_create() {
+        // TS giveaway/gw.ts (`create`)
+        let cmds = crate::commands::all();
+        let cmd = find_path(&cmds, &["gw", "create"]);
+        assert_eq!(
+            cmd.description_localizations.get("fr").map(String::as_str),
+            Some("Commencer un giveaway")
+        );
+        assert_eq!(
+            cmd.description_localizations.get("ja").map(String::as_str),
+            Some("ギブアウェイを開始！")
+        );
+        assert_eq!(cmd.description_localizations.len(), 4);
+        assert_eq!(
+            cmd.name_localizations.get("fr").map(String::as_str),
+            Some("créer")
+        );
+        assert_eq!(
+            cmd.name_localizations.get("ja").map(String::as_str),
+            Some("create")
+        );
+        assert_eq!(cmd.name_localizations.len(), 4);
+        let prm = cmd
+            .parameters
+            .iter()
+            .find(|x| x.name == "winner")
+            .expect("param winner");
+        assert_eq!(
+            prm.description_localizations.get("fr").map(String::as_str),
+            Some("Nombre de gagnants pour les cadeaux")
+        );
+        assert_eq!(
+            prm.description_localizations.get("ja").map(String::as_str),
+            Some("ギブアウェイの当選者数")
+        );
+        assert_eq!(
+            prm.name_localizations.get("fr").map(String::as_str),
+            Some("gagnants")
+        );
+        assert_eq!(
+            prm.name_localizations.get("ja").map(String::as_str),
+            Some("winner")
+        );
+        let prm = cmd
+            .parameters
+            .iter()
+            .find(|x| x.name == "time")
+            .expect("param time");
+        assert_eq!(
+            prm.description_localizations.get("fr").map(String::as_str),
+            Some("La durée des cadeaux")
+        );
+        assert_eq!(
+            prm.description_localizations.get("ja").map(String::as_str),
+            Some("ギブアウェイの開催時間")
+        );
+        assert_eq!(
+            prm.name_localizations.get("fr").map(String::as_str),
+            Some("temps")
+        );
+        assert_eq!(
+            prm.name_localizations.get("ja").map(String::as_str),
+            Some("time")
+        );
+    }
+
+    #[test]
+    fn loc_end() {
+        // TS giveaway/gw.ts (`end`)
+        let cmds = crate::commands::all();
+        let cmd = find_path(&cmds, &["gw", "end"]);
+        assert_eq!(
+            cmd.description_localizations.get("fr").map(String::as_str),
+            Some("Arrêter un giveaway")
+        );
+        assert_eq!(
+            cmd.description_localizations.get("ja").map(String::as_str),
+            Some("ギブアウェイを停止！")
+        );
+        assert_eq!(cmd.description_localizations.len(), 4);
+        assert_eq!(
+            cmd.name_localizations.get("fr").map(String::as_str),
+            Some("finnir")
+        );
+        assert_eq!(
+            cmd.name_localizations.get("ja").map(String::as_str),
+            Some("end")
+        );
+        assert_eq!(cmd.name_localizations.len(), 4);
+        let prm = cmd
+            .parameters
+            .iter()
+            .find(|x| x.name == "giveaway-id")
+            .expect("param giveaway-id");
+        assert_eq!(
+            prm.description_localizations.get("fr").map(String::as_str),
+            Some("L'identifiant du cadeau (est l'identifiant du message du giveaway)")
+        );
+        assert_eq!(
+            prm.description_localizations.get("ja").map(String::as_str),
+            Some("ギブアウェイID（埋め込みギブアウェイのメッセージID）")
+        );
+    }
+
+    #[test]
+    fn loc_get_all() {
+        // TS giveaway/gw.ts (`get-all`)
+        let cmds = crate::commands::all();
+        let cmd = find_path(&cmds, &["gw", "get-all"]);
+        assert_eq!(cmd.description_localizations.get("fr").map(String::as_str), Some("Obtenir des informations à propos de tout les giveaways d'un serveur! (Format JSON)"));
+        assert_eq!(
+            cmd.description_localizations.get("ja").map(String::as_str),
+            Some("サーバー内の全ギブアウェイの情報を取得（JSONデータ）")
+        );
+        assert_eq!(cmd.description_localizations.len(), 4);
+        assert_eq!(
+            cmd.name_localizations.get("fr").map(String::as_str),
+            Some("get-all")
+        );
+        assert_eq!(
+            cmd.name_localizations.get("ja").map(String::as_str),
+            Some("get-all")
+        );
+        assert_eq!(cmd.name_localizations.len(), 4);
+    }
+
+    #[test]
+    fn loc_get_data() {
+        // TS giveaway/gw.ts (`get-data`)
+        let cmds = crate::commands::all();
+        let cmd = find_path(&cmds, &["gw", "get-data"]);
+        assert_eq!(
+            cmd.description_localizations.get("fr").map(String::as_str),
+            Some("Obtenir des informations à propos d'un giveaways! (Format JSON)")
+        );
+        assert_eq!(
+            cmd.description_localizations.get("ja").map(String::as_str),
+            Some("ギブアウェイの情報を取得（JSONデータ）")
+        );
+        assert_eq!(cmd.description_localizations.len(), 4);
+        assert_eq!(
+            cmd.name_localizations.get("fr").map(String::as_str),
+            Some("get-data")
+        );
+        assert_eq!(
+            cmd.name_localizations.get("ja").map(String::as_str),
+            Some("get-data")
+        );
+        assert_eq!(cmd.name_localizations.len(), 4);
+        let prm = cmd
+            .parameters
+            .iter()
+            .find(|x| x.name == "giveaway-id")
+            .expect("param giveaway-id");
+        assert_eq!(
+            prm.description_localizations.get("fr").map(String::as_str),
+            Some("L'identifiant du giveaways")
+        );
+        assert_eq!(
+            prm.description_localizations.get("ja").map(String::as_str),
+            Some("ギブアウェイのID")
+        );
+    }
+
+    #[test]
+    fn loc_list_entries() {
+        // TS giveaway/gw.ts (`list-entries`)
+        let cmds = crate::commands::all();
+        let cmd = find_path(&cmds, &["gw", "list-entries"]);
+        assert_eq!(
+            cmd.description_localizations.get("fr").map(String::as_str),
+            Some("Répertorier toutes les entrées dans le giveaway")
+        );
+        assert_eq!(
+            cmd.description_localizations.get("ja").map(String::as_str),
+            Some("ギブアウェイの全エントリーを一覧表示！")
+        );
+        assert_eq!(cmd.description_localizations.len(), 4);
+        assert_eq!(
+            cmd.name_localizations.get("fr").map(String::as_str),
+            Some("afficher-les-participant")
+        );
+        assert_eq!(
+            cmd.name_localizations.get("ja").map(String::as_str),
+            Some("list-entries")
+        );
+        assert_eq!(cmd.name_localizations.len(), 4);
+        let prm = cmd
+            .parameters
+            .iter()
+            .find(|x| x.name == "giveaway-id")
+            .expect("param giveaway-id");
+        assert_eq!(
+            prm.description_localizations.get("fr").map(String::as_str),
+            Some("L'identifiant du cadeau (est l'identifiant du message du giveaway)")
+        );
+        assert_eq!(
+            prm.description_localizations.get("ja").map(String::as_str),
+            Some("ギブアウェイID（埋め込みギブアウェイのメッセージID）")
+        );
+    }
+
+    #[test]
+    fn loc_reroll() {
+        // TS giveaway/gw.ts (`reroll`)
+        let cmds = crate::commands::all();
+        let cmd = find_path(&cmds, &["gw", "reroll"]);
+        assert_eq!(
+            cmd.description_localizations.get("fr").map(String::as_str),
+            Some("Relancez un ou plusieurs gagnants")
+        );
+        assert_eq!(
+            cmd.description_localizations.get("ja").map(String::as_str),
+            Some("ギブアウェイの当選者を再抽選！")
+        );
+        assert_eq!(cmd.description_localizations.len(), 4);
+        assert_eq!(
+            cmd.name_localizations.get("fr").map(String::as_str),
+            Some("relancer")
+        );
+        assert_eq!(
+            cmd.name_localizations.get("ja").map(String::as_str),
+            Some("reroll")
+        );
+        assert_eq!(cmd.name_localizations.len(), 4);
+        let prm = cmd
+            .parameters
+            .iter()
+            .find(|x| x.name == "giveaway-id")
+            .expect("param giveaway-id");
+        assert_eq!(
+            prm.description_localizations.get("fr").map(String::as_str),
+            Some("L'identifiant du cadeau (est l'identifiant du message du giveaway)")
+        );
+        assert_eq!(
+            prm.description_localizations.get("ja").map(String::as_str),
+            Some("ギブアウェイID（埋め込みギブアウェイのメッセージID）")
+        );
+    }
+}

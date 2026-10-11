@@ -15,7 +15,21 @@ pub fn giveaway_message_url(guild_id: &str, channel_id: &str, giveaway_id: &str)
     prefix_command,
     rename = "get-all",
     aliases("gall"),
-    default_member_permissions = "MANAGE_MESSAGES"
+    default_member_permissions = "MANAGE_MESSAGES",
+    name_localized("fr", "get-all"),
+    name_localized("ja", "get-all"),
+    name_localized("ru", "get-all"),
+    name_localized("es-ES", "get-all"),
+    description_localized(
+        "fr",
+        "Obtenir des informations à propos de tout les giveaways d'un serveur! (Format JSON)"
+    ),
+    description_localized("ja", "サーバー内の全ギブアウェイの情報を取得（JSONデータ）"),
+    description_localized("ru", "Получить информацию о всех розыгрышах на сервере (JSON)"),
+    description_localized(
+        "es-ES",
+        "Obtener información sobre todos los sorteos en un servidor (cuerpo JSON)"
+    )
 )]
 pub async fn gw_get_all(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let gid = ctx

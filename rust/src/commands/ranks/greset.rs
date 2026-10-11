@@ -47,7 +47,14 @@ pub async fn clear_guild_ranks(pool: &crate::db::Pool, guild_id: &str) -> anyhow
     prefix_command,
     rename = "greset",
     aliases("ranks-greset"),
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    description_localized("fr", "Supprimer les données de rang de tout les utilisateur"),
+    description_localized("ja", "サーバー内の全ユーザーのランクレベルをリセット"),
+    description_localized("ru", "Сбросить уровень ранга всех пользователей"),
+    description_localized(
+        "es-ES",
+        "Restablecer el nivel de rango de cada usuario en el servidor"
+    )
 )]
 pub async fn ranks_greset(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     if !crate::commands::prompt_reset_confirm(

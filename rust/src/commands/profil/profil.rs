@@ -24,7 +24,11 @@ use super::{
         "profil_pronoun",
         "profil_birthday"
     ),
-    subcommand_required
+    subcommand_required,
+    description_localized("fr", "Commande sous-groupé pour la catégorie de visualisation profil"),
+    description_localized("ja", "プロフィールカテゴリのサブコマンド！"),
+    description_localized("ru", "Подкоманда для категории профиля!"),
+    description_localized("es-ES", "Subcomando para la categoría de perfil!")
 )]
 pub async fn profil(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())

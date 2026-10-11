@@ -1,7 +1,15 @@
 use super::*;
 
 /// Mirrors `!trackinfo.ts` (search/current track, lyrics, Link button).
-#[poise::command(slash_command, prefix_command, rename = "trackinfo")]
+#[poise::command(
+    slash_command,
+    prefix_command,
+    rename = "trackinfo",
+    description_localized("fr", "Chercher une musique sur Internet"),
+    description_localized("ja", "インターネットで音楽を検索"),
+    description_localized("ru", "Искать музыку в интернете"),
+    description_localized("es-ES", "Buscar música en Internet")
+)]
 pub async fn m_trackinfo(
     ctx: Ctx<'_>,
     #[description = "Title or URL"] title: Option<String>,

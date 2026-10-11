@@ -6,11 +6,20 @@ use super::*;
     prefix_command,
     category = "utils",
     rename = "avatar",
-    aliases("pfp", "pp", "pic")
+    aliases("pfp", "pp", "pic"),
+    description_localized("fr", "Récuperer l'avatar d'un utilisateur"),
+    description_localized("ja", "ユーザーのアバターを取得！"),
+    description_localized("ru", "Взять аватар пользователя!"),
+    description_localized("es-ES", "Tomar el avatar de un usuario!")
 )]
 pub async fn avatar(
     ctx: Ctx<'_>,
-    #[description = "Member"] user: Option<poise::serenity_prelude::User>,
+    #[description_localized("fr", "L'utilisateur")]
+    #[description_localized("ja", "ユーザー")]
+    #[description_localized("ru", "Пользователь")]
+    #[description_localized("es-ES", "El usuario")]
+    #[description = "Member"]
+    user: Option<poise::serenity_prelude::User>,
 ) -> Result<(), anyhow::Error> {
     let u = user.as_ref().unwrap_or_else(|| ctx.author());
     let url = match &u.avatar {

@@ -35,10 +35,22 @@ pub fn save_messages_or_usage(save_messages: Option<&str>, is_prefix: bool) -> O
     prefix_command,
     rename = "create",
     aliases("bcreate", "backup-create"),
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    name_localized("fr", "créer"),
+    name_localized("ja", "create"),
+    name_localized("ru", "create"),
+    name_localized("es-ES", "create"),
+    description_localized("fr", "Créer une backup"),
+    description_localized("ja", "バックアップを作成！"),
+    description_localized("ru", "Создать резервную копию!"),
+    description_localized("es-ES", "Crear una copia de seguridad!")
 )]
 pub async fn backup_create(
     ctx: Ctx<'_>,
+    #[description_localized("fr", "Voulez-vous sauvegarder des message(s) ?")]
+    #[description_localized("ja", "メッセージを保存しますか？")]
+    #[description_localized("ru", "Сохранить сообщения?")]
+    #[description_localized("es-ES", "Quieres guardar los mensajes?")]
     #[description = "Save messages (yes/no)"]
     #[rename = "save-message"]
     save_messages: Option<String>,

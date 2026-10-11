@@ -7,11 +7,23 @@ use super::*;
     prefix_command,
     category = "utils",
     rename = "user",
-    aliases("banner-user", "userbanner", "ubanner")
+    aliases("banner-user", "userbanner", "ubanner"),
+    description_localized(
+        "fr",
+        "Récuperer la bannière des éléments spécifiés (serveur/utilisateur)"
+    ),
+    description_localized("ja", "指定ユーザーのバナーを取得！"),
+    description_localized("ru", "Получить баннер указанного пользователя!"),
+    description_localized("es-ES", "Obtener el banner de un usuario especificado!")
 )]
 pub async fn banner_user(
     ctx: Ctx<'_>,
-    #[description = "Member"] user: Option<poise::serenity_prelude::User>,
+    #[description_localized("fr", "Qu'est-ce que l'utilisateur alors ?")]
+    #[description_localized("ja", "どのユーザーですか？")]
+    #[description_localized("ru", "Какой пользователь?")]
+    #[description_localized("es-ES", "Cual es el usuario entonces?")]
+    #[description = "Member"]
+    user: Option<poise::serenity_prelude::User>,
 ) -> Result<(), anyhow::Error> {
     let u = user.as_ref().unwrap_or_else(|| ctx.author());
     let token = crate::config::bot_token().unwrap_or_default();

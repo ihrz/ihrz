@@ -1,7 +1,19 @@
 use super::*;
 
 /// Mirrors `!shuffle.ts`.
-#[poise::command(slash_command, prefix_command, rename = "shuffle")]
+#[poise::command(
+    slash_command,
+    prefix_command,
+    rename = "shuffle",
+    name_localized("fr", "mélanger"),
+    name_localized("ja", "shuffle"),
+    name_localized("ru", "shuffle"),
+    name_localized("es-ES", "shuffle"),
+    description_localized("fr", "Mélangez la file d'attente"),
+    description_localized("ja", "キューをシャッフル！"),
+    description_localized("ru", "Перемешать очередь!"),
+    description_localized("es-ES", "Mezclar la cola!")
+)]
 pub async fn m_shuffle(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let Some(gid) = guild_id_of(&ctx) else {
         return Ok(());

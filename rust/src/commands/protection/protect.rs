@@ -240,14 +240,26 @@ pub fn allowlist_mentions(rows: &[String]) -> String {
         "protect_allow_remove",
         "protect_allow_show"
     ),
-    subcommand_required
+    subcommand_required,
+    description_localized("fr", "Commande sous-groupé pour la catégorie de protection"),
+    description_localized("ja", "保護カテゴリのサブコマンド！"),
+    description_localized("ru", "Подкоманда для категории защиты!"),
+    description_localized("es-ES", "Subcomando para la categoría de protección!")
 )]
 pub async fn protect(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())
 }
 
 /// Whats is the rule to configure?
-#[poise::command(slash_command, prefix_command, rename = "rule")]
+#[poise::command(
+    slash_command,
+    prefix_command,
+    rename = "rule",
+    description_localized("fr", "Choisissez une action à refuser/autoriser pour l'utilisateur"),
+    description_localized("ja", "ユーザーに対して拒否/許可するアクションを選択！"),
+    description_localized("ru", "Выберите действия для запрета/разрешения пользователю!"),
+    description_localized("es-ES", "Elegir acciones para Denegar/Permitir al usuario!")
+)]
 pub async fn protect_rule(
     ctx: Ctx<'_>,
     #[description = "Rule (or all/cls)"] rule: String,
@@ -352,7 +364,11 @@ pub async fn protect_rule(
     slash_command,
     prefix_command,
     rename = "sanction",
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    description_localized("fr", "Choisissez la sanction à appliquer pour l'utilisateur signalé?"),
+    description_localized("ja", "フラグされたユーザーに適用する制裁を選択！"),
+    description_localized("ru", "Выберите санкцию для отмеченного пользователя!"),
+    description_localized("es-ES", "Elegir la sanción a aplicar para el usuario marcado!")
 )]
 pub async fn protect_sanction(
     ctx: Ctx<'_>,
@@ -572,7 +588,11 @@ pub async fn load_allowlist(pool: &crate::db::Pool, gid: &str) -> Vec<String> {
     slash_command,
     prefix_command,
     rename = "show",
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    description_localized("fr", "Afficher la configuration des autorisations/règles de protection pour la liste d'autorisation"),
+    description_localized("ja", "保護認証/ルールと許可リストの現在の設定を表示！"),
+    description_localized("ru", "Показать текущую конфигурацию авторизации/правил и белого списка!"),
+    description_localized("es-ES", "Mostrar la configuración actual sobre autorización/reglas de protección y lista de permitidos!"),
 )]
 pub async fn protect_show(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     if deny_unless_owner(
@@ -652,7 +672,15 @@ pub async fn protect_show(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
 // owner-only in code (`!add.ts:50`, second guard dead code); the
 // in-code `deny_unless_owner` below is that same gate, strictly
 // narrower than adding an ADMIN default would be.
-#[poise::command(slash_command, prefix_command, rename = "allow-add")]
+#[poise::command(
+    slash_command,
+    prefix_command,
+    rename = "allow-add",
+    description_localized("fr", "Ajouter un utilisateur à la liste blanche"),
+    description_localized("ja", "許可リストにユーザーを追加！"),
+    description_localized("ru", "Добавить пользователя в белый список!"),
+    description_localized("es-ES", "Añadiendo un usuario a la lista de permitidos!")
+)]
 pub async fn protect_allow_add(
     ctx: Ctx<'_>,
     #[description = "Member"] user: poise::serenity_prelude::User,
@@ -713,7 +741,15 @@ pub async fn protect_allow_add(
 // Verdict (no ADMINISTRATOR default, kept): same as `protect_allow_add`
 // — TS `!remove.ts:50` is owner-only in code over `permission: null`,
 // so `deny_unless_owner` below is the whole gate.
-#[poise::command(slash_command, prefix_command, rename = "allow-remove")]
+#[poise::command(
+    slash_command,
+    prefix_command,
+    rename = "allow-remove",
+    description_localized("fr", "Supprimer un utilisateur de la liste blanche"),
+    description_localized("ja", "許可リストからユーザーを削除！"),
+    description_localized("ru", "Удалить пользователя из белого списка!"),
+    description_localized("es-ES", "Eliminando un usuario de la lista de permitidos!")
+)]
 pub async fn protect_allow_remove(
     ctx: Ctx<'_>,
     #[description = "Member"] user: poise::serenity_prelude::User,
@@ -768,7 +804,15 @@ pub async fn protect_allow_remove(
 }
 
 /// Allow show command.
-#[poise::command(slash_command, prefix_command, rename = "allow-show")]
+#[poise::command(
+    slash_command,
+    prefix_command,
+    rename = "allow-show",
+    description_localized("fr", "Lister les utilisateurs dans la liste autorisée"),
+    description_localized("ja", "許可リストのユーザーを一覧表示！"),
+    description_localized("ru", "Показать пользователей в белом списке!"),
+    description_localized("es-ES", "Listar los usuarios en la lista de permitidos!")
+)]
 pub async fn protect_allow_show(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let gid = ctx
         .guild_id()
@@ -1012,5 +1056,49 @@ mod tests {
         let allow = load_allowlist(&pool, "g").await;
         assert!(allow.contains(&"ALLOWLIST.list.7".to_string()));
         assert!(allow.contains(&"ALLOWLIST.list.9".to_string()));
+    }
+    #[test]
+    fn protect_sanction_registers_description_localizations() {
+        let cmd = super::protect_sanction();
+        assert_eq!(
+            cmd.description_localizations.get("fr").map(String::as_str),
+            Some("Choisissez la sanction à appliquer pour l'utilisateur signalé?")
+        );
+        assert_eq!(
+            cmd.description_localizations.get("ja").map(String::as_str),
+            Some("フラグされたユーザーに適用する制裁を選択！")
+        );
+        assert_eq!(
+            cmd.description_localizations.get("ru").map(String::as_str),
+            Some("Выберите санкцию для отмеченного пользователя!")
+        );
+        assert_eq!(
+            cmd.description_localizations
+                .get("es-ES")
+                .map(String::as_str),
+            Some("Elegir la sanción a aplicar para el usuario marcado!")
+        );
+    }
+    #[test]
+    fn protect_allow_add_registers_description_localizations() {
+        let cmd = super::protect_allow_add();
+        assert_eq!(
+            cmd.description_localizations.get("fr").map(String::as_str),
+            Some("Ajouter un utilisateur à la liste blanche")
+        );
+        assert_eq!(
+            cmd.description_localizations.get("ja").map(String::as_str),
+            Some("許可リストにユーザーを追加！")
+        );
+        assert_eq!(
+            cmd.description_localizations.get("ru").map(String::as_str),
+            Some("Добавить пользователя в белый список!")
+        );
+        assert_eq!(
+            cmd.description_localizations
+                .get("es-ES")
+                .map(String::as_str),
+            Some("Añadiendo un usuario a la lista de permitidos!")
+        );
     }
 }

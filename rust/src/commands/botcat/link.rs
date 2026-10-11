@@ -4,7 +4,16 @@ use poise::serenity_prelude as serenity;
 /// Show all links about iHorizon.
 ///
 /// Mirrors link.ts (message content plus website/GitLab link buttons).
-#[poise::command(slash_command, prefix_command, category = "bot", aliases("link"))]
+#[poise::command(
+    slash_command,
+    prefix_command,
+    category = "bot",
+    aliases("link"),
+    description_localized("fr", "Afficher tous les liens en rapport avec iHorizon"),
+    description_localized("ja", "iHorizonに関する全リンクを表示"),
+    description_localized("ru", "Показать все ссылки iHorizon"),
+    description_localized("es-ES", "Mostrar todos los enlaces sobre iHorizon")
+)]
 pub async fn links(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     // TS returns silently outside a guild/member/channel context.
     if ctx.guild_id().is_none() {

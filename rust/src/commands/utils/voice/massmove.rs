@@ -10,13 +10,34 @@ use super::*;
     category = "utils",
     rename = "massmove",
     default_member_permissions = "MOVE_MEMBERS | MODERATE_MEMBERS",
-    user_cooldown = 300
+    user_cooldown = 300,
+    description_localized(
+        "fr",
+        "Déplacer tous les membres connectés dans un canal vocal vers un autre"
+    ),
+    description_localized("ja", "ボイスチャンネルに接続中の全メンバーを別のチャンネルに移動"),
+    description_localized(
+        "ru",
+        "Переместить всех участников из одного голосового канала в другой"
+    ),
+    description_localized(
+        "es-ES",
+        "Mover todos los miembros conectados en un canal de voz a otro"
+    )
 )]
 pub async fn massmove(
     ctx: Ctx<'_>,
+    #[description_localized("fr", "Le canal vocal d'où déplacer les membres")]
+    #[description_localized("ja", "メンバーを移動する元のボイスチャンネル")]
+    #[description_localized("ru", "Голосовой канал, откуда перемещать участников")]
+    #[description_localized("es-ES", "El canal de voz desde donde mover miembros")]
     #[description = "From channel (omit for all voice)"]
     #[channel_types("Voice")]
     from: Option<poise::serenity_prelude::GuildChannel>,
+    #[description_localized("fr", "Le canal vocal où déplacer les membres")]
+    #[description_localized("ja", "メンバーを移動する先のボイスチャンネル")]
+    #[description_localized("ru", "Голосовой канал, куда перемещать участников")]
+    #[description_localized("es-ES", "El canal de voz al que mover miembros")]
     #[description = "To channel"]
     #[channel_types("Voice")]
     #[rename = "channel"]

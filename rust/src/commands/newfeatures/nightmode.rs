@@ -35,7 +35,11 @@ pub const NIGHTMODE_EMBED_COLOR: u32 = 0x01_01_01;
     category = "newfeatures",
     rename = "nightmode",
     aliases("modenuit", "nuit", "night", "mode-nuit", "night-mode"),
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    description_localized("fr", "⭐️ (VRAIMENT UHQ) Mode Nuit"),
+    description_localized("ja", "⭐️ (VERY UHQ) NightMode"),
+    description_localized("ru", "⭐️ (VERY UHQ) NightMode"),
+    description_localized("es-ES", "⭐️ (VERY UHQ) NightMode")
 )]
 pub async fn nightmode(
     ctx: Ctx<'_>,

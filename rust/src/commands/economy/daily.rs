@@ -1,7 +1,16 @@
 use super::*;
 
 /// Claim your daily reward!
-#[poise::command(slash_command, prefix_command, category = "economy", rename = "daily")]
+#[poise::command(
+    slash_command,
+    prefix_command,
+    category = "economy",
+    rename = "daily",
+    description_localized("fr", "Réclamez une récompense quotidienne"),
+    description_localized("ja", "デイリー報酬を獲得！"),
+    description_localized("ru", "Получить ежедневную награду!"),
+    description_localized("es-ES", "Reclamar una recompensa diaria!")
+)]
 // Mirrors economy !daily.ts.
 pub async fn eco_daily(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     claim_inner(

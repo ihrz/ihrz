@@ -6,10 +6,21 @@ use super::*;
     prefix_command,
     category = "utils",
     rename = "inviteinfo",
-    default_member_permissions = "MANAGE_GUILD"
+    default_member_permissions = "MANAGE_GUILD",
+    description_localized("fr", "Obtenir des informations vis-à-vis de l'invitations discord"),
+    description_localized("ja", "Discord招待リンクの情報を取得"),
+    description_localized("ru", "Получить информацию о пригласительной ссылке Discord"),
+    description_localized(
+        "es-ES",
+        "Obtener información sobre el enlace de invitación de Discord"
+    )
 )]
 pub async fn inviteinfo(
     ctx: Ctx<'_>,
+    #[description_localized("fr", "le lien d'invitation discord ou le code")]
+    #[description_localized("ja", "Discord招待 / コード")]
+    #[description_localized("ru", "приглашение / код Discord")]
+    #[description_localized("es-ES", "la invitación / código de Discord")]
     #[description = "Invite code or URL"]
     #[rename = "discord_invite"]
     invite: String,

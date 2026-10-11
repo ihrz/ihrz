@@ -7,11 +7,20 @@ use poise::serenity_prelude as serenity;
     prefix_command,
     category = "utils",
     rename = "sync",
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    description_localized("fr", "Synchroniser tous les channels avec la catégorie parent"),
+    description_localized("ja", "全てのチャンネルを親カテゴリに同期"),
+    description_localized("ru", "Синхронизировать все каналы с родительской категорией"),
+    description_localized("es-ES", "Sincronizar todos los canales con la categoría principal")
 )]
 pub async fn syncchan(
     ctx: Ctx<'_>,
-    #[description = "Category"] category: poise::serenity_prelude::GuildChannel,
+    #[description_localized("fr", "La catégorie pour synchroniser les channels")]
+    #[description_localized("ja", "チャンネルを同期するカテゴリ")]
+    #[description_localized("ru", "Категория для синхронизации каналов")]
+    #[description_localized("es-ES", "La categoría a la que sincronizar los canales")]
+    #[description = "Category"]
+    category: poise::serenity_prelude::GuildChannel,
 ) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {
         return Ok(());

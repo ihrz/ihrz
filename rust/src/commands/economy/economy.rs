@@ -76,7 +76,15 @@ use super::{
         "eco_ureset",
         "eco_greset"
     ),
-    subcommand_required
+    subcommand_required,
+    name_localized("fr", "économie"),
+    name_localized("ja", "economy"),
+    name_localized("ru", "economy"),
+    name_localized("es-ES", "economy"),
+    description_localized("fr", "Commande sous-groupé pour la catégorie d'économie"),
+    description_localized("ja", "経済カテゴリのサブコマンド！"),
+    description_localized("ru", "Подкоманда для категории экономики!"),
+    description_localized("es-ES", "Subcomando para la categoría de economía!")
 )]
 pub async fn economy(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())

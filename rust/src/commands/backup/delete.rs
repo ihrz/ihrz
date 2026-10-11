@@ -34,10 +34,24 @@ pub fn delete_id_or_missing(id: Option<&str>) -> Option<String> {
     slash_command,
     prefix_command,
     rename = "delete",
-    aliases("backup-delete")
+    aliases("backup-delete"),
+    description_localized("fr", "Supprimer une backup de la liste"),
+    description_localized("ja", "リストからバックアップを削除"),
+    description_localized("ru", "Удалить резервную копию из списка"),
+    description_localized("es-ES", "Eliminar tu copia de seguridad de la lista")
 )]
 pub async fn backup_delete(
     ctx: Ctx<'_>,
+    #[description_localized(
+        "fr",
+        "L'identifiant de la backup que vous voulez supprimer de la liste"
+    )]
+    #[description_localized("ja", "リストから削除したいバックアップのID")]
+    #[description_localized("ru", "ID резервной копии, которую вы хотите удалить из списка")]
+    #[description_localized(
+        "es-ES",
+        "El ID de tu copia de seguridad que quieres eliminar de la lista"
+    )]
     #[description = "Backup id"]
     #[rename = "backup-id"]
     backup_id: Option<String>,

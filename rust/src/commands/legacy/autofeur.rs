@@ -6,6 +6,22 @@ use super::*;
     prefix_command,
     category = "guildconfig",
     rename = "autorespond",
+    description_localized(
+        "fr",
+        "Activer/Désactiver la réponse automatique lorsque l'utilisateur dit quelque chose (uniquement en fr-ME)"
+    ),
+    description_localized(
+        "ja",
+        "ユーザーが発言した時の自動応答を有効/無効（fr-ME言語のみ）"
+    ),
+    description_localized(
+        "ru",
+        "Включить/выключить автоответ при сообщении пользователя (только для fr-ME)"
+    ),
+    description_localized(
+        "es-ES",
+        "Habilitar / Deshabilitar la respuesta automática cuando el usuario dice algo (solo en idioma fr-ME)"
+    ),
     aliases("auto-feur", "autofeur", "ftgl"),
     default_member_permissions = "MANAGE_GUILD_EXPRESSIONS"
 )]

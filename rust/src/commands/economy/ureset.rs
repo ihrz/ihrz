@@ -18,11 +18,23 @@ async fn clear_user_econ(
     prefix_command,
     rename = "ureset",
     aliases("economy-ureset"),
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    description_localized("fr", "Supprimer les données économique d'un utilisateur"),
+    description_localized("ja", "ユーザーの残高をリセット"),
+    description_localized("ru", "Сбросить баланс пользователя"),
+    description_localized("es-ES", "Restablecer el saldo de un usuario")
 )]
 pub async fn eco_ureset(
     ctx: Ctx<'_>,
-    #[description = "Member"] user: Option<poise::serenity_prelude::User>,
+    #[description_localized("fr", "L'utilisateur que vous voulez supprimer du module d'économie.")]
+    #[description_localized("ja", "経済データをリセットしたいユーザー")]
+    #[description_localized("ru", "Пользователь, чьи экономические данные нужно сбросить")]
+    #[description_localized(
+        "es-ES",
+        "El usuario al que quieres restablecer los datos de economía"
+    )]
+    #[description = "Member"]
+    user: Option<poise::serenity_prelude::User>,
 ) -> Result<(), anyhow::Error> {
     // NOTE: !ureset.ts has no disabled gate — none here either.
     // TS defaults to the invoker when no member is given.

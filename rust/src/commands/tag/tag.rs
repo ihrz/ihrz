@@ -20,7 +20,11 @@ use super::{
         "tag_wl_use",
         "tag_wl_create"
     ),
-    subcommand_required
+    subcommand_required,
+    description_localized("fr", "Sous-commande pour la catégorie de message de tags"),
+    description_localized("ja", "タグメッセージカテゴリのサブコマンド"),
+    description_localized("ru", "Подкоманда для категории тегов сообщений"),
+    description_localized("es-ES", "Subcomando para la categoría de mensajes de etiquetas")
 )]
 pub async fn tag(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())

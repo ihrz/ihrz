@@ -6,7 +6,11 @@ use poise::serenity_prelude as serenity;
     slash_command,
     prefix_command,
     rename = "rename",
-    default_member_permissions = "MANAGE_CHANNELS"
+    default_member_permissions = "MANAGE_CHANNELS",
+    description_localized("fr", "Rénommer un ticket"),
+    description_localized("ja", "チケットの名前を変更！"),
+    description_localized("ru", "Переименовать тикет!"),
+    description_localized("es-ES", "Renombrar un ticket!")
 )]
 pub async fn ticket_rename(
     ctx: Ctx<'_>,

@@ -33,7 +33,11 @@ pub(super) async fn post_util_log(
     category = "utils",
     rename = "talk",
     aliases("mutetalk"),
-    default_member_permissions = "MUTE_MEMBERS"
+    default_member_permissions = "MUTE_MEMBERS",
+    description_localized("fr", "Activer le mode talk dans votre salon vocal actuel"),
+    description_localized("ja", "現在のボイスチャンネルでトークモードを有効化"),
+    description_localized("ru", "Включить режим разговора в текущем голосовом канале"),
+    description_localized("es-ES", "Habilitar el modo de conversación en tu canal de voz actual")
 )]
 pub async fn talk(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {

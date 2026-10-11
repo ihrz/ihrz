@@ -8,7 +8,15 @@ use super::*;
     prefix_command,
     category = "fun",
     rename = "heads-tails",
-    aliases("pileouface", "pile-ou-face")
+    aliases("pileouface", "pile-ou-face"),
+    name_localized("fr", "pile-ou-face"),
+    name_localized("ja", "heads-tails"),
+    name_localized("ru", "heads-tails"),
+    name_localized("es-ES", "heads-tails"),
+    description_localized("fr", "Pile ou face ?"),
+    description_localized("ja", "表か裏か？"),
+    description_localized("ru", "Орел или решка?"),
+    description_localized("es-ES", "Cara o cruz?")
 )]
 pub async fn coinflip(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     // No fun guard: `!heads-tails.ts` has no `GUILD.FUN.states` check,
