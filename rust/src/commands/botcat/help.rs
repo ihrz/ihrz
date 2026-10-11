@@ -338,30 +338,12 @@ pub async fn help(
         // index values + emoji + command counts. Routed by
         // `handle_help_component` on the overview path.
         let all = crate::commands::all();
-        let owned: Vec<(String, String, String)> = all
-            .iter()
-            .map(|c| {
-                (
-                    c.category.clone().unwrap_or_default(),
-                    c.name.clone(),
-                    c.description.clone().unwrap_or_default(),
-                )
-            })
-            .collect();
-        let reg_refs: Vec<(&str, &str, &str)> = owned
-            .iter()
-            .map(|(a, b, c)| (a.as_str(), b.as_str(), c.as_str()))
-            .collect();
         let table: Vec<(&str, &str, &str, &str, u32)> =
             crate::commands::legacy::HELP_CATEGORIES.to_vec();
-        let prefix = crate::db::guild_prefix(pool, gid, &ctx.data().config.prefix).await;
-        let mut cats = crate::commands::legacy::collect_help_cats(
-            &reg_refs,
-            &table,
-            &|k| crate::lang::get(&code, k).unwrap_or_default(),
-            &prefix,
-        );
-        crate::commands::legacy::help::sort_help_cats_by_name(&mut cats);
+        let mut cats = crate::commands::legacy::help::collect_help_leaves(&all, &table, &|k| {
+            crate::lang::get(&code, k).unwrap_or_default()
+        });
+        crate::commands::legacy::help::sort_help_leaf_cats_by_name(&mut cats);
         if !cats.is_empty() {
             let rows = crate::commands::legacy::help_main::build_help_overview_rows(
                 ctx.http(),

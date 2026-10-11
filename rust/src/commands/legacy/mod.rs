@@ -1241,27 +1241,9 @@ async fn handle_help_overview_component(
         return;
     };
     let gid = guild_id.get().to_string();
-    let prefix = crate::db::guild_prefix(pool, Some(guild_id.get()), ".").await;
     let code = crate::db::guild_lang(pool, Some(guild_id.get())).await;
     let t = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
-    let all = crate::commands::all();
-    let owned: Vec<(String, String, String)> = all
-        .iter()
-        .map(|c| {
-            (
-                c.category.clone().unwrap_or_default(),
-                c.name.clone(),
-                c.description.clone().unwrap_or_default(),
-            )
-        })
-        .collect();
-    let reg_refs: Vec<(&str, &str, &str)> = owned
-        .iter()
-        .map(|(a, b, c)| (a.as_str(), b.as_str(), c.as_str()))
-        .collect();
-    let table: Vec<(&str, &str, &str, &str, u32)> = HELP_CATEGORIES.to_vec();
-    let mut cats = collect_help_cats(&reg_refs, &table, &|k| t(k), &prefix);
-    help::sort_help_cats_by_name(&mut cats);
+    let cats = rebuild_leaf_cats(&t);
     if cats.is_empty() {
         return;
     }
@@ -1308,6 +1290,7 @@ async fn handle_help_overview_component(
             let region = crate::emojis::app_emoji_markup(http, "VC_Region")
                 .await
                 .unwrap_or_default();
+            let all = crate::commands::all();
             let desc = help::help_tip_embed(
                 &code,
                 &bot_name,
@@ -1332,24 +1315,9 @@ async fn handle_help_overview_component(
             let _ = comp.create_response(http, overview_update(embed)).await;
         }
         help::HelpOverviewPick::Category(index) if index < cats.len() => {
-            let show = &cats[index];
-            let markup = crate::emojis::app_emoji_markup(http, &show.emoji_name)
-                .await
-                .unwrap_or_default();
-            let page =
-                help::help_overview_category_page(&markup, &show.title, &show.desc, &show.fields);
-            let mut embed = serenity::CreateEmbed::default()
-                .title(page.title)
-                .description(page.description)
-                .colour(serenity::Colour::new(show.color))
-                .footer(serenity::CreateEmbedFooter::new(format!(
-                    "© iHorizon {}",
-                    chrono_year()
-                )));
-            for (n, v) in page.fields {
-                embed = embed.field(n, v, false);
-            }
-            let _ = comp.create_response(http, overview_update(embed)).await;
+            let resp =
+                render_help_leaf_page(http, pool, guild_id.get(), &code, &cats, index, 0).await;
+            let _ = comp.create_response(http, resp).await;
         }
         _ => {
             let _ = comp
@@ -1363,6 +1331,128 @@ async fn handle_help_overview_component(
                 .await;
         }
     }
+}
+
+/// Rebuild the /help leaf categories from the registry (stateless:
+/// every component handler recomputes the same name-sorted list, so
+/// select indices and pager ids stay valid across interactions).
+fn rebuild_leaf_cats(t: &dyn Fn(&str) -> String) -> Vec<help::HelpCategoryOwned> {
+    let all = crate::commands::all();
+    let table: Vec<(&str, &str, &str, &str, u32)> = HELP_CATEGORIES.to_vec();
+    let mut cats = help::collect_help_leaves(&all, &table, t);
+    help::sort_help_leaf_cats_by_name(&mut cats);
+    cats
+}
+
+/// Render one /help leaf-category page. Mirrors handleCategorySelect
+/// (help.ts:167-304): per-leaf Lock/Unlock state + slash/message/
+/// hybrid field names, localized `-# **┖ desc**` values, 8-field /
+/// 4000-char pages, `emoji・name` title, footer + thumbnail +
+/// timestamp, the overview select rows plus the pager row when more
+/// than one page exists.
+async fn render_help_leaf_page(
+    http: &serenity::Http,
+    pool: &crate::db::Pool,
+    guild_id: u64,
+    code: &str,
+    cats: &[help::HelpCategoryOwned],
+    index: usize,
+    page: usize,
+) -> serenity::CreateInteractionResponse {
+    let gid = guild_id.to_string();
+    let show = &cats[index];
+    let prefix = crate::db::guild_prefix(pool, Some(guild_id), ".").await;
+    let bot_id = http
+        .get_current_user()
+        .await
+        .map(|u| u.id.get().to_string())
+        .unwrap_or_default();
+    let is_mention = !bot_id.is_empty() && prefix.contains(&bot_id);
+    let lock = crate::emojis::app_emoji_markup(http, "Lock")
+        .await
+        .unwrap_or_default();
+    let unlock = crate::emojis::app_emoji_markup(http, "Unlock")
+        .await
+        .unwrap_or_default();
+    let msg_emoji = crate::emojis::app_emoji_markup(http, "Message_Commands")
+        .await
+        .unwrap_or_default();
+    let slash_emoji = crate::emojis::app_emoji_markup(http, "Slash_Bot_Badge")
+        .await
+        .unwrap_or_default();
+    let mut built = Vec::with_capacity(show.leaves.len());
+    for leaf in &show.leaves {
+        let perm = crate::commands::shared::load_cmd_perms(pool, &gid, &leaf.qualified)
+            .await
+            .map(|p| help::HelpPermState {
+                level: p.level.unwrap_or(0),
+                roles: p.roles.len(),
+                users: p.users.len(),
+            });
+        let states = help::help_cmd_states(perm.as_ref(), &lock, &unlock, code);
+        let entry = help::HelpModuleCmd {
+            cmd: &leaf.qualified,
+            prefix_cmd: Some(&leaf.prefix_cleaned),
+            desc: &leaf.desc,
+            desc_fr: leaf.desc_fr.as_deref(),
+            desc_ja: leaf.desc_ja.as_deref(),
+            desc_ru: leaf.desc_ru.as_deref(),
+            desc_es: leaf.desc_es.as_deref(),
+            message_cmd: leaf.message_cmd,
+            perm: None,
+        };
+        built.push(help::help_module_field(
+            leaf.message_cmd,
+            &states,
+            &entry,
+            code,
+            &prefix,
+            is_mention,
+            &msg_emoji,
+            &slash_emoji,
+        ));
+    }
+    let pages = help::help_module_pages(built);
+    let total = pages.len().max(1);
+    let page = page.min(total - 1);
+    let markup = crate::emojis::app_emoji_markup(http, &show.emoji_name)
+        .await
+        .unwrap_or_default();
+    let (footer_name, _) = crate::commands::shared::footer_parts_pool(pool, &gid).await;
+    let mut embed = serenity::CreateEmbed::default()
+        .title(help::help_module_title(&markup, &show.title))
+        .description(show.desc.clone())
+        .colour(serenity::Colour::new(show.color))
+        .footer(serenity::CreateEmbedFooter::new(footer_name))
+        .thumbnail("attachment://footer_icon.png")
+        .timestamp(chrono::Utc::now());
+    for (n, v) in pages.get(page).cloned().unwrap_or_default() {
+        embed = embed.field(n, v, false);
+    }
+    let mut components = help_main::build_help_overview_rows(http, code, cats).await;
+    if total > 1 {
+        let buttons = help::help_nav_row(index, page, total)
+            .into_iter()
+            .map(|b| {
+                let secondary = b.label.contains('/');
+                let mut btn = serenity::CreateButton::new(b.id)
+                    .label(b.label)
+                    .disabled(b.disabled);
+                btn = if secondary {
+                    btn.style(serenity::ButtonStyle::Secondary)
+                } else {
+                    btn.style(serenity::ButtonStyle::Primary)
+                };
+                btn
+            })
+            .collect();
+        components.push(serenity::CreateActionRow::Buttons(buttons));
+    }
+    serenity::CreateInteractionResponse::UpdateMessage(
+        serenity::CreateInteractionResponseMessage::new()
+            .embed(embed)
+            .components(components),
+    )
 }
 
 /// Route help browser selects + pager buttons (stateless recompute).
@@ -1399,6 +1489,23 @@ pub async fn handle_help_component(
     // navigation, mirroring handleCategorySelect in help.ts.
     if help::is_help_overview_select(id) {
         handle_help_overview_component(http, pool, comp).await;
+        return;
+    }
+    // /help category-page pager buttons (first/previous/page/next/
+    // last): the target page rides in the id, the category index too;
+    // the sorted list rebuilds deterministically like TS.
+    if let Some((cat, page)) = help::parse_help_nav(id) {
+        let code = crate::db::guild_lang(pool, comp.guild_id.map(|g| g.get())).await;
+        let t = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
+        let cats = rebuild_leaf_cats(&t);
+        if cat < cats.len() {
+            let Some(guild_id) = comp.guild_id else {
+                return;
+            };
+            let resp =
+                render_help_leaf_page(http, pool, guild_id.get(), &code, &cats, cat, page).await;
+            let _ = comp.create_response(http, resp).await;
+        }
         return;
     }
     // Current page rides in the select/button ids (stateless).

@@ -132,10 +132,10 @@ pub fn help_overview_select_ids() -> (String, String) {
 /// command-count descriptions. `cats` must already be name-sorted
 /// (see `super::help::sort_help_cats_by_name`); the split reuses the
 /// same `Math.ceil(len / 2)` bounds as the browser rows.
-pub async fn build_help_overview_rows(
+pub async fn build_help_overview_rows<C: super::help::OverviewCat>(
     http: &serenity::Http,
     code: &str,
-    cats: &[HelpBrowserCat],
+    cats: &[C],
 ) -> Vec<serenity::CreateActionRow> {
     let (first, second) = help_main_row_bounds(cats.len());
     let (first_id, second_id) = help_overview_select_ids();

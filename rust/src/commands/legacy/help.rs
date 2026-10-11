@@ -107,9 +107,9 @@ pub struct HelpOverviewOption {
 /// the slice with GLOBAL indices as values (TS `index.to_string()` keeps
 /// incrementing across both menus) and per-category command-count
 /// descriptions (`help_select_menu_fields_desc`).
-pub fn help_overview_options(
+pub fn help_overview_options<C: OverviewCat>(
     code: &str,
-    cats: &[super::HelpBrowserCat],
+    cats: &[C],
     range: std::ops::Range<usize>,
 ) -> Vec<HelpOverviewOption> {
     let mut out = Vec::new();
@@ -122,10 +122,10 @@ pub fn help_overview_options(
     });
     for (index, cat) in cats.iter().enumerate().filter(|(i, _)| range.contains(i)) {
         out.push(HelpOverviewOption {
-            label: cat.title.clone(),
-            description: help_option_desc(code, cat.fields.len()),
+            label: cat.ov_title().to_string(),
+            description: help_option_desc(code, cat.ov_count()),
             value: index.to_string(),
-            emoji_name: cat.emoji_name.clone(),
+            emoji_name: cat.ov_emoji().to_string(),
         });
     }
     out
@@ -346,6 +346,259 @@ pub fn help_module_pages(fields: Vec<(String, String, usize)>) -> Vec<Vec<(Strin
 /// Module menu title. Mirrors `` `${category.emoji}・${category.name}` ``.
 pub fn help_module_title(emoji: &str, name: &str) -> String {
     format!("{emoji}・{name}")
+}
+
+/// Top-level commands whose TS source lives under
+/// src/Interaction/SlashCommands (slash-only in TS): the parent keeps
+/// its own content entry (messageCmd 0) and every leaf renders slash.
+/// Hybrid-file parents contribute their leaves only (no parent entry),
+/// exactly like loadHybridCommands (parent entry only when the top has
+/// no subcommand).
+pub const SLASH_FILE_TOPS: &[&str] = &[
+    "allowlist",
+    "authrestore",
+    "automod",
+    "blogger",
+    "guildconfig",
+    "honeypot",
+    "join-ghostping",
+    "lastfm",
+    "notifier",
+    "perm",
+    "protect",
+    "punishpub",
+    "report",
+    "rolesaver",
+    "voice",
+];
+
+/// One help content entry. Mirrors a client.content row (cmd /
+/// prefixCmd / desc / desc_localized / messageCmd): `qualified` is the
+/// TS fullName (`parent sub`, space-joined), `prefix_cleaned` the TS
+/// prefixCmd (prefixName || leaf name), `message_cmd` 0 slash / 1
+/// message / 2 hybrid.
+pub struct HelpLeafOwned {
+    pub qualified: String,
+    pub prefix_cleaned: String,
+    pub desc: String,
+    pub desc_fr: Option<String>,
+    pub desc_ja: Option<String>,
+    pub desc_ru: Option<String>,
+    pub desc_es: Option<String>,
+    pub message_cmd: u8,
+}
+
+/// One browser category with its content leaves (TS category.value).
+pub struct HelpCategoryOwned {
+    pub name: String,
+    pub title: String,
+    pub desc: String,
+    pub color: u32,
+    pub emoji_name: String,
+    pub leaves: Vec<HelpLeafOwned>,
+}
+
+fn leaf_message_cmd(has_slash: bool, has_prefix: bool) -> u8 {
+    match (has_slash, has_prefix) {
+        (true, false) => 0,
+        (false, true) => 1,
+        _ => 2,
+    }
+}
+
+fn push_leaf<D, E>(
+    cmd: &poise::Command<D, E>,
+    qualified: String,
+    message_cmd: u8,
+    out: &mut Vec<HelpLeafOwned>,
+) {
+    if cmd.context_menu_action.is_some() {
+        return;
+    }
+    let loc = |k: &str| cmd.description_localizations.get(k).cloned();
+    out.push(HelpLeafOwned {
+        prefix_cleaned: crate::commands::shared::prefix_name_for(&qualified)
+            .map(str::to_string)
+            .unwrap_or_else(|| cmd.name.clone()),
+        qualified,
+        desc: cmd.description.clone().unwrap_or_default(),
+        desc_fr: loc("fr"),
+        desc_ja: loc("ja"),
+        desc_ru: loc("ru"),
+        desc_es: loc("es-ES"),
+        message_cmd,
+    });
+}
+
+fn walk_leaves<D, E>(
+    top_category: &str,
+    cmd: &poise::Command<D, E>,
+    path: &str,
+    slash_file: bool,
+    out: &mut Vec<HelpLeafOwned>,
+) {
+    let _ = top_category;
+    let qualified = if path.is_empty() {
+        cmd.name.clone()
+    } else {
+        format!("{path} {}", cmd.name)
+    };
+    let has_slash = cmd.slash_action.is_some();
+    let has_prefix = cmd.prefix_action.is_some();
+    if cmd.subcommands.is_empty() {
+        if !has_slash && !has_prefix {
+            return;
+        }
+        let kind = if slash_file {
+            0
+        } else {
+            leaf_message_cmd(has_slash, has_prefix)
+        };
+        push_leaf(cmd, qualified, kind, out);
+        return;
+    }
+    // Parent with subcommands: slash-file tops keep their own entry
+    // (TS slash loader always pushes the top), hybrid parents do not.
+    if slash_file && has_slash {
+        push_leaf(cmd, qualified.clone(), 0, out);
+    }
+    for sub in &cmd.subcommands {
+        walk_leaves(top_category, sub, &qualified, slash_file, out);
+    }
+}
+
+/// Collect browser categories from the registry. Mirrors the
+/// client.category/client.content loop in help.ts + the three loaders:
+/// one entry per content leaf (subcommand leaves + subcommand-less
+/// tops; slash-file parents keep their own entry), grouped by the
+/// top-level category, skipping table-unknown categories and
+/// context-menu nodes.
+pub fn collect_help_leaves<D, E>(
+    commands: &[poise::Command<D, E>],
+    table: &[(&str, &str, &str, &str, u32)],
+    title_of: &dyn Fn(&str) -> String,
+) -> Vec<HelpCategoryOwned> {
+    let mut out = Vec::new();
+    for (name, desc_key, placeholder_key, emoji_name, color) in table {
+        let mut leaves = Vec::new();
+        for top in commands
+            .iter()
+            .filter(|c| c.category.as_deref() == Some(*name))
+        {
+            walk_leaves(
+                name,
+                top,
+                "",
+                SLASH_FILE_TOPS.contains(&top.name.as_str()),
+                &mut leaves,
+            );
+        }
+        if leaves.is_empty() {
+            continue;
+        }
+        out.push(HelpCategoryOwned {
+            name: name.to_string(),
+            title: title_of(placeholder_key),
+            desc: title_of(desc_key),
+            color: *color,
+            emoji_name: emoji_name.to_string(),
+            leaves,
+        });
+    }
+    out
+}
+
+/// Sort leaf categories by display name (TS localeCompare on the
+/// localized placeholder).
+pub fn sort_help_leaf_cats_by_name(cats: &mut [HelpCategoryOwned]) {
+    cats.sort_by(|a, b| a.title.cmp(&b.title));
+}
+
+/// Overview select source: display title + emoji + entry count.
+/// Implemented by both the legacy browser cat (fields count) and the
+/// leaf category (leaves count) so the overview rows stay identical.
+pub trait OverviewCat {
+    fn ov_title(&self) -> &str;
+    fn ov_emoji(&self) -> &str;
+    fn ov_count(&self) -> usize;
+}
+
+impl OverviewCat for super::HelpBrowserCat {
+    fn ov_title(&self) -> &str {
+        &self.title
+    }
+    fn ov_emoji(&self) -> &str {
+        &self.emoji_name
+    }
+    fn ov_count(&self) -> usize {
+        self.fields.len()
+    }
+}
+
+impl OverviewCat for HelpCategoryOwned {
+    fn ov_title(&self) -> &str {
+        &self.title
+    }
+    fn ov_emoji(&self) -> &str {
+        &self.emoji_name
+    }
+    fn ov_count(&self) -> usize {
+        self.leaves.len()
+    }
+}
+
+/// /help category-page pager buttons. Mirrors createNavigationRow
+/// (help.ts:44-76): verbatim `<<<` / `<` / `n/m` / `>` / `>>>` labels
+/// (literals in TS, not lang keys), page button always disabled, edge
+/// buttons disabled at the bounds. Stateless id carries the category
+/// index + target page; the router rebuilds the same sorted list.
+pub const HELP_NAV_PREFIX: &str = "help-nav:";
+
+#[derive(Debug, PartialEq)]
+pub struct HelpNavButton {
+    pub id: String,
+    pub label: String,
+    pub disabled: bool,
+}
+
+pub fn help_nav_row(cat_index: usize, page: usize, total_pages: usize) -> Vec<HelpNavButton> {
+    let total = total_pages.max(1);
+    let page = page.min(total - 1);
+    let id = |p: usize| format!("{HELP_NAV_PREFIX}{cat_index}:{p}");
+    vec![
+        HelpNavButton {
+            id: id(0),
+            label: "<<<".to_string(),
+            disabled: page == 0,
+        },
+        HelpNavButton {
+            id: id(page.saturating_sub(1)),
+            label: "<".to_string(),
+            disabled: page == 0,
+        },
+        HelpNavButton {
+            id: id(page),
+            label: format!("{}/{}", page + 1, total),
+            disabled: true,
+        },
+        HelpNavButton {
+            id: id((page + 1).min(total - 1)),
+            label: ">".to_string(),
+            disabled: page + 1 >= total,
+        },
+        HelpNavButton {
+            id: id(total - 1),
+            label: ">>>".to_string(),
+            disabled: page + 1 >= total,
+        },
+    ]
+}
+
+/// Parse a pager button id back to (category index, target page).
+pub fn parse_help_nav(id: &str) -> Option<(usize, usize)> {
+    let rest = id.strip_prefix(HELP_NAV_PREFIX)?;
+    let (cat, page) = rest.split_once(':')?;
+    Some((cat.parse().ok()?, page.parse().ok()?))
 }
 
 #[cfg(test)]
@@ -609,5 +862,88 @@ mod tests {
             "https://www.ihorizon.org/assets/img/banner/ihrz_fr-FR.png"
         );
         assert!(crate::funcs::banner_url("en-US").ends_with("ihrz_en-US.png"));
+    }
+
+    fn slash_noop(
+        _: poise::ApplicationContext<'_, (), anyhow::Error>,
+    ) -> poise::BoxFuture<'_, Result<(), poise::FrameworkError<'_, (), anyhow::Error>>> {
+        Box::pin(async { Ok(()) })
+    }
+
+    fn prefix_noop(
+        _: poise::PrefixContext<'_, (), anyhow::Error>,
+    ) -> poise::BoxFuture<'_, Result<(), poise::FrameworkError<'_, (), anyhow::Error>>> {
+        Box::pin(async { Ok(()) })
+    }
+
+    fn leaf_cmd(name: &str, slash: bool, prefix: bool) -> poise::Command<(), anyhow::Error> {
+        poise::Command {
+            name: name.to_string(),
+            slash_action: slash.then_some(slash_noop as _),
+            prefix_action: prefix.then_some(prefix_noop as _),
+            ..Default::default()
+        }
+    }
+
+    #[test]
+    fn leaf_collector_mirrors_ts_content_entries() {
+        use super::*;
+        // Hybrid parent: leaves only, kinds from legs.
+        let mut parent = leaf_cmd("utils", true, true);
+        parent.category = Some("utils".to_string());
+        parent.subcommands = vec![leaf_cmd("snipe", true, true), leaf_cmd("top", false, true)];
+        // Slash-file parent: own entry + slash leaves.
+        let mut slash_parent = leaf_cmd("blogger", true, true);
+        slash_parent.category = Some("blogger".to_string());
+        slash_parent.subcommands = vec![leaf_cmd("add", true, true)];
+        // Prefix-only organizer: no parent entry, prefix leaves.
+        let mut org = leaf_cmd("legacy", false, true);
+        org.category = Some("legacy".to_string());
+        org.subcommands = vec![leaf_cmd("h", false, true)];
+        let table = vec![
+            ("utils", "d", "p", "E", 0),
+            ("blogger", "d", "p", "E", 0),
+            ("legacy", "d", "p", "E", 0),
+        ];
+        let cmds = vec![parent, slash_parent, org];
+        let cats = collect_help_leaves(&cmds, &table, &|k| k.to_string());
+        assert_eq!(cats.len(), 3);
+        let utils = &cats[0];
+        assert_eq!(utils.leaves.len(), 2);
+        assert_eq!(utils.leaves[0].qualified, "utils snipe");
+        assert_eq!(utils.leaves[0].message_cmd, 2);
+        assert_eq!(utils.leaves[1].qualified, "utils top");
+        assert_eq!(utils.leaves[1].message_cmd, 1);
+        let blogger = &cats[1];
+        assert_eq!(blogger.leaves.len(), 2);
+        assert_eq!(blogger.leaves[0].qualified, "blogger");
+        assert_eq!(blogger.leaves[0].message_cmd, 0);
+        assert_eq!(blogger.leaves[1].qualified, "blogger add");
+        assert_eq!(blogger.leaves[1].message_cmd, 0);
+        let legacy = &cats[2];
+        assert_eq!(legacy.leaves.len(), 1);
+        assert_eq!(legacy.leaves[0].qualified, "legacy h");
+        assert_eq!(legacy.leaves[0].message_cmd, 1);
+    }
+
+    #[test]
+    fn nav_row_matches_ts_navigation_row() {
+        use super::*;
+        let row = help_nav_row(3, 0, 4);
+        assert_eq!(
+            row.iter().map(|b| b.label.clone()).collect::<Vec<_>>(),
+            vec!["<<<", "<", "1/4", ">", ">>>"]
+        );
+        assert!(row[0].disabled && row[1].disabled);
+        assert!(row[2].disabled);
+        assert!(!row[3].disabled && !row[4].disabled);
+        assert_eq!(parse_help_nav(&row[3].id), Some((3, 1)));
+        assert_eq!(parse_help_nav(&row[4].id), Some((3, 3)));
+        // Last page: forward edge disabled, backward live.
+        let last = help_nav_row(0, 2, 3);
+        assert_eq!(last[2].label, "3/3");
+        assert!(!last[0].disabled && !last[1].disabled);
+        assert!(last[3].disabled && last[4].disabled);
+        assert_eq!(parse_help_nav("help-menu-1"), None);
     }
 }
