@@ -771,6 +771,126 @@ async fn argument_parse_denial(ctx: Ctx<'_>, error_text: String, input: Option<S
     prefix_usage_denial(ctx, input).await;
 }
 
+/// Flat prefix fallback (production TS parity).
+///
+/// Poise prefix dispatch only resolves nested leaves by full parent path
+/// (`!legacy h`), while production TS resolves prefix commands by flat
+/// name (`!h`). When poise reports UnknownCommand, this walks the
+/// registry tree for a case-insensitive leaf name/alias match and
+/// dispatches on a UNIQUE match only; ambiguity stays unknown (silent,
+/// like today). Slash path untouched: UnknownCommand is prefix-only,
+/// and no user strings are emitted here.
+pub struct FlatLeafHit<'a> {
+    /// The matched leaf command.
+    pub command: &'a poise::Command<Data, anyhow::Error>,
+    /// Top-down parent chain (empty for top-level commands).
+    pub parents: Vec<&'a poise::Command<Data, anyhow::Error>>,
+}
+
+/// Split a post-prefix message tail into (leaf name, args), mirroring
+/// poise's find_command head/tail split.
+pub fn split_flat_invocation(msg_content: &str) -> (&str, &str) {
+    let trimmed = msg_content.trim_start();
+    let mut iter = trimmed.splitn(2, char::is_whitespace);
+    (
+        iter.next().unwrap_or(""),
+        iter.next().unwrap_or("").trim_start(),
+    )
+}
+
+/// All registry commands (any depth) whose name or alias matches
+/// `target` case-insensitively, each with its parent chain.
+pub fn flat_leaf_hits<'a>(
+    commands: &'a [poise::Command<Data, anyhow::Error>],
+    target: &str,
+) -> Vec<FlatLeafHit<'a>> {
+    fn walk<'a>(
+        commands: &'a [poise::Command<Data, anyhow::Error>],
+        target: &str,
+        parents: &mut Vec<&'a poise::Command<Data, anyhow::Error>>,
+        out: &mut Vec<FlatLeafHit<'a>>,
+    ) {
+        for command in commands {
+            if command.name.eq_ignore_ascii_case(target)
+                || command
+                    .aliases
+                    .iter()
+                    .any(|alias| alias.eq_ignore_ascii_case(target))
+            {
+                out.push(FlatLeafHit {
+                    command,
+                    parents: parents.clone(),
+                });
+            }
+            parents.push(command);
+            walk(&command.subcommands, target, parents, out);
+            parents.pop();
+        }
+    }
+    let mut out = Vec::new();
+    walk(commands, target, &mut Vec::new(), &mut out);
+    out
+}
+
+/// The flat fallback verdict: Some hit on a UNIQUE leaf match, None
+/// for ambiguity, top-level-or-not (a top-level unique match resolves
+/// to itself), empty names, and unknown names.
+pub fn unique_flat_leaf<'a>(
+    commands: &'a [poise::Command<Data, anyhow::Error>],
+    target: &str,
+) -> Option<FlatLeafHit<'a>> {
+    if target.is_empty() {
+        return None;
+    }
+    let mut hits = flat_leaf_hits(commands, target);
+    if hits.len() == 1 {
+        hits.pop()
+    } else {
+        None
+    }
+}
+
+/// Re-dispatch an UnknownCommand tail onto its unique flat leaf.
+/// Runs the full prefix pipeline (checks, cooldowns, pre-command hook)
+/// via run_invocation; follow-up errors route back through on_error
+/// (which never yields UnknownCommand, so no loop).
+async fn dispatch_flat_leaf(
+    ctx: &serenity::Context,
+    msg: &serenity::Message,
+    prefix: &str,
+    msg_content: &str,
+    framework: poise::FrameworkContext<'_, Data, anyhow::Error>,
+    invocation_data: &tokio::sync::Mutex<Box<dyn std::any::Any + Send + Sync>>,
+    trigger: poise::MessageDispatchTrigger,
+) {
+    let (name, args) = split_flat_invocation(msg_content);
+    let Some(hit) = unique_flat_leaf(&framework.options.commands, name) else {
+        return;
+    };
+    let Some(action) = hit.command.prefix_action else {
+        return;
+    };
+    let parents = hit.parents;
+    let prefix_ctx = poise::PrefixContext {
+        serenity_context: ctx,
+        msg,
+        prefix,
+        invoked_command_name: name,
+        args,
+        framework,
+        parent_commands: &parents,
+        command: hit.command,
+        data: framework.user_data,
+        invocation_data,
+        trigger,
+        action,
+        __non_exhaustive: (),
+    };
+    if let Err(err) = poise::dispatch::run_invocation(prefix_ctx).await {
+        (framework.options.on_error)(err).await;
+    }
+}
+
 /// Framework error router. Command/CommandPanic keep the crash block;
 /// parse + permission + cooldown denials get TS-keyed replies instead
 /// of silence. CommandCheckFailed without an error stays silent: the
@@ -850,6 +970,31 @@ pub async fn report_command_error(err: poise::FrameworkError<'_, Data, anyhow::E
         // detail — log the inner error so the next boot shows the cause.
         poise::FrameworkError::Setup { ref error, .. } => {
             tracing::error!("slash setup failed: {error:#}");
+        }
+        // Flat prefix fallback (production TS parity): poise only
+        // resolves nested leaves by full parent path (`!legacy h`);
+        // a bare leaf name (`!h`) lands here and is re-dispatched on
+        // a unique registry match, silently ignored otherwise.
+        poise::FrameworkError::UnknownCommand {
+            ctx,
+            msg,
+            prefix,
+            msg_content,
+            framework,
+            invocation_data,
+            trigger,
+            ..
+        } => {
+            dispatch_flat_leaf(
+                ctx,
+                msg,
+                prefix,
+                msg_content,
+                *framework,
+                invocation_data,
+                *trigger,
+            )
+            .await;
         }
         _ => {}
     }
@@ -2038,6 +2183,76 @@ mod tests {
         let grace = shutdown_grace_period();
         assert_eq!(grace, std::time::Duration::from_secs(5));
         assert!(grace > std::time::Duration::ZERO);
+    }
+
+    fn flat_test_cmd(
+        name: &str,
+        aliases: &[&str],
+        subcommands: Vec<poise::Command<Data, anyhow::Error>>,
+    ) -> poise::Command<Data, anyhow::Error> {
+        poise::Command {
+            name: name.to_string(),
+            identifying_name: name.to_string(),
+            aliases: aliases.iter().map(|a| a.to_string()).collect(),
+            subcommands,
+            ..Default::default()
+        }
+    }
+
+    #[test]
+    fn flat_fallback_unique_nested_leaf_resolves() {
+        // Live symptom: `!h` must reach help_browser (rename `h`,
+        // nested under the legacy parent).
+        let cmds = crate::commands::all();
+        let hit = super::unique_flat_leaf(&cmds, "h").expect("`h` resolves flat");
+        assert_eq!(hit.command.name, "h");
+        assert_eq!(hit.parents.len(), 1);
+        assert_eq!(hit.parents[0].name, "legacy");
+        // Case-insensitive like poise prefix dispatch.
+        let upper = super::unique_flat_leaf(&cmds, "H").expect("`H` resolves flat");
+        assert_eq!(upper.command.name, "h");
+        // Invocation head/tail split mirrors poise find_command.
+        assert_eq!(
+            super::split_flat_invocation("h extra args"),
+            ("h", "extra args")
+        );
+    }
+
+    #[test]
+    fn flat_fallback_ambiguous_leaf_stays_unknown() {
+        let cmds = vec![
+            flat_test_cmd("p1", &[], vec![flat_test_cmd("dup", &[], vec![])]),
+            flat_test_cmd("p2", &[], vec![flat_test_cmd("dup", &[], vec![])]),
+        ];
+        assert_eq!(super::flat_leaf_hits(&cmds, "dup").len(), 2);
+        assert!(super::unique_flat_leaf(&cmds, "dup").is_none());
+        assert!(super::unique_flat_leaf(&cmds, "DUP").is_none());
+    }
+
+    #[test]
+    fn flat_fallback_top_level_name_unaffected() {
+        // A top-level name resolves to itself with no parents: normal
+        // poise dispatch keeps owning it, the fallback never reroutes.
+        let cmds = crate::commands::all();
+        let hit = super::unique_flat_leaf(&cmds, "ping").expect("`ping` resolves flat");
+        assert_eq!(hit.command.name, "ping");
+        assert!(hit.parents.is_empty());
+    }
+
+    #[test]
+    fn flat_fallback_unknown_name_stays_unknown() {
+        let cmds = crate::commands::all();
+        assert!(super::unique_flat_leaf(&cmds, "definitely_not_a_command_xyz").is_none());
+        assert!(super::unique_flat_leaf(&cmds, "").is_none());
+        assert!(super::flat_leaf_hits(&cmds, "definitely_not_a_command_xyz").is_empty());
+    }
+
+    #[test]
+    fn flat_fallback_alias_matches_case_insensitively() {
+        let cmds = vec![flat_test_cmd("question", &["8ball"], vec![])];
+        let hit = super::unique_flat_leaf(&cmds, "8BALL").expect("alias resolves flat");
+        assert_eq!(hit.command.name, "question");
+        assert!(hit.parents.is_empty());
     }
 
     /// commands.json dump shape (mirrors ready.ts JSON.stringify(mapped,

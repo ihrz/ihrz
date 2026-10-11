@@ -3267,185 +3267,6 @@
                 "commandFullName": "guildconfig join-ghostping"
             },
             {
-                "name": "commandlimit",
-                "description": "Manage command rate limits.",
-                "type": 1,
-                "options": [
-                    {
-                        "name": "action",
-                        "description": "set, reset or list",
-                        "required": true,
-                        "type": 3,
-                        "options": []
-                    },
-                    {
-                        "name": "command",
-                        "description": "Command name",
-                        "type": 3,
-                        "autocomplete": true,
-                        "options": []
-                    },
-                    {
-                        "name": "count",
-                        "description": "Max uses",
-                        "type": 4,
-                        "min_value": -9007199254740991.0,
-                        "max_value": 9007199254740991.0,
-                        "options": []
-                    },
-                    {
-                        "name": "window-time",
-                        "description": "Window (e.g. 10s, 1m, 1h)",
-                        "type": 3,
-                        "options": []
-                    }
-                ],
-                "commandFullName": "guildconfig commandlimit"
-            },
-            {
-                "name": "setlogs",
-                "description": "Set a logs channel for Audits Logs!",
-                "type": 1,
-                "options": [
-                    {
-                        "name": "log_type",
-                        "description": "Log type",
-                        "required": true,
-                        "type": 3,
-                        "options": []
-                    },
-                    {
-                        "name": "channel",
-                        "description": "Channel",
-                        "type": 7,
-                        "channel_types": [
-                            0
-                        ],
-                        "options": []
-                    }
-                ],
-                "commandFullName": "guildconfig setlogs",
-                "aliases": [
-                    "logs",
-                    "setlog"
-                ]
-            },
-            {
-                "name": "support",
-                "description": "Give a roles when guild's member have something about your server on them bio!",
-                "type": 1,
-                "options": [
-                    {
-                        "name": "action",
-                        "description": "on or off",
-                        "required": true,
-                        "type": 3,
-                        "options": []
-                    },
-                    {
-                        "name": "type",
-                        "description": "bio or tag",
-                        "type": 3,
-                        "options": []
-                    },
-                    {
-                        "name": "roles",
-                        "description": "The roles to give for our member",
-                        "type": 8,
-                        "options": []
-                    },
-                    {
-                        "name": "input",
-                        "description": "Choose the keywords wanted in the bio",
-                        "type": 3,
-                        "options": []
-                    }
-                ],
-                "commandFullName": "guildconfig support",
-                "aliases": [
-                    "soutien"
-                ]
-            },
-            {
-                "name": "autoreact",
-                "description": "Sent specified emoji when new message in specified channel",
-                "type": 1,
-                "options": [
-                    {
-                        "name": "channel",
-                        "description": "Channel",
-                        "required": true,
-                        "type": 7,
-                        "channel_types": [
-                            0
-                        ],
-                        "options": []
-                    },
-                    {
-                        "name": "emoji",
-                        "description": "Emoji",
-                        "required": true,
-                        "type": 3,
-                        "options": []
-                    }
-                ],
-                "commandFullName": "guildconfig autoreact"
-            },
-            {
-                "name": "autoreact-list",
-                "description": "Autoreact list command.",
-                "type": 1,
-                "options": [
-                    {
-                        "name": "page",
-                        "description": "Page number",
-                        "type": 4,
-                        "min_value": -9007199254740991.0,
-                        "max_value": 9007199254740991.0,
-                        "options": []
-                    }
-                ],
-                "commandFullName": "guildconfig autoreact-list"
-            },
-            {
-                "name": "autoreact-remove",
-                "description": "Autoreact remove command.",
-                "type": 1,
-                "options": [
-                    {
-                        "name": "index",
-                        "description": "Index (from autoreact-list, 1-based)",
-                        "required": true,
-                        "type": 4,
-                        "min_value": -9007199254740991.0,
-                        "max_value": 9007199254740991.0,
-                        "options": []
-                    }
-                ],
-                "commandFullName": "guildconfig autoreact-remove"
-            },
-            {
-                "name": "autoreact-toggle",
-                "description": "Greeting-reaction switch (the real `toggle-react` feature).",
-                "type": 1,
-                "options": [
-                    {
-                        "name": "action",
-                        "description": "on or off",
-                        "required": true,
-                        "type": 3,
-                        "options": []
-                    }
-                ],
-                "commandFullName": "guildconfig autoreact-toggle",
-                "aliases": [
-                    "toggle-react",
-                    "react-toggle",
-                    "togglereact",
-                    "reacttoggle"
-                ]
-            },
-            {
                 "name": "autologs",
                 "description": "Bulk-create every server log channel (autologs preset).",
                 "type": 1,
@@ -3600,6 +3421,217 @@
         ],
         "aliases": [],
         "thinking": true,
+        "ephemeral": false
+    },
+    {
+        "name": "autoreact",
+        "prefix_name": null,
+        "name_translated": {},
+        "description": "Sent specified emoji when new message in specified channel",
+        "description_translated": {},
+        "category": "guildconfig",
+        "options": [
+            {
+                "name": "channel",
+                "description": "Channel",
+                "required": true,
+                "type": 7,
+                "channel_types": [
+                    0
+                ],
+                "options": []
+            },
+            {
+                "name": "emoji",
+                "description": "Emoji",
+                "required": true,
+                "type": 3,
+                "options": []
+            }
+        ],
+        "aliases": [],
+        "thinking": true,
+        "ephemeral": false
+    },
+    {
+        "name": "autoreact-list",
+        "prefix_name": null,
+        "name_translated": {},
+        "description": "Autoreact list command.",
+        "description_translated": {},
+        "category": "guildconfig",
+        "options": [
+            {
+                "name": "page",
+                "description": "Page number",
+                "type": 4,
+                "min_value": -9007199254740991.0,
+                "max_value": 9007199254740991.0,
+                "options": []
+            }
+        ],
+        "aliases": [],
+        "thinking": true,
+        "ephemeral": false
+    },
+    {
+        "name": "autoreact-remove",
+        "prefix_name": null,
+        "name_translated": {},
+        "description": "Autoreact remove command.",
+        "description_translated": {},
+        "category": "guildconfig",
+        "options": [
+            {
+                "name": "index",
+                "description": "Index (from autoreact-list, 1-based)",
+                "required": true,
+                "type": 4,
+                "min_value": -9007199254740991.0,
+                "max_value": 9007199254740991.0,
+                "options": []
+            }
+        ],
+        "aliases": [],
+        "thinking": true,
+        "ephemeral": false
+    },
+    {
+        "name": "autoreact-toggle",
+        "prefix_name": null,
+        "name_translated": {},
+        "description": "Greeting-reaction switch (the real `toggle-react` feature).",
+        "description_translated": {},
+        "category": "guildconfig",
+        "options": [
+            {
+                "name": "action",
+                "description": "on or off",
+                "required": true,
+                "type": 3,
+                "options": []
+            }
+        ],
+        "aliases": [
+            "toggle-react",
+            "react-toggle",
+            "togglereact",
+            "reacttoggle"
+        ],
+        "thinking": true,
+        "ephemeral": false
+    },
+    {
+        "name": "commandlimit",
+        "prefix_name": null,
+        "name_translated": {},
+        "description": "Manage command rate limits.",
+        "description_translated": {},
+        "category": "guildconfig",
+        "options": [
+            {
+                "name": "action",
+                "description": "set, reset or list",
+                "required": true,
+                "type": 3,
+                "options": []
+            },
+            {
+                "name": "command",
+                "description": "Command name",
+                "type": 3,
+                "autocomplete": true,
+                "options": []
+            },
+            {
+                "name": "count",
+                "description": "Max uses",
+                "type": 4,
+                "min_value": -9007199254740991.0,
+                "max_value": 9007199254740991.0,
+                "options": []
+            },
+            {
+                "name": "window-time",
+                "description": "Window (e.g. 10s, 1m, 1h)",
+                "type": 3,
+                "options": []
+            }
+        ],
+        "aliases": [],
+        "thinking": true,
+        "ephemeral": false
+    },
+    {
+        "name": "setlogs",
+        "prefix_name": null,
+        "name_translated": {},
+        "description": "Set a logs channel for Audits Logs!",
+        "description_translated": {},
+        "category": "guildconfig",
+        "options": [
+            {
+                "name": "log_type",
+                "description": "Log type",
+                "required": true,
+                "type": 3,
+                "options": []
+            },
+            {
+                "name": "channel",
+                "description": "Channel",
+                "type": 7,
+                "channel_types": [
+                    0
+                ],
+                "options": []
+            }
+        ],
+        "aliases": [
+            "logs",
+            "setlog"
+        ],
+        "thinking": true,
+        "ephemeral": false
+    },
+    {
+        "name": "support",
+        "prefix_name": null,
+        "name_translated": {},
+        "description": "Give a roles when guild's member have something about your server on them bio!",
+        "description_translated": {},
+        "category": "guildconfig",
+        "options": [
+            {
+                "name": "action",
+                "description": "on or off",
+                "required": true,
+                "type": 3,
+                "options": []
+            },
+            {
+                "name": "type",
+                "description": "bio or tag",
+                "type": 3,
+                "options": []
+            },
+            {
+                "name": "roles",
+                "description": "The roles to give for our member",
+                "type": 8,
+                "options": []
+            },
+            {
+                "name": "input",
+                "description": "Choose the keywords wanted in the bio",
+                "type": 3,
+                "options": []
+            }
+        ],
+        "aliases": [
+            "soutien"
+        ],
+        "thinking": false,
         "ephemeral": false
     },
     {
@@ -5633,43 +5665,6 @@
         "category": "newfeatures",
         "options": [
             {
-                "name": "nightmode",
-                "description": "Nightmode panel and quick toggle (guild owner only).",
-                "type": 1,
-                "options": [
-                    {
-                        "name": "action",
-                        "description": "on, off, or panel (default)",
-                        "type": 3,
-                        "options": []
-                    },
-                    {
-                        "name": "start",
-                        "description": "Start hour 0-23",
-                        "type": 4,
-                        "min_value": -9007199254740991.0,
-                        "max_value": 9007199254740991.0,
-                        "options": []
-                    },
-                    {
-                        "name": "end",
-                        "description": "End hour 0-23",
-                        "type": 4,
-                        "min_value": -9007199254740991.0,
-                        "max_value": 9007199254740991.0,
-                        "options": []
-                    }
-                ],
-                "commandFullName": "newfeatures nightmode",
-                "aliases": [
-                    "modenuit",
-                    "nuit",
-                    "night",
-                    "mode-nuit",
-                    "night-mode"
-                ]
-            },
-            {
                 "name": "punishpub",
                 "description": "Anti-pub spam config (amount/type/state).",
                 "type": 1,
@@ -5735,6 +5730,47 @@
             }
         ],
         "aliases": [],
+        "thinking": false,
+        "ephemeral": false
+    },
+    {
+        "name": "nightmode",
+        "prefix_name": null,
+        "name_translated": {},
+        "description": "Nightmode panel and quick toggle (guild owner only).",
+        "description_translated": {},
+        "category": "newfeatures",
+        "options": [
+            {
+                "name": "action",
+                "description": "on, off, or panel (default)",
+                "type": 3,
+                "options": []
+            },
+            {
+                "name": "start",
+                "description": "Start hour 0-23",
+                "type": 4,
+                "min_value": -9007199254740991.0,
+                "max_value": 9007199254740991.0,
+                "options": []
+            },
+            {
+                "name": "end",
+                "description": "End hour 0-23",
+                "type": 4,
+                "min_value": -9007199254740991.0,
+                "max_value": 9007199254740991.0,
+                "options": []
+            }
+        ],
+        "aliases": [
+            "modenuit",
+            "nuit",
+            "night",
+            "mode-nuit",
+            "night-mode"
+        ],
         "thinking": false,
         "ephemeral": false
     },
@@ -6637,79 +6673,87 @@
                     }
                 ],
                 "commandFullName": "rolereaction remove"
-            },
-            {
-                "name": "rolebutton",
-                "description": "Set a roles when user react to a button with specific emoji",
-                "type": 1,
-                "options": [
-                    {
-                        "name": "value",
-                        "description": "add or remove",
-                        "required": true,
-                        "type": 3,
-                        "options": []
-                    },
-                    {
-                        "name": "channel_id",
-                        "description": "Channel id",
-                        "required": true,
-                        "type": 3,
-                        "options": []
-                    },
-                    {
-                        "name": "message_id",
-                        "description": "Message id",
-                        "required": true,
-                        "type": 3,
-                        "options": []
-                    },
-                    {
-                        "name": "reaction",
-                        "description": "Emoji or emoji id",
-                        "type": 3,
-                        "options": []
-                    },
-                    {
-                        "name": "role",
-                        "description": "Role",
-                        "type": 8,
-                        "options": []
-                    }
-                ],
-                "commandFullName": "rolereaction rolebutton",
-                "aliases": [
-                    "btnreact"
-                ]
-            },
-            {
-                "name": "roleselect",
-                "description": "Configure role selection for a specific message",
-                "type": 1,
-                "options": [
-                    {
-                        "name": "channel_id",
-                        "description": "Channel id with the target message",
-                        "required": true,
-                        "type": 3,
-                        "options": []
-                    },
-                    {
-                        "name": "message_id",
-                        "description": "Message id to configure",
-                        "required": true,
-                        "type": 3,
-                        "options": []
-                    }
-                ],
-                "commandFullName": "rolereaction roleselect",
-                "aliases": [
-                    "selectreact"
-                ]
             }
         ],
         "aliases": [
             "rolereact"
+        ],
+        "thinking": false,
+        "ephemeral": false
+    },
+    {
+        "name": "rolebutton",
+        "prefix_name": null,
+        "name_translated": {},
+        "description": "Set a roles when user react to a button with specific emoji",
+        "description_translated": {},
+        "category": "rolereactions",
+        "options": [
+            {
+                "name": "value",
+                "description": "add or remove",
+                "required": true,
+                "type": 3,
+                "options": []
+            },
+            {
+                "name": "channel_id",
+                "description": "Channel id",
+                "required": true,
+                "type": 3,
+                "options": []
+            },
+            {
+                "name": "message_id",
+                "description": "Message id",
+                "required": true,
+                "type": 3,
+                "options": []
+            },
+            {
+                "name": "reaction",
+                "description": "Emoji or emoji id",
+                "type": 3,
+                "options": []
+            },
+            {
+                "name": "role",
+                "description": "Role",
+                "type": 8,
+                "options": []
+            }
+        ],
+        "aliases": [
+            "btnreact"
+        ],
+        "thinking": false,
+        "ephemeral": false
+    },
+    {
+        "name": "roleselect",
+        "prefix_name": null,
+        "name_translated": {},
+        "description": "Configure role selection for a specific message",
+        "description_translated": {},
+        "category": "rolereactions",
+        "options": [
+            {
+                "name": "channel_id",
+                "description": "Channel id with the target message",
+                "required": true,
+                "type": 3,
+                "options": []
+            },
+            {
+                "name": "message_id",
+                "description": "Message id to configure",
+                "required": true,
+                "type": 3,
+                "options": []
+            }
+        ],
+        "aliases": [
+            "selectreact"
         ],
         "thinking": false,
         "ephemeral": false
@@ -7270,87 +7314,6 @@
                     }
                 ],
                 "commandFullName": "owner remove"
-            },
-            {
-                "name": "blacklist",
-                "description": "Add a user to the blacklist!",
-                "type": 1,
-                "options": [
-                    {
-                        "name": "user",
-                        "description": "Member",
-                        "type": 6,
-                        "options": []
-                    },
-                    {
-                        "name": "reason",
-                        "description": "Reason",
-                        "type": 3,
-                        "options": []
-                    }
-                ],
-                "commandFullName": "owner blacklist"
-            },
-            {
-                "name": "unblacklist",
-                "description": "The user you want to unblacklist (Only Owner of ihorizon)!",
-                "type": 1,
-                "options": [
-                    {
-                        "name": "user",
-                        "description": "Member",
-                        "required": true,
-                        "type": 6,
-                        "options": []
-                    }
-                ],
-                "commandFullName": "owner unblacklist"
-            },
-            {
-                "name": "blinfo",
-                "description": "Show informations about blacklisted user!",
-                "type": 1,
-                "options": [
-                    {
-                        "name": "user",
-                        "description": "Member",
-                        "required": true,
-                        "type": 6,
-                        "options": []
-                    }
-                ],
-                "commandFullName": "owner blinfo",
-                "aliases": [
-                    "blacklistinfo",
-                    "lookbl",
-                    "blook"
-                ]
-            },
-            {
-                "name": "bledit",
-                "description": "Edit a blacklist reason. Mirrors !bledit.ts.",
-                "type": 1,
-                "options": [
-                    {
-                        "name": "user",
-                        "description": "Member",
-                        "required": true,
-                        "type": 6,
-                        "options": []
-                    },
-                    {
-                        "name": "new_reason",
-                        "description": "The new reason",
-                        "required": true,
-                        "type": 3,
-                        "options": []
-                    }
-                ],
-                "commandFullName": "owner bledit",
-                "aliases": [
-                    "blacklistedit",
-                    "editbl"
-                ]
             }
         ],
         "aliases": [
@@ -7366,7 +7329,7 @@
         "name": "unowner",
         "prefix_name": null,
         "name_translated": {},
-        "description": "Top-level old spellings (unowner / bl / unblacklist).",
+        "description": "Top-level old spellings (unowner / bl).",
         "description_translated": {},
         "category": "owner",
         "options": [
@@ -7386,7 +7349,7 @@
         "name": "bl",
         "prefix_name": null,
         "name_translated": {},
-        "description": "Top-level `bl` alias for `owner blacklist` (TS aliases: [\"bl\"]).",
+        "description": "Top-level `bl` alias for `blacklist` (TS aliases: [\"bl\"]).",
         "description_translated": {},
         "category": "owner",
         "options": [],
@@ -7395,10 +7358,35 @@
         "ephemeral": false
     },
     {
+        "name": "blacklist",
+        "prefix_name": null,
+        "name_translated": {},
+        "description": "Add a user to the blacklist!",
+        "description_translated": {},
+        "category": "owner",
+        "options": [
+            {
+                "name": "user",
+                "description": "Member",
+                "type": 6,
+                "options": []
+            },
+            {
+                "name": "reason",
+                "description": "Reason",
+                "type": 3,
+                "options": []
+            }
+        ],
+        "aliases": [],
+        "thinking": false,
+        "ephemeral": false
+    },
+    {
         "name": "unblacklist",
         "prefix_name": null,
         "name_translated": {},
-        "description": "Top-level `unblacklist` (+ `unbl`) alias (TS aliases: [`\"unbl\"`]).",
+        "description": "The user you want to unblacklist (Only Owner of ihorizon)!",
         "description_translated": {},
         "category": "owner",
         "options": [
@@ -7417,149 +7405,289 @@
         "ephemeral": false
     },
     {
+        "name": "blinfo",
+        "prefix_name": null,
+        "name_translated": {},
+        "description": "Show informations about blacklisted user!",
+        "description_translated": {},
+        "category": "owner",
+        "options": [
+            {
+                "name": "user",
+                "description": "Member",
+                "required": true,
+                "type": 6,
+                "options": []
+            }
+        ],
+        "aliases": [
+            "blacklistinfo",
+            "lookbl",
+            "blook"
+        ],
+        "thinking": false,
+        "ephemeral": false
+    },
+    {
+        "name": "bledit",
+        "prefix_name": null,
+        "name_translated": {},
+        "description": "Edit a blacklist reason. Mirrors !bledit.ts.",
+        "description_translated": {},
+        "category": "owner",
+        "options": [
+            {
+                "name": "user",
+                "description": "Member",
+                "required": true,
+                "type": 6,
+                "options": []
+            },
+            {
+                "name": "new_reason",
+                "description": "The new reason",
+                "required": true,
+                "type": 3,
+                "options": []
+            }
+        ],
+        "aliases": [
+            "blacklistedit",
+            "editbl"
+        ],
+        "thinking": false,
+        "ephemeral": false
+    },
+    {
+        "name": "eval",
+        "prefix_name": null,
+        "name_translated": {},
+        "description": "Run Javascript program (only for developers)!",
+        "description_translated": {},
+        "category": "owner",
+        "options": [
+            {
+                "name": "code",
+                "description": "javascript code",
+                "required": true,
+                "type": 3,
+                "options": []
+            }
+        ],
+        "aliases": [],
+        "thinking": false,
+        "ephemeral": false
+    },
+    {
         "name": "bot",
         "prefix_name": null,
         "name_translated": {},
         "description": "Subcommand for bot category!",
         "description_translated": {},
         "category": "bot",
+        "options": [],
+        "aliases": [],
+        "thinking": false,
+        "ephemeral": false
+    },
+    {
+        "name": "andru",
+        "prefix_name": null,
+        "name_translated": {},
+        "description": "Lore contributor info command.",
+        "description_translated": {},
+        "category": "bot",
+        "options": [],
+        "aliases": [],
+        "thinking": false,
+        "ephemeral": false
+    },
+    {
+        "name": "botinfo",
+        "prefix_name": null,
+        "name_translated": {},
+        "description": "Bot info. Mirrors src/Interaction/HybridCommands/bot/botinfo.ts.",
+        "description_translated": {},
+        "category": "bot",
+        "options": [],
+        "aliases": [
+            "bi"
+        ],
+        "thinking": false,
+        "ephemeral": false
+    },
+    {
+        "name": "ether",
+        "prefix_name": null,
+        "name_translated": {},
+        "description": "Lore contributor info command.",
+        "description_translated": {},
+        "category": "bot",
+        "options": [],
+        "aliases": [],
+        "thinking": false,
+        "ephemeral": false
+    },
+    {
+        "name": "help",
+        "prefix_name": null,
+        "name_translated": {},
+        "description": "Get a list of all the commands!",
+        "description_translated": {},
+        "category": "bot",
         "options": [
             {
-                "name": "botinfo",
-                "description": "Bot info. Mirrors src/Interaction/HybridCommands/bot/botinfo.ts.",
-                "type": 1,
-                "commandFullName": "bot botinfo",
-                "aliases": [
-                    "bi"
-                ]
-            },
-            {
-                "name": "ping",
-                "description": "Get the bot latency!",
-                "type": 1,
-                "commandFullName": "bot ping",
-                "aliases": [
-                    "speed",
-                    "pong",
-                    "vitesse"
-                ]
-            },
-            {
-                "name": "help",
-                "description": "Get a list of all the commands!",
-                "type": 1,
-                "options": [
-                    {
-                        "name": "command_name",
-                        "description": "The command name you want information",
-                        "type": 3,
-                        "options": []
-                    }
-                ],
-                "commandFullName": "bot help"
-            },
-            {
-                "name": "say",
-                "description": "Send a message through the bot. Mirrors say.ts (`\"> \" + content`).",
-                "type": 1,
-                "options": [
-                    {
-                        "name": "content",
-                        "description": "What you want the bot to say",
-                        "required": true,
-                        "type": 3,
-                        "options": []
-                    }
-                ],
-                "commandFullName": "bot say"
-            },
-            {
-                "name": "setlang",
-                "description": "Set the server language (panel or direct code).",
-                "type": 1,
-                "options": [
-                    {
-                        "name": "lang",
-                        "description": "Server language",
-                        "type": 3,
-                        "options": []
-                    }
-                ],
-                "commandFullName": "bot setlang",
-                "aliases": [
-                    "setsrvlang",
-                    "lang"
-                ]
-            },
-            {
-                "name": "invite",
-                "description": "Get the bot invite link. Mirrors invite.ts (embed + \"Add me\" link button, not a bare URL).",
-                "type": 1,
-                "commandFullName": "bot invite",
-                "aliases": [
-                    "inviteme",
-                    "oauth"
-                ]
-            },
-            {
-                "name": "links",
-                "description": "Show all links about iHorizon.",
-                "type": 1,
-                "commandFullName": "bot links",
-                "aliases": [
-                    "link"
-                ]
-            },
-            {
-                "name": "status",
-                "description": "Status embed. Mirrors bot status.ts (CPU/memory/uptimes/OS/versions).",
-                "type": 1,
-                "commandFullName": "bot status",
-                "aliases": [
-                    "server"
-                ]
-            },
-            {
-                "name": "noaimie",
-                "description": "Noaimie picture link. Mirrors !noaimie.ts (fixed asset URL).",
-                "type": 1,
-                "commandFullName": "bot noaimie",
-                "aliases": [
-                    "noemie",
-                    "noémie"
-                ]
-            },
-            {
-                "name": "andru",
-                "description": "Lore contributor info command.",
-                "type": 1,
-                "commandFullName": "bot andru"
-            },
-            {
-                "name": "ether",
-                "description": "Lore contributor info command.",
-                "type": 1,
-                "commandFullName": "bot ether"
-            },
-            {
-                "name": "iris",
-                "description": "Lore contributor info command.",
-                "type": 1,
-                "commandFullName": "bot iris"
-            },
-            {
-                "name": "kisakay",
-                "description": "Lore contributor info command.",
-                "type": 1,
-                "commandFullName": "bot kisakay",
-                "aliases": [
-                    "anaïs",
-                    "anais",
-                    "kisa"
-                ]
+                "name": "command_name",
+                "description": "The command name you want information",
+                "type": 3,
+                "options": []
             }
         ],
         "aliases": [],
+        "thinking": false,
+        "ephemeral": false
+    },
+    {
+        "name": "invite",
+        "prefix_name": null,
+        "name_translated": {},
+        "description": "Get the bot invite link. Mirrors invite.ts (embed + \"Add me\" link button, not a bare URL).",
+        "description_translated": {},
+        "category": "bot",
+        "options": [],
+        "aliases": [
+            "inviteme",
+            "oauth"
+        ],
+        "thinking": false,
+        "ephemeral": false
+    },
+    {
+        "name": "iris",
+        "prefix_name": null,
+        "name_translated": {},
+        "description": "Lore contributor info command.",
+        "description_translated": {},
+        "category": "bot",
+        "options": [],
+        "aliases": [],
+        "thinking": false,
+        "ephemeral": false
+    },
+    {
+        "name": "kisakay",
+        "prefix_name": null,
+        "name_translated": {},
+        "description": "Lore contributor info command.",
+        "description_translated": {},
+        "category": "bot",
+        "options": [],
+        "aliases": [
+            "anaïs",
+            "anais",
+            "kisa"
+        ],
+        "thinking": false,
+        "ephemeral": false
+    },
+    {
+        "name": "links",
+        "prefix_name": null,
+        "name_translated": {},
+        "description": "Show all links about iHorizon.",
+        "description_translated": {},
+        "category": "bot",
+        "options": [],
+        "aliases": [
+            "link"
+        ],
+        "thinking": false,
+        "ephemeral": false
+    },
+    {
+        "name": "noaimie",
+        "prefix_name": null,
+        "name_translated": {},
+        "description": "Noaimie picture link. Mirrors !noaimie.ts (fixed asset URL).",
+        "description_translated": {},
+        "category": "bot",
+        "options": [],
+        "aliases": [
+            "noemie",
+            "noémie"
+        ],
+        "thinking": false,
+        "ephemeral": false
+    },
+    {
+        "name": "ping",
+        "prefix_name": null,
+        "name_translated": {},
+        "description": "Get the bot latency!",
+        "description_translated": {},
+        "category": "bot",
+        "options": [],
+        "aliases": [
+            "speed",
+            "pong",
+            "vitesse"
+        ],
+        "thinking": false,
+        "ephemeral": false
+    },
+    {
+        "name": "say",
+        "prefix_name": null,
+        "name_translated": {},
+        "description": "Send a message through the bot. Mirrors say.ts (`\"> \" + content`).",
+        "description_translated": {},
+        "category": "bot",
+        "options": [
+            {
+                "name": "content",
+                "description": "What you want the bot to say",
+                "required": true,
+                "type": 3,
+                "options": []
+            }
+        ],
+        "aliases": [],
+        "thinking": false,
+        "ephemeral": false
+    },
+    {
+        "name": "setlang",
+        "prefix_name": null,
+        "name_translated": {},
+        "description": "Set the server language (panel or direct code).",
+        "description_translated": {},
+        "category": "bot",
+        "options": [
+            {
+                "name": "lang",
+                "description": "Server language",
+                "type": 3,
+                "options": []
+            }
+        ],
+        "aliases": [
+            "setsrvlang",
+            "lang"
+        ],
+        "thinking": false,
+        "ephemeral": false
+    },
+    {
+        "name": "status",
+        "prefix_name": null,
+        "name_translated": {},
+        "description": "Status embed. Mirrors bot status.ts (CPU/memory/uptimes/OS/versions).",
+        "description_translated": {},
+        "category": "bot",
+        "options": [],
+        "aliases": [
+            "server"
+        ],
         "thinking": false,
         "ephemeral": false
     },
