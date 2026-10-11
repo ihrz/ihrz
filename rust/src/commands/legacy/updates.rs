@@ -1,4 +1,4 @@
-use super::{NEWSLETTER_BL_KEY, NEWSLETTER_TOGGLE_PREFIX};
+use super::NEWSLETTER_TOGGLE_PREFIX;
 use crate::bot::Ctx;
 use poise::serenity_prelude as serenity;
 
@@ -51,12 +51,12 @@ pub async fn updates(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     };
 
     let footer_name = crate::commands::shared::bot_footer_name(
-        crate::db::kv_get(pool, &gid, crate::commands::shared::BOT_NAME_KEY)
+        crate::db::tbl_get(pool, &gid, crate::commands::shared::BOT_NAME_KEY)
             .await
             .as_deref(),
     );
     let mut icon_bytes = crate::commands::shared::footer_icon_bytes(
-        crate::db::kv_get(pool, &gid, crate::commands::shared::BOT_PFP_KEY)
+        crate::db::tbl_get(pool, &gid, crate::commands::shared::BOT_PFP_KEY)
             .await
             .as_deref(),
     );
@@ -124,14 +124,12 @@ pub async fn updates(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         rows.push(serenity::CreateActionRow::Buttons(link_btns));
     }
 
-    // Newsletter row for everyone: subscribed (absent from the global
-    // `newsletter_bl` map) -> Danger/Unsubscribe, else Primary/Subscribe.
+    // Newsletter row for everyone: subscribed (absent from the
+    // table-first metas `newsletter_bl` map) -> Danger/Unsubscribe,
+    // else Primary/Subscribe.
     let author = ctx.author().id.get().to_string();
-    let unsubscribed = crate::db::kv_get(pool, "0", NEWSLETTER_BL_KEY)
-        .await
-        .and_then(|raw| serde_json::from_str::<serde_json::Value>(&raw).ok())
-        .and_then(|v| v.get(author.clone()).and_then(|b| b.as_bool()))
-        .unwrap_or(false);
+    let unsubscribed =
+        crate::commands::notifier::notifier::newsletter_unsubscribed(pool, &author).await;
     let toggle = serenity::CreateButton::new(format!("{NEWSLETTER_TOGGLE_PREFIX}{gid}"))
         .label(if unsubscribed {
             t("newsletter_btn_subscribe")

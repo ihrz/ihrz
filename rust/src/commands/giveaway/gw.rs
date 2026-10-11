@@ -28,8 +28,8 @@ pub async fn giveaway(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
 // Guild-scoped table (sibling convention: `table(gid)`), keys
 // `GIVEAWAY.<mid>` unchanged. Dotted keys nest under the `GIVEAWAY`
 // root, so the bulk loop walks the root and merges legacy kv rows
-// like `giveawaysTable.all()`. Button handlers in mod.rs still read kv
-// directly (locked file): dual-write keeps them fresh.
+// like `giveawaysTable.all()`. Button handlers in mod.rs read via
+// `load_giveaway`, which is table-first through `store_get` below.
 use crate::commands::owner::main::{
     legacy_scan, routed_del, routed_get, routed_set, tbl_get_value, walk_path,
 };
@@ -171,5 +171,29 @@ mod tests {
                 ("GIVEAWAY.1".to_string(), "a".to_string()),
             ]
         );
+    }
+
+    #[tokio::test]
+    async fn mod_reader_is_table_first_with_legacy_fallback() {
+        let pool = mem_pool().await;
+        // Table-written row visible through the mod.rs button reader.
+        store_set(&pool, "g", 7, r#"{"entries":["1"]}"#)
+            .await
+            .unwrap();
+        let v = load_giveaway(&pool, "g", 7).await.expect("table row");
+        assert_eq!(
+            v.get("entries").and_then(|e| e.as_array()).map(|a| a.len()),
+            Some(1)
+        );
+        // Legacy-only row (pre-migration board) still visible.
+        crate::db::kv_set(&pool, "g", "GIVEAWAY.8", r#"{"entries":[]}"#)
+            .await
+            .unwrap();
+        let v = load_giveaway(&pool, "g", 8).await.expect("legacy row");
+        assert_eq!(
+            v.get("entries").and_then(|e| e.as_array()).map(|a| a.len()),
+            Some(0)
+        );
+        assert!(load_giveaway(&pool, "g", 9).await.is_none());
     }
 }

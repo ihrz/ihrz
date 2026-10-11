@@ -1172,6 +1172,8 @@ pub async fn fetch_app_bio(http: &serenity::Http) -> Option<String> {
 
 /// Store one BOT metas row with the TS retry budget. Best-effort:
 /// logs and returns after the final attempt, never panics.
+/// Table-first dual-write (`tbl_set`): the table row is primary, the
+/// legacy kv row keeps unmigrated kv readers fresh.
 /// CROSS-SHARD CAVEAT: TS aggregates every shard via broadcastEval
 /// (getShardStats); this port sums the local gateway cache only. The
 /// members/servers totals are exact for the single-process autoshard
@@ -1180,7 +1182,7 @@ pub async fn fetch_app_bio(http: &serenity::Http) -> Option<String> {
 pub async fn push_bot_metas(pool: &Pool, row: &serde_json::Value, shard_id: u64) {
     let text = row.to_string();
     for attempt in 1..=BOT_METAS_MAX_RETRIES.max(1) {
-        match crate::db::kv_set(pool, crate::core::release::META_SCOPE, "BOT", &text).await {
+        match crate::db::tbl_set(pool, crate::core::release::META_SCOPE, "BOT", &text).await {
             Ok(()) => return,
             Err(e) => {
                 if attempt >= BOT_METAS_MAX_RETRIES.max(1) {

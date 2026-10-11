@@ -518,9 +518,12 @@ pub async fn handle_newsletter_toggle(
             return Ok(());
         }
     }
-    let raw = crate::db::kv_get(pool, "0", NEWSLETTER_BL_KEY).await;
-    let (updated, was_disabled) = toggle_newsletter_bl(raw.as_deref(), &owner_id);
-    crate::db::kv_set(pool, "0", NEWSLETTER_BL_KEY, &updated).await?;
+    // Table-first via the notifier metas helpers (metasTable
+    // `newsletter_bl`, TS newsletter-toggle.ts shape); legacy kv
+    // rows stay readable inside the helpers.
+    let was_disabled =
+        crate::commands::notifier::notifier::newsletter_unsubscribed(pool, &owner_id).await;
+    crate::commands::notifier::notifier::newsletter_set(pool, &owner_id, !was_disabled).await?;
     let code = crate::db::guild_lang(pool, comp.guild_id.map(|g| g.get())).await;
     let key = if was_disabled {
         "newsletter_toggle_enabled"
@@ -642,7 +645,7 @@ pub async fn handle_helpall_select(
         return;
     };
     let gid = guild_id.get().to_string();
-    let invoker: u64 = crate::db::kv_get(pool, &gid, &helpall_key(comp.message.id.get()))
+    let invoker: u64 = crate::db::tbl_get(pool, &gid, &helpall_key(comp.message.id.get()))
         .await
         .and_then(|s| s.parse().ok())
         .unwrap_or(0);
@@ -671,23 +674,19 @@ pub async fn handle_helpall_select(
     let prefix = crate::db::guild_prefix(pool, Some(guild_id.get()), ".").await;
     let entries = crate::commands::guildconfig::load_all_cmd_perms(pool, &gid).await;
     let uid = comp.user.id.get();
-    let roles_map: std::collections::HashMap<String, String> =
-        crate::db::kv_get(pool, &gid, "UTILS.roles")
-            .await
-            .and_then(|s| serde_json::from_str(&s).ok())
-            .unwrap_or_default();
+    let roles_map = crate::commands::guildconfig::load_perm_roles(pool, &gid).await;
     // Member roles over HTTP (no Context here).
     let member_roles: Vec<u64> = guild_id
         .member(http, comp.user.id)
         .await
         .map(|m| m.roles.iter().map(|r| r.get()).collect())
         .unwrap_or_default();
-    let user_level: u8 = crate::db::kv_get(pool, &gid, &format!("UTILS.USER_PERMS.{uid}"))
+    let user_level: u8 = crate::db::tbl_get(pool, &gid, &format!("UTILS.USER_PERMS.{uid}"))
         .await
         .and_then(|s| s.parse().ok())
         .unwrap_or(0)
         .max(crate::executor::role_level(&member_roles, &roles_map));
-    let is_owner = crate::db::kv_get(pool, &gid, &format!("GUILD.OWNER.{uid}"))
+    let is_owner = crate::db::tbl_get(pool, &gid, &format!("GUILD.OWNER.{uid}"))
         .await
         .is_some();
     let role_names: std::collections::HashMap<String, String> = http
@@ -1207,7 +1206,7 @@ async fn render_help_page(
         )
         .await?;
     let mid = reply.message().await?.id.get();
-    let _ = crate::db::kv_set(
+    let _ = crate::db::tbl_set(
         pool,
         gid,
         &helpmsg_key(mid),
@@ -1234,7 +1233,7 @@ pub async fn handle_help_component(
         return;
     };
     let gid = guild_id.get().to_string();
-    let invoker: u64 = crate::db::kv_get(pool, &gid, &helpmsg_key(comp.message.id.get()))
+    let invoker: u64 = crate::db::tbl_get(pool, &gid, &helpmsg_key(comp.message.id.get()))
         .await
         .and_then(|s| s.parse().ok())
         .unwrap_or(0);
@@ -1608,6 +1607,41 @@ mod tests {
     #[test]
     fn helpall_key_shape() {
         assert_eq!(helpall_key(42), "HELPALL.42");
+    }
+
+    #[tokio::test]
+    async fn legacy_invoker_store_is_table_first_with_legacy_fallback() {
+        let pool = crate::db::memory_pool().await;
+        // Table-routed write is readable through the routed reader and
+        // keeps the legacy kv row fresh for unmigrated readers.
+        crate::db::tbl_set(&pool, "g", &helpmsg_key(7), "123")
+            .await
+            .unwrap();
+        assert_eq!(
+            crate::db::tbl_get(&pool, "g", &helpmsg_key(7))
+                .await
+                .as_deref(),
+            Some("123")
+        );
+        assert_eq!(
+            crate::db::kv_get(&pool, "g", &helpmsg_key(7))
+                .await
+                .as_deref(),
+            Some("123")
+        );
+        // Legacy-only kv row (pre-migration data) still reads.
+        crate::db::kv_set(&pool, "g", &helpall_key(8), "456")
+            .await
+            .unwrap();
+        assert_eq!(
+            crate::db::tbl_get(&pool, "g", &helpall_key(8))
+                .await
+                .as_deref(),
+            Some("456")
+        );
+        assert!(crate::db::tbl_get(&pool, "g", &helpmsg_key(9))
+            .await
+            .is_none());
     }
 
     #[test]

@@ -120,4 +120,26 @@ mod tests {
         assert!(!newsletter_toggle(&mut map, "o1"));
         assert!(!map.contains_key("o1"));
     }
+
+    #[tokio::test]
+    async fn newsletter_helpers_are_table_first_with_legacy_fallback() {
+        let pool = crate::db::memory_pool().await;
+        // Miss: nobody unsubscribed.
+        assert!(!newsletter_unsubscribed(&pool, "o1").await);
+        // Table write then read.
+        newsletter_set(&pool, "o1", true).await.unwrap();
+        assert!(newsletter_unsubscribed(&pool, "o1").await);
+        assert!(!newsletter_unsubscribed(&pool, "o2").await);
+        // Flip back off.
+        newsletter_set(&pool, "o1", false).await.unwrap();
+        assert!(!newsletter_unsubscribed(&pool, "o1").await);
+        // Legacy-only kv row (pre-table bot data) still reads, on a
+        // pool with no table row yet.
+        let legacy_pool = crate::db::memory_pool().await;
+        crate::db::kv_set(&legacy_pool, "0", NEWSLETTER_BL_KEY, "{\"o9\":true}")
+            .await
+            .unwrap();
+        assert!(newsletter_unsubscribed(&legacy_pool, "o9").await);
+        assert!(!newsletter_unsubscribed(&legacy_pool, "o1").await);
+    }
 }

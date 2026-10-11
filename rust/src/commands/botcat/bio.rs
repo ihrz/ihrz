@@ -63,7 +63,7 @@ pub async fn custom_bio(
     let final_bio = if action.trim().eq_ignore_ascii_case("reset") {
         // Reset restores the persisted default (TS `metasTable`
         // `BOT.user.bio`, else the bot username) — not an empty bio.
-        let meta = crate::db::kv_get(&ctx.data().pool, crate::monitor::META_SCOPE, "BOT").await;
+        let meta = crate::db::tbl_get(&ctx.data().pool, crate::monitor::META_SCOPE, "BOT").await;
         let username = ctx.serenity_context().cache.current_user().name.clone();
         let restored = default_bio(meta.as_deref(), &username);
         if let Some(token) = crate::config::bot_token() {
@@ -145,5 +145,30 @@ mod tests {
         assert_eq!(default_bio(Some("{}"), "Bot"), "Bot");
         assert_eq!(default_bio(Some(r#"{"user":{"bio":""}}"#), "Bot"), "Bot");
         assert_eq!(default_bio(Some("bogus"), "Bot"), "Bot");
+    }
+
+    #[tokio::test]
+    async fn bot_doc_store_is_table_first_with_legacy_fallback() {
+        let pool = crate::db::memory_pool().await;
+        let scope = crate::monitor::META_SCOPE;
+        // Table-routed write round-trips the whole BOT doc and keeps the
+        // legacy kv row fresh for unmigrated readers.
+        let doc = r#"{"user":{"bio":"hello"}}"#;
+        crate::db::tbl_set(&pool, scope, "BOT", doc).await.unwrap();
+        let back = crate::db::tbl_get(&pool, scope, "BOT").await;
+        assert_eq!(back.as_deref(), Some(doc));
+        assert_eq!(
+            crate::db::kv_get(&pool, scope, "BOT").await.as_deref(),
+            Some(doc)
+        );
+        assert_eq!(default_bio(back.as_deref(), "Bot"), "hello");
+        // Legacy-only kv row (pre-migration data) still reads.
+        let legacy = crate::db::memory_pool().await;
+        crate::db::kv_set(&legacy, scope, "BOT", doc).await.unwrap();
+        let back = crate::db::tbl_get(&legacy, scope, "BOT").await;
+        assert_eq!(default_bio(back.as_deref(), "Bot"), "hello");
+        assert!(crate::db::tbl_get(&legacy, scope, "MISSING")
+            .await
+            .is_none());
     }
 }

@@ -4000,7 +4000,7 @@ impl serenity::EventHandler for Handler {
                         // username` read in bio.rs), then the live
                         // username when no row exists yet.
                         let prev_bio =
-                            crate::db::kv_get(&pool, crate::core::release::META_SCOPE, "BOT")
+                            crate::db::tbl_get(&pool, crate::core::release::META_SCOPE, "BOT")
                                 .await
                                 .and_then(|s| serde_json::from_str::<serde_json::Value>(&s).ok())
                                 .and_then(|v| {
