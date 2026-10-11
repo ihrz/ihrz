@@ -92,42 +92,7 @@ pub async fn help_main(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
             "© iHorizon {year}"
         )));
     let (first, second) = help_main_row_bounds(cats.len());
-    let mut rows = Vec::new();
-    for (ri, bounds) in [first, second].into_iter().enumerate() {
-        let mut options = Vec::new();
-        for c in &cats[bounds] {
-            let mut opt =
-                serenity::CreateSelectMenuOption::new(c.title.clone(), help_cat_key(&c.title))
-                    .description(super::help::help_option_desc(&code, c.fields.len()));
-            if let Some((id, name, _animated)) =
-                crate::emojis::cached_emoji_entry(http, &c.emoji_name).await
-            {
-                opt = opt.emoji(serenity::ReactionType::Custom {
-                    animated: false,
-                    id: serenity::EmojiId::new(id),
-                    name: Some(name),
-                });
-            }
-            options.push(opt);
-        }
-        if options.is_empty() {
-            continue;
-        }
-        // Same page on both rows; the suffix only keeps the custom
-        // id unique. The router falls back to page 0 when the
-        // suffix after HELP_SELECT_PREFIX is not a number.
-        let custom_id = if ri == 0 {
-            format!("{HELP_SELECT_PREFIX}0")
-        } else {
-            format!("{HELP_SELECT_PREFIX}0r2")
-        };
-        let select = serenity::CreateSelectMenu::new(
-            custom_id,
-            serenity::CreateSelectMenuKind::String { options },
-        )
-        .placeholder(super::help::help_select_placeholder(&code));
-        rows.push(serenity::CreateActionRow::SelectMenu(select));
-    }
+    let rows = build_help_main_rows(http, &code, &cats, first, second).await;
     let reply = ctx
         .send(poise::CreateReply::default().embed(embed).components(rows))
         .await?;
@@ -150,6 +115,59 @@ pub fn help_main_row_bounds(total: usize) -> (std::ops::Range<usize>, std::ops::
     (0..per, per..total)
 }
 
+/// Custom ids for the two main-menu category select rows.
+/// Same page on both rows; the suffix only keeps the custom id
+/// unique. The router falls back to page 0 when the suffix after
+/// HELP_SELECT_PREFIX is not a number.
+pub fn help_main_select_ids() -> (String, String) {
+    (
+        format!("{HELP_SELECT_PREFIX}0"),
+        format!("{HELP_SELECT_PREFIX}0r2"),
+    )
+}
+
+/// Build the two category select rows for a main-menu overview.
+/// Shared by `help_main` and `botcat::help` so picks route
+/// identically through `handle_help_component`.
+pub async fn build_help_main_rows(
+    http: &serenity::Http,
+    code: &str,
+    cats: &[HelpBrowserCat],
+    first: std::ops::Range<usize>,
+    second: std::ops::Range<usize>,
+) -> Vec<serenity::CreateActionRow> {
+    let (first_id, second_id) = help_main_select_ids();
+    let mut rows = Vec::new();
+    for (bounds, custom_id) in [(first, first_id), (second, second_id)] {
+        let mut options = Vec::new();
+        for c in &cats[bounds] {
+            let mut opt =
+                serenity::CreateSelectMenuOption::new(c.title.clone(), help_cat_key(&c.title))
+                    .description(super::help::help_option_desc(code, c.fields.len()));
+            if let Some((id, name, _animated)) =
+                crate::emojis::cached_emoji_entry(http, &c.emoji_name).await
+            {
+                opt = opt.emoji(serenity::ReactionType::Custom {
+                    animated: false,
+                    id: serenity::EmojiId::new(id),
+                    name: Some(name),
+                });
+            }
+            options.push(opt);
+        }
+        if options.is_empty() {
+            continue;
+        }
+        let select = serenity::CreateSelectMenu::new(
+            custom_id,
+            serenity::CreateSelectMenuKind::String { options },
+        )
+        .placeholder(super::help::help_select_placeholder(code));
+        rows.push(serenity::CreateActionRow::SelectMenu(select));
+    }
+    rows
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -166,5 +184,31 @@ mod tests {
             assert_eq!(b.end, n);
             assert_eq!(a.len() + b.len(), n);
         }
+    }
+
+    #[test]
+    fn main_menu_select_ids_route_shaped() {
+        let (first, second) = help_main_select_ids();
+        assert!(first.starts_with(HELP_SELECT_PREFIX));
+        assert!(second.starts_with(HELP_SELECT_PREFIX));
+        assert_ne!(first, second);
+        // Router strips the prefix and parses the page, falling back
+        // to page 0 for the non-numeric `0r2` suffix.
+        assert_eq!(
+            first
+                .strip_prefix(HELP_SELECT_PREFIX)
+                .unwrap()
+                .parse::<usize>()
+                .unwrap(),
+            0
+        );
+        assert_eq!(
+            second
+                .strip_prefix(HELP_SELECT_PREFIX)
+                .unwrap()
+                .parse::<usize>()
+                .unwrap_or(0),
+            0
+        );
     }
 }

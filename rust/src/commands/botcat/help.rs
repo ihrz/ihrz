@@ -214,6 +214,7 @@ pub async fn help(
     let (footer_name, icon) = footer_parts(&ctx, &gid_str).await;
     let with_icon = icon.is_some();
     let mut reply = poise::CreateReply::default();
+    let mut overview = false;
 
     if let Some(target) = command_name.as_deref() {
         let framework = ctx.framework();
@@ -329,6 +330,48 @@ pub async fn help(
         reply = reply
             .embed(embed)
             .content(format!("> {search}  **https://www.ihorizon.org/search/**"));
+        // Same two category select rows as `help_main` (same custom-id
+        // protocol, routed by `handle_help_component`).
+        let all = crate::commands::all();
+        let owned: Vec<(String, String, String)> = all
+            .iter()
+            .map(|c| {
+                (
+                    c.category.clone().unwrap_or_default(),
+                    c.name.clone(),
+                    c.description.clone().unwrap_or_default(),
+                )
+            })
+            .collect();
+        let reg_refs: Vec<(&str, &str, &str)> = owned
+            .iter()
+            .map(|(a, b, c)| (a.as_str(), b.as_str(), c.as_str()))
+            .collect();
+        let table: Vec<(&str, &str, &str, &str, u32)> =
+            crate::commands::legacy::HELP_CATEGORIES.to_vec();
+        let prefix = crate::db::guild_prefix(pool, gid, &ctx.data().config.prefix).await;
+        let cats = crate::commands::legacy::collect_help_cats(
+            &reg_refs,
+            &table,
+            &|k| crate::lang::get(&code, k).unwrap_or_default(),
+            &prefix,
+        );
+        if !cats.is_empty() {
+            let (first, second) =
+                crate::commands::legacy::help_main::help_main_row_bounds(cats.len());
+            let rows = crate::commands::legacy::help_main::build_help_main_rows(
+                ctx.http(),
+                &code,
+                &cats,
+                first,
+                second,
+            )
+            .await;
+            if !rows.is_empty() {
+                reply = reply.components(rows);
+                overview = true;
+            }
+        }
     }
 
     if let Some(bytes) = icon {
@@ -337,7 +380,24 @@ pub async fn help(
             "footer_icon.png",
         ));
     }
-    ctx.send(reply).await?;
+    let sent = ctx.send(reply).await?;
+    if overview {
+        // Author gate for the select rows, like `help_main`
+        // (DMs skipped: the router only handles guild interactions).
+        if let Some(g) = gid {
+            let gs = g.to_string();
+            if let Ok(msg) = sent.message().await {
+                let _ = crate::commands::owner::main::routed_set(
+                    pool,
+                    &gs,
+                    &gs,
+                    &crate::commands::legacy::helpmsg_key(msg.id.get()),
+                    &ctx.author().id.get().to_string(),
+                )
+                .await;
+            }
+        }
+    }
     Ok(())
 }
 
@@ -411,5 +471,27 @@ mod tests {
             "ttsjoin"
         );
         assert!(find_help_command(&nodes, "nope").is_none());
+    }
+
+    #[test]
+    fn overview_select_protocol_routes_and_gates() {
+        use crate::commands::legacy::help_main::{help_main_row_bounds, help_main_select_ids};
+        use crate::commands::legacy::{help_cat_key, helpmsg_key, HELP_SELECT_PREFIX};
+        // Rows cover all categories exactly once.
+        for n in [0usize, 1, 2, 3, 25, 26, 27, 50] {
+            let (a, b) = help_main_row_bounds(n);
+            assert_eq!((a.start, a.end, b.start, b.end), (0, a.end, a.end, n));
+            assert_eq!(a.len() + b.len(), n);
+        }
+        // Custom ids hit the routed browser prefix and stay unique.
+        let (first, second) = help_main_select_ids();
+        assert!(first.starts_with(HELP_SELECT_PREFIX));
+        assert!(second.starts_with(HELP_SELECT_PREFIX));
+        assert_ne!(first, second);
+        // Option values are title-derived keys, like the router expects.
+        assert_eq!(help_cat_key("Some Category"), "some_category");
+        // Author gate key is per-message.
+        assert_eq!(helpmsg_key(7), "HELPMSG.7");
+        assert_ne!(helpmsg_key(7), helpmsg_key(8));
     }
 }
