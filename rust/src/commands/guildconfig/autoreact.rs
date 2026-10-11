@@ -113,6 +113,7 @@ pub fn sorted_channel_ids(map: &AutoreactMap) -> Vec<String> {
 #[poise::command(
     slash_command,
     prefix_command,
+    category = "guildconfig",
     rename = "autoreact",
     default_member_permissions = "ADMINISTRATOR"
 )]
@@ -186,6 +187,7 @@ pub fn autoreact_list_page(ids: &[String], page: usize) -> &[String] {
 #[poise::command(
     slash_command,
     prefix_command,
+    category = "guildconfig",
     rename = "autoreact-list",
     default_member_permissions = "ADMINISTRATOR"
 )]
@@ -259,6 +261,7 @@ pub async fn gc_autoreact_list(
 #[poise::command(
     slash_command,
     prefix_command,
+    category = "guildconfig",
     rename = "autoreact-remove",
     default_member_permissions = "ADMINISTRATOR"
 )]
@@ -306,6 +309,7 @@ pub async fn gc_autoreact_remove(
 #[poise::command(
     slash_command,
     prefix_command,
+    category = "guildconfig",
     rename = "autoreact-toggle",
     aliases("toggle-react", "react-toggle", "togglereact", "reacttoggle"),
     default_member_permissions = "MANAGE_GUILD_EXPRESSIONS"

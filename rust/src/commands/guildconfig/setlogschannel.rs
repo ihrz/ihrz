@@ -99,6 +99,7 @@ pub fn display_name(code: &str, auto_id: &str) -> String {
 #[poise::command(
     slash_command,
     prefix_command,
+    category = "guildconfig",
     rename = "setlogs",
     aliases("logs", "setlog"),
     default_member_permissions = "ADMINISTRATOR"

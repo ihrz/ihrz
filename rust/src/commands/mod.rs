@@ -76,6 +76,15 @@ pub fn all() -> Vec<poise::Command<Data, Error>> {
         authrestore::main::authrestore(),
         guildconfig::main::guildconfig(),
         guildconfig::automod::gc_automod(),
+        // FLATTEN-B3: ex-guildconfig leaves, top-level like their TS
+        // commands (`HybridCommands/guildconfig/*`).
+        guildconfig::autoreact::gc_autoreact(),
+        guildconfig::autoreact::gc_autoreact_list(),
+        guildconfig::autoreact::gc_autoreact_remove(),
+        guildconfig::autoreact::gc_autoreact_toggle(),
+        guildconfig::commandlimit::gc_commandlimit(),
+        guildconfig::setlogschannel::gc_setlogs(),
+        guildconfig::support::gc_support(),
         welcomer_panel::main::welcomer_panel(),
         economy::main::economy(),
         ranks::main::ranks(),
@@ -98,6 +107,7 @@ pub fn all() -> Vec<poise::Command<Data, Error>> {
         suggestion::setsuggest::setsuggest(),
         suggestion::suggest::suggest(),
         newfeatures::newfeatures::newfeatures(),
+        newfeatures::nightmode::nightmode(),
         newfeatures::counter::counter(),
         newfeatures::git::git_parent(),
         giveaway::main::giveaway(),
@@ -108,6 +118,8 @@ pub fn all() -> Vec<poise::Command<Data, Error>> {
         invitesmanager::inv::inv(),
         membercount::main::membercount(),
         rolereactions::rolereaction::rolereaction(),
+        rolereactions::rolereaction::rolebutton(),
+        rolereactions::rolereaction::roleselect(),
         starboard::main::starboard(),
         starboard::skullboard::skullboard(),
         sticky::main::sticky(),
@@ -212,6 +224,14 @@ pub fn defer_policy(qualified_path: &str) -> DeferPolicy {
         "automod",
         "guildconfig",
         "lastfm",
+        // FLATTEN-B3: ex-guildconfig leaves, TS thinking:true, ported
+        // flat top-level (`support` is thinking:false, so no entry).
+        "autoreact",
+        "autoreact-list",
+        "autoreact-remove",
+        "autoreact-toggle",
+        "commandlimit",
+        "setlogs",
         "report",
         "protect",
         "suggest",
@@ -479,7 +499,7 @@ mod tests {
         // Parents + flat singles + context entries + split-off utils
         // parents (U-SLASHGROUPS: leaves live nested under parents;
         // Discord caps top-level slash at 100).
-        assert_eq!(cmds.len(), 77);
+        assert_eq!(cmds.len(), 87);
         // Every nested leaf keeps working through its parent.
         fn flatten<'a>(
             cmds: &'a [poise::Command<super::Data, super::Error>],
@@ -493,6 +513,22 @@ mod tests {
         let mut flat = vec![];
         flatten(&cmds, &mut flat);
         let flat_names: Vec<String> = flat.iter().map(|c| c.name.clone()).collect();
+        // FLATTEN-B3: ex-guildconfig leaves register top-level.
+        let top_names: Vec<String> = cmds.iter().map(|c| c.name.clone()).collect();
+        for expected in [
+            "autoreact",
+            "autoreact-list",
+            "autoreact-remove",
+            "autoreact-toggle",
+            "commandlimit",
+            "setlogs",
+            "support",
+        ] {
+            assert!(
+                top_names.contains(&expected.to_string()),
+                "missing top-level {expected}"
+            );
+        }
         for expected in [
             "bot",
             "fun",
@@ -1014,6 +1050,15 @@ mod defer_policy_tests {
         assert_eq!(defer_policy("music play"), DeferPolicy::PUBLIC);
         assert_eq!(defer_policy("guildconfig setlogs"), DeferPolicy::PUBLIC);
         assert_eq!(defer_policy("voice panel"), DeferPolicy::PUBLIC);
+        // FLATTEN-B3: flat ex-guildconfig leaves keep TS thinking flags
+        // (support.ts is thinking:false, so no defer like TS).
+        assert_eq!(defer_policy("autoreact"), DeferPolicy::PUBLIC);
+        assert_eq!(defer_policy("autoreact-list"), DeferPolicy::PUBLIC);
+        assert_eq!(defer_policy("autoreact-remove"), DeferPolicy::PUBLIC);
+        assert_eq!(defer_policy("autoreact-toggle"), DeferPolicy::PUBLIC);
+        assert_eq!(defer_policy("commandlimit"), DeferPolicy::PUBLIC);
+        assert_eq!(defer_policy("setlogs"), DeferPolicy::PUBLIC);
+        assert_eq!(defer_policy("support"), DeferPolicy::NONE);
     }
 
     #[test]

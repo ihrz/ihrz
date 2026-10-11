@@ -73,7 +73,7 @@ pub async fn lookup_reaction_role(
     category = "rolereactions",
     rename = "rolereaction",
     aliases("rolereact"),
-    subcommands("rr_add", "rr_remove", "rolebutton", "roleselect"),
+    subcommands("rr_add", "rr_remove"),
     default_member_permissions = "ADMINISTRATOR",
     subcommand_required
 )]

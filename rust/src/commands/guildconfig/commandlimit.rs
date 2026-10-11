@@ -31,6 +31,7 @@ async fn commandlimit_command_autocomplete(_ctx: Ctx<'_>, partial: &str) -> Vec<
 #[poise::command(
     slash_command,
     prefix_command,
+    category = "guildconfig",
     rename = "commandlimit",
     default_member_permissions = "ADMINISTRATOR"
 )]

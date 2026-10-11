@@ -50,6 +50,7 @@ fn guild_has_tags(ctx: &Ctx<'_>) -> bool {
 #[poise::command(
     slash_command,
     prefix_command,
+    category = "guildconfig",
     rename = "support",
     aliases("soutien"),
     default_member_permissions = "ADMINISTRATOR"
