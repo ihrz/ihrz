@@ -1065,8 +1065,8 @@ mod localization_tests {
         let prm = cmd
             .parameters
             .iter()
-            .find(|x| x.name == "amount")
-            .expect("param amount");
+            .find(|x| x.name == "number")
+            .expect("param number");
         assert_eq!(
             prm.description_localizations.get("fr").map(String::as_str),
             Some("Le nombre de messages que vous souhaitez supprimer")

@@ -11,7 +11,10 @@ use poise::serenity_prelude as serenity;
 pub async fn authrestore_roles(
     ctx: Ctx<'_>,
     #[description = "Private key of the AuthRestore config"] key: String,
-    #[description = "New role given after verify"] role: serenity::Role,
+    // TS SlashCommands/authrestore/!roles.ts reads getRole("roles").
+    #[description = "New role given after verify"]
+    #[rename = "roles"]
+    role: serenity::Role,
 ) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id().map(|g| g.get().to_string()) else {
         return Ok(());

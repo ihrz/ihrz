@@ -211,8 +211,13 @@ pub async fn gc_perm_change(
     ctx: Ctx<'_>,
     #[description = "Command name"] command: String,
     #[description = "Level 0-9 (0 clears)"] permission: Option<i64>,
-    #[description = "Role to toggle"] custom_role: Option<serenity::Role>,
-    #[description = "User to toggle"] custom_user: Option<serenity::User>,
+    // TS SlashCommands/guildconfig/perm/!command.ts registers "custom-role" / "custom-user".
+    #[description = "Role to toggle"]
+    #[rename = "custom-role"]
+    custom_role: Option<serenity::Role>,
+    #[description = "User to toggle"]
+    #[rename = "custom-user"]
+    custom_user: Option<serenity::User>,
 ) -> Result<(), anyhow::Error> {
     let command = command.trim().to_string();
     let gid = ctx
@@ -386,8 +391,13 @@ pub async fn gc_perm_list_all(
 pub async fn gc_perm_delete_all(
     ctx: Ctx<'_>,
     #[description = "Level 0-9"] permission: Option<i64>,
-    #[description = "Role to strip"] custom_role: Option<serenity::Role>,
-    #[description = "User to strip"] custom_user: Option<serenity::User>,
+    // TS SlashCommands/guildconfig/perm/!command.ts registers "custom-role" / "custom-user".
+    #[description = "Role to strip"]
+    #[rename = "custom-role"]
+    custom_role: Option<serenity::Role>,
+    #[description = "User to strip"]
+    #[rename = "custom-user"]
+    custom_user: Option<serenity::User>,
 ) -> Result<(), anyhow::Error> {
     let gid = ctx
         .guild_id()
@@ -569,8 +579,13 @@ pub async fn gc_perm_roles_create(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
 )]
 pub async fn gc_perm_roles_edit(
     ctx: Ctx<'_>,
-    #[description = "Level 1-9"] level: i64,
-    #[description = "Role"] role: serenity::Role,
+    // TS SlashCommands/guildconfig/perm/!edit-roles.ts registers "perm_level" / "perm_role".
+    #[description = "Level 1-9"]
+    #[rename = "perm_level"]
+    level: i64,
+    #[description = "Role"]
+    #[rename = "perm_role"]
+    role: serenity::Role,
 ) -> Result<(), anyhow::Error> {
     let Some(gid) = ctx.guild_id().map(|g| g.get().to_string()) else {
         return Ok(());

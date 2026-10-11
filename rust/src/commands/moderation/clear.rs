@@ -37,6 +37,8 @@ pub async fn mod_clear(
     #[description_localized("ru", "Количество сообщений для удаления!")]
     #[description_localized("es-ES", "El número de mensajes que quieres eliminar!")]
     #[description = "Amount (1-100)"]
+    // TS HybridCommands/moderation/mod.ts registers "number" (!clear.ts getNumber).
+    #[rename = "number"]
     amount: u64,
     #[description_localized("fr", "Le membre dont vous souhaitez supprimer les messages")]
     #[description_localized("ja", "メッセージを削除したいメンバー")]

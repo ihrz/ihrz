@@ -10,7 +10,10 @@ use poise::serenity_prelude as serenity;
 )]
 pub async fn inv_see(
     ctx: Ctx<'_>,
-    #[description = "Member"] user: Option<poise::serenity_prelude::User>,
+    // TS HybridCommands/invitesmanager/!invites.ts reads getMember("member").
+    #[description = "Member"]
+    #[rename = "member"]
+    user: Option<poise::serenity_prelude::User>,
 ) -> Result<(), anyhow::Error> {
     let face_url;
     let target = match user.as_ref() {

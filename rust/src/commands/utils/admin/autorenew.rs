@@ -26,6 +26,8 @@ pub async fn autorenew(
     #[description_localized("ru", "X раз")]
     #[description_localized("es-ES", "Las X veces")]
     #[description = "Every (e.g. 1h, 7d) or off"]
+    // TS HybridCommands/utils/util/!autorenew.ts reads getString("time").
+    #[rename = "time"]
     every: String,
 ) -> Result<(), anyhow::Error> {
     let gid = ctx

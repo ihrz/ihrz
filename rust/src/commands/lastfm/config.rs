@@ -4,7 +4,10 @@ use super::*;
 #[poise::command(slash_command, prefix_command, rename = "config")]
 pub async fn lastfm_config(
     ctx: Ctx<'_>,
-    #[description = "on or off"] action: String,
+    // TS SlashCommands/lastfm/!config.ts reads getString("power", true).
+    #[description = "on or off"]
+    #[rename = "power"]
+    action: String,
 ) -> Result<(), anyhow::Error> {
     let gid = ctx
         .guild_id()

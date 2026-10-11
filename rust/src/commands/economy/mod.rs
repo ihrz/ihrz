@@ -1543,8 +1543,8 @@ mod localization_tests {
         let prm = cmd
             .parameters
             .iter()
-            .find(|x| x.name == "price")
-            .expect("param price");
+            .find(|x| x.name == "amount")
+            .expect("param amount");
         assert_eq!(
             prm.description_localizations.get("fr").map(String::as_str),
             Some("Le montant d'argent que vous souhaitez ajouter")

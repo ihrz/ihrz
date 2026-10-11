@@ -113,7 +113,10 @@ pub fn display_name(code: &str, auto_id: &str) -> String {
 )]
 pub async fn gc_setlogs(
     ctx: Ctx<'_>,
-    #[description = "Log type"] log_type: String,
+    // TS HybridCommands/guildconfig/setlogschannel.ts registers "type".
+    #[description = "Log type"]
+    #[rename = "type"]
+    log_type: String,
     #[description = "Channel"]
     #[channel_types("Text")]
     channel: Option<serenity::GuildChannel>,

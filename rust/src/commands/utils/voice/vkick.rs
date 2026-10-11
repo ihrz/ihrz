@@ -20,6 +20,8 @@ pub async fn vkick(
     #[description_localized("ru", "Участник для отключения")]
     #[description_localized("es-ES", "El miembro que quieres desconectar")]
     #[description = "Member"]
+    // TS HybridCommands/utils/util/!vkick.ts reads getMember("member").
+    #[rename = "member"]
     user: poise::serenity_prelude::User,
 ) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {

@@ -33,6 +33,8 @@ pub async fn dm(
     #[description_localized("ru", "желаемый участник")]
     #[description_localized("es-ES", "el miembro que deseas")]
     #[description = "Member"]
+    // TS HybridCommands/utils/!dm.ts reads getMember("member").
+    #[rename = "member"]
     user: poise::serenity_prelude::User,
     #[description_localized("fr", "le message")]
     #[description_localized("ja", "プライベートメッセージ")]

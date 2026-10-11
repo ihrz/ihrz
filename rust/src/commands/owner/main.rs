@@ -625,6 +625,8 @@ pub async fn owner_add(
         "es-ES",
         "El miembro que quieres hacer propietario de los proyectos iHorizon"
     )]
+    // TS HybridCommands/owner/owner.ts registers "member".
+    #[rename = "member"]
     user: Option<serenity::User>,
 ) -> Result<(), anyhow::Error> {
     let code = lang_code(&ctx).await;
@@ -742,6 +744,8 @@ pub async fn owner_remove(
     #[description_localized("ja", "オーナーリストから削除したいメンバー")]
     #[description_localized("ru", "Участник для удаления из списка владельцев")]
     #[description_localized("es-ES", "El miembro que quiere eliminar de la lista de propietarios")]
+    // TS HybridCommands/owner/unowner.ts registers "member".
+    #[rename = "member"]
     user: serenity::User,
 ) -> Result<(), anyhow::Error> {
     owner_remove_inner(ctx, user).await
@@ -1733,6 +1737,8 @@ pub async fn unowner_alias(
     #[description_localized("ja", "オーナーリストから削除したいメンバー")]
     #[description_localized("ru", "Участник для удаления из списка владельцев")]
     #[description_localized("es-ES", "El miembro que quiere eliminar de la lista de propietarios")]
+    // TS HybridCommands/owner/unowner.ts registers "member".
+    #[rename = "member"]
     user: serenity::User,
 ) -> Result<(), anyhow::Error> {
     owner_remove_inner(ctx, user).await

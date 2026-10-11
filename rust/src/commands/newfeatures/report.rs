@@ -20,7 +20,10 @@ use super::*;
 )]
 pub async fn report(
     ctx: Ctx<'_>,
-    #[description = "Message to devs (8+ words)"] message: String,
+    // TS SlashCommands/newfeatures/report.ts registers "message-to-dev".
+    #[description = "Message to devs (8+ words)"]
+    #[rename = "message-to-dev"]
+    message: String,
 ) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {
         return Ok(());

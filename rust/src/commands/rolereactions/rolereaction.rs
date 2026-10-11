@@ -100,7 +100,10 @@ pub async fn rolereaction(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
 )]
 pub async fn rr_add(
     ctx: Ctx<'_>,
-    #[description = "Channel id"] channel_id: String,
+    // TS HybridCommands/rolereactions/rolereaction.ts registers "channel".
+    #[description = "Channel id"]
+    #[rename = "channel"]
+    channel_id: String,
     #[description = "Message id"] message_id: String,
     #[description = "Emoji or emoji id"] reaction: Option<String>,
     #[description = "Role"] role: Option<serenity::Role>,
@@ -254,7 +257,10 @@ pub async fn rr_add(
 )]
 pub async fn rr_remove(
     ctx: Ctx<'_>,
-    #[description = "Channel id"] channel_id: String,
+    // TS HybridCommands/rolereactions/rolereaction.ts registers "channel".
+    #[description = "Channel id"]
+    #[rename = "channel"]
+    channel_id: String,
     #[description = "Message id"] message_id: String,
     #[description = "Emoji or emoji id"] reaction: Option<String>,
 ) -> Result<(), anyhow::Error> {
@@ -556,7 +562,10 @@ pub async fn post_ihorizon_log(
 pub async fn rolebutton(
     ctx: Ctx<'_>,
     #[description = "add or remove"] value: String,
-    #[description = "Channel id"] channel_id: String,
+    // TS HybridCommands/rolereactions/rolebutton.ts registers "channel".
+    #[description = "Channel id"]
+    #[rename = "channel"]
+    channel_id: String,
     #[description = "Message id"] message_id: String,
     #[description = "Emoji or emoji id"] reaction: Option<String>,
     #[description = "Role"] role: Option<serenity::Role>,
@@ -1133,7 +1142,10 @@ pub async fn load_roleselect(
 )]
 pub async fn roleselect(
     ctx: Ctx<'_>,
-    #[description = "Channel id with the target message"] channel_id: String,
+    // TS HybridCommands/rolereactions/roleselect.ts registers "channel".
+    #[description = "Channel id with the target message"]
+    #[rename = "channel"]
+    channel_id: String,
     #[description = "Message id to configure"] message_id: String,
 ) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {

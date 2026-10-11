@@ -36,6 +36,8 @@ pub async fn wakeup(
     #[description_localized("ru", "Участник, которого нужно разбудить")]
     #[description_localized("es-ES", "El miembro a despertar")]
     #[description = "Member"]
+    // TS HybridCommands/utils/util/!wakeup.ts reads getMember("member").
+    #[rename = "member"]
     user: poise::serenity_prelude::User,
 ) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {

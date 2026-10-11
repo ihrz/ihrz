@@ -22,8 +22,14 @@ use super::*;
 pub async fn punishpub(
     ctx: Ctx<'_>,
     #[description = "Flags before sanction"] amount: Option<i64>,
-    #[description = "ban, kick or mute"] punishment: Option<String>,
-    #[description = "true or false (on/off accepted on prefix)"] action: Option<String>,
+    // TS SlashCommands/newfeatures/punishpub.ts registers "punishement" (TS-side typo, kept for parity).
+    #[description = "ban, kick or mute"]
+    #[rename = "punishement"]
+    punishment: Option<String>,
+    // TS registers the on/off toggle as "status".
+    #[description = "true or false (on/off accepted on prefix)"]
+    #[rename = "status"]
+    action: Option<String>,
 ) -> Result<(), anyhow::Error> {
     let gid = ctx
         .guild_id()

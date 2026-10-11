@@ -19,6 +19,8 @@ pub async fn derank(
     #[description_localized("ru", "Пользователь")]
     #[description_localized("es-ES", "El usuario")]
     #[description = "Member (defaults to self on prefix)"]
+    // TS HybridCommands/utils/!derank.ts reads getMember("member").
+    #[rename = "member"]
     user: Option<poise::serenity_prelude::User>,
 ) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {

@@ -74,8 +74,14 @@ async fn post_tonew_log(ctx: &Ctx<'_>, title: &str, description: &str) {
 )]
 pub async fn gc_toonew(
     ctx: Ctx<'_>,
-    #[description = "Minimum age (e.g. 7d) or off"] age: Option<String>,
-    #[description = "Joins before ban (default 3)"] maximum_join: Option<i64>,
+    // TS SlashCommands/guildconfig/!too-new-account.ts registers
+    // "minimum-date" / "maximum-join".
+    #[description = "Minimum age (e.g. 7d) or off"]
+    #[rename = "minimum-date"]
+    age: Option<String>,
+    #[description = "Joins before ban (default 3)"]
+    #[rename = "maximum-join"]
+    maximum_join: Option<i64>,
 ) -> Result<(), anyhow::Error> {
     let gid = ctx
         .guild_id()

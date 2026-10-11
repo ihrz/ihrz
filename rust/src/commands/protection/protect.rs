@@ -372,7 +372,10 @@ pub async fn protect_rule(
 )]
 pub async fn protect_sanction(
     ctx: Ctx<'_>,
-    #[description = "simply, simply+derank or simply+ban"] sanction: String,
+    // TS SlashCommands/protection/!sanction.ts reads getString("choose").
+    #[description = "simply, simply+derank or simply+ban"]
+    #[rename = "choose"]
+    sanction: String,
 ) -> Result<(), anyhow::Error> {
     if deny_unless_owner(
         &ctx,
@@ -683,7 +686,10 @@ pub async fn protect_show(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
 )]
 pub async fn protect_allow_add(
     ctx: Ctx<'_>,
-    #[description = "Member"] user: poise::serenity_prelude::User,
+    // TS SlashCommands/protection/allowlist/!add.ts reads getMember("member").
+    #[description = "Member"]
+    #[rename = "member"]
+    user: poise::serenity_prelude::User,
 ) -> Result<(), anyhow::Error> {
     if deny_unless_owner(
         &ctx,
@@ -752,7 +758,10 @@ pub async fn protect_allow_add(
 )]
 pub async fn protect_allow_remove(
     ctx: Ctx<'_>,
-    #[description = "Member"] user: poise::serenity_prelude::User,
+    // TS SlashCommands/protection/allowlist/!remove.ts reads getMember("member").
+    #[description = "Member"]
+    #[rename = "member"]
+    user: poise::serenity_prelude::User,
 ) -> Result<(), anyhow::Error> {
     if deny_unless_owner(
         &ctx,

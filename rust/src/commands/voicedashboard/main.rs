@@ -197,8 +197,10 @@ pub async fn vd_panel(
 )]
 pub async fn vd_category(
     ctx: Ctx<'_>,
+    // TS SlashCommands/voicedashboard/!set-voice-channel-catgory.ts reads getChannel("category").
     #[description = "Category where temp channels are created"]
     #[channel_types("Category")]
+    #[rename = "category"]
     channel: serenity::GuildChannel,
 ) -> Result<(), anyhow::Error> {
     // Prefix native-permission gate (U-MSV-FIX14): TS `checkNativePermission`
@@ -239,7 +241,10 @@ pub async fn vd_category(
 )]
 pub async fn vd_name(
     ctx: Ctx<'_>,
-    #[description = "Template, e.g. {user}'s room"] template: String,
+    // TS SlashCommands/voicedashboard/!set-voice-channel-name.ts reads getString("channel_name").
+    #[description = "Template, e.g. {user}'s room"]
+    #[rename = "channel_name"]
+    template: String,
 ) -> Result<(), anyhow::Error> {
     // Prefix native-permission gate (U-MSV-FIX14): TS `checkNativePermission`
     // enforces the Administrator leaf on both paths; Discord covers slash,
@@ -305,7 +310,10 @@ impl PositionChoice {
 )]
 pub async fn vd_position(
     ctx: Ctx<'_>,
-    #[description = "top or bottom"] position: PositionChoice,
+    // TS SlashCommands/voicedashboard/!set-voice-channel-position.ts reads getString("position_type").
+    #[description = "top or bottom"]
+    #[rename = "position_type"]
+    position: PositionChoice,
 ) -> Result<(), anyhow::Error> {
     // Prefix native-permission gate (U-MSV-FIX14): TS `checkNativePermission`
     // enforces the Administrator leaf on both paths; Discord covers slash,

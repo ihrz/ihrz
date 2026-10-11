@@ -947,6 +947,107 @@ mod tests {
     }
 
     #[test]
+    fn slash_option_names_match_ts() {
+        // PARAM-NAMES: poise derives slash option names from Rust idents
+        // (snake_case) while TS registers kebab-case names, so every
+        // divergence is pinned with an explicit `#[rename]`. This test
+        // samples the fixed (command, options) pairs against the live
+        // registry, any-carrier (several leaf names repeat across
+        // parents, like the gates test above).
+        fn flatten<'a>(
+            cmds: &'a [poise::Command<super::Data, super::Error>],
+            out: &mut Vec<&'a poise::Command<super::Data, super::Error>>,
+        ) {
+            for c in cmds {
+                out.push(c);
+                flatten(&c.subcommands, out);
+            }
+        }
+        let cmds = all();
+        let mut flat = vec![];
+        flatten(&cmds, &mut flat);
+        // (command name, exact option names in declaration order).
+        const EXACT: &[(&str, &[&str])] = &[
+            ("help", &["command-name"]),
+            ("spam", &["action", "logs-channel"]),
+            (
+                "mass-mention",
+                &["action", "max-mention-allowed", "logs-channel"],
+            ),
+            (
+                "perm-change",
+                &["command", "permission", "custom-role", "custom-user"],
+            ),
+            (
+                "perm-delete-all",
+                &["permission", "custom-role", "custom-user"],
+            ),
+            ("perm-roles-edit", &["perm_level", "perm_role"]),
+            ("setlogs", &["type", "channel"]),
+            ("toonew", &["minimum-date", "maximum-join"]),
+            ("setprefix", &["name"]),
+            ("config-restore", &["backup-to-load"]),
+            ("clear", &["number", "member"]),
+            ("role-add", &["role", "amount"]),
+            ("autorenew", &["channel", "time"]),
+            ("dm", &["private", "member", "message"]),
+            ("vkick", &["member"]),
+            ("wakeup", &["member"]),
+            ("where", &["member"]),
+            ("derank", &["member"]),
+            ("invites", &["member"]),
+            ("roles", &["key", "roles"]),
+            ("sanction", &["choose"]),
+            ("allow-add", &["member"]),
+            ("allow-remove", &["member"]),
+            ("punishpub", &["amount", "punishement", "status"]),
+            ("report", &["message-to-dev"]),
+            (
+                "rolebutton",
+                &["value", "channel", "message_id", "reaction", "role"],
+            ),
+            ("roleselect", &["channel", "message_id"]),
+            ("lobby", &["channel"]),
+            ("panel", &["channel"]),
+            ("name", &["channel_name"]),
+            ("position", &["position_type"]),
+        ];
+        for (cmd, opts) in EXACT {
+            let carriers: Vec<_> = flat.iter().filter(|c| c.name == **cmd).collect();
+            assert!(!carriers.is_empty(), "missing command {cmd}");
+            let want: Vec<&str> = opts.to_vec();
+            assert!(
+                carriers.iter().any(|c| c
+                    .parameters
+                    .iter()
+                    .map(|p| p.name.as_str())
+                    .collect::<Vec<_>>()
+                    == want),
+                "option names diverged for /{cmd}: want {want:?}"
+            );
+        }
+        // Repeated leaf names: assert the fixed option exists on some carrier.
+        const PRESENT: &[(&str, &str)] = &[
+            ("config", "power"),
+            ("channel", "id"),
+            ("add", "member"),
+            ("remove", "member"),
+            ("unowner", "member"),
+            ("category", "category"),
+            ("move", "member"),
+            ("move", "channel"),
+        ];
+        for (cmd, opt) in PRESENT {
+            assert!(
+                flat.iter()
+                    .filter(|c| c.name == **cmd)
+                    .any(|c| c.parameters.iter().any(|p| p.name == **opt)),
+                "missing option {opt} on /{cmd}"
+            );
+        }
+    }
+
+    #[test]
     fn all_commands_support_slash_and_prefix() {
         // Prefix-alias delegates: TS exposes `bl` solely as a prefix
         // alias (aliases: ["bl"] on flat /blacklist, never its own

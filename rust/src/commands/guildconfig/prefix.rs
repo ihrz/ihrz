@@ -74,7 +74,10 @@ pub async fn run_prefix_change(ctx: Ctx<'_>, prefix: String) -> Result<(), anyho
 )]
 pub async fn gc_prefix(
     ctx: Ctx<'_>,
-    #[description = "New prefix (max 4 chars) or 'mention' to revert (slash only)"] prefix: String,
+    // TS SlashCommands/guildconfig/!prefix.ts reads getString("name").
+    #[description = "New prefix (max 4 chars) or 'mention' to revert (slash only)"]
+    #[rename = "name"]
+    prefix: String,
 ) -> Result<(), anyhow::Error> {
     run_prefix_change(ctx, prefix).await
 }

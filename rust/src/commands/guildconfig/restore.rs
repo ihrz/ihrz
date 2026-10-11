@@ -11,7 +11,10 @@ use poise::serenity_prelude as serenity;
 )]
 pub async fn gc_config_restore(
     ctx: Ctx<'_>,
-    #[description = "Backup file"] backup_to_load: Option<serenity::Attachment>,
+    // TS SlashCommands/guildconfig/!restore.ts registers "backup-to-load".
+    #[description = "Backup file"]
+    #[rename = "backup-to-load"]
+    backup_to_load: Option<serenity::Attachment>,
 ) -> Result<(), anyhow::Error> {
     let pool = &ctx.data().pool;
     let code = crate::db::guild_lang(pool, ctx.guild_id().map(|g| g.get())).await;

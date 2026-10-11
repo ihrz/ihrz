@@ -20,6 +20,8 @@ pub async fn whereis(
     #[description_localized("ru", "Участник для проверки")]
     #[description_localized("es-ES", "El miembro que quieres comprobar")]
     #[description = "Member"]
+    // TS HybridCommands/utils/util/!where.ts reads getMember("member").
+    #[rename = "member"]
     user: poise::serenity_prelude::User,
 ) -> Result<(), anyhow::Error> {
     use poise::serenity_prelude as serenity;

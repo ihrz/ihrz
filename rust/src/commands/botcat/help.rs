@@ -200,6 +200,8 @@ pub async fn help(
     #[description_localized("ja", "情報が欲しいコマンド名")]
     #[description_localized("ru", "Имя команды, о которой нужна информация")]
     #[description_localized("es-ES", "El nombre del comando del que quieres información")]
+    // TS HybridCommands/bot/help.ts:380 registers "command-name".
+    #[rename = "command-name"]
     command_name: Option<String>,
 ) -> Result<(), anyhow::Error> {
     let pool = &ctx.data().pool;

@@ -26,8 +26,10 @@ use poise::serenity_prelude as serenity;
 )]
 pub async fn security_channel(
     ctx: Ctx<'_>,
+    // TS HybridCommands/security/!channel.ts reads getChannel("id").
     #[description = "Verification channel"]
     #[channel_types("Text")]
+    #[rename = "id"]
     channel: serenity::GuildChannel,
 ) -> Result<(), anyhow::Error> {
     let Some(gid) = guild_id_str(&ctx).await else {

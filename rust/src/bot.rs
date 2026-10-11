@@ -2162,10 +2162,10 @@ mod tests {
                 .and_then(|v| v.as_str()),
             Some("Obtener una lista de todos los comandos!")
         );
-        // Poise derives the slash option name from the `command_name`
-        // ident (TS registers "command-name"); localizations attach the
-        // same way regardless.
-        let cmd_name = opt(top(entries, "help"), "command_name");
+        // Poise keeps the explicit `#[rename = "command-name"]` (TS
+        // HybridCommands/bot/help.ts:380 registers "command-name");
+        // localizations attach the same way regardless.
+        let cmd_name = opt(top(entries, "help"), "command-name");
         assert_eq!(
             loc(&cmd_name["description_localizations"], "fr"),
             "La commandes sur laquelle vous voulez des info"

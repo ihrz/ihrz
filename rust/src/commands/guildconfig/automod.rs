@@ -472,6 +472,8 @@ pub async fn gc_automod_spam(
     #[description = "on or off"] action: String,
     #[description = "Logs channel"]
     #[channel_types("Text")]
+    // TS SlashCommands/guildconfig/automod/!spam.ts registers "logs-channel".
+    #[rename = "logs-channel"]
     logs_channel: Option<serenity::GuildChannel>,
 ) -> Result<(), anyhow::Error> {
     let gid = ctx
@@ -540,6 +542,8 @@ pub async fn gc_automod_mass(
     max_mention: Option<i64>,
     #[description = "Logs channel"]
     #[channel_types("Text")]
+    // TS SlashCommands/guildconfig/automod/!mass-mention.ts registers "logs-channel".
+    #[rename = "logs-channel"]
     logs_channel: Option<serenity::GuildChannel>,
 ) -> Result<(), anyhow::Error> {
     let gid = ctx

@@ -35,6 +35,8 @@ pub async fn eco_role_add(
     #[description_localized("ru", "Сумма денег для добавления")]
     #[description_localized("es-ES", "La cantidad de dinero que quieres añadir")]
     #[description = "Price"]
+    // TS HybridCommands/economy/!add.ts reads getNumber("amount").
+    #[rename = "amount"]
     price: f64,
 ) -> Result<(), anyhow::Error> {
     // NOTE: !add.ts has no disabled gate — none here either.
