@@ -2043,6 +2043,7 @@ pub async fn run(cfg: Config, pool: Pool) -> anyhow::Result<()> {
         .event_handler(crate::events_handler::Handler::new(
             pool.clone(),
             slashlog.clone(),
+            cfg.prefix.clone(),
         ))
         .await?;
 

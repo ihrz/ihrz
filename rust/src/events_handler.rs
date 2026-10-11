@@ -793,6 +793,12 @@ pub struct Handler {
     /// SMTP owner mailer. Mirrors `client.email` (core.ts:134).
     /// Silent when SMTP env is incomplete (guarded by `connected`).
     pub mailer: Arc<crate::mailer::Mailer>,
+    /// Configured default message-command prefix (mirrors
+    /// `defaultMessageCommandsPrefix` in config.ts, default ".").
+    /// Used as the `guild_prefix` fallback in the message path, where
+    /// poise `Data.config` is not reachable (mention reply, prefix
+    /// detection, autofeur promo).
+    pub default_prefix: String,
 }
 
 /// Pending captcha challenge for a newcomer.
@@ -1457,9 +1463,14 @@ pub fn antispam_warn_text(base: &str, suffix: &str, mentions: &str) -> String {
 }
 
 impl Handler {
-    pub fn new(pool: Pool, slashlog: Arc<crate::slashlog::SlashLog>) -> Self {
+    pub fn new(
+        pool: Pool,
+        slashlog: Arc<crate::slashlog::SlashLog>,
+        default_prefix: String,
+    ) -> Self {
         Self {
             pool,
+            default_prefix,
             spam: Arc::new(tokio::sync::Mutex::new(HashMap::new())),
             antispam_msgs: Arc::new(tokio::sync::Mutex::new(HashMap::new())),
             antispam_flags: Arc::new(tokio::sync::Mutex::new(HashMap::new())),
@@ -5997,9 +6008,12 @@ impl serenity::EventHandler for Handler {
                             // reply (interactionSend on a Message replies).
                             let lang_code =
                                 crate::db::guild_lang(&self.pool, Some(guild_id.get())).await;
-                            let prefix =
-                                crate::db::guild_prefix(&self.pool, Some(guild_id.get()), "?")
-                                    .await;
+                            let prefix = crate::db::guild_prefix(
+                                &self.pool,
+                                Some(guild_id.get()),
+                                &self.default_prefix,
+                            )
+                            .await;
                             let mut text = crate::lang::get(&lang_code, "ping_bot_show_info_msg")
                                 .unwrap_or_default()
                                 .replace("${prefix}", &prefix)
@@ -6096,7 +6110,8 @@ impl serenity::EventHandler for Handler {
         };
         // Prefix-command detection (mirrors the parseMessageCommand
         // early-return): a consumed command earns no XP, stats still land.
-        let prefix = crate::db::guild_prefix(&self.pool, Some(guild_id.get()), "?").await;
+        let prefix =
+            crate::db::guild_prefix(&self.pool, Some(guild_id.get()), &self.default_prefix).await;
         let command_handled =
             crate::commands::ranks::main::message_is_prefix_command(&msg.content, &prefix, bot_id)
                 || !is_guild_text;
@@ -6757,7 +6772,7 @@ impl serenity::EventHandler for Handler {
                                 let prefix = crate::db::guild_prefix(
                                     &self.pool,
                                     msg.guild_id.map(|g| g.get()),
-                                    ".",
+                                    &self.default_prefix,
                                 )
                                 .await;
                                 let emoji =
@@ -10120,6 +10135,21 @@ mod restore_tests {
         assert_eq!(leave_embed_vanity(Some("abc")), "discord.gg/abc");
         assert_eq!(leave_embed_vanity(None), "None");
         assert_eq!(leave_embed_vanity(Some("")), "None");
+    }
+
+    #[tokio::test]
+    async fn handler_threads_configured_default_prefix() {
+        // The message path (mention reply, prefix detection) falls back
+        // to the configured default ("."), never the hardcoded "?" the
+        // port used before (guild 999449972615413861 report).
+        let pool = memory_pool().await;
+        let slashlog = crate::slashlog::SlashLog::new(std::path::PathBuf::from("/dev/null"));
+        let h = Handler::new(pool, slashlog, ".".to_string());
+        assert_eq!(h.default_prefix, ".");
+        assert_eq!(
+            crate::db::guild_prefix(&h.pool, Some(999449972615413861), &h.default_prefix).await,
+            "."
+        );
     }
 
     async fn memory_pool() -> crate::db::Pool {
