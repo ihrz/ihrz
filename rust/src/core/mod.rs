@@ -474,13 +474,16 @@ pub mod release {
         }
     }
 
-    /// Bot-scope kv helpers (metasTable equivalent, guild "0").
+    /// Bot-scope table-first helpers (metasTable equivalent, guild "0",
+    /// TS `src/core/modules/releaseNotifier.ts` shape). Reads try the
+    /// guild table first with legacy kv fallback; writes dual-store so
+    /// unmigrated kv readers stay fresh. Keys unchanged.
     async fn meta_get(pool: &crate::db::Pool, key: &str) -> Option<String> {
-        crate::db::kv_get(pool, META_SCOPE, key).await
+        crate::db::tbl_get(pool, META_SCOPE, key).await
     }
 
     async fn meta_set(pool: &crate::db::Pool, key: &str, value: &str) -> anyhow::Result<()> {
-        crate::db::kv_set(pool, META_SCOPE, key, value).await
+        crate::db::tbl_set(pool, META_SCOPE, key, value).await
     }
 
     async fn meta_has(pool: &crate::db::Pool, key: &str) -> bool {
@@ -488,7 +491,7 @@ pub mod release {
     }
 
     async fn meta_del(pool: &crate::db::Pool, key: &str) -> anyhow::Result<()> {
-        crate::db::kv_del(pool, META_SCOPE, key).await
+        crate::db::tbl_del(pool, META_SCOPE, key).await
     }
 
     fn now_ms() -> i64 {
@@ -771,7 +774,7 @@ pub mod release {
                     if stop.load(std::sync::atomic::Ordering::SeqCst) {
                         break;
                     }
-                    let raw = crate::db::kv_get(&pool, META_SCOPE, &lkey).await;
+                    let raw = crate::db::tbl_get(&pool, META_SCOPE, &lkey).await;
                     if let Some(mut l) = load_lock(raw) {
                         if l.owner.as_deref() == Some(&pid) && !l.finished {
                             l.updated_at = Some(now_ms());
@@ -779,7 +782,7 @@ pub mod release {
                             l.failed = hb_failed.load(std::sync::atomic::Ordering::SeqCst);
                             l.skipped = hb_skipped.load(std::sync::atomic::Ordering::SeqCst);
                             l.transient = hb_transient.load(std::sync::atomic::Ordering::SeqCst);
-                            let _ = crate::db::kv_set(
+                            let _ = crate::db::tbl_set(
                                 &pool,
                                 META_SCOPE,
                                 &lkey,
@@ -1256,6 +1259,38 @@ pub mod release {
                 code: Some("500".into()),
                 retry_after_ms: 60_000,
             }
+        }
+
+        #[tokio::test]
+        async fn release_meta_store_is_table_first_with_legacy_fallback() {
+            let pool = crate::db::memory_pool().await;
+            let key = lock_key("2026.10.99");
+            // Miss on both legs.
+            assert!(meta_get(&pool, &key).await.is_none());
+            // Table-first write stays kv-visible (dual-write).
+            meta_set(&pool, &key, "{\"finished\":false}").await.unwrap();
+            assert_eq!(
+                meta_get(&pool, &key).await.as_deref(),
+                Some("{\"finished\":false}")
+            );
+            assert_eq!(
+                crate::db::kv_get(&pool, META_SCOPE, &key).await.as_deref(),
+                Some("{\"finished\":false}")
+            );
+            // Legacy-only kv row (pre-table bot data) still reads.
+            let legacy = crate::db::memory_pool().await;
+            let lkey = lock_key("2026.10.98");
+            crate::db::kv_set(&legacy, META_SCOPE, &lkey, "{\"finished\":true}")
+                .await
+                .unwrap();
+            assert_eq!(
+                meta_get(&legacy, &lkey).await.as_deref(),
+                Some("{\"finished\":true}")
+            );
+            // Delete clears both legs.
+            meta_del(&pool, &key).await.unwrap();
+            assert!(meta_get(&pool, &key).await.is_none());
+            assert!(crate::db::kv_get(&pool, META_SCOPE, &key).await.is_none());
         }
 
         #[tokio::test]
