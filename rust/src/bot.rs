@@ -225,6 +225,20 @@ fn global_check(
     ctx: poise::Context<'_, Data, anyhow::Error>,
 ) -> poise::BoxFuture<'_, Result<bool, anyhow::Error>> {
     Box::pin(async move {
+        // Autocomplete interactions run the same command_check (poise
+        // run_autocomplete -> check_permissions_and_cooldown), but TS
+        // has no gate on autocomplete at all — and every gate below
+        // has side effects (debounce stamp, slash usage log,
+        // rate-limit consume) that would poison the real invocation
+        // submitted within a second of the last keystroke (systematic
+        // Msg_cooldown denial). Allow through with no side effects.
+        if matches!(
+            ctx,
+            poise::Context::Application(ref app)
+                if app.interaction_type == poise::CommandInteractionType::Autocomplete
+        ) {
+            return Ok(true);
+        }
         let pool = &ctx.data().pool;
         let name = ctx.command().name.clone();
         // Slash-command usage log (mirrors slashCommandLogger.ts).
