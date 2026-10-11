@@ -1743,11 +1743,37 @@ pub fn valid_shard_override(total_shards_override: Option<u32>) -> Option<u32> {
     }
 }
 
+/// Ceiling for the whole serenity shard shutdown on Ctrl-C/SIGTERM.
+/// `ShardManager::shutdown` waits up to 5s per shard for the runner
+/// echo, so an unbounded `shutdown_all` stalls ~10s on two wedged
+/// shards before the grace sleep even starts.
+const SHUTDOWN_ALL_TIMEOUT: std::time::Duration = std::time::Duration::from_secs(8);
+
 /// Grace period between signalling shard shutdown and forcing process
 /// exit on Ctrl-C/SIGTERM. Pure so the value is offline-testable; the
 /// live wait + exit stay caller-side in run().
 pub fn shutdown_grace_period() -> std::time::Duration {
     std::time::Duration::from_secs(5)
+}
+
+/// Wait for the first abort signal (Ctrl-C or, on unix, SIGTERM).
+/// Factored out so both the shutdown task and its force-exit watcher
+/// listen: a second signal during shutdown must exit immediately
+/// instead of being swallowed with no listener left.
+async fn wait_shutdown_signal() {
+    #[cfg(unix)]
+    {
+        let mut term = tokio::signal::unix::signal(tokio::signal::unix::SignalKind::terminate())
+            .expect("sigterm handler");
+        tokio::select! {
+            _ = tokio::signal::ctrl_c() => {},
+            _ = term.recv() => {},
+        }
+    }
+    #[cfg(not(unix))]
+    {
+        let _ = tokio::signal::ctrl_c().await;
+    }
 }
 
 /// Global app-command registration with TS guild defaults (O4).
@@ -2027,29 +2053,32 @@ pub async fn run(cfg: Config, pool: Pool) -> anyhow::Result<()> {
     // after the client build: the shard manager clone comes from the
     // built client. A wedged gateway that never returns from start falls
     // back to process exit after the grace period (shutdown code, not
-    // library error handling, so exit here is deliberate).
+    // library error handling, so exit here is deliberate). A second
+    // signal during shutdown force-exits immediately: without a second
+    // listener, mashing Ctrl-C while `shutdown_all` waits (up to 5s per
+    // shard for the runner echo) is silently swallowed and the abort
+    // looks dead.
     {
         let logs = slashlog.clone();
         let shard_manager = client.shard_manager.clone();
         tokio::spawn(async move {
-            #[cfg(unix)]
-            {
-                let mut term =
-                    tokio::signal::unix::signal(tokio::signal::unix::SignalKind::terminate())
-                        .expect("sigterm handler");
-                tokio::select! {
-                    _ = tokio::signal::ctrl_c() => {},
-                    _ = term.recv() => {},
-                }
-            }
-            #[cfg(not(unix))]
-            {
-                let _ = tokio::signal::ctrl_c().await;
-            }
+            wait_shutdown_signal().await;
             tracing::info!("flushing command logs before shutdown...");
             logs.force_flush().await;
-            shard_manager.shutdown_all().await;
-            tokio::time::sleep(shutdown_grace_period()).await;
+            tokio::spawn(async move {
+                wait_shutdown_signal().await;
+                std::process::exit(1);
+            });
+            // Bound the serenity shutdown: on clean runners this returns
+            // in milliseconds and we exit right away; on wedged shards
+            // it would stall ~10s, so cap it and keep only the grace
+            // sleep for that case.
+            let clean = tokio::time::timeout(SHUTDOWN_ALL_TIMEOUT, shard_manager.shutdown_all())
+                .await
+                .is_ok();
+            if !clean {
+                tokio::time::sleep(shutdown_grace_period()).await;
+            }
             std::process::exit(0);
         });
     }
@@ -2215,6 +2244,15 @@ mod tests {
         let grace = shutdown_grace_period();
         assert_eq!(grace, std::time::Duration::from_secs(5));
         assert!(grace > std::time::Duration::ZERO);
+    }
+
+    #[test]
+    fn shutdown_all_timeout_bounds_wedged_shards() {
+        // `ShardManager::shutdown` waits up to 5s per shard: the whole
+        // `shutdown_all` ceiling must cover two wedged shards (10s)
+        // without stalling the abort path indefinitely.
+        assert!(SHUTDOWN_ALL_TIMEOUT > std::time::Duration::ZERO);
+        assert!(SHUTDOWN_ALL_TIMEOUT <= std::time::Duration::from_secs(10));
     }
 
     fn flat_test_cmd(
