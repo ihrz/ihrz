@@ -1203,6 +1203,20 @@ pub async fn push_bot_metas(pool: &Pool, row: &serde_json::Value, shard_id: u64)
 /// `args.shift()?.toLowerCase()`; poise `case_insensitive_commands`,
 /// pinned true so a default flip can never break parity). Extracted
 /// so the flag is offline-verifiable in tests.
+///
+/// P2-CORNER decision (single-vs-dual prefix, recorded no-change):
+/// TS `guildPrefix` (src/core/functions/prefix.ts) returns a SINGLE
+/// prefix string: when a custom `${guildId}.BOT.prefix` is set it wins
+/// alone and the mention fallback is skipped; the mention is only the
+/// prefix when no custom prefix exists and
+/// `messageCommandsMention=true`. Poise instead combines
+/// `dynamic_prefix` (custom-or-default string) with the orthogonal
+/// `mention_as_prefix` flag wired from `message_commands_mention`
+/// (see framework options below), so with a custom prefix + the flag
+/// set the Rust port accepts DUAL prefixes (custom AND mention) where
+/// TS accepts custom only. Kept as-is: narrowing to single-prefix
+/// would need a custom message filter outside poise's supported
+/// options and risks dropping valid invocations.
 fn prefix_options(mention_as_prefix: bool) -> poise::PrefixFrameworkOptions<Data, anyhow::Error> {
     poise::PrefixFrameworkOptions {
         dynamic_prefix: Some(dynamic_prefix),
@@ -2053,6 +2067,24 @@ mod tests {
         // Both mention-prefix settings must keep the pin.
         assert!(prefix_options(true).case_insensitive_commands);
         assert!(prefix_options(false).case_insensitive_commands);
+    }
+
+    #[test]
+    fn prefix_mention_flag_is_dual_prefix_where_ts_is_single() {
+        // P2-CORNER pin (no behavior change): TS `guildPrefix`
+        // (src/core/functions/prefix.ts) returns ONE string — a set
+        // custom `${guildId}.BOT.prefix` wins alone, the mention only
+        // serves when no custom prefix exists and
+        // `messageCommandsMention=true`. Poise instead layers the
+        // orthogonal `mention_as_prefix` flag (wired from
+        // `message_commands_mention`) over `dynamic_prefix`, so a
+        // custom prefix + flag set accepts DUAL prefixes (custom AND
+        // mention). Pin the current dual-acceptance wiring so any
+        // future single-prefix narrowing is a deliberate change.
+        assert!(prefix_options(true).mention_as_prefix);
+        assert!(!prefix_options(false).mention_as_prefix);
+        assert!(prefix_options(true).dynamic_prefix.is_some());
+        assert!(prefix_options(false).dynamic_prefix.is_some());
     }
 
     #[test]
