@@ -107,15 +107,17 @@ pub fn rate_limit_step(
 
 /// Raw temp-scope timestamp. A missing entry — or a falsy stored zero —
 /// yields None, mirroring `tempTable.get(...) || null`.
+/// Table-first with legacy kv fallback (keys/scopes unchanged); the
+/// `temp` scope predates table routing, so pre-migration rows stay live.
 async fn temp_get_i64(pool: &Pool, key: &str) -> Option<i64> {
-    crate::db::kv_get(pool, TEMP_SCOPE, key)
+    crate::db::tbl_get(pool, TEMP_SCOPE, key)
         .await
         .and_then(|s| s.parse::<i64>().ok())
         .filter(|&v| v != 0)
 }
 
 async fn temp_set(pool: &Pool, key: &str, value: &str) {
-    let _ = crate::db::kv_set(pool, TEMP_SCOPE, key, value).await;
+    let _ = crate::db::tbl_set(pool, TEMP_SCOPE, key, value).await;
 }
 
 /// Slash 1s debounce remaining; 0 = allowed and recorded. Mirrors
@@ -162,7 +164,7 @@ pub async fn command_rate_limit_check(
         return 0;
     }
     let key = rate_limit_key(guild_id, path, user_id);
-    let stored: Vec<i64> = crate::db::kv_get(pool, TEMP_SCOPE, &key)
+    let stored: Vec<i64> = crate::db::tbl_get(pool, TEMP_SCOPE, &key)
         .await
         .and_then(|s| serde_json::from_str(&s).ok())
         .unwrap_or_default();
@@ -1962,6 +1964,51 @@ mod tests {
         assert_eq!(
             command_rate_limit_check(&pool, 7, "ban", 9, 0, 60_000, 61_000).await,
             0
+        );
+    }
+
+    #[tokio::test]
+    async fn temp_scope_is_table_first_with_legacy_fallback() {
+        let pool = temp_pool().await;
+        // temp_set dual-writes: the table row is primary, the legacy kv
+        // row keeps unmigrated readers fresh (keys/scopes unchanged).
+        temp_set(&pool, "COOLDOWN.42", "1000").await;
+        assert_eq!(
+            crate::db::tbl_get(&pool, TEMP_SCOPE, "COOLDOWN.42")
+                .await
+                .as_deref(),
+            Some("1000")
+        );
+        assert_eq!(
+            crate::db::kv_get(&pool, TEMP_SCOPE, "COOLDOWN.42")
+                .await
+                .as_deref(),
+            Some("1000")
+        );
+        // Pre-migration legacy-only row still reads through the table-first leg.
+        let legacy = temp_pool().await;
+        crate::db::kv_set(&legacy, TEMP_SCOPE, "COOLDOWN.7", "2000")
+            .await
+            .unwrap();
+        assert_eq!(temp_get_i64(&legacy, "COOLDOWN.7").await, Some(2000));
+        assert_eq!(temp_get_i64(&legacy, "COOLDOWN.missing").await, None);
+    }
+
+    #[tokio::test]
+    async fn rate_limit_window_reads_legacy_seeded_window() {
+        let pool = temp_pool().await;
+        // One attempt seeded by a pre-migration writer; the table-first
+        // read picks it up and the new attempt appends, not resets.
+        crate::db::kv_set(&pool, TEMP_SCOPE, "COMMAND_LIMITS.7.ban.9", "[1000]")
+            .await
+            .unwrap();
+        assert_eq!(
+            command_rate_limit_check(&pool, 7, "ban", 9, 2, 60_000, 2000).await,
+            0
+        );
+        assert_eq!(
+            command_rate_limit_check(&pool, 7, "ban", 9, 2, 60_000, 3000).await,
+            60_000 - (3000 - 1000)
         );
     }
 

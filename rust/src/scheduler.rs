@@ -389,11 +389,11 @@ async fn notify_schedule_expiry(
         return;
     }
     let name = crate::commands::shared::bot_footer_name(
-        crate::db::kv_get(pool, guild_id, crate::commands::shared::BOT_NAME_KEY)
+        crate::db::tbl_get(pool, guild_id, crate::commands::shared::BOT_NAME_KEY)
             .await
             .as_deref(),
     );
-    let stored = crate::db::kv_get(pool, guild_id, crate::commands::shared::BOT_PFP_KEY).await;
+    let stored = crate::db::tbl_get(pool, guild_id, crate::commands::shared::BOT_PFP_KEY).await;
     let icon: Option<Vec<u8>> = match crate::commands::shared::footer_icon_bytes(stored.as_deref())
     {
         Some(bytes) => Some(bytes),
@@ -449,23 +449,54 @@ pub async fn sweep_expired_giveaways(
     http: Option<std::sync::Arc<poise::serenity_prelude::Http>>,
     now_ms: i64,
 ) -> u64 {
-    let rows: Vec<(String, String)> = crate::db::kv_scan_all(pool)
-        .await
-        .into_iter()
-        .filter(|(_, key, _)| key.starts_with("GIVEAWAY."))
-        .map(|(gid, key, _)| (gid, key))
-        .collect();
-
-    let mut ended = 0u64;
-    for (gid, key) in rows {
-        let mid: u64 = key
-            .strip_prefix("GIVEAWAY.")
-            .and_then(|s| s.parse().ok())
-            .unwrap_or(0);
+    // Table-first union (keys unchanged): legacy `GIVEAWAY.<mid>` rows
+    // plus per-guild table `GIVEAWAY` roots (table wins per board).
+    // `tbl:` backend scopes hold nested roots, never flat boards.
+    let mut board_ids: HashSet<(String, u64)> = HashSet::new();
+    let mut scopes: HashSet<String> = HashSet::new();
+    for (gid, key, _) in crate::db::kv_scan_all(pool).await {
+        if let Some(table) = gid.strip_prefix("tbl:") {
+            scopes.insert(table.to_string());
+            continue;
+        }
+        scopes.insert(gid.clone());
+        let Some(rest) = key.strip_prefix("GIVEAWAY.") else {
+            continue;
+        };
+        let Ok(mid) = rest.parse::<u64>() else {
+            continue;
+        };
         if mid == 0 {
             continue;
         }
-        let raw = crate::db::kv_get(pool, &gid, &key).await;
+        board_ids.insert((gid, mid));
+    }
+    for gid in &scopes {
+        let Some(root) = crate::commands::owner::main::tbl_get_value(pool, gid, "GIVEAWAY").await
+        else {
+            continue;
+        };
+        let Some(boards) = root.as_object() else {
+            continue;
+        };
+        for (mid_str, _) in boards {
+            let Ok(mid) = mid_str.parse::<u64>() else {
+                continue;
+            };
+            if mid == 0 {
+                continue;
+            }
+            board_ids.insert((gid.clone(), mid));
+        }
+    }
+    let mut rows: Vec<(String, u64)> = board_ids.into_iter().collect();
+    rows.sort();
+
+    let mut ended = 0u64;
+    for (gid, mid) in rows {
+        // Table-first read with legacy fallback (writes below stay on
+        // the routed dual-write store).
+        let raw = crate::commands::giveaway::gw::store_get(pool, &gid, mid).await;
         let Some(raw) = raw else { continue };
         let mut gw: crate::commands::giveaway::main::Giveaway = match serde_json::from_str(&raw) {
             Ok(gw) => gw,
@@ -553,18 +584,57 @@ pub async fn sweep_temp_expiry(
     http: Option<std::sync::Arc<poise::serenity_prelude::Http>>,
     now_ms: i64,
 ) -> (u64, u64) {
-    let rows: Vec<(String, String)> = crate::db::kv_scan_all(pool)
-        .await
-        .into_iter()
-        .filter(|(_, key, _)| {
-            key.starts_with("GUILD.TEMPROLE.") || key.starts_with("GUILD.TEMPBAN.")
-        })
-        .map(|(gid, key, _)| (gid, key))
-        .collect();
+    // Table-first union (keys unchanged): legacy flat keys plus the
+    // per-guild table `GUILD`-root TEMPROLE/TEMPBAN maps (table wins).
+    // `tbl:` backend scopes hold nested roots, never flat keys.
+    let mut temp_keys: HashSet<(String, String)> = HashSet::new();
+    let mut scopes: HashSet<String> = HashSet::new();
+    for (gid, key, _) in crate::db::kv_scan_all(pool).await {
+        if let Some(table) = gid.strip_prefix("tbl:") {
+            scopes.insert(table.to_string());
+            continue;
+        }
+        scopes.insert(gid.clone());
+        if key.starts_with("GUILD.TEMPROLE.") || key.starts_with("GUILD.TEMPBAN.") {
+            temp_keys.insert((gid, key));
+        }
+    }
+    for gid in &scopes {
+        let Some(root) = crate::commands::owner::main::tbl_get_value(pool, gid, "GUILD").await
+        else {
+            continue;
+        };
+        for section in ["TEMPROLE", "TEMPBAN"] {
+            let Some(users) = root.get(section).and_then(|u| u.as_object()) else {
+                continue;
+            };
+            for (uid, node) in users {
+                if section == "TEMPBAN" {
+                    temp_keys.insert((gid.clone(), format!("GUILD.TEMPBAN.{uid}")));
+                    continue;
+                }
+                let Some(roles) = (match node {
+                    serde_json::Value::String(s) => serde_json::from_str::<serde_json::Value>(s)
+                        .ok()
+                        .and_then(|v| v.as_object().cloned()),
+                    serde_json::Value::Object(m) => Some(m.clone()),
+                    _ => None,
+                }) else {
+                    continue;
+                };
+                for rid in roles.keys() {
+                    temp_keys.insert((gid.clone(), format!("GUILD.TEMPROLE.{uid}.{rid}")));
+                }
+            }
+        }
+    }
+    let mut rows: Vec<(String, String)> = temp_keys.into_iter().collect();
+    rows.sort();
 
     let (mut roles, mut unbans) = (0u64, 0u64);
     for (gid, key) in rows {
-        let expired = match crate::db::kv_get(pool, &gid, &key).await {
+        // Table-first read with legacy fallback (keys unchanged).
+        let expired = match crate::commands::owner::main::routed_get(pool, &gid, &gid, &key).await {
             Some(raw) => serde_json::from_str::<serde_json::Value>(&raw)
                 .ok()
                 .and_then(|v| v.get("expires_at_ms").and_then(|n| n.as_i64()))
@@ -592,7 +662,7 @@ pub async fn sweep_temp_expiry(
                     .await
                     .is_err()
                 {
-                    let _ = crate::db::kv_del(pool, &gid, &key).await;
+                    let _ = crate::commands::owner::main::routed_del(pool, &gid, &gid, &key).await;
                     roles += 1;
                     continue;
                 }
@@ -615,7 +685,7 @@ pub async fn sweep_temp_expiry(
             }
             unbans += 1;
         }
-        let _ = crate::db::kv_del(pool, &gid, &key).await;
+        let _ = crate::commands::owner::main::routed_del(pool, &gid, &gid, &key).await;
     }
     (roles, unbans)
 }
@@ -766,24 +836,52 @@ fn pfps_last() -> &'static std::sync::Mutex<HashMap<String, String>> {
     PFPS_LAST.get_or_init(Default::default)
 }
 
+/// PFPS poster configs per guild: channel id + disabled flag.
+/// Table-first union (keys unchanged): legacy `PFPS.channel` /
+/// `PFPS.disable` rows plus per-guild table `PFPS` roots (table wins
+/// per guild/key). Split out for unit tests; the sweep only sends.
+pub async fn pfps_guild_configs(
+    pool: &Pool,
+) -> (
+    std::collections::HashMap<String, String>,
+    std::collections::HashSet<String>,
+) {
+    let mut gids: HashSet<String> = HashSet::new();
+    for (gid, key, _) in crate::db::kv_scan_all(pool).await {
+        if let Some(table) = gid.strip_prefix("tbl:") {
+            if key == "PFPS" {
+                gids.insert(table.to_string());
+            }
+            continue;
+        }
+        if key == "PFPS.channel" || key == "PFPS.disable" {
+            gids.insert(gid);
+        }
+    }
+    let mut channels: std::collections::HashMap<String, String> = Default::default();
+    let mut disabled: std::collections::HashSet<String> = Default::default();
+    for gid in gids {
+        // Table-first reads with legacy fallback (keys unchanged).
+        if let Some(ch) = crate::commands::pfps::load_pfps_string(pool, &gid, "PFPS.channel").await
+        {
+            channels.insert(gid.clone(), ch);
+        }
+        if crate::commands::pfps::load_pfps_string(pool, &gid, "PFPS.disable")
+            .await
+            .as_deref()
+            == Some("1")
+        {
+            disabled.insert(gid);
+        }
+    }
+    (channels, disabled)
+}
+
 pub async fn sweep_pfps(pool: &Pool, http: &std::sync::Arc<poise::serenity_prelude::Http>) -> u64 {
     use poise::serenity_prelude::{
         ChannelId, CreateActionRow, CreateButton, CreateEmbed, CreateMessage, GuildId,
     };
-    let rows: Vec<(String, String, String)> = crate::db::kv_scan_all(pool)
-        .await
-        .into_iter()
-        .filter(|(_, key, _)| key == "PFPS.channel" || key == "PFPS.disable")
-        .collect();
-    let mut channels: std::collections::HashMap<String, String> = Default::default();
-    let mut disabled: std::collections::HashSet<String> = Default::default();
-    for (gid, key, value) in rows {
-        if key == "PFPS.channel" {
-            channels.insert(gid, value);
-        } else if value == "1" {
-            disabled.insert(gid);
-        }
-    }
+    let (channels, disabled) = pfps_guild_configs(pool).await;
     let mut done = 0u64;
     for (gid, ch) in channels {
         if disabled.contains(&gid) {
@@ -881,17 +979,55 @@ pub async fn sweep_pfps(pool: &Pool, http: &std::sync::Arc<poise::serenity_prelu
 /// a warning is sent and pinned, at expiry the channel is cloned
 /// (name/kind/parent/overwrites/nsfw/position, system-channel kept)
 /// and replaced, keys rotated, and a renewed notice is posted.
+/// Autorenew channel rows across all guild scopes: (gid, key, raw).
+/// Table-first union (keys unchanged): legacy `UTILS.renew_channel.<id>`
+/// rows plus per-guild table `UTILS`-root renew_channel maps (table wins
+/// per channel). Split out for unit tests; the sweep owns the HTTP legs.
+pub async fn autorenew_rows(pool: &Pool) -> Vec<(String, String, String)> {
+    let mut by_key: HashMap<(String, String), String> = HashMap::new();
+    let mut scopes: HashSet<String> = HashSet::new();
+    for (gid, key, raw) in crate::db::kv_scan_all(pool).await {
+        if let Some(table) = gid.strip_prefix("tbl:") {
+            scopes.insert(table.to_string());
+            continue;
+        }
+        scopes.insert(gid.clone());
+        if key.starts_with("UTILS.renew_channel.") {
+            by_key.entry((gid, key)).or_insert(raw);
+        }
+    }
+    for gid in &scopes {
+        let Some(root) = crate::commands::owner::main::tbl_get_value(pool, gid, "UTILS").await
+        else {
+            continue;
+        };
+        let Some(channels) = root.get("renew_channel").and_then(|c| c.as_object()) else {
+            continue;
+        };
+        for (ch_id, leaf) in channels {
+            let raw = match leaf {
+                serde_json::Value::String(s) => s.clone(),
+                other => other.to_string(),
+            };
+            by_key.insert((gid.clone(), format!("UTILS.renew_channel.{ch_id}")), raw);
+        }
+    }
+    let mut rows: Vec<(String, String, String)> = by_key
+        .into_iter()
+        .map(|((gid, key), raw)| (gid, key, raw))
+        .collect();
+    rows.sort();
+    rows
+}
+
 pub async fn sweep_autorenew(
     pool: &Pool,
     http: &std::sync::Arc<poise::serenity_prelude::Http>,
     now_ms: i64,
 ) -> u64 {
     use poise::serenity_prelude::{ChannelId, CreateChannel, CreateMessage, GuildId};
-    let rows: Vec<(String, String, String)> = crate::db::kv_scan_all(pool)
-        .await
-        .into_iter()
-        .filter(|(_, key, _)| key.starts_with("UTILS.renew_channel."))
-        .collect();
+    // Table-first union rows (table wins per channel, keys unchanged).
+    let rows = autorenew_rows(pool).await;
     let mut done = 0u64;
     for (gid, key, raw) in rows {
         let Ok(v) = serde_json::from_str::<serde_json::Value>(&raw) else {
@@ -920,7 +1056,7 @@ pub async fn sweep_autorenew(
                 continue;
             }
             let Ok(channel) = http.get_channel(ChannelId::new(ch_id)).await else {
-                let _ = crate::db::kv_del(pool, &gid, &key).await;
+                let _ = crate::commands::owner::main::routed_del(pool, &gid, &gid, &key).await;
                 continue;
             };
             let Some(guild_ch) = channel.guild() else {
@@ -942,7 +1078,7 @@ pub async fn sweep_autorenew(
             continue;
         }
         let Ok(channel) = http.get_channel(ChannelId::new(ch_id)).await else {
-            let _ = crate::db::kv_del(pool, &gid, &key).await;
+            let _ = crate::commands::owner::main::routed_del(pool, &gid, &gid, &key).await;
             continue;
         };
         let Some(guild_ch) = channel.guild() else {
@@ -974,14 +1110,17 @@ pub async fn sweep_autorenew(
                     .await;
             }
         }
-        let _ = crate::db::kv_set(
+        // Key rotation (dual-write, keys unchanged): the replacement row
+        // lands in both stores, the expired row clears from both.
+        let _ = crate::commands::owner::main::routed_set(
             pool,
+            &gid,
             &gid,
             &format!("UTILS.renew_channel.{}", new_ch.id.get()),
             &serde_json::json!({"timestamp": now_ms, "maxTime": max}).to_string(),
         )
         .await;
-        let _ = crate::db::kv_del(pool, &gid, &key).await;
+        let _ = crate::commands::owner::main::routed_del(pool, &gid, &gid, &key).await;
         let _ = ChannelId::new(ch_id).delete(http).await;
         // Renewed notice in the replacement (mirrors the post-clone
         // newChannel.send(event_autorenew_channel_renewed)).
@@ -1206,7 +1345,9 @@ pub async fn sweep_nightmode(
         let last_page = guild_page_is_last(page.len());
         for partial in &page {
             let gid = partial.id.get().to_string();
-            let raw = match crate::db::kv_get(pool, &gid, "UTILS.NIGHT_MODE").await {
+            // Table-first with legacy fallback (keys unchanged, like the
+            // nightmode command module).
+            let raw = match crate::db::tbl_get(pool, &gid, "UTILS.NIGHT_MODE").await {
                 Some(raw) => raw,
                 None => continue,
             };
@@ -1235,7 +1376,8 @@ pub async fn sweep_nightmode(
             let night =
                 night_window_started(time[0] * 60 + time[1], time[2] * 60 + time[3], now_min);
             let want = if night { "started" } else { "ended" };
-            let current = crate::db::kv_get(pool, &gid, LAST_STATE_KEY).await;
+            // Table-first with legacy fallback (keys unchanged).
+            let current = crate::db::tbl_get(pool, &gid, LAST_STATE_KEY).await;
             if current.as_deref() == Some(want) {
                 continue;
             }
@@ -1261,7 +1403,8 @@ pub async fn sweep_nightmode(
                         .await;
                 }
             }
-            let _ = crate::db::kv_set(pool, &gid, LAST_STATE_KEY, want).await;
+            // Table-first dual-write (keys unchanged).
+            let _ = crate::db::tbl_set(pool, &gid, LAST_STATE_KEY, want).await;
             // Owner notify (mirrors Notify_Server_Owner on transition).
             if notify {
                 let code = crate::db::guild_lang(pool, partial.id.get().into()).await;
@@ -1431,8 +1574,10 @@ pub async fn sweep_protection_backup(
 
 /// Load the global deferred-wipe queue. Missing or malformed rows
 /// read as empty (best effort, never panic).
+/// Table-first with legacy fallback (keys/scopes unchanged, like the
+/// U-105/U-106 meta helpers in core/mod.rs).
 pub async fn load_wipe_queue(pool: &Pool) -> HashMap<String, PendingGuildDeletion> {
-    match crate::db::kv_get(
+    match crate::db::tbl_get(
         pool,
         crate::events_handler::GUILD_WIPE_QUEUE_SCOPE,
         GUILD_DELETE_QUEUE_KEY,
@@ -1444,10 +1589,11 @@ pub async fn load_wipe_queue(pool: &Pool) -> HashMap<String, PendingGuildDeletio
     }
 }
 
-/// Persist the global deferred-wipe queue (best effort).
+/// Persist the global deferred-wipe queue (best effort, dual-write so
+/// legacy kv readers stay fresh).
 pub async fn save_wipe_queue(pool: &Pool, queue: &HashMap<String, PendingGuildDeletion>) {
     let raw = serde_json::to_string(queue).unwrap_or_else(|_| "{}".to_string());
-    if let Err(e) = crate::db::kv_set(
+    if let Err(e) = crate::db::tbl_set(
         pool,
         crate::events_handler::GUILD_WIPE_QUEUE_SCOPE,
         GUILD_DELETE_QUEUE_KEY,
@@ -1902,6 +2048,35 @@ pub async fn sweep_h247_watchdog(
 /// cannot reach (spawn takes pool + http only). Emptied channels are
 /// still reclaimed by the voice_state_update sweep and the
 /// guild_create recovery, which both see full voice states.
+/// Temp-voice rows for one guild: (full key, channel-id text).
+/// Table-first union (keys unchanged): legacy `CUSTOM_VOICE.*` rows
+/// plus the guild-table `CUSTOM_VOICE` subtree (table wins per user,
+/// mirroring `load_temps` in voicedashboard). Split out for unit
+/// tests; the sweep owns the HTTP legs.
+pub async fn temp_voice_rows(pool: &Pool, gid: &str) -> Vec<(String, String)> {
+    let mut by_key: HashMap<String, String> = HashMap::new();
+    for (key, raw) in crate::db::kv_scan_prefix(pool, gid, "CUSTOM_VOICE.").await {
+        by_key.entry(key).or_insert(raw);
+    }
+    if let Some(root) = crate::commands::owner::main::tbl_get_value(pool, gid, "CUSTOM_VOICE").await
+    {
+        if let Some(obj) =
+            crate::commands::owner::main::walk_path(&root, &[gid]).and_then(|v| v.as_object())
+        {
+            for (uid, v) in obj {
+                let ch = match v {
+                    serde_json::Value::String(s) => s.clone(),
+                    other => other.to_string(),
+                };
+                by_key.insert(format!("CUSTOM_VOICE.{gid}.{uid}"), ch);
+            }
+        }
+    }
+    let mut rows: Vec<(String, String)> = by_key.into_iter().collect();
+    rows.sort();
+    rows
+}
+
 pub async fn sweep_temp_voice_recovery(
     pool: &Pool,
     http: &std::sync::Arc<poise::serenity_prelude::Http>,
@@ -1926,24 +2101,25 @@ pub async fn sweep_temp_voice_recovery(
         let last_page = guild_page_is_last(page.len());
         for partial in &page {
             let gid = partial.id.get().to_string();
-            let rows: Vec<(String, String)> =
-                crate::db::kv_scan_prefix(pool, &gid, "CUSTOM_VOICE.").await;
+            // Table-first union rows (table wins per user, keys unchanged).
+            let rows = temp_voice_rows(pool, &gid).await;
             for (key, raw) in rows {
                 // Strip JSON quoting from string-taking writers.
                 let text = raw.trim().trim_matches('"').to_string();
                 let Ok(ch_num) = text.parse::<u64>() else {
-                    let _ = crate::db::kv_del(pool, &gid, &key).await;
+                    let _ = crate::db::tbl_del(pool, &gid, &key).await;
                     dropped += 1;
                     continue;
                 };
                 if ch_num == 0 {
-                    let _ = crate::db::kv_del(pool, &gid, &key).await;
+                    let _ = crate::db::tbl_del(pool, &gid, &key).await;
                     dropped += 1;
                     continue;
                 }
-                // Channel gone (deleted externally): drop the row like TS.
+                // Channel gone (deleted externally): drop the row like TS
+                // (both stores, keys unchanged).
                 if http.get_channel(ChannelId::new(ch_num)).await.is_err() {
-                    let _ = crate::db::kv_del(pool, &gid, &key).await;
+                    let _ = crate::db::tbl_del(pool, &gid, &key).await;
                     dropped += 1;
                 }
             }
@@ -4060,5 +4236,231 @@ mod tests {
             sweep_guild_wipe_queue(&p, i64::MAX, &HashSet::new()).await,
             0
         );
+    }
+
+    #[tokio::test]
+    async fn giveaway_sweep_ends_table_only_board() {
+        use crate::commands::owner::main as routed;
+        let p = pool().await;
+        // Table-only board (no legacy row): the union scan still finds it.
+        routed::tbl_set(
+            &p,
+            "gt",
+            "GIVEAWAY.5",
+            r#"{"guild_id":"gt","channel_id":"c","winner_count":1,"prize":"p","hosted_by":"h","expire_in_ms":100,"ended":false,"entries":["a"],"winners":[]}"#,
+        )
+        .await
+        .unwrap();
+        assert!(crate::db::kv_get(&p, "gt", "GIVEAWAY.5").await.is_none());
+        assert_eq!(sweep_expired_giveaways(&p, None, 200).await, 1);
+        let raw = crate::commands::giveaway::gw::store_get(&p, "gt", 5)
+            .await
+            .unwrap();
+        let v: serde_json::Value = serde_json::from_str(&raw).unwrap();
+        assert_eq!(v.get("ended"), Some(&serde_json::Value::Bool(true)));
+    }
+
+    #[tokio::test]
+    async fn temp_sweep_removes_table_only_keys() {
+        use crate::commands::owner::main as routed;
+        let p = pool().await;
+        // Table-only sanction rows (no legacy rows): union scan finds them,
+        // routed deletes clear both stores. Numeric guild: the sweep only
+        // counts sanctions for real (HTTP-addressable) guild ids.
+        routed::tbl_set(&p, "11", "GUILD.TEMPROLE.2.3", r#"{"expires_at_ms":100}"#)
+            .await
+            .unwrap();
+        routed::tbl_set(&p, "11", "GUILD.TEMPBAN.4", r#"{"expires_at_ms":100}"#)
+            .await
+            .unwrap();
+        let (r, u) = sweep_temp_expiry(&p, None, 200).await;
+        assert_eq!((r, u), (1, 1));
+        assert!(routed::routed_get(&p, "11", "11", "GUILD.TEMPROLE.2.3")
+            .await
+            .is_none());
+        assert!(routed::routed_get(&p, "11", "11", "GUILD.TEMPBAN.4")
+            .await
+            .is_none());
+    }
+
+    #[tokio::test]
+    async fn pfps_configs_union_table_wins_legacy_fills_gaps() {
+        use crate::commands::owner::main as routed;
+        let p = pool().await;
+        // Legacy-only channel for g1, table override wins.
+        crate::db::kv_set(&p, "g1", "PFPS.channel", "111")
+            .await
+            .unwrap();
+        routed::tbl_set(&p, "g1", "PFPS.channel", "222")
+            .await
+            .unwrap();
+        // Table-only guild with disable flag.
+        routed::tbl_set(&p, "g2", "PFPS.channel", "333")
+            .await
+            .unwrap();
+        routed::tbl_set(&p, "g2", "PFPS.disable", "1")
+            .await
+            .unwrap();
+        // Legacy-only disable for g3 (channel legacy too).
+        crate::db::kv_set(&p, "g3", "PFPS.channel", "444")
+            .await
+            .unwrap();
+        crate::db::kv_set(&p, "g3", "PFPS.disable", "1")
+            .await
+            .unwrap();
+        let (channels, disabled) = pfps_guild_configs(&p).await;
+        assert_eq!(channels.get("g1").map(String::as_str), Some("222"));
+        assert_eq!(channels.get("g2").map(String::as_str), Some("333"));
+        assert_eq!(channels.get("g3").map(String::as_str), Some("444"));
+        assert!(!disabled.contains("g1"));
+        assert!(disabled.contains("g2"));
+        assert!(disabled.contains("g3"));
+    }
+
+    #[tokio::test]
+    async fn autorenew_rows_union_table_wins_legacy_fills_gaps() {
+        use crate::commands::owner::main as routed;
+        let p = pool().await;
+        // Legacy row for channel 7, table override wins.
+        crate::db::kv_set(
+            &p,
+            "g",
+            "UTILS.renew_channel.7",
+            r#"{"timestamp":1,"maxTime":2}"#,
+        )
+        .await
+        .unwrap();
+        routed::tbl_set(
+            &p,
+            "g",
+            "UTILS.renew_channel.7",
+            r#"{"timestamp":10,"maxTime":20}"#,
+        )
+        .await
+        .unwrap();
+        // Table-only channel 8, legacy-only channel 9.
+        routed::tbl_set(
+            &p,
+            "g",
+            "UTILS.renew_channel.8",
+            r#"{"timestamp":30,"maxTime":40}"#,
+        )
+        .await
+        .unwrap();
+        crate::db::kv_set(
+            &p,
+            "g",
+            "UTILS.renew_channel.9",
+            r#"{"timestamp":50,"maxTime":60}"#,
+        )
+        .await
+        .unwrap();
+        let rows = autorenew_rows(&p).await;
+        assert_eq!(rows.len(), 3);
+        let seven = rows
+            .iter()
+            .find(|(_, k, _)| k == "UTILS.renew_channel.7")
+            .unwrap();
+        assert!(seven.2.contains("10"));
+        assert!(rows.iter().any(|(_, k, _)| k == "UTILS.renew_channel.8"));
+        assert!(rows.iter().any(|(_, k, _)| k == "UTILS.renew_channel.9"));
+    }
+
+    #[tokio::test]
+    async fn nightmode_state_table_first_with_legacy_fallback() {
+        let p = pool().await;
+        // Legacy-only rows are found table-first (never dropped).
+        crate::db::kv_set(
+            &p,
+            "nm1",
+            "UTILS.NIGHT_MODE",
+            r#"{"enabled":true,"notify":false,"time":[21,0,9,0],"wlBots":[],"derankBot":true,"utc":1}"#,
+        )
+        .await
+        .unwrap();
+        crate::db::kv_set(&p, "nm1", "UTILS.NIGHT_MODE.last_state", "started")
+            .await
+            .unwrap();
+        let cfg = crate::db::tbl_get(&p, "nm1", "UTILS.NIGHT_MODE")
+            .await
+            .unwrap();
+        assert!(cfg.contains("\"enabled\":true"));
+        assert_eq!(
+            crate::db::tbl_get(&p, "nm1", "UTILS.NIGHT_MODE.last_state")
+                .await
+                .as_deref(),
+            Some("started")
+        );
+        // Writes dual-store: both stores stay fresh.
+        crate::db::tbl_set(&p, "nm1", "UTILS.NIGHT_MODE.last_state", "ended")
+            .await
+            .unwrap();
+        assert_eq!(
+            crate::db::kv_get(&p, "nm1", "UTILS.NIGHT_MODE.last_state")
+                .await
+                .as_deref(),
+            Some("ended")
+        );
+    }
+
+    #[tokio::test]
+    async fn wipe_queue_table_first_with_legacy_fallback() {
+        use crate::events_handler::wipe_queue_enqueue;
+        let p = pool().await;
+        // Legacy-only queue row is found table-first (never dropped).
+        let mut q = HashMap::new();
+        wipe_queue_enqueue(&mut q, "legacy", "Legacy", "o1", 0);
+        let raw = serde_json::to_string(&q).unwrap();
+        crate::db::kv_set(
+            &p,
+            crate::events_handler::GUILD_WIPE_QUEUE_SCOPE,
+            GUILD_DELETE_QUEUE_KEY,
+            &raw,
+        )
+        .await
+        .unwrap();
+        assert!(load_wipe_queue(&p).await.contains_key("legacy"));
+        // Saves dual-write: both stores stay fresh.
+        save_wipe_queue(&p, &q).await;
+        assert!(crate::db::kv_get(
+            &p,
+            crate::events_handler::GUILD_WIPE_QUEUE_SCOPE,
+            GUILD_DELETE_QUEUE_KEY,
+        )
+        .await
+        .is_some());
+        assert!(crate::commands::owner::main::tbl_get(
+            &p,
+            crate::events_handler::GUILD_WIPE_QUEUE_SCOPE,
+            GUILD_DELETE_QUEUE_KEY,
+        )
+        .await
+        .is_some());
+    }
+
+    #[tokio::test]
+    async fn temp_voice_rows_union_table_wins_legacy_fills_gaps() {
+        use crate::commands::owner::main as routed;
+        let p = pool().await;
+        // Legacy row for user 7, table override wins.
+        crate::db::kv_set(&p, "v1", "CUSTOM_VOICE.v1.7", "111")
+            .await
+            .unwrap();
+        routed::tbl_set(&p, "v1", "CUSTOM_VOICE.v1.7", "222")
+            .await
+            .unwrap();
+        // Table-only user 8, legacy-only user 9.
+        routed::tbl_set(&p, "v1", "CUSTOM_VOICE.v1.8", "333")
+            .await
+            .unwrap();
+        crate::db::kv_set(&p, "v1", "CUSTOM_VOICE.v1.9", "444")
+            .await
+            .unwrap();
+        let rows = temp_voice_rows(&p, "v1").await;
+        assert_eq!(rows.len(), 3);
+        let seven = rows.iter().find(|(k, _)| k == "CUSTOM_VOICE.v1.7").unwrap();
+        assert_eq!(seven.1, "222");
+        assert!(rows.iter().any(|(k, _)| k == "CUSTOM_VOICE.v1.8"));
+        assert!(rows.iter().any(|(k, _)| k == "CUSTOM_VOICE.v1.9"));
     }
 }

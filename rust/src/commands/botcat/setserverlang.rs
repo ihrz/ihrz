@@ -104,6 +104,18 @@ fn save_row(success_markup: Option<(u64, String, bool)>) -> serenity::CreateActi
     serenity::CreateActionRow::Buttons(vec![button])
 }
 
+/// Persist the guild language, table-first dual-write (keys unchanged):
+/// the table row is primary, the legacy kv row keeps unmigrated kv
+/// readers (getLanguageData parity) fresh. Mirrors setserverlang.ts
+/// `client.db.set(`${guildId}.GUILD.LANG`, code)`.
+pub async fn save_guild_lang(
+    pool: &crate::db::Pool,
+    guild_id: &str,
+    code: &str,
+) -> Result<(), anyhow::Error> {
+    crate::db::tbl_set(pool, guild_id, crate::db::GUILD_LANG_KEY, code).await
+}
+
 /// Persist the language plus the TS save side-effects: per-guild bot bio
 /// in the new language (`bot_server_bio`, PATCH members/@me) and the
 /// ihorizon-logs report embed.
@@ -112,13 +124,7 @@ async fn apply_language(
     guild_id: serenity::GuildId,
     code: &str,
 ) -> Result<(), anyhow::Error> {
-    crate::db::kv_set(
-        &ctx.data().pool,
-        &guild_id.get().to_string(),
-        "GUILD.LANG",
-        code,
-    )
-    .await?;
+    save_guild_lang(&ctx.data().pool, &guild_id.get().to_string(), code).await?;
     if let Some(tpl) = crate::lang::get(code, "bot_server_bio") {
         let count = crate::commands::all().len();
         let http = &ctx.serenity_context().http;
@@ -384,5 +390,48 @@ mod tests {
     fn with_type_fills_template_slot() {
         assert_eq!(with_type("now **${type}**", "fr-FR"), "now **fr-FR**");
         assert_eq!(with_type("no slot", "fr-FR"), "no slot");
+    }
+
+    #[tokio::test]
+    async fn save_guild_lang_dual_writes_table_and_legacy() {
+        let pool = crate::db::memory_pool().await;
+        // Same leaf TS writes (GUILD_LANG_KEY == "GUILD.LANG").
+        assert_eq!(crate::db::GUILD_LANG_KEY, "GUILD.LANG");
+        save_guild_lang(&pool, "g1", "fr-FR").await.unwrap();
+        // Table-first read sees it, and the legacy kv row stays fresh
+        // for unmigrated readers.
+        assert_eq!(
+            crate::db::tbl_get(&pool, "g1", "GUILD.LANG")
+                .await
+                .as_deref(),
+            Some("fr-FR")
+        );
+        assert_eq!(
+            crate::db::kv_get(&pool, "g1", "GUILD.LANG")
+                .await
+                .as_deref(),
+            Some("fr-FR")
+        );
+        // Overwrite keeps both stores in sync.
+        save_guild_lang(&pool, "g1", "de-DE").await.unwrap();
+        assert_eq!(
+            crate::db::tbl_get(&pool, "g1", "GUILD.LANG")
+                .await
+                .as_deref(),
+            Some("de-DE")
+        );
+        assert_eq!(
+            crate::db::kv_get(&pool, "g1", "GUILD.LANG")
+                .await
+                .as_deref(),
+            Some("de-DE")
+        );
+    }
+
+    #[tokio::test]
+    async fn save_guild_lang_does_not_clobber_other_guilds() {
+        let pool = crate::db::memory_pool().await;
+        save_guild_lang(&pool, "g1", "fr-FR").await.unwrap();
+        assert_eq!(crate::db::tbl_get(&pool, "g2", "GUILD.LANG").await, None);
     }
 }

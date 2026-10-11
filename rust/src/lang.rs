@@ -47,7 +47,8 @@ fn table() -> &'static HashMap<String, serde_yaml::Value> {
 /// FORGIVING FALLBACK, INTENTIONAL (H20): unknown codes resolve to the
 /// en-US table instead of erroring, mirroring getLanguageDataByCode's
 /// default branch. Every guild path must still do DB -> code -> table
-/// (`kv_get GUILD.LANG`, default `"en-US"` when unset, then this fn) —
+/// (`tbl_get GUILD.LANG` with legacy kv fallback, default `"en-US"`
+/// when unset, then this fn) —
 /// cf. getLanguageData.ts and funcs::guild_banner_url. Callers resolve
 /// keys via [`get`]/[`get_list`] on the returned table.
 pub fn table_for(code: &str) -> serde_yaml::Value {

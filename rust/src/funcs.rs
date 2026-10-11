@@ -283,9 +283,9 @@ pub fn banner_url(lang_code: &str) -> String {
 }
 
 /// Banner image URL for a guild. Mirrors bannerGenerator(guildId)
-/// (reads GUILD.LANG, falls back to en-US).
+/// (reads GUILD.LANG table-first with legacy kv fallback, en-US default).
 pub async fn guild_banner_url(pool: &crate::db::Pool, guild_id: &str) -> String {
-    let lang = crate::db::kv_get(pool, guild_id, "GUILD.LANG")
+    let lang = crate::db::tbl_get(pool, guild_id, "GUILD.LANG")
         .await
         .unwrap_or_else(|| "en-US".to_string());
     banner_url(&lang)
@@ -821,6 +821,32 @@ mod tests {
         assert_eq!(
             banner_url("fr-FR"),
             "https://www.ihorizon.org/assets/img/banner/ihrz_fr-FR.png"
+        );
+    }
+
+    #[tokio::test]
+    async fn guild_banner_url_is_table_first_with_legacy_fallback() {
+        let pool = crate::db::memory_pool().await;
+        // Unset guild falls back to en-US.
+        assert_eq!(
+            guild_banner_url(&pool, "g0").await,
+            "https://www.ihorizon.org/assets/img/banner/ihrz_en-US.png"
+        );
+        // Legacy-only kv row (pre-migration data) still reads.
+        crate::db::kv_set(&pool, "g1", "GUILD.LANG", "fr-FR")
+            .await
+            .unwrap();
+        assert_eq!(
+            guild_banner_url(&pool, "g1").await,
+            "https://www.ihorizon.org/assets/img/banner/ihrz_fr-FR.png"
+        );
+        // Table-routed write round-trips (keys unchanged).
+        crate::db::tbl_set(&pool, "g2", "GUILD.LANG", "de-DE")
+            .await
+            .unwrap();
+        assert_eq!(
+            guild_banner_url(&pool, "g2").await,
+            "https://www.ihorizon.org/assets/img/banner/ihrz_de-DE.png"
         );
     }
 

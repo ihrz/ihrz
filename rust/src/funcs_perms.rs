@@ -6,7 +6,7 @@
 //
 // Level mapping: TS PermCommandLevel = 1..9 | 0 | null.
 // Here None = null (no level gate), Some(0) = explicit 0.
-// DB reads go through the existing kv helpers (crate::db::kv_get):
+// DB reads are table-first with legacy kv fallback (crate::db::tbl_get):
 // guild UTILS JSON at key "UTILS", owner flag at "OWNER.{member}.owner".
 
 use std::collections::HashMap;
@@ -205,18 +205,19 @@ pub fn denied_message(lang_code: &str, member_mention: &str, perm: Option<&Comma
         .replace("${neededPerm}", &needed_perm_text(lang_code, perm))
 }
 
-/// Owner-list flag via the existing kv store.
-/// TS key `${guildId}.OWNER.${memberId}.owner` === true.
+/// Owner-list flag, table-first with legacy kv fallback.
+/// TS key `${guildId}.OWNER.${memberId}.owner` === true (keys unchanged).
 pub async fn is_owner(pool: &crate::db::Pool, guild_id: &str, member_id: &str) -> bool {
-    crate::db::kv_get(pool, guild_id, &format!("OWNER.{member_id}.owner"))
+    crate::db::tbl_get(pool, guild_id, &format!("OWNER.{member_id}.owner"))
         .await
         .is_some_and(|v| v == "true")
 }
 
-/// Raw UTILS JSON via the existing kv store (key "UTILS", None when unset).
+/// Raw UTILS JSON, table-first with legacy kv fallback (key "UTILS",
+/// None when unset; keys unchanged).
 /// Callers parse it into maps and feed get_cmd_perm_data()/GateSnapshot.
 pub async fn load_utils_json(pool: &crate::db::Pool, guild_id: &str) -> Option<String> {
-    crate::db::kv_get(pool, guild_id, "UTILS").await
+    crate::db::tbl_get(pool, guild_id, "UTILS").await
 }
 
 /// Parse the UTILS JSON blob into (perms, level_roles, user_levels).
@@ -503,5 +504,47 @@ mod tests {
         assert!(check_explicit_user("u1", &get_cmd_perm_data("kick", &p)));
         assert_eq!(r.get(&3).map(String::as_str), Some("r3"));
         assert_eq!(u.get("u1").copied(), Some(3));
+    }
+
+    #[tokio::test]
+    async fn owner_flag_is_table_first_with_legacy_fallback() {
+        let pool = crate::db::memory_pool().await;
+        assert!(!is_owner(&pool, "g", "u1").await);
+        // Legacy-only kv row (pre-migration data) still reads.
+        crate::db::kv_set(&pool, "g", "OWNER.u1.owner", "true")
+            .await
+            .unwrap();
+        assert!(is_owner(&pool, "g", "u1").await);
+        assert!(!is_owner(&pool, "g", "u2").await);
+        // Table-routed write keeps the legacy kv row fresh for
+        // unmigrated readers (keys unchanged).
+        crate::db::tbl_set(&pool, "g", "OWNER.u2.owner", "true")
+            .await
+            .unwrap();
+        assert!(is_owner(&pool, "g", "u2").await);
+        assert_eq!(
+            crate::db::kv_get(&pool, "g", "OWNER.u2.owner")
+                .await
+                .as_deref(),
+            Some("true")
+        );
+    }
+
+    #[tokio::test]
+    async fn utils_json_is_table_first_with_legacy_fallback() {
+        let pool = crate::db::memory_pool().await;
+        assert_eq!(load_utils_json(&pool, "g").await, None);
+        // Legacy-only kv blob still reads.
+        let raw = r#"{"PERMS":{"ban":5}}"#;
+        crate::db::kv_set(&pool, "g", "UTILS", raw).await.unwrap();
+        assert_eq!(load_utils_json(&pool, "g").await.as_deref(), Some(raw));
+        // Table-routed write round-trips and keeps the legacy row fresh.
+        let raw2 = r#"{"PERMS":{"kick":3}}"#;
+        crate::db::tbl_set(&pool, "g", "UTILS", raw2).await.unwrap();
+        assert_eq!(load_utils_json(&pool, "g").await.as_deref(), Some(raw2));
+        assert_eq!(
+            crate::db::kv_get(&pool, "g", "UTILS").await.as_deref(),
+            Some(raw2)
+        );
     }
 }

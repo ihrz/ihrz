@@ -4,6 +4,7 @@
 // src/core/modules/infrastructureMonitoringManager.ts: TCP checks
 // (Lavalink), Discord latency snapshot, 60s tick with last status in kv.
 
+use std::collections::HashMap;
 use std::time::Duration;
 
 /// Parse "host:port". Mirrors the manager's host/port splitting.
@@ -205,9 +206,11 @@ pub async fn tick(pool: &crate::db::Pool, discord_ms: u64) -> InfraStatus {
     // Ping history (mirrors `if (this.lastResult.PublicBot?.latency)`
     // addPingToHistory): only positive samples are stored.
     record_ping(pool, status.services.public_bot.latency).await;
-    let _ = crate::db::kv_set(
+    // Table-first dual-write (keys/scopes unchanged): the guild-table
+    // row is primary, the legacy kv row keeps unmigrated readers fresh.
+    let _ = crate::db::tbl_set(
         pool,
-        "0",
+        META_SCOPE,
         "INFRA.status",
         &serde_json::to_string(&status).unwrap_or_default(),
     )
@@ -827,23 +830,44 @@ pub fn parse_status_panel_entry(raw: &str) -> Option<StatusPanelTarget> {
 /// Load all panel targets (guild "0", `MISC.statusEmbed.%`).
 /// Malformed rows are skipped; entries are never deleted here
 /// (TS keeps them on missing-message and retries next minute).
+/// Table-first union (keys/scopes unchanged): the guild-table `MISC`
+/// root wins per panel, legacy kv rows fill gaps.
 pub async fn load_status_panels(pool: &crate::db::Pool) -> Vec<StatusPanelTarget> {
-    let rows = crate::db::kv_scan_prefix(pool, META_SCOPE, STATUS_PANEL_PREFIX).await;
-    rows.iter()
-        .filter_map(|(_, value)| parse_status_panel_entry(value))
+    let mut by_panel: HashMap<String, String> = HashMap::new();
+    for (key, value) in crate::db::kv_scan_prefix(pool, META_SCOPE, STATUS_PANEL_PREFIX).await {
+        if let Some(panel) = key.strip_prefix(STATUS_PANEL_PREFIX) {
+            by_panel.entry(panel.to_string()).or_insert(value);
+        }
+    }
+    if let Some(root) = crate::commands::owner::main::tbl_get_value(pool, META_SCOPE, "MISC").await
+    {
+        if let Some(panels) = root.get("statusEmbed").and_then(|p| p.as_object()) {
+            for (panel, leaf) in panels {
+                let raw = match leaf {
+                    serde_json::Value::String(s) => s.clone(),
+                    other => other.to_string(),
+                };
+                by_panel.insert(panel.clone(), raw);
+            }
+        }
+    }
+    by_panel
+        .values()
+        .filter_map(|value| parse_status_panel_entry(value))
         .collect()
 }
 
 /// Load the persisted ping history (empty when unset/malformed).
+/// Table-first with legacy kv fallback (keys/scopes unchanged).
 pub async fn load_ping_history(pool: &crate::db::Pool) -> Vec<u64> {
-    match crate::db::kv_get(pool, META_SCOPE, PING_HISTORY_KEY).await {
+    match crate::db::tbl_get(pool, META_SCOPE, PING_HISTORY_KEY).await {
         Some(raw) => serde_json::from_str::<Vec<u64>>(&raw).unwrap_or_default(),
         None => vec![],
     }
 }
 
 async fn save_ping_history(pool: &crate::db::Pool, history: &[u64]) {
-    let _ = crate::db::kv_set(
+    let _ = crate::db::tbl_set(
         pool,
         META_SCOPE,
         PING_HISTORY_KEY,
@@ -1352,5 +1376,76 @@ mod tests {
         let services = ServiceResults::default();
         // Offline: http None performs no network, returns loadable count.
         assert_eq!(sweep_status_panel(&pool, None, &services, 0).await, 2);
+    }
+
+    #[tokio::test]
+    async fn ping_history_table_first_with_legacy_fallback() {
+        use crate::commands::owner::main as routed;
+        let pool = panel_pool().await;
+        // Legacy-only row is found table-first (never dropped).
+        crate::db::kv_set(&pool, META_SCOPE, PING_HISTORY_KEY, "[7,8]")
+            .await
+            .unwrap();
+        assert_eq!(load_ping_history(&pool).await, vec![7, 8]);
+        // Saves dual-write: both stores stay fresh.
+        assert_eq!(record_ping(&pool, 9).await, vec![7, 8, 9]);
+        assert!(crate::db::kv_get(&pool, META_SCOPE, PING_HISTORY_KEY)
+            .await
+            .is_some());
+        assert!(routed::tbl_get(&pool, META_SCOPE, PING_HISTORY_KEY)
+            .await
+            .is_some());
+        // Table wins on conflict.
+        routed::tbl_set(&pool, META_SCOPE, PING_HISTORY_KEY, "[1]")
+            .await
+            .unwrap();
+        assert_eq!(load_ping_history(&pool).await, vec![1]);
+    }
+
+    #[tokio::test]
+    async fn status_panels_union_table_wins_legacy_fills_gaps() {
+        use crate::commands::owner::main as routed;
+        let pool = panel_pool().await;
+        // Legacy-only panel 100 + conflicting panel 101 (table wins).
+        crate::db::kv_set(
+            &pool,
+            META_SCOPE,
+            "MISC.statusEmbed.100",
+            r#"{"message_id":"1","guild_id":"100","channel_id":"200"}"#,
+        )
+        .await
+        .unwrap();
+        crate::db::kv_set(
+            &pool,
+            META_SCOPE,
+            "MISC.statusEmbed.101",
+            r#"{"message_id":"2","guild_id":"101","channel_id":"201"}"#,
+        )
+        .await
+        .unwrap();
+        // Table-only panel 102 + table override of panel 101.
+        routed::tbl_set(
+            &pool,
+            META_SCOPE,
+            "MISC.statusEmbed.101",
+            r#"{"message_id":"22","guild_id":"101","channel_id":"201"}"#,
+        )
+        .await
+        .unwrap();
+        routed::tbl_set(
+            &pool,
+            META_SCOPE,
+            "MISC.statusEmbed.102",
+            r#"{"message_id":"3","guild_id":"102","channel_id":"202"}"#,
+        )
+        .await
+        .unwrap();
+        let mut targets = load_status_panels(&pool).await;
+        targets.sort_by_key(|t| t.guild_id);
+        assert_eq!(targets.len(), 3);
+        assert_eq!(targets[0].message_id, 1);
+        // Table row wins over the legacy row for panel 101.
+        assert_eq!(targets[1].message_id, 22);
+        assert_eq!(targets[2].message_id, 3);
     }
 }
