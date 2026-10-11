@@ -1254,12 +1254,13 @@ async fn handle_help_overview_component(
         _ => String::new(),
     };
     let rows = help_main::build_help_overview_rows(http, &code, &cats).await;
-    let overview_update = |embed: serenity::CreateEmbed| {
-        serenity::CreateInteractionResponse::UpdateMessage(
-            serenity::CreateInteractionResponseMessage::new()
-                .embed(embed)
-                .components(rows.clone()),
-        )
+    // TS defers the select first (deferUpdate) then edits: ack here
+    // would double-ack, so this callee edits directly — the caller
+    // (handle_help_component) already acknowledged overview paths.
+    let overview_edit = |embed: serenity::CreateEmbed| {
+        serenity::EditInteractionResponse::new()
+            .embed(embed)
+            .components(rows.clone())
     };
     match help::parse_help_overview_pick(&value) {
         help::HelpOverviewPick::Back => {
@@ -1304,29 +1305,47 @@ async fn handle_help_overview_component(
                 &region,
             );
             let banner = crate::funcs::guild_banner_url(pool, &gid).await;
+            // TS back branch re-sends the overview embed verbatim
+            // (footerBuilder + thumbnail): keep the footer icon
+            // referenced or the message attachment renders as a loose
+            // file. No re-attach needed, the file persists on edit.
+            let (footer_name, icon) = crate::commands::shared::footer_parts_pool(pool, &gid).await;
+            let with_icon = icon.is_some();
             let embed = serenity::CreateEmbed::default()
                 .description(desc)
                 .colour(serenity::Colour::from_rgb(0x00, 0x1e, 0xff))
-                .footer(serenity::CreateEmbedFooter::new(format!(
-                    "© iHorizon {}",
-                    chrono_year()
-                )))
+                .footer(
+                    serenity::CreateEmbedFooter::new(footer_name).icon_url(if with_icon {
+                        "attachment://footer_icon.png".to_string()
+                    } else {
+                        String::new()
+                    }),
+                )
                 .image(banner);
-            let _ = comp.create_response(http, overview_update(embed)).await;
+            let embed = if with_icon {
+                embed.thumbnail("attachment://footer_icon.png")
+            } else {
+                embed
+            };
+            let _ = comp.edit_response(http, overview_edit(embed)).await;
         }
         help::HelpOverviewPick::Category(index) if index < cats.len() => {
-            let resp =
+            let (embed, components) =
                 render_help_leaf_page(http, pool, guild_id.get(), &code, &cats, index, 0).await;
-            let _ = comp.create_response(http, resp).await;
+            let _ = comp
+                .edit_response(
+                    http,
+                    serenity::EditInteractionResponse::new()
+                        .embed(embed)
+                        .components(components),
+                )
+                .await;
         }
         _ => {
             let _ = comp
-                .create_response(
+                .edit_response(
                     http,
-                    serenity::CreateInteractionResponse::UpdateMessage(
-                        serenity::CreateInteractionResponseMessage::new()
-                            .content(t("var_unreachable_command")),
-                    ),
+                    serenity::EditInteractionResponse::new().content(t("var_unreachable_command")),
                 )
                 .await;
         }
@@ -1358,7 +1377,7 @@ async fn render_help_leaf_page(
     cats: &[help::HelpCategoryOwned],
     index: usize,
     page: usize,
-) -> serenity::CreateInteractionResponse {
+) -> (serenity::CreateEmbed, Vec<serenity::CreateActionRow>) {
     let gid = guild_id.to_string();
     let show = &cats[index];
     let prefix = crate::db::guild_prefix(pool, Some(guild_id), ".").await;
@@ -1418,12 +1437,19 @@ async fn render_help_leaf_page(
     let markup = crate::emojis::app_emoji_markup(http, &show.emoji_name)
         .await
         .unwrap_or_default();
-    let (footer_name, _) = crate::commands::shared::footer_parts_pool(pool, &gid).await;
+    let (footer_name, icon) = crate::commands::shared::footer_parts_pool(pool, &gid).await;
+    let with_icon = icon.is_some();
     let mut embed = serenity::CreateEmbed::default()
         .title(help::help_module_title(&markup, &show.title))
         .description(show.desc.clone())
         .colour(serenity::Colour::new(show.color))
-        .footer(serenity::CreateEmbedFooter::new(footer_name))
+        .footer(
+            serenity::CreateEmbedFooter::new(footer_name).icon_url(if with_icon {
+                "attachment://footer_icon.png".to_string()
+            } else {
+                String::new()
+            }),
+        )
         .thumbnail("attachment://footer_icon.png")
         .timestamp(chrono::Utc::now());
     for (n, v) in pages.get(page).cloned().unwrap_or_default() {
@@ -1448,11 +1474,7 @@ async fn render_help_leaf_page(
             .collect();
         components.push(serenity::CreateActionRow::Buttons(buttons));
     }
-    serenity::CreateInteractionResponse::UpdateMessage(
-        serenity::CreateInteractionResponseMessage::new()
-            .embed(embed)
-            .components(components),
-    )
+    (embed, components)
 }
 
 /// Route help browser selects + pager buttons (stateless recompute).
@@ -1485,6 +1507,18 @@ pub async fn handle_help_component(
         return;
     }
     let id = comp.data.custom_id.as_str();
+    // TS collector deferUpdate: ack overview/pager paths first so the
+    // leaf rebuild (registry + per-leaf perms + emoji HTTP) never blows
+    // the 3s interaction window; the branches below edit afterwards.
+    // (The author-gate denial above already replied, never ack after it.)
+    if (help::is_help_overview_select(id) || help::parse_help_nav(id).is_some())
+        && comp
+            .create_response(http, serenity::CreateInteractionResponse::Acknowledge)
+            .await
+            .is_err()
+    {
+        return;
+    }
     // /help overview selects (help-menu-1/2): index values + back
     // navigation, mirroring handleCategorySelect in help.ts.
     if help::is_help_overview_select(id) {
@@ -1502,9 +1536,16 @@ pub async fn handle_help_component(
             let Some(guild_id) = comp.guild_id else {
                 return;
             };
-            let resp =
+            let (embed, components) =
                 render_help_leaf_page(http, pool, guild_id.get(), &code, &cats, cat, page).await;
-            let _ = comp.create_response(http, resp).await;
+            let _ = comp
+                .edit_response(
+                    http,
+                    serenity::EditInteractionResponse::new()
+                        .embed(embed)
+                        .components(components),
+                )
+                .await;
         }
         return;
     }

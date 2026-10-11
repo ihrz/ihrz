@@ -217,6 +217,9 @@ pub async fn help(
     let with_icon = icon.is_some();
     let mut reply = poise::CreateReply::default();
     let mut overview = false;
+    // Disabled copy of the overview selects for the 840s collector-end
+    // task (TS disables components on collector `end`).
+    let mut disable_rows: Vec<poise::serenity_prelude::CreateActionRow> = vec![];
 
     if let Some(target) = command_name.as_deref() {
         let framework = ctx.framework();
@@ -330,6 +333,11 @@ pub async fn help(
             &footer_name,
             with_icon,
         );
+        let embed = if with_icon {
+            embed.thumbnail("attachment://footer_icon.png")
+        } else {
+            embed
+        };
         reply = reply
             .embed(embed)
             .content(format!("> {search}  **https://www.ihorizon.org/search/**"));
@@ -352,6 +360,16 @@ pub async fn help(
             )
             .await;
             if !rows.is_empty() {
+                use poise::serenity_prelude::CreateActionRow;
+                disable_rows = rows
+                    .iter()
+                    .map(|r| match r {
+                        CreateActionRow::SelectMenu(m) => {
+                            CreateActionRow::SelectMenu(m.clone().disabled(true))
+                        }
+                        _ => r.clone(),
+                    })
+                    .collect();
                 reply = reply.components(rows);
                 overview = true;
             }
@@ -379,6 +397,25 @@ pub async fn help(
                     &ctx.author().id.get().to_string(),
                 )
                 .await;
+                // TS collector `end` (840s): disable the selects so stale
+                // menus visibly expire instead of silently dying on dead
+                // interaction tokens.
+                if !disable_rows.is_empty() {
+                    let http = ctx.serenity_context().http.clone();
+                    let channel_id = msg.channel_id;
+                    let message_id = msg.id;
+                    let comps = std::mem::take(&mut disable_rows);
+                    tokio::spawn(async move {
+                        tokio::time::sleep(std::time::Duration::from_secs(840)).await;
+                        let _ = channel_id
+                            .edit_message(
+                                &http,
+                                message_id,
+                                poise::serenity_prelude::EditMessage::new().components(comps),
+                            )
+                            .await;
+                    });
+                }
             }
         }
     }
