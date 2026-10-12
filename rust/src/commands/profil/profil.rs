@@ -34,6 +34,21 @@ pub async fn profil(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())
 }
 
+/// Ack-first for the profil setters. The setters run a load plus a
+/// dual-write save (blob + per-field leaves, ~17 sequential store ops)
+/// before replying, while the TS originals write a single leaf and
+/// answer ephemerally (`flags: [1 << 6]`) with no defer
+/// (`thinking: false` in profil.ts). On a slow store the interaction
+/// expires before the first reply and the handler errors with no ack,
+/// so slash invocations defer ephemerally up front; the follow-up
+/// success message is user-identical to the TS ephemeral reply.
+/// Prefix contexts skip the defer (no 3s window there, like TS).
+pub async fn ack_setter(ctx: &Ctx<'_>) {
+    if matches!(ctx, poise::Context::Application(_)) {
+        let _ = ctx.defer_ephemeral().await;
+    }
+}
+
 // ---- U-D3-NAMEDTABLES: named `user_profil` table handle ----
 // Scope "0" and `PROFIL.<uid>` keys are unchanged from the legacy kv
 // layout. (The `load_profil`/`save_profil` wrappers in mod.rs delegate

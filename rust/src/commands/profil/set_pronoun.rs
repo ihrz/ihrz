@@ -128,6 +128,9 @@ pub async fn profil_pronoun(
     #[description_localized("es-ES", "Pronombre que más te queda")]
     pronoun: ProfilPronoun,
 ) -> Result<(), anyhow::Error> {
+    // Ack first: the load + dual-write save below can outlast the 3s
+    // interaction window (see `ack_setter`).
+    super::profil::ack_setter(&ctx).await;
     let normalized = normalize_pronoun(pronoun.as_str());
     if !validate_pronoun(&normalized) {
         let msg = crate::commands::lang_for(

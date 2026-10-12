@@ -13,6 +13,21 @@ pub fn list_author_name(username: &str, display_name: Option<&str>) -> String {
     }
 }
 
+/// Bounded icon download. `shared::download_bytes` has no timeout, so a
+/// stalled connection would hold this (already deferred) handler past
+/// any caller's patience and the list would never ack; a slow icon
+/// degrades to no icon exactly like a failed download (the
+/// no-`icon_url` branch below).
+async fn bounded_download(url: &str) -> Option<Vec<u8>> {
+    tokio::time::timeout(
+        std::time::Duration::from_secs(8),
+        crate::commands::shared::download_bytes(url),
+    )
+    .await
+    .ok()
+    .flatten()
+}
+
 /// List your backup(s)!
 #[poise::command(
     slash_command,
@@ -54,7 +69,7 @@ pub async fn backup_list(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         .icon_url("attachment://user_icon.png");
     let mut author_files: Vec<serenity::CreateAttachment> = vec![];
     if let Some(url) = ctx.author().avatar_url() {
-        if let Some(bytes) = crate::commands::shared::download_bytes(&url).await {
+        if let Some(bytes) = bounded_download(&url).await {
             author_files.push(serenity::CreateAttachment::bytes(bytes, "user_icon.png"));
         } else {
             author = serenity::CreateEmbedAuthor::new(author_label.clone());
@@ -90,7 +105,12 @@ pub async fn backup_list(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
             .unwrap_or_else(|| "**All of your backups:**".to_string())
     };
     let total_pages = super::backup::page_count(fields.len());
-    let (fname, fbytes) = crate::commands::shared::footer_parts(&ctx, &gid).await;
+    let (fname, fbytes) = tokio::time::timeout(
+        std::time::Duration::from_secs(10),
+        crate::commands::shared::footer_parts(&ctx, &gid),
+    )
+    .await
+    .unwrap_or_else(|_| (crate::commands::shared::bot_footer_name(None), None));
     let page_word = crate::lang::get(&code, "var_page").unwrap_or_else(|| "Page".to_string());
     let mk_embed = |page: usize| {
         let footer = crate::commands::shared::footer_page_text(
@@ -213,5 +233,19 @@ mod tests {
         assert_eq!(list_author_name("", Some("Kisa")), "Kisa");
         assert_eq!(list_author_name("  ", None), "");
         assert_eq!(list_author_name("", None), "");
+    }
+
+    #[tokio::test]
+    async fn bounded_download_gives_up_like_a_failed_fetch() {
+        // Nothing listens on the discard port: connection refused must
+        // resolve to None well inside the 8s bound (a stalled icon
+        // degrades to no icon instead of holding the ack).
+        let out = tokio::time::timeout(
+            std::time::Duration::from_secs(15),
+            super::bounded_download("http://127.0.0.1:9/user_icon.png"),
+        )
+        .await
+        .expect("bounded download resolves inside its own bound");
+        assert!(out.is_none());
     }
 }

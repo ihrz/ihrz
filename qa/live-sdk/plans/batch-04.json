@@ -4,67 +4,6 @@
   "channel_id": "1509600862346154064",
   "path": [
    "fun",
-   "animals",
-   "duck"
-  ],
-  "options": {}
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "fun",
-   "animals",
-   "fox"
-  ],
-  "options": {}
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "fun",
-   "animals",
-   "frog"
-  ],
-  "options": {}
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "fun",
-   "animals",
-   "panda"
-  ],
-  "options": {}
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "fun",
-   "animals",
-   "squirrel"
-  ],
-  "options": {}
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "fun",
-   "config"
-  ],
-  "options": {
-   "action": 1
-  }
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "fun",
    "image",
    "catsay"
   ],
@@ -271,5 +210,70 @@
    "trans"
   ],
   "options": {}
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "fun",
+   "style",
+   "caracteres"
+  ],
+  "options": {}
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "fun",
+   "style",
+   "morse"
+  ],
+  "options": {}
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "git",
+   "lines"
+  ],
+  "options": {}
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "guildconfig",
+   "block",
+   "bot"
+  ],
+  "options": {
+   "action": 1
+  }
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "guildconfig",
+   "block",
+   "too-new-account"
+  ],
+  "options": {
+   "action": 1
+  }
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "guildconfig",
+   "bot",
+   "prefix"
+  ],
+  "options": {
+   "action": 1
+  }
  }
 ]

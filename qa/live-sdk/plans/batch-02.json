@@ -3,65 +3,6 @@
   "kind": "slash",
   "channel_id": "1509600862346154064",
   "path": [
-   "automod",
-   "block",
-   "spam"
-  ],
-  "options": {
-   "action": 1
-  }
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "automod",
-   "block",
-   "telegram_link"
-  ],
-  "options": {
-   "action": 1
-  }
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "autoreact"
-  ],
-  "options": {}
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "backup",
-   "create"
-  ],
-  "options": {}
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "backup",
-   "list"
-  ],
-  "options": {}
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "backup",
-   "manage"
-  ],
-  "options": {}
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
    "banner",
    "server"
   ],
@@ -254,6 +195,79 @@
   "path": [
    "custom",
    "bio"
+  ],
+  "options": {
+   "action": 1
+  }
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "custom",
+   "name"
+  ],
+  "options": {
+   "action": 1
+  }
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "economy",
+   "balance"
+  ],
+  "options": {}
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "economy",
+   "balance-add"
+  ],
+  "options": {
+   "amount": 1.0,
+   "member": {
+    "__snowflake": "1542861131939577949"
+   }
+  }
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "economy",
+   "balance-remove"
+  ],
+  "options": {
+   "amount": 1.0,
+   "member": {
+    "__snowflake": "1542861131939577949"
+   }
+  }
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "economy",
+   "boost-set"
+  ],
+  "options": {
+   "role": {
+    "__snowflake": "999449972615413861"
+   },
+   "boost": 1
+  }
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "economy",
+   "config"
   ],
   "options": {
    "action": 1

@@ -242,7 +242,7 @@ async def act_send(client: Sdk, channel, content: str) -> dict:
 
     msg = await client.guarded_write(_do())
     obs = await observe_bot_reply(channel, t0)
-    obs.update({"kind": "send", "sent_id": msg.id})
+    obs.update({"kind": "send", "content": content, "sent_id": msg.id})
     return obs
 
 
@@ -349,11 +349,11 @@ async def act_slash(client: Sdk, channel, path: list, options: dict) -> dict:
                  if getattr(c, "name", "") == path[0]
                  and getattr(c, "application_id", 0) == BOT_APP_ID), None)
     if node is None:
-        return {"kind": "slash", "path": path, "replied": False,
+        return {"kind": "slash", "path": path, "options": options, "replied": False,
                 "verdict": "error:not-registered", "snippet": ""}
     node = _resolve_node(node, path[1:])
     if node is None:
-        return {"kind": "slash", "path": path, "replied": False,
+        return {"kind": "slash", "path": path, "options": options, "replied": False,
                 "verdict": "error:subcommand-not-found", "snippet": ""}
     t0 = int(time.time() * 1000)
     invoke_ok: bool | None = None
@@ -377,7 +377,7 @@ async def act_slash(client: Sdk, channel, path: list, options: dict) -> dict:
             invoke_ok = None
         invoke_note = f"successful={getattr(interaction, 'successful', '?')}"
     except Exception as e:  # noqa: BLE001 - recorded, never raised past report
-        return {"kind": "slash", "path": path, "replied": False,
+        return {"kind": "slash", "path": path, "options": options, "replied": False,
                 "verdict": f"error:invoke-{type(e).__name__}",
                 "snippet": str(e)[:300]}
     # Ephemeral replies never hit channel history: check the cached
@@ -417,7 +417,8 @@ async def act_slash(client: Sdk, channel, path: list, options: dict) -> dict:
                 obs = {"replied": True, "latency_ms": obs["latency_ms"],
                        "verdict": classify_reply(blob) + ":ephemeral",
                        "snippet": blob[:300], "message_ids": [cached.id]}
-    obs.update({"kind": "slash", "path": path, "invoke_ok": invoke_ok,
+    obs.update({"kind": "slash", "path": path, "options": options,
+                "invoke_ok": invoke_ok,
                 "invoke": invoke_note})
     return obs
 

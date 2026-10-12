@@ -2,66 +2,6 @@
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".h247 join"
- },
- {
-  "kind": "send",
-  "channel_id": "1509600862346154064",
-  "content": ".h247 leave"
- },
- {
-  "kind": "send",
-  "channel_id": "1509600862346154064",
-  "content": ".help"
- },
- {
-  "kind": "send",
-  "channel_id": "1509600862346154064",
-  "content": ".honeypot config qa"
- },
- {
-  "kind": "send",
-  "channel_id": "1509600862346154064",
-  "content": ".inv addinvites <@1542861131939577949> 1.0"
- },
- {
-  "kind": "send",
-  "channel_id": "1509600862346154064",
-  "content": ".inv invites"
- },
- {
-  "kind": "send",
-  "channel_id": "1509600862346154064",
-  "content": ".inv leaderboard"
- },
- {
-  "kind": "send",
-  "channel_id": "1509600862346154064",
-  "content": ".inv removeinvites 1.0"
- },
- {
-  "kind": "send",
-  "channel_id": "1509600862346154064",
-  "content": ".inv reset"
- },
- {
-  "kind": "send",
-  "channel_id": "1509600862346154064",
-  "content": ".invite"
- },
- {
-  "kind": "send",
-  "channel_id": "1509600862346154064",
-  "content": ".iris"
- },
- {
-  "kind": "send",
-  "channel_id": "1509600862346154064",
-  "content": ".join-ghostping channel add <#1509600862346154064>"
- },
- {
-  "kind": "send",
-  "channel_id": "1509600862346154064",
   "content": ".join-ghostping channel remove <#1509600862346154064>"
  },
  {
@@ -123,5 +63,65 @@
   "kind": "send",
   "channel_id": "1509600862346154064",
   "content": ".legacy langstats"
+ },
+ {
+  "kind": "send",
+  "channel_id": "1509600862346154064",
+  "content": ".legacy list-react"
+ },
+ {
+  "kind": "send",
+  "channel_id": "1509600862346154064",
+  "content": ".legacy nitrofdp"
+ },
+ {
+  "kind": "send",
+  "channel_id": "1509600862346154064",
+  "content": ".legacy rap-vs-reality"
+ },
+ {
+  "kind": "send",
+  "channel_id": "1509600862346154064",
+  "content": ".legacy remove-react"
+ },
+ {
+  "kind": "send",
+  "channel_id": "1509600862346154064",
+  "content": ".legacy securewebhook"
+ },
+ {
+  "kind": "send",
+  "channel_id": "1509600862346154064",
+  "content": ".legacy shardinfo"
+ },
+ {
+  "kind": "send",
+  "channel_id": "1509600862346154064",
+  "content": ".legacy status-embed"
+ },
+ {
+  "kind": "send",
+  "channel_id": "1509600862346154064",
+  "content": ".legacy two-sides"
+ },
+ {
+  "kind": "send",
+  "channel_id": "1509600862346154064",
+  "content": ".legacy updates"
+ },
+ {
+  "kind": "send",
+  "channel_id": "1509600862346154064",
+  "content": ".links"
+ },
+ {
+  "kind": "send",
+  "channel_id": "1509600862346154064",
+  "content": ".membercount 1 <#1509600862346154064>"
+ },
+ {
+  "kind": "send",
+  "channel_id": "1509600862346154064",
+  "content": ".mod baninfo"
  }
 ]

@@ -3,72 +3,6 @@
   "kind": "slash",
   "channel_id": "1509600862346154064",
   "path": [
-   "util",
-   "sync"
-  ],
-  "options": {
-   "category": {
-    "__snowflake": "1509600862346154064"
-   }
-  }
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "util",
-   "unwlvc"
-  ],
-  "options": {}
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "util",
-   "wakeup"
-  ],
-  "options": {
-   "member": {
-    "__snowflake": "1542861131939577949"
-   }
-  }
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "util",
-   "where"
-  ],
-  "options": {
-   "member": {
-    "__snowflake": "1542861131939577949"
-   }
-  }
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "util",
-   "wlvc"
-  ],
-  "options": {}
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "util",
-   "zip-stickers"
-  ],
-  "options": {}
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
    "utils",
    "addrole"
   ],
@@ -278,5 +212,61 @@
     "__snowflake": "1542861131939577949"
    }
   }
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "utils",
+   "userinfo"
+  ],
+  "options": {}
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "utils",
+   "vanity-generator"
+  ],
+  "options": {
+   "code": "qa probe"
+  }
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "utils",
+   "vc"
+  ],
+  "options": {}
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "utils",
+   "wlroles"
+  ],
+  "options": {}
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "utils",
+   "zip-emojis"
+  ],
+  "options": {}
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "utilss",
+   "renewvc"
+  ],
+  "options": {}
  }
 ]

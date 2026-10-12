@@ -99,22 +99,7 @@
   "channel_id": "1509600862346154064",
   "path": [
    "antispam",
-   "bypass-roles",
-   "add"
-  ],
-  "options": {
-   "role": {
-    "__snowflake": "999449972615413861"
-   }
-  }
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "antispam",
-   "bypass-roles",
-   "clear"
+   "bypass-roles"
   ],
   "options": {}
  },
@@ -123,72 +108,9 @@
   "channel_id": "1509600862346154064",
   "path": [
    "antispam",
-   "bypass-roles",
-   "list"
+   "ignore-channels"
   ],
   "options": {}
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "antispam",
-   "bypass-roles",
-   "remove"
-  ],
-  "options": {
-   "role": {
-    "__snowflake": "999449972615413861"
-   }
-  }
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "antispam",
-   "ignore-channels",
-   "add"
-  ],
-  "options": {
-   "channel": {
-    "__snowflake": "1509600862346154064"
-   }
-  }
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "antispam",
-   "ignore-channels",
-   "clear"
-  ],
-  "options": {}
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "antispam",
-   "ignore-channels",
-   "list"
-  ],
-  "options": {}
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "antispam",
-   "ignore-channels",
-   "remove"
-  ],
-  "options": {
-   "channel": {
-    "__snowflake": "1509600862346154064"
-   }
-  }
  },
  {
   "kind": "slash",
@@ -273,5 +195,64 @@
   "options": {
    "action": 1
   }
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "automod",
+   "block",
+   "spam"
+  ],
+  "options": {
+   "action": 1
+  }
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "automod",
+   "block",
+   "telegram_link"
+  ],
+  "options": {
+   "action": 1
+  }
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "autoreact"
+  ],
+  "options": {}
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "backup",
+   "create"
+  ],
+  "options": {}
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "backup",
+   "list"
+  ],
+  "options": {}
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "backup",
+   "manage"
+  ],
+  "options": {}
  }
 ]

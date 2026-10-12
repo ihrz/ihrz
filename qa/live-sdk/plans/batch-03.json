@@ -3,79 +3,6 @@
   "kind": "slash",
   "channel_id": "1509600862346154064",
   "path": [
-   "custom",
-   "name"
-  ],
-  "options": {
-   "action": 1
-  }
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "economy",
-   "balance"
-  ],
-  "options": {}
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "economy",
-   "balance-add"
-  ],
-  "options": {
-   "amount": 1.0,
-   "member": {
-    "__snowflake": "1542861131939577949"
-   }
-  }
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "economy",
-   "balance-remove"
-  ],
-  "options": {
-   "amount": 1.0,
-   "member": {
-    "__snowflake": "1542861131939577949"
-   }
-  }
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "economy",
-   "boost-set"
-  ],
-  "options": {
-   "role": {
-    "__snowflake": "999449972615413861"
-   },
-   "boost": 1
-  }
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "economy",
-   "config"
-  ],
-  "options": {
-   "action": 1
-  }
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
    "economy",
    "daily"
   ],
@@ -277,5 +204,66 @@
    "dolphin"
   ],
   "options": {}
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "fun",
+   "animals",
+   "duck"
+  ],
+  "options": {}
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "fun",
+   "animals",
+   "fox"
+  ],
+  "options": {}
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "fun",
+   "animals",
+   "frog"
+  ],
+  "options": {}
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "fun",
+   "animals",
+   "panda"
+  ],
+  "options": {}
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "fun",
+   "animals",
+   "squirrel"
+  ],
+  "options": {}
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "fun",
+   "config"
+  ],
+  "options": {
+   "action": 1
+  }
  }
 ]

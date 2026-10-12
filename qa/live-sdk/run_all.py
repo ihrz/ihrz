@@ -74,6 +74,30 @@ def main() -> int:
                       f"{len(bad)} non-ok", flush=True)
             except Exception as e:  # noqa: BLE001
                 print(f"{name} done (unparsed tail: {e})", flush=True)
+    # Aggregate verdict counts across all batch reports in range.
+    total = 0
+    verdicts: dict = {}
+    counted = 0
+    for name in batches:
+        n = int(name.split("-")[1].split(".")[0])
+        if n < first or n > last:
+            continue
+        out = os.path.join(REPORTS, f"live-batch-{n:02d}.json")
+        try:
+            with open(out, encoding="utf8") as f:
+                raw = f.read()
+            data = json.loads(raw[raw.index("\n{") + 1:] if "\n{" in raw else raw)
+        except (OSError, ValueError):
+            continue
+        actions = data.get("actions", []) if isinstance(data, dict) else []
+        counted += 1
+        for a in actions:
+            total += 1
+            v = a.get("verdict", "ok") if isinstance(a, dict) else "ok"
+            verdicts[v] = verdicts.get(v, 0) + 1
+    print(f"aggregate: {total} actions across {counted} reports: "
+          + (", ".join(f"{k}={v}" for k, v in sorted(verdicts.items()))
+             if verdicts else "no verdicts"), flush=True)
     try:
         os.unlink(LOCK)
     except OSError:

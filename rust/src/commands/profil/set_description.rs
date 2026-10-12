@@ -44,6 +44,9 @@ pub async fn profil_description(
     #[rest]
     description: Option<String>,
 ) -> Result<(), anyhow::Error> {
+    // Ack first: the load + dual-write save below can outlast the 3s
+    // interaction window (see `ack_setter`).
+    super::profil::ack_setter(&ctx).await;
     let user_id = ctx.author().id.get();
     let mut p = super::profil::load_profil_routed(&ctx.data().pool, user_id).await;
     p.description = default_description(description);

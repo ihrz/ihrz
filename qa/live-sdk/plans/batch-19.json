@@ -2,66 +2,6 @@
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".music queue"
- },
- {
-  "kind": "send",
-  "channel_id": "1509600862346154064",
-  "content": ".music resume"
- },
- {
-  "kind": "send",
-  "channel_id": "1509600862346154064",
-  "content": ".music shuffle"
- },
- {
-  "kind": "send",
-  "channel_id": "1509600862346154064",
-  "content": ".music skip"
- },
- {
-  "kind": "send",
-  "channel_id": "1509600862346154064",
-  "content": ".music stop"
- },
- {
-  "kind": "send",
-  "channel_id": "1509600862346154064",
-  "content": ".music trackinfo"
- },
- {
-  "kind": "send",
-  "channel_id": "1509600862346154064",
-  "content": ".music volume 1"
- },
- {
-  "kind": "send",
-  "channel_id": "1509600862346154064",
-  "content": ".nightmode"
- },
- {
-  "kind": "send",
-  "channel_id": "1509600862346154064",
-  "content": ".noaimie"
- },
- {
-  "kind": "send",
-  "channel_id": "1509600862346154064",
-  "content": ".notifier author add 1 qa"
- },
- {
-  "kind": "send",
-  "channel_id": "1509600862346154064",
-  "content": ".notifier author list"
- },
- {
-  "kind": "send",
-  "channel_id": "1509600862346154064",
-  "content": ".notifier author remove 1 qa"
- },
- {
-  "kind": "send",
-  "channel_id": "1509600862346154064",
   "content": ".notifier config channel <#1509600862346154064>"
  },
  {
@@ -123,5 +63,65 @@
   "kind": "send",
   "channel_id": "1509600862346154064",
   "content": ".profil set-description"
+ },
+ {
+  "kind": "send",
+  "channel_id": "1509600862346154064",
+  "content": ".profil set-gender 1"
+ },
+ {
+  "kind": "send",
+  "channel_id": "1509600862346154064",
+  "content": ".profil set-pronoun 1"
+ },
+ {
+  "kind": "send",
+  "channel_id": "1509600862346154064",
+  "content": ".profil show"
+ },
+ {
+  "kind": "send",
+  "channel_id": "1509600862346154064",
+  "content": ".protect actions qa"
+ },
+ {
+  "kind": "send",
+  "channel_id": "1509600862346154064",
+  "content": ".protect allow-add <@1542861131939577949>"
+ },
+ {
+  "kind": "send",
+  "channel_id": "1509600862346154064",
+  "content": ".protect allow-remove <@1542861131939577949>"
+ },
+ {
+  "kind": "send",
+  "channel_id": "1509600862346154064",
+  "content": ".protect allow-show"
+ },
+ {
+  "kind": "send",
+  "channel_id": "1509600862346154064",
+  "content": ".protect sanction 1"
+ },
+ {
+  "kind": "send",
+  "channel_id": "1509600862346154064",
+  "content": ".protect show"
+ },
+ {
+  "kind": "send",
+  "channel_id": "1509600862346154064",
+  "content": ".punishpub"
+ },
+ {
+  "kind": "send",
+  "channel_id": "1509600862346154064",
+  "content": ".ranks channel"
+ },
+ {
+  "kind": "send",
+  "channel_id": "1509600862346154064",
+  "content": ".ranks config 1"
  }
 ]

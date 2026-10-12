@@ -3,72 +3,6 @@
   "kind": "slash",
   "channel_id": "1509600862346154064",
   "path": [
-   "join-ghostping",
-   "channel",
-   "remove"
-  ],
-  "options": {
-   "channel": {
-    "__snowflake": "1509600862346154064"
-   }
-  }
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "kisakay"
-  ],
-  "options": {}
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "lastfm",
-   "config"
-  ],
-  "options": {
-   "power": 1
-  }
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "lastfm",
-   "login"
-  ],
-  "options": {
-   "username": "qa probe",
-   "password": "qa probe"
-  }
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "links"
-  ],
-  "options": {}
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "membercount"
-  ],
-  "options": {
-   "action": 1,
-   "channel": {
-    "__snowflake": "1509600862346154064"
-   }
-  }
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
    "mod",
    "baninfo"
   ],
@@ -246,6 +180,72 @@
   ],
   "options": {
    "level": 1
+  }
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "nightmode"
+  ],
+  "options": {}
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "noaimie"
+  ],
+  "options": {}
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "notifier",
+   "author",
+   "add"
+  ],
+  "options": {
+   "platform": 1,
+   "author": "qa probe"
+  }
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "notifier",
+   "author",
+   "list"
+  ],
+  "options": {}
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "notifier",
+   "author",
+   "remove"
+  ],
+  "options": {
+   "platform": 1,
+   "author": "qa probe"
+  }
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "notifier",
+   "config",
+   "channel"
+  ],
+  "options": {
+   "target": {
+    "__snowflake": "1509600862346154064"
+   }
   }
  }
 ]

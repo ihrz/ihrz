@@ -3,71 +3,6 @@
   "kind": "slash",
   "channel_id": "1509600862346154064",
   "path": [
-   "fun",
-   "style",
-   "caracteres"
-  ],
-  "options": {}
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "fun",
-   "style",
-   "morse"
-  ],
-  "options": {}
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "git",
-   "lines"
-  ],
-  "options": {}
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "guildconfig",
-   "block",
-   "bot"
-  ],
-  "options": {
-   "action": 1
-  }
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "guildconfig",
-   "block",
-   "too-new-account"
-  ],
-  "options": {
-   "action": 1
-  }
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "guildconfig",
-   "bot",
-   "prefix"
-  ],
-  "options": {
-   "action": 1
-  }
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
    "guildconfig",
    "config",
    "restore"
@@ -247,6 +182,72 @@
    "add"
   ],
   "options": {
+   "channel": {
+    "__snowflake": "1509600862346154064"
+   }
+  }
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "join-ghostping",
+   "channel",
+   "remove"
+  ],
+  "options": {
+   "channel": {
+    "__snowflake": "1509600862346154064"
+   }
+  }
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "kisakay"
+  ],
+  "options": {}
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "lastfm",
+   "config"
+  ],
+  "options": {
+   "power": 1
+  }
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "lastfm",
+   "login"
+  ],
+  "options": {
+   "username": "qa probe",
+   "password": "qa probe"
+  }
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "links"
+  ],
+  "options": {}
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "membercount"
+  ],
+  "options": {
+   "action": 1,
    "channel": {
     "__snowflake": "1509600862346154064"
    }

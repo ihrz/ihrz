@@ -1,0 +1,17 @@
+[
+  {"kind": "slash", "channel_id": "1509600862346154064", "path": ["Estimate the love"], "options": {}},
+  {"kind": "slash", "channel_id": "1509600862346154064", "path": ["backup", "list"], "options": {}},
+  {"kind": "slash", "channel_id": "1509600862346154064", "path": ["fun", "random", "dice"], "options": {}},
+  {"kind": "slash", "channel_id": "1509600862346154064", "path": ["profil", "set-age"], "options": {}},
+  {"kind": "slash", "channel_id": "1509600862346154064", "path": ["profil", "set-description"], "options": {}},
+  {"kind": "slash", "channel_id": "1509600862346154064", "path": ["profil", "set-gender"], "options": {"gender": 1}},
+  {"kind": "slash", "channel_id": "1509600862346154064", "path": ["profil", "set-pronoun"], "options": {"pronoun": 1}},
+  {"kind": "slash", "channel_id": "1509600862346154064", "path": ["utils", "userinfo"], "options": {}},
+  {"kind": "slash", "channel_id": "1509600862346154064", "path": ["util", "addrolereact"], "options": {"message_id": "qa probe", "role": {"__snowflake": "999449972615413861"}}},
+  {"kind": "send", "channel_id": "1509600862346154064", "content": ".util addrolereact qa <@&999449972615413861>"},
+  {"kind": "slash", "channel_id": "1509600862346154064", "path": ["utils", "addrole"], "options": {"user": {"__snowflake": "1542861131939577949"}, "role": {"__snowflake": "999449972615413861"}}},
+  {"kind": "slash", "channel_id": "1509600862346154064", "path": ["utils", "delrole"], "options": {"user": {"__snowflake": "1542861131939577949"}, "role": {"__snowflake": "999449972615413861"}}},
+  {"kind": "send", "channel_id": "1509600862346154064", "content": ".util cooldown 1"},
+  {"kind": "send", "channel_id": "1509600862346154064", "content": ".grosbg"},
+  {"kind": "send", "channel_id": "1509600862346154064", "content": ".toggle-react"}
+]

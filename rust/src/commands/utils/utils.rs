@@ -6,7 +6,7 @@ use super::{
     },
     channels::{media_only, renew},
     info::{avatar, emojis, prevnames, serverinfo, snipe, sticker, top, userinfo},
-    roles::{addrole, delrole, derank, massiverole, nickrole, wlroles, wlroles_add, wlroles_list},
+    roles::{addrole, delrole, derank, massiverole, nickrole, wlroles},
     voice::{massmove, vc_list},
 };
 
@@ -14,12 +14,13 @@ use super::{
 // (src/Interaction/HybridCommands/utils/utils.ts, exactly 25 subcommands).
 // A bare invocation raises SubcommandRequired (mapped to help in
 // `bot.rs`) before this body runs, on both paths.
-// Prefix choice exactness (accepted): `ChoiceParameter` leaves
-// (`slowmode`'s `DurationChoice`: `0`, `5s`..`6h`) match the choice key
-// exactly on the prefix path — `!utils cooldown 5` parses but matches
-// no choice, unlike the TS prefix leg which folded through
-// `timeConversion`. Slash users get the picker, so this only affects
-// prefix discoverability.
+// Prefix free-text exactness: the `util cooldown` leaf takes a plain
+// `String` on both paths and constrains the channel edit to the TS
+// `timeConversion` keys (`0`, `5s`..`6h`) — off-table input like `1`
+// skips the edit but still answers the ok reply, exactly like the TS
+// prefix leg (`Number(undefined)` → NaN no-op + reply). Slash users
+// type the value (no picker), so this only affects slash
+// discoverability.
 #[poise::command(
     slash_command,
     prefix_command,
@@ -55,10 +56,6 @@ use super::{
         // not count toward Discord's 25 slash options).
         "sticker",
         "top",
-        // Rust-only splits of the TS `wlroles` subcommand (prefix-only
-        // helpers; TS has no such slash subs).
-        "wlroles_add",
-        "wlroles_list"
     ),
     subcommand_required,
     description_localized("fr", "Commande sous groupé pour la catégorie utilitaire"),

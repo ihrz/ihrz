@@ -3,76 +3,6 @@
   "kind": "slash",
   "channel_id": "1509600862346154064",
   "path": [
-   "tag",
-   "list"
-  ],
-  "options": {}
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "tag",
-   "use"
-  ],
-  "options": {
-   "tag_name": "qa probe"
-  }
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "tag",
-   "wlroles-create"
-  ],
-  "options": {
-   "role": {
-    "__snowflake": "999449972615413861"
-   }
-  }
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "tag",
-   "wlroles-use"
-  ],
-  "options": {
-   "role": {
-    "__snowflake": "999449972615413861"
-   }
-  }
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "ticket",
-   "config"
-  ],
-  "options": {
-   "action": 1
-  }
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "ticket",
-   "log-channel"
-  ],
-  "options": {
-   "channel": {
-    "__snowflake": "1509600862346154064"
-   }
-  }
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
    "ticket",
    "panel"
   ],
@@ -261,6 +191,72 @@
   "path": [
    "util",
    "serverpic"
+  ],
+  "options": {}
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "util",
+   "sync"
+  ],
+  "options": {
+   "category": {
+    "__snowflake": "1509600862346154064"
+   }
+  }
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "util",
+   "unwlvc"
+  ],
+  "options": {}
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "util",
+   "wakeup"
+  ],
+  "options": {
+   "member": {
+    "__snowflake": "1542861131939577949"
+   }
+  }
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "util",
+   "where"
+  ],
+  "options": {
+   "member": {
+    "__snowflake": "1542861131939577949"
+   }
+  }
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "util",
+   "wlvc"
+  ],
+  "options": {}
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "util",
+   "zip-stickers"
   ],
   "options": {}
  }

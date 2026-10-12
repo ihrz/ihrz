@@ -37,6 +37,16 @@ pub async fn userinfo(
         .as_ref()
         .or(fuzzy.as_ref())
         .unwrap_or_else(|| ctx.author());
+    // Loading ack first, mirroring the `Discord_Loading` send before
+    // the slow lookups in !userinfo.ts:266 (donor APIs, banner REST and
+    // avatar downloads below can outlast the 3s interaction window, so
+    // the final `ctx.send` expired with Unknown interaction). Edited
+    // with the full reply below, like `originalInteraction.edit` in
+    // !userinfo.ts:403.
+    let loading = crate::emojis::app_emoji_markup(ctx.http(), "Discord_Loading")
+        .await
+        .unwrap_or_else(|| "...".to_string());
+    let progress = ctx.say(loading).await?;
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let f = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
     let notfound = crate::lang::get(&code, "userinfo_var_notfound")
@@ -207,7 +217,7 @@ pub async fn userinfo(
     if let Some(bytes) = banner_bytes {
         reply = reply.attachment(serenity::CreateAttachment::bytes(bytes, "user_banner.gif"));
     }
-    ctx.send(reply).await?;
+    progress.edit(ctx, reply).await?;
     Ok(())
 }
 

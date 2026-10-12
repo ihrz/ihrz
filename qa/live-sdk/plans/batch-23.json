@@ -2,66 +2,6 @@
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".util allwebhooks"
- },
- {
-  "kind": "send",
-  "channel_id": "1509600862346154064",
-  "content": ".util autorenew <#1509600862346154064> qa"
- },
- {
-  "kind": "send",
-  "channel_id": "1509600862346154064",
-  "content": ".util cooldown 1"
- },
- {
-  "kind": "send",
-  "channel_id": "1509600862346154064",
-  "content": ".util cooldown 1"
- },
- {
-  "kind": "send",
-  "channel_id": "1509600862346154064",
-  "content": ".util derogation"
- },
- {
-  "kind": "send",
-  "channel_id": "1509600862346154064",
-  "content": ".util inviteinfo qa"
- },
- {
-  "kind": "send",
-  "channel_id": "1509600862346154064",
-  "content": ".util nick-kicker"
- },
- {
-  "kind": "send",
-  "channel_id": "1509600862346154064",
-  "content": ".util role-members <@&999449972615413861>"
- },
- {
-  "kind": "send",
-  "channel_id": "1509600862346154064",
-  "content": ".util rolelimit <@&999449972615413861>"
- },
- {
-  "kind": "send",
-  "channel_id": "1509600862346154064",
-  "content": ".util serverpic"
- },
- {
-  "kind": "send",
-  "channel_id": "1509600862346154064",
-  "content": ".util sync <#1509600862346154064>"
- },
- {
-  "kind": "send",
-  "channel_id": "1509600862346154064",
-  "content": ".util unwlvc"
- },
- {
-  "kind": "send",
-  "channel_id": "1509600862346154064",
   "content": ".util wakeup <@1542861131939577949>"
  },
  {
@@ -123,5 +63,65 @@
   "kind": "send",
   "channel_id": "1509600862346154064",
   "content": ".utils emojis qa"
+ },
+ {
+  "kind": "send",
+  "channel_id": "1509600862346154064",
+  "content": ".utils leash <@1542861131939577949>"
+ },
+ {
+  "kind": "send",
+  "channel_id": "1509600862346154064",
+  "content": ".utils massiverole 1 <@&999449972615413861>"
+ },
+ {
+  "kind": "send",
+  "channel_id": "1509600862346154064",
+  "content": ".utils massmove"
+ },
+ {
+  "kind": "send",
+  "channel_id": "1509600862346154064",
+  "content": ".utils media-only"
+ },
+ {
+  "kind": "send",
+  "channel_id": "1509600862346154064",
+  "content": ".utils nickrole 1 qa <@&999449972615413861>"
+ },
+ {
+  "kind": "send",
+  "channel_id": "1509600862346154064",
+  "content": ".utils prevnames"
+ },
+ {
+  "kind": "send",
+  "channel_id": "1509600862346154064",
+  "content": ".utils serverinfo"
+ },
+ {
+  "kind": "send",
+  "channel_id": "1509600862346154064",
+  "content": ".utils setmentionrole 1"
+ },
+ {
+  "kind": "send",
+  "channel_id": "1509600862346154064",
+  "content": ".utils snipe"
+ },
+ {
+  "kind": "send",
+  "channel_id": "1509600862346154064",
+  "content": ".sticker"
+ },
+ {
+  "kind": "send",
+  "channel_id": "1509600862346154064",
+  "content": ".top"
+ },
+ {
+  "kind": "send",
+  "channel_id": "1509600862346154064",
+  "content": ".utils unleash <@1542861131939577949>"
  }
 ]

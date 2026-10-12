@@ -3,72 +3,6 @@
   "kind": "slash",
   "channel_id": "1509600862346154064",
   "path": [
-   "nightmode"
-  ],
-  "options": {}
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "noaimie"
-  ],
-  "options": {}
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "notifier",
-   "author",
-   "add"
-  ],
-  "options": {
-   "platform": 1,
-   "author": "qa probe"
-  }
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "notifier",
-   "author",
-   "list"
-  ],
-  "options": {}
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "notifier",
-   "author",
-   "remove"
-  ],
-  "options": {
-   "platform": 1,
-   "author": "qa probe"
-  }
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "notifier",
-   "config",
-   "channel"
-  ],
-  "options": {
-   "target": {
-    "__snowflake": "1509600862346154064"
-   }
-  }
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
    "notifier",
    "config",
    "message"
@@ -265,5 +199,60 @@
   "options": {
    "choose": 1
   }
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "protect",
+   "show"
+  ],
+  "options": {}
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "punishpub"
+  ],
+  "options": {}
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "ranks",
+   "channel"
+  ],
+  "options": {}
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "ranks",
+   "config"
+  ],
+  "options": {
+   "action": 1
+  }
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "ranks",
+   "ignore-channels"
+  ],
+  "options": {}
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "ranks",
+   "leaderboard"
+  ],
+  "options": {}
  }
 ]

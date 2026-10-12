@@ -1,22 +1,6 @@
 use super::*;
 
-/// Parse the age the TS prefix path way. `method.number` in `method.ts`
-/// is `parseInt`-based with NaN -> 0 and `!set-age.ts` applies no `||`
-/// fallback on top, so missing or non-numeric prefix input stores 0. The
-/// slash path (`getNumber`, floats accepted) goes through the same manual
-/// parse so both paths behave alike; fractional input truncates like
-/// parseInt. A typed `f64` param would reject non-numeric prefix input
-/// with a framework error where TS stores 0.
-fn parse_age(raw: Option<String>) -> f64 {
-    raw.as_deref()
-        .unwrap_or("")
-        .trim()
-        .parse::<f64>()
-        .map(|f| f.trunc())
-        .unwrap_or(0.0)
-}
-
-/// Set your age. Mirrors `!set-age.ts`.
+/// Set your age on the iHorizon's Profil !
 #[poise::command(
     slash_command,
     prefix_command,
@@ -39,9 +23,15 @@ pub async fn profil_age(
     #[description_localized("ja", "iHorizonプロフィールの年齢")]
     #[description_localized("ru", "Ваш возраст в профиле iHorizon")]
     #[description_localized("es-ES", "Tu edad en el perfil de iHorizon")]
-    age: Option<String>,
+    age: Option<f64>,
 ) -> Result<(), anyhow::Error> {
-    let age = parse_age(age);
+    // Ack first: the load + dual-write save below can outlast the 3s
+    // interaction window (see `ack_setter`).
+    super::profil::ack_setter(&ctx).await;
+    // TS `!set-age.ts` slash path stores `getNumber("age")` verbatim
+    // (floats included, no range gate); the prefix `method.number`
+    // intake maps missing input to 0, mirrored here.
+    let age = age.unwrap_or(0.0);
     let user_id = ctx.author().id.get();
     let mut p = super::profil::load_profil_routed(&ctx.data().pool, user_id).await;
     p.age = Some(age);
@@ -59,16 +49,14 @@ pub async fn profil_age(
 
 #[cfg(test)]
 mod set_age_tests {
-    use super::parse_age;
-
+    /// Slash intake mirrors `getNumber("age")`: numeric values store
+    /// verbatim (floats included), a missing option stores 0 like the
+    /// prefix `method.number` fallback.
     #[test]
-    fn non_numeric_ages_default_to_zero_like_ts() {
-        // Missing / non-numeric prefix input stores 0 via method.number.
-        assert_eq!(parse_age(None), 0.0);
-        assert_eq!(parse_age(Some("abc".to_string())), 0.0);
-        assert_eq!(parse_age(Some(String::new())), 0.0);
-        // Plain values pass through; fractions truncate like parseInt.
-        assert_eq!(parse_age(Some("25".to_string())), 25.0);
-        assert_eq!(parse_age(Some("25.9".to_string())), 25.0);
+    fn missing_age_defaults_to_zero_like_ts_prefix() {
+        let age: Option<f64> = None;
+        assert_eq!(age.unwrap_or(0.0), 0.0);
+        assert_eq!(Some(25.0).unwrap_or(0.0), 25.0);
+        assert_eq!(Some(25.9).unwrap_or(0.0), 25.9);
     }
 }

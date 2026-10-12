@@ -2,66 +2,6 @@
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".profil set-gender 1"
- },
- {
-  "kind": "send",
-  "channel_id": "1509600862346154064",
-  "content": ".profil set-pronoun 1"
- },
- {
-  "kind": "send",
-  "channel_id": "1509600862346154064",
-  "content": ".profil show"
- },
- {
-  "kind": "send",
-  "channel_id": "1509600862346154064",
-  "content": ".protect actions qa"
- },
- {
-  "kind": "send",
-  "channel_id": "1509600862346154064",
-  "content": ".protect allow-add <@1542861131939577949>"
- },
- {
-  "kind": "send",
-  "channel_id": "1509600862346154064",
-  "content": ".protect allow-remove <@1542861131939577949>"
- },
- {
-  "kind": "send",
-  "channel_id": "1509600862346154064",
-  "content": ".protect allow-show"
- },
- {
-  "kind": "send",
-  "channel_id": "1509600862346154064",
-  "content": ".protect sanction 1"
- },
- {
-  "kind": "send",
-  "channel_id": "1509600862346154064",
-  "content": ".protect show"
- },
- {
-  "kind": "send",
-  "channel_id": "1509600862346154064",
-  "content": ".punishpub"
- },
- {
-  "kind": "send",
-  "channel_id": "1509600862346154064",
-  "content": ".ranks channel"
- },
- {
-  "kind": "send",
-  "channel_id": "1509600862346154064",
-  "content": ".ranks config 1"
- },
- {
-  "kind": "send",
-  "channel_id": "1509600862346154064",
   "content": ".ranks ignore-channels"
  },
  {
@@ -123,5 +63,65 @@
   "kind": "send",
   "channel_id": "1509600862346154064",
   "content": ".schedule list"
+ },
+ {
+  "kind": "send",
+  "channel_id": "1509600862346154064",
+  "content": ".schedule panel"
+ },
+ {
+  "kind": "send",
+  "channel_id": "1509600862346154064",
+  "content": ".security channel <#1509600862346154064>"
+ },
+ {
+  "kind": "send",
+  "channel_id": "1509600862346154064",
+  "content": ".security config 1"
+ },
+ {
+  "kind": "send",
+  "channel_id": "1509600862346154064",
+  "content": ".security role-to-give <@&999449972615413861>"
+ },
+ {
+  "kind": "send",
+  "channel_id": "1509600862346154064",
+  "content": ".security role-to-remove <@&999449972615413861>"
+ },
+ {
+  "kind": "send",
+  "channel_id": "1509600862346154064",
+  "content": ".setlogs 1"
+ },
+ {
+  "kind": "send",
+  "channel_id": "1509600862346154064",
+  "content": ".setlogs 1"
+ },
+ {
+  "kind": "send",
+  "channel_id": "1509600862346154064",
+  "content": ".setsuggest channel <#1509600862346154064>"
+ },
+ {
+  "kind": "send",
+  "channel_id": "1509600862346154064",
+  "content": ".setsuggest config 1"
+ },
+ {
+  "kind": "send",
+  "channel_id": "1509600862346154064",
+  "content": ".skullboard channel <#1509600862346154064>"
+ },
+ {
+  "kind": "send",
+  "channel_id": "1509600862346154064",
+  "content": ".skullboard config 1"
+ },
+ {
+  "kind": "send",
+  "channel_id": "1509600862346154064",
+  "content": ".skullboard create-thread 1"
  }
 ]

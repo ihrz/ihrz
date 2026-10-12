@@ -86,6 +86,9 @@ pub async fn profil_gender(
     #[description_localized("es-ES", "Género que más te queda")]
     gender: ProfilGender,
 ) -> Result<(), anyhow::Error> {
+    // Ack first: the load + dual-write save below can outlast the 3s
+    // interaction window (see `ack_setter`).
+    super::profil::ack_setter(&ctx).await;
     let gender = gender.as_str();
     if !super::validate_gender(gender) {
         let msg = crate::commands::lang_for(

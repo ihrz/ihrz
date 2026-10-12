@@ -3,61 +3,6 @@
   "kind": "slash",
   "channel_id": "1509600862346154064",
   "path": [
-   "protect",
-   "show"
-  ],
-  "options": {}
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "punishpub"
-  ],
-  "options": {}
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "ranks",
-   "channel"
-  ],
-  "options": {}
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "ranks",
-   "config"
-  ],
-  "options": {
-   "action": 1
-  }
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "ranks",
-   "ignore-channels"
-  ],
-  "options": {}
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "ranks",
-   "leaderboard"
-  ],
-  "options": {}
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
    "ranks",
    "message"
   ],
@@ -258,6 +203,76 @@
   ],
   "options": {
    "channel": {
+    "__snowflake": "1509600862346154064"
+   }
+  }
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "setsuggest",
+   "config"
+  ],
+  "options": {
+   "action": 1
+  }
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "skullboard",
+   "channel"
+  ],
+  "options": {
+   "to": {
+    "__snowflake": "1509600862346154064"
+   }
+  }
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "skullboard",
+   "config"
+  ],
+  "options": {
+   "action": 1
+  }
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "skullboard",
+   "create-thread"
+  ],
+  "options": {
+   "action": 1
+  }
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "skullboard",
+   "threshold"
+  ],
+  "options": {
+   "amount": 1
+  }
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "starboard",
+   "channel"
+  ],
+  "options": {
+   "to": {
     "__snowflake": "1509600862346154064"
    }
   }

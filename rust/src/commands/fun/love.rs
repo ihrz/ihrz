@@ -185,20 +185,24 @@ pub async fn love(
     // catch path that replies with `love_command_error`.
     // Mirrors `displayAvatarURL({ extension: "png", size: 512 })`
     // (forced PNG, not the webp `face()` URL).
-    let (avatar1, avatar2) = (
-        crate::commands::shared::download_bytes(&avatar_png_url(&u1, 512)).await,
-        crate::commands::shared::download_bytes(&avatar_png_url(&u2, 512)).await,
-    );
-    let heart = crate::commands::shared::download_bytes(love_heart_url()).await;
-    let png = match (avatar1, avatar2) {
-        (Some(a1), Some(a2)) => love_composite_png(&a1, &a2, heart.as_deref()),
-        _ => None,
-    };
+    // The three downloads run concurrently: sequentially they can
+    // outlast the 3s interaction window on a slow network and the
+    // single end reply then expires with no ack.
     let gid = ctx
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
-    let (fname, fbytes) = crate::commands::shared::footer_parts(&ctx, &gid).await;
+    let (avatar_url1, avatar_url2) = (avatar_png_url(&u1, 512), avatar_png_url(&u2, 512));
+    let (avatar1, avatar2, heart, (fname, fbytes)) = tokio::join!(
+        crate::commands::shared::download_bytes(&avatar_url1),
+        crate::commands::shared::download_bytes(&avatar_url2),
+        crate::commands::shared::download_bytes(love_heart_url()),
+        crate::commands::shared::footer_parts(&ctx, &gid),
+    );
+    let png = match (avatar1, avatar2) {
+        (Some(a1), Some(a2)) => love_composite_png(&a1, &a2, heart.as_deref()),
+        _ => None,
+    };
     let mut embed = poise::serenity_prelude::CreateEmbed::default()
         .colour(0xFFC0CB)
         .title("💕")

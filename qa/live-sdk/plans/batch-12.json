@@ -3,62 +3,6 @@
   "kind": "slash",
   "channel_id": "1509600862346154064",
   "path": [
-   "utils",
-   "userinfo"
-  ],
-  "options": {}
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "utils",
-   "vanity-generator"
-  ],
-  "options": {
-   "code": "qa probe"
-  }
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "utils",
-   "vc"
-  ],
-  "options": {}
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "utils",
-   "wlroles"
-  ],
-  "options": {}
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "utils",
-   "zip-emojis"
-  ],
-  "options": {}
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "utilss",
-   "renewvc"
-  ],
-  "options": {}
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
    "voice",
    "interface",
    "set-staff-role"
@@ -162,41 +106,71 @@
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".antispam bypass-roles add <@&999449972615413861>"
+  "content": ".antispam bypass-roles"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".antispam bypass-roles clear"
+  "content": ".antispam ignore-channels"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".antispam bypass-roles list"
+  "content": ".antispam manage"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".antispam bypass-roles remove <@&999449972615413861>"
+  "content": ".authrestore get qa"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".antispam ignore-channels add <#1509600862346154064>"
+  "content": ".authrestore roles qa <@&999449972615413861>"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".antispam ignore-channels clear"
+  "content": ".authrestore set <#1509600862346154064> qa"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".antispam ignore-channels list"
+  "content": ".autologs"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".antispam ignore-channels remove <#1509600862346154064>"
+  "content": ".automod block discord_invite_link 1"
+ },
+ {
+  "kind": "send",
+  "channel_id": "1509600862346154064",
+  "content": ".automod block link 1"
+ },
+ {
+  "kind": "send",
+  "channel_id": "1509600862346154064",
+  "content": ".automod block mass-mention 1"
+ },
+ {
+  "kind": "send",
+  "channel_id": "1509600862346154064",
+  "content": ".automod block spam 1"
+ },
+ {
+  "kind": "send",
+  "channel_id": "1509600862346154064",
+  "content": ".automod block telegram_link 1"
+ },
+ {
+  "kind": "send",
+  "channel_id": "1509600862346154064",
+  "content": ".autoreact"
+ },
+ {
+  "kind": "send",
+  "channel_id": "1509600862346154064",
+  "content": ".backup create"
  }
 ]

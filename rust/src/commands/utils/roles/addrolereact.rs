@@ -46,6 +46,16 @@ pub async fn addrolereact(
     Ok(())
 }
 
+/// Parse the message id the TS way. `String(messageId)` input that is
+/// missing or non-numeric never reaches the fetch: TS
+/// `channel.messages.fetch` rejects it and `!addrolereact.ts:96-101`
+/// replies `addrolereact_message_not_found`. Here unparsable input maps
+/// to 0, which the caller treats as not-found (never passed to
+/// `MessageId::new`, which panics on 0).
+fn parse_message_id(raw: &str) -> u64 {
+    raw.trim().parse().unwrap_or(0)
+}
+
 async fn addrolereact_inner(
     ctx: &Ctx<'_>,
     message_id: &str,
@@ -121,8 +131,15 @@ async fn addrolereact_inner(
         return Ok(());
     }
     // Message fetch (`!addrolereact.ts:93-95`): failure is the
-    // not-found reply, never a throw.
-    let mid: u64 = message_id.trim().parse().unwrap_or(0);
+    // not-found reply, never a throw. A missing or non-numeric id
+    // parses to 0, which takes the same not-found path (it must never
+    // reach `MessageId::new`, which panics on 0).
+    let mid = parse_message_id(message_id);
+    if mid == 0 {
+        ctx.say(say("addrolereact_message_not_found", "Message not found."))
+            .await?;
+        return Ok(());
+    }
     let Ok(target) = ch.id.message(ctx.http(), mid).await else {
         ctx.say(say("addrolereact_message_not_found", "Message not found."))
             .await?;
@@ -234,7 +251,21 @@ pub fn fill_role_summary(template: &str, role_name: &str, count: usize) -> Strin
 
 #[cfg(test)]
 mod tests {
-    use super::fill_role_summary;
+    use super::{fill_role_summary, parse_message_id};
+
+    #[test]
+    fn unparsable_ids_map_to_zero_like_ts_fetch_failure() {
+        // The live crash input plus the absent/blank shapes: all must
+        // take the not-found path, never `MessageId::new(0)`.
+        assert_eq!(parse_message_id("qa probe"), 0);
+        assert_eq!(parse_message_id(""), 0);
+        assert_eq!(parse_message_id("0"), 0);
+        assert_eq!(
+            parse_message_id("  1559311417809571901  "),
+            1559311417809571901
+        );
+        assert_eq!(parse_message_id("123"), 123);
+    }
 
     #[test]
     fn summary_fills_role_and_count() {
