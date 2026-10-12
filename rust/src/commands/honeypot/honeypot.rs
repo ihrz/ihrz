@@ -1,7 +1,9 @@
 use super::config::honeypot_config;
 use super::*;
 
-/// Run-less group root for the honeypot category.
+/// Subcommand for honeypot configuration!
+//
+// Run-less group root for the honeypot category.
 // TS `SlashCommands/honeypot/honeypot.ts` (`permission: null`): no
 // `default_member_permissions` gate here on purpose, since TS enforces
 // Administrator OR the protection allowlist in code (canManageHoneypot)
@@ -21,7 +23,11 @@ use super::*;
     category = "honeypot",
     rename = "honeypot",
     subcommands("honeypot_config"),
-    subcommand_required
+    subcommand_required,
+    description_localized("fr", "Commande sous-groupée pour la configuration de Honeypot"),
+    description_localized("ja", "ハニーポット設定のサブコマンド！"),
+    description_localized("ru", "Подкоманда для настройки Honeypot!"),
+    description_localized("es-ES", "Subcomando para la configuración de honeypot!")
 )]
 pub async fn honeypot(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())
@@ -95,6 +101,39 @@ pub fn honeypot_message_in_sweep(author_matches: bool, created_ms: i64, cutoff_m
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn group_registers_ts_description_and_localizations() {
+        // Mirrors SlashCommands/honeypot/honeypot.ts byte-wise: description
+        // plus fr/ja/ru/es-ES localizations, no name localizations in TS.
+        let cmd = super::honeypot();
+        assert_eq!(
+            cmd.description.as_deref(),
+            Some("Subcommand for honeypot configuration!")
+        );
+        assert_eq!(
+            cmd.description_localizations.get("fr").map(String::as_str),
+            Some("Commande sous-groupée pour la configuration de Honeypot")
+        );
+        assert_eq!(
+            cmd.description_localizations.get("ja").map(String::as_str),
+            Some("ハニーポット設定のサブコマンド！")
+        );
+        assert_eq!(
+            cmd.description_localizations.get("ru").map(String::as_str),
+            Some("Подкоманда для настройки Honeypot!")
+        );
+        assert_eq!(
+            cmd.description_localizations
+                .get("es-ES")
+                .map(String::as_str),
+            Some("Subcomando para la configuración de honeypot!")
+        );
+        assert!(cmd.name_localizations.is_empty());
+        // TS-exact set: `config` only (honeypot.ts:40-56).
+        assert_eq!(cmd.subcommands.len(), 1);
+        assert_eq!(cmd.subcommands[0].name, "config");
+    }
 
     #[test]
     fn timing_mirrors_ts_manager() {

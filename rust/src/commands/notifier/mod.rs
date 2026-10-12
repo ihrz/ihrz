@@ -38,14 +38,12 @@ pub enum NotifierPlatform {
     #[name_localized("ja", "youtube")]
     #[name_localized("ru", "youtube")]
     #[name_localized("es-ES", "youtube")]
-    #[name = "youtube"]
     Youtube,
     #[name = "Twitch"]
     #[name_localized("fr", "Twitch")]
     #[name_localized("ja", "twitch")]
     #[name_localized("ru", "twitch")]
     #[name_localized("es-ES", "twitch")]
-    #[name = "twitch"]
     Twitch,
 }
 

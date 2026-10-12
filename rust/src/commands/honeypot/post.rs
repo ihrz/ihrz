@@ -27,14 +27,16 @@ pub fn claim_dm_key(result: &str) -> &'static str {
 }
 
 /// Log-title lang key for a sanction result. Mirrors getLogActionLabel in
-/// `src/Interaction/SlashCommands/honeypot/!config.ts`: only kick/ban
-/// get dedicated keys; `none` and `failed` fall through to the default
-/// `honeypot_action_none` ("Delete messages only").
+/// `src/core/modules/honeypotManager.ts` (used by sendLogs for the title
+/// and the result row): kick/ban get dedicated keys, `none` maps to
+/// `honeypot_log_action_none` ("No action taken"), anything else
+/// (e.g. `failed`) falls through to `honeypot_action_failed`.
 pub fn claim_log_key(result: &str) -> &'static str {
     match result {
         "ban" => "honeypot_log_action_ban",
         "kick" => "honeypot_log_action_kick",
-        _ => "honeypot_action_none",
+        "none" => "honeypot_log_action_none",
+        _ => "honeypot_action_failed",
     }
 }
 
@@ -116,14 +118,7 @@ pub fn build_claim_log_embed(
     };
     let title = f("honeypot_log_title", "Honeypot Triggered - ${action}").replace(
         "${action}",
-        &f(
-            match data.action_result {
-                "ban" => "honeypot_log_action_ban",
-                "kick" => "honeypot_log_action_kick",
-                _ => "honeypot_action_none",
-            },
-            data.action_result,
-        ),
+        &f(claim_log_key(data.action_result), data.action_result),
     );
     let mut embed = serenity::CreateEmbed::default()
         .colour(super::config::HONEYPOT_EMBED_COLOR)
@@ -175,14 +170,7 @@ pub fn build_claim_log_embed(
         )
         .field(
             f("honeypot_log_field_result", "Result"),
-            f(
-                match data.action_result {
-                    "ban" => "honeypot_log_action_ban",
-                    "kick" => "honeypot_log_action_kick",
-                    _ => "honeypot_action_none",
-                },
-                data.action_result,
-            ),
+            f(claim_log_key(data.action_result), data.action_result),
             true,
         );
     if let Some(url) = data.first_image_url {
@@ -276,8 +264,8 @@ mod tests {
         assert_eq!(claim_dm_key("failed"), "honeypot_action_failed");
         assert_eq!(claim_log_key("ban"), "honeypot_log_action_ban");
         assert_eq!(claim_log_key("kick"), "honeypot_log_action_kick");
-        assert_eq!(claim_log_key("none"), "honeypot_action_none");
-        assert_eq!(claim_log_key("failed"), "honeypot_action_none");
+        assert_eq!(claim_log_key("none"), "honeypot_log_action_none");
+        assert_eq!(claim_log_key("failed"), "honeypot_action_failed");
     }
 
     #[test]
@@ -356,5 +344,9 @@ mod tests {
         let dbg2 = format!("{:?}", build_claim_log_embed(&t2, &data2));
         assert!(dbg2.contains("honeypot_log_no_content"));
         assert!(dbg2.contains("Closed"));
+        // A failed sanction renders the TS getLogActionLabel default
+        // (`honeypot_action_failed`), never the none key.
+        assert!(dbg2.contains("honeypot_action_failed"));
+        assert!(!dbg2.contains("honeypot_log_action_none"));
     }
 }

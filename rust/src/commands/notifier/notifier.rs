@@ -14,7 +14,14 @@ use super::{
     category = "notifier",
     rename = "notifier",
     subcommands("notifier_author", "notifier_config"),
-    subcommand_required
+    subcommand_required,
+    description_localized(
+        "fr",
+        "Commande sous-groupé pour la catégorie des notifications de vidéo/short/stream"
+    ),
+    description_localized("ja", "通知のサブコマンドカテゴリ！"),
+    description_localized("ru", "Категория подкоманд для уведомлений!"),
+    description_localized("es-ES", "Categoría de subcomando para notificador!")
 )]
 pub async fn notifier(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())

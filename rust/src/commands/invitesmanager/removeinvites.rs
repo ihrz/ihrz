@@ -7,16 +7,30 @@ use poise::serenity_prelude as serenity;
     prefix_command,
     rename = "removeinvites",
     aliases("rinvites", "subinv"),
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    description_localized("fr", "Supprimer les invitations d'un utilisateur"),
+    description_localized("ja", "ユーザーから招待を削除！"),
+    description_localized("ru", "Удалить приглашения у пользователя!"),
+    description_localized("es-ES", "Eliminar invitaciones de un usuario!")
 )]
 pub async fn inv_remove(
     ctx: Ctx<'_>,
-    #[description = "Member"] user: poise::serenity_prelude::User,
+    #[description_localized("fr", "le membre où vous souhaitez supprimer ces invites")]
+    #[description_localized("ja", "招待を削除したいメンバー")]
+    #[description_localized("ru", "участник, у которого убрать приглашения")]
+    #[description_localized("es-ES", "el miembro del que quieres quitar invitaciones")]
+    #[description = "the member you want to remove invites"]
+    user: poise::serenity_prelude::User,
     // f64 mirrors the TS `ApplicationCommandOptionType.Number` (`getNumber`).
     // Invite totals stay i64, so the fractional part truncates toward zero
     // (`as i64`, like JS `Math.trunc`); the reply echoes the raw slash
     // value, exactly like TS `amount.toString()`.
-    #[description = "Amount"] amount: f64,
+    #[description_localized("fr", "Nombre d'invitations que vous souhaitez soustraire")]
+    #[description_localized("ja", "減らしたい招待数")]
+    #[description_localized("ru", "Количество приглашений для вычитания")]
+    #[description_localized("es-ES", "Número de invitaciones que quieres restar")]
+    #[description = "Number of invites you want to substract"]
+    amount: f64,
 ) -> Result<(), anyhow::Error> {
     // Prefix native-permission gate (U-MSV-FIX14): TS `checkNativePermission`
     // enforces the Administrator leaf on both paths; Discord covers slash,

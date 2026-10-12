@@ -10,7 +10,11 @@ use poise::serenity_prelude as serenity;
 )]
 pub async fn notifier_channel(
     ctx: Ctx<'_>,
-    #[description = "Channel"]
+    #[description_localized("fr", "Le salon textuelle")]
+    #[description_localized("ja", "チャンネル")]
+    #[description_localized("ru", "Канал")]
+    #[description_localized("es-ES", "El canal")]
+    #[description = "The channel"]
     #[channel_types("Text", "News")]
     target: serenity::GuildChannel,
 ) -> Result<(), anyhow::Error> {

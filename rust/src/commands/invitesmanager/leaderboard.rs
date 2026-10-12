@@ -21,12 +21,19 @@ fn render_row(tpl: &str, rank_1based: usize, uid: u64, s: &InviteStats) -> Strin
         .replace("${index.leaves}", &s.leaves.to_string())
 }
 
-/// Get the xp's leaderboard of the guild!
+/// Show the guild invites's leaderboard!
 #[poise::command(
     slash_command,
     prefix_command,
     rename = "leaderboard",
-    aliases("lb-invites", "invlb", "inviteslb", "invites-leaderboard")
+    aliases("lb-invites", "invlb", "inviteslb", "invites-leaderboard"),
+    description_localized("fr", "Afficher le classement des invitations du serveur"),
+    description_localized("ja", "サーバー招待ランキングを表示！"),
+    description_localized("ru", "Показать таблицу лидеров по приглашениям!"),
+    description_localized(
+        "es-ES",
+        "Mostrar la tabla de clasificación de invitaciones del servidor!"
+    )
 )]
 pub async fn inv_lb(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let t0 = std::time::Instant::now();

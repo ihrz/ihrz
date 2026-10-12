@@ -6,16 +6,30 @@ use poise::serenity_prelude as serenity;
     slash_command,
     prefix_command,
     rename = "addinvites",
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    description_localized("fr", "Ajouter des invitations à un utilisateur"),
+    description_localized("ja", "ユーザーに招待を追加！"),
+    description_localized("ru", "Добавить приглашения пользователю!"),
+    description_localized("es-ES", "Añadir invitaciones a un usuario!")
 )]
 pub async fn inv_add(
     ctx: Ctx<'_>,
-    #[description = "Member"] user: poise::serenity_prelude::User,
+    #[description_localized("fr", "le membre auquel vous souhaitez ajouter des invitations")]
+    #[description_localized("ja", "招待を追加したいメンバー")]
+    #[description_localized("ru", "участник, которому добавить приглашения")]
+    #[description_localized("es-ES", "el miembro al que quieres añadir invitaciones")]
+    #[description = "the member you want to add invites"]
+    user: poise::serenity_prelude::User,
     // f64 mirrors the TS `ApplicationCommandOptionType.Number` (`getNumber`).
     // Invite totals stay i64, so the fractional part truncates toward zero
     // (`as i64`, like JS `Math.trunc`); the reply echoes the raw slash
     // value, exactly like TS `amount.toString()`.
-    #[description = "Amount"] amount: f64,
+    #[description_localized("fr", "Nombre d'invitations que vous souhaitez ajouter")]
+    #[description_localized("ja", "追加したい招待数")]
+    #[description_localized("ru", "Количество приглашений для добавления")]
+    #[description_localized("es-ES", "Número de invitaciones que quieres añadir")]
+    #[description = "Number of invites you want to add"]
+    amount: f64,
 ) -> Result<(), anyhow::Error> {
     // Prefix native-permission gate (U-MSV-FIX14): TS `checkNativePermission`
     // enforces the Administrator leaf on both paths; Discord covers slash,

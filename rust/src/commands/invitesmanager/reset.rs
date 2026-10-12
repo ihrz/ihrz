@@ -6,7 +6,11 @@ use super::*;
     prefix_command,
     rename = "reset",
     aliases("inv-delete-all", "invreset", "invites-reset"),
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    description_localized("fr", "Supprimer toute les données du module d'InviteManager"),
+    description_localized("ja", "サーバー内のInviteManagerの全データを削除"),
+    description_localized("ru", "Удалить все данные InviteManager на сервере"),
+    description_localized("es-ES", "Eliminar todos los datos de InviteManager en el servidor")
 )]
 pub async fn inv_reset(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     // Prefix native-permission gate (U-MSV-FIX14): TS `checkNativePermission`

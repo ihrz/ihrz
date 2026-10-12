@@ -879,8 +879,16 @@ pub async fn handle_panel_press(
     }
 }
 
-/// Config the message when user earn new xp level message!
-#[poise::command(slash_command, prefix_command, rename = "config")]
+/// Configure the Honeypot protection panel.
+#[poise::command(
+    slash_command,
+    prefix_command,
+    rename = "config",
+    description_localized("fr", "Configurer le panneau de protection Honeypot"),
+    description_localized("ja", "ハニーポット保護パネルを設定。"),
+    description_localized("ru", "Настроить панель защиты Honeypot."),
+    description_localized("es-ES", "Configurar el panel de protección Honeypot.")
+)]
 pub async fn honeypot_config(
     ctx: Ctx<'_>,
     #[description = "on or off"] power: String,
@@ -1095,6 +1103,37 @@ pub async fn honeypot_config(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn config_registers_ts_description_and_localizations() {
+        // Mirrors the `config` subcommand option in
+        // SlashCommands/honeypot/honeypot.ts:42-54 byte-wise (no name
+        // localizations in TS).
+        let cmd = super::honeypot_config();
+        assert_eq!(
+            cmd.description.as_deref(),
+            Some("Configure the Honeypot protection panel.")
+        );
+        assert_eq!(
+            cmd.description_localizations.get("fr").map(String::as_str),
+            Some("Configurer le panneau de protection Honeypot")
+        );
+        assert_eq!(
+            cmd.description_localizations.get("ja").map(String::as_str),
+            Some("ハニーポット保護パネルを設定。")
+        );
+        assert_eq!(
+            cmd.description_localizations.get("ru").map(String::as_str),
+            Some("Настроить панель защиты Honeypot.")
+        );
+        assert_eq!(
+            cmd.description_localizations
+                .get("es-ES")
+                .map(String::as_str),
+            Some("Configurar el panel de protección Honeypot.")
+        );
+        assert!(cmd.name_localizations.is_empty());
+    }
 
     #[test]
     fn action_parses_with_none_default() {

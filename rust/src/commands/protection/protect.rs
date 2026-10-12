@@ -339,7 +339,7 @@ pub async fn protect(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())
 }
 
-/// Whats is the rule to configure?
+/// Choose an actions to Deny/Allow for the user!
 // TS name is `actions` (authorization.ts:106); `rule` is its option.
 #[poise::command(
     slash_command,
@@ -357,7 +357,12 @@ pub async fn protect_actions(
     // `Object.entries(rules).map(...)` (authorization.ts:131) over the
     // `rules` array (including the `cls`/`all` pseudo-entries), so the
     // free-form String + `valid_rule` gate stays.
-    #[description = "Rule (or all/cls)"] rule: String,
+    #[description = "Whats is the rule to configure?"]
+    #[description_localized("fr", "Quelle est la règle à configurer ?")]
+    #[description_localized("ja", "設定するルールは？")]
+    #[description_localized("ru", "Какое правило настроить?")]
+    #[description_localized("es-ES", "Cual es la regla a configurar?")]
+    rule: String,
     #[description_localized("fr", "Les règles sont contournables pour qui ?")]
     #[description_localized("ja", "ルールをバイパスできるのは誰？")]
     #[description_localized("ru", "Для кого правила обходятся?")]
@@ -459,7 +464,7 @@ pub async fn protect_actions(
     Ok(())
 }
 
-/// Sanction command.
+/// Choose the sanction to applied for the flagged user!
 #[poise::command(
     slash_command,
     prefix_command,
@@ -690,7 +695,7 @@ pub async fn load_allowlist(pool: &crate::db::Pool, gid: &str) -> Vec<String> {
     rows
 }
 
-/// Show the sticky configuration of one channel
+/// Show the current configuration about protection authorization/rule & allow list!
 #[poise::command(
     slash_command,
     prefix_command,
@@ -773,7 +778,7 @@ pub async fn protect_show(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())
 }
 
-/// Allow add command.
+/// Adding an user in the allowlist!
 // Verdict (no ADMINISTRATOR default, kept): the TS allowlist legs are
 // `permission: null` at the Discord layer (`allowlist.ts`) and
 // owner-only in code (`!add.ts:50`, second guard dead code); the
@@ -791,7 +796,11 @@ pub async fn protect_show(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
 pub async fn protect_allow_add(
     ctx: Ctx<'_>,
     // TS SlashCommands/protection/allowlist/!add.ts reads getMember("member").
-    #[description = "Member"]
+    #[description = "Whats is the member then?"]
+    #[description_localized("fr", "Quel est le membre alors?")]
+    #[description_localized("ja", "どのメンバーですか？")]
+    #[description_localized("ru", "Какой участник?")]
+    #[description_localized("es-ES", "Cual es el miembro entonces?")]
     #[rename = "member"]
     user: poise::serenity_prelude::User,
 ) -> Result<(), anyhow::Error> {
@@ -847,7 +856,7 @@ pub async fn protect_allow_add(
     Ok(())
 }
 
-/// Allow remove command.
+/// Removing an user in the allowlist!
 // Verdict (no ADMINISTRATOR default, kept): same as `protect_allow_add`
 // — TS `!remove.ts:50` is owner-only in code over `permission: null`,
 // so `deny_unless_owner` below is the whole gate.
@@ -863,7 +872,11 @@ pub async fn protect_allow_add(
 pub async fn protect_allow_remove(
     ctx: Ctx<'_>,
     // TS SlashCommands/protection/allowlist/!remove.ts reads getMember("member").
-    #[description = "Member"]
+    #[description = "Whats is the member then?"]
+    #[description_localized("fr", "Quel est le membre alors?")]
+    #[description_localized("ja", "どのメンバーですか？")]
+    #[description_localized("ru", "Какой участник?")]
+    #[description_localized("es-ES", "Cual es el miembro entonces?")]
     #[rename = "member"]
     user: poise::serenity_prelude::User,
 ) -> Result<(), anyhow::Error> {
@@ -916,7 +929,7 @@ pub async fn protect_allow_remove(
     Ok(())
 }
 
-/// Allow show command.
+/// List the users in the allowlist!
 #[poise::command(
     slash_command,
     prefix_command,

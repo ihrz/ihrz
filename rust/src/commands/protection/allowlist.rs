@@ -29,7 +29,7 @@ pub async fn allowlist(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())
 }
 
-/// Add a member to the allowlist (guild-owner only).
+/// Adding an user in the allowlist!
 #[poise::command(
     slash_command,
     prefix_command,
@@ -105,7 +105,7 @@ pub async fn allowlist_add(
     Ok(())
 }
 
-/// Remove a member from the allowlist (guild-owner only).
+/// Removing an user in the allowlist!
 #[poise::command(
     slash_command,
     prefix_command,
@@ -177,7 +177,7 @@ pub async fn allowlist_remove(
     Ok(())
 }
 
-/// List the members in the allowlist.
+/// List the users in the allowlist!
 #[poise::command(
     slash_command,
     prefix_command,

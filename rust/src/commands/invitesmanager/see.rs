@@ -6,12 +6,20 @@ use poise::serenity_prelude as serenity;
     slash_command,
     prefix_command,
     rename = "invites",
-    aliases("i", "invsee")
+    aliases("i", "invsee"),
+    description_localized("fr", "Obtenez le montant des invitations d'un utilisateur"),
+    description_localized("ja", "ユーザーの招待数を取得！"),
+    description_localized("ru", "Получить количество приглашений пользователя!"),
+    description_localized("es-ES", "Obtener la cantidad de invitaciones de un usuario!")
 )]
 pub async fn inv_see(
     ctx: Ctx<'_>,
     // TS HybridCommands/invitesmanager/!invites.ts reads getMember("member").
-    #[description = "Member"]
+    #[description_localized("fr", "le membre où souhaitez voir ces invitations")]
+    #[description_localized("ja", "招待数を表示したいメンバー")]
+    #[description_localized("ru", "участник, чьи приглашения показать")]
+    #[description_localized("es-ES", "el miembro al que quieres mostrar sus invitaciones")]
+    #[description = "the member you want to show them invites"]
     #[rename = "member"]
     user: Option<poise::serenity_prelude::User>,
 ) -> Result<(), anyhow::Error> {

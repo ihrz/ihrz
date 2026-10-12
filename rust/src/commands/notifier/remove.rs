@@ -16,7 +16,12 @@ pub async fn notifier_remove(
     #[description_localized("es-ES", "La plataforma del Streamer/Youtuber/Twitcher")]
     #[description = "The Streamer/Youtuber/Twitcher platform"]
     platform: super::NotifierPlatform,
-    #[description = "Author id or username"] author: String,
+    #[description_localized("fr", "L'identifiant du Streamer/Youtuber/Twitcher")]
+    #[description_localized("ja", "ストリーマー/YouTuber/TwitcherのID")]
+    #[description_localized("ru", "ID стримера/YouTube/Twitch")]
+    #[description_localized("es-ES", "El ID del Streamer/Youtuber/Twitcher")]
+    #[description = "The Streamer/Youtuber/Twitcher ID"]
+    author: String,
 ) -> Result<(), anyhow::Error> {
     let platform = platform.as_str().to_string();
     // Prefix native-permission gate (U-MSV-FIX14): TS `checkNativePermission`
