@@ -1501,7 +1501,6 @@ pub mod channel;
 pub mod confession;
 pub mod config;
 pub mod cooldown;
-pub mod list;
 pub mod thread;
 
 /// Old registry path (`confession::main::*`) kept working.
@@ -1511,7 +1510,6 @@ pub mod main {
     pub use super::confession::*;
     pub use super::config::*;
     pub use super::cooldown::*;
-    pub use super::list::*;
     pub use super::thread::*;
     pub use super::*;
     pub use channel::*;

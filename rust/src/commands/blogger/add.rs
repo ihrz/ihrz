@@ -6,7 +6,6 @@ use poise::serenity_prelude as serenity;
     slash_command,
     prefix_command,
     rename = "add",
-    aliases("blog-add"),
     default_member_permissions = "MANAGE_GUILD"
 )]
 pub async fn blogger_add(

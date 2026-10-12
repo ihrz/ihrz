@@ -1,4 +1,3 @@
-use super::*;
 use poise::serenity_prelude as serenity;
 
 /// Sanction applied when the lure is claimed. Mirrors
@@ -179,62 +178,6 @@ pub fn build_claim_log_embed(
         }
     }
     embed
-}
-
-/// Post command.
-#[poise::command(slash_command, prefix_command, rename = "post")]
-pub async fn honeypot_post(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
-    let Some(guild_id) = ctx.guild_id() else {
-        return Ok(());
-    };
-    let gid = guild_id.get().to_string();
-    let code = crate::db::guild_lang(&ctx.data().pool, Some(guild_id.get())).await;
-    let t = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
-
-    // Trap lure embed (never hardcoded user-visible text) with the claim
-    // button row. NOTE (deliberate extension, no TS counterpart): the TS
-    // trap is message-based only; the Claim button gives lurkers a one-tap
-    // claim handled by `handle_honeypot_claim`, which honors the
-    // configured action via resolve_claim_sanction + posts to the logs
-    // channel (see should_post_claim_log), never a fixed ban.
-    let embed = super::config::build_trap_embed(&t);
-    let claim_label = crate::lang::get(&code, "honeypot_claim_button_label")
-        .filter(|s| !s.trim().is_empty())
-        .unwrap_or_else(|| "Claim".to_string());
-    let button = serenity::CreateButton::new(HONEYPOT_CUSTOM_ID)
-        .label(claim_label)
-        .style(serenity::ButtonStyle::Danger);
-    let sent = ctx
-        .channel_id()
-        .send_message(
-            ctx.http(),
-            serenity::CreateMessage::new().embed(embed).button(button),
-        )
-        .await?;
-
-    // Track the lure message (config.messageId), preserving the rest of
-    // the trap blob like the TS sendTrapEmbed flow.
-    let prev: serde_json::Value = load_honeypot_raw(&ctx.data().pool, &gid)
-        .await
-        .and_then(|s| serde_json::from_str(&s).ok())
-        .unwrap_or(serde_json::json!({}));
-    let mut cfg = if prev.is_object() {
-        prev
-    } else {
-        serde_json::json!({})
-    };
-    if let Some(obj) = cfg.as_object_mut() {
-        obj.insert(
-            "channelId".into(),
-            serde_json::json!(ctx.channel_id().get().to_string()),
-        );
-        obj.insert(
-            "messageId".into(),
-            serde_json::json!(sent.id.get().to_string()),
-        );
-    }
-    save_honeypot(&ctx.data().pool, &gid, &cfg).await?;
-    Ok(())
 }
 
 #[cfg(test)]

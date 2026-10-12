@@ -653,18 +653,55 @@ pub async fn post_ihorizon_log(
 )]
 pub async fn rolebutton(
     ctx: Ctx<'_>,
-    #[description = "add or remove"] value: RolebuttonValue,
-    // TS HybridCommands/rolereactions/rolebutton.ts registers "channel".
-    #[description = "Channel id"]
+    #[description = "Please make your choice."]
+    #[description_localized("fr", "Merci de faire votre choix")]
+    #[description_localized("ja", "選択してください。")]
+    #[description_localized("ru", "Пожалуйста, сделайте выбор.")]
+    #[description_localized("es-ES", "Por favor, haz tu elección.")]
+    value: RolebuttonValue,
+    #[description = "The channel where is the message"]
+    #[description_localized("fr", "Le salon textuelle où se trouve le message")]
+    #[description_localized("ja", "メッセージがあるチャンネル")]
+    #[description_localized("ru", "Канал, где находится сообщение")]
+    #[description_localized("es-ES", "El canal donde está el mensaje")]
+    #[channel_types("Text")]
     #[rename = "channel"]
-    channel_id: String,
-    #[description = "Message id"] message_id: String,
-    #[description = "Emoji or emoji id"] reaction: Option<String>,
-    #[description = "Role"] role: Option<serenity::Role>,
+    channel: serenity::GuildChannel,
+    #[description = "Please copy the identifiant of the message you want to configure"]
+    #[description_localized(
+        "fr",
+        "Veuillez copier l'identifiant du message que vous souhaitez configurer"
+    )]
+    #[description_localized("ja", "設定したいメッセージの識別子をコピーしてください")]
+    #[description_localized(
+        "ru",
+        "Пожалуйста, скопируйте идентификатор сообщения, которое вы хотите настроить"
+    )]
+    #[description_localized(
+        "es-ES",
+        "Por favor, copia el identificador del mensaje que quieres configurar"
+    )]
+    message_id: String,
+    #[description = "The emojis you want"]
+    #[description_localized("fr", "Les emojis que tu veux")]
+    #[description_localized("ja", "使用したい絵文字")]
+    #[description_localized("ru", "Эмодзи, которые вы хотите")]
+    #[description_localized("es-ES", "Los emojis que deseas")]
+    reaction: Option<String>,
+    #[description = "The role you want to configure"]
+    #[description_localized("fr", "Le rôle que vous souhaitez configurer")]
+    #[description_localized("ja", "設定したいロール")]
+    #[description_localized("ru", "Роль, которую вы хотите настроить")]
+    #[description_localized("es-ES", "El rol que quieres configurar")]
+    role: Option<serenity::Role>,
 ) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {
         return Ok(());
     };
+    // Helpers take the wire id string (their invalid-id legs stay for
+    // the manual-parse path); the Channel-typed option guarantees a
+    // resolvable text channel on both legs.
+    let channel_id = channel.id.get().to_string();
     match value {
         RolebuttonValue::Add => {
             rolebutton_add(&ctx, guild_id, &channel_id, &message_id, reaction, role).await?;

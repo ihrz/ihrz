@@ -1111,8 +1111,6 @@ mod tests {
             ("invites", &["member"]),
             ("roles", &["key", "roles"]),
             ("sanction", &["choose"]),
-            ("allow-add", &["member"]),
-            ("allow-remove", &["member"]),
             ("punishpub", &["amount", "punishement", "status"]),
             ("report", &["message-to-dev"]),
             (

@@ -1,7 +1,7 @@
 use super::*;
 use super::{
     channel::confession_channel, config::confession_config, cooldown::confession_cooldown,
-    list::confession_list, thread::confession_thread,
+    thread::confession_thread,
 };
 
 /// Parent group. Mirrors the TS `confession` HybridCommand definition.
@@ -14,8 +14,7 @@ use super::{
         "confession_channel",
         "confession_config",
         "confession_thread",
-        "confession_cooldown",
-        "confession_list"
+        "confession_cooldown"
     ),
     subcommand_required,
     description_localized("fr", "Commande sous-groupé pour le module de confession"),

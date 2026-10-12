@@ -9,10 +9,10 @@ use super::protect::{
 /// Allowlist top-level group (add/remove/show allowlisted members).
 // Mirrors the TS `allowlist` SlashCommand
 // (`SlashCommands/protection/allowlist/allowlist.ts`): the run legs
-// (`!add.ts`, `!remove.ts`, `!show.ts`) already live as
-// `protect_allow_*` leaves under `protect`; this top re-exposes the
-// same three legs under the TS slash path with byte-exact names and
-// localizations.
+// (`!add.ts`, `!remove.ts`, `!show.ts`) live here, under the TS slash
+// path, with byte-exact names and localizations. (A previous port kept
+// duplicate `allow-add`/`allow-remove`/`allow-show` leaves under
+// `/protect`; removed — TS registers allowlist legs only here.)
 #[poise::command(
     slash_command,
     prefix_command,

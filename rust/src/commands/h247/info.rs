@@ -14,7 +14,6 @@ use poise::serenity_prelude as serenity;
     slash_command,
     prefix_command,
     rename = "info",
-    aliases("h247info"),
     description_localized("fr", "Obtenir des informations sur le module H24/7"),
     description_localized("ja", "H24/7モジュールの情報を取得！"),
     description_localized("ru", "Получить информацию о модуле H24/7!"),

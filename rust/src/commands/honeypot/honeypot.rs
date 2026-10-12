@@ -13,8 +13,8 @@ use super::*;
 // administrators pass, otherwise the protection allowlist decides),
 // mirroring `!config.ts:55-66,327`. TS-exact set: `config` only
 // (honeypot.ts:40-56). `post.rs` keeps the lure-post + claim-log
-// builders (used by the trap pipeline), but `honeypot_post` is no
-// longer registered as a slash subcommand.
+// builders (used by the trap pipeline); the former `honeypot_post`
+// command fn was removed (no TS basis) while its builders stay.
 // A bare invocation raises SubcommandRequired (mapped to help in
 // `bot.rs`) before this body runs, on both paths.
 #[poise::command(
