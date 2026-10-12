@@ -284,6 +284,80 @@ fn global_check(
         // !stench, !coinflip, !grosbg) execute like TS. A global gate
         // here would both reply where TS stays silent-capable and deny
         // where TS allows.
+        // Global 1s debounce. Mirrors preExecutionCooldown (slash
+        // COOLDOWN.<uid> + message "msg_commands" helper cooldown):
+        // denied runs never execute; only the slash leg replies with
+        // lang.Msg_cooldown, the prefix leg denies silently.
+        let code = crate::db::guild_lang(pool, ctx.guild_id().map(|g| g.get())).await;
+        let uid = ctx.author().id.get();
+        let now = now_ms();
+        // Slash uses COOLDOWN.<uid> (interactionCooldown), prefix uses
+        // COOLDOWN.msg_commands.<uid> (helper.cooldown), exactly like TS.
+        let left = if matches!(ctx, poise::Context::Prefix(_)) {
+            helper_cooldown_check(pool, &uid.to_string(), "msg_commands", DEBOUNCE_MS, now).await
+        } else {
+            debounce_check(pool, uid, now).await
+        };
+        if left > 0 {
+            tracing::warn!(
+                "deny gate=debounce user={uid} command={} remaining_ms={left}",
+                ctx.command().qualified_name
+            );
+            crate::cmd_debug::log(
+                "deny",
+                format_args!(
+                    "gate=debounce remaining_ms={left} cmd={} elapsed_ms={}",
+                    ctx.command().qualified_name,
+                    crate::cmd_debug::now_ms().saturating_sub(started)
+                ),
+            );
+            // Prefix leg stays silent (logs above already fired), mirroring
+            // messageCommandHandler.ts (`preExecutionCooldown` -> return);
+            // only the slash leg replies with the ephemeral Msg_cooldown.
+            if !matches!(ctx, poise::Context::Prefix(_)) {
+                let msg = crate::lang::get(&code, "Msg_cooldown").unwrap_or_default();
+                let _ = ctx
+                    .send(poise::CreateReply::default().content(msg).ephemeral(true))
+                    .await;
+            }
+            return Ok(false);
+        }
+        // Blacklist gate after the 1s debounce, mirroring the TS handler
+        // order (preExecutionCooldown runs before the blacklistTable read
+        // on both the slash and prefix paths). The slash leg replies with
+        // the ephemeral :( embed (color #0827F5 + blacklistPictureInEmbed,
+        // slashCommandHandler.ts); the prefix leg (messageCommandHandler.ts)
+        // drops blacklisted users silently. No lang keys: the TS embed
+        // carries no localizable text.
+        if crate::db::is_blacklisted(pool, ctx.author().id.get()).await {
+            if !matches!(ctx, poise::Context::Prefix(_)) {
+                let embed = serenity::CreateEmbed::default()
+                    .colour(0x0827F5_u32)
+                    .title(":(")
+                    .image(ctx.data().config.blacklist_picture.clone());
+                let _ = ctx
+                    .send(poise::CreateReply::default().embed(embed).ephemeral(true))
+                    .await;
+            }
+            tracing::warn!(
+                "deny gate=blacklist user={} command={}",
+                ctx.author().id.get(),
+                ctx.command().qualified_name
+            );
+            crate::cmd_debug::log(
+                "deny",
+                format_args!(
+                    "gate=blacklist cmd={} elapsed_ms={}",
+                    ctx.command().qualified_name,
+                    crate::cmd_debug::now_ms().saturating_sub(started)
+                ),
+            );
+            return Ok(false);
+        }
+        // Custom per-command permission levels (UTILS.PERMS). Runs after
+        // the debounce + blacklist gates, mirroring the TS slash path
+        // (preExecutionCooldown + blacklistTable in slashCommandHandler.ts
+        // run before runCommand's checkGuildPermissionRequirements).
         if let Some(perms) = crate::commands::guildconfig::load_cmd_perms(
             pool,
             &ctx.guild_id()
@@ -353,70 +427,6 @@ fn global_check(
                 );
                 return Ok(false);
             }
-        }
-        // Global 1s debounce. Mirrors preExecutionCooldown (slash
-        // COOLDOWN.<uid> + message "msg_commands" helper cooldown):
-        // denied runs get lang.Msg_cooldown and never execute.
-        let code = crate::db::guild_lang(pool, ctx.guild_id().map(|g| g.get())).await;
-        let uid = ctx.author().id.get();
-        let now = now_ms();
-        // Slash uses COOLDOWN.<uid> (interactionCooldown), prefix uses
-        // COOLDOWN.msg_commands.<uid> (helper.cooldown), exactly like TS.
-        let left = if matches!(ctx, poise::Context::Prefix(_)) {
-            helper_cooldown_check(pool, &uid.to_string(), "msg_commands", DEBOUNCE_MS, now).await
-        } else {
-            debounce_check(pool, uid, now).await
-        };
-        if left > 0 {
-            tracing::warn!(
-                "deny gate=debounce user={uid} command={} remaining_ms={left}",
-                ctx.command().qualified_name
-            );
-            crate::cmd_debug::log(
-                "deny",
-                format_args!(
-                    "gate=debounce remaining_ms={left} cmd={} elapsed_ms={}",
-                    ctx.command().qualified_name,
-                    crate::cmd_debug::now_ms().saturating_sub(started)
-                ),
-            );
-            let msg = crate::lang::get(&code, "Msg_cooldown").unwrap_or_default();
-            let _ = ctx
-                .send(poise::CreateReply::default().content(msg).ephemeral(true))
-                .await;
-            return Ok(false);
-        }
-        // Blacklist gate after the 1s debounce, mirroring the TS handler
-        // order (preExecutionCooldown runs before the blacklistTable read
-        // on both the slash and prefix paths). The slash leg replies with
-        // the ephemeral :( embed (color #0827F5 + blacklistPictureInEmbed,
-        // slashCommandHandler.ts); the prefix leg (messageCommandHandler.ts)
-        // drops blacklisted users silently. No lang keys: the TS embed
-        // carries no localizable text.
-        if crate::db::is_blacklisted(pool, ctx.author().id.get()).await {
-            if !matches!(ctx, poise::Context::Prefix(_)) {
-                let embed = serenity::CreateEmbed::default()
-                    .colour(0x0827F5_u32)
-                    .title(":(")
-                    .image(ctx.data().config.blacklist_picture.clone());
-                let _ = ctx
-                    .send(poise::CreateReply::default().embed(embed).ephemeral(true))
-                    .await;
-            }
-            tracing::warn!(
-                "deny gate=blacklist user={} command={}",
-                ctx.author().id.get(),
-                ctx.command().qualified_name
-            );
-            crate::cmd_debug::log(
-                "deny",
-                format_args!(
-                    "gate=blacklist cmd={} elapsed_ms={}",
-                    ctx.command().qualified_name,
-                    crate::cmd_debug::now_ms().saturating_sub(started)
-                ),
-            );
-            return Ok(false);
         }
         // Channel UseApplicationCommands gate, prefix runs only.
         // Mirrors messageCommandHandler.ts: a member lacking the
@@ -503,7 +513,8 @@ fn global_check(
                             ),
                         );
                         // Guild lang drives the duration units, mirroring
-                        // `to_beautiful_string(remainingTime, lang)`.
+                        // `to_beautiful_string(remainingTime, lang)`. Plain
+                        // public reply like TS replyDenied (never ephemeral).
                         let msg = crate::lang::get(&code, "commandlimit_rate_limited")
                             .unwrap_or_default()
                             .replace(
@@ -513,9 +524,7 @@ fn global_check(
                                     &code,
                                 ),
                             );
-                        let _ = ctx
-                            .send(poise::CreateReply::default().content(msg).ephemeral(true))
-                            .await;
+                        let _ = ctx.send(poise::CreateReply::default().content(msg)).await;
                         return Ok(false);
                     }
                 }
@@ -575,6 +584,30 @@ async fn is_guild_admin(ctx: Ctx<'_>, user_id: serenity::UserId) -> bool {
         .unwrap_or(false)
 }
 
+/// TS-parity send for framework denials. Mirrors method.ts
+/// interactionSend: the slash leg edits the initial response when one
+/// was already sent (replied or deferred -> editReply), otherwise sends
+/// the initial reply; the prefix leg is a plain channel reply. Never a
+/// follow-up: poise's ctx.send would followUp once
+/// has_sent_initial_response is set, which TS never does.
+async fn denial_send(ctx: Ctx<'_>, reply: poise::CreateReply) {
+    if let poise::Context::Application(app) = ctx {
+        if app
+            .has_sent_initial_response
+            .load(std::sync::atomic::Ordering::SeqCst)
+        {
+            let edit =
+                reply.to_slash_initial_response_edit(serenity::EditInteractionResponse::new());
+            let _ = app
+                .interaction
+                .edit_response(&app.serenity_context.http, edit)
+                .await;
+            return;
+        }
+    }
+    let _ = ctx.send(reply).await;
+}
+
 /// Crash reporter. Mirrors handleExecutionError in commandExecutor.ts:
 /// only the slash leg gets a user-facing reply (plain, non-ephemeral),
 /// and a report embed (timestamp + Bot/User-Admin + full invocation)
@@ -586,11 +619,13 @@ async fn crash_block(ctx: Ctx<'_>, error_text: String) {
         "```TS\nMessage: The command ran into a problem!\nCommand Name: {target_name}\nError: {error_text}```\n"
     );
     if !is_prefix {
-        let _ = ctx
-            .send(poise::CreateReply::default().content(format!(
+        denial_send(
+            ctx,
+            poise::CreateReply::default().content(format!(
                 "{error_block}**Let me suggest you to report this issue with `/report`.**"
-            )))
-            .await;
+            )),
+        )
+        .await;
     }
     let channel_id: u64 = ctx.data().config.report_channel_id.parse().unwrap_or(0);
     if channel_id == 0 {
@@ -631,6 +666,8 @@ async fn crash_block(ctx: Ctx<'_>, error_text: String) {
 /// Localized user-facing reply for framework-level denials.
 /// Mirrors commandExecutor.ts `replyDenied` (plain channel reply,
 /// never ephemeral) + the TS lang keys used on each denial path.
+/// Sends via denial_send (edit-after-defer on slash, plain reply on
+/// prefix), like method.ts interactionSend.
 /// `fallback` is the exact en-US string: YAML is never touched, so the
 /// denial still renders when the guild lang table misses the key.
 async fn denial_reply(ctx: Ctx<'_>, key: &str, sub: Option<(&str, String)>, fallback: &str) {
@@ -645,7 +682,7 @@ async fn denial_reply(ctx: Ctx<'_>, key: &str, sub: Option<(&str, String)>, fall
     if let Some((pat, val)) = sub {
         msg = msg.replace(pat, &val);
     }
-    let _ = ctx.send(poise::CreateReply::default().content(msg)).await;
+    denial_send(ctx, poise::CreateReply::default().content(msg)).await;
 }
 
 /// Route a prefix parse failure to its TS lang key. Mirrors the
@@ -671,17 +708,22 @@ fn argument_parse_key(error_text: &str) -> Option<(&'static str, &'static str)> 
 /// Render the per-command cooldown denial. Mirrors checkGlobalCooldown
 /// (global_command_cooldown_msg with ${emoji}/${time}/${ctx.commandPath}).
 /// Pure so the template wiring is unit-testable; `remaining_ms` comes from
-/// poise's CooldownHit (target.cooldown), formatted with beautiful_ms like
-/// the rate-limit arm below.
+/// poise's CooldownHit (target.cooldown), formatted with the guild lang's
+/// units via beautiful_ms_lang like the rate-limit arm below (TS
+/// to_beautiful_string(remaining, lang)).
 fn cooldown_denial_message(
     template: &str,
     warn_markup: &str,
     remaining_ms: u128,
     command_path: &str,
+    lang_code: &str,
 ) -> String {
     template
         .replace("${emoji}", warn_markup)
-        .replace("${time}", &crate::funcs::beautiful_ms(remaining_ms as f64))
+        .replace(
+            "${time}",
+            &crate::commands::guildconfig::beautiful_ms_lang(remaining_ms as f64, lang_code),
+        )
         .replace("${ctx.commandPath}", command_path)
 }
 
@@ -711,11 +753,12 @@ async fn cooldown_denial(ctx: Ctx<'_>, remaining: std::time::Duration) {
         &warn,
         remaining.as_millis(),
         &ctx.command().qualified_name,
+        &code,
     );
     if msg.is_empty() {
         return;
     }
-    let _ = ctx.send(poise::CreateReply::default().content(msg)).await;
+    denial_send(ctx, poise::CreateReply::default().content(msg)).await;
 }
 
 /// Prefix usage-error embed. checkCommandArgs equivalent for the
@@ -1246,9 +1289,12 @@ fn pre_command_hook(ctx: poise::Context<'_, Data, anyhow::Error>) -> poise::BoxF
         // (prefix) never defer and keep the file-log leg below.
         // poise's defer_response no-ops when the initial response was
         // already sent (ApplicationContext::has_sent_initial_response),
-        // which is the skip-already-deferred/replied branch; later
-        // ctx.send() calls then edit that deferred reply (the
-        // deferred/editReply branching), like TS editReply-after-defer.
+        // which is the skip-already-deferred/replied branch; a double
+        // ack is a silent no-op (early-return Ok), never an error.
+        // Denial sends after a defer must NOT use ctx.send (poise would
+        // followUp): they go through denial_send, which edits the
+        // deferred reply like TS editReply-after-defer (method.ts
+        // interactionSend never sends followUps).
         if let poise::Context::Application(_) = ctx {
             let policy = crate::commands::defer_policy(&ctx.command().qualified_name);
             crate::cmd_debug::log(
@@ -1272,6 +1318,9 @@ fn pre_command_hook(ctx: poise::Context<'_, Data, anyhow::Error>) -> poise::BoxF
                         "defer-err",
                         format_args!("cmd={} {e}", ctx.command().qualified_name),
                     );
+                    // TS runCommand catch still shows the crash block on a
+                    // defer failure: surface it best-effort.
+                    crash_block(ctx, format!("pre-command defer failed: {e}")).await;
                 }
             }
             return;
@@ -3273,7 +3322,7 @@ mod tests {
         assert!(template.contains("${emoji}"));
         assert!(template.contains("${time}"));
         assert!(template.contains("${ctx.commandPath}"));
-        let msg = cooldown_denial_message(&template, "WARN", 2500, "ban");
+        let msg = cooldown_denial_message(&template, "WARN", 2500, "ban", "en-US");
         assert!(msg.contains("WARN"));
         assert!(msg.contains("ban"));
         assert!(!msg.contains("${"));
