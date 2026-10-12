@@ -48,7 +48,11 @@ pub async fn eco_deposit(
             }
         }
     };
-    if num <= 0.0 || !num.is_finite() {
+    // TS gates are `isNaN(Number(...))` then `Number(...) <= 0`, so only
+    // NaN and non-positive values take the not-integer key: `Infinity`
+    // passes both (`Infinity <= 0` is false) and falls into the
+    // cannot-abuse branch below (`"Infinity" > balance` is true).
+    if num.is_nan() || num <= 0.0 {
         not_integer_reply(&ctx, &code).await?;
         return Ok(());
     }

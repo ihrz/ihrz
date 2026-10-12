@@ -79,12 +79,18 @@ pub async fn inv_lb(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let total_pages = rows.len().div_ceil(items_per_page);
     let (fname, fbytes) = crate::commands::shared::footer_parts(&ctx, &gid).await;
     // Guild icon snapshot for the `attachment://guildIcon.png` thumbnail.
-    // Mirrors the guildIcon.png file in `!leaderboard.ts` (bytes attached
-    // so the thumbnail survives icon changes; raw URL when offline).
-    let guild_icon_bytes = if guild_icon.is_empty() {
+    // Mirrors `!leaderboard.ts` (`iconURL({size:512}) ||
+    // client.user.displayAvatarURL()`): fall back to the bot avatar when
+    // the guild has no icon, so the thumbnail is never dropped.
+    let guild_icon_url = if guild_icon.is_empty() {
+        ctx.serenity_context().cache.current_user().face()
+    } else {
+        guild_icon.clone()
+    };
+    let guild_icon_bytes = if guild_icon_url.is_empty() {
         None
     } else {
-        crate::image64::image64(&guild_icon).await
+        crate::image64::image64(&guild_icon_url).await
     };
 
     let mk_embed = |page: usize| {
@@ -110,11 +116,11 @@ pub async fn inv_lb(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
                 }),
             )
             .timestamp(serenity::Timestamp::now());
-        if !guild_icon.is_empty() {
+        if !guild_icon_url.is_empty() {
             if guild_icon_bytes.is_some() {
                 embed = embed.thumbnail("attachment://guildIcon.png");
             } else {
-                embed = embed.thumbnail(guild_icon.clone());
+                embed = embed.thumbnail(guild_icon_url.clone());
             }
         }
         embed

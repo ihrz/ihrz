@@ -142,7 +142,20 @@ pub async fn ranks_show(
         .unwrap_or_else(|| {
             format!("`{remaining}` **experience points needed for the next level!**")
         });
-    let svg = crate::cards::rank_card_svg(&display, level, currentxp, avatar_data.as_deref());
+    let labels = crate::cards::RankCardLabels {
+        level_word: crate::lang::get(&code, "var_level").unwrap_or_else(|| "Level".to_string()),
+        needed_label: crate::lang::get(&code, "level_xp_needed_for_new_level")
+            .unwrap_or_else(|| "XP needed".to_string()),
+        total_label: crate::lang::get(&code, "level_xp_total")
+            .unwrap_or_else(|| "Total XP".to_string()),
+    };
+    let svg = crate::cards::rank_card_svg_with_labels(
+        &display,
+        level,
+        currentxp,
+        avatar_data.as_deref(),
+        &labels,
+    );
     // Mirrors `!show.ts:66-67`: the embed colour is the avatar's
     // dominant colour, with a constant fallback when offline.
     let colour = crate::funcs::image_dominant_color(&face_url)

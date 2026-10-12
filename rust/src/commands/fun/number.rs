@@ -7,14 +7,10 @@ use super::*;
 /// paths go through this manual parse so a non-numeric prefix arg falls
 /// back instead of raising a framework error (typed `Option<i64>` params
 /// reject it before the handler runs, where TS yields NaN -> default).
+/// The integer parse itself is `parseInt`-faithful (leading-digit run,
+/// `0x` hex), shared with the dice command.
 fn parse_bound(raw: Option<String>, default: i64) -> i64 {
-    let n = raw
-        .as_deref()
-        .unwrap_or("")
-        .trim()
-        .parse::<f64>()
-        .map(|f| f as i64)
-        .unwrap_or(0);
+    let n = super::dice::ts_parse_int(raw.as_deref().unwrap_or(""));
     if n == 0 {
         default
     } else {
@@ -99,5 +95,9 @@ mod number_tests {
         assert_eq!(parse_bound(Some("42".to_string()), 100), 42);
         assert_eq!(parse_bound(Some("-7".to_string()), 0), -7);
         assert_eq!(parse_bound(Some("12.9".to_string()), 100), 12);
+        // parseInt prefix rules: leading-digit run and 0x hex parse
+        // instead of falling back.
+        assert_eq!(parse_bound(Some("12abc".to_string()), 100), 12);
+        assert_eq!(parse_bound(Some("0x10".to_string()), 100), 16);
     }
 }

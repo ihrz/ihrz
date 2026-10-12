@@ -100,6 +100,12 @@ fn restyle_suggest_embed(
     }
     out = out.field(field_name, field_value.to_string(), false);
     out = out.title(title).colour(action.color);
+    if let Some(thumb) = &posted.thumbnail {
+        out = out.thumbnail(thumb.url.clone());
+    }
+    if let Some(image) = &posted.image {
+        out = out.image(image.url.clone());
+    }
     if let Some(author) = &posted.author {
         let mut a = serenity::CreateEmbedAuthor::new(author.name.clone());
         if let Some(icon) = &author.icon_url {
@@ -457,5 +463,19 @@ mod tests {
         let dbg = format!("{embed:?}");
         assert!(dbg.contains("Ship it"));
         assert!(dbg.contains("Accepting"));
+    }
+
+    #[test]
+    fn restyle_preserves_thumbnail_and_image() {
+        let posted: serenity::Embed = serde_json::from_value(serde_json::json!({
+            "thumbnail": { "url": "https://cdn/thumb.png" },
+            "image": { "url": "https://cdn/img.png" }
+        }))
+        .unwrap();
+        let embed =
+            restyle_suggest_embed(&posted, &DENY, "Staff".to_string(), "No", "T".to_string());
+        let dbg = format!("{embed:?}");
+        assert!(dbg.contains("https://cdn/thumb.png"));
+        assert!(dbg.contains("https://cdn/img.png"));
     }
 }

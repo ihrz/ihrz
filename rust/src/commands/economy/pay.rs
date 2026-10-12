@@ -40,8 +40,13 @@ pub async fn eco_pay(
         return Ok(());
     }
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-    // TS: `amount.toString().includes("-")` — only negatives are rejected.
-    if amount.to_string().contains('-') {
+    // TS: `amount.toString().includes("-")` on the JS number rendering —
+    // JS prints `-0` as `"0"` (no dash, so it flows through) and positive
+    // sub-1e-6 values in exponential form (`"1e-7"`, dash present, so they
+    // are rejected). Rust's `to_string` renders both cases the other way
+    // round (`"-0"`, `"0.0000001"`), so compare numerically instead of
+    // scanning the Rust string.
+    if amount < 0.0 || (amount > 0.0 && amount < 1e-6) {
         ctx.say(
             crate::lang::get(&code, "pay_negative_number_error")
                 .unwrap_or_else(|| "Negative money cannot be paid.".to_string()),

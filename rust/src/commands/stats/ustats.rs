@@ -62,7 +62,9 @@ pub async fn stats_user(
         .collect();
     let top_vc: Vec<String> = top_voice_channels(&s.voice_log, 3)
         .iter()
-        .map(|(ch, ms)| format!("<#{ch}> ({}m)", ms / 60_000))
+        // Mirrors `getChannelMinutesCount` (`Math.round(totalMs / 60000)`):
+        // round-half-up to minutes, not floor.
+        .map(|(ch, ms)| format!("<#{ch}> ({}m)", (ms + 30_000) / 60_000))
         .collect();
     let top_text_str = if top_text.is_empty() {
         "-".to_string()

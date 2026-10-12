@@ -47,8 +47,11 @@ pub async fn mod_ban(
         .await?;
         return Ok(());
     };
-    // TS defaults to the guild punishPub text, never empty.
-    let reason = reason.unwrap_or_else(|| t("guildprofil_not_set_punishPub"));
+    // TS `if (!reason)`: null or empty falls back to the guild punishPub
+    // text, never empty (method.longString yields null when absent).
+    let reason = reason
+        .filter(|s| !s.is_empty())
+        .unwrap_or_else(|| t("guildprofil_not_set_punishPub"));
     let no = emoji(&ctx, "No", "❌").await;
     let stop = emoji(&ctx, "Stop", "⛔").await;
     let guards = guard_data(&ctx, guild_id).await;
@@ -78,8 +81,10 @@ pub async fn mod_ban(
             .await?;
             return Ok(());
         }
-        // `bannable`: the bot's top role must outrank the target.
-        if guards.map(|g| g.bot_top <= target_pos).unwrap_or(false) {
+        // `bannable` (discord.js v14 folds `manageable` in): the bot's top
+        // role must strictly outrank the target, and the guild owner is
+        // never bannable even with a low top role.
+        if member.id.get() == owner || guards.map(|g| g.bot_top <= target_pos).unwrap_or(false) {
             ctx.say(t("ban_cant_ban_member").replace("${client.iHorizon_Emojis.No}", &no))
                 .await?;
             return Ok(());

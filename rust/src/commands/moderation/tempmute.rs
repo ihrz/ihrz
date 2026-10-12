@@ -77,7 +77,11 @@ pub async fn mod_timeout(
         ms = TIMEOUT_MAX_MS;
         overflow = true;
     }
-    let reason_s = reason.clone().unwrap_or_else(|| t("var_no_set"));
+    // TS `reason || var_no_set`: null or empty shows the fallback.
+    let reason_s = reason
+        .clone()
+        .filter(|s| !s.is_empty())
+        .unwrap_or_else(|| t("var_no_set"));
     let no = emoji(&ctx, "No", "❌").await;
     let vc = emoji(&ctx, "VC_OpenChat", "💬").await;
     let guards = guard_data(&ctx, guild_id).await;

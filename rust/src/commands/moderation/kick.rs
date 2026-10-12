@@ -32,8 +32,11 @@ pub async fn mod_kick(
     };
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let t = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
-    // TS defaults to the guild punishPub text, never empty.
-    let reason = reason.unwrap_or_else(|| t("guildprofil_not_set_punishPub"));
+    // TS `if (!reason)`: null or empty falls back to the guild punishPub
+    // text, never empty (method.longString yields null when absent).
+    let reason = reason
+        .filter(|s| !s.is_empty())
+        .unwrap_or_else(|| t("guildprofil_not_set_punishPub"));
     let no = emoji(&ctx, "No", "❌").await;
     let stop = emoji(&ctx, "Stop", "⛔").await;
     let guards = guard_data(&ctx, guild_id).await;

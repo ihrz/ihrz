@@ -259,17 +259,46 @@ pub async fn dice(
     Ok(())
 }
 
+/// `parseInt`-faithful integer parse. Mirrors `method.number` in
+/// `method.ts` (`parseInt(value)`, NaN -> 0): leading whitespace, an
+/// optional sign, a `0x` hex run, else the leading decimal-digit run.
+/// Anything with no digits (empty / non-numeric input) yields 0, and the
+/// caller applies the TS `||` default on top of that.
+pub fn ts_parse_int(raw: &str) -> i64 {
+    let s = raw.trim_start();
+    let (neg, s) = match s.as_bytes().first() {
+        Some(b'-') => (true, &s[1..]),
+        Some(b'+') => (false, &s[1..]),
+        _ => (false, s),
+    };
+    if let Some(hex) = s.strip_prefix("0x").or_else(|| s.strip_prefix("0X")) {
+        let end = hex
+            .find(|c: char| !c.is_ascii_hexdigit())
+            .unwrap_or(hex.len());
+        if end == 0 {
+            return 0;
+        }
+        let v = i64::from_str_radix(&hex[..end], 16).unwrap_or(i64::MAX);
+        return if neg { -v } else { v };
+    }
+    let end = s.find(|c: char| !c.is_ascii_digit()).unwrap_or(s.len());
+    if end == 0 {
+        return 0;
+    }
+    let v: f64 = s[..end].parse().unwrap_or(0.0);
+    let v = v as i64;
+    if neg {
+        -v
+    } else {
+        v
+    }
+}
+
 /// Parse one count the TS way: `method.number` yields 0 for missing or
 /// non-numeric input (parseInt NaN -> 0), and the `|| 1` / `|| 6`
 /// fallbacks in `!dice.ts` then apply to 0 as well.
 fn parse_count(raw: Option<String>, default: i64) -> i64 {
-    let n = raw
-        .as_deref()
-        .unwrap_or("")
-        .trim()
-        .parse::<f64>()
-        .map(|f| f as i64)
-        .unwrap_or(0);
+    let n = ts_parse_int(raw.as_deref().unwrap_or(""));
     if n == 0 {
         default
     } else {
@@ -345,6 +374,29 @@ mod dice_tests {
         );
         assert_eq!(DiceNumber::N1.localized_name("fr"), Some("Nombre: 1"));
         assert_eq!(DiceFaces::F12.localized_name("ru"), Some("amount_i"));
+    }
+
+    #[test]
+    fn parse_int_matches_js_parseint_prefix_rules() {
+        // Leading-digit run, like `parseInt` in `method.number`.
+        assert_eq!(ts_parse_int("12abc"), 12);
+        assert_eq!(ts_parse_int("3.99"), 3);
+        assert_eq!(ts_parse_int("1e3"), 1);
+        assert_eq!(ts_parse_int("0b101"), 0);
+        assert_eq!(ts_parse_int("  -7 "), -7);
+        assert_eq!(ts_parse_int("+5"), 5);
+        assert_eq!(ts_parse_int("0x10"), 16);
+        assert_eq!(ts_parse_int("-0x10"), -16);
+        // No digits -> 0, so the caller falls back to the default.
+        assert_eq!(ts_parse_int(""), 0);
+        assert_eq!(ts_parse_int("abc"), 0);
+        assert_eq!(ts_parse_int("0x"), 0);
+        assert_eq!(ts_parse_int("--5"), 0);
+        // Prefix garbage now parses instead of falling back.
+        assert_eq!(
+            dice_counts(Some("12abc".to_string()), Some("0xC".to_string()), false),
+            (12, 12)
+        );
     }
 
     #[test]
