@@ -98,16 +98,45 @@ pub async fn lookup_reaction_role(
     None
 }
 
-/// Subcommand for rolereaction category!
+/// Rolereaction value choice. Mirrors the `value` option `choices` in
+/// HybridCommands/rolereactions/rolereaction.ts:65-86: slash shows the
+/// localized display names, the handler dispatches on the variant.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
+pub enum RolereactionValue {
+    #[name = "Add another"]
+    #[name_localized("fr", "Ajouter un autre")]
+    #[name_localized("ja", "add_another")]
+    #[name_localized("ru", "add_another")]
+    #[name_localized("es-ES", "add_another")]
+    #[name = "add"]
+    Add,
+    #[name = "Remove one"]
+    #[name_localized("fr", "Supprimer un")]
+    #[name_localized("ja", "remove_one")]
+    #[name_localized("ru", "remove_one")]
+    #[name_localized("es-ES", "remove_one")]
+    #[name = "remove"]
+    Remove,
+}
+
+impl RolereactionValue {
+    /// TS `value` (`add` / `remove`).
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::Add => "add",
+            Self::Remove => "remove",
+        }
+    }
+}
+
+/// Set a roles when user react to a message with specific emoji
 #[poise::command(
     slash_command,
     prefix_command,
     category = "rolereactions",
     rename = "rolereaction",
     aliases("rolereact"),
-    subcommands("rr_add", "rr_remove"),
     default_member_permissions = "ADMINISTRATOR",
-    subcommand_required,
     description_localized(
         "fr",
         "Définir des rôles lorsque l'utilisateur réagit à un message avec des emoji spécifiques"
@@ -119,30 +148,73 @@ pub async fn lookup_reaction_role(
         "Establecer roles cuando el usuario reacciona a un mensaje con emoji específico"
     )
 )]
-pub async fn rolereaction(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
-    Ok(())
-}
-
-/// Add a role for a certain amount of money!
-#[poise::command(
-    slash_command,
-    prefix_command,
-    rename = "add",
-    default_member_permissions = "ADMINISTRATOR"
-)]
-pub async fn rr_add(
+pub async fn rolereaction(
     ctx: Ctx<'_>,
-    // TS HybridCommands/rolereactions/rolereaction.ts registers "channel".
-    #[description = "Channel id"]
-    #[rename = "channel"]
-    channel_id: String,
-    #[description = "Message id"] message_id: String,
-    #[description = "Emoji or emoji id"] reaction: Option<String>,
-    #[description = "Role"] role: Option<serenity::Role>,
+    #[description = "Please make your choice."]
+    #[description_localized("fr", "Merci de faire votre choix")]
+    #[description_localized("ja", "選択してください。")]
+    #[description_localized("ru", "Пожалуйста, сделайте выбор.")]
+    #[description_localized("es-ES", "Por favor, haz tu elección.")]
+    value: RolereactionValue,
+    #[description = "The channel where is the message"]
+    #[description_localized("fr", "Le salon textuelle où se trouve le message")]
+    #[description_localized("ja", "メッセージがあるチャンネル")]
+    #[description_localized("ru", "Канал, где находится сообщение")]
+    #[description_localized("es-ES", "El canal donde está el mensaje")]
+    #[channel_types("Text")]
+    channel: serenity::GuildChannel,
+    #[description = "Please copy the identifiant of the message you want to configure"]
+    #[description_localized(
+        "fr",
+        "Veuillez copier l'identifiant du message que vous souhaitez configurer"
+    )]
+    #[description_localized("ja", "設定したいメッセージの識別子をコピーしてください")]
+    #[description_localized(
+        "ru",
+        "Пожалуйста, скопируйте идентификатор сообщения, которое вы хотите настроить"
+    )]
+    #[description_localized(
+        "es-ES",
+        "Por favor, copia el identificador del mensaje que quieres configurar"
+    )]
+    message_id: String,
+    #[description = "The emojis you want"]
+    #[description_localized("fr", "Les emojis que tu veux")]
+    #[description_localized("ja", "使用したい絵文字")]
+    #[description_localized("ru", "Эмодзи, которые вы хотите")]
+    #[description_localized("es-ES", "Los emojis que deseas")]
+    reaction: Option<String>,
+    #[description = "The role you want to configure"]
+    #[description_localized("fr", "Le rôle que vous souhaitez configurer")]
+    #[description_localized("ja", "設定したいロール")]
+    #[description_localized("ru", "Роль, которую вы хотите настроить")]
+    #[description_localized("es-ES", "El rol que quieres configurar")]
+    role: Option<serenity::Role>,
 ) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {
         return Ok(());
     };
+    match value {
+        RolereactionValue::Add => {
+            rolereaction_add(&ctx, guild_id, &channel, &message_id, reaction, role).await?;
+        }
+        RolereactionValue::Remove => {
+            rolereaction_remove(&ctx, guild_id, &channel, &message_id, reaction).await?;
+        }
+    }
+    Ok(())
+}
+
+/// Add leg of rolereaction. Mirrors the `type == "add"` branch in
+/// HybridCommands/rolereactions/rolereaction.ts.
+async fn rolereaction_add(
+    ctx: &Ctx<'_>,
+    guild_id: serenity::GuildId,
+    channel: &serenity::GuildChannel,
+    message_id: &str,
+    reaction: Option<String>,
+    role: Option<serenity::Role>,
+) -> Result<(), anyhow::Error> {
     let gid = guild_id.get().to_string();
     let Some(role) = role else {
         // Missing role: the blue help embed, like TS.
@@ -153,7 +225,7 @@ pub async fn rr_add(
                     .title("/reactionroles Help !")
                     .description(
                         crate::commands::lang_for(
-                            &ctx,
+                            ctx,
                             "reactionroles_embed_message_description_added",
                             "__How to use?__\n/rolesreaction add `<message id>` `<reaction>` `<rolesid>`\n/rolesreaction remove `<message id>` `<reaction>`\n/rolesreaction list `<message id>`",
                         )
@@ -168,7 +240,7 @@ pub async fn rr_add(
     if reaction_raw.trim().is_empty() {
         ctx.say(
             crate::commands::lang_for(
-                &ctx,
+                ctx,
                 "reactionroles_missing_reaction_added",
                 "Missing argument: Reaction's Emoji",
             )
@@ -179,20 +251,17 @@ pub async fn rr_add(
     }
     let reaction = normalize_button_reaction(&reaction_raw);
     let dont_found = crate::commands::lang_for(
-        &ctx,
+        ctx,
         "reactionroles_dont_message_found",
         "I can't retrieve the message with your current message ID, or the emoji you selected is not on a server where I am!",
     )
     .await;
-    let (Ok(ch), Ok(mid)) = (
-        channel_id.trim().parse::<u64>(),
-        message_id.trim().parse::<u64>(),
-    ) else {
+    let Ok(mid) = message_id.trim().parse::<u64>() else {
         ctx.say(dont_found).await?;
         return Ok(());
     };
-    let channel = serenity::ChannelId::new(ch);
     let Ok(msg) = channel
+        .id
         .message(ctx.http(), serenity::MessageId::new(mid))
         .await
     else {
@@ -215,7 +284,7 @@ pub async fn rr_add(
             .unwrap_or_default();
         ctx.say(
             crate::commands::lang_for(
-                &ctx,
+                ctx,
                 "reactionroles_invalid_emote_format_added",
                 "${client.iHorizon_Emojis.No} | You can't send me a `CUSTOM_EMOJI` in format `<::xxx>`! I only need its ID!",
             )
@@ -244,13 +313,13 @@ pub async fn rr_add(
         &http,
         guild_id,
         &crate::commands::lang_for(
-            &ctx,
+            ctx,
             "reactionroles_logs_embed_title_added",
             "ReactionRoles Logs",
         )
         .await,
         &crate::commands::lang_for(
-            &ctx,
+            ctx,
             "reactionroles_logs_embed_description_added",
             "<@${interaction.user.id}> set a reaction role: Message: `${messagei}` | Reaction: `${reaction}` | Role: ${role}",
         )
@@ -265,7 +334,7 @@ pub async fn rr_add(
         poise::CreateReply::default()
             .content(
                 crate::commands::lang_for(
-                    &ctx,
+                    ctx,
                     "reactionroles_command_work_added",
                     "${reaction} has been added to message ${messagei} to give ${role}",
                 )
@@ -280,31 +349,21 @@ pub async fn rr_add(
     Ok(())
 }
 
-/// Remove Streamer/Youtuber/Twitcher
-#[poise::command(
-    slash_command,
-    prefix_command,
-    rename = "remove",
-    default_member_permissions = "ADMINISTRATOR"
-)]
-pub async fn rr_remove(
-    ctx: Ctx<'_>,
-    // TS HybridCommands/rolereactions/rolereaction.ts registers "channel".
-    #[description = "Channel id"]
-    #[rename = "channel"]
-    channel_id: String,
-    #[description = "Message id"] message_id: String,
-    #[description = "Emoji or emoji id"] reaction: Option<String>,
+/// Remove leg of rolereaction. Mirrors the `type == "remove"` branch in
+/// HybridCommands/rolereactions/rolereaction.ts.
+async fn rolereaction_remove(
+    ctx: &Ctx<'_>,
+    guild_id: serenity::GuildId,
+    channel: &serenity::GuildChannel,
+    message_id: &str,
+    reaction: Option<String>,
 ) -> Result<(), anyhow::Error> {
-    let Some(guild_id) = ctx.guild_id() else {
-        return Ok(());
-    };
     let gid = guild_id.get().to_string();
     let reaction_raw = reaction.unwrap_or_default();
     if reaction_raw.trim().is_empty() {
         ctx.say(
             crate::commands::lang_for(
-                &ctx,
+                ctx,
                 "reactionroles_missing_remove",
                 "Missing argument: Reaction's Emoji",
             )
@@ -315,20 +374,17 @@ pub async fn rr_remove(
     }
     let reaction = normalize_button_reaction(&reaction_raw);
     let cant_fetch = crate::commands::lang_for(
-        &ctx,
+        ctx,
         "reactionroles_cant_fetched_reaction_remove",
         "Can't fetch targeted reaction on this message!",
     )
     .await;
-    let (Ok(ch), Ok(mid)) = (
-        channel_id.trim().parse::<u64>(),
-        message_id.trim().parse::<u64>(),
-    ) else {
+    let Ok(mid) = message_id.trim().parse::<u64>() else {
         ctx.say(cant_fetch.clone()).await?;
         return Ok(());
     };
-    let channel = serenity::ChannelId::new(ch);
     let Ok(msg) = channel
+        .id
         .message(ctx.http(), serenity::MessageId::new(mid))
         .await
     else {
@@ -343,7 +399,7 @@ pub async fn rr_remove(
     let Some(fetched) = row else {
         ctx.say(
             crate::commands::lang_for(
-                &ctx,
+                ctx,
                 "reactionroles_missing_reaction_remove",
                 "Reaction Roles were not found in my database...",
             )
@@ -366,7 +422,11 @@ pub async fn rr_remove(
     let http = ctx.serenity_context().http.clone();
     // TS logs remove failures and still deletes the row.
     if http
-        .delete_reaction_me(channel, msg.id, &reaction_type_for(&fetched.reaction_name))
+        .delete_reaction_me(
+            channel.id,
+            msg.id,
+            &reaction_type_for(&fetched.reaction_name),
+        )
         .await
         .is_err()
     {
@@ -378,13 +438,13 @@ pub async fn rr_remove(
         &http,
         guild_id,
         &crate::commands::lang_for(
-            &ctx,
+            ctx,
             "reactionroles_logs_embed_title_remove",
             "ReactionRoles Logs",
         )
         .await,
         &crate::commands::lang_for(
-            &ctx,
+            ctx,
             "reactionroles_logs_embed_description_remove",
             "<@${interaction.user.id}> deleted a reaction role: Message: `${messagei}` | Reaction: `${reaction}`",
         )
@@ -398,7 +458,7 @@ pub async fn rr_remove(
         poise::CreateReply::default()
             .content(
                 crate::commands::lang_for(
-                    &ctx,
+                    ctx,
                     "reactionroles_command_work_remove",
                     "${reaction} has been deleted from message ${messagei}",
                 )
@@ -1973,6 +2033,47 @@ mod tests {
         );
         assert_eq!(
             RolebuttonValue::Remove.localized_name("es-ES"),
+            Some("remove_one")
+        );
+    }
+
+    #[test]
+    fn rolereaction_value_choices_mirror_ts_names_values_and_locales() {
+        use poise::ChoiceParameter as _;
+        let names: Vec<_> = RolereactionValue::list()
+            .into_iter()
+            .map(|c| c.name)
+            .collect();
+        assert_eq!(
+            names,
+            vec!["Add another".to_string(), "Remove one".to_string()]
+        );
+        assert_eq!(RolereactionValue::Add.as_str(), "add");
+        assert_eq!(RolereactionValue::Remove.as_str(), "remove");
+        assert_eq!(
+            RolereactionValue::from_name("add"),
+            Some(RolereactionValue::Add)
+        );
+        assert_eq!(
+            RolereactionValue::from_name("REMOVE ONE"),
+            Some(RolereactionValue::Remove)
+        );
+        assert_eq!(RolereactionValue::from_name("bogus"), None);
+        let list = RolereactionValue::list();
+        assert_eq!(
+            list[0].localizations.get("fr").map(String::as_str),
+            Some("Ajouter un autre")
+        );
+        assert_eq!(
+            list[1].localizations.get("fr").map(String::as_str),
+            Some("Supprimer un")
+        );
+        assert_eq!(
+            list[0].localizations.get("ja").map(String::as_str),
+            Some("add_another")
+        );
+        assert_eq!(
+            RolereactionValue::Remove.localized_name("es-ES"),
             Some("remove_one")
         );
     }

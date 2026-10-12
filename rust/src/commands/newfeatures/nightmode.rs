@@ -23,12 +23,10 @@ pub const NIGHTMODE_VALUE_TIMEZONE: &str = "change_timezone";
 /// Embed colour. Mirrors `.setColor("#010101")` in `nightmode.ts`.
 pub const NIGHTMODE_EMBED_COLOR: u32 = 0x01_01_01;
 
-/// Nightmode panel and quick toggle (guild owner only).
-// Bare `/nightmode` (or `panel`/`config`) opens the interactive config
-// panel mirroring `nightmode.ts`; `on`/`off` with optional hours stays
-// the owner-only quick toggle. The full blob is always loaded first
-// and mutated in place (minutes, notify, derank, utc, wl_bots are
-// never reset).
+/// Nightmode config panel (guild owner only).
+// Bare `/nightmode` opens the interactive config panel mirroring
+// `nightmode.ts`. The full blob is always loaded first and mutated
+// in place (minutes, notify, derank, utc, wl_bots are never reset).
 #[poise::command(
     slash_command,
     prefix_command,
@@ -41,29 +39,8 @@ pub const NIGHTMODE_EMBED_COLOR: u32 = 0x01_01_01;
     description_localized("ru", "⭐️ (VERY UHQ) NightMode"),
     description_localized("es-ES", "⭐️ (VERY UHQ) NightMode")
 )]
-pub async fn nightmode(
-    ctx: Ctx<'_>,
-    #[description = "on, off, or panel (default)"] action: Option<String>,
-    #[description = "Start hour 0-23"] start: Option<i64>,
-    #[description = "End hour 0-23"] end: Option<i64>,
-) -> Result<(), anyhow::Error> {
-    if wants_panel(action.as_deref()) {
-        return run_nightmode_panel(ctx).await;
-    }
-    run_quick_toggle(ctx, action.as_deref().unwrap_or(""), start, end).await
-}
-
-/// Panel routing: no arg (or an explicit panel word) opens the panel;
-/// anything else keeps the legacy quick-toggle semantics (where only
-/// `on`/`power on` enables, everything else disables).
-pub fn wants_panel(action: Option<&str>) -> bool {
-    match action.map(str::trim) {
-        None => true,
-        Some(a) => matches!(
-            a.to_ascii_lowercase().as_str(),
-            "" | "panel" | "config" | "menu"
-        ),
-    }
+pub async fn nightmode(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
+    run_nightmode_panel(ctx).await
 }
 
 /// Guild-owner gate (TS: interaction.guild.ownerId check). HTTP fetch
@@ -101,84 +78,6 @@ async fn persist_cfg(
     cfg: &NightmodeConfig,
 ) -> Result<(), anyhow::Error> {
     crate::db::tbl_set_json(pool, gid, "UTILS.NIGHT_MODE", cfg).await?;
-    Ok(())
-}
-
-/// Legacy quick toggle (owner only, on/off + hour args). Minutes are
-/// preserved: the args only carry hours, and zeroing time[1]/time[3]
-/// here would wipe panel-set minutes.
-async fn run_quick_toggle(
-    ctx: Ctx<'_>,
-    action: &str,
-    start: Option<i64>,
-    end: Option<i64>,
-) -> Result<(), anyhow::Error> {
-    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-    if !is_guild_owner(ctx).await {
-        ctx.say(
-            crate::lang::get(&code, "blockbot_not_owner")
-                .unwrap_or_else(|| ":x: **You are not the Owner of the server!**".to_string()),
-        )
-        .await?;
-        return Ok(());
-    }
-    let gid = ctx
-        .guild_id()
-        .map(|g| g.get().to_string())
-        .unwrap_or_default();
-    let mut cfg = load_cfg(&ctx.data().pool, &gid).await;
-    let enabled = matches!(action.to_ascii_lowercase().as_str(), "on" | "power on");
-    cfg.enabled = enabled;
-    if let Some(s) = start {
-        if !valid_hour(s) {
-            let no = crate::emojis::app_emoji_markup(ctx.http(), "No")
-                .await
-                .unwrap_or_else(|| "❌".to_string());
-            ctx.say(
-                crate::lang::get(&code, "nightmode_invalid_hour_morning")
-                    .map(|s| s.replace("${client.iHorizon_Emojis.No}", &no))
-                    .unwrap_or_else(|| "${client.iHorizon_Emojis.No} Start time is not valid. Use format: 21:30 or 2130".to_string()),
-            )
-            .await?;
-            return Ok(());
-        }
-        cfg.time[0] = s as u8;
-    }
-    if let Some(e) = end {
-        if !valid_hour(e) {
-            let no = crate::emojis::app_emoji_markup(ctx.http(), "No")
-                .await
-                .unwrap_or_else(|| "❌".to_string());
-            ctx.say(
-                crate::lang::get(&code, "nightmode_invalid_hour_night")
-                    .map(|s| s.replace("${client.iHorizon_Emojis.No}", &no))
-                    .unwrap_or_else(|| "${client.iHorizon_Emojis.No} End time is not valid. Use format: 06:15 or 0615".to_string()),
-            )
-            .await?;
-            return Ok(());
-        }
-        cfg.time[2] = e as u8;
-    }
-    persist_cfg(&ctx.data().pool, &gid, &cfg).await?;
-    let state = if enabled { "on" } else { "off" };
-    let window = time_beautifuer(cfg.time);
-    ctx.say(
-        crate::lang::get(&code, "msg_nightmode_updated")
-            .map(|s| {
-                s.replace("${state}", state)
-                    .replace("${start}", &cfg.time[0].to_string())
-                    .replace("${end}", &cfg.time[2].to_string())
-            })
-            .unwrap_or_else(|| {
-                format!(
-                    "Nightmode {state} ({window}, notify {}, derank {}, UTC{}).",
-                    if cfg.notify { "on" } else { "off" },
-                    if cfg.derank_bot { "on" } else { "off" },
-                    cfg.utc,
-                )
-            }),
-    )
-    .await?;
     Ok(())
 }
 
@@ -1020,12 +919,11 @@ mod tests {
         apply_panel_choice, basics_check, basics_warning_keys, load_cfg, panel_choice_of,
         panel_expired, parse_time_input, persist_cfg, status_dot, time_beautifuer,
         time_beautifuer_with_minutes, utc_offset_label, utc_options, utc_timezone_name,
-        wants_panel, wl_bots_field, NightmodeConfig, PanelChoice, NIGHTMODE_EMBED_COLOR,
-        NIGHTMODE_HOURS_END_ID, NIGHTMODE_HOURS_MODAL_ID, NIGHTMODE_HOURS_START_ID,
-        NIGHTMODE_MAIN_SELECT_ID, NIGHTMODE_PANEL_TIMEOUT_SECS, NIGHTMODE_SAVE_BUTTON_ID,
-        NIGHTMODE_TZ_SELECT_ID, NIGHTMODE_VALUE_DERANK, NIGHTMODE_VALUE_ENABLE,
-        NIGHTMODE_VALUE_HOURS, NIGHTMODE_VALUE_NOTIFY, NIGHTMODE_VALUE_TIMEZONE,
-        NIGHTMODE_WL_SELECT_ID,
+        wl_bots_field, NightmodeConfig, PanelChoice, NIGHTMODE_EMBED_COLOR, NIGHTMODE_HOURS_END_ID,
+        NIGHTMODE_HOURS_MODAL_ID, NIGHTMODE_HOURS_START_ID, NIGHTMODE_MAIN_SELECT_ID,
+        NIGHTMODE_PANEL_TIMEOUT_SECS, NIGHTMODE_SAVE_BUTTON_ID, NIGHTMODE_TZ_SELECT_ID,
+        NIGHTMODE_VALUE_DERANK, NIGHTMODE_VALUE_ENABLE, NIGHTMODE_VALUE_HOURS,
+        NIGHTMODE_VALUE_NOTIFY, NIGHTMODE_VALUE_TIMEZONE, NIGHTMODE_WL_SELECT_ID,
     };
 
     #[test]
@@ -1084,17 +982,6 @@ mod tests {
         assert!(panel_expired(1000, 1000 + 10_000));
         // Clock skew never expires the panel.
         assert!(!panel_expired(2000, 1000));
-    }
-
-    #[test]
-    fn routing_keeps_quick_toggle() {
-        assert!(wants_panel(None));
-        assert!(wants_panel(Some("panel")));
-        assert!(wants_panel(Some("config")));
-        assert!(wants_panel(Some("menu")));
-        assert!(!wants_panel(Some("on")));
-        assert!(!wants_panel(Some("off")));
-        assert!(!wants_panel(Some("power on")));
     }
 
     #[test]

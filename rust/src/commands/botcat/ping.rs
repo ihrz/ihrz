@@ -25,7 +25,10 @@ pub async fn ping(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         "# Pong! ${interaction.client.user.username}'s Network Stats:\n\n**[Discord Website Ping]** >> `${_net03}` ms.\n**[Cloudflare Ping]** >> `${_net02}` ms.\n**[Google Ping]** >> `${_net01}` ms.\n\n${client.iHorizon_Emojis.Crown} **[iHorizon Website Ping]** >> `${_net04}` ms.\n${client.iHorizon_Emojis.Crown} **[Websocket Ping]** `${client.ws.ping}` ms.\n\n## ${client.iHorizon_Emojis.Pointer} **[Average]** >> (avg)`${averagePing}` ms.",
     )
     .await;
-    let loading = ctx.say("...").await?;
+    let loading_mark = crate::emojis::app_emoji_markup(ctx.http(), "Discord_Loading")
+        .await
+        .unwrap_or("...".to_string());
+    let loading = ctx.say(loading_mark).await?;
     let ws_ms = ctx.ping().await.as_millis();
     let cfg = crate::monitor::PingConfig::default();
     let mut times: [Option<f64>; 4] = [None, None, None, None];
@@ -67,7 +70,7 @@ pub async fn ping(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         .description(desc);
     let embed =
         crate::commands::utils::embed_with_footer(embed, &footer_name, footer_bytes.is_some());
-    let mut reply = poise::CreateReply::default().embed(embed);
+    let mut reply = poise::CreateReply::default().content("").embed(embed);
     if let Some(bytes) = footer_bytes {
         reply = reply.attachment(poise::serenity_prelude::CreateAttachment::bytes(
             bytes,

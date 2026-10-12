@@ -15,9 +15,6 @@ use super::*;
 )]
 pub async fn chan_unhide(
     ctx: Ctx<'_>,
-    #[description = "Channel, defaults to current"] channel: Option<
-        poise::serenity_prelude::GuildChannel,
-    >,
     #[description_localized("fr", "Le rôle que tu veux démasquer dans le salon")]
     #[description_localized("ja", "チャンネルで表示したいロール")]
     #[description_localized("ru", "роль, которую нужно показать в канале")]
@@ -29,13 +26,10 @@ pub async fn chan_unhide(
         return Ok(());
     };
     let code = crate::db::guild_lang(&ctx.data().pool, Some(guild_id.get())).await;
-    let ch_id = match &channel {
-        Some(c) => c.id,
-        None => match ctx.guild_channel().await {
-            Some(c) => c.id,
-            None => return Ok(()),
-        },
+    let Some(chan_snapshot) = ctx.guild_channel().await else {
+        return Ok(());
     };
+    let ch_id = chan_snapshot.id;
     let role_id = role
         .as_ref()
         .map(|r| r.id.get())

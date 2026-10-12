@@ -1,9 +1,7 @@
 use super::*;
 
 /// Hide a channel from a role. Mirrors chanel !hide.ts.
-// TS always hides the current channel; the optional `channel` param is
-// a Rust extension defaulting to current. Unmanageable channels count
-// as permission errors (per-channel `manageable` gate).
+// TS always hides the current channel.
 #[poise::command(
     slash_command,
     prefix_command,
@@ -18,9 +16,6 @@ use super::*;
 )]
 pub async fn chan_hide(
     ctx: Ctx<'_>,
-    #[description = "Channel, defaults to current"] channel: Option<
-        poise::serenity_prelude::GuildChannel,
-    >,
     #[description_localized("fr", "Le rôle que tu veux masquer dans le salon")]
     #[description_localized("ja", "チャンネルで非表示にしたいロール")]
     #[description_localized("ru", "роль, которую нужно скрыть в канале")]
@@ -32,11 +27,7 @@ pub async fn chan_hide(
         return Ok(());
     };
     let code = crate::db::guild_lang(&ctx.data().pool, Some(guild_id.get())).await;
-    let chan_snapshot: Option<poise::serenity_prelude::GuildChannel> = match &channel {
-        Some(c) => Some(c.clone()),
-        None => ctx.guild_channel().await,
-    };
-    let Some(chan_snapshot) = chan_snapshot else {
+    let Some(chan_snapshot) = ctx.guild_channel().await else {
         return Ok(());
     };
     let ch_id = chan_snapshot.id;

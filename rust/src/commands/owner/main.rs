@@ -564,15 +564,13 @@ fn owners_embed(title: &str, owners: &[String], footer_name: &str) -> serenity::
         .footer(serenity::CreateEmbedFooter::new(footer_name))
 }
 
-/// Subcommand for owner category!
+/// add user to owner list (can't be used by normal member)!
 #[poise::command(
     slash_command,
     prefix_command,
     category = "owner",
     rename = "owner",
     aliases("addowner", "owneradd", "owners", "ownerlist"),
-    subcommands("owner_list", "owner_add", "owner_remove"),
-    subcommand_required,
     description_localized(
         "fr",
         "Ajoutez un membre dans la liste des propriétaire de iHorizon. (Seulement pour les dev)"
@@ -587,31 +585,9 @@ fn owners_embed(title: &str, owners: &[String], footer_name: &str) -> serenity::
         "Añadir usuario a la lista de propietarios (no puede ser usado por miembros normales)!"
     )
 )]
-pub async fn owner(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
-    Ok(())
-}
-
-/// List all sticky channels
-#[poise::command(slash_command, prefix_command, rename = "list")]
-pub async fn owner_list(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
-    // Merged view: config owners + persisted owner table.
-    // Mirrors getBotOwner() in ownerHelper.ts.
-    let owners = crate::db::bot_owner_ids(&ctx.data().pool, &ctx.data().config.owners).await;
-    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-    ctx.say(if owners.is_empty() {
-        crate::lang::get(&code, "owner_list_empty").unwrap_or_else(|| "No bot owners.".to_string())
-    } else {
-        owners.join(", ")
-    })
-    .await?;
-    Ok(())
-}
-
-/// Add a role for a certain amount of money!
-#[poise::command(slash_command, prefix_command, rename = "add")]
-pub async fn owner_add(
+pub async fn owner(
     ctx: Ctx<'_>,
-    #[description = "Member"]
+    #[description = "The member you want to made owner of the iHorizon Projects"]
     #[description_localized(
         "fr",
         "Le membre que vous souhaitez rendre propriétaire des projets iHorizon"
@@ -730,25 +706,6 @@ pub async fn owner_add(
             Ok(())
         }
     }
-}
-
-/// Remove Streamer/Youtuber/Twitcher
-#[poise::command(slash_command, prefix_command, rename = "remove")]
-pub async fn owner_remove(
-    ctx: Ctx<'_>,
-    #[description = "Member"]
-    #[description_localized(
-        "fr",
-        "Le membre que vous souhaitez supprimer de la liste des propriétaires"
-    )]
-    #[description_localized("ja", "オーナーリストから削除したいメンバー")]
-    #[description_localized("ru", "Участник для удаления из списка владельцев")]
-    #[description_localized("es-ES", "El miembro que quiere eliminar de la lista de propietarios")]
-    // TS HybridCommands/owner/unowner.ts registers "member".
-    #[rename = "member"]
-    user: serenity::User,
-) -> Result<(), anyhow::Error> {
-    owner_remove_inner(ctx, user).await
 }
 
 async fn owner_remove_inner(ctx: Ctx<'_>, user: serenity::User) -> Result<(), anyhow::Error> {
@@ -1698,7 +1655,8 @@ pub async fn bledit(
     }
 }
 
-/// Top-level old spelling (unowner).
+/// The member who wants to delete of the owner list (Only Owner of ihorizon)!
+// Top-level old spelling (unowner); flat TS-exact form (no subcommands).
 // FLATTEN-B2: blacklist, unblacklist, blinfo, bledit and eval are
 // top-level slash commands now (exact TS names, registered in
 // crate::commands::all()). Only `unowner` remains a thin delegate
@@ -1729,7 +1687,7 @@ pub async fn bledit(
 )]
 pub async fn unowner_alias(
     ctx: Ctx<'_>,
-    #[description = "Member"]
+    #[description = "The member who wants to delete of the owner list"]
     #[description_localized(
         "fr",
         "Le membre que vous souhaitez supprimer de la liste des propriétaires"

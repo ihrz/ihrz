@@ -31,12 +31,27 @@ impl LastfmPower {
     }
 }
 
-/// Config the message when user earn new xp level message!
-#[poise::command(slash_command, prefix_command, rename = "config")]
+/// Enable or disable Last.fm scrobbling for your account.
+#[poise::command(
+    slash_command,
+    prefix_command,
+    rename = "config",
+    description_localized("fr", "Activez ou désactivez le scrobbling Last.fm pour votre compte."),
+    description_localized("ja", "アカウントのLast.fmスクロブルを有効化または無効化。"),
+    description_localized("ru", "Включить или отключить скробблинг Last.fm для вашего аккаунта."),
+    description_localized(
+        "es-ES",
+        "Habilitar o deshabilitar el scrobbling de Last.fm para tu cuenta."
+    )
+)]
 pub async fn lastfm_config(
     ctx: Ctx<'_>,
     // TS SlashCommands/lastfm/!config.ts reads getString("power", true).
-    #[description = "on or off"]
+    #[description = "Power On or Power Off the module"]
+    #[description_localized("fr", "Activer ou désactiver le module")]
+    #[description_localized("ja", "モジュールをオンまたはオフ")]
+    #[description_localized("ru", "Включить или выключить модуль")]
+    #[description_localized("es-ES", "Encender o Apagar el módulo")]
     #[rename = "power"]
     action: LastfmPower,
 ) -> Result<(), anyhow::Error> {

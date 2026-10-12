@@ -33,15 +33,15 @@ pub fn ping_net_label(time_ms: Option<f64>, down_msg: &str) -> String {
     }
 }
 
-/// Mean over successful probes. Delta vs TS (documented): the TS
-/// average divides parseInt sums by 4, so one down host renders NaN;
-/// here only successful probes count (identical when all are up).
+/// TS-exact average: every leg truncated (parseInt) then divided by
+/// the leg count; any failed probe poisons the whole mean (parseInt
+/// of the down message is NaN, rendered as "NaN" by the template).
 pub fn ping_average_ms(times_ms: &[Option<f64>]) -> Option<f64> {
-    let ups: Vec<f64> = times_ms.iter().filter_map(|t| *t).collect();
-    if ups.is_empty() {
+    if times_ms.is_empty() || times_ms.iter().any(|t| t.is_none()) {
         return None;
     }
-    Some(ups.iter().sum::<f64>() / ups.len() as f64)
+    let sum: f64 = times_ms.iter().flatten().map(|t| t.trunc()).sum();
+    Some(sum / times_ms.len() as f64)
 }
 
 /// Fill the ping_embed_desc template. Mirrors the exact TS replace
@@ -360,10 +360,14 @@ mod tests {
         assert_eq!(ping_net_label(Some(12.0), "**DOWN**"), "12");
         assert_eq!(ping_net_label(Some(12.3), "**DOWN**"), "12.3");
         assert_eq!(ping_net_label(None, "**DOWN**"), "**DOWN**");
-        // Average over successful probes (documented NaN delta).
+        // TS-exact average: truncated legs over 4, NaN on any down leg.
+        assert_eq!(
+            ping_average_ms(&[Some(10.9), Some(20.1), Some(30.7), Some(40.0)]),
+            Some(25.0)
+        );
         assert_eq!(
             ping_average_ms(&[Some(10.0), Some(20.0), None, Some(30.0)]),
-            Some(20.0)
+            None
         );
         assert_eq!(ping_average_ms(&[None, None]), None);
         // Template fill mirrors the TS replace/replaceAll mix.
