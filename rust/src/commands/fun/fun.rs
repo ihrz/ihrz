@@ -2,7 +2,7 @@ use super::groups::{fun_animals, fun_image, fun_interaction, fun_random, fun_sty
 use super::{config::fun_config, grosbg::grosbg};
 use crate::bot::Ctx;
 
-/// Run-less group root for fun commands.
+/// Subcommand for fun category!
 // Grouped to stay under Discord's 25-option cap: the five TS
 // SubcommandGroups (animals/image/interaction/style/random) render as
 // nested SUBCOMMAND_GROUP options, `config` stays a direct subcommand

@@ -7,7 +7,7 @@ use super::*;
 // intentionally dropped. The invoker fallback still documented inside
 // `social_gif` is unreachable defensive cover; single deny lives there
 // too (see below).
-/// Hug a member with a social GIF embed. Mirrors fun !hug.ts.
+/// Hug a user!
 #[poise::command(
     slash_command,
     prefix_command,
@@ -28,7 +28,7 @@ pub async fn hug(
     #[description_localized("ja", "ハグしたいユーザー")]
     #[description_localized("ru", "Пользователь, которого вы хотите обнять")]
     #[description_localized("es-ES", "El usuario que quieres abrazar")]
-    #[description = "Member"]
+    #[description = "The user you want to hug"]
     user: poise::serenity_prelude::User,
 ) -> Result<(), anyhow::Error> {
     // Single deny: the disabled-category check lives in `social_gif`.

@@ -138,6 +138,7 @@ pub fn duration_seconds(choice: DurationChoice) -> u16 {
     category = "utils",
     rename = "cooldown",
     aliases("slowmode", "setcooldown", "coldown", "slow"),
+    default_member_permissions = "MANAGE_CHANNELS",
     description_localized("fr", "Mettre un coodlown dans le salon actuel"),
     description_localized("ja", "現在のチャンネルにクールダウンを設定"),
     description_localized("ru", "Установить задержку в текущем канале"),

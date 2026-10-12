@@ -57,7 +57,7 @@ pub async fn poll(
     #[description_localized("ja", "アンケートに表示されるメッセージ")]
     #[description_localized("ru", "Сообщение, отображаемое в опросе")]
     #[description_localized("es-ES", "El mensaje mostrado en la encuesta")]
-    #[description = "Poll message"]
+    #[description = "The message displayed on the survey"]
     #[rest]
     message: String,
 ) -> Result<(), anyhow::Error> {

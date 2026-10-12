@@ -76,7 +76,7 @@ pub async fn backup_manage(
         "Сделать систему резервного копирования доступной только владельцу сервера"
     )]
     #[description_localized("es-ES", "Hacer que el sistema de copias de seguridad solo funcione para el propietario del servidor")]
-    #[description = "owner or admin"]
+    #[description = "Make the backup system only working for guild owner"]
     #[rename = "only_guild_owner"]
     scope: Option<BackupScopeChoice>,
 ) -> Result<(), anyhow::Error> {

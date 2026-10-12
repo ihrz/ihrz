@@ -33,13 +33,13 @@ pub async fn captions(
     #[description_localized("ja", "画像ファイル")]
     #[description_localized("ru", "файл изображения")]
     #[description_localized("es-ES", "archivo de imagen")]
-    #[description = "Image"]
+    #[description = "image file"]
     image: poise::serenity_prelude::Attachment,
     #[description_localized("fr", "votre texte")]
     #[description_localized("ja", "あなたの字幕")]
     #[description_localized("ru", "ваши подписи")]
     #[description_localized("es-ES", "tus subtítulos")]
-    #[description = "Your captions"]
+    #[description = "your captions"]
     query: String,
 ) -> Result<(), anyhow::Error> {
     // No disabled-category check in `!captions.ts`: no fun_guard here

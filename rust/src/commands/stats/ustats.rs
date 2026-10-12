@@ -1,5 +1,7 @@
 use super::*;
 
+/// See profil
+///
 /// Per-user stats card (text form).
 ///
 /// ACCURACY NOTE (deliberate, kept): TS `!ustats.ts` renders the
@@ -24,7 +26,7 @@ pub async fn stats_user(
     #[description_localized("ja", "対象のメンバー")]
     #[description_localized("ru", "Желаемый участник")]
     #[description_localized("es-ES", "El miembro que deseas")]
-    #[description = "Member"]
+    #[description = "The member you want"]
     #[rename = "member"]
     user: Option<poise::serenity_prelude::User>,
 ) -> Result<(), anyhow::Error> {

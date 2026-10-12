@@ -1,6 +1,6 @@
 use super::*;
 
-/// Post the 67 meme!
+/// Send a 67 gif
 #[poise::command(
     slash_command,
     prefix_command,

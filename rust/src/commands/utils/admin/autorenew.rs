@@ -19,7 +19,7 @@ pub async fn autorenew(
     #[description_localized("ru", "Канал для обновления каждые X раз")]
     #[description_localized("es-ES", "El canal a renovar cada X veces")]
     #[description = "Channel"]
-    #[channel_types("Text", "Voice")]
+    #[channel_types("Text")]
     channel: poise::serenity_prelude::GuildChannel,
     #[description_localized("fr", "Le temps x")]
     #[description_localized("ja", "X回")]

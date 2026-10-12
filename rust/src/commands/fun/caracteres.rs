@@ -209,7 +209,7 @@ pub async fn caracteres(
     #[description_localized("ja", "変換したいクールなニックネーム！")]
     #[description_localized("ru", "ваш крутой ник для преобразования!")]
     #[description_localized("es-ES", "tu apodo genial para transformar!")]
-    #[description = "Text to transform"]
+    #[description = "your cool nickname to transform !"]
     #[rest]
     nickname: Option<String>,
 ) -> Result<(), anyhow::Error> {

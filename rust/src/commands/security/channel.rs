@@ -8,6 +8,7 @@ use poise::serenity_prelude as serenity;
     slash_command,
     prefix_command,
     rename = "channel",
+    aliases("security-channel"),
     default_member_permissions = "ADMINISTRATOR",
     name_localized("fr", "définir-cannal"),
     name_localized("ja", "channel"),
@@ -26,8 +27,13 @@ use poise::serenity_prelude as serenity;
 )]
 pub async fn security_channel(
     ctx: Ctx<'_>,
-    // TS HybridCommands/security/!channel.ts reads getChannel("id").
-    #[description = "Verification channel"]
+    // TS HybridCommands/security/security.ts channel leg (`id` option):
+    // `description: "What the channel ?"` + fr/ja/ru/es-ES localizations.
+    #[description_localized("fr", "Quelle est le channel ?")]
+    #[description_localized("ja", "どのチャンネルですか？")]
+    #[description_localized("ru", "Какой канал?")]
+    #[description_localized("es-ES", "Cual es el canal?")]
+    #[description = "What the channel ?"]
     #[channel_types("Text")]
     #[rename = "id"]
     channel: serenity::GuildChannel,
@@ -95,6 +101,36 @@ mod tests {
                 .get("es-ES")
                 .map(String::as_str),
             Some("Canal donde se realiza el proceso de verificación para nuevos miembros!")
+        );
+    }
+
+    #[test]
+    fn security_channel_param_mirrors_ts_id_option() {
+        // TS security.ts channel leg: `id` channel option, required,
+        // `description: "What the channel ?"` + fr/ja/ru/es-ES locales;
+        // prefixName `security-channel`.
+        let cmd = super::security_channel();
+        assert!(cmd.aliases.iter().any(|a| a == "security-channel"));
+        assert_eq!(cmd.parameters.len(), 1);
+        let p = &cmd.parameters[0];
+        assert_eq!(p.name, "id");
+        assert!(p.required);
+        assert_eq!(p.description.as_deref(), Some("What the channel ?"));
+        assert_eq!(
+            p.description_localizations.get("fr").map(String::as_str),
+            Some("Quelle est le channel ?")
+        );
+        assert_eq!(
+            p.description_localizations.get("ja").map(String::as_str),
+            Some("どのチャンネルですか？")
+        );
+        assert_eq!(
+            p.description_localizations.get("ru").map(String::as_str),
+            Some("Какой канал?")
+        );
+        assert_eq!(
+            p.description_localizations.get("es-ES").map(String::as_str),
+            Some("Cual es el canal?")
         );
     }
 }

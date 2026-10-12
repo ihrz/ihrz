@@ -20,7 +20,14 @@ use poise::serenity_prelude as serenity;
 )]
 pub async fn security_give(
     ctx: Ctx<'_>,
-    #[description = "Role to give"] role: serenity::Role,
+    // TS security.ts role-to-give leg (`role` option):
+    // `description: "What the the role ?"` (double "the" verbatim) + locales.
+    #[description_localized("fr", "Quel est le rôle ?")]
+    #[description_localized("ja", "どのロールですか？")]
+    #[description_localized("ru", "Какая роль?")]
+    #[description_localized("es-ES", "Cual es el rol?")]
+    #[description = "What the the role ?"]
+    role: serenity::Role,
 ) -> Result<(), anyhow::Error> {
     let Some(gid) = guild_id_str(&ctx).await else {
         return Ok(());
@@ -44,4 +51,35 @@ pub async fn security_give(
         });
     ctx.say(msg).await?;
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn security_give_param_mirrors_ts_role_option() {
+        // TS security.ts role-to-give leg: `role` option, required,
+        // `description: "What the the role ?"` (double "the" verbatim).
+        let cmd = super::security_give();
+        assert_eq!(cmd.parameters.len(), 1);
+        let p = &cmd.parameters[0];
+        assert_eq!(p.name, "role");
+        assert!(p.required);
+        assert_eq!(p.description.as_deref(), Some("What the the role ?"));
+        assert_eq!(
+            p.description_localizations.get("fr").map(String::as_str),
+            Some("Quel est le rôle ?")
+        );
+        assert_eq!(
+            p.description_localizations.get("ja").map(String::as_str),
+            Some("どのロールですか？")
+        );
+        assert_eq!(
+            p.description_localizations.get("ru").map(String::as_str),
+            Some("Какая роль?")
+        );
+        assert_eq!(
+            p.description_localizations.get("es-ES").map(String::as_str),
+            Some("Cual es el rol?")
+        );
+    }
 }

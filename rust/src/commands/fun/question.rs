@@ -1,6 +1,6 @@
 use super::*;
 
-/// Ask the magic 8-ball a question!
+/// Ask a question to the bot !
 #[poise::command(
     slash_command,
     prefix_command,
@@ -23,7 +23,7 @@ pub async fn question(
     #[description_localized("ja", "ボットに与えたい質問")]
     #[description_localized("ru", "Вопрос, который вы хотите задать боту")]
     #[description_localized("es-ES", "La pregunta que quieres dar al bot")]
-    #[description = "Your question"]
+    #[description = "The question you want to give for the bot"]
     #[rest]
     question: Option<String>,
 ) -> Result<(), anyhow::Error> {

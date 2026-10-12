@@ -6,7 +6,7 @@ use super::*;
     prefix_command,
     category = "utils",
     rename = "unhide",
-    aliases("démasquer", "demasquer"),
+    aliases("démasquer"),
     default_member_permissions = "MANAGE_CHANNELS",
     description_localized("fr", "Démasquer le salon actuel pour everyone"),
     description_localized("ja", "現在のチャンネルを全員に表示"),

@@ -1,6 +1,6 @@
 use super::*;
 
-/// Post a tag (content + embed + optional mention).
+/// Use a tag
 // Mirrors !use.ts order: existence check first, then the
 // Administrator-or-whitelist_use gate; post as reply when message_id
 // fetches, else channel message; confirm + bump counters afterwards.
@@ -20,19 +20,19 @@ pub async fn tag_use(
     #[description_localized("ja", "タグの名前")]
     #[description_localized("ru", "Название тега")]
     #[description_localized("es-ES", "Nombre de la etiqueta")]
-    #[description = "Tag name"]
+    #[description = "Name of the tag"]
     tag_name: String,
     #[description_localized("fr", "Mentionner l'utilisateur")]
     #[description_localized("ja", "ユーザーにメンション")]
     #[description_localized("ru", "Упомянуть пользователя")]
     #[description_localized("es-ES", "Mencionar al usuario")]
-    #[description = "Member to mention"]
+    #[description = "Mention the user"]
     mention: Option<poise::serenity_prelude::User>,
     #[description_localized("fr", "ID du message pour répondre")]
     #[description_localized("ja", "返信するメッセージのID")]
     #[description_localized("ru", "ID сообщения для ответа")]
     #[description_localized("es-ES", "ID del mensaje para responder")]
-    #[description = "Message id to reply to"]
+    #[description = "Message's ID to reply"]
     message_id: Option<String>,
 ) -> Result<(), anyhow::Error> {
     use poise::serenity_prelude::CreateMessage;

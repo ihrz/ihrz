@@ -510,7 +510,7 @@ pub async fn hack(
     #[description_localized("ja", "ハッキングしたいユーザー")]
     #[description_localized("ru", "Пользователь, которого вы хотите взломать")]
     #[description_localized("es-ES", "El usuario que quieres hackear")]
-    #[description = "Member"]
+    #[description = "The user you want to hack"]
     user: poise::serenity_prelude::User,
 ) -> Result<(), anyhow::Error> {
     if fun_guard(&ctx).await {

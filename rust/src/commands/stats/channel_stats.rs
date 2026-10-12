@@ -36,7 +36,7 @@ pub async fn stats_channel(
     #[description_localized("ja", "分析するチャンネル")]
     #[description_localized("ru", "Канал для анализа")]
     #[description_localized("es-ES", "El canal a analizar")]
-    #[description = "Channel"]
+    #[description = "The channel to analyze"]
     channel: Option<poise::serenity_prelude::GuildChannel>,
 ) -> Result<(), anyhow::Error> {
     let gid = ctx

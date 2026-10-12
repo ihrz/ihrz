@@ -1,6 +1,6 @@
 use super::*;
 
-/// Whitelist roles for tag use/create.
+/// Roles whitelist for using tags
 // Gap note (O3, documented): TS `!wlroles-use.ts` shows an
 // interactive multi-select panel — role picker (`max 25`, current
 // list as defaults), `ManageRoles` gate + hierarchy warning on

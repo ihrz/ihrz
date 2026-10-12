@@ -182,7 +182,7 @@ impl DiceFaces {
     }
 }
 
-/// Roll dice!
+/// Make a dice roll
 #[poise::command(
     slash_command,
     prefix_command,

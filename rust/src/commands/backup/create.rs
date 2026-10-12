@@ -80,7 +80,7 @@ pub async fn backup_create(
     #[description_localized("ja", "メッセージを保存しますか？")]
     #[description_localized("ru", "Сохранить сообщения?")]
     #[description_localized("es-ES", "Quieres guardar los mensajes?")]
-    #[description = "Save messages (yes/no)"]
+    #[description = "Do you want to save message(s) ?"]
     #[rename = "save-message"]
     save_messages: Option<SaveMessagesChoice>,
 ) -> Result<(), anyhow::Error> {

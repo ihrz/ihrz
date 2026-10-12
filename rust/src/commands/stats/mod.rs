@@ -1318,4 +1318,119 @@ mod localization_tests {
             Some("表示するユーザー数（デフォルト: 10, 最大: 25）")
         );
     }
+
+    #[test]
+    fn loc_ustats() {
+        // TS stats/stats.ts (`ustats`)
+        let cmds = crate::commands::all();
+        let cmd = find_path(&cmds, &["stats", "ustats"]);
+        assert_eq!(cmd.description.as_deref(), Some("See profil"));
+        assert_eq!(
+            cmd.description_localizations.get("fr").map(String::as_str),
+            Some("Regarder un profil")
+        );
+        assert_eq!(
+            cmd.description_localizations.get("ja").map(String::as_str),
+            Some("プロフィールを表示")
+        );
+        assert_eq!(cmd.description_localizations.len(), 4);
+        let prm = cmd
+            .parameters
+            .iter()
+            .find(|x| x.name == "member")
+            .expect("param member");
+        assert_eq!(prm.description.as_deref(), Some("The member you want"));
+        assert_eq!(
+            prm.description_localizations.get("fr").map(String::as_str),
+            Some("L'utilisateur que vous souhaiter")
+        );
+        assert_eq!(
+            prm.description_localizations.get("ja").map(String::as_str),
+            Some("対象のメンバー")
+        );
+    }
+
+    #[test]
+    fn loc_gstats() {
+        // TS stats/stats.ts (`gstats`)
+        let cmds = crate::commands::all();
+        let cmd = find_path(&cmds, &["stats", "gstats"]);
+        assert_eq!(cmd.description.as_deref(), Some("See guild leaderboard"));
+        assert_eq!(
+            cmd.description_localizations.get("fr").map(String::as_str),
+            Some("Regarder le classement du serveur")
+        );
+        assert_eq!(
+            cmd.description_localizations.get("ja").map(String::as_str),
+            Some("サーバーランキングを表示")
+        );
+        assert_eq!(cmd.description_localizations.len(), 4);
+        assert!(cmd.parameters.is_empty());
+    }
+
+    #[test]
+    fn default_descriptions_mirror_ts() {
+        // TS stats/stats.ts: every subcommand + param default description,
+        // byte-wise (poise takes the first doc paragraph as description).
+        let cmds = crate::commands::all();
+        let cmd = find_path(&cmds, &["stats"]);
+        assert_eq!(
+            cmd.description.as_deref(),
+            Some("Subcommand for stats category!")
+        );
+        let desc = |path: &[&str]| -> Option<String> { find_path(&cmds, path).description.clone() };
+        assert_eq!(
+            desc(&["stats", "top-messages"]),
+            Some("See top users by messages".to_string())
+        );
+        assert_eq!(
+            desc(&["stats", "top-voice"]),
+            Some("See top users by voice activity".to_string())
+        );
+        assert_eq!(
+            desc(&["stats", "compare"]),
+            Some("Compare statistics between multiple users".to_string())
+        );
+        assert_eq!(
+            desc(&["stats", "channel-stats"]),
+            Some("See statistics for a specific channel".to_string())
+        );
+        let prm_desc = |path: &[&str], name: &str| -> Option<String> {
+            find_path(&cmds, path)
+                .parameters
+                .iter()
+                .find(|x| x.name == name)
+                .unwrap_or_else(|| panic!("param {name}"))
+                .description
+                .clone()
+        };
+        assert_eq!(
+            prm_desc(&["stats", "top-messages"], "period"),
+            Some("Time period (daily, weekly, monthly)".to_string())
+        );
+        assert_eq!(
+            prm_desc(&["stats", "top-messages"], "limit"),
+            Some("Number of users to show (default: 10, max: 25)".to_string())
+        );
+        assert_eq!(
+            prm_desc(&["stats", "top-voice"], "period"),
+            Some("Time period (daily, weekly, monthly)".to_string())
+        );
+        assert_eq!(
+            prm_desc(&["stats", "top-voice"], "limit"),
+            Some("Number of users to show (default: 10, max: 25)".to_string())
+        );
+        assert_eq!(
+            prm_desc(&["stats", "compare"], "user1"),
+            Some("First user to compare".to_string())
+        );
+        assert_eq!(
+            prm_desc(&["stats", "compare"], "user2"),
+            Some("Second user to compare".to_string())
+        );
+        assert_eq!(
+            prm_desc(&["stats", "channel-stats"], "channel"),
+            Some("The channel to analyze".to_string())
+        );
+    }
 }

@@ -1,6 +1,6 @@
 use super::*;
 
-/// Create a tag (name + embed + optional content).
+/// Create a tag
 // Mirrors !create.ts: whitelist_create gate, length>16-or-space rule,
 // duplicate guard, EMBED-table existence check before storing.
 #[poise::command(
@@ -19,19 +19,19 @@ pub async fn tag_create(
     #[description_localized("ja", "タグの名前")]
     #[description_localized("ru", "Название тега")]
     #[description_localized("es-ES", "Nombre de la etiqueta")]
-    #[description = "Tag name"]
+    #[description = "Name of the tag"]
     tag_name: String,
     #[description_localized("fr", "ID de l'embed")]
     #[description_localized("ja", "埋め込みのID")]
     #[description_localized("ru", "ID эмбеда")]
     #[description_localized("es-ES", "ID del embed")]
-    #[description = "Embed id"]
+    #[description = "Embed's ID"]
     embed_id: String,
     #[description_localized("fr", "le message qui acompagneras l'embed")]
     #[description_localized("ja", "埋め込み付きメッセージ")]
     #[description_localized("ru", "Сообщение с эмбедом")]
     #[description_localized("es-ES", "Mensaje con el embed")]
-    #[description = "Message content"]
+    #[description = "Message with the embed"]
     message_content: Option<String>,
 ) -> Result<(), anyhow::Error> {
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;

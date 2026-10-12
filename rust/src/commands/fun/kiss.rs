@@ -7,7 +7,7 @@ use super::*;
 // intentionally dropped. The invoker fallback still documented inside
 // `social_gif` is unreachable defensive cover; single deny lives there
 // too (see below).
-/// Kiss a member with a social GIF embed. Mirrors fun !kiss.ts.
+/// Kiss a user!
 #[poise::command(
     slash_command,
     prefix_command,
@@ -28,7 +28,7 @@ pub async fn kiss(
     #[description_localized("ja", "キスしたいユーザー")]
     #[description_localized("ru", "Пользователь, которого вы хотите поцеловать")]
     #[description_localized("es-ES", "El usuario que quieres besar")]
-    #[description = "Member"]
+    #[description = "The user you want to kiss"]
     user: poise::serenity_prelude::User,
 ) -> Result<(), anyhow::Error> {
     // Single deny: the disabled-category check lives in `social_gif`.

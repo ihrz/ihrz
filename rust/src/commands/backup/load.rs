@@ -46,7 +46,7 @@ pub async fn backup_load(
     #[description_localized("ja", "バックアップIDは？")]
     #[description_localized("ru", "Какой ID резервной копии?")]
     #[description_localized("es-ES", "Cual es el ID de la copia de seguridad?")]
-    #[description = "Backup id"]
+    #[description = "Whats is the backup id?"]
     #[rename = "backup-id"]
     backup_id: String,
 ) -> Result<(), anyhow::Error> {

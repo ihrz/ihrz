@@ -52,7 +52,7 @@ pub async fn backup_delete(
         "es-ES",
         "El ID de tu copia de seguridad que quieres eliminar de la lista"
     )]
-    #[description = "Backup id"]
+    #[description = "The ID of your backup you want to delete from the list"]
     #[rename = "backup-id"]
     backup_id: Option<String>,
 ) -> Result<(), anyhow::Error> {

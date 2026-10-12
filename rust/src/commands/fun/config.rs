@@ -31,7 +31,7 @@ impl FunConfigAction {
     }
 }
 
-/// Disable the fun category. Mirrors fun !config.ts.
+/// Disable the fun category.
 // The raw action string is stored under `GUILD.FUN.states`; anything but
 // `"off"` counts as enabled (`action === "off" ? var_disabled : var_enabled`).
 #[poise::command(
@@ -52,7 +52,7 @@ pub async fn fun_config(
     #[description_localized("ja", "何をしたいですか？")]
     #[description_localized("ru", "Что вы хотите сделать?")]
     #[description_localized("es-ES", "Que quieres hacer?")]
-    #[description = "on or off"]
+    #[description = "What do you want to do?"]
     action: FunConfigAction,
 ) -> Result<(), anyhow::Error> {
     let action = action.as_str();

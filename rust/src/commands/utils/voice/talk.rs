@@ -33,7 +33,7 @@ pub(super) async fn post_util_log(
     category = "utils",
     rename = "talk",
     aliases("mutetalk"),
-    default_member_permissions = "MUTE_MEMBERS",
+    default_member_permissions = "MUTE_MEMBERS | MOVE_MEMBERS",
     description_localized("fr", "Activer le mode talk dans votre salon vocal actuel"),
     description_localized("ja", "現在のボイスチャンネルでトークモードを有効化"),
     description_localized("ru", "Включить режим разговора в текущем голосовом канале"),

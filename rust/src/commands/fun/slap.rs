@@ -9,7 +9,7 @@ use super::*;
 // option is required). The invoker fallback still documented inside
 // `social_gif` is unreachable defensive cover; single deny lives there
 // too (see below).
-/// Slap a member with a social GIF embed. Mirrors fun !slap.ts.
+/// Slap a user!
 #[poise::command(
     slash_command,
     prefix_command,
@@ -30,7 +30,7 @@ pub async fn slap(
     #[description_localized("ja", "平手打ちしたいユーザー")]
     #[description_localized("ru", "Пользователь, которому вы хотите дать пощечину")]
     #[description_localized("es-ES", "El usuario que quieres abofetear")]
-    #[description = "Member"]
+    #[description = "The user you want to slap"]
     user: poise::serenity_prelude::User,
 ) -> Result<(), anyhow::Error> {
     // Single deny: the disabled-category check lives in `social_gif`.

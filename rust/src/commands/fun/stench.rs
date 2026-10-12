@@ -1,6 +1,6 @@
 use super::*;
 
-/// Measure a member's stench rate!
+/// Show how much stench you are
 #[poise::command(
     slash_command,
     prefix_command,
@@ -19,7 +19,7 @@ pub async fn stench(
     #[description_localized("ja", "ユーザー")]
     #[description_localized("ru", "пользователь")]
     #[description_localized("es-ES", "el usuario")]
-    #[description = "Member"]
+    #[description = "the user"]
     user: Option<poise::serenity_prelude::User>,
 ) -> Result<(), anyhow::Error> {
     // No disabled-category check in `!stench.ts`: no fun_guard here.

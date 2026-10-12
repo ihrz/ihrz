@@ -14,7 +14,7 @@ pub const WAKEUP_STEP_MS: u64 = 300;
     category = "utils",
     rename = "wakeup",
     aliases("wake"),
-    default_member_permissions = "MOVE_MEMBERS",
+    default_member_permissions = "MODERATE_MEMBERS | MOVE_MEMBERS",
     description_localized(
         "fr",
         "Réveiller un utilisateur avec un déplacement massif aléatoire dans les salons vocaux"

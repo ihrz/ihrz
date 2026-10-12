@@ -75,7 +75,7 @@ pub async fn togif(
     #[description_localized("ja", "画像ファイル")]
     #[description_localized("ru", "файл изображения")]
     #[description_localized("es-ES", "archivo de imagen")]
-    #[description = "Image file"]
+    #[description = "image file"]
     image: poise::serenity_prelude::Attachment,
 ) -> Result<(), anyhow::Error> {
     // No disabled-category check in `!togif.ts`: no fun_guard here

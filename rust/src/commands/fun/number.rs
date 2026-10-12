@@ -22,7 +22,7 @@ fn parse_bound(raw: Option<String>, default: i64) -> i64 {
     }
 }
 
-/// Roll a random number!
+/// Generate a random number between two values
 #[poise::command(
     slash_command,
     prefix_command,
@@ -48,7 +48,7 @@ pub async fn number(
     #[description_localized("ja", "最小値")]
     #[description_localized("ru", "Минимальное значение")]
     #[description_localized("es-ES", "Valor mínimo")]
-    #[description = "Min"]
+    #[description = "Minimum value"]
     min: Option<String>,
     #[name_localized("fr", "maximum")]
     #[name_localized("ja", "max")]
@@ -58,7 +58,7 @@ pub async fn number(
     #[description_localized("ja", "最大値")]
     #[description_localized("ru", "Максимальное значение")]
     #[description_localized("es-ES", "Valor máximo")]
-    #[description = "Max"]
+    #[description = "Maximum value"]
     max: Option<String>,
 ) -> Result<(), anyhow::Error> {
     // No disabled-category check in `!number.ts`: no fun_guard here.

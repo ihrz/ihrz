@@ -54,7 +54,7 @@ pub fn morse_convert(input: &str) -> String {
     }
 }
 
-/// Translate between text and morse code!
+/// Transform a string into a Morse!
 #[poise::command(
     slash_command,
     prefix_command,
@@ -76,7 +76,7 @@ pub async fn morse(
     #[description_localized("ja", "モールス信号で暗号化/復号化する入力を入力")]
     #[description_localized("ru", "Введите текст для шифрования/дешифрования азбукой Морзе")]
     #[description_localized("es-ES", "Ingresa tu entrada para encriptar/desencriptar en morse")]
-    #[description = "Text or morse code"]
+    #[description = "Enter your input to encrypt/decrypt in morse"]
     #[rest]
     input: Option<String>,
 ) -> Result<(), anyhow::Error> {

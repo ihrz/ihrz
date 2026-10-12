@@ -29,7 +29,7 @@ pub async fn transgender(
     #[description_localized("ja", "ユーザー")]
     #[description_localized("ru", "пользователь")]
     #[description_localized("es-ES", "el usuario")]
-    #[description = "Member"]
+    #[description = "the user"]
     user: Option<poise::serenity_prelude::User>,
 ) -> Result<(), anyhow::Error> {
     if fun_guard(&ctx).await {

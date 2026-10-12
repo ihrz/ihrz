@@ -120,7 +120,7 @@ fn random_guild_user(ctx: &Ctx<'_>) -> Option<poise::serenity_prelude::User> {
     Some(members[idx].user.clone())
 }
 
-/// Love command.
+/// Show your love compatibilty with the user!
 #[poise::command(
     slash_command,
     prefix_command,
@@ -147,7 +147,7 @@ pub async fn love(
         "es-ES",
         "El usuario con quien quieres conocer tu compatibilidad amorosa"
     )]
-    #[description = "First user"]
+    #[description = "The user you want to know your love compatibility"]
     user1: Option<poise::serenity_prelude::User>,
     #[description_localized(
         "fr",
@@ -162,7 +162,7 @@ pub async fn love(
         "es-ES",
         "El usuario con quien quieres saber la compatibilidad amorosa"
     )]
-    #[description = "Second user"]
+    #[description = "The user with whom you want to know love compatibility"]
     user2: Option<poise::serenity_prelude::User>,
 ) -> Result<(), anyhow::Error> {
     if fun_guard(&ctx).await {

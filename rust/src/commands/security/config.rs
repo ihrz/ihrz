@@ -38,6 +38,7 @@ impl SecurityConfigAction {
     slash_command,
     prefix_command,
     rename = "config",
+    aliases("security-config"),
     default_member_permissions = "ADMINISTRATOR",
     name_localized("fr", "statut"),
     name_localized("ja", "config"),
@@ -53,7 +54,14 @@ impl SecurityConfigAction {
 )]
 pub async fn security_config(
     ctx: Ctx<'_>,
-    #[description = "on or off"] action: SecurityConfigAction,
+    // TS security.ts config leg (`action` option):
+    // `description: "What the action you want to do?"` + locales.
+    #[description_localized("fr", "Quelle est l'action que vous souhaitez faire ?")]
+    #[description_localized("ja", "実行したいアクションは？")]
+    #[description_localized("ru", "Какое действие вы хотите выполнить?")]
+    #[description_localized("es-ES", "Cual es la acción que quieres realizar?")]
+    #[description = "What the action you want to do?"]
+    action: SecurityConfigAction,
 ) -> Result<(), anyhow::Error> {
     let Some(enabled) = parse_on_off(action.as_str()) else {
         let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
@@ -125,6 +133,39 @@ mod tests {
         assert_eq!(
             SecurityConfigAction::Off.localized_name("fr"),
             Some("Désactiver")
+        );
+    }
+
+    #[test]
+    fn security_config_param_mirrors_ts_action_option() {
+        // TS security.ts config leg: `action` string option, required,
+        // `description: "What the action you want to do?"` + locales;
+        // prefixName `security-config`.
+        let cmd = super::security_config();
+        assert!(cmd.aliases.iter().any(|a| a == "security-config"));
+        assert_eq!(cmd.parameters.len(), 1);
+        let p = &cmd.parameters[0];
+        assert_eq!(p.name, "action");
+        assert!(p.required);
+        assert_eq!(
+            p.description.as_deref(),
+            Some("What the action you want to do?")
+        );
+        assert_eq!(
+            p.description_localizations.get("fr").map(String::as_str),
+            Some("Quelle est l'action que vous souhaitez faire ?")
+        );
+        assert_eq!(
+            p.description_localizations.get("ja").map(String::as_str),
+            Some("実行したいアクションは？")
+        );
+        assert_eq!(
+            p.description_localizations.get("ru").map(String::as_str),
+            Some("Какое действие вы хотите выполнить?")
+        );
+        assert_eq!(
+            p.description_localizations.get("es-ES").map(String::as_str),
+            Some("Cual es la acción que quieres realizar?")
         );
     }
 }

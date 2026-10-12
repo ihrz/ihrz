@@ -6,7 +6,7 @@ use super::*;
     prefix_command,
     category = "utils",
     rename = "unhideall",
-    aliases("démasquer-tout", "demasquer-tout"),
+    aliases("démasquer-tout"),
     default_member_permissions = "ADMINISTRATOR",
     description_localized("fr", "Démasquer tous les salons du serveur pour everyone"),
     description_localized("ja", "サーバー内の全チャンネルを全員に表示"),

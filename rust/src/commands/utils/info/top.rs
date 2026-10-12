@@ -4,7 +4,15 @@ use super::*;
 // Mirrors MessageCommands utils top.ts (oldest message via
 // after:"0", link reply or no-message text).
 // Prefix-only: TS registers top as a MessageCommand, never as slash.
-#[poise::command(prefix_command, category = "utils", rename = "top")]
+#[poise::command(
+    prefix_command,
+    category = "utils",
+    rename = "top",
+    description_localized("fr", "Récuperer le lien du premier message dans le salon"),
+    description_localized("ja", "チャンネル内の最初のメッセージのリンクを取得"),
+    description_localized("ru", "Получить ссылку первого сообщения в канале"),
+    description_localized("es-ES", "Obtener el enlace del primer mensaje en el canal")
+)]
 pub async fn top(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {
         return Ok(());

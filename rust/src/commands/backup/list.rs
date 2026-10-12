@@ -13,13 +13,6 @@ pub fn list_author_name(username: &str, display_name: Option<&str>) -> String {
     }
 }
 
-/// Trimmed backup id to ownership-check, or None when no gate
-/// applies. Mirrors the `backupID &&` truthiness in !list.ts:64-65
-/// (missing/blank ids skip the gate and render the full list).
-pub fn list_gate_id(backup_id: Option<&str>) -> Option<&str> {
-    backup_id.map(str::trim).filter(|s| !s.is_empty())
-}
-
 /// List your backup(s)!
 #[poise::command(
     slash_command,
@@ -35,21 +28,7 @@ pub fn list_gate_id(backup_id: Option<&str>) -> Option<&str> {
     description_localized("ru", "Показать ваши резервные копии!"),
     description_localized("es-ES", "Listar tus copias de seguridad!")
 )]
-pub async fn backup_list(
-    ctx: Ctx<'_>,
-    // Verdict: keep the `backup-id` Option param (document, don't
-    // remove). TS reads `getString("backup-id")` / `string(args, 0)`
-    // (both nullable, !list.ts:58-62) while the list leaf registers no
-    // slash option (backup.ts), so on slash it is always None and only
-    // ever fills on the prefix path — poise cannot hide a per-path
-    // param, so the option stays visible on slash too. A
-    // given-but-unowned id answers `backup_this_is_not_your_backup`
-    // like !list.ts:64-77; the id never selects a detail view (TS
-    // always renders the full list).
-    #[description = "Backup id (ownership check only)"]
-    #[rename = "backup-id"]
-    backup_id: Option<String>,
-) -> Result<(), anyhow::Error> {
+pub async fn backup_list(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     use poise::serenity_prelude as serenity;
     let uid = ctx.author().id.get();
     let gid = ctx
@@ -57,30 +36,8 @@ pub async fn backup_list(
         .map(|g| g.get().to_string())
         .unwrap_or_default();
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-    // Prefix ownership gate. Mirrors !list.ts:64-77 (`backupID &&
-    // !get(BACKUPS.<uid>.<backupID>)` -> backup_this_is_not_your_backup).
-    // ADOPT (recorded): strict per-user check only, no owner/admin
-    // shared-table fallback (unlike load.rs) — TS has none here either.
-    if let Some(owned) = list_gate_id(backup_id.as_deref()) {
-        // `bkp_owns` reads the kv pointer only: a shared-table row alone
-        // never proves ownership.
-        if !super::backup::bkp_owns(&ctx.data().pool, uid, owned).await {
-            let no = crate::emojis::app_emoji_markup(ctx.http(), "No")
-                .await
-                .unwrap_or_else(|| "❌".to_string());
-            ctx.say(
-                crate::commands::lang_for(
-                    &ctx,
-                    "backup_this_is_not_your_backup",
-                    "${client.iHorizon_Emojis.No} | This is not your backup!",
-                )
-                .await
-                .replace("${client.iHorizon_Emojis.No}", &no),
-            )
-            .await?;
-            return Ok(());
-        }
-    }
+    // The list leaf registers no option in backup.ts and always renders
+    // the full per-user list (no single-backup detail branch).
     // Member display-name fallback, like `username || displayName` in
     // !list.ts:117-121. Icon stays a snapshot file (never a raw CDN
     // URL), like the `user_icon.png` file in !list.ts:173-179
@@ -107,10 +64,6 @@ pub async fn backup_list(
     }
 
     // Paginated per-user list, 5 per page (itemsPerPage in !list.ts:37).
-    // NOTE: the list subcommand registers no backup-id option in
-    // backup.ts, so the Option param above only fills on the prefix
-    // path (!list.ts:58-77 gates ownership there too); it never renders
-    // a single-backup view, so there is no detail branch here either.
     let rows = super::backup::bkp_scan_user(&ctx.data().pool, uid).await;
     let tpl = crate::lang::get(&code, "backup_string_see_another_v").unwrap_or_else(|| {
         ":placard:・Categories Count: `${result.categoryCount}`\n:hash:・Channels Count: `${result.channelCount}`"
@@ -253,15 +206,5 @@ mod tests {
         assert_eq!(list_author_name("", Some("Kisa")), "Kisa");
         assert_eq!(list_author_name("  ", None), "");
         assert_eq!(list_author_name("", None), "");
-    }
-
-    #[test]
-    fn gate_id_trims_and_skips_blank_like_ts() {
-        // `backupID &&` in !list.ts:64-65.
-        assert_eq!(list_gate_id(Some("abc")), Some("abc"));
-        assert_eq!(list_gate_id(Some("  abc  ")), Some("abc"));
-        assert_eq!(list_gate_id(None), None);
-        assert_eq!(list_gate_id(Some("")), None);
-        assert_eq!(list_gate_id(Some("   ")), None);
     }
 }

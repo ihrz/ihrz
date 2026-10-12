@@ -1,6 +1,6 @@
 use super::*;
 
-/// Delete a role for a certain amount of money!
+/// Delete a tag
 #[poise::command(
     slash_command,
     prefix_command,
@@ -18,7 +18,7 @@ pub async fn tag_delete(
     #[description_localized("ja", "タグの名前")]
     #[description_localized("ru", "Название тега")]
     #[description_localized("es-ES", "Nombre de la etiqueta")]
-    #[description = "Tag name"]
+    #[description = "Name of the tag"]
     tag_name: String,
 ) -> Result<(), anyhow::Error> {
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;

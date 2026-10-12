@@ -34,7 +34,7 @@ use super::{
 // `!fun animals` falls into the no-run help fallback in bot.rs like
 // any other run-less node.
 
-/// Fun commands related to animals.
+/// Fun commands related to animals
 #[poise::command(
     slash_command,
     prefix_command,
@@ -54,7 +54,7 @@ pub async fn fun_animals(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())
 }
 
-/// Fun commands related about image.
+/// Fun commands related about image
 #[poise::command(
     slash_command,
     prefix_command,
@@ -78,7 +78,7 @@ pub async fn fun_image(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())
 }
 
-/// Interaction between users.
+/// Interaction between users
 #[poise::command(
     slash_command,
     prefix_command,
@@ -94,7 +94,7 @@ pub async fn fun_interaction(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())
 }
 
-/// Fun commands related about text style.
+/// Fun commands related about text style
 #[poise::command(
     slash_command,
     prefix_command,
@@ -110,7 +110,7 @@ pub async fn fun_style(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())
 }
 
-/// Fun slash related to luck (chance).
+/// Fun slash related to luck (chance)
 #[poise::command(
     slash_command,
     prefix_command,

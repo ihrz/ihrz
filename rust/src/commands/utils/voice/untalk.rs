@@ -8,7 +8,7 @@ use super::*;
     category = "utils",
     rename = "untalk",
     aliases("unmutetalk"),
-    default_member_permissions = "MUTE_MEMBERS",
+    default_member_permissions = "MUTE_MEMBERS | MOVE_MEMBERS",
     description_localized("fr", "Désactiver le mode talk et démute tout le monde"),
     description_localized("ja", "トークモードを無効化して全員のミュートを解除"),
     description_localized("ru", "Отключить режим разговора и размутить всех"),

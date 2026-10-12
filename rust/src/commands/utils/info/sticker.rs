@@ -2,7 +2,12 @@ use super::*;
 
 /// Add a sticker from the replied message. Mirrors sticker.ts (PNG best-effort).
 // Prefix-only: TS registers sticker as a MessageCommand, never as slash.
-#[poise::command(prefix_command, category = "utils", rename = "sticker")]
+#[poise::command(
+    prefix_command,
+    category = "utils",
+    rename = "sticker",
+    aliases("stickers")
+)]
 pub async fn sticker(
     ctx: Ctx<'_>,
     #[description = "Sticker id"] sticker_id: String,

@@ -6,7 +6,7 @@ use super::*;
     prefix_command,
     category = "utils",
     rename = "move",
-    aliases("déplacer", "deplacer", "switch"),
+    aliases("déplacer", "switch"),
     default_member_permissions = "MOVE_MEMBERS",
     description_localized("fr", "Déplacer un membre d'un salon vocal"),
     description_localized("ja", "ユーザーをボイスチャンネルから移動。"),

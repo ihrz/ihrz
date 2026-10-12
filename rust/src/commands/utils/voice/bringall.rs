@@ -8,7 +8,7 @@ use super::*;
     prefix_command,
     category = "utils",
     rename = "bringall",
-    default_member_permissions = "MOVE_MEMBERS",
+    default_member_permissions = "MOVE_MEMBERS | MODERATE_MEMBERS",
     description_localized("fr", "Distribue aléatoirement les membres d'un salon vocal dans tous les salons d'une catégorie"),
     description_localized("ja", "ボイスチャンネルのメンバーをカテゴリ内の全ボイスチャンネルにランダムに分散"),
     description_localized("ru", "Случайно распределить участников из голосового канала по всем каналам в категории"),
@@ -21,7 +21,7 @@ pub async fn bringall(
     #[description_localized("ru", "Исходный голосовой канал для перемещения участников")]
     #[description_localized("es-ES", "El canal de voz de origen para mover miembros")]
     #[description = "Source voice channel to move members from"]
-    #[channel_types("Voice")]
+    #[channel_types("Voice", "Stage")]
     from: poise::serenity_prelude::GuildChannel,
     #[description_localized(
         "fr",

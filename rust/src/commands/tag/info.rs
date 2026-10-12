@@ -1,6 +1,6 @@
 use super::*;
 
-/// Get information about a tag!
+/// Info of a tag
 #[poise::command(
     slash_command,
     prefix_command,
@@ -17,7 +17,7 @@ pub async fn tag_info(
     #[description_localized("ja", "タグの名前")]
     #[description_localized("ru", "Название тега")]
     #[description_localized("es-ES", "Nombre de la etiqueta")]
-    #[description = "Tag name"]
+    #[description = "Name of the tag"]
     tag_name: String,
 ) -> Result<(), anyhow::Error> {
     let gid = ctx

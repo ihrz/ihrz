@@ -23,7 +23,7 @@ pub async fn youtube(
     #[description_localized("ja", "ユーザー")]
     #[description_localized("ru", "Пользователь")]
     #[description_localized("es-ES", "El usuario")]
-    #[description = "Member"]
+    #[description = "The user"]
     user: Option<poise::serenity_prelude::User>,
     // `#[rest]` so prefix keeps multi-word comments like the TS
     // `longString(args, 1)` path (slash uses `getString("comment")`).
@@ -31,7 +31,7 @@ pub async fn youtube(
     #[description_localized("ja", "コメント")]
     #[description_localized("ru", "Комментарий")]
     #[description_localized("es-ES", "El comentario")]
-    #[description = "Comment"]
+    #[description = "The comment"]
     #[rest]
     comment: String,
 ) -> Result<(), anyhow::Error> {

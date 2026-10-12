@@ -7,7 +7,6 @@ use super::*;
     prefix_command,
     category = "utils",
     rename = "undo",
-    aliases("unbanall-undo", "unban-all-undo"),
     default_member_permissions = "ADMINISTRATOR",
     name_localized("fr", "annuler"),
     name_localized("ja", "undo"),

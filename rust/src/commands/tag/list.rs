@@ -1,6 +1,6 @@
 use super::*;
 
-/// List tags (one info embed per tag, chunked pages).
+/// List all tags
 // Mirrors !list.ts per-tag embeds (tagHelper shape + stored embed).
 // Nearest-viable pager: no component-dispatch hook here, so pages go
 // out chunked (10 embeds max) with a Page x/y line, no buttons.

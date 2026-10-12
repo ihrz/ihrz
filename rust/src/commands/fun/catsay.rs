@@ -49,7 +49,7 @@ pub async fn catsay(
     #[description_localized("ja", "猫が言う...")]
     #[description_localized("ru", "Кот говорит...")]
     #[description_localized("es-ES", "El gato dice...")]
-    #[description = "Text (max 70 chars)"]
+    #[description = "The cat say..."]
     #[rest]
     text: Option<String>,
 ) -> Result<(), anyhow::Error> {

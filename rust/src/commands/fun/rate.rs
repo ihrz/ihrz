@@ -1,6 +1,6 @@
 use super::*;
 
-/// Rate something X/10. Mirrors !rate.ts.
+/// Let me rate the followed subject
 // Alias note, maskLink on the subject, stripped allowedMentions.
 // Optional, defaulting to "nothing" like `string || "nothing"` in
 // !rate.ts: the TS slash option is required:true in fun.ts, but the
@@ -24,7 +24,7 @@ pub async fn rate(
     #[description_localized("ja", "もの")]
     #[description_localized("ru", "вещи")]
     #[description_localized("es-ES", "las cosas")]
-    #[description = "Thing to rate"]
+    #[description = "the_things"]
     #[rest]
     the_things: Option<String>,
 ) -> Result<(), anyhow::Error> {
