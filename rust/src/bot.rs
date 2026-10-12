@@ -120,15 +120,63 @@ async fn temp_set(pool: &Pool, key: &str, value: &str) {
     let _ = crate::db::tbl_set(pool, TEMP_SCOPE, key, value).await;
 }
 
-/// Slash 1s debounce remaining; 0 = allowed and recorded. Mirrors
-/// interactionCooldown (denied runs store nothing).
+/// Slash 1s debounce remaining, read-only (no store). global_check runs
+/// once per parent command plus once for the leaf (poise check
+/// inheritance), so stamping here would deny the leaf evaluation of
+/// every subcommand invocation. Mirrors interactionCooldown; the stamp
+/// is written once in pre_command_hook via record_debounce.
+pub async fn debounce_remaining(pool: &Pool, user_id: u64, now_ms: i64) -> i64 {
+    cooldown_remaining(
+        temp_get_i64(pool, &debounce_key(user_id)).await,
+        DEBOUNCE_MS,
+        now_ms,
+    )
+}
+
+/// Record a slash debounce stamp (single write, no read). Called once
+/// per invocation from pre_command_hook, after all checks passed, so
+/// denied runs store nothing exactly like TS.
+pub async fn record_debounce(pool: &Pool, user_id: u64, now_ms: i64) {
+    temp_set(pool, &debounce_key(user_id), &now_ms.to_string()).await;
+}
+
+/// Slash 1s debounce remaining; 0 = allowed and recorded. Built on
+/// the read leg: kept for tests/back-compat, production uses
+/// debounce_remaining + record_debounce.
 pub async fn debounce_check(pool: &Pool, user_id: u64, now_ms: i64) -> i64 {
-    let key = debounce_key(user_id);
-    let left = cooldown_remaining(temp_get_i64(pool, &key).await, DEBOUNCE_MS, now_ms);
+    let left = debounce_remaining(pool, user_id, now_ms).await;
     if left == 0 {
-        temp_set(pool, &key, &now_ms.to_string()).await;
+        record_debounce(pool, user_id, now_ms).await;
     }
     left
+}
+
+/// helper.cooldown remaining, read-only (no store). Same multi-eval
+/// rationale as debounce_remaining; the stamp goes through
+/// record_helper_cooldown in pre_command_hook.
+pub async fn helper_cooldown_remaining(
+    pool: &Pool,
+    author_id: &str,
+    method: &str,
+    ms: i64,
+    now_ms: i64,
+) -> i64 {
+    cooldown_remaining(
+        temp_get_i64(pool, &helper_cooldown_key(method, author_id)).await,
+        ms,
+        now_ms,
+    )
+}
+
+/// Record a helper.cooldown stamp (single write, no read). Called once
+/// per invocation from pre_command_hook.
+pub async fn record_helper_cooldown(pool: &Pool, author_id: &str, method: &str, now_ms: i64) {
+    temp_set(
+        pool,
+        &helper_cooldown_key(method, author_id),
+        &now_ms.to_string(),
+    )
+    .await;
 }
 
 /// helper.cooldown mirror: the prefix `msg_commands` debounce and the
@@ -141,17 +189,18 @@ pub async fn helper_cooldown_check(
     ms: i64,
     now_ms: i64,
 ) -> i64 {
-    let key = helper_cooldown_key(method, author_id);
-    let left = cooldown_remaining(temp_get_i64(pool, &key).await, ms, now_ms);
+    let left = helper_cooldown_remaining(pool, author_id, method, ms, now_ms).await;
     if left == 0 {
-        temp_set(pool, &key, &now_ms.to_string()).await;
+        record_helper_cooldown(pool, author_id, method, now_ms).await;
     }
     left
 }
 
-/// COMMAND_LIMITS sliding-window remaining; 0 = allowed and recorded.
-/// Denied runs store nothing, mirroring checkCommandRateLimit.
-pub async fn command_rate_limit_check(
+/// COMMAND_LIMITS sliding-window remaining, read-only (no store).
+/// Same multi-eval rationale: consuming a token per evaluation would
+/// charge every subcommand twice and deny valid invocations. The token
+/// is consumed once in pre_command_hook via record_rate_limit.
+pub async fn rate_limit_remaining(
     pool: &Pool,
     guild_id: u64,
     path: &str,
@@ -168,20 +217,87 @@ pub async fn command_rate_limit_check(
         .await
         .and_then(|s| serde_json::from_str(&s).ok())
         .unwrap_or_default();
-    let (active, left) = rate_limit_step(&stored, count, window_ms, now_ms);
+    rate_limit_step(&stored, count, window_ms, now_ms).1
+}
+
+/// Consume one COMMAND_LIMITS token (single write). Called once per
+/// invocation from pre_command_hook, after all checks passed, so denied
+/// runs store nothing, mirroring checkCommandRateLimit.
+pub async fn record_rate_limit(
+    pool: &Pool,
+    guild_id: u64,
+    path: &str,
+    user_id: u64,
+    count: u32,
+    window_ms: i64,
+    now_ms: i64,
+) {
+    if count == 0 || window_ms <= 0 {
+        return;
+    }
+    let key = rate_limit_key(guild_id, path, user_id);
+    let stored: Vec<i64> = crate::db::tbl_get(pool, TEMP_SCOPE, &key)
+        .await
+        .and_then(|s| serde_json::from_str(&s).ok())
+        .unwrap_or_default();
+    let (active, _) = rate_limit_step(&stored, count, window_ms, now_ms);
+    temp_set(
+        pool,
+        &key,
+        &serde_json::to_string(&active).unwrap_or_default(),
+    )
+    .await;
+}
+
+/// COMMAND_LIMITS sliding-window remaining; 0 = allowed and recorded.
+/// Built on the read leg (tests/back-compat); production checks with
+/// rate_limit_remaining and consumes in pre_command_hook.
+pub async fn command_rate_limit_check(
+    pool: &Pool,
+    guild_id: u64,
+    path: &str,
+    user_id: u64,
+    count: u32,
+    window_ms: i64,
+    now_ms: i64,
+) -> i64 {
+    if count == 0 || window_ms <= 0 {
+        return 0;
+    }
+    let left = rate_limit_remaining(pool, guild_id, path, user_id, count, window_ms, now_ms).await;
     if left == 0 {
-        temp_set(
-            pool,
-            &key,
-            &serde_json::to_string(&active).unwrap_or_default(),
-        )
-        .await;
+        record_rate_limit(pool, guild_id, path, user_id, count, window_ms, now_ms).await;
     } else {
         tracing::warn!(
             "deny gate=command_rate_limit user={user_id} command={path} remaining_ms={left}"
         );
     }
     left
+}
+
+/// Owner bypass for per-command rate limits, shared by the check leg
+/// (global_check) and the record leg (record_execution_gates).
+/// Mirrors checkCommandRateLimit: guild owner + GUILD.OWNER rows skip.
+async fn rate_limit_bypassed(
+    pool: &Pool,
+    http: &serenity::Http,
+    guild_id: serenity::GuildId,
+    user_id: serenity::UserId,
+) -> bool {
+    let owner = guild_id
+        .to_partial_guild(http)
+        .await
+        .map(|g| g.owner_id)
+        .unwrap_or(user_id);
+    owner == user_id
+        || crate::commands::owner::main::routed_get(
+            pool,
+            &guild_id.get().to_string(),
+            &guild_id.get().to_string(),
+            &format!("GUILD.OWNER.{}", user_id.get()),
+        )
+        .await
+        .is_some()
 }
 
 /// Pure leg of the prefix channel gate (unit-tested). Mirrors
@@ -257,24 +373,11 @@ fn global_check(
         );
         let pool = &ctx.data().pool;
         let name = ctx.command().name.clone();
-        // Slash-command usage log (mirrors slashCommandLogger.ts).
-        if let Some(gid) = ctx.guild_id() {
-            let gid = gid.get().to_string();
-            if let Some(ch) = crate::commands::guildconfig::setlogschannel::load_log_channel_routed(
-                pool, &gid, "command",
-            )
-            .await
-            {
-                if let Ok(ch_id) = ch.parse::<u64>() {
-                    let _ = poise::serenity_prelude::ChannelId::new(ch_id)
-                        .say(
-                            &ctx.serenity_context().http,
-                            format!("/{} by {}.", name, ctx.author().tag()),
-                        )
-                        .await;
-                }
-            }
-        }
+        // NOTE: the slash usage-log channel post and all gate stores
+        // (debounce stamp, rate-limit consume) live in
+        // record_execution_gates (pre_command_hook, runs once per
+        // invocation): this check runs once per parent plus once for
+        // the leaf, so posting/storing here would double-fire.
         // No global fun kill-switch: TS has none (commandExecutor.ts
         // carries no GUILD.FUN.states gate; the check is per-command).
         // Every gated leaf denies with fun_category_disable from inside
@@ -288,15 +391,21 @@ fn global_check(
         // COOLDOWN.<uid> + message "msg_commands" helper cooldown):
         // denied runs never execute; only the slash leg replies with
         // lang.Msg_cooldown, the prefix leg denies silently.
+        // Read-only: poise evaluates this check once per parent plus
+        // once for the leaf, so stamping here would deny the leaf of
+        // every subcommand invocation. The stamp is written once in
+        // pre_command_hook (record_execution_gates) after all checks
+        // pass, so denied runs store nothing exactly like TS.
         let code = crate::db::guild_lang(pool, ctx.guild_id().map(|g| g.get())).await;
         let uid = ctx.author().id.get();
         let now = now_ms();
         // Slash uses COOLDOWN.<uid> (interactionCooldown), prefix uses
         // COOLDOWN.msg_commands.<uid> (helper.cooldown), exactly like TS.
         let left = if matches!(ctx, poise::Context::Prefix(_)) {
-            helper_cooldown_check(pool, &uid.to_string(), "msg_commands", DEBOUNCE_MS, now).await
+            helper_cooldown_remaining(pool, &uid.to_string(), "msg_commands", DEBOUNCE_MS, now)
+                .await
         } else {
-            debounce_check(pool, uid, now).await
+            debounce_remaining(pool, uid, now).await
         };
         if left > 0 {
             tracing::warn!(
@@ -475,22 +584,13 @@ fn global_check(
         let limit = map.get(&path).or_else(|| map.get(&category)).cloned();
         if let Some(limit) = limit {
             if limit.count > 0 && limit.window_ms > 0 {
-                let owner = guild_id
-                    .to_partial_guild(ctx.http())
-                    .await
-                    .map(|g| g.owner_id)
-                    .unwrap_or_else(|_| ctx.author().id);
-                let bypass = owner == ctx.author().id
-                    || crate::commands::owner::main::routed_get(
-                        pool,
-                        &guild_id.get().to_string(),
-                        &guild_id.get().to_string(),
-                        &format!("GUILD.OWNER.{}", ctx.author().id.get()),
-                    )
-                    .await
-                    .is_some();
+                let bypass = rate_limit_bypassed(pool, ctx.http(), guild_id, ctx.author().id).await;
                 if !bypass {
-                    let left = command_rate_limit_check(
+                    // Read-only: the token is consumed once in
+                    // pre_command_hook (record_execution_gates), after
+                    // all checks pass — consuming here would charge
+                    // every subcommand twice (parent + leaf eval).
+                    let left = rate_limit_remaining(
                         pool,
                         guild_id.get(),
                         &path,
@@ -1271,6 +1371,64 @@ pub async fn report_command_error(err: poise::FrameworkError<'_, Data, anyhow::E
         _ => {}
     }
 }
+/// Single-evaluation side effects for an about-to-execute invocation.
+/// poise runs global_check once per parent plus once for the leaf, so
+/// every store/post below lives here instead: pre_command_hook runs
+/// exactly once per invocation, after all checks passed (denied runs
+/// never reach it, so denied runs store nothing exactly like TS).
+/// Covered legs: 1s debounce stamp (leg-dependent key), COMMAND_LIMITS
+/// token consume (same limit resolution + owner bypass as the check),
+/// slash usage-log channel post (mirrors slashCommandLogger.ts).
+async fn record_execution_gates(ctx: Ctx<'_>) {
+    let pool = &ctx.data().pool;
+    let uid = ctx.author().id.get();
+    let now = now_ms();
+    if matches!(ctx, poise::Context::Prefix(_)) {
+        record_helper_cooldown(pool, &uid.to_string(), "msg_commands", now).await;
+    } else {
+        record_debounce(pool, uid, now).await;
+    }
+    if let Some(gid) = ctx.guild_id() {
+        let gid_s = gid.get().to_string();
+        if let Some(ch) = crate::commands::guildconfig::setlogschannel::load_log_channel_routed(
+            pool, &gid_s, "command",
+        )
+        .await
+        {
+            if let Ok(ch_id) = ch.parse::<u64>() {
+                let _ = poise::serenity_prelude::ChannelId::new(ch_id)
+                    .say(
+                        &ctx.serenity_context().http,
+                        format!("/{} by {}.", ctx.command().name, ctx.author().tag()),
+                    )
+                    .await;
+            }
+        }
+        let path = ctx.command().qualified_name.clone();
+        let map =
+            crate::commands::guildconfig::commandlimit::load_command_limits_routed(pool, &gid_s)
+                .await;
+        let category = path.split(' ').next().unwrap_or(&path).to_string();
+        if let Some(limit) = map.get(&path).or_else(|| map.get(&category)).cloned() {
+            if limit.count > 0
+                && limit.window_ms > 0
+                && !rate_limit_bypassed(pool, ctx.http(), gid, ctx.author().id).await
+            {
+                record_rate_limit(
+                    pool,
+                    gid.get(),
+                    &path,
+                    uid,
+                    limit.count,
+                    limit.window_ms,
+                    now_ms(),
+                )
+                .await;
+            }
+        }
+    }
+}
+
 /// Pre-command hook: prefix file-log gate. Mirrors loggerX.addCommand
 /// in messageCommandHandler.ts (channel, full content, executor,
 /// guild, timestamp, channel id). Slash invocations are already logged
@@ -1282,6 +1440,7 @@ pub async fn report_command_error(err: poise::FrameworkError<'_, Data, anyhow::E
 /// check_permissions_and_cooldown on both as well.
 fn pre_command_hook(ctx: poise::Context<'_, Data, anyhow::Error>) -> poise::BoxFuture<'_, ()> {
     Box::pin(async move {
+        record_execution_gates(ctx).await;
         // Global slash defer. Mirrors deferIfNeeded in
         // commandExecutor.ts: interaction sources defer when the TS
         // `thinking`/`ephemeral` command flags say so (resolved via
@@ -3003,6 +3162,36 @@ mod tests {
         assert_eq!(
             helper_cooldown_check(&pool, "9", "ban", 5000, 4000).await,
             4000
+        );
+    }
+
+    #[tokio::test]
+    async fn repeated_check_evaluations_do_not_self_deny() {
+        // Regression (U-ETERNAL-167): poise runs global_check once per
+        // parent plus once for the leaf. The read legs must be
+        // side-effect free so the leaf evaluation sees the same empty
+        // window as the parent one; the single stamp lands in
+        // pre_command_hook (record_* here, asserted below).
+        let pool = temp_pool().await;
+        assert_eq!(debounce_remaining(&pool, 11, 1000).await, 0);
+        assert_eq!(debounce_remaining(&pool, 11, 1001).await, 0);
+        record_debounce(&pool, 11, 1001).await;
+        // A genuine repeat inside the window still denies.
+        assert_eq!(debounce_remaining(&pool, 11, 1500).await, 501);
+        // Rate-limit reads consume nothing even when repeated.
+        assert_eq!(
+            rate_limit_remaining(&pool, 7, "ban", 11, 2, 60_000, 1000).await,
+            0
+        );
+        assert_eq!(
+            rate_limit_remaining(&pool, 7, "ban", 11, 2, 60_000, 1000).await,
+            0
+        );
+        record_rate_limit(&pool, 7, "ban", 11, 2, 60_000, 1000).await;
+        record_rate_limit(&pool, 7, "ban", 11, 2, 60_000, 1000).await;
+        assert_eq!(
+            rate_limit_remaining(&pool, 7, "ban", 11, 2, 60_000, 1000).await,
+            60_000
         );
     }
 
