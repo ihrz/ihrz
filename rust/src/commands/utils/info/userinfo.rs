@@ -24,7 +24,19 @@ pub async fn userinfo(
     user: Option<poise::serenity_prelude::User>,
 ) -> Result<(), anyhow::Error> {
     use poise::serenity_prelude as serenity;
-    let u = user.as_ref().unwrap_or_else(|| ctx.author());
+    // Prefix username fallback: mirrors the last branch of `method.user`
+    // in src/core/functions/method.ts (exact `username === args[0]`
+    // guild-cache lookup). Poise already parses prefix mentions and IDs
+    // into `user`, so only the username branch needs a fallback here.
+    let fuzzy = if user.is_none() {
+        prefix_username_lookup(&ctx)
+    } else {
+        None
+    };
+    let u = user
+        .as_ref()
+        .or(fuzzy.as_ref())
+        .unwrap_or_else(|| ctx.author());
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let f = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
     let notfound = crate::lang::get(&code, "userinfo_var_notfound")
@@ -258,6 +270,24 @@ async fn equicord_donator(user_id: &str) -> bool {
         x.get("badge")
             .and_then(|b| b.as_str())
             .is_some_and(|link| url_host(link) == Some("badge.equicord.org".to_string()))
+    })
+}
+
+/// Prefix-only exact-username lookup. Mirrors the `username === args[0]`
+/// branch of `method.user` (src/core/functions/method.ts): poise leaves
+/// the unparsed token in `PrefixContext.args`, which is matched against
+/// the cached guild members. None on slash invocations or empty args.
+fn prefix_username_lookup(ctx: &Ctx<'_>) -> Option<poise::serenity_prelude::User> {
+    let poise::Context::Prefix(prefix) = ctx else {
+        return None;
+    };
+    let name = prefix.args.split_whitespace().next()?;
+    let gid = ctx.guild_id()?;
+    ctx.serenity_context().cache.guild(gid).and_then(|g| {
+        g.members
+            .values()
+            .find(|m| m.user.name == name)
+            .map(|m| m.user.clone())
     })
 }
 

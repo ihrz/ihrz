@@ -284,9 +284,12 @@ pub fn banner_url(lang_code: &str) -> String {
 
 /// Banner image URL for a guild. Mirrors bannerGenerator(guildId)
 /// (reads GUILD.LANG table-first with legacy kv fallback, en-US default).
+/// Both the TS `{ lang: code }` object shape and legacy bare-string rows
+/// resolve via `parse_lang_value`.
 pub async fn guild_banner_url(pool: &crate::db::Pool, guild_id: &str) -> String {
     let lang = crate::db::tbl_get(pool, guild_id, "GUILD.LANG")
         .await
+        .and_then(|raw| crate::db::parse_lang_value(&raw))
         .unwrap_or_else(|| "en-US".to_string());
     banner_url(&lang)
 }
@@ -847,6 +850,19 @@ mod tests {
         assert_eq!(
             guild_banner_url(&pool, "g2").await,
             "https://www.ihorizon.org/assets/img/banner/ihrz_de-DE.png"
+        );
+        // TS `{ lang: code }` object shape resolves via the leaf.
+        crate::db::tbl_set_json(
+            &pool,
+            "g3",
+            "GUILD.LANG",
+            &serde_json::json!({ "lang": "fr-FR" }),
+        )
+        .await
+        .unwrap();
+        assert_eq!(
+            guild_banner_url(&pool, "g3").await,
+            "https://www.ihorizon.org/assets/img/banner/ihrz_fr-FR.png"
         );
     }
 

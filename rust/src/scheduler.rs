@@ -748,6 +748,7 @@ pub fn mcount_table_slots(root: &serde_json::Value) -> Vec<(String, serde_json::
 pub async fn sweep_membercount(
     pool: &Pool,
     http: &std::sync::Arc<poise::serenity_prelude::Http>,
+    cache: &std::sync::Arc<poise::serenity_prelude::Cache>,
 ) -> u64 {
     use poise::serenity_prelude::{ChannelId, GuildId};
     use std::collections::HashMap;
@@ -817,11 +818,22 @@ pub async fn sweep_membercount(
         let Some((tpl, ch_num)) = mcount_slot_config(&cfg) else {
             continue;
         };
-        let counts = crate::commands::membercount::membercount::fetch_channel_counts(
+        let mut counts = crate::commands::membercount::membercount::fetch_channel_counts(
             http,
             GuildId::new(gid_num),
         )
         .await;
+        // Voice occupancy has no HTTP surface: snapshot the gateway
+        // cache (same helper the enable path uses; TS sums
+        // `channel.members.size`).
+        counts.voice = cache
+            .guild(GuildId::new(gid_num))
+            .map(|g| {
+                crate::commands::membercount::membercount::count_voice_occupancy(
+                    g.voice_states.values().map(|v| v.channel_id),
+                )
+            })
+            .unwrap_or(0);
         let name = crate::commands::membercount::render_name(tpl, &counts);
         if ChannelId::new(ch_num)
             .edit(
@@ -2304,11 +2316,12 @@ pub fn spawn(
     {
         let pool = pool.clone();
         let http = http.clone();
+        let cache = cache.clone();
         tokio::spawn(async move {
             let mut t = tokio::time::interval(Duration::from_secs(MEMBERCOUNT_SECS));
             loop {
                 t.tick().await;
-                sweep_membercount(&pool, &http).await;
+                sweep_membercount(&pool, &http, &cache).await;
             }
         });
     }

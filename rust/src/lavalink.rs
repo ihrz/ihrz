@@ -45,9 +45,10 @@ use tokio::sync::{Mutex, RwLock};
 /// Mirrors onEmptyQueue.destroyAfterMs in playerManager.ts.
 pub const EMPTY_QUEUE_DESTROY_AFTER_MS: i64 = 120_000;
 
-/// Default node volume applied on every fresh start. Mirrors
-/// `DEFAULT_VOLUME = 75` in musicPlay.ts (`player.setVolume(
-/// player.customVolume || DEFAULT_VOLUME)` after createPlayer).
+/// Initial local volume for a new guild player. Mirrors
+/// `DEFAULT_VOLUME = 75` in musicPlay.ts; it is only pushed to the
+/// node when a custom volume was set (`if (player.customVolume)`),
+/// otherwise the node default applies.
 pub const DEFAULT_VOLUME: u8 = 75;
 
 /// Client-Name header sent on the node WS handshake (mirrors the
@@ -218,6 +219,10 @@ pub struct GuildPlayer {
     pub current: Option<QueuedTrack>,
     pub loop_mode: Option<LoopMode>,
     pub volume: u8,
+    /// Explicitly set level (mirrors TS `player.customVolume`): None
+    /// until the volume command runs, so a fresh start can leave the
+    /// node default alone.
+    pub custom_volume: Option<u8>,
     pub paused: bool,
     pub voice_channel: Option<u64>,
     pub text_channel: Option<u64>,
@@ -289,6 +294,7 @@ impl GuildPlayer {
     pub fn set_volume(&mut self, level: i64) -> u8 {
         let v = crate::voice::clamp_volume(level) as u8;
         self.volume = v;
+        self.custom_volume = Some(v);
         v
     }
 
@@ -3246,12 +3252,13 @@ impl LavalinkManager {
                 }
                 self.rest_play(node, &session, guild_id, &current.encoded, false)
                     .await?;
-                // Re-apply the stored volume on every fresh start
-                // (mirrors musicPlay.ts `player.setVolume(player.customVolume
-                // || DEFAULT_VOLUME)` after createPlayer): the node
-                // player is new, so it would otherwise play at 100.
-                let volume = snap.map(|s| s.volume).unwrap_or(DEFAULT_VOLUME);
-                let _ = self.rest_set_volume(node, &session, guild_id, volume).await;
+                // Re-apply the stored volume only when a custom volume
+                // was set (mirrors musicPlay.ts `if
+                // (player.customVolume) player.setVolume(...)` after
+                // createPlayer): otherwise the node default applies.
+                if let Some(volume) = snap.and_then(|s| s.custom_volume) {
+                    let _ = self.rest_set_volume(node, &session, guild_id, volume).await;
+                }
             }
         }
         Ok((position, shown, is_playlist))
@@ -3536,6 +3543,7 @@ pub struct PlayerSnapshot {
     pub queue: Vec<QueuedTrack>,
     pub loop_mode: LoopMode,
     pub volume: u8,
+    pub custom_volume: Option<u8>,
     pub paused: bool,
     pub voice_channel: Option<u64>,
     pub text_channel: Option<u64>,
@@ -3548,6 +3556,7 @@ impl From<&GuildPlayer> for PlayerSnapshot {
             queue: p.queue.iter().cloned().collect(),
             loop_mode: p.loop_mode(),
             volume: p.volume,
+            custom_volume: p.custom_volume,
             paused: p.paused,
             voice_channel: p.voice_channel,
             text_channel: p.text_channel,

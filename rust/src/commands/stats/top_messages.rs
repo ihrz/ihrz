@@ -34,8 +34,8 @@ pub async fn stats_top_messages(
 ) -> Result<(), anyhow::Error> {
     // The 5..=25 clamp is prefix-only (TS clamps just the message-arg
     // leg); the slash option passes through with a default of 10.
-    let limit = if matches!(ctx, poise::Context::Prefix(_)) {
-        clamp_top_limit(limit)
+    let limit: i64 = if matches!(ctx, poise::Context::Prefix(_)) {
+        clamp_top_limit(limit) as i64
     } else {
         slash_top_limit(limit)
     };

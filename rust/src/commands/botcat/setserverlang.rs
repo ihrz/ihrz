@@ -104,16 +104,23 @@ fn save_row(success_markup: Option<(u64, String, bool)>) -> serenity::CreateActi
     serenity::CreateActionRow::Buttons(vec![button])
 }
 
-/// Persist the guild language, table-first dual-write (keys unchanged):
-/// the table row is primary, the legacy kv row keeps unmigrated kv
-/// readers (getLanguageData parity) fresh. Mirrors setserverlang.ts
-/// `client.db.set(`${guildId}.GUILD.LANG`, code)`.
+/// Persist the guild language in the TS `{ lang: code }` object shape
+/// (keys unchanged): the table row holds the object, the legacy kv row
+/// keeps the JSON text for unmigrated kv readers. Mirrors setserverlang.ts
+/// `client.db.set(`${guildId}.GUILD.LANG`, { lang: selectedLang })`, so the
+/// TS `.GUILD.LANG.lang` leaf read keeps working across runtimes.
 pub async fn save_guild_lang(
     pool: &crate::db::Pool,
     guild_id: &str,
     code: &str,
 ) -> Result<(), anyhow::Error> {
-    crate::db::tbl_set(pool, guild_id, crate::db::GUILD_LANG_KEY, code).await
+    crate::db::tbl_set_json(
+        pool,
+        guild_id,
+        crate::db::GUILD_LANG_KEY,
+        &serde_json::json!({ "lang": code }),
+    )
+    .await
 }
 
 /// Persist the language plus the TS save side-effects: per-guild bot bio
@@ -389,19 +396,33 @@ mod tests {
         // Same leaf TS writes (GUILD_LANG_KEY == "GUILD.LANG").
         assert_eq!(crate::db::GUILD_LANG_KEY, "GUILD.LANG");
         save_guild_lang(&pool, "g1", "fr-FR").await.unwrap();
-        // Table-first read sees it, and the legacy kv row stays fresh
-        // for unmigrated readers.
+        // TS read path (`${guildId}.GUILD.LANG.lang` leaf) sees the code.
+        let backend = crate::backends::Backend::sqlite(pool.clone());
+        let table = backend.table("g1");
+        assert_eq!(
+            table.get::<String>("GUILD.LANG.lang").await.unwrap(),
+            Some("fr-FR".to_string())
+        );
+        // Table-first read sees the object, and the legacy kv row keeps
+        // the JSON text for unmigrated readers.
         assert_eq!(
             crate::db::tbl_get(&pool, "g1", "GUILD.LANG")
                 .await
                 .as_deref(),
-            Some("fr-FR")
+            Some("{\"lang\":\"fr-FR\"}")
         );
         assert_eq!(
             crate::db::kv_get(&pool, "g1", "GUILD.LANG")
                 .await
                 .as_deref(),
-            Some("fr-FR")
+            Some("{\"lang\":\"fr-FR\"}")
+        );
+        // Rust read path resolves the object shape to the leaf code.
+        save_guild_lang(&pool, "456", "de-DE").await.unwrap();
+        assert_eq!(crate::db::guild_lang(&pool, Some(456)).await, "de-DE");
+        assert_eq!(
+            table.get::<String>("GUILD.LANG.lang").await.unwrap(),
+            Some("fr-FR".to_string())
         );
         // Overwrite keeps both stores in sync.
         save_guild_lang(&pool, "g1", "de-DE").await.unwrap();
@@ -409,13 +430,17 @@ mod tests {
             crate::db::tbl_get(&pool, "g1", "GUILD.LANG")
                 .await
                 .as_deref(),
-            Some("de-DE")
+            Some("{\"lang\":\"de-DE\"}")
         );
         assert_eq!(
             crate::db::kv_get(&pool, "g1", "GUILD.LANG")
                 .await
                 .as_deref(),
-            Some("de-DE")
+            Some("{\"lang\":\"de-DE\"}")
+        );
+        assert_eq!(
+            table.get::<String>("GUILD.LANG.lang").await.unwrap(),
+            Some("de-DE".to_string())
         );
     }
 

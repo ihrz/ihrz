@@ -97,7 +97,11 @@ pub async fn membercount(
 
     // Immediate rename, mirroring membercount.ts `channel.edit({ name })`
     // on enable (the 5-min sweep keeps it fresh afterwards).
-    let counts = fetch_channel_counts(ctx.http(), guild_id).await;
+    let mut counts = fetch_channel_counts(ctx.http(), guild_id).await;
+    // Voice occupancy has no HTTP surface: snapshot the gateway cache
+    // (mirrors the TS `channel.members.size` sums; same
+    // `cache.guild().voice_states` pattern as massmove/bringall).
+    counts.voice = cached_voice_count(&ctx, guild_id);
     let rendered = render_name(&template, &counts);
     let _ = channel
         .id
@@ -121,8 +125,11 @@ pub async fn membercount(
 
 /// Live counter values for one guild. The member total prefers the exact
 /// count from a completed bounded member walk, falling back to the
-/// guild/preview approximation; the rest is best-effort HTTP (voice
-/// occupancy has no HTTP surface in serenity 0.12 and stays 0).
+/// guild/preview approximation; the rest is best-effort HTTP, except
+/// voice occupancy which has no HTTP surface in serenity 0.12 and stays
+/// 0 here. Callers with gateway access must override `voice` afterwards
+/// via [`cached_voice_count`]; the scheduler sweep (HTTP-only) still
+/// reports 0 pending cache plumbing outside this module.
 /// Shared by the enable-path immediate rename and the scheduler sweep.
 pub async fn fetch_channel_counts(
     http: &serenity::Http,
@@ -187,6 +194,28 @@ pub async fn fetch_channel_counts(
     // Presence ≈ online/idle/dnd, mirroring the TS onlineCount filter.
     out.online = presence;
     out
+}
+
+/// Voice occupancy from raw voice-state channel links: one count per
+/// user currently connected (`channel_id.is_some()`). Each connected
+/// user appears in exactly one voice/stage channel's `members`, so this
+/// equals the TS sum of `channel.members.size` over GuildVoice +
+/// GuildStageVoice channels. Pure iterator for unit tests; the cache
+/// snapshot lives in [`cached_voice_count`].
+pub fn count_voice_occupancy(channels: impl Iterator<Item = Option<serenity::ChannelId>>) -> u64 {
+    channels.filter(Option::is_some).count() as u64
+}
+
+/// Snapshot the cached voice occupancy for a guild (0 when uncached).
+/// Same `cache.guild().voice_states` read as massmove/bringall; the
+/// u64 is copied out under the cache guard and released before any
+/// await so the command future stays Send.
+pub fn cached_voice_count(ctx: &Ctx<'_>, guild_id: serenity::GuildId) -> u64 {
+    ctx.serenity_context()
+        .cache
+        .guild(guild_id)
+        .map(|g| count_voice_occupancy(g.voice_states.values().map(|v| v.channel_id)))
+        .unwrap_or(0)
 }
 
 /// Audit entry for enable/disable. Mirrors `client.func.ihorizon_logs`
@@ -317,5 +346,20 @@ mod tests {
             "",
         );
         assert_eq!(out, "<@11> removed the MemberCount of this guild!");
+    }
+
+    #[test]
+    fn voice_occupancy_counts_connected_states_only() {
+        let linked = vec![
+            Some(serenity::ChannelId::new(1)),
+            None,
+            Some(serenity::ChannelId::new(2)),
+            None,
+        ];
+        assert_eq!(count_voice_occupancy(linked.into_iter()), 2);
+        let empty: Vec<Option<serenity::ChannelId>> = vec![];
+        assert_eq!(count_voice_occupancy(empty.into_iter()), 0);
+        let all_linked = vec![Some(serenity::ChannelId::new(7))];
+        assert_eq!(count_voice_occupancy(all_linked.into_iter()), 1);
     }
 }

@@ -656,22 +656,57 @@ pub async fn is_blacklisted(pool: &Pool, user_id: u64) -> bool {
         .is_some()
 }
 
-/// Canonical per-guild language key. Mirrors the TS source of truth: the
-/// flat-kv projection of `${guildId}.GUILD.LANG` (setserverlang.ts writes
-/// the code here as a plain string; `getLanguageData` reads the same leaf
-/// with an `en-US` fallback).
+/// Canonical per-guild language key. Mirrors the TS source of truth:
+/// `${guildId}.GUILD.LANG` holds the `{ lang: code }` object
+/// (setserverlang.ts writes `{ lang: selectedLang }`; `getLanguageData`
+/// reads the `.lang` leaf with an `en-US` fallback). Legacy bare-string
+/// rows (`fr-FR`, written by earlier Rust builds) stay readable via
+/// `parse_lang_value`.
 pub const GUILD_LANG_KEY: &str = "GUILD.LANG";
 
+/// Normalize a stored `GUILD.LANG` value to a language code. Accepts the
+/// TS `{ lang: code }` object shape (stored as JSON text) and legacy
+/// bare-string rows; blank/empty-`lang` values read as `None` so callers
+/// fall back to `en-US` (mirrors the TS `if (!lang)` guard).
+pub fn parse_lang_value(raw: &str) -> Option<String> {
+    let trimmed = raw.trim();
+    if trimmed.is_empty() {
+        return None;
+    }
+    if let Ok(v) = serde_json::from_str::<serde_json::Value>(trimmed) {
+        match &v {
+            serde_json::Value::Object(map) => {
+                return map
+                    .get("lang")
+                    .and_then(|l| l.as_str())
+                    .map(str::trim)
+                    .filter(|s| !s.is_empty())
+                    .map(|s| s.to_string());
+            }
+            serde_json::Value::String(s) => {
+                let s = s.trim();
+                if !s.is_empty() {
+                    return Some(s.to_string());
+                }
+                return None;
+            }
+            _ => {}
+        }
+    }
+    Some(trimmed.to_string())
+}
+
 /// Mirrors getLanguageData(guildId): per-guild lang from the single kv
-/// source of truth (`GUILD.LANG`), `en-US` fallback (C1/C2). Blank rows
-/// fall back too, matching the TS `if (!lang)` guard.
+/// source of truth (`GUILD.LANG`), `en-US` fallback (C1/C2). Both the TS
+/// `{ lang: code }` object shape and legacy bare-string rows resolve;
+/// blank rows fall back too, matching the TS `if (!lang)` guard.
 pub async fn guild_lang(pool: &Pool, guild_id: Option<u64>) -> String {
     let Some(id) = guild_id else {
         return "en-US".to_string();
     };
     kv_get(pool, &id.to_string(), GUILD_LANG_KEY)
         .await
-        .filter(|s| !s.trim().is_empty())
+        .and_then(|s| parse_lang_value(&s))
         .unwrap_or_else(|| "en-US".to_string())
 }
 
@@ -756,6 +791,40 @@ mod tests {
         assert_eq!(GUILD_LANG_KEY, "GUILD.LANG");
         kv_set(&pool, "456", GUILD_LANG_KEY, "fr-FR").await.unwrap();
         assert_eq!(guild_lang(&pool, Some(456)).await, "fr-FR");
+    }
+
+    #[tokio::test]
+    async fn guild_lang_reads_ts_object_shape() {
+        // TS interop: setserverlang.ts writes `{ lang: code }`, read via
+        // the `.lang` leaf (getLanguageData.ts). The object shape resolves
+        // to the leaf code.
+        let pool = memory_pool().await;
+        kv_set(&pool, "456", GUILD_LANG_KEY, "{\"lang\":\"fr-FR\"}")
+            .await
+            .unwrap();
+        assert_eq!(guild_lang(&pool, Some(456)).await, "fr-FR");
+    }
+
+    #[test]
+    fn parse_lang_value_covers_both_shapes() {
+        // Bare-string rows (legacy Rust writes) pass through.
+        assert_eq!(parse_lang_value("fr-FR").as_deref(), Some("fr-FR"));
+        assert_eq!(parse_lang_value("  de-DE  ").as_deref(), Some("de-DE"));
+        // TS `{ lang: code }` object shape resolves via the leaf.
+        assert_eq!(
+            parse_lang_value("{\"lang\":\"fr-FR\"}").as_deref(),
+            Some("fr-FR")
+        );
+        assert_eq!(
+            parse_lang_value(" { \"lang\" : \"jp-JP\" } ").as_deref(),
+            Some("jp-JP")
+        );
+        // Blank / empty-leaf values read as missing (en-US fallback).
+        assert_eq!(parse_lang_value(""), None);
+        assert_eq!(parse_lang_value("   "), None);
+        assert_eq!(parse_lang_value("{\"lang\":\"\"}"), None);
+        assert_eq!(parse_lang_value("{\"lang\":\"   \"}"), None);
+        assert_eq!(parse_lang_value("{}"), None);
     }
 
     #[tokio::test]

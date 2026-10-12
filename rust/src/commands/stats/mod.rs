@@ -627,15 +627,26 @@ pub fn clamp_top_limit(raw: Option<i64>) -> usize {
 /// Slash `limit` option. Mirrors the TS slash leg
 /// (`interaction.options.getInteger("limit") || 10`): no 5..=25 clamp
 /// on the slash path. `None`/`0` read as the default 10; anything else
-/// passes through. TS then applies `slice(0, limit)`, so a negative
-/// limit keeps all-but-last-|limit| rows (empty only when |limit| >=
-/// row count) — never a flat 0. This helper saturates negatives to 0,
-/// which matches TS only in that empty case and otherwise diverges.
-pub fn slash_top_limit(raw: Option<i64>) -> usize {
+/// passes through unchanged, including negatives — truncation happens at
+/// the call site ([`js_slice_take`]), where the row count is known.
+pub fn slash_top_limit(raw: Option<i64>) -> i64 {
     match raw {
         None | Some(0) => 10,
-        Some(n) if n < 0 => 0,
-        Some(n) => n as usize,
+        Some(n) => n,
+    }
+}
+
+/// JS `slice(0, limit)` row count. Mirrors the TS
+/// `leaderboardData.slice(0, limit)` in !top-messages.ts / !top-voice.ts
+/// (via getTopUsersByMessages / getTopUsersByVoice in userStatsUtils.ts):
+/// a non-negative limit keeps at most `limit` rows, while a negative
+/// limit keeps all-but-last-|limit| rows (empty only when |limit| >= row
+/// count).
+pub fn js_slice_take(len: usize, limit: i64) -> usize {
+    if limit < 0 {
+        len.saturating_sub(limit.saturating_abs() as usize)
+    } else {
+        (limit as usize).min(len)
     }
 }
 
@@ -711,12 +722,7 @@ pub fn beautiful_voice_ms(ms: u64, code: &str) -> String {
     }
 }
 
-async fn top_by(
-    ctx: &Ctx<'_>,
-    kind: &str,
-    period: &str,
-    limit: usize,
-) -> Result<(), anyhow::Error> {
+async fn top_by(ctx: &Ctx<'_>, kind: &str, period: &str, limit: i64) -> Result<(), anyhow::Error> {
     let gid = ctx
         .guild_id()
         .map(|g| g.get().to_string())
@@ -742,10 +748,14 @@ async fn top_by(
     }
     // TS drops zero-activity users, sorts by count desc only
     // (`b.messages - a.messages`, stable — ties keep scan order), and
-    // slices to `limit`. Ordering delegates to stats_calc (mirrors
-    // getTopUsersByMessages / getTopUsersByVoice); labels rejoin here.
-    // Scan order is uid-ascending (see load_all_user_stats), so tied
-    // rows keep that order on both paths, like the TS stable sort.
+    // slices to `limit` with JS slice(0, limit) semantics. Ordering
+    // delegates to stats_calc (mirrors getTopUsersByMessages /
+    // getTopUsersByVoice); labels rejoin here. Scan order is uid-ascending
+    // (see load_all_user_stats), so tied rows keep that order on both
+    // paths, like the TS stable sort.
+    // Truncation needs the row count (negative limits keep
+    // all-but-last-|limit|), so resolve it here via js_slice_take.
+    let take = js_slice_take(parsed.len(), limit);
     let labels: HashMap<u64, String> = parsed
         .iter()
         .map(|(id, _, label)| (*id, label.clone()))
@@ -756,7 +766,7 @@ async fn top_by(
                 .iter()
                 .map(|(id, n, _)| (id.to_string(), *n as i64))
                 .collect(),
-            limit,
+            take,
         )
         .into_iter()
         .filter_map(|(id, _)| id.parse::<u64>().ok())
@@ -767,7 +777,7 @@ async fn top_by(
                 .iter()
                 .map(|(id, n, _)| (id.to_string(), *n))
                 .collect(),
-            limit,
+            take,
         )
         .into_iter()
         .filter_map(|(id, _)| id.parse::<u64>().ok())
@@ -939,7 +949,19 @@ mod tests {
         assert_eq!(slash_top_limit(Some(0)), 10);
         assert_eq!(slash_top_limit(Some(7)), 7);
         assert_eq!(slash_top_limit(Some(99)), 99);
-        assert_eq!(slash_top_limit(Some(-3)), 0);
+        // Negatives pass through: TS applies slice(0, limit), which keeps
+        // all-but-last-|limit| rows (!top-messages.ts:52,121,
+        // userStatsUtils.ts:245,262).
+        assert_eq!(slash_top_limit(Some(-3)), -3);
+        // JS slice(0, limit) row counts at the call site.
+        assert_eq!(js_slice_take(10, 10), 10);
+        assert_eq!(js_slice_take(10, 7), 7);
+        assert_eq!(js_slice_take(10, 99), 10);
+        assert_eq!(js_slice_take(10, -3), 7);
+        assert_eq!(js_slice_take(10, -10), 0);
+        assert_eq!(js_slice_take(3, -99), 0);
+        assert_eq!(js_slice_take(0, 10), 0);
+        assert_eq!(js_slice_take(0, -3), 0);
         assert_eq!(top_period_timeout_ms("daily"), 86_400_000);
         assert_eq!(top_period_timeout_ms("weekly"), 604_800_000);
         assert_eq!(top_period_timeout_ms("monthly"), 2_592_000_000);
