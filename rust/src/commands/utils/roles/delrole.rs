@@ -82,10 +82,17 @@ pub async fn delrole(
         ctx.say(t("utils_delrole_try2brain")).await?;
         return Ok(());
     }
-    // No TS key covers a remove failure (TS throws to the executor);
-    // the crash reporter is the matching error path.
-    member.remove_role(ctx.http(), role.id).await?;
-    ctx.say(
+    // Audit reason mirrors TS (`[DelRole] Author: ${author.id}`). The
+    // Member helper takes no reason, so the HTTP leg carries it (like
+    // massiverole.rs). No TS key covers a remove failure (TS throws to
+    // the executor); the crash reporter is the matching error path.
+    let reason = format!("[DelRole] Author: {}", ctx.author().id.get());
+    ctx.http()
+        .remove_member_role(guild_id, user.id, role.id, Some(&reason))
+        .await?;
+    // TS answers with an embed carrying the description (no plain
+    // content, no color/footer).
+    let embed = serenity::CreateEmbed::default().description(
         crate::lang::get(&code, "utils_delrole_command_ok")
             .map(|s| {
                 s.replace("${author.toString()}", &ctx.author().to_string())
@@ -93,7 +100,7 @@ pub async fn delrole(
                     .replace("${user.toString()}", &user.to_string())
             })
             .unwrap_or_else(|| format!("{} lost {}.", user.tag(), role.name)),
-    )
-    .await?;
+    );
+    ctx.send(poise::CreateReply::default().embed(embed)).await?;
     Ok(())
 }

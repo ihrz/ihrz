@@ -72,7 +72,12 @@ pub async fn nickrole(
     let code = crate::db::guild_lang(pool, Some(guild_id.get())).await;
     let t = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
     // Lower the query once here; the matcher compares raw fields.
+    // TS early-returns on an empty nickname (falsy): without this,
+    // contains("") would match everyone.
     let part = nickname.to_lowercase();
+    if part.is_empty() {
+        return Ok(());
+    }
     // TS !nickrole.ts compares `action_1 === "add"` / `=== "sub"` with
     // no case fold and no catch-all: any other action silently returns
     // with no members touched.
@@ -80,10 +85,7 @@ pub async fn nickrole(
         Some(add) => add,
         None => return Ok(()),
     };
-    let members = guild_id
-        .members(ctx.http(), None, None)
-        .await
-        .unwrap_or_default();
+    let members = fetch_all_members(ctx.http(), guild_id).await;
     let total = members.len();
     // TS matches globalName or guild nickname (case-insensitive) and
     // skips members already in the target state. The bare username is
@@ -112,6 +114,9 @@ pub async fn nickrole(
     let progress = ctx.say(fill_progress(&progress_tpl, targets.len())).await?;
     let http = ctx.http();
     let role_id = role.id;
+    // Audit reason verbatim from !nickrole.ts (both branches use
+    // "[NickRole] Module"). The Member helpers take no reason, so the
+    // HTTP legs carry it (like massiverole.rs).
     let result = crate::funcs::process_batch_full(
         &targets,
         10,
@@ -122,9 +127,16 @@ pub async fn nickrole(
                 return false;
             };
             let out = if add {
-                member.add_role(&http, role_id).await
+                http.add_member_role(guild_id, member.user.id, role_id, Some("[NickRole] Module"))
+                    .await
             } else {
-                member.remove_role(&http, role_id).await
+                http.remove_member_role(
+                    guild_id,
+                    member.user.id,
+                    role_id,
+                    Some("[NickRole] Module"),
+                )
+                .await
             };
             out.is_ok()
         },
@@ -164,6 +176,33 @@ pub async fn nickrole(
     }
     progress.edit(ctx, reply).await?;
     Ok(())
+}
+
+/// Fetch every guild member over the paged REST endpoint (1000/page).
+/// Mirrors TS guild.members.fetch() with no options, which returns the
+/// whole member list: a single page would cap mass processing at 1000.
+async fn fetch_all_members(
+    http: &serenity::Http,
+    guild_id: serenity::GuildId,
+) -> Vec<serenity::Member> {
+    let mut all = Vec::new();
+    let mut after: Option<serenity::UserId> = None;
+    loop {
+        let page = guild_id
+            .members(http, Some(1000), after)
+            .await
+            .unwrap_or_default();
+        if page.is_empty() {
+            break;
+        }
+        after = page.last().map(|m| m.user.id);
+        let done = page.len() < 1000;
+        all.extend(page);
+        if done {
+            break;
+        }
+    }
+    all
 }
 
 /// Parse the action option. Mirrors the `action_1 === "add"` /

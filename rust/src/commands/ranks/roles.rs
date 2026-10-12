@@ -79,11 +79,25 @@ pub fn sort_rank_roles_desc(roles: &mut [RankRole]) {
     roles.sort_by_key(|r| std::cmp::Reverse(r.level));
 }
 
+/// Pure embed-field text for one rank role. Mirrors `!roles.ts:104-114`:
+/// the field name is `ranks_config_autofields_name` with `${level}`, the
+/// value is `ranks_config_autofields_value` with `${level}` + `${roleId}`.
+pub fn rank_role_field_text(name_tpl: &str, value_tpl: &str, role: &RankRole) -> (String, String) {
+    (
+        name_tpl.replace("${level}", &role.level.to_string()),
+        value_tpl
+            .replace("${level}", &role.level.to_string())
+            .replace("${roleId}", &role.role_id),
+    )
+}
+
 /// Rank roles panel (`roles`).
 // TS `ranks.ts:44-61`: the single `roles` sub — Administrator-gated
-// panel showing the rank roles (highest level first, 5 per page like
-// `!roles.ts:79-97`). Management (add/remove) is component-driven in
-// TS (`!roles.ts` selects + modals), not separate slash subs.
+// panel showing the rank roles as embed fields (highest level first, 5
+// per page like `!roles.ts:79-133`), with prev/next paging and the
+// no-roles field when empty. The add/remove component flows
+// (`!roles.ts:227-464`: role select + level modal + remove menu) are a
+// rewrite-level leftover, not separate slash subs.
 #[poise::command(
     slash_command,
     prefix_command,
@@ -108,22 +122,17 @@ pub async fn ranks_roles(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     // `parseInt(levelB) - parseInt(levelA)`).
     sort_rank_roles_desc(&mut roles);
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-    if roles.is_empty() {
-        ctx.say(
-            crate::lang::get(&code, "msg_rank_roles_empty")
-                .unwrap_or_else(|| "No rank roles.".to_string()),
-        )
-        .await?;
-        return Ok(());
-    }
-    let row = |r: &RankRole| {
-        crate::lang::get(&code, "msg_rank_role_row")
-            .map(|s| {
-                s.replace("{roleId}", &r.role_id)
-                    .replace("{level}", &r.level.to_string())
-            })
-            .unwrap_or_else(|| format!("<@&{}> — lvl {}", r.role_id, r.level))
-    };
+    // Field templates mirror `!roles.ts:104-121`: per-role autofields,
+    // and the single no-roles field when the map is empty (the TS panel
+    // always shows the embed, never a plain-text empty reply).
+    let name_tpl = crate::lang::get(&code, "ranks_config_autofields_name")
+        .unwrap_or_else(|| "Level ${level}".to_string());
+    let value_tpl = crate::lang::get(&code, "ranks_config_autofields_value")
+        .unwrap_or_else(|| "Role: <@&${roleId}>".to_string());
+    let no_name = crate::lang::get(&code, "ranks_config_nofields_name")
+        .unwrap_or_else(|| "No Roles Configured".to_string());
+    let no_value = crate::lang::get(&code, "ranks_config_nofields_value")
+        .unwrap_or_else(|| "Set up rank roles to reward active members!".to_string());
     let title = crate::lang::get(&code, "ranks_config_embed_title")
         .unwrap_or_else(|| "🏆 Rank Roles Configuration".to_string());
     let desc = crate::lang::get(&code, "ranks_config_embed_desc")
@@ -139,13 +148,16 @@ pub async fn ranks_roles(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         .and_then(|g| g.icon_url());
     let mk_embed = |page: usize| {
         let start = page * per_page;
-        let body = roles
-            .iter()
-            .skip(start)
-            .take(per_page)
-            .map(row)
-            .collect::<Vec<_>>()
-            .join("\n");
+        let fields: Vec<(String, String)> = if roles.is_empty() {
+            vec![(no_name.clone(), no_value.clone())]
+        } else {
+            roles
+                .iter()
+                .skip(start)
+                .take(per_page)
+                .map(|r| rank_role_field_text(&name_tpl, &value_tpl, r))
+                .collect()
+        };
         let footer = crate::lang::get(&code, "ranks_config_help_footer")
             .map(|s| {
                 s.replace("${currentPage}", &(page + 1).to_string())
@@ -160,10 +172,10 @@ pub async fn ranks_roles(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
                     roles.len()
                 )
             });
-        let embed = serenity::CreateEmbed::default()
+        let mut embed = serenity::CreateEmbed::default()
             .title(title.clone())
             .colour(0x5865F2)
-            .description(format!("{desc}\n\n{body}"))
+            .description(desc.clone())
             .footer({
                 let mut f = serenity::CreateEmbedFooter::new(footer);
                 if let Some(url) = icon.clone() {
@@ -172,6 +184,9 @@ pub async fn ranks_roles(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
                 f
             })
             .timestamp(serenity::Timestamp::now());
+        for (name, value) in fields {
+            embed = embed.field(name, value, false);
+        }
         embed
     };
     let mk_row = |page: usize| {
@@ -240,22 +255,10 @@ pub async fn ranks_roles(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
             )
             .await;
     }
-    // Disable the row when the collector ends, like the TS end handler.
-    let end_row = serenity::CreateActionRow::Buttons(vec![
-        serenity::CreateButton::new("rk-roles-prev")
-            .style(serenity::ButtonStyle::Secondary)
-            .label("<<<")
-            .disabled(true),
-        serenity::CreateButton::new("rk-roles-next")
-            .style(serenity::ButtonStyle::Secondary)
-            .label(">>>")
-            .disabled(true),
-    ]);
+    // Clear the row when the collector ends, like the TS end handler
+    // (`collector.on("end")` edits `components: []`).
     let _ = msg
-        .edit(
-            ctx.http(),
-            serenity::EditMessage::new().components(vec![end_row]),
-        )
+        .edit(ctx.http(), serenity::EditMessage::new().components(vec![]))
         .await;
     Ok(())
 }
@@ -270,6 +273,7 @@ pub fn remove_rank_role(roles: &mut Vec<RankRole>, level: u64) -> bool {
 
 #[cfg(test)]
 mod tests {
+    use super::rank_role_field_text;
     use super::sort_rank_roles_desc;
     use super::{load_rank_roles_routed, remove_rank_role, save_rank_roles_routed, RankRole};
 
@@ -298,6 +302,23 @@ mod tests {
         let page1: Vec<u64> = roles.iter().skip(per_page).map(|r| r.level).collect();
         assert_eq!(page0, vec![30, 25, 12, 9, 7]);
         assert_eq!(page1, vec![3, 1]);
+    }
+
+    #[test]
+    fn role_fields_substitute_level_and_role_id() {
+        // Template mechanics of `!roles.ts:104-114`: every `${level}`
+        // and `${roleId}` slot is filled, nothing else is touched.
+        let role = RankRole {
+            role_id: "7".to_string(),
+            level: 5,
+        };
+        let (name, value) = rank_role_field_text(
+            "Level ${level}",
+            "Role: <@&${roleId}>\nUnlocked at level ${level}",
+            &role,
+        );
+        assert_eq!(name, "Level 5");
+        assert_eq!(value, "Role: <@&7>\nUnlocked at level 5");
     }
 
     #[test]

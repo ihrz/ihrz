@@ -190,7 +190,6 @@ pub async fn notifier_message(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         let pressed = msg
             .await_component_interaction(ctx.serenity_context().shard.clone())
             .timeout(deadline - now)
-            .filter(move |i| i.user.id == author)
             .await;
         let Some(pressed) = pressed else { break };
         if pressed.user.id != author {
@@ -199,7 +198,7 @@ pub async fn notifier_message(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
                     ctx.http(),
                     serenity::CreateInteractionResponse::Message(
                         serenity::CreateInteractionResponseMessage::new()
-                            .content(say("help_not_for_you", "This is not for you."))
+                            .content(say("help_not_for_you", "This interaction is not for you"))
                             .ephemeral(true),
                     ),
                 )

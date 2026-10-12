@@ -121,13 +121,19 @@ pub async fn derank(
     ))
     .await?;
     let http = ctx.http();
-    // Batched removal (5/100ms). Mirrors processBatchAsync.
+    // Batched removal (5/100ms). Mirrors processBatchAsync. Audit reason
+    // verbatim from !derank.ts ("[Derank] Module"); the Member helper
+    // takes none, so the HTTP leg carries it (like massiverole.rs).
     let mut good = 0usize;
     let mut bad = 0usize;
     let chunks = roles.chunks(5).len();
     for (i, chunk) in roles.chunks(5).enumerate() {
         for role in chunk {
-            if member.remove_role(http, *role).await.is_ok() {
+            if http
+                .remove_member_role(guild_id, target_id, *role, Some("[Derank] Module"))
+                .await
+                .is_ok()
+            {
                 good += 1;
             } else {
                 bad += 1;

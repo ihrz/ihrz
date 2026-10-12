@@ -85,10 +85,7 @@ pub async fn massiverole(
         Some(add) => add,
         None => return Ok(()),
     };
-    let members = guild_id
-        .members(ctx.http(), None, None)
-        .await
-        .unwrap_or_default();
+    let members = fetch_all_members(ctx.http(), guild_id).await;
     let total = members.len();
     let targets: Vec<serenity::UserId> = members
         .iter()
@@ -159,6 +156,33 @@ pub async fn massiverole(
     }
     progress.edit(ctx, reply).await?;
     Ok(())
+}
+
+/// Fetch every guild member over the paged REST endpoint (1000/page).
+/// Mirrors TS guild.members.fetch() with no options, which returns the
+/// whole member list: a single page would cap mass processing at 1000.
+async fn fetch_all_members(
+    http: &serenity::Http,
+    guild_id: serenity::GuildId,
+) -> Vec<serenity::Member> {
+    let mut all = Vec::new();
+    let mut after: Option<serenity::UserId> = None;
+    loop {
+        let page = guild_id
+            .members(http, Some(1000), after)
+            .await
+            .unwrap_or_default();
+        if page.is_empty() {
+            break;
+        }
+        after = page.last().map(|m| m.user.id);
+        let done = page.len() < 1000;
+        all.extend(page);
+        if done {
+            break;
+        }
+    }
+    all
 }
 
 /// Parse the action option. Mirrors the `action === "add"` / `action ===

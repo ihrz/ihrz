@@ -79,12 +79,21 @@ pub async fn addrole(
         }
     }
     // Admin-level escalation guard (addrole only, no delrole twin).
+    // TS checks `user.permissions` (union of all target roles plus
+    // @everyone); the role-union helper alone would miss an admin
+    // @everyone, so it is folded in here.
     if role.permissions.administrator() {
         let target_admin = ctx
             .serenity_context()
             .cache
             .guild(guild_id)
-            .map(|g| has_admin(&g.roles, &member.roles))
+            .map(|g| {
+                has_admin(&g.roles, &member.roles)
+                    || g.roles
+                        .get(&serenity::RoleId::new(guild_id.get()))
+                        .map(|r| r.permissions.administrator())
+                        .unwrap_or(false)
+            })
             .unwrap_or(true);
         if !target_admin {
             ctx.say(t("utils_addrole_cant_level")).await?;
@@ -95,10 +104,17 @@ pub async fn addrole(
         ctx.say(t("utils_addrole_try2brain")).await?;
         return Ok(());
     }
-    // No TS key covers an add failure (TS throws to the executor);
-    // the crash reporter is the matching error path.
-    member.add_role(ctx.http(), role.id).await?;
-    ctx.say(
+    // Audit reason mirrors TS (`[AddRole] Author: ${author.id}`). The
+    // Member helper takes no reason, so the HTTP leg carries it (like
+    // massiverole.rs). No TS key covers an add failure (TS throws to the
+    // executor); the crash reporter is the matching error path.
+    let reason = format!("[AddRole] Author: {}", ctx.author().id.get());
+    ctx.http()
+        .add_member_role(guild_id, user.id, role.id, Some(&reason))
+        .await?;
+    // TS answers with an embed carrying the description (no plain
+    // content, no color/footer).
+    let embed = serenity::CreateEmbed::default().description(
         crate::lang::get(&code, "utils_addrole_command_ok")
             .map(|s| {
                 s.replace("${author.toString()}", &ctx.author().to_string())
@@ -106,7 +122,7 @@ pub async fn addrole(
                     .replace("${user.toString()}", &user.to_string())
             })
             .unwrap_or_else(|| format!("{} got {}.", user.tag(), role.name)),
-    )
-    .await?;
+    );
+    ctx.send(poise::CreateReply::default().embed(embed)).await?;
     Ok(())
 }

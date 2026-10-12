@@ -438,6 +438,11 @@ pub async fn m_nowplaying(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
                 if let Ok((node, session)) = m.live_node_and_session(gid).await {
                     let _ = m.rest_destroy(&node, &session, gid).await;
                 }
+                // `player.destroy()` also drops the voice connection
+                // (lavalink-client disconnects on destroy), while
+                // `rest_destroy` is REST-only: OP4-leave explicitly so
+                // the bot does not linger in the channel.
+                m.leave_voice(gid).await;
                 let (wall, paused_total) = tick_ms(&started, paused_ms, &pause_began);
                 let prog = nowplaying_progress(
                     nowplaying_position_ms(wall, paused_total, duration_ms),

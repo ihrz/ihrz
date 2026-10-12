@@ -235,7 +235,10 @@ pub async fn m_history(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
                         ctx.http(),
                         serenity::EditInteractionResponse::new()
                             .embed(confirm)
-                            .components(vec![mk_row(true)]),
+                            .components(vec![mk_row(true)])
+                            // TS `files: []`: drop the stale `.txt`
+                            // export alongside the deleted entries.
+                            .clear_attachments(),
                     )
                     .await;
                 break;

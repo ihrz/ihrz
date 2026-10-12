@@ -2,11 +2,11 @@ use super::*;
 use poise::serenity_prelude as serenity;
 
 /// Reset one user's ranks.
-// Mirrors `!ureset.ts` (`ranks.ts:190-205`): the slash `user` option
-// is `required: true`, so a missing target on slash errors out; the
-// prefix path falls back to the invoker
-// (`client.func.method.member(...) || interaction.member`), so a
-// bare prefix call resets self.
+// Mirrors `!ureset.ts` (`ranks.ts:175-206`): both paths fall back to the
+// invoker when no member resolves (`getMember("user") ||
+// interaction.member` on slash, `member(...) || interaction.member` on
+// prefix), so a bare call resets self. The slash `user` option is
+// `required: true`, so the fallback only ever fires on prefix.
 #[poise::command(
     slash_command,
     prefix_command,
@@ -30,20 +30,8 @@ pub async fn ranks_ureset(
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let target_id = match user {
         Some(u) => u.id.get(),
-        // Prefix-only self default, like TS `|| interaction.member`.
-        None if matches!(ctx, poise::Context::Prefix(_)) => ctx.author().id.get(),
-        // Slash without a target cannot fall back (TS declares the
-        // option `required: true`): answer the usage reply. The text
-        // lives behind `ranks_ureset_missing_user` (new lang key,
-        // YAML pending) — never a hardcoded string.
-        None => {
-            if let Some(usage) =
-                crate::lang::get(&code, "ranks_ureset_missing_user").filter(|s| !s.is_empty())
-            {
-                ctx.say(usage).await?;
-            }
-            return Ok(());
-        }
+        // Invoker fallback on both paths, like TS (`|| interaction.member`).
+        None => ctx.author().id.get(),
     };
     if !crate::commands::prompt_reset_confirm(
         &ctx,
