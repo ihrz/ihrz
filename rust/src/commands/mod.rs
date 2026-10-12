@@ -94,6 +94,7 @@ pub fn all() -> Vec<poise::Command<Data, Error>> {
         // FLATTEN-B3: ex-guildconfig leaves, top-level like their TS
         // commands (`HybridCommands/guildconfig/*`).
         guildconfig::autoreact::gc_autoreact(),
+        guildconfig::autoreact::gc_toggle_react(),
         guildconfig::commandlimit::gc_commandlimit(),
         guildconfig::setlogschannel::gc_setlogs(),
         guildconfig::support::gc_support(),
@@ -540,7 +541,7 @@ mod tests {
         // / owner / guildconfig / newfeatures / rolereactions leaves now
         // top-level like production) + context entries + split-off utils
         // parents. Discord caps top-level slash at 100.
-        assert_eq!(cmds.len(), 88);
+        assert_eq!(cmds.len(), 89);
         // Every nested leaf keeps working through its parent.
         fn flatten<'a>(
             cmds: &'a [poise::Command<super::Data, super::Error>],
@@ -759,6 +760,7 @@ mod tests {
             "add-react",
             "list-react",
             "remove-react",
+            "toggle-react",
             "welcomer",
             "updates",
             "shardinfo",
@@ -944,7 +946,7 @@ mod tests {
         assert!(has_gate("create-thread", Permissions::ADMINISTRATOR));
         assert!(has_gate("unban-all", Permissions::ADMINISTRATOR));
         assert!(has_gate("sanction", Permissions::ADMINISTRATOR));
-        assert!(has_gate("lobby", Permissions::ADMINISTRATOR));
+        assert!(has_gate("set-voice-channel", Permissions::ADMINISTRATOR));
         // TS @add-react.ts:46 / @remove-react.ts:46 / @list-react.ts.
         assert!(has_gate("add-react", Permissions::MANAGE_GUILD_EXPRESSIONS));
         assert!(has_gate(
@@ -1108,10 +1110,10 @@ mod tests {
                 &["value", "channel", "message_id", "reaction", "role"],
             ),
             ("roleselect", &["channel", "message_id"]),
-            ("lobby", &["channel"]),
-            ("panel", &["channel"]),
-            ("name", &["channel_name"]),
-            ("position", &["position_type"]),
+            ("set-voice-channel", &["channel"]),
+            ("set-text-channel", &["channel"]),
+            ("set-voice-channel-name", &["channel_name"]),
+            ("set-voice-channel-position", &["position_type"]),
         ];
         for (cmd, opts) in EXACT {
             let carriers: Vec<_> = flat.iter().filter(|c| c.name == **cmd).collect();
@@ -1134,7 +1136,7 @@ mod tests {
             ("add", "member"),
             ("remove", "member"),
             ("unowner", "member"),
-            ("category", "category"),
+            ("set-voice-channel-catgory", "category"),
             ("move", "member"),
             ("move", "channel"),
         ];
@@ -1163,12 +1165,12 @@ mod tests {
         // LEGACY-SLASH-STRIP: every other PREFIX_IHORIZON_COMMAND port
         // (MessageCommands/*, never slash-registered in TS, never
         // length-validated) is prefix-only too, plus the !welcomer.ts
-        // panel entry (prefix-only in TS) and the `legacy` organizer
+        // panel entry (prefix-only in TS, named `welcomer` with the
+        // `leaver` alias) and the `legacy` organizer
         // parent (its TS sources are flat MessageCommands, never a
-        // slash parent). help_main and welcomer
-        // stay dual: their TS sources are HybridCommands/bot/help.ts and
-        // the ChatInput welcomer.ts respectively.
-        const PREFIX_ONLY_LEGACY_STRIP: [&str; 23] = [
+        // slash parent). help_main
+        // stays dual: its TS source is HybridCommands/bot/help.ts.
+        const PREFIX_ONLY_LEGACY_STRIP: [&str; 24] = [
             "add-react",
             "antiexe",
             "autologs",
@@ -1189,9 +1191,10 @@ mod tests {
             "two-sides",
             "updates",
             "grosbg",
-            "welcomer-panel",
+            "welcomer",
             "legacy",
             "prefix",
+            "toggle-react",
         ];
         // Rust-only splits of a TS subcommand (wlroles add/list): kept
         // prefix-only so the parent's slash surface matches TS exactly.

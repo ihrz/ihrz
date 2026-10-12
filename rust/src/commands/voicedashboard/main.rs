@@ -6,18 +6,16 @@ use poise::serenity_prelude as serenity;
 // (`voicedashboard.ts`: `interface` holding set-voice-channel,
 // set-text-channel, set-staff-role, set-voice-channel-catgory,
 // set-voice-channel-position, set-voice-channel-name). The Rust leaf
-// slash names stay the pinned port names (lobby/panel/category/name/
-// position/staff — `commands/mod.rs::slash_option_names_match_ts`
-// asserts their option shapes), so only the group level is restored,
-// not the TS leaf renames (including the `catgory` typo, which stays
-// out of the public tree). DB keys (`VOICE_INTERFACE.*`) are unchanged,
+// slash names are the TS-exact names (including the `catgory` typo,
+// kept byte-identical); the `vd_*` Rust fn names are internal only.
+// DB keys (`VOICE_INTERFACE.*`) are unchanged,
 // so existing guild config carries over. Mapping:
-//   interface lobby    (= TS set-voice-channel, VOICE_INTERFACE.voice_channel)
-//   interface panel    (= TS set-text-channel,  VOICE_INTERFACE.interface)
-//   interface category (= TS set-voice-channel-catgory, VOICE_INTERFACE.voice_channel_category)
-//   interface name     (= TS set-voice-channel-name, VOICE_INTERFACE.voice_channel_name)
-//   interface position (= TS set-voice-channel-position, VOICE_INTERFACE.voice_channel_position)
-//   interface staff    (= TS set-staff-role, VOICE_INTERFACE.staff_role)
+//   interface set-voice-channel          (= VOICE_INTERFACE.voice_channel)
+//   interface set-text-channel           (= VOICE_INTERFACE.interface)
+//   interface set-voice-channel-catgory  (= VOICE_INTERFACE.voice_channel_category)
+//   interface set-voice-channel-name     (= VOICE_INTERFACE.voice_channel_name)
+//   interface set-voice-channel-position (= VOICE_INTERFACE.voice_channel_position)
+//   interface set-staff-role             (= VOICE_INTERFACE.staff_role)
 
 pub fn vd_key(field: &str) -> String {
     format!("VOICE_INTERFACE.{field}")
@@ -82,7 +80,7 @@ pub async fn vd_interface(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
 #[poise::command(
     slash_command,
     prefix_command,
-    rename = "lobby",
+    rename = "set-voice-channel",
     default_member_permissions = "ADMINISTRATOR",
     description_localized(
         "fr",
@@ -138,7 +136,7 @@ pub async fn vd_lobby(
 #[poise::command(
     slash_command,
     prefix_command,
-    rename = "panel",
+    rename = "set-text-channel",
     default_member_permissions = "ADMINISTRATOR",
     description_localized(
         "fr",
@@ -251,7 +249,7 @@ pub async fn vd_panel(
 #[poise::command(
     slash_command,
     prefix_command,
-    rename = "category",
+    rename = "set-voice-channel-catgory",
     default_member_permissions = "ADMINISTRATOR",
     description_localized("fr", "Définit la catégorie où le canal perso va être créé"),
     description_localized("ja", "ボイスチャンネルが作成されるチャンネルを設定！"),
@@ -303,7 +301,7 @@ pub async fn vd_category(
 #[poise::command(
     slash_command,
     prefix_command,
-    rename = "name",
+    rename = "set-voice-channel-name",
     default_member_permissions = "ADMINISTRATOR",
     description_localized("fr", "Définit le nom du salon où le canal va être créé"),
     description_localized("ja", "ボイスチャンネル作成時の名前を設定！"),
@@ -388,7 +386,7 @@ impl PositionChoice {
 #[poise::command(
     slash_command,
     prefix_command,
-    rename = "position",
+    rename = "set-voice-channel-position",
     default_member_permissions = "ADMINISTRATOR",
     description_localized(
         "fr",
@@ -475,7 +473,7 @@ pub fn staff_roles_value(ids: &[String]) -> String {
 #[poise::command(
     slash_command,
     prefix_command,
-    rename = "staff",
+    rename = "set-staff-role",
     default_member_permissions = "ADMINISTRATOR",
     description_localized(
         "fr",

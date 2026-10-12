@@ -2566,11 +2566,6 @@ mod tests {
         );
         assert!(opt(legacy, "nitrofdp").get("options").is_none());
         assert!(opt(legacy, "securewebhook").get("options").is_none());
-        // Slash legs under the same parent are unaffected.
-        assert_eq!(
-            loc(&opt(legacy, "welcomer")["description_localizations"], "ja"),
-            "ウェルカマーモジュールを設定！"
-        );
     }
 
     /// One-off dev utility: regenerate src/files/commands.json from the

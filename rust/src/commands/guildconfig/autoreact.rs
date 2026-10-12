@@ -180,6 +180,81 @@ pub async fn gc_autoreact(
     Ok(())
 }
 
+/// Pure toggle for the greeting-reaction switch. Mirrors
+/// `@toggle-react.ts` (`set(hey_reaction, !state)`): a missing key
+/// reads as disabled, so the first toggle writes `true`.
+pub fn toggle_hey_reaction_value(raw: Option<&str>) -> bool {
+    !matches!(raw.map(|s| s.trim()), Some("true"))
+}
+
+/// Enable / Disable the reaction when user greets someone
+#[poise::command(
+    prefix_command,
+    category = "guildconfig",
+    rename = "toggle-react",
+    aliases("react-toggle", "togglereact", "reacttoggle"),
+    description_localized(
+        "fr",
+        "Activer/Désactiver la réaction lorsque l'utilisateur salue quelqu'un"
+    ),
+    description_localized("ja", "ユーザーが挨拶した時のリアクションを有効/無効"),
+    description_localized("ru", "Включить/выключить реакцию при приветствии"),
+    description_localized(
+        "es-ES",
+        "Habilitar / Deshabilitar la reacción cuando un usuario saluda a alguien"
+    ),
+    // @toggle-react.ts: permission ManageGuildExpressions.
+    default_member_permissions = "MANAGE_GUILD_EXPRESSIONS"
+)]
+pub async fn gc_toggle_react(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
+    // Mirrors the TS guard (`!interaction.guild` -> silent return).
+    let Some(guild_id) = ctx.guild_id() else {
+        return Ok(());
+    };
+    let gid = guild_id.get().to_string();
+    let pool = &ctx.data().pool;
+    let raw = crate::commands::owner::main::routed_get(
+        pool,
+        &gid,
+        &gid,
+        "GUILD.GUILD_CONFIG.hey_reaction",
+    )
+    .await;
+    let next = toggle_hey_reaction_value(raw.as_deref());
+    crate::commands::owner::main::routed_set(
+        pool,
+        &gid,
+        &gid,
+        "GUILD.GUILD_CONFIG.hey_reaction",
+        &next.to_string(),
+    )
+    .await?;
+    let code = crate::db::guild_lang(pool, ctx.guild_id().map(|g| g.get())).await;
+    let active_msg = if next {
+        crate::lang::get(&code, "toggle_react_react").unwrap_or_else(|| "react".to_string())
+    } else {
+        crate::lang::get(&code, "toggle_react_doesnt_react")
+            .unwrap_or_else(|| "no longer react".to_string())
+    };
+    ctx.say(
+        crate::lang::get(&code, "toggle_react_command_work")
+            .map(|s| {
+                s.replace("{activeMsg}", &active_msg).replace(
+                    "${interaction.member?.id}",
+                    &ctx.author().id.get().to_string(),
+                )
+            })
+            .unwrap_or_else(|| {
+                format!(
+                    "<@{}>, now when a member sends a welcome message, the bot will **{active_msg}**",
+                    ctx.author().id.get()
+                )
+            }),
+    )
+    .await?;
+    Ok(())
+}
+
 /// One 5-per-page slice of the desc-sorted channel list (TS
 /// `itemsPerPage = 5`, `parseInt(levelB) - parseInt(levelA)` order).
 /// Pure so the paging math is unit-testable; page is 1-based.
@@ -341,5 +416,32 @@ mod tests {
         // Phantom key is never written anymore.
         let phantom = crate::db::kv_get(&pool, "g1", "GUILD.AUTOREACT.enabled").await;
         assert_eq!(phantom, None);
+    }
+
+    #[test]
+    fn hey_reaction_toggle_mirrors_ts_negation() {
+        // TS `!state`: missing/false -> true, true -> false.
+        assert!(toggle_hey_reaction_value(None));
+        assert!(toggle_hey_reaction_value(Some("false")));
+        assert!(!toggle_hey_reaction_value(Some("true")));
+        assert!(!toggle_hey_reaction_value(Some(" true ")));
+    }
+
+    #[tokio::test]
+    async fn toggle_react_round_trips_through_routed_store() {
+        let pool = memory_pool().await;
+        let key = "GUILD.GUILD_CONFIG.hey_reaction";
+        // Missing key enables first (TS `!undefined === true`)...
+        let raw = crate::commands::owner::main::routed_get(&pool, "g1", "g1", key).await;
+        assert!(raw.is_none());
+        let next = toggle_hey_reaction_value(raw.as_deref());
+        assert!(next);
+        crate::commands::owner::main::routed_set(&pool, "g1", "g1", key, &next.to_string())
+            .await
+            .unwrap();
+        // ...then disables (TS `!true === false`).
+        let raw2 = crate::commands::owner::main::routed_get(&pool, "g1", "g1", key).await;
+        assert_eq!(raw2.as_deref(), Some("true"));
+        assert!(!toggle_hey_reaction_value(raw2.as_deref()));
     }
 }

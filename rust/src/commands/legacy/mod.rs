@@ -2044,7 +2044,6 @@ pub mod shardinfo;
 pub mod status_embed;
 pub mod two_sides;
 pub mod updates;
-pub mod welcomer;
 
 /// Old registry path (`legacy::main::*`) kept working.
 #[allow(unused_imports)]
@@ -2068,6 +2067,5 @@ pub mod main {
     pub use super::status_embed::*;
     pub use super::two_sides::*;
     pub use super::updates::*;
-    pub use super::welcomer::*;
     pub use super::*;
 }

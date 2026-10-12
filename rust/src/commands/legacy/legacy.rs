@@ -5,7 +5,6 @@ use super::{
     langstats::langstats, list_react::list_react, nitrofdp::nitrofdp,
     rap_vs_reality::rap_vs_reality, remove_react::remove_react, securewebhook::securewebhook,
     shardinfo::shardinfo, status_embed::status_embed, two_sides::two_sides, updates::updates,
-    welcomer::welcomer,
 };
 
 /// Subcommand for legacy category!
@@ -31,8 +30,7 @@ use super::{
         "shardinfo",
         "status_embed",
         "two_sides",
-        "updates",
-        "welcomer"
+        "updates"
     ),
     subcommand_required
 )]
