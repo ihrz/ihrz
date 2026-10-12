@@ -1295,7 +1295,7 @@ pub async fn load_notified_articles(
     gid: &str,
 ) -> Vec<crate::commands::blogger::NotifiedArticle> {
     use crate::commands::blogger::parse_notified_articles;
-    let backend = crate::backends::Backend::sqlite(pool.clone());
+    let backend = crate::db::backend_for(pool);
     if let Ok(Some(value)) = backend
         .table(gid)
         .get::<serde_json::Value>("BLOGGER.lastArticleNotified")
@@ -1325,7 +1325,7 @@ pub async fn record_notified_articles(
     let mut capped: Vec<crate::commands::blogger::NotifiedArticle> = list.to_vec();
     truncate_notified_articles(&mut capped);
     let raw = serde_json::to_string(&capped).unwrap_or_else(|_| "[]".to_string());
-    crate::backends::Backend::sqlite(pool.clone())
+    crate::db::backend_for(pool)
         .table(gid)
         .set("BLOGGER.lastArticleNotified", &raw)
         .await?;
@@ -3023,7 +3023,7 @@ pub fn push_notified_media(
 
 /// Store read: guild-table row first, legacy kv fallback.
 pub async fn load_notified_media(pool: &Pool, gid: &str) -> Vec<NotifiedMedia> {
-    let backend = crate::backends::Backend::sqlite(pool.clone());
+    let backend = crate::db::backend_for(pool);
     if let Ok(Some(value)) = backend
         .table(gid)
         .get::<serde_json::Value>("NOTIFIER.lastMediaNotified")
@@ -3075,7 +3075,7 @@ pub async fn record_notified_media(
     list = push_notified_media(list, entry.clone());
     truncate_notified_media(&mut list);
     let raw = serde_json::to_string(&list).unwrap_or_else(|_| "[]".to_string());
-    crate::backends::Backend::sqlite(pool.clone())
+    crate::db::backend_for(pool)
         .table(gid)
         .set("NOTIFIER.lastMediaNotified", &raw)
         .await?;
@@ -3349,7 +3349,7 @@ pub async fn sweep_notifier(
                     truncate_notified_media(&mut notified);
                     let raw_list =
                         serde_json::to_string(&notified).unwrap_or_else(|_| "[]".to_string());
-                    let _ = crate::backends::Backend::sqlite(pool.clone())
+                    let _ = crate::db::backend_for(pool)
                         .table(gid)
                         .set("NOTIFIER.lastMediaNotified", &raw_list)
                         .await;

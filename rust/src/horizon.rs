@@ -970,7 +970,10 @@ fn serve_connection(
         .unwrap_or(Duration::from_millis(LOGIN_TIMEOUT_FALLBACK_MS));
     let mut session: Option<String> = None;
 
-    if shared.config.username.is_some() || shared.config.password.is_some() {
+    // Both credentials are required before any (re-)login, mirroring
+    // `username !== undefined && password !== undefined` in
+    // sdk/src/connection.ts: half credentials mean anonymous access.
+    if shared.config.username.is_some() && shared.config.password.is_some() {
         let username = shared.config.username.clone().unwrap_or_default();
         let password = shared.config.password.clone().unwrap_or_default();
         match login_sync(&mut sock, &username, &password, login_deadline) {
@@ -1185,8 +1188,8 @@ fn serve_loop(
                         if is_err {
                             let msg = err.unwrap_or_else(|| "unknown server error".to_owned());
                             if contains_ci(&msg, "session")
-                                && (shared.config.username.is_some()
-                                    || shared.config.password.is_some())
+                                && shared.config.username.is_some()
+                                && shared.config.password.is_some()
                             {
                                 // Mirrors `request()` re-auth: one re-login,
                                 // then the operation is retried once.
@@ -2015,6 +2018,62 @@ mod tests {
         let db = client.default_table();
         db.set("k", Value::from(1)).await.expect("recovered");
         assert_eq!(db.get("k").await.unwrap(), Some(Value::from(1)));
+        client.close();
+    }
+
+    #[tokio::test]
+    async fn half_credentials_send_no_login_like_ts() {
+        // TS `Connection` only logs in when BOTH username and password are
+        // defined; half credentials mean anonymous access, never an
+        // empty-password login attempt.
+        let server = MockServer::spawn(true, false, false).await;
+        let client = HorizonClient::with_config(HorizonConfig {
+            url: server.url(),
+            username: Some("user".to_owned()),
+            password: None,
+            request_timeout_ms: 2_000,
+            reconnect_base_ms: 10,
+            reconnect_max_ms: 50,
+        });
+        client.ready().await.expect("ready without login");
+        let db = client.default_table();
+        db.set("k", Value::from(1)).await.expect("op works");
+        assert_eq!(db.get("k").await.unwrap(), Some(Value::from(1)));
+        let packets = server.state.packets.lock().unwrap();
+        assert!(
+            packets
+                .iter()
+                .all(|p| p.get("operation").and_then(|v| v.as_str()) != Some("login")),
+            "no login packet with half credentials"
+        );
+        client.close();
+    }
+
+    #[tokio::test]
+    async fn half_credentials_do_not_reauth_on_session_error() {
+        // Same `&&` gate as `request()` in the TS SDK: without both
+        // credentials a session rejection surfaces as-is (Op) instead of
+        // triggering a doomed re-login with an empty password.
+        let server = MockServer::spawn(true, true, false).await;
+        let client = HorizonClient::with_config(HorizonConfig {
+            url: server.url(),
+            username: Some("user".to_owned()),
+            password: None,
+            request_timeout_ms: 2_000,
+            reconnect_base_ms: 10,
+            reconnect_max_ms: 50,
+        });
+        client.ready().await.expect("ready without login");
+        let db = client.default_table();
+        let err = db.get("k").await.expect_err("session rejected");
+        assert_eq!(err.kind(), ErrorKind::Op);
+        let packets = server.state.packets.lock().unwrap();
+        assert!(
+            packets
+                .iter()
+                .all(|p| p.get("operation").and_then(|v| v.as_str()) != Some("login")),
+            "no re-login attempt with half credentials"
+        );
         client.close();
     }
 }

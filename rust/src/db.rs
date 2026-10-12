@@ -1332,4 +1332,22 @@ mod tests {
         assert!(db.exists());
         let _ = std::fs::remove_dir_all(&dir);
     }
+
+    #[tokio::test]
+    async fn init_horizondb_returns_horizon_without_dialing() {
+        // Offline: nothing listens on 127.0.0.1:1, so a successful
+        // `init` proves construction dials nothing (first op connects,
+        // like the TS SDK).
+        let cfg = Config {
+            db_method: "horizondb".to_string(),
+            horizon_db: Some(crate::config::HorizonDbParts {
+                host: "127.0.0.1".to_string(),
+                port: 1,
+                ..Default::default()
+            }),
+            ..Config::default()
+        };
+        let pool = init(&cfg).await.unwrap();
+        assert!(matches!(pool, Pool::Horizon(_)));
+    }
 }

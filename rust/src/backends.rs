@@ -2921,6 +2921,116 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn cached_horizondb_mock_warm_mirror_sync_export() {
+        // W26-U3: CachedBackend over a HorizonDb primary (offline mock)
+        // must work through the generic Backend ops: warm, mirror,
+        // sync_table/sync_once, export_data/all.
+        let b = Backend::cached(Backend::horizondb_mock("ws://127.0.0.1:9"));
+        let c = match &b {
+            Backend::Cached(c) => c.clone(),
+            _ => unreachable!("test builds Backend::Cached, never any other variant"),
+        };
+        assert!(matches!(c.primary(), Backend::HorizonDb(_)));
+
+        // Seed the horizon primary directly, then warm the cache.
+        c.primary()
+            .table("owner")
+            .set("k", json!({"a": 1}))
+            .await
+            .unwrap();
+        c.primary()
+            .table("json")
+            .set("g1", json!({"x": 1}))
+            .await
+            .unwrap();
+        c.warm().await.unwrap();
+        assert_eq!(
+            c.cache().table("owner").get::<Value>("k").await.unwrap(),
+            Some(json!({"a": 1}))
+        );
+        assert_eq!(
+            c.cache().table("json").get::<Value>("g1").await.unwrap(),
+            Some(json!({"x": 1}))
+        );
+
+        // export_data mirrors all() through the cache.
+        let t = b.table("owner");
+        let mut via_all = t.all().await.unwrap();
+        let mut via_export = t.export_data().await.unwrap();
+        via_all.sort_by(|a, b| a.id.cmp(&b.id));
+        via_export.sort_by(|a, b| a.id.cmp(&b.id));
+        assert_eq!(via_all, via_export);
+        assert!(via_all.iter().any(|r| r.id == "k"));
+
+        // Mirror fires on write: primary holds the row with no sync pass.
+        t.set("mk", json!(42)).await.unwrap();
+        assert_eq!(
+            c.primary().table("owner").get::<Value>("mk").await.unwrap(),
+            Some(json!(42))
+        );
+        assert_eq!(t.delete("mk").await.unwrap(), 1);
+        assert_eq!(
+            c.primary().table("owner").get::<Value>("mk").await.unwrap(),
+            None
+        );
+
+        // Writable sync: cache wins, primary converges; stale primary rows
+        // missing from cache are deleted from the primary.
+        c.cache()
+            .table("owner")
+            .set("keep", json!(1))
+            .await
+            .unwrap();
+        c.primary()
+            .table("owner")
+            .set("keep", json!(2))
+            .await
+            .unwrap();
+        c.primary()
+            .table("owner")
+            .set("stale", json!(9))
+            .await
+            .unwrap();
+        c.sync_table("owner").await.unwrap();
+        assert_eq!(
+            c.primary()
+                .table("owner")
+                .get::<Value>("keep")
+                .await
+                .unwrap(),
+            Some(json!(1))
+        );
+        assert_eq!(
+            c.primary()
+                .table("owner")
+                .get::<Value>("stale")
+                .await
+                .unwrap(),
+            None
+        );
+
+        // Read-only sync: primary wins, cache converges.
+        c.primary()
+            .table("api")
+            .set("k", json!("pg"))
+            .await
+            .unwrap();
+        c.cache().table("api").set("k", json!("mem")).await.unwrap();
+        c.sync_once().await.unwrap();
+        assert_eq!(
+            c.cache().table("api").get::<Value>("k").await.unwrap(),
+            Some(json!("pg"))
+        );
+
+        // Database routing over a horizon primary: table + export_data.
+        let db = Database::new(Backend::horizondb_mock("ws://127.0.0.1:9"));
+        db.table("temp").set("k", json!(true)).await.unwrap();
+        assert!(db.table("temp").has("k").await.unwrap());
+        let rows = db.table("temp").export_data().await.unwrap();
+        assert!(rows.iter().any(|r| r.id == "k"));
+    }
+
+    #[tokio::test]
     async fn from_config_cached_postgres_errors_offline() {
         let mut cfg = Config::default();
         cfg.db_method = "cached_postgres".to_string();
