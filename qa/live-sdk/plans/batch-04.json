@@ -5,26 +5,6 @@
   "path": [
    "fun",
    "animals",
-   "dog"
-  ],
-  "options": {}
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "fun",
-   "animals",
-   "dolphin"
-  ],
-  "options": {}
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "fun",
-   "animals",
    "duck"
   ],
   "options": {}
@@ -269,6 +249,26 @@
    "fun",
    "random",
    "rate"
+  ],
+  "options": {}
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "fun",
+   "random",
+   "stench"
+  ],
+  "options": {}
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "fun",
+   "random",
+   "trans"
   ],
   "options": {}
  }

@@ -242,14 +242,6 @@
   "kind": "slash",
   "channel_id": "1509600862346154064",
   "path": [
-   "autologs"
-  ],
-  "options": {}
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
    "automod",
    "block",
    "discord_invite_link"
@@ -265,6 +257,18 @@
    "automod",
    "block",
    "link"
+  ],
+  "options": {
+   "action": 1
+  }
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "automod",
+   "block",
+   "mass-mention"
   ],
   "options": {
    "action": 1

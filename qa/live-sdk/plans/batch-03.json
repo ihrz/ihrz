@@ -4,17 +4,6 @@
   "channel_id": "1509600862346154064",
   "path": [
    "custom",
-   "bio"
-  ],
-  "options": {
-   "action": 1
-  }
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "custom",
    "name"
   ],
   "options": {
@@ -255,14 +244,6 @@
   "kind": "slash",
   "channel_id": "1509600862346154064",
   "path": [
-   "embed"
-  ],
-  "options": {}
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
    "ether"
   ],
   "options": {}
@@ -274,6 +255,26 @@
    "fun",
    "animals",
    "cat"
+  ],
+  "options": {}
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "fun",
+   "animals",
+   "dog"
+  ],
+  "options": {}
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "fun",
+   "animals",
+   "dolphin"
   ],
   "options": {}
  }

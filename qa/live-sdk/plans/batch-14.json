@@ -2,126 +2,126 @@
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".antispam bypass-roles remove <@&999449972615413861>"
+  "content": ".confession channel"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".antispam ignore-channels add <#1509600862346154064>"
+  "content": ".confession config 1"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".antispam ignore-channels clear"
+  "content": ".confession cooldown"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".antispam ignore-channels list"
+  "content": ".confession list"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".antispam ignore-channels remove <#1509600862346154064>"
+  "content": ".confession thread"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".antispam manage"
+  "content": ".counter channel <#1509600862346154064>"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".authrestore get qa"
+  "content": ".counter config 1"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".authrestore roles qa <@&999449972615413861>"
+  "content": ".custom avatar 1"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".authrestore set <#1509600862346154064> qa"
+  "content": ".custom banner 1"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".autologs"
+  "content": ".custom bio 1"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".automod block discord_invite_link 1"
+  "content": ".custom name 1"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".automod block link 1"
+  "content": ".economy balance"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".automod block mass-mention 1"
+  "content": ".economy balance-add 1.0 <@1542861131939577949>"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".automod block spam 1"
+  "content": ".economy balance-remove 1.0 <@1542861131939577949>"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".automod block telegram_link 1"
+  "content": ".economy boost-set <@&999449972615413861> 1"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".autoreact"
+  "content": ".economy config 1"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".backup create"
+  "content": ".economy daily"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".backup list"
+  "content": ".economy deposit qa"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".backup manage"
+  "content": ".economy leaderboard"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".banner server"
+  "content": ".economy manage-rewards set-cooldown 1 qa"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".banner user"
+  "content": ".economy manage-rewards set-money 1 1.0"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".blinfo <@1542861131939577949>"
+  "content": ".economy monthly"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".blogger blog add qa <#1509600862346154064>"
+  "content": ".economy pay 1.0 <@1542861131939577949>"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".blogger blog list"
+  "content": ".economy rob <@1542861131939577949>"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".blogger blog remove qa"
+  "content": ".economy role add <@&999449972615413861> 1.0"
  }
 ]

@@ -2,126 +2,126 @@
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".guildconfig config show"
+  "content": ".legacy list-react"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".guildconfig set welcomer"
+  "content": ".legacy nitrofdp"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".gw create qa"
+  "content": ".legacy rap-vs-reality"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".gw get-all"
+  "content": ".legacy remove-react"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".h247 info"
+  "content": ".legacy securewebhook"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".h247 join"
+  "content": ".legacy shardinfo"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".h247 leave"
+  "content": ".legacy status-embed"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".help"
+  "content": ".legacy two-sides"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".honeypot config qa"
+  "content": ".legacy updates"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".inv addinvites <@1542861131939577949> 1.0"
+  "content": ".links"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".inv invites"
+  "content": ".membercount 1 <#1509600862346154064>"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".inv leaderboard"
+  "content": ".mod baninfo"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".inv removeinvites 1.0"
+  "content": ".mod banlist"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".inv reset"
+  "content": ".mod lock"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".invite"
+  "content": ".mod mutelist"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".iris"
+  "content": ".mod rolepanel"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".join-ghostping channel add <#1509600862346154064>"
+  "content": ".mod unlock"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".join-ghostping channel remove <#1509600862346154064>"
+  "content": ".mod warnlist <@1542861131939577949>"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".join-ghostping ghost-list"
+  "content": ".music clear-queue"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".kisakay"
+  "content": ".music history"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".lastfm config 1"
+  "content": ".music loop 1"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".lastfm login qa qa"
+  "content": ".music lyrics qa"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".legacy add-react"
+  "content": ".music nowplaying"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".legacy antiexe"
+  "content": ".music pause"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".legacy autorespond"
+  "content": ".music play qa"
  }
 ]

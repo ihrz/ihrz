@@ -2,126 +2,126 @@
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".blogger config status 1"
+  "content": ".economy role delete <@&999449972615413861>"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".botinfo"
+  "content": ".economy role list"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".channel hide"
+  "content": ".economy shop"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".channel unhide"
+  "content": ".economy weekly"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".commandlimit 1"
+  "content": ".economy withdraw qa"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".confession channel"
+  "content": ".economy work"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".confession config 1"
+  "content": ".embed"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".confession cooldown"
+  "content": ".ether"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".confession list"
+  "content": ".fun animals cat"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".confession thread"
+  "content": ".fun animals dog"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".counter channel <#1509600862346154064>"
+  "content": ".fun animals dolphin"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".counter config 1"
+  "content": ".fun animals duck"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".custom avatar 1"
+  "content": ".fun animals fox"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".custom banner 1"
+  "content": ".fun animals frog"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".custom bio 1"
+  "content": ".fun animals panda"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".custom name 1"
+  "content": ".fun animals squirrel"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".economy balance"
+  "content": ".fun config 1"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".economy balance-add 1.0 <@1542861131939577949>"
+  "content": ".fun image catsay"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".economy balance-remove 1.0 <@1542861131939577949>"
+  "content": ".fun image transgender"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".economy boost-set <@&999449972615413861> 1"
+  "content": ".fun image tweet qa"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".economy config 1"
+  "content": ".fun image youtube qa"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".economy daily"
+  "content": ".fun interaction 67"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".economy deposit qa"
+  "content": ".fun interaction hack <@1542861131939577949>"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".economy leaderboard"
+  "content": ".fun interaction hug <@1542861131939577949>"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".economy manage-rewards set-cooldown 1 qa"
+  "content": ".fun interaction kiss <@1542861131939577949>"
  }
 ]

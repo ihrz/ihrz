@@ -5,18 +5,6 @@
   "path": [
    "automod",
    "block",
-   "mass-mention"
-  ],
-  "options": {
-   "action": 1
-  }
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "automod",
-   "block",
    "spam"
   ],
   "options": {
@@ -255,6 +243,17 @@
   "path": [
    "custom",
    "banner"
+  ],
+  "options": {
+   "action": 1
+  }
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "custom",
+   "bio"
   ],
   "options": {
    "action": 1

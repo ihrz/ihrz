@@ -2,126 +2,126 @@
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".stats top-messages"
+  "content": ".util allwebhooks"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".stats top-voice"
+  "content": ".util autorenew <#1509600862346154064> qa"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".stats ustats"
+  "content": ".util cooldown 1"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".status"
+  "content": ".util cooldown 1"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".sticky disable"
+  "content": ".util derogation"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".sticky embed qa"
+  "content": ".util inviteinfo qa"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".sticky list"
+  "content": ".util nick-kicker"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".sticky refresh"
+  "content": ".util role-members <@&999449972615413861>"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".sticky show"
+  "content": ".util rolelimit <@&999449972615413861>"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".sticky text qa"
+  "content": ".util serverpic"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".support 1"
+  "content": ".util sync <#1509600862346154064>"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".tag create qa qa"
+  "content": ".util unwlvc"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".tag info qa"
+  "content": ".util wakeup <@1542861131939577949>"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".tag list"
+  "content": ".util where <@1542861131939577949>"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".tag use qa"
+  "content": ".util wlvc"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".tag wlroles-create <@&999449972615413861>"
+  "content": ".util zip-stickers"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".tag wlroles-use <@&999449972615413861>"
+  "content": ".utils addrole <@1542861131939577949> <@&999449972615413861>"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".ticket config 1"
+  "content": ".utils admin-users"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".ticket log-channel <#1509600862346154064>"
+  "content": ".utils allbots"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".ticket panel"
+  "content": ".utils avatar"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".ticket set-category"
+  "content": ".utils delrole <@1542861131939577949> <@&999449972615413861>"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".ticket set-here"
+  "content": ".utils derank"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".toggle-react"
+  "content": ".utils dm 1 <@1542861131939577949> qa"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".tts info"
+  "content": ".utils embed"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".tts join"
+  "content": ".utils emojis qa"
  }
 ]

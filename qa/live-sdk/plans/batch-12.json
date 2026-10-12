@@ -3,12 +3,79 @@
   "kind": "slash",
   "channel_id": "1509600862346154064",
   "path": [
-   "util",
-   "wakeup"
+   "utils",
+   "userinfo"
+  ],
+  "options": {}
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "utils",
+   "vanity-generator"
   ],
   "options": {
-   "member": {
-    "__snowflake": "1542861131939577949"
+   "code": "qa probe"
+  }
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "utils",
+   "vc"
+  ],
+  "options": {}
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "utils",
+   "wlroles"
+  ],
+  "options": {}
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "utils",
+   "zip-emojis"
+  ],
+  "options": {}
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "utilss",
+   "renewvc"
+  ],
+  "options": {}
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "voice",
+   "interface",
+   "set-staff-role"
+  ],
+  "options": {}
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "voice",
+   "interface",
+   "set-text-channel"
+  ],
+  "options": {
+   "channel": {
+    "__snowflake": "1509600862346154064"
    }
   }
  },
@@ -16,12 +83,13 @@
   "kind": "slash",
   "channel_id": "1509600862346154064",
   "path": [
-   "util",
-   "where"
+   "voice",
+   "interface",
+   "set-voice-channel"
   ],
   "options": {
-   "member": {
-    "__snowflake": "1542861131939577949"
+   "channel": {
+    "__snowflake": "1509600862346154064"
    }
   }
  },
@@ -29,33 +97,13 @@
   "kind": "slash",
   "channel_id": "1509600862346154064",
   "path": [
-   "util",
-   "wlvc"
-  ],
-  "options": {}
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "util",
-   "zip-stickers"
-  ],
-  "options": {}
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "utils",
-   "addrole"
+   "voice",
+   "interface",
+   "set-voice-channel-catgory"
   ],
   "options": {
-   "user": {
-    "__snowflake": "1542861131939577949"
-   },
-   "role": {
-    "__snowflake": "999449972615413861"
+   "category": {
+    "__snowflake": "1509600862346154064"
    }
   }
  },
@@ -63,216 +111,92 @@
   "kind": "slash",
   "channel_id": "1509600862346154064",
   "path": [
-   "utils",
-   "admin-users"
-  ],
-  "options": {}
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "utils",
-   "allbots"
-  ],
-  "options": {}
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "utils",
-   "avatar"
-  ],
-  "options": {}
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "utils",
-   "delrole"
+   "voice",
+   "interface",
+   "set-voice-channel-name"
   ],
   "options": {
-   "user": {
-    "__snowflake": "1542861131939577949"
-   },
-   "role": {
-    "__snowflake": "999449972615413861"
-   }
+   "channel_name": "qa probe"
   }
  },
  {
   "kind": "slash",
   "channel_id": "1509600862346154064",
   "path": [
-   "utils",
-   "derank"
-  ],
-  "options": {}
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "utils",
-   "dm"
+   "voice",
+   "interface",
+   "set-voice-channel-position"
   ],
   "options": {
-   "private": 1,
-   "member": {
-    "__snowflake": "1542861131939577949"
-   },
-   "message": "qa probe"
+   "position_type": 1
   }
  },
  {
   "kind": "slash",
   "channel_id": "1509600862346154064",
   "path": [
-   "utils",
-   "embed"
+   "setlang"
   ],
   "options": {}
  },
  {
-  "kind": "slash",
+  "kind": "send",
   "channel_id": "1509600862346154064",
-  "path": [
-   "utils",
-   "emojis"
-  ],
-  "options": {
-   "emojis": "qa probe"
-  }
+  "content": ".allowlist add <@1542861131939577949>"
  },
  {
-  "kind": "slash",
+  "kind": "send",
   "channel_id": "1509600862346154064",
-  "path": [
-   "utils",
-   "leash"
-  ],
-  "options": {
-   "member": {
-    "__snowflake": "1542861131939577949"
-   }
-  }
+  "content": ".allowlist remove <@1542861131939577949>"
  },
  {
-  "kind": "slash",
+  "kind": "send",
   "channel_id": "1509600862346154064",
-  "path": [
-   "utils",
-   "massiverole"
-  ],
-  "options": {
-   "action": 1,
-   "role": {
-    "__snowflake": "999449972615413861"
-   }
-  }
+  "content": ".allowlist show"
  },
  {
-  "kind": "slash",
+  "kind": "send",
   "channel_id": "1509600862346154064",
-  "path": [
-   "utils",
-   "massmove"
-  ],
-  "options": {}
+  "content": ".andru"
  },
  {
-  "kind": "slash",
+  "kind": "send",
   "channel_id": "1509600862346154064",
-  "path": [
-   "utils",
-   "media-only"
-  ],
-  "options": {}
+  "content": ".antispam bypass-roles add <@&999449972615413861>"
  },
  {
-  "kind": "slash",
+  "kind": "send",
   "channel_id": "1509600862346154064",
-  "path": [
-   "utils",
-   "nickrole"
-  ],
-  "options": {
-   "action": 1,
-   "nickname": "qa probe",
-   "role": {
-    "__snowflake": "999449972615413861"
-   }
-  }
+  "content": ".antispam bypass-roles clear"
  },
  {
-  "kind": "slash",
+  "kind": "send",
   "channel_id": "1509600862346154064",
-  "path": [
-   "utils",
-   "prevnames"
-  ],
-  "options": {}
+  "content": ".antispam bypass-roles list"
  },
  {
-  "kind": "slash",
+  "kind": "send",
   "channel_id": "1509600862346154064",
-  "path": [
-   "utils",
-   "serverinfo"
-  ],
-  "options": {}
+  "content": ".antispam bypass-roles remove <@&999449972615413861>"
  },
  {
-  "kind": "slash",
+  "kind": "send",
   "channel_id": "1509600862346154064",
-  "path": [
-   "utils",
-   "setmentionrole"
-  ],
-  "options": {
-   "action": 1
-  }
+  "content": ".antispam ignore-channels add <#1509600862346154064>"
  },
  {
-  "kind": "slash",
+  "kind": "send",
   "channel_id": "1509600862346154064",
-  "path": [
-   "utils",
-   "snipe"
-  ],
-  "options": {}
+  "content": ".antispam ignore-channels clear"
  },
  {
-  "kind": "slash",
+  "kind": "send",
   "channel_id": "1509600862346154064",
-  "path": [
-   "utils",
-   "sticker"
-  ],
-  "options": {}
+  "content": ".antispam ignore-channels list"
  },
  {
-  "kind": "slash",
+  "kind": "send",
   "channel_id": "1509600862346154064",
-  "path": [
-   "utils",
-   "top"
-  ],
-  "options": {}
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "utils",
-   "unleash"
-  ],
-  "options": {
-   "member": {
-    "__snowflake": "1542861131939577949"
-   }
-  }
+  "content": ".antispam ignore-channels remove <#1509600862346154064>"
  }
 ]

@@ -2,126 +2,126 @@
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".fun image youtube qa"
+  "content": ".h247 join"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".fun interaction 67"
+  "content": ".h247 leave"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".fun interaction hack <@1542861131939577949>"
+  "content": ".help"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".fun interaction hug <@1542861131939577949>"
+  "content": ".honeypot config qa"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".fun interaction kiss <@1542861131939577949>"
+  "content": ".inv addinvites <@1542861131939577949> 1.0"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".fun interaction love"
+  "content": ".inv invites"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".fun interaction poll qa"
+  "content": ".inv leaderboard"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".fun interaction question"
+  "content": ".inv removeinvites 1.0"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".fun interaction slap <@1542861131939577949>"
+  "content": ".inv reset"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".fun random dice"
+  "content": ".invite"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".fun random gay"
+  "content": ".iris"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".fun random heads-tails"
+  "content": ".join-ghostping channel add <#1509600862346154064>"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".fun random number"
+  "content": ".join-ghostping channel remove <#1509600862346154064>"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".fun random rate"
+  "content": ".kisakay"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".fun random stench"
+  "content": ".lastfm config 1"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".fun random trans"
+  "content": ".lastfm login qa qa"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".fun style caracteres"
+  "content": ".legacy add-react"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".fun style morse"
+  "content": ".legacy antiexe"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".git lines"
+  "content": ".legacy autorespond"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".grosbg"
+  "content": ".legacy fexini"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".guildconfig block bot 1"
+  "content": ".legacy h"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".guildconfig block too-new-account 1"
+  "content": ".legacy help_main"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".guildconfig bot prefix 1"
+  "content": ".legacy helpall"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".guildconfig config restore"
+  "content": ".legacy kawaeine"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".guildconfig config save"
+  "content": ".legacy langstats"
  }
 ]

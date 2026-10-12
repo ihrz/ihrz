@@ -19,6 +19,16 @@
 #   PAIRED            lock/unlock + hide/unhide run adjacent on the
 #                     dedicated CMD2 channel, never the test channel.
 #   LAST              setlang runs at the very end (changes guild lang).
+#   PREFIX-ONLY       messageCmd-only leaves with no slash registration
+#                     (legacy/*, grosbg, toggle-react, utils sticker/top):
+#                     slash never emitted, PREFIX form only.
+#   REMAPPED          stale leaf redirected to its true registered slash path
+#                     (embed->utils embed, prefix->guildconfig bot prefix,
+#                     welcomer->guildconfig set welcomer, autologs->setlogs,
+#                     unslowmode->util cooldown); the stale PREFIX form stays.
+#   SKIP-STALE        commands.json entry with no handler and no live
+#                     registration (utils wlroles-add/list, join-ghostping
+#                     ghost-list): neither form emitted.
 # Everything else runs with safe probe values (self targets only,
 # @everyone for roles, TEST_CHANNEL for channels, "qa probe" strings).
 
@@ -34,6 +44,55 @@ GUILD_ID = "999449972615413861"
 TEST_CHANNEL = "1509600862346154064"  # cmd-1
 CMD2_CHANNEL = "1509600863512170496"  # cmd-2 (paired lock/hide target)
 PREFIX = "."
+
+# Live-registration fixes (verified against qa/live-sdk/discover-commands.json,
+# 82 actually-registered app commands, plus the TS sources in
+# src/Interaction/MessageCommands + HybridCommands + SlashCommands).
+#
+# PREFIX_ONLY_TOPS / PREFIX_ONLY_PATHS: messageCmd-only leaves with no slash
+# registration. Slash is never emitted for these; only the PREFIX form.
+#   legacy/*      -> the `legacy` top is absent from the live registry; the
+#                    leaves are MessageCommands (messageCmd: 1).
+#   grosbg        -> PREFIX_IHORIZON_COMMAND joke reply, no slash leg.
+#   toggle-react  -> PREFIX_IHORIZON_COMMAND, no slash leg (aliases
+#                    react-toggle/togglereact/reacttoggle are prefix-only too).
+#   utils sticker, utils top -> PREFIX_IHORIZON_COMMAND, absent from the live
+#                    `utils` children.
+# STALE_SKIP_PATHS: commands.json entries with no handler at all (no .ts
+# implementation) and no live registration. Neither form is emitted.
+# SLASH_REMAP: stale leaf -> TRUE registered slash path (+ fixed options).
+#   embed      -> utils embed (parity: "ts leaf utils embed").
+#   prefix     -> guildconfig bot prefix (commandFullName; slash leg in
+#                 SlashCommands/guildconfig/!prefix.ts, alias setprefix).
+#   welcomer   -> guildconfig set welcomer (commandFullName; slash leg in
+#                 SlashCommands/guildconfig/!welcomer.ts).
+#   autologs   -> setlogs with type=0 ("Setup all channels"): the prefix
+#                 wrapper delegates to setlogschannel run ["auto"].
+#   unslowmode -> util cooldown with duration=0 ("None"): the prefix wrapper
+#                 delegates to the cooldown subCommand run ["0"].
+# The stale leaf keeps its PREFIX form under its real message-command name.
+PREFIX_ONLY_TOPS = {"legacy"}
+PREFIX_ONLY_PATHS = {
+    "grosbg", "toggle-react",
+    "utils sticker", "utils top",
+}
+STALE_SKIP_PATHS = {
+    "utils wlroles-add", "utils wlroles-list",
+    "join-ghostping ghost-list",
+}
+SLASH_REMAP = {
+    "embed": (["utils", "embed"], None),
+    "prefix": (["guildconfig", "bot", "prefix"], None),
+    "welcomer": (["guildconfig", "set", "welcomer"], None),
+    "autologs": (["setlogs"], {"type": 0}),
+    "unslowmode": (["util", "cooldown"], {"duration": 0}),
+}
+# Slash path -> content path for the PREFIX form (message-command names
+# differ from the space-joined slash path here).
+PREFIX_OVERRIDE = {
+    "utils sticker": ["sticker"],
+    "utils top": ["top"],
+}
 
 # Full slash paths (space-joined) skipped: destructive / spawning.
 SKIP_DESTRUCTIVE = {
@@ -146,11 +205,29 @@ def walk():
 def build():
     leaves = walk()
     slash_actions, skips = [], []
+    prefix_only_leaves = []  # (path, options, note): slash suppressed, prefix kept
     paired_paths = {tuple(p) for pair in PAIRED for p in pair}
+    seen_slash = set()
 
     def emit_slash(path, options, note=""):
+        key = (tuple(path), json.dumps(options, sort_keys=True))
+        if key in seen_slash:
+            return
+        seen_slash.add(key)
         slash_actions.append({"kind": "slash", "channel_id": TEST_CHANNEL,
                               "path": path, "options": options, "_note": note})
+
+    def resolve_required(path):
+        data = json.load(open(DUMP, encoding="utf8"))
+        cur = next((c for c in data if c["name"] == path[0]), None)
+        for seg in path[1:]:
+            nxt = next((o for o in ((cur or {}).get("options") or [])
+                        if o["name"] == seg), None)
+            cur = nxt
+        if cur is None:
+            return None
+        return [o for o in (cur.get("options") or [])
+                if o.get("required") and (o.get("type") or 0) >= 3]
 
     for path, options, top_type in leaves:
         full = " ".join(path)
@@ -159,6 +236,33 @@ def build():
             continue
         if full in SKIP_CONTEXT:
             skips.append((full, "SKIP-CONTEXT"))
+            continue
+        if full in STALE_SKIP_PATHS:
+            skips.append((full, "SKIP-STALE(no-live-registration-no-handler)"))
+            continue
+        if path[0] in PREFIX_ONLY_TOPS or full in PREFIX_ONLY_PATHS:
+            prefix_only_leaves.append((path, options, full + " [prefix-only]"))
+            continue
+        if full in SLASH_REMAP:
+            true_path, preset = SLASH_REMAP[full]
+            req = resolve_required(true_path)
+            if req is None:
+                skips.append((full, "SKIP-STALE(remap-target-missing)"))
+                continue
+            values = dict(preset) if preset else {}
+            ok = True
+            if not preset:
+                for o in req:
+                    v = safe_value(o)
+                    if v is None:
+                        ok = False
+                        break
+                    values[o["name"]] = v
+            if not ok:
+                skips.append((full, "SKIP-ATTACHMENT(optional-unmapped)"))
+                continue
+            emit_slash(true_path, values, f"remap-from:{full}")
+            prefix_only_leaves.append((path, options, full + " [prefix-only]"))
             continue
         if top_type in (2, 3) and len(path) == 1:
             if top_type == 3:
@@ -184,8 +288,13 @@ def build():
         emit_slash(path, values)
 
     # Prefix form for every emitted slash leaf (positional required args).
+    # Context-menu commands (type 2/3, note user-context) have no prefix
+    # form: the bot stays silent on those sends by design.
     prefix_actions = []
     for a in slash_actions:
+        if (a.get("_note") or "").startswith("user-context"):
+            skips.append((" ".join(a["path"]) + " [prefix]", "SKIP-CONTEXT(no-prefix-form)"))
+            continue
         path = a["path"]
         full = " ".join(path)
         leaf_opts = None
@@ -210,6 +319,27 @@ def build():
             continue
         prefix_actions.append({"kind": "send", "channel_id": TEST_CHANNEL,
                                "content": " ".join(parts), "_note": full})
+
+    # Prefix form for slash-suppressed leaves: messageCmd-only entries and
+    # remapped stale leaves keep their real message-command name.
+    for path, options, note in prefix_only_leaves:
+        full = " ".join(path)
+        content_path = list(PREFIX_OVERRIDE.get(full) or path)
+        req = [o for o in options if o.get("required")]
+        parts = [PREFIX + " ".join(content_path)]
+        ok = True
+        for o in req:
+            v = safe_value(o)
+            arg = prefix_arg(o, v) if v is not None else None
+            if arg is None:
+                ok = False
+                break
+            parts.append(arg)
+        if not ok:
+            skips.append((full + " [prefix]", "SKIP-ATTACHMENT"))
+            continue
+        prefix_actions.append({"kind": "send", "channel_id": TEST_CHANNEL,
+                               "content": " ".join(parts), "_note": note})
 
     # Order: slash first, then prefix; setlang dead last; paired adjacent.
     def sort_key(a):

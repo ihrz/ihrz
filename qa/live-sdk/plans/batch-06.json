@@ -3,36 +3,6 @@
   "kind": "slash",
   "channel_id": "1509600862346154064",
   "path": [
-   "invite"
-  ],
-  "options": {}
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "iris"
-  ],
-  "options": {}
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "join-ghostping",
-   "channel",
-   "add"
-  ],
-  "options": {
-   "channel": {
-    "__snowflake": "1509600862346154064"
-   }
-  }
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
    "join-ghostping",
    "channel",
    "remove"
@@ -42,15 +12,6 @@
     "__snowflake": "1509600862346154064"
    }
   }
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "join-ghostping",
-   "ghost-list"
-  ],
-  "options": {}
  },
  {
   "kind": "slash",
@@ -87,8 +48,7 @@
   "kind": "slash",
   "channel_id": "1509600862346154064",
   "path": [
-   "legacy",
-   "add-react"
+   "links"
   ],
   "options": {}
  },
@@ -96,8 +56,21 @@
   "kind": "slash",
   "channel_id": "1509600862346154064",
   "path": [
-   "legacy",
-   "antiexe"
+   "membercount"
+  ],
+  "options": {
+   "action": 1,
+   "channel": {
+    "__snowflake": "1509600862346154064"
+   }
+  }
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "mod",
+   "baninfo"
   ],
   "options": {}
  },
@@ -105,8 +78,8 @@
   "kind": "slash",
   "channel_id": "1509600862346154064",
   "path": [
-   "legacy",
-   "autorespond"
+   "mod",
+   "banlist"
   ],
   "options": {}
  },
@@ -114,8 +87,8 @@
   "kind": "slash",
   "channel_id": "1509600862346154064",
   "path": [
-   "legacy",
-   "fexini"
+   "mod",
+   "mutelist"
   ],
   "options": {}
  },
@@ -123,8 +96,8 @@
   "kind": "slash",
   "channel_id": "1509600862346154064",
   "path": [
-   "legacy",
-   "h"
+   "mod",
+   "rolepanel"
   ],
   "options": {}
  },
@@ -132,8 +105,21 @@
   "kind": "slash",
   "channel_id": "1509600862346154064",
   "path": [
-   "legacy",
-   "help_main"
+   "mod",
+   "warnlist"
+  ],
+  "options": {
+   "member": {
+    "__snowflake": "1542861131939577949"
+   }
+  }
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "music",
+   "clear-queue"
   ],
   "options": {}
  },
@@ -141,8 +127,8 @@
   "kind": "slash",
   "channel_id": "1509600862346154064",
   "path": [
-   "legacy",
-   "helpall"
+   "music",
+   "history"
   ],
   "options": {}
  },
@@ -150,8 +136,30 @@
   "kind": "slash",
   "channel_id": "1509600862346154064",
   "path": [
-   "legacy",
-   "kawaeine"
+   "music",
+   "loop"
+  ],
+  "options": {
+   "mode": 1
+  }
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "music",
+   "lyrics"
+  ],
+  "options": {
+   "query": "qa probe"
+  }
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "music",
+   "nowplaying"
   ],
   "options": {}
  },
@@ -159,8 +167,8 @@
   "kind": "slash",
   "channel_id": "1509600862346154064",
   "path": [
-   "legacy",
-   "langstats"
+   "music",
+   "pause"
   ],
   "options": {}
  },
@@ -168,8 +176,19 @@
   "kind": "slash",
   "channel_id": "1509600862346154064",
   "path": [
-   "legacy",
-   "list-react"
+   "music",
+   "play"
+  ],
+  "options": {
+   "title": "qa probe"
+  }
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "music",
+   "queue"
   ],
   "options": {}
  },
@@ -177,8 +196,8 @@
   "kind": "slash",
   "channel_id": "1509600862346154064",
   "path": [
-   "legacy",
-   "nitrofdp"
+   "music",
+   "resume"
   ],
   "options": {}
  },
@@ -186,8 +205,8 @@
   "kind": "slash",
   "channel_id": "1509600862346154064",
   "path": [
-   "legacy",
-   "rap-vs-reality"
+   "music",
+   "shuffle"
   ],
   "options": {}
  },
@@ -195,8 +214,8 @@
   "kind": "slash",
   "channel_id": "1509600862346154064",
   "path": [
-   "legacy",
-   "remove-react"
+   "music",
+   "skip"
   ],
   "options": {}
  },
@@ -204,8 +223,8 @@
   "kind": "slash",
   "channel_id": "1509600862346154064",
   "path": [
-   "legacy",
-   "securewebhook"
+   "music",
+   "stop"
   ],
   "options": {}
  },
@@ -213,8 +232,8 @@
   "kind": "slash",
   "channel_id": "1509600862346154064",
   "path": [
-   "legacy",
-   "shardinfo"
+   "music",
+   "trackinfo"
   ],
   "options": {}
  },
@@ -222,18 +241,11 @@
   "kind": "slash",
   "channel_id": "1509600862346154064",
   "path": [
-   "legacy",
-   "status-embed"
+   "music",
+   "volume"
   ],
-  "options": {}
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "legacy",
-   "two-sides"
-  ],
-  "options": {}
+  "options": {
+   "level": 1
+  }
  }
 ]

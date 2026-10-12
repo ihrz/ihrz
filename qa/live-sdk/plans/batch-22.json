@@ -2,126 +2,126 @@
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".rolereaction 1 <#1509600862346154064> qa"
+  "content": ".sticky embed qa"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".rolesaver 1"
+  "content": ".sticky list"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".roleselect qa qa"
+  "content": ".sticky refresh"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".say qa"
+  "content": ".sticky show"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".schedule create qa qa qa"
+  "content": ".sticky text qa"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".schedule list"
+  "content": ".support 1"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".schedule panel"
+  "content": ".tag create qa qa"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".security channel <#1509600862346154064>"
+  "content": ".tag info qa"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".security config 1"
+  "content": ".tag list"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".security role-to-give <@&999449972615413861>"
+  "content": ".tag use qa"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".security role-to-remove <@&999449972615413861>"
+  "content": ".tag wlroles-create <@&999449972615413861>"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".setlogs 1"
+  "content": ".tag wlroles-use <@&999449972615413861>"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".setsuggest channel <#1509600862346154064>"
+  "content": ".ticket config 1"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".setsuggest config 1"
+  "content": ".ticket log-channel <#1509600862346154064>"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".skullboard channel <#1509600862346154064>"
+  "content": ".ticket panel"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".skullboard config 1"
+  "content": ".ticket set-category"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".skullboard create-thread 1"
+  "content": ".ticket set-here"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".skullboard threshold 1"
+  "content": ".toggle-react"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".starboard channel <#1509600862346154064>"
+  "content": ".tts info"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".starboard config 1"
+  "content": ".tts join"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".starboard create-thread 1"
+  "content": ".tts lang"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".starboard threshold 1"
+  "content": ".tts leave"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".stats channel-stats"
+  "content": ".unslowmode"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".stats compare"
+  "content": ".util addrolereact qa <@&999449972615413861>"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".stats gstats"
+  "content": ".util admin-roles"
  }
 ]

@@ -4,26 +4,6 @@
   "channel_id": "1509600862346154064",
   "path": [
    "fun",
-   "random",
-   "stench"
-  ],
-  "options": {}
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "fun",
-   "random",
-   "trans"
-  ],
-  "options": {}
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "fun",
    "style",
    "caracteres"
   ],
@@ -45,14 +25,6 @@
   "path": [
    "git",
    "lines"
-  ],
-  "options": {}
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "grosbg"
   ],
   "options": {}
  },
@@ -249,5 +221,35 @@
    "reset"
   ],
   "options": {}
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "invite"
+  ],
+  "options": {}
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "iris"
+  ],
+  "options": {}
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "join-ghostping",
+   "channel",
+   "add"
+  ],
+  "options": {
+   "channel": {
+    "__snowflake": "1509600862346154064"
+   }
+  }
  }
 ]

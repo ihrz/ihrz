@@ -2,126 +2,126 @@
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".music history"
+  "content": ".profil set-gender 1"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".music loop 1"
+  "content": ".profil set-pronoun 1"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".music lyrics qa"
+  "content": ".profil show"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".music nowplaying"
+  "content": ".protect actions qa"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".music pause"
+  "content": ".protect allow-add <@1542861131939577949>"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".music play qa"
+  "content": ".protect allow-remove <@1542861131939577949>"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".music queue"
+  "content": ".protect allow-show"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".music resume"
+  "content": ".protect sanction 1"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".music shuffle"
+  "content": ".protect show"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".music skip"
+  "content": ".punishpub"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".music stop"
+  "content": ".ranks channel"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".music trackinfo"
+  "content": ".ranks config 1"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".music volume 1"
+  "content": ".ranks ignore-channels"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".nightmode"
+  "content": ".ranks leaderboard"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".noaimie"
+  "content": ".ranks message"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".notifier author add 1 qa"
+  "content": ".ranks roles"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".notifier author list"
+  "content": ".ranks show"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".notifier author remove 1 qa"
+  "content": ".report qa"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".notifier config channel <#1509600862346154064>"
+  "content": ".rolebutton 1 qa qa"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".notifier config message"
+  "content": ".rolereaction 1 <#1509600862346154064> qa"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".perm command 1"
+  "content": ".rolesaver 1"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".perm edit-roles 1 <@&999449972615413861>"
+  "content": ".roleselect qa qa"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".perm list"
+  "content": ".say qa"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".perm set-user <@1542861131939577949> 1"
+  "content": ".schedule create qa qa qa"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".pfps channel"
+  "content": ".schedule list"
  }
 ]

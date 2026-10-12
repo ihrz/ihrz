@@ -2,126 +2,126 @@
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".economy manage-rewards set-money 1 1.0"
+  "content": ".fun interaction love"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".economy monthly"
+  "content": ".fun interaction poll qa"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".economy pay 1.0 <@1542861131939577949>"
+  "content": ".fun interaction question"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".economy rob <@1542861131939577949>"
+  "content": ".fun interaction slap <@1542861131939577949>"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".economy role add <@&999449972615413861> 1.0"
+  "content": ".fun random dice"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".economy role delete <@&999449972615413861>"
+  "content": ".fun random gay"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".economy role list"
+  "content": ".fun random heads-tails"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".economy shop"
+  "content": ".fun random number"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".economy weekly"
+  "content": ".fun random rate"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".economy withdraw qa"
+  "content": ".fun random stench"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".economy work"
+  "content": ".fun random trans"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".embed"
+  "content": ".fun style caracteres"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".ether"
+  "content": ".fun style morse"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".fun animals cat"
+  "content": ".git lines"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".fun animals dog"
+  "content": ".grosbg"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".fun animals dolphin"
+  "content": ".guildconfig block bot 1"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".fun animals duck"
+  "content": ".guildconfig block too-new-account 1"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".fun animals fox"
+  "content": ".guildconfig bot prefix 1"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".fun animals frog"
+  "content": ".guildconfig config restore"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".fun animals panda"
+  "content": ".guildconfig config save"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".fun animals squirrel"
+  "content": ".guildconfig config show"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".fun config 1"
+  "content": ".guildconfig set welcomer"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".fun image catsay"
+  "content": ".gw create qa"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".fun image transgender"
+  "content": ".gw get-all"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".fun image tweet qa"
+  "content": ".h247 info"
  }
 ]

@@ -2,126 +2,126 @@
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".pfps config 1"
+  "content": ".schedule panel"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".ping"
+  "content": ".security channel <#1509600862346154064>"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".prefix"
+  "content": ".security config 1"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".profil set-age"
+  "content": ".security role-to-give <@&999449972615413861>"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".profil set-birthday"
+  "content": ".security role-to-remove <@&999449972615413861>"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".profil set-description"
+  "content": ".setlogs 1"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".profil set-gender 1"
+  "content": ".setlogs 1"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".profil set-pronoun 1"
+  "content": ".setsuggest channel <#1509600862346154064>"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".profil show"
+  "content": ".setsuggest config 1"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".protect actions qa"
+  "content": ".skullboard channel <#1509600862346154064>"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".protect allow-add <@1542861131939577949>"
+  "content": ".skullboard config 1"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".protect allow-remove <@1542861131939577949>"
+  "content": ".skullboard create-thread 1"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".protect allow-show"
+  "content": ".skullboard threshold 1"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".protect sanction 1"
+  "content": ".starboard channel <#1509600862346154064>"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".protect show"
+  "content": ".starboard config 1"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".punishpub"
+  "content": ".starboard create-thread 1"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".ranks channel"
+  "content": ".starboard threshold 1"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".ranks config 1"
+  "content": ".stats channel-stats"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".ranks ignore-channels"
+  "content": ".stats compare"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".ranks leaderboard"
+  "content": ".stats gstats"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".ranks message"
+  "content": ".stats top-messages"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".ranks roles"
+  "content": ".stats top-voice"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".ranks show"
+  "content": ".stats ustats"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".report qa"
+  "content": ".status"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".rolebutton 1 qa qa"
+  "content": ".sticky disable"
  }
 ]

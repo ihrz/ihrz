@@ -3,243 +3,6 @@
   "kind": "slash",
   "channel_id": "1509600862346154064",
   "path": [
-   "tag",
-   "wlroles-use"
-  ],
-  "options": {
-   "role": {
-    "__snowflake": "999449972615413861"
-   }
-  }
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "ticket",
-   "config"
-  ],
-  "options": {
-   "action": 1
-  }
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "ticket",
-   "log-channel"
-  ],
-  "options": {
-   "channel": {
-    "__snowflake": "1509600862346154064"
-   }
-  }
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "ticket",
-   "panel"
-  ],
-  "options": {}
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "ticket",
-   "set-category"
-  ],
-  "options": {}
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "ticket",
-   "set-here"
-  ],
-  "options": {}
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "toggle-react"
-  ],
-  "options": {}
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "tts",
-   "info"
-  ],
-  "options": {}
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "tts",
-   "join"
-  ],
-  "options": {}
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "tts",
-   "lang"
-  ],
-  "options": {}
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "tts",
-   "leave"
-  ],
-  "options": {}
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "unslowmode"
-  ],
-  "options": {}
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "util",
-   "addrolereact"
-  ],
-  "options": {
-   "message_id": "qa probe",
-   "role": {
-    "__snowflake": "999449972615413861"
-   }
-  }
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "util",
-   "admin-roles"
-  ],
-  "options": {}
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "util",
-   "allwebhooks"
-  ],
-  "options": {}
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "util",
-   "autorenew"
-  ],
-  "options": {
-   "channel": {
-    "__snowflake": "1509600862346154064"
-   },
-   "time": "qa probe"
-  }
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "util",
-   "cooldown"
-  ],
-  "options": {
-   "duration": 1
-  }
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "util",
-   "derogation"
-  ],
-  "options": {}
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "util",
-   "inviteinfo"
-  ],
-  "options": {
-   "discord_invite": "qa probe"
-  }
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "util",
-   "nick-kicker"
-  ],
-  "options": {}
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "util",
-   "role-members"
-  ],
-  "options": {
-   "role": {
-    "__snowflake": "999449972615413861"
-   }
-  }
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "util",
-   "rolelimit"
-  ],
-  "options": {
-   "role": {
-    "__snowflake": "999449972615413861"
-   }
-  }
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "util",
-   "serverpic"
-  ],
-  "options": {}
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
    "util",
    "sync"
   ],
@@ -257,5 +20,263 @@
    "unwlvc"
   ],
   "options": {}
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "util",
+   "wakeup"
+  ],
+  "options": {
+   "member": {
+    "__snowflake": "1542861131939577949"
+   }
+  }
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "util",
+   "where"
+  ],
+  "options": {
+   "member": {
+    "__snowflake": "1542861131939577949"
+   }
+  }
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "util",
+   "wlvc"
+  ],
+  "options": {}
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "util",
+   "zip-stickers"
+  ],
+  "options": {}
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "utils",
+   "addrole"
+  ],
+  "options": {
+   "user": {
+    "__snowflake": "1542861131939577949"
+   },
+   "role": {
+    "__snowflake": "999449972615413861"
+   }
+  }
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "utils",
+   "admin-users"
+  ],
+  "options": {}
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "utils",
+   "allbots"
+  ],
+  "options": {}
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "utils",
+   "avatar"
+  ],
+  "options": {}
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "utils",
+   "delrole"
+  ],
+  "options": {
+   "user": {
+    "__snowflake": "1542861131939577949"
+   },
+   "role": {
+    "__snowflake": "999449972615413861"
+   }
+  }
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "utils",
+   "derank"
+  ],
+  "options": {}
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "utils",
+   "dm"
+  ],
+  "options": {
+   "private": 1,
+   "member": {
+    "__snowflake": "1542861131939577949"
+   },
+   "message": "qa probe"
+  }
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "utils",
+   "embed"
+  ],
+  "options": {}
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "utils",
+   "emojis"
+  ],
+  "options": {
+   "emojis": "qa probe"
+  }
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "utils",
+   "leash"
+  ],
+  "options": {
+   "member": {
+    "__snowflake": "1542861131939577949"
+   }
+  }
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "utils",
+   "massiverole"
+  ],
+  "options": {
+   "action": 1,
+   "role": {
+    "__snowflake": "999449972615413861"
+   }
+  }
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "utils",
+   "massmove"
+  ],
+  "options": {}
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "utils",
+   "media-only"
+  ],
+  "options": {}
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "utils",
+   "nickrole"
+  ],
+  "options": {
+   "action": 1,
+   "nickname": "qa probe",
+   "role": {
+    "__snowflake": "999449972615413861"
+   }
+  }
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "utils",
+   "prevnames"
+  ],
+  "options": {}
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "utils",
+   "serverinfo"
+  ],
+  "options": {}
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "utils",
+   "setmentionrole"
+  ],
+  "options": {
+   "action": 1
+  }
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "utils",
+   "snipe"
+  ],
+  "options": {}
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "utils",
+   "unleash"
+  ],
+  "options": {
+   "member": {
+    "__snowflake": "1542861131939577949"
+   }
+  }
  }
 ]

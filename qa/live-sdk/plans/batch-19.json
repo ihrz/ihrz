@@ -2,126 +2,126 @@
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".legacy fexini"
+  "content": ".music queue"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".legacy h"
+  "content": ".music resume"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".legacy help_main"
+  "content": ".music shuffle"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".legacy helpall"
+  "content": ".music skip"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".legacy kawaeine"
+  "content": ".music stop"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".legacy langstats"
+  "content": ".music trackinfo"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".legacy list-react"
+  "content": ".music volume 1"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".legacy nitrofdp"
+  "content": ".nightmode"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".legacy rap-vs-reality"
+  "content": ".noaimie"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".legacy remove-react"
+  "content": ".notifier author add 1 qa"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".legacy securewebhook"
+  "content": ".notifier author list"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".legacy shardinfo"
+  "content": ".notifier author remove 1 qa"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".legacy status-embed"
+  "content": ".notifier config channel <#1509600862346154064>"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".legacy two-sides"
+  "content": ".notifier config message"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".legacy updates"
+  "content": ".perm command 1"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".links"
+  "content": ".perm edit-roles 1 <@&999449972615413861>"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".membercount 1 <#1509600862346154064>"
+  "content": ".perm list"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".mod baninfo"
+  "content": ".perm set-user <@1542861131939577949> 1"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".mod banlist"
+  "content": ".pfps channel"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".mod lock"
+  "content": ".pfps config 1"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".mod mutelist"
+  "content": ".ping"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".mod rolepanel"
+  "content": ".prefix"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".mod unlock"
+  "content": ".profil set-age"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".mod warnlist <@1542861131939577949>"
+  "content": ".profil set-birthday"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".music clear-queue"
+  "content": ".profil set-description"
  }
 ]

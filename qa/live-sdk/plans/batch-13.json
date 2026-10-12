@@ -1,213 +1,127 @@
 [
  {
-  "kind": "slash",
+  "kind": "send",
   "channel_id": "1509600862346154064",
-  "path": [
-   "utils",
-   "userinfo"
-  ],
-  "options": {}
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "utils",
-   "vanity-generator"
-  ],
-  "options": {
-   "code": "qa probe"
-  }
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "utils",
-   "vc"
-  ],
-  "options": {}
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "utils",
-   "wlroles"
-  ],
-  "options": {}
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "utils",
-   "wlroles-add"
-  ],
-  "options": {}
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "utils",
-   "wlroles-list"
-  ],
-  "options": {}
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "utils",
-   "zip-emojis"
-  ],
-  "options": {}
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "utilss",
-   "renewvc"
-  ],
-  "options": {}
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "voice",
-   "interface",
-   "set-staff-role"
-  ],
-  "options": {}
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "voice",
-   "interface",
-   "set-text-channel"
-  ],
-  "options": {
-   "channel": {
-    "__snowflake": "1509600862346154064"
-   }
-  }
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "voice",
-   "interface",
-   "set-voice-channel"
-  ],
-  "options": {
-   "channel": {
-    "__snowflake": "1509600862346154064"
-   }
-  }
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "voice",
-   "interface",
-   "set-voice-channel-catgory"
-  ],
-  "options": {
-   "category": {
-    "__snowflake": "1509600862346154064"
-   }
-  }
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "voice",
-   "interface",
-   "set-voice-channel-name"
-  ],
-  "options": {
-   "channel_name": "qa probe"
-  }
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "voice",
-   "interface",
-   "set-voice-channel-position"
-  ],
-  "options": {
-   "position_type": 1
-  }
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "welcomer"
-  ],
-  "options": {}
- },
- {
-  "kind": "slash",
-  "channel_id": "1509600862346154064",
-  "path": [
-   "setlang"
-  ],
-  "options": {}
+  "content": ".antispam manage"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".Estimate the love"
+  "content": ".authrestore get qa"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".User Lookup"
+  "content": ".authrestore roles qa <@&999449972615413861>"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".allowlist add <@1542861131939577949>"
+  "content": ".authrestore set <#1509600862346154064> qa"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".allowlist remove <@1542861131939577949>"
+  "content": ".autologs"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".allowlist show"
+  "content": ".automod block discord_invite_link 1"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".andru"
+  "content": ".automod block link 1"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".antispam bypass-roles add <@&999449972615413861>"
+  "content": ".automod block mass-mention 1"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".antispam bypass-roles clear"
+  "content": ".automod block spam 1"
  },
  {
   "kind": "send",
   "channel_id": "1509600862346154064",
-  "content": ".antispam bypass-roles list"
+  "content": ".automod block telegram_link 1"
+ },
+ {
+  "kind": "send",
+  "channel_id": "1509600862346154064",
+  "content": ".autoreact"
+ },
+ {
+  "kind": "send",
+  "channel_id": "1509600862346154064",
+  "content": ".backup create"
+ },
+ {
+  "kind": "send",
+  "channel_id": "1509600862346154064",
+  "content": ".backup list"
+ },
+ {
+  "kind": "send",
+  "channel_id": "1509600862346154064",
+  "content": ".backup manage"
+ },
+ {
+  "kind": "send",
+  "channel_id": "1509600862346154064",
+  "content": ".banner server"
+ },
+ {
+  "kind": "send",
+  "channel_id": "1509600862346154064",
+  "content": ".banner user"
+ },
+ {
+  "kind": "send",
+  "channel_id": "1509600862346154064",
+  "content": ".blinfo <@1542861131939577949>"
+ },
+ {
+  "kind": "send",
+  "channel_id": "1509600862346154064",
+  "content": ".blogger blog add qa <#1509600862346154064>"
+ },
+ {
+  "kind": "send",
+  "channel_id": "1509600862346154064",
+  "content": ".blogger blog list"
+ },
+ {
+  "kind": "send",
+  "channel_id": "1509600862346154064",
+  "content": ".blogger blog remove qa"
+ },
+ {
+  "kind": "send",
+  "channel_id": "1509600862346154064",
+  "content": ".blogger config status 1"
+ },
+ {
+  "kind": "send",
+  "channel_id": "1509600862346154064",
+  "content": ".botinfo"
+ },
+ {
+  "kind": "send",
+  "channel_id": "1509600862346154064",
+  "content": ".channel hide"
+ },
+ {
+  "kind": "send",
+  "channel_id": "1509600862346154064",
+  "content": ".channel unhide"
+ },
+ {
+  "kind": "send",
+  "channel_id": "1509600862346154064",
+  "content": ".commandlimit 1"
  }
 ]
