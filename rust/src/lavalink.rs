@@ -36,7 +36,7 @@ use lava_rs::events::{
 };
 use lava_rs::model::{Track, VoiceState};
 use lava_rs::node::health::NodeStats;
-use lava_rs::rest::{LoadResult, Player as RestPlayer, UpdatePlayerPayload};
+use lava_rs::rest::{LoadResult, UpdatePlayerPayload};
 use lava_rs::ws::session::ReadyPayload;
 use lava_rs::{LavalinkConfig, LavalinkError};
 use poise::serenity_prelude as serenity;
@@ -2460,12 +2460,20 @@ impl LavalinkManager {
         res.json::<T>().await.map_err(MusicError::from)
     }
 
-    async fn rest_patch<T: serde::de::DeserializeOwned>(
+    /// PATCH a player endpoint and accept any 2xx body. Lavalink minor
+    /// versions drift the player object shape (e.g. 4.2.x returns
+    /// `voice.channelId: null` before the voice handshake, which the
+    /// strict lava-rs `RestPlayer` model rejects with a decode error);
+    /// none of our callers read the response body, so decoding it
+    /// strictly only turned server-side shape drift into user-facing
+    /// "problem with the song queue" failures (TS lavalink-client
+    /// ignores unknown/absent fields the same way).
+    async fn rest_patch_ok(
         &self,
         node: &NodeEntry,
         endpoint: &str,
         payload: &UpdatePlayerPayload,
-    ) -> Result<T, MusicError> {
+    ) -> Result<(), MusicError> {
         let res = self
             .http
             .patch(format!("{}{endpoint}", node.base_url()))
@@ -2478,7 +2486,7 @@ impl LavalinkManager {
             let body = res.text().await.unwrap_or_default();
             return Err(MusicError::Rest(status.as_u16(), body));
         }
-        res.json::<T>().await.map_err(MusicError::from)
+        Ok(())
     }
 
     async fn rest_delete(&self, node: &NodeEntry, endpoint: &str) -> Result<(), MusicError> {
@@ -2512,13 +2520,13 @@ impl LavalinkManager {
         guild_id: u64,
         encoded: &str,
         no_replace: bool,
-    ) -> Result<RestPlayer, MusicError> {
+    ) -> Result<(), MusicError> {
         let endpoint = format!("/v4/sessions/{session}/players/{guild_id}?noReplace={no_replace}");
         let payload = UpdatePlayerPayload {
             encoded_track: Some(encoded.to_string()),
             ..Default::default()
         };
-        self.rest_patch(node, &endpoint, &payload).await
+        self.rest_patch_ok(node, &endpoint, &payload).await
     }
 
     pub async fn rest_set_paused(
@@ -2527,19 +2535,19 @@ impl LavalinkManager {
         session: &str,
         guild_id: u64,
         paused: bool,
-    ) -> Result<RestPlayer, MusicError> {
+    ) -> Result<(), MusicError> {
         let endpoint = format!("/v4/sessions/{session}/players/{guild_id}?noReplace=false");
         let payload = UpdatePlayerPayload {
             paused: Some(paused),
             ..Default::default()
         };
-        let out: RestPlayer = self.rest_patch(node, &endpoint, &payload).await?;
+        let out = self.rest_patch_ok(node, &endpoint, &payload).await;
         // Forward the flip to the scrobble clock (mirrors the
         // lavalink-client `playerUpdate` -> `handlePlayerUpdate` leg;
         // the change guard inside makes the pre-set commands idempotent).
         self.handle_player_update(guild_id, paused, now_ms_wall())
             .await;
-        Ok(out)
+        out
     }
 
     pub async fn rest_set_volume(
@@ -2548,13 +2556,13 @@ impl LavalinkManager {
         session: &str,
         guild_id: u64,
         volume: u8,
-    ) -> Result<RestPlayer, MusicError> {
+    ) -> Result<(), MusicError> {
         let endpoint = format!("/v4/sessions/{session}/players/{guild_id}?noReplace=false");
         let payload = UpdatePlayerPayload {
             volume: Some(volume),
             ..Default::default()
         };
-        self.rest_patch(node, &endpoint, &payload).await
+        self.rest_patch_ok(node, &endpoint, &payload).await
     }
 
     pub async fn rest_destroy(
@@ -2604,13 +2612,13 @@ impl LavalinkManager {
         session: &str,
         guild_id: u64,
         voice: VoiceState,
-    ) -> Result<RestPlayer, MusicError> {
+    ) -> Result<(), MusicError> {
         let endpoint = format!("/v4/sessions/{session}/players/{guild_id}?noReplace=false");
         let payload = UpdatePlayerPayload {
             voice: Some(voice),
             ..Default::default()
         };
-        self.rest_patch(node, &endpoint, &payload).await
+        self.rest_patch_ok(node, &endpoint, &payload).await
     }
 
     // ---- player state access ----
@@ -3575,6 +3583,7 @@ pub fn manager() -> &'static LavalinkManager {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use lava_rs::rest::Player as RestPlayer;
 
     fn sample_track(title: &str) -> QueuedTrack {
         QueuedTrack {
@@ -5088,5 +5097,30 @@ mod tests {
     fn default_volume_is_75() {
         assert_eq!(DEFAULT_VOLUME, 75);
         assert_eq!(GuildPlayer::new().volume, 75);
+    }
+
+    /// Lavalink 4.2.x returns `voice.channelId: null` on player PATCH
+    /// responses before the voice handshake completes. The strict
+    /// lava-rs `RestPlayer` model requires `channel_id: String`, so
+    /// decoding the body strictly fails with "error decoding response
+    /// body" — this was the live `/play` queue failure. Player PATCH
+    /// helpers therefore ignore the body (`rest_patch_ok`); this test
+    /// pins the strict-decode failure so nobody reintroduces it.
+    #[test]
+    fn lavalink422_null_voice_channel_breaks_strict_player_decode() {
+        let body = serde_json::json!({
+            "guildId": "1",
+            "track": null,
+            "volume": 100,
+            "paused": false,
+            "state": { "time": 1, "position": 2, "connected": false, "ping": 3 },
+            "voice": { "token": "", "endpoint": "", "sessionId": "", "channelId": null },
+            "filters": {}
+        });
+        let raw = serde_json::to_vec(&body).expect("fixture serializes");
+        assert!(
+            serde_json::from_slice::<RestPlayer>(&raw).is_err(),
+            "strict RestPlayer decode must keep failing on null channelId"
+        );
     }
 }

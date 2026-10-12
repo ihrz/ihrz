@@ -5,6 +5,11 @@ use std::time::{Duration, Instant};
 pub const NOWPLAYING_REFRESH_MS: u64 = 5900;
 /// Streams report `length_ms == 0`; bound their collector like a long track.
 const STREAM_COLLECTOR_CAP_MS: u64 = 600_000;
+/// TS `!nowplaying.ts:44` artwork fallback, shared with `!trackinfo.ts`.
+pub const NOWPLAYING_ARTWORK_FALLBACK: &str =
+    "https://www.ihorizon.org/assets/img/unknown-user.png";
+/// The `nowPlaying` HTML card TS hands to html2png (`!nowplaying.ts:46-55`).
+const NOWPLAYING_CARD_TEMPLATE: &str = include_str!("../../../../src/assets/html/nowPlaying.html");
 
 /// `MM:SS` clock, mirroring TS `formatTime` (`padStart(2, "0")`).
 pub fn format_clock_secs(secs: u64) -> String {
@@ -92,21 +97,118 @@ pub fn trim_lyrics_1997(s: &str) -> String {
     }
 }
 
+/// TS `!nowplaying.ts:37-43` embed: title `**title**, author`, URL, a
+/// `by: <@requester>`-only description (no progress bar — progress lives
+/// in the `nowPlaying` HTML card image), dominant `color1` with the
+/// `#6fa8dc` fallback, and a timestamp.
 fn nowplaying_embed(
     title: &str,
     author: &str,
     uri: Option<&str>,
     requester_id: u64,
-    prog: &NowProgress,
+    colour: u32,
 ) -> serenity::CreateEmbed {
     let mut embed = serenity::CreateEmbed::default()
         .title(format!("**{title}**, {author}"))
-        .description(format!("by: <@{requester_id}>\n{}", prog.bar))
-        .colour(0x6FA8DC);
+        .description(format!("by: <@{requester_id}>"))
+        .colour(colour)
+        .timestamp(serenity::Timestamp::now());
     if let Some(u) = uri.filter(|u| !u.is_empty()) {
         embed = embed.url(u);
     }
     embed
+}
+
+/// Artwork with the TS `unknown-user.png` fallback
+/// (`!nowplaying.ts:44`, also used by `!trackinfo.ts`).
+pub fn artwork_or_fallback(artwork: Option<&str>) -> &str {
+    artwork
+        .filter(|u| !u.is_empty())
+        .unwrap_or(NOWPLAYING_ARTWORK_FALLBACK)
+}
+
+/// `String((position / duration) * 100)` exactly like the TS
+/// `time0` (`generateProgressBar` — raw float division, so `0/0`
+/// renders `"NaN"` and `x/0` renders `"Infinity"`).
+pub fn card_percent_js(position_ms: u64, duration_ms: u64) -> String {
+    if duration_ms == 0 {
+        if position_ms == 0 {
+            "NaN".to_string()
+        } else {
+            "Infinity".to_string()
+        }
+    } else {
+        ((position_ms as f64 / duration_ms as f64) * 100.0).to_string()
+    }
+}
+
+/// Fill the `nowPlaying` HTML template (`src/assets/html/nowPlaying.html`,
+/// rendered by html2png in TS). Placeholder names are the template's own.
+#[allow(clippy::too_many_arguments)] // one arg per template placeholder
+pub fn nowplaying_card_html(
+    title: &str,
+    author: &str,
+    artwork_url: &str,
+    color1: &str,
+    color2: &str,
+    percent: &str,
+    current: &str,
+    total: &str,
+) -> String {
+    NOWPLAYING_CARD_TEMPLATE
+        .replace("{album_cover}", artwork_url)
+        .replace("{song_title}", title)
+        .replace("{song_author}", author)
+        .replace("{color1}", color1)
+        .replace("{color2}", color2)
+        .replace("{time0}", percent)
+        .replace("{time1}", current)
+        .replace("{time2}", total)
+}
+
+/// `#rrggbb` (or `rrggbb`) to a serenity colour, with the TS
+/// `|| "#6fa8dc"` fallback on anything unparsable.
+pub fn parse_hex_colour(s: &str) -> u32 {
+    let hex = s.trim().strip_prefix('#').unwrap_or(s.trim());
+    u32::from_str_radix(hex, 16).unwrap_or(0x6FA8DC)
+}
+
+/// Render the filled card through HorizonGateway (`omitBackground` +
+/// full-page, mirroring the TS `html2png` options). `None` on any
+/// failure so the caller falls back to the text embed.
+async fn render_nowplaying_png(base: &str, token: &str, html: &str) -> Option<Vec<u8>> {
+    crate::funcs::gateway_render_html(
+        base,
+        token,
+        html,
+        r#"{"omitBackground":true,"selectElement":false}"#,
+        &[],
+        Some(std::time::Duration::from_secs(30)),
+    )
+    .await
+    .ok()
+}
+
+/// Announce a pause/stop line in the player's text channel like TS
+/// (`player.textChannelId` via `channel.send`); falls back to the
+/// interaction reply when the channel is unknown or the send fails.
+async fn announce_to_player_channel(
+    ctx: &Ctx<'_>,
+    m: &crate::lavalink::LavalinkManager,
+    gid: u64,
+    text: &str,
+) {
+    let channel = m.snapshot(gid).await.and_then(|s| s.text_channel);
+    if let Some(ch) = channel {
+        if serenity::ChannelId::new(ch)
+            .say(ctx.http(), text)
+            .await
+            .is_ok()
+        {
+            return;
+        }
+    }
+    let _ = ctx.say(text).await;
 }
 
 fn percent_encode(s: &str) -> String {
@@ -269,13 +371,63 @@ pub async fn m_nowplaying(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         };
 
     let prog = nowplaying_progress(0, duration_ms);
-    let embed = nowplaying_embed(
+    // TS `!nowplaying.ts:44-55`: dominant colors off the artwork (with
+    // the unknown-user.png fallback), then the nowPlaying HTML card via
+    // html2png. Here the card renders through HorizonGateway; when the
+    // gateway is unset or the render fails, the text embed goes out
+    // alone (plus the legacy Spotify SVG banner, kept from the
+    // no-browser era).
+    let artwork = artwork_or_fallback(track.artwork.as_deref()).to_string();
+    let (color1, color2) = match crate::funcs::image_dominant_color(&artwork).await {
+        Ok((c1, c2)) => (c1, c2),
+        Err(_) => ("#6fa8dc".to_string(), "#6fa8dc".to_string()),
+    };
+    let colour = parse_hex_colour(&color1);
+    let card_gateway: Option<(String, String)> = ctx
+        .data()
+        .config
+        .gateway_internal()
+        .map(|base| (base, crate::config::api_token().unwrap_or_default()));
+    let mut embed = nowplaying_embed(
         &track.title,
         &track.author,
         track.uri.as_deref(),
         requester_id,
-        &prog,
+        colour,
     );
+    let mut reply = poise::CreateReply::default();
+    let mut card_rendered = false;
+    if let Some((ref base, ref token)) = card_gateway {
+        let html = nowplaying_card_html(
+            &track.title,
+            &track.author,
+            &artwork,
+            &color1,
+            &color2,
+            &card_percent_js(0, duration_ms),
+            &prog.current,
+            &prog.total,
+        );
+        if let Some(png) = render_nowplaying_png(base, token, &html).await {
+            embed = embed.image("attachment://nowplaying.png");
+            reply = reply.attachment(serenity::CreateAttachment::bytes(png, "nowplaying.png"));
+            card_rendered = true;
+        }
+    }
+    if !card_rendered {
+        // Spotify-sourced tracks keep the SVG banner card (TS .spotify-banner
+        // html2png equivalent, no browser here).
+        let preview = preview_for_track(&track).await;
+        if preview.source == Some(MetaSource::Spotify) {
+            let state = if paused { "paused" } else { "playing" };
+            let svg = spotify_banner_svg(&preview.title, preview.artist.as_deref(), state);
+            reply = reply.attachment(serenity::CreateAttachment::bytes(
+                svg.into_bytes(),
+                "nowplaying.svg",
+            ));
+        }
+    }
+    reply = reply.embed(embed);
     // Emoji-only buttons mirroring `!nowplaying.ts:58-76`: customIds
     // `stop` / `pause` / `lyrics` with the Music_Stop / Pause / Paper
     // app emojis, no labels.
@@ -295,20 +447,7 @@ pub async fn m_nowplaying(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
                 .style(serenity::ButtonStyle::Secondary),
         ])
     };
-    let mut reply = poise::CreateReply::default()
-        .embed(embed)
-        .components(vec![mk_row()]);
-    // Spotify-sourced tracks keep the SVG banner card (TS .spotify-banner
-    // html2png equivalent, no browser here).
-    let preview = preview_for_track(&track).await;
-    if preview.source == Some(MetaSource::Spotify) {
-        let state = if paused { "paused" } else { "playing" };
-        let svg = spotify_banner_svg(&preview.title, preview.artist.as_deref(), state);
-        reply = reply.attachment(serenity::CreateAttachment::bytes(
-            svg.into_bytes(),
-            "nowplaying.svg",
-        ));
-    }
+    reply = reply.components(vec![mk_row()]);
     let handle = ctx.send(reply).await?;
     let Ok(mut msg) = handle.into_message().await else {
         return Ok(());
@@ -333,16 +472,37 @@ pub async fn m_nowplaying(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
                     if !paused {
                         let pos = nowplaying_position_ms(wall, paused_total, duration_ms);
                         let prog = nowplaying_progress(pos, duration_ms);
-                        let fresh = nowplaying_embed(
+                        let mut fresh = nowplaying_embed(
                             &t.title,
                             &t.author,
                             t.uri.as_deref(),
                             requester_id,
-                            &prog,
+                            colour,
                         );
-                        let _ = msg
-                            .edit(ctx.http(), serenity::EditMessage::new().embed(fresh))
-                            .await;
+                        // TS re-renders the whole HTML card every 5.9s
+                        // (`displayNowPlaying` per tick): same fill, same
+                        // artwork/colors (same track), fresh clock.
+                        let mut edit = serenity::EditMessage::new();
+                        if let Some((ref base, ref token)) = card_gateway {
+                            let html = nowplaying_card_html(
+                                &t.title,
+                                &t.author,
+                                &artwork,
+                                &color1,
+                                &color2,
+                                &card_percent_js(pos, duration_ms),
+                                &prog.current,
+                                &prog.total,
+                            );
+                            if let Some(png) = render_nowplaying_png(base, token, &html).await {
+                                fresh = fresh.image("attachment://nowplaying.png");
+                                edit = edit.new_attachment(serenity::CreateAttachment::bytes(
+                                    png,
+                                    "nowplaying.png",
+                                ));
+                            }
+                        }
+                        let _ = msg.edit(ctx.http(), edit.embed(fresh)).await;
                     }
                 }
                 _ => break,
@@ -380,17 +540,12 @@ pub async fn m_nowplaying(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
                 if let Ok((node, session)) = m.live_node_and_session(gid).await {
                     let _ = m.rest_set_paused(&node, &session, gid, paused).await;
                 }
-                let (wall, paused_total) = tick_ms(&started, paused_ms, &pause_began);
-                let prog = nowplaying_progress(
-                    nowplaying_position_ms(wall, paused_total, duration_ms),
-                    duration_ms,
-                );
                 let fresh = nowplaying_embed(
                     &track.title,
                     &track.author,
                     track.uri.as_deref(),
                     requester_id,
-                    &prog,
+                    colour,
                 );
                 let _ = press
                     .create_response(
@@ -415,7 +570,7 @@ pub async fn m_nowplaying(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
                 let text = crate::lang::get(&code, key)
                     .map(|s| s.replace("${interaction.user}", &invoker_mention))
                     .unwrap_or_else(|| format!("{invoker_mention} **{fallback}**"));
-                let _ = ctx.say(text).await;
+                announce_to_player_channel(&ctx, m, gid, &text).await;
             }
             "stop" => {
                 let snap = m.snapshot(gid).await;
@@ -443,17 +598,12 @@ pub async fn m_nowplaying(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
                 // `rest_destroy` is REST-only: OP4-leave explicitly so
                 // the bot does not linger in the channel.
                 m.leave_voice(gid).await;
-                let (wall, paused_total) = tick_ms(&started, paused_ms, &pause_began);
-                let prog = nowplaying_progress(
-                    nowplaying_position_ms(wall, paused_total, duration_ms),
-                    duration_ms,
-                );
                 let fresh = nowplaying_embed(
                     &track.title,
                     &track.author,
                     track.uri.as_deref(),
                     requester_id,
-                    &prog,
+                    colour,
                 );
                 let _ = press
                     .create_response(
@@ -468,40 +618,77 @@ pub async fn m_nowplaying(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
                 let text = crate::lang::get(&code, "nowplaying_stop_buttom")
                     .map(|s| s.replace("${interaction.user}", &invoker_mention))
                     .unwrap_or_else(|| format!("{invoker_mention} **stopped** the music!"));
-                let _ = ctx.say(text).await;
+                announce_to_player_channel(&ctx, m, gid, &text).await;
                 break;
             }
             "lyrics" => {
-                let query = format!("{} - {}", track.title, track.author);
-                let response = match fetch_lyrics_text(&query).await {
-                    Some((_, body)) => {
-                        let lyrics_embed = serenity::CreateEmbed::default()
-                            .title(track.title.clone())
-                            .author(serenity::CreateEmbedAuthor::new(track.author.clone()))
-                            .description(trim_lyrics_1997(&body))
-                            .colour(0xCD703A)
-                            .timestamp(serenity::Timestamp::now());
-                        let mut msg_builder = serenity::CreateInteractionResponseMessage::new()
-                            .embed(lyrics_embed)
-                            .ephemeral(true);
-                        if let Some(u) = track.uri.as_deref().filter(|u| !u.is_empty()) {
-                            msg_builder = msg_builder.content(format!("<{u}>"));
-                        }
-                        serenity::CreateInteractionResponse::Message(msg_builder)
-                    }
-                    None => {
-                        let text = crate::lang::get(&code, "nowplaying_lyrics_button")
-                            .unwrap_or_else(|| {
-                                "The lyrics for this song were not found".to_string()
-                            });
+                // TS `!nowplaying.ts:158-206` defers ephemerally with the
+                // `nowplaying_lyrics_button` text ("...were not found" — the
+                // key doubles as the searching placeholder), then EDITS the
+                // same reply to add the lyrics embed (content kept, quirk
+                // included); the catch leg edits back to the text alone.
+                let searching = crate::lang::get(&code, "nowplaying_lyrics_button")
+                    .unwrap_or_else(|| "The lyrics for this song were not found".to_string());
+                let _ = press
+                    .create_response(
+                        ctx.http(),
                         serenity::CreateInteractionResponse::Message(
                             serenity::CreateInteractionResponseMessage::new()
-                                .content(text)
+                                .content(&searching)
                                 .ephemeral(true),
-                        )
+                        ),
+                    )
+                    .await;
+                let query = format!("{} - {}", track.title, track.author);
+                match fetch_lyrics_text(&query).await {
+                    Some((_, body)) => {
+                        let youtube = emoji_markup(&ctx, "YouTube_Icon", "🎶").await;
+                        let trimmed = trim_lyrics_1997(&body);
+                        let description = if trimmed.is_empty() {
+                            crate::lang::get(&code, "lyrics_not_found")
+                                .unwrap_or_else(|| "No lyrics found".to_string())
+                        } else {
+                            trimmed
+                        };
+                        let (footer_name, footer_icon) =
+                            crate::commands::shared::footer_parts_pool(
+                                &ctx.data().pool,
+                                &gid.to_string(),
+                            )
+                            .await;
+                        let mut footer = serenity::CreateEmbedFooter::new(footer_name);
+                        if footer_icon.is_some() {
+                            footer = footer.icon_url("attachment://footer_icon.png");
+                        }
+                        let mut lyrics_embed = serenity::CreateEmbed::default()
+                            .title(format!("{youtube} {}", track.title))
+                            .author(serenity::CreateEmbedAuthor::new(track.author.clone()))
+                            .description(description)
+                            .footer(footer)
+                            .colour(0xCD703A)
+                            .timestamp(serenity::Timestamp::now());
+                        if let Some(u) = track.uri.as_deref().filter(|u| !u.is_empty()) {
+                            lyrics_embed = lyrics_embed.url(u);
+                        }
+                        let mut edit =
+                            serenity::EditInteractionResponse::new().embeds(vec![lyrics_embed]);
+                        if let Some(icon) = footer_icon {
+                            edit = edit.new_attachment(serenity::CreateAttachment::bytes(
+                                icon,
+                                "footer_icon.png",
+                            ));
+                        }
+                        let _ = press.edit_response(ctx.http(), edit).await;
                     }
-                };
-                let _ = press.create_response(ctx.http(), response).await;
+                    None => {
+                        let _ = press
+                            .edit_response(
+                                ctx.http(),
+                                serenity::EditInteractionResponse::new().content(searching),
+                            )
+                            .await;
+                    }
+                }
             }
             _ => continue,
         }
@@ -528,8 +715,9 @@ pub async fn m_nowplaying(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
 #[cfg(test)]
 mod tests {
     use super::{
-        format_clock_secs, nowplaying_position_ms, nowplaying_progress, nowplaying_remaining_ms,
-        trim_lyrics_1997, STREAM_COLLECTOR_CAP_MS,
+        artwork_or_fallback, card_percent_js, format_clock_secs, nowplaying_card_html,
+        nowplaying_position_ms, nowplaying_progress, nowplaying_remaining_ms, parse_hex_colour,
+        trim_lyrics_1997, NOWPLAYING_ARTWORK_FALLBACK, STREAM_COLLECTOR_CAP_MS,
     };
 
     #[test]
@@ -600,5 +788,59 @@ mod tests {
             nowplaying_remaining_ms(100_000, 20_000, 0),
             STREAM_COLLECTOR_CAP_MS - 80_000
         );
+    }
+
+    #[test]
+    fn artwork_falls_back_to_unknown_user_png() {
+        assert_eq!(artwork_or_fallback(None), NOWPLAYING_ARTWORK_FALLBACK);
+        assert_eq!(artwork_or_fallback(Some("")), NOWPLAYING_ARTWORK_FALLBACK);
+        assert_eq!(
+            artwork_or_fallback(Some("https://img/u.png")),
+            "https://img/u.png"
+        );
+    }
+
+    #[test]
+    fn card_percent_matches_js_string_of_division() {
+        assert_eq!(card_percent_js(0, 200_000), "0");
+        assert_eq!(card_percent_js(90_000, 180_000), "50");
+        // Raw float division like TS: 0/0 -> NaN, x/0 -> Infinity.
+        assert_eq!(card_percent_js(0, 0), "NaN");
+        assert_eq!(card_percent_js(5_000, 0), "Infinity");
+    }
+
+    #[test]
+    fn card_html_fills_every_template_placeholder() {
+        let html = nowplaying_card_html(
+            "Title",
+            "Artist",
+            "https://img/u.png",
+            "#111111",
+            "#222222",
+            "50",
+            "01:30",
+            "03:00",
+        );
+        for token in [
+            "{album_cover}",
+            "{song_title}",
+            "{song_author}",
+            "{color1}",
+            "{color2}",
+            "{time0}",
+            "{time1}",
+            "{time2}",
+        ] {
+            assert!(!html.contains(token), "unfilled {token}");
+        }
+        assert!(html.contains("Title"));
+        assert!(html.contains("https://img/u.png"));
+    }
+
+    #[test]
+    fn hex_colour_parses_with_ts_fallback() {
+        assert_eq!(parse_hex_colour("#6fa8dc"), 0x6FA8DC);
+        assert_eq!(parse_hex_colour("cd703a"), 0xCD703A);
+        assert_eq!(parse_hex_colour("not-a-color"), 0x6FA8DC);
     }
 }
