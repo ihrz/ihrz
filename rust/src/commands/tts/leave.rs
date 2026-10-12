@@ -52,7 +52,7 @@ pub async fn cleanup_tts_live(
     }
     // Welcome-embed delete (TS-written rows carry embedMessageId).
     if let Ok(text_id) = cfg.text_channel_id.parse::<u64>() {
-        let backend = crate::backends::Backend::sqlite(pool.clone());
+        let backend = crate::db::backend_for(pool);
         let gid = guild_id.to_string();
         let raw: Option<serde_json::Value> = backend.table(&gid).get(TTS_KEY).await.ok().flatten();
         if let Some(msg_id) = raw
@@ -143,7 +143,7 @@ pub async fn tts_leave(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
 
     let cfg = cfg.unwrap_or_default();
     let h247_raw = {
-        let backend = crate::backends::Backend::sqlite(ctx.data().pool.clone());
+        let backend = crate::db::backend_for(&ctx.data().pool);
         backend
             .table(&gid)
             .get_raw("GUILD.H247")

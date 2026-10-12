@@ -7,12 +7,87 @@
 // file (src/files/db.sqlite) so both implementations can share data
 // during migration. Guild-scoped helpers keep the same key layout.
 
-use sqlx::sqlite::{SqliteConnectOptions, SqlitePool, SqlitePoolOptions};
+pub use sqlx::sqlite::SqlitePool;
+use sqlx::sqlite::{SqliteConnectOptions, SqlitePoolOptions};
 use std::str::FromStr;
+use std::sync::Arc;
 
 use crate::config::Config;
 
-pub type Pool = SqlitePool;
+/// Bot-wide store handle. `Sqlite` is the local backend (default);
+/// `Horizon` is the live HorizonDB backend selected by
+/// `db_method = "horizondb"` (mirrors TS `database.method`, which
+/// defaults to `"horizondb"`). Callers keep passing `&Pool` — every
+/// helper below branches internally, so no call site changes.
+#[derive(Clone)]
+pub enum Pool {
+    Sqlite(SqlitePool),
+    Horizon(Arc<crate::horizon::HorizonClient>),
+}
+
+impl std::fmt::Debug for Pool {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Sqlite(_) => f.write_str("Pool::Sqlite(..)"),
+            Self::Horizon(_) => f.write_str("Pool::Horizon(..)"),
+        }
+    }
+}
+
+/// Backend for `Backend::table()` routing: sqlite pool or shared live
+/// HorizonDB client. Thin alias over `Backend::sqlite`, which branches on
+/// the [`Pool`] leg internally (so horizon mode reads/writes through the
+/// WS client).
+pub fn backend_for(pool: &Pool) -> crate::backends::Backend {
+    crate::backends::Backend::sqlite(pool.clone())
+}
+
+/// Require the sqlite leg (backends-table internals that only the
+/// sqlite store serves: raw `kv` SQL in `backends.rs`).
+fn sqlite_pool(pool: &Pool) -> Option<SqlitePool> {
+    match pool {
+        Pool::Sqlite(p) => Some(p.clone()),
+        Pool::Horizon(_) => None,
+    }
+}
+
+/// HorizonDB `json`-table view for one composed dotted key
+/// (`"{scope}.{key}"`, the TS driver shape on `tables[0]`).
+fn horizon_view(pool: &Pool) -> Option<crate::horizon::HorizonDb> {
+    match pool {
+        Pool::Horizon(c) => c.table("json").ok(),
+        Pool::Sqlite(_) => None,
+    }
+}
+
+/// HorizonDB view over a named horizon table (`backups`, `schedule` —
+/// the TS `tables` entries the sqlite port keeps as separate tables).
+fn horizon_table(pool: &Pool, name: &str) -> Option<crate::horizon::HorizonDb> {
+    match pool {
+        Pool::Horizon(c) => c.table(name).ok(),
+        Pool::Sqlite(_) => None,
+    }
+}
+
+/// Encode sqlite TEXT into a HorizonDB value: JSON text parses to its
+/// value, anything else stays a plain string (mirrors the
+/// `serde_json::from_str(..).unwrap_or(Value::String)` codec in
+/// `SqliteBackend::get`).
+fn horizon_encode(text: &str) -> serde_json::Value {
+    serde_json::from_str(text).unwrap_or(serde_json::Value::String(text.to_string()))
+}
+
+/// Decode a HorizonDB value back to sqlite TEXT (same shape as
+/// `table_string`: plain strings stay plain, numbers render bare,
+/// anything else renders compact JSON).
+fn horizon_decode(v: &serde_json::Value) -> String {
+    table_string(v)
+}
+
+/// Composed wire key for the shared horizon tables.
+fn horizon_key(scope: &str, key: &str) -> String {
+    format!("{scope}.{key}")
+}
 
 /// Create the sqlite parent directory when missing so boot never
 /// fails with "unable to open database file" just because the
@@ -32,6 +107,43 @@ fn ensure_parent_dir(database_url: &str) {
 }
 
 pub async fn init(cfg: &Config) -> anyhow::Result<Pool> {
+    if matches!(
+        cfg.db_method.to_lowercase().as_str(),
+        "horizondb" | "horizon" | "ihrzdb"
+    ) {
+        // Live HorizonDB (mirrors the `horizondb` arm of
+        // `initializeDatabase` in `src/core/database/index.ts`,
+        // including the throw when `horizon_db` is unconfigured).
+        let parts = cfg
+            .horizon_db
+            .as_ref()
+            .filter(|h| !h.host.trim().is_empty())
+            .ok_or_else(|| {
+                anyhow::anyhow!(
+                "horizon_db configuration is required when using the 'horizondb' database method"
+            )
+            })?;
+        let url = cfg
+            .horizondb_endpoint()
+            .unwrap_or_else(|| "ws://127.0.0.1:8080".to_string());
+        let client = crate::horizon::HorizonClient::new(
+            url.clone(),
+            Some(parts.login.clone()).filter(|s| !s.is_empty()),
+            Some(parts.password.clone()).filter(|s| !s.is_empty()),
+            parts.request_timeout_ms,
+        );
+        // Construction dials nothing (first op connects, like the TS
+        // SDK), so boot never fails on a down server at startup.
+        tracing::info!("db: connected (horizondb) {url}");
+        return Ok(Pool::Horizon(Arc::new(client)));
+    }
+    if cfg.db_method.to_lowercase() != "sqlite" {
+        tracing::warn!(
+            "db: method `{}` is not ported, using local sqlite {}",
+            cfg.db_method,
+            cfg.database_url
+        );
+    }
     ensure_parent_dir(&cfg.database_url);
     let opts = SqliteConnectOptions::from_str(&cfg.database_url)?.create_if_missing(true);
     let pool = SqlitePoolOptions::new()
@@ -62,23 +174,50 @@ pub async fn init(cfg: &Config) -> anyhow::Result<Pool> {
         .await?;
 
     // Boot visibility, mirrors TS `Connected to the database (method)!`
-    // (`src/core/database/index.ts`). Method is always local sqlite here.
-    tracing::info!("db: connected (sqlite) {}", cfg.database_url);
+    // (`src/core/database/index.ts`). Only the sqlite backend is ported
+    // (KEPT DIVERGENT H19 in config.rs): a non-sqlite `db_method` is
+    // recorded but sqlite still serves — warn so a `horizondb` setting
+    // is never mistaken for a live HorizonDB connection.
+    if cfg.db_method != "sqlite" {
+        tracing::warn!(
+            "db: method `{}` is not ported, using local sqlite {}",
+            cfg.db_method,
+            cfg.database_url
+        );
+    } else {
+        tracing::info!("db: connected (sqlite) {}", cfg.database_url);
+    }
 
-    Ok(pool)
+    Ok(Pool::Sqlite(pool))
 }
 
 pub async fn kv_get(pool: &Pool, guild_id: &str, key: &str) -> Option<String> {
+    if let Some(view) = horizon_view(pool) {
+        return view
+            .get(&horizon_key(guild_id, key))
+            .await
+            .ok()
+            .flatten()
+            .map(|v| horizon_decode(&v));
+    }
+    let pool = sqlite_pool(pool)?;
     sqlx::query_scalar::<_, String>("SELECT value FROM kv WHERE guild_id = ? AND key_name = ?")
         .bind(guild_id)
         .bind(key)
-        .fetch_optional(pool)
+        .fetch_optional(&pool)
         .await
         .ok()
         .flatten()
 }
 
 pub async fn kv_set(pool: &Pool, guild_id: &str, key: &str, value: &str) -> anyhow::Result<()> {
+    if let Some(view) = horizon_view(pool) {
+        view.set(&horizon_key(guild_id, key), horizon_encode(value))
+            .await
+            .map_err(|e| anyhow::anyhow!("horizondb set failed: {e}"))?;
+        return Ok(());
+    }
+    let pool = sqlite_pool(pool).ok_or_else(|| anyhow::anyhow!("sqlite pool required"))?;
     sqlx::query(
         "INSERT INTO kv (guild_id, key_name, value) VALUES (?, ?, ?)
          ON CONFLICT (guild_id, key_name) DO UPDATE SET value = excluded.value",
@@ -86,16 +225,23 @@ pub async fn kv_set(pool: &Pool, guild_id: &str, key: &str, value: &str) -> anyh
     .bind(guild_id)
     .bind(key)
     .bind(value)
-    .execute(pool)
+    .execute(&pool)
     .await?;
     Ok(())
 }
 
 pub async fn kv_del(pool: &Pool, guild_id: &str, key: &str) -> anyhow::Result<()> {
+    if let Some(view) = horizon_view(pool) {
+        view.delete(&horizon_key(guild_id, key))
+            .await
+            .map_err(|e| anyhow::anyhow!("horizondb delete failed: {e}"))?;
+        return Ok(());
+    }
+    let pool = sqlite_pool(pool).ok_or_else(|| anyhow::anyhow!("sqlite pool required"))?;
     sqlx::query("DELETE FROM kv WHERE guild_id = ? AND key_name = ?")
         .bind(guild_id)
         .bind(key)
-        .execute(pool)
+        .execute(&pool)
         .await?;
     Ok(())
 }
@@ -103,9 +249,25 @@ pub async fn kv_del(pool: &Pool, guild_id: &str, key: &str) -> anyhow::Result<()
 /// All `(key, value)` rows for one guild. Driver-only scan primitive —
 /// callers must use this (or `kv_scan_prefix`) instead of raw SQL.
 pub async fn kv_scan(pool: &Pool, guild_id: &str) -> Vec<(String, String)> {
+    if let Some(view) = horizon_view(pool) {
+        let prefix = format!("{guild_id}.");
+        return view
+            .all()
+            .await
+            .unwrap_or_default()
+            .into_iter()
+            .filter_map(|e| {
+                e.id.strip_prefix(&prefix)
+                    .map(|k| (k.to_string(), horizon_decode(&e.value)))
+            })
+            .collect();
+    }
+    let Some(pool) = sqlite_pool(pool) else {
+        return Vec::new();
+    };
     sqlx::query_as::<_, (String, String)>("SELECT key_name, value FROM kv WHERE guild_id = ?")
         .bind(guild_id)
-        .fetch_all(pool)
+        .fetch_all(&pool)
         .await
         .unwrap_or_default()
 }
@@ -113,6 +275,22 @@ pub async fn kv_scan(pool: &Pool, guild_id: &str) -> Vec<(String, String)> {
 /// `(key, value)` rows under `prefix` for one guild (SQL LIKE, `%`/`_`
 /// in the prefix are escaped).
 pub async fn kv_scan_prefix(pool: &Pool, guild_id: &str, prefix: &str) -> Vec<(String, String)> {
+    if let Some(view) = horizon_view(pool) {
+        let full = format!("{guild_id}.{prefix}");
+        return view
+            .all()
+            .await
+            .unwrap_or_default()
+            .into_iter()
+            .filter_map(|e| {
+                e.id.strip_prefix(&full)
+                    .map(|k| (format!("{prefix}{k}"), horizon_decode(&e.value)))
+            })
+            .collect();
+    }
+    let Some(pool) = sqlite_pool(pool) else {
+        return Vec::new();
+    };
     let pat = format!(
         "{}%",
         prefix
@@ -125,13 +303,22 @@ pub async fn kv_scan_prefix(pool: &Pool, guild_id: &str, prefix: &str) -> Vec<(S
     )
     .bind(guild_id)
     .bind(pat)
-    .fetch_all(pool)
+    .fetch_all(&pool)
     .await
     .unwrap_or_default()
 }
 
 /// Delete every row under `prefix` for one guild.
 pub async fn kv_del_prefix(pool: &Pool, guild_id: &str, prefix: &str) -> anyhow::Result<()> {
+    if horizon_view(pool).is_some() {
+        for (k, _) in kv_scan_prefix(pool, guild_id, prefix).await {
+            kv_del(pool, guild_id, &k).await?;
+        }
+        return Ok(());
+    }
+    let Some(pool) = sqlite_pool(pool) else {
+        return Ok(());
+    };
     let pat = format!(
         "{}%",
         prefix
@@ -142,7 +329,7 @@ pub async fn kv_del_prefix(pool: &Pool, guild_id: &str, prefix: &str) -> anyhow:
     sqlx::query("DELETE FROM kv WHERE guild_id = ? AND key_name LIKE ? ESCAPE '\\'")
         .bind(guild_id)
         .bind(pat)
-        .execute(pool)
+        .execute(&pool)
         .await?;
     Ok(())
 }
@@ -150,17 +337,50 @@ pub async fn kv_del_prefix(pool: &Pool, guild_id: &str, prefix: &str) -> anyhow:
 /// Cross-guild `(guild_id, key, value)` scan. Driver-only primitive for
 /// sweeps (authrestore, giveaway boards) — never raw SQL at call sites.
 pub async fn kv_scan_all(pool: &Pool) -> Vec<(String, String, String)> {
+    if let Some(view) = horizon_view(pool) {
+        return view
+            .all()
+            .await
+            .unwrap_or_default()
+            .into_iter()
+            .filter_map(|e| {
+                e.id.split_once('.')
+                    .map(|(g, k)| (g.to_string(), k.to_string(), horizon_decode(&e.value)))
+            })
+            .collect();
+    }
+    let Some(pool) = sqlite_pool(pool) else {
+        return Vec::new();
+    };
     sqlx::query_as::<_, (String, String, String)>("SELECT guild_id, key_name, value FROM kv")
-        .fetch_all(pool)
+        .fetch_all(&pool)
         .await
         .unwrap_or_default()
 }
 
 /// Delete every row of one guild (leave-cleanup / wipe paths).
 pub async fn kv_del_guild(pool: &Pool, guild_id: &str) -> anyhow::Result<()> {
+    if horizon_view(pool).is_some() {
+        let prefix = format!("{guild_id}.");
+        let ids: Vec<String> = horizon_view(pool)
+            .expect("checked")
+            .all()
+            .await
+            .unwrap_or_default()
+            .into_iter()
+            .filter_map(|e| e.id.strip_prefix(&prefix).map(str::to_string))
+            .collect();
+        for k in ids {
+            kv_del(pool, guild_id, &k).await?;
+        }
+        return Ok(());
+    }
+    let Some(pool) = sqlite_pool(pool) else {
+        return Ok(());
+    };
     sqlx::query("DELETE FROM kv WHERE guild_id = ?")
         .bind(guild_id)
-        .execute(pool)
+        .execute(&pool)
         .await?;
     Ok(())
 }
@@ -174,7 +394,7 @@ pub async fn kv_del_guild(pool: &Pool, guild_id: &str) -> anyhow::Result<()> {
 
 /// Guild-table backend for tbl_* routing (keys unchanged).
 fn guild_table_backend(pool: &Pool) -> crate::backends::Backend {
-    crate::backends::Backend::sqlite(pool.clone())
+    backend_for(pool)
 }
 
 /// Stringify a table value like the legacy kv rows: plain strings stay
@@ -345,9 +565,18 @@ pub async fn tbl_del_prefix(pool: &Pool, gid: &str, prefix: &str) -> anyhow::Res
 
 /// TS `backups`-table read by global backup ID. Missing table/row -> None.
 pub async fn backup_get(pool: &Pool, backup_id: &str) -> Option<String> {
+    if let Some(view) = horizon_table(pool, "backups") {
+        return view
+            .get(backup_id)
+            .await
+            .ok()
+            .flatten()
+            .map(|v| horizon_decode(&v));
+    }
+    let pool = sqlite_pool(pool)?;
     sqlx::query_scalar::<_, String>("SELECT json FROM backups WHERE ID = ?")
         .bind(backup_id)
-        .fetch_optional(pool)
+        .fetch_optional(&pool)
         .await
         .ok()
         .flatten()
@@ -357,10 +586,17 @@ pub async fn backup_get(pool: &Pool, backup_id: &str) -> Option<String> {
 /// table first (C18: delete paths must not fail on a fresh database where
 /// no backup was ever written); missing row stays a no-op.
 pub async fn backup_del(pool: &Pool, backup_id: &str) -> anyhow::Result<()> {
+    if let Some(view) = horizon_table(pool, "backups") {
+        view.delete(backup_id)
+            .await
+            .map_err(|e| anyhow::anyhow!("horizondb backup delete failed: {e}"))?;
+        return Ok(());
+    }
     ensure_backups_table(pool).await?;
+    let pool = sqlite_pool(pool).ok_or_else(|| anyhow::anyhow!("sqlite pool required"))?;
     sqlx::query("DELETE FROM backups WHERE ID = ?")
         .bind(backup_id)
-        .execute(pool)
+        .execute(&pool)
         .await?;
     Ok(())
 }
@@ -369,21 +605,33 @@ pub async fn backup_del(pool: &Pool, backup_id: &str) -> anyhow::Result<()> {
 /// BackupData). Missing table -> error (callers/tests create it via
 /// `ensure_backups_table`).
 pub async fn backup_set(pool: &Pool, backup_id: &str, json: &str) -> anyhow::Result<()> {
+    if let Some(view) = horizon_table(pool, "backups") {
+        view.set(backup_id, horizon_encode(json))
+            .await
+            .map_err(|e| anyhow::anyhow!("horizondb backup set failed: {e}"))?;
+        return Ok(());
+    }
+    let pool = sqlite_pool(pool).ok_or_else(|| anyhow::anyhow!("sqlite pool required"))?;
     sqlx::query(
         "INSERT INTO backups (ID, json) VALUES (?, ?)
          ON CONFLICT (ID) DO UPDATE SET json = excluded.json",
     )
     .bind(backup_id)
     .bind(json)
-    .execute(pool)
+    .execute(&pool)
     .await?;
     Ok(())
 }
 
 /// Create the TS `backups` table when missing (tests + first use).
+/// No-op on HorizonDB (schemaless).
 pub async fn ensure_backups_table(pool: &Pool) -> anyhow::Result<()> {
+    if horizon_table(pool, "backups").is_some() {
+        return Ok(());
+    }
+    let pool = sqlite_pool(pool).ok_or_else(|| anyhow::anyhow!("sqlite pool required"))?;
     sqlx::query("CREATE TABLE IF NOT EXISTS backups (ID TEXT PRIMARY KEY, json TEXT)")
-        .execute(pool)
+        .execute(&pool)
         .await?;
     Ok(())
 }
@@ -394,8 +642,20 @@ pub async fn ensure_backups_table(pool: &Pool) -> anyhow::Result<()> {
 /// Missing table -> empty (never an error). Precedent: the
 /// `ts_backups_table_get` compat read over the TS `backups` table.
 pub async fn schedule_all(pool: &Pool) -> Vec<(String, String)> {
+    if let Some(view) = horizon_table(pool, "schedule") {
+        return view
+            .all()
+            .await
+            .unwrap_or_default()
+            .into_iter()
+            .map(|e| (e.id, horizon_decode(&e.value)))
+            .collect();
+    }
+    let Some(pool) = sqlite_pool(pool) else {
+        return Vec::new();
+    };
     sqlx::query_as::<_, (String, String)>("SELECT ID, json FROM schedule")
-        .fetch_all(pool)
+        .fetch_all(&pool)
         .await
         .unwrap_or_default()
 }
@@ -404,13 +664,20 @@ pub async fn schedule_all(pool: &Pool) -> Vec<(String, String)> {
 /// schedule writes stay per-guild). Missing table -> error
 /// (callers/tests create it via `ensure_schedule_table`).
 pub async fn schedule_set(pool: &Pool, user_id: &str, json: &str) -> anyhow::Result<()> {
+    if let Some(view) = horizon_table(pool, "schedule") {
+        view.set(user_id, horizon_encode(json))
+            .await
+            .map_err(|e| anyhow::anyhow!("horizondb schedule set failed: {e}"))?;
+        return Ok(());
+    }
+    let pool = sqlite_pool(pool).ok_or_else(|| anyhow::anyhow!("sqlite pool required"))?;
     sqlx::query(
         "INSERT INTO schedule (ID, json) VALUES (?, ?)
          ON CONFLICT (ID) DO UPDATE SET json = excluded.json",
     )
     .bind(user_id)
     .bind(json)
-    .execute(pool)
+    .execute(&pool)
     .await?;
     Ok(())
 }
@@ -419,18 +686,30 @@ pub async fn schedule_set(pool: &Pool, user_id: &str, json: &str) -> anyhow::Res
 /// first (C18: sweep deletes must not fail when the table was never
 /// written, e.g. first boot with no schedules).
 pub async fn schedule_del(pool: &Pool, user_id: &str) -> anyhow::Result<()> {
+    if let Some(view) = horizon_table(pool, "schedule") {
+        view.delete(user_id)
+            .await
+            .map_err(|e| anyhow::anyhow!("horizondb schedule delete failed: {e}"))?;
+        return Ok(());
+    }
     ensure_schedule_table(pool).await?;
+    let pool = sqlite_pool(pool).ok_or_else(|| anyhow::anyhow!("sqlite pool required"))?;
     sqlx::query("DELETE FROM schedule WHERE ID = ?")
         .bind(user_id)
-        .execute(pool)
+        .execute(&pool)
         .await?;
     Ok(())
 }
 
 /// Create the TS `schedule` table when missing (tests + first sweep).
+/// No-op on HorizonDB (schemaless).
 pub async fn ensure_schedule_table(pool: &Pool) -> anyhow::Result<()> {
+    if horizon_table(pool, "schedule").is_some() {
+        return Ok(());
+    }
+    let pool = sqlite_pool(pool).ok_or_else(|| anyhow::anyhow!("sqlite pool required"))?;
     sqlx::query("CREATE TABLE IF NOT EXISTS schedule (ID TEXT PRIMARY KEY, json TEXT)")
-        .execute(pool)
+        .execute(&pool)
         .await?;
     Ok(())
 }
@@ -463,7 +742,7 @@ pub async fn memory_pool() -> Pool {
     .execute(&pool)
     .await
     .unwrap();
-    pool
+    Pool::Sqlite(pool)
 }
 
 pub async fn guild_prefix(pool: &Pool, guild_id: Option<u64>, default: &str) -> String {
@@ -541,7 +820,7 @@ pub const OWNER_TABLE: &str = "owner";
 /// emulation as `guild_table_backend`). Returns the owned backend like
 /// `guild_table_backend` (callers bind it before `.table()`).
 fn owner_backend(pool: &Pool) -> crate::backends::Backend {
-    crate::backends::Backend::sqlite(pool.clone())
+    backend_for(pool)
 }
 
 /// kv key for one owner row, guild- or bot-scoped by `guild_id`.
@@ -720,6 +999,24 @@ mod tests {
 
     async fn memory_pool() -> Pool {
         crate::db::memory_pool().await
+    }
+
+    #[test]
+    fn horizon_value_codec_roundtrips_ts_shapes() {
+        // `horizon_encode`: valid JSON parses, anything else becomes a
+        // JSON string. `horizon_decode` inverts via `table_string`
+        // (plain strings stay plain, numbers render bare).
+        use serde_json::{json, Value};
+        assert_eq!(horizon_encode("!"), Value::String("!".to_string()));
+        assert_eq!(horizon_encode("{\"a\":1}"), json!({"a": 1}));
+        assert_eq!(horizon_encode("42"), json!(42));
+        assert_eq!(horizon_decode(&Value::String("!".to_string())), "!");
+        assert_eq!(horizon_decode(&json!({"a": 1})), "{\"a\":1}");
+        assert_eq!(horizon_decode(&json!(42)), "42");
+        for raw in ["!", "{\"a\":1}", "42", "true", "plain-not-json", ""] {
+            let wire = horizon_encode(raw);
+            assert_eq!(horizon_decode(&wire), raw, "roundtrip of {raw:?}");
+        }
     }
 
     #[tokio::test]
@@ -948,7 +1245,7 @@ mod tests {
         // and remove must clear both legs.
         let pool = memory_pool().await;
         assert_eq!(OWNER_TABLE, "owner");
-        crate::backends::Backend::sqlite(pool.clone())
+        crate::db::backend_for(&pool)
             .table(OWNER_TABLE)
             .set("77", serde_json::json!({ "owner": true }))
             .await

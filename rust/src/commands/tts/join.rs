@@ -84,7 +84,7 @@ pub fn join_refusal_key(g: &JoinGuard) -> Option<&'static str> {
 
 /// Table-first read of the GUILD.H247 row for the park guard.
 async fn load_h247_raw(pool: &crate::db::Pool, guild_id: &str) -> Option<String> {
-    let backend = crate::backends::Backend::sqlite(pool.clone());
+    let backend = crate::db::backend_for(pool);
     let table = backend.table(guild_id);
     if let Ok(Some(v)) = table.get::<serde_json::Value>("GUILD.H247").await {
         return match v {
@@ -313,7 +313,7 @@ pub async fn tts_join(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
             "embedMessageId": embed_message_id,
             "lang": tts_lang,
         });
-        crate::backends::Backend::sqlite(ctx.data().pool.clone())
+        crate::db::backend_for(&ctx.data().pool)
             .table(gid.clone())
             .set(TTS_KEY, row)
             .await?;

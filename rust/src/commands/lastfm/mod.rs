@@ -32,7 +32,7 @@ pub const GUILD_LASTFM_KEY: &str = "GUILD.LASTFM";
 
 /// Table-handle backend over the sqlite kv store.
 fn table_backend(pool: &crate::db::Pool) -> crate::backends::Backend {
-    crate::backends::Backend::sqlite(pool.clone())
+    crate::db::backend_for(pool)
 }
 
 /// Table-handle read as plain text (JSON strings decoded once, other

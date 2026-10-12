@@ -12,7 +12,7 @@ use std::time::Duration;
 use tokio::sync::RwLock;
 
 use crate::config::Config;
-use crate::db::Pool;
+use crate::db::{Pool, SqlitePool};
 
 /// One row of a table scan (`all` / `starts_with`).
 #[derive(Debug, Clone, PartialEq)]
@@ -463,11 +463,11 @@ impl JsonBackend {
 /// each other or with real guild rows. Values are stored as JSON text.
 #[derive(Debug, Clone)]
 pub struct SqliteBackend {
-    pool: Pool,
+    pool: SqlitePool,
 }
 
 impl SqliteBackend {
-    pub fn new(pool: Pool) -> Self {
+    pub fn new(pool: SqlitePool) -> Self {
         Self { pool }
     }
 
@@ -501,7 +501,13 @@ impl SqliteBackend {
 
     async fn set(&self, table: &str, key: &str, value: &Value) -> anyhow::Result<()> {
         let raw = serde_json::to_string(value)?;
-        crate::db::kv_set(&self.pool, &Self::scope(table), key, &raw).await
+        crate::db::kv_set(
+            &Pool::Sqlite(self.pool.clone()),
+            &Self::scope(table),
+            key,
+            &raw,
+        )
+        .await
     }
 
     async fn update(&self, table: &str, key: &str, patch: Value) -> anyhow::Result<Value> {
@@ -830,16 +836,21 @@ impl PostgresBackend {
 // HorizonDB (offline mock/stub behind the same Table API)
 // ---------------------------------------------------------------------------
 
-/// Offline stand-in for the TS `horizondb` driver (`src/core/database/driver/
-/// horizondb.ts`), which speaks to iHorizon's private key-value store over a
-/// WebSocket (`horizondb` SDK, default `ws://127.0.0.1:8080`). No live
-/// endpoint exists in this environment, so this is an in-process mock over
-/// `MemoryBackend`: identical value semantics, zero network. Anything
-/// constructed here reports `is_mock()`; live verification against a real
-/// endpoint is still queued.
+/// HorizonDB backend: live WebSocket client (`crate::horizon`) behind the
+/// same Table API, mirroring `src/core/database/driver/horizondb.ts`
+/// (single shared connection, server-resolved dot-nested keys).
+///
+/// Key mapping: the Table layer passes `(table, key)` where `table` is the
+/// guild id (or a named scope like `owner`) and `key` the root segment.
+/// The live leg composes `"{table}.{key}"` on the shared `json` horizon
+/// table — the exact wire shape TS uses (`{gid}.GUILD.LANG...`), so rows
+/// written by either implementation resolve identically. The mock leg
+/// (no client) keeps the previous offline MemoryBackend semantics for
+/// tests/dev (`HORIZONDB_OFFLINE_MOCK=1`, `Backend::horizondb_mock`).
 #[derive(Debug, Clone)]
 pub struct HorizonDbBackend {
     inner: MemoryBackend,
+    client: Option<std::sync::Arc<crate::horizon::HorizonClient>>,
     endpoint: String,
     request_timeout: Duration,
 }
@@ -860,12 +871,38 @@ impl HorizonDbBackend {
         let endpoint = endpoint.into();
         Self {
             inner: MemoryBackend::new(),
+            client: None,
             endpoint: if endpoint.trim().is_empty() {
                 "ws://127.0.0.1:8080".to_string()
             } else {
                 endpoint
             },
             request_timeout: Duration::from_millis(10_000),
+        }
+    }
+
+    /// Build the live backend over an already-constructed client (shares
+    /// its socket; construction dials nothing — first op connects, like
+    /// the TS SDK). `endpoint` is recorded for diagnostics.
+    pub fn live(
+        client: std::sync::Arc<crate::horizon::HorizonClient>,
+        endpoint: impl Into<String>,
+        request_timeout: Duration,
+    ) -> Self {
+        let endpoint = endpoint.into();
+        Self {
+            inner: MemoryBackend::new(),
+            client: Some(client),
+            endpoint: if endpoint.trim().is_empty() {
+                "ws://127.0.0.1:8080".to_string()
+            } else {
+                endpoint
+            },
+            request_timeout: if request_timeout.is_zero() {
+                Duration::from_millis(10_000)
+            } else {
+                request_timeout
+            },
         }
     }
 
@@ -890,50 +927,140 @@ impl HorizonDbBackend {
 
     /// Always true: this client never touches the network.
     pub fn is_mock(&self) -> bool {
-        true
+        self.client.is_none()
+    }
+
+    /// Compose first, then view: keeps the borrow simple for callers.
+    fn live_key(&self, table: &str, key: &str) -> Option<(crate::horizon::HorizonDb, String)> {
+        let client = self.client.as_ref()?;
+        let view = client.table("json").ok()?;
+        Some((view, format!("{table}.{key}")))
     }
 
     async fn all(&self, table: &str) -> Vec<Row> {
+        if let Some(client) = self.client.as_ref() {
+            let prefix = format!("{table}.");
+            let Ok(view) = client.table("json") else {
+                return Vec::new();
+            };
+            return view
+                .all()
+                .await
+                .unwrap_or_default()
+                .into_iter()
+                .filter_map(|e| {
+                    e.id.strip_prefix(&prefix).map(|id| Row {
+                        id: id.to_string(),
+                        value: e.value,
+                    })
+                })
+                .collect();
+        }
         self.inner.all(table).await
     }
 
     async fn get(&self, table: &str, key: &str) -> Option<Value> {
+        if let Some((view, hkey)) = self.live_key(table, key) {
+            return view.get(&hkey).await.ok().flatten();
+        }
         self.inner.get(table, key).await
     }
 
     async fn set(&self, table: &str, key: &str, value: Value) {
+        if let Some((view, hkey)) = self.live_key(table, key) {
+            if let Err(e) = view.set(&hkey, value).await {
+                tracing::warn!("horizondb set {hkey} failed: {e}");
+            }
+            return;
+        }
         self.inner.set(table, key, value).await;
     }
 
     async fn update(&self, table: &str, key: &str, patch: Value) -> anyhow::Result<Value> {
+        if self.client.is_some() {
+            let current = self.get(table, key).await;
+            let merged = merge_object(current, patch)?;
+            self.set(table, key, merged.clone()).await;
+            return Ok(merged);
+        }
         self.inner.update(table, key, patch).await
     }
 
     async fn has(&self, table: &str, key: &str) -> bool {
+        if let Some((view, hkey)) = self.live_key(table, key) {
+            return view.has(&hkey).await.unwrap_or(false);
+        }
         self.inner.has(table, key).await
     }
 
     async fn delete(&self, table: &str, key: &str) -> u64 {
+        if let Some((view, hkey)) = self.live_key(table, key) {
+            return view.delete(&hkey).await.unwrap_or(0);
+        }
         self.inner.delete(table, key).await
     }
 
     async fn delete_all(&self, table: &str) -> u64 {
+        if self.client.is_some() {
+            let prefix = format!("{table}.");
+            let rows = self.all(table).await;
+            let mut n = 0u64;
+            for row in rows {
+                // `all` already stripped the prefix; re-compose per row.
+                let hkey = format!("{prefix}{}", row.id);
+                if let Some(client) = self.client.as_ref() {
+                    if let Ok(view) = client.table("json") {
+                        n += view.delete(&hkey).await.unwrap_or(0);
+                    }
+                }
+            }
+            return n;
+        }
         self.inner.delete_all(table).await
     }
 
     async fn add_sub(&self, table: &str, key: &str, by: f64, sub: bool) -> anyhow::Result<f64> {
+        if let Some((view, hkey)) = self.live_key(table, key) {
+            let n = if sub {
+                view.sub(&hkey, by).await
+            } else {
+                view.add(&hkey, by).await
+            }
+            .map_err(|e| anyhow::anyhow!("horizondb add/sub {hkey} failed: {e}"))?;
+            return Ok(n);
+        }
         self.inner.add_sub(table, key, by, sub).await
     }
 
     async fn get_array(&self, table: &str, key: &str) -> anyhow::Result<Vec<Value>> {
-        self.inner.get_array(table, key).await
+        match self.get(table, key).await {
+            None | Some(Value::Null) => Ok(vec![]),
+            Some(Value::Array(a)) => Ok(a),
+            Some(_) => anyhow::bail!("value is not an array"),
+        }
     }
 
     async fn push(&self, table: &str, key: &str, values: Vec<Value>) -> anyhow::Result<Vec<Value>> {
+        if let Some((view, hkey)) = self.live_key(table, key) {
+            return view
+                .push(&hkey, values)
+                .await
+                .map_err(|e| anyhow::anyhow!("horizondb push {hkey} failed: {e}"));
+        }
         self.inner.push(table, key, values).await
     }
 
     async fn starts_with(&self, table: &str, prefix: &str) -> Vec<Row> {
+        if self.client.is_some() {
+            let full = format!("{table}.{prefix}");
+            let rows = self.all(table).await;
+            return rows
+                .into_iter()
+                .filter(|r| {
+                    format!("{table}.{}", r.id).starts_with(&full) || r.id.starts_with(prefix)
+                })
+                .collect();
+        }
         self.inner.starts_with(table, prefix).await
     }
 }
@@ -959,7 +1086,14 @@ impl Backend {
     }
 
     pub fn sqlite(pool: Pool) -> Self {
-        Self::Sqlite(SqliteBackend::new(pool))
+        match pool {
+            Pool::Sqlite(p) => Self::Sqlite(SqliteBackend::new(p)),
+            Pool::Horizon(client) => Self::HorizonDb(HorizonDbBackend::live(
+                client.clone(),
+                client.url(),
+                Duration::from_millis(client.request_timeout_ms().max(1)),
+            )),
+        }
     }
 
     pub fn json(dir: impl Into<PathBuf>) -> Self {
@@ -980,6 +1114,17 @@ impl Backend {
     /// nothing. Live verification against a real endpoint is still queued.
     pub fn horizondb_mock(endpoint: impl Into<String>) -> Self {
         Self::HorizonDb(HorizonDbBackend::mock(endpoint))
+    }
+
+    /// Live HorizonDB backend over a shared client (see
+    /// `HorizonDbBackend::live`).
+    pub fn horizon(client: std::sync::Arc<crate::horizon::HorizonClient>) -> Self {
+        Self::HorizonDb(HorizonDbBackend {
+            inner: MemoryBackend::new(),
+            client: Some(client),
+            endpoint: String::new(),
+            request_timeout: Duration::from_millis(10_000),
+        })
     }
 
     /// Cached-postgres orchestration over `primary` (the `og` Postgres in
@@ -1027,28 +1172,15 @@ impl Backend {
                 Ok(Self::Cached(cached))
             }
             "horizondb" | "horizon" | "ihrzdb" => {
-                // Fail-loud (C8): no live WS client exists in this port, so
-                // booting `horizondb` into a silent in-memory mock would
-                // accept writes that vanish on restart and diverge from TS
-                // (which dials `ws://host:port` over the private SDK and
-                // throws when `horizon_db` is unconfigured). Refuse unless
-                // the offline mock is explicitly opted into for tests/dev.
+                // Live client (mirrors the TS `horizondb` arm of
+                // `initializeDatabase`, including the throw when
+                // `horizon_db` is unconfigured). Construction dials
+                // nothing — the first op connects, like the TS SDK —
+                // so this arm cannot fail on I/O. The offline mock
+                // stays available via `HORIZONDB_OFFLINE_MOCK=1` for
+                // tests/dev without a server.
                 let mock_opt_in = std::env::var("HORIZONDB_OFFLINE_MOCK")
                     .is_ok_and(|v| v == "1" || v.eq_ignore_ascii_case("true"));
-                if !mock_opt_in {
-                    anyhow::bail!(
-                        "db_method \"horizondb\" has no live client in the Rust port \
-                         (TS dials ws://host:port via the private horizondb SDK); \
-                         refusing to boot against a silent in-memory mock. \
-                         Set HORIZONDB_OFFLINE_MOCK=1 to opt into the offline mock, \
-                         or use method \"sqlite\"/\"memory\"."
-                    );
-                }
-                // Offline mock: endpoint recorded, never dialed, so this
-                // arm cannot fail on I/O. `database.horizon_db` parts win
-                // (TS `ws://host:port`); otherwise database_url verbatim.
-                // The configured `requestTimeoutMs` is honored through
-                // construction (C7).
                 let endpoint = cfg
                     .horizondb_endpoint()
                     .unwrap_or_else(|| cfg.database_url.clone());
@@ -1057,9 +1189,28 @@ impl Backend {
                     .as_ref()
                     .map(|h| h.request_timeout())
                     .unwrap_or_else(|| Duration::from_millis(10_000));
-                Ok(Self::HorizonDb(
-                    HorizonDbBackend::mock(endpoint).with_request_timeout(timeout),
-                ))
+                if mock_opt_in {
+                    return Ok(Self::HorizonDb(
+                        HorizonDbBackend::mock(endpoint).with_request_timeout(timeout),
+                    ));
+                }
+                let parts = cfg.horizon_db.as_ref().filter(|h| !h.host.trim().is_empty()).ok_or_else(|| {
+                    anyhow::anyhow!(
+                        "horizon_db configuration is required when using the 'horizondb' database method"
+                    )
+                })?;
+                let url = cfg
+                    .horizondb_endpoint()
+                    .unwrap_or_else(|| "ws://127.0.0.1:8080".to_string());
+                let client = std::sync::Arc::new(crate::horizon::HorizonClient::new(
+                    url,
+                    Some(parts.login.clone()).filter(|s| !s.is_empty()),
+                    Some(parts.password.clone()).filter(|s| !s.is_empty()),
+                    parts.request_timeout_ms,
+                ));
+                Ok(Self::HorizonDb(HorizonDbBackend::live(
+                    client, endpoint, timeout,
+                )))
             }
             _ => {
                 let pool = crate::db::init(cfg).await?;
@@ -2136,7 +2287,7 @@ mod tests {
         let _ = std::fs::remove_dir_all(&dir);
     }
 
-    async fn sqlite_memory_pool() -> Pool {
+    async fn sqlite_memory_pool() -> crate::db::Pool {
         crate::db::memory_pool().await
     }
 
@@ -2300,10 +2451,10 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn from_config_horizondb_fails_loud_without_opt_in() {
-        // C8: no live WS client exists, so booting `horizondb` without the
-        // explicit offline-mock opt-in refuses instead of silently
-        // accepting writes into a memory mock that vanish on restart.
+    async fn from_config_horizondb_live_or_mock() {
+        // Unconfigured + no opt-in: TS-mirror throw (`horizon_db
+        // configuration is required ...`), like
+        // `initializeDatabase` on missing `horizon_db`.
         let mut cfg = Config::default();
         cfg.db_method = "horizondb".to_string();
         cfg.database_url = String::new();
@@ -2343,6 +2494,23 @@ mod tests {
             _ => panic!("expected HorizonDb backend"),
         }
         std::env::remove_var("HORIZONDB_OFFLINE_MOCK");
+
+        // Configured + no opt-in: live client (dials nothing at
+        // construction, like the TS SDK).
+        cfg.horizon_db = Some(crate::config::HorizonDbParts {
+            host: "db.internal".to_string(),
+            port: 8080,
+            login: "u".to_string(),
+            password: "p".to_string(),
+            ..Default::default()
+        });
+        match Backend::from_config(&cfg).await.unwrap() {
+            Backend::HorizonDb(h) => {
+                assert!(!h.is_mock());
+                assert_eq!(h.endpoint(), "ws://db.internal:8080");
+            }
+            _ => panic!("expected live HorizonDb backend"),
+        }
     }
     #[test]
     fn orchestration_tables_and_readonly() {

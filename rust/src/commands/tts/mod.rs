@@ -17,7 +17,7 @@ pub const TTS_KEY: &str = "GUILD.TTS";
 
 /// Guild-table backend for D1 routing (keys unchanged).
 fn guild_backend(pool: &crate::db::Pool) -> crate::backends::Backend {
-    crate::backends::Backend::sqlite(pool.clone())
+    crate::db::backend_for(pool)
 }
 
 /// Table-routed read with legacy flat-row fallback. Writers store under

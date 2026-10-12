@@ -29,6 +29,7 @@ mod funcs;
 mod funcs_perms;
 mod funcs_resolve;
 mod funcs_send;
+mod horizon;
 mod image64;
 mod lang;
 mod lavalink;
