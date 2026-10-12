@@ -92,7 +92,7 @@ pub async fn tag_list(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
             e.content.clone()
         };
         let desc = format!(
-            "{} > **{}:** <@{}>\n{} > **{}:** {created}\n{} > **{}:** {updated}\n{} > **{}:** **{}**\n{} > **{}:** {updated_by}\n{} > **{}:** ** {content}**",
+            "{} > **{}:** <@{}>\n{} > **{}:** {created}\n{} > **{}:** {updated}\n{} > **{}:** **`{}`**\n{} > **{}:** {updated_by}\n{} > **{}:** ** {content}**",
             crown,
             author_lbl,
             e.create_by.trim(),

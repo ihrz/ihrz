@@ -121,7 +121,7 @@ pub fn validate_pronoun(normalized: &str) -> bool {
 )]
 pub async fn profil_pronoun(
     ctx: Ctx<'_>,
-    #[description = "Pronoun (she/her, he/him, they/them, xe/xem, ze/zem, other)"]
+    #[description = "Pronoun that fits you the most"]
     #[description_localized("fr", "Le pronom qui vous correspond le plus")]
     #[description_localized("ja", "最も合う代名詞")]
     #[description_localized("ru", "Местоимение, которое вам подходит")]

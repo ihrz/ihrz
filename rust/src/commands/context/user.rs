@@ -36,25 +36,80 @@ pub async fn user_lookup(
 /// User love.
 ///
 /// Mirrors the "Estimate the love" user command in
-/// UserApplicationCommands/love.ts (invoker + target pair, always100
-/// couples from config always score 100 like the TS `found` check).
+/// UserApplicationCommands/love.ts (invoker + target pair, love.png
+/// composite embed, always100 couples from config always score 100
+/// like the TS `found` check; `love_command_error` fallback like the
+/// TS catch path).
 #[poise::command(context_menu_command = "Estimate the love")]
 pub async fn user_love(
     ctx: Ctx<'_>,
     #[description = "Member"] user: poise::serenity_prelude::User,
 ) -> Result<(), anyhow::Error> {
+    use crate::commands::fun::love::{love_composite_png, love_description, love_heart_url};
+    let u1 = ctx.author().clone();
+    let u2 = user;
     let score = crate::commands::fun::love::love_roll(
-        ctx.author().id.get(),
-        user.id.get(),
+        u1.id.get(),
+        u2.id.get(),
         &ctx.data().config.always100,
     );
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-    ctx.say(
-        crate::lang::get(&code, "msg_love_score")
-            .map(|s| s.replace("{score}", &score.to_string()))
-            .unwrap_or_else(|| format!("Love: {score}%")),
-    )
-    .await?;
+    // Mirrors `displayAvatarURL({ extension: "png", size: 512 })`
+    // (forced PNG, like the slash /love port).
+    let (avatar1, avatar2) = (
+        crate::commands::shared::download_bytes(&crate::commands::fun::avatar_png_url(&u1, 512))
+            .await,
+        crate::commands::shared::download_bytes(&crate::commands::fun::avatar_png_url(&u2, 512))
+            .await,
+    );
+    let heart = crate::commands::shared::download_bytes(love_heart_url()).await;
+    let png = match (avatar1, avatar2) {
+        (Some(a1), Some(a2)) => love_composite_png(&a1, &a2, heart.as_deref()),
+        _ => None,
+    };
+    let gid = ctx
+        .guild_id()
+        .map(|g| g.get().to_string())
+        .unwrap_or_default();
+    let (fname, fbytes) = crate::commands::shared::footer_parts(&ctx, &gid).await;
+    let mut embed = poise::serenity_prelude::CreateEmbed::default()
+        .colour(0xFFC0CB)
+        .title("💕")
+        .description(love_description(
+            &crate::lang::get(&code, "love_embed_description").unwrap_or_else(|| {
+                "**${user1.username}** + **${user2.username}** = __${randomNumber}%__ of love 💗"
+                    .to_string()
+            }),
+            &u1.name,
+            &u2.name,
+            score,
+        ));
+    if png.is_some() {
+        embed = embed.image("attachment://love.png");
+    }
+    embed = crate::commands::shared::embed_with_footer(embed, &fname, fbytes.is_some())
+        .timestamp(poise::serenity_prelude::Timestamp::now());
+    let mut reply = poise::CreateReply::default().embed(embed);
+    if let Some(bytes) = png {
+        reply = reply.attachment(poise::serenity_prelude::CreateAttachment::bytes(
+            bytes, "love.png",
+        ));
+    }
+    if let Some(bytes) = fbytes {
+        reply = reply.attachment(poise::serenity_prelude::CreateAttachment::bytes(
+            bytes,
+            "footer_icon.png",
+        ));
+    }
+    if let Err(error) = ctx.send(reply).await {
+        tracing::warn!("user_love reply failed: {error}");
+        ctx.say(
+            crate::lang::get(&code, "love_command_error").unwrap_or_else(|| {
+                "An error occurred while trying to create the image".to_string()
+            }),
+        )
+        .await?;
+    }
     Ok(())
 }
 

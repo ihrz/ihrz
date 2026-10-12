@@ -97,6 +97,17 @@ pub async fn starboard_config(
     ctx: Ctx<'_>,
     #[description = "on or off"] action: StarboardConfigAction,
 ) -> Result<(), anyhow::Error> {
+    // Prefix native-permission gate (U-MSV-FIX14): TS `checkNativePermission`
+    // enforces the Administrator leaf on both paths; Discord covers slash,
+    // so the body gates prefix here with the same `var_dont_have_perm` denial.
+    if crate::commands::shared::deny_without_prefix_perm(
+        &ctx,
+        poise::serenity_prelude::Permissions::ADMINISTRATOR,
+    )
+    .await
+    {
+        return Ok(());
+    }
     let enabled = matches!(action, StarboardConfigAction::On);
     let Some(gid) = ctx.guild_id().map(|g| g.get().to_string()) else {
         return Ok(());
@@ -136,6 +147,17 @@ pub async fn starboard_channel(
     #[rename = "to"]
     channel: serenity::GuildChannel,
 ) -> Result<(), anyhow::Error> {
+    // Prefix native-permission gate (U-MSV-FIX14): TS `checkNativePermission`
+    // enforces the Administrator leaf on both paths; Discord covers slash,
+    // so the body gates prefix here with the same `var_dont_have_perm` denial.
+    if crate::commands::shared::deny_without_prefix_perm(
+        &ctx,
+        poise::serenity_prelude::Permissions::ADMINISTRATOR,
+    )
+    .await
+    {
+        return Ok(());
+    }
     let Some(gid) = ctx.guild_id().map(|g| g.get().to_string()) else {
         return Ok(());
     };
@@ -169,6 +191,17 @@ pub async fn starboard_threshold(
     ctx: Ctx<'_>,
     #[description = "Stars needed (2-10)"] amount: i64,
 ) -> Result<(), anyhow::Error> {
+    // Prefix native-permission gate (U-MSV-FIX14): TS `checkNativePermission`
+    // enforces the Administrator leaf on both paths; Discord covers slash,
+    // so the body gates prefix here with the same `var_dont_have_perm` denial.
+    if crate::commands::shared::deny_without_prefix_perm(
+        &ctx,
+        poise::serenity_prelude::Permissions::ADMINISTRATOR,
+    )
+    .await
+    {
+        return Ok(());
+    }
     // TS quirk: only out-of-range amounts are stored; in-range amounts
     // echo back while the stored threshold is left untouched.
     let (display, store) = resolve_threshold_reply_and_store(amount);
@@ -205,6 +238,17 @@ pub async fn starboard_thread(
     ctx: Ctx<'_>,
     #[description = "yes or no"] action: StarboardThreadAction,
 ) -> Result<(), anyhow::Error> {
+    // Prefix native-permission gate (U-MSV-FIX14): TS `checkNativePermission`
+    // enforces the Administrator leaf on both paths; Discord covers slash,
+    // so the body gates prefix here with the same `var_dont_have_perm` denial.
+    if crate::commands::shared::deny_without_prefix_perm(
+        &ctx,
+        poise::serenity_prelude::Permissions::ADMINISTRATOR,
+    )
+    .await
+    {
+        return Ok(());
+    }
     let create = matches!(action, StarboardThreadAction::Yes);
     let Some(gid) = ctx.guild_id().map(|g| g.get().to_string()) else {
         return Ok(());

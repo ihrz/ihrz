@@ -44,9 +44,16 @@ pub async fn report(
     .unwrap_or(0);
     if now - last < 18_000_000 {
         let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+        // TS fills `${time}` with the remaining cooldown via
+        // `to_beautiful_string(timeout - (Date.now() - cooldown), lang)`.
+        let remaining = 18_000_000 - (now - last);
+        let time = crate::commands::guildconfig::beautiful_ms_lang(remaining as f64, &code);
         ctx.say(
-            crate::lang::get(&code, "msg_report_cooldown_active")
-                .unwrap_or_else(|| "Report cooldown active.".to_string()),
+            crate::lang::get(&code, "report_cooldown_command")
+                .map(|s| s.replace("${time}", &time))
+                .unwrap_or_else(|| {
+                    format!("Sorry, you must wait **{time}** before running this command!")
+                }),
         )
         .await?;
         return Ok(());
@@ -160,5 +167,18 @@ mod tests {
             crate::db::tbl_get(&pool, "g", "USER.2.REPORT.cooldown").await,
             None
         );
+    }
+
+    #[test]
+    fn report_cooldown_reply_uses_time_template() {
+        // report.ts answers the cooldown with `report_cooldown_command`
+        // filled with the remaining time, not a static string.
+        let tpl = crate::lang::get("en-US", "report_cooldown_command")
+            .expect("report_cooldown_command key");
+        assert!(tpl.contains("${time}"), "template keeps ${{time}}");
+        let pretty = crate::commands::guildconfig::beautiful_ms_lang(9_000_000.0, "en-US");
+        let msg = tpl.replace("${time}", &pretty);
+        assert!(!msg.contains("${time}"));
+        assert!(msg.contains(&pretty));
     }
 }

@@ -235,7 +235,7 @@ pub async fn msg_convert_mp4(
     };
     if !is_audio_attachment(att.content_type.as_deref(), &att.filename) {
         let embed = CreateEmbed::default()
-            .title("Error")
+            .title("❌ Error")
             .colour(0xFF0000)
             .description(
                 crate::commands::lang_for(
@@ -251,9 +251,14 @@ pub async fn msg_convert_mp4(
         return Ok(());
     }
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-    let handle = ctx
-        .say(crate::lang::get(&code, "msg_loading").unwrap_or_else(|| "Loading...".to_string()))
-        .await?;
+    // Loading ack first, mirroring the `Discord_Loading` send in
+    // sound_to_video.ts (edited with the final embed below).
+    let loading = crate::emojis::app_emoji_markup(ctx.http(), "Discord_Loading")
+        .await
+        .unwrap_or_else(|| {
+            crate::lang::get(&code, "msg_loading").unwrap_or_else(|| "Loading...".to_string())
+        });
+    let handle = ctx.say(loading).await?;
     let out = convert_attachment(&att.url, &att.filename).await;
     // TS leaves its tmp dir behind; we clean up ours.
     match out {
@@ -302,11 +307,15 @@ pub async fn msg_convert_mp4(
             }
         }
         Err(e) => {
+            // Mirrors the TS catch path: generic `global_error` embed
+            // edited onto the loading reply (raw error goes to logs).
+            tracing::warn!("mp4 conversion failed: {e}");
+            let embed = CreateEmbed::default()
+                .title(crate::commands::lang_for(&ctx, "global_error", "❌ Error").await)
+                .colour(0xFF0000)
+                .timestamp(poise::serenity_prelude::Timestamp::now());
             handle
-                .edit(
-                    ctx,
-                    CreateReply::default().content(format!("Conversion failed: {e}")),
-                )
+                .edit(ctx, CreateReply::default().content("").embed(embed))
                 .await?;
         }
     }
@@ -358,7 +367,13 @@ pub async fn convert_attachment(url: &str, filename: &str) -> Result<(String, Ve
         .rsplit_once('.')
         .map(|(s, _)| s)
         .unwrap_or(filename);
-    let title = if stem.is_empty() { "Audio" } else { stem };
+    // Drawtext shows the full filename (`path.parse(name).base` in TS),
+    // while the output file uses the stem (`path.parse(name).name`).
+    let title = if filename.is_empty() {
+        "Audio"
+    } else {
+        filename
+    };
     let status = std::process::Command::new("ffmpeg")
         .args([
             "-y",
@@ -396,7 +411,8 @@ pub async fn convert_attachment(url: &str, filename: &str) -> Result<(String, Ve
     }
     let mp4 = std::fs::read(&output).map_err(|e| format!("read output: {e}"))?;
     let _ = std::fs::remove_dir_all(&dir);
-    Ok((format!("{title}.mp4"), mp4))
+    let out_stem = if stem.is_empty() { "Audio" } else { stem };
+    Ok((format!("{out_stem}.mp4"), mp4))
 }
 
 #[cfg(test)]

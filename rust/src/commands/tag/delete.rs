@@ -27,6 +27,16 @@ pub async fn tag_delete(
         .map(|g| g.get().to_string())
         .unwrap_or_default();
     let mut store = load_tags(&ctx.data().pool, &gid).await;
+    // Mirrors !delete.ts: no stored tags at all answers tag_no_one_found,
+    // not the per-tag missing message.
+    if store.stored_tags.is_empty() {
+        ctx.say(
+            crate::lang::get(&code, "tag_no_one_found")
+                .unwrap_or_else(|| "There are no tags saved on this guild!".to_string()),
+        )
+        .await?;
+        return Ok(());
+    }
     if store.stored_tags.remove(tag_name.trim()).is_none() {
         ctx.say(
             crate::lang::get(&code, "tag_delete_dnt_exist")

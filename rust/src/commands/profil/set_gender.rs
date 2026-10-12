@@ -79,7 +79,7 @@ pub fn gender_stored_value(gender: &str) -> Option<&'static str> {
 )]
 pub async fn profil_gender(
     ctx: Ctx<'_>,
-    #[description = "Gender that fits you the most (female, male, non-binary)"]
+    #[description = "Gender that fits you the most"]
     #[description_localized("fr", "Le genre qui vous correspond le plus")]
     #[description_localized("ja", "最も合う性別")]
     #[description_localized("ru", "Пол, который вам подходит")]

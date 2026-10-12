@@ -93,7 +93,7 @@ pub async fn tag_info(
     let message_lbl = crate::commands::lang_for(&ctx, "var_message", "Message").await;
     let title_lbl = crate::commands::lang_for(&ctx, "tag_name", "Tag").await;
     let desc = format!(
-        "{} > **{}:** <@{}>\n{} > **{}:** {created}\n{} > **{}:** {updated}\n{} > **{}:** **{uses}**\n{} > **{}:** {updated_by}\n{} > **{}:** ** {content}**",
+        "{} > **{}:** <@{}>\n{} > **{}:** {created}\n{} > **{}:** {updated}\n{} > **{}:** **`{uses}`**\n{} > **{}:** {updated_by}\n{} > **{}:** ** {content}**",
         crown,
         author_lbl,
         e.create_by.trim(),

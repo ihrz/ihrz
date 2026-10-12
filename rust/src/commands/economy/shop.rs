@@ -165,7 +165,7 @@ pub async fn eco_shop(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let shop_json = crate::commands::owner::main::routed_get(pool, &gid, &gid, shop_key())
         .await
         .unwrap_or_else(|| "{}".to_string());
-    let boost = member_boost(&shop_json, &invoker_roles(&ctx).await);
+    let boost = member_boost_f64(&shop_json, &invoker_roles(&ctx).await);
     let coin = coin_markup(&ctx).await;
     // Mirrors the !shop.ts embed (title with guild name, #45f712,
     // desc, bank / money / boost fields, footer).
@@ -194,7 +194,7 @@ pub async fn eco_shop(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         )
         .field(
             crate::lang::get(&code, "var_boost").unwrap_or_else(|| "Boost".to_string()),
-            format!("{boost}x"),
+            format!("{}x", fmt_num(boost)),
             true,
         )
         .timestamp(poise::serenity_prelude::Timestamp::now());
@@ -528,6 +528,18 @@ mod tests {
             "Unknown Role",
         );
         assert!(rows.is_empty());
+    }
+
+    #[test]
+    fn boost_field_renders_float_like_ts() {
+        // `!shop.ts:125` shows `${possibleBoost}x` with the raw float;
+        // the integer-truncating `member_boost` rendered x1.5 as "1x".
+        let frac = member_boost_f64(r#"{"1":{"price":10,"boost":1.5}}"#, &[1]);
+        assert_eq!(format!("{}x", fmt_num(frac)), "1.5x");
+        let whole = member_boost_f64(r#"{"1":{"price":10,"boost":2}}"#, &[1]);
+        assert_eq!(format!("{}x", fmt_num(whole)), "2x");
+        let none = member_boost_f64(r#"{"1":{"price":10}}"#, &[1]);
+        assert_eq!(format!("{}x", fmt_num(none)), "1x");
     }
 
     #[test]

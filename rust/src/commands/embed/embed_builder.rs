@@ -132,9 +132,12 @@ fn clear_key(embed: &mut serde_json::Value, key: &str) {
     }
 }
 
-/// Hex (#rrggbb / #rgb / bare) to Discord color int.
+/// Hex (`#rgb` / `#rrggbb`) to Discord color int. Mirrors
+/// `isValidColor` (`/^#([0-9a-f]{3}){1,2}$/i` on the raw input):
+/// the `#` prefix is required and surrounding whitespace is not
+/// trimmed, so bare or padded input is rejected like the TS.
 pub fn parse_hex_color(raw: &str) -> Option<u32> {
-    let hex = raw.trim().strip_prefix('#').unwrap_or(raw.trim());
+    let hex = raw.strip_prefix('#')?;
     let full = match hex.len() {
         3 => hex.chars().flat_map(|c| [c, c]).collect::<String>(),
         6 => hex.to_string(),
@@ -1189,10 +1192,16 @@ mod tests {
     }
 
     fn assert_parse_colors() {
+        // Mirrors isValidColor exactly: `#` required, no trim.
         assert_eq!(parse_hex_color("#ff0000"), Some(0xff0000));
-        assert_eq!(parse_hex_color("f00"), Some(0xff0000));
+        assert_eq!(parse_hex_color("#F00"), Some(0xff0000));
+        assert_eq!(parse_hex_color("f00"), None);
+        assert_eq!(parse_hex_color("ff0000"), None);
+        assert_eq!(parse_hex_color("  #ff0000"), None);
+        assert_eq!(parse_hex_color("#ff0000 "), None);
         assert_eq!(parse_hex_color("nope"), None);
         assert_eq!(parse_hex_color("#12345"), None);
+        assert_eq!(parse_hex_color("#gggggg"), None);
     }
 
     #[test]

@@ -12,6 +12,7 @@ use poise::serenity_prelude as serenity;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[serde(rename_all = "camelCase")]
 pub struct BoardConfig {
     #[serde(default)]
     pub channel: String,
@@ -261,6 +262,26 @@ mod tests {
         assert_eq!(cfg.threshold, 2);
         assert_eq!(cfg.enabled, "no");
         assert!(!cfg.create_thread);
+    }
+
+    #[test]
+    fn config_wire_shape_matches_ts_camelcase() {
+        // TS StarboardConfigSchema uses `createThread` (database_structure.d.ts).
+        let cfg = BoardConfig {
+            channel: "5".into(),
+            create_thread: true,
+            enabled: "yes".into(),
+            threshold: 4,
+        };
+        let json = serde_json::to_string(&cfg).unwrap();
+        assert!(json.contains("\"createThread\":true"), "{json}");
+        assert!(!json.contains("create_thread"), "{json}");
+        // TS-written rows read back with the thread flag intact.
+        let back: BoardConfig = serde_json::from_str(
+            r#"{"channel":"","createThread":true,"enabled":"no","threshold":2}"#,
+        )
+        .unwrap();
+        assert!(back.create_thread);
     }
 
     #[tokio::test]

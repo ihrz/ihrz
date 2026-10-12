@@ -84,7 +84,7 @@ pub async fn eco_balance(
         crate::commands::owner::main::routed_get(&ctx.data().pool, &gid, &gid, shop_key())
             .await
             .unwrap_or_else(|| "{}".to_string());
-    let boost = member_boost(&shop_json, &invoker_roles(&ctx).await);
+    let boost = member_boost_f64(&shop_json, &invoker_roles(&ctx).await);
     let total = a.money + a.bank;
     // Mirrors !balance.ts: #e3c6ff embed, "`name`'s Wallet" title,
     // wallet desc, bank / money / boost fields with Coin suffix.
@@ -115,7 +115,7 @@ pub async fn eco_balance(
         )
         .field(
             crate::lang::get(&code, "var_boost").unwrap_or_else(|| "Boost".to_string()),
-            format!("{boost}x"),
+            format!("{}x", fmt_num(boost)),
             true,
         )
         .timestamp(poise::serenity_prelude::Timestamp::now());
