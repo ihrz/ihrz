@@ -9638,6 +9638,15 @@ impl serenity::EventHandler for Handler {
         // buttons carry a `?dm` suffix; per-id arms below match the
         // clean id.
         let id = strip_dm_suffix(comp.data.custom_id.as_str());
+        crate::cmd_debug::log(
+            "component",
+            format_args!(
+                "id={id} user={} guild={} msg={}",
+                comp.user.id.get(),
+                comp.guild_id.map(|g| g.get()).unwrap_or(0),
+                comp.message.id.get()
+            ),
+        );
         if id == "new-confession-button" {
             // Mirrors confession panel submit entry: modal -> cooldown gate
             // -> anonymous post (see handle_confess_button).

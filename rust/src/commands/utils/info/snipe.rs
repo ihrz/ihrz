@@ -25,32 +25,20 @@ use super::*;
     description_localized("ru", "Получить последнее удаленное сообщение в канале!"),
     description_localized("es-ES", "Obtener el último mensaje eliminado en este canal!")
 )]
-pub async fn snipe(
-    ctx: Ctx<'_>,
-    #[description = "Channel, defaults to current"] channel: Option<
-        poise::serenity_prelude::GuildChannel,
-    >,
-) -> Result<(), anyhow::Error> {
+pub async fn snipe(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
+    // No `channel` param: TS registers the snipe subcommand with zero
+    // options (utils.ts:207-223) and reads `interaction.channel.id`
+    // (!snipe.ts:50-52). Always use the invocation channel; like the
+    // TS guard (`!interaction.channel` -> return) there is no channel
+    // to read outside a guild channel.
     let gid = ctx
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
-    let ch_id = match &channel {
-        Some(c) => c.id.get(),
-        None => match ctx.guild_channel().await {
-            Some(c) => c.id.get(),
-            None => {
-                let code =
-                    crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-                ctx.say(
-                    crate::lang::get(&code, "msg_no_channel")
-                        .unwrap_or_else(|| "No channel.".to_string()),
-                )
-                .await?;
-                return Ok(());
-            }
-        },
+    let Some(current) = ctx.guild_channel().await else {
+        return Ok(());
     };
+    let ch_id = current.id.get();
     let pool = &ctx.data().pool;
     // TS key first (interop), legacy Rust shapes as fallbacks.
     if let Some(raw) =

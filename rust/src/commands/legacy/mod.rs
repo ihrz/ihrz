@@ -670,6 +670,17 @@ pub async fn handle_helpall_select(
         }
         _ => return,
     };
+    // TS defers the select first (deferUpdate): ack before the 6+ DB
+    // reads + member/roles HTTP below so slow categories never blow
+    // the 3s interaction window (the author-gate denial above already
+    // replied, never ack after it). All responses below are edits.
+    if comp
+        .create_response(http, serenity::CreateInteractionResponse::Acknowledge)
+        .await
+        .is_err()
+    {
+        return;
+    }
     // Recompute the category embeds (same code path as the entry).
     let prefix = crate::db::guild_prefix(pool, Some(guild_id.get()), ".").await;
     let entries = crate::commands::guildconfig::load_all_cmd_perms(pool, &gid).await;
@@ -732,12 +743,9 @@ pub async fn handle_helpall_select(
         .find(|(cat, _)| cat.to_lowercase().replace(char::is_whitespace, "_") == value);
     let Some((_, items)) = found else {
         let _ = comp
-            .create_response(
+            .edit_response(
                 http,
-                serenity::CreateInteractionResponse::UpdateMessage(
-                    serenity::CreateInteractionResponseMessage::new()
-                        .content(t("var_unreachable_command")),
-                ),
+                serenity::EditInteractionResponse::new().content(t("var_unreachable_command")),
             )
             .await;
         return;
@@ -769,13 +777,11 @@ pub async fn handle_helpall_select(
         &format!("© iHorizon {year}"),
     );
     let _ = comp
-        .create_response(
+        .edit_response(
             http,
-            serenity::CreateInteractionResponse::UpdateMessage(
-                serenity::CreateInteractionResponseMessage::new()
-                    .embeds(embeds)
-                    .components(vec![serenity::CreateActionRow::SelectMenu(select)]),
-            ),
+            serenity::EditInteractionResponse::new()
+                .embeds(embeds)
+                .components(vec![serenity::CreateActionRow::SelectMenu(select)]),
         )
         .await;
 }
@@ -1507,11 +1513,18 @@ pub async fn handle_help_component(
         return;
     }
     let id = comp.data.custom_id.as_str();
-    // TS collector deferUpdate: ack overview/pager paths first so the
-    // leaf rebuild (registry + per-leaf perms + emoji HTTP) never blows
+    // TS collector deferUpdate: ack select/pager paths first so the
+    // rebuild (registry + per-leaf perms + emoji HTTP) never blows
     // the 3s interaction window; the branches below edit afterwards.
     // (The author-gate denial above already replied, never ack after it.)
-    if (help::is_help_overview_select(id) || help::parse_help_nav(id).is_some())
+    // This covers the overview selects, the leaf pager, AND the legacy
+    // h-menu select/pager (update_help_message does chunked emoji HTTP
+    // per category with no other ack — cold cache blew the window and
+    // the select died silently).
+    let legacy_paged = id.strip_prefix(HELP_SELECT_PREFIX).is_some()
+        || id.strip_prefix(&format!("{HELP_NEXT_ID}:")).is_some()
+        || id.strip_prefix(&format!("{HELP_PREV_ID}:")).is_some();
+    if (help::is_help_overview_select(id) || help::parse_help_nav(id).is_some() || legacy_paged)
         && comp
             .create_response(http, serenity::CreateInteractionResponse::Acknowledge)
             .await
@@ -1624,12 +1637,9 @@ async fn update_help_message(
             .is_none()
     {
         let _ = comp
-            .create_response(
+            .edit_response(
                 http,
-                serenity::CreateInteractionResponse::UpdateMessage(
-                    serenity::CreateInteractionResponseMessage::new()
-                        .content(t("var_unreachable_command")),
-                ),
+                serenity::EditInteractionResponse::new().content(t("var_unreachable_command")),
             )
             .await;
         return;
@@ -1705,13 +1715,11 @@ async fn update_help_message(
         components.push(serenity::CreateActionRow::Buttons(vec![prev, ind, next]));
     }
     let _ = comp
-        .create_response(
+        .edit_response(
             http,
-            serenity::CreateInteractionResponse::UpdateMessage(
-                serenity::CreateInteractionResponseMessage::new()
-                    .embed(embed)
-                    .components(components),
-            ),
+            serenity::EditInteractionResponse::new()
+                .embed(embed)
+                .components(components),
         )
         .await;
 }

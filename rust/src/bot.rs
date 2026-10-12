@@ -239,6 +239,22 @@ fn global_check(
         ) {
             return Ok(true);
         }
+        let started = crate::cmd_debug::now_ms();
+        let source = if matches!(ctx, poise::Context::Prefix(_)) {
+            "prefix"
+        } else {
+            "slash"
+        };
+        crate::cmd_debug::log(
+            "recv",
+            format_args!(
+                "{} user={} guild={} cmd={}",
+                source,
+                ctx.author().id.get(),
+                ctx.guild_id().map(|g| g.get()).unwrap_or(0),
+                ctx.command().qualified_name
+            ),
+        );
         let pool = &ctx.data().pool;
         let name = ctx.command().name.clone();
         // Slash-command usage log (mirrors slashCommandLogger.ts).
@@ -269,6 +285,14 @@ fn global_check(
                 "deny gate=fun user={} command={}",
                 ctx.author().id.get(),
                 ctx.command().qualified_name
+            );
+            crate::cmd_debug::log(
+                "deny",
+                format_args!(
+                    "gate=fun cmd={} elapsed_ms={}",
+                    ctx.command().qualified_name,
+                    crate::cmd_debug::now_ms().saturating_sub(started)
+                ),
             );
             return Ok(false);
         }
@@ -314,6 +338,14 @@ fn global_check(
                     ctx.author().id.get(),
                     ctx.command().qualified_name
                 );
+                crate::cmd_debug::log(
+                    "deny",
+                    format_args!(
+                        "gate=custom-perms cmd={} elapsed_ms={}",
+                        ctx.command().qualified_name,
+                        crate::cmd_debug::now_ms().saturating_sub(started)
+                    ),
+                );
                 return Ok(false);
             }
         }
@@ -335,6 +367,14 @@ fn global_check(
                 "deny gate=debounce user={uid} command={} remaining_ms={left}",
                 ctx.command().qualified_name
             );
+            crate::cmd_debug::log(
+                "deny",
+                format_args!(
+                    "gate=debounce remaining_ms={left} cmd={} elapsed_ms={}",
+                    ctx.command().qualified_name,
+                    crate::cmd_debug::now_ms().saturating_sub(started)
+                ),
+            );
             let msg = crate::lang::get(&code, "Msg_cooldown").unwrap_or_default();
             let _ = ctx
                 .send(poise::CreateReply::default().content(msg).ephemeral(true))
@@ -352,6 +392,14 @@ fn global_check(
                 ctx.author().id.get(),
                 ctx.command().qualified_name
             );
+            crate::cmd_debug::log(
+                "deny",
+                format_args!(
+                    "gate=blacklist cmd={} elapsed_ms={}",
+                    ctx.command().qualified_name,
+                    crate::cmd_debug::now_ms().saturating_sub(started)
+                ),
+            );
             return Ok(false);
         }
         // Channel UseApplicationCommands gate, prefix runs only.
@@ -364,6 +412,14 @@ fn global_check(
                 ctx.author().id.get(),
                 ctx.command().qualified_name
             );
+            crate::cmd_debug::log(
+                "deny",
+                format_args!(
+                    "gate=use_app cmd={} elapsed_ms={}",
+                    ctx.command().qualified_name,
+                    crate::cmd_debug::now_ms().saturating_sub(started)
+                ),
+            );
             return Ok(false);
         }
         // Per-command rate limits. Mirrors checkCommandRateLimit:
@@ -373,6 +429,14 @@ fn global_check(
         // nothing to enforce — allow through like the TS executor, whose
         // guild-scoped lookup has no row outside guilds.
         let Some(guild_id) = ctx.guild_id() else {
+            crate::cmd_debug::log(
+                "allow",
+                format_args!(
+                    "gate=dm cmd={} elapsed_ms={}",
+                    ctx.command().qualified_name,
+                    crate::cmd_debug::now_ms().saturating_sub(started)
+                ),
+            );
             return Ok(true);
         };
         let path = ctx.command().qualified_name.clone();
@@ -415,6 +479,13 @@ fn global_check(
                             "deny gate=rate-limit user={} command={path} remaining_ms={left}",
                             ctx.author().id.get(),
                         );
+                        crate::cmd_debug::log(
+                            "deny",
+                            format_args!(
+                                "gate=rate-limit remaining_ms={left} cmd={path} elapsed_ms={}",
+                                crate::cmd_debug::now_ms().saturating_sub(started)
+                            ),
+                        );
                         // Guild lang drives the duration units, mirroring
                         // `to_beautiful_string(remainingTime, lang)`.
                         let msg = crate::lang::get(&code, "commandlimit_rate_limited")
@@ -434,6 +505,14 @@ fn global_check(
                 }
             }
         }
+        crate::cmd_debug::log(
+            "allow",
+            format_args!(
+                "cmd={} elapsed_ms={}",
+                ctx.command().qualified_name,
+                crate::cmd_debug::now_ms().saturating_sub(started)
+            ),
+        );
         Ok(true)
     })
 }
@@ -943,6 +1022,84 @@ async fn dispatch_flat_leaf(
 /// global check already replied (cooldown / rate-limit) or denied
 /// quietly (blacklist, fun switch, custom perms), mirroring TS.
 pub async fn report_command_error(err: poise::FrameworkError<'_, Data, anyhow::Error>) {
+    // Verbose tracer: every framework error lands here, including the
+    // silent ones (gate denials without replies, unknown commands).
+    // One line carries variant + command + user so a dead command
+    // always leaves a trace.
+    {
+        let (variant, cmd, user) = match &err {
+            poise::FrameworkError::Command { ctx, .. } => (
+                "Command",
+                ctx.command().qualified_name.clone(),
+                ctx.author().id.get().to_string(),
+            ),
+            poise::FrameworkError::CommandPanic { ctx, .. } => (
+                "CommandPanic",
+                ctx.command().qualified_name.clone(),
+                ctx.author().id.get().to_string(),
+            ),
+            poise::FrameworkError::CommandCheckFailed { ctx, .. } => (
+                "CommandCheckFailed",
+                ctx.command().qualified_name.clone(),
+                ctx.author().id.get().to_string(),
+            ),
+            poise::FrameworkError::CooldownHit { ctx, .. } => (
+                "CooldownHit",
+                ctx.command().qualified_name.clone(),
+                ctx.author().id.get().to_string(),
+            ),
+            poise::FrameworkError::MissingBotPermissions { ctx, .. } => (
+                "MissingBotPermissions",
+                ctx.command().qualified_name.clone(),
+                ctx.author().id.get().to_string(),
+            ),
+            poise::FrameworkError::MissingUserPermissions { ctx, .. } => (
+                "MissingUserPermissions",
+                ctx.command().qualified_name.clone(),
+                ctx.author().id.get().to_string(),
+            ),
+            poise::FrameworkError::NotAnOwner { ctx, .. } => (
+                "NotAnOwner",
+                ctx.command().qualified_name.clone(),
+                ctx.author().id.get().to_string(),
+            ),
+            poise::FrameworkError::GuildOnly { ctx, .. } => (
+                "GuildOnly",
+                ctx.command().qualified_name.clone(),
+                ctx.author().id.get().to_string(),
+            ),
+            poise::FrameworkError::DmOnly { ctx, .. } => (
+                "DmOnly",
+                ctx.command().qualified_name.clone(),
+                ctx.author().id.get().to_string(),
+            ),
+            poise::FrameworkError::NsfwOnly { ctx, .. } => (
+                "NsfwOnly",
+                ctx.command().qualified_name.clone(),
+                ctx.author().id.get().to_string(),
+            ),
+            poise::FrameworkError::CommandStructureMismatch { ctx, .. } => (
+                "CommandStructureMismatch",
+                ctx.command().qualified_name.clone(),
+                ctx.author().id.get().to_string(),
+            ),
+            poise::FrameworkError::ArgumentParse { ctx, .. } => (
+                "ArgumentParse",
+                ctx.command().qualified_name.clone(),
+                ctx.author().id.get().to_string(),
+            ),
+            poise::FrameworkError::UnknownCommand { msg, .. } => (
+                "UnknownCommand",
+                String::new(),
+                msg.author.id.get().to_string(),
+            ),
+            _ => ("Other", String::new(), String::new()),
+        };
+        crate::cmd_debug::log(
+            "error",
+            format_args!("variant={variant} cmd={cmd} user={user}"),
+        );
+    }
     match &err {
         poise::FrameworkError::Command { ctx, error, .. } => {
             crash_block(*ctx, error.to_string()).await;
@@ -1068,6 +1225,15 @@ fn pre_command_hook(ctx: poise::Context<'_, Data, anyhow::Error>) -> poise::BoxF
         // deferred/editReply branching), like TS editReply-after-defer.
         if let poise::Context::Application(_) = ctx {
             let policy = crate::commands::defer_policy(&ctx.command().qualified_name);
+            crate::cmd_debug::log(
+                "defer",
+                format_args!(
+                    "cmd={} defer={} ephemeral={}",
+                    ctx.command().qualified_name,
+                    policy.defer,
+                    policy.ephemeral
+                ),
+            );
             if policy.defer {
                 let res = if policy.ephemeral {
                     ctx.defer_ephemeral().await
@@ -1076,6 +1242,10 @@ fn pre_command_hook(ctx: poise::Context<'_, Data, anyhow::Error>) -> poise::BoxF
                 };
                 if let Err(e) = res {
                     tracing::warn!("pre-command defer failed: {e}");
+                    crate::cmd_debug::log(
+                        "defer-err",
+                        format_args!("cmd={} {e}", ctx.command().qualified_name),
+                    );
                 }
             }
             return;
@@ -1107,6 +1277,21 @@ fn pre_command_hook(ctx: poise::Context<'_, Data, anyhow::Error>) -> poise::BoxF
                 command: p.msg.content.trim().to_string(),
             })
             .await;
+    })
+}
+
+/// Post-command hook: verbose completion line (no timing — the start
+/// lives in global_check; this proves the handler returned Ok).
+fn post_command_hook(ctx: poise::Context<'_, Data, anyhow::Error>) -> poise::BoxFuture<'_, ()> {
+    Box::pin(async move {
+        crate::cmd_debug::log(
+            "done",
+            format_args!(
+                "cmd={} user={}",
+                ctx.command().qualified_name,
+                ctx.author().id.get()
+            ),
+        );
     })
 }
 
@@ -1860,6 +2045,7 @@ pub async fn run(cfg: Config, pool: Pool) -> anyhow::Result<()> {
             commands: commands::all(),
             command_check: Some(global_check),
             pre_command: pre_command_hook,
+            post_command: post_command_hook,
             on_error: |err| {
                 Box::pin(async move {
                     tracing::warn!("command error: {err}");

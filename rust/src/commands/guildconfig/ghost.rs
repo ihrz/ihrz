@@ -116,7 +116,7 @@ async fn live_channel_ids(ctx: &Ctx<'_>) -> std::collections::HashSet<String> {
 #[poise::command(
     slash_command,
     prefix_command,
-    rename = "ghost-add",
+    rename = "add",
     default_member_permissions = "ADMINISTRATOR",
     description_localized("fr", "Ajouter un salon"),
     description_localized("ja", "チャンネルを追加"),
@@ -202,7 +202,7 @@ pub async fn gc_ghost_add(
 #[poise::command(
     slash_command,
     prefix_command,
-    rename = "ghost-remove",
+    rename = "remove",
     default_member_permissions = "ADMINISTRATOR",
     description_localized("fr", "Enlever un salon de la liste"),
     description_localized("ja", "チャンネルを削除"),
@@ -274,9 +274,10 @@ pub async fn gc_ghost_remove(
     Ok(())
 }
 
-/// Ghost list command.
+/// Ghost list command (prefix-only Rust-side reader: no TS slash
+/// home, and poise skips non-slash children at slash registration,
+/// so it never pollutes the `/join-ghostping` slash tree).
 #[poise::command(
-    slash_command,
     prefix_command,
     rename = "ghost-list",
     default_member_permissions = "ADMINISTRATOR"

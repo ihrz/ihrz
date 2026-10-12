@@ -205,28 +205,108 @@ pub async fn gc_perm_reset(
     Ok(())
 }
 
-/// Change per-command grants and level.
-// Mirrors the change action in !command.ts: level set (0 clears),
-// role/user toggle, change summary, row deleted when emptied.
+/// Perm command action choice. Mirrors the `action` option `choices`
+/// in perm.ts:151-192 (`command` subcommand): slash shows the
+/// localized display names, the handler maps each variant back to the
+/// TS `value` (`change` / `delete` / `delete-all` / `list`).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
+pub enum PermCommandAction {
+    #[name = "Change command permission"]
+    #[name_localized("fr", "Modifier la permission de commande")]
+    #[name_localized("ja", "change_command_permission")]
+    #[name_localized("ru", "change_command_permission")]
+    #[name_localized("es-ES", "change_command_permission")]
+    #[name = "change"]
+    Change,
+    #[name = "Delete command permission"]
+    #[name_localized("fr", "Supprimer la permission de commande")]
+    #[name_localized("ja", "delete_command_permission")]
+    #[name_localized("ru", "delete_command_permission")]
+    #[name_localized("es-ES", "delete_command_permission")]
+    #[name = "delete"]
+    Delete,
+    #[name = "Delete permission (role/user/level)"]
+    #[name_localized("fr", "Supprimer la permission (rôle/utilisateur/niveau)")]
+    #[name_localized("ja", "delete_permission_role_user_leve")]
+    #[name_localized("ru", "delete_permission_role_user_leve")]
+    #[name_localized("es-ES", "delete_permission_role_user_leve")]
+    #[name = "delete-all"]
+    DeleteAll,
+    #[name = "List all commands permission set"]
+    #[name_localized("fr", "Liste toutes les permissions de commande")]
+    #[name_localized("ja", "list_all_commands_permission_set")]
+    #[name_localized("ru", "list_all_commands_permission_set")]
+    #[name_localized("es-ES", "list_all_commands_permission_set")]
+    #[name = "list"]
+    List,
+}
+
+impl PermCommandAction {
+    /// TS `value` (`change` / `delete` / `delete-all` / `list`).
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::Change => "change",
+            Self::Delete => "delete",
+            Self::DeleteAll => "delete-all",
+            Self::List => "list",
+        }
+    }
+}
+
+/// Perm command settings (TS `command` subcommand).
+// Mirrors SlashCommands/guildconfig/perm/!command.ts: required
+// `action` (change/delete/delete-all/list) with the shared
+// `command` / `permission` / `custom-role` / `custom-user` options,
+// dispatching to the four existing bodies below (kept as leaves
+// until the frozen `perm` parent + registry pins are rewired in
+// follow-up; NOT this unit).
 #[poise::command(
     slash_command,
     prefix_command,
-    rename = "perm-change",
+    rename = "command",
     default_member_permissions = "ADMINISTRATOR"
 )]
-pub async fn gc_perm_change(
+pub async fn gc_perm_command(
     ctx: Ctx<'_>,
-    #[description = "Command name"] command: String,
-    #[description = "Level 0-9 (0 clears)"] permission: Option<i64>,
+    #[description = "What you want to do?"] action: PermCommandAction,
+    #[description = "The command you want to update"] command: Option<String>,
+    #[description = "The permission for the selected command"] permission: Option<i64>,
     // TS SlashCommands/guildconfig/perm/!command.ts registers "custom-role" / "custom-user".
-    #[description = "Role to toggle"]
+    #[description = "The custom role you want to set for the command"]
     #[rename = "custom-role"]
     custom_role: Option<serenity::Role>,
-    #[description = "User to toggle"]
+    #[description = "The custom user you want to set for the command"]
     #[rename = "custom-user"]
     custom_user: Option<serenity::User>,
 ) -> Result<(), anyhow::Error> {
-    let command = command.trim().to_string();
+    match action {
+        // TS !command.ts change arm: missing `command` ->
+        // `perm_add_args_error` (guarded inside the shared body).
+        PermCommandAction::Change => {
+            run_perm_change(ctx, command, permission, custom_role, custom_user).await
+        }
+        PermCommandAction::Delete => run_perm_delete(ctx, command).await,
+        PermCommandAction::DeleteAll => {
+            run_perm_delete_all(ctx, permission, custom_role, custom_user).await
+        }
+        // TS list arm pages via prev/next buttons; the leaf's stateless
+        // `page` option has no TS counterpart, so the dispatcher opens
+        // page 1 (`None`).
+        PermCommandAction::List => run_perm_list_all(ctx, None).await,
+    }
+}
+
+/// Shared change body (TS `command` subcommand, change action).
+// Mirrors the change action in !command.ts: level set (0 clears),
+// role/user toggle, change summary, row deleted when emptied.
+// Missing/empty `command` answers `perm_add_args_error`, like TS.
+pub async fn run_perm_change(
+    ctx: Ctx<'_>,
+    command: Option<String>,
+    permission: Option<i64>,
+    custom_role: Option<serenity::Role>,
+    custom_user: Option<serenity::User>,
+) -> Result<(), anyhow::Error> {
     let gid = ctx
         .guild_id()
         .map(|g| g.get().to_string())
@@ -234,6 +314,13 @@ pub async fn gc_perm_change(
     let pool = &ctx.data().pool;
     let code = crate::db::guild_lang(pool, ctx.guild_id().map(|g| g.get())).await;
     let t = |key: &str| crate::lang::get(&code, key).unwrap_or_default();
+    let Some(command) = command
+        .map(|c| c.trim().to_string())
+        .filter(|c| !c.is_empty())
+    else {
+        ctx.say(t("perm_add_args_error")).await?;
+        return Ok(());
+    };
     let mut perms = load_cmd_perms(pool, &gid, &command)
         .await
         .unwrap_or_default();
@@ -303,18 +390,9 @@ pub async fn gc_perm_change(
     Ok(())
 }
 
-/// Delete stored permissions for one command.
+/// Shared delete body (TS `command` subcommand, delete action).
 // Mirrors the delete action in !command.ts.
-#[poise::command(
-    slash_command,
-    prefix_command,
-    rename = "perm-delete",
-    default_member_permissions = "ADMINISTRATOR"
-)]
-pub async fn gc_perm_delete(
-    ctx: Ctx<'_>,
-    #[description = "Command name"] command: Option<String>,
-) -> Result<(), anyhow::Error> {
+pub async fn run_perm_delete(ctx: Ctx<'_>, command: Option<String>) -> Result<(), anyhow::Error> {
     let pool = &ctx.data().pool;
     let code = crate::db::guild_lang(pool, ctx.guild_id().map(|g| g.get())).await;
     let t = |key: &str| crate::lang::get(&code, key).unwrap_or_default();
@@ -339,19 +417,10 @@ pub async fn gc_perm_delete(
     Ok(())
 }
 
-/// List every command permission, grouped and paged.
+/// Shared list body (TS `command` subcommand, list action).
 // Mirrors the list action in !command.ts (15 fields per page;
 // page param replaces the prev/next collector).
-#[poise::command(
-    slash_command,
-    prefix_command,
-    rename = "perm-list-all",
-    default_member_permissions = "ADMINISTRATOR"
-)]
-pub async fn gc_perm_list_all(
-    ctx: Ctx<'_>,
-    #[description = "Page number"] page: Option<i64>,
-) -> Result<(), anyhow::Error> {
+pub async fn run_perm_list_all(ctx: Ctx<'_>, page: Option<i64>) -> Result<(), anyhow::Error> {
     let gid = ctx
         .guild_id()
         .map(|g| g.get().to_string())
@@ -387,23 +456,12 @@ pub async fn gc_perm_list_all(
     Ok(())
 }
 
-/// Bulk-remove one permission/role/user across commands.
+/// Shared delete-all body (TS `command` subcommand, delete-all action).
 // Mirrors the delete-all action in !command.ts.
-#[poise::command(
-    slash_command,
-    prefix_command,
-    rename = "perm-delete-all",
-    default_member_permissions = "ADMINISTRATOR"
-)]
-pub async fn gc_perm_delete_all(
+pub async fn run_perm_delete_all(
     ctx: Ctx<'_>,
-    #[description = "Level 0-9"] permission: Option<i64>,
-    // TS SlashCommands/guildconfig/perm/!command.ts registers "custom-role" / "custom-user".
-    #[description = "Role to strip"]
-    #[rename = "custom-role"]
+    permission: Option<i64>,
     custom_role: Option<serenity::Role>,
-    #[description = "User to strip"]
-    #[rename = "custom-user"]
     custom_user: Option<serenity::User>,
 ) -> Result<(), anyhow::Error> {
     let gid = ctx
@@ -706,5 +764,13 @@ mod tests {
                 .map(String::as_str),
             Some("11")
         );
+    }
+
+    #[test]
+    fn perm_command_action_values_are_ts_exact() {
+        assert_eq!(PermCommandAction::Change.as_str(), "change");
+        assert_eq!(PermCommandAction::Delete.as_str(), "delete");
+        assert_eq!(PermCommandAction::DeleteAll.as_str(), "delete-all");
+        assert_eq!(PermCommandAction::List.as_str(), "list");
     }
 }

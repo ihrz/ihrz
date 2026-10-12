@@ -13,7 +13,7 @@ use super::{
 // construct, but a nested command with subcommands and no action
 // renders as a SUBCOMMAND_GROUP in the slash payload automatically
 // (poise Command::create_as_subcommand), which brings /fun back under
-// Discord's 25-option cap (5 groups + config + grosbg = 7 options;
+// Discord's 25-option cap (5 groups + config = 6 options;
 // biggest group is 8 leaves).
 //
 // PREFIX VERDICT (checked against TS dispatch): `!fun dice` does NOT

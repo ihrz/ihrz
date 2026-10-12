@@ -172,7 +172,7 @@ async fn apply_language(
 
 /// Set the server language!
 ///
-/// Panel or direct code (extra `lang` option beyond setserverlang.ts).
+/// Panel only, mirroring setserverlang.ts (no slash options).
 #[poise::command(
     slash_command,
     prefix_command,
@@ -189,10 +189,7 @@ async fn apply_language(
     description_localized("ru", "Установить язык сервера!"),
     description_localized("es-ES", "Establecer el idioma del servidor!")
 )]
-pub async fn setlang(
-    ctx: Ctx<'_>,
-    #[description = "Server language"] lang: Option<String>,
-) -> Result<(), anyhow::Error> {
+pub async fn setlang(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {
         let glang = crate::db::guild_lang(&ctx.data().pool, None).await;
         ctx.say(
@@ -202,26 +199,6 @@ pub async fn setlang(
         .await?;
         return Ok(());
     };
-    if let Some(given) = lang.map(|l| l.trim().to_string()).filter(|l| !l.is_empty()) {
-        let Some(code) = parse_lang(&given).map(|c| c.to_string()) else {
-            let glang = crate::db::guild_lang(&ctx.data().pool, Some(guild_id.get())).await;
-            ctx.say(
-                crate::lang::get(&glang, "msg_invalid_language_supported_ar_eg_de_de_en_us_es_es_fr_fr_fr_me_it_it_jp_jp_pt_pt_ru_ru")
-                    .unwrap_or_else(|| "Invalid language. Supported: ar-EG, de-DE, en-US, es-ES, fr-FR, fr-ME, it-IT, jp-JP, pt-PT, ru-RU.".to_string()),
-            )
-            .await?;
-            return Ok(());
-        };
-        apply_language(&ctx, guild_id, &code).await?;
-        let saved = with_type(
-            &crate::lang::get(&code, "setserverlang_panel_saved")
-                .unwrap_or_else(|| "The language has been successfully changed!".to_string()),
-            &code,
-        );
-        ctx.say(saved).await?;
-        return Ok(());
-    }
-
     let pool = &ctx.data().pool;
     let gid = guild_id.get();
     let glang = crate::db::guild_lang(pool, Some(gid)).await;

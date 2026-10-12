@@ -75,6 +75,10 @@ type Error = anyhow::Error;
 pub fn all() -> Vec<poise::Command<Data, Error>> {
     vec![
         fun::fun::fun(),
+        // TS top-level prefix-only MessageCommand (MessageCommands/bot,
+        // category 404, never slash): registered at top level like
+        // production instead of nesting under /fun.
+        fun::grosbg::grosbg(),
         utils::utils::utils(),
         utils::util::util(),
         utils::channel::channel(),
@@ -541,7 +545,7 @@ mod tests {
         // / owner / guildconfig / newfeatures / rolereactions leaves now
         // top-level like production) + context entries + split-off utils
         // parents. Discord caps top-level slash at 100.
-        assert_eq!(cmds.len(), 89);
+        assert_eq!(cmds.len(), 90);
         // Every nested leaf keeps working through its parent.
         fn flatten<'a>(
             cmds: &'a [poise::Command<super::Data, super::Error>],
@@ -1077,12 +1081,14 @@ mod tests {
                 &["action", "max-mention-allowed", "logs-channel"],
             ),
             (
-                "perm-change",
-                &["command", "permission", "custom-role", "custom-user"],
-            ),
-            (
-                "perm-delete-all",
-                &["permission", "custom-role", "custom-user"],
+                "command",
+                &[
+                    "action",
+                    "command",
+                    "permission",
+                    "custom-role",
+                    "custom-user",
+                ],
             ),
             ("perm-roles-edit", &["perm_level", "perm_role"]),
             ("setlogs", &["type", "channel"]),
@@ -1199,6 +1205,10 @@ mod tests {
         // Rust-only splits of a TS subcommand (wlroles add/list): kept
         // prefix-only so the parent's slash surface matches TS exactly.
         const PREFIX_ONLY_SPLITS: [&str; 2] = ["wlroles-add", "wlroles-list"];
+        // Deliberate Rust-side readers with no TS slash home: kept
+        // prefix-only so they never pollute the slash tree (poise
+        // skips slash registration for prefix-only children).
+        const PREFIX_ONLY_RUST_READERS: [&str; 1] = ["ghost-list"];
         fn flatten<'a>(
             cmds: &'a [poise::Command<super::Data, super::Error>],
             out: &mut Vec<&'a poise::Command<super::Data, super::Error>>,
@@ -1218,6 +1228,7 @@ mod tests {
             if PREFIX_ONLY_DELEGATES.contains(&cmd.name.as_str())
                 || PREFIX_ONLY_MESSAGE_COMMANDS.contains(&cmd.name.as_str())
                 || PREFIX_ONLY_SPLITS.contains(&cmd.name.as_str())
+                || PREFIX_ONLY_RUST_READERS.contains(&cmd.name.as_str())
                 || PREFIX_ONLY_LEGACY_STRIP.contains(&cmd.name.as_str())
             {
                 assert!(
