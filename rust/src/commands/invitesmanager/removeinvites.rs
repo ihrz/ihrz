@@ -20,7 +20,7 @@ pub async fn inv_remove(
     #[description_localized("ru", "участник, у которого убрать приглашения")]
     #[description_localized("es-ES", "el miembro del que quieres quitar invitaciones")]
     #[description = "the member you want to remove invites"]
-    user: poise::serenity_prelude::User,
+    member: poise::serenity_prelude::User,
     // f64 mirrors the TS `ApplicationCommandOptionType.Number` (`getNumber`).
     // Invite totals stay i64, so the fractional part truncates toward zero
     // (`as i64`, like JS `Math.trunc`); the reply echoes the raw slash
@@ -47,7 +47,7 @@ pub async fn inv_remove(
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
-    let uid = user.id.get();
+    let uid = member.id.get();
     let cur = load_invites(&ctx.data().pool, &gid, uid).await;
     // Mirrors TS `db.sub` with no clamp: negative amounts are allowed.
     let next = remove_invites(&cur, amount as i64);

@@ -44,6 +44,10 @@ type LeafMap = Map<string, string[]>;
 interface RegistryEntry {
 	category: string;
 	leaves: LeafMap;
+	// True when the TS source is a prefix file (MessageCommands dir or
+	// a `!`-prefixed subcommand module). Only these may match rust
+	// registry leaves flat by name.
+	prefixFile: boolean;
 }
 
 interface RustRegistryEntry extends RegistryEntry {
@@ -92,10 +96,20 @@ function extractLeaves(
 	}
 }
 
-function normalizeCommand(cmd: any): RegistryEntry {
+function normalizeCommand(cmd: any, prefixFile = false): RegistryEntry {
 	const leaves: LeafMap = new Map();
 	extractLeaves(cmd?.options, "", leaves);
-	return { category: String(cmd?.category ?? "unknown"), leaves };
+	return {
+		category: String(cmd?.category ?? "unknown"),
+		leaves,
+		prefixFile
+	};
+}
+
+function isPrefixFile(file: string): boolean {
+	return (
+		file.includes("MessageCommands") || path.basename(file).startsWith("!")
+	);
 }
 
 function stubGlobalClient(): void {
@@ -157,13 +171,16 @@ async function loadTsRegistry(): Promise<{
 	for (const { file, mod } of modules) {
 		const cmd = mod?.command;
 		if (!cmd || typeof cmd.name !== "string") continue;
+		const prefixFile = isPrefixFile(file);
 		if (registry.has(cmd.name)) {
+			const existing = registry.get(cmd.name)!;
+			existing.prefixFile = existing.prefixFile || prefixFile;
 			warnings.push(
 				`duplicate command name "${cmd.name}" (also in ${path.relative(REPO_ROOT, file)})`
 			);
 			continue;
 		}
-		registry.set(cmd.name, normalizeCommand(cmd));
+		registry.set(cmd.name, normalizeCommand(cmd, prefixFile));
 		const dir = path.dirname(file);
 		if (!dirCommands.has(dir)) dirCommands.set(dir, cmd.name);
 	}
@@ -196,10 +213,29 @@ async function loadTsRegistry(): Promise<{
 	return { registry, warnings };
 }
 
-function loadRustRegistry(): Map<string, RustRegistryEntry> {
+function indexRustLeaves(
+	cmdName: string,
+	options: any[] | undefined,
+	trail: string[],
+	index: Map<string, string>
+): void {
+	for (const opt of Array.isArray(options) ? options : []) {
+		if (!opt || typeof opt.name !== "string") continue;
+		const qualified = [cmdName, ...trail, opt.name].join(" ");
+		if (!index.has(opt.name)) index.set(opt.name, qualified);
+		if (Array.isArray(opt.options))
+			indexRustLeaves(cmdName, opt.options, [...trail, opt.name], index);
+	}
+}
+
+function loadRustRegistry(): {
+	registry: Map<string, RustRegistryEntry>;
+	leafIndex: Map<string, string>;
+} {
 	const raw = JSON.parse(readFileSync(RUST_DUMP, "utf8"));
 	const list = Array.isArray(raw) ? raw : [];
 	const registry = new Map<string, RustRegistryEntry>();
+	const leafIndex = new Map<string, string>();
 	for (const cmd of list) {
 		if (!cmd || typeof cmd.name !== "string" || registry.has(cmd.name))
 			continue;
@@ -209,21 +245,26 @@ function loadRustRegistry(): Map<string, RustRegistryEntry> {
 			...entry,
 			prefixOnly: !Array.isArray(options) || options.length === 0
 		});
+		indexRustLeaves(cmd.name, options, [], leafIndex);
 	}
-	return registry;
+	return { registry, leafIndex };
 }
 
-function findLeafOwner(
-	tsReg: Map<string, RegistryEntry>,
-	leaf: string
-): string | null {
+function buildTsLeafIndex(
+	tsReg: Map<string, RegistryEntry>
+): Map<string, string> {
+	// Flat leaf-name index over the TS side: every nested option leaf key
+	// maps by its bare leaf name to the qualified `<command> <path>` form.
+	const index = new Map<string, string>();
 	for (const [name, entry] of tsReg) {
-		if (entry.leaves.has(leaf)) return name;
 		for (const key of entry.leaves.keys()) {
-			if (key.endsWith(` ${leaf}`)) return name;
+			if (key === "(root)") continue;
+			const leaf = key.split(" ").pop()!;
+			if (!leaf || index.has(leaf)) continue;
+			index.set(leaf, `${name} ${key}`);
 		}
 	}
-	return null;
+	return index;
 }
 
 function compareLeaves(ts: LeafMap, rust: LeafMap): string[] {
@@ -249,7 +290,8 @@ function compareLeaves(ts: LeafMap, rust: LeafMap): string[] {
 }
 
 const { registry: tsReg, warnings } = await loadTsRegistry();
-const rustReg = loadRustRegistry();
+const { registry: rustReg, leafIndex: rustLeafIndex } = loadRustRegistry();
+const tsLeafIndex = buildTsLeafIndex(tsReg);
 for (const w of warnings) out(`WARNING ${w}`);
 
 const names = [...new Set([...tsReg.keys(), ...rustReg.keys()])].sort();
@@ -265,9 +307,10 @@ for (const name of names) {
 		// Prefix-only dump entries (no slash options) are prefix mirrors of
 		// slash subcommand leaves; compare them as leaves when a TS parent
 		// carries the leaf instead of reporting one-sided noise.
-		if (rust!.prefixOnly && findLeafOwner(tsReg, name)) {
+		const owner = tsLeafIndex.get(name);
+		if (rust!.prefixOnly && owner) {
 			matched++;
-			out(`MATCH ${name}`);
+			out(`MATCH ${name} (ts leaf ${owner})`);
 			continue;
 		}
 		rustOnly++;
@@ -278,6 +321,15 @@ for (const name of names) {
 		continue;
 	}
 	if (!rust) {
+		// Prefix-file TS commands (MessageCommands + !-files) live as nested
+		// leaves in the dump; a flat leaf-name hit is a match, reported with
+		// the qualified `<command> <group?> <leaf>` path from the dump.
+		const qualified = rustLeafIndex.get(name);
+		if (ts.prefixFile && qualified) {
+			matched++;
+			out(`MATCH ${name} (rust leaf ${qualified})`);
+			continue;
+		}
 		tsOnly++;
 		divergent++;
 		out(`DIVERGENT ${name}: only in TS sources (category ${ts.category})`);

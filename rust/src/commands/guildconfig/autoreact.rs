@@ -127,56 +127,43 @@ pub fn sorted_channel_ids(map: &AutoreactMap) -> Vec<String> {
         "Enviar emoji especificado cuando haya nuevo mensaje en el canal especificado"
     )
 )]
-pub async fn gc_autoreact(
-    ctx: Ctx<'_>,
-    #[description = "Channel"]
-    #[channel_types("Text")]
-    channel: serenity::GuildChannel,
-    #[description = "Emoji"] emoji: String,
-) -> Result<(), anyhow::Error> {
+pub async fn gc_autoreact(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     // Mirrors the TS guard (`!interaction.guild` -> silent return).
+    // TS declares zero slash options: channel/emoji are picked via
+    // channel-select + modal collectors, so this command only renders
+    // the dashboard (first page of the desc-sorted channel list, like
+    // `createRankRolesEmbed(currentPage = 0)`).
     let Some(guild_id) = ctx.guild_id() else {
         return Ok(());
     };
     let gid = guild_id.get().to_string();
-    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-    // Empty input is rejected here (TS lets an empty modal string through
-    // and stores it; the strict check is intentional — an empty reaction
-    // can never fire). Length cap mirrors the TS modal `maxLength: 200`.
-    if emoji.is_empty()
-        || emoji.chars().count() > 200
-        || (!crate::funcs::is_single_emoji(&emoji) && !crate::funcs::is_discord_emoji(&emoji))
-    {
-        ctx.say(
-            crate::lang::get(&code, "autoreact_invalid_emoji")
-                .unwrap_or_else(|| "Invalid emoji. Please enter a valid emoji.".to_string()),
-        )
-        .await?;
-        return Ok(());
+    let pool = &ctx.data().pool;
+    let code = crate::db::guild_lang(pool, ctx.guild_id().map(|g| g.get())).await;
+    let map = load_autoreact_map_routed(pool, &gid).await;
+    let ids = sorted_channel_ids(&map);
+    let page = autoreact_list_page(&ids, 1);
+    let title =
+        crate::lang::get(&code, "autoreact_embed_title").unwrap_or_else(|| "Autoreact".to_string());
+    let desc = crate::lang::get(&code, "autoreact_embed_desc").unwrap_or_default();
+    let mut embed = serenity::CreateEmbed::default()
+        .colour(serenity::Colour::BLURPLE)
+        .title(title)
+        .description(desc);
+    if page.is_empty() {
+        let name = crate::lang::get(&code, "var_no_set").unwrap_or_else(|| "Not set".to_string());
+        let value =
+            crate::lang::get(&code, "autoreact_embed_autofields_none_value").unwrap_or_default();
+        embed = embed.field(name, value, false);
+    } else {
+        for id in page {
+            let reactions = map.get(id).cloned().unwrap_or_default().join(" ");
+            let value = crate::lang::get(&code, "autoreact_embed_autofields_value")
+                .map(|t| t.replace("${reaction}", &reactions))
+                .unwrap_or(reactions);
+            embed = embed.field(format!("<#{id}>"), value, false);
+        }
     }
-    let mut map = load_autoreact_map_routed(&ctx.data().pool, &gid).await;
-    // Mirrors the TS 25-channel cap on add (`currentValues.length >= 25`
-    // refuses even when the channel already has reactions — no update
-    // path exists in TS, so at-cap always denies).
-    if map.len() >= 25 {
-        ctx.say(
-            crate::lang::get(&code, "autoreact_max_25").unwrap_or_else(|| {
-                "Maximum of 25 autoreact configurations can be set.".to_string()
-            }),
-        )
-        .await?;
-        return Ok(());
-    }
-    let reactions = map.entry(channel.id.get().to_string()).or_default();
-    if !reactions.iter().any(|e| e == &emoji) {
-        reactions.push(emoji);
-    }
-    save_autoreact_map_routed(&ctx.data().pool, &gid, &map).await?;
-    ctx.say(
-        crate::lang::get(&code, "autoreact_add_command_ok")
-            .unwrap_or_else(|| "The autoreact configuration has been set.".to_string()),
-    )
-    .await?;
+    ctx.send(poise::CreateReply::default().embed(embed)).await?;
     Ok(())
 }
 
