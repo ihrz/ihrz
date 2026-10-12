@@ -551,17 +551,31 @@ fn display_name(user: &serenity::User) -> String {
 /// a title) + mention description + shared footer text. No timestamp.
 /// Callers attach the footer icon file like the TS
 /// `footerAttachmentBuilder` send.
-fn owners_embed(title: &str, owners: &[String], footer_name: &str) -> serenity::CreateEmbed {
+fn owners_embed(
+    title: &str,
+    owners: &[String],
+    footer_name: &str,
+    with_icon: bool,
+) -> serenity::CreateEmbed {
     let desc = owners
         .iter()
         .map(|id| format!("<@{id}>"))
         .collect::<Vec<_>>()
         .join("\n");
-    serenity::CreateEmbed::default()
+    let base = serenity::CreateEmbed::default()
         .colour(0x2E2EFE_u32)
         .author(serenity::CreateEmbedAuthor::new(title))
-        .description(desc)
-        .footer(serenity::CreateEmbedFooter::new(footer_name))
+        .description(desc);
+    // The callers attach footer_icon.png exactly when with_icon is true,
+    // so reference it only then; no icon means plain footer text, never
+    // an empty-string icon_url.
+    if with_icon {
+        base.footer(
+            serenity::CreateEmbedFooter::new(footer_name).icon_url("attachment://footer_icon.png"),
+        )
+    } else {
+        base.footer(serenity::CreateEmbedFooter::new(footer_name))
+    }
 }
 
 /// add user to owner list (can't be used by normal member)!
@@ -632,6 +646,7 @@ pub async fn owner(
                     "Owners [Bot]",
                     &owners,
                     &footer_name,
+                    footer_bytes.is_some(),
                 ));
                 if let Some(bytes) = footer_bytes {
                     reply = reply
@@ -676,6 +691,7 @@ pub async fn owner(
                     "Owners [Guild]",
                     &owners,
                     &footer_name,
+                    footer_bytes.is_some(),
                 ));
                 if let Some(bytes) = footer_bytes {
                     reply = reply
@@ -1506,11 +1522,14 @@ async fn send_blinfo_embed(
         .map(|g| g.get().to_string())
         .unwrap_or_else(|| "0".to_string());
     let (footer_name, footer_bytes) = crate::commands::shared::footer_parts(ctx, &gid).await;
-    let embed = crate::commands::shared::embed_with_footer(
-        blinfo_embed(user, entry, unknown, no_reason),
-        &footer_name,
-        footer_bytes.is_some(),
-    );
+    // No icon means plain footer text (never an empty-string icon_url);
+    // the file is attached below only when the footer references it.
+    let embed_base = blinfo_embed(user, entry, unknown, no_reason);
+    let embed = if footer_bytes.is_some() {
+        crate::commands::shared::embed_with_footer(embed_base, &footer_name, true)
+    } else {
+        embed_base.footer(serenity::CreateEmbedFooter::new(footer_name.clone()))
+    };
     let mut reply = poise::CreateReply::default().embed(embed);
     if let Some(bytes) = footer_bytes {
         reply = reply.attachment(serenity::CreateAttachment::bytes(bytes, "footer_icon.png"));

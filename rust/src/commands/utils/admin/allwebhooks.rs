@@ -57,23 +57,21 @@ pub async fn allwebhooks(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let footer_icon = footer_bytes.is_some();
     let mk_embed = |cur: usize| {
         let (title, desc) = pages[cur].clone();
+        let mut footer =
+            serenity::CreateEmbedFooter::new(crate::commands::shared::footer_page_text(
+                &footer_name,
+                &page_word,
+                (cur + 1) as u64,
+                total as u64,
+            ));
+        if footer_icon {
+            footer = footer.icon_url("attachment://footer_icon.png");
+        }
         serenity::CreateEmbed::default()
             .colour(serenity::Colour::from_rgb(0x72, 0xF3, 0xF3))
             .title(title)
             .description(desc)
-            .footer(
-                serenity::CreateEmbedFooter::new(crate::commands::shared::footer_page_text(
-                    &footer_name,
-                    &page_word,
-                    (cur + 1) as u64,
-                    total as u64,
-                ))
-                .icon_url(if footer_icon {
-                    "attachment://footer_icon.png".to_string()
-                } else {
-                    String::new()
-                }),
-            )
+            .footer(footer)
     };
     let mk_row = || {
         serenity::CreateActionRow::Buttons(vec![

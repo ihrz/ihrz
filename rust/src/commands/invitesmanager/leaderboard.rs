@@ -108,13 +108,13 @@ pub async fn inv_lb(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
             .title(title.clone())
             .colour(0xFFB6C1)
             .description(desc)
-            .footer(
-                serenity::CreateEmbedFooter::new(fname.clone()).icon_url(if fbytes.is_some() {
-                    "attachment://footer_icon.png".to_string()
-                } else {
-                    String::new()
-                }),
-            )
+            .footer(if fbytes.is_some() {
+                serenity::CreateEmbedFooter::new(fname.clone())
+                    .icon_url("attachment://footer_icon.png")
+            } else {
+                // No icon means no icon_url at all, never an empty string.
+                serenity::CreateEmbedFooter::new(fname.clone())
+            })
             .timestamp(serenity::Timestamp::now());
         if !guild_icon_url.is_empty() {
             if guild_icon_bytes.is_some() {

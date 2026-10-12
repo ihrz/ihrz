@@ -226,18 +226,23 @@ pub async fn footer_parts(ctx: &Ctx<'_>, guild_id: &str) -> (String, Option<Vec<
 }
 
 /// Apply the shared footer (text + optional icon attachment) to an embed.
+/// No icon means no `icon_url` at all: an empty-string URL is invalid
+/// and an unreferenced attachment renders as an orphan file, so the
+/// footer stays text-only in that case. Callers must attach a file
+/// named `footer_icon.png` to the same message exactly when
+/// `with_icon` is true.
 pub fn embed_with_footer(
     embed: poise::serenity_prelude::CreateEmbed,
     name: &str,
     with_icon: bool,
 ) -> poise::serenity_prelude::CreateEmbed {
-    embed.footer(
-        poise::serenity_prelude::CreateEmbedFooter::new(name.to_string()).icon_url(if with_icon {
-            "attachment://footer_icon.png".to_string()
-        } else {
-            String::new()
-        }),
-    )
+    let footer = if with_icon {
+        poise::serenity_prelude::CreateEmbedFooter::new(name.to_string())
+            .icon_url("attachment://footer_icon.png")
+    } else {
+        poise::serenity_prelude::CreateEmbedFooter::new(name.to_string())
+    };
+    embed.footer(footer)
 }
 
 /// Prefix-display name lookup. Mirrors the `prefixName || name` display

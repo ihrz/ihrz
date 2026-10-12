@@ -75,8 +75,9 @@ pub async fn backup_list(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         // !list.ts:100: an empty field value is rejected by the
         // Discord API, so one corrupt row must not break the reply.
         .filter_map(|(id, raw)| {
-            super::backup::backup_summary(raw)
-                .map(|(name, cats, chans)| super::backup::backup_field(&name, id, cats, chans, &tpl))
+            super::backup::backup_summary(raw).map(|(name, cats, chans)| {
+                super::backup::backup_field(&name, id, cats, chans, &tpl)
+            })
         })
         .collect();
     // Mirrors the generateEmbed description switch in !list.ts:110
@@ -105,15 +106,18 @@ pub async fn backup_list(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         let mut embed = serenity::CreateEmbed::default()
             .description(head.clone())
             .colour(serenity::Colour::new(BACKUP_LIST_COLOR))
-            .author(author.clone())
-            .footer(
-                serenity::CreateEmbedFooter::new(footer).icon_url(if fbytes.is_some() {
-                    "attachment://footer_icon.png".to_string()
-                } else {
-                    String::new()
-                }),
+            .author(author.clone());
+        // No icon means omit the icon reference entirely: an empty-string
+        // icon_url would be a dangling reference, and attaching the file
+        // without a reference would render it as an orphan attachment.
+        embed = if fbytes.is_some() {
+            embed.footer(
+                serenity::CreateEmbedFooter::new(footer).icon_url("attachment://footer_icon.png"),
             )
-            .timestamp(serenity::Timestamp::now());
+        } else {
+            embed.footer(serenity::CreateEmbedFooter::new(footer))
+        };
+        embed = embed.timestamp(serenity::Timestamp::now());
         for (name, value) in fields
             .iter()
             .skip(page * super::backup::BACKUPS_PER_PAGE)

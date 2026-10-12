@@ -125,15 +125,18 @@ pub async fn mod_ban(
     // fields + branded footer), not the legacy plain-text key.
     let gid = guild_id.get().to_string();
     let (footer_name, footer_bytes) = crate::commands::utils::footer_parts(&ctx, &gid).await;
-    let embed = crate::commands::utils::embed_with_footer(
-        serenity::CreateEmbed::default()
-            .title(t("setjoinroles_var_perm_ban_members"))
-            .field(t("var_member"), member.to_string(), true)
-            .field(t("var_author"), ctx.author().to_string(), true)
-            .field(t("var_reason"), reason, true),
-        &footer_name,
-        footer_bytes.is_some(),
-    );
+    // No icon means plain footer text (never an empty-string icon_url);
+    // the file is attached below only when the footer references it.
+    let embed_base = serenity::CreateEmbed::default()
+        .title(t("setjoinroles_var_perm_ban_members"))
+        .field(t("var_member"), member.to_string(), true)
+        .field(t("var_author"), ctx.author().to_string(), true)
+        .field(t("var_reason"), reason, true);
+    let embed = if footer_bytes.is_some() {
+        crate::commands::utils::embed_with_footer(embed_base, &footer_name, true)
+    } else {
+        embed_base.footer(serenity::CreateEmbedFooter::new(footer_name.clone()))
+    };
     let mut reply = poise::CreateReply::default().embed(embed);
     if let Some(bytes) = footer_bytes {
         reply = reply.attachment(serenity::CreateAttachment::bytes(bytes, "footer_icon.png"));

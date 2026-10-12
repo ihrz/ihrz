@@ -180,7 +180,13 @@ pub async fn m_lyrics(
     let reply = match &gid_str {
         Some(g) => {
             let (fname, fbytes) = footer_parts(&ctx, g).await;
-            embed = embed_with_footer(embed, &fname, fbytes.is_some());
+            // No icon means plain footer text (never an empty-string
+            // icon_url); the file is attached below only when referenced.
+            if fbytes.is_some() {
+                embed = embed_with_footer(embed, &fname, true);
+            } else {
+                embed = embed.footer(serenity::CreateEmbedFooter::new(fname.clone()));
+            }
             let mut r = poise::CreateReply::default().embed(embed);
             if let Some(bytes) = fbytes {
                 r = r.attachment(serenity::CreateAttachment::bytes(bytes, "footer_icon.png"));

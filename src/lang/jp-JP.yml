@@ -484,7 +484,7 @@ irisweb_message: "😼ナヤウェブは私の2番目の開発者/貢献者 , �
 # /status
 
 # /help
-help_tip_embed: "```${client.user?.username} ・ ヘルプメニュー```\n${client.iHorizon_Emojis.Pin} ・ **${categories.length}** 利用可能なコマンドカテゴリ\n${client.iHorizon_Emojis.Slash_Bot_Badge} ・ **${client.content.filter(c => c.messageCmd === false).length}** 利用可能なスラッシュコマンド\n${client.iHorizon_Emojis.Crown} ・ **作成者** <@${config.owner.ownerid1}>, <@${config.owner.ownerid2}>\n\n```知ってますか？ ・ ヒント```\n${client.iHorizon_Emojis.VC_Region} ・ ${client.user?.username} は**100％マルチ言語**です\n${client.iHorizon_Emojis.Slash_Bot_Badge} ・ `/setlang language:Japanese`\\n${client.iHorizon_Emojis.Slash_Bot_Badge} ・ 現在Rustで書き換え中"
+help_tip_embed: "```${client.user?.username} ・ ヘルプメニュー```\n${client.iHorizon_Emojis.Pin} ・ **${categories.length}** 利用可能なコマンドカテゴリ\n${client.iHorizon_Emojis.Slash_Bot_Badge} ・ **${client.content.filter(c => c.messageCmd === false).length}** 利用可能なスラッシュコマンド\n${client.iHorizon_Emojis.Crown} ・ **作成者** <@${config.owner.ownerid1}>, <@${config.owner.ownerid2}>\n\n```知ってますか？ ・ ヒント```\n${client.iHorizon_Emojis.VC_Region} ・ ${client.user?.username} は**100％マルチ言語**です\n${client.iHorizon_Emojis.Slash_Bot_Badge} ・ `/setlang language:Japanese`"
 help_mod_fields: "モデレーション"
 help_ranks_fields: "ランク"
 help_fun_fields: "楽しい"

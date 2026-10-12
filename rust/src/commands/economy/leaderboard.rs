@@ -164,13 +164,12 @@ pub async fn eco_leaderboard(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
             .title(title.clone())
             .colour(0xFFD700)
             .description(desc)
-            .footer(
-                serenity::CreateEmbedFooter::new(footer).icon_url(if fbytes.is_some() {
-                    "attachment://footer_icon.png".to_string()
-                } else {
-                    String::new()
-                }),
-            )
+            .footer(if fbytes.is_some() {
+                serenity::CreateEmbedFooter::new(footer).icon_url("attachment://footer_icon.png")
+            } else {
+                // No icon means no icon_url at all, never an empty string.
+                serenity::CreateEmbedFooter::new(footer)
+            })
             .timestamp(serenity::Timestamp::now())
     };
     let mk_row = |page: usize| {

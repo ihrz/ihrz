@@ -65,23 +65,21 @@ pub async fn admin_users(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let footer_icon = footer_bytes.is_some();
     let mk_embed = |cur: usize, hide_bots: bool| {
         let (title, desc) = pages[cur].clone();
+        let mut footer =
+            serenity::CreateEmbedFooter::new(crate::commands::shared::footer_page_text(
+                &footer_name,
+                &page_word,
+                (cur + 1) as u64,
+                total as u64,
+            ));
+        if footer_icon {
+            footer = footer.icon_url("attachment://footer_icon.png");
+        }
         serenity::CreateEmbed::default()
             .colour(serenity::Colour::from_rgb(0x01, 0x01, 0x01))
             .title(title)
             .description(filter_admin_bots(&desc, hide_bots))
-            .footer(
-                serenity::CreateEmbedFooter::new(crate::commands::shared::footer_page_text(
-                    &footer_name,
-                    &page_word,
-                    (cur + 1) as u64,
-                    total as u64,
-                ))
-                .icon_url(if footer_icon {
-                    "attachment://footer_icon.png".to_string()
-                } else {
-                    String::new()
-                }),
-            )
+            .footer(footer)
             .timestamp(serenity::Timestamp::now())
     };
     let mk_row = |hide_bots: bool| {
@@ -194,6 +192,10 @@ pub async fn admin_users(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
                             bad += 1;
                         }
                     }
+                    let mut done_footer = serenity::CreateEmbedFooter::new(footer_name.clone());
+                    if footer_icon {
+                        done_footer = done_footer.icon_url("attachment://footer_icon.png");
+                    }
                     let mut done = serenity::CreateEmbed::default()
                         .colour(serenity::Colour::from_rgb(0x00, 0x7F, 0xFF))
                         .timestamp(serenity::Timestamp::now())
@@ -203,15 +205,7 @@ pub async fn admin_users(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
                             good,
                             bad,
                         ))
-                        .footer(
-                            serenity::CreateEmbedFooter::new(footer_name.clone()).icon_url(
-                                if footer_icon {
-                                    "attachment://footer_icon.png".to_string()
-                                } else {
-                                    String::new()
-                                },
-                            ),
-                        );
+                        .footer(done_footer);
                     if let Some(thumb) = icon_url.clone() {
                         done = done.thumbnail(thumb);
                     }

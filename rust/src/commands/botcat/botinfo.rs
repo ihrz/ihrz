@@ -67,9 +67,8 @@ pub async fn botinfo_full(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         .map(|g| g.get().to_string())
         .unwrap_or_default();
     let (footer_name, footer_bytes) = crate::commands::utils::footer_parts(&ctx, &gid).await;
-    let embed = serenity::CreateEmbed::default()
+    let mut embed = serenity::CreateEmbed::default()
         .colour(0xF0D020)
-        .thumbnail("attachment://footer_icon.png")
         .field(
             t("botinfo_embed_fields_myname", "My Name:"),
             format!("```{me}```"),
@@ -107,6 +106,12 @@ pub async fn botinfo_full(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         )
         // TS botinfo.ts calls .setTimestamp() on the info embed.
         .timestamp(serenity::Timestamp::now());
+    // The thumbnail reuses the footer icon file: only reference it
+    // when the attachment is actually sent below, otherwise the
+    // thumbnail dangles and the file renders as an orphan.
+    if footer_bytes.is_some() {
+        embed = embed.thumbnail("attachment://footer_icon.png");
+    }
     let embed =
         crate::commands::utils::embed_with_footer(embed, &footer_name, footer_bytes.is_some());
     let mut reply = poise::CreateReply::default().embed(embed);

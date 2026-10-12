@@ -846,7 +846,15 @@ async fn send_with_footer(
         .map(|g| g.get().to_string())
         .unwrap_or_default();
     let (fname, fbytes) = crate::commands::shared::footer_parts(ctx, &gid).await;
-    let embed = crate::commands::shared::embed_with_footer(embed, &fname, fbytes.is_some());
+    // No icon means plain footer text (never an empty-string icon_url);
+    // the file is attached below only when the footer references it.
+    let embed = if fbytes.is_some() {
+        crate::commands::shared::embed_with_footer(embed, &fname, true)
+    } else {
+        embed.footer(poise::serenity_prelude::CreateEmbedFooter::new(
+            fname.clone(),
+        ))
+    };
     let mut reply = poise::CreateReply::default().embed(embed);
     if let Some(bytes) = fbytes {
         reply = reply.attachment(poise::serenity_prelude::CreateAttachment::bytes(

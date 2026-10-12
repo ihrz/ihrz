@@ -72,16 +72,14 @@ pub async fn syncchan(
     };
     let gid = guild_id.get().to_string();
     let (footer_name, footer_bytes) = footer_parts(&ctx, &gid).await;
+    let mut footer = serenity::CreateEmbedFooter::new(footer_name);
+    if footer_bytes.is_some() {
+        footer = footer.icon_url("attachment://footer_icon.png");
+    }
     let embed = serenity::CreateEmbed::default()
         .colour(serenity::Colour::from_rgb(0x58, 0x65, 0xF2))
         .description(desc)
-        .footer(
-            serenity::CreateEmbedFooter::new(footer_name).icon_url(if footer_bytes.is_some() {
-                "attachment://footer_icon.png".to_string()
-            } else {
-                String::new()
-            }),
-        )
+        .footer(footer)
         .timestamp(serenity::Timestamp::now());
     let mut reply = poise::CreateReply::default().embed(embed);
     if let Some(bytes) = footer_bytes {

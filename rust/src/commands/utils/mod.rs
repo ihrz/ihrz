@@ -1057,17 +1057,15 @@ pub async fn post_admin_page(
         (page + 1) as u64,
         pages.len() as u64,
     );
+    let mut footer = serenity::CreateEmbedFooter::new(footer_text);
+    if icon_bytes.is_some() {
+        footer = footer.icon_url("attachment://footer_icon.png");
+    }
     let embed = serenity::CreateEmbed::default()
         .colour(serenity::Colour::from_rgb(1, 1, 1))
         .title(pages[page].0.clone())
         .description(pages[page].1.clone())
-        .footer(
-            serenity::CreateEmbedFooter::new(footer_text).icon_url(if icon_bytes.is_some() {
-                "attachment://footer_icon.png".to_string()
-            } else {
-                String::new()
-            }),
-        )
+        .footer(footer)
         .timestamp(serenity::Timestamp::now());
     let mut reply = poise::CreateReply::default()
         .embed(embed)
@@ -1189,17 +1187,15 @@ async fn update_admin_page(
         pages.len() as u64,
     );
     let with_icon = icon_bytes.is_some();
+    let mut footer = serenity::CreateEmbedFooter::new(footer_text);
+    if with_icon {
+        footer = footer.icon_url("attachment://footer_icon.png");
+    }
     let embed = serenity::CreateEmbed::default()
         .colour(serenity::Colour::from_rgb(1, 1, 1))
         .title(pages[page].0.clone())
         .description(pages[page].1.clone())
-        .footer(
-            serenity::CreateEmbedFooter::new(footer_text).icon_url(if with_icon {
-                "attachment://footer_icon.png".to_string()
-            } else {
-                String::new()
-            }),
-        )
+        .footer(footer)
         .timestamp(serenity::Timestamp::now());
     let _ = comp
         .create_response(
