@@ -37,6 +37,8 @@ mod mailer;
 mod metadata;
 mod modal_helper;
 mod monitor;
+#[cfg(test)]
+mod qa_load;
 mod scheduler;
 mod slashlog;
 mod stats_calc;
