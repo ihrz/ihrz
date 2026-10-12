@@ -2,7 +2,7 @@ use super::*;
 
 use super::{restore::gc_config_restore, save::gc_config_save, show::gc_show};
 
-/// Guild config save/show/restore.
+/// Subcommand for iHorizon's guild config restore/save
 // Mirrors the TS `guildconfig` SlashCommand `config` SubcommandGroup
 // (`guildconfig.ts`: `config show`, `config restore`, `config save`).
 #[poise::command(

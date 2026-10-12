@@ -33,19 +33,19 @@ pub async fn mod_timeout(
     #[description_localized("ja", "ミュート解除したいユーザー")]
     #[description_localized("ru", "Пользователь для размута")]
     #[description_localized("es-ES", "El usuario que quieres desilenciar")]
-    #[description = "Member"]
+    #[description = "The user you want to unmuted"]
     user: serenity::User,
     #[description_localized("fr", "la durée du tempmute de l'utilisateur")]
     #[description_localized("ja", "ユーザーの一時的ミュート期間")]
     #[description_localized("ru", "длительность временного мута")]
     #[description_localized("es-ES", "la duración del silencio temporal")]
-    #[description = "Duration (e.g. 10m, 1h, 7d)"]
+    #[description = "the duration of the user's tempmute"]
     time: String,
     #[description_localized("fr", "la raison du tempmute")]
     #[description_localized("ja", "一時的ミュートの理由")]
     #[description_localized("ru", "причина временного мута")]
     #[description_localized("es-ES", "la razón del silencio temporal")]
-    #[description = "Reason"]
+    #[description = "the reason why you tempmuted"]
     reason: Option<String>,
 ) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {

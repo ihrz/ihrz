@@ -1,7 +1,7 @@
 use super::*;
 use poise::serenity_prelude as serenity;
 
-/// Clear one user's warns. Mirrors !clearwarn.ts.
+/// clear all warns of a user
 #[poise::command(
     slash_command,
     prefix_command,
@@ -19,7 +19,7 @@ pub async fn mod_clearwarn(
     #[description_localized("ja", "クリアしたいメンバー")]
     #[description_localized("ru", "Участник для очистки")]
     #[description_localized("es-ES", "El miembro que quieres limpiar")]
-    #[description = "Member"]
+    #[description = "The member you want to clear"]
     member: serenity::User,
 ) -> Result<(), anyhow::Error> {
     let gid = ctx

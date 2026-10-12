@@ -225,10 +225,21 @@ pub fn display_name(code: &str, auto_id: &str) -> String {
 pub async fn gc_setlogs(
     ctx: Ctx<'_>,
     // TS HybridCommands/guildconfig/setlogschannel.ts registers "type".
-    #[description = "Log type"]
+    #[description = "Specified logs category"]
+    #[description_localized("fr", "Spécifier le canal de journaux")]
+    #[description_localized("ja", "指定されたログカテゴリ")]
+    #[description_localized("ru", "Указанная категория логов")]
+    #[description_localized("es-ES", "Categoría de registros especificada")]
     #[rename = "type"]
     log_type: SetLogsKind,
-    #[description = "Channel"]
+    #[description = "The channel you want your logs message!"]
+    #[description_localized(
+        "fr",
+        "Le canal sur lequel vous souhaitez recevoir votre message de journaux"
+    )]
+    #[description_localized("ja", "ログメッセージを送信したいチャンネル！")]
+    #[description_localized("ru", "Канал для сообщений логов!")]
+    #[description_localized("es-ES", "El canal donde quieres tus mensajes de registro!")]
     #[channel_types("Text")]
     channel: Option<serenity::GuildChannel>,
 ) -> Result<(), anyhow::Error> {

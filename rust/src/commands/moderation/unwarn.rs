@@ -18,13 +18,13 @@ pub async fn mod_unwarn(
     #[description_localized("ja", "警告を解除したいメンバー")]
     #[description_localized("ru", "Участник для снятия предупреждения")]
     #[description_localized("es-ES", "El miembro al que quieres quitar la advertencia")]
-    #[description = "Member"]
+    #[description = "The member you want to unwarn"]
     member: serenity::User,
     #[description_localized("fr", "l'identifiant du warn")]
     #[description_localized("ja", "警告ID")]
     #[description_localized("ru", "ID предупреждения")]
     #[description_localized("es-ES", "El ID de la advertencia")]
-    #[description = "Warn id"]
+    #[description = "The warn id"]
     #[rename = "warn-id"]
     warn_id: String,
 ) -> Result<(), anyhow::Error> {

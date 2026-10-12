@@ -126,7 +126,7 @@ fn build_apply_message(
     }
 }
 
-/// Interactive role setup: select roles, apply to a member.
+/// Give selected roles to a member through a panel
 #[poise::command(
     slash_command,
     prefix_command,
@@ -144,7 +144,7 @@ pub async fn mod_rolepanel(
     #[description_localized("ja", "ロールを受け取るメンバー")]
     #[description_localized("ru", "Участник, который получит роли")]
     #[description_localized("es-ES", "El miembro que recibirá los roles")]
-    #[description = "Member the panel is for (default yourself)"]
+    #[description = "The member who will receive the roles"]
     member: Option<serenity::User>,
 ) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {

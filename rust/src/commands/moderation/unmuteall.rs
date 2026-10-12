@@ -1,7 +1,7 @@
 use super::*;
 use poise::serenity_prelude as serenity;
 
-/// Unmute all timed-out members.
+/// Unmute all muted members!
 #[poise::command(
     slash_command,
     prefix_command,

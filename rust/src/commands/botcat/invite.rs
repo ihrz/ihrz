@@ -2,8 +2,9 @@ use super::*;
 use crate::commands::shared::{embed_with_footer, footer_parts};
 use poise::serenity_prelude as serenity;
 
-/// Get the bot invite link. Mirrors invite.ts (embed + "Add me" link
-/// button, not a bare URL).
+/// Get the bot invite link!
+///
+/// Mirrors invite.ts (embed + "Add me" link button, not a bare URL).
 #[poise::command(
     slash_command,
     prefix_command,

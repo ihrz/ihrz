@@ -19,19 +19,19 @@ pub async fn mod_tempban(
     #[description_localized("ja", "一時的にバンしたいユーザー")]
     #[description_localized("ru", "Пользователь для временного бана")]
     #[description_localized("es-ES", "El usuario que quieres banear temporalmente")]
-    #[description = "Member"]
+    #[description = "The user you want to temporarily ban"]
     user: serenity::User,
     #[description_localized("fr", "La durée du bannissement (ex: 1h, 3j, 1s)")]
     #[description_localized("ja", "バン期間（例: 1h, 3d, 1w）")]
     #[description_localized("ru", "Длительность бана (напр., 1ч, 3д, 1н)")]
     #[description_localized("es-ES", "La duración del baneo (ej., 1h, 3d, 1s)")]
-    #[description = "Duration (e.g. 10m, 1h, 7d)"]
+    #[description = "The duration of the ban (e.g., 1h, 3d, 1w)"]
     duration: String,
     #[description_localized("fr", "La raison du bannissement")]
     #[description_localized("ja", "バンの理由")]
     #[description_localized("ru", "Причина бана")]
     #[description_localized("es-ES", "La razón del baneo")]
-    #[description = "Reason"]
+    #[description = "The reason for the ban"]
     reason: Option<String>,
 ) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {

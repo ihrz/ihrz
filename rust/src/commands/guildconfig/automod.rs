@@ -391,19 +391,50 @@ pub async fn sync_mention_rule(
 }
 
 macro_rules! keyword_command {
-    ($fn_name:ident, $sub:literal, $kind:literal, $desc:literal) => {
+    (
+        $fn_name:ident,
+        $sub:literal,
+        $kind:literal,
+        $desc:literal,
+        $desc_fr:literal,
+        $desc_ja:literal,
+        $desc_ru:literal,
+        $desc_es:literal,
+        $logs_desc:literal,
+        $logs_ja:literal,
+        $logs_ru:literal,
+        $logs_es:literal
+    ) => {
 #[doc = $desc]
         #[poise::command(
-                                                    slash_command,
-    prefix_command,
-                                                    rename = $sub,
-                                                    default_member_permissions = "ADMINISTRATOR"
-                                                )]
+            slash_command,
+            prefix_command,
+            rename = $sub,
+            default_member_permissions = "ADMINISTRATOR",
+            description_localized("fr", $desc_fr),
+            description_localized("ja", $desc_ja),
+            description_localized("ru", $desc_ru),
+            description_localized("es-ES", $desc_es)
+        )]
         pub async fn $fn_name(
             ctx: Ctx<'_>,
-            #[description = "on or off"] action: AutomodAction,
-            #[description = "Logs channel"]
+            #[description = "What you want to do?"]
+            #[description_localized("fr", "Que veux-tu faire?")]
+            #[description_localized("ja", "何をしたいですか？")]
+            #[description_localized("ru", "Что вы хотите сделать?")]
+            #[description_localized("es-ES", "Que quieres hacer?")]
+            action: AutomodAction,
+            #[description = $logs_desc]
+            #[description_localized(
+                "fr",
+                "Le canal où vous souhaitez mettre les logs lorsque l'utilisateur enfreint les règles"
+            )]
+            #[description_localized("ja", $logs_ja)]
+            #[description_localized("ru", $logs_ru)]
+            #[description_localized("es-ES", $logs_es)]
             #[channel_types("Text")]
+            // TS SlashCommands/guildconfig/automod registers "logs-channel".
+            #[rename = "logs-channel"]
             logs_channel: Option<serenity::GuildChannel>,
         ) -> Result<(), anyhow::Error> {
             let gid = ctx
@@ -455,7 +486,7 @@ macro_rules! keyword_command {
     };
 }
 
-/// Automod parent.
+/// Subcommand for automod category!
 // Mirrors the TS `automod` command (automod.ts:31-41): its only
 // top-level option is the `block` SubcommandGroup below, which holds
 // the five toggles (discord_invite_link, telegram_link, link,
@@ -514,7 +545,15 @@ keyword_command!(
     gc_automod_link,
     "link",
     "link",
-    "Allow/Unallow the user to send links into them messages!"
+    "Allow/Unallow the user to send links into them messages!",
+    "Autoriser/Interdire à l'utilisateur d'envoyer des liens dans ses messages",
+    "ユーザーがリンクを送信するのを許可/禁止！",
+    "Разрешить/запретить отправку ссылок!",
+    "Permitir/Denegar al usuario enviar enlaces en sus mensajes!",
+    "The channel you want logs when user break the rules!",
+    "ユーザーがルールを破った時のログを送信するチャンネル！",
+    "Канал для логов при нарушении правил!",
+    "El canal donde quieres los registros cuando el usuario rompe las reglas!"
 );
 
 /// Block the spam message in this server!
@@ -525,12 +564,31 @@ keyword_command!(
     slash_command,
     prefix_command,
     rename = "spam",
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    description_localized("fr", "Bloquer le message spam sur ce serveur"),
+    description_localized("ja", "このサーバーでのスパムメッセージをブロック！"),
+    description_localized("ru", "Блокировать спам-сообщения на этом сервере!"),
+    description_localized("es-ES", "Bloquear los mensajes de spam en este servidor!")
 )]
 pub async fn gc_automod_spam(
     ctx: Ctx<'_>,
-    #[description = "on or off"] action: AutomodAction,
-    #[description = "Logs channel"]
+    #[description = "What you want to do?"]
+    #[description_localized("fr", "Que veux-tu faire?")]
+    #[description_localized("ja", "何をしたいですか？")]
+    #[description_localized("ru", "Что вы хотите сделать?")]
+    #[description_localized("es-ES", "Que quieres hacer?")]
+    action: AutomodAction,
+    #[description = "The channel you want logs when user break the rules"]
+    #[description_localized(
+        "fr",
+        "Le canal où vous souhaitez mettre les logs lorsque l'utilisateur enfreint les règles"
+    )]
+    #[description_localized("ja", "ユーザーがルールを破った時のログを送信するチャンネル")]
+    #[description_localized("ru", "Канал для логов при нарушении правил")]
+    #[description_localized(
+        "es-ES",
+        "El canal donde quieres los registros cuando el usuario rompe las reglas"
+    )]
     #[channel_types("Text")]
     // TS SlashCommands/guildconfig/automod/!spam.ts registers "logs-channel".
     #[rename = "logs-channel"]
@@ -592,15 +650,44 @@ pub async fn gc_automod_spam(
     slash_command,
     prefix_command,
     rename = "mass-mention",
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    description_localized("fr", "Bloquez les spams mentionnés en masse dans ce message"),
+    description_localized("ja", "大量メンションを含むスパムをブロック！"),
+    description_localized("ru", "Блокировать спам с массовыми упоминаниями!"),
+    description_localized(
+        "es-ES",
+        "Bloquear el spam que tiene menciones masivas en este mensaje!"
+    )
 )]
 pub async fn gc_automod_mass(
     ctx: Ctx<'_>,
-    #[description = "on or off"] action: AutomodAction,
-    #[description = "Max mentions allowed"]
+    #[description = "What you want to do?"]
+    #[description_localized("fr", "Que voulez-vous faire?")]
+    #[description_localized("ja", "何をしたいですか？")]
+    #[description_localized("ru", "Что вы хотите сделать?")]
+    #[description_localized("es-ES", "Que quieres hacer?")]
+    action: AutomodAction,
+    #[description = "Max amount of mention allowed in only one message !"]
+    #[description_localized("fr", "Nombre maximum de mentions autorisées dans un seul message")]
+    #[description_localized("ja", "1つのメッセージで許可される最大メンション数！")]
+    #[description_localized("ru", "Максимальное количество упоминаний в одном сообщении!")]
+    #[description_localized(
+        "es-ES",
+        "Cantidad máxima de menciones permitidas en un solo mensaje!"
+    )]
     #[rename = "max-mention-allowed"]
     max_mention: Option<i64>,
-    #[description = "Logs channel"]
+    #[description = "The channel you want logs when user break the rules"]
+    #[description_localized(
+        "fr",
+        "Le canal où vous souhaitez mettre les logs lorsque l'utilisateur enfreint les règles"
+    )]
+    #[description_localized("ja", "ユーザーがルールを破った時のログを送信するチャンネル")]
+    #[description_localized("ru", "Канал для логов при нарушении правил")]
+    #[description_localized(
+        "es-ES",
+        "El canal donde quieres los registros cuando el usuario rompe las reglas"
+    )]
     #[channel_types("Text")]
     // TS SlashCommands/guildconfig/automod/!mass-mention.ts registers "logs-channel".
     #[rename = "logs-channel"]
@@ -668,14 +755,30 @@ keyword_command!(
     gc_automod_discord,
     "discord_invite_link",
     "discord-invite",
-    "Allow/Unallow the user to send a server invites into them messages!"
+    "Allow/Unallow the user to send a server invites into them messages!",
+    "Autoriser/Interdire à l'utilisateur d'envoyer une invitations de serveur dans ses messages",
+    "ユーザーがサーバー招待を送信するのを許可/禁止！",
+    "Разрешить/запретить отправку приглашений сервера!",
+    "Permitir/Denegar al usuario enviar invitaciones de servidor en sus mensajes!",
+    "The channel you want logs when user break the rules!",
+    "ユーザーがルールを破った時のログを送信するチャンネル！",
+    "Канал для логов при нарушении правил!",
+    "El canal donde quieres los registros cuando el usuario rompe las reglas!"
 );
 
 keyword_command!(
     gc_automod_telegram,
     "telegram_link",
     "telegram",
-    "Allow/Unallow the user to send Telegram links into them messages!"
+    "Allow/Unallow the user to send Telegram links into them messages!",
+    "Autoriser/Interdire à l'utilisateur d'envoyer des liens Telegram dans ses messages",
+    "ユーザーがTelegramリンクを送信するのを許可/禁止！",
+    "Разрешить/запретить отправку ссылок Telegram!",
+    "Permitir/Denegar al usuario enviar enlaces de Telegram en sus mensajes!",
+    "The channel you want logs when user break the rules!",
+    "ユーザーがルールを破った時のログを送信するチャンネル！",
+    "Канал для логов при нарушении правил!",
+    "El canal donde quieres los registros cuando el usuario rompe las reglas!"
 );
 
 #[cfg(test)]

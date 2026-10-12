@@ -31,7 +31,7 @@ impl CustomAvatarAction {
     }
 }
 
-/// Set or reset the per-guild bot avatar.
+/// Change the iHorizon avatar into your server
 #[poise::command(
     slash_command,
     prefix_command,
@@ -45,13 +45,13 @@ impl CustomAvatarAction {
 )]
 pub async fn custom_avatar(
     ctx: Ctx<'_>,
-    #[description = "set or reset"]
+    #[description = "What do you want to do ?"]
     #[description_localized("fr", "Que voulez-vous faire ?")]
     #[description_localized("ja", "何をしたいですか？")]
     #[description_localized("ru", "Что вы хотите сделать?")]
     #[description_localized("es-ES", "¿Qué quieres hacer?")]
     action: CustomAvatarAction,
-    #[description = "New avatar image"]
+    #[description = "The avatar"]
     #[description_localized("fr", "L'avatar du bot")]
     #[description_localized("ja", "アバター")]
     #[description_localized("ru", "Аватар")]

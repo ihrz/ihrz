@@ -25,7 +25,7 @@ pub async fn mod_unlock_all(
     #[description_localized("ja", "ロール")]
     #[description_localized("ru", "Роль")]
     #[description_localized("es-ES", "El rol")]
-    #[description = "Role to unlock (default @everyone)"]
+    #[description = "The role"]
     role: Option<serenity::Role>,
 ) -> Result<(), anyhow::Error> {
     lock_all_inner(&ctx, true, role).await

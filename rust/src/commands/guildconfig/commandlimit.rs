@@ -81,12 +81,30 @@ async fn commandlimit_command_autocomplete(_ctx: Ctx<'_>, partial: &str) -> Vec<
 )]
 pub async fn gc_commandlimit(
     ctx: Ctx<'_>,
-    #[description = "set, reset or list"] action: CommandLimitAction,
-    #[description = "Command name"]
+    #[description = "Action to apply on command limits"]
+    #[description_localized("fr", "Action à appliquer sur les limites de commandes")]
+    #[description_localized("ja", "コマンド制限に適用するアクション")]
+    #[description_localized("ru", "Действие для применения к лимитам команд")]
+    #[description_localized("es-ES", "Acción a aplicar en los límites de comandos")]
+    action: CommandLimitAction,
+    #[description = "Search the command or subcommand"]
+    #[description_localized("fr", "Rechercher la commande ou la sous-commande")]
+    #[description_localized("ja", "コマンドまたはサブコマンドを検索")]
+    #[description_localized("ru", "Искать команду или подкоманду")]
+    #[description_localized("es-ES", "Buscar el comando o subcomando")]
     #[autocomplete = "commandlimit_command_autocomplete"]
     command: Option<String>,
-    #[description = "Max uses"] count: Option<i64>,
-    #[description = "Window (e.g. 10s, 1m, 1h)"]
+    #[description = "Maximum number of uses in the window"]
+    #[description_localized("fr", "Nombre maximum d'utilisations dans la fenêtre")]
+    #[description_localized("ja", "ウィンドウ内の最大使用回数")]
+    #[description_localized("ru", "Максимальное количество использований в окне")]
+    #[description_localized("es-ES", "Número máximo de usos en la ventana")]
+    count: Option<i64>,
+    #[description = "Time window like 10s, 1m, 5m, 1h"]
+    #[description_localized("fr", "Fenêtre de temps comme 10s, 1m, 5m, 1h")]
+    #[description_localized("ja", "時間枠（例: 10s, 1m, 5m, 1h）")]
+    #[description_localized("ru", "Временное окно, например 10с, 1м, 5м, 1ч")]
+    #[description_localized("es-ES", "Ventana de tiempo como 10s, 1m, 5m, 1h")]
     #[rename = "window-time"]
     window: Option<String>,
 ) -> Result<(), anyhow::Error> {

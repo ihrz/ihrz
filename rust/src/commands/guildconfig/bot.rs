@@ -2,9 +2,9 @@ use super::*;
 
 use super::prefix::gc_prefix;
 
-/// Bot settings for this guild.
+/// Set someting/behaviours in the bot!
 // Mirrors the TS `guildconfig` SlashCommand `bot` SubcommandGroup
-// (`guildconfig.ts`: `bot prefix`).
+// (`guildconfig.ts`: `bot prefix`; `someting` typo kept verbatim).
 #[poise::command(
     slash_command,
     prefix_command,

@@ -1,7 +1,7 @@
 use super::*;
 use poise::serenity_prelude as serenity;
 
-/// Show all links about iHorizon.
+/// Show all links about iHorizon
 ///
 /// Mirrors link.ts (message content plus website/GitLab link buttons).
 #[poise::command(

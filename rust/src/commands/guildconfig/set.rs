@@ -5,12 +5,12 @@ use super::{
     welcomer::gc_wc_embed, welcomer::gc_wc_panel, welcomer::gc_wc_text,
 };
 
-/// Welcomer module settings.
+/// Set someting/behaviours into this guild!
 // Mirrors the TS `guildconfig` SlashCommand `set` SubcommandGroup
-// (`guildconfig.ts`: `set welcomer`). The `wc_*` leaves plus
-// `joindm`/`joinrole` are the Rust split of that welcomer surface
-// (TS homes are the `welcomerPanel` buttons / prefix flows, so they
-// have no standalone slash home).
+// (`guildconfig.ts`: `set welcomer`; `someting` typo kept verbatim).
+// The `wc_*` leaves plus `joindm`/`joinrole` are the Rust split of
+// that welcomer surface (TS homes are the `welcomerPanel` buttons /
+// prefix flows, so they have no standalone slash home).
 #[poise::command(
     slash_command,
     prefix_command,

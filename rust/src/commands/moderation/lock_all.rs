@@ -1,7 +1,7 @@
 use super::*;
 use poise::serenity_prelude as serenity;
 
-/// Lock or unlock all text channels.
+/// Remove ability to speak of all users in all channels!
 #[poise::command(
     slash_command,
     prefix_command,
@@ -25,7 +25,7 @@ pub async fn mod_lock_all(
     #[description_localized("ja", "ロール")]
     #[description_localized("ru", "Роль")]
     #[description_localized("es-ES", "El rol")]
-    #[description = "Role to lock (default @everyone)"]
+    #[description = "The role"]
     role: Option<serenity::Role>,
 ) -> Result<(), anyhow::Error> {
     lock_all_inner(&ctx, false, role).await

@@ -58,7 +58,7 @@ pub(crate) async fn deny_foreign_press(
         .await;
 }
 
-/// List banned members.
+/// Show a list with all banned member
 #[poise::command(
     slash_command,
     prefix_command,

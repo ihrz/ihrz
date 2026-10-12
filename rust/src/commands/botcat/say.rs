@@ -15,7 +15,9 @@ pub fn stripped_mentions() -> serenity::CreateAllowedMentions {
         .replied_user(false)
 }
 
-/// Send a message through the bot. Mirrors say.ts (`"> " + content`).
+/// Sent a message throught the bot!
+///
+/// Mirrors say.ts (`"> " + content`).
 #[poise::command(
     slash_command,
     prefix_command,
@@ -28,7 +30,7 @@ pub fn stripped_mentions() -> serenity::CreateAllowedMentions {
 )]
 pub async fn say(
     ctx: Ctx<'_>,
-    #[description = "What you want the bot to say"]
+    #[description = "What you want the bot to say!"]
     #[name_localized("fr", "contenu")]
     #[name_localized("ja", "content")]
     #[name_localized("ru", "content")]

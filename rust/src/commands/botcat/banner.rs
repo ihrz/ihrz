@@ -31,7 +31,7 @@ impl CustomBannerAction {
     }
 }
 
-/// Set or reset the per-guild bot banner.
+/// Change the iHorizon banner into your server
 // Mirrors HybridCommands/bot/custom/!banner.ts (no DB key; set/reset
 // PATCH a `data:image/jpeg;base64,...` data URI, reset restores the
 // global banner, anything else replies the incorrect-file message).
@@ -48,13 +48,13 @@ impl CustomBannerAction {
 )]
 pub async fn custom_banner(
     ctx: Ctx<'_>,
-    #[description = "set or reset"]
+    #[description = "What do you want to do ?"]
     #[description_localized("fr", "Que voulez-vous faire ?")]
     #[description_localized("ja", "何をしたいですか？")]
     #[description_localized("ru", "Что вы хотите сделать?")]
     #[description_localized("es-ES", "¿Qué quieres hacer?")]
     action: CustomBannerAction,
-    #[description = "New banner image"]
+    #[description = "The banner"]
     #[description_localized("fr", "La bannière du bot")]
     #[description_localized("ja", "バナー")]
     #[description_localized("ru", "Баннер")]

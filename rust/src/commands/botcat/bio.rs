@@ -55,7 +55,7 @@ impl CustomBioAction {
         }
     }
 }
-/// Set or reset the per-guild bot bio.
+/// Change the iHorizon bio into your server
 // 400-char gate (like `!bio.ts`), then the 190-char/2-line sanitize
 // from customProfileHelper.
 #[poise::command(
@@ -71,13 +71,13 @@ impl CustomBioAction {
 )]
 pub async fn custom_bio(
     ctx: Ctx<'_>,
-    #[description = "set or reset"]
+    #[description = "What do you want to do ?"]
     #[description_localized("fr", "Que voulez-vous faire ?")]
     #[description_localized("ja", "何をしたいですか？")]
     #[description_localized("ru", "Что вы хотите сделать?")]
     #[description_localized("es-ES", "¿Qué quieres hacer?")]
     action: CustomBioAction,
-    #[description = "New bio"]
+    #[description = "The description"]
     #[description_localized("fr", "La bio du bot")]
     #[description_localized("ja", "説明")]
     #[description_localized("ru", "Описание")]

@@ -1,7 +1,8 @@
 use super::*;
 use poise::serenity_prelude as serenity;
 
-/// Lock a channel (deny SendMessages + Connect). Mirrors !lock.ts.
+/// Remove ability to speak of all users in this text channel!
+// Lock denies SendMessages + Connect. Mirrors !lock.ts.
 #[poise::command(
     slash_command,
     prefix_command,
@@ -24,7 +25,7 @@ pub async fn mod_lock(
     #[description_localized("ja", "ロール")]
     #[description_localized("ru", "Роль")]
     #[description_localized("es-ES", "El rol")]
-    #[description = "Role to lock (default @everyone)"]
+    #[description = "The role"]
     role: Option<serenity::Role>,
 ) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {

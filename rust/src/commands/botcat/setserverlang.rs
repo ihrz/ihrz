@@ -170,7 +170,9 @@ async fn apply_language(
     Ok(())
 }
 
-/// Set the server language (panel or direct code).
+/// Set the server language!
+///
+/// Panel or direct code (extra `lang` option beyond setserverlang.ts).
 #[poise::command(
     slash_command,
     prefix_command,

@@ -6,7 +6,7 @@ const PREV_ID: &str = "mod-mutelist-prev";
 const NEXT_ID: &str = "mod-mutelist-next";
 const TRASH_ID: &str = "mod-mutelist-trash";
 
-/// List muted members.
+/// Show a list with all muted member
 #[poise::command(
     slash_command,
     prefix_command,

@@ -36,7 +36,7 @@ pub async fn mod_clear(
     #[description_localized("ja", "削除したいメッセージ数！")]
     #[description_localized("ru", "Количество сообщений для удаления!")]
     #[description_localized("es-ES", "El número de mensajes que quieres eliminar!")]
-    #[description = "Amount (1-100)"]
+    #[description = "The number of message you want to delete !"]
     // TS HybridCommands/moderation/mod.ts registers "number" (!clear.ts getNumber).
     #[rename = "number"]
     amount: u64,
@@ -44,7 +44,7 @@ pub async fn mod_clear(
     #[description_localized("ja", "メッセージを削除したいメンバー")]
     #[description_localized("ru", "Участник, чьи сообщения удалить")]
     #[description_localized("es-ES", "El miembro del que quieres eliminar el mensaje")]
-    #[description = "Only this member's messages"]
+    #[description = "The member you want to delete the message"]
     member: Option<serenity::User>,
 ) -> Result<(), anyhow::Error> {
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;

@@ -8,7 +8,7 @@ fn ban_matches_want(ban_user_id: serenity::UserId, want: &str) -> bool {
     ban_user_id.get().to_string() == want.trim()
 }
 
-/// Unban a user by id.
+/// Unban a user!
 #[poise::command(
     slash_command,
     prefix_command,
@@ -26,14 +26,14 @@ pub async fn mod_unban(
     #[description_localized("ja", "バン解除したいユーザーのID！")]
     #[description_localized("ru", "ID пользователя для разбана!")]
     #[description_localized("es-ES", "El ID del usuario que quieres desbanear!")]
-    #[description = "User id"]
+    #[description = "The id of the user you want to unban !"]
     #[rename = "userid"]
     user_id: String,
     #[description_localized("fr", "La raison du bannissement de cet utilisateur")]
     #[description_localized("ja", "このユーザーのバン解除の理由。")]
     #[description_localized("ru", "Причина разбана этого пользователя.")]
     #[description_localized("es-ES", "La razón para desbanear a este usuario.")]
-    #[description = "Reason"]
+    #[description = "The reason for unbanning this user."]
     reason: Option<String>,
 ) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {

@@ -23,7 +23,7 @@ fn render_description(
     )
 }
 
-/// Show ban info for a user.
+/// Check if user is banned and why
 #[poise::command(
     slash_command,
     prefix_command,
@@ -43,7 +43,7 @@ pub async fn mod_baninfo(
     #[description_localized("ja", "確認したいメンバー")]
     #[description_localized("ru", "участник для проверки")]
     #[description_localized("es-ES", "el miembro que quieres comprobar")]
-    #[description = "User"]
+    #[description = "the member you want to check"]
     user: Option<serenity::User>,
 ) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {

@@ -18,13 +18,13 @@ pub async fn mod_kick(
     #[description_localized("ja", "キックしたいメンバー")]
     #[description_localized("ru", "участник для кика")]
     #[description_localized("es-ES", "el miembro que quieres expulsar")]
-    #[description = "Member"]
+    #[description = "the member you want to kick"]
     member: serenity::User,
     #[description_localized("fr", "la raison du kick")]
     #[description_localized("ja", "キックの理由")]
     #[description_localized("ru", "причина кика")]
     #[description_localized("es-ES", "la razón de la expulsión")]
-    #[description = "Reason"]
+    #[description = "the reason of the kick"]
     reason: Option<String>,
 ) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {

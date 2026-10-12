@@ -22,25 +22,25 @@ pub async fn mod_temprole(
     #[description_localized("ja", "ロールを追加したいメンバー")]
     #[description_localized("ru", "Участник, которому добавить роль")]
     #[description_localized("es-ES", "El miembro al que quieres añadir el rol")]
-    #[description = "Member"]
+    #[description = "The member you want to add the role"]
     member: serenity::User,
     #[description_localized("fr", "Le rôle que recevras le membre")]
     #[description_localized("ja", "メンバーに追加したいロール")]
     #[description_localized("ru", "Роль для добавления участнику")]
     #[description_localized("es-ES", "El rol que quieres añadir al miembro")]
-    #[description = "Role"]
+    #[description = "The role you want to add to the member"]
     role: serenity::Role,
     #[description_localized("fr", "Le temps que le membre auras ce rôle")]
     #[description_localized("ja", "メンバーがロールを保持する時間")]
     #[description_localized("ru", "Время, на которое участник получит роль")]
     #[description_localized("es-ES", "El tiempo que el miembro mantendrá el rol")]
-    #[description = "Duration (e.g. 10m, 1h, 7d)"]
+    #[description = "The time the member will keep the role"]
     time: String,
     #[description_localized("fr", "La raison de l'ajout du rôle")]
     #[description_localized("ja", "このロールを追加した理由")]
     #[description_localized("ru", "Причина добавления этой роли")]
     #[description_localized("es-ES", "La razón por la que añadiste este rol")]
-    #[description = "Reason"]
+    #[description = "The reason why you added this role"]
     reason: Option<String>,
 ) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {

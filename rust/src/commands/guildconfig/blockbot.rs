@@ -70,7 +70,7 @@ async fn post_blockbot_log(ctx: &Ctx<'_>, title: &str, description: &str) {
         .await;
 }
 
-/// Block bot joins. Mirrors blockBot config (GUILD.BLOCK_BOT).
+/// Block the ability to add new bots into this server
 ///
 /// Guild-owner-only, like !bot.ts (`interaction.user.id !==
 /// interaction.guild.ownerId` -> `blockbot_not_owner`). Enable writes
@@ -80,7 +80,14 @@ async fn post_blockbot_log(ctx: &Ctx<'_>, title: &str, description: &str) {
     slash_command,
     prefix_command,
     rename = "blockbot",
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    description_localized(
+        "fr",
+        "Bloquer la possibilité d'ajouter de nouveaux robots sur ce serveur"
+    ),
+    description_localized("ja", "このサーバーに新しいボットを追加する機能をブロック"),
+    description_localized("ru", "Заблокировать возможность добавления новых ботов на сервер"),
+    description_localized("es-ES", "Bloquear la capacidad de añadir nuevos bots a este servidor")
 )]
 pub async fn gc_blockbot(
     ctx: Ctx<'_>,

@@ -192,7 +192,9 @@ pub fn rustc_version() -> Option<String> {
         .clone()
 }
 
-/// Status embed. Mirrors bot status.ts (CPU/memory/uptimes/OS/versions).
+/// Get the bot status!
+///
+/// Mirrors bot status.ts (CPU/memory/uptimes/OS/versions).
 #[poise::command(
     slash_command,
     prefix_command,

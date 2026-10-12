@@ -38,7 +38,7 @@ pub async fn mod_warnlist(
     #[description_localized("ja", "検索したいメンバー")]
     #[description_localized("ru", "Участник для поиска")]
     #[description_localized("es-ES", "El miembro que quieres buscar")]
-    #[description = "Member"]
+    #[description = "The member you want to lookup"]
     member: serenity::User,
     #[description = "Page"] page: Option<i64>,
 ) -> Result<(), anyhow::Error> {

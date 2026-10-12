@@ -25,7 +25,8 @@ pub fn guild_users(member_count: u64, approximate: Option<u64>, unavailable: boo
     }
 }
 
-/// Bot info. Mirrors src/Interaction/HybridCommands/bot/botinfo.ts.
+/// Get information about the bot!
+// Mirrors src/Interaction/HybridCommands/bot/botinfo.ts.
 #[poise::command(
     slash_command,
     prefix_command,

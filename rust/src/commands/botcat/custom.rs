@@ -1,6 +1,6 @@
 use super::*;
 
-/// Custom the bot profile in your discord server.
+/// Custom the bot profile in your discord server
 #[poise::command(
     slash_command,
     prefix_command,

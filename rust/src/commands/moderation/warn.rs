@@ -21,13 +21,13 @@ pub async fn mod_warn(
     #[description_localized("ja", "警告したいメンバー")]
     #[description_localized("ru", "Участник для предупреждения")]
     #[description_localized("es-ES", "El miembro al que quieres advertir")]
-    #[description = "Member"]
+    #[description = "The member you want to warn"]
     member: Option<serenity::User>,
     #[description_localized("fr", "La raison du warn")]
     #[description_localized("ja", "このメンバーを警告する理由")]
     #[description_localized("ru", "Причина предупреждения этого участника")]
     #[description_localized("es-ES", "La razón por la que quieres advertir a este miembro")]
-    #[description = "Reason"]
+    #[description = "The reason why you want to warn this member"]
     reason: String,
 ) -> Result<(), anyhow::Error> {
     let gid = ctx

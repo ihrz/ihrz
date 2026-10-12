@@ -35,7 +35,7 @@ async fn clear_all_warn_tables(pool: &crate::db::Pool, guild_id: &str) -> anyhow
     Ok(())
 }
 
-/// Clear all warns. Mirrors !clear-all-warns.ts.
+/// clear all warns of all users across the server
 #[poise::command(
     slash_command,
     prefix_command,

@@ -22,13 +22,13 @@ pub async fn mod_ban(
     #[description_localized("ja", "バンしたいメンバー")]
     #[description_localized("ru", "участник для бана")]
     #[description_localized("es-ES", "el miembro que quieres banear")]
-    #[description = "Member"]
+    #[description = "the member you want to ban"]
     member: Option<serenity::User>,
     #[description_localized("fr", "la raison du ban")]
     #[description_localized("ja", "バンの理由")]
     #[description_localized("ru", "причина бана")]
     #[description_localized("es-ES", "la razón del baneo")]
-    #[description = "Reason"]
+    #[description = "the reason of the bannisement"]
     reason: Option<String>,
 ) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {

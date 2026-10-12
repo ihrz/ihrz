@@ -11,8 +11,12 @@ use poise::serenity_prelude as serenity;
 )]
 pub async fn gc_config_restore(
     ctx: Ctx<'_>,
-    // TS SlashCommands/guildconfig/!restore.ts registers "backup-to-load".
-    #[description = "Backup file"]
+    // TS guildconfig.ts (`config` -> `restore`) registers "backup-to-load".
+    #[description = "The backup to load"]
+    #[description_localized("fr", "La sauvegarde à restaurer")]
+    #[description_localized("ja", "読み込むバックアップ")]
+    #[description_localized("ru", "Резервная копия для загрузки")]
+    #[description_localized("es-ES", "La copia de seguridad a cargar")]
     #[rename = "backup-to-load"]
     backup_to_load: Option<serenity::Attachment>,
 ) -> Result<(), anyhow::Error> {

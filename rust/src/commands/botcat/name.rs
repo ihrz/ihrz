@@ -41,7 +41,7 @@ impl CustomNameAction {
     }
 }
 
-/// Set or reset the per-guild bot nickname.
+/// Change the iHorizon name into the server
 #[poise::command(
     slash_command,
     prefix_command,
@@ -55,13 +55,13 @@ impl CustomNameAction {
 )]
 pub async fn custom_name(
     ctx: Ctx<'_>,
-    #[description = "set or reset"]
+    #[description = "What do you want to do ?"]
     #[description_localized("fr", "Que voulez-vous faire ?")]
     #[description_localized("ja", "何をしたいですか？")]
     #[description_localized("ru", "Что вы хотите сделать?")]
     #[description_localized("es-ES", "¿Qué quieres hacer?")]
     action: CustomNameAction,
-    #[description = "New bot name"]
+    #[description = "The name"]
     #[description_localized("fr", "Le nom du bot")]
     #[description_localized("ja", "名前")]
     #[description_localized("ru", "Имя")]

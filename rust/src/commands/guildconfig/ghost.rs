@@ -112,16 +112,24 @@ async fn live_channel_ids(ctx: &Ctx<'_>) -> std::collections::HashSet<String> {
     }
 }
 
-/// Ghost add command.
+/// Add a channel
 #[poise::command(
     slash_command,
     prefix_command,
     rename = "ghost-add",
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    description_localized("fr", "Ajouter un salon"),
+    description_localized("ja", "チャンネルを追加"),
+    description_localized("ru", "Добавить канал"),
+    description_localized("es-ES", "Añadir un canal")
 )]
 pub async fn gc_ghost_add(
     ctx: Ctx<'_>,
-    #[description = "Channel"]
+    #[description = "The channel you want"]
+    #[description_localized("fr", "Le salon que tu veux")]
+    #[description_localized("ja", "希望するチャンネル")]
+    #[description_localized("ru", "Желаемый канал")]
+    #[description_localized("es-ES", "El canal que deseas")]
     #[channel_types("Text")]
     channel: serenity::GuildChannel,
 ) -> Result<(), anyhow::Error> {
@@ -190,16 +198,24 @@ pub async fn gc_ghost_add(
     Ok(())
 }
 
-/// Ghost remove command.
+/// Delete a channel
 #[poise::command(
     slash_command,
     prefix_command,
     rename = "ghost-remove",
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    description_localized("fr", "Enlever un salon de la liste"),
+    description_localized("ja", "チャンネルを削除"),
+    description_localized("ru", "Удалить канал"),
+    description_localized("es-ES", "Eliminar un canal")
 )]
 pub async fn gc_ghost_remove(
     ctx: Ctx<'_>,
-    #[description = "Channel"]
+    #[description = "The channel you want"]
+    #[description_localized("fr", "Le salon que tu veux")]
+    #[description_localized("ja", "希望するチャンネル")]
+    #[description_localized("ru", "Желаемый канал")]
+    #[description_localized("es-ES", "El canal que deseas")]
     #[channel_types("Text")]
     channel: serenity::GuildChannel,
 ) -> Result<(), anyhow::Error> {

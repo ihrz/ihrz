@@ -1,7 +1,8 @@
 use super::*;
 use poise::serenity_prelude as serenity;
 
-/// Unlock a channel. Mirrors !unlock.ts: neutral overwrite, not delete.
+/// Give ability to speak of all users in this text!
+// Neutral overwrite, not delete. Mirrors !unlock.ts.
 #[poise::command(
     slash_command,
     prefix_command,
@@ -21,7 +22,7 @@ pub async fn mod_unlock(
     #[description_localized("ja", "ロール")]
     #[description_localized("ru", "Роль")]
     #[description_localized("es-ES", "El rol")]
-    #[description = "Role to unlock (default @everyone)"]
+    #[description = "The role"]
     role: Option<serenity::Role>,
 ) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {

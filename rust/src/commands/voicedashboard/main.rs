@@ -32,7 +32,7 @@ async fn yes_markup(http: &serenity::Http) -> String {
         .unwrap_or_else(|| "✅".to_string())
 }
 
-/// Subcommand for voice category!
+/// Subcommand group for voice's manager
 #[poise::command(
     slash_command,
     prefix_command,
@@ -49,7 +49,7 @@ pub async fn voicedashboard(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())
 }
 
-/// Manage voice's interface.
+/// Manage voice's interface
 // Mirrors the TS `interface` SubcommandGroup (voicedashboard.ts:36-54).
 #[poise::command(
     slash_command,
@@ -78,16 +78,30 @@ pub async fn vd_interface(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())
 }
 
-/// Lobby command.
+/// Set the channel for Join4Create!
 #[poise::command(
     slash_command,
     prefix_command,
     rename = "lobby",
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    description_localized(
+        "fr",
+        "Définit le salon où le membre se connecte pour créer son propre canal"
+    ),
+    description_localized("ja", "Join4Createのチャンネルを設定！"),
+    description_localized("ru", "Установить канал для Join4Create!"),
+    description_localized("es-ES", "Establecer el canal para Join4Create!")
 )]
 pub async fn vd_lobby(
     ctx: Ctx<'_>,
-    #[description = "Lobby voice channel"]
+    #[description = "The channel you want"]
+    #[description_localized(
+        "fr",
+        "Le salon où les gens devront rejoindre pour créer leur propre salon"
+    )]
+    #[description_localized("ja", "希望するチャンネル")]
+    #[description_localized("ru", "Желаемый канал")]
+    #[description_localized("es-ES", "El canal que deseas")]
     #[channel_types("Voice")]
     channel: serenity::GuildChannel,
 ) -> Result<(), anyhow::Error> {
@@ -120,16 +134,36 @@ pub async fn vd_lobby(
     Ok(())
 }
 
-/// Making a panel for custom ticket configuration
+/// Send an interface to the channel to manage their own voice channel
 #[poise::command(
     slash_command,
     prefix_command,
     rename = "panel",
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    description_localized(
+        "fr",
+        "Envoyer une interface au canal pour gérer son propre canal vocal"
+    ),
+    description_localized(
+        "ja",
+        "自分のボイスチャンネルを管理するためのインターフェースをチャンネルに送信"
+    ),
+    description_localized(
+        "ru",
+        "Отправить интерфейс в канал для управления своим голосовым каналом"
+    ),
+    description_localized(
+        "es-ES",
+        "Enviar una interfaz al canal para gestionar su propio canal de voz"
+    )
 )]
 pub async fn vd_panel(
     ctx: Ctx<'_>,
-    #[description = "Text channel for the dashboard"]
+    #[description = "The channel you want the dashboard interface are sent"]
+    #[description_localized("fr", "Le salon où l'interface sera envoyée")]
+    #[description_localized("ja", "ダッシュボードインターフェースを送信するチャンネル")]
+    #[description_localized("ru", "Канал для отправки интерфейса панели управления")]
+    #[description_localized("es-ES", "El canal donde quieres que se envíe la interfaz del panel")]
     #[channel_types("Text")]
     channel: serenity::GuildChannel,
 ) -> Result<(), anyhow::Error> {
@@ -213,17 +247,25 @@ pub async fn vd_panel(
     Ok(())
 }
 
-/// The category to sync channels to
+/// Set the channel where the voice channel will be created!
 #[poise::command(
     slash_command,
     prefix_command,
     rename = "category",
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    description_localized("fr", "Définit la catégorie où le canal perso va être créé"),
+    description_localized("ja", "ボイスチャンネルが作成されるチャンネルを設定！"),
+    description_localized("ru", "Установить канал, где будет создан голосовой канал!"),
+    description_localized("es-ES", "Establecer el canal donde se creará el canal de voz!")
 )]
 pub async fn vd_category(
     ctx: Ctx<'_>,
     // TS SlashCommands/voicedashboard/!set-voice-channel-catgory.ts reads getChannel("category").
-    #[description = "Category where temp channels are created"]
+    #[description = "The category you want"]
+    #[description_localized("fr", "La catégorie que vous voulez")]
+    #[description_localized("ja", "希望するカテゴリ")]
+    #[description_localized("ru", "Желаемая категория")]
+    #[description_localized("es-ES", "La categoría que deseas")]
     #[channel_types("Category")]
     #[rename = "category"]
     channel: serenity::GuildChannel,
@@ -257,17 +299,25 @@ pub async fn vd_category(
     Ok(())
 }
 
-/// Change the iHorizon name into the server
+/// Set the voice channel name when it will be created!
 #[poise::command(
     slash_command,
     prefix_command,
     rename = "name",
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    description_localized("fr", "Définit le nom du salon où le canal va être créé"),
+    description_localized("ja", "ボイスチャンネル作成時の名前を設定！"),
+    description_localized("ru", "Установить имя голосового канала при его создании!"),
+    description_localized("es-ES", "Establecer el nombre del canal de voz cuando se cree!")
 )]
 pub async fn vd_name(
     ctx: Ctx<'_>,
     // TS SlashCommands/voicedashboard/!set-voice-channel-name.ts reads getString("channel_name").
-    #[description = "Template, e.g. {user}'s room"]
+    #[description = "The name you want | Variable: {Username}"]
+    #[description_localized("fr", "Le nom que tu veux | Variable: {Username}")]
+    #[description_localized("ja", "希望する名前 | 変数: {Username}")]
+    #[description_localized("ru", "Желаемое имя | Переменная: {Username}")]
+    #[description_localized("es-ES", "El nombre que deseas | Variable: {Username}")]
     #[rename = "channel_name"]
     template: String,
 ) -> Result<(), anyhow::Error> {
@@ -334,17 +384,31 @@ impl PositionChoice {
     }
 }
 
-/// Position command.
+/// Set the voice channel position in the category when it will be created!
 #[poise::command(
     slash_command,
     prefix_command,
     rename = "position",
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    description_localized(
+        "fr",
+        "Définit la position du salon où le canal perso va être créé dans la catégorie"
+    ),
+    description_localized("ja", "ボイスチャンネル作成時のカテゴリ内の位置を設定！"),
+    description_localized("ru", "Установить позицию голосового канала в категории при создании!"),
+    description_localized(
+        "es-ES",
+        "Establecer la posición del canal de voz en la categoría cuando se cree!"
+    )
 )]
 pub async fn vd_position(
     ctx: Ctx<'_>,
     // TS SlashCommands/voicedashboard/!set-voice-channel-position.ts reads getString("position_type").
-    #[description = "top or bottom"]
+    #[description = "The position type you want"]
+    #[description_localized("fr", "Quelle position veux-tu pour le salon ?")]
+    #[description_localized("ja", "希望する位置タイプ")]
+    #[description_localized("ru", "Желаемый тип позиции")]
+    #[description_localized("es-ES", "El tipo de posición que deseas")]
     #[rename = "position_type"]
     position: PositionChoice,
 ) -> Result<(), anyhow::Error> {
@@ -407,12 +471,19 @@ pub fn staff_roles_value(ids: &[String]) -> String {
         .join(", ")
 }
 
-/// Staff command.
+/// Set an role for bypassing TempChannel's permission
 #[poise::command(
     slash_command,
     prefix_command,
     rename = "staff",
-    default_member_permissions = "ADMINISTRATOR"
+    default_member_permissions = "ADMINISTRATOR",
+    description_localized(
+        "fr",
+        "Définir un rôle pour contourner l'autorisation des canaux temporaires"
+    ),
+    description_localized("ja", "TempChannelの権限をバイパスするロールを設定"),
+    description_localized("ru", "Установить роль для обхода прав TempChannel"),
+    description_localized("es-ES", "Establecer un rol para omitir los permisos de TempChannel")
 )]
 pub async fn vd_staff(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     // Prefix native-permission gate (U-MSV-FIX14): TS `checkNativePermission`
@@ -2403,5 +2474,88 @@ mod tests {
                 .map(String::as_str),
             Some("Grupo de subcomando para el gestor de voz")
         );
+    }
+    #[test]
+    fn leaf_descriptions_match_ts_voicedashboard() {
+        // Base descriptions, byte-exact from voicedashboard.ts.
+        assert_eq!(
+            super::voicedashboard().description.as_deref(),
+            Some("Subcommand group for voice's manager")
+        );
+        assert_eq!(
+            super::vd_interface().description.as_deref(),
+            Some("Manage voice's interface")
+        );
+        assert_eq!(
+            super::vd_lobby().description.as_deref(),
+            Some("Set the channel for Join4Create!")
+        );
+        assert_eq!(
+            super::vd_panel().description.as_deref(),
+            Some("Send an interface to the channel to manage their own voice channel")
+        );
+        assert_eq!(
+            super::vd_staff().description.as_deref(),
+            Some("Set an role for bypassing TempChannel's permission")
+        );
+        assert_eq!(
+            super::vd_category().description.as_deref(),
+            Some("Set the channel where the voice channel will be created!")
+        );
+        assert_eq!(
+            super::vd_position().description.as_deref(),
+            Some("Set the voice channel position in the category when it will be created!")
+        );
+        assert_eq!(
+            super::vd_name().description.as_deref(),
+            Some("Set the voice channel name when it will be created!")
+        );
+        // Leaf fr localizations, byte-exact from voicedashboard.ts.
+        assert_eq!(
+            super::vd_lobby()
+                .description_localizations
+                .get("fr")
+                .map(String::as_str),
+            Some("Définit le salon où le membre se connecte pour créer son propre canal")
+        );
+        assert_eq!(
+            super::vd_staff()
+                .description_localizations
+                .get("fr")
+                .map(String::as_str),
+            Some("Définir un rôle pour contourner l'autorisation des canaux temporaires")
+        );
+        // Option descriptions, byte-exact from voicedashboard.ts.
+        let lobby_opt = &super::vd_lobby().parameters[0];
+        assert_eq!(lobby_opt.name.as_str(), "channel");
+        assert_eq!(
+            lobby_opt.description.as_deref(),
+            Some("The channel you want")
+        );
+        let panel_opt = &super::vd_panel().parameters[0];
+        assert_eq!(panel_opt.name.as_str(), "channel");
+        assert_eq!(
+            panel_opt.description.as_deref(),
+            Some("The channel you want the dashboard interface are sent")
+        );
+        let cat_opt = &super::vd_category().parameters[0];
+        assert_eq!(cat_opt.name.as_str(), "category");
+        assert_eq!(
+            cat_opt.description.as_deref(),
+            Some("The category you want")
+        );
+        let name_opt = &super::vd_name().parameters[0];
+        assert_eq!(name_opt.name.as_str(), "channel_name");
+        assert_eq!(
+            name_opt.description.as_deref(),
+            Some("The name you want | Variable: {Username}")
+        );
+        let pos_opt = &super::vd_position().parameters[0];
+        assert_eq!(pos_opt.name.as_str(), "position_type");
+        assert_eq!(
+            pos_opt.description.as_deref(),
+            Some("The position type you want")
+        );
+        assert!(super::vd_staff().parameters.is_empty());
     }
 }

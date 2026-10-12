@@ -112,12 +112,23 @@ async fn post_tonew_log(ctx: &Ctx<'_>, title: &str, description: &str) {
 )]
 pub async fn gc_toonew(
     ctx: Ctx<'_>,
-    // TS SlashCommands/guildconfig/!too-new-account.ts registers
+    // TS guildconfig.ts (`block` -> `too-new-account`) registers
     // "minimum-date" / "maximum-join".
-    #[description = "Minimum age (e.g. 7d) or off"]
+    #[description = "Minimum seniority time"]
+    #[description_localized("fr", "Temps minimum d'ancienneté")]
+    #[description_localized("ja", "最低アカウント経過時間")]
+    #[description_localized("ru", "Минимальное время существования аккаунта")]
+    #[description_localized("es-ES", "Tiempo mínimo de antigüedad")]
     #[rename = "minimum-date"]
     age: Option<String>,
-    #[description = "Joins before ban (default 3)"]
+    #[description = "Maximum join before ban"]
+    #[description_localized(
+        "fr",
+        "Montant de join maximum possible de l'utilisateur avant sont bannisement"
+    )]
+    #[description_localized("ja", "バン前の最大参加回数")]
+    #[description_localized("ru", "Максимум входов до бана")]
+    #[description_localized("es-ES", "Máximo de uniones antes del ban")]
     #[rename = "maximum-join"]
     maximum_join: Option<i64>,
 ) -> Result<(), anyhow::Error> {

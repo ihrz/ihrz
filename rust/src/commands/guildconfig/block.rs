@@ -2,9 +2,10 @@ use super::*;
 
 use super::{blockbot::gc_blockbot, tonew::gc_toonew};
 
-/// Block/protect behaviours in this guild.
+/// Block/Protect someting/behaviours into this guild!
 // Mirrors the TS `guildconfig` SlashCommand `block` SubcommandGroup
-// (`guildconfig.ts`: `block bot`, `block too-new-account`).
+// (`guildconfig.ts`: `block bot`, `block too-new-account`;
+// `someting` typo kept verbatim).
 #[poise::command(
     slash_command,
     prefix_command,

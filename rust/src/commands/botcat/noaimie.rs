@@ -1,6 +1,8 @@
 use super::*;
 
-/// Noaimie picture link. Mirrors !noaimie.ts (fixed asset URL).
+/// Get unnecessary information about my contributor noaimie
+///
+/// Mirrors !noaimie.ts (fixed asset URL).
 #[poise::command(
     slash_command,
     prefix_command,
