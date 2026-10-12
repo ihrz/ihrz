@@ -1,5 +1,7 @@
 use super::*;
 
+/// Search a music into the Internet
+///
 /// Mirrors `!trackinfo.ts` (search/current track, lyrics, Link button).
 #[poise::command(
     slash_command,

@@ -1,5 +1,7 @@
 use super::*;
 
+/// Play a song!
+///
 /// Mirrors `!play.ts` + `handleMusicPlay`.
 #[poise::command(
     slash_command,
@@ -23,7 +25,7 @@ pub async fn m_play(
         "es-ES",
         "El título de la pista que deseas (puedes poner URL como quieras)"
     )]
-    #[description = "Title or URL"]
+    #[description = "The track title you want (you can put URL as you want)"]
     title: String,
 ) -> Result<(), anyhow::Error> {
     let code = lang_code(&ctx).await;

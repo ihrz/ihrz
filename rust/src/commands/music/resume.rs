@@ -1,5 +1,7 @@
 use super::*;
 
+/// Resume the current playing song!
+///
 /// Mirrors `!resume.ts`.
 #[poise::command(
     slash_command,

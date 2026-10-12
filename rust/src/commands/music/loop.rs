@@ -37,6 +37,8 @@ impl LoopModeChoice {
     }
 }
 
+/// Set loop mode of the guild!
+///
 /// Loop repeat mode (off/track dropdown, mirrors `!loop.ts`).
 // The old prefix `queue` spelling is retired with the dropdown (see
 // the enum above): both paths now accept only the two slash choices.
@@ -59,7 +61,7 @@ pub async fn m_loop(
     #[description_localized("ja", "ループタイプ")]
     #[description_localized("ru", "Тип повтора")]
     #[description_localized("es-ES", "Tipo de bucle")]
-    #[description = "off, track or queue"]
+    #[description = "Loop Type"]
     mode: LoopModeChoice,
 ) -> Result<(), anyhow::Error> {
     let code = lang_code(&ctx).await;

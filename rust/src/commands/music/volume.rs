@@ -117,6 +117,8 @@ impl VolumeChoice {
         }
     }
 }
+/// change the volume of the player in the guild
+///
 /// Set the playback volume (10-100).
 #[poise::command(
     slash_command,
@@ -133,7 +135,7 @@ pub async fn m_volume(
     #[description_localized("ja", "音楽レベル")]
     #[description_localized("ru", "уровень музыки")]
     #[description_localized("es-ES", "el nivel de música")]
-    #[description = "10-100"]
+    #[description = "the music level"]
     level: VolumeChoice,
 ) -> Result<(), anyhow::Error> {
     let Some(gid) = guild_id_of(&ctx) else {

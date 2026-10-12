@@ -1,5 +1,7 @@
 use super::*;
 
+/// Skip the current playing song!
+///
 /// Mirrors `!skip.ts`.
 #[poise::command(
     slash_command,

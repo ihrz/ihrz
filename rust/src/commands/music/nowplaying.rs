@@ -177,6 +177,8 @@ async fn button_emoji(ctx: &Ctx<'_>, name: &str, fallback: &str) -> serenity::Re
     }
 }
 
+/// Get the current playing song!
+///
 /// Mirrors `!nowplaying.ts` (live card + collector, see below).
 // Live progress card refreshed every 5.9s plus a requester-gated button
 // collector (`pause` / `stop` / `lyrics`). Position is tracked locally

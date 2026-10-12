@@ -1,5 +1,7 @@
 use super::*;
 
+/// Shuffle the queue!
+///
 /// Mirrors `!shuffle.ts`.
 #[poise::command(
     slash_command,

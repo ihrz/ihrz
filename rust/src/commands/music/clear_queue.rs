@@ -1,5 +1,7 @@
 use super::*;
 
+/// Clear the music queue in this guild!
+///
 /// Mirrors `!clear-queue.ts`.
 #[poise::command(
     slash_command,

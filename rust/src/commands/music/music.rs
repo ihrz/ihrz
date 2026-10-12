@@ -5,6 +5,8 @@ use super::{
     shuffle::m_shuffle, skip::m_skip, stop::m_stop, trackinfo::m_trackinfo, volume::m_volume,
 };
 
+/// Subcommand for music category!
+///
 /// Run-less group root. Mirrors the TS `music` HybridCommand definition.
 // TS order (`music.ts:64-419`): loop, lyrics, history, clear-queue,
 // nowplaying, pause, play, volume, trackinfo, queue, resume, shuffle,

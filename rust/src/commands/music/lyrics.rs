@@ -117,6 +117,8 @@ pub fn lyrics_embed_description(text: &str) -> String {
     }
 }
 
+/// Find the lyrics of a title!
+///
 /// Lyrics command.
 #[poise::command(
     slash_command,
@@ -133,7 +135,7 @@ pub async fn m_lyrics(
     #[description_localized("ja", "希望するトラックのタイトル")]
     #[description_localized("ru", "Название желаемого трека")]
     #[description_localized("es-ES", "El título de la pista que deseas")]
-    #[description = "Query"]
+    #[description = "The track title you want"]
     query: String,
 ) -> Result<(), anyhow::Error> {
     let code = lang_code(&ctx).await;

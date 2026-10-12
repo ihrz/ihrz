@@ -1,5 +1,7 @@
 use super::*;
 
+/// Stop the current playing song!
+///
 /// Mirrors `!stop.ts`.
 #[poise::command(
     slash_command,

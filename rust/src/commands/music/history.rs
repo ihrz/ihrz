@@ -16,6 +16,8 @@ pub fn step_history_page(current: usize, pages: usize, next: bool) -> usize {
     }
 }
 
+/// See the history of all the music played in this guild!
+///
 /// Mirrors `!history.ts`: 30d TTL purge on read, 10/page embed,
 /// `.txt` export, delete action.
 ///
@@ -29,10 +31,9 @@ pub fn step_history_page(current: usize, pages: usize, next: bool) -> usize {
 /// `var_dont_have_perm` denial). Non-admin slash callers never reach
 /// this code.
 ///
-/// The `page` / `clear` params are a local superset (TS `music.ts`
-/// declares no history options): they set the initial page and the
-/// wipe path; previous/next/delete buttons drive an invoker-only
-/// collector on top.
+/// TS `music.ts` declares no history options and `!history.ts` ignores
+/// prefix args: paging starts at 0 and deletion goes through the
+/// delete button, so this leaf takes no params either.
 #[poise::command(
     slash_command,
     prefix_command,
@@ -53,11 +54,7 @@ pub fn step_history_page(current: usize, pages: usize, next: bool) -> usize {
         "Ver el historial de toda la música reproducida en este servidor!"
     )
 )]
-pub async fn m_history(
-    ctx: Ctx<'_>,
-    #[description = "Page number"] page: Option<i64>,
-    #[description = "Delete the history"] clear: Option<bool>,
-) -> Result<(), anyhow::Error> {
+pub async fn m_history(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     // Prefix native-permission gate (U-MSV-FIX14): TS `checkNativePermission`
     // enforces the Administrator leaf on both paths; Discord covers slash,
     // so the body gates prefix here with the same `var_dont_have_perm` denial.
@@ -89,24 +86,6 @@ pub async fn m_history(
         }
     }
 
-    if clear == Some(true) {
-        let _ = crate::db::tbl_del(&ctx.data().pool, &key, HISTORY_KEY).await;
-        let embed = serenity::CreateEmbed::default()
-            .title(
-                crate::lang::get(&code, "history_delete_embed_title")
-                    .unwrap_or_else(|| "✅ History Deleted".to_string()),
-            )
-            .description(
-                crate::lang::get(&code, "history_delete_embed_desc").unwrap_or_else(|| {
-                    "The music history has been successfully deleted.".to_string()
-                }),
-            )
-            .colour(0xFF0000)
-            .timestamp(serenity::Timestamp::now());
-        ctx.send(poise::CreateReply::default().embed(embed)).await?;
-        return Ok(());
-    }
-
     if list.is_empty() {
         say_key(
             &ctx,
@@ -119,7 +98,7 @@ pub async fn m_history(
     }
 
     let pages = history_page_count(list.len()).max(1);
-    let mut current = page.unwrap_or(1).clamp(1, pages as i64) as usize - 1;
+    let mut current = 0;
     let guild_name = ctx
         .serenity_context()
         .cache

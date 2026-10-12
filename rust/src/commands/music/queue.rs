@@ -10,6 +10,8 @@ pub fn queue_pages(lines: &[String]) -> Vec<Vec<String>> {
     lines.chunks(QUEUE_PAGE_SIZE).map(|c| c.to_vec()).collect()
 }
 
+/// Get the queue!
+///
 /// Mirrors `!queue.ts` (paged embeds + buttons, see below).
 // 10-per-page embeds with previous/next/close buttons, an invoker-only
 // 5-minute collector, and footer pagination.
