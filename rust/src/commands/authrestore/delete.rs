@@ -12,9 +12,13 @@ pub async fn authrestore_delete(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id().map(|g| g.get().to_string()) else {
         return Ok(());
     };
+    // Guild-scoped binding, same legs as set/del (`restore_record_*`):
+    // table + legacy scope are both the guild id (TS key
+    // `<guild>.GUILD.RESTORECORD`). Never the global `authrestore`
+    // table: that key is global and was never written per guild.
     let stored = crate::commands::owner::main::routed_get(
         &ctx.data().pool,
-        super::authrestore::AUTHRESTORE_TABLE,
+        &guild_id,
         &guild_id,
         super::authrestore::RESTORE_RECORD_KEY,
     )

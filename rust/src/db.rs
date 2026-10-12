@@ -61,6 +61,10 @@ pub async fn init(cfg: &Config) -> anyhow::Result<Pool> {
         .execute(&pool)
         .await?;
 
+    // Boot visibility, mirrors TS `Connected to the database (method)!`
+    // (`src/core/database/index.ts`). Method is always local sqlite here.
+    tracing::info!("db: connected (sqlite) {}", cfg.database_url);
+
     Ok(pool)
 }
 
