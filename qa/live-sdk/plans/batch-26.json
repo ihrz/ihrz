@@ -1,0 +1,37 @@
+[
+ {
+  "kind": "send",
+  "channel_id": "1509600862346154064",
+  "content": ".voice interface set-text-channel <#1509600862346154064>"
+ },
+ {
+  "kind": "send",
+  "channel_id": "1509600862346154064",
+  "content": ".voice interface set-voice-channel <#1509600862346154064>"
+ },
+ {
+  "kind": "send",
+  "channel_id": "1509600862346154064",
+  "content": ".voice interface set-voice-channel-catgory <#1509600862346154064>"
+ },
+ {
+  "kind": "send",
+  "channel_id": "1509600862346154064",
+  "content": ".voice interface set-voice-channel-name qa"
+ },
+ {
+  "kind": "send",
+  "channel_id": "1509600862346154064",
+  "content": ".voice interface set-voice-channel-position 1"
+ },
+ {
+  "kind": "send",
+  "channel_id": "1509600862346154064",
+  "content": ".welcomer"
+ },
+ {
+  "kind": "send",
+  "channel_id": "1509600862346154064",
+  "content": ".setlang"
+ }
+]

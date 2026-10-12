@@ -1,0 +1,280 @@
+[
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "custom",
+   "bio"
+  ],
+  "options": {
+   "action": 1
+  }
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "custom",
+   "name"
+  ],
+  "options": {
+   "action": 1
+  }
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "economy",
+   "balance"
+  ],
+  "options": {}
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "economy",
+   "balance-add"
+  ],
+  "options": {
+   "amount": 1.0,
+   "member": {
+    "__snowflake": "1542861131939577949"
+   }
+  }
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "economy",
+   "balance-remove"
+  ],
+  "options": {
+   "amount": 1.0,
+   "member": {
+    "__snowflake": "1542861131939577949"
+   }
+  }
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "economy",
+   "boost-set"
+  ],
+  "options": {
+   "role": {
+    "__snowflake": "999449972615413861"
+   },
+   "boost": 1
+  }
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "economy",
+   "config"
+  ],
+  "options": {
+   "action": 1
+  }
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "economy",
+   "daily"
+  ],
+  "options": {}
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "economy",
+   "deposit"
+  ],
+  "options": {
+   "how-much": "qa probe"
+  }
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "economy",
+   "leaderboard"
+  ],
+  "options": {}
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "economy",
+   "manage-rewards",
+   "set-cooldown"
+  ],
+  "options": {
+   "type": 1,
+   "time": "qa probe"
+  }
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "economy",
+   "manage-rewards",
+   "set-money"
+  ],
+  "options": {
+   "type": 1,
+   "how-much": 1.0
+  }
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "economy",
+   "monthly"
+  ],
+  "options": {}
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "economy",
+   "pay"
+  ],
+  "options": {
+   "amount": 1.0,
+   "member": {
+    "__snowflake": "1542861131939577949"
+   }
+  }
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "economy",
+   "rob"
+  ],
+  "options": {
+   "member": {
+    "__snowflake": "1542861131939577949"
+   }
+  }
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "economy",
+   "role",
+   "add"
+  ],
+  "options": {
+   "role": {
+    "__snowflake": "999449972615413861"
+   },
+   "amount": 1.0
+  }
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "economy",
+   "role",
+   "delete"
+  ],
+  "options": {
+   "role": {
+    "__snowflake": "999449972615413861"
+   }
+  }
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "economy",
+   "role",
+   "list"
+  ],
+  "options": {}
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "economy",
+   "shop"
+  ],
+  "options": {}
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "economy",
+   "weekly"
+  ],
+  "options": {}
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "economy",
+   "withdraw"
+  ],
+  "options": {
+   "how-much": "qa probe"
+  }
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "economy",
+   "work"
+  ],
+  "options": {}
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "embed"
+  ],
+  "options": {}
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "ether"
+  ],
+  "options": {}
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "fun",
+   "animals",
+   "cat"
+  ],
+  "options": {}
+ }
+]

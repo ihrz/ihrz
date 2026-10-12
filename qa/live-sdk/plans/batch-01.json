@@ -1,0 +1,273 @@
+[
+ {
+  "kind": "slash",
+  "channel_id": "1509600863512170496",
+  "path": [
+   "mod",
+   "lock"
+  ],
+  "options": {}
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600863512170496",
+  "path": [
+   "mod",
+   "unlock"
+  ],
+  "options": {}
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600863512170496",
+  "path": [
+   "channel",
+   "hide"
+  ],
+  "options": {}
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600863512170496",
+  "path": [
+   "channel",
+   "unhide"
+  ],
+  "options": {}
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "Estimate the love"
+  ],
+  "options": {}
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "User Lookup"
+  ],
+  "options": {}
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "allowlist",
+   "add"
+  ],
+  "options": {
+   "member": {
+    "__snowflake": "1542861131939577949"
+   }
+  }
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "allowlist",
+   "remove"
+  ],
+  "options": {
+   "member": {
+    "__snowflake": "1542861131939577949"
+   }
+  }
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "allowlist",
+   "show"
+  ],
+  "options": {}
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "andru"
+  ],
+  "options": {}
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "antispam",
+   "bypass-roles",
+   "add"
+  ],
+  "options": {
+   "role": {
+    "__snowflake": "999449972615413861"
+   }
+  }
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "antispam",
+   "bypass-roles",
+   "clear"
+  ],
+  "options": {}
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "antispam",
+   "bypass-roles",
+   "list"
+  ],
+  "options": {}
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "antispam",
+   "bypass-roles",
+   "remove"
+  ],
+  "options": {
+   "role": {
+    "__snowflake": "999449972615413861"
+   }
+  }
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "antispam",
+   "ignore-channels",
+   "add"
+  ],
+  "options": {
+   "channel": {
+    "__snowflake": "1509600862346154064"
+   }
+  }
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "antispam",
+   "ignore-channels",
+   "clear"
+  ],
+  "options": {}
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "antispam",
+   "ignore-channels",
+   "list"
+  ],
+  "options": {}
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "antispam",
+   "ignore-channels",
+   "remove"
+  ],
+  "options": {
+   "channel": {
+    "__snowflake": "1509600862346154064"
+   }
+  }
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "antispam",
+   "manage"
+  ],
+  "options": {}
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "authrestore",
+   "get"
+  ],
+  "options": {
+   "key": "qa probe"
+  }
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "authrestore",
+   "roles"
+  ],
+  "options": {
+   "key": "qa probe",
+   "roles": {
+    "__snowflake": "999449972615413861"
+   }
+  }
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "authrestore",
+   "set"
+  ],
+  "options": {
+   "channel": {
+    "__snowflake": "1509600862346154064"
+   },
+   "message_id": "qa probe"
+  }
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "autologs"
+  ],
+  "options": {}
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "automod",
+   "block",
+   "discord_invite_link"
+  ],
+  "options": {
+   "action": 1
+  }
+ },
+ {
+  "kind": "slash",
+  "channel_id": "1509600862346154064",
+  "path": [
+   "automod",
+   "block",
+   "link"
+  ],
+  "options": {
+   "action": 1
+  }
+ }
+]

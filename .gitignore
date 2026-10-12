@@ -208,3 +208,10 @@ ops/rust-migration/workers/
 ops/rust-migration/inventory-scan.md
 ops/rust-migration/__pycache__/
 .worktrees/
+
+# live Discord test SDK (local venv + run artifacts, never commit)
+qa/live-sdk/.venv/
+qa/live-sdk/__pycache__/
+qa/__pycache__/
+qa-reports/live-batch-*.json*
+qa-reports/live-bot.log

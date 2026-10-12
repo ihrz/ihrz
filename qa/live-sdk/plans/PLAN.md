@@ -1,0 +1,762 @@
+# Live test plan: 632 actions, 26 batches, 71 skips
+
+Cooldown: 8s between writes (SDK), ~15s observe per action. Stop on any 429/flag.
+
+## Skips
+- `Convert to MP4` SKIP-CONTEXT
+- `Play it in a voice channel` SKIP-CONTEXT
+- `Pose a question!` SKIP-CONTEXT
+- `authrestore delete` SKIP-DESTRUCTIVE
+- `authrestore force-join` SKIP-DESTRUCTIVE
+- `backup delete` SKIP-DESTRUCTIVE
+- `backup load` SKIP-DESTRUCTIVE
+- `blacklist` SKIP-DESTRUCTIVE
+- `bledit` SKIP-DESTRUCTIVE
+- `channel hideall` SKIP-DESTRUCTIVE
+- `channel unhideall` SKIP-DESTRUCTIVE
+- `economy greset` SKIP-DESTRUCTIVE
+- `economy ureset` SKIP-DESTRUCTIVE
+- `eval` SKIP-DESTRUCTIVE
+- `fun image bubbles` SKIP-ATTACHMENT
+- `fun image captions` SKIP-ATTACHMENT
+- `fun image togif` SKIP-ATTACHMENT
+- `guildconfig setup` SKIP-DESTRUCTIVE
+- `gw end` SKIP-DESTRUCTIVE
+- `gw get-data` SKIP-CONTEXT
+- `gw list-entries` SKIP-CONTEXT
+- `gw reroll` SKIP-DESTRUCTIVE
+- `mod ban` SKIP-DESTRUCTIVE
+- `mod clear` SKIP-DESTRUCTIVE
+- `mod clear-all-warns` SKIP-DESTRUCTIVE
+- `mod clearwarn` SKIP-DESTRUCTIVE
+- `mod kick` SKIP-DESTRUCTIVE
+- `mod lock-all` SKIP-DESTRUCTIVE
+- `mod tempban` SKIP-DESTRUCTIVE
+- `mod tempmute` SKIP-DESTRUCTIVE
+- `mod temprole` SKIP-DESTRUCTIVE
+- `mod unban` SKIP-DESTRUCTIVE
+- `mod unlock-all` SKIP-DESTRUCTIVE
+- `mod unmute` SKIP-DESTRUCTIVE
+- `mod unmuteall` SKIP-DESTRUCTIVE
+- `mod unwarn` SKIP-DESTRUCTIVE
+- `mod warn` SKIP-DESTRUCTIVE
+- `owner` SKIP-DESTRUCTIVE
+- `perm create-roles` SKIP-DESTRUCTIVE
+- `ranks greset` SKIP-DESTRUCTIVE
+- `ranks ureset` SKIP-DESTRUCTIVE
+- `schedule delete` SKIP-CONTEXT
+- `schedule delete-all` SKIP-DESTRUCTIVE
+- `suggest accept` SKIP-CONTEXT
+- `suggest delete` SKIP-CONTEXT
+- `suggest deny` SKIP-CONTEXT
+- `suggest reply` SKIP-CONTEXT
+- `tag delete` SKIP-CONTEXT
+- `tag edit` SKIP-CONTEXT
+- `ticket add-member` SKIP-DESTRUCTIVE
+- `ticket close` SKIP-DESTRUCTIVE
+- `ticket delete` SKIP-DESTRUCTIVE
+- `ticket open` SKIP-DESTRUCTIVE
+- `ticket remind` SKIP-DESTRUCTIVE
+- `ticket remove-member` SKIP-DESTRUCTIVE
+- `ticket rename` SKIP-DESTRUCTIVE
+- `ticket transcript` SKIP-DESTRUCTIVE
+- `ticket unlink` SKIP-DESTRUCTIVE
+- `unban-all all` SKIP-DESTRUCTIVE
+- `unban-all undo` SKIP-DESTRUCTIVE
+- `unblacklist` SKIP-DESTRUCTIVE
+- `unowner` SKIP-DESTRUCTIVE
+- `util bringall` SKIP-DESTRUCTIVE
+- `util freeze` SKIP-DESTRUCTIVE
+- `util move` SKIP-DESTRUCTIVE
+- `util talk` SKIP-DESTRUCTIVE
+- `util unfreeze` SKIP-DESTRUCTIVE
+- `util untalk` SKIP-DESTRUCTIVE
+- `util unzip-emojis` SKIP-DESTRUCTIVE
+- `util vkick` SKIP-DESTRUCTIVE
+- `utils renew` SKIP-DESTRUCTIVE
+
+## Batches
+
+### batch-01 (25 actions)
+- [0] slash `mod lock` [paired-cmd2]
+- [1] slash `mod unlock` [paired-cmd2]
+- [2] slash `channel hide` [paired-cmd2]
+- [3] slash `channel unhide` [paired-cmd2]
+- [4] slash `Estimate the love` user-context(self)
+- [5] slash `User Lookup` user-context(self)
+- [6] slash `allowlist add` 
+- [7] slash `allowlist remove` 
+- [8] slash `allowlist show` 
+- [9] slash `andru` 
+- [10] slash `antispam bypass-roles add` 
+- [11] slash `antispam bypass-roles clear` 
+- [12] slash `antispam bypass-roles list` 
+- [13] slash `antispam bypass-roles remove` 
+- [14] slash `antispam ignore-channels add` 
+- [15] slash `antispam ignore-channels clear` 
+- [16] slash `antispam ignore-channels list` 
+- [17] slash `antispam ignore-channels remove` 
+- [18] slash `antispam manage` 
+- [19] slash `authrestore get` 
+- [20] slash `authrestore roles` 
+- [21] slash `authrestore set` 
+- [22] slash `autologs` 
+- [23] slash `automod block discord_invite_link` 
+- [24] slash `automod block link` 
+
+### batch-02 (25 actions)
+- [25] slash `automod block mass-mention` 
+- [26] slash `automod block spam` 
+- [27] slash `automod block telegram_link` 
+- [28] slash `autoreact` 
+- [29] slash `backup create` 
+- [30] slash `backup list` 
+- [31] slash `backup manage` 
+- [32] slash `banner server` 
+- [33] slash `banner user` 
+- [34] slash `blinfo` 
+- [35] slash `blogger blog add` 
+- [36] slash `blogger blog list` 
+- [37] slash `blogger blog remove` 
+- [38] slash `blogger config status` 
+- [39] slash `botinfo` 
+- [40] slash `commandlimit` 
+- [41] slash `confession channel` 
+- [42] slash `confession config` 
+- [43] slash `confession cooldown` 
+- [44] slash `confession list` 
+- [45] slash `confession thread` 
+- [46] slash `counter channel` 
+- [47] slash `counter config` 
+- [48] slash `custom avatar` 
+- [49] slash `custom banner` 
+
+### batch-03 (25 actions)
+- [50] slash `custom bio` 
+- [51] slash `custom name` 
+- [52] slash `economy balance` 
+- [53] slash `economy balance-add` 
+- [54] slash `economy balance-remove` 
+- [55] slash `economy boost-set` 
+- [56] slash `economy config` 
+- [57] slash `economy daily` 
+- [58] slash `economy deposit` 
+- [59] slash `economy leaderboard` 
+- [60] slash `economy manage-rewards set-cooldown` 
+- [61] slash `economy manage-rewards set-money` 
+- [62] slash `economy monthly` 
+- [63] slash `economy pay` 
+- [64] slash `economy rob` 
+- [65] slash `economy role add` 
+- [66] slash `economy role delete` 
+- [67] slash `economy role list` 
+- [68] slash `economy shop` 
+- [69] slash `economy weekly` 
+- [70] slash `economy withdraw` 
+- [71] slash `economy work` 
+- [72] slash `embed` 
+- [73] slash `ether` 
+- [74] slash `fun animals cat` 
+
+### batch-04 (25 actions)
+- [75] slash `fun animals dog` 
+- [76] slash `fun animals dolphin` 
+- [77] slash `fun animals duck` 
+- [78] slash `fun animals fox` 
+- [79] slash `fun animals frog` 
+- [80] slash `fun animals panda` 
+- [81] slash `fun animals squirrel` 
+- [82] slash `fun config` 
+- [83] slash `fun image catsay` 
+- [84] slash `fun image transgender` 
+- [85] slash `fun image tweet` 
+- [86] slash `fun image youtube` 
+- [87] slash `fun interaction 67` 
+- [88] slash `fun interaction hack` 
+- [89] slash `fun interaction hug` 
+- [90] slash `fun interaction kiss` 
+- [91] slash `fun interaction love` 
+- [92] slash `fun interaction poll` 
+- [93] slash `fun interaction question` 
+- [94] slash `fun interaction slap` 
+- [95] slash `fun random dice` 
+- [96] slash `fun random gay` 
+- [97] slash `fun random heads-tails` 
+- [98] slash `fun random number` 
+- [99] slash `fun random rate` 
+
+### batch-05 (25 actions)
+- [100] slash `fun random stench` 
+- [101] slash `fun random trans` 
+- [102] slash `fun style caracteres` 
+- [103] slash `fun style morse` 
+- [104] slash `git lines` 
+- [105] slash `grosbg` 
+- [106] slash `guildconfig block bot` 
+- [107] slash `guildconfig block too-new-account` 
+- [108] slash `guildconfig bot prefix` 
+- [109] slash `guildconfig config restore` 
+- [110] slash `guildconfig config save` 
+- [111] slash `guildconfig config show` 
+- [112] slash `guildconfig set welcomer` 
+- [113] slash `gw create` 
+- [114] slash `gw get-all` 
+- [115] slash `h247 info` 
+- [116] slash `h247 join` 
+- [117] slash `h247 leave` 
+- [118] slash `help` 
+- [119] slash `honeypot config` 
+- [120] slash `inv addinvites` 
+- [121] slash `inv invites` 
+- [122] slash `inv leaderboard` 
+- [123] slash `inv removeinvites` 
+- [124] slash `inv reset` 
+
+### batch-06 (25 actions)
+- [125] slash `invite` 
+- [126] slash `iris` 
+- [127] slash `join-ghostping channel add` 
+- [128] slash `join-ghostping channel remove` 
+- [129] slash `join-ghostping ghost-list` 
+- [130] slash `kisakay` 
+- [131] slash `lastfm config` 
+- [132] slash `lastfm login` 
+- [133] slash `legacy add-react` 
+- [134] slash `legacy antiexe` 
+- [135] slash `legacy autorespond` 
+- [136] slash `legacy fexini` 
+- [137] slash `legacy h` 
+- [138] slash `legacy help_main` 
+- [139] slash `legacy helpall` 
+- [140] slash `legacy kawaeine` 
+- [141] slash `legacy langstats` 
+- [142] slash `legacy list-react` 
+- [143] slash `legacy nitrofdp` 
+- [144] slash `legacy rap-vs-reality` 
+- [145] slash `legacy remove-react` 
+- [146] slash `legacy securewebhook` 
+- [147] slash `legacy shardinfo` 
+- [148] slash `legacy status-embed` 
+- [149] slash `legacy two-sides` 
+
+### batch-07 (25 actions)
+- [150] slash `legacy updates` 
+- [151] slash `links` 
+- [152] slash `membercount` 
+- [153] slash `mod baninfo` 
+- [154] slash `mod banlist` 
+- [155] slash `mod mutelist` 
+- [156] slash `mod rolepanel` 
+- [157] slash `mod warnlist` 
+- [158] slash `music clear-queue` 
+- [159] slash `music history` 
+- [160] slash `music loop` 
+- [161] slash `music lyrics` 
+- [162] slash `music nowplaying` 
+- [163] slash `music pause` 
+- [164] slash `music play` 
+- [165] slash `music queue` 
+- [166] slash `music resume` 
+- [167] slash `music shuffle` 
+- [168] slash `music skip` 
+- [169] slash `music stop` 
+- [170] slash `music trackinfo` 
+- [171] slash `music volume` 
+- [172] slash `nightmode` 
+- [173] slash `noaimie` 
+- [174] slash `notifier author add` 
+
+### batch-08 (25 actions)
+- [175] slash `notifier author list` 
+- [176] slash `notifier author remove` 
+- [177] slash `notifier config channel` 
+- [178] slash `notifier config message` 
+- [179] slash `perm command` 
+- [180] slash `perm edit-roles` 
+- [181] slash `perm list` 
+- [182] slash `perm set-user` 
+- [183] slash `pfps channel` 
+- [184] slash `pfps config` 
+- [185] slash `ping` 
+- [186] slash `prefix` 
+- [187] slash `profil set-age` 
+- [188] slash `profil set-birthday` 
+- [189] slash `profil set-description` 
+- [190] slash `profil set-gender` 
+- [191] slash `profil set-pronoun` 
+- [192] slash `profil show` 
+- [193] slash `protect actions` 
+- [194] slash `protect allow-add` 
+- [195] slash `protect allow-remove` 
+- [196] slash `protect allow-show` 
+- [197] slash `protect sanction` 
+- [198] slash `protect show` 
+- [199] slash `punishpub` 
+
+### batch-09 (25 actions)
+- [200] slash `ranks channel` 
+- [201] slash `ranks config` 
+- [202] slash `ranks ignore-channels` 
+- [203] slash `ranks leaderboard` 
+- [204] slash `ranks message` 
+- [205] slash `ranks roles` 
+- [206] slash `ranks show` 
+- [207] slash `report` 
+- [208] slash `rolebutton` 
+- [209] slash `rolereaction` 
+- [210] slash `rolesaver` 
+- [211] slash `roleselect` 
+- [212] slash `say` 
+- [213] slash `schedule create` 
+- [214] slash `schedule list` 
+- [215] slash `schedule panel` 
+- [216] slash `security channel` 
+- [217] slash `security config` 
+- [218] slash `security role-to-give` 
+- [219] slash `security role-to-remove` 
+- [220] slash `setlogs` 
+- [221] slash `setsuggest channel` 
+- [222] slash `setsuggest config` 
+- [223] slash `skullboard channel` 
+- [224] slash `skullboard config` 
+
+### batch-10 (25 actions)
+- [225] slash `skullboard create-thread` 
+- [226] slash `skullboard threshold` 
+- [227] slash `starboard channel` 
+- [228] slash `starboard config` 
+- [229] slash `starboard create-thread` 
+- [230] slash `starboard threshold` 
+- [231] slash `stats channel-stats` 
+- [232] slash `stats compare` 
+- [233] slash `stats gstats` 
+- [234] slash `stats top-messages` 
+- [235] slash `stats top-voice` 
+- [236] slash `stats ustats` 
+- [237] slash `status` 
+- [238] slash `sticky disable` 
+- [239] slash `sticky embed` 
+- [240] slash `sticky list` 
+- [241] slash `sticky refresh` 
+- [242] slash `sticky show` 
+- [243] slash `sticky text` 
+- [244] slash `support` 
+- [245] slash `tag create` 
+- [246] slash `tag info` 
+- [247] slash `tag list` 
+- [248] slash `tag use` 
+- [249] slash `tag wlroles-create` 
+
+### batch-11 (25 actions)
+- [250] slash `tag wlroles-use` 
+- [251] slash `ticket config` 
+- [252] slash `ticket log-channel` 
+- [253] slash `ticket panel` 
+- [254] slash `ticket set-category` 
+- [255] slash `ticket set-here` 
+- [256] slash `toggle-react` 
+- [257] slash `tts info` 
+- [258] slash `tts join` 
+- [259] slash `tts lang` 
+- [260] slash `tts leave` 
+- [261] slash `unslowmode` 
+- [262] slash `util addrolereact` 
+- [263] slash `util admin-roles` 
+- [264] slash `util allwebhooks` 
+- [265] slash `util autorenew` 
+- [266] slash `util cooldown` 
+- [267] slash `util derogation` 
+- [268] slash `util inviteinfo` 
+- [269] slash `util nick-kicker` 
+- [270] slash `util role-members` 
+- [271] slash `util rolelimit` 
+- [272] slash `util serverpic` 
+- [273] slash `util sync` 
+- [274] slash `util unwlvc` 
+
+### batch-12 (25 actions)
+- [275] slash `util wakeup` 
+- [276] slash `util where` 
+- [277] slash `util wlvc` 
+- [278] slash `util zip-stickers` 
+- [279] slash `utils addrole` 
+- [280] slash `utils admin-users` 
+- [281] slash `utils allbots` 
+- [282] slash `utils avatar` 
+- [283] slash `utils delrole` 
+- [284] slash `utils derank` 
+- [285] slash `utils dm` 
+- [286] slash `utils embed` 
+- [287] slash `utils emojis` 
+- [288] slash `utils leash` 
+- [289] slash `utils massiverole` 
+- [290] slash `utils massmove` 
+- [291] slash `utils media-only` 
+- [292] slash `utils nickrole` 
+- [293] slash `utils prevnames` 
+- [294] slash `utils serverinfo` 
+- [295] slash `utils setmentionrole` 
+- [296] slash `utils snipe` 
+- [297] slash `utils sticker` 
+- [298] slash `utils top` 
+- [299] slash `utils unleash` 
+
+### batch-13 (25 actions)
+- [300] slash `utils userinfo` 
+- [301] slash `utils vanity-generator` 
+- [302] slash `utils vc` 
+- [303] slash `utils wlroles` 
+- [304] slash `utils wlroles-add` 
+- [305] slash `utils wlroles-list` 
+- [306] slash `utils zip-emojis` 
+- [307] slash `utilss renewvc` 
+- [308] slash `voice interface set-staff-role` 
+- [309] slash `voice interface set-text-channel` 
+- [310] slash `voice interface set-voice-channel` 
+- [311] slash `voice interface set-voice-channel-catgory` 
+- [312] slash `voice interface set-voice-channel-name` 
+- [313] slash `voice interface set-voice-channel-position` 
+- [314] slash `welcomer` 
+- [315] slash `setlang` 
+- [316] send `.Estimate the love` Estimate the love
+- [317] send `.User Lookup` User Lookup
+- [318] send `.allowlist add <@1542861131939577949>` allowlist add
+- [319] send `.allowlist remove <@1542861131939577949>` allowlist remove
+- [320] send `.allowlist show` allowlist show
+- [321] send `.andru` andru
+- [322] send `.antispam bypass-roles add <@&999449972615413861>` antispam bypass-roles add
+- [323] send `.antispam bypass-roles clear` antispam bypass-roles clear
+- [324] send `.antispam bypass-roles list` antispam bypass-roles list
+
+### batch-14 (25 actions)
+- [325] send `.antispam bypass-roles remove <@&999449972615413861>` antispam bypass-roles remove
+- [326] send `.antispam ignore-channels add <#1509600862346154064>` antispam ignore-channels add
+- [327] send `.antispam ignore-channels clear` antispam ignore-channels clear
+- [328] send `.antispam ignore-channels list` antispam ignore-channels list
+- [329] send `.antispam ignore-channels remove <#1509600862346154064>` antispam ignore-channels remove
+- [330] send `.antispam manage` antispam manage
+- [331] send `.authrestore get qa` authrestore get
+- [332] send `.authrestore roles qa <@&999449972615413861>` authrestore roles
+- [333] send `.authrestore set <#1509600862346154064> qa` authrestore set
+- [334] send `.autologs` autologs
+- [335] send `.automod block discord_invite_link 1` automod block discord_invite_link
+- [336] send `.automod block link 1` automod block link
+- [337] send `.automod block mass-mention 1` automod block mass-mention
+- [338] send `.automod block spam 1` automod block spam
+- [339] send `.automod block telegram_link 1` automod block telegram_link
+- [340] send `.autoreact` autoreact
+- [341] send `.backup create` backup create
+- [342] send `.backup list` backup list
+- [343] send `.backup manage` backup manage
+- [344] send `.banner server` banner server
+- [345] send `.banner user` banner user
+- [346] send `.blinfo <@1542861131939577949>` blinfo
+- [347] send `.blogger blog add qa <#1509600862346154064>` blogger blog add
+- [348] send `.blogger blog list` blogger blog list
+- [349] send `.blogger blog remove qa` blogger blog remove
+
+### batch-15 (25 actions)
+- [350] send `.blogger config status 1` blogger config status
+- [351] send `.botinfo` botinfo
+- [352] send `.channel hide` channel hide
+- [353] send `.channel unhide` channel unhide
+- [354] send `.commandlimit 1` commandlimit
+- [355] send `.confession channel` confession channel
+- [356] send `.confession config 1` confession config
+- [357] send `.confession cooldown` confession cooldown
+- [358] send `.confession list` confession list
+- [359] send `.confession thread` confession thread
+- [360] send `.counter channel <#1509600862346154064>` counter channel
+- [361] send `.counter config 1` counter config
+- [362] send `.custom avatar 1` custom avatar
+- [363] send `.custom banner 1` custom banner
+- [364] send `.custom bio 1` custom bio
+- [365] send `.custom name 1` custom name
+- [366] send `.economy balance` economy balance
+- [367] send `.economy balance-add 1.0 <@1542861131939577949>` economy balance-add
+- [368] send `.economy balance-remove 1.0 <@1542861131939577949>` economy balance-remove
+- [369] send `.economy boost-set <@&999449972615413861> 1` economy boost-set
+- [370] send `.economy config 1` economy config
+- [371] send `.economy daily` economy daily
+- [372] send `.economy deposit qa` economy deposit
+- [373] send `.economy leaderboard` economy leaderboard
+- [374] send `.economy manage-rewards set-cooldown 1 qa` economy manage-rewards set-cooldown
+
+### batch-16 (25 actions)
+- [375] send `.economy manage-rewards set-money 1 1.0` economy manage-rewards set-money
+- [376] send `.economy monthly` economy monthly
+- [377] send `.economy pay 1.0 <@1542861131939577949>` economy pay
+- [378] send `.economy rob <@1542861131939577949>` economy rob
+- [379] send `.economy role add <@&999449972615413861> 1.0` economy role add
+- [380] send `.economy role delete <@&999449972615413861>` economy role delete
+- [381] send `.economy role list` economy role list
+- [382] send `.economy shop` economy shop
+- [383] send `.economy weekly` economy weekly
+- [384] send `.economy withdraw qa` economy withdraw
+- [385] send `.economy work` economy work
+- [386] send `.embed` embed
+- [387] send `.ether` ether
+- [388] send `.fun animals cat` fun animals cat
+- [389] send `.fun animals dog` fun animals dog
+- [390] send `.fun animals dolphin` fun animals dolphin
+- [391] send `.fun animals duck` fun animals duck
+- [392] send `.fun animals fox` fun animals fox
+- [393] send `.fun animals frog` fun animals frog
+- [394] send `.fun animals panda` fun animals panda
+- [395] send `.fun animals squirrel` fun animals squirrel
+- [396] send `.fun config 1` fun config
+- [397] send `.fun image catsay` fun image catsay
+- [398] send `.fun image transgender` fun image transgender
+- [399] send `.fun image tweet qa` fun image tweet
+
+### batch-17 (25 actions)
+- [400] send `.fun image youtube qa` fun image youtube
+- [401] send `.fun interaction 67` fun interaction 67
+- [402] send `.fun interaction hack <@1542861131939577949>` fun interaction hack
+- [403] send `.fun interaction hug <@1542861131939577949>` fun interaction hug
+- [404] send `.fun interaction kiss <@1542861131939577949>` fun interaction kiss
+- [405] send `.fun interaction love` fun interaction love
+- [406] send `.fun interaction poll qa` fun interaction poll
+- [407] send `.fun interaction question` fun interaction question
+- [408] send `.fun interaction slap <@1542861131939577949>` fun interaction slap
+- [409] send `.fun random dice` fun random dice
+- [410] send `.fun random gay` fun random gay
+- [411] send `.fun random heads-tails` fun random heads-tails
+- [412] send `.fun random number` fun random number
+- [413] send `.fun random rate` fun random rate
+- [414] send `.fun random stench` fun random stench
+- [415] send `.fun random trans` fun random trans
+- [416] send `.fun style caracteres` fun style caracteres
+- [417] send `.fun style morse` fun style morse
+- [418] send `.git lines` git lines
+- [419] send `.grosbg` grosbg
+- [420] send `.guildconfig block bot 1` guildconfig block bot
+- [421] send `.guildconfig block too-new-account 1` guildconfig block too-new-account
+- [422] send `.guildconfig bot prefix 1` guildconfig bot prefix
+- [423] send `.guildconfig config restore` guildconfig config restore
+- [424] send `.guildconfig config save` guildconfig config save
+
+### batch-18 (25 actions)
+- [425] send `.guildconfig config show` guildconfig config show
+- [426] send `.guildconfig set welcomer` guildconfig set welcomer
+- [427] send `.gw create qa` gw create
+- [428] send `.gw get-all` gw get-all
+- [429] send `.h247 info` h247 info
+- [430] send `.h247 join` h247 join
+- [431] send `.h247 leave` h247 leave
+- [432] send `.help` help
+- [433] send `.honeypot config qa` honeypot config
+- [434] send `.inv addinvites <@1542861131939577949> 1.0` inv addinvites
+- [435] send `.inv invites` inv invites
+- [436] send `.inv leaderboard` inv leaderboard
+- [437] send `.inv removeinvites 1.0` inv removeinvites
+- [438] send `.inv reset` inv reset
+- [439] send `.invite` invite
+- [440] send `.iris` iris
+- [441] send `.join-ghostping channel add <#1509600862346154064>` join-ghostping channel add
+- [442] send `.join-ghostping channel remove <#1509600862346154064>` join-ghostping channel remove
+- [443] send `.join-ghostping ghost-list` join-ghostping ghost-list
+- [444] send `.kisakay` kisakay
+- [445] send `.lastfm config 1` lastfm config
+- [446] send `.lastfm login qa qa` lastfm login
+- [447] send `.legacy add-react` legacy add-react
+- [448] send `.legacy antiexe` legacy antiexe
+- [449] send `.legacy autorespond` legacy autorespond
+
+### batch-19 (25 actions)
+- [450] send `.legacy fexini` legacy fexini
+- [451] send `.legacy h` legacy h
+- [452] send `.legacy help_main` legacy help_main
+- [453] send `.legacy helpall` legacy helpall
+- [454] send `.legacy kawaeine` legacy kawaeine
+- [455] send `.legacy langstats` legacy langstats
+- [456] send `.legacy list-react` legacy list-react
+- [457] send `.legacy nitrofdp` legacy nitrofdp
+- [458] send `.legacy rap-vs-reality` legacy rap-vs-reality
+- [459] send `.legacy remove-react` legacy remove-react
+- [460] send `.legacy securewebhook` legacy securewebhook
+- [461] send `.legacy shardinfo` legacy shardinfo
+- [462] send `.legacy status-embed` legacy status-embed
+- [463] send `.legacy two-sides` legacy two-sides
+- [464] send `.legacy updates` legacy updates
+- [465] send `.links` links
+- [466] send `.membercount 1 <#1509600862346154064>` membercount
+- [467] send `.mod baninfo` mod baninfo
+- [468] send `.mod banlist` mod banlist
+- [469] send `.mod lock` mod lock
+- [470] send `.mod mutelist` mod mutelist
+- [471] send `.mod rolepanel` mod rolepanel
+- [472] send `.mod unlock` mod unlock
+- [473] send `.mod warnlist <@1542861131939577949>` mod warnlist
+- [474] send `.music clear-queue` music clear-queue
+
+### batch-20 (25 actions)
+- [475] send `.music history` music history
+- [476] send `.music loop 1` music loop
+- [477] send `.music lyrics qa` music lyrics
+- [478] send `.music nowplaying` music nowplaying
+- [479] send `.music pause` music pause
+- [480] send `.music play qa` music play
+- [481] send `.music queue` music queue
+- [482] send `.music resume` music resume
+- [483] send `.music shuffle` music shuffle
+- [484] send `.music skip` music skip
+- [485] send `.music stop` music stop
+- [486] send `.music trackinfo` music trackinfo
+- [487] send `.music volume 1` music volume
+- [488] send `.nightmode` nightmode
+- [489] send `.noaimie` noaimie
+- [490] send `.notifier author add 1 qa` notifier author add
+- [491] send `.notifier author list` notifier author list
+- [492] send `.notifier author remove 1 qa` notifier author remove
+- [493] send `.notifier config channel <#1509600862346154064>` notifier config channel
+- [494] send `.notifier config message` notifier config message
+- [495] send `.perm command 1` perm command
+- [496] send `.perm edit-roles 1 <@&999449972615413861>` perm edit-roles
+- [497] send `.perm list` perm list
+- [498] send `.perm set-user <@1542861131939577949> 1` perm set-user
+- [499] send `.pfps channel` pfps channel
+
+### batch-21 (25 actions)
+- [500] send `.pfps config 1` pfps config
+- [501] send `.ping` ping
+- [502] send `.prefix` prefix
+- [503] send `.profil set-age` profil set-age
+- [504] send `.profil set-birthday` profil set-birthday
+- [505] send `.profil set-description` profil set-description
+- [506] send `.profil set-gender 1` profil set-gender
+- [507] send `.profil set-pronoun 1` profil set-pronoun
+- [508] send `.profil show` profil show
+- [509] send `.protect actions qa` protect actions
+- [510] send `.protect allow-add <@1542861131939577949>` protect allow-add
+- [511] send `.protect allow-remove <@1542861131939577949>` protect allow-remove
+- [512] send `.protect allow-show` protect allow-show
+- [513] send `.protect sanction 1` protect sanction
+- [514] send `.protect show` protect show
+- [515] send `.punishpub` punishpub
+- [516] send `.ranks channel` ranks channel
+- [517] send `.ranks config 1` ranks config
+- [518] send `.ranks ignore-channels` ranks ignore-channels
+- [519] send `.ranks leaderboard` ranks leaderboard
+- [520] send `.ranks message` ranks message
+- [521] send `.ranks roles` ranks roles
+- [522] send `.ranks show` ranks show
+- [523] send `.report qa` report
+- [524] send `.rolebutton 1 qa qa` rolebutton
+
+### batch-22 (25 actions)
+- [525] send `.rolereaction 1 <#1509600862346154064> qa` rolereaction
+- [526] send `.rolesaver 1` rolesaver
+- [527] send `.roleselect qa qa` roleselect
+- [528] send `.say qa` say
+- [529] send `.schedule create qa qa qa` schedule create
+- [530] send `.schedule list` schedule list
+- [531] send `.schedule panel` schedule panel
+- [532] send `.security channel <#1509600862346154064>` security channel
+- [533] send `.security config 1` security config
+- [534] send `.security role-to-give <@&999449972615413861>` security role-to-give
+- [535] send `.security role-to-remove <@&999449972615413861>` security role-to-remove
+- [536] send `.setlogs 1` setlogs
+- [537] send `.setsuggest channel <#1509600862346154064>` setsuggest channel
+- [538] send `.setsuggest config 1` setsuggest config
+- [539] send `.skullboard channel <#1509600862346154064>` skullboard channel
+- [540] send `.skullboard config 1` skullboard config
+- [541] send `.skullboard create-thread 1` skullboard create-thread
+- [542] send `.skullboard threshold 1` skullboard threshold
+- [543] send `.starboard channel <#1509600862346154064>` starboard channel
+- [544] send `.starboard config 1` starboard config
+- [545] send `.starboard create-thread 1` starboard create-thread
+- [546] send `.starboard threshold 1` starboard threshold
+- [547] send `.stats channel-stats` stats channel-stats
+- [548] send `.stats compare` stats compare
+- [549] send `.stats gstats` stats gstats
+
+### batch-23 (25 actions)
+- [550] send `.stats top-messages` stats top-messages
+- [551] send `.stats top-voice` stats top-voice
+- [552] send `.stats ustats` stats ustats
+- [553] send `.status` status
+- [554] send `.sticky disable` sticky disable
+- [555] send `.sticky embed qa` sticky embed
+- [556] send `.sticky list` sticky list
+- [557] send `.sticky refresh` sticky refresh
+- [558] send `.sticky show` sticky show
+- [559] send `.sticky text qa` sticky text
+- [560] send `.support 1` support
+- [561] send `.tag create qa qa` tag create
+- [562] send `.tag info qa` tag info
+- [563] send `.tag list` tag list
+- [564] send `.tag use qa` tag use
+- [565] send `.tag wlroles-create <@&999449972615413861>` tag wlroles-create
+- [566] send `.tag wlroles-use <@&999449972615413861>` tag wlroles-use
+- [567] send `.ticket config 1` ticket config
+- [568] send `.ticket log-channel <#1509600862346154064>` ticket log-channel
+- [569] send `.ticket panel` ticket panel
+- [570] send `.ticket set-category` ticket set-category
+- [571] send `.ticket set-here` ticket set-here
+- [572] send `.toggle-react` toggle-react
+- [573] send `.tts info` tts info
+- [574] send `.tts join` tts join
+
+### batch-24 (25 actions)
+- [575] send `.tts lang` tts lang
+- [576] send `.tts leave` tts leave
+- [577] send `.unslowmode` unslowmode
+- [578] send `.util addrolereact qa <@&999449972615413861>` util addrolereact
+- [579] send `.util admin-roles` util admin-roles
+- [580] send `.util allwebhooks` util allwebhooks
+- [581] send `.util autorenew <#1509600862346154064> qa` util autorenew
+- [582] send `.util cooldown 1` util cooldown
+- [583] send `.util derogation` util derogation
+- [584] send `.util inviteinfo qa` util inviteinfo
+- [585] send `.util nick-kicker` util nick-kicker
+- [586] send `.util role-members <@&999449972615413861>` util role-members
+- [587] send `.util rolelimit <@&999449972615413861>` util rolelimit
+- [588] send `.util serverpic` util serverpic
+- [589] send `.util sync <#1509600862346154064>` util sync
+- [590] send `.util unwlvc` util unwlvc
+- [591] send `.util wakeup <@1542861131939577949>` util wakeup
+- [592] send `.util where <@1542861131939577949>` util where
+- [593] send `.util wlvc` util wlvc
+- [594] send `.util zip-stickers` util zip-stickers
+- [595] send `.utils addrole <@1542861131939577949> <@&999449972615413861>` utils addrole
+- [596] send `.utils admin-users` utils admin-users
+- [597] send `.utils allbots` utils allbots
+- [598] send `.utils avatar` utils avatar
+- [599] send `.utils delrole <@1542861131939577949> <@&999449972615413861>` utils delrole
+
+### batch-25 (25 actions)
+- [600] send `.utils derank` utils derank
+- [601] send `.utils dm 1 <@1542861131939577949> qa` utils dm
+- [602] send `.utils embed` utils embed
+- [603] send `.utils emojis qa` utils emojis
+- [604] send `.utils leash <@1542861131939577949>` utils leash
+- [605] send `.utils massiverole 1 <@&999449972615413861>` utils massiverole
+- [606] send `.utils massmove` utils massmove
+- [607] send `.utils media-only` utils media-only
+- [608] send `.utils nickrole 1 qa <@&999449972615413861>` utils nickrole
+- [609] send `.utils prevnames` utils prevnames
+- [610] send `.utils serverinfo` utils serverinfo
+- [611] send `.utils setmentionrole 1` utils setmentionrole
+- [612] send `.utils snipe` utils snipe
+- [613] send `.utils sticker` utils sticker
+- [614] send `.utils top` utils top
+- [615] send `.utils unleash <@1542861131939577949>` utils unleash
+- [616] send `.utils userinfo` utils userinfo
+- [617] send `.utils vanity-generator qa` utils vanity-generator
+- [618] send `.utils vc` utils vc
+- [619] send `.utils wlroles` utils wlroles
+- [620] send `.utils wlroles-add` utils wlroles-add
+- [621] send `.utils wlroles-list` utils wlroles-list
+- [622] send `.utils zip-emojis` utils zip-emojis
+- [623] send `.utilss renewvc` utilss renewvc
+- [624] send `.voice interface set-staff-role` voice interface set-staff-role
+
+### batch-26 (7 actions)
+- [625] send `.voice interface set-text-channel <#1509600862346154064>` voice interface set-text-channel
+- [626] send `.voice interface set-voice-channel <#1509600862346154064>` voice interface set-voice-channel
+- [627] send `.voice interface set-voice-channel-catgory <#1509600862346154064>` voice interface set-voice-channel-catgory
+- [628] send `.voice interface set-voice-channel-name qa` voice interface set-voice-channel-name
+- [629] send `.voice interface set-voice-channel-position 1` voice interface set-voice-channel-position
+- [630] send `.welcomer` welcomer
+- [631] send `.setlang` setlang
