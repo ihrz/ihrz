@@ -71,9 +71,12 @@ pub async fn backup_list(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     });
     let fields: Vec<(String, String)> = rows
         .iter()
-        .map(|(id, raw)| match super::backup::backup_summary(raw) {
-            Some((name, cats, chans)) => super::backup::backup_field(&name, id, cats, chans, &tpl),
-            None => (id.clone(), String::new()),
+        // Skip unreadable rows like the `if (result)` guard in
+        // !list.ts:100: an empty field value is rejected by the
+        // Discord API, so one corrupt row must not break the reply.
+        .filter_map(|(id, raw)| {
+            super::backup::backup_summary(raw)
+                .map(|(name, cats, chans)| super::backup::backup_field(&name, id, cats, chans, &tpl))
         })
         .collect();
     // Mirrors the generateEmbed description switch in !list.ts:110

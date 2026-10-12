@@ -102,7 +102,8 @@ pub async fn backup_delete(
     // Confirm embed with the stored snapshot stats. Mirrors the
     // EmbedBuilder in !delete.ts:84-98 (title + #ff1100 + field with
     // guild name, id and counts).
-    let (guild_name, category_count, channel_count) = delete_snapshot_stats(Some(raw.as_str()));
+    let (guild_name, category_count, channel_count) =
+        delete_snapshot_stats(Some(raw.as_str()), &backup_id);
     let title = crate::commands::lang_for(
         &ctx,
         "backup_really_want",
@@ -288,9 +289,11 @@ pub fn render_delete_field(template: &str, category_count: usize, channel_count:
 /// Snapshot stats for the confirm field, read back from the stored
 /// BackupInfos (guild name + category/channel counts) or the bare TS
 /// `{guildName, categoryCount, channelCount}` meta row. Falls back
-/// to the id with zero counts when the snapshot is missing or
-/// unreadable.
-pub fn delete_snapshot_stats(stored: Option<&str>) -> (String, usize, usize) {
+/// to `fallback_name` (the backup id) with zero counts when the
+/// snapshot is missing or unreadable: TS always has a valid
+/// `data_2.guildName` (!delete.ts:94), and echoing raw DB text here
+/// would risk overflowing the 256-char field-name limit.
+pub fn delete_snapshot_stats(stored: Option<&str>, fallback_name: &str) -> (String, usize, usize) {
     let parsed = stored
         .and_then(|s| serde_json::from_str::<crate::backup_types::BackupInfos>(s).ok())
         .map(|infos| {
@@ -307,7 +310,7 @@ pub fn delete_snapshot_stats(stored: Option<&str>) -> (String, usize, usize) {
         .or_else(|| stored.and_then(super::backup::backup_meta))
         .unwrap_or_default();
     if parsed.0.is_empty() {
-        (stored.unwrap_or_default().to_string(), 0, 0)
+        (fallback_name.to_string(), 0, 0)
     } else {
         parsed
     }
@@ -354,10 +357,13 @@ mod tests {
 
     #[test]
     fn snapshot_stats_fallback_on_garbage() {
-        assert_eq!(delete_snapshot_stats(None), (String::new(), 0, 0));
         assert_eq!(
-            delete_snapshot_stats(Some("not json")),
-            ("not json".to_string(), 0, 0)
+            delete_snapshot_stats(None, "abc"),
+            ("abc".to_string(), 0, 0)
+        );
+        assert_eq!(
+            delete_snapshot_stats(Some("not json"), "abc"),
+            ("abc".to_string(), 0, 0)
         );
     }
 
@@ -365,9 +371,10 @@ mod tests {
     fn snapshot_stats_accepts_bare_ts_meta() {
         // Per-user pointer shape from !create.ts:82-91 (no snapshot).
         assert_eq!(
-            delete_snapshot_stats(Some(
-                r#"{"guildName":"TS Guild","categoryCount":2,"channelCount":7}"#
-            )),
+            delete_snapshot_stats(
+                Some(r#"{"guildName":"TS Guild","categoryCount":2,"channelCount":7}"#),
+                "abc"
+            ),
             ("TS Guild".to_string(), 2, 7)
         );
     }

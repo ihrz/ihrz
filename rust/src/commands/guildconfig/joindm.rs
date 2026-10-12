@@ -3,8 +3,9 @@ use super::*;
 /// Post one #bf0bb9 embed to the name-contains `ihorizon-logs`
 /// channel. Mirrors `client.func.ihorizon_logs` (best-effort, silent
 /// when missing), like the panel `askForDm` / `resetDm` audit posts
-/// (`welcomerPanel.ts:1058-1065,1095-1102`).
-async fn post_joindm_log(ctx: &Ctx<'_>, title: &str, description: &str) {
+/// (`welcomerPanel.ts:1058-1065,1095-1102`) and the panel
+/// `saveRoles` join-roles post (`welcomerPanel.ts:1118-1125`).
+pub(super) async fn post_joindm_log(ctx: &Ctx<'_>, title: &str, description: &str) {
     use poise::serenity_prelude::{CreateEmbed, CreateMessage};
     let Some(guild_id) = ctx.guild_id() else {
         return;

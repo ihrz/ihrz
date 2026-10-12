@@ -928,6 +928,22 @@ pub fn privacy_rule(value: &str) -> Option<(u64, u64)> {
     }
 }
 
+/// App-emoji namespace for a privacy menu value, used in the summary
+/// receipt (`{emoji} **Yes**`). Mirrors the per-action VC_* emoji in
+/// temporary_voice_privacy_button.ts (CloseAccess/OpenAccess for
+/// lock/unlock, Unseeable/Seeable for invisible/visible,
+/// CloseChat/OpenChat for closechat/openchat).
+pub fn privacy_receipt_emoji(value: &str) -> &'static str {
+    match value {
+        PRIVACY_LOCK => "VC_CloseAccess",
+        PRIVACY_UNLOCK => "VC_OpenAccess",
+        PRIVACY_INVISIBLE => "VC_Unseeable",
+        PRIVACY_VISIBLE => "VC_Seeable",
+        PRIVACY_CLOSECHAT => "VC_CloseChat",
+        _ => "VC_OpenChat",
+    }
+}
+
 /// Dashboard button layout: (action suffix, text label, emoji namespace).
 /// Order mirrors the TS `buttonRows` in !set-text-channel.ts
 /// (limit, name, claim, privacy, region / trust, block, transfer,
@@ -1972,12 +1988,23 @@ pub async fn handle_tempvoice_select(
                 PRIVACY_CLOSECHAT => "temporary_voice_privacy_menu_closechat_label",
                 _ => "temporary_voice_privacy_menu_openchat_label",
             };
+            // Receipt mirrors the TS switch replies: the option label as
+            // field name, `{VC_*} **Yes**` as value, and the
+            // `temporary_voice_title_embec` description (whose en-US text
+            // is exactly the TS hardcoded description).
+            let receipt_emoji =
+                crate::emojis::app_emoji_markup(&ctx.http, privacy_receipt_emoji(&value))
+                    .await
+                    .unwrap_or_default();
             let embed = serenity::CreateEmbed::default()
+                .description(
+                    crate::lang::get(&lang_code, "temporary_voice_title_embec").unwrap_or_default(),
+                )
                 .colour(2829617)
                 .image(crate::funcs::guild_banner_url(pool, &gid).await)
                 .field(
                     crate::lang::get(&lang_code, label_key).unwrap_or_default(),
-                    "Yes",
+                    format!("{receipt_emoji} **Yes**"),
                     true,
                 );
             comp.create_response(
@@ -2297,6 +2324,17 @@ mod tests {
         assert_eq!(privacy_rule(PRIVACY_CLOSECHAT), Some((0, chat)));
         assert_eq!(privacy_rule(PRIVACY_OPENCHAT), Some((chat, 0)));
         assert_eq!(privacy_rule("bogus"), None);
+    }
+
+    #[test]
+    fn privacy_receipt_emoji_matches_ts_option_emoji() {
+        // Per-action VC_* emoji in temporary_voice_privacy_button.ts.
+        assert_eq!(privacy_receipt_emoji(PRIVACY_LOCK), "VC_CloseAccess");
+        assert_eq!(privacy_receipt_emoji(PRIVACY_UNLOCK), "VC_OpenAccess");
+        assert_eq!(privacy_receipt_emoji(PRIVACY_INVISIBLE), "VC_Unseeable");
+        assert_eq!(privacy_receipt_emoji(PRIVACY_VISIBLE), "VC_Seeable");
+        assert_eq!(privacy_receipt_emoji(PRIVACY_CLOSECHAT), "VC_CloseChat");
+        assert_eq!(privacy_receipt_emoji(PRIVACY_OPENCHAT), "VC_OpenChat");
     }
 
     #[test]

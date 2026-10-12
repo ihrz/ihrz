@@ -2,6 +2,10 @@ use super::*;
 use poise::serenity_prelude as serenity;
 
 /// Create the private ihorizon-logs channel. Mirrors !setup.ts.
+// On create failure replies `setup_command_error` instead of
+// surfacing an exception: the TS error text covers both the
+// already-exists race and missing permissions (TS never awaits the
+// create, so a failed create still falls through to a reply).
 #[poise::command(
     slash_command,
     prefix_command,
@@ -35,7 +39,7 @@ pub async fn gc_setup(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         .await?;
         return Ok(());
     }
-    guild_id
+    if guild_id
         .create_channel(
             ctx.http(),
             serenity::CreateChannel::new("ihorizon-logs")
@@ -50,7 +54,16 @@ pub async fn gc_setup(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
                     )),
                 }]),
         )
+        .await
+        .is_err()
+    {
+        ctx.say(
+            crate::lang::get(&code, "setup_command_error")
+                .unwrap_or_else(|| "The bot has already set up the logs channels, or the bot doesn't have enough permissions...".to_string()),
+        )
         .await?;
+        return Ok(());
+    }
     let yes = crate::emojis::app_emoji_markup(ctx.http(), "Yes")
         .await
         .unwrap_or_default();

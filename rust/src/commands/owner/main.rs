@@ -975,7 +975,7 @@ async fn send_bl_pager(
 )]
 pub async fn blacklist(
     ctx: Ctx<'_>,
-    #[description = "Member"]
+    #[description = "The user you want to blacklist..."]
     #[description_localized("fr", "L'utilisateur que vous voulez blacklist")]
     #[description_localized("ja", "ブラックリストに入れたいユーザー...")]
     #[description_localized("ru", "Пользователь, которого вы хотите добавить в черный список...")]
@@ -984,7 +984,7 @@ pub async fn blacklist(
     // Rest-of-line like TS `longString(args, 1)`: multi-word reasons
     // survive prefix parsing (same `#[rest]` pattern as fun/catsay).
     // Slash use is unaffected (`#[rest]` is prefix-only).
-    #[description = "Reason"]
+    #[description = "The reason why you want to blacklist this member"]
     #[description_localized(
         "fr",
         "La raison de pourquoi vous voulez le mettre dans la liste-noire"
@@ -1119,13 +1119,30 @@ async fn blacklist_inner(
                 .await?;
             }
             // Cross-guild sweep with progress + final shard report.
+            // TS names the plain `member.user.username` when the target
+            // is a cached guild member, and `globalName || username`
+            // otherwise (targetUser branch) — mirror that split here.
+            let sweep_name = if ctx
+                .guild_id()
+                .and_then(|gid| {
+                    ctx.serenity_context()
+                        .cache
+                        .guild(gid)
+                        .map(|g| g.members.contains_key(&target.id))
+                })
+                .unwrap_or(false)
+            {
+                target.name.clone()
+            } else {
+                display_name(&target)
+            };
             ctx.say(
                 lt(
                     &code,
                     "batch_ban_process",
                     "🔄 Banning ${member.user.username} in progress on ${guilds.length} servers...",
                 )
-                .replace("${member.user.username}", &display_name(&target))
+                .replace("${member.user.username}", &sweep_name)
                 .replace("${guilds.length}", "all shards"),
             )
             .await?;
@@ -1139,10 +1156,10 @@ async fn blacklist_inner(
                     "✅ ${username} banned on **${totalSuccess}** server(s) across all shards (`{score}`)",
                 )
                 .replace("{score}", &score)
-                // TS branch-1 names the plain `member.user.username` here
-                // (the globalName form is only used for the direct
-                // replies), so this is `target.name`, not display_name.
-                .replace("{username}", &target.name)
+                // TS names the plain `member.user.username` here for cached
+                // guild members and `globalName || username` otherwise
+                // (see `sweep_name` above).
+                .replace("{username}", &sweep_name)
                 .replace("${totalSuccess}", &total_success.to_string()),
             )
             .await?;
@@ -1272,7 +1289,7 @@ async fn blacklist_inner(
 )]
 pub async fn unblacklist(
     ctx: Ctx<'_>,
-    #[description = "Member"]
+    #[description = "The user you want to unblacklist (Only Owner of ihorizon)"]
     #[description_localized(
         "fr",
         "L'utilisateur que vous souhaitez supprimer de la liste noire (uniquement propriétaire d'ihorizon)"
@@ -1518,7 +1535,7 @@ async fn send_blinfo_embed(
 )]
 pub async fn blinfo(
     ctx: Ctx<'_>,
-    #[description = "Member"]
+    #[description = "The user you want to look at..."]
     #[description_localized("fr", "L'utilisateur que vous voulez obtenir ces informations de bl")]
     #[description_localized("ja", "確認したいユーザー...")]
     #[description_localized("ru", "Пользователь, которого вы хотите посмотреть...")]
@@ -1570,7 +1587,9 @@ pub async fn blinfo(
     }
 }
 
-/// Edit a blacklist reason. Mirrors !bledit.ts.
+/// edit blacklist reason
+// Mirrors !bledit.ts (kept out of the doc comment so poise does not
+// publish the internal note as the slash-command description).
 // FLATTEN-B2: top-level slash command (TS `bledit.ts`, flat
 // /bledit); no longer nested under `owner`.
 #[poise::command(
@@ -1586,7 +1605,7 @@ pub async fn blinfo(
 )]
 pub async fn bledit(
     ctx: Ctx<'_>,
-    #[description = "Member"]
+    #[description = "The user you want to edit the reason"]
     #[description_localized(
         "fr",
         "L'utilisateur que vous souhaitez modifier la raison de sont blacklist"
@@ -1596,7 +1615,7 @@ pub async fn bledit(
     #[description_localized("es-ES", "El usuario del que quieres editar la razón")]
     user: serenity::User,
     // Rest-of-line like TS `longString(args, 1)` (see blacklist).
-    #[description = "The new reason"]
+    #[description = "the new reason"]
     #[description_localized("fr", "la nouvelle raison")]
     #[description_localized("ja", "新しい理由")]
     #[description_localized("ru", "новая причина")]
