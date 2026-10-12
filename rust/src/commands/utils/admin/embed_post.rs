@@ -1,21 +1,22 @@
 use super::*;
 
-/// Post or repost an embed. Mirrors the !embed.ts EmbedManager
+/// Post or repost a saved embed. Mirrors the !embed.ts EmbedManager
 // (the TS `embed` subcommand of HybridCommands/utils/utils.ts:850,
-// permission ManageMessages, optional saved `id` preload).
+// permission ManageMessages, optional saved `id` preload — the ONLY
+// TS slash option; there are no `title`/`description` params).
 // The interactive builder at `embed_builder` is a separate top-level
 // registration under a different parent, so sharing the TS-exact leaf
 // name here causes no slash conflict (Discord namespaces options per
 // parent); the prefix-collision gate excludes subcommand leaves.
-// Create from title + description (saved under a new id) or repost of a
-// saved embed id. The copy-from-message-URL step (`copyEmbed`) is an
-// interactive builder action, not a TS slash option, so it lives in the
-// pure helpers below rather than as a command param. The
-// interactive select-menu/button collectors have no stateless equivalent,
-// so create/save are direct command branches instead.
+// With a valid saved id the stored embed is reposted; without one the
+// command mirrors `run(undefined)`'s starting state (a fresh
+// `new EmbedBuilder().setDescription("** **")` draft with the
+// `embed_first_message` prompt). The select-menu/button collectors
+// are interactive-only, so the builder UI itself lives in the pure
+// helpers below rather than as command params.
 // UT5 scope note: the full interactive EmbedManager builder flow
 // (field-by-field modal editing) is intentionally out of scope;
-// create/repost branches above are the accepted surface.
+// the preload/repost branch above is the accepted surface.
 #[poise::command(
     slash_command,
     prefix_command,
@@ -29,8 +30,6 @@ use super::*;
 )]
 pub async fn embed_post(
     ctx: Ctx<'_>,
-    #[description = "Title (for a new embed)"] title: Option<String>,
-    #[description = "Description (for a new embed)"] description: Option<String>,
     #[description_localized(
         "fr",
         "Si vous disposez d'un identifiant d'un embed précèdement enregistrer"
@@ -44,7 +43,8 @@ pub async fn embed_post(
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let t = |k: &str, fb: &str| crate::lang::get(&code, k).unwrap_or_else(|| fb.to_string());
 
-    // Edit-from-ID flow: `run(arg)` loads `EMBED.{id}` when the id is valid.
+    // Preload flow: `run(arg)` loads `EMBED.{id}` when the id is valid,
+    // and preloads it as the builder draft.
     if let Some(embed_id) = id.as_deref().filter(|s| is_valid_embed_id(Some(s))) {
         if let Some(stored) = crate::commands::owner::main::tbl_get(
             &ctx.data().pool,
@@ -61,53 +61,18 @@ pub async fn embed_post(
         }
     }
 
-    // Create flow: fresh embed (default description mirrors
-    // `new EmbedBuilder().setDescription("** **")`), then `saveEmbed()`
-    // stores it under a new id, or overwrites `id` when it is valid.
-    let (Some(title), Some(description)) = (title.as_deref(), description.as_deref()) else {
-        anyhow::bail!("provide a title and description, or a saved embed ID");
-    };
-    let mut draft = crate::embed_builder::EmbedDraft::default();
-    draft
-        .set_title(title)
-        .map_err(|_| anyhow::anyhow!("title too long"))?;
-    draft
-        .set_description(description)
-        .map_err(|_| anyhow::anyhow!("description too long"))?;
-    let embed = poise::serenity_prelude::CreateEmbed::default()
-        .title(draft.title.clone())
-        .description(draft.description.clone());
-    ctx.send(poise::CreateReply::default().embed(embed)).await?;
-
-    let save_id = id
-        .as_deref()
-        .filter(|s| is_valid_embed_id(Some(s)))
-        .map(str::to_string)
-        .unwrap_or_else(generate_embed_id);
-    let source = serde_json::json!({ "title": draft.title, "description": draft.description });
-    let stored = serde_json::json!({
-        "embedOwner": ctx.author().id.get().to_string(),
-        "embedSource": source,
-    });
-    if crate::commands::owner::main::tbl_set(
-        &ctx.data().pool,
-        "metas",
-        &saved_embed_key(&save_id),
-        &stored.to_string(),
+    // No (valid) id: mirror `run(undefined)`'s starting state — a fresh
+    // embed (`new EmbedBuilder().setDescription("** **")`) with the
+    // `embed_first_message` prompt. The select-menu/button collectors
+    // that follow in TS are interactive-only with no stateless
+    // equivalent, so the builder opens here as a plain draft message.
+    let first = t("embed_first_message", "What do you want to do?");
+    ctx.send(
+        poise::CreateReply::default()
+            .content(first)
+            .embed(poise::serenity_prelude::CreateEmbed::default().description("** **")),
     )
-    .await
-    .is_ok()
-    {
-        ctx.say(fill_embed_save_message(
-            &t(
-                "embed_save_message",
-                "<@${interaction.user.id}>, **You have decided to save the Embed configuration!**```Embed ID: ${await saveEmbed()}```",
-            ),
-            ctx.author().id.get(),
-            &save_id,
-        ))
-        .await?;
-    }
+    .await?;
     Ok(())
 }
 

@@ -348,7 +348,30 @@ const EXEMPT: Exemption[] = [
 		"bare TS leaves vs Rust !leg group expansion (matcher alias artifact)",
 		"HybridCommands/antispam/!manage.ts,!bypass-roles.ts,!ignore-channels.ts"
 	),
-	// ghost-list: Rust-side prefix-only reader with no TS slash home.
+	// config show page: TS has zero options and pages via collector;
+	// the page option is the deliberate stateless replacement (same
+	// precedent as perm list-all).
+	...exemptNotes(
+		"guildconfig",
+		[`invented param in rust: "config show" param "page"`],
+		"deliberate stateless replacement for the TS collector pager",
+		"rust/src/commands/guildconfig/show.rs; !show.ts:296-348"
+	),
+	// sticker/top/wlroles-add/wlroles-list: TS MessageCommands, never
+	// slash-registered; Rust keeps them prefix-only (the flat leaf
+	// index already MATCHes them — this only silences the per-command
+	// structural diff, which ignores prefix-only organization).
+	...exemptNotes(
+		"utils",
+		[
+			`invented sub in rust: "sticker"`,
+			`invented sub in rust: "top"`,
+			`invented sub in rust: "wlroles-add"`,
+			`invented sub in rust: "wlroles-list"`
+		],
+		"prefix-only MessageCommand ports, no TS slash home",
+		"MessageCommands/utils/top.ts,sticker.ts; mod.rs PREFIX_ONLY_MESSAGE_COMMANDS/SPLITS"
+	),
 	...exemptNotes(
 		"join-ghostping",
 		[`invented sub in rust: "ghost-list"`],

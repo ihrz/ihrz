@@ -8,42 +8,6 @@ use poise::serenity_prelude as serenity;
 // option (perm.ts:362-393) is built from the live `client.commands`
 // registry. Both stay free-form here (numeric level 0-9 / command path).
 
-/// Perm set command.
-#[poise::command(
-    slash_command,
-    prefix_command,
-    rename = "perm-set",
-    default_member_permissions = "ADMINISTRATOR"
-)]
-pub async fn gc_perm_set(
-    ctx: Ctx<'_>,
-    #[description = "Command name"] command: String,
-    #[description = "Required level 0-9"] level: i64,
-) -> Result<(), anyhow::Error> {
-    let gid = ctx
-        .guild_id()
-        .map(|g| g.get().to_string())
-        .unwrap_or_default();
-    let mut perms = load_cmd_perms(&ctx.data().pool, &gid, command.trim())
-        .await
-        .unwrap_or_default();
-    perms.level = Some(level.clamp(0, 9) as u8);
-    crate::db::tbl_set(
-        &ctx.data().pool,
-        &gid,
-        &perm_key(command.trim()),
-        &serde_json::to_string(&perms)?,
-    )
-    .await?;
-    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-    ctx.say(
-        crate::lang::get(&code, "msg_permission_level_set")
-            .unwrap_or_else(|| "Permission level set.".to_string()),
-    )
-    .await?;
-    Ok(())
-}
-
 /// Escalation gate for `perm-user`. Mirrors `!set-user.ts`:
 /// `fetchedPerm <= parseInt(perm) && guild.ownerId !== member.id`
 /// warns and returns. `checkUserPermissions` reads the caller's
@@ -59,7 +23,11 @@ pub fn user_perm_key(user_id: u64) -> String {
     format!("UTILS.USER_PERMS.{user_id}")
 }
 
-/// Perm user command.
+/// Perm set-user command (`user` + `permission`; 0 deletes the row).
+// Mirrors the TS `set-user` subcommand (perm.ts:74-125 + `!set-user.ts`):
+// `permission` is a string choice 0-9 in TS, free-form numeric here like
+// `command`'s `permission`. No `command` scoping: the row is global
+// (`UTILS.USER_PERMS.<uid>`).
 #[poise::command(
     slash_command,
     prefix_command,
@@ -68,23 +36,21 @@ pub fn user_perm_key(user_id: u64) -> String {
 )]
 pub async fn gc_perm_user(
     ctx: Ctx<'_>,
-    #[description = "Command name"] command: String,
-    #[description = "Member"] user: serenity::User,
-    #[description = "Level 0-9 (0 deletes)"] level: i64,
+    #[description = "Member you want"] user: serenity::User,
+    #[description = "Permission you want to set for the member (0 deletes)"] permission: i64,
 ) -> Result<(), anyhow::Error> {
-    // Command-arg drift (documented, signature kept): TS `!set-user.ts`
-    // takes only (user, permission) and stores a GLOBAL per-user level
-    // (`UTILS.USER_PERMS.<uid>`); the Rust `command` arg is unused on
-    // the write path (fallback text only) and does not scope the row.
+    // Defer up front: lang + level/owner reads + write run before the
+    // first reply (perm.ts:409 `thinking: true`; no defer_policy entry).
+    ctx.defer().await?;
     let gid = ctx
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
     let pool = &ctx.data().pool;
     let code = crate::db::guild_lang(pool, ctx.guild_id().map(|g| g.get())).await;
-    let level = level.clamp(0, 9);
+    let permission = permission.clamp(0, 9);
     // `perm === "0"` deletes the row (TS `db.delete`).
-    if level == 0 {
+    if permission == 0 {
         let _ = crate::db::tbl_del(pool, &gid, &user_perm_key(user.id.get())).await;
         ctx.say(
             crate::lang::get(&code, "perm_set_deleted")
@@ -103,7 +69,7 @@ pub async fn gc_perm_user(
         .guild()
         .map(|g| g.owner_id.get() == ctx.author().id.get())
         .unwrap_or(false);
-    if perm_user_blocked(caller_level, level, is_owner) {
+    if perm_user_blocked(caller_level, permission, is_owner) {
         ctx.say(
             crate::lang::get(&code, "perm_set_warn_message")
                 .map(|s| {
@@ -126,82 +92,134 @@ pub async fn gc_perm_user(
         pool,
         &gid,
         &user_perm_key(user.id.get()),
-        &level.to_string(),
+        &permission.to_string(),
     )
     .await?;
     ctx.say(
         crate::lang::get(&code, "perm_set_ok")
             .map(|s| {
                 s.replace("${user.toString()}", &user.to_string())
-                    .replace("${perm}", &level.to_string())
+                    .replace("${perm}", &permission.to_string())
             })
-            .unwrap_or_else(|| format!("User level set for {command}.")),
+            .unwrap_or_else(|| format!("Permission set for {user}.")),
     )
     .await?;
     Ok(())
 }
 
-/// Perm list command.
+/// Parse one stored per-user level. Rust writes plain integers
+/// (`tbl_set` of `permission.to_string()`); legacy TS rows are JSON
+/// numbers. Accepts both (plus JSON strings for safety).
+fn parse_user_perm_level(raw: &str) -> Option<i64> {
+    if let Ok(n) = raw.trim().parse::<i64>() {
+        return Some(n);
+    }
+    match serde_json::from_str::<serde_json::Value>(raw).ok()? {
+        serde_json::Value::Number(n) => n.as_i64(),
+        serde_json::Value::String(s) => s.trim().parse().ok(),
+        _ => None,
+    }
+}
+
+/// Load every per-user global level (`UTILS.USER_PERMS` map of
+/// user id -> level). Mirrors the `all_members` read in `!list.ts`.
+/// Merged-table subtree first (wins on conflict), legacy / dual-write
+/// per-uid rows via prefix scan below it. Sorted by user id.
+async fn load_all_user_perms(pool: &crate::db::Pool, gid: &str) -> Vec<(String, i64)> {
+    use std::collections::HashMap;
+    let mut levels: HashMap<String, i64> = HashMap::new();
+    for (key, value) in crate::db::kv_scan_prefix(pool, gid, "UTILS.USER_PERMS.").await {
+        if let Some(uid) = key
+            .strip_prefix("UTILS.USER_PERMS.")
+            .filter(|u| !u.is_empty() && !u.contains('.'))
+        {
+            if let Some(n) = parse_user_perm_level(&value) {
+                levels.insert(uid.to_string(), n);
+            }
+        }
+    }
+    if let Some(raw) = crate::db::tbl_get(pool, gid, "UTILS.USER_PERMS").await {
+        if let Ok(map) = serde_json::from_str::<HashMap<String, serde_json::Value>>(&raw) {
+            for (uid, v) in map {
+                if uid.is_empty() || uid.contains('.') {
+                    continue;
+                }
+                let n = match &v {
+                    serde_json::Value::Number(n) => n.as_i64(),
+                    serde_json::Value::String(s) => s.trim().parse().ok(),
+                    _ => None,
+                };
+                if let Some(n) = n {
+                    levels.insert(uid, n);
+                }
+            }
+        }
+    }
+    let mut out: Vec<(String, i64)> = levels.into_iter().collect();
+    out.sort();
+    out
+}
+
+/// Perm list command (no options; page 1 of the guild user grants).
+// Mirrors the TS `list` subcommand (perm.ts:272-287, body `!list.ts`):
+// all granted users (`UTILS.USER_PERMS` members plus the `UTILS.roles`
+// level map), grouped as `Perm N` embed fields, 10 entries per page
+// with prev/next buttons in TS. The stateless leaf shows page 1 with
+// no buttons (same precedent as the `command` list arm).
 #[poise::command(
     slash_command,
     prefix_command,
     rename = "list",
     default_member_permissions = "ADMINISTRATOR"
 )]
-pub async fn gc_perm_list(
-    ctx: Ctx<'_>,
-    #[description = "Command name"] command: String,
-) -> Result<(), anyhow::Error> {
+pub async fn gc_perm_list(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
+    // Defer up front: map loads + lang read run before the first reply
+    // (perm.ts:409 `thinking: true`; no defer_policy entry).
+    ctx.defer().await?;
     let gid = ctx
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
-    let perms = load_cmd_perms(&ctx.data().pool, &gid, command.trim()).await;
-    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-    ctx.say(match perms {
-        Some(p) => crate::lang::get(&code, "msg_perm_list_detail")
-            .map(|s| {
-                s.replace("${level}", &format!("{:?}", p.level))
-                    .replace("${users}", &p.users.join(","))
-                    .replace("${roles}", &p.roles.join(","))
-            })
-            .unwrap_or_else(|| {
-                format!(
-                    "level {:?}, users [{}], roles [{}]",
-                    p.level,
-                    p.users.join(","),
-                    p.roles.join(",")
-                )
-            }),
-        None => crate::lang::get(&code, "msg_perm_list_default")
-            .unwrap_or_else(|| "Default permissions.".to_string()),
-    })
-    .await?;
-    Ok(())
-}
-
-/// Perm reset command.
-#[poise::command(
-    slash_command,
-    prefix_command,
-    rename = "perm-reset",
-    default_member_permissions = "ADMINISTRATOR"
-)]
-pub async fn gc_perm_reset(
-    ctx: Ctx<'_>,
-    #[description = "Command name"] command: String,
-) -> Result<(), anyhow::Error> {
-    let gid = ctx
-        .guild_id()
-        .map(|g| g.get().to_string())
-        .unwrap_or_default();
-    crate::db::tbl_del(&ctx.data().pool, &gid, &perm_key(command.trim())).await?;
-    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-    ctx.say(
-        crate::lang::get(&code, "perm_set_command_reset")
-            .unwrap_or_else(|| "This command has been reset".to_string()),
-    )
-    .await?;
+    let pool = &ctx.data().pool;
+    let code = crate::db::guild_lang(pool, ctx.guild_id().map(|g| g.get())).await;
+    let t = |key: &str| crate::lang::get(&code, key).unwrap_or_default();
+    let members = load_all_user_perms(pool, &gid).await;
+    let roles = load_perm_roles(pool, &gid).await;
+    // TS order: role-map entries first, then member entries.
+    let mut all: Vec<(i64, String)> = vec![];
+    let mut role_levels: Vec<(i64, String)> = roles
+        .into_iter()
+        .filter_map(|(perm, rid)| perm.parse::<i64>().ok().map(|g| (g, rid)))
+        .collect();
+    role_levels.sort();
+    for (group, rid) in role_levels {
+        all.push((group, format!("<@&{rid}>")));
+    }
+    for (uid, group) in members {
+        all.push((group, format!("<@{uid}>")));
+    }
+    let total_pages = all.len().div_ceil(10).max(1);
+    let mut grouped: std::collections::BTreeMap<i64, Vec<String>> =
+        std::collections::BTreeMap::new();
+    for (group, mention) in all.into_iter().take(10) {
+        grouped.entry(group).or_default().push(mention);
+    }
+    let mut embed = serenity::CreateEmbed::default()
+        .colour(0x475387)
+        .title(format!("{} (1/{total_pages})", t("perm_list_embed_title")))
+        .timestamp(serenity::Timestamp::now());
+    for (group, users) in &grouped {
+        let mut value = users.join("\n");
+        if value.is_empty() {
+            value = t("perm_list_no_user");
+            if value.is_empty() {
+                value = "No user found".to_string();
+            }
+        }
+        value.truncate(1024);
+        embed = embed.field(format!("Perm {group}"), value, false);
+    }
+    ctx.send(poise::CreateReply::default().embed(embed)).await?;
     Ok(())
 }
 
@@ -279,6 +297,9 @@ pub async fn gc_perm_command(
     #[rename = "custom-user"]
     custom_user: Option<serenity::User>,
 ) -> Result<(), anyhow::Error> {
+    // Defer up front: every action arm does lang + row reads/writes
+    // before the first reply (perm.ts:409 `thinking: true`).
+    ctx.defer().await?;
     match action {
         // TS !command.ts change arm: missing `command` ->
         // `perm_add_args_error` (guarded inside the shared body).
@@ -575,6 +596,9 @@ pub async fn gc_perm_roles_create(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let Some(gid) = ctx.guild_id().map(|g| g.get().to_string()) else {
         return Ok(());
     };
+    // Defer up front: lang + owner check + up to 9 role creates run
+    // before the first reply (perm.ts:409 `thinking: true`).
+    ctx.defer().await?;
     let pool = &ctx.data().pool;
     let code = crate::db::guild_lang(pool, ctx.guild_id().map(|g| g.get())).await;
     if !is_guild_owner(ctx).await {
@@ -655,6 +679,9 @@ pub async fn gc_perm_roles_edit(
     let Some(gid) = ctx.guild_id().map(|g| g.get().to_string()) else {
         return Ok(());
     };
+    // Defer up front: lang + owner/level checks + row write run before
+    // the first reply (perm.ts:409 `thinking: true`).
+    ctx.defer().await?;
     let pool = &ctx.data().pool;
     let code = crate::db::guild_lang(pool, ctx.guild_id().map(|g| g.get())).await;
     if !is_guild_owner(ctx).await {
@@ -763,6 +790,30 @@ mod tests {
                 .get("1")
                 .map(String::as_str),
             Some("11")
+        );
+    }
+
+    #[test]
+    fn parse_user_perm_level_accepts_plain_and_json() {
+        assert_eq!(parse_user_perm_level("4"), Some(4));
+        assert_eq!(parse_user_perm_level(" 7 "), Some(7));
+        assert_eq!(parse_user_perm_level("5"), Some(5));
+        assert_eq!(parse_user_perm_level("\"6\""), Some(6));
+        assert_eq!(parse_user_perm_level("nope"), None);
+    }
+
+    #[tokio::test]
+    async fn user_perm_list_loads_dotted_rows() {
+        let pool = memory_pool().await;
+        crate::db::tbl_set(&pool, "g1", &user_perm_key(7), "4")
+            .await
+            .unwrap();
+        crate::db::tbl_set(&pool, "g1", &user_perm_key(9), "2")
+            .await
+            .unwrap();
+        assert_eq!(
+            load_all_user_perms(&pool, "g1").await,
+            vec![("7".to_string(), 4), ("9".to_string(), 2)]
         );
     }
 

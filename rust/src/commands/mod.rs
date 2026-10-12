@@ -332,6 +332,7 @@ pub fn defer_policy(qualified_path: &str) -> DeferPolicy {
         "ranks config",
         "ranks roles",
         "ranks ignore-channels",
+        "ranks show",
         // TS `authrestore` parent is thinking:true; the explicit
         // subcommand rows below mirror its !get/!delete/!roles/
         // !force-join.ts handlers (the parent fallback already covers
@@ -1092,8 +1093,11 @@ mod tests {
             ),
             ("edit-roles", &["perm_level", "perm_role"]),
             ("setlogs", &["type", "channel"]),
-            ("too-new-account", &["minimum-date", "maximum-join"]),
-            ("prefix", &["name"]),
+            (
+                "too-new-account",
+                &["action", "minimum-date", "maximum-join"],
+            ),
+            ("prefix", &["action", "name"]),
             ("restore", &["backup-to-load"]),
             ("clear", &["number", "member"]),
             // TS economy group `role`: leaf `add` (was flat `role-add`).
@@ -1361,7 +1365,8 @@ mod defer_policy_tests {
         assert_eq!(defer_policy("inviteinfo"), DeferPolicy::EPHEMERAL);
         assert_eq!(defer_policy("utils inviteinfo"), DeferPolicy::EPHEMERAL);
         // TS thinking:false parents ported flat stay non-deferred.
-        assert_eq!(defer_policy("ranks show"), DeferPolicy::NONE);
+        // ("ranks show" is thinking:true — covered by PUBLIC_PATHS above.)
+        assert_eq!(defer_policy("ranks show"), DeferPolicy::PUBLIC);
     }
 
     /// Offline mirror of the setup-time slash registration in bot.rs

@@ -1,9 +1,10 @@
 use super::*;
 
-/// Recreate a channel now (clone + delete). Mirrors !renew.ts.
-// The clone preserves name, parent, permission overwrites, topic,
-// nsfw, rate limit and position; the system-channel pointer follows
-// the clone; the bot-permission and failure paths answer
+/// Recreate the current channel now (clone + delete). Mirrors !renew.ts.
+// The TS subcommand (utils.ts:513) takes NO options: it always acts on
+// `interaction.channel`. The clone preserves name, parent, permission
+// overwrites, topic, nsfw, rate limit and position; the system-channel
+// pointer follows the clone; the bot-permission and failure paths answer
 // `renew_dont_have_permission`; success is sent in the new channel
 // with `renew_channel_send_success`.
 #[poise::command(
@@ -27,23 +28,16 @@ use super::*;
         "Recrear un canal (clonando permisos y todas las configuraciones). Equivalente a nuke"
     )
 )]
-pub async fn renew(
-    ctx: Ctx<'_>,
-    #[description = "Channel, defaults to current"] channel: Option<
-        poise::serenity_prelude::GuildChannel,
-    >,
-) -> Result<(), anyhow::Error> {
+pub async fn renew(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     use poise::serenity_prelude as serenity;
     let Some(guild_id) = ctx.guild_id() else {
         return Ok(());
     };
     let code = crate::db::guild_lang(&ctx.data().pool, Some(guild_id.get())).await;
-    let ch = match channel {
-        Some(c) => c,
-        None => match ctx.guild_channel().await {
-            Some(c) => c.clone(),
-            None => return Ok(()),
-        },
+    // TS acts on `interaction.channel` with no channel option.
+    let ch = match ctx.guild_channel().await {
+        Some(c) => c.clone(),
+        None => return Ok(()),
     };
     // Mirrors TS `channel.deletable` (`!renew.ts:38-44`): the gate is
     // per-channel (bot ManageChannels in THIS channel, overwrites

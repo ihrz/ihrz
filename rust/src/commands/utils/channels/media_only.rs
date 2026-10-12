@@ -1,7 +1,13 @@
 use super::*;
 
-/// Media-only channel toggle. Mirrors !media-only.ts.
-// Entry toggles `UTILS.picOnly`. The threshold/mute/thread config
+/// Media-only channel panel. Mirrors !media-only.ts.
+// The TS subcommand (utils.ts:404) takes NO options: it shows a panel
+// embed (title, description, registered channels, threshold, mute
+// time, thread toggle) with a channel select menu. The select menu
+// and config buttons are interactive-only, so the stateless command
+// renders the same panel read-only; there is no `channel` slash
+// option in TS.
+// Entry reads `UTILS.picOnly`. The threshold/mute/thread config
 // surface (`UTILS.picOnlyConfig` panel: collectors, modals, clamps)
 // is documented, not ported — the live enforcement fallbacks live in
 // events_handler.rs (`PICONLY_DEFAULT_*` below).
@@ -29,46 +35,98 @@ use super::*;
         "Definir canales solo para enviar imágenes/videos (bloquear otro contenido)"
     )
 )]
-pub async fn media_only(
-    ctx: Ctx<'_>,
-    #[description = "Channel"] channel: poise::serenity_prelude::GuildChannel,
-) -> Result<(), anyhow::Error> {
+pub async fn media_only(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let gid = ctx
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    let t = |k: &str, fb: &str| crate::lang::get(&code, k).unwrap_or_else(|| fb.to_string());
+
+    // Panel fields mirror !media-only.ts: the registered channels (or
+    // `setjoinroles_var_none`), the threshold (`|| 3`), the mute time
+    // (`to_beautiful_string(muteTime)`), and the thread toggle.
     let raw =
         crate::commands::owner::main::routed_get(&ctx.data().pool, &gid, &gid, "UTILS.picOnly")
             .await;
-    let mut list: Vec<String> = raw
+    let list: Vec<String> = raw
         .and_then(|s| serde_json::from_str(&s).ok())
         .unwrap_or_default();
-    let id = channel.id.get().to_string();
-    let enabled = list.iter().any(|c| c == &id);
-    if enabled {
-        list.retain(|c| c != &id);
+    let channels_value = if list.is_empty() {
+        t("setjoinroles_var_none", "None")
     } else {
-        list.push(id);
-    }
-    crate::commands::owner::main::routed_set(
+        list.iter()
+            .map(|c| format!("<#{c}>"))
+            .collect::<Vec<_>>()
+            .join(", ")
+    };
+
+    let cfg: Option<serde_json::Value> = crate::commands::owner::main::routed_get(
         &ctx.data().pool,
         &gid,
         &gid,
-        "UTILS.picOnly",
-        &serde_json::to_string(&list)?,
+        "UTILS.picOnlyConfig",
     )
-    .await?;
-    // No hardcoded English: use the panel lang keys for the toggle echo.
-    let title = crate::lang::get(&code, "utils_pic_only_embed_title")
-        .unwrap_or_else(|| "Media Only Channels".to_string());
-    let state = if enabled {
-        crate::lang::get(&code, "setjoinroles_var_none").unwrap_or_else(|| "None".to_string())
+    .await
+    .and_then(|s| serde_json::from_str(&s).ok());
+    let threshold = cfg
+        .as_ref()
+        .and_then(|v| v.get("threshold").and_then(|n| n.as_i64()))
+        .filter(|n| *n > 0)
+        .unwrap_or(PICONLY_DEFAULT_THRESHOLD);
+    let mute_ms = cfg
+        .as_ref()
+        .and_then(|v| v.get("muteTime").and_then(|n| n.as_i64()))
+        .filter(|n| *n > 0)
+        .unwrap_or(PICONLY_DEFAULT_MUTE_MS);
+    let thread_value = if cfg
+        .as_ref()
+        .and_then(|v| v.get("createThread").and_then(|s| s.as_str()))
+        .unwrap_or("yes")
+        == "yes"
+    {
+        t("var_yes", "Yes")
     } else {
-        crate::lang::get(&code, "var_yes").unwrap_or_else(|| "Yes".to_string())
+        t("var_no", "No")
     };
-    ctx.say(format!("{title}: <#{0}> {state}", channel.id.get()))
-        .await?;
+
+    let embed = poise::serenity_prelude::CreateEmbed::default()
+        .title(t("utils_pic_only_embed_title", "Media Only Channels"))
+        .description(t(
+            "utils_pic_only_emnbed_desc",
+            "Channel where pictures/images/videos are the only things allowed.",
+        ))
+        .color(0x475387)
+        .field(
+            t(
+                "joinghostping_add_ok_embed_fields_name",
+                "All registered channels",
+            ),
+            channels_value,
+            false,
+        )
+        .field(
+            t(
+                "antispam_manage_choices_12_label",
+                "Threshold before punishment",
+            ),
+            threshold.to_string(),
+            true,
+        )
+        .field(
+            t("utils_piconly_embed_fields_3_name", "Timeout Time"),
+            crate::commands::guildconfig::beautiful_ms_lang(mute_ms as f64, &code),
+            true,
+        )
+        .field(
+            t(
+                "utils_piconly_embed_fields2_placeholder",
+                "Create a thread under the image/video",
+            ),
+            thread_value,
+            true,
+        );
+    ctx.send(poise::CreateReply::default().embed(embed)).await?;
     Ok(())
 }
 

@@ -85,6 +85,10 @@ pub async fn ranks_show(
     #[description = "Member"]
     user: Option<serenity::User>,
 ) -> Result<(), anyhow::Error> {
+    // Defer up front: rank load + member fetch + lang + avatar/color
+    // HTTP + footer reads run before the first reply, past the 3s slash
+    // window (ranks.ts `show` thinking: true; no defer_policy entry).
+    ctx.defer().await?;
     let member = user.as_ref().unwrap_or_else(|| ctx.author());
     let uid = member.id.get();
     let gid = ctx

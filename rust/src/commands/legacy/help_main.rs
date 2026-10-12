@@ -84,18 +84,37 @@ pub async fn help_main(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         &crown,
         &region,
     );
-    let year = chrono_year();
+    let (footer_name, icon) = crate::commands::shared::footer_parts(&ctx, &gid).await;
+    let with_icon = icon.is_some();
+    let search = crate::emojis::app_emoji_markup(http, "Search")
+        .await
+        .unwrap_or_default();
     let embed = serenity::CreateEmbed::default()
         .description(desc)
         .colour(serenity::Colour::from_rgb(0x00, 0x1e, 0xff))
-        .footer(serenity::CreateEmbedFooter::new(format!(
-            "© iHorizon {year}"
-        )));
+        .image(crate::funcs::guild_banner_url(pool, &gid).await)
+        .footer(
+            serenity::CreateEmbedFooter::new(footer_name).icon_url(if with_icon {
+                "attachment://footer_icon.png".to_string()
+            } else {
+                String::new()
+            }),
+        )
+        .thumbnail("attachment://footer_icon.png")
+        .timestamp(chrono::Utc::now());
     let (first, second) = help_main_row_bounds(cats.len());
     let rows = build_help_main_rows(http, &code, &cats, first, second).await;
-    let reply = ctx
-        .send(poise::CreateReply::default().embed(embed).components(rows))
-        .await?;
+    let mut reply = poise::CreateReply::default()
+        .embed(embed)
+        .components(rows)
+        .content(format!("> {search}  **https://www.ihorizon.org/search/**"));
+    if let Some(bytes) = icon {
+        reply = reply.attachment(poise::serenity_prelude::CreateAttachment::bytes(
+            bytes,
+            "footer_icon.png",
+        ));
+    }
+    let reply = ctx.send(reply).await?;
     let mid = reply.message().await?.id.get();
     let _ = crate::commands::owner::main::routed_set(
         pool,

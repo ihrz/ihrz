@@ -1,8 +1,7 @@
 use super::*;
 
 use super::perm::{
-    gc_perm_command, gc_perm_list, gc_perm_reset, gc_perm_roles_create, gc_perm_roles_edit,
-    gc_perm_set, gc_perm_user,
+    gc_perm_command, gc_perm_list, gc_perm_roles_create, gc_perm_roles_edit, gc_perm_user,
 };
 
 /// Command permission settings.
@@ -16,10 +15,8 @@ use super::perm::{
     category = "guildconfig",
     rename = "perm",
     subcommands(
-        "gc_perm_set",
         "gc_perm_user",
         "gc_perm_list",
-        "gc_perm_reset",
         "gc_perm_command",
         "gc_perm_roles_create",
         "gc_perm_roles_edit"

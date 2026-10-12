@@ -5,11 +5,14 @@ use super::*;
 /// the localized display names, the handler maps each variant back to
 /// the TS `value`.
 ///
-/// NOTE: the command keeps the merged `minimum-date` free-form param
-/// (`None` -> dont_specified_time, `"off"` -> disable, else the enable
-/// age) instead of a separate required `action` param, so the prefix
-/// path (`!toonew 7d` / `!toonew off`) keeps working. This enum pins
-/// the TS slash contract and its `value` mapping.
+/// NOTE (TS-exact): the command carries the required `action` param
+/// (`guildconfig.ts:150-186`, required `on` / `off` choices) plus the
+/// optional `minimum-date` / `maximum-join` params. The handler reads
+/// `getString("action")` (`!too-new-account.ts:44`) and branches
+/// `on` (`:48-110`, needs `minimum-date`) vs `off` (`:111-132`,
+/// deletes without needing a date) — there is no Message branch, so
+/// no merged free-form `age` fallback. This enum pins the TS slash
+/// contract and its `value` mapping.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
 pub enum TooNewAction {
     #[name = "Power On"]
@@ -116,6 +119,15 @@ async fn post_tonew_log(ctx: &Ctx<'_>, title: &str, description: &str) {
 pub async fn gc_toonew(
     ctx: Ctx<'_>,
     // TS guildconfig.ts (`block` -> `too-new-account`) registers
+    // required `action` (guildconfig.ts:150-186) plus optional
+    // "minimum-date" / "maximum-join".
+    #[description = "What you want to do?"]
+    #[description_localized("fr", "Que veux-tu faire?")]
+    #[description_localized("ja", "何をしたいですか？")]
+    #[description_localized("ru", "Что вы хотите сделать?")]
+    #[description_localized("es-ES", "Que quieres hacer?")]
+    action: TooNewAction,
+    // TS guildconfig.ts (`block` -> `too-new-account`) registers
     // "minimum-date" / "maximum-join".
     #[description = "Minimum seniority time"]
     #[description_localized("fr", "Temps minimum d'ancienneté")]
@@ -142,20 +154,9 @@ pub async fn gc_toonew(
     let pool = &ctx.data().pool;
     let code = crate::db::guild_lang(pool, ctx.guild_id().map(|g| g.get())).await;
     let author_mention = format!("<@{}>", ctx.author().id.get());
-    // Mirrors `if (!maximumDate)` in !too-new-account.ts: the age is
-    // optional, and enabling without a date hits the
-    // `dont_specified_time` leg instead of parsing.
-    let Some(age) = age else {
-        ctx.say(
-            crate::lang::get(&code, "too_new_account_dont_specified_time_on_enable")
-                .unwrap_or_else(|| {
-                    "You did not specify a time. To enable this module, a minimum account age is required!".to_string()
-                }),
-        )
-        .await?;
-        return Ok(());
-    };
-    if age.trim().eq_ignore_ascii_case("off") {
+    // Mirrors `if (action === "off")` in !too-new-account.ts:111-132:
+    // the off action deletes the row without needing `minimum-date`.
+    if action == TooNewAction::Off {
         let _ = crate::db::tbl_del(pool, &gid, "GUILD.BLOCK_NEW_ACCOUNT").await;
         // Audit entry, like `client.func.ihorizon_logs` in
         // !too-new-account.ts (off branch).
@@ -173,6 +174,19 @@ pub async fn gc_toonew(
         .await?;
         return Ok(());
     }
+    // Mirrors `if (action === "on") { if (!maximumDate) ... }` in
+    // !too-new-account.ts:48-54: enabling without a date hits the
+    // `dont_specified_time` leg instead of parsing.
+    let Some(age) = age else {
+        ctx.say(
+            crate::lang::get(&code, "too_new_account_dont_specified_time_on_enable")
+                .unwrap_or_else(|| {
+                    "You did not specify a time. To enable this module, a minimum account age is required!".to_string()
+                }),
+        )
+        .await?;
+        return Ok(());
+    };
     // Full unit table (mo/y + FR variants), like
     // `client.timeCalculator.to_ms` in !too-new-account.ts.
     let Some(ms) = crate::commands::confession::parse_cooldown_ms(&age) else {

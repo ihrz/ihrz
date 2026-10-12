@@ -115,61 +115,122 @@ fn help_options(cmd: &poise::Command<Data, anyhow::Error>) -> Vec<HelpOptionDoc>
         .collect()
 }
 
-/// Static category page. Nearest viable to one TS select-menu page:
-/// every command in the named category (case-insensitive) as
-/// `name — description` lines in a single embed, footer attached.
-/// Returns None when `target` matches no category. Capped at 25 rows
-/// (embed field limit) with a "+N more" tail instead of buttons.
+/// Static category page. Mirrors the TS select-menu category page
+/// (`emoji・name` title, category description + color, one field per
+/// command as `cmdPrefix` / `-# **┖ desc**`, footer + thumbnail +
+/// timestamp). The field build reuses the `legacy::help` pure builders
+/// with the same conventions as the overview-path renderer: perms looked
+/// up by qualified leaf name, mention-prefix detection via the bot id.
+/// Delta (kept): the per-category button pagination
+/// (first/previous/next/last, 840s collector, disable-on-end) has no
+/// stateless equivalent, so the page shows the first 25 fields with a
+/// `+N more` tail instead of buttons.
 async fn render_help_category(
     ctx: &Ctx<'_>,
     target: &str,
+    code: &str,
     footer_name: &str,
     with_icon: bool,
 ) -> Option<poise::serenity_prelude::CreateEmbed> {
+    use crate::commands::legacy::help as legacy_help;
     let needle = target.trim().to_ascii_lowercase();
+    let table: Vec<(&str, &str, &str, &str, u32)> =
+        crate::commands::legacy::HELP_CATEGORIES.to_vec();
+    let (name, desc_key, placeholder_key, emoji_name, color) = table
+        .iter()
+        .find(|(n, _, _, _, _)| n.eq_ignore_ascii_case(&needle))
+        .copied()?;
+    let title_of = |k: &str| crate::lang::get(code, k).unwrap_or_default();
     let framework = ctx.framework();
-    let commands = &framework.options().commands;
-    let known = commands
-        .iter()
-        .filter_map(|c| c.category.as_deref())
-        .any(|c| c.eq_ignore_ascii_case(&needle));
-    if !known {
-        return None;
+    let cats = legacy_help::collect_help_leaves(&framework.options().commands, &table, &title_of);
+    let show = cats.iter().find(|c| c.name == name)?;
+    let pool = &ctx.data().pool;
+    let gid = ctx.guild_id().map(|g| g.get());
+    let gid_str = gid.map(|g| g.to_string()).unwrap_or_default();
+    let prefix = crate::db::guild_prefix(pool, gid, &ctx.data().config.prefix).await;
+    let bot_id = ctx
+        .serenity_context()
+        .cache
+        .current_user()
+        .id
+        .get()
+        .to_string();
+    let is_mention = !bot_id.is_empty() && prefix.contains(&bot_id);
+    let lock = crate::emojis::app_emoji_markup(ctx.http(), "Lock")
+        .await
+        .unwrap_or_default();
+    let unlock = crate::emojis::app_emoji_markup(ctx.http(), "Unlock")
+        .await
+        .unwrap_or_default();
+    let msg_emoji = crate::emojis::app_emoji_markup(ctx.http(), "Message_Commands")
+        .await
+        .unwrap_or_default();
+    let slash_emoji = crate::emojis::app_emoji_markup(ctx.http(), "Slash_Bot_Badge")
+        .await
+        .unwrap_or_default();
+    let mut fields = Vec::with_capacity(show.leaves.len());
+    for leaf in &show.leaves {
+        let perm = crate::commands::guildconfig::load_cmd_perms(pool, &gid_str, &leaf.qualified)
+            .await
+            .map(|p| legacy_help::HelpPermState {
+                level: p.level.unwrap_or(0),
+                roles: p.roles.len(),
+                users: p.users.len(),
+            });
+        let states = legacy_help::help_cmd_states(perm.as_ref(), &lock, &unlock, code);
+        let entry = legacy_help::HelpModuleCmd {
+            cmd: &leaf.qualified,
+            prefix_cmd: Some(&leaf.prefix_cleaned),
+            desc: &leaf.desc,
+            desc_fr: leaf.desc_fr.as_deref(),
+            desc_ja: leaf.desc_ja.as_deref(),
+            desc_ru: leaf.desc_ru.as_deref(),
+            desc_es: leaf.desc_es.as_deref(),
+            message_cmd: leaf.message_cmd,
+            perm: None,
+        };
+        let (n, v, _) = legacy_help::help_module_field(
+            leaf.message_cmd,
+            &states,
+            &entry,
+            code,
+            &prefix,
+            is_mention,
+            &msg_emoji,
+            &slash_emoji,
+        );
+        fields.push((n, v));
     }
-    let prefix = crate::db::guild_prefix(
-        &ctx.data().pool,
-        ctx.guild_id().map(|g| g.get()),
-        &ctx.data().config.prefix,
-    )
-    .await;
-    let mut rows: Vec<String> = commands
-        .iter()
-        .filter(|c| {
-            c.category
-                .as_deref()
-                .is_some_and(|c| c.eq_ignore_ascii_case(&needle))
-        })
-        .map(|c| {
-            let desc = c.description.clone().unwrap_or_default();
-            let short = desc.chars().take(80).collect::<String>();
-            format!("`{prefix}{}` — {short}", c.name)
-        })
-        .collect();
-    rows.sort();
-    let overflow = rows.len().saturating_sub(25);
-    rows.truncate(25);
-    let mut desc = rows.join("\n");
+    let overflow = fields.len().saturating_sub(25);
+    fields.truncate(25);
+    let markup = crate::emojis::app_emoji_markup(ctx.http(), emoji_name)
+        .await
+        .unwrap_or_default();
+    let mut description = title_of(desc_key);
     if overflow > 0 {
-        desc.push_str(&format!("\n... +{overflow} more"));
+        description.push_str(&format!("\n... +{overflow} more"));
     }
-    Some(embed_with_footer(
+    let mut embed = embed_with_footer(
         poise::serenity_prelude::CreateEmbed::default()
-            .colour(0x001EFF_u32)
-            .title(needle)
-            .description(desc),
+            .colour(color)
+            .title(legacy_help::help_module_title(
+                &markup,
+                &title_of(placeholder_key),
+            ))
+            .description(description)
+            .timestamp(poise::serenity_prelude::Timestamp::now()),
         footer_name,
         with_icon,
-    ))
+    );
+    for (n, v) in fields {
+        embed = embed.field(n, v, false);
+    }
+    let embed = if with_icon {
+        embed.thumbnail("attachment://footer_icon.png")
+    } else {
+        embed
+    };
+    Some(embed)
 }
 
 /// Get a list of all the commands!
@@ -275,7 +336,7 @@ pub async fn help(
             let embed = embed_with_footer(build_awesome_embed(&input), &footer_name, with_icon);
             reply = reply.embed(embed);
         } else if let Some(cat_embed) =
-            render_help_category(&ctx, target, &footer_name, with_icon).await
+            render_help_category(&ctx, target, &code, &footer_name, with_icon).await
         {
             // Category-name hit: static stand-in for the TS select-menu
             // category page (command rows, no pagination buttons).
@@ -329,7 +390,8 @@ pub async fn help(
             poise::serenity_prelude::CreateEmbed::default()
                 .colour(0x001EFF_u32)
                 .description(desc)
-                .image(crate::funcs::guild_banner_url(pool, &gid_str).await),
+                .image(crate::funcs::guild_banner_url(pool, &gid_str).await)
+                .timestamp(poise::serenity_prelude::Timestamp::now()),
             &footer_name,
             with_icon,
         );

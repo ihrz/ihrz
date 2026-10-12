@@ -6,11 +6,16 @@ use super::*;
 /// (`mention` = revert to the default mention prefix, `change` = store
 /// the `name` option).
 ///
-/// NOTE: the command keeps the single free-form `name` param (`"mention"`
-/// reverts on slash, any other text is stored) instead of a separate
-/// `action` param, so the message path (`!setprefix <new-prefix>`, where
-/// TS forces `action = "change"`) keeps working. This enum pins the TS
-/// slash contract and its `value` mapping.
+/// NOTE (TS-exact): the command carries the required `action` param
+/// (`guildconfig.ts:288-325`, required `mention` / `change` choices)
+/// plus the optional `name` param (`guildconfig.ts:326-341`,
+/// required: false). The handler reads `getString("action", true)`
+/// (`!prefix.ts:46`) and branches `mention` (`:53-57`, deletes the
+/// row regardless of `name`) vs `change` (`:58-82`, needs `name`,
+/// cap gate `>= 5`, stores `split(" ")[0]`) — the message path
+/// forces `action = "change"` (`!prefix.ts:49`), so there is no
+/// merged free-form fallback. This enum pins the TS slash contract
+/// and its `value` mapping.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, poise::ChoiceParameter)]
 pub enum PrefixAction {
     #[name = "Default prefix"]
@@ -39,8 +44,10 @@ impl PrefixAction {
     }
 }
 
-/// Shared prefix-change run. Mirrors !prefix.ts (used by the nested
-/// `setprefix` leaf and the top-level @prefix.ts wrapper alike).
+/// Shared prefix-change run. Mirrors !prefix.ts (used by the top-level
+/// @prefix.ts wrapper; the nested `guildconfig bot prefix` leaf inlines
+/// the TS slash contract above so `action = "change"` stores a literal
+/// `"mention"` name verbatim).
 pub async fn run_prefix_change(ctx: Ctx<'_>, prefix: String) -> Result<(), anyhow::Error> {
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let gid = ctx
@@ -105,7 +112,9 @@ pub async fn run_prefix_change(ctx: Ctx<'_>, prefix: String) -> Result<(), anyho
 }
 
 /// Setprefix command.
-// TS path `guildconfig bot prefix` (`guildconfig.ts` `bot` group leaf).
+// TS path `guildconfig bot prefix` (`guildconfig.ts` `bot` group leaf:
+// required `action` (guildconfig.ts:288-325) + optional `name`
+// (guildconfig.ts:326-341, required: false)).
 #[poise::command(
     slash_command,
     prefix_command,
@@ -114,12 +123,71 @@ pub async fn run_prefix_change(ctx: Ctx<'_>, prefix: String) -> Result<(), anyho
 )]
 pub async fn gc_prefix(
     ctx: Ctx<'_>,
+    // TS SlashCommands/guildconfig/!prefix.ts reads
+    // getString("action", true).
+    #[description = "What do you want to do?"]
+    #[description_localized("fr", "Que voulez-vous faire ?")]
+    #[description_localized("ja", "何をしたいですか？")]
+    #[description_localized("ru", "Что вы хотите сделать?")]
+    #[description_localized("es-ES", "Que quieres hacer?")]
+    action: PrefixAction,
     // TS SlashCommands/guildconfig/!prefix.ts reads getString("name").
-    #[description = "New prefix (max 4 chars) or 'mention' to revert (slash only)"]
+    #[description = "The new prefix"]
+    #[description_localized("fr", "Le nouveau préfixe")]
+    #[description_localized("ja", "新しいプレフィックス")]
+    #[description_localized("ru", "Новый префикс")]
+    #[description_localized("es-ES", "El nuevo prefijo")]
     #[rename = "name"]
-    prefix: String,
+    name: Option<String>,
 ) -> Result<(), anyhow::Error> {
-    run_prefix_change(ctx, prefix).await
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    let gid = ctx
+        .guild_id()
+        .map(|g| g.get().to_string())
+        .unwrap_or_default();
+    // Mirrors `if (action === "mention")` in !prefix.ts:53-57: the
+    // revert deletes the row regardless of `name`.
+    if action == PrefixAction::Mention {
+        crate::db::clear_guild_prefix(&ctx.data().pool, &gid).await?;
+        ctx.say(
+            crate::lang::get(&code, "guildconfig_setbot_prefix_prefix_now_mention").unwrap_or_else(
+                || "The bot prefix for Message's command is now mention! `@Ping-Me`".to_string(),
+            ),
+        )
+        .await?;
+        return Ok(());
+    }
+    // Mirrors `else if (action === "change")` in !prefix.ts:58-82:
+    // `name` is required (missing -> specify_prefix), the cap gate is
+    // `prefix.length >= 5`, and TS stores `prefix.split(" ")[0]`.
+    // Unlike the shared `run_prefix_change` below, a literal
+    // `"mention"` name is stored verbatim here, like TS.
+    let Some(prefix) = name.filter(|s| !s.is_empty()) else {
+        ctx.say(
+            crate::lang::get(&code, "guildconfig_setbot_prefix_prefix_specify_prefix")
+                .unwrap_or_else(|| "You need to specify the bot prefix.".to_string()),
+        )
+        .await?;
+        return Ok(());
+    };
+    if crate::db::prefix_too_long(&prefix) {
+        ctx.say(
+            crate::lang::get(&code, "guildconfig_setbot_prefix_prefix_too_long").unwrap_or_else(
+                || "The bot prefix is too long, it will be too difficult to use.".to_string(),
+            ),
+        )
+        .await?;
+        return Ok(());
+    }
+    let formated = crate::db::truncate_prefix(&prefix);
+    crate::db::set_guild_prefix(&ctx.data().pool, &gid, &formated).await?;
+    ctx.say(
+        crate::lang::get(&code, "guildconfig_setbot_prefix_prefix_is_good")
+            .map(|s| s.replace("${formatedPrefix}", &formated))
+            .unwrap_or_else(|| format!("Prefix set to `{formated}`.")),
+    )
+    .await?;
+    Ok(())
 }
 
 #[cfg(test)]
