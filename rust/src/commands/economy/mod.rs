@@ -456,8 +456,9 @@ pub fn now_ms() -> i64 {
 }
 
 /// Member boost multiplier from shop roles, float-preserving. Mirrors
-/// economyHelper.getMemberBoost (highest matching numeric boost,
-/// missing counts as 0, result falls back to 1 like TS `|| 1`).
+/// economyHelper.getMemberBoost (`economyHelper.ts:38-43`: highest matching
+/// numeric boost, missing counts as 0, `highestBoost || 1` so only 0
+/// (and no match) falls back to 1 — negatives pass through as-is).
 pub fn member_boost_f64(shop_json: &str, member_roles: &[u64]) -> f64 {
     let v: serde_json::Value = match serde_json::from_str(shop_json) {
         Ok(v) => v,
@@ -480,12 +481,18 @@ pub fn member_boost_f64(shop_json: &str, member_roles: &[u64]) -> f64 {
         })
     }
     let mut best = 0.0f64;
-    let check = |role_id: &str, boost: Option<f64>, member_roles: &[u64], best: &mut f64| {
+    let mut matched = false;
+    let check = |role_id: &str,
+                 boost: Option<f64>,
+                 member_roles: &[u64],
+                 best: &mut f64,
+                 matched: &mut bool| {
         if let Ok(n) = role_id.parse::<u64>() {
             if member_roles.contains(&n) {
                 let b = boost.unwrap_or(0.0);
-                if b > *best {
+                if !*matched || b > *best {
                     *best = b;
+                    *matched = true;
                 }
             }
         }
@@ -494,7 +501,7 @@ pub fn member_boost_f64(shop_json: &str, member_roles: &[u64]) -> f64 {
         serde_json::Value::Object(map) => {
             for (role_id, data) in map {
                 let boost = data.get("boost").and_then(num);
-                check(role_id, boost, member_roles, &mut best);
+                check(role_id, boost, member_roles, &mut best, &mut matched);
             }
         }
         // Legacy Rust Vec shape.
@@ -511,12 +518,14 @@ pub fn member_boost_f64(shop_json: &str, member_roles: &[u64]) -> f64 {
                     })
                     .unwrap_or_default();
                 let boost = entry.get("boost").and_then(num);
-                check(&role_id, boost, member_roles, &mut best);
+                check(&role_id, boost, member_roles, &mut best, &mut matched);
             }
         }
         _ => {}
     }
-    if best > 0.0 {
+    // TS `highestBoost || 1`: no match or 0 falls back to 1, any other
+    // value — including negatives — is returned as-is.
+    if matched && best != 0.0 {
         best
     } else {
         1.0
@@ -893,17 +902,42 @@ pub async fn disabled_reply(ctx: &Ctx<'_>) -> Result<bool, anyhow::Error> {
 }
 
 /// JS `parseInt` semantics for deposit/withdraw amounts: optional sign,
-/// leading ASCII digits, trailing garbage ignored ("10.9" -> 10).
+/// leading ASCII digits, trailing garbage ignored ("10.9" -> 10), and the
+/// no-radix hex rule (`parseInt("0x10") === 16`, `!deposit.ts:107,111`).
+/// `"0b…"`/`"0o…"` stay decimal (`parseInt("0b101") === 0`).
 /// Returns None when there are no leading digits (JS NaN).
 pub fn parse_ts_int(raw: &str) -> Option<i64> {
     let t = raw.trim();
-    let mut chars = t.chars();
+    let (neg, rest) = if let Some(r) = t.strip_prefix('-') {
+        (true, r)
+    } else if let Some(r) = t.strip_prefix('+') {
+        (false, r)
+    } else {
+        (false, t)
+    };
+    if let Some(hex) = rest.strip_prefix("0x").or_else(|| rest.strip_prefix("0X")) {
+        let mut acc: i64 = 0;
+        let mut any = false;
+        for c in hex.chars() {
+            match c.to_digit(16) {
+                Some(d) => {
+                    any = true;
+                    acc = acc.checked_mul(16)?.checked_add(d as i64)?;
+                }
+                None => break,
+            }
+        }
+        if !any {
+            return None;
+        }
+        return if neg { acc.checked_neg() } else { Some(acc) };
+    }
     let mut out = String::new();
-    if matches!(chars.clone().next(), Some('+') | Some('-')) {
-        out.push(chars.next().unwrap_or('+'));
+    if neg {
+        out.push('-');
     }
     let mut any = false;
-    for c in chars {
+    for c in rest.chars() {
         if c.is_ascii_digit() {
             out.push(c);
             any = true;
@@ -918,13 +952,56 @@ pub fn parse_ts_int(raw: &str) -> Option<i64> {
 }
 
 /// JS `Number()` probe for the not-integer gate. Mirrors
-/// `isNaN(Number(input))` (f64 covers decimals/exponents).
+/// `isNaN(Number(input))` (`!deposit.ts:75`): empty/whitespace-only is 0,
+/// `0x`/`0b`/`0o` prefixes (either case, optional sign) and exactly
+/// `Infinity` are legal; Rust-only spellings (`inf`, `NaN`) are NaN.
+/// Returns None on JS NaN (including trailing-garbage decimals).
 pub fn ts_number(raw: &str) -> Option<f64> {
     let t = raw.trim();
     if t.is_empty() {
-        return None;
+        // JS `Number("") === 0` (whitespace-only too).
+        return Some(0.0);
     }
-    t.parse::<f64>().ok()
+    let (neg, rest) = if let Some(r) = t.strip_prefix('-') {
+        (true, r)
+    } else if let Some(r) = t.strip_prefix('+') {
+        (false, r)
+    } else {
+        (false, t)
+    };
+    for (prefix, radix) in [
+        ("0x", 16u32),
+        ("0X", 16),
+        ("0b", 2),
+        ("0B", 2),
+        ("0o", 8),
+        ("0O", 8),
+    ] {
+        if let Some(digits) = rest.strip_prefix(prefix) {
+            if digits.is_empty() || !digits.chars().all(|c| c.is_digit(radix)) {
+                return None;
+            }
+            let mut v = 0.0f64;
+            for c in digits.chars() {
+                v = v * f64::from(radix) + f64::from(c.to_digit(radix).unwrap_or(0));
+            }
+            return Some(if neg { -v } else { v });
+        }
+    }
+    // JS spells only `Infinity` (case-sensitive); Rust's `parse` also
+    // takes `inf`/`NaN`, which `Number()` rejects.
+    if rest == "Infinity" {
+        return Some(if neg {
+            f64::NEG_INFINITY
+        } else {
+            f64::INFINITY
+        });
+    }
+    match t.parse::<f64>() {
+        Ok(v) if v.is_nan() || v.is_infinite() => None,
+        Ok(v) => Some(v),
+        Err(_) => None,
+    }
 }
 
 /// Send the not-a-number reply. Mirrors the
@@ -1161,6 +1238,21 @@ mod tests {
     }
 
     #[test]
+    fn negative_boost_passes_through_like_ts_or_fallback() {
+        // `economyHelper.ts:43` (`highestBoost || 1`): only 0 (and no
+        // match) falls back to 1; negatives return as-is.
+        let neg = r#"{"1":{"price":10,"boost":-2}}"#;
+        assert_eq!(member_boost_f64(neg, &[1]), -2.0);
+        let both = r#"{"1":{"price":10,"boost":-5},"2":{"price":5,"boost":-2}}"#;
+        assert_eq!(member_boost_f64(both, &[1, 2]), -2.0);
+        let zero = r#"{"1":{"price":10,"boost":0}}"#;
+        assert_eq!(member_boost_f64(zero, &[1]), 1.0);
+        assert_eq!(member_boost_f64(neg, &[9]), 1.0);
+        // The i64 display wrapper still floors at 1.
+        assert_eq!(member_boost(neg, &[1]), 1);
+    }
+
+    #[test]
     fn cooldown_zero_when_ready() {
         assert_eq!(cooldown_remaining(0, 1000, 1000), 0);
         assert_eq!(cooldown_remaining(0, 1000, 500), 500);
@@ -1188,9 +1280,46 @@ mod tests {
         assert_eq!(parse_ts_int("  -3abc"), Some(-3));
         assert_eq!(parse_ts_int("abc"), None);
         assert_eq!(parse_ts_int(""), None);
+        // No-radix hex rule (`!deposit.ts:107,111`).
+        assert_eq!(parse_ts_int("0x10"), Some(16));
+        assert_eq!(parse_ts_int("0Xff"), Some(255));
+        assert_eq!(parse_ts_int("  -0x10abc"), Some(-0x10abc));
+        assert_eq!(parse_ts_int("+0x1A"), Some(26));
+        assert_eq!(parse_ts_int("0x"), None);
+        assert_eq!(parse_ts_int("0xZZ"), None);
+        // `0b`/`0o` are NOT special to parseInt: leading "0" only.
+        assert_eq!(parse_ts_int("0b101"), Some(0));
+        assert_eq!(parse_ts_int("0o17"), Some(0));
         assert_eq!(ts_number("abc"), None);
         assert_eq!(ts_number("1e3"), Some(1000.0));
-        assert_eq!(ts_number(""), None);
+        // JS `Number("") === 0` (`!deposit.ts:75` gate passes it; the
+        // `<= 0` branch rejects it next).
+        assert_eq!(ts_number(""), Some(0.0));
+        assert_eq!(ts_number("   "), Some(0.0));
+    }
+
+    #[test]
+    fn ts_number_matches_js_number() {
+        // Prefix forms the old `parse::<f64>` rejected.
+        assert_eq!(ts_number("0x10"), Some(16.0));
+        assert_eq!(ts_number("0XFF"), Some(255.0));
+        assert_eq!(ts_number("-0x10"), Some(-16.0));
+        assert_eq!(ts_number("  +0b101  "), Some(5.0));
+        assert_eq!(ts_number("0o17"), Some(15.0));
+        assert_eq!(ts_number("0O7"), Some(7.0));
+        assert_eq!(ts_number("Infinity"), Some(f64::INFINITY));
+        assert_eq!(ts_number("-Infinity"), Some(f64::NEG_INFINITY));
+        assert_eq!(ts_number("+Infinity"), Some(f64::INFINITY));
+        // JS NaN stays None: bad prefixes, Rust-only spellings,
+        // trailing garbage.
+        assert_eq!(ts_number("0x"), None);
+        assert_eq!(ts_number("0b2"), None);
+        assert_eq!(ts_number("0o8"), None);
+        assert_eq!(ts_number("0x1p3"), None);
+        assert_eq!(ts_number("inf"), None);
+        assert_eq!(ts_number("NaN"), None);
+        assert_eq!(ts_number("10abc"), None);
+        assert_eq!(ts_number("  12.5  "), Some(12.5));
     }
 
     #[test]

@@ -626,8 +626,11 @@ pub fn clamp_top_limit(raw: Option<i64>) -> usize {
 
 /// Slash `limit` option. Mirrors the TS slash leg
 /// (`interaction.options.getInteger("limit") || 10`): no 5..=25 clamp
-/// on the slash path. `None`/`0` read as the default 10; negatives
-/// saturate to 0 (empty page, like TS `slice(0, negative)`).
+/// on the slash path. `None`/`0` read as the default 10; anything else
+/// passes through. TS then applies `slice(0, limit)`, so a negative
+/// limit keeps all-but-last-|limit| rows (empty only when |limit| >=
+/// row count) — never a flat 0. This helper saturates negatives to 0,
+/// which matches TS only in that empty case and otherwise diverges.
 pub fn slash_top_limit(raw: Option<i64>) -> usize {
     match raw {
         None | Some(0) => 10,

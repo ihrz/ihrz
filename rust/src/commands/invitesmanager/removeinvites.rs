@@ -20,7 +20,8 @@ pub async fn inv_remove(
     #[description_localized("ru", "участник, у которого убрать приглашения")]
     #[description_localized("es-ES", "el miembro del que quieres quitar invitaciones")]
     #[description = "the member you want to remove invites"]
-    member: poise::serenity_prelude::User,
+    #[rename = "member"]
+    member: Option<poise::serenity_prelude::User>,
     // f64 mirrors the TS `ApplicationCommandOptionType.Number` (`getNumber`).
     // Invite totals stay i64, so the fractional part truncates toward zero
     // (`as i64`, like JS `Math.trunc`); the reply echoes the raw slash
@@ -47,6 +48,10 @@ pub async fn inv_remove(
         .guild_id()
         .map(|g| g.get().to_string())
         .unwrap_or_default();
+    // Mirrors TS `!removeinvites.ts:53-55`: the prefix path falls back
+    // to the invoker when no member resolves; slash always passes
+    // `member` (TS declares it required), so `None` means self too.
+    let member = member.unwrap_or_else(|| ctx.author().clone());
     let uid = member.id.get();
     let cur = load_invites(&ctx.data().pool, &gid, uid).await;
     // Mirrors TS `db.sub` with no clamp: negative amounts are allowed.

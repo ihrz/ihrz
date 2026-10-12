@@ -1329,6 +1329,18 @@ pub async fn handle_tempvoice_button(
                 ack_press(ctx, comp).await;
                 return Ok(());
             }
+            // Slow leg: prior-channel fetch/delete, DB moves, rename and
+            // permission swaps are 3+ sequential DB/HTTP roundtrips before
+            // the first response. Defer now (component idiom for the
+            // ctx.defer precedent: ticket create Defer+edit_response) so
+            // the 3s window never blows; the receipt edits below.
+            comp.create_response(
+                &ctx.http,
+                serenity::CreateInteractionResponse::Defer(
+                    serenity::CreateInteractionResponseMessage::new().ephemeral(true),
+                ),
+            )
+            .await?;
             // The claimer's own prior channel: refuse while it is still
             // occupied, otherwise delete it and drop the row (mirrors
             // the existingOwnedChannel leg).
@@ -1406,13 +1418,10 @@ pub async fn handle_tempvoice_button(
                 &format!("<@{prev_uid}>"),
             )
             .await;
-            comp.create_response(
+            // Deferred above: edit the thinking reply with the receipt.
+            comp.edit_response(
                 &ctx.http,
-                serenity::CreateInteractionResponse::Message(
-                    serenity::CreateInteractionResponseMessage::new()
-                        .embed(embed)
-                        .ephemeral(true),
-                ),
+                serenity::EditInteractionResponse::new().embed(embed),
             )
             .await?;
         }
@@ -1421,6 +1430,15 @@ pub async fn handle_tempvoice_button(
                 ack_press(ctx, comp).await;
                 return Ok(());
             }
+            // Slow leg: channel delete + DB drop + banner fetch before the
+            // first response. Defer now; the receipt edits below.
+            comp.create_response(
+                &ctx.http,
+                serenity::CreateInteractionResponse::Defer(
+                    serenity::CreateInteractionResponseMessage::new().ephemeral(true),
+                ),
+            )
+            .await?;
             let _ = target.delete(&ctx.http).await;
             let _ = crate::commands::owner::main::routed_del(
                 pool,
@@ -1436,13 +1454,10 @@ pub async fn handle_tempvoice_button(
                 )
                 .colour(2829617)
                 .image(crate::funcs::guild_banner_url(pool, &gid).await);
-            comp.create_response(
+            // Deferred above: edit the thinking reply with the receipt.
+            comp.edit_response(
                 &ctx.http,
-                serenity::CreateInteractionResponse::Message(
-                    serenity::CreateInteractionResponseMessage::new()
-                        .embed(embed)
-                        .ephemeral(true),
-                ),
+                serenity::EditInteractionResponse::new().embed(embed),
             )
             .await?;
         }
@@ -2061,6 +2076,16 @@ pub async fn handle_tempvoice_select(
                     .await;
                 }
             }
+            // Slow leg: DB moves, user fetch, rename and permission swaps
+            // are 3+ sequential DB/HTTP roundtrips before the first
+            // response. Defer now; the receipt edits below.
+            comp.create_response(
+                &ctx.http,
+                serenity::CreateInteractionResponse::Defer(
+                    serenity::CreateInteractionResponseMessage::new().ephemeral(true),
+                ),
+            )
+            .await?;
             // Move the DB key from the old owner to the new one.
             let _ = crate::commands::owner::main::routed_del(
                 pool,
@@ -2117,13 +2142,10 @@ pub async fn handle_tempvoice_select(
                 &format!("<@{}>", comp.user.id.get()),
             )
             .await;
-            comp.create_response(
+            // Deferred above: edit the thinking reply with the receipt.
+            comp.edit_response(
                 &ctx.http,
-                serenity::CreateInteractionResponse::Message(
-                    serenity::CreateInteractionResponseMessage::new()
-                        .embed(embed)
-                        .ephemeral(true),
-                ),
+                serenity::EditInteractionResponse::new().embed(embed),
             )
             .await?;
         }

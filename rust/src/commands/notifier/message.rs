@@ -32,18 +32,27 @@ pub fn truncate_notify_message(template: &str) -> String {
 /// raw template plus the member/guild render (mirrors the
 /// `!message.ts:72-80,84-92` help embed, whose previews render with
 /// no notifier context, so artist slots keep their TS defaults).
+/// Date slots resolve from the invoking author's account creation
+/// (TS `generateCustomMessagePreview` user leg).
 fn preview_block(
     raw: &str,
     username: &str,
     mention: &str,
     member_count: u64,
     guild_name: &str,
+    created_unix_secs: i64,
+    created_at_date: &str,
 ) -> String {
     let rendered =
         crate::events::render_xp_announce(raw, username, mention, member_count, guild_name, 1337);
+    let rendered =
+        crate::events::render_account_time_slots(&rendered, created_at_date, created_unix_secs);
     format!("```{raw}```\n{rendered}")
 }
 
+/// Preview embed: the 9 substitution slots mirror the TS template
+/// fields one-to-one (clippy `too_many_arguments`).
+#[allow(clippy::too_many_arguments)]
 fn help_embed(
     code: &str,
     custom_raw: Option<&str>,
@@ -52,12 +61,22 @@ fn help_embed(
     mention: &str,
     member_count: u64,
     guild_name: &str,
+    created_unix_secs: i64,
+    created_at_date: &str,
 ) -> serenity::CreateEmbed {
     let say = |key: &str, fallback: &str| {
         crate::lang::get(code, key).unwrap_or_else(|| fallback.to_string())
     };
     let custom_field = match custom_raw.filter(|t| !t.is_empty()) {
-        Some(t) => preview_block(t, username, mention, member_count, guild_name),
+        Some(t) => preview_block(
+            t,
+            username,
+            mention,
+            member_count,
+            guild_name,
+            created_unix_secs,
+            created_at_date,
+        ),
         None => say(
             "ranksSetMessage_help_embed_fields_custom_name_empy",
             "Not Set!",
@@ -86,7 +105,15 @@ fn help_embed(
                 "ranksSetMessage_help_embed_fields_default_name_empy",
                 "Default Message",
             ),
-            preview_block(default_tpl, username, mention, member_count, guild_name),
+            preview_block(
+                default_tpl,
+                username,
+                mention,
+                member_count,
+                guild_name,
+                created_unix_secs,
+                created_at_date,
+            ),
             false,
         )
 }
@@ -149,6 +176,18 @@ pub async fn notifier_message(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     )
     .replace("${client.iHorizon_Emojis.GreenTick}", &tick);
     let mention = ctx.author().mention().to_string();
+    // Account-creation facts for the {createdAt} /
+    // {accountCreationTimestamp} preview slots (TS:
+    // user.createdAt.toLocaleDateString(guildLocale), en-US shape
+    // M/D/YYYY; relative leg is <t:unix:R>).
+    let created_unix = ctx.author().created_at().unix_timestamp();
+    let created_date = chrono::DateTime::from_timestamp(created_unix, 0)
+        .map(|dt| {
+            use chrono::Datelike;
+            let d = dt.naive_utc().date();
+            format!("{}/{}/{}", d.month(), d.day(), d.year())
+        })
+        .unwrap_or_default();
     let (guild_name, member_count) = ctx
         .guild_id()
         .and_then(|id| ctx.cache().guild(id))
@@ -171,6 +210,8 @@ pub async fn notifier_message(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         &mention,
         member_count,
         &guild_name,
+        created_unix,
+        &created_date,
     );
     let handle = ctx
         .send(
@@ -269,6 +310,8 @@ pub async fn notifier_message(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
                 &mention,
                 member_count,
                 &guild_name,
+                created_unix,
+                &created_date,
             );
             let _ = msg
                 .edit(ctx.http(), serenity::EditMessage::new().embeds(vec![embed]))
@@ -293,6 +336,8 @@ pub async fn notifier_message(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
                 &mention,
                 member_count,
                 &guild_name,
+                created_unix,
+                &created_date,
             );
             let _ = msg
                 .edit(ctx.http(), serenity::EditMessage::new().embeds(vec![embed]))
@@ -311,7 +356,7 @@ pub async fn notifier_message(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
 
 #[cfg(test)]
 mod tests {
-    use super::truncate_notify_message;
+    use super::{preview_block, truncate_notify_message};
 
     #[test]
     fn truncation_caps_at_1010_chars_like_ts_substring() {
@@ -328,5 +373,25 @@ mod tests {
         let capped = truncate_notify_message(&emoji);
         assert_eq!(capped.chars().count(), 505);
         assert_eq!(capped.encode_utf16().count(), 1010);
+    }
+
+    #[test]
+    fn preview_resolves_account_time_slots() {
+        let out = preview_block(
+            "hi {memberUsername} {createdAt} {accountCreationTimestamp}",
+            "bob",
+            "<@9>",
+            42,
+            "G",
+            1673740800,
+            "1/15/2023",
+        );
+        // Raw template block keeps the slots; the rendered leg below it
+        // must resolve them.
+        let rendered = out.split("```\n").nth(1).unwrap_or("");
+        assert!(!rendered.contains("{createdAt}"));
+        assert!(!rendered.contains("{accountCreationTimestamp}"));
+        assert!(rendered.contains("1/15/2023"));
+        assert!(rendered.contains("<t:1673740800:R>"));
     }
 }

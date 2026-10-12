@@ -141,8 +141,14 @@ async fn merge_profil_leaves(pool: &crate::db::Pool, user_id: u64, p: &mut Profi
 /// Writes the `PROFIL.<uid>` blob AND the TS per-field leaves
 /// (`<uid>.desc` / `.age` / `.gender` / `.pronoun` /
 /// `.birthday.(day|month|year)`), so the TS `!show.ts` leaf-only reads
-/// see Rust writes during a dual run. Unset fields delete their leaf
-/// (rather than leaving a stale value the load-merge would resurrect).
+/// see Rust writes during a dual run. Birthday is additionally written
+/// as the single `<uid>.birthday` object TS `!show.ts` actually reads
+/// (`profilTable.get("<id>.birthday")` with `{day,month,year}` fields:
+/// quick.db nests the TS per-part `.birthday.<part>` sets under that
+/// one object, while flat dotted-leaf rows are invisible to it). Values
+/// are modal-shaped strings, like the TS writes. Unset fields delete
+/// their leaf (rather than leaving a stale value the load-merge would
+/// resurrect); an empty birthday deletes the object too.
 pub async fn save_profil_routed(
     pool: &crate::db::Pool,
     user_id: u64,
@@ -205,6 +211,30 @@ pub async fn save_profil_routed(
             }
         }
     }
+    // Single-object shape TS `!show.ts` reads via
+    // `profilTable.get("<id>.birthday")`: quick.db nests the TS
+    // `.birthday.<part>` sets under that one object, so mirror it here
+    // (modal-shaped strings, set parts only). The dotted leaves above
+    // stay for the Rust load-merge readers.
+    let mut birthday = serde_json::Map::new();
+    if let Some(d) = profil.bday_day {
+        birthday.insert("day".to_string(), serde_json::Value::String(d.to_string()));
+    }
+    if let Some(m) = profil.bday_month {
+        birthday.insert(
+            "month".to_string(),
+            serde_json::Value::String(m.to_string()),
+        );
+    }
+    if let Some(y) = profil.bday_year {
+        birthday.insert("year".to_string(), serde_json::Value::String(y.to_string()));
+    }
+    if birthday.is_empty() {
+        routed_del(pool, PROFIL_TABLE, GLOBAL_SCOPE, &field("birthday")).await?;
+    } else {
+        let raw = serde_json::Value::Object(birthday).to_string();
+        routed_set(pool, PROFIL_TABLE, GLOBAL_SCOPE, &field("birthday"), &raw).await?;
+    }
     Ok(())
 }
 
@@ -264,6 +294,71 @@ mod tests {
         );
         assert_eq!(
             routed_get(&pool, PROFIL_TABLE, GLOBAL_SCOPE, "11.birthday.day").await,
+            None
+        );
+        // No birthday parts set: the single TS `!show` object is gone too.
+        assert_eq!(
+            routed_get(&pool, PROFIL_TABLE, GLOBAL_SCOPE, "11.birthday").await,
+            None
+        );
+    }
+
+    #[tokio::test]
+    async fn birthday_dual_writes_ts_show_object() {
+        use crate::commands::owner::main::routed_get;
+        let pool = mem_pool().await;
+        let p = Profil {
+            bday_day: Some(15),
+            bday_month: Some(6),
+            bday_year: Some(1999),
+            ..Default::default()
+        };
+        save_profil_routed(&pool, 21, &p).await.unwrap();
+        // Dotted leaves stay for Rust readers ...
+        assert_eq!(
+            routed_get(&pool, PROFIL_TABLE, GLOBAL_SCOPE, "21.birthday.day")
+                .await
+                .as_deref(),
+            Some("15")
+        );
+        assert_eq!(
+            routed_get(&pool, PROFIL_TABLE, GLOBAL_SCOPE, "21.birthday.month")
+                .await
+                .as_deref(),
+            Some("6")
+        );
+        assert_eq!(
+            routed_get(&pool, PROFIL_TABLE, GLOBAL_SCOPE, "21.birthday.year")
+                .await
+                .as_deref(),
+            Some("1999")
+        );
+        // ... and the single object TS `!show` reads
+        // (`profilTable.get("<id>.birthday")`) mirrors them in the
+        // modal-string shape the TS setters store.
+        let raw = routed_get(&pool, PROFIL_TABLE, GLOBAL_SCOPE, "21.birthday")
+            .await
+            .expect("single birthday object written");
+        let node: serde_json::Value = serde_json::from_str(&raw).unwrap();
+        assert_eq!(leaf_int(&node, "day"), Some(15));
+        assert_eq!(leaf_int(&node, "month"), Some(6));
+        assert_eq!(leaf_int(&node, "year"), Some(1999));
+        // Rust load still merges from the object, and clearing the parts
+        // removes both shapes (no stale TS-visible birthday).
+        let back = load_profil_routed(&pool, 21).await;
+        assert_eq!(
+            (back.bday_day, back.bday_month, back.bday_year),
+            (Some(15), Some(6), Some(1999))
+        );
+        save_profil_routed(&pool, 21, &Profil::default())
+            .await
+            .unwrap();
+        assert_eq!(
+            routed_get(&pool, PROFIL_TABLE, GLOBAL_SCOPE, "21.birthday").await,
+            None
+        );
+        assert_eq!(
+            routed_get(&pool, PROFIL_TABLE, GLOBAL_SCOPE, "21.birthday.day").await,
             None
         );
     }
