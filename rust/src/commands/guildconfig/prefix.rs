@@ -105,10 +105,11 @@ pub async fn run_prefix_change(ctx: Ctx<'_>, prefix: String) -> Result<(), anyho
 }
 
 /// Setprefix command.
+// TS path `guildconfig bot prefix` (`guildconfig.ts` `bot` group leaf).
 #[poise::command(
     slash_command,
     prefix_command,
-    rename = "setprefix",
+    rename = "prefix",
     default_member_permissions = "ADMINISTRATOR"
 )]
 pub async fn gc_prefix(

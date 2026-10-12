@@ -118,10 +118,7 @@ fn action_row(code: &str, disabled: bool) -> serenity::CreateActionRow {
     rename = "message",
     default_member_permissions = "MANAGE_GUILD"
 )]
-pub async fn notifier_message(
-    ctx: Ctx<'_>,
-    #[description = "Template (omit for preview, empty to reset)"] template: Option<String>,
-) -> Result<(), anyhow::Error> {
+pub async fn notifier_message(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     // Prefix native-permission gate (U-MSV-FIX14): TS `checkNativePermission`
     // enforces the ManageGuild leaf on both paths; Discord covers slash,
     // so the body gates prefix here with the same `var_dont_have_perm` denial.
@@ -161,25 +158,6 @@ pub async fn notifier_message(
         "notifier_on_new_media_default_message",
         "@everyone has published a new video",
     );
-
-    if let Some(template) = template {
-        // Direct set/reset leg (prefix path): empty resets.
-        let trimmed = template.trim().to_string();
-        if trimmed.is_empty() {
-            delete_notifier_key(&ctx.data().pool, &gid, "NOTIFIER.message").await?;
-            ctx.say(reply).await?;
-            return Ok(());
-        }
-        if trimmed.chars().count() < 2 {
-            ctx.say("Message too short: the notify template needs at least 2 characters.")
-                .await?;
-            return Ok(());
-        }
-        let capped = truncate_notify_message(&trimmed);
-        save_notifier_string(&ctx.data().pool, &gid, "NOTIFIER.message", &capped).await?;
-        ctx.say(reply).await?;
-        return Ok(());
-    }
 
     // Preview leg: help embed + set/default buttons, 80s collector.
     let stored = load_notifier_string(&ctx.data().pool, &gid, "NOTIFIER.message")

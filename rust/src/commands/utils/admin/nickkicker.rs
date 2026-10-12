@@ -19,11 +19,7 @@ use super::*;
         "Expulsar a un usuario si su apodo contiene una palabra específica"
     )
 )]
-pub async fn nickkicker(
-    ctx: Ctx<'_>,
-    #[description = "Word to ban, or enable/disable (omit to list)"] word: Option<String>,
-    #[description = "Word to remove"] remove: Option<String>,
-) -> Result<(), anyhow::Error> {
+pub async fn nickkicker(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let gid = ctx
         .guild_id()
         .map(|g| g.get().to_string())
@@ -33,7 +29,7 @@ pub async fn nickkicker(
     let raw =
         crate::commands::owner::main::routed_get(&ctx.data().pool, &gid, &gid, "UTILS.NICK_KICKER")
             .await;
-    let mut cfg: serde_json::Value = raw
+    let cfg: serde_json::Value = raw
         .and_then(|s| serde_json::from_str(&s).ok())
         .unwrap_or(serde_json::json!({"enabled": true, "words": []}));
     let words_of = |cfg: &serde_json::Value| -> Vec<String> {
@@ -62,86 +58,11 @@ pub async fn nickkicker(
                 true,
             )
     };
-    if let Some(r) = remove
-        .map(|w| w.trim().to_string())
-        .filter(|w| !w.is_empty())
-    {
-        let mut words = words_of(&cfg);
-        if !words.iter().any(|w| w == &r) {
-            ctx.say(t("util_nick_kicker_no_word_to_remove")).await?;
-            return Ok(());
-        }
-        words.retain(|w| w != &r);
-        cfg["words"] = serde_json::Value::from(words);
-        crate::commands::owner::main::routed_set(
-            &ctx.data().pool,
-            &gid,
-            &gid,
-            "UTILS.NICK_KICKER",
-            &cfg.to_string(),
-        )
+    // TS registers no slash options for nick-kicker (util.ts); the
+    // enable/disable/add/remove flows are interactive select-menu/modal
+    // steps, so the stateless command shows the status panel only.
+    ctx.send(poise::CreateReply::default().embed(status_embed(&cfg)))
         .await?;
-        ctx.send(poise::CreateReply::default().embed(status_embed(&cfg)))
-            .await?;
-        return Ok(());
-    }
-    match word.map(|w| w.trim().to_string()).filter(|w| !w.is_empty()) {
-        Some(w) => match w.to_ascii_lowercase().as_str() {
-            "enable" | "on" => {
-                cfg["enabled"] = serde_json::Value::Bool(true);
-                crate::commands::owner::main::routed_set(
-                    &ctx.data().pool,
-                    &gid,
-                    &gid,
-                    "UTILS.NICK_KICKER",
-                    &cfg.to_string(),
-                )
-                .await?;
-                ctx.send(poise::CreateReply::default().embed(status_embed(&cfg)))
-                    .await?;
-            }
-            "disable" | "off" => {
-                cfg["enabled"] = serde_json::Value::Bool(false);
-                crate::commands::owner::main::routed_set(
-                    &ctx.data().pool,
-                    &gid,
-                    &gid,
-                    "UTILS.NICK_KICKER",
-                    &cfg.to_string(),
-                )
-                .await?;
-                ctx.send(poise::CreateReply::default().embed(status_embed(&cfg)))
-                    .await?;
-            }
-            _ => {
-                let words = words_of(&cfg);
-                if words.len() >= 15 {
-                    ctx.say(t("util_nick_kicker_words_max_15")).await?;
-                    return Ok(());
-                }
-                let mut words = words;
-                words.push(normalize_nick_word(&w));
-                cfg["words"] = serde_json::Value::from(words);
-                crate::commands::owner::main::routed_set(
-                    &ctx.data().pool,
-                    &gid,
-                    &gid,
-                    "UTILS.NICK_KICKER",
-                    &cfg.to_string(),
-                )
-                .await?;
-                ctx.say(
-                    crate::lang::get(&code, "msg_word_added")
-                        .unwrap_or_else(|| "Word added.".to_string()),
-                )
-                .await?;
-            }
-        },
-        None => {
-            ctx.send(poise::CreateReply::default().embed(status_embed(&cfg)))
-                .await?;
-        }
-    }
     Ok(())
 }
 

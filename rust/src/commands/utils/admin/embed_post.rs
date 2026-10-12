@@ -1,19 +1,21 @@
 use super::*;
 
-/// Post, repost, or copy an embed. Mirrors the !embed.ts EmbedManager
+/// Post or repost an embed. Mirrors the !embed.ts EmbedManager
 // (the TS `embed` subcommand of HybridCommands/utils/utils.ts:850,
 // permission ManageMessages, optional saved `id` preload).
 // The interactive builder at `embed_builder` is a separate top-level
 // registration under a different parent, so sharing the TS-exact leaf
 // name here causes no slash conflict (Discord namespaces options per
 // parent); the prefix-collision gate excludes subcommand leaves.
-// Create from title + description (saved under a new id), repost of a
-// saved embed id, or copy of an embed from a message URL/ID. The
+// Create from title + description (saved under a new id) or repost of a
+// saved embed id. The copy-from-message-URL step (`copyEmbed`) is an
+// interactive builder action, not a TS slash option, so it lives in the
+// pure helpers below rather than as a command param. The
 // interactive select-menu/button collectors have no stateless equivalent,
-// so create/copy/save are direct command branches instead.
+// so create/save are direct command branches instead.
 // UT5 scope note: the full interactive EmbedManager builder flow
 // (field-by-field modal editing) is intentionally out of scope;
-// create/repost/copy branches above are the accepted surface.
+// create/repost branches above are the accepted surface.
 #[poise::command(
     slash_command,
     prefix_command,
@@ -38,84 +40,9 @@ pub async fn embed_post(
     #[description_localized("es-ES", "Si tienes un ID de embed!")]
     #[description = "Saved embed ID to repost"]
     id: Option<String>,
-    #[description = "Message URL or ID to copy an embed from"] copy_from: Option<String>,
 ) -> Result<(), anyhow::Error> {
-    use poise::serenity_prelude::{ChannelId, MessageId};
-
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let t = |k: &str, fb: &str| crate::lang::get(&code, k).unwrap_or_else(|| fb.to_string());
-
-    // Copy flow: `copyEmbed(messageUrl)` — same-guild guard, channel,
-    // message, and has-embed checks, then repost the first embed.
-    if let Some(source) = copy_from.as_deref() {
-        let guild_id = ctx.guild_id().map(|g| g.get().to_string());
-        let (channel_id, message_id) = match resolve_copy_source(source) {
-            CopySource::MessageUrl(parts) => {
-                if Some(parts.guild_or_channel_owner.as_str()) != guild_id.as_deref() {
-                    let name = ctx
-                        .serenity_context()
-                        .cache
-                        .guild(ctx.guild_id().unwrap_or_default())
-                        .map(|g| g.name.clone())
-                        .unwrap_or_else(|| guild_id.clone().unwrap_or_default());
-                    ctx.say(fill_copy_bad_guild(
-                        &t(
-                            "embed_copy_bad_guild_msg",
-                            "The message's guild is not the same as ${interaction.guild?.name}",
-                        ),
-                        &name,
-                    ))
-                    .await?;
-                    return Ok(());
-                }
-                match (
-                    parts.channel_id.parse::<u64>(),
-                    parts.message_id.parse::<u64>(),
-                ) {
-                    (Ok(c), Ok(m)) => (c, m),
-                    _ => {
-                        ctx.say(t(
-                            "embed_copy_bad_channel_msg",
-                            "The message's channel is unreachable!",
-                        ))
-                        .await?;
-                        return Ok(());
-                    }
-                }
-            }
-            CopySource::ChannelMessage(mid) => (ctx.channel_id().get(), mid),
-            CopySource::Invalid => {
-                ctx.say(t(
-                    "embed_copy_bad_message_msg",
-                    "The message is unreachable!",
-                ))
-                .await?;
-                return Ok(());
-            }
-        };
-        let Ok(msg) = ChannelId::new(channel_id)
-            .message(ctx.http(), MessageId::new(message_id))
-            .await
-        else {
-            ctx.say(t(
-                "embed_copy_bad_message_msg",
-                "The message is unreachable!",
-            ))
-            .await?;
-            return Ok(());
-        };
-        let Some(found) = msg.embeds.first() else {
-            ctx.say(t(
-                "embed_copy_bad_embed_message_msg",
-                "The message doesn't have an embed!",
-            ))
-            .await?;
-            return Ok(());
-        };
-        let embed = create_embed_from_message_embed(found);
-        ctx.send(poise::CreateReply::default().embed(embed)).await?;
-        return Ok(());
-    }
 
     // Edit-from-ID flow: `run(arg)` loads `EMBED.{id}` when the id is valid.
     if let Some(embed_id) = id.as_deref().filter(|s| is_valid_embed_id(Some(s))) {
@@ -138,9 +65,7 @@ pub async fn embed_post(
     // `new EmbedBuilder().setDescription("** **")`), then `saveEmbed()`
     // stores it under a new id, or overwrites `id` when it is valid.
     let (Some(title), Some(description)) = (title.as_deref(), description.as_deref()) else {
-        anyhow::bail!(
-            "provide a title and description, a saved embed ID, or a message to copy from"
-        );
+        anyhow::bail!("provide a title and description, or a saved embed ID");
     };
     let mut draft = crate::embed_builder::EmbedDraft::default();
     draft

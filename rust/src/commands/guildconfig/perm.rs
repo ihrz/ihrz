@@ -63,7 +63,7 @@ pub fn user_perm_key(user_id: u64) -> String {
 #[poise::command(
     slash_command,
     prefix_command,
-    rename = "perm-user",
+    rename = "set-user",
     default_member_permissions = "ADMINISTRATOR"
 )]
 pub async fn gc_perm_user(
@@ -145,7 +145,7 @@ pub async fn gc_perm_user(
 #[poise::command(
     slash_command,
     prefix_command,
-    rename = "perm-list",
+    rename = "list",
     default_member_permissions = "ADMINISTRATOR"
 )]
 pub async fn gc_perm_list(
@@ -568,7 +568,7 @@ pub async fn run_perm_delete_all(
 #[poise::command(
     slash_command,
     prefix_command,
-    rename = "perm-roles-create",
+    rename = "create-roles",
     default_member_permissions = "ADMINISTRATOR"
 )]
 pub async fn gc_perm_roles_create(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
@@ -639,7 +639,7 @@ pub async fn gc_perm_roles_create(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
 #[poise::command(
     slash_command,
     prefix_command,
-    rename = "perm-roles-edit",
+    rename = "edit-roles",
     default_member_permissions = "ADMINISTRATOR"
 )]
 pub async fn gc_perm_roles_edit(

@@ -168,8 +168,12 @@ pub fn show_page_fields(
 
 /// Show the guild config profile (6 pages).
 // Sectioned view mirroring guildconfig `!show.ts:63-273` (6
-// `generateEmbedForFields` pages, colour `#016c9a`). The `page`
-// option replaces the TS `<<<` / `>>>` collector.
+// `generateEmbedForFields` pages, colour `#016c9a`). TS registers
+// `config show` with NO options and pages via the `<<<` / `>>>`
+// button collector (`!show.ts:296-348`); the `page` option below is
+// the deliberate stateless replacement for that collector (same
+// precedent as `perm-list-all`), NOT a TS mirror — comparator
+// `config show page` delta is intentional.
 #[poise::command(
     slash_command,
     prefix_command,

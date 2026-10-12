@@ -191,6 +191,28 @@ pub async fn gc_wc_components(
     Ok(())
 }
 
+/// Show the welcomer summary (same stored state as `wc-panel`).
+// TS `guildconfig set welcomer` leaf (`guildconfig.ts` `set` group:
+// no options, Administrator). Entry point to the welcomer surface;
+// the atomic `wc-*` setters persist the same `GUILD.GUILD_CONFIG`
+// keys the TS `welcomerPanel` writes.
+#[poise::command(
+    slash_command,
+    prefix_command,
+    rename = "welcomer",
+    default_member_permissions = "ADMINISTRATOR",
+    description_localized("fr", "Configurer le module de bienvenue (messages, salons, image)"),
+    description_localized("ja", "ウェルカムモジュール（メッセージ・チャンネル・画像）を設定！"),
+    description_localized("ru", "Настроить модуль приветствия (сообщения, каналы, изображение)!"),
+    description_localized(
+        "es-ES",
+        "Configurar el módulo de bienvenida (mensajes, canales, imagen)!"
+    )
+)]
+pub async fn gc_welcomer(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
+    welcomer_panel_reply(ctx).await
+}
+
 /// Show the welcomer setup and how to configure it.
 #[poise::command(
     slash_command,
@@ -199,6 +221,12 @@ pub async fn gc_wc_components(
     default_member_permissions = "ADMINISTRATOR"
 )]
 pub async fn gc_wc_panel(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
+    welcomer_panel_reply(ctx).await
+}
+
+/// Shared `set welcomer` / `wc-panel` summary render: stored-state
+/// embed plus the atomic-setter hint.
+async fn welcomer_panel_reply(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     // UX split (documented, not a regression): `openWelcomerPanel`
     // (`SlashCommands/guildconfig/welcomerPanel.ts`, ~1800 lines) is a
     // stateful Components-V2 guided panel (section select,

@@ -156,12 +156,9 @@ pub async fn slowmode(
     #[description_localized("es-ES", "La duración del modo lento")]
     #[description = "Duration"]
     duration: DurationChoice,
-    #[description = "Channel, defaults to current"] channel: Option<
-        poise::serenity_prelude::GuildChannel,
-    >,
 ) -> Result<(), anyhow::Error> {
     let secs = duration_seconds(duration);
-    apply_slowmode(ctx, secs, channel.map(|c| c.id)).await
+    apply_slowmode(ctx, secs, None).await
 }
 
 /// Shared slowmode edit. Mirrors !cooldown.ts (unslowmode.ts delegates

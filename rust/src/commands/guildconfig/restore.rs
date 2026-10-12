@@ -3,15 +3,19 @@ use poise::serenity_prelude as serenity;
 
 /// Load a guild config backup from an encrypted file.
 // Mirrors !restore.ts (always replies restore_msg).
+// TS path `guildconfig config restore` (`guildconfig.ts` `config` group leaf).
 #[poise::command(
     slash_command,
     prefix_command,
-    rename = "config-restore",
+    rename = "restore",
     default_member_permissions = "ADMINISTRATOR"
 )]
 pub async fn gc_config_restore(
     ctx: Ctx<'_>,
-    // TS guildconfig.ts (`config` -> `restore`) registers "backup-to-load".
+    // TS guildconfig.ts (`config` -> `restore`) registers "backup-to-load"
+    // (required Attachment). Kept `Option` for prefix-path compat (a
+    // prefix call carries no attachment); absent -> still replies
+    // restore_msg, like !restore.ts would on decrypt failure.
     #[description = "The backup to load"]
     #[description_localized("fr", "La sauvegarde à restaurer")]
     #[description_localized("ja", "読み込むバックアップ")]

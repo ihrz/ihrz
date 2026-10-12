@@ -3,10 +3,11 @@ use poise::serenity_prelude as serenity;
 
 /// Export the guild config backup.
 // Mirrors !save.ts: gateway link on prod/dev, encrypted file DM else.
+// TS path `guildconfig config save` (`guildconfig.ts` `config` group leaf).
 #[poise::command(
     slash_command,
     prefix_command,
-    rename = "config-save",
+    rename = "save",
     default_member_permissions = "ADMINISTRATOR"
 )]
 pub async fn gc_config_save(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {

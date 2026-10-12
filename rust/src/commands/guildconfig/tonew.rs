@@ -104,10 +104,13 @@ async fn post_tonew_log(ctx: &Ctx<'_>, title: &str, description: &str) {
 }
 
 /// Toonew command.
+// TS path `guildconfig block too-new-account` (`guildconfig.ts`
+// `block` group leaf; fr name `compte-trop-recent`).
 #[poise::command(
     slash_command,
     prefix_command,
-    rename = "toonew",
+    rename = "too-new-account",
+    name_localized("fr", "compte-trop-recent"),
     default_member_permissions = "ADMINISTRATOR"
 )]
 pub async fn gc_toonew(

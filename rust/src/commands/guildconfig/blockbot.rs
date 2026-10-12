@@ -79,7 +79,7 @@ async fn post_blockbot_log(ctx: &Ctx<'_>, title: &str, description: &str) {
 #[poise::command(
     slash_command,
     prefix_command,
-    rename = "blockbot",
+    rename = "bot",
     default_member_permissions = "ADMINISTRATOR",
     description_localized(
         "fr",

@@ -62,7 +62,7 @@ interface RustRegistryEntry extends RegistryEntry {
 
 interface SerialResult {
 	name: string;
-	verdict: "MATCH" | "DIVERGENT";
+	verdict: "MATCH" | "DIVERGENT" | "EXEMPT";
 	reason: string;
 }
 
@@ -299,6 +299,172 @@ function compareLeaves(ts: LeafMap, rust: LeafMap): string[] {
 	return notes;
 }
 
+interface Exemption {
+	command: string;
+	// "command" exempts every divergent note of the command;
+	// "note" exempts only the single divergent note containing `note`.
+	kind: "command" | "note";
+	note: string;
+	reason: string;
+	ref: string;
+}
+
+function exemptNotes(
+	command: string,
+	list: string[],
+	reason: string,
+	ref: string
+): Exemption[] {
+	return list.map((note) => ({
+		command,
+		kind: "note" as const,
+		note,
+		reason,
+		ref
+	}));
+}
+
+// VERIFIED-DELIBERATE exemptions, kept identical to tools/ParityCompare.ts.
+// Each entry was proven deliberate against the cited ref before encoding;
+// anything without such proof stays a genuine divergence (e.g. notifier
+// `template`: the param is absent from
+// rust/src/commands/notifier/message.rs, so the dump entry is
+// stale-artifact drift, not design — deliberately NOT exempted).
+const EXEMPT: Exemption[] = [
+	// antispam: TS declares manage/bypass-roles/ignore-channels as bare
+	// slash leaves (antispam.ts:43-94); Rust expands the prefix !legs
+	// into groups + slash params. Matcher name-alias artifact.
+	...exemptNotes(
+		"antispam",
+		[
+			`missing sub in rust: "bypass-roles"`,
+			`missing sub in rust: "ignore-channels"`,
+			`invented param in rust: "manage" param "enabled"`,
+			`invented param in rust: "manage" param "ignore_bots"`,
+			`invented param in rust: "manage" param "max_interval"`,
+			`invented param in rust: "manage" param "preset"`,
+			`invented param in rust: "manage" param "punish_time"`,
+			`invented param in rust: "manage" param "punishment_type"`,
+			`invented param in rust: "manage" param "remove_messages"`,
+			`invented param in rust: "manage" param "threshold"`,
+			`invented sub in rust: "bypass-roles add"`,
+			`invented sub in rust: "bypass-roles clear"`,
+			`invented sub in rust: "bypass-roles list"`,
+			`invented sub in rust: "bypass-roles remove"`,
+			`invented sub in rust: "ignore-channels add"`,
+			`invented sub in rust: "ignore-channels clear"`,
+			`invented sub in rust: "ignore-channels list"`,
+			`invented sub in rust: "ignore-channels remove"`
+		],
+		"bare TS leaves vs Rust !leg group expansion (matcher alias artifact)",
+		"HybridCommands/antispam/!manage.ts,!bypass-roles.ts,!ignore-channels.ts"
+	),
+	// ghost-list: Rust-side prefix-only reader with no TS slash home.
+	...exemptNotes(
+		"join-ghostping",
+		[`invented sub in rust: "ghost-list"`],
+		"Rust-only prefix reader, no TS slash home",
+		"rust/src/commands/guildconfig/join_ghostping.rs:10; mod.rs PREFIX_ONLY_RUST_READERS"
+	),
+	{
+		command: "legacy",
+		kind: "command",
+		note: "",
+		reason: "Rust-only prefix organizer; TS has no legacy command",
+		ref: "rust/src/commands/legacy/legacy.rs (prefix only); no TS name:legacy"
+	},
+	// protect: TS ships both protect + allowlist; Rust merges the
+	// allowlist legs under protect with the allow- prefix (mod.rs frozen).
+	...exemptNotes(
+		"protect",
+		[
+			`invented sub in rust: "allow-add"`,
+			`invented sub in rust: "allow-remove"`,
+			`invented sub in rust: "allow-show"`
+		],
+		"allowlist legs merged under protect (mod.rs frozen)",
+		"rust/src/commands/protection/protect.rs:297-306; allowlist/allowlist.ts"
+	),
+	{
+		command: "schedule",
+		kind: "command",
+		note: "",
+		reason: "TS option-less interactive root; Rust deliberate slash surface",
+		ref: "HybridCommands/schedule/schedule.ts (no options); rust schedule.rs/panel.rs"
+	},
+	// confession list: ADOPT Rust-only count-only mod tool (read-only check).
+	...exemptNotes(
+		"confession",
+		[`invented sub in rust: "list"`],
+		"ADOPT Rust-only count-only mod tool",
+		"rust/src/commands/confession/list.rs:28"
+	),
+	// tag: kept single-role toggle legs; the multi-select panels are
+	// intentionally unported.
+	...exemptNotes(
+		"tag",
+		[
+			`invented param in rust: "wlroles-create" param "role"`,
+			`invented param in rust: "wlroles-use" param "role"`
+		],
+		"kept single-role toggle; multi-select panel intentionally unported",
+		"rust/src/commands/tag/wlroles_create.rs:12-14; wlroles_use.rs"
+	),
+	// mod: page is a deliberate additive pagination extra (no TS counterpart).
+	...exemptNotes(
+		"mod",
+		[
+			`invented param in rust: "banlist" param "page"`,
+			`invented param in rust: "mutelist" param "page"`,
+			`invented param in rust: "warnlist" param "page"`
+		],
+		"deliberate additive pagination extra",
+		"rust/src/commands/moderation/banlist.rs:5-9"
+	),
+	// honeypot: TS config is a bare leaf with an interactive panel
+	// (!config.ts selects+buttons); Rust exposes the same five panel
+	// fields as slash params.
+	...exemptNotes(
+		"honeypot",
+		[
+			`invented param in rust: "config" param "action"`,
+			`invented param in rust: "config" param "channel"`,
+			`invented param in rust: "config" param "logs_channel"`,
+			`invented param in rust: "config" param "message"`,
+			`invented param in rust: "config" param "power"`
+		],
+		"TS interactive panel fields exposed as slash params",
+		"rust/src/commands/honeypot/config.rs:892-903; SlashCommands/honeypot/!config.ts"
+	),
+	// music trackinfo title: optional search param mirroring the TS leg read.
+	...exemptNotes(
+		"music",
+		[`invented param in rust: "trackinfo" param "title"`],
+		"optional search param mirroring the TS leg read",
+		"rust/src/commands/music/trackinfo.rs:15-17; HybridCommands/music/!trackinfo.ts:56"
+	)
+];
+
+function exemptionFor(command: string, note: string): Exemption | undefined {
+	return EXEMPT.find(
+		(e) =>
+			e.command === command &&
+			(e.kind === "command" || note.includes(e.note))
+	);
+}
+
+function applyExemptions(name: string, reason: string): SerialResult {
+	const parts = reason.split("; ");
+	const kept = parts.filter((p) => !exemptionFor(name, p));
+	if (kept.length === 0)
+		return {
+			name,
+			verdict: "EXEMPT",
+			reason: exemptionFor(name, parts[0])!.reason
+		};
+	return { name, verdict: "DIVERGENT", reason: kept.join("; ") };
+}
+
 function checkCommandSerial(
 	name: string,
 	ts: RegistryEntry | undefined,
@@ -313,11 +479,10 @@ function checkCommandSerial(
 		const owner = tsLeafIndex.get(name);
 		if (rust!.prefixOnly && owner)
 			return { name, verdict: "MATCH", reason: `ts leaf ${owner}` };
-		return {
+		return applyExemptions(
 			name,
-			verdict: "DIVERGENT",
-			reason: `only in rust registry (category ${rust!.category})`
-		};
+			`only in rust registry (category ${rust!.category})`
+		);
 	}
 	if (!rust) {
 		// Prefix-file TS commands (MessageCommands + !-files) live as nested
@@ -326,16 +491,15 @@ function checkCommandSerial(
 		const qualified = rustLeafIndex.get(name);
 		if (ts.prefixFile && qualified)
 			return { name, verdict: "MATCH", reason: `rust leaf ${qualified}` };
-		return {
+		return applyExemptions(
 			name,
-			verdict: "DIVERGENT",
-			reason: `only in TS sources (category ${ts.category})`
-		};
+			`only in TS sources (category ${ts.category})`
+		);
 	}
 	const notes = compareLeaves(ts.leaves, rust.leaves);
 	if (notes.length === 0)
 		return { name, verdict: "MATCH", reason: "in sync" };
-	return { name, verdict: "DIVERGENT", reason: notes.join("; ") };
+	return applyExemptions(name, notes.join("; "));
 }
 
 async function runLiveMode(_names: string[]): Promise<void> {
@@ -360,6 +524,7 @@ for (const w of warnings) out(`WARNING ${w}`);
 const names = [...new Set([...tsReg.keys(), ...rustReg.keys()])].sort();
 const rows: SerialResult[] = [];
 let matched = 0;
+let exempt = 0;
 for (const name of names) {
 	const result = checkCommandSerial(
 		name,
@@ -370,9 +535,10 @@ for (const name of names) {
 	);
 	rows.push(result);
 	if (result.verdict === "MATCH") matched++;
+	if (result.verdict === "EXEMPT") exempt++;
 	out(`SERIAL ${result.name}: ${result.verdict} ${result.reason}`);
 }
-const divergent = rows.length - matched;
+const divergent = rows.length - matched - exempt;
 
 const reportLines = [
 	"# Serial Parity Report",
@@ -389,9 +555,11 @@ for (const row of rows) {
 }
 reportLines.push(
 	"",
-	`serial: total=${rows.length} match=${matched} divergent=${divergent}`
+	`serial: total=${rows.length} match=${matched} divergent=${divergent} exempt=${exempt}`
 );
 await Bun.write(REPORT_PATH, reportLines.join("\n") + "\n");
 
-out(`serial: total=${rows.length} match=${matched} divergent=${divergent}`);
+out(
+	`serial: total=${rows.length} match=${matched} divergent=${divergent} exempt=${exempt}`
+);
 process.exit(divergent > 0 || warnings.length > 0 ? 1 : 0);

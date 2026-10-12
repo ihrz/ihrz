@@ -934,7 +934,7 @@ mod tests {
         assert!(has_gate("vkick", Permissions::MODERATE_MEMBERS));
         assert!(has_gate("hide", Permissions::MANAGE_CHANNELS));
         assert!(has_gate("hideall", Permissions::ADMINISTRATOR));
-        assert!(has_gate("setprefix", Permissions::ADMINISTRATOR));
+        assert!(has_gate("prefix", Permissions::ADMINISTRATOR));
         assert!(has_gate("channel", Permissions::ADMINISTRATOR));
         assert!(has_gate("text", Permissions::ADMINISTRATOR));
         assert!(has_gate("delete", Permissions::ADMINISTRATOR));
@@ -1090,11 +1090,11 @@ mod tests {
                     "custom-user",
                 ],
             ),
-            ("perm-roles-edit", &["perm_level", "perm_role"]),
+            ("edit-roles", &["perm_level", "perm_role"]),
             ("setlogs", &["type", "channel"]),
-            ("toonew", &["minimum-date", "maximum-join"]),
-            ("setprefix", &["name"]),
-            ("config-restore", &["backup-to-load"]),
+            ("too-new-account", &["minimum-date", "maximum-join"]),
+            ("prefix", &["name"]),
+            ("restore", &["backup-to-load"]),
             ("clear", &["number", "member"]),
             // TS economy group `role`: leaf `add` (was flat `role-add`).
             ("add", &["role", "amount"]),

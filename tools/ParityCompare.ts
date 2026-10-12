@@ -289,6 +289,159 @@ function compareLeaves(ts: LeafMap, rust: LeafMap): string[] {
 	return notes;
 }
 
+interface Exemption {
+	command: string;
+	// "command" exempts every divergent note of the command;
+	// "note" exempts only the single divergent note containing `note`.
+	kind: "command" | "note";
+	note: string;
+	reason: string;
+	ref: string;
+}
+
+function exemptNotes(
+	command: string,
+	list: string[],
+	reason: string,
+	ref: string
+): Exemption[] {
+	return list.map((note) => ({
+		command,
+		kind: "note" as const,
+		note,
+		reason,
+		ref
+	}));
+}
+
+// VERIFIED-DELIBERATE exemptions: each entry was proven deliberate
+// against the cited ref before encoding. Anything without such proof
+// stays a genuine divergence (e.g. notifier `template`: the param is
+// absent from rust/src/commands/notifier/message.rs, so the dump entry
+// is stale-artifact drift, not design — deliberately NOT exempted).
+const EXEMPT: Exemption[] = [
+	// antispam: TS declares manage/bypass-roles/ignore-channels as bare
+	// slash leaves (antispam.ts:43-94); Rust expands the prefix !legs
+	// into groups + slash params. Matcher name-alias artifact.
+	...exemptNotes(
+		"antispam",
+		[
+			`missing sub in rust: "bypass-roles"`,
+			`missing sub in rust: "ignore-channels"`,
+			`invented param in rust: "manage" param "enabled"`,
+			`invented param in rust: "manage" param "ignore_bots"`,
+			`invented param in rust: "manage" param "max_interval"`,
+			`invented param in rust: "manage" param "preset"`,
+			`invented param in rust: "manage" param "punish_time"`,
+			`invented param in rust: "manage" param "punishment_type"`,
+			`invented param in rust: "manage" param "remove_messages"`,
+			`invented param in rust: "manage" param "threshold"`,
+			`invented sub in rust: "bypass-roles add"`,
+			`invented sub in rust: "bypass-roles clear"`,
+			`invented sub in rust: "bypass-roles list"`,
+			`invented sub in rust: "bypass-roles remove"`,
+			`invented sub in rust: "ignore-channels add"`,
+			`invented sub in rust: "ignore-channels clear"`,
+			`invented sub in rust: "ignore-channels list"`,
+			`invented sub in rust: "ignore-channels remove"`
+		],
+		"bare TS leaves vs Rust !leg group expansion (matcher alias artifact)",
+		"HybridCommands/antispam/!manage.ts,!bypass-roles.ts,!ignore-channels.ts"
+	),
+	// ghost-list: Rust-side prefix-only reader with no TS slash home.
+	...exemptNotes(
+		"join-ghostping",
+		[`invented sub in rust: "ghost-list"`],
+		"Rust-only prefix reader, no TS slash home",
+		"rust/src/commands/guildconfig/join_ghostping.rs:10; mod.rs PREFIX_ONLY_RUST_READERS"
+	),
+	{
+		command: "legacy",
+		kind: "command",
+		note: "",
+		reason: "Rust-only prefix organizer; TS has no legacy command",
+		ref: "rust/src/commands/legacy/legacy.rs (prefix only); no TS name:legacy"
+	},
+	// protect: TS ships both protect + allowlist; Rust merges the
+	// allowlist legs under protect with the allow- prefix (mod.rs frozen).
+	...exemptNotes(
+		"protect",
+		[
+			`invented sub in rust: "allow-add"`,
+			`invented sub in rust: "allow-remove"`,
+			`invented sub in rust: "allow-show"`
+		],
+		"allowlist legs merged under protect (mod.rs frozen)",
+		"rust/src/commands/protection/protect.rs:297-306; allowlist/allowlist.ts"
+	),
+	{
+		command: "schedule",
+		kind: "command",
+		note: "",
+		reason: "TS option-less interactive root; Rust deliberate slash surface",
+		ref: "HybridCommands/schedule/schedule.ts (no options); rust schedule.rs/panel.rs"
+	},
+	// confession list: ADOPT Rust-only count-only mod tool (read-only check).
+	...exemptNotes(
+		"confession",
+		[`invented sub in rust: "list"`],
+		"ADOPT Rust-only count-only mod tool",
+		"rust/src/commands/confession/list.rs:28"
+	),
+	// tag: kept single-role toggle legs; the multi-select panels are
+	// intentionally unported.
+	...exemptNotes(
+		"tag",
+		[
+			`invented param in rust: "wlroles-create" param "role"`,
+			`invented param in rust: "wlroles-use" param "role"`
+		],
+		"kept single-role toggle; multi-select panel intentionally unported",
+		"rust/src/commands/tag/wlroles_create.rs:12-14; wlroles_use.rs"
+	),
+	// mod: page is a deliberate additive pagination extra (no TS counterpart).
+	...exemptNotes(
+		"mod",
+		[
+			`invented param in rust: "banlist" param "page"`,
+			`invented param in rust: "mutelist" param "page"`,
+			`invented param in rust: "warnlist" param "page"`
+		],
+		"deliberate additive pagination extra",
+		"rust/src/commands/moderation/banlist.rs:5-9"
+	),
+	// honeypot: TS config is a bare leaf with an interactive panel
+	// (!config.ts selects+buttons); Rust exposes the same five panel
+	// fields as slash params.
+	...exemptNotes(
+		"honeypot",
+		[
+			`invented param in rust: "config" param "action"`,
+			`invented param in rust: "config" param "channel"`,
+			`invented param in rust: "config" param "logs_channel"`,
+			`invented param in rust: "config" param "message"`,
+			`invented param in rust: "config" param "power"`
+		],
+		"TS interactive panel fields exposed as slash params",
+		"rust/src/commands/honeypot/config.rs:892-903; SlashCommands/honeypot/!config.ts"
+	),
+	// music trackinfo title: optional search param mirroring the TS leg read.
+	...exemptNotes(
+		"music",
+		[`invented param in rust: "trackinfo" param "title"`],
+		"optional search param mirroring the TS leg read",
+		"rust/src/commands/music/trackinfo.rs:15-17; HybridCommands/music/!trackinfo.ts:56"
+	)
+];
+
+function exemptionFor(command: string, note: string): Exemption | undefined {
+	return EXEMPT.find(
+		(e) =>
+			e.command === command &&
+			(e.kind === "command" || note.includes(e.note))
+	);
+}
+
 const { registry: tsReg, warnings } = await loadTsRegistry();
 const { registry: rustReg, leafIndex: rustLeafIndex } = loadRustRegistry();
 const tsLeafIndex = buildTsLeafIndex(tsReg);
@@ -297,8 +450,26 @@ for (const w of warnings) out(`WARNING ${w}`);
 const names = [...new Set([...tsReg.keys(), ...rustReg.keys()])].sort();
 let matched = 0;
 let divergent = 0;
+let exempt = 0;
 let tsOnly = 0;
 let rustOnly = 0;
+
+function emitNotes(name: string, notes: string[]): void {
+	if (notes.length === 0) {
+		matched++;
+		out(`MATCH ${name}`);
+		return;
+	}
+	const kept = notes.filter((n) => !exemptionFor(name, n));
+	if (kept.length === 0) {
+		exempt++;
+		out(`EXEMPT ${name}: ${exemptionFor(name, notes[0])!.reason}`);
+		return;
+	}
+	divergent++;
+	out(`DIVERGENT ${name}:`);
+	for (const note of kept) out(`  - ${note}`);
+}
 
 for (const name of names) {
 	const ts = tsReg.get(name);
@@ -313,11 +484,15 @@ for (const name of names) {
 			out(`MATCH ${name} (ts leaf ${owner})`);
 			continue;
 		}
+		const note = `only in rust registry (category ${rust!.category})`;
+		if (exemptionFor(name, note)) {
+			exempt++;
+			out(`EXEMPT ${name}: ${exemptionFor(name, note)!.reason}`);
+			continue;
+		}
 		rustOnly++;
 		divergent++;
-		out(
-			`DIVERGENT ${name}: only in rust registry (category ${rust!.category})`
-		);
+		out(`DIVERGENT ${name}: ${note}`);
 		continue;
 	}
 	if (!rust) {
@@ -330,23 +505,21 @@ for (const name of names) {
 			out(`MATCH ${name} (rust leaf ${qualified})`);
 			continue;
 		}
+		const note = `only in TS sources (category ${ts.category})`;
+		if (exemptionFor(name, note)) {
+			exempt++;
+			out(`EXEMPT ${name}: ${exemptionFor(name, note)!.reason}`);
+			continue;
+		}
 		tsOnly++;
 		divergent++;
-		out(`DIVERGENT ${name}: only in TS sources (category ${ts.category})`);
+		out(`DIVERGENT ${name}: ${note}`);
 		continue;
 	}
-	const notes = compareLeaves(ts.leaves, rust.leaves);
-	if (notes.length === 0) {
-		matched++;
-		out(`MATCH ${name}`);
-	} else {
-		divergent++;
-		out(`DIVERGENT ${name}:`);
-		for (const note of notes) out(`  - ${note}`);
-	}
+	emitNotes(name, compareLeaves(ts.leaves, rust.leaves));
 }
 
 out(
-	`summary: total=${names.length} match=${matched} divergent=${divergent} ts_only=${tsOnly} rust_only=${rustOnly} warnings=${warnings.length}`
+	`summary: total=${names.length} match=${matched} divergent=${divergent} exempt=${exempt} ts_only=${tsOnly} rust_only=${rustOnly} warnings=${warnings.length}`
 );
 process.exit(divergent > 0 || warnings.length > 0 ? 1 : 0);

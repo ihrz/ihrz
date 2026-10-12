@@ -2,21 +2,24 @@ use super::*;
 
 use super::{
     joindm::gc_joindm, joinrole::gc_joinrole, welcomer::gc_wc_channel, welcomer::gc_wc_components,
-    welcomer::gc_wc_embed, welcomer::gc_wc_panel, welcomer::gc_wc_text,
+    welcomer::gc_wc_embed, welcomer::gc_wc_panel, welcomer::gc_wc_text, welcomer::gc_welcomer,
 };
 
 /// Set someting/behaviours into this guild!
 // Mirrors the TS `guildconfig` SlashCommand `set` SubcommandGroup
-// (`guildconfig.ts`: `set welcomer`; `someting` typo kept verbatim).
-// The `wc_*` leaves plus `joindm`/`joinrole` are the Rust split of
-// that welcomer surface (TS homes are the `welcomerPanel` buttons /
-// prefix flows, so they have no standalone slash home).
+// (`guildconfig.ts`: `set welcomer` — no options, Administrator;
+// `someting` typo kept verbatim). `gc_welcomer` is that TS-exact
+// leaf (delegates to the `wc-panel` summary); the `wc_*` leaves plus
+// `joindm`/`joinrole` are the Rust split of that welcomer surface
+// (TS homes are the `welcomerPanel` buttons / prefix flows, so they
+// have no standalone slash home).
 #[poise::command(
     slash_command,
     prefix_command,
     category = "guildconfig",
     rename = "set",
     subcommands(
+        "gc_welcomer",
         "gc_wc_channel",
         "gc_wc_embed",
         "gc_wc_text",

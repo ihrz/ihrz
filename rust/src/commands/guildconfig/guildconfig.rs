@@ -9,8 +9,7 @@ use super::{block::gc_block, bot::gc_bot, config::gc_config, set::gc_set, setup:
 // (show, restore, save).
 // `perm` stays nested here (NOT TS-exact: TS registers `perm.ts` as its
 // own top-level command) because the frozen `commands/mod.rs` registry
-// tests pin its subtree (`perm-change`, `perm-delete-all`,
-// `perm-roles-edit` option shapes). Re-homing `perm` top-level needs a
+// tests pin its subtree (`command`, `edit-roles` option shapes). Re-homing `perm` top-level needs a
 // `commands/mod.rs::all()` edit, owned outside this file. Same for
 // `join-ghostping` / `autologs` (TS top-level commands): removed from
 // this parent, awaiting top-level registration in `commands/mod.rs`.
