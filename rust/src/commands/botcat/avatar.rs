@@ -102,16 +102,12 @@ pub async fn custom_avatar(
         }
         return Ok(());
     }
-    let Some(avatar) = avatar else {
-        let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-        ctx.say(
-            crate::lang::get(&code, "msg_attach_an_image_or_use_reset")
-                .unwrap_or_else(|| "Attach an image, or use reset.".to_string()),
-        )
-        .await?;
-        return Ok(());
-    };
-    if !crate::funcs::is_valid_image_type(avatar.content_type.as_deref()) {
+    // TS `!avatar.ts` falls through both "no attachment" and "not an
+    // image" to the same `guildconfig_setbot_footeravatar_incorect`
+    // reply (like banner.rs).
+    let Some(avatar) =
+        avatar.filter(|a| crate::funcs::is_valid_image_type(a.content_type.as_deref()))
+    else {
         let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
         ctx.say(
             crate::lang::get(&code, "guildconfig_setbot_footeravatar_incorect").unwrap_or_else(
@@ -123,7 +119,7 @@ pub async fn custom_avatar(
         )
         .await?;
         return Ok(());
-    }
+    };
     let Some(bytes) = download_bytes(&avatar.url).await else {
         let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
         ctx.say(

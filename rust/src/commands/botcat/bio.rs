@@ -94,19 +94,7 @@ pub async fn custom_bio(
         .await?;
         return Ok(());
     };
-    let raw = bio.unwrap_or_default();
-    if !action.trim().eq_ignore_ascii_case("reset") && bio_too_long(&raw) {
-        let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-        ctx.say(
-            crate::lang::get(&code, "guildconfig_setbot_footername_footer_too_long_msg")
-                .unwrap_or_else(|| {
-                    "The bot footer is too long, it will be too ugly to display.".to_string()
-                }),
-        )
-        .await?;
-        return Ok(());
-    }
-    let final_bio = if action.trim().eq_ignore_ascii_case("reset") {
+    if action.trim().eq_ignore_ascii_case("reset") {
         // Reset restores the persisted default (TS `metasTable`
         // `BOT.user.bio`, else the bot username) — not an empty bio.
         let meta = crate::db::tbl_get(&ctx.data().pool, crate::monitor::META_SCOPE, "BOT").await;
@@ -127,9 +115,30 @@ pub async fn custom_bio(
         )
         .await?;
         return Ok(());
-    } else {
-        sanitize_bio(&raw)
+    }
+    // TS `!bio.ts`: `else if (desc)` — a set with no description replies
+    // the not-found message instead of storing an empty bio.
+    let Some(raw) = bio.filter(|b| !b.is_empty()) else {
+        let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+        ctx.say(
+            crate::lang::get(&code, "guildconfig_setbot_footername_not_found")
+                .unwrap_or_else(|| "The footer name is not found. Please try again!".to_string()),
+        )
+        .await?;
+        return Ok(());
     };
+    if bio_too_long(&raw) {
+        let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+        ctx.say(
+            crate::lang::get(&code, "guildconfig_setbot_footername_footer_too_long_msg")
+                .unwrap_or_else(|| {
+                    "The bot footer is too long, it will be too ugly to display.".to_string()
+                }),
+        )
+        .await?;
+        return Ok(());
+    }
+    let final_bio = sanitize_bio(&raw);
     if let Some(token) = crate::config::bot_token() {
         patch_guild_me(
             &token,

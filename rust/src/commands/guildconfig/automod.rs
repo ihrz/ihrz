@@ -403,7 +403,11 @@ macro_rules! keyword_command {
         $logs_desc:literal,
         $logs_ja:literal,
         $logs_ru:literal,
-        $logs_es:literal
+        $logs_es:literal,
+        $on_key:literal,
+        $on_fb:literal,
+        $off_key:literal,
+        $off_fb:literal
     ) => {
 #[doc = $desc]
         #[poise::command(
@@ -469,18 +473,31 @@ macro_rules! keyword_command {
                     crate::db::tbl_set(pool, &gid, "GUILD.GUILD_CONFIG.antipub", "off").await?;
                 }
             }
-            let state = if enabled { "on" } else { "off" };
-            ctx.say(
-                crate::commands::lang_for(
-                    &ctx,
-                    "msg_automod_toggled",
-                    &format!("Automod {} {state}.", $kind),
+            // Reply mirrors the TS per-kind on/off keys
+            // (`automod_block_*_command_on/off`): user mention plus the
+            // logs-channel mention (or `None`), like
+            // `logs_channel?.toString() || "None"`.
+            let author_mention = ctx.author().to_string();
+            let channel_label = logs_channel
+                .as_ref()
+                .map(|c| format!("<#{}>", c.id.get()))
+                .unwrap_or_else(|| "None".to_string());
+            if enabled {
+                ctx.say(
+                    crate::commands::lang_for(&ctx, $on_key, $on_fb)
+                        .await
+                        .replace("${interaction.user}", &author_mention)
+                        .replace("${logs_channel}", &channel_label),
                 )
-                .await
-                .replace("{kind}", $kind)
-                .replace("{state}", state),
-            )
-            .await?;
+                .await?;
+            } else {
+                ctx.say(
+                    crate::commands::lang_for(&ctx, $off_key, $off_fb)
+                        .await
+                        .replace("${interaction.user}", &author_mention),
+                )
+                .await?;
+            }
             Ok(())
         }
     };
@@ -553,7 +570,11 @@ keyword_command!(
     "The channel you want logs when user break the rules!",
     "ユーザーがルールを破った時のログを送信するチャンネル！",
     "Канал для логов при нарушении правил!",
-    "El canal donde quieres los registros cuando el usuario rompe las reglas!"
+    "El canal donde quieres los registros cuando el usuario rompe las reglas!",
+    "automod_block_link_command_on",
+    "${interaction.user}, you have set the `Pub AutoMod Rule` to **true**.\nNow users can't send links in their messages.\nAutoMod is now __sending logs__ in ${logs_channel}.\nAutoMod x iHorizon protects your server!",
+    "automod_block_link_command_off",
+    "${interaction.user}, you have set the `Pub AutoMod Rule` to **false**.\nNow users can send links in their messages.\nAutoMod x iHorizon has been disabled on your server!"
 );
 
 /// Block the spam message in this server!
@@ -623,18 +644,35 @@ pub async fn gc_automod_spam(
         if enabled { "1" } else { "0" },
     )
     .await?;
-    let state = if enabled { "on" } else { "off" };
-    ctx.say(
-        crate::commands::lang_for(
-            &ctx,
-            "msg_automod_toggled",
-            &format!("Automod spam {state}."),
+    let author_mention = ctx.author().to_string();
+    let channel_label = logs_channel
+        .as_ref()
+        .map(|c| format!("<#{}>", c.id.get()))
+        .unwrap_or_else(|| "None".to_string());
+    if enabled {
+        ctx.say(
+            crate::commands::lang_for(
+                &ctx,
+                "automod_block_spam_command_on",
+                "${interaction.user}, you have set the `Spam AutoMod Rule` to **true**.\nNow users can't spam anymore.\nAutoMod is now __sending logs__ in ${logs_channel}.\nAutoMod x iHorizon protects your server!",
+            )
+            .await
+            .replace("${interaction.user}", &author_mention)
+            .replace("${logs_channel}", &channel_label),
         )
-        .await
-        .replace("{kind}", "spam")
-        .replace("{state}", state),
-    )
-    .await?;
+        .await?;
+    } else {
+        ctx.say(
+            crate::commands::lang_for(
+                &ctx,
+                "automod_block_spam_command_off",
+                "${interaction.user}, you have set the `Spam AutoMod Rule` to **false**.\nNow users can spam.\nAutoMod x iHorizon has been disabled on your server!",
+            )
+            .await
+            .replace("${interaction.user}", &author_mention),
+        )
+        .await?;
+    }
     Ok(())
 }
 
@@ -736,18 +774,36 @@ pub async fn gc_automod_mass(
         if enabled { "1" } else { "0" },
     )
     .await?;
-    let state = if enabled { "on" } else { "off" };
-    ctx.say(
-        crate::commands::lang_for(
-            &ctx,
-            "msg_automod_toggled",
-            &format!("Automod mass-mention {state}."),
+    let author_mention = ctx.author().to_string();
+    let channel_label = logs_channel
+        .as_ref()
+        .map(|c| format!("<#{}>", c.id.get()))
+        .unwrap_or_else(|| "None".to_string());
+    if enabled {
+        ctx.say(
+            crate::commands::lang_for(
+                &ctx,
+                "automod_block_massmention_command_on",
+                "${interaction.user}, you have set the `Mass-Mention AutoMod Rule` to **true**.\nNow users can't send more than **${max_mention}** mention(s) in their messages.\nAutoMod __sending logs__ in ${logs_channel}.\nAutoMod x iHorizon protects your server!",
+            )
+            .await
+            .replace("${interaction.user}", &author_mention)
+            .replace("${logs_channel}", &channel_label)
+            .replace("${max_mention}", &limit.to_string()),
         )
-        .await
-        .replace("{kind}", "mass-mention")
-        .replace("{state}", state),
-    )
-    .await?;
+        .await?;
+    } else {
+        ctx.say(
+            crate::commands::lang_for(
+                &ctx,
+                "automod_block_massmention_command_off",
+                "${interaction.user}, you have set the `Mass-Mention AutoMod Rule` to **false**.\nNow users can send mentions in their messages.\nAutoMod x iHorizon has been disabled on your server!",
+            )
+            .await
+            .replace("${interaction.user}", &author_mention),
+        )
+        .await?;
+    }
     Ok(())
 }
 
@@ -763,7 +819,11 @@ keyword_command!(
     "The channel you want logs when user break the rules!",
     "ユーザーがルールを破った時のログを送信するチャンネル！",
     "Канал для логов при нарушении правил!",
-    "El canal donde quieres los registros cuando el usuario rompe las reglas!"
+    "El canal donde quieres los registros cuando el usuario rompe las reglas!",
+    "automod_block_pub_command_on",
+    "${interaction.user}, you have set the `Pub AutoMod Rule` to **true**.\nNow users can't send server invites in their messages.\nAutoMod is now __sending logs__ in ${logs_channel}.\nAutoMod x iHorizon protects your server!",
+    "automod_block_pub_command_off",
+    "${interaction.user}, you have set the `Pub AutoMod Rule` to **false**.\nNow users can send server invites in their messages.\nAutoMod x iHorizon has been disabled on your server!"
 );
 
 keyword_command!(
@@ -778,7 +838,11 @@ keyword_command!(
     "The channel you want logs when user break the rules!",
     "ユーザーがルールを破った時のログを送信するチャンネル！",
     "Канал для логов при нарушении правил!",
-    "El canal donde quieres los registros cuando el usuario rompe las reglas!"
+    "El canal donde quieres los registros cuando el usuario rompe las reglas!",
+    "automod_block_telegram_command_on",
+    "${interaction.user}, you have set the `Telegram AutoMod Rule` to **true**.\nNow users can't send Telegram-related links in their messages.\nAutoMod is now __sending logs__ in ${logs_channel}.\nAutoMod x iHorizon protects your server!",
+    "automod_block_telegram_command_off",
+    "${interaction.user}, you have set the `Telegram AutoMod Rule` to **false**.\nNow users can send Telegram-related links in their messages.\nAutoMod x iHorizon has been disabled on your server!"
 );
 
 #[cfg(test)]

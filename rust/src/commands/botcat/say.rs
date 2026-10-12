@@ -39,6 +39,7 @@ pub async fn say(
     #[description_localized("ja", "ボットに何を言わせたいですか！")]
     #[description_localized("ru", "Что вы хотите, чтобы бот сказал!")]
     #[description_localized("es-ES", "Que quieres que el bot diga!")]
+    #[rest]
     content: String,
 ) -> Result<(), anyhow::Error> {
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;

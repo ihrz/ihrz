@@ -387,13 +387,26 @@ pub async fn staff_exempt_fetched(
     staff_exempt(effective_staff_perms(direct, &role_perms))
 }
 
-/// Truncate a log field. Mirrors truncate() (1024 + ...).
+/// Truncate a log field. Mirrors truncate() (1024 + ...), counting UTF-16
+/// code units like JS `value.length`/`slice` so non-BMP chars (one
+/// surrogate pair, e.g. an emoji) cost 2. The cut stays on a char
+/// boundary — Rust strings cannot hold the lone surrogates a JS
+/// split-pair would produce.
 pub fn truncate_field(s: &str) -> String {
     const MAX: usize = 1024;
-    if s.len() <= MAX {
+    if s.encode_utf16().count() <= MAX {
         return s.to_string();
     }
-    format!("{}...", &s[..MAX - 3])
+    let mut units = 0usize;
+    let mut end = 0usize;
+    for (i, c) in s.char_indices() {
+        units += c.len_utf16();
+        if units > MAX - 3 {
+            break;
+        }
+        end = i + c.len_utf8();
+    }
+    format!("{}...", &s[..end])
 }
 
 /// Next per-key trap trigger count. Mirrors the nextTriggerCount
@@ -864,6 +877,27 @@ mod tests {
         let out = truncate_field(&long);
         assert_eq!(out.len(), 1024);
         assert!(out.ends_with("..."));
+    }
+
+    #[test]
+    fn truncate_field_counts_utf16_units_like_js_and_never_panics() {
+        // Non-BMP chars cost 2 UTF-16 units each (one surrogate pair):
+        // 510 emoji (1020 units) + "..." stay on a char boundary where JS
+        // would emit a lone surrogate to reach 1024.
+        let emoji = "😀".repeat(2000);
+        let capped = truncate_field(&emoji);
+        assert_eq!(capped.chars().count(), 513); // 510 emoji + "..."
+        assert_eq!(capped.encode_utf16().count(), 1023);
+        assert!(capped.ends_with("..."));
+        // BMP text under the unit budget passes through untouched even
+        // when its byte length exceeds 1024.
+        let bmp = "é".repeat(600);
+        assert_eq!(truncate_field(&bmp), bmp);
+        // Mixed content cutting mid-emoji stays on a char boundary.
+        let mixed = format!("{}{}", "a".repeat(1020), "😀".repeat(10));
+        let cut = truncate_field(&mixed);
+        assert!(cut.ends_with("..."));
+        assert!(cut.encode_utf16().count() <= 1024);
     }
 
     #[test]

@@ -247,19 +247,9 @@ pub async fn notifier_message(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
                 break;
             };
             let response = crate::modal_helper::text_value(&submit, NOTIFY_INPUT_ID);
-            if response.trim().chars().count() < 2 {
-                let _ = submit
-                    .create_response(
-                        ctx.http(),
-                        serenity::CreateInteractionResponse::Message(
-                            serenity::CreateInteractionResponseMessage::new()
-                                .content("Message too short: the notify template needs at least 2 characters.")
-                                .ephemeral(true),
-                        ),
-                    )
-                    .await;
-                continue;
-            }
+            // No extra length gate here: the modal itself enforces
+            // 2..1010 chars (`!message.ts:137-138`), and TS saves the
+            // modal value verbatim.
             save_notifier_string(&ctx.data().pool, &gid, "NOTIFIER.message", &response).await?;
             let _ = submit
                 .create_response(

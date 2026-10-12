@@ -882,7 +882,8 @@ pub async fn pfps_guild_configs(
         if crate::commands::pfps::load_pfps_string(pool, &gid, "PFPS.disable")
             .await
             .as_deref()
-            == Some("1")
+            // Rust writes "1"; legacy TS rows store boolean true ("true").
+            .is_some_and(|v| v == "1" || v == "true")
         {
             disabled.insert(gid);
         }

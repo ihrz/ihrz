@@ -17,7 +17,10 @@ use crate::bot::Ctx;
 // nested setprefix leaf, whose shared run it delegates to.
 pub async fn prefix_top(
     ctx: Ctx<'_>,
-    #[description = "New prefix (max 4 chars) or 'mention' to revert"] prefix: String,
+    #[description = "New prefix (max 4 chars) or 'mention' to revert"] prefix: Option<String>,
 ) -> Result<(), anyhow::Error> {
-    crate::commands::guildconfig::prefix::run_prefix_change(ctx, prefix).await
+    // TS `!prefix.ts` message path reads `string(args, 0)` (undefined
+    // with no args) into the `change` branch, which replies the
+    // specify-prefix message — mirror that instead of a poise arg error.
+    crate::commands::guildconfig::prefix::run_prefix_change(ctx, prefix.unwrap_or_default()).await
 }

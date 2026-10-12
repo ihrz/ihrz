@@ -1750,6 +1750,32 @@ async fn handle_banner_prop(
     Ok(())
 }
 
+/// Lang keys + en-US fallbacks for the dangerous-permission names, in
+/// DANGEROUS_PERMISSION_BITS order. Mirrors getDangerousPermissions in
+/// src/core/functions/method.ts (the economy !add.ts port uses this
+/// same set).
+pub const DANGEROUS_PERM_KEYS: [(&str, &str); 10] = [
+    ("setjoinroles_var_perm_admin", "Administrator"),
+    ("setjoinroles_var_perm_manage_guild", "Manage Server"),
+    ("setjoinroles_var_perm_manage_role", "Manage Roles"),
+    (
+        "setjoinroles_var_perm_use_mention",
+        "Use @everyone @here and ping roles",
+    ),
+    ("setjoinroles_var_perm_ban_members", "Ban Members"),
+    ("setjoinroles_var_perm_kick_members", "Kick Members"),
+    ("setjoinroles_var_perm_manage_webhooks", "Manage webhooks"),
+    ("setjoinroles_var_perm_manage_channels", "Manage channels"),
+    (
+        "setjoinroles_var_perm_manage_expression",
+        "Manage emojis, stickers and soundboard",
+    ),
+    (
+        "setjoinroles_var_perm_view_monetization_analytics",
+        "View creator monetization and analytics",
+    ),
+];
+
 /// Role picker: ManageRoles gate, dangerous-perm confirm, too-high warn.
 /// Mirrors handleRolesPick + askDangerousConfirm + saveRoles.
 async fn handle_roles_pick(
@@ -1780,19 +1806,23 @@ async fn handle_roles_pick(
         ephemeral(ctx, comp, t(lang_code, "setjoinroles_var_perm_issue")).await;
         return Ok(());
     }
-    let perm_names = [
-        "setjoinroles_var_perm_administrator",
-        "setjoinroles_var_perm_manage_guild",
-        "setjoinroles_var_perm_manage_roles",
-        "setjoinroles_var_perm_mention_everyone",
-        "setjoinroles_var_perm_ban_members",
-        "setjoinroles_var_perm_kick_members",
-        "setjoinroles_var_perm_manage_webhooks",
-        "setjoinroles_var_perm_manage_channels",
-        "setjoinroles_var_perm_manage_expression",
-        "setjoinroles_var_perm_view_monetization_analytics",
-    ];
-    let mut dangerous: Vec<String> = vec![];
+    // Key set mirrors getDangerousPermissions in
+    // src/core/functions/method.ts (same order as
+    // DANGEROUS_PERMISSION_BITS); the economy !add.ts port uses this
+    // same set. Fallbacks mirror en-US.yml.
+    let mut owned = Vec::with_capacity(DANGEROUS_PERM_KEYS.len());
+    for (key, fallback) in DANGEROUS_PERM_KEYS {
+        owned.push(crate::lang::get(lang_code, key).unwrap_or_else(|| fallback.to_string()));
+    }
+    let arr: [&str; 10] = owned
+        .iter()
+        .map(|s| s.as_str())
+        .collect::<Vec<_>>()
+        .try_into()
+        .unwrap_or(["?"; 10]);
+    // Per-role dangerous entries, mirroring askDangerousConfirm's
+    // addFields (`name: @role (id)`, value: backticked perm names).
+    let mut dangerous: Vec<(String, Vec<String>)> = vec![];
     for rid in &picked {
         let Ok(id) = rid.parse::<u64>() else {
             continue;
@@ -1800,21 +1830,9 @@ async fn handle_roles_pick(
         let Some(role) = guild.roles.get(&serenity::RoleId::new(id)) else {
             continue;
         };
-        let owned: Vec<String> = perm_names.iter().map(|k| t(lang_code, k)).collect();
-        let arr: [&str; 10] = [
-            owned[0].as_str(),
-            owned[1].as_str(),
-            owned[2].as_str(),
-            owned[3].as_str(),
-            owned[4].as_str(),
-            owned[5].as_str(),
-            owned[6].as_str(),
-            owned[7].as_str(),
-            owned[8].as_str(),
-            owned[9].as_str(),
-        ];
-        if !crate::funcs::dangerous_role_perms(role.permissions.bits(), arr).is_empty() {
-            dangerous.push(format!("@{} ({})", role.name, role.id.get()));
+        let held = crate::funcs::dangerous_role_perms(role.permissions.bits(), arr);
+        if !held.is_empty() {
+            dangerous.push((format!("@{} ({})", role.name, role.id.get()), held));
         }
     }
     if !dangerous.is_empty() {
@@ -1825,11 +1843,18 @@ async fn handle_roles_pick(
             Some(serde_json::json!(picked)),
         );
         crate::commands::guildconfig::save_guild_config(pool, gid, &cfg).await?;
-        let embed = serenity::CreateEmbed::default()
+        let mut embed = serenity::CreateEmbed::default()
             .title(t(lang_code, "setjoinroles_warn_title"))
             .description(t(lang_code, "setjoinroles_warn_dangerous_perm"))
-            .field("roles", dangerous.join("\n"), false)
             .colour(PANEL_ACCENT);
+        for (name, perms) in &dangerous {
+            let value = perms
+                .iter()
+                .map(|p| format!("`{p}`"))
+                .collect::<Vec<_>>()
+                .join(", ");
+            embed = embed.field(name.clone(), value, false);
+        }
         let row = serenity::CreateActionRow::Buttons(vec![
             button(
                 "welcomer-dangerous-yes",
@@ -1886,23 +1911,32 @@ async fn save_roles(
             .replace("${interaction.user.id}", &comp.user.id.get().to_string()),
     )
     .await;
-    // Too-high warn (roles above the bot's top role).
-    let mut too_high: Vec<String> = vec![];
+    // Too-high warn (roles above the bot's top role). Mirrors
+    // saveRoles' addFields (`name: @role (id)`, value: role mention +
+    // positions vs the bot).
+    let mut too_high: Vec<(String, String, u16)> = vec![];
+    let mut bot_top: u16 = 0;
+    let mut bot_mention = String::new();
     if let Ok(guild) = guild_id.to_partial_guild(&ctx.http).await {
         let bot_id = ctx.cache.current_user().id;
         if let Ok(bot) = guild_id.member(&ctx.http, bot_id).await {
-            let bot_top = bot
+            bot_top = bot
                 .roles
                 .iter()
                 .filter_map(|r| guild.roles.get(r))
                 .map(|r| r.position)
                 .max()
                 .unwrap_or(0);
+            bot_mention = format!("<@{}>", bot.user.id.get());
             for rid in picked {
                 if let Ok(id) = rid.parse::<u64>() {
                     if let Some(role) = guild.roles.get(&serenity::RoleId::new(id)) {
                         if bot_top <= role.position {
-                            too_high.push(format!("<@&{}>", role.id.get()));
+                            too_high.push((
+                                format!("@{} ({})", role.name, role.id.get()),
+                                role.id.get().to_string(),
+                                role.position,
+                            ));
                         }
                     }
                 }
@@ -1910,11 +1944,17 @@ async fn save_roles(
         }
     }
     if !too_high.is_empty() {
-        let embed = serenity::CreateEmbed::default()
+        let mut embed = serenity::CreateEmbed::default()
             .title(t(lang_code, "setjoinroles_warn_title"))
             .description(t(lang_code, "setjoinroles_too_highter_roles"))
-            .field("roles", too_high.join(", "), false)
             .colour(PANEL_ACCENT);
+        for (name, rid, position) in &too_high {
+            embed = embed.field(
+                name.clone(),
+                format!("<@&{rid}>: `{position}` vs {bot_mention}: `{bot_top}`"),
+                false,
+            );
+        }
         let _ = comp
             .channel_id
             .send_message(&ctx.http, serenity::CreateMessage::new().embed(embed))
@@ -1933,6 +1973,21 @@ mod tests {
         assert_eq!(welcomer_section("join"), Some("join"));
         assert_eq!(welcomer_section("banner"), Some("banner"));
         assert_eq!(welcomer_section("nope"), None);
+    }
+
+    #[test]
+    fn dangerous_perm_keys_resolve() {
+        // Regression guard: the warn embed lists these keys, so a
+        // renamed key must be caught here, not as an empty perm name
+        // in the warning.
+        assert_eq!(
+            DANGEROUS_PERM_KEYS.len(),
+            crate::funcs::DANGEROUS_PERMISSION_BITS.len()
+        );
+        for (key, _) in DANGEROUS_PERM_KEYS {
+            let v = crate::lang::get("en-US", key).unwrap_or_default();
+            assert!(!v.is_empty(), "{key} missing in en-US");
+        }
     }
 
     #[tokio::test]
