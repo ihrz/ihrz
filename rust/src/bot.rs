@@ -275,27 +275,15 @@ fn global_check(
                 }
             }
         }
-        // Fun kill-switch (mirrors GUILD.FUN.states check in commandExecutor).
-        // The config command itself stays available.
-        if ctx.command().category.as_deref() == Some("fun")
-            && name != "config"
-            && !crate::commands::fun::fun_enabled(pool, ctx.guild_id().map(|g| g.get())).await
-        {
-            tracing::warn!(
-                "deny gate=fun user={} command={}",
-                ctx.author().id.get(),
-                ctx.command().qualified_name
-            );
-            crate::cmd_debug::log(
-                "deny",
-                format_args!(
-                    "gate=fun cmd={} elapsed_ms={}",
-                    ctx.command().qualified_name,
-                    crate::cmd_debug::now_ms().saturating_sub(started)
-                ),
-            );
-            return Ok(false);
-        }
+        // No global fun kill-switch: TS has none (commandExecutor.ts
+        // carries no GUILD.FUN.states gate; the check is per-command).
+        // Every gated leaf denies with fun_category_disable from inside
+        // run() on both legs (direct fun_guard, or via the animal_pic /
+        // social_gif helpers), while the ungated leaves (!bubbles,
+        // !captions, !togif, !dice, !gay, !number, !rate, !trans,
+        // !stench, !coinflip, !grosbg) execute like TS. A global gate
+        // here would both reply where TS stays silent-capable and deny
+        // where TS allows.
         if let Some(perms) = crate::commands::guildconfig::load_cmd_perms(
             pool,
             &ctx.guild_id()
@@ -333,6 +321,23 @@ fn global_check(
                 user_level,
                 &perms,
             ) {
+                // TS checkGuildPermissionRequirements: a denied run whose
+                // record has requirements gets the ephemeral
+                // event_permission_wrong reply with the neededPerm detail
+                // (funcs_perms::denied_message), then denies.
+                let perm = crate::funcs_perms::normalize(
+                    perms.users.clone(),
+                    perms.roles.clone(),
+                    perms.level,
+                );
+                if crate::funcs_perms::has_requirements(Some(&perm)) {
+                    let code = crate::db::guild_lang(pool, ctx.guild_id().map(|g| g.get())).await;
+                    let mention = format!("<@{}>", ctx.author().id.get());
+                    let msg = crate::funcs_perms::denied_message(&code, &mention, Some(&perm));
+                    let _ = ctx
+                        .send(poise::CreateReply::default().content(msg).ephemeral(true))
+                        .await;
+                }
                 tracing::warn!(
                     "deny gate=custom-perms user={} command={}",
                     ctx.author().id.get(),
@@ -383,10 +388,21 @@ fn global_check(
         }
         // Blacklist gate after the 1s debounce, mirroring the TS handler
         // order (preExecutionCooldown runs before the blacklistTable read
-        // on both the slash and prefix paths). Denied runs stay silent:
-        // the slash deny embed is queued (needs blacklistPictureInEmbed
-        // Discord I/O inside the check).
+        // on both the slash and prefix paths). The slash leg replies with
+        // the ephemeral :( embed (color #0827F5 + blacklistPictureInEmbed,
+        // slashCommandHandler.ts); the prefix leg (messageCommandHandler.ts)
+        // drops blacklisted users silently. No lang keys: the TS embed
+        // carries no localizable text.
         if crate::db::is_blacklisted(pool, ctx.author().id.get()).await {
+            if !matches!(ctx, poise::Context::Prefix(_)) {
+                let embed = serenity::CreateEmbed::default()
+                    .colour(0x0827F5_u32)
+                    .title(":(")
+                    .image(ctx.data().config.blacklist_picture.clone());
+                let _ = ctx
+                    .send(poise::CreateReply::default().embed(embed).ephemeral(true))
+                    .await;
+            }
             tracing::warn!(
                 "deny gate=blacklist user={} command={}",
                 ctx.author().id.get(),
