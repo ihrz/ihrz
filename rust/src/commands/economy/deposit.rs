@@ -30,6 +30,8 @@ pub async fn eco_deposit(
         .map(|g| g.get().to_string())
         .unwrap_or_default();
     let uid = ctx.author().id.get();
+    // Serialize the read-modify-write (see tx_lock).
+    let _tx = super::tx_lock::guard_user(uid).await;
     let mut a = balance::load_econ_routed(&ctx.data().pool, &gid, uid).await;
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     // Mirrors !deposit.ts: `toDeposit === "all"` takes the wallet, then

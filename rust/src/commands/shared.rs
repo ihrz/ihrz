@@ -55,32 +55,93 @@ pub fn now_ms() -> i64 {
         .unwrap_or(0)
 }
 
-/// Parse a simple duration ("10s", "5m", "2h", "7d") into milliseconds.
-/// Mirrors TS `client.timeCalculator.to_ms(message.content)` for the
-/// single-unit case.
+/// Parse a duration ("10s", "1h30m", "3h 30m", "1.5h", "1,5h", "2w", "1mo", "1y")
+/// into milliseconds. Mirrors TS `client.timeCalculator.to_ms` (ms.ts):
+/// `<number><unit>` pairs are summed, units cover ms/s/m/h/d/w/mo/y plus
+/// the EN/FR long names, and comma decimals are accepted (the antispam
+/// modal does `.replace(",", ".")` before calling `to_ms`).
+/// Unlike TS (which ignores unmatched text and returns 0 for garbage),
+/// this rejects: the whole input must be consumed and the total must be
+/// positive, so "", "abc", "0s", "-5m", "10x" and bare "10" stay `None`.
 pub fn parse_duration_ms(raw: &str) -> Option<i64> {
-    let s = raw.trim().to_ascii_lowercase();
+    let s = raw.trim().to_ascii_lowercase().replace(',', ".");
     if s.is_empty() {
         return None;
     }
-    let (num_part, mult) = if let Some(stripped) = s.strip_suffix("ms") {
-        (stripped, 1_i64)
-    } else if let Some(stripped) = s.strip_suffix('s') {
-        (stripped, 1_000_i64)
-    } else if let Some(stripped) = s.strip_suffix('m') {
-        (stripped, 60_000_i64)
-    } else if let Some(stripped) = s.strip_suffix('h') {
-        (stripped, 3_600_000_i64)
-    } else if let Some(stripped) = s.strip_suffix('d') {
-        (stripped, 86_400_000_i64)
-    } else {
-        (s.as_str(), 1_000_i64)
-    };
-    let n: i64 = num_part.trim().parse().ok()?;
-    if n <= 0 {
+    let b = s.as_bytes();
+    let mut i = 0;
+    let mut total = 0.0_f64;
+    let mut pairs = 0_u32;
+    while i < b.len() {
+        while i < b.len() && b[i].is_ascii_whitespace() {
+            i += 1;
+        }
+        if i >= b.len() {
+            break;
+        }
+        // Number: -? (digits (. digits)? | . digits), mirroring
+        // the TS `(-?\d*\.?\d+)` head of each pair.
+        let start = i;
+        if b[i] == b'-' {
+            i += 1;
+        }
+        let int_start = i;
+        while i < b.len() && b[i].is_ascii_digit() {
+            i += 1;
+        }
+        let int_len = i - int_start;
+        if i < b.len() && b[i] == b'.' {
+            i += 1;
+            let frac_start = i;
+            while i < b.len() && b[i].is_ascii_digit() {
+                i += 1;
+            }
+            if i - frac_start == 0 {
+                return None;
+            }
+        } else if int_len == 0 {
+            return None;
+        }
+        let value: f64 = s[start..i].parse().ok()?;
+        while i < b.len() && b[i].is_ascii_whitespace() {
+            i += 1;
+        }
+        let u_start = i;
+        while i < b.len() && b[i].is_ascii_alphabetic() {
+            i += 1;
+        }
+        if u_start == i {
+            return None;
+        }
+        let mult = duration_unit_ms(&s[u_start..i])?;
+        total += value * (mult as f64);
+        pairs += 1;
+    }
+    if pairs == 0 {
         return None;
     }
-    n.checked_mul(mult)
+    if total <= 0.0 || total.is_nan() {
+        return None;
+    }
+    if total > i64::MAX as f64 {
+        return None;
+    }
+    Some(total.round() as i64)
+}
+
+/// Millisecond multiplier per `to_ms` unit (ms.ts `multipliers` table).
+fn duration_unit_ms(unit: &str) -> Option<i64> {
+    Some(match unit {
+        "ms" | "msec" | "millisecond" | "milliseconds" | "milliseconde" | "millisecondes" => 1,
+        "s" | "sec" | "secs" | "second" | "seconds" | "seconde" | "secondes" => 1_000,
+        "m" | "min" | "mins" | "minute" | "minutes" => 60_000,
+        "h" | "hr" | "hrs" | "hour" | "hours" | "heure" | "heures" => 3_600_000,
+        "d" | "day" | "days" | "j" | "jour" | "jours" => 86_400_000,
+        "w" | "sm" | "week" | "weeks" | "semaine" | "semaines" => 604_800_000,
+        "mo" | "mois" | "month" | "months" => 2_592_000_000,
+        "y" | "yr" | "yrs" | "year" | "years" | "an" | "ans" => 31_557_600_000,
+        _ => return None,
+    })
 }
 
 /// Per-guild bot profile store keys. Mirrors `${guildId}.BOT.botName`
@@ -741,6 +802,46 @@ mod tests {
 
     async fn memory_pool() -> crate::db::Pool {
         crate::db::memory_pool().await
+    }
+
+    #[test]
+    fn parse_duration_ms_to_ms_parity() {
+        // Single units (ms.ts multipliers).
+        assert_eq!(parse_duration_ms("10s"), Some(10_000));
+        assert_eq!(parse_duration_ms("5m"), Some(300_000));
+        assert_eq!(parse_duration_ms("2h"), Some(7_200_000));
+        assert_eq!(parse_duration_ms("7d"), Some(604_800_000));
+        assert_eq!(parse_duration_ms("500ms"), Some(500));
+        assert_eq!(parse_duration_ms("5min"), Some(300_000));
+        assert_eq!(parse_duration_ms("2hours"), Some(7_200_000));
+        assert_eq!(parse_duration_ms("15M"), Some(900_000));
+        // Compound pairs are summed ("3h 30m" task case).
+        assert_eq!(parse_duration_ms("3h 30m"), Some(12_600_000));
+        assert_eq!(parse_duration_ms("1h30m"), Some(5_400_000));
+        assert_eq!(parse_duration_ms("1m30s"), Some(90_000));
+        assert_eq!(parse_duration_ms("1d 2h 3m 4s"), Some(93_784_000));
+        // Decimals, dot and comma (antispam modal comma case).
+        assert_eq!(parse_duration_ms("1.5h"), Some(5_400_000));
+        assert_eq!(parse_duration_ms("1,5h"), Some(5_400_000));
+        assert_eq!(parse_duration_ms("1.5m"), Some(90_000));
+        // Week / month / year units.
+        assert_eq!(parse_duration_ms("1w"), Some(604_800_000));
+        assert_eq!(parse_duration_ms("2weeks"), Some(1_209_600_000));
+        assert_eq!(parse_duration_ms("1mo"), Some(2_592_000_000));
+        assert_eq!(parse_duration_ms("1month"), Some(2_592_000_000));
+        assert_eq!(parse_duration_ms("1y"), Some(31_557_600_000));
+        assert_eq!(parse_duration_ms("1year"), Some(31_557_600_000));
+        assert_eq!(parse_duration_ms("1an"), Some(31_557_600_000));
+        assert_eq!(parse_duration_ms("2jours"), Some(172_800_000));
+        assert_eq!(parse_duration_ms("1semaine"), Some(604_800_000));
+        // Garbage stays rejected (TS returns falsy 0 here).
+        assert_eq!(parse_duration_ms(""), None);
+        assert_eq!(parse_duration_ms("abc"), None);
+        assert_eq!(parse_duration_ms("0s"), None);
+        assert_eq!(parse_duration_ms("-5m"), None);
+        assert_eq!(parse_duration_ms("10x"), None);
+        assert_eq!(parse_duration_ms("10"), None);
+        assert_eq!(parse_duration_ms("1h30"), None);
     }
 
     #[test]

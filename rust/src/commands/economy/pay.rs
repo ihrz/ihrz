@@ -60,6 +60,17 @@ pub async fn eco_pay(
         .unwrap_or_default();
     let from = ctx.author().id.get();
     let to = user.id.get();
+    // Serialize the transfer (see tx_lock): the two loads + two saves
+    // below must not interleave with another transfer touching either
+    // account. Lock order is by id, so opposite-direction transfers
+    // cannot deadlock; a self-transfer reuses one guard.
+    let (first, second) = super::tx_lock::ordered_pair(from, to);
+    let _g1 = super::tx_lock::guard_user(first).await;
+    let _g2 = if second != first {
+        Some(super::tx_lock::guard_user(second).await)
+    } else {
+        None
+    };
     let a = balance::load_econ_routed(&ctx.data().pool, &gid, from).await;
     // TS: `if (amount && member < amount)` — falsy amounts (0) skip the
     // check and flow through to a no-op add/sub + success reply.

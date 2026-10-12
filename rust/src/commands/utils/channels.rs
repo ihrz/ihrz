@@ -135,35 +135,64 @@ async fn hide_all_inner(ctx: &Ctx<'_>, unhide: bool, role_id: u64) -> Result<(),
             .unwrap_or_else(|| "Hiding all channels in progress...".to_string())
     })
     .await?;
-    let channels: Vec<poise::serenity_prelude::ChannelId> = ctx
-        .serenity_context()
-        .cache
-        .guild(guild_id)
-        .map(|g| {
-            g.channels
-                .values()
+    // TS fetches the channel list over HTTP
+    // (`interaction.guild.channels.fetch()`); the guild cache may hold
+    // no channels, which enumerated to 0/0. Always fetch like TS, with
+    // the cache as the fallback. Overwrite reads below use the fetched
+    // objects for the same reason (an empty cache has no overwrites).
+    let channels: Vec<poise::serenity_prelude::GuildChannel> =
+        match guild_id.channels(ctx.http()).await {
+            Ok(map) => map
+                .into_values()
                 .filter(|c| c.kind == poise::serenity_prelude::ChannelType::Text)
-                .map(|c| c.id)
-                .collect()
-        })
-        .unwrap_or_default();
+                .collect(),
+            Err(_) => ctx
+                .serenity_context()
+                .cache
+                .guild(guild_id)
+                .map(|g| {
+                    g.channels
+                        .values()
+                        .filter(|c| c.kind == poise::serenity_prelude::ChannelType::Text)
+                        .cloned()
+                        .collect()
+                })
+                .unwrap_or_default(),
+        };
     let mut done = 0;
     let mut errors = 0;
-    for ch in channels {
+    for channel in &channels {
+        let ch = channel.id;
         // TS checks `manageable` first per channel (unmanageable counts
         // as an error), then the already-in-state skip.
         if !channel_manageable(ctx, guild_id, ch) {
             errors += 1;
             continue;
         }
-        let denied = overwrite_denies_view(ctx, guild_id, ch, role_id).unwrap_or(false);
+        let role_bits = channel
+            .permission_overwrites
+            .iter()
+            .find_map(|o| match o.kind {
+                poise::serenity_prelude::PermissionOverwriteType::Role(id)
+                    if id.get() == role_id =>
+                {
+                    Some((o.allow, o.deny))
+                }
+                _ => None,
+            });
+        let denied = role_bits
+            .map(|(_, deny)| deny.view_channel())
+            .unwrap_or(false);
         if unhide {
             if !denied {
                 continue;
             }
             // TS clears ViewChannel:null: drop VIEW_CHANNEL from both
             // sets, preserving the rest of the overwrite.
-            let (allow, deny) = role_overwrite(ctx, guild_id, ch, role_id);
+            let (allow, deny) = role_bits.unwrap_or((
+                poise::serenity_prelude::Permissions::empty(),
+                poise::serenity_prelude::Permissions::empty(),
+            ));
             let allow = allow.difference(poise::serenity_prelude::Permissions::VIEW_CHANNEL);
             let deny = deny.difference(poise::serenity_prelude::Permissions::VIEW_CHANNEL);
             if ch
@@ -192,7 +221,10 @@ async fn hide_all_inner(ctx: &Ctx<'_>, unhide: bool, role_id: u64) -> Result<(),
             // bit is set, the allow bit cleared, other bits preserved
             // (create_permission replaces the whole overwrite, so merge
             // here instead of writing allow:empty/deny:VIEW only).
-            let (allow, deny) = role_overwrite(ctx, guild_id, ch, role_id);
+            let (allow, deny) = role_bits.unwrap_or((
+                poise::serenity_prelude::Permissions::empty(),
+                poise::serenity_prelude::Permissions::empty(),
+            ));
             let allow = allow.difference(poise::serenity_prelude::Permissions::VIEW_CHANNEL);
             let deny = deny.union(poise::serenity_prelude::Permissions::VIEW_CHANNEL);
             if ch

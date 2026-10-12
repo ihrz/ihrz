@@ -26,6 +26,34 @@ pub(crate) struct InviteSnap {
     inviter_name: String,
 }
 
+/// One live invite fetch, detached-shareable. Single home for the
+/// Discord call behind `fetch_invites_dedup` so the eager (detached)
+/// init and the greeting-gated waiter run exactly one fetch per guild
+/// (losers of the `OnceCell` race wait, like the cached promise in
+/// `fetchInvitesOnce`). None on fetch failure.
+async fn fetch_invite_snaps(
+    http: &std::sync::Arc<serenity::Http>,
+    guild_id: serenity::GuildId,
+) -> Option<Vec<InviteSnap>> {
+    match guild_id.invites(http).await {
+        Ok(live) => Some(
+            live.into_iter()
+                .map(|inv| InviteSnap {
+                    code: inv.code.clone(),
+                    uses: inv.uses,
+                    inviter_id: inv.inviter.as_ref().map(|u| u.id.get()).unwrap_or(0),
+                    inviter_name: inv
+                        .inviter
+                        .as_ref()
+                        .map(|u| u.name.clone())
+                        .unwrap_or_default(),
+                })
+                .collect(),
+        ),
+        Err(_) => None,
+    }
+}
+
 /// In-flight invite-fetch dedup: guild -> shared live snapshot.
 /// Mirrors pendingInviteFetch in Events/guildconfig/joinMessage.ts
 /// (concurrent joins share one fetch; the entry is dropped ~1500ms
@@ -3483,6 +3511,49 @@ pub async fn send_welcomer_message(
     let _ = channel_id.send_message(http, msg).await;
 }
 
+/// Join-message sender. Mirrors joinMessage.ts sendWelcome ->
+/// welcomerMessage.ts: `message` is None when joinTextEnabled is false,
+/// `stored` is the resolveWelcomerEmbed result (None when no
+/// joinEmbedId / no record). With a stored embed it is sent as-is
+/// (plus the text content when enabled); without one the text falls
+/// back to the accent-colored snapshot embed. Banner bytes ride
+/// through `send_welcomer_message` only when a renderer supplies them
+/// (none exists server-side: the joinbannerStates leg stays open).
+#[allow(clippy::result_large_err)]
+pub async fn send_join_message(
+    http: &serenity::Http,
+    channel_id: serenity::ChannelId,
+    user: &serenity::User,
+    content: Option<String>,
+    stored: Option<serenity::CreateEmbed>,
+) -> Result<(), serenity::Error> {
+    // useComponents parity (`embed ? false : componentsEnabled`):
+    // serenity 0.12 has no Components V2, so the send is embed-only
+    // with no extra components row either way.
+    match (content, stored) {
+        (None, None) => Ok(()),
+        (text, Some(embed)) => {
+            let mut msg = serenity::CreateMessage::new().embed(embed);
+            if let Some(t) = text {
+                msg = msg.content(t);
+            }
+            channel_id.send_message(http, msg).await.map(|_| ())
+        }
+        (Some(text), None) => {
+            send_welcomer_message(
+                http,
+                channel_id,
+                user,
+                &text,
+                WELCOME_ACCENT,
+                WELCOME_AVATAR_NAME,
+            )
+            .await;
+            Ok(())
+        }
+    }
+}
+
 /// Leave-message sender. Mirrors leaveMessage.ts sendGoodbye ->
 /// welcomerMessage.ts: `message` is None when leaveTextEnabled is false,
 /// `stored` is the resolveWelcomerEmbed result (None when no
@@ -3819,11 +3890,19 @@ impl Handler {
     /// failure means unattributed (the TS resolveInvite null path);
     /// a failure also drops the map entry at once so the next join
     /// retries instead of reusing the miss.
+    /// The late handle mirrors
+    /// `inviteResultPromise.then(recordStatsOnce)`: the shared fetch is
+    /// driven detached, so a resolve timeout only gates the greeting —
+    /// the caller spawns the late stats increment once the fetch
+    /// settles. Some(cell) is returned only on timeout.
     async fn fetch_invites_dedup(
         &self,
         http: &std::sync::Arc<serenity::Http>,
         guild_id: serenity::GuildId,
-    ) -> Option<Vec<InviteSnap>> {
+    ) -> (
+        Option<Vec<InviteSnap>>,
+        Option<Arc<tokio::sync::OnceCell<Option<Vec<InviteSnap>>>>>,
+    ) {
         const INVITE_RESOLVE_TIMEOUT_MS: u64 = 1200;
         const INVITE_FETCH_DEDUP_KEEP_MS: u64 = 1500;
         let gid = guild_id.get().to_string();
@@ -3853,38 +3932,32 @@ impl Handler {
                     pending.remove(&gid_cleanup);
                 }
             });
+            // Drive the shared fetch detached (mirrors the cached
+            // promise in fetchInvitesOnce): a resolve timeout drops only
+            // the wait below, never the fetch, so the late-stats task
+            // still sees the settlement like `.then(recordStatsOnce)`.
+            // The OnceCell race runs one fetch (losers wait).
+            let cell_init = cell.clone();
+            let http_init = http.clone();
+            tokio::spawn(async move {
+                let _ = cell_init
+                    .get_or_init(|| fetch_invite_snaps(&http_init, guild_id))
+                    .await;
+            });
         }
-        // Outer None = resolve timeout (the entry is left: the fetch may
-        // still settle for other waiters, or the next join retries the
-        // init). Inner None = settled fetch failure (entry dropped at
-        // once, mirroring the rejected promise leaving nothing cached).
+        // Outer None = resolve timeout (the late handle lets the caller
+        // spawn the stats increment on settlement). Inner None = settled
+        // fetch failure (entry dropped at once, mirroring the rejected
+        // promise leaving nothing cached).
         let settled: Option<Option<Vec<InviteSnap>>> = tokio::time::timeout(
             std::time::Duration::from_millis(INVITE_RESOLVE_TIMEOUT_MS),
-            cell.get_or_init(|| async {
-                match guild_id.invites(http).await {
-                    Ok(live) => Some(
-                        live.into_iter()
-                            .map(|inv| InviteSnap {
-                                code: inv.code.clone(),
-                                uses: inv.uses,
-                                inviter_id: inv.inviter.as_ref().map(|u| u.id.get()).unwrap_or(0),
-                                inviter_name: inv
-                                    .inviter
-                                    .as_ref()
-                                    .map(|u| u.name.clone())
-                                    .unwrap_or_default(),
-                            })
-                            .collect(),
-                    ),
-                    Err(_) => None,
-                }
-            }),
+            cell.get_or_init(|| fetch_invite_snaps(http, guild_id)),
         )
         .await
         .ok()
         .cloned();
         match settled {
-            None => None,
+            None => (None, Some(cell)),
             Some(snaps) => {
                 if snaps.is_none() {
                     let mut pending = self.invite_fetch.lock().await;
@@ -3892,9 +3965,81 @@ impl Handler {
                         pending.remove(&gid);
                     }
                 }
-                snaps
+                (snaps, None)
             }
         }
+    }
+
+    /// Diff one live invite snapshot against the cache and record the
+    /// inviter stats for a join. Mirrors resolveInvite + recordStatsOnce
+    /// in Events/guildconfig/joinMessage.ts: the first uses increase
+    /// wins (mirroring the TS `.find`, even inviter-less), stats only
+    /// when the winner carries an inviter, and the whole live list is
+    /// re-cached. Returns the greeting slot for the fast path; the
+    /// late-stats task drops it (TS never re-sends the greeting late).
+    async fn apply_join_invite_stats(
+        &self,
+        gid: &str,
+        new_user_id: u64,
+        live: &[InviteSnap],
+    ) -> Option<(u64, String, String, i64)> {
+        let mut attributed: Option<(u64, String, String, i64)> = None;
+        let mut cache = self.invites.lock().await;
+        let entry = cache.entry(gid.to_string()).or_default();
+        for inv in live {
+            let cached = entry.get(&inv.code).map(|(u, _)| *u).unwrap_or(0);
+            if inv.uses > cached {
+                if inv.inviter_id != 0 {
+                    let inviter_id = inv.inviter_id;
+                    entry.insert(inv.code.clone(), (inv.uses, inviter_id));
+                    // BY shape mirrors joinMessage.ts recordInviterStats
+                    // (`db.set(....INVITES.BY, {inviter, invite})`): the
+                    // TS object form, so either side's leave leg reads
+                    // the inviter and the code. Legacy raw-id rows still
+                    // parse via parse_inviter_by_str.
+                    let stats = crate::commands::invitesmanager::inv::load_invites(
+                        &self.pool, gid, inviter_id,
+                    )
+                    .await;
+                    let next = crate::commands::invitesmanager::inv::InviteStats {
+                        invites: stats.invites + 1,
+                        regular: stats.regular + 1,
+                        bonus: stats.bonus,
+                        leaves: stats.leaves,
+                    };
+                    let _ = crate::commands::invitesmanager::inv::save_invites(
+                        &self.pool, gid, inviter_id, &next,
+                    )
+                    .await;
+                    // Post-increment total rides along for the
+                    // {invitesCount} slot below (TS reads it after the
+                    // add in the same leg).
+                    attributed = Some((
+                        inviter_id,
+                        inv.code.clone(),
+                        inv.inviter_name.clone(),
+                        next.invites,
+                    ));
+                    let _ = crate::db::tbl_set_json(
+                        &self.pool,
+                        gid,
+                        &format!("USER.{new_user_id}.INVITES.BY"),
+                        &serde_json::json!({
+                            "inviter": inviter_id.to_string(),
+                            "invite": inv.code,
+                        }),
+                    )
+                    .await;
+                }
+                break;
+            }
+        }
+        // Refresh cache snapshot (mirrors clientInviteCache in
+        // joinMessage.ts: the whole live list is re-cached).
+        for inv in live {
+            entry.insert(inv.code.clone(), (inv.uses, inv.inviter_id));
+        }
+        attributed
     }
 }
 
@@ -5056,68 +5201,46 @@ impl serenity::EventHandler for Handler {
             .await
             .manage_guild();
         let mut attributed: Option<(u64, String, String, i64)> = None;
-        let live = if join_msg_allowed {
+        let (live, late) = if join_msg_allowed {
             self.fetch_invites_dedup(&ctx.http, new_member.guild_id)
                 .await
         } else {
-            None
+            (None, None)
         };
         if let Some(live) = live {
-            let mut cache = self.invites.lock().await;
-            let entry = cache.entry(gid.clone()).or_default();
-            for inv in &live {
-                let cached = entry.get(&inv.code).map(|(u, _)| *u).unwrap_or(0);
-                if inv.uses > cached {
-                    if inv.inviter_id != 0 {
-                        let inviter_id = inv.inviter_id;
-                        entry.insert(inv.code.clone(), (inv.uses, inviter_id));
-                        // BY shape mirrors joinMessage.ts recordInviterStats
-                        // (`db.set(....INVITES.BY, {inviter, invite})`): the
-                        // TS object form, so either side's leave leg reads
-                        // the inviter and the code. Legacy raw-id rows still
-                        // parse via parse_inviter_by_str.
-                        let stats = crate::commands::invitesmanager::inv::load_invites(
-                            &self.pool, &gid, inviter_id,
-                        )
-                        .await;
-                        let next = crate::commands::invitesmanager::inv::InviteStats {
-                            invites: stats.invites + 1,
-                            regular: stats.regular + 1,
-                            bonus: stats.bonus,
-                            leaves: stats.leaves,
-                        };
-                        let _ = crate::commands::invitesmanager::inv::save_invites(
-                            &self.pool, &gid, inviter_id, &next,
-                        )
-                        .await;
-                        // Post-increment total rides along for the
-                        // {invitesCount} slot below (TS reads it after the
-                        // add in the same leg).
-                        attributed = Some((
-                            inviter_id,
-                            inv.code.clone(),
-                            inv.inviter_name.clone(),
-                            next.invites,
-                        ));
-                        let _ = crate::db::tbl_set_json(
-                            &self.pool,
-                            &gid,
-                            &format!("USER.{}.INVITES.BY", new_member.user.id.get()),
-                            &serde_json::json!({
-                                "inviter": inviter_id.to_string(),
-                                "invite": inv.code,
-                            }),
-                        )
-                        .await;
+            attributed = self
+                .apply_join_invite_stats(&gid, new_member.user.id.get(), &live)
+                .await;
+        } else if let Some(late) = late {
+            // Late-resolve stats (mirrors
+            // `inviteResultPromise.then(recordStatsOnce)` in
+            // joinMessage.ts): the greeting stays unattributed after the
+            // 1200ms timeout, but the detached fetch still settles and
+            // the increment applies then.
+            let handler = self.clone();
+            let gid_late = gid.clone();
+            let new_user_id = new_member.user.id.get();
+            tokio::spawn(async move {
+                // Bounded poll for the detached settlement (mirrors
+                // `inviteResultPromise.then(recordStatsOnce)`): the
+                // Discord HTTP stack bounds the fetch, and the 30s cap
+                // here keeps a hung fetch from parking this task
+                // forever. A settled failure (None) is a no-op, like
+                // recordStatsOnce on a null invite.
+                let mut settled: Option<Option<Vec<InviteSnap>>> = None;
+                let deadline = tokio::time::Instant::now() + std::time::Duration::from_secs(30);
+                while settled.is_none() && tokio::time::Instant::now() < deadline {
+                    settled = late.get().cloned();
+                    if settled.is_none() {
+                        tokio::time::sleep(std::time::Duration::from_millis(100)).await;
                     }
-                    break;
                 }
-            }
-            // Refresh cache snapshot (mirrors clientInviteCache in
-            // joinMessage.ts: the whole live list is re-cached).
-            for inv in &live {
-                entry.insert(inv.code.clone(), (inv.uses, inv.inviter_id));
-            }
+                if let Some(Some(live)) = settled {
+                    let _ = handler
+                        .apply_join_invite_stats(&gid_late, new_user_id, &live)
+                        .await;
+                }
+            });
         }
         // Guild blacklist gate (mirrors blacklistFetcher.ts): the global
         // BLACKLIST.<uid> table carries a reason; DM it, then ban.
@@ -5298,25 +5421,58 @@ impl serenity::EventHandler for Handler {
                     let created_date = chrono::DateTime::from_timestamp(created, 0)
                         .map(|dt| dt.format("%d/%m/%Y").to_string())
                         .unwrap_or_default();
-                    let rendered = render_join_leave_text(
-                        &tpl_owned,
-                        &new_member.user.name,
-                        &new_member.user.mention().to_string(),
-                        count,
-                        &guild_name,
-                        &created_date,
-                        created,
-                        &inv_name,
-                        &inv_mention,
-                        inv_count,
-                    );
-                    send_welcomer_message(
+                    let render_join = |tpl: &str| {
+                        render_join_leave_text(
+                            tpl,
+                            &new_member.user.name,
+                            &new_member.user.mention().to_string(),
+                            count,
+                            &guild_name,
+                            &created_date,
+                            created,
+                            &inv_name,
+                            &inv_mention,
+                            inv_count,
+                        )
+                    };
+                    let rendered = render_join(&tpl_owned);
+                    // joinTextEnabled off skips the text (mirrors
+                    // `message: textEnabled ? msg : null` in sendWelcome).
+                    let join_text_enabled = cfg
+                        .get("joinTextEnabled")
+                        .and_then(|v| v.as_bool())
+                        .unwrap_or(true);
+                    // resolveWelcomerEmbed(joinEmbedId, variables): global
+                    // EMBED.<id> record, embedSource preview-rendered over
+                    // the same mention/inviter slots, like the leave leg.
+                    let stored_embed: Option<serenity::CreateEmbed> = match cfg
+                        .get("joinEmbedId")
+                        .and_then(|c| c.as_str())
+                        .filter(|s| !s.is_empty())
+                    {
+                        Some(embed_id) => crate::commands::embed::embed_builder::load_stored_embed(
+                            &self.pool, embed_id,
+                        )
+                        .await
+                        .and_then(|rec| crate::events::welcomer_embed_source(&rec.to_string()))
+                        .map(|source| {
+                            crate::events::apply_embed_preview(&source, |s| render_join(s))
+                        })
+                        .map(|previewed| {
+                            crate::commands::embed::embed_builder::build_embed(&previewed)
+                        }),
+                        None => None,
+                    };
+                    // Banner leg (joinbannerStates/joinbanner): TS renders
+                    // the welcome cart via html2png/Chromium
+                    // (generateJoinImage); no Rust renderer exists, so no
+                    // banner image is attached here (still open).
+                    let _ = send_join_message(
                         &ctx.http,
                         serenity::ChannelId::new(ch_id),
                         &new_member.user,
-                        &rendered,
-                        WELCOME_ACCENT,
-                        WELCOME_AVATAR_NAME,
+                        join_text_enabled.then(|| rendered.clone()),
+                        stored_embed,
                     )
                     .await;
                 }

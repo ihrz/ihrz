@@ -1169,6 +1169,7 @@ pub mod rob;
 pub mod set_cooldown;
 pub mod set_money;
 pub mod shop;
+pub mod tx_lock;
 pub mod ureset;
 pub mod weekly;
 pub mod withdraw;
