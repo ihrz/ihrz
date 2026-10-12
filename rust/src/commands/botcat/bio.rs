@@ -97,9 +97,17 @@ pub async fn custom_bio(
     if action.trim().eq_ignore_ascii_case("reset") {
         // Reset restores the persisted default (TS `metasTable`
         // `BOT.user.bio`, else the bot username) — not an empty bio.
+        // TS `!bio.ts` replies first, then PATCHes (like the other
+        // custom resets).
         let meta = crate::db::tbl_get(&ctx.data().pool, crate::monitor::META_SCOPE, "BOT").await;
         let username = ctx.serenity_context().cache.current_user().name.clone();
         let restored = default_bio(meta.as_deref(), &username);
+        let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+        ctx.say(
+            crate::lang::get(&code, "custom_desc_reset")
+                .unwrap_or_else(|| "You have decided to reset the bot's description on the server. Embed footers will return to their default state, as well as the bot's description on the server.".to_string()),
+        )
+        .await?;
         if let Some(token) = crate::config::bot_token() {
             patch_guild_me(
                 &token,
@@ -108,12 +116,6 @@ pub async fn custom_bio(
             )
             .await;
         }
-        let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-        ctx.say(
-            crate::lang::get(&code, "custom_desc_reset")
-                .unwrap_or_else(|| "You have decided to reset the bot's description on the server. Embed footers will return to their default state, as well as the bot's description on the server.".to_string()),
-        )
-        .await?;
         return Ok(());
     }
     // TS `!bio.ts`: `else if (desc)` — a set with no description replies

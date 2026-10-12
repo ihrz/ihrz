@@ -83,15 +83,18 @@ fn work_text(template: String, guild_id: &str, channel_id: &str, msg_id: &str) -
 }
 
 /// Rebuild the suggestion embed from the posted one with the staff
-/// response field, the action color and the action title. Mirrors
-/// `new EmbedBuilder(msg.embeds[0].data)` + addFields + setColor +
-/// setTitle in !accept/!deny/!reply.ts.
+/// response field, the action color, the action title and the bot
+/// footer. Mirrors `new EmbedBuilder(msg.embeds[0].data)` + addFields +
+/// setColor + setTitle + setFooter(footerBuilder) in
+/// !accept/!deny/!reply.ts (the old footer is replaced, not kept).
 fn restyle_suggest_embed(
     posted: &serenity::Embed,
     action: &Moderation,
     field_name: String,
     field_value: &str,
     title: String,
+    footer_name: &str,
+    footer_icon: bool,
 ) -> serenity::CreateEmbed {
     let mut out = serenity::CreateEmbed::default()
         .description(posted.description.clone().unwrap_or_default());
@@ -116,17 +119,11 @@ fn restyle_suggest_embed(
         }
         out = out.author(a);
     }
-    if let Some(footer) = &posted.footer {
-        let mut foot = serenity::CreateEmbedFooter::new(footer.text.clone());
-        if let Some(icon) = &footer.icon_url {
-            foot = foot.icon_url(icon.clone());
-        }
-        out = out.footer(foot);
-    }
+    // Old footer dropped: TS replaces it with the bot footer below.
     if let Some(ts) = posted.timestamp {
         out = out.timestamp(ts);
     }
-    out
+    crate::commands::shared::embed_with_footer(out, footer_name, footer_icon)
 }
 
 /// Best-effort thread lock. Mirrors `msg.thread?.setLocked(true)`.
@@ -252,13 +249,24 @@ async fn moderate(
     let title = crate::commands::lang_for(&ctx, &title_tpl_key, &old_title)
         .await
         .replace("${msg.embeds[0].data?.title}", &old_title);
-    let embed = restyle_suggest_embed(&posted, action, field_name, &response, title);
+    // Bot footer + icon, mirroring setFooter(footerBuilder) and the
+    // footerAttachmentBuilder file on the TS `msg.edit`.
+    let (fname, fbytes) = crate::commands::shared::footer_parts(&ctx, &gid).await;
+    let embed = restyle_suggest_embed(
+        &posted,
+        action,
+        field_name,
+        &response,
+        title,
+        &fname,
+        fbytes.is_some(),
+    );
+    let mut edit = serenity::EditMessage::new().embed(embed);
+    if let Some(bytes) = fbytes {
+        edit = edit.new_attachment(serenity::CreateAttachment::bytes(bytes, "footer_icon.png"));
+    }
     if channel
-        .edit_message(
-            ctx.http(),
-            msg.id,
-            serenity::EditMessage::new().embed(embed),
-        )
+        .edit_message(ctx.http(), msg.id, edit)
         .await
         .is_err()
     {
@@ -339,7 +347,7 @@ pub async fn suggest_reply(
     moderate(ctx, &code, &REPLY, reply).await
 }
 
-/// Delete a role for a certain amount of money!
+/// Delete a suggestion (need admin permission)!
 #[poise::command(
     slash_command,
     prefix_command,
@@ -451,7 +459,7 @@ mod tests {
     }
 
     #[test]
-    fn restyle_adds_field_color_and_title() {
+    fn restyle_adds_field_color_title_and_bot_footer() {
         let posted = serenity::Embed::default();
         let embed = restyle_suggest_embed(
             &posted,
@@ -459,23 +467,36 @@ mod tests {
             "Response of Root (Accepting)".to_string(),
             "Ship it",
             "[Accepting] #ABC".to_string(),
+            "iHorizon",
+            false,
         );
         let dbg = format!("{embed:?}");
         assert!(dbg.contains("Ship it"));
         assert!(dbg.contains("Accepting"));
+        assert!(dbg.contains("iHorizon"));
     }
 
     #[test]
-    fn restyle_preserves_thumbnail_and_image() {
+    fn restyle_replaces_old_footer_and_preserves_thumbnail_and_image() {
         let posted: serenity::Embed = serde_json::from_value(serde_json::json!({
             "thumbnail": { "url": "https://cdn/thumb.png" },
-            "image": { "url": "https://cdn/img.png" }
+            "image": { "url": "https://cdn/img.png" },
+            "footer": { "text": "stale footer" }
         }))
         .unwrap();
-        let embed =
-            restyle_suggest_embed(&posted, &DENY, "Staff".to_string(), "No", "T".to_string());
+        let embed = restyle_suggest_embed(
+            &posted,
+            &DENY,
+            "Staff".to_string(),
+            "No",
+            "T".to_string(),
+            "iHorizon",
+            true,
+        );
         let dbg = format!("{embed:?}");
         assert!(dbg.contains("https://cdn/thumb.png"));
         assert!(dbg.contains("https://cdn/img.png"));
+        assert!(!dbg.contains("stale footer"));
+        assert!(dbg.contains("attachment://footer_icon.png"));
     }
 }

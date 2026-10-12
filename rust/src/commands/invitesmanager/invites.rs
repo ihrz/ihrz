@@ -13,7 +13,11 @@ use super::{
     category = "invitemanager",
     rename = "inv",
     subcommands("inv_add", "inv_lb", "inv_see", "inv_reset", "inv_remove"),
-    subcommand_required
+    subcommand_required,
+    description_localized("fr", "Commande sous-groupé pour la catégorie d'InviteManager"),
+    description_localized("ja", "招待管理カテゴリのサブコマンド！"),
+    description_localized("ru", "Подкоманда для категории управления приглашениями!"),
+    description_localized("es-ES", "Subcomando para la categoría de gestor de invitaciones!")
 )]
 pub async fn inv(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())

@@ -18,6 +18,11 @@ use crate::commands::fun::{ping_average_ms, ping_net_label, render_ping_desc, PI
     description_localized("es-ES", "Obtener la latencia del bot!")
 )]
 pub async fn ping(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
+    // Guard's Typing: ping.ts returns silently outside guild context
+    // (member/guild/channel checks; the footer needs a guild).
+    if ctx.guild_id().is_none() {
+        return Ok(());
+    }
     let down_msg = crate::commands::lang_for(&ctx, "ping_down_msg", "**DOWN**").await;
     let template = crate::commands::lang_for(
         &ctx,

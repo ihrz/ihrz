@@ -39,6 +39,11 @@ pub fn guild_users(member_count: u64, approximate: Option<u64>, unavailable: boo
     description_localized("es-ES", "Obtener información sobre el bot!")
 )]
 pub async fn botinfo_full(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
+    // Guard's Typing: botinfo.ts returns silently outside guild context
+    // (member/guild/channel checks; the footer needs a guild).
+    if ctx.guild_id().is_none() {
+        return Ok(());
+    }
     let cache = ctx.cache();
     let me = cache.current_user().name.clone();
     let guilds = cache.guild_count();

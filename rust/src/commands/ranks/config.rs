@@ -104,14 +104,8 @@ pub async fn ranks_config(
     let Some(value) = config_value(action.as_str()) else {
         return Ok(());
     };
-    super::migrated_set(
-        &ctx.data().pool,
-        &gid,
-        super::GUILD_DISABLE_NEW,
-        &[super::GUILD_DISABLE_OLD],
-        &config_stored_value(&value),
-    )
-    .await?;
+    // Mirrors `ranks/!config.ts`: the audit log posts BEFORE the write,
+    // then the row is set, then the reply (`:51-68`, `:70-87`, `:89-106`).
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let author_id = ctx.author().id.get().to_string();
     // `off` and `disable` share the disable log embed in TS; only the
@@ -141,6 +135,14 @@ pub async fn ranks_config(
         .map(|s| s.replace("${interaction.user.id}", &author_id))
         .unwrap_or_else(|| "XP config updated.".to_string());
     crate::commands::economy::post_ihorizon_log(&ctx, &title, &desc).await;
+    super::migrated_set(
+        &ctx.data().pool,
+        &gid,
+        super::GUILD_DISABLE_NEW,
+        &[super::GUILD_DISABLE_OLD],
+        &config_stored_value(&value),
+    )
+    .await?;
     ctx.say(crate::lang::get(&code, reply_key).unwrap_or_else(|| reply_fb.to_string()))
         .await?;
     Ok(())

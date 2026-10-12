@@ -45,7 +45,10 @@ pub async fn notifier_remove(
         .unwrap_or_default();
     // `author` compared verbatim (no trim: TS `===` on the raw
     // option value).
-    let entries = load_entries(&ctx.data().pool, &gid).await;
+    let mut entries = load_entries(&ctx.data().pool, &gid).await;
+    // Dedupe first: TS filters a JSON-stringify-uniqued copy
+    // (uniqueArray), so stale duplicates are purged on write.
+    dedup_entries(&mut entries);
     // Platform-scoped lookup (TS authorExist + remove filter match
     // platform AND id_or_username with `===` on both).
     if !entry_exists(&entries, &platform, &author) {
