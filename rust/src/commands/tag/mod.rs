@@ -93,9 +93,10 @@ pub async fn save_tags(
 /// roles must be in the whitelist. Role-membership-only, mirroring TS
 /// (!use.ts whitelist_use, !create.ts whitelist_create guards, which check
 /// `roles.cache.some((role) => whitelist_*.includes(role.id))` only).
-/// Both writers store role IDs only (TS RoleSelect save leg, Rust
-/// toggle_tag_wl pushes `role.id`), and no tests or fixtures store user
-/// IDs in these lists, so there is no user-id leg.
+/// Both writers store role IDs only (the TS RoleSelect save leg and the
+/// Rust multi-select panels rewrite the whole list from the selection),
+/// and no tests or fixtures store user IDs in these lists, so there is
+/// no user-id leg.
 pub async fn tag_allowed(ctx: &Ctx<'_>, list_name: &str) -> bool {
     if let Some(member) = ctx.author_member().await {
         if member
@@ -125,40 +126,6 @@ pub async fn tag_allowed(ctx: &Ctx<'_>, list_name: &str) -> bool {
         }
     }
     false
-}
-
-/// Toggle one role id in a tag whitelist: present -> removed,
-/// absent -> added (list-aware via `list`: whitelist_use or
-/// whitelist_create). Mirrors the TS role-select save leg, which
-/// rewrites the whole list from the selection.
-async fn toggle_tag_wl(
-    ctx: &Ctx<'_>,
-    list: &str,
-    role: poise::serenity_prelude::Role,
-) -> Result<(), anyhow::Error> {
-    let gid = ctx
-        .guild_id()
-        .map(|g| g.get().to_string())
-        .unwrap_or_default();
-    let mut store = load_tags(&ctx.data().pool, &gid).await;
-    let target = match list {
-        "whitelist_use" => &mut store.whitelist_use,
-        _ => &mut store.whitelist_create,
-    };
-    let id = role.id.get().to_string();
-    if let Some(pos) = target.iter().position(|r| r == &id) {
-        target.remove(pos);
-    } else {
-        target.push(id);
-    }
-    save_tags(&ctx.data().pool, &gid, &store).await?;
-    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-    ctx.say(
-        crate::lang::get(&code, "msg_whitelist_updated")
-            .unwrap_or_else(|| "Whitelist updated.".to_string()),
-    )
-    .await?;
-    Ok(())
 }
 
 #[cfg(test)]

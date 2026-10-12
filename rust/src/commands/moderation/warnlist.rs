@@ -1,4 +1,4 @@
-use super::banlist::{clamp_page_idx, dead_row, nav_buttons};
+use super::banlist::{dead_row, nav_buttons, wrap_page};
 use super::*;
 use poise::serenity_prelude as serenity;
 
@@ -24,6 +24,11 @@ fn author_mention(warn: &Warn, unknown: &str) -> String {
 }
 
 /// show all warns of a user
+// TS-exact options: only `member` (!warnlist.ts reads `member` via
+// `interaction.options.getMember("member")`; there is no `page`
+// option — the command always opens on the first page and pages via
+// the `previousPage` / `nextPage` buttons (wrapping) on a 15-minute
+// collector).
 #[poise::command(
     slash_command,
     prefix_command,
@@ -43,7 +48,6 @@ pub async fn mod_warnlist(
     #[description_localized("es-ES", "El miembro que quieres buscar")]
     #[description = "The member you want to lookup"]
     member: serenity::User,
-    #[description = "Page"] page: Option<i64>,
 ) -> Result<(), anyhow::Error> {
     let gid = ctx
         .guild_id()
@@ -108,7 +112,8 @@ pub async fn mod_warnlist(
         })
         .collect();
     let total = pages.len();
-    let mut cur = clamp_page_idx(page, total);
+    // TS always opens on the first page (no `page` option).
+    let mut cur = 0usize;
     let author = ctx.author().id;
     let mk_embed = |cur: usize| {
         serenity::CreateEmbed::default()
@@ -127,8 +132,8 @@ pub async fn mod_warnlist(
             poise::CreateReply::default()
                 .embed(mk_embed(cur))
                 .components(vec![serenity::CreateActionRow::Buttons(nav_buttons(
-                    "mod-warnlist-prev",
-                    "mod-warnlist-next",
+                    "previousPage",
+                    "nextPage",
                     cur,
                     total,
                 ))]),
@@ -146,8 +151,8 @@ pub async fn mod_warnlist(
             continue;
         }
         match press.data.custom_id.as_str() {
-            "mod-warnlist-prev" => cur = (cur + total - 1) % total,
-            "mod-warnlist-next" => cur = (cur + 1) % total,
+            "previousPage" => cur = wrap_page(cur, total, false),
+            "nextPage" => cur = wrap_page(cur, total, true),
             _ => continue,
         }
         let _ = press
@@ -157,8 +162,8 @@ pub async fn mod_warnlist(
                     serenity::CreateInteractionResponseMessage::new()
                         .embed(mk_embed(cur))
                         .components(vec![serenity::CreateActionRow::Buttons(nav_buttons(
-                            "mod-warnlist-prev",
-                            "mod-warnlist-next",
+                            "previousPage",
+                            "nextPage",
                             cur,
                             total,
                         ))]),
@@ -169,8 +174,7 @@ pub async fn mod_warnlist(
     let _ = msg
         .edit(
             ctx.http(),
-            serenity::EditMessage::new()
-                .components(vec![dead_row("mod-warnlist-prev", "mod-warnlist-next")]),
+            serenity::EditMessage::new().components(vec![dead_row("previousPage", "nextPage")]),
         )
         .await;
     Ok(())

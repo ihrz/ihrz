@@ -23,14 +23,21 @@ pub async fn help_browser(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let code = crate::db::guild_lang(pool, Some(guild_id.get())).await;
     let t = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
     let all = crate::commands::all();
-    let owned: Vec<(String, String, String)> = all
+    // TS @h.ts lists one row per client.content leaf (`mod ban`, never
+    // the bare roots): reuse the leaf walker, keeping only the
+    // prefix-capable rows (messageCmd 1|2, same filter as @h.ts).
+    let leaf_cats = crate::commands::legacy::help::collect_help_leaves(
+        &all,
+        crate::commands::legacy::HELP_CATEGORIES,
+        &|k| t(k),
+    );
+    let owned: Vec<(String, String, String)> = leaf_cats
         .iter()
-        .map(|c| {
-            (
-                c.category.clone().unwrap_or_default(),
-                c.name.clone(),
-                c.description.clone().unwrap_or_default(),
-            )
+        .flat_map(|c| {
+            c.leaves
+                .iter()
+                .filter(|l| l.message_cmd != 0)
+                .map(|l| (c.name.clone(), l.qualified.clone(), l.desc.clone()))
         })
         .collect();
     let reg_refs: Vec<(&str, &str, &str)> = owned

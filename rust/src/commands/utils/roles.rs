@@ -67,8 +67,6 @@ pub mod nickrole;
 pub mod role_members;
 pub mod rolelimit;
 pub mod wlroles;
-pub mod wlroles_add;
-pub mod wlroles_list;
 
 pub use self::addrole::addrole;
 pub use self::addrolereact::addrolereact;
@@ -80,8 +78,6 @@ pub use self::nickrole::nickrole;
 pub use self::role_members::role_members;
 pub use self::rolelimit::rolelimit;
 pub use self::wlroles::wlroles;
-pub use self::wlroles_add::wlroles_add;
-pub use self::wlroles_list::wlroles_list;
 
 #[allow(unused_imports)]
 pub mod main {
@@ -95,7 +91,5 @@ pub mod main {
     pub use super::role_members::*;
     pub use super::rolelimit::*;
     pub use super::wlroles::*;
-    pub use super::wlroles_add::*;
-    pub use super::wlroles_list::*;
     pub use super::*;
 }

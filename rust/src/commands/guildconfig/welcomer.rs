@@ -1,201 +1,27 @@
 use super::*;
 use poise::serenity_prelude as serenity;
 
-/// Set the join/leave channel (clears when omitted).
-// Mirrors the panel channel pickers (GUILD.GUILD_CONFIG.join/leave).
-#[poise::command(
-    slash_command,
-    prefix_command,
-    rename = "wc-channel",
-    default_member_permissions = "ADMINISTRATOR"
-)]
-pub async fn gc_wc_channel(
-    ctx: Ctx<'_>,
-    #[description = "join or leave"] kind: String,
-    #[description = "Channel (omit to clear)"]
-    #[channel_types("Text")]
-    channel: Option<serenity::GuildChannel>,
-) -> Result<(), anyhow::Error> {
-    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-    let Some(join) = welcomer_kind(&kind) else {
-        ctx.say(
-            crate::lang::get(&code, "msg_use_join_or_leave")
-                .unwrap_or_else(|| "Use join or leave.".to_string()),
-        )
-        .await?;
-        return Ok(());
-    };
-    let gid = ctx
-        .guild_id()
-        .map(|g| g.get().to_string())
-        .unwrap_or_default();
-    let pool = &ctx.data().pool;
-    let mut cfg = load_guild_config(pool, &gid).await;
-    let field = if join { "join" } else { "leave" };
-    welcomer_set(
-        &mut cfg,
-        field,
-        channel.map(|c| serde_json::Value::String(c.id.get().to_string())),
-    );
-    save_guild_config_routed(pool, &gid, &cfg).await?;
-    ctx.say(
-        crate::lang::get(&code, "msg_welcomer_channel_updated")
-            .unwrap_or_else(|| "Welcomer channel updated.".to_string()),
-    )
-    .await?;
-    Ok(())
-}
-
-/// Set the join/leave embed id (clears when omitted).
-// Mirrors the panel embed setters (joinEmbedId/leaveEmbedId).
-#[poise::command(
-    slash_command,
-    prefix_command,
-    rename = "wc-embed",
-    default_member_permissions = "ADMINISTRATOR"
-)]
-pub async fn gc_wc_embed(
-    ctx: Ctx<'_>,
-    #[description = "join or leave"] kind: String,
-    #[description = "Embed id (omit to clear)"] embed_id: Option<String>,
-) -> Result<(), anyhow::Error> {
-    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-    let Some(join) = welcomer_kind(&kind) else {
-        ctx.say(
-            crate::lang::get(&code, "msg_use_join_or_leave")
-                .unwrap_or_else(|| "Use join or leave.".to_string()),
-        )
-        .await?;
-        return Ok(());
-    };
-    let gid = ctx
-        .guild_id()
-        .map(|g| g.get().to_string())
-        .unwrap_or_default();
-    let pool = &ctx.data().pool;
-    let mut cfg = load_guild_config(pool, &gid).await;
-    let field = if join { "joinEmbedId" } else { "leaveEmbedId" };
-    welcomer_set(
-        &mut cfg,
-        field,
-        embed_id
-            .map(|s| s.trim().to_string())
-            .filter(|s| !s.is_empty())
-            .map(serde_json::Value::String),
-    );
-    save_guild_config_routed(pool, &gid, &cfg).await?;
-    ctx.say(
-        crate::lang::get(&code, "msg_welcomer_embed_updated")
-            .unwrap_or_else(|| "Welcomer embed updated.".to_string()),
-    )
-    .await?;
-    Ok(())
-}
-
-/// Toggle the join/leave text message.
-// Mirrors the panel text toggles (joinTextEnabled/leaveTextEnabled).
-#[poise::command(
-    slash_command,
-    prefix_command,
-    rename = "wc-text",
-    default_member_permissions = "ADMINISTRATOR"
-)]
-pub async fn gc_wc_text(
-    ctx: Ctx<'_>,
-    #[description = "join or leave"] kind: String,
-    #[description = "on or off"] action: String,
-) -> Result<(), anyhow::Error> {
-    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-    let (Some(join), Some(enabled)) = (
-        welcomer_kind(&kind),
-        crate::commands::security::main::parse_on_off(&action),
-    ) else {
-        ctx.say(
-            crate::lang::get(&code, "msg_use_join_leave_and_on_off")
-                .unwrap_or_else(|| "Use join/leave and on/off.".to_string()),
-        )
-        .await?;
-        return Ok(());
-    };
-    let gid = ctx
-        .guild_id()
-        .map(|g| g.get().to_string())
-        .unwrap_or_default();
-    let pool = &ctx.data().pool;
-    let mut cfg = load_guild_config(pool, &gid).await;
-    welcomer_set(
-        &mut cfg,
-        if join {
-            "joinTextEnabled"
-        } else {
-            "leaveTextEnabled"
-        },
-        Some(serde_json::Value::Bool(enabled)),
-    );
-    save_guild_config_routed(pool, &gid, &cfg).await?;
-    ctx.say(
-        crate::lang::get(&code, "msg_welcomer_text_updated")
-            .unwrap_or_else(|| "Welcomer text updated.".to_string()),
-    )
-    .await?;
-    Ok(())
-}
-
-/// Toggle the join/leave components.
-// Mirrors the panel component toggles
-// (joinComponentsEnabled/leaveComponentsEnabled).
-#[poise::command(
-    slash_command,
-    prefix_command,
-    rename = "wc-components",
-    default_member_permissions = "ADMINISTRATOR"
-)]
-pub async fn gc_wc_components(
-    ctx: Ctx<'_>,
-    #[description = "join or leave"] kind: String,
-    #[description = "on or off"] action: String,
-) -> Result<(), anyhow::Error> {
-    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-    let (Some(join), Some(enabled)) = (
-        welcomer_kind(&kind),
-        crate::commands::security::main::parse_on_off(&action),
-    ) else {
-        ctx.say(
-            crate::lang::get(&code, "msg_use_join_leave_and_on_off")
-                .unwrap_or_else(|| "Use join/leave and on/off.".to_string()),
-        )
-        .await?;
-        return Ok(());
-    };
-    let gid = ctx
-        .guild_id()
-        .map(|g| g.get().to_string())
-        .unwrap_or_default();
-    let pool = &ctx.data().pool;
-    let mut cfg = load_guild_config(pool, &gid).await;
-    welcomer_set(
-        &mut cfg,
-        if join {
-            "joinComponentsEnabled"
-        } else {
-            "leaveComponentsEnabled"
-        },
-        Some(serde_json::Value::Bool(enabled)),
-    );
-    save_guild_config_routed(pool, &gid, &cfg).await?;
-    ctx.say(
-        crate::lang::get(&code, "msg_welcomer_components_updated")
-            .unwrap_or_else(|| "Welcomer components updated.".to_string()),
-    )
-    .await?;
-    Ok(())
-}
-
-/// Show the welcomer summary (same stored state as `wc-panel`).
-// TS `guildconfig set welcomer` leaf (`guildconfig.ts` `set` group:
-// no options, Administrator). Entry point to the welcomer surface;
-// the atomic `wc-*` setters persist the same `GUILD.GUILD_CONFIG`
-// keys the TS `welcomerPanel` writes.
+// `set welcomer` leaf (`guildconfig.ts` `set` group: no options,
+// Administrator) and `!welcomer.ts` panel entry: opens the interactive
+// welcomer panel (`openWelcomerPanel` in
+// `SlashCommands/guildconfig/welcomerPanel.ts`) on the join section.
+//
+// The option-less leaf only posts the panel embed plus the section
+// select, channel/role pickers and buttons (builders in
+// `welcomer_panel::main`, byte-exact customIds: `welcomer-section`,
+// `welcomer-channel-join` / `welcomer-channel-leave`,
+// `welcomer-roles-pick`,
+// `welcomer-{join,leave}-{set,reset,embed-set,embed-reset,text-toggle,components-toggle}`,
+// `welcomer-dm-set` / `welcomer-dm-reset`, `welcomer-channels-reset`,
+// `welcomer-banner-*`). Message/embed/dm modals
+// (`welcomer-*-modal` / `welcomer-*-input`), the dangerous-role confirm
+// and the banner editors run in
+// `welcomer_panel::main::handle_welcomer_component` (global component
+// dispatch in `events_handler`), which also re-renders disabled rows
+// past the 800s collector window like the TS collector `end` handler.
+// (An earlier port flattened this surface to direct `wc-*` slash
+// options; those had no TS basis and are removed by this rewrite.)
+/// Open the welcomer configuration panel
 #[poise::command(
     slash_command,
     prefix_command,
@@ -210,59 +36,36 @@ pub async fn gc_wc_components(
     )
 )]
 pub async fn gc_welcomer(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
-    welcomer_panel_reply(ctx).await
-}
-
-/// Show the welcomer setup and how to configure it.
-#[poise::command(
-    slash_command,
-    prefix_command,
-    rename = "wc-panel",
-    default_member_permissions = "ADMINISTRATOR"
-)]
-pub async fn gc_wc_panel(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
-    welcomer_panel_reply(ctx).await
-}
-
-/// Shared `set welcomer` / `wc-panel` summary render: stored-state
-/// embed plus the atomic-setter hint.
-async fn welcomer_panel_reply(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
-    // UX split (documented, not a regression): `openWelcomerPanel`
-    // (`SlashCommands/guildconfig/welcomerPanel.ts`, ~1800 lines) is a
-    // stateful Components-V2 guided panel (section select,
-    // channel/role pickers, modals, live banner preview, 800s
-    // collector) with no poise equivalent at this scope, so it is NOT
-    // ported 1:1. This command renders the same stored state as one
-    // summary embed and points at the atomic setters above that
-    // persist the same `GUILD.GUILD_CONFIG` keys the panel writes.
-    let gid = ctx
-        .guild_id()
-        .map(|g| g.get().to_string())
-        .unwrap_or_default();
+    // Mirrors the TS guard (`!interaction.guild` -> silent return).
+    let Some(guild_id) = ctx.guild_id() else {
+        return Ok(());
+    };
+    let gid = guild_id.get().to_string();
     let pool = &ctx.data().pool;
-    let code = crate::db::guild_lang(pool, ctx.guild_id().map(|g| g.get())).await;
-    let cfg = load_guild_config(pool, &gid).await;
-    let mut embed = serenity::CreateEmbed::default()
-        .colour(0xFFB3CC)
-        .title(
-            crate::lang::get(&code, "msg_welcomer_panel_title")
-                .unwrap_or_else(|| "Welcomer panel".to_string()),
-        )
-        .description(
-            crate::lang::get(&code, "msg_welcomer_panel_hint").unwrap_or_else(|| {
-                "Use wc-channel / wc-embed / wc-text / wc-components to configure join and leave messages."
-                    .to_string()
-            }),
-        )
-        .timestamp(serenity::Timestamp::now());
-    for (name, value, inline) in welcomer_panel_fields(&cfg) {
-        embed = embed.field(name, value, inline);
-    }
-    ctx.send(poise::CreateReply::default().embed(embed)).await?;
+    let code = crate::db::guild_lang(pool, Some(guild_id.get())).await;
+    let default_message =
+        crate::lang::get(&code, "setjoinmessage_image_default_text").unwrap_or_default();
+    let st = crate::commands::welcomer_panel::main::load_panel_state(
+        pool,
+        &gid,
+        "join",
+        &default_message,
+    )
+    .await;
+    let embed = serenity::CreateEmbed::default()
+        .colour(crate::commands::welcomer_panel::main::PANEL_ACCENT)
+        .description(crate::commands::welcomer_panel::main::panel_description(
+            &st, &code,
+        ));
+    ctx.send(poise::CreateReply::default().embed(embed).components(
+        crate::commands::welcomer_panel::main::panel_rows(&st, &code),
+    ))
+    .await?;
     Ok(())
 }
 
-/// Summary fields for the welcomer overview. Pure for testability.
+/// Summary fields for the welcomer stored state. Pure for testability;
+/// kept for the `guildconfig::main` overview test.
 pub fn welcomer_panel_fields(cfg: &serde_json::Value) -> Vec<(String, String, bool)> {
     let str_of = |key: &str| cfg.get(key).and_then(|v| v.as_str()).unwrap_or("");
     let chan = |key: &str| {

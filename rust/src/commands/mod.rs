@@ -697,8 +697,6 @@ mod tests {
             "unhide",
             "unban-all",
             "undo",
-            "wlroles-add",
-            "wlroles-list",
             "wlroles",
             "media-only",
             "help",
@@ -1111,6 +1109,9 @@ mod tests {
             ("invites", &["member"]),
             ("roles", &["key", "roles"]),
             ("sanction", &["choose"]),
+            ("banlist", &[]),
+            ("mutelist", &[]),
+            ("warnlist", &["member"]),
             ("punishpub", &["amount", "punishement", "status"]),
             ("report", &["message-to-dev"]),
             (
@@ -1204,9 +1205,6 @@ mod tests {
             "prefix",
             "toggle-react",
         ];
-        // Rust-only splits of a TS subcommand (wlroles add/list): kept
-        // prefix-only so the parent's slash surface matches TS exactly.
-        const PREFIX_ONLY_SPLITS: [&str; 2] = ["wlroles-add", "wlroles-list"];
         // Deliberate Rust-side readers with no TS slash home: kept
         // prefix-only so they never pollute the slash tree (poise
         // skips slash registration for prefix-only children).
@@ -1229,7 +1227,6 @@ mod tests {
             }
             if PREFIX_ONLY_DELEGATES.contains(&cmd.name.as_str())
                 || PREFIX_ONLY_MESSAGE_COMMANDS.contains(&cmd.name.as_str())
-                || PREFIX_ONLY_SPLITS.contains(&cmd.name.as_str())
                 || PREFIX_ONLY_RUST_READERS.contains(&cmd.name.as_str())
                 || PREFIX_ONLY_LEGACY_STRIP.contains(&cmd.name.as_str())
             {
@@ -1260,7 +1257,7 @@ mod tests {
         // registering an already-taken key kills the boot. Subcommand
         // leaf names are deliberately excluded: TS overwrites those
         // silently (no has() check) and poise dispatches them
-        // hierarchically — backup, giveaway, tag and schedule each own
+        // hierarchically — backup, giveaway and tag each own
         // a "create" leaf — so a flat check over leaf names would
         // false-positive. Keys are lowercased because prefix lookup is
         // case-insensitive on both sides (TS toLowerCase, poise

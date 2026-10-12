@@ -1,12 +1,17 @@
-use super::banlist::{clamp_page_idx, dead_row, nav_buttons};
+use super::banlist::{clamp_page_idx, dead_row, nav_buttons, wrap_page};
 use super::*;
 use poise::serenity_prelude as serenity;
 
-const PREV_ID: &str = "mod-mutelist-prev";
-const NEXT_ID: &str = "mod-mutelist-next";
-const TRASH_ID: &str = "mod-mutelist-trash";
+// TS-exact button ids (!mutelist.ts:124/128/132).
+const PREV_ID: &str = "previousPage";
+const NEXT_ID: &str = "nextPage";
+const TRASH_ID: &str = "trash-mutelist-embed";
 
 /// Show a list with all muted member
+// TS-exact: zero options (!mutelist.ts takes no slash options — the
+// command always opens on the first page and pages via the
+// `previousPage` / `nextPage` buttons (wrapping) plus the
+// `trash-mutelist-embed` clear button on a 60-second collector).
 #[poise::command(
     slash_command,
     prefix_command,
@@ -18,10 +23,7 @@ const TRASH_ID: &str = "mod-mutelist-trash";
     description_localized("ru", "Показать список замученных участников"),
     description_localized("es-ES", "Mostrar una lista con todos los miembros silenciados")
 )]
-pub async fn mod_mutelist(
-    ctx: Ctx<'_>,
-    #[description = "Page"] page: Option<i64>,
-) -> Result<(), anyhow::Error> {
+pub async fn mod_mutelist(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {
         return Ok(());
     };
@@ -89,7 +91,8 @@ pub async fn mod_mutelist(
     };
     let mut ids = muted;
     let mut descs = describe(&ids);
-    let mut cur = clamp_page_idx(page, descs.len());
+    // TS always opens on the first page (no `page` option).
+    let mut cur = clamp_page_idx(None, descs.len());
     let author = ctx.author().id;
     let mk_embed = |descs: &[String], cur: usize| {
         serenity::CreateEmbed::default()
@@ -133,13 +136,9 @@ pub async fn mod_mutelist(
             continue;
         }
         match press.data.custom_id.as_str() {
-            "mod-mutelist-prev" => {
-                cur = (cur + descs.len().saturating_sub(1)) % descs.len().max(1);
-            }
-            "mod-mutelist-next" => {
-                cur = (cur + 1) % descs.len().max(1);
-            }
-            "mod-mutelist-trash" => {
+            x if x == PREV_ID => cur = wrap_page(cur, descs.len(), false),
+            x if x == NEXT_ID => cur = wrap_page(cur, descs.len(), true),
+            x if x == TRASH_ID => {
                 // One member fetch + one PATCH per entry: ack first (TS
                 // deferUpdate) so mass unmutes never blow the 3s
                 // interaction window, then edit afterwards.

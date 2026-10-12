@@ -30,6 +30,7 @@ pbkdf2 = "0.12"
 sha2 = "0.10"
 rand = "0.8"
 hex = "0.4"
+md5 = "0.7"
 png = "0.18"
 image = { version = "0.25.10", default-features = false, features = ["png", "jpeg", "gif"] }
 toml = "1.1.8"

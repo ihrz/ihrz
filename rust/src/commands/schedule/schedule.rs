@@ -1,7 +1,7 @@
 use super::panel::schedule_panel;
 use super::*;
 
-/// Guided panel (TS `schedule.ts` parity, layered over the subcommands).
+/// Guided panel (TS `schedule.ts` parity, behind the `panel` leaf).
 /// Menu collector `time: 420_000`, delete / delete-all / when prompts
 /// `time: 120_000`; the menu is disabled when the collector ends.
 /// Guided panel menu id for new menus. TS `schedule.ts:77` uses the bare
@@ -219,20 +219,16 @@ pub(crate) fn guided_embed_identity(
 // select-menu panel (`schedule.ts:48-66`), so a bare invocation runs
 // the panel here too: without `subcommand_required` poise falls
 // through to this body when no leaf is given, on both the slash and
-// prefix paths. The leaves stay for direct access (ADOPT, recorded)
-// (`/schedule list`, `!schedule delete …`).
+// prefix paths. The `panel` leaf exposes the same guided flow for
+// direct access (`/schedule panel`, `!schedule panel`); the flat
+// create/delete/delete-all/list leaves had no TS basis (TS has zero
+// slash options) and are removed by this rewrite.
 #[poise::command(
     slash_command,
     prefix_command,
     rename = "schedule",
     category = "schedule",
-    subcommands(
-        "schedule_create",
-        "schedule_delete",
-        "schedule_delete_all",
-        "schedule_list",
-        "schedule_panel"
-    ),
+    subcommands("schedule_panel"),
     description_localized(
         "fr",
         "Commande sous-groupé pour la catégorie de message pré-programmer"
@@ -245,8 +241,8 @@ pub async fn schedule(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     super::panel::run_schedule_panel(ctx).await
 }
 
-/// Guided create: modal (name/desc/when) then the same validation +
-/// confirm rendering as `schedule_create`. The result goes to an
+/// Guided create: modal (name/desc/when) then the create validation +
+/// confirm rendering (TS `executeAfterModal` / `__0`). The result goes
 /// ephemeral follow-up so the panel stays usable until it times out.
 pub(crate) async fn guided_create(
     ctx: &Ctx<'_>,
@@ -283,7 +279,7 @@ pub(crate) async fn guided_create(
         .create_response(ctx.http(), serenity::CreateInteractionResponse::Acknowledge)
         .await;
     let mut followup = serenity::CreateInteractionResponseFollowup::new().ephemeral(true);
-    // Validation mirrors `schedule_create` (Discord already enforces
+    // Validation mirrors the TS modal bounds (Discord already enforces
     // the modal min/max lengths; these cover prefix-style bypasses).
     if !validate_title(&name) {
         followup = followup.content(t(
@@ -380,8 +376,8 @@ pub(crate) async fn guided_create(
 }
 
 /// Guided delete: code modal mirroring the TS
-/// `schedule_delete_question` prompt, then the same delete/
-/// not-found replies as `schedule_delete`.
+/// `schedule_delete_question` prompt (TS `__1`), then the delete /
+/// not-found replies.
 pub(crate) async fn guided_delete(
     ctx: &Ctx<'_>,
     press: &poise::serenity_prelude::ComponentInteraction,
@@ -722,224 +718,6 @@ pub(crate) async fn guided_list(
             serenity::CreateInteractionResponse::UpdateMessage(update),
         )
         .await;
-    Ok(())
-}
-
-/// Create a schedule
-#[poise::command(slash_command, prefix_command, rename = "create")]
-pub async fn schedule_create(
-    ctx: Ctx<'_>,
-    #[description = "Title (5-30 chars)"] title: String,
-    #[description = "Description (10-400 chars)"] description: String,
-    #[description = "When (e.g. 10s, 5m, 2h, 7d)"] when: String,
-) -> Result<(), anyhow::Error> {
-    let lang_code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-    if !validate_title(&title) {
-        ctx.say(
-            crate::lang::get(&lang_code, "msg_title_must_be_5_30_characters")
-                .unwrap_or_else(|| "Title must be 5-30 characters.".to_string()),
-        )
-        .await?;
-        return Ok(());
-    }
-    if !validate_description(&description) {
-        ctx.say(
-            crate::lang::get(&lang_code, "msg_description_must_be_10_400_characters")
-                .unwrap_or_else(|| "Description must be 10-400 characters.".to_string()),
-        )
-        .await?;
-        return Ok(());
-    }
-    // Verdict on `"0s"`: see the guided-create call site above — zero /
-    // negative spans answer `schedule_create_not_number_time` instead of
-    // creating an immediately-expiring schedule (deliberate divergence
-    // from the TS NaN-only guard, schedule.ts:451).
-    let Some(delta_ms) = parse_duration_ms(&when) else {
-        ctx.say(
-            crate::lang::get(&lang_code, "schedule_create_not_number_time")
-                .map(|s| s.replace("${interaction.user}", &ctx.author().to_string()))
-                .unwrap_or_else(|| "${interaction.user}, your response (the time you want to be notified about this schedule) is not a number!".to_string()),
-        )
-        .await?;
-        return Ok(());
-    };
-    let code = gen_code();
-    let entry = ScheduleEntry {
-        code: code.clone(),
-        title: title.clone(),
-        description: description.clone(),
-        expires_at_ms: expiry_at_ms(now_ms(), delta_ms),
-    };
-    let gid = scope_guild(&ctx);
-    let user_id = ctx.author().id.get();
-    save_entry_routed(&ctx.data().pool, &gid, &entry, user_id).await?;
-    // TS parity (`executeAfterModal` / `__0`): preview description
-    // (```name``` ```desc```), confirm title
-    // (`schedule_create_embed_title_confirm`), one inline field named
-    // `schedule_create_embed_fields_name_confirm` with the formatted
-    // expiry, content from `schedule_create_confirm_msg`,
-    // color #00549F + timestamp + footer.
-    let preview = render_create_preview_description(&entry.title, &entry.description);
-    let confirm_title = render_create_confirm_title(
-        &crate::lang::get(&lang_code, "schedule_create_embed_title_confirm")
-            .unwrap_or_else(|| "#${scheduleCode} Schedule Created!".to_string()),
-        &code,
-    );
-    let field_name = crate::lang::get(&lang_code, "schedule_create_embed_fields_name_confirm")
-        .unwrap_or_else(|| "Notified Date".to_string());
-    let content = render_create_confirm_msg(
-        &crate::lang::get(&lang_code, "schedule_create_confirm_msg").unwrap_or_else(|| {
-            "${interaction.user}, your schedule has been created!\nCode: `${scheduleCode}`"
-                .to_string()
-        }),
-        &ctx.author().to_string(),
-        &code,
-    );
-    let embed = poise::serenity_prelude::CreateEmbed::default()
-        .title(confirm_title)
-        .description(preview)
-        .field(field_name, format_expiry_local(entry.expires_at_ms), true)
-        .color(0x00549F)
-        .timestamp(poise::serenity_prelude::Timestamp::now());
-    let (footer_name, footer_bytes) = crate::commands::utils::footer_parts(&ctx, &gid).await;
-    let embed =
-        crate::commands::utils::embed_with_footer(embed, &footer_name, footer_bytes.is_some());
-    let mut reply = poise::CreateReply::default().content(content).embed(embed);
-    if let Some(bytes) = footer_bytes {
-        reply = reply.attachment(poise::serenity_prelude::CreateAttachment::bytes(
-            bytes,
-            "footer_icon.png",
-        ));
-    }
-    ctx.send(reply).await?;
-    Ok(())
-}
-
-/// Delete a schedule
-#[poise::command(slash_command, prefix_command, rename = "delete")]
-pub async fn schedule_delete(
-    ctx: Ctx<'_>,
-    #[description = "Schedule code"] code: String,
-) -> Result<(), anyhow::Error> {
-    let gid = scope_guild(&ctx);
-    let user_id = ctx.author().id.get();
-    let lang_code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-    if delete_entry_routed(&ctx.data().pool, &gid, user_id, code.trim()).await? {
-        ctx.say(
-            crate::lang::get(&lang_code, "schedule_delete_confirm")
-                .unwrap_or_else(|| "Schedule deleted!".to_string()),
-        )
-        .await?;
-    } else {
-        ctx.say(
-            crate::lang::get(&lang_code, "schedule_delete_not_found")
-                .map(|s| s.replace("${arg0}", code.trim()))
-                .unwrap_or_else(|| "There are no SCHEDULES (${arg0}) for this member!".to_string()),
-        )
-        .await?;
-    }
-    Ok(())
-}
-
-/// Delete all schedules
-#[poise::command(slash_command, prefix_command, rename = "delete-all")]
-pub async fn schedule_delete_all(
-    ctx: Ctx<'_>,
-    #[description = "Type y/yes to confirm"] confirm: Option<String>,
-) -> Result<(), anyhow::Error> {
-    let lang_code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-    // TS parity: delete-all asks `schedule_deleteall_question` (Y/n) and
-    // only deletes on `y`/`yes` (case-insensitive); anything else sends
-    // `schedule_deleteall_cancel` instead of deleting.
-    let Some(given) = confirm.as_deref() else {
-        ctx.say(
-            crate::lang::get(&lang_code, "schedule_deleteall_question").unwrap_or_else(|| {
-                "Are you sure to delete all of your schedules? (Y/n)".to_string()
-            }),
-        )
-        .await?;
-        return Ok(());
-    };
-    if !is_delete_all_confirmed(given) {
-        ctx.say(
-            crate::lang::get(&lang_code, "schedule_deleteall_cancel")
-                .unwrap_or_else(|| "The `DELETE_ALL` action has been cancelled!".to_string()),
-        )
-        .await?;
-        return Ok(());
-    }
-    let gid = scope_guild(&ctx);
-    let user_id = ctx.author().id.get();
-    let n = delete_all_entries_routed(&ctx.data().pool, &gid, user_id).await?;
-    ctx.say(
-        crate::lang::get(&lang_code, "schedule_deleteall_confirm")
-            .unwrap_or_else(|| format!("Deleted {n} schedule(s).")),
-    )
-    .await?;
-    Ok(())
-}
-
-/// List schedules
-#[poise::command(slash_command, prefix_command, rename = "list")]
-pub async fn schedule_list(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
-    let gid = scope_guild(&ctx);
-    let user_id = ctx.author().id.get();
-    let entries = list_entries_routed(&ctx.data().pool, &gid, user_id).await;
-    let lang_code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-    if entries.is_empty() {
-        ctx.say(
-            crate::lang::get(&lang_code, "schedule_list_not_schedule")
-                .unwrap_or_else(|| "There are no SCHEDULES for this member!".to_string()),
-        )
-        .await?;
-        return Ok(());
-    }
-    let list_title = crate::lang::get(&lang_code, "schedule_list_title_embed")
-        .unwrap_or_else(|| "Listing all Schedules".to_string());
-    // TS parity: field bodies render through `schedule_list_fields_embed`
-    // (`${date...}` / `${fetched[i]?.title}` / `${fetched[i]?.description}`).
-    let field_template = crate::lang::get(&lang_code, "schedule_list_fields_embed")
-        .unwrap_or_else(|| "**Ends at**: ${date.format(new Date(fetched[i]?.expired), 'YYYY/MM/DD HH:mm:ss')}```${fetched[i]?.title}``````${fetched[i]?.description}```\n".to_string());
-    // SCOPE DECISION (recorded): TS reads the global `schedule`
-    // table keyed `${userId}.${code}` (see ready.ts `scheduleTable`), so a
-    // schedule created in one guild is visible/deletable from any other.
-    // The Rust port deliberately scopes rows per guild table
-    // (`scope_guild`, DMs fall back to "global") so guild data stays
-    // isolated like every other routed category. Sort-by-expiry is also
-    // deliberate (TS iterates insertion order). The list itself is
-    // uncapped like TS `__3` (S3): entries chunk into 25-field embeds
-    // (Discord field limit), up to 10 embeds per message (Discord
-    // message limit); overflow pages go out as channel follow-ups.
-    let embeds = build_list_embeds(&entries, &list_title, &field_template);
-    let (footer_name, footer_bytes) = crate::commands::utils::footer_parts(&ctx, &gid).await;
-    let with_icon = footer_bytes.is_some();
-    let content = crate::lang::get(&lang_code, "schedule_list_content_message")
-        .unwrap_or_else(|| "Here's your schedule list!".to_string());
-    for (i, chunk) in embeds.chunks(SCHEDULE_LIST_EMBEDS_PER_MSG).enumerate() {
-        let chunk: Vec<poise::serenity_prelude::CreateEmbed> = chunk
-            .iter()
-            .map(|e| crate::commands::utils::embed_with_footer(e.clone(), &footer_name, with_icon))
-            .collect();
-        let file = footer_bytes.clone().map(|bytes| {
-            poise::serenity_prelude::CreateAttachment::bytes(bytes, "footer_icon.png")
-        });
-        if i == 0 {
-            let mut reply = poise::CreateReply::default().content(content.clone());
-            for e in chunk {
-                reply = reply.embed(e);
-            }
-            if let Some(file) = file {
-                reply = reply.attachment(file);
-            }
-            ctx.send(reply).await?;
-        } else {
-            let mut msg = poise::serenity_prelude::CreateMessage::new().embeds(chunk);
-            if let Some(file) = file {
-                msg = msg.add_file(file);
-            }
-            let _ = ctx.channel_id().send_message(ctx.http(), msg).await;
-        }
-    }
     Ok(())
 }
 

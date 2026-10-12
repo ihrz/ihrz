@@ -540,13 +540,19 @@ pub async fn m_nowplaying(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
                 if let Ok((node, session)) = m.live_node_and_session(gid).await {
                     let _ = m.rest_set_paused(&node, &session, gid, paused).await;
                 }
-                let fresh = nowplaying_embed(
+                let mut fresh = nowplaying_embed(
                     &track.title,
                     &track.author,
                     track.uri.as_deref(),
                     requester_id,
                     colour,
                 );
+                // The card attachment survives the edit, but the fresh
+                // embed must reference it again or the image vanishes
+                // until the next 5.9s refresh tick.
+                if card_rendered {
+                    fresh = fresh.image("attachment://nowplaying.png");
+                }
                 let _ = press
                     .create_response(
                         ctx.http(),
@@ -598,13 +604,19 @@ pub async fn m_nowplaying(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
                 // `rest_destroy` is REST-only: OP4-leave explicitly so
                 // the bot does not linger in the channel.
                 m.leave_voice(gid).await;
-                let fresh = nowplaying_embed(
+                let mut fresh = nowplaying_embed(
                     &track.title,
                     &track.author,
                     track.uri.as_deref(),
                     requester_id,
                     colour,
                 );
+                // The card attachment survives the edit, but the fresh
+                // embed must reference it again or the image vanishes
+                // until the next 5.9s refresh tick.
+                if card_rendered {
+                    fresh = fresh.image("attachment://nowplaying.png");
+                }
                 let _ = press
                     .create_response(
                         ctx.http(),

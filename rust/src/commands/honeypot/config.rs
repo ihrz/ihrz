@@ -241,61 +241,6 @@ pub fn build_status_embed(
         )
 }
 
-/// Auto-create the trap channel when enabling without one. Mirrors
-/// ensureTrapChannel: reuse the stored id when it still resolves to a text
-/// channel, otherwise create `honeypot_default_channel_name` at position 0.
-#[allow(clippy::collapsible_if, clippy::collapsible_match)]
-async fn ensure_trap_channel_id(
-    ctx: Ctx<'_>,
-    guild_id: serenity::GuildId,
-    stored_id: &str,
-    default_name: &str,
-) -> Option<String> {
-    if !stored_id.trim().is_empty() {
-        if let Ok(n) = stored_id.trim().parse::<u64>() {
-            if let Ok(ch) = serenity::ChannelId::new(n).to_channel(ctx.http()).await {
-                if let serenity::Channel::Guild(g) = ch {
-                    if g.kind == serenity::ChannelType::Text {
-                        return Some(stored_id.trim().to_string());
-                    }
-                }
-            }
-        }
-    }
-    let builder = serenity::CreateChannel::new(default_name).kind(serenity::ChannelType::Text);
-    let created = guild_id.create_channel(ctx.http(), builder).await.ok()?;
-    let _ = created
-        .id
-        .edit(ctx.http(), serenity::EditChannel::new().position(0))
-        .await;
-    Some(created.id.get().to_string())
-}
-
-/// Post (or refresh) the trap lure embed in the trap channel. Mirrors
-/// sendTrapEmbed: delete the previous lure message, send a fresh trap
-/// embed, persist channelId/messageId.
-async fn send_trap_lure(
-    ctx: Ctx<'_>,
-    trap_channel_id: u64,
-    prev_message_id: Option<u64>,
-    t: &(dyn Fn(&str) -> String + Send + Sync),
-) -> Option<u64> {
-    let channel_id = serenity::ChannelId::new(trap_channel_id);
-    if let Some(mid) = prev_message_id {
-        let _ = channel_id
-            .delete_message(ctx.http(), serenity::MessageId::new(mid))
-            .await;
-    }
-    channel_id
-        .send_message(
-            ctx.http(),
-            serenity::CreateMessage::new().embed(build_trap_embed(t)),
-        )
-        .await
-        .ok()
-        .map(|m| m.id.get())
-}
-
 /// 4-row interactive panel. Mirrors `buildComponents` in `!config.ts`:
 /// trap channel select, logs channel select, action string select, then
 /// the send/preview/toggle button row. `disabled` renders the collector
@@ -890,6 +835,16 @@ pub async fn handle_panel_press(
 }
 
 /// Configure the Honeypot protection panel.
+///
+/// Option-less leaf mirroring `!config.ts` (TS `honeypot.ts:42-56` takes
+/// no options): posts the status embed with the 4-row interactive panel
+/// (trap-channel select, logs-channel select, action select, send /
+/// preview / toggle buttons). Every press is handled by the
+/// `honeypot-config-*` arms in events_handler.rs — the stateless
+/// equivalent of the TS 240s `createMessageComponentCollector` (expiry +
+/// disable-on-end via `panel_expired`, invoker + manager gates per leg).
+/// (An earlier port flattened this to direct slash params; those had no
+/// TS basis and are removed by this rewrite.)
 #[poise::command(
     slash_command,
     prefix_command,
@@ -899,18 +854,7 @@ pub async fn handle_panel_press(
     description_localized("ru", "Настроить панель защиты Honeypot."),
     description_localized("es-ES", "Configurar el panel de protección Honeypot.")
 )]
-pub async fn honeypot_config(
-    ctx: Ctx<'_>,
-    #[description = "on or off"] power: String,
-    #[description = "Action: kick, ban or none"] action: Option<String>,
-    #[description = "Channel for the lure"]
-    #[channel_types("Text")]
-    channel: Option<serenity::GuildChannel>,
-    #[description = "Channel for the logs"]
-    #[channel_types("Text")]
-    logs_channel: Option<serenity::GuildChannel>,
-    #[description = "Custom lure message"] message: Option<String>,
-) -> Result<(), anyhow::Error> {
+pub async fn honeypot_config(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {
         return Ok(());
     };
@@ -932,179 +876,65 @@ pub async fn honeypot_config(
         return Ok(());
     }
     let t = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
-    let fb = |k: &str, fb: &str| {
-        let v = t(k);
-        if v.trim().is_empty() {
-            fb.to_string()
-        } else {
-            v
-        }
-    };
 
-    // Preserve fields the panel owns across edits (createdBy,
-    // lastTriggeredAt, messageId), like the TS collector flow.
-    let prev: serde_json::Value = load_honeypot_raw(&ctx.data().pool, &gid)
+    // Load-or-default like the TS legs (disabled, action none). The
+    // `createdBy` stamp marks the panel opener for the stateless press
+    // router's invoker guard, so it is refreshed + persisted on open.
+    let mut cfg: serde_json::Value = load_honeypot_raw(&ctx.data().pool, &gid)
         .await
         .and_then(|s| serde_json::from_str(&s).ok())
-        .unwrap_or(serde_json::Value::Null);
-    let prev_str = |k: &str| {
-        prev.get(k)
-            .and_then(|v| v.as_str())
-            .unwrap_or_default()
-            .to_string()
-    };
-    let prev_msg = prev
-        .get("messageId")
+        .unwrap_or(serde_json::json!({
+            "enabled": false,
+            "action": "none",
+            "createdBy": ctx.author().id.get().to_string(),
+            "lastTriggeredAt": 0,
+        }));
+    if let Some(obj) = cfg.as_object_mut() {
+        obj.insert(
+            "createdBy".to_string(),
+            serde_json::json!(ctx.author().id.get().to_string()),
+        );
+    }
+    save_honeypot(&ctx.data().pool, &gid, &cfg).await?;
+
+    let enabled = cfg
+        .get("enabled")
+        .and_then(|v| v.as_bool())
+        .unwrap_or(false);
+    let action = parse_honeypot_action(cfg.get("action").and_then(|v| v.as_str()));
+    let trap_id = cfg
+        .get("channelId")
         .and_then(|v| v.as_str())
         .unwrap_or_default();
-    let mut prev_msg = if prev_msg.trim().is_empty() {
-        None
-    } else {
-        Some(prev_msg.to_string())
-    };
-
-    let enabling = matches!(
-        power.to_ascii_lowercase().as_str(),
-        "on" | "power on" | "enable"
-    );
-    let action = parse_honeypot_action(
-        action
-            .as_deref()
-            .or_else(|| prev.get("action").and_then(|a| a.as_str())),
-    )
-    .to_string();
-    let mut trap_id = channel
-        .as_ref()
-        .map(|c| c.id.get().to_string())
-        .unwrap_or_else(|| prev_str("channelId"));
-    let mut logs_id = logs_channel
-        .as_ref()
-        .map(|c| c.id.get().to_string())
-        .unwrap_or_else(|| prev_str("logsChannelId"));
-    if logs_id.trim().is_empty() {
-        logs_id = prev_str("logsChannelId");
-    }
-    let custom_message = message.or_else(|| {
-        let m = prev_str("message");
-        if m.is_empty() {
-            None
-        } else {
-            Some(m)
-        }
-    });
-
-    if enabling {
-        // TS toggle guard: a logs channel is required before enabling.
-        if !honeypot_enable_allowed(&logs_id) {
-            ctx.say(fb(
-                "honeypot_config_missing_logs_channel",
-                "You must configure a logs channel before enabling Honeypot.",
-            ))
-            .await?;
-            return Ok(());
-        }
-        // Auto-create the trap channel when none is configured.
-        if trap_id.trim().is_empty() {
-            let def =
-                default_trap_channel_name(crate::lang::get(&code, "honeypot_default_channel_name"));
-            match ensure_trap_channel_id(ctx, guild_id, "", &def).await {
-                Some(id) => trap_id = id,
-                None => {
-                    ctx.say(fb(
-                        "honeypot_config_generic_error",
-                        "An error occurred while updating Honeypot.",
-                    ))
-                    .await?;
-                    return Ok(());
-                }
-            }
-        }
-    }
-
-    // TS trap-select leg (`if (config.channelId !== nextChannelId)
-    // config.messageId = undefined`): a changed trap channel invalidates
-    // the stored lure message id (compared after auto-create so the final
-    // id decides).
-    if trap_change_resets_message(&prev_str("channelId"), &trap_id) {
-        prev_msg = None;
-    }
-
-    let author_id = ctx.author().id.get().to_string();
-    let prev_triggered = prev
-        .get("lastTriggeredAt")
-        .cloned()
-        .unwrap_or(serde_json::json!(0));
-    let mut cfg = serde_json::json!({
-        "enabled": enabling,
-        "action": action,
-        "channelId": trap_id,
-        "logsChannelId": logs_id,
-        "createdBy": author_id,
-        "lastTriggeredAt": prev_triggered,
-    });
-    if let Some(m) = prev_msg.as_deref() {
-        cfg["messageId"] = serde_json::json!(m);
-    }
-    if let Some(m) = custom_message.as_deref() {
-        cfg["message"] = serde_json::json!(m);
-    }
-
-    // Post the lure embed on enable (sendTrapEmbed), then persist messageId.
-    let mut message_url: Option<String> = None;
-    if enabling {
-        if let Ok(trap_n) = trap_id.trim().parse::<u64>() {
-            let prev_mid = cfg
-                .get("messageId")
-                .and_then(|v| v.as_str())
-                .and_then(|s| s.parse::<u64>().ok());
-            // Custom lure message overrides the default embed description.
-            let t2 = |k: &str| {
-                if k == "honeypot_trap_embed_desc" {
-                    if let Some(m) = custom_message.as_deref() {
-                        if !m.trim().is_empty() {
-                            return m.to_string();
-                        }
-                    }
-                }
-                t(k)
-            };
-            if let Some(mid) = send_trap_lure(ctx, trap_n, prev_mid, &t2).await {
-                cfg["messageId"] = serde_json::json!(mid.to_string());
-                message_url = Some(crate::funcs::message_url(guild_id.get(), trap_n, mid));
-            } else {
-                ctx.say(fb(
-                    "honeypot_config_generic_error",
-                    "An error occurred while updating Honeypot.",
-                ))
-                .await?;
-                return Ok(());
-            }
-        }
-    } else if let (Some(mid), true) = (
-        cfg.get("messageId").and_then(|v| v.as_str()),
-        !trap_id.trim().is_empty(),
-    ) {
-        let mid_n: u64 = mid.parse().unwrap_or(0);
-        let trap_n: u64 = trap_id.trim().parse().unwrap_or(0);
-        message_url = Some(crate::funcs::message_url(guild_id.get(), trap_n, mid_n));
-    }
-
-    save_honeypot(&ctx.data().pool, &gid, &cfg).await?;
+    let logs_id = cfg
+        .get("logsChannelId")
+        .and_then(|v| v.as_str())
+        .unwrap_or_default();
+    let message_url: Option<String> = (|| {
+        let trap_n: u64 = trap_id.trim().parse().ok()?;
+        let mid: u64 = cfg
+            .get("messageId")
+            .and_then(|v| v.as_str())?
+            .trim()
+            .parse()
+            .ok()?;
+        Some(crate::funcs::message_url(guild_id.get(), trap_n, mid))
+    })();
     let status = build_status_embed(
         &t,
-        enabling,
-        &action,
-        &trap_id,
-        &logs_id,
+        enabled,
+        action,
+        trap_id,
+        logs_id,
         message_url.as_deref(),
     );
-    // Live 4-row panel: the reply stays interactive for 240s via the
+    // Live 4-row panel: presses stay interactive for 240s via the
     // `honeypot-config-*` arms in events_handler.rs (stateless collector
     // equivalent of the TS `createMessageComponentCollector`).
     ctx.send(
         poise::CreateReply::default()
             .embed(status)
-            .components(build_panel_components(&t, enabling, &action, false)),
+            .components(build_panel_components(&t, enabled, action, false)),
     )
     .await?;
     Ok(())

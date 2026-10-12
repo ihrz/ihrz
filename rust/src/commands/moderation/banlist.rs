@@ -2,13 +2,24 @@ use super::*;
 use poise::serenity_prelude as serenity;
 
 /// Clamp an optional 1-based `page` arg to a 0-based page index.
-/// The `page` slash option itself is a deliberate additive extra:
-/// !banlist.ts, !mutelist.ts and !warnlist.ts always start on the
-/// first page (no TS counterpart); kept so long lists can jump
-/// straight to a page.
+/// TS (!banlist.ts, !mutelist.ts, !warnlist.ts) always starts on the
+/// first page, so callers pass `None` here; the helper stays for the
+/// page-math unit tests and any future additive option.
 pub(crate) fn clamp_page_idx(page: Option<i64>, total_pages: usize) -> usize {
     let total = total_pages.max(1);
     (page.unwrap_or(1).clamp(1, total as i64) - 1) as usize
+}
+
+/// Wrap-around step for the TS modulo paging
+/// (`(currentPage ± 1 + pages.length) % pages.length` in !mutelist.ts
+/// and !warnlist.ts). `next == true` steps forward.
+pub(crate) fn wrap_page(cur: usize, total_pages: usize, next: bool) -> usize {
+    let total = total_pages.max(1);
+    if next {
+        (cur + 1) % total
+    } else {
+        (cur + total.saturating_sub(1)) % total
+    }
 }
 
 /// Prev/next navigation buttons. They disable at the bounds, mirroring
@@ -59,6 +70,9 @@ pub(crate) async fn deny_foreign_press(
 }
 
 /// Show a list with all banned member
+// TS-exact: zero options (!banlist.ts takes no slash options — the
+// command always opens on the first page and pages via the
+// `previous` / `next` buttons on a 15-minute collector).
 #[poise::command(
     slash_command,
     prefix_command,
@@ -70,10 +84,7 @@ pub(crate) async fn deny_foreign_press(
     description_localized("ru", "Показать список забаненных участников"),
     description_localized("es-ES", "Mostrar una lista con todos los miembros baneados")
 )]
-pub async fn mod_banlist(
-    ctx: Ctx<'_>,
-    #[description = "Page"] page: Option<i64>,
-) -> Result<(), anyhow::Error> {
+pub async fn mod_banlist(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let Some(guild_id) = ctx.guild_id() else {
         return Ok(());
     };
@@ -110,7 +121,8 @@ pub async fn mod_banlist(
         })
         .collect();
     let total = descs.len();
-    let mut cur = clamp_page_idx(page, total);
+    // TS always opens on the first page (no `page` option).
+    let mut cur = clamp_page_idx(None, total);
     let author = ctx.author().id;
     let mk_embed = |cur: usize| {
         serenity::CreateEmbed::default()
@@ -128,10 +140,7 @@ pub async fn mod_banlist(
             poise::CreateReply::default()
                 .embed(mk_embed(cur))
                 .components(vec![serenity::CreateActionRow::Buttons(nav_buttons(
-                    "mod-banlist-prev",
-                    "mod-banlist-next",
-                    cur,
-                    total,
+                    "previous", "next", cur, total,
                 ))]),
         )
         .await?;
@@ -148,8 +157,8 @@ pub async fn mod_banlist(
             continue;
         }
         match press.data.custom_id.as_str() {
-            "mod-banlist-prev" => cur = cur.saturating_sub(1),
-            "mod-banlist-next" => {
+            "previous" => cur = cur.saturating_sub(1),
+            "next" => {
                 if cur + 1 < total {
                     cur += 1;
                 }
@@ -163,10 +172,7 @@ pub async fn mod_banlist(
                     serenity::CreateInteractionResponseMessage::new()
                         .embed(mk_embed(cur))
                         .components(vec![serenity::CreateActionRow::Buttons(nav_buttons(
-                            "mod-banlist-prev",
-                            "mod-banlist-next",
-                            cur,
-                            total,
+                            "previous", "next", cur, total,
                         ))]),
                 ),
             )
@@ -175,8 +181,7 @@ pub async fn mod_banlist(
     let _ = msg
         .edit(
             ctx.http(),
-            serenity::EditMessage::new()
-                .components(vec![dead_row("mod-banlist-prev", "mod-banlist-next")]),
+            serenity::EditMessage::new().components(vec![dead_row("previous", "next")]),
         )
         .await;
     Ok(())
@@ -194,5 +199,16 @@ mod tests {
         assert_eq!(clamp_page_idx(Some(0), 3), 0);
         assert_eq!(clamp_page_idx(Some(-5), 3), 0);
         assert_eq!(clamp_page_idx(Some(1), 0), 0);
+    }
+
+    #[test]
+    fn wrap_page_cycles_like_ts_modulo() {
+        // (!mutelist.ts:160-162, !warnlist.ts:166-170)
+        assert_eq!(wrap_page(0, 3, true), 1);
+        assert_eq!(wrap_page(2, 3, true), 0);
+        assert_eq!(wrap_page(0, 3, false), 2);
+        assert_eq!(wrap_page(1, 3, false), 0);
+        assert_eq!(wrap_page(0, 1, true), 0);
+        assert_eq!(wrap_page(0, 1, false), 0);
     }
 }

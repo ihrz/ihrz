@@ -2943,9 +2943,18 @@ pub fn decode_png_pixels(bytes: &[u8]) -> anyhow::Result<Vec<(u8, u8, u8)>> {
     Ok(pixels)
 }
 
+/// Decode PNG/JPEG/GIF bytes (format-sniffed) to RGB pixels. Mirrors
+/// Jimp.read in image_dominant_color.ts, which accepts any image
+/// shape — the PNG-only path above silently dropped every JPEG
+/// artwork (all YouTube thumbnails) to the `#6fa8dc` fallback.
+pub fn decode_image_pixels(bytes: &[u8]) -> anyhow::Result<Vec<(u8, u8, u8)>> {
+    let img = image::load_from_memory(bytes)?;
+    Ok(img.to_rgb8().pixels().map(|p| (p[0], p[1], p[2])).collect())
+}
+
 /// Dominant (vibrant, dark) hex pair for an image URL, base64
 /// blob, or file path. Mirrors image_dominant_color.ts (Jimp.read
-/// accepts the same shapes; non-PNG bytes fall back to Err).
+/// accepts any image shape; JPEG/GIF included via `decode_image_pixels`).
 pub async fn image_dominant_color(input: &str) -> anyhow::Result<(String, String)> {
     let bytes: Vec<u8> = if input.starts_with("http://") || input.starts_with("https://") {
         reqwest::get(input).await?.bytes().await?.to_vec()
@@ -2970,7 +2979,7 @@ pub async fn image_dominant_color(input: &str) -> anyhow::Result<(String, String
     } else {
         tokio::fs::read(input).await?
     };
-    Ok(vibrant_and_dark_colors(&decode_png_pixels(&bytes)?))
+    Ok(vibrant_and_dark_colors(&decode_image_pixels(&bytes)?))
 }
 
 #[cfg(test)]
@@ -3036,6 +3045,26 @@ mod funcs_dominant_tests {
     #[test]
     fn png_rejects_garbage() {
         assert!(decode_png_pixels(b"not a png").is_err());
+    }
+
+    #[test]
+    fn image_pixels_accepts_jpeg_artwork() {
+        // YouTube thumbnails are JPEG: the old PNG-only path dropped
+        // them all to the #6fa8dc fallback (live "dominant color missing").
+        use image::{codecs::jpeg::JpegEncoder, ExtendedColorType, ImageEncoder};
+        let mut buf = vec![];
+        JpegEncoder::new(&mut buf)
+            .write_image(&[255u8, 0, 0].repeat(16), 4, 4, ExtendedColorType::Rgb8)
+            .unwrap();
+        let pixels = decode_image_pixels(&buf).unwrap();
+        assert_eq!(pixels.len(), 16);
+        // JPEG is lossy (solid red comes back near-red, not exact),
+        // so assert dominance instead of the exact bucket: the point
+        // is the JPEG path decodes instead of falling back.
+        let (c1, _) = vibrant_and_dark_colors(&pixels);
+        let rgb = u32::from_str_radix(c1.trim_start_matches('#'), 16).unwrap();
+        assert!(rgb >> 16 >= 0xF0 && (rgb & 0xFFFF) <= 0x1010, "{c1}");
+        assert!(decode_image_pixels(b"not an image").is_err());
     }
 }
 
