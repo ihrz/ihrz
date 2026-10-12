@@ -517,25 +517,25 @@ async fn panel_invoker_is_admin(
 }
 
 /// Ephemeral panel reply (TS `i.reply` with the ephemeral flag).
+/// The router acks first, so denials go out as ephemeral followups.
 async fn panel_ephemeral(
     ctx: &serenity::Context,
     comp: &serenity::ComponentInteraction,
     content: String,
 ) {
     let _ = comp
-        .create_response(
+        .create_followup(
             &ctx.http,
-            serenity::CreateInteractionResponse::Message(
-                serenity::CreateInteractionResponseMessage::new()
-                    .content(content)
-                    .ephemeral(true),
-            ),
+            serenity::CreateInteractionResponseFollowup::new()
+                .content(content)
+                .ephemeral(true),
         )
         .await;
 }
 
 /// Re-render the panel in place (TS `renderPanel`: status embed plus the
 /// 4-row components). `disabled` renders the collector `end` leg.
+/// The router acks first, so this edits afterwards.
 async fn panel_update(
     ctx: &serenity::Context,
     comp: &serenity::ComponentInteraction,
@@ -570,13 +570,11 @@ async fn panel_update(
     let embed = build_status_embed(t, enabled, action, trap, logs, msg_url.as_deref());
     let rows = build_panel_components(t, enabled, action, disabled);
     let _ = comp
-        .create_response(
+        .edit_response(
             &ctx.http,
-            serenity::CreateInteractionResponse::UpdateMessage(
-                serenity::CreateInteractionResponseMessage::new()
-                    .embed(embed)
-                    .components(rows),
-            ),
+            serenity::EditInteractionResponse::new()
+                .embed(embed)
+                .components(rows),
         )
         .await;
 }
@@ -611,6 +609,18 @@ pub async fn handle_panel_press(
     pool: &crate::db::Pool,
 ) {
     let Some(guild_id) = comp.guild_id else {
+        return;
+    };
+    // Ack-first (TS deferUpdate): the gates below (lang + config +
+    // allowlist DB reads, roles + member HTTP fetches) and the
+    // send/toggle lure posts all blow the 3s interaction window, so
+    // acknowledge before any slow work; every leg below edits or
+    // follows up afterwards. Never ack after a denial reply.
+    if comp
+        .create_response(&ctx.http, serenity::CreateInteractionResponse::Acknowledge)
+        .await
+        .is_err()
+    {
         return;
     };
     let gid = guild_id.get().to_string();
@@ -726,14 +736,14 @@ pub async fn handle_panel_press(
     }
 
     if id == HONEYPOT_PREVIEW_BUTTON_ID {
+        // Already acked at the top: the preview goes out as an
+        // ephemeral followup, same content and flag as before.
         let _ = comp
-            .create_response(
+            .create_followup(
                 &ctx.http,
-                serenity::CreateInteractionResponse::Message(
-                    serenity::CreateInteractionResponseMessage::new()
-                        .embed(build_trap_embed(&t))
-                        .ephemeral(true),
-                ),
+                serenity::CreateInteractionResponseFollowup::new()
+                    .embed(build_trap_embed(&t))
+                    .ephemeral(true),
             )
             .await;
         return;

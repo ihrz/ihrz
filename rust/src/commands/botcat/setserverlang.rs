@@ -294,17 +294,21 @@ pub async fn setlang(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
                     .await;
                 continue;
             };
+            // DB write + bio PATCH + channel fetch + log send before the
+            // first response: ack first (TS deferUpdate) so the save
+            // never blows the 3s window, then edit afterwards.
+            let _ = press
+                .create_response(ctx.http(), serenity::CreateInteractionResponse::Acknowledge)
+                .await;
             apply_language(&ctx, guild_id, &code).await?;
             let yes = crate::emojis::cached_emoji_entry(ctx.http(), "Yes").await;
             let _ = press
-                .create_response(
+                .edit_response(
                     ctx.http(),
-                    serenity::CreateInteractionResponse::UpdateMessage(
-                        serenity::CreateInteractionResponseMessage::new().components(vec![
-                            select_row(&code, placeholder(&code), true),
-                            save_row(yes),
-                        ]),
-                    ),
+                    serenity::EditInteractionResponse::new().components(vec![
+                        select_row(&code, placeholder(&code), true),
+                        save_row(yes),
+                    ]),
                 )
                 .await;
             let saved_text = with_type(

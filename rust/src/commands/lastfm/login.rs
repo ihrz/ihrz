@@ -31,9 +31,29 @@ pub async fn lastfm_login(
     #[description_localized("es-ES", "Tu contraseña de Last.fm")]
     password: String,
 ) -> Result<(), anyhow::Error> {
-    // Real Last.fm auth needs LASTFM_API_KEY / shared secret (live-only,
-    // see mod.rs): persist the linked username, same stored surface as TS
-    // `login` before the scrobbler leg runs.
+    // `isConfigured()` mirror (TS `login` answers
+    // `lastfm_module_not_configured` before touching the API).
+    if ctx.data().config.lastfm_api_key.is_empty()
+        || ctx.data().config.lastfm_shared_secret.is_empty()
+    {
+        let no = crate::emojis::app_emoji_markup(ctx.http(), "No")
+            .await
+            .unwrap_or_else(|| "❌".to_string());
+        let msg = crate::commands::lang_for(
+            &ctx,
+            "lastfm_module_not_configured",
+            "Last.fm is not configured.",
+        )
+        .await
+        .replace("${client.iHorizon_Emojis.No}", &no);
+        ctx.send(poise::CreateReply::default().content(msg).ephemeral(true))
+            .await?;
+        return Ok(());
+    }
+    // Real Last.fm auth needs the `auth.getMobileSession` signed call
+    // (MD5 api_sig over sorted params + shared secret, live-only, see
+    // lastFMScrobblerManager.ts `login`): persist the linked username,
+    // same stored surface as before, until that call is ported.
     let _ = password.as_str();
     crate::commands::lastfm::save_lastfm_username(
         &ctx.data().pool,
@@ -41,7 +61,12 @@ pub async fn lastfm_login(
         username.trim(),
     )
     .await?;
-    ctx.say("Last.fm username saved (API auth pending keys).")
-        .await?;
+    // TS marks both subcommands `ephemeral: true`.
+    ctx.send(
+        poise::CreateReply::default()
+            .content("Last.fm username saved (API auth pending keys).")
+            .ephemeral(true),
+    )
+    .await?;
     Ok(())
 }

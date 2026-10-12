@@ -600,6 +600,12 @@ pub async fn vd_staff(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
                 .await;
         } else if press.data.custom_id == STAFF_SAVE_ID {
             let final_ids = pending.clone().unwrap_or_else(|| staff_roles.clone());
+            // DB write + log-channel fetch/send + emoji lookup before
+            // the first response: ack first (TS deferUpdate) so the
+            // save never blows the 3s window, then edit afterwards.
+            let _ = press
+                .create_response(ctx.http(), serenity::CreateInteractionResponse::Acknowledge)
+                .await;
             let raw = serde_json::to_string(&final_ids).unwrap_or_else(|_| "[]".to_string());
             crate::commands::owner::main::routed_set(pool, &gid, &gid, &vd_key("staff_role"), &raw)
                 .await?;
@@ -632,13 +638,11 @@ pub async fn vd_staff(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
                 done = done.emoji(serenity::ReactionType::Unicode("✅".to_string()));
             }
             let _ = press
-                .create_response(
+                .edit_response(
                     ctx.http(),
-                    serenity::CreateInteractionResponse::UpdateMessage(
-                        serenity::CreateInteractionResponseMessage::new()
-                            .embed(mk_embed(&final_ids))
-                            .components(vec![save_row(done)]),
-                    ),
+                    serenity::EditInteractionResponse::new()
+                        .embed(mk_embed(&final_ids))
+                        .components(vec![save_row(done)]),
                 )
                 .await;
             saved_ids = Some(final_ids);

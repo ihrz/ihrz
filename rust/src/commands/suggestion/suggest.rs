@@ -61,7 +61,13 @@ fn guard_channel(suggest_channel: Option<&str>, disabled: bool, current: &str) -
 
 /// not_good_channel text with `${baseData?.channel}` filled.
 async fn bad_channel_text(ctx: &Ctx<'_>, kind: &str, channel: Option<&str>) -> String {
-    let key = format!("suggest_{kind}_not_good_channel");
+    // TS `!accept.ts` spells this key without the underscore
+    // (`suggest_acceptnot_good_channel`); keep the historical spelling.
+    let key = if kind == "accept" {
+        "suggest_acceptnot_good_channel".to_string()
+    } else {
+        format!("suggest_{kind}_not_good_channel")
+    };
     let fallback = "This command needs to be run in the Suggestion Module's channel!";
     crate::commands::lang_for(ctx, &key, fallback)
         .await
@@ -229,7 +235,13 @@ async fn moderate(
     let field_name = crate::commands::lang_for(&ctx, &field_tpl_key, "Staff response")
         .await
         .replace("${interaction.user.username}", &author_name);
-    let title_tpl_key = format!("suggest_{}_embed_title_to_put", action.kind);
+    // TS `!accept.ts` spells this key without the underscore
+    // (`suggest_acceptembed_title_to_put`); keep the historical spelling.
+    let title_tpl_key = if action.kind == "accept" {
+        "suggest_acceptembed_title_to_put".to_string()
+    } else {
+        format!("suggest_{}_embed_title_to_put", action.kind)
+    };
     let old_title = posted.title.clone().unwrap_or_default();
     let title = crate::commands::lang_for(&ctx, &title_tpl_key, &old_title)
         .await

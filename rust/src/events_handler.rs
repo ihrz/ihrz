@@ -6784,9 +6784,10 @@ impl serenity::EventHandler for Handler {
                             let _ = msg.reply(&_ctx.http, text).await;
                         }
                     }
-                } else if legacy::is_quoi_bait(&msg.content) {
-                    let _ = msg.reply(&_ctx.http, "feur.").await;
                 }
+                // No non-fr-ME leg: autoFeur.ts replies only when the raw
+                // GUILD.LANG.lang row is exactly "fr-ME" (other locales
+                // stay silent, no "feur." fallback exists in TS).
             }
             // antiExe (mirrors Events/utils/antiExe.ts): webhook, self
             // and Administrator/ModerateMembers bypass; bots and DMs

@@ -370,6 +370,12 @@ pub async fn mod_rolepanel(
             let mut removed = vec![];
             let mut refused_apply = vec![];
             let audit_reason = rolepanel_audit_reason(author_id);
+            // One member fetch + one add/remove PATCH per role: ack
+            // first (TS deferUpdate) so multi-role applies never blow
+            // the 3s interaction window, then edit afterwards.
+            let _ = press
+                .create_response(ctx.http(), serenity::CreateInteractionResponse::Acknowledge)
+                .await;
             for role in &selected {
                 if let Some(why) = setup_refused_reason(role, guild_id, &snap, author_id, &tl) {
                     refused_apply.push(format!("<@&{}>: {why}", role.id.get()));
@@ -413,11 +419,9 @@ pub async fn mod_rolepanel(
                 done = done.thumbnail(url);
             }
             let _ = press
-                .create_response(
+                .edit_response(
                     ctx.http(),
-                    serenity::CreateInteractionResponse::UpdateMessage(
-                        serenity::CreateInteractionResponseMessage::new().embed(done),
-                    ),
+                    serenity::EditInteractionResponse::new().embed(done),
                 )
                 .await;
             if !added.is_empty() || !removed.is_empty() {

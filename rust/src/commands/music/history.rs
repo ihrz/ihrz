@@ -212,6 +212,11 @@ pub async fn m_history(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
                     .await;
             }
             "deleteHistory" => {
+                // Table read + delete before the first response: ack
+                // first (TS deferUpdate), then edit afterwards.
+                let _ = press
+                    .create_response(ctx.http(), serenity::CreateInteractionResponse::Acknowledge)
+                    .await;
                 let _ = crate::db::tbl_del(&ctx.data().pool, &key, HISTORY_KEY).await;
                 let confirm = serenity::CreateEmbed::default()
                     .title(
@@ -226,13 +231,11 @@ pub async fn m_history(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
                     .colour(0xFF0000)
                     .timestamp(serenity::Timestamp::now());
                 let _ = press
-                    .create_response(
+                    .edit_response(
                         ctx.http(),
-                        serenity::CreateInteractionResponse::UpdateMessage(
-                            serenity::CreateInteractionResponseMessage::new()
-                                .embed(confirm)
-                                .components(vec![mk_row(true)]),
-                        ),
+                        serenity::EditInteractionResponse::new()
+                            .embed(confirm)
+                            .components(vec![mk_row(true)]),
                     )
                     .await;
                 break;

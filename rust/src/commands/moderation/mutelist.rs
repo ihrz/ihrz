@@ -140,6 +140,12 @@ pub async fn mod_mutelist(
                 cur = (cur + 1) % descs.len().max(1);
             }
             "mod-mutelist-trash" => {
+                // One member fetch + one PATCH per entry: ack first (TS
+                // deferUpdate) so mass unmutes never blow the 3s
+                // interaction window, then edit afterwards.
+                let _ = press
+                    .create_response(ctx.http(), serenity::CreateInteractionResponse::Acknowledge)
+                    .await;
                 for (uid, _) in &ids {
                     if let Ok(mut member) = guild_id.member(ctx.http(), *uid).await {
                         let _ = member.enable_communication(ctx.http()).await;
@@ -149,6 +155,15 @@ pub async fn mod_mutelist(
                 cleared = true;
                 descs = vec![t("prevnames_undetected", "No data found!")];
                 cur = 0;
+                let _ = press
+                    .edit_response(
+                        ctx.http(),
+                        serenity::EditInteractionResponse::new()
+                            .embed(mk_embed(&descs, cur))
+                            .components(vec![mk_row(cur, descs.len(), cleared)]),
+                    )
+                    .await;
+                continue;
             }
             _ => continue,
         }

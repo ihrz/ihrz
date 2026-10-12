@@ -526,23 +526,51 @@ pub fn prefix_too_long(prefix: &str) -> bool {
 // Mirrors src/core/functions/ownerHelper.ts. Guild owners live under
 // `${guildId}.OWNER.${userId}` (kv: guild_id + `OWNER.<uid>`); bot owners
 // merge the config list (`client.owners`) with the persisted owner table
-// (kv scope "0", `OWNER.<uid>`, mirrors the horizondb `owner` table).
+// (TS `owner` table, bare-uid rows; legacy kv mirror at scope "0",
+// `OWNER.<uid>`).
+
+/// TS `owner`-table handle. Bare-uid rows (`ownerTable.set(userId,
+/// { owner: true })`), TS-exact layout.
+pub const OWNER_TABLE: &str = "owner";
+
+/// `owner`-table backend over the sqlite kv store (same `tbl:<table>`
+/// emulation as `guild_table_backend`). Returns the owned backend like
+/// `guild_table_backend` (callers bind it before `.table()`).
+fn owner_backend(pool: &Pool) -> crate::backends::Backend {
+    crate::backends::Backend::sqlite(pool.clone())
+}
 
 /// kv key for one owner row, guild- or bot-scoped by `guild_id`.
 pub fn owner_key(user_id: u64) -> String {
     format!("OWNER.{user_id}")
 }
 
-/// Persisted bot-owner ids (scope "0"). Mirrors `ownerTable.all()`.
+/// Persisted bot-owner ids: the `owner` table (bare-uid rows, TS-exact)
+/// merged with the legacy kv mirror (scope "0", `OWNER.<uid>`).
+/// Table wins on conflict by construction (same id set, deduped).
 /// Scans through `kv_scan_prefix` (C4: escaped LIKE, no raw SQL).
 pub async fn stored_bot_owners(pool: &Pool) -> Vec<String> {
-    kv_scan_prefix(pool, "0", "OWNER.")
+    let backend = owner_backend(pool);
+    let mut ids: Vec<String> = backend
+        .table(OWNER_TABLE)
+        .all()
         .await
+        .unwrap_or_default()
         .into_iter()
-        .map(|(k, _)| k)
-        .filter_map(|k| k.strip_prefix("OWNER.").map(|s| s.to_string()))
+        .map(|row| row.id)
         .filter(|s| !s.is_empty())
-        .collect()
+        .collect();
+    ids.extend(
+        kv_scan_prefix(pool, "0", "OWNER.")
+            .await
+            .into_iter()
+            .map(|(k, _)| k)
+            .filter_map(|k| k.strip_prefix("OWNER.").map(|s| s.to_string()))
+            .filter(|s| !s.is_empty()),
+    );
+    ids.sort();
+    ids.dedup();
+    ids
 }
 
 /// Merged bot owners: config (`client.owners`) + persisted table.
@@ -595,24 +623,37 @@ pub async fn remove_guild_owner(pool: &Pool, guild_id: &str, user_id: u64) -> an
 }
 
 /// Mirrors addBotOwner (`ownerTable.set(userId, { owner: true })`).
+/// Dual-write (keys unchanged): the `owner`-table row (bare uid, TS-exact
+/// layout) is primary and the legacy kv row (`OWNER.<uid>` @ scope "0")
+/// keeps kv readers fresh.
 pub async fn add_bot_owner(pool: &Pool, user_id: u64) -> anyhow::Result<()> {
-    kv_set(pool, "0", &owner_key(user_id), "{\"owner\":true}").await
+    kv_set(pool, "0", &owner_key(user_id), "{\"owner\":true}").await?;
+    let backend = owner_backend(pool);
+    let _ = backend
+        .table(OWNER_TABLE)
+        .set(&user_id.to_string(), serde_json::json!({ "owner": true }))
+        .await;
+    Ok(())
 }
 
-/// Mirrors removeBotOwner (`ownerTable.delete(userId)`).
+/// Mirrors removeBotOwner (`ownerTable.delete(userId)`). Clears both
+/// stores (keys unchanged).
 pub async fn remove_bot_owner(pool: &Pool, user_id: u64) -> anyhow::Result<()> {
+    let backend = owner_backend(pool);
+    let _ = backend
+        .table(OWNER_TABLE)
+        .delete(&user_id.to_string())
+        .await;
     kv_del(pool, "0", &owner_key(user_id)).await
 }
 
-/// Bot-level blacklist lookup. Mirrors blacklistTable.get (scope "0").
+/// Bot-level blacklist lookup. Routed read (table-first with legacy kv
+/// fallback, like `blacklistTable.get`): table-only rows stay visible to
+/// the join/message guards, matching `bl_get`/`bl_list`.
 pub async fn is_blacklisted(pool: &Pool, user_id: u64) -> bool {
-    crate::db::kv_get(
-        pool,
-        "0",
-        &crate::commands::owner::main::blacklist_key(user_id),
-    )
-    .await
-    .is_some()
+    crate::commands::owner::main::bl_raw(pool, user_id)
+        .await
+        .is_some()
 }
 
 /// Canonical per-guild language key. Mirrors the TS source of truth: the
@@ -828,11 +869,71 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn bot_owner_table_leg_matches_ts_layout() {
+        // TS `ownerTable.set(userId, { owner: true })`: bare-uid row in the
+        // `owner` table. A TS-shaped row must surface in stored/bot ids,
+        // and remove must clear both legs.
+        let pool = memory_pool().await;
+        assert_eq!(OWNER_TABLE, "owner");
+        crate::backends::Backend::sqlite(pool.clone())
+            .table(OWNER_TABLE)
+            .set("77", serde_json::json!({ "owner": true }))
+            .await
+            .unwrap();
+        assert_eq!(stored_bot_owners(&pool).await, vec!["77".to_string()]);
+        assert_eq!(
+            bot_owner_ids(&pool, &["1".to_string()]).await,
+            vec!["1".to_string(), "77".to_string()]
+        );
+        remove_bot_owner(&pool, 77).await.unwrap();
+        assert!(stored_bot_owners(&pool).await.is_empty());
+        assert_eq!(kv_get(&pool, "0", &owner_key(77)).await, None);
+    }
+
+    #[tokio::test]
+    async fn bot_owner_dual_write_keeps_kv_mirror() {
+        // Rust writes populate the TS-exact table row AND the legacy kv
+        // mirror, so kv readers and table readers agree either way.
+        let pool = memory_pool().await;
+        add_bot_owner(&pool, 42).await.unwrap();
+        assert_eq!(
+            kv_get(&pool, "0", &owner_key(42)).await.as_deref(),
+            Some("{\"owner\":true}")
+        );
+        let v: Option<serde_json::Value> = owner_backend(&pool)
+            .table(OWNER_TABLE)
+            .get("42")
+            .await
+            .unwrap();
+        assert_eq!(v, Some(serde_json::json!({ "owner": true })));
+        assert_eq!(stored_bot_owners(&pool).await, vec!["42".to_string()]);
+        remove_bot_owner(&pool, 42).await.unwrap();
+        assert!(stored_bot_owners(&pool).await.is_empty());
+    }
+
+    #[tokio::test]
     async fn blacklist_lookup() {
         let pool = memory_pool().await;
         assert!(!is_blacklisted(&pool, 9).await);
         kv_set(&pool, "0", "BLACKLIST.9", "spam").await.unwrap();
         assert!(is_blacklisted(&pool, 9).await);
+    }
+
+    #[tokio::test]
+    async fn blacklist_lookup_sees_table_only_rows() {
+        // Routed read: a row planted table-only (no legacy kv mirror)
+        // stays visible to the join/message guard, matching bl_get.
+        let pool = memory_pool().await;
+        assert!(!is_blacklisted(&pool, 11).await);
+        crate::commands::owner::main::tbl_set(
+            &pool,
+            crate::commands::owner::main::BLACKLIST_TABLE,
+            "BLACKLIST.11",
+            "spam",
+        )
+        .await
+        .unwrap();
+        assert!(is_blacklisted(&pool, 11).await);
     }
 
     #[tokio::test]

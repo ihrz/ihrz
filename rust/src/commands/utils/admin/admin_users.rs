@@ -240,14 +240,15 @@ pub async fn admin_users(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
             }
             _ => continue,
         }
+        // Pager legs acked above (deferUpdate): edit afterwards —
+        // a second create_response here would be rejected as an
+        // already-acknowledged interaction.
         let _ = press
-            .create_response(
+            .edit_response(
                 ctx.http(),
-                serenity::CreateInteractionResponse::UpdateMessage(
-                    serenity::CreateInteractionResponseMessage::new()
-                        .embed(mk_embed(cur, hide_bots))
-                        .components(vec![mk_row(hide_bots)]),
-                ),
+                serenity::EditInteractionResponse::new()
+                    .embed(mk_embed(cur, hide_bots))
+                    .components(vec![mk_row(hide_bots)]),
             )
             .await;
     }

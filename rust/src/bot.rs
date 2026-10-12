@@ -923,8 +923,14 @@ pub fn split_flat_invocation(msg_content: &str) -> (&str, &str) {
     )
 }
 
-/// All registry commands (any depth) whose name or alias matches
-/// `target` case-insensitively, each with its parent chain.
+/// All registry commands (any depth) whose name, alias, or TS
+/// `prefixName` matches `target` case-insensitively, each with its
+/// parent chain. The `prefixName` leg mirrors loadHybridCommands.ts:
+/// every subcommand registers `prefixName || name` flat, so poise
+/// aliases already carry most of those keys; the table closes the
+/// remainder (e.g. `!pfps-channel`). Group nodes are excluded on
+/// purpose: TS never registers a subcommand-group `prefixName` flat
+/// (only its children), so `!ecrole` stays unknown like in TS.
 pub fn flat_leaf_hits<'a>(
     commands: &'a [poise::Command<Data, anyhow::Error>],
     target: &str,
@@ -936,11 +942,15 @@ pub fn flat_leaf_hits<'a>(
         out: &mut Vec<FlatLeafHit<'a>>,
     ) {
         for command in commands {
+            let prefix_hit = command.subcommands.is_empty()
+                && crate::commands::shared::prefix_name_for(&command.qualified_name)
+                    .is_some_and(|prefix| prefix.eq_ignore_ascii_case(target));
             if command.name.eq_ignore_ascii_case(target)
                 || command
                     .aliases
                     .iter()
                     .any(|alias| alias.eq_ignore_ascii_case(target))
+                || prefix_hit
             {
                 out.push(FlatLeafHit {
                     command,
@@ -2524,6 +2534,29 @@ mod tests {
         let hit = super::unique_flat_leaf(&cmds, "8BALL").expect("alias resolves flat");
         assert_eq!(hit.command.name, "question");
         assert!(hit.parents.is_empty());
+    }
+
+    #[test]
+    fn flat_fallback_ts_prefix_name_resolves_leaf_only() {
+        // TS registers `prefixName || name` flat for every subcommand
+        // (loadHybridCommands.ts) but never for subcommand groups.
+        // `!pfps-channel` / `!counter-channel` must reach their leaves
+        // while `!ecrole` (a group prefixName) stays unknown like TS.
+        let mut cmds = crate::commands::all();
+        poise::set_qualified_names(&mut cmds);
+        for (invoked, leaf) in [
+            ("pfps-channel", "channel"),
+            ("pfps-config", "config"),
+            ("counter-channel", "channel"),
+            ("counter-config", "config"),
+            ("PFPS-CHANNEL", "channel"),
+        ] {
+            let hit = super::unique_flat_leaf(&cmds, invoked)
+                .unwrap_or_else(|| panic!("`{invoked}` resolves flat"));
+            assert_eq!(hit.command.name, leaf);
+            assert!(hit.command.prefix_action.is_some());
+        }
+        assert!(super::unique_flat_leaf(&cmds, "ecrole").is_none());
     }
 
     /// commands.json dump shape (mirrors ready.ts JSON.stringify(mapped,

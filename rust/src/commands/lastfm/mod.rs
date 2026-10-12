@@ -109,6 +109,79 @@ pub async fn save_lastfm_username(
     .await
 }
 
+/// Full per-user Last.fm settings row, normalized to an object.
+/// Mirrors `DatabaseStructure.LastFMUserSchema` (`{enabled, username,
+/// sessionKey, connectedAt}` at `<userId>.lastfm`, here under the
+/// `LASTFM.<uid>` key in the global scope). Legacy rows hold a bare
+/// username string (written by `save_lastfm_username`); those
+/// normalize to `{"username": <s>}`.
+pub async fn lastfm_settings(pool: &crate::db::Pool, user_id: u64) -> Option<serde_json::Value> {
+    let key = lastfm_key(user_id);
+    if let Ok(Some(v)) = table_backend(pool)
+        .table(LASTFM_SCOPE)
+        .get::<serde_json::Value>(&key)
+        .await
+    {
+        if let Some(n) = normalize_lastfm_settings(&v) {
+            return Some(n);
+        }
+    }
+    let legacy = crate::db::kv_get(pool, LASTFM_SCOPE, &key).await?;
+    let v: serde_json::Value =
+        serde_json::from_str(&legacy).unwrap_or(serde_json::Value::String(legacy.clone()));
+    let _ = tbl_set_text(pool, LASTFM_SCOPE, &key, &legacy).await;
+    normalize_lastfm_settings(&v)
+}
+
+/// Normalize a stored row to a settings object. None when the row
+/// carries nothing usable (empty string, non-string scalars).
+pub fn normalize_lastfm_settings(raw: &serde_json::Value) -> Option<serde_json::Value> {
+    match raw {
+        serde_json::Value::Object(_) => Some(raw.clone()),
+        serde_json::Value::String(s) => {
+            if let Ok(serde_json::Value::Object(_)) = serde_json::from_str::<serde_json::Value>(s) {
+                serde_json::from_str(s).ok()
+            } else if s.is_empty() {
+                None
+            } else {
+                Some(serde_json::json!({ "username": s }))
+            }
+        }
+        _ => None,
+    }
+}
+
+/// Save a full settings row (dual-write, keys unchanged). The legacy
+/// kv leg stores the JSON text; the table leg parses it back so the
+/// object shape survives the round trip.
+pub async fn save_lastfm_settings(
+    pool: &crate::db::Pool,
+    user_id: u64,
+    settings: &serde_json::Value,
+) -> anyhow::Result<()> {
+    routed_set_text(
+        pool,
+        LASTFM_SCOPE,
+        LASTFM_SCOPE,
+        &lastfm_key(user_id),
+        &settings.to_string(),
+    )
+    .await
+}
+
+/// `hasUserSession` mirror: true when both `sessionKey` and
+/// `username` are present and non-empty.
+pub fn lastfm_has_session(settings: &serde_json::Value) -> bool {
+    let non_empty = |k: &str| {
+        settings
+            .get(k)
+            .and_then(|v| v.as_str())
+            .map(|s| !s.is_empty())
+            .unwrap_or(false)
+    };
+    non_empty("sessionKey") && non_empty("username")
+}
+
 /// Raw guild switch value (`Some("1")` / `Some("0")` / None when unset).
 pub async fn guild_lastfm(pool: &crate::db::Pool, guild_id: &str) -> Option<String> {
     routed_text(pool, guild_id, guild_id, GUILD_LASTFM_KEY).await
@@ -143,6 +216,41 @@ mod tests {
     #[test]
     fn key_shape() {
         assert_eq!(lastfm_key(5), "LASTFM.5");
+    }
+
+    #[test]
+    fn settings_normalize_covers_legacy_shapes() {
+        // Full object passes through.
+        let obj = serde_json::json!({ "enabled": true, "username": "dj" });
+        assert_eq!(normalize_lastfm_settings(&obj), Some(obj.clone()));
+        // Bare username string (save_lastfm_username shape).
+        assert_eq!(
+            normalize_lastfm_settings(&serde_json::Value::String("dj".to_string())),
+            Some(serde_json::json!({ "username": "dj" }))
+        );
+        // Doubly-encoded object string.
+        let enc = serde_json::Value::String(obj.to_string());
+        assert_eq!(normalize_lastfm_settings(&enc), Some(obj));
+        // Empty / scalar rows carry nothing.
+        assert_eq!(
+            normalize_lastfm_settings(&serde_json::Value::String(String::new())),
+            None
+        );
+        assert_eq!(normalize_lastfm_settings(&serde_json::json!(42)), None);
+    }
+
+    #[test]
+    fn has_session_needs_key_and_username() {
+        assert!(lastfm_has_session(
+            &serde_json::json!({ "username": "dj", "sessionKey": "k" })
+        ));
+        assert!(!lastfm_has_session(
+            &serde_json::json!({ "username": "dj" })
+        ));
+        assert!(!lastfm_has_session(
+            &serde_json::json!({ "username": "dj", "sessionKey": "" })
+        ));
+        assert!(!lastfm_has_session(&serde_json::json!({})));
     }
 
     #[test]
