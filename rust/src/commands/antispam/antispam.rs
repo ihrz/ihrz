@@ -4,11 +4,12 @@ use super::{
 };
 
 /// Run-less group root for the antispam category.
-// The TS `!manage` collector UI is flattened to the `config` leaf
-// (`as_config`, registered below with the `mng` / `antimng` prefix
-// aliases, so `!antispam mng` keeps working); bypass roles/channels
-// are their own leaves. A bare invocation raises SubcommandRequired
-// (mapped to help in `bot.rs`) before this body runs, on both paths.
+// Mirrors antispam.ts: `manage` (interactive config panel),
+// `bypass-roles` (interactive role-select panel) and
+// `ignore-channels` (interactive channel-select panel) are the three
+// leaves, each TS-identical (no invented subcommands/params). A bare
+// invocation raises SubcommandRequired (mapped to help in `bot.rs`)
+// before this body runs, on both paths.
 #[poise::command(
     slash_command,
     prefix_command,
