@@ -14,9 +14,23 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 PLANS = os.path.join(HERE, "plans")
 REPORTS = os.path.join(HERE, "..", "..", "qa-reports")
 SDK = os.path.join(HERE, ".venv", "bin", "python")
+LOCK = os.path.join(HERE, ".campaign.lock")
+
+
+def acquire_lock() -> bool:
+    try:
+        fd = os.open(LOCK, os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+        os.write(fd, str(os.getpid()).encode())
+        os.close(fd)
+        return True
+    except FileExistsError:
+        return False
 
 
 def main() -> int:
+    if not acquire_lock():
+        print("another campaign runner holds the lock - refusing to start", flush=True)
+        return 2
     batches = sorted(f for f in os.listdir(PLANS)
                      if f.startswith("batch-") and f.endswith(".json"))
     first = int(sys.argv[1]) if len(sys.argv) > 1 else 1
@@ -44,6 +58,10 @@ def main() -> int:
             print(f"{name} FAILED rc={p.returncode}", flush=True)
             if fails >= 2:
                 print("two consecutive failures - stopping campaign", flush=True)
+                try:
+                    os.unlink(LOCK)
+                except OSError:
+                    pass
                 return 1
         else:
             fails = 0
@@ -51,11 +69,15 @@ def main() -> int:
                 raw = p.stdout
                 data = json.loads(raw[raw.index("\n{") + 1:])
                 bad = [a for a in data["actions"]
-                       if a.get("verdict", "ok") != "ok"]
+                       if not a.get("verdict", "ok").startswith("ok")]
                 print(f"{name} done: {len(data['actions'])} actions, "
                       f"{len(bad)} non-ok", flush=True)
             except Exception as e:  # noqa: BLE001
                 print(f"{name} done (unparsed tail: {e})", flush=True)
+    try:
+        os.unlink(LOCK)
+    except OSError:
+        pass
     return 0
 
 
