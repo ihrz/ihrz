@@ -484,7 +484,7 @@ irisweb_message: "😼IrisWeb ist meine zweite Entwicklerin/Zuträgerin , IrisWe
 # /status
 
 # /help
-help_tip_embed: "```${client.user?.username} ・ Hilfe Menü```\n${client.iHorizon_Emojis.Pin} ・ **${categories.length}** verfügbare Kategorien von Befehlen\n${client.iHorizon_Emojis.Slash_Bot_Badge} ・ **${client.content.filter(c => c.messageCmd === false).length}** verfügbare Slash-Befehle\n${client.iHorizon_Emojis.Crown} ・ **Erstellt von** <@${config.owner.ownerid1}>, <@${config.owner.ownerid2}>\n\n```Wussten Sie schon? ・ Tipps```\n${client.iHorizon_Emojis.VC_Region} ・ ${client.user?.username} ist **100 % mehrsprachig**\n${client.iHorizon_Emojis.Slash_Bot_Badge} ・ `/setlang language:Japanese`"
+help_tip_embed: "```${client.user?.username} ・ Hilfe Menü```\n${client.iHorizon_Emojis.Pin} ・ **${categories.length}** verfügbare Kategorien von Befehlen\n${client.iHorizon_Emojis.Slash_Bot_Badge} ・ **${client.content.filter(c => c.messageCmd === false).length}** verfügbare Slash-Befehle\n${client.iHorizon_Emojis.Crown} ・ **Erstellt von** <@${config.owner.ownerid1}>, <@${config.owner.ownerid2}>\n\n```Wussten Sie schon? ・ Tipps```\n${client.iHorizon_Emojis.VC_Region} ・ ${client.user?.username} ist **100 % mehrsprachig**\n${client.iHorizon_Emojis.Slash_Bot_Badge} ・ `/setlang language:Japanese`\\n${client.iHorizon_Emojis.Slash_Bot_Badge} ・ Wird derzeit in Rust neu geschrieben"
 help_mod_fields: "Moderation"
 help_ranks_fields: "Ränge"
 help_fun_fields: "Fun"

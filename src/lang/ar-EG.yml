@@ -484,7 +484,7 @@ irisweb_message: "😼 IrisWeb هو مطور/مساهم الثاني لي، Iris
 # /status
 
 # /help
-help_tip_embed: "```${client.user?.username} ・ قائمة المساعدة```\n${client.iHorizon_Emojis.Pin} ・ **${categories.length}** فئة أوامر متاحة\n${client.iHorizon_Emojis.Slash_Bot_Badge} ・ **${client.content.filter(c => c.messageCmd === false).length}** أوامر سلاش متاحة\n${client.iHorizon_Emojis.Crown} ・ **أنشأه** <@${config.owner.ownerid1}>, <@${config.owner.ownerid2}>\n\n```هل تعلم؟ ・ نصائح```\n${client.iHorizon_Emojis.VC_Region} ・ ${client.user?.username} هو **100% متعدد اللغات**\n${client.iHorizon_Emojis.Slash_Bot_Badge} ・ `/setlang language:Japanese`"
+help_tip_embed: "```${client.user?.username} ・ قائمة المساعدة```\n${client.iHorizon_Emojis.Pin} ・ **${categories.length}** فئة أوامر متاحة\n${client.iHorizon_Emojis.Slash_Bot_Badge} ・ **${client.content.filter(c => c.messageCmd === false).length}** أوامر سلاش متاحة\n${client.iHorizon_Emojis.Crown} ・ **أنشأه** <@${config.owner.ownerid1}>, <@${config.owner.ownerid2}>\n\n```هل تعلم؟ ・ نصائح```\n${client.iHorizon_Emojis.VC_Region} ・ ${client.user?.username} هو **100% متعدد اللغات**\n${client.iHorizon_Emojis.Slash_Bot_Badge} ・ `/setlang language:Japanese`\\n${client.iHorizon_Emojis.Slash_Bot_Badge} ・ يُعاد كتابته حاليًا بلغة Rust"
 help_mod_fields: "إدارة"
 help_ranks_fields: "الرتب"
 help_fun_fields: "متعة"
