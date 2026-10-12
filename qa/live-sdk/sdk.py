@@ -35,6 +35,7 @@ from __future__ import annotations
 import asyncio
 import json
 import os
+import re
 import sys
 import time
 
@@ -61,10 +62,12 @@ BOT_APP_ID = int(os.environ.get("IHRZ_BOT_APP_ID", "1053818045073739817"))
 SELF_ID = os.environ.get("IHRZ_SELF_ID", "1542861131939577949")
 
 FORBIDDEN = (
-    "ban", "kick", "purge", "wipe", "nuke", "timeout", "mute",
+    "ban", "unban", "kick", "purge", "wipe", "nuke", "timeout", "mute",
+    "unmute", "tempmute", "tempban",
     "deleterole", "editrole", "permission", "channeldelete",
     "channeledit", "webhook", "token",
 )
+_VERB_RE = re.compile(r"[a-z]+")
 
 # Signatures that mark a bot reply as a failure (mirrors the known
 # live incidents: double-ack crash, debounce denial, no-response).
@@ -84,9 +87,12 @@ async def sleep_maybe(ms: int) -> None:
 def assert_writable(action: dict) -> None:
     if not ALLOW_WRITE:
         raise RuntimeError("refusing write: set IHRZ_LIVE_WRITE=1 with an explicit plan")
-    blob = json.dumps(action).lower()
+    # Word-boundary match on path segments + content words: "banner" must
+    # not trip on "ban", but a real "ban"/"unban" segment still blocks.
+    words = set(_VERB_RE.findall(json.dumps(action).lower()))
+    segments = set((action.get("path", []) or []))
     for verb in FORBIDDEN:
-        if verb in blob:
+        if verb in words or verb in segments:
             raise RuntimeError(f"refusing forbidden verb in plan: {verb}")
 
 
