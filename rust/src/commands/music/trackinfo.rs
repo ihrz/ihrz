@@ -142,7 +142,7 @@ async fn reply_for_trackinfo(
     let trimmed = match lyrics_query {
         Some(q) => super::lyrics::fetch_lyrics_text(q)
             .await
-            .map(|(_, text)| super::lyrics::lyrics_embed_description(&text)),
+            .map(|(_, text)| trackinfo_lyrics_excerpt(&text)),
         None => None,
     }
     .filter(|s| !s.trim().is_empty())
@@ -199,6 +199,25 @@ async fn dominant_colour(artwork: Option<&str>) -> u32 {
     }
 }
 
+/// TS `!trackinfo.ts` lyrics leg: raw `substring(0, 1997)` with NO
+/// `...` suffix (unlike the `!lyrics.ts` leg, which appends one when
+/// the trimmed width hits 1997). `substring`/`.length` count UTF-16
+/// code units, so the cut walks `char_indices` accumulating
+/// `len_utf16` and never splits a surrogate pair.
+pub fn trackinfo_lyrics_excerpt(text: &str) -> String {
+    let mut units = 0usize;
+    let mut end = 0usize;
+    for (i, c) in text.char_indices() {
+        let w = c.len_utf16();
+        if units + w > 1997 {
+            break;
+        }
+        units += w;
+        end = i + c.len_utf8();
+    }
+    text[..end].to_string()
+}
+
 /// TS description shape:
 /// `{music_link_here({link} -> uri)}\n# {micro} {lyrics}\n*{trimmed}*`.
 pub fn trackinfo_description(
@@ -242,5 +261,21 @@ mod tests {
             trackinfo_footer("Artist", "Requested by", "bob"),
             "Artist - Requested by bob"
         );
+    }
+
+    #[test]
+    fn lyrics_excerpt_is_raw_substring_without_suffix() {
+        // `!trackinfo.ts` uses `substring(0, 1997)` with no `...`
+        // (unlike the `!lyrics.ts` leg).
+        assert_eq!(trackinfo_lyrics_excerpt("abc"), "abc");
+        let long = "x".repeat(3000);
+        let out = trackinfo_lyrics_excerpt(&long);
+        assert_eq!(out.len(), 1997);
+        assert!(!out.ends_with("..."));
+        assert_eq!(out, "x".repeat(1997));
+        // UTF-16 units like TS: astral chars cost 2 and pairs never split.
+        let emoji = "😀".repeat(2000);
+        let out = trackinfo_lyrics_excerpt(&emoji);
+        assert_eq!(out, "😀".repeat(998));
     }
 }

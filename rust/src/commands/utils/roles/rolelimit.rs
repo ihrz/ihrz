@@ -35,31 +35,43 @@ pub async fn rolelimit(
         .unwrap_or_default();
     let key = format!("GUILD.UTILS.ROLE_LIMIT.{}", role.id.get());
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-    match limit.unwrap_or(0) {
-        0 => {
-            let _ =
-                crate::commands::owner::main::routed_del(&ctx.data().pool, &gid, &gid, &key).await;
-            ctx.say(
-                crate::lang::get(&code, "msg_role_limit_cleared")
-                    .unwrap_or_else(|| "Role limit cleared.".to_string()),
-            )
-            .await?;
-        }
-        n => {
-            crate::commands::owner::main::routed_set(
-                &ctx.data().pool,
-                &gid,
-                &gid,
-                &key,
-                &n.max(1).to_string(),
-            )
-            .await?;
-            ctx.say(
-                crate::lang::get(&code, "msg_role_limit_set")
-                    .unwrap_or_else(|| "Role limit set.".to_string()),
-            )
-            .await?;
-        }
+    // TS (!rolelimit.ts:55): missing role or zero limit is a usage error.
+    // (poise always supplies `role`; `limit` arrives as None when omitted.)
+    let limit_count = limit.unwrap_or(0);
+    if limit_count == 0 {
+        let no = crate::emojis::app_emoji_markup(&ctx.serenity_context().http, "No")
+            .await
+            .unwrap_or_else(|| "❌".to_string());
+        ctx.say(
+            crate::lang::get(&code, "util_rolelimit_bad_opt")
+                .map(|s| s.replace("${client.iHorizon_Emojis.No}", &no))
+                .unwrap_or_else(|| {
+                    "${client.iHorizon_Emojis.No} | The provided options are invalid. Please check your input.".to_string()
+                }),
+        )
+        .await?;
+        return Ok(());
     }
+    crate::commands::owner::main::routed_set(
+        &ctx.data().pool,
+        &gid,
+        &gid,
+        &key,
+        &limit_count.to_string(),
+    )
+    .await?;
+    let crown = crate::emojis::app_emoji_markup(&ctx.serenity_context().http, "Crown")
+        .await
+        .unwrap_or_default();
+    ctx.say(
+        crate::lang::get(&code, "util_rolelimit_good")
+            .map(|s| {
+                s.replace("${client.iHorizon_Emojis.Crown}", &crown)
+                    .replace("${role.toString()}", &role.to_string())
+                    .replace("${limit_count}", &limit_count.to_string())
+            })
+            .unwrap_or_else(|| "Role limit set.".to_string()),
+    )
+    .await?;
     Ok(())
 }

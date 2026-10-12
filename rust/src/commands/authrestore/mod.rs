@@ -760,6 +760,12 @@ async fn reply_missing_key(ctx: &Ctx<'_>, secret: &str) -> Result<(), anyhow::Er
     )
     .await
     .replace("${secretCode}", secret);
+    // TS substitutes the No emoji at render (`!get/!roles/!force-join.ts`);
+    // without this the raw `${...}` placeholder leaks to users.
+    let no = crate::emojis::app_emoji_markup(ctx.http(), "No")
+        .await
+        .unwrap_or_default();
+    let text = text.replace("${client.iHorizon_Emojis.No}", &no);
     ctx.send(poise::CreateReply::default().content(text).ephemeral(true))
         .await?;
     Ok(())

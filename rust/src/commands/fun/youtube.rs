@@ -44,8 +44,12 @@ pub async fn youtube(
     // `"".split(" ")` yields `[""]`, so the gate never fires: TS accepts
     // whitespace-only comments and so do we (no `has_comment` gate).
     // Mirrors `user.globalName || user.username` (required target user),
-    // truncated at 15 chars.
-    let display = youtube_display_name(user.global_name.as_deref(), &user.name);
+    // truncated at 15 chars, then `sanitizing(...)` like the TS
+    // `{displayname}` replace so raw mentions/markdown cannot leak.
+    let display = crate::funcs::sanitizing(&youtube_display_name(
+        user.global_name.as_deref(),
+        &user.name,
+    ));
     let likes = crate::funcs::format_number(youtube_likes() as f64);
     // Standing exclusion: the TS card renders via `client.func.html2png`
     // (headless Chromium, comment-card selector); no renderer exists in
@@ -56,7 +60,8 @@ pub async fn youtube(
         crate::lang::get(&code, "fun_youtube_pending")
             .map(|s| {
                 s.replace("${display}", &display)
-                    .replace("${comment}", &comment)
+                    // Mirrors `.replace("{comment}", sanitizing(...))`.
+                    .replace("${comment}", &crate::funcs::sanitizing(&comment))
                     .replace("${likes}", &likes)
             })
             .unwrap_or_else(|| format!("{display}: {comment} ({likes} likes, render pending)")),

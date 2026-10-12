@@ -89,14 +89,15 @@ pub async fn setmentionrole(
                 crate::commands::owner::main::routed_del(&ctx.data().pool, &gid, &gid, key).await;
         }
         let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-        ctx.say(
-            crate::lang::get(&code, "setrankroles_command_work_disable")
-                .map(|s| s.replace("${interaction.user.id}", &ctx.author().id.get().to_string()))
-                .unwrap_or_else(|| {
-                    "<@${interaction.user.id}>, you have deleted the rank role!".to_string()
-                }),
-        )
-        .await?;
+        // TS posts the disable audit embed before answering.
+        post_rankrole_log(&ctx, false, None, &code).await;
+        let desc = crate::lang::get(&code, "setrankroles_command_work_disable")
+            .map(|s| s.replace("${interaction.user.id}", &ctx.author().id.get().to_string()))
+            .unwrap_or_else(|| {
+                "<@${interaction.user.id}>, you have deleted the rank role!".to_string()
+            });
+        let embed = poise::serenity_prelude::CreateEmbed::default().description(desc);
+        ctx.send(poise::CreateReply::default().embed(embed)).await?;
         return Ok(());
     }
     // TS (!setmentionrole.ts): `on` needs a role; the nickname part is
@@ -151,6 +152,9 @@ pub async fn setmentionrole(
     )
     .await?;
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    // TS answers the work message as an embed description, after the
+    // enable audit embed.
+    post_rankrole_log(&ctx, true, Some(role.id.get()), &code).await;
     if let Some(nick) = part {
         crate::commands::owner::main::routed_set(
             &ctx.data().pool,
@@ -165,7 +169,7 @@ pub async fn setmentionrole(
                 "\n**Note**:\nIf the person removes the part of the nickname, the role will be automatically removed. When they put it back, I will give it back to them."
                     .to_string()
             });
-        ctx.say(format!(
+        let desc = format!(
             "{}{}",
             fill_work_with_nicknames(
                 &crate::lang::get(&code, "setrankroles_command_work_with_nicknames")
@@ -177,19 +181,72 @@ pub async fn setmentionrole(
                 &nick,
             ),
             tail,
-        ))
-        .await?;
+        );
+        let embed = poise::serenity_prelude::CreateEmbed::default().description(desc);
+        ctx.send(poise::CreateReply::default().embed(embed)).await?;
     } else {
-        ctx.say(fill_work(
+        let desc = fill_work(
             &crate::lang::get(&code, "setrankroles_command_work").unwrap_or_else(|| {
                 "Now, when you ping me `@iHorizon` I will add the following roles: <@&${argsid}>"
                     .to_string()
             }),
             role.id.get(),
-        ))
-        .await?;
+        );
+        let embed = poise::serenity_prelude::CreateEmbed::default().description(desc);
+        ctx.send(poise::CreateReply::default().embed(embed)).await?;
     }
     Ok(())
+}
+
+/// Post the rank-role audit embed to the `ihorizon-logs` channel.
+/// Mirrors `client.func.ihorizon_logs` in !setmentionrole.ts; silent
+/// when the channel is absent.
+async fn post_rankrole_log(ctx: &Ctx<'_>, enable: bool, role_id: Option<u64>, code: &str) {
+    use poise::serenity_prelude as serenity;
+    let Some(guild_id) = ctx.guild_id() else {
+        return;
+    };
+    let Ok(channels) = guild_id.channels(ctx.http()).await else {
+        return;
+    };
+    let list: Vec<(u64, String)> = channels
+        .iter()
+        .map(|(id, c)| (id.get(), c.name.clone()))
+        .collect();
+    let Some(log_id) = crate::funcs::logs_channel_id(&list) else {
+        return;
+    };
+    let author = ctx.author().id.get().to_string();
+    let (title_key, desc_key, fallback_desc) = if enable {
+        (
+            "setrankroles_logs_embed_title_enable",
+            "setrankroles_logs_embed_description_enable",
+            format!(
+                "<@{}> set the rankrole to <@&{}>",
+                author,
+                role_id.unwrap_or_default()
+            ),
+        )
+    } else {
+        (
+            "setrankroles_logs_embed_title_disable",
+            "setrankroles_logs_embed_description_disable",
+            format!("<@{author}> deleted the rank role!"),
+        )
+    };
+    let title = crate::lang::get(code, title_key).unwrap_or_else(|| "Set RankRole".to_string());
+    let desc = crate::lang::get(code, desc_key)
+        .map(|s| {
+            s.replace("${interaction.user.id}", &author)
+                .replace("${argsid}", &role_id.unwrap_or_default().to_string())
+        })
+        .unwrap_or(fallback_desc);
+    let embed = serenity::CreateEmbed::default()
+        .title(title)
+        .description(desc);
+    let _ = serenity::ChannelId::new(log_id)
+        .send_message(ctx.http(), serenity::CreateMessage::new().embed(embed))
+        .await;
 }
 
 /// Already-this-role guard. Mirrors `already === argsid.id` in

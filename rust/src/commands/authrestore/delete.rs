@@ -69,16 +69,16 @@ pub async fn authrestore_delete(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     let channel_id = serenity::ChannelId::new(cid);
     let stored_msg = match channel_id.message(http, mid).await {
         Ok(m) => m,
-        Err(e) => {
-            ctx.say(format!(
-                "{}\n{e}",
+        // TS !delete.ts fetch `.catch`: bare key, no error suffix.
+        Err(_) => {
+            ctx.say(
                 t(
                     &ctx,
                     "reactionroles_cant_fetched_reaction_remove",
                     "Can't fetch targeted reaction on this message!",
                 )
-                .await
-            ))
+                .await,
+            )
             .await?;
             return Ok(());
         }
@@ -95,19 +95,21 @@ pub async fn authrestore_delete(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         .await?;
         return Ok(());
     }
-    if let Err(e) = channel_id
+    // TS !delete.ts never awaits the button-clear edit (fire-and-forget);
+    // a failure here reports the same bare fetch-error key.
+    if channel_id
         .edit_message(http, mid, serenity::EditMessage::new().components(vec![]))
         .await
+        .is_err()
     {
-        ctx.say(format!(
-            "{}\n{e}",
+        ctx.say(
             t(
                 &ctx,
                 "reactionroles_cant_fetched_reaction_remove",
                 "Can't fetch targeted reaction on this message!",
             )
-            .await
-        ))
+            .await,
+        )
         .await?;
         return Ok(());
     }

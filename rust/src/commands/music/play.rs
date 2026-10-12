@@ -167,11 +167,16 @@ pub async fn m_play(
         Some(Ok((_pos, t, is_playlist))) => {
             // Rich entry (mirrors musicPlay.ts buffer/embed rows:
             // requester - resolved title | uri by requester).
+            // Titles are link-masked like the TS `maskLink` leg at
+            // queue-add time (`Hidden Link` on URL-ish input), so the
+            // reply embed, the queue-add echo and the history row all
+            // carry the masked form.
+            let shown_title = crate::funcs::mask_link(&t.title);
             let requester_tag = format!("<@{requester}>");
             record_history_full(
                 &ctx.data().pool,
                 gid,
-                &t.title,
+                &shown_title,
                 t.uri.as_deref(),
                 Some(&requester_tag),
             )
@@ -206,7 +211,7 @@ pub async fn m_play(
                 None => String::new(),
             };
             let mut embed = serenity::CreateEmbed::default()
-                .description(format!("**{}**{platform_line}", t.title))
+                .description(format!("**{shown_title}**{platform_line}"))
                 // TS `SUCCESS_EMBED_COLOR` (#00cc1a, musicPlay.ts:76).
                 .colour(0x00CC1A)
                 .timestamp(serenity::Timestamp::now())
@@ -256,9 +261,9 @@ pub async fn m_play(
                     let desc = crate::lang::get(&code, "event_mp_audioTrackAdd")
                         .map(|s| {
                             s.replace("${client.iHorizon_Emojis.Music_Icon}", &icon)
-                                .replace("${track.title}", &t.title)
+                                .replace("${track.title}", &shown_title)
                         })
-                        .unwrap_or_else(|| format!("{} added to the queue!", t.title));
+                        .unwrap_or_else(|| format!("{shown_title} added to the queue!"));
                     let embed = serenity::CreateEmbed::default()
                         // TS `QUEUE_ADD_EMBED_COLOR` (2829617, musicPlay.ts:77).
                         .colour(0x2B2D31)

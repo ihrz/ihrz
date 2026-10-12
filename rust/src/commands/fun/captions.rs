@@ -40,6 +40,9 @@ pub async fn captions(
     #[description_localized("ru", "ваши подписи")]
     #[description_localized("es-ES", "tus subtítulos")]
     #[description = "your captions"]
+    // `#[rest]` mirrors the prefix `longString(args, 0)` (whole tail) in
+    // `!captions.ts`; slash uses `getString("query", true)`.
+    #[rest]
     query: String,
 ) -> Result<(), anyhow::Error> {
     // No disabled-category check in `!captions.ts`: no fun_guard here

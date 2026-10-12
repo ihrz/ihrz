@@ -104,12 +104,14 @@ pub async fn autorenew(
     let yes = crate::emojis::app_emoji_markup(&ctx.serenity_context().http, "Yes")
         .await
         .unwrap_or_else(|| "✅".to_string());
+    // TS fills `${time}` with `to_beautiful_string(parseTime, lang)`.
+    let pretty = crate::commands::guildconfig::beautiful_ms_lang(ms as f64, &code);
     ctx.say(
         crate::lang::get(&code, "util_autorenew_command_ok")
             .map(|s| {
                 s.replace("${client.iHorizon_Emojis.Yes}", &yes)
                     .replace("${channel.toString()}", &format!("<#{}>", channel.id.get()))
-                    .replace("${time}", &every)
+                    .replace("${time}", &pretty)
             })
             .unwrap_or_else(|| "${client.iHorizon_Emojis.Yes} Now, the ${channel.toString()} channel is automatically deleted-created (renewed) every ${time}!\nTo stop the channel from being renewed, just delete it by yourself.".to_string()),
     )

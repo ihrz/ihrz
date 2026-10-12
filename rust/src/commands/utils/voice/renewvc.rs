@@ -1,6 +1,6 @@
 use super::*;
 
-/// Renew your current voice channel now. Mirrors !renewvc.ts.
+/// Reset your current voice channel region to automatic. Mirrors !renewvc.ts.
 #[poise::command(
     slash_command,
     prefix_command,
@@ -52,38 +52,42 @@ pub async fn renewvc(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     else {
         return Ok(());
     };
-    let mut builder = poise::serenity_prelude::CreateChannel::new(ch.name.clone()).kind(ch.kind);
-    if let Some(parent) = ch.parent_id {
-        builder = builder.category(parent);
+    // TS toggles the RTC region (japan, then automatic) and reports the
+    // channel; any failure answers `renewvc_dont_have_permission`.
+    let outcome = async {
+        ch.id
+            .edit(
+                ctx.http(),
+                poise::serenity_prelude::EditChannel::new().voice_region(Some("japan".to_string())),
+            )
+            .await?;
+        ch.id
+            .edit(
+                ctx.http(),
+                poise::serenity_prelude::EditChannel::new().voice_region(None),
+            )
+            .await
     }
-    let new_ch = guild_id.create_channel(ctx.http(), builder).await?;
-    // Move occupants over, then delete the old channel.
-    let occupants: Vec<poise::serenity_prelude::UserId> = ctx
-        .serenity_context()
-        .cache
-        .guild(guild_id)
-        .map(|g| {
-            g.voice_states
-                .iter()
-                .filter(|(_, v)| v.channel_id == Some(target))
-                .map(|(uid, _)| *uid)
-                .collect()
-        })
-        .unwrap_or_default();
-    for uid in occupants {
-        let _ = guild_id.move_member(ctx.http(), uid, new_ch.id).await;
-    }
-    let _ = target.delete(ctx.http()).await;
+    .await;
     let code = crate::db::guild_lang(&ctx.data().pool, Some(guild_id.get())).await;
+    if outcome.is_err() {
+        ctx.say(
+            crate::lang::get(&code, "renewvc_dont_have_permission")
+                .unwrap_or_else(|| ":x: **Can't** `Don't have permission!`".to_string()),
+        )
+        .await?;
+        return Ok(());
+    }
+    let yes = crate::emojis::app_emoji_markup(&ctx.serenity_context().http, "Yes")
+        .await
+        .unwrap_or_default();
     ctx.say(
-        crate::lang::get(&code, "renew_channel_send_success")
+        crate::lang::get(&code, "renewvc_region_success")
             .map(|s| {
-                s.replace(
-                    "${interaction.user}",
-                    &format!("<@{}>", ctx.author().id.get()),
-                )
+                s.replace("${client.iHorizon_Emojis.Yes}", &yes)
+                    .replace("${targetVc}", &format!("<#{}>", target.get()))
             })
-            .unwrap_or_else(|| format!("Renewed as <#{}>.", new_ch.id.get())),
+            .unwrap_or_else(|| format!("Renewed <#{}>.", target.get())),
     )
     .await?;
     Ok(())

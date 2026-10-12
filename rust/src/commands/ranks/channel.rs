@@ -143,8 +143,7 @@ async fn run_channel_action(
     // acts. The slash `action` option is `required: true`, so a
     // missing action on slash answers the usage reply (never silent);
     // a bare prefix call keeps the TS silent no-op. The text lives
-    // behind `ranks_channel_missing_action` (new lang key, YAML
-    // pending) — never a hardcoded string.
+    // behind `ranks_channel_missing_action` — never a hardcoded string.
     let Some(action) = action else {
         if matches!(ctx, poise::Context::Prefix(_)) {
             return Ok(());

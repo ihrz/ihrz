@@ -26,30 +26,20 @@ pub async fn unzip_emojis(
     let Some(guild_id) = ctx.guild_id() else {
         return Ok(());
     };
+    // TS wraps the whole run in try/catch answering
+    // `util_unzip_emojis_command_error` (ephemeral).
+    let started = std::time::Instant::now();
     let bytes = match reqwest::Client::new().get(&attachment.url).send().await {
         Ok(r) => r.bytes().await.unwrap_or_default().to_vec(),
         Err(_) => {
-            let code =
-                crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-            ctx.say(
-                crate::lang::get(&code, "msg_download_failed")
-                    .unwrap_or_else(|| "Download failed.".to_string()),
-            )
-            .await?;
-            return Ok(());
+            return unzip_failed(&ctx).await;
         }
     };
     let reader = std::io::Cursor::new(bytes);
     let mut archive = match zip::ZipArchive::new(reader) {
         Ok(a) => a,
         Err(_) => {
-            let code =
-                crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-            ctx.say(
-                crate::lang::get(&code, "msg_bad_zip").unwrap_or_else(|| "Bad zip.".to_string()),
-            )
-            .await?;
-            return Ok(());
+            return unzip_failed(&ctx).await;
         }
     };
     let mut pending: Vec<(String, Vec<u8>)> = vec![];
@@ -87,6 +77,37 @@ pub async fn unzip_emojis(
             done += 1;
         }
     }
-    ctx.say(format!("Uploaded {done} emojis.")).await?;
+    // Mirrors `util_unzip_emojis_command_work` (${calcTime}, ${emojiCount}).
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    let calc = started.elapsed().as_millis();
+    ctx.send(
+        poise::CreateReply::default()
+            .content(
+                crate::lang::get(&code, "util_unzip_emojis_command_work")
+                    .map(|s| {
+                        s.replace("${calcTime}", &calc.to_string())
+                            .replace("${emojiCount}", &done.to_string())
+                    })
+                    .unwrap_or_else(|| format!("Created {done} emoji(s).")),
+            )
+            .ephemeral(true),
+    )
+    .await?;
+    Ok(())
+}
+
+/// Ephemeral `util_unzip_emojis_command_error` reply. Mirrors the TS
+/// try/catch around the whole run (download + unzip failures).
+async fn unzip_failed(ctx: &Ctx<'_>) -> Result<(), anyhow::Error> {
+    let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
+    ctx.send(
+        poise::CreateReply::default()
+            .content(
+                crate::lang::get(&code, "util_unzip_emojis_command_error")
+                    .unwrap_or_else(|| "An error occurred while unzipping emojis.".to_string()),
+            )
+            .ephemeral(true),
+    )
+    .await?;
     Ok(())
 }

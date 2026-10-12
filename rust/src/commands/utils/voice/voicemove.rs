@@ -37,6 +37,22 @@ pub async fn voicemove(
         return Ok(());
     };
     let code = crate::db::guild_lang(&ctx.data().pool, Some(guild_id.get())).await;
+    // Voice-state guard first, like !move.ts (`member?.voice.channelId`).
+    let in_vc = ctx
+        .serenity_context()
+        .cache
+        .guild(guild_id)
+        .and_then(|g| g.voice_states.get(&user.id).and_then(|v| v.channel_id))
+        .is_some();
+    if !in_vc {
+        ctx.say(
+            crate::lang::get(&code, "util_move_not_in_vc").unwrap_or_else(|| {
+                "The member you want to move is not connected to any voice channel".to_string()
+            }),
+        )
+        .await?;
+        return Ok(());
+    }
     // Admin-victim guard. Mirrors !move.ts: a non-admin invoker cannot
     // move a member holding Administrator.
     let victim_admin = guild_id

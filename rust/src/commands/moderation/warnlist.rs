@@ -11,11 +11,14 @@ fn escape_warn_field(s: &str) -> String {
     s.replace('`', "\\`")
 }
 
-/// Author mention for a warn row. Legacy rows (and rows without a
-/// usable id) fall back to the `var_unknown` word.
+/// Raw author id for a warn row. The `warnlist_embed_desc` template
+/// already wraps the placeholder (`> Author: <@${x.authorID}>`), so
+/// like !warnlist.ts:94-100 this substitutes the bare id — never a
+/// pre-wrapped mention. Legacy rows (and rows without a usable id)
+/// fall back to the `var_unknown` word.
 fn author_mention(warn: &Warn, unknown: &str) -> String {
     match warn.author_id.as_deref().filter(|s| !s.is_empty()) {
-        Some(id) => format!("<@{id}>"),
+        Some(id) => id.to_string(),
         None => unknown.to_string(),
     }
 }
@@ -188,7 +191,8 @@ mod tests {
 
     #[test]
     fn author_mention_renders_real_author() {
-        assert_eq!(author_mention(&warn_with(Some("123")), "Unknown"), "<@123>");
+        // Template already holds `<@...>`; substitute the bare id.
+        assert_eq!(author_mention(&warn_with(Some("123")), "Unknown"), "123");
     }
 
     #[test]
@@ -204,6 +208,18 @@ mod tests {
         // multi-backtick reasons cannot break the code fence.
         assert_eq!(escape_warn_field("a`b`c"), "a\\`b\\`c");
         assert_eq!(escape_warn_field("plain"), "plain");
+    }
+
+    #[test]
+    fn author_id_is_not_double_wrapped_by_template() {
+        // End-to-end placeholder shape: template `<@${x.authorID}>` +
+        // bare id must render exactly one mention, like TS.
+        let template = "> Author: <@${x.authorID}>";
+        let out = template.replace(
+            "${x.authorID}",
+            &author_mention(&warn_with(Some("123")), "Unknown"),
+        );
+        assert_eq!(out, "> Author: <@123>");
     }
 
     #[test]
