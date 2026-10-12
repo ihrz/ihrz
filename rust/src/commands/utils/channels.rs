@@ -62,6 +62,38 @@ pub(crate) fn channel_manageable(
     true
 }
 
+/// Existing overwrite bits for a role on a channel. Mirrors the
+/// discord.js `permissionOverwrites.cache.get(role)` read in the chanel
+/// leaves: missing -> empty allow/deny.
+pub(crate) fn role_overwrite(
+    ctx: &Ctx<'_>,
+    guild_id: poise::serenity_prelude::GuildId,
+    channel_id: poise::serenity_prelude::ChannelId,
+    role_id: u64,
+) -> (
+    poise::serenity_prelude::Permissions,
+    poise::serenity_prelude::Permissions,
+) {
+    ctx.serenity_context()
+        .cache
+        .guild(guild_id)
+        .and_then(|g| g.channels.get(&channel_id).cloned())
+        .and_then(|c| {
+            c.permission_overwrites.iter().find_map(|o| match o.kind {
+                poise::serenity_prelude::PermissionOverwriteType::Role(id)
+                    if id.get() == role_id =>
+                {
+                    Some((o.allow, o.deny))
+                }
+                _ => None,
+            })
+        })
+        .unwrap_or((
+            poise::serenity_prelude::Permissions::empty(),
+            poise::serenity_prelude::Permissions::empty(),
+        ))
+}
+
 fn overwrite_denies_view(
     ctx: &Ctx<'_>,
     guild_id: poise::serenity_prelude::GuildId,
@@ -118,31 +150,21 @@ async fn hide_all_inner(ctx: &Ctx<'_>, unhide: bool, role_id: u64) -> Result<(),
     let mut done = 0;
     let mut errors = 0;
     for ch in channels {
+        // TS checks `manageable` first per channel (unmanageable counts
+        // as an error), then the already-in-state skip.
+        if !channel_manageable(ctx, guild_id, ch) {
+            errors += 1;
+            continue;
+        }
         let denied = overwrite_denies_view(ctx, guild_id, ch, role_id).unwrap_or(false);
         if unhide {
             if !denied {
                 continue;
             }
-            // TS clears ViewChannel:null on unhideall.
-            let (allow, deny) = ctx
-                .serenity_context()
-                .cache
-                .guild(guild_id)
-                .and_then(|g| g.channels.get(&ch).cloned())
-                .and_then(|c| {
-                    c.permission_overwrites.iter().find_map(|o| match o.kind {
-                        poise::serenity_prelude::PermissionOverwriteType::Role(id)
-                            if id.get() == role_id =>
-                        {
-                            Some((o.allow, o.deny))
-                        }
-                        _ => None,
-                    })
-                })
-                .unwrap_or((
-                    poise::serenity_prelude::Permissions::empty(),
-                    poise::serenity_prelude::Permissions::VIEW_CHANNEL,
-                ));
+            // TS clears ViewChannel:null: drop VIEW_CHANNEL from both
+            // sets, preserving the rest of the overwrite.
+            let (allow, deny) = role_overwrite(ctx, guild_id, ch, role_id);
+            let allow = allow.difference(poise::serenity_prelude::Permissions::VIEW_CHANNEL);
             let deny = deny.difference(poise::serenity_prelude::Permissions::VIEW_CHANNEL);
             if ch
                 .create_permission(
@@ -166,12 +188,19 @@ async fn hide_all_inner(ctx: &Ctx<'_>, unhide: bool, role_id: u64) -> Result<(),
             if denied {
                 continue;
             }
+            // TS `edit(role, { ViewChannel: false })` merges: the deny
+            // bit is set, the allow bit cleared, other bits preserved
+            // (create_permission replaces the whole overwrite, so merge
+            // here instead of writing allow:empty/deny:VIEW only).
+            let (allow, deny) = role_overwrite(ctx, guild_id, ch, role_id);
+            let allow = allow.difference(poise::serenity_prelude::Permissions::VIEW_CHANNEL);
+            let deny = deny.union(poise::serenity_prelude::Permissions::VIEW_CHANNEL);
             if ch
                 .create_permission(
                     ctx.http(),
                     poise::serenity_prelude::PermissionOverwrite {
-                        allow: poise::serenity_prelude::Permissions::empty(),
-                        deny: poise::serenity_prelude::Permissions::VIEW_CHANNEL,
+                        allow,
+                        deny,
                         kind: poise::serenity_prelude::PermissionOverwriteType::Role(
                             poise::serenity_prelude::RoleId::new(role_id),
                         ),

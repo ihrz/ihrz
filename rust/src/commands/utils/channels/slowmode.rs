@@ -175,20 +175,14 @@ pub async fn apply_slowmode(
     let code = crate::db::guild_lang(&ctx.data().pool, Some(guild_id.get())).await;
     let t = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
     // Bot-side ManageChannels gate, like the TS
-    // `members.me.permissions.has(ManageChannels)` check.
+    // `members.me.permissions.has(ManageChannels)` check. The TS reply
+    // is a plain public message (interactionSend without flags).
     if !bot_guild_permissions(&ctx, guild_id).manage_channels() {
         let no = crate::emojis::app_emoji_markup(ctx.http(), "No")
             .await
             .unwrap_or_else(|| "❌".to_string());
-        ctx.send(
-            poise::CreateReply::default()
-                .content(
-                    t("unban_bot_dont_have_permission")
-                        .replace("${client.iHorizon_Emojis.No}", &no),
-                )
-                .ephemeral(true),
-        )
-        .await?;
+        ctx.say(t("unban_bot_dont_have_permission").replace("${client.iHorizon_Emojis.No}", &no))
+            .await?;
         return Ok(());
     }
     let ch_id = match channel_id {
@@ -204,9 +198,9 @@ pub async fn apply_slowmode(
             poise::serenity_prelude::EditChannel::new().rate_limit_per_user(secs),
         )
         .await?;
-    // TS fills `${duration_in_string}` with the `to_beautiful_string`
-    // short form; mirrored with `beautiful_ms`.
-    let pretty = crate::funcs::beautiful_ms(f64::from(secs) * 1000.0);
+    // TS fills `${duration_in_string}` with `to_beautiful_string`
+    // using the guild lang; mirror with the lang-aware helper.
+    let pretty = crate::commands::guildconfig::beautiful_ms_lang(f64::from(secs) * 1000.0, &code);
     ctx.say(
         crate::lang::get(&code, "util_cooldown_command_ok")
             .map(|s| s.replace("${duration_in_string}", &pretty))

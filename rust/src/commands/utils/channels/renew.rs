@@ -152,12 +152,11 @@ fn bot_can_manage_channel(
     guild.user_permissions_in(ch, &member).manage_channels()
 }
 
-/// Ephemeral `renew_dont_have_permission` reply. Mirrors the TS
-/// `!channel.deletable` early return and the catch-all error path.
+/// Public `renew_dont_have_permission` reply. Mirrors the TS
+/// `!channel.deletable` early return and the catch-all error path
+/// (interactionSend without flags -> non-ephemeral).
 async fn send_renew_denied(ctx: &Ctx<'_>, code: &str) {
     let msg = crate::lang::get(code, "renew_dont_have_permission")
         .unwrap_or_else(|| ":x: **Can't** `Don't have permission!`".to_string());
-    let _ = ctx
-        .send(poise::CreateReply::default().content(msg).ephemeral(true))
-        .await;
+    let _ = ctx.send(poise::CreateReply::default().content(msg)).await;
 }

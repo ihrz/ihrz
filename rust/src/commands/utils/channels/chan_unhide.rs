@@ -30,6 +30,16 @@ pub async fn chan_unhide(
         return Ok(());
     };
     let ch_id = chan_snapshot.id;
+    // Same per-channel `manageable` gate as hide (!unhide.ts checks
+    // `channel.manageable` before the overwrite state).
+    if !channel_manageable(&ctx, guild_id, ch_id) {
+        ctx.say(
+            crate::lang::get(&code, "renew_dont_have_permission")
+                .unwrap_or_else(|| ":x: **Can't** `Don't have permission!`".to_string()),
+        )
+        .await?;
+        return Ok(());
+    }
     let role_id = role
         .as_ref()
         .map(|r| r.id.get())
@@ -44,27 +54,10 @@ pub async fn chan_unhide(
         .await?;
         return Ok(());
     }
-    // TS clears ViewChannel:null: drop VIEW_CHANNEL from the deny set,
-    // preserving the rest of the overwrite.
-    let (allow, deny) = ctx
-        .serenity_context()
-        .cache
-        .guild(guild_id)
-        .and_then(|g| g.channels.get(&ch_id).cloned())
-        .and_then(|c| {
-            c.permission_overwrites.iter().find_map(|o| match o.kind {
-                poise::serenity_prelude::PermissionOverwriteType::Role(id)
-                    if id.get() == role_id =>
-                {
-                    Some((o.allow, o.deny))
-                }
-                _ => None,
-            })
-        })
-        .unwrap_or((
-            poise::serenity_prelude::Permissions::empty(),
-            poise::serenity_prelude::Permissions::VIEW_CHANNEL,
-        ));
+    // TS clears ViewChannel:null (neutral in both sets): drop
+    // VIEW_CHANNEL from allow and deny, preserving the rest.
+    let (allow, deny) = role_overwrite(&ctx, guild_id, ch_id, role_id);
+    let allow = allow.difference(poise::serenity_prelude::Permissions::VIEW_CHANNEL);
     let deny = deny.difference(poise::serenity_prelude::Permissions::VIEW_CHANNEL);
     if ch_id
         .create_permission(

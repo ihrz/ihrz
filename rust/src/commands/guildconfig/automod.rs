@@ -154,6 +154,13 @@ pub const MASS_RULE_NAME: &str = "Block mass-mention spam by iHorizon";
 /// `mentionTotalLimit` slot (no `as u8` wrap on large values).
 pub const DEFAULT_MAX_MENTION: u8 = 3;
 
+/// kv copy of the configured `max-mention-allowed` for the event-side
+/// fallback. TS keeps the limit only in the native rule's
+/// `mentionTotalLimit`, which the message path cannot afford to fetch
+/// per message, so the toggle persists it here on enable and removes
+/// it on disable. Absent rows read as the TS `|| 3` default.
+pub const AUTOMOD_MASS_LIMIT_KEY: &str = "GUILD.AUTOMOD.mass-mention-limit";
+
 /// Resolve the `max-mention-allowed` option the way TS does:
 /// `getNumber(...) || 3` — absent, zero, or negative falls back to 3;
 /// positive values pass through, clamped to 255 (the `u8` ceiling, no
@@ -774,6 +781,13 @@ pub async fn gc_automod_mass(
         if enabled { "1" } else { "0" },
     )
     .await?;
+    // The native rule owns the only other copy of the limit; persist
+    // one for the event-side fallback (absent rows read as default 3).
+    if enabled {
+        crate::db::tbl_set(pool, &gid, AUTOMOD_MASS_LIMIT_KEY, &limit.to_string()).await?;
+    } else {
+        let _ = crate::db::tbl_del(pool, &gid, AUTOMOD_MASS_LIMIT_KEY).await;
+    }
     let author_mention = ctx.author().to_string();
     let channel_label = logs_channel
         .as_ref()
@@ -925,6 +939,13 @@ mod tests {
         let with_logs = automod_actions(Some(123));
         assert_eq!(with_logs.len(), 2);
         assert!(matches!(with_logs[1], serenity::Action::Alert(_)));
+    }
+
+    #[test]
+    fn mass_limit_key_lives_beside_the_flag() {
+        assert_eq!(AUTOMOD_MASS_LIMIT_KEY, "GUILD.AUTOMOD.mass-mention-limit");
+        assert_eq!(automod_key("mass-mention"), "GUILD.AUTOMOD.mass-mention");
+        assert_eq!(DEFAULT_MAX_MENTION, 3);
     }
 
     #[test]

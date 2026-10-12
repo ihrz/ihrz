@@ -331,6 +331,14 @@ async fn automod_flag_routed(pool: &crate::db::Pool, gid: &str, kind: &str) -> b
         == Some("1")
 }
 
+/// Raw mention opens in message content. `<@id>` (user), `<@!id>`
+/// (legacy nickname) and `<@&id>` (role) all start with `<@`, so one
+/// pass counts every mention with no second addend. Pure for
+/// testability.
+pub fn mass_mention_count(content: &str) -> usize {
+    content.matches("<@").count()
+}
+
 /// GUILD.LANG leaf.
 async fn guild_lang_routed(pool: &crate::db::Pool, gid: &str) -> Option<String> {
     // C1/C2: kv GUILD.LANG is the single source (TS getLanguageData).
@@ -2576,6 +2584,26 @@ impl Handler {
         automod_flag_routed(&self.pool, guild_id, kind).await
     }
 
+    /// Mass-mention fallback tripwire. The limit is the
+    /// `GUILD.AUTOMOD.mass-mention-limit` copy the toggle persists
+    /// (absent rows read as the TS `|| 3` default); the count is the
+    /// raw `<@` opens via [`mass_mention_count`].
+    async fn automod_mass_tripped(&self, guild_id: &str, content: &str) -> bool {
+        if !self.automod_on(guild_id, "mass-mention").await {
+            return false;
+        }
+        let limit = leaf_routed(
+            &self.pool,
+            guild_id,
+            crate::commands::guildconfig::automod::AUTOMOD_MASS_LIMIT_KEY,
+        )
+        .await
+        .and_then(|s| s.trim().trim_matches('"').parse::<usize>().ok())
+        .filter(|&n| n > 0)
+        .unwrap_or(crate::commands::guildconfig::automod::DEFAULT_MAX_MENTION as usize);
+        mass_mention_count(content) >= limit
+    }
+
     /// Anti-raid guard. Mirrors Events/protection/avoid*.ts with
     /// PROTECTION.<rule> {mode} + PROTECTION.SANCTION + ALLOWLIST keys:
     /// attribute via getLogs semantics (target-id match, 20s recency,
@@ -3345,6 +3373,47 @@ pub const GOODBYE_ACCENT: u32 = 0xED_4245;
 pub const WELCOME_AVATAR_NAME: &str = "welcomer-avatar.png";
 pub const GOODBYE_AVATAR_NAME: &str = "goodbye-avatar.png";
 
+/// Full slot render for join/leave templates. Mirrors
+/// generateCustomMessagePreview (core/functions/method.ts) over the
+/// documented setjoinmessage/setleavemessage vocabulary:
+/// {memberUsername}/{memberMention}/{memberCount}/{guildName}/
+/// {createdAt}/{accountCreationTimestamp} plus {inviterUsername}/
+/// {inviterMention}/{invitesCount} (the legacy {user}/{username}/{server}
+/// legs ride along via render_welcome). `invites_count` is the
+/// post-write total; None renders the TS literal default ("1337").
+///
+/// The 10 slots mirror the TS template vocabulary one-to-one
+/// (clippy `too_many_arguments`).
+#[allow(clippy::too_many_arguments)]
+fn render_join_leave_text(
+    template: &str,
+    member_name: &str,
+    member_mention: &str,
+    member_count: u64,
+    guild_name: &str,
+    created_date: &str,
+    created_unix: i64,
+    inviter_name: &str,
+    inviter_mention: &str,
+    invites_count: Option<i64>,
+) -> String {
+    let dated = crate::events::render_account_time_slots(
+        &crate::events::render_welcome(template, member_mention, guild_name, member_count),
+        created_date,
+        created_unix,
+    );
+    let with_member = dated
+        .replace("{memberUsername}", member_name)
+        .replace("{memberMention}", member_mention)
+        .replace("{guildName}", guild_name);
+    let with_inviter =
+        crate::events::render_inviter_slots(&with_member, inviter_name, inviter_mention);
+    match invites_count {
+        Some(n) => with_inviter.replace("{invitesCount}", &n.to_string()),
+        None => with_inviter.replace("{invitesCount}", "1337"),
+    }
+}
+
 /// One rendered welcomer message: text embed + avatar snapshot upload.
 pub struct WelcomerRender {
     pub embed: serenity::CreateEmbed,
@@ -3442,7 +3511,8 @@ pub async fn send_leave_message(
             channel_id.send_message(http, msg).await.map(|_| ())
         }
         (Some(text), None) => {
-            let snapshot = crate::commands::botcat::download_bytes(&user.face()).await;
+            let snapshot =
+                crate::commands::botcat::download_bytes(&welcomer_avatar_url(user)).await;
             let render = welcomer_render(&text, GOODBYE_ACCENT, snapshot, GOODBYE_AVATAR_NAME);
             let mut msg = serenity::CreateMessage::new().embed(render.embed);
             for f in render.files {
@@ -4977,11 +5047,22 @@ impl serenity::EventHandler for Handler {
         // unattributed, like the TS resolveInvite null path. The diff
         // stops at the first uses increase (mirrors the TS `.find`),
         // even when that invite carries no inviter.
-        let mut attributed: Option<(u64, String, String)> = None;
-        if let Some(live) = self
-            .fetch_invites_dedup(&ctx.http, new_member.guild_id)
+        // GATE: joinMessage.ts returns early without ManageGuild, so the
+        // fetch and the welcome send below are both skipped together;
+        // the rest of the join pipeline (separate listeners in TS) runs
+        // regardless.
+        let join_msg_allowed = self
+            .bot_effective_perms(&ctx, new_member.guild_id)
             .await
-        {
+            .manage_guild();
+        let mut attributed: Option<(u64, String, String, i64)> = None;
+        let live = if join_msg_allowed {
+            self.fetch_invites_dedup(&ctx.http, new_member.guild_id)
+                .await
+        } else {
+            None
+        };
+        if let Some(live) = live {
             let mut cache = self.invites.lock().await;
             let entry = cache.entry(gid.clone()).or_default();
             for inv in &live {
@@ -4989,7 +5070,6 @@ impl serenity::EventHandler for Handler {
                 if inv.uses > cached {
                     if inv.inviter_id != 0 {
                         let inviter_id = inv.inviter_id;
-                        attributed = Some((inviter_id, inv.code.clone(), inv.inviter_name.clone()));
                         entry.insert(inv.code.clone(), (inv.uses, inviter_id));
                         // BY shape mirrors joinMessage.ts recordInviterStats
                         // (`db.set(....INVITES.BY, {inviter, invite})`): the
@@ -5010,6 +5090,15 @@ impl serenity::EventHandler for Handler {
                             &self.pool, &gid, inviter_id, &next,
                         )
                         .await;
+                        // Post-increment total rides along for the
+                        // {invitesCount} slot below (TS reads it after the
+                        // add in the same leg).
+                        attributed = Some((
+                            inviter_id,
+                            inv.code.clone(),
+                            inv.inviter_name.clone(),
+                            next.invites,
+                        ));
                         let _ = crate::db::tbl_set_json(
                             &self.pool,
                             &gid,
@@ -5154,24 +5243,27 @@ impl serenity::EventHandler for Handler {
         // Welcome message via the shared welcomer sender (mirrors
         // joinMessage.ts sendWelcome -> welcomerMessage.ts: rendered
         // template + avatar snapshot thumbnail + welcome accent).
-        {
+        // Gated on join_msg_allowed above (the joinMessage.ts
+        // ManageGuild early return covers attribution and welcome).
+        if join_msg_allowed {
             let cfg = guild_config_routed(&self.pool, &gid).await;
-            if let (Some(ch), Some(tpl)) = (
-                cfg.get("join").and_then(|c| c.as_str()),
-                cfg.get("joinmessage").and_then(|m| m.as_str()),
-            ) {
+            if let Some(ch) = cfg.get("join").and_then(|c| c.as_str()) {
                 if let Ok(ch_id) = ch.parse::<u64>() {
-                    let count = ctx
-                        .cache
-                        .guild(new_member.guild_id)
-                        .map(|g| g.member_count)
-                        .unwrap_or(0);
+                    let lang_code =
+                        crate::db::guild_lang(&self.pool, Some(new_member.guild_id.get())).await;
+                    let text = |k: &str| crate::lang::get(&lang_code, k).unwrap_or_default();
+                    // Snapshot owned values out of the cache without
+                    // holding the !Send guard across an await below.
+                    let (count, guild_name) = match ctx.cache.guild(new_member.guild_id) {
+                        Some(g) => (g.member_count, g.name.clone()),
+                        None => (0, "this server".to_string()),
+                    };
                     // Attributed inviter display (mirrors the joinMessage
                     // inviterUsername/inviterMention slots incl. the
                     // custom-vanity variant; TS literal defaults kept
                     // when unattributed).
-                    let (inv_name, inv_mention) = match &attributed {
-                        Some((iid, code, uname)) => {
+                    let (inv_name, inv_mention, inv_count) = match &attributed {
+                        Some((iid, code, uname, total)) => {
                             let table = vanity_table_routed(&self.pool).await;
                             let bot_id = ctx.cache.current_user().id.get();
                             let vanity = crate::events::custom_vanity_code(
@@ -5181,29 +5273,48 @@ impl serenity::EventHandler for Handler {
                                 bot_id,
                                 *iid,
                             );
-                            crate::events::inviter_display(
+                            let (name, mention) = crate::events::inviter_display(
                                 vanity.as_deref(),
                                 uname,
                                 &format!("<@{iid}>"),
-                            )
+                            );
+                            (name, mention, Some(*total))
                         }
-                        None => ("unknow_user".to_string(), "@unknow_user".to_string()),
+                        None => ("unknow_user".to_string(), "@unknow_user".to_string(), None),
                     };
-                    let text = crate::events::render_inviter_slots(
-                        &crate::events::render_welcome(
-                            tpl,
-                            &new_member.user.mention().to_string(),
-                            "this server",
-                            count,
-                        ),
+                    // `joinmessage || data.event_welcomer_*`, like TS: an
+                    // unset template still welcomes with the lang default.
+                    let default_key = if attributed.is_some() {
+                        "event_welcomer_inviter"
+                    } else {
+                        "event_welcomer_default"
+                    };
+                    let tpl_owned: String = cfg
+                        .get("joinmessage")
+                        .and_then(|m| m.as_str())
+                        .map(str::to_string)
+                        .unwrap_or_else(|| text(default_key));
+                    let created = new_member.user.created_at().unix_timestamp();
+                    let created_date = chrono::DateTime::from_timestamp(created, 0)
+                        .map(|dt| dt.format("%d/%m/%Y").to_string())
+                        .unwrap_or_default();
+                    let rendered = render_join_leave_text(
+                        &tpl_owned,
+                        &new_member.user.name,
+                        &new_member.user.mention().to_string(),
+                        count,
+                        &guild_name,
+                        &created_date,
+                        created,
                         &inv_name,
                         &inv_mention,
+                        inv_count,
                     );
                     send_welcomer_message(
                         &ctx.http,
                         serenity::ChannelId::new(ch_id),
                         &new_member.user,
-                        &text,
+                        &rendered,
                         WELCOME_ACCENT,
                         WELCOME_AVATAR_NAME,
                     )
@@ -5469,31 +5580,49 @@ impl serenity::EventHandler for Handler {
             )
             .await;
         }
+        // Leave channel gate (mirrors leaveMessage.ts: without a
+        // configured leave channel present in the channel cache the
+        // listener returns early — no inviter stats, no message).
+        let gid = guild_id.get().to_string();
+        let cfg = guild_config_routed(&self.pool, &gid).await;
+        let leave_open = cfg
+            .get("leave")
+            .and_then(|c| c.as_str())
+            .and_then(|ch| ch.parse::<u64>().ok())
+            .is_some_and(|id| {
+                ctx.cache
+                    .guild(guild_id)
+                    .is_some_and(|g| g.channels.contains_key(&serenity::ChannelId::new(id)))
+            });
         // Leaves tracking (mirrors invitesmanager leaves): decrement the
         // recorded inviter, record the leave.
-        let gid = guild_id.get().to_string();
-        if let Some(by) = invites_by_routed(&self.pool, &gid, user.id.get())
-            .await
-            .and_then(|s| crate::commands::invitesmanager::parse_inviter_by_str(&s))
-        {
-            let stats =
-                crate::commands::invitesmanager::inv::load_invites(&self.pool, &gid, by).await;
-            let next = crate::commands::invitesmanager::inv::InviteStats {
-                invites: (stats.invites - 1).max(0),
-                regular: stats.regular,
-                bonus: stats.bonus,
-                leaves: stats.leaves + 1,
-            };
-            let _ = crate::commands::invitesmanager::inv::save_invites(&self.pool, &gid, by, &next)
-                .await;
+        let mut leave_invites: Option<i64> = None;
+        if leave_open {
+            if let Some(by) = invites_by_routed(&self.pool, &gid, user.id.get())
+                .await
+                .and_then(|s| crate::commands::invitesmanager::parse_inviter_by_str(&s))
+            {
+                let stats =
+                    crate::commands::invitesmanager::inv::load_invites(&self.pool, &gid, by).await;
+                let next = crate::commands::invitesmanager::inv::InviteStats {
+                    invites: (stats.invites - 1).max(0),
+                    regular: stats.regular,
+                    bonus: stats.bonus,
+                    leaves: stats.leaves + 1,
+                };
+                let _ =
+                    crate::commands::invitesmanager::inv::save_invites(&self.pool, &gid, by, &next)
+                        .await;
+                // Post-decrement total rides along for the {invitesCount}
+                // slot below (TS reads it after the sub/add).
+                leave_invites = Some(next.invites);
+            }
         }
         // Leave message (mirrors leaveMessage.ts sendGoodbye ->
         // welcomerMessage.ts: leaveEmbedId/text/components variant with
         // welcomerEmbed resolve, inviter slots, default-template
         // fallback on send failure).
-        let gid = guild_id.get().to_string();
         {
-            let cfg = guild_config_routed(&self.pool, &gid).await;
             let lang_code = crate::db::guild_lang(&self.pool, Some(guild_id.get())).await;
             let text = |k: &str| crate::lang::get(&lang_code, k).unwrap_or_default();
             let text_enabled = cfg
@@ -5516,7 +5645,7 @@ impl serenity::EventHandler for Handler {
                     .and_then(|s| crate::commands::invitesmanager::parse_inviter_by_str(&s))
                 {
                     Some(inviter_id) => {
-                        let name = ctx
+                        let cached = ctx
                             .cache
                             .guild(guild_id)
                             .and_then(|g| {
@@ -5528,23 +5657,44 @@ impl serenity::EventHandler for Handler {
                                 ctx.cache
                                     .user(serenity::UserId::new(inviter_id))
                                     .map(|u| u.name.clone())
-                            })
-                            .unwrap_or_else(|| "unknow_user".to_string());
+                            });
+                        // Cache miss: fetch the user like
+                        // `client.users.fetch` in leaveMessage.ts.
+                        let name = match cached {
+                            Some(name) => name,
+                            None => serenity::UserId::new(inviter_id)
+                                .to_user(&ctx.http)
+                                .await
+                                .map(|u| u.name)
+                                .unwrap_or_else(|_| "unknow_user".to_string()),
+                        };
                         let mention = format!("<@{inviter_id}>");
                         (name, mention, true)
                     }
                     None => ("unknow_user".to_string(), "@unknow_user".to_string(), false),
                 };
+            // Snapshot owned values out of the cache without holding
+            // the !Send guard across an await below.
+            let (leave_count, leave_guild) = match ctx.cache.guild(guild_id) {
+                Some(g) => (g.member_count, g.name.clone()),
+                None => (0, "this server".to_string()),
+            };
+            let leave_created = user.created_at().unix_timestamp();
+            let leave_date = chrono::DateTime::from_timestamp(leave_created, 0)
+                .map(|dt| dt.format("%d/%m/%Y").to_string())
+                .unwrap_or_default();
             let render_leave = |tpl: &str| {
-                crate::events::render_inviter_slots(
-                    &crate::events::render_welcome(
-                        tpl,
-                        &user.mention().to_string(),
-                        "this server",
-                        0,
-                    ),
+                render_join_leave_text(
+                    tpl,
+                    &user.name,
+                    &user.mention().to_string(),
+                    leave_count,
+                    &leave_guild,
+                    &leave_date,
+                    leave_created,
                     &inv_name,
                     &inv_mention,
+                    leave_invites,
                 )
             };
             let default_key = if has_inviter {
@@ -5587,15 +5737,17 @@ impl serenity::EventHandler for Handler {
                     {
                         // Fallback leg (mirrors the TS catch: default
                         // template, inviter-free variables).
-                        let fallback = crate::events::render_inviter_slots(
-                            &crate::events::render_welcome(
-                                &text("event_goodbye_default"),
-                                &user.mention().to_string(),
-                                "this server",
-                                0,
-                            ),
+                        let fallback = render_join_leave_text(
+                            &text("event_goodbye_default"),
+                            &user.name,
+                            &user.mention().to_string(),
+                            leave_count,
+                            &leave_guild,
+                            &leave_date,
+                            leave_created,
                             "unknow_user",
                             "@unknow_user",
+                            None,
                         );
                         let _ = send_leave_message(
                             &ctx.http,
@@ -6239,12 +6391,11 @@ impl serenity::EventHandler for Handler {
             let content = &msg.content;
             let tripped = (self.automod_on(&gid, "discord-invite").await
                 && crate::commands::guildconfig::contains_discord_invite(content))
-                || (self.automod_on(&gid, "telegram-link").await
+                || (self.automod_on(&gid, "telegram").await
                     && crate::commands::guildconfig::contains_telegram_link(content))
                 || (self.automod_on(&gid, "link").await
                     && crate::commands::guildconfig::contains_link(content))
-                || (self.automod_on(&gid, "mass-mention").await
-                    && crate::commands::guildconfig::mention_count(content) >= 5);
+                || self.automod_mass_tripped(&gid, content).await;
             if tripped {
                 // Staff + exempt-role + webhook gates (mirrors the
                 // blockSpam.ts head: Administrator/ManageGuild staff skip,
@@ -11266,5 +11417,62 @@ mod component_registry_tests {
         assert!(!invite_seed_allowed(false, true, false));
         assert!(!invite_seed_allowed(false, false, true));
         assert!(!invite_seed_allowed(false, false, false));
+    }
+}
+
+#[cfg(test)]
+mod automod_fallback_tests {
+    use super::*;
+
+    #[test]
+    fn mass_mention_count_covers_all_open_forms_once() {
+        // One user + one role mention is two mentions, not three:
+        // `<@&` already opens with `<@`, so no second addend.
+        assert_eq!(mass_mention_count("<@1> hi <@&2>"), 2);
+        assert_eq!(mass_mention_count("<@1> <@!2> <@&3>"), 3);
+        assert_eq!(mass_mention_count("no mentions here"), 0);
+        assert_eq!(mass_mention_count(""), 0);
+    }
+}
+
+#[cfg(test)]
+mod join_leave_render_tests {
+    use super::*;
+
+    #[test]
+    fn renders_full_documented_vocabulary() {
+        let out = render_join_leave_text(
+            "{memberMention} joined {guildName} via {inviterMention} ({invitesCount}) {memberCount} {accountCreationTimestamp} {createdAt} {memberUsername} {inviterUsername}",
+            "bob",
+            "<@2>",
+            42,
+            "My Guild",
+            "01/02/2023",
+            1675209600,
+            "alice",
+            "<@1>",
+            Some(7),
+        );
+        assert_eq!(
+            out,
+            "<@2> joined My Guild via <@1> (7) 42 <t:1675209600:R> 01/02/2023 bob alice"
+        );
+    }
+
+    #[test]
+    fn unattributed_renders_ts_literal_defaults() {
+        let out = render_join_leave_text(
+            "{inviterUsername} {inviterMention} {invitesCount}",
+            "bob",
+            "<@2>",
+            1,
+            "G",
+            "d",
+            0,
+            "unknow_user",
+            "@unknow_user",
+            None,
+        );
+        assert_eq!(out, "unknow_user @unknow_user 1337");
     }
 }

@@ -57,16 +57,22 @@ pub async fn chan_hide(
         return Ok(());
     }
     if ch_id
-        .create_permission(
-            ctx.http(),
+        .create_permission(ctx.http(), {
+            // TS `edit(role, { ViewChannel: false })` merges with the
+            // existing overwrite: deny bit set, allow bit cleared,
+            // other bits preserved (create_permission replaces the
+            // whole overwrite, so merge here).
+            let (allow, deny) = role_overwrite(&ctx, guild_id, ch_id, role_id);
+            let allow = allow.difference(poise::serenity_prelude::Permissions::VIEW_CHANNEL);
+            let deny = deny.union(poise::serenity_prelude::Permissions::VIEW_CHANNEL);
             poise::serenity_prelude::PermissionOverwrite {
-                allow: poise::serenity_prelude::Permissions::empty(),
-                deny: poise::serenity_prelude::Permissions::VIEW_CHANNEL,
+                allow,
+                deny,
                 kind: poise::serenity_prelude::PermissionOverwriteType::Role(
                     poise::serenity_prelude::RoleId::new(role_id),
                 ),
-            },
-        )
+            }
+        })
         .await
         .is_err()
     {

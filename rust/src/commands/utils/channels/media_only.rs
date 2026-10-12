@@ -79,11 +79,14 @@ pub async fn media_only(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         .and_then(|v| v.get("muteTime").and_then(|n| n.as_i64()))
         .filter(|n| *n > 0)
         .unwrap_or(PICONLY_DEFAULT_MUTE_MS);
+    // TS defaults a missing row to `{ ..., createThread: "yes" }`,
+    // but a present row needs an explicit "yes"
+    // (`baseData.createThread === "yes"`); a missing field reads as No.
     let thread_value = if cfg
         .as_ref()
         .and_then(|v| v.get("createThread").and_then(|s| s.as_str()))
-        .unwrap_or("yes")
-        == "yes"
+        .map(|s| s == "yes")
+        .unwrap_or(true)
     {
         t("var_yes", "Yes")
     } else {
