@@ -1,4 +1,11 @@
 use super::*;
+use poise::serenity_prelude as serenity;
+
+/// Collector lifetime from !role-members.ts (`1_60_000` ms).
+pub const ROLE_MEMBERS_COLLECTOR_SECS: u64 = 160;
+
+/// Role members pager size from !role-members.ts.
+pub const ROLE_MEMBERS_PER_PAGE: usize = 5;
 
 /// List role members. Mirrors role-members.
 #[poise::command(
@@ -31,25 +38,169 @@ pub async fn role_members(
     let Some(guild_id) = ctx.guild_id() else {
         return Ok(());
     };
-    let members: Vec<String> = ctx
-        .serenity_context()
-        .cache
-        .guild(guild_id)
-        .map(|g| {
-            g.members
-                .values()
-                .filter(|m| m.roles.contains(&role.id))
-                .map(|m| m.user.tag())
-                .collect()
-        })
-        .unwrap_or_default();
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
-    ctx.say(if members.is_empty() {
-        crate::lang::get(&code, "util_role_members_no_one")
-            .unwrap_or_else(|| "There is nobody with that role on the server".to_string())
-    } else {
-        members.join(", ")
-    })
-    .await?;
+    let t = |k: &str| crate::lang::get(&code, k).unwrap_or_default();
+    // TS reads `role.members` (gateway cache). Fetch over HTTP too so
+    // members missing from the cache are still listed; cache fills the
+    // gaps of the paged HTTP endpoint.
+    let mut seen = std::collections::HashSet::new();
+    let mut entries: Vec<String> = Vec::new();
+    let mut push_member = |id: serenity::UserId, bot: bool| {
+        if seen.insert(id) {
+            entries.push(format_role_member(id.get(), bot));
+        }
+    };
+    for m in guild_id
+        .members(ctx.http(), None, None)
+        .await
+        .unwrap_or_default()
+    {
+        if m.roles.contains(&role.id) {
+            push_member(m.user.id, m.user.bot);
+        }
+    }
+    if let Some(g) = ctx.serenity_context().cache.guild(guild_id) {
+        for m in g.members.values().filter(|m| m.roles.contains(&role.id)) {
+            push_member(m.user.id, m.user.bot);
+        }
+    }
+    if entries.is_empty() {
+        ctx.say(
+            crate::lang::get(&code, "util_role_members_no_one")
+                .unwrap_or_else(|| "There is nobody with that role on the server".to_string()),
+        )
+        .await?;
+        return Ok(());
+    }
+    let pages = role_members_pages(&entries, &t("util_role_members"));
+    let total = pages.len();
+    let page_word = crate::lang::get(&code, "var_page").unwrap_or_else(|| "Page".to_string());
+    let not_for_you = t("help_not_for_you");
+    let gid = guild_id.get().to_string();
+    let (footer_name, footer_bytes) = footer_parts(&ctx, &gid).await;
+    let footer_icon = footer_bytes.is_some();
+    let mk_embed = |cur: usize| {
+        let (title, desc) = pages[cur].clone();
+        serenity::CreateEmbed::default()
+            .colour(serenity::Colour::from_rgb(0x01, 0x01, 0x01))
+            .title(title)
+            .description(desc)
+            .footer(
+                serenity::CreateEmbedFooter::new(crate::commands::shared::footer_page_text(
+                    &footer_name,
+                    &page_word,
+                    (cur + 1) as u64,
+                    total as u64,
+                ))
+                .icon_url(if footer_icon {
+                    "attachment://footer_icon.png".to_string()
+                } else {
+                    String::new()
+                }),
+            )
+            .timestamp(serenity::Timestamp::now())
+    };
+    let mk_row = || {
+        serenity::CreateActionRow::Buttons(vec![
+            serenity::CreateButton::new("previousPage")
+                .label("<<<")
+                .style(serenity::ButtonStyle::Secondary),
+            serenity::CreateButton::new("nextPage")
+                .label(">>>")
+                .style(serenity::ButtonStyle::Secondary),
+        ])
+    };
+    let mut reply = poise::CreateReply::default()
+        .embed(mk_embed(0))
+        .components(vec![mk_row()]);
+    if let Some(bytes) = footer_bytes {
+        reply = reply.attachment(serenity::CreateAttachment::bytes(bytes, "footer_icon.png"));
+    }
+    let handle = ctx.send(reply).await?;
+    let mut msg = handle.into_message().await?;
+    let author = ctx.author().id;
+    let mut cur = 0usize;
+    loop {
+        let press = msg
+            .await_component_interaction(ctx.serenity_context().shard.clone())
+            .timeout(std::time::Duration::from_secs(ROLE_MEMBERS_COLLECTOR_SECS))
+            .await;
+        let Some(press) = press else { break };
+        if press.user.id != author {
+            let _ = press
+                .create_response(
+                    ctx.http(),
+                    serenity::CreateInteractionResponse::Message(
+                        serenity::CreateInteractionResponseMessage::new()
+                            .content(not_for_you.clone())
+                            .ephemeral(true),
+                    ),
+                )
+                .await;
+            continue;
+        }
+        match press.data.custom_id.as_str() {
+            // TS wraps around both ends.
+            "previousPage" => cur = (cur + total - 1) % total,
+            "nextPage" => cur = (cur + 1) % total,
+            _ => continue,
+        }
+        let _ = press
+            .create_response(
+                ctx.http(),
+                serenity::CreateInteractionResponse::UpdateMessage(
+                    serenity::CreateInteractionResponseMessage::new()
+                        .embed(mk_embed(cur))
+                        .components(vec![mk_row()]),
+                ),
+            )
+            .await;
+    }
+    let _ = msg
+        .edit(ctx.http(), serenity::EditMessage::new().components(vec![]))
+        .await;
     Ok(())
+}
+
+/// One pager line: mention plus the TS `🤖 (BOT)` suffix for bots.
+pub fn format_role_member(user_id: u64, bot: bool) -> String {
+    if bot {
+        format!("<@{user_id}>🤖 (BOT)")
+    } else {
+        format!("<@{user_id}>")
+    }
+}
+
+/// Build pager pages (5 members each) sharing one title.
+pub fn role_members_pages(entries: &[String], title: &str) -> Vec<(String, String)> {
+    entries
+        .chunks(ROLE_MEMBERS_PER_PAGE)
+        .map(|chunk| (title.to_string(), chunk.join("\n")))
+        .collect()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn pages_chunk_by_five_with_shared_title() {
+        let entries: Vec<String> = (0..6).map(|i| format!("<@{i}>")).collect();
+        let pages = role_members_pages(&entries, "List of users who have the roles");
+        assert_eq!(pages.len(), 2);
+        assert_eq!(pages[0].0, "List of users who have the roles");
+        assert_eq!(pages[0].1, "<@0>\n<@1>\n<@2>\n<@3>\n<@4>");
+        assert_eq!(pages[1].1, "<@5>");
+    }
+
+    #[test]
+    fn bots_get_suffix_humans_do_not() {
+        assert_eq!(format_role_member(1, true), "<@1>🤖 (BOT)");
+        assert_eq!(format_role_member(2, false), "<@2>");
+    }
+
+    #[test]
+    fn collector_window_is_160s() {
+        assert_eq!(ROLE_MEMBERS_COLLECTOR_SECS, 160);
+    }
 }

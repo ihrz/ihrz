@@ -120,8 +120,8 @@ pub async fn userinfo(
     };
     let display = u.global_name.clone().unwrap_or_else(|| u.name.clone());
     let created = u.created_at().unix_timestamp();
-    let roles = ctx
-        .guild_id()
+    let guild_id_opt = ctx.guild_id().map(|g| g.get());
+    let roles = guild_id_opt
         .and_then(|gid| {
             ctx.serenity_context()
                 .cache
@@ -129,12 +129,12 @@ pub async fn userinfo(
                 .and_then(|g| g.members.get(&u.id).map(|m| m.roles.clone()))
         })
         .map(|roles| {
-            roles
-                .iter()
-                .take(37)
-                .map(|r| format!("<@&{}>", r.get()))
-                .collect::<Vec<_>>()
-                .join("")
+            // Mirrors discord.js GuildMemberRoleManager.cache
+            // (GuildMemberRoleManager.js): @everyone (`<@&guildId>`) first,
+            // then the member's roles, capped by the TS `.slice(0, 37)`.
+            let mut mentions = vec![format!("<@&{}>", guild_id_opt.unwrap_or_default())];
+            mentions.extend(roles.iter().take(36).map(|r| format!("<@&{}>", r.get())));
+            mentions.join("")
         })
         .filter(|s| !s.is_empty())
         .unwrap_or_else(|| {

@@ -355,7 +355,7 @@ const EXEMPT: Exemption[] = [
 		"guildconfig",
 		[`invented param in rust: "config show" param "page"`],
 		"deliberate stateless replacement for the TS collector pager",
-		"rust/src/commands/guildconfig/show.rs; !show.ts:296-348"
+		"rust/src/commands/guildconfig/show.rs; SlashCommands/guildconfig/!show.ts:296-348"
 	),
 	// sticker/top/wlroles-add/wlroles-list: TS MessageCommands, never
 	// slash-registered; Rust keeps them prefix-only (the flat leaf
@@ -395,7 +395,7 @@ const EXEMPT: Exemption[] = [
 			`invented sub in rust: "allow-show"`
 		],
 		"allowlist legs merged under protect (mod.rs frozen)",
-		"rust/src/commands/protection/protect.rs:297-306; allowlist/allowlist.ts"
+		"rust/src/commands/protection/protect.rs:297-306; SlashCommands/protection/allowlist/allowlist.ts"
 	),
 	{
 		command: "schedule",

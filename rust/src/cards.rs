@@ -39,16 +39,58 @@ fn initial(username: &str) -> String {
     escape_xml(&c.to_uppercase().to_string())
 }
 
+/// Pre-rendered guild-lang labels for the rank card. Mirrors
+/// `!show.ts:89-91` (`lang.var_level`,
+/// `lang.level_xp_needed_for_new_level`, `lang.level_xp_total`): the
+/// caller resolves them via `crate::lang::get` (same pattern as
+/// [`PodiumRankEntry`]'s pre-rendered strings). `Default` carries the
+/// en-US text, matching the other Rust-side English fallbacks.
+pub struct RankCardLabels {
+    /// `var_level` (en-US `"Level"`).
+    pub level_word: String,
+    /// `level_xp_needed_for_new_level` (en-US `"XP until next level:"`).
+    pub needed_label: String,
+    /// `level_xp_total` (en-US `"Total XP:"`).
+    pub total_label: String,
+}
+
+impl Default for RankCardLabels {
+    fn default() -> Self {
+        Self {
+            level_word: "Level".to_string(),
+            needed_label: "XP until next level:".to_string(),
+            total_label: "Total XP:".to_string(),
+        }
+    }
+}
+
 /// 800x250 rank card. Self-contained SVG, no external font/network.
 /// `avatar` is an embedded `data:` URL (never a remote CDN URL, so the
 /// card survives avatar changes); `None` keeps the initial placeholder.
 ///
-/// Mirrors `ranksCard.html` as driven by `!show.ts`: username,
-/// `{level} LEVEL`, progress bar (`CURRENT_XP / XP_NEEDED` where
-/// `XP_NEEDED = level * 500 + 500`), `{needed_xp} XP_REMAINING`, and —
-/// exactly like TS — the `{xp_total}` slot shows the CURRENT xp
-/// (`TOTAL_XP` is replaced with `currentxp` in TS).
+/// English-default entry point; prefer [`rank_card_svg_with_labels`]
+/// with guild-lang labels. Mirrors `ranksCard.html` as driven by
+/// `!show.ts`: username, `{var_level} {level}`, progress bar
+/// (`CURRENT_XP / XP_NEEDED` where `XP_NEEDED = level * 500 + 500`),
+/// `{needed_label} {remaining}`, and — exactly like TS — the
+/// `{total_label}` slot shows the CURRENT xp (`TOTAL_XP` is replaced
+/// with `currentxp` in TS).
 pub fn rank_card_svg(username: &str, level: u64, xp: u64, avatar: Option<&str>) -> String {
+    rank_card_svg_with_labels(username, level, xp, avatar, &RankCardLabels::default())
+}
+
+/// Guild-lang variant of [`rank_card_svg`]. Label order mirrors the TS
+/// replacements in `!show.ts:89-91`: `{level} LEVEL` becomes
+/// `{var_level} {level}`, `{needed_xp} XP_REMAINING` becomes
+/// `{needed_label} {remaining}`, `{xp_total} TOTAL_XP` becomes
+/// `{total_label} {total}`.
+pub fn rank_card_svg_with_labels(
+    username: &str,
+    level: u64,
+    xp: u64,
+    avatar: Option<&str>,
+    labels: &RankCardLabels,
+) -> String {
     let safe_name = escape_xml(username);
     // TS: `const xpNeeded = level * 500 + 500`.
     let needed = level.saturating_mul(500).saturating_add(500).max(500);
@@ -73,7 +115,7 @@ pub fn rank_card_svg(username: &str, level: u64, xp: u64, avatar: Option<&str>) 
     };
 
     format!(
-        r##"<svg xmlns="http://www.w3.org/2000/svg" width="800" height="250" viewBox="0 0 800 250" role="img" aria-label="Rank card for {safe_name}"><defs><linearGradient id="ih-bar" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#9a5af2"/><stop offset="100%" stop-color="#6d28d9"/></linearGradient><clipPath id="ih-track"><rect x="230" y="150" width="530" height="28" rx="14"/></clipPath></defs><rect x="0" y="0" width="800" height="250" rx="16" fill="#2C2F33"/><rect x="10" y="10" width="780" height="230" rx="12" fill="#23272A"/>{face}<circle cx="115" cy="125" r="60" fill="none" stroke="#6d28d9" stroke-width="4"/><text x="230" y="70" font-family="sans-serif" font-size="30" font-weight="bold" fill="#ffffff">{safe_name}</text><text x="230" y="108" font-family="sans-serif" font-size="20" fill="#B9BBBE">LEVEL {level}</text><rect x="230" y="150" width="530" height="28" rx="14" fill="#40444B"/><g clip-path="url(#ih-track)"><rect x="230" y="150" width="{bar_w}" height="28" fill="url(#ih-bar)"/></g><text x="495" y="170" text-anchor="middle" font-family="sans-serif" font-size="14" font-weight="bold" fill="#ffffff">{xp} / {needed} XP ({percent}%)</text><text x="230" y="210" font-family="sans-serif" font-size="14" fill="#B9BBBE">{remaining} XP needed</text><text x="760" y="210" text-anchor="end" font-family="sans-serif" font-size="14" fill="#B9BBBE">Total {total} XP</text></svg>"##,
+        r##"<svg xmlns="http://www.w3.org/2000/svg" width="800" height="250" viewBox="0 0 800 250" role="img" aria-label="Rank card for {safe_name}"><defs><linearGradient id="ih-bar" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#9a5af2"/><stop offset="100%" stop-color="#6d28d9"/></linearGradient><clipPath id="ih-track"><rect x="230" y="150" width="530" height="28" rx="14"/></clipPath></defs><rect x="0" y="0" width="800" height="250" rx="16" fill="#2C2F33"/><rect x="10" y="10" width="780" height="230" rx="12" fill="#23272A"/>{face}<circle cx="115" cy="125" r="60" fill="none" stroke="#6d28d9" stroke-width="4"/><text x="230" y="70" font-family="sans-serif" font-size="30" font-weight="bold" fill="#ffffff">{safe_name}</text><text x="230" y="108" font-family="sans-serif" font-size="20" fill="#B9BBBE">{level_word} {level}</text><rect x="230" y="150" width="530" height="28" rx="14" fill="#40444B"/><g clip-path="url(#ih-track)"><rect x="230" y="150" width="{bar_w}" height="28" fill="url(#ih-bar)"/></g><text x="495" y="170" text-anchor="middle" font-family="sans-serif" font-size="14" font-weight="bold" fill="#ffffff">{xp} / {needed} XP ({percent}%)</text><text x="230" y="210" font-family="sans-serif" font-size="14" fill="#B9BBBE">{needed_label} {remaining}</text><text x="760" y="210" text-anchor="end" font-family="sans-serif" font-size="14" fill="#B9BBBE">{total_label} {total}</text></svg>"##,
         safe_name = safe_name,
         face = face,
         level = level,
@@ -83,6 +125,9 @@ pub fn rank_card_svg(username: &str, level: u64, xp: u64, avatar: Option<&str>) 
         percent = percent,
         remaining = remaining,
         total = total,
+        level_word = escape_xml(&labels.level_word),
+        needed_label = escape_xml(&labels.needed_label),
+        total_label = escape_xml(&labels.total_label),
     )
 }
 
@@ -172,10 +217,17 @@ pub fn authrestore_dashboard_svg(
     )
 }
 
-/// Podium card (ranks + economy): top 3 highlight + ranked list below.
+/// Podium card (ranks + economy): top-3 highlight only, mirroring
+/// `podiumRanksModule.html` / `podiumEconomyModule.html` (no ranked
+/// list: the full ranking lives in the embed description, like TS).
 ///
 /// `entries` is expected pre-sorted (rank 1 first), `(display_name, score)`.
-/// Score is XP (ranks) or wealth (economy). Self-contained 800x460 SVG.
+/// Score is XP (ranks) or wealth (economy). Only the first 3 entries
+/// render; missing slots render dimmed. Name/score strings are
+/// caller-rendered: the caller applies the TS fallbacks
+/// (`username || lang.profil_unknown`, beautified `xptotal || 0` /
+/// `totalWealth || 0`) before calling, so no hardcoded language lives
+/// here. Self-contained 800x380 SVG.
 pub fn podium_svg(entries: &[(String, u64)]) -> String {
     podium_svg_with_unit(entries, "XP")
 }
@@ -228,32 +280,9 @@ pub fn podium_svg_with_unit(entries: &[(String, u64)], unit: &str) -> String {
         }
     }
 
-    let mut list = String::new();
-    if entries.is_empty() {
-        list.push_str(
-            r##"<text x="400" y="400" text-anchor="middle" font-family="sans-serif" font-size="16" fill="#B9BBBE">No entries yet</text>"##,
-        );
-    } else {
-        for (i, (name, score)) in entries.iter().take(8).enumerate() {
-            let row_y = 370 + (i as u64) * 22;
-            if row_y > 444 {
-                break;
-            }
-            list.push_str(&format!(
-                r##"<text x="60" y="{row_y}" font-family="sans-serif" font-size="13" fill="#B9BBBE">#{rank}</text><text x="110" y="{row_y}" font-family="sans-serif" font-size="13" fill="#ffffff">{name}</text><text x="740" y="{row_y}" text-anchor="end" font-family="sans-serif" font-size="13" fill="#B9BBBE">{score} {unit}</text>"##,
-                row_y = row_y,
-                rank = i + 1,
-                name = escape_xml(name),
-                score = score,
-                unit = escape_xml(unit),
-            ));
-        }
-    }
-
     format!(
-        r##"<svg xmlns="http://www.w3.org/2000/svg" width="800" height="460" viewBox="0 0 800 460" role="img" aria-label="Podium"><rect x="0" y="0" width="800" height="460" rx="16" fill="#36393f"/><text x="400" y="44" text-anchor="middle" font-family="sans-serif" font-size="28" font-weight="bold" fill="#ffffff">PODIUM</text><rect x="60" y="60" width="680" height="5" fill="#9a5af2"/>{podium}{list}</svg>"##,
+        r##"<svg xmlns="http://www.w3.org/2000/svg" width="800" height="380" viewBox="0 0 800 380" role="img" aria-label="Podium"><rect x="0" y="0" width="800" height="380" rx="16" fill="#36393f"/><text x="400" y="44" text-anchor="middle" font-family="sans-serif" font-size="28" font-weight="bold" fill="#ffffff">PODIUM</text><rect x="60" y="60" width="680" height="5" fill="#9a5af2"/>{podium}</svg>"##,
         podium = podium,
-        list = list,
     )
 }
 
@@ -528,11 +557,16 @@ pub struct PodiumRankEntry {
     pub avatar: Option<String>,
 }
 
-/// Ranks podium card: top-3 highlight (username + avatar + level +
-/// beautified XP) with the ranked list below. Self-contained 800x500
-/// SVG — no Chromium/html2png render is attempted, deliberately (same
-/// pattern as [`podium_svg`]). `entries` is expected pre-sorted (rank 1
-/// first); missing slots render dimmed.
+/// Ranks podium card: top-3 highlight only (username + avatar + level +
+/// beautified XP), mirroring `podiumRanksModule.html` (no ranked list:
+/// the full ranking lives in the paginated embed description, like TS).
+/// Self-contained 800x400 SVG — no Chromium/html2png render is
+/// attempted, deliberately (same pattern as [`podium_svg`]).
+/// `entries` is expected pre-sorted (rank 1 first); only the first 3
+/// render and missing slots render dimmed. All strings are
+/// caller-rendered with the TS fallbacks (`username ||
+/// lang.profil_unknown`, `ranks_config_var_level` with
+/// `level || lang.var_none`), so no hardcoded language lives here.
 pub fn podium_ranks_svg(title: &str, entries: &[PodiumRankEntry]) -> String {
     const MEDALS: [(&str, &str); 3] = [("#ffd700", "#1"), ("#c0c0c0", "#2"), ("#cd7f32", "#3")];
     // Visual order: 2nd left, 1st center (taller), 3rd right — like the HTML.
@@ -596,33 +630,10 @@ pub fn podium_ranks_svg(title: &str, entries: &[PodiumRankEntry]) -> String {
         ));
     }
 
-    let mut list = String::new();
-    if entries.is_empty() {
-        list.push_str(
-            r##"<text x="400" y="440" text-anchor="middle" font-family="sans-serif" font-size="16" fill="#B9BBBE">No entries yet</text>"##,
-        );
-    } else {
-        for (i, e) in entries.iter().take(8).enumerate() {
-            let row_y = 390 + (i as u64) * 22;
-            if row_y > 484 {
-                break;
-            }
-            list.push_str(&format!(
-                r##"<text x="60" y="{row_y}" font-family="sans-serif" font-size="13" fill="#B9BBBE">#{rank}</text><text x="110" y="{row_y}" font-family="sans-serif" font-size="13" fill="#ffffff">{name}</text><text x="740" y="{row_y}" text-anchor="end" font-family="sans-serif" font-size="13" fill="#B9BBBE">{level} • {xp}</text>"##,
-                row_y = row_y,
-                rank = i + 1,
-                name = escape_xml(&e.name),
-                level = escape_xml(&e.level_label),
-                xp = escape_xml(&e.xp_text),
-            ));
-        }
-    }
-
     format!(
-        r##"<svg xmlns="http://www.w3.org/2000/svg" width="800" height="500" viewBox="0 0 800 500" role="img" aria-label="Podium"><rect x="0" y="0" width="800" height="500" rx="16" fill="#36393f"/><text x="400" y="44" text-anchor="middle" font-family="sans-serif" font-size="28" font-weight="bold" fill="#ffffff">{title}</text><rect x="60" y="60" width="680" height="5" fill="#9a5af2"/>{podium}{list}</svg>"##,
+        r##"<svg xmlns="http://www.w3.org/2000/svg" width="800" height="400" viewBox="0 0 800 400" role="img" aria-label="Podium"><rect x="0" y="0" width="800" height="400" rx="16" fill="#36393f"/><text x="400" y="44" text-anchor="middle" font-family="sans-serif" font-size="28" font-weight="bold" fill="#ffffff">{title}</text><rect x="60" y="60" width="680" height="5" fill="#9a5af2"/>{podium}</svg>"##,
         title = escape_xml(title),
         podium = podium,
-        list = list,
     )
 }
 
@@ -679,11 +690,39 @@ mod tests {
     #[test]
     fn rank_card_shows_level_and_totals() {
         // TS TOTAL_XP slot carries the CURRENT xp (level 12 -> 6500 needed).
+        // Label order mirrors `!show.ts:89-91` (`{var_level} {level}`,
+        // `{level_xp_needed_for_new_level} {remaining}`,
+        // `{level_xp_total} {total}`).
         let svg = rank_card_svg("Ada", 12, 6000, None);
-        assert!(svg.contains("LEVEL 12"));
+        assert!(svg.contains("Level 12"));
         assert!(svg.contains("6000 / 6500 XP"));
-        assert!(svg.contains("500 XP needed")); // 6500 - 6000
-        assert!(svg.contains("Total 6000 XP"));
+        assert!(svg.contains("XP until next level: 500")); // 6500 - 6000
+        assert!(svg.contains("Total XP: 6000"));
+    }
+
+    #[test]
+    fn rank_card_localized_labels_render_in_ts_order() {
+        // fr-FR values: `var_level`, `level_xp_needed_for_new_level`,
+        // `level_xp_total`. Labels are caller-rendered and escaped.
+        let labels = RankCardLabels {
+            level_word: "Niveau".to_string(),
+            needed_label: "XP jusqu'au prochain niveau :".to_string(),
+            total_label: "XP total :".to_string(),
+        };
+        let svg = rank_card_svg_with_labels("Ada", 7, 3750, None, &labels);
+        assert!(svg.contains("Niveau 7"));
+        assert!(!svg.contains("LEVEL"), "hardcoded EN leaked:\n{svg}");
+        assert!(svg.contains("XP jusqu&apos;au prochain niveau : 250"));
+        assert!(svg.contains("XP total : 3750"));
+        assert!(!svg.contains("XP needed"), "hardcoded EN leaked:\n{svg}");
+        let evil = RankCardLabels {
+            level_word: "<b>&L</b>".to_string(),
+            needed_label: "n".to_string(),
+            total_label: "t".to_string(),
+        };
+        let svg = rank_card_svg_with_labels("Ada", 7, 1, None, &evil);
+        assert!(!svg.contains("<b>"), "label leaked raw:\n{svg}");
+        assert!(svg.contains("&lt;b&gt;&amp;L&lt;/b&gt; 7"));
     }
 
     #[test]
@@ -695,7 +734,9 @@ mod tests {
     }
 
     #[test]
-    fn podium_renders_top3_and_list() {
+    fn podium_renders_top3_only_like_ts() {
+        // TS `podiumRanksModule.html` / `podiumEconomyModule.html` render
+        // the top 3 only; the ranked list lives in the embed description.
         let entries = vec![
             ("Alice".to_string(), 9000),
             ("Bob".to_string(), 7000),
@@ -707,17 +748,19 @@ mod tests {
         assert!(svg.contains("#ffd700"));
         assert!(svg.contains("#c0c0c0"));
         assert!(svg.contains("#cd7f32"));
-        for name in ["Alice", "Bob", "Cara", "Dan"] {
+        for name in ["Alice", "Bob", "Cara"] {
             assert!(svg.contains(name), "missing {name}");
         }
+        assert!(!svg.contains("Dan"), "beyond top-3 leaked:\n{svg}");
         assert!(svg.contains("#1") && svg.contains("#2") && svg.contains("#3"));
     }
 
     #[test]
     fn podium_empty_and_xss_safe() {
+        // Empty board: three dimmed slots, no hardcoded language.
         let empty = podium_svg(&[]);
-        assert!(empty.contains("No entries yet"));
         assert!(empty.contains("</svg>"));
+        assert!(!empty.contains("No entries yet"), "hardcoded EN:\n{empty}");
         let evil = podium_svg(&[("<b>&Co</b>".to_string(), 42)]);
         assert!(!evil.contains("<b>"));
         assert!(evil.contains("&lt;b&gt;&amp;Co&lt;/b&gt;"));
@@ -849,5 +892,55 @@ mod tests {
         // XSS-safe username.
         assert!(!svg.contains("<b>Bob</b>"));
         assert!(svg.contains("&lt;b&gt;Bob&lt;/b&gt;"));
+    }
+
+    #[test]
+    fn ranks_podium_is_top3_only_with_dimmed_fallbacks() {
+        // Extra entries past the top 3 never render (TS parity: the
+        // ranked list lives in the embed description, not the image).
+        // Missing slots render dimmed with no hardcoded language; the
+        // caller pre-applies `profil_unknown` / `var_none` fallbacks.
+        let entries = vec![
+            PodiumRankEntry {
+                name: "Ada".to_string(),
+                level_label: "Level 7".to_string(),
+                xp_text: "2.5K".to_string(),
+                avatar: None,
+            },
+            PodiumRankEntry {
+                name: "Bob".to_string(),
+                level_label: "Level 3".to_string(),
+                xp_text: "900".to_string(),
+                avatar: None,
+            },
+            PodiumRankEntry {
+                name: "Cara".to_string(),
+                level_label: "Level 1".to_string(),
+                xp_text: "50".to_string(),
+                avatar: None,
+            },
+            PodiumRankEntry {
+                name: "Dan".to_string(),
+                level_label: "Level 0".to_string(),
+                xp_text: "1".to_string(),
+                avatar: None,
+            },
+        ];
+        let svg = podium_ranks_svg("Board", &entries);
+        assert!(!svg.contains("Dan"), "beyond top-3 leaked:\n{svg}");
+        let empty = podium_ranks_svg("Board", &[]);
+        assert!(empty.contains("</svg>"));
+        assert!(!empty.contains("No entries yet"), "hardcoded EN:\n{empty}");
+        let one = podium_ranks_svg(
+            "Board",
+            &[PodiumRankEntry {
+                name: "Solo".to_string(),
+                level_label: "Level 9".to_string(),
+                xp_text: "9K".to_string(),
+                avatar: None,
+            }],
+        );
+        assert!(one.contains("Solo"));
+        assert!(one.contains("opacity="), "missing slots must dim:\n{one}");
     }
 }

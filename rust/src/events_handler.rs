@@ -9627,8 +9627,16 @@ impl serenity::EventHandler for Handler {
         // their ModalInteractionCollectors on the shard (see
         // crate::commands::await_modal_submit), so the handler only
         // routes the variant here and never into the component arms
-        // below. Existing arms above stay first.
-        if let serenity::Interaction::Modal(_) = &interaction {
+        // below. The rank-message set modal is stateless (its panel
+        // has no in-command collector), so its submit routes here.
+        // Existing arms above stay first.
+        if let serenity::Interaction::Modal(submit) = &interaction {
+            if crate::commands::ranks::message::is_rankmsg_modal(submit.data.custom_id.as_str()) {
+                crate::commands::ranks::message::handle_rankmsg_modal_submit(
+                    &ctx, submit, &self.pool,
+                )
+                .await;
+            }
             return;
         }
         // Mirrors buttonHandler.ts routing for component custom_ids.
@@ -9740,6 +9748,12 @@ impl serenity::EventHandler for Handler {
         {
             // Honeypot config panel (stateless 240s-collector equivalent).
             crate::commands::honeypot::main::handle_panel_press(&ctx, &comp, &self.pool).await;
+        } else if crate::commands::ranks::message::is_rankmsg_button(id) {
+            // Rank-message panel buttons (`xpMessage-set-message%<invoker>`
+            // opens the set modal, `xpMessage-default-message%<invoker>`
+            // deletes; stateless 80s-collector equivalent).
+            crate::commands::ranks::message::handle_rankmsg_component(&ctx, &comp, &self.pool)
+                .await;
         } else if id == crate::commands::ticket::main::TICKET_EMBED_DELETE {
             let _ =
                 crate::commands::ticket::main::handle_ticket_embed_delete(&ctx, &comp, &self.pool)
