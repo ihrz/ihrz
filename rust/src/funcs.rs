@@ -226,12 +226,9 @@ pub fn format_number(num: f64) -> String {
 }
 
 fn format_time(total_secs: u64) -> String {
-    let (h, m, s) = (total_secs / 3600, (total_secs / 60) % 60, total_secs % 60);
-    if h > 0 {
-        format!("{h}:{m:02}:{s:02}")
-    } else {
-        format!("{m}:{s:02}")
-    }
+    // Mirrors generateProgressBar.ts formatTime exactly: total minutes,
+    // zero-padded, NO hour fold (3661s -> "61:01", not "1:01:01").
+    format!("{:02}:{:02}", total_secs / 60, total_secs % 60)
 }
 
 /// Progress bar. Mirrors generateProgressBar.ts (17 chars, `[` + 15 +
@@ -806,12 +803,13 @@ mod tests {
     #[test]
     fn bar_renders() {
         let (bar, cur, tot) = progress_bar(0, 200_000);
-        assert_eq!(cur, "0:00");
-        assert_eq!(tot, "3:20");
+        assert_eq!(cur, "00:00");
+        assert_eq!(tot, "03:20");
         assert!(bar.starts_with('[') && bar.ends_with(']'));
         assert_eq!(bar.len(), 18);
         let (_, cur2, _) = progress_bar(3_661_000, 10_000_000);
-        assert_eq!(cur2, "1:01:01");
+        // TS formatTime has no hour fold: 3661s -> "61:01".
+        assert_eq!(cur2, "61:01");
     }
 
     #[test]
