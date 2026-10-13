@@ -136,6 +136,7 @@ pub async fn m_lyrics(
     #[description_localized("ru", "Название желаемого трека")]
     #[description_localized("es-ES", "El título de la pista que deseas")]
     #[description = "The track title you want"]
+    #[rest]
     query: String,
 ) -> Result<(), anyhow::Error> {
     let code = lang_code(&ctx).await;

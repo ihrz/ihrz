@@ -14,7 +14,9 @@ use super::*;
 )]
 pub async fn m_trackinfo(
     ctx: Ctx<'_>,
-    #[description = "Title or URL"] title: Option<String>,
+    #[description = "Title or URL"]
+    #[rest]
+    title: Option<String>,
 ) -> Result<(), anyhow::Error> {
     let code = lang_code(&ctx).await;
     let Some(gid) = guild_id_of(&ctx) else {

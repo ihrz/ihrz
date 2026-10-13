@@ -26,6 +26,7 @@ pub async fn m_play(
         "El título de la pista que deseas (puedes poner URL como quieras)"
     )]
     #[description = "The track title you want (you can put URL as you want)"]
+    #[rest]
     title: String,
 ) -> Result<(), anyhow::Error> {
     let code = lang_code(&ctx).await;
