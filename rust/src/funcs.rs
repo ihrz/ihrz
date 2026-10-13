@@ -531,6 +531,12 @@ pub fn is_allowed_links(link: &str) -> bool {
         "youtube.com",
         "www.youtube.com",
         "music.youtube.com",
+        "tidal.com",
+        "www.tidal.com",
+        "listen.tidal.com",
+        "store.tidal.com",
+        "tidal.lnk.to",
+        "tdl.lnk.to",
     ];
     // Mirrors url.parse(link).hostname: no hostname -> null -> allowed (true).
     let scrubbed: String = link
@@ -1354,6 +1360,18 @@ mod tests {
         assert!(is_allowed_links("mailto:foo@open.spotify.com"));
         assert!(is_allowed_links("foo@evil.com"));
         assert!(is_allowed_links("https:open.spotify.com/x"));
+        // Tidal table legs (W6 slice 42): all six TS allowlist hosts
+        // pass (uppercase + port included), lookalikes stay denied.
+        assert!(is_allowed_links("https://tidal.com/browse/track/123"));
+        assert!(is_allowed_links("https://www.tidal.com/x"));
+        assert!(is_allowed_links("https://listen.tidal.com/album/1"));
+        assert!(is_allowed_links("https://store.tidal.com/x"));
+        assert!(is_allowed_links("https://tidal.lnk.to/abc"));
+        assert!(is_allowed_links("https://tdl.lnk.to/abc"));
+        assert!(is_allowed_links("https://TIDAL.COM/x"));
+        assert!(is_allowed_links("https://tidal.com:443/x"));
+        assert!(!is_allowed_links("https://eviltidal.com/x"));
+        assert!(!is_allowed_links("https://tidal.com.evil.com/x"));
     }
 
     #[test]
