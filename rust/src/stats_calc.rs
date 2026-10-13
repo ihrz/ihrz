@@ -71,22 +71,41 @@ pub fn active_channels(messages: &[StatsMessage]) -> (String, String, String) {
 }
 
 /// Top-3 voice channels by summed duration ("N/A" fill). Mirrors calculateActiveVoiceChannels().
+/// TS accumulates in a plain object (first-seen insertion order) and V8
+/// sort is stable, so duration ties resolve first-seen-first (node:
+/// [["y",10],["x",30],["y",20]] ranks y(30) before x(30)). A bare
+/// HashMap walk would randomize ties, so the stable sort runs over an
+/// explicit first-seen order instead. Presence (not value) decides
+/// order, exactly like TS key insertion (a total passing through 0
+/// keeps its slot; NaN totals are impossible on i64; "__proto__"-style
+/// keys are unreachable — channel ids are Discord snowflakes).
 pub fn active_voice_channels(voices: &[StatsVoice]) -> (String, String, String) {
+    let mut order: Vec<&str> = Vec::new();
     let mut totals: std::collections::HashMap<&str, i64> = std::collections::HashMap::new();
     for v in voices {
-        *totals.entry(v.channel_id.as_str()).or_default() += v.end_timestamp - v.start_timestamp;
+        let id = v.channel_id.as_str();
+        if !totals.contains_key(id) {
+            order.push(id);
+        }
+        *totals.entry(id).or_default() += v.end_timestamp - v.start_timestamp;
     }
-    let mut sorted: Vec<(&str, i64)> = totals.into_iter().collect();
+    let mut sorted: Vec<(&str, i64)> = order.into_iter().map(|id| (id, totals[id])).collect();
     sorted.sort_by_key(|a| std::cmp::Reverse(a.1));
     pick3(sorted.into_iter().map(|(id, _)| id.to_string()))
 }
 
 fn top_n_counts<'a>(ids: impl Iterator<Item = &'a str>) -> (String, String, String) {
-    let mut counts: std::collections::HashMap<&str, u64> = std::collections::HashMap::new();
+    let mut order: Vec<&'a str> = Vec::new();
+    let mut counts: std::collections::HashMap<&'a str, u64> = std::collections::HashMap::new();
     for id in ids {
+        if !counts.contains_key(id) {
+            order.push(id);
+        }
         *counts.entry(id).or_default() += 1;
     }
-    let mut sorted: Vec<(&str, u64)> = counts.into_iter().collect();
+    // Same first-seen reasoning as active_voice_channels (node:
+    // ["b","a","b","a"] ranks b before a on the 2-2 tie).
+    let mut sorted: Vec<(&str, u64)> = order.into_iter().map(|id| (id, counts[id])).collect();
     sorted.sort_by_key(|a| std::cmp::Reverse(a.1));
     pick3(sorted.into_iter().map(|(id, _)| id.to_string()))
 }
@@ -240,6 +259,37 @@ mod tests {
         assert_eq!(first, "x");
         assert_eq!(second, "y");
         assert_eq!(third, "N/A");
+    }
+
+    #[test]
+    fn active_channels_ties_keep_first_seen_order() {
+        // TS accumulates counts in a plain object (first-seen insertion
+        // order) and V8 sort is stable, so ties rank first-seen-first
+        // (node ground truth: ["b","a","b","a"] -> ["b","a"],
+        // ["x","y","y","x","z"] -> ["x","y","z"]). The old HashMap walk
+        // resolved ties in hasher order instead.
+        let tied = vec![msg(1, "b"), msg(2, "a"), msg(3, "b"), msg(4, "a")];
+        assert_eq!(
+            active_channels(&tied),
+            ("b".to_string(), "a".to_string(), "N/A".to_string())
+        );
+        let three_way = vec![
+            msg(1, "x"),
+            msg(2, "y"),
+            msg(3, "y"),
+            msg(4, "x"),
+            msg(5, "z"),
+        ];
+        assert_eq!(
+            active_channels(&three_way),
+            ("x".to_string(), "y".to_string(), "z".to_string())
+        );
+        // Voice variant: y totals 30 (10+20), x totals 30 — first-seen y wins.
+        let vtied = vec![voice(0, 10, "y"), voice(0, 30, "x"), voice(30, 50, "y")];
+        assert_eq!(
+            active_voice_channels(&vtied),
+            ("y".to_string(), "x".to_string(), "N/A".to_string())
+        );
     }
 
     #[test]
