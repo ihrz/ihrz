@@ -1016,6 +1016,29 @@ mod tests {
         assert_eq!(decrypt_text("wrong", &enc), None);
         assert_eq!(decrypt_text("pw", "not:valid"), None);
         assert_eq!(decrypt_text("pw", "a:b:c:d:e"), None);
+        // Node ground truth: extra segments are ignored by the TS
+        // destructure (EXTRA_SEG/EXTRA_TWO decrypt), short/empty/non-hex
+        // nonces yield undefined (never a panic), and garbage ct hex
+        // truncates to empty so an empty-plaintext envelope still opens.
+        assert_eq!(
+            decrypt_text("pw", &format!("{enc}:deadbeef")).as_deref(),
+            Some("hello guild")
+        );
+        assert_eq!(
+            decrypt_text("pw", &format!("{enc}:aa:bb")).as_deref(),
+            Some("hello guild")
+        );
+        assert_eq!(decrypt_text("pw", "aabbcc:bb:cc:dd"), None);
+        assert_eq!(decrypt_text("pw", "aabbcc:::dd"), None);
+        assert_eq!(decrypt_text("pw", "aabbcc:zz:cc:dd"), None);
+        let empty_ct = encrypt_text("pw", "");
+        let mut seg: Vec<&str> = empty_ct.split(':').collect();
+        seg[2] = "zzzz";
+        assert_eq!(decrypt_text("pw", &seg.join(":")).as_deref(), Some(""));
+        assert_eq!(node_hex_bytes("aazzbb"), vec![0xaa]);
+        assert_eq!(node_hex_bytes("abc"), vec![0xab]);
+        assert_eq!(node_hex_bytes("AABB"), vec![0xaa, 0xbb]);
+        assert_eq!(node_hex_bytes(""), Vec::<u8>::new());
         // Fixed vector produced by the TS implementation (node:crypto).
         let ts = "d00a16daa41250a3a64a254f10bbdbc3:5626ea095456cc1121843a32:3b16d14a2c4ac1854e0a60:35a1c55e9161f75e235bcd40cf3c30e4";
         assert_eq!(decrypt_text("pw", ts).as_deref(), Some("hello guild"));
@@ -1887,6 +1910,24 @@ pub fn oauth2_link(client_id: &str, redirect_uri: &str, scope: &str, guild_id: &
 
 // ---- encryptDecryptMethod AES-256-GCM ----
 
+/// Node `Buffer.from(s, "hex")` semantics, pinned by node ground truth:
+/// byte pairs are parsed until the first non-hex pair (an odd trailing
+/// nibble is dropped); the result is truncated, never an error
+/// (`"aazzbb"` -> `[0xaa]`, `"abc"` -> `[0xab]`, uppercase accepted).
+fn node_hex_bytes(s: &str) -> Vec<u8> {
+    let b = s.as_bytes();
+    let mut out = Vec::with_capacity(b.len() / 2);
+    let mut i = 0;
+    while i + 1 < b.len() {
+        match ((b[i] as char).to_digit(16), (b[i + 1] as char).to_digit(16)) {
+            (Some(hi), Some(lo)) => out.push((hi * 16 + lo) as u8),
+            _ => break,
+        }
+        i += 2;
+    }
+    out
+}
+
 /// Encrypt text with a password. Mirrors encrypt() in
 /// encryptDecryptMethod.ts: PBKDF2-SHA256 (100k, 16B salt) -> AES-256-GCM
 /// (12B iv), rendered as salt:iv:ciphertext:tag hex.
@@ -1912,21 +1953,27 @@ pub fn encrypt_text(password: &str, text: &str) -> String {
 }
 
 /// Decrypt text with a password. Mirrors decrypt(): None on any error.
+/// The TS `const [a, b, c, d] = data.split(":")` destructure ignores extra
+/// segments, and `Buffer.from(x, "hex")` truncates (never throws), so only
+/// a missing segment or a non-12B nonce (createDecipheriv throws, caught)
+/// yields undefined.
 pub fn decrypt_text(password: &str, data: &str) -> Option<String> {
     use aes_gcm::{aead::Aead, Aes256Gcm, KeyInit};
     let mut parts = data.split(':');
+    let (salt_hex, iv_hex, ct_hex, tag_hex) =
+        (parts.next()?, parts.next()?, parts.next()?, parts.next()?);
     let (salt, iv, ct, tag) = (
-        hex::decode(parts.next()?).ok()?,
-        hex::decode(parts.next()?).ok()?,
-        hex::decode(parts.next()?).ok()?,
-        hex::decode(parts.next()?).ok()?,
+        node_hex_bytes(salt_hex),
+        node_hex_bytes(iv_hex),
+        node_hex_bytes(ct_hex),
+        node_hex_bytes(tag_hex),
     );
-    if parts.next().is_some() {
-        return None;
-    }
     let mut key = [0u8; 32];
     pbkdf2::pbkdf2_hmac::<sha2::Sha256>(password.as_bytes(), &salt, 100_000, &mut key);
     let cipher = Aes256Gcm::new_from_slice(&key).ok()?;
+    if iv.len() != 12 {
+        return None;
+    }
     let nonce = aes_gcm::Nonce::from_slice(&iv);
     let mut payload = ct;
     payload.extend_from_slice(&tag);
