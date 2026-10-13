@@ -343,7 +343,19 @@ pub fn is_valid_image_type(content_type: Option<&str>) -> bool {
 }
 
 /// Music URL allowlist. Mirrors isAllowedLinks.ts (default true, false
-/// only when the hostname parses and is unlisted).
+/// only when the hostname parses and is unlisted). Hostname extraction
+/// mirrors legacy `url.parse` quirks pinned by a node ground-truth
+/// battery: backslash counts as `/`, `\t\n\r` are stripped, the
+/// authority ends at the first `/`, `?` or `#` (so `#`/`?` `@`-tricks
+/// stay on the evil host), userinfo is cut at the last `@`, the port at
+/// `:`, the host is lowercased, and an empty authority yields hostname
+/// `""` (not null) so `includes("")` is false. A bare `scheme:...`
+/// value carrying userinfo (`mailto:foo@host`) parses its rest the same
+/// way; anything without a hostname is allowed (true). The TS table
+/// repeats its last 5 domains verbatim; the single copy here gives the
+/// same `includes` outcomes. Known residual delta: `tel:+1234`-style
+/// scheme values without `@` parse a garbage hostname in TS (false)
+/// but stay allowed here (true) — never a music URL in practice.
 pub fn is_allowed_links(link: &str) -> bool {
     const DOMAINS: &[&str] = &[
         "open.spotify.com",
@@ -384,12 +396,30 @@ pub fn is_allowed_links(link: &str) -> bool {
         "www.youtube.com",
         "music.youtube.com",
     ];
-    // Mirrors url.parse(link).hostname: no scheme -> null -> allowed (true).
-    let Some(after_scheme) = link.split("://").nth(1) else {
+    // Mirrors url.parse(link).hostname: no hostname -> null -> allowed (true).
+    let scrubbed: String = link
+        .chars()
+        .filter(|c| !matches!(c, '\t' | '\n' | '\r'))
+        .collect();
+    let scrubbed = scrubbed.replace('\\', "/");
+    let scrubbed = scrubbed.trim();
+    let authority = if let Some(idx) = scrubbed.find("://") {
+        if idx == 0 {
+            return true;
+        }
+        &scrubbed[idx + 3..]
+    } else if let Some(colon) = scrubbed.find(':') {
+        let rest = &scrubbed[colon + 1..];
+        if rest.contains('@') {
+            rest
+        } else {
+            return true;
+        }
+    } else {
         return true;
     };
-    let host = after_scheme
-        .split('/')
+    let host = authority
+        .split(['/', '?', '#'])
         .next()
         .unwrap_or("")
         .split('@')
@@ -399,9 +429,6 @@ pub fn is_allowed_links(link: &str) -> bool {
         .next()
         .unwrap_or("")
         .to_ascii_lowercase();
-    if host.is_empty() {
-        return true;
-    }
     DOMAINS.contains(&host.as_str())
 }
 
@@ -1091,6 +1118,29 @@ mod tests {
         assert!(is_allowed_links("https://open.spotify.com/x"));
         assert!(!is_allowed_links("https://evil.example/x"));
         assert!(is_allowed_links("not a url"));
+    }
+
+    #[test]
+    fn allowed_links_matches_url_parse_quirks() {
+        // Node ground-truth battery against legacy url.parse(link).hostname.
+        assert!(!is_allowed_links("https://evil.com#@open.spotify.com/x"));
+        assert!(!is_allowed_links("https://evil.com?@open.spotify.com"));
+        assert!(!is_allowed_links("https://evil.com/@open.spotify.com"));
+        assert!(!is_allowed_links("https:///x"));
+        assert!(!is_allowed_links("https://?x=1"));
+        assert!(!is_allowed_links("https://#frag"));
+        assert!(!is_allowed_links("https:// open.spotify.com/x"));
+        assert!(!is_allowed_links("mailto:foo@evil.com"));
+        assert!(is_allowed_links("://evil.com/x"));
+        assert!(is_allowed_links("https://open.spotify.com "));
+        assert!(is_allowed_links("https://open.spotify.com\t/x"));
+        assert!(is_allowed_links("https://open.spotify.com\\@evil.com/x"));
+        assert!(is_allowed_links("HTTPS://OPEN.SPOTIFY.COM/X"));
+        assert!(is_allowed_links("https://user:pw@open.spotify.com:443/x"));
+        assert!(is_allowed_links("https://open.spotify.com:abc/x"));
+        assert!(is_allowed_links("mailto:foo@open.spotify.com"));
+        assert!(is_allowed_links("foo@evil.com"));
+        assert!(is_allowed_links("https:open.spotify.com/x"));
     }
 
     #[test]
