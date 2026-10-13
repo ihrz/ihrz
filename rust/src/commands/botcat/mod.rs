@@ -401,10 +401,12 @@ mod tests {
 
     #[test]
     fn bot_footer_name_defaults_and_trims() {
+        // W6 slice 45: verbatim like TS footerBuilder (no trim; only ""
+        // falls back to the default).
         assert_eq!(bot_footer_name(None), "iHorizon");
         assert_eq!(bot_footer_name(Some("")), "iHorizon");
-        assert_eq!(bot_footer_name(Some("  ")), "iHorizon");
-        assert_eq!(bot_footer_name(Some(" MyBot ")), "MyBot");
+        assert_eq!(bot_footer_name(Some("  ")), "  ");
+        assert_eq!(bot_footer_name(Some(" MyBot ")), " MyBot ");
     }
 
     #[test]

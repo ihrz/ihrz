@@ -149,14 +149,17 @@ fn duration_unit_ms(unit: &str) -> Option<i64> {
 pub const BOT_NAME_KEY: &str = "BOT.botName";
 pub const BOT_PFP_KEY: &str = "BOT.botPFP";
 
-/// Resolve the embed footer text. Mirrors displayBotName.footerBuilder
-/// (stored BOT.botName, default "iHorizon").
+/// Resolve the embed footer text. Mirrors displayBotName.footerBuilder:
+/// TS falls back to "iHorizon" only on JS-falsy `!botName`, i.e. for a
+/// stored string exactly `""` (missing row is undefined). Whitespace-only
+/// (`"  "`) and padded (`" MyBot "`) names are truthy and render VERBATIM
+/// (node ground truth; the `!name.ts` setter stores any truthy name
+/// untrimmed, so both shapes are reachable rows). No trim here.
 pub fn bot_footer_name(stored: Option<&str>) -> String {
-    stored
-        .map(|s| s.trim())
-        .filter(|s| !s.is_empty())
-        .map(|s| s.to_string())
-        .unwrap_or_else(|| "iHorizon".to_string())
+    match stored {
+        Some(s) if !s.is_empty() => s.to_string(),
+        _ => "iHorizon".to_string(),
+    }
 }
 
 /// Resolve the footer icon attachment bytes. Mirrors
@@ -1052,9 +1055,13 @@ mod tests {
 
     #[test]
     fn footer_name_defaults_and_trims() {
+        // W6 slice 45: TS `!botName` falls back only on "" (missing row
+        // is None); whitespace/padded rows render verbatim, no trim.
         assert_eq!(bot_footer_name(None), "iHorizon");
-        assert_eq!(bot_footer_name(Some("  ")), "iHorizon");
-        assert_eq!(bot_footer_name(Some(" Bob ")), "Bob");
+        assert_eq!(bot_footer_name(Some("")), "iHorizon");
+        assert_eq!(bot_footer_name(Some("  ")), "  ");
+        assert_eq!(bot_footer_name(Some(" Bob ")), " Bob ");
+        assert_eq!(bot_footer_name(Some("Bob")), "Bob");
     }
 
     #[test]
