@@ -3,7 +3,6 @@ use super::{
     disable::sticky_disable, embed::sticky_embed, list::sticky_list, refresh::sticky_refresh,
     show::sticky_show, text::sticky_text,
 };
-use poise::serenity_prelude as serenity;
 
 /// Manage sticky messages in text channels
 #[poise::command(
@@ -23,25 +22,6 @@ use poise::serenity_prelude as serenity;
 )]
 pub async fn sticky(_ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     Ok(())
-}
-
-/// Prefix-shape channel error. Mirrors the TS
-/// `client.func.method.channel(interaction, args, 0)` null path: every
-/// sticky subcommand answers `sticky_channel_command_error` with the No
-/// emoji and the invoking user filled, instead of a framework parse error.
-pub async fn invalid_channel_text(
-    http: &std::sync::Arc<serenity::Http>,
-    template: &str,
-    user_mention: &str,
-) -> String {
-    let no = no_markup(http).await;
-    fill(
-        template,
-        &[
-            ("${client.iHorizon_Emojis.No}", no.as_str()),
-            ("${interaction.user}", user_mention),
-        ],
-    )
 }
 
 /// Raw sticky loader without the enabled filter. `show` uses it so a
@@ -89,5 +69,40 @@ mod helper_tests {
         s = s.replace("${client.iHorizon_Emojis.No}", "NO");
         let out = s.replace("${interaction.user}", "<@1>");
         assert_eq!(out, "NO | <@1>, no channel.");
+    }
+
+    fn params_of(cmd: &poise::Command<crate::bot::Data, anyhow::Error>) -> Vec<(&str, bool)> {
+        cmd.parameters
+            .iter()
+            .map(|p| (p.name.as_str(), p.required))
+            .collect()
+    }
+
+    #[test]
+    fn sticky_channel_params_are_required_like_ts() {
+        // TS `sticky.ts` declares channel `required: true` on every
+        // subcommand, so checkCommandArgs answers missing/bad prefix
+        // channel input with the caret usage embed before run(). Poise
+        // mirrors that gate only when the params are required: Option
+        // params would swallow the miss and reply the plain-text
+        // sticky_channel_command_error key instead (divergence verified
+        // live vs prod on `.sticky show #general` and `.sticky text <id>`).
+        let show = super::show::sticky_show();
+        assert_eq!(params_of(&show), vec![("channel", true)]);
+        let disable = super::disable::sticky_disable();
+        assert_eq!(params_of(&disable), vec![("channel", true)]);
+        let refresh = super::refresh::sticky_refresh();
+        assert_eq!(params_of(&refresh), vec![("channel", true)]);
+        let embed = super::embed::sticky_embed();
+        assert_eq!(
+            params_of(&embed),
+            vec![
+                ("channel", true),
+                ("embed_id", true),
+                ("message_content", false)
+            ]
+        );
+        let text = super::text::sticky_text();
+        assert_eq!(params_of(&text), vec![("channel", true), ("message", true)]);
     }
 }
