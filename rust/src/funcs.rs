@@ -1363,32 +1363,75 @@ fn civil_from_days(z: i64) -> (i64, u32, u32) {
     (if m <= 2 { y + 1 } else { y }, m, d)
 }
 
-/// Date formatter. Mirrors date_and_time.format
-/// (YYYY/YY/MMM/MM/DD/ddd/HH/mm/ss, UTC).
+/// Date formatter. Mirrors date_and_time.format exactly: the TS getters
+/// (getFullYear/getMonth/getDate/getDay/getHours/...) are SERVER-LOCAL,
+/// so fields come from chrono::Local, not UTC (a UTC clock renders warn/
+/// blacklist/schedule/logger timestamps 1-2h off on a Europe/Paris host;
+/// node ground truth: 1705321845 -> "13:30:45", 0 -> "01:00:00").
+/// Token scan is single-pass left-to-right like the TS
+/// /(YYYY|YY|MMM|MM|DD|ddd|HH|mm|ss)/g replace; out-of-range timestamps
+/// fall back to the UTC civil computation below.
 pub fn format_date(unix_secs: i64, format: &str) -> String {
-    let days = unix_secs.div_euclid(86_400);
-    let secs = unix_secs.rem_euclid(86_400);
-    let (year, month, day) = civil_from_days(days);
-    let (hh, mm, ss) = (
-        (secs / 3600) as u32,
-        ((secs / 60) % 60) as u32,
-        (secs % 60) as u32,
-    );
-    let weekday = DAYS[((days + 4).rem_euclid(7)) as usize];
+    use chrono::{Datelike, Local, TimeZone, Timelike};
+    let (year, month, day, weekday, hh, mm, ss) =
+        if let Some(dt) = Local.timestamp_opt(unix_secs, 0).single() {
+            (
+                dt.year() as i64,
+                dt.month(),
+                dt.day(),
+                DAYS[dt.weekday().num_days_from_sunday() as usize],
+                dt.hour(),
+                dt.minute(),
+                dt.second(),
+            )
+        } else {
+            let days = unix_secs.div_euclid(86_400);
+            let secs = unix_secs.rem_euclid(86_400);
+            let (year, month, day) = civil_from_days(days);
+            (
+                year,
+                month,
+                day,
+                DAYS[((days + 4).rem_euclid(7)) as usize],
+                (secs / 3600) as u32,
+                ((secs / 60) % 60) as u32,
+                (secs % 60) as u32,
+            )
+        };
     let year_s = year.to_string();
-    let mut out = format.to_string();
-    for (token, value) in [
-        ("YYYY", year_s.clone()),
-        ("YY", year_s[year_s.len().saturating_sub(2)..].to_string()),
-        ("MMM", MONTHS[(month - 1) as usize].to_string()),
-        ("MM", format!("{month:02}")),
-        ("DD", format!("{day:02}")),
-        ("ddd", weekday.to_string()),
-        ("HH", format!("{hh:02}")),
-        ("mm", format!("{mm:02}")),
-        ("ss", format!("{ss:02}")),
-    ] {
-        out = out.replace(token, &value);
+    let mut out = String::with_capacity(format.len() + 16);
+    let bytes = format.as_bytes();
+    let mut i = 0;
+    while i < bytes.len() {
+        let rest = &format[i..];
+        // Longest-first at each position, like the TS alternation
+        // (YYYY|YY|MMM|MM|DD|ddd|HH|mm|ss).
+        let (token, value): (&str, String) = if rest.starts_with("YYYY") {
+            ("YYYY", year_s.clone())
+        } else if rest.starts_with("YY") {
+            ("YY", year_s[year_s.len().saturating_sub(2)..].to_string())
+        } else if rest.starts_with("MMM") {
+            ("MMM", MONTHS[(month - 1) as usize].to_string())
+        } else if rest.starts_with("MM") {
+            ("MM", format!("{month:02}"))
+        } else if rest.starts_with("DD") {
+            ("DD", format!("{day:02}"))
+        } else if rest.starts_with("ddd") {
+            ("ddd", weekday.to_string())
+        } else if rest.starts_with("HH") {
+            ("HH", format!("{hh:02}"))
+        } else if rest.starts_with("mm") {
+            ("mm", format!("{mm:02}"))
+        } else if rest.starts_with("ss") {
+            ("ss", format!("{ss:02}"))
+        } else {
+            let ch_len = rest.chars().next().map(|c| c.len_utf8()).unwrap_or(1);
+            out.push_str(&rest[..ch_len]);
+            i += ch_len;
+            continue;
+        };
+        out.push_str(&value);
+        i += token.len();
     }
     out
 }
@@ -1613,12 +1656,54 @@ mod funcs_part2_tests {
 
     #[test]
     fn date_formats_tokens() {
-        // 2024-01-15 12:30:45 UTC = 1705321845
-        assert_eq!(format_date(1705321845, "YYYY-MM-DD"), "2024-01-15");
-        assert_eq!(format_date(1705321845, "ddd"), "Mon");
-        assert_eq!(format_date(1705321845, "HH:mm:ss"), "12:30:45");
-        assert_eq!(format_date(0, "YYYY-MM-DD ddd"), "1970-01-01 Thu");
-        assert_eq!(format_date(1705321845, "YY/MMM"), "24/Jan");
+        // Token shapes hold in any host TZ (expected built from
+        // chrono::Local fields independently of format_date).
+        use chrono::{Local, TimeZone};
+        let dt = Local.timestamp_opt(1705321845, 0).single().unwrap();
+        use chrono::{Datelike, Timelike};
+        let expect = format!("{:04}-{:02}-{:02}", dt.year(), dt.month(), dt.day());
+        assert_eq!(format_date(1705321845, "YYYY-MM-DD"), expect);
+        assert_eq!(
+            format_date(1705321845, "YY/MMM"),
+            format!("{:02}/Jan", (dt.year() % 100 + 100) % 100)
+        );
+        // Node ground truth on Europe/Paris (TS local getters):
+        // 1705321845 -> "2024-01-15 Mon 13:30:45", 0 -> "1970-01-01 Thu 01:00:00",
+        // 1690848000 -> "2023-08-01 Tue 02:00:00" (DST +2), -3600 -> "1970-01-01 Thu 00:00:00".
+        // Gate on the host offset so the suite stays green under any TZ.
+        let jan_off = Local
+            .timestamp_opt(1705321845, 0)
+            .single()
+            .unwrap()
+            .offset()
+            .local_minus_utc();
+        if jan_off == 3600 {
+            assert_eq!(
+                format_date(1705321845, "YYYY-MM-DD ddd HH:mm:ss"),
+                "2024-01-15 Mon 13:30:45"
+            );
+            assert_eq!(
+                format_date(0, "YYYY-MM-DD ddd HH:mm:ss"),
+                "1970-01-01 Thu 01:00:00"
+            );
+            assert_eq!(
+                format_date(-3600, "YYYY-MM-DD ddd HH:mm:ss"),
+                "1970-01-01 Thu 00:00:00"
+            );
+            assert_eq!(format_date(1705321845, "DD/MM/YYYY"), "15/01/2024");
+        }
+        let aug_off = Local
+            .timestamp_opt(1690848000, 0)
+            .single()
+            .unwrap()
+            .offset()
+            .local_minus_utc();
+        if aug_off == 7200 {
+            assert_eq!(
+                format_date(1690848000, "YYYY-MM-DD ddd HH:mm:ss"),
+                "2023-08-01 Tue 02:00:00"
+            );
+        }
     }
 
     #[test]

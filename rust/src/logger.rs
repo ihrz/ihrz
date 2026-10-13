@@ -172,9 +172,26 @@ mod tests {
 
     #[test]
     fn error_log_entry_matches_ts_shape() {
-        // 2026-10-09 00:00:00 UTC = 1791504000.
+        // TS renders `format(new Date(), "DD/MM/YYYY HH:mm:ss")` with
+        // server-local getters, so the pin follows chrono::Local
+        // (1791504000 = 2026-10-09 00:00:00 UTC = 02:00:00 CEST).
+        use chrono::{Datelike, Local, TimeZone, Timelike};
+        let dt = Local.timestamp_opt(1791504000, 0).single().unwrap();
+        let expect = format!(
+            "[{:02}/{:02}/{:04} {:02}:{:02}:{:02}]",
+            dt.day(),
+            dt.month(),
+            dt.year(),
+            dt.hour(),
+            dt.minute(),
+            dt.second()
+        );
         let entry = error_log_entry("boom", 1791504000);
-        assert_eq!(entry, "[09/10/2026 00:00:00]\nboom\r\n");
+        assert!(entry.starts_with(&expect));
+        // Full TS shape `[ts] LF detail CR LF` (escapes avoided via char codes).
+        let nl = char::from(10u8);
+        let cr = char::from(13u8);
+        assert_eq!(entry, format!("{expect}{nl}boom{cr}{nl}"));
     }
 
     #[test]
