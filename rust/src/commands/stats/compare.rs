@@ -16,38 +16,34 @@ use poise::serenity_prelude as serenity;
 )]
 pub async fn stats_compare(
     ctx: Ctx<'_>,
-    // Optional on both paths so the prefix leg can miss a user, like TS
-    // `!compare.ts` (`args` with < 2 mentions). A missing user replies
-    // `stats_compare_invalid_users`; slash callers must still pass both
-    // (TS declares both options `required: true`).
+    // Required on both paths, like TS (`stats.ts` declares user1/user2
+    // `required: true`): missing prefix args never reach run() because
+    // poise ArgumentParse routes them to the checkCommandArgs caret usage
+    // embed (prefix_usage_denial), exactly like TS answers `.stats
+    // compare` with no args (verified live vs prod). Option params would
+    // swallow the miss and reply the plain-text invalid_users key.
     #[description_localized("fr", "Premier utilisateur à comparer")]
     #[description_localized("ja", "比較する1人目のユーザー")]
     #[description_localized("ru", "Первый пользователь для сравнения")]
     #[description_localized("es-ES", "Primer usuario a comparar")]
     #[description = "First user to compare"]
     #[rename = "user1"]
-    user1: Option<poise::serenity_prelude::User>,
+    user1: poise::serenity_prelude::User,
     #[description_localized("fr", "Deuxième utilisateur à comparer")]
     #[description_localized("ja", "比較する2人目のユーザー")]
     #[description_localized("ru", "Второй пользователь для сравнения")]
     #[description_localized("es-ES", "Segundo usuario a comparar")]
     #[description = "Second user to compare"]
     #[rename = "user2"]
-    user2: Option<poise::serenity_prelude::User>,
+    user2: poise::serenity_prelude::User,
 ) -> Result<(), anyhow::Error> {
     let code = crate::db::guild_lang(&ctx.data().pool, ctx.guild_id().map(|g| g.get())).await;
     let t = |key: &str, fallback: &str| {
         crate::lang::get(&code, key).unwrap_or_else(|| fallback.to_string())
     };
-    // Mirrors `!compare.ts:71-75` (`if (!user1Id || !user2Id)`).
-    let (Some(user1), Some(user2)) = (user1, user2) else {
-        ctx.say(t(
-            "stats_compare_invalid_users",
-            "Please provide two valid users to compare.",
-        ))
-        .await?;
-        return Ok(());
-    };
+    // Both users are guaranteed by the signature now (prefix misses take
+    // the caret usage embed, slash requires both): only the identity and
+    // data gates below can still deny.
     if user1.id == user2.id {
         // DELIBERATE divergence (kept): TS `!compare.ts` has no
         // same-user guard and would render a user-against-themselves
@@ -148,4 +144,26 @@ pub async fn stats_compare(
     }
     ctx.send(poise::CreateReply::default().embed(embed)).await?;
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn compare_users_are_required_like_ts() {
+        // TS `stats.ts` declares user1/user2 `required: true`, so
+        // checkCommandArgs answers missing prefix args with the caret
+        // usage embed before run(). Poise mirrors that gate only when
+        // the params are required: Option params would swallow the miss
+        // and reply the plain-text invalid_users key instead (divergence
+        // verified live vs prod on `.stats compare` with no args).
+        let cmd = stats_compare();
+        let params: Vec<(&str, bool)> = cmd
+            .parameters
+            .iter()
+            .map(|p| (p.name.as_str(), p.required))
+            .collect();
+        assert_eq!(params, vec![("user1", true), ("user2", true)]);
+    }
 }
