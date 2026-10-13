@@ -41,10 +41,86 @@
 // available for call sites needing TS-exact offline resolution (e.g.
 // the voiceChannel fuzzy leg, which ArgumentConvert cannot do).
 
-/// True when the arg is a non-blank number. Mirrors isNumber().
+/// True when the arg is a non-blank number. Mirrors isNumber()
+/// (`!isNaN(Number(str)) && str.trim() !== ""`) exactly: JS `Number`
+/// accepts unsigned hex/binary/octal literals (`0x11`, `0b101`, `0o17`
+/// — signed forms like `-0x10` are NaN), the exact-case words
+/// `Infinity`/`+Infinity`/`-Infinity` (lowercase `infinity`/`inf` and
+/// any `NaN` casing are NaN), and decimal/exponent forms (node ground
+/// truth: `"1_2"`/`"1e"`/`"e5"`/`"0x1g"`/`"--5"` all false, `"5."`/`
+/// ".5"`/`"+.5e-3"`/`"5.e3"` true). Rust `f64::from_str` instead
+/// rejects hex/bin/oct (false negatives) and accepts `inf`/`NaN` in
+/// any case (false positives), so the grammar is scanned by hand.
 pub fn is_number(s: &str) -> bool {
-    let t = s.trim();
-    !t.is_empty() && t.parse::<f64>().is_ok()
+    // JS String trim also strips a BOM; Rust trim does not.
+    let t = s.trim().trim_matches('\u{FEFF}');
+    if t.is_empty() {
+        return false;
+    }
+    if t == "Infinity" || t == "+Infinity" || t == "-Infinity" {
+        return true;
+    }
+    let b = t.as_bytes();
+    // Unsigned radix literals only: a leading sign makes them NaN.
+    if b.len() > 2 && b[0] == b'0' {
+        let (digits, ok): (&[u8], fn(u8) -> bool) = match b[1] {
+            b'x' | b'X' => (&b[2..], |c: u8| c.is_ascii_hexdigit()),
+            b'b' | b'B' => (&b[2..], |c: u8| c == b'0' || c == b'1'),
+            b'o' | b'O' => (&b[2..], |c: u8| (b'0'..=b'7').contains(&c)),
+            _ => (&[], |_| false),
+        };
+        if b[1] == b'x'
+            || b[1] == b'X'
+            || b[1] == b'b'
+            || b[1] == b'B'
+            || b[1] == b'o'
+            || b[1] == b'O'
+        {
+            return !digits.is_empty() && digits.iter().all(|c| ok(*c));
+        }
+    }
+    is_js_decimal(t)
+}
+
+/// JS decimal NumericLiteral scan (digits with optional fraction and
+/// optional exponent), full-string match.
+fn is_js_decimal(t: &str) -> bool {
+    let b = t.as_bytes();
+    let mut i = 0;
+    if i < b.len() && (b[i] == b'+' || b[i] == b'-') {
+        i += 1;
+    }
+    let mut digits = 0;
+    while i < b.len() && b[i].is_ascii_digit() {
+        digits += 1;
+        i += 1;
+    }
+    let mut frac = 0;
+    if i < b.len() && b[i] == b'.' {
+        i += 1;
+        while i < b.len() && b[i].is_ascii_digit() {
+            frac += 1;
+            i += 1;
+        }
+    }
+    if digits + frac == 0 {
+        return false;
+    }
+    if i < b.len() && (b[i] == b'e' || b[i] == b'E') {
+        i += 1;
+        if i < b.len() && (b[i] == b'+' || b[i] == b'-') {
+            i += 1;
+        }
+        let mut exp = 0;
+        while i < b.len() && b[i].is_ascii_digit() {
+            exp += 1;
+            i += 1;
+        }
+        if exp == 0 {
+            return false;
+        }
+    }
+    i == b.len()
 }
 
 /// True when the arg contains mention brackets. Mirrors /[<@!>]/ test.
@@ -345,6 +421,38 @@ mod tests {
         // TS music_proximity similarity(): maxLen from the ORIGINALS.
         assert_eq!(similarity("İ", "i"), 0.0);
         assert_eq!(similarity("", ""), 1.0);
+    }
+
+    #[test]
+    fn is_number_matches_js_number_grammar() {
+        // Pinned via node: !isNaN(Number(s)) && s.trim() !== "".
+        for s in [
+            "123",
+            "12.5",
+            "0x11",
+            "0Xff",
+            "0b101",
+            "0o17",
+            "Infinity",
+            "+Infinity",
+            "-Infinity",
+            "  12  ",
+            "  0x11  ",
+            "1e3",
+            ".5",
+            "5.",
+            "5.e3",
+            "+.5e-3",
+            "  -Infinity  ",
+        ] {
+            assert!(is_number(s), "{s:?} must be numeric");
+        }
+        for s in [
+            "-0x10", "0b2", "0o9", "infinity", "inf", "NaN", "nan", "", "   ", "12abc", "0b", "0x",
+            "1_2", "--5", "0x1g", "1e", "e5", "-", ".", "+", "0d5",
+        ] {
+            assert!(!is_number(s), "{s:?} must NOT be numeric");
+        }
     }
 
     #[test]
