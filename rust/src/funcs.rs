@@ -1829,9 +1829,13 @@ mod funcs_part2_tests {
 
 /// Sensitive option redactor. Mirrors sanitizeInteractionOptionValue.ts
 /// ([REDACTED] for password/token/api keys/secrets, else the value).
+/// Exactness note: TS lowercases with full-Unicode `toLowerCase` (not
+/// ASCII-only), so e.g. KELVIN SIGN (U+212A) folds to `k` and
+/// `to<k>ven` normalizes to `token` (node ground truth). The
+/// `/[^a-z0-9]/g` strip then drops the rest, like the filter below.
 pub fn sanitize_option(option_name: &str, option_value: &str) -> String {
     let normalized: String = option_name
-        .to_ascii_lowercase()
+        .to_lowercase()
         .chars()
         .filter(|c| c.is_ascii_alphanumeric())
         .collect();
@@ -2407,6 +2411,16 @@ mod funcs_part3_tests {
         assert_eq!(sanitize_option("api-key", "x"), "[REDACTED]");
         assert_eq!(sanitize_option("sharedSecret", "x"), "[REDACTED]");
         assert_eq!(sanitize_option("reason", "spam"), "spam");
+    }
+
+    #[test]
+    fn option_redaction_matches_ts_unicode_fold() {
+        // Node ground truth: TS `toLowerCase` folds KELVIN SIGN (U+212A)
+        // to `k`, so `to<k>ven` normalizes to `token` and is redacted;
+        // ASCII-only lowering stripped it to `toen` (pass-through).
+        assert_eq!(sanitize_option("to\u{212A}en", "hunter2"), "[REDACTED]");
+        assert_eq!(sanitize_option("PASS", "hunter2"), "[REDACTED]");
+        assert_eq!(sanitize_option("passage", "x"), "x");
     }
 
     #[test]
