@@ -275,13 +275,21 @@ pub fn progress_bar(current_ms: u64, total_ms: u64) -> (String, String, String) 
     (bar, format_time(cur_s), format_time(tot_s))
 }
 
-/// Text sanitizer. Mirrors sanitizer.ts: drops lone surrogates (the only
-/// strings Rust can never hold are empty ones).
+/// Text sanitizer. Mirrors sanitizer.ts exactly: the TS splits the string
+/// into UTF-16 code units and keeps a unit only if
+/// `decodeURIComponent(escape(unit))` round-trips. A lone surrogate half
+/// always throws, so EVERY astral character (emoji, etc.) is stripped —
+/// even well-formed pairs die one half at a time (node ground truth:
+/// `"A😀B"` -> `"AB"`, `"😀 hi"` -> `" hi"`). Rust `&str` can never hold
+/// lone surrogates, so keeping only BMP scalar values (`<= U+FFFF`) is the
+/// exact equivalent for all representable inputs. Empty result (or empty
+/// input, like TS `undefined`/`""`) yields `"<malformed string>"`.
 pub fn sanitizing(text: &str) -> String {
-    if text.is_empty() {
+    let kept: String = text.chars().filter(|c| (*c as u32) <= 0xFFFF).collect();
+    if kept.is_empty() {
         return "<malformed string>".to_string();
     }
-    text.to_string()
+    kept
 }
 
 /// Link masker. Mirrors maskLink.ts blacklist.
@@ -868,6 +876,11 @@ mod tests {
     fn sanitize_masks_links_urls() {
         assert_eq!(sanitizing("hello"), "hello");
         assert_eq!(sanitizing(""), "<malformed string>");
+        // TS splits UTF-16 units: astral pairs die one half at a time (node pins).
+        assert_eq!(sanitizing("A😀B"), "AB");
+        assert_eq!(sanitizing("😀 hi"), " hi");
+        assert_eq!(sanitizing("café"), "café");
+        assert_eq!(sanitizing("😀"), "<malformed string>");
         assert_eq!(mask_link("see https://x.y"), "Hidden Link");
         assert_eq!(mask_link("plain text"), "plain text");
         assert_eq!(message_url(1, 2, 3), "https://discord.com/channels/1/2/3");
