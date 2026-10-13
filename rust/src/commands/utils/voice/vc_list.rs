@@ -58,7 +58,15 @@ pub async fn vc_list(
                 g.name.clone(),
                 g.member_count,
                 g.premium_subscription_count.unwrap_or(0),
-                g.icon_url().map(|u| format!("{u}?size=4096")),
+                // Pin png + size 4096 like
+                // `iconURL({ size: 4096, extension: "png" })` in !vc.ts.
+                g.icon.map(|h| {
+                    format!(
+                        "https://cdn.discordapp.com/icons/{}/{}.png?size=4096",
+                        guild_id.get(),
+                        h
+                    )
+                }),
                 g.icon_url(),
             )
         })

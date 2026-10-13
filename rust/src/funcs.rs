@@ -3717,8 +3717,15 @@ pub fn decode_png_pixels(bytes: &[u8]) -> anyhow::Result<Vec<(u8, u8, u8)>> {
 /// Jimp.read in image_dominant_color.ts, which accepts any image
 /// shape — the PNG-only path above silently dropped every JPEG
 /// artwork (all YouTube thumbnails) to the `#6fa8dc` fallback.
+/// Images larger than 300px are downscaled to fit 300x300 first
+/// (TS `scaleToFit`), so the bucket scan runs on the same sample set.
 pub fn decode_image_pixels(bytes: &[u8]) -> anyhow::Result<Vec<(u8, u8, u8)>> {
     let img = image::load_from_memory(bytes)?;
+    let img = if img.width() > 300 || img.height() > 300 {
+        img.resize(300, 300, image::imageops::FilterType::Triangle)
+    } else {
+        img
+    };
     Ok(img.to_rgb8().pixels().map(|p| (p[0], p[1], p[2])).collect())
 }
 
@@ -3820,6 +3827,22 @@ mod funcs_dominant_tests {
             vibrant_and_dark_colors(&[]),
             ("#5865f2".to_string(), "#5865f2".to_string())
         );
+    }
+
+    #[test]
+    fn decode_downscales_like_ts_scaletofit() {
+        // 600x600 red PNG: the TS scaleToFit(300,300) leg caps analysis
+        // at 90k pixels; without it a 4096px icon would scan 16M+.
+        let buf: image::ImageBuffer<image::Rgb<u8>, Vec<u8>> =
+            image::ImageBuffer::from_pixel(600, 600, image::Rgb([200, 50, 50]));
+        let mut bytes = std::io::Cursor::new(vec![]);
+        image::DynamicImage::ImageRgb8(buf)
+            .write_to(&mut bytes, image::ImageFormat::Png)
+            .unwrap();
+        let pixels = decode_image_pixels(bytes.get_ref()).unwrap();
+        assert!(!pixels.is_empty());
+        assert!(pixels.len() <= 300 * 300);
+        assert_eq!(vibrant_and_dark_colors(&pixels).0, "#c83232".to_string());
     }
 
     #[test]

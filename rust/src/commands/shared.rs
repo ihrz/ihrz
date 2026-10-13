@@ -256,17 +256,24 @@ pub fn embed_with_footer(
 /// (no reply ping, no user/role mention parsing; @everyone default kept).
 /// The slash leg passes through untouched (TS interaction replies keep
 /// default mentions, so role/user mentions in embeds keep parsing there).
+/// Commands whose TS main response is a plain channel send (not a reply)
+/// are excluded here: `utils vc` (!vc.ts `channel.send`), `top`
+/// (MessageCommands top.ts `channelSend`, which also keeps default
+/// mentions).
 pub fn shape_prefix_reply(ctx: Ctx<'_>, reply: poise::CreateReply) -> poise::CreateReply {
-    if matches!(ctx, poise::Context::Prefix(_)) {
-        reply.reply(true).allowed_mentions(
-            poise::serenity_prelude::CreateAllowedMentions::new()
-                .replied_user(false)
-                .all_users(false)
-                .all_roles(false),
-        )
-    } else {
-        reply
+    if !matches!(ctx, poise::Context::Prefix(_)) {
+        return reply;
     }
+    const PLAIN_SEND_PATHS: &[&str] = &["utils vc", "top"];
+    if PLAIN_SEND_PATHS.contains(&ctx.command().qualified_name.as_str()) {
+        return reply;
+    }
+    reply.reply(true).allowed_mentions(
+        poise::serenity_prelude::CreateAllowedMentions::new()
+            .replied_user(false)
+            .all_users(false)
+            .all_roles(false),
+    )
 }
 
 /// Prefix-display name lookup. Mirrors the `prefixName || name` display

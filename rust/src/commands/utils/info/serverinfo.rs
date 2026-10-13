@@ -66,8 +66,9 @@ pub async fn serverinfo(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         .and_then(|m| m.joined_at)
         .map(|t| js_date_string(t.unix_timestamp()))
         .unwrap_or_else(|| "None".to_string());
-    // Every TS field value is backtick-wrapped (`value` in !serverinfo.ts);
-    // the owner mention keeps its backticks too (`<@ownerId>`).
+    // Every TS field value is backtick-wrapped (`value` in !serverinfo.ts)
+    // EXCEPT the owner mention: prod renders it parsed (`<@id>`, no
+    // backticks), so the mention resolves instead of showing as code.
     let tick = |v: String| format!("`{v}`");
     let mut embed = poise::serenity_prelude::CreateEmbed::default()
         .colour(0xC3B2A1)
@@ -90,7 +91,7 @@ pub async fn serverinfo(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
         )
         .field(
             f("serverinfo_embed_fields_owner", "👑・**Owner:**"),
-            tick(format!("<@{}>", cached.owner_id.get())),
+            format!("<@{}>", cached.owner_id.get()),
             true,
         )
         .field(
