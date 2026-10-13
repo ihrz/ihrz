@@ -1870,15 +1870,40 @@ pub fn decrypt_text(password: &str, data: &str) -> Option<String> {
 
 // ---- os_utils.niceBytes ----
 
-/// Byte formatter. Mirrors niceBytes.ts (input unit is KB, like os.freemem).
+/// JS `Number.prototype.toFixed(0)` for finite non-negative `v`:
+/// round-half-up (Rust `round` is half-away-from-zero, identical for
+/// `v >= 0`), rendered with no decimal point. Rust `{:.0}` would use
+/// banker's rounding (`10.5` -> `"10"`); TS gives `"11"`.
+fn js_to_fixed_0(v: f64) -> String {
+    format!("{}", v.round())
+}
+
+/// JS `toFixed(2)` for finite non-negative `v`: scale, half-up round,
+/// then render two digits. Scaling first reproduces the TS quirk where
+/// binary-near-halves stay down (`2.675` -> `"2.67"`, like TS).
+fn js_to_fixed_2(v: f64) -> String {
+    format!("{:.2}", (v * 100.0).round() / 100.0)
+}
+
 pub fn nice_bytes(kb: f64) -> String {
+    // Byte formatter. Mirrors niceBytes.ts (input unit is KB, like os.freemem).
+    // TS renders the degenerate path (`kb <= 0`, NaN: `units[-Inf]` /
+    // `units[NaN]` is `undefined`, `bytes` is NaN) as the literal
+    // `"NaN undefined"` (node ground truth: 0/-1/NaN). Infinity flows
+    // through to `"Infinity YB"`.
+    if kb <= 0.0 || kb.is_nan() {
+        return "NaN undefined".to_string();
+    }
     let units = ["bytes", "KB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"];
     let idx = ((kb * 1024.0).log(1024.0).floor() as usize).min(units.len() - 1);
     let bytes = (kb * 1024.0) / 1024f64.powi(idx as i32);
+    if !bytes.is_finite() {
+        return format!("Infinity {}", units[idx]);
+    }
     if bytes < 10.0 && idx > 0 {
-        format!("{bytes:.2} {}", units[idx])
+        format!("{} {}", js_to_fixed_2(bytes), units[idx])
     } else {
-        format!("{:.0} {}", bytes, units[idx])
+        format!("{} {}", js_to_fixed_0(bytes), units[idx])
     }
 }
 
@@ -2340,6 +2365,21 @@ mod funcs_part3_tests {
     fn bytes_format() {
         assert_eq!(nice_bytes(0.5), "512 bytes");
         assert_eq!(nice_bytes(2048.0), "2.00 MB");
+        // Node ground-truth battery for niceBytes.ts.
+        assert_eq!(nice_bytes(0.0), "NaN undefined");
+        assert_eq!(nice_bytes(-1.0), "NaN undefined");
+        assert_eq!(nice_bytes(f64::NAN), "NaN undefined");
+        assert_eq!(nice_bytes(f64::INFINITY), "Infinity YB");
+        assert_eq!(nice_bytes(1.0), "1.00 KB");
+        assert_eq!(nice_bytes(1023.0), "1023 KB");
+        assert_eq!(nice_bytes(1024.0), "1.00 MB");
+        assert_eq!(nice_bytes(1048575.0), "1024 MB");
+        assert_eq!(nice_bytes(1048576.0), "1.00 GB");
+        assert_eq!(nice_bytes(1073741824.0), "1.00 TB");
+        assert_eq!(nice_bytes(1536.0), "1.50 MB");
+        // toFixed(0) is half-up ("11"), not banker's ("10").
+        assert_eq!(nice_bytes(10.5), "11 KB");
+        assert_eq!(nice_bytes(9.5), "9.50 KB");
     }
 
     #[test]
