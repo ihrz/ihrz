@@ -1686,12 +1686,17 @@ fn rand_boundary() -> u64 {
 
 // ---- ownerHelper (pure parts) ----
 
-/// Guild owner id set: ownerId + stored OWNER keys. Mirrors getGuildOwner.
+/// Guild owner merge. Mirrors getGuildOwner
+/// (`[...new Set([ownerId, ...Object.keys(row)])]`): Discord owner
+/// first, stored keys after, first-occurrence dedup, NO sort (TS never
+/// sorts; the owner-list embed renders this exact order).
 pub fn guild_owner_ids(owner_id: u64, stored: &[String]) -> Vec<String> {
-    let mut ids = vec![owner_id.to_string()];
-    ids.extend(stored.iter().cloned());
-    ids.sort();
-    ids.dedup();
+    let mut ids: Vec<String> = Vec::with_capacity(stored.len() + 1);
+    for id in std::iter::once(owner_id.to_string()).chain(stored.iter().cloned()) {
+        if !ids.contains(&id) {
+            ids.push(id);
+        }
+    }
     ids
 }
 
@@ -1804,9 +1809,16 @@ mod funcs_part2_tests {
 
     #[test]
     fn owner_sets() {
+        // Order mirrors `[...new Set([ownerId, ...keys])]`: Discord
+        // owner first, stored after, first-occurrence dedup, no sort
+        // (string sort would put "10" before "9").
         assert_eq!(
             guild_owner_ids(1, &["2".to_string(), "1".to_string()]),
             vec!["1".to_string(), "2".to_string()]
+        );
+        assert_eq!(
+            guild_owner_ids(9, &["10".to_string(), "2".to_string()]),
+            vec!["9".to_string(), "10".to_string(), "2".to_string()]
         );
         assert!(is_bot_owner(7, &["7".to_string()]));
         assert!(!is_bot_owner(8, &["7".to_string()]));

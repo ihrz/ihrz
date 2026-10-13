@@ -857,12 +857,19 @@ pub async fn stored_bot_owners(pool: &Pool) -> Vec<String> {
 }
 
 /// Merged bot owners: config (`client.owners`) + persisted table.
-/// Mirrors getBotOwner().
+/// Mirrors getBotOwner (`[...new Set([...client.owners, ...tableIds])]`):
+/// config first, stored after, first-occurrence dedup, no sort.
 pub async fn bot_owner_ids(pool: &Pool, config_owners: &[String]) -> Vec<String> {
-    let mut ids: Vec<String> = config_owners.to_vec();
-    ids.extend(stored_bot_owners(pool).await);
-    ids.sort();
-    ids.dedup();
+    let mut ids: Vec<String> = Vec::with_capacity(config_owners.len());
+    for id in config_owners
+        .iter()
+        .cloned()
+        .chain(stored_bot_owners(pool).await)
+    {
+        if !ids.contains(&id) {
+            ids.push(id);
+        }
+    }
     ids
 }
 
@@ -880,18 +887,25 @@ pub async fn stored_guild_owners(pool: &Pool, guild_id: &str) -> Vec<String> {
 }
 
 /// Merged guild owners: Discord `ownerId` + stored rows, deduped.
-/// Mirrors getGuildOwner().
+/// Mirrors getGuildOwner (`[...new Set([ownerId, ...Object.keys(row)])]`):
+/// Discord owner first, stored rows (insertion order — the scan has no
+/// ORDER BY, so SQLite walks rowid order like TS `Object.keys`) after,
+/// first-occurrence dedup, no sort (TS never sorts; the owner-list
+/// embed renders this exact order).
 pub async fn guild_owner_ids(
     pool: &Pool,
     guild_id: &str,
     discord_owner_id: Option<u64>,
 ) -> Vec<String> {
-    let mut ids = stored_guild_owners(pool, guild_id).await;
+    let mut ids: Vec<String> = Vec::new();
     if let Some(owner) = discord_owner_id {
         ids.push(owner.to_string());
     }
-    ids.sort();
-    ids.dedup();
+    for id in stored_guild_owners(pool, guild_id).await {
+        if !ids.contains(&id) {
+            ids.push(id);
+        }
+    }
     ids
 }
 
@@ -1221,9 +1235,16 @@ mod tests {
         assert_eq!(owner_key(7), "OWNER.7");
         add_guild_owner(&pool, "g", 7).await.unwrap();
         add_guild_owner(&pool, "g", 8).await.unwrap();
-        let mut owners = guild_owner_ids(&pool, "g", Some(8)).await;
-        owners.sort();
-        assert_eq!(owners, vec!["7".to_string(), "8".to_string()]);
+        // TS `[...new Set([ownerId, ...keys])]`: Discord owner first,
+        // stored rows in insertion order, no sort.
+        assert_eq!(
+            guild_owner_ids(&pool, "g", Some(8)).await,
+            vec!["8".to_string(), "7".to_string()]
+        );
+        assert_eq!(
+            guild_owner_ids(&pool, "g", Some(9)).await,
+            vec!["9".to_string(), "7".to_string(), "8".to_string()]
+        );
         remove_guild_owner(&pool, "g", 7).await.unwrap();
         assert_eq!(stored_guild_owners(&pool, "g").await, vec!["8".to_string()]);
         add_bot_owner(&pool, 42).await.unwrap();
