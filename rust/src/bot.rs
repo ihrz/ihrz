@@ -979,7 +979,11 @@ fn help_options(
         .iter()
         .map(|pm| crate::commands::shared::HelpOptionDoc {
             name: pm.name.clone(),
-            choices: pm.choices.iter().map(|c| c.name.clone()).collect(),
+            choices: if pm.choices.is_empty() {
+                None
+            } else {
+                Some(pm.choices.iter().map(|c| c.name.clone()).collect())
+            },
             required: pm.required,
         })
         .collect()

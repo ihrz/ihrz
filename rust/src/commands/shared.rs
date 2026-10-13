@@ -574,16 +574,17 @@ pub fn welcomer_set(cfg: &mut serde_json::Value, field: &str, value: Option<serd
 #[derive(Debug, Clone, Default)]
 pub struct HelpOptionDoc {
     pub name: String,
-    pub choices: Vec<String>,
+    /// `Some` (even empty) renders the values joined with `/` (TS
+    /// `if (o.choices)` is truthy on `[]`); `None` keeps the name.
+    pub choices: Option<Vec<String>>,
     pub required: bool,
 }
 
 impl HelpOptionDoc {
     pub fn display_name(&self) -> String {
-        if self.choices.is_empty() {
-            self.name.clone()
-        } else {
-            self.choices.join("/")
+        match &self.choices {
+            None => self.name.clone(),
+            Some(values) => values.join("/"),
         }
     }
 }
@@ -1100,7 +1101,7 @@ mod tests {
     fn opt(name: &str, required: bool) -> HelpOptionDoc {
         HelpOptionDoc {
             name: name.to_string(),
-            choices: vec![],
+            choices: None,
             required,
         }
     }
@@ -1109,11 +1110,24 @@ mod tests {
     fn option_display_name_prefers_choices() {
         let o = HelpOptionDoc {
             name: "mode".to_string(),
-            choices: vec!["a".to_string(), "b".to_string()],
+            choices: Some(vec!["a".to_string(), "b".to_string()]),
             required: true,
         };
         assert_eq!(o.display_name(), "a/b");
         assert_eq!(opt("target", false).display_name(), "target");
+    }
+
+    #[test]
+    fn option_display_name_empty_choices_matches_ts() {
+        // TS `if (o.choices)` is truthy on `[]`, so an explicitly empty
+        // choices array renders `""` (join of nothing), not the name.
+        let o = HelpOptionDoc {
+            name: "x".to_string(),
+            choices: Some(vec![]),
+            required: true,
+        };
+        assert_eq!(o.display_name(), "");
+        assert_eq!(stringify_options(&[o]), "[]");
     }
 
     #[test]
@@ -1125,7 +1139,7 @@ mod tests {
         );
         let o = HelpOptionDoc {
             name: "x".to_string(),
-            choices: vec!["on".to_string(), "off".to_string()],
+            choices: Some(vec!["on".to_string(), "off".to_string()]),
             required: false,
         };
         assert_eq!(stringify_options(&[o]), "<on/off>");

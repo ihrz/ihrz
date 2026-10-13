@@ -39,9 +39,10 @@ fn t(code: &str, key: &str, fallback: &str) -> String {
 pub struct UsageOption {
     pub name: String,
     pub required: bool,
-    /// Choice values; when non-empty the display name becomes the
-    /// values joined with "/" (getArgumentOptionTypeWithOptions).
-    pub choices: Vec<String>,
+    /// Choice values; `Some` (even empty) makes the display name the
+    /// values joined with `/` (TS `if (o.choices)` is truthy on `[]`),
+    /// while `None` (no `choices` key) keeps the option name.
+    pub choices: Option<Vec<String>>,
 }
 
 impl UsageOption {
@@ -49,7 +50,7 @@ impl UsageOption {
         Self {
             name: name.to_string(),
             required,
-            choices: Vec::new(),
+            choices: None,
         }
     }
 
@@ -57,15 +58,14 @@ impl UsageOption {
         Self {
             name: name.to_string(),
             required,
-            choices: choices.iter().map(|s| s.to_string()).collect(),
+            choices: Some(choices.iter().map(|s| s.to_string()).collect()),
         }
     }
 
     fn display_name(&self) -> String {
-        if self.choices.is_empty() {
-            self.name.clone()
-        } else {
-            self.choices.join("/")
+        match &self.choices {
+            None => self.name.clone(),
+            Some(values) => values.join("/"),
         }
     }
 }
@@ -740,6 +740,22 @@ mod tests {
         let opts = vec![UsageOption::with_choices("mode", true, &["a", "b"])];
         assert_eq!(stringify_options(&opts), "[a/b]");
         assert_eq!(bold_stringify_options(&opts), "**`[a/b]`**");
+    }
+
+    #[test]
+    fn stringify_empty_choices_matches_ts_truthiness() {
+        // TS `if (o.choices)` is truthy on `[]`: an explicitly empty
+        // choices array renders `""`, not the option name (node probe:
+        // `{name:"x",choices:[]}` -> `""`, stringify -> `"[]"`).
+        let opt = UsageOption {
+            name: "x".to_string(),
+            required: true,
+            choices: Some(vec![]),
+        };
+        assert_eq!(stringify_options(&[opt.clone()]), "[]");
+        assert_eq!(bold_stringify_options(&[opt]), "**`[]`**");
+        // No `choices` key at all keeps the name.
+        assert_eq!(stringify_options(&[UsageOption::new("y", false)]), "<y>");
     }
 
     #[test]

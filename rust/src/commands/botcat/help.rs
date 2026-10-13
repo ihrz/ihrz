@@ -109,7 +109,11 @@ fn help_options(cmd: &poise::Command<Data, anyhow::Error>) -> Vec<HelpOptionDoc>
         .iter()
         .map(|pm| HelpOptionDoc {
             name: pm.name.clone(),
-            choices: pm.choices.iter().map(|c| c.name.clone()).collect(),
+            choices: if pm.choices.is_empty() {
+                None
+            } else {
+                Some(pm.choices.iter().map(|c| c.name.clone()).collect())
+            },
             required: pm.required,
         })
         .collect()
