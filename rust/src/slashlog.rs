@@ -10,10 +10,14 @@
 // once at startup by core.ts).
 //
 // Deltas vs TS: invalid legacy timestamps skip the line (TS writes
-// NaN, which becomes null in JSON); attachment option values log
-// their URL (TS String()s the object); unresolvable channel/guild
-// names fall back to ids instead of throwing.
+// NaN, which becomes null in JSON); a spaceless timestamp throws in
+// TS (aborting the whole run) while the poison line is skipped here;
+// attachment option values log their URL (TS String()s the object);
+// unresolvable channel/guild names fall back to ids instead of
+// throwing. DST-gap/ambiguous wall times also skip (chrono has no
+// single instant there; TS resolves one) — same as the old mirror.
 
+use crate::funcs::{is_js_whitespace, js_trim};
 use chrono::TimeZone;
 use poise::serenity_prelude as serenity;
 use serde::{Deserialize, Serialize};
@@ -147,56 +151,223 @@ pub fn split_command_options<'a>(
     (sub, out)
 }
 
+/// JS `Number()` value for one timestamp part. Mirrors the
+/// `.map(Number)` legs in parseTimestamp: JS-trimmed, empty -> 0,
+/// decimal via correctly-rounded `f64` parse (== JS ToNumber on
+/// decimal spellings), exact-case `Infinity` trio, hex/bin/oct radix
+/// legs (a sign before a radix is NaN in JS, unlike parseInt);
+/// anything else is NaN (notably the Rust-only `inf`/`infinity`
+/// spellings, which TS reads as NaN).
+fn ts_number_value(s: &str) -> f64 {
+    let t = js_trim(s);
+    if t.is_empty() {
+        return 0.0;
+    }
+    let (neg, rest) = match t.strip_prefix(['+', '-']) {
+        Some(r) => (t.starts_with('-'), r),
+        None => (false, t),
+    };
+    let radix: Option<(&str, u32)> = if neg {
+        None
+    } else if let Some(h) = rest.strip_prefix("0x").or_else(|| rest.strip_prefix("0X")) {
+        Some((h, 16))
+    } else if let Some(b) = rest.strip_prefix("0b").or_else(|| rest.strip_prefix("0B")) {
+        Some((b, 2))
+    } else if let Some(o) = rest.strip_prefix("0o").or_else(|| rest.strip_prefix("0O")) {
+        Some((o, 8))
+    } else {
+        None
+    };
+    let val = if let Some((digits, base)) = radix {
+        if digits.is_empty() || !digits.bytes().all(|b| (b as char).is_digit(base)) {
+            return f64::NAN;
+        }
+        digits.bytes().fold(0.0, |a: f64, b| {
+            a * f64::from(base) + f64::from((b as char).to_digit(base).unwrap())
+        })
+    } else if rest == "Infinity" {
+        f64::INFINITY
+    } else {
+        if rest.bytes().next().is_some_and(|b| b.is_ascii_alphabetic()) {
+            return f64::NAN;
+        }
+        match rest.parse::<f64>() {
+            Ok(v) => v,
+            Err(_) => return f64::NAN,
+        }
+    };
+    if neg {
+        -val
+    } else {
+        val
+    }
+}
+
+/// Days in a proleptic-Gregorian month (matches both chrono and the
+/// JS Date constructor).
+fn days_in_month(year: i64, month: u32) -> u32 {
+    match month {
+        1 | 3 | 5 | 7 | 8 | 10 | 12 => 31,
+        4 | 6 | 9 | 11 => 30,
+        2 => {
+            if year % 4 == 0 && (year % 100 != 0 || year % 400 == 0) {
+                29
+            } else {
+                28
+            }
+        }
+        _ => 0,
+    }
+}
+
 /// Parse DD/MM/YYYY HH:MM:SS in local time to unix ms. Mirrors
-/// parseTimestamp (new Date(y, m-1, d, H, M, S)); invalid input is
-/// None (TS yields NaN there).
+/// parseTimestamp (`new Date(y, month - 1, d, H, M, S)`): missing
+/// slots are NaN there (the line is then kept with a NaN stamp),
+/// hence `None` here (`i64` cannot hold NaN — the long-standing
+/// documented delta). Extra date/time segments are ignored like the
+/// TS destructuring (never rejected), part values go through
+/// [`ts_number_value`], and fractions truncate toward zero (node
+/// ground truth: day 1.5 == day 1, hour 10.5 == 10:00, month 1.5 ==
+/// January). In-range parts take the direct chrono construction
+/// (DST-exact, as before); out-of-range parts roll over exactly like
+/// the Date constructor (month 13 -> next January, day 32 -> the
+/// 1st, hour 25 -> next day 01:00, day -5 -> back 6 days). Past the
+/// TS timeClip range (8.64e15 ms) the Date is Invalid, so that is
+/// `None` too. A spaceless timestamp throws in TS (aborting the
+/// whole run); here the poison line is skipped instead.
 pub fn parse_legacy_timestamp(raw: &str) -> Option<i64> {
-    let (date_part, time_part) = raw.split_once(' ')?;
+    // `split(" ")` destructured to the first two slots: segments past
+    // the second space are ignored, not rejected.
+    let (date_part, after) = raw.split_once(' ')?;
+    let time_part = after.split(' ').next().unwrap_or("");
     let mut date = date_part.split('/');
     let (day, month, year) = (
-        date.next()?.parse::<u32>().ok()?,
-        date.next()?.parse::<u32>().ok()?,
-        date.next()?.parse::<i32>().ok()?,
+        ts_number_value(date.next()?),
+        ts_number_value(date.next()?),
+        ts_number_value(date.next()?),
     );
-    if date.next().is_some() {
-        return None;
-    }
     let mut time = time_part.split(':');
     let (hour, min, sec) = (
-        time.next()?.parse::<u32>().ok()?,
-        time.next()?.parse::<u32>().ok()?,
-        time.next()?.parse::<u32>().ok()?,
+        ts_number_value(time.next()?),
+        ts_number_value(time.next()?),
+        ts_number_value(time.next()?),
     );
-    if time.next().is_some() {
+    let parts = [day, month, year, hour, min, sec];
+    if parts.iter().any(|v| !v.is_finite()) {
         return None;
     }
-    chrono::Local
-        .with_ymd_and_hms(year, month, day, hour, min, sec)
-        .single()
-        .map(|d| d.timestamp_millis())
+    // Keep every later cast and multiplication overflow-free; TS
+    // reads these magnitudes as NaN or out-of-range (dropped) anyway.
+    if parts.iter().any(|v| v.abs() > 9_999_999_999.0) {
+        return None;
+    }
+    let (day, month, year, hour, min, sec) = (
+        day.trunc() as i64,
+        month.trunc() as i64,
+        year.trunc() as i64,
+        hour.trunc() as i64,
+        min.trunc() as i64,
+        sec.trunc() as i64,
+    );
+    let in_range = (1..=12).contains(&month)
+        && (-271_821..=275_760).contains(&year)
+        && (1..=days_in_month(year, month as u32) as i64).contains(&day)
+        && (0..24).contains(&hour)
+        && (0..60).contains(&min)
+        && (0..60).contains(&sec);
+    if in_range {
+        // Direct construction: DST-exact, identical to the old mirror.
+        // A `None` here is a DST-gap/ambiguous wall time (TS resolves
+        // one; skipping is the documented delta).
+        return chrono::Local
+            .with_ymd_and_hms(
+                year as i32,
+                month as u32,
+                day as u32,
+                hour as u32,
+                min as u32,
+                sec as u32,
+            )
+            .single()
+            .map(|d| d.timestamp_millis());
+    }
+    // Rollover leg: normalize the month into the year like MakeDay,
+    // then walk day/time overflow forward from the 1st.
+    let total_months = year * 12 + (month - 1);
+    let base = chrono::Local
+        .with_ymd_and_hms(
+            total_months.div_euclid(12) as i32,
+            (total_months.rem_euclid(12) + 1) as u32,
+            1,
+            0,
+            0,
+            0,
+        )
+        .single()?;
+    let dt = base
+        .checked_add_signed(chrono::Duration::days(day - 1))?
+        .checked_add_signed(chrono::Duration::seconds(hour * 3600 + min * 60 + sec))?;
+    let ms = dt.timestamp_millis();
+    // timeClip: past +-8.64e15 ms the TS Date is Invalid.
+    if ms.abs() > 8_640_000_000_000_000 {
+        return None;
+    }
+    Some(ms)
+}
+
+/// Strip exactly one JS-whitespace char, requiring it (the `\s+`
+/// gap legs in parseLine).
+fn strip_one_js_ws(s: &str) -> Option<&str> {
+    let c = s.chars().next()?;
+    if is_js_whitespace(c) {
+        Some(&s[c.len_utf8()..])
+    } else {
+        None
+    }
 }
 
 /// Parse one legacy text-log line:
 /// `[timestamp] "guild" #channel: user: command`.
-/// Mirrors parseLine (channelId is always "0" there: that "0" marker is
-/// kept verbatim, never resolved to a real channel).
+/// Mirrors parseLine
+/// (`/^\[([^\]]+)\]\s+"([^"]+)"\s+#([^:]+):\s*([^:]+):\s*(.+)$/`
+/// over the JS-trimmed line): the gaps after `]` and before `#` are
+/// mandatory JS-whitespace runs, the gaps after the colons are
+/// optional, every capture is non-empty (`+` quantifiers — an empty
+/// guild/channel/user/command rejects), and the stored fields are
+/// JS-trimmed like the TS return.
 pub fn parse_legacy_line(line: &str) -> Option<ParsedSavedCommand> {
-    let line = line.trim();
+    let line = js_trim(line);
     let rest = line.strip_prefix('[')?;
     let end = rest.find(']')?;
-    let timestamp = parse_legacy_timestamp(rest[..end].trim())?;
-    let rest = rest[end + 1..].trim_start_matches(' ');
+    // The timestamp is NOT trimmed first in TS (`([^\]]+)` keeps
+    // padding, which then NaNs the Date and drops the line here).
+    let timestamp = parse_legacy_timestamp(&rest[..end])?;
+    let rest = strip_one_js_ws(&rest[end + 1..])?;
+    let rest = rest.trim_start_matches(is_js_whitespace);
     let rest = rest.strip_prefix('"')?;
     let end = rest.find('"')?;
-    let guild_name = rest[..end].trim().to_string();
-    let rest = rest[end + 1..].trim_start_matches(' ');
+    if rest[..end].is_empty() {
+        return None;
+    }
+    let guild_name = js_trim(&rest[..end]).to_string();
+    let rest = strip_one_js_ws(&rest[end + 1..])?;
+    let rest = rest.trim_start_matches(is_js_whitespace);
     let rest = rest.strip_prefix('#')?;
     let split = rest.find(':')?;
-    let channel_name = rest[..split].trim().to_string();
-    let rest = rest[split + 1..].trim_start_matches(' ');
+    if rest[..split].is_empty() {
+        return None;
+    }
+    let channel_name = js_trim(&rest[..split]).to_string();
+    let rest = rest[split + 1..].trim_start_matches(is_js_whitespace);
     let split = rest.find(':')?;
-    let executor_username = rest[..split].trim().to_string();
-    let command = rest[split + 1..].trim().to_string();
+    if rest[..split].is_empty() {
+        return None;
+    }
+    let executor_username = js_trim(&rest[..split]).to_string();
+    let command = rest[split + 1..].trim_start_matches(is_js_whitespace);
+    if command.is_empty() {
+        return None;
+    }
     Some(ParsedSavedCommand {
         guild_name,
         guild_id: None,
@@ -204,7 +375,7 @@ pub fn parse_legacy_line(line: &str) -> Option<ParsedSavedCommand> {
         timestamp,
         channel_name,
         channel_id: "0".to_string(),
-        command,
+        command: js_trim(command).to_string(),
     })
 }
 
@@ -215,7 +386,7 @@ pub fn parse_legacy_line(line: &str) -> Option<ParsedSavedCommand> {
 pub fn parse_legacy_log(log_text: &str) -> Vec<ParsedSavedCommand> {
     let lines: Vec<&str> = log_text
         .split('\n')
-        .map(str::trim)
+        .map(js_trim)
         .filter(|l| !l.is_empty())
         .collect();
     let mut results = Vec::new();
@@ -594,6 +765,72 @@ mod tests {
         assert_eq!(cmd.timestamp, expected);
         assert!(parse_legacy_line("not a log line").is_none());
         assert!(parse_legacy_line("[bad] \"g\" #c: u: cmd").is_none());
+    }
+
+    #[test]
+    fn legacy_line_matches_ts_regex_number_and_rollover_quirks() {
+        // Node ground-truth battery (W6 slice 33): TS `\s+`/`\s*`
+        // gaps accept tabs and NBSP; the gaps after `]` and before
+        // `#` are mandatory.
+        let base = "[01/02/2024 10:00:00] \"g\" #c: u: cmd";
+        assert!(parse_legacy_line(base).is_some());
+        assert!(parse_legacy_line("[01/02/2024 10:00:00]\t\"g\"\t#c:\tu:\tcmd").is_some());
+        assert!(parse_legacy_line("[01/02/2024 10:00:00] \"g\" #c: u: cmd").is_some());
+        assert!(parse_legacy_line("﻿[01/02/2024 10:00:00] \"g\" #c: u: cmd").is_some());
+        assert!(parse_legacy_line("[01/02/2024 10:00:00]\"g\" #c: u: cmd").is_none());
+        assert!(parse_legacy_line("[01/02/2024 10:00:00] \"g\"#c: u: cmd").is_none());
+        // Empty captures reject (TS `+` quantifiers).
+        assert!(parse_legacy_line("[01/02/2024 10:00:00] \"\" #c: u: cmd").is_none());
+        assert!(parse_legacy_line("[01/02/2024 10:00:00] \"g\" #: u: cmd").is_none());
+        assert!(parse_legacy_line("[01/02/2024 10:00:00] \"g\" #c:: cmd").is_none());
+        assert!(parse_legacy_line("[01/02/2024 10:00:00] \"g\" #c: u:").is_none());
+        // Extra date/time segments are ignored like the TS
+        // destructuring (previously rejected).
+        let clean = parse_legacy_timestamp("01/02/2024 10:00:00").unwrap();
+        assert_eq!(
+            parse_legacy_timestamp("01/02/2024 10:00:00 EXTRA"),
+            Some(clean)
+        );
+        assert_eq!(
+            parse_legacy_timestamp("01/02/2024/99 10:00:00:99"),
+            Some(clean)
+        );
+        // `Number()` part values: hex, padded, exponent, empty -> 0.
+        assert_eq!(
+            parse_legacy_timestamp("0x10/02/2024 10:00:00"),
+            parse_legacy_timestamp("16/02/2024 10:00:00")
+        );
+        assert_eq!(
+            parse_legacy_timestamp("01/02/2024 1e1:00:00"),
+            parse_legacy_timestamp("01/02/2024 10:00:00")
+        );
+        // Fractions truncate toward zero, like the Date constructor.
+        assert_eq!(
+            parse_legacy_timestamp("1.5/1.5/2024.5 10.5:00:00"),
+            parse_legacy_timestamp("01/01/2024 10:00:00")
+        );
+        // Out-of-range parts roll over like `new Date`.
+        assert_eq!(
+            parse_legacy_timestamp("01/13/2024 10:00:00"),
+            parse_legacy_timestamp("01/01/2025 10:00:00")
+        );
+        assert_eq!(
+            parse_legacy_timestamp("32/01/2024 10:00:00"),
+            parse_legacy_timestamp("01/02/2024 10:00:00")
+        );
+        assert_eq!(
+            parse_legacy_timestamp("01/01/2024 25:00:00"),
+            parse_legacy_timestamp("02/01/2024 01:00:00")
+        );
+        assert_eq!(
+            parse_legacy_timestamp("-5/01/2024 10:00:00"),
+            parse_legacy_timestamp("26/12/2023 10:00:00")
+        );
+        // NaN/Infinity parts drop the line (TS keeps a NaN stamp;
+        // `i64` cannot — the documented delta).
+        assert!(parse_legacy_timestamp("ab/02/2024 10:00:00").is_none());
+        assert!(parse_legacy_timestamp("01/02/2024 Infinity:00:00").is_none());
+        assert!(parse_legacy_timestamp("01/02/2024 10:00:00").is_some());
     }
 
     #[test]
