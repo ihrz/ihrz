@@ -24,38 +24,65 @@ fn unit_multiplier(unit: &str) -> f64 {
 }
 
 /// Parse durations like "1h30m", "-2.5d". Mirrors
-/// iHorizonTimeCalculator.to_ms (regex `(-?\d*\.?\d+)([a-zA-Z]+)`, unknown
-/// units contribute 0).
-/// KEPT LENIENT (H6): TS removes only the first `" "` while this strips
-/// all whitespace — a strict superset that parses every TS-accepted input
-/// identically.
+/// iHorizonTimeCalculator.to_ms exactly: global pairs of the TS regex
+/// `(-?\d*\.?\d+)([a-zA-Z]+)`; unknown units contribute 0.
+/// Exactness notes: only the FIRST space is removed (TS replace); the
+/// number is an optional minus plus digits with AT MOST ONE dot, ending on
+/// a digit, so "1.2.3h" matches the tail pair like TS, ".5h" is half an
+/// hour, "5." matches nothing, and a double space or tab between number
+/// and unit ("1  h") matches nothing. Unmatched text is skipped
+/// left-to-right; units are ASCII-only so to_ascii_lowercase equals the TS
+/// toLowerCase.
 pub fn time_ms(input: &str) -> f64 {
-    let s: String = input.chars().filter(|c| !c.is_whitespace()).collect();
+    let s: String = match input.find(' ') {
+        Some(pos) => {
+            let mut t = String::with_capacity(input.len());
+            t.push_str(&input[..pos]);
+            t.push_str(&input[pos + 1..]);
+            t
+        }
+        None => input.to_string(),
+    };
     let bytes = s.as_bytes();
     let mut i = 0;
     let mut total = 0.0;
     while i < bytes.len() {
-        let start = i;
-        if bytes[i] == b'-' {
-            i += 1;
+        let num_start = if bytes[i] == b'-' { i + 1 } else { i };
+        // Longest optional-minus digits-with-at-most-one-dot prefix ending
+        // on a digit. A shorter prefix can never match where the longest
+        // fails (the next char would be a digit or dot, never a unit
+        // letter), so only the longest needs the unit check.
+        let mut k = num_start;
+        let mut dots = 0;
+        let mut end: Option<usize> = None;
+        while k < bytes.len() {
+            let c = bytes[k];
+            if c.is_ascii_digit() {
+                k += 1;
+                end = Some(k);
+            } else if c == b'.' && dots == 0 {
+                dots += 1;
+                k += 1;
+            } else {
+                break;
+            }
         }
-        let int_start = i;
-        while i < bytes.len() && (bytes[i].is_ascii_digit() || bytes[i] == b'.') {
-            i += 1;
+        match end {
+            Some(e) => {
+                let mut u = e;
+                while u < bytes.len() && bytes[u].is_ascii_alphabetic() {
+                    u += 1;
+                }
+                if u > e {
+                    let num: f64 = s[i..e].parse().unwrap_or(0.0);
+                    total += num * unit_multiplier(&s[e..u].to_ascii_lowercase());
+                    i = u;
+                } else {
+                    i += 1;
+                }
+            }
+            None => i += 1,
         }
-        if int_start == i {
-            i = start + 1;
-            continue;
-        }
-        let num: f64 = s[start..i].parse().unwrap_or(0.0);
-        let u_start = i;
-        while i < bytes.len() && bytes[i].is_ascii_alphabetic() {
-            i += 1;
-        }
-        if u_start == i {
-            continue;
-        }
-        total += num * unit_multiplier(&s[u_start..i].to_ascii_lowercase());
     }
     total
 }
@@ -925,6 +952,37 @@ mod tests {
         assert_eq!(time_ms("1.5h"), 5_400_000.0);
         assert_eq!(time_ms("10x"), 0.0);
         assert_eq!(time_ms(""), 0.0);
+    }
+
+    #[test]
+    fn time_ms_matches_ts_grammar_quirks() {
+        // Node ground truth (ms.ts to_ms battery): single-dot grammar with
+        // tail-pair matching, first-space-only removal.
+        assert_eq!(time_ms("1.2.3h"), 2.3 * 3_600_000.0);
+        assert_eq!(time_ms("1..5h"), 1_800_000.0);
+        assert_eq!(time_ms("1.5.5h"), 19_800_000.0);
+        assert_eq!(time_ms("12..34s"), 340.0);
+        assert_eq!(time_ms("..5h"), 1_800_000.0);
+        assert_eq!(time_ms("-..5h"), 1_800_000.0);
+        assert_eq!(time_ms(".5h"), 1_800_000.0);
+        assert_eq!(time_ms("-.5h"), -1_800_000.0);
+        assert_eq!(time_ms("5."), 0.0);
+        assert_eq!(time_ms("5.s"), 0.0);
+        assert_eq!(time_ms("1h5.m"), 3_600_000.0);
+        assert_eq!(time_ms("1e3s"), 3_000.0);
+        assert_eq!(time_ms("0x10s"), 10_000.0);
+        assert_eq!(time_ms("--5m"), -300_000.0);
+        assert_eq!(time_ms("5-h"), 0.0);
+        assert_eq!(time_ms("1,5h"), 18_000_000.0);
+        // Only the first " " is removed: single space joins, double space
+        // and tabs between number and unit match nothing.
+        assert_eq!(time_ms("1h 30m"), 5_400_000.0);
+        assert_eq!(time_ms(" 1h"), 3_600_000.0);
+        assert_eq!(time_ms("1 H"), 3_600_000.0);
+        assert_eq!(time_ms("1 30m"), 7_800_000.0);
+        assert_eq!(time_ms("1  h"), 0.0);
+        assert_eq!(time_ms("1\th"), 0.0);
+        assert_eq!(time_ms("1h\t30m"), 5_400_000.0);
     }
 
     #[test]
