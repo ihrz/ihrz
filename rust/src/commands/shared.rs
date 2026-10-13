@@ -249,6 +249,26 @@ pub fn embed_with_footer(
     embed.footer(footer)
 }
 
+/// Prefix-leg reply shaping for `reply_callback` (set once in `bot.rs`).
+/// Mirrors the Message leg of `interactionSend` in method.ts:761-829 —
+/// prefix answers go out as `message.reply()` (never a bare channel send)
+/// with `allowedMentions: { repliedUser: false, roles: [], users: [] }`
+/// (no reply ping, no user/role mention parsing; @everyone default kept).
+/// The slash leg passes through untouched (TS interaction replies keep
+/// default mentions, so role/user mentions in embeds keep parsing there).
+pub fn shape_prefix_reply(ctx: Ctx<'_>, reply: poise::CreateReply) -> poise::CreateReply {
+    if matches!(ctx, poise::Context::Prefix(_)) {
+        reply.reply(true).allowed_mentions(
+            poise::serenity_prelude::CreateAllowedMentions::new()
+                .replied_user(false)
+                .all_users(false)
+                .all_roles(false),
+        )
+    } else {
+        reply
+    }
+}
+
 /// Prefix-display name lookup. Mirrors the `prefixName || name` display
 /// picks in TS `createAwesomeEmbed` (method.ts:327,354) and
 /// `sendErrorMessage` (method.ts:666,686): `prefixName` is display-only

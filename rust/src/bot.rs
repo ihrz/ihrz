@@ -2280,6 +2280,10 @@ pub async fn run(cfg: Config, pool: Pool) -> anyhow::Result<()> {
             command_check: Some(global_check),
             pre_command: pre_command_hook,
             post_command: post_command_hook,
+            // Prefix answers go out as message.reply() with strict mentions
+            // (mirrors the Message leg of interactionSend in method.ts);
+            // see commands::shared::shape_prefix_reply.
+            reply_callback: Some(crate::commands::shared::shape_prefix_reply),
             on_error: |err| {
                 Box::pin(async move {
                     tracing::warn!("command error: {err}");
