@@ -61,40 +61,44 @@ pub fn time_ms(input: &str) -> f64 {
 }
 
 /// Compact duration label. Mirrors to_beautiful_string short form with a
-/// null lang (unit letters y/mo/w/d/h/m/s, "0s" fallback).
-/// NOTE: TS call sites always pass the guild lang, so the en-US result is
-/// e.g. "1hour(s)"; see [`beautiful_ms_in`] for the lang-aware form.
-/// Callers that cannot resolve a guild lang (cooldown, slowmode) use this
-/// null-lang shorthand intentionally.
+/// null lang exactly: unit letters y/mo/w/d/h/m/s/ms glued with NO
+/// separator (`1m30s`-style), the `ms` tail entry included, empty output
+/// falling back to `"0m"` (the null-lang `var_m`).
+/// Non-finite or negative input falls through to the `"0m"` fallback
+/// exactly like TS (every `milliseconds >= factor` comparison is false,
+/// except Infinity which TS renders as `Infinityy...` garbage — pinned
+/// here like [`beautiful_ms_in`]).
 pub fn beautiful_ms(ms: f64) -> String {
     if !ms.is_finite() || ms < 0.0 {
-        return "0s".to_string();
+        return "0m".to_string();
     }
-    let mut rest = ms as u64;
     let units = [
-        ("y", 31_557_600_000u64),
-        ("mo", 2_592_000_000),
-        ("w", 604_800_000),
-        ("d", 86_400_000),
-        ("h", 3_600_000),
-        ("m", 60_000),
-        ("s", 1_000),
+        ("y", 31_557_600_000.0),
+        ("mo", 2_592_000_000.0),
+        ("w", 604_800_000.0),
+        ("d", 86_400_000.0),
+        ("h", 3_600_000.0),
+        ("m", 60_000.0),
+        ("s", 1_000.0),
+        ("ms", 1.0),
     ];
-    let mut parts = vec![];
+    let mut rest = ms;
+    let mut result = String::new();
     for (name, factor) in units {
         if rest >= factor {
-            parts.push(format!("{}{}", rest / factor, name));
+            let value = (rest / factor).floor();
+            result.push_str(&format!("{value}{name}"));
             rest %= factor;
+            if rest <= 0.0 {
+                break;
+            }
         }
     }
-    if parts.is_empty() {
-        return if rest == 0 {
-            "0s".to_string()
-        } else {
-            format!("{rest}ms")
-        };
+    if result.is_empty() {
+        "0m".to_string()
+    } else {
+        result
     }
-    parts.join(" ")
 }
 
 /// Short-unit suffix lookup for [`beautiful_ms_in`]: `var_*` YAML value
@@ -709,10 +713,24 @@ mod tests {
 
     #[test]
     fn beautiful_decomposes() {
+        // TS null-lang short form: glued, ms tail included, "0m" fallback.
         assert_eq!(beautiful_ms(3_600_000.0), "1h");
-        assert_eq!(beautiful_ms(90_000.0), "1m 30s");
+        assert_eq!(beautiful_ms(90_000.0), "1m30s");
         assert_eq!(beautiful_ms(500.0), "500ms");
-        assert_eq!(beautiful_ms(0.0), "0s");
+        assert_eq!(beautiful_ms(0.0), "0m");
+    }
+
+    #[test]
+    fn beautiful_null_lang_matches_ts() {
+        // Ground truth via node (ms.ts to_beautiful_string, null lang).
+        assert_eq!(beautiful_ms(1500.0), "1s500ms");
+        assert_eq!(beautiful_ms(61_000.0), "1m1s");
+        assert_eq!(beautiful_ms(1001.0), "1s1ms");
+        assert_eq!(beautiful_ms(90_061.0), "1m30s61ms");
+        assert_eq!(beautiful_ms(3_599_999.0), "59m59s999ms");
+        assert_eq!(beautiful_ms(0.5), "0m");
+        assert_eq!(beautiful_ms(-5.0), "0m");
+        assert_eq!(beautiful_ms(f64::NAN), "0m");
     }
 
     #[test]
@@ -754,7 +772,7 @@ mod tests {
     fn beautiful_infinity_pinned() {
         // TS would print "Infinityyear(s)..."; pinned to the fallback (H4).
         assert_eq!(beautiful_ms_in(f64::INFINITY, "en-US", false), "0minute(s)");
-        assert_eq!(beautiful_ms(f64::INFINITY), "0s");
+        assert_eq!(beautiful_ms(f64::INFINITY), "0m");
     }
 
     #[test]
