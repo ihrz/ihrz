@@ -782,6 +782,39 @@ async fn no_markup(ctx: &Ctx<'_>) -> String {
         .unwrap_or_else(|| "❌".to_string())
 }
 
+/// Pure row builder for `economyHelper.generateRoleFields`
+/// (`economyHelper.ts`: `Role ${index + 1}` / roles-price-boost text /
+/// inline). `role_fields` is the ctx-bound wrapper; this keeps the
+/// TS-exact rendering unit-testable.
+///
+/// Boost mirrors `roleData.boost || 1` (node ground truth): `0`/`-0`
+/// (both `!boost-set.ts` writable via `parseInt("0")`) fall back to 1,
+/// missing/null fall back to 1, negatives pass through (`x-2`), and
+/// NaN passes through (`xNaN` — the only JSON-reachable NaN is the
+/// verbatim `"NaN"` legacy string, which TS renders verbatim too).
+pub fn role_field_row(
+    roles_word: &str,
+    price_word: &str,
+    index: usize,
+    role_id: &str,
+    price: f64,
+    boost: Option<f64>,
+) -> (String, String, bool) {
+    let boost = match boost {
+        Some(b) if b != 0.0 => b,
+        _ => 1.0,
+    };
+    (
+        format!("Role {}", index + 1),
+        format!(
+            "{roles_word}: <@&{role_id}>\n{price_word}: {}\nBoost: x{}",
+            fmt_num(price),
+            fmt_num(boost)
+        ),
+        true,
+    )
+}
+
 /// Role-field rows mirroring
 /// `economyHelper.generateRoleFields` ("Role N" / roles + price +
 /// `Boost: x<b||1>`, inline).
@@ -791,16 +824,7 @@ async fn role_fields(ctx: &Ctx<'_>, shop: &ShopMap) -> Vec<(String, String, bool
     shop.iter()
         .enumerate()
         .map(|(i, (role_id, e))| {
-            let boost = e.boost.unwrap_or(1.0);
-            (
-                format!("Role {}", i + 1),
-                format!(
-                    "{roles_word}: <@&{role_id}>\n{price_word}: {}\nBoost: x{}",
-                    fmt_num(e.price),
-                    fmt_num(boost)
-                ),
-                true,
-            )
+            role_field_row(&roles_word, &price_word, i, role_id, e.price, e.boost)
         })
         .collect()
 }
@@ -900,8 +924,7 @@ pub async fn disabled_reply(ctx: &Ctx<'_>) -> Result<bool, anyhow::Error> {
     if !config::economy_disabled_routed(&ctx.data().pool, &gid).await {
         return Ok(false);
     }
-    ctx.say(
-        crate::commands::lang_for(ctx, "economy_disable_msg", "<@${interaction.user.id}>, the `Economy Module` in this guild is **disabled**. You can't use the economy module anymore!")
+    ctx.say(crate::commands::lang_for(ctx, "economy_disable_msg", "<@${interaction.user.id}>, the `Economy Module` in this guild is **disabled**. You can't use the economy module anymore!")
             .await
             .replace("${interaction.user.id}", &ctx.author().id.get().to_string()),
     )
@@ -1422,6 +1445,44 @@ mod tests {
         assert_eq!(ids, vec!["999", "111", "50"]);
         // Round-trip keeps document order, unlike a BTreeMap.
         assert_eq!(serde_json::to_string(&shop).unwrap(), raw);
+    }
+
+    #[test]
+    fn role_field_row_boost_falsy_falls_back_like_ts() {
+        // economyHelper.ts `Boost: x${roleData.boost || 1}` — node
+        // ground truth: 0/-0/NaN/missing/null -> x1, negatives verbatim,
+        // verbatim "NaN" string -> xNaN.
+        let value = |price: f64, boost: Option<f64>| {
+            role_field_row("Roles", "Price", 0, "111", price, boost).1
+        };
+        assert_eq!(
+            value(500.0, Some(0.0)),
+            "Roles: <@&111>\nPrice: 500\nBoost: x1"
+        );
+        assert_eq!(
+            value(500.0, Some(-0.0)),
+            "Roles: <@&111>\nPrice: 500\nBoost: x1"
+        );
+        assert_eq!(value(500.0, None), "Roles: <@&111>\nPrice: 500\nBoost: x1");
+        assert_eq!(
+            value(500.0, Some(2.0)),
+            "Roles: <@&111>\nPrice: 500\nBoost: x2"
+        );
+        assert_eq!(
+            value(500.0, Some(1.5)),
+            "Roles: <@&111>\nPrice: 500\nBoost: x1.5"
+        );
+        assert_eq!(
+            value(500.0, Some(-2.0)),
+            "Roles: <@&111>\nPrice: 500\nBoost: x-2"
+        );
+        assert_eq!(
+            value(500.0, Some(f64::NAN)),
+            "Roles: <@&111>\nPrice: 500\nBoost: xNaN"
+        );
+        let (name, _, inline) = role_field_row("Roles", "Price", 2, "222", 100.0, None);
+        assert_eq!(name, "Role 3");
+        assert!(inline);
     }
 
     #[test]
