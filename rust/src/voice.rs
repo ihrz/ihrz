@@ -69,19 +69,23 @@ pub fn levenshtein(a: &str, b: &str) -> usize {
     prev[b.len()]
 }
 
-/// Normalized string similarity. Mirrors similarity()
-/// (lowercased both sides, 1.0 when both empty). Carve-out: the
+/// Normalized string similarity. Mirrors similarity(): the edit
+/// distance runs on the lowercased pair but maxLen is taken from the
+/// ORIGINAL strings (`Math.max(a.length, b.length)`), so inputs whose
+/// length changes under lowercasing (e.g. U+0130) divide by the
+/// pre-lowercase length. (Char counts stand in for UTF-16 units;
+/// identical for BMP text.) Empty pair yields 1.0. Carve-out: the
 /// channel-name fuzzy leg in method.ts `isValidArgument`
 /// (`similarity(query, name) >= 0.6`) reuses this metric but stays
 /// delivery-side (needs the guild cache); only the music-search gate
 /// (`is_similar` below) is modeled here.
 pub fn similarity(a: &str, b: &str) -> f64 {
-    let lowered_a = a.to_lowercase();
-    let lowered_b = b.to_lowercase();
-    let max_len = lowered_a.chars().count().max(lowered_b.chars().count());
+    let max_len = a.chars().count().max(b.chars().count());
     if max_len == 0 {
         return 1.0;
     }
+    let lowered_a = a.to_lowercase();
+    let lowered_b = b.to_lowercase();
     1.0 - levenshtein(&lowered_a, &lowered_b) as f64 / max_len as f64
 }
 
@@ -279,6 +283,13 @@ mod tests {
         assert_eq!(similarity("", ""), 1.0);
         assert_eq!(similarity("Never", "never"), 1.0);
         assert!((similarity("kitten", "sitting") - (1.0 - 3.0 / 7.0)).abs() < 1e-9);
+    }
+
+    #[test]
+    fn similarity_maxlen_uses_original_strings() {
+        // TS: maxLen = Math.max(a.length, b.length) on the ORIGINALS.
+        // "İ".toLowerCase() is 2 units ("i̇") but maxLen is 1, distance 1.
+        assert_eq!(similarity("İ", "i"), 0.0);
     }
 
     #[test]

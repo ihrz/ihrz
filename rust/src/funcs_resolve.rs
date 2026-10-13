@@ -223,14 +223,15 @@ fn levenshtein(a: &str, b: &str) -> usize {
     prev[b.len()]
 }
 
-/// Lowercased similarity in [0,1]. Mirrors music_proximity similarity().
+/// Lowercased similarity in [0,1]. Mirrors music_proximity similarity():
+/// distance on the lowercased pair, maxLen from the ORIGINAL strings.
 pub fn similarity(a: &str, b: &str) -> f64 {
-    let la = a.to_lowercase();
-    let lb = b.to_lowercase();
-    let max = la.chars().count().max(lb.chars().count());
+    let max = a.chars().count().max(b.chars().count());
     if max == 0 {
         return 1.0;
     }
+    let la = a.to_lowercase();
+    let lb = b.to_lowercase();
     1.0 - levenshtein(&la, &lb) as f64 / max as f64
 }
 
@@ -337,6 +338,13 @@ mod tests {
         // Adversarial: arg names bob but mention list says 999 -> mention wins.
         let out = resolve_user(Some("bob"), &["999".to_string()], &members());
         assert_eq!(out.as_deref(), Some("999"));
+    }
+
+    #[test]
+    fn similarity_maxlen_uses_original_strings() {
+        // TS music_proximity similarity(): maxLen from the ORIGINALS.
+        assert_eq!(similarity("İ", "i"), 0.0);
+        assert_eq!(similarity("", ""), 1.0);
     }
 
     #[test]
