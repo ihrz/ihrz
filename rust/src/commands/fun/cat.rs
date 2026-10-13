@@ -52,13 +52,16 @@ pub async fn cat(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     // not render a broken embed, so deny loudly like the other animal
     // picture commands (`fun_var_down_api`).
     let text = match http_client().get(cat_api_url()).send().await {
-        Ok(r) => match r.text().await {
+        Ok(r) if r.status().is_success() => match r.text().await {
             Ok(t) => t,
             Err(_) => {
                 return cat_down(&ctx).await;
             }
         },
-        Err(_) => {
+        // Non-2xx (e.g. edgecats.net 404 with an HTML body): reqwest
+        // reports Ok, but there is no image — deny like a dead API
+        // instead of embedding the dead endpoint URL.
+        _ => {
             return cat_down(&ctx).await;
         }
     };

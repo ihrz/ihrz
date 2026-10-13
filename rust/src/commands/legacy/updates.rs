@@ -12,11 +12,15 @@ use poise::serenity_prelude as serenity;
 // The toggle itself is answered by the shared
 // `handle_newsletter_toggle` component route (see events_handler).
 //
-// Verdict (documented delta, no silent drift): the changelog-PDF
-// attach leg (`changelogs/<lang>/<version>/CHANGELOG_*.pdf` via
-// `Bun.file`) is skipped — this port has no PDF pipeline, and the TS
-// sends the embed without attachment when the file is missing anyway.
-// The 10-minute button-disable collector is skipped too: component
+// The changelog-PDF attach leg mirrors @updates.ts `getPdfPath` +
+// fallback: guild lang `fr*` -> fr else en
+// (`changelogs/<lang>/<version>/CHANGELOG_<LANG>_<version>.pdf`),
+// attached as `CHANGELOG_<version>.pdf`; skipped when neither file
+// exists, exactly like the TS `pdfExists` branch. Base dir is the
+// TS-equivalent cwd when it holds `changelogs/`, else the checkout
+// root derived from `CARGO_MANIFEST_DIR` (the service runs with cwd
+// `rust/`, where a bare relative path would miss).
+// The 10-minute button-disable collector is skipped: component
 // routing here is stateless, the toggle stays live like the other
 // persistent buttons.
 // Changelog display. Mirrors MessageCommands/bot/@updates.ts:
@@ -159,6 +163,9 @@ pub async fn updates(ctx: Ctx<'_>) -> Result<(), anyhow::Error> {
     if let Some(bytes) = icon_bytes {
         reply = reply.attachment(serenity::CreateAttachment::bytes(bytes, "footer_icon.png"));
     }
+    if let Some((pdf_bytes, pdf_name)) = changelog_pdf_bytes(&code, version).await {
+        reply = reply.attachment(serenity::CreateAttachment::bytes(pdf_bytes, pdf_name));
+    }
     ctx.send(reply).await?;
     Ok(())
 }
@@ -183,4 +190,87 @@ async fn link_emoji(http: &serenity::Http, name: &str) -> Option<serenity::React
         id: serenity::EmojiId::new(id),
         name: Some(full),
     })
+}
+
+/// `(dir_lang, file_name)` candidates for the changelog-PDF attach
+/// leg. Mirrors @updates.ts: guild lang `fr*` -> fr else en, with the
+/// other language as fallback.
+fn changelog_pdf_candidates(guild_lang: &str, version: &str) -> [(String, String); 2] {
+    let first = if guild_lang.starts_with("fr") {
+        "fr"
+    } else {
+        "en"
+    };
+    let second = if first == "fr" { "en" } else { "fr" };
+    [first, second].map(|lang| {
+        (
+            lang.to_string(),
+            format!("CHANGELOG_{}_{}.pdf", lang.to_uppercase(), version),
+        )
+    })
+}
+
+/// Read the first existing changelog PDF, attached as
+/// `CHANGELOG_<version>.pdf`. `None` when neither language file
+/// exists (TS `pdfExists` false branch: embed without attachment).
+async fn changelog_pdf_bytes(guild_lang: &str, version: &str) -> Option<(Vec<u8>, String)> {
+    let cwd = std::env::current_dir().unwrap_or_default();
+    let mut bases = Vec::new();
+    if cwd.join("changelogs").is_dir() {
+        bases.push(cwd);
+    }
+    if let Some(root) = std::path::PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .map(|p| p.to_path_buf())
+    {
+        if !bases.iter().any(|b| b == &root) {
+            bases.push(root);
+        }
+    }
+    for (lang, file) in changelog_pdf_candidates(guild_lang, version) {
+        for base in &bases {
+            let path = base
+                .join("changelogs")
+                .join(&lang)
+                .join(version)
+                .join(&file);
+            if let Ok(bytes) = tokio::fs::read(&path).await {
+                return Some((bytes, format!("CHANGELOG_{version}.pdf")));
+            }
+        }
+    }
+    None
+}
+
+#[cfg(test)]
+mod updates_pdf_tests {
+    use super::*;
+
+    #[test]
+    fn pdf_target_localizes_by_guild_lang() {
+        assert_eq!(
+            changelog_pdf_candidates("fr-FR", "2026.10.1")[0],
+            ("fr".to_string(), "CHANGELOG_FR_2026.10.1.pdf".to_string())
+        );
+        assert_eq!(
+            changelog_pdf_candidates("en-US", "2026.10.1")[0],
+            ("en".to_string(), "CHANGELOG_EN_2026.10.1.pdf".to_string())
+        );
+        assert_eq!(
+            changelog_pdf_candidates("ru-RU", "2026.10.1")[0].0,
+            "en".to_string()
+        );
+    }
+
+    #[test]
+    fn pdf_fallback_is_the_other_language() {
+        assert_eq!(
+            changelog_pdf_candidates("fr-FR", "2026.10.1")[1].0,
+            "en".to_string()
+        );
+        assert_eq!(
+            changelog_pdf_candidates("en-US", "2026.10.1")[1].0,
+            "fr".to_string()
+        );
+    }
 }
