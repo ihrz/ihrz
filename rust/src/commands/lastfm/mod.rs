@@ -354,6 +354,7 @@ pub mod config;
 #[allow(clippy::module_inception)]
 pub mod lastfm;
 pub mod login;
+pub mod scrobbler;
 
 /// Old registry path (`lastfm::main::lastfm`) kept working.
 pub mod main {
