@@ -195,12 +195,14 @@ pub fn machine_uptime() -> String {
 /// 190 chars, and only bios OVER 190 (JS `bio.length`, i.e. UTF-16
 /// units) are cut to their first 2 lines first. Short bios keep all
 /// their lines (`bio.length <= 190 ? bio : ...`). The 190-char cut
-/// spreads by code point (`[...s]`), matching `chars()` here.
+/// spreads by code point (`[...s]`), matching `chars()` here. The
+/// line cut is `split("\n")`, NOT line-splitting: a `\r\n` keeps its
+/// `\r` (node ground truth: `"a\r\n"+"y"*200` -> `"a\r\n"+"y"*187`).
 pub fn sanitize_bio(bio: &str) -> String {
     if bio.encode_utf16().count() <= 190 {
         return bio.to_string();
     }
-    let two: Vec<&str> = bio.lines().take(2).collect();
+    let two: Vec<&str> = bio.split('\n').take(2).collect();
     two.join("\n").chars().take(190).collect()
 }
 
@@ -377,6 +379,14 @@ mod tests {
         assert_eq!(sanitize_bio("a\nb\nc"), "a\nb\nc");
         assert_eq!(sanitize_bio(&"x".repeat(300)).chars().count(), 190);
         assert_eq!(sanitize_bio(""), "");
+        // `split("\n")` keeps `\r`: CRLF opener + 200 filler renders
+        // `"a\r\n"` + 187 fillers (190 code points), not the
+        // `\r`-stripped `lines()` shape.
+        let crlf = "a\r\n".to_string() + &"y".repeat(200);
+        assert_eq!(sanitize_bio(&crlf), "a\r\n".to_string() + &"y".repeat(187));
+        // Three-line bio over the limit keeps only the first two lines.
+        let three = "l1\nl2\n".to_string() + &"z".repeat(300);
+        assert_eq!(sanitize_bio(&three), "l1\nl2");
     }
 
     #[test]
